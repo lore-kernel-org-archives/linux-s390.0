@@ -1,72 +1,104 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from bmailout1.hostsharing.net (bmailout1.hostsharing.net [83.223.95.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A757F2AD3E;
-	Sat, 11 Oct 2025 18:44:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04D811E5B71;
+	Sun, 12 Oct 2025 06:34:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=83.223.95.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760208267; cv=none; b=COiyrRwo6GPTIYf72rPM4MHOVIhHfDJ3wsIrMNvrASg6TAsFel6QysIBggfiduhdifwTeBEic5HBC6RJW84r0ulmYSxOprIQpDNQg2yhTrMTU2EVc5J9AF40fOkLuZOmJHapOfvgu6a84H9Dc6nfg2kj9QyTR0cDs5Mn+hS13Zg=
+	t=1760250890; cv=none; b=AIpoMWSywDqjtrsrw4YG22miaHR2OkJztiGte+wVp0ED5Bk376jbiUlKjt/gJRIcQiS2yHX3IkBw6+X6SlPOjM3a0KdMAY2aaIXnRqRlgpd6C7jc7hEG+vv2OH2IvzFDQfIm0GrXJl1Dg1dV0ghd1JAvGecp+2MkMneW5t70CJk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760208267; c=relaxed/simple;
-	bh=1p8xeKkByaFAhzoZotQIc5TBKhsxRGdNh53mRIgRCcY=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=Sjvw6bGjuuBF/7y8CU0t95TVyjS6jzkb+3udm36TbL9mxy+0pwQFCEZzZ7fRBAnE1QwuU0Xt1tBB1Df6xyLETtFIsqPxc/Ryzr/1X0ZBbFKjfo03zBPrTGGVtxpPadeG30MQYQppJrc5mo1hqxX1tY6fWENLN2qPYUvZPuWp6TA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=zFYmH1VC; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="zFYmH1VC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23738C4CEF4;
-	Sat, 11 Oct 2025 18:44:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-	s=korg; t=1760208267;
-	bh=1p8xeKkByaFAhzoZotQIc5TBKhsxRGdNh53mRIgRCcY=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=zFYmH1VCQ/IBqhPNUa6SXH6vlSm9qm7zALTXxZycHwKXH8zMFEqqzNZsDPcJlBmIo
-	 36bmMJbb6vw6mmTeR/OIryN3IU5jInqbZQWf9gEp3myog6tlv+X2nAu4zkPAVOgxCX
-	 yqN2HWe7/17Of/QgMGb0aprUKGer7RSAQeurSMWA=
-Date: Sat, 11 Oct 2025 11:44:26 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-To: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: David Hildenbrand <david@redhat.com>, linux-mm <linux-mm@kvack.org>,
- LKML <linux-kernel@vger.kernel.org>, linux-s390
- <linux-s390@vger.kernel.org>, Gerald Schaefer
- <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily
- Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: Re: [PATCH v3 0/4] Support dynamic (de)configuration of memory
-Message-Id: <20251011114426.5313b7cb6951618c20ab62ca@linux-foundation.org>
-In-Reply-To: <20251010085147.2175918-1-sumanthk@linux.ibm.com>
-References: <20251010085147.2175918-1-sumanthk@linux.ibm.com>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1760250890; c=relaxed/simple;
+	bh=LiSurZAtGfp1vzW2kzC2/cKeiPOwaeE3HkoNSkO3WKo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=t/AgLzExSoCGpoBi8bYJxwfIzSZLC4dVOiwzpf4GkEHsDcRuWdp3YI323hcZko4pKMinHAEyHhpbyqpltYKAwThCbZ60eBnEMbFi+wOR06NfyUZbA6a9gJyAy6i8/jjIIZNyNTQZLfLFVUCXtia8pBQWdIO+uHH8gIksOl6d030=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wunner.de; spf=none smtp.mailfrom=h08.hostsharing.net; arc=none smtp.client-ip=83.223.95.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wunner.de
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=h08.hostsharing.net
+Received: from h08.hostsharing.net (h08.hostsharing.net [83.223.95.28])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256
+	 client-signature RSA-PSS (4096 bits) client-digest SHA256)
+	(Client CN "*.hostsharing.net", Issuer "RapidSSL TLS RSA CA G1" (verified OK))
+	by bmailout1.hostsharing.net (Postfix) with ESMTPS id 2478B2C06845;
+	Sun, 12 Oct 2025 08:34:37 +0200 (CEST)
+Received: by h08.hostsharing.net (Postfix, from userid 100393)
+	id 0A6EE4A12; Sun, 12 Oct 2025 08:34:37 +0200 (CEST)
+Date: Sun, 12 Oct 2025 08:34:37 +0200
+From: Lukas Wunner <lukas@wunner.de>
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Farhan Ali <alifm@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>,
+	linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+	alex.williamson@redhat.com, helgaas@kernel.org, clg@redhat.com,
+	mjrosato@linux.ibm.com
+Subject: Re: [PATCH v4 01/10] PCI: Avoid saving error values for config space
+Message-ID: <aOtL_Y6HH5-qh2jD@wunner.de>
+References: <20251001151543.GB408411@p1gen4-pw042f0m>
+ <ae5b191d-ffc6-4d40-a44b-d08e04cac6be@linux.ibm.com>
+ <aOE1JMryY_Oa663e@wunner.de>
+ <c0818c13-8075-4db0-b76f-3c9b10516e7a@linux.ibm.com>
+ <aOQX6ZTMvekd6gWy@wunner.de>
+ <8c14d648-453c-4426-af69-4e911a1128c1@linux.ibm.com>
+ <aOZoWDQV0TNh-NiM@wunner.de>
+ <21ef5524-738a-43d5-bc9a-87f907a8aa70@linux.ibm.com>
+ <aOaqEhLOzWzswx8O@wunner.de>
+ <d69f239040b830718b124c5bcef01b5075768226.camel@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d69f239040b830718b124c5bcef01b5075768226.camel@linux.ibm.com>
 
-On Fri, 10 Oct 2025 10:51:43 +0200 Sumanth Korikkar <sumanthk@linux.ibm.com> wrote:
-
-> Hi,
+On Thu, Oct 09, 2025 at 11:12:03AM +0200, Niklas Schnelle wrote:
+> On Wed, 2025-10-08 at 20:14 +0200, Lukas Wunner wrote:
+> > And yet you're touching the device by trying to reset it.
+> > 
+> > The code you're introducing in patch [01/10] only becomes necessary
+> > because you're not following the above-quoted protocol.  If you
+> > follow the protocol, patch [01/10] becomes unnecessary.
 > 
-> Patchset provides a new interface for dynamic configuration and
-> deconfiguration of hotplug memory on s390, allowing with/without
-> memmap_on_memory support. It is a follow up on the discussion with David
-> when introducing memmap_on_memory support for s390 and support dynamic
-> (de)configuration of memory:
-> 
-> ...
->
->  arch/s390/mm/pgalloc.c         |   2 +
->  arch/s390/mm/vmem.c            |  21 +--
->  drivers/base/memory.c          |  23 +--
->  drivers/s390/char/sclp_mem.c   | 288 +++++++++++++++++++++++----------
->  include/linux/memory.h         |   9 --
->  include/linux/memory_hotplug.h |  18 +--
->  include/linux/memremap.h       |   1 -
->  mm/memory_hotplug.c            |  17 +-
->  mm/sparse.c                    |   3 +-
->  9 files changed, 225 insertions(+), 157 deletions(-)
+> I agree with your point above error_detected() should not touch the
+> device. My understanding of Farhan's series though is that it follows
+> that rule. As I understand it error_detected() is only used to inject
+> the s390 specific PCI error event into the VM using the information
+> stored in patch 7. As before vfio-pci returns
+> PCI_ERS_RESULT_CAN_RECOVER from error_detected() but then with patch 7
+> the pass-through case is detected and this gets turned into
+> PCI_ERS_RESULT_RECOVERED and the rest of the s390 recovery code gets
+> skipped. And yeah, writing it down I'm not super happy with this part,
+> maybe it would be better to have an explicit
+> PCI_ERS_RESULT_LEAVE_AS_IS.
 
-I can add this to mm.git in the usual fashion, but the s390 tree would
-be a better place from a testing point of view?
+Thanks, that's the high-level overview I was looking for.
+
+It would be good to include something like this at least
+in the cover letter or additionally in the commit messages
+so that it's easier for reviewers to connect the dots.
+
+I was expecting paravirtualized error handling, i.e. the
+VM is aware it's virtualized and vfio essentially proxies
+the pci_ers_result return value of the driver (e.g. nvme)
+back to the host, thereby allowing the host to drive error
+recovery normally.  I'm not sure if there are technical
+reasons preventing such an approach.
+
+If you do want to stick with your alternative approach,
+maybe doing the error handling in the ->mmio_enabled() phase
+instead of ->error_detected() would make more sense.
+In that phase you're allowed to access the device,
+you can also attempt a local reset and return
+PCI_ERS_RESULT_RECOVERED on success.
+
+You'd have to return PCI_ERS_RESULT_CAN_RECOVER though
+from the ->error_detected() callback in order to progress
+to the ->mmio_enabled() step.
+
+Does that make sense?
+
+Thanks,
+
+Lukas
