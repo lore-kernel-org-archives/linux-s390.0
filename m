@@ -1,122 +1,330 @@
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C1C92E7BCB;
-	Mon, 13 Oct 2025 08:52:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E5822FD1C6;
+	Mon, 13 Oct 2025 09:20:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760345525; cv=none; b=C4XYXhCWRoOMpNcfWHYFol6PnFRFuho+2sEsUDQCsOM7OBwfbGuUcy6NN+Q0BhCb00VLS7ixht/g3tmOqx6pZJgX/iGCm+Jog44GsYzC0hJlFH5nqgys3yVPPa8CyL4zvLzBOscseYY09miELxoHK4/3bpJEWnz3kT97CpJZYzw=
+	t=1760347244; cv=none; b=FCL2AXv0xwQmOeJX/mzOm/0GGwZa6fHyO3+GJO7AzKxSG4UxovIfie7vlwVcYmuZASeTFhBvtm6xEyv4mUSJk/QLL9H0BwbUzi7aWwdTGtzPnz8tPd8IbouPw6WPJSyCEVbt56sr/REb8BfUNcR/ODiLerLCaPFs7Idd2GLfyLM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760345525; c=relaxed/simple;
-	bh=D0Pm5gDAEf/J/fLMJeYhII2rupxN55IU1PVARShdLz8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
-	 Content-Type:References; b=rfM1wRomOUfd+XYcPqYCWIB0APG5z7CRIlW/9u7tcd7H8jNFwzjOVf7fe/0Zdj+ns6UPjn7Btwpr7naShEeTX34O6XSxdvMhNLevwN1GIOT198EOBVDObxX4cWtBuaSeLbEsRoqKNrZgbXrdYDEmnSEiz2aJmTdeBenK9R8hT4Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=BQoGMpil; arc=none smtp.client-ip=210.118.77.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1760347244; c=relaxed/simple;
+	bh=bsnyaBeSRCe8wdPqrrv1bwhb+qpEBLlt2hQJjqswvoc=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=iaIbUZRKImAXH1DUVMZM/jWAmQEg0TWCYuUqBhwyeSaRPq03QAxIiADm4R42jyipI8mhCO50lXPpLJ4/nAm2HF/5i908pICeCvq9FjpRur6EMhvWOvFw1QmfOzEAzKSmzoSW5Wa1r5+su79P/rVUvvD9hnLotaDWj0ngXVett5M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=mk8V5jjm; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=vUXxKwrE; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="BQoGMpil"
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20251013085200euoutp0266e34edf90c863a4c01eb72fc5c48eb3~uAOyYTX0q1874618746euoutp02G;
-	Mon, 13 Oct 2025 08:52:00 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20251013085200euoutp0266e34edf90c863a4c01eb72fc5c48eb3~uAOyYTX0q1874618746euoutp02G
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1760345520;
-	bh=JyDd/uFH2Am1LZ5SPDN+k8UExukF9D/xq2Z7HY8ZnFU=;
-	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
-	b=BQoGMpilRJCUe8Y44BcqjJWkeRiS+JPfur3kcgk/2YoTAS+ViVlUzaRYX89zuEjDq
-	 wkZ//2bWyV40qfk9fRhKG5W52cbl/HFo0RcqE6+fae76UZ4N7VyDdV6dd9ILg/D8OP
-	 faJI0JVLj/Gc3HQk8b0emDKXb80ilcDcD66u6PCM=
-Received: from eusmtip2.samsung.com (unknown [203.254.199.222]) by
-	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
-	20251013085200eucas1p2f4ded79121c5a222f59ecf4ddda0816c~uAOx-fHcX0880708807eucas1p26;
-	Mon, 13 Oct 2025 08:52:00 +0000 (GMT)
-Received: from [106.210.134.192] (unknown [106.210.134.192]) by
-	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-	20251013085157eusmtip27fccd916a2ad4442a7f4d1fa1f91c70b~uAOvsyZiW2933229332eusmtip2d;
-	Mon, 13 Oct 2025 08:51:57 +0000 (GMT)
-Message-ID: <e1d3661d-26ba-49ae-a124-dc5233c9107d@samsung.com>
-Date: Mon, 13 Oct 2025 10:51:57 +0200
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="mk8V5jjm";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="vUXxKwrE"
+From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1760347238;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=YnHubzJu3Fgrg1zOT2N2oDqGxJhZGnOAfIAFA8L12bY=;
+	b=mk8V5jjm9bjj/lAkYcJXLhq9kWnFEMuMqKTt5xMAfvc6r7I25XQWZiI0Gyrj9LJ6UEuFsS
+	WhyEkJvj/FRcpITMyC7oMcXIR4ekUB5ijreDbz62kiwTawP9JM7Tj22HxuCx1mXTaFvY7a
+	dJL/8r4ERZrH9ey8Op9ZqdRWXYXMDEkKsaxFX9HoLqMccXMC6j0eWD+WJ2NwEfCoDpJE8P
+	8T1ris271l+Ix9eZhFht6y7mcsl/ho4Ml7ldcbDCz5XNTsOhbJD1ICYW6d/g3ueeDqwiG/
+	cd53pLgexzGqbabCZMBGVrx4VmiH28i/cR9DYoqhPh20YYqDLV3mtIbK75ANaQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1760347238;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=YnHubzJu3Fgrg1zOT2N2oDqGxJhZGnOAfIAFA8L12bY=;
+	b=vUXxKwrEAA6590TvF2FstxFKP8ixkPKIzOBbz2gBqmCDoZtEpCWNq87GBUWg8/VXdy20Hc
+	iSOeNa9IIfXcJ5Bg==
+Date: Mon, 13 Oct 2025 11:20:37 +0200
+Subject: [PATCH v2] vdso: Remove struct getcpu_cache
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Betterbird (Windows)
-Subject: Re: [PATCH v1 3/6] iommu/exynos-iommu: Set release_domain to
- exynos_identity_domain
-To: Nicolin Chen <nicolinc@nvidia.com>, joro@8bytes.org, jgg@nvidia.com,
-	kevin.tian@intel.com
-Cc: suravee.suthikulpanit@amd.com, will@kernel.org, robin.murphy@arm.com,
-	sven@kernel.org, j@jannau.net, robin.clark@oss.qualcomm.com,
-	krzk@kernel.org, dwmw2@infradead.org, baolu.lu@linux.intel.com,
-	yong.wu@mediatek.com, matthias.bgg@gmail.com,
-	angelogioacchino.delregno@collabora.com, tjeznach@rivosinc.com,
-	pjw@kernel.org, palmer@dabbelt.com, aou@eecs.berkeley.edu, heiko@sntech.de,
-	schnelle@linux.ibm.com, mjrosato@linux.ibm.com, orsonzhai@gmail.com,
-	baolin.wang@linux.alibaba.com, wens@csie.org, jernej.skrabec@gmail.com,
-	samuel@sholland.org, thierry.reding@gmail.com, jonathanh@nvidia.com,
-	jean-philippe@linaro.org, iommu@lists.linux.dev,
-	linux-kernel@vger.kernel.org, asahi@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
-	linux-samsung-soc@vger.kernel.org, linux-mediatek@lists.infradead.org,
-	linux-riscv@lists.infradead.org, linux-rockchip@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sunxi@lists.linux.dev,
-	linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
-	patches@lists.linux.dev
-Content-Language: en-US
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-In-Reply-To: <56175bec385d24af9eb2a38632e1d6ce889025e3.1760312540.git.nicolinc@nvidia.com>
-Content-Transfer-Encoding: 7bit
-X-CMS-MailID: 20251013085200eucas1p2f4ded79121c5a222f59ecf4ddda0816c
-X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20251012235812eucas1p1209a75bffb5a4784955781d437746731
-X-EPHeader: CA
-X-CMS-RootMailID: 20251012235812eucas1p1209a75bffb5a4784955781d437746731
-References: <cover.1760312540.git.nicolinc@nvidia.com>
-	<CGME20251012235812eucas1p1209a75bffb5a4784955781d437746731@eucas1p1.samsung.com>
-	<56175bec385d24af9eb2a38632e1d6ce889025e3.1760312540.git.nicolinc@nvidia.com>
+Content-Transfer-Encoding: 8bit
+Message-Id: <20251013-getcpu_cache-v2-1-880fbfa3b7cc@linutronix.de>
+X-B4-Tracking: v=1; b=H4sIAGTE7GgC/1XMywqDMBCF4VeRWTfFibfQle9RpNg4moESJYlik
+ bx7U6GLLv8D5zvAk2PycMsOcLSx59mmkJcMtOntRIKH1CBzWeVKVmKioJf1oXttSBT9Uw+S6qo
+ sGkiXxdHI+8ndu9SGfZjd+9Q3/K4/qP6HNhQoVFOqAtVYY4nti+0a3Gx5vw4EXYzxAyTRuUCsA
+ AAA
+X-Change-ID: 20250825-getcpu_cache-3abcd2e65437
+To: Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, Andy Lutomirski <luto@kernel.org>, 
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+ Richard Weinberger <richard@nod.at>, 
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+ Johannes Berg <johannes@sipsolutions.net>, 
+ Vincenzo Frascino <vincenzo.frascino@arm.com>, 
+ Shuah Khan <shuah@kernel.org>
+Cc: loongarch@lists.linux.dev, linux-kernel@vger.kernel.org, 
+ linux-s390@vger.kernel.org, linux-um@lists.infradead.org, 
+ linux-api@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1760347238; l=10000;
+ i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
+ bh=bsnyaBeSRCe8wdPqrrv1bwhb+qpEBLlt2hQJjqswvoc=;
+ b=htz+rIY3Hjtp1zl5kTi7ZVfgPQIb5MdOf2GL1NX2IOZxp5tyYiW4lMozgo3f4yL2dBq1J66kz
+ lbkSRPPmIm/DtfVUa1j6yjutkcRFu8uuar9HdPD+gYKPvsRzxupRV/P
+X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
+ pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-On 13.10.2025 01:57, Nicolin Chen wrote:
-> Following a coming core change to pass in the old domain pointer into the
-> attach_dev op and its callbacks, exynos_iommu_identity_attach() will need
-> this new argument too, which the release_device op doesn't provide.
->
-> Instead, the core provides a release_domain to attach to the device prior
-> to invoking the release_device callback. Thus, simply use that.
->
-> Signed-off-by: Nicolin Chen <nicolinc@nvidia.com>
-Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
-> ---
->   drivers/iommu/exynos-iommu.c | 3 +--
->   1 file changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
-> index b6edd178fe25e..0857519ca7188 100644
-> --- a/drivers/iommu/exynos-iommu.c
-> +++ b/drivers/iommu/exynos-iommu.c
-> @@ -1429,8 +1429,6 @@ static void exynos_iommu_release_device(struct device *dev)
->   	struct exynos_iommu_owner *owner = dev_iommu_priv_get(dev);
->   	struct sysmmu_drvdata *data;
->   
-> -	WARN_ON(exynos_iommu_identity_attach(&exynos_identity_domain, dev));
-> -
->   	list_for_each_entry(data, &owner->controllers, owner_node)
->   		device_link_del(data->link);
->   }
-> @@ -1476,6 +1474,7 @@ static int exynos_iommu_of_xlate(struct device *dev,
->   
->   static const struct iommu_ops exynos_iommu_ops = {
->   	.identity_domain = &exynos_identity_domain,
-> +	.release_domain = &exynos_identity_domain,
->   	.domain_alloc_paging = exynos_iommu_domain_alloc_paging,
->   	.device_group = generic_device_group,
->   	.probe_device = exynos_iommu_probe_device,
+The cache parameter of getcpu() is not used by the kernel and no user
+ever passes it in anyways.
 
-Best regards
+Remove the struct and its header.
+
+As a side-effect we get rid of an unwanted inclusion of the linux/
+header namespace from vDSO code.
+
+Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+---
+Changes in v2:
+- Rebase on v6.18-rc1
+- Link to v1: https://lore.kernel.org/r/20250826-getcpu_cache-v1-1-8748318f6141@linutronix.de
+---
+We could also completely remove the parameter, but I am not sure if
+that is a good idea for syscalls and vDSO entrypoints.
+---
+ arch/loongarch/vdso/vgetcpu.c                   |  5 ++---
+ arch/s390/kernel/vdso64/getcpu.c                |  3 +--
+ arch/s390/kernel/vdso64/vdso.h                  |  4 +---
+ arch/x86/entry/vdso/vgetcpu.c                   |  5 ++---
+ arch/x86/include/asm/vdso/processor.h           |  4 +---
+ arch/x86/um/vdso/um_vdso.c                      |  7 +++----
+ include/linux/getcpu.h                          | 19 -------------------
+ include/linux/syscalls.h                        |  3 +--
+ kernel/sys.c                                    |  4 +---
+ tools/testing/selftests/vDSO/vdso_test_getcpu.c |  4 +---
+ 10 files changed, 13 insertions(+), 45 deletions(-)
+
+diff --git a/arch/loongarch/vdso/vgetcpu.c b/arch/loongarch/vdso/vgetcpu.c
+index 5301cd9d0f839eb0fd7b73a1d36e80aaa75d5e76..aefba899873ed035d70766a95b0b6fea881e94df 100644
+--- a/arch/loongarch/vdso/vgetcpu.c
++++ b/arch/loongarch/vdso/vgetcpu.c
+@@ -4,7 +4,6 @@
+  */
+ 
+ #include <asm/vdso.h>
+-#include <linux/getcpu.h>
+ 
+ static __always_inline int read_cpu_id(void)
+ {
+@@ -20,8 +19,8 @@ static __always_inline int read_cpu_id(void)
+ }
+ 
+ extern
+-int __vdso_getcpu(unsigned int *cpu, unsigned int *node, struct getcpu_cache *unused);
+-int __vdso_getcpu(unsigned int *cpu, unsigned int *node, struct getcpu_cache *unused)
++int __vdso_getcpu(unsigned int *cpu, unsigned int *node, void *unused);
++int __vdso_getcpu(unsigned int *cpu, unsigned int *node, void *unused)
+ {
+ 	int cpu_id;
+ 
+diff --git a/arch/s390/kernel/vdso64/getcpu.c b/arch/s390/kernel/vdso64/getcpu.c
+index 5c5d4a848b7669436e73df8e3b711e5b876eb3db..1e17665616c5fa766ca66c8de276b212528934bd 100644
+--- a/arch/s390/kernel/vdso64/getcpu.c
++++ b/arch/s390/kernel/vdso64/getcpu.c
+@@ -2,11 +2,10 @@
+ /* Copyright IBM Corp. 2020 */
+ 
+ #include <linux/compiler.h>
+-#include <linux/getcpu.h>
+ #include <asm/timex.h>
+ #include "vdso.h"
+ 
+-int __s390_vdso_getcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *unused)
++int __s390_vdso_getcpu(unsigned *cpu, unsigned *node, void *unused)
+ {
+ 	union tod_clock clk;
+ 
+diff --git a/arch/s390/kernel/vdso64/vdso.h b/arch/s390/kernel/vdso64/vdso.h
+index 9e5397e7b590a23c149ccc6043d0c0b0d5ea8457..cadd307d7a365cabf53f5c8d313be3718625533d 100644
+--- a/arch/s390/kernel/vdso64/vdso.h
++++ b/arch/s390/kernel/vdso64/vdso.h
+@@ -4,9 +4,7 @@
+ 
+ #include <vdso/datapage.h>
+ 
+-struct getcpu_cache;
+-
+-int __s390_vdso_getcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *unused);
++int __s390_vdso_getcpu(unsigned *cpu, unsigned *node, void *unused);
+ int __s390_vdso_gettimeofday(struct __kernel_old_timeval *tv, struct timezone *tz);
+ int __s390_vdso_clock_gettime(clockid_t clock, struct __kernel_timespec *ts);
+ int __s390_vdso_clock_getres(clockid_t clock, struct __kernel_timespec *ts);
+diff --git a/arch/x86/entry/vdso/vgetcpu.c b/arch/x86/entry/vdso/vgetcpu.c
+index e4640306b2e3c95d74d73037ab6b09294b8e1d6c..6381b472b7c52487bccf3cbf0664c3d7a0e59699 100644
+--- a/arch/x86/entry/vdso/vgetcpu.c
++++ b/arch/x86/entry/vdso/vgetcpu.c
+@@ -6,17 +6,16 @@
+  */
+ 
+ #include <linux/kernel.h>
+-#include <linux/getcpu.h>
+ #include <asm/segment.h>
+ #include <vdso/processor.h>
+ 
+ notrace long
+-__vdso_getcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *unused)
++__vdso_getcpu(unsigned *cpu, unsigned *node, void *unused)
+ {
+ 	vdso_read_cpunode(cpu, node);
+ 
+ 	return 0;
+ }
+ 
+-long getcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *tcache)
++long getcpu(unsigned *cpu, unsigned *node, void *tcache)
+ 	__attribute__((weak, alias("__vdso_getcpu")));
+diff --git a/arch/x86/include/asm/vdso/processor.h b/arch/x86/include/asm/vdso/processor.h
+index 7000aeb59aa287e2119c3d43ab3eaf82befb59c4..93e0e24e5cb47f7b0056c13f2a7f2304ed4a0595 100644
+--- a/arch/x86/include/asm/vdso/processor.h
++++ b/arch/x86/include/asm/vdso/processor.h
+@@ -18,9 +18,7 @@ static __always_inline void cpu_relax(void)
+ 	native_pause();
+ }
+ 
+-struct getcpu_cache;
+-
+-notrace long __vdso_getcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *unused);
++notrace long __vdso_getcpu(unsigned *cpu, unsigned *node, void *unused);
+ 
+ #endif /* __ASSEMBLER__ */
+ 
+diff --git a/arch/x86/um/vdso/um_vdso.c b/arch/x86/um/vdso/um_vdso.c
+index cbae2584124fd0ff0f9d240c33fefb8d213c84cd..9aa2c62cce6b7a07bbaf8441014d347162d1950d 100644
+--- a/arch/x86/um/vdso/um_vdso.c
++++ b/arch/x86/um/vdso/um_vdso.c
+@@ -10,14 +10,13 @@
+ #define DISABLE_BRANCH_PROFILING
+ 
+ #include <linux/time.h>
+-#include <linux/getcpu.h>
+ #include <asm/unistd.h>
+ 
+ /* workaround for -Wmissing-prototypes warnings */
+ int __vdso_clock_gettime(clockid_t clock, struct __kernel_old_timespec *ts);
+ int __vdso_gettimeofday(struct __kernel_old_timeval *tv, struct timezone *tz);
+ __kernel_old_time_t __vdso_time(__kernel_old_time_t *t);
+-long __vdso_getcpu(unsigned int *cpu, unsigned int *node, struct getcpu_cache *unused);
++long __vdso_getcpu(unsigned int *cpu, unsigned int *node, void *unused);
+ 
+ int __vdso_clock_gettime(clockid_t clock, struct __kernel_old_timespec *ts)
+ {
+@@ -60,7 +59,7 @@ __kernel_old_time_t __vdso_time(__kernel_old_time_t *t)
+ __kernel_old_time_t time(__kernel_old_time_t *t) __attribute__((weak, alias("__vdso_time")));
+ 
+ long
+-__vdso_getcpu(unsigned int *cpu, unsigned int *node, struct getcpu_cache *unused)
++__vdso_getcpu(unsigned int *cpu, unsigned int *node, void *unused)
+ {
+ 	/*
+ 	 * UML does not support SMP, we can cheat here. :)
+@@ -74,5 +73,5 @@ __vdso_getcpu(unsigned int *cpu, unsigned int *node, struct getcpu_cache *unused
+ 	return 0;
+ }
+ 
+-long getcpu(unsigned int *cpu, unsigned int *node, struct getcpu_cache *tcache)
++long getcpu(unsigned int *cpu, unsigned int *node, void *tcache)
+ 	__attribute__((weak, alias("__vdso_getcpu")));
+diff --git a/include/linux/getcpu.h b/include/linux/getcpu.h
+deleted file mode 100644
+index c304dcdb4eac2a9117080e6a14f4e3f28d07fd56..0000000000000000000000000000000000000000
+--- a/include/linux/getcpu.h
++++ /dev/null
+@@ -1,19 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef _LINUX_GETCPU_H
+-#define _LINUX_GETCPU_H 1
+-
+-/* Cache for getcpu() to speed it up. Results might be a short time
+-   out of date, but will be faster.
+-
+-   User programs should not refer to the contents of this structure.
+-   I repeat they should not refer to it. If they do they will break
+-   in future kernels.
+-
+-   It is only a private cache for vgetcpu(). It will change in future kernels.
+-   The user program must store this information per thread (__thread)
+-   If you want 100% accurate information pass NULL instead. */
+-struct getcpu_cache {
+-	unsigned long blob[128 / sizeof(long)];
+-};
+-
+-#endif
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index 66c06fcdfe19e27b99eb9a187c22e022e260802f..403488e5eba906ecf40975fc3cb29ed0402491f2 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -59,7 +59,6 @@ struct compat_stat;
+ struct old_timeval32;
+ struct robust_list_head;
+ struct futex_waitv;
+-struct getcpu_cache;
+ struct old_linux_dirent;
+ struct perf_event_attr;
+ struct file_handle;
+@@ -714,7 +713,7 @@ asmlinkage long sys_getrusage(int who, struct rusage __user *ru);
+ asmlinkage long sys_umask(int mask);
+ asmlinkage long sys_prctl(int option, unsigned long arg2, unsigned long arg3,
+ 			unsigned long arg4, unsigned long arg5);
+-asmlinkage long sys_getcpu(unsigned __user *cpu, unsigned __user *node, struct getcpu_cache __user *cache);
++asmlinkage long sys_getcpu(unsigned __user *cpu, unsigned __user *node, void __user *cache);
+ asmlinkage long sys_gettimeofday(struct __kernel_old_timeval __user *tv,
+ 				struct timezone __user *tz);
+ asmlinkage long sys_settimeofday(struct __kernel_old_timeval __user *tv,
+diff --git a/kernel/sys.c b/kernel/sys.c
+index 8b58eece4e580b883d19bb1336aff627ae783a4d..f1780ab132a3fbce6aac937ade5b9a35d9837f13 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -31,7 +31,6 @@
+ #include <linux/tty.h>
+ #include <linux/signal.h>
+ #include <linux/cn_proc.h>
+-#include <linux/getcpu.h>
+ #include <linux/task_io_accounting_ops.h>
+ #include <linux/seccomp.h>
+ #include <linux/cpu.h>
+@@ -2876,8 +2875,7 @@ SYSCALL_DEFINE5(prctl, int, option, unsigned long, arg2, unsigned long, arg3,
+ 	return error;
+ }
+ 
+-SYSCALL_DEFINE3(getcpu, unsigned __user *, cpup, unsigned __user *, nodep,
+-		struct getcpu_cache __user *, unused)
++SYSCALL_DEFINE3(getcpu, unsigned __user *, cpup, unsigned __user *, nodep, void __user *, unused)
+ {
+ 	int err = 0;
+ 	int cpu = raw_smp_processor_id();
+diff --git a/tools/testing/selftests/vDSO/vdso_test_getcpu.c b/tools/testing/selftests/vDSO/vdso_test_getcpu.c
+index cdeaed45fb26c61f6314c58fe1b71fa0be3c0108..994ce569dc37c6689b1a3c79156e3dfc8bf27f22 100644
+--- a/tools/testing/selftests/vDSO/vdso_test_getcpu.c
++++ b/tools/testing/selftests/vDSO/vdso_test_getcpu.c
+@@ -16,9 +16,7 @@
+ #include "vdso_config.h"
+ #include "vdso_call.h"
+ 
+-struct getcpu_cache;
+-typedef long (*getcpu_t)(unsigned int *, unsigned int *,
+-			 struct getcpu_cache *);
++typedef long (*getcpu_t)(unsigned int *, unsigned int *, void *);
+ 
+ int main(int argc, char **argv)
+ {
+
+---
+base-commit: 3a8660878839faadb4f1a6dd72c3179c1df56787
+change-id: 20250825-getcpu_cache-3abcd2e65437
+
+Best regards,
 -- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 
