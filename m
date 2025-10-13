@@ -1,330 +1,293 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E5822FD1C6;
-	Mon, 13 Oct 2025 09:20:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1AE5239E63;
+	Mon, 13 Oct 2025 09:54:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760347244; cv=none; b=FCL2AXv0xwQmOeJX/mzOm/0GGwZa6fHyO3+GJO7AzKxSG4UxovIfie7vlwVcYmuZASeTFhBvtm6xEyv4mUSJk/QLL9H0BwbUzi7aWwdTGtzPnz8tPd8IbouPw6WPJSyCEVbt56sr/REb8BfUNcR/ODiLerLCaPFs7Idd2GLfyLM=
+	t=1760349282; cv=none; b=k515P7/oAUjZm08PcSAozNO/PKbMLkmi/nEaCYKbUPuRWNFJNiDvYi3riJvfgrO0XgtEZefNbamVIl9j24KBv7hVJZ+BIslWjONNOpfpXKr+i6ndEKfvPnZen9j3IPR/Z9J18L+ZX3ZMrgxE7tTsGs4oed7ywZQ/t35y/fnaCZY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760347244; c=relaxed/simple;
-	bh=bsnyaBeSRCe8wdPqrrv1bwhb+qpEBLlt2hQJjqswvoc=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=iaIbUZRKImAXH1DUVMZM/jWAmQEg0TWCYuUqBhwyeSaRPq03QAxIiADm4R42jyipI8mhCO50lXPpLJ4/nAm2HF/5i908pICeCvq9FjpRur6EMhvWOvFw1QmfOzEAzKSmzoSW5Wa1r5+su79P/rVUvvD9hnLotaDWj0ngXVett5M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=mk8V5jjm; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=vUXxKwrE; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1760349282; c=relaxed/simple;
+	bh=OFh9hDOVFllt2rVDIRFxQ9NT7M4HjzwSQAiZb7BddRI=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=Z9dzKn7AnsTyiA8t+LMX4gdV/SBkI0xyvK9tbYoaa4J58gvsi/th9aoqk/hiXWabvHZuCH2ATe2K/FE91cBG83k+3yDBx3l64NNMeqHPYL9V2M89Xv6p0C+aqZ5G4ZXqQ1FJuUaOO1Ldj6Hi0SNvwnhy5bnaGP7Kd/kMsi8r9+k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Qw+WLgxe; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="mk8V5jjm";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="vUXxKwrE"
-From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1760347238;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=YnHubzJu3Fgrg1zOT2N2oDqGxJhZGnOAfIAFA8L12bY=;
-	b=mk8V5jjm9bjj/lAkYcJXLhq9kWnFEMuMqKTt5xMAfvc6r7I25XQWZiI0Gyrj9LJ6UEuFsS
-	WhyEkJvj/FRcpITMyC7oMcXIR4ekUB5ijreDbz62kiwTawP9JM7Tj22HxuCx1mXTaFvY7a
-	dJL/8r4ERZrH9ey8Op9ZqdRWXYXMDEkKsaxFX9HoLqMccXMC6j0eWD+WJ2NwEfCoDpJE8P
-	8T1ris271l+Ix9eZhFht6y7mcsl/ho4Ml7ldcbDCz5XNTsOhbJD1ICYW6d/g3ueeDqwiG/
-	cd53pLgexzGqbabCZMBGVrx4VmiH28i/cR9DYoqhPh20YYqDLV3mtIbK75ANaQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1760347238;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=YnHubzJu3Fgrg1zOT2N2oDqGxJhZGnOAfIAFA8L12bY=;
-	b=vUXxKwrEAA6590TvF2FstxFKP8ixkPKIzOBbz2gBqmCDoZtEpCWNq87GBUWg8/VXdy20Hc
-	iSOeNa9IIfXcJ5Bg==
-Date: Mon, 13 Oct 2025 11:20:37 +0200
-Subject: [PATCH v2] vdso: Remove struct getcpu_cache
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Qw+WLgxe"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59CItNjC016803;
+	Mon, 13 Oct 2025 09:54:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Z4zvsJ
+	gRbqk2uOgXGdCBLemP+s3D2MhNTErwRnrv45Y=; b=Qw+WLgxeXvUW6V8iM0+k6s
+	kA3H6QLObi5JJmvPMKCOtXTlnNKd60rJxP/orofeYoab9gjCaxJP7GQMccIJbVCw
+	64Tuei/2QQByB/2ZrCglB7QWowuw2LqoGHtcUZeogLriSmjlKmsPMlcDrBIIy7yi
+	MAmE+24pxTfxq53q51aq7ggsbbV59cJHtnwkIgO491yKyam5VyiMTAOLP3UtzXNZ
+	Q8OLEuVCXh09frmVwZ7qsJni+ZlH4osUl7uqoMUpjA4aH5r6uh3CTW2Kg1gegmzZ
+	q3or63P3s9ZlhuhF1+X0EjI5goxMTHroXjCowhFaDNzPNhTWXe+tEp6LKoirTq0w
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49qewtr6rj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 13 Oct 2025 09:54:04 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 59D9s3j8013035;
+	Mon, 13 Oct 2025 09:54:03 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49qewtr6rf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 13 Oct 2025 09:54:03 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59D99IXs015178;
+	Mon, 13 Oct 2025 09:54:02 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 49r1jrwdnc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 13 Oct 2025 09:54:02 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59D9s17c33096440
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 13 Oct 2025 09:54:01 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CB3AA5805E;
+	Mon, 13 Oct 2025 09:54:01 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DC4D558052;
+	Mon, 13 Oct 2025 09:53:55 +0000 (GMT)
+Received: from [9.111.15.176] (unknown [9.111.15.176])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 13 Oct 2025 09:53:55 +0000 (GMT)
+Message-ID: <5165448792268e184e508a9c76fa0ce382a4a389.camel@linux.ibm.com>
+Subject: Re: [PATCH v1 02/20] iommu: Introduce a test_dev domain op and an
+ internal helper
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Nicolin Chen <nicolinc@nvidia.com>, joro@8bytes.org, jgg@nvidia.com,
+        kevin.tian@intel.com
+Cc: suravee.suthikulpanit@amd.com, will@kernel.org, robin.murphy@arm.com,
+        sven@kernel.org, j@jannau.net, jean-philippe@linaro.org,
+        robin.clark@oss.qualcomm.com, dwmw2@infradead.org,
+        baolu.lu@linux.intel.com, yong.wu@mediatek.com, matthias.bgg@gmail.com,
+        angelogioacchino.delregno@collabora.com, tjeznach@rivosinc.com,
+        pjw@kernel.org, palmer@dabbelt.com, aou@eecs.berkeley.edu,
+        heiko@sntech.de, mjrosato@linux.ibm.com, wens@csie.org,
+        jernej.skrabec@gmail.com, samuel@sholland.org,
+        thierry.reding@gmail.com, jonathanh@nvidia.com, iommu@lists.linux.dev,
+        linux-kernel@vger.kernel.org, asahi@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
+        linux-mediatek@lists.infradead.org, linux-riscv@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
+        virtualization@lists.linux.dev, patches@lists.linux.dev
+Date: Mon, 13 Oct 2025 11:53:55 +0200
+In-Reply-To: <32ce256a2ece5d63e99d5858f953586859818ffc.1760312725.git.nicolinc@nvidia.com>
+References: <cover.1760312725.git.nicolinc@nvidia.com>
+	 <32ce256a2ece5d63e99d5858f953586859818ffc.1760312725.git.nicolinc@nvidia.com>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=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
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20251013-getcpu_cache-v2-1-880fbfa3b7cc@linutronix.de>
-X-B4-Tracking: v=1; b=H4sIAGTE7GgC/1XMywqDMBCF4VeRWTfFibfQle9RpNg4moESJYlik
- bx7U6GLLv8D5zvAk2PycMsOcLSx59mmkJcMtOntRIKH1CBzWeVKVmKioJf1oXttSBT9Uw+S6qo
- sGkiXxdHI+8ndu9SGfZjd+9Q3/K4/qP6HNhQoVFOqAtVYY4nti+0a3Gx5vw4EXYzxAyTRuUCsA
- AAA
-X-Change-ID: 20250825-getcpu_cache-3abcd2e65437
-To: Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, Andy Lutomirski <luto@kernel.org>, 
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
- Richard Weinberger <richard@nod.at>, 
- Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
- Johannes Berg <johannes@sipsolutions.net>, 
- Vincenzo Frascino <vincenzo.frascino@arm.com>, 
- Shuah Khan <shuah@kernel.org>
-Cc: loongarch@lists.linux.dev, linux-kernel@vger.kernel.org, 
- linux-s390@vger.kernel.org, linux-um@lists.infradead.org, 
- linux-api@vger.kernel.org, linux-kselftest@vger.kernel.org, 
- =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1760347238; l=10000;
- i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=bsnyaBeSRCe8wdPqrrv1bwhb+qpEBLlt2hQJjqswvoc=;
- b=htz+rIY3Hjtp1zl5kTi7ZVfgPQIb5MdOf2GL1NX2IOZxp5tyYiW4lMozgo3f4yL2dBq1J66kz
- lbkSRPPmIm/DtfVUa1j6yjutkcRFu8uuar9HdPD+gYKPvsRzxupRV/P
-X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
- pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ja8dMn81Ji4yLbr55cE_Ms7S-Y6FhoQZ
+X-Authority-Analysis: v=2.4 cv=Kr1AGGWN c=1 sm=1 tr=0 ts=68eccc3c cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=Ikd4Dj_1AAAA:8 a=VnNF1IyMAAAA:8
+ a=2r8vE0gUvGf4FGDepHgA:9 a=QEXdDO2ut3YA:10 a=DXsff8QfwkrTrK3sU8N1:22
+ a=Z5ABNNGmrOfJ6cZ5bIyy:22 a=bWyr8ysk75zN3GCy5bjg:22
+X-Proofpoint-ORIG-GUID: W_vlSK1gr5FYYE4DJOMkPdPg_D8wMkht
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDExMDAxNCBTYWx0ZWRfX5ZHcU7Bp3WCb
+ OcOu2OBfw8Sh3iGoeLPLO48LoatK4FR/vYxBENU6+YeNkaHuYg7bQUMAJX9bxXTbHD7H0mZb+TZ
+ 2m/uxx1NV+Q05fWL3vuFTP0nd7yoRlL5eGr6NzjGUImm95PRC68gGIQocOtzIpmCWriF8QwHXGu
+ yUpjQ/l1cBKGzGS5D4xiwB/3T3aYg4Kzoa4AgmbMqzdSwnBpbOF2YCpuuiyG1E7PtdePeweCobZ
+ Y5LaAjzvml1CN8wR1K0KIVfjU6FiS7odd8x0PckUi4/xxiigPnm2A5rBbhaCMMOoZ7PWhaZ5Bpm
+ WXdkfRFixjkEuyv75YMa5J/HWXNa6/w2gf+ZdwO8oRInZZRVgDaJZb3xjE0iVaZD2aimoYcxXPO
+ b9SXrfyC8KmYW8cwpBtmJf1mYePvDQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-13_03,2025-10-06_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 priorityscore=1501 lowpriorityscore=0 bulkscore=0 adultscore=0
+ phishscore=0 suspectscore=0 malwarescore=0 clxscore=1011 impostorscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510110014
 
-The cache parameter of getcpu() is not used by the kernel and no user
-ever passes it in anyways.
+On Sun, 2025-10-12 at 17:04 -0700, Nicolin Chen wrote:
+> Add a new test_dev domain op for driver to test the compatibility between
+> a domain and a device at the driver level, before calling into the actual
+> attachment/replacement of a domain. Support pasid for set_dev_pasid call.
+>=20
+> Move existing core-level compatibility tests to a helper function. Invoke
+> it prior to:
+>  * __iommu_attach_device() or its wrapper __iommu_device_set_domain()
+>  * __iommu_set_group_pasid()
 
-Remove the struct and its header.
+Should this list also include iommu_deferred_attach()? The code does
+include it.
 
-As a side-effect we get rid of an unwanted inclusion of the linux/
-header namespace from vDSO code.
+>=20
+> And keep them within the group->mutex, so drivers can simply move all the
+> sanity and compatibility tests from their attach_dev callbacks to the new
+> test_dev callbacks without concerning about a race condition.
+>=20
+> This may be a public API someday for VFIO/IOMMUFD to run a list of attach
+> tests without doing any actual attachment, which may result in a list of
+> failed tests. So encourage drivers to avoid printks to prevent kernel log
+> spam.
+>=20
+> Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
+> Signed-off-by: Nicolin Chen <nicolinc@nvidia.com>
+> ---
+>  include/linux/iommu.h |  17 +++++--
+>  drivers/iommu/iommu.c | 111 ++++++++++++++++++++++++++++++------------
+>  2 files changed, 93 insertions(+), 35 deletions(-)
+>=20
+> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+> index 801b2bd9e8d49..2ec99502dc29c 100644
+> --- a/include/linux/iommu.h
+> +++ b/include/linux/iommu.h
+> @@ -714,7 +714,12 @@ struct iommu_ops {
+> =20
+>  /**
+>   * struct iommu_domain_ops - domain specific operations
+> - * @attach_dev: attach an iommu domain to a device
+> + * @test_dev: Test compatibility prior to an @attach_dev or @set_dev_pas=
+id call.
+> + *            A driver-level callback of this op should do a thorough sa=
+nity, to
 
-Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
----
-Changes in v2:
-- Rebase on v6.18-rc1
-- Link to v1: https://lore.kernel.org/r/20250826-getcpu_cache-v1-1-8748318f6141@linutronix.de
----
-We could also completely remove the parameter, but I am not sure if
-that is a good idea for syscalls and vDSO entrypoints.
----
- arch/loongarch/vdso/vgetcpu.c                   |  5 ++---
- arch/s390/kernel/vdso64/getcpu.c                |  3 +--
- arch/s390/kernel/vdso64/vdso.h                  |  4 +---
- arch/x86/entry/vdso/vgetcpu.c                   |  5 ++---
- arch/x86/include/asm/vdso/processor.h           |  4 +---
- arch/x86/um/vdso/um_vdso.c                      |  7 +++----
- include/linux/getcpu.h                          | 19 -------------------
- include/linux/syscalls.h                        |  3 +--
- kernel/sys.c                                    |  4 +---
- tools/testing/selftests/vDSO/vdso_test_getcpu.c |  4 +---
- 10 files changed, 13 insertions(+), 45 deletions(-)
+You're missing the word "check" above.
 
-diff --git a/arch/loongarch/vdso/vgetcpu.c b/arch/loongarch/vdso/vgetcpu.c
-index 5301cd9d0f839eb0fd7b73a1d36e80aaa75d5e76..aefba899873ed035d70766a95b0b6fea881e94df 100644
---- a/arch/loongarch/vdso/vgetcpu.c
-+++ b/arch/loongarch/vdso/vgetcpu.c
-@@ -4,7 +4,6 @@
-  */
- 
- #include <asm/vdso.h>
--#include <linux/getcpu.h>
- 
- static __always_inline int read_cpu_id(void)
- {
-@@ -20,8 +19,8 @@ static __always_inline int read_cpu_id(void)
- }
- 
- extern
--int __vdso_getcpu(unsigned int *cpu, unsigned int *node, struct getcpu_cache *unused);
--int __vdso_getcpu(unsigned int *cpu, unsigned int *node, struct getcpu_cache *unused)
-+int __vdso_getcpu(unsigned int *cpu, unsigned int *node, void *unused);
-+int __vdso_getcpu(unsigned int *cpu, unsigned int *node, void *unused)
- {
- 	int cpu_id;
- 
-diff --git a/arch/s390/kernel/vdso64/getcpu.c b/arch/s390/kernel/vdso64/getcpu.c
-index 5c5d4a848b7669436e73df8e3b711e5b876eb3db..1e17665616c5fa766ca66c8de276b212528934bd 100644
---- a/arch/s390/kernel/vdso64/getcpu.c
-+++ b/arch/s390/kernel/vdso64/getcpu.c
-@@ -2,11 +2,10 @@
- /* Copyright IBM Corp. 2020 */
- 
- #include <linux/compiler.h>
--#include <linux/getcpu.h>
- #include <asm/timex.h>
- #include "vdso.h"
- 
--int __s390_vdso_getcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *unused)
-+int __s390_vdso_getcpu(unsigned *cpu, unsigned *node, void *unused)
- {
- 	union tod_clock clk;
- 
-diff --git a/arch/s390/kernel/vdso64/vdso.h b/arch/s390/kernel/vdso64/vdso.h
-index 9e5397e7b590a23c149ccc6043d0c0b0d5ea8457..cadd307d7a365cabf53f5c8d313be3718625533d 100644
---- a/arch/s390/kernel/vdso64/vdso.h
-+++ b/arch/s390/kernel/vdso64/vdso.h
-@@ -4,9 +4,7 @@
- 
- #include <vdso/datapage.h>
- 
--struct getcpu_cache;
--
--int __s390_vdso_getcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *unused);
-+int __s390_vdso_getcpu(unsigned *cpu, unsigned *node, void *unused);
- int __s390_vdso_gettimeofday(struct __kernel_old_timeval *tv, struct timezone *tz);
- int __s390_vdso_clock_gettime(clockid_t clock, struct __kernel_timespec *ts);
- int __s390_vdso_clock_getres(clockid_t clock, struct __kernel_timespec *ts);
-diff --git a/arch/x86/entry/vdso/vgetcpu.c b/arch/x86/entry/vdso/vgetcpu.c
-index e4640306b2e3c95d74d73037ab6b09294b8e1d6c..6381b472b7c52487bccf3cbf0664c3d7a0e59699 100644
---- a/arch/x86/entry/vdso/vgetcpu.c
-+++ b/arch/x86/entry/vdso/vgetcpu.c
-@@ -6,17 +6,16 @@
-  */
- 
- #include <linux/kernel.h>
--#include <linux/getcpu.h>
- #include <asm/segment.h>
- #include <vdso/processor.h>
- 
- notrace long
--__vdso_getcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *unused)
-+__vdso_getcpu(unsigned *cpu, unsigned *node, void *unused)
- {
- 	vdso_read_cpunode(cpu, node);
- 
- 	return 0;
- }
- 
--long getcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *tcache)
-+long getcpu(unsigned *cpu, unsigned *node, void *tcache)
- 	__attribute__((weak, alias("__vdso_getcpu")));
-diff --git a/arch/x86/include/asm/vdso/processor.h b/arch/x86/include/asm/vdso/processor.h
-index 7000aeb59aa287e2119c3d43ab3eaf82befb59c4..93e0e24e5cb47f7b0056c13f2a7f2304ed4a0595 100644
---- a/arch/x86/include/asm/vdso/processor.h
-+++ b/arch/x86/include/asm/vdso/processor.h
-@@ -18,9 +18,7 @@ static __always_inline void cpu_relax(void)
- 	native_pause();
- }
- 
--struct getcpu_cache;
--
--notrace long __vdso_getcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *unused);
-+notrace long __vdso_getcpu(unsigned *cpu, unsigned *node, void *unused);
- 
- #endif /* __ASSEMBLER__ */
- 
-diff --git a/arch/x86/um/vdso/um_vdso.c b/arch/x86/um/vdso/um_vdso.c
-index cbae2584124fd0ff0f9d240c33fefb8d213c84cd..9aa2c62cce6b7a07bbaf8441014d347162d1950d 100644
---- a/arch/x86/um/vdso/um_vdso.c
-+++ b/arch/x86/um/vdso/um_vdso.c
-@@ -10,14 +10,13 @@
- #define DISABLE_BRANCH_PROFILING
- 
- #include <linux/time.h>
--#include <linux/getcpu.h>
- #include <asm/unistd.h>
- 
- /* workaround for -Wmissing-prototypes warnings */
- int __vdso_clock_gettime(clockid_t clock, struct __kernel_old_timespec *ts);
- int __vdso_gettimeofday(struct __kernel_old_timeval *tv, struct timezone *tz);
- __kernel_old_time_t __vdso_time(__kernel_old_time_t *t);
--long __vdso_getcpu(unsigned int *cpu, unsigned int *node, struct getcpu_cache *unused);
-+long __vdso_getcpu(unsigned int *cpu, unsigned int *node, void *unused);
- 
- int __vdso_clock_gettime(clockid_t clock, struct __kernel_old_timespec *ts)
- {
-@@ -60,7 +59,7 @@ __kernel_old_time_t __vdso_time(__kernel_old_time_t *t)
- __kernel_old_time_t time(__kernel_old_time_t *t) __attribute__((weak, alias("__vdso_time")));
- 
- long
--__vdso_getcpu(unsigned int *cpu, unsigned int *node, struct getcpu_cache *unused)
-+__vdso_getcpu(unsigned int *cpu, unsigned int *node, void *unused)
- {
- 	/*
- 	 * UML does not support SMP, we can cheat here. :)
-@@ -74,5 +73,5 @@ __vdso_getcpu(unsigned int *cpu, unsigned int *node, struct getcpu_cache *unused
- 	return 0;
- }
- 
--long getcpu(unsigned int *cpu, unsigned int *node, struct getcpu_cache *tcache)
-+long getcpu(unsigned int *cpu, unsigned int *node, void *tcache)
- 	__attribute__((weak, alias("__vdso_getcpu")));
-diff --git a/include/linux/getcpu.h b/include/linux/getcpu.h
-deleted file mode 100644
-index c304dcdb4eac2a9117080e6a14f4e3f28d07fd56..0000000000000000000000000000000000000000
---- a/include/linux/getcpu.h
-+++ /dev/null
-@@ -1,19 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--#ifndef _LINUX_GETCPU_H
--#define _LINUX_GETCPU_H 1
--
--/* Cache for getcpu() to speed it up. Results might be a short time
--   out of date, but will be faster.
--
--   User programs should not refer to the contents of this structure.
--   I repeat they should not refer to it. If they do they will break
--   in future kernels.
--
--   It is only a private cache for vgetcpu(). It will change in future kernels.
--   The user program must store this information per thread (__thread)
--   If you want 100% accurate information pass NULL instead. */
--struct getcpu_cache {
--	unsigned long blob[128 / sizeof(long)];
--};
--
--#endif
-diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
-index 66c06fcdfe19e27b99eb9a187c22e022e260802f..403488e5eba906ecf40975fc3cb29ed0402491f2 100644
---- a/include/linux/syscalls.h
-+++ b/include/linux/syscalls.h
-@@ -59,7 +59,6 @@ struct compat_stat;
- struct old_timeval32;
- struct robust_list_head;
- struct futex_waitv;
--struct getcpu_cache;
- struct old_linux_dirent;
- struct perf_event_attr;
- struct file_handle;
-@@ -714,7 +713,7 @@ asmlinkage long sys_getrusage(int who, struct rusage __user *ru);
- asmlinkage long sys_umask(int mask);
- asmlinkage long sys_prctl(int option, unsigned long arg2, unsigned long arg3,
- 			unsigned long arg4, unsigned long arg5);
--asmlinkage long sys_getcpu(unsigned __user *cpu, unsigned __user *node, struct getcpu_cache __user *cache);
-+asmlinkage long sys_getcpu(unsigned __user *cpu, unsigned __user *node, void __user *cache);
- asmlinkage long sys_gettimeofday(struct __kernel_old_timeval __user *tv,
- 				struct timezone __user *tz);
- asmlinkage long sys_settimeofday(struct __kernel_old_timeval __user *tv,
-diff --git a/kernel/sys.c b/kernel/sys.c
-index 8b58eece4e580b883d19bb1336aff627ae783a4d..f1780ab132a3fbce6aac937ade5b9a35d9837f13 100644
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -31,7 +31,6 @@
- #include <linux/tty.h>
- #include <linux/signal.h>
- #include <linux/cn_proc.h>
--#include <linux/getcpu.h>
- #include <linux/task_io_accounting_ops.h>
- #include <linux/seccomp.h>
- #include <linux/cpu.h>
-@@ -2876,8 +2875,7 @@ SYSCALL_DEFINE5(prctl, int, option, unsigned long, arg2, unsigned long, arg3,
- 	return error;
- }
- 
--SYSCALL_DEFINE3(getcpu, unsigned __user *, cpup, unsigned __user *, nodep,
--		struct getcpu_cache __user *, unused)
-+SYSCALL_DEFINE3(getcpu, unsigned __user *, cpup, unsigned __user *, nodep, void __user *, unused)
- {
- 	int err = 0;
- 	int cpu = raw_smp_processor_id();
-diff --git a/tools/testing/selftests/vDSO/vdso_test_getcpu.c b/tools/testing/selftests/vDSO/vdso_test_getcpu.c
-index cdeaed45fb26c61f6314c58fe1b71fa0be3c0108..994ce569dc37c6689b1a3c79156e3dfc8bf27f22 100644
---- a/tools/testing/selftests/vDSO/vdso_test_getcpu.c
-+++ b/tools/testing/selftests/vDSO/vdso_test_getcpu.c
-@@ -16,9 +16,7 @@
- #include "vdso_config.h"
- #include "vdso_call.h"
- 
--struct getcpu_cache;
--typedef long (*getcpu_t)(unsigned int *, unsigned int *,
--			 struct getcpu_cache *);
-+typedef long (*getcpu_t)(unsigned int *, unsigned int *, void *);
- 
- int main(int argc, char **argv)
- {
+> + *            make sure a device is compatible with the domain. So the f=
+ollowing
+> + *            @attach_dev and @set_dev_pasid functions would likely succ=
+eed with
+> + *            only one exception due to a temporary failure like out of =
+memory.
 
----
-base-commit: 3a8660878839faadb4f1a6dd72c3179c1df56787
-change-id: 20250825-getcpu_cache-3abcd2e65437
+Nit: "=E2=80=A6 only one exception =E2=80=A6" / "=E2=80=A6 like out of memo=
+ry =E2=80=A6" this sounds a
+bit odd to me because on the one hand it's one exception but then also
+a group (temporary failures).
 
-Best regards,
--- 
-Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+Maybe better:
+"=E2=80=A6 would likely succeed with only the exception of temporary failur=
+es
+like out of memory."?
 
+> + *            It's suggested to avoid the kernel prints in this op.
+>   *  Return:
+>   * * 0		- success
+>   * * EINVAL	- can indicate that device and domain are incompatible due t=
+o
+> @@ -722,11 +727,15 @@ struct iommu_ops {
+>   *		  driver shouldn't log an error, since it is legitimate for a
+>   *		  caller to test reuse of existing domains. Otherwise, it may
+>   *		  still represent some other fundamental problem
+> - * * ENOMEM	- out of memory
+> - * * ENOSPC	- non-ENOMEM type of resource allocation failures
+>   * * EBUSY	- device is attached to a domain and cannot be changed
+>   * * ENODEV	- device specific errors, not able to be attached
+>   * * <others>	- treated as ENODEV by the caller. Use is discouraged
+> + * @attach_dev: attach an iommu domain to a device
+> + *  Return:
+> + * * 0		- success
+> + * * ENOMEM	- out of memory
+> + * * ENOSPC	- non-ENOMEM type of resource allocation failures
+> + * * <others>	- Use is discouraged
+>   * @set_dev_pasid: set or replace an iommu domain to a pasid of device. =
+The pasid of
+>   *                 the device should be left in the old config in error =
+case.
+>   * @map_pages: map a physically contiguous set of pages of the same size=
+ to
+> @@ -751,6 +760,8 @@ struct iommu_ops {
+>   * @free: Release the domain after use.
+>   */
+>  struct iommu_domain_ops {
+> +	int (*test_dev)(struct iommu_domain *domain, struct device *dev,
+> +			ioasid_t pasid, struct iommu_domain *old);
+>  	int (*attach_dev)(struct iommu_domain *domain, struct device *dev,
+>  			  struct iommu_domain *old);
+>  	int (*set_dev_pasid)(struct iommu_domain *domain, struct device *dev,
+>=20
+--- snip ---
+> @@ -3615,6 +3657,11 @@ int iommu_replace_device_pasid(struct iommu_domain=
+ *domain,
+>  	ret =3D 0;
+> =20
+>  	if (curr_domain !=3D domain) {
+> +		ret =3D __iommu_domain_test_device(domain, dev, pasid,
+> +						 curr_domain);
+> +		if (ret)
+> +			goto out_unlock;
+> +
+>  		ret =3D __iommu_set_group_pasid(domain, group,
+>  					      pasid, curr_domain);
+>  		if (ret)
+
+Apart from the comment and commit description nits mentioned above this
+looks good to me.
+
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
