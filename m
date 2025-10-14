@@ -1,162 +1,231 @@
-Received: from mail-qv1-f54.google.com (mail-qv1-f54.google.com [209.85.219.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED5A42F2617
-	for <linux-s390@vger.kernel.org>; Tue, 14 Oct 2025 15:11:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C53762BE029;
+	Tue, 14 Oct 2025 15:59:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760454702; cv=none; b=EGjNEbLhRR6kymR7oqKZx0DyACbgfHeUfTu+8MvdUX2SPFWfXlFH6xRyPV1GV3YDjmH+y2P3tof8WUhfsZPhp7dSaOAYWh++/FpzTUSGg9TUSHXCoFOXi3YoGM3+N8MuH0PCPYwaCcwgxDNiQWt139/Uug90KzEwaWZjvUe/GXI=
+	t=1760457553; cv=none; b=oS0wrP1cNoLgu407fuyV+lqUtSf2qO3/TGIan1JZEbFu7x/mG7QPNk9k6Ys/AV4JHQjuD/uC3+38Bl96uTuCA7lcEQdMw0n7bDpVRaZvPNvUZjWcJz2AkCVSM/Y8+uU4OQY80x8MTq5Ztv4DPfPxDgiKRoqTQwPUbtCtmKGpW/c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760454702; c=relaxed/simple;
-	bh=ldtXdhDcD5noXeIiZQgZJBdMoBquMUFmAjt6sfVA5AM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=iHISELQeZsHhuQjIexj/gCzlz0qsCUdxbmir0jiPI/DCMWsA1Xiq3DAbiOsATKAxonCR+d33M7eoprxV7B4GgSkW/d0ZGKnum7bc2EhYsY7ufxnYtbYu+6dk5wvnUoaQ2xa89JoQTIMLXLeVdyATpwYrSWYxG3HUWiTpfm+7hU0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.219.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-qv1-f54.google.com with SMTP id 6a1803df08f44-7ea50f94045so80152436d6.1
-        for <linux-s390@vger.kernel.org>; Tue, 14 Oct 2025 08:11:40 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760454700; x=1761059500;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=5ckaUVvDg5E1Kv0tRjD3tkk4SrmpuBncmnCZzWhCIjg=;
-        b=n5j5d5E4Ao62tN4eNboorO+1XpsM0ODE67FzxonI+O9F3/cr0oz7Hs3Wwj5f3yGrEY
-         yfnAFYbjky2ConCGzfs1H6RCdesi4PwacU5qd8Bmao1henYy8RWlQvj2tzcGCIqthI3k
-         FQNcLEVAX+kqI+gz6IAJaCnMXK3KZzJGUU39oPX2/oSTTON7i/QHlRsXiRAREbf/SPSP
-         r1rjU2Vbszv1C0lO2UAais/lFMgW/ZaJG0aqFjmTfm6938+RKflL4fI4r6GyuoEaGrN6
-         46yPwhMjWOWzjkPKsQbgPH02dv+4tJ/wcW1NPhQ7lTkD7Cm2/i8vjL5BPuVKYDanZdE6
-         hohQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWqLkVHpYAv5CdEnV3DwGyOU+blP+A8jiU/Msg+oE6I1rIuLjJsPePLDAg9NMqX4y8otbWoKTY1u5ok@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywm7//BY3yvNZcDXP5DYc0ltcFm/MSH5hLYFszdfNH+7UlIgUgo
-	zzKMfaTlw44MRFd7JcCt8PFEq6V18xL7LqyYOKeHvNVI9wmiNtzWFtcIqR6UnXPn
-X-Gm-Gg: ASbGnctmnOvDHap78h6DDjX16Xl0YYrht7tjqJTZeawNRhMC/bIxRDLA7xay5gleI+c
-	lYJktbCmwuuQQifWBANfY1J9jPH3CmnSlJQi5BxThPu3XW4svD0mz13z58V+tq4QCrt15yqK1C2
-	+1+QtvVj25lYB57ghDYDZszMRnYeUmAL2WRqqCPtFefjc6ERBWJR3MkSKXAD1EerbucsP57ftGs
-	rVMRoPLot3bKZQLNym0ZzPEdzksHqiiPOqPSUAUVQA1rXcjXS+Y+KUUtjt1OfAjutBNNj7kKiGR
-	cHJNZtZ1PteU2T88EppNr9pHxATYmc0PzYCiRw2x1UO8K/m/I0MNfVPKhYkiFczYDFnCtg45G24
-	fkXNtLBm8DzJ9lRuh4jCzjuj9IScBNH9jC/M/3eOPUFBAhMwp/85LV6UMhwr+V0jBALqIYtvyx+
-	ZLd4tnQUXZ5zg=
-X-Google-Smtp-Source: AGHT+IE5WtCsvZRAnM80PSHf0Hl6l3Mytvi542xIFXvhpa81iLUyBT5XVilor/NEYeSmcNk+66UJYw==
-X-Received: by 2002:a05:6214:c81:b0:78e:e882:ac8b with SMTP id 6a1803df08f44-87a052a8426mr440594956d6.28.1760454699620;
-        Tue, 14 Oct 2025 08:11:39 -0700 (PDT)
-Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com. [209.85.222.177])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-87c0122d19asm316956d6.29.2025.10.14.08.11.39
-        for <linux-s390@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 14 Oct 2025 08:11:39 -0700 (PDT)
-Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-85d02580a07so629954485a.0
-        for <linux-s390@vger.kernel.org>; Tue, 14 Oct 2025 08:11:39 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCU5W/wSaG1rVnMHTUelG/P577z5Qp6/lfVWPx3qLAYS9IofzcggLdsRbdH14owyjy7lbKdYQfUCmT8F@vger.kernel.org
-X-Received: by 2002:a05:690c:6a04:b0:781:556:b7ee with SMTP id
- 00721157ae682-7810556c4f0mr161656307b3.7.1760454307894; Tue, 14 Oct 2025
- 08:05:07 -0700 (PDT)
+	s=arc-20240116; t=1760457553; c=relaxed/simple;
+	bh=Cv3+0bdWHxsmuDhQ8zLrQ2TdE8JMQBBh3cle+GrPpPg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WYbIHzR9vAC1rHhuw7dFG27R9lGQ79TQ+RO7IHyLXY9WqXZSpXMmJGk1z7KnmOxGOkpM5iINrX4TNtYue3nmJuUDUijJTw7+bK6HuIwl7fRZQBFnircqg6aYvQ5EMbDOR+cTmT7Z96SFskXesqMxcKVeAlW4jDU5aLliMM0bgas=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BC6vOCHd; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BC6vOCHd"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59EBLWCC020097;
+	Tue, 14 Oct 2025 15:59:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=ATCasm+SNbcvU+hgj+0l+2g8Eiuvo3QQPP16vdtgz
+	MU=; b=BC6vOCHdmg04nV6qYMRKOhhPrJ7cwhlvYVlTvfafsFo35TMTIz6/mIWXW
+	DiFKXhALI/PFlRStnoGbIqY6nMbG9eS0tapdgA4Zryv/64jOJHhNZtCdG/iULraC
+	HLb6D2Vyh+hNAdC8G3Na6sVzKVURvPHazSu8EEmfZCiqJGDvW9WLXl6Ep5WoKQhT
+	2rOTiQNJCQNx8IFGPbkXCgtkZWUvSrJDRrTwpUHx7WoWc2vFUM6JrARf1qiOVKt0
+	zV2ihiNOzRCUXGCM+WK+TVjA03H2vWk0CEb8wa5Ohfs5otuoBS0F14frE4BoN+2g
+	bHmJr+EZFM/hO1JzBmyQGsNfNjxAQ==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49qey8qpra-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 14 Oct 2025 15:59:04 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59EEGtDX003663;
+	Tue, 14 Oct 2025 15:59:03 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49r1xxuvdr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 14 Oct 2025 15:59:03 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59EFwxLY17563972
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 14 Oct 2025 15:58:59 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6CEE02006A;
+	Tue, 14 Oct 2025 15:58:59 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A6F1C20063;
+	Tue, 14 Oct 2025 15:58:52 +0000 (GMT)
+Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 14 Oct 2025 15:58:52 +0000 (GMT)
+From: Gerd Bayer <gbayer@linux.ibm.com>
+To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Shay Drori <shayd@nvidia.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Gerd Bayer <gbayer@linux.ibm.com>, Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
+        netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH] s390/pci: Avoid deadlock between PCI error recovery and mlx5 crdump
+Date: Tue, 14 Oct 2025 17:58:52 +0200
+Message-ID: <20251014155852.1684916-1-gbayer@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250826041319.1284-1-kprateek.nayak@amd.com> <20250826041319.1284-5-kprateek.nayak@amd.com>
- <609a980b-cbe3-442b-a492-91722870b156@csgroup.eu> <20250826080706.GC3245006@noisy.programming.kicks-ass.net>
- <20250826094358.GG3245006@noisy.programming.kicks-ass.net>
- <CAMuHMdWMkKFLEZ34j=JV0Ls+o80UfC6s3yD5x-9G2K8ZV-Y-9w@mail.gmail.com>
- <20251014094210.GQ3245006@noisy.programming.kicks-ass.net>
- <CAMuHMdUD8RZqPL5ZYyJrwJB+XL_Tkn-rsLx7WvUmn6y5M_tAtw@mail.gmail.com> <20251014141730.GZ3245006@noisy.programming.kicks-ass.net>
-In-Reply-To: <20251014141730.GZ3245006@noisy.programming.kicks-ass.net>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Tue, 14 Oct 2025 17:04:55 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdXpFdjDJrMbK8+6aO=O8c8p68RUGe0o1Mo4PMmFLufc9w@mail.gmail.com>
-X-Gm-Features: AS18NWCARfLQt44MvWjqR1ybmDP5uvpIwul8XKi8euGj-rQtyjldCOHWrbLZbQg
-Message-ID: <CAMuHMdXpFdjDJrMbK8+6aO=O8c8p68RUGe0o1Mo4PMmFLufc9w@mail.gmail.com>
-Subject: Re: [PATCH v7 4/8] powerpc/smp: Introduce CONFIG_SCHED_MC to guard MC
- scheduling bits
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>, K Prateek Nayak <kprateek.nayak@amd.com>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
-	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	"H. Peter Anvin" <hpa@zytor.com>, Juri Lelli <juri.lelli@redhat.com>, 
-	Vincent Guittot <vincent.guittot@linaro.org>, linuxppc-dev@lists.ozlabs.org, 
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
-	Dietmar Eggemann <dietmar.eggemann@arm.com>, Steven Rostedt <rostedt@goodmis.org>, 
-	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>, 
-	Valentin Schneider <vschneid@redhat.com>, thomas.weissschuh@linutronix.de, 
-	Li Chen <chenl311@chinatelecom.cn>, Bibo Mao <maobibo@loongson.cn>, 
-	Mete Durlu <meted@linux.ibm.com>, Tobias Huschle <huschle@linux.ibm.com>, 
-	Easwar Hariharan <easwar.hariharan@linux.microsoft.com>, 
-	Guo Weikang <guoweikang.kernel@gmail.com>, 
-	"Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Brian Gerst <brgerst@gmail.com>, 
-	Patryk Wlazlyn <patryk.wlazlyn@linux.intel.com>, Swapnil Sapkal <swapnil.sapkal@amd.com>, 
-	"Yury Norov [NVIDIA]" <yury.norov@gmail.com>, Sudeep Holla <sudeep.holla@arm.com>, 
-	Jonathan Cameron <Jonathan.Cameron@huawei.com>, Andrea Righi <arighi@nvidia.com>, 
-	Yicong Yang <yangyicong@hisilicon.com>, 
-	Ricardo Neri <ricardo.neri-calderon@linux.intel.com>, 
-	Tim Chen <tim.c.chen@linux.intel.com>, 
-	Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: t567cn2NCJ0Gnp5Ep6bO0w1cB8b52nrw
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDExMDAxMSBTYWx0ZWRfX0WTciNDtlrxZ
+ fujmjphion22mM0VCyDMkVeQF30fIVe7pSI1SZadFFiMpwDFVvrtBtAIS55I9BHNaNN4Z/jmiwr
+ 4Jcb8CLT1Kg/SJhxKJD8qqHgFkJiQmOa5y6aBZQ/W8fV9p4I80RRmNJ0Ytmm2qV/QvhRGQboWTq
+ d5iNWJGieTXTCO1LszOmSWrkbYGOc24hTduR7CdLGpkGaIfc5cDN+DEPWbxJUqwAP4croGCAZlf
+ PI7jbfMO4wFVQbaIeLFdJ9G6ciCOeNmOsWCxKvNE2Z1i8cUsUWdTYbE7y4A/tL3NTmDnGebzEQq
+ YxV0norOqsJ0vanoUxvBfp7nc+pQ9P4cW9NoHE2Fja935UE2jAJYFwd+n5pw8KSvaW9/uE0x16g
+ 9sebdN825ectDVSVG2j2pYqXCr5wQA==
+X-Proofpoint-GUID: t567cn2NCJ0Gnp5Ep6bO0w1cB8b52nrw
+X-Authority-Analysis: v=2.4 cv=QZ5rf8bv c=1 sm=1 tr=0 ts=68ee7348 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=ZSSbZbepod2aoZfJsqwA:9 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-14_03,2025-10-13_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 priorityscore=1501 phishscore=0 bulkscore=0 suspectscore=0
+ spamscore=0 malwarescore=0 impostorscore=0 clxscore=1015 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510110011
 
-Hi Peter,
+Do not block PCI config accesses through pci_cfg_access_lock() when
+executing the s390 variant of PCI error recovery: Acquire just
+device_lock() instead of pci_dev_lock() as powerpc's EEH and
+generig PCI AER processing do.
 
-On Tue, 14 Oct 2025 at 16:18, Peter Zijlstra <peterz@infradead.org> wrote:
-> On Tue, Oct 14, 2025 at 02:37:11PM +0200, Geert Uytterhoeven wrote:
-> > > > > +       help
-> > > > > +         Improves the CPU scheduler's decision making when dealing with
-> > > > > +         MultiThreading at a cost of slightly increased overhead in some
-> > > > > +         places. If unsure say N here.
-> > > >
-> > > > So it should default to n?
-> > >
-> > > That's just help text that got carried around. Many of the architectures
-> > > that had default y still had this text on. I suppose we can change it if
-> > > someone cares.
-> >
-> > Please do so.
->
-> How about we remove the recommendation like so? There are many help
-> things that do not have a recommendation. Mostly these options add a
-> little code and the most expensive bits tend to be gated by
-> static_branch() so it really shouldn't be that bit of a burden.
->
-> CONFIG_SMP was the big one for the scheduler, and Ingo recently removed
-> that (he did an effective unifdef CONFIG_SMP=y on the scheduler code).
->
-> ---
-> diff --git a/arch/Kconfig b/arch/Kconfig
-> index ebe08b9186ad..3d8e2025a4ac 100644
-> --- a/arch/Kconfig
-> +++ b/arch/Kconfig
-> @@ -57,7 +57,7 @@ config SCHED_SMT
->         help
->           Improves the CPU scheduler's decision making when dealing with
->           MultiThreading at a cost of slightly increased overhead in some
-> -         places. If unsure say N here.
-> +         places.
->
->  config SCHED_CLUSTER
->         bool "Cluster scheduler support"
-> @@ -77,7 +77,7 @@ config SCHED_MC
->         help
->           Multi-core scheduler support improves the CPU scheduler's decision
->           making when dealing with multi-core CPU chips at a cost of slightly
-> -         increased overhead in some places. If unsure say N here.
-> +         increased overhead in some places.
->
->  # Selected by HOTPLUG_CORE_SYNC_DEAD or HOTPLUG_CORE_SYNC_FULL
->  config HOTPLUG_CORE_SYNC
+During error recovery testing a pair of tasks was reported to be hung:
 
-Thanks, LGTM!
+[10144.859042] mlx5_core 0000:00:00.1: mlx5_health_try_recover:338:(pid 5553): health recovery flow aborted, PCI reads still not working
+[10320.359160] INFO: task kmcheck:72 blocked for more than 122 seconds.
+[10320.359169]       Not tainted 5.14.0-570.12.1.bringup7.el9.s390x #1
+[10320.359171] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[10320.359172] task:kmcheck         state:D stack:0     pid:72    tgid:72    ppid:2      flags:0x00000000
+[10320.359176] Call Trace:
+[10320.359178]  [<000000065256f030>] __schedule+0x2a0/0x590
+[10320.359187]  [<000000065256f356>] schedule+0x36/0xe0
+[10320.359189]  [<000000065256f572>] schedule_preempt_disabled+0x22/0x30
+[10320.359192]  [<0000000652570a94>] __mutex_lock.constprop.0+0x484/0x8a8
+[10320.359194]  [<000003ff800673a4>] mlx5_unload_one+0x34/0x58 [mlx5_core]
+[10320.359360]  [<000003ff8006745c>] mlx5_pci_err_detected+0x94/0x140 [mlx5_core]
+[10320.359400]  [<0000000652556c5a>] zpci_event_attempt_error_recovery+0xf2/0x398
+[10320.359406]  [<0000000651b9184a>] __zpci_event_error+0x23a/0x2c0
+[10320.359411]  [<00000006522b3958>] chsc_process_event_information.constprop.0+0x1c8/0x1e8
+[10320.359416]  [<00000006522baf1a>] crw_collect_info+0x272/0x338
+[10320.359418]  [<0000000651bc9de0>] kthread+0x108/0x110
+[10320.359422]  [<0000000651b42ea4>] __ret_from_fork+0x3c/0x58
+[10320.359425]  [<0000000652576642>] ret_from_fork+0xa/0x30
+[10320.359440] INFO: task kworker/u1664:6:1514 blocked for more than 122 seconds.
+[10320.359441]       Not tainted 5.14.0-570.12.1.bringup7.el9.s390x #1
+[10320.359442] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[10320.359443] task:kworker/u1664:6 state:D stack:0     pid:1514  tgid:1514  ppid:2      flags:0x00000000
+[10320.359447] Workqueue: mlx5_health0000:00:00.0 mlx5_fw_fatal_reporter_err_work [mlx5_core]
+[10320.359492] Call Trace:
+[10320.359521]  [<000000065256f030>] __schedule+0x2a0/0x590
+[10320.359524]  [<000000065256f356>] schedule+0x36/0xe0
+[10320.359526]  [<0000000652172e28>] pci_wait_cfg+0x80/0xe8
+[10320.359532]  [<0000000652172f94>] pci_cfg_access_lock+0x74/0x88
+[10320.359534]  [<000003ff800916b6>] mlx5_vsc_gw_lock+0x36/0x178 [mlx5_core]
+[10320.359585]  [<000003ff80098824>] mlx5_crdump_collect+0x34/0x1c8 [mlx5_core]
+[10320.359637]  [<000003ff80074b62>] mlx5_fw_fatal_reporter_dump+0x6a/0xe8 [mlx5_core]
+[10320.359680]  [<0000000652512242>] devlink_health_do_dump.part.0+0x82/0x168
+[10320.359683]  [<0000000652513212>] devlink_health_report+0x19a/0x230
+[10320.359685]  [<000003ff80075a12>] mlx5_fw_fatal_reporter_err_work+0xba/0x1b0 [mlx5_core]
+[10320.359728]  [<0000000651bbf852>] process_one_work+0x1c2/0x458
+[10320.359733]  [<0000000651bc073e>] worker_thread+0x3ce/0x528
+[10320.359735]  [<0000000651bc9de0>] kthread+0x108/0x110
+[10320.359737]  [<0000000651b42ea4>] __ret_from_fork+0x3c/0x58
+[10320.359739]  [<0000000652576642>] ret_from_fork+0xa/0x30
 
-Gr{oetje,eeting}s,
+No kernel log of the exact same error with an upstream kernel is
+available - but the very same deadlock situation can be constructed there,
+too:
 
-                        Geert
+- task: kmcheck
+  mlx5_unload_one() tries to acquire devlink lock while the PCI error
+  recovery code has set pdev->block_cfg_access by way of
+  pci_cfg_access_lock()
+- task: kworker
+  mlx5_crdump_collect() tries to set block_cfg_access through
+  pci_cfg_access_lock() while devlink_health_report() had acquired
+  the devlink lock.
 
+A similar deadlock situation can be reproduced by requesting a
+crdump with
+  > devlink health dump show pci/<BDF> reporter fw_fatal
+
+while PCI error recovery is executed on the same <BDF> physical function
+by mlx5_core's pci_error_handlers. On s390 this can be injected with
+  > zpcictl --reset-fw <BDF>
+
+Tests with this patch failed to reproduce that second deadlock situation,
+the devlink command is rejected with "kernel answers: Permission denied" -
+and we get a kernel log message of:
+
+Oct 14 13:32:39 b46lp03.lnxne.boe kernel: mlx5_core 1ed0:00:00.1: mlx5_crdump_collect:50:(pid 254382): crdump: failed to lock vsc gw err -5
+
+because the config read of VSC_SEMAPHORE is rejected by the underlying
+hardware.
+
+Two prior attempts to address this issue have been discussed and
+ultimately rejected [1], with the primary argument that s390's
+implementation of PCI error recovery is imposing restriction that
+neither powerpc's EEH nor PCI AER handling need. Tests show that PCI
+error recovery on s390 is running to completion even without blocking
+access to PCI config space.
+
+Link[1]: https://lore.kernel.org/all/20251007144826.2825134-1-gbayer@linux.ibm.com/
+
+Fixes: 4cdf2f4e24ff ("s390/pci: implement minimal PCI error recovery")
+Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
+
+---
+
+Hi Niklas, Shay, Jason,
+
+by now I believe fixing this in s390/pci is the right way to go, since
+the other PCI error recovery implementations apparently don't require
+this strict blocking of accesses to the PCI config space.
+
+Hi Alexander, Vasily, Heiko,
+
+while I sent this to netdev since prior versions were discussed there,
+I assume this patch will go through the s390 tree, right?
+
+Thanks,
+Gerd
+---
+ arch/s390/pci/pci_event.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
+index d930416d4c90..da0de34d2e5c 100644
+--- a/arch/s390/pci/pci_event.c
++++ b/arch/s390/pci/pci_event.c
+@@ -187,7 +187,7 @@ static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci_dev *pdev)
+ 	 * is unbound or probed and that userspace can't access its
+ 	 * configuration space while we perform recovery.
+ 	 */
+-	pci_dev_lock(pdev);
++	device_lock(&pdev->dev);
+ 	if (pdev->error_state == pci_channel_io_perm_failure) {
+ 		ers_res = PCI_ERS_RESULT_DISCONNECT;
+ 		goto out_unlock;
+@@ -254,7 +254,7 @@ static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci_dev *pdev)
+ 	if (driver->err_handler->resume)
+ 		driver->err_handler->resume(pdev);
+ out_unlock:
+-	pci_dev_unlock(pdev);
++	device_unlock(&pdev->dev);
+ 	zpci_report_status(zdev, "recovery", status_str);
+ 
+ 	return ers_res;
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+2.48.1
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
