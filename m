@@ -1,72 +1,72 @@
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B821830BF72
-	for <linux-s390@vger.kernel.org>; Tue, 14 Oct 2025 11:26:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57B4D2F6178
+	for <linux-s390@vger.kernel.org>; Tue, 14 Oct 2025 11:44:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760441187; cv=none; b=IghGlbpamgzK+SE2y9/XdF2ZVdnl2Smavlo4dM4HhoJ606CHrgkOoH6LABXMey/YsNyfCrrPHsQ/lvsEwZkUu01mPcP7MV7rDvWZ9UKpsyT1grJJQlRoLWLFwTkRY9CYi9PaFg5hhVFTYknCVZBX2XI1KThkgGwOLFTXY4cRFuU=
+	t=1760442286; cv=none; b=paiTmDztQaWQi0MEuVvlOMNkG0wBL6iu5w5jKhOw7GZ+wd65IRMB5gqQUACeeal4W6BLdpD8CXtTMPcNwOHCL79itKBB7TdGqh3tDBQp8CiBMeGQ+V5wk6ZILVDdrCql3zqCewr0nKht8B2Ln6Rhbm2IFuNIWD1y8/P6uuSgDZo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760441187; c=relaxed/simple;
-	bh=lhmKYp1HEXdi8uvGeIez6CnOvw0aDg5m/CFlXJlE44A=;
+	s=arc-20240116; t=1760442286; c=relaxed/simple;
+	bh=hfahCY27limKIRliXlbrcCNzQkVZ+dtcWauUhXG8Mcg=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=NEq5BfbhTeXYByCatFnyHWY6s/xcGuPlPcvtMacEcrE43KuD/91pvHfsj0JToxzQ+Y8Q22k+0OcrU5bjPi8xZth5xPoSGJtMZVZEezvllYKVVgStfJ4zU769vfDxT3STBuUuOib26OAw+vsF+jU1qLlRkDdR9mk2YSs9g3JrAZ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=kqHqBvz2; arc=none smtp.client-ip=209.85.214.174
+	 To:Cc:Content-Type; b=qO8+udoA/l3SPKhoFiw/PbfBRsHJAJAKqin86Bt6zO5BuBE2JIMJS8qWm4elf6OUySDAZf32RHJ/ADS2xkybIc8lQIz4vpZqx5ec8oEY7t0aEWXVVrCMvNCYuNoGtfaJwxzLEydDhKQJ7nz7wA2GcZ0E2JmIe4qS1nZ5NyWGwJs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=tUyiWoyl; arc=none smtp.client-ip=209.85.215.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="kqHqBvz2"
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-26a0a694ea8so37346935ad.3
-        for <linux-s390@vger.kernel.org>; Tue, 14 Oct 2025 04:26:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="tUyiWoyl"
+Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-b62e7221351so4287487a12.1
+        for <linux-s390@vger.kernel.org>; Tue, 14 Oct 2025 04:44:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1760441183; x=1761045983; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1760442284; x=1761047084; darn=vger.kernel.org;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=MrvNzgtUD4jIWNAqMAqvVvyYhJjdrVewiw+zojqIvG0=;
-        b=kqHqBvz2G1YbRyJ5qjPZbaJi/r0n9nkpVLVu9b8SqWzUcJzUkHrHdlS+7YjZaq0PvA
-         oEh3BIathze5TM21i4AsKaqd0NUs2jPI9rYJcAjyDPbudhfTTT3wyQpi2qKmMy1A6020
-         V/xUK3cJyRsQdomG0pY2+d0fgXC1wIiP+Xy4T+o2Y+Voba+QTCxW+XG3Pju18Jwpc3y9
-         +sfDt2rTd3kB4tZRdHpACcdY3o0CQ4lqel+8Hn0GZoqmHSAmthj+5MBuc+opX+EEDMTo
-         K5bFg5L4SWWykgHQhOaNX8NskibdKktU5z04ZRZZvkFa5+Ml2JqJ2vseuGIVkY49Cr3I
-         cCKA==
+        bh=oQ9uK3Kf8jfSaZ6zDVviWmBEyuzg21Wd4ByP3R0vGQ0=;
+        b=tUyiWoylNG0d5nrTYnkM14lslYGXGl3lJ6NoGa99/wizEusCp0/QsBQ+xTpYv+xdvF
+         wU+CsQ74GbIYuLzFUbL2RYZNb7BhK70VpiaHMeJ6Pd1+AW7S/x6HA7I9Ev81UFQ63UPR
+         VKbGpjTluqnqIFupP91uED4sYH4FrAmgwmYzon8dBH40qQgqTzne6cdjewv47RXoREbX
+         JdM32KIYd+t6O62gbsEnpKKG7jleG6jvHxt9mDVRW4iSHoh4e4yzj7XIs3eMNIHZDW5m
+         bQOWyEFixnPodLPfAvPZElP8lIvcBifRLKO5OJRdGkTgtgWxplh6ywY+j+kroy/Qy/j+
+         iORA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760441183; x=1761045983;
+        d=1e100.net; s=20230601; t=1760442284; x=1761047084;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=MrvNzgtUD4jIWNAqMAqvVvyYhJjdrVewiw+zojqIvG0=;
-        b=Rs5ZpVmd+LrrwrBrfvsTxW56MUSkhHDdk6eETc3a+mtjBlX0J3KuBmg+krAy3Dm27q
-         xLotRuexOC4H48fa7NWgQZwwK14rSFLmgJR+DVW6FsWF7RiaHJjrDwDVvdt1jGgzaTxc
-         bgfJaKHeebgdS44pEcAeqLb5f9oDFLLoNmu8ROAmU5YpDxjRd62Yl41Rmi+xAj9jxeli
-         wpF5HvejzsvbwnDVoKMr7OLKtfsJdochvsSjokqyHhy0t8L9ryJ9Ets9mNUMvD5jmxel
-         nr2em1YSHnekcSQMwfNz5HY5KruWe3TxV8MWpXuATh1BtngHckw1x860D/TVGRxJihTY
-         hPCw==
-X-Forwarded-Encrypted: i=1; AJvYcCUy1fvaltSmy359s9cGw8HLKxpWtz1eVomHCYUbiFfBSLGxpWGMFMttw4TP7lVtjG51h67g5pmjUYiq@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz3iOcVR6o6uiCUeKUVmHkEy6FjayKCSj2hP/LpPvCLn0vlOL8T
-	3fR7fNJziJskqbF2VJ6KmkVgN3YEBFbyJRw0vLvknDoh/hvg1yGUfX7Ehu2dWBnNA5YPezjI3Ug
-	0Tu23ZyGw++uRZ36guqJiE1lk5UdTtiEUJvaYxV6hxfKQq2ZrE3zn3WLw/w==
-X-Gm-Gg: ASbGncsIM8ig5AhJ1WS9ZhSGMdsJlknh23nDIOnHlqpw2q81k8b6tF+BTsNqvXMeHNX
-	KJPglA2xOOrNi49gSHknT1hY+CZmsRRBUclHR9hhz3DCpuI2PbGtLr4bn1EC7gV4EpNigQmqUY4
-	udpWnRZ3kJWK8gJp35qG6UAHQG4KwGKqlTKQePHQKJCGEQOWLteT5VKRzvtzClpRtjU4ELZIAYf
-	ycs4SEE7i9Wn2/VZwf1skEPFUpkb4Qw7TPJ2FNxgTgZVhYSlKZuOP5vlbwLKEOteRcfw+w9SAGY
-	S8rebPTf0tfMxKRIAII=
-X-Google-Smtp-Source: AGHT+IHwg7xmTszUL/SFBHh33H8YJlErW0QdvxmOvcZasjPvJRMAkydcriG/Tv/ojvIGN9D0JGRguiWK500rgDVCCC0=
-X-Received: by 2002:a17:903:286:b0:276:842a:f9a7 with SMTP id
- d9443c01a7336-290273a1725mr289912375ad.57.1760441182743; Tue, 14 Oct 2025
- 04:26:22 -0700 (PDT)
+        bh=oQ9uK3Kf8jfSaZ6zDVviWmBEyuzg21Wd4ByP3R0vGQ0=;
+        b=T0vohwxfFssIgcYTt+71R48A7s1dwHGQvbdG9ml+PXIHuBSraS6Yd/EV6wp7r6f7SQ
+         URcmCiPeMqhximF5s+WT7frc1XurEqnoYtsIromav/MUB/DSNtbqzeBOff1Xu4Ito9bR
+         r6Ffei/quWBAVso8EDw7YPBOXbV6NwGJXYKjcWtJY+72k8n61wX+sjYU2VjSoMlMgB0o
+         coZ2bZb57Mi4tNNOvxIz5rfspE9SnhRDnzfvcSaFQK42hQGigbBVZU03dYQxrkZVnbd6
+         si1zefUJI9ALZ90woqP4RxFHg6UdKYJb7xfBcRf0c1YoG65VbzTe/HIodZhUtptzjWEu
+         0Syg==
+X-Forwarded-Encrypted: i=1; AJvYcCVmVn3xLBPG0R83+18TQytQzhtwF9QN5i75GEDc4BUBAJ2jS5wUYR3u5TS4ZdEKLXizYUMXAq/bFXhz@vger.kernel.org
+X-Gm-Message-State: AOJu0YyrC0xwFYQ7KzWGpASVZ0lHeYOADWHIk8aEyqdwjiU7czr19tjd
+	Zzc54VuP+DTxUEvRzS3L/u96FaH6dC19QXmpY6bG4zatpRQexN1x60yCwf9Y2iwWGUbKofAKglZ
+	TPqcMbMM3uR2uauiQe1zadC15zjRPntlX7Wkn9idhAA==
+X-Gm-Gg: ASbGncsnHeEz31nJ0UQm8bnN4u89Av2C5BJ+9WBixk/QnjLAVJyTnB6o5wOnaWFnAN3
+	dguOwY4p3Zc5bh4bk4utaY3SXJMDt3pcoCd+suUBgcUDKcgMMO9ycIh6yCMiubBNe/EUqzMgWPc
+	oQasR8EQK5B8sXMX2QFJNv94/NJmZTQfvq9eXZS7RCbERM5yZJUgas0EHL6VRS9oGIOsBZBA3Tz
+	OZt2yKbz2IBwOejuKsenqcLb8SPwgirjXsxWX8HTyy2NeQWEVckaYhdePAUqgS20DVQXzdtUsVT
+	juoM3Fz7ylERyYZ3wp4=
+X-Google-Smtp-Source: AGHT+IFbZ/y6NT5ea9IDQYQSQTzRLXABcHqTVM3gxucF4K4llB2C5gXZ26odu6Mkc0GD85/tFvvstkrHCeTXD2iVOSs=
+X-Received: by 2002:a17:903:298e:b0:27e:eea6:dffc with SMTP id
+ d9443c01a7336-290272e3120mr301473205ad.41.1760442283616; Tue, 14 Oct 2025
+ 04:44:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251013144326.116493600@linuxfoundation.org>
-In-Reply-To: <20251013144326.116493600@linuxfoundation.org>
+References: <20251013144315.184275491@linuxfoundation.org>
+In-Reply-To: <20251013144315.184275491@linuxfoundation.org>
 From: Naresh Kamboju <naresh.kamboju@linaro.org>
-Date: Tue, 14 Oct 2025 16:56:11 +0530
-X-Gm-Features: AS18NWCaA-1Kru16tgB66u-9S9WWZNi7-YltYKxwj_4Zn3wDV_IwhfPwMLShZB4
-Message-ID: <CA+G9fYsdErtgqKuyPfFhMS9haGKavBVCHQnipv2EeXM3OK0-UQ@mail.gmail.com>
-Subject: Re: [PATCH 6.12 000/262] 6.12.53-rc1 review
+Date: Tue, 14 Oct 2025 17:14:30 +0530
+X-Gm-Features: AS18NWBlDyPq4hVEQ-J5018eNoHovic3dklSVWqWWI4TEgdRGPz-I4T3A5-jiaM
+Message-ID: <CA+G9fYvRj41__1beAtYvsGcoeqZfu=chpk4sjHC96+wCrbdWiQ@mail.gmail.com>
+Subject: Re: [PATCH 6.6 000/196] 6.6.112-rc1 review
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: stable@vger.kernel.org, patches@lists.linux.dev, 
 	linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, 
@@ -74,18 +74,18 @@ Cc: stable@vger.kernel.org, patches@lists.linux.dev,
 	patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de, 
 	jonathanh@nvidia.com, f.fainelli@gmail.com, sudipm.mukherjee@gmail.com, 
 	rwarsow@gmx.de, conor@kernel.org, hargar@microsoft.com, broonie@kernel.org, 
-	achill@achill.org, Ilya Leoshkevich <iii@linux.ibm.com>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Dan Carpenter <dan.carpenter@linaro.org>, 
-	Arnd Bergmann <arnd@arndb.de>, Anders Roxell <anders.roxell@linaro.org>, 
-	Ben Copeland <benjamin.copeland@linaro.org>, linux-s390@vger.kernel.org, 
-	Netdev <netdev@vger.kernel.org>, bpf <bpf@vger.kernel.org>
+	achill@achill.org, linux-s390@vger.kernel.org, bpf <bpf@vger.kernel.org>, 
+	Netdev <netdev@vger.kernel.org>, Ilya Leoshkevich <iii@linux.ibm.com>, 
+	Daniel Borkmann <daniel@iogearbox.net>, Arnd Bergmann <arnd@arndb.de>, 
+	Ben Copeland <benjamin.copeland@linaro.org>, Anders Roxell <anders.roxell@linaro.org>, 
+	Dan Carpenter <dan.carpenter@linaro.org>
 Content-Type: text/plain; charset="UTF-8"
 
-On Mon, 13 Oct 2025 at 20:38, Greg Kroah-Hartman
+On Mon, 13 Oct 2025 at 20:28, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 6.12.53 release.
-> There are 262 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 6.6.112 release.
+> There are 196 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -93,146 +93,124 @@ On Mon, 13 Oct 2025 at 20:38, Greg Kroah-Hartman
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.12.53-rc1.gz
+>         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.6.112-rc1.gz
 > or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.12.y
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.6.y
 > and the diffstat can be found below.
 >
 > thanks,
 >
 > greg k-h
 
-The S390 defconfig builds failed on the Linux stable-rc 6.12.53-rc1
-and 6.6.112-rc1 tag build due to following build warnings / errors
+The S390 defconfig builds failed on the Linux stable-rc 6.6.112-rc1
+and 6.12.53-rc1 tag build due to following build warnings / errors
 with gcc and clang toolchains.
 
-Also seen on 6.6.112-rc1.
+Also seen on 6.12.53-rc1
 
-* s390, build
-  - clang-21-defconfig
-  - clang-nightly-defconfig
-  - clang-nightly-lkftconfig-hardening
-  - clang-nightly-lkftconfig-lto-full
-  - clang-nightly-lkftconfig-lto-thing
-  - gcc-14-allmodconfig
-  - gcc-14-defconfig
-  - gcc-14-lkftconfig-hardening
-  - gcc-8-defconfig-fe40093d
-  - gcc-8-lkftconfig-hardening
-  - korg-clang-21-lkftconfig-hardening
-  - korg-clang-21-lkftconfig-lto-full
-  - korg-clang-21-lkftconfig-lto-thing
-
-First seen on 6.12.53-rc1
-Good: v6.12.52
-Bad: 6.12.53-rc1 also seen on 6.6.112-rc1
+First seen on 6.6.112-rc1
+Good: v6.6.111
+Bad: 6.6.112-rc1 also seen on 6.12.53-rc1
 
 Regression Analysis:
-- New regression? yes
-- Reproducibility? yes
+- New regression? Yes
+- Reproducibility? Yes
 
-Build regressions: arch/s390/net/bpf_jit_comp.c:1813:49: error:
+Build regressions: arch/s390/net/bpf_jit_comp.c:1463:49: error:
 'struct bpf_jit' has no member named 'frame_off'
 
 Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
 # Build error
 arch/s390/net/bpf_jit_comp.c: In function 'bpf_jit_insn':
-arch/s390/net/bpf_jit_comp.c:1813:49: error: 'struct bpf_jit' has no
+arch/s390/net/bpf_jit_comp.c:1463:49: error: 'struct bpf_jit' has no
 member named 'frame_off'
- 1813 |                         _EMIT6(0xd203f000 | (jit->frame_off +
+ 1463 |                         _EMIT6(0xd203f000 | (jit->frame_off +
       |                                                 ^~
-arch/s390/net/bpf_jit_comp.c:211:55: note: in definition of macro '_EMIT6'
-  211 |                 *(u32 *) (jit->prg_buf + jit->prg) = (op1);     \
+arch/s390/net/bpf_jit_comp.c:208:55: note: in definition of macro '_EMIT6'
+  208 |                 *(u32 *) (jit->prg_buf + jit->prg) = (op1);     \
       |                                                       ^~~
 include/linux/stddef.h:16:33: error: invalid use of undefined type
 'struct prog_frame'
    16 | #define offsetof(TYPE, MEMBER)  __builtin_offsetof(TYPE, MEMBER)
       |                                 ^~~~~~~~~~~~~~~~~~
-arch/s390/net/bpf_jit_comp.c:211:55: note: in definition of macro '_EMIT6'
-  211 |                 *(u32 *) (jit->prg_buf + jit->prg) = (op1);     \
+arch/s390/net/bpf_jit_comp.c:208:55: note: in definition of macro '_EMIT6'
+  208 |                 *(u32 *) (jit->prg_buf + jit->prg) = (op1);     \
       |                                                       ^~~
-arch/s390/net/bpf_jit_comp.c:1814:46: note: in expansion of macro 'offsetof'
- 1814 |                                              offsetof(struct prog_frame,
+arch/s390/net/bpf_jit_comp.c:1464:46: note: in expansion of macro 'offsetof'
+ 1464 |                                              offsetof(struct prog_frame,
       |                                              ^~~~~~~~
 include/linux/stddef.h:16:33: error: invalid use of undefined type
 'struct prog_frame'
    16 | #define offsetof(TYPE, MEMBER)  __builtin_offsetof(TYPE, MEMBER)
       |                                 ^~~~~~~~~~~~~~~~~~
-arch/s390/net/bpf_jit_comp.c:212:59: note: in definition of macro '_EMIT6'
-  212 |                 *(u16 *) (jit->prg_buf + jit->prg + 4) = (op2); \
+arch/s390/net/bpf_jit_comp.c:209:59: note: in definition of macro '_EMIT6'
+  209 |                 *(u16 *) (jit->prg_buf + jit->prg + 4) = (op2); \
       |                                                           ^~~
-arch/s390/net/bpf_jit_comp.c:1816:41: note: in expansion of macro 'offsetof'
- 1816 |                                0xf000 | offsetof(struct prog_frame,
+arch/s390/net/bpf_jit_comp.c:1466:41: note: in expansion of macro 'offsetof'
+ 1466 |                                0xf000 | offsetof(struct prog_frame,
       |                                         ^~~~~~~~
 arch/s390/net/bpf_jit_comp.c: In function '__arch_prepare_bpf_trampoline':
 include/linux/stddef.h:16:33: error: invalid use of undefined type
 'struct prog_frame'
    16 | #define offsetof(TYPE, MEMBER)  __builtin_offsetof(TYPE, MEMBER)
       |                                 ^~~~~~~~~~~~~~~~~~
-arch/s390/net/bpf_jit_comp.c:212:59: note: in definition of macro '_EMIT6'
-  212 |                 *(u16 *) (jit->prg_buf + jit->prg + 4) = (op2); \
+arch/s390/net/bpf_jit_comp.c:209:59: note: in definition of macro '_EMIT6'
+  209 |                 *(u16 *) (jit->prg_buf + jit->prg + 4) = (op2); \
       |                                                           ^~~
-arch/s390/net/bpf_jit_comp.c:2813:33: note: in expansion of macro 'offsetof'
- 2813 |                        0xf000 | offsetof(struct prog_frame,
+arch/s390/net/bpf_jit_comp.c:2447:33: note: in expansion of macro 'offsetof'
+ 2447 |                        0xf000 | offsetof(struct prog_frame,
 tail_call_cnt));
       |                                 ^~~~~~~~
-make[5]: *** [scripts/Makefile.build:229: arch/s390/net/bpf_jit_comp.o] Error 1
+make[5]: *** [scripts/Makefile.build:243: arch/s390/net/bpf_jit_comp.o] Error 1
 
 The git blame is pointing to,
- $ git blame -L 1813  arch/s390/net/bpf_jit_comp.c
-   162513d7d81487 (Ilya Leoshkevich)    _EMIT6(0xd203f000 | (jit->frame_off +
+ $ git blame -L 1463 arch/s390/net/bpf_jit_comp.c
+   987b48ef91346f Ilya Leoshkevich _EMIT6(0xd203f000 | (jit->frame_off +
 
 Commit pointing to,
    s390/bpf: Write back tail call counter for BPF_PSEUDO_CALL
    [ Upstream commit c861a6b147137d10b5ff88a2c492ba376cd1b8b0 ]
 
 ## Build
-* kernel: 6.12.53-rc1
+* kernel: 6.6.112-rc1
 * git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-* git commit: 7e50c0945b4ab1d4019f9905f6cf5350082c6a84
-* git describe: v6.12.52-263-g7e50c0945b4a
+* git commit: 07c1c4215e9202defca86827ce9e9c920c3596b9
+* git describe: v6.6.111-197-g07c1c4215e92
 * test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.12.y/build/v6.12.52-263-g7e50c0945b4a
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.6.y/build/v6.6.111-197-g07c1c4215e92
 
-## Test Regressions (compared to v6.12.50-47-gf7ad21173a19)
+## Test Regressions (compared to v6.6.109-37-g65af00078567)
+
 * s390, build
   - clang-21-defconfig
   - clang-nightly-defconfig
-  - clang-nightly-lkftconfig-hardening
-  - clang-nightly-lkftconfig-lto-full
-  - clang-nightly-lkftconfig-lto-thing
   - gcc-14-allmodconfig
   - gcc-14-defconfig
-  - gcc-14-lkftconfig-hardening
   - gcc-8-defconfig-fe40093d
-  - gcc-8-lkftconfig-hardening
-  - korg-clang-21-lkftconfig-hardening
-  - korg-clang-21-lkftconfig-lto-full
-  - korg-clang-21-lkftconfig-lto-thing
 
-## Metric Regressions (compared to v6.12.50-47-gf7ad21173a19)
+## Metric Regressions (compared to v6.6.109-37-g65af00078567)
 
-## Test Fixes (compared to v6.12.50-47-gf7ad21173a19)
+## Test Fixes (compared to v6.6.109-37-g65af00078567)
 
-## Metric Fixes (compared to v6.12.50-47-gf7ad21173a19)
+## Metric Fixes (compared to v6.6.109-37-g65af00078567)
 
 ## Test result summary
-total: 152513, pass: 126770, fail: 5572, skip: 19634, xfail: 537
+total: 131194, pass: 109732, fail: 4948, skip: 16043, xfail: 471
 
 ## Build Summary
 * arc: 5 total, 5 passed, 0 failed
-* arm: 139 total, 137 passed, 2 failed
-* arm64: 57 total, 51 passed, 6 failed
-* i386: 18 total, 18 passed, 0 failed
-* mips: 34 total, 33 passed, 1 failed
+* arm: 129 total, 128 passed, 1 failed
+* arm64: 44 total, 40 passed, 4 failed
+* i386: 23 total, 23 passed, 0 failed
+* mips: 26 total, 25 passed, 1 failed
 * parisc: 4 total, 4 passed, 0 failed
-* powerpc: 40 total, 39 passed, 1 failed
-* riscv: 25 total, 24 passed, 1 failed
-* s390: 22 total, 8 passed, 14 failed
-* sh: 5 total, 5 passed, 0 failed
-* sparc: 4 total, 3 passed, 1 failed
-* x86_64: 49 total, 46 passed, 3 failed
+* powerpc: 32 total, 31 passed, 1 failed
+* riscv: 15 total, 14 passed, 1 failed
+* s390: 14 total, 8 passed, 6 failed
+* sh: 10 total, 10 passed, 0 failed
+* sparc: 7 total, 7 passed, 0 failed
+* x86_64: 37 total, 34 passed, 3 failed
 
 ## Test suites summary
 * boot
@@ -309,11 +287,6 @@ total: 152513, pass: 126770, fail: 5572, skip: 19634, xfail: 537
 * ltp-tracing
 * perf
 * rcutorture
-* rt-tests-cyclicdeadline
-* rt-tests-pi-stress
-* rt-tests-pmqtest
-* rt-tests-rt-migrate-test
-* rt-tests-signaltest
 
 --
 Linaro LKFT
