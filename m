@@ -1,46 +1,46 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF67930EF6F;
-	Tue, 14 Oct 2025 06:49:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05FF22D12EB;
+	Tue, 14 Oct 2025 06:49:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760424565; cv=none; b=pHYYOBZVDmtdkVyYEOJIyvMVRRjA+F/F88l5eKDEMLpt5UjKcCbBP48x76EjPr9hq6rOs3LRUmH1veOEc2k56HqDUUun8d17c6KOL1WzcpQpDT3J7vwjUVSnjRZ6T7Lwm2l6YXmzRDLxUXkqB3aCE4+JrSi7uQyOSH6XPHSKOiY=
+	t=1760424565; cv=none; b=qWNVEDjNTHrcBMZZ6jcFpGHEDjN5sYZWigCjMHEq12yOROErLDr8OovLGVHlp05tsENMJkphXRY7/NIH8Luvgn9uvcy/7yx+pwP2RbFWbsdjhmxPB1h4lePokEWiQ7mlFS7/quQZpYINTzrrQ07dz4d1+4ZYgWRS6lGwAcRrE9U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1760424565; c=relaxed/simple;
-	bh=u5qksLE0CkeBqNMjOIpIJvowjU2FK+BsJIgAtLa3Fdo=;
+	bh=2hSFMUISgDavbKKRu1atPOpNqM6l7sLyIWcWtFRLYDU=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=U1Xy946RrJFDKh80ORWOpq7tbx217AtTxTmUqgHWtp7KZXcPw6pQXbokLBJlr+uiEEW6uziLIX8qarUPcTsEEaAHNYR1MYFD/q04Pm6EOfV/Kj8saYS8uht8zKw+9SLwd7DasnheNuk2tKFBksT5kN8m7FqRL3cc40mAVRXzOks=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=rfMwjvHi; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=k8agpUdv; arc=none smtp.client-ip=193.142.43.55
+	 In-Reply-To:To:Cc; b=kMFaFXDuYV2c8ox6bUs+AQ/DA7tDN8BukZDL28LOPgW9IzqJyqbtKlCgnNXRPbqhCe2VH+q10XlEGEJVxADaqei8RHFpQcun01N2ri3L5ep8XoMN6IRqZpFvWtuhaubCnPCIMvgobRHyCEq1lYo/9rTwIpdH2AS6CyIQCf+N1AY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=uUTK5yjx; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=wBLcltCP; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="rfMwjvHi";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="k8agpUdv"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="uUTK5yjx";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="wBLcltCP"
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1760424557;
+	s=2020; t=1760424559;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=FHcQizXKIlU8rlwocB6TkeD1z+OIKxCXmz4FFDxeMJA=;
-	b=rfMwjvHiXLLKBfbd5Hi1KvgltEOk0S9hNfM4iMd3RUxcWrgyPEBPiTGP6aYMz5bQ6H8fuK
-	Ep700u+el7YO35AyghPEF1+2CBzA4HhbqphquXPBVCNfoQDXRYsY9m/Nb1Y2V/RSAdjnGN
-	26L3THpgI/5iVmlSE/KePSK3iF5EXBoioWpP9fVGbkeRXK3B4EvXFTEgzE62eCROB7S9Qd
-	vDxi/YlyUzI8kdVkv8kn2BqnwfsIP2kPz4r3s6lP/60vafXp+vkqh14lR0F9wvKXh10jD8
-	1CA/1Dy4Le8M6oOpPzka9Ekh3BspQ87Fknwt92ica0Uvn3gZlV2tUMtbhmDXsQ==
+	bh=y3tGpR5SbTtmYH9/UhUB7FG7sTK6XysaxzCJ0fbVJv4=;
+	b=uUTK5yjxYeHVCab4+mSk4CSyqeV7aL2+6VMhldMX8S/Yt+QEROo4AqkxxYXxMRu/B71SaK
+	hfTjAvShOVSr5klbOKf8hAY83WiH0bA2MZsKsjDQCNn7gECyHdzwkZWFE+58L65dytwwB6
+	Lh/WxrG+mJNgwMwX8I0Z8UWE76nKOrRNyMc8Pf2lpSJ6JnkR5CgHYsq4Cdtx2QMfRLcTGh
+	1ZCzziRwzi3/0B/fwngL3rkbvu+kpBT9GyQr2Y5MEuYaVmRF6I/MfCWx5qTYKlm73RSkPf
+	imXv08p4nL2iXi5/9MSNJlru3E3Tv+k6OLlsAXXcTV0z8ZNJLXyQtyvs/FWX4w==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1760424557;
+	s=2020e; t=1760424559;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=FHcQizXKIlU8rlwocB6TkeD1z+OIKxCXmz4FFDxeMJA=;
-	b=k8agpUdvlNxyd9nfs+FaO1y9Tx+/TQhz9qLADDuqki0NfFcFoDtdUYoFQKeWQs/7yt3QIA
-	dVe2AV5afWRwWtDg==
-Date: Tue, 14 Oct 2025 08:49:01 +0200
-Subject: [PATCH v4 15/35] vdso/datapage: Trim down unnecessary includes
+	bh=y3tGpR5SbTtmYH9/UhUB7FG7sTK6XysaxzCJ0fbVJv4=;
+	b=wBLcltCPIWmQf+pZww9BCaRZLkV10mLosq/TzjJMbWnYGrT96VGtYrPRkUHHqmrqQtbqEh
+	qZj3K8K/YyTDDyBA==
+Date: Tue, 14 Oct 2025 08:49:06 +0200
+Subject: [PATCH v4 20/35] s390/time: Set up vDSO datapage later
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,7 +49,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20251014-vdso-sparc64-generic-2-v4-15-e0607bf49dea@linutronix.de>
+Message-Id: <20251014-vdso-sparc64-generic-2-v4-20-e0607bf49dea@linutronix.de>
 References: <20251014-vdso-sparc64-generic-2-v4-0-e0607bf49dea@linutronix.de>
 In-Reply-To: <20251014-vdso-sparc64-generic-2-v4-0-e0607bf49dea@linutronix.de>
 To: Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, 
@@ -78,60 +78,52 @@ Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
  linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, 
  linux-mips@vger.kernel.org, linux-s390@vger.kernel.org, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1760424546; l=1543;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1760424546; l=1384;
  i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=u5qksLE0CkeBqNMjOIpIJvowjU2FK+BsJIgAtLa3Fdo=;
- b=z026hBZ2HtDLHuWaxMdbVFCLc/D3LUEMANbPZGuvoMuL+cNIQ5xvOrpQtaAMhaGw8wc/aIjlx
- 6gc491Lpy/nC/qgGWdiKXaRmSOlYHkhypp0FdizYVOlfkJKWp2u9+GL
+ bh=2hSFMUISgDavbKKRu1atPOpNqM6l7sLyIWcWtFRLYDU=;
+ b=fSCsg9SdQvcBY2ZNPU9EUfDTd+/VWdJRzU8b3Z2sJ0uqAUbt73DRMWmeTEMv4NqR3wqYMipML
+ zeVuoiUC8X1BFPo6EGqZbGAX9qiRiM1vYrQKBG6d5+fnwLPTPFs9lD/
 X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
  pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-vdso/datapage.h includes a lot of headers which are not strictly necessary.
-Some of those headers include architecture-specific vDSO headers which
-prevent the usage of vdso/datapage.h in kernel code on architectures
-without an vDSO. This would be useful however to write generic code using
-IS_ENABLED(), for example in drivers/char/random.c.
+Upcoming changes to the generic vDSO library will mean that the vDSO
+datapage will not yet be usable during time_early_init().
 
-Remove the unnecessary includes.
+Move the initialization to time_init() which is called later. This is
+valid as the value of tod_clock_base.tod only changes in stop_machine()
+context and both time_init_early() and time_init() are called before
+interrupts are enabled.
 
 Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
 Tested-by: Andreas Larsson <andreas@gaisler.com>
 Reviewed-by: Andreas Larsson <andreas@gaisler.com>
 ---
- include/vdso/datapage.h | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ arch/s390/kernel/time.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/vdso/datapage.h b/include/vdso/datapage.h
-index 752856b36a3abf82b849451e5d5233b1067b86f2..9021b9580be229b2001dd17bfbdc236ebda1cee7 100644
---- a/include/vdso/datapage.h
-+++ b/include/vdso/datapage.h
-@@ -4,24 +4,16 @@
+diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
+index 63517b85f4c930b799235c381d9d6b263fff5431..6b948b9e61fe674bbc842a0143dd35a26b91a860 100644
+--- a/arch/s390/kernel/time.c
++++ b/arch/s390/kernel/time.c
+@@ -78,8 +78,6 @@ void __init time_early_init(void)
+ 	struct ptff_qto qto;
+ 	struct ptff_qui qui;
  
- #ifndef __ASSEMBLY__
+-	vdso_k_time_data->arch_data.tod_delta = tod_clock_base.tod;
+-
+ 	if (!test_facility(28))
+ 		return;
  
--#include <linux/compiler.h>
-+#include <linux/types.h>
+@@ -248,6 +246,8 @@ struct clocksource * __init clocksource_default_clock(void)
+  */
+ void __init time_init(void)
+ {
++	vdso_k_time_data->arch_data.tod_delta = tod_clock_base.tod;
 +
- #include <uapi/linux/bits.h>
- #include <uapi/linux/time.h>
--#include <uapi/linux/types.h>
--#include <uapi/asm-generic/errno-base.h>
+ 	/* Reset time synchronization interfaces. */
+ 	stp_reset();
  
- #include <vdso/align.h>
- #include <vdso/bits.h>
- #include <vdso/cache.h>
--#include <vdso/clocksource.h>
--#include <vdso/ktime.h>
--#include <vdso/limits.h>
--#include <vdso/math64.h>
- #include <vdso/page.h>
--#include <vdso/processor.h>
- #include <vdso/time.h>
--#include <vdso/time32.h>
--#include <vdso/time64.h>
- 
- #ifdef CONFIG_ARCH_HAS_VDSO_TIME_DATA
- #include <asm/vdso/time_data.h>
 
 -- 
 2.51.0
