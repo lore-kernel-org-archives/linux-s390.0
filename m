@@ -1,90 +1,197 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C438A219E8;
-	Mon, 13 Oct 2025 21:10:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C072DDAB;
+	Tue, 14 Oct 2025 02:04:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760389832; cv=none; b=FtRGN+lZ5Kui57TBtAIwZFrPGnqARChX1GObBHa5oA+lzVoF+dtOFLQcBg358g0AjC7aTlbjkp7UhAclZSwtEQNVPiw2gdRGl6F6sf71ijAdrhfe6bKdKCN3ST6N+gvMfbnTwCfv9yxLUaqofRbcsjWlJNl3X7QXGvj3R3Xse14=
+	t=1760407475; cv=none; b=mz/OSMA8iQZPPH1M/JvypatU/CgImnBmvgfHurGCq2NxS1QIA0UO+HtT/N1B76lKRIIJgXCCo4m7RTfjEthZP9bKwg69uic9WSfLLR5pQKomGJJcoc9jcrb9dUsMGC9YJg7b6L5kCPJBlISPShOCem5+lc++5qadUy0t1tH/8m4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760389832; c=relaxed/simple;
-	bh=QHrvRQIH47qXD6u+vvXuJD2fKTMeGYp+Cqv3jTGMrGw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=R4TZPdl1bsG7KTXhDAhqUysQBaTOnLW5G9J85VYuUKOTlqko34TmfcSxUqk0xtAW9kLETIHTvg/6opYiG3ckGIyM7l34AB1ye8ukPpEpv3/s3121eQVmNXg2jWnGpXzjFzu8LQ1u5gu06iVE9onG1f5VlkT7tPt7Cstq6lIndj8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=cMd67WoO; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1760407475; c=relaxed/simple;
+	bh=dww80B3Hk7HPkJ5DlFsPZ2Wkdo+EJLE2Aw1BA4evdsk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Wto4RfpiSzPkLnwQDv9Ku/NnWN0+Y5VmNGiCUiOFkABMRmu6Qr0i43kd/QvWO/3DnNf6YJPg1NATO3LW2hRO0LO8hO/HDelG9WD5JgunZXjo1Tt6ZUUnPfxbVulEYtmVLDoLwzRSzntIdXuetkOpLscHoa1I/zsMeNrwQdxRMPA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=aPAKJ8Im; arc=none smtp.client-ip=115.124.30.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="cMd67WoO"
-Received: from [IPV6:2601:646:8081:9484:201e:bc0f:a7c6:ca8d] ([IPv6:2601:646:8081:9484:201e:bc0f:a7c6:ca8d])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 59DL9bFB1473312
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Mon, 13 Oct 2025 14:09:37 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 59DL9bFB1473312
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025092201; t=1760389780;
-	bh=OzCgvPG4aCYIt5U2/uF5XWAxPeOEelq2YRV2TeCo8zQ=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=cMd67WoOzA4jU4tRxio15jlNW2gMHZRxCZExgtMI3hc6F1bR+FFsKY5zGygn7k4Ht
-	 1jzcy6j8UKiFa4jjP8JG4Ukwnmr9yOlz+dgxvT0Z1Qc60vjnoLiye+3tZQBQ33a4ck
-	 POM5nApdVKga/EVyRL79HJiBHLfa+Hobx5BtA7IrG1kqj+u/TEhFdQrUicdfBg6oia
-	 wtIwnrOtj7NJhqoOeS4J+3SZq3L4Xy38DiBL5iXRQ11zCbdpPFpRSPqcljY0ZvD95d
-	 Nnra0LThGgnrPnoBBmno0+2CHn+URmyBysN69/FI+IK6z4sK7RBrtSQ5jiyOJLJ2gI
-	 WkYz9DUtkxygQ==
-Message-ID: <cb5991f4-fc6b-43d9-a60b-f28b5eeda5d3@zytor.com>
-Date: Mon, 13 Oct 2025 14:09:31 -0700
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="aPAKJ8Im"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1760407468; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=NC6lAq5v+naNOL8xOJgDemeTBmw5nvWnLwrWkWNVO60=;
+	b=aPAKJ8ImAoAehFNTbdRkyxle/vDDcbTQuP8WP9BnWDLcCRyIMBk4tc8xATDtoAUIrgOzgvK/FdjaMrivCppbFkeui6wdCb6Y7yyjzln5i+p8ymrqRm7RjXoYNUgV+5QfYrq5Wm7R4UBhBE/5dGLO7mw9R62e9aiAbEjpJXTqDoQ=
+Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WqA-Nit_1760407467 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 14 Oct 2025 10:04:28 +0800
+Date: Tue, 14 Oct 2025 10:04:27 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com    >
+To: Wang Liang <wangliang74@huawei.com>
+Cc: Kuniyuki Iwashima <kuniyu@google.com>,
+	Eric Dumazet <edumazet@google.com>, alibuda@linux.alibaba.com,
+	dust.li@linux.alibaba.com, sidraya@linux.ibm.com,
+	wenjia@linux.ibm.com, mjambigi@linux.ibm.com,
+	tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+	davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+	horms@kernel.org, yuehaibing@huawei.com, zhangchangzhong@huawei.com,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH net] net/smc: fix general protection fault in
+ __smc_diag_dump
+Message-ID: <20251014020427.GA109537@j66a10360.sqa.eu95>
+References: <20250922121818.654011-1-wangliang74@huawei.com>
+ <CANn89iLOyFnwD+monMHCmTgfZEAPWmhrZu-=8mvtMGyM9FG49g@mail.gmail.com>
+ <CAAVpQUBxoWW_4U2an4CZNoSi95OduUhArezHnzKgpV3oOYs5Jg@mail.gmail.com>
+ <CANn89i+V847kRTTFW43ouZXXuaBs177fKv5_bqfbvRutpg+s6g@mail.gmail.com>
+ <CAAVpQUBriJFUhq2MpfwFTBLkF0rJfaVp1gaJ3wdhZuD7NWOaXw@mail.gmail.com>
+ <CANn89i+Ntwzm2A=NSHbKdFuGVR6kar00AjrJE91Lu0e5BUsVow@mail.gmail.com>
+ <CAAVpQUAd1oba6cy-hSub-iS0cnh7WH=HXgVnUwj8MXZLyU=a+w@mail.gmail.com>
+ <8ab4d343-d287-4b42-94f7-511f46e131d3@huawei.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] vdso: Remove struct getcpu_cache
-To: Andy Lutomirski <luto@kernel.org>
-Cc: Dave Hansen <dave.hansen@intel.com>,
-        =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
-        Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Shuah Khan
- <shuah@kernel.org>, loongarch@lists.linux.dev,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-api@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-References: <20251013-getcpu_cache-v2-1-880fbfa3b7cc@linutronix.de>
- <e95dc212-6fd3-43e3-aeb7-bf55917e0cd4@intel.com>
- <CALCETrV2W3cZEJ2yy7F-F9=e_8HLP84ZWrOJCzUYn_ASb0+M6A@mail.gmail.com>
- <494caf29-8755-4bc6-a2c3-b9d0b3e9b78d@zytor.com>
- <CALCETrVuW_MmksnkprK5Ljm-5RBSS=FUA8R8fgGMhZ3BxW15Sw@mail.gmail.com>
-Content-Language: en-US, sv-SE
-From: "H. Peter Anvin" <hpa@zytor.com>
-In-Reply-To: <CALCETrVuW_MmksnkprK5Ljm-5RBSS=FUA8R8fgGMhZ3BxW15Sw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <8ab4d343-d287-4b42-94f7-511f46e131d3@huawei.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 
-On 2025-10-13 13:32, Andy Lutomirski wrote:
+On Fri, Sep 26, 2025 at 04:42:35PM +0800, Wang Liang wrote:
 > 
-> The global timestamp would just be some field in the vvar area, which
-> we have plenty of anyway.
+> 在 2025/9/26 3:51, Kuniyuki Iwashima 写道:
+> >On Thu, Sep 25, 2025 at 12:37 PM Eric Dumazet <edumazet@google.com> wrote:
+> >>On Thu, Sep 25, 2025 at 12:25 PM Kuniyuki Iwashima <kuniyu@google.com> wrote:
+> >>>On Thu, Sep 25, 2025 at 11:54 AM Eric Dumazet <edumazet@google.com> wrote:
+> >>>>On Thu, Sep 25, 2025 at 11:46 AM Kuniyuki Iwashima <kuniyu@google.com> wrote:
+> >>>>>Thanks Eric for CCing me.
+> >>>>>
+> >>>>>On Thu, Sep 25, 2025 at 7:32 AM Eric Dumazet <edumazet@google.com> wrote:
+> >>>>>>On Mon, Sep 22, 2025 at 4:57 AM Wang Liang <wangliang74@huawei.com> wrote:
+> >>>>>>>The syzbot report a crash:
+> >>>>>>>
+> >>>>>>>   Oops: general protection fault, probably for non-canonical address 0xfbd5a5d5a0000003: 0000 [#1] SMP KASAN NOPTI
+> >>>>>>>   KASAN: maybe wild-memory-access in range [0xdead4ead00000018-0xdead4ead0000001f]
+> >>>>>>>   CPU: 1 UID: 0 PID: 6949 Comm: syz.0.335 Not tainted syzkaller #0 PREEMPT(full)
+> >>>>>>>   Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 08/18/2025
+> >>>>>>>   RIP: 0010:smc_diag_msg_common_fill net/smc/smc_diag.c:44 [inline]
+> >>>>>>>   RIP: 0010:__smc_diag_dump.constprop.0+0x3ca/0x2550 net/smc/smc_diag.c:89
+> >>>>>>>   Call Trace:
+> >>>>>>>    <TASK>
+> >>>>>>>    smc_diag_dump_proto+0x26d/0x420 net/smc/smc_diag.c:217
+> >>>>>>>    smc_diag_dump+0x27/0x90 net/smc/smc_diag.c:234
+> >>>>>>>    netlink_dump+0x539/0xd30 net/netlink/af_netlink.c:2327
+> >>>>>>>    __netlink_dump_start+0x6d6/0x990 net/netlink/af_netlink.c:2442
+> >>>>>>>    netlink_dump_start include/linux/netlink.h:341 [inline]
+> >>>>>>>    smc_diag_handler_dump+0x1f9/0x240 net/smc/smc_diag.c:251
+> >>>>>>>    __sock_diag_cmd net/core/sock_diag.c:249 [inline]
+> >>>>>>>    sock_diag_rcv_msg+0x438/0x790 net/core/sock_diag.c:285
+> >>>>>>>    netlink_rcv_skb+0x158/0x420 net/netlink/af_netlink.c:2552
+> >>>>>>>    netlink_unicast_kernel net/netlink/af_netlink.c:1320 [inline]
+> >>>>>>>    netlink_unicast+0x5a7/0x870 net/netlink/af_netlink.c:1346
+> >>>>>>>    netlink_sendmsg+0x8d1/0xdd0 net/netlink/af_netlink.c:1896
+> >>>>>>>    sock_sendmsg_nosec net/socket.c:714 [inline]
+> >>>>>>>    __sock_sendmsg net/socket.c:729 [inline]
+> >>>>>>>    ____sys_sendmsg+0xa95/0xc70 net/socket.c:2614
+> >>>>>>>    ___sys_sendmsg+0x134/0x1d0 net/socket.c:2668
+> >>>>>>>    __sys_sendmsg+0x16d/0x220 net/socket.c:2700
+> >>>>>>>    do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+> >>>>>>>    do_syscall_64+0xcd/0x4e0 arch/x86/entry/syscall_64.c:94
+> >>>>>>>    entry_SYSCALL_64_after_hwframe+0x77/0x7f
+> >>>>>>>    </TASK>
+> >>>>>>>
+> >>>>>>>The process like this:
+> >>>>>>>
+> >>>>>>>                (CPU1)              |             (CPU2)
+> >>>>>>>   ---------------------------------|-------------------------------
+> >>>>>>>   inet_create()                    |
+> >>>>>>>     // init clcsock to NULL        |
+> >>>>>>>     sk = sk_alloc()                |
+> >>>>>>>                                    |
+> >>>>>>>     // unexpectedly change clcsock |
+> >>>>>>>     inet_init_csk_locks()          |
+> >>>>>>>                                    |
+> >>>>>>>     // add sk to hash table        |
+> >>>>>>>     smc_inet_init_sock()           |
+> >>>>>>>       smc_sk_init()                |
+> >>>>>>>         smc_hash_sk()              |
+> >>>>>>>                                    | // traverse the hash table
+> >>>>>>>                                    | smc_diag_dump_proto
+> >>>>>>>                                    |   __smc_diag_dump()
+> >>>>>>>                                    |     // visit wrong clcsock
+> >>>>>>>                                    |     smc_diag_msg_common_fill()
+> >>>>>>>     // alloc clcsock               |
+> >>>>>>>     smc_create_clcsk               |
+> >>>>>>>       sock_create_kern             |
+> >>>>>>>
+> >>>>>>>With CONFIG_DEBUG_LOCK_ALLOC=y, the smc->clcsock is unexpectedly changed
+> >>>>>>>in inet_init_csk_locks(), because the struct smc_sock does not have struct
+> >>>>>>>inet_connection_sock as the first member.
+> >>>>>>>
+> >>>>>>>Previous commit 60ada4fe644e ("smc: Fix various oops due to inet_sock type
+> >>>>>>>confusion.") add inet_sock as the first member of smc_sock. For protocol
+> >>>>>>>with INET_PROTOSW_ICSK, use inet_connection_sock instead of inet_sock is
+> >>>>>>>more appropriate.
+> >>>>>Why is INET_PROTOSW_ICSK necessary in the first place ?
+> >>>>>
+> >>>>>I don't see a clear reason because smc_clcsock_accept() allocates
+> >>>>>a new sock by smc_sock_alloc() and does not use inet_accept().
+> >>>>>
+> >>>>>Or is there any other path where smc_sock is cast to
+> >>>>>inet_connection_sock ?
+> >>>>What I saw in this code was a missing protection.
+> >>>>
+> >>>>smc_diag_msg_common_fill() runs without socket lock being held.
+> >>>>
+> >>>>I was thinking of this fix, but apparently syzbot still got crashes.
+> >>>Looking at the test result,
+> >>>
+> >>>https://syzkaller.appspot.com/x/report.txt?x=15944c7c580000
+> >>>KASAN: maybe wild-memory-access in range [0xdead4ead00000018-0xdead4ead0000001f]
+> >>>
+> >>>the top half of the address is SPINLOCK_MAGIC (0xdead4ead),
+> >>>so the type confusion mentioned in the commit message makes
+> >>>sense to me.
+> >>>
+> >>>$ pahole -C inet_connection_sock vmlinux
+> >>>struct inet_connection_sock {
+> >>>...
+> >>>     struct request_sock_queue  icsk_accept_queue;    /*   992    80 */
+> >>>
+> >>>$ pahole -C smc_sock vmlinux
+> >>>struct smc_sock {
+> >>>...
+> >>>     struct socket *            clcsock;              /*   992     8 */
+> >>>
+> >>>The option is 1) let inet_init_csk_locks() init inet_connection_sock
+> >>>or 2) avoid inet_init_csk_locks(), and I guess 2) could be better to
+> >>>avoid potential issues in IS_ICSK branches.
+> >>>
+> >>I definitely vote to remove INET_PROTOSW_ICSK from smc.
+> >>
+> >>We want to reserve inet_connection_sock to TCP only, so that we can
+> >>move fields to better
+> >>cache friendly locations in tcp_sock hopefully for linux-6.19
+> >Fully agreed.
+> >
+> >Wang: please squash the revert of 6fd27ea183c2 for
+> >INET_PROTOSW_ICSK removal.  This is for one of
+> >IS_ICSK branches.
 > 
-> But I agree, accelerating getcpu is pointless.  In any case, anything
-> that historically thought it really really wanted accelerated getcpu
-> can, and probably does, use rseq these days.
+> 
+> Thanks for your suggestions, they are helpful!
+> 
+> I will remove INET_PROTOSW_ICSK from smc_inet_protosw and smc_inet6_protosw,
 > 
 
-Indeed. And with RDPID it is fast enough that the bulk of the cost is probably
-in the vdso call.
+This is a bit of a long story. The INET_PROTOSW_ICSK flag was originally
+introduced for an effort to merge smc_sock and clcsock. The goal was to
+allow the merged socket to behave like a standard tcp_sock during
+fallback, thus avoiding the need for any special handling.
 
-	-hpa
+However, this approach was later abandoned. Since the original reason
+for this flag no longer exists, so the removal makes sense.
 
+> 
