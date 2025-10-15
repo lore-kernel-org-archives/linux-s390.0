@@ -1,350 +1,199 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from SN4PR2101CU001.outbound.protection.outlook.com (mail-southcentralusazon11012069.outbound.protection.outlook.com [40.93.195.69])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8A662550CD;
-	Wed, 15 Oct 2025 14:10:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760537446; cv=none; b=pENbakWUJ2u+IkW/vsfuY7BdT2t9mNBSzX81MbTNR5wLwYc9yJ9lBgj/3Qbx6gdp9ptYMhbjl9cJnntYy0gNmcP7XCEc9NaFkvKN095TPKs3Gn0u69TxmHq/8U42t3E9Jp0xOatlVxdmG5Dobd1OLTbkjppPqdyLbfa3uor3mXg=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760537446; c=relaxed/simple;
-	bh=DJYFmc1E/xuT5HldVWAyLi7R0tojeFWPZI69R7iBYhk=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=h6CYbtt4LUIg43Xq8sfkjrZLrQdvNlL7Vlpt8MLPhiMRENmwzwf+Q5EctCrGpf3cOYSyTz52/JLK4ZYuSBE4Cp4eq7W1BStjSKKAmqznZ0UROKcGxmXOnUsf0DaCaWE66QpGCfJBiNar2hnTFFEBYWlMktzLZEQZyt42kFlduQg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=R9WxcDSp; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4DAA1FDE14;
+	Wed, 15 Oct 2025 17:35:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.195.69
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1760549741; cv=fail; b=twNXjgJ6BoAQT53qNM/OY+WtJJbatz8n0fBRj19Hpnu4LJfclFv19uKk8SbKZAP45J3FEbPbvhQIgoLxeBa0E+yHvv2WaQAFlglQytYUYwk9526oCZEuAeEpA3xRd9BNNz+YhJFedS3zlNLS2zIzmCzDZ+XHH+vxcJsKelM7vBA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1760549741; c=relaxed/simple;
+	bh=Gcy0djEpDW3YoiV4uJfpD+9/ymZRRH/DD5Smah/RMIo=;
+	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=KyrgAP7xg0sz8a+GQmKmua094p+xWDas/p9Ke/JC30PLhSdR/hP8RoSKb9+13i14iMPbujlS/xrHqSfhoxK8Z+ad0OBBiLOAW7cazkXZQeVkc19RWhMB9tm9Y/8deVL9aONc6Oo7X0oEVCDaU9FJKMYVg/h4Kg83mE3s74qM2ec=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=VjgmJgDJ; arc=fail smtp.client-ip=40.93.195.69
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="R9WxcDSp"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59FDh69i009914;
-	Wed, 15 Oct 2025 14:10:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=JFJOW5
-	LwJWK9kyH4WLUiv0E1c4N16vk/EJj2Yl92cts=; b=R9WxcDSpkD3O6oZsC03whc
-	nxOm+DiUiYjgXuWP2qQF9Pxvu7vpyNmzYXNURA4QCW5Zo/s+wIgyCTbCW+B+RpO7
-	UIx60IAohxJ0UtHHRUK+Nve0b5TEuMU/tcMLiVvTlqLGbjNB1d/mYg1iDQc8WVcG
-	wQFGqdi1NQ55sqcOh8x2I7V0u8uzzspKRaoa30CtPSY8X9zcHXBW3TV4Pw2IWtfU
-	IzwhuzPnj50B/NgAglxLM6Pd17wCZ2DDzqNVTZ5N+rp9XM5ZnctOpkFyqFOTp17Z
-	lQC1RjBpeV/djNWwSbOaTjbrsJx6aytxmUf+J59bpKeCvyAQqHS4V86v4/5e9U8w
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49qdnpmb0x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 15 Oct 2025 14:10:39 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59FDBj0r003709;
-	Wed, 15 Oct 2025 14:10:38 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49r1xy0ujs-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 15 Oct 2025 14:10:38 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59FEAaXf11338790
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 15 Oct 2025 14:10:36 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A9CA058056;
-	Wed, 15 Oct 2025 14:10:36 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 38CCE5805D;
-	Wed, 15 Oct 2025 14:10:34 +0000 (GMT)
-Received: from [9.152.212.179] (unknown [9.152.212.179])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 15 Oct 2025 14:10:34 +0000 (GMT)
-Message-ID: <358e3a7a1e735d5b1e761cf159db8ae735a9578d.camel@linux.ibm.com>
-Subject: Re: [PATCH v2] s390/pci: Avoid deadlock between PCI error recovery
- and mlx5 crdump
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Gerd Bayer <gbayer@linux.ibm.com>,
-        Gerald Schaefer	
- <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily
- Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Shay Drori	 <shayd@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Tariq Toukan <tariqt@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>,
-        Leon Romanovsky	 <leon@kernel.org>,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Pierre
- Morel <pmorel@linux.ibm.com>,
-        Matthew Rosato	 <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-Date: Wed, 15 Oct 2025 16:10:33 +0200
-In-Reply-To: <20251015-fix_pcirecov_master-v2-1-e07962fe9558@linux.ibm.com>
-References: <20251015-fix_pcirecov_master-v2-1-e07962fe9558@linux.ibm.com>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="VjgmJgDJ"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=m4rd/8UneRUiYtebjgd3VqKK4G6zO/W3kvMSLh7/OGqiZA/e1mP4XaE23Lkf1b5bM7BUkipPLRCrTy4EsyGEC7uCjBOSv+hhKof1yqXqC+2GARYuCt/AcgLyKJ7Q7r8UG+z2jFd2UGlrB4WY+NZAONf9ZzXB0aZU2VWXVtutgfh28qvxHQMT4gHrh7ivNHgEQKl3+QqyVp3TIy4goBxi4+R/EhzH94OIwK7wAUf/C9ujHFyOrq9+J87N/R4qNFyu6msK1TroITWxYjDghw8ZEfFJFuY0sf2+fl9fQeHBn5kihcIDsRY/n2Z19ceGuLmyOr3yyKzSQJRHyplLHG2Ogg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Ym5KXypVXoWNGKcpOctEcTYQtwndUzaCFTGYBCx9F9A=;
+ b=bzdvdM+WbMkQxpwkFfo3oyuoSO/jpYw/hkfK3Vvos2bfMmofn2U6bntE51bsrArkBzKJqHBYtivuq0+jEV/zIk0v5XOj2jqGE7f8vbzbKPmIuenp3NqdctmdTY0mCvGzbzVDdzZ0jm6F+KmZ1xtsbOlq8rtBSyiZ4SXX8mTkjJ/5wn4WpE/bWEQ++MGRmVYHnhHgzVQc3bj831eYPtHBAIYkL20bKuoN+dh7Y8Fj7kTxcguWX9S5Br/i59Z5ss5C9rkkpVgBnqJasWZFfM8D6PA/HX9jcdCwuwFL8YAM0iavLmpk2081qJm4KD4/Gs0W0kcRst7Zw2YqAtKw7GtAjw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.118.232) smtp.rcpttodomain=8bytes.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Ym5KXypVXoWNGKcpOctEcTYQtwndUzaCFTGYBCx9F9A=;
+ b=VjgmJgDJDGZCflKhKF9R6yn1mbUf7i9hGa7Th0jq/K/9kGnTaxfCoQHkxHixrsr3SBasLfQM6B/BjrfsUB21CYVYjEmOGco9ClJrnm72EnrzKbk9W4NkI7yvWSQTXgdaYQ9V37Wr+Ge+m2mCF1Ri3+b1P5NMgcSR+e5KLdp1wnTi9UDkuy0Yye9ALZF0308YjfxrwBGfEcbZpj3euryV/m9ej55MtpKTb32a+NKUM+fVtNbCGYydQsCGhSHf1m5GSAnyYvDbBgLeUk3zLmUYzPhlbgALMW4yoLxfc+KmO6lDS6NzxwwD3wYZmZl32WCrci2qr1HEOjcloPwb2jKlNg==
+Received: from BY3PR10CA0025.namprd10.prod.outlook.com (2603:10b6:a03:255::30)
+ by DS5PPF884E1ABEC.namprd12.prod.outlook.com (2603:10b6:f:fc00::658) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9228.10; Wed, 15 Oct
+ 2025 17:35:35 +0000
+Received: from SJ5PEPF000001F6.namprd05.prod.outlook.com
+ (2603:10b6:a03:255:cafe::cf) by BY3PR10CA0025.outlook.office365.com
+ (2603:10b6:a03:255::30) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9228.10 via Frontend Transport; Wed,
+ 15 Oct 2025 17:35:35 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.118.232) by
+ SJ5PEPF000001F6.mail.protection.outlook.com (10.167.242.74) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9228.7 via Frontend Transport; Wed, 15 Oct 2025 17:35:35 +0000
+Received: from drhqmail203.nvidia.com (10.126.190.182) by mail.nvidia.com
+ (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Wed, 15 Oct
+ 2025 10:35:19 -0700
+Received: from drhqmail201.nvidia.com (10.126.190.180) by
+ drhqmail203.nvidia.com (10.126.190.182) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.20; Wed, 15 Oct 2025 10:35:18 -0700
+Received: from Asurada-Nvidia (10.127.8.12) by mail.nvidia.com
+ (10.126.190.180) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20 via Frontend
+ Transport; Wed, 15 Oct 2025 10:35:17 -0700
+Date: Wed, 15 Oct 2025 10:35:15 -0700
+From: Nicolin Chen <nicolinc@nvidia.com>
+To: <joro@8bytes.org>, <jgg@nvidia.com>, <kevin.tian@intel.com>
+CC: <suravee.suthikulpanit@amd.com>, <will@kernel.org>,
+	<robin.murphy@arm.com>, <sven@kernel.org>, <j@jannau.net>,
+	<robin.clark@oss.qualcomm.com>, <m.szyprowski@samsung.com>,
+	<krzk@kernel.org>, <dwmw2@infradead.org>, <baolu.lu@linux.intel.com>,
+	<yong.wu@mediatek.com>, <matthias.bgg@gmail.com>,
+	<angelogioacchino.delregno@collabora.com>, <tjeznach@rivosinc.com>,
+	<pjw@kernel.org>, <palmer@dabbelt.com>, <aou@eecs.berkeley.edu>,
+	<heiko@sntech.de>, <schnelle@linux.ibm.com>, <mjrosato@linux.ibm.com>,
+	<orsonzhai@gmail.com>, <baolin.wang@linux.alibaba.com>, <wens@csie.org>,
+	<jernej.skrabec@gmail.com>, <samuel@sholland.org>,
+	<thierry.reding@gmail.com>, <jonathanh@nvidia.com>,
+	<jean-philippe@linaro.org>, <iommu@lists.linux.dev>,
+	<linux-kernel@vger.kernel.org>, <asahi@lists.linux.dev>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-arm-msm@vger.kernel.org>,
+	<linux-samsung-soc@vger.kernel.org>, <linux-mediatek@lists.infradead.org>,
+	<linux-riscv@lists.infradead.org>, <linux-rockchip@lists.infradead.org>,
+	<linux-s390@vger.kernel.org>, <linux-sunxi@lists.linux.dev>,
+	<linux-tegra@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<patches@lists.linux.dev>
+Subject: Re: [PATCH v1 6/6] iommu: Pass in old domain to attach_dev callback
+ functions
+Message-ID: <aO/bU6IFUBpo2iz/@Asurada-Nvidia>
+References: <cover.1760312540.git.nicolinc@nvidia.com>
+ <53e12066ebcaa1bb5a3f4ed1657e088f3d8e8464.1760312540.git.nicolinc@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDExMDAwNSBTYWx0ZWRfX11Y1murPjnYx
- QkS6zWl5h/Wk9XIKdTpeqQv1Pb+pmU0/2j/+Cqh2X0J0P+qGhU26gV321oPxPiWePJH28CEBRsb
- 7ifqzjec7j08jXtvT/xWsDIN4v9VEEwcCmvFutUnciHMwXicKrz30wZ7fXWz/RAEiEsullMF1Q6
- E/Xh7pTMVy37/oVhFaTZwH6lI0b5+1odS/Xgx1oxLimWCogMKnGcNnR4KGPR/stQTgxCNLSDR0b
- PllG1TOfsx8sf3MLLYRgDaCoYA4JlenOUdznNbsqCQJTEvaI3cbzLyf9oXpslISqxaHBo6i3R56
- EZKZJvvdlK/K1WNoYEum07TYH65TWYUTIRkuXJZHlkq6ZW4k2WoZoSAqDVHZB22JXxYa37ZZIQ7
- g7wAQpvJPacIVnhpUKe/VpkZBjtioQ==
-X-Proofpoint-ORIG-GUID: Sh7B42S7b5gps61RKucgXFv6lnn6r0qG
-X-Proofpoint-GUID: Sh7B42S7b5gps61RKucgXFv6lnn6r0qG
-X-Authority-Analysis: v=2.4 cv=MoxfKmae c=1 sm=1 tr=0 ts=68efab5f cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=nGW06K9oGpk8nZk08XAA:9 a=QEXdDO2ut3YA:10
- a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-10-15_05,2025-10-13_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 spamscore=0 lowpriorityscore=0 suspectscore=0 phishscore=0
- bulkscore=0 priorityscore=1501 malwarescore=0 clxscore=1011 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510110005
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <53e12066ebcaa1bb5a3f4ed1657e088f3d8e8464.1760312540.git.nicolinc@nvidia.com>
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SJ5PEPF000001F6:EE_|DS5PPF884E1ABEC:EE_
+X-MS-Office365-Filtering-Correlation-Id: 98c03e62-0894-4e66-8494-08de0c113f85
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|36860700013|7416014|376014|82310400026|1800799024;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?7hdTfa0JClrud6ghuQBWY+EiQx+m2L6DjbnnI2eDrzRJ/zkDVzBpbotKUls5?=
+ =?us-ascii?Q?32j7srKXh1k7BHRGglhjkRg3F+fjHdNuzqjKEal5ALo1f17GLbtOqW4j9gLe?=
+ =?us-ascii?Q?NI2854Y5XlrQ8Gq6lEUisT18pYZhAn9zvbyKXjgHCGDnaQD+xO10zZWxl33+?=
+ =?us-ascii?Q?mreU7n8IXxoRp7WinKvA/VA9AbuRygAzdIuzTt/dlD9pzz6ptExFnjdwwsEX?=
+ =?us-ascii?Q?4ZyvVRGfeFmHND611J6xgrxWtKW4uPW9a0qbFqSYcMVMvx7bxBqIM2PiHyuX?=
+ =?us-ascii?Q?vGUCO2XCLs5J+rfRR/l0okbHNURRDk4AtT55izrBVkBA8WWEczuI1Nre3xzs?=
+ =?us-ascii?Q?JEiI8PshwjnMkcDb7F0rPFrT5oZ86iaCL+InFaYyzErxd0uNmss7x7pJ6ssB?=
+ =?us-ascii?Q?pF4uMZytqOCsR4wC3lQh9Mdkhf/Lu9EVmINvjbw+FQJoXMy8Kt8Pxtac/3RG?=
+ =?us-ascii?Q?YerFM1bL4WGCjDy2X5kQHkarTCMyk0Zdjx/GjJQOtiu9NFUrv1Gfic3J8gTM?=
+ =?us-ascii?Q?an3HvX5PNhiZgoDlzACC0Wk1Mbj5dQvT1YQS/sAYCDuWE8k2e/GTt+0gl1W+?=
+ =?us-ascii?Q?rjv0Wx7fdN69lFRfsMskvU1JZ5USM4Cg+6kwww4BAV0D9fHVVtLJDQB0pNTi?=
+ =?us-ascii?Q?fWJUG4J6Hlh+xC1f39WyWXQwe6xPmh3JKWvddgrLRyGTqxhx0Yy02KUg6ryX?=
+ =?us-ascii?Q?ePMUNo2ezQa+UR/tFART6tkhN+m7tUksH8cGrGiEus1sFMqAtC/e1w3ABkMM?=
+ =?us-ascii?Q?NRYxeqGusrgBdK5wTO1g5tTM3Z+8uUqg62jmmt97fsxfUT8F8G+cjPCcFR70?=
+ =?us-ascii?Q?WScGMnZL0n7ePLYUA0vp20czAkiBJffbHbzvMVfMLa6yKNrZLTUJf3ohh0e8?=
+ =?us-ascii?Q?00GHRshzg6UgoAEvTK1qxD0CxnlSZGB0ckSJli1aMKq05fwpK/ECJ8mXGYdr?=
+ =?us-ascii?Q?QFQEb6ON93ffF20ob4dqJR3vLrSj87JaNpODjU8iWPN/qRL3N0G7kxZ5QdbB?=
+ =?us-ascii?Q?tbGNrgTpMMqoiJqS8uKd7Yf/8EuoXA4Fs0canAdGhBBrlw6z9OWzxlziFtQt?=
+ =?us-ascii?Q?UHRzILlQRigryajET3vgfeEmtCOrX8Qpp/VxwvxjltReGiPXthzc7F8xc0+R?=
+ =?us-ascii?Q?wo7QIsZGXQFJ+J9suxdLWEC4YShpntykGqc73j71XbfpAfjjUIG8M5H0f9Fu?=
+ =?us-ascii?Q?89Vd9sTNPJtGXZKF/Q1a24L2rwNGI/cei84mUh5EHQ82YrrTu1m0X/ApiJ4e?=
+ =?us-ascii?Q?Ja0eLj1Qk9VwtGbO4ZbpgkNU7NGNTt6wzYeBfagZG3UZW+OkHEdmqRkgbm5Z?=
+ =?us-ascii?Q?WafXM59vzueKpOdqGMfQGBrtANxGayPRy1iRlQTdPrwX1oApE/Vkqzh/U+Tv?=
+ =?us-ascii?Q?85LzbTW9nClRHYCyVCVb+EvlQkoJyP2Ve666jpkx5ba7gktcCaCGDjMEMeWB?=
+ =?us-ascii?Q?2u/NwN9nSSVuF/9jPREUIcpkgG53+SpKQfk8UOBYYseq/vgQ+paSj/ElpTYQ?=
+ =?us-ascii?Q?mXp9kzwzvXR8gJnxRtI73gZR74Zo6BcJPgPB0oQX11ZpoEDLlSFe3QYzTG+K?=
+ =?us-ascii?Q?XW0X09jPQsCnUUupNCw=3D?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230040)(36860700013)(7416014)(376014)(82310400026)(1800799024);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Oct 2025 17:35:35.2391
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 98c03e62-0894-4e66-8494-08de0c113f85
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	SJ5PEPF000001F6.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS5PPF884E1ABEC
 
-On Wed, 2025-10-15 at 13:05 +0200, Gerd Bayer wrote:
-> Do not block PCI config accesses through pci_cfg_access_lock() when
-> executing the s390 variant of PCI error recovery: Acquire just
-> device_lock() instead of pci_dev_lock() as powerpc's EEH and
-> generig PCI AER processing do.
->=20
-> During error recovery testing a pair of tasks was reported to be hung:
->=20
-> [10144.859042] mlx5_core 0000:00:00.1: mlx5_health_try_recover:338:(pid 5=
-553): health recovery flow aborted, PCI reads still not working
-> [10320.359160] INFO: task kmcheck:72 blocked for more than 122 seconds.
-> [10320.359169]       Not tainted 5.14.0-570.12.1.bringup7.el9.s390x #1
-> [10320.359171] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disable=
-s this message.
-> [10320.359172] task:kmcheck         state:D stack:0     pid:72    tgid:72=
-    ppid:2      flags:0x00000000
-> [10320.359176] Call Trace:
-> [10320.359178]  [<000000065256f030>] __schedule+0x2a0/0x590
-> [10320.359187]  [<000000065256f356>] schedule+0x36/0xe0
-> [10320.359189]  [<000000065256f572>] schedule_preempt_disabled+0x22/0x30
-> [10320.359192]  [<0000000652570a94>] __mutex_lock.constprop.0+0x484/0x8a8
-> [10320.359194]  [<000003ff800673a4>] mlx5_unload_one+0x34/0x58 [mlx5_core=
-]
-> [10320.359360]  [<000003ff8006745c>] mlx5_pci_err_detected+0x94/0x140 [ml=
-x5_core]
-> [10320.359400]  [<0000000652556c5a>] zpci_event_attempt_error_recovery+0x=
-f2/0x398
-> [10320.359406]  [<0000000651b9184a>] __zpci_event_error+0x23a/0x2c0
-> [10320.359411]  [<00000006522b3958>] chsc_process_event_information.const=
-prop.0+0x1c8/0x1e8
-> [10320.359416]  [<00000006522baf1a>] crw_collect_info+0x272/0x338
-> [10320.359418]  [<0000000651bc9de0>] kthread+0x108/0x110
-> [10320.359422]  [<0000000651b42ea4>] __ret_from_fork+0x3c/0x58
-> [10320.359425]  [<0000000652576642>] ret_from_fork+0xa/0x30
-> [10320.359440] INFO: task kworker/u1664:6:1514 blocked for more than 122 =
-seconds.
-> [10320.359441]       Not tainted 5.14.0-570.12.1.bringup7.el9.s390x #1
-> [10320.359442] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disable=
-s this message.
-> [10320.359443] task:kworker/u1664:6 state:D stack:0     pid:1514  tgid:15=
-14  ppid:2      flags:0x00000000
-> [10320.359447] Workqueue: mlx5_health0000:00:00.0 mlx5_fw_fatal_reporter_=
-err_work [mlx5_core]
-> [10320.359492] Call Trace:
-> [10320.359521]  [<000000065256f030>] __schedule+0x2a0/0x590
-> [10320.359524]  [<000000065256f356>] schedule+0x36/0xe0
-> [10320.359526]  [<0000000652172e28>] pci_wait_cfg+0x80/0xe8
-> [10320.359532]  [<0000000652172f94>] pci_cfg_access_lock+0x74/0x88
-> [10320.359534]  [<000003ff800916b6>] mlx5_vsc_gw_lock+0x36/0x178 [mlx5_co=
-re]
-> [10320.359585]  [<000003ff80098824>] mlx5_crdump_collect+0x34/0x1c8 [mlx5=
-_core]
-> [10320.359637]  [<000003ff80074b62>] mlx5_fw_fatal_reporter_dump+0x6a/0xe=
-8 [mlx5_core]
-> [10320.359680]  [<0000000652512242>] devlink_health_do_dump.part.0+0x82/0=
-x168
-> [10320.359683]  [<0000000652513212>] devlink_health_report+0x19a/0x230
-> [10320.359685]  [<000003ff80075a12>] mlx5_fw_fatal_reporter_err_work+0xba=
-/0x1b0 [mlx5_core]
-> [10320.359728]  [<0000000651bbf852>] process_one_work+0x1c2/0x458
-> [10320.359733]  [<0000000651bc073e>] worker_thread+0x3ce/0x528
-> [10320.359735]  [<0000000651bc9de0>] kthread+0x108/0x110
-> [10320.359737]  [<0000000651b42ea4>] __ret_from_fork+0x3c/0x58
-> [10320.359739]  [<0000000652576642>] ret_from_fork+0xa/0x30
+On Sun, Oct 12, 2025 at 04:57:42PM -0700, Nicolin Chen wrote:
+> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+> index aa576736d60ba..366e47978ac07 100644
+> --- a/drivers/iommu/s390-iommu.c
+> +++ b/drivers/iommu/s390-iommu.c
+> @@ -670,7 +670,8 @@ int zpci_iommu_register_ioat(struct zpci_dev *zdev, u8 *status)
+>  }
+>  
+>  static int blocking_domain_attach_device(struct iommu_domain *domain,
+> -					 struct device *dev)
+> +					 struct device *dev,
+> +					 struct iommu_domain *old)
+>  {
+>  	struct zpci_dev *zdev = to_zpci_dev(dev);
+>  	struct s390_domain *s390_domain;
+> @@ -694,7 +695,8 @@ static int blocking_domain_attach_device(struct iommu_domain *domain,
+>  }
+>  
+>  static int s390_iommu_attach_device(struct iommu_domain *domain,
+> -				    struct device *dev)
+> +				    struct device *dev,
+> +				    struct iommu_domain *old)
+>  {
+>  	struct s390_domain *s390_domain = to_s390_domain(domain);
+>  	struct zpci_dev *zdev = to_zpci_dev(dev);
+> @@ -1131,7 +1133,8 @@ static int __init s390_iommu_init(void)
+>  subsys_initcall(s390_iommu_init);
+>  
+>  static int s390_attach_dev_identity(struct iommu_domain *domain,
+> -				    struct device *dev)
+> +				    struct device *dev,
+> +				    struct iommu_domain *old)
+>  {
+>  	struct zpci_dev *zdev = to_zpci_dev(dev);
+>  	u8 status;
 
-I'd tend to prune this a bit, at the very least I would remove the time
-stamp prefix.
+kernel test robot complains a build break..
 
->=20
-> No kernel log of the exact same error with an upstream kernel is
-> available - but the very same deadlock situation can be constructed there=
-,
-> too:
->=20
-> - task: kmcheck
->   mlx5_unload_one() tries to acquire devlink lock while the PCI error
->   recovery code has set pdev->block_cfg_access by way of
->   pci_cfg_access_lock()
-> - task: kworker
->   mlx5_crdump_collect() tries to set block_cfg_access through
->   pci_cfg_access_lock() while devlink_health_report() had acquired
->   the devlink lock.
->=20
-> A similar deadlock situation can be reproduced by requesting a
-> crdump with
->   > devlink health dump show pci/<BDF> reporter fw_fatal
->=20
-> while PCI error recovery is executed on the same <BDF> physical function
-> by mlx5_core's pci_error_handlers. On s390 this can be injected with
->   > zpcictl --reset-fw <BDF>
->=20
-> Tests with this patch failed to reproduce that second deadlock situation,
-> the devlink command is rejected with "kernel answers: Permission denied" =
--
-> and we get a kernel log message of:
->=20
-> Oct 14 13:32:39 b46lp03.lnxne.boe kernel: mlx5_core 1ed0:00:00.1: mlx5_cr=
-dump_collect:50:(pid 254382): crdump: failed to lock vsc gw err -5
+Both s390_iommu_attach_device and s390_attach_dev_identity calls
+the updated blocking_domain_attach_device function but are not
+updated.
 
-Same as above I'd remove everyting before the "mlx5_core: =E2=80=A6" as tha=
-t
-adds no relevant information.
+I will fix and send v2.
 
->=20
-> because the config read of VSC_SEMAPHORE is rejected by the underlying
-> hardware.
->=20
-> Two prior attempts to address this issue have been discussed and
-> ultimately rejected [see link], with the primary argument that s390's
-> implementation of PCI error recovery is imposing restrictions that
-> neither powerpc's EEH nor PCI AER handling need. Tests show that PCI
-> error recovery on s390 is running to completion even without blocking
-> access to PCI config space.
->=20
-> Link: https://lore.kernel.org/all/20251007144826.2825134-1-gbayer@linux.i=
-bm.com/
->=20
-> Fixes: 4cdf2f4e24ff ("s390/pci: implement minimal PCI error recovery")
-
-Besides a Fixes tag let's add "Cc: stable@vger.kernel.org" and you can
-put that instead of the empty line between Link and Fixes since usually
-these are an uninterrupted block of tags.
-
-> Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
-> ---
-> All,
->=20
-> sorry for the immediate v2, but I had to rebase this to a current
-> upstream commit since v1 didn't apply cleanly, as Niklas pointed out in
-> private. The following assessment from v1 is still valid, though:
->=20
-> Hi Niklas, Shay, Jason,
->=20
-> by now I believe fixing this in s390/pci is the right way to go, since
-> the other PCI error recovery implementations apparently don't require
-> this strict blocking of accesses to the PCI config space.
->    =20
-> Hi Alexander, Vasily, Heiko,
->    =20
-> while I sent this to netdev since prior versions were discussed there,
-> I assume this patch will go through the s390 tree, right?
->    =20
-> Thanks,
-> Gerd
->=20
->    =20
-> ---
->  arch/s390/pci/pci_event.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->=20
-> diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
-> index b95376041501f479eee20705d45fb8c68553da71..27db1e72c623f8a289cae457e=
-87f0a9896ed241d 100644
-> --- a/arch/s390/pci/pci_event.c
-> +++ b/arch/s390/pci/pci_event.c
-> @@ -188,7 +188,7 @@ static pci_ers_result_t zpci_event_attempt_error_reco=
-very(struct pci_dev *pdev)
->  	 * is unbound or probed and that userspace can't access its
->  	 * configuration space while we perform recovery.
->  	 */
-> -	pci_dev_lock(pdev);
-> +	device_lock(&pdev->dev);
->  	if (pdev->error_state =3D=3D pci_channel_io_perm_failure) {
->  		ers_res =3D PCI_ERS_RESULT_DISCONNECT;
->  		goto out_unlock;
-> @@ -257,7 +257,7 @@ static pci_ers_result_t zpci_event_attempt_error_reco=
-very(struct pci_dev *pdev)
->  		driver->err_handler->resume(pdev);
->  	pci_uevent_ers(pdev, PCI_ERS_RESULT_RECOVERED);
->  out_unlock:
-> -	pci_dev_unlock(pdev);
-> +	device_unlock(&pdev->dev);
->  	zpci_report_status(zdev, "recovery", status_str);
-> =20
->  	return ers_res;
-
-Code-wise this looks good to me and I've confirmed that EEH and AER
-indeed only use the device_lock() and I don't see a reason why that
-shouldn't be enough for us too if it is enough for them. I think I just
-picked pci_dev_lock() because it seemed fitting but it probably was too
-big a hammer.
-
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Thanks
+Nicolin
