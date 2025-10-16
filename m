@@ -1,198 +1,223 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5818714F112;
-	Thu, 16 Oct 2025 19:39:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E58611B3937;
+	Thu, 16 Oct 2025 21:00:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760643597; cv=none; b=cHDbckQjgiDrxr1MxcfmwPQe9YLH4mfZUQZY1n2bXyJ4hZM6HmC5DKeb8Tq0DhByisYDYkcP+TyijXDCppH/h13qi+QHFsHsOBCECA84z5oPOQUyaGeL1oNE6rX+lccrVJQI26JKS79ysvwsPXJTQhdw7G2YKY8jz6fzIsDSLoQ=
+	t=1760648433; cv=none; b=dgAt2mR6nznP3rdna4dQSkyglMsnoj6pVHbR4Xe7jPjXEuIFxAQrgKOXOMMadz33381HQjsRuFz528gSgdIfHbCMW9FA+AyW4NDIYVnSvqIJGEUZ+jBHjPgguccy59ZTMd5e/zfovjIHdklBMNxiKDgdbyXu5IjqeIVf4xyhozo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760643597; c=relaxed/simple;
-	bh=CC/AgS6gk9HMNPlrpGG6X9jAb39xkIRmyJwwtgPVL0Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=AxDzCaOauYRH9dma5veNSu6g9IiKN9PP1HB7U7wbaNp6LKxZ3a+3JLjDJO2/jK3LmFmeZpB951ZQtWkoJQQMdCQ13Kl3D0FiKMrBOnJ+yViOfhZqTKdClvqA69FgUQ49freBnNUNRst6xTb8sS3QhHVEPJP3zu2sqxRa4LdOyCM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Xa4cbksi; arc=none smtp.client-ip=198.175.65.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1760648433; c=relaxed/simple;
+	bh=R8mh5FQ8064vB6hbEAdsDztpZEieJ8efrSDaY6rzYgI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=DoO+b03QA6rCDw7uYpsPkih/2hn/p2YBlSvQToaEl7HSnBbQbtl5GNru+dQck08PnpqZvaT/a3vKvYTMo2rt9kEXsjGfgoiTsB0g5bT4ZxVvvD7c/CrcLWSzgXu0PBuOOC/eehHsAD4V+5jLUGurAdfn2T7y33DsFJjAL4P5NeU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=moSYQ9IK; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Xa4cbksi"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1760643596; x=1792179596;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=CC/AgS6gk9HMNPlrpGG6X9jAb39xkIRmyJwwtgPVL0Q=;
-  b=Xa4cbksieYVCNshC28sOwNRMFWq7gsWVvZfryWEg/tTw5Ox1gIuY2xnN
-   NqXwBt/rXJvwsZynFWQdNrr8B2a0iAzVnncrwA5wUhmhaC1PoUo/5Lnho
-   T/Bkju0D3f5fO+E8ixDm8KwaQEJFAzWQtRga8eGTqSf75i7XOFiXbrPCj
-   PYtWdqWbWuCMRYQxxwJpMN2V+rxa7he/DWQ/T7AFV+khAzx1+CN7CrT0H
-   cvPVz6KXgAffQCntpxeiHsl5omV94DtTnUttZFxiE7YRc/vkaL0kj84+e
-   eAkt8PudTA/BqLilbRrbPmoqflkOLV08XgqRGAkRlVQgngEpV9pc2LP0G
-   g==;
-X-CSE-ConnectionGUID: G4ztYf/qQ2++eiTSUHD1mg==
-X-CSE-MsgGUID: 0breztugSJaK9jQc4cTaQw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11584"; a="73966931"
-X-IronPort-AV: E=Sophos;i="6.19,234,1754982000"; 
-   d="scan'208";a="73966931"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Oct 2025 12:39:55 -0700
-X-CSE-ConnectionGUID: NiWqnOR8QWa3OZf6Nqok/A==
-X-CSE-MsgGUID: ceApWpnpTTWBjGlb+XGk2g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.19,234,1754982000"; 
-   d="scan'208";a="182224908"
-Received: from lkp-server02.sh.intel.com (HELO 66d7546c76b2) ([10.239.97.151])
-  by fmviesa007.fm.intel.com with ESMTP; 16 Oct 2025 12:39:50 -0700
-Received: from kbuild by 66d7546c76b2 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1v9TpE-0005Br-2h;
-	Thu, 16 Oct 2025 19:39:48 +0000
-Date: Fri, 17 Oct 2025 03:39:24 +0800
-From: kernel test robot <lkp@intel.com>
-To: "D. Wythe" <alibuda@linux.alibaba.com>, mjambigi@linux.ibm.com,
-	wenjia@linux.ibm.com, wintera@linux.ibm.com,
-	dust.li@linux.alibaba.com, tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com
-Cc: oe-kbuild-all@lists.linux.dev, kuba@kernel.org, davem@davemloft.net,
-	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org, pabeni@redhat.com, edumazet@google.com,
-	sidraya@linux.ibm.com, jaka@linux.ibm.com
-Subject: Re: [PATCH net-next] net/smc: add full IPv6 support for SMC
-Message-ID: <202510170341.RsDKVdRg-lkp@intel.com>
-References: <20251016054541.692-1-alibuda@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="moSYQ9IK"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59GK7o4A021089;
+	Thu, 16 Oct 2025 21:00:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=t7l/y8
+	hH/vFoPwZP3Zfq2IwPXzUBxuBk1Tqib7Yw4C8=; b=moSYQ9IKvrPGw/kMg1WkvX
+	mORvn1l41hjFkkmoHEJVcFKSHE0Z61BvPYVfuzZ7JOdo+9jVZlRxQi9iiZ0j3RCv
+	SWKTfJvAbI/IITsTRZrmk/h49jxkiLVOjZAvmJKMeJJ/pHpMeOwctL/fecZUbJkr
+	AnRxtBSVBVjmiTo8UxLKfUK1tEgw2XVlRPqDmJpX1L/2+j53wmpM0Rr+s0LIzc/b
+	nO5POess6Qf4gFmS0bQd+hCOSclH+ATZijlqq70MskYPNjxwGzZ4HzU2+p0eLtpN
+	tMQCxosMZ97i76gwDvOZYTyEYppbZizmQbCXh05jr6ICmrCLcKr3iRvwmSTqLEIA
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49qew0bxqu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 16 Oct 2025 21:00:26 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59GJho19015207;
+	Thu, 16 Oct 2025 21:00:26 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 49r1jsg3x4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 16 Oct 2025 21:00:26 +0000
+Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59GL0PRn7078448
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 16 Oct 2025 21:00:25 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 31FC558043;
+	Thu, 16 Oct 2025 21:00:25 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6F8D45805E;
+	Thu, 16 Oct 2025 21:00:24 +0000 (GMT)
+Received: from [9.61.254.141] (unknown [9.61.254.141])
+	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 16 Oct 2025 21:00:24 +0000 (GMT)
+Message-ID: <1ee79c53-4c29-475f-b44e-6839b1feef78@linux.ibm.com>
+Date: Thu, 16 Oct 2025 14:00:22 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251016054541.692-1-alibuda@linux.alibaba.com>
-
-Hi Wythe,
-
-kernel test robot noticed the following build errors:
-
-[auto build test ERROR on net-next/main]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/D-Wythe/net-smc-add-full-IPv6-support-for-SMC/20251016-134735
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/20251016054541.692-1-alibuda%40linux.alibaba.com
-patch subject: [PATCH net-next] net/smc: add full IPv6 support for SMC
-config: s390-randconfig-002-20251017 (https://download.01.org/0day-ci/archive/20251017/202510170341.RsDKVdRg-lkp@intel.com/config)
-compiler: s390-linux-gcc (GCC) 8.5.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20251017/202510170341.RsDKVdRg-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202510170341.RsDKVdRg-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
-   In file included from net/smc/smc_wr.h:20,
-                    from net/smc/smc_llc.h:16,
-                    from net/smc/af_smc.c:47:
-   net/smc/af_smc.c: In function 'smc_find_proposal_devices':
->> include/net/sock.h:389:37: error: 'struct sock_common' has no member named 'skc_v6_rcv_saddr'; did you mean 'skc_rcv_saddr'?
-    #define sk_v6_rcv_saddr __sk_common.skc_v6_rcv_saddr
-                                        ^~~~~~~~~~~~~~~~
-   net/smc/smc_core.h:639:30: note: in definition of macro 'smc_ipaddr_from'
-       __ipaddr->addr_v6 = __sk->_v6_member; \
-                                 ^~~~~~~~~~
-   net/smc/af_smc.c:1136:70: note: in expansion of macro 'sk_v6_rcv_saddr'
-     smc_ipaddr_from(&ini->smcrv2.saddr, smc->clcsock->sk, sk_rcv_saddr, sk_v6_rcv_saddr);
-                                                                         ^~~~~~~~~~~~~~~
-   In file included from net/smc/af_smc.c:32:
-   net/smc/af_smc.c: In function 'smc_connect_rdma_v2_prepare':
->> include/net/sock.h:389:37: error: 'struct sock_common' has no member named 'skc_v6_rcv_saddr'; did you mean 'skc_rcv_saddr'?
-    #define sk_v6_rcv_saddr __sk_common.skc_v6_rcv_saddr
-                                        ^~~~~~~~~~~~~~~~
-   net/smc/af_smc.c:1241:53: note: in expansion of macro 'sk_v6_rcv_saddr'
-       if (smc_ib_find_route_v6(net, &smc->clcsock->sk->sk_v6_rcv_saddr,
-                                                        ^~~~~~~~~~~~~~~
-   In file included from net/smc/smc_wr.h:20,
-                    from net/smc/smc_llc.h:16,
-                    from net/smc/af_smc.c:47:
-   net/smc/af_smc.c: In function 'smc_find_rdma_v2_device_serv':
->> include/net/sock.h:389:37: error: 'struct sock_common' has no member named 'skc_v6_rcv_saddr'; did you mean 'skc_rcv_saddr'?
-    #define sk_v6_rcv_saddr __sk_common.skc_v6_rcv_saddr
-                                        ^~~~~~~~~~~~~~~~
-   net/smc/smc_core.h:639:30: note: in definition of macro 'smc_ipaddr_from'
-       __ipaddr->addr_v6 = __sk->_v6_member; \
-                                 ^~~~~~~~~~
-   net/smc/af_smc.c:2320:74: note: in expansion of macro 'sk_v6_rcv_saddr'
-     smc_ipaddr_from(&ini->smcrv2.saddr, new_smc->clcsock->sk, sk_rcv_saddr, sk_v6_rcv_saddr);
-                                                                             ^~~~~~~~~~~~~~~
-
-Kconfig warnings: (for reference only)
-   WARNING: unmet direct dependencies detected for I2C_K1
-   Depends on [n]: I2C [=y] && HAS_IOMEM [=y] && (ARCH_SPACEMIT || COMPILE_TEST [=y]) && OF [=n]
-   Selected by [y]:
-   - MFD_SPACEMIT_P1 [=y] && HAS_IOMEM [=y] && (ARCH_SPACEMIT || COMPILE_TEST [=y]) && I2C [=y]
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 01/10] PCI: Avoid saving error values for config space
+To: Niklas Schnelle <schnelle@linux.ibm.com>, Lukas Wunner <lukas@wunner.de>
+Cc: Benjamin Block <bblock@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org, alex.williamson@redhat.com,
+        helgaas@kernel.org, clg@redhat.com, mjrosato@linux.ibm.com
+References: <20251001151543.GB408411@p1gen4-pw042f0m>
+ <ae5b191d-ffc6-4d40-a44b-d08e04cac6be@linux.ibm.com>
+ <aOE1JMryY_Oa663e@wunner.de>
+ <c0818c13-8075-4db0-b76f-3c9b10516e7a@linux.ibm.com>
+ <aOQX6ZTMvekd6gWy@wunner.de>
+ <8c14d648-453c-4426-af69-4e911a1128c1@linux.ibm.com>
+ <aOZoWDQV0TNh-NiM@wunner.de>
+ <21ef5524-738a-43d5-bc9a-87f907a8aa70@linux.ibm.com>
+ <aOaqEhLOzWzswx8O@wunner.de>
+ <d69f239040b830718b124c5bcef01b5075768226.camel@linux.ibm.com>
+ <aOtL_Y6HH5-qh2jD@wunner.de>
+ <bb59edee909ceb09527cedec10896d45126f0027.camel@linux.ibm.com>
+Content-Language: en-US
+From: Farhan Ali <alifm@linux.ibm.com>
+In-Reply-To: <bb59edee909ceb09527cedec10896d45126f0027.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: nYRmfBHz-sJUtlkxxhCAHULZ3YAIdEdY
+X-Authority-Analysis: v=2.4 cv=eJkeTXp1 c=1 sm=1 tr=0 ts=68f15ceb cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=PKv9noQjo39VnIMqULwA:9 a=QEXdDO2ut3YA:10 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDExMDAxNCBTYWx0ZWRfXyuDHD4JM2u4g
+ bbK7WrmK5hQz+YdmBVZeGIooFLX16nb8sJ9MGhgmdUXtgf/ROPKEHo6hDkcyPLuzSIl6REhDt7C
+ 3P2X6qV5J6i/pcmmbF04kVbvLHZBnrtP+VDr7GJvbgIfc9zuRPsSAzzo+lQ9LtYyBMm/gUnQxis
+ FkIYIKcQ8DY2fVvPFUkAV7UinEM7qFkbShk0SclYQaROUTzcJ391I1XYsyUC7FxPLUnp8gKlaTo
+ CSlQIADeadrDT0pDHP9B+mNwTtQCy17jSv/X3xVQaMQksf1cc133P8c3GAziKr+oCw/cBOa5ajV
+ StDG4l2dg0MViDWob1DSqBNWhFkPOMS286uXLTKmNGVd6UHsiRSZTA4QxDS7cAnnPxCRgQiJ0TN
+ H0JsrcTxPgdBc316lMxBcjGrO+r8xQ==
+X-Proofpoint-GUID: nYRmfBHz-sJUtlkxxhCAHULZ3YAIdEdY
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-16_04,2025-10-13_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 lowpriorityscore=0 spamscore=0 clxscore=1015 impostorscore=0
+ phishscore=0 malwarescore=0 adultscore=0 priorityscore=1501 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510110014
 
 
-vim +389 include/net/sock.h
+On 10/14/2025 5:07 AM, Niklas Schnelle wrote:
+> On Sun, 2025-10-12 at 08:34 +0200, Lukas Wunner wrote:
+>> On Thu, Oct 09, 2025 at 11:12:03AM +0200, Niklas Schnelle wrote:
+>>> On Wed, 2025-10-08 at 20:14 +0200, Lukas Wunner wrote:
+>>>> And yet you're touching the device by trying to reset it.
+>>>>
+>>>> The code you're introducing in patch [01/10] only becomes necessary
+>>>> because you're not following the above-quoted protocol.  If you
+>>>> follow the protocol, patch [01/10] becomes unnecessary.
+>>> I agree with your point above error_detected() should not touch the
+>>> device. My understanding of Farhan's series though is that it follows
+>>> that rule. As I understand it error_detected() is only used to inject
+>>> the s390 specific PCI error event into the VM using the information
+>>> stored in patch 7. As before vfio-pci returns
+>>> PCI_ERS_RESULT_CAN_RECOVER from error_detected() but then with patch 7
+>>> the pass-through case is detected and this gets turned into
+>>> PCI_ERS_RESULT_RECOVERED and the rest of the s390 recovery code gets
+>>> skipped. And yeah, writing it down I'm not super happy with this part,
+>>> maybe it would be better to have an explicit
+>>> PCI_ERS_RESULT_LEAVE_AS_IS.
+>> Thanks, that's the high-level overview I was looking for.
+>>
+>> It would be good to include something like this at least
+>> in the cover letter or additionally in the commit messages
+>> so that it's easier for reviewers to connect the dots.
+>>
+>> I was expecting paravirtualized error handling, i.e. the
+>> VM is aware it's virtualized and vfio essentially proxies
+>> the pci_ers_result return value of the driver (e.g. nvme)
+>> back to the host, thereby allowing the host to drive error
+>> recovery normally.  I'm not sure if there are technical
+>> reasons preventing such an approach.
+> It does sound technically feasible but sticking to the already
+> architected error reporting and recovery has clear advantages. For one
+> it will work with existing Linux versions without guest changes and it
+> also has precedent with it working already in the z/VM hypervisor for
+> years. I agree that there is some level of mismatch with Linux'
+> recovery support but I don't think that outweighs having a clean
+> virtualization support where the host and guest use the same interface.
+>
+>> If you do want to stick with your alternative approach,
+>> maybe doing the error handling in the ->mmio_enabled() phase
+>> instead of ->error_detected() would make more sense.
+>> In that phase you're allowed to access the device,
+>> you can also attempt a local reset and return
+>> PCI_ERS_RESULT_RECOVERED on success.
+>>
+>> You'd have to return PCI_ERS_RESULT_CAN_RECOVER though
+>> from the ->error_detected() callback in order to progress
+>> to the ->mmio_enabled() step.
+>>
+>> Does that make sense?
+>>
+>> Thanks,
+>>
+>> Lukas
+> The problem with using ->mmio_enabled() is two fold. For one we
+> sometimes have to do a reset instead of clearing the error state, for
+> example if the device was not only put in the error state but also
+> disabled, or if the guest driver wants it, so we would also have to use
+> ->slot_reset() and could end up with two resets. Second and more
+> importantly this would break the guests assumption that the device will
+> be in the error state with MMIO and DMA blocked when it gets an error
+> event. On the other hand, that's exactly the state it is in if we
+> report the error in the ->error_detected() callback and then skip the
+> rest of recovery so it can be done in the guest, likely with the exact
+> same Linux code. I'd assume this should be similar if QEMU/KVM wanted
+> to virtualize AER+DPC except that there MMIO remains accessible?
+>
+> Here's an idea. Could it be an option to detect the pass-through in the
+> vfio-pci driver's ->error_detected() callback, possibly with feedback
+> from QEMU (@Alex?), and then return PCI_ERS_RESULT_RECOVERED from there
+> skipping the rest of recovery?
+>
+> The skipping would be in-line with the below section of the
+> documentation i.e. "no further intervention":
+>
+>    - PCI_ERS_RESULT_RECOVERED
+>        Driver returns this if it thinks the device is usable despite
+>        the error and does not need further intervention.
+>
+> It's just that in this case the device really remains with MMIO and DMA
+> blocked, usable only in the sense that the vfio-pci + guest VM combo
+> knows how to use a device with MMIO and DMA blocked with the guest
+> recovery.
+>
+> Thanks,
+> Niklas
 
-4dc6dc7162c08b Eric Dumazet             2009-07-15  368  
-68835aba4d9b74 Eric Dumazet             2010-11-30  369  #define sk_dontcopy_begin	__sk_common.skc_dontcopy_begin
-68835aba4d9b74 Eric Dumazet             2010-11-30  370  #define sk_dontcopy_end		__sk_common.skc_dontcopy_end
-4dc6dc7162c08b Eric Dumazet             2009-07-15  371  #define sk_hash			__sk_common.skc_hash
-5080546682bae3 Eric Dumazet             2013-10-02  372  #define sk_portpair		__sk_common.skc_portpair
-05dbc7b59481ca Eric Dumazet             2013-10-03  373  #define sk_num			__sk_common.skc_num
-05dbc7b59481ca Eric Dumazet             2013-10-03  374  #define sk_dport		__sk_common.skc_dport
-5080546682bae3 Eric Dumazet             2013-10-02  375  #define sk_addrpair		__sk_common.skc_addrpair
-5080546682bae3 Eric Dumazet             2013-10-02  376  #define sk_daddr		__sk_common.skc_daddr
-5080546682bae3 Eric Dumazet             2013-10-02  377  #define sk_rcv_saddr		__sk_common.skc_rcv_saddr
-^1da177e4c3f41 Linus Torvalds           2005-04-16  378  #define sk_family		__sk_common.skc_family
-^1da177e4c3f41 Linus Torvalds           2005-04-16  379  #define sk_state		__sk_common.skc_state
-^1da177e4c3f41 Linus Torvalds           2005-04-16  380  #define sk_reuse		__sk_common.skc_reuse
-055dc21a1d1d21 Tom Herbert              2013-01-22  381  #define sk_reuseport		__sk_common.skc_reuseport
-9fe516ba3fb29b Eric Dumazet             2014-06-27  382  #define sk_ipv6only		__sk_common.skc_ipv6only
-26abe14379f8e2 Eric W. Biederman        2015-05-08  383  #define sk_net_refcnt		__sk_common.skc_net_refcnt
-^1da177e4c3f41 Linus Torvalds           2005-04-16  384  #define sk_bound_dev_if		__sk_common.skc_bound_dev_if
-^1da177e4c3f41 Linus Torvalds           2005-04-16  385  #define sk_bind_node		__sk_common.skc_bind_node
-8feaf0c0a5488b Arnaldo Carvalho de Melo 2005-08-09  386  #define sk_prot			__sk_common.skc_prot
-07feaebfcc10cd Eric W. Biederman        2007-09-12  387  #define sk_net			__sk_common.skc_net
-efe4208f47f907 Eric Dumazet             2013-10-03  388  #define sk_v6_daddr		__sk_common.skc_v6_daddr
-efe4208f47f907 Eric Dumazet             2013-10-03 @389  #define sk_v6_rcv_saddr	__sk_common.skc_v6_rcv_saddr
-33cf7c90fe2f97 Eric Dumazet             2015-03-11  390  #define sk_cookie		__sk_common.skc_cookie
-70da268b569d32 Eric Dumazet             2015-10-08  391  #define sk_incoming_cpu		__sk_common.skc_incoming_cpu
-8e5eb54d303b7c Eric Dumazet             2015-10-08  392  #define sk_flags		__sk_common.skc_flags
-ed53d0ab761f5c Eric Dumazet             2015-10-08  393  #define sk_rxhash		__sk_common.skc_rxhash
-efe4208f47f907 Eric Dumazet             2013-10-03  394  
-5d4cc87414c5d1 Eric Dumazet             2024-02-16  395  	__cacheline_group_begin(sock_write_rx);
-43f51df4172955 Eric Dumazet             2021-11-15  396  
-9115e8cd2a0c6e Eric Dumazet             2016-12-03  397  	atomic_t		sk_drops;
-5d4cc87414c5d1 Eric Dumazet             2024-02-16  398  	__s32			sk_peek_off;
-7d452516b67add Eric Dumazet             2025-09-29  399  	struct sk_buff_head	sk_error_queue;
-b178bb3dfc30d9 Eric Dumazet             2010-11-16  400  	struct sk_buff_head	sk_receive_queue;
-fa438ccfdfd3f6 Eric Dumazet             2007-03-04  401  	/*
-fa438ccfdfd3f6 Eric Dumazet             2007-03-04  402  	 * The backlog queue is special, it is always used with
-fa438ccfdfd3f6 Eric Dumazet             2007-03-04  403  	 * the per-socket spinlock held and requires low latency
-fa438ccfdfd3f6 Eric Dumazet             2007-03-04  404  	 * access. Therefore we special case it's implementation.
-b178bb3dfc30d9 Eric Dumazet             2010-11-16  405  	 * Note : rmem_alloc is in this structure to fill a hole
-b178bb3dfc30d9 Eric Dumazet             2010-11-16  406  	 * on 64bit arches, not because its logically part of
-b178bb3dfc30d9 Eric Dumazet             2010-11-16  407  	 * backlog.
-fa438ccfdfd3f6 Eric Dumazet             2007-03-04  408  	 */
-fa438ccfdfd3f6 Eric Dumazet             2007-03-04  409  	struct {
-b178bb3dfc30d9 Eric Dumazet             2010-11-16  410  		atomic_t	rmem_alloc;
-b178bb3dfc30d9 Eric Dumazet             2010-11-16  411  		int		len;
-fa438ccfdfd3f6 Eric Dumazet             2007-03-04  412  		struct sk_buff	*head;
-fa438ccfdfd3f6 Eric Dumazet             2007-03-04  413  		struct sk_buff	*tail;
-fa438ccfdfd3f6 Eric Dumazet             2007-03-04  414  	} sk_backlog;
-b178bb3dfc30d9 Eric Dumazet             2010-11-16  415  #define sk_rmem_alloc sk_backlog.rmem_alloc
-2c8c56e15df3d4 Eric Dumazet             2014-11-11  416  
-5d4cc87414c5d1 Eric Dumazet             2024-02-16  417  	__cacheline_group_end(sock_write_rx);
-5d4cc87414c5d1 Eric Dumazet             2024-02-16  418  
-5d4cc87414c5d1 Eric Dumazet             2024-02-16  419  	__cacheline_group_begin(sock_read_rx);
-5d4cc87414c5d1 Eric Dumazet             2024-02-16  420  	/* early demux fields */
-5d4cc87414c5d1 Eric Dumazet             2024-02-16  421  	struct dst_entry __rcu	*sk_rx_dst;
-5d4cc87414c5d1 Eric Dumazet             2024-02-16  422  	int			sk_rx_dst_ifindex;
-5d4cc87414c5d1 Eric Dumazet             2024-02-16  423  	u32			sk_rx_dst_cookie;
-5d4cc87414c5d1 Eric Dumazet             2024-02-16  424  
+Hi Lukas,
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Hope this helps to clarify why we still need patch [01/10] (or at least 
+the check in pci_save_state() to see if the device responds with error 
+value or not if we move forward with your patch series PCI: Universal 
+error recoverability of devices). We can discuss if that check needs to 
+be moved somewhere else if there is concern with overhead in 
+pci_save_state(). Discussing with Niklas (off mailing list), we were 
+thinking if it makes sense if vfio_pci_core_aer_err_detected() returned 
+PCI_ERS_RESULT_RECOVERED if it doesn't need any further intervention 
+from platform recovery to align closer to pcie-error-recovery 
+documentation? One proposal would be to have a flag in struct 
+vfio_pci_core_device(eg vdev->mediated_recovery), which can be used to 
+return PCI_ERS_RESULT_RECOVERED in vfio_pci_core_aer_err_detected()if 
+the flag was set. The flag could be set by userspace using 
+VFIO_DEVICE_FEATURE_SET for the device feature 
+VFIO_DEVICE_FEATURE_ZPCI_ERROR (would like to hear Alex's thoughts on 
+this proposal).
+
+Thanks
+
+Farhan
+
