@@ -1,174 +1,446 @@
-Received: from CY7PR03CU001.outbound.protection.outlook.com (mail-westcentralusazon11010042.outbound.protection.outlook.com [40.93.198.42])
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA4E27262F;
-	Wed, 15 Oct 2025 22:02:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.198.42
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760565772; cv=fail; b=eur0+SfAdei9juvGzXQ3jzF7GOhXjzEYwmJmldvKAFbE7ZuO6Mhs/H/6O7wngggCVjV0WbeqE//+lQGlLej4512//SARvNppWUQ1TUp+tCPmAnxpe89F/ESTKywoqG+T8/jz+CLDFWp9Bpj+KWZ88E3fIskfS8hPmm1H3Sqta/Q=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760565772; c=relaxed/simple;
-	bh=BrqOiolYMzctS38ZgCjXclWlSQhG4w55qXi4fBQcKgw=;
-	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dq2FWf1Qx6Frv0x+Q0Yldrirz70JiJhVQF74YHkrNcrbZFnXAseicur4Mvmjetc9yl0RMS7IXng7wkckhqngWfho0r/zaIPNSIsIf/88crEMU3zqn+TH1+lNV3mZEAoqIWjk4gunaDOdk4NBiaWZT/NSbTSt7unLbIqfW6YdUP0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=maGviLPj; arc=fail smtp.client-ip=40.93.198.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8994A2BAF9;
+	Thu, 16 Oct 2025 05:45:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1760593554; cv=none; b=USr8POonLk4mJo2ut+YT1I9XkAa9qMErM+k//vhpc+nyK2DdnpIZVwAVIW5og0cT6prcxTggkfmfVt8kYiN7W+f7N9F9HxM2Pf4AgWYpVSoKBSmsiDB0dOS8dZSTYq5/f4oPxfhmCuuVvON21htm8fc4aWj1NV5KiwFb9c397Ew=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1760593554; c=relaxed/simple;
+	bh=FDR5UEn9AP3q719II4Sn5DGX9fP4beSpnOfOkbY+2zs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WitR/wL2qJf/WUpptXBrl9mJ6HGj0LlKR1IN6Nzf9Rr1fk+uh70hcQmRC9kwFjIRkt33M6fK/gCLcW726mKAhVugZdZMiXW+RkeL9v1Biff9oCCXZNtZhkoIBklhPeC4PK5pUzUdBIAIFD3+qDeT2uAtuAPaqZLEpyNdCsza974=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=BTsw66vW; arc=none smtp.client-ip=115.124.30.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="maGviLPj"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=mGsr+VdtLSjMMNDEgCEkujsMAfyuGbFWZ0oT5z7QJ0pq8KpR5gs23fmcWbq5awqQQjUp7oLfQ3WcxejVbFf0M3UXx1ChRA6kU5SXUmKU9hQ6U2twNNJN63y4luN8zQ26wB02bPBtBvZDln5NPdk0VNjCKH1BkLMovNfOJBNR/ExCOUimSnM5chKEVzRjlECrEoyAuMz1IbbrG/E9fjmBtBAnxgYDkzkKjS/mx10Qi/aErAlxEf+dciKh/alaRGGIkMPJUKotFW4K9CUTtBoIbJ3J/qe0/1r+yr9LfgKLSB0/ynah20sQrXT0f1FeJA4WIllu2RqjEddpae5rTnajBg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=7SGRrPS3HdagIo/c2OYsBv+ocTyBUS7cJdVp/ApU4Ww=;
- b=itv+XtdYBgxoeQBwLYfTsLMX6A5Kmr7PE6m06cSF/XPwPEDSVUQ1eALkgRMH2eIyddZoMIVyXdU5elWqqKvQO7TWeshd/3zmj9KuI2h64O7VjV67PJXK+4HNryP1/NBbElP6aoF/thCEy1/WDzqdJR5hA6GQMVae5QzZhv5W2ySr3sRJqwk0vY2eXyNYfk8Q1Ywr2f/ZQaajQpKr0nH5kDFbjr/RtMGFXKObshU3zSXQ9Q3+2lUNjwV+J19j/cYGB4S+hLjNjrNzoutPgSYIm/05Yx+nT8vF5oEmt8VudWIhFYMvW7MC3D23tjBjcHcfG1Tu/BGl3pxc8ikvFj5FCg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.118.232) smtp.rcpttodomain=8bytes.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=7SGRrPS3HdagIo/c2OYsBv+ocTyBUS7cJdVp/ApU4Ww=;
- b=maGviLPjtdymgUrpwbT7HAu6eSV7myau0SyhSc3EO6EC9+wczrlf4ZB73LqloDZRUHyDMqPz2MwOIZ14il6LeCBjuO4Qf+Xbyyyv8IrHRgZxPRxdwI7PvdsVL9dnMfnpZf3nfJ99oahutHnfkcONyyJkpsPApzYcG4L0rUuMFqNLkgaiBFK5JYpIijn2KTbKPQCDCC6YsMcDw5AfYhtpbfjDXzwv5pgqepo/IHTImgTZ3mO3Sa5NR1TuLT6k33XNpY62zfuD+PGdZvaVSRwskFI3EFnZMuJuM1vqDif+wx5aikjtNRKXlve0JYVGGt2ahCLXBHScM49IExoLmiE5zQ==
-Received: from SJ0PR05CA0152.namprd05.prod.outlook.com (2603:10b6:a03:339::7)
- by CY8PR12MB7586.namprd12.prod.outlook.com (2603:10b6:930:99::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9228.10; Wed, 15 Oct
- 2025 22:02:47 +0000
-Received: from SJ5PEPF000001ED.namprd05.prod.outlook.com
- (2603:10b6:a03:339:cafe::dc) by SJ0PR05CA0152.outlook.office365.com
- (2603:10b6:a03:339::7) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9253.4 via Frontend Transport; Wed,
- 15 Oct 2025 22:02:47 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.118.232) by
- SJ5PEPF000001ED.mail.protection.outlook.com (10.167.242.201) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9228.7 via Frontend Transport; Wed, 15 Oct 2025 22:02:47 +0000
-Received: from drhqmail203.nvidia.com (10.126.190.182) by mail.nvidia.com
- (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Wed, 15 Oct
- 2025 15:02:38 -0700
-Received: from drhqmail203.nvidia.com (10.126.190.182) by
- drhqmail203.nvidia.com (10.126.190.182) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.20; Wed, 15 Oct 2025 15:02:37 -0700
-Received: from Asurada-Nvidia (10.127.8.12) by mail.nvidia.com
- (10.126.190.182) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20 via Frontend
- Transport; Wed, 15 Oct 2025 15:02:35 -0700
-Date: Wed, 15 Oct 2025 15:02:34 -0700
-From: Nicolin Chen <nicolinc@nvidia.com>
-To: <joro@8bytes.org>, <jgg@nvidia.com>, <kevin.tian@intel.com>
-CC: <suravee.suthikulpanit@amd.com>, <will@kernel.org>,
-	<robin.murphy@arm.com>, <sven@kernel.org>, <j@jannau.net>,
-	<jean-philippe@linaro.org>, <robin.clark@oss.qualcomm.com>,
-	<dwmw2@infradead.org>, <baolu.lu@linux.intel.com>, <yong.wu@mediatek.com>,
-	<matthias.bgg@gmail.com>, <angelogioacchino.delregno@collabora.com>,
-	<tjeznach@rivosinc.com>, <pjw@kernel.org>, <palmer@dabbelt.com>,
-	<aou@eecs.berkeley.edu>, <heiko@sntech.de>, <schnelle@linux.ibm.com>,
-	<mjrosato@linux.ibm.com>, <wens@csie.org>, <jernej.skrabec@gmail.com>,
-	<samuel@sholland.org>, <thierry.reding@gmail.com>, <jonathanh@nvidia.com>,
-	<iommu@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
-	<asahi@lists.linux.dev>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-arm-msm@vger.kernel.org>, <linux-mediatek@lists.infradead.org>,
-	<linux-riscv@lists.infradead.org>, <linux-rockchip@lists.infradead.org>,
-	<linux-s390@vger.kernel.org>, <linux-sunxi@lists.linux.dev>,
-	<linux-tegra@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<patches@lists.linux.dev>
-Subject: Re: [PATCH v1 15/20] iommu/fsl_pamu_domain: Implement
- fsl_pamu_domain_test_device
-Message-ID: <aPAZ+hknPmn7GSns@Asurada-Nvidia>
-References: <cover.1760312725.git.nicolinc@nvidia.com>
- <a54211182e22db598b2a26f589e8f5f34ad78f98.1760312725.git.nicolinc@nvidia.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="BTsw66vW"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1760593546; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=xWjonkM19I8uAFT3mCqwD8qSNiEE5BRMUDt1qLjQAHI=;
+	b=BTsw66vW0lf83PdLTU0YE0BM8LbLyhUqamSTK2jFvcOj3ktCK/7ycfwBglBS0dSxOqFJsi/NzuRPYf0hj7Mhz2PMPSD0Yg0IXYUjnmCJMsYr7n3CJvKblk/0CUcsqWqpGDr5E4t2BABJ9G/hueUcb2Asca8YqMbtC+XZ7qxcwa0=
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WqJF0FS_1760593541 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Thu, 16 Oct 2025 13:45:45 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com>
+To: mjambigi@linux.ibm.com,
+	wenjia@linux.ibm.com,
+	wintera@linux.ibm.com,
+	dust.li@linux.alibaba.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com
+Cc: kuba@kernel.org,
+	davem@davemloft.net,
+	netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	pabeni@redhat.com,
+	edumazet@google.com,
+	sidraya@linux.ibm.com,
+	jaka@linux.ibm.com
+Subject: [PATCH net-next] net/smc: add full IPv6 support for SMC
+Date: Thu, 16 Oct 2025 13:45:41 +0800
+Message-ID: <20251016054541.692-1-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 2.45.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <a54211182e22db598b2a26f589e8f5f34ad78f98.1760312725.git.nicolinc@nvidia.com>
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SJ5PEPF000001ED:EE_|CY8PR12MB7586:EE_
-X-MS-Office365-Filtering-Correlation-Id: 9b86166e-0e94-4460-4e10-08de0c369370
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|36860700013|1800799024|376014|7416014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?DEm0E062OZeDr7Kx+MIKv7FX+QtY7de0TPFI30lACvZPV0ZDNM8T3+VAr4OH?=
- =?us-ascii?Q?zCuVB2yM89Q3zz6ga1y1GIwptgqdw9ALXvLpiFZUY3aFcZOnd+khIjfYM4uN?=
- =?us-ascii?Q?2p1qmNH33WE/R7dvVhl7ZPEdITCOzPnRk47hJlXeNZlWa6rpwMyBK+nap7v7?=
- =?us-ascii?Q?HFIqV1RI0o3AIB6OuQi4pQCAcODUGfnrthUXtyBBCeN1AGQwo6JVCNamOygM?=
- =?us-ascii?Q?e9hrWHLuqSWJoRaMMPvYr7OIN+2mTbhX6o/Pj7rhU4sNthpD5Q8eU14dztLk?=
- =?us-ascii?Q?vtzosnkyrUVkvVcMYI3650biT5SeS+sFr08sNpoGCggjt63HzHLU+6h7PSsc?=
- =?us-ascii?Q?gGMF0GqJd4rSL+jXJAZE0aOvj/dVnWQnaNeyWz5kKhJ1eMOfJu7aMMX71rhN?=
- =?us-ascii?Q?mIq8RANuPtLajMyaSPMOyUU/5ckZNQHIptC3PUkAQZY5VR2b8TrMyu7G3jMq?=
- =?us-ascii?Q?hUccut6BEUxsLDlz0mHNrM4EVgxtvUbQe+sVkrjmoawriKs5IXBiIqEOotj5?=
- =?us-ascii?Q?HkC6BfBMTNZRxBkBUjO1HWxyP6p0kcfh2vpKcGmKFz1ylbUlzTIUPZymY7rR?=
- =?us-ascii?Q?hbK7/FTEuWq7egEQWHK8nNMnwgiboeCSwtmB8whWLYTyYT9/ucDbuDMSqQ3H?=
- =?us-ascii?Q?rWXGsjLeBEG5OktuGX2fJydIG8c4IaNDjIbBVHJ7VTQDLwAnG7DiiYp/+GkR?=
- =?us-ascii?Q?P3lUEo6vMO1hQ2E8TEF1IpHiCWac90FXWRG7Uk5TMkoY2OJtXhe/NUhRXqoM?=
- =?us-ascii?Q?NWGhwHMh1SP1SHeZ+L19PJ3ZSwZN8MUx0UUYsnAOepV3msUFl69SpqEYOffn?=
- =?us-ascii?Q?aJu1XFa1dbnt2hIXQZxUc70sI9eOtaMj9052s9lmI469wKM1HZBKArdyPgeP?=
- =?us-ascii?Q?9nPOTEUkgXEY70vbY9bfF9YBR3Rj6HvPBvN+0wXJA7yFWYcDvRR4tQc/g/xb?=
- =?us-ascii?Q?fjCMlEtlijhVqIO7OVS42LrkyjqdGyT4g10l9E7v+q4ryBA+5Qe1QBCV2Mxn?=
- =?us-ascii?Q?qOr0mUUtyu4p8dKM3Xwjmyl2Je8g+onb0BmboltkCPzOpP/bZyREH6vvrIZd?=
- =?us-ascii?Q?Giy7ANM323Cva97iZew9lrlBp23WLEYBj2SPPl/J8tCtGsvffRKjAANOadXN?=
- =?us-ascii?Q?5WgJ0ttHdO1FyMOyDyHq5Fnll/xld5dHUwlkngK8pPgx8j4nG0Wq8v5qX+1L?=
- =?us-ascii?Q?EkIGJmPGL5cHWwUQtBY0CGYcJ40Zg4lHTYVCBIuUSYtnj659zV2q00o6XxEO?=
- =?us-ascii?Q?YoaEocPesTdf5GNbxPkK3mXMvvlSe2BAJYLl/CCtYNCgq1c180eX+WIr9hK5?=
- =?us-ascii?Q?DUOisyNnpZnqVZG0NTzw2iHp2VLFmUbvOsOCsDIH/08knEP8Xs//Q6SIO++x?=
- =?us-ascii?Q?tB/1RiDJZfEm+NnOlq4fJculdL/iuRPfYkIbTg+YBcTEAApQfS/n1d3v4z/o?=
- =?us-ascii?Q?iLTjAdxzrPISKaWBL4RMu0oZjjOJipqD0+4E7poQtB3R7uLAex3QZQO9WbKD?=
- =?us-ascii?Q?BEVlTXGsi42QwDjHQvCzhFE9sTzF6B96LFNjcQnaOjKqnHvOTu1Lds5P2hf8?=
- =?us-ascii?Q?MEdh4WjGsZ1DubHsImA=3D?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(36860700013)(1800799024)(376014)(7416014);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Oct 2025 22:02:47.4353
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9b86166e-0e94-4460-4e10-08de0c369370
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	SJ5PEPF000001ED.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR12MB7586
+Content-Transfer-Encoding: 8bit
 
-On Sun, Oct 12, 2025 at 05:05:12PM -0700, Nicolin Chen wrote:
-> +static int fsl_pamu_domain_test_device(struct iommu_domain *domain,
-> +				       struct device *dev, ioasid_t pasid,
-> +				       struct iommu_domain *old)
-> +{
-...
-> +	liodn = of_get_property(dev->of_node, "fsl,liodn", &len);
-> +	if (!liodn) {
-> +		pr_debug("missing fsl,liodn property at %pOF\n", dev->of_node);
-> +		return -ENODEV;
-> +	}
-> +
-> +	guard(spin_lock_irqsave)(&dma_domain->domain_lock);
+The current SMC implementation is IPv4-centric. While it contains a
+workaround for IPv4-mapped IPv6 addresses, it lacks a functional path
+for native IPv6, preventing its use in modern dual-stack or IPv6-only
+networks.
 
-Sorry. This should be:
-	guard(spinlock_irqsave)(&dma_domain->domain_lock);
+This patch introduces full, native IPv6 support by refactoring the
+address handling mechanism to be IP-version agnostic, which is
+achieved by:
 
-I have fixed this locally, and did the full build tests on all
-impacted arches.
+- Introducing a generic `struct smc_ipaddr` to abstract IP addresses.
+- Implementing an IPv6-specific route lookup function.
+- Extend GID matching logic for both IPv4 and IPv6 addresses
 
-I will send a v2 next week while collecting review comments here.
+With these changes, SMC can now discover RDMA devices and establish
+connections over both native IPv4 and IPv6 networks.
 
-Thanks
-Nicolin
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+---
+ net/smc/af_smc.c   |  35 +++++++----
+ net/smc/smc_core.h |  40 ++++++++++++-
+ net/smc/smc_ib.c   | 143 ++++++++++++++++++++++++++++++++++++++-------
+ net/smc/smc_ib.h   |   9 +++
+ net/smc/smc_llc.c  |   6 +-
+ 5 files changed, 193 insertions(+), 40 deletions(-)
+
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 77b99e8ef35a..cbff0b29ad5b 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1132,12 +1132,9 @@ static int smc_find_proposal_devices(struct smc_sock *smc,
+ 
+ 	/* check if there is an rdma v2 device available */
+ 	ini->check_smcrv2 = true;
+-	ini->smcrv2.saddr = smc->clcsock->sk->sk_rcv_saddr;
++
++	smc_ipaddr_from(&ini->smcrv2.saddr, smc->clcsock->sk, sk_rcv_saddr, sk_v6_rcv_saddr);
+ 	if (!(ini->smcr_version & SMC_V2) ||
+-#if IS_ENABLED(CONFIG_IPV6)
+-	    (smc->clcsock->sk->sk_family == AF_INET6 &&
+-	     !ipv6_addr_v4mapped(&smc->clcsock->sk->sk_v6_rcv_saddr)) ||
+-#endif
+ 	    !smc_clc_ueid_count() ||
+ 	    smc_find_rdma_device(smc, ini))
+ 		ini->smcr_version &= ~SMC_V2;
+@@ -1230,11 +1227,23 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
+ 		memcpy(ini->smcrv2.nexthop_mac, &aclc->r0.lcl.mac, ETH_ALEN);
+ 		ini->smcrv2.uses_gateway = false;
+ 	} else {
+-		if (smc_ib_find_route(net, smc->clcsock->sk->sk_rcv_saddr,
+-				      smc_ib_gid_to_ipv4(aclc->r0.lcl.gid),
+-				      ini->smcrv2.nexthop_mac,
+-				      &ini->smcrv2.uses_gateway))
+-			return SMC_CLC_DECL_NOROUTE;
++		struct smc_ipaddr peer_gid;
++
++		smc_ipaddr_from_gid(&peer_gid, aclc->r0.lcl.gid);
++		if (peer_gid.family == AF_INET) {
++			/* v4-mapped v6 address should also be treated as v4 address. */
++			if (smc_ib_find_route(net, smc->clcsock->sk->sk_rcv_saddr,
++					      peer_gid.addr,
++					      ini->smcrv2.nexthop_mac,
++					      &ini->smcrv2.uses_gateway))
++				return SMC_CLC_DECL_NOROUTE;
++		} else {
++			if (smc_ib_find_route_v6(net, &smc->clcsock->sk->sk_v6_rcv_saddr,
++						 &peer_gid.addr_v6,
++						 ini->smcrv2.nexthop_mac,
++						 &ini->smcrv2.uses_gateway))
++				return SMC_CLC_DECL_NOROUTE;
++		}
+ 		if (!ini->smcrv2.uses_gateway) {
+ 			/* mismatch: peer claims indirect, but its direct */
+ 			return SMC_CLC_DECL_NOINDIRECT;
+@@ -2307,8 +2316,10 @@ static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
+ 	memcpy(ini->peer_mac, pclc->lcl.mac, ETH_ALEN);
+ 	ini->check_smcrv2 = true;
+ 	ini->smcrv2.clc_sk = new_smc->clcsock->sk;
+-	ini->smcrv2.saddr = new_smc->clcsock->sk->sk_rcv_saddr;
+-	ini->smcrv2.daddr = smc_ib_gid_to_ipv4(smc_v2_ext->roce);
++
++	smc_ipaddr_from(&ini->smcrv2.saddr, new_smc->clcsock->sk, sk_rcv_saddr, sk_v6_rcv_saddr);
++	smc_ipaddr_from_gid(&ini->smcrv2.daddr, smc_v2_ext->roce);
++
+ 	rc = smc_find_rdma_device(new_smc, ini);
+ 	if (rc) {
+ 		smc_find_ism_store_rc(rc, ini);
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index a5a78cbff341..5cf1624e1660 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -279,6 +279,14 @@ struct smc_llc_flow {
+ 	struct smc_llc_qentry *qentry;
+ };
+ 
++struct smc_ipaddr {
++	sa_family_t family;
++	union {
++		__be32          addr;
++		struct in6_addr addr_v6;
++	};
++};
++
+ struct smc_link_group {
+ 	struct list_head	list;
+ 	struct rb_root		conns_all;	/* connection tree */
+@@ -359,7 +367,7 @@ struct smc_link_group {
+ 						/* rsn code for termination */
+ 			u8			nexthop_mac[ETH_ALEN];
+ 			u8			uses_gateway;
+-			__be32			saddr;
++			struct smc_ipaddr saddr;
+ 						/* net namespace */
+ 			struct net		*net;
+ 			u8			max_conns;
+@@ -389,9 +397,9 @@ struct smc_gidlist {
+ 
+ struct smc_init_info_smcrv2 {
+ 	/* Input fields */
+-	__be32			saddr;
++	struct smc_ipaddr saddr;
+ 	struct sock		*clc_sk;
+-	__be32			daddr;
++	struct smc_ipaddr daddr;
+ 
+ 	/* Output fields when saddr is set */
+ 	struct smc_ib_device	*ib_dev_v2;
+@@ -618,4 +626,30 @@ static inline struct smc_link_group *smc_get_lgr(struct smc_link *link)
+ {
+ 	return link->lgr;
+ }
++
++#define smc_ipaddr_from(_ipaddr, _sk, _v4_member, _v6_member)	\
++	do {							\
++		struct smc_ipaddr *__ipaddr = (_ipaddr);	\
++		struct sock *__sk = (_sk);			\
++		int __family = __sk->sk_family;			\
++		__ipaddr->family = __family;			\
++		if (__family == AF_INET)			\
++			__ipaddr->addr = __sk->_v4_member;	\
++		else						\
++			__ipaddr->addr_v6 = __sk->_v6_member;	\
++	} while (0)
++
++static inline void smc_ipaddr_from_gid(struct smc_ipaddr *ipaddr, u8 gid[SMC_GID_SIZE])
++{
++	__be32 gid_v4 = smc_ib_gid_to_ipv4(gid);
++
++	if (gid_v4 != cpu_to_be32(INADDR_NONE)) {
++		ipaddr->family = AF_INET;
++		ipaddr->addr = gid_v4;
++	} else {
++		ipaddr->family = AF_INET6;
++		ipaddr->addr_v6 = *smc_ib_gid_to_ipv6(gid);
++	}
++}
++
+ #endif
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index 0052f02756eb..5e13a323ad76 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -22,6 +22,7 @@
+ #include <linux/inetdevice.h>
+ #include <rdma/ib_verbs.h>
+ #include <rdma/ib_cache.h>
++#include <net/ip6_route.h>
+ 
+ #include "smc_pnet.h"
+ #include "smc_ib.h"
+@@ -225,48 +226,146 @@ int smc_ib_find_route(struct net *net, __be32 saddr, __be32 daddr,
+ 	return -ENOENT;
+ }
+ 
+-static int smc_ib_determine_gid_rcu(const struct net_device *ndev,
++int smc_ib_find_route_v6(struct net *net, struct in6_addr *saddr,
++			 struct in6_addr *daddr, u8 nexthop_mac[],
++			 u8 *uses_gateway)
++{
++	struct dst_entry *dst;
++	struct rt6_info *rt;
++	struct neighbour *neigh;
++	struct in6_addr *nexthop_addr;
++	int rc = -ENOENT;
++
++	struct flowi6 fl6 = {
++		.daddr = *daddr,
++		.saddr = *saddr,
++	};
++
++	if (ipv6_addr_any(daddr))
++		return -EINVAL;
++
++	dst = ip6_route_output(net, NULL, &fl6);
++	if (!dst || dst->error) {
++		rc = dst ? dst->error : -EINVAL;
++		goto out;
++	}
++	rt = (struct rt6_info *)dst;
++
++	if (ipv6_addr_type(&rt->rt6i_gateway) != IPV6_ADDR_ANY) {
++		*uses_gateway = 1;
++		nexthop_addr = &rt->rt6i_gateway;
++	} else {
++		*uses_gateway = 0;
++		nexthop_addr = daddr;
++	}
++
++	neigh = dst_neigh_lookup(dst, nexthop_addr);
++	if (!neigh)
++		goto out;
++
++	read_lock_bh(&neigh->lock);
++	if (neigh->nud_state & NUD_VALID) {
++		memcpy(nexthop_mac, neigh->ha, ETH_ALEN);
++		rc = 0;
++	}
++	read_unlock_bh(&neigh->lock);
++
++	neigh_release(neigh);
++out:
++	dst_release(dst);
++	return rc;
++}
++
++static bool smc_ib_match_gid_rocev2(const struct net_device *ndev,
+ 				    const struct ib_gid_attr *attr,
+-				    u8 gid[], u8 *sgid_index,
+ 				    struct smc_init_info_smcrv2 *smcrv2)
+ {
+-	if (!smcrv2 && attr->gid_type == IB_GID_TYPE_ROCE) {
+-		if (gid)
+-			memcpy(gid, &attr->gid, SMC_GID_SIZE);
+-		if (sgid_index)
+-			*sgid_index = attr->index;
+-		return 0;
+-	}
+-	if (smcrv2 && attr->gid_type == IB_GID_TYPE_ROCE_UDP_ENCAP &&
+-	    smc_ib_gid_to_ipv4((u8 *)&attr->gid) != cpu_to_be32(INADDR_NONE)) {
++	struct net *net = dev_net(ndev);
++	bool subnet_match = false;
++
++	if (smc_ib_gid_to_ipv4((u8 *)&attr->gid) != cpu_to_be32(INADDR_NONE)) {
+ 		struct in_device *in_dev = __in_dev_get_rcu(ndev);
+-		struct net *net = dev_net(ndev);
+ 		const struct in_ifaddr *ifa;
+-		bool subnet_match = false;
+ 
+ 		if (!in_dev)
+-			goto out;
++			return false;
++
++		if (smcrv2->saddr.family != AF_INET)
++			return false;
++
+ 		in_dev_for_each_ifa_rcu(ifa, in_dev) {
+-			if (!inet_ifa_match(smcrv2->saddr, ifa))
++			if (!inet_ifa_match(smcrv2->saddr.addr, ifa))
+ 				continue;
+ 			subnet_match = true;
+ 			break;
+ 		}
++
+ 		if (!subnet_match)
+-			goto out;
+-		if (smcrv2->daddr && smc_ib_find_route(net, smcrv2->saddr,
+-						       smcrv2->daddr,
+-						       smcrv2->nexthop_mac,
+-						       &smcrv2->uses_gateway))
+-			goto out;
++			return false;
++
++		if (smcrv2->daddr.addr &&
++		    smc_ib_find_route(net, smcrv2->saddr.addr,
++				      smcrv2->daddr.addr,
++				      smcrv2->nexthop_mac,
++				      &smcrv2->uses_gateway))
++			return false;
++
++	} else if (!(ipv6_addr_type(smc_ib_gid_to_ipv6((u8 *)&attr->gid)) & IPV6_ADDR_LINKLOCAL)) {
++		struct inet6_dev *in6_dev = __in6_dev_get(ndev);
++		const struct inet6_ifaddr *if6;
++
++		if (!in6_dev)
++			return false;
++
++		if (smcrv2->saddr.family != AF_INET6)
++			return false;
++
++		list_for_each_entry_rcu(if6, &in6_dev->addr_list, if_list) {
++			if (ipv6_addr_type(&if6->addr) & IPV6_ADDR_LINKLOCAL)
++				continue;
++			if (!ipv6_prefix_equal(&if6->addr, &smcrv2->saddr.addr_v6, if6->prefix_len))
++				continue;
++			subnet_match = true;
++			break;
++		}
++
++		if (!subnet_match)
++			return false;
++
++		if ((ipv6_addr_type(&smcrv2->daddr.addr_v6) != IPV6_ADDR_ANY) &&
++		    smc_ib_find_route_v6(net, &smcrv2->saddr.addr_v6,
++					 &smcrv2->daddr.addr_v6,
++					 smcrv2->nexthop_mac,
++					 &smcrv2->uses_gateway))
++			return false;
+ 
++	} else {
++		return false;
++	}
++
++	return true;
++}
++
++static int smc_ib_determine_gid_rcu(const struct net_device *ndev,
++				    const struct ib_gid_attr *attr,
++				    u8 gid[], u8 *sgid_index,
++				    struct smc_init_info_smcrv2 *smcrv2)
++{
++	bool gid_match = false;
++
++	if (!smcrv2 && attr->gid_type == IB_GID_TYPE_ROCE)
++		gid_match = true;
++	else if (smcrv2 && attr->gid_type == IB_GID_TYPE_ROCE_UDP_ENCAP)
++		gid_match = smc_ib_match_gid_rocev2(ndev, attr, smcrv2);
++
++	if (gid_match) {
+ 		if (gid)
+ 			memcpy(gid, &attr->gid, SMC_GID_SIZE);
+ 		if (sgid_index)
+ 			*sgid_index = attr->index;
+ 		return 0;
+ 	}
+-out:
++
+ 	return -ENODEV;
+ }
+ 
+diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+index ef8ac2b7546d..7cbeb7350478 100644
+--- a/net/smc/smc_ib.h
++++ b/net/smc/smc_ib.h
+@@ -69,6 +69,12 @@ static inline __be32 smc_ib_gid_to_ipv4(u8 gid[SMC_GID_SIZE])
+ 	return cpu_to_be32(INADDR_NONE);
+ }
+ 
++static inline struct in6_addr *smc_ib_gid_to_ipv6(u8 gid[SMC_GID_SIZE])
++{
++	struct in6_addr *addr6 = (struct in6_addr *)gid;
++	return addr6;
++}
++
+ static inline struct net *smc_ib_net(struct smc_ib_device *smcibdev)
+ {
+ 	if (smcibdev && smcibdev->ibdev)
+@@ -114,6 +120,9 @@ int smc_ib_determine_gid(struct smc_ib_device *smcibdev, u8 ibport,
+ 			 struct smc_init_info_smcrv2 *smcrv2);
+ int smc_ib_find_route(struct net *net, __be32 saddr, __be32 daddr,
+ 		      u8 nexthop_mac[], u8 *uses_gateway);
++int smc_ib_find_route_v6(struct net *net, struct in6_addr *saddr,
++			 struct in6_addr *daddr, u8 nexthop_mac[],
++			 u8 *uses_gateway);
+ bool smc_ib_is_valid_local_systemid(void);
+ int smcr_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
+ #endif
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index f865c58c3aa7..f2a02611ab25 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -1055,8 +1055,9 @@ int smc_llc_cli_add_link(struct smc_link *link, struct smc_llc_qentry *qentry)
+ 	if (lgr->smc_version == SMC_V2) {
+ 		ini->check_smcrv2 = true;
+ 		ini->smcrv2.saddr = lgr->saddr;
+-		ini->smcrv2.daddr = smc_ib_gid_to_ipv4(llc->sender_gid);
++		smc_ipaddr_from_gid(&ini->smcrv2.daddr, llc->sender_gid);
+ 	}
++
+ 	smc_pnet_find_alt_roce(lgr, ini, link->smcibdev);
+ 	if (!memcmp(llc->sender_gid, link->peer_gid, SMC_GID_SIZE) &&
+ 	    (lgr->smc_version == SMC_V2 ||
+@@ -1438,8 +1439,7 @@ int smc_llc_srv_add_link(struct smc_link *link,
+ 		if (send_req_add_link_resp) {
+ 			struct smc_llc_msg_req_add_link_v2 *req_add =
+ 				&req_qentry->msg.req_add_link;
+-
+-			ini->smcrv2.daddr = smc_ib_gid_to_ipv4(req_add->gid[0]);
++			smc_ipaddr_from_gid(&ini->smcrv2.daddr, req_add->gid[0]);
+ 		}
+ 	}
+ 	smc_pnet_find_alt_roce(lgr, ini, link->smcibdev);
+-- 
+2.45.0
+
