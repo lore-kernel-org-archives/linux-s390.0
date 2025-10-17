@@ -1,191 +1,124 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43681335066
-	for <linux-s390@vger.kernel.org>; Fri, 17 Oct 2025 15:08:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 131CD242935;
+	Fri, 17 Oct 2025 15:17:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760713683; cv=none; b=MbTvmSE8FMXsEzG57IH0+GIoy/2Yg5Vp85TG3xZUfOtE6dSVsPGEDVYaJ+2pRZ5i9K1uzd/5L46Se9lm4iZbbPknkSUQiPNT89B1i4SW+DC5brlyUAryKiAAidHkwMJjh7wrIREyzSVEjItOa04iKBATfkK9G2JDMwaTX5w/NTE=
+	t=1760714262; cv=none; b=muShhQYuo5x25P9i9mDqNwtJOd5uiOPmVGvmpeC5nOZf3W7Wnuh2mamI48AYd1iU0ilmBb27lQVHA2x2r08r690eIdLwuB1jjWEDGsR2vnHagzrRy5phdlBlaq4ANaUrheBti3MzMXm7QsnSEdOXYNrKONpR2wWSh7Uq+MoBZRU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760713683; c=relaxed/simple;
-	bh=8FnhvHU+cZJ6d29TK17dqd2oLil9K+bBITH2vkfujHU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QJoC8Aj7F8NaFaWX3ALhzDCT2OLuZGXZnp7LLlxJPvHPhN900N16U3+K3mI79Ke0RjMDSbeVr2doQrOoTY1XJV6zIlOQVY+UBtMa9YSo6QucZgejIBCykLm9BE/r5Kp25ef6bEdo4r4VzEycMLsmZGRawWQFhPnikzYo3ffRBSA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hrtjGFOu; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1760714262; c=relaxed/simple;
+	bh=FTb1AAcHaLUm7kq+lzMKEc885htHBb4B002scHRzRNQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=HIC6vFSQsJTA/8cGOj8HhGF0L7W82qiDN4YB0ksGf9ZOy3GgjhArJcLTY9AeOcOZGHQsHxSsIPKJTMtL+7pwqOpPmMCGzwbBJQG3s/oeRDb/R/I8Ciks8FywDQAyVAh2eebyA8+TrN5IS2f6GYFgFmg2wFH7dyzmQesPE1yucio=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=eCdWzyg7; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hrtjGFOu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1760713679;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=J9X1BIc43NGsZkRZORFu1zjHPZ7Rg9eKPpWeWjUt83E=;
-	b=hrtjGFOuHwEmmnV2YlryD25CoAqQYySY9/jQV7YWorw2Cmv+N8Fat3UiFJ0tCjf6+1PZ82
-	FkHvaDK5/YhjEI5sJuknXpMWZr6U4ZRhbMGG6GtYAxAQ39IsRJjMEz1Zjmsd8/kR4H4eY9
-	TdPvCmdEF6b0/fhcCGLJ8VGPTUtBOVo=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-346-DfByelHKPx6HSWdl19jIDg-1; Fri, 17 Oct 2025 11:07:57 -0400
-X-MC-Unique: DfByelHKPx6HSWdl19jIDg-1
-X-Mimecast-MFC-AGG-ID: DfByelHKPx6HSWdl19jIDg_1760713676
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-471193dacffso5946705e9.2
-        for <linux-s390@vger.kernel.org>; Fri, 17 Oct 2025 08:07:56 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760713676; x=1761318476;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=J9X1BIc43NGsZkRZORFu1zjHPZ7Rg9eKPpWeWjUt83E=;
-        b=KiQCYOnZfTBefQ1vNYonQx7G4pEIlCIA/awdn4xuZt/2lYQzec/p035hOPyzfD9a/a
-         OeoApkoAtbEM4QYnBawnz3SvrB1yfnnVfJdduUWlqUyH2IRc52b3GyKrudQZUvCnM37P
-         9USxclmWDuD+LOBAWZse7Lnnd4HhoZeuV/F/n/muVZWKL5pv5ZmcS+NrGtIVlgJ+fkWm
-         uLbXwTZeSONgmJg0/csjpKc12wcSuyN1xXBsDq2GWjEsKVgYfmflRuen6dpi5lRXN9Dq
-         eh6o0KVdVICGJQneU2HDqgF7ZNtozU2MFkbXIiALk828xRJfts1yf4Ow7f1mKrSq7vL6
-         j71g==
-X-Forwarded-Encrypted: i=1; AJvYcCVqI4ZoXcacnyXfk3UFY2lOd3y+N1Ib2RcyZPecqkypUTn6f0B3y3WoIA8bi+ZXI6q+BjtIlOw5y7g/@vger.kernel.org
-X-Gm-Message-State: AOJu0YwkrIMNLbFkeVZO8PPzfu6nUWkBq/AlqMIKsM/mCNxQXlnN1BrG
-	jZRGY6JTtJoXsZmWEFpDlX/b5svwf9FaLtKHgdX6WA0zcNUkYIt+skfgzj0R77IrfR+/vkPyVBc
-	91yoU7RE9k81UU7ib4yFRLWL9gByAfouNnJ46l/Nx3gASMO9PBdb3iNLf/R85CXM=
-X-Gm-Gg: ASbGnctnJZBtgbVZIAvm9vyE0opz/EWCBkeJpEosOajMlChN++jGGCYR/weN3tVGNAs
-	tqnuNzeNjVSXy3CuEF/t+bTF4JQXJm3lCAokvCpYDlJivE+PsjLf10cd582b5rsngfOB0qL2Kjb
-	QvgVtdk190wNnMVQxMn6DNOkdOgLjj4NzVchSsSMSwJdlf3u3Kn63HIUd8ydHMWQ5bUoTZD8XLN
-	ssQJ8GnLcRGlJzX6FxVWpsa+zEv6rFETlrcr+0/qP5CeeRebp9vPoNzeppvlEzR50QrRwwt0CM3
-	V1HObFypdJpaXaL+tJazqVOPX8sOHZczIK33CGAe7pr9VAUF2fQrb4/fsG/+57CYR6Rz/eBoy9A
-	RZwerovvD0m3LOXclrhZ1yk9BOR+ROaBvaRT9pe36PxkXzJWChT0WZ714SH4M09Ot/H8rkDneXV
-	/psH24wFc7CmJxSeM0jjBM7VU8vGE=
-X-Received: by 2002:a05:600c:818f:b0:46f:b42e:e361 with SMTP id 5b1f17b1804b1-47117931c89mr25044745e9.41.1760713675700;
-        Fri, 17 Oct 2025 08:07:55 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEeV20qcvkEmPA1bp02PI7vEzOGbT0hRxWJer5oIgjdZd36IQslHVl6fowxmxv1EbzRsULEwQ==
-X-Received: by 2002:a05:600c:818f:b0:46f:b42e:e361 with SMTP id 5b1f17b1804b1-47117931c89mr25044545e9.41.1760713675293;
-        Fri, 17 Oct 2025 08:07:55 -0700 (PDT)
-Received: from ?IPV6:2003:d8:2f0c:c200:fa4a:c4ff:1b32:21ce? (p200300d82f0cc200fa4ac4ff1b3221ce.dip0.t-ipconnect.de. [2003:d8:2f0c:c200:fa4a:c4ff:1b32:21ce])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47114428dbfsm85439735e9.5.2025.10.17.08.07.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 17 Oct 2025 08:07:54 -0700 (PDT)
-Message-ID: <8c778cd0-5608-4852-9840-4d98828d7b33@redhat.com>
-Date: Fri, 17 Oct 2025 17:07:53 +0200
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="eCdWzyg7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91101C4CEE7;
+	Fri, 17 Oct 2025 15:17:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1760714261;
+	bh=FTb1AAcHaLUm7kq+lzMKEc885htHBb4B002scHRzRNQ=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=eCdWzyg71kI+G3fVi7QCWZ56ffFt9GrdyXfTHStxkVc1ghgZ6wSnpwVZmvRUD8wO2
+	 RAP4jqJYiGZDUGcLn0Rj9tHOMTXqeTbWnF/Rztgv3GoSkU+Gi0hJQTgb2EZiVj7TEm
+	 Wov6e1f2Lbhue9Bw4v/T9fQtScu+bQqgFoGHmiOA=
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: stable@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	patches@lists.linux.dev,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	linux-s390@vger.kernel.org,
+	kernel test robot <lkp@intel.com>,
+	Alexey Gladkov <legion@kernel.org>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.12 083/277] s390: vmlinux.lds.S: Reorder sections
+Date: Fri, 17 Oct 2025 16:51:30 +0200
+Message-ID: <20251017145150.164358049@linuxfoundation.org>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <20251017145147.138822285@linuxfoundation.org>
+References: <20251017145147.138822285@linuxfoundation.org>
+User-Agent: quilt/0.69
+X-stable: review
+X-Patchwork-Hint: ignore
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: linux-next: KVM/s390x regression
-To: Christian Borntraeger <borntraeger@linux.ibm.com>, balbirs@nvidia.com
-Cc: Liam.Howlett@oracle.com, airlied@gmail.com, akpm@linux-foundation.org,
- apopple@nvidia.com, baohua@kernel.org, baolin.wang@linux.alibaba.com,
- byungchul@sk.com, dakr@kernel.org, dev.jain@arm.com,
- dri-devel@lists.freedesktop.org, francois.dugast@intel.com,
- gourry@gourry.net, joshua.hahnjy@gmail.com, linux-kernel@vger.kernel.org,
- linux-mm@kvack.org, lorenzo.stoakes@oracle.com, lyude@redhat.com,
- matthew.brost@intel.com, mpenttil@redhat.com, npache@redhat.com,
- osalvador@suse.de, rakie.kim@sk.com, rcampbell@nvidia.com,
- ryan.roberts@arm.com, simona@ffwll.ch, ying.huang@linux.alibaba.com,
- ziy@nvidia.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-next@vger.kernel.org
-References: <20251001065707.920170-4-balbirs@nvidia.com>
- <20251017144924.10034-1-borntraeger@linux.ibm.com>
- <9beff9d6-47c7-4a65-b320-43efd1e12687@redhat.com>
- <c67386be-5278-411d-97e7-43fc34bf7c98@linux.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- qIws/H2t
-In-Reply-To: <c67386be-5278-411d-97e7-43fc34bf7c98@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 17.10.25 17:01, Christian Borntraeger wrote:
-> Am 17.10.25 um 16:54 schrieb David Hildenbrand:
->> On 17.10.25 16:49, Christian Borntraeger wrote:
->>> This patch triggers a regression for s390x kvm as qemu guests can no longer start
->>>
->>> error: kvm run failed Cannot allocate memory
->>> PSW=mask 0000000180000000 addr 000000007fd00600
->>> R00=0000000000000000 R01=0000000000000000 R02=0000000000000000 R03=0000000000000000
->>> R04=0000000000000000 R05=0000000000000000 R06=0000000000000000 R07=0000000000000000
->>> R08=0000000000000000 R09=0000000000000000 R10=0000000000000000 R11=0000000000000000
->>> R12=0000000000000000 R13=0000000000000000 R14=0000000000000000 R15=0000000000000000
->>> C00=00000000000000e0 C01=0000000000000000 C02=0000000000000000 C03=0000000000000000
->>> C04=0000000000000000 C05=0000000000000000 C06=0000000000000000 C07=0000000000000000
->>> C08=0000000000000000 C09=0000000000000000 C10=0000000000000000 C11=0000000000000000
->>> C12=0000000000000000 C13=0000000000000000 C14=00000000c2000000 C15=0000000000000000
->>>
->>> KVM on s390x does not use THP so far, will investigate. Does anyone have a quick idea?
->>
->> Only when running KVM guests and apart from that everything else seems to be fine?
-> 
-> We have other weirdness in linux-next but in different areas. Could that somehow be
-> related to use disabling THP for the kvm address space?
+6.12-stable review patch.  If anyone has any objections, please let me know.
 
-Not sure ... it's a bit weird. I mean, when KVM disables THPs we 
-essentially just remap everything to be mapped by PTEs. So there 
-shouldn't be any PMDs in that whole process.
+------------------
 
-Remapping a file THP (shmem) implies zapping the THP completely.
+From: Alexey Gladkov <legion@kernel.org>
 
+[ Upstream commit 8d18ef04f940a8d336fe7915b5ea419c3eb0c0a6 ]
 
-I assume in your kernel config has CONFIG_ZONE_DEVICE and 
-CONFIG_ARCH_ENABLE_THP_MIGRATION set, right?
+In the upcoming changes, the ELF_DETAILS macro will be extended with
+the ".modinfo" section, which will cause an error:
 
-I'd rule out copy_huge_pmd(), zap_huge_pmd() a well.
+>> s390x-linux-ld: .tmp_vmlinux1: warning: allocated section `.modinfo' not in segment
+>> s390x-linux-ld: .tmp_vmlinux2: warning: allocated section `.modinfo' not in segment
+>> s390x-linux-ld: vmlinux.unstripped: warning: allocated section `.modinfo' not in segment
 
+This happens because the .vmlinux.info use :NONE to override the default
+segment and tell the linker to not put the section in any segment at all.
 
-What happens if you revert the change in mm/pgtable-generic.c?
+To avoid this, we need to change the sections order that will be placed
+in the default segment.
 
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202506062053.zbkFBEnJ-lkp@intel.com/
+Signed-off-by: Alexey Gladkov <legion@kernel.org>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Link: https://patch.msgid.link/20d40a7a3a053ba06a54155e777dcde7fdada1db.1758182101.git.legion@kernel.org
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Stable-dep-of: 9338d660b79a ("s390/vmlinux.lds.S: Move .vmlinux.info to end of allocatable sections")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/kernel/vmlinux.lds.S | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-But the whole -ENOMEM error is a weird symptom.
-
+diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
+index ff1ddba96352a..3f2f90e38808c 100644
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -202,6 +202,11 @@ SECTIONS
+ 	. = ALIGN(PAGE_SIZE);
+ 	_end = . ;
+ 
++	/* Debugging sections.	*/
++	STABS_DEBUG
++	DWARF_DEBUG
++	ELF_DETAILS
++
+ 	/*
+ 	 * uncompressed image info used by the decompressor
+ 	 * it should match struct vmlinux_info
+@@ -232,11 +237,6 @@ SECTIONS
+ #endif
+ 	} :NONE
+ 
+-	/* Debugging sections.	*/
+-	STABS_DEBUG
+-	DWARF_DEBUG
+-	ELF_DETAILS
+-
+ 	/*
+ 	 * Make sure that the .got.plt is either completely empty or it
+ 	 * contains only the three reserved double words.
 -- 
-Cheers
+2.51.0
 
-David / dhildenb
+
 
