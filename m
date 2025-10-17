@@ -1,178 +1,156 @@
-Received: from canpmsgout04.his.huawei.com (canpmsgout04.his.huawei.com [113.46.200.219])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 983572253EE;
-	Fri, 17 Oct 2025 02:25:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.219
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49315223DFF
+	for <linux-s390@vger.kernel.org>; Fri, 17 Oct 2025 05:51:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760667927; cv=none; b=QWwDAXXAv85PobqSQ6xf1W7g00IdGLhmeUST4BjsMKGWa6rfLgr6JaGF3Iwgl6mRlPlGdQWkbtwa8ViOsbcwk235LRrtUkZWFDN+OwtVHxNXpK7N9shXIZXGhJvOfkvCyg5tvHUmwv3aiO5653Bdk8CPVOYjU3f1Sg5dvp45Kg0=
+	t=1760680277; cv=none; b=Lcxn6rBBqW24maLF1oQ/nzsdSzqLM3V9KFcRD9W2RqxRM1A6Li+RBR/UytOAyxeRtF3PvKAkNHRUkrh80nNzUlcv35ftzi/QiavmvTIfdYaNh5Z9FXsfspkNCByWSqYvrdjYPux7mJu6JaWtge9ZgjIwR+OewWwEqGQeCmwhbHU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760667927; c=relaxed/simple;
-	bh=NSAdDY6cOXJW8eAr5he09srQ7MDvbUAWxEozTBGCJXk=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=XYL11qA5ZVeDhPFcJo/dv9+CRFGw+eRorBjTS+BGQBc3nzKXleXCLUCJukEJqLhoxsTt4deOx+r9lWYzaG2yupB3R45RkifiUU4/TgCKyXi30Yesa90DvB9QaQ9kVdvufiBV5JhGnYcsk+9h1JODx9l4xKRgXHt0ZbcDUWbZKvw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=i3wI7OWN; arc=none smtp.client-ip=113.46.200.219
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+	s=arc-20240116; t=1760680277; c=relaxed/simple;
+	bh=13KaXPPBpbfcG6C8nBRjdaf4oecJDmYDO7c9uepKSiE=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=G44oH67Bl+P+CTBdGCBn4/feJzaYYavDGRrfnzOBDgq33+y0NWEQOvsj3ZCQAVmYCywdwe8LqSAjreXsNXv/oe9APFn6o9V03eq+JJ0kPL9JsTJeaMKqn4o8vTiGxsypMjHNyPHXOyFpvHbHUXHvmN71oz2mblZxGpupxCfBuOs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--kuniyu.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=leproxXA; arc=none smtp.client-ip=209.85.216.74
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--kuniyu.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="i3wI7OWN"
-dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
-	c=relaxed/relaxed; q=dns/txt;
-	h=From;
-	bh=4EEMOhWg0s2E8Viik8fWlWI2UNFHPWp8xQDcxLWMscU=;
-	b=i3wI7OWNKLUgaZLDP541UpggD2J5a8Xs8Ne4W/vSQ4+PMqlX6lHG146yE6X2zh22vOmFtvslT
-	vXAf2v26u4oeREDCJHmaoChXf57lU0qDejFwDFdAf9HHo5cwC/fex43uporM331BqaIHphn0y2e
-	ixixN/OzqB20euvK2YLfDrk=
-Received: from mail.maildlp.com (unknown [172.19.88.194])
-	by canpmsgout04.his.huawei.com (SkyGuard) with ESMTPS id 4cnpZ30L6vz1prMP;
-	Fri, 17 Oct 2025 10:24:59 +0800 (CST)
-Received: from dggpemf500016.china.huawei.com (unknown [7.185.36.197])
-	by mail.maildlp.com (Postfix) with ESMTPS id B90D2140123;
-	Fri, 17 Oct 2025 10:25:20 +0800 (CST)
-Received: from huawei.com (10.50.85.128) by dggpemf500016.china.huawei.com
- (7.185.36.197) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Fri, 17 Oct
- 2025 10:25:19 +0800
-From: Wang Liang <wangliang74@huawei.com>
-To: <alibuda@linux.alibaba.com>, <dust.li@linux.alibaba.com>,
-	<sidraya@linux.ibm.com>, <wenjia@linux.ibm.com>, <mjambigi@linux.ibm.com>,
-	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>, <davem@davemloft.net>,
-	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
-	<horms@kernel.org>
-CC: <linux-rdma@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<yuehaibing@huawei.com>, <zhangchangzhong@huawei.com>,
-	<wangliang74@huawei.com>
-Subject: [PATCH net v2] net/smc: fix general protection fault in __smc_diag_dump
-Date: Fri, 17 Oct 2025 10:48:27 +0800
-Message-ID: <20251017024827.3137512-1-wangliang74@huawei.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="leproxXA"
+Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-33826e101ecso2924088a91.1
+        for <linux-s390@vger.kernel.org>; Thu, 16 Oct 2025 22:51:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1760680274; x=1761285074; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=+ehYGuUNYau4pdQan1QOF5/3bIPq29aJSlHS/4iCE5o=;
+        b=leproxXArdzVgcOAox240/ISo8GzS2a9RUTRCqJ7mEQ43Wyo2yAZSusg3tScp5mOGD
+         Y1pO83PYtShvug1kou5dlutUOtuKw8HNdO1kTKaL6iP4uK4gc9RQRYX8cRtNgO2FN4V+
+         fzXGSoQvO3I5A7arscY+fj13hWp+Wv7CEOzPPTcGnKLM2HTYMPiGVLDpwNu93eU/iZdu
+         1zXwBy0VwsaCmHacWIjokno5ttLWyQPUEQ2OriBXsuCzWgU5r8TKMb2oBvJleW0Jimxi
+         6f8NOhPPaRk5gyLkI2Q9sn2gOeV1mxq733Mf9VYT5SwWMVzJ+b9JV7GwKjZfb7oIy9fK
+         k2VA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1760680274; x=1761285074;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=+ehYGuUNYau4pdQan1QOF5/3bIPq29aJSlHS/4iCE5o=;
+        b=C+rfjyE4BEZRBUsM7AQuNUNp25Moa+OVKnUI9mHT6zmOZiQ0T12U93CqihG1V+iz1J
+         OuPOgY36yVW4mMZFAsWO++/D+F+s1wvmmx0tcNkrTbplF/w8zPhMgy+S9WRENtIlXHfq
+         8DnSrJJcOujKf7+CBhvVaPQ/8k3+FaBvFs5/xT+F+uCwDO+eJagyvdokKvRciFSfNmwU
+         BI8SbvMZ9o7O5o83zrekVfjIpa88MgJ1l/+iy5Q7vJ3UReFIVWp2mELbOC6JTDY6Bger
+         CBU3oZ+1Z5fr1pRHqZOVvoFrG1f5syW+1FoIswlk2LdFeFwYYMWzBoOL8bWA2yd2yPr4
+         rGsQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUOLSk8nEtOO4gMHQfuvZLmLZXkx8YSBGAHsHV0XSweL8C6caQyhehG9qM+NoSN1txNpoojm6swzGnG@vger.kernel.org
+X-Gm-Message-State: AOJu0YztgE6e3vf3Ew+4CANYfN7DxybcjUKVq9gdBrogyibdLmOfbMxe
+	0e4XSUWiNseVMdRCBvPZ+eAV+dS7vUidMm/wtie7qqT4wqlZWNpkobVerhWtjuWvvoD6iZyJglt
+	wWiuFOQ==
+X-Google-Smtp-Source: AGHT+IF/lzWram1mWybPkde6TISe124U50FS51hqLQw7Zc7FZYIDpxH+DNi5gWGs/h3xtwwt9cS60OYOz6I=
+X-Received: from pjbse5.prod.google.com ([2002:a17:90b:5185:b0:33b:51fe:1a88])
+ (user=kuniyu job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:1dc4:b0:32e:716d:4d2b
+ with SMTP id 98e67ed59e1d1-33bc9b77638mr3445872a91.3.1760680273652; Thu, 16
+ Oct 2025 22:51:13 -0700 (PDT)
+Date: Fri, 17 Oct 2025 05:48:50 +0000
+In-Reply-To: <20251017024827.3137512-1-wangliang74@huawei.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: kwepems200001.china.huawei.com (7.221.188.67) To
- dggpemf500016.china.huawei.com (7.185.36.197)
+Mime-Version: 1.0
+References: <20251017024827.3137512-1-wangliang74@huawei.com>
+X-Mailer: git-send-email 2.51.0.858.gf9c4a03a3a-goog
+Message-ID: <20251017055106.3603987-1-kuniyu@google.com>
+Subject: Re: [PATCH net v2] net/smc: fix general protection fault in __smc_diag_dump
+From: Kuniyuki Iwashima <kuniyu@google.com>
+To: wangliang74@huawei.com
+Cc: alibuda@linux.alibaba.com, davem@davemloft.net, dust.li@linux.alibaba.com, 
+	edumazet@google.com, guwen@linux.alibaba.com, horms@kernel.org, 
+	kuba@kernel.org, linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org, 
+	linux-s390@vger.kernel.org, mjambigi@linux.ibm.com, netdev@vger.kernel.org, 
+	pabeni@redhat.com, sidraya@linux.ibm.com, tonylu@linux.alibaba.com, 
+	wenjia@linux.ibm.com, yuehaibing@huawei.com, zhangchangzhong@huawei.com, 
+	Kuniyuki Iwashima <kuniyu@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-The syzbot report a crash:
+From: Wang Liang <wangliang74@huawei.com>
+Date: Fri, 17 Oct 2025 10:48:27 +0800
+> The syzbot report a crash:
+> 
+>   Oops: general protection fault, probably for non-canonical address 0xfbd5a5d5a0000003: 0000 [#1] SMP KASAN NOPTI
+>   KASAN: maybe wild-memory-access in range [0xdead4ead00000018-0xdead4ead0000001f]
+>   CPU: 1 UID: 0 PID: 6949 Comm: syz.0.335 Not tainted syzkaller #0 PREEMPT(full)
+>   Hardware name: Google Compute Engine/Google Compute Engine, BIOS Google 08/18/2025
+>   RIP: 0010:smc_diag_msg_common_fill net/smc/smc_diag.c:44 [inline]
+>   RIP: 0010:__smc_diag_dump.constprop.0+0x3ca/0x2550 net/smc/smc_diag.c:89
+>   Call Trace:
+>    <TASK>
+>    smc_diag_dump_proto+0x26d/0x420 net/smc/smc_diag.c:217
+>    smc_diag_dump+0x27/0x90 net/smc/smc_diag.c:234
+>    netlink_dump+0x539/0xd30 net/netlink/af_netlink.c:2327
+>    __netlink_dump_start+0x6d6/0x990 net/netlink/af_netlink.c:2442
+>    netlink_dump_start include/linux/netlink.h:341 [inline]
+>    smc_diag_handler_dump+0x1f9/0x240 net/smc/smc_diag.c:251
+>    __sock_diag_cmd net/core/sock_diag.c:249 [inline]
+>    sock_diag_rcv_msg+0x438/0x790 net/core/sock_diag.c:285
+>    netlink_rcv_skb+0x158/0x420 net/netlink/af_netlink.c:2552
+>    netlink_unicast_kernel net/netlink/af_netlink.c:1320 [inline]
+>    netlink_unicast+0x5a7/0x870 net/netlink/af_netlink.c:1346
+>    netlink_sendmsg+0x8d1/0xdd0 net/netlink/af_netlink.c:1896
+>    sock_sendmsg_nosec net/socket.c:714 [inline]
+>    __sock_sendmsg net/socket.c:729 [inline]
+>    ____sys_sendmsg+0xa95/0xc70 net/socket.c:2614
+>    ___sys_sendmsg+0x134/0x1d0 net/socket.c:2668
+>    __sys_sendmsg+0x16d/0x220 net/socket.c:2700
+>    do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+>    do_syscall_64+0xcd/0x4e0 arch/x86/entry/syscall_64.c:94
+>    entry_SYSCALL_64_after_hwframe+0x77/0x7f
+>    </TASK>
+> 
+> The process like this:
+> 
+>                (CPU1)              |             (CPU2)
+>   ---------------------------------|-------------------------------
+>   inet_create()                    |
+>     // init clcsock to NULL        |
+>     sk = sk_alloc()                |
+>                                    |
+>     // unexpectedly change clcsock |
+>     inet_init_csk_locks()          |
+>                                    |
+>     // add sk to hash table        |
+>     smc_inet_init_sock()           |
+>       smc_sk_init()                |
+>         smc_hash_sk()              |
+>                                    | // traverse the hash table
+>                                    | smc_diag_dump_proto
+>                                    |   __smc_diag_dump()
+>                                    |     // visit wrong clcsock
+>                                    |     smc_diag_msg_common_fill()
+>     // alloc clcsock               |
+>     smc_create_clcsk               |
+>       sock_create_kern             |
+> 
+> With CONFIG_DEBUG_LOCK_ALLOC=y, the smc->clcsock is unexpectedly changed
+> in inet_init_csk_locks(). The INET_PROTOSW_ICSK flag is no need by smc,
+> just remove it.
+> 
+> After removing the INET_PROTOSW_ICSK flag, this patch alse revert
+> commit 6fd27ea183c2 ("net/smc: fix lacks of icsk_syn_mss with IPPROTO_SMC")
+> to avoid casting smc_sock to inet_connection_sock.
+> 
+> Reported-by: syzbot+f775be4458668f7d220e@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?extid=f775be4458668f7d220e
+> Tested-by: syzbot+f775be4458668f7d220e@syzkaller.appspotmail.com
 
-  Oops: general protection fault, probably for non-canonical address 0xfbd5a5d5a0000003: 0000 [#1] SMP KASAN NOPTI
-  KASAN: maybe wild-memory-access in range [0xdead4ead00000018-0xdead4ead0000001f]
-  CPU: 1 UID: 0 PID: 6949 Comm: syz.0.335 Not tainted syzkaller #0 PREEMPT(full)
-  Hardware name: Google Compute Engine/Google Compute Engine, BIOS Google 08/18/2025
-  RIP: 0010:smc_diag_msg_common_fill net/smc/smc_diag.c:44 [inline]
-  RIP: 0010:__smc_diag_dump.constprop.0+0x3ca/0x2550 net/smc/smc_diag.c:89
-  Call Trace:
-   <TASK>
-   smc_diag_dump_proto+0x26d/0x420 net/smc/smc_diag.c:217
-   smc_diag_dump+0x27/0x90 net/smc/smc_diag.c:234
-   netlink_dump+0x539/0xd30 net/netlink/af_netlink.c:2327
-   __netlink_dump_start+0x6d6/0x990 net/netlink/af_netlink.c:2442
-   netlink_dump_start include/linux/netlink.h:341 [inline]
-   smc_diag_handler_dump+0x1f9/0x240 net/smc/smc_diag.c:251
-   __sock_diag_cmd net/core/sock_diag.c:249 [inline]
-   sock_diag_rcv_msg+0x438/0x790 net/core/sock_diag.c:285
-   netlink_rcv_skb+0x158/0x420 net/netlink/af_netlink.c:2552
-   netlink_unicast_kernel net/netlink/af_netlink.c:1320 [inline]
-   netlink_unicast+0x5a7/0x870 net/netlink/af_netlink.c:1346
-   netlink_sendmsg+0x8d1/0xdd0 net/netlink/af_netlink.c:1896
-   sock_sendmsg_nosec net/socket.c:714 [inline]
-   __sock_sendmsg net/socket.c:729 [inline]
-   ____sys_sendmsg+0xa95/0xc70 net/socket.c:2614
-   ___sys_sendmsg+0x134/0x1d0 net/socket.c:2668
-   __sys_sendmsg+0x16d/0x220 net/socket.c:2700
-   do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
-   do_syscall_64+0xcd/0x4e0 arch/x86/entry/syscall_64.c:94
-   entry_SYSCALL_64_after_hwframe+0x77/0x7f
-   </TASK>
+nit: looks like this diff is not tested by syzbot, you may
+want to send diff to syzbot.
 
-The process like this:
 
-               (CPU1)              |             (CPU2)
-  ---------------------------------|-------------------------------
-  inet_create()                    |
-    // init clcsock to NULL        |
-    sk = sk_alloc()                |
-                                   |
-    // unexpectedly change clcsock |
-    inet_init_csk_locks()          |
-                                   |
-    // add sk to hash table        |
-    smc_inet_init_sock()           |
-      smc_sk_init()                |
-        smc_hash_sk()              |
-                                   | // traverse the hash table
-                                   | smc_diag_dump_proto
-                                   |   __smc_diag_dump()
-                                   |     // visit wrong clcsock
-                                   |     smc_diag_msg_common_fill()
-    // alloc clcsock               |
-    smc_create_clcsk               |
-      sock_create_kern             |
+> Fixes: d25a92ccae6b ("net/smc: Introduce IPPROTO_SMC")
+> Signed-off-by: Wang Liang <wangliang74@huawei.com>
 
-With CONFIG_DEBUG_LOCK_ALLOC=y, the smc->clcsock is unexpectedly changed
-in inet_init_csk_locks(). The INET_PROTOSW_ICSK flag is no need by smc,
-just remove it.
+Change itself looks good.
 
-After removing the INET_PROTOSW_ICSK flag, this patch alse revert
-commit 6fd27ea183c2 ("net/smc: fix lacks of icsk_syn_mss with IPPROTO_SMC")
-to avoid casting smc_sock to inet_connection_sock.
+Reviewed-by: Kuniyuki Iwashima <kuniyu@google.com>
 
-Reported-by: syzbot+f775be4458668f7d220e@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=f775be4458668f7d220e
-Tested-by: syzbot+f775be4458668f7d220e@syzkaller.appspotmail.com
-Fixes: d25a92ccae6b ("net/smc: Introduce IPPROTO_SMC")
-Signed-off-by: Wang Liang <wangliang74@huawei.com>
----
-v2: remove INET_PROTOSW_ICSK flag instead of init inet_connection_sock.
-v1: https://lore.kernel.org/netdev/20250922121818.654011-1-wangliang74@huawei.com/
----
- net/smc/smc_inet.c | 13 -------------
- 1 file changed, 13 deletions(-)
-
-diff --git a/net/smc/smc_inet.c b/net/smc/smc_inet.c
-index a944e7dcb8b9..a94084b4a498 100644
---- a/net/smc/smc_inet.c
-+++ b/net/smc/smc_inet.c
-@@ -56,7 +56,6 @@ static struct inet_protosw smc_inet_protosw = {
- 	.protocol	= IPPROTO_SMC,
- 	.prot		= &smc_inet_prot,
- 	.ops		= &smc_inet_stream_ops,
--	.flags		= INET_PROTOSW_ICSK,
- };
- 
- #if IS_ENABLED(CONFIG_IPV6)
-@@ -104,27 +103,15 @@ static struct inet_protosw smc_inet6_protosw = {
- 	.protocol	= IPPROTO_SMC,
- 	.prot		= &smc_inet6_prot,
- 	.ops		= &smc_inet6_stream_ops,
--	.flags		= INET_PROTOSW_ICSK,
- };
- #endif /* CONFIG_IPV6 */
- 
--static unsigned int smc_sync_mss(struct sock *sk, u32 pmtu)
--{
--	/* No need pass it through to clcsock, mss can always be set by
--	 * sock_create_kern or smc_setsockopt.
--	 */
--	return 0;
--}
--
- static int smc_inet_init_sock(struct sock *sk)
- {
- 	struct net *net = sock_net(sk);
- 
- 	/* init common smc sock */
- 	smc_sk_init(net, sk, IPPROTO_SMC);
--
--	inet_csk(sk)->icsk_sync_mss = smc_sync_mss;
--
- 	/* create clcsock */
- 	return smc_create_clcsk(net, sk, sk->sk_family);
- }
--- 
-2.34.1
-
+Thanks!
