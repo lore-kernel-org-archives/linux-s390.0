@@ -1,107 +1,126 @@
-Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EEF6226165
-	for <linux-s390@vger.kernel.org>; Sun, 19 Oct 2025 08:11:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC42022A1D5;
+	Sun, 19 Oct 2025 11:58:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760861464; cv=none; b=LY1n9oTVRoA7CIsoVTyZJ+SdATsM2SKCIrfLCXQARQDtECUAgfTFxqTf3qkd0t1u9vzU4Cg9aUoJT17Sor6xkJrDyG3iLT/3UKh2X7ly7M9tkKXWxGKMhazQX5JZk1+T1bymWYp+wS0ANLQg2W9T0LSppeZKlgfijO4pAh590iw=
+	t=1760875109; cv=none; b=eDr37Rf7ck9ZLTsGEa/e+LIw1WqpEATLJcnF4ye3BK0BTjRcUA03iJKwAUgZ4nsswBQ+1jyCSPnFGyLio1yL6tjoM8qa2DjnNXYhJ5UxBH1xeL000T+l4QgXBVe2pbCixImJrkl3DFrCUKvLAKZFqPueEZczmGtfdg36pw5uQ4A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760861464; c=relaxed/simple;
-	bh=0JD5EhU3dMvt2TzDGGngYx4VWjKCENlPlTrXXievwr0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hJm9VnC0K0rJxXUkvx8veGGyn3W+wTE3l2gYqtGQ0ybm5JBtQbPjtaxH2B/JFfQEDDu6QEfJH6PkSlTZUO1V4BVwtWPhfnZ/+z/IFwiwVX9ouZCjKmQwOSC2BN1plExZLpluZYWKVNfULnx3jTYP8z7+1G79BdzeLfsDwqPbNvU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ccTdEhIo; arc=none smtp.client-ip=209.85.128.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1760875109; c=relaxed/simple;
+	bh=0tmg8uZi4aZuDPodcrxuOJU3I+GvuE1KL7HO4B2nsk8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FE5rC41CJKE8m4IkijFi9hHRX24DvvHMVQ/8CtIcv1qeZKdA1a6aQHsGV+ftke87a7TRPDwH8gfiAsGSg+C6C+cXuXRkZQofa5hPOBNae6RKndc7k3QxkC5wleHptOIv1+q9Ca2woCaM0PD9p6BwiY2D+DRzaavdeIy6RkzjVNU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=YQsfyzlB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ccTdEhIo"
-Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-780fe76f457so38487107b3.0
-        for <linux-s390@vger.kernel.org>; Sun, 19 Oct 2025 01:11:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1760861461; x=1761466261; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0JD5EhU3dMvt2TzDGGngYx4VWjKCENlPlTrXXievwr0=;
-        b=ccTdEhIopdhypwI8L3JBil5M4STne8SmRaQFfCBM02l9LkTDCeY07VksMZS734XIYW
-         fSr9E0vMaFgWvM5hpUfvHCdQwXqN1rLdg7uGpCmcE1a8p73wsSFiGM9KgaCUVorU2bB4
-         QXlk0k/rKjfCpslj0HWJBncYE9y9o12Mjtf9KUBJxsuzUFBzDISvTP/UdlOzuowk2O9I
-         i6m0bPW8oTEyUXCgLGFGHisuLGD8VhQ1MKnYlEu61P8OxgXOJsE/nO9c7FNSYyLg97yE
-         4ySn5cXO9k6TDK22f8AGkED3Ks52VuOYFicnSfjIjvJlszMjZfsukHxg61ULY8iC4TUN
-         9kxA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760861461; x=1761466261;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=0JD5EhU3dMvt2TzDGGngYx4VWjKCENlPlTrXXievwr0=;
-        b=VvYXdilXsM6mgvG9R0RfBBmEtzI7qqPfKzjb+bBd1YII9JL7JynWpjAOUXFahO7ICb
-         o4oiBfHcgW3ZB4/KZpk7qWWTyOMeia47rW49UO/0RX1h3u7BtrWbManBkRcX4Ts7b7vp
-         uX62sh8IQ1ObRnhKTNR187nffvGOPLu6hIM9N7dmZvQf58SPl1lijooVPNIvudEf7k3c
-         3gYxKM6JswpmqwqmwDsofU43lNyFA+BS38S2WjA5NE8SBjLwhs8sxe9wF4j17UqubFaz
-         xgAhzBIA2VeBBR2x35Gzxy1bXPvnYRKyzEjmGkqrYk86ULbODPGuMpbDW7JjhmJAnoTC
-         BhVQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUy2n+rV0ad8NMn5nEYYIcj/0I2IagONxS+YaCNfaTu1eo1qjhYLuXPI9QMw2ZbncRHka1cS9vT5GIM@vger.kernel.org
-X-Gm-Message-State: AOJu0YxBg+7UYdUDeDA6kKTbSjWzt147CqwWVpt+TAS1qTJhKM8Mw2R5
-	bsKTDSwqmpA2qlbACmuZ7aJEOoIDlV1o/ySsd08i4WV0ds3rEMAH1ZmMtRh3zX6TVv5LZ0Q5Jiz
-	MCoR66GaKz3vMl5y3lrcApTRMlGoTeT0=
-X-Gm-Gg: ASbGncu6kXBmokZYb7yS8Ep0OX5E1lbjLEiDOhlwwEGM7koh1NK6V3t8cS+WhnQm6El
-	Z36nyZ7l2wD3Xk724n0K9W9yS9KmIpouUK1C8zGfCZjp40E3tnLNG9i3eUnaiNEAbqOo+l+rMH+
-	BdAQjOSq7rhLpuc4NmvPBwa+ap90ywfNkakcQZm4ACvnIDLy3kiAaOkJlKHNRLDu4xfR0HbMkIn
-	mb9q/QgbkbwQZ0bRRMZwNDJ+AKcBu/VSXXNdqfGBCz6mn8vaVIqwG183WPNHGyhWxUSeGWlIVU=
-X-Google-Smtp-Source: AGHT+IEDp/usYEtVSaz10lwwm2/rh8YYcBuxag2F0nuBjSfSMoio/EijPl9t2f1PGKCDHr/mRoxnx6oC2CKJ7h3r2Ic=
-X-Received: by 2002:a05:690c:31e:b0:782:9037:1491 with SMTP id
- 00721157ae682-7837780ba2dmr109813007b3.42.1760861461100; Sun, 19 Oct 2025
- 01:11:01 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="YQsfyzlB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7BDEC4CEE7;
+	Sun, 19 Oct 2025 11:58:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1760875108;
+	bh=0tmg8uZi4aZuDPodcrxuOJU3I+GvuE1KL7HO4B2nsk8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=YQsfyzlBG+nqVKW+L0aVKbX41CErPbxLDcp1qu9kX9eIeIbGH7YuETkjXSDrOO4Jg
+	 r3K/gGazP1N40mqyz4q0l1ddtdcwDaHdq2YhGQiKIc790aBYStKv+C6MOz5ri4a8CS
+	 h3QKdmUdZS2BcdBLO5m2HJx4/49H31zSRkcMH2+Y=
+Date: Sun, 19 Oct 2025 13:58:25 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc: stable@vger.kernel.org, patches@lists.linux.dev,
+	linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+	akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+	patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+	jonathanh@nvidia.com, f.fainelli@gmail.com,
+	sudipm.mukherjee@gmail.com, rwarsow@gmx.de, conor@kernel.org,
+	hargar@microsoft.com, broonie@kernel.org, achill@achill.org,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
+	Arnd Bergmann <arnd@arndb.de>,
+	Dan Carpenter <dan.carpenter@linaro.org>,
+	Anders Roxell <anders.roxell@linaro.org>,
+	Ben Copeland <benjamin.copeland@linaro.org>
+Subject: Re: [PATCH 5.15 000/276] 5.15.195-rc1 review
+Message-ID: <2025101906-spinner-neutron-0a9a@gregkh>
+References: <20251017145142.382145055@linuxfoundation.org>
+ <CA+G9fYvRHXOJUfKqxj9MNA1ax1i2xCrazh0x9b3QvrXLm+N+qQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241202010844.144356-16-ebiggers@kernel.org> <20251019060845.553414-1-safinaskar@gmail.com>
-In-Reply-To: <20251019060845.553414-1-safinaskar@gmail.com>
-From: Askar Safin <safinaskar@gmail.com>
-Date: Sun, 19 Oct 2025 11:10:25 +0300
-X-Gm-Features: AS18NWAhDVf2aU8hB0qWERPwO9zi-ils_dPukaoQchmqqRauvEb3B93Zz-69KFg
-Message-ID: <CAPnZJGAb7AM4p=HdsDhYcANCzD8=gpGjuP4wYfr2utLp3WMSNQ@mail.gmail.com>
-Subject: Re: [PATCH v4 15/19] lib/crc32: make crc32c() go directly to lib
-To: ebiggers@kernel.org
-Cc: ardb@kernel.org, linux-arch@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org, 
-	linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, 
-	linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-scsi@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	loongarch@lists.linux.dev, sparclinux@vger.kernel.org, x86@kernel.org, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYvRHXOJUfKqxj9MNA1ax1i2xCrazh0x9b3QvrXLm+N+qQ@mail.gmail.com>
 
-On Sun, Oct 19, 2025 at 9:09=E2=80=AFAM Askar Safin <safinaskar@gmail.com> =
-wrote:
->
-> Eric Biggers <ebiggers@kernel.org>:
-> > Now that the lower level __crc32c_le() library function is optimized fo=
-r
->
-> This patch (i. e. 38a9a5121c3b ("lib/crc32: make crc32c() go directly to =
-lib"))
-> solves actual bug I found in practice. So, please, backport it
-> to stable kernels.
+On Sat, Oct 18, 2025 at 02:38:46PM +0530, Naresh Kamboju wrote:
+> On Fri, 17 Oct 2025 at 21:16, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.15.195 release.
+> > There are 276 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Sun, 19 Oct 2025 14:50:59 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.195-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> 
+> The S390 build failed on stable-rc 5.15.195-rc1 with gcc-12, gcc-8
+> and clang-21 due to following build warnings / errors.
+> 
+> ### Build error:
+> drivers/s390/cio/device.c: In function 'purge_fn':
+> drivers/s390/cio/device.c:1330:23: error: passing argument 1 of
+> 'spin_lock_irq' from incompatible pointer type
+> [-Werror=incompatible-pointer-types]
+>  1330 |         spin_lock_irq(&sch->lock);
+>       |                       ^~~~~~~~~~
+>       |                       |
+>       |                       spinlock_t ** {aka struct spinlock **}
+> In file included from drivers/s390/cio/device.c:16:
+> include/linux/spinlock.h:387:55: note: expected 'spinlock_t *' {aka
+> 'struct spinlock *'} but argument is of type 'spinlock_t **' {aka
+> 'struct spinlock **'}
+>   387 | static __always_inline void spin_lock_irq(spinlock_t *lock)
+>       |                                           ~~~~~~~~~~~~^~~~
+> drivers/s390/cio/device.c:1353:25: error: passing argument 1 of
+> 'spin_unlock_irq' from incompatible pointer type
+> [-Werror=incompatible-pointer-types]
+>  1353 |         spin_unlock_irq(&sch->lock);
+>       |                         ^~~~~~~~~~
+>       |                         |
+>       |                         spinlock_t ** {aka struct spinlock **}
+> include/linux/spinlock.h:412:57: note: expected 'spinlock_t *' {aka
+> 'struct spinlock *'} but argument is of type 'spinlock_t **' {aka
+> 'struct spinlock **'}
+>   412 | static __always_inline void spin_unlock_irq(spinlock_t *lock)
+>       |                                             ~~~~~~~~~~~~^~~~
+> cc1: some warnings being treated as errors
+> make[3]: *** [scripts/Makefile.build:289: drivers/s390/cio/device.o] Error 1
+> 
+> ### Suspecting patches
+> Suspecting commit,
+> 
+>   s390/cio: Update purge function to unregister the unused subchannels
+>   [ Upstream commit 9daa5a8795865f9a3c93d8d1066785b07ded6073 ]
+> 
+> 
+> Build regressions: 5.15.195-rc1: S390: cio/device.c:1330:23: error:
+> passing argument 1 of 'spin_lock_irq' from incompatible pointer type
+> 
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Oops. I just noticed that this patch removes module "libcrc32c".
-And this breaks build for Debian kernel v6.12.48.
-Previously I tested minimal build using "make localmodconfig".
-Now I tried full build of Debian kernel using "dpkg-buildpackage".
-And it failed, because some of Debian files reference "libcrc32c",
-which is not available.
+Thanks for the report, I'll go drop this from all 3 queues now.
 
-So, please, don't backport this patch to stable kernels.
-I'm sorry.
-
-
-
---=20
-Askar Safin
+greg k-h
