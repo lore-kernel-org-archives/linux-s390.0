@@ -1,109 +1,105 @@
-Received: from bmailout3.hostsharing.net (bmailout3.hostsharing.net [176.9.242.62])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A25C1C8606;
-	Sun, 19 Oct 2025 14:34:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=176.9.242.62
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2E851A00F0;
+	Sun, 19 Oct 2025 16:25:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760884463; cv=none; b=HJEsjeqZKnWU6l79K1bkLO+5u4UCpbawJDCpw9c2GF7qM7LZ0xAAXtZWgqeL+EiropKUSNilUMrXnjq/qlVI2RWf9SDxNFcjzmGx2RIvcqidvM9s2zXaM2MVVzsZCee4n1oB4QUw9TcGZxznoBJjfxP/iabV43xI3K2vgLvUpwo=
+	t=1760891120; cv=none; b=XHqLF6dvRtksg/rpYaCpQd0wvqWfyKJgzRoZOqo5spJ4Cn/TkCZgTu6JzpGpBu0J1SKlNei0ueCrHDOMqGwoUKzWBCBz3S9ZE0auTv0slrLqXDj6EYOZyyn3TRcK+xmuf68aD9XzkJ/k2fOaQu7wV9hIHvFwVkoglY1/dUjCpeE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760884463; c=relaxed/simple;
-	bh=t18vQoHoWWi+2K+Sy4tvcn/q0aoEmipmVLsee3uj1eY=;
+	s=arc-20240116; t=1760891120; c=relaxed/simple;
+	bh=AqeDRU1eKSmQXUiCZ7pwi0Bd8BGGXBM48O4Ou5Xs+sw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=s75qDz8SjqGS1A7rbx2TTHxIuVQoe1bqxbHJqh22p/peOhSJrxmc0vpVim61IGf1IiqY1YRGwPAg3lIQsxg4jIRwv7hWyDmfQ/RTFIKmxgPtMFWf7IGStQcNkEuVsZ2SfC/c5K8pP/FfL2PB+taeBE9okBPuy8tkm4pvpExiFSQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wunner.de; spf=none smtp.mailfrom=h08.hostsharing.net; arc=none smtp.client-ip=176.9.242.62
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wunner.de
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=h08.hostsharing.net
-Received: from h08.hostsharing.net (h08.hostsharing.net [83.223.95.28])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256
-	 client-signature RSA-PSS (4096 bits) client-digest SHA256)
-	(Client CN "*.hostsharing.net", Issuer "RapidSSL TLS RSA CA G1" (verified OK))
-	by bmailout3.hostsharing.net (Postfix) with ESMTPS id 6CFF22C051E9;
-	Sun, 19 Oct 2025 16:34:17 +0200 (CEST)
-Received: by h08.hostsharing.net (Postfix, from userid 100393)
-	id 35A0B4A12; Sun, 19 Oct 2025 16:34:17 +0200 (CEST)
-Date: Sun, 19 Oct 2025 16:34:17 +0200
-From: Lukas Wunner <lukas@wunner.de>
-To: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>,
-	linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
-	alex.williamson@redhat.com, helgaas@kernel.org, clg@redhat.com,
-	mjrosato@linux.ibm.com
-Subject: Re: [PATCH v4 01/10] PCI: Avoid saving error values for config space
-Message-ID: <aPT26UZ41DsN5C01@wunner.de>
-References: <aOE1JMryY_Oa663e@wunner.de>
- <c0818c13-8075-4db0-b76f-3c9b10516e7a@linux.ibm.com>
- <aOQX6ZTMvekd6gWy@wunner.de>
- <8c14d648-453c-4426-af69-4e911a1128c1@linux.ibm.com>
- <aOZoWDQV0TNh-NiM@wunner.de>
- <21ef5524-738a-43d5-bc9a-87f907a8aa70@linux.ibm.com>
- <aOaqEhLOzWzswx8O@wunner.de>
- <d69f239040b830718b124c5bcef01b5075768226.camel@linux.ibm.com>
- <aOtL_Y6HH5-qh2jD@wunner.de>
- <bb59edee909ceb09527cedec10896d45126f0027.camel@linux.ibm.com>
+	 Content-Type:Content-Disposition:In-Reply-To; b=ny8OD4gi8nAij93+qSPZ92ytYCmvNp2te+9feN52PBmDlCrgJ1LDdj5X2hGC62awAnItnCA0/a6WPJfjeS0Obn/cuF4G9jS+9seTkI2xHvvDm9V2UN3sxVdmY/T5nBWmWwbDG3Y/jYnCrBraz4hwbcw1tiUMrGiFXEDLdfNHHNQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F2EokHRL; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F2EokHRL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7610C4CEE7;
+	Sun, 19 Oct 2025 16:25:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1760891119;
+	bh=AqeDRU1eKSmQXUiCZ7pwi0Bd8BGGXBM48O4Ou5Xs+sw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=F2EokHRLd68kZBeDRRdhxJ1rDW2elFlh8EnkyaTJnHSCfqkoujh7BohpZc68H407D
+	 6bUXmBrNoq7Ww0jTMF1QQwGeMEpfXz0BrGd0k+T8PJbgWDRrKfDcnhwumf2RRZV3Tp
+	 M1nqa0cZRI89OYqyvuvRWeFwctcqJgDf9nK43gHk2G3mRl3usq7ey6ziFEp5oxVwef
+	 8ha/lyEniLuE2fegL9ApZJO+lst38G6OUrwAE6O/NFZ/Mz1YaBFZd+ociss1pkQv9d
+	 0MzWPAoBwoLUZ5+ACw5ohULeXVrjB6+3sdA7UiNPKC79wDn4zGf7+6LA7UKkZ5vUk5
+	 GbYsQCDUj5ADg==
+Date: Sun, 19 Oct 2025 09:23:46 -0700
+From: Eric Biggers <ebiggers@kernel.org>
+To: Askar Safin <safinaskar@gmail.com>
+Cc: ardb@kernel.org, linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
+	linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	loongarch@lists.linux.dev, sparclinux@vger.kernel.org,
+	x86@kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	stable@vger.kernel.org
+Subject: Re: [PATCH v4 15/19] lib/crc32: make crc32c() go directly to lib
+Message-ID: <20251019162346.GB1604@sol>
+References: <20241202010844.144356-16-ebiggers@kernel.org>
+ <20251019060845.553414-1-safinaskar@gmail.com>
+ <CAPnZJGAb7AM4p=HdsDhYcANCzD8=gpGjuP4wYfr2utLp3WMSNQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <bb59edee909ceb09527cedec10896d45126f0027.camel@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAPnZJGAb7AM4p=HdsDhYcANCzD8=gpGjuP4wYfr2utLp3WMSNQ@mail.gmail.com>
 
-On Tue, Oct 14, 2025 at 02:07:57PM +0200, Niklas Schnelle wrote:
-> On Sun, 2025-10-12 at 08:34 +0200, Lukas Wunner wrote:
-> > If you do want to stick with your alternative approach,
-> > maybe doing the error handling in the ->mmio_enabled() phase
-> > instead of ->error_detected() would make more sense.
-> > In that phase you're allowed to access the device,
-> > you can also attempt a local reset and return
-> > PCI_ERS_RESULT_RECOVERED on success.
-> > 
-> > You'd have to return PCI_ERS_RESULT_CAN_RECOVER though
-> > from the ->error_detected() callback in order to progress
-> > to the ->mmio_enabled() step.
+On Sun, Oct 19, 2025 at 11:10:25AM +0300, Askar Safin wrote:
+> On Sun, Oct 19, 2025 at 9:09 AM Askar Safin <safinaskar@gmail.com> wrote:
+> >
+> > Eric Biggers <ebiggers@kernel.org>:
+> > > Now that the lower level __crc32c_le() library function is optimized for
+> >
+> > This patch (i. e. 38a9a5121c3b ("lib/crc32: make crc32c() go directly to lib"))
+> > solves actual bug I found in practice. So, please, backport it
+> > to stable kernels.
 > 
-> The problem with using ->mmio_enabled() is two fold. For one we
-> sometimes have to do a reset instead of clearing the error state, for
-> example if the device was not only put in the error state but also
-> disabled, or if the guest driver wants it,
+> Oops. I just noticed that this patch removes module "libcrc32c".
+> And this breaks build for Debian kernel v6.12.48.
+> Previously I tested minimal build using "make localmodconfig".
+> Now I tried full build of Debian kernel using "dpkg-buildpackage".
+> And it failed, because some of Debian files reference "libcrc32c",
+> which is not available.
+> 
+> So, please, don't backport this patch to stable kernels.
+> I'm sorry.
 
-Well in that case you could reset the device in the ->mmio_enabled() step
-from the guest using the vfio reset ioctl.
+Right, this commit simplified the CRC library design by removing the
+libcrc32c module.  initramfs build scripts that hard-coded the addition
+of libcrc32c.ko into the ramdisk (which I don't think was ever necessary
+in the first place, though it did used to be useful to hard-code some of
+the *other* CRC modules like crc32c-intel) had to be updated to remove
+it.  It looks like Debian did indeed do that, and they updated it in
+https://salsa.debian.org/kernel-team/linux/-/commit/6c242c647f84bfdbdc22a6a758fa59da4e941a10#1251f9400a85485d275e1709758350aa098709a8
 
-> Second and more
-> importantly this would break the guests assumption that the device will
-> be in the error state with MMIO and DMA blocked when it gets an error
-> event. On the other hand, that's exactly the state it is in if we
-> report the error in the ->error_detected() callback
+As for your original problem, I'd glad to see that the simplified design
+is preventing problems.  There's an issue with backporting this commit
+alone, though.  This was patch 15 of a 19-patch series for a good
+reason: the CRC-32C implementation in lib/ wasn't architecture-optimized
+until after patches 1-14 of this series.  Backporting this commit alone
+would make crc32c() no longer utilize architecture-optimized code.
 
-At the risk of continuously talking past each other:
+Now, it already didn't do so reliably (and this patch series fixed
+that).  However, backporting this commit alone would make it never do
+so.  So it would regress performance in some cases.
 
-How about this, the host notifies the guest of the error in the
-->error_detected() callback.  The guest notifies the driver and
-collects the result (whether a reset is requested or not), then
-returns PCI_ERS_RESULT_CAN_RECOVER to the host.
+Since the errors you're actually getting are:
 
-The host re-enables I/O to the device, invokes the ->mmio_detected()
-callback.  The guest then resets the device based on the result it
-collected earlier or invokes the driver's ->mmio_enabled() callback.
+    [   19.619731] Invalid ELF header magic: != ELF
+    modprobe: can't load module libcrc32c (kernel/lib/libcrc32c.ko.xz): unknown symbol in module, or unknown parameter
 
-If the driver returns PCI_ERS_RESULT_NEED_RESET from the
-->mmio_enabled() callback, you can likewise reset the device from
-the guest using the ioctl method.
+I do have to wonder if this is actually a busybox bug or
+misconfiguration, where it's passing a compressed module to the kernel
+without decompressing it?  And removing the module just hid the problem.
 
-My concern is that by insisting that you handle device recovery
-completely in the ->error_detected() phase, you're not complying
-with the protocol specified in Documentation/PCI/pci-error-recovery.rst
-and as a result, you have to amend the reset code in the PCI core
-because it assumes that all arches adheres to the protocol.
-In my view, that suggests that the approach needs to be reworked
-to comply with the protocol.  Then the workarounds for performing
-a reset while I/O is blocked become unnecessary.
-
-Thanks,
-
-Lukas
+- Eric
