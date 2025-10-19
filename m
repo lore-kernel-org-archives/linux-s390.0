@@ -1,188 +1,126 @@
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52044354AC7
-	for <linux-s390@vger.kernel.org>; Sun, 19 Oct 2025 06:09:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2865178372;
+	Sun, 19 Oct 2025 06:50:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760854147; cv=none; b=brLM7sQxdnLlM6CDJrL1Gi6jyS/bNuXtpXVj0eM1X0ayTAagqLI9kvbZQR387Vcv9BRly07QK+zynckJbl6zcedu0VMVzVo7AeyNkxbSDFT7uiHW2FnaiG6T80WGICczSPsEbsYX+d5PFJNECL2Fz0d1AynKuBd8MEfPW3o2MXU=
+	t=1760856631; cv=none; b=K/78XNAKiDzDOooJcNp6Eu7AipUYBG1kPLI8N/p5Cza3u1FLaw2JLMT5Zo8BYIUgv2wrfJXIekPQJ4MKhqrHKYxeHu2n5PKjQi/v1gR9tQPp1p0HCXWMQh93jRWQwhafmjrxGk3HtW7t1K2WNNouBp355Vl+DkRC1mW8enY/ZJE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760854147; c=relaxed/simple;
-	bh=QbgwpdTyi8DYwUUDm609KswE/m2Q+kwHqpRNMxhZtOQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=QE9pSYWWlN9EoA/f4IraXitvXtHwcyp6QRgyJ71A3SEzQjfZ1+pyDBpMXPdnkuvQ6vgouv76OGtboL9KKDqw0NZJKDPtnaNWSEBp5aYAF+Qypw0rxX8Br4PTD1XUKctGmRlRuMXBIA54YlkDqbDFt85UdSTOJV5oAdTFo/QX6dE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fIJFRYOv; arc=none smtp.client-ip=209.85.128.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1760856631; c=relaxed/simple;
+	bh=EdgpjTa5vPTpdpYEzLk3B3e9bf5d6qYFWAfS+EwNqnE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=XiUeVLimD7Xq4wSNC3HT1XLtnTbynNPLVCwp5kXj5tnPfO2LiZS7Aq3Hwcs9tAOrM4NxzNwsFxaGc+bDR/nSuaoZCEWPzZS0KK5z/1IrC2OiPCslTQ4AtyUyXJrOlkgO0X0N3i/BwgXUfIqBbW8d97EvWjh0wtDx/lsiuCVDo6w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cl0KoSN2; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fIJFRYOv"
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-471066cfc2aso29428655e9.0
-        for <linux-s390@vger.kernel.org>; Sat, 18 Oct 2025 23:09:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1760854143; x=1761458943; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=GYC/hQuGeMEF947/LuK3VJRiyEjbNIGm04998G60uow=;
-        b=fIJFRYOv4Fm3RSAeLkQ3y5RaQM6SkG5JVBVhPU5FXz3NDjzFu9SjaNdUYI7mFnKIka
-         2IuR2TFBG0Jq0iJMzcBTbir8SyV01CTyADWtCgGsE+LX64S3BVAsDp8d9ZXBJjiuEPvN
-         uRvzPMiVWt0YEmYMHAhZIzL5L3GeZ3dY3YDyVQJuX9jZ0h0fwhpvguBUkFie7VtOt5Wn
-         5WNkEJ4tuTdUWsN0mMlWYJSXIWI4t5QrLKDLN2UNQHErt2ohjIXwcpeCrCF4iKDEWGkT
-         xt+nTZcTc27xp9gln3ooj/s/XILLSaVJgvlKzzXW4fKm92ExonLLi5/YJJwWryJI+f/D
-         uB7A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760854143; x=1761458943;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=GYC/hQuGeMEF947/LuK3VJRiyEjbNIGm04998G60uow=;
-        b=KHWUCY6/Miewz/f6LwIG0MOVdhYOemq6Wh0+OQYvk3X5qBvMOXp2cbYdkK/F31z32+
-         WSP6CvT3YvFKI6QpceF4wTN/C3/SqQv77vvJo2vCnMqv9gJplwpAea2i61lcD/PoPKvx
-         +whdQrAuXS1YCH5Ejj5daxA9iI/P9OsBR4nMjR9E1Cimk+wI4V1PziRY7Cf2IcWam4R0
-         JkZ/pXASmGLTWRc1hAFfU/nzuMX3L9lDZgYnOLb7UgXolcKVEDk6H3wzo0gZbOjiWMul
-         tP48x8UPSHLfxENDiVDh1PeZF+rVIpu2svKxiHg74F5n4x07lvxfxDt5CgktXGMmQmW3
-         os/Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUwHwnDurjtcPzGoSLSCEKgwse5sqqiX9X2IL01ILejkYnzKKfl1ptTAAoCa9v029juzkaZR52A1E55@vger.kernel.org
-X-Gm-Message-State: AOJu0YzUuMk3r4+JRBRoX/lDEcbohk+QZi1iq3eeuZlcBOKlGNHoFrJA
-	QMrDXl9A1Bxgvo2VbcqsBvrG6wFEI1ixxTMWngH1cCWxKvh5ZsJBwuq4
-X-Gm-Gg: ASbGncstX/uZ30xK2CuS6rkF8s+Aiu3LpZWhSTj+Vtku2j3JjvZk5u44ZqY6RO8PbUU
-	SCLxTQWJaW2bTIDhSPm0XGnJMvihKhyQzmS65bqKFHuwnI7JP3ZwKZD75aj1Ubxh3t1Tccd2/xA
-	2kQliLcVCk5Bjrdvp17NAJTTvy4Omjm8w8Qt9nZ9Eiipu9Gvz2qFetOYBy0zCvRSf1NzZxMZ4mW
-	30dFp95T5G98+s/OSpZPrpmXTSgbSWaAaj/KXuRyudV/SvrauVMV/GRfEeFyqYmDwtXN2F3aQVs
-	Xj18W/teUN3wJQORQtxq9STbhz7NLpoPWirQl3P4RZgveFDgRYo3/nJz370/xIq9QuUvi0KCcxC
-	Vo88xUOtHp++KgLY4qP/ShHiO+qmZOUoMQKyZpgdTixjYI5cQQ/i9Guc4f8byAX8SDyfvHB8leL
-	L1
-X-Google-Smtp-Source: AGHT+IEZ5upR5rvq2pYeoFEK0g1VqqLoHFsnsUnK8lryUbaHf4IrN1h8fWBgNccm4eIUhXw2FJ5z5w==
-X-Received: by 2002:a05:600c:820f:b0:471:176d:bf8a with SMTP id 5b1f17b1804b1-4711791cd3dmr68834905e9.35.1760854143309;
-        Sat, 18 Oct 2025 23:09:03 -0700 (PDT)
-Received: from localhost ([212.73.77.104])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4710cdb9d4dsm83976805e9.5.2025.10.18.23.09.01
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 18 Oct 2025 23:09:02 -0700 (PDT)
-From: Askar Safin <safinaskar@gmail.com>
-To: ebiggers@kernel.org
-Cc: ardb@kernel.org,
-	linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-crypto@vger.kernel.org,
-	linux-ext4@vger.kernel.org,
-	linux-f2fs-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org,
-	linux-mips@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	loongarch@lists.linux.dev,
-	sparclinux@vger.kernel.org,
-	x86@kernel.org,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	stable@vger.kernel.org
-Subject: Re: [PATCH v4 15/19] lib/crc32: make crc32c() go directly to lib
-Date: Sun, 19 Oct 2025 09:08:45 +0300
-Message-ID: <20251019060845.553414-1-safinaskar@gmail.com>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20241202010844.144356-16-ebiggers@kernel.org>
-References: <20241202010844.144356-16-ebiggers@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cl0KoSN2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57F25C4CEE7;
+	Sun, 19 Oct 2025 06:50:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1760856630;
+	bh=EdgpjTa5vPTpdpYEzLk3B3e9bf5d6qYFWAfS+EwNqnE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Cl0KoSN24WldfEYSRSfu5lozmGJAVE9xioGE6C+PBBseYSuE/7hgf2KbKvxu1nAfq
+	 +AnxTaK9VaE7xdn62r2Zk9oFnNMs7lSpecdggsfr9Z5mfbyraggVUnrWZwla30ASHd
+	 TTQUKVBXbjDXmyKfOdXMojvKQKorenot/jpefXad8wpoUyJQ/gWBwcSUSTx6MlFUkq
+	 O4BqR0RMnSAfMnvUpkN7wKJhQIsaUmfqwAekVS20NwyN/940rzzKb69Mu6Ni7vQrxn
+	 4PzVEO7y+ixH5H5iambi/6vum/20jOqyGoZB3A2tTRPyBtt8DjbzWrov4g4xwvEbN2
+	 ljhF5KLlm27vA==
+Date: Sun, 19 Oct 2025 02:50:21 -0400
+From: Guo Ren <guoren@kernel.org>
+To: Kees Cook <kees@kernel.org>
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+	x86@kernel.org, linux-alpha@vger.kernel.org,
+	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, llvm@lists.linux.dev,
+	linux-hardening@vger.kernel.org
+Subject: Re: [PATCH 03/17] csky: Add __attribute_const__ to ffs()-family
+ implementations
+Message-ID: <aPSKLRnWUAVSGQjF@gmail.com>
+References: <20250804163910.work.929-kees@kernel.org>
+ <20250804164417.1612371-3-kees@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250804164417.1612371-3-kees@kernel.org>
 
-Eric Biggers <ebiggers@kernel.org>:
-> Now that the lower level __crc32c_le() library function is optimized for
+On Mon, Aug 04, 2025 at 09:43:59AM -0700, Kees Cook wrote:
+> While tracking down a problem where constant expressions used by
+> BUILD_BUG_ON() suddenly stopped working[1], we found that an added static
+> initializer was convincing the compiler that it couldn't track the state
+> of the prior statically initialized value. Tracing this down found that
+> ffs() was used in the initializer macro, but since it wasn't marked with
+> __attribute__const__, the compiler had to assume the function might
+> change variable states as a side-effect (which is not true for ffs(),
+> which provides deterministic math results).
+> 
+> Add missing __attribute_const__ annotations to C-SKY's implementations of
+> ffs(), __ffs(), fls(), and __fls() functions. These are pure mathematical
+> functions that always return the same result for the same input with no
+> side effects, making them eligible for compiler optimization.
+LGTM.
 
-This patch (i. e. 38a9a5121c3b ("lib/crc32: make crc32c() go directly to lib"))
-solves actual bug I found in practice. So, please, backport it
-to stable kernels.
+Acked-by: Guo Ren <guoren@kernel.org>
 
-I did bisect.
-
-It is possible to apply this patch on top of v6.12.48 without conflicts.
-
-The bug actually prevents me for using my system (more details below).
-
-Here is steps to reproduce bug I noticed.
-
-Build kernel so:
-
-$ cat /tmp/mini
-CONFIG_64BIT=y
-CONFIG_PRINTK=y
-CONFIG_SERIAL_8250=y
-CONFIG_TTY=y
-CONFIG_SERIAL_8250_CONSOLE=y
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_RD_GZIP=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_SCRIPT=y
-CONFIG_PROC_FS=y
-CONFIG_SYSFS=y
-CONFIG_DEVTMPFS=y
-CONFIG_MODULES=y
-CONFIG_BTRFS_FS=m
-CONFIG_MODULE_COMPRESS=y
-CONFIG_MODULE_COMPRESS_XZ=y
-CONFIG_MODULE_COMPRESS_ALL=y
-CONFIG_MODULE_DECOMPRESS=y
-CONFIG_PRINTK_TIME=y
-$ make allnoconfig KCONFIG_ALLCONFIG=/tmp/mini
-$ make
-
-Then create initramfs, which contains statically built busybox
-(I used busybox v1.37.0 (Debian 1:1.37.0-6+b3)) and modules we just created.
-
-Then run Qemu using command line similar to this:
-
-qemu-system-x86_64 -kernel arch/x86/boot/bzImage -initrd i.gz -append 'console=ttyS0 panic=1 rdinit=/bin/busybox sh' -m 256 -no-reboot -enable-kvm -serial stdio -display none
-
-Then in busybox shell type this:
-
-# mkdir /proc
-# busybox mount -t proc proc /proc
-# modprobe btrfs
-
-On buggy kernels I get this output:
-
-# modprobe btrfs
-[   19.614228] raid6: skipped pq benchmark and selected sse2x4
-[   19.614638] raid6: using intx1 recovery algorithm
-[   19.616569] xor: measuring software checksum speed
-[   19.616937]    prefetch64-sse  : 42616 MB/sec
-[   19.617270]    generic_sse     : 41320 MB/sec
-[   19.617531] xor: using function: prefetch64-sse (42616 MB/sec)
-[   19.619731] Invalid ELF header magic: != ELF
-modprobe: can't load module libcrc32c (kernel/lib/libcrc32c.ko.xz): unknown symbol in module, or unknown parameter
-
-The bug is reproducible on all kernels from v6.12 until this commit.
-And it is not reproducible on all kernels, which contain this commit.
-I found this using bisect.
-
-This bug actually breaks my workflow. I have btrfs as root filesystem.
-Initramfs, generated by Debian, doesn't suit my needs. So I'm going
-to create my own initramfs from scratch. (Note that I use Debian Trixie,
-which has v6.12.48 kernel.) During testing this initramfs in Qemu
-I noticed that command "modprobe btrfs" fails with error given above.
-(I not yet tried to test this initramfs on real hardware.)
-
-So, this bug actually breaks my workflow.
-
-So, please backport this patch (i. e. 38a9a5121c3b ("lib/crc32: make crc32c() go directly to lib"))
-to stable kernels.
-
-I tested that this patch can be applied without conflicts on top of v6.12.48,
-and this patch indeed fixes the bug for v6.12.48.
-
-If you want, I can give more info.
-
-It is possible that this is in fact bug in busybox, not in Linux.
-But still I think that backporting this patch is good idea.
-
-This busybox thread my be related:
-https://lists.busybox.net/pipermail/busybox/2023-May/090309.html
-
--- 
-Askar Safin
+> 
+> Build tested ARCH=csky defconfig with GCC csky-linux 15.1.0.
+> 
+> Link: https://github.com/KSPP/linux/issues/364 [1]
+> Signed-off-by: Kees Cook <kees@kernel.org>
+> ---
+>  arch/csky/include/asm/bitops.h | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/arch/csky/include/asm/bitops.h b/arch/csky/include/asm/bitops.h
+> index 72e1b2aa29a0..80d67eee6e86 100644
+> --- a/arch/csky/include/asm/bitops.h
+> +++ b/arch/csky/include/asm/bitops.h
+> @@ -9,7 +9,7 @@
+>  /*
+>   * asm-generic/bitops/ffs.h
+>   */
+> -static inline int ffs(int x)
+> +static inline __attribute_const__ int ffs(int x)
+>  {
+>  	if (!x)
+>  		return 0;
+> @@ -26,7 +26,7 @@ static inline int ffs(int x)
+>  /*
+>   * asm-generic/bitops/__ffs.h
+>   */
+> -static __always_inline unsigned long __ffs(unsigned long x)
+> +static __always_inline __attribute_const__ unsigned long __ffs(unsigned long x)
+>  {
+>  	asm volatile (
+>  		"brev %0\n"
+> @@ -39,7 +39,7 @@ static __always_inline unsigned long __ffs(unsigned long x)
+>  /*
+>   * asm-generic/bitops/fls.h
+>   */
+> -static __always_inline int fls(unsigned int x)
+> +static __always_inline __attribute_const__ int fls(unsigned int x)
+>  {
+>  	asm volatile(
+>  		"ff1 %0\n"
+> @@ -52,7 +52,7 @@ static __always_inline int fls(unsigned int x)
+>  /*
+>   * asm-generic/bitops/__fls.h
+>   */
+> -static __always_inline unsigned long __fls(unsigned long x)
+> +static __always_inline __attribute_const__ unsigned long __fls(unsigned long x)
+>  {
+>  	return fls(x) - 1;
+>  }
+> -- 
+> 2.34.1
+> 
+> 
