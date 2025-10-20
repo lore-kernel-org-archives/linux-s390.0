@@ -1,250 +1,156 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22F97150997;
-	Mon, 20 Oct 2025 07:02:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B68AF2BDC26
+	for <linux-s390@vger.kernel.org>; Mon, 20 Oct 2025 07:08:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760943726; cv=none; b=WFUWx/dR8nDuvzBFYqYboxE/wZUCcVEJ5H31n4gk1B+PMwAW9GHaRRabaGrT1TdpcQT/GO/caEnLanrYbAMMqFVMLywA9rz/j2YpUCzV3XcG0X91agfqL0CKSlxGqTL5mUlvpAoiAXxHd9HF/0bAG5mYc3vY+pfV20VLCzu8Sf4=
+	t=1760944084; cv=none; b=ihq/IA7VF0nbFf415aGdlnS+6AtWlyk16fKCTapS5ZAWHHZGlzvqDKwrGhPk76Uq/kewxIctdG2J/yFyfVclx4k2qndraYDw0LkPdl3yOveQuVlLp9hCXvFK1QJdpfD5obG6Rai+EkounB5M/AwAT5QwuA/PYB2wl3xSE/Qh/14=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760943726; c=relaxed/simple;
-	bh=HkxfFtL/3XaTb44aFl9pdJtcAEASN9Gh6pDMPwEX1HQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=quK7jC6rqy9ZG18Qhv/7coHn+DuU4y360OsR3vXVouURPAMtOxkNwzEm8pWxpOumFnsqt4dtR3OJRD/ziPxglF5ezYQevAxIKXMM76vDwY7u6v7xeNTikBXTGjEYuU27c/KWlnjla54jvPyTLTMZ8e3qj3IqKI3xPuJOfJOj028=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=P7+fKu6a; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1760944084; c=relaxed/simple;
+	bh=XZ0XrFe8i9BOKiZV0xnN18sfKKByLNmWtR6xj1Y69WY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=kcRB1RNXaDmvIWuZi8zWTL+y8lCgHEXentyP7JWi/Ab5/r8+mJcdAXWAOdyVJ0Y/xj3MJWWxUSCyfZHfQFDb2RBqnLhokhdMaf8/2jfsa626bfmX3m0Aq0IpWkYeU98LzK5phIc9/G+6cUYBkK9Ec/mpfIgsT9hrM/SXWLdNp+U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Hw8gCN7o; arc=none smtp.client-ip=209.85.216.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="P7+fKu6a"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59K5WDwe001436;
-	Mon, 20 Oct 2025 07:01:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=U04AMG
-	uiqfCKuuu4HGpR+ogoEBa5LdNdpgi6t0TQSJA=; b=P7+fKu6aVrSf5NLk7vZMfA
-	IA6DJtrB2ngzdctCND+mg/kC/S6My9g6DqwsDVLZjd/5Wz8DSUI1cEW0gQrJO7Yz
-	ui8EIAwbpNEvWd75cvROYSBTKI+ZRfIDJSxKgvKRp2nVvrNpirHL8KftLz3ID1gE
-	yy6tOozi3LGa1ZdH9SyaY9UQ41cMLy/YECSFuz5j7qozbniOAMzSArZgrIrrWAkg
-	S72HrmK4FrhV/P0AQsO120r6usynLV3T6IU1AWWXz+wL0OXmzeAgq9lFsWOZa3AD
-	VCsDRXxB1WYfvYnrkdpQZw7NJ6R35VKHB/U9Aj80/tBdbrqCHC1aRfGN0Gi3DsCQ
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49v31rr4cp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 20 Oct 2025 07:01:40 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 59K71dtC030213;
-	Mon, 20 Oct 2025 07:01:39 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49v31rr4cm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 20 Oct 2025 07:01:39 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59K3J71u011033;
-	Mon, 20 Oct 2025 07:01:38 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 49vqx0v8by-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 20 Oct 2025 07:01:38 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59K71aIH21954904
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 20 Oct 2025 07:01:36 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7C19E20040;
-	Mon, 20 Oct 2025 07:01:36 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CC7D22004D;
-	Mon, 20 Oct 2025 07:01:35 +0000 (GMT)
-Received: from [9.155.199.94] (unknown [9.155.199.94])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 20 Oct 2025 07:01:35 +0000 (GMT)
-Message-ID: <c163a247-4f02-4010-a860-5060e34a34db@linux.ibm.com>
-Date: Mon, 20 Oct 2025 09:01:35 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Hw8gCN7o"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-33b9dc8d517so3559008a91.0
+        for <linux-s390@vger.kernel.org>; Mon, 20 Oct 2025 00:08:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1760944082; x=1761548882; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=/HOxQeFzZprgS340iSyl+E8y8vVH7kK0gqo8lCK0SDQ=;
+        b=Hw8gCN7oSJIanJ7seDeSs7cT6qmeINdD81LFwTET0BnrhqCnTwdyuTHwkSupgmlXzF
+         czR+WcTrS2bCbbQey5V+60iOmwQogFHRTaQxrnKnZ9CM0OxZEv7KIo7yEkGFYAN2+A+L
+         kjVjGVlj9uaUXZTnZTgdCyERCDYGGXKco6j9aCDAN36GASCpUFrTDapd7b3WBwlr+nsf
+         NgzGai106R88mmVazssKKDhkYXPRijbcjfYAEZj+2ZUFFooUuN2tgSPGUKg3ccl3zAWa
+         vXCrnY/T1vxXn0k2Bm20BwzwgKIgT3t7snhv3wwtUsePSE/CoQfOG28+tvYHXKKDd7xD
+         Sulw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1760944082; x=1761548882;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=/HOxQeFzZprgS340iSyl+E8y8vVH7kK0gqo8lCK0SDQ=;
+        b=ASQV2GAt00tH6i+2N3WIHwoRYWiEPFYegyioWayMuidpzlqnB8KHHynVciX4+Gidwb
+         HDaUYZFp5xo8hdvApvYnV20fzwyp7Db8eAmqUz/EmiYV7FJZQUbgU5q532ZuZRAtu+3p
+         HViNLjt+W7xxlN+FaNITtjvdYA6USvp/cL5bfRlyZc9tPaosyrdfojgJGepkAyhHbp+A
+         utYCjICyWFRCFUrygC2Zsa2KQ4AfmrjqiAR4DcdEMiFTXcgOvTKFX738cDoyUWZfs76f
+         rqeWNhvctifF/nBRuJZKJU2Be9vHuzEEL9SAj9Y/oLbjFjAeoFsUUd8NN3TMcIv8JlDF
+         7tdw==
+X-Forwarded-Encrypted: i=1; AJvYcCVjQ1HYo3d/mzlcbUzmOfM8+LK8GPk4nLODI+d0goXhBvS2FuJfuC/0IF3LJcU9BmQTs1nHc/88oXnu@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx4FNPrE31rX9FVxnXHNN0J32IERZtTFecTMEmkOwvHSOeUuNW5
+	GSKgBa2LgDaY1rwRv6dg7BP0ZiAefve00j1Hfp73h4gUvK7wmcuEQnKnxrnVnFre
+X-Gm-Gg: ASbGncuyNDRamC7LeTNt+/61DN4gukeFwkCV0Gt9yZYsIshc1Ll5awZ5+Qe03NKMUzL
+	Bz6Pm9sLG8x99pmgAPz84uhUIIHDQ9RlNMAQTn7zrHXZtK8F0Adh6AY321fP/ySsJBHN9PRgcHA
+	O1qsju2bDHoqCz/J/6nQ6m6SssVwmk9KrrzyPNPJ4CVKaRv9iFfzmI+5REwjknDFSbCKNnsuH67
+	+KoNSm8YIrPQy+DsklM9IC3gQUNlnlmvIk8wpAkl/G4EgBgNTc37+hZd7WsBIQSGtiya0vZQGAz
+	er54OY8A4yEus93BeRiVMBwjQ/Gh3/9jkKlOJouuflCAlWE6ACv3T94XXq+mr/9PH4D2c692PCl
+	P3wB+a5Jzbap3pkYB7ZTWlTYUZYSNSjtD1sn74yENTb8m4OQuAOCrJ6VvzhAM5GHtnS7hWlhSb3
+	mb45M=
+X-Google-Smtp-Source: AGHT+IEQ5375x2wAPSKC6RY36q65Xq6o1ABPfooltKbLM5TnVL2vpALRNQnKbvej+kaD3bTB+gwZ+Q==
+X-Received: by 2002:a17:90b:4b0f:b0:32e:8c14:5cd2 with SMTP id 98e67ed59e1d1-33bcf8faac8mr15518129a91.28.1760944081925;
+        Mon, 20 Oct 2025 00:08:01 -0700 (PDT)
+Received: from archie.me ([103.124.138.155])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-33d5deae553sm7219872a91.21.2025.10.20.00.08.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Oct 2025 00:08:00 -0700 (PDT)
+Received: by archie.me (Postfix, from userid 1000)
+	id 123104241816; Mon, 20 Oct 2025 14:07:57 +0700 (WIB)
+Date: Mon, 20 Oct 2025 14:07:57 +0700
+From: Bagas Sanjaya <bagasdotme@gmail.com>
+To: Eric Biggers <ebiggers@kernel.org>, linux-crypto@vger.kernel.org
+Cc: David Howells <dhowells@redhat.com>, Ard Biesheuvel <ardb@kernel.org>,
+	"Jason A . Donenfeld" <Jason@zx2c4.com>,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Stephan Mueller <smueller@chronox.de>
+Subject: Re: [PATCH 03/17] lib/crypto: Add SHA3-224, SHA3-256, SHA3-384,
+ SHA3-512, SHAKE128, SHAKE256
+Message-ID: <aPXfzd0KBNg-MjXi@archie.me>
+References: <20251020005038.661542-1-ebiggers@kernel.org>
+ <20251020005038.661542-4-ebiggers@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: linux-next: KVM/s390x regression
-To: David Hildenbrand <david@redhat.com>, Balbir Singh <balbirs@nvidia.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: Liam.Howlett@oracle.com, airlied@gmail.com, akpm@linux-foundation.org,
-        apopple@nvidia.com, baohua@kernel.org, baolin.wang@linux.alibaba.com,
-        byungchul@sk.com, dakr@kernel.org, dev.jain@arm.com,
-        dri-devel@lists.freedesktop.org, francois.dugast@intel.com,
-        gourry@gourry.net, joshua.hahnjy@gmail.com,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        lorenzo.stoakes@oracle.com, lyude@redhat.com, matthew.brost@intel.com,
-        mpenttil@redhat.com, npache@redhat.com, osalvador@suse.de,
-        rakie.kim@sk.com, rcampbell@nvidia.com, ryan.roberts@arm.com,
-        simona@ffwll.ch, ying.huang@linux.alibaba.com, ziy@nvidia.com,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-next@vger.kernel.org
-References: <20251001065707.920170-4-balbirs@nvidia.com>
- <20251017144924.10034-1-borntraeger@linux.ibm.com>
- <9beff9d6-47c7-4a65-b320-43efd1e12687@redhat.com>
- <c67386be-5278-411d-97e7-43fc34bf7c98@linux.ibm.com>
- <8c778cd0-5608-4852-9840-4d98828d7b33@redhat.com>
- <74272098-cfb7-424b-a55e-55e94f04524e@linux.ibm.com>
- <84349344-b127-41f6-99f1-10f907c2bd07@redhat.com>
- <c9f28d0c-6b06-47a2-884d-7533f7b49c45@nvidia.com>
- <3a2db8fc-d289-415b-ae67-5a35c9c32a76@redhat.com>
- <cb85aaa3-e456-4fd8-b323-46c75d453a02@redhat.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <cb85aaa3-e456-4fd8-b323-46c75d453a02@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: v4AhxjdYPQ4pAwdTVyyGMZBkLltfsYnV
-X-Proofpoint-GUID: HGaWrDevPhF1ISP8dLXNWldbJ_jQHpwb
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDE4MDAyMiBTYWx0ZWRfXzXLWYXdS7hpy
- qNGKGWSJWyIeny2Q6sQf3+EEPv7O8gq0l5X1IuADybSQAj7A43xpS3Tps95MHeYYh9t33hr3A35
- l+PG8dlG5bqCGLX/xUG4IP7aE1ULj006EF+/6bi8RH485thE3VpLhaoskEqPRC8mbjUa5glVK5x
- zJzH4H2DSuJGnfnkd9h/ntuEjvvPAZS1xuZHQnrKIs00r+EuimU4rteVA9P10C4iNJnbz6/afoq
- 2z2Wny7QHKj4t9il4LfDOEvvEoWOpiqXKv5WchRi1NZIjq1Yn++B7Mj82V00Q9QUF4lDex7ZGsD
- dJW2zxk9pCCdadpiPi846uCpHbMBYdX6gB+l95RbAL1/BEsao6NPACr4YtGtW0HE4stXLrpctEW
- YjeywxCKkh6foVSvhrI1VUR6adUAGA==
-X-Authority-Analysis: v=2.4 cv=IJYPywvG c=1 sm=1 tr=0 ts=68f5de54 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=vFDTLKEYg0PC3Nlu-GsA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
- a=nl4s5V0KI7Kw-pW0DWrs:22 a=pHzHmUro8NiASowvMSCR:22 a=xoEH_sTeL_Rfw54TyV31:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-10-20_02,2025-10-13_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 lowpriorityscore=0 clxscore=1015 suspectscore=0 spamscore=0
- bulkscore=0 adultscore=0 impostorscore=0 malwarescore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510180022
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="bwyeZRG0SF5QekIi"
+Content-Disposition: inline
+In-Reply-To: <20251020005038.661542-4-ebiggers@kernel.org>
 
-Am 18.10.25 um 00:41 schrieb David Hildenbrand:
-> On 18.10.25 00:15, David Hildenbrand wrote:
->> On 17.10.25 23:56, Balbir Singh wrote:
->>> On 10/18/25 04:07, David Hildenbrand wrote:
->>>> On 17.10.25 17:20, Christian Borntraeger wrote:
->>>>>
->>>>>
->>>>> Am 17.10.25 um 17:07 schrieb David Hildenbrand:
->>>>>> On 17.10.25 17:01, Christian Borntraeger wrote:
->>>>>>> Am 17.10.25 um 16:54 schrieb David Hildenbrand:
->>>>>>>> On 17.10.25 16:49, Christian Borntraeger wrote:
->>>>>>>>> This patch triggers a regression for s390x kvm as qemu guests can no longer start
->>>>>>>>>
->>>>>>>>> error: kvm run failed Cannot allocate memory
->>>>>>>>> PSW=mask 0000000180000000 addr 000000007fd00600
->>>>>>>>> R00=0000000000000000 R01=0000000000000000 R02=0000000000000000 R03=0000000000000000
->>>>>>>>> R04=0000000000000000 R05=0000000000000000 R06=0000000000000000 R07=0000000000000000
->>>>>>>>> R08=0000000000000000 R09=0000000000000000 R10=0000000000000000 R11=0000000000000000
->>>>>>>>> R12=0000000000000000 R13=0000000000000000 R14=0000000000000000 R15=0000000000000000
->>>>>>>>> C00=00000000000000e0 C01=0000000000000000 C02=0000000000000000 C03=0000000000000000
->>>>>>>>> C04=0000000000000000 C05=0000000000000000 C06=0000000000000000 C07=0000000000000000
->>>>>>>>> C08=0000000000000000 C09=0000000000000000 C10=0000000000000000 C11=0000000000000000
->>>>>>>>> C12=0000000000000000 C13=0000000000000000 C14=00000000c2000000 C15=0000000000000000
->>>>>>>>>
->>>>>>>>> KVM on s390x does not use THP so far, will investigate. Does anyone have a quick idea?
->>>>>>>>
->>>>>>>> Only when running KVM guests and apart from that everything else seems to be fine?
->>>>>>>
->>>>>>> We have other weirdness in linux-next but in different areas. Could that somehow be
->>>>>>> related to use disabling THP for the kvm address space?
->>>>>>
->>>>>> Not sure ... it's a bit weird. I mean, when KVM disables THPs we essentially just remap everything to be mapped by PTEs. So there shouldn't be any PMDs in that whole process.
->>>>>>
->>>>>> Remapping a file THP (shmem) implies zapping the THP completely.
->>>>>>
->>>>>>
->>>>>> I assume in your kernel config has CONFIG_ZONE_DEVICE and CONFIG_ARCH_ENABLE_THP_MIGRATION set, right?
->>>>>
->>>>> yes.
->>>>>
->>>>>>
->>>>>> I'd rule out copy_huge_pmd(), zap_huge_pmd() a well.
->>>>>>
->>>>>>
->>>>>> What happens if you revert the change in mm/pgtable-generic.c?
->>>>>
->>>>> That partial revert seems to fix the issue
->>>>> diff --git a/mm/pgtable-generic.c b/mm/pgtable-generic.c
->>>>> index 0c847cdf4fd3..567e2d084071 100644
->>>>> --- a/mm/pgtable-generic.c
->>>>> +++ b/mm/pgtable-generic.c
->>>>> @@ -290,7 +290,7 @@ pte_t *___pte_offset_map(pmd_t *pmd, unsigned long addr, pmd_t *pmdvalp)
->>>>>                if (pmdvalp)
->>>>>                     *pmdvalp = pmdval;
->>>>> -       if (unlikely(pmd_none(pmdval) || !pmd_present(pmdval)))
->>>>> +       if (unlikely(pmd_none(pmdval) || is_pmd_migration_entry(pmdval)))
->>>>
->>>> Okay, but that means that effectively we stumble over a PMD entry that is not a migration entry but still non-present.
->>>>
->>>> And I would expect that it's a page table, because otherwise the change
->>>> wouldn't make a difference.
->>>>
->>>> And the weird thing is that this only triggers sometimes, because if
->>>> it would always trigger nothing would ever work.
->>>>
->>>> Is there some weird scenario where s390x might set a left page table mapped in a PMD to non-present?
->>>>
->>>
->>> Good point
->>>
->>>> Staring at the definition of pmd_present() on s390x it's really just
->>>>
->>>>       return (pmd_val(pmd) & _SEGMENT_ENTRY_PRESENT) != 0;
->>>>
->>>>
->>>> Maybe this is happening in the gmap code only and not actually in the core-mm code?
->>>>
->>>
->>>
->>> I am not an s390 expert, but just looking at the code
->>>
->>> So the check on s390 effectively
->>>
->>> segment_entry/present = false or segment_entry_empty/invalid = true
->>
->> pmd_present() == true iff _SEGMENT_ENTRY_PRESENT is set
->>
->> because
->>
->>     return (pmd_val(pmd) & _SEGMENT_ENTRY_PRESENT) != 0;
->>
->> is the same as
->>
->>     return pmd_val(pmd) & _SEGMENT_ENTRY_PRESENT;
->>
->> But that means we have something where _SEGMENT_ENTRY_PRESENT is not set.
->>
->> I suspect that can only be the gmap tables.
->>
->> Likely __gmap_link() does not set _SEGMENT_ENTRY_PRESENT, which is fine
->> because it's a software managed bit for "ordinary" page tables, not gmap
->> tables.
->>
->> Which raises the question why someone would wrongly use
->> pte_offset_map()/__pte_offset_map() on the gmap tables.
->>
->> I cannot immediately spot any such usage in kvm/gmap code, though.
->>
-> 
-> Ah, it's all that pte_alloc_map_lock() stuff in gmap.c.
-> 
-> Oh my.
-> 
-> So we're mapping a user PTE table that is linked into the gmap tables through a PMD table that does not have the right sw bits set we would expect in a user PMD table.
-> 
-> What's also scary is that pte_alloc_map_lock() would try to pte_alloc() a user page table in the gmap, which sounds completely wrong?
-> 
-> Yeah, when walking the gmap and wanting to lock the linked user PTE table, we should probably never use the pte_*map variants but obtain
-> the lock through pte_lockptr().
-> 
-> All magic we end up doing with RCU etc in __pte_offset_map_lock()
-> does not apply to the gmap PMD table.
-> 
 
-CC Claudio.
+--bwyeZRG0SF5QekIi
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sun, Oct 19, 2025 at 05:50:24PM -0700, Eric Biggers wrote:
+> +The SHA-3 algorithm base, as specified in NIST FIPS-202[1], provides a n=
+umber
+> +of specific variants all based on the same basic algorithm (the Keccak s=
+ponge
+> +function and permutation).  The differences between them are: the "rate"=
+ (how
+> +much of the common state buffer gets updated with new data between invoc=
+ations
+
+Use reST footnotes, like:
+
+---- >8 ----
+diff --git a/Documentation/crypto/sha3.rst b/Documentation/crypto/sha3.rst
+index c27da98c89b7f8..ae1fd3e01e34c2 100644
+--- a/Documentation/crypto/sha3.rst
++++ b/Documentation/crypto/sha3.rst
+@@ -18,7 +18,7 @@ SHA-3 Algorithm collection
+ Overview
+ =3D=3D=3D=3D=3D=3D=3D=3D
+=20
+-The SHA-3 algorithm base, as specified in NIST FIPS-202[1], provides a num=
+ber
++The SHA-3 algorithm base, as specified in NIST FIPS-202 [1]_, provides a n=
+umber
+ of specific variants all based on the same basic algorithm (the Keccak spo=
+nge
+ function and permutation).  The differences between them are: the "rate" (=
+how
+ much of the common state buffer gets updated with new data between invocat=
+ions
+@@ -136,7 +136,7 @@ should use the much more comprehensive KUnit test suite=
+ instead.
+ References
+ =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+=20
+-[1] https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
++.. [1] https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
+=20
+=20
+=20
+> +If selectable algorithms are required then the crypto_hash API may be us=
+ed
+> +instead as this binds each algorithm to a specific C type.
+
+What is crypto_hash API then? I can't find any of its documentation beside
+being mentioned here.
+
+--=20
+An old man doll... just what I always wanted! - Clara
+
+--bwyeZRG0SF5QekIi
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCaPXfxAAKCRD2uYlJVVFO
+o3A4AP9bdkVnmtIfCagfxHcW5eGHSyGy7zxDqFUTIe8b2dhvVAD+KVzQDxqnujqm
+eYhwNKRJG53xvL9m37FLDKGqqZLtLw0=
+=VJti
+-----END PGP SIGNATURE-----
+
+--bwyeZRG0SF5QekIi--
