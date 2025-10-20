@@ -1,141 +1,100 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7ABAF13C3CD;
-	Mon, 20 Oct 2025 17:59:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 232FF242D76;
+	Mon, 20 Oct 2025 18:16:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760983149; cv=none; b=sYDevW2ULrC3tBFoJ0iinC4pEwO0nKeTFgh/kuEUZGEx0Uy6qVZN88K6dF2GVqa6L678I5y/A4rv7yk0rvTk7eVFq6yvCoxfnyO6yWTZDJwml/QUuF9vc8VhU1cxy44LAGcsfNY6SvA6X/TjjVzalHYjgovMFZzIQ7ZuvTdUC70=
+	t=1760984172; cv=none; b=WOV02KlHOmt5cPzHh6F6X9MJ3hN5/BQfsb7oxT9VrNtoSu8P6DfePedAhch6bFGN9ukWeV9DlwT9oDS5Q0GmNj1DguLrUVtyo06xB7IlvDjBMcNJLbA3kKf0UJZP7NQa49f5/CMC1z6dAjYxzvfFGh95GZO9RPwHhEtvwQLxLiw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760983149; c=relaxed/simple;
-	bh=x7GUYv8Ms47fFopUIi3Wz6TTbTv7Y2GnvOK59yf3mcs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=IWS2kr9d/YTHlCHgNKDkq2/LRkiBl19kVwhJlwGCcjm/WC0nIP7NZPCI+2vezC7QNJdo42CAe3iMqEW1z8mxOHo3RrAFKfEIrz/B+oOFs7JrAQ2EFRb1EhgzvSzDKmiHkHsMQLiHVGc713y7iAi7M6qUvDg8V4idb03Hn9NXHPw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pIwu3N3R; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1760984172; c=relaxed/simple;
+	bh=g+2VpaD+FlA761mradaWnF6yVcLyinIaa0PWYsivwMA=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=AGlc17a/VBsgtVbSeMznYQkGOZZJFkid0lkXyHMzsZ1FyiuujDwGuW8HgOccooE5Hz9I53guz4XFpnW/RpVUVDb3RiRteCXcPbOwaZpbKnUa+BTHnYxj6QXRo7cq0cdwuujm+IVns/q4gG2ooUK5dHrID4J2bCn3OVaYACy88h0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=SFAdAhGZ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pIwu3N3R"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0F22C4CEF9;
-	Mon, 20 Oct 2025 17:59:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1760983149;
-	bh=x7GUYv8Ms47fFopUIi3Wz6TTbTv7Y2GnvOK59yf3mcs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=pIwu3N3RIH04/zJHOEAoM7ocAG9NiaDVkyJ306sift4cHMx3Tb2f/ippaSK8Fg06m
-	 6IQXodbTyF3Qn2c8aDBNoAVRP6uZT4YfvSbV/KeUzZiYZHUyMEJW0Pbfi8/fKQNP3+
-	 pDGdjuzWzXILebjnLWC8McdJmoz/tKPyQwLAhX/T0UQmYRShJMBWRvW45Z1d1FMa6W
-	 s2Dn0RtbK5qByuihJwoqQzl2p1ofOCvEBa9Bfw1Q3yhHuxwDJn4cH0vmPgAfOXoB9i
-	 iMRB0KkL4qetti2maqpV8j/O4nn5UDYIT0eifLYn9cGmrEOg+7i5oDkN/hHaIRQa4v
-	 MoYDtbKU4Sn8A==
-Date: Mon, 20 Oct 2025 10:57:36 -0700
-From: Eric Biggers <ebiggers@kernel.org>
-To: Holger Dengler <dengler@linux.ibm.com>
-Cc: David Howells <dhowells@redhat.com>, Ard Biesheuvel <ardb@kernel.org>,
-	"Jason A . Donenfeld" <Jason@zx2c4.com>,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
-	Harald Freudenberger <freude@linux.ibm.com>
-Subject: Re: [PATCH 15/17] lib/crypto: s390/sha3: Migrate optimized code into
- library
-Message-ID: <20251020175736.GC1644@sol>
-References: <20251020005038.661542-1-ebiggers@kernel.org>
- <20251020005038.661542-16-ebiggers@kernel.org>
- <51fc91b6-3a6e-44f7-ae93-aef0bcb48964@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="SFAdAhGZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C732AC4CEF9;
+	Mon, 20 Oct 2025 18:16:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1760984171;
+	bh=g+2VpaD+FlA761mradaWnF6yVcLyinIaa0PWYsivwMA=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=SFAdAhGZ6XAI3/OSlRoUNUAwPSszkFJ5X78HTOFq1+uod1XbAgAQik0Ms/FVZwL8b
+	 s288oOWO3uGPngOYPSt2YpIWz3iBNwzxaqaJwbvYDnbDsjcDdrwTO7g030gpdL1GAy
+	 kdB06SO/8MeAHhERgECXjIJ5lY1Qda/IfEWb/rTg=
+Date: Mon, 20 Oct 2025 11:16:09 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Matthew Wilcox <willy@infradead.org>,
+ Guo Ren <guoren@kernel.org>, Thomas Bogendoerfer
+ <tsbogend@alpha.franken.de>, Heiko Carstens <hca@linux.ibm.com>, Vasily
+ Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
+ <svens@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Andreas
+ Larsson <andreas@gaisler.com>, Arnd Bergmann <arnd@arndb.de>, Greg
+ Kroah-Hartman <gregkh@linuxfoundation.org>, Dan Williams
+ <dan.j.williams@intel.com>, Vishal Verma <vishal.l.verma@intel.com>, Dave
+ Jiang <dave.jiang@intel.com>, Nicolas Pitre <nico@fluxnic.net>, Muchun Song
+ <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, David
+ Hildenbrand <david@redhat.com>, Konstantin Komarov
+ <almaz.alexandrovich@paragon-software.com>, Baoquan He <bhe@redhat.com>,
+ Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>, Tony Luck
+ <tony.luck@intel.com>, Reinette Chatre <reinette.chatre@intel.com>, Dave
+ Martin <Dave.Martin@arm.com>, James Morse <james.morse@arm.com>, Alexander
+ Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan
+ Kara <jack@suse.cz>, "Liam R . Howlett" <Liam.Howlett@oracle.com>,
+ Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>, Suren
+ Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Hugh
+ Dickins <hughd@google.com>, Baolin Wang <baolin.wang@linux.alibaba.com>,
+ Uladzislau Rezki <urezki@gmail.com>, Dmitry Vyukov <dvyukov@google.com>,
+ Andrey Konovalov <andreyknvl@gmail.com>, Jann Horn <jannh@google.com>,
+ Pedro Falcato <pfalcato@suse.de>, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-csky@vger.kernel.org, linux-mips@vger.kernel.org,
+ linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+ nvdimm@lists.linux.dev, linux-cxl@vger.kernel.org, linux-mm@kvack.org,
+ ntfs3@lists.linux.dev, kexec@lists.infradead.org,
+ kasan-dev@googlegroups.com, Jason Gunthorpe <jgg@nvidia.com>,
+ iommu@lists.linux.dev, Kevin Tian <kevin.tian@intel.com>, Will Deacon
+ <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Sumanth Korikkar
+ <sumanthk@linux.ibm.com>
+Subject: Re: [PATCH v5 00/15] expand mmap_prepare functionality, port more
+ users
+Message-Id: <20251020111609.cfafaa22c20ac33be573898f@linux-foundation.org>
+In-Reply-To: <cover.1760959441.git.lorenzo.stoakes@oracle.com>
+References: <cover.1760959441.git.lorenzo.stoakes@oracle.com>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <51fc91b6-3a6e-44f7-ae93-aef0bcb48964@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Mon, Oct 20, 2025 at 04:00:42PM +0200, Holger Dengler wrote:
-> On 20/10/2025 02:50, Eric Biggers wrote:
-> > Instead of exposing the s390-optimized SHA-3 code via s390-specific
-> > crypto_shash algorithms, instead just implement the sha3_absorb_blocks()
-> > and sha3_keccakf() library functions.  This is much simpler, it makes
-> > the SHA-3 library functions be s390-optimized, and it fixes the
-> > longstanding issue where the s390-optimized SHA-3 code was disabled by
-> > default.  SHA-3 still remains available through crypto_shash, but
-> > individual architectures no longer need to handle it.
-> > 
-> > Note that the existing code used both CPACF_KIMD_SHA3_224 and
-> > CPACF_KIMD_SHA3_256 after checking for just CPACF_KIMD_SHA3_256, and
-> > similarly for 384 and 512.  I've preserved that behavior.
-> > 
-> > Signed-off-by: Eric Biggers <ebiggers@kernel.org>
-> The current code also cover a performance feature, which allows (on
-> supported hardware, e.g. z17) to skip the ICV initialization.
+On Mon, 20 Oct 2025 13:11:17 +0100 Lorenzo Stoakes <lorenzo.stoakes@oracle.com> wrote:
 
-I'm not sure if by "ICV" you mean "Integrity Check Value" or "Initial
-Chaining Value", but SHA-3 doesn't have either of those.  It just starts
-with a state of all zeroes.  I assume that skipping the
-zero-initialization of the state is what you're referring to?
+> Since commit c84bf6dd2b83 ("mm: introduce new .mmap_prepare() file
+> callback"), The f_op->mmap hook has been deprecated in favour of
+> f_op->mmap_prepare.
+> 
+> This was introduced in order to make it possible for us to eventually
+> eliminate the f_op->mmap hook which is highly problematic as it allows
+> drivers and filesystems raw access to a VMA which is not yet correctly
+> initialised.
+> 
+> This hook also introduced complexity for the memory mapping operation, as
+> we must correctly unwind what we do should an error arises.
+> 
+> Overall this interface being so open has caused significant problems for
+> us, including security issues, it is important for us to simply eliminate
+> this as a source of problems.
+> 
+> Therefore this series continues what was established by extending the
+> functionality further to permit more drivers and filesystems to use
+> mmap_prepare.
 
-> support has been introduced with 88c02b3f79a6 ("s390/sha3: Support
-> sha3 performance enhancements"). Unfortunately, this patch removes
-> this support. Was this intended?
-
-For now, yes.  I should have explained more in the patch, sorry.
-
-As currently proposed, lib/crypto/sha3.c supports arch-specific
-overrides of sha3_absorb_blocks() and sha3_keccakf().  Those cover the
-Keccak-f permutation which is by far the most performance critical part.
-This strategy is working well in the SHA-2, SHA-1, and MD5 libraries,
-which support the same level of arch overrides.
-
-We could update lib/crypto/sha3.c to allow architectures to override
-more of the code.  But we need to consider the tradeoffs:
-
-- Risk of bugs.  QEMU doesn't support the s390 SHA-3 instructions, so no
-  one except the s390 folks can test the code.  I can try to write code
-  for you, but I can't test it.  And the s390 SHA-3 code has had bugs;
-  see commits 992b7066800f, 68279380266a5, 73c2437109c3.
-
-  The first priority should be correctness.
-
-- The proposed change to the init functions would cause the format of
-  'struct __sha3_ctx' to be architecture-dependent.  While we can do
-  that if really needed, it's something that's best avoided for
-  simplicity.  It opens up more opportunity for error.
-
-- As I mentioned, Keccak-f is by far the most performance critical part
-  anyway.  The initial state is just all zeroes, and initializing it is
-  very lightweight.  Also consider that these contexts are often on the
-  stack, and people increasingly set the "init all stack variables to
-  zero" kernel hardening option anyway.
-
-  I'll also note that commit 88c02b3f79a6 has no performance data in it.
-  So it's not clear that it actually helped much.
-
-- The library has an optimization to greatly reduce the size of the
-  context: instead of buffering data separately, it just XOR's data into
-  the state.  So, if there's a sha3_*_init() followed by a sha3_update()
-  of less than 1 block, it will have to initialize the state anyway.  We
-  can delay it until that point on s390.  But again: complexity.
-
-- These potential additional s390 optimizations would presumably help
-  the most on short messages.  However, on short messages, merely
-  switching to the library often gives a large performance improvement
-  due to eliminating the very slow call to crypto_alloc_shash().  That's
-  actually a lot more important.
-
-I would suggest that we drop the sha3_*_init() optimization from
-consideration for now.  Providing overrides for the one-shot functions
-sha3_{224,256,384,512}() should be simpler as well as possibly a bit
-more useful, and I would suggest exploring that.
-
-I guess I can try to write the code for you again.  But again, without
-QEMU support I cannot test it.  The first priority in cryptography code
-is correctness, so that's not a great position to be in.
-
-Note that for new optimized code I'm requiring QEMU support for the
-instructions it uses.  This one would only be allowed because code that
-used these instructions already existed in arch/s390/crypto/.
-
-> Please also add me and Harald Freudenberger to the cc: list for this patch.
-
-Will do, thanks.
-
-- Eric
+Thanks, I (re-)added this series to mm.git.  I suppressed the usual
+emails.
