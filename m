@@ -1,181 +1,226 @@
-Received: from PH7PR06CU001.outbound.protection.outlook.com (mail-westus3azon11010010.outbound.protection.outlook.com [52.101.201.10])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA95B2C3774;
-	Mon, 20 Oct 2025 18:52:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.201.10
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760986352; cv=fail; b=UG6yHRLT3CR4fzIxtFTqvtksfWLdXTXX22j6NxARr8B4m9d3btxNp9qVZPrBwQ4tUWqCGAcM6wx6EBBEgXsluX+dX3OMPWmclZrwcMY68K0PVQ4vZM7Aa0Srh2RHup8+80bB8Gvv9sJy5jb+jQjvRBPiOH3Jbi3c6oz4P2Sws70=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760986352; c=relaxed/simple;
-	bh=ZUVVwHS33WeOlscVWLw5dvGQNvxaqsdJW1bDAMN4UtA=;
-	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=V2QfQHYziYIAO41Fiv2Y+vbXNpys5/5DI2VC/XlLqf24ysWWa5IrVqgRsLeRJfYhfKN0TCedr9b6aINYR9OcAXZ4a6fDVihJUgf6omL8g5i30UK0TwgzV7BZ7XF6AkYwNOQ/VQxlwWdn2CDsNu2u68jtcreUX/YUTQeYx3VxqEE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=rFkY9KBl; arc=fail smtp.client-ip=52.101.201.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94750261B9E;
+	Mon, 20 Oct 2025 19:02:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1760986933; cv=none; b=PC7oXVvSmHltsyHDtB8grVeKjmzgIfjhlgtg4tlyNBU5KlFfV622Xatvc//5tjvxP98i4KAe0KGxdbnla5OUYua7x1s7CcsKu0oBpLJLVYQ76yCOAr/hW2SsskA+VxVdN3lfarVMFr+p/8lliS+vbjHPTtaJFbZQgdn+XnUIXJA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1760986933; c=relaxed/simple;
+	bh=BTaf2JeikokcnZN/DcMJvPwDGGebUQjBL9CjUvtWROY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=b+VOdOqwv7Yv8w6RzsynQqvv4uieOm9VP0YzMspxhZ0CbLcViXsymHRYYSCtblbECijm0AVOubR8JlBHbjuWe7Y/q+PpGVxYaHoNraQpu2e8C86EqXutIYs4gI0m8Rod66Y1o9jDS+8heaOp32UcCehzX3i0slKY5qzgEHLe2fE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oFU0rGqJ; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="rFkY9KBl"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Bg8UvY5w+uvcS+Mq9u+DPa06LYFvJ70EPKhcHMiO4u3wpha2KdmtpHRDgzZJ2JNIAddPfzOORYXKl2uBD+xsJv8MBvRCqyD0n5TWHLyh3kdRlPhCLn3jM5b/obgzXAH1045HA9Q7BqkGKP7nKSdbWbXFY0MUGuj2TryrCxXYqE4dReCpWUh9vp+ciQqvJXLVZ86lcCNC1oLa2vAFQYQBgYaAOwuf7qZLeqSwdu3yoLgf2tJ76oil8zbEwTq4AnBBblGr98Qb+QFIu7OH8DvNYARRFrps1du4SYchWHU352CgM2JIgQBVIRDBnnNg6g4pqJUku6LVREl+lxph/XfQ6Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=bq7MnGqYrePh9wEPS49LBx3k3CGPL+8NjS9qiJdkxZU=;
- b=fEF7GuEZIegZas+rwA1v5WSyYmiDaXYOPTJCK9lYbeZreNMCFSBeXkZ0+y8LjGstF4SKz3k8eP286Fr0TaJyENeRHyaH/jGHP3Q1zOC0UH64GZFCiVabmac2AmpWYmm0eQhVLCpppLbCoZeF/pj7LNI+LQsgg1yX8SqJmhmbwnHpFWjKV2Gn5Fnsq5suG33FBZJdJhMwmiXSKOZm6kZjimnqK+A8wTNtm4vNFvCFFLl6bYQCNcNVWJAldTReKamXxUFg057l9uppYcTSTJpMBB8VNvIhazhNmIasF19PUO1Xwnonsrms95/6p+LHRoC1hNW/KxzGMR3TQ1CpeR+pHg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=csie.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=bq7MnGqYrePh9wEPS49LBx3k3CGPL+8NjS9qiJdkxZU=;
- b=rFkY9KBlCvF9ETSLsOI91XkloxyNtGQXv8mWih5Mg8qLh/U7TWpDcFJ2WMwWRT0zbNe3ut9ooQ/MuI76vgZGrsMz1SUp2x32lWsAdKjzomxZeaN8+AH5SButHQUp0TXBKolsp6Q7NNsovOTKvsryTeqnddvx7p0m/rLRP9QB/8DCSgX5kj+RGIE+3sQQBz8Im13imvuf0YqI9f/pNM7kSBAeZgz8nvGaXT9RJBpRLoqnSL4NPr5qq0iQyjGVnITsWb46dC4y0+yeIQ/IpWkKwZz9ccznQuDXO4+CwNx5MM43poyBjBcXtiPB+h5BiMaRBI0d8vA406hJTS5bvIf4LQ==
-Received: from BN9PR03CA0545.namprd03.prod.outlook.com (2603:10b6:408:138::10)
- by SA3PR12MB9199.namprd12.prod.outlook.com (2603:10b6:806:398::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9228.16; Mon, 20 Oct
- 2025 18:52:26 +0000
-Received: from BL02EPF00021F6F.namprd02.prod.outlook.com
- (2603:10b6:408:138:cafe::10) by BN9PR03CA0545.outlook.office365.com
- (2603:10b6:408:138::10) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9228.17 via Frontend Transport; Mon,
- 20 Oct 2025 18:52:25 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- BL02EPF00021F6F.mail.protection.outlook.com (10.167.249.11) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9253.7 via Frontend Transport; Mon, 20 Oct 2025 18:52:25 +0000
-Received: from rnnvmail205.nvidia.com (10.129.68.10) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.34; Mon, 20 Oct
- 2025 11:51:52 -0700
-Received: from rnnvmail203.nvidia.com (10.129.68.9) by rnnvmail205.nvidia.com
- (10.129.68.10) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Mon, 20 Oct
- 2025 11:51:52 -0700
-Received: from Asurada-Nvidia (10.127.8.9) by mail.nvidia.com (10.129.68.9)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20 via Frontend
- Transport; Mon, 20 Oct 2025 11:51:50 -0700
-Date: Mon, 20 Oct 2025 11:51:49 -0700
-From: Nicolin Chen <nicolinc@nvidia.com>
-To: Jason Gunthorpe <jgg@nvidia.com>
-CC: <joro@8bytes.org>, <kevin.tian@intel.com>,
-	<suravee.suthikulpanit@amd.com>, <will@kernel.org>, <robin.murphy@arm.com>,
-	<sven@kernel.org>, <j@jannau.net>, <jean-philippe@linaro.org>,
-	<robin.clark@oss.qualcomm.com>, <dwmw2@infradead.org>,
-	<baolu.lu@linux.intel.com>, <yong.wu@mediatek.com>, <matthias.bgg@gmail.com>,
-	<angelogioacchino.delregno@collabora.com>, <tjeznach@rivosinc.com>,
-	<pjw@kernel.org>, <palmer@dabbelt.com>, <aou@eecs.berkeley.edu>,
-	<heiko@sntech.de>, <schnelle@linux.ibm.com>, <mjrosato@linux.ibm.com>,
-	<wens@csie.org>, <jernej.skrabec@gmail.com>, <samuel@sholland.org>,
-	<thierry.reding@gmail.com>, <jonathanh@nvidia.com>, <iommu@lists.linux.dev>,
-	<linux-kernel@vger.kernel.org>, <asahi@lists.linux.dev>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-arm-msm@vger.kernel.org>,
-	<linux-mediatek@lists.infradead.org>, <linux-riscv@lists.infradead.org>,
-	<linux-rockchip@lists.infradead.org>, <linux-s390@vger.kernel.org>,
-	<linux-sunxi@lists.linux.dev>, <linux-tegra@vger.kernel.org>,
-	<virtualization@lists.linux.dev>, <patches@lists.linux.dev>
-Subject: Re: [PATCH v1 02/20] iommu: Introduce a test_dev domain op and an
- internal helper
-Message-ID: <aPaExVobV9evs22n@Asurada-Nvidia>
-References: <cover.1760312725.git.nicolinc@nvidia.com>
- <32ce256a2ece5d63e99d5858f953586859818ffc.1760312725.git.nicolinc@nvidia.com>
- <20251020162736.GW316284@nvidia.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oFU0rGqJ"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59KGYVTs027635;
+	Mon, 20 Oct 2025 19:02:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=EnCSOFCChDHKwtLNy
+	shGpOKoUJ0zJMwgZ3OIo6E5RHk=; b=oFU0rGqJ9aHpYCPFLvxuNCwvSG5xRvmUM
+	NprsChdCwajWMZNjMXOytw1kGQDzL5EWLFAZAG9TAx2AyEqwORWweIkErXryk/wh
+	/x23GswmGK1ONB5ji0BU1a5BBfe8gAJ3ULVbqImE++csghNNdL8qCyrELYA83Gej
+	SOBKqECtrVQojBsTv47UsssxyN/CGyXfiyibzHpAV66ClWernl68nq1jqBalf/qN
+	kpRVe1J4qSzR1X2Y9Y1Jjed1dmP09Ui4IROSxnYzFPSyfvt0M/11sJPR8EPOhWXP
+	XE/ZifPGGSEDmmT69Zmgk4xGvNw/dz2ZjhSo7WSRhspqqh7LSYGmQ==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49v33f36gv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 20 Oct 2025 19:02:08 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59KIbsn7024677;
+	Mon, 20 Oct 2025 19:02:07 GMT
+Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49vpqjq4jg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 20 Oct 2025 19:02:07 +0000
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59KJ263x7209564
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 20 Oct 2025 19:02:06 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 29A5858060;
+	Mon, 20 Oct 2025 19:02:06 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 80EA858068;
+	Mon, 20 Oct 2025 19:02:05 +0000 (GMT)
+Received: from IBM-D32RQW3.ibm.com (unknown [9.61.240.93])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 20 Oct 2025 19:02:05 +0000 (GMT)
+From: Farhan Ali <alifm@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Cc: helgaas@kernel.org, stable@vger.kernel.org, alifm@linux.ibm.com,
+        schnelle@linux.ibm.com, mjrosato@linux.ibm.com
+Subject: [PATCH v1 2/3] s390/pci: Add architecture specific resource/bus address translation
+Date: Mon, 20 Oct 2025 12:01:59 -0700
+Message-ID: <20251020190200.1365-3-alifm@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20251020190200.1365-1-alifm@linux.ibm.com>
+References: <20251020190200.1365-1-alifm@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20251020162736.GW316284@nvidia.com>
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL02EPF00021F6F:EE_|SA3PR12MB9199:EE_
-X-MS-Office365-Filtering-Correlation-Id: 39fd7eb8-9221-4580-ad1b-08de1009cf5f
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|7416014|82310400026|376014|36860700013|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?WVN2xFLk0Qx25KrBBAYUc9WgRk50kq3NanZTLGyj9vCDuJVEvJCfAZPwXFdF?=
- =?us-ascii?Q?7g8KTwT8e+fGS1Jok+uw7ByrlORU7TVaBBzcus6Pfok6TRxbYFdt14n9RUA0?=
- =?us-ascii?Q?FoOGk5ndpsvYd2dHvzq7Zi7tY8NtV0HDxPzAtRebWAlColeP1cKzgmS1L3T7?=
- =?us-ascii?Q?s+I5l5BbVETq+xv6Xg2/G/Q6VkdSDM6An65283S+Ku7KDr+UzSG24hAyyaTE?=
- =?us-ascii?Q?yS45V9sPosBQ8Xsnql0mq6qsnFiWBI6MA0q9tbn3n5QkT1NBm2yuqNLwLIh7?=
- =?us-ascii?Q?hKEidWy3avC6AvSEuUcaVtzTMzahOK3ADzWBHZKN0V02hfoE9M01zsalZ9wl?=
- =?us-ascii?Q?lxkDczTVXQYDDBGwld5ZekzHm0m/houaRMxl2k5gN2Lmo/7N32hQs+2ZzhN8?=
- =?us-ascii?Q?IfEzgYzbi0xBXGqNknaa9SGRRbPudFIHmx6KGWUXE/U8DfV6JKk0+2gE+Kbg?=
- =?us-ascii?Q?GaqzMQbXVw8Z5m4J2Hu8XSTlDBlV8fa8W1UaynVAJ9LByvSQkgaA/nyRa41I?=
- =?us-ascii?Q?HHBlAdm0E0hCve74Wy78HjOFnbK8t0XOqyqvFPragLPklxdIgMfsPOzh0wGQ?=
- =?us-ascii?Q?QS9KQGmmjWFCnMt38njJP63tYASqNJinpy3o8lzkZ5cTq2tV75CVezxH+tpv?=
- =?us-ascii?Q?egllim0dRt+HZwum3Duk1jIFKoYVv6FvpVoRCMC20zlNxwVJ6JnVp/oP7Aqn?=
- =?us-ascii?Q?d+7f7evFeM/iSX1ctBAOOLZM9p9KEHA322F+E6hFIcyqA58V7kvQ4BEpvlYk?=
- =?us-ascii?Q?kwUkPG1lCp+DzfK1wAudlms0R053ovT2yRmeuVtpMVwBqT2GUApWxMN37zRr?=
- =?us-ascii?Q?f3niJEZ/KRnYfm+3AA/Is5iuknaHeeIEWTl2KFl8dx0RrvQeWZa02X/brblt?=
- =?us-ascii?Q?pIx6KekIrYeNhJEHzooqrCZf9Hy1urC1ia2ilirNAoKewdJDy6AIAW/eCKxd?=
- =?us-ascii?Q?RFGY+a9wy4Gxcn582I4u5AkcU7KJpAYcsAgHhgzGR5+7ocS57yvKI9EckgjN?=
- =?us-ascii?Q?ikJAlFMYe/b7219owtymEEGGMv1M4niAQ1THGUnRWip7+7Kb5J5s7VvZ4zUr?=
- =?us-ascii?Q?S2sZn+1kiqr9/gPy1EDWPUIzDvS7Lcevj6nk3h3mlK2r0jrS7N1j+IOSI0av?=
- =?us-ascii?Q?CraGqRdLEVG8RkgnluVWxO1S1q90tPX4LGkF24vlj8EEETcUq5JPbrUD16fp?=
- =?us-ascii?Q?pfeG73oCBF9b0klbKzWQeOwOYujPXNJp/JDL3rNTYI1kvwyWenmgs1SFUT+b?=
- =?us-ascii?Q?aDhRDXUkgAwmU9RXGIioUELRMt7Djw4dnCRBV1PvEGeWssJn4q9wRzoqgYyV?=
- =?us-ascii?Q?a1KE8y4e8/mgDvA7x3FlarkVc3ScPHfDPS8cHUWUVGZjXRKjneinlhzrDlL/?=
- =?us-ascii?Q?b0UYKmr33p4t317QAwmckaOYfRtURuA7O35R4/GSYUTxFVmRJxEpZHm17EUs?=
- =?us-ascii?Q?NGuOpwocYG+lfVHzV70JuznStbNr4aDN0Lv0x1bOa9erfvAXqzxccygHX7gQ?=
- =?us-ascii?Q?haltcVdaqCkDB38zbNDWitnq+sIzlcP52ShaEflwrwtqc+B/TsENcXIvsRKx?=
- =?us-ascii?Q?Hf+fR3IMQZDPQ8muJDU=3D?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(7416014)(82310400026)(376014)(36860700013)(1800799024);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Oct 2025 18:52:25.0808
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 39fd7eb8-9221-4580-ad1b-08de1009cf5f
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	BL02EPF00021F6F.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR12MB9199
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=FMYWBuos c=1 sm=1 tr=0 ts=68f68730 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
+ a=yYx7OUe3D3zVL1aRsq0A:9 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-GUID: 3d5M2-QNCCegtw7o-pFeuM4h8SOyvYl9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDE4MDAyMiBTYWx0ZWRfX/qVGm0fpqf7j
+ A/bi3XRz6dcWrCyZu2DGvUbH4ok5wKQRF27rKgL6nO+WtAxAwwd1IijZ5dWiHkbzzfAcsSBsrw2
+ Chj0g4FA2J0r+/cEKBQSgxaUAttRjhMPqLHi3LBEwbVZKwS610+o5dUY/7McQKbLeBFPle3IPxw
+ YO4dNfWGICIkc/mzYdmutLSDpZB0+WPLK2j3DPWAUMUGoUWjRcxUZ3N2rzzAkNFEFuj+rbiJq/G
+ 46F4aVpKVO9a8n4AeDVikItvhvDvp84DhE2YNP+WtEt2Q2XrlC09eVjof/KdTc6UYjwesXT1D+Q
+ kzaFkL3yGAOO2OJ7cK3xJTj2ABunEZZKHrpLJ/ro8bKy8aCDzMXjdvQvEvEINcNfz5O+lYgROUI
+ LsZcuTra6D9ny72iPTPHRRPxHtxvVw==
+X-Proofpoint-ORIG-GUID: 3d5M2-QNCCegtw7o-pFeuM4h8SOyvYl9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-20_05,2025-10-13_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 impostorscore=0 priorityscore=1501 adultscore=0 bulkscore=0
+ lowpriorityscore=0 suspectscore=0 phishscore=0 spamscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510180022
 
-On Mon, Oct 20, 2025 at 01:27:36PM -0300, Jason Gunthorpe wrote:
-> On Sun, Oct 12, 2025 at 05:04:59PM -0700, Nicolin Chen wrote:
-> 
-> > And keep them within the group->mutex, so drivers can simply move all the
-> > sanity and compatibility tests from their attach_dev callbacks to the new
-> > test_dev callbacks without concerning about a race condition.
-> 
-> I'm not sure about this.. For the problem we are trying to solve this
-> would be racy as the test would be done and the group mutex
-> unlocked. Then later it will be re-tested and attached.
+On s390 today we overwrite the PCI BAR resource address to either an
+artificial cookie address or MIO address. However this address is different
+from the bus address of the BARs programmed by firmware. The artificial
+cookie address was created to index into an array of function handles
+(zpci_iomap_start). The MIO (mapped I/O) addresses are provided by firmware
+but maybe different from the bus address. This creates an issue when trying
+to convert the BAR resource address to bus address using the generic
+pcibios_resource_to_bus().
 
-Oh right, we'll have to retest in iommu_dev_reset_done(). I missed
-that.
+Implement an architecture specific pcibios_resource_to_bus() function to
+correctly translate PCI BAR resource addresses to bus addresses for s390.
+Similarly add architecture specific pcibios_bus_to_resource function to do
+the reverse translation.
 
-> > @@ -751,6 +760,8 @@ struct iommu_ops {
-> >   * @free: Release the domain after use.
-> >   */
-> >  struct iommu_domain_ops {
-> > +	int (*test_dev)(struct iommu_domain *domain, struct device *dev,
-> > +			ioasid_t pasid, struct iommu_domain *old);
-> 
-> Because of the starting remark I'm skeptical that old should be
-> included here.
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+---
+ arch/s390/pci/pci.c       | 74 +++++++++++++++++++++++++++++++++++++++
+ drivers/pci/host-bridge.c |  4 +--
+ 2 files changed, 76 insertions(+), 2 deletions(-)
 
-Hmm, the followings functions sanitizes "old":
- - qcom_iommu_identity_attach() drivers/iommu/arm/arm-smmu/qcom_iommu.c
- - iommu_sva_set_dev_pasid() in drivers/iommu/amd/pasid.c
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index c82c577db2bc..cacad02b2b7f 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -264,6 +264,80 @@ resource_size_t pcibios_align_resource(void *data, const struct resource *res,
+ 	return 0;
+ }
+ 
++void pcibios_resource_to_bus(struct pci_bus *bus, struct pci_bus_region *region,
++			     struct resource *res)
++{
++	struct zpci_bus *zbus = bus->sysdata;
++	struct zpci_bar_struct *zbar;
++	struct zpci_dev *zdev;
++
++	region->start = res->start;
++	region->end = res->end;
++
++	for (int i = 0; i < ZPCI_FUNCTIONS_PER_BUS; i++) {
++		int j = 0;
++
++		zbar = NULL;
++		zdev = zbus->function[i];
++		if (!zdev)
++			continue;
++
++		for (j = 0; j < PCI_STD_NUM_BARS; j++) {
++			if (zdev->bars[j].res->start == res->start &&
++			    zdev->bars[j].res->end == res->end &&
++			    res->flags & IORESOURCE_MEM) {
++				zbar = &zdev->bars[j];
++				break;
++			}
++		}
++
++		if (zbar) {
++			/* only MMIO is supported */
++			region->start = zbar->val & PCI_BASE_ADDRESS_MEM_MASK;
++			if (zbar->val & PCI_BASE_ADDRESS_MEM_TYPE_64)
++				region->start |= (u64)zdev->bars[j + 1].val << 32;
++
++			region->end = region->start + (1UL << zbar->size) - 1;
++			return;
++		}
++	}
++}
++
++void pcibios_bus_to_resource(struct pci_bus *bus, struct resource *res,
++			     struct pci_bus_region *region)
++{
++	struct zpci_bus *zbus = bus->sysdata;
++	struct zpci_dev *zdev;
++	resource_size_t start, end;
++
++	res->start = region->start;
++	res->end = region->end;
++
++	for (int i = 0; i < ZPCI_FUNCTIONS_PER_BUS; i++) {
++		zdev = zbus->function[i];
++		if (!zdev || !zdev->has_resources)
++			continue;
++
++		for (int j = 0; j < PCI_STD_NUM_BARS; j++) {
++			if (!zdev->bars[j].size)
++				continue;
++
++			/* only MMIO is supported */
++			start = zdev->bars[j].val & PCI_BASE_ADDRESS_MEM_MASK;
++			if (zdev->bars[j].val & PCI_BASE_ADDRESS_MEM_TYPE_64)
++				start |= (u64)zdev->bars[j + 1].val << 32;
++
++			end = start + (1UL << zdev->bars[j].size) - 1;
++
++			if (start == region->start && end == region->end) {
++				res->start = zdev->bars[j].res->start;
++				res->end = zdev->bars[j].res->end;
++				return;
++			}
++		}
++	}
++}
++
+ void __iomem *ioremap_prot(phys_addr_t phys_addr, size_t size,
+ 			   pgprot_t prot)
+ {
+diff --git a/drivers/pci/host-bridge.c b/drivers/pci/host-bridge.c
+index afa50b446567..56d62afb3afe 100644
+--- a/drivers/pci/host-bridge.c
++++ b/drivers/pci/host-bridge.c
+@@ -48,7 +48,7 @@ void pci_set_host_bridge_release(struct pci_host_bridge *bridge,
+ }
+ EXPORT_SYMBOL_GPL(pci_set_host_bridge_release);
+ 
+-void pcibios_resource_to_bus(struct pci_bus *bus, struct pci_bus_region *region,
++void __weak pcibios_resource_to_bus(struct pci_bus *bus, struct pci_bus_region *region,
+ 			     struct resource *res)
+ {
+ 	struct pci_host_bridge *bridge = pci_find_host_bridge(bus);
+@@ -73,7 +73,7 @@ static bool region_contains(struct pci_bus_region *region1,
+ 	return region1->start <= region2->start && region1->end >= region2->end;
+ }
+ 
+-void pcibios_bus_to_resource(struct pci_bus *bus, struct resource *res,
++void __weak pcibios_bus_to_resource(struct pci_bus *bus, struct resource *res,
+ 			     struct pci_bus_region *region)
+ {
+ 	struct pci_host_bridge *bridge = pci_find_host_bridge(bus);
+-- 
+2.43.0
 
-Thanks
-Nicolin
