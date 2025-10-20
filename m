@@ -1,204 +1,143 @@
-Received: from BN8PR05CU002.outbound.protection.outlook.com (mail-eastus2azon11011011.outbound.protection.outlook.com [52.101.57.11])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38DC02116E9;
-	Mon, 20 Oct 2025 16:32:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.57.11
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760977959; cv=fail; b=a4mLe5ZKONz/Va4h6pChP5F4ARxmyklEsGDIAMYT7vd4RE3SXov8Ot/SX7Xinx68XvZkNEcd44OlKD+u4AuvB01hmKm41ZgOEZkr0wjy8oK+B5rsQIOy+dF14SK6+3M5Dp7iVlJNoPfFMLcKXaDMOiXeS+YaSDrA735fgbmn8B0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760977959; c=relaxed/simple;
-	bh=41ADdPeUOyMqNZeVCmBGMyBwziQUCKXkF1as0Mr0i54=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=rXpgia2JPoVfwc8kXTO2gVB7QKMesRgQDybVQhEpzLs+OfD410o2aZKnQgvz58V0ZKctfH0zMn8zOA2TMXvOaW9ieXplgOnBmo1yK3eCYXxa3tMJ8D6RP1uiNpjvl2zFatjxb6O4Jsun5BTMqNb0h0aEZ764iTE5mc5l/jXd9N8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=FXjTPBpF; arc=fail smtp.client-ip=52.101.57.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 366212741B6;
+	Mon, 20 Oct 2025 17:20:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1760980813; cv=none; b=ClQFp9AqOyxvCWh0Hy5pxMja//WbR3PVg5cSZpxPSUDgh2SdAMN7uFOizCLpclGd745j0hTdfpuKotI7BvPE70P27oZFJZx2MoGTSi7gwaAfDHB6RpjUXqrCmsCuXqEEeyLpv89ClGS/PHWMgwrYCWtGXOqB+5Mpmj7MbZGM6KA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1760980813; c=relaxed/simple;
+	bh=BBdSB5XAD1YvzsBRvHq+pGVZ+js4CR0/KKZhrayNJnM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=LZu/vrLl1pysXXiAzxFwRKWdsqbbauEJwMMq34+Sg6UnwURsBk5ANAfwaU6TMv8QK9ynsO6D3DN6BtMFP9AgQmhVhRRNYDRPlJFA8G6dDf7fIu1Pss3uzb4zIf6XpnpDqYP/Nq+MrGflIVfGca0JBrKHOYXwY0OVzzHQrDHrVN4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OePdjB6e; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="FXjTPBpF"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=JQA+eHyzRkv6H2/aIMaAieJZ1y7VPGH6K1vSkSQymH3tkUVzFy+aPOOo0+/UHTHmhtbw5L9s6v4AG1spDWP3P9/5UHHfkxZjYH8TQp/crCseMKIZ9bkgA0vbcq2LJoKkRoMzgtNaHOYlvDy0IZc0QOIM5AJp6lzTQ8HgFRiHZ/3FeN/2+tFjKedmX61esDses/uzfiPfJgETdEcIFk3SwK0vXpqxSQ0xF/fAoSr3XQmfmucsjKzyaDcgiWJq7gJoKZ2r0DvQChNW0zenmcTUzqdA3zDF8y3PSv6mvkl24SYw+yIlP7hRqY5Zh/9/lHH7kcJbRhmErnT1uGF+HmEBog==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=yNRNv7UPtmSoTJMWxh4HlNLl3qB2kS7Gu2CP+ouEhQg=;
- b=FXTXwImFtA/HWQN/WlFBjfYP4RzjKqeXrBWwOE/vac3nY3HiV5AT6T3foRY0nJWuGeI7ISkxrOuwUOOZ6TF3QsTlqOlIwi0ByV+flKLhEieADY+plmoCVmUoiNse/LijbmJAnoliXtMRSujHmEMXFQ6TOsJ6sgkpmkBDVHSW5H/S39tWFmxElK4XtEiHHNRSsMx2/Ehe640wGchZb7WKTjphQwNT9PwaqpeWbZhrD2GPrJbk6pRTRXt6YXwUgznJI1V4PR74W69BN1LdUYZ05DTyc/64OA29ZgH0FbDRwx2kLK1Q0qMDy1lwRfT7Kch5FBd8AgJJ+A39BgeQwmVzaA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=yNRNv7UPtmSoTJMWxh4HlNLl3qB2kS7Gu2CP+ouEhQg=;
- b=FXjTPBpFF3Vo1T8ny1uODq+XZ3XIACR8xYGPzyrgrDIRLEB+SyZfAXdGJ5yYiiqvFDhMiwaJbbEFo6I39Q7RktZp+6Rx5qHcKR1LzSVpKkWgq+HfTPbWxAXFDZKAFhj1oZHFU+2cEVOrdnHOBlQ++/PLICNUPBACndXhHK23jdw2Es02k8YbAPNNquu7ZtRt9j+gz6nMTNZ5l0EB7yDWONYsnrq8qPANa8ZKPIEPJ20yZzIXiRnqcF6G3KoGNLVZfspBCnh8uACvxcOkOwSrtGAWknOKhGWRWjB7zdM0ZTnl2eSCKACAM1YWxIMcjiO1zoL4cr3f3OFx+0D5DUUrBA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB3613.namprd12.prod.outlook.com (2603:10b6:208:c1::17)
- by DS2PR12MB9773.namprd12.prod.outlook.com (2603:10b6:8:2b1::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9228.17; Mon, 20 Oct
- 2025 16:32:33 +0000
-Received: from MN2PR12MB3613.namprd12.prod.outlook.com
- ([fe80::1b3b:64f5:9211:608b]) by MN2PR12MB3613.namprd12.prod.outlook.com
- ([fe80::1b3b:64f5:9211:608b%4]) with mapi id 15.20.9228.015; Mon, 20 Oct 2025
- 16:32:33 +0000
-Date: Mon, 20 Oct 2025 13:32:31 -0300
-From: Jason Gunthorpe <jgg@nvidia.com>
-To: Nicolin Chen <nicolinc@nvidia.com>
-Cc: joro@8bytes.org, kevin.tian@intel.com, suravee.suthikulpanit@amd.com,
-	will@kernel.org, robin.murphy@arm.com, sven@kernel.org,
-	j@jannau.net, jean-philippe@linaro.org,
-	robin.clark@oss.qualcomm.com, dwmw2@infradead.org,
-	baolu.lu@linux.intel.com, yong.wu@mediatek.com,
-	matthias.bgg@gmail.com, angelogioacchino.delregno@collabora.com,
-	tjeznach@rivosinc.com, pjw@kernel.org, palmer@dabbelt.com,
-	aou@eecs.berkeley.edu, heiko@sntech.de, schnelle@linux.ibm.com,
-	mjrosato@linux.ibm.com, wens@csie.org, jernej.skrabec@gmail.com,
-	samuel@sholland.org, thierry.reding@gmail.com, jonathanh@nvidia.com,
-	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-	asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-	linux-riscv@lists.infradead.org, linux-rockchip@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sunxi@lists.linux.dev,
-	linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
-	patches@lists.linux.dev
-Subject: Re: [PATCH v1 03/20] iommu/arm-smmu-v3: Implement
- arm_smmu_domain_test_dev
-Message-ID: <20251020163231.GX316284@nvidia.com>
-References: <cover.1760312725.git.nicolinc@nvidia.com>
- <f52e8079148a673641d2858700c49fa0c81022aa.1760312725.git.nicolinc@nvidia.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f52e8079148a673641d2858700c49fa0c81022aa.1760312725.git.nicolinc@nvidia.com>
-X-ClientProxiedBy: DM6PR03CA0062.namprd03.prod.outlook.com
- (2603:10b6:5:100::39) To MN2PR12MB3613.namprd12.prod.outlook.com
- (2603:10b6:208:c1::17)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OePdjB6e"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A902C4CEF9;
+	Mon, 20 Oct 2025 17:20:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1760980811;
+	bh=BBdSB5XAD1YvzsBRvHq+pGVZ+js4CR0/KKZhrayNJnM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=OePdjB6eN0nq/HbPmKKQystov9LAi8oF8K8mYHl9KXXh4ilJKjD63usjZ08iIKSa/
+	 bj9gfaXCGR5r+lZZh/squfy/YwgeJ3QaR1/WRK66VT1IyDULP5Llpdwrti0U6KPDnf
+	 yglYXevr+51SpGHDz3jMCVsnXQgAJYtZ8crZMwzpTDs1DL3ku//SZWEyBhrV30ei6J
+	 TUt5uvdnqAg1XdPj/juXZG4Atwlo89iJ8Vn2GcbmBjoo0hkLArzN81o4jyOvj15+z/
+	 xrAcRsVca+1jSo4HvvTDrqPtZ+vOqTkpzE9irJ85sG4EYFsYVm33yPDLlxxmtydwZz
+	 ts/FURmYtpu/Q==
+Date: Mon, 20 Oct 2025 10:18:38 -0700
+From: Eric Biggers <ebiggers@kernel.org>
+To: David Howells <dhowells@redhat.com>
+Cc: linux-crypto@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+	"Jason A . Donenfeld" <Jason@zx2c4.com>,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-s390@vger.kernel.org
+Subject: Re: [PATCH 11/17] lib/crypto: sha3: Simplify the API
+Message-ID: <20251020171838.GB1644@sol>
+References: <20251020005038.661542-12-ebiggers@kernel.org>
+ <20251020005038.661542-1-ebiggers@kernel.org>
+ <1062182.1760956416@warthog.procyon.org.uk>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MN2PR12MB3613:EE_|DS2PR12MB9773:EE_
-X-MS-Office365-Filtering-Correlation-Id: b8762dd4-d215-4ba2-7bd1-08de0ff6454e
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|376014|7416014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?7zSLctB96czChtfVJL4l7O3FbO0hlAbb2OB+6uxsh4j4GMwoFSDgFW/p60mT?=
- =?us-ascii?Q?ZKLafjgf98mxC/XvpSGXkXTaYdKqadGLAU3/rrFdV+JfBWXN6EKTeZGtU9Wr?=
- =?us-ascii?Q?85AIyBg83jrzhwNyYGhhhk5weUtrygitnTXHs5HJjxBbJ5Hz8y7UUEvtqmWM?=
- =?us-ascii?Q?n2uIXXe2WW56oHrdt2ZroYpSMmRHJs9NmAGMQuJ07JhHOvyv2HokdVvHuYiK?=
- =?us-ascii?Q?GH2X6urcXS80gN6ib2EQqTxwfbYTWQhstxuBAf78OI8u9LutZEwZsaxkDlDq?=
- =?us-ascii?Q?PlcPbsubgSDrZeidO1cH9d/10sFWFSOLIoUC3SPE8a+/K85A2cMmOj2cnSmD?=
- =?us-ascii?Q?kK88hk0YOyGpdgAbRaNpUv3dluKbOWKpNvkFRhcpCa0AmvoSSjOc1tctZpY9?=
- =?us-ascii?Q?Xcvfso/3vQ4whrJVnfa8bBPCUmgL5W5pC3fWJjLNhSxI2ba4tqhLHOmfYv2T?=
- =?us-ascii?Q?aUch+EDklipIh5ZfSS2HLMfCfMXD4srHLVLK994UmFCbRcPGRlAFmXpVd5Ti?=
- =?us-ascii?Q?yOD3eZKai5T3JVkEIRRHRrR5WwsP+LGnFa/hWleRBW+rts5Bz07/wiwKPYgf?=
- =?us-ascii?Q?wsS4rFIm0WiyVsakZFZ9z/iPy0S8jo5OP1jbje81GLlAYBaJWtJWu2qr9LPj?=
- =?us-ascii?Q?MO20APqbtm+TZDCM//N5YTakLfCpCX3wAFVlf2LF5vA7HoNDqknV2pyS2OOb?=
- =?us-ascii?Q?o0GtDYMkzswy+TObfgpaP0ZyVIWx8FZvkt+6ofFKq1L+DE553gCG3Nw1+Na1?=
- =?us-ascii?Q?47FhzwG7bXy/YwgPHVh/U5cHsOHRVyHiYuuv+MGKG60piet1sqtGhTnyFHk0?=
- =?us-ascii?Q?w3W8Y4wm84dimLEJnx2l893ozxYb8K0UdYeJ3N1XyKfSOYsJmPVHwiz7y22T?=
- =?us-ascii?Q?P3zlt09CvzOPwmhg8FqcB9RCqsPSdPSFbC9wN50ciraoF2r/Z3NoE7p7zIvT?=
- =?us-ascii?Q?6utxrdmxBvmyOhJbefsfjUqnmXCq42/pfrQhD9X6UuboCN8O5nzfr9Bub8mp?=
- =?us-ascii?Q?tOn92lDMy/LUbXynX+DPn0LIm7OUK/A+BxXDM6nN8Ab+zgDeKaH46BkShlAF?=
- =?us-ascii?Q?SL4OCw5mCB5UyICQuHxQ52oCoKmEeo7Mm4w+8wVALq92yp+arPGGy4LVbI3S?=
- =?us-ascii?Q?wnDVLqwNzLrNZ3f3gPtav3G/ir/OXfaGMaFlFUKIJ8idjVOgxpv0/Couol6n?=
- =?us-ascii?Q?LRSEsNv5nZzl88EYLPh9azW65dqwVAxfG4CpkUk+8SetTPhQoGuTRq+fc19q?=
- =?us-ascii?Q?J/R71W4yZQdA2xeM5CY2G3+DgcXOi7jSg+O76JnU/UhUcX0OIL2O4AQ1+yiK?=
- =?us-ascii?Q?KtrCnt6J3YTewiWGR8W0sjVRzmt8LTuVwVla//400R2d+o5gEoQrKSZTWjsv?=
- =?us-ascii?Q?vF3djz//saJILpz+SAfq3Elv5CX0hPWnIP3Rl/DEERpxcQB6j6cxS72XCAyV?=
- =?us-ascii?Q?+wq6fEx7OOa85rlcCEJILOzW58lyYrLo?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB3613.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(7416014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?j0HEBzbQFsj8WxzbutQ9L2DoyL6JLgSdbOLACYqL6sXXXzj3i4eFIbDbRbRH?=
- =?us-ascii?Q?NSHW9hhXVaXOOTk99W0OYqqTbh1Y3ONpXO+6bbkaX5B2B5ekYm2bRQk0cPVK?=
- =?us-ascii?Q?VTBUtksx7eyKJWPDDIA/L20+YuGO/0gLffaApNhOwwvQcfsBW5SvO/k5zQXF?=
- =?us-ascii?Q?JSTe3qxZRcyRL4GF37qeq9Sqrpgu555goWVd6CNB4ikhPjQxI3Ag9xdCerqU?=
- =?us-ascii?Q?CBor78JvxOcGffjcvu7y9V6nIxywQdmvzJceWppYh11YUXlmWea7z1d8M6ID?=
- =?us-ascii?Q?UBEk8JDJza6uppv0Tibu9e2ssSvFJvbOUj/P2c+rUiFj8KnzNaoe2Dbgz4io?=
- =?us-ascii?Q?W1/nrQCuiHw24S93N/AsYqn2ky81htqHRgmSsGNF4z0tX8ls0oyv4DK5uXSY?=
- =?us-ascii?Q?cGdR1eipwpdNGzyk3EzCp6iV9UhzrEyucVVn9uNnCv71DlZO/6UzOQuhHMX6?=
- =?us-ascii?Q?sXx6gHDaczvAJXrpSl4N3gxsIGKdidSZMTLAOJOV75La2p2MGTGKm2rQUR3n?=
- =?us-ascii?Q?lfE+cKsK7M8ssb12WSJmfyjaHZIedt1u7atxD3Ri8nYuQKhE81+JlH3w4OjK?=
- =?us-ascii?Q?QTdzdXktaPPMhrJmB9C3PMjrB4Hi7Hf4FO6GiDw/np/vmSizgACd7SlnYbKg?=
- =?us-ascii?Q?1eHve1LgwLlu6NqsmlxA2t5Rpcxnuatu0j8E6Y7hMFFCspVwDzkmW66mzt7K?=
- =?us-ascii?Q?ihn+15qYsP4PjIq3CkdtiCMGwulduIWSq8LL9tmMiRIc5hm7HaGO1S1lyG6Q?=
- =?us-ascii?Q?dCcl9EHWQkGShFhfjkU+ezSJzGNnEubcLbX5sHL0hnXgrc08WkIZUNT5yHko?=
- =?us-ascii?Q?+pqvjbbVbYH+qiPaszWSdtoGAsQwRnFQAjnQ45kW4atVa+HaYjKDC2WcKAfH?=
- =?us-ascii?Q?EhXpj465Z7ciFGGZkaQx1gkiDRNC33amx9eX+2cuU9E4UlidVnwtJWEWz5bi?=
- =?us-ascii?Q?oMkC43u+fHLqA20R/NitBAF7Hcx1Q98a9TvcXGVVxJGqdm5zUXxoMcbzUzxg?=
- =?us-ascii?Q?l3plB3wtcOAnEVFlyXSEaHoz03efzvDVxPlwxjUZ5Ezak5qmddNRl1gvXOzi?=
- =?us-ascii?Q?nMHBpUfAtWf4j5zmeO11FlITrKWPootc/OBvVmJUm4QPM0FbWZaDgR+d4RYR?=
- =?us-ascii?Q?EU91zediN2pH2b8NNdHTOZAdnfEahsuld9g6qE+kDh0zEKia4NEHeueuBiZ9?=
- =?us-ascii?Q?MBaWytvItbFfJQARZMTju2kbll0tee/UJjaZ3BJ3kiA1Hr8zgT0qhrMmzGoN?=
- =?us-ascii?Q?9qlQEj2qKYYITDWB8jKNuJicYxnAZ1E3y9NJhbDSL398efJ9E7PO6QqsjLkO?=
- =?us-ascii?Q?i+TtT28km460uhfW3s9XFcgZwl43ESgpGaAPd9IEnsN5IReBQlW1P0kr2Uku?=
- =?us-ascii?Q?R72PhGvt+CjK0oK8iGBW3P8og/MZVYTDHtOSbPKlWTUSVMaUFjQruKsAYt0h?=
- =?us-ascii?Q?vrLBykPxirhJVsyNJ9WCUQx6IyCzIERBVGCl9H5kGMsM8SIBOm8odMxSmUaS?=
- =?us-ascii?Q?e+gdEIl0KV4l2ULG7Huy8sq0rhWsCe4eeAdAzTByJ2zW7CK5zEdXNPtIJq75?=
- =?us-ascii?Q?GVcKbrbHphgsrQawtNgex5Tph+Bt6nMSugdPaGPL?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b8762dd4-d215-4ba2-7bd1-08de0ff6454e
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB3613.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Oct 2025 16:32:33.4004
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: xFJEoktZQRJ4jC0KPf97DIcbdp2sRIMETz7BlkLQ+DrrUs1By3szHa1SELEa2v32
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS2PR12MB9773
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1062182.1760956416@warthog.procyon.org.uk>
 
-On Sun, Oct 12, 2025 at 05:05:00PM -0700, Nicolin Chen wrote:
-> diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> index a33fbd12a0dd9..3448e55bbcdbb 100644
-> --- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> +++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> @@ -2765,9 +2765,6 @@ static int arm_smmu_enable_iopf(struct arm_smmu_master *master,
->  
->  	iommu_group_mutex_assert(master->dev);
->  
-> -	if (!IS_ENABLED(CONFIG_ARM_SMMU_V3_SVA))
-> -		return -EOPNOTSUPP;
+On Mon, Oct 20, 2025 at 11:33:36AM +0100, David Howells wrote:
+> Eric Biggers <ebiggers@kernel.org> wrote:
+> 
+> > Instead of having separate types and functions for each of the six SHA-3
+> > algorithms, instead divide them into two groups: the digests and the
+> > XOFs.  The digests use sha3_ctx and the XOFs use shake_ctx.  The
+> > internal context is now called __sha3_ctx.
+> 
+> Please roll changes into the original patches rather than posting them with a
+> set of "fixes" and add a Co-developed-by tag for yourself.
 
-Stuff like this is also optimizing the codegen, it shouldn't be
-removed.
+Sure, that sounds good to me.  I'll do that on the next version.  For
+this version I wanted to make it clear what I had changed.  Also, some
+people don't like it when their patches are changed, so I wanted to make
+sure you were okay with it first.
 
-> +int arm_smmu_domain_test_dev(struct iommu_domain *domain, struct device *dev,
-> +			     ioasid_t pasid, struct iommu_domain *old_domain)
-> +{
-> +	struct arm_smmu_domain *device_domain = to_smmu_domain_devices(domain);
-> +	struct arm_smmu_master *master = dev_iommu_priv_get(dev);
-> +
-> +	if (!dev_iommu_fwspec_get(dev))
-> +		return -ENOENT;
-> +
-> +	switch (domain->type) {
-> +	case IOMMU_DOMAIN_NESTED: {
-> +		struct arm_smmu_nested_domain *nested_domain =
-> +			to_smmu_nested_domain(domain);
-> +
-> +		if (WARN_ON(pasid != IOMMU_NO_PASID))
-> +			return -EOPNOTSUPP;
-> +		if (nested_domain->vsmmu->smmu != master->smmu)
-> +			return -EINVAL;
-> +		if (arm_smmu_ssids_in_use(&master->cd_table))
-> +			return -EBUSY;
+> > +/** Context for SHA3-224, SHA3-256, SHA3-384, or SHA3-512 */
+> > +struct sha3_ctx {
+> > +	struct __sha3_ctx	ctx;
+> > +	u8			digest_size;	/* Digest size in bytes */
+> > +};
+> 
+> Don't do that.  That expands the context by an extra word when there's spare
+> space in __sha3_ctx.  If you go with the separate types, then this field is
+> redundant.
 
-This gives me alot of pause.. Here we are detecting if a S1 PASID is
-installed for a S2 attach, but to your purpose this can be made
-inconsistent by userspace during a FLR..
+Right, packing the struct tightly is nice.  On the other hand, having
+the digest_size be in the digest-specific struct prevents it from
+accidentally be used during XOF operations.
 
-I don't see any reasonable way to mitigate this??
+Consider that the arm64 SHA-3 assembly function took a digest_size
+argument.  It was tempting to just use __sha3_ctx::digest_size, but of
+course that would have been wrong.
 
-Which makes me wonder if we should just try to solve the simple
-obvious things like direct, permanent incompatability and still have
-some kind of recovery code to leave things in blocking if they fail to
-attach
+But it looks like we could tighten sha3_absorb_blocks() to take a
+(sha3_state, block_size) pair.  That would reduce the number of places
+in which __sha3_ctx is used.  We should do that anyway.  So I'll
+tentatively plan to do that and also move the digest_size to __sha3_ctx.
 
-Jason
+> Actually, I lean slightly towards passing in the desired digest length
+> to sha3_*final() and doing a WARN if it doesn't match.
+
+That would be redundant though.  It would make the API more difficult to
+use, especially in the case where the caller is supporting multiple
+SHA-3 variants, e.g. crypto/sha3.c.
+
+Note that BLAKE2s has a variable-length digest too, and the BLAKE2s API
+only requires that the digest size be passed to init.
+
+I prefer the simpler version that's consistent with the BLAKE2s API.
+
+> > +static inline void sha3_zeroize_ctx(struct sha3_ctx *ctx)
+> 
+> sha3_zero_ctx() please if you don't like "sha3_clear_ctx".  "zero" is a
+> perfectly usable as verb in itself.
+
+In cryptography it's normally zeroize.  See
+https://en.wikipedia.org/wiki/Zeroisation
+
+And also try 'git grep zeroize include/crypto/':
+
+    include/crypto/acompress.h: * acomp_request_free() -- zeroize and free asynchronous (de)compression
+    include/crypto/aead.h: * crypto_free_aead() - zeroize and free aead handle
+    include/crypto/aead.h: * aead_request_free() - zeroize and free request data structure
+    include/crypto/akcipher.h: * akcipher_request_free() - zeroize and free public key request
+    include/crypto/chacha.h:static inline void chacha_zeroize_state(struct chacha_state *state)
+    include/crypto/hash.h: * crypto_free_ahash() - zeroize and free the ahash handle
+    include/crypto/hash.h: * ahash_request_free() - zeroize and free the request data structure
+    include/crypto/hash.h: * crypto_free_shash() - zeroize and free the message digest handle
+    include/crypto/internal/cipher.h: * crypto_free_cipher() - zeroize and free the single block cipher handle
+    include/crypto/kpp.h: * kpp_request_free() - zeroize and free kpp request
+    include/crypto/md5.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
+    include/crypto/md5.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
+    include/crypto/rng.h: * crypto_free_rng() - zeroize and free RNG handle
+    include/crypto/sha1.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
+    include/crypto/sha1.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
+    include/crypto/sha2.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
+    include/crypto/sha2.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
+    include/crypto/sha2.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
+    include/crypto/sha2.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
+    include/crypto/sha2.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
+    include/crypto/sha2.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
+    include/crypto/sha2.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
+    include/crypto/sha2.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
+    include/crypto/skcipher.h: * crypto_free_skcipher() - zeroize and free cipher handle
+    include/crypto/skcipher.h: * crypto_free_lskcipher() - zeroize and free cipher handle
+    include/crypto/skcipher.h: * skcipher_request_free() - zeroize and free request data structure
+
+Point is, we should prefer standard terminology that is already used in
+the code and the wider problem domain, instead of coming up with new
+terminology each time a new contributor hops in.
+
+- Eric
