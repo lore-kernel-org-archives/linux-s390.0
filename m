@@ -1,43 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 366212741B6;
-	Mon, 20 Oct 2025 17:20:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7ABAF13C3CD;
+	Mon, 20 Oct 2025 17:59:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760980813; cv=none; b=ClQFp9AqOyxvCWh0Hy5pxMja//WbR3PVg5cSZpxPSUDgh2SdAMN7uFOizCLpclGd745j0hTdfpuKotI7BvPE70P27oZFJZx2MoGTSi7gwaAfDHB6RpjUXqrCmsCuXqEEeyLpv89ClGS/PHWMgwrYCWtGXOqB+5Mpmj7MbZGM6KA=
+	t=1760983149; cv=none; b=sYDevW2ULrC3tBFoJ0iinC4pEwO0nKeTFgh/kuEUZGEx0Uy6qVZN88K6dF2GVqa6L678I5y/A4rv7yk0rvTk7eVFq6yvCoxfnyO6yWTZDJwml/QUuF9vc8VhU1cxy44LAGcsfNY6SvA6X/TjjVzalHYjgovMFZzIQ7ZuvTdUC70=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760980813; c=relaxed/simple;
-	bh=BBdSB5XAD1YvzsBRvHq+pGVZ+js4CR0/KKZhrayNJnM=;
+	s=arc-20240116; t=1760983149; c=relaxed/simple;
+	bh=x7GUYv8Ms47fFopUIi3Wz6TTbTv7Y2GnvOK59yf3mcs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LZu/vrLl1pysXXiAzxFwRKWdsqbbauEJwMMq34+Sg6UnwURsBk5ANAfwaU6TMv8QK9ynsO6D3DN6BtMFP9AgQmhVhRRNYDRPlJFA8G6dDf7fIu1Pss3uzb4zIf6XpnpDqYP/Nq+MrGflIVfGca0JBrKHOYXwY0OVzzHQrDHrVN4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OePdjB6e; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=IWS2kr9d/YTHlCHgNKDkq2/LRkiBl19kVwhJlwGCcjm/WC0nIP7NZPCI+2vezC7QNJdo42CAe3iMqEW1z8mxOHo3RrAFKfEIrz/B+oOFs7JrAQ2EFRb1EhgzvSzDKmiHkHsMQLiHVGc713y7iAi7M6qUvDg8V4idb03Hn9NXHPw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pIwu3N3R; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OePdjB6e"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A902C4CEF9;
-	Mon, 20 Oct 2025 17:20:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pIwu3N3R"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0F22C4CEF9;
+	Mon, 20 Oct 2025 17:59:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1760980811;
-	bh=BBdSB5XAD1YvzsBRvHq+pGVZ+js4CR0/KKZhrayNJnM=;
+	s=k20201202; t=1760983149;
+	bh=x7GUYv8Ms47fFopUIi3Wz6TTbTv7Y2GnvOK59yf3mcs=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=OePdjB6eN0nq/HbPmKKQystov9LAi8oF8K8mYHl9KXXh4ilJKjD63usjZ08iIKSa/
-	 bj9gfaXCGR5r+lZZh/squfy/YwgeJ3QaR1/WRK66VT1IyDULP5Llpdwrti0U6KPDnf
-	 yglYXevr+51SpGHDz3jMCVsnXQgAJYtZ8crZMwzpTDs1DL3ku//SZWEyBhrV30ei6J
-	 TUt5uvdnqAg1XdPj/juXZG4Atwlo89iJ8Vn2GcbmBjoo0hkLArzN81o4jyOvj15+z/
-	 xrAcRsVca+1jSo4HvvTDrqPtZ+vOqTkpzE9irJ85sG4EYFsYVm33yPDLlxxmtydwZz
-	 ts/FURmYtpu/Q==
-Date: Mon, 20 Oct 2025 10:18:38 -0700
+	b=pIwu3N3RIH04/zJHOEAoM7ocAG9NiaDVkyJ306sift4cHMx3Tb2f/ippaSK8Fg06m
+	 6IQXodbTyF3Qn2c8aDBNoAVRP6uZT4YfvSbV/KeUzZiYZHUyMEJW0Pbfi8/fKQNP3+
+	 pDGdjuzWzXILebjnLWC8McdJmoz/tKPyQwLAhX/T0UQmYRShJMBWRvW45Z1d1FMa6W
+	 s2Dn0RtbK5qByuihJwoqQzl2p1ofOCvEBa9Bfw1Q3yhHuxwDJn4cH0vmPgAfOXoB9i
+	 iMRB0KkL4qetti2maqpV8j/O4nn5UDYIT0eifLYn9cGmrEOg+7i5oDkN/hHaIRQa4v
+	 MoYDtbKU4Sn8A==
+Date: Mon, 20 Oct 2025 10:57:36 -0700
 From: Eric Biggers <ebiggers@kernel.org>
-To: David Howells <dhowells@redhat.com>
-Cc: linux-crypto@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+To: Holger Dengler <dengler@linux.ibm.com>
+Cc: David Howells <dhowells@redhat.com>, Ard Biesheuvel <ardb@kernel.org>,
 	"Jason A . Donenfeld" <Jason@zx2c4.com>,
 	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-s390@vger.kernel.org
-Subject: Re: [PATCH 11/17] lib/crypto: sha3: Simplify the API
-Message-ID: <20251020171838.GB1644@sol>
-References: <20251020005038.661542-12-ebiggers@kernel.org>
- <20251020005038.661542-1-ebiggers@kernel.org>
- <1062182.1760956416@warthog.procyon.org.uk>
+	linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
+	Harald Freudenberger <freude@linux.ibm.com>
+Subject: Re: [PATCH 15/17] lib/crypto: s390/sha3: Migrate optimized code into
+ library
+Message-ID: <20251020175736.GC1644@sol>
+References: <20251020005038.661542-1-ebiggers@kernel.org>
+ <20251020005038.661542-16-ebiggers@kernel.org>
+ <51fc91b6-3a6e-44f7-ae93-aef0bcb48964@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -46,98 +48,94 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1062182.1760956416@warthog.procyon.org.uk>
+In-Reply-To: <51fc91b6-3a6e-44f7-ae93-aef0bcb48964@linux.ibm.com>
 
-On Mon, Oct 20, 2025 at 11:33:36AM +0100, David Howells wrote:
-> Eric Biggers <ebiggers@kernel.org> wrote:
-> 
-> > Instead of having separate types and functions for each of the six SHA-3
-> > algorithms, instead divide them into two groups: the digests and the
-> > XOFs.  The digests use sha3_ctx and the XOFs use shake_ctx.  The
-> > internal context is now called __sha3_ctx.
-> 
-> Please roll changes into the original patches rather than posting them with a
-> set of "fixes" and add a Co-developed-by tag for yourself.
+On Mon, Oct 20, 2025 at 04:00:42PM +0200, Holger Dengler wrote:
+> On 20/10/2025 02:50, Eric Biggers wrote:
+> > Instead of exposing the s390-optimized SHA-3 code via s390-specific
+> > crypto_shash algorithms, instead just implement the sha3_absorb_blocks()
+> > and sha3_keccakf() library functions.  This is much simpler, it makes
+> > the SHA-3 library functions be s390-optimized, and it fixes the
+> > longstanding issue where the s390-optimized SHA-3 code was disabled by
+> > default.  SHA-3 still remains available through crypto_shash, but
+> > individual architectures no longer need to handle it.
+> > 
+> > Note that the existing code used both CPACF_KIMD_SHA3_224 and
+> > CPACF_KIMD_SHA3_256 after checking for just CPACF_KIMD_SHA3_256, and
+> > similarly for 384 and 512.  I've preserved that behavior.
+> > 
+> > Signed-off-by: Eric Biggers <ebiggers@kernel.org>
+> The current code also cover a performance feature, which allows (on
+> supported hardware, e.g. z17) to skip the ICV initialization.
 
-Sure, that sounds good to me.  I'll do that on the next version.  For
-this version I wanted to make it clear what I had changed.  Also, some
-people don't like it when their patches are changed, so I wanted to make
-sure you were okay with it first.
+I'm not sure if by "ICV" you mean "Integrity Check Value" or "Initial
+Chaining Value", but SHA-3 doesn't have either of those.  It just starts
+with a state of all zeroes.  I assume that skipping the
+zero-initialization of the state is what you're referring to?
 
-> > +/** Context for SHA3-224, SHA3-256, SHA3-384, or SHA3-512 */
-> > +struct sha3_ctx {
-> > +	struct __sha3_ctx	ctx;
-> > +	u8			digest_size;	/* Digest size in bytes */
-> > +};
-> 
-> Don't do that.  That expands the context by an extra word when there's spare
-> space in __sha3_ctx.  If you go with the separate types, then this field is
-> redundant.
+> support has been introduced with 88c02b3f79a6 ("s390/sha3: Support
+> sha3 performance enhancements"). Unfortunately, this patch removes
+> this support. Was this intended?
 
-Right, packing the struct tightly is nice.  On the other hand, having
-the digest_size be in the digest-specific struct prevents it from
-accidentally be used during XOF operations.
+For now, yes.  I should have explained more in the patch, sorry.
 
-Consider that the arm64 SHA-3 assembly function took a digest_size
-argument.  It was tempting to just use __sha3_ctx::digest_size, but of
-course that would have been wrong.
+As currently proposed, lib/crypto/sha3.c supports arch-specific
+overrides of sha3_absorb_blocks() and sha3_keccakf().  Those cover the
+Keccak-f permutation which is by far the most performance critical part.
+This strategy is working well in the SHA-2, SHA-1, and MD5 libraries,
+which support the same level of arch overrides.
 
-But it looks like we could tighten sha3_absorb_blocks() to take a
-(sha3_state, block_size) pair.  That would reduce the number of places
-in which __sha3_ctx is used.  We should do that anyway.  So I'll
-tentatively plan to do that and also move the digest_size to __sha3_ctx.
+We could update lib/crypto/sha3.c to allow architectures to override
+more of the code.  But we need to consider the tradeoffs:
 
-> Actually, I lean slightly towards passing in the desired digest length
-> to sha3_*final() and doing a WARN if it doesn't match.
+- Risk of bugs.  QEMU doesn't support the s390 SHA-3 instructions, so no
+  one except the s390 folks can test the code.  I can try to write code
+  for you, but I can't test it.  And the s390 SHA-3 code has had bugs;
+  see commits 992b7066800f, 68279380266a5, 73c2437109c3.
 
-That would be redundant though.  It would make the API more difficult to
-use, especially in the case where the caller is supporting multiple
-SHA-3 variants, e.g. crypto/sha3.c.
+  The first priority should be correctness.
 
-Note that BLAKE2s has a variable-length digest too, and the BLAKE2s API
-only requires that the digest size be passed to init.
+- The proposed change to the init functions would cause the format of
+  'struct __sha3_ctx' to be architecture-dependent.  While we can do
+  that if really needed, it's something that's best avoided for
+  simplicity.  It opens up more opportunity for error.
 
-I prefer the simpler version that's consistent with the BLAKE2s API.
+- As I mentioned, Keccak-f is by far the most performance critical part
+  anyway.  The initial state is just all zeroes, and initializing it is
+  very lightweight.  Also consider that these contexts are often on the
+  stack, and people increasingly set the "init all stack variables to
+  zero" kernel hardening option anyway.
 
-> > +static inline void sha3_zeroize_ctx(struct sha3_ctx *ctx)
-> 
-> sha3_zero_ctx() please if you don't like "sha3_clear_ctx".  "zero" is a
-> perfectly usable as verb in itself.
+  I'll also note that commit 88c02b3f79a6 has no performance data in it.
+  So it's not clear that it actually helped much.
 
-In cryptography it's normally zeroize.  See
-https://en.wikipedia.org/wiki/Zeroisation
+- The library has an optimization to greatly reduce the size of the
+  context: instead of buffering data separately, it just XOR's data into
+  the state.  So, if there's a sha3_*_init() followed by a sha3_update()
+  of less than 1 block, it will have to initialize the state anyway.  We
+  can delay it until that point on s390.  But again: complexity.
 
-And also try 'git grep zeroize include/crypto/':
+- These potential additional s390 optimizations would presumably help
+  the most on short messages.  However, on short messages, merely
+  switching to the library often gives a large performance improvement
+  due to eliminating the very slow call to crypto_alloc_shash().  That's
+  actually a lot more important.
 
-    include/crypto/acompress.h: * acomp_request_free() -- zeroize and free asynchronous (de)compression
-    include/crypto/aead.h: * crypto_free_aead() - zeroize and free aead handle
-    include/crypto/aead.h: * aead_request_free() - zeroize and free request data structure
-    include/crypto/akcipher.h: * akcipher_request_free() - zeroize and free public key request
-    include/crypto/chacha.h:static inline void chacha_zeroize_state(struct chacha_state *state)
-    include/crypto/hash.h: * crypto_free_ahash() - zeroize and free the ahash handle
-    include/crypto/hash.h: * ahash_request_free() - zeroize and free the request data structure
-    include/crypto/hash.h: * crypto_free_shash() - zeroize and free the message digest handle
-    include/crypto/internal/cipher.h: * crypto_free_cipher() - zeroize and free the single block cipher handle
-    include/crypto/kpp.h: * kpp_request_free() - zeroize and free kpp request
-    include/crypto/md5.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
-    include/crypto/md5.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
-    include/crypto/rng.h: * crypto_free_rng() - zeroize and free RNG handle
-    include/crypto/sha1.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
-    include/crypto/sha1.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
-    include/crypto/sha2.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
-    include/crypto/sha2.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
-    include/crypto/sha2.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
-    include/crypto/sha2.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
-    include/crypto/sha2.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
-    include/crypto/sha2.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
-    include/crypto/sha2.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
-    include/crypto/sha2.h: * After finishing, this zeroizes @ctx.  So the caller does not need to do it.
-    include/crypto/skcipher.h: * crypto_free_skcipher() - zeroize and free cipher handle
-    include/crypto/skcipher.h: * crypto_free_lskcipher() - zeroize and free cipher handle
-    include/crypto/skcipher.h: * skcipher_request_free() - zeroize and free request data structure
+I would suggest that we drop the sha3_*_init() optimization from
+consideration for now.  Providing overrides for the one-shot functions
+sha3_{224,256,384,512}() should be simpler as well as possibly a bit
+more useful, and I would suggest exploring that.
 
-Point is, we should prefer standard terminology that is already used in
-the code and the wider problem domain, instead of coming up with new
-terminology each time a new contributor hops in.
+I guess I can try to write the code for you again.  But again, without
+QEMU support I cannot test it.  The first priority in cryptography code
+is correctness, so that's not a great position to be in.
+
+Note that for new optimized code I'm requiring QEMU support for the
+instructions it uses.  This one would only be allowed because code that
+used these instructions already existed in arch/s390/crypto/.
+
+> Please also add me and Harald Freudenberger to the cc: list for this patch.
+
+Will do, thanks.
 
 - Eric
