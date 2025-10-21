@@ -1,137 +1,218 @@
-Received: from mail-vs1-f47.google.com (mail-vs1-f47.google.com [209.85.217.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7084272E72
-	for <linux-s390@vger.kernel.org>; Tue, 21 Oct 2025 07:06:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74BCE279DB7;
+	Tue, 21 Oct 2025 07:24:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761030363; cv=none; b=EfcnjAIW5Bonk1WznoEdqHbrSNkst9WFShxfdVE8gDbwdOOny8ZGTvQ0aTMA+Ji9JmD7zSEy41w0MXzdA3O1O9NHueGd8jWXObOXf1S7CtlACIEIilkUM4juCJMLpGZ+AcdxjoaZW5Pq8pla0kz+RgSpwjoNdZF4ff5ZiQZqimk=
+	t=1761031464; cv=none; b=nYfkeAfbamiSlv8ddSUImOATfcFdf7T+LliY72F/VhuUipbmUxzx7tcRA54D72BgD4iDqxTJGV5EDk9QO9eUZvT2SDgfQ0CfCuu9k0BMOYWXo5hiWNyowVLa/7NInyJGhWSoZKUrqngKFHH+Zan+TJv9j7X7zW0q5rrxHUdb5bs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761030363; c=relaxed/simple;
-	bh=UpOZTzA2Cg0xuj9L9Snqlj1LAarwNb659Ui+cQ6KOhI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Jntexqw0U+wuNteHImDB83Pcfv0PQIqVQt2sFD2xk9GT1SwELCMMqts5oIzxyYCCSPGYNzBUXv7XVOcENsYszc/YocnC9UtN1nupMj+Us3bvdmYinpmfokOg7H4ogsaCdzueY7REmWHYsM3yjef8gcX1MhICmWUDHpBRAY8abUc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.217.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vs1-f47.google.com with SMTP id ada2fe7eead31-5a46c3b3a5bso2256254137.0
-        for <linux-s390@vger.kernel.org>; Tue, 21 Oct 2025 00:06:01 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761030360; x=1761635160;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jhPGZdM+an4DNurRNIbu5m1jJ3B3iI2V4DQkHllaTd4=;
-        b=BnEO4DTBzlxQO19+Xo8bitmrtCYTYOjDj2oe/jUpzJ5YOiNwR9SFv6fX6TdHw8S/d6
-         0yd6RVQMW4VfP3OAMl4hMs/y6Sk2QKoQ6pvMqrRMc/aFVPT22V3rPNa1mO2r+ydIWoez
-         dI2oDSxle8vXIDN8G0NLM2NRt5sx5eJLcz8zjmo/CVWDdFViECU2PFkHxG6jbPHWcFfl
-         Kkx4XMv3iXi+teTsF6Nf9iTX1UNc9o/2QAg79HjqERknXlloFm/CHZ89Gpu63hvvriGz
-         jsZ2eBBTrM6/gkQ1yCt8LOhHX6HfPat9Z3/D7WkN7Zr6NLQ4sX/qUhYV1Z77dASEqMKS
-         eT3w==
-X-Forwarded-Encrypted: i=1; AJvYcCUsZBWU/Ho1353zWaPQAsdtqKV3N/QoamSs3bZXP4TjcW0PVgue2I4g3/KIq6r0b7Jxlc7Bo85TJY3p@vger.kernel.org
-X-Gm-Message-State: AOJu0YycuFATWltrp4bT7PTiVtTzS8NsfzUpuzEaS2T33UUcY50HtbLb
-	TBwY4pTxwJhQ6DmbDDKIti/UvyDOKRYOPpjAgs1aAiSvVCIy2YJnksebP5p8V9nm
-X-Gm-Gg: ASbGncs2KeIrrpImhZs0mZW1/lmnOcERedjWX+9H0QSiGUddQQ71d9TC+lS5/UK804o
-	Fc92/AwgXPEt+nM3C4OFPnAN0T6T2gaqAnaM373n+MK5uUnrVJvSr6rJc3Y9JwUHXBoOO0Rft49
-	BE0/WGzgtn1884T/7FfPN4pZnToSNKSkfkddUQOJkLVFgQqYCCv8Ee+3lG78pzX+IYolXSyYfum
-	mwitXj8nejG+Gh69wUfScAcZNJJMV/jqFwO3G3G2X+1kbY3pFc6wlXDg5pfaujF7kXnC9nvxJQD
-	Ngrt62jbZItA+BP+vUcho0wrIe670bWJRQKoXsSRO8YNt8H+EdJHTsqox4Wbbz8a7VRqposUtxR
-	LsnneNYBT3gECoxIIxYpENN/5LWL8H1pHnMnvIwIm0vhYSQ2fAicbVSaZQn989x27TrJ1d3npbS
-	7LCuTf/XaB1vYPx0O5gs3hLk3QmChNsV5tc9pV4A+9VuOfnic4
-X-Google-Smtp-Source: AGHT+IEY5xcfIV/0cGhJwJWKElSFla4T5f2NCJJWXPyxZrzsKcysAleQWlAZtnhNN32qiBOcD1A4yw==
-X-Received: by 2002:a05:6102:290a:b0:5d5:f4f8:1ef5 with SMTP id ada2fe7eead31-5d7dd6dcb1bmr4243274137.35.1761030360365;
-        Tue, 21 Oct 2025 00:06:00 -0700 (PDT)
-Received: from mail-ua1-f41.google.com (mail-ua1-f41.google.com. [209.85.222.41])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-556620a6677sm3078461e0c.15.2025.10.21.00.05.59
-        for <linux-s390@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 21 Oct 2025 00:05:59 -0700 (PDT)
-Received: by mail-ua1-f41.google.com with SMTP id a1e0cc1a2514c-8e352f6c277so1247093241.2
-        for <linux-s390@vger.kernel.org>; Tue, 21 Oct 2025 00:05:59 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUsfSNgQrZ0dOCOldF06hefqkOvmU8Wc8gCkE87HsUfuFQkGXXEtExD1+dTYhtntjIgpNB7CV+tSF6I@vger.kernel.org
-X-Received: by 2002:a05:6102:548c:b0:52a:1ff2:da15 with SMTP id
- ada2fe7eead31-5d7dd5a6916mr4190451137.15.1761030358892; Tue, 21 Oct 2025
- 00:05:58 -0700 (PDT)
+	s=arc-20240116; t=1761031464; c=relaxed/simple;
+	bh=8FGv4hC6mcrzGKjeCbtsNd848JfuRjL+XHZUY+SVF0k=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=KEfqIRldUCXSt8qHDlui+yiCcUJXnlrvBOxpQpKu26BGMZZKJjUFt+Z3icb+k2wHY5F9L3587lM8IM3vNPPujOjCQZuf7xxqvyPWJMUtIpR3gER2szKgaSuYHXM6Ioalxf6CMOdwn0kuN15huyvHd1IKKrx03sz/LU5On2nU1LY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XZOn2LlO; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XZOn2LlO"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59L20BGw018800;
+	Tue, 21 Oct 2025 07:24:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=HXWI+T
+	s8pCwgXlqF9ZX9c6QddSbtqcgR4wef2xM111k=; b=XZOn2LlOvM6qvoqbJmxE9I
+	m4ahI8rTLcbTLW89JgfMRUd76WCDAdhV4Re0fYa4hAhVurGbx015Kr7Epp7PPM7V
+	/sEofMOiX4bT05Qn7VFEvC1ZGozLmQDvCwBmlCIT6bedUFp23EDoWWr+QvGWe+Jl
+	CD4lopNDsxOxxwf63UrBYeBYoE7kv4SGSrFRVb7Bh/leiIGtN7k/+yIzkuM6/oUj
+	RNe4RZHvSgvZCC+cwyOfdOxZtiRk814bETwB39R5opogKq7vyFmWM3ema1j8z+cY
+	IJ9xzJ8oeP1rsnMSBtqlLhEJLm1C1G52oCFyTDMcXTGNj7dpY7crPrY+iIogzO9w
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49v31rwn5w-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 21 Oct 2025 07:24:10 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59L4iK3P011020;
+	Tue, 21 Oct 2025 07:24:09 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 49vqx11aem-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 21 Oct 2025 07:24:09 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59L7O7ts57410014
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 21 Oct 2025 07:24:07 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9A02220043;
+	Tue, 21 Oct 2025 07:24:07 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 62F4420040;
+	Tue, 21 Oct 2025 07:24:07 +0000 (GMT)
+Received: from [9.111.135.235] (unknown [9.111.135.235])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 21 Oct 2025 07:24:07 +0000 (GMT)
+Message-ID: <29e766ca-54e4-453d-9dfc-ea47e2a1f860@linux.ibm.com>
+Date: Tue, 21 Oct 2025 09:24:06 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251019100605.1.I095f1e2c6c27f9f4de0b4841f725f356c643a13f@changeid>
- <2d514d61-121d-44fc-aec7-637dd0920de8@infradead.org> <CAD=FV=VNyt1zG_8pS64wgV8VkZWiWJymnZ-XCfkrfaAhhFSKcA@mail.gmail.com>
- <CAMuHMdVT-_UVAO=1jvTPEjKO0zy7H1rUrQz1ubMfHivF4HWJNA@mail.gmail.com> <CAD=FV=WeXOj_hyA=V9hMLHOJ_m9ui5mP6cRv2DpjXnR62_nd2w@mail.gmail.com>
-In-Reply-To: <CAD=FV=WeXOj_hyA=V9hMLHOJ_m9ui5mP6cRv2DpjXnR62_nd2w@mail.gmail.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Tue, 21 Oct 2025 09:05:48 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdWGb0jVt9ziBtWdHWC9omPAFMHVPBHDpv0F1XzvR0THpg@mail.gmail.com>
-X-Gm-Features: AS18NWCwSLaTZzUZHHjPu2aHB1yMxhOD9WxIuBCDLK0u4mfaGukRaya3oKLFi-A
-Message-ID: <CAMuHMdWGb0jVt9ziBtWdHWC9omPAFMHVPBHDpv0F1XzvR0THpg@mail.gmail.com>
-Subject: Re: [PATCH] init/main.c: Wrap long kernel cmdline when printing to logs
-To: Doug Anderson <dianders@chromium.org>
-Cc: Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org, 
-	Andrew Chant <achant@google.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
-	Andrew Morton <akpm@linux-foundation.org>, Brian Gerst <brgerst@gmail.com>, 
-	Christian Brauner <brauner@kernel.org>, Francesco Valla <francesco@valla.it>, 
-	Guo Weikang <guoweikang.kernel@gmail.com>, Huacai Chen <chenhuacai@kernel.org>, 
-	Jan Hendrik Farr <kernel@jfarr.cc>, Jeff Xu <jeffxu@chromium.org>, Kees Cook <kees@kernel.org>, 
-	Masahiro Yamada <masahiroy@kernel.org>, =?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
-	Miguel Ojeda <ojeda@kernel.org>, "Mike Rapoport (Microsoft)" <rppt@kernel.org>, 
-	Nathan Chancellor <nathan@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
-	Shakeel Butt <shakeel.butt@linux.dev>, Tejun Heo <tj@kernel.org>, 
-	Thomas Gleixner <tglx@linutronix.de>, =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>, 
-	"Uladzislau Rezki (Sony)" <urezki@gmail.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	linux-s390 <linux-s390@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 15/17] lib/crypto: s390/sha3: Migrate optimized code into
+ library
+To: Eric Biggers <ebiggers@kernel.org>
+Cc: David Howells <dhowells@redhat.com>, Ard Biesheuvel <ardb@kernel.org>,
+        "Jason A . Donenfeld" <Jason@zx2c4.com>, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-crypto@vger.kernel.org,
+        Harald Freudenberger <freude@linux.ibm.com>
+References: <20251020005038.661542-1-ebiggers@kernel.org>
+ <20251020005038.661542-16-ebiggers@kernel.org>
+ <51fc91b6-3a6e-44f7-ae93-aef0bcb48964@linux.ibm.com>
+ <20251020175736.GC1644@sol>
+From: Holger Dengler <dengler@linux.ibm.com>
+Content-Language: en-US
+In-Reply-To: <20251020175736.GC1644@sol>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: zT6buMclKWapWi4nnatfkPLQYCGf-j05
+X-Proofpoint-GUID: zT6buMclKWapWi4nnatfkPLQYCGf-j05
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDE4MDAyMiBTYWx0ZWRfX321FNgZAcduS
+ SdqJvBMeFQRxpszMW1n5bOfEQgQ8fDxDBqytFvndUsVQOND990+XWCFt88GZCq6kjsAkWj7/QNQ
+ t/ffVRUrQD+NdMDPZtWYHKG/gh1Tx89yw6eZI7LyaP5ggY2hpe03aQsO4mtA1TSwbtGD4EW4C5Z
+ qF50iXcsC5yaCIySujOzUY1XEwb06+DqeIyVwJ6oJqM2zcF4dy4mz4LR/Bb7cLFjwLlpcxI+8c9
+ a8X68CcmXuHKYN3juKdom4GVr6bOtZoE9p5i3X599IHoUFXAowsf/3u8zvUzlc42znfcHd6O/0N
+ sRUOP7jz8DffEffmRGOBvnZXcWBvK3e+PCJcLCdrR814lJngfyn0A7tVSIRNqZfQXADAq8XIDVA
+ jZIjqvkuy/mbbjbUam4sMSPkFMGpAg==
+X-Authority-Analysis: v=2.4 cv=IJYPywvG c=1 sm=1 tr=0 ts=68f7351a cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=otLEo-FC9tDJaZkyYbEA:9 a=3ZKOabzyN94A:10
+ a=QEXdDO2ut3YA:10 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-20_07,2025-10-13_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 lowpriorityscore=0 clxscore=1015 suspectscore=0 spamscore=0
+ bulkscore=0 adultscore=0 impostorscore=0 malwarescore=0 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510180022
 
-Hi Doug,
+On 20/10/2025 19:57, Eric Biggers wrote:
+> On Mon, Oct 20, 2025 at 04:00:42PM +0200, Holger Dengler wrote:
+>> On 20/10/2025 02:50, Eric Biggers wrote:
+>>> Instead of exposing the s390-optimized SHA-3 code via s390-specific
+>>> crypto_shash algorithms, instead just implement the sha3_absorb_blocks()
+>>> and sha3_keccakf() library functions.  This is much simpler, it makes
+>>> the SHA-3 library functions be s390-optimized, and it fixes the
+>>> longstanding issue where the s390-optimized SHA-3 code was disabled by
+>>> default.  SHA-3 still remains available through crypto_shash, but
+>>> individual architectures no longer need to handle it.
+>>>
+>>> Note that the existing code used both CPACF_KIMD_SHA3_224 and
+>>> CPACF_KIMD_SHA3_256 after checking for just CPACF_KIMD_SHA3_256, and
+>>> similarly for 384 and 512.  I've preserved that behavior.
+>>>
+>>> Signed-off-by: Eric Biggers <ebiggers@kernel.org>
+>> The current code also cover a performance feature, which allows (on
+>> supported hardware, e.g. z17) to skip the ICV initialization.
+> 
+> I'm not sure if by "ICV" you mean "Integrity Check Value" or "Initial
+> Chaining Value", but SHA-3 doesn't have either of those.  It just starts
+> with a state of all zeroes.  I assume that skipping the
+> zero-initialization of the state is what you're referring to?
 
-CC s390
+I meant "Initial Chaining Value". On s390, this memory is set to zero by the
+KIMD/KLMD instructions so that it can be skipped in the init() calls.
 
-On Mon, 20 Oct 2025 at 18:04, Doug Anderson <dianders@chromium.org> wrote:
-> On Mon, Oct 20, 2025 at 8:42=E2=80=AFAM Geert Uytterhoeven <geert@linux-m=
-68k.org> wrote:
-> > On Mon, 20 Oct 2025 at 17:33, Doug Anderson <dianders@chromium.org> wro=
-te:
-> > > Printing the command line to the kernel log buffer is one of the very
-> > > rare cases where:
-> > > * There's a legitimate reason to print a (potentially) very long
-> > > string to the kernel buffer.
-> >
-> > arch/s390/Kconfig:
-> >
-> >     config COMMAND_LINE_SIZE
-> >             int "Maximum size of kernel command line"
-> >             default 4096
-> >             range 896 1048576
-> >
-> > Yummy...
->
-> Wow, what are they expecting to stuff in there? An encoded initramfs
-> or something? I kinda feel like the 1MB number isn't something anyone
-> expects but is a number picked to effectively be "unlimited".
+>> support has been introduced with 88c02b3f79a6 ("s390/sha3: Support
+>> sha3 performance enhancements"). Unfortunately, this patch removes
+>> this support. Was this intended?
+> 
+> For now, yes.  I should have explained more in the patch, sorry.
+> 
+> As currently proposed, lib/crypto/sha3.c supports arch-specific
+> overrides of sha3_absorb_blocks() and sha3_keccakf().  Those cover the
+> Keccak-f permutation which is by far the most performance critical part.
+> This strategy is working well in the SHA-2, SHA-1, and MD5 libraries,
+> which support the same level of arch overrides.
+> 
+> We could update lib/crypto/sha3.c to allow architectures to override
+> more of the code.  But we need to consider the tradeoffs:
+> 
+> - Risk of bugs.  QEMU doesn't support the s390 SHA-3 instructions, so no
+>   one except the s390 folks can test the code.  I can try to write code
+>   for you, but I can't test it.  And the s390 SHA-3 code has had bugs;
+>   see commits 992b7066800f, 68279380266a5, 73c2437109c3.
+> 
+>   The first priority should be correctness.
 
-Dunno, commit 622021cd6c560ce7 ("s390: make command line configurable")
-lacks the "why" part.
+Let me figure out, if me and my colleagues can do the testing for you.
+Unfortunately, I'll be unavailable for the next two weeks. But I'll come back
+with a solution for the testing.
 
-> Do you have a suggestion of what my code should do if it sees such a
-> long cmdline? At small numbers (4K, 8K, maybe even 32K) printing the
-> wrapped cmdline is nice. Above that, maybe it should just print
-> something like "<cmdline truncated>" or something?
+> - The proposed change to the init functions would cause the format of
+>   'struct __sha3_ctx' to be architecture-dependent.  While we can do
+>   that if really needed, it's something that's best avoided for
+>   simplicity.  It opens up more opportunity for error.
 
-I don't know, I never saw truncated kernel command lines myself.
+Would it make sense to provide a delayed zeroize mechanism of the initial
+chaining value (ICV), and architectures may implement it or not? The feature
+on s390 is exactly that: a delayed zeroize of the ICV, done by the instruction.
 
-Gr{oetje,eeting}s,
+> - As I mentioned, Keccak-f is by far the most performance critical part
+>   anyway.  The initial state is just all zeroes, and initializing it is
+>   very lightweight.  Also consider that these contexts are often on the
+>   stack, and people increasingly set the "init all stack variables to
+>   zero" kernel hardening option anyway.
+> 
+>   I'll also note that commit 88c02b3f79a6 has no performance data in it.
+>   So it's not clear that it actually helped much.
+> 
+> - The library has an optimization to greatly reduce the size of the
+>   context: instead of buffering data separately, it just XOR's data into
+>   the state.  So, if there's a sha3_*_init() followed by a sha3_update()
+>   of less than 1 block, it will have to initialize the state anyway.  We
+>   can delay it until that point on s390.  But again: complexity.
+> 
+> - These potential additional s390 optimizations would presumably help
+>   the most on short messages.  However, on short messages, merely
+>   switching to the library often gives a large performance improvement
+>   due to eliminating the very slow call to crypto_alloc_shash().  That's
+>   actually a lot more important.
+> 
+> I would suggest that we drop the sha3_*_init() optimization from
+> consideration for now.  Providing overrides for the one-shot functions
+> sha3_{224,256,384,512}() should be simpler as well as possibly a bit
+> more useful, and I would suggest exploring that.
 
-                        Geert
+Ok, sounds reasonable.
 
---=20
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
+> I guess I can try to write the code for you again.  But again, without
+> QEMU support I cannot test it.  The first priority in cryptography code
+> is correctness, so that's not a great position to be in.
+> 
+> Note that for new optimized code I'm requiring QEMU support for the
+> instructions it uses.  This one would only be allowed because code that
+> used these instructions already existed in arch/s390/crypto/.
 
-In personal conversations with technical people, I call myself a hacker. Bu=
-t
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
+Ok, I'll come back to you on that.
+
+>> Please also add me and Harald Freudenberger to the cc: list for this patch.
+> 
+> Will do, thanks.
+> 
+> - Eric
+
+-- 
+Mit freundlichen Grüßen / Kind regards
+Holger Dengler
+--
+IBM Systems, Linux on IBM Z Development
+dengler@linux.ibm.com
+
