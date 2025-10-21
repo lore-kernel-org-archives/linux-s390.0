@@ -1,35 +1,34 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D91A246762;
-	Tue, 21 Oct 2025 01:40:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4335B274FD3;
+	Tue, 21 Oct 2025 02:56:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761010833; cv=none; b=RJbjoSM4aHE1K8RlPsdXProrRLAFngJbIlMS1eaXyRPH4EO1CDY6EledA6xVgvmXhuT6/jhGmc0vzEgjmbtsnu9/EUYbhoJCCf/ep9dQys+w49bQnAPEhqW3fr7OeRY2pB8/BcpoTy5iKER5SNE6rM3fPwyB24uS7+eMXvuR9O8=
+	t=1761015407; cv=none; b=cgz85xUNnsPbgAIlvPPzWrmc01RNBZ3ffsdMIVP+55Ns/OWru1kwvCgYOXFWwmF3DTIBQIs54zNDNLlHCwjA+IVrLjkrin3+inICrAm6aIObPXz+JzlAwmq+kz3349RzyvP0VmShk7/q8JLY1O3NDi8lg5EDaO1V9ID2z9KhHQc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761010833; c=relaxed/simple;
-	bh=9j/NwYb2uzgrW6O++TqHgQBWqYvtL1IgF0kMNUqMjU4=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=DAvXEdw5ZjlOyIJ4gsjznQznGvy5g8EtxvlxPHhK/l7c2FBTI6bDRvmqlI/stM4q9JAGpMXFSq4nofPMaQCilPVjmpwhoTPHs4NRszxPdquZHzEfob/3lS5IvwvpxorVWcAv74qrFldpw47tQD8DIAoeaidd7IJ2KUj8rADTlXI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uqQyfjUP; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uqQyfjUP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEACFC116D0;
-	Tue, 21 Oct 2025 01:40:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1761010832;
-	bh=9j/NwYb2uzgrW6O++TqHgQBWqYvtL1IgF0kMNUqMjU4=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=uqQyfjUPz2hZIZv982wUpTSLXbDgsyCxU8/aHHx/nK6zBMtli9FTEGthXjqlI+zEl
-	 Snt2jabThVXqjUTWrBCC9l84XARiUeGklCrXoFJHTFmuAxWY1TRceAS72CFmvXl5Pm
-	 CFmCTIU4eYQwPtIDqdG6Y78Y6eRxPlIZUh2n0QGv0vT4dGEY+s/0gKW4RsbyVvS40C
-	 hWluhOoxuIglspB0iMM+zG9DdLrsK/1utfLkYTdmQ4os8ZnIgFyCAxtA97uwxR6mmR
-	 KrlIQWRetW9EqwgdVQx8OKSdbHSWlqOxFuR2cT0yKnAOY6zw6SiglLJA2Aspmh01Fs
-	 7QAy8+NdJ4LYQ==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EAE023A4102D;
-	Tue, 21 Oct 2025 01:40:15 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=arc-20240116; t=1761015407; c=relaxed/simple;
+	bh=CxJm60S2gZHUoWCZVhWJAPPBtiNPP28nE8Kbbp6mI7g=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=m6AaUqu0vE+V9G/3JULahH6yjVpKL3obLfWFRjHnhtCM01CMAdebxUwO/TZA8OlqcYJKDfUNRTR1Hm+TNA7i2EcA/YlTF+YMXMZaj0KqbFG/T7Anp8NhQne1OEHq3fOqP1YG68jqPZjlCgWNogE848FcZ/msR23HJyrDtjgqnps=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D39371063;
+	Mon, 20 Oct 2025 19:56:36 -0700 (PDT)
+Received: from ergosum.cambridge.arm.com (ergosum.cambridge.arm.com [10.1.196.45])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 852D03F59E;
+	Mon, 20 Oct 2025 19:56:43 -0700 (PDT)
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+To: linux-mm@kvack.org
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>,
+	linux-kernel@vger.kernel.org,
+	iommu@lists.linux.dev,
+	linux-s390@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	virtualization@lists.linux.dev
+Subject: [PATCH] mm: Make INVALID_PHYS_ADDR a generic macro
+Date: Tue, 21 Oct 2025 03:56:38 +0100
+Message-Id: <20251021025638.2420216-1-anshuman.khandual@arm.com>
+X-Mailer: git-send-email 2.30.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -37,45 +36,90 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next] s390/iucv: Convert sprintf/snprintf to scnprintf
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <176101081451.484471.13334778110409476366.git-patchwork-notify@kernel.org>
-Date: Tue, 21 Oct 2025 01:40:14 +0000
-References: <20251017094954.1402684-1-wintera@linux.ibm.com>
-In-Reply-To: <20251017094954.1402684-1-wintera@linux.ibm.com>
-To: Alexandra Winter <wintera@linux.ibm.com>
-Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
- edumazet@google.com, andrew+netdev@lunn.ch, aswin@linux.ibm.com,
- twinkler@linux.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- borntraeger@linux.ibm.com, svens@linux.ibm.com, horms@kernel.org
 
-Hello:
+INVALID_PHYS_ADDR has very similar definitions across the code base. Hence
+just move that inside header <liux/mm.h> for more generic usage. Also drop
+the now redundant ones which are no longer required.
 
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org
+Cc: iommu@lists.linux.dev
+Cc: linux-s390@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: virtualization@lists.linux.dev
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+---
+ arch/arm64/mm/mmu.c                  | 2 --
+ arch/s390/boot/vmem.c                | 1 -
+ drivers/vdpa/vdpa_user/iova_domain.h | 2 --
+ include/linux/mm.h                   | 2 ++
+ kernel/dma/swiotlb.c                 | 2 --
+ 5 files changed, 2 insertions(+), 7 deletions(-)
 
-On Fri, 17 Oct 2025 11:49:54 +0200 you wrote:
-> From: Aswin Karuvally <aswin@linux.ibm.com>
-> 
-> Convert sprintf/snprintf calls to scnprintf to better align with the
-> kernel development community practices [1].
-> 
-> Link: https://lwn.net/Articles/69419 [1]
-> Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-> Signed-off-by: Aswin Karuvally <aswin@linux.ibm.com>
-> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-> 
-> [...]
-
-Here is the summary with links:
-  - [net-next] s390/iucv: Convert sprintf/snprintf to scnprintf
-    https://git.kernel.org/netdev/net-next/c/38516e3fa4ca
-
-You are awesome, thank you!
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index e80bb623ef53..1da02d908c30 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -470,8 +470,6 @@ static void __create_pgd_mapping(pgd_t *pgdir, phys_addr_t phys,
+ 	mutex_unlock(&fixmap_lock);
+ }
+ 
+-#define INVALID_PHYS_ADDR	(-1ULL)
+-
+ static phys_addr_t __pgd_pgtable_alloc(struct mm_struct *mm, gfp_t gfp,
+ 				       enum pgtable_type pgtable_type)
+ {
+diff --git a/arch/s390/boot/vmem.c b/arch/s390/boot/vmem.c
+index cea3de4dce8c..fbe64ffdfb96 100644
+--- a/arch/s390/boot/vmem.c
++++ b/arch/s390/boot/vmem.c
+@@ -16,7 +16,6 @@
+ #include "decompressor.h"
+ #include "boot.h"
+ 
+-#define INVALID_PHYS_ADDR (~(phys_addr_t)0)
+ struct ctlreg __bootdata_preserved(s390_invalid_asce);
+ 
+ #ifdef CONFIG_PROC_FS
+diff --git a/drivers/vdpa/vdpa_user/iova_domain.h b/drivers/vdpa/vdpa_user/iova_domain.h
+index 775cad5238f3..a923971a64f5 100644
+--- a/drivers/vdpa/vdpa_user/iova_domain.h
++++ b/drivers/vdpa/vdpa_user/iova_domain.h
+@@ -17,8 +17,6 @@
+ 
+ #define IOVA_START_PFN 1
+ 
+-#define INVALID_PHYS_ADDR (~(phys_addr_t)0)
+-
+ #define BOUNCE_MAP_SHIFT	12
+ #define BOUNCE_MAP_SIZE	(1 << BOUNCE_MAP_SHIFT)
+ #define BOUNCE_MAP_MASK	(~(BOUNCE_MAP_SIZE - 1))
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index d16b33bacc32..543a5f780874 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -105,6 +105,8 @@ extern int mmap_rnd_compat_bits __read_mostly;
+ # endif
+ #endif
+ 
++#define INVALID_PHYS_ADDR (~(phys_addr_t)0)
++
+ #include <asm/page.h>
+ #include <asm/processor.h>
+ 
+diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+index 0d37da3d95b6..a547c7693135 100644
+--- a/kernel/dma/swiotlb.c
++++ b/kernel/dma/swiotlb.c
+@@ -61,8 +61,6 @@
+  */
+ #define IO_TLB_MIN_SLABS ((1<<20) >> IO_TLB_SHIFT)
+ 
+-#define INVALID_PHYS_ADDR (~(phys_addr_t)0)
+-
+ /**
+  * struct io_tlb_slot - IO TLB slot descriptor
+  * @orig_addr:	The original address corresponding to a mapped entry.
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.30.2
 
