@@ -1,243 +1,186 @@
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 955FE34E751
-	for <linux-s390@vger.kernel.org>; Tue, 21 Oct 2025 18:56:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DC542561C2;
+	Tue, 21 Oct 2025 20:22:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761072965; cv=none; b=aIDVYAHYDygmalLPWyHOpC1Kxq3wE3xPXNLpEG2x86ud65eWYBhtEZ/5aFFjwlFSNxXpbqzY9ad5hhn/BAkzUSdiXFvu1wGPrxe1cPWODf6F6IaRnY+oKXtI5dM5YdFQi/zcQxQrnOsBFasO16HbPAIJGCT5TdRfw3ftM1FqKOQ=
+	t=1761078173; cv=none; b=G1OxeRhWupKWMCjH7hJ30Z7v/14BFtKuZrzn0J7JxzWfgh3wd8A+kat0STl4UP9G2DILtfOSYIC+mQfFqZL/8XJrMXbMFAg0ifdMpoxOmaeAd1nyKfImfnQ68i6RX6aUr7OYRmjArMJvTOKrQdstuycy5yzYv8udDYAO7sh5cMs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761072965; c=relaxed/simple;
-	bh=52iR6LmGwh1Tv4WZrZVBPLVN9n+QfjxmRktHCwjQfmU=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=WNpbwd5LhTFLVI0yb9R86YWva8kRr+7VYLwXf762LsUOsvIfNbHhAqgg91CmTN840xZa2A9FVfnv7GPb9ynwQjzoekshckey2l4yESkuuaDEt19tuTgZhiVbfhfoXqvNGRzLVgv4DCee+tGckbZDhuzsJTkdzR9E5bYOZtcB744=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dKWVjebL; arc=none smtp.client-ip=209.85.221.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1761078173; c=relaxed/simple;
+	bh=j1/9Zn64S+rdPHLo4FHM6+vjbfyF5VAgvH31TrIGStQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Jbnr760yfyOnmZ5I2SqXf0pnwF+o83ozzzWnbdtenzNdAlgLTfrmqqd4xMOxsokhnN9Q0a5MEDicCg7MuCXjA5ZRks6ucdSib/R9HHVqYOaE7Z98RxU/Pk0BLbzKFQTsQfeA1J/ukoY2c2OAnSKwnQjmZorJ7w5fQjFT2WSQIP4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kWQrQV20; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dKWVjebL"
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-421851bca51so4830252f8f.1
-        for <linux-s390@vger.kernel.org>; Tue, 21 Oct 2025 11:56:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1761072962; x=1761677762; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5qgPMRJSF9sIfpOYtKRyUUBt+NJHpNn43neFwkUQbv0=;
-        b=dKWVjebLqls33Z8OfQQ3H3nal7dPyv7wN0UBgKwHtTc5+/wvffD6xKCye7Mkwo7Ze7
-         RdqTSxNnOBFMLNB9tn+DoUr/qLiQEB8kJMcMX28Cd2g4rX5OM8puFSCvgFO7GDFZw54a
-         C5qZ3/iyVqHN8mT0zjZI2+5moLkQDCLxguJRR39iS3LOZ5yJTD18+W/wRSr7nEWZLNyW
-         FwJIETX7e68jj+EU0duVJvmpczfx2qQa4wz0AiBQQF+YSsNNZ9TCPKvkbS7klQbXW4n2
-         2oQk2Ar4GAnoTVqPCbvDSjOoNtVF6OahvNWD3HuFGl63bxf4XFLSgk2h3mKupR5HWh2N
-         2tJA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761072962; x=1761677762;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=5qgPMRJSF9sIfpOYtKRyUUBt+NJHpNn43neFwkUQbv0=;
-        b=QaHID5AddwXR8dSV8Wj7rSJmP6ReDs3oNTCgYZEkrMok2iSnln+d5Jjxau9Q5UofFt
-         btVwW5B4n4r3Jun7rasNLslYEaxh5nmWuYxlvEb1+MM74Wv5+0aAhde/BzLLdSsZeTz3
-         bYWaruSwGuX2vL37Z+Qz43IZaQZb3Fr7GpuZLuiADMnzmcoqNuX4O1qKeNC4vRJcovTg
-         XOSvtnqeNGaJy4q/Bgo5Yg2r1v4Vet//ZClBZcZTEXxLZLj/f9TPnuFM2HxUCswEt+pu
-         gNgF/XUr6uPyvSMLUF2eB+mneawHBghqibMTOZ7zbJBfpE2GE9a289RFbcsE5ILQRJLh
-         EBrQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWJF6qMW8wgtCe1d/w9/S/WQRGXgPdYF5ylEQSYgsjzt79QQncm2vryK+F4BCR3cEcSVs9h8rwOg9Wa@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz4nfznWr1eSkgQwvZBUwbUd+RsZ9wPqviHgAagRaDRv7/L1Ayg
-	JO0HvpRQxjisvAh/dM44h/9Y1ub3/ZVZCA1HoJQeg7UbCdKEy1mOLNt0
-X-Gm-Gg: ASbGncswtM2Z93ZnUt8jeqCmrK+5VyuYI//ZXzRQiWe1fgduW55RxYd3ZUJLyirvyVI
-	v995D7pm/TSeJybGI/sqFYr1bVowLnBho2XjRw/XwjdZLdsTbZ4WoDoshYp4G2/HTxk3s4GBFgz
-	61r8CGR8hg72e4ar0NtGpMSbVbvaSxwdHSFeVHjs/KFVUGSmaIZMC4HNgQDVtOCGUiuhXniZs/P
-	11BAUSPKPm1EtlRQNZEPB9MZToEeGWfDjUa6VY2HBlXCEPgfBq3sxwIT6kaWSEhtrPEL6Q0TAfu
-	N2ufy8AckadRmYbBMKTX+md9UFE55MbTktLP2KfoU2Cb+ZlDztb49PQJaVt8RvF/0LjWsD3a5EC
-	f6ujR8C7afrJaJh01lusqKpl7r6OUZHF7CfsMZmv/gIW6dNGtUj8wKOMFvK+ADoITZilEix+yur
-	Z6AzkuXwNXM6JJcwnvTx3WidA8TwILEA3k9Sx+4Ah6aA==
-X-Google-Smtp-Source: AGHT+IFjOxufFJONTpxys1bngEKe+lRcQqq+LVDgs/0okuT/Rc8W/l4ZwbhF8BXNqZX3cWqKXviWlw==
-X-Received: by 2002:a05:6000:491d:b0:427:55b:cf6 with SMTP id ffacd0b85a97d-427055b0cf8mr13206929f8f.7.1761072961864;
-        Tue, 21 Oct 2025 11:56:01 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4283e7804f4sm19566507f8f.10.2025.10.21.11.56.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Oct 2025 11:56:01 -0700 (PDT)
-Date: Tue, 21 Oct 2025 19:55:59 +0100
-From: David Laight <david.laight.linux@gmail.com>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Christophe Leroy
- <christophe.leroy@csgroup.eu>, Mathieu Desnoyers
- <mathieu.desnoyers@efficios.com>, Andrew Cooper
- <andrew.cooper3@citrix.com>, Linus Torvalds
- <torvalds@linux-foundation.org>, kernel test robot <lkp@intel.com>, Russell
- King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org,
- x86@kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman
- <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- linuxppc-dev@lists.ozlabs.org, Paul Walmsley <pjw@kernel.org>, Palmer
- Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, Heiko
- Carstens <hca@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
- linux-s390@vger.kernel.org, Julia Lawall <Julia.Lawall@inria.fr>, Nicolas
- Palix <nicolas.palix@imag.fr>, Peter Zijlstra <peterz@infradead.org>,
- Darren Hart <dvhart@infradead.org>, Davidlohr Bueso <dave@stgolabs.net>,
- =?UTF-8?B?QW5kcsOp?= Almeida <andrealmeid@igalia.com>, Alexander Viro
- <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara
- <jack@suse.cz>, linux-fsdevel@vger.kernel.org
-Subject: Re: [patch V3 07/12] uaccess: Provide scoped masked user access
- regions
-Message-ID: <20251021195559.4809c75a@pumpkin>
-In-Reply-To: <877bwoz5sp.ffs@tglx>
-References: <20251017085938.150569636@linutronix.de>
-	<20251017093030.253004391@linutronix.de>
-	<20251020192859.640d7f0a@pumpkin>
-	<877bwoz5sp.ffs@tglx>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kWQrQV20"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59LGAHwM011773;
+	Tue, 21 Oct 2025 20:22:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=DVWHq3
+	w1V9bird66o/HT3IQgYq83pLC6FZywZkJrf00=; b=kWQrQV20B6KwMkoLiXLs2Y
+	mJ1vu88hk3HEpiuZc19pv0pdlUwGxPDHfKKhI1dutyQCGMk2BXihcF/byyCr2G2f
+	JimkkLWUQhWCXqocw4wYyQLvjAkf5axiD8VA4hxTKiU1C0Etnkkq1Vb8NlAxLFVO
+	VlMUjWHVxqsNfOS1DNV0byodKskUvNh6PLPFmPi14jLpgYhaonQ+dbHYDwPak88d
+	vDQIsrwNFYYbuoks/bXTjiSqkJ1mm7H6Q/wrRo1b+JfzNqX2epHrlfFjsC9DTetW
+	krpx2VBRgfZBrKuCkgdD91uAEZ4MTd0Q7Rv/vDWSgJn4IWkuadVEyx0irfJHDttg
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49v31c7u8m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 21 Oct 2025 20:22:48 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59LJeGmA011075;
+	Tue, 21 Oct 2025 20:22:47 GMT
+Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 49vqx14ewj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 21 Oct 2025 20:22:47 +0000
+Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
+	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59LKMjDY17105426
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 21 Oct 2025 20:22:45 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 76F5058055;
+	Tue, 21 Oct 2025 20:22:45 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DDC3158043;
+	Tue, 21 Oct 2025 20:22:44 +0000 (GMT)
+Received: from [9.61.241.19] (unknown [9.61.241.19])
+	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 21 Oct 2025 20:22:44 +0000 (GMT)
+Message-ID: <41c90334-9bee-4252-9366-a4f5c38c83b9@linux.ibm.com>
+Date: Tue, 21 Oct 2025 13:22:39 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 1/3] PCI: Allow per function PCI slots
+To: Niklas Schnelle <schnelle@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
+Cc: helgaas@kernel.org, stable@vger.kernel.org, mjrosato@linux.ibm.com,
+        Benjamin Block <bblock@linux.ibm.com>
+References: <20251020190200.1365-1-alifm@linux.ibm.com>
+ <20251020190200.1365-2-alifm@linux.ibm.com>
+ <f8d1619917f105ec805b212af9e940aa73925b70.camel@linux.ibm.com>
+Content-Language: en-US
+From: Farhan Ali <alifm@linux.ibm.com>
+In-Reply-To: <f8d1619917f105ec805b212af9e940aa73925b70.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-
-On Tue, 21 Oct 2025 16:29:58 +0200
-Thomas Gleixner <tglx@linutronix.de> wrote:
-
-> On Mon, Oct 20 2025 at 19:28, David Laight wrote:
-> > On Fri, 17 Oct 2025 12:09:08 +0200 (CEST)
-> > Thomas Gleixner <tglx@linutronix.de> wrote:
-> > That definitely looks better than the earlier versions.
-> > Even if the implementation looks like an entry in the obfuscated C
-> > competition.  
-> 
-> It has too many characters for that. The contest variant would be:
-> 
-> for(u8 s=0;!s;s=1)for(typeof(u) t= S(m,u,s,e);!s;s=1)for(C(u##m##a,c)(t);!s;s=1)for(const typeof(u) u=t;!s;s=1)
-> 
-> > I don't think you need the 'masked' in that name.
-> > Since it works in all cases.
-> >
-> > (I don't like the word 'masked' at all, not sure where it came from.  
-> 
-> It's what Linus named it and I did not think about the name much so far.
-> 
-> > Probably because the first version used logical operators.
-> > 'Masking' a user address ought to be the operation of removing high-order
-> > address bits that the hardware is treating as 'don't care'.
-> > The canonical operation here is uaddr = min(uaddr, guard_page) - likely to be
-> > a conditional move.  
-> 
-> That's how it's implemented for x86:
-
-I know - I suggested using cmov.
-
-> 
-> >>  b84:	48 b8 ef cd ab 89 67 45 23 01  movabs $0x123456789abcdef,%rax
-> >>  b8e:	48 39 c7    	               cmp    %rax,%rdi
-> >>  b91:	48 0f 47 f8          	       cmova  %rax,%rdi  
-> 
-> 0x123456789abcdef is a compile time placeholder for $USR_PTR_MAX which is
-> replaced during early boot by the real user space topmost address. See below.
-> 
-> > I think that s/masked/sanitised/ would make more sense (the patch to do
-> > that isn't very big at the moment). I might post it.)  
-> 
-> The real point is that it is optimized. It does not have to use the
-> speculation fence if the architecture supports "masking" because the CPU
-> can't speculate on the input address as the actual read/write address
-> depends on the cmova. That's similar to the array_nospec() magic which
-> masks the input index unconditionally so it's in the valid range before
-> it can be used for speculatively accessing the array.
-> 
-> So yes, the naming is a bit awkward.
-> 
-> In principle most places which use user_$MODE_access_begin() could
-> benefit from that. Also under the hood the scope magic actually falls
-> back to that when the architecture does not support the "masked"
-> variant.
-> 
-> So simply naming it scoped_user_$MODE_access() is probably the least
-> confusing of all.
-> 
-> >> If masked user access is enabled on an architecture, then the pointer
-> >> handed in to scoped_masked_user_$MODE_access() can be modified to point to
-> >> a guaranteed faulting user address. This modification is only scope local
-> >> as the pointer is aliased inside the scope. When the scope is left the
-> >> alias is not longer in effect. IOW the original pointer value is preserved
-> >> so it can be used e.g. for fixup or diagnostic purposes in the fault path.  
-> >
-> > I think you need to add (in the kerndoc somewhere):
-> >
-> > There is no requirement to do the accesses in strict memory order
-> > (or to access the lowest address first).
-> > The only constraint is that gaps must be significantly less than 4k.  
-> 
-> The requirement is that the access is not spilling over into the kernel
-> address space, which means:
-> 
->        USR_PTR_MAX <= address < (1U << 63)
-> 
-> USR_PTR_MAX on x86 is either
->             (1U << 47) - PAGE_SIZE (4-level page tables)
->          or (1U << 57) - PAGE_SIZE (5-level page tables)
-> 
-> Which means at least ~8 EiB of unmapped space in both cases.
-> 
-> The access order does not matter at all.
-
-But consider the original x86-64 version.
-While it relied on the guard page for accesses that started with a user
-address, kernel addresses were converted to ~0.
-While a byte access at ~0 fails because it isn't mapped, an access
-at 'addr + 4' wraps to the bottom of userspace which can be mapped.
-So the first access had to be at the requested address, although
-subsequent ones only have to be 'reasonably sequential'.
-
-Not all code that is an obvious candidate for this code accesses
-the base address first.
-So it is best to require that the implementations allow for this,
-and then explicitly document that it is allowed behaviour.
-
-The ppc patches do convert kernel addresses to the base on an
-invalid page - so they are fine.
-I've not seen patches for other architectures.
-
-32bit x86 has a suitable guard page, but the code really needs 'cmov'
-and the recent removal of old cpu (including the 486) didn't quite
-go that far.
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: pMJL_spnLMC3cmT05Fdl1YmBnIvIlqUL
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDE4MDAyMiBTYWx0ZWRfX8xHNaqHe1Lx0
+ vpwIfS420Ot8iWmKPy6POV1rLw6jwSpIxAEUuCCOxyiR9PVuODMiXVkm26qsQDjmX5SOwlxajGc
+ 5lTnHkZVDPxm3nwdmCnnfk33TpiYwNtiOwC2ziNUxPi0w9+iyiJ+RGbWjg7I36tuf2TMZKvZq/j
+ Pa+sbI01QH25InSKyYxa6y6XlAQSnDwPI7TGbM7Bjfg/RbdwxgCiCdP6VInB/o99fYK4UKnyCgB
+ 0vq8p+GIlr/4S2GvEnAPBepNCIEPO81t1Hv+yFpDwxzWNXWYGJpRrccEgp+Q05H4+81rcW5mX9e
+ Zg86KABvmuggaGzr//qZnAyVgHWPxXmVi4r863lBE+9iELDt0244Y0DOPAmdOkMklpaqjJcw+hr
+ 1yAbu4/++/YbVFL7qYxvHnKAhDYqtw==
+X-Proofpoint-GUID: pMJL_spnLMC3cmT05Fdl1YmBnIvIlqUL
+X-Authority-Analysis: v=2.4 cv=SKNPlevH c=1 sm=1 tr=0 ts=68f7eb98 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=1mzHYz07CPLjn6S_tm4A:9 a=QEXdDO2ut3YA:10
+ a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-21_03,2025-10-13_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 malwarescore=0 suspectscore=0 clxscore=1015 priorityscore=1501
+ spamscore=0 impostorscore=0 bulkscore=0 lowpriorityscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510180022
 
 
-> 
-> >> +#define __scoped_masked_user_access(_mode, _uptr, _size, _elbl)					\
+On 10/21/2025 5:49 AM, Niklas Schnelle wrote:
+> On Mon, 2025-10-20 at 12:01 -0700, Farhan Ali wrote:
+>> On s390 systems, which use a machine level hypervisor, PCI devices are
+>> always accessed through a form of PCI pass-through which fundamentally
+>> operates on a per PCI function granularity. This is also reflected in the
+>> s390 PCI hotplug driver which creates hotplug slots for individual PCI
+>> functions. Its reset_slot() function, which is a wrapper for
+>> zpci_hot_reset_device(), thus also resets individual functions.
+>>
+>> Currently, the kernel's PCI_SLOT() macro assigns the same pci_slot object
+>> to multifunction devices. This approach worked fine on s390 systems that
+>> only exposed virtual functions as individual PCI domains to the operating
+>> system.  Since commit 44510d6fa0c0 ("s390/pci: Handling multifunctions")
+>> s390 supports exposing the topology of multifunction PCI devices by
+>> grouping them in a shared PCI domain. When attempting to reset a function
+>> through the hotplug driver, the shared slot assignment causes the wrong
+>> function to be reset instead of the intended one. It also leaks memory as
+>> we do create a pci_slot object for the function, but don't correctly free
+>> it in pci_slot_release().
+>>
+>> Add a flag for struct pci_slot to allow per function PCI slots for
+>> functions managed through a hypervisor, which exposes individual PCI
+>> functions while retaining the topology.
+>>
+>> Fixes: 44510d6fa0c0 ("s390/pci: Handling multifunctions")
+>> Cc: stable@vger.kernel.org
+>> Suggested-by: Niklas Schnelle <schnelle@linux.ibm.com>
+>> Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+>> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+>> ---
+>>   drivers/pci/hotplug/s390_pci_hpc.c | 10 ++++++++--
+>>   drivers/pci/pci.c                  |  5 +++--
+>>   drivers/pci/slot.c                 | 14 +++++++++++---
+>>   include/linux/pci.h                |  1 +
+>>   4 files changed, 23 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/drivers/pci/hotplug/s390_pci_hpc.c b/drivers/pci/hotplug/s390_pci_hpc.c
+>> index d9996516f49e..8b547de464bf 100644
+>> --- a/drivers/pci/hotplug/s390_pci_hpc.c
+>> +++ b/drivers/pci/hotplug/s390_pci_hpc.c
+>> @@ -126,14 +126,20 @@ static const struct hotplug_slot_ops s390_hotplug_slot_ops = {
+>>   
+>>   int zpci_init_slot(struct zpci_dev *zdev)
+>>   {
+>> +	int ret;
+>>   	char name[SLOT_NAME_SIZE];
+>>   	struct zpci_bus *zbus = zdev->zbus;
+>>   
+>>   	zdev->hotplug_slot.ops = &s390_hotplug_slot_ops;
+>>   
+>>   	snprintf(name, SLOT_NAME_SIZE, "%08x", zdev->fid);
+>> -	return pci_hp_register(&zdev->hotplug_slot, zbus->bus,
+>> -			       zdev->devfn, name);
+>> +	ret = pci_hp_register(&zdev->hotplug_slot, zbus->bus,
+>> +				zdev->devfn, name);
+>> +	if (ret)
+>> +		return ret;
+>> +
+>> +	zdev->hotplug_slot.pci_slot->per_func_slot = 1;
+> I think the way this works is a bit odd. Due to the order of setting
+> the flag pci_create_slot() in pci_hp_register() tries to match using
+> the wrong per_func_slot == 0. This doesn't really cause mismatches
+> though because the slot->number won't match the PCI_SLOT(dev->devfn)
+> except for the slot->number 0 where it is fine.
+>
+> One way to improve(?) on this is to have a per_func_slot flag also in
+> the struct hotplug_slot and then copy it over into the newly created
+> struct pci_slot. But then we have this flag twice. Or maybe this really
+> should be an argument to pci_create_slot()?
 
-Thinking about it there is no need for leading _ on #define parameter names.
-It is only variables defined inside #define that have 'issues' if the caller
-passes in the same name.
+This would still work as we associate the struct pci_dev to struct 
+pci_slot in pci_dev_assign_slot(), when we would have the flag set. But 
+I do see your point that there is room for improvement here. As 
+discussed offline we can maybe have the flag in struct pci_bus since we 
+already have the slots list. This would allow us to set the flag for 
+zpci devices at the creation of the pci_bus. And can be used by 
+pci_create_slot() and pci_dev_assign_slot() to correctly set the slot 
+for the pci dev. Will post a v2 with this.
 
-> >> +for (bool ____stop = false; !____stop; ____stop = true)						\
-> >> +	for (typeof((_uptr)) _tmpptr = __scoped_user_access_begin(_mode, _uptr, _size, _elbl);	\  
-> >
-> > Can you use 'auto' instead of typeof() ?  
-> 
-> Compilers are mightily unhappy about that unless I do typecasting on the
-> assignment, which is not really buying anything.
+Thanks
 
-ok - I did a very quick check and thought it might work.
+Farhan
 
-If you can't use auto for the third definition, then I think tmpptr can be 'void _user *'.
-
-	David
-
-> 
-> >> +	     !____stop; ____stop = true)							\
-> >> +		for (CLASS(masked_user_##_mode##_access, scope) (_tmpptr); !____stop;		\
-> >> +		     ____stop = true)					\
-> >> +			/* Force modified pointer usage within the scope */			\
-> >> +			for (const typeof((_uptr)) _uptr = _tmpptr; !____stop; ____stop = true)	\  
-> >
-> > gcc 15.1 also seems to support 'const auto _uptr = _tmpptr;'  
-> 
-> Older compilers not so much.
-> 
-> Thanks,
-> 
->         tglx
 
