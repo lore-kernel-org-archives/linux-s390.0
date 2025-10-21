@@ -1,144 +1,151 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59E1F350A3C;
-	Tue, 21 Oct 2025 20:34:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86607280017
+	for <linux-s390@vger.kernel.org>; Tue, 21 Oct 2025 20:53:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761078872; cv=none; b=E2UPRGC677bUJjhm1lyZ4kYChrFtbhRODykyqbkzr1MfVeq657qQ45ZJAbqiKiHhhOKk+6ZPXXeiEhrgrxv2XefU50HWN3/87/AlsRHdJ0lqlt+Pr1DGMWi7IIRKT9zo4uXys8dMQjB67gDM5kHCBdq94d8wYHlmNqfTeUtEBcQ=
+	t=1761079982; cv=none; b=CezAlMbA1sUbVfC06y7DZLni07/D9L9e+7OlJoMep1tZGW7exF9CxxJqozR6BuuRcSjKPFbDmsuFECLO0NFQsC51OUNDbJGXSLv2+s7ojUUQaofqXAC+cb4EPyYyIBsEoSLNOc9UsDc5QTvwtzF2+4hq+Mv+kXhRCHPbI/ucwng=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761078872; c=relaxed/simple;
-	bh=MmyGVz514tYF4CV16vMrOST0EOpGoH8FznP6p3BreJE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=P3y5rKKeWxy+dtacI4vy1Fo1B2m1sgb8DRpDq0RCM5pYH2vICGKiaq0kapZa+blLrvUtZwy97UXEj+spyGT75K1CtykdUrSX+WMkKhjwsoSYh0ngxf7MmU/ytooA85ipMKlPEFl2OvnZKGD1y7BN54Q52p67XC4D6byNqhMzR6w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Me/IKRPF; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1761079982; c=relaxed/simple;
+	bh=35GUA1OLm2UY2rLd5ftsCwqE0YKKZwDoylm8PTqhnKE=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=IiVYtSN5abzyMJRaylKdVvvWCASeepHHCLvWu9cyhp0XrxKQofNICY6tSA6ZIkbDqrwl5rnQrGzMgbTu4gzFFYXoSUQGEDX/xh18NEl6YvdfZMpKvKeNeRxb2O/XhDgVxoGQo6IxzbR46qg/rRwvZ5B5UyBUxaKyQWzSQvNLjhA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gBEICNCx; arc=none smtp.client-ip=209.85.128.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Me/IKRPF"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59LJcdJd016484;
-	Tue, 21 Oct 2025 20:34:29 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=YBqJ9h
-	NCe/TNzh8IBcphbZ08wR6W/jXosPlBKB2QCtU=; b=Me/IKRPFImZE2XW65m8a3A
-	Rx8NlcR+7R7Tlo41GfLKJw/g4LW0Y4AQwkMYMOMJzxYhcge8RgDgrPhjEHIyyVe2
-	A0cDx4vK5/96RNkw7SrSbDx7rJVI7qW8CRYBn81UOai4KL85GcpD+XphSPlmPBwT
-	TnUIaMvut8fdnHq/NH/PSq2ewqkHdxBj/lEtKxJgnMuoo2XsJeKJQ19bhWNg3NdH
-	UUAhTGuFtBMb1rT8mhsp1WTwX13+7ofXDzWauqZEJ+zbwUzed8Y67VKiwOtV7YkK
-	hCTX6lUalptw2f5F7H7dQ60nIZu+GfJ/ow1dZMhNv+Zqxw48E7e7M0+b1+xMH/xA
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49v31s17n1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Oct 2025 20:34:28 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59LIr1d6032099;
-	Tue, 21 Oct 2025 20:34:27 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49vp7mvqjt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Oct 2025 20:34:27 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59LKYQtD32047760
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 21 Oct 2025 20:34:26 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E2F4758043;
-	Tue, 21 Oct 2025 20:34:25 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 64C575805D;
-	Tue, 21 Oct 2025 20:34:25 +0000 (GMT)
-Received: from [9.61.241.19] (unknown [9.61.241.19])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 21 Oct 2025 20:34:25 +0000 (GMT)
-Message-ID: <bd54ee4b-8349-4447-9cbb-484439df2473@linux.ibm.com>
-Date: Tue, 21 Oct 2025 13:34:20 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gBEICNCx"
+Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-471075c0a18so63523625e9.1
+        for <linux-s390@vger.kernel.org>; Tue, 21 Oct 2025 13:53:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1761079979; x=1761684779; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=KX1U3LQDhrzk0zMYgAFvq4hyuRv8alrTza4fIy2YOi0=;
+        b=gBEICNCxlgrIEJpwu/ynalYfewOExF+lYyHzRWulwZhqLxdSYByGomo2qd4jW7rZVu
+         l3Ls1K2AqdnyURI7j7p8WUAtdsRrrMMw1bgenT2FgfsCuYC+i9W+zFXL0D2iESsfQiK9
+         HZdd9YHOD/oszTO8edRWtO6vdbD10fCaVWCRBw8gnESnkNIcHgs0DCLIxrcBn1FWEqfx
+         ClPKjDDaXq+19GC+xCXqMRyJgHu7IGNdnv5s0sp/Hh6XSZq/8SHy98E6IQzVeURxzkld
+         AXA3VJniz6r2BlEbffdLzAgBREuJgpJH0GEUIlN9z66qDNf5jrU/rI4RKoYGOvHBGAiO
+         TFQw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1761079979; x=1761684779;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=KX1U3LQDhrzk0zMYgAFvq4hyuRv8alrTza4fIy2YOi0=;
+        b=KJ/ReBIqN4pYDDSudSSiZptenjfZUOV9uGJMp9z3LbqciBDUBv2i0+HCaQqjEafo2k
+         1ZbI4/YIu1pGRUoIP6A6n1hJ2U8inx4L8MVONwfgIxtbHTfr1/zEHfvwe3GBejBVx4Ey
+         2xG1C0V4jLfO/MRpxt00vZpouJCLFuTP2JqHvKbYm8EepNmNtcNxL4KR2jtEjthfIjDc
+         jEUbSg9gIW4c7LzZWs1y8AwAybNSL7hJTWvf0QaRcQNhjkDGY/Yr8SQCfli9d7EANNjY
+         WKB+fCMF3of5ohA9WIfNKKUdljgRlIqjbR2lH6nUVAa9xwLiyUMw0KuIuMwBSvJ6ZYTW
+         yP+Q==
+X-Forwarded-Encrypted: i=1; AJvYcCXyvUpAiDpgRTzxoMIAV7eTotc8DCgOsKXRrk/Ka/5ehSgBauGo2vYUsD/tkRZijCTW9SRNIA5cIuqf@vger.kernel.org
+X-Gm-Message-State: AOJu0YxVvoyihkGHIcpwatuxlrOUrzz3DlXUQgI6r5fEdrTfycJboD8m
+	zNKRrErYZjJZfS2jU+8Tlgf+2hrKDCEB+D4efco/sG1rn5PyO+dts0/x
+X-Gm-Gg: ASbGncvM0kYhswND9TaZhQPocjv88u8OMZwBIqfThzcufiggivqpEoyoL6QqNAYKxX9
+	wA6BLS/oC7w+jb8/t1cOvOorKhbeTwYfcoCGpDUclBSYVqhZyZ/POjnpvTKs+th4W8o/TDX4UDO
+	VIrUmboxhNgMd1R6FV0cujVcX6i+o9dy1d//0etH1gb2pl0c18k6Tvl4NRIKw16HgpIf7DRfqZR
+	LgVpEQE+2Nw6+09+C8/C7Qrw6kjTVH6AKQe8da42IuB88lMpMItAOXqKmEbGGN6L/MCCVBx5xoV
+	JjBM4RPG7+GU58RkeQbyqB23ka3wXpLG+cwv39i5UXseKOElSpL4RGL/ZAa7yVUr1tl8JVsFTgI
+	toRNl3q/w8QnjJMvfAaRCKan62z7vCeQkggVYaj7+pb1RioO2ZOMPnBzHgPHaSj2ya51w53z052
+	eANEgR6HOjQQnFTfI1Uj6qbLfUq0S9/nP5E0e78BMVjF5aj4x2+4sb
+X-Google-Smtp-Source: AGHT+IG48cx6eMc3yWVGBT0daBkOovb/80ZhUVtFTOZrtyO8Rw6UMLlSBk12jg9YEQoOEfu4lRZoog==
+X-Received: by 2002:a05:6000:240c:b0:3fc:c90d:9957 with SMTP id ffacd0b85a97d-42704d6c585mr13473049f8f.16.1761079978558;
+        Tue, 21 Oct 2025 13:52:58 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-427f009a797sm21895076f8f.27.2025.10.21.13.52.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Oct 2025 13:52:58 -0700 (PDT)
+Date: Tue, 21 Oct 2025 21:52:54 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Christophe Leroy
+ <christophe.leroy@csgroup.eu>, Mathieu Desnoyers
+ <mathieu.desnoyers@efficios.com>, Andrew Cooper
+ <andrew.cooper3@citrix.com>, Linus Torvalds
+ <torvalds@linux-foundation.org>, kernel test robot <lkp@intel.com>, Russell
+ King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org,
+ x86@kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman
+ <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ linuxppc-dev@lists.ozlabs.org, Paul Walmsley <pjw@kernel.org>, Palmer
+ Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, Heiko
+ Carstens <hca@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
+ linux-s390@vger.kernel.org, Julia Lawall <Julia.Lawall@inria.fr>, Nicolas
+ Palix <nicolas.palix@imag.fr>, Peter Zijlstra <peterz@infradead.org>,
+ Darren Hart <dvhart@infradead.org>, Davidlohr Bueso <dave@stgolabs.net>,
+ =?UTF-8?B?QW5kcsOp?= Almeida <andrealmeid@igalia.com>, Alexander Viro
+ <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara
+ <jack@suse.cz>, linux-fsdevel@vger.kernel.org
+Subject: Re: [patch V3 07/12] uaccess: Provide scoped masked user access
+ regions
+Message-ID: <20251021215254.673dbd35@pumpkin>
+In-Reply-To: <874irsz581.ffs@tglx>
+References: <20251017085938.150569636@linutronix.de>
+	<20251017093030.253004391@linutronix.de>
+	<20251020192859.640d7f0a@pumpkin>
+	<877bwoz5sp.ffs@tglx>
+	<874irsz581.ffs@tglx>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 3/3] s390/pci: Restore IRQ unconditionally for the zPCI
- device
-To: Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
-Cc: helgaas@kernel.org, stable@vger.kernel.org, schnelle@linux.ibm.com
-References: <20251020190200.1365-1-alifm@linux.ibm.com>
- <20251020190200.1365-4-alifm@linux.ibm.com>
- <0170a16a-aadd-450f-be9a-9b60dfd5c8e7@linux.ibm.com>
-Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <0170a16a-aadd-450f-be9a-9b60dfd5c8e7@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 9C5iDtqoMPTxK4BkehnyndoAc1uGLBzL
-X-Proofpoint-GUID: 9C5iDtqoMPTxK4BkehnyndoAc1uGLBzL
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDE4MDAyMiBTYWx0ZWRfX+izsYzK45nLf
- EqxKialKvFX3L92UzYcFwkARRtLPBVtkauwbfHO1PUbzVYJ5o6uYxqtR42pn46AAn6xhjxyR81Q
- zmBbske0eKSVvefmmivLfZr0mYBpLmxE5oTm+z0kPQLTDsc6lSKfxljQSD2RGHVLuBqXAHdx7qx
- PGnM/UGa053g7IPGQaVzPw+fuAbub7+WfU9SgWiDGBQaLwsfUAH0DhVm4bwohJ5eEH9BqcvOWsb
- t1WIzy7izKr1N3ZBHOyqPkyN1SkkmEY5OwxVQ/MajVWlpMKeCHXPzhzLJaantpn19ljBfEGr60E
- cIDCkSptKuiMiOQ12VFMO3ZGBSN0Mc0Tct8jjeJhTU1E1dQ7Z5CDKijZK2e3lhaiyd6ZVvDub9v
- FGNn98YzZs0SudneCFPY40YGGG2SQg==
-X-Authority-Analysis: v=2.4 cv=IJYPywvG c=1 sm=1 tr=0 ts=68f7ee54 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=OYQa30pwPum5nJitelwA:9 a=QEXdDO2ut3YA:10
- a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-10-21_03,2025-10-13_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 lowpriorityscore=0 clxscore=1015 suspectscore=0 spamscore=0
- bulkscore=0 adultscore=0 impostorscore=0 malwarescore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510180022
 
+On Tue, 21 Oct 2025 16:42:22 +0200
+Thomas Gleixner <tglx@linutronix.de> wrote:
 
-On 10/21/2025 7:07 AM, Matthew Rosato wrote:
-> On 10/20/25 3:02 PM, Farhan Ali wrote:
->> Commit c1e18c17bda6 ("s390/pci: add zpci_set_irq()/zpci_clear_irq()"),
->> introduced the zpci_set_irq() and zpci_clear_irq(), to be used while
->> resetting a zPCI device.
->>
->> Commit da995d538d3a ("s390/pci: implement reset_slot for hotplug slot"),
->> mentions zpci_clear_irq() being called in the path for zpci_hot_reset_device().
->> But that is not the case anymore and these functions are not called
->> outside of this file. Instead zpci_hot_reset_device() relies on
->> zpci_disable_device() also clearing the IRQs, but misses to reset the
->> zdev->irqs_registered flag.
->>
->> However after a CLP disable/enable reset, the device's IRQ are
->> unregistered, but the flag zdev->irq_registered does not get cleared. It
->> creates an inconsistent state and so arch_restore_msi_irqs() doesn't
->> correctly restore the device's IRQ. This becomes a problem when a PCI
->> driver tries to restore the state of the device through
->> pci_restore_state(). Restore IRQ unconditionally for the device and remove
->> the irq_registered flag as its redundant.
->>
->> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
->> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
->
-> But one question: Unlike the other 2 patches in this series, this only touches s390 code.  It doesn't depend on the other 2 patches in this series, right?
->
-> If not then shouldn't this one go thru s390 rather than PCI subsystem?  Note: none of the s390 arch maintainers are on CC.
+> On Tue, Oct 21 2025 at 16:29, Thomas Gleixner wrote:
+> > On Mon, Oct 20 2025 at 19:28, David Laight wrote:  
+> >> There is no requirement to do the accesses in strict memory order
+> >> (or to access the lowest address first).
+> >> The only constraint is that gaps must be significantly less than 4k.  
+> >
+> > The requirement is that the access is not spilling over into the kernel
+> > address space, which means:
+> >
+> >        USR_PTR_MAX <= address < (1U << 63)
+> >
+> > USR_PTR_MAX on x86 is either
+> >             (1U << 47) - PAGE_SIZE (4-level page tables)
+> >          or (1U << 57) - PAGE_SIZE (5-level page tables)
+> >
+> > Which means at least ~8 EiB of unmapped space in both cases.
+> >
+> > The access order does not matter at all.  
+> 
+> I just noticed that LAM reduces that gap to one page, but then the
+> kernel has a 8EiB gap right at the kernel/user boundary, which means
+> even in the LAM case an access with less than 8EiB offset from
+> USR_PTR_MAX is guaranteed to fault and not to be able to speculatively
+> access actual kernel memory.
 
-Yes I think this could go through s390 tree as it just changes s390/pci 
-code. Will submit this as a separate patch from this series.
+It wouldn't be a speculative access, it would be a real access.
+But 4k (eg a single page) is plenty for 'reasonably sequential'.
 
-Thanks
+Pretty much the only thing that has to be disallowed is a reverse
+order memcpy() (or one that accesses the last bytes first) for
+copy_to/from_user() if the length parameter is ignored completely.
+Linus wasn't brave enough to remove it from the current version
+of access_ok().
 
-Farhan
+I do wonder if any other cpu have the same architectural issues
+that required the guard page between user and kernel on 32bit x86.
+(One is a system call at the end of the last page.)
 
->
->> ---
->>   arch/s390/include/asm/pci.h | 1 -
->>   arch/s390/pci/pci_irq.c     | 9 +--------
->>   2 files changed, 1 insertion(+), 9 deletions(-)
->>
+LAM is one reason why 'masked_user_access' is such a bad name.
+
+	David 
+
+> 
+> Thanks,
+> 
+>         tglx
+
