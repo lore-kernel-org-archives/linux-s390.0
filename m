@@ -1,114 +1,167 @@
-Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com [209.85.218.48])
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F15C3451C7
-	for <linux-s390@vger.kernel.org>; Tue, 21 Oct 2025 15:57:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A7A23451D7
+	for <linux-s390@vger.kernel.org>; Tue, 21 Oct 2025 16:07:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761062226; cv=none; b=mhJolVu1gy0oPSssFngCas3cqo5JSftNf/J8n6oOelJZCt6BZVMMYbHXyNYO5LSbVZSWby22EmKLVSp/VVKOZE6uJmoFMKGgj+AwWBJZcCFP3lyQjFgM/FHZ1MpQTq3dMUcLuk+cJaKAUthLKyjb4t8Pz7SzkmIE+DoNX2T+L0c=
+	t=1761062876; cv=none; b=IOY3vQdyBrWjSBSOgxnqpWoz+mAVCUjjlPxnZ0cl1lWRPbfPdShvEyZVLgNr42g4hjwpLDTbdHR2nOSOwnPfr9D2AIfRG2tAdOmuHgrhg1l6VsbTr6AAhoRMpn2gGZF4AtQhFCVq1m2ZCheIhG7U5XUhBdVFp0iWn/Gfl6gvgvY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761062226; c=relaxed/simple;
-	bh=lViBcaKLu+UAiDt1Nf19hKosCzWDWEUaKqiaIlkaqqg=;
+	s=arc-20240116; t=1761062876; c=relaxed/simple;
+	bh=bKpdUjAbZudmEXfwWsQOnsj8GT9aOq+yPry9bLfFxUk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MBZ5JFkuHtv4jT/LBxHD3ZkC7x9aozSETirVC7ruziyIrHI62ZzliAKAqTbsujmTP61bHjPRY8wp4qBQAJYfUf0oL2gNDVJbTn6gZBh0eqRi5CYHOzxr4wWHpGGIhpfT9MyPpi6DKN5jYCFWT66m3+BI7q9OIp5nzJeUIwt2l+M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=LXRsRX97; arc=none smtp.client-ip=209.85.218.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
+	 To:Cc:Content-Type; b=KsH6Wr1da3zhMf9aInE9MzGF0cSzIn8fjCzOeqeioHycHil90Vm8ZWqR6dR0i+hSmluSpcA3wfn1E5MepMXDklV8xyId2bfxzivo8d9gKIxsCyuBSsebQr/pnQK5hXHQ2/KSRxp1CHO2wWGq/1JFZ6akXADst6Bde2ke5CWbDrs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=LEPW3U1q; arc=none smtp.client-ip=209.85.214.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="LXRsRX97"
-Received: by mail-ej1-f48.google.com with SMTP id a640c23a62f3a-b3c2c748bc8so720426666b.2
-        for <linux-s390@vger.kernel.org>; Tue, 21 Oct 2025 08:57:03 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="LEPW3U1q"
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-27d4d6b7ab5so76440845ad.2
+        for <linux-s390@vger.kernel.org>; Tue, 21 Oct 2025 09:07:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1761062222; x=1761667022; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=+0cSMAwFRMJRxsYANvmyJeRZmZI2zdPSEESzl/tT500=;
-        b=LXRsRX97xBSxqwW5CSr8Ry7ePUTyQExc9uE2tAbTLUP1xL3AksnAHszrEEehbuYJV9
-         qDYLnCkfvNKaqyDjY2jDrtpgVmWWiVZN9onsUrJZQiwzswkRYbxC8XFNKLS8Olm33MSK
-         U12nM8FAspj3Zw2Tff7Me0zxj/1ribQ/191MQ=
+        d=chromium.org; s=google; t=1761062873; x=1761667673; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=90eEaPtbwxy3p3pxWrxnRzTG0xmlwztyiMfCrjZT8xs=;
+        b=LEPW3U1qQKWg4uZp+vJM/z1LdnS7L+ju81BmYdPuPWUrmvlXn4+VXueeY2wcJ82WCU
+         Zt5fb+7YJBoDfW3NoV4f/DL5CT3vWpkcl1jT+sF4UI42StSg9O58/pZm4UJfoAuBncX7
+         dWqgCMbr4jqhBSUTC/dIhi7QUpYtemg1+7tsA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761062222; x=1761667022;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=+0cSMAwFRMJRxsYANvmyJeRZmZI2zdPSEESzl/tT500=;
-        b=UoIQV2SGhDPCMKb3WLav4aTii4G9GbDaFIhNqsxSw5CcFC373ELjbkwj2BxrArMjQ/
-         CkH+iALOQ030Aet55w0eYp1fiDuZso9zxi/62MOKIh+0YkRAmcEtMvKh/lptZzDR1xRY
-         VPMSvXg32PHeaVXqxL8I9s0LpI3GFUXol69HsMPKK+FwO8iaGrvlJQzDEIk/9yEiHk6A
-         K67G25BKKL5Z5hCCvgy8AkHMppn6h4+01JiJfZm9I/4P4cxG2W2rnwbcYGluwW3RrFoz
-         gtZYDhZw9nPS+H0ke4ZxlZv5hmRBTYIG7Z8jdXT8oPC1EO/GhAh6vcA3d0MWJw0n4hsB
-         AjWg==
-X-Forwarded-Encrypted: i=1; AJvYcCW4jJkmeQKhIlrpedWHw4p/UDl+cEtCiXlrXHyxtxrAvKRnRJpDBHZnBH3uVvU+g1u+noTe/1+gNCCC@vger.kernel.org
-X-Gm-Message-State: AOJu0YzeEGCx3bCIjcVyU4wT5Tt02WjhgKVfS3OoBmpdR/Lgqzwzq4SD
-	wc+CM1VK+uHxGGShyVYkLl8eYIVmX/hRF3nTLs9TQHRgzPDAhYy74DW+YxB7dux2QCu5yhOie0x
-	/UhiodapOdA==
-X-Gm-Gg: ASbGncvzgYnwY532HnJOf8SqX+hF1zN8rZj4DZUvLrz3iUm56CreCq+64jKTc+WLK8F
-	CslQrf7lxg/YeKoCvvxeIBkZGU0mPAyFcovCH6IJjqRhOuSpvSwoPBqUU64vVN/viEefu0tHUHo
-	waJDBcxf1MQYB/hTM+rAZy1Q2cXIlNQz6v2doo6LH1v5N/nG8tyTVQaKns0HvQQ9L0JHBXzB6zA
-	Q/aLPAH9d+2wW5Y/h+fMJh3OjdacKS3d20/zWc/iE5u/l/TlYIJWnFZHExj6Ys/b7RNBj5QRa+k
-	YX67GjuE7VA6+SSSWCZA1UKkmlgX0TxjcNsSHjdfQFS4VxicLIEzV91ilhGzSpYLjB+5LS0Epug
-	K3mFJ81C9RBlpZ1qfJMf9P7aKMvyowfXTyefvGqYO0qus9MVkuFefVxQV0YDeJ+Xp+WtRZJknSw
-	bsllI3jyGfKA08a2L5pVDFSkfyhQRfvo0AXQy0BQQJlK8l4ujanCWuzjZQhrMW0hG5e4NdfuI=
-X-Google-Smtp-Source: AGHT+IGNjPovttTp6uNv4EyFR1pG8INmBRUC1RmN2sELfq+KrrQkQ+xme92TG+fTYAv2Osz65Lum2w==
-X-Received: by 2002:a17:907:7f0b:b0:b5b:360c:e8d5 with SMTP id a640c23a62f3a-b64764e2ffamr1746620466b.47.1761062221757;
-        Tue, 21 Oct 2025 08:57:01 -0700 (PDT)
-Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com. [209.85.208.54])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b65e896f904sm1128923366b.35.2025.10.21.08.57.01
+        d=1e100.net; s=20230601; t=1761062873; x=1761667673;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=90eEaPtbwxy3p3pxWrxnRzTG0xmlwztyiMfCrjZT8xs=;
+        b=hy+SyznUcecExPqFzIrSHIqs4ac9OJq/p+PmJdEQ7uas8s8+MX9d9y5plvuvGqtx1a
+         mh8gNUaJGXpUplHgBxA+64Psg/Y+ucbBe9rfEd4T6L0GZjgHF7jnFlw8BswFEawJjyhI
+         I1otcF1Y0euAmlN15mmqCuCcKIWWKwbkLO4e3wdpf+oJm1s9kmAODeEI+MDbuCJtk560
+         rAGSyf+13xG3ggIF/rvZY8hD3Xxy2drLJPH7K+7lw82jjGewvjBbava4Bfy55JAtl8G9
+         /3f35/Hp1SR5lIly0orDcr5+CpjpwUj4MtjQ00QgSevawwCPP7DVlh7zlUfmpstwN8P1
+         mDiw==
+X-Forwarded-Encrypted: i=1; AJvYcCVsoi+4qkZcHWxp7irltWK5bNAj6PaVPiJSQBMTUYuL4zkIpIjr6YYtkuPHLcCX5VUoKL3BVctCZ+jZ@vger.kernel.org
+X-Gm-Message-State: AOJu0YynMzAwNyJv6j6d8zp6wYubIWAVmyRGtJ/qT0HB1qdqS4prWFWQ
+	rNJke7pzfMa8JuAU6yYY7fYlU4tdB83OUgKxEzz0e1RyPtfOvUliM3t2t0l9mf/0OmfjQJfU32S
+	ThDk=
+X-Gm-Gg: ASbGncuf5o/+mWtq3T3kGKIzyLuYV5EoxgG8oGmpuhj6CAbIihMDbEqUE6zywXOVafx
+	PqU66fJjAJqLcV00GdkVvjss0Sd7jYJuK0gUljkOsZ4kUpLp8CxTa/XIjnnuZjXZ6JxAwW5e4LP
+	VY93A5mzgn7Wuw9xmykJL1DmyRA1iUvzG6KQgPorSTiWBCLrJF5ZF0C53kRxAAhW0PTDmC3BoSJ
+	eaB1ENChHDPVFM1BGJ0Vn+NTko4y58dIyRaFhtQuOHf7Z7HZKYEFRb/hNQYjrQnJU93dK1rqiaK
+	A7+6CCBBtqI7N/rUuQ5s/P5BOnE0nw7okWMlIR7ofOmhd3kXSN52RL49Sa7biueuPOicXucEhPZ
+	JHh2ZoGVmghXHiFyH/0FyVvslhmxmSbxlVZbixepq6hb8lHgECi/go1/HcnVOXTrcnkpByu0BxN
+	78OwnVf8bOr6/a0VrrfcA1HYQ2w8jae2PeX/qV7J/9A+M=
+X-Google-Smtp-Source: AGHT+IF+NpVrjVW1tzsrzrEIOSBz0mFMNvYBp6QdM3cGBKqFCO2lvh+sH/EReu2nn0NTKc5Wp6mLlQ==
+X-Received: by 2002:a17:903:1a4c:b0:27e:f201:ec90 with SMTP id d9443c01a7336-290c9ce63b3mr210587995ad.25.1761062873447;
+        Tue, 21 Oct 2025 09:07:53 -0700 (PDT)
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com. [209.85.214.173])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-292471d585bsm112465485ad.64.2025.10.21.09.07.52
         for <linux-s390@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 21 Oct 2025 08:57:01 -0700 (PDT)
-Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-63c3c7d3d53so6830453a12.2
-        for <linux-s390@vger.kernel.org>; Tue, 21 Oct 2025 08:57:01 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUkiEyxBrH9qwYUwAaU9Imh1RfhQDfI+U9vH3oB6hIGjgSmcL5eyswhkoM+o2Ou6UiVo5N9WNIyjTZh@vger.kernel.org
-X-Received: by 2002:a05:6402:518e:b0:63c:4da1:9a10 with SMTP id
- 4fb4d7f45d1cf-63c4da19c97mr11628470a12.31.1761061904052; Tue, 21 Oct 2025
- 08:51:44 -0700 (PDT)
+        Tue, 21 Oct 2025 09:07:53 -0700 (PDT)
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-27eec33b737so86912985ad.1
+        for <linux-s390@vger.kernel.org>; Tue, 21 Oct 2025 09:07:52 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCVmm5KPuXOtKdHNIb1jAdT8eQFdDZtdR2TXZ7KAeB4p8Tq4CWSh8ro19v5583nXbP2k8FMBfLdzfIVx@vger.kernel.org
+X-Received: by 2002:a17:902:d50a:b0:290:bfb7:376f with SMTP id
+ d9443c01a7336-290cb46bf6emr190882455ad.51.1761062871921; Tue, 21 Oct 2025
+ 09:07:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251017085938.150569636@linutronix.de> <20251017093030.253004391@linutronix.de>
- <20251020192859.640d7f0a@pumpkin> <877bwoz5sp.ffs@tglx> <CAHk-=wgE-dAHPzrZ7RxwZNdqw8u-5w1HGQUWAWQ0rMDCJORfCw@mail.gmail.com>
- <871pmwz2a3.ffs@tglx>
-In-Reply-To: <871pmwz2a3.ffs@tglx>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Tue, 21 Oct 2025 05:51:26 -1000
-X-Gmail-Original-Message-ID: <CAHk-=wj3VgQAwUjfM_6f5O5gFr4kXBma2q5m8PLarRCnA8R49w@mail.gmail.com>
-X-Gm-Features: AS18NWAG7YIQvZWdpCHOlvhJ3OJWyOrD174ntZFm1lwB34kJVwOkBypjHYnGjQo
-Message-ID: <CAHk-=wj3VgQAwUjfM_6f5O5gFr4kXBma2q5m8PLarRCnA8R49w@mail.gmail.com>
-Subject: Re: [patch V3 07/12] uaccess: Provide scoped masked user access regions
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: David Laight <david.laight.linux@gmail.com>, LKML <linux-kernel@vger.kernel.org>, 
-	Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Andrew Cooper <andrew.cooper3@citrix.com>, 
-	kernel test robot <lkp@intel.com>, Russell King <linux@armlinux.org.uk>, 
-	linux-arm-kernel@lists.infradead.org, x86@kernel.org, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, linuxppc-dev@lists.ozlabs.org, 
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, 
-	Heiko Carstens <hca@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org, 
-	Julia Lawall <Julia.Lawall@inria.fr>, Nicolas Palix <nicolas.palix@imag.fr>, 
-	Peter Zijlstra <peterz@infradead.org>, Darren Hart <dvhart@infradead.org>, 
-	Davidlohr Bueso <dave@stgolabs.net>, =?UTF-8?Q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	linux-fsdevel@vger.kernel.org
+References: <20251019100605.1.I095f1e2c6c27f9f4de0b4841f725f356c643a13f@changeid>
+ <2d514d61-121d-44fc-aec7-637dd0920de8@infradead.org> <CAD=FV=VNyt1zG_8pS64wgV8VkZWiWJymnZ-XCfkrfaAhhFSKcA@mail.gmail.com>
+ <CAMuHMdVT-_UVAO=1jvTPEjKO0zy7H1rUrQz1ubMfHivF4HWJNA@mail.gmail.com>
+ <CAD=FV=WeXOj_hyA=V9hMLHOJ_m9ui5mP6cRv2DpjXnR62_nd2w@mail.gmail.com>
+ <CAMuHMdWGb0jVt9ziBtWdHWC9omPAFMHVPBHDpv0F1XzvR0THpg@mail.gmail.com> <20251021131633.26700Dd6-hca@linux.ibm.com>
+In-Reply-To: <20251021131633.26700Dd6-hca@linux.ibm.com>
+From: Doug Anderson <dianders@chromium.org>
+Date: Tue, 21 Oct 2025 09:07:40 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=XD19==ed=OPWSvrz-KNQSphHUPwCOqX2-Zi-1o8XE49g@mail.gmail.com>
+X-Gm-Features: AS18NWByrjhJ32HQ8xty6HQCqWcjFJthoH_GcJNHfXtjtrqxtZ3YbUmJqh8GKAY
+Message-ID: <CAD=FV=XD19==ed=OPWSvrz-KNQSphHUPwCOqX2-Zi-1o8XE49g@mail.gmail.com>
+Subject: Re: [PATCH] init/main.c: Wrap long kernel cmdline when printing to logs
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Randy Dunlap <rdunlap@infradead.org>, 
+	linux-kernel@vger.kernel.org, Andrew Chant <achant@google.com>, 
+	Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Brian Gerst <brgerst@gmail.com>, 
+	Christian Brauner <brauner@kernel.org>, Francesco Valla <francesco@valla.it>, 
+	Guo Weikang <guoweikang.kernel@gmail.com>, Huacai Chen <chenhuacai@kernel.org>, 
+	Jan Hendrik Farr <kernel@jfarr.cc>, Jeff Xu <jeffxu@chromium.org>, Kees Cook <kees@kernel.org>, 
+	Masahiro Yamada <masahiroy@kernel.org>, =?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
+	Miguel Ojeda <ojeda@kernel.org>, "Mike Rapoport (Microsoft)" <rppt@kernel.org>, 
+	Nathan Chancellor <nathan@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
+	Shakeel Butt <shakeel.butt@linux.dev>, Tejun Heo <tj@kernel.org>, 
+	Thomas Gleixner <tglx@linutronix.de>, =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>, 
+	"Uladzislau Rezki (Sony)" <urezki@gmail.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	linux-s390 <linux-s390@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 21 Oct 2025 at 05:46, Thomas Gleixner <tglx@linutronix.de> wrote:
+Hi,
+
+On Tue, Oct 21, 2025 at 6:16=E2=80=AFAM Heiko Carstens <hca@linux.ibm.com> =
+wrote:
 >
-> On Tue, Oct 21 2025 at 05:06, Linus Torvalds wrote:
+> On Tue, Oct 21, 2025 at 09:05:48AM +0200, Geert Uytterhoeven wrote:
+> > On Mon, 20 Oct 2025 at 18:04, Doug Anderson <dianders@chromium.org> wro=
+te:
+> > > On Mon, Oct 20, 2025 at 8:42=E2=80=AFAM Geert Uytterhoeven <geert@lin=
+ux-m68k.org> wrote:
+> > > > On Mon, 20 Oct 2025 at 17:33, Doug Anderson <dianders@chromium.org>=
+ wrote:
+> > > > > Printing the command line to the kernel log buffer is one of the =
+very
+> > > > > rare cases where:
+> > > > > * There's a legitimate reason to print a (potentially) very long
+> > > > > string to the kernel buffer.
+> > > >
+> > > > arch/s390/Kconfig:
+> > > >
+> > > >     config COMMAND_LINE_SIZE
+> > > >             int "Maximum size of kernel command line"
+> > > >             default 4096
+> > > >             range 896 1048576
+> > > >
+> > > > Yummy...
+> > >
+> > > Wow, what are they expecting to stuff in there? An encoded initramfs
+> > > or something? I kinda feel like the 1MB number isn't something anyone
+> > > expects but is a number picked to effectively be "unlimited".
 > >
-> > We could still change it since there aren't that many users, but I'm
-> > not sure what would be a better name...
+> > Dunno, commit 622021cd6c560ce7 ("s390: make command line configurable")
+> > lacks the "why" part.
 >
-> I couldn't come up with something sensible for the architecture side.
+> That was just a follow-on patch of commit 5ecb2da660ab ("s390: support co=
+mmand
+> lines longer than 896 bytes") which solved the real problem with a too sh=
+ort
+> maximum command line size back then. In order to never have to deal with =
+this
+> sort of problem again it was made configurable.
 >
-> But for the scope guards I think the simple scoped_user_$MODE_access()
-> is fine as for the usage site it's just a user access, no?
+> But I doubt that anybody will change the default ever.
 
-Ack.
+OK, so my theory that 1MB cmdline is not normal / realistic / expected
+sounds correct. Essentially it's just saying "we didn't want to pick a
+limit". We could add a bound to what's printed if we want (4K? 16K?),
+but it's maybe not critical since we wouldn't expect crazy long
+cmdlines anyway.
 
-               Linus
+So I guess the question is whether any of my arguments convinced
+Andrew that my current wrapping logic is OK. If not, hopefully he can
+clarify if either of my theories of what he meant by "chunking" were
+correct and then I can send a v2. ;-)
+
+Of course, given that the max cmdline for most architectures is
+something like 2K/4K, it also might not be too horrible to just
+increase the printk limit? I was assuming that would be too
+controversial...
+
+-Doug
+
+
+
+-Doug
