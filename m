@@ -1,144 +1,113 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs1-f52.google.com (mail-vs1-f52.google.com [209.85.217.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 881BD30649A;
-	Wed, 22 Oct 2025 08:52:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BA1421FF4D
+	for <linux-s390@vger.kernel.org>; Wed, 22 Oct 2025 09:16:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761123155; cv=none; b=q5KxQwKHDb09WR3RlcyT4U7JQL+zH2YKpE/SYrwqN5dWM0u9WtCpJENKvVH5M9L6bzH+bjkNwhLMqJ7zPlHPEIpbWEnzSjDWsfm0Z/zNyBNbd70VoGWAmsgOyR23nctU7sVB+5+891Kn36keXKPY/KMJzWCeMxsTFmt0keOcUJs=
+	t=1761124585; cv=none; b=JpAUs3K/N9S7RNZ0yIb7vY3V37JOsw+BZlP/KaoxsAe7kxoPcs3m8bNcZaytyMm6XpnyLmqHM/T5P/pdBpi2uMX+x7kADJwcTpi56ktRnqDcM0b9TPLRLbF8psL7LFj237lBiiJ/O+Q0sIM50pHbth+LGuLdtJGfjKLSvoIG6e8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761123155; c=relaxed/simple;
-	bh=a/aYw9um5mmbOeR+Zc4NkjwlXD1bC6f0L9h0bx/RsnU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EfIQhndteEdiEh6Ohxhr7yNjmh7sD0KIWqacBIm7SXIGm5oYehqlqRKwKFvS7UUFi4ASRzkpe+07G9RDcLyWXcHsUhGGf5l0JoI3c9iG7E6m8CobkKk/bYxo6ct51sATjVB0j0i2SXaJ+AeIpwOXw4v01tg3aTRdpxiMNbqAcPQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=C5kuHeMa; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="C5kuHeMa"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59LMwNdg001260;
-	Wed, 22 Oct 2025 08:52:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=x5nVMa1XAhPUXMnT7ptKtvcjLmXqVU
-	h5yjJZ/45AaLc=; b=C5kuHeMafLvRh6Ei3XDjCPDykk3uXii9FHRMwPjdkO4okZ
-	wqVVbjEAuHThQCNR2i6L7hRXABA9k2yyowOV8Mj1XW9nNhHjR32vjDrFkUG2Blwx
-	A04qMTpMK+u0hxOyOafTcZDWkFpd860QOFUo66wE6lU5P6/XZOqbhnDjGxZkq8o+
-	vxHl721pDEhOQx6jKYgRmkqW8ZQK/YK68nQwvnZatXMaEAU89kDtOqzXfXNJwvSR
-	5oToZFFLc5JZfHhC6xAOu4CHJV1vXUKnun9IxtClDtIltf/Y8QiIOMA8j0nypudF
-	Zh0Ysn+bE05QgbsLcPev/tWYYinf3o3LDLaUW5qg==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49v31s3rc7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Oct 2025 08:52:28 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59M82HwL011053;
-	Wed, 22 Oct 2025 08:52:27 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 49vqx173v9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Oct 2025 08:52:27 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59M8qNn051904904
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 22 Oct 2025 08:52:23 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B20DB20049;
-	Wed, 22 Oct 2025 08:52:23 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6A49420040;
-	Wed, 22 Oct 2025 08:52:23 +0000 (GMT)
-Received: from osiris (unknown [9.155.211.25])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 22 Oct 2025 08:52:23 +0000 (GMT)
-Date: Wed, 22 Oct 2025 10:52:21 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Ingo Molnar <mingo@kernel.org>
-Cc: linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>, linux-arch@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 16/15] bugs/s390: Use in 'cond_str' to __EMIT_BUG()
-Message-ID: <20251022085221.14219A7f-hca@linux.ibm.com>
-References: <20250515124644.2958810-1-mingo@kernel.org>
- <20250515124644.2958810-11-mingo@kernel.org>
- <20250520133927.7932C19-hca@linux.ibm.com>
- <aEabAPB5Y9EbSPkt@gmail.com>
- <20250609155657.8183A92-hca@linux.ibm.com>
+	s=arc-20240116; t=1761124585; c=relaxed/simple;
+	bh=HUnjO6dtk5AWT9DiSovCBAivfwsSKV6yep5fH+0IyYw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=uEzYQnY7FNp3sBl68j5A2BBnuVgnbHLBi7h3C2/mhboMAUuw/wXMeRhp3OwOmbni5OuzuZPJR+SH0gLFEv/+CSRbefSlAB1k/cxi9JhzQpz06TyPexp1HrvSS/xx8gxBi+hoBAj+2R13ItNbBcvsBaL9n0ORFaclCJZSsWlYdfc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.217.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-vs1-f52.google.com with SMTP id ada2fe7eead31-59d576379b9so2296713137.1
+        for <linux-s390@vger.kernel.org>; Wed, 22 Oct 2025 02:16:21 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1761124580; x=1761729380;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=jg0fiFle/a5r0E/SHz3YpwUQml9X2EJGFYzOtSP4KZk=;
+        b=vB/bUNwxyy8HdKdyKE8A3N0jF7guFBkGvDdd8F+CJTi+GoPCZHHUTUMT/xtCRaf2W1
+         BkZVdWXbMr0Xb+jq3cs1NAGWEB5huFChZouvYS2RICCA1pV+LLKXw4U6ise50GSeXXUh
+         0w2ocavKui9x0SwdcM0OOX43P4DYvo9tGC/OanVCOaECUyNWMzA04/NFJPES39dvN8ie
+         SBSakKK3vs7+cSe4zmUqENOMBpd7wb4RvIJtHP4eP1tWKDEy7COL17nwTKxfxA87RTzU
+         eAowYFesj3Bs8/fV4+mrV//LIlrtv2hjnBXNoVv7/p+YpEFVBuWf0IORK31DNeXFh+Yx
+         HKiw==
+X-Forwarded-Encrypted: i=1; AJvYcCUr2ts6/w6pwwcQUR0IYhc3tCfp4/ZQIfYYgHgZHLeGiQ6eCPVw2DDu7goP/u4MAjiXzkP/fJNrhsYP@vger.kernel.org
+X-Gm-Message-State: AOJu0YxIMuOGFZRcvn9mu0IONygrERy/D+Gi/FdtM3GOfD2fJykM9QSk
+	AgUCnHg0iu8cqwhYujd9uD5Snwhrm4Sz04GVqzIZyIn9d/UnZtZhDg3WmsEk+Qgn
+X-Gm-Gg: ASbGncufV+yQoyxTpQHz8IqajhytTHx683ACq7v2xQkDb+l6vaYDQcOchuQ5r/QGXgW
+	OpDLcb9yY4RXrnKbCxaxkaM21ufxlRUgnkJJ+xQQ7dgjoBE1C8KL2NAQBBKLgQ4ZKRWsBWL+j+e
+	eSCHRw1WkoJeP7LAMO/NY1iytY7marqLsMx+qEQCeYjTRj4OlayVcKjpZTp++8kB4cDetVxwZOl
+	k1E7iJV8iydBdJ/bQSKKXNF0IcU1D76H3MuF02VA/EFY80+lrCNxLSJyNE3an3t0mkZTboEYAON
+	2t77yOxDH+ahyqG2C0S7lCIzXiVOT05N5eJyrWPlAYQe6Rv7q6c8H9sC28vi6Ttil7RKe3c89zx
+	kGFYP166vPxMTWFrOKsw2Pw9+qdHiH32ECnltjgvIQ1+IUoWO9lVKegieTKAByt0VburScjkWHw
+	ZFjox3fYKsEsYAsYb2aMviI1h6r8YpFRbz9xIAAw==
+X-Google-Smtp-Source: AGHT+IFUo0A4GfTDzfsuwOB+jWX4FoTvuBd/DQAJmX7tUtHDpyd94qohofzBGs2ZYvyntz0egjMmkw==
+X-Received: by 2002:a05:6102:3f13:b0:590:f704:6dac with SMTP id ada2fe7eead31-5d7dd46de9dmr5330112137.10.1761124580220;
+        Wed, 22 Oct 2025 02:16:20 -0700 (PDT)
+Received: from mail-vs1-f54.google.com (mail-vs1-f54.google.com. [209.85.217.54])
+        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-5d96c27a17dsm4421240137.14.2025.10.22.02.16.18
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 22 Oct 2025 02:16:18 -0700 (PDT)
+Received: by mail-vs1-f54.google.com with SMTP id ada2fe7eead31-5d40e0106b6so2946937137.2
+        for <linux-s390@vger.kernel.org>; Wed, 22 Oct 2025 02:16:18 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCWZ+60GzItqtWdJnzu4BcBVeARWD+LN9nyBW8W8xMNn+t/hltvRhPISl5fWOqa0gc08yB5R5wSiT+c1@vger.kernel.org
+X-Received: by 2002:a05:6102:c48:b0:5d5:f6ae:74b4 with SMTP id
+ ada2fe7eead31-5d7dd62a873mr6134044137.40.1761124578028; Wed, 22 Oct 2025
+ 02:16:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250609155657.8183A92-hca@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: LTYgem-GKj4AYFIgCqhWGPObn1r3NOZ5
-X-Proofpoint-GUID: LTYgem-GKj4AYFIgCqhWGPObn1r3NOZ5
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDE4MDAyMiBTYWx0ZWRfX9TYRyfWiZt6G
- HWLxyKz0bQxtneu1hpUkOLO6/QebTrx6tPJf8KuEabVIbJ0Byx14sEcnb72THPL9qU/DB9H5piO
- ZOU9gky536Y/olxqJo3i242lj+skMqXS0Do8dWszIQVRcelwo5s1vQBrcdkgKe7yUu8ohbhl7lf
- tlsSOW3q19+qKQRlZiHTm8aPt6VBvZC1k6JbryziAj1N8JazbAgC4XjxQeQ/6PGw3gLK7dRA6Fa
- vsYnH5kmKUcBlnRQHUcj5fHQJszhNs1j4yBwXHS1xDyDDbhsiOCnCHpdYxbzWOxoQHQbJveBOeP
- eVPkVxGjdgi94HqYMt8kffXTNt/e77lkJwTbnU4jmSABOhyQ5HUuGHfO4GdUb+FzptS8UexjaW/
- IyHALLPA4ydtjFLjThQuXBgieEJNlg==
-X-Authority-Analysis: v=2.4 cv=IJYPywvG c=1 sm=1 tr=0 ts=68f89b4c cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=kj9zAlcOel0A:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=h8emfhCFL6kOGPYS9jUA:9 a=CjuIK1q_8ugA:10 a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-10-22_03,2025-10-13_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 lowpriorityscore=0 clxscore=1011 suspectscore=0 spamscore=0
- bulkscore=0 adultscore=0 impostorscore=0 malwarescore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510180022
+References: <20251021173939.v2.1.I095f1e2c6c27f9f4de0b4841f725f356c643a13f@changeid>
+In-Reply-To: <20251021173939.v2.1.I095f1e2c6c27f9f4de0b4841f725f356c643a13f@changeid>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 22 Oct 2025 11:16:06 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdWAbMoQdeM5-F1YYOfEdcPrkTxdbsU8+TAYO=WuMzCqCw@mail.gmail.com>
+X-Gm-Features: AS18NWDsxMzaMxqdF62ijuMGcK9XAjP5LOhXCPu3LO_xxxu4TtOf5AC9v2XSFYk
+Message-ID: <CAMuHMdWAbMoQdeM5-F1YYOfEdcPrkTxdbsU8+TAYO=WuMzCqCw@mail.gmail.com>
+Subject: Re: [PATCH v2] init/main.c: Wrap long kernel cmdline when printing to logs
+To: Douglas Anderson <dianders@chromium.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, 
+	linux-s390 <linux-s390@vger.kernel.org>, Andrew Chant <achant@google.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Randy Dunlap <rdunlap@infradead.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
+	Brian Gerst <brgerst@gmail.com>, Christian Brauner <brauner@kernel.org>, 
+	Francesco Valla <francesco@valla.it>, Guo Weikang <guoweikang.kernel@gmail.com>, 
+	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@kernel.org>, 
+	Jan Hendrik Farr <kernel@jfarr.cc>, Jeff Xu <jeffxu@chromium.org>, Kees Cook <kees@kernel.org>, 
+	Masahiro Yamada <masahiroy@kernel.org>, "Masami Hiramatsu (Google)" <mhiramat@kernel.org>, 
+	=?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
+	Miguel Ojeda <ojeda@kernel.org>, "Mike Rapoport (Microsoft)" <rppt@kernel.org>, 
+	Nathan Chancellor <nathan@kernel.org>, "Paul E. McKenney" <paulmck@kernel.org>, 
+	Peter Zijlstra <peterz@infradead.org>, Shakeel Butt <shakeel.butt@linux.dev>, Tejun Heo <tj@kernel.org>, 
+	Thomas Gleixner <tglx@linutronix.de>, =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Ingo,
+Hi Douglas,
 
-On Mon, Jun 09, 2025 at 05:56:57PM +0200, Heiko Carstens wrote:
-> On Mon, Jun 09, 2025 at 10:27:44AM +0200, Ingo Molnar wrote:
-> > So I'm not sure what happened: I tried to reproduce what I did 
-> > originally, but my naive patch ran into assembler build errors when a 
-> > WARN_ON() macro tried to use the '%' C operator, such as 
-> > fs/crypto/crypto.c:123:
-> > 
-> >  include/linux/compiler_types.h:497:20: error: invalid 'asm': invalid %-code
-> >  arch/s390/include/asm/bug.h:12:2: note: in expansion of macro 'asm_inline'
-> >  arch/s390/include/asm/bug.h:50:2: note: in expansion of macro '__EMIT_BUG'
-> >  include/asm-generic/bug.h:119:3: note: in expansion of macro '__WARN_FLAGS'
-> >  fs/crypto/crypto.c:123:6: note: in expansion of macro 'WARN_ON_ONCE'
-> > 
-> > Which corresponds to:
-> > 
-> >         if (WARN_ON_ONCE(len % FSCRYPT_CONTENTS_ALIGNMENT != 0))
-> >                 return -EINVAL;
-> > 
-> > I'm quite sure I never saw these build errors - I saw linker errors 
-> > related to the u16 overflow I documented in the changelog. (Note to 
-> > self: copy & paste more of the build error context next time around.)
-> > 
-> > Your version doesn't have that build problem, so I picked it up with 
-> > the changelog below and your Signed-off-by. Does that look good to you?
-> 
-> Yes, fine with me.
+On Wed, 22 Oct 2025 at 02:41, Douglas Anderson <dianders@chromium.org> wrote:
+> The kernel cmdline length is allowed to be longer than what printk can
+> handle. When this happens the cmdline that's printed to the kernel
+> ring buffer at bootup is cutoff and some kernel cmdline options are
+> "hidden" from the logs. This undercuts the usefulness of the log
+> message.
+>
+> Specifically, grepping for COMMAND_LINE_SIZE shows that 2048 is common
+> and some architectures even define it as 4096. s390 allows a
+> CONFIG-based maximum up to 1MB (though it's not expected that anyone
+> will go over the default max of 4096 [1]).
 
-Given that this missed the last merge I'm wondering what is supposed to
-happen with this series?
+Of course (unless the kernel crashes) you can also look at /proc/cmdline
+later.  However, that seems to be limited to a single page, too,
+as fs/proc/cmdline.c:cmdline_proc_show() uses seq_puts*().
 
-It is still in linux-next, and I'd like to see at least the non
-CONFIG_DEBUG_BUGVERBOSE_DETAILED s390 parts upstream with the next merge
-window. In particular I'm talking about the two commits
+Gr{oetje,eeting}s,
 
-ed845c363d8c ("bugs/s390: Remove private WARN_ON() implementation")
-6584ff203aec ("bugs/s390: Use 'cond_str' in __EMIT_BUG()")
+                        Geert
 
-where the second commit is mainly a rework of the s390 specific bug
-support.
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
