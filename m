@@ -1,103 +1,191 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B35E831DDB9
-	for <linux-s390@vger.kernel.org>; Wed, 22 Oct 2025 10:13:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC02633EAF3;
+	Wed, 22 Oct 2025 11:40:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761128015; cv=none; b=tPKb6r5W+kX1t+NkMg7P+zSD26uyy1qq1S9+YTrm0sjosxnivcq5eBnnkJxMKFAzd1yFA1sRcgs+ZG4mdic16g8WHff6ksjEp6vIqOxJ9ivZfEi82wwz9tFYR41S13wRZVYC7Gwo3Atk+BlFssj/ZeGq9qzKtDsz0LZpkvfzSuU=
+	t=1761133222; cv=none; b=WvqRvMLAagRZ/+63vYm1do5yLNUyQmkp3kwWs8wtoK6Ej8BXJsdLMNBi02Yf6uLx8Mri4r3mfASh/Il3/NhqfNL/KOzp/HDjDeu5NTLUmKh3lKsVOygqBz0cGr+s4k58w3kKhDefsDO7FToZQ5vfbPlCYxiuF7LHE7CQufFSlM0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761128015; c=relaxed/simple;
-	bh=xbleyjew/gUw5tjiH+F/GM5sPSqPUuGp5zFrXdHnEss=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=s+sHGelqmfaYz/nKiwrzDVUlJkmiJnbAYYLm8STmGCB5bqZajeWJsnIsm2FJ8mksj8XLXANL2ulzMIwt/hMRFko39c6rZ8Zz59eHLFsxi3j+zavmb1y6VbG0TObt1XIInY5cLURd19JN6NYU0Ww5l7FPi2tt6o2rlNfrfQFIK6E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cf+J0OUs; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1761133222; c=relaxed/simple;
+	bh=Lv4wyGAIdM7S1S0wP0DwP2CxaHJNxupBrznU9sehXX8=;
+	h=Message-ID:Subject:From:To:Cc:Date:Content-Type:MIME-Version; b=S8t08FF88W60neR23N/B4Pp/qvTrCwDrhVg4/5Q5QiryXo7oOOwQUVtc1JrbMlityNS8aqmznNZp8FkylHjBq4kClbOszyHywPwFNUJ08EnXtGXJ0UGcBPkUh1YaXW/zqMOHEwozh33kEsPYvaAvwxZIaGsoVpwOCqPNI0HkHF4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YhhL/YLd; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cf+J0OUs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49E09C4CEF5
-	for <linux-s390@vger.kernel.org>; Wed, 22 Oct 2025 10:13:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1761128015;
-	bh=xbleyjew/gUw5tjiH+F/GM5sPSqPUuGp5zFrXdHnEss=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=cf+J0OUsUIRcsHSBwhz7YYf0Z9ymKDK8GA1J6sql1jQu86YEQyfe66TD9dRlWn0fJ
-	 QxrInwySwhAi0o5kYZrKes3WJ2nzRGBOCd7FwAdipREv5jRGCRMV3IUUimULjKLnfl
-	 +Z0mdXVCUyzfK5up5HUbAFqPGJZcQ8OFOYfLsrPTmYSAcZjplbwcIg7YbDT8uyTR4Z
-	 i/IZKEQtk83EbTkiPASU5XBSDqduHq4NPrpPw2voDdoZ/fvNbX6Xt0yPJqXlVV0nHy
-	 lzJCtpmGOXU1EZV5iqntyALSeMSBpqBto9lXNShOBD0OXh5Fn5LIZU6quA5krtgF0j
-	 GJ74B0vbZiqsQ==
-Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-59093864727so8049391e87.3
-        for <linux-s390@vger.kernel.org>; Wed, 22 Oct 2025 03:13:35 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCVi0Vpt85iVsqi8sFAN/mPnkQ6bKIH59BG7RciYAKE6JJfIcAOhrB39y/2UtvlApuKGw0+R+SRtWUZm@vger.kernel.org
-X-Gm-Message-State: AOJu0YzH/Py+4xgxoa8nFUXqxP6rq9cZYfDqPmOIvD+nZs1EbDxESwqd
-	PQyX+4LOr4qly5qh57NQDDfJKtIH5o9FiTHa0/WZB7O1xQbKUAWve1erGJBjlIq/6FxB51BnK0g
-	9VZvSz36VrQyMj8sHZ98c+msZ8PPBGKc=
-X-Google-Smtp-Source: AGHT+IFcCPrNwnq8tqyu26uoCns+CxnDTAM88jzdNDUEvsfOGixRrsmaAiH98/VG4HRDwveCRetRp7qwt02Fdgsnfd0=
-X-Received: by 2002:a05:6512:159b:b0:55f:6fb4:e084 with SMTP id
- 2adb3069b0e04-591d85739edmr7396384e87.50.1761128013726; Wed, 22 Oct 2025
- 03:13:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YhhL/YLd"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59M9uun4015123;
+	Wed, 22 Oct 2025 11:39:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=Lv4wyGAIdM7S1S0wP0DwP2CxaHJN
+	xupBrznU9sehXX8=; b=YhhL/YLdImfgg8FtyQyujaRseplFe6bdVdmUROHa+JZd
+	HaPrpiR43FgHIGro7sjDd9nmR7be/DcT+Uu/3iEshbMP9SBGDw6KOkGukoYoPJ0Q
+	sgAEglo5lW7WEBsV5z65mm+KFuOGRewy9SxvCnVqE7r34KY6j8iWgOKhTLWZcKiD
+	yOPZYZUni9U4jWSGrtjskzyai41apji7oVlDlvqJmwrsykhY+rwFn2w7nV75ZzRd
+	Z2ul1NApzVpxYXiIvBrfGUyVjeYUZd5+VUvgooSCcBtonCKuM1z1qxI3o8MV13qJ
+	2sRn72pBf7+QCAzcs1WLnoJDV1JnYXEf1v4jK1TbwA==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49v32hjw96-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Oct 2025 11:39:59 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59M9uUff014779;
+	Wed, 22 Oct 2025 11:39:58 GMT
+Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 49vn7s8920-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Oct 2025 11:39:58 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59MBdvwa8127910
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 22 Oct 2025 11:39:57 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0DEB458053;
+	Wed, 22 Oct 2025 11:39:57 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DACD458043;
+	Wed, 22 Oct 2025 11:39:54 +0000 (GMT)
+Received: from [9.111.88.198] (unknown [9.111.88.198])
+	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 22 Oct 2025 11:39:54 +0000 (GMT)
+Message-ID: <d3f11e8562f589ddb2c1c83e74161bd8948084c3.camel@linux.ibm.com>
+Subject: Potential issue with hypervisor_isolated_pci_functions() handling
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Huacai Chen <chenhuacai@kernel.org>, Jan Kiszka
+ <jan.kiszka@siemens.com>,
+        Bjorn Helgaas <helgaas@kernel.org>
+Cc: linux-pci <linux-pci@vger.kernel.org>, jailhouse-dev@googlegroups.com,
+        linux-s390 <linux-s390@vger.kernel.org>, loongarch@lists.linux.dev,
+        Farhan
+ Ali <alifm@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Tianrui Zhao <zhaotianrui@loongson.cn>,
+        Gerd Bayer <gbayer@linux.ibm.com>
+Date: Wed, 22 Oct 2025 13:39:54 +0200
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=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
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251020005038.661542-1-ebiggers@kernel.org>
-In-Reply-To: <20251020005038.661542-1-ebiggers@kernel.org>
-From: Ard Biesheuvel <ardb@kernel.org>
-Date: Wed, 22 Oct 2025 12:13:22 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXEh=nS+pFgJUm5Vsyk1fMvY0dJNjLzA90Zj4AQPrD5ZYg@mail.gmail.com>
-X-Gm-Features: AS18NWDkFNpIn7aOJ7I-K06jIqbriS-x6sjlQuJbYrgZlUVLWfy8F6r6U1x3XZ0
-Message-ID: <CAMj1kXEh=nS+pFgJUm5Vsyk1fMvY0dJNjLzA90Zj4AQPrD5ZYg@mail.gmail.com>
-Subject: Re: [PATCH 00/17] SHA-3 library
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: linux-crypto@vger.kernel.org, David Howells <dhowells@redhat.com>, 
-	"Jason A . Donenfeld" <Jason@zx2c4.com>, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDE4MDAyMiBTYWx0ZWRfX65vxq+u11zZF
+ xK/dUxfcQtpJvSmiWFu/MQa0r7XV7hMhdXeFporcFRSx9Ws8eWaVgcQRpsyx4kM0hHI3jpwXSq+
+ G5monyOzU0+vJJsjKzM7pG0P9ggrP9UrzHVbasHCBhA4GsafKGjAVaC60sOViJYdqTYXrknNcOZ
+ XVvNjidGfAhP+muJTuNfM5Opdr0Cvp1XmIvQRPovcCrE0bm45efWHz2BJKA2e675UnFNQenYWZD
+ 2xxcGk33VHJsaGM3gauUlnvscyR7wAqmE0/gNEHL0EJud/XDSpbiIpJameTCSVJdRsUUiRNBlvd
+ HGex12VPlRhlqzlZHC6mxdKDYIz6QSxZ9Pl/Qn2Rd+UDVEepXV70RXrFp61D8RRCMM7AjZamK5C
+ /+jvZVDWzOms0sCxSf1Mhe/oPxREig==
+X-Authority-Analysis: v=2.4 cv=OrVCCi/t c=1 sm=1 tr=0 ts=68f8c28f cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=Jbq2K-PPK6WzQ9_zhzwA:9 a=QEXdDO2ut3YA:10 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-GUID: swZzDpAA8j5BpAf4eow4vAmUdI7ovr3n
+X-Proofpoint-ORIG-GUID: swZzDpAA8j5BpAf4eow4vAmUdI7ovr3n
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-22_04,2025-10-13_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 adultscore=0 priorityscore=1501 spamscore=0 phishscore=0
+ clxscore=1011 bulkscore=0 malwarescore=0 lowpriorityscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510180022
 
-On Mon, 20 Oct 2025 at 02:53, Eric Biggers <ebiggers@kernel.org> wrote:
->
-> This series is targeting libcrypto-next.  It can also be retrieved from:
->
->     git fetch https://git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git sha3-lib-v1
->
-> This series builds on the first 5 patches of David's v6 series
-> (https://lore.kernel.org/r/20251017144311.817771-1-dhowells@redhat.com),
-> which I've included unmodified as the initial patches.  The remaining
-> patches improve the SHA-3 library, for example by simplifying the API
-> and migrating the existing arm64 and s390-optimized SHA-3 code into the
-> library.  The last patch reimplements the sha3-* crypto_shash algorithms
-> on top of the library.
->
-> If the s390 folks could re-test the s390 optimized SHA-3 code, that
-> would be helpful.  QEMU doesn't support the instructions it uses.
->
-> David Howells (5):
->   s390/sha3: Rename conflicting functions
->   arm64/sha3: Rename conflicting functions
->   lib/crypto: Add SHA3-224, SHA3-256, SHA3-384, SHA3-512, SHAKE128,
->     SHAKE256
->   lib/crypto: Move the SHA3 Iota transform into the single round
->     function
->   lib/crypto: Add SHA3 kunit tests
->
-> Eric Biggers (12):
->   lib/crypto: sha3: Fix libsha3 build condition
->   lib/crypto: sha3: Use appropriate conversions in
->     sha3_keccakf_generic()
->   lib/crypto: sha3: Drop unfinished SHAKE support from
->     gen-hash-testvecs.py
->   lib/crypto: sha3: Consistently use EXPORT_SYMBOL_GPL
->   lib/crypto: sha3: Replace redundant ad-hoc test with FIPS test
->   lib/crypto: sha3: Simplify the API
->   lib/crypto: sha3: Document one-shot functions in header and improve
->     docs
->   crypto: arm64/sha3 - Update sha3_ce_transform() to prepare for library
->   lib/crypto: arm64/sha3: Migrate optimized code into library
->   lib/crypto: s390/sha3: Migrate optimized code into library
->   crypto: jitterentropy - use default sha3 implementation
->   crypto: sha3 - Reimplement using library API
->
+Hi Huacai, Hi Jan, Hi Bjorn,
 
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+I noticed that with commit a02fd05661d7 ("PCI: Extend isolated function
+probing to LoongArch") LoongArch now also makes use of the isolated
+function probing. First, nice to see this sees more users and that the
+interface is useful to you.=C2=A0
+
+Seeing this, I was reminded of an issue I ran into when using this
+mechanism with SR-IOV capable devices. In that case VFs with devfn > 7
+and PCI_SLOT(devfn) !=3D 0 wouldn't get probed.
+This is because if a device is found next_fn() will check whether dev-
+>multifunction is set. So if for example devfn =3D=3D 8 is found (fn =3D=3D=
+ 0)
+dev->multifunction won't be set in pci_scan_slot() and for VFs it's
+also not set via PCI_HEADER_TYPE_MFD. So we won't check for devfn =3D=3D 9
+even though that could very well be there.
+
+Now for s390 this currently doesn't cause issues because for all
+multifunction devices we have, we either get a VF alone and then since
+commit 25f39d3dcb48 ("s390/pci: Ignore RID for isolated VFs") use devfn
+=3D=3D 0, or we have the parent PF passed-through and then VFs always get
+hot plugged after SR-IOV enable, which then uses
+pci_scan_single_device(). And for non VFs we always have devfn =3D=3D 0
+and/or devfn =3D=3D 1 and multifunction via the header. So in a sense the
+above commit works around the issue, though that wasn't its primary
+intention.
+
+Did either of you also run into this issue or can reproduce it?
+
+Somewhat related, if ARI is enabled this would also break the isolated
+function case including on s390 where ARI is used by the platform
+firmware, but detected as off by Linux because there is no struct
+pci_dev associated with the PCI bus. If I patch Linux to correctly
+detect ARI, it no longer finds an isolated PF with devfn =3D=3D 1.
+
+Thanks,
+Niklas Schnelle
