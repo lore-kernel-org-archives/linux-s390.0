@@ -1,46 +1,44 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B8E43446A0;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEACD34405D;
 	Wed, 22 Oct 2025 12:49:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761137365; cv=none; b=Qn6ApUZjF9AXhLKVSO3oM911pTEjxKLhRLFRU7bmWTwV09vJ3Ody3hYWxXt0kabQ1QlAZkz048uCNAFijzfSoDO0SQmoSaqtyqxX2sHlBS3AG00PENjmthLh7whiXuFZB1gZiBcBQ4czk9SmxIL+oRc4IJn4ldcagqNYuMH1hmg=
+	t=1761137365; cv=none; b=J2Ae/if4iDshzkVWvPVpifFoMQyba1tTpF4VGUjRCI0onW9CivF91zs4jOLpzjikCXl4ryEvohio5ohnxsOfP8cLsB2zU6F3bYKPtUGhWaAuTrihvAgIRas78m9l7Lk1sfrDFdj2+uHx/sK/DKUzw48LUMcwHm8yQCrWj9sAfQY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1761137365; c=relaxed/simple;
-	bh=u/yk2503WbcPVzxext/24oA9U+OTQsqD5MrPiHlhlts=;
+	bh=wJm5UMrmpvAcM99cTkidm5TaAvUNVlh+zG+6Y25egfQ=;
 	h=Message-ID:From:To:Cc:Subject:References:MIME-Version:
-	 Content-Type:Date; b=CkQWZnAZOfEBMXIEVxGpKizJlsl8TmDslgk8KFBvVyKcc037mKP4i2WTCv4Caoksz+PrStBTVJusDx2z16abEodqDHSf2obwVXl6gQFaJjmwCTa50TxsbClaR7BB7YIzg3QgRj5Iqe9zy4T8ZbOnc7VoqQCnpTjy58SFIzvT1pc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=a+rP69sf; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Ad5CWnRP; arc=none smtp.client-ip=193.142.43.55
+	 Content-Type:Date; b=U9yvKmSJmCVoinT4BVRBbR8AJ71A0AbRXj9e5iQ2ffBQmPt9uO41tw/ERHZh/WmlWE7TIyUrlNMh9DtQglBYPzpfG0GKTbke7lkH6D9NmZ3y0HrRWTCr87sFVy5cIW5yWs9CNBOIwSmdw37GAOsX6QRX16fkSX7pTNK5qRCVq+w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=kSNLvhZH; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=jBvd0+8w; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="a+rP69sf";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Ad5CWnRP"
-Message-ID: <20251022103112.232389777@linutronix.de>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="kSNLvhZH";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="jBvd0+8w"
+Message-ID: <20251022103112.419590507@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1761137349;
+	s=2020; t=1761137353;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 references:references; bh=MKNcUChSn/NfFd+dS8+uLnvvYuPvhQsaUPbuMoERc+Y=;
-	b=a+rP69sfJ/Qp9q3znoDwceoCND840rG89ZVmZnuwGf5auP3gibFmiK9GeAwPeKlsQPgjSC
-	IEqDkhxWDgRylSHXUcBaufuyU0/+DeBR9LE0wMGuAySTKPrhbWb7NBxN01PMlZG65ZnUdx
-	9nQhGFU8gZHZZ5xxFRf2aI6pAPw7iR+PiAlFiq3RxntxNFyLAqDnifIWEG+9PAntrrgwZi
-	rDCWm4zogflzWQHer9+U8mqmPmY7BGAZCUtifi/nt78sGYZqEj9Hg7TN86VsDKDu39fTHu
-	U3CT83eVCk6lxvVN0wBHfNiXmYcrzkHYw44qZOqKRncTZNgK5wwPA+VEwQz9Pw==
+	 references:references; bh=lccNRRk780OLOrvRTmsIIfoLd+zwTDZxXhd+4kcSfCA=;
+	b=kSNLvhZHcJTcvSj8XCd+k+HYD9K4T7yCINmy83VEZBK84m3WfK/bM45mfZ5F0pkI6uuJu0
+	oytRSuCMIOKuePJ3eBS98GD4Y8yR0+mSEW1CFZInDFQFQGtQ6aybIQf+lGATl+mCkVjvAS
+	Bv9uqeqEjKipDkPqb8YRk0E0bTCt4ULyXEgYj11AP66+iaO0pej0K5kqDozoGdnp3g6kIE
+	QADjIdbC4Rb2fXcGo7OGvJ4afzmSSZCRuG2WSJvRB6gDLxIxDlS+byoXg3jYsPtCPt3tXy
+	mz5W6+lpGnVsjOfQuAHbg7HE8LLFTei08BImHMANYVlHxFwey+pKUDBBTnKG3g==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1761137349;
+	s=2020e; t=1761137353;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 references:references; bh=MKNcUChSn/NfFd+dS8+uLnvvYuPvhQsaUPbuMoERc+Y=;
-	b=Ad5CWnRPgGiAM9amesSMP3EPFCura86UkqdaB4otezD1D4yBpXZCc6MwYvvX+osIXMIhow
-	Gu/Agcs2yZ8ttBDw==
+	 references:references; bh=lccNRRk780OLOrvRTmsIIfoLd+zwTDZxXhd+4kcSfCA=;
+	b=jBvd0+8wGhqi9YLp+G44n5XgyHsh8eF5MQnWzMNg30j3PgApN0ylxUrS8tq8eAgva7Gr6V
+	RLwP5H6AG5silIDQ==
 From: Thomas Gleixner <tglx@linutronix.de>
 To: LKML <linux-kernel@vger.kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- linux-s390@vger.kernel.org,
+Cc: Julia Lawall <Julia.Lawall@inria.fr>,
+ Nicolas Palix <nicolas.palix@imag.fr>,
  kernel test robot <lkp@intel.com>,
  Russell King <linux@armlinux.org.uk>,
  linux-arm-kernel@lists.infradead.org,
@@ -54,11 +52,13 @@ Cc: Heiko Carstens <hca@linux.ibm.com>,
  Paul Walmsley <pjw@kernel.org>,
  Palmer Dabbelt <palmer@dabbelt.com>,
  linux-riscv@lists.infradead.org,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ linux-s390@vger.kernel.org,
  Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
  Andrew Cooper <andrew.cooper3@citrix.com>,
  David Laight <david.laight.linux@gmail.com>,
- Julia Lawall <Julia.Lawall@inria.fr>,
- Nicolas Palix <nicolas.palix@imag.fr>,
  Peter Zijlstra <peterz@infradead.org>,
  Darren Hart <dvhart@infradead.org>,
  Davidlohr Bueso <dave@stgolabs.net>,
@@ -67,7 +67,8 @@ Cc: Heiko Carstens <hca@linux.ibm.com>,
  Christian Brauner <brauner@kernel.org>,
  Jan Kara <jack@suse.cz>,
  linux-fsdevel@vger.kernel.org
-Subject: [patch V4 06/12] s390/uaccess: Use unsafe wrappers for ASM GOTO
+Subject: [patch V4 09/12] [RFC] coccinelle: misc: Add scoped_$MODE_access()
+ checker script
 References: <20251022102427.400699796@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -76,49 +77,140 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Date: Wed, 22 Oct 2025 14:49:09 +0200 (CEST)
+Date: Wed, 22 Oct 2025 14:49:13 +0200 (CEST)
 
-ASM GOTO is miscompiled by GCC when it is used inside a auto cleanup scope:
+A common mistake in user access code is that the wrong access mode is
+selected for starting the user access section. As most architectures map
+Read and Write modes to ReadWrite this goes often unnoticed for quite some
+time.
 
-bool foo(u32 __user *p, u32 val)
-{
-	scoped_guard(pagefault)
-		unsafe_put_user(val, p, efault);
-	return true;
-efault:
-	return false;
-}
+Aside of that the scoped user access mechanism requires that the same
+pointer is used for the actual accessor macros that was handed in to start
+the scope because the pointer can be modified by the scope begin mechanism
+if the architecture supports masking.
 
-It ends up leaking the pagefault disable counter in the fault path. clang
-at least fails the build.
+Add a basic (and incomplete) coccinelle script to check for the common
+issues. The error output is:
 
-S390 is not affected for unsafe_*_user() as it uses it's own local label
-already, but __get/put_kernel_nofault() lack that.
+kernel/futex/futex.h:303:2-17: ERROR: Invalid pointer for unsafe_put_user(p) in scoped_user_write_access(to)
+kernel/futex/futex.h:292:2-17: ERROR: Invalid access mode unsafe_get_user() in scoped_user_write_access()
 
-Rename them to arch_*_kernel_nofault() which makes the generic uaccess
-header wrap it with a local label that makes both compilers emit correct
-code.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
+Not-Yet-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Julia Lawall <Julia.Lawall@inria.fr>
+Cc: Nicolas Palix <nicolas.palix@imag.fr>
 ---
- arch/s390/include/asm/uaccess.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ scripts/coccinelle/misc/scoped_uaccess.cocci |  108 +++++++++++++++++++++++++++
+ 1 file changed, 108 insertions(+)
 
---- a/arch/s390/include/asm/uaccess.h
-+++ b/arch/s390/include/asm/uaccess.h
-@@ -468,8 +468,8 @@ do {									\
- 
- #endif /* CONFIG_CC_HAS_ASM_GOTO_OUTPUT && CONFIG_CC_HAS_ASM_AOR_FORMAT_FLAGS */
- 
--#define __get_kernel_nofault __mvc_kernel_nofault
--#define __put_kernel_nofault __mvc_kernel_nofault
-+#define arch_get_kernel_nofault __mvc_kernel_nofault
-+#define arch_put_kernel_nofault __mvc_kernel_nofault
- 
- void __cmpxchg_user_key_called_with_bad_pointer(void);
- 
+--- /dev/null
++++ b/scripts/coccinelle/misc/scoped_uaccess.cocci
+@@ -0,0 +1,108 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/// Validate scoped_masked_user*access() scopes
++///
++// Confidence: Zero
++// Options: --no-includes --include-headers
++
++virtual context
++virtual report
++virtual org
++
++@initialize:python@
++@@
++
++scopemap = {
++  'scoped_user_read_access_size'  : 'scoped_user_read_access',
++  'scoped_user_write_access_size' : 'scoped_user_write_access',
++  'scoped_user_rw_access_size'    : 'scoped_user_rw_access',
++}
++
++# Most common accessors. Incomplete list
++noaccessmap = {
++  'scoped_user_read_access'       : ('unsafe_put_user', 'unsafe_copy_to_user'),
++  'scoped_user_write_access'      : ('unsafe_get_user', 'unsafe_copy_from_user'),
++}
++
++# Most common accessors. Incomplete list
++ptrmap = {
++  'unsafe_put_user'			 : 1,
++  'unsafe_get_user'			 : 1,
++  'unsafe_copy_to_user'		 	 : 0,
++  'unsafe_copy_from_user'		 : 0,
++}
++
++print_mode = None
++
++def pr_err(pos, msg):
++   if print_mode == 'R':
++      coccilib.report.print_report(pos[0], msg)
++   elif print_mode == 'O':
++      cocci.print_main(msg, pos)
++
++@r0 depends on report || org@
++iterator name scoped_user_read_access,
++	      scoped_user_read_access_size,
++	      scoped_user_write_access,
++	      scoped_user_write_access_size,
++	      scoped_user_rw_access,
++	      scoped_user_rw_access_size;
++iterator scope;
++statement S;
++@@
++
++(
++(
++scoped_user_read_access(...) S
++|
++scoped_user_read_access_size(...) S
++|
++scoped_user_write_access(...) S
++|
++scoped_user_write_access_size(...) S
++|
++scoped_user_rw_access(...) S
++|
++scoped_user_rw_access_size(...) S
++)
++&
++scope(...) S
++)
++
++@script:python depends on r0 && report@
++@@
++print_mode = 'R'
++
++@script:python depends on r0 && org@
++@@
++print_mode = 'O'
++
++@r1@
++expression sp, a0, a1;
++iterator r0.scope;
++identifier ac;
++position p;
++@@
++
++  scope(sp,...) {
++    <...
++    ac@p(a0, a1, ...);
++    ...>
++  }
++
++@script:python@
++pos << r1.p;
++scope << r0.scope;
++ac << r1.ac;
++sp << r1.sp;
++a0 << r1.a0;
++a1 << r1.a1;
++@@
++
++scope = scopemap.get(scope, scope)
++if ac in noaccessmap.get(scope, []):
++   pr_err(pos, 'ERROR: Invalid access mode %s() in %s()' %(ac, scope))
++
++if ac in ptrmap:
++   ap = (a0, a1)[ptrmap[ac]]
++   if sp != ap.lstrip('&').split('->')[0].strip():
++      pr_err(pos, 'ERROR: Invalid pointer for %s(%s) in %s(%s)' %(ac, ap, scope, sp))
 
