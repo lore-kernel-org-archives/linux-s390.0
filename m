@@ -1,59 +1,59 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEB57345CD2;
-	Wed, 22 Oct 2025 12:49:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B8E43446A0;
+	Wed, 22 Oct 2025 12:49:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761137357; cv=none; b=JK/rGtmFsIrao/5sfoZHdT1S2uqpVrBP/EQPkogPaIcQRKXZOFACjDyv3uOa5rzqizFdGqS6hbvyKUhC3g4nvAN+9x72r8NW6x8N26nruh7WQ+CbPvJJgJUBjSFPwjr6hojw98SvD4i5o3H+ZDmYzIWSksQdANfhZhdJsPQsAgE=
+	t=1761137365; cv=none; b=Qn6ApUZjF9AXhLKVSO3oM911pTEjxKLhRLFRU7bmWTwV09vJ3Ody3hYWxXt0kabQ1QlAZkz048uCNAFijzfSoDO0SQmoSaqtyqxX2sHlBS3AG00PENjmthLh7whiXuFZB1gZiBcBQ4czk9SmxIL+oRc4IJn4ldcagqNYuMH1hmg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761137357; c=relaxed/simple;
-	bh=kv2agbdsqIbzMLDcTPxxSBLHwg3H9gA4/g6IZ/c2ULk=;
+	s=arc-20240116; t=1761137365; c=relaxed/simple;
+	bh=u/yk2503WbcPVzxext/24oA9U+OTQsqD5MrPiHlhlts=;
 	h=Message-ID:From:To:Cc:Subject:References:MIME-Version:
-	 Content-Type:Date; b=RT2ybre2i6A+ORgynxBlP2yF5oVB9ZBqH9doveqltAD0L4auCbJ35PSYU2B/83dzooX6XjOOZZwq4xfUv7dCw3e8h0bKNBzouwDF+9fhGfBJ8FZNo3sfPkpmFyWqQZgYtKlmTsfYjsbVuddIn3W19hBCWg3FUS3Cr55IPCiIwX4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=vAf/WnRL; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=fX8cSqvU; arc=none smtp.client-ip=193.142.43.55
+	 Content-Type:Date; b=CkQWZnAZOfEBMXIEVxGpKizJlsl8TmDslgk8KFBvVyKcc037mKP4i2WTCv4Caoksz+PrStBTVJusDx2z16abEodqDHSf2obwVXl6gQFaJjmwCTa50TxsbClaR7BB7YIzg3QgRj5Iqe9zy4T8ZbOnc7VoqQCnpTjy58SFIzvT1pc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=a+rP69sf; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Ad5CWnRP; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="vAf/WnRL";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="fX8cSqvU"
-Message-ID: <20251022103112.105759469@linutronix.de>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="a+rP69sf";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Ad5CWnRP"
+Message-ID: <20251022103112.232389777@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1761137347;
+	s=2020; t=1761137349;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 references:references; bh=DNQHcterXWXQuFWR5KPGbkzD3Sh/vJk9lLVEwO1xPSA=;
-	b=vAf/WnRLaiKi9WWTSyH8iUQzQkrzGIljwJslh19+BsVaPrUUzz8NaG/EydNMY5AOh/DPNQ
-	FlAdck5UN2A659HwOPkIYdFRxOmypbXSalDO84wkV/SAikEYWifJGPpjoQHalxcV4Lf/74
-	OgkhQ3pkA+3fk2fPutZTvbNmP7gx1gUr3DclJycvX75iZF036Cnxq7tl5CMsOBm8DAkZG0
-	wFvXbnrq3D20XGC/xN2CIj8+NUzQHTWrFlkDIPqA/TDOqQK+sSj4nfwQQ6rYXxudQKYBUn
-	ciZsu5fNoy2U525hHELagiJeV93MjGckgbHPoy6DCobfk74daY6DlAlnC2eJ1Q==
+	 references:references; bh=MKNcUChSn/NfFd+dS8+uLnvvYuPvhQsaUPbuMoERc+Y=;
+	b=a+rP69sfJ/Qp9q3znoDwceoCND840rG89ZVmZnuwGf5auP3gibFmiK9GeAwPeKlsQPgjSC
+	IEqDkhxWDgRylSHXUcBaufuyU0/+DeBR9LE0wMGuAySTKPrhbWb7NBxN01PMlZG65ZnUdx
+	9nQhGFU8gZHZZ5xxFRf2aI6pAPw7iR+PiAlFiq3RxntxNFyLAqDnifIWEG+9PAntrrgwZi
+	rDCWm4zogflzWQHer9+U8mqmPmY7BGAZCUtifi/nt78sGYZqEj9Hg7TN86VsDKDu39fTHu
+	U3CT83eVCk6lxvVN0wBHfNiXmYcrzkHYw44qZOqKRncTZNgK5wwPA+VEwQz9Pw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1761137347;
+	s=2020e; t=1761137349;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 references:references; bh=DNQHcterXWXQuFWR5KPGbkzD3Sh/vJk9lLVEwO1xPSA=;
-	b=fX8cSqvU/uRXynxs8KXcle/JVqevyF+HtGxR5AgUEogTAFIK4EpPFW7QD8ucjN5XqCzEmR
-	PFxjDjDc5cEYfhCQ==
+	 references:references; bh=MKNcUChSn/NfFd+dS8+uLnvvYuPvhQsaUPbuMoERc+Y=;
+	b=Ad5CWnRPgGiAM9amesSMP3EPFCura86UkqdaB4otezD1D4yBpXZCc6MwYvvX+osIXMIhow
+	Gu/Agcs2yZ8ttBDw==
 From: Thomas Gleixner <tglx@linutronix.de>
 To: LKML <linux-kernel@vger.kernel.org>
-Cc: Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>,
- Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- linuxppc-dev@lists.ozlabs.org,
+Cc: Heiko Carstens <hca@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ linux-s390@vger.kernel.org,
  kernel test robot <lkp@intel.com>,
  Russell King <linux@armlinux.org.uk>,
  linux-arm-kernel@lists.infradead.org,
  Linus Torvalds <torvalds@linux-foundation.org>,
  x86@kernel.org,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>,
+ Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ linuxppc-dev@lists.ozlabs.org,
  Paul Walmsley <pjw@kernel.org>,
  Palmer Dabbelt <palmer@dabbelt.com>,
  linux-riscv@lists.infradead.org,
- Heiko Carstens <hca@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- linux-s390@vger.kernel.org,
  Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
  Andrew Cooper <andrew.cooper3@citrix.com>,
  David Laight <david.laight.linux@gmail.com>,
@@ -67,7 +67,7 @@ Cc: Madhavan Srinivasan <maddy@linux.ibm.com>,
  Christian Brauner <brauner@kernel.org>,
  Jan Kara <jack@suse.cz>,
  linux-fsdevel@vger.kernel.org
-Subject: [patch V4 04/12] powerpc/uaccess: Use unsafe wrappers for ASM GOTO
+Subject: [patch V4 06/12] s390/uaccess: Use unsafe wrappers for ASM GOTO
 References: <20251022102427.400699796@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -76,7 +76,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Date: Wed, 22 Oct 2025 14:49:06 +0200 (CEST)
+Date: Wed, 22 Oct 2025 14:49:09 +0200 (CEST)
 
 ASM GOTO is miscompiled by GCC when it is used inside a auto cleanup scope:
 
@@ -92,52 +92,33 @@ efault:
 It ends up leaking the pagefault disable counter in the fault path. clang
 at least fails the build.
 
-Rename unsafe_*_user() to arch_unsafe_*_user() which makes the generic
-uaccess header wrap it with a local label that makes both compilers emit
-correct code. Same for the kernel_nofault() variants.
+S390 is not affected for unsafe_*_user() as it uses it's own local label
+already, but __get/put_kernel_nofault() lack that.
+
+Rename them to arch_*_kernel_nofault() which makes the generic uaccess
+header wrap it with a local label that makes both compilers emit correct
+code.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: linuxppc-dev@lists.ozlabs.org
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
 ---
- arch/powerpc/include/asm/uaccess.h |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/s390/include/asm/uaccess.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/include/asm/uaccess.h
-+++ b/arch/powerpc/include/asm/uaccess.h
-@@ -451,7 +451,7 @@ user_write_access_begin(const void __use
- #define user_write_access_begin	user_write_access_begin
- #define user_write_access_end		prevent_current_write_to_user
+--- a/arch/s390/include/asm/uaccess.h
++++ b/arch/s390/include/asm/uaccess.h
+@@ -468,8 +468,8 @@ do {									\
  
--#define unsafe_get_user(x, p, e) do {					\
-+#define arch_unsafe_get_user(x, p, e) do {			\
- 	__long_type(*(p)) __gu_val;				\
- 	__typeof__(*(p)) __user *__gu_addr = (p);		\
- 								\
-@@ -459,7 +459,7 @@ user_write_access_begin(const void __use
- 	(x) = (__typeof__(*(p)))__gu_val;			\
- } while (0)
+ #endif /* CONFIG_CC_HAS_ASM_GOTO_OUTPUT && CONFIG_CC_HAS_ASM_AOR_FORMAT_FLAGS */
  
--#define unsafe_put_user(x, p, e) \
-+#define arch_unsafe_put_user(x, p, e)				\
- 	__put_user_size_goto((__typeof__(*(p)))(x), (p), sizeof(*(p)), e)
+-#define __get_kernel_nofault __mvc_kernel_nofault
+-#define __put_kernel_nofault __mvc_kernel_nofault
++#define arch_get_kernel_nofault __mvc_kernel_nofault
++#define arch_put_kernel_nofault __mvc_kernel_nofault
  
- #define unsafe_copy_from_user(d, s, l, e) \
-@@ -504,11 +504,11 @@ do {									\
- 		unsafe_put_user(*(u8*)(_src + _i), (u8 __user *)(_dst + _i), e); \
- } while (0)
- 
--#define __get_kernel_nofault(dst, src, type, err_label)			\
-+#define arch_get_kernel_nofault(dst, src, type, err_label)		\
- 	__get_user_size_goto(*((type *)(dst)),				\
- 		(__force type __user *)(src), sizeof(type), err_label)
- 
--#define __put_kernel_nofault(dst, src, type, err_label)			\
-+#define arch_put_kernel_nofault(dst, src, type, err_label)		\
- 	__put_user_size_goto(*((type *)(src)),				\
- 		(__force type __user *)(dst), sizeof(type), err_label)
+ void __cmpxchg_user_key_called_with_bad_pointer(void);
  
 
