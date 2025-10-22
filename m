@@ -1,45 +1,47 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAE93346E40;
-	Wed, 22 Oct 2025 12:49:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEA06345757;
+	Wed, 22 Oct 2025 12:49:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761137353; cv=none; b=Paf/foHKbyx/KXxMFxV7+Hv9CSbn7dji7Kq4iOeaEtg4NkZEDNmffMuqP3UA5uBJNNE30dB+8SK/9ilJLHN51UaocDO4+BaPHGliPT6d7kvNOK8skkTkumif1wN2Mqh8t9QJwhQNJ1riWlpChbcShVj9FI79BFtrR4hUQJ/58TA=
+	t=1761137353; cv=none; b=gNduFsrfdsoexVbArbRefVuWF4++yLHR8TrY3bSZ/PrEY6MFdvPDWSeLF2yJsjg/cRtgz9QMmfWeMuWOd+hX2MN8mbUEsRYcCV2M0EOwys1Vt2iNLx9M/LK5EIgBJQ4v/NudE+WI7+Mpi/7X4z1ZKXAhpgS8upmfotbmWVKtzWA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1761137353; c=relaxed/simple;
-	bh=AvjdMw2sCffsuBsINoV/J68QB1LlzUsen6SY/K/sTgs=;
-	h=Message-ID:From:To:Subject:cc:Date; b=GSjBMjBmYGz4URh2rWpJLHGoLOqjJXnCmHjX9BXj33vDroDq3u9oNgQ22+OiGIXPEUkqGPH7OXDaFm4SMJ3EfyTG3+CyvoE7RXxsefABOFDk+yS+LAhV9xt5t682GjX3hel+wpttaQdLrOyq8nqZt86/tMrNcpxDWyogdfl9jVM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=EtfaCoDm; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=ss9zZT1n; arc=none smtp.client-ip=193.142.43.55
+	bh=1JN45mC64c47dz9TU2Ot3j2U1wNiqKWBKgn8OQGE8ow=;
+	h=Message-ID:From:To:Cc:Subject:References:MIME-Version:
+	 Content-Type:Date; b=Vg7nR67f7s0S+5N9XY6+C/W4ifu1GgoNIKx5xgYnclCHpqtSvc/pic4/Dpy2kMNQUbezXsfJfw2/qinqa8dVMemRAEZI4a3E6L0nRz9M0dZuV/xdv2slS583/qZOhG1Jgxaj8lPCdtiHFlcUUhs5Wam6tVI+e8kn5KuKqT4Gklw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=T5V35raV; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=l1AEgK8S; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="EtfaCoDm";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="ss9zZT1n"
-Message-ID: <20251022102427.400699796@linutronix.de>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="T5V35raV";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="l1AEgK8S"
+Message-ID: <20251022103112.043380128@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1761137342;
+	s=2020; t=1761137346;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc; bh=GLXMwWXFIbD7cZKiqLR8SWn7Xt+iSqcrcxps9Q+G9kY=;
-	b=EtfaCoDmFor8sSyXEn7oHgxdwynsxqOq3FyCVUuhPIgRs9x5vdmO92747Cz8TOKGl4pO+h
-	ZKBXS45G2J7mtFB7bIbQVW+HUcOV3Y864eGZCPy97TDME/wSAWlPnheYnWGw8sDNUcEaqJ
-	18ozfWu+ohRqajooCKIUx6N5b6VdCCo0mx4CHbj65zTzjsxNaXDmXnMkdMlfRmJWxg+7TX
-	2HmOV/4/UrxLFOcsdgGb0UUsX1EeRuVxhh5jfU948EwHm7mOOaa17GMdraDdgMT+nOu2Dm
-	Nh9yba2+vXILBG3SJv5GUZIWaa5XNotuqPRL+KLJqsLbbK0pDKlJWBfK0candw==
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 references:references; bh=EKzyB0lrI1vv7+y80GeaggsaapcXMx0ewLMg7+vmnx4=;
+	b=T5V35raVu/smx2hlJYXQ5D8D1+XwwQnq3v8+AH3fEjiYmvW7Du2LfaLDcV7muRMy0uFLrg
+	BKxHQePthKk4KRnO711LND36CEmPcvfCHObhQQLsraSsiaVi+pKWUuIZHdQ9gv5TnkBUrE
+	FJ04eZo8HeatCpK5JbDXBrqk+URNMzNJ5y/ob5NJCA04tb5riHjLWZOF0EU4iR1Yak+uU1
+	pZUIiOBo0H/VtNk7BYGjUp8xjfmAuqNo1l/dWXhTk+/rnA+O8HDhmkZGl8SE2oV8TklTRp
+	msbnFDY5zimkeEwI0NgQZvs01VxkiU5tVMSCU8apVRk2VLOmOUSFPTsi/aBjZQ==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1761137342;
+	s=2020e; t=1761137346;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc; bh=GLXMwWXFIbD7cZKiqLR8SWn7Xt+iSqcrcxps9Q+G9kY=;
-	b=ss9zZT1nrdUlW60YnW7MoEIuOhi/H1ZFLAptXi6Q2OQGKph9Q1UEzducE2vpLJL3u2pCgV
-	douIrhd397x/hWDg==
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 references:references; bh=EKzyB0lrI1vv7+y80GeaggsaapcXMx0ewLMg7+vmnx4=;
+	b=l1AEgK8S6UukWsdMaoJOtcowrWuRYlNMviG4h6+39rvgwRKW639xP7IifHqpgISJ9UlR+t
+	0f/lBikkQLnLXFCg==
 From: Thomas Gleixner <tglx@linutronix.de>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [patch V4 00/12] uaccess: Provide and use scopes for user access
-cc: kernel test robot <lkp@intel.com>,
+Cc: x86@kernel.org,
+ kernel test robot <lkp@intel.com>,
  Russell King <linux@armlinux.org.uk>,
  linux-arm-kernel@lists.infradead.org,
  Linus Torvalds <torvalds@linux-foundation.org>,
- x86@kernel.org,
  Madhavan Srinivasan <maddy@linux.ibm.com>,
  Michael Ellerman <mpe@ellerman.id.au>,
  Nicholas Piggin <npiggin@gmail.com>,
@@ -65,66 +67,86 @@ cc: kernel test robot <lkp@intel.com>,
  Christian Brauner <brauner@kernel.org>,
  Jan Kara <jack@suse.cz>,
  linux-fsdevel@vger.kernel.org
-Date: Wed, 22 Oct 2025 14:49:02 +0200 (CEST)
+Subject: [patch V4 03/12] x86/uaccess: Use unsafe wrappers for ASM GOTO
+References: <20251022102427.400699796@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 22 Oct 2025 14:49:05 +0200 (CEST)
 
-This is a follow up on the V3 feedback:
+ASM GOTO is miscompiled by GCC when it is used inside a auto cleanup scope:
 
-   https://lore.kernel.org/20251017085938.150569636@linutronix.de
+bool foo(u32 __user *p, u32 val)
+{
+	scoped_guard(pagefault)
+		unsafe_put_user(val, p, efault);
+	return true;
+efault:
+	return false;
+}
 
-Changes vs. V3:
+It ends up leaking the pagefault disable counter in the fault path. clang
+at least fails the build.
 
-  - Remove the superflouous if (1) in the scope macro - Andrew
+Rename unsafe_*_user() to arch_unsafe_*_user() which makes the generic
+uaccess header wrap it with a local label that makes both compilers emit
+correct code. Same for the kernel_nofault() variants.
 
-  - Use asm_inline in the x86 conversion - Andrew
-
-  - Rename to scoped_user_*_access(), remove underscores, use a void
-    intermediate pointer and add a comment vs. access range - David
-
-  - Use read scope in select - PeterZ
-
-  - Fix comments, shorten local variables and remove pointless brackets -
-    Mathieu
-
-  - Simplify the coccinelle script, which needs still more polishing -
-    Julia
-
-The series is based on v6.18-rc1 and also available from git:
-
-    git://git.kernel.org/pub/scm/linux/kernel/git/tglx/devel.git uaccess/masked
-
-Thanks,
-
-	tglx
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86@kernel.org
 ---
-Thomas Gleixner (12):
-      ARM: uaccess: Implement missing __get_user_asm_dword()
-      uaccess: Provide ASM GOTO safe wrappers for unsafe_*_user()
-      x86/uaccess: Use unsafe wrappers for ASM GOTO
-      powerpc/uaccess: Use unsafe wrappers for ASM GOTO
-      riscv/uaccess: Use unsafe wrappers for ASM GOTO
-      s390/uaccess: Use unsafe wrappers for ASM GOTO
-      uaccess: Provide scoped user access regions
-      uaccess: Provide put/get_user_scoped()
-      coccinelle: misc: Add scoped_$MODE_access() checker script
-      futex: Convert to scoped user access
-      x86/futex: Convert to scoped user access
-      select: Convert to scoped user access
----
- arch/arm/include/asm/uaccess.h               |   26 ++
- arch/powerpc/include/asm/uaccess.h           |    8 
- arch/riscv/include/asm/uaccess.h             |    8 
- arch/s390/include/asm/uaccess.h              |    4 
- arch/x86/include/asm/futex.h                 |   75 ++----
- arch/x86/include/asm/uaccess.h               |   12 -
- fs/select.c                                  |   12 -
- include/linux/uaccess.h                      |  308 ++++++++++++++++++++++++++-
- kernel/futex/futex.h                         |   37 ---
- scripts/coccinelle/misc/scoped_uaccess.cocci |  108 +++++++++
- 10 files changed, 492 insertions(+), 106 deletions(-)
+ arch/x86/include/asm/uaccess.h |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
+--- a/arch/x86/include/asm/uaccess.h
++++ b/arch/x86/include/asm/uaccess.h
+@@ -528,18 +528,18 @@ static __must_check __always_inline bool
+ #define user_access_save()	smap_save()
+ #define user_access_restore(x)	smap_restore(x)
+ 
+-#define unsafe_put_user(x, ptr, label)	\
++#define arch_unsafe_put_user(x, ptr, label)	\
+ 	__put_user_size((__typeof__(*(ptr)))(x), (ptr), sizeof(*(ptr)), label)
+ 
+ #ifdef CONFIG_CC_HAS_ASM_GOTO_OUTPUT
+-#define unsafe_get_user(x, ptr, err_label)					\
++#define arch_unsafe_get_user(x, ptr, err_label)					\
+ do {										\
+ 	__inttype(*(ptr)) __gu_val;						\
+ 	__get_user_size(__gu_val, (ptr), sizeof(*(ptr)), err_label);		\
+ 	(x) = (__force __typeof__(*(ptr)))__gu_val;				\
+ } while (0)
+ #else // !CONFIG_CC_HAS_ASM_GOTO_OUTPUT
+-#define unsafe_get_user(x, ptr, err_label)					\
++#define arch_unsafe_get_user(x, ptr, err_label)					\
+ do {										\
+ 	int __gu_err;								\
+ 	__inttype(*(ptr)) __gu_val;						\
+@@ -618,11 +618,11 @@ do {									\
+ } while (0)
+ 
+ #ifdef CONFIG_CC_HAS_ASM_GOTO_OUTPUT
+-#define __get_kernel_nofault(dst, src, type, err_label)			\
++#define arch_get_kernel_nofault(dst, src, type, err_label)		\
+ 	__get_user_size(*((type *)(dst)), (__force type __user *)(src),	\
+ 			sizeof(type), err_label)
+ #else // !CONFIG_CC_HAS_ASM_GOTO_OUTPUT
+-#define __get_kernel_nofault(dst, src, type, err_label)			\
++#define arch_get_kernel_nofault(dst, src, type, err_label)			\
+ do {									\
+ 	int __kr_err;							\
+ 									\
+@@ -633,7 +633,7 @@ do {									\
+ } while (0)
+ #endif // CONFIG_CC_HAS_ASM_GOTO_OUTPUT
+ 
+-#define __put_kernel_nofault(dst, src, type, err_label)			\
++#define arch_put_kernel_nofault(dst, src, type, err_label)		\
+ 	__put_user_size(*((type *)(src)), (__force type __user *)(dst),	\
+ 			sizeof(type), err_label)
+ 
 
