@@ -1,46 +1,52 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65B9C34677B;
-	Wed, 22 Oct 2025 12:49:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6DC53446BB;
+	Wed, 22 Oct 2025 12:49:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761137367; cv=none; b=kKdmLcBlH8jqnYiqo6CVvbKsXwcHAxrhH2FXCFZsHXV164yIASTTFULmGO39CEUYymjtdYFZh+gbXiGaA4VaVUyR7lNv5Z9leY6A/mrJsTPxeeb76SAt5fWhxpaudBPKPAB08ux7di3cKW/eVcHljbptNsiNyYPRTI+OPYcmju8=
+	t=1761137369; cv=none; b=NlL49WT+fNNgNRKyJSV3w6B3LAELapaNRCM+HQP461b3vTO7b8mNA8b4wgfjxKYu0ItCAQPQ1xqCYJ+D2W2uGvutS+kg0ZN4j/P0UriHRkfv97AY+tCBidNi0Gy9Fopv6flshZY9yMPy6yG3d6+5sHB1qz9ro18dPkcxwpI2QVw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761137367; c=relaxed/simple;
-	bh=SVRRpksI+B5YHxzelxwgKXxbQk2UaLHrIQwq4nbHVuE=;
-	h=Message-ID:From:To:Cc:Subject:References:MIME-Version:
-	 Content-Type:Date; b=RPUdzZRKEf1rtmTyajoRbncqOOjW9SOuFPuVk0LreR6mi2S6LzQxTrR7UsOzRbw7mxoQ/yJs7IpQzrIU2ceYWh9pn2mH2bSTht+WdsCSr798vZHZLY8wsdryhzhKUZqs41WfjwHyDdvJbJAcs6mfTxiq9S2NyUD/K+4X67bMB7w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=KjuwfnEA; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=bpRRpTpB; arc=none smtp.client-ip=193.142.43.55
+	s=arc-20240116; t=1761137369; c=relaxed/simple;
+	bh=l9G4ctLYOMGwtTX6nk+DNb4ZjojzIG2SkzsIOvkMTJA=;
+	h=Message-ID:From:To:Subject:References:MIME-Version:Content-Type:
+	 cc:Date; b=Y1AkN17ASg103ZknR0TI5rVi9VxOSCrrLc5dNXFWHQ9Z0vzrFyT/0mjgeXnY8pkQErVDG3gjddJu2OMf0TLZN+q1B7zLyplfB6ShUuAjeSvMcEriQuneU4Ad5tM4PV7cIEWZgii+3lfuS/F5XtnVVXPIT0VDKE1un1HOa3G//00=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=S//Em47h; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=jNKXbM8s; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="KjuwfnEA";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="bpRRpTpB"
-Message-ID: <20251022103112.169574299@linutronix.de>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="S//Em47h";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="jNKXbM8s"
+Message-ID: <20251022103112.358808928@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1761137348;
+	s=2020; t=1761137352;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 references:references; bh=Q6hUKo07m0tisXGEHl1vXx2So4mSCWEC1HB29LLd09o=;
-	b=KjuwfnEAJn/9/qU6mLzphSJ1eBy5OCSYk+YEtqgaHjf0MCFVufLWwDGiTwac4UgAUJFU3z
-	wUSfymrJ01sBokZnAOSZdwCq07UfN0bC0cILvgANZIQNIOyDaDPk7aRdlwNqhD+jyQX3cD
-	KTwMlrwM8P5As3h0JhHZfBZhh8xzMxgaRYloNRUGdJCV7gxUj7sc20Stcj4Y7TNvptbG0S
-	v6wRFLD5bxKs4duKQju69i+yoKFuilH1+UOmpFQGIA9iJKFD5HXNRmiCVM5eD5ZUThwVow
-	pjHP2qxRmnTEmlXIcJfvTR5W0CA1dUWrW2GeVi6ZAFCqSGTELdcdUtAdpvvdSw==
+	 references:references; bh=QD4vFggFMuOeGOcQhDOiteuemKWf4EcukV9nF7jSRjE=;
+	b=S//Em47hao2SiEu4HhbNJvmg7y21pNf1gaVLrhJjCcmZbZo071nDxTNXRELCYqZoPooIxF
+	ySg3zehiSqSGF/Zy/PoAZ0h0eWVHnK7p5NECvAG631LkvrKKpA02NnT8HJhQZpUPjjGdto
+	DxLzSxnTExD3XmpQxp/1w9NAA1kCPWdDRNW5/s+Ed7BI6inW+w0EztY5DPaQKDxXkxI25m
+	W2VKIMRifCPS/nvbDcv4t+ALLahmQ72ecuN0xD3h7xqOz54s2emMHzywywwyatoR89R+VO
+	HWXCuuqWv5QLlnqsJgwt24DUtrnfgD83c17QYqwpHiorT55OZe+4eLnlakdUyQ==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1761137348;
+	s=2020e; t=1761137352;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 references:references; bh=Q6hUKo07m0tisXGEHl1vXx2So4mSCWEC1HB29LLd09o=;
-	b=bpRRpTpBzrTJkfqCgHc7+QAPWrfUyBMcjhHTn6SmniaryBnZ61TU9nDtegzkLPt0zy89tZ
-	Q+kiWIrbSLfyiLCw==
+	 references:references; bh=QD4vFggFMuOeGOcQhDOiteuemKWf4EcukV9nF7jSRjE=;
+	b=jNKXbM8s9KXys2skLRaFhNaomPmHf3yWyLJ+u2hte0dUfgf8E6lPCUahh/LtI3X0E3G6xz
+	MQOaMMLQpwzewRAw==
 From: Thomas Gleixner <tglx@linutronix.de>
 To: LKML <linux-kernel@vger.kernel.org>
-Cc: Paul Walmsley <pjw@kernel.org>,
- Palmer Dabbelt <palmer@dabbelt.com>,
- linux-riscv@lists.infradead.org,
- kernel test robot <lkp@intel.com>,
+Subject: [patch V4 08/12] uaccess: Provide put/get_user_scoped()
+References: <20251022102427.400699796@linutronix.de>
+Precedence: bulk
+X-Mailing-List: linux-s390@vger.kernel.org
+List-Id: <linux-s390.vger.kernel.org>
+List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
+List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+cc: kernel test robot <lkp@intel.com>,
  Russell King <linux@armlinux.org.uk>,
  linux-arm-kernel@lists.infradead.org,
  Linus Torvalds <torvalds@linux-foundation.org>,
@@ -50,6 +56,9 @@ Cc: Paul Walmsley <pjw@kernel.org>,
  Nicholas Piggin <npiggin@gmail.com>,
  Christophe Leroy <christophe.leroy@csgroup.eu>,
  linuxppc-dev@lists.ozlabs.org,
+ Paul Walmsley <pjw@kernel.org>,
+ Palmer Dabbelt <palmer@dabbelt.com>,
+ linux-riscv@lists.infradead.org,
  Heiko Carstens <hca@linux.ibm.com>,
  Christian Borntraeger <borntraeger@linux.ibm.com>,
  Sven Schnelle <svens@linux.ibm.com>,
@@ -67,69 +76,72 @@ Cc: Paul Walmsley <pjw@kernel.org>,
  Christian Brauner <brauner@kernel.org>,
  Jan Kara <jack@suse.cz>,
  linux-fsdevel@vger.kernel.org
-Subject: [patch V4 05/12] riscv/uaccess: Use unsafe wrappers for ASM GOTO
-References: <20251022102427.400699796@linutronix.de>
-Precedence: bulk
-X-Mailing-List: linux-s390@vger.kernel.org
-List-Id: <linux-s390.vger.kernel.org>
-List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
-List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 22 Oct 2025 14:49:08 +0200 (CEST)
+Date: Wed, 22 Oct 2025 14:49:11 +0200 (CEST)
 
-ASM GOTO is miscompiled by GCC when it is used inside a auto cleanup scope:
+Provide conveniance wrappers around scoped user access similiar to
+put/get_user(), which reduce the usage sites to:
 
-bool foo(u32 __user *p, u32 val)
-{
-	scoped_guard(pagefault)
-		unsafe_put_user(val, p, efault);
-	return true;
-efault:
-	return false;
-}
-
-It ends up leaking the pagefault disable counter in the fault path. clang
-at least fails the build.
-
-Rename unsafe_*_user() to arch_unsafe_*_user() which makes the generic
-uaccess header wrap it with a local label that makes both compilers emit
-correct code. Same for the kernel_nofault() variants.
+       if (!get_user_scoped(val, ptr))
+       		return -EFAULT;
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Paul Walmsley <pjw@kernel.org>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: linux-riscv@lists.infradead.org
 ---
- arch/riscv/include/asm/uaccess.h |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+V4: Rename to scoped
+---
+ include/linux/uaccess.h |   44 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 44 insertions(+)
 
---- a/arch/riscv/include/asm/uaccess.h
-+++ b/arch/riscv/include/asm/uaccess.h
-@@ -437,10 +437,10 @@ unsigned long __must_check clear_user(vo
- 		__clear_user(untagged_addr(to), n) : n;
- }
+--- a/include/linux/uaccess.h
++++ b/include/linux/uaccess.h
+@@ -825,6 +825,50 @@ for (bool done = false; !done; done = tr
+ #define scoped_user_rw_access(uptr, elbl)				\
+ 	scoped_user_rw_access_size(uptr, sizeof(*(uptr)), elbl)
  
--#define __get_kernel_nofault(dst, src, type, err_label)			\
-+#define arch_get_kernel_nofault(dst, src, type, err_label)			\
- 	__get_user_nocheck(*((type *)(dst)), (__force __user type *)(src), err_label)
- 
--#define __put_kernel_nofault(dst, src, type, err_label)			\
-+#define arch_put_kernel_nofault(dst, src, type, err_label)			\
- 	__put_user_nocheck(*((type *)(src)), (__force __user type *)(dst), err_label)
- 
- static __must_check __always_inline bool user_access_begin(const void __user *ptr, size_t len)
-@@ -460,10 +460,10 @@ static inline void user_access_restore(u
-  * We want the unsafe accessors to always be inlined and use
-  * the error labels - thus the macro games.
-  */
--#define unsafe_put_user(x, ptr, label)					\
-+#define arch_unsafe_put_user(x, ptr, label)				\
- 	__put_user_nocheck(x, (ptr), label)
- 
--#define unsafe_get_user(x, ptr, label)	do {				\
-+#define arch_unsafe_get_user(x, ptr, label)	do {			\
- 	__inttype(*(ptr)) __gu_val;					\
- 	__get_user_nocheck(__gu_val, (ptr), label);			\
- 	(x) = (__force __typeof__(*(ptr)))__gu_val;			\
++/**
++ * get_user_scoped - Read user data with scoped access
++ * @val:	The variable to store the value read from user memory
++ * @usrc:	Pointer to the user space memory to read from
++ *
++ * Return: true if successful, false when faulted
++ */
++#define get_user_scoped(val, usrc)				\
++({								\
++	__label__ efault;					\
++	typeof(usrc) _tmpsrc = usrc;				\
++	bool _ret = true;					\
++								\
++	scoped_user_read_access(_tmpsrc, efault)		\
++		unsafe_get_user(val, _tmpsrc, efault);		\
++	if (0) {						\
++	efault:							\
++		_ret = false;					\
++	}							\
++	_ret;							\
++})
++
++/**
++ * put_user_scoped - Write to user memory with scoped access
++ * @val:	The value to write
++ * @udst:	Pointer to the user space memory to write to
++ *
++ * Return: true if successful, false when faulted
++ */
++#define put_user_scoped(val, udst)				\
++({								\
++	__label__ efault;					\
++	typeof(udst) _tmpdst = udst;				\
++	bool _ret = true;					\
++								\
++	scoped_user_write_access(_tmpdst, efault)		\
++		unsafe_put_user(val, _tmpdst, efault);		\
++	if (0) {						\
++	efault:							\
++		_ret = false;					\
++	}							\
++	_ret;							\
++})
++
+ #ifdef CONFIG_HARDENED_USERCOPY
+ void __noreturn usercopy_abort(const char *name, const char *detail,
+ 			       bool to_user, unsigned long offset,
 
