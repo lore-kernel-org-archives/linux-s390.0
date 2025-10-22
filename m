@@ -1,73 +1,66 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD796346E72;
-	Wed, 22 Oct 2025 12:49:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 804512FD664;
+	Wed, 22 Oct 2025 13:29:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761137370; cv=none; b=CHSwDeQ+84EbMiRZzpiccLFvE6fdiTA21zLvWHzFou6lumQSon0oalk3xd23I4udpFCJMTPSLg3IP6WQnTVRE7Goazk8+a2ijZn2Ssw9ZBDJ/uYmIIDDBSAAqVQnOxVuzr2Yrucgn4/Vy2HJfzSCyeIVCXTaGDS5bRl5k55J2OE=
+	t=1761139760; cv=none; b=sD41541n8wH9QOmimw6taoPbC6cDRBvEQ5boLyuSME0eYnssMY9eCDo4lU50H/3dnwpRHWR49LN7rJX8mbm8+Ps2MRLIpKMz9EDi4fjY7p/y01ZtWjStTe2Po2KZ38qsXpQ0k3I78BeAamlyknbcWb07qq+AXSCOtW/lc647npo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761137370; c=relaxed/simple;
-	bh=7r3/a/NFbc1wdYwqjmEXZSkW3O7gggboTKfkaRskPyY=;
-	h=Message-ID:From:To:Cc:Subject:References:MIME-Version:
-	 Content-Type:Date; b=cwW0T3tuijcjZAnX2Ag4GghZgDf/2baVPEoP8rl04ORIsuROhd+3AzouCx+0+oTrB27CYlgr7HUTUaOHiC3/JPLF4x+/9+35ZvZmmHCIQbIomeOfTlU1JuFNoQJN1Y7DzOHI14QVg0gCRn6SgHKQ1DTQgN6ZcCBf0xu4aZuVrOA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=YCUM+m2I; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=IZpjJMDC; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1761139760; c=relaxed/simple;
+	bh=9MWwfLqVy2MR8ym9agdxv8YD0Vk1zDzt40KD44jYGh0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=AUz01YVfdjXX53pNkV+uxIEGmpleb5gQXjqUmT8FJNrJ46i3wld8dA5Pjn/U6/eRHt/xadhNTQjzmI6lyUd0FTlnFioP9FxU0i6yudqt2qf9gjVsG9Q7aNVNc+5ImE1qZnG/V+YEfb90UHxQbPIUNJZ9htHLUPWJ5Js/CSLKaUE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=ZYwOhBus; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="YCUM+m2I";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="IZpjJMDC"
-Message-ID: <20251022103112.478876605@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1761137354;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 references:references; bh=CaAPbzoialu5mXFNLErT5ZTF4fpG+LkmcGL7QamE02U=;
-	b=YCUM+m2IJhIlYNc3cw3Ka+JSw1r0rxQfagyYMBCbI5G0Wlrimf1GqVMRdPE4fE3q4DTDLL
-	I3sZqCcSstmzPTAmKHsfJLX2C34OtucmDjHa59k+mhfvh5+9VviczJU5Sds0cipnh9SwfO
-	oWZS+Qqu+HQ4gtdRXc2up+rIBxMO9BqQkbGhl/pgs0VaF5lnHLpP1SJqiRYu7DsIVtGwog
-	iJzQBkR3BVxzibX9Vi4X6eSTOXUzrvM9S2tLua3pO5DkDcic3JptOzX0xEuxlfeEOEsy1h
-	aSrVdebfZCKdTbD1hru16EJ14VbE11jH6OE5kYTFRDrxovf+JUjMjnVnSMwjFw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1761137354;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 references:references; bh=CaAPbzoialu5mXFNLErT5ZTF4fpG+LkmcGL7QamE02U=;
-	b=IZpjJMDCZvmWlpmGgE3lhdOQmOPckYbthUby0iY/Im/yxFE9DkRTg5O+cgCbWyzDN24LUx
-	wOuZ0lgHzEUESmCA==
-From: Thomas Gleixner <tglx@linutronix.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>,
- Darren Hart <dvhart@infradead.org>,
- Davidlohr Bueso <dave@stgolabs.net>,
- =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@igalia.com>,
- kernel test robot <lkp@intel.com>,
- Russell King <linux@armlinux.org.uk>,
- linux-arm-kernel@lists.infradead.org,
- Linus Torvalds <torvalds@linux-foundation.org>,
- x86@kernel.org,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>,
- Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- linuxppc-dev@lists.ozlabs.org,
- Paul Walmsley <pjw@kernel.org>,
- Palmer Dabbelt <palmer@dabbelt.com>,
- linux-riscv@lists.infradead.org,
- Heiko Carstens <hca@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- linux-s390@vger.kernel.org,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- Andrew Cooper <andrew.cooper3@citrix.com>,
- David Laight <david.laight.linux@gmail.com>,
- Julia Lawall <Julia.Lawall@inria.fr>,
- Nicolas Palix <nicolas.palix@imag.fr>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>,
- Jan Kara <jack@suse.cz>,
- linux-fsdevel@vger.kernel.org
-Subject: [patch V4 10/12] futex: Convert to scoped user access
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="ZYwOhBus"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=vI5ygdM2fUq0WhLkjqvyWdwalTGXtImKgD/K2E+hX2M=; b=ZYwOhBusiUOSHhKLetWTNJNMjy
+	bOFMKbx4lkmtmrO7n86UGdT9Kf1mBZ2CQzanXcplCmrt35Ffy7u8kJ4PXpYYAoyQ7w9LT6BL8cQsu
+	PW0GEbL2LjAVq6xWvTlmWE/UmTIr5UKBTZDdwQTFoL+yMxe+9raqn9/DMtx0KaH9xWUFiN5fT1cMA
+	9Uyt/h1JzFxUl6Gz+WZVYYAqcbxOJexz/7zuC7PQu03jBwQtGNfpf7iTJUvMlJo4svTajaxMxLcPG
+	hZ9H7QIEIEqI2UQ3wSDJ6YzYR2PArEaH+qCVC3MCNssf15mS9nUiFou3pKuZjw17TFGNTrV218T/Z
+	aj9uPCFQ==;
+Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
+	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1vBYtb-00000006NrR-0yQr;
+	Wed, 22 Oct 2025 13:28:56 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id BF53130039F; Wed, 22 Oct 2025 15:28:55 +0200 (CEST)
+Date: Wed, 22 Oct 2025 15:28:55 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel test robot <lkp@intel.com>,
+	Russell King <linux@armlinux.org.uk>,
+	linux-arm-kernel@lists.infradead.org,
+	Linus Torvalds <torvalds@linux-foundation.org>, x86@kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	linuxppc-dev@lists.ozlabs.org, Paul Walmsley <pjw@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	linux-riscv@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Andrew Cooper <andrew.cooper3@citrix.com>,
+	David Laight <david.laight.linux@gmail.com>,
+	Julia Lawall <Julia.Lawall@inria.fr>,
+	Nicolas Palix <nicolas.palix@imag.fr>,
+	Darren Hart <dvhart@infradead.org>,
+	Davidlohr Bueso <dave@stgolabs.net>,
+	=?iso-8859-1?Q?Andr=E9?= Almeida <andrealmeid@igalia.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+	linux-fsdevel@vger.kernel.org
+Subject: Re: [patch V4 00/12] uaccess: Provide and use scopes for user access
+Message-ID: <20251022132855.GP4067720@noisy.programming.kicks-ass.net>
 References: <20251022102427.400699796@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -75,80 +68,23 @@ List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 22 Oct 2025 14:49:14 +0200 (CEST)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251022102427.400699796@linutronix.de>
 
-From: Thomas Gleixner <tglx@linutronix.de>
+On Wed, Oct 22, 2025 at 02:49:02PM +0200, Thomas Gleixner wrote:
 
-Replace the open coded implementation with the new get/put_user_scoped()
-helpers.
+> Thomas Gleixner (12):
+>       ARM: uaccess: Implement missing __get_user_asm_dword()
+>       uaccess: Provide ASM GOTO safe wrappers for unsafe_*_user()
+>       x86/uaccess: Use unsafe wrappers for ASM GOTO
+>       powerpc/uaccess: Use unsafe wrappers for ASM GOTO
+>       riscv/uaccess: Use unsafe wrappers for ASM GOTO
+>       s390/uaccess: Use unsafe wrappers for ASM GOTO
+>       uaccess: Provide scoped user access regions
+>       uaccess: Provide put/get_user_scoped()
+>       futex: Convert to scoped user access
+>       x86/futex: Convert to scoped user access
+>       select: Convert to scoped user access
 
-No functional change intended
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Darren Hart <dvhart@infradead.org>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: "André Almeida" <andrealmeid@igalia.com>
----
-V4: Rename once moar
-V3: Adapt to scope changes
-V2: Convert to scoped variant
----
- kernel/futex/futex.h |   37 ++-----------------------------------
- 1 file changed, 2 insertions(+), 35 deletions(-)
----
---- a/kernel/futex/futex.h
-+++ b/kernel/futex/futex.h
-@@ -285,48 +285,15 @@ static inline int futex_cmpxchg_value_lo
-  * This does a plain atomic user space read, and the user pointer has
-  * already been verified earlier by get_futex_key() to be both aligned
-  * and actually in user space, just like futex_atomic_cmpxchg_inatomic().
-- *
-- * We still want to avoid any speculation, and while __get_user() is
-- * the traditional model for this, it's actually slower than doing
-- * this manually these days.
-- *
-- * We could just have a per-architecture special function for it,
-- * the same way we do futex_atomic_cmpxchg_inatomic(), but rather
-- * than force everybody to do that, write it out long-hand using
-- * the low-level user-access infrastructure.
-- *
-- * This looks a bit overkill, but generally just results in a couple
-- * of instructions.
-  */
- static __always_inline int futex_get_value(u32 *dest, u32 __user *from)
- {
--	u32 val;
--
--	if (can_do_masked_user_access())
--		from = masked_user_access_begin(from);
--	else if (!user_read_access_begin(from, sizeof(*from)))
--		return -EFAULT;
--	unsafe_get_user(val, from, Efault);
--	user_read_access_end();
--	*dest = val;
--	return 0;
--Efault:
--	user_read_access_end();
--	return -EFAULT;
-+	return get_user_scoped(*dest, from) ? 0 : -EFAULT;
- }
- 
- static __always_inline int futex_put_value(u32 val, u32 __user *to)
- {
--	if (can_do_masked_user_access())
--		to = masked_user_access_begin(to);
--	else if (!user_write_access_begin(to, sizeof(*to)))
--		return -EFAULT;
--	unsafe_put_user(val, to, Efault);
--	user_write_access_end();
--	return 0;
--Efault:
--	user_write_access_end();
--	return -EFAULT;
-+	return put_user_scoped(val, to) ? 0 : -EFAULT;
- }
- 
- static inline int futex_get_value_locked(u32 *dest, u32 __user *from)
-
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
