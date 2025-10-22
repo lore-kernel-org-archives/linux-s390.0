@@ -1,44 +1,45 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEACD34405D;
-	Wed, 22 Oct 2025 12:49:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65B9C34677B;
+	Wed, 22 Oct 2025 12:49:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761137365; cv=none; b=J2Ae/if4iDshzkVWvPVpifFoMQyba1tTpF4VGUjRCI0onW9CivF91zs4jOLpzjikCXl4ryEvohio5ohnxsOfP8cLsB2zU6F3bYKPtUGhWaAuTrihvAgIRas78m9l7Lk1sfrDFdj2+uHx/sK/DKUzw48LUMcwHm8yQCrWj9sAfQY=
+	t=1761137367; cv=none; b=kKdmLcBlH8jqnYiqo6CVvbKsXwcHAxrhH2FXCFZsHXV164yIASTTFULmGO39CEUYymjtdYFZh+gbXiGaA4VaVUyR7lNv5Z9leY6A/mrJsTPxeeb76SAt5fWhxpaudBPKPAB08ux7di3cKW/eVcHljbptNsiNyYPRTI+OPYcmju8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761137365; c=relaxed/simple;
-	bh=wJm5UMrmpvAcM99cTkidm5TaAvUNVlh+zG+6Y25egfQ=;
+	s=arc-20240116; t=1761137367; c=relaxed/simple;
+	bh=SVRRpksI+B5YHxzelxwgKXxbQk2UaLHrIQwq4nbHVuE=;
 	h=Message-ID:From:To:Cc:Subject:References:MIME-Version:
-	 Content-Type:Date; b=U9yvKmSJmCVoinT4BVRBbR8AJ71A0AbRXj9e5iQ2ffBQmPt9uO41tw/ERHZh/WmlWE7TIyUrlNMh9DtQglBYPzpfG0GKTbke7lkH6D9NmZ3y0HrRWTCr87sFVy5cIW5yWs9CNBOIwSmdw37GAOsX6QRX16fkSX7pTNK5qRCVq+w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=kSNLvhZH; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=jBvd0+8w; arc=none smtp.client-ip=193.142.43.55
+	 Content-Type:Date; b=RPUdzZRKEf1rtmTyajoRbncqOOjW9SOuFPuVk0LreR6mi2S6LzQxTrR7UsOzRbw7mxoQ/yJs7IpQzrIU2ceYWh9pn2mH2bSTht+WdsCSr798vZHZLY8wsdryhzhKUZqs41WfjwHyDdvJbJAcs6mfTxiq9S2NyUD/K+4X67bMB7w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=KjuwfnEA; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=bpRRpTpB; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="kSNLvhZH";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="jBvd0+8w"
-Message-ID: <20251022103112.419590507@linutronix.de>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="KjuwfnEA";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="bpRRpTpB"
+Message-ID: <20251022103112.169574299@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1761137353;
+	s=2020; t=1761137348;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 references:references; bh=lccNRRk780OLOrvRTmsIIfoLd+zwTDZxXhd+4kcSfCA=;
-	b=kSNLvhZHcJTcvSj8XCd+k+HYD9K4T7yCINmy83VEZBK84m3WfK/bM45mfZ5F0pkI6uuJu0
-	oytRSuCMIOKuePJ3eBS98GD4Y8yR0+mSEW1CFZInDFQFQGtQ6aybIQf+lGATl+mCkVjvAS
-	Bv9uqeqEjKipDkPqb8YRk0E0bTCt4ULyXEgYj11AP66+iaO0pej0K5kqDozoGdnp3g6kIE
-	QADjIdbC4Rb2fXcGo7OGvJ4afzmSSZCRuG2WSJvRB6gDLxIxDlS+byoXg3jYsPtCPt3tXy
-	mz5W6+lpGnVsjOfQuAHbg7HE8LLFTei08BImHMANYVlHxFwey+pKUDBBTnKG3g==
+	 references:references; bh=Q6hUKo07m0tisXGEHl1vXx2So4mSCWEC1HB29LLd09o=;
+	b=KjuwfnEAJn/9/qU6mLzphSJ1eBy5OCSYk+YEtqgaHjf0MCFVufLWwDGiTwac4UgAUJFU3z
+	wUSfymrJ01sBokZnAOSZdwCq07UfN0bC0cILvgANZIQNIOyDaDPk7aRdlwNqhD+jyQX3cD
+	KTwMlrwM8P5As3h0JhHZfBZhh8xzMxgaRYloNRUGdJCV7gxUj7sc20Stcj4Y7TNvptbG0S
+	v6wRFLD5bxKs4duKQju69i+yoKFuilH1+UOmpFQGIA9iJKFD5HXNRmiCVM5eD5ZUThwVow
+	pjHP2qxRmnTEmlXIcJfvTR5W0CA1dUWrW2GeVi6ZAFCqSGTELdcdUtAdpvvdSw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1761137353;
+	s=2020e; t=1761137348;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 references:references; bh=lccNRRk780OLOrvRTmsIIfoLd+zwTDZxXhd+4kcSfCA=;
-	b=jBvd0+8wGhqi9YLp+G44n5XgyHsh8eF5MQnWzMNg30j3PgApN0ylxUrS8tq8eAgva7Gr6V
-	RLwP5H6AG5silIDQ==
+	 references:references; bh=Q6hUKo07m0tisXGEHl1vXx2So4mSCWEC1HB29LLd09o=;
+	b=bpRRpTpBzrTJkfqCgHc7+QAPWrfUyBMcjhHTn6SmniaryBnZ61TU9nDtegzkLPt0zy89tZ
+	Q+kiWIrbSLfyiLCw==
 From: Thomas Gleixner <tglx@linutronix.de>
 To: LKML <linux-kernel@vger.kernel.org>
-Cc: Julia Lawall <Julia.Lawall@inria.fr>,
- Nicolas Palix <nicolas.palix@imag.fr>,
+Cc: Paul Walmsley <pjw@kernel.org>,
+ Palmer Dabbelt <palmer@dabbelt.com>,
+ linux-riscv@lists.infradead.org,
  kernel test robot <lkp@intel.com>,
  Russell King <linux@armlinux.org.uk>,
  linux-arm-kernel@lists.infradead.org,
@@ -49,9 +50,6 @@ Cc: Julia Lawall <Julia.Lawall@inria.fr>,
  Nicholas Piggin <npiggin@gmail.com>,
  Christophe Leroy <christophe.leroy@csgroup.eu>,
  linuxppc-dev@lists.ozlabs.org,
- Paul Walmsley <pjw@kernel.org>,
- Palmer Dabbelt <palmer@dabbelt.com>,
- linux-riscv@lists.infradead.org,
  Heiko Carstens <hca@linux.ibm.com>,
  Christian Borntraeger <borntraeger@linux.ibm.com>,
  Sven Schnelle <svens@linux.ibm.com>,
@@ -59,6 +57,8 @@ Cc: Julia Lawall <Julia.Lawall@inria.fr>,
  Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
  Andrew Cooper <andrew.cooper3@citrix.com>,
  David Laight <david.laight.linux@gmail.com>,
+ Julia Lawall <Julia.Lawall@inria.fr>,
+ Nicolas Palix <nicolas.palix@imag.fr>,
  Peter Zijlstra <peterz@infradead.org>,
  Darren Hart <dvhart@infradead.org>,
  Davidlohr Bueso <dave@stgolabs.net>,
@@ -67,8 +67,7 @@ Cc: Julia Lawall <Julia.Lawall@inria.fr>,
  Christian Brauner <brauner@kernel.org>,
  Jan Kara <jack@suse.cz>,
  linux-fsdevel@vger.kernel.org
-Subject: [patch V4 09/12] [RFC] coccinelle: misc: Add scoped_$MODE_access()
- checker script
+Subject: [patch V4 05/12] riscv/uaccess: Use unsafe wrappers for ASM GOTO
 References: <20251022102427.400699796@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -77,140 +76,60 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Date: Wed, 22 Oct 2025 14:49:13 +0200 (CEST)
+Date: Wed, 22 Oct 2025 14:49:08 +0200 (CEST)
 
-A common mistake in user access code is that the wrong access mode is
-selected for starting the user access section. As most architectures map
-Read and Write modes to ReadWrite this goes often unnoticed for quite some
-time.
+ASM GOTO is miscompiled by GCC when it is used inside a auto cleanup scope:
 
-Aside of that the scoped user access mechanism requires that the same
-pointer is used for the actual accessor macros that was handed in to start
-the scope because the pointer can be modified by the scope begin mechanism
-if the architecture supports masking.
+bool foo(u32 __user *p, u32 val)
+{
+	scoped_guard(pagefault)
+		unsafe_put_user(val, p, efault);
+	return true;
+efault:
+	return false;
+}
 
-Add a basic (and incomplete) coccinelle script to check for the common
-issues. The error output is:
+It ends up leaking the pagefault disable counter in the fault path. clang
+at least fails the build.
 
-kernel/futex/futex.h:303:2-17: ERROR: Invalid pointer for unsafe_put_user(p) in scoped_user_write_access(to)
-kernel/futex/futex.h:292:2-17: ERROR: Invalid access mode unsafe_get_user() in scoped_user_write_access()
+Rename unsafe_*_user() to arch_unsafe_*_user() which makes the generic
+uaccess header wrap it with a local label that makes both compilers emit
+correct code. Same for the kernel_nofault() variants.
 
-Not-Yet-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Julia Lawall <Julia.Lawall@inria.fr>
-Cc: Nicolas Palix <nicolas.palix@imag.fr>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Paul Walmsley <pjw@kernel.org>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: linux-riscv@lists.infradead.org
 ---
- scripts/coccinelle/misc/scoped_uaccess.cocci |  108 +++++++++++++++++++++++++++
- 1 file changed, 108 insertions(+)
+ arch/riscv/include/asm/uaccess.h |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- /dev/null
-+++ b/scripts/coccinelle/misc/scoped_uaccess.cocci
-@@ -0,0 +1,108 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/// Validate scoped_masked_user*access() scopes
-+///
-+// Confidence: Zero
-+// Options: --no-includes --include-headers
-+
-+virtual context
-+virtual report
-+virtual org
-+
-+@initialize:python@
-+@@
-+
-+scopemap = {
-+  'scoped_user_read_access_size'  : 'scoped_user_read_access',
-+  'scoped_user_write_access_size' : 'scoped_user_write_access',
-+  'scoped_user_rw_access_size'    : 'scoped_user_rw_access',
-+}
-+
-+# Most common accessors. Incomplete list
-+noaccessmap = {
-+  'scoped_user_read_access'       : ('unsafe_put_user', 'unsafe_copy_to_user'),
-+  'scoped_user_write_access'      : ('unsafe_get_user', 'unsafe_copy_from_user'),
-+}
-+
-+# Most common accessors. Incomplete list
-+ptrmap = {
-+  'unsafe_put_user'			 : 1,
-+  'unsafe_get_user'			 : 1,
-+  'unsafe_copy_to_user'		 	 : 0,
-+  'unsafe_copy_from_user'		 : 0,
-+}
-+
-+print_mode = None
-+
-+def pr_err(pos, msg):
-+   if print_mode == 'R':
-+      coccilib.report.print_report(pos[0], msg)
-+   elif print_mode == 'O':
-+      cocci.print_main(msg, pos)
-+
-+@r0 depends on report || org@
-+iterator name scoped_user_read_access,
-+	      scoped_user_read_access_size,
-+	      scoped_user_write_access,
-+	      scoped_user_write_access_size,
-+	      scoped_user_rw_access,
-+	      scoped_user_rw_access_size;
-+iterator scope;
-+statement S;
-+@@
-+
-+(
-+(
-+scoped_user_read_access(...) S
-+|
-+scoped_user_read_access_size(...) S
-+|
-+scoped_user_write_access(...) S
-+|
-+scoped_user_write_access_size(...) S
-+|
-+scoped_user_rw_access(...) S
-+|
-+scoped_user_rw_access_size(...) S
-+)
-+&
-+scope(...) S
-+)
-+
-+@script:python depends on r0 && report@
-+@@
-+print_mode = 'R'
-+
-+@script:python depends on r0 && org@
-+@@
-+print_mode = 'O'
-+
-+@r1@
-+expression sp, a0, a1;
-+iterator r0.scope;
-+identifier ac;
-+position p;
-+@@
-+
-+  scope(sp,...) {
-+    <...
-+    ac@p(a0, a1, ...);
-+    ...>
-+  }
-+
-+@script:python@
-+pos << r1.p;
-+scope << r0.scope;
-+ac << r1.ac;
-+sp << r1.sp;
-+a0 << r1.a0;
-+a1 << r1.a1;
-+@@
-+
-+scope = scopemap.get(scope, scope)
-+if ac in noaccessmap.get(scope, []):
-+   pr_err(pos, 'ERROR: Invalid access mode %s() in %s()' %(ac, scope))
-+
-+if ac in ptrmap:
-+   ap = (a0, a1)[ptrmap[ac]]
-+   if sp != ap.lstrip('&').split('->')[0].strip():
-+      pr_err(pos, 'ERROR: Invalid pointer for %s(%s) in %s(%s)' %(ac, ap, scope, sp))
+--- a/arch/riscv/include/asm/uaccess.h
++++ b/arch/riscv/include/asm/uaccess.h
+@@ -437,10 +437,10 @@ unsigned long __must_check clear_user(vo
+ 		__clear_user(untagged_addr(to), n) : n;
+ }
+ 
+-#define __get_kernel_nofault(dst, src, type, err_label)			\
++#define arch_get_kernel_nofault(dst, src, type, err_label)			\
+ 	__get_user_nocheck(*((type *)(dst)), (__force __user type *)(src), err_label)
+ 
+-#define __put_kernel_nofault(dst, src, type, err_label)			\
++#define arch_put_kernel_nofault(dst, src, type, err_label)			\
+ 	__put_user_nocheck(*((type *)(src)), (__force __user type *)(dst), err_label)
+ 
+ static __must_check __always_inline bool user_access_begin(const void __user *ptr, size_t len)
+@@ -460,10 +460,10 @@ static inline void user_access_restore(u
+  * We want the unsafe accessors to always be inlined and use
+  * the error labels - thus the macro games.
+  */
+-#define unsafe_put_user(x, ptr, label)					\
++#define arch_unsafe_put_user(x, ptr, label)				\
+ 	__put_user_nocheck(x, (ptr), label)
+ 
+-#define unsafe_get_user(x, ptr, label)	do {				\
++#define arch_unsafe_get_user(x, ptr, label)	do {			\
+ 	__inttype(*(ptr)) __gu_val;					\
+ 	__get_user_nocheck(__gu_val, (ptr), label);			\
+ 	(x) = (__force __typeof__(*(ptr)))__gu_val;			\
 
