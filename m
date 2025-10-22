@@ -1,56 +1,47 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6DC53446BB;
-	Wed, 22 Oct 2025 12:49:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC622347BCF;
+	Wed, 22 Oct 2025 12:49:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761137369; cv=none; b=NlL49WT+fNNgNRKyJSV3w6B3LAELapaNRCM+HQP461b3vTO7b8mNA8b4wgfjxKYu0ItCAQPQ1xqCYJ+D2W2uGvutS+kg0ZN4j/P0UriHRkfv97AY+tCBidNi0Gy9Fopv6flshZY9yMPy6yG3d6+5sHB1qz9ro18dPkcxwpI2QVw=
+	t=1761137369; cv=none; b=f/zAwQXRmHk80Meaorhln7cF3OGQdv36jTGyNAir2VgWBg0p9aZSwK+m4D7kD619qNk0FpQhs3OQu/sMe/P43ZljpFMa3kQ+gCARfBtruljLLZjC4qzc0Bn4e5G4uyXnvtxvdx+yWZ8xTdE/642E5d5YtS178wCPI3lK3ewcqhE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1761137369; c=relaxed/simple;
-	bh=l9G4ctLYOMGwtTX6nk+DNb4ZjojzIG2SkzsIOvkMTJA=;
-	h=Message-ID:From:To:Subject:References:MIME-Version:Content-Type:
-	 cc:Date; b=Y1AkN17ASg103ZknR0TI5rVi9VxOSCrrLc5dNXFWHQ9Z0vzrFyT/0mjgeXnY8pkQErVDG3gjddJu2OMf0TLZN+q1B7zLyplfB6ShUuAjeSvMcEriQuneU4Ad5tM4PV7cIEWZgii+3lfuS/F5XtnVVXPIT0VDKE1un1HOa3G//00=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=S//Em47h; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=jNKXbM8s; arc=none smtp.client-ip=193.142.43.55
+	bh=XFbP7c4oWTMLAjnLkkeDQLOvFLNhdk14vwJ7xtqtbVU=;
+	h=Message-ID:From:To:Cc:Subject:References:MIME-Version:
+	 Content-Type:Date; b=olEOwaQDM0+dqo2eCwjyz5JLm/LVZZ4WEsGkN+wx30gUBv5dXmgh3ennfZ2hK14fVeMT7gU3lU6POavjQNY9C546lIqUg123PskbtUW7Nj4vAXzboBJqHX1FP7AAN2+0zDdt6UYxb2j1iCcZSy5u5BNDUE7u3V16Do15/PPD5To=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=sE058jY4; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=LCpBggbX; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="S//Em47h";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="jNKXbM8s"
-Message-ID: <20251022103112.358808928@linutronix.de>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="sE058jY4";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="LCpBggbX"
+Message-ID: <20251022103112.539017094@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1761137352;
+	s=2020; t=1761137356;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 references:references; bh=QD4vFggFMuOeGOcQhDOiteuemKWf4EcukV9nF7jSRjE=;
-	b=S//Em47hao2SiEu4HhbNJvmg7y21pNf1gaVLrhJjCcmZbZo071nDxTNXRELCYqZoPooIxF
-	ySg3zehiSqSGF/Zy/PoAZ0h0eWVHnK7p5NECvAG631LkvrKKpA02NnT8HJhQZpUPjjGdto
-	DxLzSxnTExD3XmpQxp/1w9NAA1kCPWdDRNW5/s+Ed7BI6inW+w0EztY5DPaQKDxXkxI25m
-	W2VKIMRifCPS/nvbDcv4t+ALLahmQ72ecuN0xD3h7xqOz54s2emMHzywywwyatoR89R+VO
-	HWXCuuqWv5QLlnqsJgwt24DUtrnfgD83c17QYqwpHiorT55OZe+4eLnlakdUyQ==
+	 references:references; bh=uuF1PbflRL7G3epzTRJvFK2AzVPBYAY82eKYUINaU84=;
+	b=sE058jY4nU6VsrYvJYJGWz0GnmS2zddKt81kyGurkLnKI3lTj4IAfwcC7vb0GQE2MKAIC9
+	06bYY0LlPsompS+ICNa3F0PddkENSI1sjP6uhPMX8hRgmC4QtXBo0vzsziPIKkEfKLUxRz
+	e78CSOuQNN3Z0MNphVxMCQu15iLvF0NdT6dFANIPGRsh1693eM6rjQmEsxH7SYRE9EXGNs
+	aJ1tZ74jsYpp+Dr7L+Q4UvLxfDGI4CvODwLqZcPoIb4kFWxVKbAkhaHmpA/QT/7i7q48Gk
+	i6f0dFKptvOHQUJs1yizaeIwBhEXcT5MWnhDxQOY/prkjd4IGXRTuOAeBOIfPQ==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1761137352;
+	s=2020e; t=1761137356;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 references:references; bh=QD4vFggFMuOeGOcQhDOiteuemKWf4EcukV9nF7jSRjE=;
-	b=jNKXbM8s9KXys2skLRaFhNaomPmHf3yWyLJ+u2hte0dUfgf8E6lPCUahh/LtI3X0E3G6xz
-	MQOaMMLQpwzewRAw==
+	 references:references; bh=uuF1PbflRL7G3epzTRJvFK2AzVPBYAY82eKYUINaU84=;
+	b=LCpBggbX1O1nqs3aE6YLPbmxhfEEsetgCmtO5LHIcdjPiL9+7YVxy6NLO1LLLCxGKuvIYc
+	NMSIIhJLPzxbI5Dw==
 From: Thomas Gleixner <tglx@linutronix.de>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [patch V4 08/12] uaccess: Provide put/get_user_scoped()
-References: <20251022102427.400699796@linutronix.de>
-Precedence: bulk
-X-Mailing-List: linux-s390@vger.kernel.org
-List-Id: <linux-s390.vger.kernel.org>
-List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
-List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-cc: kernel test robot <lkp@intel.com>,
+Cc: x86@kernel.org,
+ kernel test robot <lkp@intel.com>,
  Russell King <linux@armlinux.org.uk>,
  linux-arm-kernel@lists.infradead.org,
  Linus Torvalds <torvalds@linux-foundation.org>,
- x86@kernel.org,
  Madhavan Srinivasan <maddy@linux.ibm.com>,
  Michael Ellerman <mpe@ellerman.id.au>,
  Nicholas Piggin <npiggin@gmail.com>,
@@ -76,72 +67,128 @@ cc: kernel test robot <lkp@intel.com>,
  Christian Brauner <brauner@kernel.org>,
  Jan Kara <jack@suse.cz>,
  linux-fsdevel@vger.kernel.org
-Date: Wed, 22 Oct 2025 14:49:11 +0200 (CEST)
+Subject: [patch V4 11/12] x86/futex: Convert to scoped user access
+References: <20251022102427.400699796@linutronix.de>
+Precedence: bulk
+X-Mailing-List: linux-s390@vger.kernel.org
+List-Id: <linux-s390.vger.kernel.org>
+List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
+List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 22 Oct 2025 14:49:15 +0200 (CEST)
 
-Provide conveniance wrappers around scoped user access similiar to
-put/get_user(), which reduce the usage sites to:
+Replace the open coded implementation with the scoped user access
+guards
 
-       if (!get_user_scoped(val, ptr))
-       		return -EFAULT;
+No functional change intended.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86@kernel.org
 ---
-V4: Rename to scoped
+V4: Rename once more
+    Use asm_inline - Andrew
+V3: Adapt to scope changes
+V2: Convert to scoped masked access
+    Use RW access functions - Christophe
 ---
- include/linux/uaccess.h |   44 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 44 insertions(+)
-
---- a/include/linux/uaccess.h
-+++ b/include/linux/uaccess.h
-@@ -825,6 +825,50 @@ for (bool done = false; !done; done = tr
- #define scoped_user_rw_access(uptr, elbl)				\
- 	scoped_user_rw_access_size(uptr, sizeof(*(uptr)), elbl)
+ arch/x86/include/asm/futex.h |   75 ++++++++++++++++++-------------------------
+ 1 file changed, 33 insertions(+), 42 deletions(-)
+---
+--- a/arch/x86/include/asm/futex.h
++++ b/arch/x86/include/asm/futex.h
+@@ -46,38 +46,31 @@ do {								\
+ } while(0)
  
-+/**
-+ * get_user_scoped - Read user data with scoped access
-+ * @val:	The variable to store the value read from user memory
-+ * @usrc:	Pointer to the user space memory to read from
-+ *
-+ * Return: true if successful, false when faulted
-+ */
-+#define get_user_scoped(val, usrc)				\
-+({								\
-+	__label__ efault;					\
-+	typeof(usrc) _tmpsrc = usrc;				\
-+	bool _ret = true;					\
-+								\
-+	scoped_user_read_access(_tmpsrc, efault)		\
-+		unsafe_get_user(val, _tmpsrc, efault);		\
-+	if (0) {						\
-+	efault:							\
-+		_ret = false;					\
-+	}							\
-+	_ret;							\
-+})
-+
-+/**
-+ * put_user_scoped - Write to user memory with scoped access
-+ * @val:	The value to write
-+ * @udst:	Pointer to the user space memory to write to
-+ *
-+ * Return: true if successful, false when faulted
-+ */
-+#define put_user_scoped(val, udst)				\
-+({								\
-+	__label__ efault;					\
-+	typeof(udst) _tmpdst = udst;				\
-+	bool _ret = true;					\
-+								\
-+	scoped_user_write_access(_tmpdst, efault)		\
-+		unsafe_put_user(val, _tmpdst, efault);		\
-+	if (0) {						\
-+	efault:							\
-+		_ret = false;					\
-+	}							\
-+	_ret;							\
-+})
-+
- #ifdef CONFIG_HARDENED_USERCOPY
- void __noreturn usercopy_abort(const char *name, const char *detail,
- 			       bool to_user, unsigned long offset,
+ static __always_inline int arch_futex_atomic_op_inuser(int op, int oparg, int *oval,
+-		u32 __user *uaddr)
++						       u32 __user *uaddr)
+ {
+-	if (can_do_masked_user_access())
+-		uaddr = masked_user_access_begin(uaddr);
+-	else if (!user_access_begin(uaddr, sizeof(u32)))
+-		return -EFAULT;
+-
+-	switch (op) {
+-	case FUTEX_OP_SET:
+-		unsafe_atomic_op1("xchgl %0, %2", oval, uaddr, oparg, Efault);
+-		break;
+-	case FUTEX_OP_ADD:
+-		unsafe_atomic_op1(LOCK_PREFIX "xaddl %0, %2", oval,
+-				   uaddr, oparg, Efault);
+-		break;
+-	case FUTEX_OP_OR:
+-		unsafe_atomic_op2("orl %4, %3", oval, uaddr, oparg, Efault);
+-		break;
+-	case FUTEX_OP_ANDN:
+-		unsafe_atomic_op2("andl %4, %3", oval, uaddr, ~oparg, Efault);
+-		break;
+-	case FUTEX_OP_XOR:
+-		unsafe_atomic_op2("xorl %4, %3", oval, uaddr, oparg, Efault);
+-		break;
+-	default:
+-		user_access_end();
+-		return -ENOSYS;
++	scoped_user_rw_access(uaddr, Efault) {
++		switch (op) {
++		case FUTEX_OP_SET:
++			unsafe_atomic_op1("xchgl %0, %2", oval, uaddr, oparg, Efault);
++			break;
++		case FUTEX_OP_ADD:
++			unsafe_atomic_op1(LOCK_PREFIX "xaddl %0, %2", oval, uaddr, oparg, Efault);
++			break;
++		case FUTEX_OP_OR:
++			unsafe_atomic_op2("orl %4, %3", oval, uaddr, oparg, Efault);
++			break;
++		case FUTEX_OP_ANDN:
++			unsafe_atomic_op2("andl %4, %3", oval, uaddr, ~oparg, Efault);
++			break;
++		case FUTEX_OP_XOR:
++			unsafe_atomic_op2("xorl %4, %3", oval, uaddr, oparg, Efault);
++			break;
++		default:
++			return -ENOSYS;
++		}
+ 	}
+-	user_access_end();
+ 	return 0;
+ Efault:
+-	user_access_end();
+ 	return -EFAULT;
+ }
+ 
+@@ -86,21 +79,19 @@ static inline int futex_atomic_cmpxchg_i
+ {
+ 	int ret = 0;
+ 
+-	if (can_do_masked_user_access())
+-		uaddr = masked_user_access_begin(uaddr);
+-	else if (!user_access_begin(uaddr, sizeof(u32)))
+-		return -EFAULT;
+-	asm volatile("\n"
+-		"1:\t" LOCK_PREFIX "cmpxchgl %3, %2\n"
+-		"2:\n"
+-		_ASM_EXTABLE_TYPE_REG(1b, 2b, EX_TYPE_EFAULT_REG, %0) \
+-		: "+r" (ret), "=a" (oldval), "+m" (*uaddr)
+-		: "r" (newval), "1" (oldval)
+-		: "memory"
+-	);
+-	user_access_end();
+-	*uval = oldval;
++	scoped_user_rw_access(uaddr, Efault) {
++		asm_inline volatile("\n"
++				    "1:\t" LOCK_PREFIX "cmpxchgl %3, %2\n"
++				    "2:\n"
++				    _ASM_EXTABLE_TYPE_REG(1b, 2b, EX_TYPE_EFAULT_REG, %0)
++				    : "+r" (ret), "=a" (oldval), "+m" (*uaddr)
++				    : "r" (newval), "1" (oldval)
++				    : "memory");
++		*uval = oldval;
++	}
+ 	return ret;
++Efault:
++	return -EFAULT;
+ }
+ 
+ #endif
 
