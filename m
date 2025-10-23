@@ -1,108 +1,108 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E934E28D8E8;
-	Thu, 23 Oct 2025 18:44:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA09F26FDB2
+	for <linux-s390@vger.kernel.org>; Thu, 23 Oct 2025 19:26:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761245058; cv=none; b=FbVraLigPqXCyVV2mP+qDuOXQzPR4pwPPEHsOX7oBspfuybeCBXbP6VX/a6ED323Za4TmfuUvhlAmirTPSTzZ0mGRzBeUK/VotiIeghiiDMrVQr3v2Zx7T0LBusoVU82paWaVGnLfwUsfAteNmSgUvhX8FdmgUrehZi/TIEnak8=
+	t=1761247596; cv=none; b=VroMdZSSqj4OlU7J6GyhNllRrfpUnFN7pvSciv8O8AdlDTj46b0DZJiqDzK5/Ba8tRthoYP3c/rOZzPiDzX1G/btI7I4GwcQPT+FR43XqajLm+X6AKuqDzRMroxXSRcBeWiPihHG3kG17N03pA27+x4sueolqFYU8JDsCK6e45I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761245058; c=relaxed/simple;
-	bh=ID+SpeZlrXXoHcTWUOnXULiwe1j+Sg0bew4QgPVBIVo=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=tP/jW7AsYCh2sFMSYANIcQLKRktH8Hc4It0j2gJV4jMn/Ovgxd1ee6Hf4XPeY1aUeKZuZmHkg5OGVx3HaRAPP7lDPyAVfbnqY8TblCXCK5uEadtjBRt3nDGixvoHuYJmkuTbi5n4PQL8BrsOJ8d+79fQ8iUrd11WMluEq2/31vs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Z6JyVVvX; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=k2PqTysZ; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1761247596; c=relaxed/simple;
+	bh=0g5PWwg2p6TKfCHzkJ+Dwpx0TfIIseEhNZqQ162TaLQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=quxZZrQdnUywCfiaZIUvNEeccRwtS5TlWKr3OqBqOIzqDLvlA/xAnQeDjYiU2f4CHkeYe6CX1GbJGD6vSgXGDMJqVAFu+LVgQd9aB6iGsE2oFIEdkfKYUwbsua+cCvCYY35oYYdSnGIYpJxiu3FQuRZXUyfPZRw2Xq/S+1zuj4g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=cLoDEtX+; arc=none smtp.client-ip=209.85.218.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Z6JyVVvX";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="k2PqTysZ"
-From: Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1761245054;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=gr+iTa6I2/obiorgX/iYvIq85HArhg0aBMc30DEux0I=;
-	b=Z6JyVVvXaWOYv4K7XWupHxBpzZlYpgf5Va2pTz0xKoekHimqy8m9kpzWJR67k8NTSge6Pu
-	pj1eoQeYp8npSoNhcmRFl+wtklkvdSbntGU/+ZU+VkEYhATJ/2w67pfLl6NrKzFL8YkFBj
-	tz+RIae+Vg6+/gA7ZwvSAx8jyyfFhHWoerQNsfsX8vZwG++ZSmVquE3u5d9Qky5u/pWhfe
-	Z27mkNjesStYEnSIaLWsvH9GU2GdvVJ+/1wsaxCCyTnv7bk0dW7oyVKDPvU36ZH4tGdIz0
-	SAAZZgn3S2Kdp9w4d8AFHEvN5ZwXz+cPMrMK16HbkBELjB3xvZYnc/4yMJ00yA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1761245054;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=gr+iTa6I2/obiorgX/iYvIq85HArhg0aBMc30DEux0I=;
-	b=k2PqTysZqIKK5wnAuNAF6YkOs1yYrSVeb86wNNECOCJRF4fnFtNx18Z5K79S+1+JpepjUk
-	+w4iQ08K50QRq8Bg==
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra
- <peterz@infradead.org>, Darren Hart <dvhart@infradead.org>, Davidlohr
- Bueso <dave@stgolabs.net>, =?utf-8?Q?Andr=C3=A9?= Almeida
- <andrealmeid@igalia.com>, kernel
- test robot <lkp@intel.com>, Russell King <linux@armlinux.org.uk>,
- linux-arm-kernel@lists.infradead.org, x86@kernel.org, Madhavan Srinivasan
- <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas
- Piggin <npiggin@gmail.com>, Christophe Leroy
- <christophe.leroy@csgroup.eu>, linuxppc-dev@lists.ozlabs.org, Paul
- Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- linux-riscv@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
- <svens@linux.ibm.com>, linux-s390@vger.kernel.org, Mathieu Desnoyers
- <mathieu.desnoyers@efficios.com>, Andrew Cooper
- <andrew.cooper3@citrix.com>, David Laight <david.laight.linux@gmail.com>,
- Julia Lawall <Julia.Lawall@inria.fr>, Nicolas Palix
- <nicolas.palix@imag.fr>, Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
- linux-fsdevel@vger.kernel.org
-Subject: Re: [patch V4 10/12] futex: Convert to scoped user access
-In-Reply-To: <CAHk-=wgLAJuJ8SP8NiSGbXJQMdxiPkBN32EvAy9R8kCnva4dfg@mail.gmail.com>
-References: <20251022102427.400699796@linutronix.de>
- <20251022103112.478876605@linutronix.de>
- <CAHk-=wgLAJuJ8SP8NiSGbXJQMdxiPkBN32EvAy9R8kCnva4dfg@mail.gmail.com>
-Date: Thu, 23 Oct 2025 20:44:13 +0200
-Message-ID: <873479xxtu.ffs@tglx>
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="cLoDEtX+"
+Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-b6d3effe106so288823766b.2
+        for <linux-s390@vger.kernel.org>; Thu, 23 Oct 2025 12:26:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1761247593; x=1761852393; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=B+nka1o0UKTB6+YPro/AThdj4Pv3gE7VXwEkULP704E=;
+        b=cLoDEtX+hWb/6nV/I6/LvKVncb1ZH2oX4QkBvG0DaBanfJYNCuRvfAYiiyvCE6A+Z1
+         QO4tvrbPi1S3Bo2QV+zyIdSpgXvlY/trHallm8uNfJ8HEv5NFhNxqUGGQF2LR7SOBCab
+         E3/tfhTYb/jrD8ko8eh9st8LmTplig9PhWQdQ=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1761247593; x=1761852393;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=B+nka1o0UKTB6+YPro/AThdj4Pv3gE7VXwEkULP704E=;
+        b=qaYsjvF3b5yPmZ14nRUKaJSX1nzGfT0hjZZDchIqnds3bd7H7ILbNVWjGMMWkNIWRe
+         3YREOfFq0HTz4tgW/FyKRVKc+L/hx3puE3UwVF57KjFrjQMpGCt6lZPgJefR/aMDX4WT
+         i9jVIb33aWO6Ws1j9Nlj5zRdb+AjWNz+1Mc5YLbmS8FgQktZ4xxV0m9/BWq8+XxNZHDF
+         1eAgpf/bzioYOt1d42sJ6Ir3AmULOYkbAXzO2bfk4JBeUSEBTwkeBTMCHOp1u7ZzWAUv
+         Z65EHwXxrv0PV8H0SB8UyOGTYMwKR0J+TuPz8XaZqZLLeUW7nEjkUZQqVNqaCVW9isXW
+         Hr9g==
+X-Forwarded-Encrypted: i=1; AJvYcCXtB1HDc50whAsjzwcBo1U6eaXPDsS5T/CbSsKTDsTVYLHEggt4VBK+bYe2Kzat8t0cczjUB4kQAmLi@vger.kernel.org
+X-Gm-Message-State: AOJu0YyMa8EmFZgiVqsHtgcapzhilAaOc3Ukr4oINmYzvbUTJ8IZetjB
+	nAP+KIZoejMXJLFsdaGU+HmuRFe5zajfonNjLATd6ZkEdSbGXQUix+IY01Sf3w013WNPRbD9TGV
+	KScetdj/lkQ==
+X-Gm-Gg: ASbGncuMWDTIP5Ot3iiIt/Dft9aClTavitxAlWUWg2WAgIWV4YC9rUzIdbcKEA4bC2v
+	2r7y2PqytPxggxqr32+MKT8Z0KYzv8xoksyVTBjiz0LVNilyEcXTz1/MISKVp3DO1esuFPR2AUx
+	TeEslImvB7EhvRRUrS9Rr1ixTkyCfoMmzEDO5menq1iwn9b1uqaNmvKaFP9uLRdHrv27/aXxEEi
+	7fSUQ9LizbKeWILXRYx3bui4oBF+mcgQ62vc9qa8QvotzF+tXsI/Bhm4/Dg3RmM1Ezeo4aRx9rf
+	QpK4p4h+sJASRZFNYBZEEmJfQG3RNOPF8Dgp54BPiMCtbF65TmqnmGFPbRUlwwZy7u+SjgwKoWM
+	CS6GahEbYASvsdKbum86CyeCuqNqkSxP7fLNOs0JQD7UPATp9Dy9i6c0dVU+/xW8IXTfCrxj+5c
+	7siRKrKuSBhyOojBkCWDTcNP986YCGOqmH96BQiABJNlNAQlD3yA==
+X-Google-Smtp-Source: AGHT+IF/PV7aw68/BDtT4xdp8PeFY9oU7chHyPICBDf4Hvs1/PkSxmurnIRMiwamF+CVAlleX5GbQg==
+X-Received: by 2002:a17:907:c11:b0:b46:31be:e8fe with SMTP id a640c23a62f3a-b6472c6194dmr3026539766b.11.1761247592874;
+        Thu, 23 Oct 2025 12:26:32 -0700 (PDT)
+Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com. [209.85.208.54])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b6d5144d565sm303578666b.58.2025.10.23.12.26.29
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 23 Oct 2025 12:26:32 -0700 (PDT)
+Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-63c523864caso2756665a12.1
+        for <linux-s390@vger.kernel.org>; Thu, 23 Oct 2025 12:26:29 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCVR+HPm+HTP8qcm1tQQVLcSP4ikGG0q7+wnfdI/0+WmmXLn83aNOn/h562iW5hTkLvlHVWfqUrAshvk@vger.kernel.org
+X-Received: by 2002:a05:6402:2681:b0:634:ba7e:f6c8 with SMTP id
+ 4fb4d7f45d1cf-63c1f6d5e1bmr24956720a12.34.1761247589536; Thu, 23 Oct 2025
+ 12:26:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+References: <20251022102427.400699796@linutronix.de> <20251022103112.478876605@linutronix.de>
+ <CAHk-=wgLAJuJ8SP8NiSGbXJQMdxiPkBN32EvAy9R8kCnva4dfg@mail.gmail.com> <873479xxtu.ffs@tglx>
+In-Reply-To: <873479xxtu.ffs@tglx>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Thu, 23 Oct 2025 09:26:12 -1000
+X-Gmail-Original-Message-ID: <CAHk-=wjoQvKpfB4X0ftqM0P0kzaZxor7C1JBC5PrLPY-ca=fnA@mail.gmail.com>
+X-Gm-Features: AWmQ_bmaCluDq9_Xyq5CJoakX9a-PwfYiYDMZ1KnC-jDJR9ceAw_ALWfx9Y5hW4
+Message-ID: <CAHk-=wjoQvKpfB4X0ftqM0P0kzaZxor7C1JBC5PrLPY-ca=fnA@mail.gmail.com>
+Subject: Re: [patch V4 10/12] futex: Convert to scoped user access
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
+	Darren Hart <dvhart@infradead.org>, Davidlohr Bueso <dave@stgolabs.net>, 
+	=?UTF-8?Q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>, 
+	kernel test robot <lkp@intel.com>, Russell King <linux@armlinux.org.uk>, 
+	linux-arm-kernel@lists.infradead.org, x86@kernel.org, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
+	linuxppc-dev@lists.ozlabs.org, Paul Walmsley <pjw@kernel.org>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, 
+	Heiko Carstens <hca@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org, 
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Andrew Cooper <andrew.cooper3@citrix.com>, 
+	David Laight <david.laight.linux@gmail.com>, Julia Lawall <Julia.Lawall@inria.fr>, 
+	Nicolas Palix <nicolas.palix@imag.fr>, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Wed, Oct 22 2025 at 05:16, Linus Torvalds wrote:
-> On Wed, 22 Oct 2025 at 02:49, Thomas Gleixner <tglx@linutronix.de> wrote:
->>
->> From: Thomas Gleixner <tglx@linutronix.de>
->>
->> Replace the open coded implementation with the new get/put_user_scoped()
->> helpers.
+On Thu, 23 Oct 2025 at 08:44, Thomas Gleixner <tglx@linutronix.de> wrote:
 >
-> Well, "scoped" here makes no sense in the name, since it isn't scoped
-> in any way, it just uses the scoped helpers.
+> But as you said out-of-line function call it occured to me that these
+> helpers might be just named get/put_user_inline(). Hmm?
 
-I know. Did not come up with a sensible name so far.
+Yeah, with a comment that clearly says "you need to have actual
+performance numbers for why this needs to be inlined" for people to
+use it.
 
-> I also wonder if we should just get rid of the futex_get/put_value()
-> macros entirely. I did those masked user access things them long ago
-> because that code used "__get_user()" and "__put_user()", and I was
-> removing those helpers and making it match the pattern elsewhere, but
-> I do wonder if there is any advantage left to them all.
->
-> On x86, just using "get_user()" and "put_user()" should work fine now.
-> Yes, they check the address, but these days *those* helpers use that
-> masked user address trick too, so there is no real cost to it.
->
-> The only cost would be the out-of-line function call, I think. Maybe
-> that is a sufficiently big cost here.
-
-I'll have a look at the usage sites.
-
-But as you said out-of-line function call it occured to me that these
-helpers might be just named get/put_user_inline(). Hmm?
-
-Thanks,
-
-        tglx
+           Linus
