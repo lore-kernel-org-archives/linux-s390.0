@@ -1,133 +1,126 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFEE317D2;
-	Thu, 23 Oct 2025 05:02:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20E4F78F2E;
+	Thu, 23 Oct 2025 07:40:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761195744; cv=none; b=T8BXO5/+VGtpL3q0QRN0psPPXNzMztwTpBn4az4jkZSIwNHQZk3XIh1FjksBox+jRzbOvNJm3z7UGt4GvB22ZAxs8jtq/wTsiSPocscNAMNKG9xlMHt5WFNJdm9rqccKZ+oDx8Slh4YT7DW2PdcH733TmJApvrd9yu4AoHX16+E=
+	t=1761205240; cv=none; b=V0j0wKynzcuhkR8ZFxukZCqvI9uO8w1TqZGkqjbTh7A0c7LmVxev84mSk51tDKa843KeSxbeWzytwqfjLLg+iEs/dudMsBfwGXAf+TAmyAEKcxai1lI4Q5GHrS91z6NSTBslr1AAzFtAbaOl9PuTyM2N9Wi9zMzwP5jnlcqTnQs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761195744; c=relaxed/simple;
-	bh=xnBFwakM2k1JPYwO3/Qy+Tx8eLKNZ7gwkUwwpTfHUOQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=q7mzHyb1qK5lp6NHKT4CESwZVmIJZjV5ov9vw+mmfBMhSzuVJpf4b/975GTEoX9cGsumeUBCuJolVGmEfaLTfPs9ZWv0tWk2OiBlZopv7A7v1kx6TcSfoF0FyMTkw7kgfJJtddTCzVHRMu9JTaR7vUIkf/hXDflOiqDvGs+Logo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=WIxWK84X; arc=none smtp.client-ip=192.198.163.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1761205240; c=relaxed/simple;
+	bh=C7PiJxPu7LQr+K7tT4hAEolH4SOafOCaoyLMzp2hDT4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=i7atoiUQJz8XMKDSaNT3BbN16IT8zHHZuGHpkUZzwSVmMNXzc8cR9hXBDHCuPxKhdVI52MELhTulqULw3hX62Z+2PQPY10tQIMtWxu0cneJfyFQ4TglGvfyKlfG6nYMOejIaer1CtHURPf6kIRnahigP6kzh9IAE3M9xRQBeluo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SGj8xxSp; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="WIxWK84X"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1761195742; x=1792731742;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=xnBFwakM2k1JPYwO3/Qy+Tx8eLKNZ7gwkUwwpTfHUOQ=;
-  b=WIxWK84XMJJx8AcVC72JPDNPt7vkb3i8YAGfP0PIDaanLn3mF5TIrTeM
-   V367lSNM5aQhpmCTy82ZVP3RHZ0/jN4T97F8Sz9CJnhuC258PDh1mysIS
-   CD0Wc3XV/VjL/nyoGcv5OzCiISGm2eGBfrSesGBVEVQyu9cUMz4FHcUZd
-   tFhGD5wNmluz9SpHLqeIF1r/Z6aQCbmB1KbI2F0CyIx44SnJ+7ClGz2YS
-   PP3m5aNg3FAQUbNtSJYFT+WBENxJ/cGbEkY2NPWWmMqwevfYHD+zMZp/q
-   A7eS2rpTTcTVyeOzWIKZWdhTcSfabPmZmfkIE8nepzgIATBPecW3D0ccA
-   Q==;
-X-CSE-ConnectionGUID: 8o2ArTLJSCGhO23WYBSuww==
-X-CSE-MsgGUID: bJSgA2j+TtCjY9REVtLA+g==
-X-IronPort-AV: E=McAfee;i="6800,10657,11586"; a="50933427"
-X-IronPort-AV: E=Sophos;i="6.19,248,1754982000"; 
-   d="scan'208";a="50933427"
-Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Oct 2025 22:02:20 -0700
-X-CSE-ConnectionGUID: kWA0S5r3S1ua2kzqQUzTDA==
-X-CSE-MsgGUID: MuIS53hmREe4ygA3mF8heg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.19,248,1754982000"; 
-   d="scan'208";a="214986870"
-Received: from allen-sbox.sh.intel.com (HELO [10.239.159.30]) ([10.239.159.30])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Oct 2025 22:02:11 -0700
-Message-ID: <3a9698ac-ac50-499f-871c-ee44d7371815@linux.intel.com>
-Date: Thu, 23 Oct 2025 12:58:18 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SGj8xxSp"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59MNQxOE022111;
+	Thu, 23 Oct 2025 07:40:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=ds75PIDQJTSkxMSQnMu9ovYRDQnWNe
+	SL5GxQ7vjC9b8=; b=SGj8xxSpMuKM5YKifMezJdGwdKltiymuIM/nbHnhQO9AfR
+	Iwe6ZTxVVwsb0uc1e8SkosDMv058lmR0uxmtnL59V/KW30Qx+97eINVX8XIhiZpb
+	BiTIzoSU2HXp6f8IdwYWVdsNzyMHSKbqOwt+LKULtEUKA+lKAi3Efg19IDH/GKoy
+	qYitx8R+Yafyikk3PTvtyuDMj0SWXuxVRhZe70nx/PnURhLA59qRdn5ZLMoCJtcf
+	Sic+6XVM1343rrSgo+rUQ9ERVYctCOPI/3Fk1PK2tx83v48PqHlzhFYKhgH2tZyF
+	LbuT5hktIv/RxdwRGnP71WgHqz5Kog9w4LDoSjyA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49v30vyg9c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 23 Oct 2025 07:40:35 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59N60E3S032092;
+	Thu, 23 Oct 2025 07:40:35 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49vp7n4jee-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 23 Oct 2025 07:40:35 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59N7eV3U54657496
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 23 Oct 2025 07:40:31 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 170E020043;
+	Thu, 23 Oct 2025 07:40:31 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CB50020040;
+	Thu, 23 Oct 2025 07:40:30 +0000 (GMT)
+Received: from osiris (unknown [9.155.211.25])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 23 Oct 2025 07:40:30 +0000 (GMT)
+Date: Thu, 23 Oct 2025 09:40:28 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        schnelle@linux.ibm.com, mjrosato@linux.ibm.com, agordeev@linux.ibm.com,
+        gor@linux.ibm.com
+Subject: Re: [PATCH v1 1/1] s390/pci: Restore IRQ unconditionally for the
+ zPCI device
+Message-ID: <20251023074028.9536A84-hca@linux.ibm.com>
+References: <20251022164727.882-1-alifm@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 6/6] iommu: Pass in old domain to attach_dev callback
- functions
-To: Nicolin Chen <nicolinc@nvidia.com>, joro@8bytes.org, jgg@nvidia.com,
- kevin.tian@intel.com
-Cc: suravee.suthikulpanit@amd.com, will@kernel.org, robin.murphy@arm.com,
- sven@kernel.org, j@jannau.net, robin.clark@oss.qualcomm.com,
- m.szyprowski@samsung.com, krzk@kernel.org, dwmw2@infradead.org,
- yong.wu@mediatek.com, matthias.bgg@gmail.com,
- angelogioacchino.delregno@collabora.com, tjeznach@rivosinc.com,
- pjw@kernel.org, palmer@dabbelt.com, aou@eecs.berkeley.edu, heiko@sntech.de,
- schnelle@linux.ibm.com, mjrosato@linux.ibm.com, orsonzhai@gmail.com,
- baolin.wang@linux.alibaba.com, wens@csie.org, jernej.skrabec@gmail.com,
- samuel@sholland.org, thierry.reding@gmail.com, jonathanh@nvidia.com,
- jean-philippe@linaro.org, iommu@lists.linux.dev,
- linux-kernel@vger.kernel.org, asahi@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
- linux-samsung-soc@vger.kernel.org, linux-mediatek@lists.infradead.org,
- linux-riscv@lists.infradead.org, linux-rockchip@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-sunxi@lists.linux.dev,
- linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
- patches@lists.linux.dev
-References: <cover.1761017765.git.nicolinc@nvidia.com>
- <7f760e795097e3052da82abf410c6ee963e4c62b.1761017765.git.nicolinc@nvidia.com>
-Content-Language: en-US
-From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <7f760e795097e3052da82abf410c6ee963e4c62b.1761017765.git.nicolinc@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251022164727.882-1-alifm@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: EdwIqeBTmua4fZRPTcmmaC-NqUT5DWrC
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDE4MDAyMiBTYWx0ZWRfX7wKjFxAlzrB4
+ mlDNa42OuYWfET5EnxB1UCdLSCrgDZWIKTe6ZNQqcTCw8BwpFWGWyPiNIaw7ns85QQB7mWPlcOJ
+ 4FhTlvbzVzDsmJnEI8XpmkHvJkIJNYcf9DKOfDqVnBUP1m9rH3ba1yCaTlj3ed8A7CpiDrWIFut
+ y99aSMiUgay5OwI15vS/W3cxsgrB0eilIiqiHM86iz6EVJMOkIc2KfnYr/k3vTmBgvKDTAfKB0G
+ uYoxuXOJ4TFD6pA3zf9BEYOvzGhV0vQaFHjQBj27xQwcUwZnO1enOPyPBG2wdo8wfn1mNpgqSlB
+ 3QopIdJ14X0ACGWne/J2vYuRdd3hq6NoZdmNRF5Khmn0jbMl/p8rnaTkA0lfQWepcGSurG4Jd8A
+ HMJgy1dF/ac0F5CKHstjdE5wbowl/w==
+X-Authority-Analysis: v=2.4 cv=MIJtWcZl c=1 sm=1 tr=0 ts=68f9dbf3 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VnNF1IyMAAAA:8 a=vZQJCZbJYqUF9Gs009UA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: EdwIqeBTmua4fZRPTcmmaC-NqUT5DWrC
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-22_08,2025-10-22_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 spamscore=0 phishscore=0 lowpriorityscore=0 adultscore=0
+ clxscore=1015 impostorscore=0 bulkscore=0 priorityscore=1501 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510180022
 
-On 10/23/25 10:21, Nicolin Chen wrote:
-> The IOMMU core attaches each device to a default domain on probe(). Then,
-> every new "attach" operation has a fundamental meaning of two-fold:
->   - detach from its currently attached (old) domain
->   - attach to a given new domain
+On Wed, Oct 22, 2025 at 09:47:26AM -0700, Farhan Ali wrote:
+> Commit c1e18c17bda6 ("s390/pci: add zpci_set_irq()/zpci_clear_irq()"),
+> introduced the zpci_set_irq() and zpci_clear_irq(), to be used while
+> resetting a zPCI device.
 > 
-> Modern IOMMU drivers following this pattern usually want to clean up the
-> things related to the old domain, so they call iommu_get_domain_for_dev()
-> to fetch the old domain.
+> Commit da995d538d3a ("s390/pci: implement reset_slot for hotplug slot"),
+> mentions zpci_clear_irq() being called in the path for zpci_hot_reset_device().
+> But that is not the case anymore and these functions are not called
+> outside of this file. Instead zpci_hot_reset_device() relies on
+> zpci_disable_device() also clearing the IRQs, but misses to reset the
+> zdev->irqs_registered flag.
 > 
-> Pass in the old domain pointer from the core to drivers, aligning with the
-> set_dev_pasid op that does so already.
+> However after a CLP disable/enable reset, the device's IRQ are
+> unregistered, but the flag zdev->irq_registered does not get cleared. It
+> creates an inconsistent state and so arch_restore_msi_irqs() doesn't
+> correctly restore the device's IRQ. This becomes a problem when a PCI
+> driver tries to restore the state of the device through
+> pci_restore_state(). Restore IRQ unconditionally for the device and remove
+> the irq_registered flag as its redundant.
 > 
-> Ensure all low-level attach fcuntions in the core can forward the correct
-> old domain pointer. Thus, rework those functions as well.
-> 
-> Suggested-by: Jason Gunthorpe<jgg@nvidia.com>
-> Reviewed-by: Kevin Tian<kevin.tian@intel.com>
-> Reviewed-by: Jason Gunthorpe<jgg@nvidia.com>
-> Signed-off-by: Nicolin Chen<nicolinc@nvidia.com>
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
 > ---
->   include/linux/iommu.h                         |  3 ++-
->   arch/powerpc/kernel/iommu.c                   |  5 ++--
->   drivers/iommu/amd/iommu.c                     | 11 ++++----
->   drivers/iommu/apple-dart.c                    |  9 ++++---
->   .../arm/arm-smmu-v3/arm-smmu-v3-iommufd.c     |  5 ++--
->   drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c   | 24 +++++++++++-------
->   drivers/iommu/arm/arm-smmu/arm-smmu.c         |  9 ++++---
->   drivers/iommu/arm/arm-smmu/qcom_iommu.c       | 11 ++++----
->   drivers/iommu/exynos-iommu.c                  |  8 +++---
->   drivers/iommu/fsl_pamu_domain.c               | 12 ++++-----
->   drivers/iommu/intel/iommu.c                   | 10 +++++---
->   drivers/iommu/intel/nested.c                  |  2 +-
->   drivers/iommu/iommu.c                         | 25 +++++++++++--------
->   drivers/iommu/iommufd/selftest.c              |  2 +-
->   drivers/iommu/ipmmu-vmsa.c                    | 10 ++++----
->   drivers/iommu/msm_iommu.c                     | 11 ++++----
->   drivers/iommu/mtk_iommu.c                     |  8 +++---
->   drivers/iommu/mtk_iommu_v1.c                  |  7 ++++--
->   drivers/iommu/omap-iommu.c                    | 12 ++++-----
->   drivers/iommu/riscv/iommu.c                   |  9 ++++---
->   drivers/iommu/rockchip-iommu.c                | 20 +++++++++++----
->   drivers/iommu/s390-iommu.c                    | 13 ++++++----
->   drivers/iommu/sprd-iommu.c                    |  3 ++-
->   drivers/iommu/sun50i-iommu.c                  |  8 +++---
->   drivers/iommu/tegra-smmu.c                    | 10 ++++----
->   drivers/iommu/virtio-iommu.c                  |  6 +++--
->   26 files changed, 153 insertions(+), 100 deletions(-)
+>  arch/s390/include/asm/pci.h | 1 -
+>  arch/s390/pci/pci_irq.c     | 9 +--------
+>  2 files changed, 1 insertion(+), 9 deletions(-)
 
-Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
+The above sounds like this fixes a regression. Is there a reason why
+there are no Fixes and stable tags?
