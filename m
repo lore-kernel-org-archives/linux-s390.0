@@ -1,102 +1,83 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
+Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96191235063;
-	Thu, 23 Oct 2025 04:54:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43AD6248F73;
+	Thu, 23 Oct 2025 04:59:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=180.181.231.80
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761195257; cv=none; b=cKCwGgbmrBfvMDoWqHo9u31Z7IhQ7QJTN3SzgyrdBSk0J9R9iMCmRnV+x/M5tsA7rOJJUe+PC0bjfzVD8XQrUn1rV6WXyLKInQqpFhXPKBLpMsKwFZ1I79suvA99OVjTmUj4jO2s+UjksBDrWWjXWJU7g7TWe5QCBEOe61J/8l4=
+	t=1761195553; cv=none; b=V/G2S3NnFsYqUXmHm2EGDLjH71Sh+sjzr7e7XIsDoWskTRYVkvWX1VSqg4tETe1mOkEqhKDPlQJVBSB6KhWHRT/u5F2E1bQPGN9GYYAdlEdkpOI5103gOZJjmqQPQUVPcgLsAGnSshazVuORRwcaL4n9DxqV58D/Lbd02oWIwec=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761195257; c=relaxed/simple;
-	bh=o/X8ig17zbEWg83ccAFqusXE4QA15fbF7lAl6rfU1tQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bN5rycMMryd7OlYWuYuntftxxo1TQ1/SJy525sTz+TQ21IrPvSRlsHog96BkjysRF63FUHdDMzZf8Z97+4tDIBJmFX2STRjJoE/G2aI0dm+Cyybz7kJ1q0OdSyHBUw4jmcVVGOTqPaxwX9sM1fALD6A3jyBCvMHxaprmKZ30VMM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=FbYYuDXA; arc=none smtp.client-ip=198.175.65.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1761195553; c=relaxed/simple;
+	bh=rrbEnj3DV0oxTOPLUD0Z/2h2MgfbyEBUcgE/Y8ABUEM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=c35LkfQqJCBeWylQJ1xcdlYDzEFmUJpPQ4VbbSbXcOGwUKISWwJshP5Jj1NkmFeQ+UGLu/BE5ZZTw5FznNonpdfZDnqB6viItvkm7gkmLb+9qwYjdmLVL4jC4cFYvb2d8YNJxttOtVLpIC4ojeMP2g+G4FDHZ64vO6mojNyV+Pk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b=JYFLUg1k; arc=none smtp.client-ip=180.181.231.80
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FbYYuDXA"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1761195256; x=1792731256;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=o/X8ig17zbEWg83ccAFqusXE4QA15fbF7lAl6rfU1tQ=;
-  b=FbYYuDXAp/LXLr+T3JMvJyAe8UJgcWn1t5Y2vDTt3UTKFIKOOH4JxxCy
-   llEi+DpMBv7kXbjdFxyRkDDP7IYV5+GC92iilLgSAS6cReFNy2Ab2/fyo
-   H6wZaXgFFvzSpeRUN502qtCDUhW/YEDidgH3nl/OZs7UcXuwYcwYI2Xrg
-   Nl9DXGN6mYLXXYlVAdJ4AgM3UNjmRyxJufX6tvXL5lLMaD+wvK9or9VDl
-   gi+YC+1DTOqOeRcsh8fGuM/UjA7WAge31AQJtdauc6ClH1LRYcgLkBpz0
-   PrZM6oyi5BNoDofZKdSZxMVlEvJkoobW4I4gOryrs2Ew8Fo/tHrwk/ls4
-   w==;
-X-CSE-ConnectionGUID: u3l4LyIOQRe4s2S0B0Dq+w==
-X-CSE-MsgGUID: qHoVY+sKRiq++ux8oK7eYQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11586"; a="63502010"
-X-IronPort-AV: E=Sophos;i="6.19,248,1754982000"; 
-   d="scan'208";a="63502010"
-Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Oct 2025 21:54:15 -0700
-X-CSE-ConnectionGUID: HMCARIInQHW636C3OauOVA==
-X-CSE-MsgGUID: LmNg6KDHRqKFY/2EChkiAw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.19,248,1754982000"; 
-   d="scan'208";a="214985320"
-Received: from allen-sbox.sh.intel.com (HELO [10.239.159.30]) ([10.239.159.30])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Oct 2025 21:54:06 -0700
-Message-ID: <47b5dfbe-dda7-419d-9032-d61bda44eb9f@linux.intel.com>
-Date: Thu, 23 Oct 2025 12:50:13 +0800
+	dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b="JYFLUg1k"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=gondor.apana.org.au; s=h01; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:cc:to:subject:message-id:date:
+	from:content-type:reply-to; bh=CIeUsbP3Y4lD2ZSdupW7972wluaAD7FbogIr27LuHjI=; 
+	b=JYFLUg1kSBk89ymEx1qXwYEh3Byrw/RctEP8rSXme8rhb/EAsKg9qaK6GdTQeQp15iGwDBPQ7UR
+	CXYuHu9aCv+yieCWQDlCqX0Sb0782vZM45QwDIN9uFvul5GCSp4lwADbqfYS5elQS5k/IA9mH9MbY
+	mAFF7g3nP7TLTprrrCXK+oBc4gdOkdftMj9r3iNHJCWik8E02PN+HCthpouC+5aGe8UMk5BSC2GLU
+	gQFldUYFy23jgvwBq2Xdae3ljuBeTim0T6+caNrOuuglqM2FcS0iEA031ULMLsHOuEL6HtwKOPYVx
+	ZU+Ma+s/khLPxM62YC4jbxyvmnpasRWlPTqQ==;
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
+	id 1vBnPn-00EsGr-06;
+	Thu, 23 Oct 2025 12:59:08 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Thu, 23 Oct 2025 12:59:07 +0800
+Date: Thu, 23 Oct 2025 12:59:07 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
+	mpatocka@redhat.com
+Subject: Re: [PATCH v3] crypto: s390/phmac - Do not modify the req->nbytes
+ value
+Message-ID: <aPm2G5s0Ali-nVmA@gondor.apana.org.au>
+References: <20251017123254.140080-1-freude@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 5/6] iommu: Do not revert set_domain for the last gdev
-To: Nicolin Chen <nicolinc@nvidia.com>, joro@8bytes.org, jgg@nvidia.com,
- kevin.tian@intel.com
-Cc: suravee.suthikulpanit@amd.com, will@kernel.org, robin.murphy@arm.com,
- sven@kernel.org, j@jannau.net, robin.clark@oss.qualcomm.com,
- m.szyprowski@samsung.com, krzk@kernel.org, dwmw2@infradead.org,
- yong.wu@mediatek.com, matthias.bgg@gmail.com,
- angelogioacchino.delregno@collabora.com, tjeznach@rivosinc.com,
- pjw@kernel.org, palmer@dabbelt.com, aou@eecs.berkeley.edu, heiko@sntech.de,
- schnelle@linux.ibm.com, mjrosato@linux.ibm.com, orsonzhai@gmail.com,
- baolin.wang@linux.alibaba.com, wens@csie.org, jernej.skrabec@gmail.com,
- samuel@sholland.org, thierry.reding@gmail.com, jonathanh@nvidia.com,
- jean-philippe@linaro.org, iommu@lists.linux.dev,
- linux-kernel@vger.kernel.org, asahi@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
- linux-samsung-soc@vger.kernel.org, linux-mediatek@lists.infradead.org,
- linux-riscv@lists.infradead.org, linux-rockchip@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-sunxi@lists.linux.dev,
- linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
- patches@lists.linux.dev
-References: <cover.1761017765.git.nicolinc@nvidia.com>
- <276875013de662fe50f3fdd9e9a5bfbc0f12602e.1761017765.git.nicolinc@nvidia.com>
-Content-Language: en-US
-From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <276875013de662fe50f3fdd9e9a5bfbc0f12602e.1761017765.git.nicolinc@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251017123254.140080-1-freude@linux.ibm.com>
 
-On 10/23/25 10:21, Nicolin Chen wrote:
-> The last gdev is the device that failed the __iommu_device_set_domain().
-> So, it doesn't need to be reverted, given it's attached to group->domain
-> already.
+On Fri, Oct 17, 2025 at 02:32:54PM +0200, Harald Freudenberger wrote:
+> The phmac implementation used the req->nbytes field on combined
+> operations (finup, digest) to track the state:
+> with req->nbytes > 0 the update needs to be processed,
+> while req->nbytes == 0 means to do the final operation. For
+> this purpose the req->nbytes field was set to 0 after successful
+> update operation. However, aead uses the req->nbytes field after a
+> successful hash operation to determine the amount of data to
+> en/decrypt. So an implementation must not modify the nbytes field.
 > 
-> This is not a problem currently, since it's a simply re-attach. However,
-> the core will need to pass in the old domain to __iommu_device_set_domain
-> so the old domain pointers would be inconsistent between a failed device
-> and all its prior succeeded devices, as all the prior devices need to be
-> reverted.
+> Fixed by a slight rework on the phmac implementation. There is
+> now a new field async_op in the request context which tracks
+> the (asynch) operation to process. So the 'state' via req->nbytes
+> is not needed any more and now this field is untouched and may
+> be evaluated even after a request is processed by the phmac
+> implementation.
 > 
-> Avoid the re-attach for the last gdev, by breaking before the revert.
-> 
-> Reviewed-by: Jason Gunthorpe<jgg@nvidia.com>
-> Signed-off-by: Nicolin Chen<nicolinc@nvidia.com>
+> Fixes: cbbc675506cc ("crypto: s390 - New s390 specific protected key hash phmac")
+> Reported-by: Ingo Franzki <ifranzki@linux.ibm.com>
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> Tested-by: Ingo Franzki <ifranzki@linux.ibm.com>
+> Reviewed-by: Ingo Franzki <ifranzki@linux.ibm.com>
+> Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
 > ---
->   drivers/iommu/iommu.c | 5 +++--
->   1 file changed, 3 insertions(+), 2 deletions(-)
+>  arch/s390/crypto/phmac_s390.c | 52 +++++++++++++++++++++++------------
+>  1 file changed, 34 insertions(+), 18 deletions(-)
 
-Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
+Patch applied.  Thanks.
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
