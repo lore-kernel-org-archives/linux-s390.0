@@ -1,50 +1,50 @@
 Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74F0B155389;
-	Thu, 23 Oct 2025 04:47:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96191235063;
+	Thu, 23 Oct 2025 04:54:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761194828; cv=none; b=VMMslG1cnMyiARytCceExoDX7ohRYjK+aATOzw9xYbDl7e8hzk/Irbn+NAoxZ7ICwBq5bzYOBHi4SXVdOVxBSXAq1Xpwr/UqJLa/AoFO4ChR+vwModFRuLnpILS0k2feybV4clA0hY5nicUQUvphD2GVNKRJPsGBfmqs2/bNEjc=
+	t=1761195257; cv=none; b=cKCwGgbmrBfvMDoWqHo9u31Z7IhQ7QJTN3SzgyrdBSk0J9R9iMCmRnV+x/M5tsA7rOJJUe+PC0bjfzVD8XQrUn1rV6WXyLKInQqpFhXPKBLpMsKwFZ1I79suvA99OVjTmUj4jO2s+UjksBDrWWjXWJU7g7TWe5QCBEOe61J/8l4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761194828; c=relaxed/simple;
-	bh=toggoyR65FRMD2salpJRgrdbeLvnI/1Ai4wkilIe08M=;
+	s=arc-20240116; t=1761195257; c=relaxed/simple;
+	bh=o/X8ig17zbEWg83ccAFqusXE4QA15fbF7lAl6rfU1tQ=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=T/HdyxnDSmt9qqpLRNcey3ldOwl4C/x7tVPC++5iflu51+/vCF5earBY2QDO7StkH73zLx4nk6AUFlWPxethpW462gtBL2/C7IjYwuzoiR6tutpCuA8XOjy0bdDXOVqI4Jd3fro+te+tUC926cQNxzKyW2xVfR2HGcxhSbOhVjs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=KCvoaAU+; arc=none smtp.client-ip=198.175.65.16
+	 In-Reply-To:Content-Type; b=bN5rycMMryd7OlYWuYuntftxxo1TQ1/SJy525sTz+TQ21IrPvSRlsHog96BkjysRF63FUHdDMzZf8Z97+4tDIBJmFX2STRjJoE/G2aI0dm+Cyybz7kJ1q0OdSyHBUw4jmcVVGOTqPaxwX9sM1fALD6A3jyBCvMHxaprmKZ30VMM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=FbYYuDXA; arc=none smtp.client-ip=198.175.65.16
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="KCvoaAU+"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FbYYuDXA"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1761194827; x=1792730827;
+  t=1761195256; x=1792731256;
   h=message-id:date:mime-version:subject:to:cc:references:
    from:in-reply-to:content-transfer-encoding;
-  bh=toggoyR65FRMD2salpJRgrdbeLvnI/1Ai4wkilIe08M=;
-  b=KCvoaAU+SMb3mSAA/+AxYCMrz2PZnRF4oyaXxLhzMkjVvuzOaUsM3Pe4
-   +S6XpJ1xTMue91kKwZjDdEMoYOsm9gPkrtuZahyo/BU2a2Pz96LPCGgro
-   EeLhHlswv6nj3bky5RVV4tZSlTfiNrmN+F8isGfruPtUODQLgNB34fzNm
-   6aMJNEK2hOhJnYg6eJ7++U5Rt0DDeu0zfacoNg+JuPCbJQ+qb1hxTQHW6
-   FZ5+I8AY6/v2RgOzB7WxDV4iqNFDQ63NUossfKqt6Z+7gpLaEgdlnOBgk
-   gjnJNP5ssys3wPYRjkdZ3IjE2LQvcstQ0A70/QFYao0Vj3Ddj+/eEYhNG
-   A==;
-X-CSE-ConnectionGUID: VCiy3azBQbyZTI6nC0Pndg==
-X-CSE-MsgGUID: b1GmCMHwQoGVsbUnbpByFA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11586"; a="63501590"
+  bh=o/X8ig17zbEWg83ccAFqusXE4QA15fbF7lAl6rfU1tQ=;
+  b=FbYYuDXAp/LXLr+T3JMvJyAe8UJgcWn1t5Y2vDTt3UTKFIKOOH4JxxCy
+   llEi+DpMBv7kXbjdFxyRkDDP7IYV5+GC92iilLgSAS6cReFNy2Ab2/fyo
+   H6wZaXgFFvzSpeRUN502qtCDUhW/YEDidgH3nl/OZs7UcXuwYcwYI2Xrg
+   Nl9DXGN6mYLXXYlVAdJ4AgM3UNjmRyxJufX6tvXL5lLMaD+wvK9or9VDl
+   gi+YC+1DTOqOeRcsh8fGuM/UjA7WAge31AQJtdauc6ClH1LRYcgLkBpz0
+   PrZM6oyi5BNoDofZKdSZxMVlEvJkoobW4I4gOryrs2Ew8Fo/tHrwk/ls4
+   w==;
+X-CSE-ConnectionGUID: u3l4LyIOQRe4s2S0B0Dq+w==
+X-CSE-MsgGUID: qHoVY+sKRiq++ux8oK7eYQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11586"; a="63502010"
 X-IronPort-AV: E=Sophos;i="6.19,248,1754982000"; 
-   d="scan'208";a="63501590"
+   d="scan'208";a="63502010"
 Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Oct 2025 21:47:05 -0700
-X-CSE-ConnectionGUID: KCuFwfgeQhOOzq78NUB0nQ==
-X-CSE-MsgGUID: +WIDlni6TjybQawi0SaEdg==
+  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Oct 2025 21:54:15 -0700
+X-CSE-ConnectionGUID: HMCARIInQHW636C3OauOVA==
+X-CSE-MsgGUID: LmNg6KDHRqKFY/2EChkiAw==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.19,248,1754982000"; 
-   d="scan'208";a="214984355"
+   d="scan'208";a="214985320"
 Received: from allen-sbox.sh.intel.com (HELO [10.239.159.30]) ([10.239.159.30])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Oct 2025 21:46:56 -0700
-Message-ID: <99d27f65-4797-401f-a374-b3fccd67cdac@linux.intel.com>
-Date: Thu, 23 Oct 2025 12:43:02 +0800
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Oct 2025 21:54:06 -0700
+Message-ID: <47b5dfbe-dda7-419d-9032-d61bda44eb9f@linux.intel.com>
+Date: Thu, 23 Oct 2025 12:50:13 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -52,8 +52,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/6] iommu: Generic support for RMRs during device
- release
+Subject: Re: [PATCH v2 5/6] iommu: Do not revert set_domain for the last gdev
 To: Nicolin Chen <nicolinc@nvidia.com>, joro@8bytes.org, jgg@nvidia.com,
  kevin.tian@intel.com
 Cc: suravee.suthikulpanit@amd.com, will@kernel.org, robin.murphy@arm.com,
@@ -74,38 +73,30 @@ Cc: suravee.suthikulpanit@amd.com, will@kernel.org, robin.murphy@arm.com,
  linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
  patches@lists.linux.dev
 References: <cover.1761017765.git.nicolinc@nvidia.com>
- <80bbe9125d90b001f3ce08429704aa4168b0a00b.1761017765.git.nicolinc@nvidia.com>
+ <276875013de662fe50f3fdd9e9a5bfbc0f12602e.1761017765.git.nicolinc@nvidia.com>
 Content-Language: en-US
 From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <80bbe9125d90b001f3ce08429704aa4168b0a00b.1761017765.git.nicolinc@nvidia.com>
+In-Reply-To: <276875013de662fe50f3fdd9e9a5bfbc0f12602e.1761017765.git.nicolinc@nvidia.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 10/23/25 10:21, Nicolin Chen wrote:
-> From: Jason Gunthorpe<jgg@nvidia.com>
+> The last gdev is the device that failed the __iommu_device_set_domain().
+> So, it doesn't need to be reverted, given it's attached to group->domain
+> already.
 > 
-> Generally an IOMMU driver should leave the translation as BLOCKED until the
-> translation entry is probed onto a struct device. When the struct device is
-> removed, the translation should be put back to BLOCKED.
+> This is not a problem currently, since it's a simply re-attach. However,
+> the core will need to pass in the old domain to __iommu_device_set_domain
+> so the old domain pointers would be inconsistent between a failed device
+> and all its prior succeeded devices, as all the prior devices need to be
+> reverted.
 > 
-> Drivers that are able to work like this can set their release_domain to the
-> blocking domain, and the core code handles this work.
+> Avoid the re-attach for the last gdev, by breaking before the revert.
 > 
-> The exception is when the device has an IOMMU_RESV_DIRECT region, in which
-> case the OS should continuously allow translations for the given range. And
-> the core code generally prevents using a BLOCKED domain with this device.
-> 
-> Continue this logic for the device release and hoist some open coding from
-> drivers. If the device has dev->iommu->require_direct and the driver uses a
-> BLOCKED release_domain, override it to IDENTITY to preserve the semantics.
-> 
-> The only remaining required driver code for IOMMU_RESV_DIRECT should preset
-> an IDENTITY translation during early IOMMU startup for those devices.
-> 
-> Signed-off-by: Jason Gunthorpe<jgg@nvidia.com>
+> Reviewed-by: Jason Gunthorpe<jgg@nvidia.com>
 > Signed-off-by: Nicolin Chen<nicolinc@nvidia.com>
 > ---
->   drivers/iommu/iommu.c | 16 ++++++++++++++--
->   1 file changed, 14 insertions(+), 2 deletions(-)
+>   drivers/iommu/iommu.c | 5 +++--
+>   1 file changed, 3 insertions(+), 2 deletions(-)
 
 Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
