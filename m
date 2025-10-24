@@ -1,64 +1,64 @@
-Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
+Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90B4F35773C
-	for <linux-s390@vger.kernel.org>; Fri, 24 Oct 2025 19:10:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A2A435773B
+	for <linux-s390@vger.kernel.org>; Fri, 24 Oct 2025 19:12:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761333005; cv=none; b=PQO+DjDH6hbK1D1NotZRxdP27twlSNZH/SgQ2IJP3P7in4NG67Hg2c2142rMA1oNRVyqtYEoWJ1Dgdf5gz2DD9iw698nFP/p16kQ1/7llXUIm9dcLgWawt6NlgoYBbp0D6/UF2TXkeqxRRJQcycZYTU3YdIG5J7C2TGYuc4hMtk=
+	t=1761333134; cv=none; b=awJrH9uw7/v+t3Y8O4iaNrhaOiBK+sfzIjKv74I88HvJOQcGHUJ96zuV857y2sFfbRvN6WI/mOXbyYfHtQNv+P1eSTLiK8Ot3lVrJdcuuS3NwXCUh7J4RUTN0xkv6wEfUzgUkX4j/h9fCLwkVGtDXV90CCXvJGdQxF5ScahZVZ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761333005; c=relaxed/simple;
-	bh=eOV8n3GyeI7NGmNQOPYmpec1MI+qOKDL2up+UvX3whg=;
+	s=arc-20240116; t=1761333134; c=relaxed/simple;
+	bh=1HPzzMYQqxXuYn0hH8eWdbKEvenGvJhB7Md6BvkK5BU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Lv6Ypx8TMLDygflNN/H9lBdtD7RLaAef6Pa/2sowIst3aGz/A2KG8b17ktTS0D5k5zH/BL6WM7V/W4iTd08z5MVpp1LoYEijX7bxpcAglmad1eXbwn1HLr8nz2cLoPO0XkrRmioxHTYLwODoS89gipmPUJXc/YDalVohA+Qev2g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=YvjFzXO0; arc=none smtp.client-ip=209.85.222.179
+	 Content-Type:Content-Disposition:In-Reply-To; b=HSxFnF8hiTUWdhjEtHswDQepfmLyboyLr7TfQvktHdTU/Nyw9wq2Lp6m4EEQpB+E6eOzHR8kaR5wbighVhwMTJOX5QoanMlIRRDUk00O8hy5o937ENuvg9s7nhx2m2deq9pah4Vn71rEND/JZ7tTeddHB+wfYukyfjahE/ksYL8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=djkYqlQ2; arc=none smtp.client-ip=209.85.222.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="YvjFzXO0"
-Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-88ed6837e2eso356516585a.1
-        for <linux-s390@vger.kernel.org>; Fri, 24 Oct 2025 12:10:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="djkYqlQ2"
+Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-7f04816589bso266167885a.3
+        for <linux-s390@vger.kernel.org>; Fri, 24 Oct 2025 12:12:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1761333000; x=1761937800; darn=vger.kernel.org;
+        d=gourry.net; s=google; t=1761333132; x=1761937932; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=r4YhT6UkULx0zY0BI31WYEg/XWXtKp76n8KPsV3vFlM=;
-        b=YvjFzXO0J6h2ss5Sjx0x/YOHwNaZ4Tm+e+WqDpFH9ACMNz46aWXSiaQsQwolqekzQO
-         2buiBh7TWFig/XGHuU8xyyyCnwtmRTYFFY45EsAZmWULSomAfW1N2sgkiqXHUoHo6QTR
-         7CZ5LqV7OgWZGlcGb5jecQPrBWfpBrrsKfEN6nhZgnr0/mzyWb95v2Aoqltu98hD3TZk
-         IOG5fzcgJua53NNBnVpecM0fDkXU6wkdxKPJBexBF6Z3DCRjfkWDwMDZqWSMFu5PvSkZ
-         K75yKN3CZw31D88pNNMrUcdvvRHb3zV1rkpRutMPmDiSN1YLdM+henQF42C8jPnce2uU
-         k2Zw==
+        bh=BCR40IXSwb8+XBgjln+OQr+nWcDb8wZGch2v8uE7uTg=;
+        b=djkYqlQ2uBE1MVPYP1auCvtzMJ0Wu2EtdfpvkXLGD90SupS9f9s9/4rdKlaMhfEJox
+         DX/90A+NeF8nW1jkcJ3QJFRXNWojxQIuy6d97DSYvgLqJLVlDYpn0GN6Fo0WgvyM4pH8
+         Do0eRekndgYnh3AbtIMo0dTPH5EaHXWzEFzHMt3jiqHF5oFC2dS27VmhFEggEA5KM5xM
+         B5BT2gQH81z4fIfWm8uW8m/1Id4k3mjfbTaD9gvQUr+TESeom1DF+ui2wUjr/CgaY4+P
+         T16BZt1efnbfpsmkhUb4PW6+F3Fh55DVIgQNJJeehyKgzH6KB2UkkUuOSU0AjqDlm1V6
+         ebqw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761333000; x=1761937800;
+        d=1e100.net; s=20230601; t=1761333132; x=1761937932;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=r4YhT6UkULx0zY0BI31WYEg/XWXtKp76n8KPsV3vFlM=;
-        b=jqLpo5FgVrVqrw/zg7EPPGUMOFC3d+PD0MHDPKJ3VymxKwMHg1Orr3oVrPjd8jbSEs
-         SNF6z7G5+iljO/m7GVFw12940N/Hcbe9lwIXaP7lVXdbtj0Mk07neoZlmUHE5E8JDkqB
-         Yv97j0RqHpcFByGbOy1UkpY/w9cjl4LtJaCKkro6UmxYz6+OvA0zq5yBNxcNpvMHm30K
-         ch3flejUmiCi5i0K7x4b8DhnUvtalQ6C8a1LL5U0bPzI+U2kyyIZ28l/zR6JOF3S+KcD
-         JImyAs6Z6Bi7Oowkb6lvTFV3uIaubR1tDsdRV3K//adWGXHR4QR0IWLXxKZb8t50KXrG
-         2NgA==
-X-Forwarded-Encrypted: i=1; AJvYcCUolD1OiXrQVRQPld0RLKe5om4fhBSqXUH1RtsMK6gURvyoLiWF8HGzyUFU0lPgL1PuuckfqhbETjdF@vger.kernel.org
-X-Gm-Message-State: AOJu0YzYEc9z2KmdpLB4Ia4CSqVpiAZLGZBI3dANvUHQneAd3BzEKlcf
-	ZPgiJZuHYCE/qdc55wtjHlPXtjyr8P5BU758F0G6x7H07tf6fqPrAg9eGaSRdNTBBcU=
-X-Gm-Gg: ASbGnctx4oFGYBhDLtDeaZa5D9BQ85MoKKEs06n/rkvtJinBkCqSv8UBYs3W4IDJhLk
-	ulWVuR4LaIugK6NgLHjgOg1hI2M4FmHI42FEFv38U+rGCFcwHcsjOp7D5reymYWRgmTc59D5Gll
-	aU+p/yln8swf3Ty4P0J7TzwZ5OiKA0rK1xQLzRYkvnBsD9MBFmZGJU7k0Ayv8XeNpWZq8Zcz1OF
-	w0jO7TGX7JM5+iN7m2i1vEy54S58frnu5TzIXSQ0N3Im6/4lRnqNp0cwuNQ0CnxHa/axU4UY/+6
-	908rJZ7jd3QB7doHnGaaNeX3DvzjQg4YaV+Ew8cyVk4+u3S8RFP5Ckz69cFxmSsrge5mFt9Y8KP
-	hh5gNGb27ekz9E6YV5g/Xh6i1zrX1YZASIAttuiYWAiqykg7DgTdudw+xKvDnmqNJOyTCweaoBi
-	yhFqUg+W0WRKWoVkGScR3kWuDBG/RS9X2CXYT5v6PBMo/pGmeBF0QsrNBzFtY=
-X-Google-Smtp-Source: AGHT+IHrkcPaJLyTM5pJbJ/XVcfel+4u6gv+3P752b0IEbbyKeVVUPlOZ4xL4VMnAte1FxD358/CqA==
-X-Received: by 2002:a05:620a:40c4:b0:85f:82c1:c8b1 with SMTP id af79cd13be357-8907011583dmr3539276185a.46.1761333000331;
-        Fri, 24 Oct 2025 12:10:00 -0700 (PDT)
+        bh=BCR40IXSwb8+XBgjln+OQr+nWcDb8wZGch2v8uE7uTg=;
+        b=mAgUFXIZCAf7+ZekASfUooQy7CHh07vpgX4xbOT+b2Uvu39oqW5eDwXdXXj3lKCV5O
+         aMDTIvXKPsxE8z1bygeznCaF5bWsgWwY3k/JNrPuiPdytVOWGJ8LKieT3LXE5mEDTxFN
+         FFwfJXAvRw0kCkBpASpN3W4engjdfE50/0DOgSrpIdME9LYquGUtKCncyyHiH6/zsOms
+         7PfZ2iHro/IAJeuUsIdigHZeQtOEM+YXgsScFjMk160osDFfoOsQLzsgx0rp8TYMk0C7
+         OHv3pVNQlhgiu8DC+UcddGSunUtiLnXriOdHIeeKqdtTCI1btutacQHkzQM6Td7V3TBC
+         PgqA==
+X-Forwarded-Encrypted: i=1; AJvYcCV8W9p6gvpONnaYQ4bo4ozyEnOBbTjH2TvFSiDSUpKBlHad4taMi608sEMKBUmX5i37WtqgaeceRIsJ@vger.kernel.org
+X-Gm-Message-State: AOJu0YzLE+bmiERVKDhvbLbgnC6bqLnCcDhqRiTFJOzRh5K0cpvlSUVl
+	ijr0+plPAOEnSdsfW4JAfY9hO0k5WnWk9VyYBmJFGN0o/JxYdIgtD32QxaTfP3qEi9A=
+X-Gm-Gg: ASbGncv83dBC/0qOd5TiCmzLC1MrpoG/znAcX9ySA0iK37O01FXadUNb2MjqejcXv6r
+	eiEctWKhQeNUyBvI01TMOKUipQxAlXlIsU6t82o+G2Prlxn9oUnJJEXTurZkwdrNLcdWVkkyEak
+	EPHnKNkeXLzlT23zjpW7PCxZAjmrLnCvsWfoyrpGv6EqLoiRnaoZC1/wKmjVng5OkGbSSJECQ+6
+	LJWTcvOaydvpml0rLzQ+Ez6KJE51m7uneHvBckMfAOV/Ao+bN12e3j/nhTtMl/UO1cL7maLtD16
+	JmyLuoFglWWeSWXAmWvDfctkJw1NULBc3bsOEJ/2YkBbzyeZqhCTmngSluPjy8TQuiZWP8NNcRF
+	GwXvV1rL37R8FQdbnJZaYtjvI1MIbVEOX0rbZ6spAtvRCqERyxAUHXc1OBh3gdOoAhSKXKozT+7
+	/qmLbNNSkGuUaljgmr5Sg8F0DErfosEgXAx0EG//kaVbGZLodHpWoMUoKbecM=
+X-Google-Smtp-Source: AGHT+IE/iLPq0l1+7yrz/BbyhVyC9k5N0OQCI/Q9HFSHISzKMdQEsDIOj6nKXRkCdZrjDczCxThRnw==
+X-Received: by 2002:a05:620a:178c:b0:892:eb85:53cd with SMTP id af79cd13be357-892eb855743mr2482012485a.42.1761333131934;
+        Fri, 24 Oct 2025 12:12:11 -0700 (PDT)
 Received: from gourry-fedora-PF4VCD3F (pool-96-255-20-138.washdc.ftas.verizon.net. [96.255.20.138])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-89c11e631e4sm442634485a.44.2025.10.24.12.09.58
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4eb805e0869sm40330861cf.1.2025.10.24.12.12.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Oct 2025 12:09:59 -0700 (PDT)
-Date: Fri, 24 Oct 2025 15:09:57 -0400
+        Fri, 24 Oct 2025 12:12:11 -0700 (PDT)
+Date: Fri, 24 Oct 2025 15:12:08 -0400
 From: Gregory Price <gourry@gourry.net>
 To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>,
@@ -97,13 +97,12 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
 	kvm@vger.kernel.org, linux-s390@vger.kernel.org,
 	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
 	linux-mm@kvack.org
-Subject: Re: [RFC PATCH 09/12] mm/huge_memory: refactor change_huge_pmd()
- non-present logic
-Message-ID: <aPvPBS5H0E9OXEo1@gourry-fedora-PF4VCD3F>
+Subject: Re: [RFC PATCH 05/12] fs/proc/task_mmu: refactor pagemap_pmd_range()
+Message-ID: <aPvPiI4BxTIzasq1@gourry-fedora-PF4VCD3F>
 References: <cover.1761288179.git.lorenzo.stoakes@oracle.com>
- <282c5f993e61ca57a764a84d0abb96e355dee852.1761288179.git.lorenzo.stoakes@oracle.com>
- <aPvIPqEfnxxQ7duJ@gourry-fedora-PF4VCD3F>
- <2563f7e1-347c-4e62-9c03-98805c6aa446@lucifer.local>
+ <2ce1da8c64bf2f831938d711b047b2eba0fa9f32.1761288179.git.lorenzo.stoakes@oracle.com>
+ <aPu4LWGdGSQR_xY0@gourry-fedora-PF4VCD3F>
+ <76348b1f-2626-4010-8269-edd74a936982@lucifer.local>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -112,17 +111,21 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2563f7e1-347c-4e62-9c03-98805c6aa446@lucifer.local>
+In-Reply-To: <76348b1f-2626-4010-8269-edd74a936982@lucifer.local>
 
-On Fri, Oct 24, 2025 at 07:44:41PM +0100, Lorenzo Stoakes wrote:
-> On Fri, Oct 24, 2025 at 02:41:02PM -0400, Gregory Price wrote:
+On Fri, Oct 24, 2025 at 07:19:11PM +0100, Lorenzo Stoakes wrote:
+> On Fri, Oct 24, 2025 at 01:32:29PM -0400, Gregory Price wrote:
 > 
-> You can see it's equivalent except we rely on compiler removing dead code when
-> we use thp_migration_supported() obviously (which is fine)
-> 
+> A next step will be to at least rename swp_entry_t to something else, because
+> every last remnant of this 'swap entries but not really' needs to be dealt
+> with...
+>
 
-derp - disregard.  End of the day friday is probably not the time to
-be doing core patch reviews :P.
+hah, was just complaining about this on the other patch.
 
-Cheers,
+ptleaf_entry_t?
+
+:shrug:
+
+keep fighting the good fight
 ~Gregory
