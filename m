@@ -1,149 +1,429 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA39430E0C7
-	for <linux-s390@vger.kernel.org>; Fri, 24 Oct 2025 10:05:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1729930E0E0;
+	Fri, 24 Oct 2025 10:12:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761300333; cv=none; b=VQRJGFHMqIhiO5kbgz9BEuoZkA5VpxtzzrJwdX/CSQgkSf6U+wLbZTJjG223YFe7UXh9hzXk3HohJg3zObFe6YM8PiX8hSlcXKn8J2Ef6A7tg85nTu9g+Cln+jrP8UF3TCeb0GJL/XmxfBWKZ6EiXPNUoZAEloaV+zIviteKF2E=
+	t=1761300764; cv=none; b=i2Lsk9vn/7DJTDfdNPAQT/pZsRXbkc96WJk7qsVjHMZt0Di8jSDLSYjFmbLg5365oC0xJQYjT/sXOhOm9T9ZCg6v73TlSCKIvbYTThYMcl0c7Wvc96onL+4J9h4bAU85EDPHIfUqkpjiWgXRZbWDGUHMoSVWpJkFbK302TYZ2z4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761300333; c=relaxed/simple;
-	bh=efrS9BaHzDRqhG4QPznfmvIjLIwB/bsLCdY70IE0Tv4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bnzVRIe7ar8XVHINZlLHrP7CpnDwu0Nr5IiKt6Psf4mf015TMH2QXFKqIcbSngCsuQn8PPLzn6pyuy4MU9BCtaKacTazMzU44OqgU21CnWpn4HgdI0whg+LoGJVeeTSd4b4DLKu7nXAUKk5b4v4oxFzDtTCrJFOALIZ8uAwHZa8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LSlB0Dh1; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1761300764; c=relaxed/simple;
+	bh=xlFYDG2bQlVTloS05eCO9qDMzMthfcITU9mwgsQzjDk=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=u7lGLfNdduDGi/gSmQUmuM8vf1JX9HEjp1XKkl5UCnm9uyhIdHJt/dcDA5TglonY+x1Tj/INY6l3T+STOvUDcOHlKV7iaak/qhwNDa2EQbZWh90FSfUbyso1v2mL/68jdLrpPwBV3Vav/fEckzoubHr3T4WWxtfmV16x+uryQrk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=eNGIJm7A; arc=none smtp.client-ip=192.198.163.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LSlB0Dh1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52BCDC113D0
-	for <linux-s390@vger.kernel.org>; Fri, 24 Oct 2025 10:05:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1761300333;
-	bh=efrS9BaHzDRqhG4QPznfmvIjLIwB/bsLCdY70IE0Tv4=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=LSlB0Dh1NSpS/8uneJsnnbGYw6rT7CMLI2jcZevmBWtZpigdzWvSTOzE4mXD4eqdn
-	 2w4TtPSZnPE606Dqnm0qzfQPlujwqqBAIbsjqgTVOAAp7nc5mzAckY/VZYCSig7UiV
-	 wKwfhMx862FZZUcc5yGBudrBYPDAACMpiaGzTwczT/NB9eXVTRsqH54r2pTrUov9S3
-	 Epx4VstKOE4K2AZlT7MWmrBF46uDeryS4nVfbf0lEDAYyk/zwxuETeBwWTt2TNpNtV
-	 ujpK1IXZtAFizaa0IjOh+hgpDrvb0cjfqQmqstkk0I4A7X+SqUqtszq6zRtd6hrJ7o
-	 ucsa30tvHR6kg==
-Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-63e18829aa7so2668531a12.3
-        for <linux-s390@vger.kernel.org>; Fri, 24 Oct 2025 03:05:33 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCVB6aqqkDSXH4bzS2i4tOKQIdP7DYUSl0ZCt2ri0A+lvBEWGVm8ZdC+M3ehM/uM3xhBOIainl0mQmlK@vger.kernel.org
-X-Gm-Message-State: AOJu0YwsjeGEwMBTFJSrblueTn0JJfmvhcd4XQTRU7OiiF7QdnA9OIXo
-	23BZfYQoznz330sb24NHTZt/ts4gpQNUstE/ZPrJrH5O7HG76e82xlVIcJe23RxAbrNA5g4IKmt
-	OqkQofJFbM9/vdyabJgmCdHeZzhn0Ti8=
-X-Google-Smtp-Source: AGHT+IFHKF3NqoBmlDZaV0FmRNKD8/mFve+wH2ZdxsuoPoEiVQWtYjjzOJHSr2GPjLRNRae1vdUmrmDSA+Q6Q598ylA=
-X-Received: by 2002:a05:6402:2551:b0:639:ff4f:4bba with SMTP id
- 4fb4d7f45d1cf-63c1f631c38mr25690693a12.2.1761300331796; Fri, 24 Oct 2025
- 03:05:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="eNGIJm7A"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1761300762; x=1792836762;
+  h=from:to:cc:subject:in-reply-to:references:date:
+   message-id:mime-version;
+  bh=xlFYDG2bQlVTloS05eCO9qDMzMthfcITU9mwgsQzjDk=;
+  b=eNGIJm7AN7UlVokllgHjFBz5m43Sw5zshgu0bzexnF2+eb9ZPouuSB3P
+   gQHR+xKYE2s2Gy5b2Q99Ie0rydQPkBqlmwdhpankG0U+9tlfT1HKx6k0e
+   0L6adnMa1FDRbTjmSg+RttFe45XdmRjH3GUUVF5oaUHSuLZlWYAvoycH0
+   i1xk93TCuRWDZPNeBQaO/u46zya7AmOWQE0OZ0SHu3eTQbBaCszUxDuB+
+   2v6uJR5pPWcDgG0VS3wu+E1+XEHaiG0tjEfmM1n2vFlUxBeI664154MbC
+   aA/09nvNP+rMrubt265fzlxV+q+eOgv3habUFACQGw1FdfNUcbDVNu2vR
+   Q==;
+X-CSE-ConnectionGUID: H+x17JegQDao8VujjAQpIg==
+X-CSE-MsgGUID: 5w17pZfdSXOG8HhPLW7HXQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11586"; a="67347159"
+X-IronPort-AV: E=Sophos;i="6.19,252,1754982000"; 
+   d="scan'208";a="67347159"
+Received: from fmviesa007.fm.intel.com ([10.60.135.147])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Oct 2025 03:12:41 -0700
+X-CSE-ConnectionGUID: A7yLYNKyQ0Ws/5qhPckICQ==
+X-CSE-MsgGUID: aVukQjuxQOaWBvcBdIAMQA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.19,252,1754982000"; 
+   d="scan'208";a="184109635"
+Received: from dhhellew-desk2.ger.corp.intel.com (HELO localhost) ([10.245.246.230])
+  by fmviesa007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Oct 2025 03:12:31 -0700
+From: Jani Nikula <jani.nikula@linux.intel.com>
+To: Jason Gunthorpe <jgg@nvidia.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, David Airlie <airlied@gmail.com>, Alex
+ Williamson <alex.williamson@redhat.com>, Ankit Agrawal
+ <ankita@nvidia.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Brett Creeley <brett.creeley@amd.com>, dri-devel@lists.freedesktop.org,
+ Eric Auger <eric.auger@redhat.com>, Eric Farman <farman@linux.ibm.com>,
+ Giovanni Cabiddu <giovanni.cabiddu@intel.com>, Vasily Gorbik
+ <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+ intel-gfx@lists.freedesktop.org, Joonas Lahtinen
+ <joonas.lahtinen@linux.intel.com>, Kevin Tian <kevin.tian@intel.com>,
+ kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+ linux-s390@vger.kernel.org, Longfang Liu <liulongfang@huawei.com>, Matthew
+ Rosato <mjrosato@linux.ibm.com>, Nikhil Agarwal <nikhil.agarwal@amd.com>,
+ Nipun Gupta <nipun.gupta@amd.com>, Peter Oberparleiter
+ <oberpar@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, Pranjal
+ Shrivastava <praan@google.com>, qat-linux@intel.com, Rodrigo Vivi
+ <rodrigo.vivi@intel.com>, Simona Vetter <simona@ffwll.ch>, Shameer
+ Kolothum <skolothumtho@nvidia.com>, Mostafa Saleh <smostafa@google.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Tvrtko Ursulin
+ <tursulin@ursulin.net>, virtualization@lists.linux.dev, Vineeth Vijayan
+ <vneethv@linux.ibm.com>, Yishai Hadas <yishaih@nvidia.com>, Zhenyu Wang
+ <zhenyuw.linux@gmail.com>, Zhi Wang <zhi.wang.linux@gmail.com>
+Cc: patches@lists.linux.dev
+Subject: Re: [PATCH 13/22] vfio/gvt: Provide a get_region_info op
+In-Reply-To: <13-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+References: <13-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+Date: Fri, 24 Oct 2025 13:12:28 +0300
+Message-ID: <c30b38456cc11ced5b74d9d38900cf8544a1978e@intel.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <d3f11e8562f589ddb2c1c83e74161bd8948084c3.camel@linux.ibm.com>
- <CAAhV-H4Q932R0fAbL6JyygZcgALdO_HJZ1Cqo88EhNMm04yjtQ@mail.gmail.com> <163456ca8cf900e24fe3b9ce71fdad7b68398058.camel@linux.ibm.com>
-In-Reply-To: <163456ca8cf900e24fe3b9ce71fdad7b68398058.camel@linux.ibm.com>
-From: Huacai Chen <chenhuacai@kernel.org>
-Date: Fri, 24 Oct 2025 18:05:19 +0800
-X-Gmail-Original-Message-ID: <CAAhV-H58cjSgPLPfSSZD4DSSct_bKLF6SYMSJpBwdUT8NY3AhA@mail.gmail.com>
-X-Gm-Features: AWmQ_bn7F9mwmAnOW8C62JDHkaD4KHO_NxlTLxyK-o3RilHrWBmtY9bE5wxagHA
-Message-ID: <CAAhV-H58cjSgPLPfSSZD4DSSct_bKLF6SYMSJpBwdUT8NY3AhA@mail.gmail.com>
-Subject: Re: Potential issue with hypervisor_isolated_pci_functions() handling
-To: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Jan Kiszka <jan.kiszka@siemens.com>, Bjorn Helgaas <helgaas@kernel.org>, 
-	linux-pci <linux-pci@vger.kernel.org>, jailhouse-dev@googlegroups.com, 
-	linux-s390 <linux-s390@vger.kernel.org>, loongarch@lists.linux.dev, 
-	Farhan Ali <alifm@linux.ibm.com>, Matthew Rosato <mjrosato@linux.ibm.com>, 
-	Tianrui Zhao <zhaotianrui@loongson.cn>, Gerd Bayer <gbayer@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 
-Hi, Niklas,
+On Thu, 23 Oct 2025, Jason Gunthorpe <jgg@nvidia.com> wrote:
+> Move it out of intel_vgpu_ioctl() and re-indent it.
 
-On Thu, Oct 23, 2025 at 11:25=E2=80=AFPM Niklas Schnelle <schnelle@linux.ib=
-m.com> wrote:
->
-> On Wed, 2025-10-22 at 22:49 +0800, Huacai Chen wrote:
-> > Hi, Niklas,
-> >
-> > On Wed, Oct 22, 2025 at 7:40=E2=80=AFPM Niklas Schnelle <schnelle@linux=
-.ibm.com> wrote:
-> > >
-> > > Hi Huacai, Hi Jan, Hi Bjorn,
-> > >
-> > > I noticed that with commit a02fd05661d7 ("PCI: Extend isolated functi=
-on
-> > > probing to LoongArch") LoongArch now also makes use of the isolated
-> > > function probing. First, nice to see this sees more users and that th=
-e
-> > > interface is useful to you.
-> > >
-> > > Seeing this, I was reminded of an issue I ran into when using this
-> > > mechanism with SR-IOV capable devices. In that case VFs with devfn > =
-7
-> > > and PCI_SLOT(devfn) !=3D 0 wouldn't get probed.
-> > > This is because if a device is found next_fn() will check whether dev=
--
-> > > > multifunction is set. So if for example devfn =3D=3D 8 is found (fn=
- =3D=3D 0)
-> > > dev->multifunction won't be set in pci_scan_slot() and for VFs it's
-> > > also not set via PCI_HEADER_TYPE_MFD. So we won't check for devfn =3D=
-=3D 9
-> > > even though that could very well be there.
-> > >
-> > > Now for s390 this currently doesn't cause issues because for all
-> > > multifunction devices we have, we either get a VF alone and then sinc=
-e
-> > > commit 25f39d3dcb48 ("s390/pci: Ignore RID for isolated VFs") use dev=
-fn
-> > > =3D=3D 0, or we have the parent PF passed-through and then VFs always=
- get
-> > > hot plugged after SR-IOV enable, which then uses
-> > > pci_scan_single_device(). And for non VFs we always have devfn =3D=3D=
- 0
-> > > and/or devfn =3D=3D 1 and multifunction via the header. So in a sense=
- the
-> > > above commit works around the issue, though that wasn't its primary
-> > > intention.
-> > >
-> > > Did either of you also run into this issue or can reproduce it?
-> > >
-> > > Somewhat related, if ARI is enabled this would also break the isolate=
-d
-> > > function case including on s390 where ARI is used by the platform
-> > > firmware, but detected as off by Linux because there is no struct
-> > > pci_dev associated with the PCI bus. If I patch Linux to correctly
-> > > detect ARI, it no longer finds an isolated PF with devfn =3D=3D 1.
-> > LoongArch do have some problems after commit a02fd05661d7 ("PCI:
-> > Extend isolated function probing to LoongArch"). Please see:
-> > https://lore.kernel.org/linux-pci/20251014074100.2149737-1-chenhuacai@l=
-oongson.cn/
-> >
-> > Now we don't know what happens exactly, so I haven't answered Bjorn's
-> > question...
-> >
-> > Huacai
-> >
->
-> Hi Huacai,
->
-> I have now send[0] a fix proposal together with correctly exposing ARI
-> enablement in s390. I also reproduced both the issue I saw with SR-IOV
-> and with ARI and confirmed that the first patch in the series fixes
-> them. You're on Cc and I'd highly appreciate if you could test whether
-> this fixes your issues as well.
->
-> Thanks,
-> Niklas
->
-> [0]
-> https://lore.kernel.org/linux-pci/20251023-ari_no_bus_dev-v4-0-8482e2ed10=
-bd@linux.ibm.com/
+Not a huge deal, but this will conflict with 69b4d367fff6
+("drm/i915/gvt: Simplify case switch in intel_vgpu_ioctl") in
+drm-intel-next.
 
-There are two patches in this series. If LoongArch has a similar
-problem as S390, only the first patch is enough, or should we need an
-architectural change similar to the second patch?
+BR,
+Jani.
 
-Huacai
+
+>
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/gpu/drm/i915/gvt/kvmgt.c | 301 +++++++++++++++----------------
+>  1 file changed, 150 insertions(+), 151 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
+> index 69830a5c49d3fd..6b47e33078eb52 100644
+> --- a/drivers/gpu/drm/i915/gvt/kvmgt.c
+> +++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
+> @@ -1140,6 +1140,155 @@ static int intel_vgpu_set_irqs(struct intel_vgpu *vgpu, u32 flags,
+>  	return func(vgpu, index, start, count, flags, data);
+>  }
+>  
+> +static int intel_vgpu_get_region_info(struct vfio_device *vfio_dev,
+> +				      struct vfio_region_info __user *arg)
+> +{
+> +	struct vfio_info_cap caps = { .buf = NULL, .size = 0 };
+> +	struct vfio_region_info_cap_sparse_mmap *sparse = NULL;
+> +	struct intel_vgpu *vgpu = vfio_dev_to_vgpu(vfio_dev);
+> +	struct vfio_region_info info;
+> +	unsigned long minsz;
+> +	int nr_areas = 1;
+> +	int cap_type_id;
+> +	unsigned int i;
+> +	int ret;
+> +
+> +	minsz = offsetofend(struct vfio_region_info, offset);
+> +
+> +	if (copy_from_user(&info, arg, minsz))
+> +		return -EFAULT;
+> +
+> +	if (info.argsz < minsz)
+> +		return -EINVAL;
+> +
+> +	switch (info.index) {
+> +	case VFIO_PCI_CONFIG_REGION_INDEX:
+> +		info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
+> +		info.size = vgpu->gvt->device_info.cfg_space_size;
+> +		info.flags = VFIO_REGION_INFO_FLAG_READ |
+> +			     VFIO_REGION_INFO_FLAG_WRITE;
+> +		break;
+> +	case VFIO_PCI_BAR0_REGION_INDEX:
+> +		info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
+> +		info.size = vgpu->cfg_space.bar[info.index].size;
+> +		if (!info.size) {
+> +			info.flags = 0;
+> +			break;
+> +		}
+> +
+> +		info.flags = VFIO_REGION_INFO_FLAG_READ |
+> +			     VFIO_REGION_INFO_FLAG_WRITE;
+> +		break;
+> +	case VFIO_PCI_BAR1_REGION_INDEX:
+> +		info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
+> +		info.size = 0;
+> +		info.flags = 0;
+> +		break;
+> +	case VFIO_PCI_BAR2_REGION_INDEX:
+> +		info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
+> +		info.flags = VFIO_REGION_INFO_FLAG_CAPS |
+> +			     VFIO_REGION_INFO_FLAG_MMAP |
+> +			     VFIO_REGION_INFO_FLAG_READ |
+> +			     VFIO_REGION_INFO_FLAG_WRITE;
+> +		info.size = gvt_aperture_sz(vgpu->gvt);
+> +
+> +		sparse = kzalloc(struct_size(sparse, areas, nr_areas),
+> +				 GFP_KERNEL);
+> +		if (!sparse)
+> +			return -ENOMEM;
+> +
+> +		sparse->header.id = VFIO_REGION_INFO_CAP_SPARSE_MMAP;
+> +		sparse->header.version = 1;
+> +		sparse->nr_areas = nr_areas;
+> +		cap_type_id = VFIO_REGION_INFO_CAP_SPARSE_MMAP;
+> +		sparse->areas[0].offset =
+> +			PAGE_ALIGN(vgpu_aperture_offset(vgpu));
+> +		sparse->areas[0].size = vgpu_aperture_sz(vgpu);
+> +		break;
+> +
+> +	case VFIO_PCI_BAR3_REGION_INDEX ... VFIO_PCI_BAR5_REGION_INDEX:
+> +		info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
+> +		info.size = 0;
+> +		info.flags = 0;
+> +
+> +		gvt_dbg_core("get region info bar:%d\n", info.index);
+> +		break;
+> +
+> +	case VFIO_PCI_ROM_REGION_INDEX:
+> +	case VFIO_PCI_VGA_REGION_INDEX:
+> +		info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
+> +		info.size = 0;
+> +		info.flags = 0;
+> +
+> +		gvt_dbg_core("get region info index:%d\n", info.index);
+> +		break;
+> +	default: {
+> +		struct vfio_region_info_cap_type cap_type = {
+> +			.header.id = VFIO_REGION_INFO_CAP_TYPE,
+> +			.header.version = 1
+> +		};
+> +
+> +		if (info.index >= VFIO_PCI_NUM_REGIONS + vgpu->num_regions)
+> +			return -EINVAL;
+> +		info.index = array_index_nospec(
+> +			info.index, VFIO_PCI_NUM_REGIONS + vgpu->num_regions);
+> +
+> +		i = info.index - VFIO_PCI_NUM_REGIONS;
+> +
+> +		info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
+> +		info.size = vgpu->region[i].size;
+> +		info.flags = vgpu->region[i].flags;
+> +
+> +		cap_type.type = vgpu->region[i].type;
+> +		cap_type.subtype = vgpu->region[i].subtype;
+> +
+> +		ret = vfio_info_add_capability(&caps, &cap_type.header,
+> +					       sizeof(cap_type));
+> +		if (ret)
+> +			return ret;
+> +	}
+> +	}
+> +
+> +	if ((info.flags & VFIO_REGION_INFO_FLAG_CAPS) && sparse) {
+> +		switch (cap_type_id) {
+> +		case VFIO_REGION_INFO_CAP_SPARSE_MMAP:
+> +			ret = vfio_info_add_capability(
+> +				&caps, &sparse->header,
+> +				struct_size(sparse, areas, sparse->nr_areas));
+> +			if (ret) {
+> +				kfree(sparse);
+> +				return ret;
+> +			}
+> +			break;
+> +		default:
+> +			kfree(sparse);
+> +			return -EINVAL;
+> +		}
+> +	}
+> +
+> +	if (caps.size) {
+> +		info.flags |= VFIO_REGION_INFO_FLAG_CAPS;
+> +		if (info.argsz < sizeof(info) + caps.size) {
+> +			info.argsz = sizeof(info) + caps.size;
+> +			info.cap_offset = 0;
+> +		} else {
+> +			vfio_info_cap_shift(&caps, sizeof(info));
+> +			if (copy_to_user((void __user *)arg + sizeof(info),
+> +					 caps.buf, caps.size)) {
+> +				kfree(caps.buf);
+> +				kfree(sparse);
+> +				return -EFAULT;
+> +			}
+> +			info.cap_offset = sizeof(info);
+> +		}
+> +
+> +		kfree(caps.buf);
+> +	}
+> +
+> +	kfree(sparse);
+> +	return copy_to_user(arg, &info, minsz) ? -EFAULT : 0;
+> +}
+> +
+>  static long intel_vgpu_ioctl(struct vfio_device *vfio_dev, unsigned int cmd,
+>  			     unsigned long arg)
+>  {
+> @@ -1168,157 +1317,6 @@ static long intel_vgpu_ioctl(struct vfio_device *vfio_dev, unsigned int cmd,
+>  		return copy_to_user((void __user *)arg, &info, minsz) ?
+>  			-EFAULT : 0;
+>  
+> -	} else if (cmd == VFIO_DEVICE_GET_REGION_INFO) {
+> -		struct vfio_region_info info;
+> -		struct vfio_info_cap caps = { .buf = NULL, .size = 0 };
+> -		unsigned int i;
+> -		int ret;
+> -		struct vfio_region_info_cap_sparse_mmap *sparse = NULL;
+> -		int nr_areas = 1;
+> -		int cap_type_id;
+> -
+> -		minsz = offsetofend(struct vfio_region_info, offset);
+> -
+> -		if (copy_from_user(&info, (void __user *)arg, minsz))
+> -			return -EFAULT;
+> -
+> -		if (info.argsz < minsz)
+> -			return -EINVAL;
+> -
+> -		switch (info.index) {
+> -		case VFIO_PCI_CONFIG_REGION_INDEX:
+> -			info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
+> -			info.size = vgpu->gvt->device_info.cfg_space_size;
+> -			info.flags = VFIO_REGION_INFO_FLAG_READ |
+> -				     VFIO_REGION_INFO_FLAG_WRITE;
+> -			break;
+> -		case VFIO_PCI_BAR0_REGION_INDEX:
+> -			info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
+> -			info.size = vgpu->cfg_space.bar[info.index].size;
+> -			if (!info.size) {
+> -				info.flags = 0;
+> -				break;
+> -			}
+> -
+> -			info.flags = VFIO_REGION_INFO_FLAG_READ |
+> -				     VFIO_REGION_INFO_FLAG_WRITE;
+> -			break;
+> -		case VFIO_PCI_BAR1_REGION_INDEX:
+> -			info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
+> -			info.size = 0;
+> -			info.flags = 0;
+> -			break;
+> -		case VFIO_PCI_BAR2_REGION_INDEX:
+> -			info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
+> -			info.flags = VFIO_REGION_INFO_FLAG_CAPS |
+> -					VFIO_REGION_INFO_FLAG_MMAP |
+> -					VFIO_REGION_INFO_FLAG_READ |
+> -					VFIO_REGION_INFO_FLAG_WRITE;
+> -			info.size = gvt_aperture_sz(vgpu->gvt);
+> -
+> -			sparse = kzalloc(struct_size(sparse, areas, nr_areas),
+> -					 GFP_KERNEL);
+> -			if (!sparse)
+> -				return -ENOMEM;
+> -
+> -			sparse->header.id = VFIO_REGION_INFO_CAP_SPARSE_MMAP;
+> -			sparse->header.version = 1;
+> -			sparse->nr_areas = nr_areas;
+> -			cap_type_id = VFIO_REGION_INFO_CAP_SPARSE_MMAP;
+> -			sparse->areas[0].offset =
+> -					PAGE_ALIGN(vgpu_aperture_offset(vgpu));
+> -			sparse->areas[0].size = vgpu_aperture_sz(vgpu);
+> -			break;
+> -
+> -		case VFIO_PCI_BAR3_REGION_INDEX ... VFIO_PCI_BAR5_REGION_INDEX:
+> -			info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
+> -			info.size = 0;
+> -			info.flags = 0;
+> -
+> -			gvt_dbg_core("get region info bar:%d\n", info.index);
+> -			break;
+> -
+> -		case VFIO_PCI_ROM_REGION_INDEX:
+> -		case VFIO_PCI_VGA_REGION_INDEX:
+> -			info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
+> -			info.size = 0;
+> -			info.flags = 0;
+> -
+> -			gvt_dbg_core("get region info index:%d\n", info.index);
+> -			break;
+> -		default:
+> -			{
+> -				struct vfio_region_info_cap_type cap_type = {
+> -					.header.id = VFIO_REGION_INFO_CAP_TYPE,
+> -					.header.version = 1 };
+> -
+> -				if (info.index >= VFIO_PCI_NUM_REGIONS +
+> -						vgpu->num_regions)
+> -					return -EINVAL;
+> -				info.index =
+> -					array_index_nospec(info.index,
+> -							VFIO_PCI_NUM_REGIONS +
+> -							vgpu->num_regions);
+> -
+> -				i = info.index - VFIO_PCI_NUM_REGIONS;
+> -
+> -				info.offset =
+> -					VFIO_PCI_INDEX_TO_OFFSET(info.index);
+> -				info.size = vgpu->region[i].size;
+> -				info.flags = vgpu->region[i].flags;
+> -
+> -				cap_type.type = vgpu->region[i].type;
+> -				cap_type.subtype = vgpu->region[i].subtype;
+> -
+> -				ret = vfio_info_add_capability(&caps,
+> -							&cap_type.header,
+> -							sizeof(cap_type));
+> -				if (ret)
+> -					return ret;
+> -			}
+> -		}
+> -
+> -		if ((info.flags & VFIO_REGION_INFO_FLAG_CAPS) && sparse) {
+> -			switch (cap_type_id) {
+> -			case VFIO_REGION_INFO_CAP_SPARSE_MMAP:
+> -				ret = vfio_info_add_capability(&caps,
+> -					&sparse->header,
+> -					struct_size(sparse, areas,
+> -						    sparse->nr_areas));
+> -				if (ret) {
+> -					kfree(sparse);
+> -					return ret;
+> -				}
+> -				break;
+> -			default:
+> -				kfree(sparse);
+> -				return -EINVAL;
+> -			}
+> -		}
+> -
+> -		if (caps.size) {
+> -			info.flags |= VFIO_REGION_INFO_FLAG_CAPS;
+> -			if (info.argsz < sizeof(info) + caps.size) {
+> -				info.argsz = sizeof(info) + caps.size;
+> -				info.cap_offset = 0;
+> -			} else {
+> -				vfio_info_cap_shift(&caps, sizeof(info));
+> -				if (copy_to_user((void __user *)arg +
+> -						  sizeof(info), caps.buf,
+> -						  caps.size)) {
+> -					kfree(caps.buf);
+> -					kfree(sparse);
+> -					return -EFAULT;
+> -				}
+> -				info.cap_offset = sizeof(info);
+> -			}
+> -
+> -			kfree(caps.buf);
+> -		}
+> -
+> -		kfree(sparse);
+> -		return copy_to_user((void __user *)arg, &info, minsz) ?
+> -			-EFAULT : 0;
+>  	} else if (cmd == VFIO_DEVICE_GET_IRQ_INFO) {
+>  		struct vfio_irq_info info;
+>  
+> @@ -1475,6 +1473,7 @@ static const struct vfio_device_ops intel_vgpu_dev_ops = {
+>  	.write		= intel_vgpu_write,
+>  	.mmap		= intel_vgpu_mmap,
+>  	.ioctl		= intel_vgpu_ioctl,
+> +	.get_region_info = intel_vgpu_get_region_info,
+>  	.dma_unmap	= intel_vgpu_dma_unmap,
+>  	.bind_iommufd	= vfio_iommufd_emulated_bind,
+>  	.unbind_iommufd = vfio_iommufd_emulated_unbind,
+
+-- 
+Jani Nikula, Intel
