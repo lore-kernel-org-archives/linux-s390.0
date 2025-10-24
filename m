@@ -1,186 +1,225 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACE7820B7EE;
-	Fri, 24 Oct 2025 14:24:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 607CB32A3C6
+	for <linux-s390@vger.kernel.org>; Fri, 24 Oct 2025 16:03:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761315851; cv=none; b=UetQKSH7gpI+dI4JqnoDv2Xj+vZ+oxHWcclbxuIKwTZibt1P/rmOpbihmBc99f3uVMmds9JnT3HHTAxmKTCwgihv+mmCouSadvjfScNFKh2+VYsPqUJ8F1crhWIzuRF8JufFe6ZMUPrnLpFq5l0GaC8UCkaksBOujlizQnjJrEw=
+	t=1761321815; cv=none; b=BqTAJrBROSk3MLm9zvK9vgj7+vg7cGp9fBLDDJU61lsFGfY4PrOppSdrXDOUJTwEBaAoLNxElZRllu91hJKVyyCgz+buap4kvga+UxRlstxsjSttiVsSmEIdY8VDwq7XrzXggrinHgTSQmUtSHIFu8ZV/Cneblw1vlBUccC80qo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761315851; c=relaxed/simple;
-	bh=ppRVyfRVIH8bZsZWAE5rWCDKac3K8OKO5jqyS8t/g1M=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=UgBzgRmFwW6AFgzj5lUyu2yEBirbVGR6oiFFsDO/swq/whA2w7Yx+ayG/6p6134YIPDi7IBzrgzOcen7akhpmrsck+BlBxG0AqjCL6d6F8rHIQsn2jvUL8ET7Mj6gUv4CHuVtxtLMwc6BtQlGJibEt3bbdqr/PbNV0iiwnyw//s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=U+z7lKKK; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1761321815; c=relaxed/simple;
+	bh=MZveBwN8pITgiKu2IvyyZYnSYExm65gAyhHVYf2v+Zs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=m8fMX02+vrXHwe6oQbxtmdiqL1b4BqQzhHmTZMh3e0+kxUevGqj6UXcBPxLk9vrESjzQUVkogCZj5JGcTzTnq7ozoYEZihA7PFcWldnrivINHhryYUO6NYh8UUsJFmiTw7BrWZO/Qbv7SK3ncKOuL3wJJmIdkYueS9XUV3n28Ic=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=kKeNt5ER; arc=none smtp.client-ip=209.85.210.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="U+z7lKKK"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59OA2nCk023244;
-	Fri, 24 Oct 2025 14:24:02 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=QTv5l8HYsmXSaBkMSL5ZDaSrsBFiVYOpAyIiO0ly0rU=; b=U+z7lKKKbjXr
-	HLDG3Zc7L9QsfRKFx06zgpP6WhgYwkk94lFm02+yTgixgWacf0+bMFZNW9cReS8V
-	zz0Yff4Wuqzd53o1xMhsKkckW4RcC2lypY1T5oy9VHjTcbUsBXlHAD/KZp0OwCOn
-	01z36FmXyqrw6KJb0P1U+Fkrx/W523iKOTciKVA+tSSBz9dKZudRPyU+GxAAQ4wn
-	KkGFKqe46z4FBgNxzI7zsw5e9BBYhsonlhlRet0HP9KdSRnLuRuk87bnV+Z+PW9j
-	0ItC6cNvJllKH9Vvvyw/A8icsd+CJXvep7/aBi1My9XnnkbqAhEjAQkCRSECv/Y6
-	vJ8O7ddaeg==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49v3277rhh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Oct 2025 14:24:02 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59OAkYeV011015;
-	Fri, 24 Oct 2025 14:24:01 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 49vqx1k6gp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Oct 2025 14:24:01 +0000
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59OEO1vH26673758
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 24 Oct 2025 14:24:01 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3AD3358056;
-	Fri, 24 Oct 2025 14:24:01 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C57CF58052;
-	Fri, 24 Oct 2025 14:24:00 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 24 Oct 2025 14:24:00 +0000 (GMT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="kKeNt5ER"
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-782e93932ffso1869175b3a.3
+        for <linux-s390@vger.kernel.org>; Fri, 24 Oct 2025 09:03:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1761321813; x=1761926613; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=opD0p0FG32wb49KtDa/XK4x3J2J0EHXdG+v2/vEH5Fw=;
+        b=kKeNt5ERajzXfIfOltk2zn/dJPVj+4jq+HoUMlCDR+Kgkeyq0A2g4PJqaTxX+QLKrx
+         /wS2uBjLFBSvQO6otrBn0hAjxUri5x4L64viB4x2pFRxfOFiLiDn3hBCWNjMqWi5udg2
+         s/dwbEYBVLQN5GAaYkbtnVUrq7nALZrDPc9U4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1761321813; x=1761926613;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=opD0p0FG32wb49KtDa/XK4x3J2J0EHXdG+v2/vEH5Fw=;
+        b=nxshFzXOoPefYbOIaG0m5xMPYd+I2nr8VzPPek8RQKbHDOe9qbRnrBr9/thY8FXbts
+         j33R+kTjqaZqFppJJhDzhZ7xTRK+QRfRqmx+wiCYRHPuaLEL2n3b2gIR4cWLGWUHFtZU
+         m3k6+/AEt6l7DEAg6IesGq2fD5uNvbCAKMX/QXYJuVxyW6MhAcM8C2ees1CPAp88t+7Z
+         n3m5PaFIyxa2DHfDJTvawgpwmMiz3HtrNDmVG8F1NQe7TxZtmKe8luf/iYa1xrTfbkXn
+         6LKREkPKIbj6U6Q7SN+3VB7mvKmN6DRY7eF2WCpuBsDhnFGtBzpZG/mH2U82RvPcWAjY
+         2c4w==
+X-Forwarded-Encrypted: i=1; AJvYcCXXUh2LW8iEOc7EdVeez7SQaFVhXixyZyl0Nl3BEPqASWCLjMGk4/UCrjjkD93LNay2jQ5lXOhD7fNc@vger.kernel.org
+X-Gm-Message-State: AOJu0YzbnXUbPmCFVdevfWpomD8tciCwOOKyF4R8aSFauO07koLnq0Ht
+	hIGuPThzmJ1/A6+VBJLfL7hGFzLgrjTH0CP22BQaNER6fFDIA8zqHtn/RglX5LEL8xCzp6D6m/z
+	Yo/I=
+X-Gm-Gg: ASbGncvLIS78BbYcN1Lq9RyKG1qugLU6sMgkgXJbT2iK14I8CrlXI5lj/hgSSbQdQ0M
+	s9aO4O6uU2gMxaDLJG+CyQqG6SYOksBxhqXHJlJ+CwSTmRqF1bhZn1hBF/X20jPOgMyTv6t5S+u
+	3EzMyqbjc28QlI1+LmnKUQcZ63N4v+hDrsHT+2h0YcQ/XLa0hHnYuTWOJggJcBntwTkjW/jjk66
+	CGLYYuYVZgPMen8j6CnnXoQYpoK7gHvVh5+DDzpo1odD6kL2Y7BT72xyrUSU56/0Cdkhofil/B7
+	L0DWJ6JGm3pAFHBY9Vq+8mAXCMT8sqZhtGNrN0ITTLzLnYnwIZcF08asqDFwG7dFcT5VAkf315J
+	tormcfiU1xKCn8afVA7ljZ1aE9p5+aN23H9AnJi2xIL2JJtBaedRjowBeP802DMPJnqnsWpZjFD
+	qyaM78G5uKMVxtVY2A/mz+73D1caJZn9H/bpm3OG2DJ3M=
+X-Google-Smtp-Source: AGHT+IEjLr37lILW2MZakAsVIPx4n+z/zZTRjCWlGOFAjwvpKmz1uuuztSB14GQ+itY+dhO4vK9AOQ==
+X-Received: by 2002:a05:6a00:1916:b0:77f:2f7c:b709 with SMTP id d2e1a72fcca58-7a220a083f7mr33758894b3a.5.1761321812612;
+        Fri, 24 Oct 2025 09:03:32 -0700 (PDT)
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com. [209.85.214.179])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7a274dc49a2sm6339320b3a.73.2025.10.24.09.03.30
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 24 Oct 2025 09:03:30 -0700 (PDT)
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-290aaff555eso22386815ad.2
+        for <linux-s390@vger.kernel.org>; Fri, 24 Oct 2025 09:03:30 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCUZmjQZHw+1II/YdEt3Itpyj9/b9zA7u8Dl8wNRbkZ6f2oEzofCSKMGsEnftrtbVnJ7Z1ziDBAltLIf@vger.kernel.org
+X-Received: by 2002:a17:903:244b:b0:290:9a31:26da with SMTP id
+ d9443c01a7336-290c9d31109mr364082495ad.16.1761321809382; Fri, 24 Oct 2025
+ 09:03:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Fri, 24 Oct 2025 16:24:00 +0200
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: Holger Dengler <dengler@linux.ibm.com>,
-        David Howells
- <dhowells@redhat.com>, Ard Biesheuvel <ardb@kernel.org>,
-        "Jason A .
- Donenfeld" <Jason@zx2c4.com>, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-crypto@vger.kernel.org
-Subject: Re: [PATCH 15/17] lib/crypto: s390/sha3: Migrate optimized code into
- library
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <20251021154906.GB83624@google.com>
-References: <20251020005038.661542-1-ebiggers@kernel.org>
- <20251020005038.661542-16-ebiggers@kernel.org>
- <51fc91b6-3a6e-44f7-ae93-aef0bcb48964@linux.ibm.com>
- <20251020175736.GC1644@sol>
- <29e766ca-54e4-453d-9dfc-ea47e2a1f860@linux.ibm.com>
- <5895ed68-dd6e-4f3d-9e6f-c27459556ff7@linux.ibm.com>
- <20251021154906.GB83624@google.com>
-Message-ID: <b9094694cb5bc3ec0f479f3c6df909c9@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=EJELElZC c=1 sm=1 tr=0 ts=68fb8c02 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=kj9zAlcOel0A:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VwQbUJbxAAAA:8 a=_Sl0zld_v68khJEgkSQA:9 a=CjuIK1q_8ugA:10
- a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDE4MDAyMiBTYWx0ZWRfX/7qZ6wKRafKZ
- mK/7ISmrSIyR9IBlUhFX14cubGLJSW4l1mNog/XzaYNg9VJBvgUceJCtyF3hemj0Cc+0OmCCjO6
- v0Mbwi/cm0IauQI4PXp66wOM0la49kM2giHe334oaCU92VgQaU4yqNgyUmvuvIKYhL7yHfQu1q1
- XuI+2wAK5AC1RmK0WR8YnSmsjMztB99IKqbe80TxZXBBSxglbUbqeyz6q8Bd/lPoPMSvBvrietL
- remlo8xYOWdyu9Qd4C9iDYkZc5lK+cD47CotJ2cHKKZqjXcwpiR8xCt0BCep0qBrcm9+glWcQ9j
- rrWEN0SOrehzh5SbmG1gldwlGQaNkhdLkJKJsa0EfFQ3MyG7Dj+jeelslCZefpCOEDh6eZMZjNV
- 91fbD2VkqnhjsIZqg2qhNQXdTXleag==
-X-Proofpoint-GUID: pafbIPS1SsUnA0ap6FIduDkkgGpA_N8g
-X-Proofpoint-ORIG-GUID: pafbIPS1SsUnA0ap6FIduDkkgGpA_N8g
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-10-24_02,2025-10-22_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 priorityscore=1501 suspectscore=0 bulkscore=0 spamscore=0
- malwarescore=0 phishscore=0 adultscore=0 lowpriorityscore=0 clxscore=1011
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510180022
+References: <20251023113257.v3.1.I095f1e2c6c27f9f4de0b4841f725f356c643a13f@changeid>
+ <CAMuHMdUg5UXRcnH18S8-QtR9y+GbnAcxEQB2EyTOgd=uSUYPTg@mail.gmail.com>
+In-Reply-To: <CAMuHMdUg5UXRcnH18S8-QtR9y+GbnAcxEQB2EyTOgd=uSUYPTg@mail.gmail.com>
+From: Doug Anderson <dianders@chromium.org>
+Date: Fri, 24 Oct 2025 09:03:16 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=Uo4YAh8zGeU+tsxHEapsPyjAr9AyBEaAgiL3mUnN41=w@mail.gmail.com>
+X-Gm-Features: AS18NWBMCp5d_6B9UUkRIRbhw0cZobNwXLRN_85Hn_tEol9iOKdQ3SjYiCqWIMo
+Message-ID: <CAD=FV=Uo4YAh8zGeU+tsxHEapsPyjAr9AyBEaAgiL3mUnN41=w@mail.gmail.com>
+Subject: Re: [PATCH v3] init/main.c: Wrap long kernel cmdline when printing to logs
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, 
+	linux-s390 <linux-s390@vger.kernel.org>, Randy Dunlap <rdunlap@infradead.org>, 
+	Andrew Chant <achant@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	"Paul E . McKenney" <paulmck@kernel.org>, Sven Schnelle <svens@linux.ibm.com>, 
+	Alexander Shishkin <alexander.shishkin@linux.intel.com>, Brian Gerst <brgerst@gmail.com>, 
+	Christian Brauner <brauner@kernel.org>, Francesco Valla <francesco@valla.it>, 
+	Guo Weikang <guoweikang.kernel@gmail.com>, Huacai Chen <chenhuacai@kernel.org>, 
+	Ingo Molnar <mingo@kernel.org>, Jan Hendrik Farr <kernel@jfarr.cc>, Jeff Xu <jeffxu@chromium.org>, 
+	Kees Cook <kees@kernel.org>, Masahiro Yamada <masahiroy@kernel.org>, 
+	=?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
+	Miguel Ojeda <ojeda@kernel.org>, "Mike Rapoport (Microsoft)" <rppt@kernel.org>, 
+	Nathan Chancellor <nathan@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
+	Shakeel Butt <shakeel.butt@linux.dev>, Tejun Heo <tj@kernel.org>, 
+	Thomas Gleixner <tglx@linutronix.de>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 2025-10-21 17:49, Eric Biggers wrote:
-> On Tue, Oct 21, 2025 at 10:43:00AM +0200, Holger Dengler wrote:
->> Hi Eric,
->> 
->> On 21/10/2025 09:24, Holger Dengler wrote:
->> > On 20/10/2025 19:57, Eric Biggers wrote:
->> [...]>> - Risk of bugs.  QEMU doesn't support the s390 SHA-3 
->> instructions, so no
->> >>   one except the s390 folks can test the code.  I can try to write code
->> >>   for you, but I can't test it.  And the s390 SHA-3 code has had bugs;
->> >>   see commits 992b7066800f, 68279380266a5, 73c2437109c3.
->> >>
->> >>   The first priority should be correctness.
->> >
->> > Let me figure out, if me and my colleagues can do the testing for you.
->> > Unfortunately, I'll be unavailable for the next two weeks. But I'll come back
->> > with a solution for the testing.
->> 
->> I talked to Harald: we can do the testing for you on our development 
->> machines.
->> Please send new series to us or provide them in your git repo.
-> 
-> Thanks!  I'll Cc both of you on v2 when I send it later.  For now, this
-> series (v1) can be found in lore at
-> https://lore.kernel.org/linux-crypto/20251020005038.661542-1-ebiggers@kernel.org/T/#u
-> And as mentioned in the cover letter it's also retrievable from git:
-> 
->     git fetch
-> https://git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git
-> sha3-lib-v1
-> 
-> v1 already has the s390 optimized implementations of
-> sha3_absorb_blocks() and sha3_keccakf().  If you could enable the
-> following:
-> 
->     CONFIG_CRYPTO_LIB_SHA3_KUNIT_TEST=y
->     CONFIG_CRYPTO_LIB_BENCHMARK=y
-> 
-> ... and then show the results for sha3_kunit before and after the 
-> commit
-> "lib/crypto: s390/sha3: Migrate optimized code into library", that 
-> would
-> be helpful.
-> 
-> In v2, I'll look into providing overrides for the one-shot functions
-> sha3_{224,256,384,512}() too.  If it works out, I'll ask you to re-test
-> with that additional change as well.
-> 
-> - Eric
+Hi,
 
-I pulled your repository and checked out the branch sha3-lib-v1 and
-while the kernel build runs I get link errors:
+On Fri, Oct 24, 2025 at 12:51=E2=80=AFAM Geert Uytterhoeven
+<geert@linux-m68k.org> wrote:
+>
+> > +config CMDLINE_LOG_WRAP_IDEAL_LEN
+> > +       int "Length to try to wrap the cmdline when logged at boot"
+> > +       default 1021
+> > +       range -1 1021
+>
+> Apparently COMMAND_LINE_SIZE is still smaller than 1021 on several
+> architectures (even in asm-generic: 512).  Unfortunately only s390
+> still controls it through a config option, so you cannot have a
+> "depends on COMMAND_LINE_SIZE > 1021" here...
+>
+> > +       help
+> > +         At boot time, the kernel command line is logged to the consol=
+e.
+> > +         The log message will start with the prefix "Kernel command li=
+ne: ".
+> > +         The log message will attempt to be wrapped (split into multip=
+le log
+> > +         messages) at spaces based on CMDLINE_LOG_WRAP_IDEAL_LEN chara=
+cters.
+> > +         If wrapping happens, each log message will start with the pre=
+fix and
+> > +         all but the last message will end with " \". Messages may exc=
+eed the
+> > +         ideal length if a place to wrap isn't found before the specif=
+ied
+> > +         number of characters.
+> > +
+> > +         A value of -1 disables wrapping, though be warned that the ma=
+ximum
+>
+> Or zero, right?
+> So perhaps just use range 0 1021.
 
-ld: crypto/sha3.o: in function `crypto_sha3_512_digest':
-/root/ebiggers-linux/crypto/sha3.c:80:(.text+0xaa): undefined reference 
-to `sha3_512'
-ld: crypto/sha3.o: in function `crypto_sha3_384_digest':
-/root/ebiggers-linux/crypto/sha3.c:73:(.text+0xea): undefined reference 
-to `sha3_384'
-ld: crypto/sha3.o: in function `crypto_sha3_256_digest':
-/root/ebiggers-linux/crypto/sha3.c:66:(.text+0x12a): undefined reference 
-to `sha3_256'
-ld: crypto/sha3.o: in function `crypto_sha3_224_digest':
-/root/ebiggers-linux/crypto/sha3.c:59:(.text+0x1aa): undefined reference 
-to `sha3_224'
-ld: crypto/sha3.o: in function `sha3_final':
-/root/ebiggers-linux/./include/crypto/sha3.h:188:(.text+0x1f0): 
-undefined reference to `__sha3_squeeze'
-ld: crypto/sha3.o: in function `sha3_update':
-/root/ebiggers-linux/./include/crypto/sha3.h:172:(.text+0x232): 
-undefined reference to `__sha3_update'
+Sure, we can use 0 as the sentinel value. I was thinking -1 would be a
+more obvious "wrapping is totally disabled" value but I don't feel
+strongly about it. I'll change to 0 in the next patch.
 
-with a s390 defconfig kernel configuration an a s390 debug_defconfig 
-kernel configuration.
+
+> > +         length of a log message (1021 characters) may cause the cmdli=
+ne to
+> > +         be truncated.
+> > +
+> >  config INITRAMFS_PRESERVE_MTIME
+> >         bool "Preserve cpio archive mtimes in initramfs"
+> >         depends on BLK_DEV_INITRD
+>
+> > --- a/init/main.c
+> > +++ b/init/main.c
+>
+> > +static void print_kernel_cmdline(const char *cmdline)
+> > +{
+> > +       size_t len;
+> > +
+> > +       /* Config option of -1 disables wrapping */
+> > +       if (CONFIG_CMDLINE_LOG_WRAP_IDEAL_LEN < 0) {
+>
+> As does zero, right?
+
+As the code is written right now, 0 does not disable wrapping. The
+code treats everything less than 23 characters (the length of "Kernel
+command line: " plus " \") to mean "wrap everything at the first
+space". Yes, it's a little weird to do it this way, but it was either
+that or add yet-another KConfig setting to disable wrapping and then
+set the minimum to something higher. In v1/v2 I had the minimum set to
+40 specifically to avoid the confusing case. There was previous
+discussion about this in v2 [1].
+
+...but yes, we can choose to make 0 be the special sentinel to disable
+wrapping. I'll assume that's what you want and I'll change it in the
+next version.
+
+
+> You can add a check for "COMMAND_LINE_SIZE <=3D 1021" here,  so the
+> compiler will eliminate the splitting code when it is not needed.
+
+As the Kconfig is described and as the code is written, someone could
+still choose wrapping even if COMMAND_LINE_SIZE <=3D 1021. Someone
+could, for instance, choose to wrap these lines at 100 or 200
+characters to make the log message look cleaner in their terminal/text
+editor. ...but you're right that I can write this to be more optimal
+for folks with shorter command lines who haven't touched the config.
+I'll change the "if" test to this:
+
+if (CONFIG_CMDLINE_LOG_WRAP_IDEAL_LEN =3D=3D 0 ||
+    IDEAL_CMDLINE_LEN >=3D COMMAND_LINE_SIZE - 1) {
+  pr_noitce(...);
+  return;
+}
+
+That changes the sentinel to 0 (as I think you requested) and should
+allow the compiler to optimize things out.
+
+Making sure I got my math correct... Let me know if you see something wrong=
+.
+
+KERNEL_CMDLINE_PREFIX_LEN is 21
+
+Assuming the CONFIG value isn't tiny, IDEAL_CMDLINE_LEN is the CONFIG
+value minus 21.
+
+So let's assume COMMAND_LINE_SIZE is 256. That means we can have at
+most a cmdline length 255 to handle the '\0' termination.
+
+So if the CONFIG value is (255 + 21) =3D 276 or more then we should hit
+the "if" test and early-out because we can't wrap. If the CONFIG value
+is 275 or less then we should proceed to wrapping.
+
+We want ((276 - 21) >=3D (256 - 1)) to be true. It is.
+
+We want ((275 - 21) >=3D (256 - 1)) to be false. It is.
+
+
+I'll wait a few days and send a v4. I'll fold in Andrew's "__init"
+patch as well.
+
+
+[1] http://lore.kernel.org/r/CAD=3DFV=3DWFbH6kBMcoHNwQzsay6ecQQ2sZ3qc-=3DXT=
+boFXK+RSspA@mail.gmail.com
+
+
+-Doug
