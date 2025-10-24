@@ -1,51 +1,106 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41BC01F03EF;
-	Fri, 24 Oct 2025 16:12:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA9FF343D7A
+	for <linux-s390@vger.kernel.org>; Fri, 24 Oct 2025 17:32:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761322361; cv=none; b=qG6DRfiIwVfAAE3N6n6lwPaUeaLxN+LbPd2tVUDgNLLEau+pAALtk+CW0aBqp5nxavrFuKFsqm2HBsZXn1YpG5MSXliODT9JsEBYFwuzA0EOacGkss2R6o/mRkiA+hAn4hZvfM3QyMasZnwFNFKMDqx8Ab7BOy1H/77d9WM+JE4=
+	t=1761327155; cv=none; b=HTde/gdTX0FxpbCj0RJpfxUn4SpHYOOf9/0+rwhNlIZZ5kIaecVH16uEpOpdhhZVQ6Dzak4cbJYe+CUL4Gwdb8e1xG/6qs9eJynKFnTilnhUrSC0ow4MKLjQKiVjvaAHp+g0GV5xPOHYFXfEnWCt1O5ex2TjesEWs4MYEb9HCAM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761322361; c=relaxed/simple;
-	bh=AgIAmESWORBI743pPlnGau/twRBNqMq3B6l0KP2QzWM=;
+	s=arc-20240116; t=1761327155; c=relaxed/simple;
+	bh=UpAvej523gjBWiVNLg/BeJTlpEBeruOMQsLrtxPGcjQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ich09Azhq/lKnCNYgQ4rd3PHbcs69bMdKsgzBvDkd2n6FvUktMCsCd9zz110Uh7JC5etf1SietN5ka93g4ffu5luIw3NnuuSi51wZrnPdUGsk8hAdUND7bRnbnuYiq3gKibbMJKR7ABiT0C80A+YAWJIROhXtuR1FAK/u+J77NU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YOkBQ5f7; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=Zwh626us30fdL4EzGSG6XthgmJgFvmz1O6HZ2os27peIgjoP6SHtsC/Cr5iuOFLKcfTixG8tBHjiOHGvlHo/4mcOe+Ngiw9jmFCj7xAqS/xOpmLPbj1GvScwFxR5Azvs6vtofuFd9v+kUPMmrJEr9ulWLSpxnJHwGRMhp7Ke3QI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=YIxKOjvZ; arc=none smtp.client-ip=209.85.222.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YOkBQ5f7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FE54C4CEF1;
-	Fri, 24 Oct 2025 16:12:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1761322360;
-	bh=AgIAmESWORBI743pPlnGau/twRBNqMq3B6l0KP2QzWM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=YOkBQ5f7Dr/XsiEWN/JkH4z9N7DMbQEbtCibxABl0RTMSqRIQkLrSgcP8q9cLv4bi
-	 /TQA8iXjjnmOdbX37TCgeV9iOOPDtFQrcjOkT3H9xX06V47c/vCEt07+14bSQ1Vh4O
-	 k0ZzT36OYIZQB7kZIRT47+4RdqovVyYUmszSZOVK3j/zKNEDDjBkJ5R4qeXmtQzxTj
-	 nEUJ1elKxEdABRdllOOvHzRUpynm4yLfHcsMXsAMIURaelEF5XT2gHF4jxxGjL7gOY
-	 9A8q/9TzjaOEiztTyzx9rpP8x34LDRAJ8hek4YCcY7owg0JzxLNo72NOmluo678Jvw
-	 tmjvxMxE3LyKw==
-Date: Fri, 24 Oct 2025 09:11:05 -0700
-From: Eric Biggers <ebiggers@kernel.org>
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: Holger Dengler <dengler@linux.ibm.com>,
-	David Howells <dhowells@redhat.com>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	"Jason A . Donenfeld" <Jason@zx2c4.com>,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org
-Subject: Re: [PATCH 15/17] lib/crypto: s390/sha3: Migrate optimized code into
- library
-Message-ID: <20251024161105.GA1625@sol>
-References: <20251020005038.661542-1-ebiggers@kernel.org>
- <20251020005038.661542-16-ebiggers@kernel.org>
- <51fc91b6-3a6e-44f7-ae93-aef0bcb48964@linux.ibm.com>
- <20251020175736.GC1644@sol>
- <29e766ca-54e4-453d-9dfc-ea47e2a1f860@linux.ibm.com>
- <5895ed68-dd6e-4f3d-9e6f-c27459556ff7@linux.ibm.com>
- <20251021154906.GB83624@google.com>
- <b9094694cb5bc3ec0f479f3c6df909c9@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="YIxKOjvZ"
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-89e93741814so50173485a.0
+        for <linux-s390@vger.kernel.org>; Fri, 24 Oct 2025 10:32:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gourry.net; s=google; t=1761327152; x=1761931952; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=68b/g5DOQEfyTkIlrk7BVq23q9O97J8PIirLY9E/558=;
+        b=YIxKOjvZzvpj/k7qXRAnRBWIDBkC/oznFiyvfaOIcKDF07U4AepP8Nw5JcmEvUqde0
+         EpwUflB25Mqv2Qcmi2nBiaTOMRSWH0j/9ytlAAZvOj8G10xETo30J0fsc/Ufxr4Qq5Lw
+         ss3WOe/xkm9fpVGq7mxny2WXlW0I+zqosNr/aoTeggYRJcNxwWQiUA55f2kLuKroABjY
+         QpHt014/fVwnwiuMxCtbU40diHYDYXIyk3cXX7XI4lABcUbrJmR33t80rayU5kdJS3tW
+         Mcmn6LcPyc0L9Wlsn+bH40VQHBM2oHPU+p11Liq2TsD0eV4DmWnJdI6TDpfN1idM27fP
+         WmAg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1761327152; x=1761931952;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=68b/g5DOQEfyTkIlrk7BVq23q9O97J8PIirLY9E/558=;
+        b=TxfO9VK3Eb+8kWM2wtQA26n2l7ONCdqmj3n8hBPuNETkn3kCJtlpIfXME46qP8InzE
+         iUm7K07nMiriDGaeWxNnBoqZq/V/bt+UXDLk12k2dT2RaoVBA13I9PqDgTF2KGShaVCp
+         XrB16c5gsORPVe7ZtuUMzncjebl3QyUHqGrAqc4ZjV7Bj9i0EiOFDXhHCuX2ZPzpeDH4
+         1SrR0mOwulhyIJ7uxWHoPANYYsPyJ7ndXd2jGkQ9zPhriZ7OqgU8z8XZccPkj68cdx0F
+         JhgWqWdmbuKC/kZpR0CxOA3+iGkmphQ61XnOImNaUS1Orii3+eyul+v8+PZZ3295FGo9
+         gNkA==
+X-Forwarded-Encrypted: i=1; AJvYcCX1+EVJ39CTyIBhaU8RKOwH7jym0pUDdukidHc5POmA12pD8WCE6X2bPonz+0XhNQhUn4yuzn3G2Z97@vger.kernel.org
+X-Gm-Message-State: AOJu0YzRAibptwZSztKHKt4eXUZkSC7qjwcxjii3yyicllT3Ig6ANXan
+	EA+d0ymLSEOOgGiKttbk2VFiMAJtPik41FWZ1NheqVZT1FsxQrCcNNnrX7489Kz6NMw=
+X-Gm-Gg: ASbGncv4sEJs8wNcUNHqRAgEnWO0rzjhevsPPo1Z56pCIUFHuwF0ZHUTTcnkeD5ifMo
+	qR+8p4ZxtCYetsNy21PRayWM/xdaQwcd1UbRShTtWgqNtVcKNbR+ELBdo7GtUcKEHi/TpmzuimJ
+	oekS1LvcOH6oadta46XbUfE4YN1MI4lNvxlK9EViU5RCDgji1E+K4FoEI2VW+5UKt52vyCqudSQ
+	JQ8QzWnWT3zPwx61J8WI4F+x6wKENdORgnjQ9+DnLUZF9sPEYnTDLDlrtpOWBzH84F1+RDwpUYt
+	M0gX+STuthLsqVbsB+THQWRs+o1N2ZMkJh0YZbq3/QdMvtWZ/MY+6BC5oEYD69Ry+hI/pk9n+Nb
+	/PyKY5+Vi/u3ADgzG/pVx+XvvY0hDxwS6KZcl/UORn33aO9vMPINQQEKLybWuXcJEK8F0CMgTIv
+	HScSuOpmSB8XyWSFQIVAlgn5ufSGhD7Z3OThaPydwsI/O20zfwlFYcjpd06nczSd7F6chXUw==
+X-Google-Smtp-Source: AGHT+IHmBN0+9+r5KY4AyoghUj0jEXWjqZKGqzuPjvXeVNzt6iAcmzIlgz93IE1ZHjH55zZ3g6T32Q==
+X-Received: by 2002:a05:620a:2950:b0:88e:aae4:9599 with SMTP id af79cd13be357-89dbfc9f46cmr377281085a.10.1761327152303;
+        Fri, 24 Oct 2025 10:32:32 -0700 (PDT)
+Received: from gourry-fedora-PF4VCD3F (pool-96-255-20-138.washdc.ftas.verizon.net. [96.255.20.138])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-89eadc0ab82sm58312485a.53.2025.10.24.10.32.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 Oct 2025 10:32:31 -0700 (PDT)
+Date: Fri, 24 Oct 2025 13:32:29 -0400
+From: Gregory Price <gourry@gourry.net>
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	David Hildenbrand <david@redhat.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, Zi Yan <ziy@nvidia.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	"Liam R . Howlett" <Liam.Howlett@oracle.com>,
+	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+	Lance Yang <lance.yang@linux.dev>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Kairui Song <kasong@tencent.com>, Nhat Pham <nphamcs@gmail.com>,
+	Baoquan He <bhe@redhat.com>, Chris Li <chrisl@kernel.org>,
+	Peter Xu <peterx@redhat.com>, Matthew Wilcox <willy@infradead.org>,
+	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>, Jann Horn <jannh@google.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+	Byungchul Park <byungchul@sk.com>,
+	Ying Huang <ying.huang@linux.alibaba.com>,
+	Alistair Popple <apopple@nvidia.com>,
+	Pedro Falcato <pfalcato@suse.de>,
+	Pasha Tatashin <pasha.tatashin@soleen.com>,
+	Rik van Riel <riel@surriel.com>, Harry Yoo <harry.yoo@oracle.com>,
+	kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	linux-mm@kvack.org
+Subject: Re: [RFC PATCH 05/12] fs/proc/task_mmu: refactor pagemap_pmd_range()
+Message-ID: <aPu4LWGdGSQR_xY0@gourry-fedora-PF4VCD3F>
+References: <cover.1761288179.git.lorenzo.stoakes@oracle.com>
+ <2ce1da8c64bf2f831938d711b047b2eba0fa9f32.1761288179.git.lorenzo.stoakes@oracle.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -54,100 +109,53 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <b9094694cb5bc3ec0f479f3c6df909c9@linux.ibm.com>
+In-Reply-To: <2ce1da8c64bf2f831938d711b047b2eba0fa9f32.1761288179.git.lorenzo.stoakes@oracle.com>
 
-On Fri, Oct 24, 2025 at 04:24:00PM +0200, Harald Freudenberger wrote:
-> On 2025-10-21 17:49, Eric Biggers wrote:
-> > On Tue, Oct 21, 2025 at 10:43:00AM +0200, Holger Dengler wrote:
-> > > Hi Eric,
-> > > 
-> > > On 21/10/2025 09:24, Holger Dengler wrote:
-> > > > On 20/10/2025 19:57, Eric Biggers wrote:
-> > > [...]>> - Risk of bugs.  QEMU doesn't support the s390 SHA-3
-> > > instructions, so no
-> > > >>   one except the s390 folks can test the code.  I can try to write code
-> > > >>   for you, but I can't test it.  And the s390 SHA-3 code has had bugs;
-> > > >>   see commits 992b7066800f, 68279380266a5, 73c2437109c3.
-> > > >>
-> > > >>   The first priority should be correctness.
-> > > >
-> > > > Let me figure out, if me and my colleagues can do the testing for you.
-> > > > Unfortunately, I'll be unavailable for the next two weeks. But I'll come back
-> > > > with a solution for the testing.
-> > > 
-> > > I talked to Harald: we can do the testing for you on our development
-> > > machines.
-> > > Please send new series to us or provide them in your git repo.
-> > 
-> > Thanks!  I'll Cc both of you on v2 when I send it later.  For now, this
-> > series (v1) can be found in lore at
-> > https://lore.kernel.org/linux-crypto/20251020005038.661542-1-ebiggers@kernel.org/T/#u
-> > And as mentioned in the cover letter it's also retrievable from git:
-> > 
-> >     git fetch
-> > https://git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git
-> > sha3-lib-v1
-> > 
-> > v1 already has the s390 optimized implementations of
-> > sha3_absorb_blocks() and sha3_keccakf().  If you could enable the
-> > following:
-> > 
-> >     CONFIG_CRYPTO_LIB_SHA3_KUNIT_TEST=y
-> >     CONFIG_CRYPTO_LIB_BENCHMARK=y
-> > 
-> > ... and then show the results for sha3_kunit before and after the commit
-> > "lib/crypto: s390/sha3: Migrate optimized code into library", that would
-> > be helpful.
-> > 
-> > In v2, I'll look into providing overrides for the one-shot functions
-> > sha3_{224,256,384,512}() too.  If it works out, I'll ask you to re-test
-> > with that additional change as well.
-> > 
-> > - Eric
+On Fri, Oct 24, 2025 at 08:41:21AM +0100, Lorenzo Stoakes wrote:
+> Separate out THP logic so we can drop an indentation level and reduce the
+> amount of noise in this function.
 > 
-> I pulled your repository and checked out the branch sha3-lib-v1 and
-> while the kernel build runs I get link errors:
+> We add pagemap_pmd_range_thp() for this purpose.
 > 
-> ld: crypto/sha3.o: in function `crypto_sha3_512_digest':
-> /root/ebiggers-linux/crypto/sha3.c:80:(.text+0xaa): undefined reference to
-> `sha3_512'
-> ld: crypto/sha3.o: in function `crypto_sha3_384_digest':
-> /root/ebiggers-linux/crypto/sha3.c:73:(.text+0xea): undefined reference to
-> `sha3_384'
-> ld: crypto/sha3.o: in function `crypto_sha3_256_digest':
-> /root/ebiggers-linux/crypto/sha3.c:66:(.text+0x12a): undefined reference to
-> `sha3_256'
-> ld: crypto/sha3.o: in function `crypto_sha3_224_digest':
-> /root/ebiggers-linux/crypto/sha3.c:59:(.text+0x1aa): undefined reference to
-> `sha3_224'
-> ld: crypto/sha3.o: in function `sha3_final':
-> /root/ebiggers-linux/./include/crypto/sha3.h:188:(.text+0x1f0): undefined
-> reference to `__sha3_squeeze'
-> ld: crypto/sha3.o: in function `sha3_update':
-> /root/ebiggers-linux/./include/crypto/sha3.h:172:(.text+0x232): undefined
-> reference to `__sha3_update'
+> While we're here, convert the VM_BUG_ON() to a VM_WARN_ON_ONCE() at the
+> same time.
 > 
-> with a s390 defconfig kernel configuration an a s390 debug_defconfig kernel
-> configuration.
+> Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+... >8
+> +static int pagemap_pmd_range(pmd_t *pmdp, unsigned long addr, unsigned long end,
+> +			     struct mm_walk *walk)
+> +{
+> +	struct vm_area_struct *vma = walk->vma;
+> +	struct pagemapread *pm = walk->private;
+> +	spinlock_t *ptl;
+> +	pte_t *pte, *orig_pte;
+> +	int err = 0;
+> +
+> +#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+> +	ptl = pmd_trans_huge_lock(pmdp, vma);
+> +	if (ptl)
+> +		return pagemap_pmd_range_thp(pmdp, addr, end, vma, pm, ptl);
+> +#endif
 
-Yes, as mentioned elsewhere in the thread the following fixup is needed:
+Maybe something like...
 
-diff --git a/crypto/Kconfig b/crypto/Kconfig
-index a04595f9d0ca4..0ff68212cb20a 100644
---- a/crypto/Kconfig
-+++ b/crypto/Kconfig
-@@ -1005,6 +1005,7 @@ config CRYPTO_SHA512
- config CRYPTO_SHA3
- 	tristate "SHA-3"
- 	select CRYPTO_HASH
-+	select CRYPTO_LIB_SHA3
- 	help
- 	  SHA-3 secure hash algorithms (FIPS 202, ISO/IEC 10118-3)
- 
-I'll fix that in v2.
+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+ptl = pmd_trans_huge_lock(pmdp, vma);
+if (ptl) {
+	err = pagemap_pmd_range_thp(pmdp, addr, end, vma, pm, ptl);
+	spin_unlock(ptl);
+	return err;
+}
+#endif
 
-But also note that if you enable the KUnit test as I suggested then this
-error gets avoided too, since it selects the library.  (That's why I
-didn't notice it before sending -- I always had the KUnit test enabled.)
+and drop the spin_unlock(ptl) calls from pagemap_pmd_range_thp?
 
-- Eric
+Makes it easier to understand the locking semantics.
+
+Might be worth adding a comment to pagemap_pmd_range_thp that callers
+must hold the ptl lock.
+
+~Gregory
+
+P.S. This patch set made my day, the whole non-swap-swap thing has
+always broken my brain.  <3
