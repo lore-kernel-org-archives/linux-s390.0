@@ -1,108 +1,182 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from out-178.mta0.migadu.com (out-178.mta0.migadu.com [91.218.175.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55F4020CCCA;
-	Fri, 24 Oct 2025 19:44:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3E942DA776
+	for <linux-s390@vger.kernel.org>; Fri, 24 Oct 2025 20:05:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761335054; cv=none; b=i7Kv8Ku88YphSnad8AyKwP8lZ1vnywJqhz8HCyLhijS8UrDzkctef9btyne2KzxfXS0hBAsl8jl4m4QNz5URxq1Aa0kA+BTwVArx8MvbJPogWdmVDc249TUNK9xBNh2ZmVbkvSOkeE3BOGCk4Hb7ssbv2vFAngIoR708RjZE8VU=
+	t=1761336352; cv=none; b=nBTdpTPkvmVUHb8a1M2v8cFXszZr4IKT0mK//p/7bFEN3NqG5LgZHMi0IUPoKxIYKEyz6HaEJnlTN+obtnJqA9QdalGXbH3BF1AQVexN7L2dVxjIoFHRlLf6DXQL8G0+I7+B+yWVU1DwZR8xtudKoLV0k/oo7K9hNIXlF++UbjM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761335054; c=relaxed/simple;
-	bh=Oo6Q5FijZZnFxQ0PMsOVHjkx1Dg6buBWnKtlwko7Emk=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=a95A9IKpWRInpfDy1A37B74Xf2wxUoynl4czrgajUNsjkJ73KF+7E3Gf4HBn+JFj9oGmPV0AthUPIkaBtoVa1MFoMUwdna5n40xC5I6Yx0Fhc17Uz0dU+VXWWSd8LjRk8a04fAre1tc9fvE44qO9AnCwMceb7KeGcRvDc/phPk8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=mV9PV9dd; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=XOTtBc1Y; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1761336352; c=relaxed/simple;
+	bh=zB12qLiW048+bzj+QWo/Yh48JJX7bRhXlhLPyLUgRT8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gPAT1QnPCkpVjIcx27Tt729FA9QkZ7UT5ltZPsoKQyjLF3UoSFdcR7Cu9UyCCDPhRUW74x7fyLC+QQfQd8z/JiteheZzjzp1QqXW3qcolcnCTrVzBZUtLRIdO41kpxUnFY54fPnPrDj0OaeDAWh8w/kiWB78cvyFkNaEe2BLFBY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Exbd5bsf; arc=none smtp.client-ip=91.218.175.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="mV9PV9dd";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="XOTtBc1Y"
-From: Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1761335051;
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Exbd5bsf"
+Date: Fri, 24 Oct 2025 20:05:33 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1761336347;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=j1tfRYGYM66U+KpSa00BpGxDI+hyT7SSps99obN09Nw=;
-	b=mV9PV9ddpcoU02So0SXkS4ZFsu2V7qAr7LEgSfPB2WToEgUpusnbyDadgwVWZmbRTkyXGp
-	xvX0UNKOV52ySDi0s+OUqSFEjqwtQ3Fp3XT2KXtNj7xH/noSieu7qQOSb0twLqPsuQdu52
-	W2PSv38g55SZ107p2MYvIYFIfSG0AV4Ewb0llS3O3Q67LebNBdkvyw1t5kOWxeQINrrY8B
-	C8rRWxdkMOnEatj0FnKC2APzd3PznfAfj8C8OdFbrVF6/FaJX2T9wcnIwKDGZ3u/WFdrfc
-	nyEjip3DXjmNs4Vo88BJmJaGYic+FCBz4AXwhPL0pYDclJkETSnxhof/6+A92g==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1761335051;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=j1tfRYGYM66U+KpSa00BpGxDI+hyT7SSps99obN09Nw=;
-	b=XOTtBc1YJh7Jq5lFhBgh4lK2u78F4KjnvZsO7hd4iln28ghgXC9efMVHBaCCiM8FiD7nn2
-	aO4ycaAyDVrtNpDg==
-To: Xie Yuanbin <qq570070308@gmail.com>, linux@armlinux.org.uk,
- mathieu.desnoyers@efficios.com, paulmck@kernel.org, pjw@kernel.org,
- palmer@dabbelt.com, aou@eecs.berkeley.edu, alex@ghiti.fr,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- borntraeger@linux.ibm.com, svens@linux.ibm.com, davem@davemloft.net,
- andreas@gaisler.com, mingo@redhat.com, bp@alien8.de,
- dave.hansen@linux.intel.com, hpa@zytor.com, luto@kernel.org,
- peterz@infradead.org, acme@kernel.org, namhyung@kernel.org,
- mark.rutland@arm.com, alexander.shishkin@linux.intel.com,
- jolsa@kernel.org, irogers@google.com, adrian.hunter@intel.com,
- anna-maria@linutronix.de, frederic@kernel.org, juri.lelli@redhat.com,
- vincent.guittot@linaro.org, dietmar.eggemann@arm.com, rostedt@goodmis.org,
- bsegall@google.com, mgorman@suse.de, vschneid@redhat.com,
- qq570070308@gmail.com, thuth@redhat.com, riel@surriel.com,
- akpm@linux-foundation.org, david@redhat.com, lorenzo.stoakes@oracle.com,
- segher@kernel.crashing.org, ryan.roberts@arm.com,
- max.kellermann@ionos.com, urezki@gmail.com, nysal@linux.ibm.com
-Cc: x86@kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-perf-users@vger.kernel.org, will@kernel.org
-Subject: Re: [PATCH 3/3] Set the subfunctions called by finish_task_switch
- to be inline
-In-Reply-To: <20251024183541.68955-2-qq570070308@gmail.com>
-References: <20251024182628.68921-1-qq570070308@gmail.com>
- <20251024183541.68955-1-qq570070308@gmail.com>
- <20251024183541.68955-2-qq570070308@gmail.com>
-Date: Fri, 24 Oct 2025 21:44:10 +0200
-Message-ID: <87placw0dx.ffs@tglx>
+	bh=K5kibUrhGEIh1wdjnl8ZsspLMeFM7U2onbljFtVXAgg=;
+	b=Exbd5bsf/Tm5LIy+8QoVhG42/C0IUQp5OSAWxcboh4tanMCzpIkUQ79onbMEOK4YPdqCxs
+	RjiNuyVFWKVgZL4lbRM0JP7q7nY9JQ3TVoH9vTDnZdiRfZFmye8OrvBUrGHwzOHyEGFvdP
+	PEQs8k/CqVsM8cf4HYazoKCaJGZJVOw=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Yosry Ahmed <yosry.ahmed@linux.dev>
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, David Hildenbrand <david@redhat.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Zi Yan <ziy@nvidia.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, "Liam R . Howlett" <Liam.Howlett@oracle.com>, 
+	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, 
+	Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>, 
+	Kemeng Shi <shikemeng@huaweicloud.com>, Kairui Song <kasong@tencent.com>, Nhat Pham <nphamcs@gmail.com>, 
+	Baoquan He <bhe@redhat.com>, Chris Li <chrisl@kernel.org>, Peter Xu <peterx@redhat.com>, 
+	Matthew Wilcox <willy@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, 
+	Leon Romanovsky <leon@kernel.org>, Muchun Song <muchun.song@linux.dev>, 
+	Oscar Salvador <osalvador@suse.de>, Vlastimil Babka <vbabka@suse.cz>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Michal Hocko <mhocko@suse.com>, Jann Horn <jannh@google.com>, 
+	Matthew Brost <matthew.brost@intel.com>, Joshua Hahn <joshua.hahnjy@gmail.com>, 
+	Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
+	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
+	Alistair Popple <apopple@nvidia.com>, Pedro Falcato <pfalcato@suse.de>, 
+	Pasha Tatashin <pasha.tatashin@soleen.com>, Rik van Riel <riel@surriel.com>, 
+	Harry Yoo <harry.yoo@oracle.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC PATCH 00/12] remove is_swap_[pte, pmd]() + non-swap
+ confusion
+Message-ID: <7tjpibvbt2nwkkrzcbrsw3t3ehxckjrro6vxqukh4ld4memodx@cxfpmwbr3fo6>
+References: <cover.1761288179.git.lorenzo.stoakes@oracle.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cover.1761288179.git.lorenzo.stoakes@oracle.com>
+X-Migadu-Flow: FLOW_OUT
 
-On Sat, Oct 25 2025 at 02:35, Xie Yuanbin wrote:
->  #ifndef MODULE
->  #define finish_arch_post_lock_switch \
->  	finish_arch_post_lock_switch
-> -static inline void finish_arch_post_lock_switch(void)
-> +static __always_inline void finish_arch_post_lock_switch_ainline(void)
->  {
->  	struct mm_struct *mm = current->mm;
->  
->  	if (mm && mm->context.switch_pending) {
->  		/*
->  		 * Preemption must be disabled during cpu_switch_mm() as we
->  		 * have some stateful cache flush implementations. Check
->  		 * switch_pending again in case we were preempted and the
->  		 * switch to this mm was already done.
->  		 */
->  		preempt_disable();
->  		if (mm->context.switch_pending) {
->  			mm->context.switch_pending = 0;
->  			cpu_switch_mm(mm->pgd, mm);
->  		}
->  		preempt_enable_no_resched();
->  	}
->  }
-> +static inline void finish_arch_post_lock_switch(void)
-> +{
-> +	finish_arch_post_lock_switch_ainline();
+On Fri, Oct 24, 2025 at 08:41:16AM +0100, Lorenzo Stoakes wrote:
+> There's an established convention in the kernel that we treat leaf page
+> tables (so far at the PTE, PMD level) as containing 'swap entries' should
+> they be neither empty (i.e. p**_none() evaluating true) nor present
+> (i.e. p**_present() evaluating true).
+> 
+> However, at the same time we also have helper predicates - is_swap_pte(),
+> is_swap_pmd() - which are inconsistently used.
+> 
+> This is problematic, as it is logical to assume that should somebody wish
+> to operate upon a page table swap entry they should first check to see if
+> it is in fact one.
+> 
+> It also implies that perhaps, in future, we might introduce a non-present,
+> none page table entry that is not a swap entry.
+> 
+> This series resolves this issue by systematically eliminating all use of
+> the is_swap_pte() and is swap_pmd() predicates so we retain only the
+> convention that should a leaf page table entry be neither none nor present
+> it is a swap entry.
+> 
+> We also have the further issue that 'swap entry' is unfortunately a really
+> rather overloaded term and in fact refers to both entries for swap and for
+> other information such as migration entries, page table markers, and device
+> private entries.
+> 
+> We therefore have the rather 'unique' concept of a 'non-swap' swap entry.
+> 
+> This is deeply confusing, so this series goes further and eliminates the
+> non_swap_entry() predicate, replacing it with is_non_present_entry() - with
+> an eye to a new convention of referring to these non-swap 'swap entries' as
+> non-present.
 
-What is exactly the point of this indirection. Why can't you just mark
-finish_arch_post_lock_switch() __always_inline and be done with it?
+I just wanted to say THANK YOU for doing this. It is indeed a very
+annoying and confusing convention, and I wanted to do something about it
+in the past but never got around to it..
 
-
+> 
+> It also introduces the is_swap_entry() predicate to explicitly and
+> logically refer to actual 'true' swap entries, improving code readibility,
+> avoiding the hideous convention of:
+> 
+> 	if (!non_swap_entry(entry)) {
+> 		...
+> 	}
+> 
+> As part of these changes we also introduce a few other new predicates:
+> 
+> * pte_to_swp_entry_or_zero() - allows for convenient conversion from a PTE
+>   to a swap entry if present, or an empty swap entry if none. This is
+>   useful as many swap entry conversions are simply checking for flags for
+>   which this suffices.
+> 
+> * get_pte_swap_entry() - Retrieves a PTE swap entry if it truly is a swap
+>   entry (i.e. not a non-present entry), returning true if so, otherwise
+>   returns false. This simplifies a lot of logic that previously open-coded
+>   this.
+> 
+> * is_huge_pmd() - Determines if a PMD contains either a present transparent
+>   huge page entry or a huge non-present entry. This again simplifies a lot
+>   of logic that simply open-coded this.
+> 
+> REVIEWERS NOTE:
+> 
+> This series applies against mm-unstable as there are currently conflicts
+> with mm-new. Should the series receive community assent I will resolve
+> these at the point the RFC tag is removed.
+> 
+> I also intend to use this as a foundation for further work to add higher
+> order page table markers.
+> 
+> Lorenzo Stoakes (12):
+>   mm: introduce and use pte_to_swp_entry_or_zero()
+>   mm: avoid unnecessary uses of is_swap_pte()
+>   mm: introduce get_pte_swap_entry() and use it
+>   mm: use get_pte_swap_entry() in debug pgtable + remove is_swap_pte()
+>   fs/proc/task_mmu: refactor pagemap_pmd_range()
+>   mm: avoid unnecessary use of is_swap_pmd()
+>   mm: introduce is_huge_pmd() and use where appropriate
+>   mm/huge_memory: refactor copy_huge_pmd() non-present logic
+>   mm/huge_memory: refactor change_huge_pmd() non-present logic
+>   mm: remove remaining is_swap_pmd() users and is_swap_pmd()
+>   mm: rename non_swap_entry() to is_non_present_entry()
+>   mm: provide is_swap_entry() and use it
+> 
+>  arch/s390/mm/gmap_helpers.c   |   2 +-
+>  arch/s390/mm/pgtable.c        |   2 +-
+>  fs/proc/task_mmu.c            | 214 ++++++++++++++++++++--------------
+>  include/linux/huge_mm.h       |  49 +++++---
+>  include/linux/swapops.h       |  99 ++++++++++++++--
+>  include/linux/userfaultfd_k.h |  16 +--
+>  mm/debug_vm_pgtable.c         |  43 ++++---
+>  mm/filemap.c                  |   2 +-
+>  mm/hmm.c                      |   2 +-
+>  mm/huge_memory.c              | 189 ++++++++++++++++--------------
+>  mm/hugetlb.c                  |   6 +-
+>  mm/internal.h                 |  12 +-
+>  mm/khugepaged.c               |  29 ++---
+>  mm/madvise.c                  |  14 +--
+>  mm/memory.c                   |  62 +++++-----
+>  mm/migrate.c                  |   2 +-
+>  mm/mincore.c                  |   2 +-
+>  mm/mprotect.c                 |  45 ++++---
+>  mm/mremap.c                   |   9 +-
+>  mm/page_table_check.c         |  25 ++--
+>  mm/page_vma_mapped.c          |  30 +++--
+>  mm/swap_state.c               |   5 +-
+>  mm/swapfile.c                 |   3 +-
+>  mm/userfaultfd.c              |   2 +-
+>  24 files changed, 511 insertions(+), 353 deletions(-)
+> 
+> --
+> 2.51.0
