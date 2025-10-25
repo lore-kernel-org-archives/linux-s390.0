@@ -1,211 +1,165 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E488F30595B;
-	Sat, 25 Oct 2025 16:14:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4A952D2490
+	for <linux-s390@vger.kernel.org>; Sat, 25 Oct 2025 17:37:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761408893; cv=none; b=TPwb9OsRT/7ypwcR0kftLn4jFiZpwsZKXAKi1Dw4ZGfWvS1a2kxv6i782OJui/IgkZJPr1Sev5VHQFFoYGnkW2oMQZ65kMrLB+DY69YM1m0y9Bw9fiplvD3jCQLT48evaUTMKeqvDKN/T8BkF+CHa5+r9eey23uON2XBKpVoyWU=
+	t=1761413846; cv=none; b=ttzJfX/n0EMQNu1fE2C2bMzBkXuF3NTzo4qEgzVD6aBBUN+fIQpY/GiFzg4p9b0sT7R7oJKTnUHSWhrn4MItS1mjr+lDzWzUZ3xDqvx0PiphjLJf8saZD6XTLq7ONJ8/kR4413oWAU1Fm6v2bJ4ZrO24V29hrNxQpljQ2fcJGjs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761408893; c=relaxed/simple;
-	bh=Sa72g+/+++YpryrxfPg5VslBUSQzfQ/CjzT1VO5oNow=;
+	s=arc-20240116; t=1761413846; c=relaxed/simple;
+	bh=o24Lh0m865LHAd7eTl0nkiD2wbOoM9UeuHg61Ehlg7s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=A9wC/i5JKSXYkECpK0LCxV6Dhg+18cHQMWw71zsLUworglhZkNKwFc9gmo6KlD3dPH7EvulXw05EmOcUqfOo64f8Pug9EWYFp8wKhL3AOBbO10TTkbzmvu9lmo/WHL71qdiw1XDyvAzI3ilYAXhqDRnjzCpULS+19DnnzOIUXsw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=t6QfyUlm; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=u4Lc/atHYS0Dm9P6STg3sAqsHM+NThQ1Gh1UIKdWMRILsk1MfLtALt/vDoZT/g5nH6x70cY4iRZ7jNAauF0Awhpk28otrZqzUcm2j0L0cOQMmK6xF3ckueSHtxxQli/vaaR6gaqGMd0cjI9xMs8MK4Tvf/8x5cUINSJKf/PIRTA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mk9x7iAG; arc=none smtp.client-ip=209.85.210.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="t6QfyUlm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 781EBC4CEF5;
-	Sat, 25 Oct 2025 16:14:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1761408892;
-	bh=Sa72g+/+++YpryrxfPg5VslBUSQzfQ/CjzT1VO5oNow=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=t6QfyUlmi3CziC/eYEjkKrNH3w6oci60IOBZ/2dqysgcrHEoUI/TnBCo6cBhK2rh1
-	 SzO143ePWkHbj3dcUhXaIc+/0pnYdHdFXKQFWZ3Ls7aYSjnmmZY9bYB/IVMNFyuH3T
-	 IBvDPkDmwCSF+yhx40sAexUOKhq4iU0FCBBbMu1fWeBL/tqWqFWWl8H1svcLdiNopP
-	 GJZa3r+a1lIfM4zCyZM+px1wAJxGnhvJtVKEusi4MXP/YBFNvHG7tVP0yAkviwcF70
-	 2PfnlpBj10Hs8GEbl+bufwW4Kl2l7ZNeumD+L4M7cFv/cxNBTyKNE+1HPIHlbGX36U
-	 awnwC3VOnrnzg==
-From: Sasha Levin <sashal@kernel.org>
-To: patches@lists.linux.dev,
-	stable@vger.kernel.org
-Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Lukas Wunner <lukas@wunner.de>,
-	Sasha Levin <sashal@kernel.org>,
-	gerald.schaefer@linux.ibm.com,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mk9x7iAG"
+Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-7a27c67cdc4so2406146b3a.3
+        for <linux-s390@vger.kernel.org>; Sat, 25 Oct 2025 10:37:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1761413844; x=1762018644; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=W24fDmk9KGuj2UH3C1cIlrBfOFLoZl/lXv81T5OGdqU=;
+        b=mk9x7iAGmYO7tW9YafWV9tGPaXYPbNgrs1aKXU1jolK2PakpbARKQ5w23oK5Wqtguy
+         RGd6N5QQvPLy+to9fuBWbf7L1e+TNI+mT4Ir/1XwpO2MbslZnby5W0a/6IRKVPW/qN2k
+         sHAQfJT0oKARaftrRM/OKNuboD2/2Gd4n+lt+cD1dg+UzWr83ZPAVsGMD7X5zBvTaOf4
+         KXEgMtPx5LwiG/I8zVyPsoIvwep2TwfRkntPCtJ9zK4//dQxSdJdwqjCmb9tVDD7DO84
+         kKpoAFHx6CyVZYFD2+8gbQZJT0fwnx1IYonJWI7BAQwHQ0QUjCCRQNRvLjwPIJ65j59d
+         2Jvg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1761413844; x=1762018644;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=W24fDmk9KGuj2UH3C1cIlrBfOFLoZl/lXv81T5OGdqU=;
+        b=SqbFvz1mafq/nAd14h9wHNdj+z/QDaepKtYSImUuetrWmqKqXSFrMc2ZTZt58BRSJX
+         typ1/zZZWrdrNyxubz2ttW9JA9dUa5NWw3gbMzl2luqK4l3zdwwAaGGgTR1uI8IkELxQ
+         Wvl7UpHpqfP04Hl9DjOBRffp87QSSLE/2c+7MZ2G8dCeNuOmA8HILS8dsQYPSQcHvppv
+         osoDVwx17dO5QrUGjDIlGyj9D+K6bf3GlyY9crDU2Ps4sfdXVTlRRVNtgEe6CZO/F2DT
+         iJzAwRHZAcAF9jEFqxgV34BaQ/BuRKrmKrxlPaOIcnRUtAAMUgw9DqzPmtT85p5FPJ9k
+         rUhg==
+X-Forwarded-Encrypted: i=1; AJvYcCWTUsD4JQiTPZSpTja24FdzcRlzHJZqiBMWzx5DRdMm5H6HUJCqlYXBzGorTV6k2cqM96IIBu/Y6QHT@vger.kernel.org
+X-Gm-Message-State: AOJu0YyOUsMoZkXyNAJnlUfV1MO49ihLPDlv5viA7cW0NYtj2MvtjpmO
+	jiyf/nTlrr2GXX1GIV63Ef3arRgpqfkiH/uRCaJu//3Rd+DPZUSLgEx7
+X-Gm-Gg: ASbGncsoIP1i4TvbO9/zrptl5QdINlte1kTAilbJ+Ka0oCHrviwi7H/XwG1w0gQWptN
+	LDP0LhB+SDh1ljk6d2pxcjlnT5lsDN14sObpzlfkENK4IJ4V8o5c5szHi8g4w1O1CtAUCOcMUgK
+	tWCjZ9i5PV61im8r1yGne8aqf2rK6i8xtrFSLtjhfRU3DGhOjFgYcoq+n9EyaNRYSJJkTOhmyDH
+	coFPDdXM6vArEM9SapBUvvQj/6N2CQz075Z4uCUadUg8Y0FxjptHjoTDfO9XigV4Y67tBGV3bHT
+	DhYgL0nGI7bKK5xZDwUfLNhcWOLcQZEtSRxgD/HzDqrBvsDhec71tb2/OszRYTlsivu8+rOEAvP
+	meGrcoq+PZlAglKxxqMo3uFkTpb1+/fhbGk3z4Uh5E0ZKZX00WM6/4dS9DfVdqZDKNW6BeFBb1g
+	v9ddwo9coAaMIy7zm0fK+w
+X-Google-Smtp-Source: AGHT+IG7r64b+QFeTKdxScX1JEZBuLYNZKVtVxJcQwnEV/Y6Xyj7YdsojGm9RYGUWg1kr834PfcIZg==
+X-Received: by 2002:a05:6a20:7344:b0:309:48d8:cf0a with SMTP id adf61e73a8af0-334a8649ed5mr43587422637.54.1761413843895;
+        Sat, 25 Oct 2025 10:37:23 -0700 (PDT)
+Received: from DESKTOP-8TIG9K0.localdomain ([119.28.20.50])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b71268bdb2dsm2656018a12.5.2025.10.25.10.37.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 25 Oct 2025 10:37:23 -0700 (PDT)
+From: Xie Yuanbin <qq570070308@gmail.com>
+To: riel@surriel.com,
+	linux@armlinux.org.uk,
+	mathieu.desnoyers@efficios.com,
+	paulmck@kernel.org,
+	pjw@kernel.org,
+	palmer@dabbelt.com,
+	aou@eecs.berkeley.edu,
+	alex@ghiti.fr,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	svens@linux.ibm.com,
+	davem@davemloft.net,
+	andreas@gaisler.com,
+	tglx@linutronix.de,
+	mingo@redhat.com,
+	bp@alien8.de,
+	dave.hansen@linux.intel.com,
+	hpa@zytor.com,
+	luto@kernel.org,
+	peterz@infradead.org,
+	acme@kernel.org,
+	namhyung@kernel.org,
+	mark.rutland@arm.com,
+	alexander.shishkin@linux.intel.com,
+	jolsa@kernel.org,
+	irogers@google.com,
+	adrian.hunter@intel.com,
+	anna-maria@linutronix.de,
+	frederic@kernel.org,
+	juri.lelli@redhat.com,
+	vincent.guittot@linaro.org,
+	dietmar.eggemann@arm.com,
+	rostedt@goodmis.org,
+	bsegall@google.com,
+	mgorman@suse.de,
+	vschneid@redhat.com,
+	qq570070308@gmail.com,
+	thuth@redhat.com,
+	akpm@linux-foundation.org,
+	david@redhat.com,
+	lorenzo.stoakes@oracle.com,
+	segher@kernel.crashing.org,
+	ryan.roberts@arm.com,
+	max.kellermann@ionos.com,
+	urezki@gmail.com,
+	nysal@linux.ibm.com
+Cc: x86@kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
 	linux-s390@vger.kernel.org,
-	linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.17-6.1] s390/pci: Use pci_uevent_ers() in PCI recovery
-Date: Sat, 25 Oct 2025 11:55:48 -0400
-Message-ID: <20251025160905.3857885-117-sashal@kernel.org>
+	sparclinux@vger.kernel.org,
+	linux-perf-users@vger.kernel.org,
+	will@kernel.org
+Subject: Re: [PATCH 0/3] Optimize code generation during context
+Date: Sun, 26 Oct 2025 01:37:00 +0800
+Message-ID: <20251025173700.754-1-qq570070308@gmail.com>
 X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20251025160905.3857885-1-sashal@kernel.org>
-References: <20251025160905.3857885-1-sashal@kernel.org>
+In-Reply-To: <18734a4944e47952b7ad3e10a36c902392bdaa91.camel@surriel.com>
+References: <18734a4944e47952b7ad3e10a36c902392bdaa91.camel@surriel.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.17.5
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Niklas Schnelle <schnelle@linux.ibm.com>
+On Fri, 24 Oct 2025 17:36:06 -0400, Rik van Riel wrote:
+> Also, what kind of performance improvement
+> have you measured with these changes?
 
-[ Upstream commit dab32f2576a39d5f54f3dbbbc718d92fa5109ce9 ]
+When I debugged performance issues before, I used the company's equipment.
+I could only observe the macro business performance data, but not the
+specific scheduling time. Today I did some testing using my devices,
+and the testing logic is as follows:
+```
+-	return finish_task_switch(prev);
++	start_time = rdtsc();
++	barrier();
++	rq = finish_task_switch(prev);
++	barrier();
++	end_time = rdtsc;
++	return rq;
+```
 
-Issue uevents on s390 during PCI recovery using pci_uevent_ers() as done by
-EEH and AER PCIe recovery routines.
+The test data is as follows:
+1. mitigations Off, without patches: 13.5 - 13.7
+2. mitigations Off, with patches: 13.5 - 13.7
+3. mitigations On, without patches: 23.3 - 23.6
+4. mitigations On, with patches: 16.6 - 16.8
 
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Lukas Wunner <lukas@wunner.de>
-Link: https://patch.msgid.link/20250807-add_err_uevents-v5-2-adf85b0620b0@linux.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
+On my device, these patches have very little effect when mitigations off,
+but the improvement was still very noticeable when the mitigation was on.
+I suspect this is because I'm using a recent Ryzen CPU with a very
+powerful instruction cache and branch prediction capabilities, so without
+considering the Spectre vulnerability, inlining is less effective.
+However, on embedded devices with small instruction caches, these patches
+should still be effective even with mitigations off.
 
-LLM Generated explanations, may be completely bogus:
-
-YES
-
-Explanation
-- What it changes
-  - arch/s390/pci/pci_event.c: Adds uevent notifications to the s390 PCI
-    error recovery path, mirroring existing AER/EEH behavior:
-    - After driver’s error_detected() returns, emit a recovery-begin
-      uevent: the patch inserts pci_uevent_ers(pdev, ers_res) in
-      zpci_event_notify_error_detected() (arch/s390/pci/pci_event.c:85).
-    - On recovery failure, emit FAILED_RECOVERY: the patch calls
-      pci_uevent_ers(pdev, PCI_ERS_RESULT_DISCONNECT) in
-      zpci_event_attempt_error_recovery()
-      (arch/s390/pci/pci_event.c:178).
-    - On recovery success, emit SUCCESSFUL_RECOVERY: the patch calls
-      pci_uevent_ers(pdev, PCI_ERS_RESULT_RECOVERED) after an optional
-      resume() in zpci_event_attempt_error_recovery()
-      (arch/s390/pci/pci_event.c:178).
-  - drivers/pci/pci-driver.c: Makes pci_uevent_ers() available when
-    building for s390 by expanding the ifdef to include CONFIG_S390
-    (drivers/pci/pci-driver.c:1591).
-  - include/linux/pci.h: Similarly expands the prototype guard to
-    include CONFIG_S390 so arch/s390 code can call it
-    (include/linux/pci.h:2768).
-
-- Why it matters (user-visible impact)
-  - Brings s390 PCI recovery uevents to parity with AER and PowerPC EEH:
-    - pci_uevent_ers() already emits ERROR_EVENT=BEGIN_RECOVERY /
-      SUCCESSFUL_RECOVERY / FAILED_RECOVERY and DEVICE_ONLINE=0/1 to
-      userspace (drivers/pci/pci-driver.c:1591).
-    - AER and EEH already use these notifications; s390 previously did
-      not. This omission prevents userspace from reacting consistently
-      to PCI recovery events on s390 systems.
-  - The change enables standard userspace tooling (udev rules,
-    monitoring scripts) to receive the same recovery lifecycle events on
-    s390 that they already get elsewhere, which can help automate
-    remediation or logging. It’s a clear correctness/observability
-    improvement, not a feature addition that changes kernel behavior.
-
-- Scope and risk assessment
-  - Small, contained change:
-    - Adds three calls to pci_uevent_ers() in the s390 recovery path; no
-      core recovery logic changed.
-    - Only adjusts preprocessor guards to build pci_uevent_ers() for
-      s390. No behavior change on non-s390.
-  - Consistent with established patterns:
-    - AER calls pci_uevent_ers() after error_detected() and on
-      resume/failure; this patch mirrors that sequencing for s390.
-  - Low regression risk:
-    - Only additional KOBJ_CHANGE uevents are emitted during rare error
-      recovery flows.
-    - Calls occur under the same locking pattern used in AER (s390 uses
-      pci_dev_lock/pci_dev_unlock, which wraps device_lock, consistent
-      with AER’s device_lock usage), so no new locking hazards.
-    - No ABI change; only adds uevents that other architectures already
-      emit.
-
-- Stable backport considerations
-  - Dependencies: pci_uevent_ers() exists and is implemented in pci-
-    driver.c (drivers/pci/pci-driver.c:1591) with a prototype in
-    include/linux/pci.h (include/linux/pci.h:2768). Older stable series
-    where pci_uevent_ers() lived in different guards may need the guard
-    expansions this patch includes. For supported long-term series
-    (4.19+, 5.4+, 5.10+, 5.15+, 6.1+), pci_uevent_ers() is already
-    present; just ensure to add CONFIG_S390 to both the definition and
-    the prototype guards as in this patch.
-  - No major architectural changes; change is limited to s390 PCI
-    recovery and one generic helper being compiled for s390.
-  - While the commit message does not include Fixes:/Cc: stable tags,
-    this is a correctness/behavior-parity fix affecting real userspace
-    observability and is minimal risk, making it suitable for stable.
-
-- Conclusion
-  - This patch fixes a real behavioral gap on s390 by emitting standard
-    PCI recovery uevents that already exist on other platforms. It is
-    small, self-contained, and low risk, with clear user benefit. It
-    should be backported to stable.
-
- arch/s390/pci/pci_event.c | 3 +++
- drivers/pci/pci-driver.c  | 2 +-
- include/linux/pci.h       | 2 +-
- 3 files changed, 5 insertions(+), 2 deletions(-)
-
-diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
-index d930416d4c903..b95376041501f 100644
---- a/arch/s390/pci/pci_event.c
-+++ b/arch/s390/pci/pci_event.c
-@@ -88,6 +88,7 @@ static pci_ers_result_t zpci_event_notify_error_detected(struct pci_dev *pdev,
- 	pci_ers_result_t ers_res = PCI_ERS_RESULT_DISCONNECT;
- 
- 	ers_res = driver->err_handler->error_detected(pdev,  pdev->error_state);
-+	pci_uevent_ers(pdev, ers_res);
- 	if (ers_result_indicates_abort(ers_res))
- 		pr_info("%s: Automatic recovery failed after initial reporting\n", pci_name(pdev));
- 	else if (ers_res == PCI_ERS_RESULT_NEED_RESET)
-@@ -244,6 +245,7 @@ static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci_dev *pdev)
- 		ers_res = PCI_ERS_RESULT_RECOVERED;
- 
- 	if (ers_res != PCI_ERS_RESULT_RECOVERED) {
-+		pci_uevent_ers(pdev, PCI_ERS_RESULT_DISCONNECT);
- 		pr_err("%s: Automatic recovery failed; operator intervention is required\n",
- 		       pci_name(pdev));
- 		status_str = "failed (driver can't recover)";
-@@ -253,6 +255,7 @@ static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci_dev *pdev)
- 	pr_info("%s: The device is ready to resume operations\n", pci_name(pdev));
- 	if (driver->err_handler->resume)
- 		driver->err_handler->resume(pdev);
-+	pci_uevent_ers(pdev, PCI_ERS_RESULT_RECOVERED);
- out_unlock:
- 	pci_dev_unlock(pdev);
- 	zpci_report_status(zdev, "recovery", status_str);
-diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
-index 6405acdb5d0f3..302d61783f6c0 100644
---- a/drivers/pci/pci-driver.c
-+++ b/drivers/pci/pci-driver.c
-@@ -1582,7 +1582,7 @@ static int pci_uevent(const struct device *dev, struct kobj_uevent_env *env)
- 	return 0;
- }
- 
--#if defined(CONFIG_PCIEAER) || defined(CONFIG_EEH)
-+#if defined(CONFIG_PCIEAER) || defined(CONFIG_EEH) || defined(CONFIG_S390)
- /**
-  * pci_uevent_ers - emit a uevent during recovery path of PCI device
-  * @pdev: PCI device undergoing error recovery
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 59876de13860d..7735acf6f3490 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -2764,7 +2764,7 @@ static inline bool pci_is_thunderbolt_attached(struct pci_dev *pdev)
- 	return false;
- }
- 
--#if defined(CONFIG_PCIEPORTBUS) || defined(CONFIG_EEH)
-+#if defined(CONFIG_PCIEPORTBUS) || defined(CONFIG_EEH) || defined(CONFIG_S390)
- void pci_uevent_ers(struct pci_dev *pdev, enum  pci_ers_result err_type);
- #endif
- 
--- 
-2.51.0
-
+Xie Yuanbin
