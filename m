@@ -1,127 +1,46 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A03521A94F
-	for <linux-s390@vger.kernel.org>; Sat, 25 Oct 2025 19:18:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 821E41E51EB;
+	Sun, 26 Oct 2025 05:53:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761419939; cv=none; b=PnDOtjiH9+akGUtekfLULYIlssy3DROj5g1tWf0cfc9nuNIPJnydF7DGb8X6kvSUYPIa6Wf0cIVrUighpLQmlq25V2XbovYZVtlcc94R1opwDZ/INQV6iTXsnZ519ww+THuQJzU8ZIDUd8pFZAXoKryZUxiIoWz9z+rtaN6ePcs=
+	t=1761457983; cv=none; b=iLNII3GFjr27L5PKJQ3nS8KMNvdaxYs47EQa/YFcA8zK8MQ9HvuTNGGvXqw4s8RPNtMIzVZth0hyhqQ/h9HWCiBdCfCGE75C7kmnqxfv59BGKQcxScRentAYR3ptfZpboPzhZFKIi5HR7CWetRnemOMyn5tXLZ39NzZCYSyq62g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761419939; c=relaxed/simple;
-	bh=b50a9arCrSL/MR93BKO9o7wTWQtm+XsywFPqsAesqkQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dXQr4PH/Odprz6VLPWCwRYo8Kq/skk6Hjfxq07UD7tyrCVfIy91q6jerx/g5WlTvheKgJWMUodEJmTuG207OKEsN+OkBFiwYLEx+W+8vq0X5sQ9P/3w+REPsOUs3VLsVqgC5aADHPViUYZWCNVUgBX9xP0zGYW+4yMe5zNBEEDk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gAqx+o/z; arc=none smtp.client-ip=209.85.214.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1761457983; c=relaxed/simple;
+	bh=q6vLamfneYVI54zMckqkVG2DRb1HUk+gJgFQY0AJgAg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=budUh2rnlhst0N85kU/tpKbU1xqPFB1S4Gc9KLt2BI6upIPk0WPKBtI7/D8OCwLX3F4WA8TJJTdDoMYn7/dl0M8fJ6oxCIhy2u39mTjVBVVH5yJsG5efKYgYo/8gCfUerWLny8d5QRMEkWN9fLf7R4iOYlGzr39ZUoBfNRO5BPU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HrhAnm1D; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gAqx+o/z"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-29292eca5dbso43612795ad.0
-        for <linux-s390@vger.kernel.org>; Sat, 25 Oct 2025 12:18:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1761419938; x=1762024738; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=b50a9arCrSL/MR93BKO9o7wTWQtm+XsywFPqsAesqkQ=;
-        b=gAqx+o/zrW38qe8vTmotvOS8G1BK0a4PPbPHZ+5uhUNrTPl0NW2TqVA1EU6TpCrRGh
-         GzuApbZZFeg9EVYXfwWy7qYrWubTWy6BJ7kHjZkrF0kNtyxw+T/eakjNqr0cxpSkN/Qv
-         nAw6QtAgDQefdqru9VnlBqrFJHd3RCOH+8AnkHQjNJTOHe4M5aTuzcyKYQMDCvZAcI8Z
-         0jOS+mw4XTEKwmU/ll2iTsbuLIAvslDOMRR5zE9wIPbqSjzmFcEZqqDUXfK0LXuM48yD
-         ydHJcVDEhcOnxguGJa4DAIB8Iwmt9VspSbWk5Q1aXtDod5j0Rh/g1fQZaDF5Jon3nN92
-         7OJQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761419938; x=1762024738;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=b50a9arCrSL/MR93BKO9o7wTWQtm+XsywFPqsAesqkQ=;
-        b=e1Ur1VLFncgM+jft3NkOIqu0vGLkMqUFws3+GZbEsR0c+d7tXhyRPDsE7UpeQ0GMzt
-         0d9n4tPK7gTq6Hv1WVrd23memERHQ7/6YM9udPhHlyCPO3qQ9ijV0azxoPY5hqKSDO9d
-         hhe0R1vaqO6LuTdAabzzxMgUKDU7mHa6xCgoTWGOrqDw2wnjm1qUJaUFTVFLhQfCtVG2
-         0wM30CvbSUVpmtt2/hWl+ffq8DvCvvSiO45dkEHgzo6eaf9JmUsYN+H1INPVFSmzGUsp
-         qOQrLIpwS7Jx3DHAyiaMyibeBDtPnNouKAvujzKYrEki6BKGf+ls7+OitU5BWVonSr8e
-         Bk8A==
-X-Forwarded-Encrypted: i=1; AJvYcCUqW33SlxWujmoVaw+hxjjkOj4DMtdR7Eikz/x/QqoZOrhB3QSxd+oUdPWuOMkg4z7dsm7PXnZ7w1F7@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw7nEJCI6okn92yekxDIM/mSMDWRbkE7b6c2M4uozwNndotQK34
-	DrCdOmM9+3FTii1v88WvUe/KmA3a45Ijt7IFLo+w4HOZX0vp+9h0++tG
-X-Gm-Gg: ASbGnctf4uhkIEdow590b21X65WerkGRG36uHRyXsgJ+wJJlxT24xjrFfd1otW1sBzh
-	aQOya0ifPrg8yvsNreuP9eBpCK5gLvJbpHfMB8bJLYqoCXQ6mtVEJabt4v7X2enufpT1j4LhqSh
-	5f4ROq31J65BMAShK0JvzfUGe8v38ccZWQj+xm79zwiYeGF18Xs01jyZrsvXqeeCsuZ6teXO/xD
-	exHj+9wcRL2WkLHQJT2XnaZ0ODsrJEo3X22sg9Vo+HnxuVYC245vYuUZJhxJxvA917NVUs1DxCG
-	dp/B8jIm9Kl5Rur6tGEC9CIMH4kVS+swedU17+bW2G64okoH3rUsbYuBdAdTV1uWBap9FR17OWP
-	asU1Lt8nUAh5xpXspTT67+Ir9LrdvQietnoubvWx4WUyo/DT1v6XQbU35aIpkPxBkTrf5JXkkso
-	Ylfqi9PChYSAiHWTyC6Hl7D57NQ0SFKfg=
-X-Google-Smtp-Source: AGHT+IGB2o/5lEiKd9cWH/x2UTjOp0RZ2ut0VtofYuc7VyGMeDPM/lJA9l37C37EEgCCcQfgsU8H7w==
-X-Received: by 2002:a17:902:e889:b0:27d:6f49:febc with SMTP id d9443c01a7336-290c9c93af5mr423757525ad.1.1761419937751;
-        Sat, 25 Oct 2025 12:18:57 -0700 (PDT)
-Received: from DESKTOP-8TIG9K0.localdomain ([119.28.20.50])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29498e429d9sm30054435ad.100.2025.10.25.12.18.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 25 Oct 2025 12:18:57 -0700 (PDT)
-From: Xie Yuanbin <qq570070308@gmail.com>
-To: riel@surriel.com,
-	segher@kernel.crashing.org
-Cc: acme@kernel.org,
-	adrian.hunter@intel.com,
-	agordeev@linux.ibm.com,
-	akpm@linux-foundation.org,
-	alex@ghiti.fr,
-	alexander.shishkin@linux.intel.com,
-	andreas@gaisler.com,
-	anna-maria@linutronix.de,
-	aou@eecs.berkeley.edu,
-	borntraeger@linux.ibm.com,
-	bp@alien8.de,
-	bsegall@google.com,
-	dave.hansen@linux.intel.com,
-	davem@davemloft.net,
-	david@redhat.com,
-	dietmar.eggemann@arm.com,
-	frederic@kernel.org,
-	gor@linux.ibm.com,
-	hca@linux.ibm.com,
-	hpa@zytor.com,
-	irogers@google.com,
-	jolsa@kernel.org,
-	juri.lelli@redhat.com,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HrhAnm1D"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC27BC4CEE7;
+	Sun, 26 Oct 2025 05:53:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1761457983;
+	bh=q6vLamfneYVI54zMckqkVG2DRb1HUk+gJgFQY0AJgAg=;
+	h=From:To:Cc:Subject:Date:From;
+	b=HrhAnm1DKzqRE02P4K7NTX0u3hms/ym3Wgy3+pa+xhHHi5Wv0WKRIqwVq0/qIkwUb
+	 10/wMUn2sWcuOH+ygEXDWM4kycFyufEQcLfVXsdIXaZWCtSZeL9tX1Z+zmed69gzx/
+	 ZnVaRSofIfNpeF7uu55ldppuiq9Hhi/dy4S68rgyGWA0DMyraAjY4TC02rg05i1mQw
+	 28QlZbxDIA0NptzuVHd0kzW7V/8j35xUG+FNswB7UPa4x09neJL/wuxXS81wqi2E2X
+	 15vlS0j2IvJhZMuiVUSNtU2ze3xENAASd8r9MGAgOxS4HinKSwe+SxxDprh0N/l5Ll
+	 aKB/QW4ovjlcg==
+From: Eric Biggers <ebiggers@kernel.org>
+To: linux-crypto@vger.kernel.org
+Cc: David Howells <dhowells@redhat.com>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	"Jason A . Donenfeld" <Jason@zx2c4.com>,
+	Eric Biggers <ebiggers@kernel.org>,
+	Holger Dengler <dengler@linux.ibm.com>,
+	Harald Freudenberger <freude@linux.ibm.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
 	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linux-perf-users@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
 	linux-s390@vger.kernel.org,
-	linux@armlinux.org.uk,
-	lorenzo.stoakes@oracle.com,
-	luto@kernel.org,
-	mark.rutland@arm.com,
-	mathieu.desnoyers@efficios.com,
-	max.kellermann@ionos.com,
-	mgorman@suse.de,
-	mingo@redhat.com,
-	namhyung@kernel.org,
-	nysal@linux.ibm.com,
-	palmer@dabbelt.com,
-	paulmck@kernel.org,
-	peterz@infradead.org,
-	pjw@kernel.org,
-	qq570070308@gmail.com,
-	rostedt@goodmis.org,
-	ryan.roberts@arm.com,
-	sparclinux@vger.kernel.org,
-	svens@linux.ibm.com,
-	tglx@linutronix.de,
-	thuth@redhat.com,
-	urezki@gmail.com,
-	vincent.guittot@linaro.org,
-	vschneid@redhat.com,
-	will@kernel.org,
-	x86@kernel.org
-Subject: Re: [PATCH 2/3] Provide and use an always inline version of finish_task_switch
-Date: Sun, 26 Oct 2025 03:18:39 +0800
-Message-ID: <20251025191839.6907-1-qq570070308@gmail.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <18734a4944e47952b7ad3e10a36c902392bdaa91.camel@surriel.com>
-References: <18734a4944e47952b7ad3e10a36c902392bdaa91.camel@surriel.com>
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2 00/15] SHA-3 library
+Date: Sat, 25 Oct 2025 22:50:17 -0700
+Message-ID: <20251026055032.1413733-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.51.1.dirty
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -130,22 +49,122 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-On Fri, 24 Oct 2025 17:36:06 -0400, Rik van Riel wrote:
-> Does that actually work, or does the compiler
-> still inline some of those "non-inlined" versions,
-> anyway?
+This series is targeting libcrypto-next.  It can also be retrieved from:
 
-For the current code, adding a new finish_task_switch_ainline function
-and calling it has the same effect as directly changing the
-finish_task_switch function attribute to __always_inline. This is because
-there are only two references to the finish_task_switch function in
-core.c. When one is inlined, the other becomes the only call point and it
-must be inlined (unless the no-inline option/attribute is added or the
-static attribute is removed). The uninlined finish_task_switch assembly
-code will not exist.
+    git fetch https://git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git sha3-lib-v2
 
-However, if the call point of the finish_task_switch function in core.c is
-increased in the future, as long as one point is added, a non inline
-function will be generated and codesize revenue will be obtained.
+This series adds SHA-3 support to lib/crypto/.  This includes support
+for the digest algorithms SHA3-224, SHA3-256, SHA3-384, and SHA3-512,
+and also support for the extendable-output functions SHAKE128 and
+SHAKE256.  The SHAKE128 and SHAKE256 support will be needed by ML-DSA.
 
-Xie Yuanbin
+The architecture-optimized SHA-3 code for arm64 and s390 is migrated
+into lib/crypto/.  (The existing s390 code couldn't really be reused, so
+really I rewrote it from scratch.)  This makes the SHA-3 library
+functions be accelerated on these architectures.
+
+Finally, the sha3-224, sha3-256, sha3-384, and sha3-512 crypto_shash
+algorithms are reimplemented on top of the library API.
+
+If the s390 folks could re-test the s390 optimized SHA-3 code (by
+enabling CRYPTO_LIB_SHA3_KUNIT_TEST and CRYPTO_LIB_BENCHMARK), that
+would be helpful.  QEMU doesn't support the instructions it uses.  Also,
+it would be helpful to provide the benchmark output from just before
+"lib/crypto: s390/sha3: Add optimized Keccak function", just after it,
+and after "lib/crypto: s390/sha3: Add optimized one-shot SHA-3 digest
+functions".  Then we can verify that each change is useful.
+
+Changed in v2:
+  - Added missing selection of CRYPTO_LIB_SHA3 from CRYPTO_SHA3.
+  - Fixed a bug where incorrect SHAKE output was produced if a
+    zero-length squeeze was followed by a nonzero-length squeeze.
+  - Improved the SHAKE tests.
+  - Utilized the one-shot SHA-3 digest instructions on s390.
+  - Split the s390 changes into several patches.
+  - Folded some of my patches into David's.
+  - Dropped some unnecessary changes from the first 2 patches.
+  - Lots more cleanups, mainly to "lib/crypto: sha3: Add SHA-3 support".
+
+Changed in v1 (vs. first 5 patches of David's v6 patchset):
+  - Migrated the arm64 and s390 code into lib/crypto/
+  - Simplified the library API
+  - Added FIPS test
+  - Many other fixes and improvements
+
+The first 5 patches are derived from David's v6 patchset
+(https://lore.kernel.org/linux-crypto/20251017144311.817771-1-dhowells@redhat.com/).
+Earlier changelogs can be found there.
+
+David Howells (5):
+  crypto: s390/sha3 - Rename conflicting functions
+  crypto: arm64/sha3 - Rename conflicting function
+  lib/crypto: sha3: Add SHA-3 support
+  lib/crypto: sha3: Move SHA3 Iota step mapping into round function
+  lib/crypto: tests: Add SHA3 kunit tests
+
+Eric Biggers (10):
+  lib/crypto: tests: Add additional SHAKE tests
+  lib/crypto: sha3: Add FIPS cryptographic algorithm self-test
+  crypto: arm64/sha3 - Update sha3_ce_transform() to prepare for library
+  lib/crypto: arm64/sha3: Migrate optimized code into library
+  lib/crypto: s390/sha3: Add optimized Keccak functions
+  lib/crypto: sha3: Support arch overrides of one-shot digest functions
+  lib/crypto: s390/sha3: Add optimized one-shot SHA-3 digest functions
+  crypto: jitterentropy - Use default sha3 implementation
+  crypto: sha3 - Reimplement using library API
+  crypto: s390/sha3 - Remove superseded SHA-3 code
+
+ Documentation/crypto/index.rst                |   1 +
+ Documentation/crypto/sha3.rst                 | 130 ++++++
+ arch/arm64/configs/defconfig                  |   2 +-
+ arch/arm64/crypto/Kconfig                     |  11 -
+ arch/arm64/crypto/Makefile                    |   3 -
+ arch/arm64/crypto/sha3-ce-glue.c              | 151 -------
+ arch/s390/configs/debug_defconfig             |   3 +-
+ arch/s390/configs/defconfig                   |   3 +-
+ arch/s390/crypto/Kconfig                      |  20 -
+ arch/s390/crypto/Makefile                     |   2 -
+ arch/s390/crypto/sha.h                        |  51 ---
+ arch/s390/crypto/sha3_256_s390.c              | 157 -------
+ arch/s390/crypto/sha3_512_s390.c              | 157 -------
+ arch/s390/crypto/sha_common.c                 | 117 -----
+ crypto/Kconfig                                |   1 +
+ crypto/Makefile                               |   2 +-
+ crypto/jitterentropy-kcapi.c                  |  12 +-
+ crypto/sha3.c                                 | 166 +++++++
+ crypto/sha3_generic.c                         | 290 ------------
+ crypto/testmgr.c                              |   8 +
+ include/crypto/sha3.h                         | 306 ++++++++++++-
+ lib/crypto/Kconfig                            |  13 +
+ lib/crypto/Makefile                           |  10 +
+ .../crypto/arm64}/sha3-ce-core.S              |  67 +--
+ lib/crypto/arm64/sha3.h                       |  62 +++
+ lib/crypto/fips.h                             |   7 +
+ lib/crypto/s390/sha3.h                        | 151 +++++++
+ lib/crypto/sha3.c                             | 411 +++++++++++++++++
+ lib/crypto/tests/Kconfig                      |  11 +
+ lib/crypto/tests/Makefile                     |   1 +
+ lib/crypto/tests/sha3-testvecs.h              | 249 +++++++++++
+ lib/crypto/tests/sha3_kunit.c                 | 422 ++++++++++++++++++
+ scripts/crypto/gen-fips-testvecs.py           |   4 +
+ scripts/crypto/gen-hash-testvecs.py           |  27 +-
+ 34 files changed, 2012 insertions(+), 1016 deletions(-)
+ create mode 100644 Documentation/crypto/sha3.rst
+ delete mode 100644 arch/arm64/crypto/sha3-ce-glue.c
+ delete mode 100644 arch/s390/crypto/sha.h
+ delete mode 100644 arch/s390/crypto/sha3_256_s390.c
+ delete mode 100644 arch/s390/crypto/sha3_512_s390.c
+ delete mode 100644 arch/s390/crypto/sha_common.c
+ create mode 100644 crypto/sha3.c
+ delete mode 100644 crypto/sha3_generic.c
+ rename {arch/arm64/crypto => lib/crypto/arm64}/sha3-ce-core.S (84%)
+ create mode 100644 lib/crypto/arm64/sha3.h
+ create mode 100644 lib/crypto/s390/sha3.h
+ create mode 100644 lib/crypto/sha3.c
+ create mode 100644 lib/crypto/tests/sha3-testvecs.h
+ create mode 100644 lib/crypto/tests/sha3_kunit.c
+
+base-commit: e3068492d0016d0ea9a1ff07dbfa624d2ec773ca
+-- 
+2.51.1.dirty
+
