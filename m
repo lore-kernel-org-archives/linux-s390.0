@@ -1,266 +1,423 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69498195FE8;
-	Mon, 27 Oct 2025 18:01:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3F8126A0AD;
+	Mon, 27 Oct 2025 22:49:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761588069; cv=none; b=hcBZ6v3hK9vBA5qMTD6zFJ+SMbEcagBoLHXU6cBD4sDJ5F2HDe+4t3Qxwtk2pCMNMhEoLzj1pqXMxVIT/XNtXxKt79WTOWlMx0EvwST2GK0+IwVJghQ2ApQOc1iXVQ5inwYGyujWB/MXzQLApzlfDYABGO9OgeRqA3MqDPsZDzw=
+	t=1761605355; cv=none; b=hkkzEu/Snv9vri3rfIiTIkrbYEuNyShCgcrgukEqpaIlEk61BMMRoA3Vc+HzlQ9PsL5b6kPeijCl+peutwW9gXJIKD9r50JM1QZyWUE+Jq+DHY2wwBW92C5VaFclQ0HK1ctXiZ7kPZpd/z2Y23HNutPhxPEE0lHNSyuqdfIYBAc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761588069; c=relaxed/simple;
-	bh=9aOcg1vbKI7PBU73QuoyR/WmuERyo+h3GXdaWJTIjmI=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=qkpd8k/3aglazHkI52eiOXxZfKIVqVbzuQEQYGJgCTsyok0B+fFzEVAmTZ4jWTUN2bvOZVi9JBFPLs1wkOqnIDcTBTwrr6evCdrBiWqL1BHZE4uuk3wQDmWTUx1+XnmbN6OJoeoWf6S9TsuovJkLE35+JM/JmjPUL+ere4BrJfo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XYwLgVZc; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1761605355; c=relaxed/simple;
+	bh=3vY8ghq/Ja5QnoG98iX2P5vjyQITlGFGrgyHRSU318s=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Y/cGRU/Fw/OjOjPQOUvy1nEkKfbnylCypqxxbfV0c8vUFl/ziAsFDPM732b7GxHimU5YtL56Zn9iDfMVEJD1fmelb43ExDfaR22qpAED+108ImHZfGQcyjhmM0DMysbvx2zzF5Mi/4XTfqtqnFWRGn1oE9WC5+oNpYFFfdjwLkM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=M80LYF85; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XYwLgVZc"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59RDLCaX001054;
-	Mon, 27 Oct 2025 18:01:01 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="M80LYF85"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59RBnCA4023535;
+	Mon, 27 Oct 2025 22:49:06 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=b5qwh9
-	L6C6fmvWd7okpW2IknesMw1cOqK+AvkIuKa/s=; b=XYwLgVZcpZ42SOLq56uszw
-	dqTz1f2N7oTZzNi+eD9qFzGNY1I4VVjm3X58uiO57UKp/BS117EoprjU+CtR26eT
-	MsbEm8J7PdEcJjRcqMG9SfC+i0K9T3EPrJLj+YVwFHTY6jaCaUnPa3CstU6H8lNI
-	i4m3cZULWTlpMn5JaHopdG4YsirSxpFpQ7zaWmMSysk8FAC33+CWnwmnKDz4aoEo
-	41V+1BDH3J7/7ps1hr8qhkENaX0JKN7gMVldDZpOVJHx/q3/RNZwdbavJJlL8+c8
-	5bKDeadT9K6WwUrgXpBcCx+XXAGeAW4OvTpQRd+Ji9yWgVtJ6yHkmwJImMwE8X6w
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a0p9905v7-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=faMxPjxST9CP1d5hz
+	3PAMImoNygi7R43hazQAU8cC8Y=; b=M80LYF85BrC9Q8iu1rpWlljuy1ehizR1L
+	v73l8kEsR16zptImTOj3pn+SGH0w5es9jeWl8VZOUW8XHD6ffwYtgZv+tsERPwRh
+	LQ81Eawzlia579RxAWax4Nhy2GzUj/r2PUqrYq3sEJnMUYd23/sKTuFDv6oF4B1z
+	kdO0+DzCqyIqAnYDAI5B9fzCph+1W5lqjU4sx++nO1RLfhkaPc+iRXPABXb9wMxs
+	w4prJR2jrDA4KamRVghhvZGoSxXwV5U+rw5eleEZNyh1C4DzEwX41l5zcwDpwPuJ
+	1CEMw74JEcypZMkT5JQ1uRW5cy3hRrtaiXhMkDnPhI9IelpqyDdbQ==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a0p720ymt-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 27 Oct 2025 18:01:01 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59RFBuBd030454;
-	Mon, 27 Oct 2025 18:01:00 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4a1acjpv03-1
+	Mon, 27 Oct 2025 22:49:06 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 59RMar0R002886;
+	Mon, 27 Oct 2025 22:49:05 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a0p720ymq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 27 Oct 2025 18:00:59 +0000
+	Mon, 27 Oct 2025 22:49:05 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59RMgMPE030191;
+	Mon, 27 Oct 2025 22:49:04 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4a19vmfxx2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 27 Oct 2025 22:49:04 +0000
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59RI0uN750004476
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59RMn0Ag57016824
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 27 Oct 2025 18:00:56 GMT
+	Mon, 27 Oct 2025 22:49:00 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0CE8F2004B;
-	Mon, 27 Oct 2025 18:00:56 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id A8EB820043;
+	Mon, 27 Oct 2025 22:49:00 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7ADB020040;
-	Mon, 27 Oct 2025 18:00:55 +0000 (GMT)
-Received: from li-978a334c-2cba-11b2-a85c-a0743a31b510.ibm.com (unknown [9.111.6.137])
+	by IMSVA (Postfix) with ESMTP id 5F56220040;
+	Mon, 27 Oct 2025 22:49:00 +0000 (GMT)
+Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 27 Oct 2025 18:00:55 +0000 (GMT)
-Message-ID: <af9c7f4aedf71896dd2a9dd80837aae8f3428f93.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 03/20] KVM: s390: Add gmap_helper_set_unused()
-From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, nrb@linux.ibm.com, seiden@linux.ibm.com,
-        schlameuss@linux.ibm.com, hca@linux.ibm.com, svens@linux.ibm.com,
-        agordeev@linux.ibm.com, david@redhat.com,
-        gerald.schaefer@linux.ibm.com
-Date: Mon, 27 Oct 2025 19:00:15 +0100
-In-Reply-To: <20250915133340.5b7c7d55@p-imbrenda>
-References: <20250910180746.125776-1-imbrenda@linux.ibm.com>
-		<20250910180746.125776-4-imbrenda@linux.ibm.com>
-		<267557ab6a061d55e4961312f4dc756bd4e0eaec.camel@linux.ibm.com>
-	 <20250915133340.5b7c7d55@p-imbrenda>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
+	Mon, 27 Oct 2025 22:49:00 +0000 (GMT)
+From: Halil Pasic <pasic@linux.ibm.com>
+To: "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Dust Li <dust.li@linux.alibaba.com>,
+        Sidraya Jayagond <sidraya@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Mahanta Jambigi <mjambigi@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>, netdev@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Halil Pasic <pasic@linux.ibm.com>, Wen Gu <guwen@linux.alibaba.com>,
+        Guangguan Wang <guangguan.wang@linux.alibaba.com>,
+        Bagas Sanjaya <bagasdotme@gmail.com>
+Subject: [PATCH net-next v6 1/2] net/smc: make wr buffer count configurable
+Date: Mon, 27 Oct 2025 23:48:55 +0100
+Message-ID: <20251027224856.2970019-2-pasic@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
+In-Reply-To: <20251027224856.2970019-1-pasic@linux.ibm.com>
+References: <20251027224856.2970019-1-pasic@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=JqL8bc4C c=1 sm=1 tr=0 ts=68ffb35d cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=8VGQ8kbb1ftBDG4DREYA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: 5N0wipb3_2nGq-XPGIzXfOSEEKDwk7Fl
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDI1MDAxOSBTYWx0ZWRfX2pk2kDco+Krr
- lli0zEmhll3XJyNXjv1tURfAlW7SW1MShJuAw12POKjiD0rUtxWgsfVgpRFLjJHJaEp6Hx/fMOB
- 9F/VrkMl/KAXVKf8gUweHO02a/cJEfH4SXC6BqvAH3ipdjfztovQJ2iAvZixrFdmg2ch1PD6y9F
- h89Fp0HfytBuUY0boMdnwp5KddcnNMxt+mAzHrz7ua8uIEf6i9psMqNxV0X4cySfnw7JjM/QHW1
- E6azJd9hS3Nu94wORxrEi1vQQqxEXWUy9+BXdCkOpncMz4NJQl/Fj3wxEM4FhSRICCms/yQKbn+
- ABejSE1l1Px2XwdN6EqJ8oD9LYq93YS/Toa0DZriFl6aMqIUbz3BmNjwBWLwzT5sSAAaoiP+nDh
- WhA3vJQA5fv7B0k4K0te1BxJjg0NXg==
-X-Proofpoint-ORIG-GUID: 5N0wipb3_2nGq-XPGIzXfOSEEKDwk7Fl
+X-Proofpoint-GUID: 4ejc2jfyyqTFRBwCScyjyEEYZC9dXg4S
+X-Proofpoint-ORIG-GUID: w49MxPa2is0NXcXrc5NfoLaKoERfwFz8
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDI1MDAyNCBTYWx0ZWRfXzdJvQnaHX4aW
+ WDICLcXKUaPaH5IcZnEX9dYTqKc5RMvhBYy/rF6iTgjNRd04FKChp66WPX+rRep3DDbIhVr4f0T
+ IoBu3vm/o6YIM6oze28bgNBdM6rXYx0Hqs371Pj+vo3ALxqkZ3PimAOTOZl8RS3UpigHsiwqtqs
+ F0MlbDkuV8VfSeJqk92TGmKftm5wiWQCiRiIBOmE76qnCI73/yTXqw3lw38XMfSXvfiJXBX9/m6
+ OBiD4mQizF4EmwIYO8CF8bJzNkj+8mZ/epTPk2MCalY9ehHDKxC+nmw6tsCEZtmpT3nrf30h+ic
+ Czbsr9lD5Pp2TNN1XHzlWt74vX7FkjZUf+0KrtmaHVMfCm5zsBUjmSe0FRnzAytoSikFgc3wX64
+ ikjw73iZSNS73HaprIXhMh588E4gyQ==
+X-Authority-Analysis: v=2.4 cv=G/gR0tk5 c=1 sm=1 tr=0 ts=68fff6e2 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8 a=SRrdq9N9AAAA:8
+ a=a6OFRn_g8X_OcWKUc2YA:9 a=cPQSjfK2_nFv0Q5t_7PE:22
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-10-27_07,2025-10-22_01,2025-03-28_01
+ definitions=2025-10-27_09,2025-10-22_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 clxscore=1015 lowpriorityscore=0 malwarescore=0 bulkscore=0
- priorityscore=1501 spamscore=0 adultscore=0 phishscore=0 suspectscore=0
+ bulkscore=0 phishscore=0 lowpriorityscore=0 adultscore=0 impostorscore=0
+ spamscore=0 priorityscore=1501 malwarescore=0 suspectscore=0 clxscore=1015
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510250019
+ reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510250024
 
-On Mon, 2025-09-15 at 13:33 +0200, Claudio Imbrenda wrote:
-> On Fri, 12 Sep 2025 11:17:02 +0200
-> Nina Schoetterl-Glausch <nsg@linux.ibm.com> wrote:
->=20
-> > On Wed, 2025-09-10 at 20:07 +0200, Claudio Imbrenda wrote:
-> > > Add gmap_helper_set_unused() to mark userspace ptes as unused.
-> > >=20
-> > > Core mm code will use that information to discard unused pages instea=
-d
-> > > of attempting to swap them.
-> > >=20
-> > > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com> =20
-> >=20
-> > LGTM
-> > > ---
-> > >  arch/s390/include/asm/gmap_helpers.h |  1 +
-> > >  arch/s390/mm/gmap_helpers.c          | 64 ++++++++++++++++++++++++++=
-++
-> > >  2 files changed, 65 insertions(+)
-> > >=20
-> > > diff --git a/arch/s390/include/asm/gmap_helpers.h b/arch/s390/include=
-/asm/gmap_helpers.h
-> > > index 5356446a61c4..459bd39d0887 100644
-> > > --- a/arch/s390/include/asm/gmap_helpers.h
-> > > +++ b/arch/s390/include/asm/gmap_helpers.h
-> > > @@ -11,5 +11,6 @@
-> > >  void gmap_helper_zap_one_page(struct mm_struct *mm, unsigned long vm=
-addr);
-> > >  void gmap_helper_discard(struct mm_struct *mm, unsigned long vmaddr,=
- unsigned long end);
-> > >  int gmap_helper_disable_cow_sharing(void);
-> > > +void gmap_helper_set_unused(struct mm_struct *mm, unsigned long vmad=
-dr);
-> > > =20
-> > >  #endif /* _ASM_S390_GMAP_HELPERS_H */
-> > > diff --git a/arch/s390/mm/gmap_helpers.c b/arch/s390/mm/gmap_helpers.=
-c
-> > > index a45d417ad951..69ffc0c6b654 100644
-> > > --- a/arch/s390/mm/gmap_helpers.c
-> > > +++ b/arch/s390/mm/gmap_helpers.c
-> > > @@ -91,6 +91,70 @@ void gmap_helper_discard(struct mm_struct *mm, uns=
-igned long vmaddr, unsigned lo
-> > >  }
-> > >  EXPORT_SYMBOL_GPL(gmap_helper_discard);
-> > > =20
-> > > +/**
-> > > + * gmap_helper_set_unused() - mark a pte entry as unused
-> > > + * @mm: the mm
-> > > + * @vmaddr: the userspace address whose pte is to be marked
-> > > + *
-> > > + * Mark the pte corresponding the given address as unused. This will=
- cause
-> > > + * core mm code to just drop this page instead of swapping it.
-> > > + *
-> > > + * This function needs to be called with interrupts disabled (for ex=
-ample
-> > > + * while holding a spinlock), or while holding the mmap lock. Normal=
-ly this
-> > > + * function is called as a result of an unmap operation, and thus KV=
-M common
-> > > + * code will already hold kvm->mmu_lock in write mode.
-> > > + *
-> > > + * Context: Needs to be called while holding the mmap lock or with i=
-nterrupts
-> > > + *          disabled.
-> > > + */
-> > > +void gmap_helper_set_unused(struct mm_struct *mm, unsigned long vmad=
-dr) =20
-> >=20
-> > Can you give this a better name? E.g. gmap_helper_try_set_pte_unused
->=20
-> yes
->=20
-> >=20
-> > > +{
-> > > +	pmd_t *pmdp, pmd, pmdval;
-> > > +	pud_t *pudp, pud;
-> > > +	p4d_t *p4dp, p4d;
-> > > +	pgd_t *pgdp, pgd;
-> > > +	spinlock_t *ptl;
-> > > +	pte_t *ptep;
-> > > +
-> > > +	pgdp =3D pgd_offset(mm, vmaddr);
-> > > +	pgd =3D pgdp_get(pgdp);
-> > > +	if (pgd_none(pgd) || !pgd_present(pgd))
-> > > +		return;
-> > > +
-> > > +	p4dp =3D p4d_offset(pgdp, vmaddr);
-> > > +	p4d =3D p4dp_get(p4dp);
-> > > +	if (p4d_none(p4d) || !p4d_present(p4d))
-> > > +		return;
-> > > +
-> > > +	pudp =3D pud_offset(p4dp, vmaddr);
-> > > +	pud =3D pudp_get(pudp);
-> > > +	if (pud_none(pud) || pud_leaf(pud) || !pud_present(pud))
-> > > +		return;
-> > > +
-> > > +	pmdp =3D pmd_offset(pudp, vmaddr);
-> > > +	pmd =3D pmdp_get_lockless(pmdp);
-> > > +	if (pmd_none(pmd) || pmd_leaf(pmd) || !pmd_present(pmd))
-> > > +		return;
-> > > +
-> > > +	ptep =3D pte_offset_map_rw_nolock(mm, pmdp, vmaddr, &pmdval, &ptl);
-> > > +	if (!ptep)
-> > > +		return;
-> > > +
-> > > +	if (spin_trylock(ptl)) { =20
-> >=20
-> > Missing the comment you promised :) about deadlock prevention.
->=20
-> Ooops! will fix
->=20
-> >=20
-> > > +		/*
-> > > +		 * Make sure the pte we are touching is still the correct
-> > > +		 * one. In theory this check should not be needed, but =20
-> >=20
-> > Why should it not be needed? I.e. why should we be protected against mo=
-dification?
->=20
-> I will add this in a comment:
->=20
-> a pmd pointing to a page table can change in only very few cases, and
-> all cases will take the mm->mmap_lock in write mode and require IPC
-> synchronization, which means that as long as interrupts are disabled or
-> we are holding the mmap_lock, the pmd cannot change under our feet.
->=20
-> by keeping interrupts disabled, we are basically stalling any remote
-> CPUs that might want to change the pmd, as the IPC will not complete
-> until we re-enable them.
->=20
-> in our case, we call this function after calling pgste_get_lock(),
-> which will disable interrupts until pgste_set_unlock() is called.
->=20
-> > > +		 * better safe than sorry.
-> > > +		 */
-> > > +		if (likely(pmd_same(pmdval, pmdp_get_lockless(pmdp))))
-> > > +			__atomic64_or(_PAGE_UNUSED, (long *)ptep);
+Think SMC_WR_BUF_CNT_SEND := SMC_WR_BUF_CNT used in send context and
+SMC_WR_BUF_CNT_RECV := 3 * SMC_WR_BUF_CNT used in recv context. Those
+get replaced with lgr->max_send_wr and lgr->max_recv_wr respective.
 
-Should we do a WARN_ONCE? Would we be notified if it shows up in CI?
-Is the "if" even meaningful? That is, if the pmd is not the same for what
-ever reason, are we guaranteed to see it here.
-Does taking the page table lock also lock the pmd table? (I assume not)
-What are the consequences of the or if the pmd is not the same, arbitrary m=
-emory corruption?
+Please note that although with the default sysctl values
+qp_attr.cap.max_send_wr ==  qp_attr.cap.max_recv_wr is maintained but
+can not be assumed to be generally true any more. I see no downside to
+that, but my confidence level is rather modest.
 
-> > > +		spin_unlock(ptl);
-> > > +	}
-> > > +
-> > > +	pte_unmap(ptep);
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(gmap_helper_set_unused);
-> > > +
-> > >  static int find_zeropage_pte_entry(pte_t *pte, unsigned long addr,
-> > >  				   unsigned long end, struct mm_walk *walk)
-> > >  { =20
-> >=20
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reviewed-by: Sidraya Jayagond <sidraya@linux.ibm.com>
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+---
+ Documentation/networking/smc-sysctl.rst | 36 +++++++++++++++++++++++++
+ include/net/netns/smc.h                 |  2 ++
+ net/smc/smc_core.h                      |  6 +++++
+ net/smc/smc_ib.c                        | 10 +++----
+ net/smc/smc_llc.c                       |  2 ++
+ net/smc/smc_sysctl.c                    | 22 +++++++++++++++
+ net/smc/smc_sysctl.h                    |  2 ++
+ net/smc/smc_wr.c                        | 31 ++++++++++-----------
+ net/smc/smc_wr.h                        |  2 --
+ 9 files changed, 91 insertions(+), 22 deletions(-)
 
---=20
-IBM Deutschland Research & Development GmbH
-Vorsitzender des Aufsichtsrats: Wolfgang Wendt
-Gesch=C3=A4ftsf=C3=BChrung: David Faller
-Sitz der Gesellschaft: B=C3=B6blingen / Registergericht: Amtsgericht Stuttg=
-art, HRB 243294
+diff --git a/Documentation/networking/smc-sysctl.rst b/Documentation/networking/smc-sysctl.rst
+index a874d007f2db..337ac2be167e 100644
+--- a/Documentation/networking/smc-sysctl.rst
++++ b/Documentation/networking/smc-sysctl.rst
+@@ -71,3 +71,39 @@ smcr_max_conns_per_lgr - INTEGER
+ 	acceptable value ranges from 16 to 255. Only for SMC-R v2.1 and later.
+ 
+ 	Default: 255
++
++smcr_max_send_wr - INTEGER
++	So-called work request buffers are SMCR link (and RDMA queue pair) level
++	resources necessary for performing RDMA operations. Since up to 255
++	connections can share a link group and thus also a link and the number
++	of the work request buffers is decided when the link is allocated,
++	depending on the workload it can be a bottleneck in a sense that threads
++	have to wait for work request buffers to become available. Before the
++	introduction of this control the maximal number of work request buffers
++	available on the send path used to be hard coded to 16. With this control
++	it becomes configurable. The acceptable range is between 2 and 2048.
++
++	Please be aware that all the buffers need to be allocated as a physically
++	continuous array in which each element is a single buffer and has the size
++	of SMC_WR_BUF_SIZE (48) bytes. If the allocation fails we give up much
++	like before having this control.
++
++	Default: 16
++
++smcr_max_recv_wr - INTEGER
++	So-called work request buffers are SMCR link (and RDMA queue pair) level
++	resources necessary for performing RDMA operations. Since up to 255
++	connections can share a link group and thus also a link and the number
++	of the work request buffers is decided when the link is allocated,
++	depending on the workload it can be a bottleneck in a sense that threads
++	have to wait for work request buffers to become available. Before the
++	introduction of this control the maximal number of work request buffers
++	available on the receive path used to be hard coded to 16. With this control
++	it becomes configurable. The acceptable range is between 2 and 2048.
++
++	Please be aware that all the buffers need to be allocated as a physically
++	continuous array in which each element is a single buffer and has the size
++	of SMC_WR_BUF_SIZE (48) bytes. If the allocation fails we give up much
++	like before having this control.
++
++	Default: 48
+diff --git a/include/net/netns/smc.h b/include/net/netns/smc.h
+index fc752a50f91b..6ceb12baec24 100644
+--- a/include/net/netns/smc.h
++++ b/include/net/netns/smc.h
+@@ -24,5 +24,7 @@ struct netns_smc {
+ 	int				sysctl_rmem;
+ 	int				sysctl_max_links_per_lgr;
+ 	int				sysctl_max_conns_per_lgr;
++	unsigned int			sysctl_smcr_max_send_wr;
++	unsigned int			sysctl_smcr_max_recv_wr;
+ };
+ #endif
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index a5a78cbff341..8d06c8bb14e9 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -34,6 +34,8 @@
+ 					 * distributions may modify it to a value between
+ 					 * 16-255 as needed.
+ 					 */
++#define SMCR_MAX_SEND_WR_DEF	16	/* Default number of work requests per send queue */
++#define SMCR_MAX_RECV_WR_DEF	48	/* Default number of work requests per recv queue */
+ 
+ struct smc_lgr_list {			/* list of link group definition */
+ 	struct list_head	list;
+@@ -366,6 +368,10 @@ struct smc_link_group {
+ 						/* max conn can be assigned to lgr */
+ 			u8			max_links;
+ 						/* max links can be added in lgr */
++			u16			max_send_wr;
++						/* number of WR buffers on send */
++			u16			max_recv_wr;
++						/* number of WR buffers on recv */
+ 		};
+ 		struct { /* SMC-D */
+ 			struct smcd_gid		peer_gid;
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index 0052f02756eb..1154907c5c05 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -669,11 +669,6 @@ int smc_ib_create_queue_pair(struct smc_link *lnk)
+ 		.recv_cq = lnk->smcibdev->roce_cq_recv,
+ 		.srq = NULL,
+ 		.cap = {
+-				/* include unsolicited rdma_writes as well,
+-				 * there are max. 2 RDMA_WRITE per 1 WR_SEND
+-				 */
+-			.max_send_wr = SMC_WR_BUF_CNT * 3,
+-			.max_recv_wr = SMC_WR_BUF_CNT * 3,
+ 			.max_send_sge = SMC_IB_MAX_SEND_SGE,
+ 			.max_recv_sge = lnk->wr_rx_sge_cnt,
+ 			.max_inline_data = 0,
+@@ -683,6 +678,11 @@ int smc_ib_create_queue_pair(struct smc_link *lnk)
+ 	};
+ 	int rc;
+ 
++	/* include unsolicited rdma_writes as well,
++	 * there are max. 2 RDMA_WRITE per 1 WR_SEND
++	 */
++	qp_attr.cap.max_send_wr = 3 * lnk->lgr->max_send_wr;
++	qp_attr.cap.max_recv_wr = lnk->lgr->max_recv_wr;
+ 	lnk->roce_qp = ib_create_qp(lnk->roce_pd, &qp_attr);
+ 	rc = PTR_ERR_OR_ZERO(lnk->roce_qp);
+ 	if (IS_ERR(lnk->roce_qp))
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index f865c58c3aa7..f5d5eb617526 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -2157,6 +2157,8 @@ void smc_llc_lgr_init(struct smc_link_group *lgr, struct smc_sock *smc)
+ 	init_waitqueue_head(&lgr->llc_msg_waiter);
+ 	init_rwsem(&lgr->llc_conf_mutex);
+ 	lgr->llc_testlink_time = READ_ONCE(net->smc.sysctl_smcr_testlink_time);
++	lgr->max_send_wr = (u16)(READ_ONCE(net->smc.sysctl_smcr_max_send_wr));
++	lgr->max_recv_wr = (u16)(READ_ONCE(net->smc.sysctl_smcr_max_recv_wr));
+ }
+ 
+ /* called after lgr was removed from lgr_list */
+diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
+index 2fab6456f765..7b2471904d04 100644
+--- a/net/smc/smc_sysctl.c
++++ b/net/smc/smc_sysctl.c
+@@ -29,6 +29,8 @@ static int links_per_lgr_min = SMC_LINKS_ADD_LNK_MIN;
+ static int links_per_lgr_max = SMC_LINKS_ADD_LNK_MAX;
+ static int conns_per_lgr_min = SMC_CONN_PER_LGR_MIN;
+ static int conns_per_lgr_max = SMC_CONN_PER_LGR_MAX;
++static unsigned int smcr_max_wr_min = 2;
++static unsigned int smcr_max_wr_max = 2048;
+ 
+ static struct ctl_table smc_table[] = {
+ 	{
+@@ -99,6 +101,24 @@ static struct ctl_table smc_table[] = {
+ 		.extra1		= SYSCTL_ZERO,
+ 		.extra2		= SYSCTL_ONE,
+ 	},
++	{
++		.procname	= "smcr_max_send_wr",
++		.data		= &init_net.smc.sysctl_smcr_max_send_wr,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= proc_dointvec_minmax,
++		.extra1		= &smcr_max_wr_min,
++		.extra2		= &smcr_max_wr_max,
++	},
++	{
++		.procname	= "smcr_max_recv_wr",
++		.data		= &init_net.smc.sysctl_smcr_max_recv_wr,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= proc_dointvec_minmax,
++		.extra1		= &smcr_max_wr_min,
++		.extra2		= &smcr_max_wr_max,
++	},
+ };
+ 
+ int __net_init smc_sysctl_net_init(struct net *net)
+@@ -130,6 +150,8 @@ int __net_init smc_sysctl_net_init(struct net *net)
+ 	WRITE_ONCE(net->smc.sysctl_rmem, net_smc_rmem_init);
+ 	net->smc.sysctl_max_links_per_lgr = SMC_LINKS_PER_LGR_MAX_PREFER;
+ 	net->smc.sysctl_max_conns_per_lgr = SMC_CONN_PER_LGR_PREFER;
++	net->smc.sysctl_smcr_max_send_wr = SMCR_MAX_SEND_WR_DEF;
++	net->smc.sysctl_smcr_max_recv_wr = SMCR_MAX_RECV_WR_DEF;
+ 	/* disable handshake limitation by default */
+ 	net->smc.limit_smc_hs = 0;
+ 
+diff --git a/net/smc/smc_sysctl.h b/net/smc/smc_sysctl.h
+index eb2465ae1e15..8538915af7af 100644
+--- a/net/smc/smc_sysctl.h
++++ b/net/smc/smc_sysctl.h
+@@ -25,6 +25,8 @@ static inline int smc_sysctl_net_init(struct net *net)
+ 	net->smc.sysctl_autocorking_size = SMC_AUTOCORKING_DEFAULT_SIZE;
+ 	net->smc.sysctl_max_links_per_lgr = SMC_LINKS_PER_LGR_MAX_PREFER;
+ 	net->smc.sysctl_max_conns_per_lgr = SMC_CONN_PER_LGR_PREFER;
++	net->smc.sysctl_smcr_max_send_wr = SMCR_MAX_SEND_WR_DEF;
++	net->smc.sysctl_smcr_max_recv_wr = SMCR_MAX_RECV_WR_DEF;
+ 	return 0;
+ }
+ 
+diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+index b04a21b8c511..883fb0f1ce43 100644
+--- a/net/smc/smc_wr.c
++++ b/net/smc/smc_wr.c
+@@ -547,9 +547,9 @@ void smc_wr_remember_qp_attr(struct smc_link *lnk)
+ 		    IB_QP_DEST_QPN,
+ 		    &init_attr);
+ 
+-	lnk->wr_tx_cnt = min_t(size_t, SMC_WR_BUF_CNT,
++	lnk->wr_tx_cnt = min_t(size_t, lnk->lgr->max_send_wr,
+ 			       lnk->qp_attr.cap.max_send_wr);
+-	lnk->wr_rx_cnt = min_t(size_t, SMC_WR_BUF_CNT * 3,
++	lnk->wr_rx_cnt = min_t(size_t, lnk->lgr->max_recv_wr,
+ 			       lnk->qp_attr.cap.max_recv_wr);
+ }
+ 
+@@ -741,50 +741,51 @@ int smc_wr_alloc_lgr_mem(struct smc_link_group *lgr)
+ int smc_wr_alloc_link_mem(struct smc_link *link)
+ {
+ 	/* allocate link related memory */
+-	link->wr_tx_bufs = kcalloc(SMC_WR_BUF_CNT, SMC_WR_BUF_SIZE, GFP_KERNEL);
++	link->wr_tx_bufs = kcalloc(link->lgr->max_send_wr,
++				   SMC_WR_BUF_SIZE, GFP_KERNEL);
+ 	if (!link->wr_tx_bufs)
+ 		goto no_mem;
+-	link->wr_rx_bufs = kcalloc(SMC_WR_BUF_CNT * 3, link->wr_rx_buflen,
++	link->wr_rx_bufs = kcalloc(link->lgr->max_recv_wr, link->wr_rx_buflen,
+ 				   GFP_KERNEL);
+ 	if (!link->wr_rx_bufs)
+ 		goto no_mem_wr_tx_bufs;
+-	link->wr_tx_ibs = kcalloc(SMC_WR_BUF_CNT, sizeof(link->wr_tx_ibs[0]),
+-				  GFP_KERNEL);
++	link->wr_tx_ibs = kcalloc(link->lgr->max_send_wr,
++				  sizeof(link->wr_tx_ibs[0]), GFP_KERNEL);
+ 	if (!link->wr_tx_ibs)
+ 		goto no_mem_wr_rx_bufs;
+-	link->wr_rx_ibs = kcalloc(SMC_WR_BUF_CNT * 3,
++	link->wr_rx_ibs = kcalloc(link->lgr->max_recv_wr,
+ 				  sizeof(link->wr_rx_ibs[0]),
+ 				  GFP_KERNEL);
+ 	if (!link->wr_rx_ibs)
+ 		goto no_mem_wr_tx_ibs;
+-	link->wr_tx_rdmas = kcalloc(SMC_WR_BUF_CNT,
++	link->wr_tx_rdmas = kcalloc(link->lgr->max_send_wr,
+ 				    sizeof(link->wr_tx_rdmas[0]),
+ 				    GFP_KERNEL);
+ 	if (!link->wr_tx_rdmas)
+ 		goto no_mem_wr_rx_ibs;
+-	link->wr_tx_rdma_sges = kcalloc(SMC_WR_BUF_CNT,
++	link->wr_tx_rdma_sges = kcalloc(link->lgr->max_send_wr,
+ 					sizeof(link->wr_tx_rdma_sges[0]),
+ 					GFP_KERNEL);
+ 	if (!link->wr_tx_rdma_sges)
+ 		goto no_mem_wr_tx_rdmas;
+-	link->wr_tx_sges = kcalloc(SMC_WR_BUF_CNT, sizeof(link->wr_tx_sges[0]),
++	link->wr_tx_sges = kcalloc(link->lgr->max_send_wr, sizeof(link->wr_tx_sges[0]),
+ 				   GFP_KERNEL);
+ 	if (!link->wr_tx_sges)
+ 		goto no_mem_wr_tx_rdma_sges;
+-	link->wr_rx_sges = kcalloc(SMC_WR_BUF_CNT * 3,
++	link->wr_rx_sges = kcalloc(link->lgr->max_recv_wr,
+ 				   sizeof(link->wr_rx_sges[0]) * link->wr_rx_sge_cnt,
+ 				   GFP_KERNEL);
+ 	if (!link->wr_rx_sges)
+ 		goto no_mem_wr_tx_sges;
+-	link->wr_tx_mask = bitmap_zalloc(SMC_WR_BUF_CNT, GFP_KERNEL);
++	link->wr_tx_mask = bitmap_zalloc(link->lgr->max_send_wr, GFP_KERNEL);
+ 	if (!link->wr_tx_mask)
+ 		goto no_mem_wr_rx_sges;
+-	link->wr_tx_pends = kcalloc(SMC_WR_BUF_CNT,
++	link->wr_tx_pends = kcalloc(link->lgr->max_send_wr,
+ 				    sizeof(link->wr_tx_pends[0]),
+ 				    GFP_KERNEL);
+ 	if (!link->wr_tx_pends)
+ 		goto no_mem_wr_tx_mask;
+-	link->wr_tx_compl = kcalloc(SMC_WR_BUF_CNT,
++	link->wr_tx_compl = kcalloc(link->lgr->max_send_wr,
+ 				    sizeof(link->wr_tx_compl[0]),
+ 				    GFP_KERNEL);
+ 	if (!link->wr_tx_compl)
+@@ -905,7 +906,7 @@ int smc_wr_create_link(struct smc_link *lnk)
+ 		goto dma_unmap;
+ 	}
+ 	smc_wr_init_sge(lnk);
+-	bitmap_zero(lnk->wr_tx_mask, SMC_WR_BUF_CNT);
++	bitmap_zero(lnk->wr_tx_mask, lnk->lgr->max_send_wr);
+ 	init_waitqueue_head(&lnk->wr_tx_wait);
+ 	rc = percpu_ref_init(&lnk->wr_tx_refs, smcr_wr_tx_refs_free, 0, GFP_KERNEL);
+ 	if (rc)
+diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
+index f3008dda222a..aa4533af9122 100644
+--- a/net/smc/smc_wr.h
++++ b/net/smc/smc_wr.h
+@@ -19,8 +19,6 @@
+ #include "smc.h"
+ #include "smc_core.h"
+ 
+-#define SMC_WR_BUF_CNT 16	/* # of ctrl buffers per link */
+-
+ #define SMC_WR_TX_WAIT_FREE_SLOT_TIME	(10 * HZ)
+ 
+ #define SMC_WR_TX_SIZE 44 /* actual size of wr_send data (<=SMC_WR_BUF_SIZE) */
+-- 
+2.48.1
+
