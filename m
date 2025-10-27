@@ -1,124 +1,83 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from out-176.mta1.migadu.com (out-176.mta1.migadu.com [95.215.58.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36C8D2FE066;
-	Mon, 27 Oct 2025 08:44:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 610B1319843
+	for <linux-s390@vger.kernel.org>; Mon, 27 Oct 2025 08:47:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761554649; cv=none; b=HjCapX2RTZFEpKDe7HjE8O7Pl34xbpBF6WPXEcN0658Y41Tw5eMGxg8oXrFoflZHMeRNuI0OQ4cLybrK6iR3h1i03dshGkwToPs9tr4dJ7+zGWcjd96hS3vhCGvtNbBMOC2l8z7HNC8GIUy++krjZA5vumruxSRglVxHQoWQCbc=
+	t=1761554868; cv=none; b=t82do7czMQfyKRROdnz3yat9Wt1hbHSI7KhYtTHPe1bKor7brCf7iAdfQPuipq9kf7mrJGFhLY9lBn2qof7ENmwl9CVWmEE0eUb6BR+FvImbiX+9K2IOrqtpnvUVMgm9RgyHbC9u5zDq1RFBgL3CFqZlTyVY6x1KyrHac4OCIFc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761554649; c=relaxed/simple;
-	bh=V1mfCsRfXgy86CzSvOjy9288devaZUurilfSaMjXsyI=;
-	h=Message-ID:From:To:Cc:Subject:References:MIME-Version:
-	 Content-Type:Date; b=gvrzqXCTyL64m5Rnpj7BhedV/iY8XA4MzZPANVCC4kCHHwwJPz7eHX085k9Qxpa0S6kSeJmWh2SML1dq7y77HYti3dgWWysOIx4fxEn5Lbs9iCrlkl6XtqRbmKSaJcH6aUpMcaILwbPkoTz7WLl5uY9MwhK8spAYXMBf6KG1FLI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=vc02t/+I; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=h5a/XjQ9; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1761554868; c=relaxed/simple;
+	bh=H71eWvWbWm73Mp7PPsrGR98SqvdbMI0E6aocTIflNDs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SwP3lmbzCFNJoon4XHz2YQfA8eD3pT+gk+i1WmNcANkpgwC3gcCP0/TLH8JK9cnkGHok8oANvgm9LdDkN1j7nQ8NejJX7kM86tVqX153C9gs+TZiDiLg59sbuozhIeDZUmLuzuX3d8J7H6EJq6LTvUVmrm92VnKsoQ7yF/aNyzk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=ZBRXvbRw; arc=none smtp.client-ip=95.215.58.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="vc02t/+I";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="h5a/XjQ9"
-Message-ID: <20251027083745.862419776@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1761554645;
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="ZBRXvbRw"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1761554863;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 references:references; bh=Zgu2fA8f5xJPsST4+i4W8NVv6qck0BV/bxjOydsn72k=;
-	b=vc02t/+I+nf33n4SyJKuoN622JX8SnrnzVtfhDPK+/CUbQ/RqLF/DthXP1xJ7sULRhvFl2
-	ervlj9kpfpMbHwMkAynBmHLcTJGBcGkuv85J1dwgCoOnI/zfTSvkKoRqQMa9Hf4Ov6KyNc
-	2rN2oN1ArrM7znk74JARchtCqYx5WcGfoH2YzHDbunlrBv0LlZa49GKnmYBm5bRxysyvD4
-	lAfZl2u+xJgpU+3ekTXaT18RIdUteVcBr/OibuH9jL9sg+2MENKRz5IiDVDBTQbsohFXwL
-	icBtnSnGBPVlo/TpaDZdcBIO7NUpOu7h0egc6gY+lB4hcffx4LFtczx8LgyTUQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1761554645;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 references:references; bh=Zgu2fA8f5xJPsST4+i4W8NVv6qck0BV/bxjOydsn72k=;
-	b=h5a/XjQ9yWZ3Y3xQQNZYqfN6ytz0CnIzmt8Mgcy5kYj76XXOgxcRFSmKp7julm7XZYSWmA
-	kYpiplU0qPYsnOCA==
-From: Thomas Gleixner <tglx@linutronix.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>,
- Jan Kara <jack@suse.cz>,
- linux-fsdevel@vger.kernel.org,
- kernel test robot <lkp@intel.com>,
- Russell King <linux@armlinux.org.uk>,
- linux-arm-kernel@lists.infradead.org,
- Linus Torvalds <torvalds@linux-foundation.org>,
- x86@kernel.org,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>,
- Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- linuxppc-dev@lists.ozlabs.org,
- Paul Walmsley <pjw@kernel.org>,
- Palmer Dabbelt <palmer@dabbelt.com>,
- linux-riscv@lists.infradead.org,
- Heiko Carstens <hca@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- linux-s390@vger.kernel.org,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- Andrew Cooper <andrew.cooper3@citrix.com>,
- David Laight <david.laight.linux@gmail.com>,
- Julia Lawall <Julia.Lawall@inria.fr>,
- Nicolas Palix <nicolas.palix@imag.fr>,
- Peter Zijlstra <peterz@infradead.org>,
- Darren Hart <dvhart@infradead.org>,
- Davidlohr Bueso <dave@stgolabs.net>,
- =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@igalia.com>
-Subject: [patch V5 12/12] select: Convert to scoped user access
-References: <20251027083700.573016505@linutronix.de>
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=u3H/Kw1PmsEzIN1WuPU7v//SQUe1FpBA2ChXgU+9gCk=;
+	b=ZBRXvbRww9Ikl4/7pVjDo78+3jifpQvKQw1BjwT9DfyxVwBb+1TVWnmf0UarnP2OUvguKY
+	oV6We5H/iuEVlDzlsV2tViRdLKUQmLO+1tl/FcVUpQfKrsL9cS5U9nzsBFlusl/wraPQXY
+	P3gj8EoxlDPeuLF/xcbryVbbXUaGUmE=
+From: Thorsten Blum <thorsten.blum@linux.dev>
+To: Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>
+Cc: Thorsten Blum <thorsten.blum@linux.dev>,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] s390/nmi: Annotate s390_handle_damage with __noreturn
+Date: Mon, 27 Oct 2025 09:47:25 +0100
+Message-ID: <20251027084728.1362-1-thorsten.blum@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 27 Oct 2025 09:44:04 +0100 (CET)
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-From: Thomas Gleixner <tglx@linutronix.de>
+s390_handle_damage() ends by calling the non-returning function
+disabled_wait() and therefore also never returns. Annotate it with the
+__noreturn compiler attribute to improve compiler optimizations.
 
-Replace the open coded implementation with the scoped user access guard.
+Remove the unreachable infinite while loop.
 
-No functional change intended.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Christian Brauner <brauner@kernel.org>
-Cc: Jan Kara <jack@suse.cz>
-Cc: linux-fsdevel@vger.kernel.org
+Signed-off-by: Thorsten Blum <thorsten.blum@linux.dev>
 ---
-V4: Use read guard - Peterz
-    Rename once more
-V3: Adopt to scope changes
----
- fs/select.c |   12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
----
---- a/fs/select.c
-+++ b/fs/select.c
-@@ -776,17 +776,13 @@ static inline int get_sigset_argpack(str
- {
- 	// the path is hot enough for overhead of copy_from_user() to matter
- 	if (from) {
--		if (can_do_masked_user_access())
--			from = masked_user_access_begin(from);
--		else if (!user_read_access_begin(from, sizeof(*from)))
--			return -EFAULT;
--		unsafe_get_user(to->p, &from->p, Efault);
--		unsafe_get_user(to->size, &from->size, Efault);
--		user_read_access_end();
-+		scoped_user_read_access(from, Efault) {
-+			unsafe_get_user(to->p, &from->p, Efault);
-+			unsafe_get_user(to->size, &from->size, Efault);
-+		}
- 	}
- 	return 0;
- Efault:
--	user_read_access_end();
- 	return -EFAULT;
+ arch/s390/kernel/nmi.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/arch/s390/kernel/nmi.c b/arch/s390/kernel/nmi.c
+index 11f33243a23f..a55abbf65333 100644
+--- a/arch/s390/kernel/nmi.c
++++ b/arch/s390/kernel/nmi.c
+@@ -184,7 +184,7 @@ static notrace void nmi_print_info(void)
+ 	sclp_emergency_printk(message);
  }
  
+-static notrace void s390_handle_damage(void)
++static notrace void __noreturn s390_handle_damage(void)
+ {
+ 	struct lowcore *lc = get_lowcore();
+ 	union ctlreg0 cr0, cr0_new;
+@@ -214,7 +214,6 @@ static notrace void s390_handle_damage(void)
+ 	lc->mcck_new_psw = psw_save;
+ 	local_ctl_load(0, &cr0.reg);
+ 	disabled_wait();
+-	while (1);
+ }
+ NOKPROBE_SYMBOL(s390_handle_damage);
+ 
+-- 
+2.51.0
 
