@@ -1,102 +1,138 @@
-Received: from mail.8bytes.org (mail.8bytes.org [85.214.250.239])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0484F24169D;
-	Mon, 27 Oct 2025 12:55:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.214.250.239
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761569759; cv=none; b=isT81xFxsGKsHMiUdQmGhicigFp4PhSC8JOZiFcsHVrthgzlr/X8gPmy63Xj/RFF1nerD1+R187PcLAuzTbRvpwfEFz9zvijO54gHbsz94BnJCvv8GXI4/Xmp6Q7EeRsAuFv7OXgQ/phCUKFCsw6se0lxc8i8m04mRX02SjC7J0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761569759; c=relaxed/simple;
-	bh=wdPrvvPNgCJ92pfYnd82XapNMb2/K9Lk7SnMdXsPwYo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EcxjKKuroC0M+JM/6H3PTXelv5YUJUaRVBaBlump9zUQEFADlhhcYntmpeub5vf3hjGcblHLCpBw9dccC5iPf1B+yXbbwXj4vbf0GKyH+bhl3QV31b90Tf1EuP7MOHgTSfjncgROJu/kG0BgyCmumZifBhOlpdDp5F/lWEw2ej8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=8bytes.org; spf=pass smtp.mailfrom=8bytes.org; dkim=pass (2048-bit key) header.d=8bytes.org header.i=@8bytes.org header.b=HA4IsI57; arc=none smtp.client-ip=85.214.250.239
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=8bytes.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=8bytes.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=8bytes.org header.i=@8bytes.org header.b="HA4IsI57"
-Received: from 8bytes.org (p549214ac.dip0.t-ipconnect.de [84.146.20.172])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by mail.8bytes.org (Postfix) with ESMTPSA id 574F959993;
-	Mon, 27 Oct 2025 13:55:56 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=8bytes.org;
-	s=default; t=1761569756;
-	bh=wdPrvvPNgCJ92pfYnd82XapNMb2/K9Lk7SnMdXsPwYo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=HA4IsI57/crRJKm5huZnz2yM9cueuQ83JrqqF31F0g7mwiTfeSnd43x0jF6LZthZc
-	 xInJr7Dl8APiu4Qf/1dKwgAOW7EJNTBxKaqeF3SCeMWstoORITwx7nsvUeINWh5k+9
-	 Ny8WfW/m0sLSzi4YzjffMfU5XZZBpghT634JsVKbHjtinJ84F0IqokpBXMlZ9vPJO6
-	 HareDmhYXldiDUpmdDec87KCRVmJXWOlsHVldVZQAV6o+WAdhsPOkS6ZLKvwvFxjCx
-	 iZSNYPT42T4jbU1r7D4nVssf6XfXSjG7/V3tsl+vP1evUijU+Z9RswofRmqxeAExhN
-	 NJmXcf6NEl0nQ==
-Date: Mon, 27 Oct 2025 13:55:55 +0100
-From: =?utf-8?B?SsO2cmcgUsO2ZGVs?= <joro@8bytes.org>
-To: Nicolin Chen <nicolinc@nvidia.com>
-Cc: jgg@nvidia.com, kevin.tian@intel.com, suravee.suthikulpanit@amd.com, 
-	will@kernel.org, robin.murphy@arm.com, sven@kernel.org, j@jannau.net, 
-	robin.clark@oss.qualcomm.com, m.szyprowski@samsung.com, krzk@kernel.org, dwmw2@infradead.org, 
-	baolu.lu@linux.intel.com, yong.wu@mediatek.com, matthias.bgg@gmail.com, 
-	angelogioacchino.delregno@collabora.com, tjeznach@rivosinc.com, pjw@kernel.org, palmer@dabbelt.com, 
-	aou@eecs.berkeley.edu, heiko@sntech.de, schnelle@linux.ibm.com, mjrosato@linux.ibm.com, 
-	orsonzhai@gmail.com, baolin.wang@linux.alibaba.com, wens@csie.org, 
-	jernej.skrabec@gmail.com, samuel@sholland.org, thierry.reding@gmail.com, 
-	jonathanh@nvidia.com, jean-philippe@linaro.org, iommu@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
-	linux-arm-msm@vger.kernel.org, linux-samsung-soc@vger.kernel.org, 
-	linux-mediatek@lists.infradead.org, linux-riscv@lists.infradead.org, 
-	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-sunxi@lists.linux.dev, 
-	linux-tegra@vger.kernel.org, virtualization@lists.linux.dev, patches@lists.linux.dev
-Subject: Re: [PATCH v2 0/6] iommu: Pass in old_domain pointer to attach_dev
-Message-ID: <xlu227m6u3wubnexhxh2cpx7nwudhvbmgqcqoas57a6sqgvege@p4s5i5p77v7a>
-References: <cover.1761017765.git.nicolinc@nvidia.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2163725A2CF
+	for <linux-s390@vger.kernel.org>; Mon, 27 Oct 2025 13:13:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1761570788; cv=none; b=VIk/LAYGtufzYDx083U6L6sX7d0vDoV68NctW+xWrRoC+ra4jqUEtGLwJvtqX91+JFS9HDFCRfNLBnj/Minjyc/FXRyvcsbcbv2JBc2v0tzczHHkhl9SDgroMIwHNQlFPoJSWxGvqz99QoDxoi4ZBJVw3n0qU0/pbyhNg9q2JXk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1761570788; c=relaxed/simple;
+	bh=4JRsrZ0EyNC76Kj9eXHalnnSKN5mK3A52nSIdisFktY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=jyj2aj23LbmZBFZV72NP2xhTCSPKL2m+ys6PqLOpGYPaVR+aaXilBdxAsNj9J8TWek3TBn7nA6Dtyi+ar+m5iONKw74wfl8Q384Uv61yZSLjHHUL03dlfYEhlslxUx3Zt4/xOYwobUCxshMfYzGdEO+vHWyLcces5OwpixvplaE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=QfWi1NcZ; arc=none smtp.client-ip=209.85.215.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="QfWi1NcZ"
+Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-b6ce6d1d3dcso3133841a12.3
+        for <linux-s390@vger.kernel.org>; Mon, 27 Oct 2025 06:13:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1761570785; x=1762175585; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=gNEXNCM0epFMr+RmcnWLYaOFdjohrZT8knavBi/MqIo=;
+        b=QfWi1NcZiPZ1v/lBnwwAxknpGWEG089aeTAG/YYXxH4leIDuJQLVykO7fXJMn87js8
+         QjkjA6KPC4I3kGBYQJRHq+eZpDiOtrLztl8suvjS5UGy9HpJJhp8x3tLPV9E82ZKPsaV
+         d/TOATSFhxI44o9CpJZNgpKfW1EWfKJQrrsluEMBThjSLtgvjCIhQiwac/nMLv1mBzY2
+         N9GVBDrSxRvS12Hgg0E/vrz2F0J3jD5J5Fm64+0t449D2qmoAgfarl85tOqmjf0D1N8c
+         bopu8sTlvDJnp/yoYfkbtrRSV0aJZaVtD9q2xLd4Ss6VXI/FnfE4vYfh0OonNk5Z3UNZ
+         CMeQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1761570785; x=1762175585;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=gNEXNCM0epFMr+RmcnWLYaOFdjohrZT8knavBi/MqIo=;
+        b=lPLyU1gyJyBVfDQ6dC5NX11mxugcXJ4QEreUAt5BjrfbFN5EARpW/n5odWfidwtJ/F
+         ENMBdVRuOyjlZxEHgGAfI4LTCHG1KGcLaEdTgc9fImL25eQzFA0TMuQ18oTUkG2cv1ZB
+         E2WyhYFknCg0pV6B4mZjsildYndkTLjZPK5jkvBH4lj6brfRKc5jnGSiDswuQt9w0EXR
+         EarSOG7w7meeZn45l9bHDP2PgJrjzqbjoDK5qjXWevwv3rooKkm5nrlDKvZeuFW41oWx
+         K9p2kmwDGAVvTALsrzJ5Wps6v/8Hox3Ljxzx29Gmf4M2PidIi9ICtrGMPNN8rIFJMqP9
+         rriQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVs4f3gwh0qbvXgmZf6MZHRIEzXbIy0A80Qvfv0mpxxo/1B6R0khTffKExoYInu/o+3QPRs4MXp99Vi@vger.kernel.org
+X-Gm-Message-State: AOJu0YyaH8IxxzyYwMGUwCvkEtBk2SRUNwq32A446SLiMvBvfZ2hct4B
+	vBaVi4TXfYuYN0TmaPhGbvkN4xKE6y20iFOTXEIP8PecFUZceVbkRZNHp1mvh/+2HFnfr2EywSc
+	DwlRjqf/wed9nulavEeoeBcsXeRl5PKtliSefqc/cWA==
+X-Gm-Gg: ASbGnctF3eIlTLaya7mfWr8A4nzz8KZ0G1oMwHhcSPEvBap9ii3zuMvSMBWDAm9KEfD
+	eKa0mrGtTmI59wiFDLkgnQY2naPoCVRQcwYLyWsNj5vW2lGCHaRIiS59bp6XuOGtZRX+eaaGt9b
+	r8MVTzdmZX0iv0QNcDnMF35jgCGLD/Lt9h/tJkPgfyXF/Nyq5VttKk40honJ4wbOOZ/iRzWgEjS
+	6m8A70B/OUjYI9juC1kbINJXs4SgYNXVR4Biz6aJHA3q71AuxQXxUZG9fYxhbacoBSrMPKB7pFr
+	N8efOYl8leHuCohAJDoE8eFyAH0TVnf686xy2SBA9IeBZuE7Gl292xy2gtuX
+X-Google-Smtp-Source: AGHT+IEsdKc9R+4FlPyXgvJuUVfiubltPDZcJsLUDaYs1stlCo1Np2u3tQ9qE9+t58mdLnukcLVSUInlftA70xiEIvo=
+X-Received: by 2002:a17:902:c412:b0:24b:25f:5f81 with SMTP id
+ d9443c01a7336-2948b9758e0mr149025505ad.17.1761570785234; Mon, 27 Oct 2025
+ 06:13:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cover.1761017765.git.nicolinc@nvidia.com>
+References: <CA+G9fYsL+w_XaOPaBaN5xMr6Ssrq_hh2_g8AgNxNmu0jCpjwxg@mail.gmail.com>
+In-Reply-To: <CA+G9fYsL+w_XaOPaBaN5xMr6Ssrq_hh2_g8AgNxNmu0jCpjwxg@mail.gmail.com>
+From: Naresh Kamboju <naresh.kamboju@linaro.org>
+Date: Mon, 27 Oct 2025 18:42:53 +0530
+X-Gm-Features: AWmQ_bmY-i51q19AYcQpT-sEvBW1BPIqo1n5TQLSYT-9iYht4pVG5wgMSRv46e4
+Message-ID: <CA+G9fYvzg-shL5LMmdJjJEGi6NvxHFdwbC5jQwtbFxkOFPnc4A@mail.gmail.com>
+Subject: Re: next-20251027: s390: pf1550-onkey.c:154:12: error:
+ 'pf1550_onkey_resume' defined but not used [-Werror=unused-function]
+To: Samuel Kayode <samuel.kayode@savoirfairelinux.com>, linux-s390@vger.kernel.org, 
+	open list <linux-kernel@vger.kernel.org>, lkft-triage@lists.linaro.org, 
+	Linux Regressions <regressions@lists.linux.dev>
+Cc: Anders Roxell <anders.roxell@linaro.org>, Arnd Bergmann <arnd@arndb.de>, 
+	Dan Carpenter <dan.carpenter@linaro.org>, Ben Copeland <benjamin.copeland@linaro.org>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Frank Li <Frank.Li@nxp.com>, 
+	Sean Nyekjaer <sean@geanix.com>, Lee Jones <lee@kernel.org>, Heiko Carstens <hca@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On Wed, Oct 22, 2025 at 07:21:03PM -0700, Nicolin Chen wrote:
-> Jason Gunthorpe (1):
->   iommu: Generic support for RMRs during device release
-> 
-> Nicolin Chen (5):
->   iommu/arm-smmu-v3: Set release_domain to arm_smmu_blocked_domain
->   iommu/exynos-iommu: Set release_domain to exynos_identity_domain
->   iommu/amd: Set release_domain to blocked_domain
->   iommu: Do not revert set_domain for the last gdev
->   iommu: Pass in old domain to attach_dev callback functions
-> 
->  include/linux/iommu.h                         |  3 +-
->  arch/powerpc/kernel/iommu.c                   |  5 ++-
->  drivers/iommu/amd/iommu.c                     | 21 +++------
->  drivers/iommu/apple-dart.c                    |  9 ++--
->  .../arm/arm-smmu-v3/arm-smmu-v3-iommufd.c     |  5 ++-
->  drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c   | 31 ++++++-------
->  drivers/iommu/arm/arm-smmu/arm-smmu.c         |  9 ++--
->  drivers/iommu/arm/arm-smmu/qcom_iommu.c       | 11 ++---
->  drivers/iommu/exynos-iommu.c                  | 11 ++---
->  drivers/iommu/fsl_pamu_domain.c               | 12 ++---
->  drivers/iommu/intel/iommu.c                   | 10 +++--
->  drivers/iommu/intel/nested.c                  |  2 +-
->  drivers/iommu/iommu.c                         | 44 +++++++++++++------
->  drivers/iommu/iommufd/selftest.c              |  2 +-
->  drivers/iommu/ipmmu-vmsa.c                    | 10 ++---
->  drivers/iommu/msm_iommu.c                     | 11 ++---
->  drivers/iommu/mtk_iommu.c                     |  8 ++--
->  drivers/iommu/mtk_iommu_v1.c                  |  7 ++-
->  drivers/iommu/omap-iommu.c                    | 12 ++---
->  drivers/iommu/riscv/iommu.c                   |  9 ++--
->  drivers/iommu/rockchip-iommu.c                | 20 ++++++---
->  drivers/iommu/s390-iommu.c                    | 13 +++---
->  drivers/iommu/sprd-iommu.c                    |  3 +-
->  drivers/iommu/sun50i-iommu.c                  |  8 ++--
->  drivers/iommu/tegra-smmu.c                    | 10 ++---
->  drivers/iommu/virtio-iommu.c                  |  6 ++-
->  26 files changed, 172 insertions(+), 120 deletions(-)
+On Mon, 27 Oct 2025 at 14:26, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+>
+> The following S390 allyesconfig build regressions noticed on the
+> Linux next-20251027 tag with gcc-14.
+>
+> * S390, build
+>   - gcc-14-allyesconfig
+>
+> First seen on next-20251027
+> Good: next-20251024
+> Bad: next-20251027
+>
+> Regression Analysis:
+> - New regression? yes
+> - Reproducibility? yes
+>
+> Build regression: next-20251027: pf1550-onkey.c:154:12: error:
+> 'pf1550_onkey_resume' defined but not used [-Werror=unused-function]
+>
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Applied, thanks.
+Anders bisected this down to,
+  9acb215cbebd ("Input: pf1550 - add onkey support")
+
+>
+> ## Build error
+> drivers/input/misc/pf1550-onkey.c:154:12: error: 'pf1550_onkey_resume'
+> defined but not used [-Werror=unused-function]
+>   154 | static int pf1550_onkey_resume(struct device *dev)
+>       |            ^~~~~~~~~~~~~~~~~~~
+> drivers/input/misc/pf1550-onkey.c:133:12: error:
+> 'pf1550_onkey_suspend' defined but not used [-Werror=unused-function]
+>   133 | static int pf1550_onkey_suspend(struct device *dev)
+>       |            ^~~~~~~~~~~~~~~~~~~~
+> cc1: all warnings being treated as errors
+> make[6]: *** [/builds/linux/scripts/Makefile.build:287:
+> drivers/input/misc/pf1550-onkey.o] Error 1
+>
+>
+> ## Source
+> * Kernel version: 6.18.0-rc2-next-20251027
+> * Git tree: https://kernel.googlesource.com/pub/scm/linux/kernel/git/next/linux-next.git
+> * Git describe: next-20251027
+> * Git commit: 8fec172c82c2b5f6f8e47ab837c1dc91ee3d1b87
+> * Architectures: S390
+> * Toolchains: gcc-14
+> * Kconfigs: allyesconfig
+>
+> ## Build
+> * Test log:  https://storage.tuxsuite.com/public/linaro/lkft/builds/34dKrowtK5wNPnem1T5LSEjjq5o/build.log
+> * Test details:
+> https://regressions.linaro.org/lkft/linux-next-master/next-20251027/log-parser-build-kernel/gcc-compiler-_drivers_input_misc_pf-onkey_c_error_pf_onkey_resume_defined_but_not_used/
+> * Build plan: https://tuxapi.tuxsuite.com/v1/groups/linaro/projects/lkft/builds/34dKrowtK5wNPnem1T5LSEjjq5o
+> * Build link: https://storage.tuxsuite.com/public/linaro/lkft/builds/34dKrowtK5wNPnem1T5LSEjjq5o/
+> * Kernel config:
+> https://storage.tuxsuite.com/public/linaro/lkft/builds/34dKrowtK5wNPnem1T5LSEjjq5o/config
+>
+> --
+> Linaro LKFT
