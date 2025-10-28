@@ -1,129 +1,176 @@
-Received: from mail-qv1-f42.google.com (mail-qv1-f42.google.com [209.85.219.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EFE932A3F2
-	for <linux-s390@vger.kernel.org>; Mon, 27 Oct 2025 23:33:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.42
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 02E4F212552;
+	Tue, 28 Oct 2025 01:14:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761607984; cv=none; b=dqsGBm2zLQIBWFO8rB10bi2kc8vcAhksAWOdlAkBDqwdtUsRU1Iqgpaa+ViahP5mGQSeFCZvyusqSUBk/bydJPoSjaYTmwFQ9Jn45rQkRPzTYJQLshk6hNJpuahhLDDDVMT5tTLYTUhRZ5Rl5Gs7pOJw0O5amae7Qs6ysZGISqo=
+	t=1761614067; cv=none; b=gjHWm+SYKYHB1uatetaqkWf+if31cnEhN+VsEMmhCh3uCmyt0kw3bF7HW7ydwTYCcwHpmgsWKIFx5+EG8guAkRfXfFtyhZ78sa3JkhzgZ6mXNdlBmxCjATnGiXHYy6TbzY1uE8dDKPmuAIFeYzAWkVyDAYaZRduWQf8vX3qsmFo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761607984; c=relaxed/simple;
-	bh=ya34dnXBkVMZ4acUVB749ZaVXuLYyX25Ei5hDiCldOk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Y8U5RxEX2hNy+nhxccupXOPEjfphmu5Ea+i9qV+cZCKk/o6THrSIoCYMNRrbcpB1dO1uMC5/ZFaUX1DnkcMVxUETofXLtsBAvPW8y52JaTfezVueLe2HuoxJxPa+kLZe4qChjSGvR9wh3M/4BJ+hjawk2kYdh1mHjfaFK6kxopU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=XPfEVKpA; arc=none smtp.client-ip=209.85.219.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="XPfEVKpA"
-Received: by mail-qv1-f42.google.com with SMTP id 6a1803df08f44-87d8fa51993so61848756d6.1
-        for <linux-s390@vger.kernel.org>; Mon, 27 Oct 2025 16:33:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1761607981; x=1762212781; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=SeBkBGZ09M3QB76OpujQtXgjWBBtrpYzqcpEmFvCTi4=;
-        b=XPfEVKpAkz0EqqJlblUgrQ2PbfAJJwC+FFil/Vd5htXfHTtIAt0AcJCsl4NmBxKXRJ
-         eIW5UeA7107giYfaQifJ5a/gcKAR8VZ9z0golFJy5Hb23kycJSDDiGo9zpEv9kL7Qk7s
-         w7zRqTxUMrIW23T1nvKpH2c36Y7Gmc+zKGLLJpUtGCt5fPfRM1WTsbfA/tTdW9nn2aUs
-         ftNj7HpeKguvAOHG0jEjFwpWYouZrm59oAzF2CNPOw8w7oeCkLSrBScDF73Fz4cxKAC8
-         hjTanLd8/LkCYdg+DpDtdHCnEdUb1gxr4DzFdHDnJdW+eZ6Z/hxItchsfPdz1TLQ2R8w
-         4aIA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761607981; x=1762212781;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SeBkBGZ09M3QB76OpujQtXgjWBBtrpYzqcpEmFvCTi4=;
-        b=OKl/jnNJ7MNh+EdCGPaB3x9a82albyKCtFhTcfJG+8i6Ku9wu0R0qHY1e9YZ14pnEj
-         oGKZDGCv/5sUaeJ2WCEIr6o+GGiLFh60N2lpVm/xAdboHxsoRKeqSrcITtIE44t8QNGX
-         u3yWhISOBdGTa+G0U5ggB/SHk8sDwKU5iqDYQubXtmomhiEn32laxkXGDof6MI+4u3iD
-         nrGasDIbFD6khoG80PLf9ANA55gkk1otMPe3+Pc5jhOmKbFEgbjcvCl/754x/hZFzMQm
-         pKTWifg3wg+U1rYoWwDqRAt3efCitfQsznmCKiRZw8Zi7YZ5mcwoIzfQDEoauZj8h9YK
-         OEIw==
-X-Forwarded-Encrypted: i=1; AJvYcCWyshBhvj16xsS3rp2ImWZdJmFgB4HfVlDn4T9DHF8VCcm9D7GjZoLs4d+lSrHUeujuB4zQ/MaSwvVi@vger.kernel.org
-X-Gm-Message-State: AOJu0YzW4pWFAbsFKJ2ywZRgd+77ZEBMKiUOX4zB36yZl+6SRpxUl0mV
-	JgBj40/yPVCQOSWqrRwbBbJ68Og/rIQT6CtgHdjPziD5PoqIcrgPuC3odFfJB58hsU8=
-X-Gm-Gg: ASbGncskZBFwAzXYDMJ7JDDevkZpmAPLJkuSKdho05A9qzOEScYrOnOH7pNI1b0uctl
-	7URK/D30W+jnFgbeCu4lDthOzMOMO+XI83Ews7RV8fhjiterZ43KX+FGpwdHoIZEIdg4oi/7B+0
-	86bmeHuZVjUXYKT9nNYy1rZGjmc+aCcgQeu9Idejn+euzLG4AZ7Qlj8tNZvCJUSIvRP5XkQ8CWm
-	zkVWJLUSlp43nZM6wPl5rHa/DB1GWdgkgzzl5roe20DENZ5dVoQ3Ar2laR1g4FK+AG9OncE+yI6
-	ETaSgJpkyGQPCUX1h98iaFeGumBbhmttf2V2Kc+2vk32aRyPz9s78KY0g/H+5Za+t5giQZGoUi6
-	Kc0LTe121qgWwG2aJwk6v7RmuUawDkT2p4htorrkvqKvJbGNaqn+4Aj/G5KyEXdG6TnyV9+7aAK
-	BlQQ1VcOW3g/FjWI+9aU5R8N6nZo2UKo+D2HI1fE3oDd9zuFwYQtp/J98SJyY=
-X-Google-Smtp-Source: AGHT+IGY0mnN3CFDP7vaLRad7aeAt7RbVIUmDhfxoFPsiCMHR/zS0q6YLuuynQuqtuF/1igQEZd8Tg==
-X-Received: by 2002:ad4:5cad:0:b0:87c:2b03:c776 with SMTP id 6a1803df08f44-87ffb0f3094mr20891046d6.47.1761607981318;
-        Mon, 27 Oct 2025 16:33:01 -0700 (PDT)
-Received: from gourry-fedora-PF4VCD3F (pool-96-255-20-138.washdc.ftas.verizon.net. [96.255.20.138])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-87fc48ea92fsm64277606d6.24.2025.10.27.16.32.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Oct 2025 16:33:00 -0700 (PDT)
-Date: Mon, 27 Oct 2025 19:32:58 -0400
-From: Gregory Price <gourry@gourry.net>
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	David Hildenbrand <david@redhat.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	"Liam R . Howlett" <Liam.Howlett@oracle.com>,
-	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Kairui Song <kasong@tencent.com>, Nhat Pham <nphamcs@gmail.com>,
-	Baoquan He <bhe@redhat.com>, Chris Li <chrisl@kernel.org>,
-	Peter Xu <peterx@redhat.com>, Matthew Wilcox <willy@infradead.org>,
-	Leon Romanovsky <leon@kernel.org>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>, Jann Horn <jannh@google.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Pedro Falcato <pfalcato@suse.de>,
-	Pasha Tatashin <pasha.tatashin@soleen.com>,
-	Rik van Riel <riel@surriel.com>, Harry Yoo <harry.yoo@oracle.com>,
-	kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-	linux-mm@kvack.org
-Subject: Re: [RFC PATCH 00/12] remove is_swap_[pte, pmd]() + non-swap
- confusion
-Message-ID: <aQABKgQYfVkO7n9m@gourry-fedora-PF4VCD3F>
-References: <cover.1761288179.git.lorenzo.stoakes@oracle.com>
- <20251027160923.GF760669@ziepe.ca>
+	s=arc-20240116; t=1761614067; c=relaxed/simple;
+	bh=HPmqcX9I7aYWkfvKn4CtPntBBzaTOma5E6hk6L1IY0g=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=oJFu8dYl6XH5INbyqsCexQbhmjyTwadrN0982XRRRW/IE79ipNJBG0ZwdBuGKyljlQq0DgtPdpcoTFzNDqtjXZVqcKIHtcQVmkAM29S+LSO1kg2gZlCoAjAgtU/VqSgYTaIeNtaxLABMyaJrskm3noBy3krb/ZoCAgTxhMJGWvU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.62])
+	by gateway (Coremail) with SMTP id _____8BxmdHrGABpI1cbAA--.59711S3;
+	Tue, 28 Oct 2025 09:14:19 +0800 (CST)
+Received: from [10.20.42.62] (unknown [10.20.42.62])
+	by front1 (Coremail) with SMTP id qMiowJCxM+TnGABpxC4UAQ--.13588S3;
+	Tue, 28 Oct 2025 09:14:17 +0800 (CST)
+Subject: Re: [PATCH v2 1/2] PCI: Allow per function PCI slots
+To: Niklas Schnelle <schnelle@linux.ibm.com>, Farhan Ali
+ <alifm@linux.ibm.com>, linux-s390@vger.kernel.org,
+ linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: helgaas@kernel.org, mjrosato@linux.ibm.com, bblock@linux.ibm.com,
+ agordeev@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com,
+ stable@vger.kernel.org, Tianrui Zhao <zhaotianrui@loongson.cn>,
+ Huacai Chen <chenhuacai@kernel.org>
+References: <20251022212411.1989-1-alifm@linux.ibm.com>
+ <20251022212411.1989-2-alifm@linux.ibm.com>
+ <e5a5d582a75c030a63c364d553c13baf373663ac.camel@linux.ibm.com>
+From: Bibo Mao <maobibo@loongson.cn>
+Message-ID: <aa0214e8-31be-2b21-c8af-b7831efd60a7@loongson.cn>
+Date: Tue, 28 Oct 2025 09:11:56 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251027160923.GF760669@ziepe.ca>
+In-Reply-To: <e5a5d582a75c030a63c364d553c13baf373663ac.camel@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowJCxM+TnGABpxC4UAQ--.13588S3
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj93XoWxXw1Dtr4DJw1kCr4UKFykWFX_yoWrZry8pF
+	W8CF1jkFyrJrW7AwsIv3WF9a4Yvan3JFWUGrWDG343uayYyr18tF15tF1Yg3s7JrW5uF1I
+	va15Zw45uF95AFgCm3ZEXasCq-sJn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUvjb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
+	GcCE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCEc2xF0cIa020Ex4CE44I27wAqx4
+	xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JrI_JrylYx0Ex4A2jsIE14v2
+	6r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrwCYjI0SjxkI62AI1cAE67
+	vIY487MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAF
+	wI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc4
+	0Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AK
+	xVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr
+	1lIxAIcVC2z280aVCY1x0267AKxVWUJVW8JbIYCTnIWIevJa73UjIFyTuYvjxU70PfDUUU
+	U
 
-On Mon, Oct 27, 2025 at 01:09:23PM -0300, Jason Gunthorpe wrote:
+
+
+On 2025/10/27 下午8:29, Niklas Schnelle wrote:
+> On Wed, 2025-10-22 at 14:24 -0700, Farhan Ali wrote:
+>> On s390 systems, which use a machine level hypervisor, PCI devices are
+>> always accessed through a form of PCI pass-through which fundamentally
+>> operates on a per PCI function granularity. This is also reflected in the
+>> s390 PCI hotplug driver which creates hotplug slots for individual PCI
+>> functions. Its reset_slot() function, which is a wrapper for
+>> zpci_hot_reset_device(), thus also resets individual functions.
+>>
+>> Currently, the kernel's PCI_SLOT() macro assigns the same pci_slot object
+>> to multifunction devices. This approach worked fine on s390 systems that
+>> only exposed virtual functions as individual PCI domains to the operating
+>> system.  Since commit 44510d6fa0c0 ("s390/pci: Handling multifunctions")
+>> s390 supports exposing the topology of multifunction PCI devices by
+>> grouping them in a shared PCI domain. When attempting to reset a function
+>> through the hotplug driver, the shared slot assignment causes the wrong
+>> function to be reset instead of the intended one. It also leaks memory as
+>> we do create a pci_slot object for the function, but don't correctly free
+>> it in pci_slot_release().
+>>
+>> Add a flag for struct pci_slot to allow per function PCI slots for
+>> functions managed through a hypervisor, which exposes individual PCI
+>> functions while retaining the topology.
 > 
-> I'm not keen on is_non_present_entry(), it seems confusing again.
+> I wonder if LoongArch which now also does per PCI function pass-through
+> might need this too. Adding their KVM maintainers.
+
+Hi Niklas,
+
+Thanks for your reminder. Yes, LoongArch do per PCI function 
+pass-throught. In theory, function pci_slot_enabled_per_func() should 
+return true on LoongArch also. Only that now IOMMU driver is not merged, 
+there is no way to test it, however we will write down this as a note 
+inside about this issue and verify it once IOMMU driver is merged.
+
+
+Regards
+Bibo Mao
+> 
+>>
+>> Fixes: 44510d6fa0c0 ("s390/pci: Handling multifunctions")
+>> Cc: stable@vger.kernel.org
+>> Suggested-by: Niklas Schnelle <schnelle@linux.ibm.com>
+>> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+>> ---
+>>   drivers/pci/pci.c   |  5 +++--
+>>   drivers/pci/slot.c  | 25 ++++++++++++++++++++++---
+>>   include/linux/pci.h |  1 +
+>>   3 files changed, 26 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+>> index b14dd064006c..36ee38e0d817 100644
+>> --- a/drivers/pci/pci.c
+>> +++ b/drivers/pci/pci.c
+>> @@ -4980,8 +4980,9 @@ static int pci_reset_hotplug_slot(struct hotplug_slot *hotplug, bool probe)
+>>   
+>>   static int pci_dev_reset_slot_function(struct pci_dev *dev, bool probe)
+>>   {
+>> -	if (dev->multifunction || dev->subordinate || !dev->slot ||
+>> -	    dev->dev_flags & PCI_DEV_FLAGS_NO_BUS_RESET)
+>> +	if (dev->subordinate || !dev->slot ||
+>> +	    dev->dev_flags & PCI_DEV_FLAGS_NO_BUS_RESET ||
+>> +	    (dev->multifunction && !dev->slot->per_func_slot))
+>>   		return -ENOTTY;
+>>   
+>>   	return pci_reset_hotplug_slot(dev->slot->hotplug, probe);
+>> diff --git a/drivers/pci/slot.c b/drivers/pci/slot.c
+>> index 50fb3eb595fe..ed10fa3ae727 100644
+>> --- a/drivers/pci/slot.c
+>> +++ b/drivers/pci/slot.c
+>> @@ -63,6 +63,22 @@ static ssize_t cur_speed_read_file(struct pci_slot *slot, char *buf)
+>>   	return bus_speed_read(slot->bus->cur_bus_speed, buf);
+>>   }
+>>   
+>> +static bool pci_dev_matches_slot(struct pci_dev *dev, struct pci_slot *slot)
+>> +{
+>> +	if (slot->per_func_slot)
+>> +		return dev->devfn == slot->number;
+>> +
+>> +	return PCI_SLOT(dev->devfn) == slot->number;
+>> +}
+>> +
+>> +static bool pci_slot_enabled_per_func(void)
+>> +{
+>> +	if (IS_ENABLED(CONFIG_S390))
+>> +		return true;
+>> +
+>> +	return false;
+>> +}
+>> +
+> --- snip ---
+>>   
+>> diff --git a/include/linux/pci.h b/include/linux/pci.h
+>> index d1fdf81fbe1e..6ad194597ab5 100644
+>> --- a/include/linux/pci.h
+>> +++ b/include/linux/pci.h
+>> @@ -78,6 +78,7 @@ struct pci_slot {
+>>   	struct list_head	list;		/* Node in list of slots */
+>>   	struct hotplug_slot	*hotplug;	/* Hotplug info (move here) */
+>>   	unsigned char		number;		/* PCI_SLOT(pci_dev->devfn) */
+>> +	unsigned int		per_func_slot:1; /* Allow per function slot */
+>>   	struct kobject		kobj;
+>>   };
+>>   
+> 
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
 > 
 
-The confusion stems from `present` referring to the state of the hardware
-PTE bits, instead of referring to the state of the entry.
-
-But even if we're stuck with "non-present entry", it's still infinitely
-more understandable (and teachable) than "non_swap_swap_entry".
-
-So even if we never get to the point of replacing swp_entry_t, this is a
-clear and obvious improvement.
-~Gregory
