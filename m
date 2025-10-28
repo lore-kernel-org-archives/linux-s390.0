@@ -1,151 +1,142 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83A631DD525;
-	Tue, 28 Oct 2025 13:03:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99001330B32
+	for <linux-s390@vger.kernel.org>; Tue, 28 Oct 2025 13:09:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761656592; cv=none; b=C7rhzv5wQd8E7Jzfwjt3ahTrM2pedoINGQvrq0ffRZX5ym3pnV2XVhi3TmZGAVFAbw6NQ+DJ8Gy+DYfgc26l2EDPjRjTS40nz7QOptjIXL5vH+KHenOu9oiaoGMHNY7WSUI3dMkOrZpKOtT+LS4PFydBFNgEkbkAMBtHca9KsCw=
+	t=1761656949; cv=none; b=TdiwBjBmNDys4l9fSPFwRKaaRZny3ZJGDNwBWWN2/fHcrKhPo90nmm0oUoz97VW1Ym3OAWPYEl4avVYFilNhUs1zkSZIQLi6nYfM21GvkcNNIDv1xeSwfEaWt8xrdDYIAsvJ8m+HPtzhblufQ2vL3y88cnH9jkvqpycqDpESGu4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761656592; c=relaxed/simple;
-	bh=+MH3Uny3ws4Bd+8yWMhxU/yNEAo1stOFlIG/JiCj9nI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PE9YhbfBNAFjg3X9cbyPsHqaSZIlKsIEq04o/jnnb4VokWwzlB/xp/vm7QtFFTB5omykMZy5yaMRFRY1OWnD8v9EC8pCQUJwPC6YaN4ZTTwpY6Awdx23qtdR4rky4nY4lonCDc+VJMuNroKgejCTVokVoECyBmM/0cG4xghFOrc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZkAz/WyP; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1761656949; c=relaxed/simple;
+	bh=GYhA9Iy3/9/Ee+jnl+wXccAoqjQ72aXNdQ/Z7T9pA1E=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VTBLBFYkLjx0dkJrkAMZ6/OcFhNckQT3irmTG4K+aMUulm0h11c/4STn1j4iEU9h6vuKkS1Za60O9Qw8EuZQIoEkHEq4ZeYWyBJLVxmOBHjELq/utq5x8yav7Eo/UxEJvimdKhEwy9uxVMm1FXJjz+0lIqkj2T8AUrKfnGlDYyI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=iti0ydl9; arc=none smtp.client-ip=209.85.160.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZkAz/WyP"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59S1XMAL006945;
-	Tue, 28 Oct 2025 13:02:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=8zwaRUNSyGimNNs5q
-	83h32soN7BNO+JqHU2+rsr4bU0=; b=ZkAz/WyPyVMHNioPXbmgvZxofsv7Dcr7X
-	RlpDAtRariZrotrUaanDh6HjATMKK0cRWrVMIggfuKLpCY9Ggm9o6/FYsKTtkXQj
-	fG36sWGQFPE/OugQt2bcpNrpq9njK0EZccanE/GOWu8mL0oSdZkHYIgnVTeSE67c
-	4P91UwfAeQJ9nj4r1xI3/6Rrjfztnb4cphxUTgI77EpKpJbVPHCSgnltl/9ExOLI
-	RqXPLV4OMzLqEjo7Rb7pLt9UTi8+Fa9RD79GkoRuDziuOgcgd8j7JUwdAqXg1Krv
-	IZxzze4ay43bwJYmgntiX37su/j2D9RxxbofLUj1DEZ32pA21d09g==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a0kytbya0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Oct 2025 13:02:00 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 59SD1xIg026569;
-	Tue, 28 Oct 2025 13:01:59 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a0kytby9w-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Oct 2025 13:01:59 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59SC3nZL030454;
-	Tue, 28 Oct 2025 13:01:58 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4a1acjtqms-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Oct 2025 13:01:58 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59SD1qeR41091434
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 28 Oct 2025 13:01:52 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8933820043;
-	Tue, 28 Oct 2025 13:01:52 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C9BAC2004B;
-	Tue, 28 Oct 2025 13:01:51 +0000 (GMT)
-Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.155.209.42])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 28 Oct 2025 13:01:51 +0000 (GMT)
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: akpm@linux-foundation.org
-Cc: balbirs@nvidia.com, borntraeger@de.ibm.com, david@redhat.com,
-        Liam.Howlett@oracle.com, airlied@gmail.com, apopple@nvidia.com,
-        baohua@kernel.org, baolin.wang@linux.alibaba.com, byungchul@sk.com,
-        dakr@kernel.org, dev.jain@arm.com, dri-devel@lists.freedesktop.org,
-        francois.dugast@intel.com, gourry@gourry.net, joshua.hahnjy@gmail.com,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        lorenzo.stoakes@oracle.com, lyude@redhat.com, matthew.brost@intel.com,
-        mpenttil@redhat.com, npache@redhat.com, osalvador@suse.de,
-        rakie.kim@sk.com, rcampbell@nvidia.com, ryan.roberts@arm.com,
-        simona@ffwll.ch, ying.huang@linux.alibaba.com, ziy@nvidia.com,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-next@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com
-Subject: [PATCH v1 1/1] KVM: s390: Fix missing present bit for gmap puds
-Date: Tue, 28 Oct 2025 14:01:50 +0100
-Message-ID: <20251028130150.57379-2-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20251028130150.57379-1-imbrenda@linux.ibm.com>
-References: <d4a09cc8-84b2-42a8-bd03-7fa3adee4a99@linux.ibm.com>
- <20251028130150.57379-1-imbrenda@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="iti0ydl9"
+Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-4b109c6b9fcso53734851cf.3
+        for <linux-s390@vger.kernel.org>; Tue, 28 Oct 2025 06:09:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gourry.net; s=google; t=1761656946; x=1762261746; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=YCGJuNdSiDHSbgE1dTHIFDy3cujeZVBX/ZxNKRqqViA=;
+        b=iti0ydl9RPgT1+rOMGa7fKebSxzZ81u7N14kwlJzu5uRUDmZbPW+tGbASCk+XXvRwU
+         3DkxfpY9BRxdfJ67wcRt1kiNB9jxq9QtSFb272lGIQ7kWPWRvUs9PMmImYnfy4r3+yTN
+         KsXR8cfl7FqQKXXEA+O1e0FjU/FZ73eJiEZBIvrerCSuFTu2IutUaosQeQ9TTgivg+ay
+         n8Q8jKL8KKjOGEJHfPcAPfe/uiYjyGlNfmzGu/agS/soO6Q6ZUU+TgmPDQZxicUU9F76
+         HZAcaugdfQ1xnGONKzQmuOZtXRIULbBI7QzSFBY/1/Ke7dpJF2F3DYwINFlLU2aGy7D/
+         aVRQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1761656946; x=1762261746;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=YCGJuNdSiDHSbgE1dTHIFDy3cujeZVBX/ZxNKRqqViA=;
+        b=BP3SggJd9JQPdnArDRJyij8K4L7j3rWSoGJIG/9r2AWsoofMlaQyV3yL9LvsJYcCQH
+         /vHD25pnhkxWtEactthZEJFJ/aGUZCy00jMx5U9/uJpVTzdIIZsgDHr2e++1FihV3kqS
+         kqyEQ2Ghe+vv+6qWoRfkOSCadmwlaHNYQNbLGt7UBiqggDtPYnI2V1FrNR0m2k8fGrhU
+         w4iOyIItaocwWMU/RkLTD8iwlqCPcIv9ZRizF/NyPtltaWAHt2no2lPemztb4EKYjqmv
+         380qR4L7W5H09aYd2oQQLWpFcWp9iEMUkTvQb+qF/Irewa8JkhgXHc3iTZjbx4h8Kwxj
+         stiw==
+X-Forwarded-Encrypted: i=1; AJvYcCUTPp88/upCiXJMXBcTcGv1UYtWE4lWuOSlN2LGFSe9sB6UGF5OqbU15K/T4q+iZtztfd9CDD7bxsnp@vger.kernel.org
+X-Gm-Message-State: AOJu0YwzBonFm8R6d6nnHBMEUs0tIjj7TQftn2o31A/nmRw2kkIQjHzd
+	U+q779g2xgnLddgSz81agMMHtEDgiHUN9KK+k6x0p9W6e6Fx90l250eETawB4sh95X0=
+X-Gm-Gg: ASbGncv3/xI589eQbe3cN+EH3ECdii0MqdYWBfJeTceUU0Kx45sCyt6gmEEWBLkJCuH
+	nWpPNlrD3UxSh+q5YIziAEYBnZ7F0ACpI4pL5Gts7MI3qYoaXD/EX5Qr0Kp44RHEBWGIDzH9IfB
+	0mUr6CS3GYguRO/weDRbkfAkc56wymw3vcK78r8JGZ70vPAiQ1PjgWCYS/RCb0AtzR9lbiLB+yK
+	pCFlds8aDp1EA1NlGrpMzg+q3GgmN2pMh2E5t+bpJ62V/jIHzrGR3bX6uZw1onfzSa5k8XUU10O
+	074tIvpIf6kxtVZv7UGg/N4fN1r0/m0VfDgpHd7QZjpVKlv2d6oEGXOFzTJ61XUbidrLR04iQ7J
+	Au4FQlwIlR082Et3gjCaWgSZ+MLCrvaoy1dJaoh8efLQpNN2x3etRvphH2HdJqS5/0TmU8fcDx8
+	SArunkBcuTz295COH51r7xjkmw29Q/gF1uN4jSA+2A9yOBM8ND63T0qmzj0qo=
+X-Google-Smtp-Source: AGHT+IH98kqIm4OLBZ9BxTzNh4SoN+f3UCMEHEUjHueEIBmZ3ZFACR4imRWFssU1iLJ7HaKse0MxjQ==
+X-Received: by 2002:a05:622a:261b:b0:4db:db96:15d3 with SMTP id d75a77b69052e-4ed074df11dmr43296561cf.31.1761656944848;
+        Tue, 28 Oct 2025 06:09:04 -0700 (PDT)
+Received: from gourry-fedora-PF4VCD3F (pool-96-255-20-138.washdc.ftas.verizon.net. [96.255.20.138])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4eba386b6b9sm71298341cf.33.2025.10.28.06.09.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Oct 2025 06:09:04 -0700 (PDT)
+Date: Tue, 28 Oct 2025 09:09:01 -0400
+From: Gregory Price <gourry@gourry.net>
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	David Hildenbrand <david@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, Zi Yan <ziy@nvidia.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	"Liam R . Howlett" <Liam.Howlett@oracle.com>,
+	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+	Lance Yang <lance.yang@linux.dev>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Kairui Song <kasong@tencent.com>, Nhat Pham <nphamcs@gmail.com>,
+	Baoquan He <bhe@redhat.com>, Chris Li <chrisl@kernel.org>,
+	Peter Xu <peterx@redhat.com>, Matthew Wilcox <willy@infradead.org>,
+	Leon Romanovsky <leon@kernel.org>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>, Jann Horn <jannh@google.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+	Byungchul Park <byungchul@sk.com>,
+	Ying Huang <ying.huang@linux.alibaba.com>,
+	Alistair Popple <apopple@nvidia.com>,
+	Pedro Falcato <pfalcato@suse.de>,
+	Pasha Tatashin <pasha.tatashin@soleen.com>,
+	Rik van Riel <riel@surriel.com>, Harry Yoo <harry.yoo@oracle.com>,
+	kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	linux-mm@kvack.org
+Subject: Re: [RFC PATCH 05/12] fs/proc/task_mmu: refactor pagemap_pmd_range()
+Message-ID: <aQDAbcpO8_SeDh_c@gourry-fedora-PF4VCD3F>
+References: <aPu4LWGdGSQR_xY0@gourry-fedora-PF4VCD3F>
+ <76348b1f-2626-4010-8269-edd74a936982@lucifer.local>
+ <aPvPiI4BxTIzasq1@gourry-fedora-PF4VCD3F>
+ <3f3e5582-d707-41d0-99a7-4e9c25f1224d@lucifer.local>
+ <aPvjfo1hVlb_WBcz@gourry-fedora-PF4VCD3F>
+ <20251027161146.GG760669@ziepe.ca>
+ <27a5ea4e-155c-40d1-87d7-e27e98b4871d@lucifer.local>
+ <dac763e0-3912-439d-a9c3-6e54bf3329c6@redhat.com>
+ <a813aa51-cc5c-4375-9146-31699b4be4ca@lucifer.local>
+ <20251028125244.GI760669@ziepe.ca>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: mgW0Se2eCcEagXlixqJWxYsPb3M4yIqu
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDI1MDAwMSBTYWx0ZWRfX4ZPTxHz/nLjF
- xkLcDvlI0MfdXrWHGjpk2MYUj2e8AaTxwoDyM1Ws6z/WBWDhYLgkvh9kctwGm0SDzI32XpEAiYS
- RQ1fmrQK5Y2aL5tkqPQ7tEvO+pEczIbhyBdfaV3gIJZZkX4+8Ffk9doHY3sWRSO5MOR9maXFMU0
- T9xnvsQ6c9m3/Ms/xlhZ0vrTptEPB7T8yLvX2x/xM2CbUsCBHjc+pKjXkeP42FdVB9Jqt6H3uta
- 6pt/EN4f+k7djdTI2PI6eXURgjLw+RBVUIqwvJB+qrrl8j72/zWp7+hzGrIZvG2IxCLWp422HvL
- QMRzdYDo9Xz55+bqz1e9SlLuy4ToJ+49gefMqwNQP8QMhS34YL+EU0H/0uMxomQ9DS3cJ/2Dhne
- T7DFNb7p0KLKf5uHvKVu/3TVN0Et5g==
-X-Proofpoint-GUID: jMVslQxQ5HRWocHTW0PkeXw2KfmAEMfx
-X-Authority-Analysis: v=2.4 cv=FaE6BZ+6 c=1 sm=1 tr=0 ts=6900bec8 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=7fxA7ORCVWHQiGjyanUA:9 a=nl4s5V0KI7Kw-pW0DWrs:22 a=pHzHmUro8NiASowvMSCR:22
- a=xoEH_sTeL_Rfw54TyV31:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-10-28_04,2025-10-22_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 malwarescore=0 suspectscore=0 lowpriorityscore=0 adultscore=0
- impostorscore=0 priorityscore=1501 clxscore=1015 bulkscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510250001
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251028125244.GI760669@ziepe.ca>
 
-For hugetlbs, gmap puds have the present bit set. For normal puds
-(which point to ptes), the bit is not set. This is in contrast to the
-normal userspace puds, which always have the bit set for present pmds.
+On Tue, Oct 28, 2025 at 09:52:44AM -0300, Jason Gunthorpe wrote:
+> On Mon, Oct 27, 2025 at 04:38:05PM +0000, Lorenzo Stoakes wrote:
+> 
+> The union helps encode in the type system what code is operating on
+> what type of the leaf entry.
+> 
+> It seems pretty simple.
+>
 
-This causes issues when ___pte_offset_map() is modified to only check
-for the present bit.
+My recommendation of a union was a joke and is anything but simple.
 
-The solution to the problem is simply to always set the present bit for
-present gmap pmds.
+Switching to a union now means every current toucher of a swp_entry_t
+needs functions to do conversions to/from that thing as it gets passed
+around to various subsystems. It increases overall complexity for no
+value, i.e. "for negative value".
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Link: https://lore.kernel.org/lkml/20251017144924.10034-1-borntraeger@linux.ibm.com/
-Tested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
----
- arch/s390/mm/gmap.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+Please do not do this, I regret making the joke.
 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 8ff6bba107e8..22c448b32340 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -599,8 +599,9 @@ int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
- 					| _SEGMENT_ENTRY_GMAP_UC
- 					| _SEGMENT_ENTRY;
- 			} else
--				*table = pmd_val(*pmd) &
--					_SEGMENT_ENTRY_HARDWARE_BITS;
-+				*table = (pmd_val(*pmd) &
-+					_SEGMENT_ENTRY_HARDWARE_BITS)
-+					| _SEGMENT_ENTRY;
- 		}
- 	} else if (*table & _SEGMENT_ENTRY_PROTECT &&
- 		   !(pmd_val(*pmd) & _SEGMENT_ENTRY_PROTECT)) {
--- 
-2.51.0
-
+Regards,
+Gregory
