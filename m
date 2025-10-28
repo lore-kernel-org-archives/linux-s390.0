@@ -1,176 +1,96 @@
-Received: from canpmsgout03.his.huawei.com (canpmsgout03.his.huawei.com [113.46.200.218])
+Received: from outbound.ms.icloud.com (p-west3-cluster6-host8-snip4-6.eps.apple.com [57.103.75.59])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D5EC2690EC;
-	Tue, 28 Oct 2025 01:55:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.218
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D645242D84
+	for <linux-s390@vger.kernel.org>; Tue, 28 Oct 2025 04:01:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.103.75.59
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761616560; cv=none; b=TZejIoPcpfkVM4st85y817rKb1Rf1BumhOxR+4+MhfV4gHSRgX+hTSI9/AeS9WNIc7lATm7j9odOnVRmDQAngt9oF6+ScTYgGsTsHloasudY1rPXn+E4Vbrtgts5KERmrj/iIQt4bXyjjR9LtwUucF0Se2dJfZInC5Nd2ijTAz0=
+	t=1761624116; cv=none; b=Xi78fRXII5IFef1GDAERhlFiv+6PmlXYwfuFhKrS1Uc5ZrTxnbLa08vVASrvsndaxqVaXHw4BsNs4Hh+7tV+3Bw0SuVtzJwTOm6KtdicbRvuFJrNOSzGlsJCXbUvt2euXAQ9LCHcA865ISVhpxeRCnnzZbFIXs6qmF+a74JtTkU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761616560; c=relaxed/simple;
-	bh=g74ehNzQ4v8Wqn+SYtkPbtmeDJYuvNfjoY14YvEL5G0=;
-	h=Subject:To:CC:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=ccp+09nXskSSUk8xyp8POhqAdQUrzGtwjGNSSUJokZsjRe5gir0wTKCRMLPebghRBqyJ8J+YOl8jGLE1CGFT1+QQd6HKhb9BE9QJwfQPS3LL/nHXFXu+FIaz8m9j0zI8tZFRyq9GRSyprt1r++aoYiLjEN6R7W+3sZEp/s4lL7Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=A7gT8hbq; arc=none smtp.client-ip=113.46.200.218
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+	s=arc-20240116; t=1761624116; c=relaxed/simple;
+	bh=NmdtqEn/HsKHv1qTNYIolhmtNyLZLW2J0KOaF1TeJZQ=;
+	h=Message-ID:Subject:From:To:Date:Content-Type:MIME-Version; b=NcgTmrfrCoPoyUOsqiNW7A9/UsnHPEl+UvubfaLFMm3WuBS3PwkibVKUdCdExFGVMlUYy/WCVUfRohjExRPPCvRGGi7clnzBh3/vdLbBwwLwNrOvG4BMgq2L9ffynj87Drw7w2FSCOZNl9mNoKur3XyaZqUF9SKQRp/ydwvYNZE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=icloud.com; spf=pass smtp.mailfrom=icloud.com; dkim=pass (2048-bit key) header.d=icloud.com header.i=@icloud.com header.b=FtpWpfHH; arc=none smtp.client-ip=57.103.75.59
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=icloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=icloud.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="A7gT8hbq"
-dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
-	c=relaxed/relaxed; q=dns/txt;
-	h=From;
-	bh=KtvB1oS5JczByJ2TXJbSMekROy5U9Mx/XYWBZ+fYkHA=;
-	b=A7gT8hbqcf1aNZZeClcqtU4HxgyLOxf+3xdLrC8jUe8vHKhZ1LQNE8l8SKUtwaXK9LQz7rCyl
-	lk9MkCiBuwNYVYuwRKropa5IUssDfu9mJHKsffJQzdjrpvVV6aaeXCfQ//mhWQ7v3JnOpgSoyxp
-	oDXln4mSG91mIVyZjIf8s2U=
-Received: from mail.maildlp.com (unknown [172.19.163.48])
-	by canpmsgout03.his.huawei.com (SkyGuard) with ESMTPS id 4cwYMt0r7lzpStg;
-	Tue, 28 Oct 2025 09:54:34 +0800 (CST)
-Received: from dggpemf500015.china.huawei.com (unknown [7.185.36.143])
-	by mail.maildlp.com (Postfix) with ESMTPS id 2A5C71800B4;
-	Tue, 28 Oct 2025 09:55:50 +0800 (CST)
-Received: from [10.67.121.110] (10.67.121.110) by
- dggpemf500015.china.huawei.com (7.185.36.143) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Tue, 28 Oct 2025 09:55:48 +0800
-Subject: Re: [PATCH 02/22] vfio/hisi: Convert to the get_region_info op
-To: Jason Gunthorpe <jgg@nvidia.com>, Alexander Gordeev
-	<agordeev@linux.ibm.com>, David Airlie <airlied@gmail.com>, Alex Williamson
-	<alex.williamson@redhat.com>, Ankit Agrawal <ankita@nvidia.com>, Christian
- Borntraeger <borntraeger@linux.ibm.com>, Brett Creeley
-	<brett.creeley@amd.com>, <dri-devel@lists.freedesktop.org>, Eric Auger
-	<eric.auger@redhat.com>, Eric Farman <farman@linux.ibm.com>, Giovanni Cabiddu
-	<giovanni.cabiddu@intel.com>, Vasily Gorbik <gor@linux.ibm.com>, Heiko
- Carstens <hca@linux.ibm.com>, <intel-gfx@lists.freedesktop.org>, Jani Nikula
-	<jani.nikula@linux.intel.com>, Joonas Lahtinen
-	<joonas.lahtinen@linux.intel.com>, Kevin Tian <kevin.tian@intel.com>,
-	<kvm@vger.kernel.org>, Kirti Wankhede <kwankhede@nvidia.com>,
-	<linux-s390@vger.kernel.org>, Matthew Rosato <mjrosato@linux.ibm.com>, Nikhil
- Agarwal <nikhil.agarwal@amd.com>, Nipun Gupta <nipun.gupta@amd.com>, Peter
- Oberparleiter <oberpar@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
-	Pranjal Shrivastava <praan@google.com>, <qat-linux@intel.com>, Rodrigo Vivi
-	<rodrigo.vivi@intel.com>, Simona Vetter <simona@ffwll.ch>, Shameer Kolothum
-	<skolothumtho@nvidia.com>, Mostafa Saleh <smostafa@google.com>, Sven Schnelle
-	<svens@linux.ibm.com>, Tvrtko Ursulin <tursulin@ursulin.net>,
-	<virtualization@lists.linux.dev>, Vineeth Vijayan <vneethv@linux.ibm.com>,
-	Yishai Hadas <yishaih@nvidia.com>, Zhenyu Wang <zhenyuw.linux@gmail.com>, Zhi
- Wang <zhi.wang.linux@gmail.com>
-CC: <patches@lists.linux.dev>
-References: <2-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
-From: liulongfang <liulongfang@huawei.com>
-Message-ID: <bdb90638-3439-be4e-8722-6e8f9564b7b4@huawei.com>
-Date: Tue, 28 Oct 2025 09:55:47 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+	dkim=pass (2048-bit key) header.d=icloud.com header.i=@icloud.com header.b="FtpWpfHH"
+Received: from outbound.ms.icloud.com (unknown [127.0.0.2])
+	by p00-icloudmta-asmtp-us-west-3a-20-percent-1 (Postfix) with ESMTPS id 57E18180042B;
+	Tue, 28 Oct 2025 04:01:52 +0000 (UTC)
+Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=icloud.com; s=1a1hai; bh=8ermkc3OwB7sxfPhqxOVTMMuINyEAMCqaJ7n07ZN4mY=; h=Message-ID:Subject:From:To:Date:Content-Type:MIME-Version:x-icloud-hme; b=FtpWpfHH9T3rJAz80+X5uqzS7BMm2s92q/GbHcojJqR9wUG8Z9TpC3WnMCCHPNdO/30PCcBnQGXZYh6KwcemuLdMSsxSnwKqB7S/ys2YmxYxB4N0kgZmeTNRQBqD1mPD2XnqnbumhRv1jncvm4eroEq7EFRSVxsUFK3O9lzg93zn5mC6DrV/an+XhYzWxezRfCxnoxB0a9ln2icYSI4qT/sAG8MTE1usohobSWU2dFVa4Vl87kc7dpSN4gyRnVDBoucAi2g18pJ/m9foY6Xg1af+dUywnCorwpzoJPxsxl3GX0v699AoXBZbszgEKEB4NM1jlxzlY7awT2s2b6+2eg==
+Received: from [192.168.4.116] (unknown [17.57.154.37])
+	by p00-icloudmta-asmtp-us-west-3a-20-percent-1 (Postfix) with ESMTPSA id AA91518000BE;
+	Tue, 28 Oct 2025 04:01:51 +0000 (UTC)
+Message-ID: <fe09cb336dca5f277769b115dae55b9639dc92a7.camel@icloud.com>
+Subject: [PATCH 2/3] watchdog/diag288: Fix module comment typos
+From: Zoe Gates <zoe.blair.gates@icloud.com>
+To: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com, 
+	borntraeger@linux.ibm.com, svens@linux.ibm.com, wim@linux-watchdog.org, 
+	linux@roeck-us.net, linux-s390@vger.kernel.org,
+ linux-watchdog@vger.kernel.org, 	linux-kernel@vger.kernel.org
+Date: Mon, 27 Oct 2025 23:01:49 -0500
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.1 (by Flathub.org) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <2-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
-Content-Type: text/plain; charset="gbk"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: kwepems500001.china.huawei.com (7.221.188.70) To
- dggpemf500015.china.huawei.com (7.185.36.143)
+X-Proofpoint-ORIG-GUID: 57_eBduBDHM8mNf4alYf1Xrzr6U3GuN0
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDI4MDAzMiBTYWx0ZWRfX5dtEQdUSylpj
+ QZo3IfapPWrHrA3SFiuIeMxzJD+ZJtsA5rkI0t6z7IZgOR4job6YO9+ksLRTg2iKaSDNrIhTbo/
+ aQbrGvvsMLKUVz32kf4WsO8glxhtTkV1ChhhK+F4TAKd0GUOxPaoaGCY/xJ6UX7dk8ROv1MUpFq
+ OQ19jM0q2owuAaYoThseDzmnZWmsMr8jp5xpWnHws1yqkVCy5KYhnSv8u627XCbsclZtp5PCinp
+ cYTEqUcZIrTGEp6iKA1q/4RZwoEnxCP+3KcOBpdHHCXBCGoEG2T/GixIaZNDRfNrcXhr3Oa3k=
+X-Proofpoint-GUID: 57_eBduBDHM8mNf4alYf1Xrzr6U3GuN0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-28_02,2025-10-22_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0
+ mlxlogscore=999 clxscore=1015 spamscore=0 malwarescore=0 bulkscore=0
+ adultscore=0 suspectscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.22.0-2506270000 definitions=main-2510280032
+X-JNJ: AAAAAAAB7TovGJXjaCsIxm1GtFqn7cxdgFTav+RuKK927tWKT0VEDeesyalppjyEMSgVHvo/CiVASfKX5OZhmSsyddf9kRk+rmUL+ZvkJDZsZ8YL7tErvpRnzaGmyRghQY5yaEaoeERi4Bj2h7lhr+pgp8gNDMiGtw6N0+x2Weg9stJYUrl4nW3b77DqcoIxoCUXsmhSB7zKGgSrgMgKKM4ZEFteWEZ2ZvVALwKAGB8f1Kh9+BKVWHSAzmYh5WAMdSIPD9vu43So+6QxoT5w/cEPhtBccMRZ8YdKj8DbhIu2tNzBq9t1xs19cnsI5Al1Mhrqb/RfeYfPYiFU+7046dlg+vvU7n5XlKn/FVDWISmUamx3bTnk9iktWoE/9f5e3qy+lnPYA0yQhcMK0sHkc8B0MEnBqRE/Ic1RVsay29x87Q9kfF9EUrGIqZtGv+GU3ctu8TGT7FxLF66XAUqCabxeCE/86BPvzaLQ8VQC6dPZXVrLgWW5W7UiH0NX/F5SpU/w40jxwVLYW3fRdx31Jxh+jYSh8NX++DSBRNKfMNatH33GGBzNyKNV0NifN3p45gzecOCBacKHaJCu53cvcqIPeuRzWBIa6x0z7imX7Eozk9Fhlp7LfOBB7JdOHlJ+ZUH8KYeYDr7AptvvJ0Jo/S4+Uyh6MK88cH+tJClsSADe6y/uMPbD8DPspkYj0s6Mo59zrsV6sIVzKV364zQGO46GzbgY4NJ5RaiH5x7zMrJ1V+4lc3ffwQbReR8HcTpGJnpAwWUm0N8=
 
-On 2025/10/24 7:09, Jason Gunthorpe wrote:
-> Change the function signature of hisi_acc_vfio_pci_ioctl()
-> and re-indent it.
-> 
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  .../vfio/pci/hisilicon/hisi_acc_vfio_pci.c    | 57 +++++++++----------
->  1 file changed, 27 insertions(+), 30 deletions(-)
-> 
-> diff --git a/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c b/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
-> index fde33f54e99ec5..f06dcfcf09599f 100644
-> --- a/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
-> +++ b/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
-> @@ -1324,43 +1324,39 @@ static ssize_t hisi_acc_vfio_pci_read(struct vfio_device *core_vdev,
->  	return vfio_pci_core_read(core_vdev, buf, new_count, ppos);
->  }
->  
-> -static long hisi_acc_vfio_pci_ioctl(struct vfio_device *core_vdev, unsigned int cmd,
-> -				    unsigned long arg)
-> +static int hisi_acc_vfio_get_region(struct vfio_device *core_vdev,
-> +				    struct vfio_region_info __user *arg)
->  {
-> -	if (cmd == VFIO_DEVICE_GET_REGION_INFO) {
-> -		struct vfio_pci_core_device *vdev =
-> -			container_of(core_vdev, struct vfio_pci_core_device, vdev);
-> -		struct pci_dev *pdev = vdev->pdev;
-> -		struct vfio_region_info info;
-> -		unsigned long minsz;
-> +	struct vfio_pci_core_device *vdev =
-> +		container_of(core_vdev, struct vfio_pci_core_device, vdev);
-> +	struct pci_dev *pdev = vdev->pdev;
-> +	struct vfio_region_info info;
-> +	unsigned long minsz;
->  
-> -		minsz = offsetofend(struct vfio_region_info, offset);
-> +	minsz = offsetofend(struct vfio_region_info, offset);
->  
-> -		if (copy_from_user(&info, (void __user *)arg, minsz))
-> -			return -EFAULT;
-> +	if (copy_from_user(&info, arg, minsz))
-> +		return -EFAULT;
->  
-> -		if (info.argsz < minsz)
-> -			return -EINVAL;
-> +	if (info.argsz < minsz)
-> +		return -EINVAL;
->  
-> -		if (info.index == VFIO_PCI_BAR2_REGION_INDEX) {
-> -			info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
-> +	if (info.index != VFIO_PCI_BAR2_REGION_INDEX)
-> +		return vfio_pci_ioctl_get_region_info(core_vdev, arg);
+From ebec904b22077c3ebd0a18956397a9b0540a2714 Mon Sep 17 00:00:00 2001
+From: Zoe Gates <zoe@zeocities.dev>
+Date: Mon, 27 Oct 2025 22:14:50 -0500
+Subject: [PATCH 2/3] watchdog/diag288: Fix module comment typos
 
-Looking at your first patch from my driver implementation code, the vfio_pci_ioctl_get_region_info
-function doesn't need to modify the first parameter; it can directly use vdev.
+Correct spelling and capitalizaion in the header comment so the
+documentation reads cleanly.
 
-Thanks.
-Longfang.
+Signed-off-by: Zoe Gates <zoe@zeocities.dev>
+---
+ drivers/watchdog/diag288_wdt.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
->  
-> -			/*
-> -			 * ACC VF dev BAR2 region consists of both functional
-> -			 * register space and migration control register space.
-> -			 * Report only the functional region to Guest.
-> -			 */
-> -			info.size = pci_resource_len(pdev, info.index) / 2;
-> +	info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
->  
-> -			info.flags = VFIO_REGION_INFO_FLAG_READ |
-> -					VFIO_REGION_INFO_FLAG_WRITE |
-> -					VFIO_REGION_INFO_FLAG_MMAP;
-> +	/*
-> +	 * ACC VF dev BAR2 region consists of both functional
-> +	 * register space and migration control register space.
-> +	 * Report only the functional region to Guest.
-> +	 */
-> +	info.size = pci_resource_len(pdev, info.index) / 2;
->  
-> -			return copy_to_user((void __user *)arg, &info, minsz) ?
-> -					    -EFAULT : 0;
-> -		}
-> -	}
-> -	return vfio_pci_core_ioctl(core_vdev, cmd, arg);
-> +	info.flags = VFIO_REGION_INFO_FLAG_READ | VFIO_REGION_INFO_FLAG_WRITE |
-> +		     VFIO_REGION_INFO_FLAG_MMAP;
-> +
-> +	return copy_to_user(arg, &info, minsz) ? -EFAULT : 0;
->  }
->  
->  static int hisi_acc_vf_debug_check(struct seq_file *seq, struct vfio_device *vdev)
-> @@ -1557,7 +1553,8 @@ static const struct vfio_device_ops hisi_acc_vfio_pci_migrn_ops = {
->  	.release = vfio_pci_core_release_dev,
->  	.open_device = hisi_acc_vfio_pci_open_device,
->  	.close_device = hisi_acc_vfio_pci_close_device,
-> -	.ioctl = hisi_acc_vfio_pci_ioctl,
-> +	.ioctl = vfio_pci_core_ioctl,
-> +	.get_region_info = hisi_acc_vfio_get_region,
->  	.device_feature = vfio_pci_core_ioctl_feature,
->  	.read = hisi_acc_vfio_pci_read,
->  	.write = hisi_acc_vfio_pci_write,
-> 
+diff --git a/drivers/watchdog/diag288_wdt.c
+b/drivers/watchdog/diag288_wdt.c
+index 887d5a6c155b..656b937f7653 100644
+--- a/drivers/watchdog/diag288_wdt.c
++++ b/drivers/watchdog/diag288_wdt.c
+@@ -6,10 +6,10 @@
+  * to CP.
+  *
+  * The command can be altered using the module parameter "cmd". This
+is
+- * not recommended because it's only supported on z/VM but not whith
+LPAR.
++ * not recommended because it's only supported on z/VM but not with
+LPAR.
+  *
+- * On LPAR, the watchdog will always trigger a system restart. the
+module
+- * paramter cmd is meaningless here.
++ * On LPAR, the watchdog will always trigger a system restart. The
+module
++ * parameter cmd is meaningless here.
+  *
+  *
+  * Copyright IBM Corp. 2004, 2013
+--=20
+2.51.1
