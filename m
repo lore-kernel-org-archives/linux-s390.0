@@ -1,127 +1,126 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAF00299A8E;
-	Tue, 28 Oct 2025 19:37:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3B2334CFC8
+	for <linux-s390@vger.kernel.org>; Tue, 28 Oct 2025 21:14:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761680250; cv=none; b=cedh1AoyVwqMDN+8HGkUNYA4oYqreGUYhnWXZgpTWEN10NlZgT0FPAAHElfUsKGD9M0O1pZcvA15EXXApOWQCR/vPmpJVm3Ym7+2HOiEa/V8udT0oxrPp2CYVVTeemtV1VVmcxbfEYdTcKKlRNcIZPRfRze8ZXGY52I/+c4/HUk=
+	t=1761686091; cv=none; b=rsaZDeK6gd+8E73O8PX7n+6sm7M/yqc+2EfbS6yjB9v96qdR2xg/TJoKIDrlE7Fk07LIVboRso3rFE0hgnp+brHWF7Wz67iXsdRkvr+pZSGBmMoMKQ6j0PLrwtLp1Q+zAjVhzSZL6bZZt0FY3LE6w1XG1akQRip1Y8wodhwLs3o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761680250; c=relaxed/simple;
-	bh=R2Ac4nOB30bTdRRwdeDIX6zjSBnTZwaQbpepDadB53M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZFYkF4kAczkQZdTGXP6TluRflh5RmykTID/5xBq1QOTMFWKphiIs3b+rgAfrNIjZc+1C2AQJAk7cpRZZo7gCeGM0VZ/4FFvN57/lfs01j+kuboWR9LlHUKE3KnseFk4Xf8ptyZ5ugzvfq+bapA/+lkmAZehhGrkQSSc4VABsSjY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UUV2eGqD; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1761686091; c=relaxed/simple;
+	bh=TSJqQiqcuIrrLHU2HBL8/BtxE2AmDhEy6dzxtsABhr0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=BFrSX+mM2ieHL5f/DkeXTW1pSJhkYrCDGPVgx7ry+QWASbEi4mEnlzs8+ZWDaknmM2e0HlXphR8EhZvz4eEdc9AlyZ/ccRV9upVQzWLlmZX3MBkvZe2yZ1g9PHkLB85AIgF2SBVktu2rs0vAmtYjTOfgE91t33ArjjxGIoCGI5g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XgJOnC0K; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UUV2eGqD"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59SDbXo2018371;
-	Tue, 28 Oct 2025 19:37:16 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=fcOgXcqOFnMC08vCFQWhhNNhOigL3j
-	q+jhyzDJAMb48=; b=UUV2eGqDCdRk71FQY5mA5lZyUbCbIv2NotsZzhjNqJdP3a
-	zK9AjqfArJYOHbJ4W0+bu0iHcaJqs0Jp0QaRZH6NgujGjQVSM7iXTn5VwSRm2DYW
-	+7frje1vhvcSZtF3h9vdt2ZRcxSO9jbi9lkaHjo75/hbAg0x4H62SpXQvmmOJSmp
-	GU2BhcoHR+7Naq7KUqngh89MpGkIx/bviJwCC/URqE7X1SfsLaK8etEFpCBh+sn0
-	Hd2wNIBSo+iRuc9a71lSLgJrcuuMlttIifP9rh1mvXBjfLHcXiIwnenCobIZ1Qj9
-	Dw8cg2to9R789K+EhuO7c+bj4VeAQbCFklObnoIw==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a0p81xey4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Oct 2025 19:37:15 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59SJLgqt030817;
-	Tue, 28 Oct 2025 19:37:14 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4a33wwg1gr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Oct 2025 19:37:14 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59SJbAki37159282
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 28 Oct 2025 19:37:10 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8832E20043;
-	Tue, 28 Oct 2025 19:37:10 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DB8F420040;
-	Tue, 28 Oct 2025 19:37:09 +0000 (GMT)
-Received: from osiris (unknown [9.111.86.120])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 28 Oct 2025 19:37:09 +0000 (GMT)
-Date: Tue, 28 Oct 2025 20:37:08 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Luiz Capitulino <luizcap@redhat.com>
-Cc: Joao Martins <joao.m.martins@oracle.com>, osalvador@suse.de,
-        akpm@linux-foundation.org, david@redhat.com, aneesh.kumar@kernel.org,
-        borntraeger@linux.ibm.com, mike.kravetz@oracle.com,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: Re: [PATCH] mm: hugetlb: fix HVO crash on s390
-Message-ID: <20251028193708.7213A7e-hca@linux.ibm.com>
-References: <20251028153930.37107-1-luizcap@redhat.com>
- <50d815a1-8384-4eaa-8515-19d6c92425b3@oracle.com>
- <20251028161426.35377Af6-hca@linux.ibm.com>
- <5c72e064-9298-490e-b05a-16be6b5590b7@oracle.com>
- <20251028170251.11688Aa3-hca@linux.ibm.com>
- <4f522b65-1ab8-4725-8da7-3f071e7919c1@redhat.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XgJOnC0K"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1761686088;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4HrvyEcRFoneqk86qrnzAoo3f6d+zdXeHYtZ1JCa9Ps=;
+	b=XgJOnC0Kccwh49pjFXs1bjCbH9h1gYn+aPAvQPBaLA4zk4JG2xU8xyWREbq7pZ8WV0/6tG
+	7NvhrFY6zNCB3ioBp0pOGtqQl67TPnpLIIt1nLO4+XvLyypn2h+E8fzn7hVM0S3ko2cxLq
+	oi9gS23Qp+Ac8V1tVXwp6dRYWGjB9qI=
+Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
+ [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-245-bY2sT6g0P9Sikdln8nvAkw-1; Tue, 28 Oct 2025 17:14:47 -0400
+X-MC-Unique: bY2sT6g0P9Sikdln8nvAkw-1
+X-Mimecast-MFC-AGG-ID: bY2sT6g0P9Sikdln8nvAkw_1761686087
+Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-88fec61f826so1731600085a.1
+        for <linux-s390@vger.kernel.org>; Tue, 28 Oct 2025 14:14:47 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1761686087; x=1762290887;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=4HrvyEcRFoneqk86qrnzAoo3f6d+zdXeHYtZ1JCa9Ps=;
+        b=Tcpn1AmPAhMDL5kVT8HHHPS6TjE7KL6ckVGmUtlCZqW3mGM8PUezbiv6fHF7+CNV+g
+         t7ZWwRzdIdTXL0F/NpIait/PMiiLli7GyzKZFvTiPIN7SBu3k3E8FDK8Wi/Blkh+dUJl
+         KYZUfiqpXV3xE9nZNCCMRKOOWv5Vgy9NC0GlXwFcqR0J7ao+0+MMLZomgNDal3xFRDQ9
+         FURevRZ3NjyBVJUiePWlWOQNpIY98mgGdsdK5FLpNh+DrcYBSvcKdV1j25z7kTTJ8+SM
+         Y5feqGgK9gEMbXo7kGLQIhka6Kac1kkktFUfel+4Od38oqrz48K64kRDSCZ/1Fb4HZ+j
+         o4tA==
+X-Forwarded-Encrypted: i=1; AJvYcCUn+PCVzQlUTBTCdkYuGlA75pZ3P/Fd2xzDwb97nABhWKpPBIqk8peViEm9g0LB+CfzRewWGjOMamQ0@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz4xqWpIJD41G/+7M5nhkVyJOU9NA+eNsM9E27YS25gzXuNkBS0
+	FhJMzQU58f2MBLc4yR4jeyIUniV60DM0wCAX2L4ALHLic5t9pS/w2CIR4bsXyg3WH9J0ynnJpoX
+	BK3Kgf3W4QG9eJZOQ6Ebdh3i2K0yMbct3USjW0Re2vXh2OJ6VKwSGy22NsbwNGeo=
+X-Gm-Gg: ASbGncsPX7DINR2CaLnaq24Hg6/HwJpIwxObpQw+JoT+deDeWTGZMKOry3yBKMGVnvg
+	bRCaBkS010Hkh9d8lW47G/zVcCCIa3TGnMoi1smDCzTPIzeP7PGx4KW8Gsue+Q4bLy6fPYXJ6kT
+	YwNYymLE5LY7BDzcV2g3UWKjbRsGV9IWZlYmcDRS0vWwzKb4zdnur8Hr01gqoiahSCvfoeCKtND
+	pfhzxSOeySV08eYVNEg8ayOEZktSXbFizQTx1MAoytOBWII9Rk5C5qOkPTFm0v4AQkq3nTKYDCR
+	raDe86tj6wxqER9IYBbEmdliTipYyUdCt+fd6d3QDl5jXreiL0E6tXc+WnUJt+P4NW0TSTYSI6i
+	xhQ==
+X-Received: by 2002:a05:620a:192a:b0:7f7:8271:1a77 with SMTP id af79cd13be357-8a8e426cda9mr126340885a.13.1761686087106;
+        Tue, 28 Oct 2025 14:14:47 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE8D9LTgZgrHHdWeOYc+DL8B2sdCN5Uw6C+NWfSsJhoUGyXAHdeOuejLijrW6CXCNixE1Fy2g==
+X-Received: by 2002:a05:620a:192a:b0:7f7:8271:1a77 with SMTP id af79cd13be357-8a8e426cda9mr126337685a.13.1761686086724;
+        Tue, 28 Oct 2025 14:14:46 -0700 (PDT)
+Received: from [192.168.2.110] ([70.49.125.126])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-89f254a297dsm929505785a.28.2025.10.28.14.14.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 28 Oct 2025 14:14:46 -0700 (PDT)
+Message-ID: <5cc06269-5a6e-4874-bf68-fa4790f22bc2@redhat.com>
+Date: Tue, 28 Oct 2025 17:14:35 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4f522b65-1ab8-4725-8da7-3f071e7919c1@redhat.com>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=fIQ0HJae c=1 sm=1 tr=0 ts=69011b6b cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=f0Pcmk6uCRRijeZF_SEA:9 a=CjuIK1q_8ugA:10 a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-ORIG-GUID: ZIIeRTfL90xSM42Fi60shxNf7BZy0dhp
-X-Proofpoint-GUID: ZIIeRTfL90xSM42Fi60shxNf7BZy0dhp
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDI1MDAyNCBTYWx0ZWRfX7+qngpRd+nhm
- /sp757299cAtgUe4mlSUay8+yRs9JiuYNSihUWaB9g8OQ4lFb7tsSQdGTqjgjMLApRrCiEOb75y
- FYXLVxaAgLS2Qm/kMkQJpZ2viAOH+ODIGJkVMF5N7K6XvLxiYJB2vH+Gnv7Pp6S96aOoujozU0U
- Xm4Q1WeAAYDaODGNh4T6MfV66OVPP8Dnu4nwpdf+SL+29TmLrAz7TvmcZWQ/Y/2xlwmKLUiar8K
- bb47GRSkWpc9qIAXETDyv6QGlZwJGkxIDUq9+4EZJKMgSjCrRpuTRf1RX4HujpDdjs6RTm6UngO
- sEamq2O4vHD3ikBMncC8glIbvdbfixV5MIKMPw1hPgzGRQae4USiv1Xyb0U4xx/C+LiLt3WbRYU
- fygbAbHeYtGxx22TffGyBpoH3QgoEA==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-10-28_07,2025-10-22_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 priorityscore=1501 adultscore=0 suspectscore=0 spamscore=0
- clxscore=1015 bulkscore=0 lowpriorityscore=0 phishscore=0 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510250024
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] mm: hugetlb: fix HVO crash on s390
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Joao Martins <joao.m.martins@oracle.com>, osalvador@suse.de,
+ akpm@linux-foundation.org, david@redhat.com, aneesh.kumar@kernel.org,
+ borntraeger@linux.ibm.com, mike.kravetz@oracle.com,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>
+References: <20251028153930.37107-1-luizcap@redhat.com>
+ <50d815a1-8384-4eaa-8515-19d6c92425b3@oracle.com>
+ <20251028161426.35377Af6-hca@linux.ibm.com>
+ <5c72e064-9298-490e-b05a-16be6b5590b7@oracle.com>
+ <20251028170251.11688Aa3-hca@linux.ibm.com>
+ <4f522b65-1ab8-4725-8da7-3f071e7919c1@redhat.com>
+ <20251028193708.7213A7e-hca@linux.ibm.com>
+Content-Language: en-US, en-CA
+From: Luiz Capitulino <luizcap@redhat.com>
+In-Reply-To: <20251028193708.7213A7e-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, Oct 28, 2025 at 01:15:57PM -0400, Luiz Capitulino wrote:
-> > > flush_tlb_all() however is the *closest* equivalent to this that's behind an
-> > > arch generic API i.e. flushing kernel address space on all CPUs TLBs. IIUC, x86
-> > > when doing flush_tlb_kernel_range with enough pages it switches to flush_tlb_all
-> > > (these days on modern AMDs it's even one instruction solely in the calling CPU).
-> > 
-> > Considering that flush_tlb_all() should be mapped to __tlb_flush_global()
-> > and not __tlb_flush_kernel() on s390.
+On 2025-10-28 15:37, Heiko Carstens wrote:
+> On Tue, Oct 28, 2025 at 01:15:57PM -0400, Luiz Capitulino wrote:
+>>>> flush_tlb_all() however is the *closest* equivalent to this that's behind an
+>>>> arch generic API i.e. flushing kernel address space on all CPUs TLBs. IIUC, x86
+>>>> when doing flush_tlb_kernel_range with enough pages it switches to flush_tlb_all
+>>>> (these days on modern AMDs it's even one instruction solely in the calling CPU).
+>>>
+>>> Considering that flush_tlb_all() should be mapped to __tlb_flush_global()
+>>> and not __tlb_flush_kernel() on s390.
+>>
+>> You're right.
+>>
+>>> However if there is only a need to flush tlb entries for the complete(?)
+>>> kernel address space, then I'd rather propose a new tlb_flush_kernel()
+>>> instead of a big hammer. If I'm not mistaken flush_tlb_kernel_range()
+>>> exists for just avoiding that. And if architectures can avoid a global
+>>> flush of _all_ tlb entries then that should be made possible.
+>>
+>> Should we take a v2 doing your suggestion above for now and work on
+>> the tlb_flush_kernel() idea as a follow up improvement? At least we
+>> go from crashing to flushing more than we should...
 > 
-> You're right.
-> 
-> > However if there is only a need to flush tlb entries for the complete(?)
-> > kernel address space, then I'd rather propose a new tlb_flush_kernel()
-> > instead of a big hammer. If I'm not mistaken flush_tlb_kernel_range()
-> > exists for just avoiding that. And if architectures can avoid a global
-> > flush of _all_ tlb entries then that should be made possible.
-> 
-> Should we take a v2 doing your suggestion above for now and work on
-> the tlb_flush_kernel() idea as a follow up improvement? At least we
-> go from crashing to flushing more than we should...
+> That's of course fine. I guess for stable backports a small fix is the
+> best way forward anyway.
 
-That's of course fine. I guess for stable backports a small fix is the
-best way forward anyway.
+Exactly. I'll also see if I can find time to explore your API
+improvement suggestion. I'll send v2 shortly.
+
