@@ -1,185 +1,197 @@
-Received: from YT6PR01CU002.outbound.protection.outlook.com (mail-canadacentralazon11022140.outbound.protection.outlook.com [40.107.193.140])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 640FA338905;
-	Tue, 28 Oct 2025 14:42:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.193.140
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761662579; cv=fail; b=UMsaHHCWzxn/T2+rNB3W6aNyBjQbUmUFmnIFkC99y74bXL+nFRpeBwHjl/Z3L5uQdrHNJA7R4pjhn95TYmnpjukFU2pzGnW67dZU9yyl3Y4IhV9ns8d4KlKjrWPXcLBACUJTb8LiFTjv0yicVEA0Zkn1wSuApCar5yC57eov9Zs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761662579; c=relaxed/simple;
-	bh=g0XFwbQmZgxZB92VFDcTudQ6A3cYLtOVQAKgk/O+Le0=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=Ads9UXRYUhnNOYAje7vP+Qb5rgsbqYCcqJ27DdP6HBISKSAGeLzS4q2/LTRfFeAJRrElAhLEqkhMwP8st3RaDCdTTIPUbzSJqlYNEgjPjnQrbN4BTut3PxMt/WHaxZKO7r4g2QB1YtxLqtw6mWx1TwZRODI3dNwqbitQQ4+cKgk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=efficios.com; spf=pass smtp.mailfrom=efficios.com; dkim=pass (2048-bit key) header.d=efficios.com header.i=@efficios.com header.b=kRojUPzf; arc=fail smtp.client-ip=40.107.193.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=efficios.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=efficios.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5821225416
+	for <linux-s390@vger.kernel.org>; Tue, 28 Oct 2025 15:39:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1761665996; cv=none; b=LF7rDZVVBnRO965Vts+wP+vKgFtxG1RgzuZYCKHzTZS2CbTnUUBHG1s8Y265RONEjctEI3UgHRC8Pl+/ywqzrL2KCp63zvUsU1Ska3h0arFDnUb21Zl0kymANCtN3ygHpDusgdW2DALic/ypJ+OP6SqtSIyXjBcy+wS0UIAOEsA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1761665996; c=relaxed/simple;
+	bh=4go0Y3v9YKfhfU7ApoJZ9kJ0Bt67yUbEOcUv3u4PSrM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=M780XtyihPwzFn6x6oLxR4S6MasL6xQLLDu6IKyAGqbuM8Qx9FtsiHWKhqJdCqY5oMteJ6pD8ukhNxPmxWTV/VM9pVjSeVFEP3Aew0jBRtfogkqMKq7OG8xXYahsTIP86odNhzKi1Y9WxHnO8tgWjrFkSSIchg33SAJx5yAXjr4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=D/UnTgq2; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=efficios.com header.i=@efficios.com header.b="kRojUPzf"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=pD5SXaGTeZWZEB8kC59uAqWV7FtDqnuMJKa6P7ftcgQoCRNdPM/6nKWc451iAErA0bue4blZK9aL16RG1bvvXWgtukXELiVW6Wd67dbB+gRGcG7YTvs6Uovha1Xr5ObQVUl6H56uPe73Cx/Cv8vIHlkP8Xro4EDgo8J2uLn8HxD/9TkXEdIg+RJyszIQAzl/MmLUCnJChdwbPQsUHukaowTZmuzWd8rLS55cL3EoBczsVpqqjnn5H9sUoiZOV/Xxqo839b6/Qwk0sUUQAjm4RuzmIco1TYOmP2upRpcpIUSqa3R3LmJHf0SzXp3Nhy7IN1eS4uNjp1AHlmrYlvMf+g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=I1LvJuUb5FWOPKJ5OQj0Wj8mtYu4ihD59ySETqHtU/Q=;
- b=SbTm0qTgYVtVmICd9CloACN40VB1CFg6lEq/EpGshHImguL3mvCtl/chuvLpZqzP8yGjHRUddZ2h6H5j66mC6EdwTK13cTaFMCzEEZ6RfvGz1ewvFiXohyoh7Fp1Ipn48CGs76Ecq6X/NldP/BI9AHZODNOXUgyHTDg414U11pBJERCLfipkjE79z+AGXnYFhCCUMWnGxW42NvJKwdGZz26a9KG2Kp1/0neTJpNdlfXy3RaUpOUHlMMeXorAYn1PWXB1CDRwJCN8U7KEtxnrE9y7KUjAMhBGDVLAx8SLXhKU+hcLDUsrFxPhUNdSqZZAw+NocOuXd3JTUoG7zccrsA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=efficios.com; dmarc=pass action=none header.from=efficios.com;
- dkim=pass header.d=efficios.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=I1LvJuUb5FWOPKJ5OQj0Wj8mtYu4ihD59ySETqHtU/Q=;
- b=kRojUPzfoIrU57962wz0Askfe10spCEUjEEDCnoUlPDckmP41Kvnao5NsQMlUm6vBBNd6Ea5kFAs+VO9RS2L51XdyIIGUvw9xc3LHy9dJLvtuF9qOYTUAu9u9q8wjs5OTM1JG7RdHBkSc/p6FwWJbtIbHyix/zQEdJy6R62FYvZqInLbDXN2u5PzRqfneE7AwA586Nt9ziOijfLf5qY3/ICTj4/7d1NVhiz/gIa5gRJYTv563J41BBlBJqWITf9bSgTXOjQlqqPi5NQlExpmwpetGQc0qbZ6Jozv4YIQ3t2yS9oRWgsVnoKT1tqgH+3aGBp1bw6fxEWRLNA9v2/6zg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=efficios.com;
-Received: from YT2PR01MB9175.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01:be::5)
- by YT4PR01MB11475.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01:15a::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9253.19; Tue, 28 Oct
- 2025 14:42:54 +0000
-Received: from YT2PR01MB9175.CANPRD01.PROD.OUTLOOK.COM
- ([fe80::50f1:2e3f:a5dd:5b4]) by YT2PR01MB9175.CANPRD01.PROD.OUTLOOK.COM
- ([fe80::50f1:2e3f:a5dd:5b4%2]) with mapi id 15.20.9275.013; Tue, 28 Oct 2025
- 14:42:53 +0000
-Message-ID: <0fccf3c6-c11e-475c-9669-356928846aaa@efficios.com>
-Date: Tue, 28 Oct 2025 10:42:51 -0400
-User-Agent: Mozilla Thunderbird
-Subject: Re: [patch V5 12/12] select: Convert to scoped user access
-To: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
- linux-fsdevel@vger.kernel.org, kernel test robot <lkp@intel.com>,
- Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org,
- Linus Torvalds <torvalds@linux-foundation.org>, x86@kernel.org,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- linuxppc-dev@lists.ozlabs.org, Paul Walmsley <pjw@kernel.org>,
- Palmer Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org,
- Heiko Carstens <hca@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
- Andrew Cooper <andrew.cooper3@citrix.com>,
- David Laight <david.laight.linux@gmail.com>,
- Julia Lawall <Julia.Lawall@inria.fr>, Nicolas Palix <nicolas.palix@imag.fr>,
- Peter Zijlstra <peterz@infradead.org>, Darren Hart <dvhart@infradead.org>,
- Davidlohr Bueso <dave@stgolabs.net>, =?UTF-8?Q?Andr=C3=A9_Almeida?=
- <andrealmeid@igalia.com>
-References: <20251027083700.573016505@linutronix.de>
- <20251027083745.862419776@linutronix.de>
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Content-Language: en-US
-In-Reply-To: <20251027083745.862419776@linutronix.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: YT4P288CA0050.CANP288.PROD.OUTLOOK.COM
- (2603:10b6:b01:d2::8) To YT2PR01MB9175.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:b01:be::5)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="D/UnTgq2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1761665993;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=g/gBWLkaVnRm6+juGgWVkm6jdI+NwtfvqdMgnObklz0=;
+	b=D/UnTgq22zD2M5BaXlVp1t420WNntbbM7zcggC5WVf5H6S6J7vVF/TJ6HDWTmbbNF/BGuP
+	KswTHbuu6fUF6RQuBjP4bgp+saPsdX8adB2DWK9P+jyiTs9yFrZuyq1ED3ksH0eLd9blD4
+	cP9xs+WeSy0OcWAnfrV7/AEcQE4UfUE=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-651-0LJG7Z3JMu-DSGdh39gURQ-1; Tue,
+ 28 Oct 2025 11:39:46 -0400
+X-MC-Unique: 0LJG7Z3JMu-DSGdh39gURQ-1
+X-Mimecast-MFC-AGG-ID: 0LJG7Z3JMu-DSGdh39gURQ_1761665983
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 53C8919541BD;
+	Tue, 28 Oct 2025 15:39:43 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.22.65.101])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 0202A180057E;
+	Tue, 28 Oct 2025 15:39:40 +0000 (UTC)
+From: Luiz Capitulino <luizcap@redhat.com>
+To: hca@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	joao.m.martins@oracle.com,
+	mike.kravetz@oracle.com,
+	linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-s390@vger.kernel.org
+Cc: osalvador@suse.de,
+	akpm@linux-foundation.org,
+	david@redhat.com,
+	aneesh.kumar@kernel.org
+Subject: [PATCH] mm: hugetlb: fix HVO crash on s390
+Date: Tue, 28 Oct 2025 11:39:30 -0400
+Message-ID: <20251028153930.37107-1-luizcap@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: YT2PR01MB9175:EE_|YT4PR01MB11475:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7975e0fd-c85c-4e29-467e-08de16304657
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|7416014|1800799024|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?KzRTenpJRFE3VVhKMGx0NG9TSENHS0JodkRrTS93KzVkOVYwMVhXRWZrRUVJ?=
- =?utf-8?B?QkNwYUpSOUhpdDlXQW9CbHIzOWdvMWdUSVIzVXh4VE4yVFlyVUFiaEUwQm90?=
- =?utf-8?B?SzgxdFpWUXFuQ3pFYnU4VWk5QXczS2hzc0EvZFFRRU9nTFExZGJCaXc1Z0ZI?=
- =?utf-8?B?UUkwbmVBYjFibG56T1d5UHJ5cHlNM083Y3V5WEdMUk5XUkFPRzNqOGVIK3ZS?=
- =?utf-8?B?UTFBQmJUbThsZjNpRkZ1Unp1NUoxWHQ2NG5zeFJ1WXEzZTltSTJPZHlISWtp?=
- =?utf-8?B?VnIxaTZiVGVRdEVscGRtaWJnUk5ySTExcW5CSlZQNW91VGtZZkkxMWJ0aVZK?=
- =?utf-8?B?bGtFN2djN21odExtbjRHblRsQlhwWll4WnpMdGVNRFc3Mkk5eHZRczljV0o5?=
- =?utf-8?B?UmNRVWFCK1FpVEMxNEZSa3g0MVR1Y095eXBsUDNMTUJTSVRJYThnWisrRzV6?=
- =?utf-8?B?UWcxR2s1dHRFL1hnK25sMTVhcjlrbXRoS00vZ0xVaGRDbE5GRHFPQUZwZDZ2?=
- =?utf-8?B?Zzc3bndsdnMvU0pkZlJhRmVFTURja0lyVEs4QU1xdWlQN2VIcW5VdU9OQ204?=
- =?utf-8?B?YjE5bTI1NDlJajhiSjhnNXJUbjBGZ3FCaXRBdFZJSzBTUUN0RmlWTzZoL0xT?=
- =?utf-8?B?dDlkR3VnOXhhYXJtSkd3bzZXREhPRGxyMDdhV0UxU0tBQkRrQWRzZkF3ZE8y?=
- =?utf-8?B?Rkd4WG9hOHhiZkdUcVBUYXlkeU5VYnY1WXRYdGMyL09jOXlYSWUvMVJKNDRz?=
- =?utf-8?B?L3RMRkVxc2ZVaWpGRE0wRktlc0RrRG93V3ROMm9jRmhLellEWUdDM1BqbDhl?=
- =?utf-8?B?Z2JuRHd5MlgxQzhLYUphMzU3bnpmdzdmY1lNZ3Z2WTFXSUpVbFhsZjNwS2Zv?=
- =?utf-8?B?MUZkNlhHRzQvbCtMcXZMbXF1eTNVZ1lBMXpkL0xINm8zcnhzZUlXMjZmZzFV?=
- =?utf-8?B?aUNnK01lSEdlRGxRM2FrVGEvbmYySmljd3R1QWtZVWMxRk1MN29YdEk2MWtD?=
- =?utf-8?B?TEx0b1dENDE2ejcvL1lpanMwRVJ0MlQ3OGxCSTNMRkFNWURoYndGc2V5WFZV?=
- =?utf-8?B?a0hXY0RseHNUbTNLaHEyOVA4S0Jxejd3SUpmTTI4NFkyT0tzZTR3dU8wd0ht?=
- =?utf-8?B?WUxXS0pHTjF4K1k5bWRkTUo5QUtnckJQN0tBTU45dnNQOG9WMFQ0USttMkRh?=
- =?utf-8?B?WUJjeXl1ZlVnbVVoT1ZIcklvcFJFTjNoeEpBQUhFQVZWczU5OEFrRjZXeWtE?=
- =?utf-8?B?aGsxblU3VGJ0eUo4M0hGR1ovMllGS0ZoNHRWNXdPSGJSb1Vha0NrZTFRN2Ix?=
- =?utf-8?B?dnNRQWhnb0FOYVRoUEZVTjN4a0JmWm01WmZNeXJoeXhoS2dpVHYxMlk5SVMr?=
- =?utf-8?B?aGlXWUhjbWVLNllNOEcrTUNXS0VKcDRLMFN3UDJ6WlFDWU05K0xTQkNFeWxF?=
- =?utf-8?B?ZTlQRmZENG1vcXdiU21PbU1mUHRIaGs1T041aENndytqT0R1b3dEUVBEOXpt?=
- =?utf-8?B?VFcvbityWTZqWlFPUklKZUwreXE2QjlQSFBwdy90OGFCTUVhbVpWVnNSZVk4?=
- =?utf-8?B?Sjg4MjZjTzhBL0xtbHQvKzZ4RUZ1ZzYya1hReUh2WmVzMUswZjB2WUEzZVpN?=
- =?utf-8?B?WDN4QUtKRVRkWGZ6bWtaWHE5SFJBTGpoWFVjVm9RTExlcnFuR1NNZytlUkZy?=
- =?utf-8?B?eE1OSjdraWd6VFUycDArdFJCdUs5dDl1ajRNTzdNN21lQjZUTHJkczNVNHdL?=
- =?utf-8?B?MGdmK0h3QVZKZW9UQVZLbFdzRk56VEtFRVd1b0JkNWhjUTdmdVlyb1g1cm1T?=
- =?utf-8?B?bVpaVGJ1RklDZ0UxS1ZCbEZ1NHVtU0dMNC9QZTdHUzE1WUo1N3c0djAzdjNJ?=
- =?utf-8?B?THBJSFFDdGl6cDVYNWRJZXF6OHJOSWd4eWdHVWhvazg4MXc9PQ==?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:YT2PR01MB9175.CANPRD01.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(1800799024)(376014);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?b0VTQlVTWTNLemZUcS9GdUJVUzNoWW80QUdxUjZnU3dTcXl5OERWMGs0c1Nl?=
- =?utf-8?B?L3BNUWhmUHpTYUJNUDJYN2FEK0ZmRVNnNVBkb3FBeGdFWWVNUTVIampmN3B3?=
- =?utf-8?B?TlJ1eGhOZFFsdGYrbzl1TEwrWFFLYk04LzR6WWwvT2ovc3oyYmk3b0NEbEpj?=
- =?utf-8?B?VFVIb0wzeTBBUk9TSEZBdUpnZWdDQ1pPcDR1d0lPTDZVc2U5Nm9XS0cwU3Rq?=
- =?utf-8?B?N2FiL1J2UWFqcHczNXk3WEV1Z0k0ck5QZnVQU2s4NkIwLzIzZVVTMVVmbVVV?=
- =?utf-8?B?dkYzekNkTkNhZHhJdm1MaDdqRkMzelB1eGJHT0Z1c0NUV2p5OHY1REI5M0Uz?=
- =?utf-8?B?RWFRd0R3Y0JpM3RzRm95bzdST3lDTlRscXFISjlWQ3BPRVZsZ0lxUEp3Kytk?=
- =?utf-8?B?ZmZtUEhITW5acnhlclVCM1ErMkkwMmp1dUk1N3N4c0Q5TW81UThaMHlFcmF1?=
- =?utf-8?B?TmFPRlp4dXJMb1JOWFdaVkxDNktXVmR5Y09pRkR1M0FZc2w4elVPSXdJR29P?=
- =?utf-8?B?QjBlWSsrZ0wza0EzaEZlMUFUU0tXS1hhbDdJNWVnamt1NG9tZG4vdGhxdjNv?=
- =?utf-8?B?REd6M3V1QzBFSUdaQ0ZqZjluYVk1NWtIaEhJZm5KNklpQVRiWE9kTGNFdWF2?=
- =?utf-8?B?REdBRzlDYzZiRUFaRzZZd3BlVmlLdDhLNTlTS05OVDRxdzFNWjNCUmJlcm1C?=
- =?utf-8?B?WmRtNWd2cGplaFNaMXVYQXBhSnF6UG5zb2pxOHpKd0t6VmdtU0ZsTGxvdFFR?=
- =?utf-8?B?YnBJWENBNWY0RTRsYlZsbldqKzI3dm1MbzVIa2Nxd0ZDWFU1OHc4R0R1MjM4?=
- =?utf-8?B?eVlsSGNtbGl2cnkrb0ljdVJvRGVCek5Balo3cDlWREh2VGRwdEx2dmwvd3Bh?=
- =?utf-8?B?UUtKNDhvV3I3L1NHMGNsbis0RGxmeS94bGdPR3JTWHBZQUVYOVBQd3ZQVnAv?=
- =?utf-8?B?bC9ZaEwrWkVWUWJuZlFWOE1oZ0RESGRxMGNnWldSdG5sV3RwRCs2aTlZNUhQ?=
- =?utf-8?B?Vyt6cG5JdHAxdXNBdENVdjhyMXFwWm9YMTczbkhoUldLUXhVUkxWcDVWMENM?=
- =?utf-8?B?RTRMZ0V6UkFtQXpMZWJYaUw4WjhHc3BDQzBsdlJjcncvS0dkVkc4bjlXMUpZ?=
- =?utf-8?B?a3MrQWhwcmNjT1o1bWtvNnBMSVloRHdQMStlUGZhSm1wNzlMSGY2Mm9XWWVs?=
- =?utf-8?B?dGphbVNTc0QxdkN1VEJJYVMwM3RaeHU3YXhpdTRMbXptYmxXOGFkRDFhMUpB?=
- =?utf-8?B?aDJrR3FsZXJEdEFvdGRabk4wV3pwcVlESExGK3QzTUVXYU1MWlo5Uk9mM2ZC?=
- =?utf-8?B?dXJQR1hZZHZtcXYvdXBTV21HckR5dnU2clk1cWkvOGUzeEdmUHdhdTFpcUo0?=
- =?utf-8?B?aFNKOW03dTA3clRkdWwxekRSUjVhWXhVY29veDlxTUxxSURvZGJNaldBVTVO?=
- =?utf-8?B?ZkZDZTlUamdOU09hN3ppYXZWR2s0L3hmWG5NazcvdEdjWEM4VjVHTlRGR3Q4?=
- =?utf-8?B?MjRuQUVvaG50STFHOW5ZNUZqbC9lSy9hNGtYZ3NCMkR6RE5HMWRSaUVyUk5C?=
- =?utf-8?B?Rzc2dEkvN3BnMGF0RWRGeFY1N1J2V3ByeFhScnZlZmVKWDVhNGdsRVlvWXhw?=
- =?utf-8?B?dmVhNnI5d3J0Yk5uSkFXc0FZZGovakpwUGhGV05IdTVKbFZER0NURnVkaytI?=
- =?utf-8?B?anRMWjI5TU9US0dxVDVZeGsrNGpvb25aYzFvUzZvT3hKWk0yUkpaaHhsZi85?=
- =?utf-8?B?Tk9KL0FIYzNHZ3hCbE9aSnZWVlk4Y3BiSHpJQW1hWG1ZNU5kaHZsR0hKelh5?=
- =?utf-8?B?dDRia0pnMFhORmxFQWcwcWlXQWczS01qTWVKbUNYQ2l2bFRiNEVXeGdGREpm?=
- =?utf-8?B?eVErbHhOeTZsOURqS1FnTE1lM002UUpCUHd5YjdxM1l3bDQ0eHM3VmFvd2Ur?=
- =?utf-8?B?WEpUQ01tZUJBUW9Md3Z4REFENjFFVHU1R28rby9BbkZBK1c2ZktOb3lLWW9T?=
- =?utf-8?B?MytuRGt1YXhrTXFMZlZob0RvMnQzN09LYmU4M0xEUy96SDhwM2FjdVl2bmFQ?=
- =?utf-8?B?RTBDOG1SblJYaHhJS0ZZSkw3V3hJV3lSTmJLM1lKc0gxTys4WExGVkE2dGpV?=
- =?utf-8?B?MWtSbWZoWmJrM2NyU3JXRHgyNlRXL2t3QUJEcGNjQTI0S090RmNlUWNiZ0Zu?=
- =?utf-8?Q?mB9cUw2u1/yc+quB+x0tVW8=3D?=
-X-OriginatorOrg: efficios.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7975e0fd-c85c-4e29-467e-08de16304657
-X-MS-Exchange-CrossTenant-AuthSource: YT2PR01MB9175.CANPRD01.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Oct 2025 14:42:53.5001
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4f278736-4ab6-415c-957e-1f55336bd31e
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: esqtzi6thdvkmIUsuPgq17zq216FckkYMHDTWN1Lskvvz0KOG7sCpNA52dB/AzBLsX/XGRkntyQ22m4Df6OmEqV05VllszfwDxMDPGH7fLc=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: YT4PR01MB11475
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On 2025-10-27 04:44, Thomas Gleixner wrote:
+A reproducible crash occurs when enabling HVO on s390. The crash and the
+proposed fix were worked on an s390 KVM guest running on an older
+hypervisor, as I don't have access to an LPAR. However, the same
+issue should occur on bare-metal.
 
-> Replace the open coded implementation with the scoped user access guard.
-Reviewed-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Reproducer (it may take a few runs to trigger):
 
+ # sysctl vm.hugetlb_optimize_vmemmap=1
+ # echo 1 > /proc/sys/vm/nr_hugepages
+ # echo 0 > /proc/sys/vm/nr_hugepages
+
+Crash log:
+
+[   52.340369] list_del corruption. prev->next should be 000000d382110008, but was 000000d7116d3880. (prev=000000d7116d3910)
+[   52.340420] ------------[ cut here ]------------
+[   52.340424] kernel BUG at lib/list_debug.c:62!
+[   52.340566] monitor event: 0040 ilc:2 [#1]SMP
+[   52.340573] Modules linked in: ctcm fsm qeth ccwgroup zfcp scsi_transport_fc qdio dasd_fba_mod dasd_eckd_mod dasd_mod xfs ghash_s390 prng des_s390 libdes sha3_512_s390 sha3_256_s390 virtio_net virtio_blk net_failover sha_common failover dm_mirror dm_region_hash dm_log dm_mod paes_s390 crypto_engine pkey_cca pkey_ep11 zcrypt pkey_pckmo pkey aes_s390
+[   52.340606] CPU: 1 UID: 0 PID: 1672 Comm: root-rep2 Kdump: loaded Not tainted 6.18.0-rc3 #1 NONE
+[   52.340610] Hardware name: IBM 3931 LA1 400 (KVM/Linux)
+[   52.340611] Krnl PSW : 0704c00180000000 0000015710cda7fe (__list_del_entry_valid_or_report+0xfe/0x128)
+[   52.340619]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
+[   52.340622] Krnl GPRS: c0000000ffffefff 0000000100000027 000000000000006d 0000000000000000
+[   52.340623]            000000d7116d35d8 000000d7116d35d0 0000000000000002 000000d7116d39b0
+[   52.340625]            000000d7116d3880 000000d7116d3910 000000d7116d3910 000000d382110008
+[   52.340626]            000003ffac1ccd08 000000d7116d39b0 0000015710cda7fa 000000d7116d37d0
+[   52.340632] Krnl Code: 0000015710cda7ee: c020003e496f	larl	%r2,00000157114a3acc
+           0000015710cda7f4: c0e5ffd5280e	brasl	%r14,000001571077f810
+          #0000015710cda7fa: af000000		mc	0,0
+          >0000015710cda7fe: b9040029		lgr	%r2,%r9
+           0000015710cda802: c0e5ffe5e193	brasl	%r14,0000015710996b28
+           0000015710cda808: e34090080004	lg	%r4,8(%r9)
+           0000015710cda80e: b9040059		lgr	%r5,%r9
+           0000015710cda812: b9040038		lgr	%r3,%r8
+[   52.340643] Call Trace:
+[   52.340645]  [<0000015710cda7fe>] __list_del_entry_valid_or_report+0xfe/0x128
+[   52.340649] ([<0000015710cda7fa>] __list_del_entry_valid_or_report+0xfa/0x128)
+[   52.340652]  [<0000015710a30b2e>] hugetlb_vmemmap_restore_folios+0x96/0x138
+[   52.340655]  [<0000015710a268ac>] update_and_free_pages_bulk+0x64/0x150
+[   52.340659]  [<0000015710a26f8a>] set_max_huge_pages+0x4ca/0x6f0
+[   52.340662]  [<0000015710a273ba>] hugetlb_sysctl_handler_common+0xea/0x120
+[   52.340665]  [<0000015710a27484>] hugetlb_sysctl_handler+0x44/0x50
+[   52.340667]  [<0000015710b53ffa>] proc_sys_call_handler+0x17a/0x280
+[   52.340672]  [<0000015710a90968>] vfs_write+0x2c8/0x3a0
+[   52.340676]  [<0000015710a90bd2>] ksys_write+0x72/0x100
+[   52.340679]  [<00000157111483a8>] __do_syscall+0x150/0x318
+[   52.340682]  [<0000015711153a5e>] system_call+0x6e/0x90
+[   52.340684] Last Breaking-Event-Address:
+[   52.340684]  [<000001571077f85c>] _printk+0x4c/0x58
+[   52.340690] Kernel panic - not syncing: Fatal exception: panic_on_oops
+
+This issue was introduced by commit f13b83fdd996 ("hugetlb: batch TLB
+flushes when freeing vmemmap"). Before that change, the HVO
+implementation called flush_tlb_kernel_range() each time a vmemmap
+PMD split and remapping was performed. The mentioned commit changed this
+to issue a few flush_tlb_all() calls after performing all remappings.
+
+However, on s390, flush_tlb_kernel_range() expands to
+__tlb_flush_kernel() while flush_tlb_all() is not implemented. As a
+result, we went from flushing the TLB for every remapping to no flushing
+at all.
+
+This commit fixes this by introducing vmemmap_flush_tlb_all(), which
+expands to __tlb_flush_kernel() on s390 and to flush_tlb_all() on other
+archs.
+
+Fixes: f13b83fdd996 ("hugetlb: batch TLB flushes when freeing vmemmap")
+Signed-off-by: Luiz Capitulino <luizcap@redhat.com>
+---
+ mm/hugetlb_vmemmap.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
+
+diff --git a/mm/hugetlb_vmemmap.c b/mm/hugetlb_vmemmap.c
+index ba0fb1b6a5a8..5819a3088850 100644
+--- a/mm/hugetlb_vmemmap.c
++++ b/mm/hugetlb_vmemmap.c
+@@ -48,6 +48,15 @@ struct vmemmap_remap_walk {
+ 	unsigned long		flags;
+ };
+ 
++static inline void vmemmap_flush_tlb_all(void)
++{
++#ifdef CONFIG_S390
++	__tlb_flush_kernel();
++#else
++	flush_tlb_all();
++#endif
++}
++
+ static int vmemmap_split_pmd(pmd_t *pmd, struct page *head, unsigned long start,
+ 			     struct vmemmap_remap_walk *walk)
+ {
+@@ -539,7 +548,7 @@ long hugetlb_vmemmap_restore_folios(const struct hstate *h,
+ 	}
+ 
+ 	if (restored)
+-		flush_tlb_all();
++		vmemmap_flush_tlb_all();
+ 	if (!ret)
+ 		ret = restored;
+ 	return ret;
+@@ -703,7 +712,7 @@ static void __hugetlb_vmemmap_optimize_folios(struct hstate *h,
+ 		 */
+ 		goto out;
+ 
+-	flush_tlb_all();
++	vmemmap_flush_tlb_all();
+ 
+ 	list_for_each_entry(folio, folio_list, lru) {
+ 		int ret;
+@@ -721,7 +730,7 @@ static void __hugetlb_vmemmap_optimize_folios(struct hstate *h,
+ 		 * allowing more vmemmap remaps to occur.
+ 		 */
+ 		if (ret == -ENOMEM && !list_empty(&vmemmap_pages)) {
+-			flush_tlb_all();
++			vmemmap_flush_tlb_all();
+ 			free_vmemmap_page_list(&vmemmap_pages);
+ 			INIT_LIST_HEAD(&vmemmap_pages);
+ 			__hugetlb_vmemmap_optimize_folio(h, folio, &vmemmap_pages, flags);
+@@ -729,7 +738,7 @@ static void __hugetlb_vmemmap_optimize_folios(struct hstate *h,
+ 	}
+ 
+ out:
+-	flush_tlb_all();
++	vmemmap_flush_tlb_all();
+ 	free_vmemmap_page_list(&vmemmap_pages);
+ }
+ 
 -- 
-Mathieu Desnoyers
-EfficiOS Inc.
-https://www.efficios.com
+2.51.0
+
