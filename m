@@ -1,194 +1,143 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B1D23009CB
-	for <linux-s390@vger.kernel.org>; Wed, 29 Oct 2025 10:26:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1F2732C331;
+	Wed, 29 Oct 2025 10:45:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761733608; cv=none; b=HsdGLEUUJ/fzNfdSvJxCm6Za2o3mZP2rujiGINP3z6YXquHIT3N0jB8UkjP8OAepFCEUIrCfEAWQbXOo2VtvurCzJcDAfOAY86xK2ACPtRxNl25agmB7FLkpDEK6+d68y7+9iFms4Hlx5AzqdXxZgiMgsYqR13WTKlT5qejeAmY=
+	t=1761734726; cv=none; b=m8z+rj+FnO9KYvmRkoE91rqyIoKUNnves1TGePio2Ho+ynPHUBURUvfZCG2j17u4obNELhGYGJg71qqoa98cIFwDsX3oDqonr4j2QZLnyY5COzscn4wL0+3f1pi1ERdo/hiJZuZDQQmBPxQOvccfPAD5q7OtTdHyux7JJTThS/g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761733608; c=relaxed/simple;
-	bh=zkE0vyis83Qnd4j3qFtBbD4uxT5fDgXxEKk32YXAR1I=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=KMP52+mkiVeYZ10804GuwZgaspPxZCWeOoljaSShoF2S8OHQoJy8r7alHB1TmD2ITzFkj37PdacvwfHQobtRQwHIgXPJWddVa3mg7vHO90L5P+Zci794MtGWVVx3BqiLTixxKtj1n3Ma6wHmYIZgPIkheKck91SwBBgGRg3xIQ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cnncW+AO; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1761734726; c=relaxed/simple;
+	bh=xUXcPnne74ZPs8BwDoabNGRQ9ytrbTeM0YE8XkweLO4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=pfCarVxZ998jcq/+wZryxosIC4f+Jkd5ECV4X9JjskkyJrbA549n0E8bH0fDYddqvX+2tWwNp8DEw7Z8h51/qKdRmXOgpnAx/7zG/+OJSEI+LjPu/FLBSQbcFKwe1QYPWGnS1Jz7A+mn6TQoGoAE9dzo2Arc0DLGdKBNmtTidj8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hkg7jyim; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cnncW+AO"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1761733606;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=/l/eBTg6PDk2gq24yxrQmlGvSlksP+1NRV8KnJwBP8E=;
-	b=cnncW+AON+djwLkCGRV01SWIpFPM/uefZqgxtKSyfKIdwhdN2cEMX5WYCgx9cWmbY//jV0
-	aPxQfs0D+r5sOG5glob+B5YMFQLOI6VfJZw/5nsCWh3cW2TILgfBEDWjLQrBC3S0cq1RoZ
-	2mDCh4qfsQy9PIfuMEbjTEw8m8Mq/hE=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-594-FSYbmvMpOuSLIURo1ISciA-1; Wed, 29 Oct 2025 06:26:45 -0400
-X-MC-Unique: FSYbmvMpOuSLIURo1ISciA-1
-X-Mimecast-MFC-AGG-ID: FSYbmvMpOuSLIURo1ISciA_1761733604
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-475da25c4c4so24165445e9.0
-        for <linux-s390@vger.kernel.org>; Wed, 29 Oct 2025 03:26:44 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761733604; x=1762338404;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=/l/eBTg6PDk2gq24yxrQmlGvSlksP+1NRV8KnJwBP8E=;
-        b=oQsrqFRyZVezRa+RiLyr6EW1cbQCJvw+Ie8ZIM3nU17sh7i1xel4dx8rSyPunM+nFr
-         b7mFAUTMPP5rTJZioZXoEvOe/5h4WEQ/mrS5QlykC8F4o3AR17qTu/59oFpcFag0ifcM
-         Db2U07PNCWB8znBa7hjh2GjEPNOxU9o9hLNKMiiwHGZ/tA6xS86+5TWNVI1a37iX8xZx
-         HJ6BV7zl2iHYu5q2fsWK6d5deDKxi6dmRmYX/KCft+pXrFd0FMFi5AWRCw6m/1LI9pL1
-         q0cQgLuHodXQHkETEQUbJCh2wvffXxT/3LHknCzy05jDaAVPI6EWK4b5649zWmOyO53w
-         gpAA==
-X-Forwarded-Encrypted: i=1; AJvYcCUz05ENLyCIxR753qIshOhYopb2vhgEDK/kKn4fdfaOkk2ULf+yPN/9f4B3RxVHbpltzp1osMJo0nbI@vger.kernel.org
-X-Gm-Message-State: AOJu0YxknWy9bQlBvucX7agA/2mxm+1YaYUnWICrmFC2laOk/68CosTQ
-	fHBNbrQLexhTePV6mwu8mIZ8iZOVURnx8rVVJzD6NYWs50j/ia9EP9L3xMaIC/MTEzBxIUOy9Pv
-	iNzNVz4/ko1ZfRmAXqvI3AsxY9+sLLvziLWpg+zShcurVb3eJgyivSYYYtY0LE6w=
-X-Gm-Gg: ASbGncu/E5O5iAGc/zMbDsldu6zLde9vua/2UFHv5JpfhBQZ7srAiTePw09wlkKDmPQ
-	+zaKZQWIAuSKwwtpGXPIlP4ztKJ2+CamuFkn38MK7+u1q3R0arA8QMa1eBtea+iCzljTopj+3Vw
-	nZStBe6YbhKgCGjGKyhtdah+6c/6rL3FO/T5yYu/onvS5MVQ1h5DgvtUftn5nBfkZFaqSqY6YD5
-	rnAHetWZAvVrKryLWMH5oHcU/BfppxGYB6sOleCseV6Z+jTFyn0lXaj2DjNHZccoDceYUg6H+bL
-	8AQyOTG6nJzzoFJ1ZMrt+VtP/nxXo4MR/WhgssijEbjeznAzsJPGJ83/Ngexf+16PAMj3aM1ych
-	PNEskKGUQ6K50B9Ky1B1K9A==
-X-Received: by 2002:a05:600c:4591:b0:471:115e:624b with SMTP id 5b1f17b1804b1-4771e18cc1fmr23359075e9.17.1761733603664;
-        Wed, 29 Oct 2025 03:26:43 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGtQTrCoapOr6bX5uVmtmRqcuUC4lYBRzIXvtaTPDducTLRlHN+f7pxZPgextJafstOMsxSuw==
-X-Received: by 2002:a05:600c:4591:b0:471:115e:624b with SMTP id 5b1f17b1804b1-4771e18cc1fmr23358735e9.17.1761733603198;
-        Wed, 29 Oct 2025 03:26:43 -0700 (PDT)
-Received: from [10.32.64.156] (nat-pool-muc-t.redhat.com. [149.14.88.26])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4771e202093sm43202745e9.11.2025.10.29.03.26.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 29 Oct 2025 03:26:41 -0700 (PDT)
-Message-ID: <c6f8871a-5118-4947-9801-43b2a7a42993@redhat.com>
-Date: Wed, 29 Oct 2025 11:26:39 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hkg7jyim"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59SJm4AZ025616;
+	Wed, 29 Oct 2025 10:45:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=Sq01EnGDr5eRCz4SpQ+rNxwk3z5KS5
+	ccSc1QrsKlxS4=; b=hkg7jyimsLURQSpMM1215mCSiTHh0UNvum49WScyfsDD6F
+	jAqa+YLBFIWU39YlhOCubwTLXp21pAXKeYSFxrS2HXwm36AzCf53OKva2relivFZ
+	LAeymFFzpRwZ63xisNbj5iGmDsqwwzWDbrEuJDUAiPxPWT+MGylWJ+dp+a3CO3gt
+	QmGJ2mUEGbKiP6IJs44hlRQyHMlU+F1XwJtIGR1nFlONacWP91QUl1sqKW6URFU2
+	LTtTDixsvg3kjHbYn4fDtd1/pVW9nuMEUoa+tOiQhMguPTlT8kccaZAhkI7Jegr/
+	vPIRIwwVdclI+AlJdbBqxts0vv47O9MBbUVjgx1g==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a34acjt5m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 29 Oct 2025 10:45:04 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59T9spqn030714;
+	Wed, 29 Oct 2025 10:45:03 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4a33wwjwfa-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 29 Oct 2025 10:45:03 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59TAixiw62718458
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 29 Oct 2025 10:44:59 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 471A520043;
+	Wed, 29 Oct 2025 10:44:59 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D50B82004B;
+	Wed, 29 Oct 2025 10:44:58 +0000 (GMT)
+Received: from osiris (unknown [9.155.211.25])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 29 Oct 2025 10:44:58 +0000 (GMT)
+Date: Wed, 29 Oct 2025 11:44:57 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: Luiz Capitulino <luizcap@redhat.com>, borntraeger@linux.ibm.com,
+        joao.m.martins@oracle.com, mike.kravetz@oracle.com,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        osalvador@suse.de, akpm@linux-foundation.org, aneesh.kumar@kernel.org
+Subject: Re: [PATCH v2] s390: fix HugeTLB vmemmap optimization crash
+Message-ID: <20251029104457.8393B96-hca@linux.ibm.com>
+References: <20251028211533.47694-1-luizcap@redhat.com>
+ <6bbdf4ce-10e3-429b-89fc-ef000f118fec@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/3] Optimize code generation during context
-To: Xie Yuanbin <qq570070308@gmail.com>, riel@surriel.com,
- linux@armlinux.org.uk, mathieu.desnoyers@efficios.com, paulmck@kernel.org,
- pjw@kernel.org, palmer@dabbelt.com, aou@eecs.berkeley.edu, alex@ghiti.fr,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- borntraeger@linux.ibm.com, svens@linux.ibm.com, davem@davemloft.net,
- andreas@gaisler.com, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
- dave.hansen@linux.intel.com, hpa@zytor.com, luto@kernel.org,
- peterz@infradead.org, acme@kernel.org, namhyung@kernel.org,
- mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@kernel.org,
- irogers@google.com, adrian.hunter@intel.com, anna-maria@linutronix.de,
- frederic@kernel.org, juri.lelli@redhat.com, vincent.guittot@linaro.org,
- dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
- mgorman@suse.de, vschneid@redhat.com, thuth@redhat.com,
- akpm@linux-foundation.org, lorenzo.stoakes@oracle.com,
- segher@kernel.crashing.org, ryan.roberts@arm.com, max.kellermann@ionos.com,
- urezki@gmail.com, nysal@linux.ibm.com
-Cc: x86@kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-perf-users@vger.kernel.org, will@kernel.org
-References: <18734a4944e47952b7ad3e10a36c902392bdaa91.camel@surriel.com>
- <20251025173700.754-1-qq570070308@gmail.com>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- qIws/H2t
-In-Reply-To: <20251025173700.754-1-qq570070308@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6bbdf4ce-10e3-429b-89fc-ef000f118fec@redhat.com>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=XbuEDY55 c=1 sm=1 tr=0 ts=6901f031 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=kj9zAlcOel0A:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=20KFwNOVAAAA:8 a=YKqhbZKFatMI8GZplqcA:9 a=CjuIK1q_8ugA:10
+ a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-ORIG-GUID: fi9EDziNPk_O6GlKsGKU2u_puYD54L1c
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDI4MDE2NiBTYWx0ZWRfX+h5nDC3eaDb+
+ BpIao59i4TxtCLpFhzaG2LAsa2cGIwnZkc5HPZnmF0IpcH8ECdLjR4oUozrdVw0mX3qbcGrA5t5
+ hf/n957YgLAmy2JYZBHXxQsFcDG9PkENvmCazjfAVXqBhEdUbBcR/DDwssgIeepn4cQpM3bumZT
+ oWpeCGfx1TRSKT17GfSRAnH25bMU1kpxVBDbl5FnTLEbApeWspbAyyXF26yiV4JoUVV8wkvwQ/A
+ 7dEmEIFLAXxQ2oHYB7poY+3qZa77DDF4kw56whpoRvv1CkcQqp6BjiRfQdsm+QJ/GRvvbd+6Fq1
+ xL4mp5q7roW5W24mcK9Udnz1X658IuveAv542bvgDaKpCtwdOLVB425ojnkXfe45BwtPNfSkKnf
+ PmCGxR1EERI5sNCFvkfr+V528JUKbw==
+X-Proofpoint-GUID: fi9EDziNPk_O6GlKsGKU2u_puYD54L1c
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-29_04,2025-10-22_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 adultscore=0 suspectscore=0 bulkscore=0 spamscore=0
+ impostorscore=0 phishscore=0 priorityscore=1501 clxscore=1015
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2510280166
 
-On 25.10.25 19:37, Xie Yuanbin wrote:
-> On Fri, 24 Oct 2025 17:36:06 -0400, Rik van Riel wrote:
->> Also, what kind of performance improvement
->> have you measured with these changes?
+On Wed, Oct 29, 2025 at 10:57:15AM +0100, David Hildenbrand wrote:
+> On 28.10.25 22:15, Luiz Capitulino wrote:
+> > A reproducible crash occurs when enabling HugeTLB vmemmap optimization (HVO)
+> > on s390. The crash and the proposed fix were worked on an s390 KVM guest
+> > running on an older hypervisor, as I don't have access to an LPAR. However,
+> > the same issue should occur on bare-metal.
+...
+> > This commit fixes this by implementing flush_tlb_all() on s390 as an
+> > alias to __tlb_flush_global(). This should cause a flush on all TLB
+> > entries on all CPUs as expected by the flush_tlb_all() semantics.
+> > 
+> > Fixes: f13b83fdd996 ("hugetlb: batch TLB flushes when freeing vmemmap")
+> > Signed-off-by: Luiz Capitulino <luizcap@redhat.com>
+> > ---
 > 
-> When I debugged performance issues before, I used the company's equipment.
-> I could only observe the macro business performance data, but not the
-> specific scheduling time. Today I did some testing using my devices,
-> and the testing logic is as follows:
-> ```
-> -	return finish_task_switch(prev);
-> +	start_time = rdtsc();
-> +	barrier();
-> +	rq = finish_task_switch(prev);
-> +	barrier();
-> +	end_time = rdtsc;
-> +	return rq;
-> ```
+> Nice finding!
 > 
-> The test data is as follows:
-> 1. mitigations Off, without patches: 13.5 - 13.7
-> 2. mitigations Off, with patches: 13.5 - 13.7
-> 3. mitigations On, without patches: 23.3 - 23.6
-> 4. mitigations On, with patches: 16.6 - 16.8
+> Makes me wonder whether the default flush_tlb_all() should actually map to a
+> BUILD_BUG(), such that we don't silently not-flush on archs that don't
+> implement it.
 
-Such numbers absolutely have to be part of the relevant patches / cover 
-letter to show that the compiler is not actually smart enough to make a 
-good decision.
+Which default flush_tlb_all()? :)
 
-Having that said, sometimes it helps to understand "why" the compiler 
-does a bad job, and try to tackle that instead.
+There was a no-op implementation for s390, and besides drivers/xen/balloon.c
+there is only mm/hugetlb_vmemmap.c in common code which makes use of this. To
+me it looks like both call sites only need to flush TLB entries of the kernel
+address space. So I'd rather prefer if flush_tlb_all() would die instead.
 
-For example, compilers will not inline functions that might be too big 
-(there is a compiler tunable), factoring out slow-paths etc could help 
-to convince the compiler to do the right thing.
+But I'm also wondering about the correctness of the whole thing even with this
+patch. If I'm not mistaken then vmemmap_split_pmd() changes an active pmd
+entry of the kernel mapping. That is: an active leaf entry (aka large page) is
+changed to an active entry pointing to a page table.
 
-Of course, it's not always possible, and sometimes we just now that we 
-always want to inline.
+Changing active entries without the detour over an invalid entry or using
+proper instructions like crdte or cspg is not allowed on s390. This was solved
+for other parts that change active entries of the kernel mapping in an
+architecture compliant way for s390 (see arch/s390/mm/pageattr.c).
 
--- 
-Cheers
+Am I missing something?
 
-David / dhildenb
-
+Gerald, since you enabled the corresponding Kconfig option for s390: is there
+any reason why this should work in an architecture compliant way?
