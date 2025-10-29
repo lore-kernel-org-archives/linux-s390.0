@@ -1,73 +1,73 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B272A324B39
-	for <linux-s390@vger.kernel.org>; Wed, 29 Oct 2025 09:57:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F2C32BEC20
+	for <linux-s390@vger.kernel.org>; Wed, 29 Oct 2025 10:00:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761731844; cv=none; b=FjNfT32WglIq64DmCeY56VxwSXmJzTRbpcZktCgp2x94q+xdzFx5mN0AuNeigi96MuHbTn/ZsOvew2Njz2trZYA2M6h+NVSICGvi1tUyZFNtsFhQbmEFAOXdq/HBpBfCdby6bI8Tmfk17j5agV1wrubG4+0aa3l0OHNfAOaWfRM=
+	t=1761732023; cv=none; b=F8SROCeD4TVdvzpjjCZbhjBbPr8NH9q/1nzKjuEbkEw8AwMRQQVJCY+Tklw7tU5La9y1lN2XH8ziQMNT5jtkpzsFjfdOYWboXYVCeUmPnHFtxuxKDPy91zRXYB+Y1ak39d5U7KN02OeqoI/ImWWr3e8GbhCwFeEPCsUSn9gFS/E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761731844; c=relaxed/simple;
-	bh=Dck0T8VjW9cA0em3mIDfRLuS/NSrAfL7WS9l1oS4gkA=;
+	s=arc-20240116; t=1761732023; c=relaxed/simple;
+	bh=SKZe0CVlQ/p+I/GhlcWTfXycD/+oUUOcjJrYGg72xyY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=cAksfz7bZ4fAWhndhvfLY0028czrp1URK+nZaKHu5s+oEdYDReCQRoi5q5WuhC8X6DXLDCkCfnCMpBiLVTL8S22iuhNUsr6BBSvaMsPq1sNjXZSIFTDz3iu92BJXk2W5MHXUoBHJcfxALQILiV9HCarVopxWqE8hw8WCLgu2IAg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YfW2UM64; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=XQoFr9Ae5if0jT5dsQHjSvqvHfKkoLtGttpV/yvByKF0QMZUKnG4nA5r3uY/mjyTN+tmppRpr9EW8bML2j8ZW5Z1yha3wrWNAKL7HQLNmg4PjRVbY139VHXYuQRQgEGryb6jWqOIuqN2ky7eyQuoiIu64R2ZdWZ7wvPMcsrVYnM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Bl6nJXM+; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YfW2UM64"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Bl6nJXM+"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1761731840;
+	s=mimecast20190719; t=1761732020;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=qqgl0WoEbTgKKe2Gmw+CbLcc1Ynjine2xgmP5Tg3jQI=;
-	b=YfW2UM64wxSK1R0Wcz9n6lL2iJYnc8SfZinuUbfN9QKfzfrMDfcjSXNk69Ss8VpV8pmCRV
-	sDqoDATH7xNvWBqsrALSPVxvinZwZgUKrQahjG31DwaKSyueaPisg3Pb0/2LYJwraRyGBz
-	jkjTz97A+5NMVfC3qgZJLYi6g2iKUQI=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=hEtH/DOi8ufPul8rQIFdoeVO4A7KFJe7+IrA/7Qq9Tk=;
+	b=Bl6nJXM+2Bt0zK3cy5OzjYqWxx9/97RvTYbUdHAaFxcYXoV4o6Ln5LpX6TjaNBiYhM7nhs
+	ZVfWPsAi1Xpc91lkNLD6aqsyCA1mDYGZ3oEpOXcann4daFp9LX3vTj4Glj0Sk9y+CwpbQx
+	CYXuHDaA5RJFdsGhVOGSZbVwlP1EaUI=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-448-AkPjjVOiOJiBtInXSlDsnw-1; Wed, 29 Oct 2025 05:57:19 -0400
-X-MC-Unique: AkPjjVOiOJiBtInXSlDsnw-1
-X-Mimecast-MFC-AGG-ID: AkPjjVOiOJiBtInXSlDsnw_1761731838
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-426feed0016so2336577f8f.3
-        for <linux-s390@vger.kernel.org>; Wed, 29 Oct 2025 02:57:18 -0700 (PDT)
+ us-mta-612-jVg61N2HN4uwvIwZVD3nTw-1; Wed, 29 Oct 2025 06:00:18 -0400
+X-MC-Unique: jVg61N2HN4uwvIwZVD3nTw-1
+X-Mimecast-MFC-AGG-ID: jVg61N2HN4uwvIwZVD3nTw_1761732017
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-477113a50fcso28700375e9.1
+        for <linux-s390@vger.kernel.org>; Wed, 29 Oct 2025 03:00:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761731838; x=1762336638;
+        d=1e100.net; s=20230601; t=1761732017; x=1762336817;
         h=content-transfer-encoding:in-reply-to:autocrypt:content-language
          :from:references:cc:to:subject:user-agent:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=qqgl0WoEbTgKKe2Gmw+CbLcc1Ynjine2xgmP5Tg3jQI=;
-        b=nWizZK+Eqh8BqAi/GCyo0eVFVasLewjiyoUDn/zS5vFxtTQOzJHqx54S3ALAGUl33J
-         dlFV+s61dy9z7S+J59jUPtYUstg2cBCIfESDvvXWeHvEHkmPl7KzRuWlH9TnUQgNBJIE
-         IUJrovm4Z4Aqz6mxwTA4ouBPpknpnXh9uxeLgJuhTN7uj7PgyZ80rUWNi84wwWjiRNkm
-         GYZsjlJBrPzuGBi3PArkdhg3yxFpv4WdNtz6iU/W9KXAWvzZnnlGkYZsVgSoV6OI8kaV
-         OhCfpWhuXNASAK9tEbFQBlBkc7+AmKspfp8qv9V1wTOppJr0F0gOspW/YvHtgvTgTahk
-         VwOw==
-X-Forwarded-Encrypted: i=1; AJvYcCW89zCgdqdQQPnWV9e3v9LzYDEAiyEgP5VW9VW6CP0QiYRrxPO63tcOAJx4CXj7srXQ3VIdl/lzPc+9@vger.kernel.org
-X-Gm-Message-State: AOJu0YzjALdzmIBb+F8QA8l2I19Jq0BJq3Hi0Rx9AKKGcTc3Y7KFw/nQ
-	ZJYVMtwM0pDcSYLYmCn3maua5COqoSBmuGUrcdBCs0bMQscdy10vKS0yP/jJGthVD0x64ZfdCBG
-	6wReFIImzdvHSn6JdWrItD8GlqR6DtJ4Kav4UYuX4CeUmfG4ESnrKhn33Q3istho=
-X-Gm-Gg: ASbGncvF6hEigQx2/2EemC0jrVpihhZ9/K5pofhJGnFgSye66CbZjI8PXRPKCvqeNTC
-	DoJ8a38AZI4I/N2Lvrmmcdb02T1UpEobubuBfCSKoElKTnqI/AEqFczkzLkXshd3q9F/81IKldB
-	efDtBydkKl/xywgIGRdnaJvWQHYFC4klwOXuwisBnMtdvcvM2phQnATyx97Og8/b5Lzkje9Fcy2
-	1SCe4SjxMxKrpKz/qaZZMBlAaj56qQz6gSL+K0tImi97JeKh/KiQgICt2CTD6jMj9mWL77VRg/p
-	dsZ4vlklLl5gpjcY1gRDDrQlWeoUo0FjKNl46BFUcbMZ0GBrSYo7yrBP6w+l0u/RlnLPlUteBMQ
-	LfzA2pHw3+Q5N/uENO0GALA==
-X-Received: by 2002:a05:6000:4382:b0:3d1:8d1e:8e9 with SMTP id ffacd0b85a97d-429aefbdfe9mr1681136f8f.32.1761731837817;
-        Wed, 29 Oct 2025 02:57:17 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IExZbPXgteVglylVVAK83EpEE4FYesirV3Lvw5YT039orgd8FXfS/PEHBhcvC3TGm9e0tm7bw==
-X-Received: by 2002:a05:6000:4382:b0:3d1:8d1e:8e9 with SMTP id ffacd0b85a97d-429aefbdfe9mr1681104f8f.32.1761731837363;
-        Wed, 29 Oct 2025 02:57:17 -0700 (PDT)
+        bh=hEtH/DOi8ufPul8rQIFdoeVO4A7KFJe7+IrA/7Qq9Tk=;
+        b=trhbtkvfE6z5pHZry50Xmw6kbsdreKnx5ZbiKOOU8Rc1TgmzaBfM2NuQ4qAa33yyyn
+         Llvh7Z780NpcmrIr6NqkY5dZl3j16RKaKBOrqGZJrie6xr3w2B6mNusukK3qKvhZxeh5
+         PKOrrijKYqCdDXfeAT7WbnX80qnWXbZ4KdogUW5cjOmY8MglyTeDJZkhlBaHBBKGwAXp
+         IEBgUq9ezYIReK/aLGJI/k7GKSfQ8JdNOqg/WfT4T4ypVJu6434jL0O95UVmbmDjlbfy
+         WEIf1jSdY2yRLSCg5s0y2aSKWas5uh2JoZcyR8yHZ3kmsmAZMCSwB/MTv1bo0YLbSNmt
+         1ECQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXr5s43LWgNsLDwEWMCABhgoq0n6GKgA/VN6zyR2f+zngmQS9Kwu0VWevEhyzmmoI2hn18vfXMt+8Dh@vger.kernel.org
+X-Gm-Message-State: AOJu0YyaAyxS9uMRAwj1X4HmhKKhqe+atw0sgTey0CfTWBJ0pMK+q/ui
+	fhqmU86ZGaVJDpoAXV3p+fFSH8BrOdqXtM4kmDheqKJtAmmAsjWc6i/qh5VdqrRI6jqNvl2fMqQ
+	oZj4OpEPGj26fZT2ziKN/CYDOmElfoJ0IEOzTDXdw7h8o+7tpJrxwjTJei6SJvNo=
+X-Gm-Gg: ASbGncviYpxmuD4Dz1cJguijanyDWEkJcz7trvazEJXzgkjCnmqbn+ZmhEDNCC8NBE9
+	5P1frt28rQEBVZZNCRln23Ae1yPWWV2gDxaB9KaoTlIVBM+a/ArrIfaZ2IMJiEdWFMGsULG86xL
+	fymZryvn/zgpFkg64NbjG8S1t4yGiSYfX0AKdnLwkvg3JnRKbeULAeKCo9rlwZCztUuVgaQad/E
+	ebAEG3JDo4ZULBMrvbd2CAnoS03f05PUHoiA1RDNFFxexI8y9vK5Y51KuJPQmMyEWhiwrKS+rfS
+	RDKoTu1b83I112xEzs87jpRlvQgCqeOLwf8ug+3I+I3KoKJbOHSeCQcegk/cpy1WjNCZ6tobZv/
+	oM+7mAcHAbclcyGRnX6SnAA==
+X-Received: by 2002:a05:600d:4398:b0:475:dae5:d972 with SMTP id 5b1f17b1804b1-4771e85156emr12759415e9.23.1761732016768;
+        Wed, 29 Oct 2025 03:00:16 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFnA3IRpFHhYsZzK6qc9l0qizFN8SkkYYfFwlHAG+3t4PNESgPO0z5ya7ZscSCTji9s1WIskA==
+X-Received: by 2002:a05:600d:4398:b0:475:dae5:d972 with SMTP id 5b1f17b1804b1-4771e85156emr12758875e9.23.1761732016284;
+        Wed, 29 Oct 2025 03:00:16 -0700 (PDT)
 Received: from [10.32.64.156] (nat-pool-muc-t.redhat.com. [149.14.88.26])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-429952d5768sm26116915f8f.24.2025.10.29.02.57.16
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4771902fa8dsm39879465e9.8.2025.10.29.03.00.14
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 29 Oct 2025 02:57:16 -0700 (PDT)
-Message-ID: <6bbdf4ce-10e3-429b-89fc-ef000f118fec@redhat.com>
-Date: Wed, 29 Oct 2025 10:57:15 +0100
+        Wed, 29 Oct 2025 03:00:15 -0700 (PDT)
+Message-ID: <db143076-afa0-4129-b5b0-eab85ec54aac@redhat.com>
+Date: Wed, 29 Oct 2025 11:00:14 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -75,14 +75,23 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] s390: fix HugeTLB vmemmap optimization crash
-To: Luiz Capitulino <luizcap@redhat.com>, hca@linux.ibm.com,
- borntraeger@linux.ibm.com, joao.m.martins@oracle.com,
- mike.kravetz@oracle.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-s390@vger.kernel.org, gor@linux.ibm.com,
- gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com
-Cc: osalvador@suse.de, akpm@linux-foundation.org, aneesh.kumar@kernel.org
-References: <20251028211533.47694-1-luizcap@redhat.com>
+Subject: Re: [PATCH v1 1/1] KVM: s390: Fix missing present bit for gmap puds
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, akpm@linux-foundation.org
+Cc: balbirs@nvidia.com, borntraeger@de.ibm.com, Liam.Howlett@oracle.com,
+ airlied@gmail.com, apopple@nvidia.com, baohua@kernel.org,
+ baolin.wang@linux.alibaba.com, byungchul@sk.com, dakr@kernel.org,
+ dev.jain@arm.com, dri-devel@lists.freedesktop.org,
+ francois.dugast@intel.com, gourry@gourry.net, joshua.hahnjy@gmail.com,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ lorenzo.stoakes@oracle.com, lyude@redhat.com, matthew.brost@intel.com,
+ mpenttil@redhat.com, npache@redhat.com, osalvador@suse.de, rakie.kim@sk.com,
+ rcampbell@nvidia.com, ryan.roberts@arm.com, simona@ffwll.ch,
+ ying.huang@linux.alibaba.com, ziy@nvidia.com, kvm@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-next@vger.kernel.org, hca@linux.ibm.com,
+ gor@linux.ibm.com, agordeev@linux.ibm.com
+References: <d4a09cc8-84b2-42a8-bd03-7fa3adee4a99@linux.ibm.com>
+ <20251028130150.57379-1-imbrenda@linux.ibm.com>
+ <20251028130150.57379-2-imbrenda@linux.ibm.com>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -129,86 +138,50 @@ Autocrypt: addr=david@redhat.com; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20251028211533.47694-1-luizcap@redhat.com>
+In-Reply-To: <20251028130150.57379-2-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 28.10.25 22:15, Luiz Capitulino wrote:
-> A reproducible crash occurs when enabling HugeTLB vmemmap optimization (HVO)
-> on s390. The crash and the proposed fix were worked on an s390 KVM guest
-> running on an older hypervisor, as I don't have access to an LPAR. However,
-> the same issue should occur on bare-metal.
+On 28.10.25 14:01, Claudio Imbrenda wrote:
+> For hugetlbs, gmap puds have the present bit set. For normal puds
+> (which point to ptes), the bit is not set. This is in contrast to the
+> normal userspace puds, which always have the bit set for present pmds.
 > 
-> Reproducer (it may take a few runs to trigger):
+> This causes issues when ___pte_offset_map() is modified to only check
+> for the present bit.
 > 
->   # sysctl vm.hugetlb_optimize_vmemmap=1
->   # echo 1 > /proc/sys/vm/nr_hugepages
->   # echo 0 > /proc/sys/vm/nr_hugepages
+> The solution to the problem is simply to always set the present bit for
+> present gmap pmds.
 > 
-> Crash log:
-> 
-> [   52.340369] list_del corruption. prev->next should be 000000d382110008, but was 000000d7116d3880. (prev=000000d7116d3910)
-> [   52.340420] ------------[ cut here ]------------
-> [   52.340424] kernel BUG at lib/list_debug.c:62!
-> [   52.340566] monitor event: 0040 ilc:2 [#1]SMP
-> [   52.340573] Modules linked in: ctcm fsm qeth ccwgroup zfcp scsi_transport_fc qdio dasd_fba_mod dasd_eckd_mod dasd_mod xfs ghash_s390 prng des_s390 libdes sha3_512_s390 sha3_256_s390 virtio_net virtio_blk net_failover sha_common failover dm_mirror dm_region_hash dm_log dm_mod paes_s390 crypto_engine pkey_cca pkey_ep11 zcrypt pkey_pckmo pkey aes_s390
-> [   52.340606] CPU: 1 UID: 0 PID: 1672 Comm: root-rep2 Kdump: loaded Not tainted 6.18.0-rc3 #1 NONE
-> [   52.340610] Hardware name: IBM 3931 LA1 400 (KVM/Linux)
-> [   52.340611] Krnl PSW : 0704c00180000000 0000015710cda7fe (__list_del_entry_valid_or_report+0xfe/0x128)
-> [   52.340619]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
-> [   52.340622] Krnl GPRS: c0000000ffffefff 0000000100000027 000000000000006d 0000000000000000
-> [   52.340623]            000000d7116d35d8 000000d7116d35d0 0000000000000002 000000d7116d39b0
-> [   52.340625]            000000d7116d3880 000000d7116d3910 000000d7116d3910 000000d382110008
-> [   52.340626]            000003ffac1ccd08 000000d7116d39b0 0000015710cda7fa 000000d7116d37d0
-> [   52.340632] Krnl Code: 0000015710cda7ee: c020003e496f	larl	%r2,00000157114a3acc
->             0000015710cda7f4: c0e5ffd5280e	brasl	%r14,000001571077f810
->            #0000015710cda7fa: af000000		mc	0,0
->            >0000015710cda7fe: b9040029		lgr	%r2,%r9
->             0000015710cda802: c0e5ffe5e193	brasl	%r14,0000015710996b28
->             0000015710cda808: e34090080004	lg	%r4,8(%r9)
->             0000015710cda80e: b9040059		lgr	%r5,%r9
->             0000015710cda812: b9040038		lgr	%r3,%r8
-> [   52.340643] Call Trace:
-> [   52.340645]  [<0000015710cda7fe>] __list_del_entry_valid_or_report+0xfe/0x128
-> [   52.340649] ([<0000015710cda7fa>] __list_del_entry_valid_or_report+0xfa/0x128)
-> [   52.340652]  [<0000015710a30b2e>] hugetlb_vmemmap_restore_folios+0x96/0x138
-> [   52.340655]  [<0000015710a268ac>] update_and_free_pages_bulk+0x64/0x150
-> [   52.340659]  [<0000015710a26f8a>] set_max_huge_pages+0x4ca/0x6f0
-> [   52.340662]  [<0000015710a273ba>] hugetlb_sysctl_handler_common+0xea/0x120
-> [   52.340665]  [<0000015710a27484>] hugetlb_sysctl_handler+0x44/0x50
-> [   52.340667]  [<0000015710b53ffa>] proc_sys_call_handler+0x17a/0x280
-> [   52.340672]  [<0000015710a90968>] vfs_write+0x2c8/0x3a0
-> [   52.340676]  [<0000015710a90bd2>] ksys_write+0x72/0x100
-> [   52.340679]  [<00000157111483a8>] __do_syscall+0x150/0x318
-> [   52.340682]  [<0000015711153a5e>] system_call+0x6e/0x90
-> [   52.340684] Last Breaking-Event-Address:
-> [   52.340684]  [<000001571077f85c>] _printk+0x4c/0x58
-> [   52.340690] Kernel panic - not syncing: Fatal exception: panic_on_oops
-> 
-> This issue was introduced by commit f13b83fdd996 ("hugetlb: batch TLB
-> flushes when freeing vmemmap"). Before that change, the HVO
-> implementation called flush_tlb_kernel_range() each time a vmemmap
-> PMD split and remapping was performed. The mentioned commit changed this
-> to issue a few flush_tlb_all() calls after performing all remappings.
-> 
-> However, on s390, flush_tlb_kernel_range() expands to
-> __tlb_flush_kernel() while flush_tlb_all() is not implemented. As a
-> result, we went from flushing the TLB for every remapping to no flushing
-> at all.
-> 
-> This commit fixes this by implementing flush_tlb_all() on s390 as an
-> alias to __tlb_flush_global(). This should cause a flush on all TLB
-> entries on all CPUs as expected by the flush_tlb_all() semantics.
-> 
-> Fixes: f13b83fdd996 ("hugetlb: batch TLB flushes when freeing vmemmap")
-> Signed-off-by: Luiz Capitulino <luizcap@redhat.com>
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Link: https://lore.kernel.org/lkml/20251017144924.10034-1-borntraeger@linux.ibm.com/
+> Tested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 > ---
+>   arch/s390/mm/gmap.c | 5 +++--
+>   1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+> index 8ff6bba107e8..22c448b32340 100644
+> --- a/arch/s390/mm/gmap.c
+> +++ b/arch/s390/mm/gmap.c
+> @@ -599,8 +599,9 @@ int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
+>   					| _SEGMENT_ENTRY_GMAP_UC
+>   					| _SEGMENT_ENTRY;
+>   			} else
+> -				*table = pmd_val(*pmd) &
+> -					_SEGMENT_ENTRY_HARDWARE_BITS;
 
-Nice finding!
+I'd add a comment here like
 
-Makes me wonder whether the default flush_tlb_all() should actually map 
-to a BUILD_BUG(), such that we don't silently not-flush on archs that 
-don't implement it.
+/* Make sure that pmd_present() will work on these entries. */
+
+> +				*table = (pmd_val(*pmd) &
+> +					_SEGMENT_ENTRY_HARDWARE_BITS)
+> +					| _SEGMENT_ENTRY;
+>   		}
+>   	} else if (*table & _SEGMENT_ENTRY_PROTECT &&
+>   		   !(pmd_val(*pmd) & _SEGMENT_ENTRY_PROTECT)) {
 
 Reviewed-by: David Hildenbrand <david@redhat.com>
 
