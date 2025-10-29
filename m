@@ -1,255 +1,261 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 688CC2EDD4F;
-	Wed, 29 Oct 2025 09:31:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FE96223DF6;
+	Wed, 29 Oct 2025 09:40:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761730277; cv=none; b=iPRkvxLrfawnO9/Zjhr/wN/ohyhrO4aLtjpu/2YYdd9mki2UiZrF4EDqu2nQEI2JZmD/PA2LJe2hvLgL4+TNY/rxLyo/HS+MSVdHzLzo+nyNDze5iYyTeCzzi0rYgV466S4/RfbtNe/4+dBiXQavgdqtk9/eVplVopQrFNmtOTM=
+	t=1761730857; cv=none; b=HXqi5u1xCQbJ1ujpBS6JHGeGNLFFU6S2thNC0HnXd/gVyYg77Pv8gmNy+4/klBF07IsdJW0DdvKw3rMAyzCPDwOvP3I/ZtqYV1bjCQcdrLHrW7Lcoag3x2ACXjktLkO4z0X1TaHiq3NxET6R1v4kK8V78ANMGf7LJQnTIJX1WBc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761730277; c=relaxed/simple;
-	bh=67Yp8PRiSnVp+FNZtbZ8Czeko/T31Fa0nNmkzjc6WDc=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=Luv45MdznSPbIKNJiVlwtLkzzppcJa4LdBwr2hSH3ES1mz0+DimYK8bKCijLgvFKKY2yrTFMEyaTli8OGIrSQ7g7v1nQPpq+POgot1XG0HD3gyHn8q3P/fZEJFRyNArQj7d3yiupUDPJVeenAycX6IT2JM20QF++11hJ0o9dQ1I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hPVbiq53; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1761730857; c=relaxed/simple;
+	bh=u+zy8gS8LtPNCO8qdvvpzDPNEtqY0yPY4jb12c6HQVQ=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=gRY2/U7MdYQ/2OLEmyFk48UUWUrmFNHI9qZRZpQDHiJsDhTWVrCxkLe6tUqEif3tdc6K53ldDYBRa+/nkmi7FhL0dR9ls/MtqREZckkDXfu0qGAiLpke3YzoMNdFHMErA3SqAw5sl7u15UFFBQIe+x/A+v3HsG1sgoMg2tpNjDY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=3sTXMxsI; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Qu2A8dkh; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hPVbiq53"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59SJmE6u025849;
-	Wed, 29 Oct 2025 09:30:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=bRT40ueltCWeAHZZ/VVXOa8G9IRcy9elrB6Oz4afA/0=; b=hPVbiq536Dqj
-	3bArN6jkNL+/JVj5gXhK4+FFMuDeMDy7UGv4fJzFOogpXTQovrhk4ZAbwC1DnXS1
-	ujZHyQ6jIPKW5xc5ZSo2MnHpsN4eBV5Pg59Lmuav73Cwo7mD/qkLbluU7qW6mPta
-	/54XtEDdeKM/dnJuxOPsHc40YAlebjj7PeQUKGOr0jNgRVJAAHaKGpzby6P8dEbC
-	2mrsDIvdigsS2WZkDZn9Fa14X8NNEQaISdu8y0F1zVuiAqogkBJNe7w70LXiR99+
-	04/asJF0fRWdcHf/pH11UWx5g3cu2kD4egBKkEecTAadeemi28L27UXFmms7kyrN
-	zLagLpMbuw==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a34acjh3y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Oct 2025 09:30:42 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59T5L8EF027428;
-	Wed, 29 Oct 2025 09:30:41 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4a33w2jjng-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Oct 2025 09:30:41 +0000
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59T9UfLE26804918
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Oct 2025 09:30:41 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4EE2258056;
-	Wed, 29 Oct 2025 09:30:41 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BE30E5805A;
-	Wed, 29 Oct 2025 09:30:40 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 29 Oct 2025 09:30:40 +0000 (GMT)
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="3sTXMxsI";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Qu2A8dkh"
+From: Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1761730853;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=EFO/V4h4fszx7JmKEX4+pQ6W25t5QSCTuaQ3p7c5bTk=;
+	b=3sTXMxsIKprUjnsDC66p+RBYJd9y6TZ1M3AyJLTlStJ+fElxuoiyQSYqwAmRVPl9VCYYPv
+	e8LoYCTUGlmJz3YFZqzz44NvoEOGiy/HMpmKljmKvp24Xo/prnzqfa7/3zvwo9yekzvhre
+	yYozK/wb82vBfLPgjnmd5TLh17uFgGvr/0Gqkf1SgjaUWdbprblGt269I+L1TvWs7Gayln
+	Iwd81TagqU8MwWufrGABN3adYripPGFZF4G9Zur3J4UTbrqOMQwefmFc0M5wmTe/7FOd9B
+	W/+bAHiStdDK9PNOl3peIdUp5EXACfesjCznurUapyJ3iIjnSjUcdIuZbtYeNg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1761730853;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=EFO/V4h4fszx7JmKEX4+pQ6W25t5QSCTuaQ3p7c5bTk=;
+	b=Qu2A8dkhT2JhVGdB5ITQtPpq5eKRqmyaPGfzBMENu1kheISQNRLH52GqMZHNnXGu4rwWXY
+	EQqPF2Atk1+ec1Dg==
+To: Yann Ylavic <ylavic.dev@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds
+ <torvalds@linux-foundation.org>, kernel test robot <lkp@intel.com>,
+ Russell King <linux@armlinux.org.uk>,
+ linux-arm-kernel@lists.infradead.org, x86@kernel.org, Madhavan Srinivasan
+ <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas
+ Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>,
+ linuxppc-dev@lists.ozlabs.org, Paul
+ Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ linux-riscv@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
+ <svens@linux.ibm.com>, linux-s390@vger.kernel.org, Mathieu Desnoyers
+ <mathieu.desnoyers@efficios.com>, Andrew Cooper
+ <andrew.cooper3@citrix.com>, David Laight <david.laight.linux@gmail.com>,
+ Julia Lawall <Julia.Lawall@inria.fr>, Nicolas Palix
+ <nicolas.palix@imag.fr>, Peter Zijlstra <peterz@infradead.org>, Darren
+ Hart <dvhart@infradead.org>, Davidlohr Bueso <dave@stgolabs.net>,
+ =?utf-8?Q?Andr=C3=A9?=
+ Almeida <andrealmeid@igalia.com>, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan
+ Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org
+Subject: [patch V6 02/12] uaccess: Provide ASM GOTO safe wrappers for
+ unsafe_*_user()
+In-Reply-To: <87jz0fuinj.ffs@tglx>
+References: <20251027083700.573016505@linutronix.de>
+ <20251027083745.231716098@linutronix.de>
+ <CAKQ1sVO9YmWqo2uzk7NbssgWuwnQ-o4Yf2+bCP8UmHAU3u8KmQ@mail.gmail.com>
+ <87jz0fuinj.ffs@tglx>
+Date: Wed, 29 Oct 2025 10:40:52 +0100
+Message-ID: <877bweujtn.ffs@tglx>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Wed, 29 Oct 2025 10:30:40 +0100
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: linux-crypto@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Ard
- Biesheuvel <ardb@kernel.org>,
-        "Jason A . Donenfeld" <Jason@zx2c4.com>,
-        Holger Dengler <dengler@linux.ibm.com>,
-        Herbert Xu
- <herbert@gondor.apana.org.au>,
-        linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 00/15] SHA-3 library
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <20251026055032.1413733-1-ebiggers@kernel.org>
-References: <20251026055032.1413733-1-ebiggers@kernel.org>
-Message-ID: <ba3ff3d5183ab78b3d02d8db30223def@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=XbuEDY55 c=1 sm=1 tr=0 ts=6901dec2 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=kj9zAlcOel0A:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VwQbUJbxAAAA:8 a=20KFwNOVAAAA:8 a=VnNF1IyMAAAA:8 a=0OBHIRt0DnuW_K4Yg-cA:9
- a=CjuIK1q_8ugA:10 a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-ORIG-GUID: lPW4ZZ8WPxSI5DjsUIJxSoxD1Sb2aixA
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDI4MDE2NiBTYWx0ZWRfX3g8vFV4TCTar
- BBnezYFrJ5i3rlVVYjzx73BF8sVp0LCWePV8QOg+97Gorw0IcieSreJg8loOWfKwGyWmpLFQeYK
- G95sOYMLk/xtNE4V4e7kBvaCm3HUu97hv1nvbivKHhDTcz+I5PT3Pkxbue9FycumrEals1ke8dY
- gajALPML41PC+5HkxsgX2xlDpp1sCrzA7x4N8mdIX8vLT7Ysy6QloapLrNTXYnUubJFo/yIkQWz
- sFWzFMR4DUDKgVQ7fGQ29xyFSMQu84mAa0aRIg1QXHTzn15sJwn9iZMxhhHhU8gEd2S09H8aujD
- jJMUJuWXUDIbU/QI1JW3i6rntsrEK4yw+OlgN/qGpdCOm5Dd4SH3PdQFSeZjzdujfu2gtyxGppG
- ZKfE81y/GLBXs7tm+I1MUJ1Y6f/rmA==
-X-Proofpoint-GUID: lPW4ZZ8WPxSI5DjsUIJxSoxD1Sb2aixA
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-10-29_04,2025-10-22_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 adultscore=0 suspectscore=0 bulkscore=0 spamscore=0
- impostorscore=0 phishscore=0 priorityscore=1501 clxscore=1015
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
- definitions=main-2510280166
+Content-Type: text/plain
 
-On 2025-10-26 06:50, Eric Biggers wrote:
-> This series is targeting libcrypto-next.  It can also be retrieved 
-> from:
-> 
->     git fetch
-> https://git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git
-> sha3-lib-v2
-> 
-> This series adds SHA-3 support to lib/crypto/.  This includes support
-> for the digest algorithms SHA3-224, SHA3-256, SHA3-384, and SHA3-512,
-> and also support for the extendable-output functions SHAKE128 and
-> SHAKE256.  The SHAKE128 and SHAKE256 support will be needed by ML-DSA.
-> 
-> The architecture-optimized SHA-3 code for arm64 and s390 is migrated
-> into lib/crypto/.  (The existing s390 code couldn't really be reused, 
-> so
-> really I rewrote it from scratch.)  This makes the SHA-3 library
-> functions be accelerated on these architectures.
-> 
-> Finally, the sha3-224, sha3-256, sha3-384, and sha3-512 crypto_shash
-> algorithms are reimplemented on top of the library API.
-> 
-> If the s390 folks could re-test the s390 optimized SHA-3 code (by
-> enabling CRYPTO_LIB_SHA3_KUNIT_TEST and CRYPTO_LIB_BENCHMARK), that
-> would be helpful.  QEMU doesn't support the instructions it uses.  
-> Also,
-> it would be helpful to provide the benchmark output from just before
-> "lib/crypto: s390/sha3: Add optimized Keccak function", just after it,
-> and after "lib/crypto: s390/sha3: Add optimized one-shot SHA-3 digest
-> functions".  Then we can verify that each change is useful.
-> 
-> Changed in v2:
->   - Added missing selection of CRYPTO_LIB_SHA3 from CRYPTO_SHA3.
->   - Fixed a bug where incorrect SHAKE output was produced if a
->     zero-length squeeze was followed by a nonzero-length squeeze.
->   - Improved the SHAKE tests.
->   - Utilized the one-shot SHA-3 digest instructions on s390.
->   - Split the s390 changes into several patches.
->   - Folded some of my patches into David's.
->   - Dropped some unnecessary changes from the first 2 patches.
->   - Lots more cleanups, mainly to "lib/crypto: sha3: Add SHA-3 
-> support".
-> 
-> Changed in v1 (vs. first 5 patches of David's v6 patchset):
->   - Migrated the arm64 and s390 code into lib/crypto/
->   - Simplified the library API
->   - Added FIPS test
->   - Many other fixes and improvements
-> 
-> The first 5 patches are derived from David's v6 patchset
-> (https://lore.kernel.org/linux-crypto/20251017144311.817771-1-dhowells@redhat.com/).
-> Earlier changelogs can be found there.
-> 
-> David Howells (5):
->   crypto: s390/sha3 - Rename conflicting functions
->   crypto: arm64/sha3 - Rename conflicting function
->   lib/crypto: sha3: Add SHA-3 support
->   lib/crypto: sha3: Move SHA3 Iota step mapping into round function
->   lib/crypto: tests: Add SHA3 kunit tests
-> 
-> Eric Biggers (10):
->   lib/crypto: tests: Add additional SHAKE tests
->   lib/crypto: sha3: Add FIPS cryptographic algorithm self-test
->   crypto: arm64/sha3 - Update sha3_ce_transform() to prepare for 
-> library
->   lib/crypto: arm64/sha3: Migrate optimized code into library
->   lib/crypto: s390/sha3: Add optimized Keccak functions
->   lib/crypto: sha3: Support arch overrides of one-shot digest functions
->   lib/crypto: s390/sha3: Add optimized one-shot SHA-3 digest functions
->   crypto: jitterentropy - Use default sha3 implementation
->   crypto: sha3 - Reimplement using library API
->   crypto: s390/sha3 - Remove superseded SHA-3 code
-> 
->  Documentation/crypto/index.rst                |   1 +
->  Documentation/crypto/sha3.rst                 | 130 ++++++
->  arch/arm64/configs/defconfig                  |   2 +-
->  arch/arm64/crypto/Kconfig                     |  11 -
->  arch/arm64/crypto/Makefile                    |   3 -
->  arch/arm64/crypto/sha3-ce-glue.c              | 151 -------
->  arch/s390/configs/debug_defconfig             |   3 +-
->  arch/s390/configs/defconfig                   |   3 +-
->  arch/s390/crypto/Kconfig                      |  20 -
->  arch/s390/crypto/Makefile                     |   2 -
->  arch/s390/crypto/sha.h                        |  51 ---
->  arch/s390/crypto/sha3_256_s390.c              | 157 -------
->  arch/s390/crypto/sha3_512_s390.c              | 157 -------
->  arch/s390/crypto/sha_common.c                 | 117 -----
->  crypto/Kconfig                                |   1 +
->  crypto/Makefile                               |   2 +-
->  crypto/jitterentropy-kcapi.c                  |  12 +-
->  crypto/sha3.c                                 | 166 +++++++
->  crypto/sha3_generic.c                         | 290 ------------
->  crypto/testmgr.c                              |   8 +
->  include/crypto/sha3.h                         | 306 ++++++++++++-
->  lib/crypto/Kconfig                            |  13 +
->  lib/crypto/Makefile                           |  10 +
->  .../crypto/arm64}/sha3-ce-core.S              |  67 +--
->  lib/crypto/arm64/sha3.h                       |  62 +++
->  lib/crypto/fips.h                             |   7 +
->  lib/crypto/s390/sha3.h                        | 151 +++++++
->  lib/crypto/sha3.c                             | 411 +++++++++++++++++
->  lib/crypto/tests/Kconfig                      |  11 +
->  lib/crypto/tests/Makefile                     |   1 +
->  lib/crypto/tests/sha3-testvecs.h              | 249 +++++++++++
->  lib/crypto/tests/sha3_kunit.c                 | 422 ++++++++++++++++++
->  scripts/crypto/gen-fips-testvecs.py           |   4 +
->  scripts/crypto/gen-hash-testvecs.py           |  27 +-
->  34 files changed, 2012 insertions(+), 1016 deletions(-)
->  create mode 100644 Documentation/crypto/sha3.rst
->  delete mode 100644 arch/arm64/crypto/sha3-ce-glue.c
->  delete mode 100644 arch/s390/crypto/sha.h
->  delete mode 100644 arch/s390/crypto/sha3_256_s390.c
->  delete mode 100644 arch/s390/crypto/sha3_512_s390.c
->  delete mode 100644 arch/s390/crypto/sha_common.c
->  create mode 100644 crypto/sha3.c
->  delete mode 100644 crypto/sha3_generic.c
->  rename {arch/arm64/crypto => lib/crypto/arm64}/sha3-ce-core.S (84%)
->  create mode 100644 lib/crypto/arm64/sha3.h
->  create mode 100644 lib/crypto/s390/sha3.h
->  create mode 100644 lib/crypto/sha3.c
->  create mode 100644 lib/crypto/tests/sha3-testvecs.h
->  create mode 100644 lib/crypto/tests/sha3_kunit.c
-> 
-> base-commit: e3068492d0016d0ea9a1ff07dbfa624d2ec773ca
+ASM GOTO is miscompiled by GCC when it is used inside a auto cleanup scope:
 
-Picked this series from your ebiggers repo branch sha3-lib-v2.
-Build on s390 runs without any complains, no warnings.
-As recommended I enabled the KUNIT option and also 
-CRYPTO_SELFTESTS_FULL.
-With an "modprobe tcrypt" I enforced to run the selftests
-and in parallel I checked that the s390 specific CPACF instructions
-are really used (can be done with the pai command and check for
-the KIMD_SHA3_* counters). Also ran some AF-alg tests to verify
-all the the sha3 hashes and check for thread safety.
-All this ran without any findings. However there are NO performance
-related tests involved.
+bool foo(u32 __user *p, u32 val)
+{
+	scoped_guard(pagefault)
+		unsafe_put_user(val, p, efault);
+	return true;
+efault:
+	return false;
+}
 
-What's a little bit tricky here is that the sha3 lib is statically
-build into the kernel. So no chance to unload/load this as a module.
-For sha1 and the sha2 stuff I can understand the need to have this
-statically enabled in the kernel. Sha3 is only supposed to be available
-as backup in case of sha2 deficiencies. So I can't see why this is
-really statically needed.
+ e80:	e8 00 00 00 00       	call   e85 <foo+0x5>
+ e85:	65 48 8b 05 00 00 00 00 mov    %gs:0x0(%rip),%rax
+ e8d:	83 80 04 14 00 00 01 	addl   $0x1,0x1404(%rax)   // pf_disable++
+ e94:	89 37                	mov    %esi,(%rdi)
+ e96:	83 a8 04 14 00 00 01 	subl   $0x1,0x1404(%rax)   // pf_disable--
+ e9d:	b8 01 00 00 00       	mov    $0x1,%eax           // success
+ ea2:	e9 00 00 00 00       	jmp    ea7 <foo+0x27>      // ret
+ ea7:	31 c0                	xor    %eax,%eax           // fail
+ ea9:	e9 00 00 00 00       	jmp    eae <foo+0x2e>      // ret
 
-Tested-by: Harald Freudenberger <freude@linux.ibm.com>
+which is broken as it leaks the pagefault disable counter on failure.
 
+Clang at least fails the build.
 
+Linus suggested to add a local label into the macro scope and let that
+jump to the actual caller supplied error label.
+
+       	__label__ local_label;                                  \
+        arch_unsafe_get_user(x, ptr, local_label);              \
+	if (0) {                                                \
+	local_label:                                            \
+		goto label;                                     \
+
+That works for both GCC and clang.
+
+clang:
+
+ c80:	0f 1f 44 00 00       	   nopl   0x0(%rax,%rax,1)	
+ c85:	65 48 8b 0c 25 00 00 00 00 mov    %gs:0x0,%rcx
+ c8e:	ff 81 04 14 00 00    	   incl   0x1404(%rcx)	   // pf_disable++
+ c94:	31 c0                	   xor    %eax,%eax        // set retval to false
+ c96:	89 37                      mov    %esi,(%rdi)      // write
+ c98:	b0 01                	   mov    $0x1,%al         // set retval to true
+ c9a:	ff 89 04 14 00 00    	   decl   0x1404(%rcx)     // pf_disable--
+ ca0:	2e e9 00 00 00 00    	   cs jmp ca6 <foo+0x26>   // ret
+
+The exception table entry points correctly to c9a
+
+GCC:
+
+ f70:   e8 00 00 00 00          call   f75 <baz+0x5>
+ f75:   65 48 8b 05 00 00 00 00 mov    %gs:0x0(%rip),%rax
+ f7d:   83 80 04 14 00 00 01    addl   $0x1,0x1404(%rax)  // pf_disable++
+ f84:   8b 17                   mov    (%rdi),%edx
+ f86:   89 16                   mov    %edx,(%rsi)
+ f88:   83 a8 04 14 00 00 01    subl   $0x1,0x1404(%rax) // pf_disable--
+ f8f:   b8 01 00 00 00          mov    $0x1,%eax         // success
+ f94:   e9 00 00 00 00          jmp    f99 <baz+0x29>    // ret
+ f99:   83 a8 04 14 00 00 01    subl   $0x1,0x1404(%rax) // pf_disable--
+ fa0:   31 c0                   xor    %eax,%eax         // fail
+ fa2:   e9 00 00 00 00          jmp    fa7 <baz+0x37>    // ret
+
+The exception table entry points correctly to f99
+
+So both compilers optimize out the extra goto and emit correct and
+efficient code.
+
+Provide a generic wrapper to do that to avoid modifying all the affected
+architecture specific implementation with that workaround.
+
+The only change required for architectures is to rename unsafe_*_user() to
+arch_unsafe_*_user(). That's done in subsequent changes.
+
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+---
+V5a: Use put in __put_kernel_nofault() - Yann
+---
+ include/linux/uaccess.h |   72 +++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 68 insertions(+), 4 deletions(-)
+
+--- a/include/linux/uaccess.h
++++ b/include/linux/uaccess.h
+@@ -518,7 +518,34 @@ long strncpy_from_user_nofault(char *dst
+ 		long count);
+ long strnlen_user_nofault(const void __user *unsafe_addr, long count);
+ 
+-#ifndef __get_kernel_nofault
++#ifdef arch_get_kernel_nofault
++/*
++ * Wrap the architecture implementation so that @label can be outside of a
++ * cleanup() scope. A regular C goto works correctly, but ASM goto does
++ * not. Clang rejects such an attempt, but GCC silently emits buggy code.
++ */
++#define __get_kernel_nofault(dst, src, type, label)		\
++do {								\
++	__label__ local_label;					\
++	arch_get_kernel_nofault(dst, src, type, local_label);	\
++	if (0) {						\
++	local_label:						\
++		goto label;					\
++	}							\
++} while (0)
++
++#define __put_kernel_nofault(dst, src, type, label)		\
++do {								\
++	__label__ local_label;					\
++	arch_put_kernel_nofault(dst, src, type, local_label);	\
++	if (0) {						\
++	local_label:						\
++		goto label;					\
++	}							\
++} while (0)
++
++#elif !defined(__get_kernel_nofault) /* arch_get_kernel_nofault */
++
+ #define __get_kernel_nofault(dst, src, type, label)	\
+ do {							\
+ 	type __user *p = (type __force __user *)(src);	\
+@@ -535,7 +562,8 @@ do {							\
+ 	if (__put_user(data, p))			\
+ 		goto label;				\
+ } while (0)
+-#endif
++
++#endif  /* !__get_kernel_nofault */
+ 
+ /**
+  * get_kernel_nofault(): safely attempt to read from a location
+@@ -549,7 +577,42 @@ do {							\
+ 	copy_from_kernel_nofault(&(val), __gk_ptr, sizeof(val));\
+ })
+ 
+-#ifndef user_access_begin
++#ifdef user_access_begin
++
++#ifdef arch_unsafe_get_user
++/*
++ * Wrap the architecture implementation so that @label can be outside of a
++ * cleanup() scope. A regular C goto works correctly, but ASM goto does
++ * not. Clang rejects such an attempt, but GCC silently emits buggy code.
++ *
++ * Some architectures use internal local labels already, but this extra
++ * indirection here is harmless because the compiler optimizes it out
++ * completely in any case. This construct just ensures that the ASM GOTO
++ * target is always in the local scope. The C goto 'label' works correct
++ * when leaving a cleanup() scope.
++ */
++#define unsafe_get_user(x, ptr, label)			\
++do {							\
++	__label__ local_label;				\
++	arch_unsafe_get_user(x, ptr, local_label);	\
++	if (0) {					\
++	local_label:					\
++		goto label;				\
++	}						\
++} while (0)
++
++#define unsafe_put_user(x, ptr, label)			\
++do {							\
++	__label__ local_label;				\
++	arch_unsafe_put_user(x, ptr, local_label);	\
++	if (0) {					\
++	local_label:					\
++		goto label;				\
++	}						\
++} while (0)
++#endif /* arch_unsafe_get_user */
++
++#else /* user_access_begin */
+ #define user_access_begin(ptr,len) access_ok(ptr, len)
+ #define user_access_end() do { } while (0)
+ #define unsafe_op_wrap(op, err) do { if (unlikely(op)) goto err; } while (0)
+@@ -559,7 +622,8 @@ do {							\
+ #define unsafe_copy_from_user(d,s,l,e) unsafe_op_wrap(__copy_from_user(d,s,l),e)
+ static inline unsigned long user_access_save(void) { return 0UL; }
+ static inline void user_access_restore(unsigned long flags) { }
+-#endif
++#endif /* !user_access_begin */
++
+ #ifndef user_write_access_begin
+ #define user_write_access_begin user_access_begin
+ #define user_write_access_end user_access_end
