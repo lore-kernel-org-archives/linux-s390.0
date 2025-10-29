@@ -1,261 +1,201 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FE96223DF6;
-	Wed, 29 Oct 2025 09:40:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14D1D329C5A;
+	Wed, 29 Oct 2025 09:42:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761730857; cv=none; b=HXqi5u1xCQbJ1ujpBS6JHGeGNLFFU6S2thNC0HnXd/gVyYg77Pv8gmNy+4/klBF07IsdJW0DdvKw3rMAyzCPDwOvP3I/ZtqYV1bjCQcdrLHrW7Lcoag3x2ACXjktLkO4z0X1TaHiq3NxET6R1v4kK8V78ANMGf7LJQnTIJX1WBc=
+	t=1761730927; cv=none; b=KsrHAzlpYNwIKWhKE1VugHjTj/4pUNq6RjF8/UNIAe5okyQPRTjO+IUaVDxZice4Y3ztEOXT7hpvoD0Muo4GknnzOCMe+jl0YhvYuCJgDcZfiKQWBfZO3ZMqIh5nyGc0Ff6d6Uw6EcAGG6oS7Bvajd9YnoL3QhfAP6TAInJHfRY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761730857; c=relaxed/simple;
-	bh=u+zy8gS8LtPNCO8qdvvpzDPNEtqY0yPY4jb12c6HQVQ=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=gRY2/U7MdYQ/2OLEmyFk48UUWUrmFNHI9qZRZpQDHiJsDhTWVrCxkLe6tUqEif3tdc6K53ldDYBRa+/nkmi7FhL0dR9ls/MtqREZckkDXfu0qGAiLpke3YzoMNdFHMErA3SqAw5sl7u15UFFBQIe+x/A+v3HsG1sgoMg2tpNjDY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=3sTXMxsI; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Qu2A8dkh; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1761730927; c=relaxed/simple;
+	bh=zebgDL1IcHI2ZG9RSDXvOGsOCN/mpPlOx9sHfMn/uaY=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=VO/bUNYu09pyu4B9rWVj5x9cJGhjAzm5LrW1njPDj9dlAlXVl30xFJSslHRWm4ZuwbwlgvaEcuWXxiTiKZ4tn7IeUhHeT8G9BQNfmAP9gRILtFDxgcmeNj0nLwhTC1TEWtPwNxgv75jTirc7rLBiVcqpL0bagE+VED9ORzd3a7E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=THI4zuKe; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="3sTXMxsI";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Qu2A8dkh"
-From: Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1761730853;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=EFO/V4h4fszx7JmKEX4+pQ6W25t5QSCTuaQ3p7c5bTk=;
-	b=3sTXMxsIKprUjnsDC66p+RBYJd9y6TZ1M3AyJLTlStJ+fElxuoiyQSYqwAmRVPl9VCYYPv
-	e8LoYCTUGlmJz3YFZqzz44NvoEOGiy/HMpmKljmKvp24Xo/prnzqfa7/3zvwo9yekzvhre
-	yYozK/wb82vBfLPgjnmd5TLh17uFgGvr/0Gqkf1SgjaUWdbprblGt269I+L1TvWs7Gayln
-	Iwd81TagqU8MwWufrGABN3adYripPGFZF4G9Zur3J4UTbrqOMQwefmFc0M5wmTe/7FOd9B
-	W/+bAHiStdDK9PNOl3peIdUp5EXACfesjCznurUapyJ3iIjnSjUcdIuZbtYeNg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1761730853;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=EFO/V4h4fszx7JmKEX4+pQ6W25t5QSCTuaQ3p7c5bTk=;
-	b=Qu2A8dkhT2JhVGdB5ITQtPpq5eKRqmyaPGfzBMENu1kheISQNRLH52GqMZHNnXGu4rwWXY
-	EQqPF2Atk1+ec1Dg==
-To: Yann Ylavic <ylavic.dev@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds
- <torvalds@linux-foundation.org>, kernel test robot <lkp@intel.com>,
- Russell King <linux@armlinux.org.uk>,
- linux-arm-kernel@lists.infradead.org, x86@kernel.org, Madhavan Srinivasan
- <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas
- Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>,
- linuxppc-dev@lists.ozlabs.org, Paul
- Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- linux-riscv@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
- <svens@linux.ibm.com>, linux-s390@vger.kernel.org, Mathieu Desnoyers
- <mathieu.desnoyers@efficios.com>, Andrew Cooper
- <andrew.cooper3@citrix.com>, David Laight <david.laight.linux@gmail.com>,
- Julia Lawall <Julia.Lawall@inria.fr>, Nicolas Palix
- <nicolas.palix@imag.fr>, Peter Zijlstra <peterz@infradead.org>, Darren
- Hart <dvhart@infradead.org>, Davidlohr Bueso <dave@stgolabs.net>,
- =?utf-8?Q?Andr=C3=A9?=
- Almeida <andrealmeid@igalia.com>, Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan
- Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org
-Subject: [patch V6 02/12] uaccess: Provide ASM GOTO safe wrappers for
- unsafe_*_user()
-In-Reply-To: <87jz0fuinj.ffs@tglx>
-References: <20251027083700.573016505@linutronix.de>
- <20251027083745.231716098@linutronix.de>
- <CAKQ1sVO9YmWqo2uzk7NbssgWuwnQ-o4Yf2+bCP8UmHAU3u8KmQ@mail.gmail.com>
- <87jz0fuinj.ffs@tglx>
-Date: Wed, 29 Oct 2025 10:40:52 +0100
-Message-ID: <877bweujtn.ffs@tglx>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="THI4zuKe"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59SJmAlv025673;
+	Wed, 29 Oct 2025 09:41:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=vFIxpZ2i6gYS+xu9QRifiMuBvZuK
+	+8hzNrZaMlIqadE=; b=THI4zuKet4OHuKxcOnnmfO2JTL9yJgb7Q7RILRGhITqs
+	YatXJcmlJGCBN0b4WQ0eiZaDbgqq2mNdIBUh9f2v0Oqe5He0Y6/0RuTmRHQLZqAP
+	feIHDaTPNkW/+XFOHbomOCUzY/bBSXkqjLMWYNuu13/9UPmvRvnnnd8cS1K6hjVF
+	ZlUczcF0f6u+g3t2rj4ZHh1y1ByoN4m57gHV+fOHzI+RAVl8UgsdtBYrGyj00Wi/
+	yap4voFW6jYZlpLEtBh9PTMdFNebGNxyx/63rjzmeiupzh1LNk0RtrtIMrr17Lqa
+	uW6MgTO5+TC48Y6h+s6eX7RoKVk5NISw6H4yDmY6qw==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a34acjjfu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 29 Oct 2025 09:41:51 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 59T9XvEI013505;
+	Wed, 29 Oct 2025 09:41:51 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a34acjjfp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 29 Oct 2025 09:41:51 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59T5LwF1023836;
+	Wed, 29 Oct 2025 09:41:49 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4a33vx2mag-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 29 Oct 2025 09:41:49 +0000
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59T9fm4l51184096
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 29 Oct 2025 09:41:48 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 47E7458056;
+	Wed, 29 Oct 2025 09:41:48 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D706958052;
+	Wed, 29 Oct 2025 09:41:45 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 29 Oct 2025 09:41:45 +0000 (GMT)
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+Subject: [PATCH v5 0/2] PCI: Fix isolated function probing and enable ARI
+ for s390
+Date: Wed, 29 Oct 2025 10:41:30 +0100
+Message-Id: <20251029-ari_no_bus_dev-v5-0-d9a5eab67ed0@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAErhAWkC/23P3WoDIRCG4VsJHtego7tqjnofJSy6js1As1u0k
+ YSw914T+gPZHL4fzANzZQUzYWG7zZVlrFRonlp0Lxs2Hvz0jpxiawYCtDCguc80TPMQTmWIWHk
+ HATyYpHTfs3b0mTHR+Q6+7VsfqHzN+XL3q7ytP5QSj1SVXHITUZre9MklfP2g6XTeUjhux/nIb
+ lyFf8JJuyKgEVaNyTsnhYX0jFC/RCe0NCtCNSJ4bdtLznttnhH6j5AC1IrQXHCrLSBglCLER2J
+ Zlm+AUd/jeQEAAA==
+X-Change-ID: 20240724-ari_no_bus_dev-52b2a27f3466
+To: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Jan Kiszka <jan.kiszka@siemens.com>, Huacai Chen <chenhuacai@kernel.org>,
+        Bibo Mao <maobibo@loongson.cn>,
+        linux-s390 <linux-s390@vger.kernel.org>, loongarch@lists.linux.dev,
+        Farhan Ali <alifm@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Tianrui Zhao <zhaotianrui@loongson.cn>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+        Niklas Schnelle <schnelle@linux.ibm.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2807;
+ i=schnelle@linux.ibm.com; h=from:subject:message-id;
+ bh=zebgDL1IcHI2ZG9RSDXvOGsOCN/mpPlOx9sHfMn/uaY=;
+ b=owGbwMvMwCX2Wz534YHOJ2GMp9WSGDIZH4bb8NX1bEv59Pc98+ITz6tEI2/+LC1b4Lzv/K+Ft
+ nyxG21COkpZGMS4GGTFFFkWdTn7rSuYYronqL8DZg4rE8gQBi5OAZjIymSG//5GlpP+Hq1p3bS0
+ vEHtxOnFLUHT9xfFCC9bYWeX/nyy3T6GvyJ/6x6wKBXZvL/tbdQmV9o2M9BIYlK5Wq53qckPM+W
+ VTAA=
+X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
+ fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=XbuEDY55 c=1 sm=1 tr=0 ts=6901e15f cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=hLx8FqHbWYRF7YI4eHsA:9 a=QEXdDO2ut3YA:10
+ a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-ORIG-GUID: HoaeCE1EYQAsXwP-clUtGnvtFf97dVTr
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDI4MDE2NiBTYWx0ZWRfX6bZ6cnUNLXwN
+ oz/iKWkrPvuOyhlslfB5RuakY31wGepm8wBSaBD7p5P7ONxWzAn1duKG75/FLKPPOEGWGXRnkfu
+ yEq1xN8HYmi/1RxLXGP4gSa4dS6IVAoeWzY1dQ0raOcxb68q57zkPoIUivpzOrGIueWtmjuEWwo
+ rLOJazQXo+i8+4+9BBmZ2Wr54AX2nBRRxNKRFX8u1YFf1MwmGYSdo5xfis7r2mQ+NJy/ugJf9Em
+ QTy5RsWfG1rV/Gvt49ee3OdzgjISVRLEegPaA+Edcnf9yI+7iml+SR4ZloahsrYCcv0f7TGWH8n
+ MTccRtLihu3peEUjYPwkCxOrJ8/M9Sza6MTqkSnJ63vyPBdyI6EK7k60bFHlxE0DU1ypwx7nfyQ
+ Ucv7dzOGE/XI7Aw/pEc4ykwqs3mRwQ==
+X-Proofpoint-GUID: 1Xq8k7ywf5PUk7-A3R9oPQriASyrV26q
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-29_04,2025-10-22_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 adultscore=0 suspectscore=0 bulkscore=0 spamscore=0
+ impostorscore=0 phishscore=0 priorityscore=1501 clxscore=1015
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2510280166
 
-ASM GOTO is miscompiled by GCC when it is used inside a auto cleanup scope:
+Hi Bjorn,
 
-bool foo(u32 __user *p, u32 val)
-{
-	scoped_guard(pagefault)
-		unsafe_put_user(val, p, efault);
-	return true;
-efault:
-	return false;
-}
+This series originally aimed to correctly detect ARI as being used on
+s390. I had missed however that this, in a pretty obious manner, breaks
+the isolated function probing resulting devices not getting probed. For
+example if a partition/system only has a PF with devfn 1 passed-through.
+Additionally the fix may (TBD) help with an issue that LoongArch has
+encountered when using isolated function probing and tried to fix by
+limiting it to bus 0 ([0]). If it does fix this it may make sense to
+apply this separately from the second patch.
 
- e80:	e8 00 00 00 00       	call   e85 <foo+0x5>
- e85:	65 48 8b 05 00 00 00 00 mov    %gs:0x0(%rip),%rax
- e8d:	83 80 04 14 00 00 01 	addl   $0x1,0x1404(%rax)   // pf_disable++
- e94:	89 37                	mov    %esi,(%rdi)
- e96:	83 a8 04 14 00 00 01 	subl   $0x1,0x1404(%rax)   // pf_disable--
- e9d:	b8 01 00 00 00       	mov    $0x1,%eax           // success
- ea2:	e9 00 00 00 00       	jmp    ea7 <foo+0x27>      // ret
- ea7:	31 c0                	xor    %eax,%eax           // fail
- ea9:	e9 00 00 00 00       	jmp    eae <foo+0x2e>      // ret
+Besides the effect on s390 the second patch should also ensure that VFs
+on a virtual bus created via virtfn_add_bus() correctly present ARI as
+enabled. Sadly I don't have access to any device to test this.
 
-which is broken as it leaks the pagefault disable counter on failure.
+Speaking of testing. For the first patch I can reproduce the AER
+scenario described by only applying the second patch. The SR-IOV
+scenario I encountered in the past before commit 25f39d3dcb48 ("s390/pci:
+Ignore RID for isolated VFs") and tested the fix now with a partial
+revert hack of that commit.
 
-Clang at least fails the build.
+I also tested the series on x86_64 both on a Ryzen AI 340 based laptop
+and a Xeon Sapphire Rapids based system (including with SR-IOV on
+a ConnectX-6 DX).
 
-Linus suggested to add a local label into the macro scope and let that
-jump to the actual caller supplied error label.
+Thanks,
+Niklas
 
-       	__label__ local_label;                                  \
-        arch_unsafe_get_user(x, ptr, local_label);              \
-	if (0) {                                                \
-	local_label:                                            \
-		goto label;                                     \
+[0] https://lore.kernel.org/linux-pci/20251014074100.2149737-1-chenhuacai@loongson.cn/
 
-That works for both GCC and clang.
-
-clang:
-
- c80:	0f 1f 44 00 00       	   nopl   0x0(%rax,%rax,1)	
- c85:	65 48 8b 0c 25 00 00 00 00 mov    %gs:0x0,%rcx
- c8e:	ff 81 04 14 00 00    	   incl   0x1404(%rcx)	   // pf_disable++
- c94:	31 c0                	   xor    %eax,%eax        // set retval to false
- c96:	89 37                      mov    %esi,(%rdi)      // write
- c98:	b0 01                	   mov    $0x1,%al         // set retval to true
- c9a:	ff 89 04 14 00 00    	   decl   0x1404(%rcx)     // pf_disable--
- ca0:	2e e9 00 00 00 00    	   cs jmp ca6 <foo+0x26>   // ret
-
-The exception table entry points correctly to c9a
-
-GCC:
-
- f70:   e8 00 00 00 00          call   f75 <baz+0x5>
- f75:   65 48 8b 05 00 00 00 00 mov    %gs:0x0(%rip),%rax
- f7d:   83 80 04 14 00 00 01    addl   $0x1,0x1404(%rax)  // pf_disable++
- f84:   8b 17                   mov    (%rdi),%edx
- f86:   89 16                   mov    %edx,(%rsi)
- f88:   83 a8 04 14 00 00 01    subl   $0x1,0x1404(%rax) // pf_disable--
- f8f:   b8 01 00 00 00          mov    $0x1,%eax         // success
- f94:   e9 00 00 00 00          jmp    f99 <baz+0x29>    // ret
- f99:   83 a8 04 14 00 00 01    subl   $0x1,0x1404(%rax) // pf_disable--
- fa0:   31 c0                   xor    %eax,%eax         // fail
- fa2:   e9 00 00 00 00          jmp    fa7 <baz+0x37>    // ret
-
-The exception table entry points correctly to f99
-
-So both compilers optimize out the extra goto and emit correct and
-efficient code.
-
-Provide a generic wrapper to do that to avoid modifying all the affected
-architecture specific implementation with that workaround.
-
-The only change required for architectures is to rename unsafe_*_user() to
-arch_unsafe_*_user(). That's done in subsequent changes.
-
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 ---
-V5a: Use put in __put_kernel_nofault() - Yann
----
- include/linux/uaccess.h |   72 +++++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 68 insertions(+), 4 deletions(-)
+Changes in v5:
+- Rename variables to match "fn" abbreviation
+- Add Cc stable
+- Rebase on v6.18-rc3
+- Link to v4: https://lore.kernel.org/r/20251023-ari_no_bus_dev-v4-0-8482e2ed10bd@linux.ibm.com
 
---- a/include/linux/uaccess.h
-+++ b/include/linux/uaccess.h
-@@ -518,7 +518,34 @@ long strncpy_from_user_nofault(char *dst
- 		long count);
- long strnlen_user_nofault(const void __user *unsafe_addr, long count);
- 
--#ifndef __get_kernel_nofault
-+#ifdef arch_get_kernel_nofault
-+/*
-+ * Wrap the architecture implementation so that @label can be outside of a
-+ * cleanup() scope. A regular C goto works correctly, but ASM goto does
-+ * not. Clang rejects such an attempt, but GCC silently emits buggy code.
-+ */
-+#define __get_kernel_nofault(dst, src, type, label)		\
-+do {								\
-+	__label__ local_label;					\
-+	arch_get_kernel_nofault(dst, src, type, local_label);	\
-+	if (0) {						\
-+	local_label:						\
-+		goto label;					\
-+	}							\
-+} while (0)
-+
-+#define __put_kernel_nofault(dst, src, type, label)		\
-+do {								\
-+	__label__ local_label;					\
-+	arch_put_kernel_nofault(dst, src, type, local_label);	\
-+	if (0) {						\
-+	local_label:						\
-+		goto label;					\
-+	}							\
-+} while (0)
-+
-+#elif !defined(__get_kernel_nofault) /* arch_get_kernel_nofault */
-+
- #define __get_kernel_nofault(dst, src, type, label)	\
- do {							\
- 	type __user *p = (type __force __user *)(src);	\
-@@ -535,7 +562,8 @@ do {							\
- 	if (__put_user(data, p))			\
- 		goto label;				\
- } while (0)
--#endif
-+
-+#endif  /* !__get_kernel_nofault */
- 
- /**
-  * get_kernel_nofault(): safely attempt to read from a location
-@@ -549,7 +577,42 @@ do {							\
- 	copy_from_kernel_nofault(&(val), __gk_ptr, sizeof(val));\
- })
- 
--#ifndef user_access_begin
-+#ifdef user_access_begin
-+
-+#ifdef arch_unsafe_get_user
-+/*
-+ * Wrap the architecture implementation so that @label can be outside of a
-+ * cleanup() scope. A regular C goto works correctly, but ASM goto does
-+ * not. Clang rejects such an attempt, but GCC silently emits buggy code.
-+ *
-+ * Some architectures use internal local labels already, but this extra
-+ * indirection here is harmless because the compiler optimizes it out
-+ * completely in any case. This construct just ensures that the ASM GOTO
-+ * target is always in the local scope. The C goto 'label' works correct
-+ * when leaving a cleanup() scope.
-+ */
-+#define unsafe_get_user(x, ptr, label)			\
-+do {							\
-+	__label__ local_label;				\
-+	arch_unsafe_get_user(x, ptr, local_label);	\
-+	if (0) {					\
-+	local_label:					\
-+		goto label;				\
-+	}						\
-+} while (0)
-+
-+#define unsafe_put_user(x, ptr, label)			\
-+do {							\
-+	__label__ local_label;				\
-+	arch_unsafe_put_user(x, ptr, local_label);	\
-+	if (0) {					\
-+	local_label:					\
-+		goto label;				\
-+	}						\
-+} while (0)
-+#endif /* arch_unsafe_get_user */
-+
-+#else /* user_access_begin */
- #define user_access_begin(ptr,len) access_ok(ptr, len)
- #define user_access_end() do { } while (0)
- #define unsafe_op_wrap(op, err) do { if (unlikely(op)) goto err; } while (0)
-@@ -559,7 +622,8 @@ do {							\
- #define unsafe_copy_from_user(d,s,l,e) unsafe_op_wrap(__copy_from_user(d,s,l),e)
- static inline unsigned long user_access_save(void) { return 0UL; }
- static inline void user_access_restore(unsigned long flags) { }
--#endif
-+#endif /* !user_access_begin */
-+
- #ifndef user_write_access_begin
- #define user_write_access_begin user_access_begin
- #define user_write_access_end user_access_end
+Changes in v4:
+- Add fix of isolated function probing with ARI enabled and in certain
+  cases with SR-IOV devices.
+- Link to v3: https://lore.kernel.org/r/20250417-ari_no_bus_dev-v3-1-ba48f349aa47@linux.ibm.com
+
+Changes in v3:
+- Move setting of ari_enabled on s390 to bus creation and clear it in
+  pcibios_add_device() if the capability is not available.
+- Rebase on v6.15-rc2
+- Link to v2: https://lore.kernel.org/r/20240918-ari_no_bus_dev-v2-1-83cfa991082f@linux.ibm.com
+
+Changes in v2:
+- Rebased on v6.11
+- Link to v1: https://lore.kernel.org/r/20240730-ari_no_bus_dev-v1-1-7de17676f9fe@linux.ibm.com
+
+---
+Niklas Schnelle (2):
+      PCI: Fix isolated PCI function probing with ARI and SR-IOV
+      PCI: s390: Handle ARI on bus without associated struct pci_dev
+
+ arch/s390/pci/pci.c     |  7 +++++++
+ arch/s390/pci/pci_bus.c | 10 ++++++++++
+ drivers/pci/pci.c       |  4 ++--
+ drivers/pci/probe.c     | 22 ++++++++++++++--------
+ include/linux/pci.h     |  4 ++--
+ 5 files changed, 35 insertions(+), 12 deletions(-)
+---
+base-commit: dcb6fa37fd7bc9c3d2b066329b0d27dedf8becaa
+change-id: 20240724-ari_no_bus_dev-52b2a27f3466
+
+Best regards,
+-- 
+Niklas Schnelle
+
