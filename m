@@ -1,213 +1,272 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from CH4PR04CU002.outbound.protection.outlook.com (mail-northcentralusazon11013023.outbound.protection.outlook.com [40.107.201.23])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEA573683B3;
-	Thu, 30 Oct 2025 17:16:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761844592; cv=none; b=PmofDME74Yq6evfQgctPTz2j5xEcPXY2n41/7WGA3aDbPNGBzTYbe2rda8YS3o5wkdIJyboLRU7ejLuMF1AsbsaS/yGwIuc3o+HPa9VU73a7ltAViZWh0Y026wCwWYK5sZZDfnzd8aGoRHm99jRi7YGdbzXYcZwFcYelGD7zZTU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761844592; c=relaxed/simple;
-	bh=4W6mLwI645saXzV/fLjJuWsB2SIdukbVmVT6B8Em+80=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oCpqLnlbvIx9E6MyRp8Lq/c/HOVv/M4qqyNiFsBPGAzR3HYxCMXOWw379A7aUxEA97KHGf532PjM2aZ1geO6qbZrPJ9m/H/MydLiIHKECHJTq7PcG871PuFbCTxOsW9yoJC+sq9vDqxP/lIasEZ5pUcswaVma3WVmc/k923XsvM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mfF02DO6; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98B1030276E;
+	Thu, 30 Oct 2025 19:44:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.201.23
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1761853467; cv=fail; b=kYaBDv746/rBKtL5dCBk8RPAUsMfW4Q6HJoPG1AU5XNs94RwT6lDa42hZHp176MjjhYIEjtCOV4gm+EbIKqtT7dGb/Ol51j+OfiIdhybkqWoNvBnrUXRGEUqrTuL8/1SMp+1DpLyu6Y29xIgvQ5g3wVN9PfdHjdjohxfI4uMHOw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1761853467; c=relaxed/simple;
+	bh=km3IrBxS0fDii0DFfWD2ce+QuN+G5cMYAHhB1XNP5VU=;
+	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rgxK53mYuXNyEv71W8ZJrarmzppS9Q3jx/DgGzI14ABBhTFFKhi2vQKthjco51XtaF425Rfvdfm5Vmp3zId4xC3V/apKyeBcqFeA0y2QrakR2HkaLLc2j6lYWPt1g6pXLUn8tHj35CHXk/8Fo/oNM06/efE//WaO1l0h7v3HqCQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=n636A038; arc=fail smtp.client-ip=40.107.201.23
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mfF02DO6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAFAFC4CEF1;
-	Thu, 30 Oct 2025 17:16:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1761844591;
-	bh=4W6mLwI645saXzV/fLjJuWsB2SIdukbVmVT6B8Em+80=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=mfF02DO6mfd7mOHj9apVUr1Fz9ikSY9AlhkEJ25UTT0VwD9d8AhNJlMJQ+zplNqzd
-	 L4gpcAiDIKM9uUTFdGYb/A5l2sjUoUND2Uj/HhRSCRxDdznB6FXY553wARR05IMWGq
-	 WHeIaqc5OrQD1mTslH68BLQgzY28pUbAb5bNAbgY9wHJCSjD3UN1Zx8T1Op7D5Se35
-	 4mHK26DWpD42wsvrX3bjGUMOmn9Z53rVhSTdUy17C2UhJGi1Vo1dMMeegZbfAAey0L
-	 ZRu034TWIEZUf8ky6LIe2k/28IcOr664DPVLDQsZvR2xZU+3H0mUuATSYm7dpwNpdo
-	 /xjPOrSMg+DcQ==
-Date: Thu, 30 Oct 2025 10:14:53 -0700
-From: Eric Biggers <ebiggers@kernel.org>
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: linux-crypto@vger.kernel.org, David Howells <dhowells@redhat.com>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	"Jason A . Donenfeld" <Jason@zx2c4.com>,
-	Holger Dengler <dengler@linux.ibm.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 00/15] SHA-3 library
-Message-ID: <20251030171453.GA1624@sol>
-References: <20251026055032.1413733-1-ebiggers@kernel.org>
- <ba3ff3d5183ab78b3d02d8db30223def@linux.ibm.com>
- <20251029163216.GA1603@sol>
- <fa8bc10f36b1aeb9ffe1abf6350adbc1@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="n636A038"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=tIt9Al490i85L/oS8knO96IcmdOLqGL6rKZpVgdB3eYlm3PO01plIwtpJB/974p69qzQ6OFV+E/i8oQGd1AqtUJxSNUk4RIlcWIlamGj+5ez+jsynQrLvS2YFbTB4FMuqNFOMau4VsWXD/jtvEshD8cBHvWYcqEQcvXS4WL0Nm0VMNdm6uTUJuMT7r+jc3cR2N72Z8DSs9UtD70bBcc8Vbes+Fo997dMo4Q1W1xT1S/MXY2zynGJbsTyX7n55c6m2Xf0NoGkpzCbpqsida021exIo9KvHtHHq+Ym49m6P9u3UyyeEaqijqUDD5+5E4yBReFYkewa+anhf4YyErvA2Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=LvqEx1G2ygyvTN3lLDG32I0dvexEIahM9G3t/0OYeS8=;
+ b=FawP3FyzvIxNVh/0d5o5G7gK5f0eAL+L45k6jMGLpYVyBCVwaocmr9C5ry+hNVfmUZldU2SPY5nlqdZwkM3PjOTEuMfjx2DfYsz0GItDSj6rQWGUoSElynzdk5pNwLvk18A0GulLjJqXKrv/+/KOAn2OYsyZ2FKz7R2M9yaDKf16xO8GWLrMzl7ZxtPsx+mwh710e3sybSU7dIBXtL7HiOVYDo1ReVJECn8SOmVd2X8+3MW2XsJpYloFkxgLqw1MI4/z+kc6I6lplg61dQGrt+RjtfSE30FfI2PB9p0y5qf3D4zXfpQ4L0V3xcOuE7kqb6gBJwgj6TVs+UklWq2HGA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=intel.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=LvqEx1G2ygyvTN3lLDG32I0dvexEIahM9G3t/0OYeS8=;
+ b=n636A038RwCuAU+b0PzE9Od2AG9Ue5KZ+Q6m2/9T5vbIjK543e/0nboc3Vo0EpB3Dhp3qfSfO2j1o0in8PaY9iI3xLC80AvDeks/2iweUpRVgXDezvqexfhOfis3Z5tvdahDGjqOLnxAlK/HrB5vrqpdur9Y6zPiO/+E82Zi6jkAsimFm9nV01k4GJjePTWB29EBf21QQxgigtCVsgHCCuiXYzWQuzz2z4vwBaWeMco6S2hwQ37upYP2L7VKgdXRMd8mDjxxOoKjUVDd69jvUTPv1PKRzwmq2LIiPDmOyUyx+TkkaYXCcnreHlq1OrciN9lG161pNe4QnNzSMuTsZA==
+Received: from BN9PR03CA0769.namprd03.prod.outlook.com (2603:10b6:408:13a::24)
+ by SJ0PR12MB6968.namprd12.prod.outlook.com (2603:10b6:a03:47b::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9275.12; Thu, 30 Oct
+ 2025 19:44:21 +0000
+Received: from BN2PEPF0000449E.namprd02.prod.outlook.com
+ (2603:10b6:408:13a:cafe::85) by BN9PR03CA0769.outlook.office365.com
+ (2603:10b6:408:13a::24) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9275.14 via Frontend Transport; Thu,
+ 30 Oct 2025 19:44:15 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ BN2PEPF0000449E.mail.protection.outlook.com (10.167.243.149) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9253.7 via Frontend Transport; Thu, 30 Oct 2025 19:44:21 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Thu, 30 Oct
+ 2025 12:44:03 -0700
+Received: from rnnvmail205.nvidia.com (10.129.68.10) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Thu, 30 Oct
+ 2025 12:44:03 -0700
+Received: from Asurada-Nvidia (10.127.8.13) by mail.nvidia.com (10.129.68.10)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20 via Frontend
+ Transport; Thu, 30 Oct 2025 12:44:01 -0700
+Date: Thu, 30 Oct 2025 12:43:59 -0700
+From: Nicolin Chen <nicolinc@nvidia.com>
+To: "Tian, Kevin" <kevin.tian@intel.com>
+CC: "joro@8bytes.org" <joro@8bytes.org>, "jgg@nvidia.com" <jgg@nvidia.com>,
+	"suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+	"will@kernel.org" <will@kernel.org>, "robin.murphy@arm.com"
+	<robin.murphy@arm.com>, "sven@kernel.org" <sven@kernel.org>, "j@jannau.net"
+	<j@jannau.net>, "jean-philippe@linaro.org" <jean-philippe@linaro.org>,
+	"robin.clark@oss.qualcomm.com" <robin.clark@oss.qualcomm.com>,
+	"dwmw2@infradead.org" <dwmw2@infradead.org>, "baolu.lu@linux.intel.com"
+	<baolu.lu@linux.intel.com>, "yong.wu@mediatek.com" <yong.wu@mediatek.com>,
+	"matthias.bgg@gmail.com" <matthias.bgg@gmail.com>,
+	"angelogioacchino.delregno@collabora.com"
+	<angelogioacchino.delregno@collabora.com>, "tjeznach@rivosinc.com"
+	<tjeznach@rivosinc.com>, "pjw@kernel.org" <pjw@kernel.org>,
+	"palmer@dabbelt.com" <palmer@dabbelt.com>, "aou@eecs.berkeley.edu"
+	<aou@eecs.berkeley.edu>, "heiko@sntech.de" <heiko@sntech.de>,
+	"schnelle@linux.ibm.com" <schnelle@linux.ibm.com>, "mjrosato@linux.ibm.com"
+	<mjrosato@linux.ibm.com>, "wens@csie.org" <wens@csie.org>,
+	"jernej.skrabec@gmail.com" <jernej.skrabec@gmail.com>, "samuel@sholland.org"
+	<samuel@sholland.org>, "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
+	"jonathanh@nvidia.com" <jonathanh@nvidia.com>, "iommu@lists.linux.dev"
+	<iommu@lists.linux.dev>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "asahi@lists.linux.dev"
+	<asahi@lists.linux.dev>, "linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, "linux-arm-msm@vger.kernel.org"
+	<linux-arm-msm@vger.kernel.org>, "linux-mediatek@lists.infradead.org"
+	<linux-mediatek@lists.infradead.org>, "linux-riscv@lists.infradead.org"
+	<linux-riscv@lists.infradead.org>, "linux-rockchip@lists.infradead.org"
+	<linux-rockchip@lists.infradead.org>, "linux-s390@vger.kernel.org"
+	<linux-s390@vger.kernel.org>, "linux-sunxi@lists.linux.dev"
+	<linux-sunxi@lists.linux.dev>, "linux-tegra@vger.kernel.org"
+	<linux-tegra@vger.kernel.org>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, "patches@lists.linux.dev"
+	<patches@lists.linux.dev>
+Subject: Re: [PATCH v1 02/20] iommu: Introduce a test_dev domain op and an
+ internal helper
+Message-ID: <aQO//+6/B/WbdK2h@Asurada-Nvidia>
+References: <cover.1760312725.git.nicolinc@nvidia.com>
+ <32ce256a2ece5d63e99d5858f953586859818ffc.1760312725.git.nicolinc@nvidia.com>
+ <BN9PR11MB5276D10BD480FE66881870B08CFBA@BN9PR11MB5276.namprd11.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <fa8bc10f36b1aeb9ffe1abf6350adbc1@linux.ibm.com>
+In-Reply-To: <BN9PR11MB5276D10BD480FE66881870B08CFBA@BN9PR11MB5276.namprd11.prod.outlook.com>
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN2PEPF0000449E:EE_|SJ0PR12MB6968:EE_
+X-MS-Office365-Filtering-Correlation-Id: fc59e19b-660d-4245-4f39-08de17ecb8cd
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|7416014|1800799024|376014|82310400026|36860700013;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?coK9pFakNqZRASNqG9fe3/gaEPZb8DlHiclo4EwaWEkWZAKKl8GlJNWz4wrR?=
+ =?us-ascii?Q?zr6ViIzANRUVty7P99UfaFiscK6nLpr28ZYfvN+3ieH8u5EU0PlZdzTG/Afy?=
+ =?us-ascii?Q?9HtkE76k8HFPo2wEF7vzBuNyCHWwLVui7AE1MCsT0DFS+ERvONEuzQyaJKeu?=
+ =?us-ascii?Q?9lsMlb89vAivBHTVROLFdkCFPOvoUSk3ulS9U8LWkKCQNQbw9FCgoB/Dps5M?=
+ =?us-ascii?Q?aSc0meAcs1ZuPZyhpdcD/2P/yGkpqUSNKm7timTw822b4HHBlezHDD6xtKBO?=
+ =?us-ascii?Q?d9cVxKl88MNbGNqrOGCyV9o9GhJHxC7ldYqicslM9TQpw6gpM2ugh5z/IST4?=
+ =?us-ascii?Q?S69EL6HnJjEztdEhfXopBiRbSVZT0m3aCX9Vj1f6D8iHzlroOvHMCmwJ+QSz?=
+ =?us-ascii?Q?DmBPTmC6NuhTH38HAsU54abx43pd1jp1VM5AOtne09fvdzKaghdvuPkAkCPM?=
+ =?us-ascii?Q?XO4yeMOTS21GC4MSKdXnteGNrh9SHqFFSPzkgGoK3qlAap8V6VzLD7FfUTvd?=
+ =?us-ascii?Q?wGukH/5GQqklCtNw2se3iLpyJKq+yhh/p7x1Oh7DAaUwQLwQjjhn9VveSwuH?=
+ =?us-ascii?Q?1857KxQeN3PTGK5vwLoSrc36xZnaKV4Y1NGZGq/RjhokDp3qKYTmVDAsvgrQ?=
+ =?us-ascii?Q?F9JiGn9dj0FwWNOA1FmjZ6CaW5rwKM3RmtGlxJRwyjQi0/hVnrPvDiAqanBy?=
+ =?us-ascii?Q?IXO0TNdS7RqvcbpeG2KKyNlC7QAI6CzO02EXM7dKamonTcYhzhYuzDcQtKEh?=
+ =?us-ascii?Q?MM8FIwAQOnhXCNkPS+hEANX/WJ5fjurKBYbHr8dv6l9WzKD2cEEuByaP2FNP?=
+ =?us-ascii?Q?s2HH/3fYRVASoag9C6ZsoJ+XquGxFVd5/qX7dnt3t0fECWt1C+Ei616YPRLr?=
+ =?us-ascii?Q?tCdTAEMsMQaTW3hQnA2bqdbA7OoKoPNeXlogC4psRj66SNa+kAm5zqbHVlAi?=
+ =?us-ascii?Q?0HRRGi1rUlrR6/yNkXFnD2xOcaNv4yJBvpab7GMpJovLEyDLQYKREvxpVTWU?=
+ =?us-ascii?Q?siryXShKBvANj84uEopBeG28/O+oT0AkYNFwm0l7ALhI5ybfgQ2jk51pSONe?=
+ =?us-ascii?Q?3gZQR/E3Ztarm+j92prFSIn/R5b4n3BN4OmlQyyhuQcEkNKv1sN9oebOlAmx?=
+ =?us-ascii?Q?loHctz0qkAx71sLMMkvs95YDc5KPTmYQnJ762Jq+UMRFjAFT4iT82Jri1FTv?=
+ =?us-ascii?Q?XA2/NI6euISdRqATCUafc/tZMdbnkVUEAF65vDqv9wJJpu99o6lC975E2Wp+?=
+ =?us-ascii?Q?vGXluXdS0JBIshFii2XnCUAHDPFAC021nPCiN1b4AcYRo6YMdx2qysYqlich?=
+ =?us-ascii?Q?8jvJHA1MxtV9ktf1E3pTn4J1eyHyjAp/nOAEUN2xHLRpyz7/sXAgrvbyYWfz?=
+ =?us-ascii?Q?dRHUAURlBpSrw+12M00B+tqMj30axKiQHXpCE1E3y5CHcMF0TbXep0yd55ee?=
+ =?us-ascii?Q?r86P+evwtILnuGLvonMgKy7l9L06kp/9dmgrUZKiE3jjzuQiGM/md/q6pG3G?=
+ =?us-ascii?Q?PiXfZGRB1lHNUfpK3AQPB7bmpLA7+uqbGm9u7Q32CqbsvkZb8YdYUUhFXKpH?=
+ =?us-ascii?Q?lcz3iGBIFP3flMEcEyQ=3D?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(7416014)(1800799024)(376014)(82310400026)(36860700013);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Oct 2025 19:44:21.1890
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: fc59e19b-660d-4245-4f39-08de17ecb8cd
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BN2PEPF0000449E.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB6968
 
-On Thu, Oct 30, 2025 at 11:10:22AM +0100, Harald Freudenberger wrote:
-> On 2025-10-29 17:32, Eric Biggers wrote:
-> > On Wed, Oct 29, 2025 at 10:30:40AM +0100, Harald Freudenberger wrote:
-> > > > If the s390 folks could re-test the s390 optimized SHA-3 code (by
-> > > > enabling CRYPTO_LIB_SHA3_KUNIT_TEST and CRYPTO_LIB_BENCHMARK), that
-> > > > would be helpful.  QEMU doesn't support the instructions it uses.  Also,
-> > > > it would be helpful to provide the benchmark output from just before
-> > > > "lib/crypto: s390/sha3: Add optimized Keccak function", just after it,
-> > > > and after "lib/crypto: s390/sha3: Add optimized one-shot SHA-3 digest
-> > > > functions".  Then we can verify that each change is useful.
-> > [...]
-> > > 
-> > > Picked this series from your ebiggers repo branch sha3-lib-v2.
-> > > Build on s390 runs without any complains, no warnings.
-> > > As recommended I enabled the KUNIT option and also
-> > > CRYPTO_SELFTESTS_FULL.
-> > > With an "modprobe tcrypt" I enforced to run the selftests
-> > > and in parallel I checked that the s390 specific CPACF instructions
-> > > are really used (can be done with the pai command and check for
-> > > the KIMD_SHA3_* counters). Also ran some AF-alg tests to verify
-> > > all the the sha3 hashes and check for thread safety.
-> > > All this ran without any findings. However there are NO performance
-> > > related tests involved.
-> > 
-> > Thanks!  Just to confirm, did you actually run the sha3 KUnit test and
-> > verify that all its test cases passed?  That's the most important one.
-> > It also includes a benchmark, if CONFIG_CRYPTO_LIB_BENCHMARK=y is
-> > enabled, and I was hoping to see your results from that after each
-> > change.  The results get printed to the kernel log when the test runs.
-> > 
+On Thu, Oct 30, 2025 at 08:47:18AM +0000, Tian, Kevin wrote:
+> It might need more work to meet this requirement. e.g. after patch4
+> I could still spot other errors easily in the attach path:
 > 
-> Here it is - as this is a zVM system the benchmark values may show poor
-> performance.
+> intel_iommu_attach_device()
+>   iopf_for_domain_set()
+>     intel_iommu_enable_iopf():
 > 
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel: KTAP version 1
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel: 1..1
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     KTAP version 1
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # Subtest: sha3
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # module: sha3_kunit
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     1..21
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 1 test_hash_test_vectors
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 2
-> test_hash_all_lens_up_to_4096
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 3
-> test_hash_incremental_updates
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 4
-> test_hash_buffer_overruns
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 5 test_hash_overlaps
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 6
-> test_hash_alignment_consistency
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 7
-> test_hash_ctx_zeroization
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 8
-> test_hash_interrupt_context_1
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 9
-> test_hash_interrupt_context_2
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 10 test_sha3_224_basic
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 11 test_sha3_256_basic
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 12 test_sha3_384_basic
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 13 test_sha3_512_basic
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 14 test_shake128_basic
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 15 test_shake256_basic
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 16 test_shake128_nist
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 17 test_shake256_nist
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 18
-> test_shake_all_lens_up_to_4096
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 19
-> test_shake_multiple_squeezes
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 20
-> test_shake_with_guarded_bufs
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=1: 14
-> MB/s
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=16: 109
-> MB/s
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=64: 911
-> MB/s
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=127:
-> 1849 MB/s
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=128:
-> 1872 MB/s
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=200:
-> 2647 MB/s
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=256:
-> 3338 MB/s
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=511:
-> 5484 MB/s
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=512:
-> 5562 MB/s
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=1024:
-> 8297 MB/s
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=3173:
-> 12625 MB/s
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=4096:
-> 11242 MB/s
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=16384:
-> 12853 MB/s
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 21 benchmark_hash
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel: # sha3: pass:21 fail:0 skip:0
-> total:21
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel: # Totals: pass:21 fail:0 skip:0
-> total:21
-> Oct 30 10:46:44 b3545008.lnxne.boe kernel: ok 1 sha3
+>         if (!info->pri_enabled)
+>                 return -ENODEV;
 
-Thanks!  Is this with the whole series applied?  Those numbers are
-pretty fast, so probably at least the Keccak acceleration part is
-worthwhile.  But just to reiterate what I asked for:
+Yea, I missed that.
 
-    Also, it would be helpful to provide the benchmark output from just
-    before "lib/crypto: s390/sha3: Add optimized Keccak function", just
-    after it, and after "lib/crypto: s390/sha3: Add optimized one-shot
-    SHA-3 digest functions".
+> intel_iommu_attach_device()
+>   dmar_domain_attach_device()
+>     domain_attach_iommu():
+>       
+>        curr = xa_cmpxchg(&domain->iommu_array, iommu->seq_id,
+>                           NULL, info, GFP_KERNEL);
+>         if (curr) {
+>                 ret = xa_err(curr) ? : -EBUSY;
+>                 goto err_clear;
+>         }
 
-So I'd like to see how much each change helped, which isn't clear if you
-show only the result at the end.
+There is actually an xa_load() in this function:
 
-If there's still no evidence that "lib/crypto: s390/sha3: Add optimized
-one-shot SHA-3 digest functions" actually helps significantly vs. simply
-doing the Keccak acceleration, then we should drop it for simplicity.
+	curr = xa_load(&domain->iommu_array, iommu->seq_id);
+	if (curr) {
+		curr->refcnt++;
+		kfree(info);
+		return 0;
+	}
 
-> > > What's a little bit tricky here is that the sha3 lib is statically
-> > > build into the kernel. So no chance to unload/load this as a module.
-> > > For sha1 and the sha2 stuff I can understand the need to have this
-> > > statically enabled in the kernel. Sha3 is only supposed to be
-> > > available
-> > > as backup in case of sha2 deficiencies. So I can't see why this is
-> > > really statically needed.
-> > 
-> > CONFIG_CRYPTO_LIB_SHA3 is a tristate option.  It can be either built-in
-> > or a loadable module, depending on what other kconfig options select it.
-> > Same as all the other crypto library modules.
+	[...]
+
+	info->refcnt	= 1;
+	info->did	= num;
+	info->iommu	= iommu;
+	curr = xa_cmpxchg(&domain->iommu_array, iommu->seq_id,
+			  NULL, info, GFP_KERNEL);
+	if (curr) {
+		ret = xa_err(curr) ? : -EBUSY;
+		goto err_clear;
+	}
+
+It seems that this xa_cmpxchg could be just xa_store()?
+
+> intel_iommu_attach_device()
+>   dmar_domain_attach_device()
+>     domain_setup_first_level()
+>       __domain_setup_first_level()
+>         intel_pasid_setup_first_level():
+
+Yea. There are a few others in the track also..
+
+>         pte = intel_pasid_get_entry(dev, pasid);
+>         if (!pte) {
+>                 spin_unlock(&iommu->lock);
+>                 return -ENODEV;
+>         }
 > 
-> I know and see this. However, I am unable to switch this to 'm'. It seems
-> like the root cause is that CRYPTO_SHA3='y' and I can't change this to 'm'.
-> And honestly I am unable to read these dependencies (forgive my ignorance):
-> 
-> CONFIG_CRYPTO_SHA3:
-> SHA-3 secure hash algorithms (FIPS 202, ISO/IEC 10118-3)
->  Symbol: CRYPTO_SHA3 [=y]
->   Type  : tristate
->   Defined at crypto/Kconfig:1006
->     Prompt: SHA-3
->     Depends on: CRYPTO [=y]
->     Location:
->       -> Cryptographic API (CRYPTO [=y])
->         -> Hashes, digests, and MACs
->           -> SHA-3 (CRYPTO_SHA3 [=y])
->   Selects: CRYPTO_HASH [=y] && CRYPTO_LIB_SHA3 [=y]
->   Selected by [y]:
->     - CRYPTO_JITTERENTROPY [=y] && CRYPTO [=y]
+>         if (pasid_pte_is_present(pte)) {
+>                 spin_unlock(&iommu->lock);
+>                 return -EBUSY;
+>         }
 
-Well, all that is saying is that there is a built-in option that selects
-SHA-3, which causes it to be built-in.  So SHA-3 being built-in is
-working as intended in that case.  (And it's also intended that we no
-longer allow the architecture-optimized code to be built as a module
-when the generic code is built-in.  That was always a huge footgun.)  If
-you want to know why something that needs SHA-3 is being built-in, you'd
-need to follow the chain of dependencies up to see how it gets selected.
+Hmm, this is fenced by iommu->lock and can race with !attach_dev
+callbacks. It might be difficult to shift these to test_dev..
 
-- Eric
+> On the other hand, how do we communicate whatever errors returned
+> by attach_dev in the reset_done path back to userspace? As noted above
+> resource allocation failures could still occur in attach_dev, but userspace
+> may think the requested attach in middle of a reset has succeeded as
+> long as it passes the test_dev check.
+
+That's a legit point. Jason pointed out that we would end up with
+some inconsistency between driver and core as well, at the SMMUv3
+patch. So, this test_dev doesn't seemingly solve our problem very
+well..
+
+> Does it work better to block the attaching process upon ongoing reset
+> and wake it up later upon reset_done to resume attach?
+
+Yea, I think returning -EBUSY would be the simplest solution like
+we did in the previous version.
+
+But the concern is that VF might not be aware of a PF reset, so it
+can still race an attachment, which would be -EBUSY as well. Then,
+if its driver doesn't retry/defer the attach, this might break it?
+
+FWIW, I am thinking of another design based on Jason's remarks:
+https://lore.kernel.org/linux-iommu/aQBopHFub8wyQh5C@Asurada-Nvidia/
+
+So, instead of core initiating the round trip between the blocking
+domain and group->domain, it forwards dev_reset_prepare/done to the
+driver where it does a low-level attachment that wouldn't fail:
+  For SMMUv3, it's an STE update.
+  For intel_iommu, it seems to be the context table update?
+
+Then, any concurrent would be allowed to carry on to go through all
+the compatibility/sanity checks as usual, but it would bypass the
+final step: STE or context table update.
+
+Thanks
+Nicolin
