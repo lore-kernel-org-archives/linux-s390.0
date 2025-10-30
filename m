@@ -1,140 +1,143 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACCBF27FB3C
-	for <linux-s390@vger.kernel.org>; Thu, 30 Oct 2025 14:55:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B58CD27FD7D;
+	Thu, 30 Oct 2025 14:55:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761836104; cv=none; b=ps8f4hcWbrx1BtomXv9FhS6sljmx+IDAa2bhBo9pGTPMW+G5KwNDpB8dtRSFXvjf1AzSSiKT8SLlV70GcYL3tflfkPxbK8cVYE+u/7s8Vq07RtZ+TNOne6q8ONIi3LJD5p6nmU244u9746wswv7vUjNlo+4zBXnV/mItCvSlfEw=
+	t=1761836126; cv=none; b=ZkQV1Gurj5GJzkCzIOfYrfHnMpQ4+iB8z39ksl0s6e00UbciONCKAOrdn92IgiUiVoS1DiX96jYifkW44i1E5eWxeSD8vS5N/60VzeZi2ZSay1itTzYErQLAk5xfsVSKO9vBa3GN5JssH//6zRFcy9SByPMktbBBIEllwv+EMI0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761836104; c=relaxed/simple;
-	bh=6lxVUIxaRRatI3B3ucLOQH6Kg/459cGXOT+RzzrcHYI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CelMRBwCqxkCsbOKydqrE7Ha9a18B5aTX5OtYG5RrI1LXN8idCaSaGZ5+NTDn6rHFfwc4f98uE2KHkYKoQPs2gVDWIKs7ut1TJ6l4d8AxtM3eRVJtbJJ1rUXYEP4+XEYg9ZOFvmeqjHMMCM1znuh984GlsuqS55xXliUHJKdQHw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eDtade+B; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1761836126; c=relaxed/simple;
+	bh=o6lu6QydXplpa453DsA76dcOeawB8zRmXZzUXrS0XDA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=C+/epnF+9h5QfBiSFoxpPBC/MOYEyfNMoRo8ymtR5j4KGiCbtC6lFXAfLaddto8wiOxCJk4NsldRcuHuetC0NY7CRIUqBZFp7HUltgzURio/o0z7mnoWnHSNg54fPsGctoNHS3f0zq7w6HDEInvYmbGi9vfJVPdsk1HP3dQw4Mk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=M92nI7JD; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eDtade+B"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1761836101;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=2W3chW7pcnMqJOQDxC26D0D4sbrWuL2m2Kca3x2i3PY=;
-	b=eDtade+B/E64nMgCvXxsrcwB16yBsINB0LnGgWpYnK9zyeoyTEd5v18RzJCfM/a+CNE877
-	KjusIIl5kdHWOud71q3n541Ndk7m8S9B4psby13eK70/PwD2SXcLQYytAiwJZdqFd2wMpi
-	CTg4PnE2q4HO+JFZLo9eKnticU116aU=
-Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
- [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-49-4Y9ZgA4oP1WVWLzngyZ2Ig-1; Thu, 30 Oct 2025 10:55:00 -0400
-X-MC-Unique: 4Y9ZgA4oP1WVWLzngyZ2Ig-1
-X-Mimecast-MFC-AGG-ID: 4Y9ZgA4oP1WVWLzngyZ2Ig_1761836100
-Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-4ecf1b7686cso61069881cf.0
-        for <linux-s390@vger.kernel.org>; Thu, 30 Oct 2025 07:55:00 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761836100; x=1762440900;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=2W3chW7pcnMqJOQDxC26D0D4sbrWuL2m2Kca3x2i3PY=;
-        b=Km6UBb04SDfY2BY3xxdgWgQ+HionW3QhgKNlyfUNZqtJyS3e8w9IPwVo+o2doR4q7t
-         L/lMexD5M0JuDdJiW37BJwgj4fwYCFEhXb2WGRDTaOiIjfECWEuH6kUUJcet/9/kPKtO
-         OabqcbeRf9It7xS+mezoXQXj//7dp/lXTasgiq/lolhaDRtIg4lbRsY+NbOvXWkp9qyD
-         X0u2wLUvYqyFhcUiJfnPvArk2B0ail2DrZCy1cpQfbwUhw6QOi456XrY9HrF2APDImB+
-         ipRBziFm2KSEKelJzibRemFHYh/mufPmSS5YotEqBf+BPYtNKis3oIVwDJpGSto6FMjk
-         O4nQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVqQ9rPYecoYplz7Zm3keBjMq7DdN+e0s14ouKiWiD0FSnD2t6Gzr117HWTMbRas82ztvXg94FG/uuS@vger.kernel.org
-X-Gm-Message-State: AOJu0YyLMmFpgZNcaJisP/L4KJ9tbmjNBfS9VWKGfCAbQmmjDRTZyzqa
-	/7Y53SN/fU/ONrqWFdcMDVtK4Ft1/Cq3SL8KDiZ8AFKwPGhuKETuzk6wHnEb9dnTBFnrNkzlG9z
-	Plmh8XYUFMMKY+JXfGA4E+4tOLvEFZPQwR1J6qFBFaOm+92uzCHeMigcpPrLQJN8=
-X-Gm-Gg: ASbGncsojVEVE+xomowMqMQLZ9KoaU6SUYCBjACmEWvY0wxcHOpuAebc5zZ0CBIcC+b
-	wFKrvkvKAGLK5COMmwKOsnuOJ2eJ+Q84H8xe6hHBu9UbHzfKAJhjduHEBbNOSYeTL0o4N9BYxP2
-	mvqlX8OT/VkQEbNYlCDxAQ4MeiqgptrXx7rhz9B586wFeIcy9RV3n957GVf1xcIzdOEEepErrbf
-	3hVKIBTXAUQZjAhlYBcCCRxdN1n/a423dbeckHYY4SCrTxuze8nv5Uq6m9nQC7HuXnBYX/KIdMI
-	ft61EH0wYA6nW+RV8Rxp7YUsN1BBVOGk8lt5qcxPAl+2yqIaRQ7WnCk5/x8cYu/MUkOANXZUajY
-	6Rg==
-X-Received: by 2002:a05:622a:155:b0:4eb:a094:9711 with SMTP id d75a77b69052e-4ed30329abbmr840271cf.29.1761836099649;
-        Thu, 30 Oct 2025 07:54:59 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHDZb2Jtln8mUUIX/hROLSOtY5G4JrM/X3Ba6JkpA3dXWxKYmihpqbJsP81IQR1GIA8Uox8Og==
-X-Received: by 2002:a05:622a:155:b0:4eb:a094:9711 with SMTP id d75a77b69052e-4ed30329abbmr839911cf.29.1761836099092;
-        Thu, 30 Oct 2025 07:54:59 -0700 (PDT)
-Received: from [192.168.2.110] ([70.49.125.126])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4eba386b695sm110232221cf.34.2025.10.30.07.54.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 30 Oct 2025 07:54:58 -0700 (PDT)
-Message-ID: <bdd4ea3a-f326-4eb8-866a-52b1ea2bdc5a@redhat.com>
-Date: Thu, 30 Oct 2025 10:54:47 -0400
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="M92nI7JD"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59UDADVQ003305;
+	Thu, 30 Oct 2025 14:55:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=PjzyxOO3ljwrWLzxHKYkz0ZaromW3OhRhgdBvzSjn
+	Gg=; b=M92nI7JDK0C3voI1ojGRzDTU8RZBm4Az1TgZnMbgb9xjxAqUuMrpOaHbp
+	DHOl7zDygZ0P1mqHIBj1JiLXJuQdV17FL8eEY5l9a6fBgh1sZPndGCaPPBqS2snc
+	JggtT0IDWwde7mAozuLFI3L4OzuWiSKxEcaSGEgOOZR9eJuACePKBm9EJNehyli5
+	m75mEY2QPQnHxnt/CmCqfNXM67j2M0XP/2W5njbCuMaJqcfc9s7cn2aYYupF0HEo
+	XpI0tle8/jk4ttPVmtUEeoD8W2svqC8/iMOHnFINqHKPsHWgbEQBd8DjOtc0iBMd
+	6ttry/Gl62cUxWWaoz7WKYyIZzZpg==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a34a8s2nw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 30 Oct 2025 14:55:11 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59UD8brr023836;
+	Thu, 30 Oct 2025 14:55:09 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4a33vx99nb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 30 Oct 2025 14:55:09 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59UEt5f251642848
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 30 Oct 2025 14:55:05 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7A88620043;
+	Thu, 30 Oct 2025 14:55:05 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4A7CE20040;
+	Thu, 30 Oct 2025 14:55:05 +0000 (GMT)
+Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 30 Oct 2025 14:55:05 +0000 (GMT)
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Luiz Capitulino <luizcap@redhat.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Joao Martins <joao.m.martins@oracle.com>,
+        David Hildenbrand <david@redhat.com>, osalvador@suse.de,
+        aneesh.kumar@kernel.org, akpm@linux-foundation.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH] s390: Disable ARCH_WANT_OPTIMIZE_HUGETLB_VMEMMAP
+Date: Thu, 30 Oct 2025 15:55:05 +0100
+Message-ID: <20251030145505.2764038-1-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] s390: fix HugeTLB vmemmap optimization crash
-To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>
-Cc: David Hildenbrand <david@redhat.com>, borntraeger@linux.ibm.com,
- joao.m.martins@oracle.com, mike.kravetz@oracle.com,
- linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-s390@vger.kernel.org, gor@linux.ibm.com, agordeev@linux.ibm.com,
- osalvador@suse.de, akpm@linux-foundation.org, aneesh.kumar@kernel.org
-References: <20251028211533.47694-1-luizcap@redhat.com>
- <6bbdf4ce-10e3-429b-89fc-ef000f118fec@redhat.com>
- <20251029104457.8393B96-hca@linux.ibm.com>
- <9a8254b9-92f8-4530-88e8-fca3b7465908@redhat.com>
- <20251029124953.8393Cc7-hca@linux.ibm.com>
- <20251030153807.0a835fee@thinkpad-T15>
-Content-Language: en-US, en-CA
-From: Luiz Capitulino <luizcap@redhat.com>
-In-Reply-To: <20251030153807.0a835fee@thinkpad-T15>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=DYkaa/tW c=1 sm=1 tr=0 ts=69037c4f cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VwQbUJbxAAAA:8 a=20KFwNOVAAAA:8
+ a=VnNF1IyMAAAA:8 a=a44tTfYfhnqc_Lg12qoA:9 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-GUID: iMMC-bQfclUX4SL_LRv1u-0FsUQmA35x
+X-Proofpoint-ORIG-GUID: iMMC-bQfclUX4SL_LRv1u-0FsUQmA35x
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDI4MDE2NiBTYWx0ZWRfXyKmS31ZKoikD
+ DpRLyjcWCZHMaGqL2jmly+DRIIPTCimQSXJjpHHNpP7Cw3e2AaoyZfZ1sPYZ5g0TiXZj7Cqhvnw
+ mGX5jmEtnBngBH/C0jxc53+9dxOiGwuUA00Uq/DOBY5OS64GI/3UMaikh/l+RXbRyWUypJN45eK
+ tCf73BmX5IVqcgRZXyPlInSMlYtuOB80HH42T9cqGAhmzQMCfPeLeaYDTpCNG+vVyyiav5/uNJC
+ KXQdlYLDQcav/rhq9tjeIHUXGqV676+NOToVyZztGuuNS11lRDTUxGqKn3fvE5lTqyLh5UJZqzf
+ g51j3moXpQ8+OvJFI1MjsJI7fNNiwvf4+kCxKIJN9jNLhXKF6DJQVn8HQ2t2lrACrtOJOk5ydwF
+ OU1dlQsNQppL7T0dqHSMugBcJJUy7Q==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-10-30_04,2025-10-29_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 clxscore=1015 malwarescore=0 bulkscore=0 impostorscore=0
+ priorityscore=1501 adultscore=0 lowpriorityscore=0 phishscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2510280166
 
-On 2025-10-30 10:38, Gerald Schaefer wrote:
-> On Wed, 29 Oct 2025 13:49:53 +0100
-> Heiko Carstens <hca@linux.ibm.com> wrote:
-> 
->> On Wed, Oct 29, 2025 at 01:15:44PM +0100, David Hildenbrand wrote:
->>> BTW, I'm staring at s390x's flush_tlb() function and wonder why that one is
->>> defined. I'm sure there is a good reason ;)
->>
->> Yes, I stumbled across that yesterday evening as well. I think its only
->> purpose is that it wants to be deleted :). I just didn't do it yet since I
->> don't want to see a merge conflict with this patch.
->>
->> I also need to check if the only usage of flush_tlb_page(), which is also a
->> no-op for s390, in mm/memory.c is not indicating a problem too.
->>
->>>> Changing active entries without the detour over an invalid entry or using
->>>> proper instructions like crdte or cspg is not allowed on s390. This was solved
->>>> for other parts that change active entries of the kernel mapping in an
->>>> architecture compliant way for s390 (see arch/s390/mm/pageattr.c).
->>>
->>> Good point. I recall ARM64 has similar break-before-make requirements
->>> because they cannot tolerate two different TLB entries (small vs. large) for
->>> the same virtual address.
->>>
->>> And if I rememebr correctly, that's the reason why arm64 does not enable
->>> ARCH_WANT_OPTIMIZE_HUGETLB_VMEMMAP just yet.
->>
->> Ok, let's wait for Gerald. Maybe there is a non-obvious reason why this works
->> anyway.
-> 
-> No, using pmd_populate_kernel() on an active/valid PMD in vmemmap_split_pmd()
-> should violate the architecture, as you described. So this would not work
-> with current code, and also should not have worked when I did the change,
-> or only by chance.
-> 
-> Therefore, we should disable ARCH_WANT_OPTIMIZE_HUGETLB_VMEMMAP again, for
-> now. Doing it right would most likely require common code changes and
-> CRDTE / CSPG usage on s390. Not sure if this feature is really worth the
-> hassle, reading all the drawbacks that I mentioned in my commit 00a34d5a99c0
-> ("s390: select ARCH_WANT_HUGETLB_PAGE_OPTIMIZE_VMEMMAP").
+As reported by Luiz Capitulino enabling HVO on s390 leads to reproducible
+crashes. The problem is that kernel page tables are modified without
+flushing corresponding TLB entries.
 
-OK, let's do the right thing. Do you plan to post a patch? I can do it
-if you would like.
+Even if it looks like the empty flush_tlb_all() implementation on s390 is
+the problem, it is actually a different problem: on s390 it is not allowed
+to replace an active/valid page table entry with another valid page table
+entry without the detour over an invalid entry. A direct replacement may
+lead to random crashes and/or data corruption.
+
+In order to invalidate an entry special instructions have to be used
+(e.g. ipte or idte). Alternatively there are also special instructions
+available which allow to replace a valid entry with a different valid
+entry (e.g. crdte or cspg).
+
+Given that the HVO code currently does not provide the hooks to allow for
+an implementation which is compliant with the s390 architecture
+requirements, disable ARCH_WANT_OPTIMIZE_HUGETLB_VMEMMAP again, which is
+basically a revert of the original patch which enabled it.
+
+Reported-by: Luiz Capitulino <luizcap@redhat.com>
+Closes: https://lore.kernel.org/all/20251028153930.37107-1-luizcap@redhat.com/
+Fixes: 00a34d5a99c0 ("s390: select ARCH_WANT_HUGETLB_PAGE_OPTIMIZE_VMEMMAP")
+Cc: stable@vger.kernel.org
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ arch/s390/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index c4145672ca34..df22b10d9141 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -158,7 +158,6 @@ config S390
+ 	select ARCH_WANT_IRQS_OFF_ACTIVATE_MM
+ 	select ARCH_WANT_KERNEL_PMD_MKWRITE
+ 	select ARCH_WANT_LD_ORPHAN_WARN
+-	select ARCH_WANT_OPTIMIZE_HUGETLB_VMEMMAP
+ 	select ARCH_WANTS_THP_SWAP
+ 	select BUILDTIME_TABLE_SORT
+ 	select CLONE_BACKWARDS2
+-- 
+2.48.1
 
