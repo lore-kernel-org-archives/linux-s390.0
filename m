@@ -1,292 +1,261 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67975339702;
-	Thu, 30 Oct 2025 08:47:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.14
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761814072; cv=fail; b=Vg0LIzmbdEOFJC5quS1UmMgQoSTBkbo9jE2yZolH/ft2eQfyPx31r81TBQQdpd3hv8re6hvEqxXL+nyBa8q2ZNysXjIey8PuTJHjV11MRYiiHfFS++LOkm0KMydsHmmaRPEo+WH8nqzCP7xSowPNyFZ2zqNCDJv/9ZDo6OazOho=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761814072; c=relaxed/simple;
-	bh=7HJrQIcdvjrqvrwCfMdtv/Wofi/kGmpbuA1E5WFnSw4=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=rWMM82gdoRnUdQB9YfeBH4kKl9R+7bVyogqegtTt8GN5mu2R+XkRhcl9c4A5+OJHVtWJfzFy3zDrRIWnE2ZL8XlBx6EDgKUQ7d4+Ii1tFtDO3m4GHYvRO2FJFMEsRFbbdzIS3zWExdwf/n1FXcMFPeQgbw8LwW6T05wBmyRzmOI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=k9nNHFK9; arc=fail smtp.client-ip=192.198.163.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5C4D41C69;
+	Thu, 30 Oct 2025 10:11:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1761819075; cv=none; b=j995vF9Kb8XTilEJ7SoFpBY4M1D7v23kfsIdmKEAmymdQMl1fWQKmR6LDVczpA1dFc3j6GwmSe6DQIxLpWeuKeXbnd1+D64p6l0vSxp9TIdg3GqUhWln/JBDBJ/DKOZ/tAGYP1R6cIfP9lu6ap6FFEC1XZPshv1pjdMfHGutiHo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1761819075; c=relaxed/simple;
+	bh=3F5YlBlt+z0kzM8nCLqJkuqh3UPHp1fBawFYrP8ygjI=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=DNFVK87e4OQki09y4+k3S0AytsVpdUbnd0NHwnmY2an4faVcjuiX1wBTp5Q3iFSnc8q+NEyEFPsNcR2brtZ3e3Q335iViKbL29R12QHzf4VlYSKKbo6NOvDO01+FXNTvRr+ki7mwqStHURiMgPMHOIar3N30/mwOQrrigrkEI6k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HZ5pUGLA; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="k9nNHFK9"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1761814071; x=1793350071;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=7HJrQIcdvjrqvrwCfMdtv/Wofi/kGmpbuA1E5WFnSw4=;
-  b=k9nNHFK93ubIkopnoQIMTXZxwpvir1eAlQgaj1mmwQx6rm/RkRi+a3wm
-   zWAAF6+48KD6rKLesuTIN0gwEE5EgsryK25Ni4Zedi5AAz7VoNmZW4hlI
-   gFCvVF8ULW6eT23Cuc7JSuIWB2oy8xxrjbegJTfKsRvD2noXxD1ht7pvh
-   euT7auksgMHzTJXcfiac34lKHSGr0Zv6re2eg5CGpJnG7lJlVrHQrQdvU
-   HBeTv9CRYHluAwdjEp25GbcOvrjDjwlLkS534inSRWXADngAwS65fmtnd
-   76JEhv4TEpdrRSFej3uhH3gjn7b99KovwVPsvljZd/zo+Mb3emak9zHRn
-   g==;
-X-CSE-ConnectionGUID: th4XkhNiTeaX03DtGwVjwg==
-X-CSE-MsgGUID: 4PFZ4+1HTc2KlbQJ1X4AtQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11597"; a="63981895"
-X-IronPort-AV: E=Sophos;i="6.19,266,1754982000"; 
-   d="scan'208";a="63981895"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Oct 2025 01:47:29 -0700
-X-CSE-ConnectionGUID: 3bTe7Nu2TMuj83Cgky0jOA==
-X-CSE-MsgGUID: PwwpMsq7Swa0EsGj/2CVEg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.19,266,1754982000"; 
-   d="scan'208";a="185553276"
-Received: from fmsmsx903.amr.corp.intel.com ([10.18.126.92])
-  by orviesa009.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Oct 2025 01:47:28 -0700
-Received: from FMSMSX902.amr.corp.intel.com (10.18.126.91) by
- fmsmsx903.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.27; Thu, 30 Oct 2025 01:47:27 -0700
-Received: from fmsedg901.ED.cps.intel.com (10.1.192.143) by
- FMSMSX902.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.27 via Frontend Transport; Thu, 30 Oct 2025 01:47:27 -0700
-Received: from BN1PR04CU002.outbound.protection.outlook.com (52.101.56.42) by
- edgegateway.intel.com (192.55.55.81) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.27; Thu, 30 Oct 2025 01:47:27 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=KdNA1OmlDafitTHLTa0lr0aIaPqxHdElNox9RCjy8NeAwuSDmWgRq4PRcnCe23bi/Go0Sa0+8/vgUJFFaRI4V3XMBzIEKL0zokcqwFCpwKG4Z7fvUcEERhi6U5svnKk7/hQEkmOwjKTU4z8QCYcoPkb9LJ2IFWeHRm1kpyBPJF/Y28nNT07UWu50pR8vkDwLQPQrEjfD6wVutaDP7Lk8BzWwLGjgKGp90TW3i0FHq5LmuwyhkJ4odpq4rwvMw1BAclUgjysQfS6j6mePP3KAp47tFZiR5tB1HBICEDkn4f2zR/0Xe3uYOcZfgBXaKSLJj9/a4/OcJ3mpGG04A4M1ww==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=1s1/VJEF3Mz6y1ZYiTygT6SlCVzCFUvaKEE+HsfUI14=;
- b=DPaZ7SWr7gnoeMtvT0AqBLCe3j7hrM+hIxX+Ru795ga0bIBdCBEp/SmGzivlKcKjsfqtGdADAO7Unevwf5ZuOKM/7NQq1HLPHc+nBHxtcFwMV1nvjU+P8hJB4sJ6rUTAvRQpkaPbBMYDkYsXHOGkqOMF+DQcbClhsSgB4ba4aNZC2qZQ/COwiM79E3Nfhh8LuYprR5a9eoerhQNXE2y+IFsBU98wLTGWPlCgk56BvC80h343oi8H60hlEW82iCYpJ4pbD/4+LT1W+F2DWNrxfJ0qUovAoBOyzZgY5fZM9SuVNs9UAyluOHKyKjEdlumKE9HG4qPSEEBpi9phMmKv/w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by SN7PR11MB7115.namprd11.prod.outlook.com (2603:10b6:806:29a::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9275.13; Thu, 30 Oct
- 2025 08:47:19 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::b576:d3bd:c8e0:4bc1]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::b576:d3bd:c8e0:4bc1%5]) with mapi id 15.20.9275.013; Thu, 30 Oct 2025
- 08:47:18 +0000
-From: "Tian, Kevin" <kevin.tian@intel.com>
-To: Nicolin Chen <nicolinc@nvidia.com>, "joro@8bytes.org" <joro@8bytes.org>,
-	"jgg@nvidia.com" <jgg@nvidia.com>
-CC: "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-	"will@kernel.org" <will@kernel.org>, "robin.murphy@arm.com"
-	<robin.murphy@arm.com>, "sven@kernel.org" <sven@kernel.org>, "j@jannau.net"
-	<j@jannau.net>, "jean-philippe@linaro.org" <jean-philippe@linaro.org>,
-	"robin.clark@oss.qualcomm.com" <robin.clark@oss.qualcomm.com>,
-	"dwmw2@infradead.org" <dwmw2@infradead.org>, "baolu.lu@linux.intel.com"
-	<baolu.lu@linux.intel.com>, "yong.wu@mediatek.com" <yong.wu@mediatek.com>,
-	"matthias.bgg@gmail.com" <matthias.bgg@gmail.com>,
-	"angelogioacchino.delregno@collabora.com"
-	<angelogioacchino.delregno@collabora.com>, "tjeznach@rivosinc.com"
-	<tjeznach@rivosinc.com>, "pjw@kernel.org" <pjw@kernel.org>,
-	"palmer@dabbelt.com" <palmer@dabbelt.com>, "aou@eecs.berkeley.edu"
-	<aou@eecs.berkeley.edu>, "heiko@sntech.de" <heiko@sntech.de>,
-	"schnelle@linux.ibm.com" <schnelle@linux.ibm.com>, "mjrosato@linux.ibm.com"
-	<mjrosato@linux.ibm.com>, "wens@csie.org" <wens@csie.org>,
-	"jernej.skrabec@gmail.com" <jernej.skrabec@gmail.com>, "samuel@sholland.org"
-	<samuel@sholland.org>, "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
-	"jonathanh@nvidia.com" <jonathanh@nvidia.com>, "iommu@lists.linux.dev"
-	<iommu@lists.linux.dev>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "asahi@lists.linux.dev"
-	<asahi@lists.linux.dev>, "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "linux-arm-msm@vger.kernel.org"
-	<linux-arm-msm@vger.kernel.org>, "linux-mediatek@lists.infradead.org"
-	<linux-mediatek@lists.infradead.org>, "linux-riscv@lists.infradead.org"
-	<linux-riscv@lists.infradead.org>, "linux-rockchip@lists.infradead.org"
-	<linux-rockchip@lists.infradead.org>, "linux-s390@vger.kernel.org"
-	<linux-s390@vger.kernel.org>, "linux-sunxi@lists.linux.dev"
-	<linux-sunxi@lists.linux.dev>, "linux-tegra@vger.kernel.org"
-	<linux-tegra@vger.kernel.org>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>, "patches@lists.linux.dev"
-	<patches@lists.linux.dev>
-Subject: RE: [PATCH v1 02/20] iommu: Introduce a test_dev domain op and an
- internal helper
-Thread-Topic: [PATCH v1 02/20] iommu: Introduce a test_dev domain op and an
- internal helper
-Thread-Index: AQHcO9UzG68S0waveEiEek0NizPUfLTadzaA
-Date: Thu, 30 Oct 2025 08:47:18 +0000
-Message-ID: <BN9PR11MB5276D10BD480FE66881870B08CFBA@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <cover.1760312725.git.nicolinc@nvidia.com>
- <32ce256a2ece5d63e99d5858f953586859818ffc.1760312725.git.nicolinc@nvidia.com>
-In-Reply-To: <32ce256a2ece5d63e99d5858f953586859818ffc.1760312725.git.nicolinc@nvidia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|SN7PR11MB7115:EE_
-x-ms-office365-filtering-correlation-id: 134eb5b2-587a-43a1-85e9-08de1790ef20
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|376014|7416014|1800799024|366016|38070700021;
-x-microsoft-antispam-message-info: =?us-ascii?Q?zFwgEXejoRwZpUwM1WwS3JLSTeqfHO4cBmjZM2JtH7FM7vf1ub9S3zuRgynH?=
- =?us-ascii?Q?bKuYMnOYy0mPYOy7mMgYKUUMTLjawOWSLlZyC5uswjfvtCHWY9lq3J8HHMQd?=
- =?us-ascii?Q?G6jBTzqRvZ0u5ARf7A5iHynI70VbHi7bDmixPJdXt6tZ0iFPwVZyf9z3i/0G?=
- =?us-ascii?Q?mlcvN07MBjXqTLw3WTG86ZSI8mFPtMV36z+GIDtxvN5sg0NUrJtd5ZchYv35?=
- =?us-ascii?Q?hRN9TMlKy4HbfaZe7GMkrk1H4BpwzuLc4DfH6u1tjhshR9d6scqyKf76fmtu?=
- =?us-ascii?Q?E4apEbBB2gWUJmHXMPCWEK+2EsSPXhdThWJXSlfgzEDaAxpXIcp4QIv1kjaX?=
- =?us-ascii?Q?rnFWEdCKvukeJRTeABkiD/xTBz7S3TUg47jy4Loatv1EcMsHhqDha3HoGCM+?=
- =?us-ascii?Q?kY71ozfoo1FqeuCQsG2s7k51697NfUMI6mB0Y6pug2K+qyuuPd1MdEJEObyV?=
- =?us-ascii?Q?hVasgPZvceQW1eMosut4HG4kLFI7ClCBubGfsLNDt9yymlwZYK8TR0IPsJqa?=
- =?us-ascii?Q?/zEWZWb08M254Uz1vj0dMSSHVnQw9iKd3ENHOcnIATqBOYLifKE0cTEWlmq+?=
- =?us-ascii?Q?ajfahPmgiseVgP3elnl8mHuvbL2FcbsKbMlkIAATYVu9PifOfCZV4zdJKgK1?=
- =?us-ascii?Q?sHUnsCWID0QDmGsyG5ryDC6d0Ig2+p1dCA3NNdIxE38edN/uOCPmL8gAO5Qr?=
- =?us-ascii?Q?RI3lcWntXIJoFmLJ/J9eRCfDHTsyrQL2uLvgdrq87k25RGx0rRQX9vx3Qy2B?=
- =?us-ascii?Q?Tl87/qktaHaK0x/T4LIjTOubfBAVL8VTk10y0IaDFX+nXrH3J7t3MxtRnIuc?=
- =?us-ascii?Q?Pr4aY/Tipt1WHYqxRLQWRJQ4lChAx7FziIyLDvI2j5SJ3i8TVuf+ZW4vrM3m?=
- =?us-ascii?Q?EX4ZBK0dLYjXDVb2HubKTaQV1/kizQiby70x3/d3BC1O0noAIZGXxeP30ENF?=
- =?us-ascii?Q?SX5wjgXWGzGhVL+KdwDGNnn1++pqAGhubtBr4kHN0P29rzrz376cqFBgYcFZ?=
- =?us-ascii?Q?NAte2ElecLeGSXq7RYoAFe8UBnHLxZxQjK5Uf5XyCXdNMUCy2eom3zFKFmp1?=
- =?us-ascii?Q?zBD4GQUgtylPqjiZmofFv9OwhCTx90CGXnLvyd+EJePI+AI3dMalGwYnYqKv?=
- =?us-ascii?Q?QhuXJDfYj1C/evvfKIzvo/SgEnW0eTx3cT4GrIqViV1Wv2kTOUs5OsbNS2uO?=
- =?us-ascii?Q?lMGe2D11tEbMz1RHFvsAepE4p1k03TdubKYBDdlBEN1yHQx/z0gbbaQlmpHb?=
- =?us-ascii?Q?qksVaMJYc46F3i5spuzQB+AEreh0Io/mhczslvuXUrUMwEwzByV0CxeMBT8G?=
- =?us-ascii?Q?Hlxqecx670lEy9vSjw5W4iDItWd/HZKGZl3G6dmYhM/ojipUmt5jQFvYYNKU?=
- =?us-ascii?Q?UjuaqLKBVbKg3Rl0sMaVxPhTQjGCQfDYaaTVzk0HPKGQuYmrZ9Fb5ywl43Ph?=
- =?us-ascii?Q?4fubwok8PPUYSwBwLI7yXWqLYgNDOi9Hm4wO9CHCsXqUYHyvook3df8dLZEL?=
- =?us-ascii?Q?j/mS4ObvXuTmeGdrBf/WGtMAc639bMnRS3Ha?=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016)(38070700021);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?E1p6Zz6lEE2WVzQIwIIdQ/mZC1E75R/hhJvUKQiOwLjAeFcxuXBWY/CWUBrp?=
- =?us-ascii?Q?uGQpqvbnn2cnIsN+JBxSJCndzDWgv6rIJAdq8i+6j7CY2BP/+g1o+gzFOFO6?=
- =?us-ascii?Q?Lz3+jvil1OeOc4k+AkNsW6Ypw5qYPNja7+I+zZn/DLGJaP2RaZm9kjipIv9r?=
- =?us-ascii?Q?Ete1X+WrhInXqs610+gIC4YQBA4gLMtBhqzOm7f6412Ec2Fpqx3gpP4QvvSl?=
- =?us-ascii?Q?q1uN+BpSro7uoCZ5NjooWKXEK4QrliJiHxfQONvHUYrWpt+66Alg/XCFtP9S?=
- =?us-ascii?Q?NCKQOX7BouobFGO0pGUayXeZLMSwLI5fgCwzpIi+YNDKiJDetyYIKPtSpka1?=
- =?us-ascii?Q?JN3ut6I6143o6PDDmu3yOMM1z6TfmBX6Z++pCMQQdn+j2j9U9tiw2Dvgoued?=
- =?us-ascii?Q?IbBXsUnjgSZe8JTxKb+e6zpp6LsuCEC4zgZtQxj88+QE3wnGhh6GFHA6hcOS?=
- =?us-ascii?Q?D1NRNFETP/PQg/DoiPsQ62LPWaszwqOWWNd3gEEJju9/4c+A5XU1yedAHDEj?=
- =?us-ascii?Q?APJ8cWJ8jv4HIuRpYTSXzznM7+IuAQbwlFgIpfWT1cClXW2WA+rbuM/uefmT?=
- =?us-ascii?Q?UDTegALaDifYmOMpPIjo+zApjl/OQJlJd7YBbIm2RkC2zbnRBn1hPZ6SzKsQ?=
- =?us-ascii?Q?+eSdkwVytkoF6DFfEaC/FEpad/EMjdRtXX9NNZOfI9i/K88UXQux1TEl5vD3?=
- =?us-ascii?Q?D+AmJJUSjP1RSEbCeL0J5xD9ZJuokzj+mvMl/aPJCJFYNUWjeBGhoIayTDkE?=
- =?us-ascii?Q?9xUlJR6kFfwuSm7wEaGdnXplwv5RdAWvyf7QsZwtorAZuoF3dTimG+z5rJvG?=
- =?us-ascii?Q?gOdKE/vfQl8knk6Ip/WC4n3zT7or5hR/1TtUo/HMPuvMKLmbUgrZtwznqsEM?=
- =?us-ascii?Q?DY/lI2QtLCXqMyhUHRNjPZJ2lGcw56bRPMHNwHuXeT4Lvpe90olARzQ7bu1X?=
- =?us-ascii?Q?zEc1CCPKt0mcYJOLe5xQmikVtO3lEeTUaJgejNdZZOMWY/BjB9QgNIICsw5e?=
- =?us-ascii?Q?0+gyqxqPS71zpbtuZFcZrP/mq5EeS6MfMZHSXpM5l5G7HIPjgeqtYqRjEJjd?=
- =?us-ascii?Q?G3hvhFN/C5Lb+Xy3NjYd9LJKNeyvCtYuwvtjSsIbzlbLLuyTSWersHqTiaYW?=
- =?us-ascii?Q?u5vsd69wxzs2gj3n5VVjDqgshXzACmvDYeBpc32F3ZnKrvVsFlCAJGMVwcnW?=
- =?us-ascii?Q?QBHZDvtBevarZGwFm8x11WiqsIZRRgKe+jCwRbYKk9+r8MYZRecbmnKTCgXe?=
- =?us-ascii?Q?n1zUuuUYp3L5UbT3gNRg66hvVqrlkBk6QWk+/hnL+MzAr9ofVkZXSeTCnssd?=
- =?us-ascii?Q?DHZsjWEXvfkpZUReLoMqir92h8qW6QlH/U2EqoibPS2VIU7SzR/qsyp7gyci?=
- =?us-ascii?Q?ODhmALvgXbazP92GRv/00+5X51JTG0Apcctzzx3mqMzc4nN8TQLFs3zIGa6P?=
- =?us-ascii?Q?tPUVRhtMBqs0TWSa/c+NNh7es2GtUC24GC+jiZT4fppCfetw9wogLdMIxPif?=
- =?us-ascii?Q?rrhCPUJm5FRfcRRBrrZOAEqTW5tX3boaqw8u2eiEqOTGEyf7RFZpls/321Xx?=
- =?us-ascii?Q?7DCfwvCRvc43j+4p51/pkZzjehAm9L5i5siqVzDk?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HZ5pUGLA"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59TKfqth026155;
+	Thu, 30 Oct 2025 10:10:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
+	 bh=b+9c//CqGqXs1EvYyaw9p4mfVGksibj40nFftwj0X2c=; b=HZ5pUGLAVosr
+	D4gJY0ZzWO1qUpd3FYVqOCF8utJoR3aEb/BDWGkwS/Afbg2zab+PQkt0RIGZ/hF2
+	kFXQAv4Z6IgNC854SpCnTgfaypHNn8COBdn+csFJrOouRbhhjGaDCku8Vo3JwxMy
+	wkiwweW9/VJ3IpTLZDYgz9IjafSQ6iJyX3dm9JEsrGIzX78bHIRWp8eXSfulal79
+	iTTR8viyJ1RkQ6+fPh9CETL3L26Uh2YM1CRPa5qX4mWMwLd4JdrEkxHF3Ne8I9cm
+	q4FXpvT4QRDvzV0Zz5L+f200NqxGKcF/7vAKiVjCMwrBlqouAocMTUneQ4vvHbqp
+	cisQz6jnvw==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a34aaqhjv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 30 Oct 2025 10:10:25 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59U9exwE023919;
+	Thu, 30 Oct 2025 10:10:24 GMT
+Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4a33vx849j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 30 Oct 2025 10:10:24 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59UAANik6947366
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 30 Oct 2025 10:10:23 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8EE825805F;
+	Thu, 30 Oct 2025 10:10:23 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AB5705805B;
+	Thu, 30 Oct 2025 10:10:22 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 30 Oct 2025 10:10:22 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 134eb5b2-587a-43a1-85e9-08de1790ef20
-X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Oct 2025 08:47:18.7654
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: XAyTy0u1jKy7gRXLoVFdgw0c2bk8z3YyR3GlsBBSy/szV+pq6yWa7qufROcuJPnC3wAAtc/ukEM9tS9cmzXvIQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR11MB7115
-X-OriginatorOrg: intel.com
+Date: Thu, 30 Oct 2025 11:10:22 +0100
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: Eric Biggers <ebiggers@kernel.org>
+Cc: linux-crypto@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Ard
+ Biesheuvel <ardb@kernel.org>,
+        "Jason A . Donenfeld" <Jason@zx2c4.com>,
+        Holger Dengler <dengler@linux.ibm.com>,
+        Herbert Xu
+ <herbert@gondor.apana.org.au>,
+        linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 00/15] SHA-3 library
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <20251029163216.GA1603@sol>
+References: <20251026055032.1413733-1-ebiggers@kernel.org>
+ <ba3ff3d5183ab78b3d02d8db30223def@linux.ibm.com> <20251029163216.GA1603@sol>
+Message-ID: <fa8bc10f36b1aeb9ffe1abf6350adbc1@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=ALkgKXG8 c=1 sm=1 tr=0 ts=69033991 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=kj9zAlcOel0A:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=WVmDiQGdFGOvvYNDNwwA:9 a=CjuIK1q_8ugA:10 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-ORIG-GUID: 1NTO-GqcrkTuq3zAPtgiiup9KtYe8xFC
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDI4MDE2NiBTYWx0ZWRfX0VdIDefrEemR
+ oyDicGdm8gl6OM91qy96lykDj0F3lXrv1kMFJVJAUdfu0jEUzASdRCCQM7SfwK1NE/rsG8Te3Q5
+ JNzilqS6YwqXXpIwlBbVSIeg+tzYGxwC7w9a1tcMjLmQeer7HIF9SBVhYiCxKR2Ya4GqqVcsVEy
+ j/2PkkhSMd77aXOTnuuc6d+Q5KJ26B9lX9vyevKa23naSUPGstkGRhIn4ililE+S8JI/+hJRMGy
+ JGQsVG03xdEC3liLanplyG5a4d90DWOHxCGJbSOzlat6gFMkzyaRS3PjvhLgJD2MDJ1ro643trg
+ NEhilKFA4uRJF33gnTQZv+DbJ0dNc8pnO5s9nut3kgssduKZWp/VI2wKxgCI+WomEC30IGB+15Y
+ CMsz8wTp7kAtxx6K/vIvlAkT2fL8Kg==
+X-Proofpoint-GUID: 1NTO-GqcrkTuq3zAPtgiiup9KtYe8xFC
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-10-30_02,2025-10-29_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 suspectscore=0 impostorscore=0 lowpriorityscore=0
+ clxscore=1015 adultscore=0 bulkscore=0 malwarescore=0 phishscore=0
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2510280166
 
-> From: Nicolin Chen <nicolinc@nvidia.com>
-> Sent: Monday, October 13, 2025 8:05 AM
-> @@ -714,7 +714,12 @@ struct iommu_ops {
->=20
->  /**
->   * struct iommu_domain_ops - domain specific operations
-> - * @attach_dev: attach an iommu domain to a device
-> + * @test_dev: Test compatibility prior to an @attach_dev or
-> @set_dev_pasid call.
-> + *            A driver-level callback of this op should do a thorough sa=
-nity, to
-> + *            make sure a device is compatible with the domain. So the f=
-ollowing
-> + *            @attach_dev and @set_dev_pasid functions would likely succ=
-eed
-> with
-> + *            only one exception due to a temporary failure like out of =
-memory.
-> + *            It's suggested to avoid the kernel prints in this op.
->   *  Return:
->   * * 0		- success
->   * * EINVAL	- can indicate that device and domain are incompatible due
-> to
-> @@ -722,11 +727,15 @@ struct iommu_ops {
->   *		  driver shouldn't log an error, since it is legitimate for a
->   *		  caller to test reuse of existing domains. Otherwise, it may
->   *		  still represent some other fundamental problem
-> - * * ENOMEM	- out of memory
-> - * * ENOSPC	- non-ENOMEM type of resource allocation failures
->   * * EBUSY	- device is attached to a domain and cannot be changed
->   * * ENODEV	- device specific errors, not able to be attached
->   * * <others>	- treated as ENODEV by the caller. Use is discouraged
-> + * @attach_dev: attach an iommu domain to a device
-> + *  Return:
-> + * * 0		- success
-> + * * ENOMEM	- out of memory
-> + * * ENOSPC	- non-ENOMEM type of resource allocation failures
-> + * * <others>	- Use is discouraged
+On 2025-10-29 17:32, Eric Biggers wrote:
+> On Wed, Oct 29, 2025 at 10:30:40AM +0100, Harald Freudenberger wrote:
+>> > If the s390 folks could re-test the s390 optimized SHA-3 code (by
+>> > enabling CRYPTO_LIB_SHA3_KUNIT_TEST and CRYPTO_LIB_BENCHMARK), that
+>> > would be helpful.  QEMU doesn't support the instructions it uses.  Also,
+>> > it would be helpful to provide the benchmark output from just before
+>> > "lib/crypto: s390/sha3: Add optimized Keccak function", just after it,
+>> > and after "lib/crypto: s390/sha3: Add optimized one-shot SHA-3 digest
+>> > functions".  Then we can verify that each change is useful.
+> [...]
+>> 
+>> Picked this series from your ebiggers repo branch sha3-lib-v2.
+>> Build on s390 runs without any complains, no warnings.
+>> As recommended I enabled the KUNIT option and also 
+>> CRYPTO_SELFTESTS_FULL.
+>> With an "modprobe tcrypt" I enforced to run the selftests
+>> and in parallel I checked that the s390 specific CPACF instructions
+>> are really used (can be done with the pai command and check for
+>> the KIMD_SHA3_* counters). Also ran some AF-alg tests to verify
+>> all the the sha3 hashes and check for thread safety.
+>> All this ran without any findings. However there are NO performance
+>> related tests involved.
+> 
+> Thanks!  Just to confirm, did you actually run the sha3 KUnit test and
+> verify that all its test cases passed?  That's the most important one.
+> It also includes a benchmark, if CONFIG_CRYPTO_LIB_BENCHMARK=y is
+> enabled, and I was hoping to see your results from that after each
+> change.  The results get printed to the kernel log when the test runs.
+> 
 
-It might need more work to meet this requirement. e.g. after patch4
-I could still spot other errors easily in the attach path:
+Here it is - as this is a zVM system the benchmark values may show poor 
+performance.
 
-intel_iommu_attach_device()
-  iopf_for_domain_set()
-    intel_iommu_enable_iopf():
+Oct 30 10:46:44 b3545008.lnxne.boe kernel: KTAP version 1
+Oct 30 10:46:44 b3545008.lnxne.boe kernel: 1..1
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     KTAP version 1
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # Subtest: sha3
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # module: sha3_kunit
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     1..21
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 1 
+test_hash_test_vectors
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 2 
+test_hash_all_lens_up_to_4096
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 3 
+test_hash_incremental_updates
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 4 
+test_hash_buffer_overruns
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 5 test_hash_overlaps
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 6 
+test_hash_alignment_consistency
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 7 
+test_hash_ctx_zeroization
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 8 
+test_hash_interrupt_context_1
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 9 
+test_hash_interrupt_context_2
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 10 test_sha3_224_basic
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 11 test_sha3_256_basic
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 12 test_sha3_384_basic
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 13 test_sha3_512_basic
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 14 test_shake128_basic
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 15 test_shake256_basic
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 16 test_shake128_nist
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 17 test_shake256_nist
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 18 
+test_shake_all_lens_up_to_4096
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 19 
+test_shake_multiple_squeezes
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 20 
+test_shake_with_guarded_bufs
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=1: 
+14 MB/s
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=16: 
+109 MB/s
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=64: 
+911 MB/s
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: 
+len=127: 1849 MB/s
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: 
+len=128: 1872 MB/s
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: 
+len=200: 2647 MB/s
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: 
+len=256: 3338 MB/s
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: 
+len=511: 5484 MB/s
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: 
+len=512: 5562 MB/s
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: 
+len=1024: 8297 MB/s
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: 
+len=3173: 12625 MB/s
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: 
+len=4096: 11242 MB/s
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: 
+len=16384: 12853 MB/s
+Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 21 benchmark_hash
+Oct 30 10:46:44 b3545008.lnxne.boe kernel: # sha3: pass:21 fail:0 skip:0 
+total:21
+Oct 30 10:46:44 b3545008.lnxne.boe kernel: # Totals: pass:21 fail:0 
+skip:0 total:21
+Oct 30 10:46:44 b3545008.lnxne.boe kernel: ok 1 sha3
 
-        if (!info->pri_enabled)
-                return -ENODEV;
+>> What's a little bit tricky here is that the sha3 lib is statically
+>> build into the kernel. So no chance to unload/load this as a module.
+>> For sha1 and the sha2 stuff I can understand the need to have this
+>> statically enabled in the kernel. Sha3 is only supposed to be 
+>> available
+>> as backup in case of sha2 deficiencies. So I can't see why this is
+>> really statically needed.
+> 
+> CONFIG_CRYPTO_LIB_SHA3 is a tristate option.  It can be either built-in
+> or a loadable module, depending on what other kconfig options select 
+> it.
+> Same as all the other crypto library modules.
 
-intel_iommu_attach_device()
-  dmar_domain_attach_device()
-    domain_attach_iommu():
-     =20
-       curr =3D xa_cmpxchg(&domain->iommu_array, iommu->seq_id,
-                          NULL, info, GFP_KERNEL);
-        if (curr) {
-                ret =3D xa_err(curr) ? : -EBUSY;
-                goto err_clear;
-        }
+I know and see this. However, I am unable to switch this to 'm'. It 
+seems
+like the root cause is that CRYPTO_SHA3='y' and I can't change this to 
+'m'.
+And honestly I am unable to read these dependencies (forgive my 
+ignorance):
 
-intel_iommu_attach_device()
-  dmar_domain_attach_device()
-    domain_setup_first_level()
-      __domain_setup_first_level()
-        intel_pasid_setup_first_level():
+CONFIG_CRYPTO_SHA3:
+SHA-3 secure hash algorithms (FIPS 202, ISO/IEC 10118-3)
+  Symbol: CRYPTO_SHA3 [=y]
+   Type  : tristate
+   Defined at crypto/Kconfig:1006
+     Prompt: SHA-3
+     Depends on: CRYPTO [=y]
+     Location:
+       -> Cryptographic API (CRYPTO [=y])
+         -> Hashes, digests, and MACs
+           -> SHA-3 (CRYPTO_SHA3 [=y])
+   Selects: CRYPTO_HASH [=y] && CRYPTO_LIB_SHA3 [=y]
+   Selected by [y]:
+     - CRYPTO_JITTERENTROPY [=y] && CRYPTO [=y]
+   Selected by [n]:
+     - MODULE_SIG_SHA3_256 [=n] && MODULES [=y] && (MODULE_SIG [=y] || 
+IMA_APPRAISE_MODSIG [=n])
+     - MODULE_SIG_SHA3_384 [=n] && MODULES [=y] && (MODULE_SIG [=y] || 
+IMA_APPRAISE_MODSIG [=n])
+     - MODULE_SIG_SHA3_512 [=n] && MODULES [=y] && (MODULE_SIG [=y] || 
+IMA_APPRAISE_MODSIG [=n])
+     - CRYPTO_DEV_ZYNQMP_SHA3 [=n] && CRYPTO [=y] && CRYPTO_HW [=y] && 
+(ZYNQMP_FIRMWARE [=n] || COMPILE_TEST [=n])
+     - CRYPTO_DEV_STM32_HASH [=n] && CRYPTO [=y] && CRYPTO_HW [=y] && 
+(ARCH_STM32 || ARCH_U8500) && HAS_DMA [=y]
+     - CRYPTO_DEV_SAFEXCEL [=n] && CRYPTO [=y] && CRYPTO_HW [=y] && (OF 
+[=n] || PCI [=y] || COMPILE_TEST [=n]) && HAS_IOMEM [=y]
 
-        pte =3D intel_pasid_get_entry(dev, pasid);
-        if (!pte) {
-                spin_unlock(&iommu->lock);
-                return -ENODEV;
-        }
-
-        if (pasid_pte_is_present(pte)) {
-                spin_unlock(&iommu->lock);
-                return -EBUSY;
-        }
-
-On the other hand, how do we communicate whatever errors returned
-by attach_dev in the reset_done path back to userspace? As noted above
-resource allocation failures could still occur in attach_dev, but userspace
-may think the requested attach in middle of a reset has succeeded as
-long as it passes the test_dev check.
-
-Does it work better to block the attaching process upon ongoing reset
-and wake it up later upon reset_done to resume attach?
+> 
+> - Eric
