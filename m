@@ -1,140 +1,213 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78A9E273F9
-	for <linux-s390@vger.kernel.org>; Thu, 30 Oct 2025 15:45:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEA573683B3;
+	Thu, 30 Oct 2025 17:16:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761839156; cv=none; b=ATng3wwpUZ5hmaTucJ76GEalxuE5cUZK0NWyqjreOVqNFIUu1TkME3J0a+nvkK7UjUcAl6EAx8xRpdU4mFv83s3KxWUzkME32QSD1KxwW5QhmOdP//06yb7ioikKttGNdvxBBRrTZCBBbKyJytcqbdwA+c8Pr6aevCYNcUVaVFM=
+	t=1761844592; cv=none; b=PmofDME74Yq6evfQgctPTz2j5xEcPXY2n41/7WGA3aDbPNGBzTYbe2rda8YS3o5wkdIJyboLRU7ejLuMF1AsbsaS/yGwIuc3o+HPa9VU73a7ltAViZWh0Y026wCwWYK5sZZDfnzd8aGoRHm99jRi7YGdbzXYcZwFcYelGD7zZTU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761839156; c=relaxed/simple;
-	bh=bTnJj9/u9HbjQIPERYKZPQzCYlY07yc9541XDGI+R0U=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Q8wSbdbRAvceNYWsTjf+clRfNhJwDe7ta3jB+Ngpemf4GqUV+W8to+bSv6bce/B7D2yXke0W7nqtfcJdeozF2y9tqUmvmO3fRgHnrARGqruZ/2y3KVlZ8qv5GS5aqdRekBwA3elGJje8fttRHCxZxCu9tKjMCO0Mpml+V3efjwc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TwblnYxs; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1761844592; c=relaxed/simple;
+	bh=4W6mLwI645saXzV/fLjJuWsB2SIdukbVmVT6B8Em+80=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=oCpqLnlbvIx9E6MyRp8Lq/c/HOVv/M4qqyNiFsBPGAzR3HYxCMXOWw379A7aUxEA97KHGf532PjM2aZ1geO6qbZrPJ9m/H/MydLiIHKECHJTq7PcG871PuFbCTxOsW9yoJC+sq9vDqxP/lIasEZ5pUcswaVma3WVmc/k923XsvM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mfF02DO6; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TwblnYxs"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1761839153;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=T13UVO1/yPlQk6T2PfurpgHZxHJlbT6OmTkCB8QWscE=;
-	b=TwblnYxs17S14Fub6Z21eDwZVwSELZgpcy0h04DjAZHGHYvtfH6c2cCD0z/KcKPzuBP7SU
-	9R3SueY7hhNGZAJE4nOOR+53WKfb2oMJ136A08xmSZ3Gg+O0632lisgGbS+IySJm1fLIBa
-	EN3BrSGvGw4rx96zmpOjHPCu/O016wA=
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
- [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-587-ma94RnRAOdiKJGly5WqVLw-1; Thu, 30 Oct 2025 11:45:51 -0400
-X-MC-Unique: ma94RnRAOdiKJGly5WqVLw-1
-X-Mimecast-MFC-AGG-ID: ma94RnRAOdiKJGly5WqVLw_1761839151
-Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-8a9b1fa8092so326786185a.2
-        for <linux-s390@vger.kernel.org>; Thu, 30 Oct 2025 08:45:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761839151; x=1762443951;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=T13UVO1/yPlQk6T2PfurpgHZxHJlbT6OmTkCB8QWscE=;
-        b=F1d55hkD4mur/6ZXkJ3fIw3E/zZhNKj77FtT4O4663lpBz/re1xJhCmZM0dCWf03xK
-         /h744PEOfBGHq0N+3wnOQS50gzYcIFw9O/aCcujZ5HdFYT8W1yC2B7BF1CD1yrUOz7Bx
-         Qrwoc5LiAs42aFOPertR3SoM8eQt2m7zJTBwRhIYGlDfEAwcam7FtUJND02nhg3k4t3q
-         T1Mpkz1JV+JbDjx6OCBSt8a39Rkhrlm6fzkqGq9+McbA+i5qhq7hb7MJNLwS0EekLaRN
-         RMtGMTlzn48RGHTGlFFlusxXYhirfVzmBT48nqvcrzl7tOiByUQWuEz4ZeYRDW6FbLxM
-         FsZw==
-X-Forwarded-Encrypted: i=1; AJvYcCVf2BVkMW7VV4qf2JL3AXg5Uyr2ckrB0nPaBZY++8ZHUCOpClQ+4Mgf/dRZZEQjDoFbvIlc/OsyIRQg@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz4nqeiFjRPj6rKVEIj0J1pfSeKTOHGVjRiWsMnnEidHfdA2fvl
-	3D57gvuet5s9Y12CKJ1LNPIQb8BJEqVJbTwxxf+3y1bqj21cXI0XRWKe3afZ92kMz0JDgRcLjyM
-	hXbSO9eapb/USjQNp2qKjTrbCqDSagFldQ3JgzkqxUZCgZclJqJkw0f98XqAKn4Y=
-X-Gm-Gg: ASbGncvA79Jcup5lqRrBGz+tW5ONtmZfiS0b8j3xkL6SPZkjT0bOENX0QPOmyFwREIE
-	1z4RdTY7nMTPcMKTHbX97TxPI1hberB6K7qF7KvdMWW/MbnywP2/KnSQBZHkuszeL2rRcdsSnIq
-	gpBuEUO0Rx8Hfb7XUbVJO0xHtVxWfA1Vw17FHdUYhy+AX+irIvmSxSwTdrGsBk07UTBOfBzZ0hg
-	UFJL0olnWanbmxITx3Dd115ljMX8GcHaKge152Ki5pLDoXhmBQocFz6VjN6KFFewOw3FuOUb0zL
-	5iOUprOoOtsNCW9kE3XkW4nbmbu7gnef6gi921EHHzqQr5rLFrd0XWZo8OAuww9DN/w6GXVbofd
-	MBw==
-X-Received: by 2002:a05:620a:2a07:b0:8a3:e51d:63c9 with SMTP id af79cd13be357-8aa2c659146mr496985685a.25.1761839151196;
-        Thu, 30 Oct 2025 08:45:51 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEOqRO+7KOnHpcS7rPlmfWuNX0n6FxKFT+Lt8fIFSIFDsOADI0AQRhPYfD/wI22ZJMDrMWM8w==
-X-Received: by 2002:a05:620a:2a07:b0:8a3:e51d:63c9 with SMTP id af79cd13be357-8aa2c659146mr496980385a.25.1761839150640;
-        Thu, 30 Oct 2025 08:45:50 -0700 (PDT)
-Received: from [192.168.2.110] ([70.49.125.126])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-89f2421fba6sm1289506585a.4.2025.10.30.08.45.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 30 Oct 2025 08:45:50 -0700 (PDT)
-Message-ID: <d491b540-8984-4ffa-9a79-ad6855e9c883@redhat.com>
-Date: Thu, 30 Oct 2025 11:45:39 -0400
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mfF02DO6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAFAFC4CEF1;
+	Thu, 30 Oct 2025 17:16:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1761844591;
+	bh=4W6mLwI645saXzV/fLjJuWsB2SIdukbVmVT6B8Em+80=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=mfF02DO6mfd7mOHj9apVUr1Fz9ikSY9AlhkEJ25UTT0VwD9d8AhNJlMJQ+zplNqzd
+	 L4gpcAiDIKM9uUTFdGYb/A5l2sjUoUND2Uj/HhRSCRxDdznB6FXY553wARR05IMWGq
+	 WHeIaqc5OrQD1mTslH68BLQgzY28pUbAb5bNAbgY9wHJCSjD3UN1Zx8T1Op7D5Se35
+	 4mHK26DWpD42wsvrX3bjGUMOmn9Z53rVhSTdUy17C2UhJGi1Vo1dMMeegZbfAAey0L
+	 ZRu034TWIEZUf8ky6LIe2k/28IcOr664DPVLDQsZvR2xZU+3H0mUuATSYm7dpwNpdo
+	 /xjPOrSMg+DcQ==
+Date: Thu, 30 Oct 2025 10:14:53 -0700
+From: Eric Biggers <ebiggers@kernel.org>
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: linux-crypto@vger.kernel.org, David Howells <dhowells@redhat.com>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	"Jason A . Donenfeld" <Jason@zx2c4.com>,
+	Holger Dengler <dengler@linux.ibm.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 00/15] SHA-3 library
+Message-ID: <20251030171453.GA1624@sol>
+References: <20251026055032.1413733-1-ebiggers@kernel.org>
+ <ba3ff3d5183ab78b3d02d8db30223def@linux.ibm.com>
+ <20251029163216.GA1603@sol>
+ <fa8bc10f36b1aeb9ffe1abf6350adbc1@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] s390: Disable ARCH_WANT_OPTIMIZE_HUGETLB_VMEMMAP
-To: Heiko Carstens <hca@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>, Vasily Gorbik
- <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Joao Martins <joao.m.martins@oracle.com>,
- David Hildenbrand <david@redhat.com>, osalvador@suse.de,
- aneesh.kumar@kernel.org, akpm@linux-foundation.org,
- linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org
-References: <20251030145505.2764038-1-hca@linux.ibm.com>
-Content-Language: en-US, en-CA
-From: Luiz Capitulino <luizcap@redhat.com>
-In-Reply-To: <20251030145505.2764038-1-hca@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <fa8bc10f36b1aeb9ffe1abf6350adbc1@linux.ibm.com>
 
-On 2025-10-30 10:55, Heiko Carstens wrote:
-> As reported by Luiz Capitulino enabling HVO on s390 leads to reproducible
-> crashes. The problem is that kernel page tables are modified without
-> flushing corresponding TLB entries.
+On Thu, Oct 30, 2025 at 11:10:22AM +0100, Harald Freudenberger wrote:
+> On 2025-10-29 17:32, Eric Biggers wrote:
+> > On Wed, Oct 29, 2025 at 10:30:40AM +0100, Harald Freudenberger wrote:
+> > > > If the s390 folks could re-test the s390 optimized SHA-3 code (by
+> > > > enabling CRYPTO_LIB_SHA3_KUNIT_TEST and CRYPTO_LIB_BENCHMARK), that
+> > > > would be helpful.  QEMU doesn't support the instructions it uses.  Also,
+> > > > it would be helpful to provide the benchmark output from just before
+> > > > "lib/crypto: s390/sha3: Add optimized Keccak function", just after it,
+> > > > and after "lib/crypto: s390/sha3: Add optimized one-shot SHA-3 digest
+> > > > functions".  Then we can verify that each change is useful.
+> > [...]
+> > > 
+> > > Picked this series from your ebiggers repo branch sha3-lib-v2.
+> > > Build on s390 runs without any complains, no warnings.
+> > > As recommended I enabled the KUNIT option and also
+> > > CRYPTO_SELFTESTS_FULL.
+> > > With an "modprobe tcrypt" I enforced to run the selftests
+> > > and in parallel I checked that the s390 specific CPACF instructions
+> > > are really used (can be done with the pai command and check for
+> > > the KIMD_SHA3_* counters). Also ran some AF-alg tests to verify
+> > > all the the sha3 hashes and check for thread safety.
+> > > All this ran without any findings. However there are NO performance
+> > > related tests involved.
+> > 
+> > Thanks!  Just to confirm, did you actually run the sha3 KUnit test and
+> > verify that all its test cases passed?  That's the most important one.
+> > It also includes a benchmark, if CONFIG_CRYPTO_LIB_BENCHMARK=y is
+> > enabled, and I was hoping to see your results from that after each
+> > change.  The results get printed to the kernel log when the test runs.
+> > 
 > 
-> Even if it looks like the empty flush_tlb_all() implementation on s390 is
-> the problem, it is actually a different problem: on s390 it is not allowed
-> to replace an active/valid page table entry with another valid page table
-> entry without the detour over an invalid entry. A direct replacement may
-> lead to random crashes and/or data corruption.
+> Here it is - as this is a zVM system the benchmark values may show poor
+> performance.
 > 
-> In order to invalidate an entry special instructions have to be used
-> (e.g. ipte or idte). Alternatively there are also special instructions
-> available which allow to replace a valid entry with a different valid
-> entry (e.g. crdte or cspg).
-> 
-> Given that the HVO code currently does not provide the hooks to allow for
-> an implementation which is compliant with the s390 architecture
-> requirements, disable ARCH_WANT_OPTIMIZE_HUGETLB_VMEMMAP again, which is
-> basically a revert of the original patch which enabled it.
-> 
-> Reported-by: Luiz Capitulino <luizcap@redhat.com>
-> Closes: https://lore.kernel.org/all/20251028153930.37107-1-luizcap@redhat.com/
-> Fixes: 00a34d5a99c0 ("s390: select ARCH_WANT_HUGETLB_PAGE_OPTIMIZE_VMEMMAP")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel: KTAP version 1
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel: 1..1
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     KTAP version 1
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # Subtest: sha3
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # module: sha3_kunit
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     1..21
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 1 test_hash_test_vectors
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 2
+> test_hash_all_lens_up_to_4096
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 3
+> test_hash_incremental_updates
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 4
+> test_hash_buffer_overruns
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 5 test_hash_overlaps
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 6
+> test_hash_alignment_consistency
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 7
+> test_hash_ctx_zeroization
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 8
+> test_hash_interrupt_context_1
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 9
+> test_hash_interrupt_context_2
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 10 test_sha3_224_basic
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 11 test_sha3_256_basic
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 12 test_sha3_384_basic
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 13 test_sha3_512_basic
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 14 test_shake128_basic
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 15 test_shake256_basic
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 16 test_shake128_nist
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 17 test_shake256_nist
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 18
+> test_shake_all_lens_up_to_4096
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 19
+> test_shake_multiple_squeezes
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 20
+> test_shake_with_guarded_bufs
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=1: 14
+> MB/s
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=16: 109
+> MB/s
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=64: 911
+> MB/s
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=127:
+> 1849 MB/s
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=128:
+> 1872 MB/s
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=200:
+> 2647 MB/s
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=256:
+> 3338 MB/s
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=511:
+> 5484 MB/s
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=512:
+> 5562 MB/s
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=1024:
+> 8297 MB/s
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=3173:
+> 12625 MB/s
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=4096:
+> 11242 MB/s
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     # benchmark_hash: len=16384:
+> 12853 MB/s
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel:     ok 21 benchmark_hash
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel: # sha3: pass:21 fail:0 skip:0
+> total:21
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel: # Totals: pass:21 fail:0 skip:0
+> total:21
+> Oct 30 10:46:44 b3545008.lnxne.boe kernel: ok 1 sha3
 
-Obvious enough change, but FWIW:
+Thanks!  Is this with the whole series applied?  Those numbers are
+pretty fast, so probably at least the Keccak acceleration part is
+worthwhile.  But just to reiterate what I asked for:
 
-Tested-by: Luiz Capitulino <luizcap@redhat.com>
+    Also, it would be helpful to provide the benchmark output from just
+    before "lib/crypto: s390/sha3: Add optimized Keccak function", just
+    after it, and after "lib/crypto: s390/sha3: Add optimized one-shot
+    SHA-3 digest functions".
 
-> ---
->   arch/s390/Kconfig | 1 -
->   1 file changed, 1 deletion(-)
+So I'd like to see how much each change helped, which isn't clear if you
+show only the result at the end.
+
+If there's still no evidence that "lib/crypto: s390/sha3: Add optimized
+one-shot SHA-3 digest functions" actually helps significantly vs. simply
+doing the Keccak acceleration, then we should drop it for simplicity.
+
+> > > What's a little bit tricky here is that the sha3 lib is statically
+> > > build into the kernel. So no chance to unload/load this as a module.
+> > > For sha1 and the sha2 stuff I can understand the need to have this
+> > > statically enabled in the kernel. Sha3 is only supposed to be
+> > > available
+> > > as backup in case of sha2 deficiencies. So I can't see why this is
+> > > really statically needed.
+> > 
+> > CONFIG_CRYPTO_LIB_SHA3 is a tristate option.  It can be either built-in
+> > or a loadable module, depending on what other kconfig options select it.
+> > Same as all the other crypto library modules.
 > 
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index c4145672ca34..df22b10d9141 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -158,7 +158,6 @@ config S390
->   	select ARCH_WANT_IRQS_OFF_ACTIVATE_MM
->   	select ARCH_WANT_KERNEL_PMD_MKWRITE
->   	select ARCH_WANT_LD_ORPHAN_WARN
-> -	select ARCH_WANT_OPTIMIZE_HUGETLB_VMEMMAP
->   	select ARCH_WANTS_THP_SWAP
->   	select BUILDTIME_TABLE_SORT
->   	select CLONE_BACKWARDS2
+> I know and see this. However, I am unable to switch this to 'm'. It seems
+> like the root cause is that CRYPTO_SHA3='y' and I can't change this to 'm'.
+> And honestly I am unable to read these dependencies (forgive my ignorance):
+> 
+> CONFIG_CRYPTO_SHA3:
+> SHA-3 secure hash algorithms (FIPS 202, ISO/IEC 10118-3)
+>  Symbol: CRYPTO_SHA3 [=y]
+>   Type  : tristate
+>   Defined at crypto/Kconfig:1006
+>     Prompt: SHA-3
+>     Depends on: CRYPTO [=y]
+>     Location:
+>       -> Cryptographic API (CRYPTO [=y])
+>         -> Hashes, digests, and MACs
+>           -> SHA-3 (CRYPTO_SHA3 [=y])
+>   Selects: CRYPTO_HASH [=y] && CRYPTO_LIB_SHA3 [=y]
+>   Selected by [y]:
+>     - CRYPTO_JITTERENTROPY [=y] && CRYPTO [=y]
 
+Well, all that is saying is that there is a built-in option that selects
+SHA-3, which causes it to be built-in.  So SHA-3 being built-in is
+working as intended in that case.  (And it's also intended that we no
+longer allow the architecture-optimized code to be built as a module
+when the generic code is built-in.  That was always a huge footgun.)  If
+you want to know why something that needs SHA-3 is being built-in, you'd
+need to follow the chain of dependencies up to see how it gets selected.
+
+- Eric
