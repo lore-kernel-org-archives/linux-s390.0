@@ -1,142 +1,264 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 787FE53363;
-	Mon,  3 Nov 2025 08:28:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E82082F9980
+	for <linux-s390@vger.kernel.org>; Mon,  3 Nov 2025 09:50:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762158522; cv=none; b=J/Ux7HLJUFxALfeAFJ9itZ6N2KNaKSu323qow5/RU4jwBWNpcWh5ioDfy2Rw7tLaG4UcFmxfkg44euj+/CnJaXulSMjiLMhQ0h37K+5htsHCPrKn0u2lX363Jmj5g72zVvZpaswmbdOnyiP0MR7odE9lwY6bthC9ADOHT/i7fSk=
+	t=1762163428; cv=none; b=XxsPA7v9OtbAHQVrDB1FE648aFJciFruA/0jo2p+8MaHZOIi1qOGL/iJzqa/GT9434QebOeywTcOi9KcMZcN0J9l30d1IRvgGJZMy/VwTJZZvXA9DppSidjkfnLkfc4xUviQ6pSqN/Qw5eiKyaKDdALcA+myTx6k4VtHkaGF5wQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762158522; c=relaxed/simple;
-	bh=eS7KrlMq6jo/GsXOFtImqbS4/OQyOCDYwKWHLlIHG7E=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Y9YmD9hHKgpl6EDhKJhiIGCG8/jPm6xHfwdHAQV+M8xCEQrxAWkTsBGEi8k+bBUgoZGJ1pUxLWrGYw990OGtO8XABvQMxV+8YIO2O8nmIpSkvcYXTrCo7Gy9AeXxkkWeNZ/zHnX6zO0YnRfFOONsp+Q/UEUla+ma2fUGrDUd980=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=J0Vw0PQV; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1762163428; c=relaxed/simple;
+	bh=tYIRJCNDS83FSlihnAvsUz65Uw1RaaI3aab9pQPHdcI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=lBuO6q4cxQ6ojIxehQXvrwtXLUUEjRH/em5sP6LJRGEv0R84xIOEZl+lq8d1+fE4IahxRuYCt+lI7FDOa+sHAAqRbHzY46FuUQzX/AvV1jKVBszAbHB6XoXEy0rzSwytvcPSarp5g5aWhvRR0Zpr6Z2hVlZwtd5W/6TVrLU7Eag=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=o0d/tbvL; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="J0Vw0PQV"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5A2JFURo028252;
-	Mon, 3 Nov 2025 08:28:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=TmjDXj
-	wR+nEddG/eZ6E1vM2d76S1OyWZE5K7xsFZokU=; b=J0Vw0PQViec67xL6kzKonQ
-	CignmYL8cuWyh3ZHZbe/Gy9r3epPtK00GhHk5piYzJq1y6l00GHmQqdn7cXENXAz
-	BVbGENVjL9PnRMgLbmqgq/DnbWG3myGobOYwgDYtKrbJXz3IdpIN1Be1sE4nKZtu
-	KqQrDGrI+OuOTzjiB6rSjmI7+Lq5gJnCIIvF72rhTz9oyLlgD1PPNMAt2OBV6mj6
-	U3apa4q8+McpgbGCt/XYP60aAtk5ADjq4T+sMT246bH5yd85VZ/J/t6nHrNhJfx5
-	R22vtDeXs7EfknPA/lOxNZ30sy8o2u6vOU6Al7NwWgHkUbNOvQ1zYqF68ieWhy4A
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a59q8nn0s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Nov 2025 08:28:28 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5A38SS3M012984;
-	Mon, 3 Nov 2025 08:28:28 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a59q8nn0p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Nov 2025 08:28:27 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5A37TrId009831;
-	Mon, 3 Nov 2025 08:28:26 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4a5x1k4jma-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Nov 2025 08:28:26 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5A38SMP649218022
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 3 Nov 2025 08:28:22 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A0F422004B;
-	Mon,  3 Nov 2025 08:28:22 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5F90320043;
-	Mon,  3 Nov 2025 08:28:22 +0000 (GMT)
-Received: from [9.152.210.132] (unknown [9.152.210.132])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  3 Nov 2025 08:28:22 +0000 (GMT)
-Message-ID: <95bd9c85-8241-4040-bbd0-bcac3ffc78f7@linux.ibm.com>
-Date: Mon, 3 Nov 2025 09:28:22 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="o0d/tbvL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74F03C116C6
+	for <linux-s390@vger.kernel.org>; Mon,  3 Nov 2025 09:50:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1762163427;
+	bh=tYIRJCNDS83FSlihnAvsUz65Uw1RaaI3aab9pQPHdcI=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=o0d/tbvLY21MJS8egZkd0Ri1kw6SIk6ujVTmZp3+FHJgDC446N+4YaN0P8z5/Ak+m
+	 eVDkw3ons91vLRaElSJNtusAMLzGrqqj3SklVGWcEoapPntfieh25BEBz7wNCA/g/u
+	 7Ar4rwgSEFzKYKhdgxFZcjXabRLt5FukstCzexiPBZersOjx5WgGCpV9WFVNrpwSZ4
+	 55fG+jYpwXNWUwRIxJCeJPh7n2QSWjrOQ7RK5wn3ZBO97Cgqne5mQJ9jo8lG3kQKgE
+	 Zq9v0lJ97Qkh3/jeDPJODxyXTWeDes8J+gXtTtm3VXFNJAQHTqmoaoDSW7s/oJCUC2
+	 cbFmULb7qNwvA==
+Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-640c1fda178so1143399a12.1
+        for <linux-s390@vger.kernel.org>; Mon, 03 Nov 2025 01:50:27 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCXTgFp6QVWn9C0f1iZ+69kiKFKeTyK/z2XcM1TodiZ1swrIiZfpGrXekVqemj7y24G4athEVcYVjcT8@vger.kernel.org
+X-Gm-Message-State: AOJu0YzAk1Nr6GLR/tU7/6ZL2wRuqsYk1suF7oRMUhQbOFvsjl7vv6qN
+	RHSMsXsOqtzLl0b67Jgrzkd7R3ljMHzkAsTxDVBnkzdmq4lW7HTWdsCTAB0TbQ9mSGfNJc9t5oH
+	J6juj0vASsU5Bz/pse6OWCfi0QOwRyqA=
+X-Google-Smtp-Source: AGHT+IH8qJzoI36AiJwr/7p2nTBJuZh3M5fSlb8Ojf11RW0d2BQ5ZRzirGxdOyLDc1rkkCxm0+GO4GSCTkJK54VerPk=
+X-Received: by 2002:a17:907:60c9:b0:b70:b077:b949 with SMTP id
+ a640c23a62f3a-b70b077bc32mr381684366b.37.1762163425945; Mon, 03 Nov 2025
+ 01:50:25 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net/smc: fix mismatch between CLC header and proposal
- extensions
-To: "D. Wythe" <alibuda@linux.alibaba.com>, mjambigi@linux.ibm.com,
-        wenjia@linux.ibm.com, dust.li@linux.alibaba.com,
-        tonylu@linux.alibaba.com, guwen@linux.alibaba.com
-Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        pabeni@redhat.com, edumazet@google.com, sidraya@linux.ibm.com,
-        jaka@linux.ibm.com
-References: <20251031031828.111364-1-alibuda@linux.alibaba.com>
-Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20251031031828.111364-1-alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=StmdKfO0 c=1 sm=1 tr=0 ts=690867ac cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=gmV_aJJbElOwqUTrwFQA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
- a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-ORIG-GUID: DdUd5zz7N1UApgn1B4dBUjwhjixTIswZ
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTAxMDAxOCBTYWx0ZWRfX6TtwDzpP1ttX
- iJbdKr0Vjhi+kghB4sNNl5ClAC13llATV+QMaSNj/XcUA9IHmABTRSIm0KMBn4L79SZn+x0wHFB
- LBWjWP94N7Kkeis3hvv+NWNJfOGbRkGDxxdm7Q1ZhcEhhtuQ6k555f0dme9g2g/F5mAE+KVDH1u
- kQ8BVIhNyq3k5/sIDKpls4NNXixZkvGFgpMYUwNCBzAB2ebptrofSguPVQVihFbNYqJZ7Ft/Hd/
- uPiiak7RnuSNtUwQyqD6tdzGGNak5mv249yOwxegCQaCwsmzXQZtolm+Pz6V2stbrCF5xSHqwZ5
- HrrYIu6IuKVY3Yhb1POOFCucSSF/P0Bx+a8GzDnTWZGJya5Uho3+Y2B1tHIyX+C66nEFk1u71yp
- 5eTco38mTotQDSNOtpa1tLirIQ8YfQ==
-X-Proofpoint-GUID: hkI_LvqfU-gGO66Imq9UIf0mGczWjBTB
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-11-02_02,2025-10-29_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 suspectscore=0 phishscore=0 impostorscore=0 priorityscore=1501
- malwarescore=0 clxscore=1015 adultscore=0 bulkscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511010018
+References: <20251029-ari_no_bus_dev-v5-0-d9a5eab67ed0@linux.ibm.com> <20251029-ari_no_bus_dev-v5-1-d9a5eab67ed0@linux.ibm.com>
+In-Reply-To: <20251029-ari_no_bus_dev-v5-1-d9a5eab67ed0@linux.ibm.com>
+From: Huacai Chen <chenhuacai@kernel.org>
+Date: Mon, 3 Nov 2025 17:50:22 +0800
+X-Gmail-Original-Message-ID: <CAAhV-H6qqppoX_G5KrWmPor16bXfvNTE2x8Xx6yajAYPqxpigw@mail.gmail.com>
+X-Gm-Features: AWmQ_bkF9DD4U4chJ9TajuEmQvXaXS5rbGCcvKkn6W1c1fvxW9F5_O2LhkhUoKE
+Message-ID: <CAAhV-H6qqppoX_G5KrWmPor16bXfvNTE2x8Xx6yajAYPqxpigw@mail.gmail.com>
+Subject: Re: [PATCH v5 1/2] PCI: Fix isolated PCI function probing with ARI
+ and SR-IOV
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>, Jan Kiszka <jan.kiszka@siemens.com>, 
+	Bibo Mao <maobibo@loongson.cn>, linux-s390 <linux-s390@vger.kernel.org>, 
+	loongarch@lists.linux.dev, Farhan Ali <alifm@linux.ibm.com>, 
+	Matthew Rosato <mjrosato@linux.ibm.com>, Tianrui Zhao <zhaotianrui@loongson.cn>, 
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Gerd Bayer <gbayer@linux.ibm.com>, linux-kernel@vger.kernel.org, 
+	linux-pci@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+Hi, Niklas,
 
+On Wed, Oct 29, 2025 at 5:42=E2=80=AFPM Niklas Schnelle <schnelle@linux.ibm=
+.com> wrote:
+>
+> When the isolated PCI function probing mechanism is used in conjunction
+> with ARI or SR-IOV it may not find all available PCI functions. In the
+> case of ARI the problem is that next_ari_fn() always returns -ENODEV if
+> dev is NULL and thus if fn 0 is missing the scan stops.
+>
+> For SR-IOV things are more complex. Here the problem is that the check
+> for multifunction may fail. One example where this can occur is if the
+> first passed-through function is a VF with devfn 8. Now in
+> pci_scan_slot() this means it is fn 0 and thus multifunction doesn't get
+> set. Since VFs don't get multifunction set via PCI_HEADER_TYPE_MFD it
+> remains unset and probing stops even if there is a devfn 9.
+>
+> Now at the moment both of these issues are hidden on s390. The first one
+> because ARI is detected as disabled as struct pci_bus's self is NULL
+> even though firmware does enable and use ARI. The second issue is hidden
+> as a side effect of commit 25f39d3dcb48 ("s390/pci: Ignore RID for
+> isolated VFs"). This is because VFs are either put on their own virtual
+> bus if the parent PF is not passed-through to the same instance or VFs
+> are hotplugged once SR-IOV is enabled on the parent PF and then
+> pci_scan_single_device() is used.
+>
+> Still especially the first issue prevents correct detection of ARI and
+> the second might be a problem for other users of isolated function
+> probing. Fix both issues by keeping things as simple as possible. If
+> isolated function probing is enabled simply scan every possible devfn.
+I'm very sorry, but applying this patch on top of commit a02fd05661d7
+("PCI: Extend isolated function probing to LoongArch") we fail to
+boot.
 
-On 31.10.25 04:18, D. Wythe wrote:
-> The current CLC proposal message construction uses a mix of
-> `ini->smc_type_v1/v2` and `pclc_base->hdr.typev1/v2` to decide whether
-> to include optional extensions (IPv6 prefix extension for v1, and v2
-> extension). This leads to a critical inconsistency: when
-> `smc_clc_prfx_set()` fails - for example, in IPv6-only environments with
-> only link-local addresses, or when the local IP address and the outgoing
-> interface’s network address are not in the same subnet.
-> 
-> As a result, the proposal message is assembled using the stale
-> `ini->smc_type_v1` value—causing the IPv6 prefix extension to be
-> included even though the header indicates v1 is not supported.
-> The peer then receives a malformed CLC proposal where the header type
-> does not match the payload, and immediately resets the connection.
-> 
-> Fix this by consistently using `pclc_base->hdr.typev1` and
-> `pclc_base->hdr.typev2`—the authoritative fields that reflect the
-> actual capabilities advertised in the CLC header—when deciding whether
-> to include optional extensions, as required by the SMC-R v2
-> specification ("V1 IP Subnet Extension and V2 Extension only present if
-> applicable").
+Boot log:
+[   10.365340] megaraid cmm: 2.20.2.7 (Release Date: Sun Jul 16
+00:01:03 EST 2006)
+[   10.372628] megaraid: 2.20.5.1 (Release Date: Thu Nov 16 15:32:35 EST 20=
+06)
+[   10.379564] megasas: 07.734.00.00-rc1
+[   10.383222] mpt3sas version 54.100.00.00 loaded
+[   10.388304] nvme nvme0: pci function 0000:08:00.0
+[   10.395088] Freeing initrd memory: 45632K
+[   10.469822] ------------[ cut here ]------------
+[   10.474409] WARNING: CPU: 0 PID: 247 at drivers/ata/libahci.c:233
+ahci_enable_ahci+0x64/0xb8
+[   10.482804] Modules linked in:
+[   10.485838] CPU: 0 UID: 0 PID: 247 Comm: kworker/0:11 Not tainted
+6.18.0-rc3 #1 PREEMPT(full)
+[   10.494397] Hardware name: To be filled by O.E.M.To be fill To be
+filled by O.E.M.To be fill/To be filled by O.E.M.To be fill, BIOS
+Loongson-UDK2018-V4.0.
+[   10.508139] Workqueue: events work_for_cpu_fn
+[   10.512468] pc 900000000103be2c ra 900000000103be28 tp
+900000010ae44000 sp 900000010ae47be0
+[   10.520769] a0 0000000000000000 a1 00000000000000b0 a2
+0000000000000001 a3 9000000001810e0c
+[   10.529069] a4 9000000002343e20 a5 0000000000000001 a6
+0000000000000010 a7 0000000000000000
+[   10.537373] t0 d10951fa66920f31 t1 d10951fa66920f31 t2
+0000000000001280 t3 000000000674c000
+[   10.545673] t4 0000000000000000 t5 0000000000000000 t6
+9000000008002480 t7 00000000000000b4
+[   10.553972] t8 90000001055eab90 u0 900000010ae47b68 s9
+9000000002221a50 s0 0000000000000000
+[   10.562272] s1 ffff800032435800 s2 0000000000000000 s3
+ffffffff80000000 s4 9000000002221570
+[   10.570571] s5 0000000000000005 s6 9000000101ccf0b8 s7
+90000000023dd000 s8 900000010ae47d08
+[   10.578869]    ra: 900000000103be28 ahci_enable_ahci+0x60/0xb8
+[   10.584665]   ERA: 900000000103be2c ahci_enable_ahci+0x64/0xb8
+[   10.590461]  CRMD: 000000b0 (PLV0 -IE -DA +PG DACF=3DCC DACM=3DCC -WE)
+[   10.596609]  PRMD: 00000004 (PPLV0 +PIE -PWE)
+[   10.600937]  EUEN: 00000000 (-FPE -SXE -ASXE -BTE)
+[   10.605698]  ECFG: 00071c1d (LIE=3D0,2-4,10-12 VS=3D7)
+[   10.610458] ESTAT: 000c0000 [BRK] (IS=3D ECode=3D12 EsubCode=3D0)
+[   10.615994]  PRID: 0014d010 (Loongson-64bit, Loongson-3C6000/S)
+[   10.621875] CPU: 0 UID: 0 PID: 247 Comm: kworker/0:11 Not tainted
+6.18.0-rc3 #1 PREEMPT(full)
+[   10.621877] Hardware name: To be filled by O.E.M.To be fill To be
+filled by O.E.M.To be fill/To be filled by O.E.M.To be fill, BIOS
+Loongson-UDK2018-V4.0.
+[   10.621878] Workqueue: events work_for_cpu_fn
+[   10.621881] Stack : 900000010ae47848 0000000000000000
+90000000002436bc 900000010ae44000
+[   10.621884]         900000010ae47820 900000010ae47828
+0000000000000000 900000010ae47968
+[   10.621887]         900000010ae47960 900000010ae47960
+900000010ae47630 0000000000000001
+[   10.621890]         0000000000000001 900000010ae47828
+d10951fa66920f31 9000000100414300
+[   10.621893]         80000000ffffe34d fffffffffffffffe
+000000000000034f 000000000000002f
+[   10.621896]         0000000000000063 0000000000000001
+000000000674c000 9000000002221a50
+[   10.621899]         0000000000000000 0000000000000000
+90000000020b6500 90000000023dd000
+[   10.621902]         00000000000000e9 0000000000000009
+0000000000000002 90000000023dd000
+[   10.621905]         900000010ae47d08 0000000000000000
+90000000002436d4 0000000000000000
+[   10.621908]         00000000000000b0 0000000000000004
+0000000000000000 0000000000071c1d
+[   10.621910]         ...
+[   10.621912] Call Trace:
+[   10.621913] [<90000000002436d4>] show_stack+0x5c/0x180
+[   10.621918] [<900000000023f328>] dump_stack_lvl+0x6c/0x9c
+[   10.621923] [<9000000000266eb8>] __warn+0x80/0x108
+[   10.621927] [<90000000017d1910>] report_bug+0x158/0x2a8
+[   10.621932] [<900000000180b610>] do_bp+0x2d0/0x340
+[   10.621938] [<9000000000241da0>] handle_bp+0x120/0x1c0
+[   10.621940] [<900000000103be2c>] ahci_enable_ahci+0x64/0xb8
+[   10.621943] [<900000000103beb8>] ahci_save_initial_config+0x38/0x4d8
+[   10.621946] [<90000000010391b4>] ahci_init_one+0x354/0x1088
+[   10.621950] [<9000000000d16cdc>] local_pci_probe+0x44/0xb8
+[   10.621953] [<9000000000286f78>] work_for_cpu_fn+0x18/0x30
+[   10.621956] [<900000000028a840>] process_one_work+0x160/0x330
+[   10.621961] [<900000000028b208>] worker_thread+0x330/0x460
+[   10.621964] [<9000000000295fdc>] kthread+0x11c/0x138
+[   10.621968] [<900000000180b740>] ret_from_kernel_thread+0x28/0xa8
+[   10.621971] [<9000000000241484>] ret_from_kernel_thread_asm+0xc/0x88
+[   10.621973]
 
+Huacai
 
-Just thinking out loud:
-It seems to me that the 'ini' structure exists once per socket and is used
-to pass information between many functions involved with the handshake.
-Did you consider updating ini->smc_type_v1/v2 when `smc_clc_prfx_set()` fails,
-and using ini as the authoritative source?
-With your patch, it seems to me `ini->smc_type_v1` still contains a stale value,
-which may lead to issues in other places or future code.
+>
+> Cc: stable@vger.kernel.org
+> Fixes: 189c6c33ff42 ("PCI: Extend isolated function probing to s390")
+> Link: https://lore.kernel.org/linux-pci/d3f11e8562f589ddb2c1c83e74161bd89=
+48084c3.camel@linux.ibm.com/
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> ---
+>  drivers/pci/probe.c | 21 +++++++++++++--------
+>  1 file changed, 13 insertions(+), 8 deletions(-)
+>
+> diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+> index 0ce98e18b5a876afe72af35a9f4a44d598e8d500..41dd1a339a994956a6bc7e1fe=
+a0fe0d55452a963 100644
+> --- a/drivers/pci/probe.c
+> +++ b/drivers/pci/probe.c
+> @@ -2808,16 +2808,19 @@ static int next_ari_fn(struct pci_bus *bus, struc=
+t pci_dev *dev, int fn)
+>         return next_fn;
+>  }
+>
+> -static int next_fn(struct pci_bus *bus, struct pci_dev *dev, int fn)
+> +static int next_fn(struct pci_bus *bus, struct pci_dev *dev, int fn,
+> +                  bool isolated_fns)
+>  {
+> -       if (pci_ari_enabled(bus))
+> -               return next_ari_fn(bus, dev, fn);
+> +       if (!isolated_fns) {
+> +               if (pci_ari_enabled(bus))
+> +                       return next_ari_fn(bus, dev, fn);
+>
+> +               /* only multifunction devices may have more functions */
+> +               if (dev && !dev->multifunction)
+> +                       return -ENODEV;
+> +       }
+>         if (fn >=3D 7)
+>                 return -ENODEV;
+> -       /* only multifunction devices may have more functions */
+> -       if (dev && !dev->multifunction)
+> -               return -ENODEV;
+>
+>         return fn + 1;
+>  }
+> @@ -2859,10 +2862,12 @@ int pci_scan_slot(struct pci_bus *bus, int devfn)
+>  {
+>         struct pci_dev *dev;
+>         int fn =3D 0, nr =3D 0;
+> +       bool isolated_fns;
+>
+>         if (only_one_child(bus) && (devfn > 0))
+>                 return 0; /* Already scanned the entire slot */
+>
+> +       isolated_fns =3D hypervisor_isolated_pci_functions();
+>         do {
+>                 dev =3D pci_scan_single_device(bus, devfn + fn);
+>                 if (dev) {
+> @@ -2876,10 +2881,10 @@ int pci_scan_slot(struct pci_bus *bus, int devfn)
+>                          * a hypervisor that passes through individual PC=
+I
+>                          * functions.
+>                          */
+> -                       if (!hypervisor_isolated_pci_functions())
+> +                       if (!isolated_fns)
+>                                 break;
+>                 }
+> -               fn =3D next_fn(bus, dev, fn);
+> +               fn =3D next_fn(bus, dev, fn, isolated_fns);
+>         } while (fn >=3D 0);
+>
+>         /* Only one slot has PCIe device */
+>
+> --
+> 2.48.1
+>
