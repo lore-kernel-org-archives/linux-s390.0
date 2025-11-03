@@ -1,317 +1,370 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8AA627E04C;
-	Mon,  3 Nov 2025 11:23:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762169009; cv=none; b=H0V/4YlGgNxYrtscO9axzkV1sB9R1hEnJpkc4H0O7V9f2YUZu0dOgpgF8pNLx4rUvxiIkw6ILIEvVxKvmsChguOLvnz+i9YZIY2EH7NchFGcW0j+cv8OAhtaRqtCSmj3Ta/30zn+YwfRq8UnHUC52HiK6zWQLEveWcqvSu4elIY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762169009; c=relaxed/simple;
-	bh=UR7P2KqrURkNHmJONJu/0NvJosGEaEBla2+TmGkIiRE=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=AgSOkamvltDl5vg+qlzweZuVymmYEZ3g4EzpIFgZOm95pzy0RYuRcTeDNRxjn2N6H0jOS7NJAW5IrzXhoDrVuho+fZGOOjyKbIg6z+RnbB4WMVIrtmQG5G0Kr+07BAknRAO8x7OLtBYMrucXUWYcvEp/LRuwFkgrLwT2rKNi8co=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MfJ6DcF1; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2D6330AD1A;
+	Mon,  3 Nov 2025 12:33:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1762173194; cv=fail; b=HbTRLkUly/7fPJCnVOBR9IAAp6wsxLCenf+GmttU4iYvJzI5zFDZ56k+kS8nXuOEVUuixAbWe6nyu3dV0flNW9ZMsHvYk986e+LnOZmnhkDQxOxQSO6PHIjLiAI91/VpNDWRoJI7L+VlKCLgpRjQV7qY468dmBMvNMSV+aUjSO0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1762173194; c=relaxed/simple;
+	bh=beD8qtw9fqIw3oh9YLoSGz8oeH+H49c7DmKIoDszgik=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=SQhcmiUzNqaXdXKXQE5el3V3OHBtQjiHIKB8RHi9mvMOUq+FZWtpmY8egZ37dAfRGo08felT/KKT91mSk7GgPa2cA4Y+2xlyT0LhLUFqluKPOQk7W16O+rW1RF2HcourFL8GvM5dYgTIpGOU1UziFDnBHMhJW1iV6vFkJASBOdM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=DpwSdIll; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=g/AbZyAO; arc=fail smtp.client-ip=205.220.177.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MfJ6DcF1"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5A3A02SE005329;
-	Mon, 3 Nov 2025 11:23:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=pszVEX
-	i5Cs8PQMngMpsaR/hAu0owJo9a30hFho3P6HI=; b=MfJ6DcF1wPszsFf00iUZXj
-	vlmw7DWMasKMyKcsdN6krxB/rbbKPVXWJwrq2I1yKIY13dbjjH1o7thA9MyDUi0y
-	vgECgF6TxRMtzGk/ZqlF5eYa9IgMAPYWDfq7aM7wjTNvMjwKuGXIolLUEuG61iwO
-	kk74Qm1mRyzm8LqHNHLDHWv8E+EGqs+wFivtdIo+I49EdaDi3fJMn10ZEm5TICWJ
-	RElsvSIcY6Ly37EOf5Xrh643VZ9INoQsd0Oz21V1+InjRalavHsdyuQVl0OffQIY
-	3vBNj6ETOfHzYsB4KwIBZIJObPGMaljbnqr1zilggODUATgBypF6yEldpNYftv+A
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a59q8p9ra-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Nov 2025 11:23:15 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5A3BEuI7010884;
-	Mon, 3 Nov 2025 11:23:14 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a59q8p9r9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Nov 2025 11:23:14 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5A37cL9J019320;
-	Mon, 3 Nov 2025 11:23:13 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4a5whn59y7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Nov 2025 11:23:13 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5A3BNB3J31392476
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 3 Nov 2025 11:23:12 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 99B2158056;
-	Mon,  3 Nov 2025 11:23:11 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B506858052;
-	Mon,  3 Nov 2025 11:23:08 +0000 (GMT)
-Received: from [9.111.82.153] (unknown [9.111.82.153])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  3 Nov 2025 11:23:08 +0000 (GMT)
-Message-ID: <958ef380be4ea488698fab05245d631998c32a48.camel@linux.ibm.com>
-Subject: Re: [PATCH v5 1/2] PCI: Fix isolated PCI function probing with ARI
- and SR-IOV
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Huacai Chen <chenhuacai@kernel.org>
-Cc: Bjorn Helgaas <bhelgaas@google.com>, Jan Kiszka
- <jan.kiszka@siemens.com>,
-        Bibo Mao <maobibo@loongson.cn>,
-        linux-s390
- <linux-s390@vger.kernel.org>, loongarch@lists.linux.dev,
-        Farhan Ali
- <alifm@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Tianrui
- Zhao	 <zhaotianrui@loongson.cn>,
-        Gerald Schaefer
- <gerald.schaefer@linux.ibm.com>,
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="DpwSdIll";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="g/AbZyAO"
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5A3COsXd010086;
+	Mon, 3 Nov 2025 12:32:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=corp-2025-04-25; bh=jTE4wdrkFTrF5j0l
+	wZ9Gjm3ElickLBeJHVLiuH6lAAo=; b=DpwSdIllWyCSoOp8Bjizh55XEZ73SZ69
+	lty90Cfk42/PrKL/AODGqX5twRLUAvVMDNxwozQjc6fxV6EyL6eWO24bqMCRSXPR
+	5JvWvMupkjECL2rkn0EvborAq6GQ0zupctoci0Qg6G3m/q6AEvVGzIAegOsX7Mtl
+	u0YfXs04+4kVWqLXHKOr+wNPBCmhRodVzSNkvZwRu/dft7dUWdsclHyeKArz9gSx
+	2SCyglvlsq5ySVbKFxHjL38VMTlRsn2uiX6ccmEA4EoCojHrqkBmAc+90LQkTIiU
+	6JGYx5UE6xecdxh6hitV2Lq7bG2zOOWPj5jH7HkAUGc2LslwhAysKQ==
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 4a6vca00a5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 03 Nov 2025 12:32:14 +0000 (GMT)
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 5A3BKtuY010909;
+	Mon, 3 Nov 2025 12:32:14 GMT
+Received: from cy3pr05cu001.outbound.protection.outlook.com (mail-westcentralusazon11013025.outbound.protection.outlook.com [40.93.201.25])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 4a58nbkss3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 03 Nov 2025 12:32:13 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=IewCiBFX8KltKhV0RldpajQUABKPu0a56+ZsXxdz9jELmbnbluypSkHCNA1wMiEqaYwbBDgmH/pw/CQogf6+N35mAjLVMq94SN4bFl4jx8YWXP0ZpAu8JXXNcwEVn1AQG68j5DoWIgEhpDvV2X9jtSzSnJNecdtZZCd0Dt3IL8EYa40XLaduFoxbqKf9ztYMi9ILyhp1E7wGJjjnnz3ygUTwIri9owmxhCSwCZ4fK5ge4//ErtkzkXrMX0eRZhd9+sLENoe3+HjOiBy6e/0DjDSwR8pNMfHfYh47Lgf48Dl0re5YNzumyjLngDt8QgitKTrfHzdWK3sKtk83wtPBag==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=jTE4wdrkFTrF5j0lwZ9Gjm3ElickLBeJHVLiuH6lAAo=;
+ b=bMyDy5kKixpCOmdztJuh7nCw1gp24REGiTm5Im1Yvuba3p3p7ZwboyaGIWnWH2iXctr3eo2ivWWtkXiUaraG4nPi+BTgHgjjlvpf6y8vmEbATL47ypxvhuYen/JMFmyv2eJj1dG7eFNQdekPwo3cQfhiuUQshvqP2JCbkd4yQjC1DBnaWbJUj2RxBeLn5yz8obO0tBfY1BtAHBv2nns3Xs3zuaROvYxyrw5TPu2fwIhUKvEp6Oq1kbzjI/lOIa6gCgQX8xrlWNKnwvFrGGz776c3ofbcXUWt1Z6oPbSuEKmWdV1sMuJYEiXp2KhPOgZY5gHgF9de+T9EGPhpygEMtw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=jTE4wdrkFTrF5j0lwZ9Gjm3ElickLBeJHVLiuH6lAAo=;
+ b=g/AbZyAOSLqqsZIcCjt9a6PG/9PHvOQjsGXCoo8RdfpW1tNX9kfZwKL3J67tmbsuMRh0ibJrYTI0no4EzZxLeTGPUEqmEU7Rdom6xP+6FoPWeMYy5FSGPXI/kZtl2P1ow8rMFnLXPlSkIxA+lxDfmLqhT6q8LaEtzPwn+miY1LE=
+Received: from DM4PR10MB8218.namprd10.prod.outlook.com (2603:10b6:8:1cc::16)
+ by DS4PR10MB997575.namprd10.prod.outlook.com (2603:10b6:8:31e::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9275.16; Mon, 3 Nov
+ 2025 12:32:10 +0000
+Received: from DM4PR10MB8218.namprd10.prod.outlook.com
+ ([fe80::2650:55cf:2816:5f2]) by DM4PR10MB8218.namprd10.prod.outlook.com
+ ([fe80::2650:55cf:2816:5f2%2]) with mapi id 15.20.9253.018; Mon, 3 Nov 2025
+ 12:32:10 +0000
+From: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Christian
- Borntraeger <borntraeger@linux.ibm.com>,
-        Gerd Bayer	
- <gbayer@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org
-Date: Mon, 03 Nov 2025 12:23:08 +0100
-In-Reply-To: <CAAhV-H6qqppoX_G5KrWmPor16bXfvNTE2x8Xx6yajAYPqxpigw@mail.gmail.com>
-References: <20251029-ari_no_bus_dev-v5-0-d9a5eab67ed0@linux.ibm.com>
-	 <20251029-ari_no_bus_dev-v5-1-d9a5eab67ed0@linux.ibm.com>
-	 <CAAhV-H6qqppoX_G5KrWmPor16bXfvNTE2x8Xx6yajAYPqxpigw@mail.gmail.com>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
+        Sven Schnelle <svens@linux.ibm.com>, Peter Xu <peterx@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+        Arnd Bergmann <arnd@arndb.de>, Zi Yan <ziy@nvidia.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        "Liam R . Howlett" <Liam.Howlett@oracle.com>,
+        Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+        Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+        Lance Yang <lance.yang@linux.dev>, Muchun Song <muchun.song@linux.dev>,
+        Oscar Salvador <osalvador@suse.de>, Vlastimil Babka <vbabka@suse.cz>,
+        Mike Rapoport <rppt@kernel.org>,
+        Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+        Matthew Brost <matthew.brost@intel.com>,
+        Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+        Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
+        Ying Huang <ying.huang@linux.alibaba.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
+        Kemeng Shi <shikemeng@huaweicloud.com>,
+        Kairui Song <kasong@tencent.com>, Nhat Pham <nphamcs@gmail.com>,
+        Baoquan He <bhe@redhat.com>, Chris Li <chrisl@kernel.org>,
+        SeongJae Park <sj@kernel.org>, Matthew Wilcox <willy@infradead.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
+        Xu Xin <xu.xin16@zte.com.cn>,
+        Chengming Zhou <chengming.zhou@linux.dev>,
+        Jann Horn <jannh@google.com>, Miaohe Lin <linmiaohe@huawei.com>,
+        Naoya Horiguchi <nao.horiguchi@gmail.com>,
+        Pedro Falcato <pfalcato@suse.de>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Rik van Riel <riel@surriel.com>, Harry Yoo <harry.yoo@oracle.com>,
+        Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, damon@lists.linux.dev
+Subject: [PATCH 00/16] mm: remove is_swap_[pte, pmd]() + non-swap entries, introduce leaf entries
+Date: Mon,  3 Nov 2025 12:31:41 +0000
+Message-ID: <cover.1762171281.git.lorenzo.stoakes@oracle.com>
+X-Mailer: git-send-email 2.51.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: LO4P265CA0117.GBRP265.PROD.OUTLOOK.COM
+ (2603:10a6:600:2c3::20) To DM4PR10MB8218.namprd10.prod.outlook.com
+ (2603:10b6:8:1cc::16)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=StmdKfO0 c=1 sm=1 tr=0 ts=690890a3 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=CVEPJ6nH_zdpVceZYQoA:9 a=QEXdDO2ut3YA:10
- a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-ORIG-GUID: 7rFSlMeYVcIwghoP9LHcpFeesyb62QRC
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTAxMDAxOCBTYWx0ZWRfXzEBdH0xuU4zj
- kHxnQKdqD9smWYR2WndNTSz+t31izFnHZQIYQyT1HN253o9z7KWAhyAN9HOw1UrYAhFfCJw7FHb
- +Q9XaKQT+pePHX1Ap5hceq0vmF3WpgKSMcMPb75lO/6+Juq2OoHTrRGtxRGCDcWjkPHjJoKXfnw
- Mb2OJrl7S9jXuHpgA60wpqc0VUXU5UgHdpCP2C83XF/HaqFoKWcQJ/RfLilK27dDUAZnQjV0ac9
- 6cV7yp16DBpEQi7uuyclz1DGgilzohzA/yxgr8jV//RynUFQXQGqPk/YoMnsXlsAPyYPyxdbPzj
- QryyJMXS/X6RqOEf2owKmK2EgV+fUj2Wv2mkMtEJ4Trq6yLTNvSQNmesVg55/q31bw1zEDjewBX
- EvEv4miN9KZOKQloR8SIanSJF6Op9w==
-X-Proofpoint-GUID: cHXcDtfakFCIOP8Neov1l0i0PTXzlcoR
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM4PR10MB8218:EE_|DS4PR10MB997575:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4f388512-38aa-4d7e-e5ec-08de1ad5024b
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|366016|1800799024;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?RVLaqZyXKvtpkY4089/9kH3Pm1bU143hUUCDPpnYD+DeZ5s/uwIQ9XEvBGyD?=
+ =?us-ascii?Q?5RNwbIiuPfRLG9ZJEhKo75V7fDZyXggU7BvX09W/KuwoMZwAnk71bHdIyiSF?=
+ =?us-ascii?Q?ebIn7QlzgKv5u28pyJ/zMA+UXxqm4GAorsOBpC6KHLca9AdbF5ddOgYKcFV8?=
+ =?us-ascii?Q?mQThmsNqcWhzLcOJ3vVLxgzX6UTaf5nOwXFqo+XzlbJy2p+jC4QrZMODffN+?=
+ =?us-ascii?Q?n/JI5jfFNQVUEoTvZqz1a0M9EbecI78Lf05AMJQQK6QUgFdkwqy9z+x7Z+52?=
+ =?us-ascii?Q?kcG4iyPsIG2cUrFKwr2v00U3bwhxdA3RW/EPGeaEZQC3el6io+IEuCPC1R5B?=
+ =?us-ascii?Q?aICySqI9w8Wl1u+ypmqm8F33ZVVB/X5Wi2x8+1BFiHCmNLJGT81UW06K7IbJ?=
+ =?us-ascii?Q?ozu7iiP3HZh1C73gPomCevHsJVWCLrfdDhXW/g8RsNcoCiCWtofKY34aBrhm?=
+ =?us-ascii?Q?2qwkmsxAyQgyAtnJJ6BUqnmwVhVD6wkoLlzzLEv6Uv4VQkZHPvc+MKc0dAEy?=
+ =?us-ascii?Q?ZM9L+GIFDztgE7PCswW0S8M6yOYvPa4iIRjZAWWQJTpJzYVnTnSf4NDMnQDO?=
+ =?us-ascii?Q?6iiDEOMQHkAM9ShlDtAsnHEH0iABH10rVgUy7yseCVfl3gdBJA00lojc5kqh?=
+ =?us-ascii?Q?uLUAAHYTJk5osyufpnYWkjWjTsmYCUGrpC6DsTxCVTii4NxDXFu3ucSAEsK0?=
+ =?us-ascii?Q?Dw1mTLPNS3tmgxrt/b6Xo23WiEecN6CW5SnDsFym+gxqqpA1i1lp/kIBzwf1?=
+ =?us-ascii?Q?iXKeiASR06BSewi7wIdN1L3VDZfJgg9ggseTHKwmjDX2aTZtShCTVT2LV9o6?=
+ =?us-ascii?Q?a2NI4O+zK8+uM/gPrY0Bk4wN9Fz1MuHCquHT1o+uH8tON0+muLAmnhClTa/S?=
+ =?us-ascii?Q?hx/6YQqnbO9nNHvQj/wH22043l5rGAwNMnjhCIsyx7gvTvcPw/E+xpqhvunm?=
+ =?us-ascii?Q?dIcjZvYTmYfldOYQfn1neG5/QFaicSsaGg6CRnvrjuFqcyj8AxbHB1iD6i5r?=
+ =?us-ascii?Q?9vclQSmvDy3Pz6agKsQ0A0GigjxjxqLuZWezhEs45qARRgm+PaQ6UqEEiAWZ?=
+ =?us-ascii?Q?GGBRxC1Td4ogydl6wAEVHf0sasm1ZLTmGKdCZPsj2ZxbEAdaS5Qt5VUPBJLx?=
+ =?us-ascii?Q?3avygL7qGkamf1bur7GgR7TtbgivjRdnBEWz+C3UWo6lHr8iY4Hny02jqG9H?=
+ =?us-ascii?Q?L+2HQZ9r7qUDsFL8wzDg7ecHTCtvnDRewh5bPuY3gvQ+ZWMLYwSD7dwqGJwZ?=
+ =?us-ascii?Q?Oi8EaQkoeLM207tnkljgdEAr6RP8cfRH+RyM649ltrdt0AgVhuKv1jv+nQPi?=
+ =?us-ascii?Q?b8r6g4DE3L0XHJ6qQmX7eZ5qwjhv6MXvtPxXrjVcLtzm1es1dU0yyQ/6QW99?=
+ =?us-ascii?Q?oHezC5e2nBWsxcojQvTEh29jGd6EgnZTvXq22qYvFH8CF22eHsel/baztUwS?=
+ =?us-ascii?Q?i9acnCD9IKSKG93yi9beQYiF+Ppu0jDhyEakOmz7cVtjudJQgQy7MA=3D=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR10MB8218.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(1800799024);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?9fsHHL4t5kmJBmqNWRxG7V8lW8F+UrfLaU317OeBlLru47vOVXz+kXuN/OfL?=
+ =?us-ascii?Q?Y/I1n4KOoMy6jpiSh/808+VdL6a36pbQ6F5u/e5vQ5cBKGJA+PynZFNGxPbd?=
+ =?us-ascii?Q?hbGM9jXLeTrKBztHuy6ZeoCRXPQSW5AbtNxEfrc/061a4qMsW5h0rPNQYdB5?=
+ =?us-ascii?Q?blftbEP4B1TcHfaYib0yzI0tOw4X1UQa6amy5SQBz/DLwUZUyqH5X8Eyzcym?=
+ =?us-ascii?Q?GLfCQgzsUZvAAMgqDFBuSTfrZbU26VuwL1SKzcR3cGfwK01nujwvK50fo4KX?=
+ =?us-ascii?Q?8x4VKnTf8vjZP+ZSQC8thzCXZrHleB3Gv6bEB+u/bmK+DY+iEday8b7voUSe?=
+ =?us-ascii?Q?sXN8655BlpckYMeqevIrVDtjLIV+tZoZvdjE/9+OWhm827ZL4+Y1hy42qOII?=
+ =?us-ascii?Q?d03Pw5RpVunFohe3zC9tH1nCqYZdTIX8CZ5unWhavYJ/80XBhC338QMWwBj8?=
+ =?us-ascii?Q?u7X1Pr0r2ZBfnBMCMv2cyJbW62hvzfTYSLNO7C1BJiah6K3DPQVRmyZKwESH?=
+ =?us-ascii?Q?mhb2O3h0C9lbM5Am6NWYlbj0Z/ehzYHrpLr1CtHWNql2nfPwsLviu3honOx5?=
+ =?us-ascii?Q?eXCA5k0+twYAnPS7fIugprWdyQ2KccgCYiCLo9ZKvjuQnLRi1+siim0GgOrz?=
+ =?us-ascii?Q?O+BK1ORLEsOGouO36aXQ+Im5k2n4/0yVrwAE1+X6a7Q5gRsH6lZ+QrQu6gn6?=
+ =?us-ascii?Q?rlTFi0aaWTvmDTtv8gl94NxGrL5vwdyxJ0ezciuoC560f7PQpZsew6ZmhuDO?=
+ =?us-ascii?Q?6O1OkXBY8HJMdbwsXEuuhrBp1bcSK27R/sm1mbwWJ0QXFh3d91PrkflFa7BV?=
+ =?us-ascii?Q?RvfAllYNRMsJ60qA14TAxe7gAmAAkhUMeX7gZn0r5OnP/Kz+VisWhibwq9AA?=
+ =?us-ascii?Q?sleGrIqsoiprbgL6UHDM+6Xaq/d40zpOfd/6K+FbQXyANw3aJXrQbfvNQAPr?=
+ =?us-ascii?Q?/Lf+WMwnmstk96yvU7bByYQb9MQADlqpSzJEIBCm1gPCVPED6gIwg+Ncy15w?=
+ =?us-ascii?Q?YX8gkOkKDN+ruPMk3XyG6lFeI+Ac8n4/7XkaRBgEn4frU2n6vBYFPKkc5zP7?=
+ =?us-ascii?Q?R6Sn8w2oxYQe25XtCBL1XrOdFouxr+il09nLGuownnTYxpr7tXLBMqXWIByR?=
+ =?us-ascii?Q?31xyb5ccIu3WTNKR7eq4151k3wouPTwjNhNfeCW1f16J7qr6PMZwMkRsO4cG?=
+ =?us-ascii?Q?sx1uMKZ5pwD9GzyQJ250qfwejfhDxJ1D9XUC/qenL9mBm2M6n907bN1YeFr9?=
+ =?us-ascii?Q?xtOrxi3UKrFv4jogSs8qcdd3sNuUnuLZ+ciS0Uil1b30qg02JPqD4cOWu5Ci?=
+ =?us-ascii?Q?2k1rYY5qLQmVwjnreV4YA9aGn850U8R777tMSbu4CQgeB2Cs+miQzLj1kumI?=
+ =?us-ascii?Q?Ym0G1uCbcpekAx3BjVFPcippdUvhOPmF0MwCz6oaHTDTaalRJ9mhMMAIC+lT?=
+ =?us-ascii?Q?my8tNSIBC1Or6VtDyIVYA3E+Ry1oBdtzaEGjmrIBu1/pmEsG0sdacnoMalyI?=
+ =?us-ascii?Q?sMFFzBTC2YwILNib/DGTRoFGp9YzvvAYUV17LGilrpi0ggtyil7GBv9IvGe3?=
+ =?us-ascii?Q?+8gGi2KrQW/7HC9MYuGqyMxOjSN+GKZQO7bgOzNz8svZaRtt0a51Nl2BnqDG?=
+ =?us-ascii?Q?fw=3D=3D?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	NnzNEhtW4IruvInDt5qTsXeSvu8sUxJPobf8bnDddJP8H/3jrmzHejbsRM7xVP1mnoTIUclxWI7nzkomdK3RVW76uDU0MJfDEbOUZitSg2fuHLTq5QwFcxqv5NbvENHINIiUDVm9XY2Ce6vJ2H1IbuRj0ITZ65CxQZPb2xpaxDep+E0+5RHURzfCndlV/Xlem37wFIFK4O4eHS0g4t0/MsbbvWPwGLpIwhZw5U0KwtZ6H2ytvzaK4eBuiI2T07T6LieFqCyE1gym9vmMO3l71sMxnNmEpGh+Xs/u8Z86aH/sAOUw2OlbOuXi13Q86V+5BTiyxmEK/dWPpTHEreVQJ2lpqKbwMqGHZXjSUZOyYlIXwDDpA9YFkae4zZ1xVhgCyGwChQk2lmQc7GRD2oPrHCRuUMSHEWk9aDU8CAbBXpkR0ZdPAhulfVdJ7StFb+E7ihwoZHPmVk5zwr+7vEA0MS3PBd31topnxYb/OvZ/1zkhp/UekqzEpuSvNBl/hsB1D2EpjzlUeoY9+KSzbgidZHmfLASElY7n1d4S/f+e+7LVttIBPSpdxkjsuHImW5cqcZBKq+BW8V5Z5PxcZiVnZ0k+yFYpxD0lfgVFlLITLWY=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4f388512-38aa-4d7e-e5ec-08de1ad5024b
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR10MB8218.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Nov 2025 12:32:10.3031
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: BCGVNiJaAuHYyOit64BrKyh44fTmT7SFvj7QeG3ObMfzyUglg1rS/zQpe99PFwmiIu9cncPAmCZMgAYaMDZ1blogj9POSXMSH1kz4BuELbI=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS4PR10MB997575
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-11-03_01,2025-10-29_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 suspectscore=0 phishscore=0 impostorscore=0 priorityscore=1501
- malwarescore=0 clxscore=1015 adultscore=0 bulkscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511010018
+ definitions=2025-11-03_01,2025-11-03_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 mlxscore=0 bulkscore=0
+ malwarescore=0 adultscore=0 spamscore=0 mlxlogscore=999 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2510240000
+ definitions=main-2511030113
+X-Proofpoint-GUID: TDgAg4DQ9_d7Uci0M8mmGukikabkpPnF
+X-Authority-Analysis: v=2.4 cv=PPsCOPqC c=1 sm=1 tr=0 ts=6908a0ce b=1 cx=c_pps
+ a=e1sVV491RgrpLwSTMOnk8w==:117 a=e1sVV491RgrpLwSTMOnk8w==:17
+ a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19
+ a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=xqWC_Br6kY4A:10 a=6UeiqGixMTsA:10
+ a=GoEa3M9JfhUA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VwQbUJbxAAAA:8 a=yPCof4ZbAAAA:8
+ a=LvTsRCqgAKWwgvdAruYA:9 cc=ntf awl=host:13657
+X-Proofpoint-ORIG-GUID: TDgAg4DQ9_d7Uci0M8mmGukikabkpPnF
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTAzMDExMyBTYWx0ZWRfX0qHKPm5ITWfX
+ NYQXVX0mc3datlSWmvNAC4s8d3DAp2XeKbK1uXDAytwdYLjEb8ql2Lcb/BVVil7Rs2U4dlkQqa2
+ T1m6b9UmtvsQlqpqG39t1LH5T7clmSe20a9KbJfeBBtOzIt7+rdUMOJY8amuiS/7mk+GtFREYvV
+ 9X+X8ypUOrwHXoz+sSA6Srvl5Ksth3YVFGYFTXZPD8kXOFAlgo9ZqyfIp4RmA1a9w+MViZqT7W2
+ WxzxAng6lUsCt4xwbzK1f9vMDNYHyUUp05i6XXmPPEKBwmMYyfQ5WeATEDwqRPIffTEF+AUf8Fw
+ YLhtOIsoUKHyx2BPzxEA/RrSuJGF62L/yYmmU/bToE4NNEB3HOY/gHiqwpcKwxC1k89gvz8kjTb
+ PDTcFRVw26d3EGwfjVwXsA1wA6OtgrzObOriWaHBlPUZc7N+i34=
 
-On Mon, 2025-11-03 at 17:50 +0800, Huacai Chen wrote:
-> Hi, Niklas,
->=20
-> On Wed, Oct 29, 2025 at 5:42=E2=80=AFPM Niklas Schnelle <schnelle@linux.i=
-bm.com> wrote:
-> >=20
-> > When the isolated PCI function probing mechanism is used in conjunction
-> > with ARI or SR-IOV it may not find all available PCI functions. In the
-> > case of ARI the problem is that next_ari_fn() always returns -ENODEV if
-> > dev is NULL and thus if fn 0 is missing the scan stops.
-> >=20
-> > For SR-IOV things are more complex. Here the problem is that the check
-> > for multifunction may fail. One example where this can occur is if the
-> > first passed-through function is a VF with devfn 8. Now in
-> > pci_scan_slot() this means it is fn 0 and thus multifunction doesn't ge=
-t
-> > set. Since VFs don't get multifunction set via PCI_HEADER_TYPE_MFD it
-> > remains unset and probing stops even if there is a devfn 9.
-> >=20
-> > Now at the moment both of these issues are hidden on s390. The first on=
-e
-> > because ARI is detected as disabled as struct pci_bus's self is NULL
-> > even though firmware does enable and use ARI. The second issue is hidde=
-n
-> > as a side effect of commit 25f39d3dcb48 ("s390/pci: Ignore RID for
-> > isolated VFs"). This is because VFs are either put on their own virtual
-> > bus if the parent PF is not passed-through to the same instance or VFs
-> > are hotplugged once SR-IOV is enabled on the parent PF and then
-> > pci_scan_single_device() is used.
-> >=20
-> > Still especially the first issue prevents correct detection of ARI and
-> > the second might be a problem for other users of isolated function
-> > probing. Fix both issues by keeping things as simple as possible. If
-> > isolated function probing is enabled simply scan every possible devfn.
-> I'm very sorry, but applying this patch on top of commit a02fd05661d7
-> ("PCI: Extend isolated function probing to LoongArch") we fail to
-> boot.
->=20
-> Boot log:
-> [   10.365340] megaraid cmm: 2.20.2.7 (Release Date: Sun Jul 16
-> 00:01:03 EST 2006)
-> [   10.372628] megaraid: 2.20.5.1 (Release Date: Thu Nov 16 15:32:35 EST =
-2006)
-> [   10.379564] megasas: 07.734.00.00-rc1
-> [   10.383222] mpt3sas version 54.100.00.00 loaded
-> [   10.388304] nvme nvme0: pci function 0000:08:00.0
-> [   10.395088] Freeing initrd memory: 45632K
-> [   10.469822] ------------[ cut here ]------------
-> [   10.474409] WARNING: CPU: 0 PID: 247 at drivers/ata/libahci.c:233
-> ahci_enable_ahci+0x64/0xb8
-> [   10.482804] Modules linked in:
-> [   10.485838] CPU: 0 UID: 0 PID: 247 Comm: kworker/0:11 Not tainted
-> 6.18.0-rc3 #1 PREEMPT(full)
-> [   10.494397] Hardware name: To be filled by O.E.M.To be fill To be
-> filled by O.E.M.To be fill/To be filled by O.E.M.To be fill, BIOS
-> Loongson-UDK2018-V4.0.
-> [   10.508139] Workqueue: events work_for_cpu_fn
-> [   10.512468] pc 900000000103be2c ra 900000000103be28 tp
-> 900000010ae44000 sp 900000010ae47be0
-> [   10.520769] a0 0000000000000000 a1 00000000000000b0 a2
-> 0000000000000001 a3 9000000001810e0c
-> [   10.529069] a4 9000000002343e20 a5 0000000000000001 a6
-> 0000000000000010 a7 0000000000000000
-> [   10.537373] t0 d10951fa66920f31 t1 d10951fa66920f31 t2
-> 0000000000001280 t3 000000000674c000
-> [   10.545673] t4 0000000000000000 t5 0000000000000000 t6
-> 9000000008002480 t7 00000000000000b4
-> [   10.553972] t8 90000001055eab90 u0 900000010ae47b68 s9
-> 9000000002221a50 s0 0000000000000000
-> [   10.562272] s1 ffff800032435800 s2 0000000000000000 s3
-> ffffffff80000000 s4 9000000002221570
-> [   10.570571] s5 0000000000000005 s6 9000000101ccf0b8 s7
-> 90000000023dd000 s8 900000010ae47d08
-> [   10.578869]    ra: 900000000103be28 ahci_enable_ahci+0x60/0xb8
-> [   10.584665]   ERA: 900000000103be2c ahci_enable_ahci+0x64/0xb8
-> [   10.590461]  CRMD: 000000b0 (PLV0 -IE -DA +PG DACF=3DCC DACM=3DCC -WE)
-> [   10.596609]  PRMD: 00000004 (PPLV0 +PIE -PWE)
-> [   10.600937]  EUEN: 00000000 (-FPE -SXE -ASXE -BTE)
-> [   10.605698]  ECFG: 00071c1d (LIE=3D0,2-4,10-12 VS=3D7)
-> [   10.610458] ESTAT: 000c0000 [BRK] (IS=3D ECode=3D12 EsubCode=3D0)
-> [   10.615994]  PRID: 0014d010 (Loongson-64bit, Loongson-3C6000/S)
-> [   10.621875] CPU: 0 UID: 0 PID: 247 Comm: kworker/0:11 Not tainted
-> 6.18.0-rc3 #1 PREEMPT(full)
-> [   10.621877] Hardware name: To be filled by O.E.M.To be fill To be
-> filled by O.E.M.To be fill/To be filled by O.E.M.To be fill, BIOS
-> Loongson-UDK2018-V4.0.
-> [   10.621878] Workqueue: events work_for_cpu_fn
-> [   10.621881] Stack : 900000010ae47848 0000000000000000
-> 90000000002436bc 900000010ae44000
-> [   10.621884]         900000010ae47820 900000010ae47828
-> 0000000000000000 900000010ae47968
-> [   10.621887]         900000010ae47960 900000010ae47960
-> 900000010ae47630 0000000000000001
-> [   10.621890]         0000000000000001 900000010ae47828
-> d10951fa66920f31 9000000100414300
-> [   10.621893]         80000000ffffe34d fffffffffffffffe
-> 000000000000034f 000000000000002f
-> [   10.621896]         0000000000000063 0000000000000001
-> 000000000674c000 9000000002221a50
-> [   10.621899]         0000000000000000 0000000000000000
-> 90000000020b6500 90000000023dd000
-> [   10.621902]         00000000000000e9 0000000000000009
-> 0000000000000002 90000000023dd000
-> [   10.621905]         900000010ae47d08 0000000000000000
-> 90000000002436d4 0000000000000000
-> [   10.621908]         00000000000000b0 0000000000000004
-> 0000000000000000 0000000000071c1d
-> [   10.621910]         ...
-> [   10.621912] Call Trace:
-> [   10.621913] [<90000000002436d4>] show_stack+0x5c/0x180
-> [   10.621918] [<900000000023f328>] dump_stack_lvl+0x6c/0x9c
-> [   10.621923] [<9000000000266eb8>] __warn+0x80/0x108
-> [   10.621927] [<90000000017d1910>] report_bug+0x158/0x2a8
-> [   10.621932] [<900000000180b610>] do_bp+0x2d0/0x340
-> [   10.621938] [<9000000000241da0>] handle_bp+0x120/0x1c0
-> [   10.621940] [<900000000103be2c>] ahci_enable_ahci+0x64/0xb8
-> [   10.621943] [<900000000103beb8>] ahci_save_initial_config+0x38/0x4d8
-> [   10.621946] [<90000000010391b4>] ahci_init_one+0x354/0x1088
-> [   10.621950] [<9000000000d16cdc>] local_pci_probe+0x44/0xb8
-> [   10.621953] [<9000000000286f78>] work_for_cpu_fn+0x18/0x30
-> [   10.621956] [<900000000028a840>] process_one_work+0x160/0x330
-> [   10.621961] [<900000000028b208>] worker_thread+0x330/0x460
-> [   10.621964] [<9000000000295fdc>] kthread+0x11c/0x138
-> [   10.621968] [<900000000180b740>] ret_from_kernel_thread+0x28/0xa8
-> [   10.621971] [<9000000000241484>] ret_from_kernel_thread_asm+0xc/0x88
-> [   10.621973]
->=20
->=20
+There's an established convention in the kernel that we treat leaf page
+tables (so far at the PTE, PMD level) as containing 'swap entries' should
+they be neither empty (i.e. p**_none() evaluating true) nor present
+(i.e. p**_present() evaluating true).
 
-This looks like a warning telling us that AHCI enable failed / timed
-out. Do you have Panic on Warn on that this directly causes a boot
-failure? The only relation I can see with my patch is that maybe this
-AHCI device wasn't probed before and somehow isn't working?
+However, at the same time we also have helper predicates - is_swap_pte(),
+is_swap_pmd() - which are inconsistently used.
 
-Thanks,
-Niklas
+This is problematic, as it is logical to assume that should somebody wish
+to operate upon a page table swap entry they should first check to see if
+it is in fact one.
+
+It also implies that perhaps, in future, we might introduce a non-present,
+none page table entry that is not a swap entry.
+
+This series resolves this issue by systematically eliminating all use of
+the is_swap_pte() and is swap_pmd() predicates so we retain only the
+convention that should a leaf page table entry be neither none nor present
+it is a swap entry.
+
+We also have the further issue that 'swap entry' is unfortunately a really
+rather overloaded term and in fact refers to both entries for swap and for
+other information such as migration entries, page table markers, and device
+private entries.
+
+We therefore have the rather 'unique' concept of a 'non-swap' swap entry.
+
+This series therefore introduces the concept of 'leaf entries' to eliminate
+this confusion.
+
+A leaf entry in this sense is any page table entry which is non-present,
+and represented by the leaf_entry_t type.
+
+This includes 'none' or empty entries, which are simply represented by an
+zero leaf entry value.
+
+In order to maintain compatibility as we transition the kernel to this new
+type, we simply typedef swp_entry_t to leaf_entry_t.
+
+We introduce a number of predicates and helpers to interact with leaf
+entries in include/linux/leafops.h which, as it imports swapops.h, can be
+treated as a drop-in replacement for swapops.h wherever leaf entry helpers
+are used.
+
+Since leafent_from_[pte, pmd]() treats present entries as they were
+empty/none leaf entries, this allows for a great deal of simplification of
+code throughout the code base, which this series utilises a great deal.
+
+We additionally change from swap entry to leaf entry handling where it
+makes sense to and eliminate functions from swapops.h where leaf entries
+obviate the need for the functions.
+
+
+non-RFC v1:
+* As part of efforts to eliminate swp_entry_t usage, remove
+  pte_none_mostly() and correct UFFD PTE marker handling.
+* Introduce leaf_entry_t - credit to Gregory for naming, and to Jason for
+  the concept of simply using a leafent_*() set of functions to interact
+  with these entities.
+* Replace pte_to_swp_entry_or_zero() with leafent_from_pte() and simply
+  categorise pte_none() cases as an empty leaf entry, as per Jason.
+* Eliminate get_pte_swap_entry() - as we can simply do this with
+  leafent_from_pte() also, as discussed with Jason.
+* Put pmd_trans_huge_lock() acquisition/release in pagemap_pmd_range()
+  rather than pmd_trans_huge_lock_thp() as per Gregory.
+* Eliminate pmd_to_swp_entry() and related and introduce leafent_from_pmd()
+  to replace it and further propagate leaf entry usage.
+* Remove the confusing and unnecessary is_hugetlb_entry_[migration,
+  hwpoison]() functions.
+* Replace is_pfn_swap_entry(), pfn_swap_entry_to_page(),
+  is_writable_device_private_entry(), is_device_exclusive_entry(),
+  is_migration_entry(), is_writable_migration_entry(),
+  is_readable_migration_entry(), is_readable_exclusive_migration_entry()
+  and pfn_swap_entry_folio() with leafent equivalents.
+* Wrapped up the 'safe' behaviour discussed with Jason in
+  leafent_from_[pte, pmd]() so these can be used unconditionally which
+  simplifies things a lot.
+* Further changes that are a consequence of the introduction of leaf
+  entries.
+
+RFC:
+https://lore.kernel.org/all/cover.1761288179.git.lorenzo.stoakes@oracle.com/
+
+Lorenzo Stoakes (16):
+  mm: correctly handle UFFD PTE markers
+  mm: introduce leaf entry type and use to simplify leaf entry logic
+  mm: avoid unnecessary uses of is_swap_pte()
+  mm: eliminate uses of is_swap_pte() when leafent_from_pte() suffices
+  mm: use leaf entries in debug pgtable + remove is_swap_pte()
+  fs/proc/task_mmu: refactor pagemap_pmd_range()
+  mm: avoid unnecessary use of is_swap_pmd()
+  mm/huge_memory: refactor copy_huge_pmd() non-present logic
+  mm/huge_memory: refactor change_huge_pmd() non-present logic
+  mm: replace pmd_to_swp_entry() with leafent_from_pmd()
+  mm: introduce pmd_is_huge() and use where appropriate
+  mm: remove remaining is_swap_pmd() users and is_swap_pmd()
+  mm: remove non_swap_entry() and use leaf entry helpers instead
+  mm: remove is_hugetlb_entry_[migration, hwpoisoned]()
+  mm: eliminate further swapops predicates
+  mm: replace remaining pte_to_swp_entry() with leafent_from_pte()
+
+ MAINTAINERS                   |   1 +
+ arch/s390/mm/gmap_helpers.c   |  18 +-
+ arch/s390/mm/pgtable.c        |  12 +-
+ fs/proc/task_mmu.c            | 294 +++++++++-------
+ fs/userfaultfd.c              |  85 ++---
+ include/asm-generic/hugetlb.h |   8 -
+ include/linux/huge_mm.h       |  48 ++-
+ include/linux/hugetlb.h       |   2 -
+ include/linux/leafops.h       | 622 ++++++++++++++++++++++++++++++++++
+ include/linux/migrate.h       |   3 +-
+ include/linux/mm_inline.h     |   6 +-
+ include/linux/swapops.h       | 273 +--------------
+ include/linux/userfaultfd_k.h |  33 +-
+ mm/damon/ops-common.c         |   6 +-
+ mm/debug_vm_pgtable.c         |  86 +++--
+ mm/filemap.c                  |   8 +-
+ mm/hmm.c                      |  36 +-
+ mm/huge_memory.c              | 263 +++++++-------
+ mm/hugetlb.c                  | 165 ++++-----
+ mm/internal.h                 |  20 +-
+ mm/khugepaged.c               |  33 +-
+ mm/ksm.c                      |   6 +-
+ mm/madvise.c                  |  28 +-
+ mm/memory-failure.c           |   8 +-
+ mm/memory.c                   | 150 ++++----
+ mm/mempolicy.c                |  25 +-
+ mm/migrate.c                  |  45 +--
+ mm/migrate_device.c           |  24 +-
+ mm/mincore.c                  |  25 +-
+ mm/mprotect.c                 |  59 ++--
+ mm/mremap.c                   |  13 +-
+ mm/page_table_check.c         |  33 +-
+ mm/page_vma_mapped.c          |  65 ++--
+ mm/pagewalk.c                 |  15 +-
+ mm/rmap.c                     |  17 +-
+ mm/shmem.c                    |   7 +-
+ mm/swap_state.c               |  12 +-
+ mm/swapfile.c                 |  14 +-
+ mm/userfaultfd.c              |  53 +--
+ 39 files changed, 1537 insertions(+), 1084 deletions(-)
+ create mode 100644 include/linux/leafops.h
+
+--
+2.51.0
