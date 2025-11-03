@@ -1,153 +1,127 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA6F82FCC10;
-	Mon,  3 Nov 2025 10:17:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E87E2FD665
+	for <linux-s390@vger.kernel.org>; Mon,  3 Nov 2025 10:17:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762165029; cv=none; b=W+qHpkBSFffTNsfzKuqFxULpgNDbRvhEQ4SWmGlq2S96UE0kDLn+fjxFRrc+UPsA+9Hrdd/6uN2euKtCKHS5wzzhUsboufdLVRUvW1cqTzukt4s2+OeG/LYgwwckWl2Ngf5fTcdx7715yxBBoxvOf7c8p8gCogrW2Dfm6EHDVAs=
+	t=1762165031; cv=none; b=k7apfhayrpbzfdCNdjvEDoYtf6V6r/OfCJexQ5906QWz9dx8kfOW9gf0hEwcoCCDYDRqdf8Ck5lVHKk2fcVfuGYa9i4rIbZKRxE2NYlJ/ezPE/LrBuSLxv0v/3kXuW1xNaZst+OKom3D8rWrd2F+BOIkYjFjPAer1J4NCR/D8xg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762165029; c=relaxed/simple;
-	bh=Lu3DRFUz68s5hffqcbHlj9MCZY8fROLv0KQlDl/tQvs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tkpSIc9YJRI7cOw76uFl0GbwnZbBQUIJu9IlUAHoK41cpEvNtZr+8TxpTCNHxj/i+BiZVO+ym2y6vXgkevlnXsUPlqfWS7+LjCdM9xkWIuGaLsWAeulpl7NzBWL9TO6CsEuDl3dVOlNWjf0rGQoQ0TA0SjnTtEnwQdAyIY2wDc8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Yu1LxBl8; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1762165031; c=relaxed/simple;
+	bh=FFZiNUWIFKtxHxItZumM7duOWwpaz/Ziw593xKPC374=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=djRvGGaay3/D4+19ipte/aOtOmU4NClmEqVyyrlnCYIt7VK6vCvZaa1VvwkMchhg1xaDQEGVWO2coI3IASq4MV/sxY9cvz+uafyjIfnqk+3Z+7guJf3Vp36Ib1EkdT0mp7gbADzrOjLzDNJy91gyKWoJCJyrDgO1bV3Hg4S4chc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=aLnG6tPA; arc=none smtp.client-ip=209.85.214.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Yu1LxBl8"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5A2Khw3v011187;
-	Mon, 3 Nov 2025 10:16:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=8bTqFCkmYKIUFPeaZNVkOdfYtf5t10OTsCmkV7+J7
-	3g=; b=Yu1LxBl8h+ZPOrLRaIPdYsEAnaq0d4wf5F05gDmnhtO3X7FtUMwcHVQrO
-	A035S5THPzP0dj8i+6wt5hs3G4+5LvaN1xq/tpkubfl3ZrZ8ji9nWc7wmanZtuQ0
-	KX5izFG+eCLKV3RYwTw6YxGKwXGcptZ/jK8q6iRWNqrOgTUS7mxkom3C4BoXRW2L
-	lRLl6UpHNcLqoydsnluLoLX+mNa4eBZugld7W5znpEatRYngYfZ/BbNu+oyfyCiv
-	PfvB8S5qa/GtElB8zAPYycDjekEcWztpDD8YRKOTLawjGm01eQJf5UyezAH/1+Kf
-	kVorCH1+YEEcrQsTgWawN+/OjxCFA==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a57mqx5v4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Nov 2025 10:16:58 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5A3A2u7o005859;
-	Mon, 3 Nov 2025 10:16:57 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a57mqx5v2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Nov 2025 10:16:57 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5A36wp6T027379;
-	Mon, 3 Nov 2025 10:16:57 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4a5vwy579y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Nov 2025 10:16:56 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5A3AGru155640534
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 3 Nov 2025 10:16:53 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0944D20067;
-	Mon,  3 Nov 2025 10:16:53 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D1C2920065;
-	Mon,  3 Nov 2025 10:16:52 +0000 (GMT)
-Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  3 Nov 2025 10:16:52 +0000 (GMT)
-From: Aswin Karuvally <aswin@linux.ibm.com>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
-        Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Simon Horman <horms@kernel.org>
-Subject: [PATCH net-next] s390/ctcm: Use info level for handshake UC_RCRESET
-Date: Mon,  3 Nov 2025 11:16:52 +0100
-Message-ID: <20251103101652.2349855-1-aswin@linux.ibm.com>
-X-Mailer: git-send-email 2.48.1
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="aLnG6tPA"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-27d67abd215so417845ad.0
+        for <linux-s390@vger.kernel.org>; Mon, 03 Nov 2025 02:17:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1762165027; x=1762769827; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=+B58KtJn/bs233pgZmMdorp656WS5EnyOqIx/RHoAag=;
+        b=aLnG6tPA2Lz8JDQ2FACTcqMz+WdTuZgG+U7ki9e1FgPajzlTfXpzy8ku0upyXh3Wz7
+         k33jhLkl9tziC5r6T/veZTaKShmn455/bLDckA99pHLfQ736dqIjKrYjGlPnos7+GaI1
+         LqPgXhntry+FhO0z28o5nPcGHSp8wE5HmAMMfMfWK+1flaOErwz8yjuih+zf10noPGr2
+         HMoC23pppsa+tkq1IxYPjqfrp56N0h4YOqNdQgDPaq51vtfpaKu8YHQpUj3Mm3piXqxJ
+         JSD5AHzN6qQJ8NyBAmSD56wR/oSfCvsOJh3cwC/HZgZyQl2vPsUHwGg7+zY1jN8L1DQh
+         UrZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1762165027; x=1762769827;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+B58KtJn/bs233pgZmMdorp656WS5EnyOqIx/RHoAag=;
+        b=hVoTvCyb2YDXYGdWfSoXSsj+9SUZr1Vbb50v+fOQr3fuX1OGRd6Z0JzcR5esuv3XkY
+         MLHGATo6oOdJLElTkCoIZBqiXCy18q/9UGwsVla8nawWLBOkvsF1mRvsjB8I+NUla9Si
+         RyM2V/bNQxiMYRdnbVeKQ2KjxzDZ6iL7AFWxPP90XDaRaL+lXcEcm5/nmscQzT5aKv1+
+         84tS2KPC7sfOhPljTxSGR3nV7oMQ9+TV9ExqX/PXPR4PqrA9U9lPyBn4ETUHW/x3oQaD
+         GPf+uQ3kx+hB+nJY6wPWhEXxQFeRnVueknTglwLSXwW15n5+qvTa/25LMMXyIEeUvlSb
+         urjg==
+X-Forwarded-Encrypted: i=1; AJvYcCXV/CQK9qU8FiKgmAxwJVVlMPu8JrI3oS36a5qK7MHB470siNHXTozFwsvNbaPS/waxcyxEsQ+Oz1uF@vger.kernel.org
+X-Gm-Message-State: AOJu0YyOX54srdxTfPjV7YD45D+ZxX0CA48UaqceMdPVr2u215mB3V1w
+	eTKZ6Cc/tppb3QmPaj+S/IcYYWL/GMweKfYU+ujcMlgL9ToF+ZNSeMqcZ3oCtLFUSw==
+X-Gm-Gg: ASbGncuQip/AXB9QIDWetEfkcmYjSJq37bPxkzXWNQUCBlsLRBhLwxM/RhL8VvxGtrp
+	guZceb9vOMh1fgrQ8sdiKvwQS2CrlT64F7BBr7FhI6xrfYjbNqgxdPaaPJr3OnWx0XxVqDMyFml
+	/WBFGArtwS9+csudreU+eoPKb/UVV5y3hH8mtX1yyamiyHqEvNVJmR/yRe4gYpuXHBn2glKM7ny
+	KsmgJYLENnHmBSCSrQlKTonvj1fU+rnJgxJXUR8Ui4A6sCMyPweA+l0r364rLsVGnQzMsLZkDHs
+	+B9FrdnKkuH9qFKwb0TNBRHFhnRe9cBhEC9TXfRF51YuKGscZrfB6fYncNAESBZcGE0p2ODEswU
+	zN9Zmw8NkV5dge7PWOaMqaFK1wAu/Kygm3RQFMSxYF+ul5UrwIu4buyiVgnjv8t5gubJHPObH94
+	Lgzqr3QlTQX+Wujiy8O9WTmDIwQS8DqUsx/qWO1g==
+X-Google-Smtp-Source: AGHT+IHxzXLAyCFx7IPmcOnpFb2vp8Rgf1l3Kna0V2OUhXGSl0YxnYi8nj1MD1lWW9qX+m9LVNsxvQ==
+X-Received: by 2002:a17:902:e88c:b0:290:d4dd:b042 with SMTP id d9443c01a7336-29554bc5206mr7508255ad.16.1762165026873;
+        Mon, 03 Nov 2025 02:17:06 -0800 (PST)
+Received: from google.com (164.210.142.34.bc.googleusercontent.com. [34.142.210.164])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7aa4f4c28easm4658013b3a.31.2025.11.03.02.16.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 Nov 2025 02:17:06 -0800 (PST)
+Date: Mon, 3 Nov 2025 10:16:56 +0000
+From: Pranjal Shrivastava <praan@google.com>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+	David Airlie <airlied@gmail.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Brett Creeley <brett.creeley@amd.com>,
+	dri-devel@lists.freedesktop.org, Eric Auger <eric.auger@redhat.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>, intel-gfx@lists.freedesktop.org,
+	Jani Nikula <jani.nikula@linux.intel.com>,
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+	Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
+	Kirti Wankhede <kwankhede@nvidia.com>, linux-s390@vger.kernel.org,
+	Longfang Liu <liulongfang@huawei.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Halil Pasic <pasic@linux.ibm.com>, qat-linux@intel.com,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	Shameer Kolothum <skolothumtho@nvidia.com>,
+	Mostafa Saleh <smostafa@google.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Tvrtko Ursulin <tursulin@ursulin.net>,
+	virtualization@lists.linux.dev,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Yishai Hadas <yishaih@nvidia.com>,
+	Zhenyu Wang <zhenyuw.linux@gmail.com>,
+	Zhi Wang <zhi.wang.linux@gmail.com>, patches@lists.linux.dev
+Subject: Re: [PATCH 15/22] vfio: Add get_region_info_caps op
+Message-ID: <aQiBGEgQ3vCpCvXM@google.com>
+References: <0-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+ <15-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rJoTwJgMvK54ZXpp-q_DIGMzMq9RDv2M
-X-Authority-Analysis: v=2.4 cv=MKhtWcZl c=1 sm=1 tr=0 ts=6908811a cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
- a=q5eb_lFJGzSj3ViXpxMA:9 a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-ORIG-GUID: 0FrKvHcmofj7sqY2DobuyHsz_eVmGCEh
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTAxMDAwMSBTYWx0ZWRfX0IjT/FVqh6Pv
- aQ/MU45KJrQAu1Pq0+7crsjlZ3uISFyrqegJ4FY4JEnrEq3nwBoWhnn9TS2n+rTirFjXttrF3ux
- 5eBTbCwkbMiBf+Bqt+7PQrcyfl435Q9HRFmui7lugtZcic7qhpNH+os4v3ogEI8RXauSH/OvW+O
- s84FWjxoi+PLuniOso/sbexrDZj2691zz64eQu/8dso7RIG5WROWaSYrHAN1VodOB5tnB5ZAjgS
- pkdjiOO7y87ctb4b6dtvBJxzW4c1eR2AL+LarpSH2qXaIPB1/Yy6aJ227x2QBCQN+flqAoxhf8O
- 9hLdrV0CVQD8C/VZYxfUwtLhCR8i+E7QPXfS+/bpfPNs3q26b54gV0S12xWoJ83uZeoBclzdRQr
- mZYW3UJE1FEW90azyBgc5GU6vHnEhw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-11-03_01,2025-10-29_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 suspectscore=0 bulkscore=0 impostorscore=0 clxscore=1011
- lowpriorityscore=0 malwarescore=0 adultscore=0 phishscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511010001
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
 
-CTC adapter throws CTC_EVENT_UC_RCRESET (Unit check remote reset event)
-during initial handshake, if the peer is not ready yet. This causes the
-ctcm driver to re-attempt the handshake.
+On Thu, Oct 23, 2025 at 08:09:29PM -0300, Jason Gunthorpe wrote:
+> This op does the copy to/from user for the info and can return back
+> a cap chain through a vfio_info_cap * result.
+> 
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/vfio/vfio_main.c | 54 +++++++++++++++++++++++++++++++++++++---
+>  include/linux/vfio.h     |  4 +++
+>  2 files changed, 54 insertions(+), 4 deletions(-)
 
-As it is normal for the event to occur during initialization, use info
-instead of warn level in kernel log and NOTICE instead of ERROR level
-in s390 debug feature. Also reword the log message for clarity.
+The newly added vfio_get_region_info seems to pull-in common boilerplate
+code (like copy_from_user, arg size validation) into the core code,
+removing redundancy across all other vfio drivers. LGTM.
 
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Aswin Karuvally <aswin@linux.ibm.com>
----
- drivers/s390/net/ctcm_fsms.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+Reviewed-by: Pranjal Shrivastava <praan@google.com>
 
-diff --git a/drivers/s390/net/ctcm_fsms.c b/drivers/s390/net/ctcm_fsms.c
-index 9678c6a2cda7..1a48258b63b2 100644
---- a/drivers/s390/net/ctcm_fsms.c
-+++ b/drivers/s390/net/ctcm_fsms.c
-@@ -882,6 +882,13 @@ static void ctcm_chx_rxiniterr(fsm_instance *fi, int event, void *arg)
- 			fsm_newstate(fi, CTC_STATE_RXERR);
- 			fsm_event(priv->fsm, DEV_EVENT_RXDOWN, dev);
- 		}
-+	} else if (event == CTC_EVENT_UC_RCRESET) {
-+		CTCM_DBF_TEXT_(TRACE, CTC_DBF_NOTICE,
-+			       "%s(%s): %s in %s", CTCM_FUNTAIL, ch->id,
-+			       ctc_ch_event_names[event], fsm_getstate_str(fi));
-+
-+		dev_info(&dev->dev,
-+			 "Init handshake not received, peer not ready yet\n");
- 	} else {
- 		CTCM_DBF_TEXT_(ERROR, CTC_DBF_ERROR,
- 			"%s(%s): %s in %s", CTCM_FUNTAIL, ch->id,
-@@ -967,6 +974,13 @@ static void ctcm_chx_txiniterr(fsm_instance *fi, int event, void *arg)
- 			fsm_newstate(fi, CTC_STATE_TXERR);
- 			fsm_event(priv->fsm, DEV_EVENT_TXDOWN, dev);
- 		}
-+	} else if (event == CTC_EVENT_UC_RCRESET) {
-+		CTCM_DBF_TEXT_(TRACE, CTC_DBF_NOTICE,
-+			       "%s(%s): %s in %s", CTCM_FUNTAIL, ch->id,
-+			       ctc_ch_event_names[event], fsm_getstate_str(fi));
-+
-+		dev_info(&dev->dev,
-+			 "Init handshake not sent, peer not ready yet\n");
- 	} else {
- 		CTCM_DBF_TEXT_(ERROR, CTC_DBF_ERROR,
- 			"%s(%s): %s in %s", CTCM_FUNTAIL, ch->id,
--- 
-2.48.1
-
+Thanks,
+Praan
