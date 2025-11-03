@@ -1,103 +1,67 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F5722FE58F
-	for <linux-s390@vger.kernel.org>; Mon,  3 Nov 2025 11:03:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B721E30171C;
+	Mon,  3 Nov 2025 11:19:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762167829; cv=none; b=MZmqZ1fWiywPpOTvdrGliOXZov+D+YnbFhWHku2xvTbR4DptOEofxAXZ2x1N/2y4BBbGShljvRezdZAl/VF5C4snCgFow3v347ENC3ckGoTr206DE9vXNhNoqOQFrhxngsjTUk0UTzxdAIZXF5Pu23y5z9rHTQ6NiJ+K9rHWUS4=
+	t=1762168768; cv=none; b=bb3vDnnBfIKMaHPOyvDW56ooqMuHzyzCyBqRNVpWRPs/KN5OMXdFI3U1QfVAPsi2b9IU4VrlZ2RORpZwk8RxC8LtpeiHk1wLR9JkCQjYgaTRFAETLFfQ2gC73rfsSVYmi+SDwbTPpuVKlUKoKQdcJ4sIX5aJZM3P/3Med3LO2+w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762167829; c=relaxed/simple;
-	bh=oQx/ydTW/nop4AcGUNLqHSf/CC+CTlJRuLVJVH3L6VA=;
+	s=arc-20240116; t=1762168768; c=relaxed/simple;
+	bh=yukxgMAsSBJ5Nf0ZrBGRjjTWREkkghe10V+XHbWxlL8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fvOuVgphN+zzjl16PrGbkoonSDfGrWDbhN6OEO68vFMDSFpuwF4q8f82XA1ItFpb3fdW5GtcjAgJxSkM6/7Ka4nDV2QO5qcJPF4n8ca19z+tDkFmWQgT+cCK3e73sKJ+KFt0r3UqKLVTkE2KI+kQag46SqxvqnCDTiyBw+nrLJs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=bRVmQ2zX; arc=none smtp.client-ip=209.85.214.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=TfLUsBc/RIUFjP7WroR9xOKmUF95O90uhepcS1EzXaTK20zO7ye9sefD5XRc0zrigvlek0QuCI53a27ldxfcmK/0NvyhQ7F+SXg61hB9wUmJF3AiVTNNBbQVb+HO5SpkqYF4nfWidkWZMJzk9JNiV9f3Cudu85MMhsGDCj0Erb8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gWmjxYjN; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="bRVmQ2zX"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-294f3105435so379595ad.1
-        for <linux-s390@vger.kernel.org>; Mon, 03 Nov 2025 03:03:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1762167827; x=1762772627; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=JG+etGO4DCF1PIFwJUo34O2NHRXv7sGubVRA4h3tffk=;
-        b=bRVmQ2zXPdGFc+lD7QW8lkWRxOkiU3FbeBUvS9oL1tI4C6PpIMP6iO0sTiNBy6vgH3
-         mrz/o1uZWUar997JrzXtMJufZBEjurpKwWYEeyk7fED4GkF2gflB15JTNca0tDHQSaMl
-         nsPL+F0lSqvFlQio+t4exBEdq4AnmyCUDR5Rd5t5xHZ4EYBBdDrF0LraUU9eRoaUs6pQ
-         IKyp/cpp2DPTgWVvxu+5TE17m0Umr0O/AMdG1l+aorm1/xwSngPlnxxw+UChmbs+LQ62
-         Eamf4j4reFmOaF0VKqqnqfnbbgnoAJgTzOLMC6fuZyGecxOB8o4BZXQN8zVHUxqvMfra
-         nftg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762167827; x=1762772627;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JG+etGO4DCF1PIFwJUo34O2NHRXv7sGubVRA4h3tffk=;
-        b=L0n/86lcOHfBxY4Mc5jlY+2U0H7u+f/t254T0axNwoXNfbMeSJX/Z1R0WNATFhxvcx
-         nkliqY5whw4CBerI1ba+UlGvlWhj9PFHO9GFOB9AE00vI+qyFbd5tDnqHnPhc6n1SKs0
-         zm3k2iOtC8Jot7j96tudHAbxONAkVYbH+0PUzBI5/cNuNYKHCgQevQ4562V7L+KItmBR
-         YshwMpTj76/zJkexE8dJkeoJ4nUwuzbABQ5vE6HECNjWYId8lwBKPFroLKwFwZfMgrwa
-         q3oXqpHZTLgbHk2V78/RD/NYC7SIAu0lDXx3DWkvL1c9fxHuQUP+iLxR6xubyqZ+QkIj
-         10JQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXflWVkrSViT7+LsYcwi3R0qP52eVcjepz1y/2cyo9c0TMs1Yoyf/FZgHCdGFMFOQ3zuFSM18vc3ymV@vger.kernel.org
-X-Gm-Message-State: AOJu0Yypm31twk3b/2darfOchpL9DuSZpEcWD7cmi6rdb7Ips577Ak9S
-	nTxZKs8+qQbzOvUQ9KG9RUYyY5jI6m3bv15v8I7IpIUFGHAhcB95VHc5AFgKwdaJfg==
-X-Gm-Gg: ASbGncuYvseIlP2pbRNkDZ/4S+ogcRQclVdIeobgN6qoDgQIWtmEmDEm290ogI3E06k
-	NuEMLUE3k4bxZ5eJaEOKc5HWZGScYksBxDOK9skmEaLoIz4x6IgkdBxdoifL0AJmD8aq/4eKvN1
-	M+h1BgT9OR5q/KZBUbPNinqURc4/iwL2kry6CDV/tjObm+FMqD33Q1v5HOoTaLOE9qQMfApwcvU
-	EHqlqC6Zow855Efvs/e98XLHrmqtXuJ4C0Qm1hBSvio56sxU1BtKAuO7WqueU7qLLVcyCtOA7IY
-	W40Ea13JKgxFLFKhDRb/EmW7c+hxkKcVuFdJ0jRjkw6OzZHBJ1bbmvFxpIUvu0j/McpmaQgGnQ6
-	MzHziW4hNGmIRov+QXqAEgvLd5Ht66VhLWfngrlU1oYqoZJ7bYgBH0V/rg4h4fDeg1I8QeUoP3M
-	0z1Gnh7ngD7yVDiHNPsXjd8G0GO27u+mkPMLNfow==
-X-Google-Smtp-Source: AGHT+IGcDUbk6qqLdQjGL3Yxey3X8mTSWxpSXkjqaoDl6gxo10SeAyfD2HQnpWNy1nfGBwMDtJcUBw==
-X-Received: by 2002:a17:903:228c:b0:271:9873:80d9 with SMTP id d9443c01a7336-29556476bd0mr5742325ad.7.1762167826744;
-        Mon, 03 Nov 2025 03:03:46 -0800 (PST)
-Received: from google.com (164.210.142.34.bc.googleusercontent.com. [34.142.210.164])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29537cccdecsm102934645ad.19.2025.11.03.03.03.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Nov 2025 03:03:46 -0800 (PST)
-Date: Mon, 3 Nov 2025 11:03:36 +0000
-From: Pranjal Shrivastava <praan@google.com>
-To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-	David Airlie <airlied@gmail.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	Ankit Agrawal <ankita@nvidia.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Brett Creeley <brett.creeley@amd.com>,
-	dri-devel@lists.freedesktop.org, Eric Auger <eric.auger@redhat.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>, intel-gfx@lists.freedesktop.org,
-	Jani Nikula <jani.nikula@linux.intel.com>,
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-	Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
-	Kirti Wankhede <kwankhede@nvidia.com>, linux-s390@vger.kernel.org,
-	Longfang Liu <liulongfang@huawei.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Nikhil Agarwal <nikhil.agarwal@amd.com>,
-	Nipun Gupta <nipun.gupta@amd.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>, qat-linux@intel.com,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Simona Vetter <simona@ffwll.ch>,
-	Shameer Kolothum <skolothumtho@nvidia.com>,
-	Mostafa Saleh <smostafa@google.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Tvrtko Ursulin <tursulin@ursulin.net>,
-	virtualization@lists.linux.dev,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	Yishai Hadas <yishaih@nvidia.com>,
-	Zhenyu Wang <zhenyuw.linux@gmail.com>,
-	Zhi Wang <zhi.wang.linux@gmail.com>, patches@lists.linux.dev
-Subject: Re: [PATCH 15/22] vfio: Add get_region_info_caps op
-Message-ID: <aQiMCKszFCvDDHhH@google.com>
-References: <0-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
- <15-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
- <aQiBGEgQ3vCpCvXM@google.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gWmjxYjN"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5A2LRFH5020916;
+	Mon, 3 Nov 2025 11:19:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=lwPkE0AArYlkJRtiXQlbKSo3l6vWp3
+	//7R6WjErqhLM=; b=gWmjxYjNrELCHnyDBdHl8ooyl2gsuAk0lKqQP7abBkO9fs
+	snMmM3+gcMQwRy3AdrTNGnXjWfOjofULupQM7hoHDEtMGPfsCbjJTC3bqUPACokD
+	wyU+g2D+sfdkxMce+tLU7Ay7cxNKSmkw5VImEGIx9jteh3wp4Pd892WcVC0esV/o
+	Ll3AR+mwy4qT0xhkz3TSj8E0yrvDnQGIHCfBigJXVWRX6AvhYYPHeXVgwyqQ3csE
+	q4EW727EwZBA8WOLWukhleXZLoWp599rs7m0v3WPKUmMkKBE5DKVl5Paak4bieK2
+	goYT0fT89jfzowAOFAogB3ZxJkR6vE2ymTxhQV8g==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a59q8p9b8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 03 Nov 2025 11:19:22 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5A3AGPiY025556;
+	Mon, 3 Nov 2025 11:19:21 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4a5vhsdfxd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 03 Nov 2025 11:19:21 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5A3BJHnM11600152
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 3 Nov 2025 11:19:17 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5B6742004B;
+	Mon,  3 Nov 2025 11:19:17 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C0CBB20049;
+	Mon,  3 Nov 2025 11:19:16 +0000 (GMT)
+Received: from osiris (unknown [9.111.61.175])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon,  3 Nov 2025 11:19:16 +0000 (GMT)
+Date: Mon, 3 Nov 2025 12:19:15 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Duoming Zhou <duoming@zju.edu.cn>, Jan Hoeppner <hoeppner@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, mingo@kernel.org, tglx@linutronix.de
+Subject: Re: [PATCH] s390/tape: fix use-after-free bugs caused by tape_dnr
+ delayed work
+Message-ID: <20251103111915.18191A14-hca@linux.ibm.com>
+References: <20251103060544.22720-1-duoming@zju.edu.cn>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -106,91 +70,79 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aQiBGEgQ3vCpCvXM@google.com>
+In-Reply-To: <20251103060544.22720-1-duoming@zju.edu.cn>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=StmdKfO0 c=1 sm=1 tr=0 ts=69088fba cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=kj9zAlcOel0A:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=pBTJcwekMGGDtO02zGIA:9 a=CjuIK1q_8ugA:10 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-ORIG-GUID: 3byK_aW4tFw9iyp-MNLo4HpiuD2-nlTX
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTAxMDAxOCBTYWx0ZWRfX0Nqianh8vm6P
+ JvxIhmJeOVTzihQvYUcF56bO5l29G2qtZ31gzHExTor5jpDzgois9J11zAgW7FasMhxMAOe589A
+ v3cOdX+ULeDkKWfoJVPCfghtgRvEnaUeY6rjVc97kndVsYWaQAo1WpxOazMjFNIAq9A4+q5znoY
+ T1eOsGhADtzPgKED/wrO3Z9A6cOTEw4AaaU4lJGZo9j41ywYUTuEdKML2LVTkz+EowB/SZFdsp7
+ hDe99SS4k+9okuYCzZmrg5kQuw1Jg2L6DuH9it35w9vatTpg14xtfXD+Uzmt3aj6gK0+MFlKDtE
+ 7wcgkNaMpqJfrZbDyiGVt0qeDnZv7xT72rUvKc0p+aweaxJKhvVkJ6QNiz3MyGOEDilP02JPNyT
+ LMmskc6q60tewCJ1iylwKgEuZ4cCEg==
+X-Proofpoint-GUID: 3byK_aW4tFw9iyp-MNLo4HpiuD2-nlTX
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-11-03_01,2025-10-29_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 suspectscore=0 phishscore=0 impostorscore=0 priorityscore=1501
+ malwarescore=0 clxscore=1011 adultscore=0 bulkscore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511010018
 
-On Mon, Nov 03, 2025 at 10:16:56AM +0000, Pranjal Shrivastava wrote:
-> On Thu, Oct 23, 2025 at 08:09:29PM -0300, Jason Gunthorpe wrote:
-> > This op does the copy to/from user for the info and can return back
-> > a cap chain through a vfio_info_cap * result.
-> > 
-> > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> > ---
-> >  drivers/vfio/vfio_main.c | 54 +++++++++++++++++++++++++++++++++++++---
-> >  include/linux/vfio.h     |  4 +++
-> >  2 files changed, 54 insertions(+), 4 deletions(-)
+[full quote below - adding Jan]
+
+On Mon, Nov 03, 2025 at 02:05:44PM +0800, Duoming Zhou wrote:
+> The delayed work tape_dnr is initialized in tape_alloc_device(), which
+> is called from tape_generic_probe(), and is scheduled in the following
+> scenarios:
 > 
-> The newly added vfio_get_region_info seems to pull-in common boilerplate
-> code (like copy_from_user, arg size validation) into the core code,
-> removing redundancy across all other vfio drivers. LGTM.
-
-I missed one thing in this patch (luckily caught it in patch 22):
-
-> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-> index f056e82ba35075..82e7d79b1f9fe2 100644
-> --- a/drivers/vfio/vfio_main.c
-> +++ b/drivers/vfio/vfio_main.c
-> @@ -1259,6 +1259,55 @@ static int vfio_ioctl_device_feature(struct vfio_device *device,
+> 1. Starting an I/O operation fails with -EBUSY in __tape_start_io().
+> 2. Canceling an I/O operation fails with -EBUSY in __tape_cancel_io().
+> 3. A deferred error condition is detected in __tape_do_irq().
+> 
+> When the tape device is detached via tape_generic_remove(), the
+> tape_device structure might be deallocated after the final call to
+> tape_put_device(). However, if the delayed work tape_dnr is still
+> pending or executing at the time of detachment, it could lead to
+> use-after-free bugs when the work function tape_delayed_next_request()
+> accesses the already freed tape_device memory.
+> 
+> The race condition can occur as follows:
+> 
+> CPU 0(detach thread)      | CPU 1 (delayed work)
+> tape_generic_remove()     |
+>   tape_put_device(device) | tape_delayed_next_request
+>                           |   device = container_of(...) // USE
+>                           |   device-> // USE
+> 
+> Add disable_delayed_work_sync() in tape_generic_remove() to guarantee
+> proper cancellation of the delayed work item before tape_device is
+> deallocated.
+> 
+> This bug is identified by static analysis.
+> 
+> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+> ---
+>  drivers/s390/char/tape_core.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/s390/char/tape_core.c b/drivers/s390/char/tape_core.c
+> index 6ec812280221..722dc4737a87 100644
+> --- a/drivers/s390/char/tape_core.c
+> +++ b/drivers/s390/char/tape_core.c
+> @@ -625,6 +625,7 @@ tape_generic_remove(struct ccw_device *cdev)
 >  	}
->  }
+>  	DBF_LH(3, "(%08x): tape_generic_remove(%p)\n", device->cdev_id, cdev);
 >  
-> +static long vfio_get_region_info(struct vfio_device *device,
-> +				 struct vfio_region_info __user *arg)
-> +{
-> +	unsigned long minsz = offsetofend(struct vfio_region_info, offset);
-> +	struct vfio_region_info info = {};
-> +	int ret;
-> +
-> +	if (copy_from_user(&info, arg, minsz))
-> +		return -EFAULT;
-> +	if (info.argsz < minsz)
-> +		return -EINVAL;
-> +
-> +	if (device->ops->get_region_info_caps) {
-> +		struct vfio_info_cap caps = { .buf = NULL, .size = 0 };
-> +
-> +		ret = device->ops->get_region_info_caps(device, &info, &caps);
-> +		if (ret)
-> +			return ret;
+> +	disable_delayed_work_sync(&device->tape_dnr);
+>  	spin_lock_irq(get_ccwdev_lock(device->cdev));
+>  	switch (device->tape_state) {
+>  		case TS_INIT:
 
-device->ops->get_region_info_caps (via vfio_info_add_capability) can
-allocate caps.buf and then return an error for a different reason. The
-if (ret) check returns early and the kfree(caps.buf) on the success path
-is never reached.
-
-Should we add kfree(caps.buf) to the error path here?
-This keeps the allocation and cleanup logic centralized in the core code
-
-Let's either write comment saying that the get_region_info_caps op is required
-to free caps.buf before returning error OR add a kfree(caps.buf) here.
-
-> +
-> +		if (caps.size) {
-> +			info.flags |= VFIO_REGION_INFO_FLAG_CAPS;
-> +			if (info.argsz < sizeof(info) + caps.size) {
-> +				info.argsz = sizeof(info) + caps.size;
-> +				info.cap_offset = 0;
-> +			} else {
-> +				vfio_info_cap_shift(&caps, sizeof(info));
-> +				if (copy_to_user(arg + 1, caps.buf,
-> +						 caps.size)) {
-> +					kfree(caps.buf);
-> +					return -EFAULT;
-> +				}
-> +				info.cap_offset = sizeof(info);
-> +			}
-> +			kfree(caps.buf);
-> +		}
-> +
-> +		if (copy_to_user(arg, &info, minsz))
-> +			return -EFAULT;
-> +	} else if (device->ops->get_region_info) {
-> +		ret = device->ops->get_region_info(device, arg);
-> +		if (ret)
-> +			return ret;
-
-With the above comment addressed,
-
-Reviewed-by: Pranjal Shrivastava <praan@google.com>
-
-Thanks,
-Praan
+Jan, could you please have a look at this?
