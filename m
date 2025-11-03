@@ -1,64 +1,64 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E27D191F98
-	for <linux-s390@vger.kernel.org>; Mon,  3 Nov 2025 07:30:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBA2E299949
+	for <linux-s390@vger.kernel.org>; Mon,  3 Nov 2025 07:32:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762155029; cv=none; b=Hv1puSdExAv1vTQ1GFL8FwCs6Q6EGbA89YhlsFELT9I+VE6EmMGep5pF/LpFdspT/9fFUXOY13jPoaltlzXNetWOb+Nlrnil4H58C/ChXCYTfDVie2q9MiqTdkR5i0tQw1Ll9Epv2XfhLbmfSNxlJWqmKxOwZIayaAfHN3hiMkM=
+	t=1762155125; cv=none; b=uDGgsPfvsDkOHZqZHRnlUYBAYlzwhyFn3QGvb9eoM+eJQQbGSj+ionDcKnRmT6dmNC1jaIZAZQ8jJWzo0QT6RCKA4cI6jPG9yhen9EB4SS2oHoOLbkn/qGISV+usCzR+wm2PmMDyLkEPgGvgAIe6s/iI8Iz67AAfaPDs62veaH4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762155029; c=relaxed/simple;
-	bh=tcJ9j0rjVgX0LlfeiyBdhL1zp92EWqORHcfEAw97Bb8=;
+	s=arc-20240116; t=1762155125; c=relaxed/simple;
+	bh=I7HDUIQg/KdqyDmPQ+qrxG240GLYIT2LqIXpnIqKcNE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=o8xZFvT51BBUumrzM2QFBVQFXx1j27N4yoBtS42rt63DPs7irGfOw+0GYbIScjenssI0VDiU6x8lsjI2hFZsROQCg3IytEXS2VH/tcsx/7vFzQKc7dBi17gXPxGFEItaBqA8MWFKON+oco7QkyB4h/bIxPhgKDhE43ArGoAVIyU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ScYNaf6f; arc=none smtp.client-ip=209.85.214.173
+	 Content-Type:Content-Disposition:In-Reply-To; b=Jnl5muDQhNqJjkQZjNg/ErNh1wdtQjVp77I5LUIZKw+QiXOTvCVse+tluUGg/Qq5hWwyyNKovRRiVuQE07DveSzPz0XdX2h4KN/K81PZfoKFIf3qaq1wkA3ONsi/kwSR70GbCuCkdwSVf74Cmr3CFnbPHUgQ2ZerJwLZ5BTqylw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=zSookYoF; arc=none smtp.client-ip=209.85.214.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ScYNaf6f"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-27d67abd215so384655ad.0
-        for <linux-s390@vger.kernel.org>; Sun, 02 Nov 2025 23:30:28 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="zSookYoF"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-294f3105435so342305ad.1
+        for <linux-s390@vger.kernel.org>; Sun, 02 Nov 2025 23:32:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1762155028; x=1762759828; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1762155122; x=1762759922; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=W00R51s/bFZ7FSKiqSW+6LDxOwjjTftHVYebWZvSUlk=;
-        b=ScYNaf6f9EOtzOQ+sAS5/NNXTCvNQpxdkAV2QYmdeTmGk7qHtg1dL+WoarU5MJVKTm
-         LreYu2/QO9ME+DFAfyKDgOSCox01ogr87O2YxPvjhUo3uCJ+RychcVj/l9o/QZBxMemA
-         tsSSl9DGuK2pm24SICFT5FEyNQ6w8PHePwdau2l1Kxwus2avQriyj1hm7/RJwSyKKReG
-         GjyZXBaWhzqGRy72bvps9tsGR/5BTWSQ8WwsYkMAc3lMZzHtHmBal8A7jyIglbEi5+Qf
-         rwaxifVOp95CNWiEza32uTcIkgTEUq3mRqAdlASL62jPDdA9aMhIntPsXYS1fnKw3WsP
-         kokQ==
+        bh=dADjXQcJVAcOBFwaI/JeQVroSWZH3kzmeM+gasunsjY=;
+        b=zSookYoFfRjRsve0TquPbNlYHAKP8u8FjlXo1epzJ6/MiQOm3xl17tPdtSpUkKMd8d
+         wwt2uP+wqJVBOc4WxSuC4VPnKPS+96pFg219qfLnd5GeGFo6HmHghY55eRmYR8Csw6AD
+         G429iGUTkh0fMW1GPkmq9CDj00OZl2DSRdi0avBZqa75Y6Z7pe7bk6IIkFHNg2IlzxGg
+         +YErQEbQZj4EIcQ2pji1k9FVSyZ10O0tDol1UhmvHbtx1KkbJRaPo7PILN3lL6lwqTUb
+         JFqxwMAB7kcpqlAQLM0HEiTJ1FdYKnsxHXJseW+lSy5tLB2Z6Hu21xaHBP+YT+hSB2UC
+         mhew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762155028; x=1762759828;
+        d=1e100.net; s=20230601; t=1762155122; x=1762759922;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=W00R51s/bFZ7FSKiqSW+6LDxOwjjTftHVYebWZvSUlk=;
-        b=MLtXO5kz8tjNyF62EwWfYqfIa93p0byDdH5r0wKLW0wDzAXJcTCN+eGfBehjAn9dru
-         eq2jcESRw2kuHh/bs8kRR9TGuGKct5D3LZtKj12kvl3xGWAogGwxnOLnFC02ZESepZ2N
-         mawdVBIJSeLXaWarynXfwEdLSHPvO7oc5kg2FzNWO2AHg62kSFKuUVX8REzxFNpyGUdx
-         /JA0s/1py7yF/+AJ5l50R2onuoamTvIb8YUDGDsJ1u30yw1HdDlKf1XxFC5OcAkPFrfQ
-         85fA7KVfXsRvwJHX0cxQ4coHUtqmwihjgJVvsS3htEarHHTJnmyGeFtBTKZZwBKWYFwt
-         ikvQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVbzyyWu9qS8p24ipjZvI8kmIfzJfJOx4vZk7eMy+AJvywFe0tdhq/rUVahp1rhZVKI/OTCSgwOsOre@vger.kernel.org
-X-Gm-Message-State: AOJu0YzC04THZh7hjP1LcgXUQX2kudvSkC2QYVXnhnruy0goj4gaTBEO
-	vbW/h9feRnxVDc5Sn9eTfZC1fP8nWprQAzGtXh6AKn+cS4PDAdIE1cQV3rcImvZPfA==
-X-Gm-Gg: ASbGncupycr+IAO8Q5HJUrF8XuyBjq6pMfrBjO5lrTqyule07QRzRVt5I4m7SPjmMF2
-	p7/apN498mHlq2KXPqmEq0J0y8p2jPM1UbQL5UEy1J/MqEusBCq/tYpd8WEKmfdpNAN/zLJ+eN/
-	yqVw2xL7XdkrT7vxfNs2G43UXwDRIY3aaLMIHiXC+oFARtE2HdWLVhYqidFdWp1escrJ7sEofiY
-	HmjoSDOxYqjGom/jUPwB63JbSk4xhMSoI/dah78LcO84z/1kRlVo66ftNPH44PDvBQf51e1K4BP
-	l2D6wM6g/Z8kV8YvgbPBbdhm+/kFTqbjf32FDvmlppoYD8bzZT7vCcYqn+XRuRcjw/zmEO0Ob3W
-	zG6oKNAHgQOadDs6hJ5mvrygg/IzWvxjlWFZQnRZJROCIZmOpLYKa9NmMuhaaG2Y+fUPXxiFdI7
-	RtCqDNIfyQ1s1XAYRb5RGIAfrZTUIJ0LOex6ATpA==
-X-Google-Smtp-Source: AGHT+IFjaXH+x0wDYP1YTleZ6beMQ7i4yOeGqaMcf/YJxMNIbFnQkDy7S1c8+nxpPDJ2MzqKvGx2GQ==
-X-Received: by 2002:a17:903:1a70:b0:295:28a4:f0b3 with SMTP id d9443c01a7336-295549cab2dmr7007095ad.0.1762155027242;
-        Sun, 02 Nov 2025 23:30:27 -0800 (PST)
+        bh=dADjXQcJVAcOBFwaI/JeQVroSWZH3kzmeM+gasunsjY=;
+        b=e2pTmCdQswhXODNkV/qYZ3SnnJnebLYj5B5NE8MobQ9zYIs01VRCEiQDgwPgJD7s9u
+         uENn1B0JA6dHB8Ukyrv5dYhc+txByCFuJyiJilvnSexHkEUejoQxhjGYSytY5LlH2SWr
+         eRFCgcXZDwZ3xMFUJdPrchJGgwOkWmifj4w1xnEaTAU23nubqSUlT0GxfmBDqLacBrYg
+         y5i+8OMy87xrB20rXjvv6nR0EGSOcTm7szB7+kFcZfZgazDeyBZSJvNbDiafr/miH1iF
+         vG8zPSTjlDRAciZ3B9wm+BKTGd93ekLMZyDR2Xb8WetPXbrDRv2gGi8R1VRzOOtyQMmB
+         Tf3w==
+X-Forwarded-Encrypted: i=1; AJvYcCWH8nTR7Jok+TxLMNsanhIsMZC59ijsw55YmGJbtkU2ewF7qMeeoMKkiy9k60j+TnmcJ/vLEU3SnCBU@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywr2Howp1w9Pv0/yfL5Doy/CEJX2VbHbV7y8KbsW6zEhHPmTyc1
+	Oeh85lOdDA9AbzisROJMleuYHcPW8p2/JMes1UQt95tbVlwlyCHMXtwI8cFdCG59JA==
+X-Gm-Gg: ASbGnctrBKK/OFX8qispe73ehbTqXBrR/QbnQApHHJ+0clZA51foNhv9LoiHp2lJRyP
+	mKBBLZZziTriWiFkMIg6fwpPra7ETdamfbqT1g0mq3mA0uwuADZwTFs9kCl2cYrxlJOpVt1FqLD
+	q3DiNM8ByESN+o0AOI+fGkFCpP/EhUwOeWeF7lMHurJhNtu3/Eu8lG+BrOC0mpPKMKeid5BxqSs
+	e65eDXfgTAldv2/KmVVi0Tck2iWVFXbsGvKmrOgnEpgO0Qk/Nu49Kqbi/2p6//XVM9FanvwGaPK
+	ApoTBkj54lZyF3p6Hl80KYTuA5drJKhFkLca7Gh2KiGq6zg1/Zl30hY12J3M9sBBtQOZWHUC3GM
+	jEiskyOfLDofoZ+uta1bheeDy4n3usH5XgWoCbwIgFK6/2TV1DdG8o3j5J04h8XsAq3jPz0W1N3
+	o5QtdITE7sDVcnsDdhlzp9Ji6o0ooLiDe82HFgbw==
+X-Google-Smtp-Source: AGHT+IHfrP3JzShs73f4Ou9j74BKdOau8otZ+u7WUYTtBZ6PInXsEFYOD9H0FiQHWOz2YtGspU3bog==
+X-Received: by 2002:a17:902:ec8e:b0:274:1a09:9553 with SMTP id d9443c01a7336-29554bb5d5cmr6804875ad.6.1762155121865;
+        Sun, 02 Nov 2025 23:32:01 -0800 (PST)
 Received: from google.com (164.210.142.34.bc.googleusercontent.com. [34.142.210.164])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-340acfa77b8sm8320159a91.18.2025.11.02.23.30.19
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-295512dedabsm82398675ad.5.2025.11.02.23.31.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 02 Nov 2025 23:30:26 -0800 (PST)
-Date: Mon, 3 Nov 2025 07:30:16 +0000
+        Sun, 02 Nov 2025 23:32:01 -0800 (PST)
+Date: Mon, 3 Nov 2025 07:31:51 +0000
 From: Pranjal Shrivastava <praan@google.com>
 To: Jason Gunthorpe <jgg@nvidia.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -93,10 +93,10 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
 	Yishai Hadas <yishaih@nvidia.com>,
 	Zhenyu Wang <zhenyuw.linux@gmail.com>,
 	Zhi Wang <zhi.wang.linux@gmail.com>, patches@lists.linux.dev
-Subject: Re: [PATCH 10/22] vfio/fsl: Provide a get_region_info op
-Message-ID: <aQhaCAAliYQVNjgK@google.com>
+Subject: Re: [PATCH 11/22] vfio/cdx: Provide a get_region_info op
+Message-ID: <aQhaZ2HvTTtanNdu@google.com>
 References: <0-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
- <10-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+ <11-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -105,18 +105,19 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <10-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+In-Reply-To: <11-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
 
-On Thu, Oct 23, 2025 at 08:09:24PM -0300, Jason Gunthorpe wrote:
-> Move it out of vfio_fsl_mc_ioctl() and re-indent it.
+On Thu, Oct 23, 2025 at 08:09:25PM -0300, Jason Gunthorpe wrote:
+> Change the signature of vfio_cdx_ioctl_get_region_info() and hook it to
+> the op.
 > 
 > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 > ---
->  drivers/vfio/fsl-mc/vfio_fsl_mc.c | 55 +++++++++++++++++--------------
->  1 file changed, 31 insertions(+), 24 deletions(-)
+>  drivers/vfio/cdx/main.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
 > 
 
-Acked-by: Pranjal Shrivastava <praan@google.com>
+Reviewed-by: Pranjal Shrivastava <praan@google.com>
 
 Thanks,
 Praan
