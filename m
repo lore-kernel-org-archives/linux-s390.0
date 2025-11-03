@@ -1,264 +1,195 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E82082F9980
-	for <linux-s390@vger.kernel.org>; Mon,  3 Nov 2025 09:50:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C09B02F9D82
+	for <linux-s390@vger.kernel.org>; Mon,  3 Nov 2025 09:53:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762163428; cv=none; b=XxsPA7v9OtbAHQVrDB1FE648aFJciFruA/0jo2p+8MaHZOIi1qOGL/iJzqa/GT9434QebOeywTcOi9KcMZcN0J9l30d1IRvgGJZMy/VwTJZZvXA9DppSidjkfnLkfc4xUviQ6pSqN/Qw5eiKyaKDdALcA+myTx6k4VtHkaGF5wQ=
+	t=1762163592; cv=none; b=JnSZO4oq1nYgh16FQ/6E7zS6/rfXnv3S+XJW49ghLsw4VMHa1LlhPNIUiN7u3Mj38lQVNkudwo95UKh1KhD3O0T/7tWS5fOoHKiy58t5+8RcvDuLa7Y5S5aGTQTChyrE6isR17niWAHzRm6u+drhIVV7jVlVMLLKP4o2Se7tLBY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762163428; c=relaxed/simple;
-	bh=tYIRJCNDS83FSlihnAvsUz65Uw1RaaI3aab9pQPHdcI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lBuO6q4cxQ6ojIxehQXvrwtXLUUEjRH/em5sP6LJRGEv0R84xIOEZl+lq8d1+fE4IahxRuYCt+lI7FDOa+sHAAqRbHzY46FuUQzX/AvV1jKVBszAbHB6XoXEy0rzSwytvcPSarp5g5aWhvRR0Zpr6Z2hVlZwtd5W/6TVrLU7Eag=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=o0d/tbvL; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1762163592; c=relaxed/simple;
+	bh=JKFySBYZ5L+2LiVx7km0crRWvXRHHVbQF5Z8FU6+lVc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mSO/sgfbJPYc6RGW767fomGCqimHpIynENRzPYW4IfIZBH59DXJYhx/g6+wAjbC+jd8WnJCTC/2OAyZJzyYs77gfqGPVTrhMM56j8EcNH5iEyqI34G8WVZ1IiC+Mk6Pm/z/5Ma1c73MV/ygS2B2Ynko/Vkw2dD1F6fF9kHhJSIY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=qgBEghLz; arc=none smtp.client-ip=209.85.128.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="o0d/tbvL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74F03C116C6
-	for <linux-s390@vger.kernel.org>; Mon,  3 Nov 2025 09:50:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1762163427;
-	bh=tYIRJCNDS83FSlihnAvsUz65Uw1RaaI3aab9pQPHdcI=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=o0d/tbvLY21MJS8egZkd0Ri1kw6SIk6ujVTmZp3+FHJgDC446N+4YaN0P8z5/Ak+m
-	 eVDkw3ons91vLRaElSJNtusAMLzGrqqj3SklVGWcEoapPntfieh25BEBz7wNCA/g/u
-	 7Ar4rwgSEFzKYKhdgxFZcjXabRLt5FukstCzexiPBZersOjx5WgGCpV9WFVNrpwSZ4
-	 55fG+jYpwXNWUwRIxJCeJPh7n2QSWjrOQ7RK5wn3ZBO97Cgqne5mQJ9jo8lG3kQKgE
-	 Zq9v0lJ97Qkh3/jeDPJODxyXTWeDes8J+gXtTtm3VXFNJAQHTqmoaoDSW7s/oJCUC2
-	 cbFmULb7qNwvA==
-Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-640c1fda178so1143399a12.1
-        for <linux-s390@vger.kernel.org>; Mon, 03 Nov 2025 01:50:27 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCXTgFp6QVWn9C0f1iZ+69kiKFKeTyK/z2XcM1TodiZ1swrIiZfpGrXekVqemj7y24G4athEVcYVjcT8@vger.kernel.org
-X-Gm-Message-State: AOJu0YzAk1Nr6GLR/tU7/6ZL2wRuqsYk1suF7oRMUhQbOFvsjl7vv6qN
-	RHSMsXsOqtzLl0b67Jgrzkd7R3ljMHzkAsTxDVBnkzdmq4lW7HTWdsCTAB0TbQ9mSGfNJc9t5oH
-	J6juj0vASsU5Bz/pse6OWCfi0QOwRyqA=
-X-Google-Smtp-Source: AGHT+IH8qJzoI36AiJwr/7p2nTBJuZh3M5fSlb8Ojf11RW0d2BQ5ZRzirGxdOyLDc1rkkCxm0+GO4GSCTkJK54VerPk=
-X-Received: by 2002:a17:907:60c9:b0:b70:b077:b949 with SMTP id
- a640c23a62f3a-b70b077bc32mr381684366b.37.1762163425945; Mon, 03 Nov 2025
- 01:50:25 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="qgBEghLz"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-475df55f484so84005e9.0
+        for <linux-s390@vger.kernel.org>; Mon, 03 Nov 2025 01:53:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1762163589; x=1762768389; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=CJ4RrOu9uCN2bW8pg1KpsPpPzgZldv3XyNgHXUg1t1c=;
+        b=qgBEghLzI6p4nXja6eDgqJF5triVdz9vQVhuTpjyBQlTtQv7QA8qzd7dBgrYXKyBCM
+         ZaIawiARDYbF5/2a7f6PyBpKhORhJM5z1394TM3b9UJy1o4ObyN60iu3gijdwlOUCfNw
+         71HPhor4aXpa2JI15i2mRMzbFcbVOH8BfvIyp/75uCAilDk9efQLX2/j6wJL6C/fFxtx
+         UGhXCZhSU39FakV4ZtKlt8GVp5KlW6LVd77awZAYPfhOaPOov0z5H7WbNAT1EadocT9W
+         KS+iR/jFb2XNI/7BuaPmzrDI/IwT2T2/6OPoOSdfjzxWAx0N9Gpf+g+OlXXpnD09qmiG
+         PbOQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1762163589; x=1762768389;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=CJ4RrOu9uCN2bW8pg1KpsPpPzgZldv3XyNgHXUg1t1c=;
+        b=skVnLkraRI0oL8ZtEGeaip7ADrZa6kqnqaAw5PDMATH+G7QPaziSL9CzY9B6EIZpRA
+         OsQWr8uc5p0usubBvm8qkjUobnQjdCVSLES12lFJLUiWtVFqwrtChUxB0E4jHpQE2sbM
+         1eLLgmbWAIy7oUnTUu4/Yg4HJBg+QcUBDjrB/zZTQ9a4NrgZmKqiQ7reiPR/Z5axxo9M
+         hAiaNWWxiV4OJDIdHmAG/p52q3HcY4b4x//EyW96YkoExNqPF5juEYe6sYAMmgd46vck
+         S86vik5/GhGE1YEtEv50jsNrWZVz4ZwENmTx0qjU8jqvdCaGcNcmFNkw+8v/8cULjGJv
+         7YKg==
+X-Forwarded-Encrypted: i=1; AJvYcCW/Z01QmWXY6NJNmlw2zs1bpsZ/XM1QNl3cmz5PtXk48rT8Bjkf3MusHjc6JdYh1XD54lRvPmGLoxGY@vger.kernel.org
+X-Gm-Message-State: AOJu0YzQ9gUj33rqCfI8crEiQxHewN2ZMHfkK4kkdzpi1/r0w+nQZA6a
+	j8X7mWxFyzWWqU7qMYMlB0G42pvrkbZPACOe5bACAKbou2M1Jm1QKhlnV9OiCnQxJQ==
+X-Gm-Gg: ASbGncsjn3BBAJlZqEPft/Ra7a+7NUBRKT/PMLOr7FfVTTVnYi0FXeO+HHzV38tC6eW
+	8+Emu13X4A74AgXU9GyKlz3zq6Iwo0amZ1xJ1OtGcwJHzwTwOqdjRo+JVDMQGAOK+RbMCKJO74K
+	08xKHPUyg02J7ROqI6w/0BfShKjExShG1/Lb80j7B9Y0BcBPIZEO6kCJussysXl6AAAPTXe1aCI
+	GWjWSqgPHKx9+r27NvnjxJ4Kf+yNgN9bwlqnpCzIsWBV2fN6rAaoPE+ri3h7d0nDbkm3Yzshf45
+	da1pqyYa/Zsi/b4B+I4BoFJFvxJbHmKNkSNfibdOjD2LfGyK+R104TUbJlvxMemmAOI2X+fLvI3
+	Vzrbde99c5VsO0O626cmMq2BonLmfprYzefJRHAajc9sP7+HkB8wWx7nlglntwIk/WWHJP4XkZM
+	ByDesiecApR0j2lcU+CI7MtY84ENOyNfyCMYyntLDZ7a6IJYZg8Q==
+X-Google-Smtp-Source: AGHT+IE1mff4da9I5vysNB0ob0JmOMr70AWi7AKZOtcSI5qvyyAXHktFY8REU7m0liVQkNgCELSSCg==
+X-Received: by 2002:a7b:cb14:0:b0:46f:a42d:41f0 with SMTP id 5b1f17b1804b1-4775268121fmr217365e9.0.1762163588833;
+        Mon, 03 Nov 2025 01:53:08 -0800 (PST)
+Received: from google.com (54.140.140.34.bc.googleusercontent.com. [34.140.140.54])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-429c13e0325sm20082715f8f.29.2025.11.03.01.53.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 Nov 2025 01:53:08 -0800 (PST)
+Date: Mon, 3 Nov 2025 09:53:04 +0000
+From: Mostafa Saleh <smostafa@google.com>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+	David Airlie <airlied@gmail.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Brett Creeley <brett.creeley@amd.com>,
+	dri-devel@lists.freedesktop.org, Eric Auger <eric.auger@redhat.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>, intel-gfx@lists.freedesktop.org,
+	Jani Nikula <jani.nikula@linux.intel.com>,
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+	Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
+	Kirti Wankhede <kwankhede@nvidia.com>, linux-s390@vger.kernel.org,
+	Longfang Liu <liulongfang@huawei.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Pranjal Shrivastava <praan@google.com>, qat-linux@intel.com,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	Shameer Kolothum <skolothumtho@nvidia.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Tvrtko Ursulin <tursulin@ursulin.net>,
+	virtualization@lists.linux.dev,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Yishai Hadas <yishaih@nvidia.com>,
+	Zhenyu Wang <zhenyuw.linux@gmail.com>,
+	Zhi Wang <zhi.wang.linux@gmail.com>, patches@lists.linux.dev
+Subject: Re: [PATCH 00/22] vfio: Give VFIO_DEVICE_GET_REGION_INFO its own op
+Message-ID: <aQh7gG3IAEgEaKY_@google.com>
+References: <0-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251029-ari_no_bus_dev-v5-0-d9a5eab67ed0@linux.ibm.com> <20251029-ari_no_bus_dev-v5-1-d9a5eab67ed0@linux.ibm.com>
-In-Reply-To: <20251029-ari_no_bus_dev-v5-1-d9a5eab67ed0@linux.ibm.com>
-From: Huacai Chen <chenhuacai@kernel.org>
-Date: Mon, 3 Nov 2025 17:50:22 +0800
-X-Gmail-Original-Message-ID: <CAAhV-H6qqppoX_G5KrWmPor16bXfvNTE2x8Xx6yajAYPqxpigw@mail.gmail.com>
-X-Gm-Features: AWmQ_bkF9DD4U4chJ9TajuEmQvXaXS5rbGCcvKkn6W1c1fvxW9F5_O2LhkhUoKE
-Message-ID: <CAAhV-H6qqppoX_G5KrWmPor16bXfvNTE2x8Xx6yajAYPqxpigw@mail.gmail.com>
-Subject: Re: [PATCH v5 1/2] PCI: Fix isolated PCI function probing with ARI
- and SR-IOV
-To: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>, Jan Kiszka <jan.kiszka@siemens.com>, 
-	Bibo Mao <maobibo@loongson.cn>, linux-s390 <linux-s390@vger.kernel.org>, 
-	loongarch@lists.linux.dev, Farhan Ali <alifm@linux.ibm.com>, 
-	Matthew Rosato <mjrosato@linux.ibm.com>, Tianrui Zhao <zhaotianrui@loongson.cn>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Gerd Bayer <gbayer@linux.ibm.com>, linux-kernel@vger.kernel.org, 
-	linux-pci@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
 
-Hi, Niklas,
+On Thu, Oct 23, 2025 at 08:09:14PM -0300, Jason Gunthorpe wrote:
+> There is alot of duplicated code in the drivers for processing
+> VFIO_DEVICE_GET_REGION_INFO. Introduce a new op get_region_info_caps()
+> which provides a struct vfio_info_cap and handles the cap chain logic
+> to write the caps back to userspace and remove all of this duplication
+> from drivers.
+> 
+> This is done in two steps, the first is a largely mechanical introduction
+> of the get_region_info(). These patches are best viewed with the diff
+> option to ignore whitespace (-b) as most of the lines are re-indending
+> things.
+> 
+> Then drivers are updated to remove the duplicate cap related code. Some
+> drivers are converted to use vfio_info_add_capability() instead of open
+> coding a version of it.
 
-On Wed, Oct 29, 2025 at 5:42=E2=80=AFPM Niklas Schnelle <schnelle@linux.ibm=
-.com> wrote:
->
-> When the isolated PCI function probing mechanism is used in conjunction
-> with ARI or SR-IOV it may not find all available PCI functions. In the
-> case of ARI the problem is that next_ari_fn() always returns -ENODEV if
-> dev is NULL and thus if fn 0 is missing the scan stops.
->
-> For SR-IOV things are more complex. Here the problem is that the check
-> for multifunction may fail. One example where this can occur is if the
-> first passed-through function is a VF with devfn 8. Now in
-> pci_scan_slot() this means it is fn 0 and thus multifunction doesn't get
-> set. Since VFs don't get multifunction set via PCI_HEADER_TYPE_MFD it
-> remains unset and probing stops even if there is a devfn 9.
->
-> Now at the moment both of these issues are hidden on s390. The first one
-> because ARI is detected as disabled as struct pci_bus's self is NULL
-> even though firmware does enable and use ARI. The second issue is hidden
-> as a side effect of commit 25f39d3dcb48 ("s390/pci: Ignore RID for
-> isolated VFs"). This is because VFs are either put on their own virtual
-> bus if the parent PF is not passed-through to the same instance or VFs
-> are hotplugged once SR-IOV is enabled on the parent PF and then
-> pci_scan_single_device() is used.
->
-> Still especially the first issue prevents correct detection of ARI and
-> the second might be a problem for other users of isolated function
-> probing. Fix both issues by keeping things as simple as possible. If
-> isolated function probing is enabled simply scan every possible devfn.
-I'm very sorry, but applying this patch on top of commit a02fd05661d7
-("PCI: Extend isolated function probing to LoongArch") we fail to
-boot.
+The series as a whole looks good.
+However, I got confused walking through it as almost all non-PCI drivers
+had to transition to get_region_info then get_region_info_caps then
+removing get_region_info completely from core code after introducing
+it in this series.
 
-Boot log:
-[   10.365340] megaraid cmm: 2.20.2.7 (Release Date: Sun Jul 16
-00:01:03 EST 2006)
-[   10.372628] megaraid: 2.20.5.1 (Release Date: Thu Nov 16 15:32:35 EST 20=
-06)
-[   10.379564] megasas: 07.734.00.00-rc1
-[   10.383222] mpt3sas version 54.100.00.00 loaded
-[   10.388304] nvme nvme0: pci function 0000:08:00.0
-[   10.395088] Freeing initrd memory: 45632K
-[   10.469822] ------------[ cut here ]------------
-[   10.474409] WARNING: CPU: 0 PID: 247 at drivers/ata/libahci.c:233
-ahci_enable_ahci+0x64/0xb8
-[   10.482804] Modules linked in:
-[   10.485838] CPU: 0 UID: 0 PID: 247 Comm: kworker/0:11 Not tainted
-6.18.0-rc3 #1 PREEMPT(full)
-[   10.494397] Hardware name: To be filled by O.E.M.To be fill To be
-filled by O.E.M.To be fill/To be filled by O.E.M.To be fill, BIOS
-Loongson-UDK2018-V4.0.
-[   10.508139] Workqueue: events work_for_cpu_fn
-[   10.512468] pc 900000000103be2c ra 900000000103be28 tp
-900000010ae44000 sp 900000010ae47be0
-[   10.520769] a0 0000000000000000 a1 00000000000000b0 a2
-0000000000000001 a3 9000000001810e0c
-[   10.529069] a4 9000000002343e20 a5 0000000000000001 a6
-0000000000000010 a7 0000000000000000
-[   10.537373] t0 d10951fa66920f31 t1 d10951fa66920f31 t2
-0000000000001280 t3 000000000674c000
-[   10.545673] t4 0000000000000000 t5 0000000000000000 t6
-9000000008002480 t7 00000000000000b4
-[   10.553972] t8 90000001055eab90 u0 900000010ae47b68 s9
-9000000002221a50 s0 0000000000000000
-[   10.562272] s1 ffff800032435800 s2 0000000000000000 s3
-ffffffff80000000 s4 9000000002221570
-[   10.570571] s5 0000000000000005 s6 9000000101ccf0b8 s7
-90000000023dd000 s8 900000010ae47d08
-[   10.578869]    ra: 900000000103be28 ahci_enable_ahci+0x60/0xb8
-[   10.584665]   ERA: 900000000103be2c ahci_enable_ahci+0x64/0xb8
-[   10.590461]  CRMD: 000000b0 (PLV0 -IE -DA +PG DACF=3DCC DACM=3DCC -WE)
-[   10.596609]  PRMD: 00000004 (PPLV0 +PIE -PWE)
-[   10.600937]  EUEN: 00000000 (-FPE -SXE -ASXE -BTE)
-[   10.605698]  ECFG: 00071c1d (LIE=3D0,2-4,10-12 VS=3D7)
-[   10.610458] ESTAT: 000c0000 [BRK] (IS=3D ECode=3D12 EsubCode=3D0)
-[   10.615994]  PRID: 0014d010 (Loongson-64bit, Loongson-3C6000/S)
-[   10.621875] CPU: 0 UID: 0 PID: 247 Comm: kworker/0:11 Not tainted
-6.18.0-rc3 #1 PREEMPT(full)
-[   10.621877] Hardware name: To be filled by O.E.M.To be fill To be
-filled by O.E.M.To be fill/To be filled by O.E.M.To be fill, BIOS
-Loongson-UDK2018-V4.0.
-[   10.621878] Workqueue: events work_for_cpu_fn
-[   10.621881] Stack : 900000010ae47848 0000000000000000
-90000000002436bc 900000010ae44000
-[   10.621884]         900000010ae47820 900000010ae47828
-0000000000000000 900000010ae47968
-[   10.621887]         900000010ae47960 900000010ae47960
-900000010ae47630 0000000000000001
-[   10.621890]         0000000000000001 900000010ae47828
-d10951fa66920f31 9000000100414300
-[   10.621893]         80000000ffffe34d fffffffffffffffe
-000000000000034f 000000000000002f
-[   10.621896]         0000000000000063 0000000000000001
-000000000674c000 9000000002221a50
-[   10.621899]         0000000000000000 0000000000000000
-90000000020b6500 90000000023dd000
-[   10.621902]         00000000000000e9 0000000000000009
-0000000000000002 90000000023dd000
-[   10.621905]         900000010ae47d08 0000000000000000
-90000000002436d4 0000000000000000
-[   10.621908]         00000000000000b0 0000000000000004
-0000000000000000 0000000000071c1d
-[   10.621910]         ...
-[   10.621912] Call Trace:
-[   10.621913] [<90000000002436d4>] show_stack+0x5c/0x180
-[   10.621918] [<900000000023f328>] dump_stack_lvl+0x6c/0x9c
-[   10.621923] [<9000000000266eb8>] __warn+0x80/0x108
-[   10.621927] [<90000000017d1910>] report_bug+0x158/0x2a8
-[   10.621932] [<900000000180b610>] do_bp+0x2d0/0x340
-[   10.621938] [<9000000000241da0>] handle_bp+0x120/0x1c0
-[   10.621940] [<900000000103be2c>] ahci_enable_ahci+0x64/0xb8
-[   10.621943] [<900000000103beb8>] ahci_save_initial_config+0x38/0x4d8
-[   10.621946] [<90000000010391b4>] ahci_init_one+0x354/0x1088
-[   10.621950] [<9000000000d16cdc>] local_pci_probe+0x44/0xb8
-[   10.621953] [<9000000000286f78>] work_for_cpu_fn+0x18/0x30
-[   10.621956] [<900000000028a840>] process_one_work+0x160/0x330
-[   10.621961] [<900000000028b208>] worker_thread+0x330/0x460
-[   10.621964] [<9000000000295fdc>] kthread+0x11c/0x138
-[   10.621968] [<900000000180b740>] ret_from_kernel_thread+0x28/0xa8
-[   10.621971] [<9000000000241484>] ret_from_kernel_thread_asm+0xc/0x88
-[   10.621973]
+IMO, the series should start with just consolidating PCI based implementation
+and then add get_region_info_caps for all drivers at the end.
+Anyway, no really strong opinion as the final outcome makes sense.
 
-Huacai
+Thanks,
+Mostafa
 
->
-> Cc: stable@vger.kernel.org
-> Fixes: 189c6c33ff42 ("PCI: Extend isolated function probing to s390")
-> Link: https://lore.kernel.org/linux-pci/d3f11e8562f589ddb2c1c83e74161bd89=
-48084c3.camel@linux.ibm.com/
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> ---
->  drivers/pci/probe.c | 21 +++++++++++++--------
->  1 file changed, 13 insertions(+), 8 deletions(-)
->
-> diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-> index 0ce98e18b5a876afe72af35a9f4a44d598e8d500..41dd1a339a994956a6bc7e1fe=
-a0fe0d55452a963 100644
-> --- a/drivers/pci/probe.c
-> +++ b/drivers/pci/probe.c
-> @@ -2808,16 +2808,19 @@ static int next_ari_fn(struct pci_bus *bus, struc=
-t pci_dev *dev, int fn)
->         return next_fn;
->  }
->
-> -static int next_fn(struct pci_bus *bus, struct pci_dev *dev, int fn)
-> +static int next_fn(struct pci_bus *bus, struct pci_dev *dev, int fn,
-> +                  bool isolated_fns)
->  {
-> -       if (pci_ari_enabled(bus))
-> -               return next_ari_fn(bus, dev, fn);
-> +       if (!isolated_fns) {
-> +               if (pci_ari_enabled(bus))
-> +                       return next_ari_fn(bus, dev, fn);
->
-> +               /* only multifunction devices may have more functions */
-> +               if (dev && !dev->multifunction)
-> +                       return -ENODEV;
-> +       }
->         if (fn >=3D 7)
->                 return -ENODEV;
-> -       /* only multifunction devices may have more functions */
-> -       if (dev && !dev->multifunction)
-> -               return -ENODEV;
->
->         return fn + 1;
->  }
-> @@ -2859,10 +2862,12 @@ int pci_scan_slot(struct pci_bus *bus, int devfn)
->  {
->         struct pci_dev *dev;
->         int fn =3D 0, nr =3D 0;
-> +       bool isolated_fns;
->
->         if (only_one_child(bus) && (devfn > 0))
->                 return 0; /* Already scanned the entire slot */
->
-> +       isolated_fns =3D hypervisor_isolated_pci_functions();
->         do {
->                 dev =3D pci_scan_single_device(bus, devfn + fn);
->                 if (dev) {
-> @@ -2876,10 +2881,10 @@ int pci_scan_slot(struct pci_bus *bus, int devfn)
->                          * a hypervisor that passes through individual PC=
-I
->                          * functions.
->                          */
-> -                       if (!hypervisor_isolated_pci_functions())
-> +                       if (!isolated_fns)
->                                 break;
->                 }
-> -               fn =3D next_fn(bus, dev, fn);
-> +               fn =3D next_fn(bus, dev, fn, isolated_fns);
->         } while (fn >=3D 0);
->
->         /* Only one slot has PCIe device */
->
-> --
-> 2.48.1
->
+> 
+> This is on github: https://github.com/jgunthorpe/linux/commits/vfio_get_region_info_op
+> 
+> Jason Gunthorpe (22):
+>   vfio: Provide a get_region_info op
+>   vfio/hisi: Convert to the get_region_info op
+>   vfio/virtio: Convert to the get_region_info op
+>   vfio/nvgrace: Convert to the get_region_info op
+>   vfio/pci: Fill in the missing get_region_info ops
+>   vfio/mtty: Provide a get_region_info op
+>   vfio/mdpy: Provide a get_region_info op
+>   vfio/mbochs: Provide a get_region_info op
+>   vfio/platform: Provide a get_region_info op
+>   vfio/fsl: Provide a get_region_info op
+>   vfio/cdx: Provide a get_region_info op
+>   vfio/ccw: Provide a get_region_info op
+>   vfio/gvt: Provide a get_region_info op
+>   vfio: Require drivers to implement get_region_info
+>   vfio: Add get_region_info_caps op
+>   vfio/mbochs: Convert mbochs to use vfio_info_add_capability()
+>   vfio/gvt: Convert to get_region_info_caps
+>   vfio/ccw: Convert to get_region_info_caps
+>   vfio/pci: Convert all PCI drivers to get_region_info_caps
+>   vfio/platform: Convert to get_region_info_caps
+>   vfio: Move the remaining drivers to get_region_info_caps
+>   vfio: Remove the get_region_info op
+> 
+>  drivers/gpu/drm/i915/gvt/kvmgt.c              | 272 ++++++++----------
+>  drivers/s390/cio/vfio_ccw_ops.c               |  45 +--
+>  drivers/vfio/cdx/main.c                       |  29 +-
+>  drivers/vfio/fsl-mc/vfio_fsl_mc.c             |  43 ++-
+>  .../vfio/pci/hisilicon/hisi_acc_vfio_pci.c    |  54 ++--
+>  drivers/vfio/pci/mlx5/main.c                  |   1 +
+>  drivers/vfio/pci/nvgrace-gpu/main.c           |  53 +---
+>  drivers/vfio/pci/pds/vfio_dev.c               |   1 +
+>  drivers/vfio/pci/qat/main.c                   |   1 +
+>  drivers/vfio/pci/vfio_pci.c                   |   1 +
+>  drivers/vfio/pci/vfio_pci_core.c              | 110 +++----
+>  drivers/vfio/pci/virtio/common.h              |   5 +-
+>  drivers/vfio/pci/virtio/legacy_io.c           |  38 +--
+>  drivers/vfio/pci/virtio/main.c                |   5 +-
+>  drivers/vfio/platform/vfio_amba.c             |   1 +
+>  drivers/vfio/platform/vfio_platform.c         |   1 +
+>  drivers/vfio/platform/vfio_platform_common.c  |  40 ++-
+>  drivers/vfio/platform/vfio_platform_private.h |   3 +
+>  drivers/vfio/vfio_main.c                      |  45 +++
+>  include/linux/vfio.h                          |   4 +
+>  include/linux/vfio_pci_core.h                 |   3 +
+>  samples/vfio-mdev/mbochs.c                    |  71 ++---
+>  samples/vfio-mdev/mdpy.c                      |  34 +--
+>  samples/vfio-mdev/mtty.c                      |  33 +--
+>  24 files changed, 363 insertions(+), 530 deletions(-)
+> 
+> 
+> base-commit: 211ddde0823f1442e4ad052a2f30f050145ccada
+> -- 
+> 2.43.0
+> 
