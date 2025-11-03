@@ -1,114 +1,131 @@
-Received: from zg8tmtyylji0my4xnjeumjiw.icoremail.net (zg8tmtyylji0my4xnjeumjiw.icoremail.net [162.243.161.220])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id BA4D5284684;
-	Mon,  3 Nov 2025 06:08:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.243.161.220
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D3622309B2
+	for <linux-s390@vger.kernel.org>; Mon,  3 Nov 2025 06:21:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762150133; cv=none; b=gJq+ly4kIMQwtZq5Wb8lnL8RdIzLMn2QoM4Dgyk/Gpeb5XVZOTDllm5YCcZ3PsDWJuWtQX9FRVuadM6Qg1T4M+CutFSohwAEts0p2nOrTJVuOw8jCrWL/008FF2e6x35RZbSqPalMHqZ5aKWTyntGdqthDK1UmJ+/w3BZER70eY=
+	t=1762150918; cv=none; b=EAlpD3id6bRTuz95ZfEfplSz4wkeYaNos/qTE6sm4zZQsIP+zspIYrz1TzwoA6vaksjdqI38UkurGD/G5mnI2814RIy+OWvY3YBiTf/cbAt03xCCRCs7c35u1xFgkVLv8XsI73h9TR/tTEYXNpM6viz+0yxoSXHdrsFn0Ilu5n4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762150133; c=relaxed/simple;
-	bh=ij7SSqEkbo4mNi6ysGnvvLGMAM4tjimDlNEUDeNc4Kc=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=KF8wDEp2yD5TJU6X+IhAubpbmY9IxLBDGN9tiAXyyO9sF5ELLEXz/y1T1ndQJHiUiNkdhQ7l99859qPz+lxVk6i5dDszVRYdMnvt1QVFhZ5FIkpQjjHIQU3XGg2f7KEbvJ7jvWIFO9Xj+hQdoKWNGMkwhG7lWRqYMv5jn4jF0sA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn; spf=pass smtp.mailfrom=zju.edu.cn; arc=none smtp.client-ip=162.243.161.220
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zju.edu.cn
-Received: from zju.edu.cn (unknown [106.117.100.156])
-	by mtasvr (Coremail) with SMTP id _____wCXkENBRghp0QdPAw--.12221S3;
-	Mon, 03 Nov 2025 14:05:54 +0800 (CST)
-Received: from ubuntu.localdomain (unknown [106.117.100.156])
-	by mail-app2 (Coremail) with SMTP id zC_KCgA3UEQ7RghpGF99Aw--.25113S2;
-	Mon, 03 Nov 2025 14:05:51 +0800 (CST)
-From: Duoming Zhou <duoming@zju.edu.cn>
-To: linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	hca@linux.ibm.com,
-	gor@linux.ibm.com,
-	agordeev@linux.ibm.com,
-	borntraeger@linux.ibm.com,
-	svens@linux.ibm.com,
-	mingo@kernel.org,
-	tglx@linutronix.de,
-	Duoming Zhou <duoming@zju.edu.cn>
-Subject: [PATCH] s390/tape: fix use-after-free bugs caused by tape_dnr delayed work
-Date: Mon,  3 Nov 2025 14:05:44 +0800
-Message-Id: <20251103060544.22720-1-duoming@zju.edu.cn>
-X-Mailer: git-send-email 2.34.1
+	s=arc-20240116; t=1762150918; c=relaxed/simple;
+	bh=q6TURu0Txeo2OJvua8KGcsnP9mDJkJtsWp5sVhFajZo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=m/+SzRpsaF0q2URtK2/2Pg0M+8aXwi9JKeDTgj+KS/nb+lhwy3ksybZFk7nmcJeN7huIRfoCfn3fIgYJLhdd/NSOOTT2lB1npAYwMjIPVKL605Xn51/+6TmqQiLnaEwz358w6nupngfxc/MS+Zbo1JKdT/n8T+aHIi27G7yxc/k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ybIIRbMS; arc=none smtp.client-ip=209.85.214.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ybIIRbMS"
+Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-294f3105435so331755ad.1
+        for <linux-s390@vger.kernel.org>; Sun, 02 Nov 2025 22:21:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1762150917; x=1762755717; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=nWlZBJWMNR3o5R9SijDhT22MNLu42EpPET2zOzK998A=;
+        b=ybIIRbMSfr9KvmJHVzA+dnkbLCZQ61ragoZTdqBXfMNfe1u2ERwN31q1nykEu/37mc
+         XrPp4O4i2MZ4jw0ZTAVTG+bqdTe9JGjdyOPSNT3wePZq7msEfjv6uBTAUUvwolNJZvhZ
+         h8ElYZI/rpQK5xw2u2DR+Lz+IuXOPElHOP9XZ9/XuX9M/BwicxwXIhO0KOVuaposQxZE
+         nxMIkRLS+h8BdOJc0MnCQrG7/J2Dr0B/+8KeIkN3BGVX8dXB+9uPK7zg83/LnXHXPaPO
+         qPggh7lMtCTZ3EH6xGbMBDHD3BujM0Mh/8/XeCeGDC9epceSBSUGcPfR0j6KjESWLoOw
+         VpZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1762150917; x=1762755717;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=nWlZBJWMNR3o5R9SijDhT22MNLu42EpPET2zOzK998A=;
+        b=oLKPC/A6IMdi0cTsU+kXprhNOjy2EdYgHq6IE+al7CQRkrk26UQFX7Jhs5wcuNjFlQ
+         xlmNqJu64ARylXGbiWkNfRAstRrKkxJTXgh+afvXF1LVQFrPC2PAI33vGOmpgKelhDxx
+         1Ef6Xzibra5mBkpwz+K5aXfXlgxvJLD20ZAdpxK36yKnUBxqawjGYKcBdVaTXHWOi+dA
+         tEDwU0NLZybs7Dj+QHSRS+ZU1DIgleH3WkAR7M9KoQHPgzqZnLWCa0V0ikvs0hPygkZ1
+         V26XNuUe4LCvN80O2lGgVixy4jzOYBhFldwOA5VuQAOZqkBbsNXSHN6aBb4F9tOyeORe
+         2lAA==
+X-Forwarded-Encrypted: i=1; AJvYcCUyQ9ibn2ICt0j3nqnYXreKr+IoSFuQ243S9hOi4/mYzT+/WAbCQ+71E3Bwa+89GL3GRm+NADb2N79g@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz+x3F5xqFOtxByV78LrqFxpO10tNl/AWgEC3zrT24OlGjzxNHc
+	2JMl+4NtyYKhFhjFdNdhTppiUhqFiuHKblpNra+/rXAjYa759Iry857whPr9T+3kEg==
+X-Gm-Gg: ASbGncuoAYz5owsEFBRvv11KVTOS+yEdGfgHbRM3QuePzWGlWXjSsnEi3PrIt0n6u43
+	7Lrmwqn28gml5i+NT7/7RYZvXrrwBxpytI94h5hZlobW0xl6rocnZfKDS1ZjJmbR1PiAHwgoWLS
+	XjcioAeSf8OWUYIa1LQJlymBIZ1uCGZlsNboKcbz2mtr65HrF3a0yUi5wd9JLZfMRnhQoSkCZMV
+	zG2N4U9esmZFhADETOCjLyKeMJ76A1r50qyEfqZLGkNwmJ8Nf+xDjtE4oipnvphwUIorDw0FeWW
+	cVrgo54BOFe3JFs/PzS4eQgFgCjuDC8ew9QoSky4KdMOdKaHy0vafLSGhCLGGZy/guE60n+tc+k
+	+wNZAMPSuZnW33vrT+vjxayCAn9WLbffD8WxIRrZVL2L5aJxEPU8ydqHvr2dE7ciKeikeHctRbQ
+	leQN6bdaqLjn6APzBj5CPLipuLbBmnUKEbqIT1qA==
+X-Google-Smtp-Source: AGHT+IGruOwIqSOkw/c0UIqbUAnBCrsgVRvu/C4si6qjv3qWziT7RTJr58fgj5zqaOcpkLKvHmo5tQ==
+X-Received: by 2002:a17:902:e891:b0:290:dd42:eb5f with SMTP id d9443c01a7336-29554be37d6mr5455555ad.12.1762150907195;
+        Sun, 02 Nov 2025 22:21:47 -0800 (PST)
+Received: from google.com (164.210.142.34.bc.googleusercontent.com. [34.142.210.164])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7a7db67cbdfsm9912363b3a.49.2025.11.02.22.21.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 02 Nov 2025 22:21:46 -0800 (PST)
+Date: Mon, 3 Nov 2025 06:21:36 +0000
+From: Pranjal Shrivastava <praan@google.com>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+	David Airlie <airlied@gmail.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Brett Creeley <brett.creeley@amd.com>,
+	dri-devel@lists.freedesktop.org, Eric Auger <eric.auger@redhat.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>, intel-gfx@lists.freedesktop.org,
+	Jani Nikula <jani.nikula@linux.intel.com>,
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+	Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
+	Kirti Wankhede <kwankhede@nvidia.com>, linux-s390@vger.kernel.org,
+	Longfang Liu <liulongfang@huawei.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Halil Pasic <pasic@linux.ibm.com>, qat-linux@intel.com,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	Shameer Kolothum <skolothumtho@nvidia.com>,
+	Mostafa Saleh <smostafa@google.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Tvrtko Ursulin <tursulin@ursulin.net>,
+	virtualization@lists.linux.dev,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Yishai Hadas <yishaih@nvidia.com>,
+	Zhenyu Wang <zhenyuw.linux@gmail.com>,
+	Zhi Wang <zhi.wang.linux@gmail.com>, patches@lists.linux.dev
+Subject: Re: [PATCH 03/22] vfio/virtio: Convert to the get_region_info op
+Message-ID: <aQhJ8OZiVYe06hv_@google.com>
+References: <0-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+ <3-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:zC_KCgA3UEQ7RghpGF99Aw--.25113S2
-X-CM-SenderInfo: qssqjiasttq6lmxovvfxof0/1tbiAwQSAWkHs-8AbwA+sn
-X-CM-DELIVERINFO: =?B?yloTDgXKKxbFmtjJiESix3B1w3uoVhYI+vyen2ZzBEkOnu5chDpkB+ZdGnv/zQ0PbP
-	CR15Vie2bMrbJnHqI6rTqE7nL4FhIxvV4PEkCBxd2xL2aDveEeLLuEIaoCXDa3CO8ounDo
-	CWc4HIlAA4hKbnpcp4/J/FqLF/BbAV+6VQ+YBDSF9uI9lEwaeBPdnyJNs6TwlQ==
-X-Coremail-Antispam: 1Uk129KBj93XoW7ArW5tF4xCw1DuFWfuFWUJrc_yoW8CFWkpr
-	Z5J34qy34DWw40ka13X348uF1UG39rC3yUKrn2gwnagrn8A34rGryqqFnaqFyUJrWkAFW5
-	Xr9Iq34UuayDtFcCm3ZEXasCq-sJn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUvvb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AK
-	xVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYIkI8VC2zVCFFI0UMc
-	02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAF
-	wI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JM4x0Y48IcxkI7V
-	AKI48G6xCjnVAKz4kxMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I
-	3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxV
-	WUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8I
-	cVCY1x0267AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aV
-	AFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVWUJVW8JbIYCTnIWIevJa73UjIFyTuY
-	vjxU7xwIDUUUU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
 
-The delayed work tape_dnr is initialized in tape_alloc_device(), which
-is called from tape_generic_probe(), and is scheduled in the following
-scenarios:
+On Thu, Oct 23, 2025 at 08:09:17PM -0300, Jason Gunthorpe wrote:
+> Remove virtiovf_vfio_pci_core_ioctl() and change the signature of
+> virtiovf_pci_ioctl_get_region_info().
+> 
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/vfio/pci/virtio/common.h    |  4 +---
+>  drivers/vfio/pci/virtio/legacy_io.c | 20 ++++----------------
+>  drivers/vfio/pci/virtio/main.c      |  3 ++-
+>  3 files changed, 7 insertions(+), 20 deletions(-)
+> 
+> diff --git a/drivers/vfio/pci/virtio/common.h b/drivers/vfio/pci/virtio/common.h
+> index c7d7e27af386e9..a10f2d92cb6238 100644
+> --- a/drivers/vfio/pci/virtio/common.h
+> +++ b/drivers/vfio/pci/virtio/common.h
+> @@ -109,10 +109,8 @@ void virtiovf_migration_reset_done(struct pci_dev *pdev);
+>
 
-1. Starting an I/O operation fails with -EBUSY in __tape_start_io().
-2. Canceling an I/O operation fails with -EBUSY in __tape_cancel_io().
-3. A deferred error condition is detected in __tape_do_irq().
+Reviewed-by: Pranjal Shrivastava <praan@google.com>
 
-When the tape device is detached via tape_generic_remove(), the
-tape_device structure might be deallocated after the final call to
-tape_put_device(). However, if the delayed work tape_dnr is still
-pending or executing at the time of detachment, it could lead to
-use-after-free bugs when the work function tape_delayed_next_request()
-accesses the already freed tape_device memory.
-
-The race condition can occur as follows:
-
-CPU 0(detach thread)      | CPU 1 (delayed work)
-tape_generic_remove()     |
-  tape_put_device(device) | tape_delayed_next_request
-                          |   device = container_of(...) // USE
-                          |   device-> // USE
-
-Add disable_delayed_work_sync() in tape_generic_remove() to guarantee
-proper cancellation of the delayed work item before tape_device is
-deallocated.
-
-This bug is identified by static analysis.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
----
- drivers/s390/char/tape_core.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/s390/char/tape_core.c b/drivers/s390/char/tape_core.c
-index 6ec812280221..722dc4737a87 100644
---- a/drivers/s390/char/tape_core.c
-+++ b/drivers/s390/char/tape_core.c
-@@ -625,6 +625,7 @@ tape_generic_remove(struct ccw_device *cdev)
- 	}
- 	DBF_LH(3, "(%08x): tape_generic_remove(%p)\n", device->cdev_id, cdev);
- 
-+	disable_delayed_work_sync(&device->tape_dnr);
- 	spin_lock_irq(get_ccwdev_lock(device->cdev));
- 	switch (device->tape_state) {
- 		case TS_INIT:
--- 
-2.34.1
-
+Thanks,
+Praan
