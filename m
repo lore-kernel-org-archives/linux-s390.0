@@ -1,64 +1,64 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E87E2FD665
-	for <linux-s390@vger.kernel.org>; Mon,  3 Nov 2025 10:17:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 971E53A1B5
+	for <linux-s390@vger.kernel.org>; Mon,  3 Nov 2025 10:21:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762165031; cv=none; b=k7apfhayrpbzfdCNdjvEDoYtf6V6r/OfCJexQ5906QWz9dx8kfOW9gf0hEwcoCCDYDRqdf8Ck5lVHKk2fcVfuGYa9i4rIbZKRxE2NYlJ/ezPE/LrBuSLxv0v/3kXuW1xNaZst+OKom3D8rWrd2F+BOIkYjFjPAer1J4NCR/D8xg=
+	t=1762165302; cv=none; b=EBxb1s8pkP4l5OZw7VLwmGZ5qqJcfHmQluG06XKG9Ve1iZZoCesEeJD6BAjxQBSgKxj+dxaEUSM4oyTCLZNjVAVkfMXgmLhaCbrBflcxT5DWpDhJcK2j7QVWpubmnwD8bJC80KBSLVHGa9mDc4Ri4o4XQ4cDD4EbVCBFISvV5qU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762165031; c=relaxed/simple;
-	bh=FFZiNUWIFKtxHxItZumM7duOWwpaz/Ziw593xKPC374=;
+	s=arc-20240116; t=1762165302; c=relaxed/simple;
+	bh=/HKMzy5aaV8LtDdSBvQnNIuHvkwtMkRBm1mFEXs55wk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=djRvGGaay3/D4+19ipte/aOtOmU4NClmEqVyyrlnCYIt7VK6vCvZaa1VvwkMchhg1xaDQEGVWO2coI3IASq4MV/sxY9cvz+uafyjIfnqk+3Z+7guJf3Vp36Ib1EkdT0mp7gbADzrOjLzDNJy91gyKWoJCJyrDgO1bV3Hg4S4chc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=aLnG6tPA; arc=none smtp.client-ip=209.85.214.182
+	 Content-Type:Content-Disposition:In-Reply-To; b=rpk6x2lPiBF3JEj7yj8utmnvbjOl9hhsbuDbJbzDm9QhL/76KZ81+U99vcRcIvZk2O0dqr+kteqQDeswOrJqKiY4mgB2aUiR3IJqk/muQHM3N+8acF4hzk47JI8y6W62dpmK5xVgPrRVtklOsOef85S5ivhco44Y/SjpGCCMxj0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=sNuwm7xz; arc=none smtp.client-ip=209.85.214.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="aLnG6tPA"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-27d67abd215so417845ad.0
-        for <linux-s390@vger.kernel.org>; Mon, 03 Nov 2025 02:17:07 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="sNuwm7xz"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-294f3105435so372435ad.1
+        for <linux-s390@vger.kernel.org>; Mon, 03 Nov 2025 02:21:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1762165027; x=1762769827; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1762165300; x=1762770100; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=+B58KtJn/bs233pgZmMdorp656WS5EnyOqIx/RHoAag=;
-        b=aLnG6tPA2Lz8JDQ2FACTcqMz+WdTuZgG+U7ki9e1FgPajzlTfXpzy8ku0upyXh3Wz7
-         k33jhLkl9tziC5r6T/veZTaKShmn455/bLDckA99pHLfQ736dqIjKrYjGlPnos7+GaI1
-         LqPgXhntry+FhO0z28o5nPcGHSp8wE5HmAMMfMfWK+1flaOErwz8yjuih+zf10noPGr2
-         HMoC23pppsa+tkq1IxYPjqfrp56N0h4YOqNdQgDPaq51vtfpaKu8YHQpUj3Mm3piXqxJ
-         JSD5AHzN6qQJ8NyBAmSD56wR/oSfCvsOJh3cwC/HZgZyQl2vPsUHwGg7+zY1jN8L1DQh
-         UrZg==
+        bh=zM2bsN+XnlGuvDGqw1tQvaweGHKrw1JAZACa3YqST0c=;
+        b=sNuwm7xzNz9BLR8g0i2a59brtv119zUXWWp3H8jbpe4jCVYshPpPZv5ScrHhTA3Jr1
+         XAdKZugGhct9NDwTxzTECaYg5ZcePD1E1jHsbGEdFV+fDSmoVg7CxhsMl9lCxcFqFm5f
+         0i6/DFVx0n3GiFjJBU4xc+BeDrbJwMyXySozNTgBGhPJGeL1BgLcJO1DF1QbbtzrLQqR
+         t9x0ZeAs+ETfQxnYJf2er3zw3cDVm4/+KGv/5K3xysXao6JY8A2auRjbGwSX1f1Jb4aE
+         MowFe5AFaKUEJiHYfGpVkbb6sIJIj+S5DPv26psI09xE6ZWTsuv/XkzfTaCdE5OGVXxD
+         2D0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762165027; x=1762769827;
+        d=1e100.net; s=20230601; t=1762165300; x=1762770100;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=+B58KtJn/bs233pgZmMdorp656WS5EnyOqIx/RHoAag=;
-        b=hVoTvCyb2YDXYGdWfSoXSsj+9SUZr1Vbb50v+fOQr3fuX1OGRd6Z0JzcR5esuv3XkY
-         MLHGATo6oOdJLElTkCoIZBqiXCy18q/9UGwsVla8nawWLBOkvsF1mRvsjB8I+NUla9Si
-         RyM2V/bNQxiMYRdnbVeKQ2KjxzDZ6iL7AFWxPP90XDaRaL+lXcEcm5/nmscQzT5aKv1+
-         84tS2KPC7sfOhPljTxSGR3nV7oMQ9+TV9ExqX/PXPR4PqrA9U9lPyBn4ETUHW/x3oQaD
-         GPf+uQ3kx+hB+nJY6wPWhEXxQFeRnVueknTglwLSXwW15n5+qvTa/25LMMXyIEeUvlSb
-         urjg==
-X-Forwarded-Encrypted: i=1; AJvYcCXV/CQK9qU8FiKgmAxwJVVlMPu8JrI3oS36a5qK7MHB470siNHXTozFwsvNbaPS/waxcyxEsQ+Oz1uF@vger.kernel.org
-X-Gm-Message-State: AOJu0YyOX54srdxTfPjV7YD45D+ZxX0CA48UaqceMdPVr2u215mB3V1w
-	eTKZ6Cc/tppb3QmPaj+S/IcYYWL/GMweKfYU+ujcMlgL9ToF+ZNSeMqcZ3oCtLFUSw==
-X-Gm-Gg: ASbGncuQip/AXB9QIDWetEfkcmYjSJq37bPxkzXWNQUCBlsLRBhLwxM/RhL8VvxGtrp
-	guZceb9vOMh1fgrQ8sdiKvwQS2CrlT64F7BBr7FhI6xrfYjbNqgxdPaaPJr3OnWx0XxVqDMyFml
-	/WBFGArtwS9+csudreU+eoPKb/UVV5y3hH8mtX1yyamiyHqEvNVJmR/yRe4gYpuXHBn2glKM7ny
-	KsmgJYLENnHmBSCSrQlKTonvj1fU+rnJgxJXUR8Ui4A6sCMyPweA+l0r364rLsVGnQzMsLZkDHs
-	+B9FrdnKkuH9qFKwb0TNBRHFhnRe9cBhEC9TXfRF51YuKGscZrfB6fYncNAESBZcGE0p2ODEswU
-	zN9Zmw8NkV5dge7PWOaMqaFK1wAu/Kygm3RQFMSxYF+ul5UrwIu4buyiVgnjv8t5gubJHPObH94
-	Lgzqr3QlTQX+Wujiy8O9WTmDIwQS8DqUsx/qWO1g==
-X-Google-Smtp-Source: AGHT+IHxzXLAyCFx7IPmcOnpFb2vp8Rgf1l3Kna0V2OUhXGSl0YxnYi8nj1MD1lWW9qX+m9LVNsxvQ==
-X-Received: by 2002:a17:902:e88c:b0:290:d4dd:b042 with SMTP id d9443c01a7336-29554bc5206mr7508255ad.16.1762165026873;
-        Mon, 03 Nov 2025 02:17:06 -0800 (PST)
+        bh=zM2bsN+XnlGuvDGqw1tQvaweGHKrw1JAZACa3YqST0c=;
+        b=OiqJIUlYu5LdhxihyzyTzboBuianB6k8Qw7HDwY8HhkG8RlJDOan/lA26VzMqQrYBd
+         KR8bd4kdV4+bgZq9Vynk/zY46TWPrQlUANNVFglncFUJSYx3nIpEkaX4b8HDLIAGqHLd
+         RGXsQB9Cz/F5j2ds6F14SW45Aq2BcGvxRKf0+cKbaqzpn894akzL98DUKNeO1cS48NKJ
+         b5uEPr2k6/aW/I9XNJniEW9pSnJcJjAtv+C/rtTFr+ea+jyT8Ur5Bo7AV6M1xBqnEO2b
+         n6vj9N2MqdEJOTFbhTGb4VlkS11DoLajQDRHkmaDnJLqqhmETWkPlD1NXy/RlJ3+Vq/O
+         v9dQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXAALufY+V86JP5gnBkm6CNp8DgNUlti8E+xzgtGIUIEMaexnYd+Wm/2h7LjDjrMMrw6QbBuz3GGLZE@vger.kernel.org
+X-Gm-Message-State: AOJu0YxcdV1jv6QOuLxW1Jm1hHYA4tuGPKCqgQ7CwilBlcQMRFH98Mza
+	hy1yTUQ8AqDmh4i0S53Ey70L3hn9h/Gfae+wQny767YtxOgCH9oB9WQOLpm+etKk8Q==
+X-Gm-Gg: ASbGncs8r3q86mAHAE6HKXBJyr6Bds33jecZQ/QEuHvXLr7B4jDMCa6dqbEIBU8Y0Fj
+	DfotACzOgpo8ntIbHC1lnV49D2LBADCMuxHBA++f8Uc67vPZQ3FtBHbBJKNM1rqRlOncxv78f68
+	EoNbZEtbC6oXawExN5v/vt4KYW0qRiYXaYxck9IfZ2H5/OzVtaTSUhOu56MK0/Z0Vf13GzN6RuJ
+	MyUL6NJm9yAd/DqCyQh3cK8sh8hT8FFtZqcuTZMi89kslxun9t7ap0HuB/6jlC/RFEDVQhtl4Xj
+	C7SfzabYmw5bz39M0fWc0QwfpovTs9j03c4kpz6Y4fgyhQNViZIutN26qvxCcfdxKq2/3/uUod0
+	TTkZ25GEDG5JmzkgKj4HU3esZ9iF8vFxCb/Cw0IH4gu8GPIZ108RCILTXZcEsd60Ysnqnk0iRRq
+	4pbo1YHq6ajvoX6KXpy7gWkRw0euU0iLJWOZJZ/dAyp3piK9ot
+X-Google-Smtp-Source: AGHT+IHDQYQU+xgcIcym40SdSIPVCJL4E/vz3sWG3WXd+xmfQ1K9iSuwfFgvjeHeyY3RCG42umC9MA==
+X-Received: by 2002:a17:903:1a70:b0:295:28a4:f0f5 with SMTP id d9443c01a7336-29556476c7amr6429175ad.5.1762165299489;
+        Mon, 03 Nov 2025 02:21:39 -0800 (PST)
 Received: from google.com (164.210.142.34.bc.googleusercontent.com. [34.142.210.164])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7aa4f4c28easm4658013b3a.31.2025.11.03.02.16.59
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3407f26e0a6sm6205722a91.5.2025.11.03.02.21.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Nov 2025 02:17:06 -0800 (PST)
-Date: Mon, 3 Nov 2025 10:16:56 +0000
+        Mon, 03 Nov 2025 02:21:38 -0800 (PST)
+Date: Mon, 3 Nov 2025 10:21:28 +0000
 From: Pranjal Shrivastava <praan@google.com>
 To: Jason Gunthorpe <jgg@nvidia.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -93,10 +93,10 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
 	Yishai Hadas <yishaih@nvidia.com>,
 	Zhenyu Wang <zhenyuw.linux@gmail.com>,
 	Zhi Wang <zhi.wang.linux@gmail.com>, patches@lists.linux.dev
-Subject: Re: [PATCH 15/22] vfio: Add get_region_info_caps op
-Message-ID: <aQiBGEgQ3vCpCvXM@google.com>
+Subject: Re: [PATCH 20/22] vfio/platform: Convert to get_region_info_caps
+Message-ID: <aQiCKBl0ScO78Le9@google.com>
 References: <0-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
- <15-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+ <20-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -105,23 +105,24 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <15-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+In-Reply-To: <20-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
 
-On Thu, Oct 23, 2025 at 08:09:29PM -0300, Jason Gunthorpe wrote:
-> This op does the copy to/from user for the info and can return back
-> a cap chain through a vfio_info_cap * result.
+On Thu, Oct 23, 2025 at 08:09:34PM -0300, Jason Gunthorpe wrote:
+> Remove the duplicate code and change info to a pointer. caps are not used.
 > 
 > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 > ---
->  drivers/vfio/vfio_main.c | 54 +++++++++++++++++++++++++++++++++++++---
->  include/linux/vfio.h     |  4 +++
->  2 files changed, 54 insertions(+), 4 deletions(-)
+>  drivers/vfio/platform/vfio_amba.c             |  2 +-
+>  drivers/vfio/platform/vfio_platform.c         |  2 +-
+>  drivers/vfio/platform/vfio_platform_common.c  | 24 ++++++-------------
+>  drivers/vfio/platform/vfio_platform_private.h |  3 ++-
+>  4 files changed, 11 insertions(+), 20 deletions(-)
+>
 
-The newly added vfio_get_region_info seems to pull-in common boilerplate
-code (like copy_from_user, arg size validation) into the core code,
-removing redundancy across all other vfio drivers. LGTM.
+Removes all the boilerplate (copy_from_user, copy_to_user, argsz
+validation) and lets the VFIO core handle it.
 
 Reviewed-by: Pranjal Shrivastava <praan@google.com>
 
-Thanks,
+Thanks!
 Praan
