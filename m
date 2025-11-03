@@ -1,213 +1,153 @@
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03BC52EDD6F
-	for <linux-s390@vger.kernel.org>; Mon,  3 Nov 2025 09:57:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA6F82FCC10;
+	Mon,  3 Nov 2025 10:17:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762163863; cv=none; b=fZoLp1qpwetRXxpVVGuenG8V4QWZHU20Z6iJhBgQd35wVFOfvF+jUTpt7/VT2IsR9wEQgg7kq0Ne9yCImv8RTT7J9gnoCSXbKls/s7eWvQOjjdYN8mDVbo9jg+VBKKiwh9WJj7KF9V3Gc1fULu6mgiNNm4vO+7DfGT7kEiDdGWw=
+	t=1762165029; cv=none; b=W+qHpkBSFffTNsfzKuqFxULpgNDbRvhEQ4SWmGlq2S96UE0kDLn+fjxFRrc+UPsA+9Hrdd/6uN2euKtCKHS5wzzhUsboufdLVRUvW1cqTzukt4s2+OeG/LYgwwckWl2Ngf5fTcdx7715yxBBoxvOf7c8p8gCogrW2Dfm6EHDVAs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762163863; c=relaxed/simple;
-	bh=j9P0kJvHthnqO2tx4rHoHS+OgDbwMwn9qSk75uLg2Os=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=S92MDliFQvLx11eyuOFSR9n8+rLWoaWe4O6osDIDDu9dfTdfNXXiy98KcqBlv7rpdNDJyHGG2A71McOVUBrUkg4yUUfo87nG2n0p9sFV9OL3SDi6FQnoNByAsoDIHrEd93jmdV2lsLnWDRb4tAljbgBFZqtofcdFP+1JVjbbPRo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=i1s4PZDN; arc=none smtp.client-ip=209.85.128.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1762165029; c=relaxed/simple;
+	bh=Lu3DRFUz68s5hffqcbHlj9MCZY8fROLv0KQlDl/tQvs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tkpSIc9YJRI7cOw76uFl0GbwnZbBQUIJu9IlUAHoK41cpEvNtZr+8TxpTCNHxj/i+BiZVO+ym2y6vXgkevlnXsUPlqfWS7+LjCdM9xkWIuGaLsWAeulpl7NzBWL9TO6CsEuDl3dVOlNWjf0rGQoQ0TA0SjnTtEnwQdAyIY2wDc8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Yu1LxBl8; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="i1s4PZDN"
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-470ff2f6e56so81465e9.0
-        for <linux-s390@vger.kernel.org>; Mon, 03 Nov 2025 01:57:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1762163860; x=1762768660; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=4Gxg1uZruJtA4YMzZuNynPGAWW8m9xdZihRPr7yINg8=;
-        b=i1s4PZDNPFKv5xSnn/nHd5sHoQjnIsCEpx3eh/92JMdLsQWLpInFrT+o3hfxth5esU
-         aPOJfsyc9xth674t/eQ5Z1dhuqfWbxBGMYmqigs0nzSdFjjw/xlNJmNha4P/ciqMrwie
-         G7JbAfgemqUnwfDiFSvxpaixCtlDBIi8An0hnSUHWUjUhxYqiXyWlQuugmwddqlzkiPA
-         kbxTfLieVCF43J0qniegKcYpWiSP6SwtbwkDysJefLloP/HVclfovUoR6j+Mkj7CTMWI
-         zXZ4+tb/TDzgRLg+w3/1DpjU8/DzB+QHZeLqHvqCiQBYJDBRibg2Kzrz1VbL3s9cAIQx
-         u7/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762163860; x=1762768660;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4Gxg1uZruJtA4YMzZuNynPGAWW8m9xdZihRPr7yINg8=;
-        b=g4EbFAKT+dfqTBNw6oApjcnVZZSL3lC4YHwVHi/f++8QzJaY2LtUU1aSpVWBuHUUWY
-         lv2nrDFg6u7D7rDSzTEKji4eRxTRLvn1BQDhayofkOXKu/NxDtDbkcDH3VvWfSD27Z3N
-         X2DAIIFaAohM7HEFR4uHdZrpg8NqFcBIt7rIC6SqLJO8hF7CD+zAZPVRQhckrEF2GlD8
-         n48EmPIgANJFdm5f99y4/1QAguHulqvYntOPfD6w7M2ZGRWD6o1FjJRyo4jpShdb5te9
-         PaujeSsQUzlWMlnbBL/UDoIiXgtpiMinQylUHrb0jraPw2NVcJAJDrH3KbG5wH9/vYlp
-         dYRA==
-X-Forwarded-Encrypted: i=1; AJvYcCXEfteSWiYODDW9652bqF7HWNvl5IU3bmmBuRIH0PNr/Qa32yleGngPWG5rZtqabKxEL9uitEgxUD1B@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxo3iJA2hXvZFvXXFYC3ax5skcSpWvtjqY+phJFUMrH5rC1wodH
-	rU3YiknAcEy9N7PjGwoN+jJW4j83Q9hpOAjmSZiCBM65verTznBSSxTtbVGY/7PG+A==
-X-Gm-Gg: ASbGncv5yPXa9o3GEc0w7SBtKHsuJ/e5cxL1s4ssElWXSTv19tmmwo1XHX+0i7Q9Rjq
-	6EjIh3t1Ng1bBwU3CDyPXTaidxBx655EsBLbw7Y1jlu88C3QlKlkT1L8mURjfLFTmT7Gc8O+NTh
-	RSkn6TQAyY1y1ExbgrZjGw1+FImlsZC37IbGGhTje7Tn2IUfGTxEkbwl/CrZy1u/mjO3YzASHY2
-	SedbU1xi8SPKPx8YgufT56EMNP+Ks3+Wb0+NcPqVNX8TfJrJGC53wAoNT4b+gkt6EwWOMTYt4rN
-	8r8GfQLDBXiAi3BZM1ITaMG1Eq6gbRqB4iYoKkNVbVYf6hkMdtxECG78c1nLZ8/r/hOfPqQXrH6
-	uswC4Y3BNqaGuP09XPYzZ022v/evAO/HSd4Jb+mFuduOvp3+TfEz+YvxgpG+dJhDG17ta5tUzXC
-	i1QtL2lT0jEh4gbEgqpM1+WCR1aIoSu7GEUPoDTYC/cXPlrqbqug==
-X-Google-Smtp-Source: AGHT+IGLdHq84lPWuC9+6LJzgqfOJA4DO6nS6TVGXk5Ftt4X8sQj+LIHdpfQT0AOQR/zxEXR5CFwjw==
-X-Received: by 2002:a05:600c:8711:b0:45f:2940:d194 with SMTP id 5b1f17b1804b1-4773cdce892mr7234625e9.2.1762163860205;
-        Mon, 03 Nov 2025 01:57:40 -0800 (PST)
-Received: from google.com (54.140.140.34.bc.googleusercontent.com. [34.140.140.54])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-429c11182e3sm19786186f8f.11.2025.11.03.01.57.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Nov 2025 01:57:39 -0800 (PST)
-Date: Mon, 3 Nov 2025 09:57:36 +0000
-From: Mostafa Saleh <smostafa@google.com>
-To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-	David Airlie <airlied@gmail.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	Ankit Agrawal <ankita@nvidia.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Brett Creeley <brett.creeley@amd.com>,
-	dri-devel@lists.freedesktop.org, Eric Auger <eric.auger@redhat.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>, intel-gfx@lists.freedesktop.org,
-	Jani Nikula <jani.nikula@linux.intel.com>,
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-	Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
-	Kirti Wankhede <kwankhede@nvidia.com>, linux-s390@vger.kernel.org,
-	Longfang Liu <liulongfang@huawei.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Nikhil Agarwal <nikhil.agarwal@amd.com>,
-	Nipun Gupta <nipun.gupta@amd.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Pranjal Shrivastava <praan@google.com>, qat-linux@intel.com,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Simona Vetter <simona@ffwll.ch>,
-	Shameer Kolothum <skolothumtho@nvidia.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Tvrtko Ursulin <tursulin@ursulin.net>,
-	virtualization@lists.linux.dev,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	Yishai Hadas <yishaih@nvidia.com>,
-	Zhenyu Wang <zhenyuw.linux@gmail.com>,
-	Zhi Wang <zhi.wang.linux@gmail.com>, patches@lists.linux.dev
-Subject: Re: [PATCH 20/22] vfio/platform: Convert to get_region_info_caps
-Message-ID: <aQh8kE9DrbxS2x1e@google.com>
-References: <0-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
- <20-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Yu1LxBl8"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5A2Khw3v011187;
+	Mon, 3 Nov 2025 10:16:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=8bTqFCkmYKIUFPeaZNVkOdfYtf5t10OTsCmkV7+J7
+	3g=; b=Yu1LxBl8h+ZPOrLRaIPdYsEAnaq0d4wf5F05gDmnhtO3X7FtUMwcHVQrO
+	A035S5THPzP0dj8i+6wt5hs3G4+5LvaN1xq/tpkubfl3ZrZ8ji9nWc7wmanZtuQ0
+	KX5izFG+eCLKV3RYwTw6YxGKwXGcptZ/jK8q6iRWNqrOgTUS7mxkom3C4BoXRW2L
+	lRLl6UpHNcLqoydsnluLoLX+mNa4eBZugld7W5znpEatRYngYfZ/BbNu+oyfyCiv
+	PfvB8S5qa/GtElB8zAPYycDjekEcWztpDD8YRKOTLawjGm01eQJf5UyezAH/1+Kf
+	kVorCH1+YEEcrQsTgWawN+/OjxCFA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a57mqx5v4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 03 Nov 2025 10:16:58 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5A3A2u7o005859;
+	Mon, 3 Nov 2025 10:16:57 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a57mqx5v2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 03 Nov 2025 10:16:57 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5A36wp6T027379;
+	Mon, 3 Nov 2025 10:16:57 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4a5vwy579y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 03 Nov 2025 10:16:56 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5A3AGru155640534
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 3 Nov 2025 10:16:53 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0944D20067;
+	Mon,  3 Nov 2025 10:16:53 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D1C2920065;
+	Mon,  3 Nov 2025 10:16:52 +0000 (GMT)
+Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  3 Nov 2025 10:16:52 +0000 (GMT)
+From: Aswin Karuvally <aswin@linux.ibm.com>
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Simon Horman <horms@kernel.org>
+Subject: [PATCH net-next] s390/ctcm: Use info level for handshake UC_RCRESET
+Date: Mon,  3 Nov 2025 11:16:52 +0100
+Message-ID: <20251103101652.2349855-1-aswin@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: rJoTwJgMvK54ZXpp-q_DIGMzMq9RDv2M
+X-Authority-Analysis: v=2.4 cv=MKhtWcZl c=1 sm=1 tr=0 ts=6908811a cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
+ a=q5eb_lFJGzSj3ViXpxMA:9 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-ORIG-GUID: 0FrKvHcmofj7sqY2DobuyHsz_eVmGCEh
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTAxMDAwMSBTYWx0ZWRfX0IjT/FVqh6Pv
+ aQ/MU45KJrQAu1Pq0+7crsjlZ3uISFyrqegJ4FY4JEnrEq3nwBoWhnn9TS2n+rTirFjXttrF3ux
+ 5eBTbCwkbMiBf+Bqt+7PQrcyfl435Q9HRFmui7lugtZcic7qhpNH+os4v3ogEI8RXauSH/OvW+O
+ s84FWjxoi+PLuniOso/sbexrDZj2691zz64eQu/8dso7RIG5WROWaSYrHAN1VodOB5tnB5ZAjgS
+ pkdjiOO7y87ctb4b6dtvBJxzW4c1eR2AL+LarpSH2qXaIPB1/Yy6aJ227x2QBCQN+flqAoxhf8O
+ 9hLdrV0CVQD8C/VZYxfUwtLhCR8i+E7QPXfS+/bpfPNs3q26b54gV0S12xWoJ83uZeoBclzdRQr
+ mZYW3UJE1FEW90azyBgc5GU6vHnEhw==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-11-03_01,2025-10-29_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 suspectscore=0 bulkscore=0 impostorscore=0 clxscore=1011
+ lowpriorityscore=0 malwarescore=0 adultscore=0 phishscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511010001
 
-On Thu, Oct 23, 2025 at 08:09:34PM -0300, Jason Gunthorpe wrote:
-> Remove the duplicate code and change info to a pointer. caps are not used.
-> 
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+CTC adapter throws CTC_EVENT_UC_RCRESET (Unit check remote reset event)
+during initial handshake, if the peer is not ready yet. This causes the
+ctcm driver to re-attempt the handshake.
 
-Reviewed-by: Mostafa Saleh <smostafa@google.com>
+As it is normal for the event to occur during initialization, use info
+instead of warn level in kernel log and NOTICE instead of ERROR level
+in s390 debug feature. Also reword the log message for clarity.
 
-Also, I smoke tested this on Qemu.
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Signed-off-by: Aswin Karuvally <aswin@linux.ibm.com>
+---
+ drivers/s390/net/ctcm_fsms.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-Thanks,
-Mostafa
+diff --git a/drivers/s390/net/ctcm_fsms.c b/drivers/s390/net/ctcm_fsms.c
+index 9678c6a2cda7..1a48258b63b2 100644
+--- a/drivers/s390/net/ctcm_fsms.c
++++ b/drivers/s390/net/ctcm_fsms.c
+@@ -882,6 +882,13 @@ static void ctcm_chx_rxiniterr(fsm_instance *fi, int event, void *arg)
+ 			fsm_newstate(fi, CTC_STATE_RXERR);
+ 			fsm_event(priv->fsm, DEV_EVENT_RXDOWN, dev);
+ 		}
++	} else if (event == CTC_EVENT_UC_RCRESET) {
++		CTCM_DBF_TEXT_(TRACE, CTC_DBF_NOTICE,
++			       "%s(%s): %s in %s", CTCM_FUNTAIL, ch->id,
++			       ctc_ch_event_names[event], fsm_getstate_str(fi));
++
++		dev_info(&dev->dev,
++			 "Init handshake not received, peer not ready yet\n");
+ 	} else {
+ 		CTCM_DBF_TEXT_(ERROR, CTC_DBF_ERROR,
+ 			"%s(%s): %s in %s", CTCM_FUNTAIL, ch->id,
+@@ -967,6 +974,13 @@ static void ctcm_chx_txiniterr(fsm_instance *fi, int event, void *arg)
+ 			fsm_newstate(fi, CTC_STATE_TXERR);
+ 			fsm_event(priv->fsm, DEV_EVENT_TXDOWN, dev);
+ 		}
++	} else if (event == CTC_EVENT_UC_RCRESET) {
++		CTCM_DBF_TEXT_(TRACE, CTC_DBF_NOTICE,
++			       "%s(%s): %s in %s", CTCM_FUNTAIL, ch->id,
++			       ctc_ch_event_names[event], fsm_getstate_str(fi));
++
++		dev_info(&dev->dev,
++			 "Init handshake not sent, peer not ready yet\n");
+ 	} else {
+ 		CTCM_DBF_TEXT_(ERROR, CTC_DBF_ERROR,
+ 			"%s(%s): %s in %s", CTCM_FUNTAIL, ch->id,
+-- 
+2.48.1
 
-> ---
->  drivers/vfio/platform/vfio_amba.c             |  2 +-
->  drivers/vfio/platform/vfio_platform.c         |  2 +-
->  drivers/vfio/platform/vfio_platform_common.c  | 24 ++++++-------------
->  drivers/vfio/platform/vfio_platform_private.h |  3 ++-
->  4 files changed, 11 insertions(+), 20 deletions(-)
-> 
-> diff --git a/drivers/vfio/platform/vfio_amba.c b/drivers/vfio/platform/vfio_amba.c
-> index d600deaf23b6d7..fa754f203b2dfc 100644
-> --- a/drivers/vfio/platform/vfio_amba.c
-> +++ b/drivers/vfio/platform/vfio_amba.c
-> @@ -115,7 +115,7 @@ static const struct vfio_device_ops vfio_amba_ops = {
->  	.open_device	= vfio_platform_open_device,
->  	.close_device	= vfio_platform_close_device,
->  	.ioctl		= vfio_platform_ioctl,
-> -	.get_region_info = vfio_platform_ioctl_get_region_info,
-> +	.get_region_info_caps = vfio_platform_ioctl_get_region_info,
->  	.read		= vfio_platform_read,
->  	.write		= vfio_platform_write,
->  	.mmap		= vfio_platform_mmap,
-> diff --git a/drivers/vfio/platform/vfio_platform.c b/drivers/vfio/platform/vfio_platform.c
-> index 0e85c914b65105..a4d3ace3e02dda 100644
-> --- a/drivers/vfio/platform/vfio_platform.c
-> +++ b/drivers/vfio/platform/vfio_platform.c
-> @@ -101,7 +101,7 @@ static const struct vfio_device_ops vfio_platform_ops = {
->  	.open_device	= vfio_platform_open_device,
->  	.close_device	= vfio_platform_close_device,
->  	.ioctl		= vfio_platform_ioctl,
-> -	.get_region_info = vfio_platform_ioctl_get_region_info,
-> +	.get_region_info_caps = vfio_platform_ioctl_get_region_info,
->  	.read		= vfio_platform_read,
->  	.write		= vfio_platform_write,
->  	.mmap		= vfio_platform_mmap,
-> diff --git a/drivers/vfio/platform/vfio_platform_common.c b/drivers/vfio/platform/vfio_platform_common.c
-> index 3ebd50fb78fbb7..c2990b7e900fa5 100644
-> --- a/drivers/vfio/platform/vfio_platform_common.c
-> +++ b/drivers/vfio/platform/vfio_platform_common.c
-> @@ -273,30 +273,20 @@ int vfio_platform_open_device(struct vfio_device *core_vdev)
->  EXPORT_SYMBOL_GPL(vfio_platform_open_device);
->  
->  int vfio_platform_ioctl_get_region_info(struct vfio_device *core_vdev,
-> -					struct vfio_region_info __user *arg)
-> +					struct vfio_region_info *info,
-> +					struct vfio_info_cap *caps)
->  {
->  	struct vfio_platform_device *vdev =
->  		container_of(core_vdev, struct vfio_platform_device, vdev);
-> -	struct vfio_region_info info;
-> -	unsigned long minsz;
->  
-> -	minsz = offsetofend(struct vfio_region_info, offset);
-> -
-> -	if (copy_from_user(&info, arg, minsz))
-> -		return -EFAULT;
-> -
-> -	if (info.argsz < minsz)
-> -		return -EINVAL;
-> -
-> -	if (info.index >= vdev->num_regions)
-> +	if (info->index >= vdev->num_regions)
->  		return -EINVAL;
->  
->  	/* map offset to the physical address  */
-> -	info.offset = VFIO_PLATFORM_INDEX_TO_OFFSET(info.index);
-> -	info.size = vdev->regions[info.index].size;
-> -	info.flags = vdev->regions[info.index].flags;
-> -
-> -	return copy_to_user(arg, &info, minsz) ? -EFAULT : 0;
-> +	info->offset = VFIO_PLATFORM_INDEX_TO_OFFSET(info->index);
-> +	info->size = vdev->regions[info->index].size;
-> +	info->flags = vdev->regions[info->index].flags;
-> +	return 0;
->  }
->  EXPORT_SYMBOL_GPL(vfio_platform_ioctl_get_region_info);
->  
-> diff --git a/drivers/vfio/platform/vfio_platform_private.h b/drivers/vfio/platform/vfio_platform_private.h
-> index a6008320e77bae..05084212a76eb6 100644
-> --- a/drivers/vfio/platform/vfio_platform_private.h
-> +++ b/drivers/vfio/platform/vfio_platform_private.h
-> @@ -86,7 +86,8 @@ void vfio_platform_close_device(struct vfio_device *core_vdev);
->  long vfio_platform_ioctl(struct vfio_device *core_vdev,
->  			 unsigned int cmd, unsigned long arg);
->  int vfio_platform_ioctl_get_region_info(struct vfio_device *core_vdev,
-> -					struct vfio_region_info __user *arg);
-> +					struct vfio_region_info *info,
-> +					struct vfio_info_cap *caps);
->  ssize_t vfio_platform_read(struct vfio_device *core_vdev,
->  			   char __user *buf, size_t count,
->  			   loff_t *ppos);
-> -- 
-> 2.43.0
-> 
