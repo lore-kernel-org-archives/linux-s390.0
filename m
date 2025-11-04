@@ -1,129 +1,204 @@
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D479526ED5F
-	for <linux-s390@vger.kernel.org>; Tue,  4 Nov 2025 08:49:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 927195D8F0;
+	Tue,  4 Nov 2025 08:51:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762246170; cv=none; b=T4BvralZo1fzvQlkyyDbQHST7SZKvubkvneiOfiKa2DFNyVI9lzIV0whM21vIXAp4ksgfQOq9qOzpu/GuU2mdhS1FikvlkPk1x2cez23Fe6ROeZI6HJE2ftGqSAQ2JN9/Rz3ou892Usm1PQMTO26A6TKYYgABXZGgHw0kANMLpM=
+	t=1762246288; cv=none; b=biVOlYDyZHca9WZXlW6GPVYw6i4VHtaHL/uGLB5k5Ou/JGZn1gt2UVJLfbtc73806TESoJlORkGsiz/3u48u/j+dZ3NfEioUf0X/W2y2QCn3okT2Av6jRAIw/aztOPWoa2nXvU1uCbY07ST90JZgDut3AgFWjtFPCbEoA2YE0Ag=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762246170; c=relaxed/simple;
-	bh=bwGYumF3/kIIW+zzveEhCKzNJ0ATBCRDR2j8OQO/23Q=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DhzmW261LiFxhVQSeLd0zPFg4In+cc88Ld0Mv1j3A4aw73zpXzwBI07lr/Aie8ctQqIjn70ovsWnb5BpVpvRB1UBniOO2y9gNcADrS51SQS8YqSnNBTWD1F5u+LYf+O/PJo/lkFQYuR/nlsZ7WWSiEExdx5EzogGLVgAnVHdEM0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=B8C3XyMb; arc=none smtp.client-ip=209.85.214.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1762246288; c=relaxed/simple;
+	bh=fBOHBtTBNYAfORE7Ww0mntVd8j7j57lr5K25kuMAsLY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=XYJQOylePxHuv9j2KwbKc9BX8V1gpyyNxD1Rd/u0C1JgQjaS4FP7YQIG5k94dxjaysNGmwORV/LHNkELNfndvuVPjEBm+MTs1Kj64CUkyuk5ukoCjN6tWPYkEOMlYIlMtes4JRK93Lqxz9B2EzK2PNkzuJIv9ozh/JeGVqSWn+o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SGp64tuA; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B8C3XyMb"
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-294fb21b160so37321185ad.1
-        for <linux-s390@vger.kernel.org>; Tue, 04 Nov 2025 00:49:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1762246168; x=1762850968; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=vZzjlCCT3j9j2Nd7pQrTgnxvKhulGcz35Gruny6M5Bw=;
-        b=B8C3XyMb9sztvNGcLQuH6oELUi82MwvYPXNmWWwVZIXfJq8n/xMbwV71TvTKuLCkJZ
-         xhN1jiesHsMzW3f5vJ5e/b/BdlT36STvsi2Pz9VXlkWjzW28wHdkMaGfdW4prBvnhyDS
-         MnBB0MWpzyg0WAbTKOcRL0HEqKKGGILWd1tYLmmM9mltkl2NNjAMKWQQu+5GQ4dZkI/v
-         LFfZUOu3NcG6JQhKzcrj4R1hnhUnY1lN9PJLWHKdhJY97SOZQKbSJg/lRiPjkrecRkot
-         Uqpm7EI7EdWWIfftAaBZjndccgCh+JhKr1Zy6PsTyIwKgLM4nLR67MZ8H00wsYwfKZIe
-         Jqvg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762246168; x=1762850968;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=vZzjlCCT3j9j2Nd7pQrTgnxvKhulGcz35Gruny6M5Bw=;
-        b=T32Nca/nhjB9dweCorDBFLJER1aA0u5NT1Kly1SQM53js6QsF9KgtrPv7v4OsKJm5s
-         yDMOA9YicEq3zT0axq8Q7yo3D+AGQ5unaXN9UjoUQCFvfhSvyLIg2LCCR3D9I+AHoIME
-         PlvMTw9h3wXafRX4rdZy8AD4G6yu5SlKjNAuSmXmJhb3dsUQS5QlNmMDV+KgwuCEcWei
-         1nqfiEr2lKde13L3vNjH3nTGhMCqBd78Ci60yV8/f7wsxW2RYHwuZo59zIaqzZ+Kapgu
-         zyKCJkHWBl6VtQw9kSSMIpjDub4vvznEL+5CjcFodozrEjqjrLSy1tD1LIdUa93llmuC
-         0Odg==
-X-Forwarded-Encrypted: i=1; AJvYcCXVU7essQTg0AqJfH5tXKoPiq18ilqjIAezK106A79oliZEUJ/XF0nIpyTmt0uNr9ucCm/TArjnLIaC@vger.kernel.org
-X-Gm-Message-State: AOJu0YwZ4WhwnyHGmpSyAVQMJzokp5oduEJWb5yOTgCxiLLsBkR1NvWq
-	EDWjXHslvw50lw5CwUKnm8rJuULkUrKGenWoXywMM2JZBLz8WhUOVlNV
-X-Gm-Gg: ASbGnctEe0Cpyu2jL+55h08RKGQOh6qQmGtOJi7thBUKRQaqiv5BGZqDCq5zdBhcgYz
-	gdk17kEc8dbDzp3NBdnONFpXoiqlN5cVYZdyu22YXcv1DxwXHPmw7A9KVFRP+1788TZH8tkh6dZ
-	QlrmuJP9dGPmptGJaI3v+dQXkV3j/WRXxkQt+Hy9VCW1jV8ov9j+OKUrKWfemZ0AVS3DlfhIjp9
-	4ouL4vV1QA77Df3lwyV015Aw6GPWT4dPXft28dRdnxFo3asOWw31hVmb5npI/UHZxWQw+8ZiCZ1
-	sbsuiuzUIJbm+QobmiFyPRm5yo3PyinbPyf4doWWgaEjgDLBqBL8v3X6uD9j6JUVi2YGhio5aoK
-	++m+EI1YY3h1ZmzXn6bkvoogBTDyiKbSuZZwZHNWlyQAUlHHQKkoQ8EJZDRLExQs1ETnNkwIBrX
-	sudcRn7WEErVM9WtbxCRSnGg==
-X-Google-Smtp-Source: AGHT+IEjMIiSe0x3JjyWJftYAjRTnLk4yj1+5guJH64mFdGd5LprT3gQcg1E9FYpKQf1UnNjUVPGcA==
-X-Received: by 2002:a17:902:e801:b0:295:7f3f:b943 with SMTP id d9443c01a7336-2957f3fd4d1mr114855785ad.28.1762246167913;
-        Tue, 04 Nov 2025 00:49:27 -0800 (PST)
-Received: from iku.. ([2401:4900:1c06:600d:d663:3d9f:b9aa:53e6])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3415c8b5cc1sm3692393a91.18.2025.11.04.00.49.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Nov 2025 00:49:27 -0800 (PST)
-From: Lad Prabhakar <prabhakar.csengg@gmail.com>
-X-Google-Original-From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-To: thomas.weissschuh@linutronix.de
-Cc: Jason@zx2c4.com,
-	agordeev@linux.ibm.com,
-	andreas@gaisler.com,
-	arnd@arndb.de,
-	borntraeger@linux.ibm.com,
-	catalin.marinas@arm.com,
-	chenhuacai@kernel.org,
-	christophe.leroy@csgroup.eu,
-	davem@davemloft.net,
-	glaubitz@physik.fu-berlin.de,
-	gor@linux.ibm.com,
-	hca@linux.ibm.com,
-	jstultz@google.com,
-	kernel@xen0n.name,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linux-kselftest@vger.kernel.org,
-	linux-mips@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux@armlinux.org.uk,
-	linuxppc-dev@lists.ozlabs.org,
-	loongarch@lists.linux.dev,
-	luto@kernel.org,
-	maddy@linux.ibm.com,
-	mpe@ellerman.id.au,
-	nagarathnam.muthusamy@oracle.com,
-	nick.alcock@oracle.com,
-	npiggin@gmail.com,
-	sboyd@kernel.org,
-	shuah@kernel.org,
-	sln@onemain.com,
-	sparclinux@vger.kernel.org,
-	svens@linux.ibm.com,
-	tglx@linutronix.de,
-	tsbogend@alpha.franken.de,
-	tytso@mit.edu,
-	vincenzo.frascino@arm.com,
-	will@kernel.org,
-	Prabhakar <prabhakar.csengg@gmail.com>,
-	linux-renesas-soc@vger.kernel.org
-Subject: Re: [tip: timers/vdso] vdso/datastore: Allocate data pages dynamically
-Date: Tue,  4 Nov 2025 08:49:11 +0000
-Message-ID: <20251104084911.6961-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20251014-vdso-sparc64-generic-2-v4-24-e0607bf49dea@linutronix.de>
-References: <20251014-vdso-sparc64-generic-2-v4-24-e0607bf49dea@linutronix.de>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SGp64tuA"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5A40wuxa025577;
+	Tue, 4 Nov 2025 08:51:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=cgPVl8
+	07fg3HR0iyDkr5HA0gSFYzqz/O+8EjiXgNNuE=; b=SGp64tuAl1n1O75Y9MRPEy
+	UNquXNDTe0hDeQ6J9/BBOK22Rub+Ke5EmjbJPAFnvSvTplAcaGw8hGCw94ygHqfU
+	F3y4wpQAPRhMWLKQzKG2Ti5ScVw+yhbwdq77sNmHIGDTuAzH9yIGE05Is/jzzmUI
+	TYb1o3Vgge87qKrEPJ4CWPOlkvfJ43gahlhlhzwBUgc0e7faO7oVcHVnQXPXvAas
+	ooLlKQ4pjv6GR7ZyGplRRL5JbPm3DvqlShgLSino42g+fis/KOhzbT/zKPt2FQzk
+	dwGLk0HYdDklh/lI8Vf1OhOemN8j8Moh7EKfptBcGVhJ85blSmdAxilKVoNiy8+g
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a59vuay4s-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 04 Nov 2025 08:51:15 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5A47xMiI020998;
+	Tue, 4 Nov 2025 08:51:15 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a59vuay4p-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 04 Nov 2025 08:51:14 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5A47o8DU012923;
+	Tue, 4 Nov 2025 08:51:14 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4a5y81swd5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 04 Nov 2025 08:51:13 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5A48pAjU30015774
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 4 Nov 2025 08:51:10 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4429220049;
+	Tue,  4 Nov 2025 08:51:10 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0A2B92004D;
+	Tue,  4 Nov 2025 08:51:10 +0000 (GMT)
+Received: from [9.152.210.132] (unknown [9.152.210.132])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  4 Nov 2025 08:51:09 +0000 (GMT)
+Message-ID: <5f415b7e-3557-4fa0-a0f9-f5643c1c7528@linux.ibm.com>
+Date: Tue, 4 Nov 2025 09:51:09 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net/smc: fix mismatch between CLC header and proposal
+ extensions
+To: "D. Wythe" <alibuda@linux.alibaba.com>
+Cc: mjambigi@linux.ibm.com, wenjia@linux.ibm.com, dust.li@linux.alibaba.com,
+        tonylu@linux.alibaba.com, guwen@linux.alibaba.com, kuba@kernel.org,
+        davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        pabeni@redhat.com, edumazet@google.com, sidraya@linux.ibm.com,
+        jaka@linux.ibm.com
+References: <20251031031828.111364-1-alibuda@linux.alibaba.com>
+ <95bd9c85-8241-4040-bbd0-bcac3ffc78f7@linux.ibm.com>
+ <20251104070828.GA36449@j66a10360.sqa.eu95>
+Content-Language: en-US
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20251104070828.GA36449@j66a10360.sqa.eu95>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: kiLWufkC6oXRBzEx9o1-DtQDnyxGneYq
+X-Proofpoint-GUID: KTNSXpGM43PnbJQfapaxT1egtmB2M6ju
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTAxMDAyMSBTYWx0ZWRfX6lnAvCFoK+Aj
+ som7tXlk2I4tqPoCodNem3UBqe9ooGFhxZtmcSrSDi74WHl6RJ0THrIZ8+dnn2VywqEiRLk/tYc
+ /aEy+7tcjLnw7a9Vb6g995X3E6ePq+piRmioxncftvSgcIVEUdMb1BuDUeVe0PJKPZbK3rfjWw1
+ z8dTyY9YTJLJkMEHZzyvXyh0pj2uy9U9qKyJ8++q9iGsnnoAFq2nG+Jn33Jf8hPhuG8fCa0Ubqt
+ C7D8+VWUGzQQ/nP16iuiA0/6LbbOFhHTJWFfYJXqVcpmYLrGwSrQkRDLF6iIJIDlcoHYujAAvOo
+ 8sVnW6jIT+eu8nUnxV/ONGIPfpxjkV1V8C8dkwvLfczLhK/L/PuL5k/fADkMkWq+40YusL50rBc
+ hyTKP2e6LDoi4h8Yr/lpzIFlHDMWfQ==
+X-Authority-Analysis: v=2.4 cv=U6qfzOru c=1 sm=1 tr=0 ts=6909be83 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=LDwyJIfZ9AC3-zDn7cAA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-11-03_06,2025-11-03_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 adultscore=0 impostorscore=0 spamscore=0 phishscore=0
+ clxscore=1015 malwarescore=0 lowpriorityscore=0 suspectscore=0
+ priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2511010021
 
-This commit breaks boot on Renesas arm64 RZ/V2H and RZ/V2N platforms.
 
-The boot process doesn't complete anymore with no obvious error logs to
-indicate the cause of the failure.
 
-Reverting the following two commits fixes the boot issue:
-  10d91dac2ea5 ("vdso/datastore: Allocate data pages dynamically")
-  6a011a228293 ("vdso/datastore: Map pages through struct page")
+On 04.11.25 08:08, D. Wythe wrote:
+> On Mon, Nov 03, 2025 at 09:28:22AM +0100, Alexandra Winter wrote:
+>>
+>>
+>> On 31.10.25 04:18, D. Wythe wrote:
+>>> The current CLC proposal message construction uses a mix of
+>>> `ini->smc_type_v1/v2` and `pclc_base->hdr.typev1/v2` to decide whether
+>>> to include optional extensions (IPv6 prefix extension for v1, and v2
+>>> extension). This leads to a critical inconsistency: when
+>>> `smc_clc_prfx_set()` fails - for example, in IPv6-only environments with
+>>> only link-local addresses, or when the local IP address and the outgoing
+>>> interface’s network address are not in the same subnet.
+>>>
+>>> As a result, the proposal message is assembled using the stale
+>>> `ini->smc_type_v1` value—causing the IPv6 prefix extension to be
+>>> included even though the header indicates v1 is not supported.
+>>> The peer then receives a malformed CLC proposal where the header type
+>>> does not match the payload, and immediately resets the connection.
+>>>
+>>> Fix this by consistently using `pclc_base->hdr.typev1` and
+>>> `pclc_base->hdr.typev2`—the authoritative fields that reflect the
+>>> actual capabilities advertised in the CLC header—when deciding whether
+>>> to include optional extensions, as required by the SMC-R v2
+>>> specification ("V1 IP Subnet Extension and V2 Extension only present if
+>>> applicable").
+>>
+>>
+>> Just thinking out loud:
+>> It seems to me that the 'ini' structure exists once per socket and is used
+>> to pass information between many functions involved with the handshake.
+>> Did you consider updating ini->smc_type_v1/v2 when `smc_clc_prfx_set()` fails,
+>> and using ini as the authoritative source?
+>> With your patch, it seems to me `ini->smc_type_v1` still contains a stale value,
+>> which may lead to issues in other places or future code.
+> 
+> Based on my understanding, ini->smc_type_v1/v2 represents the local
+> device's inherent hardware capabilities. This value is a static property
+> and, from my perspective, should remain immutable, independent of
+> transient network conditions such as invalid IPv6 prefixes or GID
+> mismatches. Therefore, I believe modifying this field within
+> smc_clc_send_proposal() might not be the most appropriate approach.
 
-Cheers,
-Prabhakar
+
+'ini' is allocated in __smc_connect() and in smc_listen_work().
+So it seems to me the purpose of 'ini' is to store information about the
+current connection, not device's inherent hardware capabilities.
+
+Fields like ini->smc_type_v1/v2 and ini->smcd/r_version are adjusted in
+multiple places during the handshake.
+I must say that the usage of these fields is confusing and looks somehow
+redundant to me.
+But looking at pclc_base->hdr.typev1/v2, as yet another source of
+information doesn't make things cleaner IMO.
+
+
+> 
+> In contrast, pclc_base->hdr.typev1/v2 reflects the actual capabilities
+> negotiated for a specific connection—what we might term "soft
+> capabilities." These can, and often do, dynamically adjust based on
+> current network conditions (e.g., in the event of a prefix validation
+> failure) and could potentially be restored if network conditions
+> improve.
+
+I don't understand.
+The pclc block is freed at the end of smc_clc_send_proposal(). Its
+only purpose is to be sent out as intitial proposal. How could you
+restore it if network conditions improve?
+
+
+> 
+> Furthermore, once CLC negotiation is complete, the SMC protocol stack
+> relies exclusively on these negotiated results for all subsequent
+> operations. It no longer refers to the initial capability values stored
+> in ini. 
+
+Could you give an example where these negotiated results are referred?
+Or do you mean within smc_clc_send_proposal()? The pclc block is freed
+at the end of smc_clc_send_proposal(), so where is that result stored?
+
+
+> Consequently, maintaining ini->smc_type_v1/v2 in its original,
+> unaltered state appears to present no practical risks or functional
+> issues.
+
+Even if nobody reads these fields today after smc_clc_send_proposal(),
+I don't think it is good design to leave stale values there and hope
+future editors will understand that.
+I understand your patch fixes the observed problem. I am just wondering,
+whether it makes the code more maintainable or even more confusing than before.
