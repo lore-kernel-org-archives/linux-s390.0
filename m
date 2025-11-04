@@ -1,107 +1,171 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63458301717;
-	Tue,  4 Nov 2025 07:08:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6F8D313524;
+	Tue,  4 Nov 2025 08:44:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762240122; cv=none; b=kjo/TJF4jgod7r7pL1+OkE7HBGO8hQCeSLKpXFQ75GiX0FuCJJ/bURdxIUDvPBPKyExbj+soINCL+8NhleiiSY9Wp/8V5DgaJOOlvvBhYI4fOJBTC2IEdYEaw+JIeC246BGMtnjUrbzLX/cX10uV6pfhGup2/Ggpnd12Twusbyw=
+	t=1762245887; cv=none; b=FVhpXDpjgEl3ncFWz67hVuLc170caS2QZHOhdMLoA11zOJ8vek153JqL9Js8ecopWrQzAebJGowYHl60YnIclpXjJIQZk3Ugwp0UzyTBbVQkQRNayFCxpxX7jNR+zHbe8iCzIPb4R7c2w+k7nV7k4Dus6gkjWHOGC0vVxCY/RpI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762240122; c=relaxed/simple;
-	bh=sAOdPGYCPCwYsQtkPo4GCjFg3Nkx257mkO4wArX6Rsk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ebI8wXXkrlhR18fv8pMYV85jtHfKhEuwq1TfqOa4qe2qYqPhmKNEimdLCCrUpnknnf6dXG9UEV5BNzrqEovhahApLk2BWANPFIW4Mxh09In25RRYWyprNkkhM7N4Z1hBrh8IaEMFDurvmfdkC0F1xWMJSk4psMh1Gc51JW3dZ8o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=uvmRyMJK; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1762245887; c=relaxed/simple;
+	bh=NToKopaiiCorKnog1Ua+Guz58w6YXipmGADFT5V1BS8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
+	 Content-Type:References; b=t1xXNMMMUwqyl7FyunoSk9XmT3YULkeEiVeY/pYtYhAzzmTYN5s8qN3BoWT47vXE3vpmIg67zTD5zRSmIlfR20LRGfQf6IiEVzBBas6i6xWFe0DurgoHryoSv1deDddIGbhXl9U2FctGmOj9pAFfeUuiDGDOoul6ESVPSjkw6l0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=NIfzfLaK; arc=none smtp.client-ip=210.118.77.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="uvmRyMJK"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1762240109; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=tHAZePd0ycu1VN9/wUJ5tt4FKrADODcsk8LpTvkJW0o=;
-	b=uvmRyMJK9nrx3opM7Qwm2SslFZ4XtYTvxBJo3ikH2l2tGewGCUsA4JaQeUo6JuCISHg0Jbfi47fcOPAfFRBDlgUxAQgQ5pmfNPBa+v14rTiG2Flym22QfQM/isb7KtHLxBilJza+jqcrjZ6AmviplzOCQMgOWOpzYs73ENHSd/A=
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0Wrg8odg_1762240108 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 04 Nov 2025 15:08:28 +0800
-Date: Tue, 4 Nov 2025 15:08:28 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com    >
-To: Alexandra Winter <wintera@linux.ibm.com>
-Cc: "D. Wythe" <alibuda@linux.alibaba.com>, mjambigi@linux.ibm.com,
-	wenjia@linux.ibm.com, dust.li@linux.alibaba.com,
-	tonylu@linux.alibaba.com, guwen@linux.alibaba.com, kuba@kernel.org,
-	davem@davemloft.net, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-	pabeni@redhat.com, edumazet@google.com, sidraya@linux.ibm.com,
-	jaka@linux.ibm.com
-Subject: Re: [PATCH net] net/smc: fix mismatch between CLC header and
- proposal extensions
-Message-ID: <20251104070828.GA36449@j66a10360.sqa.eu95>
-References: <20251031031828.111364-1-alibuda@linux.alibaba.com>
- <95bd9c85-8241-4040-bbd0-bcac3ffc78f7@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="NIfzfLaK"
+Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
+	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20251104084442euoutp0102088d40135302607f87347b0dc37851~0wUsqg9XY0417804178euoutp01G;
+	Tue,  4 Nov 2025 08:44:42 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20251104084442euoutp0102088d40135302607f87347b0dc37851~0wUsqg9XY0417804178euoutp01G
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1762245882;
+	bh=4Fu9AdCheOvxz3Im1FXmK3GvN5Xitn31VIJ6mONdECE=;
+	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
+	b=NIfzfLaKbrHZu0Gnes91/bNFpnUi+PCBujRxqfn1+x6PF4bWcGMTESoPuAVb8BCNe
+	 TtlBUOWDuOkNSnmVQ30DXStAE0ZC8Og/doIluRR7N6u64puk7uGLaCr147tEyKOLdV
+	 mk1n6uHGDW++q0sGM+SWQUfE/wNIAUBaBoIJ+ACU=
+Received: from eusmtip2.samsung.com (unknown [203.254.199.222]) by
+	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
+	20251104084442eucas1p2af1bd88393f4d6a532df1cd41f32a287~0wUr8pCub0922509225eucas1p2b;
+	Tue,  4 Nov 2025 08:44:42 +0000 (GMT)
+Received: from [106.210.134.192] (unknown [106.210.134.192]) by
+	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
+	20251104084440eusmtip27dfa57d3ff654ed50f16a811242c3a65~0wUqFptgI2591225912eusmtip2U;
+	Tue,  4 Nov 2025 08:44:39 +0000 (GMT)
+Message-ID: <e7f05748-a11c-47eb-b1fa-cdc9dc6d05e0@samsung.com>
+Date: Tue, 4 Nov 2025 09:44:38 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Betterbird (Windows)
+Subject: Re: [PATCH v4 23/35] vdso/datastore: Map pages through struct page
+To: Mark Brown <broonie@kernel.org>, =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?=
+	<thomas.weissschuh@linutronix.de>
+Cc: Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
+	Vincenzo Frascino <vincenzo.frascino@arm.com>, Arnd Bergmann
+	<arnd@arndb.de>, "David S. Miller" <davem@davemloft.net>, Andreas Larsson
+	<andreas@gaisler.com>, Nick Alcock <nick.alcock@oracle.com>, John Stultz
+	<jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>, John Paul Adrian
+	Glaubitz <glaubitz@physik.fu-berlin.de>, Shuah Khan <shuah@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+	Theodore Ts'o <tytso@mit.edu>, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+	Russell King <linux@armlinux.org.uk>, Madhavan Srinivasan
+	<maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas
+	Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, Thomas
+	Bogendoerfer <tsbogend@alpha.franken.de>, Heiko Carstens
+	<hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+	<agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, Nagarathnam Muthusamy
+	<nagarathnam.muthusamy@oracle.com>, Shannon Nelson <sln@onemain.com>,
+	linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
+	linux-kselftest@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+	linux-mips@vger.kernel.org, linux-s390@vger.kernel.org,
+	Aishwarya.TCV@arm.com
+Content-Language: en-US
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+In-Reply-To: <aQjJNmwniQwwjeBR@finisterre.sirena.org.uk>
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <95bd9c85-8241-4040-bbd0-bcac3ffc78f7@linux.ibm.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+X-CMS-MailID: 20251104084442eucas1p2af1bd88393f4d6a532df1cd41f32a287
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20251104084442eucas1p2af1bd88393f4d6a532df1cd41f32a287
+X-EPHeader: CA
+X-CMS-RootMailID: 20251104084442eucas1p2af1bd88393f4d6a532df1cd41f32a287
+References: <20251014-vdso-sparc64-generic-2-v4-0-e0607bf49dea@linutronix.de>
+	<20251014-vdso-sparc64-generic-2-v4-23-e0607bf49dea@linutronix.de>
+	<aQjJNmwniQwwjeBR@finisterre.sirena.org.uk>
+	<CGME20251104084442eucas1p2af1bd88393f4d6a532df1cd41f32a287@eucas1p2.samsung.com>
 
-On Mon, Nov 03, 2025 at 09:28:22AM +0100, Alexandra Winter wrote:
-> 
-> 
-> On 31.10.25 04:18, D. Wythe wrote:
-> > The current CLC proposal message construction uses a mix of
-> > `ini->smc_type_v1/v2` and `pclc_base->hdr.typev1/v2` to decide whether
-> > to include optional extensions (IPv6 prefix extension for v1, and v2
-> > extension). This leads to a critical inconsistency: when
-> > `smc_clc_prfx_set()` fails - for example, in IPv6-only environments with
-> > only link-local addresses, or when the local IP address and the outgoing
-> > interface’s network address are not in the same subnet.
-> > 
-> > As a result, the proposal message is assembled using the stale
-> > `ini->smc_type_v1` value—causing the IPv6 prefix extension to be
-> > included even though the header indicates v1 is not supported.
-> > The peer then receives a malformed CLC proposal where the header type
-> > does not match the payload, and immediately resets the connection.
-> > 
-> > Fix this by consistently using `pclc_base->hdr.typev1` and
-> > `pclc_base->hdr.typev2`—the authoritative fields that reflect the
-> > actual capabilities advertised in the CLC header—when deciding whether
-> > to include optional extensions, as required by the SMC-R v2
-> > specification ("V1 IP Subnet Extension and V2 Extension only present if
-> > applicable").
-> 
-> 
-> Just thinking out loud:
-> It seems to me that the 'ini' structure exists once per socket and is used
-> to pass information between many functions involved with the handshake.
-> Did you consider updating ini->smc_type_v1/v2 when `smc_clc_prfx_set()` fails,
-> and using ini as the authoritative source?
-> With your patch, it seems to me `ini->smc_type_v1` still contains a stale value,
-> which may lead to issues in other places or future code.
+On 03.11.2025 16:24, Mark Brown wrote:
+> On Tue, Oct 14, 2025 at 08:49:09AM +0200, Thomas Weißschuh wrote:
+>
+>> An upcoming change will allocate the datapages dynamically instead of as
+>> part of the kernel image. Such pages can only be mapped through
+>> 'struct page' and not through PFNs.
+> I'm seeing some boot failures on some arm64 platforms in -next which are
+> bisecting to this patch in -next.  Unfortunately the diagnostics aren't
+> super useful, we seem to just stop making progress in userspace with no
+> obvious output.  One sample log from the FVP is:
+>
+>     https://lava.sirena.org.uk/scheduler/job/2036229#L1268
+>
+> which isn't super instructive.  Not all platforms seem to be affected,
+> I've seen this on at least the Arm FVP, Orion O6 and Libretech Renegade
+> Elite.  The diagnostics aren't very clear here but given that I'm seeing
+> the same issue and bisect result on multiple platforms it seemed worth
+> mentioning.  Some platforms do seem fine.
+>
+> We do have some other serious breakage affecting arm64 in -next which
+> are making it hard to get a clear picture of which platforms are
+> affected, at least the FVP and O6 are unaffected by those other issues
+> (due to using MTE on platforms that don't have it, those platforms do
+> have MTE).
 
-Based on my understanding, ini->smc_type_v1/v2 represents the local
-device's inherent hardware capabilities. This value is a static property
-and, from my perspective, should remain immutable, independent of
-transient network conditions such as invalid IPv6 prefixes or GID
-mismatches. Therefore, I believe modifying this field within
-smc_clc_send_proposal() might not be the most appropriate approach.
+I got almost the same result while bisecting on ARM 32bit Exynos-based 
+boards, so the issue with this patchset is not fully ARM64 specific. For 
+some reasons it also doesn't affect all systems though. It is even 
+worse, because it affected only a subset of boards, but different for 
+each tested commit. The observed failure looks exactly the same:
 
-In contrast, pclc_base->hdr.typev1/v2 reflects the actual capabilities
-negotiated for a specific connection—what we might term "soft
-capabilities." These can, and often do, dynamically adjust based on
-current network conditions (e.g., in the event of a prefix validation
-failure) and could potentially be restored if network conditions
-improve.
+...
 
-Furthermore, once CLC negotiation is complete, the SMC protocol stack
-relies exclusively on these negotiated results for all subsequent
-operations. It no longer refers to the initial capability values stored
-in ini. Consequently, maintaining ini->smc_type_v1/v2 in its original,
-unaltered state appears to present no practical risks or functional
-issues.
+[   10.199852] devtmpfs: mounted
+[   10.205013] Freeing unused kernel image (initmem) memory: 1024K
+[   10.210086] Run /sbin/init as init process
+
+INIT: version 2.88 booting
+
+(no more messages)
+
+The only difference is that bisecting on ARM32bit lead me to the next 
+patch (10d91dac2ea5 ("vdso/datastore: Allocate data pages dynamically") 
+/ [PATCH v4 24/35]).
+
+Then I've tested it on ARM64bit (RaspberrryPi3b+ board) and got the 
+following panic on 6a011a228293 ("vdso/datastore: Map pages through 
+struct page") commit:
+
+VFS: Mounted root (ext4 filesystem) on device 179:3. Trying to move old 
+root to /initrd ... okay devtmpfs: mounted Freeing unused kernel memory: 
+12672K Run /sbin/init as init process Unable to handle kernel paging 
+request at virtual address ffffffffc20b5d48 Mem abort info: ESR = 
+0x0000000096000006 EC = 0x25: DABT (current EL), IL = 32 bits SET = 0, 
+FnV = 0 EA = 0, S1PTW = 0 FSC = 0x06: level 2 translation fault Data 
+abort info: ISV = 0, ISS = 0x00000006, ISS2 = 0x00000000 CM = 0, WnR = 
+0, TnD = 0, TagAccess = 0 GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0 
+swapper pgtable: 4k pages, 48-bit VAs, pgdp=000000000230b000 
+[ffffffffc20b5d48] pgd=0000000000000000, p4d=0000000003618403, 
+pud=0000000003619403, pmd=0000000000000000 Internal error: Oops: 
+0000000096000006 [#1] SMP Modules linked in: CPU: 2 UID: 0 PID: 1 Comm: 
+init Tainted: G W 6.18.0-rc1+ #16136 PREEMPT Tainted: [W]=WARN Hardware 
+name: Raspberry Pi 3 Model B (DT) pstate: 80000005 (Nzcv daif -PAN -UAO 
+-TCO -DIT -SSBS BTYPE=--) pc : vvar_fault+0x7c/0x17c lr : 
+vvar_fault+0x24/0x17c ... Call trace: vvar_fault+0x7c/0x17c (P) 
+special_mapping_fault+0x24/0xd0 __do_fault+0x3c/0x238 
+__handle_mm_fault+0xaa0/0x19e0 handle_mm_fault+0xcc/0x384 
+do_page_fault+0x1a0/0x720 do_translation_fault+0x60/0x6c 
+do_mem_abort+0x44/0x94 el0_da+0x54/0x230 el0t_64_sync_handler+0xd0/0xe4 
+el0t_64_sync+0x198/0x19c Code: f2d83fe0 8b010063 d34cfc63 8b031803 
+(f9400461) ---[ end trace 0000000000000000 ]--- Kernel panic - not 
+syncing: Attempted to kill init! exitcode=0x0000000b SMP: stopping 
+secondary CPUs Kernel Offset: disabled CPU features: 
+0x000000,00180000,40004000,0400421b Memory Limit: none ---[ end Kernel 
+panic - not syncing: Attempted to kill init! exitcode=0x0000000b ]---
+
+Reverting "clocksource: Remove ARCH_CLOCKSOURCE_DATA", "vdso/datastore: 
+Allocate data pages dynamically" and "vdso/datastore: Map pages through 
+struct page" on top of linux-next fixes booting on all tested boards.
+
+Best regards
+-- 
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
+
