@@ -1,240 +1,222 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59793299A94;
-	Tue,  4 Nov 2025 18:29:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1DE322AE65
+	for <linux-s390@vger.kernel.org>; Wed,  5 Nov 2025 01:01:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762280959; cv=none; b=TbN+x+5WKdpn1X/+TvGRlZYn1Mn3w2nMkdahUkAqNzWUQaX/0wZewPtoK8JtVlHHK9GgHLEVc2SZwK4cKHgaiI/hEJUW+NPVa/HeVLZGHourAnS1F2G/iqN3buoxYjDHpFwMEsWmHD+XXxVQGqCUBWAGinw+WsrurxTvowF8+1s=
+	t=1762304470; cv=none; b=bQ8JvaIKmtpI/BH8S15VZk1AwlNyp3kSJFV0s8pPrpwMSWZNqCAoRxN38c79SO6n/tG5cYw4eTMWDlHfcqWtNS2hYqd8HJaUuF8XJWis8Z6zz8Ci5b5lajAywCBJqtZk4h3MD+sFAhjsRk1eDJfOOC+KGcX62MVwAmr1To5+YY4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762280959; c=relaxed/simple;
-	bh=QOLIJdJXicTZA+aezH0oyKsN6n90p2SzQohPafNgStI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ek4MTvRAWLJnT3GFwd0QxDwuaKEUua+jgMMm1/WMOwm5BCyxNrVF3vMeSUoXRjnqOyZmCR8knUFcEmeFOjYDLWQGXJrxdz5OjUiFWIxFbnXfybYFQjyxtBY20PcenVovNF7RuTESolQoGHaPaV17lqctqcl6Kne4MECpf+8Owzs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b5bFng8Y; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1762304470; c=relaxed/simple;
+	bh=LNzC0bHEUBXHkFiE99rHGDkuGYJKjTGVPzzIlLFvOF0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=hlqn7K0THP1/GUPXlNrUv825YxQytQAj78VP254DeteMJWhbMjbex4x9oP/AmyRHSHhviUKsDXQSAg9/mJLvMyKgE1mO1xGT6rxf5YLUnLj0uh32I71o/KdIN+KiHsTrj+v9cHKsZdeTexulVNgVD9Cicf1r1naAj1Brs3wsUgs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Fab6Aj+k; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b5bFng8Y"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A13DC4CEF7;
-	Tue,  4 Nov 2025 18:29:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Fab6Aj+k"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF57EC19422
+	for <linux-s390@vger.kernel.org>; Wed,  5 Nov 2025 01:01:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1762280958;
-	bh=QOLIJdJXicTZA+aezH0oyKsN6n90p2SzQohPafNgStI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=b5bFng8Yxj1VH7quw6uNytqi/j7acNnD+AEHsw7XG3zCksx2e3osO/X/VBkDTXgOu
-	 SMNwgYGok9yVCmFvAJRI87wPx3WHQ8Sbwdt+mCRCYcj/h4Ym0qxxkGkY1NXneYBova
-	 F5cuH+sCeJxkiLhY0DoLOrcslJSZDe7vC/SeRmtyB3ZPyjJYqRch2XExq7wJhD4Wt3
-	 K6QB89nopkLNxH9goli+RMVXvanjgG51ll4XQBSBJfSRTJZjt96cGBhhV1zEP7Q2cZ
-	 Hf3yw3u7avczSKLEFi9GZGNmkwrgs83dTe+4auuj91udrleB2uyvFTjSLL9Y0qR/DD
-	 VFsu2uJXQnNdA==
-Date: Tue, 4 Nov 2025 10:27:38 -0800
-From: Eric Biggers <ebiggers@kernel.org>
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: linux-crypto@vger.kernel.org, David Howells <dhowells@redhat.com>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	"Jason A . Donenfeld" <Jason@zx2c4.com>,
-	Holger Dengler <dengler@linux.ibm.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 00/15] SHA-3 library
-Message-ID: <20251104182738.GA2419@sol>
-References: <20251026055032.1413733-1-ebiggers@kernel.org>
- <ba3ff3d5183ab78b3d02d8db30223def@linux.ibm.com>
- <20251029163216.GA1603@sol>
- <fa8bc10f36b1aeb9ffe1abf6350adbc1@linux.ibm.com>
- <20251030171453.GA1624@sol>
- <c39f6b6c110def0095e5da5becc12085@linux.ibm.com>
+	s=k20201202; t=1762304470;
+	bh=LNzC0bHEUBXHkFiE99rHGDkuGYJKjTGVPzzIlLFvOF0=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=Fab6Aj+kvmF+l/O+bD489wnSNlqjAT4YvcB3JPyA6yd/aijq1tC/IF68429DPsqSA
+	 QFVptn9QyCR4yp6KllUryWZzz+MbvbgzLGexKzzvEMpGhJJAWzjr45ZU39GY3UAMHy
+	 zS0ky2/+vtPU8kGnMxFTqEZNbsKB9LQ1yeXf9P+I5rIEoIzTXlJ38p2JTrfE3iTFrF
+	 2pQmq/4tfXoS/bZ84YvsRyMB5S3YnkJcdHuZoHcVYOhXs1QxvlK4eYgzRE3VpgxQ2Z
+	 0g1MOkHgWaVrx7zcJ3Ju8MYo9NuBPV5EX21H/GaCkBIsiHmG3yzEXh++t6aW/k+UiQ
+	 muaXiJImZwTMg==
+Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-640741cdda7so8032694a12.2
+        for <linux-s390@vger.kernel.org>; Tue, 04 Nov 2025 17:01:10 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCW6RW72lqFNvVgP3HbavoUmed8Y/ekgcTwz1cOVCsyD/h/MfU+PCSZ0bOCgrIxKMwz700b6bf8nP7JP@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw6ZFfTrZps1m6Pt39FfKa+jyDc1jPsPRRhmr7wSV7Qwebx75Sh
+	/DFd3wziHKHNkOJ14Gje0wF/IHW4JyCcELzHUFya9dtPbNuxE40GZCxnVPhN8EJFCBzF2UY8OHU
+	hAYBS6xsCD9IDm1FKtEt8ooyvDXTDSI4=
+X-Google-Smtp-Source: AGHT+IGrGxegHnyKau9LpVTGrgCjY6ZZT6K86nQYSNmmK0d4RdpQlY330regr/qFOTeAwxQkSbr86alOZaV1UFna+As=
+X-Received: by 2002:a17:907:7e96:b0:b72:5918:b90a with SMTP id
+ a640c23a62f3a-b72652b86bcmr121172966b.25.1762304468276; Tue, 04 Nov 2025
+ 17:01:08 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c39f6b6c110def0095e5da5becc12085@linux.ibm.com>
+References: <20251029-ari_no_bus_dev-v5-0-d9a5eab67ed0@linux.ibm.com>
+ <20251029-ari_no_bus_dev-v5-1-d9a5eab67ed0@linux.ibm.com> <CAAhV-H6qqppoX_G5KrWmPor16bXfvNTE2x8Xx6yajAYPqxpigw@mail.gmail.com>
+ <958ef380be4ea488698fab05245d631998c32a48.camel@linux.ibm.com>
+In-Reply-To: <958ef380be4ea488698fab05245d631998c32a48.camel@linux.ibm.com>
+From: Huacai Chen <chenhuacai@kernel.org>
+Date: Wed, 5 Nov 2025 09:01:05 +0800
+X-Gmail-Original-Message-ID: <CAAhV-H7iMKmLnisD-874D2ZC919sDYeWy3tw=+eUqifK--6-Dg@mail.gmail.com>
+X-Gm-Features: AWmQ_blaQYn17oCd4-puacfkSPvyHc_K4OxzWeUbJCHm18Co-iitsn6Aix4lBVI
+Message-ID: <CAAhV-H7iMKmLnisD-874D2ZC919sDYeWy3tw=+eUqifK--6-Dg@mail.gmail.com>
+Subject: Re: [PATCH v5 1/2] PCI: Fix isolated PCI function probing with ARI
+ and SR-IOV
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>, Jan Kiszka <jan.kiszka@siemens.com>, 
+	Bibo Mao <maobibo@loongson.cn>, linux-s390 <linux-s390@vger.kernel.org>, 
+	loongarch@lists.linux.dev, Farhan Ali <alifm@linux.ibm.com>, 
+	Matthew Rosato <mjrosato@linux.ibm.com>, Tianrui Zhao <zhaotianrui@loongson.cn>, 
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Gerd Bayer <gbayer@linux.ibm.com>, linux-kernel@vger.kernel.org, 
+	linux-pci@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 04, 2025 at 12:07:40PM +0100, Harald Freudenberger wrote:
-> > Thanks!  Is this with the whole series applied?  Those numbers are
-> > pretty fast, so probably at least the Keccak acceleration part is
-> > worthwhile.  But just to reiterate what I asked for:
-> > 
-> >     Also, it would be helpful to provide the benchmark output from just
-> >     before "lib/crypto: s390/sha3: Add optimized Keccak function", just
-> >     after it, and after "lib/crypto: s390/sha3: Add optimized one-shot
-> >     SHA-3 digest functions".
-> > 
-> > So I'd like to see how much each change helped, which isn't clear if you
-> > show only the result at the end.
-> > 
-> > If there's still no evidence that "lib/crypto: s390/sha3: Add optimized
-> > one-shot SHA-3 digest functions" actually helps significantly vs. simply
-> > doing the Keccak acceleration, then we should drop it for simplicity.
-[...]
-> commit b2e169dd8ca5 lib/crypto: s390/sha3: Add optimized one-shot SHA-3
-> digest functions:
-> 
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     # module: sha3_kunit
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     1..21
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 1 test_hash_test_vectors
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 2
-> test_hash_all_lens_up_to_4096
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 3
-> test_hash_incremental_updates
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 4
-> test_hash_buffer_overruns
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 5 test_hash_overlaps
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 6
-> test_hash_alignment_consistency
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 7
-> test_hash_ctx_zeroization
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 8
-> test_hash_interrupt_context_1
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 9
-> test_hash_interrupt_context_2
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 10 test_sha3_224_basic
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 11 test_sha3_256_basic
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 12 test_sha3_384_basic
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 13 test_sha3_512_basic
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 14 test_shake128_basic
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 15 test_shake256_basic
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 16 test_shake128_nist
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 17 test_shake256_nist
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 18
-> test_shake_all_lens_up_to_4096
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 19
-> test_shake_multiple_squeezes
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 20
-> test_shake_with_guarded_bufs
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     # benchmark_hash: len=1: 12
-> MB/s
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     # benchmark_hash: len=16: 80
-> MB/s
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     # benchmark_hash: len=64: 785
-> MB/s
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     # benchmark_hash: len=127:
-> 812 MB/s
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     # benchmark_hash: len=128:
-> 1619 MB/s
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     # benchmark_hash: len=200:
-> 2319 MB/s
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     # benchmark_hash: len=256:
-> 2176 MB/s
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     # benchmark_hash: len=511:
-> 4881 MB/s
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     # benchmark_hash: len=512:
-> 4968 MB/s
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     # benchmark_hash: len=1024:
-> 7565 MB/s
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     # benchmark_hash: len=3173:
-> 11909 MB/s
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     # benchmark_hash: len=4096:
-> 10378 MB/s
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     # benchmark_hash: len=16384:
-> 12273 MB/s
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel:     ok 21 benchmark_hash
-> Nov 04 10:50:50 b3545008.lnxne.boe kernel: # sha3: pass:21 fail:0 skip:0
-> total:21
-> 
-> commit 02266b8a383e lib/crypto: s390/sha3: Add optimized Keccak functions:
-> 
-> Nov 04 10:55:37 b3545008.lnxne.boe kernel:     # module: sha3_kunit
-> Nov 04 10:55:37 b3545008.lnxne.boe kernel:     1..21
-> Nov 04 10:55:37 b3545008.lnxne.boe kernel:     ok 1 test_hash_test_vectors
-> Nov 04 10:55:37 b3545008.lnxne.boe kernel:     ok 2
-> test_hash_all_lens_up_to_4096
-> Nov 04 10:55:37 b3545008.lnxne.boe kernel:     ok 3
-> test_hash_incremental_updates
-> Nov 04 10:55:37 b3545008.lnxne.boe kernel:     ok 4
-> test_hash_buffer_overruns
-> Nov 04 10:55:37 b3545008.lnxne.boe kernel:     ok 5 test_hash_overlaps
-> Nov 04 10:55:37 b3545008.lnxne.boe kernel:     ok 6
-> test_hash_alignment_consistency
-> Nov 04 10:55:37 b3545008.lnxne.boe kernel:     ok 7
-> test_hash_ctx_zeroization
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     ok 8
-> test_hash_interrupt_context_1
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     ok 9
-> test_hash_interrupt_context_2
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     ok 10 test_sha3_224_basic
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     ok 11 test_sha3_256_basic
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     ok 12 test_sha3_384_basic
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     ok 13 test_sha3_512_basic
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     ok 14 test_shake128_basic
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     ok 15 test_shake256_basic
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     ok 16 test_shake128_nist
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     ok 17 test_shake256_nist
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     ok 18
-> test_shake_all_lens_up_to_4096
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     ok 19
-> test_shake_multiple_squeezes
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     ok 20
-> test_shake_with_guarded_bufs
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     # benchmark_hash: len=1: 12
-> MB/s
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     # benchmark_hash: len=16: 211
-> MB/s
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     # benchmark_hash: len=64: 835
-> MB/s
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     # benchmark_hash: len=127:
-> 1557 MB/s
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     # benchmark_hash: len=128:
-> 1617 MB/s
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     # benchmark_hash: len=200:
-> 1457 MB/s
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     # benchmark_hash: len=256:
-> 1830 MB/s
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     # benchmark_hash: len=511:
-> 3035 MB/s
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     # benchmark_hash: len=512:
-> 3245 MB/s
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     # benchmark_hash: len=1024:
-> 5319 MB/s
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     # benchmark_hash: len=3173:
-> 9969 MB/s
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     # benchmark_hash: len=4096:
-> 11123 MB/s
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     # benchmark_hash: len=16384:
-> 12767 MB/s
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel:     ok 21 benchmark_hash
-> Nov 04 10:55:38 b3545008.lnxne.boe kernel: # sha3: pass:21 fail:0 skip:0
-> total:21
+On Mon, Nov 3, 2025 at 7:23=E2=80=AFPM Niklas Schnelle <schnelle@linux.ibm.=
+com> wrote:
+>
+> On Mon, 2025-11-03 at 17:50 +0800, Huacai Chen wrote:
+> > Hi, Niklas,
+> >
+> > On Wed, Oct 29, 2025 at 5:42=E2=80=AFPM Niklas Schnelle <schnelle@linux=
+.ibm.com> wrote:
+> > >
+> > > When the isolated PCI function probing mechanism is used in conjuncti=
+on
+> > > with ARI or SR-IOV it may not find all available PCI functions. In th=
+e
+> > > case of ARI the problem is that next_ari_fn() always returns -ENODEV =
+if
+> > > dev is NULL and thus if fn 0 is missing the scan stops.
+> > >
+> > > For SR-IOV things are more complex. Here the problem is that the chec=
+k
+> > > for multifunction may fail. One example where this can occur is if th=
+e
+> > > first passed-through function is a VF with devfn 8. Now in
+> > > pci_scan_slot() this means it is fn 0 and thus multifunction doesn't =
+get
+> > > set. Since VFs don't get multifunction set via PCI_HEADER_TYPE_MFD it
+> > > remains unset and probing stops even if there is a devfn 9.
+> > >
+> > > Now at the moment both of these issues are hidden on s390. The first =
+one
+> > > because ARI is detected as disabled as struct pci_bus's self is NULL
+> > > even though firmware does enable and use ARI. The second issue is hid=
+den
+> > > as a side effect of commit 25f39d3dcb48 ("s390/pci: Ignore RID for
+> > > isolated VFs"). This is because VFs are either put on their own virtu=
+al
+> > > bus if the parent PF is not passed-through to the same instance or VF=
+s
+> > > are hotplugged once SR-IOV is enabled on the parent PF and then
+> > > pci_scan_single_device() is used.
+> > >
+> > > Still especially the first issue prevents correct detection of ARI an=
+d
+> > > the second might be a problem for other users of isolated function
+> > > probing. Fix both issues by keeping things as simple as possible. If
+> > > isolated function probing is enabled simply scan every possible devfn=
+.
+> > I'm very sorry, but applying this patch on top of commit a02fd05661d7
+> > ("PCI: Extend isolated function probing to LoongArch") we fail to
+> > boot.
+> >
+> > Boot log:
+> > [   10.365340] megaraid cmm: 2.20.2.7 (Release Date: Sun Jul 16
+> > 00:01:03 EST 2006)
+> > [   10.372628] megaraid: 2.20.5.1 (Release Date: Thu Nov 16 15:32:35 ES=
+T 2006)
+> > [   10.379564] megasas: 07.734.00.00-rc1
+> > [   10.383222] mpt3sas version 54.100.00.00 loaded
+> > [   10.388304] nvme nvme0: pci function 0000:08:00.0
+> > [   10.395088] Freeing initrd memory: 45632K
+> > [   10.469822] ------------[ cut here ]------------
+> > [   10.474409] WARNING: CPU: 0 PID: 247 at drivers/ata/libahci.c:233
+> > ahci_enable_ahci+0x64/0xb8
+> > [   10.482804] Modules linked in:
+> > [   10.485838] CPU: 0 UID: 0 PID: 247 Comm: kworker/0:11 Not tainted
+> > 6.18.0-rc3 #1 PREEMPT(full)
+> > [   10.494397] Hardware name: To be filled by O.E.M.To be fill To be
+> > filled by O.E.M.To be fill/To be filled by O.E.M.To be fill, BIOS
+> > Loongson-UDK2018-V4.0.
+> > [   10.508139] Workqueue: events work_for_cpu_fn
+> > [   10.512468] pc 900000000103be2c ra 900000000103be28 tp
+> > 900000010ae44000 sp 900000010ae47be0
+> > [   10.520769] a0 0000000000000000 a1 00000000000000b0 a2
+> > 0000000000000001 a3 9000000001810e0c
+> > [   10.529069] a4 9000000002343e20 a5 0000000000000001 a6
+> > 0000000000000010 a7 0000000000000000
+> > [   10.537373] t0 d10951fa66920f31 t1 d10951fa66920f31 t2
+> > 0000000000001280 t3 000000000674c000
+> > [   10.545673] t4 0000000000000000 t5 0000000000000000 t6
+> > 9000000008002480 t7 00000000000000b4
+> > [   10.553972] t8 90000001055eab90 u0 900000010ae47b68 s9
+> > 9000000002221a50 s0 0000000000000000
+> > [   10.562272] s1 ffff800032435800 s2 0000000000000000 s3
+> > ffffffff80000000 s4 9000000002221570
+> > [   10.570571] s5 0000000000000005 s6 9000000101ccf0b8 s7
+> > 90000000023dd000 s8 900000010ae47d08
+> > [   10.578869]    ra: 900000000103be28 ahci_enable_ahci+0x60/0xb8
+> > [   10.584665]   ERA: 900000000103be2c ahci_enable_ahci+0x64/0xb8
+> > [   10.590461]  CRMD: 000000b0 (PLV0 -IE -DA +PG DACF=3DCC DACM=3DCC -W=
+E)
+> > [   10.596609]  PRMD: 00000004 (PPLV0 +PIE -PWE)
+> > [   10.600937]  EUEN: 00000000 (-FPE -SXE -ASXE -BTE)
+> > [   10.605698]  ECFG: 00071c1d (LIE=3D0,2-4,10-12 VS=3D7)
+> > [   10.610458] ESTAT: 000c0000 [BRK] (IS=3D ECode=3D12 EsubCode=3D0)
+> > [   10.615994]  PRID: 0014d010 (Loongson-64bit, Loongson-3C6000/S)
+> > [   10.621875] CPU: 0 UID: 0 PID: 247 Comm: kworker/0:11 Not tainted
+> > 6.18.0-rc3 #1 PREEMPT(full)
+> > [   10.621877] Hardware name: To be filled by O.E.M.To be fill To be
+> > filled by O.E.M.To be fill/To be filled by O.E.M.To be fill, BIOS
+> > Loongson-UDK2018-V4.0.
+> > [   10.621878] Workqueue: events work_for_cpu_fn
+> > [   10.621881] Stack : 900000010ae47848 0000000000000000
+> > 90000000002436bc 900000010ae44000
+> > [   10.621884]         900000010ae47820 900000010ae47828
+> > 0000000000000000 900000010ae47968
+> > [   10.621887]         900000010ae47960 900000010ae47960
+> > 900000010ae47630 0000000000000001
+> > [   10.621890]         0000000000000001 900000010ae47828
+> > d10951fa66920f31 9000000100414300
+> > [   10.621893]         80000000ffffe34d fffffffffffffffe
+> > 000000000000034f 000000000000002f
+> > [   10.621896]         0000000000000063 0000000000000001
+> > 000000000674c000 9000000002221a50
+> > [   10.621899]         0000000000000000 0000000000000000
+> > 90000000020b6500 90000000023dd000
+> > [   10.621902]         00000000000000e9 0000000000000009
+> > 0000000000000002 90000000023dd000
+> > [   10.621905]         900000010ae47d08 0000000000000000
+> > 90000000002436d4 0000000000000000
+> > [   10.621908]         00000000000000b0 0000000000000004
+> > 0000000000000000 0000000000071c1d
+> > [   10.621910]         ...
+> > [   10.621912] Call Trace:
+> > [   10.621913] [<90000000002436d4>] show_stack+0x5c/0x180
+> > [   10.621918] [<900000000023f328>] dump_stack_lvl+0x6c/0x9c
+> > [   10.621923] [<9000000000266eb8>] __warn+0x80/0x108
+> > [   10.621927] [<90000000017d1910>] report_bug+0x158/0x2a8
+> > [   10.621932] [<900000000180b610>] do_bp+0x2d0/0x340
+> > [   10.621938] [<9000000000241da0>] handle_bp+0x120/0x1c0
+> > [   10.621940] [<900000000103be2c>] ahci_enable_ahci+0x64/0xb8
+> > [   10.621943] [<900000000103beb8>] ahci_save_initial_config+0x38/0x4d8
+> > [   10.621946] [<90000000010391b4>] ahci_init_one+0x354/0x1088
+> > [   10.621950] [<9000000000d16cdc>] local_pci_probe+0x44/0xb8
+> > [   10.621953] [<9000000000286f78>] work_for_cpu_fn+0x18/0x30
+> > [   10.621956] [<900000000028a840>] process_one_work+0x160/0x330
+> > [   10.621961] [<900000000028b208>] worker_thread+0x330/0x460
+> > [   10.621964] [<9000000000295fdc>] kthread+0x11c/0x138
+> > [   10.621968] [<900000000180b740>] ret_from_kernel_thread+0x28/0xa8
+> > [   10.621971] [<9000000000241484>] ret_from_kernel_thread_asm+0xc/0x88
+> > [   10.621973]
+> >
+> >
+>
+> This looks like a warning telling us that AHCI enable failed / timed
+> out. Do you have Panic on Warn on that this directly causes a boot
+> failure? The only relation I can see with my patch is that maybe this
+> AHCI device wasn't probed before and somehow isn't working?
+The rootfs is on the AHCI controller, so AHCI failure causes the boot
+failure, without this patch no boot problems.
 
-Thanks.  So the results before and after "lib/crypto: s390/sha3: Add
-optimized one-shot SHA-3 digest functions" are:
+Huacai
 
-    Length (bytes)      Before            After
-    ==============    ==========        ==========
-         1               12 MB/s           12 MB/s
-        16              211 MB/s           80 MB/s
-        64              835 MB/s          785 MB/s
-       127             1557 MB/s          812 MB/s
-       128             1617 MB/s         1619 MB/s
-       200             1457 MB/s         2319 MB/s
-       256             1830 MB/s         2176 MB/s
-       511             3035 MB/s         4881 MB/s
-       512             3245 MB/s         4968 MB/s
-      1024             5319 MB/s         7565 MB/s
-      3173             9969 MB/s        11909 MB/s
-      4096            11123 MB/s        10378 MB/s
-     16384            12767 MB/s        12273 MB/s
-
-Unfortunately that seems inconclusive.  len=200, 256, 511, 512, 1024,
-3173 improved.  But len=16, 64, 127, 4096, 16384 regressed.
-
-I expected the most improvement on short lengths.  The fact that some of
-the short lengths actually regressed is concerning.
-
-It's also clear the the Keccak acceleration itself matters far more than
-this additional one-shot optimization, as expected.  The generic code
-maxed out at only 259 MB/s for you.
-
-I suggest we hold off on "lib/crypto: s390/sha3: Add optimized one-shot
-SHA-3 digest functions" for now, to avoid the extra maintainence cost
-and opportunity for bugs.
-
-If you can provide more accurate numbers that show it's worthwhile, we
-can reconsider.  Maybe set the CPU to a fixed frequency, and run
-sha3_kunit multiple times (triggered via KUnit's debugfs interface)?
-
-- Eric
+>
+> Thanks,
+> Niklas
