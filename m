@@ -1,65 +1,49 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8187E2BDC00;
-	Thu,  6 Nov 2025 17:48:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53542301002;
+	Thu,  6 Nov 2025 19:51:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762451281; cv=none; b=cIuYrpJ6V7DF4klTPvS6nNtXPg37ClSoqLRyEosaKOtvImkmaRq8pFPF3XhcV9k1rBEF7dnfTeHo+M+3UpL3m7qIblQGE2sL7gQzTjKK62paL5XFvpu44XXI94+h4HyN4M5RLa32weK0baR/+LVOQq2mH1dQ3nwKzr/+CYCJ1us=
+	t=1762458705; cv=none; b=BPxGFUDuzEXuBXY4wRlG+MwVxI309RmjSQqpD8sbEkAVYMNaJsUPLAgMradSKpdzC2NVPEpVz032pUUHBApvhEZrBvhktXjPlXCV9+/gSw0+QCIJx+qhsLCOR6oqTYoL5QSCgS54j73xEuaFbQPXNB3SuRiYW81OCtSD3lUyLzo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762451281; c=relaxed/simple;
-	bh=13WsgUGoeK4bC41loapHpdur+Ccm2Mdg30VVAbVHLjg=;
+	s=arc-20240116; t=1762458705; c=relaxed/simple;
+	bh=j1nqThs17GwNA3HQ/A0bAO+y61WfI0vCdvNcpIIVI0U=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DHFUOeI6jbaFkxwF2R+T5pOHUnQ2VfIyqK3KVXXE0dS+fpFCIWgGxnKirXPoDWQlSQhGFHbt6B8J4zvCGLNeD8ppRdTuk+p5qfuVPpuf4IluDYgFsfNi7gevcsHVzUACEBYcN+a0J+HHChB/USHqhnZOrSgRNU5Al+RTbWPRRtk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z9FnDBrL; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=Z7cQhNMep1ydZX3Kp8LjjBYKQT6HTWfTCZMpAKRrwTk0yYjv4aDybcAmGLSW1+k0W0u/s10aFg9ZWajeWwLwA2pDA+/iXKWpzDfwpDXLsy9OPz0a8Yd09rBAjvbhKAcTFR2Oy2X+5OeyuXMAO8Wi3yB4PkAvst40YaugSfloqNI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ku8tjLpZ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z9FnDBrL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCD86C116C6;
-	Thu,  6 Nov 2025 17:47:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ku8tjLpZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C217C113D0;
+	Thu,  6 Nov 2025 19:51:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1762451281;
-	bh=13WsgUGoeK4bC41loapHpdur+Ccm2Mdg30VVAbVHLjg=;
+	s=k20201202; t=1762458705;
+	bh=j1nqThs17GwNA3HQ/A0bAO+y61WfI0vCdvNcpIIVI0U=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Z9FnDBrLQxnVZ8j0S6dXWmgDdhzRapTlDLeZphuGquMG48Y0ehHhp+zTZ1t5KXHbE
-	 txcGrmgh0jjFrb2R7Z4I4+T/u5lzxWz5dX1+SmKtEgYTcAlIG9Z7mJs448ffRsunb/
-	 NKjfdgOv8bmEebgrBMp3h9vh4pR0Pq8RkV/w1GvjFyMBhyadJ/0oXUr1y1nJ50U0ub
-	 aJnzIoOLRuwk0h/lQKZix1kH9a4jtd/PFlGQeCzBFejhXmzM34PXGVkA6w+0UTpxmg
-	 kZW7+JyfWA+DtE0VoLbWXC2bDxthopkWbymWnjEda4G9uauXq3ZbYJQm9H/atPuoWh
-	 K90fOO5tmdSWQ==
-Date: Thu, 6 Nov 2025 10:47:52 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Christian Brauner <brauner@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Helge Deller <deller@gmx.de>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	b=Ku8tjLpZn9OPHJbydRU7gLzhb71B7VOxwwhTuM+6D49u01Eypvvg5berXffNnTRSM
+	 XrvByyKlFst/3LSbp27p2/zQTcMTdDrYl4b+8xn1WxRhCiyaYKUNFTXq+/CE+jvFw4
+	 AJiRpUk0rWqEE8JaKHOLf6HK/bR+JzQSEDHrY5VZjS1JJ5Bgt51BtyNB8Zku7hhS0v
+	 EIOT8kLgmaxP243njyF+UaPfj2OK1T1gvGRNrLREalCh4xbj9SjvFjLmfFX7MfuEDB
+	 IhzJl2nZkQ7dHakk2z7neV839/0V+BGXiItOON8gu6ZCq6pxoFVz+YM5/wU/mHZ8w7
+	 x9Mojx8MuyjZQ==
+Date: Thu, 6 Nov 2025 11:51:42 -0800
+From: Eric Biggers <ebiggers@kernel.org>
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: linux-crypto@vger.kernel.org, David Howells <dhowells@redhat.com>,
 	Ard Biesheuvel <ardb@kernel.org>,
-	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	loongarch@lists.linux.dev, linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	linux-efi@vger.kernel.org, llvm@lists.linux.dev
-Subject: Re: [PATCH] kbuild: Add '-fms-extensions' to areas with dedicated
- CFLAGS
-Message-ID: <20251106174752.GA2440428@ax162>
-References: <20251101-kbuild-ms-extensions-dedicated-cflags-v1-1-38004aba524b@kernel.org>
- <20251105-amnesie-eisig-277559b69bae@brauner>
- <20251105193931.GA2480016@ax162>
+	"Jason A . Donenfeld" <Jason@zx2c4.com>,
+	Holger Dengler <dengler@linux.ibm.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 00/15] SHA-3 library
+Message-ID: <20251106195142.GB3318@quark>
+References: <20251026055032.1413733-1-ebiggers@kernel.org>
+ <20251103173404.GE1735@sol>
+ <4188d18bfcc8a64941c5ebd8de10ede2@linux.ibm.com>
+ <20251106043340.GC1650@sol>
+ <20251106072233.GA117499@sol>
+ <55ec60661fb672bdd0696a3bd92e21bd@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,57 +52,47 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20251105193931.GA2480016@ax162>
+In-Reply-To: <55ec60661fb672bdd0696a3bd92e21bd@linux.ibm.com>
 
-On Wed, Nov 05, 2025 at 12:39:31PM -0700, Nathan Chancellor wrote:
-> I was planning to make it stable tomorrow to give folks time to chime in
-> at the beginning of the week. I have your tag and Ard's to add. After
-> that, we will just have to rely on the link to this submission for
-> follow ups.
+On Thu, Nov 06, 2025 at 09:54:59AM +0100, Harald Freudenberger wrote:
+> > Also, I'm wondering what your plan to add support for these instructions
+> > to QEMU is?  The status quo, where only people with an s390 mainframe
+> > can test this code, isn't sustainable.
+> > 
+> > I already have s390 in my testing matrix; I run the crypto and CRC tests
+> > on all architectures with optimized crypto or CRC code.  But most of the
+> > s390 optimized crypto code isn't actually being executed.
+> > 
+> > - Eric
+> 
+> Well, there are no plans. However, there has been a decision some while ago
+> that "we" may support this in the future. But as there are currently no
+> human resources available and working there I suspect a qemu CPACF support
+> in general will not come soon.
 
-Alright, this should be the final result. If there are any other Acks
-that come in later, they will just have to be recorded here. If there
-are any follow up fixes needed, I will apply them on top and update the
-tag but the branch will not be rebased.
+Great to hear that you might have someone work on this in the future.
+It should be noted that this is a significant gap that puts s390 behind
+all the major architectures (x86_64, arm64, arm32, riscv, etc.) and
+makes it much more likely that s390 specific bugs be introduced.
 
-Cheers,
-Nathan
+We need to have higher standards for cryptography code.
 
-The following changes since commit 3a8660878839faadb4f1a6dd72c3179c1df56787:
+As I've mentioned before, I don't plan to accept code that uses new
+instructions without QEMU support.  The SHA-{1,2,3} code is allowed only
+because the instructions were already being used by arch/s390/crypto/.
 
-  Linux 6.18-rc1 (2025-10-12 13:42:36 -0700)
+I see that Jason actually added support for CPACF_*_SHA_512 to QEMU a
+few years ago
+(https://github.com/qemu/qemu/commit/9f17bfdab422887807cbd5260ed6b0b6e54ddb33).
+So clearly it's possible to support these instructions in QEMU.
+Someone just needs to add support for the other SHA algorithms.
 
-are available in the Git repository at:
+> Please note also that this is really an implementation of crypto
+> algorithms then and as such it needs to apply to some regulations with
+> regards of the EAR of the US Bureau of Industry and Security...
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/kbuild/linux.git tags/kbuild-ms-extensions-6.19
+Like Linux, QEMU is an open source project, published publicly, and
+which already contains many cryptographic algorithms.  Check out
+https://www.linuxfoundation.org/resources/publications/understanding-us-export-controls-with-open-source-projects
 
-for you to fetch changes up to 5ff8ad3909524ad55297a434f87c238224825bf4:
-
-  kbuild: Add '-fms-extensions' to areas with dedicated CFLAGS (2025-10-30 21:26:28 -0400)
-
-----------------------------------------------------------------
-Shared branch between Kbuild and other trees for enabling '-fms-extensions' for 6.19
-
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-
-----------------------------------------------------------------
-Nathan Chancellor (2):
-      jfs: Rename _inline to avoid conflict with clang's '-fms-extensions'
-      kbuild: Add '-fms-extensions' to areas with dedicated CFLAGS
-
-Rasmus Villemoes (1):
-      Kbuild: enable -fms-extensions
-
- Makefile                              | 3 +++
- arch/arm64/kernel/vdso32/Makefile     | 3 ++-
- arch/loongarch/vdso/Makefile          | 2 +-
- arch/parisc/boot/compressed/Makefile  | 2 +-
- arch/powerpc/boot/Makefile            | 3 ++-
- arch/s390/Makefile                    | 3 ++-
- arch/s390/purgatory/Makefile          | 3 ++-
- arch/x86/Makefile                     | 4 +++-
- arch/x86/boot/compressed/Makefile     | 7 +++++--
- drivers/firmware/efi/libstub/Makefile | 4 ++--
- fs/jfs/jfs_incore.h                   | 6 +++---
- scripts/Makefile.extrawarn            | 4 +++-
- 12 files changed, 29 insertions(+), 15 deletions(-)
+- Eric
