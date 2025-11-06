@@ -1,47 +1,47 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B3902E03F1;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B7E43019A3;
 	Thu,  6 Nov 2025 10:02:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762423337; cv=none; b=bZughbX5XgAWswYCiLMc82OLQX29ixAV0EeR4WWzuSFMyUsMUGrnE5M4cZ8ubDQBfdONMSekBjfiGqmD/bBG8UlCuQv65fA9XJkCc8AG1vHJr5AK1zz91fcVqxn5SYHTH/UvG7yKC33FALnQnec3js7bn1i1a+2nTDj7ZB6DohU=
+	t=1762423337; cv=none; b=Uo3j21/UVVfjaiHt6Yqus83gJ+vR/r6dbzm+4otvIjAQ94TeiMOGXQx5CLjYnL3n9Zi7khaNKZP5L1zAY5NyaNkXC1YqLhLJ11z3l7igczD9cfYYY+jvaZkK6rKHwO8pFx4iFxO1E/XofiOwFuC7DpxIEyrTvODRgA6VQtQvDqo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1762423337; c=relaxed/simple;
-	bh=V9tDNcYgJIt9GytAgrSszi/+I+38Gq3Tgc4R1PI5n6s=;
+	bh=xwlcFnQEXqQ5ZW5NFBVaIG/RI+shPsghmy7vrrzmGh4=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=cY9rWgJP140TWkYpH41JCa427LIQnnQM5Ndor52dNtD52xWye2buKvyKdcXC/XE0xq4q9hD2eZh9QI0lLJF0fClsQYcbtN1+444hsMFNvwllQpbFGGyihAD0cIlSpSj0QB3Wp/u/e6mnIUuulN08UZinmTVOVvKcZjLPq1OgBDA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=tFcEZ+F2; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=dv4aXHzL; arc=none smtp.client-ip=193.142.43.55
+	 In-Reply-To:To:Cc; b=kwiQXOnkyTt1FfHhntXTW92Cq1zuffUqkqHkHCitQdzXeAmqUUnZg5cQfVfEFKE3t4QTtW5e40VhQ6OF5enMcIyRaFrOL0zHPdFHEXHPBNz4FQbnME7LUjaAeSfZKRKGOBvbwMh7TnebLbcti509p4S/aEsWgB4zTWxl2RVISgU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=3DlZXeko; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=UIrdcFPc; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="tFcEZ+F2";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="dv4aXHzL"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="3DlZXeko";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="UIrdcFPc"
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1762423331;
+	s=2020; t=1762423330;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=AA1RaYevhVsm4UU0YhUEK/PYFHQA4HTGOnbLyC3tUCM=;
-	b=tFcEZ+F2McnQR/yj4fr2Xzl/qH8/6ms9DrGJJEA7fL7kXcqCX8hv4zyKd2otBfY37FGEMv
-	2KoqENjQKbobna/HhKzV0a13m+kQAUyNfbgCcNeMvJwrxOwp4UUkJ5GB31sKEvK26EuVcZ
-	J2nsupkTFncr4BO3FtqqAHgRyL9zPra2lX0RBt7EvpZmeaeHQoP8DGBinFIHBZ9exbk2mq
-	NylqCM6rngQh4QiSqsBmuIdgwx+l77BtrybXZDDzcxnTxiRrQxzTKsgC7LJWm4+DZEOjyZ
-	Anyou1cfZ4co6SXagzJZoC5bQwao2fnYT4x/M9WSE8oOxNat5twRj+yM8uqeiQ==
+	bh=vpEp5M7NzfQSiFH2jKL570Ai1wZvStN2XYEWzJ3d1nM=;
+	b=3DlZXekoeUVgZGZq1e0UHUf4vqg+iP0Iiv49LFrZb+KA4zg2DvjCmBbDy7TMduS1Vkn+sm
+	7lygfi+V6fz8N+54m323xijINmw7GRXOynR7P15ZdKKRFQ847u1yLmCtC8r3R4aOU8IDIj
+	0ZPh22CZilmq3FxLKJWQhqUErxHcNi5auVzMgBWQmx5HFYseRiBmDNp6Y1OyXOouP994Ed
+	9wE9yVSAipvmGt6X2/0YvMZZVkeHlkdzs7jy27JWaWJZISYo7tzdYUmRz2kmrOfQWhTDxp
+	a1Vdqg37Qisa/UoIFU50Li3Fx32JB1OzFgZ1WPLKdJZM30+axxLPdLvckSyqOg==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1762423331;
+	s=2020e; t=1762423330;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=AA1RaYevhVsm4UU0YhUEK/PYFHQA4HTGOnbLyC3tUCM=;
-	b=dv4aXHzL1Xjk+ugiHKiKHn4Zai+gBXRbTJznV37UCpAZWEQ/PoCZgmqHL6C2cMjGwpvgUK
-	J8M/KPUkt2+qRbBg==
-Date: Thu, 06 Nov 2025 11:01:57 +0100
-Subject: [PATCH v5 04/34] arm64: vDSO: compat_gettimeofday: Add explicit
- includes
+	bh=vpEp5M7NzfQSiFH2jKL570Ai1wZvStN2XYEWzJ3d1nM=;
+	b=UIrdcFPc8+dP8m8pKm+dgGqLTWrzmrlX406z9MxIGmXKut48R0lhhFzf3GmVV5sw2g3cha
+	4xh1P9O64p472WBQ==
+Date: Thu, 06 Nov 2025 11:01:54 +0100
+Subject: [PATCH v5 01/34] selftests: vDSO: vdso_test_correctness: Handle
+ different tv_usec types
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -50,7 +50,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20251106-vdso-sparc64-generic-2-v5-4-97ff2b6542f7@linutronix.de>
+Message-Id: <20251106-vdso-sparc64-generic-2-v5-1-97ff2b6542f7@linutronix.de>
 References: <20251106-vdso-sparc64-generic-2-v5-0-97ff2b6542f7@linutronix.de>
 In-Reply-To: <20251106-vdso-sparc64-generic-2-v5-0-97ff2b6542f7@linutronix.de>
 To: Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, 
@@ -77,42 +77,47 @@ Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
  linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, 
  linux-mips@vger.kernel.org, linux-s390@vger.kernel.org, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1762423327; l=1077;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1762423327; l=1636;
  i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=V9tDNcYgJIt9GytAgrSszi/+I+38Gq3Tgc4R1PI5n6s=;
- b=dCws47IlDG0vkiaRQIxj8kTBcuayHBXpMon0coy1Y4wHv/D0Q6Ui17Yiv8DDkmnY/1KURKs7c
- RGT4PVlUYpJAvwj7qQeBdadKVIk+g7V23dttIV94IhYzkt9QxeQF/cD
+ bh=xwlcFnQEXqQ5ZW5NFBVaIG/RI+shPsghmy7vrrzmGh4=;
+ b=canjkzbdZHbeS1vGHhpZnqXrZGddUYcT7pedmpgnoiLPVjcEMXGH6bhQX30E0/Jm7w3U4v16Y
+ uVrH006OPfNB/pUPz63LangKR6suhJTmLUPhdNvTeuwHl4NdBc19EoZ
 X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
  pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-The reference to VDSO_CLOCKMODE_ARCHTIMER requires vdso/clocksource.h and
-'struct old_timespec32' requires vdso/time32.h. Currently these headers
-are included transitively, but those transitive inclusions are about to go
-away.
+On SPARC the field tv_usec of 'struct timespec' is not a 'long int', but
+only a regular int. In this case the format string is incorrect and will
+trigger compiler warnings.
 
-Explicitly include the headers.
+Avoid the warnings by casting to 'long long', similar to how it is done for
+the tv_sec and what the other similar selftests are doing.
 
 Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 Tested-by: Andreas Larsson <andreas@gaisler.com>
 Reviewed-by: Andreas Larsson <andreas@gaisler.com>
 ---
- arch/arm64/include/asm/vdso/compat_gettimeofday.h | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/testing/selftests/vDSO/vdso_test_correctness.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/include/asm/vdso/compat_gettimeofday.h b/arch/arm64/include/asm/vdso/compat_gettimeofday.h
-index 7d1a116549b1b98d6eb7a78d053958c6a71799ec..2eb116d91235fea8362a11f3644619dbeb8201de 100644
---- a/arch/arm64/include/asm/vdso/compat_gettimeofday.h
-+++ b/arch/arm64/include/asm/vdso/compat_gettimeofday.h
-@@ -7,6 +7,9 @@
+diff --git a/tools/testing/selftests/vDSO/vdso_test_correctness.c b/tools/testing/selftests/vDSO/vdso_test_correctness.c
+index da651cf53c6ca4242085de109c7fc57bd807297c..5229fcaae8194d51b2cdffdbae59f00cfaeb96dc 100644
+--- a/tools/testing/selftests/vDSO/vdso_test_correctness.c
++++ b/tools/testing/selftests/vDSO/vdso_test_correctness.c
+@@ -412,10 +412,10 @@ static void test_gettimeofday(void)
+ 		return;
+ 	}
  
- #ifndef __ASSEMBLY__
+-	printf("\t%llu.%06ld %llu.%06ld %llu.%06ld\n",
+-	       (unsigned long long)start.tv_sec, start.tv_usec,
+-	       (unsigned long long)vdso.tv_sec, vdso.tv_usec,
+-	       (unsigned long long)end.tv_sec, end.tv_usec);
++	printf("\t%llu.%06lld %llu.%06lld %llu.%06lld\n",
++	       (unsigned long long)start.tv_sec, (long long)start.tv_usec,
++	       (unsigned long long)vdso.tv_sec, (long long)vdso.tv_usec,
++	       (unsigned long long)end.tv_sec, (long long)end.tv_usec);
  
-+#include <vdso/clocksource.h>
-+#include <vdso/time32.h>
-+
- #include <asm/barrier.h>
- #include <asm/unistd_compat_32.h>
- #include <asm/errno.h>
+ 	if (!tv_leq(&start, &vdso) || !tv_leq(&vdso, &end)) {
+ 		printf("[FAIL]\tTimes are out of sequence\n");
 
 -- 
 2.51.0
