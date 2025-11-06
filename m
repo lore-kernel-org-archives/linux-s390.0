@@ -1,121 +1,80 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCB0133A015;
-	Thu,  6 Nov 2025 14:02:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0728E21D3CA;
+	Thu,  6 Nov 2025 14:30:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762437747; cv=none; b=IXy7PFLB2MpmjEuA0I2BHbJAEmxvclpsXKkOzvcfFTKPp9EMyn/InFqeNiv3yADgJiC994npwFkPUE+tkYEqGV4BCju+CRqi/QHjs+0x1IZG68k3xFQWOd4FEm8Fign9P2Ycgj7ptiAFx1+jcBudIW2InSoOb8e5a9wPweezK2g=
+	t=1762439435; cv=none; b=HnMXa1GBl2sXJaspl6cFuiTtyiUqUHeq51mZkixz8wmwyfj830xGJGEBcxyudmREXSdbFFewCuqLAIQNN5tNmvyU4CEn5UIfuqBs3KOtrZidNee/aFPLqDJOzYEksFgM+gHaIZOv+xwdm7eF/gDzaJb79K1RJicLVBe5kIsy1tw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762437747; c=relaxed/simple;
-	bh=rks74Ok2xVDZRYVekwVF/tod1CxxsRBTTzdE/GlxP70=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DLABcp0Fn8Vr10idJJU94lSuXmV+DANbiJ1Fp4dYvmW+HwDczdp51lNRyayvHjfdK8+bTdG5Zfvfp9P0VYjoEf+SoGoQHNFlm+O1caQ7t8MLcXO9ooPdqpR1g7rxQvfJGLWk5Ouhk/0wu54lhddRmrvz06xA49WhPNH4CGae0uM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ud+s8WUS; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1762439435; c=relaxed/simple;
+	bh=DvRREBRYuDOCESnDpJAgcuJWRTjoxTzA8EmUaYHusb0=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=pyLHXNly1SsdPvia80qFrAgzX9CeOgTCgKhUqBqRr7WHjLxnNsMmaMDvE83wEAnaKqoDlNBWLn5Te4uCCXjWHwYJ9vRnuBi3K52bU1vN5Oois4Dk5eLGy9RP9OCENVnRPrkkx7ivX5MRMgWfBq+0jUHOrj/DM9xttaIHNuXuypI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EfkzXxgC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ud+s8WUS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2A90C4CEFB;
-	Thu,  6 Nov 2025 14:02:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EfkzXxgC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AF6EC4CEF7;
+	Thu,  6 Nov 2025 14:30:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1762437747;
-	bh=rks74Ok2xVDZRYVekwVF/tod1CxxsRBTTzdE/GlxP70=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Ud+s8WUSocuprubvzUOn8VaTTNgP5pI8KL1QrPvB41zFUOTeVRqsg6VXanq7RjXrt
-	 Xn+A/6fKrbkrAoSRxtE7sgs19ET/So8zm9IajCVZ4mSdbwTSULmFfhU5BAo+iF7nTD
-	 ZMUcjlN+rjIbRkhA07YgsdHFpyV+ozJZ/xB4qYFYWSN+AChzURE/gwQXR5xm4ExRgC
-	 f5IG/MS4uEHvmQ/Vp4534qX52O/yMhhPHpmXheOg/bpZX16ILqr8bdwixpllo89E9L
-	 dh0F2VOHbeO7NnGAN2xsSfXTCxZCZ93t4sk6Si+GzjOjs2MhU+GK+MX4wmRD6Ijdjv
-	 z3wqWVhwtQQaQ==
-Date: Thu, 6 Nov 2025 14:02:24 +0000
-From: Mark Brown <broonie@kernel.org>
-To: Thomas =?iso-8859-1?Q?Wei=DFschuh?= <thomas.weissschuh@linutronix.de>
-Cc: Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
-	Vincenzo Frascino <vincenzo.frascino@arm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Nick Alcock <nick.alcock@oracle.com>,
-	John Stultz <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Shuah Khan <shuah@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Theodore Ts'o <tytso@mit.edu>,
-	"Jason A. Donenfeld" <Jason@zx2c4.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Shannon Nelson <sln@onemain.com>, linux-kernel@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-kselftest@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
-	linux-s390@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>
-Subject: Re: [PATCH v5 00/34] sparc64: vdso: Switch to the generic vDSO
- library
-Message-ID: <aQyqcH39IPLRWMt_@finisterre.sirena.org.uk>
-References: <20251106-vdso-sparc64-generic-2-v5-0-97ff2b6542f7@linutronix.de>
+	s=k20201202; t=1762439433;
+	bh=DvRREBRYuDOCESnDpJAgcuJWRTjoxTzA8EmUaYHusb0=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=EfkzXxgCTZQxuvlu4uE9zlyAxLqgG8E0OrKc3+Nq7q/Yb4BpnzLqTUBc9yZu5hUoa
+	 HTyQe2CDBVJFX1wCnisVMabPVg8R6gc9PLFNgRIZuRgAj+BfbVmD2aANqSmGgWzXdi
+	 WshsSYX7FZarvZPTkQ2gam8AxQQfypScg7rboigXaP4hd2uNtkwmWfKTN2lbmPD2HA
+	 yDrMSVmwLJb8e3MXtGuBZaEJ58gCuewnQKI/ZBvrwGcuyF29sBdGDr2guikQdiTXvE
+	 ZmmFJMp5k2VqPWLmManvk+qzSjnkOcjx5apZ7sXe8Otao5ziusjPiAamn6I2lZIXS6
+	 m5No1ewbPY+FA==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id ADF0D39D6549;
+	Thu,  6 Nov 2025 14:30:07 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="4rnwqeK5vRaFw2+U"
-Content-Disposition: inline
-In-Reply-To: <20251106-vdso-sparc64-generic-2-v5-0-97ff2b6542f7@linutronix.de>
-X-Cookie: Dyslexics have more fnu.
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next] s390/ctcm: Use info level for handshake
+ UC_RCRESET
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <176243940650.230375.7618185802650828717.git-patchwork-notify@kernel.org>
+Date: Thu, 06 Nov 2025 14:30:06 +0000
+References: <20251103101652.2349855-1-aswin@linux.ibm.com>
+In-Reply-To: <20251103101652.2349855-1-aswin@linux.ibm.com>
+To: Aswin Karuvally <aswin@linux.ibm.com>
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+ edumazet@google.com, andrew+netdev@lunn.ch, netdev@vger.kernel.org,
+ linux-s390@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
+ agordeev@linux.ibm.com, wintera@linux.ibm.com, borntraeger@linux.ibm.com,
+ svens@linux.ibm.com, horms@kernel.org
+
+Hello:
+
+This patch was applied to netdev/net-next.git (main)
+by Paolo Abeni <pabeni@redhat.com>:
+
+On Mon,  3 Nov 2025 11:16:52 +0100 you wrote:
+> CTC adapter throws CTC_EVENT_UC_RCRESET (Unit check remote reset event)
+> during initial handshake, if the peer is not ready yet. This causes the
+> ctcm driver to re-attempt the handshake.
+> 
+> As it is normal for the event to occur during initialization, use info
+> instead of warn level in kernel log and NOTICE instead of ERROR level
+> in s390 debug feature. Also reword the log message for clarity.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net-next] s390/ctcm: Use info level for handshake UC_RCRESET
+    https://git.kernel.org/netdev/net-next/c/0cc4b8461591
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
 
---4rnwqeK5vRaFw2+U
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Nov 06, 2025 at 11:01:53AM +0100, Thomas Wei=DFschuh wrote:
-> The generic vDSO provides a lot common functionality shared between
-> different architectures. SPARC is the last architecture not using it,
-> preventing some necessary code cleanup.
->=20
-> Make use of the generic infrastructure.
-
-> ---
-> Changes in v5:
-> - Merge the patches for 'struct page' mapping and dynamic allocation
-> - Zero out newly-allocated data pages
-> - Pick up review tags
-> - Link to v4: https://lore.kernel.org/r/20251014-vdso-sparc64-generic-2-v=
-4-0-e0607bf49dea@linutronix.de
-
-I've validated that the zeroing fixes the issues we were seeing with
-boot failures on a reasonable chunk of the arm64 platforms:
-
-Tested-by: Mark Brown <broonie@kernel.org>
-
-I didn't get to all of them but I'd expect the rest are also fine.
-
---4rnwqeK5vRaFw2+U
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmkMqnAACgkQJNaLcl1U
-h9DdXQf/cqvSjdtV28SWYNX+UHnXmboyHxzenwcfa4zxbnrzgQ8feYntV6Ikfx7L
-ovSme6EY9cGYwoDmmhIHSSVZ0iuMwgiSj/NLxYlzbayc8uJITnfMorXtyOkqn7eQ
-9PngOIxdOAGels3s3oLIZfRg7pXKnfX176OvkFQi6I2gHaBHCpQbBq4o5qVqFo85
-Yra3emkWyARoll2AJ3u/dPVaDlXP2H3z4fm9QzX/1aWFaGN5Ml43iLbTfuC6YPlA
-/XTavzO9jIbi7l2J36K152BdwsgyOEHqQezDy5a/7bSQwA9cH7ok32svP1b5hpl1
-DOGKdUeeQCo9BAzV2TfMQR9jwzkZSQ==
-=zN3L
------END PGP SIGNATURE-----
-
---4rnwqeK5vRaFw2+U--
