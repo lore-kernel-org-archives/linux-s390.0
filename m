@@ -1,57 +1,57 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61CCB350281;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E18030275E;
 	Thu,  6 Nov 2025 16:11:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762445494; cv=none; b=J+XzN6zhbAnxA0HZADxxYEOsPX0ytw4JjZJXgWfxSpg3Fgbz/P9PPwC/2e7fDtOrNkZa+TibG+x/vZFv3MEU5SIwoJDRP4FWeGsq/U2E9sx708WHdY6brr0IM9Z/c+h7wPACbAg4wSCtSH/oUEYZMhwOeXFVroGxTR+Cs+3fADA=
+	t=1762445495; cv=none; b=mWVHcUfOiLQpocKGGqbs2fSzmV3tCawvEdSjTWBkH+6wwXlwiTTqK0PlwIFlj0r1yjIrojku9lmsAmcSkeP6bAQ5dgKIJlqGmTp+AZwpXwobBQcYPFE/DTvUepe/Q6zGW52VOQF9CuJNDHug0fMQS3J92wEuiYK9DNie+8qTC5Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762445494; c=relaxed/simple;
-	bh=xfgxLx0NFRIM0OEeEKpAViEqY5bjWLdkq8T49wr5Dy8=;
+	s=arc-20240116; t=1762445495; c=relaxed/simple;
+	bh=74ZdDL1jnsu+M2FxjBvlQ+NadbP94tyzu5dJbp2ffD4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hK0C6o2nHqfndfHl8OGKsaq9u2VcZwQABeAnNuA5N9AAkD86pjaH/qEQ8hpEE5gOYqpU29MBD3gotl2sJusQGBSACfS3vKdDlEklvFpp7rprJXPpoILnJfZ6QghsG3oG1XQp54u+bmpFimqnZTNNUZ/4p4HYBTt8CaC/ayS0+oc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Vhur+KrX; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=EItgtpZXeE6xngRCHn3lSC7+QgzgnjZO7Hmgd4rD7iEOFgJ6OdskGdVduxFeeE1D6/hbAwlJv9VyJllRsqGANoucDTn47Tx20J1PG+53h4C1YQkGa3PjVKRaDdORGeRUV/zF5BNDjk4mBG3G8//lHbs2TkzOWDBoAHATTR+2Gnk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=X0dLfpIx; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Vhur+KrX"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5A66bKlx028252;
-	Thu, 6 Nov 2025 16:11:29 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="X0dLfpIx"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5A68VIu4012681;
+	Thu, 6 Nov 2025 16:11:30 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=Zq1ZVlmst3GD7sEgv
-	PPb3RVRg6t8Bhspvco0EUDG2t4=; b=Vhur+KrXvNF1r3ZBuP2BgRUEPEqE1yaIQ
-	S6wWotzoTIyPyr4LDYh5vhpGM2SeBcpkMjsncOc3fgDh+44bfeVpDmOoZMhrt5pf
-	HWIATxyxHKYSMkfFeYIpT6142VhNlxjHZEbbaQXyuuv9Xj5xPzCnSkLdECdUs/fy
-	Aq9EPYk1bigPn40hvgDHt1JSyHY+3S1OgVoVvyPoxV8oBTKqYiif0bpNS81Q9ygG
-	QTx36tIWBWZIGJSaI1uBd61hvz2Rc0YZTyOIkGBlgSh9y/KS5o+YQpfPgf7PUZY8
-	av2/oJbpJ/YzijnrDDmK6uTVL5FmgV8ZByMeU6OtTVBrOtyI9g8QA==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a59q9876x-1
+	:mime-version:references:subject:to; s=pp1; bh=44dD3G8F384Ce6uPP
+	kI4G1C2kToYhDz6X/+mFIzO52A=; b=X0dLfpIxabgUD77wk5t8PZ2GgRdAJ+Hmp
+	6fcEgjHryZIfA0OCvUf0fIiQliDK+rQGJbaKZCNPNGAdu/LwPFYusQKNIXTITWDG
+	QCxCh+tmpt/LXfTHi/9b5CBuLpq1OZ8NfMQvzeveJkCVFCmeEGkIeEBJuDfxGjLE
+	blyOae29C6PVu3xiSQhvYhOQZnME0+yP9UFLuivAf6TMy1Mhb5UHQ2+Bb71kRxQh
+	EaJvSq0BHwrEo8wzgyWil8v8P6/KFKDzpUTFtRmFWG5pngaslNVAtpvP4OY/pnwH
+	aTngNKbscNdc3PQwdAICTROu84XfDp2FGdFKo90Q/io8WHmwPNspw==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a59v276b5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 06 Nov 2025 16:11:29 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5A6FSEud009863;
-	Thu, 6 Nov 2025 16:11:28 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4a5x1kp93r-1
+	Thu, 06 Nov 2025 16:11:30 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5A6G5Igo012845;
+	Thu, 6 Nov 2025 16:11:29 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4a5y8262ax-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 06 Nov 2025 16:11:28 +0000
+	Thu, 06 Nov 2025 16:11:29 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5A6GBO2a40829422
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5A6GBPr127591242
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 6 Nov 2025 16:11:24 GMT
+	Thu, 6 Nov 2025 16:11:25 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5BABA2004B;
+	by IMSVA (Postfix) with ESMTP id 6260E2004E;
+	Thu,  6 Nov 2025 16:11:25 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E6F482004B;
 	Thu,  6 Nov 2025 16:11:24 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DF5A82004E;
-	Thu,  6 Nov 2025 16:11:23 +0000 (GMT)
 Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.155.209.42])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  6 Nov 2025 16:11:23 +0000 (GMT)
+	Thu,  6 Nov 2025 16:11:24 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
@@ -59,9 +59,9 @@ Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         nrb@linux.ibm.com, seiden@linux.ibm.com, schlameuss@linux.ibm.com,
         hca@linux.ibm.com, svens@linux.ibm.com, agordeev@linux.ibm.com,
         gor@linux.ibm.com, david@redhat.com, gerald.schaefer@linux.ibm.com
-Subject: [PATCH v3 13/23] KVM: s390: KVM page table management functions: CMMA
-Date: Thu,  6 Nov 2025 17:11:07 +0100
-Message-ID: <20251106161117.350395-14-imbrenda@linux.ibm.com>
+Subject: [PATCH v3 15/23] KVM: s390: Add helper functions for fault handling
+Date: Thu,  6 Nov 2025 17:11:09 +0100
+Message-ID: <20251106161117.350395-16-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.51.1
 In-Reply-To: <20251106161117.350395-1-imbrenda@linux.ibm.com>
 References: <20251106161117.350395-1-imbrenda@linux.ibm.com>
@@ -73,361 +73,349 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=StmdKfO0 c=1 sm=1 tr=0 ts=690cc8b1 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-GUID: KT4YJ79Lbl9IPmnw2V8tMxXz5rr8nNHR
+X-Proofpoint-ORIG-GUID: KT4YJ79Lbl9IPmnw2V8tMxXz5rr8nNHR
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTAxMDAyMSBTYWx0ZWRfX2SCQ+BOZpVip
+ l2zeHzZXw1mHVugOpqchurgp9bQbSwyrWtTmXIFDCHj0fOMWZefpww88MAB0BvIkwo4Gk1Sp9ev
+ jaTtnq9dQdPyFJMqKsHLwUMxVV1QjKbt5rtQEOWJrmsqKbVSOYnXxsVe4BEy+u9Kapa9hU8JOu3
+ aiUcDdFaTCFVC2b9GDsCggz/mOFfmZ6Yf/ZN96bMjOj1tGAufa2OMgAtGfMVnzWcA/ewcvM81L2
+ JHHcLSrFxMq8+FXWfA2BK6jX6MyBNuTJEfyxOIu5ZLrpkVKQ5tkbgTVd8RZnA9hhYeK2gURT3AI
+ 3ctAxKwV0MZE/r3v5Cckfffi7qLUyP5ANLLOWLtH9B2GkoOBuB7xJ6XPgtLf//P3Fu04cpt1sZS
+ 9lFThSj06hYKYWZ1cfEZWSlaKNMyEw==
+X-Authority-Analysis: v=2.4 cv=H8HWAuYi c=1 sm=1 tr=0 ts=690cc8b2 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
- a=XQIW6j_J4to4VNKvMa8A:9
-X-Proofpoint-ORIG-GUID: sTxCehtxIY70nDoZH8xW-rAFSs9pDCnT
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTAxMDAxOCBTYWx0ZWRfXxCwBItYFnBcW
- XRbfEHA2TFPTwIbS26X8jfIkKDzsUhvME47zmi1o1JnLWyI0p8aaKf8ECL/R7zfWRWigqF3dIZM
- 7PxIgdrpYrBRpLPph/RjTRgoxs9zbWrfEeG4YJ0Zh3fkY812gNHA59RaIBKSJwB8im6SilkKfmo
- FeKElRaag5PLsH1nNKfXEM3Vqlmkku1MjgGluHanzGOA1Qg99xW/wl0pMm0x2w4mADkERTIobQg
- hinyYiOgmUXHd+BatGi/A6NPrd6aNPiRWRGVADqc26+SCfW+8W3HopgsOFoQHl0/Zy1tH2Q9LBI
- aFCJCN/NC5TZdMXBbxC9KINXVn0w2x3ofMpXGbiUbnEqN8IrUfSenmEBQ0DLVUBTqy4XJTTrAm/
- 2E6zGUVRRQCpExs/kPL0iUiVOCaScQ==
-X-Proofpoint-GUID: sTxCehtxIY70nDoZH8xW-rAFSs9pDCnT
+ a=A4J1138ORUdiv7jBIEgA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-11-06_03,2025-11-06_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 suspectscore=0 phishscore=0 impostorscore=0 priorityscore=1501
- malwarescore=0 clxscore=1015 adultscore=0 bulkscore=0 lowpriorityscore=0
+ spamscore=0 phishscore=0 lowpriorityscore=0 priorityscore=1501 adultscore=0
+ impostorscore=0 clxscore=1015 bulkscore=0 suspectscore=0 malwarescore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511010018
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511010021
 
-Add page table management functions to be used for KVM guest (gmap)
-page tables.
+Add some helper functions for handling multiple guest faults at the
+same time.
 
-This patch adds functions to handle CMMA and the ESSA instruction.
+This will be needed for VSIE, where a nested guest access also needs to
+access all the page tables that map it.
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- arch/s390/kvm/dat.c | 262 ++++++++++++++++++++++++++++++++++++++++++++
- arch/s390/kvm/dat.h |  27 +++++
- 2 files changed, 289 insertions(+)
+ arch/s390/include/asm/kvm_host.h |   1 +
+ arch/s390/kvm/Makefile           |   2 +-
+ arch/s390/kvm/faultin.c          | 148 +++++++++++++++++++++++++++++++
+ arch/s390/kvm/faultin.h          |  92 +++++++++++++++++++
+ arch/s390/kvm/kvm-s390.c         |   2 +-
+ arch/s390/kvm/kvm-s390.h         |   2 +
+ 6 files changed, 245 insertions(+), 2 deletions(-)
+ create mode 100644 arch/s390/kvm/faultin.c
+ create mode 100644 arch/s390/kvm/faultin.h
 
-diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
-index 666aebec72eb..d2a68cee8ff6 100644
---- a/arch/s390/kvm/dat.c
-+++ b/arch/s390/kvm/dat.c
-@@ -1098,3 +1098,265 @@ int dat_set_prefix_notif_bit(union asce asce, gfn_t gfn)
- 		return -EAGAIN;
- 	return 0;
- }
-+
-+/**
-+ * dat_perform_essa() - perform ESSA actions on the PGSTE.
-+ * @asce: the asce to operate on.
-+ * @gfn: the guest page frame to operate on.
-+ * @orc: the specific action to perform, see the ESSA_SET_* macros.
-+ * @state: the storage attributes to be returned to the guest.
-+ * @dirty: returns whether the function dirtied a previously clean entry.
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index f5f87dae0dd9..958a3b8c32d1 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -441,6 +441,7 @@ struct kvm_vcpu_arch {
+ 	bool acrs_loaded;
+ 	struct kvm_s390_pv_vcpu pv;
+ 	union diag318_info diag318_info;
++	void *mc; /* Placeholder */
+ };
+ 
+ struct kvm_vm_stat {
+diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
+index 21088265402c..1e2dcd3e2436 100644
+--- a/arch/s390/kvm/Makefile
++++ b/arch/s390/kvm/Makefile
+@@ -9,7 +9,7 @@ ccflags-y := -Ivirt/kvm -Iarch/s390/kvm
+ 
+ kvm-y += kvm-s390.o intercept.o interrupt.o priv.o sigp.o
+ kvm-y += diag.o gaccess.o guestdbg.o vsie.o pv.o gmap-vsie.o
+-kvm-y += dat.o gmap.o
++kvm-y += dat.o gmap.o faultin.o
+ 
+ kvm-$(CONFIG_VFIO_PCI_ZDEV_KVM) += pci.o
+ obj-$(CONFIG_KVM) += kvm.o
+diff --git a/arch/s390/kvm/faultin.c b/arch/s390/kvm/faultin.c
+new file mode 100644
+index 000000000000..9795ed429097
+--- /dev/null
++++ b/arch/s390/kvm/faultin.c
+@@ -0,0 +1,148 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ *  KVM guest fault handling.
 + *
-+ * Context: Called with kvm->mmu_lock held.
++ *    Copyright IBM Corp. 2025
++ *    Author(s): Claudio Imbrenda <imbrenda@linux.ibm.com>
++ */
++#include <linux/kvm_types.h>
++#include <linux/kvm_host.h>
++
++#include "gmap.h"
++#include "trace.h"
++#include "faultin.h"
++
++bool kvm_arch_setup_async_pf(struct kvm_vcpu *vcpu);
++
++/*
++ * kvm_s390_faultin_gfn() - handle a dat fault.
++ * @vcpu: the vCPU whose gmap is to be fixed up, or NULL if operating on the VM.
++ * @kvm: the VM whose gmap is to be fixed up, or NULL if operating on a vCPU.
++ * @f: the guest fault that needs to be resolved.
 + *
 + * Return:
-+ * * 1 if the page state has been altered and the page is to be added to the CBRL
-+ * * 0 if the page state has been altered, but the page is not to be added to the CBRL
-+ * * -1 if the page state has not been altered and the page is not to be added to the CBRL
++ * * 0 on success
++ * * < 0 in case of error
++ * * > 0 in case of guest exceptions
++ *
++ * Context:
++ * * The mm lock must not be held before calling
++ * * kvm->srcu must be held
++ * * may sleep
 + */
-+int dat_perform_essa(union asce asce, gfn_t gfn, int orc, union essa_state *state, bool *dirty)
++int kvm_s390_faultin_gfn(struct kvm_vcpu *vcpu, struct kvm *kvm, struct guest_fault *f)
 +{
-+	union crste *crstep;
-+	union pgste pgste;
-+	union pte *ptep;
-+	int res = 0;
++	struct kvm_s390_mmu_cache *local_mc __free(kvm_s390_mmu_cache) = NULL;
++	struct kvm_s390_mmu_cache *mc = NULL;
++	struct kvm_memory_slot *slot;
++	unsigned long inv_seq;
++	int foll, rc = 0;
 +
-+	if (dat_entry_walk(NULL, gfn, asce, 0, TABLE_TYPE_PAGE_TABLE, &crstep, &ptep)) {
-+		*state = (union essa_state) { .exception = 1 };
-+		return -1;
++	foll = f->write_attempt ? FOLL_WRITE : 0;
++	foll |= f->attempt_pfault ? FOLL_NOWAIT : 0;
++
++	if (vcpu) {
++		kvm = vcpu->kvm;
++		mc = vcpu->arch.mc;
 +	}
 +
-+	pgste = pgste_get_lock(ptep);
++	lockdep_assert_held(&kvm->srcu);
 +
-+	*state = (union essa_state) {
-+		.content = (ptep->h.i << 1) + (ptep->h.i && pgste.zero),
-+		.nodat = pgste.nodat,
-+		.usage = pgste.usage,
-+		};
++	scoped_guard(read_lock, &kvm->mmu_lock) {
++		if (gmap_try_fixup_minor(kvm->arch.gmap, f) == 0)
++			return 0;
++	}
 +
-+	switch (orc) {
-+	case ESSA_GET_STATE:
-+		res = -1;
-+		break;
-+	case ESSA_SET_STABLE:
-+		pgste.usage = PGSTE_GPS_USAGE_STABLE;
-+		pgste.nodat = 0;
-+		break;
-+	case ESSA_SET_UNUSED:
-+		pgste.usage = PGSTE_GPS_USAGE_UNUSED;
-+		if (ptep->h.i)
-+			res = 1;
-+		break;
-+	case ESSA_SET_VOLATILE:
-+		pgste.usage = PGSTE_GPS_USAGE_VOLATILE;
-+		if (ptep->h.i)
-+			res = 1;
-+		break;
-+	case ESSA_SET_POT_VOLATILE:
-+		if (!ptep->h.i) {
-+			pgste.usage = PGSTE_GPS_USAGE_POT_VOLATILE;
-+		} else if (pgste.zero) {
-+			pgste.usage = PGSTE_GPS_USAGE_VOLATILE;
-+		} else if (!pgste.gc) {
-+			pgste.usage = PGSTE_GPS_USAGE_VOLATILE;
-+			res = 1;
++	while (1) {
++		f->valid = false;
++		inv_seq = kvm->mmu_invalidate_seq;
++		/* Pairs with the smp_wmb() in kvm_mmu_invalidate_end(). */
++		smp_rmb();
++
++		if (vcpu)
++			slot = kvm_vcpu_gfn_to_memslot(vcpu, f->gfn);
++		else
++			slot = gfn_to_memslot(kvm, f->gfn);
++		f->pfn = __kvm_faultin_pfn(slot, f->gfn, foll, &f->writable, &f->page);
++
++		/* Needs I/O, try to setup async pfault (only possible with FOLL_NOWAIT) */
++		if (f->pfn == KVM_PFN_ERR_NEEDS_IO) {
++			if (unlikely(!f->attempt_pfault))
++				return -EAGAIN;
++			if (unlikely(!vcpu))
++				return -EINVAL;
++			trace_kvm_s390_major_guest_pfault(vcpu);
++			if (kvm_arch_setup_async_pf(vcpu))
++				return 0;
++			vcpu->stat.pfault_sync++;
++			/* Could not setup async pfault, try again synchronously */
++			foll &= ~FOLL_NOWAIT;
++			f->pfn = __kvm_faultin_pfn(slot, f->gfn, foll, &f->writable, &f->page);
 +		}
-+		break;
-+	case ESSA_SET_STABLE_RESIDENT:
-+		pgste.usage = PGSTE_GPS_USAGE_STABLE;
-+		/*
-+		 * Since the resident state can go away any time after this
-+		 * call, we will not make this page resident. We can revisit
-+		 * this decision if a guest will ever start using this.
-+		 */
-+		break;
-+	case ESSA_SET_STABLE_IF_RESIDENT:
-+		if (!ptep->h.i)
-+			pgste.usage = PGSTE_GPS_USAGE_STABLE;
-+		break;
-+	case ESSA_SET_STABLE_NODAT:
-+		pgste.usage = PGSTE_GPS_USAGE_STABLE;
-+		pgste.nodat = 1;
-+		break;
-+	default:
-+		WARN_ONCE(1, "Invalid ORC!");
-+		res = -1;
-+		break;
-+	}
-+	/* If we are discarding a page, set it to logical zero */
-+	pgste.zero = res == 1;
-+	if (orc > 0) {
-+		*dirty = !pgste.cmma_d;
-+		pgste.cmma_d = 1;
-+	}
 +
-+	pgste_set_unlock(ptep, pgste);
++		/* Access outside memory, addressing exception */
++		if (is_noslot_pfn(f->pfn))
++			return PGM_ADDRESSING;
++		/* Signal pending: try again */
++		if (f->pfn == KVM_PFN_ERR_SIGPENDING)
++			return -EAGAIN;
++		/* Check if it's read-only memory; don't try to actually handle that case. */
++		if (f->pfn == KVM_PFN_ERR_RO_FAULT)
++			return -EOPNOTSUPP;
++		/* Any other error */
++		if (is_error_pfn(f->pfn))
++			return -EFAULT;
 +
-+	return res;
-+}
++		if (!mc) {
++			local_mc = kvm_s390_new_mmu_cache();
++			if (!local_mc)
++				return -ENOMEM;
++			mc = local_mc;
++		}
 +
-+static long dat_reset_cmma_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
-+{
-+	union pgste pgste;
++		/* Loop, will automatically release the faulted page */
++		if (mmu_invalidate_retry_gfn_unsafe(kvm, inv_seq, f->gfn)) {
++			kvm_release_faultin_page(kvm, f->page, true, false);
++			continue;
++		}
 +
-+	pgste = pgste_get_lock(ptep);
-+	pgste.usage = 0;
-+	pgste.nodat = 0;
-+	pgste.cmma_d = 0;
-+	pgste_set_unlock(ptep, pgste);
-+	if (need_resched())
-+		return next;
-+	return 0;
-+}
++		scoped_guard(read_lock, &kvm->mmu_lock) {
++			if (!mmu_invalidate_retry_gfn(kvm, inv_seq, f->gfn)) {
++				f->valid = true;
++				rc = gmap_link(mc, kvm->arch.gmap, f);
++				kvm_release_faultin_page(kvm, f->page, !!rc, f->write_attempt);
++				f->page = NULL;
++			}
++		}
++		kvm_release_faultin_page(kvm, f->page, true, false);
 +
-+long dat_reset_cmma(union asce asce, gfn_t start)
-+{
-+	const struct dat_walk_ops dat_reset_cmma_ops = {
-+		.pte_entry = dat_reset_cmma_pte,
-+	};
-+
-+	return _dat_walk_gfn_range(start, asce_end(asce), asce, &dat_reset_cmma_ops,
-+				   DAT_WALK_IGN_HOLES, NULL);
-+}
-+
-+struct dat_get_cmma_state {
-+	gfn_t start;
-+	gfn_t end;
-+	unsigned int count;
-+	u8 *values;
-+	atomic64_t *remaining;
-+};
-+
-+static long __dat_peek_cmma_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
-+{
-+	struct dat_get_cmma_state *state = walk->priv;
-+	union pgste pgste;
-+
-+	pgste = pgste_get_lock(ptep);
-+	state->values[gfn - walk->start] = pgste.usage | (pgste.nodat << 6);
-+	pgste_set_unlock(ptep, pgste);
-+	state->end = next;
-+
-+	return 0;
-+}
-+
-+static long __dat_peek_cmma_crste(union crste *crstep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
-+{
-+	struct dat_get_cmma_state *state = walk->priv;
-+
-+	if (crstep->h.i)
-+		state->end = min(walk->end, next);
-+	return 0;
-+}
-+
-+int dat_peek_cmma(gfn_t start, union asce asce, unsigned int *count, u8 *values)
-+{
-+	const struct dat_walk_ops ops = {
-+		.pte_entry = __dat_peek_cmma_pte,
-+		.pmd_entry = __dat_peek_cmma_crste,
-+		.pud_entry = __dat_peek_cmma_crste,
-+		.p4d_entry = __dat_peek_cmma_crste,
-+		.pgd_entry = __dat_peek_cmma_crste,
-+	};
-+	struct dat_get_cmma_state state = { .values = values, };
-+	int rc;
-+
-+	rc = _dat_walk_gfn_range(start, start + *count, asce, &ops, DAT_WALK_DEFAULT, &state);
-+	*count = state.end - start;
-+	/* Return success if at least one value was saved, otherwise an error. */
-+	return (rc == -EFAULT && *count > 0) ? 0 : rc;
-+}
-+
-+static long __dat_get_cmma_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
-+{
-+	struct dat_get_cmma_state *state = walk->priv;
-+	union pgste pgste;
-+
-+	if (state->start != -1) {
-+		if ((gfn - state->end) > KVM_S390_MAX_BIT_DISTANCE)
-+			return 1;
-+		if (gfn - state->start >= state->count)
-+			return 1;
-+	}
-+
-+	if (!READ_ONCE(*pgste_of(ptep)).cmma_d)
-+		return 0;
-+
-+	pgste = pgste_get_lock(ptep);
-+	if (pgste.cmma_d) {
-+		if (state->start == -1)
-+			state->start = gfn;
-+		pgste.cmma_d = 0;
-+		atomic64_dec(state->remaining);
-+		state->values[gfn - state->start] = pgste.usage | pgste.nodat << 6;
-+		state->end = next;
-+	}
-+	pgste_set_unlock(ptep, pgste);
-+	return 0;
-+}
-+
-+int dat_get_cmma(union asce asce, gfn_t *start, unsigned int *count, u8 *values, atomic64_t *rem)
-+{
-+	const struct dat_walk_ops ops = { .pte_entry = __dat_get_cmma_pte, };
-+	struct dat_get_cmma_state state = {
-+		.remaining = rem,
-+		.values = values,
-+		.count = *count,
-+		.start = -1,
-+	};
-+
-+	_dat_walk_gfn_range(*start, asce_end(asce), asce, &ops, DAT_WALK_IGN_HOLES, &state);
-+
-+	if (state.start == -1) {
-+		*count = 0;
-+	} else {
-+		*count = state.end - state.start;
-+		*start = state.start;
-+	}
-+
-+	return 0;
-+}
-+
-+struct dat_set_cmma_state {
-+	unsigned long mask;
-+	const u8 *bits;
-+};
-+
-+static long __dat_set_cmma_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
-+{
-+	struct dat_set_cmma_state *state = walk->priv;
-+	union pgste pgste, tmp;
-+
-+	tmp.val = (state->bits[gfn - walk->start] << 24) & state->mask;
-+
-+	pgste = pgste_get_lock(ptep);
-+	pgste.usage = tmp.usage;
-+	pgste.nodat = tmp.nodat;
-+	pgste_set_unlock(ptep, pgste);
-+
-+	return 0;
-+}
-+
-+/*
-+ * This function sets the CMMA attributes for the given pages. If the input
-+ * buffer has zero length, no action is taken, otherwise the attributes are
-+ * set and the mm->context.uses_cmm flag is set.
-+ */
-+int dat_set_cmma_bits(struct kvm_s390_mmu_cache *mc, union asce asce, gfn_t gfn,
-+		      unsigned long count, unsigned long mask, const uint8_t *bits)
-+{
-+	const struct dat_walk_ops ops = { .pte_entry = __dat_set_cmma_pte, };
-+	struct dat_set_cmma_state state = { .mask = mask, .bits = bits, };
-+	union crste *crstep;
-+	union pte *ptep;
-+	gfn_t cur;
-+	int rc;
-+
-+	for (cur = ALIGN_DOWN(gfn, _PAGE_ENTRIES); cur < gfn + count; cur += _PAGE_ENTRIES) {
-+		rc = dat_entry_walk(mc, cur, asce, DAT_WALK_ALLOC, TABLE_TYPE_PAGE_TABLE,
-+				    &crstep, &ptep);
-+		if (rc)
++		if (rc == -ENOMEM) {
++			rc = kvm_s390_mmu_cache_topup(mc);
++			if (rc)
++				return rc;
++		} else if (rc != -EAGAIN) {
 +			return rc;
++		}
 +	}
-+	return _dat_walk_gfn_range(gfn, gfn + count, asce, &ops, DAT_WALK_IGN_HOLES, &state);
 +}
-diff --git a/arch/s390/kvm/dat.h b/arch/s390/kvm/dat.h
-index 0dc80893ed7c..098cd454b161 100644
---- a/arch/s390/kvm/dat.h
-+++ b/arch/s390/kvm/dat.h
-@@ -18,6 +18,15 @@
- #include <asm/tlbflush.h>
- #include <asm/dat-bits.h>
- 
-+/*
-+ * Base address and length must be sent at the start of each block, therefore
-+ * it's cheaper to send some clean data, as long as it's less than the size of
-+ * two longs.
-+ */
-+#define KVM_S390_MAX_BIT_DISTANCE (2 * sizeof(void *))
-+/* For consistency */
-+#define KVM_S390_CMMA_SIZE_MAX ((u32)KVM_S390_SKEYS_MAX)
 +
- #define _ASCE(x) ((union asce) { .val = (x), })
- #define NULL_ASCE _ASCE(0)
- 
-@@ -434,6 +443,17 @@ static inline union crste _crste_fc1(kvm_pfn_t pfn, int tt, bool writable, bool
- 	return res;
++int kvm_s390_get_guest_page(struct kvm *kvm, struct guest_fault *f, gfn_t gfn, bool w)
++{
++	struct kvm_memory_slot *slot = gfn_to_memslot(kvm, gfn);
++	int foll = w ? FOLL_WRITE : 0;
++
++	f->write_attempt = w;
++	f->gfn = gfn;
++	f->pfn = __kvm_faultin_pfn(slot, gfn, foll, &f->writable, &f->page);
++	if (is_noslot_pfn(f->pfn))
++		return PGM_ADDRESSING;
++	if (is_sigpending_pfn(f->pfn))
++		return -EINTR;
++	if (f->pfn == KVM_PFN_ERR_NEEDS_IO)
++		return -EAGAIN;
++	if (is_error_pfn(f->pfn))
++		return -EFAULT;
++
++	f->valid = true;
++	return 0;
++}
+diff --git a/arch/s390/kvm/faultin.h b/arch/s390/kvm/faultin.h
+new file mode 100644
+index 000000000000..f86176d2769c
+--- /dev/null
++++ b/arch/s390/kvm/faultin.h
+@@ -0,0 +1,92 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ *  KVM guest fault handling.
++ *
++ *    Copyright IBM Corp. 2025
++ *    Author(s): Claudio Imbrenda <imbrenda@linux.ibm.com>
++ */
++
++#ifndef __KVM_S390_FAULTIN_H
++#define __KVM_S390_FAULTIN_H
++
++#include <linux/kvm_host.h>
++
++#include "dat.h"
++
++int kvm_s390_faultin_gfn(struct kvm_vcpu *vcpu, struct kvm *kvm, struct guest_fault *f);
++int kvm_s390_get_guest_page(struct kvm *kvm, struct guest_fault *f, gfn_t gfn, bool w);
++
++static inline int kvm_s390_faultin_gfn_simple(struct kvm_vcpu *vcpu, struct kvm *kvm,
++					      gfn_t gfn, bool wr)
++{
++	struct guest_fault f = { .gfn = gfn, .write_attempt = wr, };
++
++	return kvm_s390_faultin_gfn(vcpu, kvm, &f);
++}
++
++static inline int kvm_s390_get_guest_page_and_read_gpa(struct kvm *kvm, struct guest_fault *f,
++						       gpa_t gaddr, unsigned long *val)
++{
++	int rc;
++
++	rc = kvm_s390_get_guest_page(kvm, f, gpa_to_gfn(gaddr), false);
++	if (rc)
++		return rc;
++
++	*val = *(unsigned long *)phys_to_virt(pfn_to_phys(f->pfn) | offset_in_page(gaddr));
++
++	return 0;
++}
++
++static inline void kvm_s390_release_multiple(struct kvm *kvm, struct guest_fault *guest_faults,
++					     int n, bool ignore)
++{
++	int i;
++
++	for (i = 0; i < n; i++) {
++		kvm_release_faultin_page(kvm, guest_faults[i].page, ignore,
++					 guest_faults[i].write_attempt);
++		guest_faults[i].page = NULL;
++	}
++}
++
++static inline bool kvm_s390_multiple_faults_need_retry(struct kvm *kvm, unsigned long seq,
++						       struct guest_fault *guest_faults, int n,
++						       bool unsafe)
++{
++	int i;
++
++	for (i = 0; i < n; i++) {
++		if (!guest_faults[i].valid)
++			continue;
++		if (unsafe && mmu_invalidate_retry_gfn_unsafe(kvm, seq, guest_faults[i].gfn))
++			return true;
++		if (!unsafe && mmu_invalidate_retry_gfn(kvm, seq, guest_faults[i].gfn))
++			return true;
++	}
++	return false;
++}
++
++static inline int kvm_s390_get_guest_pages(struct kvm *kvm, struct guest_fault *guest_faults,
++					   gfn_t start, int n_pages, bool write_attempt)
++{
++	int i, rc;
++
++	for (i = 0; i < n_pages; i++) {
++		rc = kvm_s390_get_guest_page(kvm, guest_faults + i, start + i, write_attempt);
++		if (rc)
++			break;
++	}
++	return rc;
++}
++
++#define kvm_s390_release_faultin_array(kvm, array, ignore) \
++	kvm_s390_release_multiple(kvm, array, ARRAY_SIZE(array), ignore)
++
++#define kvm_s390_array_needs_retry_unsafe(kvm, seq, array) \
++	kvm_s390_multiple_faults_need_retry(kvm, seq, array, ARRAY_SIZE(array), true)
++
++#define kvm_s390_array_needs_retry_safe(kvm, seq, array) \
++	kvm_s390_multiple_faults_need_retry(kvm, seq, array, ARRAY_SIZE(array), false)
++
++#endif /* __KVM_S390_FAULTIN_H */
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 2e34f993e3c5..d7eff75a53d0 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4747,7 +4747,7 @@ bool kvm_arch_can_dequeue_async_page_present(struct kvm_vcpu *vcpu)
+ 	return true;
  }
  
-+union essa_state {
-+	unsigned char val;
-+	struct {
-+		unsigned char		: 2;
-+		unsigned char nodat	: 1;
-+		unsigned char exception	: 1;
-+		unsigned char usage	: 2;
-+		unsigned char content	: 2;
-+	};
-+};
-+
- /**
-  * struct vsie_rmap - reverse mapping for shadow page table entries
-  * @next: pointer to next rmap in the list
-@@ -523,6 +543,13 @@ bool dat_test_age_gfn(union asce asce, gfn_t start, gfn_t end);
- int dat_link(struct kvm_s390_mmu_cache *mc, union asce asce, int level,
- 	     bool uses_skeys, struct guest_fault *f);
+-static bool kvm_arch_setup_async_pf(struct kvm_vcpu *vcpu)
++bool kvm_arch_setup_async_pf(struct kvm_vcpu *vcpu)
+ {
+ 	hva_t hva;
+ 	struct kvm_arch_async_pf arch;
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index c44fe0c3a097..f89f9f698df5 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -470,6 +470,8 @@ static inline int kvm_s390_handle_dat_fault(struct kvm_vcpu *vcpu, gpa_t gaddr,
+ 	return __kvm_s390_handle_dat_fault(vcpu, gpa_to_gfn(gaddr), gaddr, flags);
+ }
  
-+int dat_perform_essa(union asce asce, gfn_t gfn, int orc, union essa_state *state, bool *dirty);
-+long dat_reset_cmma(union asce asce, gfn_t start_gfn);
-+int dat_peek_cmma(gfn_t start, union asce asce, unsigned int *count, u8 *values);
-+int dat_get_cmma(union asce asce, gfn_t *start, unsigned int *count, u8 *values, atomic64_t *rem);
-+int dat_set_cmma_bits(struct kvm_s390_mmu_cache *mc, union asce asce, gfn_t gfn,
-+		      unsigned long count, unsigned long mask, const uint8_t *bits);
++bool kvm_arch_setup_async_pf(struct kvm_vcpu *vcpu);
 +
- int kvm_s390_mmu_cache_topup(struct kvm_s390_mmu_cache *mc);
+ /* implemented in diag.c */
+ int kvm_s390_handle_diag(struct kvm_vcpu *vcpu);
  
- #define GFP_KVM_S390_MMU_CACHE (GFP_ATOMIC | __GFP_ACCOUNT | __GFP_NOWARN)
 -- 
 2.51.1
 
