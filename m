@@ -1,130 +1,162 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from fout-a4-smtp.messagingengine.com (fout-a4-smtp.messagingengine.com [103.168.172.147])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5D6B287518;
-	Thu,  6 Nov 2025 16:38:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A09912C0F96;
+	Thu,  6 Nov 2025 17:22:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.147
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762447089; cv=none; b=jx8I8yG1SA+S4kjVBcvbVdCiVerwM0OOynWNdW+io0BPiT61O9Oytr0orILNY67G10B4B4GZWY88YFRIL6PgY9XycTqDeTaqDcxkeff16sxen6SEQ2s0wLWoMmGEgaJ0q7MnXzWrvJRB29V3Ey/v+rmoGevGwP8xKBmPId7OiSc=
+	t=1762449731; cv=none; b=XdVPVKOMwU+THz2V/wutkJNkY0zZSj7CHucnS7AUmDE6pH8x0+xtuiBV3mSE1Ad8ZgxfSp2mZS+jqFUCJVh/2HC4IpUOrAcubaitWb0wBBgZZLY2s3Pf+lyc02mP4XDrvpqgZMxy8TajLWeB4P3YZqeoFcGf7cxMaTDEA4W5Ink=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762447089; c=relaxed/simple;
-	bh=CYIeQD9b+y6VN8RgJNGj9LBi97jbwyv1eQ0qXrEMlOg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qAu/9ndSh9E6zKLdIIcnxeh/UTCQhpVyHFbEQJmx0B+ndiOHfdQOjzBAu3IzHJaBY6LqosrDvxb3k2P35bHEd7QRpzO3zAJMNRdCJzOGESQSyEniqKpwU7tT8sBl1WdpokVqvhHtsa35eXw6aX3U/1WLo7w+p/KIcyvfwLHphNc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com; spf=pass smtp.mailfrom=de.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cggS6yMr; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=de.ibm.com
+	s=arc-20240116; t=1762449731; c=relaxed/simple;
+	bh=BVWSmu5KMUgAwmVaEZPq6gthhO/L/UWXLJBrNnPU1UA=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=UYz40lNisaHI6PlVsTwNAz7ffbrWLGNZZIYhy7snbPA49+2PBxaN/lALsrrka54iteaFpZkrXdkMMewcTIJEB3jiv1KiDQ/LfbirdKnWa8OWbMfd1z40ESoQxrSZ3BPhJsQ5oSqX/vgwoBIk9OLQT67eRu0BF7j4cQbMTnQQqmg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=PtsuK0f3; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=2I7NVcIl; arc=none smtp.client-ip=103.168.172.147
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cggS6yMr"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5A66bKov028252;
-	Thu, 6 Nov 2025 16:38:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=aU1pQI
-	WYInYxmXTeOholEs4c9kD1dhRu52+eRPTQThA=; b=cggS6yMrztjhEWNqWCzhPS
-	YJnsXzdiws1TBdUgkn71FyVDiTYzmNv2EpmMFqKA1VAJ0ZadAnIZ/Rpyf5506p8t
-	qLtGSNrzm0CO+ozx+XZS3sDrpeyd7/fnOIn12XZ4IBx1BD0dPQyz9D3QrAbN/QlW
-	ijrWAJpXIzoB4og9zHDBgLH0n7Khd1XIzsqAZBqawNRl/begn5HSZG41LLtE5XGU
-	vheUMcbacGkCo9Ebvmn9Ps9L5bXpPa4LW9Bzyc9m6rwmka00CKidtV9cRCfUYuHK
-	ZgFGSw58fyTABtA8zDX4JMd8bizGJ5vobLS7iTqJPuWDXwieoILFGhooRpVnMh3w
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a59q98bun-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 06 Nov 2025 16:38:03 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5A6FHqDv018784;
-	Thu, 6 Nov 2025 16:38:02 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4a5whnpf21-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 06 Nov 2025 16:38:02 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5A6Gbw6G57082284
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 6 Nov 2025 16:37:58 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B78B52004B;
-	Thu,  6 Nov 2025 16:37:58 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3F75220040;
-	Thu,  6 Nov 2025 16:37:58 +0000 (GMT)
-Received: from [9.155.199.94] (unknown [9.155.199.94])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  6 Nov 2025 16:37:58 +0000 (GMT)
-Message-ID: <95a76871-771a-4fac-9771-c9e1f4a888ea@de.ibm.com>
-Date: Thu, 6 Nov 2025 17:37:57 +0100
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="PtsuK0f3";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="2I7NVcIl"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfout.phl.internal (Postfix) with ESMTP id 7131AEC025B;
+	Thu,  6 Nov 2025 12:22:07 -0500 (EST)
+Received: from phl-imap-02 ([10.202.2.81])
+  by phl-compute-04.internal (MEProxy); Thu, 06 Nov 2025 12:22:07 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1762449727;
+	 x=1762536127; bh=TQ4GgdM8KMjiFNoveJBSCQRm3uDbF8oZgBhhE89LoX4=; b=
+	PtsuK0f319LO45lQah6VIlHKcBebKDpwzs+8+S63Ih2uA1rnN8V+VHZwIo2IR6gE
+	UotFl2nTxcby+j5R8f+Vmuhxgv4Hm5O90ixA7ZgJVMPMdu/irmAXQa3pHZxYlZUc
+	Y3f3UI4bGgKxUqnYTCJr8stJZjZ49rN3UUh+m/DZ2yRbXZ06n5E35cbZ7jN2ns4R
+	YE4x8CAbK0h4ChU4SWLti5Pf+Q+ujzQi+QAQehiYOzJbLeI8TuzyVsoRzZGYGEV2
+	A792tJTOa9P3sKs4bNkVl89ferrG8+rQk6iKTByyeeLSfS2GncgY4E+R048EQ6c8
+	OuiDEnH515NYfsukF4a9Ig==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1762449727; x=
+	1762536127; bh=TQ4GgdM8KMjiFNoveJBSCQRm3uDbF8oZgBhhE89LoX4=; b=2
+	I7NVcIlWD2z3AfmYy/yeycsO4xGBqfCc1aJomcwzCoFur0AJ2uwG5Pxj9ZVMWP/P
+	3fkJnC+MlLYdb1437+n4JwWje2YGCl5TBbkERKxQek8I3DXRTHm2Ov/xL3gU1AUH
+	lP25GALiK/8YCJS8GJQMXZISwykI/bvZzMQbD6IqleeaQ1xHQk/pf4XLW8a89ZNv
+	OX95Ffje2Bgdlk2/B9QwfyYmnNd/eTvKG06IuZyVGFox9K+C6ON4INyUtY+B4P7i
+	/U1aaoL3jCfy65gUg/S0o/6AqzGuFurnw9i9bJjp27E1jQXjw2J61Znbq74l6Sdk
+	spCFNTas3qBD8tC8Dw+Jw==
+X-ME-Sender: <xms:PNkMaZMO1lPn7wub_x6RJYgXvPR-dmuVBOLe0MmQ3izKbD81hs6pnA>
+    <xme:PNkMaWwaT8hRBGLxXu_WTAWlI-HdBAVJFL4oRJhvE5E1lv6zloisZkL9eWoT0SWaT
+    IBdHg99pY-IDRQaDME0mJ54bwa48zwh-Mbn5smpD0W0gHaoCVNujIo>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggddukeejfeejucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepofggfffhvfevkfgjfhfutgfgsehtqhertdertdejnecuhfhrohhmpedftehrnhgu
+    uceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrthhtvg
+    hrnhepkedvuefhiedtueeijeevtdeiieejfeelvefffeelkeeiteejffdvkefgteeuhffg
+    necuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtne
+    curfgrrhgrmhepmhgrihhlfhhrohhmpegrrhhnugesrghrnhgusgdruggvpdhnsggprhgt
+    phhtthhopeefkedpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepthhssghoghgvnh
+    gusegrlhhphhgrrdhfrhgrnhhkvghnrdguvgdprhgtphhtthhopegtrghtrghlihhnrdhm
+    rghrihhnrghssegrrhhmrdgtohhmpdhrtghpthhtohepvhhinhgtvghniihordhfrhgrsh
+    gtihhnohesrghrmhdrtghomhdprhgtphhtthhopehlihhnuhigsegrrhhmlhhinhhugidr
+    ohhrghdruhhkpdhrtghpthhtoheptghhrhhishhtohhphhgvrdhlvghrohihsegtshhgrh
+    houhhprdgvuhdprhgtphhtthhopegurghvvghmsegurghvvghmlhhofhhtrdhnvghtpdhr
+    tghpthhtohepmhhpvgesvghllhgvrhhmrghnrdhiugdrrghupdhrtghpthhtoheprghnug
+    hrvggrshesghgrihhslhgvrhdrtghomhdprhgtphhtthhopehnphhighhgihhnsehgmhgr
+    ihhlrdgtohhm
+X-ME-Proxy: <xmx:PNkMaVUYfrmc5te1EUxSvgQ8TRVDaDGzRierkf5jayA311IlXx5ADA>
+    <xmx:PNkMabX_DlTmYrLzD_sdL2tXkJ4F4s076mdaMi8qr6vq8DbuWNylbw>
+    <xmx:PNkMaYMfKmo2E2B0ITXYRv6LyemjW9LOLDP3wOmyt7voffmGNPYxVA>
+    <xmx:PNkMafizk25mJNDFFaNeFGIdB428VC0-WvGeQMoXVrdUlnXuPgrPYA>
+    <xmx:P9kMaUCgmYPQKJzxhj8GAva_-VVQifLJ9oCwH3jMqxAHtW82r16n0xOk>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 78838700054; Thu,  6 Nov 2025 12:22:04 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 21/23] KVM: s390: Enable 1M pages for gmap
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, frankja@linux.ibm.com, nsg@linux.ibm.com,
-        nrb@linux.ibm.com, seiden@linux.ibm.com, schlameuss@linux.ibm.com,
-        hca@linux.ibm.com, svens@linux.ibm.com, agordeev@linux.ibm.com,
-        gor@linux.ibm.com, david@redhat.com, gerald.schaefer@linux.ibm.com
-References: <20251106161117.350395-1-imbrenda@linux.ibm.com>
- <20251106161117.350395-22-imbrenda@linux.ibm.com>
- <5dd6e694-8cf9-4b1c-ae83-088b6bd22a17@de.ibm.com>
- <20251106173650.31907261@p-imbrenda>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-In-Reply-To: <20251106173650.31907261@p-imbrenda>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=StmdKfO0 c=1 sm=1 tr=0 ts=690cceeb cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=5sJ8VKY1vcdsYsRJmOUA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: Dxoqecpu3TmIX9REChJRyfO3QtVplp-3
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTAxMDAxOCBTYWx0ZWRfX3LmNWjF9h0IQ
- EGv+27rIKyfOfjobr7eDaySxCX8Vicm6hHee4KW+Ke9HukAqpi+/rOJpJVrLmOmaEALiVBxi6BF
- mJ/82fD072gWkhQ9rfxEb/7HU5ui7lgEsPxzpVYjGyvGktLG7HiPYB1lIC9FjXoIIEVv4KiHwEP
- wdN6Hjt7J7jLIQ0QS8cMYmd/8toGfvcrddeQiiavtx02fjdNT49FTCdnO+PmLp40GyZmHZN+rkM
- J/f/8SqADtWPn1QsOUwMcXJ0X6l+eDoYYONC0jBUHHzVtu1Su4IbW3UIjLuI8P4+d9P3I1JYoGA
- bAnUIvlpa6A1CNbekzNcPN0ZapiXcFd5iAZxHOArQNEVqgXO7kuXubrsRDxFyceJYg/Sq7+YHWO
- TwvmxLya2R3NPTVhjDz2uJ5rlbwRRg==
-X-Proofpoint-GUID: Dxoqecpu3TmIX9REChJRyfO3QtVplp-3
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-11-06_03,2025-11-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 suspectscore=0 phishscore=0 impostorscore=0 priorityscore=1501
- malwarescore=0 clxscore=1015 adultscore=0 bulkscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511010018
+X-ThreadId: AisJtzLZ_1Kg
+Date: Thu, 06 Nov 2025 18:20:36 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
+ "Andy Lutomirski" <luto@kernel.org>,
+ "Thomas Gleixner" <tglx@linutronix.de>,
+ "Vincenzo Frascino" <vincenzo.frascino@arm.com>,
+ "David S . Miller" <davem@davemloft.net>,
+ "Andreas Larsson" <andreas@gaisler.com>,
+ "Nick Alcock" <nick.alcock@oracle.com>,
+ "John Stultz" <jstultz@google.com>, "Stephen Boyd" <sboyd@kernel.org>,
+ "John Paul Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>,
+ shuah <shuah@kernel.org>, "Catalin Marinas" <catalin.marinas@arm.com>,
+ "Will Deacon" <will@kernel.org>, "Theodore Ts'o" <tytso@mit.edu>,
+ "Jason A . Donenfeld" <Jason@zx2c4.com>,
+ "Russell King" <linux@armlinux.org.uk>,
+ "Madhavan Srinivasan" <maddy@linux.ibm.com>,
+ "Michael Ellerman" <mpe@ellerman.id.au>,
+ "Nicholas Piggin" <npiggin@gmail.com>,
+ "Christophe Leroy" <christophe.leroy@csgroup.eu>,
+ "Huacai Chen" <chenhuacai@kernel.org>, "WANG Xuerui" <kernel@xen0n.name>,
+ "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>,
+ "Heiko Carstens" <hca@linux.ibm.com>,
+ "Vasily Gorbik" <gor@linux.ibm.com>,
+ "Alexander Gordeev" <agordeev@linux.ibm.com>,
+ "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+ "Sven Schnelle" <svens@linux.ibm.com>,
+ "Shannon Nelson" <sln@onemain.com>
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-kselftest@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+ linux-mips@vger.kernel.org, linux-s390@vger.kernel.org,
+ "Arnd Bergmann" <arnd@kernel.org>
+Message-Id: <95430a56-1ee4-46e2-814e-01a8cd074a48@app.fastmail.com>
+In-Reply-To: 
+ <20251106-vdso-sparc64-generic-2-v5-0-97ff2b6542f7@linutronix.de>
+References: <20251106-vdso-sparc64-generic-2-v5-0-97ff2b6542f7@linutronix.de>
+Subject: Re: [PATCH v5 00/34] sparc64: vdso: Switch to the generic vDSO library
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
+On Thu, Nov 6, 2025, at 11:01, Thomas Wei=C3=9Fschuh wrote:
+> The generic vDSO provides a lot common functionality shared between
+> different architectures. SPARC is the last architecture not using it,
+> preventing some necessary code cleanup.
+>
+> Make use of the generic infrastructure.
+>
+> Follow-up to and replacement for Arnd's SPARC vDSO removal patches:
+> https://lore.kernel.org/lkml/20250707144726.4008707-1-arnd@kernel.org/
+>
+> SPARC64 can not map .bss into userspace, so the vDSO datapages are
+> switched over to be allocated dynamically. This requires changes to the
+> s390 and random subsystem vDSO initialization as preparation.
+> The random subsystem changes in turn require some cleanup of the vDSO
+> headers to not end up as ugly #ifdef mess.
+>
+> Tested on a Niagara T4 and QEMU.
+>
+> This has a semantic conflict with my series "vdso: Reject absolute
+> relocations during build" [0]. The last patch of this series expects a=
+ll
+> users of the generic vDSO library to use the vdsocheck tool.
+> This is not the case (yet) for SPARC64. I do have the patches for the
+> integration, the specifics will depend on which series is applied firs=
+t.
+>
+> Based on v6.18-rc1.
 
+I had a look at this version and everything looks fine to me.
 
-Am 06.11.25 um 17:36 schrieb Claudio Imbrenda:
-> On Thu, 6 Nov 2025 17:22:33 +0100
-> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-> 
->> Am 06.11.25 um 17:11 schrieb Claudio Imbrenda:
->>> While userspace is allowed to have pages of any size, the new gmap
->>> would always use 4k pages to back the guest.
->>>
->>> Enable 1M pages for gmap.
->>>
->>> This allows 1M pages to be used to back a guest when userspace is using
->>> 1M pages for the corresponding addresses (e.g. THP or hugetlbfs).
->>>
->>> Remove the limitation that disallowed having nested guests and
->>> hugepages at the same time.
->>
->> Nice. This might allow us to enable hpage=1 as new default as soon as
->> things stabilize.
->>
->> We would also be able to use 2GB huge pages for the qemu mapping?
-> 
-> yes, but I don't think that userspace can have 2G THPs right now
+Acked-by: Bergmann <arnd@arndb.de>
 
-Not THP, but hugetlbfs.
+I see that you have sent the series 'to' a lot of people, so
+I'm not sure who you expect to merge it. I assume this will all
+go through the tip/timers/vdso branch, unless you need me to
+pick it up through the asm-generic tree instead.
 
+     Arnd
