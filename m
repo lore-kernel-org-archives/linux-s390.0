@@ -1,67 +1,80 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04D291EEA5D;
-	Thu,  6 Nov 2025 15:25:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A88F33DEF3;
+	Thu,  6 Nov 2025 16:09:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762442755; cv=none; b=F1+MLUw4EOM4dTGFeqRb9MWrtNG6pMQN6PfLNKim5dDOnZpt3AZLtmk5BzLoXYx5osi9IgOP+EOPDlUa4g/P4snvIoB+sIm9oTHWrLf/ugsMREUIBiUXjvAg57QtZMJmb8H9h3IkatLDAbPXCslqAAAcSRu/VTS9z3uoA9KjkiQ=
+	t=1762445355; cv=none; b=PoXIdET8Oznm2xSkvIUw4Wnn4nx5/B7CiMJy0+ZlLAommG1gGsgsfzZTCxBe1WV/YTUgMMPyAX92Z3zFuZUrVF7XrnvYL9uzrmvSidiKyshci47Mi6RdqtWsd//6X0L6NGOTgNe3F4A8/06FYBiBbqe7fZ2Jp3iefAFxcstzGnA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762442755; c=relaxed/simple;
-	bh=6iOjcSAxs3NxY9p5Z8vOb47o67EQ2so0Ix8yDCMTguI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Qh2KfO0U3exbJJSI5K0H9CC7hoHC6Rt/dC9BKHKhgOGDg7D62nwoDtzjXUxiyRqAhvh10j3oBWLL6QkCBnneLXXBcU2eb2Qz4dL1mXHa7Dz5GEKGBpdjXypDkVy9wUO7tsOYH0JKT1bc0KneJbl8anYNm8AW/jqb5S/4L2VVUqc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pgAu75m5; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1762445355; c=relaxed/simple;
+	bh=CUoxdL2hu9SjwD8on3W0rrXhbdYozJabVNtQ81qFKaI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DmAtCvexiWSYH8FYKOoLatKW9zUeAOzozXJetCzbT9+MulGcfxxT/M8U2aN6UlBOdHj00F2pcShhA3g9fCQau/ZJqsdbQK6TYjET/X7L6frjP0+teExiRMHmYGqufLYcTNhvDLBP88pXII8s1oDq+jiwARvzgLVg+2eA3G+3+Rw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Age+i2ve; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pgAu75m5"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5A6FF8iF009215;
-	Thu, 6 Nov 2025 15:25:51 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Age+i2ve"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5A68oc4A030782;
+	Thu, 6 Nov 2025 16:09:03 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=mtsa329fUtQbDlBUnISqk9oEEDR1m5/u3hkXhk6pG
-	Zs=; b=pgAu75m5IL45mlIeS1eY+G9JVK/VDS9W4kK01MCGGiR1lxnnqQf0fnbSm
-	kZW8tAKFpxzZkgu9XSnCUoyzK1Sj69wkwfDQuMqmnX5PQ9lk3FDF7DizDzqOWD6O
-	v9D3m/3CoAjd+6Xlxn3E3gS/iCHCncsQg9MwuvN71v1hpg1+wtFmnqq+bRNcfuia
-	daQBjZA0GAayQmZhQ5RhyvOZKbbaNVARwfmT5zb1p/ccUs2KRrXDk/z72U5K19by
-	xOM0CAo+GrxR6r1H7gh0rN2a+frmCExz9qz0UCoRU5rLcEy3cNRLtImjp6aSipm4
-	yPT2jgJIJcV/8RhWHlBp9yFVswSog==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a59q97y9b-1
+	:subject:to; s=pp1; bh=kBkC7zrPOewXW/Pk0CVDrxMn8x8sMd++XtEVOn85z
+	Q8=; b=Age+i2vePvB+LSLLLbPL22On/jr3dDndzvp0l0zg+j4ybFKYUSEqOOFT8
+	rFNvgnVaqDypYIqjbDZ+8PfzNUViKkd/3CeLqeanToAOHGQfblNpmpN+1GvqM2h2
+	1HmS/iHc0J37uOF4Yx5Yghw00W/QZFi9+QaCTRw8j9iPW2XyzIYgqc6klp4z8JpI
+	OfLNVzDMxGpAbcU95Y4lXoLWwu0kvVisI8v2b3roxqOAOVm+R+C7zBv8DFb4Vv5R
+	hyjiujyLjGbVSXGYU/uHmnvLbGwJslC/JYx/2zhCIflxUQ3gb2qEzmrtT/EpoI7n
+	uVHIQIwsSkjqf+D5WkUP0mwV9AQig==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a59vur6gn-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 06 Nov 2025 15:25:51 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5A6CdwoS012875;
-	Thu, 6 Nov 2025 15:25:50 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4a5y825udp-1
+	Thu, 06 Nov 2025 16:09:03 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5A6G5juR007347;
+	Thu, 6 Nov 2025 16:09:02 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a59vur6gj-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 06 Nov 2025 15:25:50 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5A6FPkh454657462
+	Thu, 06 Nov 2025 16:09:02 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5A6Eddvg027371;
+	Thu, 6 Nov 2025 16:09:01 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4a5vwypfgj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 06 Nov 2025 16:09:01 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5A6G8v4h32113122
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 6 Nov 2025 15:25:46 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 82B5020043;
-	Thu,  6 Nov 2025 15:25:46 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1BBB820040;
-	Thu,  6 Nov 2025 15:25:46 +0000 (GMT)
-Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.155.209.42])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  6 Nov 2025 15:25:46 +0000 (GMT)
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com,
-        mhartmay@linux.ibm.com, nrb@linux.ibm.com, nsg@linux.ibm.com,
-        seiden@linux.ibm.com, gra@linux.ibm.com, schlameuss@linux.ibm.com,
-        hca@linux.ibm.com, svens@linux.ibm.com, agordeev@linux.ibm.com,
-        gor@linux.ibm.com, ggala@linux.ibm.com, david@redhat.com
-Subject: [PATCH v1 1/1] KVM: s390: Fix gmap_helper_zap_one_page() again
-Date: Thu,  6 Nov 2025 16:25:45 +0100
-Message-ID: <20251106152545.338188-1-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.51.1
+	Thu, 6 Nov 2025 16:08:57 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 59DE220043;
+	Thu,  6 Nov 2025 16:08:57 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 65D9820040;
+	Thu,  6 Nov 2025 16:08:56 +0000 (GMT)
+Received: from li-26e6d1cc-3485-11b2-a85c-83dbc1845c5e.ibm.com.com (unknown [9.111.24.158])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  6 Nov 2025 16:08:56 +0000 (GMT)
+From: Aleksei Nikiforov <aleksei.nikiforov@linux.ibm.com>
+To: Alexander Potapenko <glider@google.com>
+Cc: Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>, kasan-dev@googlegroups.com,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+        Juergen Christ <jchrist@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Aleksei Nikiforov <aleksei.nikiforov@linux.ibm.com>
+Subject: [PATCH 0/2] s390/fpu: Fix kmsan false-positive report
+Date: Thu,  6 Nov 2025 17:08:44 +0100
+Message-ID: <20251106160845.1334274-2-aleksei.nikiforov@linux.ibm.com>
+X-Mailer: git-send-email 2.43.7
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -70,68 +83,48 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=StmdKfO0 c=1 sm=1 tr=0 ts=690cbdff cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
- a=hc2NwQUhtlEWUF91VgoA:9
-X-Proofpoint-ORIG-GUID: PPbXzuvdWZmfUfVvDHg_xbUhVffvJ9Qq
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTAxMDAxOCBTYWx0ZWRfX/ouv/e8mabm4
- +nrjP7XCRoqBndZr4vqYW21w/zxq9maqd+c8/AXH1LbDl54gZ8jhgXUH2VPEg2hqbQmzob9V1Ji
- /kLqiIPRuzBh0b01VOEZ+mtgXPANFMdxLcuvZDYXT2DH9NfweC1xlHBqW433cNsIKlhrTbe4rnG
- ohneebLB2xTKSVRu3NOqE52NV0X3/+tmAahiPkcYBvj2ltQZDLzTLoXLOE8a8w5xl+MnJuQFOiD
- G9RLxg6UHtMEpehMYLbvdg9WenE33k637fQ1FlFpmKYLxi+at1amleYts1CxJeTj957wpymFrt3
- Zl+oJx3tz4EbfqlkGgnGi1aa1tXgbUMUTFQjTxXz01bfVRa7WzKoFhEdfSxTceYn7a1DOcST0C+
- TsMhe3UHHHmJJyxqXm+RZxEklzV1GQ==
-X-Proofpoint-GUID: PPbXzuvdWZmfUfVvDHg_xbUhVffvJ9Qq
+X-Proofpoint-ORIG-GUID: JOWFrIeWMqn245vgRdby_F5E58YycLMN
+X-Proofpoint-GUID: RJ6XjdSFawZ2LFKDN-n-5Vl7DDYv_MyV
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTAxMDAyMSBTYWx0ZWRfX1ELoPqIfaNGt
+ pAGzcEvZn/IFCkh4ow9Wt7zqiZLP3CvoGPoEwl7ACHl0M5ihGA8+jBbE1F9O5mP34x/ZxB59+Hv
+ wGII6SGUw1pp8AyxgFjzqUgev8DzvHk6HXlnRqqv/1hIJlCAvPxVUG7a18lAgtrV+FZkovdbu8z
+ +Zm9Ywgkn4KJ72fqd0/dT5ypV12/sFlm5OYRbqorr+KF9jh28OJbCRzujL7BanbQi02FAYYTRkT
+ 7qX/geCOAyFBHeYH581bkuHLB7Mq6avMqfhliGyeHLcoPMONQEXOOf/l4YHr6ooOMInFyaekoi6
+ U/Pt3mXlAN8xAmMZXjmIVfgzRE4U5gSD+hlVeXtlX26SOoYRpNclm8/fxTYnTrGyL9DiKdjb7id
+ +yBQJcQIc9/mAcdEnuQphbZQQ9z2sA==
+X-Authority-Analysis: v=2.4 cv=U6qfzOru c=1 sm=1 tr=0 ts=690cc81f cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VIxkIzLlmwRAJRPTlxkA:9
+ a=cPQSjfK2_nFv0Q5t_7PE:22
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-11-06_03,2025-11-06_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 suspectscore=0 phishscore=0 impostorscore=0 priorityscore=1501
- malwarescore=0 clxscore=1015 adultscore=0 bulkscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511010018
+ bulkscore=0 adultscore=0 impostorscore=0 spamscore=0 phishscore=0
+ clxscore=1011 malwarescore=0 lowpriorityscore=0 suspectscore=0
+ priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2511010021
 
-A few checks were missing in gmap_helper_zap_one_page(), which can lead
-to memory corruption in the guest under specific circumstances.
+A false-positive kmsan report is detected when running ping command.
 
-Add the missing checks.
+An inline assembly instruction 'vstl' can write varied amount of bytes
+depending on value of one of arguments. clang generates kmsan write helper
+call depending on inline assembly constraints. Constraints are evaluated
+compile-time, but value of argument is known only at runtime.
 
-Fixes: 5deafa27d9ae ("KVM: s390: Fix to clear PTE when discarding a swapped page")
-Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- arch/s390/mm/gmap_helpers.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+Due to this, clang cannot generate kmsan write helper call with correct
+size and a kmsan helper is implemented and called to correct this and
+remove false-positive report.
 
-diff --git a/arch/s390/mm/gmap_helpers.c b/arch/s390/mm/gmap_helpers.c
-index d4c3c36855e2..38a2d82cd88a 100644
---- a/arch/s390/mm/gmap_helpers.c
-+++ b/arch/s390/mm/gmap_helpers.c
-@@ -47,6 +47,7 @@ static void ptep_zap_swap_entry(struct mm_struct *mm, swp_entry_t entry)
- void gmap_helper_zap_one_page(struct mm_struct *mm, unsigned long vmaddr)
- {
- 	struct vm_area_struct *vma;
-+	unsigned long pgstev;
- 	spinlock_t *ptl;
- 	pgste_t pgste;
- 	pte_t *ptep;
-@@ -65,9 +66,13 @@ void gmap_helper_zap_one_page(struct mm_struct *mm, unsigned long vmaddr)
- 	if (pte_swap(*ptep)) {
- 		preempt_disable();
- 		pgste = pgste_get_lock(ptep);
-+		pgstev = pgste_val(pgste);
- 
--		ptep_zap_swap_entry(mm, pte_to_swp_entry(*ptep));
--		pte_clear(mm, vmaddr, ptep);
-+		if ((pgstev & _PGSTE_GPS_USAGE_MASK) == _PGSTE_GPS_USAGE_UNUSED ||
-+		    (pgstev & _PGSTE_GPS_ZERO)) {
-+			ptep_zap_swap_entry(mm, pte_to_swp_entry(*ptep));
-+			pte_clear(mm, vmaddr, ptep);
-+		}
- 
- 		pgste_set_unlock(ptep, pgste);
- 		preempt_enable();
+Aleksei Nikiforov (2):
+  instrumented.h: Add function instrument_write_after
+  s390/fpu: Fix kmsan in fpu_vstl function
+
+ arch/s390/include/asm/fpu-insn.h |  2 ++
+ include/linux/instrumented.h     | 14 ++++++++++++++
+ 2 files changed, 16 insertions(+)
+
 -- 
-2.51.1
+2.43.7
 
