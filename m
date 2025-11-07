@@ -1,184 +1,159 @@
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43BAA30147E
-	for <linux-s390@vger.kernel.org>; Fri,  7 Nov 2025 19:18:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F28E627CB02;
+	Fri,  7 Nov 2025 20:03:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762543091; cv=none; b=OzbJE5ttm3V45rhVymIsFHqBZrzPEaDGvXafXkvlA5GJaXoJ8P/XD/0DAnVsWYP/kzs7D/bBZo2oDsQNnVR2puMCDm2b2RuZhLIa68fh9dN0Vv24wblfWCyKQ4iIJxKwySjOSi2DIjs90R0gBuCdsUJbu5Cg3s3UrO4hgD6BVpU=
+	t=1762545816; cv=none; b=jD657UaAt/JrZ04IrO4MSh7mV2QzhP1mJYKivKYABfJesaRpLCJ9z3juH4XUUVyGbnPTQIXx22H8YMTaQVYxK9iC92NvjUwgiZQm9Vrc+xJC6ZATFpMQKrQiYCvcV4d5JOMcWDednsiRvjmOpMo16EOVl0Xid+eOp17MybEKGyM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762543091; c=relaxed/simple;
-	bh=HMX+nokK9V+QGgu5vvY3CGRBUupf3RY/CVnmsPQBGss=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=j685c8d089K/VbccMS0oO4BJ1Jc7H+5cFWmjErnkcr1opHegnUva6cbjZ7WyKJcCVeaM564qEiRMcL+UzdxeOg11ak9+7bjlTYGvG1cFXyFG5VaqbfjfobufqCegIog/d+h9NfA/J9DDHejB+QIA52dxWGD9WPjESpuwbjqqQMM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PcAsSnxx; arc=none smtp.client-ip=209.85.128.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1762545816; c=relaxed/simple;
+	bh=3AYGxsBFjgjrl8yg5JTp/0IVcNuR3cJZmHPCHoWy/fI=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=Sxc+dfEgQk46q3lfYScYKb+TV/mhloWBHfeqCK9h/YXyk3s8nHzXn6QFwKM2d8Y8Rh+IR0w2nyo1fXTLwfX+7uFcqu/iwlonN6ENzz78mcDul/NhYumDH1Nsg3aRemRdJ68uM9zND4MApLTc2kQAk4dnQb8ZVnRjraHDGaCx2u8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QxUKiz8A; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PcAsSnxx"
-Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-47755de027eso7933115e9.0
-        for <linux-s390@vger.kernel.org>; Fri, 07 Nov 2025 11:18:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1762543079; x=1763147879; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BoyRAxBYJ97KZHdMcvP1wI7gdZM18PW/SDBquVzm/CM=;
-        b=PcAsSnxxk/vQ8EKi7S/zlpRriabJ6LStD3JjS9iMC1hHhA7ft4Ly8XN1F4KNak3nE2
-         Azx3zPSFn9dNxBWGFc8Q0PGil+tYqmpuTWwYxIYcIv2G7YxmW3RVzo4tPDRmdwHnyFth
-         ynrZ6laqoBE+okxBPB7YOgcbfSg224RvjW7uKp1kV2mq83jDvblTIbsCss7FkO/MeMHS
-         RCPwKZblpC2N9yZs2vcU7+2qCYut6DMlTJQqMyeCk8kWoR0SyuT4q2Zn0GDbTmVagkQk
-         BwFyCwwfWNcoAPNAbbVmaiVFIQmtAWK22/WHTHEAf0VvjzSO9AE7OeanDvGjh94licgb
-         Tr7w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762543079; x=1763147879;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=BoyRAxBYJ97KZHdMcvP1wI7gdZM18PW/SDBquVzm/CM=;
-        b=R3tHmn5CXKeceY2tsSul0BDUiNa9Ec0W83HoAaPAbs5v97BLCfwwpK0xkPzqbQUo2T
-         Ml1876nqAStsQ35+Sd10cDdy06WOhRSllw9mvIYlMJ2YWhk5aT73Uyi0nlm8IzrUh+JT
-         NU70q/ZfGh0YymiQCxP5J8R1DrasjmSU4DAS+qdVtZ3p+Hbb8sPxO9sGp9TWxu8aUDAj
-         Kcat7kfyexHG+X/btNWzOPTi6VTWS7mb6SqL4QHHI/AuaisXDxdjYj1miCm+kIEVWiMq
-         wrlLoj4OTOuCEXiLP3ixdQSoa6M4/V7d8rrWuu+27NwerqCfr8Q0oQj/wQDK9b47Bg0O
-         I3cA==
-X-Forwarded-Encrypted: i=1; AJvYcCVVCKEG5h/evG1SdWcuOavc/iLEd4LZvglatO95VEeU3ZRd/oWJpIKoCYC5fqzN2JDX0kDme3316Q3L@vger.kernel.org
-X-Gm-Message-State: AOJu0YxN4TYyrbUUGUzlkqYXmqPF7mpOFT9g6kZ9a9NCbahMDWPiLXIw
-	myfWJgedteY9aZN1PzT6i02UWf2NTW7n+ATqWkLXbAxj7moOlqj7NsQR
-X-Gm-Gg: ASbGnctie+9wu7gHDYtGY6CkfP/EnlJ/nZFVTOXwzAq6TJpJ1BkQPUwAkZ/EzqdqDS9
-	fdYgi4fXnm0JZ2LdxGn7+7BmqucmuYTUt8CozB1Xf9gDb5gbq9LfJBZ0y4/2x0afWh8PyJ36ZNd
-	HfyR4UHmI62wHfRiJyFxO0tuCghe8NloP+Mq0cRX2khFMSV3058ueoDdtxNO4joghNtEdmuG7oN
-	thsUkianoNXS1I+DfRkKeP/5eeUC6jo9j8lHP8Hm7wq75/9Nq429RiobOFJ2cAGSTuugubSr5wn
-	mI69O1Do0Q/3IlBjCCKm1kIy0L9tzrpZLrxDvZ79j/solPaIWEHtAKywJmEJoPuyeDWTZc8m7VE
-	M/DrxBB6HlTXp/BIdDOcSnogRlGp5KAbwrpp+PirSqgjTANaqRY9yZAATuNjDlmV3FPDxxvZ4Q/
-	KRH8+pHaYNwqsrs/kvogYXBbuXJ6IdEIZLQM8QO0d5mel5cx9HpqIn
-X-Google-Smtp-Source: AGHT+IGwWldiHMKs6o3o24t2zUapUEv2nDiVIW1qgftMpp+s7M3k154xFpb/vMUGopieuIUWMdpZmw==
-X-Received: by 2002:a05:600c:45c7:b0:477:55b6:cdd6 with SMTP id 5b1f17b1804b1-4777322f0a4mr1228445e9.10.1762543078570;
-        Fri, 07 Nov 2025 11:17:58 -0800 (PST)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42abe62b23csm6811350f8f.10.2025.11.07.11.17.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 Nov 2025 11:17:58 -0800 (PST)
-Date: Fri, 7 Nov 2025 19:17:53 +0000
-From: David Laight <david.laight.linux@gmail.com>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Christophe Leroy
- <christophe.leroy@csgroup.eu>, Mathieu Desnoyers
- <mathieu.desnoyers@efficios.com>, Andrew Cooper
- <andrew.cooper3@citrix.com>, Linus Torvalds
- <torvalds@linux-foundation.org>, kernel test robot <lkp@intel.com>, Russell
- King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org,
- x86@kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman
- <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- linuxppc-dev@lists.ozlabs.org, Paul Walmsley <pjw@kernel.org>, Palmer
- Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, Heiko
- Carstens <hca@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
- linux-s390@vger.kernel.org, Julia Lawall <Julia.Lawall@inria.fr>, Nicolas
- Palix <nicolas.palix@imag.fr>, Peter Zijlstra <peterz@infradead.org>,
- Darren Hart <dvhart@infradead.org>, Davidlohr Bueso <dave@stgolabs.net>,
- =?UTF-8?B?QW5kcsOp?= Almeida <andrealmeid@igalia.com>, Alexander Viro
- <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara
- <jack@suse.cz>, linux-fsdevel@vger.kernel.org
-Subject: Re: [patch V5 07/12] uaccess: Provide scoped user access regions
-Message-ID: <20251107191753.7433d2dc@pumpkin>
-In-Reply-To: <20251027083745.546420421@linutronix.de>
-References: <20251027083700.573016505@linutronix.de>
-	<20251027083745.546420421@linutronix.de>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QxUKiz8A"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5A7IRRCJ017849;
+	Fri, 7 Nov 2025 20:03:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=MlwdCn
+	aFGrktPrZkCNQFrbLua2RkYHdPYziD8x0BYR4=; b=QxUKiz8ArQqLoUh4q7CjxS
+	UYqvzizlRfauJRpekMYUPkUfP7b5P9Cw2UXE5WN0sOJxhHRia6Dm0q2DbGe5yEQP
+	5EnHQMBdSPIesSpLd7WJkc492Awt1lTF4BXBBQxkoTRCT9G01T2yqToBcKnywdmA
+	YBYPkdRcIHMVw4Z+yVZn+ML9jOVpcz2v44oLb/GuGOlUzNbt4/drRSmRXPaE4ekw
+	WPi9ILcXb6zyFwwsfgRRNa8gCYy9YBIaopDCmzJfuY7mjWr/y934UUIoI00K4PAP
+	pvdtWthGnnVyskq+Im2quAVr2VQGT494ViI4YxMG/+julqO0z57YF+CMNT01f4Lg
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a59vuy1xk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 07 Nov 2025 20:03:17 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5A7K3GED017710;
+	Fri, 7 Nov 2025 20:03:16 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a59vuy1xg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 07 Nov 2025 20:03:16 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5A7J1iiv009877;
+	Fri, 7 Nov 2025 20:03:14 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4a5x1kvh7u-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 07 Nov 2025 20:03:14 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5A7K3DRM20775544
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 7 Nov 2025 20:03:13 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8178258056;
+	Fri,  7 Nov 2025 20:03:13 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 45AFE58062;
+	Fri,  7 Nov 2025 20:03:11 +0000 (GMT)
+Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.62.231])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  7 Nov 2025 20:03:11 +0000 (GMT)
+Message-ID: <ef6ccb9f1028a76d69d5769fe69c3632fb91e650.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 12/22] vfio/ccw: Provide a get_region_info op
+From: Eric Farman <farman@linux.ibm.com>
+To: Jason Gunthorpe <jgg@nvidia.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        David Airlie <airlied@gmail.com>,
+        Alex
+ Williamson <alex.williamson@redhat.com>,
+        Ankit Agrawal	
+ <ankita@nvidia.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Brett Creeley <brett.creeley@amd.com>, dri-devel@lists.freedesktop.org,
+        Eric Auger <eric.auger@redhat.com>,
+        Giovanni Cabiddu
+ <giovanni.cabiddu@intel.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, Heiko
+ Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        Jani Nikula
+ <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen
+ <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede
+ <kwankhede@nvidia.com>,
+        linux-s390@vger.kernel.org, Longfang Liu
+ <liulongfang@huawei.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Nikhil
+ Agarwal <nikhil.agarwal@amd.com>,
+        Nipun Gupta	 <nipun.gupta@amd.com>,
+        Peter
+ Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic	 <pasic@linux.ibm.com>, qat-linux@intel.com,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Simona Vetter
+ <simona@ffwll.ch>,
+        Shameer Kolothum <skolothumtho@nvidia.com>,
+        Sven
+ Schnelle <svens@linux.ibm.com>,
+        Tvrtko Ursulin <tursulin@ursulin.net>, virtualization@lists.linux.dev,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Zhenyu Wang <zhenyuw.linux@gmail.com>,
+        Zhi Wang <zhi.wang.linux@gmail.com>
+Cc: Kevin Tian <kevin.tian@intel.com>, patches@lists.linux.dev,
+        Pranjal
+ Shrivastava <praan@google.com>,
+        Mostafa Saleh <smostafa@google.com>
+Date: Fri, 07 Nov 2025 15:03:10 -0500
+In-Reply-To: <12-v2-2a9e24d62f1b+e10a-vfio_get_region_info_op_jgg@nvidia.com>
+References: <12-v2-2a9e24d62f1b+e10a-vfio_get_region_info_op_jgg@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: twd3gPasuG5jlJ51jwgaLipWtZjUa-uR
+X-Proofpoint-GUID: v5Az1Fgvwvgwv-bJir5W4BMaY1htAMJZ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTAxMDAyMSBTYWx0ZWRfX9CKkJT6eq6in
+ RCRVM5UkfqXoCe4HDSuk2u0V9ZZdJVT5Ksc8BO5kPa6Ivy1OpN4/4Q3KqcwLeNtz2OFdJfU8mvt
+ 1rSoL378cKtKlEddDTPrGVZE47TqRykJeekFmM6M6S5I2Zd8tcU5olJUfdrLgj3bQ/6FXUEuT4I
+ ZhD33vi2at4z8QKdxXo4AcE2SPTivGlJk1dIU3XIOWF6yE6Mowx0HaqL939adbqU3reISqpW+6m
+ sepSmSlEof8aDfsvE8Q7C9Hh9kQLvo4fbPbdiovaj4bytBJ56sZb7qN4EmrB3wfn83IPcaanOD7
+ SdckGFjvqaR2DXLLS0nsjzroSrxs1XITCkzg66vAhRJ3vnHua7TvSrEvQZyzyZm0nVjPWnbEYgS
+ fS2DIjLbf7MxJwWjjMF2TRdRztyFDw==
+X-Authority-Analysis: v=2.4 cv=U6qfzOru c=1 sm=1 tr=0 ts=690e5085 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=QyXUC8HyAAAA:8 a=Ikd4Dj_1AAAA:8 a=VnNF1IyMAAAA:8 a=JUX33S1rtR8i9qNFNIIA:9
+ a=NqO74GWdXPXpGKcKHaDJD/ajO6k=:19 a=QEXdDO2ut3YA:10 a=nl4s5V0KI7Kw-pW0DWrs:22
+ a=pHzHmUro8NiASowvMSCR:22 a=xoEH_sTeL_Rfw54TyV31:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-11-07_06,2025-11-06_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 adultscore=0 impostorscore=0 spamscore=0 phishscore=0
+ clxscore=1011 malwarescore=0 lowpriorityscore=0 suspectscore=0
+ priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2511010021
 
-On Mon, 27 Oct 2025 09:43:55 +0100 (CET)
-Thomas Gleixner <tglx@linutronix.de> wrote:
+On Fri, 2025-11-07 at 13:41 -0400, Jason Gunthorpe wrote:
+> Move it out of vfio_ccw_mdev_ioctl() and re-indent it.
+>=20
+> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/s390/cio/vfio_ccw_ops.c | 44 +++++++++++++++++++--------------
+>  1 file changed, 26 insertions(+), 18 deletions(-)
 
-> User space access regions are tedious and require similar code patterns all
-> over the place:
-...
-> There have been issues with using the wrong user_*_access_end() variant in
-> the error path and other typical Copy&Pasta problems, e.g. using the wrong
-> fault label in the user accessor which ends up using the wrong accesss end
-> variant. 
-> 
-> These patterns beg for scopes with automatic cleanup. The resulting outcome
-> is:
->     	scoped_user_read_access(from, Efault)
-> 		unsafe_get_user(val, from, Efault);
-> 	return 0;
->   Efault:
-> 	return -EFAULT;
-> 
-> The scope guarantees the proper cleanup for the access mode is invoked both
-> in the success and the failure (fault) path.
-> 
-...
-
-The code doesn't work if the 'from' (above) is 'const foo __user *from'.
-Due to assigning away constness.
-
-The changes below fix the build, I suspect the code is then correct.
-
-...
-> +/* Define RW variant so the below _mode macro expansion works */
-> +#define masked_user_rw_access_begin(u)	masked_user_access_begin(u)
-> +#define user_rw_access_begin(u, s)	user_access_begin(u, s)
-> +#define user_rw_access_end()		user_access_end()
-> +
-> +/* Scoped user access */
-> +#define USER_ACCESS_GUARD(_mode)				\
-
-#define USER_ACCESS_GUARD(_mode, void)
-(but change all the void below to a different name...)
-
-> +static __always_inline void __user *				\
-> +class_user_##_mode##_begin(void __user *ptr)			\
-> +{								\
-> +	return ptr;						\
-> +}								\
-> +								\
-> +static __always_inline void					\
-> +class_user_##_mode##_end(void __user *ptr)			\
-> +{								\
-> +	user_##_mode##_access_end();				\
-> +}								\
-> +								\
-> +DEFINE_CLASS(user_ ##_mode## _access, void __user *,		\
-> +	     class_user_##_mode##_end(_T),			\
-> +	     class_user_##_mode##_begin(ptr), void __user *ptr)	\
-> +								\
-> +static __always_inline class_user_##_mode##_access_t		\
-> +class_user_##_mode##_access_ptr(void __user *scope)		\
-> +{								\
-> +	return scope;						\
-> +}
-> +
-> +USER_ACCESS_GUARD(read)
-> +USER_ACCESS_GUARD(write)
-> +USER_ACCESS_GUARD(rw)
-
-USER_ACCESS_GUARD(read, const void)
-USER_ACCESS_GUARD(write, void)
-USER_ACCESS_GUARD(rw, void)
-
-> +#undef USER_ACCESS_GUARD
-...
-> +#define __scoped_user_access(mode, uptr, size, elbl)					\
-> +for (bool done = false; !done; done = true)						\
-> +	for (void __user *_tmpptr = __scoped_user_access_begin(mode, uptr, size, elbl); \
-
-	for (typeof(uptr) _tmpptr = ...
-
-> +	     !done; done = true)							\
-> +		for (CLASS(user_##mode##_access, scope)(_tmpptr); !done; done = true)	\
-> +			/* Force modified pointer usage within the scope */		\
-> +			for (const typeof(uptr) uptr = _tmpptr; !done; done = true)
-> +
-
-	David
-
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
