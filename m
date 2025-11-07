@@ -1,256 +1,267 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from DM5PR21CU001.outbound.protection.outlook.com (mail-centralusazon11011053.outbound.protection.outlook.com [52.101.62.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AD7D1F8AC5;
-	Fri,  7 Nov 2025 16:03:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762531399; cv=none; b=srvoePwi5/zOYdmBr+UuGoHvRFIJUqYXsqCcZXlp81eGXHvMj/OAHzVEGFiVtRUI8PXI+Gfk+KxeTDDu3HAb0dBXSUU4wZER6qNKzphQkb2EyR2PuYUdeYFkvY5acHeRx5G3bnrbXJXmh9TicINM7GS+PPrhWavwnR2FVRB1lWM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762531399; c=relaxed/simple;
-	bh=r20tjYRZESwm0Xe8JSfhSGhruuGcTelqhRdKQHovH8A=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Z3mej49sekoAiMWrzpj2cJ8gJp4CgqLnX8QwWIkSbQVUv/YRfm5lF/HK62iIgPBQs173rHlfHITxoXfZytvWNa5v9FPhRvQ0EIlo5XAqB1WSvPE61W0k5A3xGJ41Wplk5jSrSmQYgKlb5iUuBXiEMmQeYjLRqmz2z3+vCZFoqXk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mZca7uQQ; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C45A335081;
+	Fri,  7 Nov 2025 17:41:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.62.53
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1762537305; cv=fail; b=ZLg7NBhY24x2dGyT0K42xs1bkR0IWZByFbPDwe8kExlsfu9oDeAPtvECMgb5eGg9jkaCSWSrPmZQQM0mr3DMKJFn6EGw4jBgQ/X8pudRquv9G14kuPf5R2dnFOYiF4t3tyCbZ1Ad6PtpMQrsm4C1YQKRn7El2WG+tKGzC/h5jEk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1762537305; c=relaxed/simple;
+	bh=/XdmGWUZ1hByFn+oAbM0l1/H0+SjDdon/y/REaPXYL8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=GvVF85GpKlwty7fqpwSHArhWJ2mnGaCqmf/gFx8IqTPTqKIrJBnkoW2vA0AxWaglETnHS4OlxRrr/P1VhEmKLUFnBzGhxJzStWLbBOWZKn5gwyRVp5ucTXDkAUvm5TDWtUW/AnnNm1i8vs6+Rw35Mtmh0uQVZ0O3gP5DR43jI4Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=LllH6/96; arc=fail smtp.client-ip=52.101.62.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mZca7uQQ"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5A7Cf4Lk019513;
-	Fri, 7 Nov 2025 16:03:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=w4A9d23bQNuNhMRhy9flyx2rXxLNd6naylhFbxC/z
-	44=; b=mZca7uQQNnvetu9sjgb8+3TflIhTZYnX2po+WuS3l+S3MWfOcuF9t91tR
-	L2aHiaKYadKlq3lmIJeFZoJpv/CrTlAdvQ1L+/Y5UFjy1g2MwQUBoJSOnAWhWitL
-	1pdajc1jba/95f4ZkM79NKEjLkF6un/om6zGRCdx1W+ocfbumaBd5FbYSvQnHmju
-	92Aap+HnD+yQjZEIMpj7lqVR4rSEr6zDCjjXxQiIQT+xkKCRvQzPnMUQ2cnu/Eao
-	NzCEwOnUTvlte8TlN4cGgrnT6UBnup8WnC8JKlOoPbogJitW80fqCy+gNXTi8RX8
-	Hmy+zYlO29mV62TgsbfRZupSsDYfg==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a58mmcg0k-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 07 Nov 2025 16:03:10 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5A7Fk1FT017159;
-	Fri, 7 Nov 2025 16:03:09 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a58mmcg0h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 07 Nov 2025 16:03:09 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5A7Ergt4027371;
-	Fri, 7 Nov 2025 16:03:09 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4a5vwyuqkx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 07 Nov 2025 16:03:09 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5A7G35Bh57541114
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 7 Nov 2025 16:03:05 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1706320040;
-	Fri,  7 Nov 2025 16:03:04 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0B2F620043;
-	Fri,  7 Nov 2025 16:03:03 +0000 (GMT)
-Received: from li-26e6d1cc-3485-11b2-a85c-83dbc1845c5e.ibm.com.com (unknown [9.111.68.113])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  7 Nov 2025 16:03:02 +0000 (GMT)
-From: Aleksei Nikiforov <aleksei.nikiforov@linux.ibm.com>
-To: Alexander Potapenko <glider@google.com>
-Cc: Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>, kasan-dev@googlegroups.com,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
-        Juergen Christ <jchrist@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Aleksei Nikiforov <aleksei.nikiforov@linux.ibm.com>
-Subject: [PATCH v2] s390/fpu: Fix false-positive kmsan report in fpu_vstl function
-Date: Fri,  7 Nov 2025 16:59:16 +0100
-Message-ID: <20251107155914.1407772-3-aleksei.nikiforov@linux.ibm.com>
-X-Mailer: git-send-email 2.43.7
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="LllH6/96"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Gr7BgZMxJp1Bb13ck9UsED3rRwKceuxKBJJHWxiV2XTz3gPyK8VM/vsJ8mUajBRVd+0/53IdyOR0LsuSnvFoRWj9tP/czIqQarHRuu1hsbAyLl7bopi2lbdcBSijMkMDD2n8/62FoXUexD7etEEg8mZO5A9B5FD5rv9PslUmB6IL6nwkK5XJLfyDLcO7orL4GMhYHyngEnHeCf4vgfhUiGgKLntmoTZK5mo5Cq/JlWHo3Eh7mc6C1oOMw3185dBSrhE7w8bYc1s7YLGoVMxg3bOUQW5iMJZ7GFOtkWHUx2Eoc0s7CbquJAdOHor+oEWCoFwQHhtrMFAfHseiY10DsQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=29fWgNKhmQP+In0rAZrq4QS2FZYdxruVJmI4g1EJYB4=;
+ b=VzpX5+ioHBZG9t8a2TEj5JYvcRuQME62sVImh2IaHzSsyrnH/5DoGqJ3lxm/QSVNb5Z0bE1BbFFJSONdlJCk2MwRVrNmSxhtTMsY9KE2EiLYJs9jjDpI8FjTenBtiV+V9/Y64Xr6Q0pbTtuDfKAoKwlMSAYT+WHMc9QzfMyfmBw5nbCmLHCxrXgPCdkS5pNGvZvGR10weTsGrMH7U/oHgv5N1wealSdjuCxd9fRNOq+hyjh99QbYjRSTq8sL+3FS5FvJYa/DgWu/hdJ9ILNJU39/ZbA5zr2zstzYTntbOG0opN5ZhPcp7BCnNuBtC2QWM/67cyrXdC1X1ppzLxZo6Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=29fWgNKhmQP+In0rAZrq4QS2FZYdxruVJmI4g1EJYB4=;
+ b=LllH6/96VRG1iB/cH4kSjeXX5/eWxuDY0vXNzMU6tlQHbZYV7Q4GsUIuM3qNUXQ+64UMYluroUJOdYsuIsNorxyCqgUGXCvo2x4Iy5m8J7agnoIqu0w4GwZdkr5305E24yKtnTViemwx0DAteZ9Tn/j8zx9HSal/BHv4K+YbAn/tGqetY1lYCibN4VTYt/PKSBrj8WXjYqNmpeFj8wystJ+8MHGjYTIaxDcCDmf2ql4hKEaOTEZRIHcDIXVQldoI9cPMIZn5GwLDShO1rgf58cnamJP4E7j2o8JLc6b8EGBZNvzsYnQe3PBAIK/dmevDDo+/zlGX1sRWKRdvkNg6hg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB3613.namprd12.prod.outlook.com (2603:10b6:208:c1::17)
+ by PH7PR12MB8826.namprd12.prod.outlook.com (2603:10b6:510:26a::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9298.12; Fri, 7 Nov
+ 2025 17:41:39 +0000
+Received: from MN2PR12MB3613.namprd12.prod.outlook.com
+ ([fe80::1b3b:64f5:9211:608b]) by MN2PR12MB3613.namprd12.prod.outlook.com
+ ([fe80::1b3b:64f5:9211:608b%4]) with mapi id 15.20.9298.006; Fri, 7 Nov 2025
+ 17:41:39 +0000
+From: Jason Gunthorpe <jgg@nvidia.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+	David Airlie <airlied@gmail.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Brett Creeley <brett.creeley@amd.com>,
+	dri-devel@lists.freedesktop.org,
+	Eric Auger <eric.auger@redhat.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	intel-gfx@lists.freedesktop.org,
+	Jani Nikula <jani.nikula@linux.intel.com>,
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+	kvm@vger.kernel.org,
+	Kirti Wankhede <kwankhede@nvidia.com>,
+	linux-s390@vger.kernel.org,
+	Longfang Liu <liulongfang@huawei.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	qat-linux@intel.com,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	Shameer Kolothum <skolothumtho@nvidia.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Tvrtko Ursulin <tursulin@ursulin.net>,
+	virtualization@lists.linux.dev,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Yishai Hadas <yishaih@nvidia.com>,
+	Zhenyu Wang <zhenyuw.linux@gmail.com>,
+	Zhi Wang <zhi.wang.linux@gmail.com>
+Cc: Kevin Tian <kevin.tian@intel.com>,
+	patches@lists.linux.dev,
+	Pranjal Shrivastava <praan@google.com>,
+	Mostafa Saleh <smostafa@google.com>
+Subject: [PATCH v2 06/22] vfio/mtty: Provide a get_region_info op
+Date: Fri,  7 Nov 2025 13:41:22 -0400
+Message-ID: <6-v2-2a9e24d62f1b+e10a-vfio_get_region_info_op_jgg@nvidia.com>
+In-Reply-To: <0-v2-2a9e24d62f1b+e10a-vfio_get_region_info_op_jgg@nvidia.com>
+References:
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: BL1PR13CA0447.namprd13.prod.outlook.com
+ (2603:10b6:208:2c3::32) To MN2PR12MB3613.namprd12.prod.outlook.com
+ (2603:10b6:208:c1::17)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 9jqrWA-ia39gvYpirWftQH_iDWl3y8Dy
-X-Proofpoint-GUID: rPSf5ZDD9EV4xZn6VMao3w7nsr3deqo3
-X-Authority-Analysis: v=2.4 cv=SqidKfO0 c=1 sm=1 tr=0 ts=690e183e cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
- a=0aw50RnvYNmxmIOuCV4A:9 a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTAxMDAwOSBTYWx0ZWRfX/oSvR0FUaEIT
- 3lJoYJ+VTY/Xa3vFCiah4fMxzrrkQOloce+vq2zXj2OQ6eFfLRuCVWxLdrxiQXsXv/7ZZtC94cU
- ZFvQ4gwcOgN7lPJ1jKlwl2bCUHJh8gw56UoadSnSnbypaFIJll7h73svZFjBRfL+Jjxa8FSQGP1
- FVuyjtC4JxIVDo1wet4P/tLdmCFNmciTGwk3ADquAjxswecjnrTsc3XxShiU0tAydCfcHv9hOQK
- Gl+G3PGhzu0WpLns1VUr5WnnUCQgxC4x6biKK7z0skjjJUy14b1DNRh5ZCzolB6GnE9p8l4V2dN
- HVcsX84za0P9jetOhKSvgTbVSIyBEdClEhwcos1Slfl5o90nc3mb7dc8hOhf/Nc4EcWhxQTReCi
- 0ChgnGsxKjIXrE8FfeW19yJMt6AwLg==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-11-07_04,2025-11-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 clxscore=1015 impostorscore=0 adultscore=0 lowpriorityscore=0
- malwarescore=0 spamscore=0 priorityscore=1501 bulkscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511010009
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MN2PR12MB3613:EE_|PH7PR12MB8826:EE_
+X-MS-Office365-Filtering-Correlation-Id: a158fe60-42df-4ed5-d9d8-08de1e24e824
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|1800799024|7416014|376014|921020;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?ZodgfdvqpQf0qe73D2Kkfd8lh85oUENQi8j+Npdrq/QHUvKyaaTMI7ubLB1z?=
+ =?us-ascii?Q?WDCix2XgEOeSDxV3waMRfw/ZIo7TX4/Wbj5n3t64rTmfYIbuFPFee8eAl1uu?=
+ =?us-ascii?Q?+5Mg3zgLaU4osVnPl5faoJF7OI6sjKOosd1akzxfeMtdjBZKhKbEoexwShrr?=
+ =?us-ascii?Q?0SZMXP/T+OXAUm5Vxb3dJoyyHDmOsQXGyjgBnbgQfcv4372QE1hTLx6dZiMI?=
+ =?us-ascii?Q?SomNbIqntF0z5GfW3NTfVyh282XXDW0WCRJNrJTEBnla+1ThdNZKlRNl8TcJ?=
+ =?us-ascii?Q?4rpW/a0A+mxOOQ3JTZ+L48LJNpCeYzDyuDoFttFEyWXD8yCi/O/wHo5/aqtg?=
+ =?us-ascii?Q?sFDEz4vj4cPfU2sITj/vKhJBk0FF3ZTEnGgle0Es9sf1eHAGKZzLZocZTVaF?=
+ =?us-ascii?Q?TNJmIxsRXEIP7Bu4NiASq8N1JubQUpksPmahSSvG46osD5SPdicKNskVRFhq?=
+ =?us-ascii?Q?IFPNeFOnzlo+AIErpmFzOr7i0WA/xP61CN0tZgxjcLHmgp0PDI9hd4EAhlbA?=
+ =?us-ascii?Q?AoKHWYjpIT1KbkZ0ivSBP239dSvXGNGwHKrlBl1Ugx047042Mx15m2R5S7Wp?=
+ =?us-ascii?Q?j+paz+ClfQ9OAfbg4C0sXGSdhZnFUjBL2c9EO4sJ6Ka9MUZjJy+hR7n/Bx0k?=
+ =?us-ascii?Q?3uHCwGTy4bsV+jdZGehQaBq3IFfn2kJ2ES6QrDKYc7+DXs3TjM/luumte4qP?=
+ =?us-ascii?Q?jBxE8x1kyK9k9vxiNgm+LRbyiFMgLE5tbaAtTnBM43+5VEqwbHlYfDi42DYW?=
+ =?us-ascii?Q?UVz8VcF4UhyVhU6iiU0t2nmfAdqLA76dZBm4Ys8QqOrDBb23TC0rjPGCpUFD?=
+ =?us-ascii?Q?4zPsW0zOnoRKGHSjUDmZUZJOkzueDuKof5ngS2wwn+5qkmabBJnnfsbAPSch?=
+ =?us-ascii?Q?n3nl+vsvaJYW4yLg8eqwg3aOILA1anORhHyGG/haRveJjvjntUf9l7ji2GeG?=
+ =?us-ascii?Q?1vayqy8zYmfQGicoOe4t8PruHUWvqme5kH2EL36ZgOmEB8DRk9zdoIaELZ9L?=
+ =?us-ascii?Q?cE2ivqEmZt8T31zjMY+uZt1Ttpei06Cl6gPeqlNZjkzrqKbKW1QnJfsziHkh?=
+ =?us-ascii?Q?SbuctJcQKpsU8LyjR7/JS2YRqkhaV9ZpmUQpy+ZP1wewHOmV+roJgUgk6n3k?=
+ =?us-ascii?Q?bqxTM/kAkG7wy/VlLsmkNGDUqPyVxnOnK5azMUOAA95M3JzYhr/BjG7lMREY?=
+ =?us-ascii?Q?Lw/XdEx3Dl3stqvGDNTQZq0jfT5AYr24bx1GG9D0bRnrv/o3LPkhwiJQF4Ax?=
+ =?us-ascii?Q?Wtw92WdvzwhNp8caY7TSel04RKMfDDe674gHOrLwUnFKZS08mHPBZwgZ6ey/?=
+ =?us-ascii?Q?nB4NTDyRWc5GY4joORey8VaqNVHQa7qL0yxxRPLIHO+3tjKgSabIlag3y5DJ?=
+ =?us-ascii?Q?CNB/TGg9uOiaF0UfyY45p+WGOld36Qtub4XV+gxz6ZG8okEZHhGWRgnUVSJ/?=
+ =?us-ascii?Q?mOJCQ/ckrJlaOZMzifcxPpcd+3R8IV8KJBAf+WaYfawigJ6h+SauT3I0X38w?=
+ =?us-ascii?Q?CqDcAdZmx0Af5mo=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB3613.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014)(921020);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?F0y/rQD8Uh5aq/ML7UEf+1hgBoyKtFdQdyVBG5wXUT/QL9JmdYmhHerhFMos?=
+ =?us-ascii?Q?SiCpEZT09Y9k87xG9FUyaa1hqSxOvEjrX1YfSIcNYieOKOu0Y79d5lMQqEBd?=
+ =?us-ascii?Q?2p0iJDCmRlTOxyCsZLoBaI4UrQjyXnqI1xAiFylQ0bAkj44Ep0KZ60BFngBb?=
+ =?us-ascii?Q?E6PVToVpSINaRjLn6wB/pTZ4kGSA2jTxc6BIaQf8Ku+Lxfd5bps5rytk5749?=
+ =?us-ascii?Q?3abUF9Sg+8xYKmdfB7uKWm+k84MG0ghpCQ6pj0XNt8L3RitF2fekkcx2NXS1?=
+ =?us-ascii?Q?VDLU/l8RsBlTEOCM9cKxFsoms3mLD5UYPJjmte06r7wGbiFJfOxzB5uOfrba?=
+ =?us-ascii?Q?pJMezmjl1QpRc5jczRIwmAjOjmQcQ0TzVQrxeDweLmE5yFr5V/Ot6mgefL4G?=
+ =?us-ascii?Q?bSvu9rlKqrbebHhDixorEgsf45Uy6NBqoNi48fziHR3P6/OJ4CHtmA1ho7TM?=
+ =?us-ascii?Q?jkR6aCkAYC5FeUF+Hj833qp6BmhvnHbBIy8NtiN1muh5swZ3di9BaYcGfufa?=
+ =?us-ascii?Q?333RRSg7u3yD9hgm3KTYsbsn0QgunaJzX+Z8FsTQXlRCzs1djrWqVJ7ujQqY?=
+ =?us-ascii?Q?TCl9hTVzce7Hf8dLId84teVnv9F+hYMRa/y5UX37fJhlaDm95JPH6Cg9B98U?=
+ =?us-ascii?Q?SqzZiJF7T5bBcXSPf++aszye3Clsq850x3Mcoj3sie4W71nLzFd3gybG2jsN?=
+ =?us-ascii?Q?1xSJUMukMBHSwUmHNCEghtCbFre4uS4VbROuEcabGJolMDXw7gamIEwq9jhy?=
+ =?us-ascii?Q?wZlFcrEZMb75aLhJD0KzkpeZOK2pUgLocDzWQClN0mAu1aCpXSKhJujGaaK/?=
+ =?us-ascii?Q?8pG917UtQMIIE5SKVEWxHVumgKOAxLsAyUhmoKTBysNuuVw6aYfQ2a+rqlAP?=
+ =?us-ascii?Q?3jVXg6aEI9rdrMl4/DujNBsFLnXTASm4eaeWzuCemAYZwKAk45Vg4Zwc3vz7?=
+ =?us-ascii?Q?hssluAWpTUCIJcxvDpYNFih0+g1J5NXDp2kCbp0NNsc3qVopdmhjJM4F4Baa?=
+ =?us-ascii?Q?/ve6Jw7yL9Jcny6BhhUIaAIr4KF+DGyZFD+g5BoefFC7rkI/CBK49o91UMoN?=
+ =?us-ascii?Q?I5kqZAdjns/uXpC8Dubp9lGc/JKXAcwqSgMrqwNVGH6mdvUBP96G0S6HfRe+?=
+ =?us-ascii?Q?ZwApbAMmNqX8TKjN4LCP6zzyb6tZeINNk9QjDYJHDzLMoNprbtDBIIBNOsxj?=
+ =?us-ascii?Q?4J4azTcMRKqugQnLHPv1pDiBnLHykvtHv7RH/t2XDofXKB3RcqXwewQfecPS?=
+ =?us-ascii?Q?q2lt6KUe0G1YgrgxAXh/xlB1rw1wKtvyll2JMwpbdmbhYMtnkDA8RV8OWPP9?=
+ =?us-ascii?Q?JLyH5E/Kn032O+PbvuH8c9sYw+UraQJ25UjHXj/4j80E1WFGwChtVmDCQUCi?=
+ =?us-ascii?Q?U743m5MaTesBD7KLL9HRg+L788BufbVBa2aF8HeGItr9uQiIZT/s19lSbkZc?=
+ =?us-ascii?Q?7+EhQbXwEqKSLyCJuqPROjQKhvBJdmIYlJuWScWq4D4Rf3N/QqU9nRsmn/+y?=
+ =?us-ascii?Q?TKe2ZdhlzlFS/a42jKsnx3jLtnvvan1sQ3mKy3IwzoCVbrG7BVAZ2OBVraHL?=
+ =?us-ascii?Q?Phz7+tRZ5AgecsEKT/A=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a158fe60-42df-4ed5-d9d8-08de1e24e824
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB3613.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Nov 2025 17:41:39.7060
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: YXdQfAdZCvwQHggmB+mLWDio9YqSTYcBn3izIqX3i1QaYqOu9svc9RWWUlWAFMgE
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB8826
 
-A false-positive kmsan report is detected when running ping command.
+Move it out of mtty_ioctl() and re-indent it.
 
-An inline assembly instruction 'vstl' can write varied amount of bytes
-depending on value of 'index' argument. If 'index' > 0, 'vstl' writes
-at least 2 bytes.
-
-clang generates kmsan write helper call depending on inline assembly
-constraints. Constraints are evaluated compile-time, but value of
-'index' argument is known only at runtime.
-
-clang currently generates call to __msan_instrument_asm_store with 1 byte
-as size. Manually call kmsan function to indicate correct amount of bytes
-written and fix false-positive report.
-
-This change fixes following kmsan reports:
-
-[   36.563119] =====================================================
-[   36.563594] BUG: KMSAN: uninit-value in virtqueue_add+0x35c6/0x7c70
-[   36.563852]  virtqueue_add+0x35c6/0x7c70
-[   36.564016]  virtqueue_add_outbuf+0xa0/0xb0
-[   36.564266]  start_xmit+0x288c/0x4a20
-[   36.564460]  dev_hard_start_xmit+0x302/0x900
-[   36.564649]  sch_direct_xmit+0x340/0xea0
-[   36.564894]  __dev_queue_xmit+0x2e94/0x59b0
-[   36.565058]  neigh_resolve_output+0x936/0xb40
-[   36.565278]  __neigh_update+0x2f66/0x3a60
-[   36.565499]  neigh_update+0x52/0x60
-[   36.565683]  arp_process+0x1588/0x2de0
-[   36.565916]  NF_HOOK+0x1da/0x240
-[   36.566087]  arp_rcv+0x3e4/0x6e0
-[   36.566306]  __netif_receive_skb_list_core+0x1374/0x15a0
-[   36.566527]  netif_receive_skb_list_internal+0x1116/0x17d0
-[   36.566710]  napi_complete_done+0x376/0x740
-[   36.566918]  virtnet_poll+0x1bae/0x2910
-[   36.567130]  __napi_poll+0xf4/0x830
-[   36.567294]  net_rx_action+0x97c/0x1ed0
-[   36.567556]  handle_softirqs+0x306/0xe10
-[   36.567731]  irq_exit_rcu+0x14c/0x2e0
-[   36.567910]  do_io_irq+0xd4/0x120
-[   36.568139]  io_int_handler+0xc2/0xe8
-[   36.568299]  arch_cpu_idle+0xb0/0xc0
-[   36.568540]  arch_cpu_idle+0x76/0xc0
-[   36.568726]  default_idle_call+0x40/0x70
-[   36.568953]  do_idle+0x1d6/0x390
-[   36.569486]  cpu_startup_entry+0x9a/0xb0
-[   36.569745]  rest_init+0x1ea/0x290
-[   36.570029]  start_kernel+0x95e/0xb90
-[   36.570348]  startup_continue+0x2e/0x40
-[   36.570703]
-[   36.570798] Uninit was created at:
-[   36.571002]  kmem_cache_alloc_node_noprof+0x9e8/0x10e0
-[   36.571261]  kmalloc_reserve+0x12a/0x470
-[   36.571553]  __alloc_skb+0x310/0x860
-[   36.571844]  __ip_append_data+0x483e/0x6a30
-[   36.572170]  ip_append_data+0x11c/0x1e0
-[   36.572477]  raw_sendmsg+0x1c8c/0x2180
-[   36.572818]  inet_sendmsg+0xe6/0x190
-[   36.573142]  __sys_sendto+0x55e/0x8e0
-[   36.573392]  __s390x_sys_socketcall+0x19ae/0x2ba0
-[   36.573571]  __do_syscall+0x12e/0x240
-[   36.573823]  system_call+0x6e/0x90
-[   36.573976]
-[   36.574017] Byte 35 of 98 is uninitialized
-[   36.574082] Memory access of size 98 starts at 0000000007aa0012
-[   36.574218]
-[   36.574325] CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Tainted: G    B            N  6.17.0-dirty #16 NONE
-[   36.574541] Tainted: [B]=BAD_PAGE, [N]=TEST
-[   36.574617] Hardware name: IBM 3931 A01 703 (KVM/Linux)
-[   36.574755] =====================================================
-
-[   63.532541] =====================================================
-[   63.533639] BUG: KMSAN: uninit-value in virtqueue_add+0x35c6/0x7c70
-[   63.533989]  virtqueue_add+0x35c6/0x7c70
-[   63.534940]  virtqueue_add_outbuf+0xa0/0xb0
-[   63.535861]  start_xmit+0x288c/0x4a20
-[   63.536708]  dev_hard_start_xmit+0x302/0x900
-[   63.537020]  sch_direct_xmit+0x340/0xea0
-[   63.537997]  __dev_queue_xmit+0x2e94/0x59b0
-[   63.538819]  neigh_resolve_output+0x936/0xb40
-[   63.539793]  ip_finish_output2+0x1ee2/0x2200
-[   63.540784]  __ip_finish_output+0x272/0x7a0
-[   63.541765]  ip_finish_output+0x4e/0x5e0
-[   63.542791]  ip_output+0x166/0x410
-[   63.543771]  ip_push_pending_frames+0x1a2/0x470
-[   63.544753]  raw_sendmsg+0x1f06/0x2180
-[   63.545033]  inet_sendmsg+0xe6/0x190
-[   63.546006]  __sys_sendto+0x55e/0x8e0
-[   63.546859]  __s390x_sys_socketcall+0x19ae/0x2ba0
-[   63.547730]  __do_syscall+0x12e/0x240
-[   63.548019]  system_call+0x6e/0x90
-[   63.548989]
-[   63.549779] Uninit was created at:
-[   63.550691]  kmem_cache_alloc_node_noprof+0x9e8/0x10e0
-[   63.550975]  kmalloc_reserve+0x12a/0x470
-[   63.551969]  __alloc_skb+0x310/0x860
-[   63.552949]  __ip_append_data+0x483e/0x6a30
-[   63.553902]  ip_append_data+0x11c/0x1e0
-[   63.554912]  raw_sendmsg+0x1c8c/0x2180
-[   63.556719]  inet_sendmsg+0xe6/0x190
-[   63.557534]  __sys_sendto+0x55e/0x8e0
-[   63.557875]  __s390x_sys_socketcall+0x19ae/0x2ba0
-[   63.558869]  __do_syscall+0x12e/0x240
-[   63.559832]  system_call+0x6e/0x90
-[   63.560780]
-[   63.560972] Byte 35 of 98 is uninitialized
-[   63.561741] Memory access of size 98 starts at 0000000005704312
-[   63.561950]
-[   63.562824] CPU: 3 UID: 0 PID: 192 Comm: ping Tainted: G    B            N  6.17.0-dirty #16 NONE
-[   63.563868] Tainted: [B]=BAD_PAGE, [N]=TEST
-[   63.564751] Hardware name: IBM 3931 A01 703 (KVM/Linux)
-[   63.564986] =====================================================
-
-Fixes: dcd3e1de9d17 ("s390/checksum: provide csum_partial_copy_nocheck()")
-Signed-off-by: Aleksei Nikiforov <aleksei.nikiforov@linux.ibm.com>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Acked-by: Pranjal Shrivastava <praan@google.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 ---
- arch/s390/include/asm/fpu-insn.h | 3 +++
- 1 file changed, 3 insertions(+)
+ samples/vfio-mdev/mtty.c | 53 ++++++++++++++++++++++------------------
+ 1 file changed, 29 insertions(+), 24 deletions(-)
 
-diff --git a/arch/s390/include/asm/fpu-insn.h b/arch/s390/include/asm/fpu-insn.h
-index 135bb89c0a89..8f2dd6e879ff 100644
---- a/arch/s390/include/asm/fpu-insn.h
-+++ b/arch/s390/include/asm/fpu-insn.h
-@@ -12,6 +12,7 @@
- #ifndef __ASSEMBLER__
- 
- #include <linux/instrumented.h>
-+#include <linux/kmsan.h>
- #include <asm/asm-extable.h>
- 
- asm(".include \"asm/fpu-insn-asm.h\"\n");
-@@ -393,6 +394,7 @@ static __always_inline void fpu_vstl(u8 v1, u32 index, const void *vxr)
- 		     : [vxr] "=Q" (*(u8 *)vxr)
- 		     : [index] "d" (index), [v1] "I" (v1)
- 		     : "memory");
-+	kmsan_unpoison_memory(vxr, size);
+diff --git a/samples/vfio-mdev/mtty.c b/samples/vfio-mdev/mtty.c
+index 59eefe2fed10ca..b27f9b93471bc5 100644
+--- a/samples/vfio-mdev/mtty.c
++++ b/samples/vfio-mdev/mtty.c
+@@ -1785,6 +1785,34 @@ static int mtty_get_device_info(struct vfio_device_info *dev_info)
+ 	return 0;
  }
  
- #else /* CONFIG_CC_HAS_ASM_AOR_FORMAT_FLAGS */
-@@ -409,6 +411,7 @@ static __always_inline void fpu_vstl(u8 v1, u32 index, const void *vxr)
- 		: [vxr] "=R" (*(u8 *)vxr)
- 		: [index] "d" (index), [v1] "I" (v1)
- 		: "memory", "1");
-+	kmsan_unpoison_memory(vxr, size);
- }
++static int mtty_ioctl_get_region_info(struct vfio_device *vdev,
++				      struct vfio_region_info __user *arg)
++{
++	struct mdev_state *mdev_state =
++		container_of(vdev, struct mdev_state, vdev);
++	struct vfio_region_info info;
++	void *cap_type = NULL;
++	u16 cap_type_id = 0;
++	unsigned long minsz;
++	int ret;
++
++	minsz = offsetofend(struct vfio_region_info, offset);
++
++	if (copy_from_user(&info, arg, minsz))
++		return -EFAULT;
++
++	if (info.argsz < minsz)
++		return -EINVAL;
++
++	ret = mtty_get_region_info(mdev_state, &info, &cap_type_id, &cap_type);
++	if (ret)
++		return ret;
++
++	if (copy_to_user(arg, &info, minsz))
++		return -EFAULT;
++	return 0;
++}
++
+ static long mtty_ioctl(struct vfio_device *vdev, unsigned int cmd,
+ 			unsigned long arg)
+ {
+@@ -1817,30 +1845,6 @@ static long mtty_ioctl(struct vfio_device *vdev, unsigned int cmd,
  
- #endif /* CONFIG_CC_HAS_ASM_AOR_FORMAT_FLAGS */
+ 		return 0;
+ 	}
+-	case VFIO_DEVICE_GET_REGION_INFO:
+-	{
+-		struct vfio_region_info info;
+-		u16 cap_type_id = 0;
+-		void *cap_type = NULL;
+-
+-		minsz = offsetofend(struct vfio_region_info, offset);
+-
+-		if (copy_from_user(&info, (void __user *)arg, minsz))
+-			return -EFAULT;
+-
+-		if (info.argsz < minsz)
+-			return -EINVAL;
+-
+-		ret = mtty_get_region_info(mdev_state, &info, &cap_type_id,
+-					   &cap_type);
+-		if (ret)
+-			return ret;
+-
+-		if (copy_to_user((void __user *)arg, &info, minsz))
+-			return -EFAULT;
+-
+-		return 0;
+-	}
+ 
+ 	case VFIO_DEVICE_GET_IRQ_INFO:
+ 	{
+@@ -1949,6 +1953,7 @@ static const struct vfio_device_ops mtty_dev_ops = {
+ 	.read = mtty_read,
+ 	.write = mtty_write,
+ 	.ioctl = mtty_ioctl,
++	.get_region_info = mtty_ioctl_get_region_info,
+ 	.bind_iommufd	= vfio_iommufd_emulated_bind,
+ 	.unbind_iommufd	= vfio_iommufd_emulated_unbind,
+ 	.attach_ioas	= vfio_iommufd_emulated_attach_ioas,
 -- 
-2.43.7
+2.43.0
 
