@@ -1,65 +1,78 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from fhigh-b4-smtp.messagingengine.com (fhigh-b4-smtp.messagingengine.com [202.12.124.155])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE3A81C861D;
-	Sat,  8 Nov 2025 00:17:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FF052F7444;
+	Sat,  8 Nov 2025 10:18:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.155
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762561057; cv=none; b=bqaYy098Rp0Z9wtNST7OS+4p6gv3t5P5wLpgqNLA60RdQ0G+BHbN5HROLWQGPnh4rELLtJtHr8q+2q5b/StKOBGFgvqr7w2YUOtcmAvrGETRd7hIyU3g2AIi/YXygMf0vjeWRWVC2UACZ70l+eL9fY7/LAU0+TNUkGXctQt4DW0=
+	t=1762597103; cv=none; b=gQsWb78G+SKum81vyf40V7h/2OMCYc6TNlIwbdItmXiT4GkX4rvZMcraJ4PyQ1hVGwOxMcpFfRkBiaSm020DdBICPMP6bVRBE7Eo9bIhzTUWOvhywVpC3JzIiLbRJpMB+Ogo9YEbH9uoz+x+O6N9iKlOgjS+bhq5UYqgJshm4XA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762561057; c=relaxed/simple;
-	bh=XUsG99xBjGBf0mGGPX30fWGrjmuEuoRvSI6cNRaW3uk=;
+	s=arc-20240116; t=1762597103; c=relaxed/simple;
+	bh=QTxCrFOVl8+EangfedcvqHwXcRI1j/48+hg1imipcUI=;
 	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=tETUDiOATnQzc6XQbTsaSrR2YDVV6SgkhcD4bK5WPc2+BYLEX3dy+ZSaZDIqUADr34ysn5NuQLWUWMoQErxRdsLSGSCvNeXia31bD/OExUrLksV3oHeB6eWOvoKlhtzEAb9iy6DFWGd0+oLIbmCwwg5WBAMrk+2p7Q5dxYzOAhc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZPZ3Vy4+; arc=none smtp.client-ip=10.30.226.201
+	 Subject:Content-Type; b=MdpqV7/BIkEGASjcEwcGgDcStqgEGhFKRgHdZLJ+nndr18bPfhTHl/3av6BvpbdvHJ9zZ8U6XMVXCnKLQ8H50AxhfHA0nFN7SioNzqT1tiv6FPhMjBXN/W7UUCw5MAKD/OlfM6zHQMf+XTE5W+LKrK4pYOzePkIvAl1ZUwOUjkk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=cEZyamzN; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=11RmOGKC; arc=none smtp.client-ip=202.12.124.155
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZPZ3Vy4+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 570C7C4AF09;
-	Sat,  8 Nov 2025 00:17:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1762561057;
-	bh=XUsG99xBjGBf0mGGPX30fWGrjmuEuoRvSI6cNRaW3uk=;
-	h=Date:From:To:Cc:In-Reply-To:References:Subject:From;
-	b=ZPZ3Vy4+Mwtd9u64BlwFmY6DmILtaZrSzmob9fOqpBDxe0Vricl0BZr8nconsigNL
-	 SYTDEJnaAeh2wKWKSpK71sYHmGNBfLi/udKjbzUvREvUi9BIO85f4fGuhHjLV8Ul+z
-	 8qEZnZe1tF/KaqDUNx9F1cVDDWxSyrWlYSD7e41mB7erF4YEJpMPeMGKvUaCSr8Kmu
-	 t9Q4lJ8QnwFq9H/ubkLYOjrZFTc+Xp0zqdPZHWEynJx9onXQCbbC3x7TWNl/JspQ9H
-	 GaMIKkq4WYKrixfV9Zg5Hw2UA54Qy7FuO7SwVRkjS8gm9KrB/c3pWQxLda/3j9cQAR
-	 fRFaQ1dnyywMA==
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailfauth.phl.internal (Postfix) with ESMTP id 5F54BF40068;
-	Fri,  7 Nov 2025 19:17:35 -0500 (EST)
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="cEZyamzN";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="11RmOGKC"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 5A5837A0191;
+	Sat,  8 Nov 2025 05:18:19 -0500 (EST)
 Received: from phl-imap-02 ([10.202.2.81])
-  by phl-compute-01.internal (MEProxy); Fri, 07 Nov 2025 19:17:35 -0500
-X-ME-Sender: <xms:H4wOafrNzNh3F20iEtzGYLwdnG5HUk8owEhFzBq4bC4yrZFPBzDpnw>
-    <xme:H4wOaUcjSdohJ-lHpvtmDCy99XFBkf7MtPoTsUirPUpTjN2r6oDNLQ-LiaoJ013Zx
-    OSsZ3wJ9MR_FlQDZoIpMISCvYFbT_IdXYQn-RQ8McO3in1UX_e7ymo>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggdduledutdejucetufdoteggodetrf
+  by phl-compute-04.internal (MEProxy); Sat, 08 Nov 2025 05:18:20 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1762597099;
+	 x=1762683499; bh=Dy0X8O4MO1t7FqOwhn0j3XKQ7MaNsGXpyV2kiweRlxs=; b=
+	cEZyamzNzoH9Icjv4IiQ7MKixYg2dbnKHuP4eSZS/o93PgE6kQ/CWnpSQuyZyBxx
+	Wj6JgdMWTE2GD2KXK2w0u4TdkhZydi440gIa2367xIqal79Y3KxNhf5p0AhBwmx/
+	VCTP94eOxOsZ/+iw45TAaa6TcQt0gBltvqKLZWqaGRL4GmLG3gkoxcoes2xRyISA
+	MKiFHVimYVkDcsc0B028g11jnZY3t1pYZhDpA2KyW/g4itvadMZMjnaC9IyrvexB
+	b6zYB4UY9AuPGgtL3RHrPe0sHVhqFKTIGan1Sc0Qr6WzSFn6w+uQspJfA+IlKvG1
+	5M28rHkO7xmoqtTSGxvGoQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1762597099; x=
+	1762683499; bh=Dy0X8O4MO1t7FqOwhn0j3XKQ7MaNsGXpyV2kiweRlxs=; b=1
+	1RmOGKCzj3MrA3S6VHgbq421YPN8O9I8PzYPEWUd2LQirK9sjwdaLiunDdPudTVF
+	oX/iVYhG0uSIDf0Gl9dU/alRQ1Ej12EmiLCWrpyZtHbaytqsF5F8Z46o4jhirvqo
+	1epc1/Q4gaW0SqkMaLk5a4V1iVXL/ClvJz8Snlp4ipuFT6PPUnPCQuN8uW4ZKie7
+	SiN9SCXu0FasH7p25jgc9VvED10nMU0OMLDGBcMiBrPoGi+xZSoLNl0XC6SqHBgZ
+	3eLNB+33wHqfRFOgXTOp1aS8OPqGdA3rIij6tYqtY9ZkN4/PpEmzGWcWKkFXyfNB
+	e5FU0No5QaEl/U4N2hHWQ==
+X-ME-Sender: <xms:6BgPaRRIxWq5jmixg_10_Mir1jteEarI8RHW4m_r0Uav9t2rdu-niA>
+    <xme:6BgPaVl8wFr6gnthaPgSZ1M--DxmnG-g4QebP9dC6AukR-lRUWxEsQWMyCk97OG7m
+    cBfqOHQC0ZW8IRacTFMIUtogXSfeABR1Fv0bJ4MRaVF_NYnIpMvguc>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggdduledvvdekucetufdoteggodetrf
     dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
     rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepofggfffhvfevkfgjfhfutgfgsehtqhertdertdejnecuhfhrohhmpedftehnugih
-    ucfnuhhtohhmihhrshhkihdfuceolhhuthhosehkvghrnhgvlhdrohhrgheqnecuggftrf
-    grthhtvghrnhephffgieeuueevvddvffehiedtteduveejtefhuedtteehfffgieehhfeg
-    ffehvddvnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiii
-    gvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrnhguhidomhgvshhmthhprghuthhh
-    phgvrhhsohhnrghlihhthidqudduiedukeehieefvddqvdeifeduieeitdekqdhluhhtoh
-    eppehkvghrnhgvlhdrohhrgheslhhinhhugidrlhhuthhordhushdpnhgspghrtghpthht
-    ohepfeekpdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehtshgsohhgvghnugesrg
-    hlphhhrgdrfhhrrghnkhgvnhdruggvpdhrtghpthhtoheptggrthgrlhhinhdrmhgrrhhi
-    nhgrshesrghrmhdrtghomhdprhgtphhtthhopehvihhntggvnhiiohdrfhhrrghstghinh
-    hosegrrhhmrdgtohhmpdhrtghpthhtoheplhhinhhugiesrghrmhhlihhnuhigrdhorhhg
-    rdhukhdprhgtphhtthhopegrrhhnugesrghrnhgusgdruggvpdhrtghpthhtoheptghhrh
-    hishhtohhphhgvrdhlvghrohihsegtshhgrhhouhhprdgvuhdprhgtphhtthhopegurghv
-    vghmsegurghvvghmlhhofhhtrdhnvghtpdhrtghpthhtohepmhhpvgesvghllhgvrhhmrg
-    hnrdhiugdrrghupdhrtghpthhtoheprghnughrvggrshesghgrihhslhgvrhdrtghomh
-X-ME-Proxy: <xmx:H4wOaYj7xvXA29_Bib9C5PIR7PR0nsrqVdk5HtTm2H3d-R4y6hN7cA>
-    <xmx:H4wOaWyOOyhtvDHw5EQUulR9nlXXe4Ffhpq_shBAWohS0jRLkL-01g>
-    <xmx:H4wOaW5NDwwwriLNNzBHji6Fxg-C2vRU0eXN25y76ZiKUVW1dC5How>
-    <xmx:H4wOaQdjDWMtCC-ZhzLIVmqqVcgCiXSqauLHNTpK8yyJ4JDQQasaWw>
-    <xmx:H4wOaWqC_OPjl_9AhrIU-MZOmt6l20JMDdKC6pSM7VJpUei1L8Bhd8QE>
-Feedback-ID: ieff94742:Fastmail
+    gurhepofggfffhvfevkfgjfhfutgfgsehtqhertdertdejnecuhfhrohhmpedftehrnhgu
+    uceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrthhtvg
+    hrnhepvdfhvdekueduveffffetgfdvveefvdelhedvvdegjedvfeehtdeggeevheefleej
+    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprghrnh
+    gusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohepfeekpdhmohguvgepshhmthhpohhu
+    thdprhgtphhtthhopehtshgsohhgvghnugesrghlphhhrgdrfhhrrghnkhgvnhdruggvpd
+    hrtghpthhtoheptggrthgrlhhinhdrmhgrrhhinhgrshesrghrmhdrtghomhdprhgtphht
+    thhopehvihhntggvnhiiohdrfhhrrghstghinhhosegrrhhmrdgtohhmpdhrtghpthhtoh
+    eplhhinhhugiesrghrmhhlihhnuhigrdhorhhgrdhukhdprhgtphhtthhopegthhhrihhs
+    thhophhhvgdrlhgvrhhohiestghsghhrohhuphdrvghupdhrtghpthhtohepuggrvhgvmh
+    esuggrvhgvmhhlohhfthdrnhgvthdprhgtphhtthhopehmphgvsegvlhhlvghrmhgrnhdr
+    ihgurdgruhdprhgtphhtthhopegrnhgurhgvrghssehgrghishhlvghrrdgtohhmpdhrtg
+    hpthhtohepnhhpihhgghhinhesghhmrghilhdrtghomh
+X-ME-Proxy: <xmx:6BgPadWPlUcsGuyo71NaCjKc2YPRvI8gEEyapzU7K_qFqodZYdUZ3Q>
+    <xmx:6BgPaSpqRRWVcjAk5v2CbNcnKLucrzxVs6Dc8Su2mEhLGCTJBU1Bgw>
+    <xmx:6BgPaWY1zqG1CIgxQ5UaNJjuXvzVKu57KP9C9K20ZkpR-xWGduNZIg>
+    <xmx:6BgPaeAB_UvzAn5Sll1yJnfyxEU8_O8ud3cRWf5fHo0_lPSXl6gamw>
+    <xmx:6xgPaQGtgyz68Oh7u7-54VIZcOrGpiuEK0ob3TA8JT0rnP2-R9S_7KgC>
+Feedback-ID: i56a14606:Fastmail
 Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 1E114700054; Fri,  7 Nov 2025 19:17:35 -0500 (EST)
+	id AA459700065; Sat,  8 Nov 2025 05:18:16 -0500 (EST)
 X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -67,22 +80,22 @@ List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: AdW-VwKItdLc
-Date: Fri, 07 Nov 2025 16:17:14 -0800
-From: "Andy Lutomirski" <luto@kernel.org>
-To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
+X-ThreadId: AisJtzLZ_1Kg
+Date: Sat, 08 Nov 2025 11:17:46 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Andy Lutomirski" <luto@kernel.org>,
+ =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
  "Thomas Gleixner" <tglx@linutronix.de>,
  "Vincenzo Frascino" <vincenzo.frascino@arm.com>,
- "Arnd Bergmann" <arnd@arndb.de>, "David S. Miller" <davem@davemloft.net>,
+ "David S . Miller" <davem@davemloft.net>,
  "Andreas Larsson" <andreas@gaisler.com>,
  "Nick Alcock" <nick.alcock@oracle.com>,
  "John Stultz" <jstultz@google.com>, "Stephen Boyd" <sboyd@kernel.org>,
  "John Paul Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>,
- "Shuah Khan" <shuah@kernel.org>,
- "Catalin Marinas" <catalin.marinas@arm.com>,
+ shuah <shuah@kernel.org>, "Catalin Marinas" <catalin.marinas@arm.com>,
  "Will Deacon" <will@kernel.org>, "Theodore Ts'o" <tytso@mit.edu>,
- "Jason A. Donenfeld" <Jason@zx2c4.com>,
- "Russell King (Oracle)" <linux@armlinux.org.uk>,
+ "Jason A . Donenfeld" <Jason@zx2c4.com>,
+ "Russell King" <linux@armlinux.org.uk>,
  "Madhavan Srinivasan" <maddy@linux.ibm.com>,
  "Michael Ellerman" <mpe@ellerman.id.au>,
  "Nicholas Piggin" <npiggin@gmail.com>,
@@ -100,80 +113,43 @@ Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
  linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
  loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
  linux-s390@vger.kernel.org, "Arnd Bergmann" <arnd@kernel.org>
-Message-Id: <b870aa47-5ed4-4dcf-a407-eca83d1733d8@app.fastmail.com>
-In-Reply-To: 
- <20251106-vdso-sparc64-generic-2-v5-0-97ff2b6542f7@linutronix.de>
+Message-Id: <6452c785-872a-4fe7-90e1-8138d73c6218@app.fastmail.com>
+In-Reply-To: <b870aa47-5ed4-4dcf-a407-eca83d1733d8@app.fastmail.com>
 References: <20251106-vdso-sparc64-generic-2-v5-0-97ff2b6542f7@linutronix.de>
+ <b870aa47-5ed4-4dcf-a407-eca83d1733d8@app.fastmail.com>
 Subject: Re: [PATCH v5 00/34] sparc64: vdso: Switch to the generic vDSO library
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-
-On Thu, Nov 6, 2025, at 2:01 AM, Thomas Wei=C3=9Fschuh wrote:
-> The generic vDSO provides a lot common functionality shared between
-> different architectures. SPARC is the last architecture not using it,
-> preventing some necessary code cleanup.
+On Sat, Nov 8, 2025, at 01:17, Andy Lutomirski wrote:
+> On Thu, Nov 6, 2025, at 2:01 AM, Thomas Wei=C3=9Fschuh wrote:
 >
-> Make use of the generic infrastructure.
->
-> Follow-up to and replacement for Arnd's SPARC vDSO removal patches:
-> https://lore.kernel.org/lkml/20250707144726.4008707-1-arnd@kernel.org/
->
-> SPARC64 can not map .bss into userspace, so the vDSO datapages are
-> switched over to be allocated dynamically. This requires changes to the
-> s390 and random subsystem vDSO initialization as preparation.
-> The random subsystem changes in turn require some cleanup of the vDSO
-> headers to not end up as ugly #ifdef mess.
->
+> Now I'm not an expert on any architecture that has these aliasing=20
+> (coloring?) issues, but from my limited understanding, it ought to be=20
+> possible to choose a correctly colored address to map the vdso data=20
+> given where it's being mapped from.  If there's an issue with gatherin=
+g=20
+> a bunch of basically arbitrarily relatively positioned physical pages=20
+> into their necessary arrangement in usermode, you could presumably fix=20
+> it either with some linker script magic or by rearranging the C code t=
+o=20
+> stick everything into a multipage structure.
 
-I hate to say it, but this patch series seems like a step backwards.  Yo=
-u're adding a whole lot of complexity and opportunity for screwups (boot=
- failure? corruption?) to support SPARC, where other architectures have =
-no problem with the existing code.  And this complexity appears to infec=
-t basically every kernel subsystem that supplies data to the vDSO.
+On 32-bit Arm, we only allow VDSO on CPUs that have nonaliasing caches
+but not on the rare ARMv4/v5 CPUs. From the public information I could
+find, it appears that similarly all SPARC CPUs from the past 20 years
+(Leon 3/4/5, SPARC64, Niagara, M5/M6/M7/M8, ...) are also nonaliasing,
+though at least UltraSPARC IV (released 2004) and earlier models still
+had an aliasing VIPT dcache.
 
-Can you at least explain what the problem is and maybe give some discuss=
-ion of why SPARC has no workaround available?  The closest I found was t=
-his bit from "[PATCH v4 24/35] vdso/datastore: Allocate data pages dynam=
-ically":
+Someone more familiar with SPARC should double-check that, but I would
+expect that we can gate the VDSO on the actual cache topology.
 
-> Allocating the datapages as part of the kernel image does not work on
-SPARC. It is also problematic with regards to dcache aliasing as there is
-no guarantee that the virtual addresses used by the kernel are compatible
-with those used by userspace.
+On other architectures, I see that parisc (always aliasing) has stubbed
+out the vdso functions, while mips/loongson has limited the page size
+selection to never alias. A few other mips platforms can theoretically
+enable both small pages and vdso, but my guess is that in practice
+they don't use the vdso (mips32/ath79) or they use 16KB pages
+(rm, dec, ip22) based on the defconfig settings.
 
-Now I'm not an expert on any architecture that has these aliasing (color=
-ing?) issues, but from my limited understanding, it ought to be possible=
- to choose a correctly colored address to map the vdso data given where =
-it's being mapped from.  If there's an issue with gathering a bunch of b=
-asically arbitrarily relatively positioned physical pages into their nec=
-essary arrangement in usermode, you could presumably fix it either with =
-some linker script magic or by rearranging the C code to stick everythin=
-g into a multipage structure.
-
-Or maybe you could arrange to allocate all these pages during early boot=
- and to fudge up some relocation to get all the existing generic code to=
- find them.  Or create some pointers that all the generic code will use =
-that, on non-sparc architectures, will be statically populated with the =
-right addresses by the linker.  IOW, conceptually,
-
-struct the_type some_vdso_thing;
-
-could change to:
-
-const struct the_type some_vdso_thing =3D &the_actual_data;
-
-and SPARC could fix up the initialization of the pointer.  And generic c=
-ode would use the pointer instead of the_actual_data.
-
-If you really really really need to have non-arch-specific kernel C code=
- running before the vdso data is allocated, can you give a very clear ex=
-planation of what, exactly, is wrong on sparc?  And maybe put that expla=
-nation into an appropriate comment somewhere so that future kernel progr=
-ammers don't look at the headers and the code and think "wow, what I mes=
-s -- I bet I can clean this up by using statically allocated data".
-
-(Can SPARC really not map things that existed during early boot into use=
-rspace?)
-
---Andy
+      Arnd
