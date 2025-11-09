@@ -1,307 +1,154 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91D3634D38B;
-	Sat,  8 Nov 2025 22:16:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+Received: from angie.orcam.me.uk (angie.orcam.me.uk [78.133.224.34])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 7E9551FECD4;
+	Sun,  9 Nov 2025 03:23:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.133.224.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762640186; cv=none; b=b30wJlbdOKcYhY9vLKDvLy9g9gu6nU0rTH64scRLDOq4ovP7EbLtSLLcolHZb+k87i2X/EA5IBHvj9id1GXIGbaT2tOgXnODn7bvrxx4jaywaF22TmPhYZvI/8I+WiB1KsqANpElysSxwPcYzKeqwB9YEnVxtH8UoPR+AAFal+o=
+	t=1762658621; cv=none; b=H0AdwBnUtNNIApGWUVSk4fTraUqhceKO/GMzElCUKK32r/ik3bpqO93JtXpYnoX47jp3KiATZ7wd9Jh+gOxzprd1qxM7cq1GYLQXpAkR+98dl+0xvaCFkIK0lFbSfGL3WDS3gsHiRDrX+7xnjavriI/y5skXMB/g7FF63sv+mpg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762640186; c=relaxed/simple;
-	bh=pBhyieeDjchlJ+mOjFaTeT3Y/QitnXECs185al56b+I=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=cJ4udU1yiWR/CrVNO1XDqIhia70t4/xe6EmyzE6bhtkdBNwG80o3/WpXRQLd+FNqpe4B8LJHnN49/ZcqfjheY6x7AcpMuyNW9UmqNQZqSkMqdRcIzNUGjrK85Exhz4jdimb2jhvAm+2quVGggRB3z3QgqSHHN3PxZRAqFstT4sc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=fWeMhNeb; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="fWeMhNeb"
-Received: from ehlo.thunderbird.net (c-76-133-66-138.hsd1.ca.comcast.net [76.133.66.138])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 5A8MEjxP2478531
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Sat, 8 Nov 2025 14:14:46 -0800
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 5A8MEjxP2478531
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025102301; t=1762640093;
-	bh=B/Cs56oiwOfYFf5C+E+O3dVcT+FEPLCVGwSgjVsb61Y=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-	b=fWeMhNebCueBIgpwwJ9HzqbFTchAPIdo17J2WvEY7kkjBFr98Hd14BZVU/elSj4e9
-	 sYvaiqrxvUl4BY8IpX0uQCmYyYRGpwEYM4AMpxmeO6jowam81zKx+Iou/8ibo+BM+1
-	 ywYMqpzqqzlsIya940Jmlzx8lzG2S8DMVB5+RfgE7pFBtdtphXJ6gZJo7OenPNVKFJ
-	 UQgPH5eVKjpuy1XcgvLHNRCiWtDhbQz2AI+JZNS/Lv07T437bJJ0VfM8ndXOQVc3ZX
-	 UAUehct6G47TvwmWI2P9q6uIb6MiC/veNOSx+dHqmpfeKU8Yq/RQ/QTtFSTKBOHhQF
-	 vb74cw9jAoTUA==
-Date: Sat, 08 Nov 2025 14:14:44 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-To: Xie Yuanbin <qq570070308@gmail.com>, david@redhat.com, tglx@linutronix.de,
-        segher@kernel.crashing.org, riel@surriel.com, peterz@infradead.org,
-        linux@armlinux.org.uk, mathieu.desnoyers@efficios.com,
-        paulmck@kernel.org, pjw@kernel.org, palmer@dabbelt.com,
-        aou@eecs.berkeley.edu, alex@ghiti.fr, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, davem@davemloft.net, andreas@gaisler.com,
-        luto@kernel.org, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, acme@kernel.org, namhyung@kernel.org,
-        mark.rutland@arm.com, alexander.shishkin@linux.intel.com,
-        jolsa@kernel.org, irogers@google.com, adrian.hunter@intel.com,
-        james.clark@linaro.org, anna-maria@linutronix.de, frederic@kernel.org,
-        juri.lelli@redhat.com, vincent.guittot@linaro.org,
-        dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
-        mgorman@suse.de, vschneid@redhat.com, nathan@kernel.org,
-        nick.desaulniers+lkml@gmail.com, morbo@google.com,
-        justinstitt@google.com, qq570070308@gmail.com, thuth@redhat.com,
-        brauner@kernel.org, arnd@arndb.de, jlayton@kernel.org,
-        aalbersh@redhat.com, akpm@linux-foundation.org, david@kernel.org,
-        lorenzo.stoakes@oracle.com, max.kellermann@ionos.com,
-        ryan.roberts@arm.com, nysal@linux.ibm.com, urezki@gmail.com
-CC: x86@kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, llvm@lists.linux.dev,
-        will@kernel.org
-Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_v2_3/4=5D_Provide_the_alwa?=
- =?US-ASCII?Q?ys_inline_version_of_some_functions?=
-User-Agent: K-9 Mail for Android
-In-Reply-To: <20251108172346.263590-4-qq570070308@gmail.com>
-References: <20251108172346.263590-1-qq570070308@gmail.com> <20251108172346.263590-4-qq570070308@gmail.com>
-Message-ID: <04CA2D22-4DE2-4DE1-A2BC-AACE666F5F93@zytor.com>
+	s=arc-20240116; t=1762658621; c=relaxed/simple;
+	bh=QowzrGaBLdVxsRT22hxlBmbEeOIOwFKSItzXthyIZLc=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=L/GMpCXJMm3v47A1sQQGw8ZKYpDG2LhAkVUTpF2N9wLsHhscAigjq57ua1XC8uxjiAAU0VyxK+/AcchizQdjskSSHq1KqqH9m3Wh81J3OkDB2zvGxcN/GQA1BOd/AIEgw3b44FoxlEr3p8CqNiJzoKpYnc+hO6TXxS6xsZcWEEM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=orcam.me.uk; spf=none smtp.mailfrom=orcam.me.uk; arc=none smtp.client-ip=78.133.224.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=orcam.me.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=orcam.me.uk
+Received: by angie.orcam.me.uk (Postfix, from userid 500)
+	id 5947792009C; Sun,  9 Nov 2025 04:23:31 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+	by angie.orcam.me.uk (Postfix) with ESMTP id 57A8792009B;
+	Sun,  9 Nov 2025 03:23:31 +0000 (GMT)
+Date: Sun, 9 Nov 2025 03:23:31 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@orcam.me.uk>
+To: Arnd Bergmann <arnd@arndb.de>
+cc: Andy Lutomirski <luto@kernel.org>, 
+    =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>, 
+    Thomas Gleixner <tglx@linutronix.de>, 
+    Vincenzo Frascino <vincenzo.frascino@arm.com>, 
+    "David S . Miller" <davem@davemloft.net>, 
+    Andreas Larsson <andreas@gaisler.com>, 
+    Nick Alcock <nick.alcock@oracle.com>, John Stultz <jstultz@google.com>, 
+    Stephen Boyd <sboyd@kernel.org>, 
+    John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+    shuah <shuah@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
+    Will Deacon <will@kernel.org>, Theodore Ts'o <tytso@mit.edu>, 
+    "Jason A . Donenfeld" <Jason@zx2c4.com>, 
+    Russell King <linux@armlinux.org.uk>, 
+    Madhavan Srinivasan <maddy@linux.ibm.com>, 
+    Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+    Christophe Leroy <christophe.leroy@csgroup.eu>, 
+    Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
+    Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+    Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+    Alexander Gordeev <agordeev@linux.ibm.com>, 
+    Christian Borntraeger <borntraeger@linux.ibm.com>, 
+    Sven Schnelle <svens@linux.ibm.com>, Shannon Nelson <sln@onemain.com>, 
+    Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, 
+    sparclinux@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+    linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, 
+    loongarch@lists.linux.dev, linux-mips@vger.kernel.org, 
+    linux-s390@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>
+Subject: Re: [PATCH v5 00/34] sparc64: vdso: Switch to the generic vDSO
+ library
+In-Reply-To: <6452c785-872a-4fe7-90e1-8138d73c6218@app.fastmail.com>
+Message-ID: <alpine.DEB.2.21.2511090221080.25436@angie.orcam.me.uk>
+References: <20251106-vdso-sparc64-generic-2-v5-0-97ff2b6542f7@linutronix.de> <b870aa47-5ed4-4dcf-a407-eca83d1733d8@app.fastmail.com> <6452c785-872a-4fe7-90e1-8138d73c6218@app.fastmail.com>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
 
-On November 8, 2025 9:23:45 AM PST, Xie Yuanbin <qq570070308@gmail=2Ecom> w=
-rote:
->On critical hot code paths, inline functions can optimize performance=2E
->However, for current compilers, there is no way to request them to inline
->at a specific calling point of a function=2E
->
->Add a always inline version to some functions, so that they can be chosen
->when called in hot paths=2E
->
->Signed-off-by: Xie Yuanbin <qq570070308@gmail=2Ecom>
->Cc: Thomas Gleixner <tglx@linutronix=2Ede>
->Cc: Rik van Riel <riel@surriel=2Ecom>
->Cc: Segher Boessenkool <segher@kernel=2Ecrashing=2Eorg>
->Cc: David Hildenbrand <david@redhat=2Ecom>
->Cc: Peter Zijlstra <peterz@infradead=2Eorg>
->---
-> arch/arm/include/asm/mmu_context=2Eh      | 12 +++++++-
-> arch/s390/include/asm/mmu_context=2Eh     | 12 +++++++-
-> arch/sparc/include/asm/mmu_context_64=2Eh | 12 +++++++-
-> kernel/sched/core=2Ec                     | 38 ++++++++++++++++++++++---
-> 4 files changed, 67 insertions(+), 7 deletions(-)
->
->diff --git a/arch/arm/include/asm/mmu_context=2Eh b/arch/arm/include/asm/=
-mmu_context=2Eh
->index db2cb06aa8cf=2E=2Ee77b271570c1 100644
->--- a/arch/arm/include/asm/mmu_context=2Eh
->+++ b/arch/arm/include/asm/mmu_context=2Eh
->@@ -80,7 +80,12 @@ static inline void check_and_switch_context(struct mm_=
-struct *mm,
-> #ifndef MODULE
-> #define finish_arch_post_lock_switch \
-> 	finish_arch_post_lock_switch
->-static inline void finish_arch_post_lock_switch(void)
->+/*
->+ * finish_arch_post_lock_switch_ainline - the always inline version of
->+ * finish_arch_post_lock_switch, used for performance sensitive paths=2E
->+ * If unsure, use finish_arch_post_lock_switch instead=2E
->+ */
->+static __always_inline void finish_arch_post_lock_switch_ainline(void)
-> {
-> 	struct mm_struct *mm =3D current->mm;
->=20
->@@ -99,6 +104,11 @@ static inline void finish_arch_post_lock_switch(void)
-> 		preempt_enable_no_resched();
-> 	}
-> }
->+
->+static inline void finish_arch_post_lock_switch(void)
->+{
->+	finish_arch_post_lock_switch_ainline();
->+}
-> #endif /* !MODULE */
->=20
-> #endif	/* CONFIG_MMU */
->diff --git a/arch/s390/include/asm/mmu_context=2Eh b/arch/s390/include/as=
-m/mmu_context=2Eh
->index d9b8501bc93d=2E=2E577062834906 100644
->--- a/arch/s390/include/asm/mmu_context=2Eh
->+++ b/arch/s390/include/asm/mmu_context=2Eh
->@@ -97,7 +97,12 @@ static inline void switch_mm(struct mm_struct *prev, s=
-truct mm_struct *next,
-> }
->=20
-> #define finish_arch_post_lock_switch finish_arch_post_lock_switch
->-static inline void finish_arch_post_lock_switch(void)
->+/*
->+ * finish_arch_post_lock_switch_ainline - the always inline version of
->+ * finish_arch_post_lock_switch, used for performance sensitive paths=2E
->+ * If unsure, use finish_arch_post_lock_switch instead=2E
->+ */
->+static __always_inline void finish_arch_post_lock_switch_ainline(void)
-> {
-> 	struct task_struct *tsk =3D current;
-> 	struct mm_struct *mm =3D tsk->mm;
->@@ -120,6 +125,11 @@ static inline void finish_arch_post_lock_switch(void=
-)
-> 	local_irq_restore(flags);
-> }
->=20
->+static inline void finish_arch_post_lock_switch(void)
->+{
->+	finish_arch_post_lock_switch_ainline();
->+}
->+
-> #define activate_mm activate_mm
-> static inline void activate_mm(struct mm_struct *prev,
->                                struct mm_struct *next)
->diff --git a/arch/sparc/include/asm/mmu_context_64=2Eh b/arch/sparc/inclu=
-de/asm/mmu_context_64=2Eh
->index 78bbacc14d2d=2E=2Eca7019080574 100644
->--- a/arch/sparc/include/asm/mmu_context_64=2Eh
->+++ b/arch/sparc/include/asm/mmu_context_64=2Eh
->@@ -160,7 +160,12 @@ static inline void arch_start_context_switch(struct =
-task_struct *prev)
-> }
->=20
-> #define finish_arch_post_lock_switch	finish_arch_post_lock_switch
->-static inline void finish_arch_post_lock_switch(void)
->+/*
->+ * finish_arch_post_lock_switch_ainline - the always inline version of
->+ * finish_arch_post_lock_switch, used for performance sensitive paths=2E
->+ * If unsure, use finish_arch_post_lock_switch instead=2E
->+ */
->+static __always_inline void finish_arch_post_lock_switch_ainline(void)
-> {
-> 	/* Restore the state of MCDPER register for the new process
-> 	 * just switched to=2E
->@@ -185,6 +190,11 @@ static inline void finish_arch_post_lock_switch(void=
-)
-> 	}
-> }
->=20
->+static inline void finish_arch_post_lock_switch(void)
->+{
->+	finish_arch_post_lock_switch_ainline();
->+}
->+
-> #define mm_untag_mask mm_untag_mask
-> static inline unsigned long mm_untag_mask(struct mm_struct *mm)
-> {
->diff --git a/kernel/sched/core=2Ec b/kernel/sched/core=2Ec
->index 0e50ef3d819a=2E=2Ec50e672e22c4 100644
->--- a/kernel/sched/core=2Ec
->+++ b/kernel/sched/core=2Ec
->@@ -4884,7 +4884,13 @@ static inline void finish_task(struct task_struct =
-*prev)
-> 	smp_store_release(&prev->on_cpu, 0);
-> }
->=20
->-static void do_balance_callbacks(struct rq *rq, struct balance_callback =
-*head)
->+/*
->+ * do_balance_callbacks_ainline - the always inline version of
->+ * do_balance_callbacks, used for performance sensitive paths=2E
->+ * If unsure, use do_balance_callbacks instead=2E
->+ */
->+static __always_inline void do_balance_callbacks_ainline(struct rq *rq,
->+		struct balance_callback *head)
-> {
-> 	void (*func)(struct rq *rq);
-> 	struct balance_callback *next;
->@@ -4901,6 +4907,11 @@ static void do_balance_callbacks(struct rq *rq, st=
-ruct balance_callback *head)
-> 	}
-> }
->=20
->+static void do_balance_callbacks(struct rq *rq, struct balance_callback =
-*head)
->+{
->+	do_balance_callbacks_ainline(rq, head);
->+}
->+
-> static void balance_push(struct rq *rq);
->=20
-> /*
->@@ -4949,11 +4960,21 @@ struct balance_callback *splice_balance_callbacks=
-(struct rq *rq)
-> 	return __splice_balance_callbacks(rq, true);
-> }
->=20
->-static void __balance_callbacks(struct rq *rq)
->+/*
->+ * __balance_callbacks_ainline - the always inline version of
->+ * __balance_callbacks, used for performance sensitive paths=2E
->+ * If unsure, use __balance_callbacks instead=2E
->+ */
->+static __always_inline void __balance_callbacks_ainline(struct rq *rq)
-> {
-> 	do_balance_callbacks(rq, __splice_balance_callbacks(rq, false));
-> }
->=20
->+static void __balance_callbacks(struct rq *rq)
->+{
->+	__balance_callbacks_ainline(rq);
->+}
->+
-> void balance_callbacks(struct rq *rq, struct balance_callback *head)
-> {
-> 	unsigned long flags;
->@@ -5003,7 +5024,8 @@ static inline void finish_lock_switch(struct rq *rq=
-)
-> #endif
->=20
-> #ifndef finish_arch_post_lock_switch
->-# define finish_arch_post_lock_switch()	do { } while (0)
->+# define finish_arch_post_lock_switch()		do { } while (0)
->+# define finish_arch_post_lock_switch_ainline()	do { } while (0)
-> #endif
->=20
-> static inline void kmap_local_sched_out(void)
->@@ -5050,6 +5072,9 @@ prepare_task_switch(struct rq *rq, struct task_stru=
-ct *prev,
->=20
-> /**
->  * finish_task_switch - clean up after a task-switch
->+ * finish_task_switch_ainline - the always inline version of this func
->+ * used for performance sensitive paths
->+ *
->  * @prev: the thread we just switched away from=2E
->  *
->  * finish_task_switch must be called after the context switch, paired
->@@ -5067,7 +5092,7 @@ prepare_task_switch(struct rq *rq, struct task_stru=
-ct *prev,
->  * past=2E 'prev =3D=3D current' is still correct but we need to recalcu=
-late this_rq
->  * because prev may have moved to another CPU=2E
->  */
->-static struct rq *finish_task_switch(struct task_struct *prev)
->+static __always_inline struct rq *finish_task_switch_ainline(struct task=
-_struct *prev)
-> 	__releases(rq->lock)
-> {
-> 	struct rq *rq =3D this_rq();
->@@ -5159,6 +5184,11 @@ static struct rq *finish_task_switch(struct task_s=
-truct *prev)
-> 	return rq;
-> }
->=20
->+static struct rq *finish_task_switch(struct task_struct *prev)
->+{
->+	return finish_task_switch_ainline(prev);
->+}
->+
-> /**
->  * schedule_tail - first thing a freshly forked thread must call=2E
->  * @prev: the thread we just switched away from=2E
+On Sat, 8 Nov 2025, Arnd Bergmann wrote:
 
-There is, in fact: you have to have an always_inline version, and wrap it =
-in a noinline version=2E
+> On other architectures, I see that parisc (always aliasing) has stubbed
+> out the vdso functions, while mips/loongson has limited the page size
+> selection to never alias. A few other mips platforms can theoretically
+> enable both small pages and vdso, but my guess is that in practice
+> they don't use the vdso (mips32/ath79) or they use 16KB pages
+> (rm, dec, ip22) based on the defconfig settings.
+
+ Umm, I'd have to dive into the details (and I hardly have the resources 
+at hand), but quite a bunch of MIPS microarchitectures suffer from cache 
+aliases; some even have VIVT caches.  A quick check with a system I have 
+running at my lab:
+
+$ ldd /bin/true
+        linux-vdso.so.1 =>  (0x77ff4000)
+        libc.so.6 => /lib/libc.so.6 (0x77e50000)
+        /lib/ld.so.1 (0x77fcc000)
+$ getconf PAGESIZE
+4096
+$ dmesg | grep linesize
+Primary instruction cache 32kB, VIPT, 4-way, linesize 32 bytes.
+Primary data cache 32kB, 4-way, VIPT, cache aliases, linesize 32 bytes
+MIPS secondary cache 512kB, 8-way, linesize 32 bytes.
+$ 
+
+Some microarchitectures have aliasing prevention implemented in hardware, 
+e.g. with the MTI 24K core:
+
+                 Table 6-31 Config7 Register Field Descriptions
+-------------+---------------------------------------------+-------+---------
+   Fields    |                                             |       |
+------+------+                                             | Read/ |  Reset 
+ Name | Bits |                Description                  | Write |  State
+======+======+=============================================+=======+=========
+      |      | Alias removed: This bit indicates that the  |       |
+      |      | data cache is organized to avoid virtual    |       |
+  AR  |  16  | aliasing problems.  This bit is only set if |   R   |  Based
+      |      | the data cache config and MMU type would    |       |  on HW
+      |      | normally cause aliasing - i.e., only for    |       | present
+      |      | the 32KB data cache and TLB-based MMU.      |       |
+------+------+---------------------------------------------+-------+---------
+
+But this is entirely optional and not architecturally guaranteed; Config7 
+is a vendor space register.
+
+ DEC platforms have a selectable page size (for R4k CPUs; R3k CPUs have a 
+PIPT write-through cache, so no issue with aliasing ever) and 4KiB is the 
+common choice, but they never suffer from aliases as the hardware resolves 
+them.  It's not completely transparent as with the 24K option shown above, 
+as a virtual coherency exception is triggered instead, at separate levels 
+for the I$ and D$ each, and we handle it in software:
+
+$ getconf PAGESIZE
+4096
+$ dmesg | grep linesize
+Primary instruction cache 16kB, VIPT, direct mapped, linesize 16 bytes.
+Primary data cache 16kB, direct mapped, VIPT, cache aliases, linesize 16 bytes
+Unified secondary cache 1024kB direct mapped, linesize 32 bytes.
+$ uptime
+ 02:46:16  up 250 days,  4:03,  2 users,  load average: 0.01, 0.01, 0.00
+$ cat /proc/cpuinfo
+system type		: Digital DECstation 5000/2x0
+machine			: Unknown
+processor		: 0
+cpu model		: R4400SC V4.0  FPU V0.0
+BogoMIPS		: 59.60
+wait instruction	: no
+microsecond timers	: yes
+tlb_entries		: 48
+extra interrupt vector	: no
+hardware watchpoint	: yes, count: 0, address/irw mask: []
+isa			: mips1 mips2 mips3
+ASEs implemented	:
+Options implemented	: tlb 4kex 4k_cache fpu 32fpr cache_cdex_p cache_cdex_s llsc dc_aliases inclusive_pcaches nan_legacy
+shadow register sets	: 1
+kscratch registers	: 0
+package			: 0
+core			: 0
+VCED exceptions		: 372522
+VCEI exceptions		: 16922804
+
+$ 
+
+(see the figures at the bottom; uptime quoted for an idea of the rate, 
+though the system hasn't been heavily loaded).  It is possible with the 
+aid of S$, which is inclusive and PIPT.
+
+ FWIW,
+
+  Maciej
