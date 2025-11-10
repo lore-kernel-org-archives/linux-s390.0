@@ -1,286 +1,187 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F403923B616;
-	Mon, 10 Nov 2025 11:18:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68C2530CD8E;
+	Mon, 10 Nov 2025 11:24:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762773481; cv=none; b=KExwkPNlDcHCckFBlni4cnATEvlB+wKJ1qtVF3gkf4I5/xjovHumznKjqVjtwXWg8VLHOqvO5XYlueD7SWvw8wRBKfs3q/4VNPVbW/rB5CbHr9pxmrAQz7Dl9gQLS1Bv2qj5bKDzpFvd8OouIbP+1cbxfbLV01BQmfya/BGyFDI=
+	t=1762773857; cv=none; b=Ml18Jx3OJG+//QhG750oH4FY2rM2EYLk0FcVp3wBdqO50m4ErobJQcw/mYbco7hiTb6xnsWzT+sz1NvLAeVnok3zIHBVY4UAS0zNi+KFY4hVgUEEu96VZLd8iBScoSmzlqpS1VOrgzOH74GhaC3Y+4+UofskvbZxjDHRngQDQhY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762773481; c=relaxed/simple;
-	bh=Kl3noGEumLrebFoTSEUpT8n+WyWcc5CDX7vO2T8znyo=;
+	s=arc-20240116; t=1762773857; c=relaxed/simple;
+	bh=t7oYPr0nA5k7sctEhM/hJB7ljC3f9ZRuI/DqK+KCKaM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SsD3yyKFanaEOK8PRxPgK3aHYTh0IdcJuqY8lF/WU4iLKAK0ki3EMd2RBdobcDuyq32kDEGR25WjXuQz4JTyFB8XzvjWcfOza/Iwtb7zzU/frx4e5Bno2hMCK1Lvfz88nMUd0VSUNG26TapWJ+495NN53CrZnaZwc3kjTY+INGg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=suAfZZSb; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=ntL+VskuwEBFCIr34zs3aJT5s8Shp2Ek29miaXvQ6atdXy6NxgZBi5kbrqh55n9QyRgmdhaXHLUfUESmI6kOP8eEFBH0P03INARw/cTUW+nLQ//xkfi7nnIRJHQMIDQpqbgOo7z1yQ4HbNZphWSmlpRDuZ+GlTM5mX9pc/ffLZI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=DXEFd4Uj; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=OGD8oKbf; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="suAfZZSb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4C43C116B1;
-	Mon, 10 Nov 2025 11:17:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1762773480;
-	bh=Kl3noGEumLrebFoTSEUpT8n+WyWcc5CDX7vO2T8znyo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=suAfZZSbiazW8sFc3Ab8Dx4NBPVEAhiluxobak9p2W7fV7tGaO7etyuexr+Wd3vCj
-	 PqHxUnnNW7q++eT7YBuJNwAJ3rvKAo7XoOn6lFdrMFjUD3WX+vxmv61jmLfPOYOs4S
-	 kgsdkCyDsNIp911BsonJsPQag0KfEYtcFcMSuVKaDEiv4/3VDw0E9C2G+b/HLgSKiW
-	 SvzHr4R5cUfu3krfZf0NcIhD1aEvXuOLOydf18+trvSrzMjKoRzc936vRumSNGLv/7
-	 zHFW012E2kZECXgXkvGjDJltpN+//CUP2yGc+d3k9TyonAEyXSC/gzEyX+zosgPkV/
-	 y+Taz5qHRrJ5A==
-Date: Mon, 10 Nov 2025 13:17:37 +0200
-From: Mike Rapoport <rppt@kernel.org>
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	David Hildenbrand <david@redhat.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, Peter Xu <peterx@redhat.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
-	Arnd Bergmann <arnd@arndb.de>, Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	"Liam R . Howlett" <Liam.Howlett@oracle.com>,
-	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Gregory Price <gourry@gourry.net>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Kairui Song <kasong@tencent.com>, Nhat Pham <nphamcs@gmail.com>,
-	Baoquan He <bhe@redhat.com>, Chris Li <chrisl@kernel.org>,
-	SeongJae Park <sj@kernel.org>, Matthew Wilcox <willy@infradead.org>,
-	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
-	Xu Xin <xu.xin16@zte.com.cn>,
-	Chengming Zhou <chengming.zhou@linux.dev>,
-	Jann Horn <jannh@google.com>, Miaohe Lin <linmiaohe@huawei.com>,
-	Naoya Horiguchi <nao.horiguchi@gmail.com>,
-	Pedro Falcato <pfalcato@suse.de>,
-	Pasha Tatashin <pasha.tatashin@soleen.com>,
-	Rik van Riel <riel@surriel.com>, Harry Yoo <harry.yoo@oracle.com>,
-	Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org,
-	kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
-	linux-arch@vger.kernel.org, damon@lists.linux.dev
-Subject: Re: [PATCH v2 01/16] mm: correctly handle UFFD PTE markers
-Message-ID: <aRHJ0RDu9fJGEBF8@kernel.org>
-References: <cover.1762621567.git.lorenzo.stoakes@oracle.com>
- <0b50fd4b1d3241d0965e6b969fb49bcc14704d9b.1762621568.git.lorenzo.stoakes@oracle.com>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="DXEFd4Uj";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="OGD8oKbf"
+Date: Mon, 10 Nov 2025 12:24:13 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1762773853;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=p96pAwq/VC3UfPWRsm0wtdyMQb6nexxAkpfro+m18b4=;
+	b=DXEFd4UjN9Qd6hW+g2n27mHddszaRAS18B/aA/XIVGLJc2KTiyMZLtg5QqpWMb8uU/H3B9
+	KxnWzKfryNbO05muzqQ3EH/Qy5Ex39fIt9aYPvZwzk7tYaYM0Ga4rAGfDqmWVm/ijDiqJe
+	UreuQgu+ljTfyt03fyLMCP2q72vQK65Yg3bTwRjrhywPiUNs3bonCC/dovrLW3yrxbzRLi
+	SEetB1OBIOrzMR9Pm7BKtsFVVl7zaT8kZoGkXTgYkXKJlzu5u5qpoGroxIRpsPxffobOnp
+	2wiRdJptvgJPn1+5yi2wq0KxIAFgq0y5/TLYt4qlSVLaw1erJhuu6jtNQWRfXw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1762773853;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=p96pAwq/VC3UfPWRsm0wtdyMQb6nexxAkpfro+m18b4=;
+	b=OGD8oKbfgNkv/Z96N3ixFCGRB4K/UzZRB9Pseb2rl8K66Ye5pHYKSiQNyZcS40WSC4Ian5
+	duIbPgXrooL+qfDQ==
+From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+To: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: Andy Lutomirski <luto@kernel.org>, 
+	Thomas Gleixner <tglx@linutronix.de>, Vincenzo Frascino <vincenzo.frascino@arm.com>, 
+	Arnd Bergmann <arnd@arndb.de>, "David S. Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Nick Alcock <nick.alcock@oracle.com>, 
+	John Stultz <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Shuah Khan <shuah@kernel.org>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Theodore Ts'o <tytso@mit.edu>, 
+	Russell King <linux@armlinux.org.uk>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, Huacai Chen <chenhuacai@kernel.org>, 
+	WANG Xuerui <kernel@xen0n.name>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Shannon Nelson <sln@onemain.com>, linux-kernel@vger.kernel.org, 
+	sparclinux@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, 
+	linux-mips@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v5 19/34] random: vDSO: only access vDSO datapage after
+ random_init()
+Message-ID: <20251110114550-a3f2afa8-4f86-4048-be5b-2dc4f4ef340d@linutronix.de>
+References: <20251106-vdso-sparc64-generic-2-v5-0-97ff2b6542f7@linutronix.de>
+ <20251106-vdso-sparc64-generic-2-v5-19-97ff2b6542f7@linutronix.de>
+ <aQ6EvdukQytvqK-u@zx2c4.com>
+ <20251110094555-353883a9-1950-4cc6-a774-bb0ef5db11c5@linutronix.de>
+ <aRHAU7bVAIyaOrpA@zx2c4.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <0b50fd4b1d3241d0965e6b969fb49bcc14704d9b.1762621568.git.lorenzo.stoakes@oracle.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <aRHAU7bVAIyaOrpA@zx2c4.com>
 
-On Sat, Nov 08, 2025 at 05:08:15PM +0000, Lorenzo Stoakes wrote:
-> PTE markers were previously only concerned with UFFD-specific logic - that
-> is, PTE entries with the UFFD WP marker set or those marked via
-> UFFDIO_POISON.
+On Mon, Nov 10, 2025 at 11:37:07AM +0100, Jason A. Donenfeld wrote:
+> On Mon, Nov 10, 2025 at 10:04:17AM +0100, Thomas Weißschuh wrote:
+> > On Sat, Nov 08, 2025 at 12:46:05AM +0100, Jason A. Donenfeld wrote:
+> > > I'm not a huge fan of this change:
+> > > 
+> > > On Thu, Nov 06, 2025 at 11:02:12AM +0100, Thomas Weißschuh wrote:
+> > > > +static DEFINE_STATIC_KEY_FALSE(random_vdso_is_ready);
+> > > >  
+> > > >  /* Control how we warn userspace. */
+> > > >  static struct ratelimit_state urandom_warning =
+> > > > @@ -252,6 +253,9 @@ static void random_vdso_update_generation(unsigned long next_gen)
+> > > >  	if (!IS_ENABLED(CONFIG_VDSO_GETRANDOM))
+> > > >  		return;
+> > > >  
+> > > > +	if (!static_branch_likely(&random_vdso_is_ready))
+> > > > +		return;
+> > > > +
+> > > >  	/* base_crng.generation's invalid value is ULONG_MAX, while
+> > > >  	 * vdso_k_rng_data->generation's invalid value is 0, so add one to the
+> > > >  	 * former to arrive at the latter. Use smp_store_release so that this
+> > > > @@ -274,6 +278,9 @@ static void random_vdso_set_ready(void)
+> > > >  	if (!IS_ENABLED(CONFIG_VDSO_GETRANDOM))
+> > > >  		return;
+> > > >  
+> > > > +	if (!static_branch_likely(&random_vdso_is_ready))
+> > > > +		return;
+> > > > +
+> > > >  	WRITE_ONCE(vdso_k_rng_data->is_ready, true);
+> > > >  }
+> > > >  
+> > > > @@ -925,6 +932,9 @@ void __init random_init(void)
+> > > >  	_mix_pool_bytes(&entropy, sizeof(entropy));
+> > > >  	add_latent_entropy();
+> > > >  
+> > > > +	if (IS_ENABLED(CONFIG_VDSO_GETRANDOM))
+> > > > +		static_branch_enable(&random_vdso_is_ready);
+> > > > +
+> > > >  	/*
+> > > >  	 * If we were initialized by the cpu or bootloader before jump labels
+> > > >  	 * or workqueues are initialized, then we should enable the static
+> > > > @@ -934,8 +944,10 @@ void __init random_init(void)
+> > > >  		crng_set_ready(NULL);
+> > > >  
+> > > >  	/* Reseed if already seeded by earlier phases. */
+> > > > -	if (crng_ready())
+> > > > +	if (crng_ready()) {
+> > > >  		crng_reseed(NULL);
+> > > > +		random_vdso_set_ready();
+> > > > +	}
+> > > 
+> > > The fact that the vdso datapage is set up by the time random_init() is
+> > > called seems incredibly contingent on init details. Why not, instead,
+> > > make this a necessary part of the structure of vdso setup code, which
+> > > can actually know about what happens when?
+> > 
+> > The whole early init is "carefully" ordered in any case. I would have been
+> > happy to allocate the data pages before the random initialization, but the
+> > allocator is not yet usable by then.
+> > We could also make the ordering more visible by having the vDSO datastore call
+> > into a dedicated function to allow the random core to touch the data pages:
+> > random_vdso_enable_datapages().
+> > 
+> > > For example, one clean way of
+> > > doing that would be to make vdso_k_rng_data always valid by having it
+> > > initially point to __initdata memory, and then when it's time to
+> > > initialize the real datapage, memcpy() the __initdata memory to the new
+> > > specially allocated memory. Then we don't need the complex state
+> > > tracking that this commit and the prior one introduce.
+> > 
+> > Wouldn't that require synchronization between the update path and the memcpy()
+> > path? Also if the pointer is going to change at some point we'll probably need
+> > to use READ_ONCE()/WRITE_ONCE(). In general I would be happy about a cleaner
+> > solution for this but didn't find a great one.
 > 
-> However since the introduction of guard markers in commit
->  7c53dfbdb024 ("mm: add PTE_MARKER_GUARD PTE marker"), this has no longer
->  been the case.
-> 
-> Issues have been avoided as guard regions are not permitted in conjunction
-> with UFFD, but it still leaves very confusing logic in place, most notably
-> the misleading and poorly named pte_none_mostly() and
-> huge_pte_none_mostly().
-> 
-> This predicate returns true for PTE entries that ought to be treated as
-> none, but only in certain circumstances, and on the assumption we are
-> dealing with H/W poison markers or UFFD WP markers.
-> 
-> This patch removes these functions and makes each invocation of these
-> functions instead explicitly check what it needs to check.
-> 
-> As part of this effort it introduces is_uffd_pte_marker() to explicitly
-> determine if a marker in fact is used as part of UFFD or not.
-> 
-> In the HMM logic we note that the only time we would need to check for a
-> fault is in the case of a UFFD WP marker, otherwise we simply encounter a
-> fault error (VM_FAULT_HWPOISON for H/W poisoned marker, VM_FAULT_SIGSEGV
-> for a guard marker), so only check for the UFFD WP case.
-> 
-> While we're here we also refactor code to make it easier to understand.
-> 
-> Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-> Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-> ---
->  fs/userfaultfd.c              | 83 +++++++++++++++++++----------------
->  include/asm-generic/hugetlb.h |  8 ----
->  include/linux/swapops.h       | 18 --------
->  include/linux/userfaultfd_k.h | 21 +++++++++
->  mm/hmm.c                      |  2 +-
->  mm/hugetlb.c                  | 47 ++++++++++----------
->  mm/mincore.c                  | 17 +++++--
->  mm/userfaultfd.c              | 27 +++++++-----
->  8 files changed, 123 insertions(+), 100 deletions(-)
-> 
-> diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-> index 54c6cc7fe9c6..04c66b5001d5 100644
-> --- a/fs/userfaultfd.c
-> +++ b/fs/userfaultfd.c
-> @@ -233,40 +233,46 @@ static inline bool userfaultfd_huge_must_wait(struct userfaultfd_ctx *ctx,
->  {
->  	struct vm_area_struct *vma = vmf->vma;
->  	pte_t *ptep, pte;
-> -	bool ret = true;
->  
->  	assert_fault_locked(vmf);
->  
->  	ptep = hugetlb_walk(vma, vmf->address, vma_mmu_pagesize(vma));
->  	if (!ptep)
-> -		goto out;
-> +		return true;
->  
-> -	ret = false;
->  	pte = huge_ptep_get(vma->vm_mm, vmf->address, ptep);
->  
->  	/*
->  	 * Lockless access: we're in a wait_event so it's ok if it
-> -	 * changes under us.  PTE markers should be handled the same as none
-> -	 * ptes here.
-> +	 * changes under us.
->  	 */
-> -	if (huge_pte_none_mostly(pte))
-> -		ret = true;
-> +
-> +	/* If missing entry, wait for handler. */
+> This is still before userspace has started, and interrupts are disabled,
+> so I don't think so?
 
-It's actually #PF handler that waits ;-)
+Interrupts being disabled is a good point. But we are still leaking
+implementation details from the random code into the vdso datastore.
 
-When userfaultfd_(huge_)must_wait() return true, it means that process that
-caused a fault should wait until userspace resolves the fault and return
-false means that it's ok to retry the #PF.
+> Also, you only care about being after
+> mm_core_init(), right? So move your thing before sched_init() and then
+> you'll really have nothing to worry about.
 
-So the comment here should probably read as
+The callchains random_init_early() -> crng_reseed()/_credit_init_bits() could
+still touch the datapage before it is allocated.
+Adding conditionals to prevent those is essentially what my patch does.
 
-	/* entry is still missing, wait for userspace to resolve the fault */
+> But I think globally I agree with Andy/Arnd -- this is kind of ugly and
+> not worth it. Disable vDSO for these old CPUs with cache aliasing
+> issues.
 
-and the rest of the comments here and in userfaultfd_must_wait() need
-similar update.
+(I obviously still need to properly respond to Andy and Arnd)
 
-> +	if (huge_pte_none(pte))
-> +		return true;
-> +	/* UFFD PTE markers require handling. */
-> +	if (is_uffd_pte_marker(pte))
-> +		return true;
-> +	/* If VMA has UFFD WP faults enabled and WP fault, wait for handler. */
->  	if (!huge_pte_write(pte) && (reason & VM_UFFD_WP))
-> -		ret = true;
-> -out:
-> -	return ret;
-> +		return true;
-> +
-> +	/* Otherwise, if entry isn't present, let fault handler deal with it. */
+The dynamic allocation does more.
+1) It is a preparation for mlockall() for the datapages [0].
+2) On the SPARC T4 Niagara this was tested on, the MMU would send an exception,
+if userspace accessed the mapped kernel .data page. Even compensating for dcache
+aliasing did not prevent this, so that is not the reason. It is not clear why
+it happens. At some point I gave up investigating as point 1) would still hold
+true.
 
-Entry is actually present here, e.g because there is a thread that called
-UFFDIO_COPY in parallel with the fault, so no need to stuck the faulting
-process.
+[0] https://lore.kernel.org/lkml/20250901-vdso-mlockall-v2-0-68f5a6f03345@linutronix.de/
+    (This revision used 'struct page' with .data memory, but that doesn't
+    actually work everywhere)
 
-> +	return false;
->  }
->  #else
->  static inline bool userfaultfd_huge_must_wait(struct userfaultfd_ctx *ctx,
->  					      struct vm_fault *vmf,
->  					      unsigned long reason)
->  {
-> -	return false;	/* should never get here */
-> +	/* Should never get here. */
-> +	VM_WARN_ON_ONCE(1);
-> +	return false;
->  }
->  #endif /* CONFIG_HUGETLB_PAGE */
->  
->  /*
-> - * Verify the pagetables are still not ok after having reigstered into
-> + * Verify the pagetables are still not ok after having registered into
->   * the fault_pending_wqh to avoid userland having to UFFDIO_WAKE any
->   * userfault that has already been resolved, if userfaultfd_read_iter and
->   * UFFDIO_COPY|ZEROPAGE are being run simultaneously on two different
-> @@ -284,53 +290,55 @@ static inline bool userfaultfd_must_wait(struct userfaultfd_ctx *ctx,
->  	pmd_t *pmd, _pmd;
->  	pte_t *pte;
->  	pte_t ptent;
-> -	bool ret = true;
-> +	bool ret;
->  
->  	assert_fault_locked(vmf);
->  
->  	pgd = pgd_offset(mm, address);
->  	if (!pgd_present(*pgd))
-> -		goto out;
-> +		return true;
->  	p4d = p4d_offset(pgd, address);
->  	if (!p4d_present(*p4d))
-> -		goto out;
-> +		return true;
->  	pud = pud_offset(p4d, address);
->  	if (!pud_present(*pud))
-> -		goto out;
-> +		return true;
->  	pmd = pmd_offset(pud, address);
->  again:
->  	_pmd = pmdp_get_lockless(pmd);
->  	if (pmd_none(_pmd))
-> -		goto out;
-> +		return true;
->  
-> -	ret = false;
->  	if (!pmd_present(_pmd))
-> -		goto out;
-> +		return false;
 
-This one is actually tricky, maybe it's worth adding a gist of commit log
-from a365ac09d334 ("mm, userfaultfd, THP: avoid waiting when PMD under THP migration")
-as a comment.
-
->  
-> -	if (pmd_trans_huge(_pmd)) {
-> -		if (!pmd_write(_pmd) && (reason & VM_UFFD_WP))
-> -			ret = true;
-> -		goto out;
-> -	}
-> +	if (pmd_trans_huge(_pmd))
-> +		return !pmd_write(_pmd) && (reason & VM_UFFD_WP);
-
-...
-
-> diff --git a/mm/hmm.c b/mm/hmm.c
-> index a56081d67ad6..43d4a91035ff 100644
-> --- a/mm/hmm.c
-> +++ b/mm/hmm.c
-> @@ -244,7 +244,7 @@ static int hmm_vma_handle_pte(struct mm_walk *walk, unsigned long addr,
->  	uint64_t pfn_req_flags = *hmm_pfn;
->  	uint64_t new_pfn_flags = 0;
->  
-> -	if (pte_none_mostly(pte)) {
-> +	if (pte_none(pte) || pte_marker_uffd_wp(pte)) {
-
-Would be nice to add the note from the changelog as a comment here.
-
->  		required_fault =
->  			hmm_pte_need_fault(hmm_vma_walk, pfn_req_flags, 0);
->  		if (required_fault)
-
--- 
-Sincerely yours,
-Mike.
+Thomas
