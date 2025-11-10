@@ -1,277 +1,231 @@
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91D5C242925;
-	Mon, 10 Nov 2025 18:35:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762799735; cv=fail; b=aoDAD4t720lD4Q/+K1EXHhwp3D9C93Q4LixXrqikYfTtOoIvht1f2slrPaidq8MUKzQpCoODFlr8ykPnlY87jLWjZqiSYlTvoUfiqYTQLhvFf7sjlP4/gIdq6f7/H0+p/ms8ioFxMf21jAQpPvXrCDPtdEy59D+CskmYRKFiyxU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762799735; c=relaxed/simple;
-	bh=n3qS3zVVv30QyqPnFeAtX0RAeMKoUqjz2/QCmvUnPLk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=ZwY5uHrt6NR0PezYRe9Y4oCuNY0ijQ9/H3gLjvQMDJHAh3AkFACDfZvLq5zhUhoMUhapJus+GidBtF96EqovGdQaN5pYEwUarqrA8ZIovmCVh6Js8ybOrSo1Ry1z9QEoud/k37bcMkrWk1Yi4pj99u8HwZWdfx1mDEZAmbqBcL4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=Wb0a+mo9; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=EMPFYcMZ; arc=fail smtp.client-ip=205.220.177.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66A8B321445;
+	Mon, 10 Nov 2025 18:47:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1762800461; cv=none; b=lYCRzW+zeLP/NPkDfHQprL/qzGw6aJfHb3DTU7Wp7zqXzPALRqOn2YOvdAytnJ6G6NmnBQConTuZT3WIbWAsgI5OigvQcvTqv27YzfwQos9nOej3mxO4/yUeTE4vCsP5+w1HELD3IOlzwsLn17hz6QqLoMww2hCHKRUwo93Ll+8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1762800461; c=relaxed/simple;
+	bh=wAsccoU8w3B4eRMZuq2gxUaDz+Dt38AFte0j5k5tPOM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=f8b3W5vuv4s+XrWqI8Pq0RA3TaRw/MEVpgYTAM1ahjT1QyE7YmmDTJTBLniQowlxO8/sMtpIWDtIkVUfm9pabR0MK5QKdPljqSm3yNWLGVd55TvuBd9t0f85I+EzBcQz5VReCQ7quExOZuOi8ZKznIeSpKmiZMJ8ZxQ0GURhXF0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=LGoJh2Bf; arc=none smtp.client-ip=198.175.65.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="Wb0a+mo9";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="EMPFYcMZ"
-Received: from pps.filterd (m0333520.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AAIP12U025759;
-	Mon, 10 Nov 2025 18:34:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=corp-2025-04-25; bh=KiDRl0PyRotocxPu5w
-	E7nSduFq9Wv+tg1k5wGrAXptA=; b=Wb0a+mo9xNnOzprQOwi0IgAQnlSU53GSPp
-	62dpVMm/l6TP7rJf4HwouchHJH7oI3ycoO9dkKdmVGV772A3Ryf2BxeiFExlueRY
-	4twDIDfMidvkcAoD2yojf3R1H+vaCxOYSLR+MEcEpWYb4d7uQ3ebMbSmmQ47lg2W
-	3yoLca/xeGWts41O7lyJSNkTcbbVJuVq/uyHkhs6GfvkKUXfM5hy7Vdfx4EFdsdD
-	6GOInsG8FGmkTdEoYT2niGNhuk/icBg11Hapt+nr+Pi3nnp7k2mowLym8sODDL24
-	ZHGSJHUpemTpmhFi/LgtofkiJdiVdJXo2LznEF5WK51z5MmnOqqQ==
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 4abnaeg0ta-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 10 Nov 2025 18:34:46 +0000 (GMT)
-Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 5AAH20Po000841;
-	Mon, 10 Nov 2025 18:34:45 GMT
-Received: from sn4pr0501cu005.outbound.protection.outlook.com (mail-southcentralusazon11011042.outbound.protection.outlook.com [40.93.194.42])
-	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 4a9vachd25-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 10 Nov 2025 18:34:45 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=HY6kSZrw/c7xTckI68b7d6a2OVigBYixYaJkuGgRquq4mT1kZrZVAvomCg0rcVOxfcDtkBQkQv9f9nLmbPFSI5znc/upPxhwLJiET/IvjSPoJEOjZIc2srtsv/dxEWA39dry8tx0ZqtWvvKsi1zQMEVPH2z39s9OtnotdsSReCPHxg85tkd/5RiwEK5nr6gsTKihcRCkUZ4cMdvhJuijyJ9oJ9NtAW4qVVozXmPzoDltGnDldA0HXDCpkKDBpbArr7mpElH13r/R0y/jEPkP3Qld5jcrvwhJvVDyIWi09nypu0Ot4EAPNo91mBCGdamsXhKUReKgsnq6axQi80u27Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=KiDRl0PyRotocxPu5wE7nSduFq9Wv+tg1k5wGrAXptA=;
- b=rlmkiKo7WhpUUIsHXEMMWo8wWDclwwGhHiR7uhEa9GC9z/+1TMENCtcw6vxZIpsXqgHBfA6qqaLevvmgTcGRxh0IX7rVSOkQdKVFW9LOfNI01TGar7VAOH/CS9KvynOom2q/4xQpG+p7k4Ie/iW9dNaG9lhtNc5RUiB2oHItWWjS34NkdeIiAs8cBjbACTjl/QBZd1jr9LQt8HQDtBFVA0QgRmNEtIwnNyguIXLRNm/ZR0cJgWaRy/ZRj6R8DNZAG1rk9uGJDYmYiHsd7yYylqg9O3s268gic50njctFpzfNUK+kk/5Ny1nn9HVjZBywcZp23mXAJWnz3LQF+pZWKg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KiDRl0PyRotocxPu5wE7nSduFq9Wv+tg1k5wGrAXptA=;
- b=EMPFYcMZnK2oAl+8notYoQpT4bUcmHc9Vl+51dgXtFsphMqQc+rVDSWwcfiIzBr5cawGE7qv50JAnJQIGgVnyPRe+Kw20vNcH4cVs7twjud2UaY4WkO/5l8yci/7W7CnQba/9v/xihut9dtP9F4ShaHwfMPPaud/iLNtdzUBIMY=
-Received: from DM4PR10MB8218.namprd10.prod.outlook.com (2603:10b6:8:1cc::16)
- by DM4PR10MB6862.namprd10.prod.outlook.com (2603:10b6:8:105::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9298.16; Mon, 10 Nov
- 2025 18:34:41 +0000
-Received: from DM4PR10MB8218.namprd10.prod.outlook.com
- ([fe80::2650:55cf:2816:5f2]) by DM4PR10MB8218.namprd10.prod.outlook.com
- ([fe80::2650:55cf:2816:5f2%7]) with mapi id 15.20.9298.010; Mon, 10 Nov 2025
- 18:34:41 +0000
-Date: Mon, 10 Nov 2025 18:34:39 +0000
-From: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-To: Kairui Song <ryncsn@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Peter Xu <peterx@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
-        Arnd Bergmann <arnd@arndb.de>, Zi Yan <ziy@nvidia.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        "Liam R . Howlett" <Liam.Howlett@oracle.com>,
-        Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-        Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-        Lance Yang <lance.yang@linux.dev>, Muchun Song <muchun.song@linux.dev>,
-        Oscar Salvador <osalvador@suse.de>, Vlastimil Babka <vbabka@suse.cz>,
-        Mike Rapoport <rppt@kernel.org>,
-        Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
-        Matthew Brost <matthew.brost@intel.com>,
-        Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-        Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
-        Ying Huang <ying.huang@linux.alibaba.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-        Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>,
-        Baoquan He <bhe@redhat.com>, Chris Li <chrisl@kernel.org>,
-        SeongJae Park <sj@kernel.org>, Matthew Wilcox <willy@infradead.org>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
-        Xu Xin <xu.xin16@zte.com.cn>,
-        Chengming Zhou <chengming.zhou@linux.dev>,
-        Jann Horn <jannh@google.com>, Miaohe Lin <linmiaohe@huawei.com>,
-        Naoya Horiguchi <nao.horiguchi@gmail.com>,
-        Pedro Falcato <pfalcato@suse.de>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Rik van Riel <riel@surriel.com>, Harry Yoo <harry.yoo@oracle.com>,
-        Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
-        linux-arch@vger.kernel.org, damon@lists.linux.dev
-Subject: Re: [PATCH v2 02/16] mm: introduce leaf entry type and use to
- simplify leaf entry logic
-Message-ID: <fed31d26-e66b-4cfa-bb4b-da5132c55e94@lucifer.local>
-References: <cover.1762621567.git.lorenzo.stoakes@oracle.com>
- <cd103d9bdc8c0dbb63a0361599b02081520191b4.1762621568.git.lorenzo.stoakes@oracle.com>
- <CAMgjq7B1AzqGk7nSxwY_paTxeJt8-=+T+2Wc6dBT_6XfGFhGvA@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAMgjq7B1AzqGk7nSxwY_paTxeJt8-=+T+2Wc6dBT_6XfGFhGvA@mail.gmail.com>
-X-ClientProxiedBy: LO4P123CA0085.GBRP123.PROD.OUTLOOK.COM
- (2603:10a6:600:190::18) To DM4PR10MB8218.namprd10.prod.outlook.com
- (2603:10b6:8:1cc::16)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="LGoJh2Bf"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1762800459; x=1794336459;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=wAsccoU8w3B4eRMZuq2gxUaDz+Dt38AFte0j5k5tPOM=;
+  b=LGoJh2BfuuEOTUk0FiynunvbwgLCHK795YE0dQ/MitEsCtJpwtpHTNiH
+   Nj6DYMl0zfgqyZKeLkaIY24F4IrEO/yRszpr2pGlrgkllCR9uwnm+Ad6P
+   t82nYcC5sYBsM3u38jMXlH3omlApFSwmhr+bGxDW3c0GIsGsznSIq1Vl/
+   prU9QmGB93oR52h+IN8sUUIdWFSOtsVDl1/upJtDsCuargTd1crVycmb7
+   s+FgSrUKSzRx6B9/FNN0VMBgC2vv5PHlNXMAIzZWbsk4J9qBNsuspoSjD
+   eJsTYEWjytAZvwraGcA8LHnyUUyOAE+gQXStxJ4820FW5AMOL1xxCPDSO
+   A==;
+X-CSE-ConnectionGUID: 8l0vfIDUQsig8WVTeYr+tA==
+X-CSE-MsgGUID: w/1pe4BtTF24tYVmPynttA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11531"; a="64769602"
+X-IronPort-AV: E=Sophos;i="6.17,312,1747724400"; 
+   d="scan'208";a="64769602"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2025 10:47:38 -0800
+X-CSE-ConnectionGUID: i9YCGhVJRUGQcVlTpVIfpg==
+X-CSE-MsgGUID: Z0/CCH/BSBOYpkaQrxg0zg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.19,294,1754982000"; 
+   d="scan'208";a="193749558"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by fmviesa004.fm.intel.com with ESMTP; 10 Nov 2025 10:47:29 -0800
+Received: by black.igk.intel.com (Postfix, from userid 1003)
+	id E8E2195; Mon, 10 Nov 2025 19:47:28 +0100 (CET)
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Corey Minyard <corey@minyard.net>,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+	"Dr. David Alan Gilbert" <linux@treblig.org>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
+	Rob Clark <robin.clark@oss.qualcomm.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Hans Verkuil <hverkuil@kernel.org>,
+	Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+	Ulf Hansson <ulf.hansson@linaro.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Vitaly Lifshits <vitaly.lifshits@intel.com>,
+	Manivannan Sadhasivam <mani@kernel.org>,
+	Niklas Cassel <cassel@kernel.org>,
+	Calvin Owens <calvin@wbinvd.org>,
+	Sagi Maimon <maimon.sagi@gmail.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Karan Tilak Kumar <kartilak@cisco.com>,
+	Casey Schaufler <casey@schaufler-ca.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Petr Mladek <pmladek@suse.com>,
+	Max Kellermann <max.kellermann@ionos.com>,
+	Takashi Iwai <tiwai@suse.de>,
+	linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	openipmi-developer@lists.sourceforge.net,
+	linux-media@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	linaro-mm-sig@lists.linaro.org,
+	amd-gfx@lists.freedesktop.org,
+	linux-arm-msm@vger.kernel.org,
+	freedreno@lists.freedesktop.org,
+	intel-xe@lists.freedesktop.org,
+	linux-mmc@vger.kernel.org,
+	netdev@vger.kernel.org,
+	intel-wired-lan@lists.osuosl.org,
+	linux-pci@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	linux-staging@lists.linux.dev,
+	ceph-devel@vger.kernel.org,
+	linux-trace-kernel@vger.kernel.org,
+	linux-sound@vger.kernel.org
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+	Sergey Senozhatsky <senozhatsky@chromium.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Sumit Semwal <sumit.semwal@linaro.org>,
+	Gustavo Padovan <gustavo@padovan.org>,
+	David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Dmitry Baryshkov <lumag@kernel.org>,
+	Abhinav Kumar <abhinav.kumar@linux.dev>,
+	Jessica Zhang <jesszhan0024@gmail.com>,
+	Sean Paul <sean@poorly.run>,
+	Marijn Suijten <marijn.suijten@somainline.org>,
+	Konrad Dybcio <konradybcio@kernel.org>,
+	Lucas De Marchi <lucas.demarchi@intel.com>,
+	=?UTF-8?q?Thomas=20Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Vladimir Oltean <olteanv@gmail.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Tony Nguyen <anthony.l.nguyen@intel.com>,
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+	=?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
+	Kishon Vijay Abraham I <kishon@kernel.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Rodolfo Giometti <giometti@enneenne.com>,
+	Jonathan Lemon <jonathan.lemon@gmail.com>,
+	Vadim Fedorenko <vadim.fedorenko@linux.dev>,
+	Richard Cochran <richardcochran@gmail.com>,
+	Stefan Haberland <sth@linux.ibm.com>,
+	Jan Hoeppner <hoeppner@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Satish Kharat <satishkh@cisco.com>,
+	Sesidhar Baddela <sebaddel@cisco.com>,
+	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Xiubo Li <xiubli@redhat.com>,
+	Ilya Dryomov <idryomov@gmail.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Jaroslav Kysela <perex@perex.cz>,
+	Takashi Iwai <tiwai@suse.com>
+Subject: [PATCH v1 00/23] treewide: Introduce %ptS for struct timespec64 and convert users
+Date: Mon, 10 Nov 2025 19:40:19 +0100
+Message-ID: <20251110184727.666591-1-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM4PR10MB8218:EE_|DM4PR10MB6862:EE_
-X-MS-Office365-Filtering-Correlation-Id: 82900de0-2505-4f5f-df3d-08de2087cfb7
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|7416014|376014|366016|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?UX4fbSqHo2VF8RuHCVemMD2jPhuME492OZGNEKS4W6EtgkiPN3XSHlIbZxdT?=
- =?us-ascii?Q?7Z2+6/VA8Q3nHL4JHmO696jmI9U5cF06F4hLXJBro0T7bw2bgm3CfjNUNVyl?=
- =?us-ascii?Q?8Y0XuP9nxYmeN4QhZgEHmJprFXuJb6UZ0Un2tgcHunkviOhgmZlKkKimgDF7?=
- =?us-ascii?Q?xXhMTP07HZzYg2Xmp5IE8xBl7Zq4nPWNKPRiHJWTqjlb4abTWsX44B/WYO4e?=
- =?us-ascii?Q?3Y3DdvS5TPOs7R2N/uoeVojfzEScgqsV9f97BAz9sY7qfWdr+jMo7r0biIh2?=
- =?us-ascii?Q?puizg30pz3QkOKnmH/r9woBMeIn645xmaWNu7bZumdb0NjsykRe6tQdj3jZS?=
- =?us-ascii?Q?Lw5HGiWrnmpQHwqW1ET3mBFNDeXzwo9K37oDiG7vcP1s5REnRzSFgUtoD9bb?=
- =?us-ascii?Q?akP+5xUgdmHMtbE3F1l0tTxSPdkHVHYYhfQTjBgPU/t5gPIsgncAxxcTQiYX?=
- =?us-ascii?Q?9c/yTt2hhnEkPsRbRrhVVnUSwIWk1UcSJUU2d2SJE9ovu1cJRPIdvSUPug32?=
- =?us-ascii?Q?91HscERlrU+OnyvlLpP93ApxG73tQ5iaLb1tFYve9Lzo3+HDZG/zuTx7rPmX?=
- =?us-ascii?Q?W+MHD9lrlwEnsgXwXJDboTw2U6x1I2rVEyUAemSAS4D+lk5n1Tev0NBmuZ5/?=
- =?us-ascii?Q?8/ojqckl/dJperNor1OXNYNcjK+fujN7YgICC+AyAdcyndWlPM2zkYDoC4Pj?=
- =?us-ascii?Q?r80AVqrWvzcdSfkQ1GMMoo6zoy4HF+rjGXEZ4KqxDil0Ad8Jzwge+phk7xgq?=
- =?us-ascii?Q?2OuBymXC113fQMDWNbBoD3m4O1l0MBfZlUIX8fEHOJUW+BH55bGG3Y8ZGaTs?=
- =?us-ascii?Q?pEHdbHt/LtGQ5nY+RsPb8PIO8ZbuQsRSu3S31iRiEFLjakpY38vvYTqrw3HZ?=
- =?us-ascii?Q?3R6LWdOCMwAbBp0/bzL/DYzslSSAfC8UxtFM64LzgmX4qkECq3JYD8tjc8iX?=
- =?us-ascii?Q?axc+GJTdvbx1vQkz7vFbI9SVaGucHDpv374gQoNorCQ/ULcEchtd2Ncc771b?=
- =?us-ascii?Q?t7BHTF7X3Xo1gGlFkKE0mm2/bElsWBqHDj34sqLE+sMQKgfpByH6I8Q57ygU?=
- =?us-ascii?Q?Hz5gZByfOJQLFq3uzPaOVxegEYTOfV1SifYMDru1R279UwBNhwD8CWaxvFqT?=
- =?us-ascii?Q?knpUZkmPoa/WKs2LcHmEDaGO8HJu1g0K23ZysvludrseDLGyn10Jtys8wy/+?=
- =?us-ascii?Q?15QMGaxGTJ7COIAWAP2HF0xY9jIQpPrWLYmerTZVI0kjEJOLQOt1SL6HaBS/?=
- =?us-ascii?Q?6V16rtP8yF6Su4B/f8HMSX8NcO5OgXwhGRfUCnMfhnntqyAaKQv96gLKQRtX?=
- =?us-ascii?Q?rdj8LAY4BfaP3wgpJcngW+xLW76hfdIHYW3qZV0qgaohy9WB9ktP3Dmsn70z?=
- =?us-ascii?Q?0LIUtyC50P/SdxhTeEAnL7Q7hAaaM5Pnbh8Pz0oB4TLRM5pI9bZo3MJIM+ns?=
- =?us-ascii?Q?xO2EImj4aqR6J+c3FkGHujbRiJ9Ca6Ga?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR10MB8218.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?hB/zSt7RLjsgE0cr1We244IODM+Ssuask8wKAk8ReWTGDQyuMkMw5dRbJjmC?=
- =?us-ascii?Q?ZT77krav3qHqmb8HMpy1hysKF5DQnBbehVMexUiOmCrIp7fsIf7jFnrDRLqf?=
- =?us-ascii?Q?0qzncYEhk6p3F6hl10lcqXjc/GPwIes2m9JEIM0HhyvHhnCzCjzjKHosfFFG?=
- =?us-ascii?Q?AHczfkQ1ue+xSIKMQlROHuw3HZdKxyOpq2ZAIG9SYNbl7VKAQX6M3mUIQpcO?=
- =?us-ascii?Q?HX491ZrVbAmk12H2jBKF+FQYdoadaOfTPTQc9sYydkhYYQtv+mxg+xHGLdlA?=
- =?us-ascii?Q?DV4NDOMZ/5+RrYfaKjQU80cYt04F2kHMFUBuAM2czkDJIZFXJcI7TqQL40/U?=
- =?us-ascii?Q?6tkjiCVZbIBmhw16txbpXH9iSSnIJmiQ4eaF57KhgjMQcIPqdTtL8nee7CXo?=
- =?us-ascii?Q?MEkHCx2+tcpHflAXxbcUbB/8pOckKLglKQ410HkJfiq8hFfiwFMd3yB3Vser?=
- =?us-ascii?Q?o6vB8R+ybjK0ajbDlocEEhaGRonVCrHuBN/g1bdf7XQSZRceULvu++5WsFEV?=
- =?us-ascii?Q?f/Z09Umadwy5SMCr7SXlqTNZ/9Ls0TyqC+YFT2PLLu1IPXR13LKtS8i6JFjk?=
- =?us-ascii?Q?QdzgX3RczuguCaUbRT1qZDi5NYAbSsJw26OBQRdlrV/KgvY+WT3LNVbQhxDf?=
- =?us-ascii?Q?E9LUKYmY5SXX5CHRY2JDWvZVmRyGqgKlYdyYlGiuf3XDFe248l8FrVA2yTXf?=
- =?us-ascii?Q?S3fmKtARTIRzwsr829nfQ312Zh97j2Tu0CUNbBhO5vAjcptzaPGXpn7UcW4S?=
- =?us-ascii?Q?oCIbCHKPgTOmNK/mIib8EG2dV3KqF6em70U5aEO2N4mVvI/+TltHoxhOlKot?=
- =?us-ascii?Q?GhM3nRJEcONZ9mAT75zDcysdWkZXx2AXBJYmku+AmL9JduuIoEm+B2D5mHVB?=
- =?us-ascii?Q?9n+dhxKyms0plRuvVpLQDuKDtwjdkZKYA+/3cyQbF8zDPsmuiouS7GbJCQTU?=
- =?us-ascii?Q?g4LRMeLfBnZ3RU5VX59WD+1A5Q8LQvsFw9W6vOvwF6nlbqkHye7APvCQkxBy?=
- =?us-ascii?Q?kNXqhRayzYDLvOOJRL7wEFmK8Dc6pb4A+ZO2j1d4MdYXLXVlGbDBzRCwpwse?=
- =?us-ascii?Q?M4FH41mbmaAfof6g5ucopEhfDO/qpdFVYIUEeru6Qe8QvohYViCwS3vUBRF5?=
- =?us-ascii?Q?fugayx6JNAa2pRvzhUQfhPEl7tRTIXfopz/7JBXUZWc+SCxZ9tX/mntfVrtI?=
- =?us-ascii?Q?5OelT9e1Bqdl/hYFuPc1nMQN14iFLKmD5Az57ts3g881LCd4Ds37CtrJZ83M?=
- =?us-ascii?Q?uxKHR6/zhk/Ag85A8Tsdaq7WHTRbkGwn/2nRdPJb+QqWHXhtqg1PRTKTuZWc?=
- =?us-ascii?Q?kmK76Tj+X4ICXpOT3nz2kLwfqA2yfK8Y2AQvha+Y+MudwwC+4seUTQnfeIjM?=
- =?us-ascii?Q?TdnkDwu4R8HJy0CM0V34ENX2CThwDo55rU2N/K+EKACAPPsg83pLkPCr9kQ6?=
- =?us-ascii?Q?eV8KOkq4ZDcr4yKnkIsZDIMI+PMWsZtDBOb8+EHNa2hmIWBbaNP90V8Of18a?=
- =?us-ascii?Q?4QLCAHlMRuK4p+SKaN1yJpTET+Yq2dwT1x6DZ8qczF6tArWjDS3dPdYfO36a?=
- =?us-ascii?Q?dMxOKwj7wrr8PG9aahskzDHVUPucWTW1akufSJoCRUqAbUKjo7zTWh+uUd8n?=
- =?us-ascii?Q?qQ=3D=3D?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	IgaabPtVGmTeNgA4saA/jG3NMsyJtjTtOxsqlywaZGNSMYtAlK5wSFlLH868ME6XM7VQhtJ+qrxrUeciatbkEDGJI55tYJDNozBfU3ucC3AzEpGx6VVo90tyqmuu2pn6fEOOS6TWmV91MIwDJePyXOGLFUDwocIG9s4S8NkDZqKFJ2sjNC2x47cPfKl0yN29vf5hh5xzP00gd8rC2Z82/IVC09/Xyz3A+Y3K8C7BpczRCOk9kGhcRo6LmQ2aB+gQbTAEiArOLy4aBXJaoi8+xOq7h36rfOFlppo4GLNGfK1wO9wxRlQ7rysm2b0YvYfsTh5wzFL0iYB9wwVpNP7zUksPgG9RxuNsp4lumsnd6c6Ha/izPfcMNtf0tMUQ8amxVT5gDLbvmtABp9dksNkvV5z6FCxcXFBnVktubValgZT7yTCuVFgVWDuonmxL4f5WnrQLVij8gCHwuJ9KQtBqTArY8Y3qYASenInJRzeKsteRHL0y7e0hV0G1zuPLfebbwL23+yv2jVZ+CuWhIoeXqLkVgChRgkaDdcCb9Iv5H0zG2zPC/IDx2QrJQqTdNjTA3Gcj5TGJDFd8b9GeEH7CSAqOl6sNJofRjNqO9qs0DKc=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 82900de0-2505-4f5f-df3d-08de2087cfb7
-X-MS-Exchange-CrossTenant-AuthSource: DM4PR10MB8218.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Nov 2025 18:34:41.2505
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: +uygLvJULHe+h78GkwgxsXvOAxdtcPq8fsCGyii3VYSlSkh23sou8lnEYpA7Y97+z/qMm33AxEfq/3YKiaUg0lQPDoekKIoanRVQFPAFxkk=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR10MB6862
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-11-10_07,2025-11-10_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 adultscore=0
- malwarescore=0 spamscore=0 suspectscore=0 bulkscore=0 mlxscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2510240000 definitions=main-2511100157
-X-Authority-Analysis: v=2.4 cv=NZ3rFmD4 c=1 sm=1 tr=0 ts=69123046 b=1 cx=c_pps
- a=e1sVV491RgrpLwSTMOnk8w==:117 a=e1sVV491RgrpLwSTMOnk8w==:17
- a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19
- a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10
- a=6UeiqGixMTsA:10 a=GoEa3M9JfhUA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VwQbUJbxAAAA:8 a=pGLkceISAAAA:8 a=SgyGGpZwutaeVDM0-E8A:9 a=CjuIK1q_8ugA:10
- cc=ntf awl=host:13634
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTEwMDE1NiBTYWx0ZWRfX7HxM69stZ4Vc
- l89n07wT3PYbvgjjMpaYmIeyj/1NAzNM0SvN8sghIs3JbPtDFpt82b7EHc1asuGwDvZ58BOSZxr
- whuXn+MUYF8uaUgk2d5o7FqbxHqqvtir/GFF8Y7LzW+LG8r9A3Kea7AeWb96iM94swxwvjTWNgL
- vi6msmYLLQdSq1gVcr4p7D3Vmlb5EQP8IWvz0CiTQcs3uYrirlDJpqb0ktut/RJ9JkqYlBOGrLY
- 3k0RrZrMoYOaRLf//7LISfvzMmFENf2KGW2ZcLNLTTWQmbX/8wqfHx0Mj+a0l/qpRfe1V3QvTPq
- BboZKpskTHAQ1rNtZJMFmiA6aSh0GzuDvPrxoLgMsgrhcCC31K8VWRpMj31oNNBogPs7xP1nV5d
- sxHJ+WCjvSREyQ5BA+soUdJyQshvBtJXJBuRPATOVhvPSJPe9j0=
-X-Proofpoint-GUID: ETlykdG1hB6gernfZKbzRQWsvC5eaTfp
-X-Proofpoint-ORIG-GUID: ETlykdG1hB6gernfZKbzRQWsvC5eaTfp
+Content-Transfer-Encoding: 8bit
 
-On Sun, Nov 09, 2025 at 09:10:18PM +0800, Kairui Song wrote:
-> Hi Lorenzo,
->
-> Thanks, overloading swap entry types for things like migration always
-> looked confusing to me.
->
-> There is a problem with this patch as I mentioned here:
-> https://lore.kernel.org/linux-mm/CAMgjq7AP383YfU3L5ZxJ9U3x-vRPnEkEUtmnPdXD29HiNC8OrA@mail.gmail.com/
 
-Will reply there.
+Here is the third part of unification time printing in the kernel.
+This time for struct timespec64. The first patch brings support
+into printf() implementation (test cases and documentation update
+included) followed by the treewide conversion of the current users.
 
-> > +/**
-> > + * softleaf_is_swap() - Is this leaf entry a swap entry?
-> > + * @entry: Leaf entry.
-> > + *
-> > + * Returns: true if the leaf entry is a swap entry, otherwise false.
-> > + */
-> > +static inline bool softleaf_is_swap(softleaf_t entry)
-> > +{
-> > +       return softleaf_type(entry) == SOFTLEAF_SWAP;
-> > +}
-> > +
-> > +/**
-> > + * softleaf_is_swap() - Is this leaf entry a migration entry?
-> > + * @entry: Leaf entry.
-> > + *
-> > + * Returns: true if the leaf entry is a migration entry, otherwise false.
-> > + */
-> > +static inline bool softleaf_is_migration(softleaf_t entry)
->
-> And a nitpick here, the kerneldoc above doesn't match the function name here.
+The idea is to have one or a few biggest users included, the rest
+can be taken next release cycle on the subsystem basis, but I won't
+object if the respective maintainers already give their tags. Depending
+on the tags received it may go via dedicated subsystem or via PRINTK
+tree.
 
-Oops copy/paste error, will fix.
+Note, not everything was compile-tested. Kunit test has been passed, though.
 
->
-> And now swap functions (swap_cache_*) that expects a swp_entry_t is
-> getting a softleaf_t instead, they are the same thing right now, so
-> that's fine. Will we need something like a softleaf_to_swap?
+Andy Shevchenko (23):
+  lib/vsprintf: Add specifier for printing struct timespec64
+  ALSA: seq: Switch to use %ptSp
+  ceph: Switch to use %ptSp
+  libceph: Switch to use %ptSp
+  dma-buf: Switch to use %ptSp
+  drm/amdgpu: Switch to use %ptSp
+  drm/msm: Switch to use %ptSp
+  drm/vblank: Switch to use %ptSp
+  drm/xe: Switch to use %ptSp
+  e1000e: Switch to use %ptSp
+  igb: Switch to use %ptSp
+  ipmi: Switch to use %ptSp
+  media: av7110: Switch to use %ptSp
+  media: v4l2-ioctl: Switch to use %ptSp
+  mmc: mmc_test: Switch to use %ptSp
+  net: dsa: sja1105: Switch to use %ptSp
+  PCI: epf-test: Switch to use %ptSp
+  pps: Switch to use %ptSp
+  ptp: ocp: Switch to use %ptSp
+  s390/dasd: Switch to use %ptSp
+  scsi: fnic: Switch to use %ptS
+  scsi: snic: Switch to use %ptSp
+  tracing: Switch to use %ptSp
 
-Yeah that's on purpose. Chris is also keen to keep these as swp_entry_t.
+ Documentation/core-api/printk-formats.rst     | 11 ++++-
+ drivers/char/ipmi/ipmi_si_intf.c              |  3 +-
+ drivers/char/ipmi/ipmi_ssif.c                 |  6 +--
+ drivers/dma-buf/sync_debug.c                  |  2 +-
+ .../gpu/drm/amd/amdgpu/amdgpu_dev_coredump.c  |  3 +-
+ drivers/gpu/drm/drm_vblank.c                  |  6 +--
+ .../gpu/drm/msm/disp/msm_disp_snapshot_util.c |  3 +-
+ drivers/gpu/drm/msm/msm_gpu.c                 |  3 +-
+ drivers/gpu/drm/xe/xe_devcoredump.c           |  4 +-
+ drivers/media/v4l2-core/v4l2-ioctl.c          |  5 +-
+ drivers/mmc/core/mmc_test.c                   | 18 +++----
+ drivers/net/dsa/sja1105/sja1105_tas.c         |  8 ++--
+ drivers/net/ethernet/intel/e1000e/ptp.c       |  7 +--
+ drivers/net/ethernet/intel/igb/igb_ptp.c      |  7 +--
+ drivers/pci/endpoint/functions/pci-epf-test.c |  5 +-
+ drivers/pps/generators/pps_gen_parport.c      |  3 +-
+ drivers/pps/kapi.c                            |  3 +-
+ drivers/ptp/ptp_ocp.c                         | 15 +++---
+ drivers/s390/block/dasd.c                     |  3 +-
+ drivers/scsi/fnic/fnic_trace.c                | 46 ++++++++----------
+ drivers/scsi/snic/snic_debugfs.c              | 10 ++--
+ drivers/scsi/snic/snic_trc.c                  |  5 +-
+ drivers/staging/media/av7110/av7110.c         |  2 +-
+ fs/ceph/dir.c                                 |  5 +-
+ fs/ceph/inode.c                               | 47 ++++++-------------
+ fs/ceph/xattr.c                               |  6 +--
+ kernel/trace/trace_output.c                   |  6 +--
+ lib/tests/printf_kunit.c                      |  4 ++
+ lib/vsprintf.c                                | 25 ++++++++++
+ net/ceph/messenger_v2.c                       |  6 +--
+ sound/core/seq/seq_queue.c                    |  2 +-
+ sound/core/seq/seq_timer.c                    |  6 +--
+ 32 files changed, 131 insertions(+), 154 deletions(-)
 
-Obviously the second I make this type different it'll be easy to get the
-compiler to identify as it'll throw a bunch of errors :) so this will be no
-problem if/when we do that.
+-- 
+2.50.1
 
-Cheers, Lorenzo
