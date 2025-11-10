@@ -1,166 +1,205 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 281D6268C40;
-	Mon, 10 Nov 2025 10:37:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 063F63074A7
+	for <linux-s390@vger.kernel.org>; Mon, 10 Nov 2025 11:05:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762771038; cv=none; b=F68jjMSfiV9bek5OkvHvnic76gtqRNiVlvgq90nNeWUpxAgsxLHGY21e2a46jG7hjxPZBOgu3H1RA24gXp23Cjk9kKoy3DRl+9KuiBVmOcfm0FVfEaYs4jHVZsvn/mn66QT56hjPwhqmI4dG9wmPdVFVJv7UZ5D+QBTo5gOWHB4=
+	t=1762772702; cv=none; b=BeB/1NXEARRjBDqg0G+du3aU13Twwg2bh0tN9epNa4+weeXdFZerA8Cwi9ZG0xM/3V6G60V1uThcOQZdGq4+kVSHIAOw1c+Imw2wN3aQTJjJjcHsDdeJ+Q+N9YurBvJOJGJesDp0bfpC11Qgm5G8WsSJiJdR3BhzT5wg9qiOlZU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762771038; c=relaxed/simple;
-	bh=5mJ5SG0Gwip7t2njbKaSVt8yyYamxwQDSTZJ66MYxYk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PpHQ3ZVTYc0Xuroqr4pUy6LyWTz1LTxzNAJBk+/mv9uNMpk8y8z2tvffO1ke8TrgY59aP6mjB1oDQ1EoOV9bSmmxtlDdizAVLEfi/undNfJJWXBvFAf0/VynblYuDyY91BJNMl9tQxj6fgve13vLgNUf0opaZf7anWMFeJl2Fmw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b=WTAHFhLQ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1762772702; c=relaxed/simple;
+	bh=57vcXoVaGnG9l4Hdh9tDUE5rwfPZ24UgvbT3aVj/BUk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=UtQ+tHYdRI7g648ClCu0DvNvscAxh55rpv1yPbysnIlinf4HyM2h3glkXZ3WRIgxbKXN4/zS7gAjTAZ+Mawjfpcnolj3QcdwezFER4G+kWB47vf1zBqFwNyr3QgoA/O0KiSFi29M5iHmQYKsrdfDJpqDdw12T0qr/1sjqieEyH4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sa6AQQ73; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="WTAHFhLQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22E76C4CEF5;
-	Mon, 10 Nov 2025 10:37:14 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-	dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="WTAHFhLQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-	t=1762771032;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=1WrguxH4pokigxxkQ8JIMem650725yeeLwdoGz6ziPQ=;
-	b=WTAHFhLQBM9L4uVZANImYYYEpEwrJCJmpUsPeVS7opyWT3kewXLiJpB+S7cWvpyOqmRlk0
-	jOvTCsms0UYDa7uYKl2FQdhRurOUoi+bCEX1pnKZador3BykkqFb6xAp1lo4cuCgYvgUtd
-	mk8NOd2uY8oXx8TZ6HnEj3LlqXVn94g=
-Received: 
-	by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 190dbf96 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-	Mon, 10 Nov 2025 10:37:11 +0000 (UTC)
-Date: Mon, 10 Nov 2025 11:37:07 +0100
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-To: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-Cc: Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
-	Vincenzo Frascino <vincenzo.frascino@arm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Nick Alcock <nick.alcock@oracle.com>,
-	John Stultz <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Shuah Khan <shuah@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Theodore Ts'o <tytso@mit.edu>,
-	Russell King <linux@armlinux.org.uk>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Shannon Nelson <sln@onemain.com>, linux-kernel@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-kselftest@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
-	linux-s390@vger.kernel.org
-Subject: Re: [PATCH v5 19/34] random: vDSO: only access vDSO datapage after
- random_init()
-Message-ID: <aRHAU7bVAIyaOrpA@zx2c4.com>
-References: <20251106-vdso-sparc64-generic-2-v5-0-97ff2b6542f7@linutronix.de>
- <20251106-vdso-sparc64-generic-2-v5-19-97ff2b6542f7@linutronix.de>
- <aQ6EvdukQytvqK-u@zx2c4.com>
- <20251110094555-353883a9-1950-4cc6-a774-bb0ef5db11c5@linutronix.de>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sa6AQQ73"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A575BC2BC87
+	for <linux-s390@vger.kernel.org>; Mon, 10 Nov 2025 11:05:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1762772701;
+	bh=57vcXoVaGnG9l4Hdh9tDUE5rwfPZ24UgvbT3aVj/BUk=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=sa6AQQ73O01w64nwho5tib1IxlyUdIJGtdtZ9Hkgxafn61iopBLbXLDF1Ba5V2i27
+	 WD6YFYVerjMnAIO9/muIJYDdpv8clNUqhwoewQ/kI6xBSZ7jVC6JHroti+9tXdEs20
+	 5EKZAMf9l+SFPX7I9+FCSHrvUm+bOAkz1wYS9nveGAjwkbxnr4Nd7GtPj5xjzuo5O4
+	 Fc7gKbOMrlamMfMeSGiNycyH/4IkhNBrCVvNpqk+BQzuNmMhCTvf5IxMmj7iK+EaLs
+	 ETWg/vuyz4jZTP7O28TnvbQhzcLZpoWBPH2g2qFYB1KLl4zsm3zT9ooSaICIThBSgK
+	 PLzO/EzPnjooQ==
+Received: by mail-yx1-f48.google.com with SMTP id 956f58d0204a3-640d4f2f13dso1517417d50.1
+        for <linux-s390@vger.kernel.org>; Mon, 10 Nov 2025 03:05:01 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCXTopQmyd0Q8zfcXrxcvulasrAPzuicK4//dbfSg2WSKIinj3WUZwuRJLJqk/qBY5hQoJ/KlAFuoyd0@vger.kernel.org
+X-Gm-Message-State: AOJu0YxlBzsTLFZm8Tmx260xiXw+C5KXpjrkNmqZTlLow7VRx2xEGJ6n
+	WifPfKHsdjSUH2zPrZpZYLYjDKmjAeuzIKoDHbLMskqQhdZzqvyz4Etce83Gg6vVclQ0B+dMXan
+	+rqX2IivBvyi8fLM+I7p8eScE3Qua17IvqAFJhqI/og==
+X-Google-Smtp-Source: AGHT+IGb5xn+sWB6zhZvawlKpKaY52jteK/NuAWw2b6kNJUT3KOwS3xUtwezxnsh77APdSOaFVEz79TEZy9y4Ini9II=
+X-Received: by 2002:a05:690e:2598:b0:63f:a089:ad11 with SMTP id
+ 956f58d0204a3-640d45e57f4mr5199456d50.47.1762772699777; Mon, 10 Nov 2025
+ 03:04:59 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20251110094555-353883a9-1950-4cc6-a774-bb0ef5db11c5@linutronix.de>
+References: <cover.1762621567.git.lorenzo.stoakes@oracle.com>
+ <CACePvbVq3kFtrue2smXRSZ86+EuNVf6q+awQnU-n7=Q4x7U9Lw@mail.gmail.com> <5b60f6e8-7eab-4518-808a-b34331662da5@lucifer.local>
+In-Reply-To: <5b60f6e8-7eab-4518-808a-b34331662da5@lucifer.local>
+From: Chris Li <chrisl@kernel.org>
+Date: Mon, 10 Nov 2025 03:04:48 -0800
+X-Gmail-Original-Message-ID: <CACePvbUvQu+So7OoUbJTMLODz8YDAOgWaM8A-RXFj2U_Qc-dng@mail.gmail.com>
+X-Gm-Features: AWmQ_bl_ugrcb7Xqm2Eobi_WepJs_DP4Kj2CRqbuSy5_pOEO8kL68WELcSVKV30
+Message-ID: <CACePvbUvQu+So7OoUbJTMLODz8YDAOgWaM8A-RXFj2U_Qc-dng@mail.gmail.com>
+Subject: Re: [PATCH v2 00/16] mm: remove is_swap_[pte, pmd]() + non-swap
+ entries, introduce leaf entries
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, David Hildenbrand <david@redhat.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Peter Xu <peterx@redhat.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	Arnd Bergmann <arnd@arndb.de>, Zi Yan <ziy@nvidia.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, 
+	"Liam R . Howlett" <Liam.Howlett@oracle.com>, Nico Pache <npache@redhat.com>, 
+	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
+	Lance Yang <lance.yang@linux.dev>, Muchun Song <muchun.song@linux.dev>, 
+	Oscar Salvador <osalvador@suse.de>, Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>, 
+	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
+	Matthew Brost <matthew.brost@intel.com>, Joshua Hahn <joshua.hahnjy@gmail.com>, 
+	Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>, 
+	Ying Huang <ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>, 
+	Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, 
+	Wei Xu <weixugc@google.com>, Kemeng Shi <shikemeng@huaweicloud.com>, 
+	Kairui Song <kasong@tencent.com>, Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>, 
+	SeongJae Park <sj@kernel.org>, Matthew Wilcox <willy@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, 
+	Leon Romanovsky <leon@kernel.org>, Xu Xin <xu.xin16@zte.com.cn>, 
+	Chengming Zhou <chengming.zhou@linux.dev>, Jann Horn <jannh@google.com>, 
+	Miaohe Lin <linmiaohe@huawei.com>, Naoya Horiguchi <nao.horiguchi@gmail.com>, 
+	Pedro Falcato <pfalcato@suse.de>, Pasha Tatashin <pasha.tatashin@soleen.com>, 
+	Rik van Riel <riel@surriel.com>, Harry Yoo <harry.yoo@oracle.com>, Hugh Dickins <hughd@google.com>, 
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, linux-arch@vger.kernel.org, 
+	damon@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 10, 2025 at 10:04:17AM +0100, Thomas Weißschuh wrote:
-> On Sat, Nov 08, 2025 at 12:46:05AM +0100, Jason A. Donenfeld wrote:
-> > I'm not a huge fan of this change:
-> > 
-> > On Thu, Nov 06, 2025 at 11:02:12AM +0100, Thomas Weißschuh wrote:
-> > > +static DEFINE_STATIC_KEY_FALSE(random_vdso_is_ready);
-> > >  
-> > >  /* Control how we warn userspace. */
-> > >  static struct ratelimit_state urandom_warning =
-> > > @@ -252,6 +253,9 @@ static void random_vdso_update_generation(unsigned long next_gen)
-> > >  	if (!IS_ENABLED(CONFIG_VDSO_GETRANDOM))
-> > >  		return;
-> > >  
-> > > +	if (!static_branch_likely(&random_vdso_is_ready))
-> > > +		return;
-> > > +
-> > >  	/* base_crng.generation's invalid value is ULONG_MAX, while
-> > >  	 * vdso_k_rng_data->generation's invalid value is 0, so add one to the
-> > >  	 * former to arrive at the latter. Use smp_store_release so that this
-> > > @@ -274,6 +278,9 @@ static void random_vdso_set_ready(void)
-> > >  	if (!IS_ENABLED(CONFIG_VDSO_GETRANDOM))
-> > >  		return;
-> > >  
-> > > +	if (!static_branch_likely(&random_vdso_is_ready))
-> > > +		return;
-> > > +
-> > >  	WRITE_ONCE(vdso_k_rng_data->is_ready, true);
-> > >  }
-> > >  
-> > > @@ -925,6 +932,9 @@ void __init random_init(void)
-> > >  	_mix_pool_bytes(&entropy, sizeof(entropy));
-> > >  	add_latent_entropy();
-> > >  
-> > > +	if (IS_ENABLED(CONFIG_VDSO_GETRANDOM))
-> > > +		static_branch_enable(&random_vdso_is_ready);
-> > > +
-> > >  	/*
-> > >  	 * If we were initialized by the cpu or bootloader before jump labels
-> > >  	 * or workqueues are initialized, then we should enable the static
-> > > @@ -934,8 +944,10 @@ void __init random_init(void)
-> > >  		crng_set_ready(NULL);
-> > >  
-> > >  	/* Reseed if already seeded by earlier phases. */
-> > > -	if (crng_ready())
-> > > +	if (crng_ready()) {
-> > >  		crng_reseed(NULL);
-> > > +		random_vdso_set_ready();
-> > > +	}
-> > 
-> > The fact that the vdso datapage is set up by the time random_init() is
-> > called seems incredibly contingent on init details. Why not, instead,
-> > make this a necessary part of the structure of vdso setup code, which
-> > can actually know about what happens when?
-> 
-> The whole early init is "carefully" ordered in any case. I would have been
-> happy to allocate the data pages before the random initialization, but the
-> allocator is not yet usable by then.
-> We could also make the ordering more visible by having the vDSO datastore call
-> into a dedicated function to allow the random core to touch the data pages:
-> random_vdso_enable_datapages().
-> 
-> > For example, one clean way of
-> > doing that would be to make vdso_k_rng_data always valid by having it
-> > initially point to __initdata memory, and then when it's time to
-> > initialize the real datapage, memcpy() the __initdata memory to the new
-> > specially allocated memory. Then we don't need the complex state
-> > tracking that this commit and the prior one introduce.
-> 
-> Wouldn't that require synchronization between the update path and the memcpy()
-> path? Also if the pointer is going to change at some point we'll probably need
-> to use READ_ONCE()/WRITE_ONCE(). In general I would be happy about a cleaner
-> solution for this but didn't find a great one.
+On Mon, Nov 10, 2025 at 2:18=E2=80=AFAM Lorenzo Stoakes
+<lorenzo.stoakes@oracle.com> wrote:
+>
+> On Sun, Nov 09, 2025 at 11:32:09PM -0800, Chris Li wrote:
+> > Hi Lorenzo,
+> >
+> > Sorry I was late to the party. Can you clarify that you intend to
+> > remove swp_entry_t completely to softleaf_t?
+> > I think for the traditional usage of the swp_entry_t, which is made up
+> > of swap device type and swap device offset. Can we please keep the
+> > swp_entry_t for the traditional swap system usage? The mix type can
+> > stay in softleaf_t in the pte level.
+>
+> Ultimately it doesn't really matter - if we do entirely eliminate
+> swp_entry_t, the type that we are left with for genuine swap entries will
+> be _identical_ to swp_entry_t. As in bit-by-bit identical.
 
-This is still before userspace has started, and interrupts are disabled,
-so I don't think so? Also, you only care about being after
-mm_core_init(), right? So move your thing before sched_init() and then
-you'll really have nothing to worry about.
+In that case you might just as well leave it as swp_entry_t for the
+_actual_ swap code.
 
-But I think globally I agree with Andy/Arnd -- this is kind of ugly and
-not worth it. Disable vDSO for these old CPUs with cache aliasing
-issues.
+>
+> But I did think perhaps we could maintain this type explicitly for the
+> _actual_ swap code.
 
-Jason
+Exactly. Please do consider impact the actual swap
+
+> > I kind of wish the swap system could still use swp_entry_t. At least I
+> > don't see any complete reason to massively rename all the swap system
+> > code if we already know the entry is the limited meaning of swap entry
+> > (device + offset).
+>
+> Well the reason would be because we are trying to keep things consistent
+> and viewing a swap entry as merely being one of the modes of a softleaf.
+
+Your reason applies to the multi-personality non-present pte entries.
+I am fine with those as softleaf. However the reasoning does not apply
+to the swap entry where we already know it is for actual swap. The
+multi-personality does not apply there. I see no conflict with the
+swp_entry type there. I argue that it is even cleaner that the swap
+codes only refer to those as swp_entry rather than softleaf because
+there is no possibility that the swap entry has multi-personality.
+
+> However I am empathetic to not wanting to create _entirely_ unnecessary
+> churn here.
+>
+> I will actively keep you in the loop on follow up series and obviously wi=
+ll
+> absolutely take your opinion seriously on this.
+
+Thank you for your consideration.
+
+>
+> I think this series overall hugely improves clarity and additionally avoi=
+ds
+> a bunch of unnecessary, duplicative logic that previously was required, s=
+o
+> is well worth the slightly-annoying-churn cost here.
+>
+> But when it comes to the swap code itself I will try to avoid any
+> unnecessary noise.
+
+Ack.
+
+> One thing we were considering (discussions on previous iteration of serie=
+s)
+> was to have a union of different softleaf types - one of which could simp=
+ly
+> be swp_entry_t, meaning we get the best of both worlds, or at least
+> absolutely minimal changes.
+
+If you have a patch I would take a look and comment on it.
+
+> > Timing is not great either. We have the swap table phase II on review
+> > now. There is also phase III and phase IV on the backlog pipeline. All
+> > this renaming can create unnecessary conflicts. I am pleading please
+> > reduce the renaming in the swap system code for now until we can
+> > figure out what is the impact to the rest of the swap table series,
+> > which is the heavy lifting for swap right now. I want to draw a line
+> > in the sand that, on the PTE entry side, having multiple meanings, we
+> > can call it softleaft_t whatever. If we know it is the traditional
+> > swap entry meaning. Keep it swp_entry_t for now until we figure out
+> > the real impact.
+>
+> I really do empathise, having dealt with multiple conflicts and races in
+> series, however I don't think it's really sensible to delay one series
+> based on unmerged follow ups.
+
+If you leave the actual swap entry (single personality) alone, I think
+we can deal with the merge conflicts.
+
+> So this series will proceed as it is.
+
+Please clarify the "proceed as it is" regarding the actual swap code.
+I hope you mean you are continuing your series, maybe with
+modifications also consider my feedback. After all, you just say " But
+I did think perhaps we could maintain this type explicitly for the
+_actual_ swap code."
+
+> However I'm more than happy to help resolve conflicts - if you want to se=
+nd
+> me any of these series off list etc. I can rebase to mm-new myself if
+> that'd be helpful?
+
+As I said above, leaving the actual swap code alone is more helpful
+and I consider it cleaner as well. We can also look into incremental
+change on your V2 to crave out the swap code.
+
+>
+> >
+> > Does this renaming have any behavior change in the produced machine cod=
+e?
+>
+> It shouldn't result in any meaningful change no.
+
+That is actually the reason to give the swap table change more
+priority. Just saying.
+
+Chris
