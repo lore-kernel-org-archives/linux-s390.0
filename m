@@ -1,151 +1,133 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D73EE2FDC22;
-	Mon, 10 Nov 2025 09:04:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D242113FEE;
+	Mon, 10 Nov 2025 09:30:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762765462; cv=none; b=kZi9NBOupBlPf+vJqK/yY91af2kiDUK+ZOjncdmRcUNtJaBNz3AncwBW3SYaxp1XLuAsVWO1nZoE5XwGqpevSkQJ/2Uovqgwb2+d3du+1TndNneDChtQC37EaB1OCH1atUnz2JK6kSljZOqAF5u1bn2GhT42fvuhNMzOS6PivCU=
+	t=1762767032; cv=none; b=bRdMKPMRCRsZ4oA0+U2Ags8jeWUa3OydvqxeBWw7MFD4hMDOpmVkoVa42W+dpd2JU/QlaYS4B4wgbpcF6WWpChGzJqxcZHB0Z46uQkA86qbuySWkVoS14+IhTrCfBKCjpikKGrUGM6OObiROtZQp+cFuFjutj6W4S1kQSRN9olE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762765462; c=relaxed/simple;
-	bh=3ydwZExzPTVL5H7Bph6AACoiEJH6uJ/+bxisIogOO3A=;
+	s=arc-20240116; t=1762767032; c=relaxed/simple;
+	bh=WaEO8Vmi01eBnr5hAn3BWhvORVKvfB7zy3iAIQRmbpo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dsXUHOUB8IsIFDRLnWsIbLHhs12NfFoQqC4bjGeulFdyrga0EKK7Pz9QLFbWRBcuGSWWnPE1KMo/l8Rp2i6c43dWVjnN7u66iS8IZQEkuUgYJCTLjRtko6OeVPW+m50gCeiAzgie0/wUfehbnE0a8lA53IOoGPSrGQYzJvXosLs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=THzC1+oh; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=+Nqx/ogP; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZoVxWhIMmgilii/mHLvulMmoQ04LlYGKQxHosKOm3kQqB2uz8wjhUadcWASShteQuVZJLqKxdWLi5tHD6rJJtOXD5A5RPR4o/o8Ercfo4phJUFY1D9IJJqqw6Oys7hELNo+AMzzqoz+vJYpUjKJPlMf2qdVqRpeA3jp2gS4IaDI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PFC8YN+0; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="THzC1+oh";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="+Nqx/ogP"
-Date: Mon, 10 Nov 2025 10:04:17 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1762765458;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=t7Guwo0wpxf95Dj+W5UROJyXFGtl7LdcWRhhh/Qf98U=;
-	b=THzC1+ohs7W95eY6RMSRaFJ23VdVBGm5I563I8YASdM00wmofpB9awW1xssuqstq1G4GN9
-	sOp/H73rX5A8lDzddsuk8aEuXZEoY8VatUS8uqdA4P1QwSycvK5U5xYCvCQW9Q155hvtp3
-	7ckU266rRRDn0XAp4JFw8QggWtZsAdOzRHV27wCZCUOuJXVoY4kNpRUGWB5Gkn9W3A+Nid
-	ZNdYJVGJc5HIjFvYZ80gZ8VPKbKpROUhWLEJnGJX/MlPmmtBKOsGsmRMNFy48oFYgIc0zU
-	W+Yiule8nXEF4YfdxOus7DWnvJkK4zQXI2Nc/NhrrTfeic27du8bXWM6BV1vSQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1762765458;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=t7Guwo0wpxf95Dj+W5UROJyXFGtl7LdcWRhhh/Qf98U=;
-	b=+Nqx/ogPinQ4vfSfKxwtwM9MURpLI4OvfJJe18bf22Qbmt21zd133O7NoOhjUAYH62UQVr
-	zbqasc8HiwXrEsDA==
-From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-To: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc: Andy Lutomirski <luto@kernel.org>, 
-	Thomas Gleixner <tglx@linutronix.de>, Vincenzo Frascino <vincenzo.frascino@arm.com>, 
-	Arnd Bergmann <arnd@arndb.de>, "David S. Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Nick Alcock <nick.alcock@oracle.com>, 
-	John Stultz <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>, 
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Shuah Khan <shuah@kernel.org>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Theodore Ts'o <tytso@mit.edu>, 
-	Russell King <linux@armlinux.org.uk>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	Christophe Leroy <christophe.leroy@csgroup.eu>, Huacai Chen <chenhuacai@kernel.org>, 
-	WANG Xuerui <kernel@xen0n.name>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Shannon Nelson <sln@onemain.com>, linux-kernel@vger.kernel.org, 
-	sparclinux@vger.kernel.org, linux-kselftest@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, 
-	linux-mips@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v5 19/34] random: vDSO: only access vDSO datapage after
- random_init()
-Message-ID: <20251110094555-353883a9-1950-4cc6-a774-bb0ef5db11c5@linutronix.de>
-References: <20251106-vdso-sparc64-generic-2-v5-0-97ff2b6542f7@linutronix.de>
- <20251106-vdso-sparc64-generic-2-v5-19-97ff2b6542f7@linutronix.de>
- <aQ6EvdukQytvqK-u@zx2c4.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PFC8YN+0"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AA87ZWP028610;
+	Mon, 10 Nov 2025 09:30:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=VaM3ltU3Y+jrUrL+P4EgR92tGTJUnG
+	s24Sssjdacj7E=; b=PFC8YN+0c4d1mlUq12IwaDQx5zXR2Nr67Dr4WrgGkkvjWs
+	Dc6Czp2iAwX8X+hHn7mqDDU1Anew5KlWytXMod/X2n7v7T5l3/tbxhWIed70OOyo
+	wgRZXHnZS1bfJ4sMh0yHSR8qF0I1zlphAoJi/QaN5hT3KHcbICXXRlMuSPaU6E6J
+	Xo/RSnRgoXzl+ck0jggBIBg3VKL2oCZGt0tk/aveyR7RDIIFn0SA6qUAusOgB4f8
+	ADjNDZPQR8c+LTcJ8mLVv5BgODY6c69/25pmdMeDg10CBSSHrcSJzEDz37nBBT4W
+	mCYqBr7c9RSQ59OobDYjutnOULP23EzP3csAK9ng==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aa3m7wqbs-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 10 Nov 2025 09:30:24 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5AA9RiIv023550;
+	Mon, 10 Nov 2025 09:30:24 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aa3m7wqbm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 10 Nov 2025 09:30:24 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AA98nS1014779;
+	Mon, 10 Nov 2025 09:30:23 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4aahpjvuq7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 10 Nov 2025 09:30:23 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AA9UJ0S50725350
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 10 Nov 2025 09:30:19 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6D2AC20049;
+	Mon, 10 Nov 2025 09:30:19 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 828DA20040;
+	Mon, 10 Nov 2025 09:30:18 +0000 (GMT)
+Received: from osiris (unknown [9.87.148.55])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 10 Nov 2025 09:30:18 +0000 (GMT)
+Date: Mon, 10 Nov 2025 10:30:17 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Aleksei Nikiforov <aleksei.nikiforov@linux.ibm.com>
+Cc: Alexander Potapenko <glider@google.com>, Marco Elver <elver@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>, kasan-dev@googlegroups.com,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+        Juergen Christ <jchrist@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>
+Subject: Re: [PATCH v2] s390/fpu: Fix false-positive kmsan report in fpu_vstl
+ function
+Message-ID: <20251110093017.15528A26-hca@linux.ibm.com>
+References: <20251107155914.1407772-3-aleksei.nikiforov@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <aQ6EvdukQytvqK-u@zx2c4.com>
+In-Reply-To: <20251107155914.1407772-3-aleksei.nikiforov@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=MtZfKmae c=1 sm=1 tr=0 ts=6911b0b0 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=kj9zAlcOel0A:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VnNF1IyMAAAA:8 a=bXxCFtWIKm37yWNRadsA:9 a=CjuIK1q_8ugA:10
+ a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-GUID: a0sNEDIK0Gr--rLC5ZSC2Y2pLdE44ef_
+X-Proofpoint-ORIG-GUID: YUzRASJ9uQFIpYFhIfz1zgYQR8wytDKp
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTA4MDA3OSBTYWx0ZWRfXxogod00QcIgV
+ uxzUe+g7lz3lHaOCnwEIxcVHN5gGOWoXZ4HO3AaCLusqFGOjBDLJPqo/nj5V2QcMXLdbuQ3yzeC
+ yGjUrcMs6PFrGTOMLe+ryZ9gwyXpsEcTxMbyz3n0IVCUZDaK0PzPSuflo3MqHl/AF47x+HjBiZu
+ mArNAPbyOFpxPmK6t3OMmQZMRf8yBdfaMub4j/NXDOoGDu+TIFDjFd0UcUIBO1SbIGQuLR4ziBm
+ QKZoUS4BGk8Psx/eGR9wV16pq2pi96nq6FAALcmU+W/zFnBc4fK1mW5WZRQfHauKspnGi5bFOwv
+ 5+1XmMwbTAeR1j2GWHDjDQCIJ06lgkAv+BSao8HI5bO7cvGZVJ7kRqKqyEKbJyu0lyC8wjD+V/l
+ 2KO0TYZNxD90EkhEXnM3isnZIJT3vA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-11-10_03,2025-11-06_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 adultscore=0 priorityscore=1501 bulkscore=0 impostorscore=0
+ suspectscore=0 lowpriorityscore=0 clxscore=1015 phishscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511080079
 
-On Sat, Nov 08, 2025 at 12:46:05AM +0100, Jason A. Donenfeld wrote:
-> I'm not a huge fan of this change:
+On Fri, Nov 07, 2025 at 04:59:16PM +0100, Aleksei Nikiforov wrote:
+> A false-positive kmsan report is detected when running ping command.
 > 
-> On Thu, Nov 06, 2025 at 11:02:12AM +0100, Thomas Weißschuh wrote:
-> > +static DEFINE_STATIC_KEY_FALSE(random_vdso_is_ready);
-> >  
-> >  /* Control how we warn userspace. */
-> >  static struct ratelimit_state urandom_warning =
-> > @@ -252,6 +253,9 @@ static void random_vdso_update_generation(unsigned long next_gen)
-> >  	if (!IS_ENABLED(CONFIG_VDSO_GETRANDOM))
-> >  		return;
-> >  
-> > +	if (!static_branch_likely(&random_vdso_is_ready))
-> > +		return;
-> > +
-> >  	/* base_crng.generation's invalid value is ULONG_MAX, while
-> >  	 * vdso_k_rng_data->generation's invalid value is 0, so add one to the
-> >  	 * former to arrive at the latter. Use smp_store_release so that this
-> > @@ -274,6 +278,9 @@ static void random_vdso_set_ready(void)
-> >  	if (!IS_ENABLED(CONFIG_VDSO_GETRANDOM))
-> >  		return;
-> >  
-> > +	if (!static_branch_likely(&random_vdso_is_ready))
-> > +		return;
-> > +
-> >  	WRITE_ONCE(vdso_k_rng_data->is_ready, true);
-> >  }
-> >  
-> > @@ -925,6 +932,9 @@ void __init random_init(void)
-> >  	_mix_pool_bytes(&entropy, sizeof(entropy));
-> >  	add_latent_entropy();
-> >  
-> > +	if (IS_ENABLED(CONFIG_VDSO_GETRANDOM))
-> > +		static_branch_enable(&random_vdso_is_ready);
-> > +
-> >  	/*
-> >  	 * If we were initialized by the cpu or bootloader before jump labels
-> >  	 * or workqueues are initialized, then we should enable the static
-> > @@ -934,8 +944,10 @@ void __init random_init(void)
-> >  		crng_set_ready(NULL);
-> >  
-> >  	/* Reseed if already seeded by earlier phases. */
-> > -	if (crng_ready())
-> > +	if (crng_ready()) {
-> >  		crng_reseed(NULL);
-> > +		random_vdso_set_ready();
-> > +	}
+> An inline assembly instruction 'vstl' can write varied amount of bytes
+> depending on value of 'index' argument. If 'index' > 0, 'vstl' writes
+> at least 2 bytes.
 > 
-> The fact that the vdso datapage is set up by the time random_init() is
-> called seems incredibly contingent on init details. Why not, instead,
-> make this a necessary part of the structure of vdso setup code, which
-> can actually know about what happens when?
+> clang generates kmsan write helper call depending on inline assembly
+> constraints. Constraints are evaluated compile-time, but value of
+> 'index' argument is known only at runtime.
+> 
+> clang currently generates call to __msan_instrument_asm_store with 1 byte
+> as size. Manually call kmsan function to indicate correct amount of bytes
+> written and fix false-positive report.
+...
+> Fixes: dcd3e1de9d17 ("s390/checksum: provide csum_partial_copy_nocheck()")
+> Signed-off-by: Aleksei Nikiforov <aleksei.nikiforov@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/fpu-insn.h | 3 +++
+>  1 file changed, 3 insertions(+)
 
-The whole early init is "carefully" ordered in any case. I would have been
-happy to allocate the data pages before the random initialization, but the
-allocator is not yet usable by then.
-We could also make the ordering more visible by having the vDSO datastore call
-into a dedicated function to allow the random core to touch the data pages:
-random_vdso_enable_datapages().
-
-> For example, one clean way of
-> doing that would be to make vdso_k_rng_data always valid by having it
-> initially point to __initdata memory, and then when it's time to
-> initialize the real datapage, memcpy() the __initdata memory to the new
-> specially allocated memory. Then we don't need the complex state
-> tracking that this commit and the prior one introduce.
-
-Wouldn't that require synchronization between the update path and the memcpy()
-path? Also if the pointer is going to change at some point we'll probably need
-to use READ_ONCE()/WRITE_ONCE(). In general I would be happy about a cleaner
-solution for this but didn't find a great one.
-
-
-Thomas
+Applied, thanks!
