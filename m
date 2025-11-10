@@ -1,153 +1,172 @@
-Received: from fhigh-a3-smtp.messagingengine.com (fhigh-a3-smtp.messagingengine.com [103.168.172.154])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E4FF286405;
-	Mon, 10 Nov 2025 20:52:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.154
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48ED132AADA;
+	Mon, 10 Nov 2025 21:30:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762807956; cv=none; b=j7cR7ZbRVa8KrEKv9vwExy2fWLYWxlS51D+1Wa/5n/TXLUmhAU6uwB4FH/JqJj0N+qroMqNToM0XR6MnIyo2vTZ5ONyV7BFiD+XpdEd9QHao5KNkRfF3mZzfR5bZc88asQZAGT6inD5yt4ycyFZzKu8EX3b/zBWrYQSMxlhKCDE=
+	t=1762810221; cv=none; b=TDCuOt52XSUaFCSBlS8X+JrW5W2Wad/KwQyeG/69A7BC+OT8jGXyV9QpBrBu9aqKaWmVHcbLG2O+qxl8qFI0ZbWskkIujVo1QfTheXOfdv6OZNojZd17s/TnjzpSlT/1r7ZXIEtJV0Siai5Fbc4lfUs+g8HXOfgb7DU+0oclmVY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762807956; c=relaxed/simple;
-	bh=oJEomwA4h/k8618bRef7n045vNsSkpM6C9ZqkfHVxvo=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=TJxPBn+E96zWSUQMr/Mvyb8w/lh/KtdYV5NOGsx2JIp4y082z3GwD4MOmyw8W/BT3rO8HBTXsm9yrlJAOgmHlWi0FCxIu3jketE9RsHa8OeGq+Z2oRk1S4pXhZyKdt4uYkxsQx+S0N6TQfW0zjPW0VRNaAfdh6PgBOZ0RhIwRoE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=NSpt4WjH; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=lII1Vsyh; arc=none smtp.client-ip=103.168.172.154
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1762810221; c=relaxed/simple;
+	bh=bD9RVt9bJpG8ZW3LPzIAShrzFYwf1MdbxQfV+z1LfRQ=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=VqRZuFn9YENKhO5IyXQ9bu/hceyG2sWhmP3wmpR7BT/bQNmyZnIv4no2GMLpOGZpwdjVT/EmMhjpRKNjA/4cMFAls29MaYZ5va45kcmkzoSc7aveqzex0h7xOWjI97XSVDpuNN7XlS4DJs6wdMkgpAFBJEpF1r8v2mVk3UV05RY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ku4UXJoS; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="NSpt4WjH";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="lII1Vsyh"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id 58FA5140011C;
-	Mon, 10 Nov 2025 15:52:32 -0500 (EST)
-Received: from phl-imap-02 ([10.202.2.81])
-  by phl-compute-04.internal (MEProxy); Mon, 10 Nov 2025 15:52:32 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1762807952;
-	 x=1762894352; bh=02T9CV6FzxtQCVORxlgGvtmrENd/kFc0JCKIODyEpvc=; b=
-	NSpt4WjHgHnZ2ozF6XrWegnPasjSA8QB1NH+U0B+dLhH4rbHH6JTuyeQsz5Q+pVu
-	NOG6oKt2y9++706RlPWlGZ9Jej949kvULtBT52/cG9znpNQiwE3a9u34pP/1OnU9
-	767A3pjvhVWGXOVuPrBYe6/ZCDZ4p+9sKqSdlo/wmgDfgMdg/ehdQcsjiMK/Co/X
-	4KEOOiMKz2airJ+smOdZtTd9o9b7MFjq8sEaijuiUyMuxnS5Czwd8GrPStAR8GZe
-	9GwniPG+tMytrgkBKi1e3x1jTTWwhjmfNaDRBMcv4hQBB0PSSRy8CNjng9H8NsbA
-	dbAbf4Scu4v0ZUqXwESLjw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1762807952; x=
-	1762894352; bh=02T9CV6FzxtQCVORxlgGvtmrENd/kFc0JCKIODyEpvc=; b=l
-	II1VsyhHVp2SbgZAJeXfn6pyYQJNAlgT1x6Df9YVj+OZCLSgQ7/icqOeNWFK9ccq
-	FHEY29KDQwpmrTDl3kiZ5WRhqRO374/xs6mZeLC2CMESy/Bt9Qhdn0N+4GNpAeQj
-	9Y3FXP40EtF0oE2GxD73Sah5kn31O8rRSJU6VesrxPpA1uMN0IyJDBh+lsCSrbAb
-	Qg65VH7xG2zGzLo7hcna15vLZ0G1e/xcJAOMSPL8Ips9KqGUxiAWB2FtDSYgNtSp
-	voKHEterSBVzFar8edOJH67gLsaeGuXnzT6AQe6fAd6UtnBExt77pbeKIYFzrVCm
-	s6nBY7INbfxrRKAhmmn4Q==
-X-ME-Sender: <xms:j1ASafFlwgE4pjHHcppW-qVfCARjf6dDTg8ADtXfxgZMcBvXYiAK3Q>
-    <xme:j1ASaXLBFjstjH1-gwrAU90z2f_l1fj5FuDhzMILR3nFXs23aeKJ-DE7hSsDAqL3Y
-    GsmIWGhgxeHJc1utRlCsyS7ejR3Yq3CGDfiGU8L9MAmiyz28RA8pA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggdduleelfedvucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddtnecuhfhrohhmpedftehrnhgu
-    uceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrthhtvg
-    hrnhephfdthfdvtdefhedukeetgefggffhjeeggeetfefggfevudegudevledvkefhvdei
-    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprghrnh
-    gusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohepledpmhhouggvpehsmhhtphhouhht
-    pdhrtghpthhtohepthhorhhvrghlughssehlihhnuhigqdhfohhunhgurghtihhonhdroh
-    hrghdprhgtphhtthhopegrghhorhguvggvvheslhhinhhugidrihgsmhdrtghomhdprhgt
-    phhtthhopegsohhrnhhtrhgrvghgvghrsehlihhnuhigrdhisghmrdgtohhmpdhrtghpth
-    htohepghhorheslhhinhhugidrihgsmhdrtghomhdprhgtphhtthhopehhtggrsehlihhn
-    uhigrdhisghmrdgtohhmpdhrtghpthhtohepkhhrvggssggvlheslhhinhhugidrihgsmh
-    drtghomhdprhgtphhtthhopehsvhgvnhhssehlihhnuhigrdhisghmrdgtohhmpdhrtghp
-    thhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtg
-    hpthhtoheplhhinhhugidqshefledtsehvghgvrhdrkhgvrhhnvghlrdhorhhg
-X-ME-Proxy: <xmx:j1ASaeqIOnjN0xND9fKlrDqgYLCwTTGnVrfL6r-Zun0mKn4G0MEGyQ>
-    <xmx:j1ASaYhai-Kh4ZAWpMMOaXrn4aNnfeSv2YdS18ZYlmj9hRsdF3k9Qg>
-    <xmx:j1ASaQPX1t23SZ9_ico71aRrRa9t7PEAuvbMhLUsNef_2D5CXsXseQ>
-    <xmx:j1ASaSypmweJ2vMLS3-8TeyDm-Z8AbUY1Js4re5SGIR1YsdKON0H4A>
-    <xmx:kFASabM7PCr0YVACgM8RD5Ynh5kLc1qIw-ly1juzMIePPeUZhaNpuDaS>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id AECEB700063; Mon, 10 Nov 2025 15:52:31 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ku4UXJoS"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AAE2R1p031322;
+	Mon, 10 Nov 2025 21:30:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=jKPUsN
+	AYTJ5KW3G5U+DKxA5L1nLOkv/1sA+J3QgZgvc=; b=ku4UXJoSr8Uuw6RQk4mACG
+	/iusOa+Tv1xCc2fEW8kP0y7Qc+7OXfbdoHGWuw7HxWyUvSOrqrMtnGzfvzaAo7nm
+	Qq8bneMOC761gPfoFtTbhy1vhN2pirEcoNDpcmxk+mffqpReDhYD9ySZ7e9mhlxJ
+	/Q9WHUR4c5YQkS1CfKVQutMAqh38dCqe5XJ2cU04FFa+FbvgrBy9HLP59YJ74QkL
+	41ErkulmwN1U3FCseXgoAnYWq0swzuR1vHgm3Ll4kORtgYIYiWDvevBlVnLj3N32
+	RmIFGrnV7LxpLWvIuGuPh+e5MclzfJfn9mlNvxbbjTGc5V/KnbScK480CbDzQlBw
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a9wk827uy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 10 Nov 2025 21:30:14 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AAKF6Wp014762;
+	Mon, 10 Nov 2025 21:30:13 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4aahpjyp8t-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 10 Nov 2025 21:30:13 +0000
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AALUC2s39190838
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 10 Nov 2025 21:30:12 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1635F58064;
+	Mon, 10 Nov 2025 21:30:12 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2CA215805A;
+	Mon, 10 Nov 2025 21:30:11 +0000 (GMT)
+Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.62.231])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 10 Nov 2025 21:30:11 +0000 (GMT)
+Message-ID: <33338cb8c04dfed521542c9145ca282f9dc9d763.camel@linux.ibm.com>
+Subject: Re: [PATCH RFC v2 03/11] KVM: s390: Move scao validation into a
+ function
+From: Eric Farman <farman@linux.ibm.com>
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily
+ Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger	 <borntraeger@linux.ibm.com>,
+        Janosch Frank
+ <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Nico
+ Boehr <nrb@linux.ibm.com>, David Hildenbrand	 <david@redhat.com>,
+        Sven
+ Schnelle <svens@linux.ibm.com>,
+        Paolo Bonzini	 <pbonzini@redhat.com>, Shuah
+ Khan <shuah@kernel.org>
+Date: Mon, 10 Nov 2025 16:30:10 -0500
+In-Reply-To: <20251110-vsieie-v2-3-9e53a3618c8c@linux.ibm.com>
+References: <20251110-vsieie-v2-0-9e53a3618c8c@linux.ibm.com>
+	 <20251110-vsieie-v2-3-9e53a3618c8c@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: Ahf7rWlW2DAV
-Date: Mon, 10 Nov 2025 21:51:53 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Heiko Carstens" <hca@linux.ibm.com>,
- "Alexander Gordeev" <agordeev@linux.ibm.com>,
- "Vasily Gorbik" <gor@linux.ibm.com>,
- "Christian Borntraeger" <borntraeger@linux.ibm.com>,
- "Sven Schnelle" <svens@linux.ibm.com>,
- "Andreas Krebbel" <krebbel@linux.ibm.com>,
- "Linus Torvalds" <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Message-Id: <f4531526-e981-4160-8369-50a8c8d86e36@app.fastmail.com>
-In-Reply-To: <20251110185440.2667511-9-hca@linux.ibm.com>
-References: <20251110185440.2667511-1-hca@linux.ibm.com>
- <20251110185440.2667511-9-hca@linux.ibm.com>
-Subject: Re: [RFC PATCH 8/8] s390/syscalls: Switch to generic system call table
- generation
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTA4MDAyMiBTYWx0ZWRfX/X9UlSOCql9K
+ 1O2Wj1tHn9h71GNuRlGkTBtSL8+VF+TaGaB9RmyMmB5OjzXPVGxShOpF8ZItlpG6DJ3y/10CxVe
+ 88Ag3wneje1XN8Zm1X0RpBdW1DPgYIFrojqMR3pYmReiNtRqORc4apjtO1NKjyiFn3G2wrh2Fx7
+ OG8ftbwGAkZZmcq5c4KjGXz5Vf+U4BSno7OjhUZtwfxO7bFXp3uBFMrIUrbKMpR1AGsHFMLUBj/
+ MkoZGHKu5PPyoEpevYAtvAym8KsQfO0fuHBCE3OGXtXfOBGx6ToCO2I3EF+dUYQL0db1pRp2Pog
+ hQJFy0pMTehIyjCUEPqeD+aHDKrg34F4MGBShfWSqSPx8tqJcljoYlbrttaeB9CTuTdBtes6oLu
+ 8/IR4sJTENg3OC9p+3wd869TdAVJhA==
+X-Authority-Analysis: v=2.4 cv=ZK3aWH7b c=1 sm=1 tr=0 ts=69125967 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VnNF1IyMAAAA:8 a=iTz0DsNiLSe9ZGz6wnkA:9 a=QEXdDO2ut3YA:10
+ a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-ORIG-GUID: xX4e9FwL-CnAYcBCxmiTPR-HAazZN0iM
+X-Proofpoint-GUID: xX4e9FwL-CnAYcBCxmiTPR-HAazZN0iM
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-11-10_07,2025-11-10_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0
+ phishscore=0 impostorscore=0 spamscore=0 bulkscore=0 adultscore=0
+ clxscore=1011 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2511080022
 
-On Mon, Nov 10, 2025, at 19:54, Heiko Carstens wrote:
-> The s390 syscall.tbl format differs slightly from most others, and
-> therefore requires an s390 specific system call table generation
-> script.
-> 
-> With compat support gone use the opportunity to switch to generic
-> system call table generation. The abi for all 64 bit system calls is
-> now common, since there is no need to specify if system call entry
-> points are only for 64 bit anymore.
-> 
-> Furthermore create the system call table in C instead of assembler
-> code in order to get type checking for all system call functions
-> contained within the table.
+On Mon, 2025-11-10 at 18:16 +0100, Christoph Schlameuss wrote:
+> This improves readability as well as allows re-use in coming patches.
+>=20
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+> ---
+>  arch/s390/kvm/vsie.c | 27 ++++++++++++++++++++-------
+>  1 file changed, 20 insertions(+), 7 deletions(-)
+>=20
+> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+> index ced2ca4ce5b584403d900ed11cb064919feda8e9..3d602bbd1f70b7bd8ddc2c54d=
+43027dc37a6e032 100644
+> --- a/arch/s390/kvm/vsie.c
+> +++ b/arch/s390/kvm/vsie.c
+> @@ -95,6 +95,25 @@ static int set_validity_icpt(struct kvm_s390_sie_block=
+ *scb,
+>  	return 1;
+>  }
+> =20
+> +/* The sca header must not cross pages etc. */
+> +static int validate_scao(struct kvm_vcpu *vcpu, struct kvm_s390_sie_bloc=
+k *scb, gpa_t gpa)
+> +{
+> +	int offset;
+> +
+> +	if (gpa < 2 * PAGE_SIZE)
+> +		return set_validity_icpt(scb, 0x0038U);
+> +	if ((gpa & ~0x1fffUL) =3D=3D kvm_s390_get_prefix(vcpu))
+> +		return set_validity_icpt(scb, 0x0011U);
+> +
+> +	if (sie_uses_esca(scb))
 
-Thanks a lot for taking care of this!
+This helper doesn't turn up until patch 7
 
-I had a good look at the patch and checked that there are no
-stale syscalls that are no longer needed, the formatting,
-and the way this interfaces with the perf code that parses
-the same table. Everything looks good as far as I can see.
-
-> +161	common	sched_rr_get_interval		sys_sched_rr_get_interval
-> +162	common	nanosleep			sys_nanosleep
-> +163	common	mremap				sys_mremap
-> +167	common	query_module
-> +168	common	poll				sys_poll
-> +169	common	nfsservctl
-> +172	common	prctl				sys_prctl
-
-Nothing wrong with your patch, but while reading through this, I noticed
-that we are somewhat inconsistent about syscalls that are gone, with
-three possible methods:
-
-# 167 was query_module
-167	common	query_module                  sys_ni_syscall
-167	common	query_module
-
-You use the third one now, which is the same as x86 but nothing
-else. The second one using an explicit 'sys_ni_syscall' is the
-most common and has the same effect, so maybe use that as well.
-
-Eventually we may want to convert everything to the first method
-and drop the syscall macros, but that would be visible in
-user-space and might cause regression, so it should be a
-separate series across all architectures if we want to go there.
-
-I believe we just chickened out when we did the conversion to
-syscall.tbl format originally and just left whatever was
-in the unistd.h headers at the time.
-
-    Arnd
+> +		offset =3D offsetof(struct esca_block, cpu[0]) - 1;
+> +	else
+> +		offset =3D offsetof(struct bsca_block, cpu[0]) - 1;
+> +	if ((gpa & PAGE_MASK) !=3D ((gpa + offset) & PAGE_MASK))
+> +		return set_validity_icpt(scb, 0x003bU);
+> +	return false;
+> +}
+> +
+>  /* mark the prefix as unmapped, this will block the VSIE */
+>  static void prefix_unmapped(struct vsie_page *vsie_page)
+>  {
+> @@ -791,13 +810,7 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct =
+vsie_page *vsie_page)
+> =20
+>  	gpa =3D read_scao(vcpu->kvm, scb_o);
+>  	if (gpa) {
+> -		if (gpa < 2 * PAGE_SIZE)
+> -			rc =3D set_validity_icpt(scb_s, 0x0038U);
+> -		else if ((gpa & ~0x1fffUL) =3D=3D kvm_s390_get_prefix(vcpu))
+> -			rc =3D set_validity_icpt(scb_s, 0x0011U);
+> -		else if ((gpa & PAGE_MASK) !=3D
+> -			 ((gpa + sizeof(struct bsca_block) - 1) & PAGE_MASK))
+> -			rc =3D set_validity_icpt(scb_s, 0x003bU);
+> +		rc =3D validate_scao(vcpu, scb_o, gpa);
+>  		if (!rc) {
+>  			rc =3D pin_guest_page(vcpu->kvm, gpa, &hpa);
+>  			if (rc)
