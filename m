@@ -1,249 +1,239 @@
-Received: from CO1PR03CU002.outbound.protection.outlook.com (mail-westus2azon11010058.outbound.protection.outlook.com [52.101.46.58])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 590792DE70E;
-	Mon, 10 Nov 2025 18:50:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.46.58
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762800640; cv=fail; b=O2KbjDYuZIJVB5aS+f7Ldgxw3xxwpMJdJZZqnDHyuPfJRoqYFe1NWTEILeySmzl5T3ZgWqZm3k8kLxDkVjSb+Y3dV8TAqMeWd9xozTCUFVTXGX+Th3Y+RbDT0k20/e+oYmBb1rqnD2wONXzqQTFVM8k7CfatXnIsio6eYX53Pp8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762800640; c=relaxed/simple;
-	bh=sjKu2IntlKlHRNUl9vzXiuf0T+P8g54e4wGwlzjCqj0=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=bO9o53teSCIF1SURaSKyUagsp7scDDo4mzdUXc7vlL6ROOVrPLHXQzM3jvmjZt0iYKkWZaKzs+2WASuNZVxmWqGUhjhO1GafF4BDeOKSP7cs/V0tksSjybAVpuofjOtZgRqbgi2u2NxIRGzgaQEhA3VZwI54P138mvahaHLS8fg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=T47Hqr/4; arc=fail smtp.client-ip=52.101.46.58
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A59203346AF;
+	Mon, 10 Nov 2025 18:54:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1762800890; cv=none; b=ipuV5dxAy9gew+HTKS+FM2KYkCrmsbaKKK3Wp8wJiYdorcxCeXX/n7YuTuVA/OhiqdnsmGNQGWSI12/cHhSgX2r9x6W3xe+SEtKQG0dwTHHs/uF3VR7BsCn9AB/RYHkpgLhVeXtFclVbxwT3Dcgn3ZrzTfirdabjHg1Zo0rH2wU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1762800890; c=relaxed/simple;
+	bh=bCYRsoGxDXzF0Oq8lH5JYqekUHCWxQBDlTbWdXZZvU4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sLqp7AB+3LY7OisVzA9+ISaWqWtxRIJq2XHYEpUWquQa1cbdYYtT3WYykNOtxJKUxAnZRTB1Bucr7SI2WsJqr0PzEz/HM0dM83ziCGpge+kRzKvJt97r5sH+n6AbUiXys+OQ3a6kBOQ0M0/TkN+f2gENRLK/sabqvVd2TOEONJE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ce411Z2r; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="T47Hqr/4"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=FafjJx6xILubSlJq5P0FPhIDqZgjBNW5jz7hCysvRpMnqmvFGzdQHMn9i0tOWTrTXzaURNY3OqXHhseCEKapKpwYGvcI+xq5u36fFmhqgxgQ2s89TiItFYW10yHtDNvrFJ4zr4Vr9kwLRO24ZJngHrguYK7Qzdgm9vRII6DyqUfGS4E1ffSfVgtNnUmXSmvM2V52nDZvcOwwwy2HwMkBjkYgZToGG2Pw4zyrnifaqiRidKHez4aA8uiTu36Gq8fefR4ktz8P7OhSzdErFMgip+E1UySiq/fE+xFlyIBWAm6wDfzBVELs5dm3kETkkKZtz8yfKwf1DfE8IZRPJ6ZYpg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Ds8RlgZCMIh7tgikiJZrhQimtjkj19bAiBDZTbbfFMs=;
- b=K+CGPWWfslxszOVqxSk92VbP5Y7r3J6K8mEMpWuDcL2PvS6q3OADZAYWGqo+Qp1dTn/CiorCr89XpbVw+BQhw0W5V2ZJFUn9Ka4wSvA9oXXVbynN8RJ0Xt3wdBOkMgL83RHnMrmPfiR8V1+1j6+NrHX82eSNt3YulJDTHgrgcExLPNUb6CUpDO2jddRM6SIye8vmpQUgh0CnKvyJSDGXF/Pta2MPG7qreKB9+I0+gVieaXr7mBisMuKE6GsrAjpIJQamz84wtMf9s8RvuNohlLyQ6CUpnfpY9wRnl3ALLKM9qbaurD8Jb1B1qM9CUZlYhy/CQkTxi98rtap3Ugibow==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Ds8RlgZCMIh7tgikiJZrhQimtjkj19bAiBDZTbbfFMs=;
- b=T47Hqr/4sHqR+61eDYw0N/41Vs9Lwli85vXbuXhm9PnMEZQ6DDlivSvJ3iDEGbZykO5ldDl+IFUkCikZNff0n2/1CX6Ee8i2WdeVUhHAie0/UPrXL3zDI71gALGRjmd5j4H3qoClMMY/9LDA9j+H8xuV3SHcB9M9qd/7IxIvZt0=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com (2603:10b6:510:13c::22)
- by PH7PR12MB9173.namprd12.prod.outlook.com (2603:10b6:510:2ee::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9298.16; Mon, 10 Nov
- 2025 18:50:33 +0000
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::46fb:96f2:7667:7ca5]) by PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::46fb:96f2:7667:7ca5%4]) with mapi id 15.20.9298.015; Mon, 10 Nov 2025
- 18:50:33 +0000
-Message-ID: <0c9e0534-027d-4875-8631-a91b163b85dd@amd.com>
-Date: Mon, 10 Nov 2025 19:50:16 +0100
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 05/23] dma-buf: Switch to use %ptSp
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- Corey Minyard <corey@minyard.net>, "Dr. David Alan Gilbert"
- <linux@treblig.org>, Alex Deucher <alexander.deucher@amd.com>,
- Thomas Zimmermann <tzimmermann@suse.de>,
- Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
- Rob Clark <robin.clark@oss.qualcomm.com>,
- Matthew Brost <matthew.brost@intel.com>, Hans Verkuil <hverkuil@kernel.org>,
- Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
- Ulf Hansson <ulf.hansson@linaro.org>,
- Vitaly Lifshits <vitaly.lifshits@intel.com>,
- Manivannan Sadhasivam <mani@kernel.org>, Niklas Cassel <cassel@kernel.org>,
- Calvin Owens <calvin@wbinvd.org>, Sagi Maimon <maimon.sagi@gmail.com>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- Karan Tilak Kumar <kartilak@cisco.com>,
- Casey Schaufler <casey@schaufler-ca.com>,
- Steven Rostedt <rostedt@goodmis.org>, Petr Mladek <pmladek@suse.com>,
- Max Kellermann <max.kellermann@ionos.com>, Takashi Iwai <tiwai@suse.de>,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
- openipmi-developer@lists.sourceforge.net, linux-media@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
- amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- freedreno@lists.freedesktop.org, intel-xe@lists.freedesktop.org,
- linux-mmc@vger.kernel.org, netdev@vger.kernel.org,
- intel-wired-lan@lists.osuosl.org, linux-pci@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
- linux-staging@lists.linux.dev, ceph-devel@vger.kernel.org,
- linux-trace-kernel@vger.kernel.org, linux-sound@vger.kernel.org
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>,
- Sergey Senozhatsky <senozhatsky@chromium.org>,
- Jonathan Corbet <corbet@lwn.net>, Sumit Semwal <sumit.semwal@linaro.org>,
- Gustavo Padovan <gustavo@padovan.org>, David Airlie <airlied@gmail.com>,
- Simona Vetter <simona@ffwll.ch>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Dmitry Baryshkov <lumag@kernel.org>,
- Abhinav Kumar <abhinav.kumar@linux.dev>,
- Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>,
- Marijn Suijten <marijn.suijten@somainline.org>,
- Konrad Dybcio <konradybcio@kernel.org>,
- Lucas De Marchi <lucas.demarchi@intel.com>,
- =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>,
- Mauro Carvalho Chehab <mchehab@kernel.org>,
- Vladimir Oltean <olteanv@gmail.com>, Andrew Lunn <andrew@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Tony Nguyen <anthony.l.nguyen@intel.com>,
- Przemek Kitszel <przemyslaw.kitszel@intel.com>,
- =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
- Kishon Vijay Abraham I <kishon@kernel.org>,
- Bjorn Helgaas <bhelgaas@google.com>, Rodolfo Giometti
- <giometti@enneenne.com>, Jonathan Lemon <jonathan.lemon@gmail.com>,
- Vadim Fedorenko <vadim.fedorenko@linux.dev>,
- Richard Cochran <richardcochran@gmail.com>,
- Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Satish Kharat <satishkh@cisco.com>,
- Sesidhar Baddela <sebaddel@cisco.com>,
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Xiubo Li
- <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,
- Masami Hiramatsu <mhiramat@kernel.org>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- Andrew Morton <akpm@linux-foundation.org>, Jaroslav Kysela <perex@perex.cz>,
- Takashi Iwai <tiwai@suse.com>
-References: <20251110184727.666591-1-andriy.shevchenko@linux.intel.com>
- <20251110184727.666591-6-andriy.shevchenko@linux.intel.com>
-Content-Language: en-US
-From: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
-In-Reply-To: <20251110184727.666591-6-andriy.shevchenko@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: FR4P281CA0024.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:c9::15) To PH7PR12MB5685.namprd12.prod.outlook.com
- (2603:10b6:510:13c::22)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ce411Z2r"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AAAAfOI008189;
+	Mon, 10 Nov 2025 18:54:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=BuyjfRN7YqWIPoqoeetyMHGeEoANtMQwDNr8sZzPi
+	xY=; b=ce411Z2rDRpZAN2nNQvuBlsptTJM5Pkoch9YanDXPn/pSB4Mxi3NgIeWi
+	kaoqa84QxTu4iDElNv48SZrZVGo/B4VsoWRWWoXONY4J56zUlU5s1UYWTmIJI+nE
+	VEXAODiPlOFB7LMAs0T6YuYZZcNyXhp2Stf9QxrH/+zjR1aX3iIXBvoDEQ5V9TaK
+	Ssf7hj3wx0g3Z8tz9qyCcTdCvzvAASQ8nR4EKNmvRHD3j2Cygpnfjphc31Jc62Ql
+	s74P+9ONxAcxAeoF6b26jsdChJCE01ytyrqGE7IzuWNbbBttrJ9ylA792CPyYmkv
+	MF0zFK4riq8oBvONPKav337zYiR3Q==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aa3m7yyf6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 10 Nov 2025 18:54:45 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AAGZ6sD008702;
+	Mon, 10 Nov 2025 18:54:45 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4aah6mq4mh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 10 Nov 2025 18:54:45 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AAIsekw36700482
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 10 Nov 2025 18:54:41 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CBB7C20043;
+	Mon, 10 Nov 2025 18:54:40 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9BFB920040;
+	Mon, 10 Nov 2025 18:54:40 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 10 Nov 2025 18:54:40 +0000 (GMT)
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Andreas Krebbel <krebbel@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [RFC PATCH 0/8] s390: Remove compat support
+Date: Mon, 10 Nov 2025 19:54:32 +0100
+Message-ID: <20251110185440.2667511-1-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH7PR12MB5685:EE_|PH7PR12MB9173:EE_
-X-MS-Office365-Filtering-Correlation-Id: e4a6efb7-0b8b-4c26-3e92-08de208a0755
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|7416014|366016|1800799024|921020|7053199007;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?ZC9xUWVzQ1RLU1A2a0pYdXdyYk9BRm5BTkUrUk9MbS8zbXFxbVBrR2d6OFZs?=
- =?utf-8?B?SkZoRkxRUDdmeXFtU05hR01YMElwdGQxT3JQZjZFTXJiZFB5N3p3cEtMZmJn?=
- =?utf-8?B?MUVMZEJxUDVwZEYvb1I5OXlIWFZ1ZnlZVUFUaVNYR0tMMFhmM2RvdVRnanJM?=
- =?utf-8?B?UGxZcisrNm1pand0TGlYZnRPOGZzR1ZwRzFCSThqMllLRXFkOTZKYUxxZEha?=
- =?utf-8?B?OEk2UFRkKzJWVU56VE1JMmcvWDhJMEU5Tlo0bWFEdXdSYU5xSWVrMCtOVUhW?=
- =?utf-8?B?ZElBM2tBTnpPRVRBMHkxbUVFeDJha29HRUdxR3RURUJlam1vVlRuZU44MldQ?=
- =?utf-8?B?NkFETmNFNmRIOWJqVDNqMlpRT0lBcjdmSi8vQURJdjB1b0MreDM4aDJPbWp4?=
- =?utf-8?B?Zk4xSzNtUTYwYkMveU4yUVdnUEE0TUdNTzgrUUF2dDZtc1d0WnZkUmpaeWxP?=
- =?utf-8?B?NC9tS1JJUkQ3Tm1FaTl2U1FkeW1INUR0SEJtMnJVdUN6QlFzRk9DR3RQYVZm?=
- =?utf-8?B?UG9rck9QU21tOVZZNTNYa09vS1FsTTZQOWJsRGdWQ2VkY1N2eVlnMEJLZUgx?=
- =?utf-8?B?b3pQdnVMRm1ISXZQWDdEZmNGYlpSNXF5OE5uZDNtdCtPdVpIOVNkeGpSNFZ1?=
- =?utf-8?B?OWFxNmYvQUFSUE5tR3BpdU8zN2ZxcEVRS2pJZXJKRElobDVvb2RDdjVzSXhB?=
- =?utf-8?B?TWxMOE1UeTRTeTAxZWdNQllYMUdlWnQ5cnlKVXVlWGV5cmtndDlXYURiMkVF?=
- =?utf-8?B?a3lORkN0SytMWmsySS9ERi81QU5rTWl1TERRVE5IbEtacXd4S0t6UUtzNnNE?=
- =?utf-8?B?dm9ZWHJDaGlxSmVWdDhvck93WmRiQ2hzeDRpV1U2clEzWkFUY1pLZXlsblpT?=
- =?utf-8?B?QzFFNlFISjJwUzBKYW8xTi82bGNPTzZxQUZxM1VtdmY4Vzl2aFV3eWpwaGZu?=
- =?utf-8?B?d1grRy9MRTMwb0xUNjMwZjFleHZtL0FhMDVVMTQzVTg3NDQzUWFwMmVVYUQ1?=
- =?utf-8?B?SlpVbTJQNjZ0QUt0eUVUUFFCU3QyM0J5dzlUdWhIQjcrZ2VEdFRtUEJDRE5J?=
- =?utf-8?B?bHo2Uk9tdy9TN2RkN2MwcGQyemZzUnFxUHBSM0VMbmtwK2w5TEtVaDRxZE02?=
- =?utf-8?B?NlBEeHJoZHgwZkdwREhSOEZjQWFwOE9qUGdIVEtqRW80NDRvUWsyc3Z0VjQv?=
- =?utf-8?B?bXZGc1R0MlRCTXFCL3hPOXd6Nmd1SkdQbmFCV1BxSSsrUVFqeCtTUE5PdURV?=
- =?utf-8?B?NjdXa1hIMWR0QjJNRWxVbGlYVHQ5eHdNM2JVSFFiakgxQzhCdUZLS1pkbzB2?=
- =?utf-8?B?dS9vM2s4TitHeXZaK1phREcyK3p5bTM2bjF4TGkxdmlYQ3A2YXlkbzJNenVP?=
- =?utf-8?B?YklBY09PTGFXOVg3THU4SDRvN2E2YnZKMGszNG5KNS9TWGl4ejRCSVI2eUJw?=
- =?utf-8?B?QmdNQ2NIa0J1MVVyUUdDS1RDMkJybFIwem0zQ0hBbUJ5WHdTRVlmYkQwVVdI?=
- =?utf-8?B?WE55YnVmQlo0bzlCc3RhZkJ2UTVuT0xxNjBDYXc3MkdleTVwbWx2cjFieVl2?=
- =?utf-8?B?djI2YUpTY1o4OG9GemNNbkoyU2FXdlBkNVVSeDJPNloyQjRITWkvOW5XcEVq?=
- =?utf-8?B?d05PVEdrYUZzL3lpaGU0MGJCUkZoWkN0RExJVDUzQ0kxc1gzZUtTUEJ6YWlo?=
- =?utf-8?B?WVl3aDJ2TmwrcmE2dVlCUTJWdENhSXpSM1FaM1hIY21PM1Vzd3F1cE9mTlNK?=
- =?utf-8?B?VHZBSUtPZ0szY3N5ck9kR1ZwQnoveFFJVW9tamw2MlAxbVNRRGVoQ1dJVk9Q?=
- =?utf-8?B?REdia3ozZm80N0xRTjNzdVVBQXRycVZPbTZLbG1sN2tEZjRoWTFLVDlsM2pY?=
- =?utf-8?B?eHcwWU9zV09nQm1ZbC8xY0gyWXpiMmcvaUJtNzZDRW40RnF1ZWR2dGtLY3Bn?=
- =?utf-8?B?SmJPemFjVjNycW5idEJyM0VGUUcxNjltaExFQk80cWcvbldjaGY1dVhVZjcx?=
- =?utf-8?Q?x8liTAVBRqk95EvbXo2zcYuGiBxX90=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR12MB5685.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(1800799024)(921020)(7053199007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?dW5TbHZWem5TcDVpZnlCc2R1elFTWk51OFVoLy9NY0Y0dWdFVFQzNHdONEdM?=
- =?utf-8?B?dSsvVnhSaXdQYWJvaEdVWm9FdjVpUDFIaTBvcFlDMFF3ZkRqTUYzaUlXMWs5?=
- =?utf-8?B?amQrbmg2VFg1ZTVsUFJCaHVHT0t4TTE5SmRjVERkL05FT2VHV0lRWi9OUHVp?=
- =?utf-8?B?Uk5DTUQvSHZaRW5hbjhSd2t6ejBoa0trVWc4N0swNkQzTGx0bzhXb3AyMFAy?=
- =?utf-8?B?OXhFMXlkK2JXYStmZjJ1c3JYTDdrMUVVdEpSc0sxNnFLQU4zQXA5QmRhTjhT?=
- =?utf-8?B?ZmUxbGZkd1d4c3R1VmJNZlcvaEQ4Z3QyRGRDVTdMRWlvY1pJYkJYMk9aZlp4?=
- =?utf-8?B?eDFRcXVSMjNYcnJ1bTM2MTlCU2NrK3JIUGZQUXgvbVhxTTRJUml1eitNQnBt?=
- =?utf-8?B?RlY5Qi9kbzI3RG1wS1dOaXpyUEZsUk5qVDl0WGRXSldNT05rdkYyVGhZcDZF?=
- =?utf-8?B?RXovNkU4Z01mK0NtUlhBb1VNVEJpZ2l5R09aVGJoWVc2c0Rjcm82TTRoYTll?=
- =?utf-8?B?WWsxS3BEK3dpUnc2VXFEZ0JHSWJ0eHJ6SEhtNitOaEVORnQwakhTMEV6TE82?=
- =?utf-8?B?WDZhSW5Ld2NwTi9USFJuZTBXdkd0VGlMVkl3VnRnNlBrRWlYMEpocW85ZDVa?=
- =?utf-8?B?cS9rS2lQM2NUYU5zSHBjVCtlTjBSdG1nbjZJeUZVYjNrNXg2eEJPQ1dqOTZu?=
- =?utf-8?B?enhIYUI1V1pjaDhRME1idHMrbG9XZUpBRWtweUUvamJGWmQ2L1I3MkpnRXQ2?=
- =?utf-8?B?RWlKSlMyeWwzWkdSaWZDWU1RSE9UTGJ6bmtMaE5BaHM5SU01cW5ydGFyTlFa?=
- =?utf-8?B?cDluMjFCa0g5bThVb2xhZUgrVkprVDdtc05qcS94cEtodUlGZmJlaFZkMFN6?=
- =?utf-8?B?cEhJc0FWRFdGelk2S2dQaEpiN2tZYUxCMlh2Nkh1YkU3TEFPQW5QeEh1VE80?=
- =?utf-8?B?cTlLaFYxeDNaVWw1N05CaVc4eEc2dWROcVJGdlQ4MVZFWWw3dndqVUxRUkJ6?=
- =?utf-8?B?MGN2TXN1dWFZU1VNWXV2UXFqSDFMK1NuaE9OQVBrWEErN0cvRXBNbnBmSjVJ?=
- =?utf-8?B?a0VId05DQUVIZVo2bkVQZ0drNjVLK1V2YTFIOGV4MjZWMndRUytaeEdQUWtm?=
- =?utf-8?B?a2Y3bldQVEZUOGJEUUEyeExVeHRwTStuREMyYXd0ekszRDRLSmgxcmEyc3ha?=
- =?utf-8?B?Q2lhdjR3Ylphb2dLbkFtcGdCeVphNlNTRGg2b2JmK013Tmo1R3I0ZG54QTF6?=
- =?utf-8?B?dWdWV1AyZjllb0V4V25yT2pHTS9jNGVCdTMyU0VReU9vUVdMZEpNdjIyelM0?=
- =?utf-8?B?b3k2ZVBFdzBvKzhxZjhKVEdyclN1SDBYbzJtOXdMYm4rbUZodGNnVCs5MUh0?=
- =?utf-8?B?OVpZbXVUd3lURkF4VG1uZis5U1ptRXk1Sk1FeE5WVDNaeWlFMDhHMDVaMytC?=
- =?utf-8?B?SGtiREdwczdDaHVvMzRHUXF0Q1F5UmZYWkN2eHhYK0orSmlnTTZmMVRJWXVt?=
- =?utf-8?B?VHYwbGZvWVorNm5Zb2hJSnhDcWxlajVRaFRmWFZFZTV5aEhsdmU2WHlIS1Z5?=
- =?utf-8?B?MHl6Z1pXZnFxVFBPeEplSFA2a3ZyRVk5VTE0M1lHdk9QaGV3V29RNTVBVHNl?=
- =?utf-8?B?U3BLd3NTK0V1TFRuOGF2TkJMK0twL3RuUlF4MzNYRXBqOWgzeVZONm9pcFhB?=
- =?utf-8?B?Wk5DeVNqUEdYUWc1azVSOTFCTndYNDFhbGNJREtRK1hmQnpHTkRoSTBQT05P?=
- =?utf-8?B?eUEvMzRaczk5OHdmQXB0ejRxWGxlN2V1U01VdDBKL2QyblJJUHgxNmQyWmM1?=
- =?utf-8?B?Wkx2TkdKWUhucDd0RjMyQ3hla0Z2anAvNzdOb2hNZzhvNHMxUEcxL2hvREp1?=
- =?utf-8?B?dC8wbk9jZkNrdWNITWNFbUNlOU5BOFpDQVNvR2pId2cwMVlLek1GeXliQzBF?=
- =?utf-8?B?c2JBajUxYmgwNUt6TVVqcnIxVng4ZlJzSjgvcUpHSk9yV2JhWE1sTWRiN29F?=
- =?utf-8?B?bm1Xa2hhbCtrMkFYVzJWMkdvRHhrOHA5dS80c25MZzZROEgzYWlTbHVKSWtj?=
- =?utf-8?B?SFgrR1BGZklFcjc4QmF3NXpnWEVidXoxeHdRZjNhSENzb2RuYk1YZk1VaGxr?=
- =?utf-8?Q?tqJXmnALRAZMMAN7nYmceRRii?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e4a6efb7-0b8b-4c26-3e92-08de208a0755
-X-MS-Exchange-CrossTenant-AuthSource: PH7PR12MB5685.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Nov 2025 18:50:33.5884
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: sDI/e+3aCHt6Lf5YaN9bVRt/Qx/U8zYc3fLHgVtqghcviFZSXNsLd921HagWFzGM
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB9173
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=MtZfKmae c=1 sm=1 tr=0 ts=691234f5 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=a7UK9rFi0ny4O5OO-skA:9
+X-Proofpoint-GUID: ZST27KwhqNA4V0BtSnTw_PG3AyI7t895
+X-Proofpoint-ORIG-GUID: ZST27KwhqNA4V0BtSnTw_PG3AyI7t895
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTA4MDA3OSBTYWx0ZWRfX85y2EJBGX82g
+ B7hOSRcQg7FZ/pGtC058Yn2R/XmcWouHhO8oWUx99ZUJ5NmGMCnT1s+Yj9/7rY/7/s2Ys5ZN/j/
+ u7xdCIja1Aj5qeg+J3F/09rgfrKC6Bn2KWMgF0T2i/URhH/ntXpsXN8NHWvhwvsTju6cliJWeqT
+ 6w60Janp/LmrgN6KYcqzw5MZAJ6pqAUfbUOJT6QyA/+kbDDEsh6NruvPC90ZbRERAGHVP1Urvg6
+ N3JzyDzHYFmqbu1advYzuTgL77roCXo4WjDllzm9YkCQRicAw+lyisq9O20y1EitOH+E+jyJf4T
+ VcH9isrxoUJbTw7h97xGJ+emTMWZd1fRNr0YfE+TeeqIbFCMH6t7aZ6qGIRB2YXu8r41vI8o6CW
+ P6Qvhxr8g51jNfJAn0IcfCNMx98qeA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-11-10_07,2025-11-10_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 adultscore=0 priorityscore=1501 bulkscore=0 impostorscore=0
+ suspectscore=0 lowpriorityscore=0 clxscore=1015 phishscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511080079
 
-On 11/10/25 19:40, Andy Shevchenko wrote:
-> Use %ptSp instead of open coded variants to print content of
-> struct timespec64 in human readable format.
-> 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Remove s390 compat support to allow for code simplification and especially
+reduced test effort. To the best of our knowledge there aren't any 31 bit
+binaries out in the world anymore that would matter for newer kernels or
+newer distributions.
 
-Reviewed-by: Christian König <christian.koenig@amd.com>
+Distributions do not provide compat packages since quite some time or even
+have CONFIG_COMPAT disabled.
 
-> ---
->  drivers/dma-buf/sync_debug.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/dma-buf/sync_debug.c b/drivers/dma-buf/sync_debug.c
-> index 67cd69551e42..9e5d662cd4e8 100644
-> --- a/drivers/dma-buf/sync_debug.c
-> +++ b/drivers/dma-buf/sync_debug.c
-> @@ -59,7 +59,7 @@ static void sync_print_fence(struct seq_file *s,
->  		struct timespec64 ts64 =
->  			ktime_to_timespec64(fence->timestamp);
->  
-> -		seq_printf(s, "@%lld.%09ld", (s64)ts64.tv_sec, ts64.tv_nsec);
-> +		seq_printf(s, "@%ptSp", &ts64);
->  	}
->  
->  	seq_printf(s, ": %lld", fence->seqno);
+Instead of adding deprecation warnings to config option, or adding kernel
+messages, just remove the code. Deprecation warnings haven't proven to be
+useful. If it turns out there is still a reason to keep the compat support
+this series can be reverted at any time in the future.
+
+Arnd, we talked about this two weeks ago. I would appreciate if you could
+have a look at this series, especially the last patch of this series.
+
+Patches 1-3 are just some random cleanups / preparations.
+Patches 4-6 remove compat support.
+Patches 7-8 switch s390 to generic system call table generation
+
+Thanks,
+Heiko
+
+Heiko Carstens (8):
+  s390/ptrace: Rename psw_t32 to psw32_t
+  s390/kvm: Use psw32_t instead of psw_compat_t
+  s390/syscalls: Add pt_regs parameter to SYSCALL_DEFINE0() syscall wrapper
+  tools: Remove s390 compat support
+  s390: Remove compat support
+  s390/uapi: Remove 31 bit support from uapi header files
+  s390/syscalls: Remove system call table pointer from thread_struct
+  s390/syscalls: Switch to generic system call table generation
+
+ arch/s390/Kconfig                             |  16 -
+ arch/s390/Makefile                            |   6 +-
+ arch/s390/boot/ipl_data.c                     |   3 +-
+ arch/s390/configs/compat.config               |   3 -
+ arch/s390/hypfs/hypfs_sprp.c                  |   6 +-
+ arch/s390/include/asm/compat.h                | 140 ---
+ arch/s390/include/asm/elf.h                   |  47 +-
+ arch/s390/include/asm/ftrace.h                |  19 +-
+ arch/s390/include/asm/processor.h             |  13 +-
+ arch/s390/include/asm/ptrace.h                |   2 +-
+ arch/s390/include/asm/seccomp.h               |   5 -
+ arch/s390/include/asm/syscall.h               |  19 +-
+ arch/s390/include/asm/syscall_wrapper.h       |  95 +-
+ arch/s390/include/asm/thread_info.h           |   2 -
+ arch/s390/include/asm/unistd.h                |   8 +-
+ arch/s390/include/asm/vdso-symbols.h          |   8 -
+ arch/s390/include/uapi/asm/bitsperlong.h      |   4 -
+ arch/s390/include/uapi/asm/ipcbuf.h           |   3 -
+ arch/s390/include/uapi/asm/posix_types.h      |  13 -
+ arch/s390/include/uapi/asm/ptrace.h           | 124 ---
+ arch/s390/include/uapi/asm/sigcontext.h       |  15 -
+ arch/s390/include/uapi/asm/stat.h             |  70 --
+ arch/s390/include/uapi/asm/unistd.h           |   4 -
+ arch/s390/kernel/Makefile                     |   4 -
+ arch/s390/kernel/audit.c                      |  16 -
+ arch/s390/kernel/audit.h                      |  16 -
+ arch/s390/kernel/compat_audit.c               |  48 -
+ arch/s390/kernel/compat_linux.c               | 289 ------
+ arch/s390/kernel/compat_linux.h               | 101 ---
+ arch/s390/kernel/compat_ptrace.h              |  64 --
+ arch/s390/kernel/compat_signal.c              | 420 ---------
+ arch/s390/kernel/entry.S                      |  17 -
+ arch/s390/kernel/perf_cpum_cf.c               |   1 -
+ arch/s390/kernel/perf_event.c                 |   1 -
+ arch/s390/kernel/perf_regs.c                  |   3 -
+ arch/s390/kernel/process.c                    |   9 +-
+ arch/s390/kernel/ptrace.c                     | 524 -----------
+ arch/s390/kernel/setup.c                      |   1 -
+ arch/s390/kernel/signal.c                     |  23 +-
+ arch/s390/kernel/stacktrace.c                 |   3 -
+ arch/s390/kernel/syscall.c                    |  12 +-
+ arch/s390/kernel/syscalls/Makefile            |  58 +-
+ arch/s390/kernel/syscalls/syscall.tbl         | 856 ++++++++----------
+ arch/s390/kernel/syscalls/syscalltbl          | 232 -----
+ arch/s390/kernel/uprobes.c                    |   6 +-
+ arch/s390/kernel/vdso.c                       |  26 +-
+ arch/s390/kernel/vdso32/.gitignore            |   2 -
+ arch/s390/kernel/vdso32/Makefile              |  64 --
+ arch/s390/kernel/vdso32/gen_vdso_offsets.sh   |  15 -
+ arch/s390/kernel/vdso32/note.S                |  13 -
+ arch/s390/kernel/vdso32/vdso32.lds.S          | 140 ---
+ arch/s390/kernel/vdso32/vdso32_wrapper.S      |  15 -
+ arch/s390/kernel/vdso32/vdso_user_wrapper.S   |  22 -
+ arch/s390/kvm/priv.c                          |   2 +-
+ arch/s390/mm/fault.c                          |   1 -
+ arch/s390/mm/mmap.c                           |   1 -
+ arch/s390/pci/pci_clp.c                       |   4 +-
+ drivers/s390/block/dasd.c                     |   1 -
+ drivers/s390/block/dasd_eckd.c                |  11 -
+ drivers/s390/block/dasd_ioctl.c               |   6 +-
+ drivers/s390/char/con3270.c                   |  19 -
+ drivers/s390/char/fs3270.c                    |   7 +-
+ drivers/s390/char/sclp_ctl.c                  |  12 +-
+ drivers/s390/char/tape_char.c                 |  26 -
+ drivers/s390/char/vmcp.c                      |   7 +-
+ drivers/s390/cio/chsc_sch.c                   |   7 +-
+ drivers/s390/crypto/zcrypt_api.c              | 195 ----
+ drivers/s390/crypto/zcrypt_card.c             |   1 -
+ drivers/s390/crypto/zcrypt_queue.c            |   1 -
+ drivers/s390/net/qeth_core_main.c             |   4 +-
+ .../arch/s390/include/uapi/asm/bitsperlong.h  |   4 -
+ tools/build/feature/test-bpf.c                |   2 +-
+ tools/include/asm/barrier.h                   |   2 +-
+ tools/include/nolibc/arch-s390.h              |   5 -
+ tools/include/nolibc/arch.h                   |   2 +-
+ tools/include/uapi/asm/bitsperlong.h          |   2 +-
+ tools/include/uapi/asm/bpf_perf_event.h       |   2 +-
+ tools/lib/bpf/bpf.c                           |   2 +-
+ tools/lib/bpf/bpf_tracing.h                   |   2 +-
+ tools/lib/bpf/libbpf.c                        |   4 -
+ tools/lib/bpf/usdt.c                          |   2 -
+ tools/perf/util/header.c                      |   2 +-
+ tools/testing/selftests/bpf/sdt.h             |   2 +-
+ tools/testing/selftests/bpf/usdt.h            |   2 +-
+ .../selftests/ptrace/set_syscall_info.c       |   2 +-
+ tools/testing/selftests/rseq/param_test.c     |   2 +-
+ tools/testing/selftests/rseq/rseq-s390.h      |  39 -
+ tools/testing/selftests/rseq/rseq.h           |   2 +-
+ .../selftests/rseq/syscall_errors_test.c      |   2 +-
+ tools/testing/selftests/seccomp/seccomp_bpf.c |   4 +-
+ tools/testing/selftests/vDSO/vdso_config.h    |   4 -
+ 91 files changed, 476 insertions(+), 3545 deletions(-)
+ delete mode 100644 arch/s390/configs/compat.config
+ delete mode 100644 arch/s390/include/asm/compat.h
+ delete mode 100644 arch/s390/kernel/audit.h
+ delete mode 100644 arch/s390/kernel/compat_audit.c
+ delete mode 100644 arch/s390/kernel/compat_linux.c
+ delete mode 100644 arch/s390/kernel/compat_linux.h
+ delete mode 100644 arch/s390/kernel/compat_ptrace.h
+ delete mode 100644 arch/s390/kernel/compat_signal.c
+ delete mode 100755 arch/s390/kernel/syscalls/syscalltbl
+ delete mode 100644 arch/s390/kernel/vdso32/.gitignore
+ delete mode 100644 arch/s390/kernel/vdso32/Makefile
+ delete mode 100755 arch/s390/kernel/vdso32/gen_vdso_offsets.sh
+ delete mode 100644 arch/s390/kernel/vdso32/note.S
+ delete mode 100644 arch/s390/kernel/vdso32/vdso32.lds.S
+ delete mode 100644 arch/s390/kernel/vdso32/vdso32_wrapper.S
+ delete mode 100644 arch/s390/kernel/vdso32/vdso_user_wrapper.S
+
+-- 
+2.48.1
 
