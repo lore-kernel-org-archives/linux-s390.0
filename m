@@ -1,143 +1,141 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from fhigh-a3-smtp.messagingengine.com (fhigh-a3-smtp.messagingengine.com [103.168.172.154])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C41532E123;
-	Mon, 10 Nov 2025 21:33:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 132842F5A02;
+	Mon, 10 Nov 2025 21:35:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762810384; cv=none; b=lpMet3q3+SWoTyvfgaj2O9UwivyCnn1NPw2OGzFiBrlFQ3d5t6RMBQXKO5WK5HawOpHGZQNzg6jfXBZswAv6+6fzrdA2yRWqLxrNYwDV+QvBHJLDk4q5+YWHYJlLPiOiLekrvyhhR5EOTPWmPQIPPKueMsl9yF+VCNQ+sYibNCM=
+	t=1762810560; cv=none; b=XcuGx9WXHxGuy4ae2H5MnWlvifQhG4cz2sNHxz1gGbs5yNsYjOCq4Q5lWPZ5PHRJng8N8MSxaNej4TKVwgksbZt2VIv2zjN6mFQwks80Nnkg8Tf69Vbt7HCA2qcDff2tQAIRs5go13jti/wfY6j/TJv5XsgUV/ZirgbBGFMz8sU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762810384; c=relaxed/simple;
-	bh=I56UU5AU1EInyWemGjTwNbb3p1xLVLVwehbdUJOt73o=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=jb96h6UKDiokeBehcByMQGacNaGhf8C5p/pZ2dMM1KfT+DfirwXjdaYPkzbnhYW2htat/98QC0maI72OMUL2NKawZFnDn5LBM0xcJYeUHakf7kjZ/964+yj5lvNscURp8wERNIi0rILMrVKU7ZZCkYg490XHw2MSaJ61RQ/aW+0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Lm1tBn8N; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1762810560; c=relaxed/simple;
+	bh=yIki8igROS6GCmuFbod4QpApb8OL7a+bePWe/7hhQAQ=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=JQhrZ0iLuivQjb8sQ+UCoeQqGIj7U535wGUwXptO9QvKHzpbFJCHjfZ1L70BO49b3S6faIqNB4QoF0YrPJ2C3nISLW6OF+Td1wwZ2LnH5Caol5s7IBGleRp/4HYsFsfhrPLgTw5A0H4AylqljVmvIIoN3fKshAlDjWsHYg9Ba0Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=rNS8K34L; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=JbF17uwY; arc=none smtp.client-ip=103.168.172.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Lm1tBn8N"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AAElWFM029815;
-	Mon, 10 Nov 2025 21:32:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=jDpCuQ
-	d7ZIO/+9wFAWJ+4gtnfpsddVR7srR/c8VTPMg=; b=Lm1tBn8NfRzhc5/TYpD/a1
-	oKnKWuCuvgi96o8aD9fQcRwFnIzdU9NULkoAHeJgwgJl5fFvy1l61dlk0v/xykPy
-	M1+ZS4UEY23BtR6T7xHSuOJ3PugJdEyyR/VhPbTSNZh+g4UfLAsTuktmgtrHakQ4
-	t+/CSz2299ijy2Srt2Hz1JD48aOfz2ia1ZJvynnJdByLaZFgaj3i48HPY859HAFz
-	VEx3/ptxUC1knbEYRIlbmKYH74bu93WLCKUFPAuH4gxjOvYJI2IKOOi+m4791stx
-	6fNuMdYncAyt0GP0t1/7ure6mHY2IPRErX/UigBO0el0D5jZwt2rqIzdn/7ThP8g
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aa5cj12kx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 10 Nov 2025 21:32:58 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AAK0tlR007314;
-	Mon, 10 Nov 2025 21:32:57 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4aajdj7h84-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 10 Nov 2025 21:32:57 +0000
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AALWu7C27722426
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 10 Nov 2025 21:32:56 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 868DB58056;
-	Mon, 10 Nov 2025 21:32:56 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A05575803F;
-	Mon, 10 Nov 2025 21:32:55 +0000 (GMT)
-Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.62.231])
-	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 10 Nov 2025 21:32:55 +0000 (GMT)
-Message-ID: <36e9df1ef49110cf4743707f7457e63e34e5e82f.camel@linux.ibm.com>
-Subject: Re: [PATCH RFC v2 02/11] KVM: s390: Remove double 64bscao feature
- check
-From: Eric Farman <farman@linux.ibm.com>
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily
- Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger	 <borntraeger@linux.ibm.com>,
-        Janosch Frank
- <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Nico
- Boehr <nrb@linux.ibm.com>, David Hildenbrand	 <david@redhat.com>,
-        Sven
- Schnelle <svens@linux.ibm.com>,
-        Paolo Bonzini	 <pbonzini@redhat.com>, Shuah
- Khan <shuah@kernel.org>
-Date: Mon, 10 Nov 2025 16:32:55 -0500
-In-Reply-To: <20251110-vsieie-v2-2-9e53a3618c8c@linux.ibm.com>
-References: <20251110-vsieie-v2-0-9e53a3618c8c@linux.ibm.com>
-	 <20251110-vsieie-v2-2-9e53a3618c8c@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="rNS8K34L";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="JbF17uwY"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id 2A52C14001D1;
+	Mon, 10 Nov 2025 16:35:57 -0500 (EST)
+Received: from phl-imap-02 ([10.202.2.81])
+  by phl-compute-04.internal (MEProxy); Mon, 10 Nov 2025 16:35:57 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1762810557;
+	 x=1762896957; bh=8uzTie17JQqKEWIM88SVYe2StgJuVQs2CtS74P67MtY=; b=
+	rNS8K34LTz1i52qvMiOzWR/ZE7R05B4sLFjpCcLznbYtp5msn9wcto/MnQZvCjGy
+	0mLsIbZwmMFlnqXyEixcAIP3jjuxtaaTrRyRcFBWSiGNHSCL8xL+CFEpE3xhBTD3
+	0h5DBcp0a12F87boSgtyORyakySd+5mtOMrLvqc0kbkXyB1aphg+6PNwrZTKaGGg
+	jdZWsym1XSoTcuz70YZnmQPqBugRySlxWclR/L+o11Ivs2Qv6chDAoID/BUpAiJS
+	2DW9UBQhq+UDhJ++/NFZpzo/w0qmrTwiEYOVN3xOC7Jtsza34NE5AYtqSkfFlmHJ
+	NfUkPIFLCxE3md204BGnlA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1762810557; x=
+	1762896957; bh=8uzTie17JQqKEWIM88SVYe2StgJuVQs2CtS74P67MtY=; b=J
+	bF17uwYqjl8UngJLsLWV0FUmVSAvbCaftnWJxAv2mkpg7Ke94GthtH8St0VbAQbQ
+	joZz3wqwFSxqcLuIX6Eexss9PsvLMrojy4vs2Z1q2bErY9cdQHXF17gyvtiz1PqU
+	JXOrImHXKgGo/UaZxS/9rg6ywJPIeKoQAhsxgoS/P7fTuQyVXzxL0Rpv/AK+iN0X
+	wWTll7IWm5Ra6j8Jd/enNtwEZoHD3jfaBbdMO0b/Dqp9ldMOV+2oE7Akvp5e6xGR
+	0F7JwnC9q/WESfgDanVMujboFlqgwZ+qlqxBC8IFJbBO+JjjllDX/WpDezHeEgI3
+	IR1vdWZlbF875sFTQhJGQ==
+X-ME-Sender: <xms:vFoSaapgoWBi1AL2bBiM9oFCfwegu81f7kQIMvgVmBWY-s0C81j9lA>
+    <xme:vFoSaTe41YVKgbHGN8JheVz4XwSPWl2OT6fqvLa4QazsvHJ1zSU-29xQdgiIYcw7z
+    BciLPqw6k-y11BSCZtWuZVZmeYQT_CqakWEdr2G0MHedgXTcqk2lQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggdduleelgeduucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddtnecuhfhrohhmpedftehrnhgu
+    uceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrthhtvg
+    hrnhephfdthfdvtdefhedukeetgefggffhjeeggeetfefggfevudegudevledvkefhvdei
+    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprghrnh
+    gusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohepledpmhhouggvpehsmhhtphhouhht
+    pdhrtghpthhtohepthhorhhvrghlughssehlihhnuhigqdhfohhunhgurghtihhonhdroh
+    hrghdprhgtphhtthhopegrghhorhguvggvvheslhhinhhugidrihgsmhdrtghomhdprhgt
+    phhtthhopegsohhrnhhtrhgrvghgvghrsehlihhnuhigrdhisghmrdgtohhmpdhrtghpth
+    htohepghhorheslhhinhhugidrihgsmhdrtghomhdprhgtphhtthhopehhtggrsehlihhn
+    uhigrdhisghmrdgtohhmpdhrtghpthhtohepkhhrvggssggvlheslhhinhhugidrihgsmh
+    drtghomhdprhgtphhtthhopehsvhgvnhhssehlihhnuhigrdhisghmrdgtohhmpdhrtghp
+    thhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtg
+    hpthhtoheplhhinhhugidqshefledtsehvghgvrhdrkhgvrhhnvghlrdhorhhg
+X-ME-Proxy: <xmx:vFoSacPCjWbDJ3q8wkEBZB3_wU_EQ1B4g1sD09gCuuyOzxAZ2Aqn2A>
+    <xmx:vFoSae3x_6MpoasC7x09ioWS_2Mj_55etW6eDCHa3HoPJcWV0KH1Rw>
+    <xmx:vFoSaQQLnCOyFmIdeC-bV9LugiXtdfzRlQV212Gxl33qoWvFWpKSRA>
+    <xmx:vFoSaZmzN7jUP5Q5Qh7V79TdBXugm4pjm_oTZEnDDSXdrwp_i-FmYw>
+    <xmx:vVoSaVxXvP95_jS3eN3toAHbas3QKkRr1w-rnaexericbP60E5-1lYKq>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id AE18C700063; Mon, 10 Nov 2025 16:35:56 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Ss+dKfO0 c=1 sm=1 tr=0 ts=69125a0a cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=hC69KZXbuyQtWk_iz-UA:9 a=NqO74GWdXPXpGKcKHaDJD/ajO6k=:19
- a=QEXdDO2ut3YA:10 a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTA4MDA5NSBTYWx0ZWRfX9HJ1G56ZVTEI
- xHwE8/FV4CBqh/GF5JjuXvQG2RNvz2TWRwZBSurnlFL0+HtHuwlFnok9FJJT/eJt9afadTgNtZ/
- bEFgH5dQphx65wPHgqrAKb57pCdBBsvv7m2TWD5sSZB0Zumr/okC4ZlMDkcFvuNicPWQftgoRTL
- MBaWsdr18iVo2Om+csmpcpa+rlOxtzpODj3QZzVthImKJRS5PM9Eb1382cb24RV36P6dj2/R9AO
- nG58XVfPcNbXg9+ANE/wuEDSsfilcpowwI+ZhQNn7Tl0bTSBDidWDZEPdLIs05TYetZMkLBvCGB
- Q/zGnkZoNvyUQ+Dim+zldlNZp5PpTm5LbOiTQi2wl0szsV3dreH4cqnLp6vemJtf1G580PYaD8h
- cfWdA8DiJnsKJpST0Vf6HXMZW6k/FA==
-X-Proofpoint-GUID: VPJoFpb2aIhXccMa7XgM5Idz9DyBUHK3
-X-Proofpoint-ORIG-GUID: VPJoFpb2aIhXccMa7XgM5Idz9DyBUHK3
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-11-10_07,2025-11-10_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1011 suspectscore=0 impostorscore=0 bulkscore=0 phishscore=0
- lowpriorityscore=0 adultscore=0 priorityscore=1501 spamscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511080095
+X-ThreadId: AMQSEuwlfej7
+Date: Mon, 10 Nov 2025 22:33:32 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Heiko Carstens" <hca@linux.ibm.com>,
+ "Alexander Gordeev" <agordeev@linux.ibm.com>,
+ "Vasily Gorbik" <gor@linux.ibm.com>,
+ "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+ "Sven Schnelle" <svens@linux.ibm.com>,
+ "Andreas Krebbel" <krebbel@linux.ibm.com>,
+ "Linus Torvalds" <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Message-Id: <fdeed5df-5c97-4df6-9475-874fccc5b0c5@app.fastmail.com>
+In-Reply-To: <20251110185440.2667511-6-hca@linux.ibm.com>
+References: <20251110185440.2667511-1-hca@linux.ibm.com>
+ <20251110185440.2667511-6-hca@linux.ibm.com>
+Subject: Re: [RFC PATCH 5/8] s390: Remove compat support
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On Mon, 2025-11-10 at 18:16 +0100, Christoph Schlameuss wrote:
-> sclp.has_64bscao is already verified in the guard clause a few lines
-> above this. So we cannot reach this code if it is not true.
->=20
-> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-> ---
->  arch/s390/kvm/kvm-s390.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->=20
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 769820e3a2431c16c7ec85dbf313f61f7ba1a3cc..984baa5f5ded1e05e389abc48=
-5c63c0bf35eee4c 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -455,8 +455,7 @@ static void __init kvm_s390_cpu_feat_init(void)
+On Mon, Nov 10, 2025, at 19:54, Heiko Carstens wrote:
 
-Context:
-        if (!sclp.has_sief2 || !machine_has_esop() || !sclp.has_64bscao ||
->  	    !test_facility(3) || !nested)
->  		return;
->  	allow_cpu_feat(KVM_S390_VM_CPU_FEAT_SIEF2);
-> -	if (sclp.has_64bscao)
-> -		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_64BSCAO);
-> +	allow_cpu_feat(KVM_S390_VM_CPU_FEAT_64BSCAO);
+> diff --git a/arch/s390/configs/compat.config b/arch/s390/configs/compat.config
+> deleted file mode 100644
+> index 6fd051453ae8..000000000000
+> --- a/arch/s390/configs/compat.config
+> +++ /dev/null
+> @@ -1,3 +0,0 @@
+> -# Help: Enable compat support
+> -CONFIG_COMPAT=y
+> -CONFIG_COMPAT_32BIT_TIME=y
 
-Ha, yup.
+I think you missed a reference to this file at
 
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
+tools/testing/selftests/nolibc/Makefile.nolibc:DEFCONFIG_s390       = defconfig compat.config
 
->  	if (sclp.has_siif)
->  		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_SIIF);
->  	if (sclp.has_gpere)
+> -/*
+> - * A pointer passed in from user mode. This should not
+> - * be used for syscall parameters, just declare them
+> - * as pointers because the syscall entry code will have
+> - * appropriately converted them already.
+> - */
+> -
+> -static inline void __user *compat_ptr(compat_uptr_t uptr)
+> -{
+> -	return (void __user *)(unsigned long)(uptr & 0x7fffffffUL);
+> -}
+> -#define compat_ptr(uptr) compat_ptr(uptr)
+
+This opens an interesting question: since compat_ptr() now doesn't
+do anything interesting any more, do we still require drivers to
+use it for correctness, or do we stop using it?
+
+The cheri/morello code was repurposed compat_ptr() to support
+both 64-bit and 128-bit pointers in userland, and that has a chance
+of coming back in the future, but that's not getting merged and it
+isn't clear if any other 128-bit pointer support in the future would
+need a similar trick.
+
+     Arnd
