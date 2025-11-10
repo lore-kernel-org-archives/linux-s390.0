@@ -1,67 +1,68 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 145DF22579E;
-	Mon, 10 Nov 2025 13:25:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF2F8310779;
+	Mon, 10 Nov 2025 13:25:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762781135; cv=none; b=ZbzpU0ccYEV7+rTLASUy0Z7SukS0cPaM/DjsFAaaxRNsaHwLAkTlJUsP785Ej/v4gkJ63WtBundBySmjBZ7eMsB44pF9JUST5dff0p0tFLCrmOIv/qHDe7VOwUj2cEFUk93ARTuYTcfsfB1xiTrrWqS6GREvwtoM5HV6uPAw704=
+	t=1762781138; cv=none; b=L8kuyhaqzOsoeO+wyk1pSw7KxW3LHwXWNigR41XQLOUKevN5CXjiOwCBEg14EbN8IYA+LXmv76tAFL+Zpc9bEum79HhhS0EcEuOyoSbcJl0zdP2KsSsa+bNvh3jeDzz+/R2ctTrf0hW5fwR7pv3hGlxyWKO0b4j4PPyVzDuNvjY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762781135; c=relaxed/simple;
-	bh=M281PdKkCCNkCQo5UdxHcyxmHAV+Ri9XLT5PyGHe0Qw=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=IcakPeM2/iOv8zuLLnMuaPzg56J5ntUxgdqcDpkZMvGSwe8grfHE858s74sg/ffQx3etsjYYTKr2dzjMiCp1OFj60/mdKzeUxINfYY9jvTx4iNME1gm/QSbwQeTn09HAhjMkCc0Plb5dWhCo9lPQqZYutiBSnKv/Nl1j/KP8lRo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sAYxNKBY; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1762781138; c=relaxed/simple;
+	bh=buCQpEO2NNmWTUOFyhFhZmBVaAUqa8QS4fFecvMK6ZM=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=MFK7RB3g46jr/fA6OWjb/62AJQYuVt0lQtLGKe6N0U25cFILvHWDqRK5A2xomlS81PkSQb4dmbIl72ouWZ4yGUwBVP0k4AGGTvnJBonZkh7CoHyo563elpYNbPOUS8f2AWvl8CoRnTw6Z2ohJ1ZJQdA4/KI5FY7/VN21N6YSL50=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lB7I03t3; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sAYxNKBY"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AADHNsZ002817;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lB7I03t3"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5A9Jt3PD015833;
 	Mon, 10 Nov 2025 13:25:28 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pp1; bh=69CElqUVy8RLaqayOD8yFbTQwzhV
-	KpzfxD9KPhmLy9s=; b=sAYxNKBYc/yiJ7NM6RkZRMWAir+OvafJ1i8gyUnUDPHy
-	xM4GmxltIpG3UMPhBWUe1gyiZEI9gxNd9XCSWgDpVBKKIJB6fAZqPJta5xfTLTQw
-	+Zy3DsCiVt3m14YIusqkZ0Njd+oZWRzTeAsZUzR04ROGYikYXXYlpLFxzj5cRE53
-	Ed4VQ/8k8ecSbtGGgsnW/f00QtvNrdT67IdMk+ZK/YpRSy7T5D7pg7RHbA31aLE2
-	5mQjytkE3xSTrXWPvuVMs0bsZ5hFv7ygi69kK3Jwi5f5hmcABvz6He9t6wscdOt4
-	TWtV6hwrcxa5FR9OAClF/bH+h2fJ3uB7UN7+wolrPA==
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=1e6Cs4
+	nDenanGEYowVzx/aUetXHV0nHaCcSJvLKIxgQ=; b=lB7I03t3IMMgVTGNiSltdW
+	jgVPc4JDSTJXHiRkEwrEjcrgMvsnZl6kHIQ0T0qmb/lSgFKs4PIJl13l3csClvmk
+	mowUztby4GWk7wQ7whhf3QqSTca8GjBPAHAACzMSwPNX/43Hcphs84V78C5U/SCs
+	onGfu1AG/2XLUbodeenXzGy7L5GWFPDK4Kgsk9bKm5aq3UTsOwkHEKMu30xc/Mbf
+	l9oti86ZaRTO6V1LtCcKbWYmExlTfgxAziUzVXwcj7olXj6BArxbf12gZeZFcbG1
+	EVmSHXk1LH4K8qPgihbH12wcgYrL67HtkuqzEA3Xbsyywh+VevcUpEIVJMv9RI5w
+	==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a9wc70d5s-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aa3m7xk13-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 10 Nov 2025 13:25:28 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5AADHMeU029222;
-	Mon, 10 Nov 2025 13:25:28 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a9wc70d5n-1
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5AADJ6Fn004570;
+	Mon, 10 Nov 2025 13:25:27 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aa3m7xk0u-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 10 Nov 2025 13:25:27 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AACnKND014841;
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AAD5Rh1011600;
 	Mon, 10 Nov 2025 13:25:26 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4aahpjwq1j-1
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4aajw15fnf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 10 Nov 2025 13:25:26 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AADPM2M55247146
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AADPNK925166380
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 10 Nov 2025 13:25:22 GMT
+	Mon, 10 Nov 2025 13:25:23 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B84922004D;
-	Mon, 10 Nov 2025 13:25:22 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 15F512004B;
+	Mon, 10 Nov 2025 13:25:23 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8D05E20043;
+	by IMSVA (Postfix) with ESMTP id E4E9120043;
 	Mon, 10 Nov 2025 13:25:22 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
 	Mon, 10 Nov 2025 13:25:22 +0000 (GMT)
 From: Gerd Bayer <gbayer@linux.ibm.com>
-Subject: [PATCH 0/2] PCI: AtomicOps: Fix pci_enable_atomic_ops_to_root()
-Date: Mon, 10 Nov 2025 14:25:04 +0100
-Message-Id: <20251110-fix_pciatops-v1-0-edc58a57b62e@linux.ibm.com>
+Date: Mon, 10 Nov 2025 14:25:06 +0100
+Subject: [PATCH 2/2] PCI: AtomicOps: Fix logic in enable function
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -70,87 +71,117 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIALDnEWkC/x2MQQqAIBAAvyJ7TlAjk74SEWZb7UVFIwLx70nHY
- ZgpkDERZphYgYQPZQq+gewYuMv6EzntjUEJNUgpND/oXaMje4eY+YhGC4PObaKHlsSEzf+7ean
- 1Aweb5NFeAAAA
-X-Change-ID: 20251106-fix_pciatops-7e8608eccb03
+Message-Id: <20251110-fix_pciatops-v1-2-edc58a57b62e@linux.ibm.com>
+References: <20251110-fix_pciatops-v1-0-edc58a57b62e@linux.ibm.com>
+In-Reply-To: <20251110-fix_pciatops-v1-0-edc58a57b62e@linux.ibm.com>
 To: Bjorn Helgaas <bhelgaas@google.com>, Jay Cornwall <Jay.Cornwall@amd.com>,
         Felix Kuehling <Felix.Kuehling@amd.com>
 Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
         Alexander Schmidt <alexs@linux.ibm.com>, linux-s390@vger.kernel.org,
         linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Gerd Bayer <gbayer@linux.ibm.com>, Leon Romanovsky <leon@kernel.org>,
-        stable@vger.kernel.org
+        Gerd Bayer <gbayer@linux.ibm.com>, stable@vger.kernel.org
 X-Mailer: b4 0.14.2
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTA4MDAxOCBTYWx0ZWRfX53KRCwDSxl/h
- lyKRPSsLHBISFZe10KAgQ2aCy4J2IkN9HBI+SMTCNBQl9YSc12cSCZ4H5qT2q1CnB9gdUrNl3FG
- nTSdLcry+gpQNrwXA7QQOTgBsJLGEEbeAATx1VvzgVf+I9v5X2SMgeUyJl7kASoJm1Xst+t6bHQ
- IbOptq6FiN92YJjT5wg67LysPIPhf31R5frry2FIzYZqRNtDZG95pkmHtCYFi0DL5vBoE5a4n3B
- dEwu8QtYiYoRq/G4S2Zp0QGBwnt1odrPt1Kk1zolJmn/2uOScRn3w5EmR284lP5IDFauXzIidir
- p/BWcDIduAGW4B9WO+8SADjqdTkaGhca8eECl44lyYbUgmKBvLq9JRQvzdt9AmIViDUnVvEA6B6
- twRnRcsTSv7bXM1YE8qK+btli/0SQg==
-X-Authority-Analysis: v=2.4 cv=GcEaXAXL c=1 sm=1 tr=0 ts=6911e7c8 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Authority-Analysis: v=2.4 cv=MtZfKmae c=1 sm=1 tr=0 ts=6911e7c8 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=ESohFN6d5o8hY1LCVJoA:9 a=QEXdDO2ut3YA:10
+ a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=ud980_RLCRqylQVSWKAA:9 a=QEXdDO2ut3YA:10
  a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-GUID: SFNmk6CvC9OOEQ0hiYo0zNW1RPJxsJSD
-X-Proofpoint-ORIG-GUID: EX6tyP_6F1B8TGWbDKEP6Rw2em64XCJK
+X-Proofpoint-GUID: 5rk5i6UE4fy0sTbxzVXFbAhpWiKfgyqt
+X-Proofpoint-ORIG-GUID: tzQ8cJIvoEU-h7xw_d8Qjuu2k8LU-t_c
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTA4MDA3OSBTYWx0ZWRfX9MtzRoJieOPK
+ 0rkmm0DJoCWIpqpcu6gpaWwfutv/Bv/hv0zfCuD9lUbodiygx26R1jKlpcJPW9xK1cXItwbX/+7
+ Hlb9yVp6zSZkdOOBsMEAIp9/3qcWIg1RuxXpakIKCdkv9XaCDsiIpt7c77eBj1OyWnQHn8X48vl
+ VyXIDoOLtW1KYgu57qFO/sF6j99wNTqJtie048MYWzLstlaePy/+vOfgJxSGzGuYj1ftPqaLhhF
+ q16i9rF2QnNTKEFqg+3QyhWGH8CO70nJejBff+MI9a+iQMgIZ86mnCYBBkVpAVEYv/LAAktY6Hd
+ EP8gNTtiQ3Xq7yIRr5sRlTAcy03NU6z3pmhkngy80iywTcL5dQ1BKCuyaCs87zL3NfpDkaVM9wF
+ TwuF9uhNqDWxWFVvdxR6EUtXwJsiWA==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-11-10_05,2025-11-10_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 malwarescore=0 bulkscore=0 adultscore=0 impostorscore=0
- lowpriorityscore=0 clxscore=1015 spamscore=0 priorityscore=1501 phishscore=0
+ malwarescore=0 adultscore=0 priorityscore=1501 bulkscore=0 impostorscore=0
+ suspectscore=0 lowpriorityscore=0 clxscore=1015 phishscore=0 spamscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511080018
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511080079
 
-Hi Bjorn et al.
+Move the check for root port requirements past the loop within
+pci_enable_atomic_ops_to_root() that checks on potential switch
+(up- and downstream) ports.
 
-this series addresses a few issues that have come up with the helper
-function that enables Atomic Op Requests to be initiated by PCI
-enpoints:
+Inside the loop traversing the PCI tree upwards, prepend the switch case
+to validate the routing capability on any port with a fallthrough-case
+that does the additional check for Atomic Ops not being blocked on
+upstream ports.
 
-A. Most in-tree users of this helper use it incorrectly [0].
-B. On s390, Atomic Op Requests are enabled, although the helper
-   cannot know whether the root port is really supporting them.
-C. Loop control in the helper function does not guarantee that a root
-   port's capabilities are ever checked against those requested by the
-   caller.
+Do not enable Atomic Op Requests if nothing can be learned about how the
+device is attached - e.g. if it is on an "isolated" bus, as in s390.
 
-Address these issue with the following patches:
-Patch 1: Make it harder to mis-use the enablement function,
-Patch 2: Addresses issues B. and C.
-
-I did test that issue B is fixed with these patches. Also, I verified
-that Atomic Ops enablement on a Mellanox/Nvidia ConnectX-6 adapter
-plugged straight into the root port of a x86 system still gets AtomicOp
-Requests enabled. However, I did not test this with any PCIe switches
-between root port and endpoint.
-
-Ideally, both patches would be incorporated immediately, so we could
-start correcting the mis-uses in the device drivers. I don't know of any
-complaints when using Atomic Ops on devices where the driver is
-mis-using the helper. Patch 2 however, is fixing an obseved issue.
-
-[0]: https://lore.kernel.org/all/fbe34de16f5c0bf25a16f9819a57fdd81e5bb08c.camel@linux.ibm.com/
-[1]: https://lore.kernel.org/all/20251105-mlxatomics-v1-0-10c71649e08d@linux.ibm.com/
-
+Reported-by: Alexander Schmidt <alexs@linux.ibm.com>
+Cc: stable@vger.kernel.org
+Fixes: 430a23689dea ("PCI: Add pci_enable_atomic_ops_to_root()")
 Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
 ---
-Gerd Bayer (2):
-      PCI: AtomicOps: Define valid root port capabilities
-      PCI: AtomicOps: Fix logic in enable function
+ drivers/pci/pci.c | 30 ++++++++++++++----------------
+ 1 file changed, 14 insertions(+), 16 deletions(-)
 
- drivers/pci/pci.c             | 43 +++++++++++++++++++++----------------------
- include/uapi/linux/pci_regs.h |  8 ++++++++
- 2 files changed, 29 insertions(+), 22 deletions(-)
----
-base-commit: e9a6fb0bcdd7609be6969112f3fbfcce3b1d4a7c
-change-id: 20251106-fix_pciatops-7e8608eccb03
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index 597bf419c3a6867f8df7ebdc14fc8ca47d0958a6..9a188fe8639d8a3d05e73e65114ce241d0f88bbf 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -3823,7 +3823,7 @@ int pci_rebar_set_size(struct pci_dev *pdev, int bar, int size)
+ int pci_enable_atomic_ops_to_root(struct pci_dev *dev, u32 cap_mask)
+ {
+ 	struct pci_bus *bus = dev->bus;
+-	struct pci_dev *bridge;
++	struct pci_dev *bridge = NULL;
+ 	u32 cap, ctl2;
+ 
+ 	/*
+@@ -3861,29 +3861,27 @@ int pci_enable_atomic_ops_to_root(struct pci_dev *dev, u32 cap_mask)
+ 		switch (pci_pcie_type(bridge)) {
+ 		/* Ensure switch ports support AtomicOp routing */
+ 		case PCI_EXP_TYPE_UPSTREAM:
+-		case PCI_EXP_TYPE_DOWNSTREAM:
+-			if (!(cap & PCI_EXP_DEVCAP2_ATOMIC_ROUTE))
+-				return -EINVAL;
+-			break;
+-
+-		/* Ensure root port supports all the sizes we care about */
+-		case PCI_EXP_TYPE_ROOT_PORT:
+-			if ((cap & cap_mask) != cap_mask)
+-				return -EINVAL;
+-			break;
+-		}
+-
+-		/* Ensure upstream ports don't block AtomicOps on egress */
+-		if (pci_pcie_type(bridge) == PCI_EXP_TYPE_UPSTREAM) {
++			/* Upstream ports must not block AtomicOps on egress */
+ 			pcie_capability_read_dword(bridge, PCI_EXP_DEVCTL2,
+ 						   &ctl2);
+ 			if (ctl2 & PCI_EXP_DEVCTL2_ATOMIC_EGRESS_BLOCK)
+ 				return -EINVAL;
++			fallthrough;
++		/* All switch ports need to route AtomicOps */
++		case PCI_EXP_TYPE_DOWNSTREAM:
++			if (!(cap & PCI_EXP_DEVCAP2_ATOMIC_ROUTE))
++				return -EINVAL;
++			break;
+ 		}
+-
+ 		bus = bus->parent;
+ 	}
+ 
++	/* Finally, last bridge must be root port and support requested sizes */
++	if ((!bridge) ||
++	    (pci_pcie_type(bridge) != PCI_EXP_TYPE_ROOT_PORT) ||
++	    ((cap & cap_mask) != cap_mask))
++		return -EINVAL;
++
+ 	pcie_capability_set_word(dev, PCI_EXP_DEVCTL2,
+ 				 PCI_EXP_DEVCTL2_ATOMIC_REQ);
+ 	return 0;
 
-Best regards,
 -- 
-Gerd Bayer <gbayer@linux.ibm.com>
+2.48.1
 
