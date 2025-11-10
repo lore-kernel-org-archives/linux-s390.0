@@ -1,50 +1,50 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9B7133506C;
-	Mon, 10 Nov 2025 18:48:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3242733F372;
+	Mon, 10 Nov 2025 18:48:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762800486; cv=none; b=PIXFwb+N3z7Y2ttb3oZ9oBTQ5KuUk0hTIvsIf4C/RxHl3DgmIN8D/LEjxPTHNeBr40fW3j2/2tw5Hyw0fG4sDdGdO1w5ZwNBgG+afkDnSWeKRoETGWu6gcq3PATi99pah1SVE309IXCE/FIbpKv5sfHxTWqIWI9kmkKSlLee/Rg=
+	t=1762800489; cv=none; b=gVcglp2zXtb42XL/UacA5B90etn6mup15/hmD4UFxqIy4/XcfaDw5waV/aCe5oakwbsyo6gmhxUlbk8A5QsIFnO72Njke278rZ2UhRqQxXNsyJZXFk7fdAxjnSslv4f2n6n851SFYyNIMu1SLz444D8lN7FezkZG1a2Fn9zeDXY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762800486; c=relaxed/simple;
-	bh=Owa/uZSyQflLahGS6CmSwDqgbO1CL5jfKyID5Cl9frQ=;
+	s=arc-20240116; t=1762800489; c=relaxed/simple;
+	bh=/jrYLjDfZzQMPUrwgBXX7noMOw5eDva5SlIg2j2SoEQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=u5Vc/QUuR9b8km2Qy/GE23byvumXEpov/1SRYxatWrLXOubfctazH85upqm21JDjocIAncgorDB+FiZrBp002tO1miKkuNzlwuotv4v3Y0VsejCkb7fbfDPZij24mUY63XNPXRX/jD9kaVVPkemVKXgNg0X9wLpFKA/GK8R9bu8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=NLkJ+qxZ; arc=none smtp.client-ip=192.198.163.9
+	 MIME-Version; b=hB9WW9tgl35mCVGkCruhGgDiaJNFabOIDmYDLs7pa1KXM3WZ0eUi17KwM5f+9rzNdxYmfuWXUBwK8fuieHrDnQfOLYlOHzQxV7Y/o5vrwvDhRiNa+Dh3cEAePwLN0LymCC9ygcfa/3izpTvXaQLC/Vz7z/g01GweZkB7ZH2WiHs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=SWtbDKj8; arc=none smtp.client-ip=192.198.163.12
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="NLkJ+qxZ"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="SWtbDKj8"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1762800482; x=1794336482;
+  t=1762800487; x=1794336487;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=Owa/uZSyQflLahGS6CmSwDqgbO1CL5jfKyID5Cl9frQ=;
-  b=NLkJ+qxZ9EbEbRKRZW5yflKFkF4Lb7sKxtoI9xQy7fkeYgcRCLKBepiC
-   N+pSN4bboGSSsA6+iJ2AusrnrQy5uRngtJK8+syDVyJlSwiCL88vmrmtH
-   /4PPHXZRQhUWCyvvyZnq7StNVH/fRV8PF7w2MLpbqSXA+W9otiLC7PsBT
-   jXd8P5esF5TxGn5HAlMvxS30bcn7m+Hyx3yV4B3a1uErUWZFEM7Y21nH9
-   hDXD8QrTodEBOvKz8RH3mqMOpib+5fcHEdWcSqvgGClnlyb017zHlA93L
-   oecTjaFP5IBLO2ex3vHJVvl3qQwFoyDa5MQyvvnRLahwwO/RTUb0Olm1f
-   w==;
-X-CSE-ConnectionGUID: 9BlEehGKThuHnJVoMHB8/Q==
-X-CSE-MsgGUID: fHAfENOoTm6CEdATrLvfQA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11609"; a="75543298"
+  bh=/jrYLjDfZzQMPUrwgBXX7noMOw5eDva5SlIg2j2SoEQ=;
+  b=SWtbDKj83fijC3v3u5aD7e+hKc1DS8itsAl3/dul0DnPAG8EoPaBnC8r
+   KfDLBM7zKjDh2mPJAgb55KmEBYMTVPUckVUawTCRBsDv37wjH7/jqyfaD
+   ziPasgfJLiPK+UIprZY05MlURgVQPh7wAo4Ijl1+3C1qpkPsc3LxG/J3v
+   KnIArLrRTDxKLVA0JWp0WmpdOTQOCVeMhyp8ccpupJOIPnd8Jaa4L06HN
+   hI1uDEpH+E0KumeRrcrPp0q4GiHfTD7XBK8mXaM+f5pfhuflWPVp+2E7c
+   tRLcn7pIEOa2a7zjaWWjuKVUXs4pnQLe1oA2XEfmItGwTHFKGs7VorZk3
+   Q==;
+X-CSE-ConnectionGUID: cTZNZpXjQSqOEUgjMltwVw==
+X-CSE-MsgGUID: 2JJENxZtTA22FI9r2SO5xA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11609"; a="68714894"
 X-IronPort-AV: E=Sophos;i="6.19,294,1754982000"; 
-   d="scan'208";a="75543298"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2025 10:47:57 -0800
-X-CSE-ConnectionGUID: 2eJVkzqZS9eMe6nzc5hX5g==
-X-CSE-MsgGUID: eXHDXNSIQoOeoIXPu177HQ==
+   d="scan'208";a="68714894"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2025 10:48:06 -0800
+X-CSE-ConnectionGUID: tQxkWAukTcCWsmo5RGoj9w==
+X-CSE-MsgGUID: 5oUCymEZTJWvji6oAMQPvQ==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.19,294,1754982000"; 
-   d="scan'208";a="189190257"
+   d="scan'208";a="188985837"
 Received: from black.igk.intel.com ([10.91.253.5])
-  by fmviesa009.fm.intel.com with ESMTP; 10 Nov 2025 10:47:49 -0800
+  by fmviesa008.fm.intel.com with ESMTP; 10 Nov 2025 10:47:57 -0800
 Received: by black.igk.intel.com (Postfix, from userid 1003)
-	id 356449F; Mon, 10 Nov 2025 19:47:29 +0100 (CET)
+	id 6B742A7; Mon, 10 Nov 2025 19:47:29 +0100 (CET)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Corey Minyard <corey@minyard.net>,
 	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
@@ -142,9 +142,9 @@ Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>,
 	Andrew Morton <akpm@linux-foundation.org>,
 	Jaroslav Kysela <perex@perex.cz>,
 	Takashi Iwai <tiwai@suse.com>
-Subject: [PATCH v1 10/23] e1000e: Switch to use %ptSp
-Date: Mon, 10 Nov 2025 19:40:29 +0100
-Message-ID: <20251110184727.666591-11-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 18/23] pps: Switch to use %ptSp
+Date: Mon, 10 Nov 2025 19:40:37 +0100
+Message-ID: <20251110184727.666591-19-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20251110184727.666591-1-andriy.shevchenko@linux.intel.com>
 References: <20251110184727.666591-1-andriy.shevchenko@linux.intel.com>
@@ -161,30 +161,38 @@ struct timespec64 in human readable format.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/net/ethernet/intel/e1000e/ptp.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/pps/generators/pps_gen_parport.c | 3 +--
+ drivers/pps/kapi.c                       | 3 +--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/e1000e/ptp.c b/drivers/net/ethernet/intel/e1000e/ptp.c
-index ea3c3eb2ef20..ec39e35f3857 100644
---- a/drivers/net/ethernet/intel/e1000e/ptp.c
-+++ b/drivers/net/ethernet/intel/e1000e/ptp.c
-@@ -229,14 +229,11 @@ static void e1000e_systim_overflow_work(struct work_struct *work)
- 						     systim_overflow_work.work);
- 	struct e1000_hw *hw = &adapter->hw;
- 	struct timespec64 ts;
--	u64 ns;
+diff --git a/drivers/pps/generators/pps_gen_parport.c b/drivers/pps/generators/pps_gen_parport.c
+index f5eeb4dd01ad..05bbf8d30ef1 100644
+--- a/drivers/pps/generators/pps_gen_parport.c
++++ b/drivers/pps/generators/pps_gen_parport.c
+@@ -80,8 +80,7 @@ static enum hrtimer_restart hrtimer_event(struct hrtimer *timer)
+ 	/* check if we are late */
+ 	if (expire_time.tv_sec != ts1.tv_sec || ts1.tv_nsec > lim) {
+ 		local_irq_restore(flags);
+-		pr_err("we are late this time %lld.%09ld\n",
+-				(s64)ts1.tv_sec, ts1.tv_nsec);
++		pr_err("we are late this time %ptSp\n", &ts1);
+ 		goto done;
+ 	}
  
- 	/* Update the timecounter */
--	ns = timecounter_read(&adapter->tc);
-+	ts = ns_to_timespec64(timecounter_read(&adapter->tc));
+diff --git a/drivers/pps/kapi.c b/drivers/pps/kapi.c
+index e9389876229e..6985c34de2ce 100644
+--- a/drivers/pps/kapi.c
++++ b/drivers/pps/kapi.c
+@@ -163,8 +163,7 @@ void pps_event(struct pps_device *pps, struct pps_event_time *ts, int event,
+ 	/* check event type */
+ 	BUG_ON((event & (PPS_CAPTUREASSERT | PPS_CAPTURECLEAR)) == 0);
  
--	ts = ns_to_timespec64(ns);
--	e_dbg("SYSTIM overflow check at %lld.%09lu\n",
--	      (long long) ts.tv_sec, ts.tv_nsec);
-+	e_dbg("SYSTIM overflow check at %ptSp\n", &ts);
+-	dev_dbg(&pps->dev, "PPS event at %lld.%09ld\n",
+-			(s64)ts->ts_real.tv_sec, ts->ts_real.tv_nsec);
++	dev_dbg(&pps->dev, "PPS event at %ptSp\n", &ts->ts_real);
  
- 	schedule_delayed_work(&adapter->systim_overflow_work,
- 			      E1000_SYSTIM_OVERFLOW_PERIOD);
+ 	timespec_to_pps_ktime(&ts_real, ts->ts_real);
+ 
 -- 
 2.50.1
 
