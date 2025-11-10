@@ -1,62 +1,62 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8681229ACF6;
-	Mon, 10 Nov 2025 17:17:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C3AE29ACF7;
+	Mon, 10 Nov 2025 17:17:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762795068; cv=none; b=Qspnf+qarokTVL9JFJ6u9JvGmvwoki8ckO+q+eIFbsExafnzdgSbPsRmTgvodmp4nxW8bfnjZdU+7UfAP8+RHVfucxcLso6Ubtzz43CXpQrq5AV9pMR0bKdX/m5UoVj/7CrfVTAEofT6Z8PFwt6dmr/dDw2vDqoEJji/UrLVTUg=
+	t=1762795069; cv=none; b=AZcTCj07PsolQwJoUdUP7YNBDyX75/bLAeP/hxMJYIVU8aFntlxlmmno6BBbMvK6U0NEVfmY2/UbGMftFBl5TFm5e3vGNnuEWYZZ3Xk4JL3bykYJJMOMlkljF62U8pY9GVFBolho6rS6e8slxoSH4cEV36qsfRrCIlRXkwNMYRc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762795068; c=relaxed/simple;
-	bh=lTiXtOwu/0sRLDjSeazPUvJIIfUoMqpqkw1VGNYtnpo=;
+	s=arc-20240116; t=1762795069; c=relaxed/simple;
+	bh=tYPFe1cF0s8OoLV4EZM1YANW3GNB/NgDla4Qqonkces=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=MHPR9lNqIW5xvm45bpMctvirTv05Ue6SkaluIX1QtHNtOZrdvLlSptvzgtoaagFG+9FBxxPoQ0yNav80AH1+iFICNLjNgOsuWnVV1ugW1J65m3YbR08yqv2agxoiW4FyLyWOrKoagX8pkQC/uHF6O7A3/TqmFB4JBrGbBDFaDsE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VMiEGF+/; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:To:Cc; b=JEujQ7BtjABnTaHCbqQ3Az2UxxfSNHoXwQbGvhiyhD6WtXHIeWrt29CNd8mKvSyYdNnE6f++ccZQSW8btq/8ldQJ4nw/4ByeJgS2RbSaXO3htdNGe3T8zuXwckpyaDEOm1+pPGTH7kqYBKdmHf3mx0dz6yaIlB9G6VcqDYRIt+Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GFc5gWgG; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VMiEGF+/"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AAF4B1u012181;
-	Mon, 10 Nov 2025 17:17:41 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GFc5gWgG"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AADa9Zo031615;
+	Mon, 10 Nov 2025 17:17:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=FQjsCF
-	XUVzuf9/SKwlHKa5KlVQVdaEI+Uxx8hQY3L0U=; b=VMiEGF+/0gEKRly91qzhE1
-	yU2NgywqyB6UfrueRnxngGtuAAi87o9gXbsyzcWgbf5I7EZxBdq8HRo+Lo9EVBOt
-	WzwNpeUjkcECcQhJ1FlSBguKpM6bnrS1IpnO+QGyOWL543TTocs/koS5amyEvOOC
-	PFoxz+w/qwsfc+wjrlffXMga4cDqhk+NFISahvudeFSG/mdwW6iBDU2CJFqlrJM8
-	ldat8yXyWGaxddWrzOVfCJjc0+VRSxzi1d3YykQe3H6bnfTep5kG03SeZ3rMDxmZ
-	iTH3YWW+p6+pwUCTaQdBdeALIJ/n7/N6bo/ZIkSIqnT4szcY7hKnChu82qZ8N9pw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=C21nHx
+	c9wEQGGvhn1IYKmX/7DpqgHsyXKFrPQZr08Bc=; b=GFc5gWgGXTjCa+TiGzpfwB
+	1GBtHAroLWWdljLJxo+i0mFvEOLHFltUJtj+1QbVjBmKeBhWsWA4YR1T8fkd54U/
+	zmtH6He8zwQ+95aZQQU56QL3kUjYRc0VC40VwhfDhWpuwdMReuWfJOY2fOIue+NJ
+	cHMpdxbapGEH7ZWwHN+gG7OE+S43lPvtjjUiIFNmHL8y7hSkT8Mvw2nL1zrTxPTh
+	EC7CkyyTx8lx3NgzjrYWDCV3J5UmS7LArlp5W1LKrCYQbqaDEe/hVQ5dfJ/EAQjj
+	NijJUyK6lWjXK3nZBreQ6lCBxiVF9huo9nkdcNFmAIToI6ukyDJXq0YRil/VNtVw
 	==
 Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aa5tjq9xn-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a9wk81c46-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 10 Nov 2025 17:17:40 +0000 (GMT)
+	Mon, 10 Nov 2025 17:17:42 +0000 (GMT)
 Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AAGcR04011562;
-	Mon, 10 Nov 2025 17:17:39 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4aajw16emx-1
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AAGeTmZ011600;
+	Mon, 10 Nov 2025 17:17:41 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4aajw16en4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 10 Nov 2025 17:17:39 +0000
+	Mon, 10 Nov 2025 17:17:41 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AAHHZbf30736760
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AAHHchQ58720536
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 10 Nov 2025 17:17:35 GMT
+	Mon, 10 Nov 2025 17:17:38 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A4B6020040;
-	Mon, 10 Nov 2025 17:17:35 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 43C8A20040;
+	Mon, 10 Nov 2025 17:17:38 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 204B320043;
-	Mon, 10 Nov 2025 17:17:35 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id B6DB820043;
+	Mon, 10 Nov 2025 17:17:37 +0000 (GMT)
 Received: from [192.168.88.52] (unknown [9.111.69.239])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 10 Nov 2025 17:17:35 +0000 (GMT)
+	Mon, 10 Nov 2025 17:17:37 +0000 (GMT)
 From: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Date: Mon, 10 Nov 2025 18:16:45 +0100
-Subject: [PATCH RFC v2 05/11] KVM: s390: Add ssca_block and ssca_entry
- structs for vsie_ie
+Date: Mon, 10 Nov 2025 18:16:49 +0100
+Subject: [PATCH RFC v2 09/11] KVM: s390: Allow guest-3 switch to extended
+ sca with vsie sigpif
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -65,7 +65,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20251110-vsieie-v2-5-9e53a3618c8c@linux.ibm.com>
+Message-Id: <20251110-vsieie-v2-9-9e53a3618c8c@linux.ibm.com>
 References: <20251110-vsieie-v2-0-9e53a3618c8c@linux.ibm.com>
 In-Reply-To: <20251110-vsieie-v2-0-9e53a3618c8c@linux.ibm.com>
 To: kvm@vger.kernel.org
@@ -80,111 +80,80 @@ Cc: linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
         Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
         Christoph Schlameuss <schlameuss@linux.ibm.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2661;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1677;
  i=schlameuss@linux.ibm.com; h=from:subject:message-id;
- bh=lTiXtOwu/0sRLDjSeazPUvJIIfUoMqpqkw1VGNYtnpo=;
- b=owGbwMvMwCUmoqVx+bqN+mXG02pJDJlCctpZiXySOkufnvj+pO5glO2ZKW28DKEcplOkmJfzv
- +rgV5jRUcrCIMbFICumyFItbp1X1de6dM5By2swc1iZQIYwcHEKwETYXjAyPD/7WKrxR2Kk9N4M
- 3lcNJdlrOZy6ftQzBv7t6LPXPlUgxMjw4fDpOJXc7ndKQTW1/ZKxr3dVrX185++16QevfnJ6pna
- ZCQA=
+ bh=tYPFe1cF0s8OoLV4EZM1YANW3GNB/NgDla4Qqonkces=;
+ b=owGbwMvMwCUmoqVx+bqN+mXG02pJDJlCctqzLzEJrj263Xnru1+bjnp6ytpL+zn6RvsFCYkFz
+ +oPi8noKGVhEONikBVTZKkWt86r6mtdOueg5TWYOaxMIEMYuDgFYCJpgYwMlzcXySzz27Pu96FV
+ /+079urPFFCJKnjXLW8rrNf0WvUGP8P/ihUM+0OWHX/nzKv9eXWhAb+f+rSCGzP5foebvfx3m+0
+ 9KwA=
 X-Developer-Key: i=schlameuss@linux.ibm.com; a=openpgp;
  fpr=0E34A68642574B2253AF4D31EEED6AB388551EC3
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: CMVK0qFFtXRfSZoBGQ7R_SBAoK1mm4Yg
-X-Proofpoint-ORIG-GUID: CMVK0qFFtXRfSZoBGQ7R_SBAoK1mm4Yg
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTA4MDA5OSBTYWx0ZWRfX39JNRUPymq2M
- wpxTwUw1OP+CSeJpHTx3kJIVtmyBDUPN01IYOwU3W+tHyBdXUemkGhnkXe9an75Vm6kRGyqZbGn
- hZvwHxGtBaC1RH/o9t2Vm7MNE3Ntb9KcWASwfOhs399FoOKXNzx05+cGyMVH6omi8kKJE1qSRAI
- hZ5Aw6I7Q7r1/83ylN/BrnMsfYccKFeq7pDhQfYzVqOrlc7a/8WyxuTK3NF+USweGeXI4V5Dbkd
- ua6pQtiZzYOmzhICQDelyOHLfDlC8P3Jqlftwu78eOj3Hm6cczkUMGl3Z1IpkpW0BY3IBCiF+Cb
- XeGxryui4SVquUPjly0iLzW4u7Zrl1qsZzQrL2fXotWd/6b41/EFvlStHBpRNizKEn4srhHuW4v
- XpEzlHsZe0quSrYjbgihZzBm27qcvQ==
-X-Authority-Analysis: v=2.4 cv=V6xwEOni c=1 sm=1 tr=0 ts=69121e34 cx=c_pps
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTA4MDAyMiBTYWx0ZWRfXziJimmIVlheA
+ VAE5Shb91j91o6m/wJhCHu1Nbejz3MbgtWo8Z2t/yI8oSrO4X5Nbdsla9bBAUsc5Y9NxPF35OPT
+ WiY7Lusa+SSxO8KG7RAZ25U2rEVMpnVKMBzf7kbzm9+5zKOkAcWpSURfrjR77UZcRVez4H3QKXT
+ L4fA4i2qN/o8tPWHgERUsROpVq9WNris9QwneK59adnE0KjBbMulLTHmJFWgc8GBgibmd8dM18i
+ VcoKt2mtdzFUcjzEhgf6wZG7CG78w83xqrdJ4yEjMqvhhuuzKJiBz/BmDn79Hyqf7C4aK3aFzvo
+ Ca28KbRq0Y0NF5f9F7HoF3P1Nxov4ugjJ1jh4o/VpMGHpEn98zaCdyo8bkgJHyms0vMW+LeoGjk
+ PfF54gQ7ts27BQH+TKo6LwsQqg5IhA==
+X-Authority-Analysis: v=2.4 cv=ZK3aWH7b c=1 sm=1 tr=0 ts=69121e36 cx=c_pps
  a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=KXQrNVq8KaMVEL7Tj7gA:9 a=QEXdDO2ut3YA:10
+ a=VnNF1IyMAAAA:8 a=ZEuDopgq87Z3SAe1qa4A:9 a=QEXdDO2ut3YA:10
  a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-ORIG-GUID: nplvHFsZPvsQS_BqE-pz9yIEvRYELGQN
+X-Proofpoint-GUID: nplvHFsZPvsQS_BqE-pz9yIEvRYELGQN
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-11-10_06,2025-11-10_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 lowpriorityscore=0 adultscore=0 malwarescore=0 impostorscore=0
- suspectscore=0 priorityscore=1501 phishscore=0 bulkscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511080099
+ malwarescore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0
+ phishscore=0 impostorscore=0 spamscore=0 bulkscore=0 adultscore=0
+ clxscore=1015 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2511080022
 
-Add the required guest-1 structures for the vsie_sigpif to the SIE
-control block and vsie_page for use in later patches.
+If a guest wants to use more than 64 and use sigp interpretation it
+needs to use the extended system control area. When the ESCA is not
+already used and the 65th cpu is added the VM host will kick all cpus
+destroy the old basic system control area (BSCA) and create a new ESCA
+for the guest configuration.
 
-The shadow SCA features the address of the original SCA as well as an
-entry for each original SIGP entry. The entries contain the addresses of
-the shadow state description and original SIGP entry.
+In VSIE execution using vsie sigpif this also means the SSCA need to be
+updated. The structure of the SSCA remains the same but the pointers to
+the original SCA as well as its entries will have changed.
+
+In guest-1 we can detect this change relatively simple as the original
+SCA address changes.
 
 Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 ---
- arch/s390/include/asm/kvm_host_types.h         | 21 ++++++++++++++++++++-
- tools/testing/selftests/kvm/include/s390/sie.h |  2 +-
- 2 files changed, 21 insertions(+), 2 deletions(-)
+ arch/s390/kvm/vsie.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/kvm_host_types.h b/arch/s390/include/asm/kvm_host_types.h
-index 1394d3fb648f1e46dba2c513ed26e5dfd275fad4..ce52608449735d6ca629008c554e7df09f97e67b 100644
---- a/arch/s390/include/asm/kvm_host_types.h
-+++ b/arch/s390/include/asm/kvm_host_types.h
-@@ -45,6 +45,13 @@ struct bsca_entry {
- 	__u64	reserved2[2];
- };
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index 1e15220e1f1ecfd83b10aa0620ca84ff0ff3c1ac..b69ef763b55296875522f2e63169446b5e2d5053 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -932,8 +932,16 @@ static struct vsie_sca *get_vsie_sca(struct kvm_vcpu *vcpu, struct vsie_page *vs
+ 	if (sca)
+ 		goto out;
  
-+struct ssca_entry {
-+	__u64	reserved1;
-+	__u64	ssda;
-+	__u64	ossea;
-+	__u64	reserved2;
-+};
-+
- union ipte_control {
- 	unsigned long val;
- 	struct {
-@@ -86,6 +93,18 @@ struct esca_block {
- 	struct esca_entry cpu[KVM_S390_ESCA_CPU_SLOTS];
- };
- 
-+/*
-+ * The shadow sca / ssca needs to cover both bsca and esca depending on what the
-+ * guest uses so we allocate space for 256 entries that are defined in the
-+ * architecture.
-+ * The header part of the struct must not cross page boundaries.
-+ */
-+struct ssca_block {
-+	__u64	osca;
-+	__u64	reserved08[7];
-+	struct ssca_entry cpu[KVM_MAX_VCPUS];
-+};
-+
- /*
-  * This struct is used to store some machine check info from lowcore
-  * for machine checks that happen while the guest is running.
-@@ -316,7 +335,7 @@ struct kvm_s390_sie_block {
- 	__u32	fac;			/* 0x01a0 */
- 	__u8	reserved1a4[20];	/* 0x01a4 */
- 	__u64	cbrlo;			/* 0x01b8 */
--	__u8	reserved1c0[8];		/* 0x01c0 */
-+	__u64	osda;			/* 0x01c0 */
- #define ECD_HOSTREGMGMT	0x20000000
- #define ECD_MEF		0x08000000
- #define ECD_ETOKENF	0x02000000
-diff --git a/tools/testing/selftests/kvm/include/s390/sie.h b/tools/testing/selftests/kvm/include/s390/sie.h
-index 160acd4a1db92d6129c0f084db82c8c147d5c23e..4ff1c1a354af51d322042c03d59a8cf56685abd3 100644
---- a/tools/testing/selftests/kvm/include/s390/sie.h
-+++ b/tools/testing/selftests/kvm/include/s390/sie.h
-@@ -223,7 +223,7 @@ struct kvm_s390_sie_block {
- 	__u32	fac;			/* 0x01a0 */
- 	__u8	reserved1a4[20];	/* 0x01a4 */
- 	__u64	cbrlo;			/* 0x01b8 */
--	__u8	reserved1c0[8];		/* 0x01c0 */
-+	__u64	osda;			/* 0x01c0 */
- #define ECD_HOSTREGMGMT	0x20000000
- #define ECD_MEF		0x08000000
- #define ECD_ETOKENF	0x02000000
++	if (vsie_page->sca) {
++		/* switch to extended system control area (esca) */
++		sca = vsie_page->sca;
++		WARN_ON_ONCE(atomic_read(&sca->ref_count));
++		unpin_sca(kvm, sca);
++		/* trigger init_ssca() later */
++		if (sca->ssca)
++			sca->ssca->osca = 0;
+ 	/* check again under write lock if we are still under our sca_count limit */
+-	if (sca_new && kvm->arch.vsie.sca_count < max_sca) {
++	} else if (sca_new && kvm->arch.vsie.sca_count < max_sca) {
+ 		/* make use of vsie_sca just created */
+ 		sca = sca_new;
+ 		sca_new = NULL;
 
 -- 
 2.51.1
