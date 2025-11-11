@@ -1,176 +1,209 @@
-Received: from mail-oa1-f67.google.com (mail-oa1-f67.google.com [209.85.160.67])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 882602F744C
-	for <linux-s390@vger.kernel.org>; Tue, 11 Nov 2025 14:37:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.67
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C79ED3385B8;
+	Tue, 11 Nov 2025 14:37:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762871852; cv=none; b=mxl6WxZF50kMC9/O0/+KSk1vF6fw+/ncgmPOeE5P6b9VH3qfVwOzIjtoz21TUqkisb/12BSq8MNIJpPLRG9KbcxADjdCcL6ipLuLJ2Dc/r2SbR6S1Hf67YlyE/QN8fFK+XenQfz2Sn1zURJwEh1VT90C+5wmTu7CORk70tqAvBo=
+	t=1762871880; cv=none; b=H6zyza2rQEDagi8x80EjApewLcfyYO2Y218Xkh8qzZJEjub/MHpxy+0qvkRit04+koIHBmHQNHQcM+gNfLJL0DIYGRR3dLhGh4jg86UIPHcb8Ib6eNt3Hqid/WcgZFKLS9YbF29g6Vok2nKPW7kRFIrjmaoZWC+YIKsNgi7OPGI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762871852; c=relaxed/simple;
-	bh=4vsDOO5vSHCFgZxshezv4v4YKIlkh5M/Jf9eZEgWohI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YHdAW0PZGXNh61VaFA/dC97mF3O3iUEwoBPvxwa9Pu9dR6sBXOSYAkd/ssn0BAh0/GttraEPcBASEwkcjzYNkIslZTSKmzV5fuounWrlZmcj7SHd6RP/o49AgmZI5oC/eicwcNsV7MXTpa59TuL0L8Pft8yGSMvPoIcaplVutmM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=minyard.net; spf=none smtp.mailfrom=minyard.net; dkim=pass (2048-bit key) header.d=minyard-net.20230601.gappssmtp.com header.i=@minyard-net.20230601.gappssmtp.com header.b=nf5ZZwQg; arc=none smtp.client-ip=209.85.160.67
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=minyard.net
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=minyard.net
+	s=arc-20240116; t=1762871880; c=relaxed/simple;
+	bh=fpM4rZm2eTFj5lA0ILdXZXAm1QmHZWdHUdT36ODYhpU=;
+	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
+	 References:In-Reply-To; b=FrU8eLfU9kfk2Dik1jdtcpSycDBcJozo8d9CDm4zfx+a/w1hCFOAbXzn8vFhXMBoFOKy8zLCcOny90U1MYxxtu4fVK9wepPytbsZZYAWv6Uu3zRdfFLdNn+Ud8hXolFEkym9OqvlZz1ZYMTFUkFPLC6WRoDMNfgsYTTf9BFotdw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cBLxYscf; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=minyard-net.20230601.gappssmtp.com header.i=@minyard-net.20230601.gappssmtp.com header.b="nf5ZZwQg"
-Received: by mail-oa1-f67.google.com with SMTP id 586e51a60fabf-3e2fc677775so3397686fac.3
-        for <linux-s390@vger.kernel.org>; Tue, 11 Nov 2025 06:37:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=minyard-net.20230601.gappssmtp.com; s=20230601; t=1762871850; x=1763476650; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=sI/Bx88S/ljGSNn+PL5Rjkz6jNPZ9Ne5hLvzfkx+saI=;
-        b=nf5ZZwQgaY1zLdL4pBWkWIkCxgeavzFny7z9nCd+70x0/+edfWo547ejcgVwd+AjVk
-         Nm/N2bIMZIPzvuJpykEtRNRNYYTpzq/8+zvvZrGCutQwZHYJGBwUEdFys6shKFJP2PlJ
-         MXRxtr3p9X8mXtAgiwSC9Xkf7CWGj/WrLr42e7vTQhsiHTz9mQyAFngTtw4IMu/YpVaG
-         X06HrUQYw92Z/2BkwIHClLKwXkgVZZoUI10xP2vIQDFnbDL2oDLEuJ1TrEjfkL9p9DyG
-         GkiYjWTJcF96L5sJv1jpo46p9JoR3G6Jteg+NUHurHMbVf4OGUPeIwNteBGmsJ+3gL27
-         pWpA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762871850; x=1763476650;
-        h=in-reply-to:content-disposition:mime-version:references:reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=sI/Bx88S/ljGSNn+PL5Rjkz6jNPZ9Ne5hLvzfkx+saI=;
-        b=L7pUh0IVW2WKY5cicMsxojSLBTRF2K81B8xehI+eK73NO8SNbXZQfIZEoE1Nybioyg
-         urzgt1lPCkZfsGn3hJp7Eq1evDDUwLSS88xKofGzzBBqXm8jmKCTrfHE2F9VjCwPNWyi
-         vFzVm+Ock0ZrzORvWY3TqX8L0XdUmsf1sWqGRq/fqrICLMQioYvHRoIsSucyU8D+O1kI
-         E0Te9L3HEQF5PTycncW7ewuqKBcJqdV/BEbfFdJWolk5jvWTCJRpZPut2vzUChsfQsc+
-         vgaeXQ9FdwmgiqGJHQeXrLBAAXhgYWiKQbGHS3iD4XFAfJafAVdEcQy9RV2bzvOHt3AF
-         Tx1Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVvkke0TsVM1TFbG8EEi7+4+Pl63d/EuDAvLTxYb8BAQbUI9Cl9bzs8WEco3RuZHkjEyOIAwceYSV/0@vger.kernel.org
-X-Gm-Message-State: AOJu0YzBd5smVjgEkB1Jc7Rjnh7onat/O1mWDuf9eJOBXOzz3B5EINTP
-	wXTWTAvK8aLIxpYEWq3jxmSCxrMMVLslgwvWQuyiKKA/rZ9vsw3DvYbkycbs0L2LFIc=
-X-Gm-Gg: ASbGnctaxfWByYsYn2ghGUc7vjkBCXN3d+y5G3VOsdc8b+SMOz3QhiLoUAa+AhAksVh
-	vCGCyl3xWEvJF+/AHkQE29QdqAjN8TvWo9TTZRod3m9neHnJ4yYrnsI9ToCQnqUriDwXG3GM3MI
-	1BGySyKbeabgWsbT98/fsIOseuhXKz5FCkQ4hxj/hUDUZ/8EHxdvYDT2tLFwVAA55Nub6wPwT4B
-	I0W9rNEITWcXFKyafCrNrf00VskkVSVvANeu5RzWOq+ozf6Ctx0jJsqxEy2w5heqdYF09EiZCsa
-	rhDi4TfDcAHLAzQynR6Fvvi41b6gr7T9mNVmxVBIIkeym8Nz7lJeFLRfBEoLwGp8yZ7DJ+lHc/j
-	pOlAV/G2zVV4ab5yXkn3CbUYKC9GcvBw2CGTNHljFjgqWhQng1i434QLN0UqVUhXfF+LWbJr+lx
-	Sd4Dk=
-X-Google-Smtp-Source: AGHT+IFusuA/Ax3anjd0HIltuToxJUS02/udclYoHdoDI29Kk3VNxq4/rhyMyYWudQr5f0WcO3jkBQ==
-X-Received: by 2002:a05:6870:4792:b0:3e7:f4a9:588b with SMTP id 586e51a60fabf-3e7f4a9b0bcmr4110818fac.15.1762871849590;
-        Tue, 11 Nov 2025 06:37:29 -0800 (PST)
-Received: from mail.minyard.net ([2001:470:b8f6:1b:b4e9:19a3:cdaf:7174])
-        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-3e7d6f7a27dsm4861066fac.0.2025.11.11.06.37.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Nov 2025 06:37:29 -0800 (PST)
-Date: Tue, 11 Nov 2025 08:37:24 -0600
-From: Corey Minyard <corey@minyard.net>
-To: Sergey Senozhatsky <senozhatsky@chromium.org>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Christian K??nig <christian.koenig@amd.com>,
-	"Dr. David Alan Gilbert" <linux@treblig.org>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
-	Rob Clark <robin.clark@oss.qualcomm.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Hans Verkuil <hverkuil@kernel.org>,
-	Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-	Ulf Hansson <ulf.hansson@linaro.org>,
-	Vitaly Lifshits <vitaly.lifshits@intel.com>,
-	Manivannan Sadhasivam <mani@kernel.org>,
-	Niklas Cassel <cassel@kernel.org>, Calvin Owens <calvin@wbinvd.org>,
-	Sagi Maimon <maimon.sagi@gmail.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Karan Tilak Kumar <kartilak@cisco.com>,
-	Casey Schaufler <casey@schaufler-ca.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Petr Mladek <pmladek@suse.com>,
-	Max Kellermann <max.kellermann@ionos.com>,
-	Takashi Iwai <tiwai@suse.de>, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	openipmi-developer@lists.sourceforge.net,
-	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	linaro-mm-sig@lists.linaro.org, amd-gfx@lists.freedesktop.org,
-	linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org,
-	intel-xe@lists.freedesktop.org, linux-mmc@vger.kernel.org,
-	netdev@vger.kernel.org, intel-wired-lan@lists.osuosl.org,
-	linux-pci@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-scsi@vger.kernel.org, linux-staging@lists.linux.dev,
-	ceph-devel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-	linux-sound@vger.kernel.org,
-	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Sumit Semwal <sumit.semwal@linaro.org>,
-	Gustavo Padovan <gustavo@padovan.org>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Dmitry Baryshkov <lumag@kernel.org>,
-	Abhinav Kumar <abhinav.kumar@linux.dev>,
-	Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>,
-	Marijn Suijten <marijn.suijten@somainline.org>,
-	Konrad Dybcio <konradybcio@kernel.org>,
-	Lucas De Marchi <lucas.demarchi@intel.com>,
-	Thomas Hellstr??m <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Vladimir Oltean <olteanv@gmail.com>, Andrew Lunn <andrew@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Tony Nguyen <anthony.l.nguyen@intel.com>,
-	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
-	Krzysztof Wilczy??ski <kwilczynski@kernel.org>,
-	Kishon Vijay Abraham I <kishon@kernel.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Rodolfo Giometti <giometti@enneenne.com>,
-	Jonathan Lemon <jonathan.lemon@gmail.com>,
-	Vadim Fedorenko <vadim.fedorenko@linux.dev>,
-	Richard Cochran <richardcochran@gmail.com>,
-	Stefan Haberland <sth@linux.ibm.com>,
-	Jan Hoeppner <hoeppner@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Satish Kharat <satishkh@cisco.com>,
-	Sesidhar Baddela <sebaddel@cisco.com>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Xiubo Li <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>
-Subject: Re: [PATCH v1 12/23] ipmi: Switch to use %ptSp
-Message-ID: <aRNKJIyk2ne39ScE@mail.minyard.net>
-Reply-To: corey@minyard.net
-References: <20251110184727.666591-1-andriy.shevchenko@linux.intel.com>
- <20251110184727.666591-13-andriy.shevchenko@linux.intel.com>
- <pvjnjwm25ogu7khrpg5ttxylwnxazwxxb4jpvxhw7ysvqzkkpa@ucekjrrppaqm>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cBLxYscf"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AB377lt016772;
+	Tue, 11 Nov 2025 14:37:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=JyOEWN
+	2IWol6MDam6GH2q2lnGc1owVcKuC9mQE4g/Y4=; b=cBLxYscf6ER9HxoLJHXeyY
+	ty42DGawV+mqA2ihBvnPfh0JSUmcjYOHFFlNVYeSOqX0on1nSrK+uOpPUe6bXi9L
+	k9nCmggE8KQ7/XIAwK7omA2qYCQd8KdOTLY19agipshUN9McBbN8oIn3x+NXNPqA
+	2nmCHYi7JBvUCPM02a7dYVMcOEVZEf9HGDtBpI01F2Req6M0tYEGerjZutmcGUro
+	x1PbSfJ8eTM0IdaAgd35sEb5axddyXbyuVD2mW89YjRuZdH3rwoR6l4GGUqvyR1h
+	tITJ/QW9FXEVM+5129V4XSaLcd3nWIxULc9s1iZ2HmTHeshmMEX+AZ5LZ81akEig
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aa5cj4dgd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 11 Nov 2025 14:37:54 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5ABDl8m6007313;
+	Tue, 11 Nov 2025 14:37:53 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4aajdjb0ph-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 11 Nov 2025 14:37:53 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5ABEbnNj16056730
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 11 Nov 2025 14:37:49 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C83B320043;
+	Tue, 11 Nov 2025 14:37:49 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 92A9120040;
+	Tue, 11 Nov 2025 14:37:49 +0000 (GMT)
+Received: from darkmoore (unknown [9.111.33.212])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 11 Nov 2025 14:37:49 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <pvjnjwm25ogu7khrpg5ttxylwnxazwxxb4jpvxhw7ysvqzkkpa@ucekjrrppaqm>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 11 Nov 2025 15:37:44 +0100
+Message-Id: <DE5XX691NDPL.23EQ56H2AP7CK@linux.ibm.com>
+From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+Cc: <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        "Heiko Carstens"
+ <hca@linux.ibm.com>,
+        "Vasily Gorbik" <gor@linux.ibm.com>,
+        "Alexander
+ Gordeev" <agordeev@linux.ibm.com>,
+        "Christian Borntraeger"
+ <borntraeger@linux.ibm.com>,
+        "Janosch Frank" <frankja@linux.ibm.com>,
+        "Nico
+ Boehr" <nrb@linux.ibm.com>,
+        "David Hildenbrand" <david@redhat.com>,
+        "Sven
+ Schnelle" <svens@linux.ibm.com>,
+        "Paolo Bonzini" <pbonzini@redhat.com>, "Shuah Khan" <shuah@kernel.org>
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
+Subject: Re: [PATCH RFC v2 01/11] KVM: s390: Add SCAO read and write helpers
+X-Mailer: aerc 0.20.1
+References: <20251110-vsieie-v2-0-9e53a3618c8c@linux.ibm.com>
+ <20251110-vsieie-v2-1-9e53a3618c8c@linux.ibm.com>
+ <20251111144511.64450b0e@p-imbrenda>
+In-Reply-To: <20251111144511.64450b0e@p-imbrenda>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=Ss+dKfO0 c=1 sm=1 tr=0 ts=69134a42 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VnNF1IyMAAAA:8 a=F1t4R9oC0O7z7MunMTsA:9 a=QEXdDO2ut3YA:10
+ a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTA4MDA5NSBTYWx0ZWRfX8Tebmb6YcY6s
+ RL0Sj9qi+LUEEYxfUp0i3y1UfpHSIwTuqMadsjQ6Letb1W8lJsf6bbh3jLeVkaezkAfOx4m1zmm
+ 46smpans+AkYQZq1IuHuiqWTt7J1V7lLbgo0ZOKFwb9NUt8jZW6JAWZ4tBhZsCTEABvmfFBW1hs
+ tQv8o5qLDmyYCtvA4hiWETqVxmynBEmEtUvUvBaMY6FhSqcBnf1VsZ61E13bh0xjfFuZnUmPhQy
+ F2SPRvzeciFmu+5kvKot5silWctuyzjzhyIgWdKcdar3fthu5c8lvGAbxZJrBlXnKJBCOcCJZER
+ rCtgAwDoMWWc28+NmpcOrQIvv4iplYWIeHimHm8B74vEDyw0ao4gPYkM4farshgMBkF+tns2l5M
+ cJcYXvtPR5Uuem1XCY73D+eTTZbdpg==
+X-Proofpoint-GUID: UYLt-63Dy6Yti-VvDvi0tU-RpLlkehKO
+X-Proofpoint-ORIG-GUID: UYLt-63Dy6Yti-VvDvi0tU-RpLlkehKO
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-11-11_02,2025-11-11_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 suspectscore=0 impostorscore=0 bulkscore=0 phishscore=0
+ lowpriorityscore=0 adultscore=0 priorityscore=1501 spamscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511080095
 
-On Tue, Nov 11, 2025 at 05:08:25PM +0900, Sergey Senozhatsky wrote:
-> On (25/11/10 19:40), Andy Shevchenko wrote:
-> [..]
-> > +	dev_dbg(smi_info->io.dev, "**%s: %ptSp\n", msg, &t);
-> 
-> Strictly speaking, this is not exactly equivalent to %lld.%9.9ld
-> or %lld.%6.6ld but I don't know if that's of any importance.
-> 
+On Tue Nov 11, 2025 at 2:45 PM CET, Claudio Imbrenda wrote:
+> On Mon, 10 Nov 2025 18:16:41 +0100
+> Christoph Schlameuss <schlameuss@linux.ibm.com> wrote:
+>
+>> Introduce some small helper functions to get and set the system control
+>> area origin address from the SIE control block.
+>>=20
+>> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+>> ---
+>>  arch/s390/kvm/vsie.c | 29 +++++++++++++++++++++--------
+>>  1 file changed, 21 insertions(+), 8 deletions(-)
+>>=20
+>> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+>> index 347268f89f2f186bea623a3adff7376cabc305b2..ced2ca4ce5b584403d900ed1=
+1cb064919feda8e9 100644
+>> --- a/arch/s390/kvm/vsie.c
+>> +++ b/arch/s390/kvm/vsie.c
+>> @@ -123,6 +123,23 @@ static int prefix_is_mapped(struct vsie_page *vsie_=
+page)
+>>  	return !(atomic_read(&vsie_page->scb_s.prog20) & PROG_REQUEST);
+>>  }
+>> =20
+>> +static gpa_t read_scao(struct kvm *kvm, struct kvm_s390_sie_block *scb)
+>> +{
+>> +	gpa_t sca;
+>
+> is it, though?
+>
+>> +
+>> +	sca =3D READ_ONCE(scb->scaol) & ~0xfUL;
+>> +	if (test_kvm_cpu_feat(kvm, KVM_S390_VM_CPU_FEAT_64BSCAO))
+>> +		sca |=3D (u64)READ_ONCE(scb->scaoh) << 32;
+>
+> this feels more like an hpa_t, which is what you also use in the
+> function below
+>
 
-Dang it, I'm traveling and used the wrong way to send the previous response.
-Sorry.
+It actually can be either. Without vsie sigp this is a gpa for reading and
+writing. With vsie sigp this is a gpa when reading and a hpa when writing
+it. It might be best to not imply anything here but just use "unsigned long=
+"
+for these functions.
 
-Anyway, yes, it's not equivalent, but it's not important.  It's better
-to use a standard output format.  Thanks for pointing this out.
+>> +
+>> +	return sca;
+>> +}
+>> +
+>> +static void write_scao(struct kvm_s390_sie_block *scb, hpa_t hpa)
+>> +{
+>> +	scb->scaoh =3D (u32)((u64)hpa >> 32);
+>> +	scb->scaol =3D (u32)(u64)hpa;
+>> +}
+>> +
+>>  /* copy the updated intervention request bits into the shadow scb */
+>>  static void update_intervention_requests(struct vsie_page *vsie_page)
+>>  {
+>> @@ -714,12 +731,11 @@ static void unpin_blocks(struct kvm_vcpu *vcpu, st=
+ruct vsie_page *vsie_page)
+>>  	struct kvm_s390_sie_block *scb_s =3D &vsie_page->scb_s;
+>>  	hpa_t hpa;
+>> =20
+>> -	hpa =3D (u64) scb_s->scaoh << 32 | scb_s->scaol;
+>> +	hpa =3D read_scao(vcpu->kvm, scb_s);
+>>  	if (hpa) {
+>>  		unpin_guest_page(vcpu->kvm, vsie_page->sca_gpa, hpa);
+>>  		vsie_page->sca_gpa =3D 0;
+>> -		scb_s->scaol =3D 0;
+>> -		scb_s->scaoh =3D 0;
+>> +		write_scao(scb_s, 0);
+>>  	}
+>> =20
+>>  	hpa =3D scb_s->itdba;
+>> @@ -773,9 +789,7 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct =
+vsie_page *vsie_page)
+>>  	gpa_t gpa;
+>>  	int rc =3D 0;
+>> =20
+>> -	gpa =3D READ_ONCE(scb_o->scaol) & ~0xfUL;
+>> -	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_64BSCAO))
+>> -		gpa |=3D (u64) READ_ONCE(scb_o->scaoh) << 32;
+>> +	gpa =3D read_scao(vcpu->kvm, scb_o);
+>>  	if (gpa) {
+>>  		if (gpa < 2 * PAGE_SIZE)
+>>  			rc =3D set_validity_icpt(scb_s, 0x0038U);
+>> @@ -792,8 +806,7 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct =
+vsie_page *vsie_page)
+>>  		if (rc)
+>>  			goto unpin;
+>>  		vsie_page->sca_gpa =3D gpa;
+>> -		scb_s->scaoh =3D (u32)((u64)hpa >> 32);
+>> -		scb_s->scaol =3D (u32)(u64)hpa;
+>> +		write_scao(scb_s, hpa);
+>>  	}
+>> =20
+>>  	gpa =3D READ_ONCE(scb_o->itdba) & ~0xffUL;
+>>=20
 
-Thanks,
-
--corey
