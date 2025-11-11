@@ -1,309 +1,215 @@
-Received: from DM5PR21CU001.outbound.protection.outlook.com (mail-centralusazon11011033.outbound.protection.outlook.com [52.101.62.33])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 311DC1A3178;
-	Tue, 11 Nov 2025 14:49:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.62.33
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762872602; cv=fail; b=Xl0qL+qThV+/j4wvfCWl4PZyS9W9c3Yt1po+H6HBvUrlr7a9jJ9kC62dc9KvO1Mu29Dwk++wZNsyVlmdsckkIyL0NyLE2yxtaDuL+iidQLj/AZxovTytmlbzombry5WugbiA5dSTxiqPuHqLA+XGiE/VzvinK3JSmnxV9idr9mc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762872602; c=relaxed/simple;
-	bh=I2pkeHQ2Xz6QbadaKb/LvRPuzCckK0IryY58uKTdsq0=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=XksG2mbYuxWR6NEVn9uJig+FT41KeXhU0+X5hkTHgt4M7sYIlTt/U52+tgeYv4bJH2NifJvx0+qUoij1+i+Q7sy+ZggZwj5enm8/umTYyvOTvoo3GP5aquxnc2YONvF3s7Sd9we+raJPGXOCN7IYIHzlLMag3Mmnm/WF4f7wNeI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=4P9MiOXg; arc=fail smtp.client-ip=52.101.62.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA7E32F8BEE;
+	Tue, 11 Nov 2025 14:56:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1762872966; cv=none; b=IEs5si17ckDJMAy/W+79bokvQPtQAN7WfT5U0yixrlFe6JjPeteD/lAXdeOcPAWs8m/5z8mj/76tUGvabOitvVX+UoEqNUOEPq+H4CDQB7C/uACqxiBQIVLqntUyo4gTJfOsyFWccYWfZPaH9DK+xa0j9XEvpRnfexblM9YJcOk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1762872966; c=relaxed/simple;
+	bh=LTT/0NPqS0sd4jdmmJOjs5sWGJbex4ok7eM/QnEBPm8=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=QZmRTtv5fbHO5VOOQXhL5q5ituwrl43K7LIUh4d72OmsO8SI5Zr+Ch8JSdBjoGkyA0LtM8JKePF1RuKL7hHZBKnmBwjRpuL26yrx3xBgLXaAaaSTppnNO0jf2j2MSbXsSINgcluNvHNHn+FZG06YEAvoQq8QrhlfBrGjYRSaWlw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=AEMbLfwF; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="4P9MiOXg"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=tLr6zKieMSVVefIlFTh7nsIlEvZpHlmLKfgr8BaEY0Y8L5rqp0Fj3BxStwAIBbT5BGQq1k67Uh00lg6IOUu6z7+68JNOe+6BJ5sywANpENpahOCVgN5sNEIekfhYBCZ1Tm1xDGNIV4O/gQo51keDFUfhN7oCVMUGYxtBukaXZxi8SqO+vubeD25jv5He1IaKDAuqqsdrxf7CzTQUGJebnOxx+K1TCGWwYnizVSg5SorW/8xTR1m0LUTBq9AOozQCVgvgXYJEHg8Wio1BNC91aH4ojUOJ02KjaRRsxjcyZ9uqD4ayxZdOyGFjAe79f/K6soKZr8KE1omYk9ex0pbOyg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=GkwU1mVH+FzBYHWZ3X6mk/Izupa+NNZcIjjrI7JLXfo=;
- b=AOudp2oYNzb9houkyo++FnpeGyGX0J5MHiIWdJfdMNZJTqw/1zUbCC0+2M+o+gFF52D32J9Y9LWAANI1keCnJPbVVLgchVmwtmtB2N+rVJUXBmTstK5lSCA7jWzn1ZL/mJTHMdV+MYWOjztNGMHtEJHoYKC5u+oDxBsIrbaTiRja7keZYFQhqd4svBu7KtgHzKK9nfQswo4RnzP+qOG5ZDP5jsW1Qo2SrZS30TGTvJTYmpFamBxSka3CseZTOFwp1iJMrlDZP7jPrVtIDWq/CPGLPhgsh+J53ZR0wFAH6HVhVL/tebQ3ZHA4rUuaxckh9C53KjO4WkW01owOr5iNvw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=GkwU1mVH+FzBYHWZ3X6mk/Izupa+NNZcIjjrI7JLXfo=;
- b=4P9MiOXgvEP+e7EzPGB5BGeeuBZHm2J677y9FNU1WMGmPWwaOhSXPDvMxl0uv8xTfoPZeDJVTGqK3e/GeBu6cxClu0JYS1+9LWRsH6W2WWGiZB2ZrD0fq6nI90UOCmvHGVzrVUKwbB87qtvUOkzbqVy34JSJs3ATrrVFM1qdcIo=
-Received: from BL1PR12MB5144.namprd12.prod.outlook.com (2603:10b6:208:316::6)
- by CH3PR12MB9147.namprd12.prod.outlook.com (2603:10b6:610:19a::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9298.16; Tue, 11 Nov
- 2025 14:49:53 +0000
-Received: from BL1PR12MB5144.namprd12.prod.outlook.com
- ([fe80::491a:cce3:e531:3c42]) by BL1PR12MB5144.namprd12.prod.outlook.com
- ([fe80::491a:cce3:e531:3c42%4]) with mapi id 15.20.9320.013; Tue, 11 Nov 2025
- 14:49:53 +0000
-From: "Deucher, Alexander" <Alexander.Deucher@amd.com>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Corey Minyard
-	<corey@minyard.net>, "Koenig, Christian" <Christian.Koenig@amd.com>, "Dr.
- David Alan Gilbert" <linux@treblig.org>, Thomas Zimmermann
-	<tzimmermann@suse.de>, Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
-	Rob Clark <robin.clark@oss.qualcomm.com>, Matthew Brost
-	<matthew.brost@intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Vitaly
- Lifshits <vitaly.lifshits@intel.com>, Manivannan Sadhasivam
-	<mani@kernel.org>, Niklas Cassel <cassel@kernel.org>, Calvin Owens
-	<calvin@wbinvd.org>, Vadim Fedorenko <vadim.fedorenko@linux.dev>, Sagi Maimon
-	<maimon.sagi@gmail.com>, "Martin K. Petersen" <martin.petersen@oracle.com>,
-	Karan Tilak Kumar <kartilak@cisco.com>, Hans Verkuil
-	<hverkuil+cisco@kernel.org>, Casey Schaufler <casey@schaufler-ca.com>, Steven
- Rostedt <rostedt@goodmis.org>, Petr Mladek <pmladek@suse.com>, Viacheslav
- Dubeyko <Slava.Dubeyko@ibm.com>, Max Kellermann <max.kellermann@ionos.com>,
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"openipmi-developer@lists.sourceforge.net"
-	<openipmi-developer@lists.sourceforge.net>, "linux-media@vger.kernel.org"
-	<linux-media@vger.kernel.org>, "dri-devel@lists.freedesktop.org"
-	<dri-devel@lists.freedesktop.org>, "linaro-mm-sig@lists.linaro.org"
-	<linaro-mm-sig@lists.linaro.org>, "amd-gfx@lists.freedesktop.org"
-	<amd-gfx@lists.freedesktop.org>, "linux-arm-msm@vger.kernel.org"
-	<linux-arm-msm@vger.kernel.org>, "freedreno@lists.freedesktop.org"
-	<freedreno@lists.freedesktop.org>, "intel-xe@lists.freedesktop.org"
-	<intel-xe@lists.freedesktop.org>, "linux-mmc@vger.kernel.org"
-	<linux-mmc@vger.kernel.org>, "netdev@vger.kernel.org"
-	<netdev@vger.kernel.org>, "intel-wired-lan@lists.osuosl.org"
-	<intel-wired-lan@lists.osuosl.org>, "linux-pci@vger.kernel.org"
-	<linux-pci@vger.kernel.org>, "linux-s390@vger.kernel.org"
-	<linux-s390@vger.kernel.org>, "linux-scsi@vger.kernel.org"
-	<linux-scsi@vger.kernel.org>, "linux-staging@lists.linux.dev"
-	<linux-staging@lists.linux.dev>, "ceph-devel@vger.kernel.org"
-	<ceph-devel@vger.kernel.org>, "linux-trace-kernel@vger.kernel.org"
-	<linux-trace-kernel@vger.kernel.org>
-CC: Rasmus Villemoes <linux@rasmusvillemoes.dk>, Sergey Senozhatsky
-	<senozhatsky@chromium.org>, Jonathan Corbet <corbet@lwn.net>, Sumit Semwal
-	<sumit.semwal@linaro.org>, Gustavo Padovan <gustavo@padovan.org>, David
- Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, Maarten
- Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard
-	<mripard@kernel.org>, Dmitry Baryshkov <lumag@kernel.org>, Abhinav Kumar
-	<abhinav.kumar@linux.dev>, Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul
-	<sean@poorly.run>, Marijn Suijten <marijn.suijten@somainline.org>, Konrad
- Dybcio <konradybcio@kernel.org>, Lucas De Marchi <lucas.demarchi@intel.com>,
-	=?iso-8859-2?Q?Thomas_Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>, Vladimir Oltean <olteanv@gmail.com>,
-	Andrew Lunn <andrew@lunn.ch>, "David S. Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, Tony Nguyen <anthony.l.nguyen@intel.com>, Przemek
- Kitszel <przemyslaw.kitszel@intel.com>,
-	=?iso-8859-2?Q?Krzysztof_Wilczy=F1ski?= <kwilczynski@kernel.org>, Kishon
- Vijay Abraham I <kishon@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>,
-	Rodolfo Giometti <giometti@enneenne.com>, Richard Cochran
-	<richardcochran@gmail.com>, Jonathan Lemon <jonathan.lemon@gmail.com>, Stefan
- Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Heiko
- Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander
- Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
-	<borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Satish
- Kharat <satishkh@cisco.com>, Sesidhar Baddela <sebaddel@cisco.com>, "James
- E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Mauro Carvalho
- Chehab <mchehab@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Xiubo Li <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>, Masami
- Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers
-	<mathieu.desnoyers@efficios.com>, Andrew Morton <akpm@linux-foundation.org>
-Subject: RE: [PATCH v2 05/21] drm/amdgpu: Switch to use %ptSp
-Thread-Topic: [PATCH v2 05/21] drm/amdgpu: Switch to use %ptSp
-Thread-Index: AQHcUwahm1/91wHoNkKlQRJwdZtlULTtjo6Q
-Date: Tue, 11 Nov 2025 14:49:53 +0000
-Message-ID:
- <BL1PR12MB5144DAA1CB83640FBE834FFFF7CFA@BL1PR12MB5144.namprd12.prod.outlook.com>
-References: <20251111122735.880607-1-andriy.shevchenko@linux.intel.com>
- <20251111122735.880607-6-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20251111122735.880607-6-andriy.shevchenko@linux.intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-msip_labels:
- MSIP_Label_f265efc6-e181-49d6-80f4-fae95cf838a0_Enabled=True;MSIP_Label_f265efc6-e181-49d6-80f4-fae95cf838a0_SiteId=3dd8961f-e488-4e60-8e11-a82d994e183d;MSIP_Label_f265efc6-e181-49d6-80f4-fae95cf838a0_SetDate=2025-11-11T14:49:03.0000000Z;MSIP_Label_f265efc6-e181-49d6-80f4-fae95cf838a0_Name=Open
- Source;MSIP_Label_f265efc6-e181-49d6-80f4-fae95cf838a0_ContentBits=3;MSIP_Label_f265efc6-e181-49d6-80f4-fae95cf838a0_Method=Privileged
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BL1PR12MB5144:EE_|CH3PR12MB9147:EE_
-x-ms-office365-filtering-correlation-id: d4b40aa3-753f-488e-1215-08de213192e4
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|7416014|376014|1800799024|366016|921020|38070700021;
-x-microsoft-antispam-message-info:
- =?iso-8859-2?Q?OrgQba1o8VRkBRZy5KjWGPJFxxdvb9PI2OytFVyn9ss6KeRgUuNKhjHq35?=
- =?iso-8859-2?Q?TostFJ91nWS81XunmUZXFcM2dNwFIbkVmwmviAN+9MjVoCn72yk+qV9/5A?=
- =?iso-8859-2?Q?21+5lZS4OSEk52i+HU2wOlVTAPVHrqsJeulWOiRwU3/W7rwng+pLW2yAp+?=
- =?iso-8859-2?Q?As3Ne6InDCuJtLmdM8uov6bkArZCyP2vOHy+lt3GAWT01g6K5BgDCr2uC9?=
- =?iso-8859-2?Q?gf4ACKmQUAIB7dloGnx7EDamcoMLI7LN7KDxEM/GgryhlxofaJUn54ONUo?=
- =?iso-8859-2?Q?87XOuy1pofi8FmPIPCfM2TnaXnPHxJAV0CBZqO6++8OdKlBUDhpCMtlIZm?=
- =?iso-8859-2?Q?aunWC2gJWf6w0vRU3d9r7qYJTuKlUZZM9YLSTWYgwHzAOiTEoGuYVN2SEn?=
- =?iso-8859-2?Q?hbbGJ09XHFDsWtThS7skygDzK0JLlRoixUeCBowVxhRxdT9qCGUaESEHZz?=
- =?iso-8859-2?Q?inQGnPOVbW1Ym7bDVbXMAiH6oG6Pk3QVQwVoAEe1FroEFxhmFkNfjOliQI?=
- =?iso-8859-2?Q?TSBwpejmYUIomMkjHXkMn/TZ+A2CBlihIjFM0LN+Ttl3qet+43xn0ORJny?=
- =?iso-8859-2?Q?c6k6BReErVvD5d/rPI2DEJd+wLjA3QGsBhggqq+j+SIyRx69buZvU5zOGB?=
- =?iso-8859-2?Q?Iovxhmb5Hev18SvFA3KGQHd+9cC8H/FFHvoO0zAQ++a5eoduMTa6BIYJCM?=
- =?iso-8859-2?Q?KM8Hm28rtQBlYR37ydHv8Ix1gpMobT6UHT9m4rYv1FeeV1S6CH9gzPviZd?=
- =?iso-8859-2?Q?iRBR/QrNWdDIOs53ce6k8U6BVctuRZP/B8fEW0rS/sR4g0GqBBvS0K2Lcs?=
- =?iso-8859-2?Q?ooXVutaSDB5BgNCt2OFKXSqZmozfl3Wi17iZHZlEnq4Uxwndzyh0xV035m?=
- =?iso-8859-2?Q?Zd/y26S9fGY8r4WKahf9kzkOtVXM50z+Znb5Igz94CrhVMvB6G3CqIJ31z?=
- =?iso-8859-2?Q?C0aWEQ4nSVIzW7LrUPygs19CkKZLZ0+k+SlA5pbFEoB/0GXk09e+tbaDGZ?=
- =?iso-8859-2?Q?tQwmpzNwF7Lkphf9pszGwyl7CsRPAV5/OnmXvYIGCiCuVqfckFKDFkTUr3?=
- =?iso-8859-2?Q?Q2VRcX9xwHIQS2QKu2Zsi3AotquwCdxWm4a46szrCjX9xPSQs027Rm7Cl9?=
- =?iso-8859-2?Q?4b085D4VFJV0eboQCARbXD2zkQ76uWewrb+xqoHw3onhtBEPlWOezuxiSH?=
- =?iso-8859-2?Q?PtvjCkcR3kZ7x6cjCVOdh6Bcnigv6mXjZWYm7kMNFh8XlAt0M135Y/vzuP?=
- =?iso-8859-2?Q?4kHzyErkKxpFPVf+wj7UWcwfYNKqkP+XTkHACDpnvNjyFieGfOYm/IEr/6?=
- =?iso-8859-2?Q?h93VPcZULXAj4o9XCHEh/f5CxjM0h/55TO4i0pS8C704uFEmSCreSXZzkq?=
- =?iso-8859-2?Q?DFkORbsr9XMN+B+8bpblyDG6BB5Mu7wP/b4jm2Bn3qzPx2XRhHwduUFLyc?=
- =?iso-8859-2?Q?ngfIa6ZBGzNEAUio7tLJqTIpPwAYf0BhC/gvyivI6UEpHF6YrCTeGYG+tp?=
- =?iso-8859-2?Q?/HKhtRnFwD7iRSeeaIy94LpY7oQi1insn6B8R/kOoYspHnlG8YuppUjqHs?=
- =?iso-8859-2?Q?0glvuqnkbygBFDPvLiba3YNSWWURlRA8Vo9XEbKseLDk9A/bFw=3D=3D?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL1PR12MB5144.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(1800799024)(366016)(921020)(38070700021);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?iso-8859-2?Q?YdFRE1eWrPnF1GjQxYY0iivBiOqCLGtbo/c8RewREhlsgtC52oCM8zemPI?=
- =?iso-8859-2?Q?0qvXvKbT+ZMeYZQXNbhSEV8Sg8tSlMGI5V2NO0+p6pxP99hKRk1COI4llZ?=
- =?iso-8859-2?Q?ST/JV80w6gw+skR6ltDbLAnwO2u/lLPr2sO21LQh1+CXnIRMinHpG8MZx1?=
- =?iso-8859-2?Q?nEW0grvYDrKv97xxD7p69ayMEcyrpAYL1KwPs6f5M7syyFwQB7/xxtcCNT?=
- =?iso-8859-2?Q?/bsNITszdE5LmV4JeNJOTz4Q0PEfx36uLSXyMyFtjPFNGBkZlz8p3TdPCw?=
- =?iso-8859-2?Q?NApYU7IU7DQCUNCWwTq1UKY0MDBCcvYjDJ7UgtoMKQoco2TX8sgzA5FjR7?=
- =?iso-8859-2?Q?SgrOJQfMoipCUnG5+xURExhi8TNpm9Z+S69rbDNORhsb9Hr6+i8UutL1JA?=
- =?iso-8859-2?Q?Pss1pw2Ox+ih9kSrok60aWWMn4ak12yytPJ2u9svnFi1WELcZr1n0R01l9?=
- =?iso-8859-2?Q?XnnD2imFQ9ZKk3NRZ7QfWKZKYFvSaY3kSTYYzA1hWUX8UIlxDjos+zkgXd?=
- =?iso-8859-2?Q?Z721P/FFL4iJeooBRjT9HtUIfIpi/w61N4W5e0IT+jxcmFR9qngdP2vG3N?=
- =?iso-8859-2?Q?yDxarCQayMQDH7FcttW7LnPNiszlNR72jUyLAL94FTnEv7T8009qnZPJyX?=
- =?iso-8859-2?Q?SU0FdWiZJ3sBv6u9NglxMcudswyLdufcX+a0tlHma2PxWJvNnMf0SvClXe?=
- =?iso-8859-2?Q?oLPfLaCtYfMPQdHbviakBEL65iMf3lbmRfLDC/MBLawgmYbDOD0oK51Cht?=
- =?iso-8859-2?Q?js+b1cG4f+9yWC28tIq3s/m6PeCO9CRY9WjaEbJUktLtwUhNZWUYgWkb2U?=
- =?iso-8859-2?Q?+vNbELTISQ/KeHKGITtUmsnGpUXStXWSvaFx/PEGqrhyBVXmP9hJE6IdJs?=
- =?iso-8859-2?Q?KWk7i+gfjPJh7oGin0qoJ5q63Di5I0x9zHNNPsbnTu8nHTZOw+WzfjR2Ig?=
- =?iso-8859-2?Q?IevCIZDu7N6V1fR6+pOn9bUD7grI8lKghyP/ziUA7dM5XzzXJXl8DtW3zc?=
- =?iso-8859-2?Q?qkJr7ItoFSSv2+kNOA+03nTw0GecoT/x4ETpC+1f8JXgaH5TDc6i+Ouh2O?=
- =?iso-8859-2?Q?kBCS9BWRtGq0kS3EJlqHYGFkTc/RDazOYHLReoXS0KW9NUw76g5IzbBu5M?=
- =?iso-8859-2?Q?JL87YPJ5Nn4py0aP4oqbPLjuTfUqatXTGdgy2FgDG+kyfGJZlrTZfKJuw5?=
- =?iso-8859-2?Q?GFm4WH+0OSWqq4qL8knsiKECPX4NWNXdQ1etGJGCHFqew9wb6pPckPMqV9?=
- =?iso-8859-2?Q?14QR8ZZS9fvH2tWGG/wOFfCeEu7jKHouX1heuvxBE0pnSzEBGxRrKL/+Ik?=
- =?iso-8859-2?Q?pq0s5ZoSz6537o1pgzuSprTrALvxluza4vmbWJg2D0vX2jMYP3D39/kesj?=
- =?iso-8859-2?Q?+LguNMz2DQ2xnIJaGDQufP1KUJSDuUcoqEDnXzZJuzkcfNspQ6PNZI24Rx?=
- =?iso-8859-2?Q?1C2BpsS4iEpMa7Ab5yKzLyWDDMtUqEqSnFNzFhbMLfzDSUhVU2gogmr8oz?=
- =?iso-8859-2?Q?A+1/S7/hrAujQl07+mHY4SZsGs4CQzDLN6sd5mU1H1R6kUIJKQ68YbM16N?=
- =?iso-8859-2?Q?DlCyqmqXDoEEqS6n04RPnZIKOJYWo3OfQWqTTxfCJ/4ywkBhfIdsI0yBK1?=
- =?iso-8859-2?Q?GE0em/cq9Hlrc=3D?=
-Content-Type: text/plain; charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="AEMbLfwF"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AB0jdDR007844;
+	Tue, 11 Nov 2025 14:55:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ZOUBzZ
+	/zue2HpO0jbUI2PCUQ/xL3dJFVxLSxHcsxPE0=; b=AEMbLfwFjn7JO4aczDym0W
+	OWt1eiS6ahC7YpMtNB3Em1DoQsquMWCebT1OtAxEpl+HWCen9qf1q/R7FKHwzj5o
+	+moSn+igvDEED0o9Dp3gvCe3UZ/fthViC7fOvJSVxE7+Zd4BTf7GedLsqP6XvDS2
+	X1ktx+9pVun/+Koqmn95hAQ4Hto46aLue1YVoEU0nsjQwQFq2eDE2wVAb4C01Ca7
+	P/orNTR8DRT+Xrazsipu+wnNraAFtp9rrT/7eTdqaDPem7Nq6ZeemsN889GEYULD
+	Rnwtb7hec/Mk0BPoKUqy9j6T7O0djrjFO7Ka5PRoSQfkJLY92fuSBoi+I/bkqVNg
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aa5tjudnn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 11 Nov 2025 14:55:47 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5ABDwcjY028978;
+	Tue, 11 Nov 2025 14:55:46 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4aag6sbedk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 11 Nov 2025 14:55:46 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5ABEthH627132666
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 11 Nov 2025 14:55:43 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 47B8020043;
+	Tue, 11 Nov 2025 14:55:43 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BA3AE20040;
+	Tue, 11 Nov 2025 14:55:42 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.155.209.42])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 11 Nov 2025 14:55:42 +0000 (GMT)
+Date: Tue, 11 Nov 2025 15:55:40 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+Cc: <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        "Heiko Carstens"
+ <hca@linux.ibm.com>,
+        "Vasily Gorbik" <gor@linux.ibm.com>,
+        "Alexander
+ Gordeev" <agordeev@linux.ibm.com>,
+        "Christian Borntraeger"
+ <borntraeger@linux.ibm.com>,
+        "Janosch Frank" <frankja@linux.ibm.com>,
+        "Nico
+ Boehr" <nrb@linux.ibm.com>,
+        "David Hildenbrand" <david@redhat.com>,
+        "Sven
+ Schnelle" <svens@linux.ibm.com>,
+        "Paolo Bonzini" <pbonzini@redhat.com>, "Shuah Khan" <shuah@kernel.org>
+Subject: Re: [PATCH RFC v2 01/11] KVM: s390: Add SCAO read and write helpers
+Message-ID: <20251111155540.1627fd3b@p-imbrenda>
+In-Reply-To: <DE5XX691NDPL.23EQ56H2AP7CK@linux.ibm.com>
+References: <20251110-vsieie-v2-0-9e53a3618c8c@linux.ibm.com>
+	<20251110-vsieie-v2-1-9e53a3618c8c@linux.ibm.com>
+	<20251111144511.64450b0e@p-imbrenda>
+	<DE5XX691NDPL.23EQ56H2AP7CK@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BL1PR12MB5144.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d4b40aa3-753f-488e-1215-08de213192e4
-X-MS-Exchange-CrossTenant-originalarrivaltime: 11 Nov 2025 14:49:53.4262
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: +UWf/dYI0w3WKb4fcGJtSH5FXiPAuJpcMfWbfhyLN3SsBFmhHj6n4u4N2adU0+K4dmMYqSb6UrCDOkmV4OPSLA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB9147
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: LK7ly1b2Pi04HnbOivibfpC4h65SxMQ2
+X-Proofpoint-ORIG-GUID: LK7ly1b2Pi04HnbOivibfpC4h65SxMQ2
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTA4MDA5OSBTYWx0ZWRfX28DFpqzqdDzl
+ Y34w6vtAWVwHidag442czxFbDPm4RNpapTuMHIiCSLtrCvETlUNuAlQMy97od42kVAasY65XaND
+ fsvdiu/qJ2ivWhAU3J0c338mGOWPwzS+kLXXGpeY4ViDQnFirvVjMdrDiTs3surDFFtn3FgedcV
+ kZdjowssDc7em04xnd0dXPPLnOpH1l+chsMGkLUQFQjZqO2kQogZiohkIrK2ibiwiCB06MiC2tp
+ 3QvqBozJOF+nN4WHpFeJLObpIE0eQMtdyt7M1WDMdrB7tR0wpWMgO4s01IttG1rJvNnyOEoXSBm
+ LNNGVb12+4LhQvyVmOvVwKzDH/rxzoM1YCCH+WaRm1tWQQPmOvv8kD2rRujE1U0zbRpRXDL9nlk
+ f/2oLT9dCd5EgZ6Z8ULvaw6RFpY1RA==
+X-Authority-Analysis: v=2.4 cv=V6xwEOni c=1 sm=1 tr=0 ts=69134e73 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=kj9zAlcOel0A:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VnNF1IyMAAAA:8 a=rKy7gxD54zyUxROypZIA:9 a=CjuIK1q_8ugA:10
+ a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-11-11_02,2025-11-11_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 lowpriorityscore=0 adultscore=0 malwarescore=0 impostorscore=0
+ suspectscore=0 priorityscore=1501 phishscore=0 bulkscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511080099
 
-[Public]
+On Tue, 11 Nov 2025 15:37:44 +0100
+"Christoph Schlameuss" <schlameuss@linux.ibm.com> wrote:
 
-> -----Original Message-----
-> From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Sent: Tuesday, November 11, 2025 7:20 AM
-> To: Corey Minyard <corey@minyard.net>; Koenig, Christian
-> <Christian.Koenig@amd.com>; Dr. David Alan Gilbert <linux@treblig.org>;
-> Deucher, Alexander <Alexander.Deucher@amd.com>; Thomas Zimmermann
-> <tzimmermann@suse.de>; Dmitry Baryshkov
-> <dmitry.baryshkov@oss.qualcomm.com>; Rob Clark
-> <robin.clark@oss.qualcomm.com>; Matthew Brost
-> <matthew.brost@intel.com>; Ulf Hansson <ulf.hansson@linaro.org>; Andy
-> Shevchenko <andriy.shevchenko@linux.intel.com>; Vitaly Lifshits
-> <vitaly.lifshits@intel.com>; Manivannan Sadhasivam <mani@kernel.org>;
-> Niklas Cassel <cassel@kernel.org>; Calvin Owens <calvin@wbinvd.org>; Vadi=
-m
-> Fedorenko <vadim.fedorenko@linux.dev>; Sagi Maimon
-> <maimon.sagi@gmail.com>; Martin K. Petersen
-> <martin.petersen@oracle.com>; Karan Tilak Kumar <kartilak@cisco.com>;
-> Hans Verkuil <hverkuil+cisco@kernel.org>; Casey Schaufler <casey@schaufle=
-r-
-> ca.com>; Steven Rostedt <rostedt@goodmis.org>; Petr Mladek
-> <pmladek@suse.com>; Viacheslav Dubeyko <Slava.Dubeyko@ibm.com>; Max
-> Kellermann <max.kellermann@ionos.com>; linux-doc@vger.kernel.org; linux-
-> kernel@vger.kernel.org; openipmi-developer@lists.sourceforge.net; linux-
-> media@vger.kernel.org; dri-devel@lists.freedesktop.org; linaro-mm-
-> sig@lists.linaro.org; amd-gfx@lists.freedesktop.org; linux-arm-
-> msm@vger.kernel.org; freedreno@lists.freedesktop.org; intel-
-> xe@lists.freedesktop.org; linux-mmc@vger.kernel.org;
-> netdev@vger.kernel.org; intel-wired-lan@lists.osuosl.org; linux-
-> pci@vger.kernel.org; linux-s390@vger.kernel.org; linux-scsi@vger.kernel.o=
-rg;
-> linux-staging@lists.linux.dev; ceph-devel@vger.kernel.org; linux-trace-
-> kernel@vger.kernel.org
-> Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>; Sergey Senozhatsky
-> <senozhatsky@chromium.org>; Jonathan Corbet <corbet@lwn.net>; Sumit
-> Semwal <sumit.semwal@linaro.org>; Gustavo Padovan
-> <gustavo@padovan.org>; David Airlie <airlied@gmail.com>; Simona Vetter
-> <simona@ffwll.ch>; Maarten Lankhorst
-> <maarten.lankhorst@linux.intel.com>; Maxime Ripard <mripard@kernel.org>;
-> Dmitry Baryshkov <lumag@kernel.org>; Abhinav Kumar
-> <abhinav.kumar@linux.dev>; Jessica Zhang <jesszhan0024@gmail.com>; Sean
-> Paul <sean@poorly.run>; Marijn Suijten <marijn.suijten@somainline.org>;
-> Konrad Dybcio <konradybcio@kernel.org>; Lucas De Marchi
-> <lucas.demarchi@intel.com>; Thomas Hellstr=F6m
-> <thomas.hellstrom@linux.intel.com>; Rodrigo Vivi <rodrigo.vivi@intel.com>=
-;
-> Vladimir Oltean <olteanv@gmail.com>; Andrew Lunn <andrew@lunn.ch>;
-> David S. Miller <davem@davemloft.net>; Eric Dumazet
-> <edumazet@google.com>; Jakub Kicinski <kuba@kernel.org>; Paolo Abeni
-> <pabeni@redhat.com>; Tony Nguyen <anthony.l.nguyen@intel.com>;
-> Przemek Kitszel <przemyslaw.kitszel@intel.com>; Krzysztof Wilczy=F1ski
-> <kwilczynski@kernel.org>; Kishon Vijay Abraham I <kishon@kernel.org>;
-> Bjorn Helgaas <bhelgaas@google.com>; Rodolfo Giometti
-> <giometti@enneenne.com>; Richard Cochran <richardcochran@gmail.com>;
-> Jonathan Lemon <jonathan.lemon@gmail.com>; Stefan Haberland
-> <sth@linux.ibm.com>; Jan Hoeppner <hoeppner@linux.ibm.com>; Heiko
-> Carstens <hca@linux.ibm.com>; Vasily Gorbik <gor@linux.ibm.com>;
-> Alexander Gordeev <agordeev@linux.ibm.com>; Christian Borntraeger
-> <borntraeger@linux.ibm.com>; Sven Schnelle <svens@linux.ibm.com>; Satish
-> Kharat <satishkh@cisco.com>; Sesidhar Baddela <sebaddel@cisco.com>;
-> James E.J. Bottomley <James.Bottomley@HansenPartnership.com>; Mauro
-> Carvalho Chehab <mchehab@kernel.org>; Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org>; Xiubo Li <xiubli@redhat.com>; Ilya Dryomov
-> <idryomov@gmail.com>; Masami Hiramatsu <mhiramat@kernel.org>;
-> Mathieu Desnoyers <mathieu.desnoyers@efficios.com>; Andrew Morton
-> <akpm@linux-foundation.org>
-> Subject: [PATCH v2 05/21] drm/amdgpu: Switch to use %ptSp
->
-> Use %ptSp instead of open coded variants to print content of struct
-> timespec64 in human readable format.
->
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> On Tue Nov 11, 2025 at 2:45 PM CET, Claudio Imbrenda wrote:
+> > On Mon, 10 Nov 2025 18:16:41 +0100
+> > Christoph Schlameuss <schlameuss@linux.ibm.com> wrote:
+> >  
+> >> Introduce some small helper functions to get and set the system control
+> >> area origin address from the SIE control block.
+> >> 
+> >> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+> >> ---
+> >>  arch/s390/kvm/vsie.c | 29 +++++++++++++++++++++--------
+> >>  1 file changed, 21 insertions(+), 8 deletions(-)
+> >> 
+> >> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+> >> index 347268f89f2f186bea623a3adff7376cabc305b2..ced2ca4ce5b584403d900ed11cb064919feda8e9 100644
+> >> --- a/arch/s390/kvm/vsie.c
+> >> +++ b/arch/s390/kvm/vsie.c
+> >> @@ -123,6 +123,23 @@ static int prefix_is_mapped(struct vsie_page *vsie_page)
+> >>  	return !(atomic_read(&vsie_page->scb_s.prog20) & PROG_REQUEST);
+> >>  }
+> >>  
+> >> +static gpa_t read_scao(struct kvm *kvm, struct kvm_s390_sie_block *scb)
+> >> +{
+> >> +	gpa_t sca;  
+> >
+> > is it, though?
+> >  
+> >> +
+> >> +	sca = READ_ONCE(scb->scaol) & ~0xfUL;
+> >> +	if (test_kvm_cpu_feat(kvm, KVM_S390_VM_CPU_FEAT_64BSCAO))
+> >> +		sca |= (u64)READ_ONCE(scb->scaoh) << 32;  
+> >
+> > this feels more like an hpa_t, which is what you also use in the
+> > function below
+> >  
+> 
+> It actually can be either. Without vsie sigp this is a gpa for reading and
+> writing. With vsie sigp this is a gpa when reading and a hpa when writing
 
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
+this is a little confusing, maybe add an explanation
 
-> ---
->  drivers/gpu/drm/amd/amdgpu/amdgpu_dev_coredump.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_dev_coredump.c
-> b/drivers/gpu/drm/amd/amdgpu/amdgpu_dev_coredump.c
-> index 8a026bc9ea44..4e2fe6674db8 100644
-> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_dev_coredump.c
-> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_dev_coredump.c
-> @@ -217,8 +217,7 @@ amdgpu_devcoredump_read(char *buffer, loff_t
-> offset, size_t count,
->       drm_printf(&p, "version: " AMDGPU_COREDUMP_VERSION "\n");
->       drm_printf(&p, "kernel: " UTS_RELEASE "\n");
->       drm_printf(&p, "module: " KBUILD_MODNAME "\n");
-> -     drm_printf(&p, "time: %lld.%09ld\n", coredump->reset_time.tv_sec,
-> -                coredump->reset_time.tv_nsec);
-> +     drm_printf(&p, "time: %ptSp\n", &coredump->reset_time);
->
->       if (coredump->reset_task_info.task.pid)
->               drm_printf(&p, "process_name: %s PID: %d\n",
-> --
-> 2.50.1
+> it. It might be best to not imply anything here but just use "unsigned long"
+> for these functions.
+
+yes
+
+> 
+> >> +
+> >> +	return sca;
+> >> +}
+> >> +
+> >> +static void write_scao(struct kvm_s390_sie_block *scb, hpa_t hpa)
+> >> +{
+> >> +	scb->scaoh = (u32)((u64)hpa >> 32);
+> >> +	scb->scaol = (u32)(u64)hpa;
+> >> +}
+> >> +
+> >>  /* copy the updated intervention request bits into the shadow scb */
+> >>  static void update_intervention_requests(struct vsie_page *vsie_page)
+> >>  {
+> >> @@ -714,12 +731,11 @@ static void unpin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+> >>  	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
+> >>  	hpa_t hpa;
+> >>  
+> >> -	hpa = (u64) scb_s->scaoh << 32 | scb_s->scaol;
+> >> +	hpa = read_scao(vcpu->kvm, scb_s);
+> >>  	if (hpa) {
+> >>  		unpin_guest_page(vcpu->kvm, vsie_page->sca_gpa, hpa);
+> >>  		vsie_page->sca_gpa = 0;
+> >> -		scb_s->scaol = 0;
+> >> -		scb_s->scaoh = 0;
+> >> +		write_scao(scb_s, 0);
+> >>  	}
+> >>  
+> >>  	hpa = scb_s->itdba;
+> >> @@ -773,9 +789,7 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+> >>  	gpa_t gpa;
+> >>  	int rc = 0;
+> >>  
+> >> -	gpa = READ_ONCE(scb_o->scaol) & ~0xfUL;
+> >> -	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_64BSCAO))
+> >> -		gpa |= (u64) READ_ONCE(scb_o->scaoh) << 32;
+> >> +	gpa = read_scao(vcpu->kvm, scb_o);
+> >>  	if (gpa) {
+> >>  		if (gpa < 2 * PAGE_SIZE)
+> >>  			rc = set_validity_icpt(scb_s, 0x0038U);
+> >> @@ -792,8 +806,7 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+> >>  		if (rc)
+> >>  			goto unpin;
+> >>  		vsie_page->sca_gpa = gpa;
+> >> -		scb_s->scaoh = (u32)((u64)hpa >> 32);
+> >> -		scb_s->scaol = (u32)(u64)hpa;
+> >> +		write_scao(scb_s, hpa);
+> >>  	}
+> >>  
+> >>  	gpa = READ_ONCE(scb_o->itdba) & ~0xffUL;
+> >>   
+> 
 
