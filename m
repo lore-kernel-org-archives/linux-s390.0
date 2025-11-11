@@ -1,186 +1,132 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
+Received: from fout-a2-smtp.messagingengine.com (fout-a2-smtp.messagingengine.com [103.168.172.145])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BEFC361DCC;
-	Tue, 11 Nov 2025 12:28:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2966732827F;
+	Tue, 11 Nov 2025 12:42:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.145
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762864098; cv=none; b=tQCzpeGYSxq52vkT2PBfpLvW0J/qkzH8pVr1F1B2RNpZXoZuvgmjj92brH18SlCyY/qhFvo7ZNecxPl0k6AR2Q9R1+HVkfIsGJuNR+PX1OGUiFg5tkTIIFo2emzWQigFfoYWXS7BveSvzVztYnhqiVuMCA/xexnJESe0L59GAac=
+	t=1762864940; cv=none; b=EdaAJVtYhw48VnLDBOTn55ciFrAYXyJMJvASUcRj/tFo1NbxVKv4pgMbigD9AIcV+jLkL3SvzsgJhC85kt7QJpfO6Ndh/gl0d0ZOok31rktMVB8fV4qVXobgejBt2EJTF8Cd2nKbiR5jsE7rrYJHUsfdxFo0d6heNtXuJnbJ1Ok=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762864098; c=relaxed/simple;
-	bh=OtFs4nYXEH1ThWKykhpKfwgYG7osOn2qi/Z49bIrWUw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=bowNWiOjJhq+gQkmnAlgGKjlhyo81omPuMooKC4spaOIfs2w8wmDgM5K9tuiZr2onDxYAbjMnkAafQi2PQNEknUe/07gkYaxdcouRBZFOiI5du0wVN9TtI0UdP/WCGeXyFA7VG9oMaQT5esL2FAIaqluKxH8zMC1hxdqcb7qgHQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=BYVFL/wa; arc=none smtp.client-ip=192.198.163.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1762864940; c=relaxed/simple;
+	bh=cz32zYSwqb1PQwJobwLomOiySUR6tQ6fOUsgjeY7AEs=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=b/uYsooa4Z+qHMTvWJtBAeZ+M2FHSgtywa8IIdrNGWHB7rVbUflL88aQFf9mLp/cAc8z8wkbyAZHNtwkSI8wN8Aavuiuij5V429MgMao3bmphiJzH+vdEOeSu5nNozjCCMjZgpiw21cZzpTsQJIGsrCqmJ3mPeB33maeAWTpess=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=JibmJuZ2; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=FZstT35i; arc=none smtp.client-ip=103.168.172.145
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="BYVFL/wa"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1762864096; x=1794400096;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=OtFs4nYXEH1ThWKykhpKfwgYG7osOn2qi/Z49bIrWUw=;
-  b=BYVFL/waIEA8DYye86BSPQEDB9l2CJ+IICWo51yTstEGSP4HUzXiH1fY
-   KnvkL4MZ70TyyrJeESLb+5Orcm8pxk1h0eyMHLjXreWmYeu+D4TJRYInm
-   +k8Yh/P4ZhyXfqOMws3ckgjny/7sZS4mfxTIAn4CkN1722UTT0GJCeTUH
-   DsEQ6xMJq9uqcS/cTW2T5dMZnJJojPjrtuuShoDunOqaK5zOuqcX58TGJ
-   lXtyKKU1CwGO1oi4C3ckk7yBlVnctVdFH+u9hLbtAXwx+xuwfOo2MIz29
-   jc5wUM32tfXbQBlBgkhEPv5YnojKF5LM/AyXCtUFf+U95xoahPHCAwNCH
-   A==;
-X-CSE-ConnectionGUID: HOShL0rVTROT+/juwYNR/g==
-X-CSE-MsgGUID: 6nLtbYHKQdObDHEGzxpnxA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11609"; a="75607210"
-X-IronPort-AV: E=Sophos;i="6.19,296,1754982000"; 
-   d="scan'208";a="75607210"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Nov 2025 04:28:13 -0800
-X-CSE-ConnectionGUID: tMUh47YlR0iztmLUL7ZOeg==
-X-CSE-MsgGUID: n8CanOcvRy2xvoMOm6Z2iA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.19,296,1754982000"; 
-   d="scan'208";a="188592937"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by fmviesa007.fm.intel.com with ESMTP; 11 Nov 2025 04:28:05 -0800
-Received: by black.igk.intel.com (Postfix, from userid 1003)
-	id 5E57DAB; Tue, 11 Nov 2025 13:27:38 +0100 (CET)
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Corey Minyard <corey@minyard.net>,
-	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-	"Dr. David Alan Gilbert" <linux@treblig.org>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
-	Rob Clark <robin.clark@oss.qualcomm.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Ulf Hansson <ulf.hansson@linaro.org>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Vitaly Lifshits <vitaly.lifshits@intel.com>,
-	Manivannan Sadhasivam <mani@kernel.org>,
-	Niklas Cassel <cassel@kernel.org>,
-	Calvin Owens <calvin@wbinvd.org>,
-	Vadim Fedorenko <vadim.fedorenko@linux.dev>,
-	Sagi Maimon <maimon.sagi@gmail.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Karan Tilak Kumar <kartilak@cisco.com>,
-	Hans Verkuil <hverkuil+cisco@kernel.org>,
-	Casey Schaufler <casey@schaufler-ca.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Petr Mladek <pmladek@suse.com>,
-	Viacheslav Dubeyko <Slava.Dubeyko@ibm.com>,
-	Max Kellermann <max.kellermann@ionos.com>,
-	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	openipmi-developer@lists.sourceforge.net,
-	linux-media@vger.kernel.org,
-	dri-devel@lists.freedesktop.org,
-	linaro-mm-sig@lists.linaro.org,
-	amd-gfx@lists.freedesktop.org,
-	linux-arm-msm@vger.kernel.org,
-	freedreno@lists.freedesktop.org,
-	intel-xe@lists.freedesktop.org,
-	linux-mmc@vger.kernel.org,
-	netdev@vger.kernel.org,
-	intel-wired-lan@lists.osuosl.org,
-	linux-pci@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	linux-staging@lists.linux.dev,
-	ceph-devel@vger.kernel.org,
-	linux-trace-kernel@vger.kernel.org
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-	Sergey Senozhatsky <senozhatsky@chromium.org>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Sumit Semwal <sumit.semwal@linaro.org>,
-	Gustavo Padovan <gustavo@padovan.org>,
-	David Airlie <airlied@gmail.com>,
-	Simona Vetter <simona@ffwll.ch>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Dmitry Baryshkov <lumag@kernel.org>,
-	Abhinav Kumar <abhinav.kumar@linux.dev>,
-	Jessica Zhang <jesszhan0024@gmail.com>,
-	Sean Paul <sean@poorly.run>,
-	Marijn Suijten <marijn.suijten@somainline.org>,
-	Konrad Dybcio <konradybcio@kernel.org>,
-	Lucas De Marchi <lucas.demarchi@intel.com>,
-	=?UTF-8?q?Thomas=20Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Vladimir Oltean <olteanv@gmail.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Tony Nguyen <anthony.l.nguyen@intel.com>,
-	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
-	=?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
-	Kishon Vijay Abraham I <kishon@kernel.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Rodolfo Giometti <giometti@enneenne.com>,
-	Richard Cochran <richardcochran@gmail.com>,
-	Jonathan Lemon <jonathan.lemon@gmail.com>,
-	Stefan Haberland <sth@linux.ibm.com>,
-	Jan Hoeppner <hoeppner@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Satish Kharat <satishkh@cisco.com>,
-	Sesidhar Baddela <sebaddel@cisco.com>,
-	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Xiubo Li <xiubli@redhat.com>,
-	Ilya Dryomov <idryomov@gmail.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH v2 21/21] tracing: Switch to use %ptSp
-Date: Tue, 11 Nov 2025 13:20:21 +0100
-Message-ID: <20251111122735.880607-22-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20251111122735.880607-1-andriy.shevchenko@linux.intel.com>
-References: <20251111122735.880607-1-andriy.shevchenko@linux.intel.com>
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="JibmJuZ2";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="FZstT35i"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfout.phl.internal (Postfix) with ESMTP id 187E0EC00B6;
+	Tue, 11 Nov 2025 07:42:16 -0500 (EST)
+Received: from phl-imap-02 ([10.202.2.81])
+  by phl-compute-04.internal (MEProxy); Tue, 11 Nov 2025 07:42:16 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1762864936;
+	 x=1762951336; bh=t83Ou404aXmm0kHf+liFHD5vp+Jq6h/HE7hxSSqNQM4=; b=
+	JibmJuZ2LTm29ue9/WbzZMU5N5DLUcOSp78hofujU2xZ9Q127kN/OssfV5W45hW5
+	hUiRrvEgNwWojWZYXxDd/KIdyxIO7TiNwVSEvUvgmaE/nyERHJ2JrW1KlD+6pjTb
+	YSX83awqmbQYOUgu/IJ4OvjnMIVMGDpNHM8lhC2TXBlr+X6rDRRcnVaLAsxOpKY3
+	CWoRuQf8EhR0IwWsrk8FgNRYRLkrV7wIXRdy9YHjH3pFwnHmn+ai5Xi6LE6Vb4nx
+	QUqKg9xD9QF6utPPq7O9PFxESS1qwh3t5TLp0AnCxZh5fWXbL5WiTCniCi7hcky9
+	FZ4lKcaDxGjNhCDyk7lfPA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1762864936; x=
+	1762951336; bh=t83Ou404aXmm0kHf+liFHD5vp+Jq6h/HE7hxSSqNQM4=; b=F
+	ZstT35iVuamPgchGRgIr5TJsWorDc3G8IzQ1SROewxjhZSMdUNqCPghFuUR/4Yct
+	vYsbO0t8bFlt8DASsHD8DEeMw36BafMYomAz0XU4A+dfHJjJMownqCVD0APPdVoF
+	LBmNrzvj5GYjXkijg4C/SWhYr9DnlLcAjR5BFvnyUHrNVLgDzb7+3hu6y3Vh4bpS
+	75BljSDCZ1lUVedUUKum9m5NlvU9lFAJNQCWB6d9Y7WOichVJHoTOwJLeShkT9tH
+	HDGPVH2lrg408dmbgHDZaTy8yFlhcdm6zXmvMicAIFhSBzDA8IpyMQ5c7iobktqI
+	jZggN2Okw7ZKLl3CreFlw==
+X-ME-Sender: <xms:Jy8TaSHR04fw7GoBuiiKVAJlm329x6mvjJnux8fuJiFDY0nQdhEA7w>
+    <xme:Jy8TaeKEDmcW5ZwkjZxbtzohL6pCVOFaMqUo7XeJTZFPLIGzPYo52EDfYfGMYNIpQ
+    723BwXa9v9l8AjNROJa3h7C2W-WCK-wbcJI5bPclCggpXRF2ZcjosI>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggddvtdduvddvucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddtnecuhfhrohhmpedftehrnhgu
+    uceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrthhtvg
+    hrnhephfdthfdvtdefhedukeetgefggffhjeeggeetfefggfevudegudevledvkefhvdei
+    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprghrnh
+    gusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohepledpmhhouggvpehsmhhtphhouhht
+    pdhrtghpthhtohepthhorhhvrghlughssehlihhnuhigqdhfohhunhgurghtihhonhdroh
+    hrghdprhgtphhtthhopegrghhorhguvggvvheslhhinhhugidrihgsmhdrtghomhdprhgt
+    phhtthhopegsohhrnhhtrhgrvghgvghrsehlihhnuhigrdhisghmrdgtohhmpdhrtghpth
+    htohepghhorheslhhinhhugidrihgsmhdrtghomhdprhgtphhtthhopehhtggrsehlihhn
+    uhigrdhisghmrdgtohhmpdhrtghpthhtohepkhhrvggssggvlheslhhinhhugidrihgsmh
+    drtghomhdprhgtphhtthhopehsvhgvnhhssehlihhnuhigrdhisghmrdgtohhmpdhrtghp
+    thhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtg
+    hpthhtoheplhhinhhugidqshefledtsehvghgvrhdrkhgvrhhnvghlrdhorhhg
+X-ME-Proxy: <xmx:Jy8TaRrauODixvUAE3Ct5jhL1XXDw_YqnvtPngkQ7Ma7MfHq4OcCiQ>
+    <xmx:Jy8TafgLhVVxsW0bQhkIrfb39EpUpoMQIsrDD8uZe1ak91enCuz1TQ>
+    <xmx:Jy8TabMD0tqXl3aNfykVhqttGQYgLNh4boNxw7Z0vjANTGp324Gycw>
+    <xmx:Jy8TaRzQ8zrivufqAnGn9mYJ0c8vPygkGPX4ksK3KwVkidHdAr8SYA>
+    <xmx:KC8TaYaTy9TUotw93g9-X4RsvKDW9-YQDItWtSnRWl0G9nsQMqK8lSlp>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 84B25700065; Tue, 11 Nov 2025 07:42:15 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-ThreadId: AMQSEuwlfej7
+Date: Tue, 11 Nov 2025 13:41:23 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Heiko Carstens" <hca@linux.ibm.com>,
+ "Alexander Gordeev" <agordeev@linux.ibm.com>,
+ "Vasily Gorbik" <gor@linux.ibm.com>,
+ "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+ "Sven Schnelle" <svens@linux.ibm.com>,
+ "Andreas Krebbel" <krebbel@linux.ibm.com>,
+ "Linus Torvalds" <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Message-Id: <34f6144b-600e-42f3-88f5-3e712a328986@app.fastmail.com>
+In-Reply-To: <20251110185440.2667511-1-hca@linux.ibm.com>
+References: <20251110185440.2667511-1-hca@linux.ibm.com>
+Subject: Re: [RFC PATCH 0/8] s390: Remove compat support
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Use %ptSp instead of open coded variants to print content of
-struct timespec64 in human readable format.
+On Mon, Nov 10, 2025, at 19:54, Heiko Carstens wrote:
+> Remove s390 compat support to allow for code simplification and especially
+> reduced test effort. To the best of our knowledge there aren't any 31 bit
+> binaries out in the world anymore that would matter for newer kernels or
+> newer distributions.
+>
+> Distributions do not provide compat packages since quite some time or even
+> have CONFIG_COMPAT disabled.
+>
+> Instead of adding deprecation warnings to config option, or adding kernel
+> messages, just remove the code. Deprecation warnings haven't proven to be
+> useful. If it turns out there is still a reason to keep the compat support
+> this series can be reverted at any time in the future.
+>
+> Arnd, we talked about this two weeks ago. I would appreciate if you could
+> have a look at this series, especially the last patch of this series.
+>
+> Patches 1-3 are just some random cleanups / preparations.
+> Patches 4-6 remove compat support.
+> Patches 7-8 switch s390 to generic system call table generation
 
-Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- kernel/trace/trace_output.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Loooks good to me overall,
 
-diff --git a/kernel/trace/trace_output.c b/kernel/trace/trace_output.c
-index ebbab3e9622b..cc2d3306bb60 100644
---- a/kernel/trace/trace_output.c
-+++ b/kernel/trace/trace_output.c
-@@ -1490,12 +1490,12 @@ trace_hwlat_print(struct trace_iterator *iter, int flags,
- 
- 	trace_assign_type(field, entry);
- 
--	trace_seq_printf(s, "#%-5u inner/outer(us): %4llu/%-5llu ts:%lld.%09ld count:%d",
-+	trace_seq_printf(s, "#%-5u inner/outer(us): %4llu/%-5llu ts:%ptSp count:%d",
- 			 field->seqnum,
- 			 field->duration,
- 			 field->outer_duration,
--			 (long long)field->timestamp.tv_sec,
--			 field->timestamp.tv_nsec, field->count);
-+			 &field->timestamp,
-+			 field->count);
- 
- 	if (field->nmi_count) {
- 		/*
--- 
-2.50.1
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 
+I agree it's rather unlikely that anyone is still using 31-bit
+binaries, it was only really from 2000 to 2002 that commercial
+distros were missing s390x support. Debian moved to 64-bit-only
+much later than the others, but had both fewer user and fewer
+third-party applications that might require old binaries.
+
+      Arnd
