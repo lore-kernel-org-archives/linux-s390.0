@@ -1,153 +1,98 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E51717D6;
-	Tue, 11 Nov 2025 00:11:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BFE454763;
+	Tue, 11 Nov 2025 00:17:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762819899; cv=none; b=ASJdmkX7niKebNSKI514wIr6iBDkQ8iDvFTXsvF4o5TIBIRYKfJHPWVEzG/yqkH/zq4iS98kR+DKK0CvcNV3tud4RXXwZi9wUeD5rGFrGrQ4bTDf1m4Tf1vaSlFnEEnPxOsFygXGTX2UKZRve7kWe+notf6fEKoUEA4zcPXtvpk=
+	t=1762820271; cv=none; b=mooVU1Ag7/Ii6tk/im5TbXdFz4IeLGxlnjRVH5An7GF7ge1maNkhZ5YLdcVLN98knjlQjDpyVD56eH82FrZLsAacbovRt/XTdPdKL5V1OlBvmwWScrVSivXLvGbohvMPHmR0hHCIdPsl/KwmsoYNz9pAbVtpImA3lDVOTxg9GyY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762819899; c=relaxed/simple;
-	bh=UJb6mXnrZynjLpPgHUrW0+nPkNlnIA1ohpPmrhdt5kI=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To; b=TXi8Wi80fCmXlZBuZvb0nZMteS9+QsWmfuYmjnr4Uaw9mTPoHTY+tI6IGmLxwvbN2OMLB0jjrp9TSMqyQcA7NX+uFT87J3VjN/pMiZxUD+MM8rKlpZes74FZsQ8BdKXuc26o6865gLNYIoKantNk/7vFYRcyysFOvW+GZ8zggz0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RQNhfVxW; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1762820271; c=relaxed/simple;
+	bh=h4IOFDJ10o8gxsjF+0swXOnDNA//+lvIGav3YD5mbm4=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=r+VRs+4P0pEYLBkDT1OxCqrfvvg17R5ATPRVQWr+OF3SLo6dibLuydJfez9hkG55vvWpi0sAcpCFXq2gO829fz9FwulBv1E6JXegjgpiCFKIdO9l4/J5Zu8iJKQU9qQEkQb5kAEz6abJkF6ZQGB+3/wLJ+wTOCKA6duwr6EAnBU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=vjkeLHDm; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RQNhfVxW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE3B5C113D0;
-	Tue, 11 Nov 2025 00:11:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1762819899;
-	bh=UJb6mXnrZynjLpPgHUrW0+nPkNlnIA1ohpPmrhdt5kI=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:From;
-	b=RQNhfVxWS3kSkUZ3/Yn/h0BmXL51tmLd+96fcvkdQVv1vGLPiWTHRkycOoEeo86n+
-	 AomTbI2OwWKrh916BvopP2FmTFRSTMpM+ffKgocFApMJHdp1EKgU6X5hO4qa0osljw
-	 17UC1rMSI+vUK4hzsEvsvxu9BntOhbPUYi/m0034GgTDaN8qQYvPNZ+teI5+B2ybWa
-	 HwOKozmrkxff/CrJtzPPwDnYAm5CuGW9jLgaRZXE1tGy7RFW1GXxjP1lsvTw64BiD6
-	 3+AvpY4WKIjmTgnbEp1K+YKbfLbuPtZz53Jb09WBB7saLr4xY2Ybz2RWqug2curgjQ
-	 RYENRwzTM6ubQ==
-Date: Mon, 10 Nov 2025 18:11:37 -0600
-From: Bjorn Helgaas <helgaas@kernel.org>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Corey Minyard <corey@minyard.net>,
-	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>,
-	"Dr. David Alan Gilbert" <linux@treblig.org>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
-	Rob Clark <robin.clark@oss.qualcomm.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Hans Verkuil <hverkuil@kernel.org>,
-	Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-	Ulf Hansson <ulf.hansson@linaro.org>,
-	Vitaly Lifshits <vitaly.lifshits@intel.com>,
-	Manivannan Sadhasivam <mani@kernel.org>,
-	Niklas Cassel <cassel@kernel.org>, Calvin Owens <calvin@wbinvd.org>,
-	Sagi Maimon <maimon.sagi@gmail.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Karan Tilak Kumar <kartilak@cisco.com>,
-	Casey Schaufler <casey@schaufler-ca.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Petr Mladek <pmladek@suse.com>,
-	Max Kellermann <max.kellermann@ionos.com>,
-	Takashi Iwai <tiwai@suse.de>, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	openipmi-developer@lists.sourceforge.net,
-	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	linaro-mm-sig@lists.linaro.org, amd-gfx@lists.freedesktop.org,
-	linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org,
-	intel-xe@lists.freedesktop.org, linux-mmc@vger.kernel.org,
-	netdev@vger.kernel.org, intel-wired-lan@lists.osuosl.org,
-	linux-pci@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-scsi@vger.kernel.org, linux-staging@lists.linux.dev,
-	ceph-devel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-	linux-sound@vger.kernel.org,
-	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-	Sergey Senozhatsky <senozhatsky@chromium.org>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Sumit Semwal <sumit.semwal@linaro.org>,
-	Gustavo Padovan <gustavo@padovan.org>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Dmitry Baryshkov <lumag@kernel.org>,
-	Abhinav Kumar <abhinav.kumar@linux.dev>,
-	Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>,
-	Marijn Suijten <marijn.suijten@somainline.org>,
-	Konrad Dybcio <konradybcio@kernel.org>,
-	Lucas De Marchi <lucas.demarchi@intel.com>,
-	Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Vladimir Oltean <olteanv@gmail.com>, Andrew Lunn <andrew@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Tony Nguyen <anthony.l.nguyen@intel.com>,
-	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
-	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
-	Kishon Vijay Abraham I <kishon@kernel.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Rodolfo Giometti <giometti@enneenne.com>,
-	Jonathan Lemon <jonathan.lemon@gmail.com>,
-	Vadim Fedorenko <vadim.fedorenko@linux.dev>,
-	Richard Cochran <richardcochran@gmail.com>,
-	Stefan Haberland <sth@linux.ibm.com>,
-	Jan Hoeppner <hoeppner@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Satish Kharat <satishkh@cisco.com>,
-	Sesidhar Baddela <sebaddel@cisco.com>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Xiubo Li <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>
-Subject: Re: [PATCH v1 17/23] PCI: epf-test: Switch to use %ptSp
-Message-ID: <20251111001137.GA2145521@bhelgaas>
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="vjkeLHDm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68CB5C4CEFB;
+	Tue, 11 Nov 2025 00:17:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1762820268;
+	bh=h4IOFDJ10o8gxsjF+0swXOnDNA//+lvIGav3YD5mbm4=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=vjkeLHDmhlbRmdh2J8YEkuADTnOje8197r13F9Y+9M4PNEGyrIjTsJrXa9FcWBd30
+	 3dmWPQqBvqXKMpha7c0qNKjQ5ewY10+fA5vTYMX7SAz0x9GQP2DAUfOdVKd+b+ILms
+	 w4QnZBmAPYCsSnhcOO+V0J4HJESA9uFYopLe6MVY=
+Date: Mon, 10 Nov 2025 16:17:45 -0800
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank
+ <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, David
+ Hildenbrand <david@redhat.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sven Schnelle
+ <svens@linux.ibm.com>, Peter Xu <peterx@redhat.com>, Alexander Viro
+ <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara
+ <jack@suse.cz>, Arnd Bergmann <arnd@arndb.de>, Zi Yan <ziy@nvidia.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>, "Liam R . Howlett"
+ <Liam.Howlett@oracle.com>, Nico Pache <npache@redhat.com>, Ryan Roberts
+ <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song
+ <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>, Muchun Song
+ <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, Vlastimil
+ Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan
+ <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Matthew Brost
+ <matthew.brost@intel.com>, Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim
+ <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, Gregory Price
+ <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, Alistair
+ Popple <apopple@nvidia.com>, Axel Rasmussen <axelrasmussen@google.com>,
+ Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, Kemeng Shi
+ <shikemeng@huaweicloud.com>, Kairui Song <kasong@tencent.com>, Nhat Pham
+ <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>, Chris Li
+ <chrisl@kernel.org>, SeongJae Park <sj@kernel.org>, Matthew Wilcox
+ <willy@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky
+ <leon@kernel.org>, Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou
+ <chengming.zhou@linux.dev>, Jann Horn <jannh@google.com>, Miaohe Lin
+ <linmiaohe@huawei.com>, Naoya Horiguchi <nao.horiguchi@gmail.com>, Pedro
+ Falcato <pfalcato@suse.de>, Pasha Tatashin <pasha.tatashin@soleen.com>, Rik
+ van Riel <riel@surriel.com>, Harry Yoo <harry.yoo@oracle.com>, Hugh Dickins
+ <hughd@google.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-mm@kvack.org, linux-arch@vger.kernel.org, damon@lists.linux.dev
+Subject: Re: [PATCH v2 00/16] mm: remove is_swap_[pte, pmd]() + non-swap
+ entries, introduce leaf entries
+Message-Id: <20251110161745.2075f263e3c693bf65f98ccc@linux-foundation.org>
+In-Reply-To: <cover.1762812360.git.lorenzo.stoakes@oracle.com>
+References: <cover.1762812360.git.lorenzo.stoakes@oracle.com>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251110184727.666591-18-andriy.shevchenko@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Mon, Nov 10, 2025 at 07:40:36PM +0100, Andy Shevchenko wrote:
-> Use %ptSp instead of open coded variants to print content of
-> struct timespec64 in human readable format.
-> 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+On Mon, 10 Nov 2025 22:21:18 +0000 Lorenzo Stoakes <lorenzo.stoakes@oracle.com> wrote:
 
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+> There's an established convention in the kernel that we treat leaf page
+> tables (so far at the PTE, PMD level) as containing 'swap entries' should
+> they be neither empty (i.e. p**_none() evaluating true) nor present
+> (i.e. p**_present() evaluating true).
+> 
+> However, at the same time we also have helper predicates - is_swap_pte(),
+> is_swap_pmd() - which are inconsistently used.
+> 
+> This is problematic, as it is logical to assume that should somebody wish
+> to operate upon a page table swap entry they should first check to see if
+> it is in fact one.
+> 
+> It also implies that perhaps, in future, we might introduce a non-present,
+> none page table entry that is not a swap entry.
+> 
+> This series resolves this issue by systematically eliminating all use of
+> the is_swap_pte() and is swap_pmd() predicates so we retain only the
+> convention that should a leaf page table entry be neither none nor present
+> it is a swap entry.
 
-> ---
->  drivers/pci/endpoint/functions/pci-epf-test.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/pci/endpoint/functions/pci-epf-test.c b/drivers/pci/endpoint/functions/pci-epf-test.c
-> index b05e8db575c3..debd235253c5 100644
-> --- a/drivers/pci/endpoint/functions/pci-epf-test.c
-> +++ b/drivers/pci/endpoint/functions/pci-epf-test.c
-> @@ -331,9 +331,8 @@ static void pci_epf_test_print_rate(struct pci_epf_test *epf_test,
->  		rate = div64_u64(size * NSEC_PER_SEC, ns * 1000);
->  
->  	dev_info(&epf_test->epf->dev,
-> -		 "%s => Size: %llu B, DMA: %s, Time: %llu.%09u s, Rate: %llu KB/s\n",
-> -		 op, size, dma ? "YES" : "NO",
-> -		 (u64)ts.tv_sec, (u32)ts.tv_nsec, rate);
-> +		 "%s => Size: %llu B, DMA: %s, Time: %ptSp s, Rate: %llu KB/s\n",
-> +		 op, size, dma ? "YES" : "NO", &ts, rate);
->  }
->  
->  static void pci_epf_test_copy(struct pci_epf_test *epf_test,
-> -- 
-> 2.50.1
-> 
+Thanks, I updated mm.git's mm-unstable branch to this version the patchset.
