@@ -1,209 +1,159 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f51.google.com (mail-ed1-f51.google.com [209.85.208.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C79ED3385B8;
-	Tue, 11 Nov 2025 14:37:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C654330B1F
+	for <linux-s390@vger.kernel.org>; Tue, 11 Nov 2025 14:44:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762871880; cv=none; b=H6zyza2rQEDagi8x80EjApewLcfyYO2Y218Xkh8qzZJEjub/MHpxy+0qvkRit04+koIHBmHQNHQcM+gNfLJL0DIYGRR3dLhGh4jg86UIPHcb8Ib6eNt3Hqid/WcgZFKLS9YbF29g6Vok2nKPW7kRFIrjmaoZWC+YIKsNgi7OPGI=
+	t=1762872256; cv=none; b=J5U7hi0L0Q1Fk8MgTOKwSX713cvtusk8Rg3k3qUi0y5/KYWhEp2RBVWIt34A6OlS+D9CyCac7/XlHvML3iKNxnjDJJ5alLP7h7toeGDIafOSejhDxIUW4frOMnpbKbVM8PQ5+yq82PKq4wU7tgf06tddVtE86Z5ReyKqzj3uMyw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762871880; c=relaxed/simple;
-	bh=fpM4rZm2eTFj5lA0ILdXZXAm1QmHZWdHUdT36ODYhpU=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
-	 References:In-Reply-To; b=FrU8eLfU9kfk2Dik1jdtcpSycDBcJozo8d9CDm4zfx+a/w1hCFOAbXzn8vFhXMBoFOKy8zLCcOny90U1MYxxtu4fVK9wepPytbsZZYAWv6Uu3zRdfFLdNn+Ud8hXolFEkym9OqvlZz1ZYMTFUkFPLC6WRoDMNfgsYTTf9BFotdw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cBLxYscf; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1762872256; c=relaxed/simple;
+	bh=lwgS3XbuNGNElPjrkWO6JmcdiBkj45I6XbH04gS8S9M=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=PpKtmpWmhNqztJfo/uFFmVubl6FaB1BUwyZKJ4PErvbLrK2eL7J3aJ69+7RB3szzOmzFixn/RKdmkf/XUIQjT49ZqyMyb+8Ow2RxSHacYUJTBhJnK0GN03eIUtuvhIRFD9h0adv8Vgx8URUYCeJUgX5wXUKCKn8yj9Yd5QIXNDI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=B26i8EVw; arc=none smtp.client-ip=209.85.208.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cBLxYscf"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AB377lt016772;
-	Tue, 11 Nov 2025 14:37:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=JyOEWN
-	2IWol6MDam6GH2q2lnGc1owVcKuC9mQE4g/Y4=; b=cBLxYscf6ER9HxoLJHXeyY
-	ty42DGawV+mqA2ihBvnPfh0JSUmcjYOHFFlNVYeSOqX0on1nSrK+uOpPUe6bXi9L
-	k9nCmggE8KQ7/XIAwK7omA2qYCQd8KdOTLY19agipshUN9McBbN8oIn3x+NXNPqA
-	2nmCHYi7JBvUCPM02a7dYVMcOEVZEf9HGDtBpI01F2Req6M0tYEGerjZutmcGUro
-	x1PbSfJ8eTM0IdaAgd35sEb5axddyXbyuVD2mW89YjRuZdH3rwoR6l4GGUqvyR1h
-	tITJ/QW9FXEVM+5129V4XSaLcd3nWIxULc9s1iZ2HmTHeshmMEX+AZ5LZ81akEig
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aa5cj4dgd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Nov 2025 14:37:54 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5ABDl8m6007313;
-	Tue, 11 Nov 2025 14:37:53 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4aajdjb0ph-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Nov 2025 14:37:53 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5ABEbnNj16056730
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 11 Nov 2025 14:37:49 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C83B320043;
-	Tue, 11 Nov 2025 14:37:49 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 92A9120040;
-	Tue, 11 Nov 2025 14:37:49 +0000 (GMT)
-Received: from darkmoore (unknown [9.111.33.212])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 11 Nov 2025 14:37:49 +0000 (GMT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="B26i8EVw"
+Received: by mail-ed1-f51.google.com with SMTP id 4fb4d7f45d1cf-640a3317b89so6308667a12.0
+        for <linux-s390@vger.kernel.org>; Tue, 11 Nov 2025 06:44:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1762872251; x=1763477051; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=y1/P4cjnJRMKeJXb4QuiXEQkEuLjYJ7u3PWbuQSeBbc=;
+        b=B26i8EVwNr0OD0zHqdEkjjpOuUUrxB59VdgnsbdKKbkIZgwuyOASDOmOXnd2K8wtI3
+         TR66+bwWeU3e4pgHzj/mxM2Q8bNfvE7FqtzWIiLew0GRLtXfxv8ZPjQKkIoKQousTYtB
+         m9Y5QSUUi0mpaQOmNE+dLnITjVcwIgL8fcdHcwAdJaVbxcX0WndbvAmXlv5/t4Gi3qAn
+         Ghu9Ybbz8F5RP/7EsY5555Jwh3xxk4/lx1CaeR/nZfbmWgiETaYBQCHm9iLv6yoHi8CZ
+         4gcsdQiI3D+EaP9LkQ5qkEwRC7bPOfawNJok+rPsJylwpLIRD/BULbBBvvYIga/6Hq2t
+         DdPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1762872251; x=1763477051;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=y1/P4cjnJRMKeJXb4QuiXEQkEuLjYJ7u3PWbuQSeBbc=;
+        b=kD2oVrSV318lRkvLM6ETgQENTlHos7Zzmx5gNQGo+Xg4wrYetXm0ShrTvMeJkI2rcy
+         pGmEY96J988ILh1QJ60dlcNk4h9psiYsMSgsg6W4ObHdn9HclrYwNo5b2bjoNZhDJku9
+         vBmGImWGT9iUxGbfW6PatMX72hVBV9QXt2t/rnf0OaMBUm5u3sd1iEqwvqQD+loqNNwf
+         ykfEf53W4s1M4y8UdZLyD/l0AcR3AgGGJFAeo0k++un1sZ96kDKZd9mPVdD43cF7r2r5
+         tlt2lZMfsYxOU64ZVE3CpCttFkXb5Ia9D0yBSYVkb1bXxqYteFS5X1a1Eb8jnGyFuHkG
+         D5kg==
+X-Forwarded-Encrypted: i=1; AJvYcCWdUgSzbNymKCFnLyACgVcvV1Hx52PJzIxr3OF3ccedxncAVIRv1ia4pUW6orEkPZEtXhSQKNQZBGvP@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyi13W5pQ4R0pMaHxkJTDp9u4ddx7q1tFx7hTyp5L8EDD/azeKl
+	AsUSW4p3XUsPSF+GploHY5SJcys4I4s5BpHWt8LwSAAxZWryItuWvrFCVgGcLH6isgh4qF2FA2e
+	HejKQmSo8btvKn8W/AwEjHlJUsNsAIk2MI4747aZNGQ==
+X-Gm-Gg: ASbGnctrLPyj0vfnOcjixFjSRK5YTL+XkM3vb1DkHnEoJ4qVQyEs2UHMiJu241xDy3W
+	XHaEpH0rOhTCEmnp29jjFfGLcGbWf92iifYAhTn19rq0bBC4usRwXGT7iiO0ceEGuqapXO8iyrM
+	UlgWOMaoHpyNxdcRu6raUUUWaNFYs+95EYeq0gNrjPdUb1TnmixZOYnsEx81Lxk//yPMT5pZQMG
+	K8Ngo4Ym8AqnI1xjQVK+9Y5rmzlDzLwfxeHpB7BK97h6Wz4p1J7Ei3e9Py2mEVvYRCTiFSqi94j
+	6iTndO44G0krpem/VRxH65flYPI=
+X-Google-Smtp-Source: AGHT+IHMY6SoKSk0VgpDlYvVT6P+glN4Yq9XXIqVKd9jfwRPr/K5XWhLNKItsuRhohz/IcTpClBme4+jDstH4cTCaYk=
+X-Received: by 2002:a17:907:7ea4:b0:b70:b5ce:e66e with SMTP id
+ a640c23a62f3a-b72e02db993mr1289989566b.21.1762872251327; Tue, 11 Nov 2025
+ 06:44:11 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
+References: <20251111122735.880607-1-andriy.shevchenko@linux.intel.com> <20251111122735.880607-5-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20251111122735.880607-5-andriy.shevchenko@linux.intel.com>
+From: Sumit Semwal <sumit.semwal@linaro.org>
+Date: Tue, 11 Nov 2025 20:13:59 +0530
+X-Gm-Features: AWmQ_bnAE43qdt9uTp5GKOPhntYFEAk4L2mYcClIlF1B_9-TbeBvnkuEckfJGvA
+Message-ID: <CAO_48GE5LK7hD-KJHHoD-XCRjTPcZWApE2MVvs4OgVdr1=u+rg@mail.gmail.com>
+Subject: Re: [PATCH v2 04/21] dma-buf: Switch to use %ptSp
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Corey Minyard <corey@minyard.net>, =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
+	"Dr. David Alan Gilbert" <linux@treblig.org>, Alex Deucher <alexander.deucher@amd.com>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>, 
+	Rob Clark <robin.clark@oss.qualcomm.com>, Matthew Brost <matthew.brost@intel.com>, 
+	Ulf Hansson <ulf.hansson@linaro.org>, Vitaly Lifshits <vitaly.lifshits@intel.com>, 
+	Manivannan Sadhasivam <mani@kernel.org>, Niklas Cassel <cassel@kernel.org>, Calvin Owens <calvin@wbinvd.org>, 
+	Vadim Fedorenko <vadim.fedorenko@linux.dev>, Sagi Maimon <maimon.sagi@gmail.com>, 
+	"Martin K. Petersen" <martin.petersen@oracle.com>, Karan Tilak Kumar <kartilak@cisco.com>, 
+	Hans Verkuil <hverkuil+cisco@kernel.org>, Casey Schaufler <casey@schaufler-ca.com>, 
+	Steven Rostedt <rostedt@goodmis.org>, Petr Mladek <pmladek@suse.com>, 
+	Viacheslav Dubeyko <Slava.Dubeyko@ibm.com>, Max Kellermann <max.kellermann@ionos.com>, 
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	openipmi-developer@lists.sourceforge.net, linux-media@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, 
+	amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, 
+	freedreno@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
+	linux-mmc@vger.kernel.org, netdev@vger.kernel.org, 
+	intel-wired-lan@lists.osuosl.org, linux-pci@vger.kernel.org, 
+	linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
+	linux-staging@lists.linux.dev, ceph-devel@vger.kernel.org, 
+	linux-trace-kernel@vger.kernel.org, 
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>, Sergey Senozhatsky <senozhatsky@chromium.org>, 
+	Jonathan Corbet <corbet@lwn.net>, Gustavo Padovan <gustavo@padovan.org>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Dmitry Baryshkov <lumag@kernel.org>, 
+	Abhinav Kumar <abhinav.kumar@linux.dev>, Jessica Zhang <jesszhan0024@gmail.com>, 
+	Sean Paul <sean@poorly.run>, Marijn Suijten <marijn.suijten@somainline.org>, 
+	Konrad Dybcio <konradybcio@kernel.org>, Lucas De Marchi <lucas.demarchi@intel.com>, 
+	=?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, 
+	Rodrigo Vivi <rodrigo.vivi@intel.com>, Vladimir Oltean <olteanv@gmail.com>, Andrew Lunn <andrew@lunn.ch>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Tony Nguyen <anthony.l.nguyen@intel.com>, Przemek Kitszel <przemyslaw.kitszel@intel.com>, 
+	=?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?= <kwilczynski@kernel.org>, 
+	Kishon Vijay Abraham I <kishon@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, 
+	Rodolfo Giometti <giometti@enneenne.com>, Richard Cochran <richardcochran@gmail.com>, 
+	Jonathan Lemon <jonathan.lemon@gmail.com>, Stefan Haberland <sth@linux.ibm.com>, 
+	Jan Hoeppner <hoeppner@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Satish Kharat <satishkh@cisco.com>, Sesidhar Baddela <sebaddel@cisco.com>, 
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
+	Mauro Carvalho Chehab <mchehab@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	Xiubo Li <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
+	Andrew Morton <akpm@linux-foundation.org>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Tue, 11 Nov 2025 15:37:44 +0100
-Message-Id: <DE5XX691NDPL.23EQ56H2AP7CK@linux.ibm.com>
-From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        "Heiko Carstens"
- <hca@linux.ibm.com>,
-        "Vasily Gorbik" <gor@linux.ibm.com>,
-        "Alexander
- Gordeev" <agordeev@linux.ibm.com>,
-        "Christian Borntraeger"
- <borntraeger@linux.ibm.com>,
-        "Janosch Frank" <frankja@linux.ibm.com>,
-        "Nico
- Boehr" <nrb@linux.ibm.com>,
-        "David Hildenbrand" <david@redhat.com>,
-        "Sven
- Schnelle" <svens@linux.ibm.com>,
-        "Paolo Bonzini" <pbonzini@redhat.com>, "Shuah Khan" <shuah@kernel.org>
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Subject: Re: [PATCH RFC v2 01/11] KVM: s390: Add SCAO read and write helpers
-X-Mailer: aerc 0.20.1
-References: <20251110-vsieie-v2-0-9e53a3618c8c@linux.ibm.com>
- <20251110-vsieie-v2-1-9e53a3618c8c@linux.ibm.com>
- <20251111144511.64450b0e@p-imbrenda>
-In-Reply-To: <20251111144511.64450b0e@p-imbrenda>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Ss+dKfO0 c=1 sm=1 tr=0 ts=69134a42 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=F1t4R9oC0O7z7MunMTsA:9 a=QEXdDO2ut3YA:10
- a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTA4MDA5NSBTYWx0ZWRfX8Tebmb6YcY6s
- RL0Sj9qi+LUEEYxfUp0i3y1UfpHSIwTuqMadsjQ6Letb1W8lJsf6bbh3jLeVkaezkAfOx4m1zmm
- 46smpans+AkYQZq1IuHuiqWTt7J1V7lLbgo0ZOKFwb9NUt8jZW6JAWZ4tBhZsCTEABvmfFBW1hs
- tQv8o5qLDmyYCtvA4hiWETqVxmynBEmEtUvUvBaMY6FhSqcBnf1VsZ61E13bh0xjfFuZnUmPhQy
- F2SPRvzeciFmu+5kvKot5silWctuyzjzhyIgWdKcdar3fthu5c8lvGAbxZJrBlXnKJBCOcCJZER
- rCtgAwDoMWWc28+NmpcOrQIvv4iplYWIeHimHm8B74vEDyw0ao4gPYkM4farshgMBkF+tns2l5M
- cJcYXvtPR5Uuem1XCY73D+eTTZbdpg==
-X-Proofpoint-GUID: UYLt-63Dy6Yti-VvDvi0tU-RpLlkehKO
-X-Proofpoint-ORIG-GUID: UYLt-63Dy6Yti-VvDvi0tU-RpLlkehKO
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-11-11_02,2025-11-11_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 suspectscore=0 impostorscore=0 bulkscore=0 phishscore=0
- lowpriorityscore=0 adultscore=0 priorityscore=1501 spamscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511080095
 
-On Tue Nov 11, 2025 at 2:45 PM CET, Claudio Imbrenda wrote:
-> On Mon, 10 Nov 2025 18:16:41 +0100
-> Christoph Schlameuss <schlameuss@linux.ibm.com> wrote:
->
->> Introduce some small helper functions to get and set the system control
->> area origin address from the SIE control block.
->>=20
->> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
->> ---
->>  arch/s390/kvm/vsie.c | 29 +++++++++++++++++++++--------
->>  1 file changed, 21 insertions(+), 8 deletions(-)
->>=20
->> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
->> index 347268f89f2f186bea623a3adff7376cabc305b2..ced2ca4ce5b584403d900ed1=
-1cb064919feda8e9 100644
->> --- a/arch/s390/kvm/vsie.c
->> +++ b/arch/s390/kvm/vsie.c
->> @@ -123,6 +123,23 @@ static int prefix_is_mapped(struct vsie_page *vsie_=
-page)
->>  	return !(atomic_read(&vsie_page->scb_s.prog20) & PROG_REQUEST);
->>  }
->> =20
->> +static gpa_t read_scao(struct kvm *kvm, struct kvm_s390_sie_block *scb)
->> +{
->> +	gpa_t sca;
->
-> is it, though?
->
->> +
->> +	sca =3D READ_ONCE(scb->scaol) & ~0xfUL;
->> +	if (test_kvm_cpu_feat(kvm, KVM_S390_VM_CPU_FEAT_64BSCAO))
->> +		sca |=3D (u64)READ_ONCE(scb->scaoh) << 32;
->
-> this feels more like an hpa_t, which is what you also use in the
-> function below
->
+Hello Andy,
 
-It actually can be either. Without vsie sigp this is a gpa for reading and
-writing. With vsie sigp this is a gpa when reading and a hpa when writing
-it. It might be best to not imply anything here but just use "unsigned long=
-"
-for these functions.
 
->> +
->> +	return sca;
->> +}
->> +
->> +static void write_scao(struct kvm_s390_sie_block *scb, hpa_t hpa)
->> +{
->> +	scb->scaoh =3D (u32)((u64)hpa >> 32);
->> +	scb->scaol =3D (u32)(u64)hpa;
->> +}
->> +
->>  /* copy the updated intervention request bits into the shadow scb */
->>  static void update_intervention_requests(struct vsie_page *vsie_page)
->>  {
->> @@ -714,12 +731,11 @@ static void unpin_blocks(struct kvm_vcpu *vcpu, st=
-ruct vsie_page *vsie_page)
->>  	struct kvm_s390_sie_block *scb_s =3D &vsie_page->scb_s;
->>  	hpa_t hpa;
->> =20
->> -	hpa =3D (u64) scb_s->scaoh << 32 | scb_s->scaol;
->> +	hpa =3D read_scao(vcpu->kvm, scb_s);
->>  	if (hpa) {
->>  		unpin_guest_page(vcpu->kvm, vsie_page->sca_gpa, hpa);
->>  		vsie_page->sca_gpa =3D 0;
->> -		scb_s->scaol =3D 0;
->> -		scb_s->scaoh =3D 0;
->> +		write_scao(scb_s, 0);
->>  	}
->> =20
->>  	hpa =3D scb_s->itdba;
->> @@ -773,9 +789,7 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct =
-vsie_page *vsie_page)
->>  	gpa_t gpa;
->>  	int rc =3D 0;
->> =20
->> -	gpa =3D READ_ONCE(scb_o->scaol) & ~0xfUL;
->> -	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_64BSCAO))
->> -		gpa |=3D (u64) READ_ONCE(scb_o->scaoh) << 32;
->> +	gpa =3D read_scao(vcpu->kvm, scb_o);
->>  	if (gpa) {
->>  		if (gpa < 2 * PAGE_SIZE)
->>  			rc =3D set_validity_icpt(scb_s, 0x0038U);
->> @@ -792,8 +806,7 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct =
-vsie_page *vsie_page)
->>  		if (rc)
->>  			goto unpin;
->>  		vsie_page->sca_gpa =3D gpa;
->> -		scb_s->scaoh =3D (u32)((u64)hpa >> 32);
->> -		scb_s->scaol =3D (u32)(u64)hpa;
->> +		write_scao(scb_s, hpa);
->>  	}
->> =20
->>  	gpa =3D READ_ONCE(scb_o->itdba) & ~0xffUL;
->>=20
+On Tue, 11 Nov 2025 at 17:57, Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
+>
+> Use %ptSp instead of open coded variants to print content of
+> struct timespec64 in human readable format.
+>
+> Reviewed-by: Christian K=C3=B6nig <christian.koenig@amd.com>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Thanks for the patch.
 
+FWIW, please feel free to add
+Acked-by: Sumit Semwal <sumit.semwal@linaro.org>
+
+Best,
+Sumit.
+> ---
+>  drivers/dma-buf/sync_debug.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/dma-buf/sync_debug.c b/drivers/dma-buf/sync_debug.c
+> index 67cd69551e42..9e5d662cd4e8 100644
+> --- a/drivers/dma-buf/sync_debug.c
+> +++ b/drivers/dma-buf/sync_debug.c
+> @@ -59,7 +59,7 @@ static void sync_print_fence(struct seq_file *s,
+>                 struct timespec64 ts64 =3D
+>                         ktime_to_timespec64(fence->timestamp);
+>
+> -               seq_printf(s, "@%lld.%09ld", (s64)ts64.tv_sec, ts64.tv_ns=
+ec);
+> +               seq_printf(s, "@%ptSp", &ts64);
+>         }
+>
+>         seq_printf(s, ": %lld", fence->seqno);
+> --
+> 2.50.1
+>
