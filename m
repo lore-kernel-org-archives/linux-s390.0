@@ -1,139 +1,149 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1962635950;
-	Tue, 11 Nov 2025 08:51:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59799257846;
+	Tue, 11 Nov 2025 08:55:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762851101; cv=none; b=SV+UHw5ADPUZDUelvQRniXQ4ZNj5Im4vDkzSaHfinaSvwsMcKe80LXbV13Qrny7F7SlHLMPYEu8qYFo1ZE2cJJjg1RFij6xrxJ27TkzwmbWdScZJ5yflqDvOgK4++dfGV+NImj7mim5tzrvMeqdVMpibF3CBwN7WYrVAiiTozHE=
+	t=1762851353; cv=none; b=bcaF5GNUzlhLPFA84DxGS0Mn2tZQW+6DLbtB8SsKKvB1kfWsg5qghrf6qhVuhKZ4z4jzbmS4rU0rxWOWmv910Wd27HjgRdslgAJma8G47ODHBhzb9OZwlMisqGE4zeSBQ49rUAFxSSQrLvNNOzNAcoyxHWaiKpV4lMTk7bekmjo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762851101; c=relaxed/simple;
-	bh=LiVn3Ndd0jxrn6xC6K5BkUKzg9RS7s5lr77FIH6Swps=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
-	 References:In-Reply-To; b=IDr6PoDjF4+c2Vu7kjmNxYhRdzl4m8bQAv8geaumsYxBd8KUi1a9oaC6Lfx6wEC1+dXWSK/uH/GacQO2DlI+gSlb8uttnJGYHIEEoPGoIHQVKBDUW2z4oCYRGA6ime/OJiN/zsQDxQvm7aetj5m54bfd+oopZ6ZDOuLr61bGa5U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DOiDDL38; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1762851353; c=relaxed/simple;
+	bh=DCCdV1feBxJd8JPs8bCmq9jkjv7iq1tmUdts5DlDJ2A=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Yy4xW1xbhni/Eb/hfF0KPVP2yyAm4xHvPysXNzqFMrVlutCDwT3Y0E+Ds/5C6Tz3w/waVHHIAhuDeJHj5R538fcxJzHKNNGtwt6iJ6l/ojXLmpsWsfl8xTeWiuesHznnGQvTdWje7TeVzSjmbNfN945txCFIXcDFLoKSRJuBcKc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=ymWd3Lnk; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=PDy55JQ8; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DOiDDL38"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AB0jdi1007844;
-	Tue, 11 Nov 2025 08:51:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Wtv9oo
-	AnN87OwZE0ZaMz4c14kpwTXKaWitu6AH6KBt0=; b=DOiDDL38f7P8MkWPLCVDrz
-	br2CGXutvwVfc6HUWshHq3GDCzeVQSJEog8m0ORqpUZWzlhXAJ9auqsZDRy+Ui7/
-	/4GkMM5W3wLCq4bblFsc2oQe4OufJyhEjuTWASyNdl2N9er232TE8uuHrHY/zCR8
-	QN0hTymrvY0uHFgsQpI62W8dBhTt1Srn/xx6AqjV9imaKXY3zhO/hFFBM8P//+ew
-	S6g2N3asIE5HXRWgfDPBBhMX4TXUmpVetnx2Kaa4upvhSTJQ/ziyFjentdn+yJey
-	PyjhM2eAgspo52Sx1Iw8it7p0J35VsO3WxiZT3HattJRKTJasr1i9bJw3WmuCDAg
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aa5tjt0q0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Nov 2025 08:51:37 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AB5Z4sA014755;
-	Tue, 11 Nov 2025 08:51:37 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4aahpk1vek-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Nov 2025 08:51:37 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AB8pXQo43188644
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 11 Nov 2025 08:51:33 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4F40C20043;
-	Tue, 11 Nov 2025 08:51:33 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 23AC120040;
-	Tue, 11 Nov 2025 08:51:33 +0000 (GMT)
-Received: from darkmoore (unknown [9.111.46.253])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 11 Nov 2025 08:51:33 +0000 (GMT)
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="ymWd3Lnk";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="PDy55JQ8"
+Date: Tue, 11 Nov 2025 09:55:50 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1762851350;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=RKTM993Ma21ZOkCemY+4BJTuWewmn2tKdsb5lj2abpk=;
+	b=ymWd3LnkEfwtX1k261UdYE5R5/7IpCIN6oMUmih0narZm6Bp8Tw+ikKxAJ98mC+Ki8kPMJ
+	dBJpjhxGTVeH7mhIVwraawl+x4rKUcLrgjqLQQNzsEMcCgMEHvECAIV2HVQCLFCkTVlVl8
+	O+nqZiC7VSJQgOJQPi13SRfHbDZLHZEY3z1VK0oryukZg4fmRz3ltZctohv5sJoBejwjBp
+	LiENYCvrtOf0BCLFlrBMSBeAaFEbp7NDLImGC6soMNidgoVLHUkoF1FvWUavi7dVQADk5V
+	c9bVZlXcLAPlv0tkMAeLyrfguAvzyipXRg9zcPQHmJYXL0Pd+CRKopm3fmhPVQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1762851350;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=RKTM993Ma21ZOkCemY+4BJTuWewmn2tKdsb5lj2abpk=;
+	b=PDy55JQ8GnIS/Y2nfebPHMOFIXaZwBf3oeKj/acsXinCUUcGzezaxkS3vc3c9VSFc5YRUL
+	LWQUVLlkyb70aeBw==
+From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+To: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: Andy Lutomirski <luto@kernel.org>, 
+	Thomas Gleixner <tglx@linutronix.de>, Vincenzo Frascino <vincenzo.frascino@arm.com>, 
+	Arnd Bergmann <arnd@arndb.de>, "David S. Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Nick Alcock <nick.alcock@oracle.com>, 
+	John Stultz <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Shuah Khan <shuah@kernel.org>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Theodore Ts'o <tytso@mit.edu>, 
+	Russell King <linux@armlinux.org.uk>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, Huacai Chen <chenhuacai@kernel.org>, 
+	WANG Xuerui <kernel@xen0n.name>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Shannon Nelson <sln@onemain.com>, linux-kernel@vger.kernel.org, 
+	sparclinux@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, 
+	linux-mips@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v5 19/34] random: vDSO: only access vDSO datapage after
+ random_init()
+Message-ID: <20251110124547-66c465dc-5214-46bf-937f-c8fa381b86f3@linutronix.de>
+References: <20251106-vdso-sparc64-generic-2-v5-0-97ff2b6542f7@linutronix.de>
+ <20251106-vdso-sparc64-generic-2-v5-19-97ff2b6542f7@linutronix.de>
+ <aQ6EvdukQytvqK-u@zx2c4.com>
+ <20251110094555-353883a9-1950-4cc6-a774-bb0ef5db11c5@linutronix.de>
+ <aRHAU7bVAIyaOrpA@zx2c4.com>
+ <20251110114550-a3f2afa8-4f86-4048-be5b-2dc4f4ef340d@linutronix.de>
+ <aRHPIXATFJAEv-CF@zx2c4.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Tue, 11 Nov 2025 09:51:27 +0100
-Message-Id: <DE5QK1RDMQR7.3OEIS68GLQHK5@linux.ibm.com>
-From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>
-To: "Eric Farman" <farman@linux.ibm.com>,
-        "Christian Borntraeger"
- <borntraeger@linux.ibm.com>,
-        "Janosch Frank" <frankja@linux.ibm.com>,
-        "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
-        "David Hildenbrand"
- <david@redhat.com>
-Subject: Re: [PATCH] KVM: s390: vsie: Check alignment of BSCA header
-X-Mailer: aerc 0.20.1
-References: <20251107024927.1414253-1-farman@linux.ibm.com>
-In-Reply-To: <20251107024927.1414253-1-farman@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: JB8A79t6pUHCCi9WD82agodH9WB5ARVn
-X-Proofpoint-ORIG-GUID: JB8A79t6pUHCCi9WD82agodH9WB5ARVn
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTA4MDA5OSBTYWx0ZWRfX1eLOm5g3dA2J
- 7df/RCud62EdoKyQf++H/9Z/qoNjT+2OrdxKpllCjTkiQ6JC7QOP5vJshv9jM4tntW+HvTfhOBG
- D7q+hMauh5uHff179Xo9PjLWiWC8HF4fPTenqL2IVbP52Vl6KO9qX/foqotGcW1xoEoX16pCTlM
- wYT6cGYpL4z0Ym1+pG0CgdR5HogY3Q7LKIl/K/Ylruf3lK/QPcrJD774DItZCQEHlKmUClYTKFK
- 4JeAfA3Rrj2IrWnO3rq3oqrnR/UnfAPY4gymOPlhQSEz3jLV1jl6o9ZTL7EPtVU5dED0GNHCLch
- 7qSr7zxqxIDessA5CYpvhpH69IrdjmkKn8JZTnOfChEzAZ/Fzf3IwyZ63YY8m09we3t7H8Dhruk
- vf5w/ebPegALFyJ8xAU87308CWxpEA==
-X-Authority-Analysis: v=2.4 cv=V6xwEOni c=1 sm=1 tr=0 ts=6912f919 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=7MZT6QB0ziOajrLXSLgA:9 a=NqO74GWdXPXpGKcKHaDJD/ajO6k=:19
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-11-11_01,2025-11-11_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 lowpriorityscore=0 adultscore=0 malwarescore=0 impostorscore=0
- suspectscore=0 priorityscore=1501 phishscore=0 bulkscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511080099
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <aRHPIXATFJAEv-CF@zx2c4.com>
 
-On Fri Nov 7, 2025 at 3:49 AM CET, Eric Farman wrote:
-> The VSIE code currently checks that the BSCA struct fits within
-> a page, and returns a validity exception 0x003b if it doesn't.
-> The BSCA is pinned in memory rather than shadowed (see block
-> comment at end of kvm_s390_cpu_feat_init()), so enforcing the
-> CPU entries to be on the same pinned page makes sense.
->
-> Except those entries aren't going to be used below the guest,
-> and according to the definition of that validity exception only
-> the header of the BSCA (everything but the CPU entries) needs to
-> be within a page. Adjust the alignment check to account for that.
->
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> ---
->  arch/s390/kvm/vsie.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-> index 347268f89f2f..d23ab5120888 100644
-> --- a/arch/s390/kvm/vsie.c
-> +++ b/arch/s390/kvm/vsie.c
-> @@ -782,7 +782,7 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct v=
-sie_page *vsie_page)
->  		else if ((gpa & ~0x1fffUL) =3D=3D kvm_s390_get_prefix(vcpu))
->  			rc =3D set_validity_icpt(scb_s, 0x0011U);
->  		else if ((gpa & PAGE_MASK) !=3D
-> -			 ((gpa + sizeof(struct bsca_block) - 1) & PAGE_MASK))
-> +			 ((gpa + offsetof(struct bsca_block, cpu[0]) - 1) & PAGE_MASK))
+On Mon, Nov 10, 2025 at 12:40:17PM +0100, Jason A. Donenfeld wrote:
+> On Mon, Nov 10, 2025 at 12:24:13PM +0100, Thomas Weißschuh wrote:
+> > > > > For example, one clean way of
+> > > > > doing that would be to make vdso_k_rng_data always valid by having it
+> > > > > initially point to __initdata memory, and then when it's time to
+> > > > > initialize the real datapage, memcpy() the __initdata memory to the new
+> > > > > specially allocated memory. Then we don't need the complex state
+> > > > > tracking that this commit and the prior one introduce.
+> > > > 
+> > > > Wouldn't that require synchronization between the update path and the memcpy()
+> > > > path? Also if the pointer is going to change at some point we'll probably need
+> > > > to use READ_ONCE()/WRITE_ONCE(). In general I would be happy about a cleaner
+> > > > solution for this but didn't find a great one.
+> > > 
+> > > This is still before userspace has started, and interrupts are disabled,
+> > > so I don't think so?
+> > 
+> > Interrupts being disabled is a good point. But we are still leaking
+> > implementation details from the random code into the vdso datastore.
+> 
+> It wouldn't. You do this generically with memcpy().
 
-Did you test if this works with an esca, where the header is bigger than th=
-is?
-Previously the esca header was covered by the whole bsca struct.
+With "implementation details" I meant the fact that it is fine to swap out the
+datapage behind its back. And the fact that the memcpy() can not introduce any
+races.
 
->  			rc =3D set_validity_icpt(scb_s, 0x003bU);
->  		if (!rc) {
->  			rc =3D pin_guest_page(vcpu->kvm, gpa, &hpa);
+> > > Also, you only care about being after
+> > > mm_core_init(), right? So move your thing before sched_init() and then
+> > > you'll really have nothing to worry about.
+> > 
+> > The callchains random_init_early() -> crng_reseed()/_credit_init_bits() could
+> > still touch the datapage before it is allocated.
+> > Adding conditionals to prevent those is essentially what my patch does.
+> 
+> I think I wasn't very clear in my proposal, because this isn't an issue
+> in it.
 
+I interpreted your previous mail as two different proposals:
+1) do the memcpy() thing
+2) move the page allocation after mm_core_init()
+
+Now it makes more sense.
+
+> Global scope:
+> 
+> static struct vdso_rng_data placeholder_vdso_k_rng_data __initdata;
+> struct vdso_rng_data *vdso_k_rng_data = &placeholder_vdso_k_rng_data;
+> 
+> Then,
+> 
+> void __init vdso_setup_data_pages(void)
+> {
+>     ...
+>     vdso_k_rng_data = blabla();
+>     ...
+>     memcpy(vdso_k_rng_data, &placeholder_vdso_k_rng_data, sizeof(*vdso_k_rng_data);
+>     ...
+> }
+> 
+> If vdso_setup_data_pages() is called early enough in init, this is safe
+> to do, and then you don't need to muck up the random code with awful
+> state machine ordering stuff.
+
+Yes it is safe, but this safety is not obvious in my opinion.
+However I'll use your proposal for the next revision.
+
+
+Thomas
