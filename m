@@ -1,197 +1,135 @@
-Received: from smtpweb147.aruba.it (smtpweb147.aruba.it [62.149.158.147])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8EEF32B9B5
-	for <linux-s390@vger.kernel.org>; Tue, 11 Nov 2025 08:13:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.149.158.147
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D1852FB629;
+	Tue, 11 Nov 2025 08:13:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762848791; cv=none; b=Dkg82MS8ob7L7H/zwIc8CNRdHg6RpX8hmM2WW7NQEoAugrBemeRXtVdOx1ZfMG19RbvWRHYerGVjbKhwhJsm/lxnF00D0Vi9Iegpj1WzYtgT1PlO42PJ/YIWOdniCzw8Bq6DJK1do09/8G2OGJK/K7cUzddJYDa4V0rMetdtDpM=
+	t=1762848800; cv=none; b=iBWx4/LCOJHil+XUGcX9nH51pnTIZd/431nZ+8IfdDp2hPsTDYn2b/8Sk5ckAvp3rXXFJMg0VL6ceKkvieNkTAszgderCZ/uDuuo0JNuRKx8wznPXHpZ4iw1zncawxf+ylPJVPoT7Nv2xi9lbIpNGFrWOTG2+3GSLl35YKGKWIw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762848791; c=relaxed/simple;
-	bh=e2VKfhLBtfetGdLzQaFZSLBhdVbkUGkXPf4jjXRKteg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=AbSl2emSvikOmJh8i2CQPGCwmPUmsy95K6PsJvMZaKfPjwAOfHh1r5pY7/lktNLGnCLztvZTFaooBxKHBiI2ffDjzVwHY70Xm5aiftDgtGpvfuqo/hgciJiH1cRP1uJ/9YJCZYyD5MvgcjD63GmuWY/JsnZD9qCDdmJwzfXi1Ok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=enneenne.com; spf=pass smtp.mailfrom=enneenne.com; dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b=AXJ4e5dw; arc=none smtp.client-ip=62.149.158.147
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=enneenne.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=enneenne.com
+	s=arc-20240116; t=1762848800; c=relaxed/simple;
+	bh=WBhs09FFluzRch+yyJAu47OKXpPRUHJJuZFrEfWshWA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=a3742HGlsCCP2nkr4e9jrzl1Ap4/bBeHd8qIo4Qx+ECh0I6dQOazRBAf+/TXT6QgVGc7mr5LzXyMM4YR0J8whS/5I8rDRzZBHHrs2F3P72ew9PPehL+1k7dAntfyis77K1lzKpwk5k5Bp5mkNFltWTgmMSl1NwGEXXjqZZqdduw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BSQzr49q; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b="AXJ4e5dw"
-Received: from [192.168.1.56] ([79.0.204.227])
-	by Aruba SMTP with ESMTPSA
-	id IjRpvB89Z3rWiIjRpvo9yP; Tue, 11 Nov 2025 09:09:59 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aruba.it; s=a1;
-	t=1762848599; bh=e2VKfhLBtfetGdLzQaFZSLBhdVbkUGkXPf4jjXRKteg=;
-	h=Date:MIME-Version:Subject:To:From:Content-Type;
-	b=AXJ4e5dw+jSyszcMYBEFl9RCo64n6ctWLi7ALyEfBW2CsNHdns58uFEPi6BIP0fSo
-	 +tB0UztyXs5sQMBKQyycck0J3O4LR0Dnk3QAhsnI09tGu8FmU8DcYE1wR6HJcad5yZ
-	 TLc+0c06i9zJ5NVTRlQs5GjG5nsPj9le/gGOTqLTjYyWY5Qcu3FWjQq5gmMaKCWsin
-	 /zKDeh7ZKMAATnb3tk1WbFnrvz4a8/3SGmCbbZzLCD1af4amWVvDCH5XIDWdZFYyW6
-	 QyGNAYKhUugKEMfbzLpPCuFgDDAzuQZNrfICnaEmr/m/0fSopNWEOSkZx7p8Qn9Y80
-	 b8l0RNeGvbW6A==
-Message-ID: <6c8b4205-e5d2-4bce-a1ab-addb099097b8@enneenne.com>
-Date: Tue, 11 Nov 2025 09:09:52 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BSQzr49q"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AB4RSdH025181;
+	Tue, 11 Nov 2025 08:13:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:sender:subject:to; s=pp1; bh=x2GKGJh1HojmVjCsLyDHnaS
+	SrgB21ao/zOSFwkEAWdk=; b=BSQzr49qa8IVkxCOP/uGwZqzqGRYYs2p/nDbGNY
+	slBKrnQ1QLJKesP6NcYl52SOSLjYKFxzyNxtVrMWjfwwC5CsNsq2cUSd+qBnSbLK
+	3kgWitzhOhzsGjwyvRUYZ7BEqK/fzXjdOKSCXp/bDjgXe3GpYLzRw+/4IaUXNeK6
+	5V3odXUj/y5xpFEBFIcfJZcibl6A9IBxXNnf3IMFm3RHj9vK+aZ+L+awgxWbNyxb
+	PPxfde1yiLKGhkQ5X8wAPoDWyKLP8W3rhuXOR38JRn9+Jdyn1n7CgASDXzgU/uBY
+	K6om6DqTRXH4byUlfWRRBEViATE2mThNvfLZhmAgx0QF+vA==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aa3m825h8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 11 Nov 2025 08:13:14 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AB5ACKl028867;
+	Tue, 11 Nov 2025 08:13:13 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4aag6s9xrd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 11 Nov 2025 08:13:13 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AB8D9UW31326514
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 11 Nov 2025 08:13:09 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1E6D12004D;
+	Tue, 11 Nov 2025 08:13:09 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 098F820043;
+	Tue, 11 Nov 2025 08:13:09 +0000 (GMT)
+Received: from vela (unknown [9.155.211.212])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 11 Nov 2025 08:13:08 +0000 (GMT)
+Received: from brueckner by vela with local (Exim 4.98.2)
+	(envelope-from <brueckner@linux.ibm.com>)
+	id 1vIjUy-000000005zG-2vtw;
+	Tue, 11 Nov 2025 09:13:08 +0100
+Date: Tue, 11 Nov 2025 09:13:08 +0100
+From: Hendrik Brueckner <brueckner@linux.ibm.com>
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>, David Hildenbrand <david@redhat.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>
+Subject: Re: [PATCH RFC v2 02/11] KVM: s390: Remove double 64bscao feature
+ check
+Message-ID: <aRLwFNV3SU4_3rZA@linux.ibm.com>
+References: <20251110-vsieie-v2-0-9e53a3618c8c@linux.ibm.com>
+ <20251110-vsieie-v2-2-9e53a3618c8c@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 18/23] pps: Switch to use %ptSp
-Content-Language: en-US
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- Corey Minyard <corey@minyard.net>, =?UTF-8?Q?Christian_K=C3=B6nig?=
- <christian.koenig@amd.com>, "Dr. David Alan Gilbert" <linux@treblig.org>,
- Alex Deucher <alexander.deucher@amd.com>,
- Thomas Zimmermann <tzimmermann@suse.de>,
- Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
- Rob Clark <robin.clark@oss.qualcomm.com>,
- Matthew Brost <matthew.brost@intel.com>, Hans Verkuil <hverkuil@kernel.org>,
- Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
- Ulf Hansson <ulf.hansson@linaro.org>,
- Vitaly Lifshits <vitaly.lifshits@intel.com>,
- Manivannan Sadhasivam <mani@kernel.org>, Niklas Cassel <cassel@kernel.org>,
- Calvin Owens <calvin@wbinvd.org>, Sagi Maimon <maimon.sagi@gmail.com>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- Karan Tilak Kumar <kartilak@cisco.com>,
- Casey Schaufler <casey@schaufler-ca.com>,
- Steven Rostedt <rostedt@goodmis.org>, Petr Mladek <pmladek@suse.com>,
- Max Kellermann <max.kellermann@ionos.com>, Takashi Iwai <tiwai@suse.de>,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
- openipmi-developer@lists.sourceforge.net, linux-media@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
- amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- freedreno@lists.freedesktop.org, intel-xe@lists.freedesktop.org,
- linux-mmc@vger.kernel.org, netdev@vger.kernel.org,
- intel-wired-lan@lists.osuosl.org, linux-pci@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
- linux-staging@lists.linux.dev, ceph-devel@vger.kernel.org,
- linux-trace-kernel@vger.kernel.org, linux-sound@vger.kernel.org
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>,
- Sergey Senozhatsky <senozhatsky@chromium.org>,
- Jonathan Corbet <corbet@lwn.net>, Sumit Semwal <sumit.semwal@linaro.org>,
- Gustavo Padovan <gustavo@padovan.org>, David Airlie <airlied@gmail.com>,
- Simona Vetter <simona@ffwll.ch>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Dmitry Baryshkov <lumag@kernel.org>,
- Abhinav Kumar <abhinav.kumar@linux.dev>,
- Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>,
- Marijn Suijten <marijn.suijten@somainline.org>,
- Konrad Dybcio <konradybcio@kernel.org>,
- Lucas De Marchi <lucas.demarchi@intel.com>,
- =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>,
- Mauro Carvalho Chehab <mchehab@kernel.org>,
- Vladimir Oltean <olteanv@gmail.com>, Andrew Lunn <andrew@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Tony Nguyen <anthony.l.nguyen@intel.com>,
- Przemek Kitszel <przemyslaw.kitszel@intel.com>,
- =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
- Kishon Vijay Abraham I <kishon@kernel.org>,
- Bjorn Helgaas <bhelgaas@google.com>,
- Jonathan Lemon <jonathan.lemon@gmail.com>,
- Vadim Fedorenko <vadim.fedorenko@linux.dev>,
- Richard Cochran <richardcochran@gmail.com>,
- Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Satish Kharat <satishkh@cisco.com>,
- Sesidhar Baddela <sebaddel@cisco.com>,
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Xiubo Li
- <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,
- Masami Hiramatsu <mhiramat@kernel.org>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- Andrew Morton <akpm@linux-foundation.org>, Jaroslav Kysela <perex@perex.cz>,
- Takashi Iwai <tiwai@suse.com>
-References: <20251110184727.666591-1-andriy.shevchenko@linux.intel.com>
- <20251110184727.666591-19-andriy.shevchenko@linux.intel.com>
-From: Rodolfo Giometti <giometti@enneenne.com>
-In-Reply-To: <20251110184727.666591-19-andriy.shevchenko@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-CMAE-Envelope: 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
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251110-vsieie-v2-2-9e53a3618c8c@linux.ibm.com>
+Sender: Hendrik Brueckner <brueckner@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=MtZfKmae c=1 sm=1 tr=0 ts=6912f01a cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=kj9zAlcOel0A:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VnNF1IyMAAAA:8 a=Ga-AtK6nKil8RvkuQPcA:9 a=CjuIK1q_8ugA:10
+ a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-GUID: bFwWBX-YFF3KhtdxkJ4qVb9V_Mp828qm
+X-Proofpoint-ORIG-GUID: bFwWBX-YFF3KhtdxkJ4qVb9V_Mp828qm
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTA4MDA3OSBTYWx0ZWRfX1iiwVnoTS3TI
+ yaL63ZxZ7aI4mSAk+hkdGadkQiEcgusXP2ra0dKBba9SuqTK3j+Oum0jYsUFA1+9Hs74A7JDC7H
+ ruf3lAukC4Dgg7xw7gyw0l+QTOXCmOQsgPixb00RKD4MwE3b/9/xS+2BgPXzw4tEVoJydwI49W4
+ dPSqODCCrz2wg/ROtWh/D88uLuF1vO/z4iBsoNWD34m8tqMNdoCid6LHMps0rzhaDpyM7bu9Njl
+ E+EEx1kfGlvjgfD124MUz56eqzf+9WetuxAopyis/AOg8sMESneZNAfqXSRSw+rOtBmlvcJ5sSu
+ wOUXpUkModgyDBQXRZZiAm5FSoY3vLzp64MZwbzOC3LvuztGGu7lBmVIxtSLPB6xSPiTbrgnG4M
+ t7uraNk5zgmnGcbN3Kw+mmZlZJGmGQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-11-11_01,2025-11-11_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 adultscore=0 priorityscore=1501 bulkscore=0 impostorscore=0
+ suspectscore=0 lowpriorityscore=0 clxscore=1011 phishscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511080079
 
-On 10/11/25 19:40, Andy Shevchenko wrote:
-> Use %ptSp instead of open coded variants to print content of
-> struct timespec64 in human readable format.
+On Mon, Nov 10, 2025 at 06:16:42PM +0100, Christoph Schlameuss wrote:
+> sclp.has_64bscao is already verified in the guard clause a few lines
+> above this. So we cannot reach this code if it is not true.
 > 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
-Acked-by: Rodolfo Giometti <giometti@enneenne.com>
-
-Thanks,
-
-Rodolfo Giometti
-
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 > ---
->   drivers/pps/generators/pps_gen_parport.c | 3 +--
->   drivers/pps/kapi.c                       | 3 +--
->   2 files changed, 2 insertions(+), 4 deletions(-)
+>  arch/s390/kvm/kvm-s390.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
 > 
-> diff --git a/drivers/pps/generators/pps_gen_parport.c b/drivers/pps/generators/pps_gen_parport.c
-> index f5eeb4dd01ad..05bbf8d30ef1 100644
-> --- a/drivers/pps/generators/pps_gen_parport.c
-> +++ b/drivers/pps/generators/pps_gen_parport.c
-> @@ -80,8 +80,7 @@ static enum hrtimer_restart hrtimer_event(struct hrtimer *timer)
->   	/* check if we are late */
->   	if (expire_time.tv_sec != ts1.tv_sec || ts1.tv_nsec > lim) {
->   		local_irq_restore(flags);
-> -		pr_err("we are late this time %lld.%09ld\n",
-> -				(s64)ts1.tv_sec, ts1.tv_nsec);
-> +		pr_err("we are late this time %ptSp\n", &ts1);
->   		goto done;
->   	}
->   
-> diff --git a/drivers/pps/kapi.c b/drivers/pps/kapi.c
-> index e9389876229e..6985c34de2ce 100644
-> --- a/drivers/pps/kapi.c
-> +++ b/drivers/pps/kapi.c
-> @@ -163,8 +163,7 @@ void pps_event(struct pps_device *pps, struct pps_event_time *ts, int event,
->   	/* check event type */
->   	BUG_ON((event & (PPS_CAPTUREASSERT | PPS_CAPTURECLEAR)) == 0);
->   
-> -	dev_dbg(&pps->dev, "PPS event at %lld.%09ld\n",
-> -			(s64)ts->ts_real.tv_sec, ts->ts_real.tv_nsec);
-> +	dev_dbg(&pps->dev, "PPS event at %ptSp\n", &ts->ts_real);
->   
->   	timespec_to_pps_ktime(&ts_real, ts->ts_real);
->   
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 769820e3a2431c16c7ec85dbf313f61f7ba1a3cc..984baa5f5ded1e05e389abc485c63c0bf35eee4c 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -455,8 +455,7 @@ static void __init kvm_s390_cpu_feat_init(void)
+>  	    !test_facility(3) || !nested)
+>  		return;
+>  	allow_cpu_feat(KVM_S390_VM_CPU_FEAT_SIEF2);
+> -	if (sclp.has_64bscao)
+> -		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_64BSCAO);
+> +	allow_cpu_feat(KVM_S390_VM_CPU_FEAT_64BSCAO);
+>  	if (sclp.has_siif)
+>  		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_SIIF);
+>  	if (sclp.has_gpere)
+> 
 
-
--- 
-GNU/Linux Solutions                  e-mail: giometti@enneenne.com
-Linux Device Driver                          giometti@linux.it
-Embedded Systems                     phone:  +39 349 2432127
-UNIX programming
+Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
