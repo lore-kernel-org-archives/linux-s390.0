@@ -1,130 +1,201 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 216BB31AF3E;
-	Thu, 13 Nov 2025 19:45:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA36C3218A6
+	for <linux-s390@vger.kernel.org>; Thu, 13 Nov 2025 20:53:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763063140; cv=none; b=WhEDxyEsvET23xVbdEAGdweFBB5NLJoz1vv/Rhje9Llscb0pHMlxAWTKaeFBB+jrHcTZqw9rbJuhlF2wilaQmSMT9CtU0NnNXRrU6QIjfwCaYF44hucCgr1y3Lf/Dz0DPwVFLsmR/3BuC5jKHDImmjXcScIXJqlFTkBDrS6KNwA=
+	t=1763067185; cv=none; b=UG0gS1li+YaVLVqe70kyviPKcCkfkt41WY/nCHqqconZ+1cqKwtHH2gv6amSRXoc6KlDXzeIdResqibydpHnTiu+fM0/QFxl6p4wPNjQ38YZ5Zbjfptlo3q9Yk9HErqkKpC7hxOhTtTwwOPGpwvNu0lOeFdXSaNfnAMLD6ukIi8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763063140; c=relaxed/simple;
-	bh=nax9ZHenbsP3cifQ+6Nop6vw8o3sZ/B5k/1/IQBzfqI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PiwHir0/+jYfgBMpmyKYLK72BKAxN+nSIPfujZv2cy7/Uzp1O//Ymu+z2FcIiNNhMPYDwGawXeI1gzmcjLNjxtoyPf6mA0Pxe2B9ZGPLqiB865ZbLjcx2MgYTM4pYaomxNo6hWiXUCyHaYvlQfzd0Vcir19Z8IBx1P1p+K+L8M8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qbi3lwx0; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1763067185; c=relaxed/simple;
+	bh=vn8ogXe0YRKcmMRM5WxtTx4YwW0ig83RgedzyLS2RGI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=NdTOnwdvfIOVzOAiuzEidj67ZD4nX/n373MUA0/uUeuT9FjBTl+pUvgoP/YgtVG8uj3uXQVVSfEZOgeNNERc7O5QW5C4yHjhximwMNAgXkDXqIk/yR8KVXk6fmcoV/vGnoxkKupkWrtn3StOLTxphnJVSuZFRmo8X69gq1Ihi7g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Wa2jIiVK; arc=none smtp.client-ip=209.85.221.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qbi3lwx0"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5ADIdl3J022003;
-	Thu, 13 Nov 2025 19:45:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=sYFWWS
-	ybzvahKVs9BGfDUWCxrSwc2SuxAPmR1tiery8=; b=qbi3lwx01vBz4zAmoMw0a9
-	R6P+OBCWg48RITLGtCC/4F0vYaxlh6ZuWPfLzZIPHMOysxM9JxOS/8ajjHAyl8Ia
-	MkFRiH9iUArjlrtpJJSIrO+D9TjFIY6s2sjTBUmQgiUlQYGZ1PQkiBYxIi945lo6
-	TkdK67IyftCyrsijcB7kEb1AALVQXvK5uUpwSXFrh6DW8ACvdE7D74BKlwcYOKRu
-	z6k+6R/rewMZFsCcbSbpInNIJTzEL817u4zVlxAyOElPSphw/UOmoKL9aAOjw6YI
-	+wvB/5ocOmv26injxeH+WSDjmRoMIgW8D068gFEObOy70NIJRUUEkkC8I7Ae0k0g
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aa5tk76x4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Nov 2025 19:45:12 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5ADJ8rQ5028880;
-	Thu, 13 Nov 2025 19:45:11 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4aag6sqwxc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Nov 2025 19:45:11 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5ADJj7i959769120
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 13 Nov 2025 19:45:07 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BF0CE20049;
-	Thu, 13 Nov 2025 19:45:07 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3145D20040;
-	Thu, 13 Nov 2025 19:45:07 +0000 (GMT)
-Received: from osiris (unknown [9.111.38.203])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 13 Nov 2025 19:45:07 +0000 (GMT)
-Date: Thu, 13 Nov 2025 20:45:05 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Thomas =?iso-8859-1?Q?Wei=DFschuh?= <linux@weissschuh.net>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andreas Krebbel <krebbel@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
-        Willy Tarreau <w@1wt.eu>, Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH 4/8] tools: Remove s390 compat support
-Message-ID: <20251113194505.7746Bc8-hca@linux.ibm.com>
-References: <20251113150731.2697279-1-hca@linux.ibm.com>
- <20251113150731.2697279-5-hca@linux.ibm.com>
- <72a8ffff-5074-4a7f-94ee-454c21f8a130@t-8ch.de>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Wa2jIiVK"
+Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-42b3ad51fecso1035956f8f.1
+        for <linux-s390@vger.kernel.org>; Thu, 13 Nov 2025 12:53:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1763067182; x=1763671982; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=GHKi2c90qWan2zC8wuUwIw9LkqFuCkHgH6vXrVkAv64=;
+        b=Wa2jIiVKo5AvPrCIowtEtbI5X1DHUo2c16US1Ne6ojmfnoGo7QHkVKbD/YjQghqZ3n
+         8G/7R9gQoLTG49gDXFLVs78/vBJ0DRP5PH6kZZaicbGzudH8rwd2PKee+3UiOnhUVP+S
+         NbUiKY68uXqNk4maH89wJ4h38P/p4bHgKmQzQhk2wdF9zlPiEntEI22M+Ul/OXTk7acv
+         Q9AH4hats/Tmr9/6J08mE0zLENSowXMe60uWmmdGnE2zsmWlXptZFlAsQznqxH5fgyGg
+         aRGT2oQTkVRt/0CfNmtJzx/T3PLe+v7geDuIjam+DhqhpANnpJSVSai9W1ZQkHW9vzuP
+         hUwQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763067182; x=1763671982;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=GHKi2c90qWan2zC8wuUwIw9LkqFuCkHgH6vXrVkAv64=;
+        b=DZfz78EP5ufbVAJe2hkJrH9NsRyblykcJ/RUK+hOfMaH5A7vdDl+V/zz+0CfD+b9jH
+         jVsPceZQbtNXOUNr9t3xVawr/IihB7u8gzFMuJiaeYw9VSKagjITk0tzhQItLBXVIDtw
+         8LdJehrMzZyx9RlgTDE/H3j9V2jN8G6mkRQGbIxBH2tQn6FMMI/Rg6n1s3gyY7xX4Woo
+         jPY1MHu5Cb8YKJVvKChkEWma3grWJqfZAkE9gACNrzPcKrA4ZeSR1GRYQGinEyXU0cFS
+         DYRzulx/OvyeCcIbRxFBw0Sk9M63kx+lskn/rdr6Y9zdHex8qYw4rmaw7QVfajtnWD2K
+         mFNA==
+X-Forwarded-Encrypted: i=1; AJvYcCUYLUyjZc0zIgEZIEPCfeFfPCbg4NETxraEkOItcN5sA5ZO/k4ESbWb5IukCdfYXC4+bDrUpH8MDQGC@vger.kernel.org
+X-Gm-Message-State: AOJu0YwNeX0hFPkqFXgwTgH+Od0mzZFAlvBffMGEX6xTpzco09G0xteS
+	m9/DUsGr3lg0RCFbYinJJmTlgYqPUspkXKyeoTuv2UTx7e6f2eU3DLBvDlbg7EbqQTupvxtm5vE
+	mW8QF+Fm2Grub5EGiQZq5FEVJjwUTDyA=
+X-Gm-Gg: ASbGncvhxokTXIbi6QSF/hOTVUvzixuFj5FpFlHpIgW5VogaX7luiNqlWBuzQ32zU+W
+	y2G+XwklkxOV9oe/g2He45ALT451OH1S/U1fHKK2E5W//a7r3ZC5akxJo6wJfzjZc8n11NLkw8f
+	vllYawkJ3BT3dWv1HmEjrlLYs+HgACXKrok4/yO+d+z1ZKfG9LsAXK3AAZEtFzWPjcI3d35uEfn
+	O/IYzvlMi3gKtHiE7JY2U4BN5/gZlcqZ+onGLcQxFP0Vmd82aVDk5+mGwBs5v2FC8Z8daLuqD1+
+	wamPdtUgqPM=
+X-Google-Smtp-Source: AGHT+IEh2RPALHpzP1laCRjEn74cXco6+h6l7pCThRZl/oBRXiZdCsuqesx010gucWniBZ2zilstwr8JbIHw7BaggNE=
+X-Received: by 2002:a05:6000:61e:b0:42b:43cc:9830 with SMTP id
+ ffacd0b85a97d-42b59378e03mr609835f8f.41.1763067181851; Thu, 13 Nov 2025
+ 12:53:01 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <72a8ffff-5074-4a7f-94ee-454c21f8a130@t-8ch.de>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: YpAoW1u82zZkTULMYz7ruOCbpFugtg3E
-X-Proofpoint-ORIG-GUID: YpAoW1u82zZkTULMYz7ruOCbpFugtg3E
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTA4MDA5OSBTYWx0ZWRfXxP1x5n/WzggD
- 0P4QlpS0x1pjPbGkTzrBIVosg12AgL346rp61hSUnuNFe/DHvgPjPK5YrlBVt9u8gZtfZjoOC/l
- 1wg887PNcCiGfO5T7NDJ+vLxY2145WaZDmfNK3Op7vIJCgsinkNMBi82YWzaLfPhTVjbJJixbh8
- G4vmuw1XOriTWZeK6nz3M1krlJKOWtb6vO1kTA9SSQ6ryi07xDEGbb4UXpd3V3vo10+JosFK1ZG
- UJPLcFK/4CeGiiPL+/Qii44GmbJBq3XKpgNHXyVf9BYPofQC0o5XYs0ISZJQnpFsLSg1wX1lCZ8
- gdD0c68sOOijNQeij2nCPZRIIebTvLgZLpYx+1a2i1SmHSxSBTosF6c7Q7MN8j/FlD8qqnMRPMU
- hudBz9ym9ETIdQ4sDZz5RSpen9CKTA==
-X-Authority-Analysis: v=2.4 cv=V6xwEOni c=1 sm=1 tr=0 ts=69163548 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=8nJEP1OIZ-IA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=8RV-Oewd9zCQFDWjh_IA:9 a=3ZKOabzyN94A:10 a=wPNLvfGTeEIA:10
- a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-11-13_05,2025-11-13_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 lowpriorityscore=0 adultscore=0 malwarescore=0 impostorscore=0
- suspectscore=0 priorityscore=1501 phishscore=0 bulkscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511080099
+References: <20251113150731.2697279-1-hca@linux.ibm.com> <20251113150731.2697279-5-hca@linux.ibm.com>
+In-Reply-To: <20251113150731.2697279-5-hca@linux.ibm.com>
+From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Date: Thu, 13 Nov 2025 12:52:48 -0800
+X-Gm-Features: AWmQ_bmN-cbqPx2gFrxymdsLCU9xoAafHvPPBzOYfUaJ1Cen9t3ei6asriXby8M
+Message-ID: <CAADnVQL4cERs+hYmQ818a6LRGKLdcObD2+WReATyhpoRjrE8JQ@mail.gmail.com>
+Subject: Re: [PATCH 4/8] tools: Remove s390 compat support
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Andreas Krebbel <krebbel@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>, 
+	=?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>, 
+	Willy Tarreau <w@1wt.eu>, Andrii Nakryiko <andrii@kernel.org>, Alexei Starovoitov <ast@kernel.org>, 
+	LKML <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 13, 2025 at 04:43:59PM +0100, Thomas Weißschuh wrote:
-> On 2025-11-13 16:07:26+0100, Heiko Carstens wrote:
-> > Remove s390 compat support from everything within tools, since s390 compat
-> > support will be removed from the kernel.
-> > 
-> > While removing s390 compat code replace __s390__ ifdef guards with
-> > __s390x__ everywhere. Even though this is not strictly required this
-> > makes it easier to spot s390 compat code support leftovers.
-> > 
-> > Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-> > Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> > ---
-> >  .../arch/s390/include/uapi/asm/bitsperlong.h  |  4 --
-> 
-> Wouldn't it make sense to emit an explicit error from the UAPI
-> headers if a user tries to use them in 31-bit mode?
+On Thu, Nov 13, 2025 at 7:08=E2=80=AFAM Heiko Carstens <hca@linux.ibm.com> =
+wrote:
+>
+> Remove s390 compat support from everything within tools, since s390 compa=
+t
+> support will be removed from the kernel.
+>
+> While removing s390 compat code replace __s390__ ifdef guards with
+> __s390x__ everywhere. Even though this is not strictly required this
+> makes it easier to spot s390 compat code support leftovers.
+>
+> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>  .../arch/s390/include/uapi/asm/bitsperlong.h  |  4 --
+>  tools/include/nolibc/arch-s390.h              |  5 ---
+>  tools/include/nolibc/arch.h                   |  2 +-
+>  tools/lib/bpf/libbpf.c                        |  4 --
+>  tools/lib/bpf/usdt.c                          |  2 -
+>  .../testing/selftests/nolibc/Makefile.nolibc  |  5 ---
+>  tools/testing/selftests/nolibc/run-tests.sh   |  6 +--
+>  tools/testing/selftests/rseq/rseq-s390.h      | 39 -------------------
+>  tools/testing/selftests/vDSO/vdso_config.h    |  4 --
+>  9 files changed, 2 insertions(+), 69 deletions(-)
+>
+> diff --git a/tools/arch/s390/include/uapi/asm/bitsperlong.h b/tools/arch/=
+s390/include/uapi/asm/bitsperlong.h
+> index d2bb620119bf..a226a1686a53 100644
+> --- a/tools/arch/s390/include/uapi/asm/bitsperlong.h
+> +++ b/tools/arch/s390/include/uapi/asm/bitsperlong.h
+> @@ -2,11 +2,7 @@
+>  #ifndef __ASM_S390_BITSPERLONG_H
+>  #define __ASM_S390_BITSPERLONG_H
+>
+> -#ifndef __s390x__
+> -#define __BITS_PER_LONG 32
+> -#else
+>  #define __BITS_PER_LONG 64
+> -#endif
+>
+>  #include <asm-generic/bitsperlong.h>
+>
+> diff --git a/tools/include/nolibc/arch-s390.h b/tools/include/nolibc/arch=
+-s390.h
+> index df4c3cc713ac..0a39bee261b9 100644
+> --- a/tools/include/nolibc/arch-s390.h
+> +++ b/tools/include/nolibc/arch-s390.h
+> @@ -143,13 +143,8 @@
+>  void __attribute__((weak, noreturn)) __nolibc_entrypoint __no_stack_prot=
+ector _start(void)
+>  {
+>         __asm__ volatile (
+> -#ifdef __s390x__
+>                 "lgr    %r2, %r15\n"          /* save stack pointer to %r=
+2, as arg1 of _start_c */
+>                 "aghi   %r15, -160\n"         /* allocate new stackframe =
+                       */
+> -#else
+> -               "lr     %r2, %r15\n"
+> -               "ahi    %r15, -96\n"
+> -#endif
+>                 "xc     0(8,%r15), 0(%r15)\n" /* clear backchain         =
+                       */
+>                 "brasl  %r14, _start_c\n"     /* transfer to c runtime   =
+                       */
+>         );
+> diff --git a/tools/include/nolibc/arch.h b/tools/include/nolibc/arch.h
+> index 426c89198135..ef4743aad188 100644
+> --- a/tools/include/nolibc/arch.h
+> +++ b/tools/include/nolibc/arch.h
+> @@ -27,7 +27,7 @@
+>  #include "arch-powerpc.h"
+>  #elif defined(__riscv)
+>  #include "arch-riscv.h"
+> -#elif defined(__s390x__) || defined(__s390__)
+> +#elif defined(__s390x__)
+>  #include "arch-s390.h"
+>  #elif defined(__loongarch__)
+>  #include "arch-loongarch.h"
+> diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+> index dd3b2f57082d..85abc357da31 100644
+> --- a/tools/lib/bpf/libbpf.c
+> +++ b/tools/lib/bpf/libbpf.c
+> @@ -11325,8 +11325,6 @@ static const char *arch_specific_syscall_pfx(void=
+)
+>         return "ia32";
+>  #elif defined(__s390x__)
+>         return "s390x";
+> -#elif defined(__s390__)
+> -       return "s390";
+>  #elif defined(__arm__)
+>         return "arm";
+>  #elif defined(__aarch64__)
+> @@ -12113,8 +12111,6 @@ static const char *arch_specific_lib_paths(void)
+>         return "/lib/i386-linux-gnu";
+>  #elif defined(__s390x__)
+>         return "/lib/s390x-linux-gnu";
+> -#elif defined(__s390__)
+> -       return "/lib/s390-linux-gnu";
+>  #elif defined(__arm__) && defined(__SOFTFP__)
+>         return "/lib/arm-linux-gnueabi";
+>  #elif defined(__arm__) && !defined(__SOFTFP__)
+> diff --git a/tools/lib/bpf/usdt.c b/tools/lib/bpf/usdt.c
+> index c174b4086673..d1524f6f54ae 100644
+> --- a/tools/lib/bpf/usdt.c
+> +++ b/tools/lib/bpf/usdt.c
+> @@ -1376,8 +1376,6 @@ static int parse_usdt_arg(const char *arg_str, int =
+arg_num, struct usdt_arg_spec
+>
+>  #elif defined(__s390x__)
+>
+> -/* Do not support __s390__ for now, since user_pt_regs is broken with -m=
+31. */
+> -
+>  static int parse_usdt_arg(const char *arg_str, int arg_num, struct usdt_=
+arg_spec *arg, int *arg_sz)
+>  {
+>         unsigned int reg;
 
-Except for some CIs there shouldn't be any users. I would expect that such
-users, which use the kernel header files for compilation, want to run the
-(broken) binary with the kernel which supplied the header files - which does
-not work since compat support is missing in the kernel. So it fails when
-trying to execute the binary.
-
-Or in other words: I really would like to get rid of all traces of 31/32 bit
-support without adding anything new.
+for bpf bits
+Acked-by: Alexei Starovoitov <ast@kernel.org>
