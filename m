@@ -1,57 +1,57 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFA3A2F83DC;
-	Thu, 13 Nov 2025 15:08:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F2BB2F49F5;
+	Thu, 13 Nov 2025 15:08:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763046492; cv=none; b=dFUx9siejcZmqipQtpAHAIDlrP9YfkryGhdltpfe/DE2vHIrlQArkreRKLZW3J/NWRg+N0n7HOpP1E2tcn/bnStLkBYJ6UB2S4zRCdCehpFF4JQIxIi7KGFkj85hokpwp114qZSTUcYTT1Rjsem7BNDKzvCqEz1W9+vI5Xj2YIo=
+	t=1763046498; cv=none; b=JRzYbeEJVZbjXOO6DlrNS6+Rxuzca5L8Q18bF7fB2/CBkHU6lQqYJVbUkpzznIlWl+oIazv0bWPaq90rhwM/NLidG/TB6G3UBBCLn6H6V7DL9sxaeSFzOdlHOvlr848Zy3qfzNaWU4MqHelhE0p3Kf58uSjh8XsJ0/4LNnF4QXQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763046492; c=relaxed/simple;
-	bh=sb9ordbV5jAkyilSUPa8O8JaHLA3fhsQuVXpYFCv0jk=;
+	s=arc-20240116; t=1763046498; c=relaxed/simple;
+	bh=asu0JJx8LcfxtgoWzEGCnOyWg9libywbnTSd+CurGik=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=asZskUCJxZJGeLdacoVjP1b1vw8TeIpt0we1NKvZnmvfWEQH6gAOmqbEDP0WI+RY/ZnEVT3wm0baH37E1G/nNcDkB+vurJF4kkHGX2WJ5lkOoli1EdZzZGr+MD7gF9bBAqsCKLCFgP4MDvH5AE/sUvunhvmaBq2it1rR6P6nOXQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VJFXVrcS; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=WgrX4HkMxMLbgV8hB+tJjw2G1xjR6TNFIu0UcFRBREkzZ6cfZ3tcZZ0TgllnsCaWboxIJnH2gDg/s/qp0iFVxRXAvirNStHgCJ0M2V4D+qZePHF1W7ZlQhKM1jwMwzZzvHvjxHgogat8akVxuh3KDQrw8NgTeK5yv7H2WrwkfH0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=N+5K/ew7; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VJFXVrcS"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AD2UVE2002861;
-	Thu, 13 Nov 2025 15:07:39 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="N+5K/ew7"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AD84hXN017468;
+	Thu, 13 Nov 2025 15:07:38 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=Wex6cAbqOgmJhc1/J
-	WweJbnXhfJsWEoGTIv1WySnOsc=; b=VJFXVrcSLLISGOmLLhXahQxkqun5IrYRy
-	xVrYr2CqOHOdgMM1crGNhxXYO1b9jmI5R0vLVXuNrKxQW/SBD9WjiQZP11yT0yXD
-	QVL9HDdP1mq3ygbinKaR1dJS7k6UHrkAjG9U42QvQTRMccHrgChcBDUluLKNW7Q4
-	LokK+crJA0sF9ijbUtiR7M+/X3D+7Lr/ZsHWTM1IrSECxNLQ+VxZLYHqsFBebwea
-	CQBZh399qprmUH3CLyIBOhKsyoof/fPyRuRzIZMRHUV80pfe2VJYjIIJPFptD0Xe
-	CX47PcQFNIEZToOv1XOCS8kmH+W6nPeVFqDIKJwLthjp1Dn5pFbvw==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aa3m8e7c6-1
+	:mime-version:references:subject:to; s=pp1; bh=3wPpRDSgM+oCbEU2w
+	PCaDcbIwnyrThW5/U3irCI7zF0=; b=N+5K/ew7B5iegJHcpJVbSWkymPEp+XOxD
+	QrypSE9bzf4weyI8s4U8eAuntshfOPNlSC108ciAEz5sotRGgG5q3Qu3lwYswwNg
+	FtkBGsw1JcXovpSHiAuqNoO/EVWgWMVYAZ2bWqMnbyrW4ynnlbT8C/dFNyn8Y3UE
+	G3FX1gWNhmA2BXsoB1fN/YSDOzf1nTsatVd+ak2CrMCZlZXlLzEEjyDlfrPlk71i
+	cvQHdtis+lp+3aj4ArlFCWdHMJ3PAENTdDJjEREDnLpY6VIUavFwsDrhuUfmf/y/
+	/BFtUaZbOTf+YH3LEXUcsCDhYrAsANeVsgaktAmRb95mUHbMqis+w==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a9wk8gnvc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Thu, 13 Nov 2025 15:07:38 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5ADCknxw004735;
-	Thu, 13 Nov 2025 15:07:38 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4aagjy6j9d-1
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5ADCfIIm028867;
+	Thu, 13 Nov 2025 15:07:37 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4aag6spk9u-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Nov 2025 15:07:37 +0000
+	Thu, 13 Nov 2025 15:07:36 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5ADF7XVZ58327408
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5ADF7WOM19202310
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 13 Nov 2025 15:07:33 GMT
+	Thu, 13 Nov 2025 15:07:32 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 596CE20040;
-	Thu, 13 Nov 2025 15:07:33 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 9F82820040;
+	Thu, 13 Nov 2025 15:07:32 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1C39A2004B;
-	Thu, 13 Nov 2025 15:07:33 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 56FD720043;
+	Thu, 13 Nov 2025 15:07:32 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 13 Nov 2025 15:07:33 +0000 (GMT)
+	Thu, 13 Nov 2025 15:07:32 +0000 (GMT)
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
@@ -62,9 +62,9 @@ To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Willy Tarreau <w@1wt.eu>, Andrii Nakryiko <andrii@kernel.org>,
         Alexei Starovoitov <ast@kernel.org>
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH 8/8] s390/syscalls: Switch to generic system call table generation
-Date: Thu, 13 Nov 2025 16:07:30 +0100
-Message-ID: <20251113150731.2697279-9-hca@linux.ibm.com>
+Subject: [PATCH 5/8] s390: Remove compat support
+Date: Thu, 13 Nov 2025 16:07:27 +0100
+Message-ID: <20251113150731.2697279-6-hca@linux.ibm.com>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20251113150731.2697279-1-hca@linux.ibm.com>
 References: <20251113150731.2697279-1-hca@linux.ibm.com>
@@ -76,1300 +76,3553 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=MtZfKmae c=1 sm=1 tr=0 ts=6915f43a cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
- a=BoF0dP3RD9xWtoqPa1YA:9 a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-GUID: 3fjaKBugUCFgihNQmJCWf_XEtFAcK_2R
-X-Proofpoint-ORIG-GUID: 3fjaKBugUCFgihNQmJCWf_XEtFAcK_2R
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTA4MDA3OSBTYWx0ZWRfXwhmaMJynOiMC
- WVzamAyA0P0k00d4j434sMnXKyQP7cWw8T1VIX8l2hkFWiTBVUTMVkPSyq40n0pjbbMvyVcM4uH
- oSFf+mLSatOTtwdaMhwKhpE5He0oRa+pay4DYbMOQOh4MuBNTEHvDH4UgIuzZjUw3b1KJkBEjyG
- KpXfjklltrOKG1SwSVzeM8kLu9sdwrCEc5zUeX+L43Ynf6FAdszBsF82QrjqQ1Fu3Xg+QBUGFtV
- HVmJqWcFbSDLRTgbRrvRjThS+oJegEeh/et4t1KP1uet9l5fafleYAhXAFkozER/74eUnSGZ2WP
- Cb2CkyeiO9PjcByJX+OkmibtddZAf15grhs7MPywNAXJcOIDxmo0CANCdaG0PqX0bSModuJq6lD
- 0UjBfzsgW+7ESkkjE1SpsdRUyJgzeQ==
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTA4MDAyMiBTYWx0ZWRfXzgy7bPJaialL
+ K5GKnOL01EopitnY2q4RWYQ9Mp+BttV2j3iicwkfBXg8bMmvFf1HTeVG3oETOjOYWcCyWjSy/xG
+ U71RZJPpCpSxW6m2KN1qK67DxN3HFGaOtCNV1YIY3t14rLIry3mjoZhN3+lo+dtVBu9ofz14FYz
+ EHhoU5kT63/tSyPMG2E67B951SEB5yPzmTVopqa3Dhdqme7IAZLvrFoJSFCQd64SL8h+SH8BZ9A
+ uAQOqdBHPC76DmrXIOH+6sHoeHJuMkyGnff3JP9VW7Yl1+hwgSS7WjcmQ+03xzbBuDlELkt8Eup
+ xM3/va4ZI//fKwWn7UsMWfnvpxpl3i61FPxwrNnBWh3liVVYznWYNDMHKQn9eMJ8/lBlZ9YFtSZ
+ 7d3NUvwnPrFGVYHfOhxDii5fZo5K4A==
+X-Authority-Analysis: v=2.4 cv=ZK3aWH7b c=1 sm=1 tr=0 ts=6915f43a cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8 a=CjxXgO3LAAAA:8
+ a=D0o5xL_qWJcP7NnY5C4A:9 a=pQ21IURhvOqDEk4e:21 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-ORIG-GUID: OAyJWwisVHnQ3zqLtTZU8Gr956TjKbMU
+X-Proofpoint-GUID: OAyJWwisVHnQ3zqLtTZU8Gr956TjKbMU
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-11-13_02,2025-11-13_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 adultscore=0 priorityscore=1501 bulkscore=0 impostorscore=0
- suspectscore=0 lowpriorityscore=0 clxscore=1015 phishscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511080079
+ malwarescore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0
+ phishscore=0 impostorscore=0 spamscore=0 bulkscore=0 adultscore=0
+ clxscore=1011 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2511080022
 
-The s390 syscall.tbl format differs slightly from most others, and
-therefore requires an s390 specific system call table generation
-script.
+There shouldn't be any 31 bit code around anymore that matters.
+Remove the compat layer support required to run 31 bit code.
 
-With compat support gone use the opportunity to switch to generic
-system call table generation. The abi for all 64 bit system calls is
-now common, since there is no need to specify if system call entry
-points are only for 64 bit anymore.
+Reason for removal is code simplification and reduced test effort.
 
-Furthermore create the system call table in C instead of assembler
-code in order to get type checking for all system call functions
-contained within the table.
+Note that this comes without any deprecation warnings added to config
+options, or kernel messages, since most likely those would be ignored
+anyway.
+
+If it turns out there is still a reason to keep the compat layer this
+can be reverted at any time in the future.
 
 Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/s390/Makefile                    |   3 +-
- arch/s390/include/asm/unistd.h        |   3 +-
- arch/s390/kernel/entry.S              |   8 -
- arch/s390/kernel/syscall.c            |  10 +
- arch/s390/kernel/syscalls/Makefile    |  58 +-
- arch/s390/kernel/syscalls/syscall.tbl | 856 ++++++++++++--------------
- arch/s390/kernel/syscalls/syscalltbl  | 232 -------
- 7 files changed, 424 insertions(+), 746 deletions(-)
- delete mode 100755 arch/s390/kernel/syscalls/syscalltbl
+ arch/s390/Kconfig                           |  16 -
+ arch/s390/Makefile                          |   3 -
+ arch/s390/boot/ipl_data.c                   |   1 -
+ arch/s390/configs/compat.config             |   3 -
+ arch/s390/hypfs/hypfs_sprp.c                |   6 +-
+ arch/s390/include/asm/compat.h              | 140 ------
+ arch/s390/include/asm/elf.h                 |  46 +-
+ arch/s390/include/asm/ftrace.h              |  19 +-
+ arch/s390/include/asm/processor.h           |  12 +-
+ arch/s390/include/asm/seccomp.h             |   5 -
+ arch/s390/include/asm/syscall.h             |  19 +-
+ arch/s390/include/asm/syscall_wrapper.h     |  91 ----
+ arch/s390/include/asm/thread_info.h         |   2 -
+ arch/s390/include/asm/unistd.h              |   5 -
+ arch/s390/include/asm/vdso-symbols.h        |   8 -
+ arch/s390/kernel/Makefile                   |   4 -
+ arch/s390/kernel/audit.c                    |  16 -
+ arch/s390/kernel/audit.h                    |  16 -
+ arch/s390/kernel/compat_audit.c             |  48 --
+ arch/s390/kernel/compat_linux.c             | 289 -----------
+ arch/s390/kernel/compat_linux.h             | 101 ----
+ arch/s390/kernel/compat_ptrace.h            |  64 ---
+ arch/s390/kernel/compat_signal.c            | 420 ----------------
+ arch/s390/kernel/entry.S                    |   9 -
+ arch/s390/kernel/perf_cpum_cf.c             |   1 -
+ arch/s390/kernel/perf_event.c               |   1 -
+ arch/s390/kernel/perf_regs.c                |   3 -
+ arch/s390/kernel/process.c                  |   9 +-
+ arch/s390/kernel/ptrace.c                   | 524 --------------------
+ arch/s390/kernel/setup.c                    |   1 -
+ arch/s390/kernel/signal.c                   |  23 +-
+ arch/s390/kernel/stacktrace.c               |   3 -
+ arch/s390/kernel/uprobes.c                  |   6 +-
+ arch/s390/kernel/vdso.c                     |  26 +-
+ arch/s390/kernel/vdso32/.gitignore          |   2 -
+ arch/s390/kernel/vdso32/Makefile            |  64 ---
+ arch/s390/kernel/vdso32/gen_vdso_offsets.sh |  15 -
+ arch/s390/kernel/vdso32/note.S              |  13 -
+ arch/s390/kernel/vdso32/vdso32.lds.S        | 140 ------
+ arch/s390/kernel/vdso32/vdso32_wrapper.S    |  15 -
+ arch/s390/kernel/vdso32/vdso_user_wrapper.S |  22 -
+ arch/s390/mm/fault.c                        |   1 -
+ arch/s390/mm/mmap.c                         |   1 -
+ arch/s390/pci/pci_clp.c                     |   4 +-
+ drivers/s390/block/dasd.c                   |   1 -
+ drivers/s390/block/dasd_eckd.c              |  11 -
+ drivers/s390/block/dasd_ioctl.c             |   6 +-
+ drivers/s390/char/con3270.c                 |  19 -
+ drivers/s390/char/fs3270.c                  |   7 +-
+ drivers/s390/char/sclp_ctl.c                |  12 +-
+ drivers/s390/char/tape_char.c               |  26 -
+ drivers/s390/char/vmcp.c                    |   7 +-
+ drivers/s390/cio/chsc_sch.c                 |   7 +-
+ drivers/s390/crypto/zcrypt_api.c            | 195 --------
+ drivers/s390/crypto/zcrypt_card.c           |   1 -
+ drivers/s390/crypto/zcrypt_queue.c          |   1 -
+ drivers/s390/net/qeth_core_main.c           |   4 +-
+ 57 files changed, 30 insertions(+), 2484 deletions(-)
+ delete mode 100644 arch/s390/configs/compat.config
+ delete mode 100644 arch/s390/include/asm/compat.h
+ delete mode 100644 arch/s390/kernel/audit.h
+ delete mode 100644 arch/s390/kernel/compat_audit.c
+ delete mode 100644 arch/s390/kernel/compat_linux.c
+ delete mode 100644 arch/s390/kernel/compat_linux.h
+ delete mode 100644 arch/s390/kernel/compat_ptrace.h
+ delete mode 100644 arch/s390/kernel/compat_signal.c
+ delete mode 100644 arch/s390/kernel/vdso32/.gitignore
+ delete mode 100644 arch/s390/kernel/vdso32/Makefile
+ delete mode 100755 arch/s390/kernel/vdso32/gen_vdso_offsets.sh
+ delete mode 100644 arch/s390/kernel/vdso32/note.S
+ delete mode 100644 arch/s390/kernel/vdso32/vdso32.lds.S
+ delete mode 100644 arch/s390/kernel/vdso32/vdso32_wrapper.S
+ delete mode 100644 arch/s390/kernel/vdso32/vdso_user_wrapper.S
 
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index df22b10d9141..778ce20d3404 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -504,22 +504,6 @@ config COMMAND_LINE_SIZE
+ 	  This allows you to specify the maximum length of the kernel command
+ 	  line.
+ 
+-config COMPAT
+-	def_bool n
+-	prompt "Kernel support for 31 bit emulation"
+-	select ARCH_WANT_OLD_COMPAT_IPC
+-	select COMPAT_OLD_SIGACTION
+-	select HAVE_UID16
+-	depends on MULTIUSER
+-	depends on !CC_IS_CLANG && !LD_IS_LLD
+-	help
+-	  Select this option if you want to enable your system kernel to
+-	  handle system-calls from ELF binaries for 31 bit ESA.  This option
+-	  (and some other stuff like libraries and such) is needed for
+-	  executing 31 bit applications.
+-
+-	  If unsure say N.
+-
+ config SMP
+ 	def_bool y
+ 
 diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-index f41b8c5c4e56..bf53e7d1487a 100644
+index b4769241332b..f41b8c5c4e56 100644
 --- a/arch/s390/Makefile
 +++ b/arch/s390/Makefile
-@@ -134,10 +134,9 @@ zfcpdump:
- 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
+@@ -149,11 +149,8 @@ ifeq ($(KBUILD_EXTMOD),)
+ prepare: vdso_prepare
+ vdso_prepare: prepare0
+ 	$(Q)$(MAKE) $(build)=arch/s390/kernel/vdso64 include/generated/vdso64-offsets.h
+-	$(if $(CONFIG_COMPAT),$(Q)$(MAKE) \
+-		$(build)=arch/s390/kernel/vdso32 include/generated/vdso32-offsets.h)
  
- archheaders:
--	$(Q)$(MAKE) $(build)=$(syscalls) uapi
-+	$(Q)$(MAKE) $(build)=$(syscalls) all
+ vdso-install-y			+= arch/s390/kernel/vdso64/vdso64.so.dbg
+-vdso-install-$(CONFIG_COMPAT)	+= arch/s390/kernel/vdso32/vdso32.so.dbg
  
- archprepare:
--	$(Q)$(MAKE) $(build)=$(syscalls) kapi
- 	$(Q)$(MAKE) $(build)=$(tools) kapi $(extra_tools)
- ifeq ($(KBUILD_EXTMOD),)
- # We need to generate vdso-offsets.h before compiling certain files in kernel/.
+ endif
+ 
+diff --git a/arch/s390/boot/ipl_data.c b/arch/s390/boot/ipl_data.c
+index 7957cc6554e7..b0fd8a526b42 100644
+--- a/arch/s390/boot/ipl_data.c
++++ b/arch/s390/boot/ipl_data.c
+@@ -1,6 +1,5 @@
+ // SPDX-License-Identifier: GPL-2.0
+ 
+-#include <linux/compat.h>
+ #include <linux/ptrace.h>
+ #include <asm/cio.h>
+ #include <asm/asm-offsets.h>
+diff --git a/arch/s390/configs/compat.config b/arch/s390/configs/compat.config
+deleted file mode 100644
+index 6fd051453ae8..000000000000
+--- a/arch/s390/configs/compat.config
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# Help: Enable compat support
+-CONFIG_COMPAT=y
+-CONFIG_COMPAT_32BIT_TIME=y
+diff --git a/arch/s390/hypfs/hypfs_sprp.c b/arch/s390/hypfs/hypfs_sprp.c
+index a2952ed5518b..a72576221cab 100644
+--- a/arch/s390/hypfs/hypfs_sprp.c
++++ b/arch/s390/hypfs/hypfs_sprp.c
+@@ -7,7 +7,6 @@
+  *    Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>
+  */
+ 
+-#include <linux/compat.h>
+ #include <linux/errno.h>
+ #include <linux/gfp.h>
+ #include <linux/string.h>
+@@ -116,10 +115,7 @@ static long hypfs_sprp_ioctl(struct file *file, unsigned int cmd,
+ 
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EACCES;
+-	if (is_compat_task())
+-		argp = compat_ptr(arg);
+-	else
+-		argp = (void __user *) arg;
++	argp = (void __user *)arg;
+ 	switch (cmd) {
+ 	case HYPFS_DIAG304:
+ 		return __hypfs_sprp_ioctl(argp);
+diff --git a/arch/s390/include/asm/compat.h b/arch/s390/include/asm/compat.h
+deleted file mode 100644
+index 3cb9d813f022..000000000000
+--- a/arch/s390/include/asm/compat.h
++++ /dev/null
+@@ -1,140 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef _ASM_S390X_COMPAT_H
+-#define _ASM_S390X_COMPAT_H
+-/*
+- * Architecture specific compatibility types
+- */
+-#include <linux/types.h>
+-#include <linux/sched.h>
+-#include <linux/sched/task_stack.h>
+-#include <linux/thread_info.h>
+-#include <asm/ptrace.h>
+-
+-#define compat_mode_t	compat_mode_t
+-typedef u16		compat_mode_t;
+-
+-#define __compat_uid_t	__compat_uid_t
+-typedef u16		__compat_uid_t;
+-typedef u16		__compat_gid_t;
+-
+-#define compat_dev_t	compat_dev_t
+-typedef u16		compat_dev_t;
+-
+-#define compat_ipc_pid_t compat_ipc_pid_t
+-typedef u16		 compat_ipc_pid_t;
+-
+-#define compat_statfs	compat_statfs
+-
+-#include <asm-generic/compat.h>
+-
+-#define __TYPE_IS_PTR(t) (!__builtin_types_compatible_p( \
+-				typeof(0?(__force t)0:0ULL), u64))
+-
+-#define __SC_DELOUSE(t,v) ({ \
+-	BUILD_BUG_ON(sizeof(t) > 4 && !__TYPE_IS_PTR(t)); \
+-	(__force t)(__TYPE_IS_PTR(t) ? ((v) & 0x7fffffff) : (v)); \
+-})
+-
+-#define PSW32_MASK_USER		0x0000FF00UL
+-
+-#define PSW32_USER_BITS (PSW32_MASK_DAT | PSW32_MASK_IO | PSW32_MASK_EXT | \
+-			 PSW32_DEFAULT_KEY | PSW32_MASK_BASE | \
+-			 PSW32_MASK_MCHECK | PSW32_MASK_PSTATE | \
+-			 PSW32_ASC_PRIMARY)
+-
+-#define COMPAT_UTS_MACHINE	"s390\0\0\0\0"
+-
+-typedef u16		compat_nlink_t;
+-
+-typedef struct {
+-	u32 mask;
+-	u32 addr;
+-} __aligned(8) psw_compat_t;
+-
+-typedef struct {
+-	psw_compat_t psw;
+-	u32 gprs[NUM_GPRS];
+-	u32 acrs[NUM_ACRS];
+-	u32 orig_gpr2;
+-} s390_compat_regs;
+-
+-typedef struct {
+-	u32 gprs_high[NUM_GPRS];
+-} s390_compat_regs_high;
+-
+-struct compat_stat {
+-	compat_dev_t	st_dev;
+-	u16		__pad1;
+-	compat_ino_t	st_ino;
+-	compat_mode_t	st_mode;
+-	compat_nlink_t	st_nlink;
+-	__compat_uid_t	st_uid;
+-	__compat_gid_t	st_gid;
+-	compat_dev_t	st_rdev;
+-	u16		__pad2;
+-	u32		st_size;
+-	u32		st_blksize;
+-	u32		st_blocks;
+-	u32		st_atime;
+-	u32		st_atime_nsec;
+-	u32		st_mtime;
+-	u32		st_mtime_nsec;
+-	u32		st_ctime;
+-	u32		st_ctime_nsec;
+-	u32		__unused4;
+-	u32		__unused5;
+-};
+-
+-struct compat_statfs {
+-	u32		f_type;
+-	u32		f_bsize;
+-	u32		f_blocks;
+-	u32		f_bfree;
+-	u32		f_bavail;
+-	u32		f_files;
+-	u32		f_ffree;
+-	compat_fsid_t	f_fsid;
+-	u32		f_namelen;
+-	u32		f_frsize;
+-	u32		f_flags;
+-	u32		f_spare[4];
+-};
+-
+-struct compat_statfs64 {
+-	u32		f_type;
+-	u32		f_bsize;
+-	u64		f_blocks;
+-	u64		f_bfree;
+-	u64		f_bavail;
+-	u64		f_files;
+-	u64		f_ffree;
+-	compat_fsid_t	f_fsid;
+-	u32		f_namelen;
+-	u32		f_frsize;
+-	u32		f_flags;
+-	u32		f_spare[5];
+-};
+-
+-/*
+- * A pointer passed in from user mode. This should not
+- * be used for syscall parameters, just declare them
+- * as pointers because the syscall entry code will have
+- * appropriately converted them already.
+- */
+-
+-static inline void __user *compat_ptr(compat_uptr_t uptr)
+-{
+-	return (void __user *)(unsigned long)(uptr & 0x7fffffffUL);
+-}
+-#define compat_ptr(uptr) compat_ptr(uptr)
+-
+-#ifdef CONFIG_COMPAT
+-
+-static inline int is_compat_task(void)
+-{
+-	return test_thread_flag(TIF_31BIT);
+-}
+-
+-#endif
+-
+-#endif /* _ASM_S390X_COMPAT_H */
+diff --git a/arch/s390/include/asm/elf.h b/arch/s390/include/asm/elf.h
+index a03df312081e..2b6ab483b1ca 100644
+--- a/arch/s390/include/asm/elf.h
++++ b/arch/s390/include/asm/elf.h
+@@ -162,8 +162,6 @@ enum {
+  * ELF register definitions..
+  */
+ 
+-#include <linux/compat.h>
+-
+ #include <asm/ptrace.h>
+ #include <asm/syscall.h>
+ #include <asm/user.h>
+@@ -171,9 +169,6 @@ enum {
+ typedef s390_fp_regs elf_fpregset_t;
+ typedef s390_regs elf_gregset_t;
+ 
+-typedef s390_fp_regs compat_elf_fpregset_t;
+-typedef s390_compat_regs compat_elf_gregset_t;
+-
+ #include <linux/sched/mm.h>	/* for task_struct */
+ #include <asm/mmu_context.h>
+ 
+@@ -183,10 +178,6 @@ typedef s390_compat_regs compat_elf_gregset_t;
+ #define elf_check_arch(x) \
+ 	(((x)->e_machine == EM_S390 || (x)->e_machine == EM_S390_OLD) \
+          && (x)->e_ident[EI_CLASS] == ELF_CLASS) 
+-#define compat_elf_check_arch(x) \
+-	(((x)->e_machine == EM_S390 || (x)->e_machine == EM_S390_OLD) \
+-	 && (x)->e_ident[EI_CLASS] == ELF_CLASS)
+-#define compat_start_thread	start_thread31
+ 
+ /* For SVR4/S390 the function pointer to be registered with `atexit` is
+    passed in R14. */
+@@ -203,9 +194,7 @@ typedef s390_compat_regs compat_elf_gregset_t;
+    the loader.  We need to make sure that it is out of the way of the program
+    that it will "exec", and that there is sufficient room for the brk. 64-bit
+    tasks are aligned to 4GB. */
+-#define ELF_ET_DYN_BASE (is_compat_task() ? \
+-				(STACK_TOP / 3 * 2) : \
+-				(STACK_TOP / 3 * 2) & ~((1UL << 32) - 1))
++#define ELF_ET_DYN_BASE ((STACK_TOP / 3 * 2) & ~((1UL << 32) - 1))
+ 
+ /* This yields a mask that user programs can use to figure out what
+    instruction set this CPU supports. */
+@@ -224,43 +213,22 @@ extern unsigned long elf_hwcap;
+ extern char elf_platform[];
+ #define ELF_PLATFORM (elf_platform)
+ 
+-#ifndef CONFIG_COMPAT
+ #define SET_PERSONALITY(ex) \
+ do {								\
+ 	set_personality(PER_LINUX |				\
+ 		(current->personality & (~PER_MASK)));		\
+ 	current->thread.sys_call_table = sys_call_table;	\
+ } while (0)
+-#else /* CONFIG_COMPAT */
+-#define SET_PERSONALITY(ex)					\
+-do {								\
+-	if (personality(current->personality) != PER_LINUX32)	\
+-		set_personality(PER_LINUX |			\
+-			(current->personality & ~PER_MASK));	\
+-	if ((ex).e_ident[EI_CLASS] == ELFCLASS32) {		\
+-		set_thread_flag(TIF_31BIT);			\
+-		current->thread.sys_call_table =		\
+-			sys_call_table_emu;			\
+-	} else {						\
+-		clear_thread_flag(TIF_31BIT);			\
+-		current->thread.sys_call_table =		\
+-			sys_call_table;				\
+-	}							\
+-} while (0)
+-#endif /* CONFIG_COMPAT */
+ 
+ /*
+  * Cache aliasing on the latest machines calls for a mapping granularity
+- * of 512KB for the anonymous mapping base. For 64-bit processes use a
+- * 512KB alignment and a randomization of up to 1GB. For 31-bit processes
+- * the virtual address space is limited, use no alignment and limit the
+- * randomization to 8MB.
+- * For the additional randomization of the program break use 32MB for
+- * 64-bit and 8MB for 31-bit.
++ * of 512KB for the anonymous mapping base. Use a 512KB alignment and a
++ * randomization of up to 1GB.
++ * For the additional randomization of the program break use 32MB.
+  */
+-#define BRK_RND_MASK	(is_compat_task() ? 0x7ffUL : 0x1fffUL)
+-#define MMAP_RND_MASK	(is_compat_task() ? 0x7ffUL : 0x3ff80UL)
+-#define MMAP_ALIGN_MASK	(is_compat_task() ? 0 : 0x7fUL)
++#define BRK_RND_MASK	(0x1fffUL)
++#define MMAP_RND_MASK	(0x3ff80UL)
++#define MMAP_ALIGN_MASK	(0x7fUL)
+ #define STACK_RND_MASK	MMAP_RND_MASK
+ 
+ /* update AT_VECTOR_SIZE_ARCH if the number of NEW_AUX_ENT entries changes */
+diff --git a/arch/s390/include/asm/ftrace.h b/arch/s390/include/asm/ftrace.h
+index bee2d16c2951..692c484ec163 100644
+--- a/arch/s390/include/asm/ftrace.h
++++ b/arch/s390/include/asm/ftrace.h
+@@ -105,28 +105,11 @@ static inline void arch_ftrace_set_direct_caller(struct ftrace_regs *fregs, unsi
+ }
+ #endif /* CONFIG_DYNAMIC_FTRACE_WITH_DIRECT_CALLS */
+ 
+-/*
+- * Even though the system call numbers are identical for s390/s390x a
+- * different system call table is used for compat tasks. This may lead
+- * to e.g. incorrect or missing trace event sysfs files.
+- * Therefore simply do not trace compat system calls at all.
+- * See kernel/trace/trace_syscalls.c.
+- */
+-#define ARCH_TRACE_IGNORE_COMPAT_SYSCALLS
+-static inline bool arch_trace_is_compat_syscall(struct pt_regs *regs)
+-{
+-	return is_compat_task();
+-}
+-
+ #define ARCH_HAS_SYSCALL_MATCH_SYM_NAME
+ static inline bool arch_syscall_match_sym_name(const char *sym,
+ 					       const char *name)
+ {
+-	/*
+-	 * Skip __s390_ and __s390x_ prefix - due to compat wrappers
+-	 * and aliasing some symbols of 64 bit system call functions
+-	 * may get the __s390_ prefix instead of the __s390x_ prefix.
+-	 */
++	/* Skip the __s390x_ prefix. */
+ 	return !strcmp(sym + 7, name) || !strcmp(sym + 8, name);
+ }
+ 
+diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
+index 93e1034485d7..e3e3230aaf11 100644
+--- a/arch/s390/include/asm/processor.h
++++ b/arch/s390/include/asm/processor.h
+@@ -119,18 +119,12 @@ extern void execve_tail(void);
+ unsigned long vdso_text_size(void);
+ unsigned long vdso_size(void);
+ 
+-/*
+- * User space process size: 2GB for 31 bit, 4TB or 8PT for 64 bit.
+- */
+-
+-#define TASK_SIZE		(test_thread_flag(TIF_31BIT) ? \
+-					_REGION3_SIZE : TASK_SIZE_MAX)
+-#define TASK_UNMAPPED_BASE	(test_thread_flag(TIF_31BIT) ? \
+-					(_REGION3_SIZE >> 1) : (_REGION2_SIZE >> 1))
++#define TASK_SIZE		(TASK_SIZE_MAX)
++#define TASK_UNMAPPED_BASE	(_REGION2_SIZE >> 1)
+ #define TASK_SIZE_MAX		(-PAGE_SIZE)
+ 
+ #define VDSO_BASE		(STACK_TOP + PAGE_SIZE)
+-#define VDSO_LIMIT		(test_thread_flag(TIF_31BIT) ? _REGION3_SIZE : _REGION2_SIZE)
++#define VDSO_LIMIT		(_REGION2_SIZE)
+ #define STACK_TOP		(VDSO_LIMIT - vdso_size() - PAGE_SIZE)
+ #define STACK_TOP_MAX		(_REGION2_SIZE - vdso_size() - PAGE_SIZE)
+ 
+diff --git a/arch/s390/include/asm/seccomp.h b/arch/s390/include/asm/seccomp.h
+index 71d46f0ba97b..f904b674fee0 100644
+--- a/arch/s390/include/asm/seccomp.h
++++ b/arch/s390/include/asm/seccomp.h
+@@ -19,10 +19,5 @@
+ #define SECCOMP_ARCH_NATIVE		AUDIT_ARCH_S390X
+ #define SECCOMP_ARCH_NATIVE_NR		NR_syscalls
+ #define SECCOMP_ARCH_NATIVE_NAME	"s390x"
+-#ifdef CONFIG_COMPAT
+-# define SECCOMP_ARCH_COMPAT		AUDIT_ARCH_S390
+-# define SECCOMP_ARCH_COMPAT_NR		NR_syscalls
+-# define SECCOMP_ARCH_COMPAT_NAME	"s390"
+-#endif
+ 
+ #endif	/* _ASM_S390_SECCOMP_H */
+diff --git a/arch/s390/include/asm/syscall.h b/arch/s390/include/asm/syscall.h
+index 10ce5c4ccbd6..4271e4169f45 100644
+--- a/arch/s390/include/asm/syscall.h
++++ b/arch/s390/include/asm/syscall.h
+@@ -15,7 +15,6 @@
+ #include <asm/ptrace.h>
+ 
+ extern const sys_call_ptr_t sys_call_table[];
+-extern const sys_call_ptr_t sys_call_table_emu[];
+ 
+ static inline long syscall_get_nr(struct task_struct *task,
+ 				  struct pt_regs *regs)
+@@ -46,15 +45,7 @@ static inline long syscall_get_error(struct task_struct *task,
+ 				     struct pt_regs *regs)
+ {
+ 	unsigned long error = regs->gprs[2];
+-#ifdef CONFIG_COMPAT
+-	if (test_tsk_thread_flag(task, TIF_31BIT)) {
+-		/*
+-		 * Sign-extend the value so (int)-EFOO becomes (long)-EFOO
+-		 * and will match correctly in comparisons.
+-		 */
+-		error = (long)(int)error;
+-	}
+-#endif
++
+ 	return IS_ERR_VALUE(error) ? error : 0;
+ }
+ 
+@@ -78,10 +69,6 @@ static inline void syscall_get_arguments(struct task_struct *task,
+ {
+ 	unsigned long mask = -1UL;
+ 
+-#ifdef CONFIG_COMPAT
+-	if (test_tsk_thread_flag(task, TIF_31BIT))
+-		mask = 0xffffffff;
+-#endif
+ 	for (int i = 1; i < 6; i++)
+ 		args[i] = regs->gprs[2 + i] & mask;
+ 
+@@ -99,10 +86,6 @@ static inline void syscall_set_arguments(struct task_struct *task,
+ 
+ static inline int syscall_get_arch(struct task_struct *task)
+ {
+-#ifdef CONFIG_COMPAT
+-	if (test_tsk_thread_flag(task, TIF_31BIT))
+-		return AUDIT_ARCH_S390;
+-#endif
+ 	return AUDIT_ARCH_S390X;
+ }
+ 
+diff --git a/arch/s390/include/asm/syscall_wrapper.h b/arch/s390/include/asm/syscall_wrapper.h
+index bf1ff5e9242d..9eb58d5348d8 100644
+--- a/arch/s390/include/asm/syscall_wrapper.h
++++ b/arch/s390/include/asm/syscall_wrapper.h
+@@ -13,95 +13,6 @@
+ 	      ,, regs->orig_gpr2,, regs->gprs[3],, regs->gprs[4]	\
+ 	      ,, regs->gprs[5],, regs->gprs[6],, regs->gprs[7])
+ 
+-#ifdef CONFIG_COMPAT
+-
+-#define __SC_COMPAT_CAST(t, a)						\
+-({									\
+-	long __ReS = a;							\
+-									\
+-	BUILD_BUG_ON((sizeof(t) > 4) && !__TYPE_IS_L(t) &&		\
+-		     !__TYPE_IS_UL(t) && !__TYPE_IS_PTR(t) &&		\
+-		     !__TYPE_IS_LL(t));					\
+-	if (__TYPE_IS_L(t))						\
+-		__ReS = (s32)a;						\
+-	if (__TYPE_IS_UL(t))						\
+-		__ReS = (u32)a;						\
+-	if (__TYPE_IS_PTR(t))						\
+-		__ReS = a & 0x7fffffff;					\
+-	if (__TYPE_IS_LL(t))						\
+-		return -ENOSYS;						\
+-	(t)__ReS;							\
+-})
+-
+-/*
+- * To keep the naming coherent, re-define SYSCALL_DEFINE0 to create an alias
+- * named __s390x_sys_*()
+- */
+-#define COMPAT_SYSCALL_DEFINE0(sname)					\
+-	long __s390_compat_sys_##sname(struct pt_regs *__unused);	\
+-	ALLOW_ERROR_INJECTION(__s390_compat_sys_##sname, ERRNO);	\
+-	long __s390_compat_sys_##sname(struct pt_regs *__unused)
+-
+-#define SYSCALL_DEFINE0(sname)						\
+-	SYSCALL_METADATA(_##sname, 0);					\
+-	long __s390_sys_##sname(struct pt_regs *__unused);		\
+-	ALLOW_ERROR_INJECTION(__s390_sys_##sname, ERRNO);		\
+-	long __s390x_sys_##sname(struct pt_regs *__unused);		\
+-	ALLOW_ERROR_INJECTION(__s390x_sys_##sname, ERRNO);		\
+-	static inline long __do_sys_##sname(void);			\
+-	long __s390_sys_##sname(struct pt_regs *__unused)		\
+-	{								\
+-		return __do_sys_##sname();				\
+-	}								\
+-	long __s390x_sys_##sname(struct pt_regs *__unused)		\
+-	{								\
+-		return __do_sys_##sname();				\
+-	}								\
+-	static inline long __do_sys_##sname(void)
+-
+-#define COND_SYSCALL(name)						\
+-	cond_syscall(__s390x_sys_##name);				\
+-	cond_syscall(__s390_sys_##name)
+-
+-#define COMPAT_SYSCALL_DEFINEx(x, name, ...)						\
+-	long __s390_compat_sys##name(struct pt_regs *regs);				\
+-	ALLOW_ERROR_INJECTION(__s390_compat_sys##name, ERRNO);				\
+-	static inline long __se_compat_sys##name(__MAP(x, __SC_LONG, __VA_ARGS__));	\
+-	static inline long __do_compat_sys##name(__MAP(x, __SC_DECL, __VA_ARGS__));	\
+-	long __s390_compat_sys##name(struct pt_regs *regs)				\
+-	{										\
+-		return __se_compat_sys##name(SC_S390_REGS_TO_ARGS(x, __VA_ARGS__));	\
+-	}										\
+-	static inline long __se_compat_sys##name(__MAP(x, __SC_LONG, __VA_ARGS__))	\
+-	{										\
+-		__MAP(x, __SC_TEST, __VA_ARGS__);					\
+-		return __do_compat_sys##name(__MAP(x, __SC_DELOUSE, __VA_ARGS__));	\
+-	}										\
+-	static inline long __do_compat_sys##name(__MAP(x, __SC_DECL, __VA_ARGS__))
+-
+-/*
+- * As some compat syscalls may not be implemented, we need to expand
+- * COND_SYSCALL_COMPAT in kernel/sys_ni.c to cover this case as well.
+- */
+-#define COND_SYSCALL_COMPAT(name)					\
+-	cond_syscall(__s390_compat_sys_##name)
+-
+-#define __S390_SYS_STUBx(x, name, ...)						\
+-	long __s390_sys##name(struct pt_regs *regs);				\
+-	ALLOW_ERROR_INJECTION(__s390_sys##name, ERRNO);				\
+-	static inline long ___se_sys##name(__MAP(x, __SC_LONG, __VA_ARGS__));	\
+-	long __s390_sys##name(struct pt_regs *regs)				\
+-	{									\
+-		return ___se_sys##name(SC_S390_REGS_TO_ARGS(x, __VA_ARGS__));	\
+-	}									\
+-	static inline long ___se_sys##name(__MAP(x, __SC_LONG, __VA_ARGS__))	\
+-	{									\
+-		__MAP(x, __SC_TEST, __VA_ARGS__);				\
+-		return __do_sys##name(__MAP(x, __SC_COMPAT_CAST, __VA_ARGS__));	\
+-	}
+-
+-#else /* CONFIG_COMPAT */
+-
+ #define SYSCALL_DEFINE0(sname)						\
+ 	SYSCALL_METADATA(_##sname, 0);					\
+ 	long __s390x_sys_##sname(struct pt_regs *__unused);		\
+@@ -118,8 +29,6 @@
+ 
+ #define __S390_SYS_STUBx(x, fullname, name, ...)
+ 
+-#endif /* CONFIG_COMPAT */
+-
+ #define __SYSCALL_DEFINEx(x, name, ...)						\
+ 	long __s390x_sys##name(struct pt_regs *regs);				\
+ 	ALLOW_ERROR_INJECTION(__s390x_sys##name, ERRNO);			\
+diff --git a/arch/s390/include/asm/thread_info.h b/arch/s390/include/asm/thread_info.h
+index 7878e9bfbf07..6a548a819400 100644
+--- a/arch/s390/include/asm/thread_info.h
++++ b/arch/s390/include/asm/thread_info.h
+@@ -69,7 +69,6 @@ void arch_setup_new_exec(void);
+ #define TIF_GUARDED_STORAGE	17	/* load guarded storage control block */
+ #define TIF_ISOLATE_BP_GUEST	18	/* Run KVM guests with isolated BP */
+ #define TIF_PER_TRAP		19	/* Need to handle PER trap on exit to usermode */
+-#define TIF_31BIT		20	/* 32bit process */
+ #define TIF_SINGLE_STEP		21	/* This task is single stepped */
+ #define TIF_BLOCK_STEP		22	/* This task is block stepped */
+ #define TIF_UPROBE_SINGLESTEP	23	/* This task is uprobe single stepped */
+@@ -78,7 +77,6 @@ void arch_setup_new_exec(void);
+ #define _TIF_GUARDED_STORAGE	BIT(TIF_GUARDED_STORAGE)
+ #define _TIF_ISOLATE_BP_GUEST	BIT(TIF_ISOLATE_BP_GUEST)
+ #define _TIF_PER_TRAP		BIT(TIF_PER_TRAP)
+-#define _TIF_31BIT		BIT(TIF_31BIT)
+ #define _TIF_SINGLE_STEP	BIT(TIF_SINGLE_STEP)
+ #define _TIF_BLOCK_STEP		BIT(TIF_BLOCK_STEP)
+ #define _TIF_UPROBE_SINGLESTEP	BIT(TIF_UPROBE_SINGLESTEP)
 diff --git a/arch/s390/include/asm/unistd.h b/arch/s390/include/asm/unistd.h
-index 252d7ac7a6b2..921c3fb3586b 100644
+index 70fc671397da..252d7ac7a6b2 100644
 --- a/arch/s390/include/asm/unistd.h
 +++ b/arch/s390/include/asm/unistd.h
-@@ -8,7 +8,8 @@
- #define _ASM_S390_UNISTD_H_
+@@ -27,11 +27,6 @@
+ #define __ARCH_WANT_SYS_OLDUMOUNT
+ #define __ARCH_WANT_SYS_SIGPENDING
+ #define __ARCH_WANT_SYS_SIGPROCMASK
+-# ifdef CONFIG_COMPAT
+-#   define __ARCH_WANT_COMPAT_STAT
+-#   define __ARCH_WANT_SYS_TIME32
+-#   define __ARCH_WANT_SYS_UTIME32
+-# endif
+ #define __ARCH_WANT_SYS_FORK
+ #define __ARCH_WANT_SYS_VFORK
+ #define __ARCH_WANT_SYS_CLONE
+diff --git a/arch/s390/include/asm/vdso-symbols.h b/arch/s390/include/asm/vdso-symbols.h
+index 0df17574d788..205da2c565c2 100644
+--- a/arch/s390/include/asm/vdso-symbols.h
++++ b/arch/s390/include/asm/vdso-symbols.h
+@@ -3,15 +3,7 @@
+ #define __S390_VDSO_SYMBOLS_H__
  
- #include <uapi/asm/unistd.h>
--#include <asm/unistd_nr.h>
-+
-+#define NR_syscalls (__NR_syscalls)
+ #include <generated/vdso64-offsets.h>
+-#ifdef CONFIG_COMPAT
+-#include <generated/vdso32-offsets.h>
+-#endif
  
- #define __ARCH_WANT_NEW_STAT
- #define __ARCH_WANT_OLD_READDIR
+ #define VDSO64_SYMBOL(tsk, name) ((tsk)->mm->context.vdso_base + (vdso64_offset_##name))
+-#ifdef CONFIG_COMPAT
+-#define VDSO32_SYMBOL(tsk, name) ((tsk)->mm->context.vdso_base + (vdso32_offset_##name))
+-#else
+-#define VDSO32_SYMBOL(tsk, name) (-1UL)
+-#endif
+ 
+ #endif /* __S390_VDSO_SYMBOLS_H__ */
+diff --git a/arch/s390/kernel/Makefile b/arch/s390/kernel/Makefile
+index eb06ff888314..c949ed394e72 100644
+--- a/arch/s390/kernel/Makefile
++++ b/arch/s390/kernel/Makefile
+@@ -56,9 +56,6 @@ obj-$(CONFIG_MODULES)		+= module.o
+ obj-$(CONFIG_SCHED_TOPOLOGY)	+= topology.o hiperdispatch.o
+ obj-$(CONFIG_NUMA)		+= numa.o
+ obj-$(CONFIG_AUDIT)		+= audit.o
+-compat-obj-$(CONFIG_AUDIT)	+= compat_audit.o
+-obj-$(CONFIG_COMPAT)		+= compat_linux.o compat_signal.o
+-obj-$(CONFIG_COMPAT)		+= $(compat-obj-y)
+ obj-$(CONFIG_EARLY_PRINTK)	+= early_printk.o
+ obj-$(CONFIG_KPROBES)		+= kprobes.o
+ obj-$(CONFIG_KPROBES)		+= mcount.o
+@@ -85,4 +82,3 @@ obj-$(CONFIG_TRACEPOINTS)	+= trace.o
+ 
+ # vdso
+ obj-y				+= vdso64/
+-obj-$(CONFIG_COMPAT)		+= vdso32/
+diff --git a/arch/s390/kernel/audit.c b/arch/s390/kernel/audit.c
+index 02051a596b87..7897d9411e13 100644
+--- a/arch/s390/kernel/audit.c
++++ b/arch/s390/kernel/audit.c
+@@ -3,7 +3,6 @@
+ #include <linux/types.h>
+ #include <linux/audit.h>
+ #include <asm/unistd.h>
+-#include "audit.h"
+ 
+ static unsigned dir_class[] = {
+ #include <asm-generic/audit_dir_write.h>
+@@ -32,19 +31,11 @@ static unsigned signal_class[] = {
+ 
+ int audit_classify_arch(int arch)
+ {
+-#ifdef CONFIG_COMPAT
+-	if (arch == AUDIT_ARCH_S390)
+-		return 1;
+-#endif
+ 	return 0;
+ }
+ 
+ int audit_classify_syscall(int abi, unsigned syscall)
+ {
+-#ifdef CONFIG_COMPAT
+-	if (abi == AUDIT_ARCH_S390)
+-		return s390_classify_syscall(syscall);
+-#endif
+ 	switch(syscall) {
+ 	case __NR_open:
+ 		return AUDITSC_OPEN;
+@@ -63,13 +54,6 @@ int audit_classify_syscall(int abi, unsigned syscall)
+ 
+ static int __init audit_classes_init(void)
+ {
+-#ifdef CONFIG_COMPAT
+-	audit_register_class(AUDIT_CLASS_WRITE_32, s390_write_class);
+-	audit_register_class(AUDIT_CLASS_READ_32, s390_read_class);
+-	audit_register_class(AUDIT_CLASS_DIR_WRITE_32, s390_dir_class);
+-	audit_register_class(AUDIT_CLASS_CHATTR_32, s390_chattr_class);
+-	audit_register_class(AUDIT_CLASS_SIGNAL_32, s390_signal_class);
+-#endif
+ 	audit_register_class(AUDIT_CLASS_WRITE, write_class);
+ 	audit_register_class(AUDIT_CLASS_READ, read_class);
+ 	audit_register_class(AUDIT_CLASS_DIR_WRITE, dir_class);
+diff --git a/arch/s390/kernel/audit.h b/arch/s390/kernel/audit.h
+deleted file mode 100644
+index 4d4b596412ec..000000000000
+--- a/arch/s390/kernel/audit.h
++++ /dev/null
+@@ -1,16 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef __ARCH_S390_KERNEL_AUDIT_H
+-#define __ARCH_S390_KERNEL_AUDIT_H
+-
+-#include <linux/types.h>
+-
+-#ifdef CONFIG_COMPAT
+-extern int s390_classify_syscall(unsigned);
+-extern __u32 s390_dir_class[];
+-extern __u32 s390_write_class[];
+-extern __u32 s390_read_class[];
+-extern __u32 s390_chattr_class[];
+-extern __u32 s390_signal_class[];
+-#endif /* CONFIG_COMPAT */
+-
+-#endif /* __ARCH_S390_KERNEL_AUDIT_H */
+diff --git a/arch/s390/kernel/compat_audit.c b/arch/s390/kernel/compat_audit.c
+deleted file mode 100644
+index a7c46e8310f0..000000000000
+--- a/arch/s390/kernel/compat_audit.c
++++ /dev/null
+@@ -1,48 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-#undef __s390x__
+-#include <linux/audit_arch.h>
+-#include <asm/unistd.h>
+-#include "audit.h"
+-
+-unsigned s390_dir_class[] = {
+-#include <asm-generic/audit_dir_write.h>
+-~0U
+-};
+-
+-unsigned s390_chattr_class[] = {
+-#include <asm-generic/audit_change_attr.h>
+-~0U
+-};
+-
+-unsigned s390_write_class[] = {
+-#include <asm-generic/audit_write.h>
+-~0U
+-};
+-
+-unsigned s390_read_class[] = {
+-#include <asm-generic/audit_read.h>
+-~0U
+-};
+-
+-unsigned s390_signal_class[] = {
+-#include <asm-generic/audit_signal.h>
+-~0U
+-};
+-
+-int s390_classify_syscall(unsigned syscall)
+-{
+-	switch(syscall) {
+-	case __NR_open:
+-		return AUDITSC_OPEN;
+-	case __NR_openat:
+-		return AUDITSC_OPENAT;
+-	case __NR_socketcall:
+-		return AUDITSC_SOCKETCALL;
+-	case __NR_execve:
+-		return AUDITSC_EXECVE;
+-	case __NR_openat2:
+-		return AUDITSC_OPENAT2;
+-	default:
+-		return AUDITSC_COMPAT;
+-	}
+-}
+diff --git a/arch/s390/kernel/compat_linux.c b/arch/s390/kernel/compat_linux.c
+deleted file mode 100644
+index f9d418d1b619..000000000000
+--- a/arch/s390/kernel/compat_linux.c
++++ /dev/null
+@@ -1,289 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-/*
+- *  S390 version
+- *    Copyright IBM Corp. 2000
+- *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com),
+- *               Gerhard Tonn (ton@de.ibm.com)   
+- *               Thomas Spatzier (tspat@de.ibm.com)
+- *
+- *  Conversion between 31bit and 64bit native syscalls.
+- *
+- * Heavily inspired by the 32-bit Sparc compat code which is 
+- * Copyright (C) 1997,1998 Jakub Jelinek (jj@sunsite.mff.cuni.cz)
+- * Copyright (C) 1997 David S. Miller (davem@caip.rutgers.edu)
+- *
+- */
+-
+-
+-#include <linux/kernel.h>
+-#include <linux/sched.h>
+-#include <linux/fs.h> 
+-#include <linux/mm.h> 
+-#include <linux/file.h> 
+-#include <linux/signal.h>
+-#include <linux/resource.h>
+-#include <linux/times.h>
+-#include <linux/smp.h>
+-#include <linux/sem.h>
+-#include <linux/msg.h>
+-#include <linux/shm.h>
+-#include <linux/uio.h>
+-#include <linux/quota.h>
+-#include <linux/poll.h>
+-#include <linux/personality.h>
+-#include <linux/stat.h>
+-#include <linux/filter.h>
+-#include <linux/highmem.h>
+-#include <linux/mman.h>
+-#include <linux/ipv6.h>
+-#include <linux/in.h>
+-#include <linux/icmpv6.h>
+-#include <linux/syscalls.h>
+-#include <linux/sysctl.h>
+-#include <linux/binfmts.h>
+-#include <linux/capability.h>
+-#include <linux/compat.h>
+-#include <linux/vfs.h>
+-#include <linux/ptrace.h>
+-#include <linux/fadvise.h>
+-#include <linux/ipc.h>
+-#include <linux/slab.h>
+-
+-#include <asm/types.h>
+-#include <linux/uaccess.h>
+-
+-#include <net/scm.h>
+-#include <net/sock.h>
+-
+-#include "compat_linux.h"
+-
+-#ifdef CONFIG_SYSVIPC
+-COMPAT_SYSCALL_DEFINE5(s390_ipc, uint, call, int, first, compat_ulong_t, second,
+-		compat_ulong_t, third, compat_uptr_t, ptr)
+-{
+-	if (call >> 16)		/* hack for backward compatibility */
+-		return -EINVAL;
+-	return compat_ksys_ipc(call, first, second, third, ptr, third);
+-}
+-#endif
+-
+-COMPAT_SYSCALL_DEFINE3(s390_truncate64, const char __user *, path, u32, high, u32, low)
+-{
+-	return ksys_truncate(path, (unsigned long)high << 32 | low);
+-}
+-
+-COMPAT_SYSCALL_DEFINE3(s390_ftruncate64, unsigned int, fd, u32, high, u32, low)
+-{
+-	return ksys_ftruncate(fd, (unsigned long)high << 32 | low);
+-}
+-
+-COMPAT_SYSCALL_DEFINE5(s390_pread64, unsigned int, fd, char __user *, ubuf,
+-		       compat_size_t, count, u32, high, u32, low)
+-{
+-	if ((compat_ssize_t) count < 0)
+-		return -EINVAL;
+-	return ksys_pread64(fd, ubuf, count, (unsigned long)high << 32 | low);
+-}
+-
+-COMPAT_SYSCALL_DEFINE5(s390_pwrite64, unsigned int, fd, const char __user *, ubuf,
+-		       compat_size_t, count, u32, high, u32, low)
+-{
+-	if ((compat_ssize_t) count < 0)
+-		return -EINVAL;
+-	return ksys_pwrite64(fd, ubuf, count, (unsigned long)high << 32 | low);
+-}
+-
+-COMPAT_SYSCALL_DEFINE4(s390_readahead, int, fd, u32, high, u32, low, s32, count)
+-{
+-	return ksys_readahead(fd, (unsigned long)high << 32 | low, count);
+-}
+-
+-struct stat64_emu31 {
+-	unsigned long long  st_dev;
+-	unsigned int    __pad1;
+-#define STAT64_HAS_BROKEN_ST_INO        1
+-	u32             __st_ino;
+-	unsigned int    st_mode;
+-	unsigned int    st_nlink;
+-	u32             st_uid;
+-	u32             st_gid;
+-	unsigned long long  st_rdev;
+-	unsigned int    __pad3;
+-	long            st_size;
+-	u32             st_blksize;
+-	unsigned char   __pad4[4];
+-	u32             __pad5;     /* future possible st_blocks high bits */
+-	u32             st_blocks;  /* Number 512-byte blocks allocated. */
+-	u32             st_atime;
+-	u32             __pad6;
+-	u32             st_mtime;
+-	u32             __pad7;
+-	u32             st_ctime;
+-	u32             __pad8;     /* will be high 32 bits of ctime someday */
+-	unsigned long   st_ino;
+-};	
+-
+-static int cp_stat64(struct stat64_emu31 __user *ubuf, struct kstat *stat)
+-{
+-	struct stat64_emu31 tmp;
+-
+-	memset(&tmp, 0, sizeof(tmp));
+-
+-	tmp.st_dev = huge_encode_dev(stat->dev);
+-	tmp.st_ino = stat->ino;
+-	tmp.__st_ino = (u32)stat->ino;
+-	tmp.st_mode = stat->mode;
+-	tmp.st_nlink = (unsigned int)stat->nlink;
+-	tmp.st_uid = from_kuid_munged(current_user_ns(), stat->uid);
+-	tmp.st_gid = from_kgid_munged(current_user_ns(), stat->gid);
+-	tmp.st_rdev = huge_encode_dev(stat->rdev);
+-	tmp.st_size = stat->size;
+-	tmp.st_blksize = (u32)stat->blksize;
+-	tmp.st_blocks = (u32)stat->blocks;
+-	tmp.st_atime = (u32)stat->atime.tv_sec;
+-	tmp.st_mtime = (u32)stat->mtime.tv_sec;
+-	tmp.st_ctime = (u32)stat->ctime.tv_sec;
+-
+-	return copy_to_user(ubuf,&tmp,sizeof(tmp)) ? -EFAULT : 0; 
+-}
+-
+-COMPAT_SYSCALL_DEFINE2(s390_stat64, const char __user *, filename, struct stat64_emu31 __user *, statbuf)
+-{
+-	struct kstat stat;
+-	int ret = vfs_stat(filename, &stat);
+-	if (!ret)
+-		ret = cp_stat64(statbuf, &stat);
+-	return ret;
+-}
+-
+-COMPAT_SYSCALL_DEFINE2(s390_lstat64, const char __user *, filename, struct stat64_emu31 __user *, statbuf)
+-{
+-	struct kstat stat;
+-	int ret = vfs_lstat(filename, &stat);
+-	if (!ret)
+-		ret = cp_stat64(statbuf, &stat);
+-	return ret;
+-}
+-
+-COMPAT_SYSCALL_DEFINE2(s390_fstat64, unsigned int, fd, struct stat64_emu31 __user *, statbuf)
+-{
+-	struct kstat stat;
+-	int ret = vfs_fstat(fd, &stat);
+-	if (!ret)
+-		ret = cp_stat64(statbuf, &stat);
+-	return ret;
+-}
+-
+-COMPAT_SYSCALL_DEFINE4(s390_fstatat64, unsigned int, dfd, const char __user *, filename,
+-		       struct stat64_emu31 __user *, statbuf, int, flag)
+-{
+-	struct kstat stat;
+-	int error;
+-
+-	error = vfs_fstatat(dfd, filename, &stat, flag);
+-	if (error)
+-		return error;
+-	return cp_stat64(statbuf, &stat);
+-}
+-
+-/*
+- * Linux/i386 didn't use to be able to handle more than
+- * 4 system call parameters, so these system calls used a memory
+- * block for parameter passing..
+- */
+-
+-struct mmap_arg_struct_emu31 {
+-	compat_ulong_t addr;
+-	compat_ulong_t len;
+-	compat_ulong_t prot;
+-	compat_ulong_t flags;
+-	compat_ulong_t fd;
+-	compat_ulong_t offset;
+-};
+-
+-COMPAT_SYSCALL_DEFINE1(s390_old_mmap, struct mmap_arg_struct_emu31 __user *, arg)
+-{
+-	struct mmap_arg_struct_emu31 a;
+-
+-	if (copy_from_user(&a, arg, sizeof(a)))
+-		return -EFAULT;
+-	if (a.offset & ~PAGE_MASK)
+-		return -EINVAL;
+-	return ksys_mmap_pgoff(a.addr, a.len, a.prot, a.flags, a.fd,
+-			       a.offset >> PAGE_SHIFT);
+-}
+-
+-COMPAT_SYSCALL_DEFINE1(s390_mmap2, struct mmap_arg_struct_emu31 __user *, arg)
+-{
+-	struct mmap_arg_struct_emu31 a;
+-
+-	if (copy_from_user(&a, arg, sizeof(a)))
+-		return -EFAULT;
+-	return ksys_mmap_pgoff(a.addr, a.len, a.prot, a.flags, a.fd, a.offset);
+-}
+-
+-COMPAT_SYSCALL_DEFINE3(s390_read, unsigned int, fd, char __user *, buf, compat_size_t, count)
+-{
+-	if ((compat_ssize_t) count < 0)
+-		return -EINVAL; 
+-
+-	return ksys_read(fd, buf, count);
+-}
+-
+-COMPAT_SYSCALL_DEFINE3(s390_write, unsigned int, fd, const char __user *, buf, compat_size_t, count)
+-{
+-	if ((compat_ssize_t) count < 0)
+-		return -EINVAL; 
+-
+-	return ksys_write(fd, buf, count);
+-}
+-
+-/*
+- * 31 bit emulation wrapper functions for sys_fadvise64/fadvise64_64.
+- * These need to rewrite the advise values for POSIX_FADV_{DONTNEED,NOREUSE}
+- * because the 31 bit values differ from the 64 bit values.
+- */
+-
+-COMPAT_SYSCALL_DEFINE5(s390_fadvise64, int, fd, u32, high, u32, low, compat_size_t, len, int, advise)
+-{
+-	if (advise == 4)
+-		advise = POSIX_FADV_DONTNEED;
+-	else if (advise == 5)
+-		advise = POSIX_FADV_NOREUSE;
+-	return ksys_fadvise64_64(fd, (unsigned long)high << 32 | low, len,
+-				 advise);
+-}
+-
+-struct fadvise64_64_args {
+-	int fd;
+-	long long offset;
+-	long long len;
+-	int advice;
+-};
+-
+-COMPAT_SYSCALL_DEFINE1(s390_fadvise64_64, struct fadvise64_64_args __user *, args)
+-{
+-	struct fadvise64_64_args a;
+-
+-	if ( copy_from_user(&a, args, sizeof(a)) )
+-		return -EFAULT;
+-	if (a.advice == 4)
+-		a.advice = POSIX_FADV_DONTNEED;
+-	else if (a.advice == 5)
+-		a.advice = POSIX_FADV_NOREUSE;
+-	return ksys_fadvise64_64(a.fd, a.offset, a.len, a.advice);
+-}
+-
+-COMPAT_SYSCALL_DEFINE6(s390_sync_file_range, int, fd, u32, offhigh, u32, offlow,
+-		       u32, nhigh, u32, nlow, unsigned int, flags)
+-{
+-	return ksys_sync_file_range(fd, ((loff_t)offhigh << 32) + offlow,
+-				   ((u64)nhigh << 32) + nlow, flags);
+-}
+-
+-COMPAT_SYSCALL_DEFINE6(s390_fallocate, int, fd, int, mode, u32, offhigh, u32, offlow,
+-		       u32, lenhigh, u32, lenlow)
+-{
+-	return ksys_fallocate(fd, mode, ((loff_t)offhigh << 32) + offlow,
+-			      ((u64)lenhigh << 32) + lenlow);
+-}
+diff --git a/arch/s390/kernel/compat_linux.h b/arch/s390/kernel/compat_linux.h
+deleted file mode 100644
+index 133f22b5deeb..000000000000
+--- a/arch/s390/kernel/compat_linux.h
++++ /dev/null
+@@ -1,101 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef _ASM_S390X_S390_H
+-#define _ASM_S390X_S390_H
+-
+-#include <linux/compat.h>
+-#include <linux/socket.h>
+-#include <linux/syscalls.h>
+-#include <asm/ptrace.h>
+-
+-/*
+- * Macro that masks the high order bit of a 32 bit pointer and
+- * converts it to a 64 bit pointer.
+- */
+-#define A(__x)	((unsigned long)((__x) & 0x7FFFFFFFUL))
+-#define AA(__x)	((unsigned long)(__x))
+-
+-/* Now 32bit compatibility types */
+-struct ipc_kludge_32 {
+-	__u32	msgp;	/* pointer */
+-	__s32	msgtyp;
+-};
+-
+-/* asm/sigcontext.h */
+-typedef union {
+-	__u64	d;
+-	__u32	f;
+-} freg_t32;
+-
+-typedef struct {
+-	unsigned int	fpc;
+-	unsigned int	pad;
+-	freg_t32	fprs[__NUM_FPRS];
+-} _s390_fp_regs32;
+-
+-typedef struct {
+-	psw32_t		psw;
+-	__u32		gprs[__NUM_GPRS];
+-	__u32		acrs[__NUM_ACRS];
+-} _s390_regs_common32;
+-
+-typedef struct {
+-	_s390_regs_common32 regs;
+-	_s390_fp_regs32	    fpregs;
+-} _sigregs32;
+-
+-typedef struct {
+-	__u32		gprs_high[__NUM_GPRS];
+-	__u64		vxrs_low[__NUM_VXRS_LOW];
+-	__vector128	vxrs_high[__NUM_VXRS_HIGH];
+-	__u8		__reserved[128];
+-} _sigregs_ext32;
+-
+-#define _SIGCONTEXT_NSIG32	64
+-#define _SIGCONTEXT_NSIG_BPW32	32
+-#define __SIGNAL_FRAMESIZE32	96
+-#define _SIGMASK_COPY_SIZE32	(sizeof(u32) * 2)
+-
+-struct sigcontext32 {
+-	__u32	oldmask[_COMPAT_NSIG_WORDS];
+-	__u32	sregs;	/* pointer */
+-};
+-
+-/* asm/signal.h */
+-
+-/* asm/ucontext.h */
+-struct ucontext32 {
+-	__u32			uc_flags;
+-	__u32			uc_link;	/* pointer */
+-	compat_stack_t		uc_stack;
+-	_sigregs32		uc_mcontext;
+-	compat_sigset_t		uc_sigmask;
+-	/* Allow for uc_sigmask growth. Glibc uses a 1024-bit sigset_t. */
+-	unsigned char		__unused[128 - sizeof(compat_sigset_t)];
+-	_sigregs_ext32		uc_mcontext_ext;
+-};
+-
+-struct stat64_emu31;
+-struct mmap_arg_struct_emu31;
+-struct fadvise64_64_args;
+-
+-long compat_sys_s390_truncate64(const char __user *path, u32 high, u32 low);
+-long compat_sys_s390_ftruncate64(unsigned int fd, u32 high, u32 low);
+-long compat_sys_s390_pread64(unsigned int fd, char __user *ubuf, compat_size_t count, u32 high, u32 low);
+-long compat_sys_s390_pwrite64(unsigned int fd, const char __user *ubuf, compat_size_t count, u32 high, u32 low);
+-long compat_sys_s390_readahead(int fd, u32 high, u32 low, s32 count);
+-long compat_sys_s390_stat64(const char __user *filename, struct stat64_emu31 __user *statbuf);
+-long compat_sys_s390_lstat64(const char __user *filename, struct stat64_emu31 __user *statbuf);
+-long compat_sys_s390_fstat64(unsigned int fd, struct stat64_emu31 __user *statbuf);
+-long compat_sys_s390_fstatat64(unsigned int dfd, const char __user *filename, struct stat64_emu31 __user *statbuf, int flag);
+-long compat_sys_s390_old_mmap(struct mmap_arg_struct_emu31 __user *arg);
+-long compat_sys_s390_mmap2(struct mmap_arg_struct_emu31 __user *arg);
+-long compat_sys_s390_read(unsigned int fd, char __user *buf, compat_size_t count);
+-long compat_sys_s390_write(unsigned int fd, const char __user *buf, compat_size_t count);
+-long compat_sys_s390_fadvise64(int fd, u32 high, u32 low, compat_size_t len, int advise);
+-long compat_sys_s390_fadvise64_64(struct fadvise64_64_args __user *args);
+-long compat_sys_s390_sync_file_range(int fd, u32 offhigh, u32 offlow, u32 nhigh, u32 nlow, unsigned int flags);
+-long compat_sys_s390_fallocate(int fd, int mode, u32 offhigh, u32 offlow, u32 lenhigh, u32 lenlow);
+-long compat_sys_sigreturn(void);
+-long compat_sys_rt_sigreturn(void);
+-
+-#endif /* _ASM_S390X_S390_H */
+diff --git a/arch/s390/kernel/compat_ptrace.h b/arch/s390/kernel/compat_ptrace.h
+deleted file mode 100644
+index 3c400fc7e987..000000000000
+--- a/arch/s390/kernel/compat_ptrace.h
++++ /dev/null
+@@ -1,64 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef _PTRACE32_H
+-#define _PTRACE32_H
+-
+-#include <asm/ptrace.h>    /* needed for NUM_CR_WORDS */
+-#include "compat_linux.h"  /* needed for psw_compat_t */
+-
+-struct compat_per_struct_kernel {
+-	__u32 cr9;		/* PER control bits */
+-	__u32 cr10;		/* PER starting address */
+-	__u32 cr11;		/* PER ending address */
+-	__u32 bits;		/* Obsolete software bits */
+-	__u32 starting_addr;	/* User specified start address */
+-	__u32 ending_addr;	/* User specified end address */
+-	__u16 perc_atmid;	/* PER trap ATMID */
+-	__u32 address;		/* PER trap instruction address */
+-	__u8  access_id;	/* PER trap access identification */
+-};
+-
+-struct compat_user_regs_struct
+-{
+-	psw_compat_t psw;
+-	u32 gprs[NUM_GPRS];
+-	u32 acrs[NUM_ACRS];
+-	u32 orig_gpr2;
+-	/* nb: there's a 4-byte hole here */
+-	s390_fp_regs fp_regs;
+-	/*
+-	 * These per registers are in here so that gdb can modify them
+-	 * itself as there is no "official" ptrace interface for hardware
+-	 * watchpoints. This is the way intel does it.
+-	 */
+-	struct compat_per_struct_kernel per_info;
+-	u32  ieee_instruction_pointer;	/* obsolete, always 0 */
+-};
+-
+-struct compat_user {
+-	/* We start with the registers, to mimic the way that "memory"
+-	   is returned from the ptrace(3,...) function.  */
+-	struct compat_user_regs_struct regs;
+-	/* The rest of this junk is to help gdb figure out what goes where */
+-	u32 u_tsize;		/* Text segment size (pages). */
+-	u32 u_dsize;	        /* Data segment size (pages). */
+-	u32 u_ssize;	        /* Stack segment size (pages). */
+-	u32 start_code;         /* Starting virtual address of text. */
+-	u32 start_stack;	/* Starting virtual address of stack area.
+-				   This is actually the bottom of the stack,
+-				   the top of the stack is always found in the
+-				   esp register.  */
+-	s32 signal;     	 /* Signal that caused the core dump. */
+-	u32 u_ar0;               /* Used by gdb to help find the values for */
+-	                         /* the registers. */
+-	u32 magic;		 /* To uniquely identify a core file */
+-	char u_comm[32];	 /* User command that was responsible */
+-};
+-
+-typedef struct
+-{
+-	__u32   len;
+-	__u32   kernel_addr;
+-	__u32   process_addr;
+-} compat_ptrace_area;
+-
+-#endif /* _PTRACE32_H */
+diff --git a/arch/s390/kernel/compat_signal.c b/arch/s390/kernel/compat_signal.c
+deleted file mode 100644
+index 5a86b9d1da71..000000000000
+--- a/arch/s390/kernel/compat_signal.c
++++ /dev/null
+@@ -1,420 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-/*
+- *    Copyright IBM Corp. 2000, 2006
+- *    Author(s): Denis Joseph Barrow (djbarrow@de.ibm.com,barrow_dj@yahoo.com)
+- *               Gerhard Tonn (ton@de.ibm.com)                  
+- *
+- *  Copyright (C) 1991, 1992  Linus Torvalds
+- *
+- *  1997-11-28  Modified for POSIX.1b signals by Richard Henderson
+- */
+-
+-#include <linux/compat.h>
+-#include <linux/sched.h>
+-#include <linux/sched/task_stack.h>
+-#include <linux/mm.h>
+-#include <linux/smp.h>
+-#include <linux/kernel.h>
+-#include <linux/signal.h>
+-#include <linux/errno.h>
+-#include <linux/wait.h>
+-#include <linux/ptrace.h>
+-#include <linux/unistd.h>
+-#include <linux/stddef.h>
+-#include <linux/tty.h>
+-#include <linux/personality.h>
+-#include <linux/binfmts.h>
+-#include <asm/vdso-symbols.h>
+-#include <asm/access-regs.h>
+-#include <asm/ucontext.h>
+-#include <linux/uaccess.h>
+-#include <asm/lowcore.h>
+-#include <asm/fpu.h>
+-#include "compat_linux.h"
+-#include "compat_ptrace.h"
+-#include "entry.h"
+-
+-typedef struct 
+-{
+-	__u8 callee_used_stack[__SIGNAL_FRAMESIZE32];
+-	struct sigcontext32 sc;
+-	_sigregs32 sregs;
+-	int signo;
+-	_sigregs_ext32 sregs_ext;
+-	__u16 svc_insn;		/* Offset of svc_insn is NOT fixed! */
+-} sigframe32;
+-
+-typedef struct 
+-{
+-	__u8 callee_used_stack[__SIGNAL_FRAMESIZE32];
+-	__u16 svc_insn;
+-	compat_siginfo_t info;
+-	struct ucontext32 uc;
+-} rt_sigframe32;
+-
+-/* Store registers needed to create the signal frame */
+-static void store_sigregs(void)
+-{
+-	save_access_regs(current->thread.acrs);
+-	save_user_fpu_regs();
+-}
+-
+-/* Load registers after signal return */
+-static void load_sigregs(void)
+-{
+-	restore_access_regs(current->thread.acrs);
+-}
+-
+-static int save_sigregs32(struct pt_regs *regs, _sigregs32 __user *sregs)
+-{
+-	_sigregs32 user_sregs;
+-	int i;
+-
+-	user_sregs.regs.psw.mask = (__u32)(regs->psw.mask >> 32);
+-	user_sregs.regs.psw.mask &= PSW32_MASK_USER | PSW32_MASK_RI;
+-	user_sregs.regs.psw.mask |= PSW32_USER_BITS;
+-	user_sregs.regs.psw.addr = (__u32) regs->psw.addr |
+-		(__u32)(regs->psw.mask & PSW_MASK_BA);
+-	for (i = 0; i < NUM_GPRS; i++)
+-		user_sregs.regs.gprs[i] = (__u32) regs->gprs[i];
+-	memcpy(&user_sregs.regs.acrs, current->thread.acrs,
+-	       sizeof(user_sregs.regs.acrs));
+-	fpregs_store((_s390_fp_regs *) &user_sregs.fpregs, &current->thread.ufpu);
+-	if (__copy_to_user(sregs, &user_sregs, sizeof(_sigregs32)))
+-		return -EFAULT;
+-	return 0;
+-}
+-
+-static int restore_sigregs32(struct pt_regs *regs,_sigregs32 __user *sregs)
+-{
+-	_sigregs32 user_sregs;
+-	int i;
+-
+-	/* Always make any pending restarted system call return -EINTR */
+-	current->restart_block.fn = do_no_restart_syscall;
+-
+-	if (__copy_from_user(&user_sregs, &sregs->regs, sizeof(user_sregs)))
+-		return -EFAULT;
+-
+-	if (!is_ri_task(current) && (user_sregs.regs.psw.mask & PSW32_MASK_RI))
+-		return -EINVAL;
+-
+-	/* Use regs->psw.mask instead of PSW_USER_BITS to preserve PER bit. */
+-	regs->psw.mask = (regs->psw.mask & ~(PSW_MASK_USER | PSW_MASK_RI)) |
+-		(__u64)(user_sregs.regs.psw.mask & PSW32_MASK_USER) << 32 |
+-		(__u64)(user_sregs.regs.psw.mask & PSW32_MASK_RI) << 32 |
+-		(__u64)(user_sregs.regs.psw.addr & PSW32_ADDR_AMODE);
+-	/* Check for invalid user address space control. */
+-	if ((regs->psw.mask & PSW_MASK_ASC) == PSW_ASC_HOME)
+-		regs->psw.mask = PSW_ASC_PRIMARY |
+-			(regs->psw.mask & ~PSW_MASK_ASC);
+-	regs->psw.addr = (__u64)(user_sregs.regs.psw.addr & PSW32_ADDR_INSN);
+-	for (i = 0; i < NUM_GPRS; i++)
+-		regs->gprs[i] = (__u64) user_sregs.regs.gprs[i];
+-	memcpy(&current->thread.acrs, &user_sregs.regs.acrs,
+-	       sizeof(current->thread.acrs));
+-	fpregs_load((_s390_fp_regs *)&user_sregs.fpregs, &current->thread.ufpu);
+-
+-	clear_pt_regs_flag(regs, PIF_SYSCALL); /* No longer in a system call */
+-	return 0;
+-}
+-
+-static int save_sigregs_ext32(struct pt_regs *regs,
+-			      _sigregs_ext32 __user *sregs_ext)
+-{
+-	__u32 gprs_high[NUM_GPRS];
+-	__u64 vxrs[__NUM_VXRS_LOW];
+-	int i;
+-
+-	/* Save high gprs to signal stack */
+-	for (i = 0; i < NUM_GPRS; i++)
+-		gprs_high[i] = regs->gprs[i] >> 32;
+-	if (__copy_to_user(&sregs_ext->gprs_high, &gprs_high,
+-			   sizeof(sregs_ext->gprs_high)))
+-		return -EFAULT;
+-
+-	/* Save vector registers to signal stack */
+-	if (cpu_has_vx()) {
+-		for (i = 0; i < __NUM_VXRS_LOW; i++)
+-			vxrs[i] = current->thread.ufpu.vxrs[i].low;
+-		if (__copy_to_user(&sregs_ext->vxrs_low, vxrs,
+-				   sizeof(sregs_ext->vxrs_low)) ||
+-		    __copy_to_user(&sregs_ext->vxrs_high,
+-				   current->thread.ufpu.vxrs + __NUM_VXRS_LOW,
+-				   sizeof(sregs_ext->vxrs_high)))
+-			return -EFAULT;
+-	}
+-	return 0;
+-}
+-
+-static int restore_sigregs_ext32(struct pt_regs *regs,
+-				 _sigregs_ext32 __user *sregs_ext)
+-{
+-	__u32 gprs_high[NUM_GPRS];
+-	__u64 vxrs[__NUM_VXRS_LOW];
+-	int i;
+-
+-	/* Restore high gprs from signal stack */
+-	if (__copy_from_user(&gprs_high, &sregs_ext->gprs_high,
+-			     sizeof(sregs_ext->gprs_high)))
+-		return -EFAULT;
+-	for (i = 0; i < NUM_GPRS; i++)
+-		*(__u32 *)&regs->gprs[i] = gprs_high[i];
+-
+-	/* Restore vector registers from signal stack */
+-	if (cpu_has_vx()) {
+-		if (__copy_from_user(vxrs, &sregs_ext->vxrs_low,
+-				     sizeof(sregs_ext->vxrs_low)) ||
+-		    __copy_from_user(current->thread.ufpu.vxrs + __NUM_VXRS_LOW,
+-				     &sregs_ext->vxrs_high,
+-				     sizeof(sregs_ext->vxrs_high)))
+-			return -EFAULT;
+-		for (i = 0; i < __NUM_VXRS_LOW; i++)
+-			current->thread.ufpu.vxrs[i].low = vxrs[i];
+-	}
+-	return 0;
+-}
+-
+-COMPAT_SYSCALL_DEFINE0(sigreturn)
+-{
+-	struct pt_regs *regs = task_pt_regs(current);
+-	sigframe32 __user *frame = (sigframe32 __user *)regs->gprs[15];
+-	sigset_t set;
+-
+-	if (get_compat_sigset(&set, (compat_sigset_t __user *)frame->sc.oldmask))
+-		goto badframe;
+-	set_current_blocked(&set);
+-	save_user_fpu_regs();
+-	if (restore_sigregs32(regs, &frame->sregs))
+-		goto badframe;
+-	if (restore_sigregs_ext32(regs, &frame->sregs_ext))
+-		goto badframe;
+-	load_sigregs();
+-	return regs->gprs[2];
+-badframe:
+-	force_sig(SIGSEGV);
+-	return 0;
+-}
+-
+-COMPAT_SYSCALL_DEFINE0(rt_sigreturn)
+-{
+-	struct pt_regs *regs = task_pt_regs(current);
+-	rt_sigframe32 __user *frame = (rt_sigframe32 __user *)regs->gprs[15];
+-	sigset_t set;
+-
+-	if (get_compat_sigset(&set, &frame->uc.uc_sigmask))
+-		goto badframe;
+-	set_current_blocked(&set);
+-	if (compat_restore_altstack(&frame->uc.uc_stack))
+-		goto badframe;
+-	save_user_fpu_regs();
+-	if (restore_sigregs32(regs, &frame->uc.uc_mcontext))
+-		goto badframe;
+-	if (restore_sigregs_ext32(regs, &frame->uc.uc_mcontext_ext))
+-		goto badframe;
+-	load_sigregs();
+-	return regs->gprs[2];
+-badframe:
+-	force_sig(SIGSEGV);
+-	return 0;
+-}	
+-
+-/*
+- * Set up a signal frame.
+- */
+-
+-
+-/*
+- * Determine which stack to use..
+- */
+-static inline void __user *
+-get_sigframe(struct k_sigaction *ka, struct pt_regs * regs, size_t frame_size)
+-{
+-	unsigned long sp;
+-
+-	/* Default to using normal stack */
+-	sp = (unsigned long) A(regs->gprs[15]);
+-
+-	/* Overflow on alternate signal stack gives SIGSEGV. */
+-	if (on_sig_stack(sp) && !on_sig_stack((sp - frame_size) & -8UL))
+-		return (void __user *) -1UL;
+-
+-	/* This is the X/Open sanctioned signal stack switching.  */
+-	if (ka->sa.sa_flags & SA_ONSTACK) {
+-		if (! sas_ss_flags(sp))
+-			sp = current->sas_ss_sp + current->sas_ss_size;
+-	}
+-
+-	return (void __user *)((sp - frame_size) & -8ul);
+-}
+-
+-static int setup_frame32(struct ksignal *ksig, sigset_t *set,
+-			 struct pt_regs *regs)
+-{
+-	int sig = ksig->sig;
+-	sigframe32 __user *frame;
+-	unsigned long restorer;
+-	size_t frame_size;
+-
+-	/*
+-	 * gprs_high are always present for 31-bit compat tasks.
+-	 * The space for vector registers is only allocated if
+-	 * the machine supports it
+-	 */
+-	frame_size = sizeof(*frame) - sizeof(frame->sregs_ext.__reserved);
+-	if (!cpu_has_vx())
+-		frame_size -= sizeof(frame->sregs_ext.vxrs_low) +
+-			      sizeof(frame->sregs_ext.vxrs_high);
+-	frame = get_sigframe(&ksig->ka, regs, frame_size);
+-	if (frame == (void __user *) -1UL)
+-		return -EFAULT;
+-
+-	/* Set up backchain. */
+-	if (__put_user(regs->gprs[15], (unsigned int __user *) frame))
+-		return -EFAULT;
+-
+-	/* Create struct sigcontext32 on the signal stack */
+-	if (put_compat_sigset((compat_sigset_t __user *)frame->sc.oldmask,
+-			      set, sizeof(compat_sigset_t)))
+-		return -EFAULT;
+-	if (__put_user(ptr_to_compat(&frame->sregs), &frame->sc.sregs))
+-		return -EFAULT;
+-
+-	/* Store registers needed to create the signal frame */
+-	store_sigregs();
+-
+-	/* Create _sigregs32 on the signal stack */
+-	if (save_sigregs32(regs, &frame->sregs))
+-		return -EFAULT;
+-
+-	/* Place signal number on stack to allow backtrace from handler.  */
+-	if (__put_user(regs->gprs[2], (int __force __user *) &frame->signo))
+-		return -EFAULT;
+-
+-	/* Create _sigregs_ext32 on the signal stack */
+-	if (save_sigregs_ext32(regs, &frame->sregs_ext))
+-		return -EFAULT;
+-
+-	/* Set up to return from userspace.  If provided, use a stub
+-	   already in userspace.  */
+-	if (ksig->ka.sa.sa_flags & SA_RESTORER) {
+-		restorer = (unsigned long __force)
+-			ksig->ka.sa.sa_restorer | PSW32_ADDR_AMODE;
+-	} else {
+-		restorer = VDSO32_SYMBOL(current, sigreturn);
+-        }
+-
+-	/* Set up registers for signal handler */
+-	regs->gprs[14] = restorer;
+-	regs->gprs[15] = (__force __u64) frame;
+-	/* Force 31 bit amode and default user address space control. */
+-	regs->psw.mask = PSW_MASK_BA |
+-		(PSW_USER_BITS & PSW_MASK_ASC) |
+-		(regs->psw.mask & ~PSW_MASK_ASC);
+-	regs->psw.addr = (__force __u64) ksig->ka.sa.sa_handler;
+-
+-	regs->gprs[2] = sig;
+-	regs->gprs[3] = (__force __u64) &frame->sc;
+-
+-	/* We forgot to include these in the sigcontext.
+-	   To avoid breaking binary compatibility, they are passed as args. */
+-	if (sig == SIGSEGV || sig == SIGBUS || sig == SIGILL ||
+-	    sig == SIGTRAP || sig == SIGFPE) {
+-		/* set extra registers only for synchronous signals */
+-		regs->gprs[4] = regs->int_code & 127;
+-		regs->gprs[5] = regs->int_parm_long;
+-		regs->gprs[6] = current->thread.last_break;
+-	}
+-
+-	return 0;
+-}
+-
+-static int setup_rt_frame32(struct ksignal *ksig, sigset_t *set,
+-			    struct pt_regs *regs)
+-{
+-	rt_sigframe32 __user *frame;
+-	unsigned long restorer;
+-	size_t frame_size;
+-	u32 uc_flags;
+-
+-	frame_size = sizeof(*frame) -
+-		     sizeof(frame->uc.uc_mcontext_ext.__reserved);
+-	/*
+-	 * gprs_high are always present for 31-bit compat tasks.
+-	 * The space for vector registers is only allocated if
+-	 * the machine supports it
+-	 */
+-	uc_flags = UC_GPRS_HIGH;
+-	if (cpu_has_vx()) {
+-		uc_flags |= UC_VXRS;
+-	} else {
+-		frame_size -= sizeof(frame->uc.uc_mcontext_ext.vxrs_low) +
+-			      sizeof(frame->uc.uc_mcontext_ext.vxrs_high);
+-	}
+-	frame = get_sigframe(&ksig->ka, regs, frame_size);
+-	if (frame == (void __user *) -1UL)
+-		return -EFAULT;
+-
+-	/* Set up backchain. */
+-	if (__put_user(regs->gprs[15], (unsigned int __force __user *) frame))
+-		return -EFAULT;
+-
+-	/* Set up to return from userspace.  If provided, use a stub
+-	   already in userspace.  */
+-	if (ksig->ka.sa.sa_flags & SA_RESTORER) {
+-		restorer = (unsigned long __force)
+-			ksig->ka.sa.sa_restorer | PSW32_ADDR_AMODE;
+-	} else {
+-		restorer = VDSO32_SYMBOL(current, rt_sigreturn);
+-	}
+-
+-	/* Create siginfo on the signal stack */
+-	if (copy_siginfo_to_user32(&frame->info, &ksig->info))
+-		return -EFAULT;
+-
+-	/* Store registers needed to create the signal frame */
+-	store_sigregs();
+-
+-	/* Create ucontext on the signal stack. */
+-	if (__put_user(uc_flags, &frame->uc.uc_flags) ||
+-	    __put_user(0, &frame->uc.uc_link) ||
+-	    __compat_save_altstack(&frame->uc.uc_stack, regs->gprs[15]) ||
+-	    save_sigregs32(regs, &frame->uc.uc_mcontext) ||
+-	    put_compat_sigset(&frame->uc.uc_sigmask, set, sizeof(compat_sigset_t)) ||
+-	    save_sigregs_ext32(regs, &frame->uc.uc_mcontext_ext))
+-		return -EFAULT;
+-
+-	/* Set up registers for signal handler */
+-	regs->gprs[14] = restorer;
+-	regs->gprs[15] = (__force __u64) frame;
+-	/* Force 31 bit amode and default user address space control. */
+-	regs->psw.mask = PSW_MASK_BA |
+-		(PSW_USER_BITS & PSW_MASK_ASC) |
+-		(regs->psw.mask & ~PSW_MASK_ASC);
+-	regs->psw.addr = (__u64 __force) ksig->ka.sa.sa_handler;
+-
+-	regs->gprs[2] = ksig->sig;
+-	regs->gprs[3] = (__force __u64) &frame->info;
+-	regs->gprs[4] = (__force __u64) &frame->uc;
+-	regs->gprs[5] = current->thread.last_break;
+-	return 0;
+-}
+-
+-/*
+- * OK, we're invoking a handler
+- */	
+-
+-void handle_signal32(struct ksignal *ksig, sigset_t *oldset,
+-		     struct pt_regs *regs)
+-{
+-	int ret;
+-
+-	/* Set up the stack frame */
+-	if (ksig->ka.sa.sa_flags & SA_SIGINFO)
+-		ret = setup_rt_frame32(ksig, oldset, regs);
+-	else
+-		ret = setup_frame32(ksig, oldset, regs);
+-
+-	signal_setup_done(ret, ksig, test_thread_flag(TIF_SINGLE_STEP));
+-}
+-
 diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 3c7f183a945d..1e266c0eae2c 100644
+index 75b0fbb236d0..3c7f183a945d 100644
 --- a/arch/s390/kernel/entry.S
 +++ b/arch/s390/kernel/entry.S
-@@ -606,11 +606,3 @@ SYM_DATA_START_LOCAL(daton_psw)
- 	.quad	PSW_KERNEL_BITS
- 	.quad	.Ldaton
- SYM_DATA_END(daton_psw)
+@@ -614,12 +614,3 @@ SYM_DATA_START(sys_call_table)
+ #include <asm/syscall_table.h>
+ SYM_DATA_END(sys_call_table)
+ #undef SYSCALL
 -
--	.section .rodata, "a"
--	.balign	8
--#define SYSCALL(esame,emu)	.quad __s390x_ ## esame
--SYM_DATA_START(sys_call_table)
+-#ifdef CONFIG_COMPAT
+-
+-#define SYSCALL(esame,emu)	.quad __s390_ ## emu
+-SYM_DATA_START(sys_call_table_emu)
 -#include <asm/syscall_table.h>
--SYM_DATA_END(sys_call_table)
+-SYM_DATA_END(sys_call_table_emu)
 -#undef SYSCALL
-diff --git a/arch/s390/kernel/syscall.c b/arch/s390/kernel/syscall.c
-index 3b7ea1ef468a..795b6cca74c9 100644
---- a/arch/s390/kernel/syscall.c
-+++ b/arch/s390/kernel/syscall.c
-@@ -39,6 +39,16 @@
+-#endif
+diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
+index 04457d88e589..b7fa9712ee1e 100644
+--- a/arch/s390/kernel/perf_cpum_cf.c
++++ b/arch/s390/kernel/perf_cpum_cf.c
+@@ -1689,7 +1689,6 @@ static const struct file_operations cfset_fops = {
+ 	.open = cfset_open,
+ 	.release = cfset_release,
+ 	.unlocked_ioctl	= cfset_ioctl,
+-	.compat_ioctl = cfset_ioctl,
+ };
+ 
+ static struct miscdevice cfset_dev = {
+diff --git a/arch/s390/kernel/perf_event.c b/arch/s390/kernel/perf_event.c
+index 91b8716c883a..2de1574d95b2 100644
+--- a/arch/s390/kernel/perf_event.c
++++ b/arch/s390/kernel/perf_event.c
+@@ -15,7 +15,6 @@
+ #include <linux/seq_file.h>
+ #include <linux/spinlock.h>
+ #include <linux/uaccess.h>
+-#include <linux/compat.h>
+ #include <linux/sysfs.h>
+ #include <asm/stacktrace.h>
+ #include <asm/irq.h>
+diff --git a/arch/s390/kernel/perf_regs.c b/arch/s390/kernel/perf_regs.c
+index a6b058ee4a36..7b305f1456f8 100644
+--- a/arch/s390/kernel/perf_regs.c
++++ b/arch/s390/kernel/perf_regs.c
+@@ -44,9 +44,6 @@ int perf_reg_validate(u64 mask)
+ 
+ u64 perf_reg_abi(struct task_struct *task)
+ {
+-	if (test_tsk_thread_flag(task, TIF_31BIT))
+-		return PERF_SAMPLE_REGS_ABI_32;
+-
+ 	return PERF_SAMPLE_REGS_ABI_64;
+ }
+ 
+diff --git a/arch/s390/kernel/process.c b/arch/s390/kernel/process.c
+index b107dbca4ed7..0df95dcb2101 100644
+--- a/arch/s390/kernel/process.c
++++ b/arch/s390/kernel/process.c
+@@ -24,7 +24,6 @@
+ #include <linux/tick.h>
+ #include <linux/personality.h>
+ #include <linux/syscalls.h>
+-#include <linux/compat.h>
+ #include <linux/kprobes.h>
+ #include <linux/random.h>
+ #include <linux/init_task.h>
+@@ -166,12 +165,8 @@ int copy_thread(struct task_struct *p, const struct kernel_clone_args *args)
+ 
+ 	/* Set a new TLS ?  */
+ 	if (clone_flags & CLONE_SETTLS) {
+-		if (is_compat_task()) {
+-			p->thread.acrs[0] = (unsigned int)tls;
+-		} else {
+-			p->thread.acrs[0] = (unsigned int)(tls >> 32);
+-			p->thread.acrs[1] = (unsigned int)tls;
+-		}
++		p->thread.acrs[0] = (unsigned int)(tls >> 32);
++		p->thread.acrs[1] = (unsigned int)tls;
+ 	}
+ 	/*
+ 	 * s390 stores the svc return address in arch_data when calling
+diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
+index 494216c4b4f3..ceaa1726e328 100644
+--- a/arch/s390/kernel/ptrace.c
++++ b/arch/s390/kernel/ptrace.c
+@@ -22,7 +22,6 @@
+ #include <linux/elf.h>
+ #include <linux/regset.h>
+ #include <linux/seccomp.h>
+-#include <linux/compat.h>
+ #include <trace/syscall.h>
+ #include <asm/guarded_storage.h>
+ #include <asm/access-regs.h>
+@@ -38,10 +37,6 @@
  
  #include "entry.h"
  
-+#define __SYSCALL(nr, sym) long __s390x_##sym(struct pt_regs *);
-+#include <asm/syscall_table.h>
-+#undef __SYSCALL
-+
-+#define __SYSCALL(nr, sym) [nr] = (__s390x_##sym),
-+const sys_call_ptr_t sys_call_table[__NR_syscalls] = {
-+#include <asm/syscall_table.h>
-+};
-+#undef __SYSCALL
-+
- #ifdef CONFIG_SYSVIPC
+-#ifdef CONFIG_COMPAT
+-#include "compat_ptrace.h"
+-#endif
+-
+ void update_cr_regs(struct task_struct *task)
+ {
+ 	struct pt_regs *regs = task_pt_regs(task);
+@@ -507,308 +502,6 @@ long arch_ptrace(struct task_struct *child, long request,
+ 	}
+ }
+ 
+-#ifdef CONFIG_COMPAT
+-/*
+- * Now the fun part starts... a 31 bit program running in the
+- * 31 bit emulation tracing another program. PTRACE_PEEKTEXT,
+- * PTRACE_PEEKDATA, PTRACE_POKETEXT and PTRACE_POKEDATA are easy
+- * to handle, the difference to the 64 bit versions of the requests
+- * is that the access is done in multiples of 4 byte instead of
+- * 8 bytes (sizeof(unsigned long) on 31/64 bit).
+- * The ugly part are PTRACE_PEEKUSR, PTRACE_PEEKUSR_AREA,
+- * PTRACE_POKEUSR and PTRACE_POKEUSR_AREA. If the traced program
+- * is a 31 bit program too, the content of struct user can be
+- * emulated. A 31 bit program peeking into the struct user of
+- * a 64 bit program is a no-no.
+- */
+-
+-/*
+- * Same as peek_user_per but for a 31 bit program.
+- */
+-static inline __u32 __peek_user_per_compat(struct task_struct *child,
+-					   addr_t addr)
+-{
+-	if (addr == offsetof(struct compat_per_struct_kernel, cr9))
+-		/* Control bits of the active per set. */
+-		return (__u32) test_thread_flag(TIF_SINGLE_STEP) ?
+-			PER_EVENT_IFETCH : child->thread.per_user.control;
+-	else if (addr == offsetof(struct compat_per_struct_kernel, cr10))
+-		/* Start address of the active per set. */
+-		return (__u32) test_thread_flag(TIF_SINGLE_STEP) ?
+-			0 : child->thread.per_user.start;
+-	else if (addr == offsetof(struct compat_per_struct_kernel, cr11))
+-		/* End address of the active per set. */
+-		return test_thread_flag(TIF_SINGLE_STEP) ?
+-			PSW32_ADDR_INSN : child->thread.per_user.end;
+-	else if (addr == offsetof(struct compat_per_struct_kernel, bits))
+-		/* Single-step bit. */
+-		return (__u32) test_thread_flag(TIF_SINGLE_STEP) ?
+-			0x80000000 : 0;
+-	else if (addr == offsetof(struct compat_per_struct_kernel, starting_addr))
+-		/* Start address of the user specified per set. */
+-		return (__u32) child->thread.per_user.start;
+-	else if (addr == offsetof(struct compat_per_struct_kernel, ending_addr))
+-		/* End address of the user specified per set. */
+-		return (__u32) child->thread.per_user.end;
+-	else if (addr == offsetof(struct compat_per_struct_kernel, perc_atmid))
+-		/* PER code, ATMID and AI of the last PER trap */
+-		return (__u32) child->thread.per_event.cause << 16;
+-	else if (addr == offsetof(struct compat_per_struct_kernel, address))
+-		/* Address of the last PER trap */
+-		return (__u32) child->thread.per_event.address;
+-	else if (addr == offsetof(struct compat_per_struct_kernel, access_id))
+-		/* Access id of the last PER trap */
+-		return (__u32) child->thread.per_event.paid << 24;
+-	return 0;
+-}
+-
+-/*
+- * Same as peek_user but for a 31 bit program.
+- */
+-static u32 __peek_user_compat(struct task_struct *child, addr_t addr)
+-{
+-	addr_t offset;
+-	__u32 tmp;
+-
+-	if (addr < offsetof(struct compat_user, regs.acrs)) {
+-		struct pt_regs *regs = task_pt_regs(child);
+-		/*
+-		 * psw and gprs are stored on the stack
+-		 */
+-		if (addr == offsetof(struct compat_user, regs.psw.mask)) {
+-			/* Fake a 31 bit psw mask. */
+-			tmp = (__u32)(regs->psw.mask >> 32);
+-			tmp &= PSW32_MASK_USER | PSW32_MASK_RI;
+-			tmp |= PSW32_USER_BITS;
+-		} else if (addr == offsetof(struct compat_user, regs.psw.addr)) {
+-			/* Fake a 31 bit psw address. */
+-			tmp = (__u32) regs->psw.addr |
+-				(__u32)(regs->psw.mask & PSW_MASK_BA);
+-		} else {
+-			/* gpr 0-15 */
+-			tmp = *(__u32 *)((addr_t) &regs->psw + addr*2 + 4);
+-		}
+-	} else if (addr < offsetof(struct compat_user, regs.orig_gpr2)) {
+-		/*
+-		 * access registers are stored in the thread structure
+-		 */
+-		offset = addr - offsetof(struct compat_user, regs.acrs);
+-		tmp = *(__u32*)((addr_t) &child->thread.acrs + offset);
+-
+-	} else if (addr == offsetof(struct compat_user, regs.orig_gpr2)) {
+-		/*
+-		 * orig_gpr2 is stored on the kernel stack
+-		 */
+-		tmp = *(__u32*)((addr_t) &task_pt_regs(child)->orig_gpr2 + 4);
+-
+-	} else if (addr < offsetof(struct compat_user, regs.fp_regs)) {
+-		/*
+-		 * prevent reads of padding hole between
+-		 * orig_gpr2 and fp_regs on s390.
+-		 */
+-		tmp = 0;
+-
+-	} else if (addr == offsetof(struct compat_user, regs.fp_regs.fpc)) {
+-		/*
+-		 * floating point control reg. is in the thread structure
+-		 */
+-		tmp = child->thread.ufpu.fpc;
+-
+-	} else if (addr < offsetof(struct compat_user, regs.fp_regs) + sizeof(s390_fp_regs)) {
+-		/*
+-		 * floating point regs. are in the child->thread.ufpu.vxrs array
+-		 */
+-		offset = addr - offsetof(struct compat_user, regs.fp_regs.fprs);
+-		tmp = *(__u32 *)((addr_t)child->thread.ufpu.vxrs + 2 * offset);
+-	} else if (addr < offsetof(struct compat_user, regs.per_info) + sizeof(struct compat_per_struct_kernel)) {
+-		/*
+-		 * Handle access to the per_info structure.
+-		 */
+-		addr -= offsetof(struct compat_user, regs.per_info);
+-		tmp = __peek_user_per_compat(child, addr);
+-
+-	} else
+-		tmp = 0;
+-
+-	return tmp;
+-}
+-
+-static int peek_user_compat(struct task_struct *child,
+-			    addr_t addr, addr_t data)
+-{
+-	__u32 tmp;
+-
+-	if (!is_compat_task() || (addr & 3) || addr > sizeof(struct user) - 3)
+-		return -EIO;
+-
+-	tmp = __peek_user_compat(child, addr);
+-	return put_user(tmp, (__u32 __user *) data);
+-}
+-
+-/*
+- * Same as poke_user_per but for a 31 bit program.
+- */
+-static inline void __poke_user_per_compat(struct task_struct *child,
+-					  addr_t addr, __u32 data)
+-{
+-	if (addr == offsetof(struct compat_per_struct_kernel, cr9))
+-		/* PER event mask of the user specified per set. */
+-		child->thread.per_user.control =
+-			data & (PER_EVENT_MASK | PER_CONTROL_MASK);
+-	else if (addr == offsetof(struct compat_per_struct_kernel, starting_addr))
+-		/* Starting address of the user specified per set. */
+-		child->thread.per_user.start = data;
+-	else if (addr == offsetof(struct compat_per_struct_kernel, ending_addr))
+-		/* Ending address of the user specified per set. */
+-		child->thread.per_user.end = data;
+-}
+-
+-/*
+- * Same as poke_user but for a 31 bit program.
+- */
+-static int __poke_user_compat(struct task_struct *child,
+-			      addr_t addr, addr_t data)
+-{
+-	__u32 tmp = (__u32) data;
+-	addr_t offset;
+-
+-	if (addr < offsetof(struct compat_user, regs.acrs)) {
+-		struct pt_regs *regs = task_pt_regs(child);
+-		/*
+-		 * psw, gprs, acrs and orig_gpr2 are stored on the stack
+-		 */
+-		if (addr == offsetof(struct compat_user, regs.psw.mask)) {
+-			__u32 mask = PSW32_MASK_USER;
+-
+-			mask |= is_ri_task(child) ? PSW32_MASK_RI : 0;
+-			/* Build a 64 bit psw mask from 31 bit mask. */
+-			if ((tmp ^ PSW32_USER_BITS) & ~mask)
+-				/* Invalid psw mask. */
+-				return -EINVAL;
+-			if ((data & PSW32_MASK_ASC) == PSW32_ASC_HOME)
+-				/* Invalid address-space-control bits */
+-				return -EINVAL;
+-			regs->psw.mask = (regs->psw.mask & ~PSW_MASK_USER) |
+-				(regs->psw.mask & PSW_MASK_BA) |
+-				(__u64)(tmp & mask) << 32;
+-		} else if (addr == offsetof(struct compat_user, regs.psw.addr)) {
+-			/* Build a 64 bit psw address from 31 bit address. */
+-			regs->psw.addr = (__u64) tmp & PSW32_ADDR_INSN;
+-			/* Transfer 31 bit amode bit to psw mask. */
+-			regs->psw.mask = (regs->psw.mask & ~PSW_MASK_BA) |
+-				(__u64)(tmp & PSW32_ADDR_AMODE);
+-		} else {
+-			if (test_pt_regs_flag(regs, PIF_SYSCALL) &&
+-				addr == offsetof(struct compat_user, regs.gprs[2])) {
+-				struct pt_regs *regs = task_pt_regs(child);
+-
+-				regs->int_code = 0x20000 | (data & 0xffff);
+-			}
+-			/* gpr 0-15 */
+-			*(__u32*)((addr_t) &regs->psw + addr*2 + 4) = tmp;
+-		}
+-	} else if (addr < offsetof(struct compat_user, regs.orig_gpr2)) {
+-		/*
+-		 * access registers are stored in the thread structure
+-		 */
+-		offset = addr - offsetof(struct compat_user, regs.acrs);
+-		*(__u32*)((addr_t) &child->thread.acrs + offset) = tmp;
+-
+-	} else if (addr == offsetof(struct compat_user, regs.orig_gpr2)) {
+-		/*
+-		 * orig_gpr2 is stored on the kernel stack
+-		 */
+-		*(__u32*)((addr_t) &task_pt_regs(child)->orig_gpr2 + 4) = tmp;
+-
+-	} else if (addr < offsetof(struct compat_user, regs.fp_regs)) {
+-		/*
+-		 * prevent writess of padding hole between
+-		 * orig_gpr2 and fp_regs on s390.
+-		 */
+-		return 0;
+-
+-	} else if (addr == offsetof(struct compat_user, regs.fp_regs.fpc)) {
+-		/*
+-		 * floating point control reg. is in the thread structure
+-		 */
+-		child->thread.ufpu.fpc = data;
+-
+-	} else if (addr < offsetof(struct compat_user, regs.fp_regs) + sizeof(s390_fp_regs)) {
+-		/*
+-		 * floating point regs. are in the child->thread.ufpu.vxrs array
+-		 */
+-		offset = addr - offsetof(struct compat_user, regs.fp_regs.fprs);
+-		*(__u32 *)((addr_t)child->thread.ufpu.vxrs + 2 * offset) = tmp;
+-	} else if (addr < offsetof(struct compat_user, regs.per_info) + sizeof(struct compat_per_struct_kernel)) {
+-		/*
+-		 * Handle access to the per_info structure.
+-		 */
+-		addr -= offsetof(struct compat_user, regs.per_info);
+-		__poke_user_per_compat(child, addr, data);
+-	}
+-
+-	return 0;
+-}
+-
+-static int poke_user_compat(struct task_struct *child,
+-			    addr_t addr, addr_t data)
+-{
+-	if (!is_compat_task() || (addr & 3) ||
+-	    addr > sizeof(struct compat_user) - 3)
+-		return -EIO;
+-
+-	return __poke_user_compat(child, addr, data);
+-}
+-
+-long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
+-			compat_ulong_t caddr, compat_ulong_t cdata)
+-{
+-	unsigned long addr = caddr;
+-	unsigned long data = cdata;
+-	compat_ptrace_area parea;
+-	int copied, ret;
+-
+-	switch (request) {
+-	case PTRACE_PEEKUSR:
+-		/* read the word at location addr in the USER area. */
+-		return peek_user_compat(child, addr, data);
+-
+-	case PTRACE_POKEUSR:
+-		/* write the word at location addr in the USER area */
+-		return poke_user_compat(child, addr, data);
+-
+-	case PTRACE_PEEKUSR_AREA:
+-	case PTRACE_POKEUSR_AREA:
+-		if (copy_from_user(&parea, (void __force __user *) addr,
+-							sizeof(parea)))
+-			return -EFAULT;
+-		addr = parea.kernel_addr;
+-		data = parea.process_addr;
+-		copied = 0;
+-		while (copied < parea.len) {
+-			if (request == PTRACE_PEEKUSR_AREA)
+-				ret = peek_user_compat(child, addr, data);
+-			else {
+-				__u32 utmp;
+-				if (get_user(utmp,
+-					     (__u32 __force __user *) data))
+-					return -EFAULT;
+-				ret = poke_user_compat(child, addr, utmp);
+-			}
+-			if (ret)
+-				return ret;
+-			addr += sizeof(unsigned int);
+-			data += sizeof(unsigned int);
+-			copied += sizeof(unsigned int);
+-		}
+-		return 0;
+-	case PTRACE_GET_LAST_BREAK:
+-		return put_user(child->thread.last_break, (unsigned int __user *)data);
+-	}
+-	return compat_ptrace_request(child, request, addr, data);
+-}
+-#endif
+-
  /*
-  * sys_ipc() is the de-multiplexer for the SysV IPC calls.
-diff --git a/arch/s390/kernel/syscalls/Makefile b/arch/s390/kernel/syscalls/Makefile
-index c5d958a09ff4..d5fca0ca0890 100644
---- a/arch/s390/kernel/syscalls/Makefile
-+++ b/arch/s390/kernel/syscalls/Makefile
-@@ -1,48 +1,32 @@
- # SPDX-License-Identifier: GPL-2.0
-+kapi := arch/$(SRCARCH)/include/generated/asm
-+uapi := arch/$(SRCARCH)/include/generated/uapi/asm
+  * user_regset definitions.
+  */
+@@ -1297,225 +990,8 @@ static const struct user_regset_view user_s390_view = {
+ 	.n = ARRAY_SIZE(s390_regsets)
+ };
  
--gen	:= arch/$(ARCH)/include/generated
--kapi	:= $(gen)/asm
--uapi	:= $(gen)/uapi/asm
+-#ifdef CONFIG_COMPAT
+-static int s390_compat_regs_get(struct task_struct *target,
+-				const struct user_regset *regset,
+-				struct membuf to)
+-{
+-	unsigned n;
 -
--syscall	:= $(src)/syscall.tbl
--systbl	:= $(src)/syscalltbl
+-	if (target == current)
+-		save_access_regs(target->thread.acrs);
 -
--gen-y := $(kapi)/syscall_table.h
--kapi-hdrs-y := $(kapi)/unistd_nr.h
--uapi-hdrs-y := $(uapi)/unistd_32.h
--uapi-hdrs-y += $(uapi)/unistd_64.h
+-	for (n = 0; n < sizeof(s390_compat_regs); n += sizeof(compat_ulong_t))
+-		membuf_store(&to, __peek_user_compat(target, n));
+-	return 0;
+-}
 -
--targets += $(addprefix ../../../../,$(gen-y) $(kapi-hdrs-y) $(uapi-hdrs-y))
+-static int s390_compat_regs_set(struct task_struct *target,
+-				const struct user_regset *regset,
+-				unsigned int pos, unsigned int count,
+-				const void *kbuf, const void __user *ubuf)
+-{
+-	int rc = 0;
 -
--PHONY += kapi uapi
+-	if (target == current)
+-		save_access_regs(target->thread.acrs);
 -
--kapi:	$(gen-y) $(kapi-hdrs-y)
--uapi:	$(uapi-hdrs-y)
+-	if (kbuf) {
+-		const compat_ulong_t *k = kbuf;
+-		while (count > 0 && !rc) {
+-			rc = __poke_user_compat(target, pos, *k++);
+-			count -= sizeof(*k);
+-			pos += sizeof(*k);
+-		}
+-	} else {
+-		const compat_ulong_t  __user *u = ubuf;
+-		while (count > 0 && !rc) {
+-			compat_ulong_t word;
+-			rc = __get_user(word, u++);
+-			if (rc)
+-				break;
+-			rc = __poke_user_compat(target, pos, word);
+-			count -= sizeof(*u);
+-			pos += sizeof(*u);
+-		}
+-	}
 -
+-	if (rc == 0 && target == current)
+-		restore_access_regs(target->thread.acrs);
 -
--# Create output directory if not already present
- $(shell mkdir -p $(uapi) $(kapi))
+-	return rc;
+-}
+-
+-static int s390_compat_regs_high_get(struct task_struct *target,
+-				     const struct user_regset *regset,
+-				     struct membuf to)
+-{
+-	compat_ulong_t *gprs_high;
+-	int i;
+-
+-	gprs_high = (compat_ulong_t *)task_pt_regs(target)->gprs;
+-	for (i = 0; i < NUM_GPRS; i++, gprs_high += 2)
+-		membuf_store(&to, *gprs_high);
+-	return 0;
+-}
+-
+-static int s390_compat_regs_high_set(struct task_struct *target,
+-				     const struct user_regset *regset,
+-				     unsigned int pos, unsigned int count,
+-				     const void *kbuf, const void __user *ubuf)
+-{
+-	compat_ulong_t *gprs_high;
+-	int rc = 0;
+-
+-	gprs_high = (compat_ulong_t *)
+-		&task_pt_regs(target)->gprs[pos / sizeof(compat_ulong_t)];
+-	if (kbuf) {
+-		const compat_ulong_t *k = kbuf;
+-		while (count > 0) {
+-			*gprs_high = *k++;
+-			*gprs_high += 2;
+-			count -= sizeof(*k);
+-		}
+-	} else {
+-		const compat_ulong_t  __user *u = ubuf;
+-		while (count > 0 && !rc) {
+-			unsigned long word;
+-			rc = __get_user(word, u++);
+-			if (rc)
+-				break;
+-			*gprs_high = word;
+-			*gprs_high += 2;
+-			count -= sizeof(*u);
+-		}
+-	}
+-
+-	return rc;
+-}
+-
+-static int s390_compat_last_break_get(struct task_struct *target,
+-				      const struct user_regset *regset,
+-				      struct membuf to)
+-{
+-	compat_ulong_t last_break = target->thread.last_break;
+-
+-	return membuf_store(&to, (unsigned long)last_break);
+-}
+-
+-static int s390_compat_last_break_set(struct task_struct *target,
+-				      const struct user_regset *regset,
+-				      unsigned int pos, unsigned int count,
+-				      const void *kbuf, const void __user *ubuf)
+-{
+-	return 0;
+-}
+-
+-static const struct user_regset s390_compat_regsets[] = {
+-	{
+-		USER_REGSET_NOTE_TYPE(PRSTATUS),
+-		.n = sizeof(s390_compat_regs) / sizeof(compat_long_t),
+-		.size = sizeof(compat_long_t),
+-		.align = sizeof(compat_long_t),
+-		.regset_get = s390_compat_regs_get,
+-		.set = s390_compat_regs_set,
+-	},
+-	{
+-		USER_REGSET_NOTE_TYPE(PRFPREG),
+-		.n = sizeof(s390_fp_regs) / sizeof(compat_long_t),
+-		.size = sizeof(compat_long_t),
+-		.align = sizeof(compat_long_t),
+-		.regset_get = s390_fpregs_get,
+-		.set = s390_fpregs_set,
+-	},
+-	{
+-		USER_REGSET_NOTE_TYPE(S390_SYSTEM_CALL),
+-		.n = 1,
+-		.size = sizeof(compat_uint_t),
+-		.align = sizeof(compat_uint_t),
+-		.regset_get = s390_system_call_get,
+-		.set = s390_system_call_set,
+-	},
+-	{
+-		USER_REGSET_NOTE_TYPE(S390_LAST_BREAK),
+-		.n = 1,
+-		.size = sizeof(long),
+-		.align = sizeof(long),
+-		.regset_get = s390_compat_last_break_get,
+-		.set = s390_compat_last_break_set,
+-	},
+-	{
+-		USER_REGSET_NOTE_TYPE(S390_TDB),
+-		.n = 1,
+-		.size = 256,
+-		.align = 1,
+-		.regset_get = s390_tdb_get,
+-		.set = s390_tdb_set,
+-	},
+-	{
+-		USER_REGSET_NOTE_TYPE(S390_VXRS_LOW),
+-		.n = __NUM_VXRS_LOW,
+-		.size = sizeof(__u64),
+-		.align = sizeof(__u64),
+-		.regset_get = s390_vxrs_low_get,
+-		.set = s390_vxrs_low_set,
+-	},
+-	{
+-		USER_REGSET_NOTE_TYPE(S390_VXRS_HIGH),
+-		.n = __NUM_VXRS_HIGH,
+-		.size = sizeof(__vector128),
+-		.align = sizeof(__vector128),
+-		.regset_get = s390_vxrs_high_get,
+-		.set = s390_vxrs_high_set,
+-	},
+-	{
+-		USER_REGSET_NOTE_TYPE(S390_HIGH_GPRS),
+-		.n = sizeof(s390_compat_regs_high) / sizeof(compat_long_t),
+-		.size = sizeof(compat_long_t),
+-		.align = sizeof(compat_long_t),
+-		.regset_get = s390_compat_regs_high_get,
+-		.set = s390_compat_regs_high_set,
+-	},
+-	{
+-		USER_REGSET_NOTE_TYPE(S390_GS_CB),
+-		.n = sizeof(struct gs_cb) / sizeof(__u64),
+-		.size = sizeof(__u64),
+-		.align = sizeof(__u64),
+-		.regset_get = s390_gs_cb_get,
+-		.set = s390_gs_cb_set,
+-	},
+-	{
+-		USER_REGSET_NOTE_TYPE(S390_GS_BC),
+-		.n = sizeof(struct gs_cb) / sizeof(__u64),
+-		.size = sizeof(__u64),
+-		.align = sizeof(__u64),
+-		.regset_get = s390_gs_bc_get,
+-		.set = s390_gs_bc_set,
+-	},
+-	{
+-		USER_REGSET_NOTE_TYPE(S390_RI_CB),
+-		.n = sizeof(struct runtime_instr_cb) / sizeof(__u64),
+-		.size = sizeof(__u64),
+-		.align = sizeof(__u64),
+-		.regset_get = s390_runtime_instr_get,
+-		.set = s390_runtime_instr_set,
+-	},
+-};
+-
+-static const struct user_regset_view user_s390_compat_view = {
+-	.name = "s390",
+-	.e_machine = EM_S390,
+-	.regsets = s390_compat_regsets,
+-	.n = ARRAY_SIZE(s390_compat_regsets)
+-};
+-#endif
+-
+ const struct user_regset_view *task_user_regset_view(struct task_struct *task)
+ {
+-#ifdef CONFIG_COMPAT
+-	if (test_tsk_thread_flag(task, TIF_31BIT))
+-		return &user_s390_compat_view;
+-#endif
+ 	return &user_s390_view;
+ }
  
-+syscall := $(src)/syscall.tbl
-+syshdr := $(srctree)/scripts/syscallhdr.sh
-+systbl := $(srctree)/scripts/syscalltbl.sh
-+
- quiet_cmd_syshdr = SYSHDR  $@
--      cmd_syshdr = $(CONFIG_SHELL) '$(systbl)' -H -a $(syshdr_abi_$(basetarget)) -f "$@" < $< > $@
-+      cmd_syshdr = $(CONFIG_SHELL) $(syshdr) --emit-nr --abis common,$* $< $@
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 892fce2b7549..3c50246dc8c5 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -47,7 +47,6 @@
+ #include <linux/kexec.h>
+ #include <linux/crash_dump.h>
+ #include <linux/memory.h>
+-#include <linux/compat.h>
+ #include <linux/start_kernel.h>
+ #include <linux/hugetlb.h>
+ #include <linux/kmemleak.h>
+diff --git a/arch/s390/kernel/signal.c b/arch/s390/kernel/signal.c
+index e48013cd832c..e7775d121fa1 100644
+--- a/arch/s390/kernel/signal.c
++++ b/arch/s390/kernel/signal.c
+@@ -27,7 +27,6 @@
+ #include <linux/personality.h>
+ #include <linux/binfmts.h>
+ #include <linux/syscalls.h>
+-#include <linux/compat.h>
+ #include <asm/ucontext.h>
+ #include <linux/uaccess.h>
+ #include <asm/vdso-symbols.h>
+@@ -290,12 +289,6 @@ static int setup_frame(int sig, struct k_sigaction *ka,
+ 	unsigned long restorer;
+ 	size_t frame_size;
  
--quiet_cmd_sysnr = SYSNR   $@
--      cmd_sysnr = $(CONFIG_SHELL) '$(systbl)' -N -a $(sysnr_abi_$(basetarget)) < $< > $@
-+quiet_cmd_systbl = SYSTBL  $@
-+      cmd_systbl = $(CONFIG_SHELL) $(systbl) --abis common,$* $< $@
+-	/*
+-	 * gprs_high are only present for a 31-bit task running on
+-	 * a 64-bit kernel (see compat_signal.c) but the space for
+-	 * gprs_high need to be allocated if vector registers are
+-	 * included in the signal frame on a 31-bit system.
+-	 */
+ 	frame_size = sizeof(*frame) - sizeof(frame->sregs_ext);
+ 	if (cpu_has_vx())
+ 		frame_size += sizeof(frame->sregs_ext);
+@@ -367,12 +360,6 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
+ 	size_t frame_size;
  
--quiet_cmd_syscalls = SYSTBL  $@
--      cmd_syscalls = $(CONFIG_SHELL) '$(systbl)' -S < $< > $@
+ 	frame_size = sizeof(struct rt_sigframe) - sizeof(_sigregs_ext);
+-	/*
+-	 * gprs_high are only present for a 31-bit task running on
+-	 * a 64-bit kernel (see compat_signal.c) but the space for
+-	 * gprs_high need to be allocated if vector registers are
+-	 * included in the signal frame on a 31-bit system.
+-	 */
+ 	uc_flags = 0;
+ 	if (cpu_has_vx()) {
+ 		frame_size += sizeof(_sigregs_ext);
+@@ -490,10 +477,7 @@ void arch_do_signal_or_restart(struct pt_regs *regs)
+ 		clear_pt_regs_flag(regs, PIF_SYSCALL);
+ 
+ 		rseq_signal_deliver(&ksig, regs);
+-		if (is_compat_task())
+-			handle_signal32(&ksig, oldset, regs);
+-		else
+-			handle_signal(&ksig, oldset, regs);
++		handle_signal(&ksig, oldset, regs);
+ 		return;
+ 	}
+ 
+@@ -506,10 +490,7 @@ void arch_do_signal_or_restart(struct pt_regs *regs)
+ 			/* Restart with sys_restart_syscall */
+ 			regs->gprs[2] = regs->orig_gpr2;
+ 			current->restart_block.arch_data = regs->psw.addr;
+-			if (is_compat_task())
+-				regs->psw.addr = VDSO32_SYMBOL(current, restart_syscall);
+-			else
+-				regs->psw.addr = VDSO64_SYMBOL(current, restart_syscall);
++			regs->psw.addr = VDSO64_SYMBOL(current, restart_syscall);
+ 			if (test_thread_flag(TIF_SINGLE_STEP))
+ 				clear_thread_flag(TIF_PER_TRAP);
+ 			break;
+diff --git a/arch/s390/kernel/stacktrace.c b/arch/s390/kernel/stacktrace.c
+index b153a395f46d..3aae7f70e6ab 100644
+--- a/arch/s390/kernel/stacktrace.c
++++ b/arch/s390/kernel/stacktrace.c
+@@ -8,7 +8,6 @@
+ #include <linux/perf_event.h>
+ #include <linux/stacktrace.h>
+ #include <linux/uaccess.h>
+-#include <linux/compat.h>
+ #include <asm/asm-offsets.h>
+ #include <asm/stacktrace.h>
+ #include <asm/unwind.h>
+@@ -107,8 +106,6 @@ void arch_stack_walk_user_common(stack_trace_consume_fn consume_entry, void *coo
+ 	unsigned long ip, sp;
+ 	bool first = true;
+ 
+-	if (is_compat_task())
+-		return;
+ 	if (!current->mm)
+ 		return;
+ 	ip = instruction_pointer(regs);
+diff --git a/arch/s390/kernel/uprobes.c b/arch/s390/kernel/uprobes.c
+index 5b0633ea8d93..baa462fae622 100644
+--- a/arch/s390/kernel/uprobes.c
++++ b/arch/s390/kernel/uprobes.c
+@@ -8,7 +8,6 @@
+ 
+ #include <linux/uaccess.h>
+ #include <linux/uprobes.h>
+-#include <linux/compat.h>
+ #include <linux/kdebug.h>
+ #include <linux/sched/task_stack.h>
+ 
+@@ -29,7 +28,7 @@ int arch_uprobe_pre_xol(struct arch_uprobe *auprobe, struct pt_regs *regs)
+ {
+ 	if (psw_bits(regs->psw).eaba == PSW_BITS_AMODE_24BIT)
+ 		return -EINVAL;
+-	if (!is_compat_task() && psw_bits(regs->psw).eaba == PSW_BITS_AMODE_31BIT)
++	if (psw_bits(regs->psw).eaba == PSW_BITS_AMODE_31BIT)
+ 		return -EINVAL;
+ 	clear_thread_flag(TIF_PER_TRAP);
+ 	auprobe->saved_per = psw_bits(regs->psw).per;
+@@ -373,8 +372,7 @@ static void handle_insn_ril(struct arch_uprobe *auprobe, struct pt_regs *regs)
+ bool arch_uprobe_skip_sstep(struct arch_uprobe *auprobe, struct pt_regs *regs)
+ {
+ 	if ((psw_bits(regs->psw).eaba == PSW_BITS_AMODE_24BIT) ||
+-	    ((psw_bits(regs->psw).eaba == PSW_BITS_AMODE_31BIT) &&
+-	     !is_compat_task())) {
++	    (psw_bits(regs->psw).eaba == PSW_BITS_AMODE_31BIT)) {
+ 		regs->psw.addr = __rewind_psw(regs->psw, UPROBE_SWBP_INSN_SIZE);
+ 		do_report_trap(regs, SIGILL, ILL_ILLADR, NULL);
+ 		return true;
+diff --git a/arch/s390/kernel/vdso.c b/arch/s390/kernel/vdso.c
+index 430feb1a5013..83cc67cf21c8 100644
+--- a/arch/s390/kernel/vdso.c
++++ b/arch/s390/kernel/vdso.c
+@@ -7,7 +7,6 @@
+  */
+ 
+ #include <linux/binfmts.h>
+-#include <linux/compat.h>
+ #include <linux/elf.h>
+ #include <linux/errno.h>
+ #include <linux/init.h>
+@@ -24,7 +23,6 @@
+ #include <asm/vdso.h>
+ 
+ extern char vdso64_start[], vdso64_end[];
+-extern char vdso32_start[], vdso32_end[];
+ 
+ static int vdso_mremap(const struct vm_special_mapping *sm,
+ 		       struct vm_area_struct *vma)
+@@ -38,11 +36,6 @@ static struct vm_special_mapping vdso64_mapping = {
+ 	.mremap = vdso_mremap,
+ };
+ 
+-static struct vm_special_mapping vdso32_mapping = {
+-	.name = "[vdso]",
+-	.mremap = vdso_mremap,
+-};
 -
--syshdr_abi_unistd_32 := common,32
--$(uapi)/unistd_32.h: $(syscall) $(systbl) FORCE
--	$(call if_changed,syshdr)
+ int vdso_getcpu_init(void)
+ {
+ 	set_tod_programmable_field(smp_processor_id());
+@@ -62,13 +55,8 @@ static int map_vdso(unsigned long addr, unsigned long vdso_mapping_len)
+ 	if (mmap_write_lock_killable(mm))
+ 		return -EINTR;
+ 
+-	if (is_compat_task()) {
+-		vdso_text_len = vdso32_end - vdso32_start;
+-		vdso_mapping = &vdso32_mapping;
+-	} else {
+-		vdso_text_len = vdso64_end - vdso64_start;
+-		vdso_mapping = &vdso64_mapping;
+-	}
++	vdso_text_len = vdso64_end - vdso64_start;
++	vdso_mapping = &vdso64_mapping;
+ 	vvar_start = get_unmapped_area(NULL, addr, vdso_mapping_len, 0, 0);
+ 	rc = vvar_start;
+ 	if (IS_ERR_VALUE(vvar_start))
+@@ -122,13 +110,7 @@ static unsigned long vdso_addr(unsigned long start, unsigned long len)
+ 
+ unsigned long vdso_text_size(void)
+ {
+-	unsigned long size;
 -
--syshdr_abi_unistd_64 := common,64
--$(uapi)/unistd_64.h: $(syscall) $(systbl) FORCE
-+$(uapi)/unistd_%.h: $(syscall) $(syshdr) FORCE
- 	$(call if_changed,syshdr)
+-	if (is_compat_task())
+-		size = vdso32_end - vdso32_start;
+-	else
+-		size = vdso64_end - vdso64_start;
+-	return PAGE_ALIGN(size);
++	return PAGE_ALIGN(vdso64_end - vdso64_start);
+ }
  
- $(kapi)/syscall_table.h: $(syscall) $(systbl) FORCE
--	$(call if_changed,syscalls)
-+	$(call if_changed,systbl)
- 
--sysnr_abi_unistd_nr := common,32,64
--$(kapi)/unistd_nr.h: $(syscall) $(systbl) FORCE
--	$(call if_changed,sysnr)
-+uapisyshdr-y		+= unistd_64.h
-+kapisyshdr-y		+= syscall_table.h
-+
-+uapisyshdr-y	:= $(addprefix $(uapi)/, $(uapisyshdr-y))
-+kapisyshdr-y	:= $(addprefix $(kapi)/, $(kapisyshdr-y))
-+targets		+= $(addprefix ../../../../, $(uapisyshdr-y) $(kapisyshdr-y))
-+
-+PHONY += all
-+all: $(uapisyshdr-y) $(kapisyshdr-y)
-+	@:
-diff --git a/arch/s390/kernel/syscalls/syscall.tbl b/arch/s390/kernel/syscalls/syscall.tbl
-index 8a6744d658db..eb1175d627cf 100644
---- a/arch/s390/kernel/syscalls/syscall.tbl
-+++ b/arch/s390/kernel/syscalls/syscall.tbl
-@@ -3,472 +3,396 @@
- # System call table for s390
- #
- # Format:
-+# <nr> <abi> <syscall> <entry>
- #
--# <nr> <abi> <syscall> <entry-64bit> <compat-entry>
--#
--# where <abi> can be common, 64, or 32
-+# <abi> is always common.
- 
--1    common	exit			sys_exit			sys_exit
--2    common	fork			sys_fork			sys_fork
--3    common	read			sys_read			compat_sys_s390_read
--4    common	write			sys_write			compat_sys_s390_write
--5    common	open			sys_open			compat_sys_open
--6    common	close			sys_close			sys_close
--7    common	restart_syscall		sys_restart_syscall		sys_restart_syscall
--8    common	creat			sys_creat			sys_creat
--9    common	link			sys_link			sys_link
--10   common	unlink			sys_unlink			sys_unlink
--11   common	execve			sys_execve			compat_sys_execve
--12   common	chdir			sys_chdir			sys_chdir
--13   32		time			-				sys_time32
--14   common	mknod			sys_mknod			sys_mknod
--15   common	chmod			sys_chmod			sys_chmod
--16   32		lchown			-				sys_lchown16
--19   common	lseek			sys_lseek			compat_sys_lseek
--20   common	getpid			sys_getpid			sys_getpid
--21   common	mount			sys_mount			sys_mount
--22   common	umount			sys_oldumount			sys_oldumount
--23   32		setuid			-				sys_setuid16
--24   32		getuid			-				sys_getuid16
--25   32		stime			-				sys_stime32
--26   common	ptrace			sys_ptrace			compat_sys_ptrace
--27   common	alarm			sys_alarm			sys_alarm
--29   common	pause			sys_pause			sys_pause
--30   common	utime			sys_utime			sys_utime32
--33   common	access			sys_access			sys_access
--34   common	nice			sys_nice			sys_nice
--36   common	sync			sys_sync			sys_sync
--37   common	kill			sys_kill			sys_kill
--38   common	rename			sys_rename			sys_rename
--39   common	mkdir			sys_mkdir			sys_mkdir
--40   common	rmdir			sys_rmdir			sys_rmdir
--41   common	dup			sys_dup				sys_dup
--42   common	pipe			sys_pipe			sys_pipe
--43   common	times			sys_times			compat_sys_times
--45   common	brk			sys_brk				sys_brk
--46   32		setgid			-				sys_setgid16
--47   32		getgid			-				sys_getgid16
--48   common	signal			sys_signal			sys_signal
--49   32		geteuid			-				sys_geteuid16
--50   32		getegid			-				sys_getegid16
--51   common	acct			sys_acct			sys_acct
--52   common	umount2			sys_umount			sys_umount
--54   common	ioctl			sys_ioctl			compat_sys_ioctl
--55   common	fcntl			sys_fcntl			compat_sys_fcntl
--57   common	setpgid			sys_setpgid			sys_setpgid
--60   common	umask			sys_umask			sys_umask
--61   common	chroot			sys_chroot			sys_chroot
--62   common	ustat			sys_ustat			compat_sys_ustat
--63   common	dup2			sys_dup2			sys_dup2
--64   common	getppid			sys_getppid			sys_getppid
--65   common	getpgrp			sys_getpgrp			sys_getpgrp
--66   common	setsid			sys_setsid			sys_setsid
--67   common	sigaction		sys_sigaction			compat_sys_sigaction
--70   32		setreuid		-				sys_setreuid16
--71   32		setregid		-				sys_setregid16
--72   common	sigsuspend		sys_sigsuspend			sys_sigsuspend
--73   common	sigpending		sys_sigpending			compat_sys_sigpending
--74   common	sethostname		sys_sethostname			sys_sethostname
--75   common	setrlimit		sys_setrlimit			compat_sys_setrlimit
--76   32		getrlimit		-				compat_sys_old_getrlimit
--77   common	getrusage		sys_getrusage			compat_sys_getrusage
--78   common	gettimeofday		sys_gettimeofday		compat_sys_gettimeofday
--79   common	settimeofday		sys_settimeofday		compat_sys_settimeofday
--80   32		getgroups		-				sys_getgroups16
--81   32		setgroups		-				sys_setgroups16
--83   common	symlink			sys_symlink			sys_symlink
--85   common	readlink		sys_readlink			sys_readlink
--86   common	uselib			sys_uselib			sys_uselib
--87   common	swapon			sys_swapon			sys_swapon
--88   common	reboot			sys_reboot			sys_reboot
--89   common	readdir			-				compat_sys_old_readdir
--90   common	mmap			sys_old_mmap			compat_sys_s390_old_mmap
--91   common	munmap			sys_munmap			sys_munmap
--92   common	truncate		sys_truncate			compat_sys_truncate
--93   common	ftruncate		sys_ftruncate			compat_sys_ftruncate
--94   common	fchmod			sys_fchmod			sys_fchmod
--95   32		fchown			-				sys_fchown16
--96   common	getpriority		sys_getpriority			sys_getpriority
--97   common	setpriority		sys_setpriority			sys_setpriority
--99   common	statfs			sys_statfs			compat_sys_statfs
--100  common	fstatfs			sys_fstatfs			compat_sys_fstatfs
--101  32		ioperm			-				-
--102  common	socketcall		sys_socketcall			compat_sys_socketcall
--103  common	syslog			sys_syslog			sys_syslog
--104  common	setitimer		sys_setitimer			compat_sys_setitimer
--105  common	getitimer		sys_getitimer			compat_sys_getitimer
--106  common	stat			sys_newstat			compat_sys_newstat
--107  common	lstat			sys_newlstat			compat_sys_newlstat
--108  common	fstat			sys_newfstat			compat_sys_newfstat
--110  common	lookup_dcookie		-				-
--111  common	vhangup			sys_vhangup			sys_vhangup
--112  common	idle			-				-
--114  common	wait4			sys_wait4			compat_sys_wait4
--115  common	swapoff			sys_swapoff			sys_swapoff
--116  common	sysinfo			sys_sysinfo			compat_sys_sysinfo
--117  common	ipc			sys_s390_ipc			compat_sys_s390_ipc
--118  common	fsync			sys_fsync			sys_fsync
--119  common	sigreturn		sys_sigreturn			compat_sys_sigreturn
--120  common	clone			sys_clone			sys_clone
--121  common	setdomainname		sys_setdomainname		sys_setdomainname
--122  common	uname			sys_newuname			sys_newuname
--124  common	adjtimex		sys_adjtimex			sys_adjtimex_time32
--125  common	mprotect		sys_mprotect			sys_mprotect
--126  common	sigprocmask		sys_sigprocmask			compat_sys_sigprocmask
--127  common	create_module		-				-
--128  common	init_module		sys_init_module			sys_init_module
--129  common	delete_module		sys_delete_module		sys_delete_module
--130  common	get_kernel_syms		-				-
--131  common	quotactl		sys_quotactl			sys_quotactl
--132  common	getpgid			sys_getpgid			sys_getpgid
--133  common	fchdir			sys_fchdir			sys_fchdir
--134  common	bdflush			sys_ni_syscall			sys_ni_syscall
--135  common	sysfs			sys_sysfs			sys_sysfs
--136  common	personality		sys_s390_personality		sys_s390_personality
--137  common	afs_syscall		-				-
--138  32		setfsuid		-				sys_setfsuid16
--139  32		setfsgid		-				sys_setfsgid16
--140  32		_llseek			-				sys_llseek
--141  common	getdents		sys_getdents			compat_sys_getdents
--142  32		_newselect		-				compat_sys_select
--142  64		select			sys_select			-
--143  common	flock			sys_flock			sys_flock
--144  common	msync			sys_msync			sys_msync
--145  common	readv			sys_readv			sys_readv
--146  common	writev			sys_writev			sys_writev
--147  common	getsid			sys_getsid			sys_getsid
--148  common	fdatasync		sys_fdatasync			sys_fdatasync
--149  common	_sysctl			-				-
--150  common	mlock			sys_mlock			sys_mlock
--151  common	munlock			sys_munlock			sys_munlock
--152  common	mlockall		sys_mlockall			sys_mlockall
--153  common	munlockall		sys_munlockall			sys_munlockall
--154  common	sched_setparam		sys_sched_setparam		sys_sched_setparam
--155  common	sched_getparam		sys_sched_getparam		sys_sched_getparam
--156  common	sched_setscheduler	sys_sched_setscheduler		sys_sched_setscheduler
--157  common	sched_getscheduler	sys_sched_getscheduler		sys_sched_getscheduler
--158  common	sched_yield		sys_sched_yield			sys_sched_yield
--159  common	sched_get_priority_max	sys_sched_get_priority_max	sys_sched_get_priority_max
--160  common	sched_get_priority_min	sys_sched_get_priority_min	sys_sched_get_priority_min
--161  common	sched_rr_get_interval	sys_sched_rr_get_interval	sys_sched_rr_get_interval_time32
--162  common	nanosleep		sys_nanosleep			sys_nanosleep_time32
--163  common	mremap			sys_mremap			sys_mremap
--164  32		setresuid		-				sys_setresuid16
--165  32		getresuid		-				sys_getresuid16
--167  common	query_module		-				-
--168  common	poll			sys_poll			sys_poll
--169  common	nfsservctl		-				-
--170  32		setresgid		-				sys_setresgid16
--171  32		getresgid		-				sys_getresgid16
--172  common	prctl			sys_prctl			sys_prctl
--173  common	rt_sigreturn		sys_rt_sigreturn		compat_sys_rt_sigreturn
--174  common	rt_sigaction		sys_rt_sigaction		compat_sys_rt_sigaction
--175  common	rt_sigprocmask		sys_rt_sigprocmask		compat_sys_rt_sigprocmask
--176  common	rt_sigpending		sys_rt_sigpending		compat_sys_rt_sigpending
--177  common	rt_sigtimedwait		sys_rt_sigtimedwait		compat_sys_rt_sigtimedwait_time32
--178  common	rt_sigqueueinfo		sys_rt_sigqueueinfo		compat_sys_rt_sigqueueinfo
--179  common	rt_sigsuspend		sys_rt_sigsuspend		compat_sys_rt_sigsuspend
--180  common	pread64			sys_pread64			compat_sys_s390_pread64
--181  common	pwrite64		sys_pwrite64			compat_sys_s390_pwrite64
--182  32		chown			-				sys_chown16
--183  common	getcwd			sys_getcwd			sys_getcwd
--184  common	capget			sys_capget			sys_capget
--185  common	capset			sys_capset			sys_capset
--186  common	sigaltstack		sys_sigaltstack			compat_sys_sigaltstack
--187  common	sendfile		sys_sendfile64			compat_sys_sendfile
--188  common	getpmsg			-				-
--189  common	putpmsg			-				-
--190  common	vfork			sys_vfork			sys_vfork
--191  32		ugetrlimit		-				compat_sys_getrlimit
--191  64		getrlimit		sys_getrlimit			-
--192  32		mmap2			-				compat_sys_s390_mmap2
--193  32		truncate64		-				compat_sys_s390_truncate64
--194  32		ftruncate64		-				compat_sys_s390_ftruncate64
--195  32		stat64			-				compat_sys_s390_stat64
--196  32		lstat64			-				compat_sys_s390_lstat64
--197  32		fstat64			-				compat_sys_s390_fstat64
--198  32		lchown32		-				sys_lchown
--198  64		lchown			sys_lchown			-
--199  32		getuid32		-				sys_getuid
--199  64		getuid			sys_getuid			-
--200  32		getgid32		-				sys_getgid
--200  64		getgid			sys_getgid			-
--201  32		geteuid32		-				sys_geteuid
--201  64		geteuid			sys_geteuid			-
--202  32		getegid32		-				sys_getegid
--202  64		getegid			sys_getegid			-
--203  32		setreuid32		-				sys_setreuid
--203  64		setreuid		sys_setreuid			-
--204  32		setregid32		-				sys_setregid
--204  64		setregid		sys_setregid			-
--205  32		getgroups32		-				sys_getgroups
--205  64		getgroups		sys_getgroups			-
--206  32		setgroups32		-				sys_setgroups
--206  64		setgroups		sys_setgroups			-
--207  32		fchown32		-				sys_fchown
--207  64		fchown			sys_fchown			-
--208  32		setresuid32		-				sys_setresuid
--208  64		setresuid		sys_setresuid			-
--209  32		getresuid32		-				sys_getresuid
--209  64		getresuid		sys_getresuid			-
--210  32		setresgid32		-				sys_setresgid
--210  64		setresgid		sys_setresgid			-
--211  32		getresgid32		-				sys_getresgid
--211  64		getresgid		sys_getresgid			-
--212  32		chown32			-				sys_chown
--212  64		chown			sys_chown			-
--213  32		setuid32		-				sys_setuid
--213  64		setuid			sys_setuid			-
--214  32		setgid32		-				sys_setgid
--214  64		setgid			sys_setgid			-
--215  32		setfsuid32		-				sys_setfsuid
--215  64		setfsuid		sys_setfsuid			-
--216  32		setfsgid32		-				sys_setfsgid
--216  64		setfsgid		sys_setfsgid			-
--217  common	pivot_root		sys_pivot_root			sys_pivot_root
--218  common	mincore			sys_mincore			sys_mincore
--219  common	madvise			sys_madvise			sys_madvise
--220  common	getdents64		sys_getdents64			sys_getdents64
--221  32		fcntl64			-				compat_sys_fcntl64
--222  common	readahead		sys_readahead			compat_sys_s390_readahead
--223  32		sendfile64		-				compat_sys_sendfile64
--224  common	setxattr		sys_setxattr			sys_setxattr
--225  common	lsetxattr		sys_lsetxattr			sys_lsetxattr
--226  common	fsetxattr		sys_fsetxattr			sys_fsetxattr
--227  common	getxattr		sys_getxattr			sys_getxattr
--228  common	lgetxattr		sys_lgetxattr			sys_lgetxattr
--229  common	fgetxattr		sys_fgetxattr			sys_fgetxattr
--230  common	listxattr		sys_listxattr			sys_listxattr
--231  common	llistxattr		sys_llistxattr			sys_llistxattr
--232  common	flistxattr		sys_flistxattr			sys_flistxattr
--233  common	removexattr		sys_removexattr			sys_removexattr
--234  common	lremovexattr		sys_lremovexattr		sys_lremovexattr
--235  common	fremovexattr		sys_fremovexattr		sys_fremovexattr
--236  common	gettid			sys_gettid			sys_gettid
--237  common	tkill			sys_tkill			sys_tkill
--238  common	futex			sys_futex			sys_futex_time32
--239  common	sched_setaffinity	sys_sched_setaffinity		compat_sys_sched_setaffinity
--240  common	sched_getaffinity	sys_sched_getaffinity		compat_sys_sched_getaffinity
--241  common	tgkill			sys_tgkill			sys_tgkill
--243  common	io_setup		sys_io_setup			compat_sys_io_setup
--244  common	io_destroy		sys_io_destroy			sys_io_destroy
--245  common	io_getevents		sys_io_getevents		sys_io_getevents_time32
--246  common	io_submit		sys_io_submit			compat_sys_io_submit
--247  common	io_cancel		sys_io_cancel			sys_io_cancel
--248  common	exit_group		sys_exit_group			sys_exit_group
--249  common	epoll_create		sys_epoll_create		sys_epoll_create
--250  common	epoll_ctl		sys_epoll_ctl			sys_epoll_ctl
--251  common	epoll_wait		sys_epoll_wait			sys_epoll_wait
--252  common	set_tid_address		sys_set_tid_address		sys_set_tid_address
--253  common	fadvise64		sys_fadvise64_64		compat_sys_s390_fadvise64
--254  common	timer_create		sys_timer_create		compat_sys_timer_create
--255  common	timer_settime		sys_timer_settime		sys_timer_settime32
--256  common	timer_gettime		sys_timer_gettime		sys_timer_gettime32
--257  common	timer_getoverrun	sys_timer_getoverrun		sys_timer_getoverrun
--258  common	timer_delete		sys_timer_delete		sys_timer_delete
--259  common	clock_settime		sys_clock_settime		sys_clock_settime32
--260  common	clock_gettime		sys_clock_gettime		sys_clock_gettime32
--261  common	clock_getres		sys_clock_getres		sys_clock_getres_time32
--262  common	clock_nanosleep		sys_clock_nanosleep		sys_clock_nanosleep_time32
--264  32		fadvise64_64		-				compat_sys_s390_fadvise64_64
--265  common	statfs64		sys_statfs64			compat_sys_statfs64
--266  common	fstatfs64		sys_fstatfs64			compat_sys_fstatfs64
--267  common	remap_file_pages	sys_remap_file_pages		sys_remap_file_pages
--268  common	mbind			sys_mbind			sys_mbind
--269  common	get_mempolicy		sys_get_mempolicy		sys_get_mempolicy
--270  common	set_mempolicy		sys_set_mempolicy		sys_set_mempolicy
--271  common	mq_open			sys_mq_open			compat_sys_mq_open
--272  common	mq_unlink		sys_mq_unlink			sys_mq_unlink
--273  common	mq_timedsend		sys_mq_timedsend		sys_mq_timedsend_time32
--274  common	mq_timedreceive		sys_mq_timedreceive		sys_mq_timedreceive_time32
--275  common	mq_notify		sys_mq_notify			compat_sys_mq_notify
--276  common	mq_getsetattr		sys_mq_getsetattr		compat_sys_mq_getsetattr
--277  common	kexec_load		sys_kexec_load			compat_sys_kexec_load
--278  common	add_key			sys_add_key			sys_add_key
--279  common	request_key		sys_request_key			sys_request_key
--280  common	keyctl			sys_keyctl			compat_sys_keyctl
--281  common	waitid			sys_waitid			compat_sys_waitid
--282  common	ioprio_set		sys_ioprio_set			sys_ioprio_set
--283  common	ioprio_get		sys_ioprio_get			sys_ioprio_get
--284  common	inotify_init		sys_inotify_init		sys_inotify_init
--285  common	inotify_add_watch	sys_inotify_add_watch		sys_inotify_add_watch
--286  common	inotify_rm_watch	sys_inotify_rm_watch		sys_inotify_rm_watch
--287  common	migrate_pages		sys_migrate_pages		sys_migrate_pages
--288  common	openat			sys_openat			compat_sys_openat
--289  common	mkdirat			sys_mkdirat			sys_mkdirat
--290  common	mknodat			sys_mknodat			sys_mknodat
--291  common	fchownat		sys_fchownat			sys_fchownat
--292  common	futimesat		sys_futimesat			sys_futimesat_time32
--293  32		fstatat64		-				compat_sys_s390_fstatat64
--293  64		newfstatat		sys_newfstatat			-
--294  common	unlinkat		sys_unlinkat			sys_unlinkat
--295  common	renameat		sys_renameat			sys_renameat
--296  common	linkat			sys_linkat			sys_linkat
--297  common	symlinkat		sys_symlinkat			sys_symlinkat
--298  common	readlinkat		sys_readlinkat			sys_readlinkat
--299  common	fchmodat		sys_fchmodat			sys_fchmodat
--300  common	faccessat		sys_faccessat			sys_faccessat
--301  common	pselect6		sys_pselect6			compat_sys_pselect6_time32
--302  common	ppoll			sys_ppoll			compat_sys_ppoll_time32
--303  common	unshare			sys_unshare			sys_unshare
--304  common	set_robust_list		sys_set_robust_list		compat_sys_set_robust_list
--305  common	get_robust_list		sys_get_robust_list		compat_sys_get_robust_list
--306  common	splice			sys_splice			sys_splice
--307  common	sync_file_range		sys_sync_file_range		compat_sys_s390_sync_file_range
--308  common	tee			sys_tee				sys_tee
--309  common	vmsplice		sys_vmsplice			sys_vmsplice
--310  common	move_pages		sys_move_pages			sys_move_pages
--311  common	getcpu			sys_getcpu			sys_getcpu
--312  common	epoll_pwait		sys_epoll_pwait			compat_sys_epoll_pwait
--313  common	utimes			sys_utimes			sys_utimes_time32
--314  common	fallocate		sys_fallocate			compat_sys_s390_fallocate
--315  common	utimensat		sys_utimensat			sys_utimensat_time32
--316  common	signalfd		sys_signalfd			compat_sys_signalfd
--317  common	timerfd			-				-
--318  common	eventfd			sys_eventfd			sys_eventfd
--319  common	timerfd_create		sys_timerfd_create		sys_timerfd_create
--320  common	timerfd_settime		sys_timerfd_settime		sys_timerfd_settime32
--321  common	timerfd_gettime		sys_timerfd_gettime		sys_timerfd_gettime32
--322  common	signalfd4		sys_signalfd4			compat_sys_signalfd4
--323  common	eventfd2		sys_eventfd2			sys_eventfd2
--324  common	inotify_init1		sys_inotify_init1		sys_inotify_init1
--325  common	pipe2			sys_pipe2			sys_pipe2
--326  common	dup3			sys_dup3			sys_dup3
--327  common	epoll_create1		sys_epoll_create1		sys_epoll_create1
--328  common	preadv			sys_preadv			compat_sys_preadv
--329  common	pwritev			sys_pwritev			compat_sys_pwritev
--330  common	rt_tgsigqueueinfo	sys_rt_tgsigqueueinfo		compat_sys_rt_tgsigqueueinfo
--331  common	perf_event_open		sys_perf_event_open		sys_perf_event_open
--332  common	fanotify_init		sys_fanotify_init		sys_fanotify_init
--333  common	fanotify_mark		sys_fanotify_mark		compat_sys_fanotify_mark
--334  common	prlimit64		sys_prlimit64			sys_prlimit64
--335  common	name_to_handle_at	sys_name_to_handle_at		sys_name_to_handle_at
--336  common	open_by_handle_at	sys_open_by_handle_at		compat_sys_open_by_handle_at
--337  common	clock_adjtime		sys_clock_adjtime		sys_clock_adjtime32
--338  common	syncfs			sys_syncfs			sys_syncfs
--339  common	setns			sys_setns			sys_setns
--340  common	process_vm_readv	sys_process_vm_readv		sys_process_vm_readv
--341  common	process_vm_writev	sys_process_vm_writev		sys_process_vm_writev
--342  common	s390_runtime_instr	sys_s390_runtime_instr		sys_s390_runtime_instr
--343  common	kcmp			sys_kcmp			sys_kcmp
--344  common	finit_module		sys_finit_module		sys_finit_module
--345  common	sched_setattr		sys_sched_setattr		sys_sched_setattr
--346  common	sched_getattr		sys_sched_getattr		sys_sched_getattr
--347  common	renameat2		sys_renameat2			sys_renameat2
--348  common	seccomp			sys_seccomp			sys_seccomp
--349  common	getrandom		sys_getrandom			sys_getrandom
--350  common	memfd_create		sys_memfd_create		sys_memfd_create
--351  common	bpf			sys_bpf				sys_bpf
--352  common	s390_pci_mmio_write	sys_s390_pci_mmio_write		sys_s390_pci_mmio_write
--353  common	s390_pci_mmio_read	sys_s390_pci_mmio_read		sys_s390_pci_mmio_read
--354  common	execveat		sys_execveat			compat_sys_execveat
--355  common	userfaultfd		sys_userfaultfd			sys_userfaultfd
--356  common	membarrier		sys_membarrier			sys_membarrier
--357  common	recvmmsg		sys_recvmmsg			compat_sys_recvmmsg_time32
--358  common	sendmmsg		sys_sendmmsg			compat_sys_sendmmsg
--359  common	socket			sys_socket			sys_socket
--360  common	socketpair		sys_socketpair			sys_socketpair
--361  common	bind			sys_bind			sys_bind
--362  common	connect			sys_connect			sys_connect
--363  common	listen			sys_listen			sys_listen
--364  common	accept4			sys_accept4			sys_accept4
--365  common	getsockopt		sys_getsockopt			sys_getsockopt
--366  common	setsockopt		sys_setsockopt			sys_setsockopt
--367  common	getsockname		sys_getsockname			sys_getsockname
--368  common	getpeername		sys_getpeername			sys_getpeername
--369  common	sendto			sys_sendto			sys_sendto
--370  common	sendmsg			sys_sendmsg			compat_sys_sendmsg
--371  common	recvfrom		sys_recvfrom			compat_sys_recvfrom
--372  common	recvmsg			sys_recvmsg			compat_sys_recvmsg
--373  common	shutdown		sys_shutdown			sys_shutdown
--374  common	mlock2			sys_mlock2			sys_mlock2
--375  common	copy_file_range		sys_copy_file_range		sys_copy_file_range
--376  common	preadv2			sys_preadv2			compat_sys_preadv2
--377  common	pwritev2		sys_pwritev2			compat_sys_pwritev2
--378  common	s390_guarded_storage	sys_s390_guarded_storage	sys_s390_guarded_storage
--379  common	statx			sys_statx			sys_statx
--380  common	s390_sthyi		sys_s390_sthyi			sys_s390_sthyi
--381  common	kexec_file_load		sys_kexec_file_load		sys_kexec_file_load
--382  common	io_pgetevents		sys_io_pgetevents		compat_sys_io_pgetevents
--383  common	rseq			sys_rseq			sys_rseq
--384  common	pkey_mprotect		sys_pkey_mprotect		sys_pkey_mprotect
--385  common	pkey_alloc		sys_pkey_alloc			sys_pkey_alloc
--386  common	pkey_free		sys_pkey_free			sys_pkey_free
-+1	common	exit				sys_exit
-+2	common	fork				sys_fork
-+3	common	read				sys_read
-+4	common	write				sys_write
-+5	common	open				sys_open
-+6	common	close				sys_close
-+7	common	restart_syscall			sys_restart_syscall
-+8	common	creat				sys_creat
-+9	common	link				sys_link
-+10	common	unlink				sys_unlink
-+11	common	execve				sys_execve
-+12	common	chdir				sys_chdir
-+14	common	mknod				sys_mknod
-+15	common	chmod				sys_chmod
-+19	common	lseek				sys_lseek
-+20	common	getpid				sys_getpid
-+21	common	mount				sys_mount
-+22	common	umount				sys_oldumount
-+26	common	ptrace				sys_ptrace
-+27	common	alarm				sys_alarm
-+29	common	pause				sys_pause
-+30	common	utime				sys_utime
-+33	common	access				sys_access
-+34	common	nice				sys_nice
-+36	common	sync				sys_sync
-+37	common	kill				sys_kill
-+38	common	rename				sys_rename
-+39	common	mkdir				sys_mkdir
-+40	common	rmdir				sys_rmdir
-+41	common	dup				sys_dup
-+42	common	pipe				sys_pipe
-+43	common	times				sys_times
-+45	common	brk				sys_brk
-+48	common	signal				sys_signal
-+51	common	acct				sys_acct
-+52	common	umount2				sys_umount
-+54	common	ioctl				sys_ioctl
-+55	common	fcntl				sys_fcntl
-+57	common	setpgid				sys_setpgid
-+60	common	umask				sys_umask
-+61	common	chroot				sys_chroot
-+62	common	ustat				sys_ustat
-+63	common	dup2				sys_dup2
-+64	common	getppid				sys_getppid
-+65	common	getpgrp				sys_getpgrp
-+66	common	setsid				sys_setsid
-+67	common	sigaction			sys_sigaction
-+72	common	sigsuspend			sys_sigsuspend
-+73	common	sigpending			sys_sigpending
-+74	common	sethostname			sys_sethostname
-+75	common	setrlimit			sys_setrlimit
-+77	common	getrusage			sys_getrusage
-+78	common	gettimeofday			sys_gettimeofday
-+79	common	settimeofday			sys_settimeofday
-+83	common	symlink				sys_symlink
-+85	common	readlink			sys_readlink
-+86	common	uselib				sys_uselib
-+87	common	swapon				sys_swapon
-+88	common	reboot				sys_reboot
-+89	common	readdir				sys_ni_syscall
-+90	common	mmap				sys_old_mmap
-+91	common	munmap				sys_munmap
-+92	common	truncate			sys_truncate
-+93	common	ftruncate			sys_ftruncate
-+94	common	fchmod				sys_fchmod
-+96	common	getpriority			sys_getpriority
-+97	common	setpriority			sys_setpriority
-+99	common	statfs				sys_statfs
-+100	common	fstatfs				sys_fstatfs
-+102	common	socketcall			sys_socketcall
-+103	common	syslog				sys_syslog
-+104	common	setitimer			sys_setitimer
-+105	common	getitimer			sys_getitimer
-+106	common	stat				sys_newstat
-+107	common	lstat				sys_newlstat
-+108	common	fstat				sys_newfstat
-+110	common	lookup_dcookie			sys_ni_syscall
-+111	common	vhangup				sys_vhangup
-+112	common	idle				sys_ni_syscall
-+114	common	wait4				sys_wait4
-+115	common	swapoff				sys_swapoff
-+116	common	sysinfo				sys_sysinfo
-+117	common	ipc				sys_s390_ipc
-+118	common	fsync				sys_fsync
-+119	common	sigreturn			sys_sigreturn
-+120	common	clone				sys_clone
-+121	common	setdomainname			sys_setdomainname
-+122	common	uname				sys_newuname
-+124	common	adjtimex			sys_adjtimex
-+125	common	mprotect			sys_mprotect
-+126	common	sigprocmask			sys_sigprocmask
-+127	common	create_module			sys_ni_syscall
-+128	common	init_module			sys_init_module
-+129	common	delete_module			sys_delete_module
-+130	common	get_kernel_syms			sys_ni_syscall
-+131	common	quotactl			sys_quotactl
-+132	common	getpgid				sys_getpgid
-+133	common	fchdir				sys_fchdir
-+134	common	bdflush				sys_ni_syscall
-+135	common	sysfs				sys_sysfs
-+136	common	personality			sys_s390_personality
-+137	common	afs_syscall			sys_ni_syscall
-+141	common	getdents			sys_getdents
-+142	common	select				sys_select
-+143	common	flock				sys_flock
-+144	common	msync				sys_msync
-+145	common	readv				sys_readv
-+146	common	writev				sys_writev
-+147	common	getsid				sys_getsid
-+148	common	fdatasync			sys_fdatasync
-+149	common	_sysctl				sys_ni_syscall
-+150	common	mlock				sys_mlock
-+151	common	munlock				sys_munlock
-+152	common	mlockall			sys_mlockall
-+153	common	munlockall			sys_munlockall
-+154	common	sched_setparam			sys_sched_setparam
-+155	common	sched_getparam			sys_sched_getparam
-+156	common	sched_setscheduler		sys_sched_setscheduler
-+157	common	sched_getscheduler		sys_sched_getscheduler
-+158	common	sched_yield			sys_sched_yield
-+159	common	sched_get_priority_max		sys_sched_get_priority_max
-+160	common	sched_get_priority_min		sys_sched_get_priority_min
-+161	common	sched_rr_get_interval		sys_sched_rr_get_interval
-+162	common	nanosleep			sys_nanosleep
-+163	common	mremap				sys_mremap
-+167	common	query_module			sys_ni_syscall
-+168	common	poll				sys_poll
-+169	common	nfsservctl			sys_ni_syscall
-+172	common	prctl				sys_prctl
-+173	common	rt_sigreturn			sys_rt_sigreturn
-+174	common	rt_sigaction			sys_rt_sigaction
-+175	common	rt_sigprocmask			sys_rt_sigprocmask
-+176	common	rt_sigpending			sys_rt_sigpending
-+177	common	rt_sigtimedwait			sys_rt_sigtimedwait
-+178	common	rt_sigqueueinfo			sys_rt_sigqueueinfo
-+179	common	rt_sigsuspend			sys_rt_sigsuspend
-+180	common	pread64				sys_pread64
-+181	common	pwrite64			sys_pwrite64
-+183	common	getcwd				sys_getcwd
-+184	common	capget				sys_capget
-+185	common	capset				sys_capset
-+186	common	sigaltstack			sys_sigaltstack
-+187	common	sendfile			sys_sendfile64
-+188	common	getpmsg				sys_ni_syscall
-+189	common	putpmsg				sys_ni_syscall
-+190	common	vfork				sys_vfork
-+191	common	getrlimit			sys_getrlimit
-+198	common	lchown				sys_lchown
-+199	common	getuid				sys_getuid
-+200	common	getgid				sys_getgid
-+201	common	geteuid				sys_geteuid
-+202	common	getegid				sys_getegid
-+203	common	setreuid			sys_setreuid
-+204	common	setregid			sys_setregid
-+205	common	getgroups			sys_getgroups
-+206	common	setgroups			sys_setgroups
-+207	common	fchown				sys_fchown
-+208	common	setresuid			sys_setresuid
-+209	common	getresuid			sys_getresuid
-+210	common	setresgid			sys_setresgid
-+211	common	getresgid			sys_getresgid
-+212	common	chown				sys_chown
-+213	common	setuid				sys_setuid
-+214	common	setgid				sys_setgid
-+215	common	setfsuid			sys_setfsuid
-+216	common	setfsgid			sys_setfsgid
-+217	common	pivot_root			sys_pivot_root
-+218	common	mincore				sys_mincore
-+219	common	madvise				sys_madvise
-+220	common	getdents64			sys_getdents64
-+222	common	readahead			sys_readahead
-+224	common	setxattr			sys_setxattr
-+225	common	lsetxattr			sys_lsetxattr
-+226	common	fsetxattr			sys_fsetxattr
-+227	common	getxattr			sys_getxattr
-+228	common	lgetxattr			sys_lgetxattr
-+229	common	fgetxattr			sys_fgetxattr
-+230	common	listxattr			sys_listxattr
-+231	common	llistxattr			sys_llistxattr
-+232	common	flistxattr			sys_flistxattr
-+233	common	removexattr			sys_removexattr
-+234	common	lremovexattr			sys_lremovexattr
-+235	common	fremovexattr			sys_fremovexattr
-+236	common	gettid				sys_gettid
-+237	common	tkill				sys_tkill
-+238	common	futex				sys_futex
-+239	common	sched_setaffinity		sys_sched_setaffinity
-+240	common	sched_getaffinity		sys_sched_getaffinity
-+241	common	tgkill				sys_tgkill
-+243	common	io_setup			sys_io_setup
-+244	common	io_destroy			sys_io_destroy
-+245	common	io_getevents			sys_io_getevents
-+246	common	io_submit			sys_io_submit
-+247	common	io_cancel			sys_io_cancel
-+248	common	exit_group			sys_exit_group
-+249	common	epoll_create			sys_epoll_create
-+250	common	epoll_ctl			sys_epoll_ctl
-+251	common	epoll_wait			sys_epoll_wait
-+252	common	set_tid_address			sys_set_tid_address
-+253	common	fadvise64			sys_fadvise64_64
-+254	common	timer_create			sys_timer_create
-+255	common	timer_settime			sys_timer_settime
-+256	common	timer_gettime			sys_timer_gettime
-+257	common	timer_getoverrun		sys_timer_getoverrun
-+258	common	timer_delete			sys_timer_delete
-+259	common	clock_settime			sys_clock_settime
-+260	common	clock_gettime			sys_clock_gettime
-+261	common	clock_getres			sys_clock_getres
-+262	common	clock_nanosleep			sys_clock_nanosleep
-+265	common	statfs64			sys_statfs64
-+266	common	fstatfs64			sys_fstatfs64
-+267	common	remap_file_pages		sys_remap_file_pages
-+268	common	mbind				sys_mbind
-+269	common	get_mempolicy			sys_get_mempolicy
-+270	common	set_mempolicy			sys_set_mempolicy
-+271	common	mq_open				sys_mq_open
-+272	common	mq_unlink			sys_mq_unlink
-+273	common	mq_timedsend			sys_mq_timedsend
-+274	common	mq_timedreceive			sys_mq_timedreceive
-+275	common	mq_notify			sys_mq_notify
-+276	common	mq_getsetattr			sys_mq_getsetattr
-+277	common	kexec_load			sys_kexec_load
-+278	common	add_key				sys_add_key
-+279	common	request_key			sys_request_key
-+280	common	keyctl				sys_keyctl
-+281	common	waitid				sys_waitid
-+282	common	ioprio_set			sys_ioprio_set
-+283	common	ioprio_get			sys_ioprio_get
-+284	common	inotify_init			sys_inotify_init
-+285	common	inotify_add_watch		sys_inotify_add_watch
-+286	common	inotify_rm_watch		sys_inotify_rm_watch
-+287	common	migrate_pages			sys_migrate_pages
-+288	common	openat				sys_openat
-+289	common	mkdirat				sys_mkdirat
-+290	common	mknodat				sys_mknodat
-+291	common	fchownat			sys_fchownat
-+292	common	futimesat			sys_futimesat
-+293	common	newfstatat			sys_newfstatat
-+294	common	unlinkat			sys_unlinkat
-+295	common	renameat			sys_renameat
-+296	common	linkat				sys_linkat
-+297	common	symlinkat			sys_symlinkat
-+298	common	readlinkat			sys_readlinkat
-+299	common	fchmodat			sys_fchmodat
-+300	common	faccessat			sys_faccessat
-+301	common	pselect6			sys_pselect6
-+302	common	ppoll				sys_ppoll
-+303	common	unshare				sys_unshare
-+304	common	set_robust_list			sys_set_robust_list
-+305	common	get_robust_list			sys_get_robust_list
-+306	common	splice				sys_splice
-+307	common	sync_file_range			sys_sync_file_range
-+308	common	tee				sys_tee
-+309	common	vmsplice			sys_vmsplice
-+310	common	move_pages			sys_move_pages
-+311	common	getcpu				sys_getcpu
-+312	common	epoll_pwait			sys_epoll_pwait
-+313	common	utimes				sys_utimes
-+314	common	fallocate			sys_fallocate
-+315	common	utimensat			sys_utimensat
-+316	common	signalfd			sys_signalfd
-+317	common	timerfd				sys_ni_syscall
-+318	common	eventfd				sys_eventfd
-+319	common	timerfd_create			sys_timerfd_create
-+320	common	timerfd_settime			sys_timerfd_settime
-+321	common	timerfd_gettime			sys_timerfd_gettime
-+322	common	signalfd4			sys_signalfd4
-+323	common	eventfd2			sys_eventfd2
-+324	common	inotify_init1			sys_inotify_init1
-+325	common	pipe2				sys_pipe2
-+326	common	dup3				sys_dup3
-+327	common	epoll_create1			sys_epoll_create1
-+328	common	preadv				sys_preadv
-+329	common	pwritev				sys_pwritev
-+330	common	rt_tgsigqueueinfo		sys_rt_tgsigqueueinfo
-+331	common	perf_event_open			sys_perf_event_open
-+332	common	fanotify_init			sys_fanotify_init
-+333	common	fanotify_mark			sys_fanotify_mark
-+334	common	prlimit64			sys_prlimit64
-+335	common	name_to_handle_at		sys_name_to_handle_at
-+336	common	open_by_handle_at		sys_open_by_handle_at
-+337	common	clock_adjtime			sys_clock_adjtime
-+338	common	syncfs				sys_syncfs
-+339	common	setns				sys_setns
-+340	common	process_vm_readv		sys_process_vm_readv
-+341	common	process_vm_writev		sys_process_vm_writev
-+342	common	s390_runtime_instr		sys_s390_runtime_instr
-+343	common	kcmp				sys_kcmp
-+344	common	finit_module			sys_finit_module
-+345	common	sched_setattr			sys_sched_setattr
-+346	common	sched_getattr			sys_sched_getattr
-+347	common	renameat2			sys_renameat2
-+348	common	seccomp				sys_seccomp
-+349	common	getrandom			sys_getrandom
-+350	common	memfd_create			sys_memfd_create
-+351	common	bpf				sys_bpf
-+352	common	s390_pci_mmio_write		sys_s390_pci_mmio_write
-+353	common	s390_pci_mmio_read		sys_s390_pci_mmio_read
-+354	common	execveat			sys_execveat
-+355	common	userfaultfd			sys_userfaultfd
-+356	common	membarrier			sys_membarrier
-+357	common	recvmmsg			sys_recvmmsg
-+358	common	sendmmsg			sys_sendmmsg
-+359	common	socket				sys_socket
-+360	common	socketpair			sys_socketpair
-+361	common	bind				sys_bind
-+362	common	connect				sys_connect
-+363	common	listen				sys_listen
-+364	common	accept4				sys_accept4
-+365	common	getsockopt			sys_getsockopt
-+366	common	setsockopt			sys_setsockopt
-+367	common	getsockname			sys_getsockname
-+368	common	getpeername			sys_getpeername
-+369	common	sendto				sys_sendto
-+370	common	sendmsg				sys_sendmsg
-+371	common	recvfrom			sys_recvfrom
-+372	common	recvmsg				sys_recvmsg
-+373	common	shutdown			sys_shutdown
-+374	common	mlock2				sys_mlock2
-+375	common	copy_file_range			sys_copy_file_range
-+376	common	preadv2				sys_preadv2
-+377	common	pwritev2			sys_pwritev2
-+378	common	s390_guarded_storage		sys_s390_guarded_storage
-+379	common	statx				sys_statx
-+380	common	s390_sthyi			sys_s390_sthyi
-+381	common	kexec_file_load			sys_kexec_file_load
-+382	common	io_pgetevents			sys_io_pgetevents
-+383	common	rseq				sys_rseq
-+384	common	pkey_mprotect			sys_pkey_mprotect
-+385	common	pkey_alloc			sys_pkey_alloc
-+386	common	pkey_free			sys_pkey_free
- # room for arch specific syscalls
--392	64	semtimedop		sys_semtimedop			-
--393  common	semget			sys_semget			sys_semget
--394  common	semctl			sys_semctl			compat_sys_semctl
--395  common	shmget			sys_shmget			sys_shmget
--396  common	shmctl			sys_shmctl			compat_sys_shmctl
--397  common	shmat			sys_shmat			compat_sys_shmat
--398  common	shmdt			sys_shmdt 			sys_shmdt
--399  common	msgget			sys_msgget			sys_msgget
--400  common	msgsnd			sys_msgsnd			compat_sys_msgsnd
--401  common	msgrcv			sys_msgrcv			compat_sys_msgrcv
--402  common	msgctl			sys_msgctl			compat_sys_msgctl
--403	32	clock_gettime64		-				sys_clock_gettime
--404	32	clock_settime64		-				sys_clock_settime
--405	32	clock_adjtime64		-				sys_clock_adjtime
--406	32	clock_getres_time64	-				sys_clock_getres
--407	32	clock_nanosleep_time64	-				sys_clock_nanosleep
--408	32	timer_gettime64		-				sys_timer_gettime
--409	32	timer_settime64		-				sys_timer_settime
--410	32	timerfd_gettime64	-				sys_timerfd_gettime
--411	32	timerfd_settime64	-				sys_timerfd_settime
--412	32	utimensat_time64	-				sys_utimensat
--413	32	pselect6_time64		-				compat_sys_pselect6_time64
--414	32	ppoll_time64		-				compat_sys_ppoll_time64
--416	32	io_pgetevents_time64	-				compat_sys_io_pgetevents_time64
--417	32	recvmmsg_time64		-				compat_sys_recvmmsg_time64
--418	32	mq_timedsend_time64	-				sys_mq_timedsend
--419	32	mq_timedreceive_time64	-				sys_mq_timedreceive
--420	32	semtimedop_time64	-				sys_semtimedop
--421	32	rt_sigtimedwait_time64	-				compat_sys_rt_sigtimedwait_time64
--422	32	futex_time64		-				sys_futex
--423	32	sched_rr_get_interval_time64	-			sys_sched_rr_get_interval
--424  common	pidfd_send_signal	sys_pidfd_send_signal		sys_pidfd_send_signal
--425  common	io_uring_setup		sys_io_uring_setup              sys_io_uring_setup
--426  common	io_uring_enter		sys_io_uring_enter              sys_io_uring_enter
--427  common	io_uring_register	sys_io_uring_register           sys_io_uring_register
--428  common	open_tree		sys_open_tree			sys_open_tree
--429  common	move_mount		sys_move_mount			sys_move_mount
--430  common	fsopen			sys_fsopen			sys_fsopen
--431  common	fsconfig		sys_fsconfig			sys_fsconfig
--432  common	fsmount			sys_fsmount			sys_fsmount
--433  common	fspick			sys_fspick			sys_fspick
--434  common	pidfd_open		sys_pidfd_open			sys_pidfd_open
--435  common	clone3			sys_clone3			sys_clone3
--436  common	close_range		sys_close_range			sys_close_range
--437  common	openat2			sys_openat2			sys_openat2
--438  common	pidfd_getfd		sys_pidfd_getfd			sys_pidfd_getfd
--439  common	faccessat2		sys_faccessat2			sys_faccessat2
--440  common	process_madvise		sys_process_madvise		sys_process_madvise
--441  common	epoll_pwait2		sys_epoll_pwait2		compat_sys_epoll_pwait2
--442  common	mount_setattr		sys_mount_setattr		sys_mount_setattr
--443  common	quotactl_fd		sys_quotactl_fd			sys_quotactl_fd
--444  common	landlock_create_ruleset	sys_landlock_create_ruleset	sys_landlock_create_ruleset
--445  common	landlock_add_rule	sys_landlock_add_rule		sys_landlock_add_rule
--446  common	landlock_restrict_self	sys_landlock_restrict_self	sys_landlock_restrict_self
--447  common	memfd_secret		sys_memfd_secret		sys_memfd_secret
--448  common	process_mrelease	sys_process_mrelease		sys_process_mrelease
--449  common	futex_waitv		sys_futex_waitv			sys_futex_waitv
--450  common	set_mempolicy_home_node	sys_set_mempolicy_home_node	sys_set_mempolicy_home_node
--451  common	cachestat		sys_cachestat			sys_cachestat
--452  common	fchmodat2		sys_fchmodat2			sys_fchmodat2
--453  common	map_shadow_stack	sys_map_shadow_stack		sys_map_shadow_stack
--454  common	futex_wake		sys_futex_wake			sys_futex_wake
--455  common	futex_wait		sys_futex_wait			sys_futex_wait
--456  common	futex_requeue		sys_futex_requeue		sys_futex_requeue
--457  common	statmount		sys_statmount			sys_statmount
--458  common	listmount		sys_listmount			sys_listmount
--459  common	lsm_get_self_attr	sys_lsm_get_self_attr		sys_lsm_get_self_attr
--460  common	lsm_set_self_attr	sys_lsm_set_self_attr		sys_lsm_set_self_attr
--461  common	lsm_list_modules	sys_lsm_list_modules		sys_lsm_list_modules
--462  common	mseal			sys_mseal			sys_mseal
--463  common	setxattrat		sys_setxattrat			sys_setxattrat
--464  common	getxattrat		sys_getxattrat			sys_getxattrat
--465  common	listxattrat		sys_listxattrat			sys_listxattrat
--466  common	removexattrat		sys_removexattrat		sys_removexattrat
--467  common	open_tree_attr		sys_open_tree_attr		sys_open_tree_attr
--468  common	file_getattr		sys_file_getattr		sys_file_getattr
--469  common	file_setattr		sys_file_setattr		sys_file_setattr
-+392	common	semtimedop			sys_semtimedop
-+393	common	semget				sys_semget
-+394	common	semctl				sys_semctl
-+395	common	shmget				sys_shmget
-+396	common	shmctl				sys_shmctl
-+397	common	shmat				sys_shmat
-+398	common	shmdt				sys_shmdt
-+399	common	msgget				sys_msgget
-+400	common	msgsnd				sys_msgsnd
-+401	common	msgrcv				sys_msgrcv
-+402	common	msgctl				sys_msgctl
-+424	common	pidfd_send_signal		sys_pidfd_send_signal
-+425	common	io_uring_setup			sys_io_uring_setup
-+426	common	io_uring_enter			sys_io_uring_enter
-+427	common	io_uring_register		sys_io_uring_register
-+428	common	open_tree			sys_open_tree
-+429	common	move_mount			sys_move_mount
-+430	common	fsopen				sys_fsopen
-+431	common	fsconfig			sys_fsconfig
-+432	common	fsmount				sys_fsmount
-+433	common	fspick				sys_fspick
-+434	common	pidfd_open			sys_pidfd_open
-+435	common	clone3				sys_clone3
-+436	common	close_range			sys_close_range
-+437	common	openat2				sys_openat2
-+438	common	pidfd_getfd			sys_pidfd_getfd
-+439	common	faccessat2			sys_faccessat2
-+440	common	process_madvise			sys_process_madvise
-+441	common	epoll_pwait2			sys_epoll_pwait2
-+442	common	mount_setattr			sys_mount_setattr
-+443	common	quotactl_fd			sys_quotactl_fd
-+444	common	landlock_create_ruleset		sys_landlock_create_ruleset
-+445	common	landlock_add_rule		sys_landlock_add_rule
-+446	common	landlock_restrict_self		sys_landlock_restrict_self
-+447	common	memfd_secret			sys_memfd_secret
-+448	common	process_mrelease		sys_process_mrelease
-+449	common	futex_waitv			sys_futex_waitv
-+450	common	set_mempolicy_home_node		sys_set_mempolicy_home_node
-+451	common	cachestat			sys_cachestat
-+452	common	fchmodat2			sys_fchmodat2
-+453	common	map_shadow_stack		sys_map_shadow_stack
-+454	common	futex_wake			sys_futex_wake
-+455	common	futex_wait			sys_futex_wait
-+456	common	futex_requeue			sys_futex_requeue
-+457	common	statmount			sys_statmount
-+458	common	listmount			sys_listmount
-+459	common	lsm_get_self_attr		sys_lsm_get_self_attr
-+460	common	lsm_set_self_attr		sys_lsm_set_self_attr
-+461	common	lsm_list_modules		sys_lsm_list_modules
-+462	common	mseal				sys_mseal
-+463	common	setxattrat			sys_setxattrat
-+464	common	getxattrat			sys_getxattrat
-+465	common	listxattrat			sys_listxattrat
-+466	common	removexattrat			sys_removexattrat
-+467	common	open_tree_attr			sys_open_tree_attr
-+468	common	file_getattr			sys_file_getattr
-+469	common	file_setattr			sys_file_setattr
-diff --git a/arch/s390/kernel/syscalls/syscalltbl b/arch/s390/kernel/syscalls/syscalltbl
-deleted file mode 100755
-index fbac1732f874..000000000000
---- a/arch/s390/kernel/syscalls/syscalltbl
+ unsigned long vdso_size(void)
+@@ -180,8 +162,6 @@ static int __init vdso_init(void)
+ {
+ 	vdso_apply_alternatives();
+ 	vdso64_mapping.pages = vdso_setup_pages(vdso64_start, vdso64_end);
+-	if (IS_ENABLED(CONFIG_COMPAT))
+-		vdso32_mapping.pages = vdso_setup_pages(vdso32_start, vdso32_end);
+ 	return 0;
+ }
+ arch_initcall(vdso_init);
+diff --git a/arch/s390/kernel/vdso32/.gitignore b/arch/s390/kernel/vdso32/.gitignore
+deleted file mode 100644
+index 5167384843b9..000000000000
+--- a/arch/s390/kernel/vdso32/.gitignore
 +++ /dev/null
-@@ -1,232 +0,0 @@
+@@ -1,2 +0,0 @@
+-# SPDX-License-Identifier: GPL-2.0-only
+-vdso32.lds
+diff --git a/arch/s390/kernel/vdso32/Makefile b/arch/s390/kernel/vdso32/Makefile
+deleted file mode 100644
+index 1e4ddd1a683f..000000000000
+--- a/arch/s390/kernel/vdso32/Makefile
++++ /dev/null
+@@ -1,64 +0,0 @@
+-# SPDX-License-Identifier: GPL-2.0
+-# List of files in the vdso
+-
+-# Include the generic Makefile to check the built vdso.
+-include $(srctree)/lib/vdso/Makefile.include
+-obj-vdso32 = vdso_user_wrapper-32.o note-32.o
+-
+-# Build rules
+-
+-targets := $(obj-vdso32) vdso32.so vdso32.so.dbg
+-obj-vdso32 := $(addprefix $(obj)/, $(obj-vdso32))
+-
+-KBUILD_AFLAGS += -DBUILD_VDSO
+-KBUILD_CFLAGS += -DBUILD_VDSO -DDISABLE_BRANCH_PROFILING
+-
+-KBUILD_AFLAGS_32 := $(filter-out -m64,$(KBUILD_AFLAGS))
+-KBUILD_AFLAGS_32 += -m31 -s
+-
+-KBUILD_CFLAGS_32 := $(filter-out -m64,$(KBUILD_CFLAGS))
+-KBUILD_CFLAGS_32 := $(filter-out -mpacked-stack,$(KBUILD_CFLAGS))
+-KBUILD_CFLAGS_32 := $(filter-out -mno-pic-data-is-text-relative,$(KBUILD_CFLAGS_32))
+-KBUILD_CFLAGS_32 := $(filter-out -fno-asynchronous-unwind-tables,$(KBUILD_CFLAGS_32))
+-KBUILD_CFLAGS_32 += -m31 -fPIC -shared -fno-common -fno-builtin -fasynchronous-unwind-tables
+-
+-LDFLAGS_vdso32.so.dbg += -shared -soname=linux-vdso32.so.1 \
+-	--hash-style=both --build-id=sha1 -melf_s390 -T
+-
+-$(targets:%=$(obj)/%.dbg): KBUILD_CFLAGS = $(KBUILD_CFLAGS_32)
+-$(targets:%=$(obj)/%.dbg): KBUILD_AFLAGS = $(KBUILD_AFLAGS_32)
+-
+-obj-y += vdso32_wrapper.o
+-targets += vdso32.lds
+-CPPFLAGS_vdso32.lds += -P -C -U$(ARCH)
+-
+-# Force dependency (incbin is bad)
+-$(obj)/vdso32_wrapper.o : $(obj)/vdso32.so
+-
+-quiet_cmd_vdso_and_check = VDSO    $@
+-      cmd_vdso_and_check = $(cmd_ld); $(cmd_vdso_check)
+-
+-$(obj)/vdso32.so.dbg: $(obj)/vdso32.lds $(obj-vdso32) FORCE
+-	$(call if_changed,vdso_and_check)
+-
+-# strip rule for the .so file
+-$(obj)/%.so: OBJCOPYFLAGS := -S
+-$(obj)/%.so: $(obj)/%.so.dbg FORCE
+-	$(call if_changed,objcopy)
+-
+-$(obj-vdso32): %-32.o: %.S FORCE
+-	$(call if_changed_dep,vdso32as)
+-
+-# actual build commands
+-quiet_cmd_vdso32as = VDSO32A $@
+-      cmd_vdso32as = $(CC) $(a_flags) -c -o $@ $<
+-quiet_cmd_vdso32cc = VDSO32C $@
+-      cmd_vdso32cc = $(CC) $(c_flags) -c -o $@ $<
+-
+-# Generate VDSO offsets using helper script
+-gen-vdsosym := $(src)/gen_vdso_offsets.sh
+-quiet_cmd_vdsosym = VDSOSYM $@
+-	cmd_vdsosym = $(NM) $< | $(gen-vdsosym) | LC_ALL=C sort > $@
+-
+-include/generated/vdso32-offsets.h: $(obj)/vdso32.so.dbg FORCE
+-	$(call if_changed,vdsosym)
+diff --git a/arch/s390/kernel/vdso32/gen_vdso_offsets.sh b/arch/s390/kernel/vdso32/gen_vdso_offsets.sh
+deleted file mode 100755
+index 9c4f951e227d..000000000000
+--- a/arch/s390/kernel/vdso32/gen_vdso_offsets.sh
++++ /dev/null
+@@ -1,15 +0,0 @@
 -#!/bin/sh
 -# SPDX-License-Identifier: GPL-2.0
--#
--# Generate system call table and header files
--#
--# Copyright IBM Corp. 2018
--# Author(s):  Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 -
 -#
--# File path to the system call table definition.
--# You can set the path with the -i option.  If omitted,
--# system call table definitions are read from standard input.
+-# Match symbols in the DSO that look like VDSO_*; produce a header file
+-# of constant offsets into the shared object.
 -#
--SYSCALL_TBL=""
+-# Doing this inside the Makefile will break the $(filter-out) function,
+-# causing Kbuild to rebuild the vdso-offsets header file every time.
+-#
+-# Inspired by arm64 version.
+-#
 -
+-LC_ALL=C
+-sed -n 's/\([0-9a-f]*\) . __kernel_compat_\(.*\)/\#define vdso32_offset_\2\t0x\1/p'
+diff --git a/arch/s390/kernel/vdso32/note.S b/arch/s390/kernel/vdso32/note.S
+deleted file mode 100644
+index db19d0680a0a..000000000000
+--- a/arch/s390/kernel/vdso32/note.S
++++ /dev/null
+@@ -1,13 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-/*
+- * This supplies .note.* sections to go into the PT_NOTE inside the vDSO text.
+- * Here we can supply some information useful to userland.
+- */
 -
--create_syscall_table_entries()
+-#include <linux/uts.h>
+-#include <linux/version.h>
+-#include <linux/elfnote.h>
+-
+-ELFNOTE_START(Linux, 0, "a")
+-	.long LINUX_VERSION_CODE
+-ELFNOTE_END
+diff --git a/arch/s390/kernel/vdso32/vdso32.lds.S b/arch/s390/kernel/vdso32/vdso32.lds.S
+deleted file mode 100644
+index 9630d58c2080..000000000000
+--- a/arch/s390/kernel/vdso32/vdso32.lds.S
++++ /dev/null
+@@ -1,140 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-/*
+- * This is the infamous ld script for the 64 bits vdso
+- * library
+- */
+-
+-#include <asm/page.h>
+-#include <asm/vdso.h>
+-#include <vdso/datapage.h>
+-
+-OUTPUT_FORMAT("elf32-s390", "elf32-s390", "elf32-s390")
+-OUTPUT_ARCH(s390:31-bit)
+-
+-SECTIONS
 -{
--	local nr abi name entry64 entry32 _ignore
--	local temp=$(mktemp ${TMPDIR:-/tmp}/syscalltbl-common.XXXXXXXXX)
+-	VDSO_VVAR_SYMS
 -
--	(
--	#
--	# Initialize with 0 to create an NI_SYSCALL for 0
--	#
--	local prev_nr=0 prev_32=sys_ni_syscall prev_64=sys_ni_syscall
--	while read nr abi name entry64 entry32 _ignore; do
--		test x$entry32 = x- && entry32=sys_ni_syscall
--		test x$entry64 = x- && entry64=sys_ni_syscall
+-	. = SIZEOF_HEADERS;
 -
--		if test $prev_nr -eq $nr; then
--			#
--			# Same syscall but different ABI, just update
--			# the respective entry point
--			#
--			case $abi in
--			32)
--				prev_32=$entry32
--			;;
--			64)
--				prev_64=$entry64
--			;;
--			esac
--			continue;
--		else
--			printf "%d\t%s\t%s\n" $prev_nr $prev_64 $prev_32
--		fi
+-	.hash		: { *(.hash) }			:text
+-	.gnu.hash	: { *(.gnu.hash) }
+-	.dynsym		: { *(.dynsym) }
+-	.dynstr		: { *(.dynstr) }
+-	.gnu.version	: { *(.gnu.version) }
+-	.gnu.version_d	: { *(.gnu.version_d) }
+-	.gnu.version_r	: { *(.gnu.version_r) }
 -
--		prev_nr=$nr
--		prev_64=$entry64
--		prev_32=$entry32
--	done
--	printf "%d\t%s\t%s\n" $prev_nr $prev_64 $prev_32
--	) >> $temp
+-	.note		: { *(.note.*) }		:text	:note
 -
--	#
--	# Check for duplicate syscall numbers
--	#
--	if ! cat $temp |cut -f1 |uniq -d 2>&1; then
--		echo "Error: generated system call table contains duplicate entries: $temp" >&2
--		exit 1
--	fi
+-	. = ALIGN(16);
+-	.text		: {
+-		*(.text .stub .text.* .gnu.linkonce.t.*)
+-	} :text
+-	PROVIDE(__etext = .);
+-	PROVIDE(_etext = .);
+-	PROVIDE(etext = .);
 -
--	#
--	# Generate syscall table
--	#
--	prev_nr=0
--	while read nr entry64 entry32; do
--		while test $prev_nr -lt $((nr - 1)); do
--			printf "NI_SYSCALL\n"
--			prev_nr=$((prev_nr + 1))
--		done
--		if test x$entry64 = xsys_ni_syscall &&
--		   test x$entry32 = xsys_ni_syscall; then
--			printf "NI_SYSCALL\n"
--		else
--			printf "SYSCALL(%s,%s)\n" $entry64 $entry32
--		fi
--		prev_nr=$nr
--	done < $temp
--	rm $temp
--}
--
--generate_syscall_table()
--{
--	cat <<-EoHEADER
--	/* SPDX-License-Identifier: GPL-2.0 */
 -	/*
--	 * Definitions for sys_call_table, each line represents an
--	 * entry in the table in the form
--	 * SYSCALL(64 bit syscall, 31 bit emulated syscall)
--	 *
--	 * This file is meant to be included from entry.S.
+-	 * Other stuff is appended to the text segment:
 -	 */
+-	.rodata		: { *(.rodata .rodata.* .gnu.linkonce.r.*) }
+-	.rodata1	: { *(.rodata1) }
 -
--	#define NI_SYSCALL SYSCALL(sys_ni_syscall,sys_ni_syscall)
+-	.dynamic	: { *(.dynamic) }		:text	:dynamic
 -
--EoHEADER
--	grep -Ev '^(#|[[:blank:]]*$)' $SYSCALL_TBL	\
--		|sort -k1 -n				\
--		|create_syscall_table_entries
+-	.eh_frame_hdr	: { *(.eh_frame_hdr) }		:text	:eh_frame_hdr
+-	.eh_frame	: { KEEP (*(.eh_frame)) }	:text
+-	.gcc_except_table : { *(.gcc_except_table .gcc_except_table.*) }
+-
+-	.rela.dyn ALIGN(8) : { *(.rela.dyn) }
+-	.got ALIGN(8)	: { *(.got .toc) }
+-	.got.plt ALIGN(8) : { *(.got.plt) }
+-
+-	_end = .;
+-	PROVIDE(end = .);
+-
+-	/*
+-	 * Stabs debugging sections are here too.
+-	 */
+-	.stab	       0 : { *(.stab) }
+-	.stabstr       0 : { *(.stabstr) }
+-	.stab.excl     0 : { *(.stab.excl) }
+-	.stab.exclstr  0 : { *(.stab.exclstr) }
+-	.stab.index    0 : { *(.stab.index) }
+-	.stab.indexstr 0 : { *(.stab.indexstr) }
+-	.comment       0 : { *(.comment) }
+-
+-	/*
+-	 * DWARF debug sections.
+-	 * Symbols in the DWARF debugging sections are relative to the
+-	 * beginning of the section so we begin them at 0.
+-	 */
+-	/* DWARF 1 */
+-	.debug		0 : { *(.debug) }
+-	.line		0 : { *(.line) }
+-	/* GNU DWARF 1 extensions */
+-	.debug_srcinfo	0 : { *(.debug_srcinfo) }
+-	.debug_sfnames	0 : { *(.debug_sfnames) }
+-	/* DWARF 1.1 and DWARF 2 */
+-	.debug_aranges	0 : { *(.debug_aranges) }
+-	.debug_pubnames 0 : { *(.debug_pubnames) }
+-	/* DWARF 2 */
+-	.debug_info	0 : { *(.debug_info .gnu.linkonce.wi.*) }
+-	.debug_abbrev	0 : { *(.debug_abbrev) }
+-	.debug_line	0 : { *(.debug_line) }
+-	.debug_frame	0 : { *(.debug_frame) }
+-	.debug_str	0 : { *(.debug_str) }
+-	.debug_loc	0 : { *(.debug_loc) }
+-	.debug_macinfo	0 : { *(.debug_macinfo) }
+-	/* SGI/MIPS DWARF 2 extensions */
+-	.debug_weaknames 0 : { *(.debug_weaknames) }
+-	.debug_funcnames 0 : { *(.debug_funcnames) }
+-	.debug_typenames 0 : { *(.debug_typenames) }
+-	.debug_varnames  0 : { *(.debug_varnames) }
+-	/* DWARF 3 */
+-	.debug_pubtypes 0 : { *(.debug_pubtypes) }
+-	.debug_ranges	0 : { *(.debug_ranges) }
+-	.gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }
+-
+-	/DISCARD/	: {
+-		*(.note.GNU-stack)
+-		*(.branch_lt)
+-		*(.data .data.* .gnu.linkonce.d.* .sdata*)
+-		*(.bss .sbss .dynbss .dynsbss)
+-	}
 -}
 -
--create_header_defines()
--{
--	local nr abi name _ignore
+-/*
+- * Very old versions of ld do not recognize this name token; use the constant.
+- */
+-#define PT_GNU_EH_FRAME	0x6474e550
 -
--	while read nr abi name _ignore; do
--		printf "#define __NR_%s %d\n" $name $nr
--	done
+-/*
+- * We must supply the ELF program headers explicitly to get just one
+- * PT_LOAD segment, and set the flags explicitly to make segments read-only.
+- */
+-PHDRS
+-{
+-	text		PT_LOAD FILEHDR PHDRS FLAGS(5);	/* PF_R|PF_X */
+-	dynamic		PT_DYNAMIC FLAGS(4);		/* PF_R */
+-	note		PT_NOTE FLAGS(4);		/* PF_R */
+-	eh_frame_hdr	PT_GNU_EH_FRAME;
 -}
 -
--normalize_fileguard()
+-/*
+- * This controls what symbols we export from the DSO.
+- */
+-VERSION
 -{
--	local fileguard="$1"
--
--	echo "$1" |tr '[[:lower:]]' '[[:upper:]]' \
--		  |sed -e 's/[^A-Z0-9_]/_/g' -e 's/__/_/g'
+-	VDSO_VERSION_STRING {
+-	global:
+-		/*
+-		 * Has to be there for the kernel to find
+-		 */
+-		__kernel_compat_restart_syscall;
+-		__kernel_compat_rt_sigreturn;
+-		__kernel_compat_sigreturn;
+-	local: *;
+-	};
 -}
+diff --git a/arch/s390/kernel/vdso32/vdso32_wrapper.S b/arch/s390/kernel/vdso32/vdso32_wrapper.S
+deleted file mode 100644
+index de2fb930471a..000000000000
+--- a/arch/s390/kernel/vdso32/vdso32_wrapper.S
++++ /dev/null
+@@ -1,15 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-#include <linux/init.h>
+-#include <linux/linkage.h>
+-#include <asm/page.h>
 -
--generate_syscall_header()
--{
--	local abis=$(echo "($1)" | tr ',' '|')
--	local filename="$2"
--	local fileguard suffix
+-	__PAGE_ALIGNED_DATA
 -
--	if test "$filename"; then
--		fileguard=$(normalize_fileguard "__UAPI_ASM_S390_$2")
+-	.globl vdso32_start, vdso32_end
+-	.balign PAGE_SIZE
+-vdso32_start:
+-	.incbin "arch/s390/kernel/vdso32/vdso32.so"
+-	.balign PAGE_SIZE
+-vdso32_end:
+-
+-	.previous
+diff --git a/arch/s390/kernel/vdso32/vdso_user_wrapper.S b/arch/s390/kernel/vdso32/vdso_user_wrapper.S
+deleted file mode 100644
+index 2e645003fdaf..000000000000
+--- a/arch/s390/kernel/vdso32/vdso_user_wrapper.S
++++ /dev/null
+@@ -1,22 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-
+-#include <linux/linkage.h>
+-#include <asm/unistd.h>
+-#include <asm/dwarf.h>
+-
+-.macro vdso_syscall func,syscall
+-	.globl __kernel_compat_\func
+-	.type  __kernel_compat_\func,@function
+-	__ALIGN
+-__kernel_compat_\func:
+-	CFI_STARTPROC
+-	svc	\syscall
+-	/* Make sure we notice when a syscall returns, which shouldn't happen */
+-	.word	0
+-	CFI_ENDPROC
+-	.size	__kernel_compat_\func,.-__kernel_compat_\func
+-.endm
+-
+-vdso_syscall restart_syscall,__NR_restart_syscall
+-vdso_syscall sigreturn,__NR_sigreturn
+-vdso_syscall rt_sigreturn,__NR_rt_sigreturn
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index e1ad05bfd28a..4f6345f3c39a 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -23,7 +23,6 @@
+ #include <linux/ptrace.h>
+ #include <linux/mman.h>
+ #include <linux/mm.h>
+-#include <linux/compat.h>
+ #include <linux/smp.h>
+ #include <linux/kdebug.h>
+ #include <linux/init.h>
+diff --git a/arch/s390/mm/mmap.c b/arch/s390/mm/mmap.c
+index 197c1d9497a7..2a222a7e14f4 100644
+--- a/arch/s390/mm/mmap.c
++++ b/arch/s390/mm/mmap.c
+@@ -15,7 +15,6 @@
+ #include <linux/sched/signal.h>
+ #include <linux/sched/mm.h>
+ #include <linux/random.h>
+-#include <linux/compat.h>
+ #include <linux/security.h>
+ #include <linux/hugetlb.h>
+ #include <asm/elf.h>
+diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
+index 241f7251c873..02b73d4b6c7e 100644
+--- a/arch/s390/pci/pci_clp.c
++++ b/arch/s390/pci/pci_clp.c
+@@ -9,7 +9,6 @@
+ #define KMSG_COMPONENT "zpci"
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+ 
+-#include <linux/compat.h>
+ #include <linux/kernel.h>
+ #include <linux/miscdevice.h>
+ #include <linux/slab.h>
+@@ -651,7 +650,7 @@ static long clp_misc_ioctl(struct file *filp, unsigned int cmd,
+ 	if (cmd != CLP_SYNC)
+ 		return -EINVAL;
+ 
+-	argp = is_compat_task() ? compat_ptr(arg) : (void __user *) arg;
++	argp = (void __user *)arg;
+ 	if (copy_from_user(&req, argp, sizeof(req)))
+ 		return -EFAULT;
+ 	if (req.r != 0)
+@@ -669,7 +668,6 @@ static const struct file_operations clp_misc_fops = {
+ 	.open = nonseekable_open,
+ 	.release = clp_misc_release,
+ 	.unlocked_ioctl = clp_misc_ioctl,
+-	.compat_ioctl = clp_misc_ioctl,
+ };
+ 
+ static struct miscdevice clp_misc_device = {
+diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+index 7765e40f7cea..2f3039cca6f2 100644
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -3350,7 +3350,6 @@ dasd_device_operations = {
+ 	.open		= dasd_open,
+ 	.release	= dasd_release,
+ 	.ioctl		= dasd_ioctl,
+-	.compat_ioctl	= dasd_ioctl,
+ 	.getgeo		= dasd_getgeo,
+ 	.set_read_only	= dasd_set_read_only,
+ };
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index 88fa17aea2ec..687396703788 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -16,7 +16,6 @@
+ #include <linux/hdreg.h>	/* HDIO_GETGEO			    */
+ #include <linux/bio.h>
+ #include <linux/module.h>
+-#include <linux/compat.h>
+ #include <linux/init.h>
+ #include <linux/seq_file.h>
+ #include <linux/uaccess.h>
+@@ -5389,16 +5388,6 @@ static int dasd_symm_io(struct dasd_device *device, void __user *argp)
+ 	rc = -EFAULT;
+ 	if (copy_from_user(&usrparm, argp, sizeof(usrparm)))
+ 		goto out;
+-	if (is_compat_task()) {
+-		/* Make sure pointers are sane even on 31 bit. */
+-		rc = -EINVAL;
+-		if ((usrparm.psf_data >> 32) != 0)
+-			goto out;
+-		if ((usrparm.rssd_result >> 32) != 0)
+-			goto out;
+-		usrparm.psf_data &= 0x7fffffffULL;
+-		usrparm.rssd_result &= 0x7fffffffULL;
+-	}
+ 	/* at least 2 bytes are accessed and should be allocated */
+ 	if (usrparm.psf_data_len < 2) {
+ 		DBF_DEV_EVENT(DBF_WARNING, device,
+diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
+index 8308046a9f8f..f883990be626 100644
+--- a/drivers/s390/block/dasd_ioctl.c
++++ b/drivers/s390/block/dasd_ioctl.c
+@@ -11,7 +11,6 @@
+  */
+ 
+ #include <linux/interrupt.h>
+-#include <linux/compat.h>
+ #include <linux/export.h>
+ #include <linux/major.h>
+ #include <linux/fs.h>
+@@ -616,10 +615,7 @@ int dasd_ioctl(struct block_device *bdev, blk_mode_t mode,
+ 	void __user *argp;
+ 	int rc;
+ 
+-	if (is_compat_task())
+-		argp = compat_ptr(arg);
 -	else
--		case "$abis" in
--		*64*) suffix=64 ;;
--		*32*) suffix=32 ;;
--		esac
--		fileguard=$(normalize_fileguard "__UAPI_ASM_S390_SYSCALLS_$suffix")
--	fi
--
--	cat <<-EoHEADER
--	/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
--	#ifndef ${fileguard}
--	#define ${fileguard}
--
--EoHEADER
--
--	grep -E "^[[:digit:]]+[[:space:]]+${abis}" $SYSCALL_TBL	\
--		|sort -k1 -n					\
--		|create_header_defines
--
--	cat <<-EoFOOTER
--
--	#endif /* ${fileguard} */
--EoFOOTER
--}
--
--__max_syscall_nr()
+-		argp = (void __user *)arg;
++	argp = (void __user *)arg;
+ 
+ 	if ((_IOC_DIR(cmd) != _IOC_NONE) && !arg)
+ 		return -EINVAL;
+diff --git a/drivers/s390/char/con3270.c b/drivers/s390/char/con3270.c
+index a367f95c7c53..bf3333231ab8 100644
+--- a/drivers/s390/char/con3270.c
++++ b/drivers/s390/char/con3270.c
+@@ -21,7 +21,6 @@
+ #include <linux/reboot.h>
+ #include <linux/slab.h>
+ #include <linux/memblock.h>
+-#include <linux/compat.h>
+ 
+ #include <asm/machine.h>
+ #include <asm/ccwdev.h>
+@@ -1947,21 +1946,6 @@ static int tty3270_ioctl(struct tty_struct *tty, unsigned int cmd,
+ 	return kbd_ioctl(tp->kbd, cmd, arg);
+ }
+ 
+-#ifdef CONFIG_COMPAT
+-static long tty3270_compat_ioctl(struct tty_struct *tty,
+-				 unsigned int cmd, unsigned long arg)
 -{
--	local abis=$(echo "($1)" | tr ',' '|')
+-	struct tty3270 *tp;
 -
--	grep -E "^[[:digit:]]+[[:space:]]+${abis}" $SYSCALL_TBL	 \
--		|sed -ne 's/^\([[:digit:]]*\)[[:space:]].*/\1/p' \
--		|sort -n					 \
--		|tail -1
+-	tp = tty->driver_data;
+-	if (!tp)
+-		return -ENODEV;
+-	if (tty_io_error(tty))
+-		return -EIO;
+-	return kbd_ioctl(tp->kbd, cmd, (unsigned long)compat_ptr(arg));
 -}
+-#endif
 -
--
--generate_syscall_nr()
+ static const struct tty_operations tty3270_ops = {
+ 	.install = tty3270_install,
+ 	.cleanup = tty3270_cleanup,
+@@ -1976,9 +1960,6 @@ static const struct tty_operations tty3270_ops = {
+ 	.hangup = tty3270_hangup,
+ 	.wait_until_sent = tty3270_wait_until_sent,
+ 	.ioctl = tty3270_ioctl,
+-#ifdef CONFIG_COMPAT
+-	.compat_ioctl = tty3270_compat_ioctl,
+-#endif
+ 	.set_termios = tty3270_set_termios
+ };
+ 
+diff --git a/drivers/s390/char/fs3270.c b/drivers/s390/char/fs3270.c
+index cfe7efd5b5da..73555dbe30d0 100644
+--- a/drivers/s390/char/fs3270.c
++++ b/drivers/s390/char/fs3270.c
+@@ -12,7 +12,6 @@
+ #include <linux/console.h>
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+-#include <linux/compat.h>
+ #include <linux/sched/signal.h>
+ #include <linux/module.h>
+ #include <linux/list.h>
+@@ -330,10 +329,7 @@ static long fs3270_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+ 	fp = filp->private_data;
+ 	if (!fp)
+ 		return -ENODEV;
+-	if (is_compat_task())
+-		argp = compat_ptr(arg);
+-	else
+-		argp = (char __user *)arg;
++	argp = (char __user *)arg;
+ 	rc = 0;
+ 	mutex_lock(&fs3270_mutex);
+ 	switch (cmd) {
+@@ -512,7 +508,6 @@ static const struct file_operations fs3270_fops = {
+ 	.read		 = fs3270_read,		/* read */
+ 	.write		 = fs3270_write,	/* write */
+ 	.unlocked_ioctl	 = fs3270_ioctl,	/* ioctl */
+-	.compat_ioctl	 = fs3270_ioctl,	/* ioctl */
+ 	.open		 = fs3270_open,		/* open */
+ 	.release	 = fs3270_close,	/* release */
+ };
+diff --git a/drivers/s390/char/sclp_ctl.c b/drivers/s390/char/sclp_ctl.c
+index dd6051602070..e23a97359286 100644
+--- a/drivers/s390/char/sclp_ctl.c
++++ b/drivers/s390/char/sclp_ctl.c
+@@ -7,7 +7,6 @@
+  * Author: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+  */
+ 
+-#include <linux/compat.h>
+ #include <linux/uaccess.h>
+ #include <linux/miscdevice.h>
+ #include <linux/gfp.h>
+@@ -43,10 +42,7 @@ static int sclp_ctl_cmdw_supported(unsigned int cmdw)
+ 
+ static void __user *u64_to_uptr(u64 value)
+ {
+-	if (is_compat_task())
+-		return compat_ptr(value);
+-	else
+-		return (void __user *)(unsigned long)value;
++	return (void __user *)(unsigned long)value;
+ }
+ 
+ /*
+@@ -95,10 +91,7 @@ static long sclp_ctl_ioctl(struct file *filp, unsigned int cmd,
+ {
+ 	void __user *argp;
+ 
+-	if (is_compat_task())
+-		argp = compat_ptr(arg);
+-	else
+-		argp = (void __user *) arg;
++	argp = (void __user *)arg;
+ 	switch (cmd) {
+ 	case SCLP_CTL_SCCB:
+ 		return sclp_ctl_ioctl_sccb(argp);
+@@ -114,7 +107,6 @@ static const struct file_operations sclp_ctl_fops = {
+ 	.owner = THIS_MODULE,
+ 	.open = nonseekable_open,
+ 	.unlocked_ioctl = sclp_ctl_ioctl,
+-	.compat_ioctl = sclp_ctl_ioctl,
+ };
+ 
+ /*
+diff --git a/drivers/s390/char/tape_char.c b/drivers/s390/char/tape_char.c
+index 89778d922d9f..195e247a74f5 100644
+--- a/drivers/s390/char/tape_char.c
++++ b/drivers/s390/char/tape_char.c
+@@ -17,7 +17,6 @@
+ #include <linux/types.h>
+ #include <linux/proc_fs.h>
+ #include <linux/mtio.h>
+-#include <linux/compat.h>
+ 
+ #include <linux/uaccess.h>
+ 
+@@ -37,9 +36,6 @@ static ssize_t tapechar_write(struct file *, const char __user *, size_t, loff_t
+ static int tapechar_open(struct inode *,struct file *);
+ static int tapechar_release(struct inode *,struct file *);
+ static long tapechar_ioctl(struct file *, unsigned int, unsigned long);
+-#ifdef CONFIG_COMPAT
+-static long tapechar_compat_ioctl(struct file *, unsigned int, unsigned long);
+-#endif
+ 
+ static const struct file_operations tape_fops =
+ {
+@@ -47,9 +43,6 @@ static const struct file_operations tape_fops =
+ 	.read = tapechar_read,
+ 	.write = tapechar_write,
+ 	.unlocked_ioctl = tapechar_ioctl,
+-#ifdef CONFIG_COMPAT
+-	.compat_ioctl = tapechar_compat_ioctl,
+-#endif
+ 	.open = tapechar_open,
+ 	.release = tapechar_release,
+ };
+@@ -442,25 +435,6 @@ tapechar_ioctl(struct file *filp, unsigned int no, unsigned long data)
+ 	return rc;
+ }
+ 
+-#ifdef CONFIG_COMPAT
+-static long
+-tapechar_compat_ioctl(struct file *filp, unsigned int no, unsigned long data)
 -{
--	local abis="$1"
--	local max_syscall_nr num_syscalls
+-	struct tape_device *device = filp->private_data;
+-	long rc;
 -
--	max_syscall_nr=$(__max_syscall_nr "$abis")
--	num_syscalls=$((max_syscall_nr + 1))
+-	if (no == MTIOCPOS32)
+-		no = MTIOCPOS;
+-	else if (no == MTIOCGET32)
+-		no = MTIOCGET;
 -
--	cat <<-EoHEADER
--	/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
--	#ifndef __ASM_S390_SYSCALLS_NR
--	#define __ASM_S390_SYSCALLS_NR
+-	mutex_lock(&device->mutex);
+-	rc = __tapechar_ioctl(device, no, compat_ptr(data));
+-	mutex_unlock(&device->mutex);
+-	return rc;
+-}
+-#endif /* CONFIG_COMPAT */
 -
--	#define NR_syscalls ${num_syscalls}
+ /*
+  * Initialize character device frontend.
+  */
+diff --git a/drivers/s390/char/vmcp.c b/drivers/s390/char/vmcp.c
+index 69899bb86b3e..bde6c9e59166 100644
+--- a/drivers/s390/char/vmcp.c
++++ b/drivers/s390/char/vmcp.c
+@@ -14,7 +14,6 @@
+ 
+ #include <linux/fs.h>
+ #include <linux/init.h>
+-#include <linux/compat.h>
+ #include <linux/kernel.h>
+ #include <linux/miscdevice.h>
+ #include <linux/slab.h>
+@@ -204,10 +203,7 @@ static long vmcp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	int __user *argp;
+ 
+ 	session = file->private_data;
+-	if (is_compat_task())
+-		argp = compat_ptr(arg);
+-	else
+-		argp = (int __user *)arg;
++	argp = (int __user *)arg;
+ 	if (mutex_lock_interruptible(&session->mutex))
+ 		return -ERESTARTSYS;
+ 	switch (cmd) {
+@@ -241,7 +237,6 @@ static const struct file_operations vmcp_fops = {
+ 	.read		= vmcp_read,
+ 	.write		= vmcp_write,
+ 	.unlocked_ioctl	= vmcp_ioctl,
+-	.compat_ioctl	= vmcp_ioctl,
+ };
+ 
+ static struct miscdevice vmcp_dev = {
+diff --git a/drivers/s390/cio/chsc_sch.c b/drivers/s390/cio/chsc_sch.c
+index 1e58ee3cc87d..ce992b2107cb 100644
+--- a/drivers/s390/cio/chsc_sch.c
++++ b/drivers/s390/cio/chsc_sch.c
+@@ -9,7 +9,6 @@
+  */
+ 
+ #include <linux/slab.h>
+-#include <linux/compat.h>
+ #include <linux/device.h>
+ #include <linux/io.h>
+ #include <linux/module.h>
+@@ -845,10 +844,7 @@ static long chsc_ioctl(struct file *filp, unsigned int cmd,
+ 	void __user *argp;
+ 
+ 	CHSC_MSG(2, "chsc_ioctl called, cmd=%x\n", cmd);
+-	if (is_compat_task())
+-		argp = compat_ptr(arg);
+-	else
+-		argp = (void __user *)arg;
++	argp = (void __user *)arg;
+ 	switch (cmd) {
+ 	case CHSC_START:
+ 		return chsc_ioctl_start(argp);
+@@ -923,7 +919,6 @@ static const struct file_operations chsc_fops = {
+ 	.open = chsc_open,
+ 	.release = chsc_release,
+ 	.unlocked_ioctl = chsc_ioctl,
+-	.compat_ioctl = chsc_ioctl,
+ };
+ 
+ static struct miscdevice chsc_misc_device = {
+diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
+index 4e6bf1cb3475..453d522787a2 100644
+--- a/drivers/s390/crypto/zcrypt_api.c
++++ b/drivers/s390/crypto/zcrypt_api.c
+@@ -21,7 +21,6 @@
+ #include <linux/interrupt.h>
+ #include <linux/miscdevice.h>
+ #include <linux/fs.h>
+-#include <linux/compat.h>
+ #include <linux/slab.h>
+ #include <linux/atomic.h>
+ #include <linux/uaccess.h>
+@@ -1729,197 +1728,6 @@ static long zcrypt_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 	}
+ }
+ 
+-#ifdef CONFIG_COMPAT
+-/*
+- * ioctl32 conversion routines
+- */
+-struct compat_ica_rsa_modexpo {
+-	compat_uptr_t	inputdata;
+-	unsigned int	inputdatalength;
+-	compat_uptr_t	outputdata;
+-	unsigned int	outputdatalength;
+-	compat_uptr_t	b_key;
+-	compat_uptr_t	n_modulus;
+-};
 -
--	#endif /* __ASM_S390_SYSCALLS_NR */
--EoHEADER
+-static long trans_modexpo32(struct ap_perms *perms, struct file *filp,
+-			    unsigned int cmd, unsigned long arg)
+-{
+-	struct compat_ica_rsa_modexpo __user *umex32 = compat_ptr(arg);
+-	struct compat_ica_rsa_modexpo mex32;
+-	struct ica_rsa_modexpo mex64;
+-	struct zcrypt_track tr;
+-	long rc;
+-
+-	memset(&tr, 0, sizeof(tr));
+-	if (copy_from_user(&mex32, umex32, sizeof(mex32)))
+-		return -EFAULT;
+-	mex64.inputdata = compat_ptr(mex32.inputdata);
+-	mex64.inputdatalength = mex32.inputdatalength;
+-	mex64.outputdata = compat_ptr(mex32.outputdata);
+-	mex64.outputdatalength = mex32.outputdatalength;
+-	mex64.b_key = compat_ptr(mex32.b_key);
+-	mex64.n_modulus = compat_ptr(mex32.n_modulus);
+-	do {
+-		rc = zcrypt_rsa_modexpo(perms, &tr, &mex64);
+-	} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+-
+-	/* on ENODEV failure: retry once again after a requested rescan */
+-	if (rc == -ENODEV && zcrypt_process_rescan())
+-		do {
+-			rc = zcrypt_rsa_modexpo(perms, &tr, &mex64);
+-		} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+-	if (rc == -EAGAIN && tr.again_counter >= TRACK_AGAIN_MAX)
+-		rc = -EIO;
+-	if (rc)
+-		return rc;
+-	return put_user(mex64.outputdatalength,
+-			&umex32->outputdatalength);
 -}
 -
+-struct compat_ica_rsa_modexpo_crt {
+-	compat_uptr_t	inputdata;
+-	unsigned int	inputdatalength;
+-	compat_uptr_t	outputdata;
+-	unsigned int	outputdatalength;
+-	compat_uptr_t	bp_key;
+-	compat_uptr_t	bq_key;
+-	compat_uptr_t	np_prime;
+-	compat_uptr_t	nq_prime;
+-	compat_uptr_t	u_mult_inv;
+-};
 -
--#
--# Parse command line arguments
--#
--do_syscall_header=""
--do_syscall_table=""
--do_syscall_nr=""
--output_file=""
--abi_list="common,64"
--filename=""
--while getopts ":HNSXi:a:f:" arg; do
--	case $arg in
--	a)
--		abi_list="$OPTARG"
--		;;
--	i)
--		SYSCALL_TBL="$OPTARG"
--		;;
--	f)
--		filename=${OPTARG##*/}
--		;;
--	H)
--		do_syscall_header=1
--		;;
--	N)
--		do_syscall_nr=1
--		;;
--	S)
--		do_syscall_table=1
--		;;
--	X)
--		set -x
--		;;
--	:)
--		echo "Missing argument for -$OPTARG" >&2
--		exit 1
--	;;
--	\?)
--		echo "Invalid option specified" >&2
--		exit 1
--	;;
--	esac
--done
+-static long trans_modexpo_crt32(struct ap_perms *perms, struct file *filp,
+-				unsigned int cmd, unsigned long arg)
+-{
+-	struct compat_ica_rsa_modexpo_crt __user *ucrt32 = compat_ptr(arg);
+-	struct compat_ica_rsa_modexpo_crt crt32;
+-	struct ica_rsa_modexpo_crt crt64;
+-	struct zcrypt_track tr;
+-	long rc;
 -
--test "$do_syscall_header" && generate_syscall_header "$abi_list" "$filename"
--test "$do_syscall_table" && generate_syscall_table
--test "$do_syscall_nr" && generate_syscall_nr "$abi_list"
+-	memset(&tr, 0, sizeof(tr));
+-	if (copy_from_user(&crt32, ucrt32, sizeof(crt32)))
+-		return -EFAULT;
+-	crt64.inputdata = compat_ptr(crt32.inputdata);
+-	crt64.inputdatalength = crt32.inputdatalength;
+-	crt64.outputdata = compat_ptr(crt32.outputdata);
+-	crt64.outputdatalength = crt32.outputdatalength;
+-	crt64.bp_key = compat_ptr(crt32.bp_key);
+-	crt64.bq_key = compat_ptr(crt32.bq_key);
+-	crt64.np_prime = compat_ptr(crt32.np_prime);
+-	crt64.nq_prime = compat_ptr(crt32.nq_prime);
+-	crt64.u_mult_inv = compat_ptr(crt32.u_mult_inv);
+-	do {
+-		rc = zcrypt_rsa_crt(perms, &tr, &crt64);
+-	} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
 -
--exit 0
+-	/* on ENODEV failure: retry once again after a requested rescan */
+-	if (rc == -ENODEV && zcrypt_process_rescan())
+-		do {
+-			rc = zcrypt_rsa_crt(perms, &tr, &crt64);
+-		} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+-	if (rc == -EAGAIN && tr.again_counter >= TRACK_AGAIN_MAX)
+-		rc = -EIO;
+-	if (rc)
+-		return rc;
+-	return put_user(crt64.outputdatalength,
+-			&ucrt32->outputdatalength);
+-}
+-
+-struct compat_ica_xcrb {
+-	unsigned short	agent_ID;
+-	unsigned int	user_defined;
+-	unsigned short	request_ID;
+-	unsigned int	request_control_blk_length;
+-	unsigned char	padding1[16 - sizeof(compat_uptr_t)];
+-	compat_uptr_t	request_control_blk_addr;
+-	unsigned int	request_data_length;
+-	char		padding2[16 - sizeof(compat_uptr_t)];
+-	compat_uptr_t	request_data_address;
+-	unsigned int	reply_control_blk_length;
+-	char		padding3[16 - sizeof(compat_uptr_t)];
+-	compat_uptr_t	reply_control_blk_addr;
+-	unsigned int	reply_data_length;
+-	char		padding4[16 - sizeof(compat_uptr_t)];
+-	compat_uptr_t	reply_data_addr;
+-	unsigned short	priority_window;
+-	unsigned int	status;
+-} __packed;
+-
+-static long trans_xcrb32(struct ap_perms *perms, struct file *filp,
+-			 unsigned int cmd, unsigned long arg)
+-{
+-	struct compat_ica_xcrb __user *uxcrb32 = compat_ptr(arg);
+-	u32 xflags = ZCRYPT_XFLAG_USERSPACE;
+-	struct compat_ica_xcrb xcrb32;
+-	struct zcrypt_track tr;
+-	struct ica_xcRB xcrb64;
+-	long rc;
+-
+-	memset(&tr, 0, sizeof(tr));
+-	if (copy_from_user(&xcrb32, uxcrb32, sizeof(xcrb32)))
+-		return -EFAULT;
+-	xcrb64.agent_ID = xcrb32.agent_ID;
+-	xcrb64.user_defined = xcrb32.user_defined;
+-	xcrb64.request_ID = xcrb32.request_ID;
+-	xcrb64.request_control_blk_length =
+-		xcrb32.request_control_blk_length;
+-	xcrb64.request_control_blk_addr =
+-		compat_ptr(xcrb32.request_control_blk_addr);
+-	xcrb64.request_data_length =
+-		xcrb32.request_data_length;
+-	xcrb64.request_data_address =
+-		compat_ptr(xcrb32.request_data_address);
+-	xcrb64.reply_control_blk_length =
+-		xcrb32.reply_control_blk_length;
+-	xcrb64.reply_control_blk_addr =
+-		compat_ptr(xcrb32.reply_control_blk_addr);
+-	xcrb64.reply_data_length = xcrb32.reply_data_length;
+-	xcrb64.reply_data_addr =
+-		compat_ptr(xcrb32.reply_data_addr);
+-	xcrb64.priority_window = xcrb32.priority_window;
+-	xcrb64.status = xcrb32.status;
+-	do {
+-		rc = _zcrypt_send_cprb(xflags, perms, &tr, &xcrb64);
+-	} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+-
+-	/* on ENODEV failure: retry once again after a requested rescan */
+-	if (rc == -ENODEV && zcrypt_process_rescan())
+-		do {
+-			rc = _zcrypt_send_cprb(xflags, perms, &tr, &xcrb64);
+-		} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+-	if (rc == -EAGAIN && tr.again_counter >= TRACK_AGAIN_MAX)
+-		rc = -EIO;
+-	xcrb32.reply_control_blk_length = xcrb64.reply_control_blk_length;
+-	xcrb32.reply_data_length = xcrb64.reply_data_length;
+-	xcrb32.status = xcrb64.status;
+-	if (copy_to_user(uxcrb32, &xcrb32, sizeof(xcrb32)))
+-		return -EFAULT;
+-	return rc;
+-}
+-
+-static long zcrypt_compat_ioctl(struct file *filp, unsigned int cmd,
+-				unsigned long arg)
+-{
+-	int rc;
+-	struct ap_perms *perms =
+-		(struct ap_perms *)filp->private_data;
+-
+-	rc = zcrypt_check_ioctl(perms, cmd);
+-	if (rc)
+-		return rc;
+-
+-	if (cmd == ICARSAMODEXPO)
+-		return trans_modexpo32(perms, filp, cmd, arg);
+-	if (cmd == ICARSACRT)
+-		return trans_modexpo_crt32(perms, filp, cmd, arg);
+-	if (cmd == ZSECSENDCPRB)
+-		return trans_xcrb32(perms, filp, cmd, arg);
+-	return zcrypt_unlocked_ioctl(filp, cmd, arg);
+-}
+-#endif
+-
+ /*
+  * Misc device file operations.
+  */
+@@ -1928,9 +1736,6 @@ static const struct file_operations zcrypt_fops = {
+ 	.read		= zcrypt_read,
+ 	.write		= zcrypt_write,
+ 	.unlocked_ioctl	= zcrypt_unlocked_ioctl,
+-#ifdef CONFIG_COMPAT
+-	.compat_ioctl	= zcrypt_compat_ioctl,
+-#endif
+ 	.open		= zcrypt_open,
+ 	.release	= zcrypt_release,
+ };
+diff --git a/drivers/s390/crypto/zcrypt_card.c b/drivers/s390/crypto/zcrypt_card.c
+index aa2c8ff2740e..6dea702a5cac 100644
+--- a/drivers/s390/crypto/zcrypt_card.c
++++ b/drivers/s390/crypto/zcrypt_card.c
+@@ -19,7 +19,6 @@
+ #include <linux/fs.h>
+ #include <linux/proc_fs.h>
+ #include <linux/seq_file.h>
+-#include <linux/compat.h>
+ #include <linux/slab.h>
+ #include <linux/atomic.h>
+ #include <linux/uaccess.h>
+diff --git a/drivers/s390/crypto/zcrypt_queue.c b/drivers/s390/crypto/zcrypt_queue.c
+index 76a8678bdad6..a173d32eb6e8 100644
+--- a/drivers/s390/crypto/zcrypt_queue.c
++++ b/drivers/s390/crypto/zcrypt_queue.c
+@@ -19,7 +19,6 @@
+ #include <linux/fs.h>
+ #include <linux/proc_fs.h>
+ #include <linux/seq_file.h>
+-#include <linux/compat.h>
+ #include <linux/slab.h>
+ #include <linux/atomic.h>
+ #include <linux/uaccess.h>
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index edc0bcd46923..6d415e9d5c9f 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -10,7 +10,6 @@
+ #define KMSG_COMPONENT "qeth"
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+ 
+-#include <linux/compat.h>
+ #include <linux/export.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+@@ -4805,8 +4804,7 @@ static int qeth_query_oat_command(struct qeth_card *card, char __user *udata)
+ 
+ 	rc = qeth_send_ipa_cmd(card, iob, qeth_setadpparms_query_oat_cb, &priv);
+ 	if (!rc) {
+-		tmp = is_compat_task() ? compat_ptr(oat_data.ptr) :
+-					 u64_to_user_ptr(oat_data.ptr);
++		tmp = u64_to_user_ptr(oat_data.ptr);
+ 		oat_data.response_len = priv.response_len;
+ 
+ 		if (copy_to_user(tmp, priv.buffer, priv.response_len) ||
 -- 
 2.48.1
 
