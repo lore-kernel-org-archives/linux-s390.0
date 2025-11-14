@@ -1,100 +1,209 @@
-Received: from ssh248.corpemail.net (ssh248.corpemail.net [210.51.61.248])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F4B01DE2C9;
-	Fri, 14 Nov 2025 02:19:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.51.61.248
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 588B927E7DA
+	for <linux-s390@vger.kernel.org>; Fri, 14 Nov 2025 04:12:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763086782; cv=none; b=KFagMEfp9jvDHcyF0Qa3SPJKYq4grqEicDJPJdthb3icuVSqH9Ucb/HkiyQ640cObLV+tfoU1hJv5/FsLwGDcziHy3/7RA2GhMlNHeKGDGVqFqboF5nundi+NGG5K2ntlCQQAy6MTEojSPG+G2iIuuUb3D7Qi60RT2QerEy2/vE=
+	t=1763093556; cv=none; b=XXRuvO1qZKmRpPZF5kMUP0E8BnoywIL4W1IzH4ireFv9xZ5GDChTAu9xYWG4/iCRFQoQoFfYfKJoYYiWUviooIBmwH+1byLfIqowlf6C8YcsQ+H8hVKPIqoqAbdCpb60Zzo/lmU5WYRKeGxZ2hOGZnYaYtXUbMEgsv5RNECKij4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763086782; c=relaxed/simple;
-	bh=48CjyM2AwMjsc23DNfyWp695/pjVJrBcjVimjbzXYbg=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Nijmm0/BdjjRdK+tHYTWyFapnknAA1o2xfE59fYeNYvkzclcnwlWEI1/SpwxoRUK8sbDWpu0pmhuKl+47Fw8QNaLO8Yae2uKdxU+j8hcqkOkWo0FRbVY3HOfWQjbm8NDa7pAHNyWcTm5W4onncSVM/JpnudSqYM/qGee6plwBm8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=inspur.com; spf=pass smtp.mailfrom=inspur.com; arc=none smtp.client-ip=210.51.61.248
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=inspur.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=inspur.com
-Received: from Jtjnmail201614.home.langchao.com
-        by ssh248.corpemail.net ((D)) with ASMTP (SSL) id 202511141019291711;
-        Fri, 14 Nov 2025 10:19:29 +0800
-Received: from jtjnmailAR02.home.langchao.com (10.100.2.43) by
- Jtjnmail201614.home.langchao.com (10.100.2.14) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.58; Fri, 14 Nov 2025 10:19:29 +0800
-Received: from inspur.com (10.100.2.112) by jtjnmailAR02.home.langchao.com
- (10.100.2.43) with Microsoft SMTP Server id 15.1.2507.58 via Frontend
- Transport; Fri, 14 Nov 2025 10:19:29 +0800
-Received: from localhost.localdomain.com (unknown [10.94.7.17])
-	by app8 (Coremail) with SMTP id cAJkCsDwK9GxkRZpvFgNAA--.25084S4;
-	Fri, 14 Nov 2025 10:19:29 +0800 (CST)
-From: Chu Guangqing <chuguangqing@inspur.com>
-To: <hca@linux.ibm.com>, <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
-	<borntraeger@linux.ibm.com>, <svens@linux.ibm.com>, <wim@linux-watchdog.org>,
-	<linux@roeck-us.net>
-CC: <linux-s390@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, Chu Guangqing <chuguangqing@inspur.com>
-Subject: [PATCH v2] watchdog: diag288: Fix a spelling mistake
-Date: Fri, 14 Nov 2025 10:18:34 +0800
-Message-ID: <20251114021834.2346-1-chuguangqing@inspur.com>
-X-Mailer: git-send-email 2.43.7
+	s=arc-20240116; t=1763093556; c=relaxed/simple;
+	bh=vqxQ3dK7VdFS3PT/6Q6WjwlGkrU2MdtNuweZl3H6mBs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=TpfsPmyDpHdffq2pzr2gvMMRKVnfB/otNiW8ZcKrGEM0bUqJjU3cyw8eZqeTs68eKFydodhZKYUCV3rJD8GbXPPESVQ/1BZy3z40XOdP7ErHf9Qe/4RQNzYg5P23VDBMEZN/rWvgVOc7wnd1E8xnssffio5im2uHKXCx0+bMeE8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=WcdvIvc3; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=S6ehArPl; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="WcdvIvc3";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="S6ehArPl"
+Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 5ADMatSq1426033
+	for <linux-s390@vger.kernel.org>; Fri, 14 Nov 2025 04:12:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=qcppdkim1; bh=l9FUBbeUidxIV00pdQyQahKH
+	PpoxkuEk9fyNczKyhZ4=; b=WcdvIvc3sMDYJHBly1X7GlPj50GGKCEK4vrDj8k0
+	5eaZ80++Ws3b6M4a/w2eVgp5fBZPqpReXJ6xcZvCuGqlyHQVAUPNMJplXDtRkmjR
+	y6847o+zGxT2XJUEtVt8QOs1dNpy77MXiVZuOJgYMs0BamIgUtjw2hTVBYrDWjPI
+	ByZ746JdSL8Gv5MgaoTNMk2yzeUNW4jCf/D2j643Vd/vNt+46rBlvy+jz4Ihw0Z+
+	fTd/SLbn6SPCPWVriGZp93nSNSFJRad1vxT6ksE51c5WW0OqhiOxjWbi0pFY79Eh
+	201wVoknTjIeNpA4GWGoZTCf94s18YBclqS5YUrFYMV7Vg==
+Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com [209.85.222.197])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4adr9g0rac-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Fri, 14 Nov 2025 04:12:32 +0000 (GMT)
+Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-8b26bc4984bso784568985a.1
+        for <linux-s390@vger.kernel.org>; Thu, 13 Nov 2025 20:12:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1763093552; x=1763698352; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=l9FUBbeUidxIV00pdQyQahKHPpoxkuEk9fyNczKyhZ4=;
+        b=S6ehArPlA6Y4Y2WhGL5tW8g9/P+SLUq8P/kEOUNHMBNtktCmPsFqnHMd7TRn04iPvO
+         3UXvPPUHTZFrNRaz15CaNWcEokgpflDA4lHpPu+L9wZx06AZC8GrhZtLXNVTJk+CMbdu
+         11zsB1uyN//YAxP5Y6B6mKG39c9o8KpIfLjHmkBiFb3K71khvkuwX4igh8z8to2voa3p
+         zeYb6yua1xQrJTcS/hZVKWsHoARpHWPg+pAKO80q7A1M9sFReG2WhdDHevHZdxs/91T0
+         ILNhpfgX4oj303aRnl5T51TBtUVEF1XALli3nQ25MOMx2STZunr5JokL0gQauX1zO4qz
+         pY5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763093552; x=1763698352;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=l9FUBbeUidxIV00pdQyQahKHPpoxkuEk9fyNczKyhZ4=;
+        b=PQdhsuRkGVcleQKrkOPEpTNAU3fzKbI8gdLEexr0YCmlGkmIHi/KHhxp57EaoovCsO
+         FYIB5jvwziE7bEyvRpXREFtWQWnwBhj4Rux/AFRO+DL8FT9oWKRR/FWC9WWLLyol/Odj
+         LkvNqtFabW6tXcGfDT/zyPRz/Qq6f/Z+xSGmTHj/GodxrqxazWZEdF2AN5KtarOQ5OES
+         dVIGZlyH0e95TwXAS1AKUEfg7HgOANSMJFu91R/gFzMVClPpvzkHbyLqggerLzSHwobk
+         81OjkXyRbMwZe/Rh2Ixvl/7r4iiC2rusD4jyKSdMtGuTnGzmbYk4pqyAkwGgN2WUJl36
+         XLyg==
+X-Forwarded-Encrypted: i=1; AJvYcCXl2gygoxLd2CpfPmLlpzo0Vo/oCPgepTvn++8pLojaSG59Skk96EWx4y4/4rGZO/yPNB5VHVCJWFnw@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyf4WG9BecVjpq8B90vdeHTRWiWLmA/eMaeTtiqQg9xIoyFpKkK
+	74yPJ96nAofIdd8Awle6MES7g6jjdjP1+p8vxEX/FFziQftr30pGlZyVG3VZn8lNgW3trywZpdt
+	hJoYVJ3RQsido5kaBCHxrUAOVatfJC5rE+jIH66c4aoA1xblmhaew7TokEG5i5STX
+X-Gm-Gg: ASbGncs7NF8jwUw6mkpaXQmKV+LD3RXzODxkhrHznj8iFhA9fcbOQbyfLo8+6/WcE47
+	q9peyBKmL6pwzzRdj5wTZ4Kh0SHf0h1UJtJ6LTIxb9j4MIijtLlI5okJI80fi0VgJLVc/5MxfU7
+	iqRLQw0+EbF8PhxR6hs9YXFF89HyYEFdVLf0mrD4KjB2vJxdQDxaTCWY8E3qPI5consJmTki4BR
+	hqnJK1N4oPJI540TROAR0BbN7A0uDpeJtvMZ8CucHXY+S+UrH6xxJwJsbYcOPsKlv0vh3Bwqbwe
+	fR+290/Rqwo/BqXPcxKQfFmvmllEaWm9CCiWeQM5oPa7IVC+HAZOH4kQXM0RZd7wu9W4BZGmA6a
+	EGHuN/XsBTvnW67y4N+pSyYuQFf0fe8zN6NoqtctO+dJ/052DfarfeQaIyDkQSOfpl5q+XtnNO8
+	kR+n9UL2nbM3Ec
+X-Received: by 2002:a05:620a:4628:b0:8b1:ed55:e4f1 with SMTP id af79cd13be357-8b2c3175d59mr235429685a.39.1763093551929;
+        Thu, 13 Nov 2025 20:12:31 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGRBRFxxiAD30mEJm55HBtKCBqJwVeb/nqEO1wa7PZ+U+vRFrL3SI4k/Rw4EJ92OxtkmKQ+nw==
+X-Received: by 2002:a05:620a:4628:b0:8b1:ed55:e4f1 with SMTP id af79cd13be357-8b2c3175d59mr235424485a.39.1763093551352;
+        Thu, 13 Nov 2025 20:12:31 -0800 (PST)
+Received: from umbar.lan (2001-14ba-a0c3-3a00-264b-feff-fe8b-be8a.rev.dnainternet.fi. [2001:14ba:a0c3:3a00:264b:feff:fe8b:be8a])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-59580405a4esm784867e87.95.2025.11.13.20.12.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Nov 2025 20:12:30 -0800 (PST)
+Date: Fri, 14 Nov 2025 06:12:28 +0200
+From: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Corey Minyard <corey@minyard.net>,
+        Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>,
+        "Dr. David Alan Gilbert" <linux@treblig.org>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Rob Clark <robin.clark@oss.qualcomm.com>,
+        Matthew Brost <matthew.brost@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Vitaly Lifshits <vitaly.lifshits@intel.com>,
+        Manivannan Sadhasivam <mani@kernel.org>,
+        Niklas Cassel <cassel@kernel.org>, Calvin Owens <calvin@wbinvd.org>,
+        Vadim Fedorenko <vadim.fedorenko@linux.dev>,
+        Sagi Maimon <maimon.sagi@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Karan Tilak Kumar <kartilak@cisco.com>,
+        Hans Verkuil <hverkuil+cisco@kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Steven Rostedt <rostedt@goodmis.org>, Petr Mladek <pmladek@suse.com>,
+        Viacheslav Dubeyko <Slava.Dubeyko@ibm.com>,
+        Max Kellermann <max.kellermann@ionos.com>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
+        linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linaro-mm-sig@lists.linaro.org, amd-gfx@lists.freedesktop.org,
+        linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org,
+        intel-xe@lists.freedesktop.org, linux-mmc@vger.kernel.org,
+        netdev@vger.kernel.org, intel-wired-lan@lists.osuosl.org,
+        linux-pci@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-staging@lists.linux.dev,
+        ceph-devel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        Gustavo Padovan <gustavo@padovan.org>,
+        David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Dmitry Baryshkov <lumag@kernel.org>,
+        Abhinav Kumar <abhinav.kumar@linux.dev>,
+        Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>,
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        Konrad Dybcio <konradybcio@kernel.org>,
+        Lucas De Marchi <lucas.demarchi@intel.com>,
+        Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Vladimir Oltean <olteanv@gmail.com>, Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+        Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
+        Kishon Vijay Abraham I <kishon@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Rodolfo Giometti <giometti@enneenne.com>,
+        Jonathan Lemon <jonathan.lemon@gmail.com>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Satish Kharat <satishkh@cisco.com>,
+        Sesidhar Baddela <sebaddel@cisco.com>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Xiubo Li <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v3 06/21] drm/msm: Switch to use %ptSp
+Message-ID: <ngzyqzrjg2msv6odahkirdipjizbpaecfscfgnic3su5fl6hs7@qgdb53svq64p>
+References: <20251113150217.3030010-1-andriy.shevchenko@linux.intel.com>
+ <20251113150217.3030010-7-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: cAJkCsDwK9GxkRZpvFgNAA--.25084S4
-X-Coremail-Antispam: 1UD129KBjvdXoW7JFy5CrWrJF4DZr18Xw1UJrb_yoWfWrX_Wa
-	yIyr9a9348Kr42yF4kZw45Aa40gF4DuF1kWaySq3yag3y2vrWrGr4kJ348tr1xWFWjgrn8
-	Aan0qr4S9F47tjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUIcSsGvfJTRUUUb38FF20E14v26r4j6ryUM7CY07I20VC2zVCF04k26cxKx2IYs7xG
-	6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
-	A2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_GcCE
-	3s1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s
-	1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0
-	cI8IcVAFwI0_JrI_JrylYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8Jw
-	ACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2Y2ka
-	0xkIwI1lc7CjxVAaw2AFwI0_Jw0_GFyl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7
-	v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF
-	1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIx
-	AIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI
-	42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWI
-	evJa73UjIFyTuYvjfUFg4SDUUUU
-X-CM-SenderInfo: 5fkxw35dqj1xlqj6x0hvsx2hhfrp/
-X-CM-DELIVERINFO: =?B?X9aut5RRTeOiUs3aOqHZ50hzsfHKF9Ds6CbXmDm38RucXu3DYXJR7Zlh9zE0nt/Iac
-	D+KYzHO7CvzIQvEYRP3RrTMMymYlkH/bzoF/J+hA0EGp26pktjtCORG06EFhyBEYXcMZUx
-	EHpAtsdbSJKVvDTKW2Q=
-Content-Type: text/plain
-tUid: 20251114101930d08dc6991b159d8568959072dc9ea6c4
-X-Abuse-Reports-To: service@corp-email.com
-Abuse-Reports-To: service@corp-email.com
-X-Complaints-To: service@corp-email.com
-X-Report-Abuse-To: service@corp-email.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251113150217.3030010-7-andriy.shevchenko@linux.intel.com>
+X-Authority-Analysis: v=2.4 cv=L+AQguT8 c=1 sm=1 tr=0 ts=6916ac30 cx=c_pps
+ a=50t2pK5VMbmlHzFWWp8p/g==:117 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10
+ a=6UeiqGixMTsA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=QyXUC8HyAAAA:8 a=EUspDBNiAAAA:8 a=JNz3O4sEs4oywJvo4n4A:9 a=CjuIK1q_8ugA:10
+ a=IoWCM6iH3mJn3m4BftBB:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTE0MDAyOSBTYWx0ZWRfX8EJRZ7n0a6js
+ UnNAaRNSQP59VQOA6IGoO2OiwMO2uR1bleRw7FUVVEUFcQ1ciwbrxX5vRAncOYmeXRXiOPxWgtf
+ tqX/kpb7Y8kbE7QNIy6nG+xq51anLCXtGLd0pV1Jz4JeKit8LNbVOnbNICTklxbnEVN6Kf2bOdv
+ 11E2OXiRcy475KC2krrd/Ti2r26Ku9ltk8cMF5If6yE2dHSN63iF0f0hNEeDJKYnMh/OU8r6YhM
+ A9vpWY3nKz817SonhzEjKcEI/zehHtb3Elg1MoVsUsnHwp/e/ZAwjuNf72pA3USrungTpmSn/fw
+ IOrXgSp4WmUnuU8Ox/CgNbmkebPz+uAHQy1DB1sS3amBf/y/6nKXnag6l4VrB2U0yHi7cpv9U4+
+ hR5a/neL3qtE2z3iG3yf/sDKfZTznQ==
+X-Proofpoint-ORIG-GUID: b7y1W4id6X3WOHhuc_LbH3jZO_bRIBx1
+X-Proofpoint-GUID: b7y1W4id6X3WOHhuc_LbH3jZO_bRIBx1
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-11-13_07,2025-11-13_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 phishscore=0 impostorscore=0 priorityscore=1501 adultscore=0
+ clxscore=1011 bulkscore=0 malwarescore=0 lowpriorityscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2510240001 definitions=main-2511140029
 
-There are two word spelling errors here, correct two spelling errors.
+On Thu, Nov 13, 2025 at 03:32:20PM +0100, Andy Shevchenko wrote:
+> Use %ptSp instead of open coded variants to print content of
+> struct timespec64 in human readable format.
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  drivers/gpu/drm/msm/disp/msm_disp_snapshot_util.c | 3 +--
+>  drivers/gpu/drm/msm/msm_gpu.c                     | 3 +--
+>  2 files changed, 2 insertions(+), 4 deletions(-)
+> 
 
-Signed-off-by: Chu Guangqing <chuguangqing@inspur.com>
----
- drivers/watchdog/diag288_wdt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Acked-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
 
-diff --git a/drivers/watchdog/diag288_wdt.c b/drivers/watchdog/diag288_wdt.c
-index 887d5a6c155b..48219844efef 100644
---- a/drivers/watchdog/diag288_wdt.c
-+++ b/drivers/watchdog/diag288_wdt.c
-@@ -6,10 +6,10 @@
-  * to CP.
-  *
-  * The command can be altered using the module parameter "cmd". This is
-- * not recommended because it's only supported on z/VM but not whith LPAR.
-+ * not recommended because it's only supported on z/VM but not with LPAR.
-  *
-  * On LPAR, the watchdog will always trigger a system restart. the module
-- * paramter cmd is meaningless here.
-+ * parameter cmd is meaningless here.
-  *
-  *
-  * Copyright IBM Corp. 2004, 2013
+
 -- 
-2.43.7
-
+With best wishes
+Dmitry
