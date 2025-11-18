@@ -1,139 +1,81 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CBE52652A2;
-	Tue, 18 Nov 2025 01:58:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 107E22BD01B;
+	Tue, 18 Nov 2025 04:30:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763431107; cv=none; b=itwvu4ZYd9HPs0a5NPIanfjnRQeeE5YDfPMEUdVfWxUbXjMByd91PlQ14YxD1Bm0Dph+NJwGtuTQ7B6dF+cTl/OIlpG7fZTaeWAlz/KABoMUbYEI2/FQKsMuVENSqPC9xlCgUJXS6T+sxAPOdtT70gna9/D/DoNvC0tOQ3NxGjI=
+	t=1763440261; cv=none; b=u5wdZ7gQH5xJQTA6G8RuShS91tNyrJymuihn+CtqFN03OB+4vwCh7HKTDXsmVr8GZhGI57G55Iit93qGU6N3mAh3pfxfigIfCcq9d40IMuQOC809/d1pBadkp9673DZybwUG+mwHxYXzVoawWNVc6i3QMPR6L5cCjXk3qlRt/qQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763431107; c=relaxed/simple;
-	bh=r6QPg0wMUWeATYfOKgcGAJtZgZx5E5n3Akj4ZMKDXGw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DUwRjiXTjvX4/mSJDnhNniWeLESvsOmKkkf+JG/xJibhuHFRouJlfZednmARkGTpA4HuCqy4J0Sc8pcOaVmhl3zvJ6r41Su/wM+EDgA3dzIcJ6wEqlaFLEhIT+xHb2oy2IxX3RBh6wWZvwoST3EihEZsMoIkTooXJ5Xkn3gjz8U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CYJ7BCru; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1763440261; c=relaxed/simple;
+	bh=HWMyiBwKE2W6Sj+lpKnrUsKepO5aWdP8Gmo+uQv7bJw=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=CpHbbvsV5EQvBu2cjWhmBlKulLMOqMUS6YgFHRWqxsc7TwFDBIPVJhy0iepCAmiqZD5zrP2ixd1YVLrmxCLl1OwyREMGm37noPUJWe9Qr1TAMwEdmSTPBQhfWvQh+3d/AyXz2Hl+7MeXzpPPwrl0YyhGYgXFuTgz1X3bhPj6zUk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=brVpmuXi; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CYJ7BCru"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27F85C19423;
-	Tue, 18 Nov 2025 01:58:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="brVpmuXi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79C67C19421;
+	Tue, 18 Nov 2025 04:30:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1763431106;
-	bh=r6QPg0wMUWeATYfOKgcGAJtZgZx5E5n3Akj4ZMKDXGw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=CYJ7BCruKHK2MunApovm69H88xFsqKezYIASBPY+38PhGHZImKU4NyEMqaweRQxRl
-	 US1eB8aslFXOITa95rvnfBppkkSf7a+s+C1HQ30FbMno+NiWnDtIvqRYikAigv35/M
-	 0BK1v4sklX64F/uDZPk4GdcpRUX7V8ZFOcZxXs6U8btX42AHzV57ksL9VFtzytl/Z0
-	 8uSyjX9MCgiGObmOyvUdurrvfT2Yc+nXfA1ZFYMAD+mwMb8WI+rmjfVsy410JnzGvx
-	 Zu9dZmkeUSgIXNThrDUaF5BhGilQS81lqh4LXnMMtzTwethO5kMezBRCFG3q08Jj9v
-	 PgE2XIgC08+pw==
-Date: Mon, 17 Nov 2025 17:58:23 -0800
-From: Namhyung Kim <namhyung@kernel.org>
-To: Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-perf-users@vger.kernel.org, acme@kernel.org,
-	agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
-	hca@linux.ibm.com, japo@linux.ibm.com
-Subject: Re: [PATCH Linux-next] perf test: Fix test case perf trace BTF
- general tests
-Message-ID: <aRvSv03cqarM5dY9@google.com>
-References: <20251117124359.75604-1-tmricht@linux.ibm.com>
+	s=k20201202; t=1763440259;
+	bh=HWMyiBwKE2W6Sj+lpKnrUsKepO5aWdP8Gmo+uQv7bJw=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=brVpmuXiQPLvZ+VAr8OHav0CIrvh4AMkxKH7pXfQWEY7IbViFtvbk988fDKGk8mnO
+	 Uj1Ob/Gl3n5IPnfuJj23eB8g7c1r7lXQDmnwBnSf5V8/u5NzHfd5WJ13rbToRGcDDw
+	 LRG/63C/xa5KBE0uD8+71ggCrnMaY2M7PHac9mHCNm59qQFer3rYZMuzGhjkGwGOiP
+	 m6jqrbnx7wneuPfUoni1D0IEeTHT1Ha/czxhcv6RJmGyOkQ9nFR7/gQv46DTTG3mv3
+	 O48NW86sBSBN469bgUK3FuD2u4o0yM7bn84/Rh+ZZA2jrR0xFVlpoPLDDV/IfdQS3/
+	 kEf8Og4p6hbSQ==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EAEB23809A1D;
+	Tue, 18 Nov 2025 04:30:26 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20251117124359.75604-1-tmricht@linux.ibm.com>
+Subject: Re: [PATCH net-next 0/2] s390/qeth: Improve handling of OSA RCs 
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <176344022550.3968687.8165181544114734135.git-patchwork-notify@kernel.org>
+Date: Tue, 18 Nov 2025 04:30:25 +0000
+References: <20251113144209.2140061-1-aswin@linux.ibm.com>
+In-Reply-To: <20251113144209.2140061-1-aswin@linux.ibm.com>
+To: Aswin Karuvally <aswin@linux.ibm.com>
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+ edumazet@google.com, andrew+netdev@lunn.ch, netdev@vger.kernel.org,
+ linux-s390@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
+ agordeev@linux.ibm.com, wintera@linux.ibm.com, borntraeger@linux.ibm.com,
+ svens@linux.ibm.com, horms@kernel.org
 
-Hello,
+Hello:
 
-On Mon, Nov 17, 2025 at 01:43:59PM +0100, Thomas Richter wrote:
-> The following test case fails on linux-next repo:
-> 
->  ❯ uname -a
->  Linux s83lp47.lnxne.boe 6.18.0-20251116.rc5.git0.0f2995693867.63.\
->       fc42.s390x+next #1 SMP Sun Nov 16 20:05:28 CET 2025 s390x GNU/Linux
-> 
->  # perf test -Fv 109
->  --- start ---
->  Checking if vmlinux BTF exists
->  Testing perf trace's string augmentation
->  Testing perf trace's buffer augmentation
->  Buffer augmentation test failed, output:
->  buffer content
->  echo/23281 write(1, buffer conten, 15, "") = 15
->  ---- end ----
->  109: perf trace BTF general tests            : FAILED!
->  #
-> 
-> The root case is a changed output format on linux-next.
-> There is an addional "" string as forth parameter in the write()
-> line. Here is the detailed output on linux-repo.
-> Please note that this depends on the kernel and not on the perf tool.
+This series was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-Thanks for the report.  Do you know what the 4th arg is?  It'd be nice
-if you can dump the contents of the event format which is
-/sys/kernel/tracing/events/syscalls/sys_enter_write/format.
+On Thu, 13 Nov 2025 15:42:07 +0100 you wrote:
+> This two patch series aims to improve how return codes from OSA Express
+> are handled in the qeth driver.
+> 
+> OSA defines a number of return codes whose meaning is determined by the
+> issuing command, ie. they are ambiguous. The first patch moves
+> definitions of all return codes including the ambiguous ones to a single
+> enum block to aid readability and maintainability.
+> 
+> [...]
 
-Thanks,
-Namhyung
+Here is the summary with links:
+  - [net-next,1/2] s390/qeth: Move all OSA RCs to single enum
+    https://git.kernel.org/netdev/net-next/c/eef1f5ae73d1
+  - [net-next,2/2] s390/qeth: Handle ambiguous OSA RCs in s390dbf
+    https://git.kernel.org/netdev/net-next/c/53e58437b470
 
-> 
-> Output on linux next kernel:
->  # uname -a
->  Linux f43 6.18.0-rc5-next-20251114tmr-n #1 SMP PREEMPT_DYNAMIC ...
->  # perf config trace.show_arg_names=false trace.show_duration=false \
-> 	trace.show_timestamp=false trace.args_alignment=0
->  # ./perf trace --sort-events -e write --max-events=1 \
-> 	-- echo 'buffer content' 1>/dev/null
->  echo/7676 write(1, buffer content\10, 15, "") = 15
->  #
-> 
-> Output on linux kernel:
->  # uname -a
->  Linux b3560002.lnxne.boe 6.18.0-rc5m-perf #6 ....
->  # perf config trace.show_arg_names=false trace.show_duration=false \
-> 	trace.show_timestamp=false trace.args_alignment=0
->  # ./perf trace --sort-events -e write --max-events=1 \
-> 	-- echo 'buffer content' 1>/dev/null
->  echo/36932 write(1, buffer content\10, 15) = 15
->  #
-> 
-> Add the optional forth parameter in the extented regular expression to
-> accept both output formats.
-> 
-> Output after:
->  # ./perf test -Fv 'perf trace BTF general tests'
->  --- start ---
->  Checking if vmlinux BTF exists
->  Testing perf trace's string augmentation
->  Testing perf trace's buffer augmentation
->  Testing perf trace's struct augmentation
->  ---- end ----
->  115: perf trace BTF general tests            : Ok
->  #
-> 
-> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> ---
->  tools/perf/tests/shell/trace_btf_general.sh | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/tools/perf/tests/shell/trace_btf_general.sh b/tools/perf/tests/shell/trace_btf_general.sh
-> index ef2da806be6b..9cd6180062d8 100755
-> --- a/tools/perf/tests/shell/trace_btf_general.sh
-> +++ b/tools/perf/tests/shell/trace_btf_general.sh
-> @@ -39,7 +39,7 @@ trace_test_buffer() {
->    echo "Testing perf trace's buffer augmentation"
->    # echo will insert a newline (\10) at the end of the buffer
->    output="$(perf trace --sort-events -e write --max-events=1 -- echo "${buffer}" 2>&1)"
-> -  if ! echo "$output" | grep -q -E "^echo/[0-9]+ write\([0-9]+, ${buffer}.*, [0-9]+\) += +[0-9]+$"
-> +  if ! echo "$output" | grep -qE "^echo/[0-9]+ write\([0-9]+, ${buffer}\\\\10, [0-9]+(, ..)?\) += +[0-9]+$"
->    then
->      printf "Buffer augmentation test failed, output:\n$output\n"
->      err=1
-> -- 
-> 2.51.1
-> 
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
