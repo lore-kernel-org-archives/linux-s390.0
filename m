@@ -1,312 +1,694 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0945821CC79;
-	Tue, 18 Nov 2025 16:05:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E202365A10;
+	Tue, 18 Nov 2025 16:13:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763481922; cv=none; b=g6qY7mv1cCq0Wg59Xcyu5ICi50k+r+oUrWcZxtiKZFcs4bYp69ccchZaBIu2wlV1288lAepUOAAqUS620GLPojevLWG4oUp3eNcdbDo5hfjEvyZ31JJPWMMt6lL1zmmfTopR/ILKM4PXlQhgdE4G1b1neJfDLgZYLFKqucIx4D8=
+	t=1763482399; cv=none; b=GX+98nd29XXbNYIBn7HkEigutKL9e6z7gl0BEy2URpt7s0pem8HQNJ/6F6pctiYUAax3aRMQHqb2Z5GpgBe72U+mqpEEc4m7dZmAxJWwnA0PA10//LOLV0R62gD3X8QMOxXVGaQwvcj58tvPBHqCL7OU8QDIB/RcV3mCs4vqjvw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763481922; c=relaxed/simple;
-	bh=cin5UPavKVB7t6PE0aD17koWdUzREkVM/VIYxa8Eyq4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pSYKsdzmxi822JiEMUCftGR/OczSeJemobv3+rIfnJL8abqVNwdj6svNCZaILhkgVi869mPWQG+CSI3Wuhjr8GWjOSF27iYxb+oXOzdBLBvTb8sUARaxxuMQyLMi5i3RPVDz3+cP8yWpMZrajFFlr15eukNzJDIDmXGzrTIYFZA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CK3DsRNo; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1763482399; c=relaxed/simple;
+	bh=uqs+jFHogsLPmzxWPgf0t93zGIxFwB9hjK2Sw3RrxBs=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=YX3btLvJtZeLK5YgrUQgicZNKsBbw7QIGkyVveuhplE1M5baL42Vl1lQtMKqs6daLJ7kMn/609slIQeOITvNqPd7kMrdmLmsEALnLDM8b4vSFoG6VAVF5tDdvODMaxG796qmR8fhV4C/dBjHPJb68cFSutRhY7LQiXmtXT6E2iw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BsXw3z4F; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CK3DsRNo"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AI2iBT8029107;
-	Tue, 18 Nov 2025 16:05:05 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BsXw3z4F"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AIG4D34005943;
+	Tue, 18 Nov 2025 16:13:14 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=J3iJqN
-	AT/bUft0zcNiTR3dKZ62BJ+cXhb56tYI8EB6U=; b=CK3DsRNoVBLTovx+cSxE77
-	BaSlrNbqtcIsfdjczYWacSW+lDIDRiyBXm8I/QWWdFWVz0X0winV1gtm620oHuXL
-	wwRJlYYD/DRLtMaqUWdq5P99+MUCuMkcxRM1aFRE4K0n0xPoT3wUQKk32XY4PX0D
-	mHZWS+6rU56PrQiQ+S6QT3TNxu+JnKYirmR6rQ0WdH16zUxUse/W9NSVCeccmyL5
-	B/65a4Men5l8ZyriYSBCn5ZSYxWFShhUdY+6TEjRAZ7ChT/eoXbf13UGtoZak5uh
-	P5JA9pQMxpUXq3GxlTtfb89F+8IURZy+6W6opxoo6GThW7e7e64YcMwNJ8K24NhA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=zr3ILI
+	+OUQF4NEFrdcHa3lksGuDzj+iDfORjvprLkiA=; b=BsXw3z4FxAX39UlJMZBbwT
+	6TCgpOsGbWabL5A+8GWRfadWn3D5QPlXNdKyCjEf2yjdwYOGcYoLMe654eqvUWeO
+	00IcJJH96e2FvbaDPATbU8pOm+OyFLOK2UhnZlHogO9N9zIvcOiBHa+s+TmUeBqD
+	CmojetqqhXfFHhqXqjbbBN6qKQ7NgVnu4GV9OuaZ5vpY8XlEXgPpRKe0Yb00hf1X
+	vWZjIEHOsXCmryTD3VjSM8D3ibrqhDKyOc/fROx8NrITXikSbFUNCDDB5wkpaz3x
+	le+TowUjNCjybKg1QbKU3+Sbaw3zxN2It4hNanF6I6tQFrkduXwX/wPcHfrrD4ug
 	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aejmske9b-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aejk9ure3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Nov 2025 16:05:05 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AIFmNBr022386;
-	Tue, 18 Nov 2025 16:05:04 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4af4umux04-1
+	Tue, 18 Nov 2025 16:13:14 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AIF30Pw030854;
+	Tue, 18 Nov 2025 16:13:12 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4af47xv38e-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Nov 2025 16:05:04 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AIG50lX28311910
+	Tue, 18 Nov 2025 16:13:12 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AIGD8Fs14811566
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 18 Nov 2025 16:05:00 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A7E9920049;
-	Tue, 18 Nov 2025 16:05:00 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 01DD820040;
-	Tue, 18 Nov 2025 16:05:00 +0000 (GMT)
-Received: from [9.111.18.63] (unknown [9.111.18.63])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 18 Nov 2025 16:04:59 +0000 (GMT)
-Message-ID: <0bd2c3f1-211e-41b3-a3ce-8d9ccfe2b1c0@linux.ibm.com>
-Date: Tue, 18 Nov 2025 17:04:59 +0100
+	Tue, 18 Nov 2025 16:13:08 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8AE2720043;
+	Tue, 18 Nov 2025 16:13:08 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 470182004B;
+	Tue, 18 Nov 2025 16:13:08 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 18 Nov 2025 16:13:08 +0000 (GMT)
+From: Tobias Schumacher <ts@linux.ibm.com>
+Date: Tue, 18 Nov 2025 17:13:06 +0100
+Subject: [PATCH v3 2/2] s390/pci: Migrate s390 IRQ logic to IRQ domain API
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC v2 07/11] KVM: s390: Shadow VSIE SCA in guest-1
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>, David Hildenbrand <david@redhat.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>
-References: <20251110-vsieie-v2-0-9e53a3618c8c@linux.ibm.com>
- <20251110-vsieie-v2-7-9e53a3618c8c@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20251110-vsieie-v2-7-9e53a3618c8c@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20251118-implement-msi-domain-v3-2-6fe8feb2a93f@linux.ibm.com>
+References: <20251118-implement-msi-domain-v3-0-6fe8feb2a93f@linux.ibm.com>
+In-Reply-To: <20251118-implement-msi-domain-v3-0-6fe8feb2a93f@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Tobias Schumacher <ts@linux.ibm.com>
+X-Mailer: b4 0.14.2
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: OP0gMDozr-tpSzE9RsEe3f1f7lhexYub
-X-Authority-Analysis: v=2.4 cv=Rv3I7SmK c=1 sm=1 tr=0 ts=691c9931 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-GUID: Lcv3fxtwWjVmbAiIx5yi9jxCM8y-jzod
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTE1MDAzMiBTYWx0ZWRfXxgEmvWrQKwLH
+ 4F+lYJvK69ZF7O/Je4EqnBuFVNAunRshRMJbUdnrbQkLoapQLWGgAf0QmaH25x+XLvhd1UrCcmP
+ UDY/UBwpNX4rhdEakLCAnEf00BAy4Gdu0SdCGC68ufDiCThcPhL90XLqRwOeEFVGFmvxNcsH1a2
+ 5IR3wEhrnmnBJAiEafhDNAXaP23MZil1YWUmKjrYc3AUom5eJ+OOx5RdKq1qnt6B4OydHkwmaP1
+ PtysaBdfMMUl7Dzii+HyH1RmSn1Zgd9PQZ/TFwHbxaD0visF5Des4QKmZjq8k4KGDdVzm+vXYVM
+ n9OimCp5/wCs8YagMp4oAE9CKfVcsCRNtzY5F2PSSyqzfOSFd8u8WdXfVNAJ4xs4ozhOg4OxLqs
+ 8CkrLFBWgrkIIFS+MjO0vW0cvG1U6Q==
+X-Proofpoint-ORIG-GUID: Lcv3fxtwWjVmbAiIx5yi9jxCM8y-jzod
+X-Authority-Analysis: v=2.4 cv=XtL3+FF9 c=1 sm=1 tr=0 ts=691c9b1a cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=5J8erNzc6tkCVkJnpnkA:9 a=QEXdDO2ut3YA:10
- a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-GUID: OP0gMDozr-tpSzE9RsEe3f1f7lhexYub
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTE1MDAzMiBTYWx0ZWRfX2D3l4AyCgWRC
- wYm9rLOklUcS5uDwCMdeiaDx+/zxEMp0LaWUbPxEl/2Q559mxlmCkBJXxli8iMS4iRoOYmXchV+
- Ia+MNvgZsMTs7gdozokf0Kc8N/hrDkFMvOc+81vm/rOUM6gl7hAlt1E5Ork13/1jB7cU49+izuA
- gTSxNf6dnpdn7zvrgRnK4etmJaP5lWYCnXfo/6Trdf6n0qqvTmHyPxvN4xq1bI/yflst7FDK45z
- bhG5kpYeuPUdlWUfPaiW5SFpcLRRtSX0HjzxKmFX/v4GB3xN6Z3SVD+1JyCx1clSLoFPdJuHtIw
- m5xz2y22gjZffjKouDgrUAfn5clDR4Pn9QhDqqkShJAr0iHBVjraBkKTdFrsT8UCrpD+0tbidXW
- Hiu3HikNrNXEiKl/u5DuMpnlgLzF5Q==
+ a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=4S-CKJmblrfn-zhJOl8A:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-11-18_01,2025-11-18_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 suspectscore=0 clxscore=1015 phishscore=0 priorityscore=1501
- spamscore=0 lowpriorityscore=0 impostorscore=0 adultscore=0 bulkscore=0
+ clxscore=1015 spamscore=0 bulkscore=0 priorityscore=1501 impostorscore=0
+ adultscore=0 lowpriorityscore=0 phishscore=0 suspectscore=0 malwarescore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511150032
 
-On 11/10/25 18:16, Christoph Schlameuss wrote:
-> Restructure kvm_s390_handle_vsie() to create a guest-1 shadow of the SCA
-> if guest-2 attempts to enter SIE with an SCA. If the SCA is used the
-> vsie_pages are stored in a new vsie_sca struct instead of the arch vsie
-> struct.
-> 
-> When the VSIE-Interpretation-Extension Facility is active (minimum z17)
-> the shadow SCA (ssca_block) will be created and shadows of all CPUs
-> defined in the configuration are created.
-> SCAOL/H in the VSIE control block are overwritten with references to the
-> shadow SCA.
-> 
-> The shadow SCA contains the addresses of the original guest-3 SCA as
-> well as the original VSIE control blocks. With these addresses the
-> machine can directly monitor the intervention bits within the original
-> SCA entries, enabling it to handle SENSE_RUNNING and EXTERNAL_CALL sigp
-> instructions without exiting VSIE.
-> 
-> The original SCA will be pinned in guest-2 memory and only be unpinned
-> before reuse. This means some pages might still be pinned even after the
-> guest 3 VM does no longer exist.
-> 
-> The ssca_blocks are also kept within a radix tree to reuse already
-> existing ssca_blocks efficiently. While the radix tree and array with
-> references to the ssca_blocks are held in the vsie_sca struct.
-> The use of vsie_scas is tracked using an ref_count.
-> 
-> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-> ---
->   arch/s390/include/asm/kvm_host.h       |  11 +-
->   arch/s390/include/asm/kvm_host_types.h |   5 +-
->   arch/s390/kvm/kvm-s390.c               |   6 +-
->   arch/s390/kvm/kvm-s390.h               |   2 +-
->   arch/s390/kvm/vsie.c                   | 672 ++++++++++++++++++++++++++++-----
->   5 files changed, 596 insertions(+), 100 deletions(-)
-> 
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index 647014edd3de8abc15067e7203c4855c066c53ad..191b23edf0ac7e9a3e1fd9cdc6fc4c9a9e6769f8 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -597,13 +597,22 @@ struct sie_page2 {
->   };
->   
->   struct vsie_page;
-> +struct vsie_sca;
->   
-> +/*
-> + * vsie_pages, scas and accompanied management vars
-> + */
->   struct kvm_s390_vsie {
->   	struct mutex mutex;
->   	struct radix_tree_root addr_to_page;
->   	int page_count;
->   	int next;
-> -	struct vsie_page *pages[KVM_MAX_VCPUS];
-> +	struct vsie_page *pages[KVM_S390_MAX_VSIE_VCPUS];
-> +	struct rw_semaphore ssca_lock;
+s390 is one of the last architectures using the legacy API for setup and
+teardown of PCI MSI IRQs. Migrate the s390 IRQ allocation and teardown
+to the MSI parent domain API. For details, see:
 
-Might make sense to name it sca_lock, since we're not locking sscas.
+https://lore.kernel.org/lkml/20221111120501.026511281@linutronix.de
 
-> +	struct radix_tree_root osca_to_sca;
-> +	int sca_count;
-> +	int sca_next;
-> +	struct vsie_sca *scas[KVM_S390_MAX_VSIE_VCPUS];
->   };
->   
+In detail, create an MSI parent domain for zpci which is used by
+all PCI devices. When a PCI device sets up MSI or MSI-X IRQs, the
+library creates a per-device IRQ domain for this device, which is
+used by the device for allocating and freeing IRQs.
 
-[...]
+The per-device domain delegates this allocation and freeing to the
+parent-domain. In the end, the corresponding callbacks of the parent
+domain are responsible for allocating and freeing the IRQs.
 
-> +
-> +/*
-> + * Pin and get an existing or new guest system control area.
-> + *
-> + * May sleep.
-> + */
-> +static struct vsie_sca *get_vsie_sca(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
-> +				     gpa_t sca_addr)
-> +{
-> +	struct vsie_sca *sca, *sca_new = NULL;
-> +	struct kvm *kvm = vcpu->kvm;
-> +	unsigned int max_sca;
-> +	int rc;
-> +
-> +	rc = validate_scao(vcpu, vsie_page->scb_o, vsie_page->sca_gpa);
-> +	if (rc)
-> +		return ERR_PTR(rc);
-> +
-> +	/* get existing sca */
-> +	down_read(&kvm->arch.vsie.ssca_lock);
-> +	sca = get_existing_vsie_sca(kvm, sca_addr);
-> +	up_read(&kvm->arch.vsie.ssca_lock);
-> +	if (sca)
-> +		return sca;
-> +
-> +	/*
-> +	 * Allocate new ssca, it will likely be needed below.
-> +	 * We want at least #online_vcpus shadows, so every VCPU can execute the
-> +	 * VSIE in parallel. (Worst case all single core VMs.)
-> +	 */
+The allocation is split into two parts:
+- zpci_msi_prepare() is called once for each device and allocates the
+  required resources. On s390, each PCI function has its own airq
+  vector and a summary bit, which must be configured once per function.
+  This is done in prepare().
+- zpci_msi_alloc() can be called multiple times for allocating one or
+  more MSI/MSI-X IRQs. This creates a mapping between the virtual IRQ
+  number in the kernel and the hardware IRQ number.
 
-We're allocating an SCA and then its SSCA.
+Freeing is split into two counterparts:
+- zpci_msi_free() reverts the effects of zpci_msi_alloc() and
+- zpci_msi_teardown() reverts the effects of zpci_msi_prepare(). This is
+  callend once when all IRQs are freed before a device is removed.
 
-> +	max_sca = MIN(atomic_read(&kvm->online_vcpus), KVM_S390_MAX_VSIE_VCPUS);
-> +	if (kvm->arch.vsie.sca_count < max_sca) {
-> +		BUILD_BUG_ON(sizeof(struct vsie_sca) > PAGE_SIZE);
-> +		sca_new = (void *)__get_free_page(GFP_KERNEL_ACCOUNT | __GFP_ZERO);
-> +		if (!sca_new)
-> +			return ERR_PTR(-ENOMEM);
-> +
-> +		if (use_vsie_sigpif(vcpu->kvm)) {
-> +			BUILD_BUG_ON(offsetof(struct ssca_block, cpu) != 64);
-> +			sca_new->ssca = alloc_pages_exact(sizeof(*sca_new->ssca),
-> +							  GFP_KERNEL_ACCOUNT | __GFP_ZERO);
-> +			if (!sca_new->ssca) {
-> +				free_page((unsigned long)sca);
+Since the parent domain in the end allocates the IRQs, the hwirq
+encoding must be unambiguous for all IRQs of all devices. This is
+achieved by encoding the hwirq using the PCI function id and the MSI
+index.
 
-Shouldn't this be sca_new which we just allocated?
-I think it might have been a mistake to have both sca and sca_new in 
-this function even though I understand why you need it.
+Signed-off-by: Tobias Schumacher <ts@linux.ibm.com>
+---
+ arch/s390/Kconfig           |   1 +
+ arch/s390/include/asm/pci.h |   4 +
+ arch/s390/pci/pci_bus.c     |  11 ++
+ arch/s390/pci/pci_irq.c     | 334 +++++++++++++++++++++++++++-----------------
+ 4 files changed, 225 insertions(+), 125 deletions(-)
 
-> +				sca_new = NULL;
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index df22b10d91415e1ed183cc8add9ad0ac4293c50e..48cd6a12bd04dfe4dd61ecc79d3401ba685c51bb 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -251,6 +251,7 @@ config S390
+ 	select HOTPLUG_SMT
+ 	select IOMMU_HELPER		if PCI
+ 	select IOMMU_SUPPORT		if PCI
++	select IRQ_MSI_LIB if PCI
+ 	select KASAN_VMALLOC if KASAN
+ 	select LOCK_MM_AND_FIND_VMA
+ 	select MMU_GATHER_MERGE_VMAS
+diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+index a32f465ecf73a5cc3408a312d94ec888d62848cc..60abc84cf14fe6fb1ee149df688eea94f0983ed0 100644
+--- a/arch/s390/include/asm/pci.h
++++ b/arch/s390/include/asm/pci.h
+@@ -5,6 +5,7 @@
+ #include <linux/pci.h>
+ #include <linux/mutex.h>
+ #include <linux/iommu.h>
++#include <linux/irqdomain.h>
+ #include <linux/pci_hotplug.h>
+ #include <asm/pci_clp.h>
+ #include <asm/pci_debug.h>
+@@ -109,6 +110,7 @@ struct zpci_bus {
+ 	struct list_head	resources;
+ 	struct list_head	bus_next;
+ 	struct resource		bus_resource;
++	struct irq_domain       *msi_parent_domain;
+ 	int			topo;		/* TID if topo_is_tid, PCHID otherwise */
+ 	int			domain_nr;
+ 	u8			multifunction	: 1;
+@@ -310,6 +312,8 @@ int zpci_dma_exit_device(struct zpci_dev *zdev);
+ /* IRQ */
+ int __init zpci_irq_init(void);
+ void __init zpci_irq_exit(void);
++int zpci_create_parent_msi_domain(struct zpci_bus *zbus);
++void zpci_remove_parent_msi_domain(struct zpci_bus *zbus);
+ 
+ /* FMB */
+ int zpci_fmb_enable_device(struct zpci_dev *);
+diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
+index be8c697fea0cc755cfdb4fb0a9e3b95183bec0dc..4849420d4f72c886edbe9c5e32cf0b1513d0b555 100644
+--- a/arch/s390/pci/pci_bus.c
++++ b/arch/s390/pci/pci_bus.c
+@@ -15,6 +15,7 @@
+ #include <linux/err.h>
+ #include <linux/delay.h>
+ #include <linux/seq_file.h>
++#include <linux/irqdomain.h>
+ #include <linux/jump_label.h>
+ #include <linux/pci.h>
+ #include <linux/printk.h>
+@@ -190,6 +191,7 @@ static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_dev *fr, s
+ {
+ 	struct pci_bus *bus;
+ 	int domain;
++	int rc;
+ 
+ 	domain = zpci_alloc_domain((u16)fr->uid);
+ 	if (domain < 0)
+@@ -199,6 +201,12 @@ static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_dev *fr, s
+ 	zbus->multifunction = zpci_bus_is_multifunction_root(fr);
+ 	zbus->max_bus_speed = fr->max_bus_speed;
+ 
++	rc = zpci_create_parent_msi_domain(zbus);
++	if (rc) {
++		zpci_free_domain(zbus->domain_nr);
++		return -EFAULT;
++	}
++
+ 	/*
+ 	 * Note that the zbus->resources are taken over and zbus->resources
+ 	 * is empty after a successful call
+@@ -206,10 +214,12 @@ static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_dev *fr, s
+ 	bus = pci_create_root_bus(NULL, ZPCI_BUS_NR, ops, zbus, &zbus->resources);
+ 	if (!bus) {
+ 		zpci_free_domain(zbus->domain_nr);
++		zpci_remove_parent_msi_domain(zbus);
+ 		return -EFAULT;
+ 	}
+ 
+ 	zbus->bus = bus;
++	dev_set_msi_domain(&zbus->bus->dev, zbus->msi_parent_domain);
+ 
+ 	return 0;
+ }
+@@ -232,6 +242,7 @@ static void zpci_bus_release(struct kref *kref)
+ 	mutex_lock(&zbus_list_lock);
+ 	list_del(&zbus->bus_next);
+ 	mutex_unlock(&zbus_list_lock);
++	zpci_remove_parent_msi_domain(zbus);
+ 	kfree(zbus);
+ }
+ 
+diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
+index e73be96ce5fe6473fc193d65b8f0ff635d6a98ba..56db5a3d5b0a9092b1cdfd803eab26e7885147aa 100644
+--- a/arch/s390/pci/pci_irq.c
++++ b/arch/s390/pci/pci_irq.c
+@@ -7,6 +7,7 @@
+ #include <linux/kernel_stat.h>
+ #include <linux/pci.h>
+ #include <linux/msi.h>
++#include <linux/irqchip/irq-msi-lib.h>
+ #include <linux/smp.h>
+ 
+ #include <asm/isc.h>
+@@ -110,43 +111,43 @@ static int zpci_set_irq(struct zpci_dev *zdev)
+ 	return rc;
+ }
+ 
+-/* Clear adapter interruptions */
+-static int zpci_clear_irq(struct zpci_dev *zdev)
++static int zpci_set_irq_affinity(struct irq_data *data, const struct cpumask *dest,
++				 bool force)
+ {
+-	int rc;
+-
+-	if (irq_delivery == DIRECTED)
+-		rc = zpci_clear_directed_irq(zdev);
+-	else
+-		rc = zpci_clear_airq(zdev);
+-
+-	return rc;
++	irq_data_update_affinity(data, dest);
++	return IRQ_SET_MASK_OK;
+ }
+ 
+-static int zpci_set_irq_affinity(struct irq_data *data, const struct cpumask *dest,
+-				 bool force)
++static void zpci_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
+ {
+-	struct msi_desc *entry = irq_data_get_msi_desc(data);
+-	struct msi_msg msg = entry->msg;
+-	int cpu_addr = smp_cpu_get_cpu_address(cpumask_first(dest));
++	struct msi_desc *desc = irq_data_get_msi_desc(data);
++	struct zpci_dev *zdev = to_zpci_dev(desc->dev);
+ 
+-	msg.address_lo &= 0xff0000ff;
+-	msg.address_lo |= (cpu_addr << 8);
+-	pci_write_msi_msg(data->irq, &msg);
++	if (irq_delivery == DIRECTED) {
++		int cpu = cpumask_first(irq_data_get_affinity_mask(data));
+ 
+-	return IRQ_SET_MASK_OK;
++		msg->address_lo = zdev->msi_addr & 0xff0000ff;
++		msg->address_lo |= (smp_cpu_get_cpu_address(cpu) << 8);
++	} else {
++		msg->address_lo = zdev->msi_addr & 0xffffffff;
++	}
++	msg->address_hi = zdev->msi_addr >> 32;
++	msg->data = data->hwirq & 0xffffffff;
+ }
+ 
+ static struct irq_chip zpci_irq_chip = {
+ 	.name = "PCI-MSI",
+ 	.irq_unmask = pci_msi_unmask_irq,
+ 	.irq_mask = pci_msi_mask_irq,
++	.irq_compose_msi_msg = zpci_compose_msi_msg
+ };
+ 
+ static void zpci_handle_cpu_local_irq(bool rescan)
+ {
+ 	struct airq_iv *dibv = zpci_ibv[smp_processor_id()];
+ 	union zpci_sic_iib iib = {{0}};
++	struct irq_domain *msi_domain;
++	irq_hw_number_t hwirq;
+ 	unsigned long bit;
+ 	int irqs_on = 0;
+ 
+@@ -164,7 +165,9 @@ static void zpci_handle_cpu_local_irq(bool rescan)
+ 			continue;
+ 		}
+ 		inc_irq_stat(IRQIO_MSI);
+-		generic_handle_irq(airq_iv_get_data(dibv, bit));
++		hwirq = airq_iv_get_data(dibv, bit);
++		msi_domain = (struct irq_domain *)airq_iv_get_ptr(dibv, bit);
++		generic_handle_domain_irq(msi_domain, hwirq);
+ 	}
+ }
+ 
+@@ -229,6 +232,8 @@ static void zpci_floating_irq_handler(struct airq_struct *airq,
+ 				      struct tpi_info *tpi_info)
+ {
+ 	union zpci_sic_iib iib = {{0}};
++	struct irq_domain *msi_domain;
++	irq_hw_number_t hwirq;
+ 	unsigned long si, ai;
+ 	struct airq_iv *aibv;
+ 	int irqs_on = 0;
+@@ -256,7 +261,9 @@ static void zpci_floating_irq_handler(struct airq_struct *airq,
+ 				break;
+ 			inc_irq_stat(IRQIO_MSI);
+ 			airq_iv_lock(aibv, ai);
+-			generic_handle_irq(airq_iv_get_data(aibv, ai));
++			hwirq = airq_iv_get_data(aibv, ai);
++			msi_domain = (struct irq_domain *)airq_iv_get_ptr(aibv, ai);
++			generic_handle_domain_irq(msi_domain, hwirq);
+ 			airq_iv_unlock(aibv, ai);
+ 		}
+ 	}
+@@ -278,7 +285,9 @@ static int __alloc_airq(struct zpci_dev *zdev, int msi_vecs,
+ 		zdev->aisb = *bit;
+ 
+ 		/* Create adapter interrupt vector */
+-		zdev->aibv = airq_iv_create(msi_vecs, AIRQ_IV_DATA | AIRQ_IV_BITLOCK, NULL);
++		zdev->aibv = airq_iv_create(msi_vecs,
++					    AIRQ_IV_PTR | AIRQ_IV_DATA | AIRQ_IV_BITLOCK,
++					    NULL);
+ 		if (!zdev->aibv)
+ 			return -ENOMEM;
+ 
+@@ -290,146 +299,220 @@ static int __alloc_airq(struct zpci_dev *zdev, int msi_vecs,
+ 	return 0;
+ }
+ 
+-int arch_setup_msi_irqs(struct pci_dev *pdev, int nvec, int type)
++bool arch_restore_msi_irqs(struct pci_dev *pdev)
+ {
+-	unsigned int hwirq, msi_vecs, irqs_per_msi, i, cpu;
+ 	struct zpci_dev *zdev = to_zpci(pdev);
+-	struct msi_desc *msi;
+-	struct msi_msg msg;
+-	unsigned long bit;
+-	int cpu_addr;
+-	int rc, irq;
+ 
+-	zdev->aisb = -1UL;
+-	zdev->msi_first_bit = -1U;
++	zpci_set_irq(zdev);
++	return true;
++}
++
++static struct airq_struct zpci_airq = {
++	.handler = zpci_floating_irq_handler,
++	.isc = PCI_ISC,
++};
++
++/*
++ * Encode the hwirq number for the parent domain. The encoding must be unique
++ * for each IRQ of each device in the parent domain, so it uses the devfn to
++ * identify the device and the msi_index to identify the IRQ within that device.
++ */
++static inline u32 zpci_encode_hwirq(u8 devfn, u16 msi_index)
++{
++	return (devfn << 16) | msi_index;
++}
++
++static inline u16 zpci_decode_hwirq_msi_index(irq_hw_number_t irq)
++{
++	return irq & GENMASK_U16(15, 0);
++}
++
++static int zpci_msi_prepare(struct irq_domain *domain,
++			    struct device *dev, int nvec,
++			    msi_alloc_info_t *info)
++{
++	struct zpci_dev *zdev = to_zpci_dev(dev);
++	struct pci_dev *pdev = to_pci_dev(dev);
++	unsigned long bit;
++	int msi_vecs, rc;
+ 
+ 	msi_vecs = min_t(unsigned int, nvec, zdev->max_msi);
+-	if (msi_vecs < nvec) {
+-		pr_info("%s requested %d irqs, allocate system limit of %d",
++	if (msi_vecs < nvec)
++		pr_info("%s requested %d IRQs, allocate system limit of %d\n",
+ 			pci_name(pdev), nvec, zdev->max_msi);
+-	}
+ 
+ 	rc = __alloc_airq(zdev, msi_vecs, &bit);
+-	if (rc < 0)
++	if (rc) {
++		pr_err("Allocating adapter IRQs for %s failed\n", pci_name(pdev));
+ 		return rc;
++	}
+ 
+-	/*
+-	 * Request MSI interrupts:
+-	 * When using MSI, nvec_used interrupt sources and their irq
+-	 * descriptors are controlled through one msi descriptor.
+-	 * Thus the outer loop over msi descriptors shall run only once,
+-	 * while two inner loops iterate over the interrupt vectors.
+-	 * When using MSI-X, each interrupt vector/irq descriptor
+-	 * is bound to exactly one msi descriptor (nvec_used is one).
+-	 * So the inner loops are executed once, while the outer iterates
+-	 * over the MSI-X descriptors.
+-	 */
+-	hwirq = bit;
+-	msi_for_each_desc(msi, &pdev->dev, MSI_DESC_NOTASSOCIATED) {
+-		if (hwirq - bit >= msi_vecs)
+-			break;
+-		irqs_per_msi = min_t(unsigned int, msi_vecs, msi->nvec_used);
+-		irq = __irq_alloc_descs(-1, 0, irqs_per_msi, 0, THIS_MODULE,
+-					(irq_delivery == DIRECTED) ?
+-					msi->affinity : NULL);
+-		if (irq < 0)
+-			return -ENOMEM;
+-
+-		for (i = 0; i < irqs_per_msi; i++) {
+-			rc = irq_set_msi_desc_off(irq, i, msi);
+-			if (rc)
+-				return rc;
+-			irq_set_chip_and_handler(irq + i, &zpci_irq_chip,
+-						 handle_percpu_irq);
++	zdev->msi_first_bit = bit;
++	zdev->msi_nr_irqs = msi_vecs;
++	rc = zpci_set_irq(zdev);
++	if (rc) {
++		pr_err("Registering adapter IRQs for %s failed\n",
++		       pci_name(pdev));
++		if (irq_delivery == DIRECTED) {
++			airq_iv_free(zpci_ibv[0], zdev->msi_first_bit, msi_vecs);
++		} else {
++			zpci_clear_airq(zdev);
++			airq_iv_release(zdev->aibv);
++			zdev->aibv = NULL;
++			airq_iv_free_bit(zpci_sbv, zdev->aisb);
++			zdev->aisb = -1UL;
+ 		}
++		zdev->msi_first_bit = -1U;
++		return rc;
++	}
+ 
+-		msg.data = hwirq - bit;
+-		if (irq_delivery == DIRECTED) {
+-			if (msi->affinity)
+-				cpu = cpumask_first(&msi->affinity->mask);
+-			else
+-				cpu = 0;
+-			cpu_addr = smp_cpu_get_cpu_address(cpu);
++	return 0;
++}
++
++static void zpci_msi_teardown_directed(struct zpci_dev *zdev)
++{
++	zpci_clear_directed_irq(zdev);
++	airq_iv_free(zpci_ibv[0], zdev->msi_first_bit, zdev->max_msi);
++	zdev->msi_first_bit = -1U;
++}
++
++static void zpci_msi_teardown_floating(struct zpci_dev *zdev)
++{
++	zpci_clear_airq(zdev);
++	airq_iv_release(zdev->aibv);
++	zdev->aibv = NULL;
++	airq_iv_free_bit(zpci_sbv, zdev->aisb);
++	zdev->aisb = -1UL;
++	zdev->msi_first_bit = -1U;
++}
+ 
+-			msg.address_lo = zdev->msi_addr & 0xff0000ff;
+-			msg.address_lo |= (cpu_addr << 8);
++static void zpci_msi_teardown(struct irq_domain *domain, msi_alloc_info_t *arg)
++{
++	struct zpci_dev *zdev = to_zpci_dev(domain->dev);
+ 
++	if (irq_delivery == DIRECTED)
++		zpci_msi_teardown_directed(zdev);
++	else
++		zpci_msi_teardown_floating(zdev);
++}
++
++static int zpci_msi_domain_alloc(struct irq_domain *domain, unsigned int virq,
++				 unsigned int nr_irqs, void *args)
++{
++	struct msi_desc *desc = ((msi_alloc_info_t *)args)->desc;
++	struct zpci_dev *zdev = to_zpci_dev(desc->dev);
++	struct zpci_bus *zbus = zdev->zbus;
++	unsigned int cpu, hwirq;
++	unsigned long bit;
++	int i;
++
++	bit = zdev->msi_first_bit + desc->msi_index;
++	hwirq = zpci_encode_hwirq(zdev->devfn, desc->msi_index);
++
++	if (desc->msi_index + nr_irqs > zdev->max_msi)
++		return -EINVAL;
++
++	for (i = 0; i < nr_irqs; i++) {
++		irq_domain_set_info(domain, virq + i, hwirq + i,
++				    &zpci_irq_chip, zdev,
++				    handle_percpu_irq, NULL, NULL);
++
++		if (irq_delivery == DIRECTED) {
+ 			for_each_possible_cpu(cpu) {
+-				for (i = 0; i < irqs_per_msi; i++)
+-					airq_iv_set_data(zpci_ibv[cpu],
+-							 hwirq + i, irq + i);
++				airq_iv_set_ptr(zpci_ibv[cpu], bit + i,
++						(unsigned long)zbus->msi_parent_domain);
++				airq_iv_set_data(zpci_ibv[cpu], bit + i, hwirq + i);
+ 			}
+ 		} else {
+-			msg.address_lo = zdev->msi_addr & 0xffffffff;
+-			for (i = 0; i < irqs_per_msi; i++)
+-				airq_iv_set_data(zdev->aibv, hwirq + i, irq + i);
++			airq_iv_set_ptr(zdev->aibv, bit + i,
++					(unsigned long)zbus->msi_parent_domain);
++			airq_iv_set_data(zdev->aibv, bit + i, hwirq + i);
+ 		}
+-		msg.address_hi = zdev->msi_addr >> 32;
+-		pci_write_msi_msg(irq, &msg);
+-		hwirq += irqs_per_msi;
+ 	}
+ 
+-	zdev->msi_first_bit = bit;
+-	zdev->msi_nr_irqs = hwirq - bit;
++	return 0;
++}
+ 
+-	rc = zpci_set_irq(zdev);
+-	if (rc)
+-		return rc;
++static void zpci_msi_domain_free(struct irq_domain *domain, unsigned int virq,
++				 unsigned int nr_irqs)
++{
++	irq_hw_number_t hwirq;
++	struct irq_data *d;
++	u16 msi_index;
++	int i;
++
++	for (i = 0; i < nr_irqs; i++) {
++		d = irq_domain_get_irq_data(domain, virq + i);
++		hwirq = d->hwirq;
++		msi_index = zpci_decode_hwirq_msi_index(hwirq);
++		irq_domain_reset_irq_data(d);
++	}
++}
++
++static const struct irq_domain_ops zpci_msi_domain_ops = {
++	.alloc = zpci_msi_domain_alloc,
++	.free  = zpci_msi_domain_free
++};
++
++static bool zpci_init_dev_msi_info(struct device *dev, struct irq_domain *domain,
++				   struct irq_domain *real_parent,
++				   struct msi_domain_info *info)
++{
++	if (!msi_lib_init_dev_msi_info(dev, domain, real_parent, info))
++		return false;
++
++	info->ops->msi_prepare = zpci_msi_prepare;
++	info->ops->msi_teardown = zpci_msi_teardown;
+ 
+-	return (zdev->msi_nr_irqs == nvec) ? 0 : zdev->msi_nr_irqs;
++	return true;
+ }
+ 
+-void arch_teardown_msi_irqs(struct pci_dev *pdev)
++static struct msi_parent_ops zpci_msi_parent_ops = {
++	.supported_flags   = MSI_GENERIC_FLAGS_MASK	|
++			     MSI_FLAG_PCI_MSIX		|
++			     MSI_FLAG_MULTI_PCI_MSI,
++	.required_flags	   = MSI_FLAG_USE_DEF_DOM_OPS  |
++			     MSI_FLAG_USE_DEF_CHIP_OPS |
++			     MSI_FLAG_PCI_MSI_MASK_PARENT,
++	.init_dev_msi_info = zpci_init_dev_msi_info
++};
++
++int zpci_create_parent_msi_domain(struct zpci_bus *zbus)
+ {
+-	struct zpci_dev *zdev = to_zpci(pdev);
+-	struct msi_desc *msi;
+-	unsigned int i;
+-	int rc;
++	char fwnode_name[18];
+ 
+-	/* Disable interrupts */
+-	rc = zpci_clear_irq(zdev);
+-	if (rc)
+-		return;
++	sprintf(fwnode_name, "ZPCI_MSI_DOM_%04x", zbus->domain_nr);
++	struct irq_domain_info info = {
++		.fwnode		= irq_domain_alloc_named_fwnode(fwnode_name),
++		.ops		= &zpci_msi_domain_ops
++	};
+ 
+-	/* Release MSI interrupts */
+-	msi_for_each_desc(msi, &pdev->dev, MSI_DESC_ASSOCIATED) {
+-		for (i = 0; i < msi->nvec_used; i++) {
+-			irq_set_msi_desc(msi->irq + i, NULL);
+-			irq_free_desc(msi->irq + i);
+-		}
+-		msi->msg.address_lo = 0;
+-		msi->msg.address_hi = 0;
+-		msi->msg.data = 0;
+-		msi->irq = 0;
++	if (!info.fwnode) {
++		pr_err("Failed to allocate fwnode for MSI IRQ domain\n");
++		return -ENOMEM;
+ 	}
+ 
+-	if (zdev->aisb != -1UL) {
+-		zpci_ibv[zdev->aisb] = NULL;
+-		airq_iv_free_bit(zpci_sbv, zdev->aisb);
+-		zdev->aisb = -1UL;
+-	}
+-	if (zdev->aibv) {
+-		airq_iv_release(zdev->aibv);
+-		zdev->aibv = NULL;
++	if (irq_delivery == FLOATING)
++		zpci_msi_parent_ops.required_flags |= MSI_FLAG_NO_AFFINITY;
++	zbus->msi_parent_domain = msi_create_parent_irq_domain(&info, &zpci_msi_parent_ops);
++	if (!zbus->msi_parent_domain) {
++		irq_domain_free_fwnode(info.fwnode);
++		pr_err("Failed to create MSI IRQ domain\n");
++		return -ENOMEM;
+ 	}
+ 
+-	if ((irq_delivery == DIRECTED) && zdev->msi_first_bit != -1U)
+-		airq_iv_free(zpci_ibv[0], zdev->msi_first_bit, zdev->msi_nr_irqs);
++	return 0;
+ }
+ 
+-bool arch_restore_msi_irqs(struct pci_dev *pdev)
++void zpci_remove_parent_msi_domain(struct zpci_bus *zbus)
+ {
+-	struct zpci_dev *zdev = to_zpci(pdev);
++	struct fwnode_handle *fn;
+ 
+-	zpci_set_irq(zdev);
+-	return true;
++	fn = zbus->msi_parent_domain->fwnode;
++	irq_domain_remove(zbus->msi_parent_domain);
++	irq_domain_free_fwnode(fn);
+ }
+ 
+-static struct airq_struct zpci_airq = {
+-	.handler = zpci_floating_irq_handler,
+-	.isc = PCI_ISC,
+-};
+-
+ static void __init cpu_enable_directed_irq(void *unused)
+ {
+ 	union zpci_sic_iib iib = {{0}};
+@@ -466,6 +549,7 @@ static int __init zpci_directed_irq_init(void)
+ 		 * is only done on the first vector.
+ 		 */
+ 		zpci_ibv[cpu] = airq_iv_create(cache_line_size() * BITS_PER_BYTE,
++					       AIRQ_IV_PTR |
+ 					       AIRQ_IV_DATA |
+ 					       AIRQ_IV_CACHELINE |
+ 					       (!cpu ? AIRQ_IV_ALLOC : 0), NULL);
 
-Why?
-We're returning in the next line.
+-- 
+2.48.1
 
-> +				return ERR_PTR(-ENOMEM);
-> +			}
-> +		}
-> +	}
-
-How about something like:
-
-Now we're taking the ssca lock in write mode so that we can manipulate 
-the radix tree and recheck for existing scas with exclusive access.
-
-In the next lines we try three things to get an SCA:
-  - Retry getting an existing SCA
-  - Using our newly allocated SCA if we're under the limit
-  - Reusing an SCA with a different osca
-
-> +
-> +	/* enter write lock and recheck to make sure ssca has not been created by other cpu */
-> +	down_write(&kvm->arch.vsie.ssca_lock);
-> +	sca = get_existing_vsie_sca(kvm, sca_addr);
-> +	if (sca)
-> +		goto out;> +
-> +	/* check again under write lock if we are still under our sca_count limit */
-> +	if (sca_new && kvm->arch.vsie.sca_count < max_sca) {
-> +		/* make use of vsie_sca just created */
-> +		sca = sca_new;
-> +		sca_new = NULL;
-> +
-> +		kvm->arch.vsie.scas[kvm->arch.vsie.sca_count] = sca;
-> +	} else {
-> +		/* reuse previously created vsie_sca allocation for different osca */
-> +		sca = get_free_existing_vsie_sca(kvm);
-> +		/* with nr_vcpus scas one must be free */
-> +		if (IS_ERR(sca))
-> +			goto out;
-> +
-> +		unpin_sca(kvm, sca);
-> +		radix_tree_delete(&kvm->arch.vsie.osca_to_sca, sca->sca_gpa);
-> +		memset(sca, 0, sizeof(struct vsie_sca));
-> +	}
