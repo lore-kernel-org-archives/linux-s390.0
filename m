@@ -1,98 +1,86 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from relay.hostedemail.com (smtprelay0011.hostedemail.com [216.40.44.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F27C5156F45;
-	Tue, 18 Nov 2025 17:20:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DF5D3612C3;
+	Tue, 18 Nov 2025 18:24:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.40.44.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763486433; cv=none; b=sUShadDY1opiaalDFwlF1GOig1SIefcV2O+wrdlB2oUi0QjpBnFsgOkD9YTggLklgHorTDBx5kL7sn+R32COGG/TbUOFmSwb5Qn4YPaul5i0f5hEGccFE6cvKwJWsKFBrzvLQSXWt0lyTsiNIz2vJdExxaC+DGHpqkcOUFaSkiE=
+	t=1763490270; cv=none; b=Xjb5XZ5pSdFAAO8fSySEUvznlRFCT9uVeg9EBkrfGc+EDdqvnBjMJ7un1Ad5NriK5WrsjExtWavWscrDRdSk1xVomVzsbcF+vdgq09UanvV/SBv3X7X/MA9lj4iueZ927z+OVvsOvWaKoyBFXo8iFTiJqYKIOv1yNlm6u6U2u4I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763486433; c=relaxed/simple;
-	bh=K5fT4KSMw90wM8VcoXufheZInP3r4cHM0qNAYNpBwnE=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=jLvXweDw7RA+OKC94zJQjM70jq/ehGX/80/ToWZt+mn8iyVxntWNh3ftYNGMCfanQeyk++ZS/b0pSffQbq7U2H5AjNDayLTR1Km5fxLcAm23oMS86Y/PQiQboaknqO57x59TaxZPzJZbeX0VW9SghKJigTVEL0SStBxD5XgTwtE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=RxX1YKR5; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=hYQFjSjQ; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="RxX1YKR5";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="hYQFjSjQ"
-From: Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1763486430;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=eMVT9I1wGDuH0608516PWTb0RCZLJxkNGpjYdj4Gp1s=;
-	b=RxX1YKR5ymaCUlIVNIWgeh3V2sYXWo8YyFNV1Q8lDOc1sicpi7GDe7+EX5voyJWRhhuoYy
-	BE7i1y6OQbwWoLMmZV7WB3rwGkx2cwbOKcctm9zd6XYDyFGiJmY/kXeyyBp5G/qYmmjuqv
-	0FNjlwyaeLo3yAjn18KCsHSKci3P1U7KAKJcM3ZIUPu3wS2qA27C40G3rNj1A8a+1tmarZ
-	tDR6hQXngwuCCJIpYCD74Bxb35jxSkubvXM+wPA6Y188E0U8WTsubtWUZeR0712DymVuDk
-	w/iv4JDkmr8pcMC3RC5jru0qkAPgfTJZzXSN8xY0i3FIBcivufWj7buYBaccHg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1763486430;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=eMVT9I1wGDuH0608516PWTb0RCZLJxkNGpjYdj4Gp1s=;
-	b=hYQFjSjQ4GmEp7revLE2Jqc3ExRuEfPiPmPyaKf65LdT7tmlSQIVh3gSJaFhHFmQAFog3Q
-	u0nFdfYnwrc/UXBg==
-To: Tobias Schumacher <ts@linux.ibm.com>, Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Niklas
- Schnelle <schnelle@linux.ibm.com>, Gerald Schaefer
- <gerald.schaefer@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>, Halil
- Pasic <pasic@linux.ibm.com>, Matthew Rosato <mjrosato@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Tobias
- Schumacher <ts@linux.ibm.com>
-Subject: Re: [PATCH v3 2/2] s390/pci: Migrate s390 IRQ logic to IRQ domain API
-In-Reply-To: <20251118-implement-msi-domain-v3-2-6fe8feb2a93f@linux.ibm.com>
-References: <20251118-implement-msi-domain-v3-0-6fe8feb2a93f@linux.ibm.com>
- <20251118-implement-msi-domain-v3-2-6fe8feb2a93f@linux.ibm.com>
-Date: Tue, 18 Nov 2025 18:20:28 +0100
-Message-ID: <87jyznmf4z.ffs@tglx>
+	s=arc-20240116; t=1763490270; c=relaxed/simple;
+	bh=LSlHntltsTV36A1h1K5uzQJTWSBBUVOJyg/Y2B5k0Zs=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=pAUXm7386kwQ/rT0++aAmEvDHlsc0O4PQRO6y5h2fbTzjAmWLvIg9oPPG9zxHQc/PMTKZ48Yrpgf9cfd7sWa+e70rbEHm4OH6NF2oVAOUj6Ffc4kLc1gK0ixNVaXdPhuYgKxbEYmU6lo2WXmK79c2ptFuPgABhZGZDnUsfW7wLI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org; spf=pass smtp.mailfrom=goodmis.org; arc=none smtp.client-ip=216.40.44.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goodmis.org
+Received: from omf10.hostedemail.com (a10.router.float.18 [10.200.18.1])
+	by unirelay10.hostedemail.com (Postfix) with ESMTP id B057CC0177;
+	Tue, 18 Nov 2025 18:24:26 +0000 (UTC)
+Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf10.hostedemail.com (Postfix) with ESMTPA id 672A445;
+	Tue, 18 Nov 2025 18:24:24 +0000 (UTC)
+Date: Tue, 18 Nov 2025 13:24:51 -0500
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Namhyung Kim <namhyung@kernel.org>
+Cc: Thomas Richter <tmricht@linux.ibm.com>, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ acme@kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com,
+ sumanthk@linux.ibm.com, hca@linux.ibm.com, japo@linux.ibm.com
+Subject: Re: [PATCH Linux-next] perf test: Fix test case perf trace BTF
+ general tests
+Message-ID: <20251118132451.29a35127@gandalf.local.home>
+In-Reply-To: <aRwVifZ_-7puFUVC@google.com>
+References: <20251117124359.75604-1-tmricht@linux.ibm.com>
+	<aRvSv03cqarM5dY9@google.com>
+	<d60860b4-e84b-48e1-87dd-4bd8203a69ad@linux.ibm.com>
+	<aRwVifZ_-7puFUVC@google.com>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Rspamd-Queue-Id: 672A445
+X-Stat-Signature: p7myfnwem55yoc514tzghwepch5ca7tj
+X-Rspamd-Server: rspamout02
+X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
+X-Session-ID: U2FsdGVkX19tj3XR/by1M9LTk1T9jVObJN+GMLztGME=
+X-HE-Tag: 1763490264-773014
+X-HE-Meta: U2FsdGVkX19ONDLr6RVVLjhwI1idVWGXWh1Tgbi0kzLE9cXFXMyOWZRcfG17ySjurgHx4x4l0MykFX7ZhB7tXkVs8EJO+EMTH12lVWEBMEa8GizvGRtFWcpiwKtRy/XHhWxgLccFKczxvboDhMzMZnDJJ+9Laq98qIFBBSN2gO2XuJa7rDWnVD6Ba/3XFaoFXgEB2xxVxFZfBI/Zl47aD54uC6flpsC8PJWCHewb1YpVjAZfgotiGMWcazp1/NOwCcIP4AtShKzyaC5DbJOck1JXdhxLQJ4ZvTHVYCtYLUatUghVS2Gy8x15gigLurjavR/tmYzaaLxyr4zSyWBXT81Lq9b5WUa4
 
-On Tue, Nov 18 2025 at 17:13, Tobias Schumacher wrote:
+On Mon, 17 Nov 2025 22:43:21 -0800
+Namhyung Kim <namhyung@kernel.org> wrote:
 
->  static struct irq_chip zpci_irq_chip = {
->  	.name = "PCI-MSI",
->  	.irq_unmask = pci_msi_unmask_irq,
->  	.irq_mask = pci_msi_mask_irq,
-> +	.irq_compose_msi_msg = zpci_compose_msi_msg
->  };
+> > bash-5.3# uname -a
+> > Linux f43 6.18.0-rc5-next-20251114tmr-n #1 SMP PREEMPT_DYNAMIC Mon Nov 17 11:24:02 CET 2025 x86_64 GNU/Linux
+> > bash-5.3# cat /sys/kernel/tracing/events/syscalls/sys_enter_write/format
+> > name: sys_enter_write
+> > ID: 758
+> > format:
+> > 	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+> > 	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+> > 	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+> > 	field:int common_pid;	offset:4;	size:4;	signed:1;
+> > 
+> > 	field:int __syscall_nr;	offset:8;	size:4;	signed:1;
+> > 	field:unsigned int fd;	offset:16;	size:8;	signed:0;
+> > 	field:const char * buf;	offset:24;	size:8;	signed:0;
+> > 	field:size_t count;	offset:32;	size:8;	signed:0;
+> > 	field:__data_loc char[] __buf_val;	offset:40;	size:4;	signed:0;  
+> 
+> Indeed, I see this new field __buf_val.
+> 
+> Steve, is this what you added recently for taking user contents?
 
-> +static struct msi_parent_ops zpci_msi_parent_ops = {
-> +	.supported_flags   = MSI_GENERIC_FLAGS_MASK	|
-> +			     MSI_FLAG_PCI_MSIX		|
-> +			     MSI_FLAG_MULTI_PCI_MSI,
-> +	.required_flags	   = MSI_FLAG_USE_DEF_DOM_OPS  |
-> +			     MSI_FLAG_USE_DEF_CHIP_OPS |
-> +			     MSI_FLAG_PCI_MSI_MASK_PARENT,
+Yes.
 
-That MASK_PARENT flag is really only necessary if you want to avoid
-masking/unmasking at the PCI level during operation
-(disable/enable_irq()). See
+> Hmm.. this makes perf trace confused wrt the syscall parameters.
+> Is it always __buf_val or has any patterns?
 
-f09c1d63e895 ("irqchip/msi-lib: Honor the MSI_FLAG_PCI_MSI_MASK_PARENT flag")
+Really? It still uses libtraceevent right? I made sure that this didn't
+break trace-cmd and thought that perf would work too.
 
-for a detailed explanation.
-
-But as s390 does not seem to provide mask/unmask at a different level of
-the interrupt transport, setting this flag and the mask/unmask callbacks
-above is pointless.
-
-If the flag is not set the PCI core will use pci_msi_[un]mask_irq() for the per
-device chip at the top of the hierarchy, which avoids the indirection to
-the parent chip.
-
-Thanks,
-
-        tglx
+-- Steve
