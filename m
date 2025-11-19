@@ -1,127 +1,155 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB4F717D2;
-	Wed, 19 Nov 2025 15:50:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC2E7302741
+	for <linux-s390@vger.kernel.org>; Wed, 19 Nov 2025 17:06:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763567408; cv=none; b=N99xdWoVmgJVUllSYTTA7BGdMb2DR4/hVsLE0SKsEwhmYiWcbmnTg2FBaw4oSH0Wpz9OmnwETME6TrgkIcQDJa2xzp6Kk8Ornk/ym2EYpn6QW5UZODFO2iLFpqIMrjSymDGgSWYmHp7hZffjJv4NLnrzklNM34hTPgNzchkRzTA=
+	t=1763572012; cv=none; b=reHlQOYyK8wuzNWbyu+v+damgo6uPJDXprxXVstf5tYEqAlg4iU0sP2UW8zmQF0iJ3zm/A9d29fgajd6hl08+/FpZiX45xSctY/jy3B4zvHYDZKxGOeyjUAhmbwX1hr6VKj0BDVn19ZPaxNjJTTL34+5QzZDIK7mBrQyg/f2AyU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763567408; c=relaxed/simple;
-	bh=mtl+IHM/JXtrCO8ISnitiGZcya/g9fsTYHXlgtCEzjQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uyO14AnYKT/4hutPCI9e4BRS+TXDQ5aKcVakc2mhYGXqSyAUBVNeeuM0auo2DpH9ITtkvwBLVHb4hHoAUd6rL2Y3xNaR16hjxAYkHbBcDiqmM9CTK3C7vD7l06DJ8/BcIZG3b2UFYJxzk4VM31opoIc6bVw57CWSnRZ1RKwfwgo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Laj4zYxh; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1763572012; c=relaxed/simple;
+	bh=ox/9vhvkrZ2YFHQ5ruc0dQSAeJdssTHSZ31fjIu4Xcs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Z/1l9qLhWH7o9+H+s2FmWKfh4XyzElM/CvLiXX10pxUVdxUpYAAnXxLeBBKpOhKrGVa393CkAPqqSEIf78pYTMaTYtBRzRwVQiHkB3ghf3B5bsPcXJd8heQ2Gr0BK2sOM/GiuD8PAkshScqC2HiLRW6Spfhjxsi84HNcYQ0RwgQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=FHSrG6vj; arc=none smtp.client-ip=209.85.214.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Laj4zYxh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3A51C2BCB0;
-	Wed, 19 Nov 2025 15:49:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1763567407;
-	bh=mtl+IHM/JXtrCO8ISnitiGZcya/g9fsTYHXlgtCEzjQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Laj4zYxhFW+Cyz8oEoGr4IEUQkfwUMdLv7HRG6pEmMXhq+vvRB62wNZAYyCBhwMgW
-	 ydZ26okaryoinvEE8tIJbLlJoY1/cMOVAl5gZWnUjbENpW2a9mfRw+vAlvoqjU3euP
-	 pbkZQ00ScKclvx/Fc7+VWCtde1BoO4ZllGxuhaaQ6oHWiJx30xfmdUGu2l8xqahHsp
-	 T+hG+IPeCO3xnQsYkJ7VatBdtqrEHMzKKg55/4DdSBYnYup2E2b5/XfowD8zPoAvGV
-	 SUjpmYocHoRKpWNGz1Ow4h6dPUUWYAJv0jrXiCMFF0CA6h8rz5TtzNJHhRm6MSXZFU
-	 PqBSfmBBhtEiA==
-Date: Wed, 19 Nov 2025 21:19:25 +0530
-From: Manivannan Sadhasivam <mani@kernel.org>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Corey Minyard <corey@minyard.net>, 
-	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, "Dr. David Alan Gilbert" <linux@treblig.org>, 
-	Alex Deucher <alexander.deucher@amd.com>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>, Rob Clark <robin.clark@oss.qualcomm.com>, 
-	Matthew Brost <matthew.brost@intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, 
-	Aleksandr Loktionov <aleksandr.loktionov@intel.com>, Vitaly Lifshits <vitaly.lifshits@intel.com>, 
-	Niklas Cassel <cassel@kernel.org>, Calvin Owens <calvin@wbinvd.org>, 
-	Vadim Fedorenko <vadim.fedorenko@linux.dev>, Sagi Maimon <maimon.sagi@gmail.com>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, Karan Tilak Kumar <kartilak@cisco.com>, 
-	Hans Verkuil <hverkuil+cisco@kernel.org>, Casey Schaufler <casey@schaufler-ca.com>, 
-	Steven Rostedt <rostedt@goodmis.org>, Petr Mladek <pmladek@suse.com>, 
-	Viacheslav Dubeyko <Slava.Dubeyko@ibm.com>, Max Kellermann <max.kellermann@ionos.com>, 
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	openipmi-developer@lists.sourceforge.net, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, 
-	linaro-mm-sig@lists.linaro.org, amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, 
-	freedreno@lists.freedesktop.org, intel-xe@lists.freedesktop.org, linux-mmc@vger.kernel.org, 
-	netdev@vger.kernel.org, intel-wired-lan@lists.osuosl.org, linux-pci@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, linux-staging@lists.linux.dev, 
-	ceph-devel@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
-	Rasmus Villemoes <linux@rasmusvillemoes.dk>, Sergey Senozhatsky <senozhatsky@chromium.org>, 
-	Jonathan Corbet <corbet@lwn.net>, Sumit Semwal <sumit.semwal@linaro.org>, 
-	Gustavo Padovan <gustavo@padovan.org>, David Airlie <airlied@gmail.com>, 
-	Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	Maxime Ripard <mripard@kernel.org>, Dmitry Baryshkov <lumag@kernel.org>, 
-	Abhinav Kumar <abhinav.kumar@linux.dev>, Jessica Zhang <jesszhan0024@gmail.com>, 
-	Sean Paul <sean@poorly.run>, Marijn Suijten <marijn.suijten@somainline.org>, 
-	Konrad Dybcio <konradybcio@kernel.org>, Lucas De Marchi <lucas.demarchi@intel.com>, 
-	Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, 
-	Vladimir Oltean <olteanv@gmail.com>, Andrew Lunn <andrew@lunn.ch>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Tony Nguyen <anthony.l.nguyen@intel.com>, Przemek Kitszel <przemyslaw.kitszel@intel.com>, 
-	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kwilczynski@kernel.org>, Kishon Vijay Abraham I <kishon@kernel.org>, 
-	Bjorn Helgaas <bhelgaas@google.com>, Rodolfo Giometti <giometti@enneenne.com>, 
-	Jonathan Lemon <jonathan.lemon@gmail.com>, Richard Cochran <richardcochran@gmail.com>, 
-	Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Satish Kharat <satishkh@cisco.com>, 
-	Sesidhar Baddela <sebaddel@cisco.com>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	Mauro Carvalho Chehab <mchehab@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	Xiubo Li <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
-	Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH v3 15/21] PCI: epf-test: Switch to use %ptSp
-Message-ID: <wuyn4v625xw4n2jm4eiullfrprmjiw4aiwo4zudcp4ppd2yeva@s7vzfoinnavt>
-References: <20251113150217.3030010-1-andriy.shevchenko@linux.intel.com>
- <20251113150217.3030010-16-andriy.shevchenko@linux.intel.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="FHSrG6vj"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-29852dafa7dso226595ad.1
+        for <linux-s390@vger.kernel.org>; Wed, 19 Nov 2025 09:06:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1763572010; x=1764176810; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=yb4agBV1NIebVk5UoYPPgBtf64ZcfvgpzIo5DZxYRek=;
+        b=FHSrG6vjUXOKueDytJnxSVMPhz3GMOGCO7Wm670aXwEGNFNwiOb9tUwEaAc/AmQV+8
+         VnH1e1JM31MEwg96mwTYD9rTjq26H5hIT2EqZQjVVEBWJ9fPpshp/DKleKunwGuccsfC
+         PlBacXUYt1Uu0FtynNBSlxMkjYhqSVZld6n1opqfMw4yaRGcC1S/+j5A9E02htU6ngdk
+         CFAfmzYxw4tWsG3W5b8qxoe90ZtxuVdtjYQODlpy47w1bMCFMcy3aKr0yXiAR4k1WXuJ
+         lCCC3FUfvxTXFjffMrRrr6ZOIItrKl65lLW64V3bDU/eA2UE0zzIiyCP45GN9C+2F3GZ
+         c4XQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763572010; x=1764176810;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=yb4agBV1NIebVk5UoYPPgBtf64ZcfvgpzIo5DZxYRek=;
+        b=wLLXIc8wDtdLMi8W0m/sZWixymkPm/1glnS+FHqCFftLPlp1UeZtTlpYpWLWvEGf3n
+         LPz25VF4qeyXxGfOP7QTZLtSEncvv00IfJ4omyD4QGsmLbqku3r2NEX2PUxcnhgRCz3t
+         MUaRG2vsBifZhtkIAbsNTFIa5I92uD4/skfQxSwu6EMa3Cz16ZPD6JZDk2DkdFJ5Z4cN
+         PO/oMkMh4lH8bQ9lYyaWB4bOk/ADSj4BZ0GJJ8WgVWqHQhruyg7JjN168RFV/MTuJGcy
+         8aCh9cD/P1G1Iu4q23ph22l2w87TsO4UB6Cls18qN6kydqfTtJH2oJG6xaL9f6oBFbvb
+         Yijg==
+X-Forwarded-Encrypted: i=1; AJvYcCVQ1OpWNtXgsXBRAUwhNhRebSmdQ4k3e+zKi0seEkJuJti9GQoD0VctIKOfpTAbjHY4xd4/rJETdAxG@vger.kernel.org
+X-Gm-Message-State: AOJu0YybXXJM6RG4unSz6AP55IHv7BzzmmjBGWqp/QyhMvnWTX1ADpkW
+	4hblLQf/zzu2WON5c3jOBz1hWeB7uvpq+MkWJPXw6Vz9wy9sH1rQA+fB7bUhUWD2Bjmxe5ajZ0U
+	KJECbdiYsYvqMUFDJNUNOiFsrYDtyIXWWkpjNdiDN
+X-Gm-Gg: ASbGncuxFj8ZtS2AIp20Co+HHKS6VDWFFLeTvF1Vf4ptttBf3KdyVB5fldGFkdGL/n6
+	vN+w6w0a8GZimQb52nT9aDr2AthzOPrimkQ1t4gF/vQaiEo10El/tdiyBDUNRbVK210KC8n29+0
+	ivKlJ3utuWnD+FcMbORSpM9cx7TZutyX43H6M1TKrdbjBeIlBOvtt8wSwdPnoSFXPHDcdb8xIBB
+	aJ2xX7FGJMrQ7IX4Z24Wr9Aum2L6ftaA5AaRpYilhkV297ADbjTEADlaVQ4M+bnwd/CMbgYtjCI
+	mJKvhkQVoIJFP/69XXuXQWSkdA==
+X-Google-Smtp-Source: AGHT+IFtsjqgpzNXFDzfsquynuqMPN2tHdkQJCkKFdwf9l2tBGEYNOmEfbFv3qdaAf1E21kK8/Sptigpdb0cYU38x/I=
+X-Received: by 2002:a17:902:c412:b0:295:3f35:a315 with SMTP id
+ d9443c01a7336-29a05fa3a9emr3609065ad.5.1763572009638; Wed, 19 Nov 2025
+ 09:06:49 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20251113150217.3030010-16-andriy.shevchenko@linux.intel.com>
+References: <20251119104751.51960-1-tmricht@linux.ibm.com>
+In-Reply-To: <20251119104751.51960-1-tmricht@linux.ibm.com>
+From: Ian Rogers <irogers@google.com>
+Date: Wed, 19 Nov 2025 09:06:38 -0800
+X-Gm-Features: AWmQ_bnlTtiRRA4EUoZBXiBiTyKKT0KOdZndooc_2VtWxVEHzc1PetaKx5nqjrU
+Message-ID: <CAP-5=fUcNNcuFEyreGa0dpqfJzZtkDdp4yJXgZR0+LN_Mj5RaQ@mail.gmail.com>
+Subject: Re: [PATCH linux-next] perf tests: Handle s390 metrics in perf all
+ metrics test
+To: Thomas Richter <tmricht@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org, 
+	agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com, 
+	hca@linux.ibm.com, japo@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 13, 2025 at 03:32:29PM +0100, Andy Shevchenko wrote:
-> Use %ptSp instead of open coded variants to print content of
-> struct timespec64 in human readable format.
-> 
-> Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+On Wed, Nov 19, 2025 at 2:48=E2=80=AFAM Thomas Richter <tmricht@linux.ibm.c=
+om> wrote:
+>
+> This test case fails on s390 because some counters metrics
+> are not available and the metric defined on them fail.
+> Add s390x specific list of metrics to be skipped.
+>
+> Add an extra line to display which metric has been skipped.
+> It is shown with the verbose option turned on.
+>
+> Also return "Ok" instead of "Skipped" when no errors
+> have been detected, but some metric have been skipped.
+> The seems more logical otherwise "Skipped" means all
+> metric tests have been skipped instead of just a few.
+>
+> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
 
-Acked-by: Manivannan Sadhasivam <mani@kernel.org>
+Thanks Thomas, I believe the intent with these metrics is they don't
+fail but report unsupported for their counters. There's been some
+discussion here:
+https://lore.kernel.org/lkml/aRi9xnwdLh3Dir9f@google.com/
+with Namhyung and James pointing out the issue on AMD and ARM, and me
+being confused we Intel isn't failing similarly for events like itlb
+accesses that Intel doesn't support. I'll try to find time to dig into
+the issue.
 
-- Mani
+Thanks,
+Ian
 
 > ---
->  drivers/pci/endpoint/functions/pci-epf-test.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/pci/endpoint/functions/pci-epf-test.c b/drivers/pci/endpoint/functions/pci-epf-test.c
-> index b05e8db575c3..debd235253c5 100644
-> --- a/drivers/pci/endpoint/functions/pci-epf-test.c
-> +++ b/drivers/pci/endpoint/functions/pci-epf-test.c
-> @@ -331,9 +331,8 @@ static void pci_epf_test_print_rate(struct pci_epf_test *epf_test,
->  		rate = div64_u64(size * NSEC_PER_SEC, ns * 1000);
->  
->  	dev_info(&epf_test->epf->dev,
-> -		 "%s => Size: %llu B, DMA: %s, Time: %llu.%09u s, Rate: %llu KB/s\n",
-> -		 op, size, dma ? "YES" : "NO",
-> -		 (u64)ts.tv_sec, (u32)ts.tv_nsec, rate);
-> +		 "%s => Size: %llu B, DMA: %s, Time: %ptSp s, Rate: %llu KB/s\n",
-> +		 op, size, dma ? "YES" : "NO", &ts, rate);
+>  tools/perf/tests/shell/stat_all_metrics.sh | 8 +++++++-
+>  1 file changed, 7 insertions(+), 1 deletion(-)
+>
+> diff --git a/tools/perf/tests/shell/stat_all_metrics.sh b/tools/perf/test=
+s/shell/stat_all_metrics.sh
+> index a7edf01b3943..b86b36a49228 100755
+> --- a/tools/perf/tests/shell/stat_all_metrics.sh
+> +++ b/tools/perf/tests/shell/stat_all_metrics.sh
+> @@ -7,6 +7,10 @@ ParanoidAndNotRoot()
+>    [ "$(id -u)" !=3D 0 ] && [ "$(cat /proc/sys/kernel/perf_event_paranoid=
+)" -gt $1 ]
 >  }
->  
->  static void pci_epf_test_copy(struct pci_epf_test *epf_test,
-> -- 
-> 2.50.1
-> 
-
--- 
-மணிவண்ணன் சதாசிவம்
+>
+> +# Ignore metric which are not supported on s390x
+> +[ "$(uname -m)" =3D "s390x" ] && ignore=3D"|branch_miss_rate|l1d_miss_ra=
+te|llc_miss_rate|\
+> +               dtlb_miss_rate|itlb_miss_rate|l1i_miss_rate|l1_prefetch_m=
+iss_rate"
+> +
+>  test_prog=3D"sleep 0.01"
+>  system_wide_flag=3D"-a"
+>  if ParanoidAndNotRoot 0
+> @@ -27,9 +31,10 @@ for m in $(perf list --raw-dump metrics); do
+>    fi
+>    if [[ "$result" =3D~ "Cannot resolve IDs for" || "$result" =3D~ "No su=
+pported events found" ]]
+>    then
+> -    if [[ "$m" =3D=3D @(l1_prefetch_miss_rate|stalled_cycles_per_instruc=
+tion) ]]
+> +    if [[ "$m" =3D=3D @(l1_prefetch_miss_rate|stalled_cycles_per_instruc=
+tion$ignore) ]]
+>      then
+>        # Default metrics that may use unsupported events.
+> +      echo "Skipped metric $m"
+>        continue
+>      fi
+>      echo "Metric contains missing events"
+> @@ -106,4 +111,5 @@ for m in $(perf list --raw-dump metrics); do
+>    err=3D1
+>  done
+>
+> +[ "$err" -eq 2 ] && err=3D0
+>  exit "$err"
+> --
+> 2.51.1
+>
