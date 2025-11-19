@@ -1,157 +1,181 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f46.google.com (mail-ed1-f46.google.com [209.85.208.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6EBD336EF5;
-	Wed, 19 Nov 2025 13:01:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF287358D37
+	for <linux-s390@vger.kernel.org>; Wed, 19 Nov 2025 13:11:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763557266; cv=none; b=AksDtgUTHE2zKMpimgd4E0LSPuxpsqvT+tPx+N9gZmcnuzS4ciwgvNKEmPPZ+KsA1iU0YJ5w6Ss++C6NBuRy+xHFSrRN6J60X4NMVEF0Oes0fuE02CXkXTfBn2gUwt3/rkc7CPZXujK8lXoIomwPMi1I5TZSRN4C3ncNX8+1TGs=
+	t=1763557882; cv=none; b=thaTqNEMvdEgVdeFqEY6qVvgJL1MXhHGsUlSL1Kp3g4gDA4rVAo3RLkoOHwKJO+XHm+BeY2H2ZgA0IMz6hI8SqpmcS9KtF5OrlroDO2o7C58oWz/ahlMRWryPZFrIvTW6gjettyAyhVFfwcfUyxcLyMBAKAV4EjMCVqyFDW5aJU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763557266; c=relaxed/simple;
-	bh=f94cHHc1QSU5IPkPTSxxk0Uyw/LEqU/mx2dzVxlyhqE=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=fhQaU9Rnt+w2YgqbgsmLLAuzMp4UGSzXf5xD5fD0Uu5kP2zpDFqGyqVoMKmqWVoTDVwtA9GY7AGUijDSyynEMhfLH1VpltUJT76P+QJY+H2JphXufq6EDINErA1lZOqpfDQV5GOpyxyqFtgvkd4zHupsXybR+F1ZGS75v2vrP5U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mMOahsl3; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1763557882; c=relaxed/simple;
+	bh=sJLZgI9vl/ePXAMiM1HFoKkY761fjwT9P7fNtQPrjMI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=j5hqt9yxKXrwE8qNZHS99MPimba+VzMML6GPP6I+nS/w6ATMeKWc+1ZjA2OmJXppelbOYHyqepr0RstfE0+S8Ay47HpgOHwnEnokZiIp9pdpmKCO/fqRzjUpqWg6B189cqqw6Mh7D9b0vAd1HD29Yw/VapK4tNHPmZVCpBs4eLY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=DQJFkS9T; arc=none smtp.client-ip=209.85.208.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mMOahsl3"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AJ7xAjs015515;
-	Wed, 19 Nov 2025 13:00:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=JNtvV7
-	4RwliG5Nlw4zuH4ZRCQx2oqtXeTFXxda4DjuY=; b=mMOahsl3CizXSSb4RBupjo
-	B4E6iNO639iJfLbFtmhpvGi+ySsJIu4A752SThzpTvuEJDXEP1iqmz9tTT8up2mj
-	Y9fTlHkKcwviONhXeX1V73FmfexTDyKjt+hJhkd7V5nSmnXc2HvAxIEjhgjZ+YC5
-	te9MwMI6bDxvfU8sYlsnp1YPVOcli09LHsF0Y4osZFn/1lCXnHC7o9Xwsf1/mXzF
-	bPFNGFlzoQN4IeHHUxUQj0qFs93bHmgxZ5gtmMroINeHAZqQSWeYeQkGmMNXUeoE
-	FL4GnyzV9Jk+f0Twl9+JqRWEYr1Wu2it1puLdlb44DH9u/Rb/spQHQ26Hz+cFIbg
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aejgwyp7s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Nov 2025 13:00:59 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AJAmxdd010406;
-	Wed, 19 Nov 2025 13:00:58 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4af3us8uwn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Nov 2025 13:00:58 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AJD0t1v42205504
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 19 Nov 2025 13:00:55 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 08C8A2006C;
-	Wed, 19 Nov 2025 13:00:55 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9B81D2004B;
-	Wed, 19 Nov 2025 13:00:53 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.87.156.96])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Wed, 19 Nov 2025 13:00:53 +0000 (GMT)
-Date: Wed, 19 Nov 2025 14:00:51 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
-        seiden@linux.ibm.com, schlameuss@linux.ibm.com, svens@linux.ibm.com,
-        agordeev@linux.ibm.com, gor@linux.ibm.com, david@redhat.com,
-        gerald.schaefer@linux.ibm.com
-Subject: Re: [PATCH v3 18/23] KVM: s390: Switch to new gmap
-Message-ID: <20251119140051.6d1fade2@p-imbrenda>
-In-Reply-To: <20251118151438.9674B91-hca@linux.ibm.com>
-References: <20251106161117.350395-1-imbrenda@linux.ibm.com>
-	<20251106161117.350395-19-imbrenda@linux.ibm.com>
-	<20251118151438.9674B91-hca@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="DQJFkS9T"
+Received: by mail-ed1-f46.google.com with SMTP id 4fb4d7f45d1cf-6406f3dcc66so11173577a12.3
+        for <linux-s390@vger.kernel.org>; Wed, 19 Nov 2025 05:11:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1763557878; x=1764162678; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=2hIjgqXWXn3Sbfto+9OWapsp1QwhUBtS+kZIjBq+Tlw=;
+        b=DQJFkS9TfIkIw04m01xXMLNrkosYb3FSrkUd1Mfnq3DmFPVYW5BQAF/kJ7qBH/fiSm
+         pVnVkcfKZlPcHTsyEwqHQR67eAr7CHq57OGD53huuAi4hSCw/ct6edPOGR+fsY5nGz/N
+         Yw1ooyFk/+rMnBQZngJcf6t2sX9N66HB8FZQS71x9KKl/6xkzHkV8uFKm2Iy/9fAm8Ag
+         I22CiD+iqPZDy+W/I0Ox3Jki6uwZV0vfVWc6IvJTegJWTzKaS6FEi0EnBDDhgSnIfI+y
+         k4OP4x8AdsPKrFrvmXhICnjEUtirKTXsrSbTk6Wz8fF+OXFqP7Hrg3yvNq2+bPjQ4kUM
+         Gqaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763557878; x=1764162678;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=2hIjgqXWXn3Sbfto+9OWapsp1QwhUBtS+kZIjBq+Tlw=;
+        b=ADUylXevHwLzx979z/cfEbojvXdvGWJG3FmGaK/DM50oP+4f7w74YZqMJuB/i1thJg
+         PXIOkZM/IAh7ZsoKRPb1xeav97p7JXuBzywIO+uwY963IUeG0Jhe13o3/sFOeukYskAT
+         3/CL6fSLsRjmrbntQHg+NWFI0UX4YeuJiu5CSG1FPgYKdP3JYW564NTi/3g4ubxHABmH
+         pQZdzNUSoibDjM8AZhUvbySnyBLS1qhOiJ1GCchs8W7X8Sok337PjZH4IAsOBj3brFSy
+         mudlMv7t7bp+OaEY7f5ZS05T4v6/KmowWWF3IsTG0RWWjGnD6rga2qmiIkKzNCqUkxJQ
+         uaFg==
+X-Forwarded-Encrypted: i=1; AJvYcCWdOEEtYtUmhLS5JDBl2cqxA7qVGXHsBiMApdxDMMgPZrjYzV19rYsurWbnEVRLnXFPsnkjEdwyGKeh@vger.kernel.org
+X-Gm-Message-State: AOJu0YzkXWmIUKHAa4NujlJWxrft2ZqlXoMVc3ep+0qKXN/YPFBWdAh9
+	367Eesd2DAQQeXaFSOoHY5h+xX1gpSS2WLnurgg2M26xULHz7Ds6mFlKLiJ22rwuL5E=
+X-Gm-Gg: ASbGncu3UQqNDE3XtTj/jXJBNG6kIKN2wXJ4kHiehL3dcvXYTHKPz4fp25s1aLrcyAg
+	HlcL2651bX2LQdcwjwXY6aPGIu1w2hNB17nBH4nTEWTzkcZHVKP1h7V1iM7UZv34mhCcsqsvR/Z
+	VGIdL13KQunqR4eZRdjxxFou517V4z6U4tsuDeEvoYuIDdNq0jQfEb7EaeDNtFEV9/B2jtMEpbU
+	XOFeKZUZnVWJrWwXEL6JGW6lJpGj9myxyJkP/iIlgKv04KCnk6H2q+isH145eXSbSe7b1INrCj0
+	NhhczszMXRhegnO8nWjlGjDfjPonO9B9UfkIfPki6zXt05p6cWb/xsrWynVCqe7Y6BuSTs1dhou
+	Umcqcrkr9SP2FhMPa9U5LUk+fCVk1OkWtt9SeLAwx6zYQ9PBoBgspscOiik0arNm7VyuKsc1MnA
+	/JjvXYgz0ym4+rpg==
+X-Google-Smtp-Source: AGHT+IHh/9HSY9QxYY7JWRlsHkQE77dEey/TQadLHho4kIFH9l0Cnuj5X98H1aD+vZkw9c2t87Tcgg==
+X-Received: by 2002:a17:907:96a7:b0:b6d:50f7:a805 with SMTP id a640c23a62f3a-b7367c02586mr2099815666b.59.1763557878059;
+        Wed, 19 Nov 2025 05:11:18 -0800 (PST)
+Received: from pathway.suse.cz ([176.114.240.130])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6433a3d8775sm15093392a12.5.2025.11.19.05.11.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Nov 2025 05:11:17 -0800 (PST)
+Date: Wed, 19 Nov 2025 14:11:12 +0100
+From: Petr Mladek <pmladek@suse.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Corey Minyard <corey@minyard.net>,
+	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+	"Dr. David Alan Gilbert" <linux@treblig.org>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
+	Rob Clark <robin.clark@oss.qualcomm.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Ulf Hansson <ulf.hansson@linaro.org>,
+	Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+	Vitaly Lifshits <vitaly.lifshits@intel.com>,
+	Manivannan Sadhasivam <mani@kernel.org>,
+	Niklas Cassel <cassel@kernel.org>, Calvin Owens <calvin@wbinvd.org>,
+	Vadim Fedorenko <vadim.fedorenko@linux.dev>,
+	Sagi Maimon <maimon.sagi@gmail.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Karan Tilak Kumar <kartilak@cisco.com>,
+	Hans Verkuil <hverkuil+cisco@kernel.org>,
+	Casey Schaufler <casey@schaufler-ca.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Viacheslav Dubeyko <Slava.Dubeyko@ibm.com>,
+	Max Kellermann <max.kellermann@ionos.com>,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	openipmi-developer@lists.sourceforge.net,
+	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+	linaro-mm-sig@lists.linaro.org, amd-gfx@lists.freedesktop.org,
+	linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org,
+	intel-xe@lists.freedesktop.org, linux-mmc@vger.kernel.org,
+	netdev@vger.kernel.org, intel-wired-lan@lists.osuosl.org,
+	linux-pci@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-staging@lists.linux.dev,
+	ceph-devel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+	Sergey Senozhatsky <senozhatsky@chromium.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Sumit Semwal <sumit.semwal@linaro.org>,
+	Gustavo Padovan <gustavo@padovan.org>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Dmitry Baryshkov <lumag@kernel.org>,
+	Abhinav Kumar <abhinav.kumar@linux.dev>,
+	Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>,
+	Marijn Suijten <marijn.suijten@somainline.org>,
+	Konrad Dybcio <konradybcio@kernel.org>,
+	Lucas De Marchi <lucas.demarchi@intel.com>,
+	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Vladimir Oltean <olteanv@gmail.com>, Andrew Lunn <andrew@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Tony Nguyen <anthony.l.nguyen@intel.com>,
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
+	Kishon Vijay Abraham I <kishon@kernel.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Rodolfo Giometti <giometti@enneenne.com>,
+	Jonathan Lemon <jonathan.lemon@gmail.com>,
+	Richard Cochran <richardcochran@gmail.com>,
+	Stefan Haberland <sth@linux.ibm.com>,
+	Jan Hoeppner <hoeppner@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Satish Kharat <satishkh@cisco.com>,
+	Sesidhar Baddela <sebaddel@cisco.com>,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Xiubo Li <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v3 00/21] treewide: Introduce %ptS for struct timespec64
+ and convert users
+Message-ID: <aR3B8ECx9W6F0BV_@pathway.suse.cz>
+References: <20251113150217.3030010-1-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: iRwVv0as4pC3GoOvvfNb3WE8sCG9x-qt
-X-Authority-Analysis: v=2.4 cv=YqwChoYX c=1 sm=1 tr=0 ts=691dbf8b cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=kj9zAlcOel0A:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=yTzIwsH_hqlntiTJneoA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: iRwVv0as4pC3GoOvvfNb3WE8sCG9x-qt
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTE1MDAzMiBTYWx0ZWRfX2T71bI6XVccS
- qyRjpA1dm7IsAakxBCeUltlcT4BghXUEfRTSB/KLT7Ku7P2RZyWls5ANzy7jhq5lXmL06PmtWJt
- xhmQVLbxcuxq81xByrPlceLgWHvdxfLRNiRJpCt8e/4LqgP5lkCj3806Ieg/7/QDMpIrDBnwEuz
- /7n/EUSA2m6EL4hxy19K6NvK9tkNizWBIglqJ1tl/2xeTBeJPO7AoyrLeBiQ7RRSXo+ArnKd8QE
- 87Wo36sGuBaKq3umkmjICN7kz9WXF412vkJvxniL+rz0XhcOld5lVuWFmyqDswzzTJIgIIoENfQ
- UIY5M+ltszu82r2pCfopqKnwryQIVS48AD2VEx8Wxk/2X4Dudd6OkB26/wngJ6T4/vThfQ3O9r1
- yyTUa2hec6lu2xpvFZlE6SfbwijQpw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-11-19_03,2025-11-18_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 lowpriorityscore=0 malwarescore=0
- clxscore=1015 adultscore=0 bulkscore=0 phishscore=0 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
- definitions=main-2511150032
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251113150217.3030010-1-andriy.shevchenko@linux.intel.com>
 
-On Tue, 18 Nov 2025 16:14:38 +0100
-Heiko Carstens <hca@linux.ibm.com> wrote:
+On Thu 2025-11-13 15:32:14, Andy Shevchenko wrote:
+> Here is the third part of the unification time printing in the kernel.
+> This time for struct timespec64. The first patch brings a support
+> into printf() implementation (test cases and documentation update
+> included) followed by the treewide conversion of the current users.
+> 
+> Petr, we got like more than a half being Acked, I think if you are okay
+> with this, the patches that have been tagged can be applied.
+> 
+> Note, not everything was compile-tested. Kunit test has been passed, though.
 
-> On Thu, Nov 06, 2025 at 05:11:12PM +0100, Claudio Imbrenda wrote:
-> > Switch KVM/s390 to use the new gmap code.
-> > 
-> > Remove includes to <gmap.h> and include "gmap.h" instead; fix all the
-> > existing users of the old gmap functions to use the new ones instead.
-> > 
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > ---
-> >  arch/s390/Kconfig                   |   2 +-
-> >  arch/s390/include/asm/kvm_host.h    |   5 +-
-> >  arch/s390/include/asm/mmu_context.h |   4 -
-> >  arch/s390/include/asm/tlb.h         |   3 -
-> >  arch/s390/kvm/Makefile              |   2 +-
-> >  arch/s390/kvm/diag.c                |   2 +-
-> >  arch/s390/kvm/gaccess.c             | 552 +++++++++++----------
-> >  arch/s390/kvm/gaccess.h             |  16 +-
-> >  arch/s390/kvm/gmap-vsie.c           | 141 ------
-> >  arch/s390/kvm/gmap.c                |   6 +-
-> >  arch/s390/kvm/intercept.c           |  15 +-
-> >  arch/s390/kvm/interrupt.c           |   2 +-
-> >  arch/s390/kvm/kvm-s390.c            | 727 ++++++++--------------------
-> >  arch/s390/kvm/kvm-s390.h            |  20 +-
-> >  arch/s390/kvm/priv.c                | 207 +++-----
-> >  arch/s390/kvm/pv.c                  |  64 +--
-> >  arch/s390/kvm/vsie.c                | 117 +++--
-> >  arch/s390/mm/gmap_helpers.c         |  29 --
-> >  18 files changed, 710 insertions(+), 1204 deletions(-)
-> >  delete mode 100644 arch/s390/kvm/gmap-vsie.c  
-> 
-> ...
-> 
-> > @@ -389,27 +358,13 @@ static int handle_sske(struct kvm_vcpu *vcpu)
-> > +		scoped_guard(read_lock, &vcpu->kvm->mmu_lock) {
-> > +			rc = dat_cond_set_storage_key(vcpu->arch.mc, vcpu->arch.gmap->asce,
-> > +						      gpa_to_gfn(start), key, &oldkey,
-> > +						      m3 & SSKE_NQ, m3 & SSKE_MR, m3 & SSKE_MC);  
-> 
-> ...
-> 
-> > @@ -1159,19 +1106,13 @@ static int handle_pfmf(struct kvm_vcpu *vcpu)
-> > +			scoped_guard(read_lock, &vcpu->kvm->mmu_lock) {
-> > +				rc = dat_cond_set_storage_key(vcpu->arch.mc, vcpu->arch.gmap->asce,
-> > +							      gpa_to_gfn(start), key,
-> > +							      NULL, nq, mr, mc);  
-> 
-> For the above two users I don't see any code which fills the arch.mc
-> cache reliably. But chances are that I just missed it, since this
-> patch is huge.
+JFYI, the patchset has been committed into printk/linux.git,
+branch for-6.19-vsprintf-timespec64.
 
-I checked, I was indeed not doing it anywhere, oops!
+Note, that I have:
+
+   + fixed the 19th patch as proposed, see
+     https://lore.kernel.org/all/aR2XAYWTEgMZu_Mx@pathway.suse.cz/
+
+   + reviewed all patches but I triple checked 7th patch which
+     did not have any ack yet. And I added my Reviewed-by tag
+     there. ;-)
+
+   + I tried build with allyesconfig. It succeeded. I am not 100%
+     sure that it built all modified sources but...
+
+Best Regards,
+Petr
