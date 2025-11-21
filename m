@@ -1,58 +1,58 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5E0C28DF2D;
-	Fri, 21 Nov 2025 14:49:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2948A288C86;
+	Fri, 21 Nov 2025 15:11:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763736601; cv=none; b=D0N9YY9z9Di9QnACU3xTWmrIN8rRYXGFGu8nayKd8s9eGITRDl/KscN6zXdaqy/WWLx2VSUND8Ddm209UPE2yQL6NWmNSLAuBCy8+ZV2K0YDV0DV5sHJ+iD2Hod2p/+dSYcQF31LhH9Cr8o7RsIT5mHNbPZH+NSg/RZOxwxn4A4=
+	t=1763737866; cv=none; b=JfM9CboLFdY6jG8DP4Wpg4+O8/JRHA6AggFDh/YU0X7I/1ikxQpaQ3dMHr8W8wHgs4t0vYQ5bZsPClJT6hAWASMtZUyTpfAJsGq5vB+AW8WQ0gthY9gy52PrBvw1dB91oB7ZwnCXFn63WOA0d0NqCNVBkCAVxLPIjdyaWyBA6VI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763736601; c=relaxed/simple;
-	bh=pKemmz+hn9IInfUvGCr8kgYvfAKbfsVC604PRpRFTs8=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:To:Cc:Subject:
-	 References:In-Reply-To; b=SP+szM506Wz7WBivSNw2eMhgA9GM2SdTnoBZen6XhBxfvJdQlc4hx6tFIXo5+cofnA/EUZL/3TqesFDRumAMT+ecWwV6mXvJPoC2vME24A8ThCvk19oojrIJShs/sXn3q4hyYRjMMmPbX8fw7NXtAgEn1CoFxzREQa5hMRMo/lE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QXiIKVj+; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1763737866; c=relaxed/simple;
+	bh=Gbi8Ncy5CZiM7aZnnYqb5XfnQM+zGFpFUb1CSpVAYHA=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:Cc:To:
+	 References:In-Reply-To; b=gQwSR8TLfw1TlVetwt4O1Pzvlk2ijX76nP0MxhxZJQJrNYPfB3isMFPR3XiLTIU05CDfPJ3QYO9js37q40ZTNpa+pxH0fqwjHyUpuupz8jprEbyqUEizKRKqZWe2qaNs2YrZFWel/gvqvwCFEVCmOw0uCIAW1Np84NhyPwsB5m8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=h03wW9gY; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QXiIKVj+"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5ALEEiGX002761;
-	Fri, 21 Nov 2025 14:49:55 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="h03wW9gY"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5ALEWURX023454;
+	Fri, 21 Nov 2025 15:10:53 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=cno3+u
-	2JOlSuZo1wYJT5AjXPcmrcQ/uzT35iy51t2rU=; b=QXiIKVj+fsePQfnowXBPgp
-	rGMhwXNzxpNw/ZYLyKxT+Xs8lwyVhHJ2tOa3ChatXrmAGHyiop3l//4DvP1ndKPD
-	N8/ikIEciApM30vVHZeROxxoZlojTECWgBR5usls57sGG4nRWjuIf96NwfcRTI+B
-	wUQmuZpl8QkpNbY28L868PPrcc3zBTMq1O+eL6fgOUpNk1/qsT/M6c+38cmYKMR2
-	E40U6iBUINZvvgaYfvKJoty0oPsJq1moZnDU/OdX7fqsUBj+mk+3kWpXBNeYUH+K
-	kOStOXArKyGnlEIZoWG4sBZJHkL1cFlgRsAZYfa+hKy913Rww1J8UEH7JbizMflA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=UBZWGq
+	6deHy/W5Je0L4Ak+pL2cvdRhOVS+aEBwQhdQk=; b=h03wW9gYrsh+w/sVs/SxhP
+	Bx76prxrLXvkg0t2iXjfSJyEibXqI90Rro0X5PViimyLsOt/5JF5WUV+ki+YcRLM
+	wjykfsSewe/kyJAlnCbZl5n+rKZEeNoBJnAUv+j64d1JnbPnlAq9ZvwrKlApI6fm
+	odZpQnQ0Dh1w26W7wmAO9pE+eVbOlP559pLMs8EZbuBlQx4LYivlQACHX04KeGFw
+	CdPvZV7M8CeE60AHTIITtAyMriptlQoV36DQnobYhko/KfL1AymZwJU6KW8QmLPe
+	RPC0wl7+7Ywb1v5bELRP8wKcN5teG3DF2T7i3+ttNU5ijLNjp2vaYP6d6fltW+dw
 	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aejjuavu5-1
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aejk1vpjh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Nov 2025 14:49:54 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5ALCj5xH006959;
-	Fri, 21 Nov 2025 14:49:53 GMT
+	Fri, 21 Nov 2025 15:10:53 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5ALCL3Pd005065;
+	Fri, 21 Nov 2025 15:10:52 GMT
 Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4af62jvg8w-1
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4af5bkmtjt-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Nov 2025 14:49:53 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5ALEnoQP27853202
+	Fri, 21 Nov 2025 15:10:51 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5ALFAlmk11469126
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 21 Nov 2025 14:49:50 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3AB502004B;
-	Fri, 21 Nov 2025 14:49:50 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 67A3C20049;
-	Fri, 21 Nov 2025 14:49:49 +0000 (GMT)
-Received: from localhost (unknown [9.111.95.11])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 21 Nov 2025 14:49:49 +0000 (GMT)
+	Fri, 21 Nov 2025 15:10:47 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A090620043;
+	Fri, 21 Nov 2025 15:10:47 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7309020040;
+	Fri, 21 Nov 2025 15:10:47 +0000 (GMT)
+Received: from darkmoore (unknown [9.111.24.50])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 21 Nov 2025 15:10:47 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -61,307 +61,242 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset=UTF-8
-Date: Fri, 21 Nov 2025 15:49:48 +0100
-Message-Id: <DEEGFVBPI57E.1QW7C1D4B2ER4@linux.ibm.com>
-From: "Tobias Schumacher" <ts@linux.ibm.com>
-To: "Gerd Bayer" <gbayer@linux.ibm.com>,
-        "Tobias Schumacher"
- <ts@linux.ibm.com>,
-        "Heiko Carstens" <hca@linux.ibm.com>,
-        "Vasily Gorbik"
- <gor@linux.ibm.com>,
-        "Alexander Gordeev" <agordeev@linux.ibm.com>,
-        "Christian Borntraeger" <borntraeger@linux.ibm.com>,
-        "Sven Schnelle"
- <svens@linux.ibm.com>,
-        "Niklas Schnelle" <schnelle@linux.ibm.com>,
-        "Gerald
- Schaefer" <gerald.schaefer@linux.ibm.com>,
-        "Halil Pasic"
- <pasic@linux.ibm.com>,
-        "Matthew Rosato" <mjrosato@linux.ibm.com>,
-        "Thomas
- Gleixner" <tglx@linutronix.de>
-Cc: <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        "Farhan
- Ali" <alifm@linux.ibm.com>
-Subject: Re: [PATCH v5 2/2] s390/pci: Migrate s390 IRQ logic to IRQ domain
- API
+Date: Fri, 21 Nov 2025 16:10:42 +0100
+Message-Id: <DEEGVV2BJUF7.3QYGABJQ3HMV9@linux.ibm.com>
+Subject: Re: [PATCH RFC v2 07/11] KVM: s390: Shadow VSIE SCA in guest-1
+From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+Cc: <linux-s390@vger.kernel.org>, "Heiko Carstens" <hca@linux.ibm.com>,
+        "Vasily Gorbik" <gor@linux.ibm.com>,
+        "Alexander Gordeev"
+ <agordeev@linux.ibm.com>,
+        "Christian Borntraeger"
+ <borntraeger@linux.ibm.com>,
+        "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
+        "Nico Boehr" <nrb@linux.ibm.com>,
+        "David Hildenbrand" <david@redhat.com>,
+        "Sven Schnelle" <svens@linux.ibm.com>,
+        "Paolo Bonzini"
+ <pbonzini@redhat.com>,
+        "Shuah Khan" <shuah@kernel.org>
+To: "Janosch Frank" <frankja@linux.ibm.com>,
+        "Christoph Schlameuss"
+ <schlameuss@linux.ibm.com>,
+        <kvm@vger.kernel.org>
 X-Mailer: aerc 0.21.0
-References: <20251121-implement-msi-domain-v5-0-d7e717dfd3f7@linux.ibm.com>
- <20251121-implement-msi-domain-v5-2-d7e717dfd3f7@linux.ibm.com>
- <626c1d010ff720c8c2beb7bdd36b0565850a6ab3.camel@linux.ibm.com>
-In-Reply-To: <626c1d010ff720c8c2beb7bdd36b0565850a6ab3.camel@linux.ibm.com>
+References: <20251110-vsieie-v2-0-9e53a3618c8c@linux.ibm.com>
+ <20251110-vsieie-v2-7-9e53a3618c8c@linux.ibm.com>
+ <0bd2c3f1-211e-41b3-a3ce-8d9ccfe2b1c0@linux.ibm.com>
+In-Reply-To: <0bd2c3f1-211e-41b3-a3ce-8d9ccfe2b1c0@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: dwUcxL8lVoglVTSRGShDFmUVclavVBK0
-X-Proofpoint-ORIG-GUID: dwUcxL8lVoglVTSRGShDFmUVclavVBK0
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTE1MDAzMiBTYWx0ZWRfXwrbvJVVljgOI
- LpLf6cFpSqaRoGNJfvK67n/Bofd3R9Ld4v8X5V1Q5CK+NUFgOd/5lZLvLrm+svU30ihWE8DlPBr
- YsSxWsgOkcag8QQbwshyZfKcaqFeKS7F3NYNTFj1VxC5eNjb0XpCRwbquE4d0WjCus78tjJgp/Y
- /kXrXh17w6OOu+sLbp39mwwwNk6DicqewTQT7iNBT6Bpp7y4es+xSrzCDCnbC3j79cktm2jjoQR
- l2FyXqfxK8DW9H6uigaYmflHLfz0DR42IGkfbvaQENw+wN5Fm56C2QiztiKLczj6LUNFI/Vjat1
- Mbg+aqKtoU4QkMWGSzMyzf8AaYykn0X3Nf8tX9OQzGwBzMgsp2PDTJ07Itab5U285uaPOT1G0OU
- ap37K/YExxErCh9m0/+qPCPmGHtTGw==
-X-Authority-Analysis: v=2.4 cv=SvOdKfO0 c=1 sm=1 tr=0 ts=69207c12 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Authority-Analysis: v=2.4 cv=C/nkCAP+ c=1 sm=1 tr=0 ts=692080fd cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=O8nXZrIETkQSUyQ56joA:9 a=QEXdDO2ut3YA:10
+ a=VnNF1IyMAAAA:8 a=zLEXaDGtvme6yjfbcSsA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: dvf_s_gMTIPbHJ1bUieaeVi7a2q2ldNr
+X-Proofpoint-ORIG-GUID: dvf_s_gMTIPbHJ1bUieaeVi7a2q2ldNr
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTE1MDAzMiBTYWx0ZWRfXwKwwDkDPytOU
+ DUQdSS4013ymppv34Rmkc6dNder8nM0qthgdLF4UbkArMj5vi7SBxYflZaAsGAMXE/5sVMTX4VH
+ T7CP4rQ9JHRMlCpVtsoGwCXpTrS3stfSe9yugDjLM5gJGQEZmLeKObjVvX210m5hXu9oZTzjbHP
+ gG15uh+ObQoKZ35JOrnGrLYXQhvA7t9iPWW5oarqPGNBxNqcEqSeD2+i40EdF5yz0kniGwfOtzo
+ hqhWhWmq8I5j0JAix6+jU45c/pxLI3nw6o/KZoszVUL/JkjcQaZXG+fMf13sD5EGzsRl68qLYli
+ iReOfTXBLIj2XEE1qfRnt52SIRSCEu5lMS33nf4J1t5h9rrPtvR74itbtrgepeRoAEtWl98RDxq
+ OfMJDZ8FrdIyIkX6sm9FgUR+afSS6Q==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-11-21_03,2025-11-21_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 lowpriorityscore=0 spamscore=0 clxscore=1015
- suspectscore=0 phishscore=0 adultscore=0 bulkscore=0 impostorscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
- definitions=main-2511150032
+ phishscore=0 priorityscore=1501 spamscore=0 impostorscore=0 bulkscore=0
+ malwarescore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511150032
 
-On Fri Nov 21, 2025 at 2:27 PM CET, Gerd Bayer wrote:
-> Hi Tobias,
->
-> sorry for being late with my comments...
->
-> On Fri, 2025-11-21 at 06:32 +0100, Tobias Schumacher wrote:
->> s390 is one of the last architectures using the legacy API for setup and
->> teardown of PCI MSI IRQs. Migrate the s390 IRQ allocation and teardown
->> to the MSI parent domain API. For details, see:
+On Tue Nov 18, 2025 at 5:04 PM CET, Janosch Frank wrote:
+> On 11/10/25 18:16, Christoph Schlameuss wrote:
+>> Restructure kvm_s390_handle_vsie() to create a guest-1 shadow of the SCA
+>> if guest-2 attempts to enter SIE with an SCA. If the SCA is used the
+>> vsie_pages are stored in a new vsie_sca struct instead of the arch vsie
+>> struct.
 >>=20
->> https://lore.kernel.org/lkml/20221111120501.026511281@linutronix.de
+>> When the VSIE-Interpretation-Extension Facility is active (minimum z17)
+>> the shadow SCA (ssca_block) will be created and shadows of all CPUs
+>> defined in the configuration are created.
+>> SCAOL/H in the VSIE control block are overwritten with references to the
+>> shadow SCA.
 >>=20
->> In detail, create an MSI parent domain for each PCI domain. When a PCI
->> device sets up MSI or MSI-X IRQs, the library creates a per-device IRQ
->> domain for this device, which is used by the device for allocating and
->> freeing IRQs.
+>> The shadow SCA contains the addresses of the original guest-3 SCA as
+>> well as the original VSIE control blocks. With these addresses the
+>> machine can directly monitor the intervention bits within the original
+>> SCA entries, enabling it to handle SENSE_RUNNING and EXTERNAL_CALL sigp
+>> instructions without exiting VSIE.
 >>=20
->> The per-device domain delegates this allocation and freeing to the
->> parent-domain. In the end, the corresponding callbacks of the parent
->> domain are responsible for allocating and freeing the IRQs.
+>> The original SCA will be pinned in guest-2 memory and only be unpinned
+>> before reuse. This means some pages might still be pinned even after the
+>> guest 3 VM does no longer exist.
 >>=20
->> The allocation is split into two parts:
->> - zpci_msi_prepare() is called once for each device and allocates the
->>   required resources. On s390, each PCI function has its own airq
->>   vector and a summary bit, which must be configured once per function.
->>   This is done in prepare().
->> - zpci_msi_alloc() can be called multiple times for allocating one or
->>   more MSI/MSI-X IRQs. This creates a mapping between the virtual IRQ
->>   number in the kernel and the hardware IRQ number.
+>> The ssca_blocks are also kept within a radix tree to reuse already
+>> existing ssca_blocks efficiently. While the radix tree and array with
+>> references to the ssca_blocks are held in the vsie_sca struct.
+>> The use of vsie_scas is tracked using an ref_count.
 >>=20
->> Freeing is split into two counterparts:
->> - zpci_msi_free() reverts the effects of zpci_msi_alloc() and
->> - zpci_msi_teardown() reverts the effects of zpci_msi_prepare(). This is
->>   called once when all IRQs are freed before a device is removed.
->>=20
->> Since the parent domain in the end allocates the IRQs, the hwirq
->> encoding must be unambiguous for all IRQs of all devices. This is
->> achieved by=20
->>=20
->> encoding the hwirq using the PCI function id and the MSI
->> index.
->
-> This is no longer true with the per-PCI-domain irq domains! But you
-> encode the hwirq with the devfn within the PCI domain, instead.
-
-Correct, will fix that.
-
->> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
->> Reviewed-by: Farhan Ali <alifm@linux.ibm.com>
->> Signed-off-by: Tobias Schumacher <ts@linux.ibm.com>
+>> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 >> ---
->>  arch/s390/Kconfig           |   1 +
->>  arch/s390/include/asm/pci.h |   4 +
->>  arch/s390/pci/pci_bus.c     |  21 ++-
->>  arch/s390/pci/pci_irq.c     | 333 +++++++++++++++++++++++++++----------=
--------
->>  4 files changed, 227 insertions(+), 132 deletions(-)
+>>   arch/s390/include/asm/kvm_host.h       |  11 +-
+>>   arch/s390/include/asm/kvm_host_types.h |   5 +-
+>>   arch/s390/kvm/kvm-s390.c               |   6 +-
+>>   arch/s390/kvm/kvm-s390.h               |   2 +-
+>>   arch/s390/kvm/vsie.c                   | 672 +++++++++++++++++++++++++=
++++-----
+>>   5 files changed, 596 insertions(+), 100 deletions(-)
 >>=20
->> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
->> index 778ce20d34046cad84dd4ef57cab5a662e5796d9..46ab67d607f0db7f5f108106=
-172699a5eebfc8c8 100644
->> --- a/arch/s390/Kconfig
->> +++ b/arch/s390/Kconfig
->> @@ -251,6 +251,7 @@ config S390
->>  	select HOTPLUG_SMT
->>  	select IOMMU_HELPER		if PCI
->>  	select IOMMU_SUPPORT		if PCI
->> +	select IRQ_MSI_LIB if PCI
+>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kv=
+m_host.h
+>> index 647014edd3de8abc15067e7203c4855c066c53ad..191b23edf0ac7e9a3e1fd9cd=
+c6fc4c9a9e6769f8 100644
+>> --- a/arch/s390/include/asm/kvm_host.h
+>> +++ b/arch/s390/include/asm/kvm_host.h
+>> @@ -597,13 +597,22 @@ struct sie_page2 {
+>>   };
+>>  =20
+>>   struct vsie_page;
+>> +struct vsie_sca;
+>>  =20
+>> +/*
+>> + * vsie_pages, scas and accompanied management vars
+>> + */
+>>   struct kvm_s390_vsie {
+>>   	struct mutex mutex;
+>>   	struct radix_tree_root addr_to_page;
+>>   	int page_count;
+>>   	int next;
+>> -	struct vsie_page *pages[KVM_MAX_VCPUS];
+>> +	struct vsie_page *pages[KVM_S390_MAX_VSIE_VCPUS];
+>> +	struct rw_semaphore ssca_lock;
 >
-> Nit: There's precedence for both versions (above and below!) but I
-> personally would prefer to indent the pre-condition "if PCI" so it
-> stands out. Maybe that's a generic clean-up task for this arch-specific
-> file...
-
-Since at least the 'if PCI' preconditions are indented in this file,
-I'll also do it for this line.=20
-
->> @@ -189,7 +190,7 @@ static bool zpci_bus_is_multifunction_root(struct zp=
-ci_dev *zdev)
->>  static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_d=
-ev *fr, struct pci_ops *ops)
->>  {
->>  	struct pci_bus *bus;
->> -	int domain;
->> +	int domain, rc;
->> =20
->>  	domain =3D zpci_alloc_domain((u16)fr->uid);
->>  	if (domain < 0)
->> @@ -199,19 +200,28 @@ static int zpci_bus_create_pci_bus(struct zpci_bus=
- *zbus, struct zpci_dev *fr, s
->>  	zbus->multifunction =3D zpci_bus_is_multifunction_root(fr);
->>  	zbus->max_bus_speed =3D fr->max_bus_speed;
->> =20
->> +	rc =3D zpci_create_parent_msi_domain(zbus);
->> +	if (rc)
->> +		goto out_free_domain;
+> Might make sense to name it sca_lock, since we're not locking sscas.
+>
+>> +	struct radix_tree_root osca_to_sca;
+>> +	int sca_count;
+>> +	int sca_next;
+>> +	struct vsie_sca *scas[KVM_S390_MAX_VSIE_VCPUS];
+>>   };
+>>  =20
+>
+> [...]
+>
 >> +
->
-> If you shortened this to use the call to
-> zpci_create_parent_msi_domain() as predicate for "if" you could do
-> without the additional rc.
-
-Will do.
-
->>  	/*
->>  	 * Note that the zbus->resources are taken over and zbus->resources
->>  	 * is empty after a successful call
->>  	 */
->>  	bus =3D pci_create_root_bus(NULL, ZPCI_BUS_NR, ops, zbus, &zbus->resou=
-rces);
->> -	if (!bus) {
->> -		zpci_free_domain(zbus->domain_nr);
->> -		return -EFAULT;
->> -	}
->> +	if (!bus)
->> +		goto out_remove_msi_domain;
->
-> Or do you want to set rc to -EFAULT here, and return the "original" rc
-> in the error exits?
-
-As Heiko mentioned, -EFAULT shouldn't be returned anyways I'd change it
-to -ENOMEM for all error cases.
-
---- snip ---
-
->> diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
->> index e73be96ce5fe6473fc193d65b8f0ff635d6a98ba..b0be21ab56995e81f54339fc=
-77167f5930182542 100644
->> --- a/arch/s390/pci/pci_irq.c
->> +++ b/arch/s390/pci/pci_irq.c
->> @@ -7,6 +7,7 @@
->>  #include <linux/kernel_stat.h>
->>  #include <linux/pci.h>
->>  #include <linux/msi.h>
->> +#include <linux/irqchip/irq-msi-lib.h>
->>  #include <linux/smp.h>
->> =20
->>  #include <asm/isc.h>
->> @@ -110,43 +111,41 @@ static int zpci_set_irq(struct zpci_dev *zdev)
->>  	return rc;
->>  }
->> =20
->> -/* Clear adapter interruptions */
->> -static int zpci_clear_irq(struct zpci_dev *zdev)
->
->
-> Any specific reason, why you removed zpci_clear_irq() indirecting to
-> airq vs. directed_irq - but kept zpci_set_irq()? Just saying this is
-> imbalanced now.
-
-I removed it because it was only required in zpci_msi_teardown(), which
-already has the distinction between directed and floating IRQs. So
-having a separate zpci_clear_irq() seemed redundant.=20
-
---- snip ---
-
->> +static inline u16 zpci_decode_hwirq_msi_index(irq_hw_number_t irq)
+>> +/*
+>> + * Pin and get an existing or new guest system control area.
+>> + *
+>> + * May sleep.
+>> + */
+>> +static struct vsie_sca *get_vsie_sca(struct kvm_vcpu *vcpu, struct vsie=
+_page *vsie_page,
+>> +				     gpa_t sca_addr)
 >> +{
->> +	return irq & GENMASK_U16(15, 0);
+>> +	struct vsie_sca *sca, *sca_new =3D NULL;
+>> +	struct kvm *kvm =3D vcpu->kvm;
+>> +	unsigned int max_sca;
+>> +	int rc;
+>> +
+>> +	rc =3D validate_scao(vcpu, vsie_page->scb_o, vsie_page->sca_gpa);
+>> +	if (rc)
+>> +		return ERR_PTR(rc);
+>> +
+>> +	/* get existing sca */
+>> +	down_read(&kvm->arch.vsie.ssca_lock);
+>> +	sca =3D get_existing_vsie_sca(kvm, sca_addr);
+>> +	up_read(&kvm->arch.vsie.ssca_lock);
+>> +	if (sca)
+>> +		return sca;
+>> +
+>> +	/*
+>> +	 * Allocate new ssca, it will likely be needed below.
+>> +	 * We want at least #online_vcpus shadows, so every VCPU can execute t=
+he
+>> +	 * VSIE in parallel. (Worst case all single core VMs.)
+>> +	 */
 >
+> We're allocating an SCA and then its SSCA.
 >
-> Please don't use GENMASK_U16. It is harder to read than any explicit
-> constant like 0x00FF, especially since its parameters contradict the
-> architecture's endianess.
-> But then, is this called anywhere?
 
-Right, it's not used anymore, I'll remove it completely.
+Fixed.
 
---- snip ---
+>> +	max_sca =3D MIN(atomic_read(&kvm->online_vcpus), KVM_S390_MAX_VSIE_VCP=
+US);
+>> +	if (kvm->arch.vsie.sca_count < max_sca) {
+>> +		BUILD_BUG_ON(sizeof(struct vsie_sca) > PAGE_SIZE);
+>> +		sca_new =3D (void *)__get_free_page(GFP_KERNEL_ACCOUNT | __GFP_ZERO);
+>> +		if (!sca_new)
+>> +			return ERR_PTR(-ENOMEM);
+>> +
+>> +		if (use_vsie_sigpif(vcpu->kvm)) {
+>> +			BUILD_BUG_ON(offsetof(struct ssca_block, cpu) !=3D 64);
+>> +			sca_new->ssca =3D alloc_pages_exact(sizeof(*sca_new->ssca),
+>> +							  GFP_KERNEL_ACCOUNT | __GFP_ZERO);
+>> +			if (!sca_new->ssca) {
+>> +				free_page((unsigned long)sca);
+>
+> Shouldn't this be sca_new which we just allocated?
+> I think it might have been a mistake to have both sca and sca_new in=20
+> this function even though I understand why you need it.
+>
 
->> +static int zpci_msi_prepare(struct irq_domain *domain,
->> +			    struct device *dev, int nvec,
->> +			    msi_alloc_info_t *info)
->> +{
->> +	struct zpci_dev *zdev =3D to_zpci_dev(dev);
->> +	struct pci_dev *pdev =3D to_pci_dev(dev);
->> +	unsigned long bit;
->> +	int msi_vecs, rc;
->> =20
->>  	msi_vecs =3D min_t(unsigned int, nvec, zdev->max_msi);
->> -	if (msi_vecs < nvec) {
->> -		pr_info("%s requested %d irqs, allocate system limit of %d",
->> +	if (msi_vecs < nvec)
->> +		pr_info("%s requested %d IRQs, allocate system limit of %d\n",
->>  			pci_name(pdev), nvec, zdev->max_msi);
->> -	}
->> =20
->>  	rc =3D __alloc_airq(zdev, msi_vecs, &bit);
->> -	if (rc < 0)
->> +	if (rc) {
->> +		pr_err("Allocating adapter IRQs for %s failed\n", pci_name(pdev));
->>  		return rc;
+Yes it should. But I did already simplify this nested allocation into a sin=
+gle
+allocation for the next version. So it will be simpler.
+
+>> +				sca_new =3D NULL;
+>
+> Why?
+> We're returning in the next line.
+>
+
+Only out of an abundance of cleanup. Will remove these for local variables =
+in
+error paths.
+
+>> +				return ERR_PTR(-ENOMEM);
+>> +			}
+>> +		}
 >> +	}
->> =20
->> -	/*
->> -	 * Request MSI interrupts:
->> -	 * When using MSI, nvec_used interrupt sources and their irq
->> -	 * descriptors are controlled through one msi descriptor.
->> -	 * Thus the outer loop over msi descriptors shall run only once,
->> -	 * while two inner loops iterate over the interrupt vectors.
->> -	 * When using MSI-X, each interrupt vector/irq descriptor
->> -	 * is bound to exactly one msi descriptor (nvec_used is one).
->> -	 * So the inner loops are executed once, while the outer iterates
->> -	 * over the MSI-X descriptors.
->> -	 */
->> -	hwirq =3D bit;
->> -	msi_for_each_desc(msi, &pdev->dev, MSI_DESC_NOTASSOCIATED) {
->> -		if (hwirq - bit >=3D msi_vecs)
->> -			break;
->> -		irqs_per_msi =3D min_t(unsigned int, msi_vecs, msi->nvec_used);
->> -		irq =3D __irq_alloc_descs(-1, 0, irqs_per_msi, 0, THIS_MODULE,
->> -					(irq_delivery =3D=3D DIRECTED) ?
->> -					msi->affinity : NULL);
->> -		if (irq < 0)
->> -			return -ENOMEM;
->> -
->> -		for (i =3D 0; i < irqs_per_msi; i++) {
->> -			rc =3D irq_set_msi_desc_off(irq, i, msi);
->> -			if (rc)
->> -				return rc;
->> -			irq_set_chip_and_handler(irq + i, &zpci_irq_chip,
->> -						 handle_percpu_irq);
->> +	zdev->msi_first_bit =3D bit;
->> +	zdev->msi_nr_irqs =3D msi_vecs;
->> +	rc =3D zpci_set_irq(zdev);
->> +	if (rc) {
->> +		pr_err("Registering adapter IRQs for %s failed\n",
->> +		       pci_name(pdev));
->> +		if (irq_delivery =3D=3D DIRECTED) {
->> +			airq_iv_free(zpci_ibv[0], zdev->msi_first_bit, msi_vecs);
->> +		} else {
->> +			zpci_clear_airq(zdev);
->> +			airq_iv_release(zdev->aibv);
->> +			zdev->aibv =3D NULL;
->> +			airq_iv_free_bit(zpci_sbv, zdev->aisb);
->> +			zdev->aisb =3D -1UL;
 >
-> These two failure clean-ups look a lot like
-> zpci_msi_teardown_directed/_floating() below. Could these be called
-> instead of duplicating the code?
+> How about something like:
+>
+> Now we're taking the ssca lock in write mode so that we can manipulate=20
+> the radix tree and recheck for existing scas with exclusive access.
+>
+> In the next lines we try three things to get an SCA:
+>   - Retry getting an existing SCA
+>   - Using our newly allocated SCA if we're under the limit
+>   - Reusing an SCA with a different osca
+>
 
-Yes they are similar, only that zpci_msi_teardown_directed/_floating()
-also call zpci_clear_directed_irq()/zpci_clear_airq(), respectively.
-Considering your other comment above, it might be cleaner to add
-zpci_clear_irq() again, call this directly from zpci_msi_teardown() and
-then use zpci_msi_teardown_directed/_floating() here as suggested.
+Yes, that is a good description. And I see that this is a bit tricky to
+understand to warrant that. Thanks.
 
-Thanks,
-Tobias
+>> +
+>> +	/* enter write lock and recheck to make sure ssca has not been created=
+ by other cpu */
+>> +	down_write(&kvm->arch.vsie.ssca_lock);
+>> +	sca =3D get_existing_vsie_sca(kvm, sca_addr);
+>> +	if (sca)
+>> +		goto out;
+>> +
+>> +	/* check again under write lock if we are still under our sca_count li=
+mit */
+>> +	if (sca_new && kvm->arch.vsie.sca_count < max_sca) {
+>> +		/* make use of vsie_sca just created */
+>> +		sca =3D sca_new;
+>> +		sca_new =3D NULL;
+>> +
+>> +		kvm->arch.vsie.scas[kvm->arch.vsie.sca_count] =3D sca;
+>> +	} else {
+>> +		/* reuse previously created vsie_sca allocation for different osca */
+>> +		sca =3D get_free_existing_vsie_sca(kvm);
+>> +		/* with nr_vcpus scas one must be free */
+>> +		if (IS_ERR(sca))
+>> +			goto out;
+>> +
+>> +		unpin_sca(kvm, sca);
+>> +		radix_tree_delete(&kvm->arch.vsie.osca_to_sca, sca->sca_gpa);
+>> +		memset(sca, 0, sizeof(struct vsie_sca));
