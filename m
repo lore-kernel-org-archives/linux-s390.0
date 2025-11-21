@@ -1,158 +1,208 @@
-Received: from flow-b5-smtp.messagingengine.com (flow-b5-smtp.messagingengine.com [202.12.124.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECE062BE047;
-	Fri, 21 Nov 2025 16:25:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F1232DCF43
+	for <linux-s390@vger.kernel.org>; Fri, 21 Nov 2025 16:35:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763742302; cv=none; b=sUe4G6NfXMc+XHW9mkQHroLHCEu1neXUqxX7PjdcNMV5tMyhuiVMrRaQTYSXtOF+L60zxf8LlFHl13VtbFtNTrNRwCA0Nu/GC9usBq40ANY7lYnx2WMYCWKeBtg8a81FijyUlFh2VbZn37QeZm8fyQQKF1lmdAaaVEr5rrjR8ng=
+	t=1763742904; cv=none; b=sH29/NyMiT1q2oSwbuQvmDCEnZmBjUeDbzqMXkKbMLtTIB7mVdLOE+kFv26mNXCV1ET5kXEzEJAcvyz1zyNN7vEchp4jVhlX3ZD1n/ELZmlFPuJr7xYCOoVQqI0b5focQ05eO/gszn8bo/Ocfjd5yS6WMzN66GLHQhqJvGA61ik=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763742302; c=relaxed/simple;
-	bh=SdYsw9st/+l8JphNLMH1fyQFn6guxm5fwhNzzhf6DQs=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Y/1asWyWpTZ3zJXRjIWaGKSEugjpkZnx86QPXgo0A6kCLjNtbsHgTI6Z0YnEX2QtVMEfLlSuJuefcoL3yqdkYI63bARwSOk0qANMIrSec2QIz+ZbTRtonZAbqLXcq4wmSEQTH0CBRFntiYXPcp0+xrJWbZ5GtjjK7N6B6zzl6Mg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=QfORGo7L; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=T4odQl0b; arc=none smtp.client-ip=202.12.124.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
+	s=arc-20240116; t=1763742904; c=relaxed/simple;
+	bh=32SWEfk+OG4SI3fuk6dXDc3Ips4hxRT5KuSSBtErlqU=;
+	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=s+jFegIe3fhE7uqMnCdv0PmSqcANTSDcz145dS15xFGvWvMlGtTKth19RR9+hBPf46+zv7URT9z9cGUMigDkwjwN7jodrhF+wBQW7SMLNtZwqTGKPug3LZsJ7KWpUtKUjldqh28yEozNDhmhgZVTYHo3vCs6y7bvEHaLEzyUQ/c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=duqw/79B; arc=none smtp.client-ip=209.85.128.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="QfORGo7L";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="T4odQl0b"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailflow.stl.internal (Postfix) with ESMTP id 44EFF13001EC;
-	Fri, 21 Nov 2025 11:24:59 -0500 (EST)
-Received: from phl-mailfrontend-02 ([10.202.2.163])
-  by phl-compute-04.internal (MEProxy); Fri, 21 Nov 2025 11:25:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1763742299;
-	 x=1763749499; bh=R8sbORNrVfeWd8nr6oD3a9uPzFLZbbObLNNt4scEFDk=; b=
-	QfORGo7LJM8uEqBQDQc0oWVqW7+t5I6EY95ZPkE+x9Jo975GuvpOefibl+kBo25c
-	qaUuG8Vut1p0uEtUZkr7lA5AOCAp3PNgjRyUaZHGyhch2l4SDz8WKGkMb/61ZJpu
-	F73XHBoycxqWtaJ6AHkuSAq1jEuS7FoKxW7n+Kf4I+ngjAyqmEYu+OlaE5HWp/c/
-	A+xv6hZj8UFBNBEYChe7piYXdVwgUs2FVc11qOV3830fr0MaXRqQnEaMi/PRHs27
-	tTHzucon304+ApCu5nPwX5mOF3oPWd/6qkU770403D7KaHRZ+QKeLRX2AUVtqDRO
-	xJ3glbfdgIfKkYsFTPjpsA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1763742299; x=
-	1763749499; bh=R8sbORNrVfeWd8nr6oD3a9uPzFLZbbObLNNt4scEFDk=; b=T
-	4odQl0bbYP0fapPyPtcd1y0iotE3USAh1c+743hsO8cgd1nVNiI9hOwuiL2YWO8s
-	dt4WV1/vhace+UXSKbFCojCHTduC6rxMN6r8q9/9MGA4w1fcujSVXxVLSf6iopRq
-	qPZtSHDX8MCUdbh1D26v3tzWcQ59GFK6vysvWURvM7di5s+yAwaBpRmyx1WvQxrO
-	q2Sh5r9qVcvKCYZmzMgBFZ+s52IMtxjsypSXG4zccV8xW+hnyiM8Z2fF5HHrQ4yL
-	cPIJLyVWH78JBDAcAHMuFZRdVBOmmeLp2jKCjOGu/VLdgX7/ndkrnxB8vrz6fSI3
-	ZN4sb60lU2sHD/yRZQvCA==
-X-ME-Sender: <xms:WpIgadyHQYiFK5J1UwmSjK0GJR7opTygUEzQ0jyFX4RcWI_9JhFmNA>
-    <xme:WpIgaWdWgxw7eAZ1AKDk_gmYq6UdqGQY5BUwUJOcNd9vWj5_ir-rnYvgbwncxVTu9
-    E5PHF1lql_eZM7CCyhmXS62aU9yZKXHvuzDIjjQ86utWWhE9xu2>
-X-ME-Received: <xmr:WpIgabmGbbk-eU8MWhQtBvGU_k0QEl4vXMnpFd_XMBnJlpL8jIHdpwOn>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggddvfedtgeefucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucfrhhhishhhihhnghdqkffkrfgprhhtucdliedtjedmne
-    cujfgurhepfffhvfevuffkjghfgggtgfesthejredttddtvdenucfhrhhomheptehlvgig
-    ucghihhllhhirghmshhonhcuoegrlhgvgiesshhhrgiisghothdrohhrgheqnecuggftrf
-    grthhtvghrnhepgeevkeeiveeuheegkeetveefgfeggeejjeelvdffueelhffgleevteeg
-    fffgvefgnecuffhomhgrihhnpehgihhthhhusgdrtghomhdpmhhsghhiugdrlhhinhhkne
-    cuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprghlvgig
-    sehshhgriigsohhtrdhorhhgpdhnsggprhgtphhtthhopeegtddpmhhouggvpehsmhhtph
-    houhhtpdhrtghpthhtohepjhhgghesnhhvihguihgrrdgtohhmpdhrtghpthhtoheprghg
-    ohhruggvvghvsehlihhnuhigrdhisghmrdgtohhmpdhrtghpthhtoheprghirhhlihgvug
-    esghhmrghilhdrtghomhdprhgtphhtthhopegrlhgvgidrfihilhhlihgrmhhsohhnsehr
-    vgguhhgrthdrtghomhdprhgtphhtthhopegrnhhkihhtrgesnhhvihguihgrrdgtohhmpd
-    hrtghpthhtohepsghorhhnthhrrggvghgvrheslhhinhhugidrihgsmhdrtghomhdprhgt
-    phhtthhopegsrhgvthhtrdgtrhgvvghlvgihsegrmhgurdgtohhmpdhrtghpthhtohepug
-    hrihdquggvvhgvlheslhhishhtshdrfhhrvggvuggvshhkthhophdrohhrghdprhgtphht
-    thhopegvrhhitgdrrghughgvrhesrhgvughhrghtrdgtohhm
-X-ME-Proxy: <xmx:WpIgaVSVoAoaVhiB9T_6MLhuMBKqbn0hkCI-zBmTpLtMUOP5VxfGGg>
-    <xmx:WpIgaadDKBxoz-K4UcMaIitoiVRYj3Kmw1p7S2niF93gJ_B26Jlbdg>
-    <xmx:WpIgaS3MkMqS7XZkgy6uqV0n9XlkDWGdRVO8bqJ9f5UZzVmE8x3PDw>
-    <xmx:WpIgabLsTdugGzrlPzP9TH7xEs2DCneALzQq3Px0YtbKmdkBLHZeMA>
-    <xmx:W5IgaWKNIJO5tlrjxf8bMjbc8KZW3xpbSFxkSWwtvqPDaZRY8aJbGsLb>
-Feedback-ID: i03f14258:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 21 Nov 2025 11:24:54 -0500 (EST)
-Date: Fri, 21 Nov 2025 09:24:53 -0700
-From: Alex Williamson <alex@shazbot.org>
-To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
- David Airlie <airlied@gmail.com>,
- Alex Williamson <alex.williamson@redhat.com>,
- Ankit Agrawal <ankita@nvidia.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Brett Creeley <brett.creeley@amd.com>, dri-devel@lists.freedesktop.org,
- Eric Auger <eric.auger@redhat.com>, Eric Farman <farman@linux.ibm.com>,
- Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- intel-gfx@lists.freedesktop.org,
- Jani Nikula <jani.nikula@linux.intel.com>,
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, kvm@vger.kernel.org,
- Kirti Wankhede <kwankhede@nvidia.com>, linux-s390@vger.kernel.org,
- Longfang Liu <liulongfang@huawei.com>,
- Matthew Rosato <mjrosato@linux.ibm.com>,
- Nikhil Agarwal <nikhil.agarwal@amd.com>,
- Nipun Gupta <nipun.gupta@amd.com>,
- Peter Oberparleiter <oberpar@linux.ibm.com>,
- Halil Pasic <pasic@linux.ibm.com>, qat-linux@intel.com,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, Simona Vetter <simona@ffwll.ch>,
- Shameer Kolothum <skolothumtho@nvidia.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Tvrtko Ursulin <tursulin@ursulin.net>, virtualization@lists.linux.dev,
- Vineeth Vijayan <vneethv@linux.ibm.com>,
- Yishai Hadas <yishaih@nvidia.com>, Zhenyu Wang <zhenyuw.linux@gmail.com>,
- Zhi Wang <zhi.wang.linux@gmail.com>, Kevin Tian <kevin.tian@intel.com>,
- patches@lists.linux.dev, Pranjal Shrivastava <praan@google.com>,
- Mostafa Saleh <smostafa@google.com>
-Subject: Re: [PATCH v2 00/22] vfio: Give VFIO_DEVICE_GET_REGION_INFO its own
- op
-Message-ID: <20251121092453.6f151e0b.alex@shazbot.org>
-In-Reply-To: <0-v2-2a9e24d62f1b+e10a-vfio_get_region_info_op_jgg@nvidia.com>
-References: <0-v2-2a9e24d62f1b+e10a-vfio_get_region_info_op_jgg@nvidia.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="duqw/79B"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4777771ed1aso15168765e9.2
+        for <linux-s390@vger.kernel.org>; Fri, 21 Nov 2025 08:34:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1763742898; x=1764347698; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=LeBh4Bmf/10he6RTgyJAy/hm7lbhgMBwonk4NxPOv6g=;
+        b=duqw/79BImHtOPugtCkXpy+YPsdd9KPXg6FuP7p1jllnYI/RVkvP2qTu8evEYpOuL0
+         FFeSf56qsiv1x8M5C13TU6xNwpzChBI1RM/HzkBxFUE+KKCbrpiLAsksEwEznuJPKkwq
+         iNlXuXjgCvcgEQ6jIj7fZr5hUtPH34drSSJiz6gqGjubdiutFiqIx3Yu/mi6sE6sHlVd
+         6YacpbM/UCqQpbZGTiB8wd+wcvJlPAP1sdgCzjz9M1JkUPsTcoPnJEW3YPVou0OyZzbl
+         A4A1Th+Zj16KqDFoGxflN7mvcYkAijUvWCWaCqtnGfejF0gn0YgOCxpF0PhPrN1vGcgb
+         MxCA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763742898; x=1764347698;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:date:from:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=LeBh4Bmf/10he6RTgyJAy/hm7lbhgMBwonk4NxPOv6g=;
+        b=FXv9KPWbn7E6QY4/Ahl8GC13bnOn9psNUa1tGmLjVuiBKzkZVnALpAjBD5tQWNY89s
+         H83BiERrDKOqBvdE8F27r27ixeewFes6c06kbwFV3SQ6vz9PVVl5gTgz9DLkuuseiW1A
+         hrwEfRZn659yFuw/iwx/RqZc3p0jQECGpnDoNQXYz2QRG7uVC8blERJ1bz9+depzJP0a
+         NcflEq0HK8xNrnnT3KDPnoUqEOpCIDTs64ccQRiX5+zP8WVE3k2IIiuWanwn3wGEmcwt
+         eYS7O245oyO9wltOIM43rvgUWid/kI4MjvxIy+wEJRklSb+UzrgNmKyEkOkGeOoQMTgh
+         V/rg==
+X-Forwarded-Encrypted: i=1; AJvYcCXk/s/gKmjno20B3sFSJdBuDl5/l8xDg8YvfuteOyaHZTy0LbYlX5dsKp0Fs+/+7fd8K4cugrVBL5yq@vger.kernel.org
+X-Gm-Message-State: AOJu0YyZZL+bMgzMSlRWBsnZlHyrbIigOrUiMVTm5HZWZiVy4B8YANMJ
+	OgNwFgZg0P8wGpBL5oRRRpjO25Ey9Ytgr+Xd1+vvGYeOoxhhMrNZFwnSVekMLXiD
+X-Gm-Gg: ASbGncvJ9f5aPHKSJsknx7413LWGlH6id05Tyrj/OCjALU6eLfl4iPg4WPQj4O4JQoi
+	DHi2wAqXv3KEKI3ZPSbCxPAOvMqwzllm7p55HpHY/c6RnXlrbxxyVdAIeeD2hz3cb4RqUl9921t
+	Qq6y7tE6mOymJpvdoDCWqFhBcHDIV7j9qsHjgHtGUQhMf5ixIZ44sxCCqwJnTAaGXWRyGoWD0kU
+	N5M/Nu7GWV6npCZG7xIz18u4GoK/tR0iq45txxvxjOKnif+L/Kkx1IsDbdMld2b2jNEuzgBofts
+	KoOvAf047Qkg71ChdO5QEa8c8cN3GHltSyprE7feYD8cxZi55LFzrJBL0lrFVsGB32EzyVH9qAT
+	djM5vifAy7g2q9S4hJjFvpJGlZ5DyaRGpNeieryIahaAtj/AS3tseA2bE0umULawvBd+YgFdfdt
+	ORboIC
+X-Google-Smtp-Source: AGHT+IEKdc92wQhMBHJXAveRBg7fiF+sSYb2PsxuIGwuTPQH/pLO5VsLsMQfdUdHa4/EJSA5dpNgdA==
+X-Received: by 2002:a05:600c:310d:b0:477:9fcf:3ff9 with SMTP id 5b1f17b1804b1-477c01c359fmr32515485e9.27.1763742898107;
+        Fri, 21 Nov 2025 08:34:58 -0800 (PST)
+Received: from krava ([2a00:102a:500a:1917:4c7b:f90f:b94c:79b1])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-477bf35f976sm52771145e9.4.2025.11.21.08.34.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 21 Nov 2025 08:34:57 -0800 (PST)
+From: Jiri Olsa <olsajiri@gmail.com>
+X-Google-Original-From: Jiri Olsa <jolsa@kernel.org>
+Date: Fri, 21 Nov 2025 17:34:54 +0100
+To: Jordan Rife <jordan@jrife.io>
+Cc: bpf@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-s390@vger.kernel.org, x86@kernel.org,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Puranjay Mohan <puranjay@kernel.org>,
+	Ilya Leoshkevich <iii@linux.ibm.com>,
+	Ingo Molnar <mingo@redhat.com>
+Subject: Re: [RFC PATCH bpf-next 1/7] bpf: Set up update_prog scaffolding for
+ bpf_tracing_link_lops
+Message-ID: <aSCUrtsBrfS2iTkB@krava>
+References: <20251118005305.27058-1-jordan@jrife.io>
+ <20251118005305.27058-2-jordan@jrife.io>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251118005305.27058-2-jordan@jrife.io>
 
-On Fri,  7 Nov 2025 13:41:16 -0400
-Jason Gunthorpe <jgg@nvidia.com> wrote:
+On Mon, Nov 17, 2025 at 04:52:53PM -0800, Jordan Rife wrote:
 
-> There is alot of duplicated code in the drivers for processing
-> VFIO_DEVICE_GET_REGION_INFO. Introduce a new op get_region_info_caps()
-> which provides a struct vfio_info_cap and handles the cap chain logic
-> to write the caps back to userspace and remove all of this duplication
-> from drivers.
-> 
-> This is done in two steps, the first is a largely mechanical introduction
-> of the get_region_info(). These patches are best viewed with the diff
-> option to ignore whitespace (-b) as most of the lines are re-indending
-> things.
-> 
-> Then drivers are updated to remove the duplicate cap related code. Some
-> drivers are converted to use vfio_info_add_capability() instead of open
-> coding a version of it.
-> 
-> This is on github: https://github.com/jgunthorpe/linux/commits/vfio_get_region_info_op
-> 
-> v2:
->  - Rename
->     hisi_acc_vfio_get_region -> hisi_acc_vfio_ioctl_get_region
->     vfio_fsl_mc_get_region_info -> vfio_fsl_mc_ioctl_get_region_info
->     intel_vgpu_get_region_info -> intel_vgpu_ioctl_get_region_info
->     mbochs_get_region_info -> mbochs_ioctl_get_region_info
->     intel_vgpu_get_region_info -> intel_vgpu_ioctl_get_region_info
->     vfio_ccw_mdev_get_region_info -> vfio_ccw_mdev_ioctl_get_region_info
->     hisi_acc_vfio_get_region -> hisi_acc_vfio_ioctl_get_region
->     vfio_fsl_mc_get_region_info -> vfio_fsl_mc_ioctl_get_region_info
->  - Consistently free caps.buf in vfio_get_region_info()
-> v1: https://patch.msgid.link/r/0-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com
+SNIP
 
-Applied to vfio next branch for v6.19.  Thanks,
+> diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
+> index f62d61b6730a..b0da7c428a65 100644
+> --- a/kernel/bpf/syscall.c
+> +++ b/kernel/bpf/syscall.c
+> @@ -63,6 +63,8 @@ static DEFINE_IDR(map_idr);
+>  static DEFINE_SPINLOCK(map_idr_lock);
+>  static DEFINE_IDR(link_idr);
+>  static DEFINE_SPINLOCK(link_idr_lock);
+> +/* Synchronizes access to prog between link update operations. */
+> +static DEFINE_MUTEX(trace_link_mutex);
+>  
+>  int sysctl_unprivileged_bpf_disabled __read_mostly =
+>  	IS_BUILTIN(CONFIG_BPF_UNPRIV_DEFAULT_OFF) ? 2 : 0;
+> @@ -3562,11 +3564,77 @@ static int bpf_tracing_link_fill_link_info(const struct bpf_link *link,
+>  	return 0;
+>  }
+>  
+> +static int bpf_tracing_link_update_prog(struct bpf_link *link,
+> +					struct bpf_prog *new_prog,
+> +					struct bpf_prog *old_prog)
+> +{
+> +	struct bpf_tracing_link *tr_link =
+> +		container_of(link, struct bpf_tracing_link, link.link);
+> +	struct bpf_attach_target_info tgt_info = {0};
+> +	int err = 0;
+> +	u32 btf_id;
+> +
+> +	mutex_lock(&trace_link_mutex);
 
-Alex
+that seems too much, we could add link->mutex
+
+> +
+> +	if (old_prog && link->prog != old_prog) {
+> +		err = -EPERM;
+> +		goto out;
+> +	}
+> +	old_prog = link->prog;
+> +	if (old_prog->type != new_prog->type ||
+> +	    old_prog->expected_attach_type != new_prog->expected_attach_type) {
+> +		err = -EINVAL;
+> +		goto out;
+> +	}
+> +
+> +	mutex_lock(&new_prog->aux->dst_mutex);
+> +
+> +	if (!new_prog->aux->dst_trampoline ||
+> +	    new_prog->aux->dst_trampoline->key != tr_link->trampoline->key) {
+
+hum, would be easier (and still usefull) to allow just programs for the same function?
+
+> +		bpf_trampoline_unpack_key(tr_link->trampoline->key, NULL,
+> +					  &btf_id);
+> +		/* If there is no saved target, or the target associated with
+> +		 * this link is different from the destination specified at
+> +		 * load time, we need to check for compatibility.
+> +		 */
+> +		err = bpf_check_attach_target(NULL, new_prog, tr_link->tgt_prog,
+> +					      btf_id, &tgt_info);
+> +		if (err)
+> +			goto out_unlock;
+> +	}
+> +
+> +	err = bpf_trampoline_update_prog(&tr_link->link, new_prog,
+> +					 tr_link->trampoline);
+> +	if (err)
+> +		goto out_unlock;
+> +
+> +	/* Clear the trampoline, mod, and target prog from new_prog->aux to make
+> +	 * sure the original attach destination is not kept alive after a
+> +	 * program is (re-)attached to another target.
+> +	 */
+> +	if (new_prog->aux->dst_prog)
+> +		bpf_prog_put(new_prog->aux->dst_prog);
+> +	bpf_trampoline_put(new_prog->aux->dst_trampoline);
+
+would it be possible just to take tr->mutex and unlink/link
+the programs, something like:
+
+        mutex_lock(&tr->mutex);
+
+	__bpf_trampoline_unlink_prog(old_prog)
+	__bpf_trampoline_link_prog(new_prog)
+
+        mutex_unlock(&tr->mutex);
+
+I might be missing something but this way we wouldn't need
+the arch chages in the following patches?
+
+
+jirka
+
+
+> +	module_put(new_prog->aux->mod);
+> +
+> +	new_prog->aux->dst_prog = NULL;
+> +	new_prog->aux->dst_trampoline = NULL;
+> +	new_prog->aux->mod = tgt_info.tgt_mod;
+> +	tgt_info.tgt_mod = NULL; /* Make module_put() below do nothing. */
+> +out_unlock:
+> +	mutex_unlock(&new_prog->aux->dst_mutex);
+> +out:
+> +	mutex_unlock(&trace_link_mutex);
+> +	module_put(tgt_info.tgt_mod);
+> +	return err;
+> +}
+> +
+>  static const struct bpf_link_ops bpf_tracing_link_lops = {
+>  	.release = bpf_tracing_link_release,
+>  	.dealloc = bpf_tracing_link_dealloc,
+>  	.show_fdinfo = bpf_tracing_link_show_fdinfo,
+>  	.fill_link_info = bpf_tracing_link_fill_link_info,
+> +	.update_prog = bpf_tracing_link_update_prog,
+>  };
+>  
+
+SNIP
