@@ -1,208 +1,218 @@
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F1232DCF43
-	for <linux-s390@vger.kernel.org>; Fri, 21 Nov 2025 16:35:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B08F630BF67
+	for <linux-s390@vger.kernel.org>; Fri, 21 Nov 2025 16:46:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763742904; cv=none; b=sH29/NyMiT1q2oSwbuQvmDCEnZmBjUeDbzqMXkKbMLtTIB7mVdLOE+kFv26mNXCV1ET5kXEzEJAcvyz1zyNN7vEchp4jVhlX3ZD1n/ELZmlFPuJr7xYCOoVQqI0b5focQ05eO/gszn8bo/Ocfjd5yS6WMzN66GLHQhqJvGA61ik=
+	t=1763743619; cv=none; b=CdcXJOOfX9PmrDDTi22Ax5gyDd4QSwflozR8xwZo+NyXmB5gvraCkXnngA3QkgRr7W2hi2Q6zlRB+VXJP9EtBTsYdYx4O1CAOPJllfkT3wZHP7HvvLk4ZZvbb3nKau4fHWifqdhEC01PPsumlIJCelVq8gKu3n7rzt2k0WE3lls=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763742904; c=relaxed/simple;
-	bh=32SWEfk+OG4SI3fuk6dXDc3Ips4hxRT5KuSSBtErlqU=;
-	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=s+jFegIe3fhE7uqMnCdv0PmSqcANTSDcz145dS15xFGvWvMlGtTKth19RR9+hBPf46+zv7URT9z9cGUMigDkwjwN7jodrhF+wBQW7SMLNtZwqTGKPug3LZsJ7KWpUtKUjldqh28yEozNDhmhgZVTYHo3vCs6y7bvEHaLEzyUQ/c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=duqw/79B; arc=none smtp.client-ip=209.85.128.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1763743619; c=relaxed/simple;
+	bh=6Qcf6/95TX9jVFioSj7Zc5fKXEhnX1Bc/rO0mYSnoXU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=qeOpQ0zlIfz9Lq3CdZyRCyKYVNCKH2ESGNHMADQ29pFdxkp/x0U85AVu6Vezi+vapCkBfsAiXCfC/EWTAHQK++UvEuGtJYtw0vhNSaNhAfCM3IE9Wm0l2Sl5mjWSrS77bWLL3c3HUMg6EjcQnVU3IxbjcTcu4YMU6Wb/sSgAfKQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=owZ8TKE8; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=5bqFyex+; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=owZ8TKE8; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=5bqFyex+; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="duqw/79B"
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4777771ed1aso15168765e9.2
-        for <linux-s390@vger.kernel.org>; Fri, 21 Nov 2025 08:34:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1763742898; x=1764347698; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:date:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=LeBh4Bmf/10he6RTgyJAy/hm7lbhgMBwonk4NxPOv6g=;
-        b=duqw/79BImHtOPugtCkXpy+YPsdd9KPXg6FuP7p1jllnYI/RVkvP2qTu8evEYpOuL0
-         FFeSf56qsiv1x8M5C13TU6xNwpzChBI1RM/HzkBxFUE+KKCbrpiLAsksEwEznuJPKkwq
-         iNlXuXjgCvcgEQ6jIj7fZr5hUtPH34drSSJiz6gqGjubdiutFiqIx3Yu/mi6sE6sHlVd
-         6YacpbM/UCqQpbZGTiB8wd+wcvJlPAP1sdgCzjz9M1JkUPsTcoPnJEW3YPVou0OyZzbl
-         A4A1Th+Zj16KqDFoGxflN7mvcYkAijUvWCWaCqtnGfejF0gn0YgOCxpF0PhPrN1vGcgb
-         MxCA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763742898; x=1764347698;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:date:from:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=LeBh4Bmf/10he6RTgyJAy/hm7lbhgMBwonk4NxPOv6g=;
-        b=FXv9KPWbn7E6QY4/Ahl8GC13bnOn9psNUa1tGmLjVuiBKzkZVnALpAjBD5tQWNY89s
-         H83BiERrDKOqBvdE8F27r27ixeewFes6c06kbwFV3SQ6vz9PVVl5gTgz9DLkuuseiW1A
-         hrwEfRZn659yFuw/iwx/RqZc3p0jQECGpnDoNQXYz2QRG7uVC8blERJ1bz9+depzJP0a
-         NcflEq0HK8xNrnnT3KDPnoUqEOpCIDTs64ccQRiX5+zP8WVE3k2IIiuWanwn3wGEmcwt
-         eYS7O245oyO9wltOIM43rvgUWid/kI4MjvxIy+wEJRklSb+UzrgNmKyEkOkGeOoQMTgh
-         V/rg==
-X-Forwarded-Encrypted: i=1; AJvYcCXk/s/gKmjno20B3sFSJdBuDl5/l8xDg8YvfuteOyaHZTy0LbYlX5dsKp0Fs+/+7fd8K4cugrVBL5yq@vger.kernel.org
-X-Gm-Message-State: AOJu0YyZZL+bMgzMSlRWBsnZlHyrbIigOrUiMVTm5HZWZiVy4B8YANMJ
-	OgNwFgZg0P8wGpBL5oRRRpjO25Ey9Ytgr+Xd1+vvGYeOoxhhMrNZFwnSVekMLXiD
-X-Gm-Gg: ASbGncvJ9f5aPHKSJsknx7413LWGlH6id05Tyrj/OCjALU6eLfl4iPg4WPQj4O4JQoi
-	DHi2wAqXv3KEKI3ZPSbCxPAOvMqwzllm7p55HpHY/c6RnXlrbxxyVdAIeeD2hz3cb4RqUl9921t
-	Qq6y7tE6mOymJpvdoDCWqFhBcHDIV7j9qsHjgHtGUQhMf5ixIZ44sxCCqwJnTAaGXWRyGoWD0kU
-	N5M/Nu7GWV6npCZG7xIz18u4GoK/tR0iq45txxvxjOKnif+L/Kkx1IsDbdMld2b2jNEuzgBofts
-	KoOvAf047Qkg71ChdO5QEa8c8cN3GHltSyprE7feYD8cxZi55LFzrJBL0lrFVsGB32EzyVH9qAT
-	djM5vifAy7g2q9S4hJjFvpJGlZ5DyaRGpNeieryIahaAtj/AS3tseA2bE0umULawvBd+YgFdfdt
-	ORboIC
-X-Google-Smtp-Source: AGHT+IEKdc92wQhMBHJXAveRBg7fiF+sSYb2PsxuIGwuTPQH/pLO5VsLsMQfdUdHa4/EJSA5dpNgdA==
-X-Received: by 2002:a05:600c:310d:b0:477:9fcf:3ff9 with SMTP id 5b1f17b1804b1-477c01c359fmr32515485e9.27.1763742898107;
-        Fri, 21 Nov 2025 08:34:58 -0800 (PST)
-Received: from krava ([2a00:102a:500a:1917:4c7b:f90f:b94c:79b1])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-477bf35f976sm52771145e9.4.2025.11.21.08.34.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Nov 2025 08:34:57 -0800 (PST)
-From: Jiri Olsa <olsajiri@gmail.com>
-X-Google-Original-From: Jiri Olsa <jolsa@kernel.org>
-Date: Fri, 21 Nov 2025 17:34:54 +0100
-To: Jordan Rife <jordan@jrife.io>
-Cc: bpf@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-s390@vger.kernel.org, x86@kernel.org,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Andrii Nakryiko <andrii@kernel.org>,
-	Martin KaFai Lau <martin.lau@linux.dev>,
-	Puranjay Mohan <puranjay@kernel.org>,
-	Ilya Leoshkevich <iii@linux.ibm.com>,
-	Ingo Molnar <mingo@redhat.com>
-Subject: Re: [RFC PATCH bpf-next 1/7] bpf: Set up update_prog scaffolding for
- bpf_tracing_link_lops
-Message-ID: <aSCUrtsBrfS2iTkB@krava>
-References: <20251118005305.27058-1-jordan@jrife.io>
- <20251118005305.27058-2-jordan@jrife.io>
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="owZ8TKE8";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="5bqFyex+";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="owZ8TKE8";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="5bqFyex+"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 0749F5BCC6;
+	Fri, 21 Nov 2025 16:46:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1763743615; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=BtvP/Bv21zIJUn/ckdTnSK9vSZ3KC0jdHLL8cUGc008=;
+	b=owZ8TKE8Co04AWk/cw6g+Z+e+j7trgA5vvEbVKBTTFF6L2NUiWWtDca2BfsTo3Y13ZTREI
+	eP4tGlsP68nyzhNx+S8CMq6lpvBDi0Gw4cfVcVBMmwVA6vyOr5exSnQLAD9e3S9FUFuXn1
+	fH/eXQNDUwctqepqYen7/lzDGk8AUZA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1763743615;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=BtvP/Bv21zIJUn/ckdTnSK9vSZ3KC0jdHLL8cUGc008=;
+	b=5bqFyex+miGqXTsQQxOschRQshWw1+ggMbZ+ie9Y7UzNONOuRzdjIZoE0yiud9Y/CAVSxc
+	11OUhTc5VgXS4DDw==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=owZ8TKE8;
+	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=5bqFyex+
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1763743615; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=BtvP/Bv21zIJUn/ckdTnSK9vSZ3KC0jdHLL8cUGc008=;
+	b=owZ8TKE8Co04AWk/cw6g+Z+e+j7trgA5vvEbVKBTTFF6L2NUiWWtDca2BfsTo3Y13ZTREI
+	eP4tGlsP68nyzhNx+S8CMq6lpvBDi0Gw4cfVcVBMmwVA6vyOr5exSnQLAD9e3S9FUFuXn1
+	fH/eXQNDUwctqepqYen7/lzDGk8AUZA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1763743615;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=BtvP/Bv21zIJUn/ckdTnSK9vSZ3KC0jdHLL8cUGc008=;
+	b=5bqFyex+miGqXTsQQxOschRQshWw1+ggMbZ+ie9Y7UzNONOuRzdjIZoE0yiud9Y/CAVSxc
+	11OUhTc5VgXS4DDw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 8A7D53EA61;
+	Fri, 21 Nov 2025 16:46:54 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id aSd3IX6XIGmhHQAAD6G6ig
+	(envelope-from <vbabka@suse.cz>); Fri, 21 Nov 2025 16:46:54 +0000
+Message-ID: <ebbd8d9b-03ca-499f-beae-7e8c4cc16300@suse.cz>
+Date: Fri, 21 Nov 2025 17:46:54 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251118005305.27058-2-jordan@jrife.io>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 04/16] mm: eliminate is_swap_pte() when
+ softleaf_from_pte() suffices
+Content-Language: en-US
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ Andrew Morton <akpm@linux-foundation.org>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ David Hildenbrand <david@redhat.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Peter Xu <peterx@redhat.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ Arnd Bergmann <arnd@arndb.de>, Zi Yan <ziy@nvidia.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>,
+ "Liam R . Howlett" <Liam.Howlett@oracle.com>, Nico Pache
+ <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+ Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+ Lance Yang <lance.yang@linux.dev>, Muchun Song <muchun.song@linux.dev>,
+ Oscar Salvador <osalvador@suse.de>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ Matthew Brost <matthew.brost@intel.com>,
+ Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+ Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
+ Ying Huang <ying.huang@linux.alibaba.com>,
+ Alistair Popple <apopple@nvidia.com>,
+ Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
+ Wei Xu <weixugc@google.com>, Kemeng Shi <shikemeng@huaweicloud.com>,
+ Kairui Song <kasong@tencent.com>, Nhat Pham <nphamcs@gmail.com>,
+ Baoquan He <bhe@redhat.com>, Chris Li <chrisl@kernel.org>,
+ SeongJae Park <sj@kernel.org>, Matthew Wilcox <willy@infradead.org>,
+ Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
+ Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>,
+ Jann Horn <jannh@google.com>, Miaohe Lin <linmiaohe@huawei.com>,
+ Naoya Horiguchi <nao.horiguchi@gmail.com>, Pedro Falcato <pfalcato@suse.de>,
+ Pasha Tatashin <pasha.tatashin@soleen.com>, Rik van Riel <riel@surriel.com>,
+ Harry Yoo <harry.yoo@oracle.com>, Hugh Dickins <hughd@google.com>,
+ linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-mm@kvack.org, linux-arch@vger.kernel.org, damon@lists.linux.dev
+References: <cover.1762812360.git.lorenzo.stoakes@oracle.com>
+ <92ebab9567978155116804c67babc3c64636c403.1762812360.git.lorenzo.stoakes@oracle.com>
+From: Vlastimil Babka <vbabka@suse.cz>
+Autocrypt: addr=vbabka@suse.cz; keydata=
+ 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
+ m6M14QORSWTLRg==
+In-Reply-To: <92ebab9567978155116804c67babc3c64636c403.1762812360.git.lorenzo.stoakes@oracle.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Rspamd-Queue-Id: 0749F5BCC6
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	FROM_HAS_DN(0.00)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	TO_DN_SOME(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	FREEMAIL_CC(0.00)[linux.ibm.com,redhat.com,zeniv.linux.org.uk,kernel.org,suse.cz,arndb.de,nvidia.com,linux.alibaba.com,oracle.com,arm.com,linux.dev,suse.de,google.com,suse.com,intel.com,gmail.com,sk.com,gourry.net,huaweicloud.com,tencent.com,infradead.org,ziepe.ca,zte.com.cn,huawei.com,soleen.com,surriel.com,vger.kernel.org,kvack.org,lists.linux.dev];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.cz:+];
+	TO_MATCH_ENVRCPT_SOME(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCPT_COUNT_GT_50(0.00)[65];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.cz:dkim,suse.cz:mid,suse.cz:email,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo]
+X-Spam-Score: -3.01
 
-On Mon, Nov 17, 2025 at 04:52:53PM -0800, Jordan Rife wrote:
+On 11/10/25 23:21, Lorenzo Stoakes wrote:
+> In cases where we can simply utilise the fact that softleaf_from_pte()
+> treats present entries as if they were none entries and thus eliminate
+> spurious uses of is_swap_pte(), do so.
+> 
+> No functional change intended.
+> 
+> Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
 
-SNIP
+Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
 
-> diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-> index f62d61b6730a..b0da7c428a65 100644
-> --- a/kernel/bpf/syscall.c
-> +++ b/kernel/bpf/syscall.c
-> @@ -63,6 +63,8 @@ static DEFINE_IDR(map_idr);
->  static DEFINE_SPINLOCK(map_idr_lock);
->  static DEFINE_IDR(link_idr);
->  static DEFINE_SPINLOCK(link_idr_lock);
-> +/* Synchronizes access to prog between link update operations. */
-> +static DEFINE_MUTEX(trace_link_mutex);
->  
->  int sysctl_unprivileged_bpf_disabled __read_mostly =
->  	IS_BUILTIN(CONFIG_BPF_UNPRIV_DEFAULT_OFF) ? 2 : 0;
-> @@ -3562,11 +3564,77 @@ static int bpf_tracing_link_fill_link_info(const struct bpf_link *link,
->  	return 0;
->  }
->  
-> +static int bpf_tracing_link_update_prog(struct bpf_link *link,
-> +					struct bpf_prog *new_prog,
-> +					struct bpf_prog *old_prog)
-> +{
-> +	struct bpf_tracing_link *tr_link =
-> +		container_of(link, struct bpf_tracing_link, link.link);
-> +	struct bpf_attach_target_info tgt_info = {0};
-> +	int err = 0;
-> +	u32 btf_id;
-> +
-> +	mutex_lock(&trace_link_mutex);
-
-that seems too much, we could add link->mutex
-
-> +
-> +	if (old_prog && link->prog != old_prog) {
-> +		err = -EPERM;
-> +		goto out;
-> +	}
-> +	old_prog = link->prog;
-> +	if (old_prog->type != new_prog->type ||
-> +	    old_prog->expected_attach_type != new_prog->expected_attach_type) {
-> +		err = -EINVAL;
-> +		goto out;
-> +	}
-> +
-> +	mutex_lock(&new_prog->aux->dst_mutex);
-> +
-> +	if (!new_prog->aux->dst_trampoline ||
-> +	    new_prog->aux->dst_trampoline->key != tr_link->trampoline->key) {
-
-hum, would be easier (and still usefull) to allow just programs for the same function?
-
-> +		bpf_trampoline_unpack_key(tr_link->trampoline->key, NULL,
-> +					  &btf_id);
-> +		/* If there is no saved target, or the target associated with
-> +		 * this link is different from the destination specified at
-> +		 * load time, we need to check for compatibility.
-> +		 */
-> +		err = bpf_check_attach_target(NULL, new_prog, tr_link->tgt_prog,
-> +					      btf_id, &tgt_info);
-> +		if (err)
-> +			goto out_unlock;
-> +	}
-> +
-> +	err = bpf_trampoline_update_prog(&tr_link->link, new_prog,
-> +					 tr_link->trampoline);
-> +	if (err)
-> +		goto out_unlock;
-> +
-> +	/* Clear the trampoline, mod, and target prog from new_prog->aux to make
-> +	 * sure the original attach destination is not kept alive after a
-> +	 * program is (re-)attached to another target.
-> +	 */
-> +	if (new_prog->aux->dst_prog)
-> +		bpf_prog_put(new_prog->aux->dst_prog);
-> +	bpf_trampoline_put(new_prog->aux->dst_trampoline);
-
-would it be possible just to take tr->mutex and unlink/link
-the programs, something like:
-
-        mutex_lock(&tr->mutex);
-
-	__bpf_trampoline_unlink_prog(old_prog)
-	__bpf_trampoline_link_prog(new_prog)
-
-        mutex_unlock(&tr->mutex);
-
-I might be missing something but this way we wouldn't need
-the arch chages in the following patches?
-
-
-jirka
-
-
-> +	module_put(new_prog->aux->mod);
-> +
-> +	new_prog->aux->dst_prog = NULL;
-> +	new_prog->aux->dst_trampoline = NULL;
-> +	new_prog->aux->mod = tgt_info.tgt_mod;
-> +	tgt_info.tgt_mod = NULL; /* Make module_put() below do nothing. */
-> +out_unlock:
-> +	mutex_unlock(&new_prog->aux->dst_mutex);
-> +out:
-> +	mutex_unlock(&trace_link_mutex);
-> +	module_put(tgt_info.tgt_mod);
-> +	return err;
-> +}
-> +
->  static const struct bpf_link_ops bpf_tracing_link_lops = {
->  	.release = bpf_tracing_link_release,
->  	.dealloc = bpf_tracing_link_dealloc,
->  	.show_fdinfo = bpf_tracing_link_show_fdinfo,
->  	.fill_link_info = bpf_tracing_link_fill_link_info,
-> +	.update_prog = bpf_tracing_link_update_prog,
->  };
->  
-
-SNIP
