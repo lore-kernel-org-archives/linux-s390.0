@@ -1,461 +1,208 @@
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B29A2367CE;
-	Fri, 21 Nov 2025 06:05:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE74E2D7D59;
+	Fri, 21 Nov 2025 11:03:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763705149; cv=none; b=J8OrmCTCR9pnsWD6C1a+lTFnmP+JbDM6a1fhZU39S/Lrx3Lf4XE+A4fcb5nY4HYLm9ey0AdIu/42MtPStWhbLAMczGrAPpOmymQzh52omeGzswLE7wfc6+1qqZK5I1D5tQsSQQVPZuxUND7EBwPslBRknhgkOliDISgDm+LcviQ=
+	t=1763723020; cv=none; b=lSvolxFozf6GRdUI1RoctzRt1yi+Jo8kcITcb5CQtv5XZo83Vmwtlf1W47K7MnL49LyViUMS5oCryA8apLZ5tOupqO0J9Quj4rDDz3jf7TCvaeSXaOgGTB4GhvW8ofFi28JkluXgA266Iuu9TpejU92TXoU+ZfbuzU2uEHttbzw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763705149; c=relaxed/simple;
-	bh=BtABhcOcdNlGTfQETzoOMEIxMaNqTDIMj0HqqgzhN0E=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=T/fIg22JbPA0fvPgu0myTUFOOLK4DcO10MQsMETkYpmjIzQVr/w7uh6pEDobgCopy2MoPQH3rEOTpq8vYP8RGNIaCqY2vP9EvZ5QmsFDP4JpH04NVoOzQUnQZl7SYTJaTmxZbgDewnLERDzF/sUB+dhmlwDZjSwbO+RcACSs3To=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=XHLOG2BI; arc=none smtp.client-ip=115.124.30.113
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1763723020; c=relaxed/simple;
+	bh=gQxsDJL1g4DlbmT730sMo3A3VWXjkIH21YMurCeXEUQ=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=H89YaRd4cSC9Ycgi2EOavsOV31FdlETnBvf0Re6S1hEckxd/t5HObdEIYKysAZOm38LvZCtQaUjnO9Wd27dOBPJ9gvKru+0HfDzWoQRlbKbmg7X6X9wMWZ3iMnVuKnSHRvOsyFu5xNi027k9qOW59TMrOCXE541UI+NjTGyQjO8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rQ2HLocF; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="XHLOG2BI"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1763705137; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=WegXW2rrJonMdtr0Thc+XyPwa3nKRlWj0Gnxn+fEttc=;
-	b=XHLOG2BIoSQe0QNM4JtOEOzvbpoPzygq4ourPVeRq6+gxvOBjIo+be9uqvkoY4waPfpEDPyeyZFNYaYjcuRBEWQc/v1KQdOyCIUsZm7gQ9Avw9zSYXUb4K4+bOpD1k3nDSoER9rghreX5bi/oSqHTiUoO4SBu6h3EqZB5VDk3Es=
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WszlXq7_1763705133 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Fri, 21 Nov 2025 14:05:36 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com>
-To: mjambigi@linux.ibm.com,
-	wenjia@linux.ibm.com,
-	wintera@linux.ibm.com,
-	dust.li@linux.alibaba.com,
-	tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com
-Cc: kuba@kernel.org,
-	davem@davemloft.net,
-	netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	pabeni@redhat.com,
-	edumazet@google.com,
-	sidraya@linux.ibm.com,
-	jaka@linux.ibm.com
-Subject: [RFC PATCH net-next] net/smc: add full IPv6 support for SMC
-Date: Fri, 21 Nov 2025 14:05:33 +0800
-Message-ID: <20251121060533.92157-1-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 2.45.0
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rQ2HLocF"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AKNEuIh021890;
+	Fri, 21 Nov 2025 11:03:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=YeZzDI
+	R68vBuqHKQeN1esMNYL7FqqIUOdsE5qzMzubw=; b=rQ2HLocFObHAW3MpAallJ2
+	/Vit8BK43GWpXhH+YRqVSLHDduUAt4inIg1krEMzx+pNu97wX8wH7mhKfvKheYwb
+	GR4Z9l9bBLXoeQ5G1/HiqTZgrgri5YbOUBhNX/yKqutv6LHCnYT3H8N8JXypvpwV
+	TDO/nEI8L0z1TRM8JYwMIdCAtQct8d2NQ1FcXV3f4vInhG7RTW7cUHgAusk35xwR
+	1AmubcTEBJy2yxlnc34lpy3cY8wBBYF/NfB6dZZD323DBOtHHx+27qCUDjsK9kzh
+	vcpgdohVOER0INIeeLcbnYv0IUC9x8CyIaJn5rDieh/VBISkv2K/yP7PfkY4M03A
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aejjwkfbs-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 21 Nov 2025 11:03:21 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AL9fLHg017381;
+	Fri, 21 Nov 2025 11:03:20 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4af6j23gqw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 21 Nov 2025 11:03:20 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5ALB3IrF6554564
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 21 Nov 2025 11:03:18 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CBE7C5806F;
+	Fri, 21 Nov 2025 11:03:18 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 30A9858055;
+	Fri, 21 Nov 2025 11:03:16 +0000 (GMT)
+Received: from [9.87.131.55] (unknown [9.87.131.55])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 21 Nov 2025 11:03:15 +0000 (GMT)
+Message-ID: <4046d81fb77672b6d5cf1f17b5de5a0395524e1b.camel@linux.ibm.com>
+Subject: Re: [PATCH v5 0/2] genirq: s390/pci: Migrate MSI interrupts to
+ irqdomain API
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Tobias Schumacher <ts@linux.ibm.com>, Heiko Carstens
+ <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger	
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Gerald
+ Schaefer <gerald.schaefer@linux.ibm.com>,
+        Gerd Bayer
+ <gbayer@linux.ibm.com>, Halil Pasic	 <pasic@linux.ibm.com>,
+        Matthew Rosato
+ <mjrosato@linux.ibm.com>,
+        Thomas Gleixner	 <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Farhan Ali
+	 <alifm@linux.ibm.com>
+Date: Fri, 21 Nov 2025 12:03:15 +0100
+In-Reply-To: <20251121-implement-msi-domain-v5-0-d7e717dfd3f7@linux.ibm.com>
+References: <20251121-implement-msi-domain-v5-0-d7e717dfd3f7@linux.ibm.com>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=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
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.1 (3.58.1-1.fc43) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=BanVE7t2 c=1 sm=1 tr=0 ts=692046f9 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VnNF1IyMAAAA:8 a=DaEXKSbULMrF-PMq6TgA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTE1MDAzMiBTYWx0ZWRfX8TBqf9NX3pvY
+ DSgs2ebWZdkthN7K6wGJBbUsjPPQRVsfas0jZ/sYetPBCeiYNrxlN38yqSsSp4ACAIsPFETp7Yt
+ 20gMoXxq5u2WQ4Oa0BC+khViWMKWA2D/ywyNqZLb8MXLqoElnWPkF39BJZAGVbwRB6ATKk6nZGl
+ ryaAhhKnctPrHk9kBxWRPfYzyAHPZpphOSQJAIzuevgY84r6N16CBeiAHimrpj/JVt56v81uMSG
+ YtHYgvVguq1mktO2GSG2ov6K3kvuDSoCWTa+kE8bP+9uLr64ej/abIvaIWd3946fcaYrr06bGg4
+ H0jiTJy/vFBMFjZq5KnocPDeuNwfrGhW9vnBZpibS4o+janaffvFMOOsiLp+BJWeSgNyD9kwCK6
+ nJApxaC85CcHhXjvx/C92dN/2eWA9Q==
+X-Proofpoint-GUID: EwZgfXFC6aEVlLQGdWoT82yEAUCTtlF9
+X-Proofpoint-ORIG-GUID: EwZgfXFC6aEVlLQGdWoT82yEAUCTtlF9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-11-21_03,2025-11-20_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 lowpriorityscore=0 suspectscore=0 spamscore=0 impostorscore=0
+ priorityscore=1501 clxscore=1015 phishscore=0 bulkscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511150032
 
-The current SMC implementation is IPv4-centric. While it contains a
-workaround for IPv4-mapped IPv6 addresses, it lacks a functional path
-for native IPv6, preventing its use in modern dual-stack or IPv6-only
-networks.
+On Fri, 2025-11-21 at 06:32 +0100, Tobias Schumacher wrote:
+> This patch series reworks the PCIe interrupt handling on s390 by
+> migrating it to use a proper MSI parent domain. Introducing a dedicated
+> MSI domain hierarchy aligns s390 PCIe support with the generic Linux IRQ
+> domain model. Currently s390 is one of the last architectures still using
+> the legacy API.
+>=20
+> The migration splits the existing code in the legacy functions
+> arch_setup_msi_irqs() and arch_teardown_msi_irqs() into different
+> callbacks of the newly created MSI parent domain:
+>=20
+> - zpci_msi_prepare(): prepare the allocation of per-device MSI IRQs.
+>       will be called once for each device before allocating individual
+>       IRQs and sets up for example the adapter aisb and aibv.
+> - zpci_msi_teardown(): reverts the effects of zpci_msi_prepare() and is
+>       called after all MSI IRQs are freed.
+> - zpci_msi_domain_alloc(): the allocation function for interrupts
+> - zpci_msi_domain_free(): revert the effects of zpci_msi_domain_alloc()
+> - zpci_compose_msi_msg(): create the MSI message to be written into the
+>       corresponding PCI config space.
+>=20
+> * Patch 1 fixes an inconsistency in the irqdomain API. Internally, hw
+>   irqs are represented by an unsigned long int (irq_hw_number_t) while
+>   the external API in some cases takes an unsigned int as parameter.
+>   This fix was required in V2 of the patchset. Due to conceptual changes
+>   in patch 2 it is not required anymore for s390, but still seems
+>   sensible.
+> * Patch 2 implements IRQ domains for s390 PCI
+>=20
+> Since patch 1 changes common APIs, some build tests were done for x86_64
+> and arm64.=20
+>=20
+> Signed-off-by: Tobias Schumacher <ts@linux.ibm.com>
+> ---
 
-This patch introduces full, native IPv6 support by refactoring the
-address handling mechanism to be IP-version agnostic, which is
-achieved by:
+@Heiko, @Vasily, @Alexander, from my point of view this series is ready
+to be picked up for the s390 tree and would also benefit from time on
+linux-next etc.
 
-- Introducing a generic `struct smc_ipaddr` to abstract IP addresses.
-- Implementing an IPv6-specific route lookup function.
-- Extend GID matching logic for both IPv4 and IPv6 addresses
-
-With these changes, SMC can now discover RDMA devices and establish
-connections over both native IPv4 and IPv6 networks.
-
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
----
- net/smc/af_smc.c   |  47 +++++++++++----
- net/smc/smc_core.h |  40 ++++++++++++-
- net/smc/smc_ib.c   | 145 ++++++++++++++++++++++++++++++++++++++-------
- net/smc/smc_ib.h   |   9 +++
- net/smc/smc_llc.c  |   6 +-
- 5 files changed, 208 insertions(+), 39 deletions(-)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index e388de8dca09..1ba728d021b9 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1133,12 +1133,15 @@ static int smc_find_proposal_devices(struct smc_sock *smc,
- 
- 	/* check if there is an rdma v2 device available */
- 	ini->check_smcrv2 = true;
--	ini->smcrv2.saddr = smc->clcsock->sk->sk_rcv_saddr;
--	if (!(ini->smcr_version & SMC_V2) ||
-+
-+	if (smc->clcsock->sk->sk_family == AF_INET)
-+		smc_ipaddr_from_v4addr(&ini->smcrv2.saddr, smc->clcsock->sk->sk_rcv_saddr);
- #if IS_ENABLED(CONFIG_IPV6)
--	    (smc->clcsock->sk->sk_family == AF_INET6 &&
--	     !ipv6_addr_v4mapped(&smc->clcsock->sk->sk_v6_rcv_saddr)) ||
--#endif
-+	else
-+		smc_ipaddr_from_v6addr(&ini->smcrv2.saddr, &smc->clcsock->sk->sk_v6_rcv_saddr);
-+#endif /* CONFIG_IPV6 */
-+
-+	if (!(ini->smcr_version & SMC_V2) ||
- 	    !smc_clc_ueid_count() ||
- 	    smc_find_rdma_device(smc, ini))
- 		ini->smcr_version &= ~SMC_V2;
-@@ -1231,11 +1234,27 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
- 		memcpy(ini->smcrv2.nexthop_mac, &aclc->r0.lcl.mac, ETH_ALEN);
- 		ini->smcrv2.uses_gateway = false;
- 	} else {
--		if (smc_ib_find_route(net, smc->clcsock->sk->sk_rcv_saddr,
--				      smc_ib_gid_to_ipv4(aclc->r0.lcl.gid),
--				      ini->smcrv2.nexthop_mac,
--				      &ini->smcrv2.uses_gateway))
-+		struct smc_ipaddr peer_gid;
-+
-+		smc_ipaddr_from_gid(&peer_gid, aclc->r0.lcl.gid);
-+		if (peer_gid.family == AF_INET) {
-+			/* v4-mapped v6 address should also be treated as v4 address. */
-+			if (smc_ib_find_route(net, smc->clcsock->sk->sk_rcv_saddr,
-+					      peer_gid.addr,
-+					      ini->smcrv2.nexthop_mac,
-+					      &ini->smcrv2.uses_gateway))
-+				return SMC_CLC_DECL_NOROUTE;
-+		} else {
-+#if IS_ENABLED(CONFIG_IPV6)
-+			if (smc_ib_find_route_v6(net, &smc->clcsock->sk->sk_v6_rcv_saddr,
-+						 &peer_gid.addr_v6,
-+						 ini->smcrv2.nexthop_mac,
-+						 &ini->smcrv2.uses_gateway))
-+				return SMC_CLC_DECL_NOROUTE;
-+#else
- 			return SMC_CLC_DECL_NOROUTE;
-+#endif /* CONFIG_IPV6 */
-+		}
- 		if (!ini->smcrv2.uses_gateway) {
- 			/* mismatch: peer claims indirect, but its direct */
- 			return SMC_CLC_DECL_NOINDIRECT;
-@@ -2308,8 +2327,14 @@ static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
- 	memcpy(ini->peer_mac, pclc->lcl.mac, ETH_ALEN);
- 	ini->check_smcrv2 = true;
- 	ini->smcrv2.clc_sk = new_smc->clcsock->sk;
--	ini->smcrv2.saddr = new_smc->clcsock->sk->sk_rcv_saddr;
--	ini->smcrv2.daddr = smc_ib_gid_to_ipv4(smc_v2_ext->roce);
-+	if (new_smc->clcsock->sk->sk_family == AF_INET)
-+		smc_ipaddr_from_v4addr(&ini->smcrv2.saddr, new_smc->clcsock->sk->sk_rcv_saddr);
-+#if IS_ENABLED(CONFIG_IPV6)
-+	else
-+		smc_ipaddr_from_v6addr(&ini->smcrv2.saddr, &new_smc->clcsock->sk->sk_v6_rcv_saddr);
-+#endif /* CONFIG_IPV6 */
-+	smc_ipaddr_from_gid(&ini->smcrv2.daddr, smc_v2_ext->roce);
-+
- 	rc = smc_find_rdma_device(new_smc, ini);
- 	if (rc) {
- 		smc_init_info_store_rc(rc, ini);
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 5c18f08a4c8a..eafd7c86795b 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -283,6 +283,14 @@ struct smc_llc_flow {
- 	struct smc_llc_qentry *qentry;
- };
- 
-+struct smc_ipaddr {
-+	sa_family_t family;
-+	union {
-+		__be32          addr;
-+		struct in6_addr addr_v6;
-+	};
-+};
-+
- struct smc_link_group {
- 	struct list_head	list;
- 	struct rb_root		conns_all;	/* connection tree */
-@@ -363,7 +371,7 @@ struct smc_link_group {
- 						/* rsn code for termination */
- 			u8			nexthop_mac[ETH_ALEN];
- 			u8			uses_gateway;
--			__be32			saddr;
-+			struct smc_ipaddr saddr;
- 						/* net namespace */
- 			struct net		*net;
- 			u8			max_conns;
-@@ -397,9 +405,9 @@ struct smc_gidlist {
- 
- struct smc_init_info_smcrv2 {
- 	/* Input fields */
--	__be32			saddr;
-+	struct smc_ipaddr saddr;
- 	struct sock		*clc_sk;
--	__be32			daddr;
-+	struct smc_ipaddr daddr;
- 
- 	/* Output fields when saddr is set */
- 	struct smc_ib_device	*ib_dev_v2;
-@@ -626,4 +634,30 @@ static inline struct smc_link_group *smc_get_lgr(struct smc_link *link)
- {
- 	return link->lgr;
- }
-+
-+static inline void smc_ipaddr_from_v4addr(struct smc_ipaddr *ipaddr, __be32 v4_addr)
-+{
-+	ipaddr->family = AF_INET;
-+	ipaddr->addr = v4_addr;
-+}
-+
-+static inline void smc_ipaddr_from_v6addr(struct smc_ipaddr *ipaddr, const struct in6_addr *v6_addr)
-+{
-+	ipaddr->family = AF_INET6;
-+	ipaddr->addr_v6 = *v6_addr;
-+}
-+
-+static inline void smc_ipaddr_from_gid(struct smc_ipaddr *ipaddr, u8 gid[SMC_GID_SIZE])
-+{
-+	__be32 gid_v4 = smc_ib_gid_to_ipv4(gid);
-+
-+	if (gid_v4 != cpu_to_be32(INADDR_NONE)) {
-+		ipaddr->family = AF_INET;
-+		ipaddr->addr = gid_v4;
-+	} else {
-+		ipaddr->family = AF_INET6;
-+		ipaddr->addr_v6 = *smc_ib_gid_to_ipv6(gid);
-+	}
-+}
-+
- #endif
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index 1154907c5c05..5e2bbdcf623e 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -22,6 +22,7 @@
- #include <linux/inetdevice.h>
- #include <rdma/ib_verbs.h>
- #include <rdma/ib_cache.h>
-+#include <net/ip6_route.h>
- 
- #include "smc_pnet.h"
- #include "smc_ib.h"
-@@ -225,48 +226,148 @@ int smc_ib_find_route(struct net *net, __be32 saddr, __be32 daddr,
- 	return -ENOENT;
- }
- 
--static int smc_ib_determine_gid_rcu(const struct net_device *ndev,
-+#if IS_ENABLED(CONFIG_IPV6)
-+int smc_ib_find_route_v6(struct net *net, struct in6_addr *saddr,
-+			 struct in6_addr *daddr, u8 nexthop_mac[],
-+			 u8 *uses_gateway)
-+{
-+	struct dst_entry *dst;
-+	struct rt6_info *rt;
-+	struct neighbour *neigh;
-+	struct in6_addr *nexthop_addr;
-+	int rc = -ENOENT;
-+
-+	struct flowi6 fl6 = {
-+		.daddr = *daddr,
-+		.saddr = *saddr,
-+	};
-+
-+	if (ipv6_addr_any(daddr))
-+		return -EINVAL;
-+
-+	dst = ip6_route_output(net, NULL, &fl6);
-+	if (!dst || dst->error) {
-+		rc = dst ? dst->error : -EINVAL;
-+		goto out;
-+	}
-+	rt = (struct rt6_info *)dst;
-+
-+	if (ipv6_addr_type(&rt->rt6i_gateway) != IPV6_ADDR_ANY) {
-+		*uses_gateway = 1;
-+		nexthop_addr = &rt->rt6i_gateway;
-+	} else {
-+		*uses_gateway = 0;
-+		nexthop_addr = daddr;
-+	}
-+
-+	neigh = dst_neigh_lookup(dst, nexthop_addr);
-+	if (!neigh)
-+		goto out;
-+
-+	read_lock_bh(&neigh->lock);
-+	if (neigh->nud_state & NUD_VALID) {
-+		memcpy(nexthop_mac, neigh->ha, ETH_ALEN);
-+		rc = 0;
-+	}
-+	read_unlock_bh(&neigh->lock);
-+
-+	neigh_release(neigh);
-+out:
-+	dst_release(dst);
-+	return rc;
-+}
-+#endif /* CONFIG_IPV6 */
-+
-+static bool smc_ib_match_gid_rocev2(const struct net_device *ndev,
- 				    const struct ib_gid_attr *attr,
--				    u8 gid[], u8 *sgid_index,
- 				    struct smc_init_info_smcrv2 *smcrv2)
- {
--	if (!smcrv2 && attr->gid_type == IB_GID_TYPE_ROCE) {
--		if (gid)
--			memcpy(gid, &attr->gid, SMC_GID_SIZE);
--		if (sgid_index)
--			*sgid_index = attr->index;
--		return 0;
--	}
--	if (smcrv2 && attr->gid_type == IB_GID_TYPE_ROCE_UDP_ENCAP &&
--	    smc_ib_gid_to_ipv4((u8 *)&attr->gid) != cpu_to_be32(INADDR_NONE)) {
-+	struct net *net = dev_net(ndev);
-+	bool subnet_match = false;
-+
-+	if (smc_ib_gid_to_ipv4((u8 *)&attr->gid) != cpu_to_be32(INADDR_NONE)) {
- 		struct in_device *in_dev = __in_dev_get_rcu(ndev);
--		struct net *net = dev_net(ndev);
- 		const struct in_ifaddr *ifa;
--		bool subnet_match = false;
- 
- 		if (!in_dev)
--			goto out;
-+			return false;
-+
-+		if (smcrv2->saddr.family != AF_INET)
-+			return false;
-+
- 		in_dev_for_each_ifa_rcu(ifa, in_dev) {
--			if (!inet_ifa_match(smcrv2->saddr, ifa))
-+			if (!inet_ifa_match(smcrv2->saddr.addr, ifa))
- 				continue;
- 			subnet_match = true;
- 			break;
- 		}
-+
- 		if (!subnet_match)
--			goto out;
--		if (smcrv2->daddr && smc_ib_find_route(net, smcrv2->saddr,
--						       smcrv2->daddr,
--						       smcrv2->nexthop_mac,
--						       &smcrv2->uses_gateway))
--			goto out;
-+			return false;
-+
-+		if (smcrv2->daddr.addr &&
-+		    smc_ib_find_route(net, smcrv2->saddr.addr,
-+				      smcrv2->daddr.addr,
-+				      smcrv2->nexthop_mac,
-+				      &smcrv2->uses_gateway))
-+			return false;
-+#if IS_ENABLED(CONFIG_IPV6)
-+	} else if (!(ipv6_addr_type(smc_ib_gid_to_ipv6((u8 *)&attr->gid)) & IPV6_ADDR_LINKLOCAL)) {
-+		struct inet6_dev *in6_dev = __in6_dev_get(ndev);
-+		const struct inet6_ifaddr *if6;
-+
-+		if (!in6_dev)
-+			return false;
-+
-+		if (smcrv2->saddr.family != AF_INET6)
-+			return false;
-+
-+		list_for_each_entry_rcu(if6, &in6_dev->addr_list, if_list) {
-+			if (ipv6_addr_type(&if6->addr) & IPV6_ADDR_LINKLOCAL)
-+				continue;
-+			if (!ipv6_prefix_equal(&if6->addr, &smcrv2->saddr.addr_v6, if6->prefix_len))
-+				continue;
-+			subnet_match = true;
-+			break;
-+		}
- 
-+		if (!subnet_match)
-+			return false;
-+
-+		if ((ipv6_addr_type(&smcrv2->daddr.addr_v6) != IPV6_ADDR_ANY) &&
-+		    smc_ib_find_route_v6(net, &smcrv2->saddr.addr_v6,
-+					 &smcrv2->daddr.addr_v6,
-+					 smcrv2->nexthop_mac,
-+					 &smcrv2->uses_gateway))
-+			return false;
-+#endif /* CONFIG_IPV6 */
-+	} else {
-+		return false;
-+	}
-+
-+	return true;
-+}
-+
-+static int smc_ib_determine_gid_rcu(const struct net_device *ndev,
-+				    const struct ib_gid_attr *attr,
-+				    u8 gid[], u8 *sgid_index,
-+				    struct smc_init_info_smcrv2 *smcrv2)
-+{
-+	bool gid_match = false;
-+
-+	if (!smcrv2 && attr->gid_type == IB_GID_TYPE_ROCE)
-+		gid_match = true;
-+	else if (smcrv2 && attr->gid_type == IB_GID_TYPE_ROCE_UDP_ENCAP)
-+		gid_match = smc_ib_match_gid_rocev2(ndev, attr, smcrv2);
-+
-+	if (gid_match) {
- 		if (gid)
- 			memcpy(gid, &attr->gid, SMC_GID_SIZE);
- 		if (sgid_index)
- 			*sgid_index = attr->index;
- 		return 0;
- 	}
--out:
-+
- 	return -ENODEV;
- }
- 
-diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
-index ef8ac2b7546d..7cbeb7350478 100644
---- a/net/smc/smc_ib.h
-+++ b/net/smc/smc_ib.h
-@@ -69,6 +69,12 @@ static inline __be32 smc_ib_gid_to_ipv4(u8 gid[SMC_GID_SIZE])
- 	return cpu_to_be32(INADDR_NONE);
- }
- 
-+static inline struct in6_addr *smc_ib_gid_to_ipv6(u8 gid[SMC_GID_SIZE])
-+{
-+	struct in6_addr *addr6 = (struct in6_addr *)gid;
-+	return addr6;
-+}
-+
- static inline struct net *smc_ib_net(struct smc_ib_device *smcibdev)
- {
- 	if (smcibdev && smcibdev->ibdev)
-@@ -114,6 +120,9 @@ int smc_ib_determine_gid(struct smc_ib_device *smcibdev, u8 ibport,
- 			 struct smc_init_info_smcrv2 *smcrv2);
- int smc_ib_find_route(struct net *net, __be32 saddr, __be32 daddr,
- 		      u8 nexthop_mac[], u8 *uses_gateway);
-+int smc_ib_find_route_v6(struct net *net, struct in6_addr *saddr,
-+			 struct in6_addr *daddr, u8 nexthop_mac[],
-+			 u8 *uses_gateway);
- bool smc_ib_is_valid_local_systemid(void);
- int smcr_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
- #endif
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index f5d5eb617526..2f4827876706 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -1055,8 +1055,9 @@ int smc_llc_cli_add_link(struct smc_link *link, struct smc_llc_qentry *qentry)
- 	if (lgr->smc_version == SMC_V2) {
- 		ini->check_smcrv2 = true;
- 		ini->smcrv2.saddr = lgr->saddr;
--		ini->smcrv2.daddr = smc_ib_gid_to_ipv4(llc->sender_gid);
-+		smc_ipaddr_from_gid(&ini->smcrv2.daddr, llc->sender_gid);
- 	}
-+
- 	smc_pnet_find_alt_roce(lgr, ini, link->smcibdev);
- 	if (!memcmp(llc->sender_gid, link->peer_gid, SMC_GID_SIZE) &&
- 	    (lgr->smc_version == SMC_V2 ||
-@@ -1438,8 +1439,7 @@ int smc_llc_srv_add_link(struct smc_link *link,
- 		if (send_req_add_link_resp) {
- 			struct smc_llc_msg_req_add_link_v2 *req_add =
- 				&req_qentry->msg.req_add_link;
--
--			ini->smcrv2.daddr = smc_ib_gid_to_ipv4(req_add->gid[0]);
-+			smc_ipaddr_from_gid(&ini->smcrv2.daddr, req_add->gid[0]);
- 		}
- 	}
- 	smc_pnet_find_alt_roce(lgr, ini, link->smcibdev);
--- 
-2.45.0
-
+Thanks,
+Niklas
