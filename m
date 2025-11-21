@@ -1,58 +1,58 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D570B299950;
-	Fri, 21 Nov 2025 14:20:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5E0C28DF2D;
+	Fri, 21 Nov 2025 14:49:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763734804; cv=none; b=L6X4F1i5I8yqqlk2O/kHfW3L9DzRIaQ/YWvtJ1IPlBpC6fnhTHc0Bbxg36wBjeSnY03h5oGMjCn28TArPJYAvFXisWQ3DAhMZscj2ZlEPyUzb3Wa9iX82tjauzrjv8CSQq5ELKTdUdovx8lw+IcP90jdwi0Q8ommBpasI/bsffI=
+	t=1763736601; cv=none; b=D0N9YY9z9Di9QnACU3xTWmrIN8rRYXGFGu8nayKd8s9eGITRDl/KscN6zXdaqy/WWLx2VSUND8Ddm209UPE2yQL6NWmNSLAuBCy8+ZV2K0YDV0DV5sHJ+iD2Hod2p/+dSYcQF31LhH9Cr8o7RsIT5mHNbPZH+NSg/RZOxwxn4A4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763734804; c=relaxed/simple;
-	bh=dA4PQl7xBMAQMW3U3pMU/geLpS0vqUVW9/J4uUEnZJs=;
+	s=arc-20240116; t=1763736601; c=relaxed/simple;
+	bh=pKemmz+hn9IInfUvGCr8kgYvfAKbfsVC604PRpRFTs8=;
 	h=Mime-Version:Content-Type:Date:Message-Id:From:To:Cc:Subject:
-	 References:In-Reply-To; b=Prp7gLk8EnUPrWlOwAxGWsFoF9nH3eo3w5YJpTJokMC0ZvkFbHCnFGwo9Hij8YG3lnI+ZKmCShP/nhJVhoS5qHztNGs2DN+dgFUHFWnhJ5kMonbPHbhDg5VCFebd0L3azoGsCyV8q1DHgWgaEsCulM0yFMMCxmIkHrolXQluJew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HO+QtN3L; arc=none smtp.client-ip=148.163.158.5
+	 References:In-Reply-To; b=SP+szM506Wz7WBivSNw2eMhgA9GM2SdTnoBZen6XhBxfvJdQlc4hx6tFIXo5+cofnA/EUZL/3TqesFDRumAMT+ecWwV6mXvJPoC2vME24A8ThCvk19oojrIJShs/sXn3q4hyYRjMMmPbX8fw7NXtAgEn1CoFxzREQa5hMRMo/lE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QXiIKVj+; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HO+QtN3L"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5ALDJgwb007084;
-	Fri, 21 Nov 2025 14:19:59 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QXiIKVj+"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5ALEEiGX002761;
+	Fri, 21 Nov 2025 14:49:55 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=j/18iT
-	Cw2oncOV/qV7oFUVePBDLphJwjeS+eMlqIHQE=; b=HO+QtN3L94/Jr300pNlQLR
-	uwwHibGrg29ht+P0M778jxGUu5plVLbemp6RayLNnW5QtfE6TGzfohi6vak1a42a
-	GDmR7D0kd0PCbO2NETwlxEYlpyBKxH0xRQo+I3sxtyKvLYRBZ/s6lLawd6eJA17K
-	FGBeHS0Svb2r7aq1/m0f3xKwExZJNykHIZbeApnPHH9oIUXvAdyGADAoCtMu5eHF
-	BTnvkdYlDm0INIZ61MemKVsbICU7FNK7oqzLr7ToWrgYrqGm/1hUj2G2TkPovB6s
-	yrDUI/CP3ZhdZz40YReozXCORFfe6SYkkZGtbHU2mQCWe+i2/+piMZrjzlrmaUzw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=cno3+u
+	2JOlSuZo1wYJT5AjXPcmrcQ/uzT35iy51t2rU=; b=QXiIKVj+fsePQfnowXBPgp
+	rGMhwXNzxpNw/ZYLyKxT+Xs8lwyVhHJ2tOa3ChatXrmAGHyiop3l//4DvP1ndKPD
+	N8/ikIEciApM30vVHZeROxxoZlojTECWgBR5usls57sGG4nRWjuIf96NwfcRTI+B
+	wUQmuZpl8QkpNbY28L868PPrcc3zBTMq1O+eL6fgOUpNk1/qsT/M6c+38cmYKMR2
+	E40U6iBUINZvvgaYfvKJoty0oPsJq1moZnDU/OdX7fqsUBj+mk+3kWpXBNeYUH+K
+	kOStOXArKyGnlEIZoWG4sBZJHkL1cFlgRsAZYfa+hKy913Rww1J8UEH7JbizMflA
 	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aejmt2uxx-1
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aejjuavu5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Nov 2025 14:19:58 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5ALCYKP8005133;
-	Fri, 21 Nov 2025 14:19:58 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4af5bkmkfp-1
+	Fri, 21 Nov 2025 14:49:54 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5ALCj5xH006959;
+	Fri, 21 Nov 2025 14:49:53 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4af62jvg8w-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Nov 2025 14:19:58 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5ALEJs2A61538796
+	Fri, 21 Nov 2025 14:49:53 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5ALEnoQP27853202
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 21 Nov 2025 14:19:54 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1ECF620043;
-	Fri, 21 Nov 2025 14:19:54 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7800A20040;
-	Fri, 21 Nov 2025 14:19:53 +0000 (GMT)
+	Fri, 21 Nov 2025 14:49:50 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3AB502004B;
+	Fri, 21 Nov 2025 14:49:50 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 67A3C20049;
+	Fri, 21 Nov 2025 14:49:49 +0000 (GMT)
 Received: from localhost (unknown [9.111.95.11])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 21 Nov 2025 14:19:53 +0000 (GMT)
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 21 Nov 2025 14:49:49 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -61,12 +61,13 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset=UTF-8
-Date: Fri, 21 Nov 2025 15:19:53 +0100
-Message-Id: <DEEFSYEK2EPX.7THCTOCXJLUU@linux.ibm.com>
+Date: Fri, 21 Nov 2025 15:49:48 +0100
+Message-Id: <DEEGFVBPI57E.1QW7C1D4B2ER4@linux.ibm.com>
 From: "Tobias Schumacher" <ts@linux.ibm.com>
-To: "Heiko Carstens" <hca@linux.ibm.com>, "Gerd Bayer"
- <gbayer@linux.ibm.com>
-Cc: "Tobias Schumacher" <ts@linux.ibm.com>,
+To: "Gerd Bayer" <gbayer@linux.ibm.com>,
+        "Tobias Schumacher"
+ <ts@linux.ibm.com>,
+        "Heiko Carstens" <hca@linux.ibm.com>,
         "Vasily Gorbik"
  <gor@linux.ibm.com>,
         "Alexander Gordeev" <agordeev@linux.ibm.com>,
@@ -80,80 +81,287 @@ Cc: "Tobias Schumacher" <ts@linux.ibm.com>,
  <pasic@linux.ibm.com>,
         "Matthew Rosato" <mjrosato@linux.ibm.com>,
         "Thomas
- Gleixner" <tglx@linutronix.de>,
-        <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        "Farhan Ali" <alifm@linux.ibm.com>
+ Gleixner" <tglx@linutronix.de>
+Cc: <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        "Farhan
+ Ali" <alifm@linux.ibm.com>
 Subject: Re: [PATCH v5 2/2] s390/pci: Migrate s390 IRQ logic to IRQ domain
  API
 X-Mailer: aerc 0.21.0
 References: <20251121-implement-msi-domain-v5-0-d7e717dfd3f7@linux.ibm.com>
  <20251121-implement-msi-domain-v5-2-d7e717dfd3f7@linux.ibm.com>
  <626c1d010ff720c8c2beb7bdd36b0565850a6ab3.camel@linux.ibm.com>
- <20251121140311.27602C99-hca@linux.ibm.com>
-In-Reply-To: <20251121140311.27602C99-hca@linux.ibm.com>
+In-Reply-To: <626c1d010ff720c8c2beb7bdd36b0565850a6ab3.camel@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 1uEGzKYTka5mV-Vkb3Dh_drvHZ8Pc4xi
-X-Authority-Analysis: v=2.4 cv=Rv3I7SmK c=1 sm=1 tr=0 ts=6920750e cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-GUID: dwUcxL8lVoglVTSRGShDFmUVclavVBK0
+X-Proofpoint-ORIG-GUID: dwUcxL8lVoglVTSRGShDFmUVclavVBK0
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTE1MDAzMiBTYWx0ZWRfXwrbvJVVljgOI
+ LpLf6cFpSqaRoGNJfvK67n/Bofd3R9Ld4v8X5V1Q5CK+NUFgOd/5lZLvLrm+svU30ihWE8DlPBr
+ YsSxWsgOkcag8QQbwshyZfKcaqFeKS7F3NYNTFj1VxC5eNjb0XpCRwbquE4d0WjCus78tjJgp/Y
+ /kXrXh17w6OOu+sLbp39mwwwNk6DicqewTQT7iNBT6Bpp7y4es+xSrzCDCnbC3j79cktm2jjoQR
+ l2FyXqfxK8DW9H6uigaYmflHLfz0DR42IGkfbvaQENw+wN5Fm56C2QiztiKLczj6LUNFI/Vjat1
+ Mbg+aqKtoU4QkMWGSzMyzf8AaYykn0X3Nf8tX9OQzGwBzMgsp2PDTJ07Itab5U285uaPOT1G0OU
+ ap37K/YExxErCh9m0/+qPCPmGHtTGw==
+X-Authority-Analysis: v=2.4 cv=SvOdKfO0 c=1 sm=1 tr=0 ts=69207c12 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=ENFrDvVUNvTEZJsXknYA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: 1uEGzKYTka5mV-Vkb3Dh_drvHZ8Pc4xi
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTE1MDAzMiBTYWx0ZWRfX8zoXSxJHrFsR
- kbVVJXWS1zdi4HGQueb8CeHQpurt9GzWoduCjpkDU9YBF9vLBpJi4Fag0gjYnoBzKUdLWQMinYx
- HuMBbpFsBsPO79G5EOYtoQqtwNOrpEPq3vC7na03GB6piq99JHd3RQ6/Q2eIaRKbK2BTebdKcPp
- Zcdd30A/vyvn302Uyouh6Hl+DbHe4ml2nOCgzZQkfSfbGtk4zBugT3kjcTJpOidopQHZCxOcOys
- WXoFQvw1QvW9YpPRI3T4fBDja0Q207ZGowNziioTR2X23fhB23V7/EXCHABrHGdiqGuc/KgrHfW
- f5A4Uk9I5I/VATRc205X9PbAt3eccP5FLB/fJIjsqpaXnz/o23G9+ifp+pwhZmcBCrbAkNkUIta
- cIUT8PbUH/sS3dl8zhmsKQ4vrbb7wg==
+ a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=O8nXZrIETkQSUyQ56joA:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-11-21_03,2025-11-21_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 suspectscore=0 clxscore=1015 phishscore=0 priorityscore=1501
- spamscore=0 lowpriorityscore=0 impostorscore=0 adultscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511150032
+ priorityscore=1501 lowpriorityscore=0 spamscore=0 clxscore=1015
+ suspectscore=0 phishscore=0 adultscore=0 bulkscore=0 impostorscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2511150032
 
-On Fri Nov 21, 2025 at 3:03 PM CET, Heiko Carstens wrote:
-> On Fri, Nov 21, 2025 at 02:27:38PM +0100, Gerd Bayer wrote:
->> >  	bus =3D pci_create_root_bus(NULL, ZPCI_BUS_NR, ops, zbus, &zbus->res=
-ources);
->> > -	if (!bus) {
->> > -		zpci_free_domain(zbus->domain_nr);
->> > -		return -EFAULT;
->> > -	}
->> > +	if (!bus)
->> > +		goto out_remove_msi_domain;
->>=20
->> Or do you want to set rc to -EFAULT here, and return the "original" rc
->> in the error exits?
->>=20
->> > =20
->> >  	zbus->bus =3D bus;
->> > +	dev_set_msi_domain(&zbus->bus->dev, zbus->msi_parent_domain);
->> > =20
->> >  	return 0;
->> > +
->> > +out_remove_msi_domain:
->> > +	zpci_remove_parent_msi_domain(zbus);
->> > +out_free_domain:
->> > +	zpci_free_domain(zbus->domain_nr);
->> > +	return -EFAULT;
->> >  }
+On Fri Nov 21, 2025 at 2:27 PM CET, Gerd Bayer wrote:
+> Hi Tobias,
 >
-> Oh, just realized this oddity with Gerd's reply: -EFAULT should _only_ be=
- used
-> for page faults. Looks like this return code is not passed to user space,=
- but
-> please change this to something more appropriate. E.g. -ENOMEM, or whatev=
-er
-> fits here.
+> sorry for being late with my comments...
 >
-> Given that Gerd had quite a few more comments, please send a new version =
-with
-> my comments also addressed :)
+> On Fri, 2025-11-21 at 06:32 +0100, Tobias Schumacher wrote:
+>> s390 is one of the last architectures using the legacy API for setup and
+>> teardown of PCI MSI IRQs. Migrate the s390 IRQ allocation and teardown
+>> to the MSI parent domain API. For details, see:
+>>=20
+>> https://lore.kernel.org/lkml/20221111120501.026511281@linutronix.de
+>>=20
+>> In detail, create an MSI parent domain for each PCI domain. When a PCI
+>> device sets up MSI or MSI-X IRQs, the library creates a per-device IRQ
+>> domain for this device, which is used by the device for allocating and
+>> freeing IRQs.
+>>=20
+>> The per-device domain delegates this allocation and freeing to the
+>> parent-domain. In the end, the corresponding callbacks of the parent
+>> domain are responsible for allocating and freeing the IRQs.
+>>=20
+>> The allocation is split into two parts:
+>> - zpci_msi_prepare() is called once for each device and allocates the
+>>   required resources. On s390, each PCI function has its own airq
+>>   vector and a summary bit, which must be configured once per function.
+>>   This is done in prepare().
+>> - zpci_msi_alloc() can be called multiple times for allocating one or
+>>   more MSI/MSI-X IRQs. This creates a mapping between the virtual IRQ
+>>   number in the kernel and the hardware IRQ number.
+>>=20
+>> Freeing is split into two counterparts:
+>> - zpci_msi_free() reverts the effects of zpci_msi_alloc() and
+>> - zpci_msi_teardown() reverts the effects of zpci_msi_prepare(). This is
+>>   called once when all IRQs are freed before a device is removed.
+>>=20
+>> Since the parent domain in the end allocates the IRQs, the hwirq
+>> encoding must be unambiguous for all IRQs of all devices. This is
+>> achieved by=20
+>>=20
+>> encoding the hwirq using the PCI function id and the MSI
+>> index.
+>
+> This is no longer true with the per-PCI-domain irq domains! But you
+> encode the hwirq with the devfn within the PCI domain, instead.
 
-Sure, will do
+Correct, will fix that.
+
+>> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+>> Reviewed-by: Farhan Ali <alifm@linux.ibm.com>
+>> Signed-off-by: Tobias Schumacher <ts@linux.ibm.com>
+>> ---
+>>  arch/s390/Kconfig           |   1 +
+>>  arch/s390/include/asm/pci.h |   4 +
+>>  arch/s390/pci/pci_bus.c     |  21 ++-
+>>  arch/s390/pci/pci_irq.c     | 333 +++++++++++++++++++++++++++----------=
+-------
+>>  4 files changed, 227 insertions(+), 132 deletions(-)
+>>=20
+>> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+>> index 778ce20d34046cad84dd4ef57cab5a662e5796d9..46ab67d607f0db7f5f108106=
+172699a5eebfc8c8 100644
+>> --- a/arch/s390/Kconfig
+>> +++ b/arch/s390/Kconfig
+>> @@ -251,6 +251,7 @@ config S390
+>>  	select HOTPLUG_SMT
+>>  	select IOMMU_HELPER		if PCI
+>>  	select IOMMU_SUPPORT		if PCI
+>> +	select IRQ_MSI_LIB if PCI
+>
+> Nit: There's precedence for both versions (above and below!) but I
+> personally would prefer to indent the pre-condition "if PCI" so it
+> stands out. Maybe that's a generic clean-up task for this arch-specific
+> file...
+
+Since at least the 'if PCI' preconditions are indented in this file,
+I'll also do it for this line.=20
+
+>> @@ -189,7 +190,7 @@ static bool zpci_bus_is_multifunction_root(struct zp=
+ci_dev *zdev)
+>>  static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_d=
+ev *fr, struct pci_ops *ops)
+>>  {
+>>  	struct pci_bus *bus;
+>> -	int domain;
+>> +	int domain, rc;
+>> =20
+>>  	domain =3D zpci_alloc_domain((u16)fr->uid);
+>>  	if (domain < 0)
+>> @@ -199,19 +200,28 @@ static int zpci_bus_create_pci_bus(struct zpci_bus=
+ *zbus, struct zpci_dev *fr, s
+>>  	zbus->multifunction =3D zpci_bus_is_multifunction_root(fr);
+>>  	zbus->max_bus_speed =3D fr->max_bus_speed;
+>> =20
+>> +	rc =3D zpci_create_parent_msi_domain(zbus);
+>> +	if (rc)
+>> +		goto out_free_domain;
+>> +
+>
+> If you shortened this to use the call to
+> zpci_create_parent_msi_domain() as predicate for "if" you could do
+> without the additional rc.
+
+Will do.
+
+>>  	/*
+>>  	 * Note that the zbus->resources are taken over and zbus->resources
+>>  	 * is empty after a successful call
+>>  	 */
+>>  	bus =3D pci_create_root_bus(NULL, ZPCI_BUS_NR, ops, zbus, &zbus->resou=
+rces);
+>> -	if (!bus) {
+>> -		zpci_free_domain(zbus->domain_nr);
+>> -		return -EFAULT;
+>> -	}
+>> +	if (!bus)
+>> +		goto out_remove_msi_domain;
+>
+> Or do you want to set rc to -EFAULT here, and return the "original" rc
+> in the error exits?
+
+As Heiko mentioned, -EFAULT shouldn't be returned anyways I'd change it
+to -ENOMEM for all error cases.
+
+--- snip ---
+
+>> diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
+>> index e73be96ce5fe6473fc193d65b8f0ff635d6a98ba..b0be21ab56995e81f54339fc=
+77167f5930182542 100644
+>> --- a/arch/s390/pci/pci_irq.c
+>> +++ b/arch/s390/pci/pci_irq.c
+>> @@ -7,6 +7,7 @@
+>>  #include <linux/kernel_stat.h>
+>>  #include <linux/pci.h>
+>>  #include <linux/msi.h>
+>> +#include <linux/irqchip/irq-msi-lib.h>
+>>  #include <linux/smp.h>
+>> =20
+>>  #include <asm/isc.h>
+>> @@ -110,43 +111,41 @@ static int zpci_set_irq(struct zpci_dev *zdev)
+>>  	return rc;
+>>  }
+>> =20
+>> -/* Clear adapter interruptions */
+>> -static int zpci_clear_irq(struct zpci_dev *zdev)
+>
+>
+> Any specific reason, why you removed zpci_clear_irq() indirecting to
+> airq vs. directed_irq - but kept zpci_set_irq()? Just saying this is
+> imbalanced now.
+
+I removed it because it was only required in zpci_msi_teardown(), which
+already has the distinction between directed and floating IRQs. So
+having a separate zpci_clear_irq() seemed redundant.=20
+
+--- snip ---
+
+>> +static inline u16 zpci_decode_hwirq_msi_index(irq_hw_number_t irq)
+>> +{
+>> +	return irq & GENMASK_U16(15, 0);
+>
+>
+> Please don't use GENMASK_U16. It is harder to read than any explicit
+> constant like 0x00FF, especially since its parameters contradict the
+> architecture's endianess.
+> But then, is this called anywhere?
+
+Right, it's not used anymore, I'll remove it completely.
+
+--- snip ---
+
+>> +static int zpci_msi_prepare(struct irq_domain *domain,
+>> +			    struct device *dev, int nvec,
+>> +			    msi_alloc_info_t *info)
+>> +{
+>> +	struct zpci_dev *zdev =3D to_zpci_dev(dev);
+>> +	struct pci_dev *pdev =3D to_pci_dev(dev);
+>> +	unsigned long bit;
+>> +	int msi_vecs, rc;
+>> =20
+>>  	msi_vecs =3D min_t(unsigned int, nvec, zdev->max_msi);
+>> -	if (msi_vecs < nvec) {
+>> -		pr_info("%s requested %d irqs, allocate system limit of %d",
+>> +	if (msi_vecs < nvec)
+>> +		pr_info("%s requested %d IRQs, allocate system limit of %d\n",
+>>  			pci_name(pdev), nvec, zdev->max_msi);
+>> -	}
+>> =20
+>>  	rc =3D __alloc_airq(zdev, msi_vecs, &bit);
+>> -	if (rc < 0)
+>> +	if (rc) {
+>> +		pr_err("Allocating adapter IRQs for %s failed\n", pci_name(pdev));
+>>  		return rc;
+>> +	}
+>> =20
+>> -	/*
+>> -	 * Request MSI interrupts:
+>> -	 * When using MSI, nvec_used interrupt sources and their irq
+>> -	 * descriptors are controlled through one msi descriptor.
+>> -	 * Thus the outer loop over msi descriptors shall run only once,
+>> -	 * while two inner loops iterate over the interrupt vectors.
+>> -	 * When using MSI-X, each interrupt vector/irq descriptor
+>> -	 * is bound to exactly one msi descriptor (nvec_used is one).
+>> -	 * So the inner loops are executed once, while the outer iterates
+>> -	 * over the MSI-X descriptors.
+>> -	 */
+>> -	hwirq =3D bit;
+>> -	msi_for_each_desc(msi, &pdev->dev, MSI_DESC_NOTASSOCIATED) {
+>> -		if (hwirq - bit >=3D msi_vecs)
+>> -			break;
+>> -		irqs_per_msi =3D min_t(unsigned int, msi_vecs, msi->nvec_used);
+>> -		irq =3D __irq_alloc_descs(-1, 0, irqs_per_msi, 0, THIS_MODULE,
+>> -					(irq_delivery =3D=3D DIRECTED) ?
+>> -					msi->affinity : NULL);
+>> -		if (irq < 0)
+>> -			return -ENOMEM;
+>> -
+>> -		for (i =3D 0; i < irqs_per_msi; i++) {
+>> -			rc =3D irq_set_msi_desc_off(irq, i, msi);
+>> -			if (rc)
+>> -				return rc;
+>> -			irq_set_chip_and_handler(irq + i, &zpci_irq_chip,
+>> -						 handle_percpu_irq);
+>> +	zdev->msi_first_bit =3D bit;
+>> +	zdev->msi_nr_irqs =3D msi_vecs;
+>> +	rc =3D zpci_set_irq(zdev);
+>> +	if (rc) {
+>> +		pr_err("Registering adapter IRQs for %s failed\n",
+>> +		       pci_name(pdev));
+>> +		if (irq_delivery =3D=3D DIRECTED) {
+>> +			airq_iv_free(zpci_ibv[0], zdev->msi_first_bit, msi_vecs);
+>> +		} else {
+>> +			zpci_clear_airq(zdev);
+>> +			airq_iv_release(zdev->aibv);
+>> +			zdev->aibv =3D NULL;
+>> +			airq_iv_free_bit(zpci_sbv, zdev->aisb);
+>> +			zdev->aisb =3D -1UL;
+>
+> These two failure clean-ups look a lot like
+> zpci_msi_teardown_directed/_floating() below. Could these be called
+> instead of duplicating the code?
+
+Yes they are similar, only that zpci_msi_teardown_directed/_floating()
+also call zpci_clear_directed_irq()/zpci_clear_airq(), respectively.
+Considering your other comment above, it might be cleaner to add
+zpci_clear_irq() again, call this directly from zpci_msi_teardown() and
+then use zpci_msi_teardown_directed/_floating() here as suggested.
 
 Thanks,
 Tobias
