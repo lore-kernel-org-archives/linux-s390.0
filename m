@@ -1,80 +1,60 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CF7B33BBB7
-	for <linux-s390@vger.kernel.org>; Fri, 21 Nov 2025 17:58:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 020FB207A32;
+	Fri, 21 Nov 2025 18:31:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763747927; cv=none; b=aT5keZcqKiAeOYDKKcsgkU1oHS1c1mvp1n6JklOWrCHPhIOxE+AKk2p1u36M43PPEXQl/iUgJGXY0vaoAWFM2nqsTFLLKHgDhapXquPxPLBeZPIVG6wyUnCsjKx6Ny94MFMThs5WZQ3q6G4jbeS8jztgSKtK5s51n374haURnhM=
+	t=1763749915; cv=none; b=VmpoPQtkxjt/xUksmHVyr1Fz1M31uZGwtzzizphOFKCqRsM4JyowVty3g/YEE7VDoDCOvlrqqbKFrT438tGl1+kLxz3mGEXffHQ1gvvuW19X310rz4LFy242fwruCqdcNiMzsbJ2fonLIxavhu1sOsqR09Rkjp34ZThcru3SHJc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763747927; c=relaxed/simple;
-	bh=yV2WQRNM08+GiLVHoJtsuyOXBwHVeo6J3ujZgU0P0VQ=;
+	s=arc-20240116; t=1763749915; c=relaxed/simple;
+	bh=TvAEixNfOt78z8o80EslzLNn6abZGPvJ5ah9WTtU6yU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GtvL/4Xakl3GvPi6IczHda6f3amldQQi+31F5TkF9sCqwk3FcVRMa3hUY3C0ICDf63fxBXarRyKPbToaYp5ke8+gNbtJ9s6yHa4Ufi4QFjjz9jGXm3vkvwmYxf+XxcQzVJnxZgAhdifN2qP3WieGNd7rGYLpzlbktH+HhI0W074=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=PNf/GEz2; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=BA6od6MC; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=PNf/GEz2; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=BA6od6MC; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	 In-Reply-To:Content-Type; b=aighZs0/E6kWIhAdBmoLoKHTlGEyzZjekSw62ZU/XSX+/pG+RgsZwhwyDACkKE2vb+emgfJcbniUeGU3u+E7EGxJijJ6Dim9/PFqFaJwkMqj50rRuh1cmcOdHxsuWOGReV/bDSPnmkiAVcV0GxIUvQ+3LiHDM4U4eMK04d+eFkg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MJleUdyg; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="PNf/GEz2";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="BA6od6MC";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="PNf/GEz2";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="BA6od6MC"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id C6A09219A6;
-	Fri, 21 Nov 2025 17:58:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1763747922; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=u4u/nMM+KNkjjkTjIpcny8cl0z0ryRicvd/zDPGEOSs=;
-	b=PNf/GEz2AfAl9PN7kljSM47+pWoLj/riChRqrJQJiVWBgx+VBW6bbjtyTb5mpzHNzk9eL5
-	xIx9qXoci04ogBP/rTerIwxIUiXMgtTKV0UmQhrNa1Lxv9Rv51B9LgU+Pjk4AigPhASx6+
-	lj6FnSfZxQ8iT9RNeSvQh1a0TCdN/JI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1763747922;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=u4u/nMM+KNkjjkTjIpcny8cl0z0ryRicvd/zDPGEOSs=;
-	b=BA6od6MCv7fGYdd8JUjEdbBLZ4bw0kTt3dYnK1UMw8UDIkbzMj1fPB6zD+rKzhyaqxJn0Y
-	d4bgo5XtAg5WusDA==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1763747922; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=u4u/nMM+KNkjjkTjIpcny8cl0z0ryRicvd/zDPGEOSs=;
-	b=PNf/GEz2AfAl9PN7kljSM47+pWoLj/riChRqrJQJiVWBgx+VBW6bbjtyTb5mpzHNzk9eL5
-	xIx9qXoci04ogBP/rTerIwxIUiXMgtTKV0UmQhrNa1Lxv9Rv51B9LgU+Pjk4AigPhASx6+
-	lj6FnSfZxQ8iT9RNeSvQh1a0TCdN/JI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1763747922;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=u4u/nMM+KNkjjkTjIpcny8cl0z0ryRicvd/zDPGEOSs=;
-	b=BA6od6MCv7fGYdd8JUjEdbBLZ4bw0kTt3dYnK1UMw8UDIkbzMj1fPB6zD+rKzhyaqxJn0Y
-	d4bgo5XtAg5WusDA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 54F8A3EA61;
-	Fri, 21 Nov 2025 17:58:42 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id +ExXE1KoIGmOYQAAD6G6ig
-	(envelope-from <vbabka@suse.cz>); Fri, 21 Nov 2025 17:58:42 +0000
-Message-ID: <38461f6f-6e47-49b1-90b6-1649dc39d5cc@suse.cz>
-Date: Fri, 21 Nov 2025 18:58:41 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MJleUdyg"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5ALEXLmS002769;
+	Fri, 21 Nov 2025 18:31:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=f4cRXM
+	E0GpFBHviJk6gtAbbLE+FMj0I7hmoJxcZtBYg=; b=MJleUdygi/SE+JnW3DGgKm
+	XpG3BeAZ6SVHuPO8uAsfQU+X2vThPUX+J0xNQJ1PgnnZoojmaHfnTuiUDREg4Y1i
+	dg8QaYrqRPHxyB2t3Z6Fo1O1nan5lwEo97XlKheBqEtJefwHaV5G7l3ifcP3KUyf
+	PgndB0X5DdA8zKDJOBW4pYGs0NVOL9VM/SJ2pgiGQyeZhldxI8y3nQ2EL90VE4+u
+	yvYnO8TcEqRTMY9BZneQ1weSUXFAEIqvHibe664hLsMVQxP+SdRGzI684UGPQiDT
+	4d8UUNfOsNZ5D86F3wQ+0x3VQnQxcDwmkmTmLuHQrEerteiO5UsL/IPhuCSDkiSw
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aejjuc36x-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 21 Nov 2025 18:31:49 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5ALGkpKM007031;
+	Fri, 21 Nov 2025 18:31:49 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4af62jwpn0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 21 Nov 2025 18:31:49 +0000
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5ALIVmL920906692
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 21 Nov 2025 18:31:48 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E126358066;
+	Fri, 21 Nov 2025 18:31:47 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 14CD758063;
+	Fri, 21 Nov 2025 18:31:46 +0000 (GMT)
+Received: from [9.61.252.112] (unknown [9.61.252.112])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 21 Nov 2025 18:31:45 +0000 (GMT)
+Message-ID: <7c854615-8ff7-4f76-8e5c-aa895e9d4adb@linux.ibm.com>
+Date: Fri, 21 Nov 2025 10:31:45 -0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -82,131 +62,100 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 09/16] mm/huge_memory: refactor change_huge_pmd()
- non-present logic
+Subject: Re: [PATCH v6 2/2] s390/pci: Migrate s390 IRQ logic to IRQ domain API
+To: Tobias Schumacher <ts@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Niklas Schnelle
+ <schnelle@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20251121-implement-msi-domain-v6-0-444f4a6479c3@linux.ibm.com>
+ <20251121-implement-msi-domain-v6-2-444f4a6479c3@linux.ibm.com>
 Content-Language: en-US
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Andrew Morton <akpm@linux-foundation.org>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
- Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- David Hildenbrand <david@redhat.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Peter Xu <peterx@redhat.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
- Arnd Bergmann <arnd@arndb.de>, Zi Yan <ziy@nvidia.com>,
- Baolin Wang <baolin.wang@linux.alibaba.com>,
- "Liam R . Howlett" <Liam.Howlett@oracle.com>, Nico Pache
- <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
- Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
- Lance Yang <lance.yang@linux.dev>, Muchun Song <muchun.song@linux.dev>,
- Oscar Salvador <osalvador@suse.de>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- Matthew Brost <matthew.brost@intel.com>,
- Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
- Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
- Ying Huang <ying.huang@linux.alibaba.com>,
- Alistair Popple <apopple@nvidia.com>,
- Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
- Wei Xu <weixugc@google.com>, Kemeng Shi <shikemeng@huaweicloud.com>,
- Kairui Song <kasong@tencent.com>, Nhat Pham <nphamcs@gmail.com>,
- Baoquan He <bhe@redhat.com>, Chris Li <chrisl@kernel.org>,
- SeongJae Park <sj@kernel.org>, Matthew Wilcox <willy@infradead.org>,
- Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
- Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>,
- Jann Horn <jannh@google.com>, Miaohe Lin <linmiaohe@huawei.com>,
- Naoya Horiguchi <nao.horiguchi@gmail.com>, Pedro Falcato <pfalcato@suse.de>,
- Pasha Tatashin <pasha.tatashin@soleen.com>, Rik van Riel <riel@surriel.com>,
- Harry Yoo <harry.yoo@oracle.com>, Hugh Dickins <hughd@google.com>,
- linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- linux-mm@kvack.org, linux-arch@vger.kernel.org, damon@lists.linux.dev
-References: <cover.1762812360.git.lorenzo.stoakes@oracle.com>
- <451b85636ad711e307fdfbff19af699fdab4d05f.1762812360.git.lorenzo.stoakes@oracle.com>
-From: Vlastimil Babka <vbabka@suse.cz>
-Autocrypt: addr=vbabka@suse.cz; keydata=
- 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
- m6M14QORSWTLRg==
-In-Reply-To: <451b85636ad711e307fdfbff19af699fdab4d05f.1762812360.git.lorenzo.stoakes@oracle.com>
-Content-Type: text/plain; charset=UTF-8
+From: Farhan Ali <alifm@linux.ibm.com>
+In-Reply-To: <20251121-implement-msi-domain-v6-2-444f4a6479c3@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	TAGGED_RCPT(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	TO_DN_SOME(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[linux.ibm.com,redhat.com,zeniv.linux.org.uk,kernel.org,suse.cz,arndb.de,nvidia.com,linux.alibaba.com,oracle.com,arm.com,linux.dev,suse.de,google.com,suse.com,intel.com,gmail.com,sk.com,gourry.net,huaweicloud.com,tencent.com,infradead.org,ziepe.ca,zte.com.cn,huawei.com,soleen.com,surriel.com,vger.kernel.org,kvack.org,lists.linux.dev];
-	URIBL_BLOCKED(0.00)[suse.cz:mid,suse.cz:email,oracle.com:email,imap1.dmz-prg2.suse.org:helo];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	RCPT_COUNT_GT_50(0.00)[65];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[oracle.com:email,suse.cz:mid,suse.cz:email,imap1.dmz-prg2.suse.org:helo]
-X-Spam-Flag: NO
-X-Spam-Score: -2.80
-X-Spam-Level: 
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: z1oYYotvjXkooAHlbXCpqSft2Qx8nF6w
+X-Proofpoint-ORIG-GUID: z1oYYotvjXkooAHlbXCpqSft2Qx8nF6w
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTE1MDAzMiBTYWx0ZWRfX8Rk9B+unEfjZ
+ WsPoLsHahbwyo3KmkPVC+6vMBc2fs/hKiYMJo165XNZtoFlRZx3tlUXsFUvzlhd5nHWuOjdhlRx
+ mE1qeCpCJINU9Z/+WKy7cpmo/lYjJMA4UKFZl4LRUBYja4dwVuWmL4w4JAQ2NtaFxWi6jrcIkTq
+ NoC986xlHU87E44DjpsfNkZZoa3hJ6MZOYFm5hSmNALw2s+ubCX2mqWzsbnb6IvTDKHmssqqrqw
+ uDlk7ZTeQrWiyP/JG6vmtOgium2lly36rYecanPRrcWd63U6dctcNYwJH/+hsiWpo0Ksc12Kr8x
+ VUmTQBzglGdZc0k1waOUx5AMDuCg6mrXe9C6+MeUqIvMDG0NFaGS5ddSEk6bLesIfKP7UprhjyO
+ NFXtuW/YqG15TbCBmJHp1hyGezLzQw==
+X-Authority-Analysis: v=2.4 cv=SvOdKfO0 c=1 sm=1 tr=0 ts=6920b016 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=-BCE6OF5axh-7YMQz7QA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-11-21_05,2025-11-21_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 lowpriorityscore=0 spamscore=0 clxscore=1015
+ suspectscore=0 phishscore=0 adultscore=0 bulkscore=0 impostorscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2511150032
 
-On 11/10/25 23:21, Lorenzo Stoakes wrote:
-> Similar to copy_huge_pmd(), there is a large mass of open-coded logic for
-> the CONFIG_ARCH_ENABLE_THP_MIGRATION non-present entry case that does not
-> use thp_migration_supported() consistently.
-> 
-> Resolve this by separating out this logic and introduce
-> change_non_present_huge_pmd().
-> 
-> No functional change intended.
-> 
-> Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
 
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
+On 11/21/2025 7:45 AM, Tobias Schumacher wrote:
+> s390 is one of the last architectures using the legacy API for setup and
+> teardown of PCI MSI IRQs. Migrate the s390 IRQ allocation and teardown
+> to the MSI parent domain API. For details, see:
+>
+> https://lore.kernel.org/lkml/20221111120501.026511281@linutronix.de
+>
+> In detail, create an MSI parent domain for each PCI domain. When a PCI
+> device sets up MSI or MSI-X IRQs, the library creates a per-device IRQ
+> domain for this device, which is used by the device for allocating and
+> freeing IRQs.
+>
+> The per-device domain delegates this allocation and freeing to the
+> parent-domain. In the end, the corresponding callbacks of the parent
+> domain are responsible for allocating and freeing the IRQs.
+>
+> The allocation is split into two parts:
+> - zpci_msi_prepare() is called once for each device and allocates the
+>    required resources. On s390, each PCI function has its own airq
+>    vector and a summary bit, which must be configured once per function.
+>    This is done in prepare().
+> - zpci_msi_alloc() can be called multiple times for allocating one or
+>    more MSI/MSI-X IRQs. This creates a mapping between the virtual IRQ
+>    number in the kernel and the hardware IRQ number.
+>
+> Freeing is split into two counterparts:
+> - zpci_msi_free() reverts the effects of zpci_msi_alloc() and
+> - zpci_msi_teardown() reverts the effects of zpci_msi_prepare(). This is
+>    called once when all IRQs are freed before a device is removed.
+>
+> Since the parent domain in the end allocates the IRQs, the hwirq
+> encoding must be unambiguous for all IRQs of all devices. This is
+> achieved by encoding the hwirq using the devfn and the MSI index.
+>
+> Reviewed-by: Niklas Schnelle<schnelle@linux.ibm.com>
+> Signed-off-by: Tobias Schumacher<ts@linux.ibm.com>
+> ---
+>   arch/s390/Kconfig           |   1 +
+>   arch/s390/include/asm/pci.h |   4 +
+>   arch/s390/pci/pci_bus.c     |  18 ++-
+>   arch/s390/pci/pci_irq.c     | 304 ++++++++++++++++++++++++++++----------------
+>   4 files changed, 212 insertions(+), 115 deletions(-)
+
+Most of the changes in v6 were minor changes. Idk if you plan on 
+spinning a new revision for Heiko's comment, but the rest of the patch 
+looks good to me
+
+Reviewed-by: Farhan Ali<alifm@linux.ibm.com>
+
+
 
