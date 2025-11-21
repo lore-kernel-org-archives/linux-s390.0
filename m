@@ -1,122 +1,158 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from flow-b5-smtp.messagingengine.com (flow-b5-smtp.messagingengine.com [202.12.124.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 922253254B7;
-	Fri, 21 Nov 2025 16:11:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECE062BE047;
+	Fri, 21 Nov 2025 16:25:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763741476; cv=none; b=LxtfKuWjy9Jrk/Ke8SESaf+w9T9DATbHZ5IXAjIZKfylJ8GqmDyXWnkKw2nFbr2GFcDZ3oEqt2vXtDgCo+KhBQSauz9p4OHq4JtIQCP3CNecZhSwxwt2l3773REegoOMz8pRSHt5cega/OIxAK1WCTqSWMfIXtkymFmknzqMfTY=
+	t=1763742302; cv=none; b=sUe4G6NfXMc+XHW9mkQHroLHCEu1neXUqxX7PjdcNMV5tMyhuiVMrRaQTYSXtOF+L60zxf8LlFHl13VtbFtNTrNRwCA0Nu/GC9usBq40ANY7lYnx2WMYCWKeBtg8a81FijyUlFh2VbZn37QeZm8fyQQKF1lmdAaaVEr5rrjR8ng=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763741476; c=relaxed/simple;
-	bh=1f7m5y9Lh68E427YEWYT1L0XLZXETs0F2U1DAb24cJ0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NR8Jm+piJQ6YEDHuV1T1bzRscY+dBTfJOyPqE4yhPas3WPLJFcSiQcvgfly28x9WtyyeKIF9N8waZ5cG4WX9F7XHiaIY5JWLts5kKGW85thNrJzN9sTQq9HGGMKkY122FeNwezrBPXkEmCm6XT8RJTEKcAga/joF4H2tAXT04rc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sHRWv3M+; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1763742302; c=relaxed/simple;
+	bh=SdYsw9st/+l8JphNLMH1fyQFn6guxm5fwhNzzhf6DQs=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Y/1asWyWpTZ3zJXRjIWaGKSEugjpkZnx86QPXgo0A6kCLjNtbsHgTI6Z0YnEX2QtVMEfLlSuJuefcoL3yqdkYI63bARwSOk0qANMIrSec2QIz+ZbTRtonZAbqLXcq4wmSEQTH0CBRFntiYXPcp0+xrJWbZ5GtjjK7N6B6zzl6Mg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=QfORGo7L; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=T4odQl0b; arc=none smtp.client-ip=202.12.124.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sHRWv3M+"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5ALDj84O021451;
-	Fri, 21 Nov 2025 16:11:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=rHf2FeBtT7rYqPAMJxVV5ZdEBILrke
-	vg+0NAbPaIIQA=; b=sHRWv3M+1WbEkzqhIKJYY2jqZa9CF2Y3tmrBSB8jlfDfB7
-	vmTSsuSe+TBqfztyn0fRYp1Fh0+WZjfQv7+N+ohBCoseyRuHLIM3351tIbqnQJ8N
-	qex8r4cfq0p+3N5jm8tGi6GJJWkmBEszeqneApKqxNpmDYQw0lhV70M9aneWmT1K
-	jV33kmdgyLQCqiNh3ZBQjoGpiG7glGYLVEk7TwuCUM+v02Yj3SzjppQuJPdcBP41
-	GyNF53tB67JSdflGfc++KyIrJ7ZPEefl01KgjfF7aVsS9ie1ljOwolYgsWt7/apA
-	vFg6FlHyg+Iy/4qvHllulQdhPOQbmEKV95NJ0e+w==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aejjwmxps-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Nov 2025 16:11:11 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5ALD1viN017305;
-	Fri, 21 Nov 2025 16:11:10 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4af6j24ud7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Nov 2025 16:11:10 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5ALGB6nN54264100
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 21 Nov 2025 16:11:06 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9869520040;
-	Fri, 21 Nov 2025 16:11:06 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 00B6E20049;
-	Fri, 21 Nov 2025 16:11:06 +0000 (GMT)
-Received: from osiris (unknown [9.111.15.252])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 21 Nov 2025 16:11:05 +0000 (GMT)
-Date: Fri, 21 Nov 2025 17:11:04 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Tobias Schumacher <ts@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH v6 2/2] s390/pci: Migrate s390 IRQ logic to IRQ domain API
-Message-ID: <20251121161104.27602Ee9-hca@linux.ibm.com>
-References: <20251121-implement-msi-domain-v6-0-444f4a6479c3@linux.ibm.com>
- <20251121-implement-msi-domain-v6-2-444f4a6479c3@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="QfORGo7L";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="T4odQl0b"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailflow.stl.internal (Postfix) with ESMTP id 44EFF13001EC;
+	Fri, 21 Nov 2025 11:24:59 -0500 (EST)
+Received: from phl-mailfrontend-02 ([10.202.2.163])
+  by phl-compute-04.internal (MEProxy); Fri, 21 Nov 2025 11:25:00 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1763742299;
+	 x=1763749499; bh=R8sbORNrVfeWd8nr6oD3a9uPzFLZbbObLNNt4scEFDk=; b=
+	QfORGo7LJM8uEqBQDQc0oWVqW7+t5I6EY95ZPkE+x9Jo975GuvpOefibl+kBo25c
+	qaUuG8Vut1p0uEtUZkr7lA5AOCAp3PNgjRyUaZHGyhch2l4SDz8WKGkMb/61ZJpu
+	F73XHBoycxqWtaJ6AHkuSAq1jEuS7FoKxW7n+Kf4I+ngjAyqmEYu+OlaE5HWp/c/
+	A+xv6hZj8UFBNBEYChe7piYXdVwgUs2FVc11qOV3830fr0MaXRqQnEaMi/PRHs27
+	tTHzucon304+ApCu5nPwX5mOF3oPWd/6qkU770403D7KaHRZ+QKeLRX2AUVtqDRO
+	xJ3glbfdgIfKkYsFTPjpsA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1763742299; x=
+	1763749499; bh=R8sbORNrVfeWd8nr6oD3a9uPzFLZbbObLNNt4scEFDk=; b=T
+	4odQl0bbYP0fapPyPtcd1y0iotE3USAh1c+743hsO8cgd1nVNiI9hOwuiL2YWO8s
+	dt4WV1/vhace+UXSKbFCojCHTduC6rxMN6r8q9/9MGA4w1fcujSVXxVLSf6iopRq
+	qPZtSHDX8MCUdbh1D26v3tzWcQ59GFK6vysvWURvM7di5s+yAwaBpRmyx1WvQxrO
+	q2Sh5r9qVcvKCYZmzMgBFZ+s52IMtxjsypSXG4zccV8xW+hnyiM8Z2fF5HHrQ4yL
+	cPIJLyVWH78JBDAcAHMuFZRdVBOmmeLp2jKCjOGu/VLdgX7/ndkrnxB8vrz6fSI3
+	ZN4sb60lU2sHD/yRZQvCA==
+X-ME-Sender: <xms:WpIgadyHQYiFK5J1UwmSjK0GJR7opTygUEzQ0jyFX4RcWI_9JhFmNA>
+    <xme:WpIgaWdWgxw7eAZ1AKDk_gmYq6UdqGQY5BUwUJOcNd9vWj5_ir-rnYvgbwncxVTu9
+    E5PHF1lql_eZM7CCyhmXS62aU9yZKXHvuzDIjjQ86utWWhE9xu2>
+X-ME-Received: <xmr:WpIgabmGbbk-eU8MWhQtBvGU_k0QEl4vXMnpFd_XMBnJlpL8jIHdpwOn>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggddvfedtgeefucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucfrhhhishhhihhnghdqkffkrfgprhhtucdliedtjedmne
+    cujfgurhepfffhvfevuffkjghfgggtgfesthejredttddtvdenucfhrhhomheptehlvgig
+    ucghihhllhhirghmshhonhcuoegrlhgvgiesshhhrgiisghothdrohhrgheqnecuggftrf
+    grthhtvghrnhepgeevkeeiveeuheegkeetveefgfeggeejjeelvdffueelhffgleevteeg
+    fffgvefgnecuffhomhgrihhnpehgihhthhhusgdrtghomhdpmhhsghhiugdrlhhinhhkne
+    cuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprghlvgig
+    sehshhgriigsohhtrdhorhhgpdhnsggprhgtphhtthhopeegtddpmhhouggvpehsmhhtph
+    houhhtpdhrtghpthhtohepjhhgghesnhhvihguihgrrdgtohhmpdhrtghpthhtoheprghg
+    ohhruggvvghvsehlihhnuhigrdhisghmrdgtohhmpdhrtghpthhtoheprghirhhlihgvug
+    esghhmrghilhdrtghomhdprhgtphhtthhopegrlhgvgidrfihilhhlihgrmhhsohhnsehr
+    vgguhhgrthdrtghomhdprhgtphhtthhopegrnhhkihhtrgesnhhvihguihgrrdgtohhmpd
+    hrtghpthhtohepsghorhhnthhrrggvghgvrheslhhinhhugidrihgsmhdrtghomhdprhgt
+    phhtthhopegsrhgvthhtrdgtrhgvvghlvgihsegrmhgurdgtohhmpdhrtghpthhtohepug
+    hrihdquggvvhgvlheslhhishhtshdrfhhrvggvuggvshhkthhophdrohhrghdprhgtphht
+    thhopegvrhhitgdrrghughgvrhesrhgvughhrghtrdgtohhm
+X-ME-Proxy: <xmx:WpIgaVSVoAoaVhiB9T_6MLhuMBKqbn0hkCI-zBmTpLtMUOP5VxfGGg>
+    <xmx:WpIgaadDKBxoz-K4UcMaIitoiVRYj3Kmw1p7S2niF93gJ_B26Jlbdg>
+    <xmx:WpIgaS3MkMqS7XZkgy6uqV0n9XlkDWGdRVO8bqJ9f5UZzVmE8x3PDw>
+    <xmx:WpIgabLsTdugGzrlPzP9TH7xEs2DCneALzQq3Px0YtbKmdkBLHZeMA>
+    <xmx:W5IgaWKNIJO5tlrjxf8bMjbc8KZW3xpbSFxkSWwtvqPDaZRY8aJbGsLb>
+Feedback-ID: i03f14258:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 21 Nov 2025 11:24:54 -0500 (EST)
+Date: Fri, 21 Nov 2025 09:24:53 -0700
+From: Alex Williamson <alex@shazbot.org>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+ David Airlie <airlied@gmail.com>,
+ Alex Williamson <alex.williamson@redhat.com>,
+ Ankit Agrawal <ankita@nvidia.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Brett Creeley <brett.creeley@amd.com>, dri-devel@lists.freedesktop.org,
+ Eric Auger <eric.auger@redhat.com>, Eric Farman <farman@linux.ibm.com>,
+ Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+ intel-gfx@lists.freedesktop.org,
+ Jani Nikula <jani.nikula@linux.intel.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, kvm@vger.kernel.org,
+ Kirti Wankhede <kwankhede@nvidia.com>, linux-s390@vger.kernel.org,
+ Longfang Liu <liulongfang@huawei.com>,
+ Matthew Rosato <mjrosato@linux.ibm.com>,
+ Nikhil Agarwal <nikhil.agarwal@amd.com>,
+ Nipun Gupta <nipun.gupta@amd.com>,
+ Peter Oberparleiter <oberpar@linux.ibm.com>,
+ Halil Pasic <pasic@linux.ibm.com>, qat-linux@intel.com,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, Simona Vetter <simona@ffwll.ch>,
+ Shameer Kolothum <skolothumtho@nvidia.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Tvrtko Ursulin <tursulin@ursulin.net>, virtualization@lists.linux.dev,
+ Vineeth Vijayan <vneethv@linux.ibm.com>,
+ Yishai Hadas <yishaih@nvidia.com>, Zhenyu Wang <zhenyuw.linux@gmail.com>,
+ Zhi Wang <zhi.wang.linux@gmail.com>, Kevin Tian <kevin.tian@intel.com>,
+ patches@lists.linux.dev, Pranjal Shrivastava <praan@google.com>,
+ Mostafa Saleh <smostafa@google.com>
+Subject: Re: [PATCH v2 00/22] vfio: Give VFIO_DEVICE_GET_REGION_INFO its own
+ op
+Message-ID: <20251121092453.6f151e0b.alex@shazbot.org>
+In-Reply-To: <0-v2-2a9e24d62f1b+e10a-vfio_get_region_info_op_jgg@nvidia.com>
+References: <0-v2-2a9e24d62f1b+e10a-vfio_get_region_info_op_jgg@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251121-implement-msi-domain-v6-2-444f4a6479c3@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=BanVE7t2 c=1 sm=1 tr=0 ts=69208f1f cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=kj9zAlcOel0A:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=b67PWr6P2bOeenGFTbsA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTE1MDAzMiBTYWx0ZWRfX8ggH+phNlYWE
- qweticClHnhMnKJU+O95P43AdANFS+YKXcHCEH+1yLxALi3fk+KjnoBkgOXNzCLdBaHv6riX9tK
- 2G/yheiEkzC9uCYwwF+KU19yrjsYgfVOF1Jrl8iB8ByURUcZghBmKCl9dI4oNRKXrCROhWJy90+
- e9OQHxZnKdEUzEWTQbXRIzwnfBczWoerzkgmaQKtfft3SygjQmisnRhDV/x8x9HnhXZNjR2Ldgy
- QMNodV4ChU3ZZn1ycRUEbc0ekEcMe4XcpG2pRmOS1mDXq5hb3CvQbMecfq5nEyUNb6HJ6desZhF
- LDnoJ8ksV4aT/wbKuokxfXQhw+9Il9Vk21vIewSaKQKsmNG1U3igK3KCQESwRR2hrPYij9ecF0t
- VJp4CX6EhHxd+HYudA9I7F02427lGg==
-X-Proofpoint-GUID: SvMwNIrYhTt7yiMLt8Y6WhowcGlEZdyR
-X-Proofpoint-ORIG-GUID: SvMwNIrYhTt7yiMLt8Y6WhowcGlEZdyR
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-11-21_04,2025-11-21_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 lowpriorityscore=0 suspectscore=0 spamscore=0 impostorscore=0
- priorityscore=1501 clxscore=1015 phishscore=0 bulkscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511150032
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Fri, Nov 21, 2025 at 04:45:43PM +0100, Tobias Schumacher wrote:
-> +static const struct irq_domain_ops zpci_msi_domain_ops = {
-> +	.alloc = zpci_msi_domain_alloc,
-> +	.free  = zpci_msi_domain_free
-...
-> +static struct msi_parent_ops zpci_msi_parent_ops = {
-> +	.supported_flags   = MSI_GENERIC_FLAGS_MASK	|
-> +			     MSI_FLAG_PCI_MSIX		|
-> +			     MSI_FLAG_MULTI_PCI_MSI,
-> +	.required_flags	   = MSI_FLAG_USE_DEF_DOM_OPS  |
-> +			     MSI_FLAG_USE_DEF_CHIP_OPS,
-> +	.init_dev_msi_info = zpci_init_dev_msi_info
-...
-> +	struct irq_domain_info info = {
-> +		.fwnode		= irq_domain_alloc_named_fwnode(fwnode_name),
-> +		.ops		= &zpci_msi_domain_ops
+On Fri,  7 Nov 2025 13:41:16 -0400
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-All initializers should come with a comma at the end. Anyway, let's wait
-for Gerd. If he is fine with this version I'll add them when applying.
+> There is alot of duplicated code in the drivers for processing
+> VFIO_DEVICE_GET_REGION_INFO. Introduce a new op get_region_info_caps()
+> which provides a struct vfio_info_cap and handles the cap chain logic
+> to write the caps back to userspace and remove all of this duplication
+> from drivers.
+> 
+> This is done in two steps, the first is a largely mechanical introduction
+> of the get_region_info(). These patches are best viewed with the diff
+> option to ignore whitespace (-b) as most of the lines are re-indending
+> things.
+> 
+> Then drivers are updated to remove the duplicate cap related code. Some
+> drivers are converted to use vfio_info_add_capability() instead of open
+> coding a version of it.
+> 
+> This is on github: https://github.com/jgunthorpe/linux/commits/vfio_get_region_info_op
+> 
+> v2:
+>  - Rename
+>     hisi_acc_vfio_get_region -> hisi_acc_vfio_ioctl_get_region
+>     vfio_fsl_mc_get_region_info -> vfio_fsl_mc_ioctl_get_region_info
+>     intel_vgpu_get_region_info -> intel_vgpu_ioctl_get_region_info
+>     mbochs_get_region_info -> mbochs_ioctl_get_region_info
+>     intel_vgpu_get_region_info -> intel_vgpu_ioctl_get_region_info
+>     vfio_ccw_mdev_get_region_info -> vfio_ccw_mdev_ioctl_get_region_info
+>     hisi_acc_vfio_get_region -> hisi_acc_vfio_ioctl_get_region
+>     vfio_fsl_mc_get_region_info -> vfio_fsl_mc_ioctl_get_region_info
+>  - Consistently free caps.buf in vfio_get_region_info()
+> v1: https://patch.msgid.link/r/0-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com
+
+Applied to vfio next branch for v6.19.  Thanks,
+
+Alex
