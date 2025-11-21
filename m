@@ -1,702 +1,461 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 366673A1C9;
-	Fri, 21 Nov 2025 05:32:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B29A2367CE;
+	Fri, 21 Nov 2025 06:05:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763703153; cv=none; b=eMnEf8NrpZr2qBo/lb18CwAYC1ysRNgvoBGk9clbHacGL+2X3iSWTXP7rO2ZPdKGVdCmXbK1p4UPv6nniNg8oI7qJhxJ7isaqKFbaYLbefyD7VgQ0Y6BpmX500V4HCxgAdYkMK6IywDLh4nbCshJZirgY2HD9EMsjNyclyFGxek=
+	t=1763705149; cv=none; b=J8OrmCTCR9pnsWD6C1a+lTFnmP+JbDM6a1fhZU39S/Lrx3Lf4XE+A4fcb5nY4HYLm9ey0AdIu/42MtPStWhbLAMczGrAPpOmymQzh52omeGzswLE7wfc6+1qqZK5I1D5tQsSQQVPZuxUND7EBwPslBRknhgkOliDISgDm+LcviQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763703153; c=relaxed/simple;
-	bh=qjHGZdXhzIzKAVVpmYVrm7I3XPpVEhbMsSg7ujkp2m0=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=uFF2rmuwhFSAHqd21WosoeAFiounuXkiCpj8xlnnVrZEtjk4Lsz3FQMrQmpwzYSUL1G4mOvUarQ9BUYrvzcuk3Y8lEJvKPrcnrR4hMk9bnyH9yQFD76ZUltYsq8R1r6PmERkxE2JhIphn1VMLWsDMoLoYt2k/mCe7JwelmLYtdc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=B0DsM6tG; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1763705149; c=relaxed/simple;
+	bh=BtABhcOcdNlGTfQETzoOMEIxMaNqTDIMj0HqqgzhN0E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=T/fIg22JbPA0fvPgu0myTUFOOLK4DcO10MQsMETkYpmjIzQVr/w7uh6pEDobgCopy2MoPQH3rEOTpq8vYP8RGNIaCqY2vP9EvZ5QmsFDP4JpH04NVoOzQUnQZl7SYTJaTmxZbgDewnLERDzF/sUB+dhmlwDZjSwbO+RcACSs3To=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=XHLOG2BI; arc=none smtp.client-ip=115.124.30.113
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="B0DsM6tG"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AKNllbx012612;
-	Fri, 21 Nov 2025 05:32:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=imkP9v
-	PgNsyc2WHSeqjBXInYs8wju9kT8TWtOgMmgM8=; b=B0DsM6tG4emaxkmaTkaUo2
-	dbhCOhgoISRsBWEi1+P7IFTV4NjEsc2linWjPTX8dSqpWsZG0B2oDfa+gIvSJfvb
-	ata9hYfVFCHB2nBMp4Vy2Rdv0B9ON5knelQfQdUjTyw4V1jJ5vh1CUxU9KdaKQfq
-	XE+mTVIz7ZALIRs2r9psgfkMxkBeQy/kcGf2RVY5DohaJakZlvG3Au71uk94sw0Q
-	zXv5qesN+lFFos2rjQSkSfCN2EtgzUZYCY+G9E06DsisxSdcN9RhlSGuLTageONp
-	bFe1LytwmVp0/COfEAyDIbg1g+B3md6jNJ7hvyvrLmADzF23aEclstnpxMT8UKfA
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aejgx8qwy-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Nov 2025 05:32:27 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AL5V9uk017381;
-	Fri, 21 Nov 2025 05:32:26 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4af6j2293q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Nov 2025 05:32:26 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AL5WMZO43778420
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 21 Nov 2025 05:32:22 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4CE0120040;
-	Fri, 21 Nov 2025 05:32:22 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0812720043;
-	Fri, 21 Nov 2025 05:32:22 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 21 Nov 2025 05:32:21 +0000 (GMT)
-From: Tobias Schumacher <ts@linux.ibm.com>
-Date: Fri, 21 Nov 2025 06:32:19 +0100
-Subject: [PATCH v5 2/2] s390/pci: Migrate s390 IRQ logic to IRQ domain API
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="XHLOG2BI"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1763705137; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=WegXW2rrJonMdtr0Thc+XyPwa3nKRlWj0Gnxn+fEttc=;
+	b=XHLOG2BIoSQe0QNM4JtOEOzvbpoPzygq4ourPVeRq6+gxvOBjIo+be9uqvkoY4waPfpEDPyeyZFNYaYjcuRBEWQc/v1KQdOyCIUsZm7gQ9Avw9zSYXUb4K4+bOpD1k3nDSoER9rghreX5bi/oSqHTiUoO4SBu6h3EqZB5VDk3Es=
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WszlXq7_1763705133 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Fri, 21 Nov 2025 14:05:36 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com>
+To: mjambigi@linux.ibm.com,
+	wenjia@linux.ibm.com,
+	wintera@linux.ibm.com,
+	dust.li@linux.alibaba.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com
+Cc: kuba@kernel.org,
+	davem@davemloft.net,
+	netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	pabeni@redhat.com,
+	edumazet@google.com,
+	sidraya@linux.ibm.com,
+	jaka@linux.ibm.com
+Subject: [RFC PATCH net-next] net/smc: add full IPv6 support for SMC
+Date: Fri, 21 Nov 2025 14:05:33 +0800
+Message-ID: <20251121060533.92157-1-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 2.45.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20251121-implement-msi-domain-v5-2-d7e717dfd3f7@linux.ibm.com>
-References: <20251121-implement-msi-domain-v5-0-d7e717dfd3f7@linux.ibm.com>
-In-Reply-To: <20251121-implement-msi-domain-v5-0-d7e717dfd3f7@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Tobias Schumacher <ts@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>
-X-Mailer: b4 0.14.2
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: A96vFSJlaLvTlXTFcw6VCDk9Hy6BBNuE
-X-Authority-Analysis: v=2.4 cv=YqwChoYX c=1 sm=1 tr=0 ts=691ff96b cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=pn-msHsI0j841b3IYMsA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: A96vFSJlaLvTlXTFcw6VCDk9Hy6BBNuE
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTE1MDAzMiBTYWx0ZWRfX6aTwBgsh3mPa
- clFVXfwH/VFaXaLs+JTIkz1It+P2Kyw/aaBdwOC1Ytrw1BNjBA6eDrhfOAoJGMC/KSLnyG2WuhX
- 35QMppv4KuTSRNWMGdRozMczojfqsd0BvB2rAV0i8VWvWJYiFNOmFr33OVGHjoRHYccxYCJ1NLn
- 0Bas8jmG7zi8AjcWW8lwX8hjJOobQBHdkjQVmGBgCBMM6FcG16zSlfRRKnBVI9oStP7mkqD0pRJ
- ic6MT4htA6ILb+nZIZA9tKcRSo8+c5ZxJVLBNeydazUc4LxMfb8BD+i57WZOYQXKblDiaOzcgAb
- r7ABzdAfPOcrwRlCPBqBKsHnhNA0IXBwxF3K/nIAe3BFpvaIg/yonU4JsuigIyxNiZKuk1R/OYC
- jIOAB7L/KOuBp89Y3LYjhoa+ZKAV6w==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-11-21_02,2025-11-20_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 lowpriorityscore=0 malwarescore=0
- clxscore=1015 adultscore=0 bulkscore=0 phishscore=0 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
- definitions=main-2511150032
+Content-Transfer-Encoding: 8bit
 
-s390 is one of the last architectures using the legacy API for setup and
-teardown of PCI MSI IRQs. Migrate the s390 IRQ allocation and teardown
-to the MSI parent domain API. For details, see:
+The current SMC implementation is IPv4-centric. While it contains a
+workaround for IPv4-mapped IPv6 addresses, it lacks a functional path
+for native IPv6, preventing its use in modern dual-stack or IPv6-only
+networks.
 
-https://lore.kernel.org/lkml/20221111120501.026511281@linutronix.de
+This patch introduces full, native IPv6 support by refactoring the
+address handling mechanism to be IP-version agnostic, which is
+achieved by:
 
-In detail, create an MSI parent domain for each PCI domain. When a PCI
-device sets up MSI or MSI-X IRQs, the library creates a per-device IRQ
-domain for this device, which is used by the device for allocating and
-freeing IRQs.
+- Introducing a generic `struct smc_ipaddr` to abstract IP addresses.
+- Implementing an IPv6-specific route lookup function.
+- Extend GID matching logic for both IPv4 and IPv6 addresses
 
-The per-device domain delegates this allocation and freeing to the
-parent-domain. In the end, the corresponding callbacks of the parent
-domain are responsible for allocating and freeing the IRQs.
+With these changes, SMC can now discover RDMA devices and establish
+connections over both native IPv4 and IPv6 networks.
 
-The allocation is split into two parts:
-- zpci_msi_prepare() is called once for each device and allocates the
-  required resources. On s390, each PCI function has its own airq
-  vector and a summary bit, which must be configured once per function.
-  This is done in prepare().
-- zpci_msi_alloc() can be called multiple times for allocating one or
-  more MSI/MSI-X IRQs. This creates a mapping between the virtual IRQ
-  number in the kernel and the hardware IRQ number.
-
-Freeing is split into two counterparts:
-- zpci_msi_free() reverts the effects of zpci_msi_alloc() and
-- zpci_msi_teardown() reverts the effects of zpci_msi_prepare(). This is
-  called once when all IRQs are freed before a device is removed.
-
-Since the parent domain in the end allocates the IRQs, the hwirq
-encoding must be unambiguous for all IRQs of all devices. This is
-achieved by encoding the hwirq using the PCI function id and the MSI
-index.
-
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Reviewed-by: Farhan Ali <alifm@linux.ibm.com>
-Signed-off-by: Tobias Schumacher <ts@linux.ibm.com>
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
 ---
- arch/s390/Kconfig           |   1 +
- arch/s390/include/asm/pci.h |   4 +
- arch/s390/pci/pci_bus.c     |  21 ++-
- arch/s390/pci/pci_irq.c     | 333 +++++++++++++++++++++++++++-----------------
- 4 files changed, 227 insertions(+), 132 deletions(-)
+ net/smc/af_smc.c   |  47 +++++++++++----
+ net/smc/smc_core.h |  40 ++++++++++++-
+ net/smc/smc_ib.c   | 145 ++++++++++++++++++++++++++++++++++++++-------
+ net/smc/smc_ib.h   |   9 +++
+ net/smc/smc_llc.c  |   6 +-
+ 5 files changed, 208 insertions(+), 39 deletions(-)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 778ce20d34046cad84dd4ef57cab5a662e5796d9..46ab67d607f0db7f5f108106172699a5eebfc8c8 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -251,6 +251,7 @@ config S390
- 	select HOTPLUG_SMT
- 	select IOMMU_HELPER		if PCI
- 	select IOMMU_SUPPORT		if PCI
-+	select IRQ_MSI_LIB if PCI
- 	select KASAN_VMALLOC if KASAN
- 	select LOCK_MM_AND_FIND_VMA
- 	select MMU_GATHER_MERGE_VMAS
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index a32f465ecf73a5cc3408a312d94ec888d62848cc..60abc84cf14fe6fb1ee149df688eea94f0983ed0 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -5,6 +5,7 @@
- #include <linux/pci.h>
- #include <linux/mutex.h>
- #include <linux/iommu.h>
-+#include <linux/irqdomain.h>
- #include <linux/pci_hotplug.h>
- #include <asm/pci_clp.h>
- #include <asm/pci_debug.h>
-@@ -109,6 +110,7 @@ struct zpci_bus {
- 	struct list_head	resources;
- 	struct list_head	bus_next;
- 	struct resource		bus_resource;
-+	struct irq_domain       *msi_parent_domain;
- 	int			topo;		/* TID if topo_is_tid, PCHID otherwise */
- 	int			domain_nr;
- 	u8			multifunction	: 1;
-@@ -310,6 +312,8 @@ int zpci_dma_exit_device(struct zpci_dev *zdev);
- /* IRQ */
- int __init zpci_irq_init(void);
- void __init zpci_irq_exit(void);
-+int zpci_create_parent_msi_domain(struct zpci_bus *zbus);
-+void zpci_remove_parent_msi_domain(struct zpci_bus *zbus);
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index e388de8dca09..1ba728d021b9 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1133,12 +1133,15 @@ static int smc_find_proposal_devices(struct smc_sock *smc,
  
- /* FMB */
- int zpci_fmb_enable_device(struct zpci_dev *);
-diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
-index be8c697fea0cc755cfdb4fb0a9e3b95183bec0dc..9da261b600df805ef76f3331975ac8fce6178908 100644
---- a/arch/s390/pci/pci_bus.c
-+++ b/arch/s390/pci/pci_bus.c
-@@ -15,6 +15,7 @@
- #include <linux/err.h>
- #include <linux/delay.h>
- #include <linux/seq_file.h>
-+#include <linux/irqdomain.h>
- #include <linux/jump_label.h>
- #include <linux/pci.h>
- #include <linux/printk.h>
-@@ -189,7 +190,7 @@ static bool zpci_bus_is_multifunction_root(struct zpci_dev *zdev)
- static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_dev *fr, struct pci_ops *ops)
- {
- 	struct pci_bus *bus;
--	int domain;
-+	int domain, rc;
- 
- 	domain = zpci_alloc_domain((u16)fr->uid);
- 	if (domain < 0)
-@@ -199,19 +200,28 @@ static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_dev *fr, s
- 	zbus->multifunction = zpci_bus_is_multifunction_root(fr);
- 	zbus->max_bus_speed = fr->max_bus_speed;
- 
-+	rc = zpci_create_parent_msi_domain(zbus);
-+	if (rc)
-+		goto out_free_domain;
+ 	/* check if there is an rdma v2 device available */
+ 	ini->check_smcrv2 = true;
+-	ini->smcrv2.saddr = smc->clcsock->sk->sk_rcv_saddr;
+-	if (!(ini->smcr_version & SMC_V2) ||
 +
- 	/*
- 	 * Note that the zbus->resources are taken over and zbus->resources
- 	 * is empty after a successful call
- 	 */
- 	bus = pci_create_root_bus(NULL, ZPCI_BUS_NR, ops, zbus, &zbus->resources);
--	if (!bus) {
--		zpci_free_domain(zbus->domain_nr);
--		return -EFAULT;
--	}
-+	if (!bus)
-+		goto out_remove_msi_domain;
- 
- 	zbus->bus = bus;
-+	dev_set_msi_domain(&zbus->bus->dev, zbus->msi_parent_domain);
- 
- 	return 0;
++	if (smc->clcsock->sk->sk_family == AF_INET)
++		smc_ipaddr_from_v4addr(&ini->smcrv2.saddr, smc->clcsock->sk->sk_rcv_saddr);
+ #if IS_ENABLED(CONFIG_IPV6)
+-	    (smc->clcsock->sk->sk_family == AF_INET6 &&
+-	     !ipv6_addr_v4mapped(&smc->clcsock->sk->sk_v6_rcv_saddr)) ||
+-#endif
++	else
++		smc_ipaddr_from_v6addr(&ini->smcrv2.saddr, &smc->clcsock->sk->sk_v6_rcv_saddr);
++#endif /* CONFIG_IPV6 */
 +
-+out_remove_msi_domain:
-+	zpci_remove_parent_msi_domain(zbus);
-+out_free_domain:
-+	zpci_free_domain(zbus->domain_nr);
-+	return -EFAULT;
- }
- 
- static void zpci_bus_release(struct kref *kref)
-@@ -232,6 +242,7 @@ static void zpci_bus_release(struct kref *kref)
- 	mutex_lock(&zbus_list_lock);
- 	list_del(&zbus->bus_next);
- 	mutex_unlock(&zbus_list_lock);
-+	zpci_remove_parent_msi_domain(zbus);
- 	kfree(zbus);
- }
- 
-diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
-index e73be96ce5fe6473fc193d65b8f0ff635d6a98ba..b0be21ab56995e81f54339fc77167f5930182542 100644
---- a/arch/s390/pci/pci_irq.c
-+++ b/arch/s390/pci/pci_irq.c
-@@ -7,6 +7,7 @@
- #include <linux/kernel_stat.h>
- #include <linux/pci.h>
- #include <linux/msi.h>
-+#include <linux/irqchip/irq-msi-lib.h>
- #include <linux/smp.h>
- 
- #include <asm/isc.h>
-@@ -110,43 +111,41 @@ static int zpci_set_irq(struct zpci_dev *zdev)
- 	return rc;
- }
- 
--/* Clear adapter interruptions */
--static int zpci_clear_irq(struct zpci_dev *zdev)
-+static int zpci_set_irq_affinity(struct irq_data *data, const struct cpumask *dest,
-+				 bool force)
- {
--	int rc;
--
--	if (irq_delivery == DIRECTED)
--		rc = zpci_clear_directed_irq(zdev);
--	else
--		rc = zpci_clear_airq(zdev);
--
--	return rc;
-+	irq_data_update_affinity(data, dest);
-+	return IRQ_SET_MASK_OK;
- }
- 
--static int zpci_set_irq_affinity(struct irq_data *data, const struct cpumask *dest,
--				 bool force)
-+static void zpci_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
- {
--	struct msi_desc *entry = irq_data_get_msi_desc(data);
--	struct msi_msg msg = entry->msg;
--	int cpu_addr = smp_cpu_get_cpu_address(cpumask_first(dest));
-+	struct msi_desc *desc = irq_data_get_msi_desc(data);
-+	struct zpci_dev *zdev = to_zpci_dev(desc->dev);
- 
--	msg.address_lo &= 0xff0000ff;
--	msg.address_lo |= (cpu_addr << 8);
--	pci_write_msi_msg(data->irq, &msg);
-+	if (irq_delivery == DIRECTED) {
-+		int cpu = cpumask_first(irq_data_get_affinity_mask(data));
- 
--	return IRQ_SET_MASK_OK;
-+		msg->address_lo = zdev->msi_addr & 0xff0000ff;
-+		msg->address_lo |= (smp_cpu_get_cpu_address(cpu) << 8);
-+	} else {
-+		msg->address_lo = zdev->msi_addr & 0xffffffff;
-+	}
-+	msg->address_hi = zdev->msi_addr >> 32;
-+	msg->data = data->hwirq & 0xffffffff;
- }
- 
- static struct irq_chip zpci_irq_chip = {
- 	.name = "PCI-MSI",
--	.irq_unmask = pci_msi_unmask_irq,
--	.irq_mask = pci_msi_mask_irq,
-+	.irq_compose_msi_msg = zpci_compose_msi_msg
++	if (!(ini->smcr_version & SMC_V2) ||
+ 	    !smc_clc_ueid_count() ||
+ 	    smc_find_rdma_device(smc, ini))
+ 		ini->smcr_version &= ~SMC_V2;
+@@ -1231,11 +1234,27 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
+ 		memcpy(ini->smcrv2.nexthop_mac, &aclc->r0.lcl.mac, ETH_ALEN);
+ 		ini->smcrv2.uses_gateway = false;
+ 	} else {
+-		if (smc_ib_find_route(net, smc->clcsock->sk->sk_rcv_saddr,
+-				      smc_ib_gid_to_ipv4(aclc->r0.lcl.gid),
+-				      ini->smcrv2.nexthop_mac,
+-				      &ini->smcrv2.uses_gateway))
++		struct smc_ipaddr peer_gid;
++
++		smc_ipaddr_from_gid(&peer_gid, aclc->r0.lcl.gid);
++		if (peer_gid.family == AF_INET) {
++			/* v4-mapped v6 address should also be treated as v4 address. */
++			if (smc_ib_find_route(net, smc->clcsock->sk->sk_rcv_saddr,
++					      peer_gid.addr,
++					      ini->smcrv2.nexthop_mac,
++					      &ini->smcrv2.uses_gateway))
++				return SMC_CLC_DECL_NOROUTE;
++		} else {
++#if IS_ENABLED(CONFIG_IPV6)
++			if (smc_ib_find_route_v6(net, &smc->clcsock->sk->sk_v6_rcv_saddr,
++						 &peer_gid.addr_v6,
++						 ini->smcrv2.nexthop_mac,
++						 &ini->smcrv2.uses_gateway))
++				return SMC_CLC_DECL_NOROUTE;
++#else
+ 			return SMC_CLC_DECL_NOROUTE;
++#endif /* CONFIG_IPV6 */
++		}
+ 		if (!ini->smcrv2.uses_gateway) {
+ 			/* mismatch: peer claims indirect, but its direct */
+ 			return SMC_CLC_DECL_NOINDIRECT;
+@@ -2308,8 +2327,14 @@ static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
+ 	memcpy(ini->peer_mac, pclc->lcl.mac, ETH_ALEN);
+ 	ini->check_smcrv2 = true;
+ 	ini->smcrv2.clc_sk = new_smc->clcsock->sk;
+-	ini->smcrv2.saddr = new_smc->clcsock->sk->sk_rcv_saddr;
+-	ini->smcrv2.daddr = smc_ib_gid_to_ipv4(smc_v2_ext->roce);
++	if (new_smc->clcsock->sk->sk_family == AF_INET)
++		smc_ipaddr_from_v4addr(&ini->smcrv2.saddr, new_smc->clcsock->sk->sk_rcv_saddr);
++#if IS_ENABLED(CONFIG_IPV6)
++	else
++		smc_ipaddr_from_v6addr(&ini->smcrv2.saddr, &new_smc->clcsock->sk->sk_v6_rcv_saddr);
++#endif /* CONFIG_IPV6 */
++	smc_ipaddr_from_gid(&ini->smcrv2.daddr, smc_v2_ext->roce);
++
+ 	rc = smc_find_rdma_device(new_smc, ini);
+ 	if (rc) {
+ 		smc_init_info_store_rc(rc, ini);
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 5c18f08a4c8a..eafd7c86795b 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -283,6 +283,14 @@ struct smc_llc_flow {
+ 	struct smc_llc_qentry *qentry;
  };
  
- static void zpci_handle_cpu_local_irq(bool rescan)
- {
- 	struct airq_iv *dibv = zpci_ibv[smp_processor_id()];
- 	union zpci_sic_iib iib = {{0}};
-+	struct irq_domain *msi_domain;
-+	irq_hw_number_t hwirq;
- 	unsigned long bit;
- 	int irqs_on = 0;
- 
-@@ -164,7 +163,9 @@ static void zpci_handle_cpu_local_irq(bool rescan)
- 			continue;
- 		}
- 		inc_irq_stat(IRQIO_MSI);
--		generic_handle_irq(airq_iv_get_data(dibv, bit));
-+		hwirq = airq_iv_get_data(dibv, bit);
-+		msi_domain = (struct irq_domain *)airq_iv_get_ptr(dibv, bit);
-+		generic_handle_domain_irq(msi_domain, hwirq);
- 	}
- }
- 
-@@ -229,6 +230,8 @@ static void zpci_floating_irq_handler(struct airq_struct *airq,
- 				      struct tpi_info *tpi_info)
- {
- 	union zpci_sic_iib iib = {{0}};
-+	struct irq_domain *msi_domain;
-+	irq_hw_number_t hwirq;
- 	unsigned long si, ai;
- 	struct airq_iv *aibv;
- 	int irqs_on = 0;
-@@ -256,7 +259,9 @@ static void zpci_floating_irq_handler(struct airq_struct *airq,
- 				break;
- 			inc_irq_stat(IRQIO_MSI);
- 			airq_iv_lock(aibv, ai);
--			generic_handle_irq(airq_iv_get_data(aibv, ai));
-+			hwirq = airq_iv_get_data(aibv, ai);
-+			msi_domain = (struct irq_domain *)airq_iv_get_ptr(aibv, ai);
-+			generic_handle_domain_irq(msi_domain, hwirq);
- 			airq_iv_unlock(aibv, ai);
- 		}
- 	}
-@@ -278,7 +283,9 @@ static int __alloc_airq(struct zpci_dev *zdev, int msi_vecs,
- 		zdev->aisb = *bit;
- 
- 		/* Create adapter interrupt vector */
--		zdev->aibv = airq_iv_create(msi_vecs, AIRQ_IV_DATA | AIRQ_IV_BITLOCK, NULL);
-+		zdev->aibv = airq_iv_create(msi_vecs,
-+					    AIRQ_IV_PTR | AIRQ_IV_DATA | AIRQ_IV_BITLOCK,
-+					    NULL);
- 		if (!zdev->aibv)
- 			return -ENOMEM;
- 
-@@ -290,146 +297,217 @@ static int __alloc_airq(struct zpci_dev *zdev, int msi_vecs,
- 	return 0;
- }
- 
--int arch_setup_msi_irqs(struct pci_dev *pdev, int nvec, int type)
-+bool arch_restore_msi_irqs(struct pci_dev *pdev)
- {
--	unsigned int hwirq, msi_vecs, irqs_per_msi, i, cpu;
- 	struct zpci_dev *zdev = to_zpci(pdev);
--	struct msi_desc *msi;
--	struct msi_msg msg;
--	unsigned long bit;
--	int cpu_addr;
--	int rc, irq;
- 
--	zdev->aisb = -1UL;
--	zdev->msi_first_bit = -1U;
-+	zpci_set_irq(zdev);
-+	return true;
-+}
-+
-+static struct airq_struct zpci_airq = {
-+	.handler = zpci_floating_irq_handler,
-+	.isc = PCI_ISC,
++struct smc_ipaddr {
++	sa_family_t family;
++	union {
++		__be32          addr;
++		struct in6_addr addr_v6;
++	};
 +};
 +
-+/*
-+ * Encode the hwirq number for the parent domain. The encoding must be unique
-+ * for each IRQ of each device in the parent domain, so it uses the devfn to
-+ * identify the device and the msi_index to identify the IRQ within that device.
-+ */
-+static inline u32 zpci_encode_hwirq(u8 devfn, u16 msi_index)
+ struct smc_link_group {
+ 	struct list_head	list;
+ 	struct rb_root		conns_all;	/* connection tree */
+@@ -363,7 +371,7 @@ struct smc_link_group {
+ 						/* rsn code for termination */
+ 			u8			nexthop_mac[ETH_ALEN];
+ 			u8			uses_gateway;
+-			__be32			saddr;
++			struct smc_ipaddr saddr;
+ 						/* net namespace */
+ 			struct net		*net;
+ 			u8			max_conns;
+@@ -397,9 +405,9 @@ struct smc_gidlist {
+ 
+ struct smc_init_info_smcrv2 {
+ 	/* Input fields */
+-	__be32			saddr;
++	struct smc_ipaddr saddr;
+ 	struct sock		*clc_sk;
+-	__be32			daddr;
++	struct smc_ipaddr daddr;
+ 
+ 	/* Output fields when saddr is set */
+ 	struct smc_ib_device	*ib_dev_v2;
+@@ -626,4 +634,30 @@ static inline struct smc_link_group *smc_get_lgr(struct smc_link *link)
+ {
+ 	return link->lgr;
+ }
++
++static inline void smc_ipaddr_from_v4addr(struct smc_ipaddr *ipaddr, __be32 v4_addr)
 +{
-+	return (devfn << 16) | msi_index;
++	ipaddr->family = AF_INET;
++	ipaddr->addr = v4_addr;
 +}
 +
-+static inline u16 zpci_decode_hwirq_msi_index(irq_hw_number_t irq)
++static inline void smc_ipaddr_from_v6addr(struct smc_ipaddr *ipaddr, const struct in6_addr *v6_addr)
 +{
-+	return irq & GENMASK_U16(15, 0);
++	ipaddr->family = AF_INET6;
++	ipaddr->addr_v6 = *v6_addr;
 +}
 +
-+static int zpci_msi_prepare(struct irq_domain *domain,
-+			    struct device *dev, int nvec,
-+			    msi_alloc_info_t *info)
++static inline void smc_ipaddr_from_gid(struct smc_ipaddr *ipaddr, u8 gid[SMC_GID_SIZE])
 +{
-+	struct zpci_dev *zdev = to_zpci_dev(dev);
-+	struct pci_dev *pdev = to_pci_dev(dev);
-+	unsigned long bit;
-+	int msi_vecs, rc;
- 
- 	msi_vecs = min_t(unsigned int, nvec, zdev->max_msi);
--	if (msi_vecs < nvec) {
--		pr_info("%s requested %d irqs, allocate system limit of %d",
-+	if (msi_vecs < nvec)
-+		pr_info("%s requested %d IRQs, allocate system limit of %d\n",
- 			pci_name(pdev), nvec, zdev->max_msi);
--	}
- 
- 	rc = __alloc_airq(zdev, msi_vecs, &bit);
--	if (rc < 0)
-+	if (rc) {
-+		pr_err("Allocating adapter IRQs for %s failed\n", pci_name(pdev));
- 		return rc;
++	__be32 gid_v4 = smc_ib_gid_to_ipv4(gid);
++
++	if (gid_v4 != cpu_to_be32(INADDR_NONE)) {
++		ipaddr->family = AF_INET;
++		ipaddr->addr = gid_v4;
++	} else {
++		ipaddr->family = AF_INET6;
++		ipaddr->addr_v6 = *smc_ib_gid_to_ipv6(gid);
 +	}
- 
--	/*
--	 * Request MSI interrupts:
--	 * When using MSI, nvec_used interrupt sources and their irq
--	 * descriptors are controlled through one msi descriptor.
--	 * Thus the outer loop over msi descriptors shall run only once,
--	 * while two inner loops iterate over the interrupt vectors.
--	 * When using MSI-X, each interrupt vector/irq descriptor
--	 * is bound to exactly one msi descriptor (nvec_used is one).
--	 * So the inner loops are executed once, while the outer iterates
--	 * over the MSI-X descriptors.
--	 */
--	hwirq = bit;
--	msi_for_each_desc(msi, &pdev->dev, MSI_DESC_NOTASSOCIATED) {
--		if (hwirq - bit >= msi_vecs)
--			break;
--		irqs_per_msi = min_t(unsigned int, msi_vecs, msi->nvec_used);
--		irq = __irq_alloc_descs(-1, 0, irqs_per_msi, 0, THIS_MODULE,
--					(irq_delivery == DIRECTED) ?
--					msi->affinity : NULL);
--		if (irq < 0)
--			return -ENOMEM;
--
--		for (i = 0; i < irqs_per_msi; i++) {
--			rc = irq_set_msi_desc_off(irq, i, msi);
--			if (rc)
--				return rc;
--			irq_set_chip_and_handler(irq + i, &zpci_irq_chip,
--						 handle_percpu_irq);
-+	zdev->msi_first_bit = bit;
-+	zdev->msi_nr_irqs = msi_vecs;
-+	rc = zpci_set_irq(zdev);
-+	if (rc) {
-+		pr_err("Registering adapter IRQs for %s failed\n",
-+		       pci_name(pdev));
-+		if (irq_delivery == DIRECTED) {
-+			airq_iv_free(zpci_ibv[0], zdev->msi_first_bit, msi_vecs);
-+		} else {
-+			zpci_clear_airq(zdev);
-+			airq_iv_release(zdev->aibv);
-+			zdev->aibv = NULL;
-+			airq_iv_free_bit(zpci_sbv, zdev->aisb);
-+			zdev->aisb = -1UL;
- 		}
-+		zdev->msi_first_bit = -1U;
-+		return rc;
-+	}
- 
--		msg.data = hwirq - bit;
--		if (irq_delivery == DIRECTED) {
--			if (msi->affinity)
--				cpu = cpumask_first(&msi->affinity->mask);
--			else
--				cpu = 0;
--			cpu_addr = smp_cpu_get_cpu_address(cpu);
-+	return 0;
 +}
 +
-+static void zpci_msi_teardown_directed(struct zpci_dev *zdev)
-+{
-+	zpci_clear_directed_irq(zdev);
-+	airq_iv_free(zpci_ibv[0], zdev->msi_first_bit, zdev->max_msi);
-+	zdev->msi_first_bit = -1U;
-+}
-+
-+static void zpci_msi_teardown_floating(struct zpci_dev *zdev)
-+{
-+	zpci_clear_airq(zdev);
-+	airq_iv_release(zdev->aibv);
-+	zdev->aibv = NULL;
-+	airq_iv_free_bit(zpci_sbv, zdev->aisb);
-+	zdev->aisb = -1UL;
-+	zdev->msi_first_bit = -1U;
-+}
+ #endif
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index 1154907c5c05..5e2bbdcf623e 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -22,6 +22,7 @@
+ #include <linux/inetdevice.h>
+ #include <rdma/ib_verbs.h>
+ #include <rdma/ib_cache.h>
++#include <net/ip6_route.h>
  
--			msg.address_lo = zdev->msi_addr & 0xff0000ff;
--			msg.address_lo |= (cpu_addr << 8);
-+static void zpci_msi_teardown(struct irq_domain *domain, msi_alloc_info_t *arg)
-+{
-+	struct zpci_dev *zdev = to_zpci_dev(domain->dev);
+ #include "smc_pnet.h"
+ #include "smc_ib.h"
+@@ -225,48 +226,148 @@ int smc_ib_find_route(struct net *net, __be32 saddr, __be32 daddr,
+ 	return -ENOENT;
+ }
  
-+	if (irq_delivery == DIRECTED)
-+		zpci_msi_teardown_directed(zdev);
-+	else
-+		zpci_msi_teardown_floating(zdev);
-+}
-+
-+static int zpci_msi_domain_alloc(struct irq_domain *domain, unsigned int virq,
-+				 unsigned int nr_irqs, void *args)
+-static int smc_ib_determine_gid_rcu(const struct net_device *ndev,
++#if IS_ENABLED(CONFIG_IPV6)
++int smc_ib_find_route_v6(struct net *net, struct in6_addr *saddr,
++			 struct in6_addr *daddr, u8 nexthop_mac[],
++			 u8 *uses_gateway)
 +{
-+	struct msi_desc *desc = ((msi_alloc_info_t *)args)->desc;
-+	struct zpci_dev *zdev = to_zpci_dev(desc->dev);
-+	struct zpci_bus *zbus = zdev->zbus;
-+	unsigned int cpu, hwirq;
-+	unsigned long bit;
-+	int i;
++	struct dst_entry *dst;
++	struct rt6_info *rt;
++	struct neighbour *neigh;
++	struct in6_addr *nexthop_addr;
++	int rc = -ENOENT;
 +
-+	bit = zdev->msi_first_bit + desc->msi_index;
-+	hwirq = zpci_encode_hwirq(zdev->devfn, desc->msi_index);
++	struct flowi6 fl6 = {
++		.daddr = *daddr,
++		.saddr = *saddr,
++	};
 +
-+	if (desc->msi_index + nr_irqs > zdev->max_msi)
++	if (ipv6_addr_any(daddr))
 +		return -EINVAL;
 +
-+	for (i = 0; i < nr_irqs; i++) {
-+		irq_domain_set_info(domain, virq + i, hwirq + i,
-+				    &zpci_irq_chip, zdev,
-+				    handle_percpu_irq, NULL, NULL);
-+
-+		if (irq_delivery == DIRECTED) {
- 			for_each_possible_cpu(cpu) {
--				for (i = 0; i < irqs_per_msi; i++)
--					airq_iv_set_data(zpci_ibv[cpu],
--							 hwirq + i, irq + i);
-+				airq_iv_set_ptr(zpci_ibv[cpu], bit + i,
-+						(unsigned long)zbus->msi_parent_domain);
-+				airq_iv_set_data(zpci_ibv[cpu], bit + i, hwirq + i);
- 			}
- 		} else {
--			msg.address_lo = zdev->msi_addr & 0xffffffff;
--			for (i = 0; i < irqs_per_msi; i++)
--				airq_iv_set_data(zdev->aibv, hwirq + i, irq + i);
-+			airq_iv_set_ptr(zdev->aibv, bit + i,
-+					(unsigned long)zbus->msi_parent_domain);
-+			airq_iv_set_data(zdev->aibv, bit + i, hwirq + i);
- 		}
--		msg.address_hi = zdev->msi_addr >> 32;
--		pci_write_msi_msg(irq, &msg);
--		hwirq += irqs_per_msi;
- 	}
- 
--	zdev->msi_first_bit = bit;
--	zdev->msi_nr_irqs = hwirq - bit;
-+	return 0;
-+}
- 
--	rc = zpci_set_irq(zdev);
--	if (rc)
--		return rc;
-+static void zpci_msi_domain_free(struct irq_domain *domain, unsigned int virq,
-+				 unsigned int nr_irqs)
-+{
-+	irq_hw_number_t hwirq;
-+	struct irq_data *d;
-+	int i;
-+
-+	for (i = 0; i < nr_irqs; i++) {
-+		d = irq_domain_get_irq_data(domain, virq + i);
-+		hwirq = d->hwirq;
-+		irq_domain_reset_irq_data(d);
++	dst = ip6_route_output(net, NULL, &fl6);
++	if (!dst || dst->error) {
++		rc = dst ? dst->error : -EINVAL;
++		goto out;
 +	}
++	rt = (struct rt6_info *)dst;
++
++	if (ipv6_addr_type(&rt->rt6i_gateway) != IPV6_ADDR_ANY) {
++		*uses_gateway = 1;
++		nexthop_addr = &rt->rt6i_gateway;
++	} else {
++		*uses_gateway = 0;
++		nexthop_addr = daddr;
++	}
++
++	neigh = dst_neigh_lookup(dst, nexthop_addr);
++	if (!neigh)
++		goto out;
++
++	read_lock_bh(&neigh->lock);
++	if (neigh->nud_state & NUD_VALID) {
++		memcpy(nexthop_mac, neigh->ha, ETH_ALEN);
++		rc = 0;
++	}
++	read_unlock_bh(&neigh->lock);
++
++	neigh_release(neigh);
++out:
++	dst_release(dst);
++	return rc;
++}
++#endif /* CONFIG_IPV6 */
++
++static bool smc_ib_match_gid_rocev2(const struct net_device *ndev,
+ 				    const struct ib_gid_attr *attr,
+-				    u8 gid[], u8 *sgid_index,
+ 				    struct smc_init_info_smcrv2 *smcrv2)
+ {
+-	if (!smcrv2 && attr->gid_type == IB_GID_TYPE_ROCE) {
+-		if (gid)
+-			memcpy(gid, &attr->gid, SMC_GID_SIZE);
+-		if (sgid_index)
+-			*sgid_index = attr->index;
+-		return 0;
+-	}
+-	if (smcrv2 && attr->gid_type == IB_GID_TYPE_ROCE_UDP_ENCAP &&
+-	    smc_ib_gid_to_ipv4((u8 *)&attr->gid) != cpu_to_be32(INADDR_NONE)) {
++	struct net *net = dev_net(ndev);
++	bool subnet_match = false;
++
++	if (smc_ib_gid_to_ipv4((u8 *)&attr->gid) != cpu_to_be32(INADDR_NONE)) {
+ 		struct in_device *in_dev = __in_dev_get_rcu(ndev);
+-		struct net *net = dev_net(ndev);
+ 		const struct in_ifaddr *ifa;
+-		bool subnet_match = false;
+ 
+ 		if (!in_dev)
+-			goto out;
++			return false;
++
++		if (smcrv2->saddr.family != AF_INET)
++			return false;
++
+ 		in_dev_for_each_ifa_rcu(ifa, in_dev) {
+-			if (!inet_ifa_match(smcrv2->saddr, ifa))
++			if (!inet_ifa_match(smcrv2->saddr.addr, ifa))
+ 				continue;
+ 			subnet_match = true;
+ 			break;
+ 		}
++
+ 		if (!subnet_match)
+-			goto out;
+-		if (smcrv2->daddr && smc_ib_find_route(net, smcrv2->saddr,
+-						       smcrv2->daddr,
+-						       smcrv2->nexthop_mac,
+-						       &smcrv2->uses_gateway))
+-			goto out;
++			return false;
++
++		if (smcrv2->daddr.addr &&
++		    smc_ib_find_route(net, smcrv2->saddr.addr,
++				      smcrv2->daddr.addr,
++				      smcrv2->nexthop_mac,
++				      &smcrv2->uses_gateway))
++			return false;
++#if IS_ENABLED(CONFIG_IPV6)
++	} else if (!(ipv6_addr_type(smc_ib_gid_to_ipv6((u8 *)&attr->gid)) & IPV6_ADDR_LINKLOCAL)) {
++		struct inet6_dev *in6_dev = __in6_dev_get(ndev);
++		const struct inet6_ifaddr *if6;
++
++		if (!in6_dev)
++			return false;
++
++		if (smcrv2->saddr.family != AF_INET6)
++			return false;
++
++		list_for_each_entry_rcu(if6, &in6_dev->addr_list, if_list) {
++			if (ipv6_addr_type(&if6->addr) & IPV6_ADDR_LINKLOCAL)
++				continue;
++			if (!ipv6_prefix_equal(&if6->addr, &smcrv2->saddr.addr_v6, if6->prefix_len))
++				continue;
++			subnet_match = true;
++			break;
++		}
+ 
++		if (!subnet_match)
++			return false;
++
++		if ((ipv6_addr_type(&smcrv2->daddr.addr_v6) != IPV6_ADDR_ANY) &&
++		    smc_ib_find_route_v6(net, &smcrv2->saddr.addr_v6,
++					 &smcrv2->daddr.addr_v6,
++					 smcrv2->nexthop_mac,
++					 &smcrv2->uses_gateway))
++			return false;
++#endif /* CONFIG_IPV6 */
++	} else {
++		return false;
++	}
++
++	return true;
 +}
 +
-+static const struct irq_domain_ops zpci_msi_domain_ops = {
-+	.alloc = zpci_msi_domain_alloc,
-+	.free  = zpci_msi_domain_free
-+};
-+
-+static bool zpci_init_dev_msi_info(struct device *dev, struct irq_domain *domain,
-+				   struct irq_domain *real_parent,
-+				   struct msi_domain_info *info)
++static int smc_ib_determine_gid_rcu(const struct net_device *ndev,
++				    const struct ib_gid_attr *attr,
++				    u8 gid[], u8 *sgid_index,
++				    struct smc_init_info_smcrv2 *smcrv2)
 +{
-+	if (!msi_lib_init_dev_msi_info(dev, domain, real_parent, info))
-+		return false;
++	bool gid_match = false;
 +
-+	info->ops->msi_prepare = zpci_msi_prepare;
-+	info->ops->msi_teardown = zpci_msi_teardown;
- 
--	return (zdev->msi_nr_irqs == nvec) ? 0 : zdev->msi_nr_irqs;
-+	return true;
- }
- 
--void arch_teardown_msi_irqs(struct pci_dev *pdev)
-+static struct msi_parent_ops zpci_msi_parent_ops = {
-+	.supported_flags   = MSI_GENERIC_FLAGS_MASK	|
-+			     MSI_FLAG_PCI_MSIX		|
-+			     MSI_FLAG_MULTI_PCI_MSI,
-+	.required_flags	   = MSI_FLAG_USE_DEF_DOM_OPS  |
-+			     MSI_FLAG_USE_DEF_CHIP_OPS,
-+	.init_dev_msi_info = zpci_init_dev_msi_info
-+};
++	if (!smcrv2 && attr->gid_type == IB_GID_TYPE_ROCE)
++		gid_match = true;
++	else if (smcrv2 && attr->gid_type == IB_GID_TYPE_ROCE_UDP_ENCAP)
++		gid_match = smc_ib_match_gid_rocev2(ndev, attr, smcrv2);
 +
-+int zpci_create_parent_msi_domain(struct zpci_bus *zbus)
- {
--	struct zpci_dev *zdev = to_zpci(pdev);
--	struct msi_desc *msi;
--	unsigned int i;
--	int rc;
-+	char fwnode_name[18];
- 
--	/* Disable interrupts */
--	rc = zpci_clear_irq(zdev);
--	if (rc)
--		return;
-+	sprintf(fwnode_name, "ZPCI_MSI_DOM_%04x", zbus->domain_nr);
-+	struct irq_domain_info info = {
-+		.fwnode		= irq_domain_alloc_named_fwnode(fwnode_name),
-+		.ops		= &zpci_msi_domain_ops
-+	};
- 
--	/* Release MSI interrupts */
--	msi_for_each_desc(msi, &pdev->dev, MSI_DESC_ASSOCIATED) {
--		for (i = 0; i < msi->nvec_used; i++) {
--			irq_set_msi_desc(msi->irq + i, NULL);
--			irq_free_desc(msi->irq + i);
--		}
--		msi->msg.address_lo = 0;
--		msi->msg.address_hi = 0;
--		msi->msg.data = 0;
--		msi->irq = 0;
-+	if (!info.fwnode) {
-+		pr_err("Failed to allocate fwnode for MSI IRQ domain\n");
-+		return -ENOMEM;
++	if (gid_match) {
+ 		if (gid)
+ 			memcpy(gid, &attr->gid, SMC_GID_SIZE);
+ 		if (sgid_index)
+ 			*sgid_index = attr->index;
+ 		return 0;
  	}
- 
--	if (zdev->aisb != -1UL) {
--		zpci_ibv[zdev->aisb] = NULL;
--		airq_iv_free_bit(zpci_sbv, zdev->aisb);
--		zdev->aisb = -1UL;
--	}
--	if (zdev->aibv) {
--		airq_iv_release(zdev->aibv);
--		zdev->aibv = NULL;
-+	if (irq_delivery == FLOATING)
-+		zpci_msi_parent_ops.required_flags |= MSI_FLAG_NO_AFFINITY;
-+	zbus->msi_parent_domain = msi_create_parent_irq_domain(&info, &zpci_msi_parent_ops);
-+	if (!zbus->msi_parent_domain) {
-+		irq_domain_free_fwnode(info.fwnode);
-+		pr_err("Failed to create MSI IRQ domain\n");
-+		return -ENOMEM;
- 	}
- 
--	if ((irq_delivery == DIRECTED) && zdev->msi_first_bit != -1U)
--		airq_iv_free(zpci_ibv[0], zdev->msi_first_bit, zdev->msi_nr_irqs);
-+	return 0;
+-out:
++
+ 	return -ENODEV;
  }
  
--bool arch_restore_msi_irqs(struct pci_dev *pdev)
-+void zpci_remove_parent_msi_domain(struct zpci_bus *zbus)
- {
--	struct zpci_dev *zdev = to_zpci(pdev);
-+	struct fwnode_handle *fn;
- 
--	zpci_set_irq(zdev);
--	return true;
-+	fn = zbus->msi_parent_domain->fwnode;
-+	irq_domain_remove(zbus->msi_parent_domain);
-+	irq_domain_free_fwnode(fn);
+diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+index ef8ac2b7546d..7cbeb7350478 100644
+--- a/net/smc/smc_ib.h
++++ b/net/smc/smc_ib.h
+@@ -69,6 +69,12 @@ static inline __be32 smc_ib_gid_to_ipv4(u8 gid[SMC_GID_SIZE])
+ 	return cpu_to_be32(INADDR_NONE);
  }
  
--static struct airq_struct zpci_airq = {
--	.handler = zpci_floating_irq_handler,
--	.isc = PCI_ISC,
--};
++static inline struct in6_addr *smc_ib_gid_to_ipv6(u8 gid[SMC_GID_SIZE])
++{
++	struct in6_addr *addr6 = (struct in6_addr *)gid;
++	return addr6;
++}
++
+ static inline struct net *smc_ib_net(struct smc_ib_device *smcibdev)
+ {
+ 	if (smcibdev && smcibdev->ibdev)
+@@ -114,6 +120,9 @@ int smc_ib_determine_gid(struct smc_ib_device *smcibdev, u8 ibport,
+ 			 struct smc_init_info_smcrv2 *smcrv2);
+ int smc_ib_find_route(struct net *net, __be32 saddr, __be32 daddr,
+ 		      u8 nexthop_mac[], u8 *uses_gateway);
++int smc_ib_find_route_v6(struct net *net, struct in6_addr *saddr,
++			 struct in6_addr *daddr, u8 nexthop_mac[],
++			 u8 *uses_gateway);
+ bool smc_ib_is_valid_local_systemid(void);
+ int smcr_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
+ #endif
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index f5d5eb617526..2f4827876706 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -1055,8 +1055,9 @@ int smc_llc_cli_add_link(struct smc_link *link, struct smc_llc_qentry *qentry)
+ 	if (lgr->smc_version == SMC_V2) {
+ 		ini->check_smcrv2 = true;
+ 		ini->smcrv2.saddr = lgr->saddr;
+-		ini->smcrv2.daddr = smc_ib_gid_to_ipv4(llc->sender_gid);
++		smc_ipaddr_from_gid(&ini->smcrv2.daddr, llc->sender_gid);
+ 	}
++
+ 	smc_pnet_find_alt_roce(lgr, ini, link->smcibdev);
+ 	if (!memcmp(llc->sender_gid, link->peer_gid, SMC_GID_SIZE) &&
+ 	    (lgr->smc_version == SMC_V2 ||
+@@ -1438,8 +1439,7 @@ int smc_llc_srv_add_link(struct smc_link *link,
+ 		if (send_req_add_link_resp) {
+ 			struct smc_llc_msg_req_add_link_v2 *req_add =
+ 				&req_qentry->msg.req_add_link;
 -
- static void __init cpu_enable_directed_irq(void *unused)
- {
- 	union zpci_sic_iib iib = {{0}};
-@@ -466,6 +544,7 @@ static int __init zpci_directed_irq_init(void)
- 		 * is only done on the first vector.
- 		 */
- 		zpci_ibv[cpu] = airq_iv_create(cache_line_size() * BITS_PER_BYTE,
-+					       AIRQ_IV_PTR |
- 					       AIRQ_IV_DATA |
- 					       AIRQ_IV_CACHELINE |
- 					       (!cpu ? AIRQ_IV_ALLOC : 0), NULL);
-
+-			ini->smcrv2.daddr = smc_ib_gid_to_ipv4(req_add->gid[0]);
++			smc_ipaddr_from_gid(&ini->smcrv2.daddr, req_add->gid[0]);
+ 		}
+ 	}
+ 	smc_pnet_find_alt_roce(lgr, ini, link->smcibdev);
 -- 
-2.48.1
+2.45.0
 
