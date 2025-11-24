@@ -1,226 +1,251 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4EFB2EFD9F;
-	Mon, 24 Nov 2025 10:59:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B84C32EE263;
+	Mon, 24 Nov 2025 11:56:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763981967; cv=none; b=r9s/T5N/PsBd7+rfEI4pfQpHWhrjgOELZ0kJ/QEGRa0LhuJYm+qSmbZ+frhBpPRO1N5Om6YW2o9iH0hBXCeqYFFAT0hxxaJNZKtRVmHmgkwtN2D7ZS2i40DsCoECMv/aTMnqOeC5Zuamb0PrI/kKTDNh1Vdni9PMks+g9ySiG58=
+	t=1763985368; cv=none; b=mfq6/2NVybrblkKxM+t48C7op+AmrIS3IcgPqOfUwtjxnm94tLubqCw6q7PQpSVhb9dgFye0G6nj2UJ0gqgAKllQWUFN4mlZPM+5dfdUQC6ckOvREiO3vjWObQTbssHj9WTbhru3AktgmSwdvvVIMhm/CA6Z8KK+iAwDp5EEfYY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763981967; c=relaxed/simple;
-	bh=wcZg11RZUES8YmKnaXOp6YTp39+g7OJyQs9ej2T9ssk=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
-	 References:In-Reply-To; b=r6w8K64pP63iw8PX1pzon9Fox+hOiU6QufbXn0rtpVd8WT7dQYKb/BFNmQ8T+SENWF2EczIToVaIGQ3QgouoheMZYB0XpDo8g+TGfAC0qHeFg0daqIqm6JlEf5xcErfBEj29Siiuzhl/yI2JfbvY/9ZJB9kDd6dHq3xg90SMwzk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=M3xCB+Fe; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1763985368; c=relaxed/simple;
+	bh=YmsVvnsMEUAHEALdCxVpa70Dgy98tYCSalUijbM3Cy4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sgfMCtmD/ytgkghKXK2g3oqJHQohhiGQl7HLTtOg9DXR0c9VYtBZ6wl5VbMJTOcJHi+xi6KTXmVWJlxMhmKD7KZUkTXaZS9e6INvoKp5kxN542RZC2EHWBpKDgjMnTQe5/lVrg+aLEiiVTKLywYShiF/wiDFx7xOc6+lNrX7y8w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Kj3faS6J; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="M3xCB+Fe"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AO7RUll018154;
-	Mon, 24 Nov 2025 10:59:21 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Kj3faS6J"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AO5bbJ7006017;
+	Mon, 24 Nov 2025 11:56:02 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=f78FA6
-	2+m7CMNqKF2K7jMVi/lf8JzQwBBajRO6X1+1U=; b=M3xCB+Feqatd7cnomau73V
-	tDSbVyXFL+WmuPMo0EmLodkfv02XX+xkekMfpl2xYuQHI+uxqxlfLXvDpkMYdq8p
-	4MBUPRiDnxADh82PlmbEgw/K/1FtxDCuN52TrNEGYSvuINA4NvazracB2dtShSp8
-	/RoyCJcjj9iWmStVu5VzOGw5eKvFIggpes5DtYA49pz2RwlEpg/Dw50hjmm8Y2gD
-	BaTKAaIpoKWSP4UYXOxcdyqmWsX4Un6sTNCCpolL+Wsr2RBUTAiT2uB2LkxpiXNz
-	4vyZpGdT89V3KF/7cRa4CxlaCAJ7GBS6GDGKaBwt1HwfG9rtZj7CjcpENxFnLucw
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ak2kpqfh3-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=3csj4tL+vsKcTrND7cV62ojlFENzopnk/aWSX0z3N
+	kA=; b=Kj3faS6JJJUxf9UcibVi5GYIgvpMrueXfwRDn4/nq3zrs01sSEchVGldJ
+	aqgF6JYb6rfxvK1MTylRwnrGEbXeVCTjEEHU/YQ/OvrpuRrh5uoB5Du/ZFbnslqK
+	dEDMYpHQdMVbX1Qo5U1toDsp6/I/nqRxP5hufyB6U6LGpayyUN7yl1lVNoyPY0aI
+	bmZyURyaVbst594z/dyALw3RPAEo7729TfKQVl0YF7Cw+8AFL0y9xXUkoxW8nHsL
+	Bl8W1mYwqwgOQsxGE781cy9fVNC8B7N90I+C2er8zYdPgk8wZ/25Nk6LGLt53D9K
+	NSqbYQv9fKr4HtFEJcFAq5X0mtRlg==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ak3kjqgx0-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Nov 2025 10:59:21 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AO88CLG018996;
-	Mon, 24 Nov 2025 10:59:20 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4aksqjd8f2-1
+	Mon, 24 Nov 2025 11:56:02 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AOA8fU5000857;
+	Mon, 24 Nov 2025 11:56:01 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4akqvxnun5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Nov 2025 10:59:20 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AOAxGPC30409116
+	Mon, 24 Nov 2025 11:56:01 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AOBtvBZ35520934
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 24 Nov 2025 10:59:16 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9657320043;
-	Mon, 24 Nov 2025 10:59:16 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5937D20040;
-	Mon, 24 Nov 2025 10:59:16 +0000 (GMT)
-Received: from darkmoore (unknown [9.111.94.126])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 24 Nov 2025 10:59:16 +0000 (GMT)
+	Mon, 24 Nov 2025 11:55:57 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 33E212004B;
+	Mon, 24 Nov 2025 11:55:57 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6339220040;
+	Mon, 24 Nov 2025 11:55:55 +0000 (GMT)
+Received: from p-imbrenda.ibmuc.com (unknown [9.111.31.86])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 24 Nov 2025 11:55:55 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, nsg@linux.ibm.com,
+        nrb@linux.ibm.com, seiden@linux.ibm.com, gra@linux.ibm.com,
+        schlameuss@linux.ibm.com, hca@linux.ibm.com, svens@linux.ibm.com,
+        agordeev@linux.ibm.com, gor@linux.ibm.com, david@redhat.com,
+        gerald.schaefer@linux.ibm.com
+Subject: [PATCH v5 00/23] KVM: s390: gmap rewrite, the real deal
+Date: Mon, 24 Nov 2025 12:55:31 +0100
+Message-ID: <20251124115554.27049-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.51.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 24 Nov 2025 11:59:11 +0100
-Message-Id: <DEGVEX4N3B0M.23FKGJG23E91K@linux.ibm.com>
-From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: <linux-s390@vger.kernel.org>, "Heiko Carstens" <hca@linux.ibm.com>,
-        "Vasily Gorbik" <gor@linux.ibm.com>,
-        "Alexander Gordeev"
- <agordeev@linux.ibm.com>,
-        "Christian Borntraeger"
- <borntraeger@linux.ibm.com>,
-        "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
-        "Nico Boehr" <nrb@linux.ibm.com>,
-        "David Hildenbrand" <david@redhat.com>,
-        "Sven Schnelle" <svens@linux.ibm.com>,
-        "Paolo Bonzini"
- <pbonzini@redhat.com>,
-        "Shuah Khan" <shuah@kernel.org>
-To: "Janosch Frank" <frankja@linux.ibm.com>,
-        "Christoph Schlameuss"
- <schlameuss@linux.ibm.com>,
-        <kvm@vger.kernel.org>
-Subject: Re: [PATCH RFC v2 11/11] KVM: s390: Add VSIE shadow stat counters
-X-Mailer: aerc 0.21.0
-References: <20251110-vsieie-v2-0-9e53a3618c8c@linux.ibm.com>
- <20251110-vsieie-v2-11-9e53a3618c8c@linux.ibm.com>
- <c9264abb-4bcc-498b-adf9-1167d519b254@linux.ibm.com>
-In-Reply-To: <c9264abb-4bcc-498b-adf9-1167d519b254@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTIyMDAwMCBTYWx0ZWRfX49t06ztVxyXt
- XMDCMnLF3NiFNdHXgHjeyOoLmwBvh68P6N3gEsDGuF1f4EDJof2UDCcx2wo3Ni9aoOjt1L9GlGx
- k9Ivibg90EOladJjwc3YaGYs882D8wY0cnG7RqQh6uAXnXPX29UsRI54czcOG3NEKEH3RmmAAJB
- 9I+GyWiq1trvGlmPtXhBsTOkVzY4UHGWRjZl8KfjFoV1JK+RICR7iJc28S5jHcZRc34tfT+KvxO
- +o3z7TUhRT41jhN8HH8GTodAti9nZRvF4s491U7FdzQ87tE1BcnAMOSuAC0zVbBtr3sEkzFuEm1
- WBbvDa/Xc1cH32rbrQ1L9+pJwxz8eO+2s9DMCz6JvPvCk/v6uAd+evm8ZVNrLcwQc12QIATW4TW
- wGYg3xlJDxJwyVbtimXiMbSpqxRVnA==
-X-Authority-Analysis: v=2.4 cv=fJM0HJae c=1 sm=1 tr=0 ts=69243a89 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=uSb5l8NPJHgLTqABBf0A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: KsC6ws1DnIiclHcsoY7C_3iIppcAqMg-
-X-Proofpoint-ORIG-GUID: KsC6ws1DnIiclHcsoY7C_3iIppcAqMg-
+X-Proofpoint-GUID: NiGmmg593hMdGIDtjVybib0BsXtuJ8NH
+X-Authority-Analysis: v=2.4 cv=frbRpV4f c=1 sm=1 tr=0 ts=692447d2 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VqMf9zvxq0yzUyhZ9NsA:9
+X-Proofpoint-ORIG-GUID: NiGmmg593hMdGIDtjVybib0BsXtuJ8NH
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTIyMDAwOCBTYWx0ZWRfX+2aQlhseHBA1
+ R9ca4hQmaqeMLw6As7N7a8Q4OIp3L+YJ7uUsCC6p2iVsj9oZqtkO0rOWZs4pzkCMRm+wTMPowlT
+ QvD0t64TpWIch+OkCscqEOw7mM/FJdgZeR4aJpuW59pbkepDZwIFMb5Ni8Ikt4x2H0/RhFzxEP2
+ XDEogNrA7HPRxDRYWFIaEFfZ3YFTWeVL7QE+bI5SFkz4XBNBFFjhf3u+dMpgwMQyidgu+vHxGTE
+ uUaLhhm4icGtuKB8F4heiaeg1FBPK5SDe2RU011y11x0vqdXFugfJj12nl6fz4BtJz9nVDiz3bN
+ +tWKtC8ZhsXUnNn1XY4box8SYYVyFi2+UeXq6WtQI1cmCnDtM+93QPjo2jSoFZ3Ybw1TPrewhdQ
+ R/fi4ERSOIjZZ/E5GIAEjk/VH5tyCw==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-11-24_04,2025-11-21_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 phishscore=0 priorityscore=1501 impostorscore=0
- lowpriorityscore=0 suspectscore=0 malwarescore=0 adultscore=0 bulkscore=0
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
- definitions=main-2511220000
+ malwarescore=0 suspectscore=0 clxscore=1015 spamscore=0 lowpriorityscore=0
+ impostorscore=0 bulkscore=0 adultscore=0 priorityscore=1501 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511220008
 
-On Thu Nov 20, 2025 at 12:07 PM CET, Janosch Frank wrote:
-> On 11/10/25 18:16, Christoph Schlameuss wrote:
->> Add new stat counters to VSIE shadowing to be able to verify and monitor
->> the functionality.
->>=20
->> * vsie_shadow_scb shows the number of allocated SIE control block
->>    shadows. Should count upwards between 0 and the max number of cpus.
->> * vsie_shadow_sca shows the number of allocated system control area
->>    shadows. Should count upwards between 0 and the max number of cpus.
->> * vsie_shadow_sca_create shows the number of newly allocated system
->>    control area shadows.
->> * vsie_shadow_sca_reuse shows the number of reused system control area
->>    shadows.
->>=20
->> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
->> ---
->>   arch/s390/include/asm/kvm_host.h | 4 ++++
->>   arch/s390/kvm/kvm-s390.c         | 4 ++++
->>   arch/s390/kvm/vsie.c             | 9 ++++++++-
->>   3 files changed, 16 insertions(+), 1 deletion(-)
->>=20
->> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kv=
-m_host.h
->> index 191b23edf0ac7e9a3e1fd9cdc6fc4c9a9e6769f8..ef7bf2d357f8d289b5f163ec=
-95976c5d270d1380 100644
->> --- a/arch/s390/include/asm/kvm_host.h
->> +++ b/arch/s390/include/asm/kvm_host.h
->> @@ -457,6 +457,10 @@ struct kvm_vm_stat {
->>   	u64 gmap_shadow_r3_entry;
->>   	u64 gmap_shadow_sg_entry;
->>   	u64 gmap_shadow_pg_entry;
->> +	u64 vsie_shadow_scb;
->> +	u64 vsie_shadow_sca;
->> +	u64 vsie_shadow_sca_create;
->> +	u64 vsie_shadow_sca_reuse;
->>   };
->>  =20
->>   struct kvm_arch_memory_slot {
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index e3fc53e33e90be7dab75f73ebd0b949c13d22939..d86bf2206c230ce25fd48610=
-c8305326e260e590 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -79,6 +79,10 @@ const struct _kvm_stats_desc kvm_vm_stats_desc[] =3D =
-{
->>   	STATS_DESC_COUNTER(VM, gmap_shadow_r3_entry),
->>   	STATS_DESC_COUNTER(VM, gmap_shadow_sg_entry),
->>   	STATS_DESC_COUNTER(VM, gmap_shadow_pg_entry),
->> +	STATS_DESC_COUNTER(VM, vsie_shadow_scb),
->> +	STATS_DESC_COUNTER(VM, vsie_shadow_sca),
->> +	STATS_DESC_COUNTER(VM, vsie_shadow_sca_create),
->> +	STATS_DESC_COUNTER(VM, vsie_shadow_sca_reuse),
->>   };
->>  =20
->>   const struct kvm_stats_header kvm_vm_stats_header =3D {
->> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
->> index cd114df5e119bd289d14037d1f1c5bfe148cf5c7..f7c1a217173cefe93d091462=
-3df08efa14270771 100644
->> --- a/arch/s390/kvm/vsie.c
->> +++ b/arch/s390/kvm/vsie.c
->> @@ -767,6 +767,8 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct =
-vsie_page *vsie_page)
->>   out:
->>   	if (rc)
->>   		unshadow_scb(vcpu, vsie_page);
->> +	else
->> +		vcpu->kvm->stat.vsie_shadow_scb++;
->>   	return rc;
->>   }
->>  =20
->> @@ -843,8 +845,10 @@ static struct vsie_sca *get_existing_vsie_sca(struc=
-t kvm *kvm, hpa_t sca_o_gpa)
->>   {
->>   	struct vsie_sca *sca =3D radix_tree_lookup(&kvm->arch.vsie.osca_to_sc=
-a, sca_o_gpa);
->>  =20
->> -	if (sca)
->> +	if (sca) {
->>   		WARN_ON_ONCE(atomic_inc_return(&sca->ref_count) < 1);
->> +		kvm->stat.vsie_shadow_sca_reuse++;
->> +	}
->>   	return sca;
->>   }
->>  =20
->> @@ -958,6 +962,8 @@ static struct vsie_sca *get_vsie_sca(struct kvm_vcpu=
- *vcpu, struct vsie_page *vs
->>   		sca_new =3D NULL;
->>  =20
->>   		kvm->arch.vsie.scas[kvm->arch.vsie.sca_count] =3D sca;
->> +		kvm->arch.vsie.sca_count++;
->
-> Why are you touching a non-stat variable in this patch?
->
+This series is the last big series of the gmap rewrite. It introduces
+the new code and actually uses it. The old code is then removed.
 
-That must have slipped in here while merging changes. It of cause needs to =
-go into patch 7. Thanks.
+The insertions/deletions balance is negative both for this series, and
+for the whole rewrite, also considering all the preparatory patches.
 
->> +		kvm->stat.vsie_shadow_sca++;
->>   	} else {
->>   		/* reuse previously created vsie_sca allocation for different osca *=
-/
->>   		sca =3D get_free_existing_vsie_sca(kvm);
->> @@ -992,6 +998,7 @@ static struct vsie_sca *get_vsie_sca(struct kvm_vcpu=
- *vcpu, struct vsie_page *vs
->>  =20
->>   	atomic_set(&sca->ref_count, 1);
->>   	radix_tree_insert(&kvm->arch.vsie.osca_to_sca, sca->sca_gpa, sca);
->> +	kvm->stat.vsie_shadow_sca_create++;
->>  =20
->>   out:
->>   	up_write(&kvm->arch.vsie.ssca_lock);
->>=20
+KVM on s390 will now use the mmu_notifier, like most other
+architectures. The gmap address space is now completely separate from
+userspace; no level of the page tables is shared between guest mapping
+and userspace.
+
+One of the biggest advantages is that the page size of userspace is
+completely independent of the page size used by the guest. Userspace
+can mix normal pages, THPs, hugetlbfs, and more.
+
+It's now possible to have nested guests and guests with huge pages
+running on the same host. In fact, it's possible to have a nested
+guest on a guest with huge pages. Transparent hugepages are also
+possible.
+
+Patches 1 to 6 are mostly preparations; introducing some new bits and
+functions, and moving code around.
+
+Patches 7 to 16 are the meat of the new gmap code; page table management
+functions and gmap management. This is the code that will be used to
+manage guest memory.
+
+Patch 19 is unfortunately big; the existing code is converted to use
+the new gmap and all references to the old gmap are removed. This needs
+to be done all at once, unfortunately, hence the size of the patch.
+
+Patch 20 and 21 remove all the now unused code.
+
+Patch 22 and 23 allow for 1M pages to be used to back guests, and add
+some more functions that are useful for testing.
+
+
+v4->v5:
+* fix some locking issues
+* fix comments and documentation
+
+
+v3->v4:
+* dat_link() can now return -ENOMEM when appropriate
+* fixed a few vSIE races that led to use-after-free or deadlocks
+* split part of the previous patch 23 and move it after patch 17, merge
+  the rest of the patch into patch 19
+* fix -ENOMEM handling in handle_pfmf() and handle_sske()
+
+
+v2->v3:
+* Add lots of small comments and cosmetic fixes
+* Rename some functions to improve clarity
+* Remove unused helper functions and macros
+* Rename inline asm constraints labels to make them more understandable
+* Refactor the code to pre-allocate the page tables (using custom
+  caches) when sleeping is allowed, use the cached pages when holding
+  spinlocks and handle gracefully allocation failures (i.e. retry
+  instead of killing the guest)
+* Refactor the code for fault handling; it's now in a separate file,
+  and it takes a callback that can be optionally called when all the
+  relevant locks are still held
+* Use assembler mnemonics instead of manually specifying the opcode
+  where appropriate
+* Remove the LEVEL_* enum, and use TABLE_TYPE_* macros instead;
+  introduce new TABLE_TYPE_PAGE_TABLE
+* Remove usage of cpu_has_idte() since it is being removed from the
+  kernel
+* Improve storage key handling and PGSTE locking
+* Introduce struct guest_fault to represent the state of a guest fault
+  that is being resolved
+* Minor CMMA fixes
+
+
+Claudio Imbrenda (23):
+  KVM: s390: Refactor pgste lock and unlock functions
+  KVM: s390: add P bit in table entry bitfields, move union vaddress
+  s390: Move sske_frame() to a header
+  KVM: s390: Add gmap_helper_set_unused()
+  KVM: s390: Enable KVM_GENERIC_MMU_NOTIFIER
+  KVM: s390: Rename some functions in gaccess.c
+  KVM: s390: KVM-specific bitfields and helper functions
+  KVM: s390: KVM page table management functions: allocation
+  KVM: s390: KVM page table management functions: clear and replace
+  KVM: s390: KVM page table management functions: walks
+  KVM: s390: KVM page table management functions: storage keys
+  KVM: s390: KVM page table management functions: lifecycle management
+  KVM: s390: KVM page table management functions: CMMA
+  KVM: s390: New gmap code
+  KVM: s390: Add helper functions for fault handling
+  KVM: s390: Add some helper functions needed for vSIE
+  KVM: s390: Stop using CONFIG_PGSTE
+  KVM: s390: Storage key functions refactoring
+  KVM: s390: Switch to new gmap
+  KVM: s390: Remove gmap from s390/mm
+  KVM: S390: Remove PGSTE code from linux/s390 mm
+  KVM: s390: Enable 1M pages for gmap
+  KVM: s390: Storage key manipulation IOCTL
+
+ MAINTAINERS                          |    2 -
+ arch/s390/Kconfig                    |    3 -
+ arch/s390/include/asm/dat-bits.h     |   32 +-
+ arch/s390/include/asm/gmap.h         |  174 --
+ arch/s390/include/asm/gmap_helpers.h |    1 +
+ arch/s390/include/asm/kvm_host.h     |    5 +
+ arch/s390/include/asm/mmu.h          |   13 -
+ arch/s390/include/asm/mmu_context.h  |    6 +-
+ arch/s390/include/asm/page.h         |    4 -
+ arch/s390/include/asm/pgalloc.h      |    4 -
+ arch/s390/include/asm/pgtable.h      |  163 +-
+ arch/s390/include/asm/tlb.h          |    3 -
+ arch/s390/include/asm/uaccess.h      |   70 +-
+ arch/s390/kvm/Kconfig                |    3 +-
+ arch/s390/kvm/Makefile               |    3 +-
+ arch/s390/kvm/dat.c                  | 1368 ++++++++++++++
+ arch/s390/kvm/dat.h                  |  965 ++++++++++
+ arch/s390/kvm/diag.c                 |    2 +-
+ arch/s390/kvm/faultin.c              |  148 ++
+ arch/s390/kvm/faultin.h              |   92 +
+ arch/s390/kvm/gaccess.c              |  943 +++++-----
+ arch/s390/kvm/gaccess.h              |   20 +-
+ arch/s390/kvm/gmap-vsie.c            |  141 --
+ arch/s390/kvm/gmap.c                 | 1127 ++++++++++++
+ arch/s390/kvm/gmap.h                 |  187 ++
+ arch/s390/kvm/intercept.c            |   15 +-
+ arch/s390/kvm/interrupt.c            |    2 +-
+ arch/s390/kvm/kvm-s390.c             |  927 ++++------
+ arch/s390/kvm/kvm-s390.h             |   28 +-
+ arch/s390/kvm/priv.c                 |  213 +--
+ arch/s390/kvm/pv.c                   |   67 +-
+ arch/s390/kvm/vsie.c                 |  153 +-
+ arch/s390/lib/uaccess.c              |  184 +-
+ arch/s390/mm/Makefile                |    1 -
+ arch/s390/mm/fault.c                 |    4 +-
+ arch/s390/mm/gmap.c                  | 2453 --------------------------
+ arch/s390/mm/gmap_helpers.c          |   87 +-
+ arch/s390/mm/hugetlbpage.c           |   24 -
+ arch/s390/mm/page-states.c           |    1 +
+ arch/s390/mm/pageattr.c              |    7 -
+ arch/s390/mm/pgalloc.c               |   24 -
+ arch/s390/mm/pgtable.c               |  818 +--------
+ include/uapi/linux/kvm.h             |   10 +
+ mm/khugepaged.c                      |    9 -
+ 44 files changed, 5190 insertions(+), 5316 deletions(-)
+ delete mode 100644 arch/s390/include/asm/gmap.h
+ create mode 100644 arch/s390/kvm/dat.c
+ create mode 100644 arch/s390/kvm/dat.h
+ create mode 100644 arch/s390/kvm/faultin.c
+ create mode 100644 arch/s390/kvm/faultin.h
+ delete mode 100644 arch/s390/kvm/gmap-vsie.c
+ create mode 100644 arch/s390/kvm/gmap.c
+ create mode 100644 arch/s390/kvm/gmap.h
+ delete mode 100644 arch/s390/mm/gmap.c
+
+-- 
+2.51.1
 
