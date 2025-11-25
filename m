@@ -1,196 +1,131 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A56CB2248B9;
-	Tue, 25 Nov 2025 07:46:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B9032D8390;
+	Tue, 25 Nov 2025 08:58:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764056815; cv=none; b=DMpxZa5LCTnRdfMtpZDakgt8i0UbEdOZejFupumg9DuDhSn9KgIUWiPj6O3PGCN7CN/Ts0Cehd+zKBQjSTWTJr1cSGoXRIew4rmWtHqs6znzq8RhTazPwjJAo4/39gVw7w6XcdSPs6WS7QCITkM0HejVCfoP/FC2XFBOpjiapYk=
+	t=1764061124; cv=none; b=qVsjNuLxJQf4mPsF83Anh3NGRWfQwqp1btK5a7H23hDn/i9j/vWfvsbnQg+pNB7nAFfgLjXHpzJFuNR0m76sdLjb24cHN/19hV9USzj4YK+yhzbBmWDfOrkgOLzkMhVS1Qe1kIHKQs+FRx8GgbSr6Kat3NEOkohkok9o7KJf6Q8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764056815; c=relaxed/simple;
-	bh=CVAehinaEnZHYHUhTa9lbfiyB5JcoF0zOenOgH3BQGs=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=qW91Mf1qp5OW0G5KEHILyumhOxrng9p+NA5r7mc731eWSpLzs2+KLvQj/6Jk/SUoEYbQj3f+s0Ossrg02TauTphRBBgExoKqW08/w9MyBl0hjeQUR8Pnx4wi7aXIXFiVX9oaZAJkpoeMJLw+XlLyw8YfKyNkXJhKu5JLrLE15bk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=c/x7l33T; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1764061124; c=relaxed/simple;
+	bh=Ai76bSkgAlu/UMyz0v5v1ss1ZrkllOwqTXFh5an/2DE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=h6vyo0gcsjpsnzk4T4iNGiuuSiOUhBhT44m3/pObFAI9Qlh6KgIWHcldXdFZcjMWbXwXtuoMuzsQXdSCKjCn2iJ7S30F1kyXrrpdBGiT1MeeHRQUD2FLPepruwlKo2fwtMV9t1pgTXH0UySIBMTewCHObT3EoTU2cy4dwon6o4w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gJOBpPeY; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="c/x7l33T"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AP4kgjN032735;
-	Tue, 25 Nov 2025 07:46:44 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gJOBpPeY"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AOJibsk021415;
+	Tue, 25 Nov 2025 08:58:35 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=+5MZso
-	xhQJ3lZmOwjZ3unECkPcyh1PKFDS5e3r7VU7U=; b=c/x7l33TE/M5w6OljhLuN4
-	xu9Xxl0MLHkic/ucMHOTDkmr2XBwmboA6IOcm3WF3r7t/s8IPRT4EGFb3huZrtR/
-	vAmOZZbpn4JIlOvTLBuOh6C6Zdr42si+cDElg8NWJUpa82ev9g/Bd3X4SO5nTmtE
-	nDSA2OsqRosZ53UzRZBiHr1yUcjOjVXbKQTFwnovbO9jCqRBIF93Eqp6wq294Ni6
-	+fA3kdvHw6dsdNSB0VXeEtdjoyv7H6cbn4+Muntogt7RbJYmJHezyJvsxgb+ysrj
-	9s52rpYs0SFY2jwXLWcRosQF0SS7q5KKhT3WurMgCCLxDYfxxlupqex1Hw4LINSQ
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ak4uv41sn-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=uRdlDVAlpO+TLEQcPq9QlLbXuvmg2frNS7o517UZs
+	fQ=; b=gJOBpPeYrNXHo0NaQFl1AcGVrE+Qsa2M2tMH/UY8u2rEQ5QQNc8UDsDKb
+	DjbXrEnpQXI+ElE2BSIWz7dPMES9SzQ7a2bFA0ptIOvoWosel8asnE54sWs9ZtF0
+	bB4rCWEgB0Y7yUnngt9hKY4w+EpzurxyZXhBaWxW9UYCfHCWWZgEStOh/0MlpdAX
+	BnHO4wqE5ThMHAht9I3dwvBvOW8FtnHiD5iIeUfsi4CSZsBOkIynvcbiRav00hW1
+	Tcj8X0CpL+ptkvQIMqU64Hi924/pgvZHMHsytsrxFsFue+J+1JtlrrVU8B2Eohts
+	Rcd0kwDxBYDVyp1eHQvHHjSX0lMMg==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ak2kpv116-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Nov 2025 07:46:44 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AP6V6gm016418;
-	Tue, 25 Nov 2025 07:46:25 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4aks0k29u3-1
+	Tue, 25 Nov 2025 08:58:35 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5AP8coPa028597;
+	Tue, 25 Nov 2025 08:58:34 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ak2kpv112-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Nov 2025 07:46:25 +0000
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AP7kNH229360748
+	Tue, 25 Nov 2025 08:58:34 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AP73RWX019010;
+	Tue, 25 Nov 2025 08:58:33 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4aksqjjea8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 25 Nov 2025 08:58:33 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AP8wU0157344286
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 25 Nov 2025 07:46:23 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 600B05805E;
-	Tue, 25 Nov 2025 07:46:23 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 911B258052;
-	Tue, 25 Nov 2025 07:46:16 +0000 (GMT)
-Received: from jarvis.ozlabs.ibm.com (unknown [9.150.29.34])
-	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 25 Nov 2025 07:46:16 +0000 (GMT)
-From: Andrew Donnellan <ajd@linux.ibm.com>
-Date: Tue, 25 Nov 2025 18:45:53 +1100
-Subject: [PATCH 2/3] KVM: s390: Enable and disable interrupts in entry code
+	Tue, 25 Nov 2025 08:58:30 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 14B022004B;
+	Tue, 25 Nov 2025 08:58:30 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 03B2C20043;
+	Tue, 25 Nov 2025 08:58:30 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 25 Nov 2025 08:58:29 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
+	id CDA69E096C; Tue, 25 Nov 2025 09:58:29 +0100 (CET)
+From: Alexandra Winter <wintera@linux.ibm.com>
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Aswin Karuvally <aswin@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Simon Horman <horms@kernel.org>
+Subject: [PATCH net-next] s390/net: list Aswin Karuvally as maintainer
+Date: Tue, 25 Nov 2025 09:58:29 +0100
+Message-ID: <20251125085829.3679506-1-wintera@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20251125-s390-kvm-xfer-to-guest-work-v1-2-091281a34611@linux.ibm.com>
-References: <20251125-s390-kvm-xfer-to-guest-work-v1-0-091281a34611@linux.ibm.com>
-In-Reply-To: <20251125-s390-kvm-xfer-to-guest-work-v1-0-091281a34611@linux.ibm.com>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Cc: Nicholas Miehlbradt <nicholas@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        David Hildenbrand <david@kernel.org>
-X-Mailer: b4 0.14.2
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTIyMDAyMSBTYWx0ZWRfXz4Mfstm8Bt3m
- 8xp6p8RpeZxLCJv4jvbN/EtPuTtSzmCDvzglGlm6u56ii0F/yq7OtVGMB6xVOlYU4OsOpOwTSNS
- IBJBRi3OBDxZ3wHlswz3PMTDSi9Q9NHGCalpYo0F+c3wZAXGUJlZds3cR94n8dzZEwv28D4K5Qf
- q0y7IatIw5ewf4JQrjdq9qWuLzQumZ/XxaPqG8FxzQwPpSls6obB6pAKSHyTOujR+U7B1sq9ucx
- R4+ftiiYfGZUEtfUoDGUMTb6ev6sto2zm1MJtT+XiRghzJ+orlzphUZOcvCpZwfrjCs9/w5WPnw
- L5s9ISeATNI/cdTcgs0lpWyfB+ZlzivJVpSDyuwMVJCL8I9uRJZKMRc8RZMGitLg2Bcr4e5fkz3
- GSDW73A5FED712qr6pkBGhTa1Ca/9w==
-X-Authority-Analysis: v=2.4 cv=PLoCOPqC c=1 sm=1 tr=0 ts=69255ee4 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=eOUov4wa0NbOG_Jv4UoA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: oSgQibWHqXzxYrFp_LWcyzhiqOmvlfaB
-X-Proofpoint-GUID: oSgQibWHqXzxYrFp_LWcyzhiqOmvlfaB
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTIyMDAwMCBTYWx0ZWRfX2kOjkca2maz6
+ W65b3Vkb4XKOISWY3c/BT17IREtufBQnh7e41D9d/5Jslt+X0whXvOH/Wh3fiIYFj0oYAEnEtob
+ YooC3yLPr0O1vF0J+sAIHWmJJmleq6xik7NEihLAVbsR7DfLsVo8fCI9HEIP+yi27axovGElX8q
+ RR+S8kxdwORRfU32yslvOsb4HTM8wNoqT0etLj9mWIzfBHBOlnWDjISNB2Q2yalPJx2OJMPFxBt
+ NiZrr1K/AOEh9UOD+POI9EOzzexznNoc9SD1xGBAfTsy7XR7GXx9UFwZZKPIkr1c39jlBCDlLqH
+ d9MV2cGu7K8VX69ESj32mxWihYIyu6OPQec0nt05JRaDIkLjSP7f6OL0SPK9s5rgQZqiybdvjlV
+ IhRsxwdatRQomPILQ5f5du084XL9Qw==
+X-Authority-Analysis: v=2.4 cv=fJM0HJae c=1 sm=1 tr=0 ts=69256fbb cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
+ a=c18PVjXdg6hYHKaeyskA:9
+X-Proofpoint-GUID: hswxEebVJGQwJg10HWdFyeEqqbKvpnTI
+X-Proofpoint-ORIG-GUID: TqVcwEsQN_5NQfISoHLmonv4FrbzYof5
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-11-25_02,2025-11-24_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 lowpriorityscore=0 spamscore=0 adultscore=0 impostorscore=0
- priorityscore=1501 bulkscore=0 malwarescore=0 clxscore=1015 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511220021
+ clxscore=1015 phishscore=0 priorityscore=1501 impostorscore=0
+ lowpriorityscore=0 suspectscore=0 malwarescore=0 adultscore=0 bulkscore=0
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2511220000
 
-From: Heiko Carstens <hca@linux.ibm.com>
+Thank you Aswin for taking this responsibility.
 
-Move enabling and disabling of interrupts around the SIE instruction to
-entry code. Enabling interrupts only after the __TI_sie flag has been set
-guarantees that the SIE instruction is not executed if an interrupt happens
-between enabling interrupts and the execution of the SIE instruction.
-Interrupt handlers and machine check handler forward the PSW to the
-sie_exit label in such cases.
-
-This is a prerequisite for VIRT_XFER_TO_GUEST_WORK to prevent that guest
-context is entered when e.g. a scheduler IPI, indicating that a reschedule
-is required, happens right before the SIE instruction, which could lead to
-long delays.
-
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Tested-by: Andrew Donnellan <ajd@linux.ibm.com>
-Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Acked-by: Aswin Karuvally <aswin@linux.ibm.com>
 ---
- arch/s390/include/asm/stacktrace.h | 1 +
- arch/s390/kernel/asm-offsets.c     | 1 +
- arch/s390/kernel/entry.S           | 2 ++
- arch/s390/kvm/kvm-s390.c           | 5 -----
- 4 files changed, 4 insertions(+), 5 deletions(-)
+ MAINTAINERS | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/stacktrace.h b/arch/s390/include/asm/stacktrace.h
-index 810a6b9d96280f73311de873ad180c59a0cfbd5f..c9ae680a28af910c4703eee179be4db6c1ec9ad1 100644
---- a/arch/s390/include/asm/stacktrace.h
-+++ b/arch/s390/include/asm/stacktrace.h
-@@ -66,6 +66,7 @@ struct stack_frame {
- 			unsigned long sie_flags;
- 			unsigned long sie_control_block_phys;
- 			unsigned long sie_guest_asce;
-+			unsigned long sie_irq;
- 		};
- 	};
- 	unsigned long gprs[10];
-diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
-index a8915663e917faed4551276b64013ee073662cc9..730449f464aff25761264b00d63d92e907f17f78 100644
---- a/arch/s390/kernel/asm-offsets.c
-+++ b/arch/s390/kernel/asm-offsets.c
-@@ -64,6 +64,7 @@ int main(void)
- 	OFFSET(__SF_SIE_FLAGS, stack_frame, sie_flags);
- 	OFFSET(__SF_SIE_CONTROL_PHYS, stack_frame, sie_control_block_phys);
- 	OFFSET(__SF_SIE_GUEST_ASCE, stack_frame, sie_guest_asce);
-+	OFFSET(__SF_SIE_IRQ, stack_frame, sie_irq);
- 	DEFINE(STACK_FRAME_OVERHEAD, sizeof(struct stack_frame));
- 	BLANK();
- 	OFFSET(__SFUSER_BACKCHAIN, stack_frame_user, back_chain);
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 75b0fbb236d05f420b20cac6bac925e8ac36fa68..e906f4ab6cf35e53061a27192911629c10c347ed 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -189,6 +189,7 @@ SYM_FUNC_START(__sie64a)
- 	mvc	__SF_SIE_FLAGS(8,%r15),__TI_flags(%r14) # copy thread flags
- 	lmg	%r0,%r13,0(%r4)			# load guest gprs 0-13
- 	mvi	__TI_sie(%r14),1
-+	stosm	__SF_SIE_IRQ(%r15),0x03		# enable interrupts
- 	lctlg	%c1,%c1,__SF_SIE_GUEST_ASCE(%r15) # load primary asce
- 	lg	%r14,__SF_SIE_CONTROL(%r15)	# get control block pointer
- 	oi	__SIE_PROG0C+3(%r14),1		# we are going into SIE now
-@@ -212,6 +213,7 @@ SYM_FUNC_START(__sie64a)
- 	lg	%r14,__LC_CURRENT(%r14)
- 	mvi	__TI_sie(%r14),0
- SYM_INNER_LABEL(sie_exit, SYM_L_GLOBAL)
-+	stnsm	__SF_SIE_IRQ(%r15),0xfc		# disable interrupts
- 	lg	%r14,__SF_SIE_SAVEAREA(%r15)	# load guest register save area
- 	stmg	%r0,%r13,0(%r14)		# save guest gprs 0-13
- 	xgr	%r0,%r0				# clear guest registers to
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index fa6b5150ca31e4d9f0bdafabc1fb1d90ef3f3d0d..3cad08662b3d80aaf6f5f8891fc08b383c3c44d4 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -5075,13 +5075,8 @@ int noinstr kvm_s390_enter_exit_sie(struct kvm_s390_sie_block *scb,
- 	 * The guest_state_{enter,exit}_irqoff() functions inform lockdep and
- 	 * tracing that entry to the guest will enable host IRQs, and exit from
- 	 * the guest will disable host IRQs.
--	 *
--	 * We must not use lockdep/tracing/RCU in this critical section, so we
--	 * use the low-level arch_local_irq_*() helpers to enable/disable IRQs.
- 	 */
--	arch_local_irq_enable();
- 	ret = sie64a(scb, gprs, gasce);
--	arch_local_irq_disable();
+diff --git a/MAINTAINERS b/MAINTAINERS
+index e9a8d945632b..012861995939 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -22672,7 +22672,7 @@ F:	arch/s390/mm
  
- 	guest_state_exit_irqoff();
- 
-
+ S390 NETWORK DRIVERS
+ M:	Alexandra Winter <wintera@linux.ibm.com>
+-R:	Aswin Karuvally <aswin@linux.ibm.com>
++M:	Aswin Karuvally <aswin@linux.ibm.com>
+ L:	linux-s390@vger.kernel.org
+ L:	netdev@vger.kernel.org
+ S:	Supported
 -- 
-2.52.0
+2.48.1
 
