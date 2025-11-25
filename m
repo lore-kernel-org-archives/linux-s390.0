@@ -1,171 +1,104 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 005E929B795;
-	Tue, 25 Nov 2025 11:16:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EB86239E7F
+	for <linux-s390@vger.kernel.org>; Tue, 25 Nov 2025 14:02:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764069411; cv=none; b=U8H0sjFUfMrc21Idk56RsJ9zHIg34s5A7SuEcy/TbWW/7/WAWn/Y57Bfdi/s02ZsyJXO+XctLIKrXCCSQoSDoNGe0Q9foXLDBZYE0zE8otwubMULklQ0qX/R5m9uIdKuNRpxRL9RA6k2GPgTCRpI8wegvmQOKvGNU1WCtkf4WRA=
+	t=1764079341; cv=none; b=Ld/BD4I6RzvelOclWtsKVjyspD47Saw6E0CtemMB4TzagNyNt5sUOVSzHcc8IGO/ApMQW9S1E/qWk7E2OT0abZ32IjHXnc5C4rbPr1gDylgQUrRymI+L+S50rfHeBQttbOXbb+6BAPr5fstj0WUOi4dNulr+WdFd9ZNE9RhXsYY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764069411; c=relaxed/simple;
-	bh=IWawuzqG+2NV1QobnSFkgHOEywGckk9oKebW7gd1Qmw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=AjDND7nkJOpcc+D9nWtw16xbp1M1pRzrS+ErVi+qUecGSgRX1YstcEMp45Bj0I0/5g3RoricKrmKTUTWijGJ097XlmoV+DkxKY6qs0RWUcXRAzhf88Pf9UR1r32UwqZpM6cn6jaXXNzg4fk8i4XySN+jhvZKPa2JxvF8cUMGK/I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=siNE5s4f; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1764079341; c=relaxed/simple;
+	bh=zwhHwXxKb3Jx2uVwwBc7lJM/sqh709x3dgqxwCTMV68=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=cRURNk2GysA7xDbQsXfm8RC3qiZiNmTrrp0cZQxX1ncLWWsIVj4TDzLp+lIpXxuF1dwZKUsu458mXlmdUWsA0yz6Tuffe8mkGVgsXJ5m2hNE36BMbfDPb3R2iCkhA3AblrFFQ5foVojYk8Z+W97aeE7BQm+Uy0akllCyQZITZiI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SDJHAYiP; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="siNE5s4f"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AP80ZuG003341;
-	Tue, 25 Nov 2025 11:16:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=yBK0rSdQ+Tmt9dIIgOSx96whnlK9kL
-	+IoST1r0RrPwI=; b=siNE5s4fvC4tpRqK7AwuvA3bWYcedhYm2iX/oEvVKMe8ys
-	FRhlW6a2rIttieRNHkWI5lgVLr/csLiR9grcsDr1n8fXPJg09WoxK3FYb9DGc0/n
-	sPizbVQFocFHRYZPcifoPuTGWSJzV+9lGsC/fLbl0uUyDazYWKU/nWWvdHKWIY3M
-	44N3vAgHhrS9Inffz/dLRTgQDfrb/VAuVsnpfgcIOq21I62mAzw5q+IGEkJmFWOR
-	fjtE1NvKBYQkXZxMO1ACOpy1CbOzsWKKynZFYyRVeqs1DEfXu8gle/IuO2otL3jJ
-	kyXttyQC5fQcUNuKmcHn9RwFX0R0bNX5iJnxQX8Q==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ak4u1ve7u-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Nov 2025 11:16:25 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5APAYHlq019023;
-	Tue, 25 Nov 2025 11:16:24 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4aksqjk415-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Nov 2025 11:16:24 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5APBGKIx30998976
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 25 Nov 2025 11:16:20 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 814BF20043;
-	Tue, 25 Nov 2025 11:16:20 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 074DF20040;
-	Tue, 25 Nov 2025 11:16:20 +0000 (GMT)
-Received: from osiris (unknown [9.155.211.25])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 25 Nov 2025 11:16:19 +0000 (GMT)
-Date: Tue, 25 Nov 2025 12:16:18 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Andrew Donnellan <ajd@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Nicholas Miehlbradt <nicholas@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        David Hildenbrand <david@kernel.org>
-Subject: Re: [PATCH 3/3] KVM: s390: Use generic VIRT_XFER_TO_GUEST_WORK
- functions
-Message-ID: <20251125111618.10410Fa0-hca@linux.ibm.com>
-References: <20251125-s390-kvm-xfer-to-guest-work-v1-0-091281a34611@linux.ibm.com>
- <20251125-s390-kvm-xfer-to-guest-work-v1-3-091281a34611@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SDJHAYiP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1764079338;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=+mv38gPh6SkK1RX7Cr0xMUdyu6xke7mx9I24tHoVHJs=;
+	b=SDJHAYiP39VIcqsuGRtyWh2v5TMsCAEGKGZVaaZXEqZ0C5HcvRiFxYMScn4RI31BHNZ+Nr
+	dDgOJo+dloCDdDAQlO/WRoWAM9vbF2ze079U1P0CJfH9nuOzSk7V1M+095lvwT8QIvBMfM
+	+2ytN/rqmp5t0D+yc9KONvJ0Rczf5ZQ=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-651-Sx0YysXnM0-GSYKMDQsXiQ-1; Tue,
+ 25 Nov 2025 09:02:15 -0500
+X-MC-Unique: Sx0YysXnM0-GSYKMDQsXiQ-1
+X-Mimecast-MFC-AGG-ID: Sx0YysXnM0-GSYKMDQsXiQ_1764079333
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B0E061955F3C;
+	Tue, 25 Nov 2025 14:02:12 +0000 (UTC)
+Received: from [10.44.33.72] (unknown [10.44.33.72])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 3708230044E8;
+	Tue, 25 Nov 2025 14:02:08 +0000 (UTC)
+Date: Tue, 25 Nov 2025 15:02:06 +0100 (CET)
+From: Mikulas Patocka <mpatocka@redhat.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+cc: "David S. Miller" <davem@davemloft.net>, 
+    Harald Freudenberger <freude@linux.ibm.com>, 
+    Ingo Franzki <ifranzki@linux.ibm.com>, linux-crypto@vger.kernel.org, 
+    Eric Biggers <ebiggers@kernel.org>, dengler@linux.ibm.com, 
+    linux-s390@vger.kernel.org, dm-devel@lists.linux.dev, agk@redhat.com, 
+    snitzer@kernel.org, Milan Broz <gmazyland@gmail.com>, guazhang@redhat.com
+Subject: Re: [PATCH] crypto/authenc: don't return -EBUSY when enqueuing the
+ hash request
+In-Reply-To: <aNK6IMzUgslPVi3x@gondor.apana.org.au>
+Message-ID: <7c1b844a-443e-9fd3-3aa9-0dacbc381812@redhat.com>
+References: <20250908131642.385445532@debian4.vm> <3a6b6f8f-5205-459c-810a-2425aae92fc8@linux.ibm.com> <e1e420d5-dc00-14d0-fdef-635d6ef70811@redhat.com> <bb68f9d6-8180-4291-9e6b-33bbdcef780f@linux.ibm.com> <8cb59ed5-1c9a-49de-beee-01eda52ad618@linux.ibm.com>
+ <1af710ec-0f23-2522-d715-e683b9e557d8@redhat.com> <f799d7ab97470f2529b8dcb5566fd673@linux.ibm.com> <e26aedc6-7132-46c3-78f3-a3582b1c4f9a@redhat.com> <aNIYTm6neC3lC6dP@gondor.apana.org.au> <194f9d1e-b6b0-54c7-6eb8-37ac0c0c1f9d@redhat.com>
+ <aNK6IMzUgslPVi3x@gondor.apana.org.au>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251125-s390-kvm-xfer-to-guest-work-v1-3-091281a34611@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTIyMDAyMSBTYWx0ZWRfX7tNP2tBxAgd7
- QjZ/cl9mM1HrRM01HDDVMGWXX2gFqWJ5ICVG+Hy2ioGnXscq7uu7HRl81/GfvLMd5pMpASzqnb7
- I28erhp8dqNeCQzliIjpXUmIfx+Cc0s9HSfYjkKGaTIWutqJoWYWjC7M+gDYdra5QxRfdsQsUHh
- k1dxCWL9H9QTiaZyqUszlz1xjBWrzOOL+yO3U9pAsX9jY9hWh5Qcrm23QHBXiM3daThHWBC0/ME
- XScU/QXVtW2MQNETWZSoEqjegWF+F14ujHKl+YU5i3jSSPMzhLmhJ2Qb54c9WZrYbvU1K0DRo7P
- hlxv9tlrdA6xFrs/efAizM8r8RaC0d3anwmt4Phhg640/gp/QM22GoV8xFkDgQYii6QUnUsiZTa
- vCmmh5Sw9SWnop+dJKsemjeWF8AYPA==
-X-Authority-Analysis: v=2.4 cv=SuidKfO0 c=1 sm=1 tr=0 ts=69259009 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=kj9zAlcOel0A:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=Ldvqa60LikrQ3swS9-UA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: ANGSFDJNVT9Sw5sXetchXIiaviJvshW7
-X-Proofpoint-GUID: ANGSFDJNVT9Sw5sXetchXIiaviJvshW7
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-11-25_02,2025-11-24_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 lowpriorityscore=0 clxscore=1011 impostorscore=0
- malwarescore=0 spamscore=0 suspectscore=0 phishscore=0 adultscore=0
- bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
- definitions=main-2511220021
+Content-Type: text/plain; charset=US-ASCII
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-On Tue, Nov 25, 2025 at 06:45:54PM +1100, Andrew Donnellan wrote:
-> Switch to using the generic infrastructure to check for and handle pending
-> work before transitioning into guest mode.
+
+
+On Tue, 23 Sep 2025, Herbert Xu wrote:
+
+> On Tue, Sep 23, 2025 at 01:14:10PM +0200, Mikulas Patocka wrote:
+> >
+> > static void authenc_request_complete(struct aead_request *req, int err)
+> > {
+> >         if (err != -EINPROGRESS)
+> >                 aead_request_complete(req, err);
+> > }
 > 
-> xfer_to_guest_mode_handle_work() does a few more things than the current
-> code does when deciding whether or not to exit the __vcpu_run() loop. The
-> exittime tests from kvm-unit-tests, in my tests, were +/-3% compared to
-> before this series, which is within noise tolerance.
+> Oh OK.  That was kind of a hack which worked because authenc was
+> used by IPsec only, so it didn't expect to be called with MAY_BACKLOG.
+> 
+> Now that you're calling it with MAY_BACKLOG, we need to fix it to
+> distinguish between an EINPROGRESS notification for EBUSY and one
+> that's returned directly by an async function.
+> 
+> Thanks,
+> -- 
+> Email: Herbert Xu <herbert@gondor.apana.org.au>
+> Home Page: http://gondor.apana.org.au/~herbert/
+> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
-...
+Hi Herbert
 
->  		local_irq_disable();
-> +
-> +		xfer_to_guest_mode_prepare();
-> +		if (xfer_to_guest_mode_work_pending()) {
-> +			local_irq_enable();
-> +			rc = kvm_xfer_to_guest_mode_handle_work(vcpu);
-> +			if (rc)
-> +				break;
-> +			local_irq_disable();
-> +		}
-> +
->  		guest_timing_enter_irqoff();
->  		__disable_cpu_timer_accounting(vcpu);
+What's the status of this bugfix? I searched the git history, but didn't 
+find it.
 
-This looks racy: kvm_xfer_to_guest_mode_handle_work() returns with
-interrupts enabled and before interrupts are disabled again more work
-might have been become pending. But that is ignored and guest state is
-entered instead. Why not change the above simply to something like
-this to avoid this:
+We have hit another deadlock in dm-crypt when using the "tegra-se" driver 
+(the driver returned -EBUSY, but didn't call the completion routine with 
+-EINPROGRESS), and I suspect that it may be this problem again.
 
-again:
-	local_irq_disable();
-		xfer_to_guest_mode_prepare();
-		if (xfer_to_guest_mode_work_pending()) {
-			local_irq_enable();
-			rc = kvm_xfer_to_guest_mode_handle_work(vcpu);
-			if (rc)
-				break;
-			goto again;
-		}
+Mikulas
 
-		guest_timing_enter_irqoff();
-		__disable_cpu_timer_accounting(vcpu);
-
-But maybe I'm missing something?
-
-> @@ -1181,11 +1181,21 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->  	barrier();
->  	if (!kvm_s390_vcpu_sie_inhibited(vcpu)) {
->  		local_irq_disable();
-> +		xfer_to_guest_mode_prepare();
-> +		if (xfer_to_guest_mode_work_pending()) {
-> +			local_irq_enable();
-> +			rc = kvm_xfer_to_guest_mode_handle_work(vcpu);
-> +			if (rc)
-> +				goto skip_sie;
-> +			local_irq_disable();
-> +		}
->  		guest_timing_enter_irqoff();
->  		rc = kvm_s390_enter_exit_sie(scb_s, vcpu->run->s.regs.gprs, vsie_page->gmap->asce);
-
-Same here.
