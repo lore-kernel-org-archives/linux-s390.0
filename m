@@ -1,83 +1,161 @@
-Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 975774C9D;
-	Wed, 26 Nov 2025 05:16:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=180.181.231.80
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82CB74C9D;
+	Wed, 26 Nov 2025 05:33:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764134188; cv=none; b=AhFpAiYZ08xFfAfaBGRKeJbO+2lWJsLi9iYntxKZaZMYzAFsIIP9T+r8VNR7ED6Y9c1QDkktyGQmIBxxNGXO2fF85wZjNM/nx5FzjH92VJNXtae1o0uEh4QNiQIPDst7YrNuDujDTaxOSpnFg8K9x+PwDMJb83GfqqbuErJGhQc=
+	t=1764135233; cv=none; b=a4ll+vFF9r1B/a+gZk3SZatuja8v0zFLPLP9+TaaPakLZeCYMaaRuGKrGRhDvH+PNdIZwkI9iY1KNjcL5WawuURybcTfhhVDN3jKGjZJkJNXEH3CBdtYuEXWkEcofJsLZoC1APEddBZZeOFAHWj+61eW8l9VNpUNniC2Kdk6rf8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764134188; c=relaxed/simple;
-	bh=KwCJFNdunM+WCQ7GYq8a4nZKbvgFCToND+WAn2yV22o=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ac6E4a7FbIDCTYAJ8A4kl1l794ZVIj6u5doUZKRbxXtK56UoKR+0tlEhpgCJk0GBb55TsOiJB5sZ1oSwxPH3Dq37ws4JPFBTMIzaGwvM97e1GyLQQLVYljBujj+z0e+Nmz9XQZLtUqflNOo8Wv6uJ77oxZotXDqJVRiGFgX0Uxc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b=qBimrzYA; arc=none smtp.client-ip=180.181.231.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1764135233; c=relaxed/simple;
+	bh=/bQY4JxjE3ovZu4vHbWaRRcB1GnDomvnpTH3IqUkf1Q=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=osmE5Hx55//Z/JmHQ1O7K2ktZ9oPf7CjgDHy5g2Wz6CyopCVLcza1OETq0rmn9G4TYaCsRq2R26EsnlvHP2FpAvb3RXcJZu0xyzwTbaJautZ4Qu8/6hUIG/K/gTBNkLCoSozWWXPn35C8pQM664XGO36EoRut5BR9jq1gn8wxGs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Nf2M7moR; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b="qBimrzYA"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=gondor.apana.org.au; s=h01; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:cc:to:subject:message-id:date:
-	from:content-type:reply-to; bh=yPwIPiKkFkevqnFhcN4kykowxr+JEWNDh91hvscemg4=; 
-	b=qBimrzYA5tUA/x58SvrtqPAx65d7WtGP+EMq8/YqnERFBgWh2wGuNNmE4Fksy2JHIMTmgf6Ff78
-	I8uvBcc8iPntB27yeXM272Efsb6AEGBOrI86LTXm5YijnSf0/1P2IOAc0dkNUXx6P5MynjWi+zj/D
-	THdec+2RNfdcv40pJdDFRDHhiRSxdEXw5laEpmhUQZgjkjsmT87DwwFCnKp3emAZPkwdaPVMkNLmE
-	BNnsGiyZceFOxxkBA0EgCKxYb4btZgA2ez2XJSki5vtq22orXW/Zu+7M3XXLB76zbDg7+njFRbVWM
-	Qo02OvI2JgZ3A1incfToA90Y4EA1FomIiiGg==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1vO7st-0061h9-07;
-	Wed, 26 Nov 2025 13:16:08 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Wed, 26 Nov 2025 13:16:07 +0800
-Date: Wed, 26 Nov 2025 13:16:07 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Mikulas Patocka <mpatocka@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Ingo Franzki <ifranzki@linux.ibm.com>, linux-crypto@vger.kernel.org,
-	Eric Biggers <ebiggers@kernel.org>, dengler@linux.ibm.com,
-	linux-s390@vger.kernel.org, dm-devel@lists.linux.dev,
-	agk@redhat.com, snitzer@kernel.org,
-	Milan Broz <gmazyland@gmail.com>, guazhang@redhat.com
-Subject: Re: [PATCH] crypto/authenc: don't return -EBUSY when enqueuing the
- hash request
-Message-ID: <aSaNFzW1jPp7zVLU@gondor.apana.org.au>
-References: <e1e420d5-dc00-14d0-fdef-635d6ef70811@redhat.com>
- <bb68f9d6-8180-4291-9e6b-33bbdcef780f@linux.ibm.com>
- <8cb59ed5-1c9a-49de-beee-01eda52ad618@linux.ibm.com>
- <1af710ec-0f23-2522-d715-e683b9e557d8@redhat.com>
- <f799d7ab97470f2529b8dcb5566fd673@linux.ibm.com>
- <e26aedc6-7132-46c3-78f3-a3582b1c4f9a@redhat.com>
- <aNIYTm6neC3lC6dP@gondor.apana.org.au>
- <194f9d1e-b6b0-54c7-6eb8-37ac0c0c1f9d@redhat.com>
- <aNK6IMzUgslPVi3x@gondor.apana.org.au>
- <7c1b844a-443e-9fd3-3aa9-0dacbc381812@redhat.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Nf2M7moR"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5APK7hnX021895;
+	Wed, 26 Nov 2025 05:33:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=Gu2gily6vcH8nxownTzSqSEjA3+Z
+	C6TaZ7RNEM0Vww4=; b=Nf2M7moRY1Xn0lh/QftxsMR/KhvNGnn5Os4aOvNYERFb
+	pTi44cx3AWsCZCkIw1vRqEKdLq6/Kwhfy2yQo6BHsJJ8SGKAHyDWFDWZpp1SSTTP
+	m/GZ4v1DgiqKoKohi1UArMN7Iza67mNDrKg6w+c+BZfwdWsgA8xeU+/53xmjxzuy
+	XJWwz6RhML5TNNPLye3X1e/ShAZU/H+ZfnlghCh8XvTHzI26koU9fg5xtI4oXWsq
+	I6RzsihG5dGf/YfNSw9XgEsD8ZjMzql0m94zoX1p++eD1hJCkqF96VCitAWy1r5b
+	e4GZwz67AS8a7bWTFeS4Cle+fZnBEApr3jxT+cRcwg==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ak3kk14j6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 26 Nov 2025 05:33:40 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AQ3LU5T025083;
+	Wed, 26 Nov 2025 05:33:39 GMT
+Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4akt71fy9t-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 26 Nov 2025 05:33:39 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AQ5XcZI48824732
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 26 Nov 2025 05:33:38 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5B84A58056;
+	Wed, 26 Nov 2025 05:33:38 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E855058052;
+	Wed, 26 Nov 2025 05:33:33 +0000 (GMT)
+Received: from jarvis.ozlabs.ibm.com (unknown [9.90.171.232])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 26 Nov 2025 05:33:33 +0000 (GMT)
+From: Andrew Donnellan <ajd@linux.ibm.com>
+Subject: [PATCH v2 0/3] KVM: s390: Use generic VIRT_XFER_TO_GUEST_WORK
+ entry helpers
+Date: Wed, 26 Nov 2025 16:33:09 +1100
+Message-Id: <20251126-s390-kvm-xfer-to-guest-work-v2-0-1b8767879235@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7c1b844a-443e-9fd3-3aa9-0dacbc381812@redhat.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/43NsQ6CMBSF4Vchnb2kt6VEnHwP41DwAg1CTQsVQ
+ 3h3C5Nx0fE/w3cW5skZ8uyULMxRMN7YIYY4JKxq9dAQmFtsJrhQiFyBlwWHLvQw1+RgtNBM5Ed
+ 4WteBJF3qvOKkecai8HBUm3nXL9fYrfGjda/9LMht/c8NEjiUebSl4qWW6nw3wzSnpuzTyvZss
+ wN+eOKHh9HjBYojapnliN/euq5vxx6HnxoBAAA=
+X-Change-ID: 20251105-s390-kvm-xfer-to-guest-work-3eaba6c0ea04
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Cc: Nicholas Miehlbradt <nicholas@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        David Hildenbrand <david@kernel.org>
+X-Mailer: b4 0.14.2
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: RwYL8bja8nrCF3-26EEzmlOuqQCIIOtC
+X-Authority-Analysis: v=2.4 cv=frbRpV4f c=1 sm=1 tr=0 ts=69269134 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=dCP-iVU0ufJp51HjtDEA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: RwYL8bja8nrCF3-26EEzmlOuqQCIIOtC
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTIyMDAwOCBTYWx0ZWRfX8NzNvy5nNKcB
+ jlimIJD+jPxdwgyrmAN432pWhkfJDFi5kuYTdMnBGylamvyGmczC4tuds5EFeGFVBgj70M0R+L4
+ MSag+Jjo0iAsb7bCVcb69IglRZEXkgKF6wSJ0h6rT3hoPqQvtRClteZi7CrDdYuod441h6diTX9
+ NWJvPs8LFtcLgY2C+kjgd1RLd3bDXlJhpnrGGjmQdFJiGxplQCBBCic2E2N7WzDITrJlcZjh13R
+ oRvGBL9jl1hZdIeDPXyVpsKoaOBoDl4lZ6rSpT0fcUBVHtAamaqRltmvOB9U77kXSPJsh/Gqmdm
+ 144rLfmUVp/2IbgNgAdgehe/fMPgMIirxqoXvy9c4KXDt366vbt5DggSmsX1HemARCkLk7vxWQX
+ yGnXMK/caAFyQaW4tNSvRq36NVsriA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-11-25_02,2025-11-25_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 suspectscore=0 clxscore=1015 spamscore=0 lowpriorityscore=0
+ impostorscore=0 bulkscore=0 adultscore=0 priorityscore=1501 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511220008
 
-On Tue, Nov 25, 2025 at 03:02:06PM +0100, Mikulas Patocka wrote:
->
-> What's the status of this bugfix? I searched the git history, but didn't 
-> find it.
+This series enables VIRT_XFER_TO_GUEST_WORK on s390.
 
-It's in cryptodev:
+This requires:
 
-commit 96feb73def02d175850daa0e7c2c90c876681b5c
-Author: Herbert Xu <herbert@gondor.apana.org.au>
-Date:   Wed Sep 24 18:20:17 2025 +0800
+  1) adding a signal_exits stats counter, which is used by
+     kvm_handle_signal_exit()
+  2) moving the point where interrupts are enabled and disabled in the
+     guest entry path, so that interrupts aren't enabled until after the
+     __TI_sie flag is set
+  3) enabling VIRT_XFER_TO_GUEST_WORK and adding the appropriate calls to
+     check for and handle outstanding work in __vcpu_run() and the VSIE
+     path.
 
-    crypto: authenc - Correctly pass EINPROGRESS back up to the caller
+With this series applied, the kvm-unit-tests suite passes on both the host
+and an L1 guest with nested KVM enabled, and benchmarks done using the
+exittime tests from kvm-unit-tests show that the impact on entry path
+performance is generally small enough to be noise (in my tests, around
++/-3%, running directly in an LPAR and in a L1 KVM guest).
 
-Cheers,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Thanks to Heiko for feedback and guidance on this.
+
+Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
+---
+Changes in v2:
+- if work is handled, recheck for outstanding work with interrupts
+  disabled before entering guest (Heiko)
+- Link to v1: https://lore.kernel.org/r/20251125-s390-kvm-xfer-to-guest-work-v1-0-091281a34611@linux.ibm.com
+
+---
+Andrew Donnellan (2):
+      KVM: s390: Add signal_exits counter
+      KVM: s390: Use generic VIRT_XFER_TO_GUEST_WORK functions
+
+Heiko Carstens (1):
+      KVM: s390: Enable and disable interrupts in entry code
+
+ arch/s390/include/asm/kvm_host.h   |  1 +
+ arch/s390/include/asm/stacktrace.h |  1 +
+ arch/s390/kernel/asm-offsets.c     |  1 +
+ arch/s390/kernel/entry.S           |  2 ++
+ arch/s390/kvm/Kconfig              |  1 +
+ arch/s390/kvm/kvm-s390.c           | 34 +++++++++++++++++++++-------------
+ arch/s390/kvm/vsie.c               | 18 +++++++++++++-----
+ 7 files changed, 40 insertions(+), 18 deletions(-)
+---
+base-commit: ac3fd01e4c1efce8f2c054cdeb2ddd2fc0fb150d
+change-id: 20251105-s390-kvm-xfer-to-guest-work-3eaba6c0ea04
+
+
+--
+Andrew Donnellan    OzLabs, ADL Canberra
+ajd@linux.ibm.com   IBM Australia Limited
+
