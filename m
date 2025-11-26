@@ -1,226 +1,132 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from relay.hostedemail.com (smtprelay0017.hostedemail.com [216.40.44.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A13733469C;
-	Wed, 26 Nov 2025 16:06:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 062681E231E;
+	Wed, 26 Nov 2025 17:11:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.40.44.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764173205; cv=none; b=mRKp6MGgsT3i78Aj2nMWOvv1u7+7apMR7bc0H3RxYer7vL/42ECsLuCReUluRzTJZvAd7kafw1GvQ+5/7jN+1HeBME1SHXo5HoYd4cI+sjV2LL66Z4ywSUPb/JUIEkSkre9b3YdNMr72RV2gOCeA/3TulJwa71jqSqf5HuU/rwQ=
+	t=1764177111; cv=none; b=dbJoAUnhM2lIBy/aNeQvrveAHaXZAhYZXauZlnSGkdxuMmCy9f+dkJpTFNLVT8EjKnNrIpqhIzhM4gwN+LtKoRRMawoeMwoWqCaTT0Y2v+IHzTiU8i6O8krhnnSpdkboBi1nJ+PAP7J2HeyyWl4UGhPO5gE3F/naEvuCVWIfNzU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764173205; c=relaxed/simple;
-	bh=CTTQYsPxETR3vwcipPkfPiM3j4gpNBrF01kSwl2f0wM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=effg0mT5cW+KsBBZxKH5VvtDufbQ2AYm9ZVDLiLvK7hcgGJPRKFQvUcIzi6dv+F6U0YlrS51j/9MrvpHWf8txZhMdqvIGAgXtedOPWbXc/DI+wltt6PidpjSzR8ouOV0E7OModUQUR5oGwkOyH6nlGRAHxAglUnd422+K1x7tqQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LLog3fdJ; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LLog3fdJ"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AQCcQVJ003102;
-	Wed, 26 Nov 2025 16:06:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=Tjhi6ofzQ2qB6fS7W
-	Qq2yKL7TtK7ZoxgVYRChp5f+14=; b=LLog3fdJximDeh/hfKjx2QDcNrsid4cKI
-	ugpbCJOvdi8QDssyny2jMOTD2H6gkXggX6hWAFmDM3wjvw75yfO4nSgPnfAKKgj5
-	BgoWHNCRfbEqpCfutWQl3FeCX9i83ECCaIz5xIO53YKztIJCRvRiqlsUMauRkLeQ
-	EQPG7L002HWF9Zu8RtIZXKINtW/0m6cgmchpBxB2bynvu1iYNCTg/8+XRjZwfDmZ
-	yx+EjGPeApk6Eh2tD2zfvKE6KuWxIpP4hpduMs8vCxV0dCL4rLDycfSwXylFUz7+
-	XVgRzKLOklwnYT++FiIvRjs3oMv6S3RCMCaVA6k5OEf3CMd7MXQUQ==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ak3kk44v3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 26 Nov 2025 16:06:41 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5AQEqA99016406;
-	Wed, 26 Nov 2025 16:06:41 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4aks0kbep0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 26 Nov 2025 16:06:41 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AQG6Yx249217924
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 26 Nov 2025 16:06:34 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B41A32004B;
-	Wed, 26 Nov 2025 16:06:34 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A4AE320040;
-	Wed, 26 Nov 2025 16:06:34 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 26 Nov 2025 16:06:34 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 20191)
-	id 7B71EE0468; Wed, 26 Nov 2025 17:06:34 +0100 (CET)
-From: Stefan Haberland <sth@linux.ibm.com>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 2/4] s390/dasd: Remove unnecessary debugfs_create() return checks
-Date: Wed, 26 Nov 2025 17:06:32 +0100
-Message-ID: <20251126160634.3446919-3-sth@linux.ibm.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20251126160634.3446919-1-sth@linux.ibm.com>
-References: <20251126160634.3446919-1-sth@linux.ibm.com>
+	s=arc-20240116; t=1764177111; c=relaxed/simple;
+	bh=JRLnft1STCz5C59hBNcxaMlyKUQU4UY2eeVxGG6JR4g=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=WCeUPcEuHVXxyne5AkQnzGEXV4gHqW3mrXy9IX6B482Wyyqom8RxT13e+o9Ds3vzPo8Mvgzc88X1fy/TgHdBBIzOBLEz+H9mVy4P1xW0mVgiobh/cnJ1jEcOKbWYMGxg8GJN69xMkSrjvqkeelg8brV792ZN1ZiI1oE9fSmhhGQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org; spf=pass smtp.mailfrom=goodmis.org; arc=none smtp.client-ip=216.40.44.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goodmis.org
+Received: from omf01.hostedemail.com (a10.router.float.18 [10.200.18.1])
+	by unirelay01.hostedemail.com (Postfix) with ESMTP id 39C87503CA;
+	Wed, 26 Nov 2025 17:11:47 +0000 (UTC)
+Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf01.hostedemail.com (Postfix) with ESMTPA id DB2236000F;
+	Wed, 26 Nov 2025 17:11:43 +0000 (UTC)
+Date: Wed, 26 Nov 2025 12:12:29 -0500
+From: Steven Rostedt <rostedt@goodmis.org>
+To: acme@kernel.org
+Cc: Thomas Richter <tmricht@linux.ibm.com>, Namhyung Kim
+ <namhyung@kernel.org>, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+ hca@linux.ibm.com, japo@linux.ibm.com
+Subject: Re: [PATCH Linux-next] perf test: Fix test case perf trace BTF
+ general tests
+Message-ID: <20251126121229.0638407b@gandalf.local.home>
+In-Reply-To: <20251126102401.37af98bb@gandalf.local.home>
+References: <20251117124359.75604-1-tmricht@linux.ibm.com>
+	<aRvSv03cqarM5dY9@google.com>
+	<d60860b4-e84b-48e1-87dd-4bd8203a69ad@linux.ibm.com>
+	<aRwVifZ_-7puFUVC@google.com>
+	<20251118132451.29a35127@gandalf.local.home>
+	<aR1JXlhJ8rC8Ujb3@google.com>
+	<20251119125903.417f595e@gandalf.local.home>
+	<aR5mTLRWA-SLAFUM@google.com>
+	<a7a5f95b-25e0-4816-9d0b-04d955c95821@linux.ibm.com>
+	<20251126102401.37af98bb@gandalf.local.home>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _2pGk_9qCB4ZdtVHrBT0jHr2ND5bhURy
-X-Authority-Analysis: v=2.4 cv=frbRpV4f c=1 sm=1 tr=0 ts=69272591 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
- a=DuqW6XxFIk7QvdGcV88A:9
-X-Proofpoint-ORIG-GUID: _2pGk_9qCB4ZdtVHrBT0jHr2ND5bhURy
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTIyMDAwOCBTYWx0ZWRfXzjt+wH1amDs7
- SqdLC9EWys8S6XPFrb3kU+g/3oBC3xvqCEE22ubYqObeW6LCLyTTce15G0GPWq+tS61E2ZqzkyD
- wAmEU2Wf5002a6tbTQyxL8yYLTO9HIxs0LUbWGILj6P5l+fXtPiArz+2kOCJme8DQ7dcqW0haYO
- WXp5HyRb817lxIt4L941wgGwDuCgx/Boi4hXOP+RpLFy3vs1RREIg7J5ffdkYv7A3dY3I4/UH8X
- pKiTgEVPKS2/YrtxLQfRyYfAPW6ZmFp6fvpOfL2IR+BoFSkLAdmldX4TB1mQS6iuOq6svfRrSOV
- ADr2H1bE3EaUCTirM7hGvAhuWYShMn2GnigcX8tJPPzoih3FDTOCdWQ1K//74UIOYsFzGE9rQ3l
- WdEBGBryQEEJFCdoUXFAPQvIGJRqdw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-11-25_02,2025-11-26_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 suspectscore=0 clxscore=1015 spamscore=0 lowpriorityscore=0
- impostorscore=0 bulkscore=0 adultscore=0 priorityscore=1501 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511220008
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Rspamd-Queue-Id: DB2236000F
+X-Stat-Signature: ixnrs74wi4p5pb44kisrje415ubczgew
+X-Rspamd-Server: rspamout05
+X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
+X-Session-ID: U2FsdGVkX19b9Y/xRLGc2GJWxPuueuF3hjrt+Fp2rqg=
+X-HE-Tag: 1764177103-495019
+X-HE-Meta: U2FsdGVkX187el5y25s6dq1GvhwlaySD9i6HORjUTb+91SpgFnFjfztaPY3cu3DdcCcXF7g1FGjqPU3sy9Kh8yonotuukLXI4YE4bpJwnCkGn6du+s1PQhp1KDjGZ9nAW3c46rZbYW6gzjfr+3KL8bYDorCetfUZcYL1FgoQX6zpmYI3hs+acCp1DZWCzegisFt/B6xc2/suWqRMLcq0NkiaTvHReB7yzWNQ0X2nSTCzTSFxliXL/mpR8c1bMUhQ3nhQN/UVVZasQjl7YCEk8Xdy0THLouDIimGcEUfb3Xzk7jfxWNU8Gy9l3ykYp2jRK3B3Z6Fno/KnVR3is9oEt321GtHsRjzoHSHsIkT3P26SPZc9nXkjjtfI2RYz8oY9b3IDDXmzbd9GLI3OoPECCg==
 
-The DASD driver only uses the dentry pointers when removing debugfs
-entries, and debugfs_remove() can safely handle both NULL and ERR_PTR.
-There is therefore no need to check debugfs_create() return values.
 
-This simplifies the debugfs setup code without changing functionality.
+Arnaldo,
 
-Suggested-by: Heiko Carstens <hca@linux.ibm.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
----
- drivers/s390/block/dasd.c | 64 +++++----------------------------------
- 1 file changed, 8 insertions(+), 56 deletions(-)
+How can I make perf trace not confused by the extra fields in the system
+call trace events?
 
-diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-index 7765e40f7cea..496f95745ade 100644
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -207,19 +207,6 @@ static int dasd_state_known_to_new(struct dasd_device *device)
- 	return 0;
- }
- 
--static struct dentry *dasd_debugfs_setup(const char *name,
--					 struct dentry *base_dentry)
--{
--	struct dentry *pde;
--
--	if (!base_dentry)
--		return NULL;
--	pde = debugfs_create_dir(name, base_dentry);
--	if (!pde || IS_ERR(pde))
--		return NULL;
--	return pde;
--}
--
- /*
-  * Request the irq line for the device.
-  */
-@@ -234,14 +221,14 @@ static int dasd_state_known_to_basic(struct dasd_device *device)
- 		if (rc)
- 			return rc;
- 		block->debugfs_dentry =
--			dasd_debugfs_setup(block->gdp->disk_name,
-+			debugfs_create_dir(block->gdp->disk_name,
- 					   dasd_debugfs_root_entry);
- 		dasd_profile_init(&block->profile, block->debugfs_dentry);
- 		if (dasd_global_profile_level == DASD_PROFILE_ON)
- 			dasd_profile_on(&device->block->profile);
- 	}
- 	device->debugfs_dentry =
--		dasd_debugfs_setup(dev_name(&device->cdev->dev),
-+		debugfs_create_dir(dev_name(&device->cdev->dev),
- 				   dasd_debugfs_root_entry);
- 	dasd_profile_init(&device->profile, device->debugfs_dentry);
- 	dasd_hosts_init(device->debugfs_dentry, device);
-@@ -1058,19 +1045,9 @@ static const struct file_operations dasd_stats_raw_fops = {
- static void dasd_profile_init(struct dasd_profile *profile,
- 			      struct dentry *base_dentry)
- {
--	umode_t mode;
--	struct dentry *pde;
--
--	if (!base_dentry)
--		return;
--	profile->dentry = NULL;
- 	profile->data = NULL;
--	mode = (S_IRUSR | S_IWUSR | S_IFREG);
--	pde = debugfs_create_file("statistics", mode, base_dentry,
--				  profile, &dasd_stats_raw_fops);
--	if (pde && !IS_ERR(pde))
--		profile->dentry = pde;
--	return;
-+	profile->dentry = debugfs_create_file("statistics", 0600, base_dentry,
-+					      profile, &dasd_stats_raw_fops);
- }
- 
- static void dasd_profile_exit(struct dasd_profile *profile)
-@@ -1090,25 +1067,9 @@ static void dasd_statistics_removeroot(void)
- 
- static void dasd_statistics_createroot(void)
- {
--	struct dentry *pde;
--
--	dasd_debugfs_root_entry = NULL;
--	pde = debugfs_create_dir("dasd", NULL);
--	if (!pde || IS_ERR(pde))
--		goto error;
--	dasd_debugfs_root_entry = pde;
--	pde = debugfs_create_dir("global", dasd_debugfs_root_entry);
--	if (!pde || IS_ERR(pde))
--		goto error;
--	dasd_debugfs_global_entry = pde;
-+	dasd_debugfs_root_entry = debugfs_create_dir("dasd", NULL);
-+	dasd_debugfs_global_entry = debugfs_create_dir("global", dasd_debugfs_root_entry);
- 	dasd_profile_init(&dasd_global_profile, dasd_debugfs_global_entry);
--	return;
--
--error:
--	DBF_EVENT(DBF_ERR, "%s",
--		  "Creation of the dasd debugfs interface failed");
--	dasd_statistics_removeroot();
--	return;
- }
- 
- #else
-@@ -1169,17 +1130,8 @@ static void dasd_hosts_exit(struct dasd_device *device)
- static void dasd_hosts_init(struct dentry *base_dentry,
- 			    struct dasd_device *device)
- {
--	struct dentry *pde;
--	umode_t mode;
--
--	if (!base_dentry)
--		return;
--
--	mode = S_IRUSR | S_IFREG;
--	pde = debugfs_create_file("host_access_list", mode, base_dentry,
--				  device, &dasd_hosts_fops);
--	if (pde && !IS_ERR(pde))
--		device->hosts_dentry = pde;
-+	device->hosts_dentry = debugfs_create_file("host_access_list", 0400, base_dentry,
-+						   device, &dasd_hosts_fops);
- }
- 
- struct dasd_ccw_req *dasd_smalloc_request(int magic, int cplength, int datasize,
--- 
-2.51.0
+Ftrace can now show the contents of the system call user space buffers, but
+it appears that this breaks perf!!!
+
+system: syscalls
+name: sys_enter_write
+ID: 791
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:int __syscall_nr;	offset:8;	size:4;	signed:1;
+	field:unsigned int fd;	offset:16;	size:8;	signed:0;
+	field:const char * buf;	offset:24;	size:8;	signed:0;
+	field:size_t count;	offset:32;	size:8;	signed:0;
+	field:__data_loc char[] __buf_val;	offset:40;	size:4;	signed:0;
+
+That new __buf_val appears to confuse perf, but I'm having a hell of a time
+trying to figure out where it reads it!
+
+-- Steve
+
+
+On Wed, 26 Nov 2025 10:24:01 -0500
+Steven Rostedt <rostedt@goodmis.org> wrote:
+
+> On Wed, 26 Nov 2025 08:13:00 +0100
+> Thomas Richter <tmricht@linux.ibm.com> wrote:
+> 
+> > >> I haven't tried it without the patches. Does it usually show what "buf" is?
+> > >> Now with the reading of user space, it can show the content too!    
+> > > 
+> > > Yep, it reads the content using BPF.  This is on my 6.16 kernel.
+> > > 
+> > >   $ sudo perf trace -e write -- /bin/echo hello
+> > >   hello
+> > >        0.000 ( 0.014 ms): echo/61922 write(fd: 1, buf: hello\10, count: 6)                                 = 6
+> > > 
+> > > Thanks,
+> > > Namhyung
+> > > 
+> > >     
+> > 
+> > Hello Namhyung, Steven,
+> > 
+> > friendly ping... any progress here?
+> >   
+> 
+> I honestly have no clue how to fix this, as I don't even know where to
+> look. Is it BPF that is messing up? If so, where's the BPF program that is
+> doing this.
+> 
+> I thought BPF is supposed to handle updates and should never cause API
+> breakage?
+> 
+> I'll continue to look at the builtin-trace.c, but it seems that the BPF
+> program it's attached to is handing it garbage with:
+> 
+> 	perf trace -e syscalls:sys_enter_write
+> 
+> The new fields are at the end. The BPF program should simply ignore those
+> values. But again, I don't know where this BPF program lives.
+> 
+> -- Steve
 
