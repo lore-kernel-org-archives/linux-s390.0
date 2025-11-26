@@ -1,67 +1,64 @@
-Received: from relay.hostedemail.com (smtprelay0016.hostedemail.com [216.40.44.16])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF561343D6E;
-	Wed, 26 Nov 2025 17:37:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.40.44.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A2CF1D5170;
+	Wed, 26 Nov 2025 18:57:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764178641; cv=none; b=mIHPdZuMNClgYp1ASKkPdf4xU7zzBSd1Px34HVe+Fvxb7sNXOCSMbN08Dxb7Pl/bCaznGkufMDs3VlwwOnAqa3WsYnPlW7WnvlFM+QjwznZ8t1OHnzOYFfhsfrP59WWIV/GLVu9xbsOJHbCVUUQI0VZChH73HJiUGxw0kjPTGH4=
+	t=1764183436; cv=none; b=eC4kCynLfNCs7Q7Fw2i2Ju0QVKaHQidmBzEWJf26sKLV8vQzXfbYClxfFPaLIcdpLA/kSn+z4trGF1o6DP2PnV44gjkK5qLIQvdnHHF8FZYBXkSxTvCfBe5pXrJ5Oq4xM+wW54sC2Zhlr3XEpRMaRWYfq4EJQzilcOhbq/iHEcc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764178641; c=relaxed/simple;
-	bh=RH4S1CQB4lYvLkgGH0dLjNn3jqZOapE3plYMmKIVrRo=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ZS6U7/UtllYQ1Kdb0TZ9RLdSqVGZHfexWXEgXPUioCUfSlM1Wjd4dylW/KQC58P5iLzZJogAfn0R2BZvOGEvdDUucSPM3iXPxpatfD3HuEgGjxjXfoXWbOZ2sqzA8pXahpUB0QRRasKta7ffRFSLPopFb1QK10RvI/p6z7pFy2A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org; spf=pass smtp.mailfrom=goodmis.org; arc=none smtp.client-ip=216.40.44.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goodmis.org
-Received: from omf09.hostedemail.com (a10.router.float.18 [10.200.18.1])
-	by unirelay05.hostedemail.com (Postfix) with ESMTP id 9DBF65A877;
-	Wed, 26 Nov 2025 17:37:11 +0000 (UTC)
-Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf09.hostedemail.com (Postfix) with ESMTPA id 51CE02002E;
-	Wed, 26 Nov 2025 17:37:09 +0000 (UTC)
-Date: Wed, 26 Nov 2025 12:37:55 -0500
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Thomas Richter <tmricht@linux.ibm.com>
-Cc: acme@kernel.org, Namhyung Kim <namhyung@kernel.org>,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-perf-users@vger.kernel.org, agordeev@linux.ibm.com,
- gor@linux.ibm.com, sumanthk@linux.ibm.com, hca@linux.ibm.com,
- japo@linux.ibm.com
+	s=arc-20240116; t=1764183436; c=relaxed/simple;
+	bh=vpDzDn4Wi+CKs6uJl+BfvYWGOn9752VZ+OV59Q9ein8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=fSnYzapqkxFHkfBAcIc4fRoWbyEtBPPx221Cml1ttRb3HgRVNKoBWRPHjC1Odg98mPryKxdwyL5xBRwKmmgf7ajh70/u4FvUqlIojeV3V/vXyK9wlv+fbYQH/lXrglHahl4v44CXJyO8bgPstHaAoip5/06btvV0VvrvFubJu1o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=vEB3RrxE; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="vEB3RrxE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 560A6C4CEF7;
+	Wed, 26 Nov 2025 18:57:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1764183435;
+	bh=vpDzDn4Wi+CKs6uJl+BfvYWGOn9752VZ+OV59Q9ein8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=vEB3RrxEQKJl3GoSmyhVuJqpl07ba5wkXbhnmu+yMQYtoeDUXgbZqD5TmRlOvYfzV
+	 c2Oj0ELd4PYWeOalgt83KBN5DaGnmX9m4M6W/E3Gd+aNKvsqPZ51tOj5GdZeCkQp8S
+	 s2dKAsqEB4E6TSoxOCDLHlEPgsDAljxX8SkWfPPR0Nh9WwiEnQiyBRfi3JK0RHcn5D
+	 VOKXiMztS5T2cT+kafXIJZWYI1dNXsyPZ0VZ9xp3Eur19L/Z45sP2GYE3bsN9JFAbz
+	 tbgWH3oP3+k9v3UGIzMn9D1As4oR3eIQN43zRiIizCDeZF+mv6PoRZiAF+HSZ/osuQ
+	 Y1bY6zMTEms2A==
+Date: Wed, 26 Nov 2025 10:57:12 -0800
+From: Namhyung Kim <namhyung@kernel.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: acme@kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-perf-users@vger.kernel.org, agordeev@linux.ibm.com,
+	gor@linux.ibm.com, sumanthk@linux.ibm.com, hca@linux.ibm.com,
+	japo@linux.ibm.com
 Subject: Re: [PATCH Linux-next] perf test: Fix test case perf trace BTF
  general tests
-Message-ID: <20251126123755.47aa3f11@gandalf.local.home>
-In-Reply-To: <20251126121229.0638407b@gandalf.local.home>
-References: <20251117124359.75604-1-tmricht@linux.ibm.com>
-	<aRvSv03cqarM5dY9@google.com>
-	<d60860b4-e84b-48e1-87dd-4bd8203a69ad@linux.ibm.com>
-	<aRwVifZ_-7puFUVC@google.com>
-	<20251118132451.29a35127@gandalf.local.home>
-	<aR1JXlhJ8rC8Ujb3@google.com>
-	<20251119125903.417f595e@gandalf.local.home>
-	<aR5mTLRWA-SLAFUM@google.com>
-	<a7a5f95b-25e0-4816-9d0b-04d955c95821@linux.ibm.com>
-	<20251126102401.37af98bb@gandalf.local.home>
-	<20251126121229.0638407b@gandalf.local.home>
-X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+Message-ID: <aSdNiF2VZMtjQnUQ@google.com>
+References: <aRvSv03cqarM5dY9@google.com>
+ <d60860b4-e84b-48e1-87dd-4bd8203a69ad@linux.ibm.com>
+ <aRwVifZ_-7puFUVC@google.com>
+ <20251118132451.29a35127@gandalf.local.home>
+ <aR1JXlhJ8rC8Ujb3@google.com>
+ <20251119125903.417f595e@gandalf.local.home>
+ <aR5mTLRWA-SLAFUM@google.com>
+ <a7a5f95b-25e0-4816-9d0b-04d955c95821@linux.ibm.com>
+ <20251126102401.37af98bb@gandalf.local.home>
+ <20251126121229.0638407b@gandalf.local.home>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Stat-Signature: tjnygmxqa8iteswjbfyzg7fstimxs7xf
-X-Rspamd-Server: rspamout04
-X-Rspamd-Queue-Id: 51CE02002E
-X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
-X-Session-ID: U2FsdGVkX1+6Hkmy1CHwfQbZlBdsFmgajhk1Ua9CLak=
-X-HE-Tag: 1764178629-337889
-X-HE-Meta: U2FsdGVkX18eoMIb31FsykHAP9ARgpCuFJ10+e0JjHBEeMP5P1x/tSZ1OzzSUp0LSdaLtqMoIs5NWJbgop+P1UcWRrY0cvg09Jx1VGWjCHdmNi/Ednv0bIeT0RgDvfqDA+8jDJ1g82JEy04924S6+KYsBcEGdNCiNVv/ha1DvdDoy6kYC2aD/ZtfSI5PbTUiKo1C4s4950PpTYP+6mJgnUkRMfhnQT7NOO7k+f7oCt0bum89Yh2g6kgDu3Sqav3uX3leqBwFHwxiQkRJY+clSfnWemWZrVyDa+4jJPao8fJB8ohSWgVxrzF/imffeQ1EV4nAtYaS7Jw6QJ6YM5IRDslSM/QI8BLP0cpEOUOYRA3aOg/FKndiQLUCABeWY9CK
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20251126121229.0638407b@gandalf.local.home>
 
-On Wed, 26 Nov 2025 12:12:29 -0500
-Steven Rostedt <rostedt@goodmis.org> wrote:
-
+On Wed, Nov 26, 2025 at 12:12:29PM -0500, Steven Rostedt wrote:
+> 
 > Arnaldo,
 > 
 > How can I make perf trace not confused by the extra fields in the system
@@ -87,50 +84,11 @@ Steven Rostedt <rostedt@goodmis.org> wrote:
 > 
 > That new __buf_val appears to confuse perf, but I'm having a hell of a time
 > trying to figure out where it reads it!
-> 
 
-Hmm, it gets less confused (at least it doesn't crash), when I don't have
-perf read the extra values.
+I've discussed with Steven and concluded that we should change perf to
+ignore fields with "__data_loc char[]" type in syscalls.  Let me take a
+look.
 
-Thomas, if you add the below patch, does it fix things for you?
+Thanks,
+Namhyung
 
--- Steve
-
-diff --git a/kernel/trace/trace_syscalls.c b/kernel/trace/trace_syscalls.c
-index e96d0063cbcf..add809d226dc 100644
---- a/kernel/trace/trace_syscalls.c
-+++ b/kernel/trace/trace_syscalls.c
-@@ -1403,7 +1403,6 @@ static void perf_syscall_enter(void *ignore, struct pt_regs *regs, long id)
- 	struct hlist_head *head;
- 	unsigned long args[6];
- 	bool valid_prog_array;
--	bool mayfault;
- 	char *user_ptr;
- 	int user_sizes[SYSCALL_FAULT_MAX_CNT] = {};
- 	int buf_size = CONFIG_TRACE_SYSCALL_BUF_SIZE_DEFAULT;
-@@ -1431,15 +1430,6 @@ static void perf_syscall_enter(void *ignore, struct pt_regs *regs, long id)
- 
- 	syscall_get_arguments(current, regs, args);
- 
--	/* Check if this syscall event faults in user space memory */
--	mayfault = sys_data->user_mask != 0;
--
--	if (mayfault) {
--		if (syscall_get_data(sys_data, args, &user_ptr,
--				     &size, user_sizes, &uargs, buf_size) < 0)
--			return;
--	}
--
- 	head = this_cpu_ptr(sys_data->enter_event->perf_events);
- 	valid_prog_array = bpf_prog_array_valid(sys_data->enter_event);
- 	if (!valid_prog_array && hlist_empty(head))
-@@ -1457,9 +1447,6 @@ static void perf_syscall_enter(void *ignore, struct pt_regs *regs, long id)
- 	rec->nr = syscall_nr;
- 	memcpy(&rec->args, args, sizeof(unsigned long) * sys_data->nb_args);
- 
--	if (mayfault)
--		syscall_put_data(sys_data, rec, user_ptr, size, user_sizes, uargs);
--
- 	if ((valid_prog_array &&
- 	     !perf_call_bpf_enter(sys_data->enter_event, fake_regs, sys_data, rec)) ||
- 	    hlist_empty(head)) {
