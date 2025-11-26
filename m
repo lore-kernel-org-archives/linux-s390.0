@@ -1,132 +1,112 @@
-Received: from relay.hostedemail.com (smtprelay0017.hostedemail.com [216.40.44.17])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f175.google.com (mail-il1-f175.google.com [209.85.166.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 062681E231E;
-	Wed, 26 Nov 2025 17:11:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.40.44.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 504871E231E
+	for <linux-s390@vger.kernel.org>; Wed, 26 Nov 2025 17:14:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764177111; cv=none; b=dbJoAUnhM2lIBy/aNeQvrveAHaXZAhYZXauZlnSGkdxuMmCy9f+dkJpTFNLVT8EjKnNrIpqhIzhM4gwN+LtKoRRMawoeMwoWqCaTT0Y2v+IHzTiU8i6O8krhnnSpdkboBi1nJ+PAP7J2HeyyWl4UGhPO5gE3F/naEvuCVWIfNzU=
+	t=1764177278; cv=none; b=HTexxBWiHr42ptvjWdoMu2PkdgWbbI7Cyqy6OPe6VX6qqGfPOtuLVf0pXb+4qGcIsfSc0GMAP00KrJgZxIhw6YA8WxMaNC9nIgQyxK4jHHHsK2RFYGqfUEHJHmCa4JLT59laZh6FlJqDevMZE84TAW3eZBAbdik8AiSZsXg6Rbk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764177111; c=relaxed/simple;
-	bh=JRLnft1STCz5C59hBNcxaMlyKUQU4UY2eeVxGG6JR4g=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=WCeUPcEuHVXxyne5AkQnzGEXV4gHqW3mrXy9IX6B482Wyyqom8RxT13e+o9Ds3vzPo8Mvgzc88X1fy/TgHdBBIzOBLEz+H9mVy4P1xW0mVgiobh/cnJ1jEcOKbWYMGxg8GJN69xMkSrjvqkeelg8brV792ZN1ZiI1oE9fSmhhGQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org; spf=pass smtp.mailfrom=goodmis.org; arc=none smtp.client-ip=216.40.44.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goodmis.org
-Received: from omf01.hostedemail.com (a10.router.float.18 [10.200.18.1])
-	by unirelay01.hostedemail.com (Postfix) with ESMTP id 39C87503CA;
-	Wed, 26 Nov 2025 17:11:47 +0000 (UTC)
-Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf01.hostedemail.com (Postfix) with ESMTPA id DB2236000F;
-	Wed, 26 Nov 2025 17:11:43 +0000 (UTC)
-Date: Wed, 26 Nov 2025 12:12:29 -0500
-From: Steven Rostedt <rostedt@goodmis.org>
-To: acme@kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>, Namhyung Kim
- <namhyung@kernel.org>, linux-kernel@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
- agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
- hca@linux.ibm.com, japo@linux.ibm.com
-Subject: Re: [PATCH Linux-next] perf test: Fix test case perf trace BTF
- general tests
-Message-ID: <20251126121229.0638407b@gandalf.local.home>
-In-Reply-To: <20251126102401.37af98bb@gandalf.local.home>
-References: <20251117124359.75604-1-tmricht@linux.ibm.com>
-	<aRvSv03cqarM5dY9@google.com>
-	<d60860b4-e84b-48e1-87dd-4bd8203a69ad@linux.ibm.com>
-	<aRwVifZ_-7puFUVC@google.com>
-	<20251118132451.29a35127@gandalf.local.home>
-	<aR1JXlhJ8rC8Ujb3@google.com>
-	<20251119125903.417f595e@gandalf.local.home>
-	<aR5mTLRWA-SLAFUM@google.com>
-	<a7a5f95b-25e0-4816-9d0b-04d955c95821@linux.ibm.com>
-	<20251126102401.37af98bb@gandalf.local.home>
-X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1764177278; c=relaxed/simple;
+	bh=uWVb7imaoBwQd084csoILb6EvrrasnUptYGTVswGUdg=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=I9ilXQ7ThgTOATEaW+LcvpqPwzfxrbO3vcezlEYbEn/iwZEA7+tVfhxUjW5WSf+tgWg11bh4jGXibnXAZS2t6HxGJvbfWy9wNg2TD9OKvw5Mr7noOv98N3Q/uqM/yxzA2EggK835a4qP3n+25k+27moWdulvclSDxsybdZ2YzDk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=P7R6wbO0; arc=none smtp.client-ip=209.85.166.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="P7R6wbO0"
+Received: by mail-il1-f175.google.com with SMTP id e9e14a558f8ab-4331709968fso84205ab.2
+        for <linux-s390@vger.kernel.org>; Wed, 26 Nov 2025 09:14:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1764177275; x=1764782075; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Waaw/w2j2pENd/kSDmzcSGfaP1pnvDn9JVdDG4gqLck=;
+        b=P7R6wbO0eEMFlSfHdnGGCLpHJN8Pf+J8hAPffkG6H0Is17JkabMfPoDYftvhFmrGuz
+         5CKwXv0jtlYZmoa8O6chWylRb70FOFfb7n3vpQJBshOX2OaayM1xL0PAEWJkoXKCJ8Bh
+         119v4cTgvRdRslLxRgzcWlFVpo04IcQsqpTAGDRAEpgpwiw+TszGby8zN4LBSwckGVSl
+         rLhfZdu20tSLOVkVy9i0xPvrWglrkipSeYeDpur0iD3tNv9b0MZklPd9nizzkyVCfNEB
+         bjRQxMEEXZjApH2cMSs2t5bQpv8uO+5thOs2EeZ06SRmWml3Krpt1kEVQ0hnTbIMQkfX
+         9fcg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1764177275; x=1764782075;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=Waaw/w2j2pENd/kSDmzcSGfaP1pnvDn9JVdDG4gqLck=;
+        b=hMKwthHaSBq0CinpYm7gKfbICFAO+aEoeznUXIDZo0TF11UC+SlGNS7ID4GuekrGGm
+         OyIlqA3TTVXEC9xhXjtEDjLHvJ0ZLdPm/OPZl+iFseYw6rsJht0bzKxW8X32fhg3vopN
+         Whr4Jp2Iuh/UtNJJ4uXzko2TRYMeUpg3i2kykstxMdSNtG5lY35MDj7ZAgbkOml1xdFj
+         U5pw3lgxpuqz9mz9rc0W1+J+pRekJss7bZ2KUQqbzbvFajSr5Y+wF74dmaTHh9G898iK
+         rFLNPUzIx4xvXc+gEf7Felc4lpx2xv8FMUB2FVBZLhc6G8ioWwiA87mJNe4aZsnqGAgH
+         pqLA==
+X-Forwarded-Encrypted: i=1; AJvYcCXOIVi+EIrpitIGzrEZq6fG15uRQgoNDuiELIWQ/JC5M/wZclCtkHgLda1+ZEukOmtiPM+uXtnwfweS@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxylf/k/FTNKi/xABFKLXEWVuq41bddn2SJjgXR/V0dEH08qtof
+	dddQXQTsDnmilL84QRsVfH0TEce6B0vO9b44yBn6i4ZsgiSpsJ5x2trXlJoQslt47dg=
+X-Gm-Gg: ASbGnct6qd/OaKCFP4TccnmqvOSki9heCY3Ko+ylZMWnzBuZXRmFZ0O008ia2ml122x
+	yAYuy7syXMWYjbE0OrhlRq4USMHZ1D81+wkrudaECOXKOj0AIRzbzaOLSJgQL1ZRFSyoTiJdxRw
+	Z/sd5nc4feqJu+PevMuFC2rhNrBLQ+eyXivf4SSJnqIHnzxOG2CpIeS+CD77X0hpVFIxxWMsJLp
+	pdilJOWvdMMEn2Gtd2eybMfyKtgtbgnQ3iZtaYHYYZz6eNxlwlcyM5hZtq9KjPT51fij2QfJh0H
+	o3hLx8l5ODWiCfjKig8WHAtMJvBGxSF5aB7vyjQWwWfGxkkPwTqdHgNnTq1LGPOGORO7BlX6bul
+	bgbwmeWTNTC8yEffdZkQ6CuSrlrPhtJnOIBM8S63y9OdP07+vBLHQEKFq/DB1TvUPdbI4be4Chq
+	I+Qg==
+X-Google-Smtp-Source: AGHT+IHwHHDUwlmQFfLs1EZPhOMv9ft82AclYixifNYet0D7/yodkeU+uFnr4uBAVbfHn8ILovtdkw==
+X-Received: by 2002:a05:6e02:3e92:b0:433:5e33:d41d with SMTP id e9e14a558f8ab-435b8e7a0dcmr160640095ab.30.1764177275359;
+        Wed, 26 Nov 2025 09:14:35 -0800 (PST)
+Received: from [127.0.0.1] ([96.43.243.2])
+        by smtp.gmail.com with ESMTPSA id e9e14a558f8ab-435a90dba32sm88409755ab.28.2025.11.26.09.14.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Nov 2025 09:14:34 -0800 (PST)
+From: Jens Axboe <axboe@kernel.dk>
+To: Stefan Haberland <sth@linux.ibm.com>
+Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, 
+ linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, 
+ Vasily Gorbik <gor@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20251126160634.3446919-1-sth@linux.ibm.com>
+References: <20251126160634.3446919-1-sth@linux.ibm.com>
+Subject: Re: [PATCH 0/4] s390/dasd: Minor cleanups and copy-pair swap fix
+Message-Id: <176417727431.85325.2478471808597740699.b4-ty@kernel.dk>
+Date: Wed, 26 Nov 2025 10:14:34 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Rspamd-Queue-Id: DB2236000F
-X-Stat-Signature: ixnrs74wi4p5pb44kisrje415ubczgew
-X-Rspamd-Server: rspamout05
-X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
-X-Session-ID: U2FsdGVkX19b9Y/xRLGc2GJWxPuueuF3hjrt+Fp2rqg=
-X-HE-Tag: 1764177103-495019
-X-HE-Meta: U2FsdGVkX187el5y25s6dq1GvhwlaySD9i6HORjUTb+91SpgFnFjfztaPY3cu3DdcCcXF7g1FGjqPU3sy9Kh8yonotuukLXI4YE4bpJwnCkGn6du+s1PQhp1KDjGZ9nAW3c46rZbYW6gzjfr+3KL8bYDorCetfUZcYL1FgoQX6zpmYI3hs+acCp1DZWCzegisFt/B6xc2/suWqRMLcq0NkiaTvHReB7yzWNQ0X2nSTCzTSFxliXL/mpR8c1bMUhQ3nhQN/UVVZasQjl7YCEk8Xdy0THLouDIimGcEUfb3Xzk7jfxWNU8Gy9l3ykYp2jRK3B3Z6Fno/KnVR3is9oEt321GtHsRjzoHSHsIkT3P26SPZc9nXkjjtfI2RYz8oY9b3IDDXmzbd9GLI3OoPECCg==
+X-Mailer: b4 0.14.3
 
 
-Arnaldo,
-
-How can I make perf trace not confused by the extra fields in the system
-call trace events?
-
-Ftrace can now show the contents of the system call user space buffers, but
-it appears that this breaks perf!!!
-
-system: syscalls
-name: sys_enter_write
-ID: 791
-format:
-	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
-	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
-	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
-	field:int common_pid;	offset:4;	size:4;	signed:1;
-
-	field:int __syscall_nr;	offset:8;	size:4;	signed:1;
-	field:unsigned int fd;	offset:16;	size:8;	signed:0;
-	field:const char * buf;	offset:24;	size:8;	signed:0;
-	field:size_t count;	offset:32;	size:8;	signed:0;
-	field:__data_loc char[] __buf_val;	offset:40;	size:4;	signed:0;
-
-That new __buf_val appears to confuse perf, but I'm having a hell of a time
-trying to figure out where it reads it!
-
--- Steve
-
-
-On Wed, 26 Nov 2025 10:24:01 -0500
-Steven Rostedt <rostedt@goodmis.org> wrote:
-
-> On Wed, 26 Nov 2025 08:13:00 +0100
-> Thomas Richter <tmricht@linux.ibm.com> wrote:
+On Wed, 26 Nov 2025 17:06:30 +0100, Stefan Haberland wrote:
+> this small series contains cleanups in the DASD driver
+> (string formatting, naming helper refactoring, debugfs simplification)
+> as well as a fix for the gendisk parent after a copy-pair swap.
 > 
-> > >> I haven't tried it without the patches. Does it usually show what "buf" is?
-> > >> Now with the reading of user space, it can show the content too!    
-> > > 
-> > > Yep, it reads the content using BPF.  This is on my 6.16 kernel.
-> > > 
-> > >   $ sudo perf trace -e write -- /bin/echo hello
-> > >   hello
-> > >        0.000 ( 0.014 ms): echo/61922 write(fd: 1, buf: hello\10, count: 6)                                 = 6
-> > > 
-> > > Thanks,
-> > > Namhyung
-> > > 
-> > >     
-> > 
-> > Hello Namhyung, Steven,
-> > 
-> > friendly ping... any progress here?
-> >   
+> Please apply.
 > 
-> I honestly have no clue how to fix this, as I don't even know where to
-> look. Is it BPF that is messing up? If so, where's the BPF program that is
-> doing this.
+> Thanks,
+> Stefan
 > 
-> I thought BPF is supposed to handle updates and should never cause API
-> breakage?
-> 
-> I'll continue to look at the builtin-trace.c, but it seems that the BPF
-> program it's attached to is handing it garbage with:
-> 
-> 	perf trace -e syscalls:sys_enter_write
-> 
-> The new fields are at the end. The BPF program should simply ignore those
-> values. But again, I don't know where this BPF program lives.
-> 
-> -- Steve
+> [...]
+
+Applied, thanks!
+
+[1/4] s390/dasd: Fix gendisk parent after copy pair swap
+      commit: c943bfc6afb8d0e781b9b7406f36caa8bbf95cb9
+[2/4] s390/dasd: Remove unnecessary debugfs_create() return checks
+      commit: 764def9e8eaf1b1ccdcd89b8c16db4194ade775f
+[3/4] s390/dasd: Move device name formatting into separate function
+      commit: 43198756ee8cade0acc17a89f959764cd17776bb
+[4/4] s390/dasd: Use scnprintf() instead of sprintf()
+      commit: a857d99201cc4eb3cb78b9dcb6f1d027ef3ae699
+
+Best regards,
+-- 
+Jens Axboe
+
+
 
