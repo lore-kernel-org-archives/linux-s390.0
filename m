@@ -1,177 +1,198 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E877327C0E;
-	Thu, 27 Nov 2025 14:38:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF32A28A3F2;
+	Thu, 27 Nov 2025 15:07:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764254304; cv=none; b=LJNnNFHuG/rokgM0M9tnGkYyivM0IcMic5xxbDFbnqI3UqB3UoZEHGF8e6LUyjlO0NuRNB6v+15J43PH3yHuz9mUnU6w0HfffF0gUi8ibDEoDFVneRqGvQMucItjf808rJkLlM8Rfca+3dLWl8UYyaE1Slmd5+03TF1GYqqoo/I=
+	t=1764256069; cv=none; b=FR40jZi5RyhaQFm+BvU7Q6ERT1b+A+S9T5xvGuHeyBsiaSIFulx4XHxo7Y/unO5rX3TLYPOYGJVDy7h0cz0Ao3BcJY2v8v2bK5Gzg27TmJy3H3VVVZ6nM9+1ekln7ori7hoMpVZzKB9vqcbL8eBgfyWmZ0+dDM+4MJrGkBfPpHU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764254304; c=relaxed/simple;
-	bh=w2zvk7MVL2WcUAQA1TzbwgTqmyq6bf0UVC2Ruq3r1O4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=HKMiFApJcaGYP5Kog+remb+yOS9/8/qbCFKmK5Ma1QBnwL3jAcTX5yPr21YkLT4p5jBWaXpCT3LPA0H3sljPhFCUOtTzoVLTgzkBgsGqilGd4soPETG6DIcsJ7JZ9nf1e/24SxdwPw3Wlz9Oau/+BmE+0qnVkoRkIEXeLr0yNOo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EBlzxHNl; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1764256069; c=relaxed/simple;
+	bh=hEorKt3+pW5fjNyy+7jOJXddx93zSzDWF6f51d5ZfXM=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=ahq42LrjwFgYARC7g+0PDybAsLeMY0ZyqqdTE+pSatL9hIHPLhX1gjDC2t+G9KyMtkb6/VM3BKhucChONcUwnaLGSJ3R/l/rD9p02LHkkf1SW2owaIasdbyC6pGkAy4HtIUO6xRCIEZU9CchChfM9f19RDEXscsYv2KiwozPyyc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Lt2FIUu/; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EBlzxHNl"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AR28Bsv004616;
-	Thu, 27 Nov 2025 14:37:53 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Lt2FIUu/"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AR28UHu024265;
+	Thu, 27 Nov 2025 15:07:44 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=lsTTj2
-	YrnLGxPOHnN/2LdMagfBrQHMsSNYlh8ezQwF0=; b=EBlzxHNlQZevowiyatcVJ+
-	nYg2cb4LY8+WdLxs8i5BR70cuWFi6nRmNaAcnhhG7wo0RTHK/FEWcWbMs1N0wS9d
-	z97fOPQEv3rdBCMI5KczruJUQZBxIGf4ZYmQVC4PJdopphy0uPvGMCIz+7A8ULK2
-	K0HKAaxJAjB4HrfwsqecR98CVoWJKwXu5U+x2Wk+uBBIONw+h8/k6dZManeHlfzf
-	s9IPNGqx++pSoB56YmqhCgb5u5vt9z3Y++Vi2/vuVeMwJhE2M+1SxnAgENkG7fZy
-	Xv8Umi5qRI7rY+gUQ71A+7vx7DsU2r8/hBmaYqW9w3L+BprGOjMSBqsc/JpFWwLA
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ak4u28qh8-1
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=JIXV3Glwl28252V1OOyA+qGfOLOy
+	38osvoqG1FaWzuU=; b=Lt2FIUu/8lvQ+oJw9D+TdngaYiPEfv1QLYEPlI+dSQW6
+	su17y2LO15zQNItRiWnfsnVEIkFblB1cJ3Ur6suqVa5X6mU6GuWYFwaU7KgyuYD+
+	Ul96RvbhLhLIoGkxriK5vzooy0KUY5gBvUovKykoZQ9RNVWCJgMrLmMkNSjXUv4h
+	tp7WEr76/SjYTG53m6PvdKaHtmmnDpXXeLh5hbwBCXmKe2uOek8NrkTVwiXYPEzn
+	TdjK+sFK+gOPRLeQRnztIy49T/uz99MRGJ5xxBoZeutpSQ9BXQufcSaCpiFn7UzI
+	X7O314PvTBqpJ5MdGsXKM2/KVkPLOAPykhIb/+S0sg==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ak4pjad7v-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 27 Nov 2025 14:37:52 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5ARC1B6r025089;
-	Thu, 27 Nov 2025 14:37:51 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4akt71r823-1
+	Thu, 27 Nov 2025 15:07:44 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5ARD0Dnj030842;
+	Thu, 27 Nov 2025 15:07:43 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4akqgsrtad-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 27 Nov 2025 14:37:51 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AREbmlQ29950368
+	Thu, 27 Nov 2025 15:07:43 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5ARF7dEO44433748
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 27 Nov 2025 14:37:48 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 13D7420043;
-	Thu, 27 Nov 2025 14:37:48 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7337F20040;
-	Thu, 27 Nov 2025 14:37:47 +0000 (GMT)
-Received: from [9.111.34.14] (unknown [9.111.34.14])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 27 Nov 2025 14:37:47 +0000 (GMT)
-Message-ID: <e76ed034-7c7a-4cd6-ae10-945ad39c2b00@linux.ibm.com>
-Date: Thu, 27 Nov 2025 15:37:47 +0100
+	Thu, 27 Nov 2025 15:07:39 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B88BD20043;
+	Thu, 27 Nov 2025 15:07:39 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 864DF20040;
+	Thu, 27 Nov 2025 15:07:39 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 27 Nov 2025 15:07:39 +0000 (GMT)
+From: Tobias Schumacher <ts@linux.ibm.com>
+Subject: [PATCH v7 0/2] genirq: s390/pci: Migrate MSI interrupts to
+ irqdomain API
+Date: Thu, 27 Nov 2025 16:07:36 +0100
+Message-Id: <20251127-implement-msi-domain-v7-0-86c9a4837e8c@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 3/3] KVM: s390: Use generic VIRT_XFER_TO_GUEST_WORK
- functions
-To: Andrew Donnellan <ajd@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Cc: Nicholas Miehlbradt <nicholas@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        David Hildenbrand <david@kernel.org>
-References: <20251126-s390-kvm-xfer-to-guest-work-v2-0-1b8767879235@linux.ibm.com>
- <20251126-s390-kvm-xfer-to-guest-work-v2-3-1b8767879235@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20251126-s390-kvm-xfer-to-guest-work-v2-3-1b8767879235@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIADhpKGkC/43QwW7DIAwG4FepOI8KGwPJTnuPaQcSzIpUkirpo
+ k5V332k6iGqkmpHW+Lzz38VIw+JR/G+u4qBpzSmviuDe9uJ9uC7b5YplFmgQgOgSKZ8OnLm7iz
+ zmGTos0+dDC2wV0CmUizK09PAMV3u7OdXmQ9pPPfD7/3KBPP2AYJaByeQSqIKaGzTaoTwcUzdz
+ 2Wfmrxv+zzfeAD4AgClQwDUgYGegDnVhMsksAFhgaJVji3pumbaTOJeAL78tDTkECKvJdHLJNU
+ GpAtkI1eRG/S1jmsQLSDcKpfmRAoaNhWDqfwaZJbQVjemQMGxAxdi0NGtQfY/kC0QEUXyllzd6
+ mfodrv9Ae7IrAirAgAA
+X-Change-ID: 20251104-implement-msi-domain-dc1ea014580e
+To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Tobias Schumacher <ts@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>
+X-Mailer: b4 0.14.2
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTIyMDAyMSBTYWx0ZWRfXyQ6Cp4xJI7NH
- +PxqYwJPk2LyGV4huPqzWhfRzy5loyJ0NGU0LbqZV59jCkJ2Bz9OHzrKakFN9+u2TFEa63q+x4Y
- oyjNNXGa41EPUUu0+UaE2Nd3E0fslnkQ94V2pCi9oQMgGzEbxNplr4T2Jovr69G5gavsX6oRcg7
- TsOSNRdkKcgYGg5QhgH7j2wC2TT0PuWOCPHv/Z2c5TuOUuQaBAXxajz+FfkIdlL3vB1xZNMClIh
- l/4D9ObvclMkYc8YilgPtpey8C8bZNin2oVyE1naBzdBv8NCALyVv4GxONz4g+bn/Dvf7L1sqm3
- zpMCKHTQFnymLvpvEPcA5mvf78R8bQcVoneGgUIA3ir2wuWyRFvUM/gMsOMxXavDPgn4MYFhnnP
- XASmkgbYt0FrXlds9gymD9bPIAguRA==
-X-Authority-Analysis: v=2.4 cv=SuidKfO0 c=1 sm=1 tr=0 ts=69286240 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTIyMDAxNiBTYWx0ZWRfX/3ddmtk+ZHdG
+ ISLxlBE7T1UI2yNR8Hupr6LL37a2/gjoTlkcKdhVT/MhfpNchsPWYgXDyr7ESBorgw5jTT37twg
+ Y2RDogPfIKjBODhot1l93Be6R0XuTGGsUo/ZzTy1dJ7WmlKexw/0asozt3ROt/4Wn74lw3dUwTH
+ zaddDYoLx1ivfdFLavWSsy5Df8TneZNuPPpn9ceUiavawoSa3bKFfQeOt5OUG+ywQrTsatbTveE
+ wzCWEPkSzc4Osy30uXJpWQcrI0gByOJEALaYJBrupRgdA0NdmNG/KDJUv1VgRXYnYFQeNmNhF5s
+ pqag4lBBh9XVv83kP870rpDzjtI+5UrtaUMGoFUo7tbxnCZ/VwiPIC2L4JUErRBx9fTSTk9wgD2
+ i+FUn/uk7HY+xmRaYTrO5UyphcQcYg==
+X-Proofpoint-ORIG-GUID: 6LJ0ilRxzfy6bIP0x_GOsj0ukVqL09-8
+X-Authority-Analysis: v=2.4 cv=CcYFJbrl c=1 sm=1 tr=0 ts=69286940 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=gfTFqVgN0iytZCg8HA0A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: seCphrIKBa2ZNNOrcGNebb-viN3IX26C
-X-Proofpoint-GUID: seCphrIKBa2ZNNOrcGNebb-viN3IX26C
+ a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=qu2NodEISbj6-X0eVIsA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: 6LJ0ilRxzfy6bIP0x_GOsj0ukVqL09-8
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-11-25_02,2025-11-27_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 lowpriorityscore=0 clxscore=1011 impostorscore=0
- malwarescore=0 spamscore=0 suspectscore=0 phishscore=0 adultscore=0
- bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
- definitions=main-2511220021
+ malwarescore=0 suspectscore=0 clxscore=1015 adultscore=0 spamscore=0
+ phishscore=0 priorityscore=1501 bulkscore=0 impostorscore=0
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2511220016
 
-On 11/26/25 06:33, Andrew Donnellan wrote:
-> Switch to using the generic infrastructure to check for and handle pending
-> work before transitioning into guest mode.
-> 
-> xfer_to_guest_mode_handle_work() does a few more things than the current
-> code does when deciding whether or not to exit the __vcpu_run() loop. The
-> exittime tests from kvm-unit-tests, in my tests, were within a few percent
-> compared to before this series, which is within noise tolerance.
-> 
-> Co-developed-by: Heiko Carstens <hca@linux.ibm.com>
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
-> ---
-> v2: if work is handled, recheck for outstanding work with interrupts
->      disabled before entering guest (Heiko)
-> 
-> The way I've implemented this, I do the check between vcpu_pre_run() and
-> entering the guest, and bail out of the loop if
-> kvm_xfer_to_guest_mode_handle_work() returns nonzero, without calling
-> vcpu_post_run(). My impression is that this is safe, but it does mean
-> there is an sie_enter vcpu event and trace event which isn't matched with
-> corresponding exit events. Is this a problem?
+This patch series reworks the PCIe interrupt handling on s390 by
+migrating it to use a proper MSI parent domain. Introducing a dedicated
+MSI domain hierarchy aligns s390 PCIe support with the generic Linux IRQ
+domain model. Currently s390 is one of the last architectures still using
+the legacy API.
 
+The migration splits the existing code in the legacy functions
+arch_setup_msi_irqs() and arch_teardown_msi_irqs() into different
+callbacks of the newly created MSI parent domain:
 
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
+- zpci_msi_prepare(): prepare the allocation of per-device MSI IRQs.
+      will be called once for each device before allocating individual
+      IRQs and sets up for example the adapter aisb and aibv.
+- zpci_msi_teardown(): reverts the effects of zpci_msi_prepare() and is
+      called after all MSI IRQs are freed.
+- zpci_msi_domain_alloc(): the allocation function for interrupts
+- zpci_msi_domain_free(): revert the effects of zpci_msi_domain_alloc()
+- zpci_compose_msi_msg(): create the MSI message to be written into the
+      corresponding PCI config space.
+
+* Patch 1 fixes an inconsistency in the irqdomain API. Internally, hw
+  irqs are represented by an unsigned long int (irq_hw_number_t) while
+  the external API in some cases takes an unsigned int as parameter.
+  This fix was required in V2 of the patchset. Due to conceptual changes
+  in patch 2 it is not required anymore for s390, but still seems
+  sensible.
+* Patch 2 implements IRQ domains for s390 PCI
+
+Since patch 1 changes common APIs, some build tests were done for x86_64
+and arm64. 
+
+Signed-off-by: Tobias Schumacher <ts@linux.ibm.com>
+---
+Changes in v7:
+- call zpci_set_irq() in zpci_reenable_device() to fix recovery after
+  zpcictl --reset-fw
+- add commas at end of initializers
+- remove unused variables in free()
+- removed R-b for patch 2 because of bug fixes
+- Link to v6: https://lore.kernel.org/r/20251121-implement-msi-domain-v6-0-444f4a6479c3@linux.ibm.com
+
+Changes in v6:
+- removed obsolete function zpci_decode_hwirq_msi_index()
+- removed some code duplication
+- fixed some coding style issues
+- corrected hwirq encoding in commit message
+- Link to v5: https://lore.kernel.org/r/20251121-implement-msi-domain-v5-0-d7e717dfd3f7@linux.ibm.com
+
+Changes in v5:
+- removed two lines of superfluous code
+- Link to v4: https://lore.kernel.org/r/20251120-implement-msi-domain-v4-0-a01be58e158a@linux.ibm.com
+
+Changes in v4:
+- remove flag MSI_FLAG_PCI_MSI_MASK_PARENT and mask/unmask callbacks
+- use goto statements in zpci_bus_create_pci_bus()
+- Link to v3: https://lore.kernel.org/r/20251118-implement-msi-domain-v3-0-6fe8feb2a93f@linux.ibm.com
+
+Changes in v3:
+- implement one MSI parent domain per PCI domain to further align the
+  implementation with other architectures.
+- Link to v2: https://lore.kernel.org/r/20251117-implement-msi-domain-v2-0-a110ea0721fe@linux.ibm.com
+
+Changes in v2:
+- fix directed interrupt setup and handling
+- add flag MSI_FLAG_NO_AFFINITY in case of floating interrupts
+- style adjustments according to review comments
+- Link to v1: https://lore.kernel.org/r/20251112-implement-msi-domain-v1-0-103dd123de14@linux.ibm.com
+
+---
+Tobias Schumacher (2):
+      genirq: Change hwirq parameter to irq_hw_number_t
+      s390/pci: Migrate s390 IRQ logic to IRQ domain API
+
+ arch/s390/Kconfig           |   1 +
+ arch/s390/include/asm/pci.h |   5 +
+ arch/s390/pci/pci.c         |   6 +
+ arch/s390/pci/pci_bus.c     |  18 ++-
+ arch/s390/pci/pci_irq.c     | 310 ++++++++++++++++++++++++++++----------------
+ include/linux/irqdesc.h     |   6 +-
+ kernel/irq/irqdesc.c        |   6 +-
+ 7 files changed, 230 insertions(+), 122 deletions(-)
+---
+base-commit: 82ef9f0fac73cca3e7d776b095b5a7de1b0b88fc
+change-id: 20251104-implement-msi-domain-dc1ea014580e
+
+Best regards,
+-- 
+Tobias Schumacher <ts@linux.ibm.com>
+
