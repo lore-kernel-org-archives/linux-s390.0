@@ -1,68 +1,79 @@
-Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
+Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A65C828314A
-	for <linux-s390@vger.kernel.org>; Thu, 27 Nov 2025 01:15:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76B4A1DFD96
+	for <linux-s390@vger.kernel.org>; Thu, 27 Nov 2025 01:15:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764206129; cv=none; b=gWJEMECGCORLMpCEaQx+tP5PnBdu9tVzJ94j54Fvkbf3HggvTIKZD3D9BRNsAtujTkVl9EqIrWQT2SDUu0iCCZoIJhGBIymEKsPQmotg9a7NT/X29eD/dw03dWwBI2cVMX9uvPNhWzw8dLKdTVW1DWeRrUsopsdxLxq56nKfyeY=
+	t=1764206151; cv=none; b=OqKSVFqzwtFtquGY9iaC6Oqf6Vh5JPMHPoSZq9HCI3AS6an47Dmmed7OjKeuzVPPIrXwW2e2o2p+t2BcwSzNIUKhFNXmTa4rVFpX/9BpOIpo2lnxKn2J0vU6XHMhbxjuv6GIKvTyRfw96gbyXNRY8oxJazr5lukWCT1uG5+CkXc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764206129; c=relaxed/simple;
-	bh=8JJsvVVFPtkdjob7EPNBW66C8ozHB8IqOnQbl2EHZ6M=;
+	s=arc-20240116; t=1764206151; c=relaxed/simple;
+	bh=j3aN58VJ49CNxC1tU6w+qQp3Kagn9SOUYyn6llCeIRg=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=gK6fuqX4I4Y4OPKGU//srPY715kqgwY0LqQPUJf1lvjKPjFf/biNTW29c5kf+HezCF33mOM8vzm2keNsg1EaSFSd6VXKB/4iPT7sFUkzWn2FQm754mTvn1oy9om0XsN3haGHUC+PiIxrJt4YaI9+yPJiAc+jy8lkTTNY5WK9FPw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EZOR+N3h; arc=none smtp.client-ip=209.85.216.41
+	 MIME-Version:Content-Type; b=Dz7kDBwaC6Pgjk9LHxCQ/RaKMe7EA/VuMz0qwcelhOtP13Kad5IE3yiKs9qtS3taHEpbXfjdNwdcEZ590LVas0lk3JTN3S6h6QEEs3XT694sPYycCYhwl+Ej65oqnMTAW4prZx9l/1sqWq0JNmrapIJwbWBXDsDy7exQhLtcTLg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=inDW6ydf; arc=none smtp.client-ip=209.85.210.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EZOR+N3h"
-Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-34372216275so371328a91.2
-        for <linux-s390@vger.kernel.org>; Wed, 26 Nov 2025 17:15:27 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="inDW6ydf"
+Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-7baf61be569so350890b3a.3
+        for <linux-s390@vger.kernel.org>; Wed, 26 Nov 2025 17:15:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1764206127; x=1764810927; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1764206148; x=1764810948; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=FWpzj6B5gF6DB+hbE+NOEZVJH7N1deEp/v5DIh9IZkw=;
-        b=EZOR+N3hkmro5Ut8Jfxo4xO48EhJnknBiNAIoZeF9d2ogUOxKJfHUbh5FBfLS04nsO
-         lf+EoSErPy1wSrLlKYzhSPUEEqlf2j5+vHur+bzQwvA5A7G7sQ8+bFX6kEb58HF2MUwm
-         6QZZN/kQkAhdd82rIHrBUs1zhCsPfc6aU6BwBUj5YlA0xKHo8dM9+D2r37WbhywScYJq
-         q/XIxhUDinBb5nCQAKG8pjXTjViLgp3M2RUSS1m5oJoKiZcdhe3FnmkgZwnih77qn+XP
-         3PAjit8IE/HGGcNYrno0u9oIp2fdL7grRA8f6GkE7/25xJUmHDhz8+KppoVanR3eVfAU
-         Cwyw==
+        bh=W4p1bn22G2i0XoJzrL7o1dUUJ8ghtmPDbFaXYxRwFkI=;
+        b=inDW6ydfRS1eT9wsaJ6zpvEae53AArZX5zsf9AMiIjpBhuZtexzRWSCxsmF8DzYHiL
+         oWD2e148UGBAg3QlKNiZIS8getDWQ+9MnfRC0wwbAi5Ht8nFq2cc1fecKBpeL/Uua6bZ
+         C1bB+Arwb6vHCZicborKNPvxBi48w6IIXDxG9Tz6+T/YmrpMm8dumxtT+RRkJP1DF+NA
+         92znTl+1bcivU2tIJ5yEDb8SZ7wR0YzABHFMpo4ZmAX3RqbiZMF/HRY6aVr8rokWinTu
+         +lA8+fN8t4jXCiXnUYbWkHwBXVk3b7Q8HlJjVMaw9H5zP22E2/+CA3prVyO2VeSHJAyy
+         v3pw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764206127; x=1764810927;
+        d=1e100.net; s=20230601; t=1764206148; x=1764810948;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=FWpzj6B5gF6DB+hbE+NOEZVJH7N1deEp/v5DIh9IZkw=;
-        b=eiiID/gklCac34tPx4jJN3vHk1toSWKQVxiSSx2TAChR6VcPIqokCKwPf12IuicpSU
-         vVQgKu330UH/qImyBhXTLCvGQBXRmKK/t+4/xvHivrKsaIbPM3phn/QKFXRAcgKDGAMR
-         p3o6a0itOagvSx6D9lW9+U7lakWhLd87TDVuMSNOY1LQJSFtU1Ivs04LgOnzRUafDLRd
-         Ho3mps/8CFQEOdGU8k/djoXLVNkiqIBp0XQftpBx9xEmJ+hhF7zJda5GdMV6SVsuHzg3
-         tGF6QjUF0G/vyL/pN8YQrK5EKn2rZ11BnBtSp5crM0dzA36CZTQ2nEbdURyN9RnGHRsT
-         OOwA==
-X-Forwarded-Encrypted: i=1; AJvYcCX7eeo5SxiHtO2ukFgcTCkllc2D+kk0Q7v5eGQGqXzKlbc93AZ9eXjnJvaGCAbTLAoGAhsOmVuUnAKy@vger.kernel.org
-X-Gm-Message-State: AOJu0YwuyZIVFVeRbEJAnR7mC1iEdwB9vG49szO4PgJUoh2KtYAo93yV
-	SsFQIxGLQKL19t9vUeHx3jakAMSW7inJmvMFb3W0XQkbMMQqw+Uqc0Om
-X-Gm-Gg: ASbGncsxVSgAUsimCR4tydIX7anDa3ReScrrhT6PAd8jafHErCXbDi2s7kxhGyTt02C
-	VwK6FSKmy0ytYa8E00mu0rUaquUTotBMsPzMCNcttBxfBWImugP6yhcGCCkQv2GFG+/NDbd/e2l
-	fINfa+FTeq+bJJle3v93VD17JobjuQ0AN4hDwXHNB067dMmOKf9w3YRp5U0Uq3swWDOquPfDr0G
-	kMOKEvq4Z/3HNu23xgwFE8Vk5xU6BRwmdxA+6Ica9Ue3E3+WLGn6us1yNRRSEQlRC8fKHlBkor3
-	lHwjHkZJFPduI3h6K3bZVj9W6hfGaonkUtyVCy72HRhvYPEIzXszdIG5oVDldhtu7NhL5IvjFzF
-	L+b1r8usQjYzpJ5AyUBAIuJx05GJ1qWgV3XMtCm1XKPeLowod9sVJ8guhVnVJgiuhSjVzVa7p1V
-	1tLwwJDjs9rSAu0dPkasSvsTa0
-X-Google-Smtp-Source: AGHT+IEbVGx3N69Si7CHlaljqaf40tFMimNr+eyLkblnTtUDUiJAn2jdCvTJXncBxHt/s07HBZRGvQ==
-X-Received: by 2002:a17:90b:48c6:b0:340:5c38:3a56 with SMTP id 98e67ed59e1d1-34733f5cef1mr21117170a91.37.1764206126598;
-        Wed, 26 Nov 2025 17:15:26 -0800 (PST)
+        bh=W4p1bn22G2i0XoJzrL7o1dUUJ8ghtmPDbFaXYxRwFkI=;
+        b=isA9fP1o/aUMEciS1QDPMdsNz0j5uOTO5G4xWDJDEUVQBLLutsN+zQijPO+JFBkbck
+         IKF9zAV3YNBaN2WdxXfTUdZLNEycCU38NkdKp9+9weBdx6DXGpiuH8iGpPmPe3lpmiio
+         1Cc1WcZhGIHskRVNj3nUHFIq5dhWq9YIx9SwVtDrMKvgEJ2BL/jRVrsCJ6YQV+pYvmlE
+         PnLLlFWFV+lxvVCQ7y0D3w7+oa1c4FaCnf5B7pL0yG3D2z25j1/3/uT1wuVxvRH1Gayk
+         +AH0Fc/Zbu+dq2/hx6HuDKCLtasyrlREiNfOU/Uy1MwPIupiVsUmn58aXerxy1R+xt3o
+         QukQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWeD4vokS5h23Gm2p/356WNKt5XibDU4CXA6BllwXBHIkupwFz0hl1030F0D2jkNlp/iuEbOzOwDkvB@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw/BB4wbtBP3VR9oEhA5vwnZ2q9ErHboforCFjavBkl5i0vjEjg
+	DQgz+AI1LYe9b+1h+eGpQdanMqBk3+XdR3ulYoHWQjTvmzARUxgfrFe0
+X-Gm-Gg: ASbGnctAvQsPp/fzKe+oSVnIjDGuHQ89fGeEfgJSO/DiQ3CGVvN8qSjY94ppKjMsuZo
+	LKPbDHDUHmZu8kSJLzzTFEUlI1KFfhAOappSLlSk8WEStCkdRUeUhoVYsuuawlS6xKjJ3k4VILw
+	p06HRqnOpDOrf/RhbmFruG9xwpIQbncAfYeXIQslyJUB6eHqZfnGWdqti9VP3qoeSB2thfEIBed
+	6HMcIskqXf2D4DytQpde7NE4aFbvL0dq41N9S0fdJRIJ2GueuSmCPAue2hVw+OhEyY60w7wLd50
+	48U++vmFO4KyNds7P7mwzp3tiJEENcZwGrAd7RJ6TTc5T86iavvI/MiTGXgZCK0tvEpvtxB+o/U
+	K7m8jieHwpA3r6FfvNjIJlnoFwNDNTk0gTG8/KX1+18xEgp5RPsTXOire1M6k4xmMUEMIZCoabW
+	GMbG6ElXvurHXZU1AkVW9mTUqwUFuEwC77Jbk=
+X-Google-Smtp-Source: AGHT+IHM/YJW2qPboNwUb7KDGSWGsZmmt6gqbwAlILL0AqNuX4PEwg/PSJbXIFKwaU4zyLqhhDzUUA==
+X-Received: by 2002:a05:6a00:4616:b0:77f:2dc4:4c16 with SMTP id d2e1a72fcca58-7c58e016d67mr22034173b3a.21.1764206147616;
+        Wed, 26 Nov 2025 17:15:47 -0800 (PST)
 Received: from Barrys-MBP.hub ([47.72.129.29])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7c414c226f9sm22447356b3a.53.2025.11.26.17.15.06
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7c414c226f9sm22447356b3a.53.2025.11.26.17.15.27
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Wed, 26 Nov 2025 17:15:25 -0800 (PST)
+        Wed, 26 Nov 2025 17:15:46 -0800 (PST)
 From: Barry Song <21cnbao@gmail.com>
 To: akpm@linux-foundation.org,
 	linux-mm@kvack.org
-Cc: Oven Liyang <liyangouwen1@oppo.com>,
+Cc: Barry Song <v-songbaohua@oppo.com>,
+	David Hildenbrand <david@kernel.org>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	"Liam R . Howlett" <Liam.Howlett@oracle.com>,
+	Vlastimil Babka <vbabka@suse.cz>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Paul Walmsley <pjw@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Alexandre Ghiti <alex@ghiti.fr>,
 	Russell King <linux@armlinux.org.uk>,
 	Catalin Marinas <catalin.marinas@arm.com>,
 	Will Deacon <will@kernel.org>,
@@ -72,10 +83,6 @@ Cc: Oven Liyang <liyangouwen1@oppo.com>,
 	Michael Ellerman <mpe@ellerman.id.au>,
 	Nicholas Piggin <npiggin@gmail.com>,
 	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Alexandre Ghiti <alex@ghiti.fr>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
 	Heiko Carstens <hca@linux.ibm.com>,
@@ -90,18 +97,12 @@ Cc: Oven Liyang <liyangouwen1@oppo.com>,
 	Borislav Petkov <bp@alien8.de>,
 	x86@kernel.org,
 	"H . Peter Anvin" <hpa@zytor.com>,
-	David Hildenbrand <david@kernel.org>,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	"Liam R . Howlett" <Liam.Howlett@oracle.com>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
 	Matthew Wilcox <willy@infradead.org>,
 	Pedro Falcato <pfalcato@suse.de>,
 	Jarkko Sakkinen <jarkko@kernel.org>,
 	Oscar Salvador <osalvador@suse.de>,
 	Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+	Oven Liyang <liyangouwen1@oppo.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Ada Couprie Diaz <ada.coupriediaz@arm.com>,
 	Robin Murphy <robin.murphy@arm.com>,
@@ -113,22 +114,21 @@ Cc: Oven Liyang <liyangouwen1@oppo.com>,
 	Steven Rostedt <rostedt@goodmis.org>,
 	Yunhui Cui <cuiyunhui@bytedance.com>,
 	Nam Cao <namcao@linutronix.de>,
+	Chris Li <chrisl@kernel.org>,
+	Kairui Song <kasong@tencent.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Nhat Pham <nphamcs@gmail.com>,
+	Baoquan He <bhe@redhat.com>,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
 	loongarch@lists.linux.dev,
 	linuxppc-dev@lists.ozlabs.org,
 	linux-riscv@lists.infradead.org,
 	linux-s390@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org,
-	Chris Li <chrisl@kernel.org>,
-	Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>,
-	Baoquan He <bhe@redhat.com>,
-	Barry Song <v-songbaohua@oppo.com>
-Subject: [RFC PATCH 1/2] mm/filemap: Retry fault by VMA lock if the lock was released for I/O
-Date: Thu, 27 Nov 2025 09:14:37 +0800
-Message-Id: <20251127011438.6918-2-21cnbao@gmail.com>
+	linux-fsdevel@vger.kernel.org
+Subject: [RFC PATCH 2/2] mm/swapin: Retry swapin by VMA lock if the lock was released for I/O
+Date: Thu, 27 Nov 2025 09:14:38 +0800
+Message-Id: <20251127011438.6918-3-21cnbao@gmail.com>
 X-Mailer: git-send-email 2.39.3 (Apple Git-146)
 In-Reply-To: <20251127011438.6918-1-21cnbao@gmail.com>
 References: <20251127011438.6918-1-21cnbao@gmail.com>
@@ -141,13 +141,24 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Oven Liyang <liyangouwen1@oppo.com>
+From: Barry Song <v-songbaohua@oppo.com>
 
-If the current page fault is using the per-VMA lock, and we only released
-the lock to wait for I/O completion (e.g., using folio_lock()), then when
-the fault is retried after the I/O completes, it should still qualify for
-the per-VMA-lock path.
+If the current do_swap_page() took the per-VMA lock and we dropped it only
+to wait for I/O completion (e.g., use folio_wait_locked()), then when
+do_swap_page() is retried after the I/O completes, it should still qualify
+for the per-VMA-lock path.
 
+Cc: David Hildenbrand <david@kernel.org>
+Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: Liam R. Howlett <Liam.Howlett@oracle.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: Suren Baghdasaryan <surenb@google.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Paul Walmsley <pjw@kernel.org>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Alexandre Ghiti <alex@ghiti.fr>
 Cc: Russell King <linux@armlinux.org.uk>
 Cc: Catalin Marinas <catalin.marinas@arm.com>
 Cc: Will Deacon <will@kernel.org>
@@ -157,10 +168,6 @@ Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
 Cc: Michael Ellerman <mpe@ellerman.id.au>
 Cc: Nicholas Piggin <npiggin@gmail.com>
 Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: Paul Walmsley <pjw@kernel.org>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: Albert Ou <aou@eecs.berkeley.edu>
-Cc: Alexandre Ghiti <alex@ghiti.fr>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>
 Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 Cc: Heiko Carstens <hca@linux.ibm.com>
@@ -175,18 +182,12 @@ Cc: Ingo Molnar <mingo@redhat.com>
 Cc: Borislav Petkov <bp@alien8.de>
 Cc: x86@kernel.org
 Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: David Hildenbrand <david@kernel.org>
-Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Cc: Liam R. Howlett <Liam.Howlett@oracle.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: Suren Baghdasaryan <surenb@google.com>
-Cc: Michal Hocko <mhocko@suse.com>
 Cc: Matthew Wilcox <willy@infradead.org>
 Cc: Pedro Falcato <pfalcato@suse.de>
 Cc: Jarkko Sakkinen <jarkko@kernel.org>
 Cc: Oscar Salvador <osalvador@suse.de>
 Cc: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Cc: Oven Liyang <liyangouwen1@oppo.com>
 Cc: Mark Rutland <mark.rutland@arm.com>
 Cc: Ada Couprie Diaz <ada.coupriediaz@arm.com>
 Cc: Robin Murphy <robin.murphy@arm.com>
@@ -198,6 +199,11 @@ Cc: Thorsten Blum <thorsten.blum@linux.dev>
 Cc: Steven Rostedt <rostedt@goodmis.org>
 Cc: Yunhui Cui <cuiyunhui@bytedance.com>
 Cc: Nam Cao <namcao@linutronix.de>
+Cc: Chris Li <chrisl@kernel.org>
+Cc: Kairui Song <kasong@tencent.com>
+Cc: Kemeng Shi <shikemeng@huaweicloud.com>
+Cc: Nhat Pham <nphamcs@gmail.com>
+Cc: Baoquan He <bhe@redhat.com>
 Cc: linux-arm-kernel@lists.infradead.org
 Cc: linux-kernel@vger.kernel.org
 Cc: loongarch@lists.linux.dev
@@ -206,232 +212,47 @@ Cc: linux-riscv@lists.infradead.org
 Cc: linux-s390@vger.kernel.org
 Cc: linux-mm@kvack.org
 Cc: linux-fsdevel@vger.kernel.org
-Cc: Chris Li <chrisl@kernel.org>
-Cc: Kairui Song <kasong@tencent.com>
-Cc: Kemeng Shi <shikemeng@huaweicloud.com>
-Cc: Nhat Pham <nphamcs@gmail.com>
-Cc: Baoquan He <bhe@redhat.com>
-Signed-off-by: Oven Liyang <liyangouwen1@oppo.com>
 Signed-off-by: Barry Song <v-songbaohua@oppo.com>
 ---
- arch/arm/mm/fault.c       | 5 +++++
- arch/arm64/mm/fault.c     | 5 +++++
- arch/loongarch/mm/fault.c | 4 ++++
- arch/powerpc/mm/fault.c   | 5 ++++-
- arch/riscv/mm/fault.c     | 4 ++++
- arch/s390/mm/fault.c      | 4 ++++
- arch/x86/mm/fault.c       | 4 ++++
- include/linux/mm_types.h  | 9 +++++----
- mm/filemap.c              | 5 ++++-
- 9 files changed, 39 insertions(+), 6 deletions(-)
+ mm/memory.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mm/fault.c b/arch/arm/mm/fault.c
-index 2bc828a1940c..49fc0340821c 100644
---- a/arch/arm/mm/fault.c
-+++ b/arch/arm/mm/fault.c
-@@ -313,6 +313,7 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
- 	if (!(flags & FAULT_FLAG_USER))
- 		goto lock_mmap;
- 
-+retry_vma:
- 	vma = lock_vma_under_rcu(mm, addr);
- 	if (!vma)
- 		goto lock_mmap;
-@@ -342,6 +343,10 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
- 			goto no_context;
- 		return 0;
- 	}
-+
-+	/* If the first try is only about waiting for the I/O to complete */
-+	if (fault & VM_FAULT_RETRY_VMA)
-+		goto retry_vma;
- lock_mmap:
- 
- retry:
-diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
-index 125dfa6c613b..842f50b99d3e 100644
---- a/arch/arm64/mm/fault.c
-+++ b/arch/arm64/mm/fault.c
-@@ -622,6 +622,7 @@ static int __kprobes do_page_fault(unsigned long far, unsigned long esr,
- 	if (!(mm_flags & FAULT_FLAG_USER))
- 		goto lock_mmap;
- 
-+retry_vma:
- 	vma = lock_vma_under_rcu(mm, addr);
- 	if (!vma)
- 		goto lock_mmap;
-@@ -668,6 +669,10 @@ static int __kprobes do_page_fault(unsigned long far, unsigned long esr,
- 			goto no_context;
- 		return 0;
- 	}
-+
-+	/* If the first try is only about waiting for the I/O to complete */
-+	if (fault & VM_FAULT_RETRY_VMA)
-+		goto retry_vma;
- lock_mmap:
- 
- retry:
-diff --git a/arch/loongarch/mm/fault.c b/arch/loongarch/mm/fault.c
-index 2c93d33356e5..738f495560c0 100644
---- a/arch/loongarch/mm/fault.c
-+++ b/arch/loongarch/mm/fault.c
-@@ -219,6 +219,7 @@ static void __kprobes __do_page_fault(struct pt_regs *regs,
- 	if (!(flags & FAULT_FLAG_USER))
- 		goto lock_mmap;
- 
-+retry_vma:
- 	vma = lock_vma_under_rcu(mm, address);
- 	if (!vma)
- 		goto lock_mmap;
-@@ -265,6 +266,9 @@ static void __kprobes __do_page_fault(struct pt_regs *regs,
- 			no_context(regs, write, address);
- 		return;
- 	}
-+	/* If the first try is only about waiting for the I/O to complete */
-+	if (fault & VM_FAULT_RETRY_VMA)
-+		goto retry_vma;
- lock_mmap:
- 
- retry:
-diff --git a/arch/powerpc/mm/fault.c b/arch/powerpc/mm/fault.c
-index 806c74e0d5ab..cb7ffc20c760 100644
---- a/arch/powerpc/mm/fault.c
-+++ b/arch/powerpc/mm/fault.c
-@@ -487,6 +487,7 @@ static int ___do_page_fault(struct pt_regs *regs, unsigned long address,
- 	if (!(flags & FAULT_FLAG_USER))
- 		goto lock_mmap;
- 
-+retry_vma:
- 	vma = lock_vma_under_rcu(mm, address);
- 	if (!vma)
- 		goto lock_mmap;
-@@ -516,7 +517,9 @@ static int ___do_page_fault(struct pt_regs *regs, unsigned long address,
- 
- 	if (fault_signal_pending(fault, regs))
- 		return user_mode(regs) ? 0 : SIGBUS;
--
-+	/* If the first try is only about waiting for the I/O to complete */
-+	if (fault & VM_FAULT_RETRY_VMA)
-+		goto retry_vma;
- lock_mmap:
- 
- 	/* When running in the kernel we expect faults to occur only to
-diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
-index 04ed6f8acae4..b94cf57c2b9a 100644
---- a/arch/riscv/mm/fault.c
-+++ b/arch/riscv/mm/fault.c
-@@ -347,6 +347,7 @@ void handle_page_fault(struct pt_regs *regs)
- 	if (!(flags & FAULT_FLAG_USER))
- 		goto lock_mmap;
- 
-+retry_vma:
- 	vma = lock_vma_under_rcu(mm, addr);
- 	if (!vma)
- 		goto lock_mmap;
-@@ -376,6 +377,9 @@ void handle_page_fault(struct pt_regs *regs)
- 			no_context(regs, addr);
- 		return;
- 	}
-+	/* If the first try is only about waiting for the I/O to complete */
-+	if (fault & VM_FAULT_RETRY_VMA)
-+		goto retry_vma;
- lock_mmap:
- 
- retry:
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index e1ad05bfd28a..8d91c6495e13 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -286,6 +286,7 @@ static void do_exception(struct pt_regs *regs, int access)
- 		flags |= FAULT_FLAG_WRITE;
- 	if (!(flags & FAULT_FLAG_USER))
- 		goto lock_mmap;
-+retry_vma:
- 	vma = lock_vma_under_rcu(mm, address);
- 	if (!vma)
- 		goto lock_mmap;
-@@ -310,6 +311,9 @@ static void do_exception(struct pt_regs *regs, int access)
- 			handle_fault_error_nolock(regs, 0);
- 		return;
- 	}
-+	/* If the first try is only about waiting for the I/O to complete */
-+	if (fault & VM_FAULT_RETRY_VMA)
-+		goto retry_vma;
- lock_mmap:
- retry:
- 	vma = lock_mm_and_find_vma(mm, address, regs);
-diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
-index 998bd807fc7b..6023d0083903 100644
---- a/arch/x86/mm/fault.c
-+++ b/arch/x86/mm/fault.c
-@@ -1324,6 +1324,7 @@ void do_user_addr_fault(struct pt_regs *regs,
- 	if (!(flags & FAULT_FLAG_USER))
- 		goto lock_mmap;
- 
-+retry_vma:
- 	vma = lock_vma_under_rcu(mm, address);
- 	if (!vma)
- 		goto lock_mmap;
-@@ -1353,6 +1354,9 @@ void do_user_addr_fault(struct pt_regs *regs,
- 						 ARCH_DEFAULT_PKEY);
- 		return;
- 	}
-+	/* If the first try is only about waiting for the I/O to complete */
-+	if (fault & VM_FAULT_RETRY_VMA)
-+		goto retry_vma;
- lock_mmap:
- 
- retry:
-diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-index b71625378ce3..12b2d65ef1b9 100644
---- a/include/linux/mm_types.h
-+++ b/include/linux/mm_types.h
-@@ -1670,10 +1670,11 @@ enum vm_fault_reason {
- 	VM_FAULT_NOPAGE         = (__force vm_fault_t)0x000100,
- 	VM_FAULT_LOCKED         = (__force vm_fault_t)0x000200,
- 	VM_FAULT_RETRY          = (__force vm_fault_t)0x000400,
--	VM_FAULT_FALLBACK       = (__force vm_fault_t)0x000800,
--	VM_FAULT_DONE_COW       = (__force vm_fault_t)0x001000,
--	VM_FAULT_NEEDDSYNC      = (__force vm_fault_t)0x002000,
--	VM_FAULT_COMPLETED      = (__force vm_fault_t)0x004000,
-+	VM_FAULT_RETRY_VMA      = (__force vm_fault_t)0x000800,
-+	VM_FAULT_FALLBACK       = (__force vm_fault_t)0x001000,
-+	VM_FAULT_DONE_COW       = (__force vm_fault_t)0x002000,
-+	VM_FAULT_NEEDDSYNC      = (__force vm_fault_t)0x004000,
-+	VM_FAULT_COMPLETED      = (__force vm_fault_t)0x008000,
- 	VM_FAULT_HINDEX_MASK    = (__force vm_fault_t)0x0f0000,
- };
- 
-diff --git a/mm/filemap.c b/mm/filemap.c
-index 7d15a9c216ef..57dfd2211109 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -3464,6 +3464,7 @@ vm_fault_t filemap_fault(struct vm_fault *vmf)
- 	struct folio *folio;
- 	vm_fault_t ret = 0;
- 	bool mapping_locked = false;
+diff --git a/mm/memory.c b/mm/memory.c
+index 4f933fedd33e..7f70f0324dcf 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -4654,6 +4654,7 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
+ 	unsigned long page_idx;
+ 	unsigned long address;
+ 	pte_t *ptep;
 +	bool retry_by_vma_lock = false;
  
- 	max_idx = DIV_ROUND_UP(i_size_read(inode), PAGE_SIZE);
- 	if (unlikely(index >= max_idx))
-@@ -3560,6 +3561,8 @@ vm_fault_t filemap_fault(struct vm_fault *vmf)
- 	 */
- 	if (fpin) {
- 		folio_unlock(folio);
-+		if (vmf->flags & FAULT_FLAG_VMA_LOCK)
-+			retry_by_vma_lock = true;
- 		goto out_retry;
- 	}
- 	if (mapping_locked)
-@@ -3610,7 +3613,7 @@ vm_fault_t filemap_fault(struct vm_fault *vmf)
- 		filemap_invalidate_unlock_shared(mapping);
- 	if (fpin)
- 		fput(fpin);
--	return ret | VM_FAULT_RETRY;
-+	return ret | VM_FAULT_RETRY | (retry_by_vma_lock ? VM_FAULT_RETRY_VMA : 0);
- }
- EXPORT_SYMBOL(filemap_fault);
+ 	if (!pte_unmap_same(vmf))
+ 		goto out;
+@@ -4758,8 +4759,13 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
  
+ 	swapcache = folio;
+ 	ret |= folio_lock_or_retry(folio, vmf);
+-	if (ret & VM_FAULT_RETRY)
++	if (ret & VM_FAULT_RETRY) {
++		if (fault_flag_allow_retry_first(vmf->flags) &&
++		    !(vmf->flags & FAULT_FLAG_RETRY_NOWAIT) &&
++		    (vmf->flags & FAULT_FLAG_VMA_LOCK))
++			retry_by_vma_lock = true;
+ 		goto out_release;
++	}
+ 
+ 	page = folio_file_page(folio, swp_offset(entry));
+ 	/*
+@@ -5044,7 +5050,7 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
+ 	}
+ 	if (si)
+ 		put_swap_device(si);
+-	return ret;
++	return ret | (retry_by_vma_lock ? VM_FAULT_RETRY_VMA : 0);
+ }
+ 
+ static bool pte_range_none(pte_t *pte, int nr_pages)
 -- 
 2.39.3 (Apple Git-146)
 
