@@ -1,199 +1,177 @@
-Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77A5532B9B1
-	for <linux-s390@vger.kernel.org>; Thu, 27 Nov 2025 11:39:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E877327C0E;
+	Thu, 27 Nov 2025 14:38:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764243565; cv=none; b=nm9vVSnkR9mP2Bwiqn4kIFqY0ZyGj2tmkqgfeme4eZA0W05oyBaaL0jKcjVy4h72FikAUl8w+OPNY8yWnx1L++wtgsQ0VGc1T1yppBMEi1jJcmTUv24qa5Klr/ot/6ZmN+L6eKuEKB+o6+uGJDZZKOB+0Hk2V011O78HuPtHhBw=
+	t=1764254304; cv=none; b=LJNnNFHuG/rokgM0M9tnGkYyivM0IcMic5xxbDFbnqI3UqB3UoZEHGF8e6LUyjlO0NuRNB6v+15J43PH3yHuz9mUnU6w0HfffF0gUi8ibDEoDFVneRqGvQMucItjf808rJkLlM8Rfca+3dLWl8UYyaE1Slmd5+03TF1GYqqoo/I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764243565; c=relaxed/simple;
-	bh=VmYFJVGbSNiRXH1yQ3UAeHylPpQU5o+0M5eUQPT/G+Y=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=k/RhjsaL96XdhHCfQvdtn0XqVz4V4zjCW65/s6iaNT1U0RYdB9//eK+5T0xkJiBCGFHPGXwz4Oi0DIKH+16xOKpK0kTBqVfDdI3Sur5GPnvTkvG6FiaToHHNwK5SE8yxoTfBcyAlOVz3inpLMRsGyVGvRL8n9H60fJSlbTsLKoQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=O3uTzexq; arc=none smtp.client-ip=209.85.222.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1764254304; c=relaxed/simple;
+	bh=w2zvk7MVL2WcUAQA1TzbwgTqmyq6bf0UVC2Ruq3r1O4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=HKMiFApJcaGYP5Kog+remb+yOS9/8/qbCFKmK5Ma1QBnwL3jAcTX5yPr21YkLT4p5jBWaXpCT3LPA0H3sljPhFCUOtTzoVLTgzkBgsGqilGd4soPETG6DIcsJ7JZ9nf1e/24SxdwPw3Wlz9Oau/+BmE+0qnVkoRkIEXeLr0yNOo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EBlzxHNl; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O3uTzexq"
-Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-8b2f0f9e4cbso66201785a.0
-        for <linux-s390@vger.kernel.org>; Thu, 27 Nov 2025 03:39:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1764243562; x=1764848362; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=lTgQXrnGbp8yRV1ffH5aOGb73MnxpAvx9lMPfkiZ/pE=;
-        b=O3uTzexqsI0MjNTP1s7+4J7RRJWLCE/mWBMPtLG9utwDkbNFO+iB44IT8durRdFmHG
-         lSOCiAM8ChzskDJfeR9s6GA76rYhsOqD2wjEDguoHiJNfXtcrG8v6h8mKSCDuvCgSPIN
-         L5Gyp1VsSVIzFsn6wHDPt0jgdcyT4RBU5grXy6Obud3X1dLuXbr/ex0ZKtDs5fITL3z0
-         yeW5KVKVwr3FIs96cXG9Sc/rWQHISeXjAfGW7S+8AFQfjcBg+VIcAwFXOayI7EwmiC2y
-         YQms1qFwMwBpah0rcaMSzN2n8XioDN51rIDgDE/55gRNnGk7FqAp5pIGWGYtUbzIKVel
-         1f1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764243562; x=1764848362;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=lTgQXrnGbp8yRV1ffH5aOGb73MnxpAvx9lMPfkiZ/pE=;
-        b=Q+1hriw+E8lPiyKF3fcb+SEBwG3RUpNFYI0iPSm07QmM0/fPNpg8TkAD3wO58vVk6y
-         u5dMVNBFwu84THefBXx5ij/hcRoZvQkq78XqTWesPbcfaKJgMVH/WP9lcONVPFvwsUJ2
-         Qd6Wedcf97vnXBMrXdnAfsFZ/ff0y3k7+YLVbAE02oE29XMbKjMX2UndJcQsAl0z59SC
-         cr4mSVg7pOAse+GqhrupjT4YPnPQpeyPR/53YgXkUvLBy510UQKvvbigAp7GQkHjJbkb
-         D6JIdzZhDhSsSwJRdRP0pu0ROPpZ7bv9dUFPAHiLSvRM6VsEOsIwgzDCwAtsvkZB4Owd
-         tOnw==
-X-Forwarded-Encrypted: i=1; AJvYcCWTG2XsasKUBlvqfZSRUcGB1S69zarxEV3dNvXC6KGHo6i/OTSmkyo52WkGyTPXPgHNKhte+/TyAUsx@vger.kernel.org
-X-Gm-Message-State: AOJu0YzM9QEae2FjYfzpBZ84M9zR+84bKQeSgZoY/XdhKs7F03QyB04t
-	bJClxUE40AJwCbNKiTOJNWjnXllzlcfjqTXYDkJ7a+5ZAHgXPl+jEvDOXSTcEbrGabeh/j0kvdN
-	yRquI/nhTxwZAfPgxfd/7n5rGS0LuF4w=
-X-Gm-Gg: ASbGncs+amS1NAO8pVkkCRB+59pMMGLM7DdbKcudqsbEWaxNmmLiRxkupoBF8Fw+YMt
-	nCK4bCsVtHUHxQnuTzUBTbWlr6cS6MOnYZn3GhMocwp2CX3fjA4znfxiD+MjzSocoDjc3XXAOJ1
-	3MdFGmXXWKmZX4UvzvCd+0Jmx1C0sNnsqboPLrcvC3HU3at0+NQNlJyjnyHQkEm4iwle7yAtNWb
-	jABQiBHAi17hK0SfSfslepw9Q4xszExDY26taXMlQ5cl1/+dAyUIs1664S18aB18b1drg==
-X-Google-Smtp-Source: AGHT+IF8AX3QuwU8PWoyMHubrE0YEf7OwwbSbZImelOgI0KoQ85t34HoENkNaCeescbBRgk60ctOqyrcZAkFR1pI8MI=
-X-Received: by 2002:a05:620a:4094:b0:8b2:3484:8e22 with SMTP id
- af79cd13be357-8b32a8d7accmr3051143885a.0.1764243562227; Thu, 27 Nov 2025
- 03:39:22 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EBlzxHNl"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AR28Bsv004616;
+	Thu, 27 Nov 2025 14:37:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=lsTTj2
+	YrnLGxPOHnN/2LdMagfBrQHMsSNYlh8ezQwF0=; b=EBlzxHNlQZevowiyatcVJ+
+	nYg2cb4LY8+WdLxs8i5BR70cuWFi6nRmNaAcnhhG7wo0RTHK/FEWcWbMs1N0wS9d
+	z97fOPQEv3rdBCMI5KczruJUQZBxIGf4ZYmQVC4PJdopphy0uPvGMCIz+7A8ULK2
+	K0HKAaxJAjB4HrfwsqecR98CVoWJKwXu5U+x2Wk+uBBIONw+h8/k6dZManeHlfzf
+	s9IPNGqx++pSoB56YmqhCgb5u5vt9z3Y++Vi2/vuVeMwJhE2M+1SxnAgENkG7fZy
+	Xv8Umi5qRI7rY+gUQ71A+7vx7DsU2r8/hBmaYqW9w3L+BprGOjMSBqsc/JpFWwLA
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ak4u28qh8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 27 Nov 2025 14:37:52 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5ARC1B6r025089;
+	Thu, 27 Nov 2025 14:37:51 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4akt71r823-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 27 Nov 2025 14:37:51 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5AREbmlQ29950368
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 27 Nov 2025 14:37:48 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 13D7420043;
+	Thu, 27 Nov 2025 14:37:48 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7337F20040;
+	Thu, 27 Nov 2025 14:37:47 +0000 (GMT)
+Received: from [9.111.34.14] (unknown [9.111.34.14])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 27 Nov 2025 14:37:47 +0000 (GMT)
+Message-ID: <e76ed034-7c7a-4cd6-ae10-945ad39c2b00@linux.ibm.com>
+Date: Thu, 27 Nov 2025 15:37:47 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251127011438.6918-1-21cnbao@gmail.com> <20251127011438.6918-2-21cnbao@gmail.com>
- <5by7tko4v3kqvvpu4fdsgpw42yl5ed5qisbaz3la4an52hq4j2@v75fagey6gva>
-In-Reply-To: <5by7tko4v3kqvvpu4fdsgpw42yl5ed5qisbaz3la4an52hq4j2@v75fagey6gva>
-From: Barry Song <21cnbao@gmail.com>
-Date: Thu, 27 Nov 2025 19:39:11 +0800
-X-Gm-Features: AWmQ_bmMHpk-p6E2I_jCY1Xqg4XmWm0x9ikXHEjIDdMSrcjAo4PIsH4k_44adgY
-Message-ID: <CAGsJ_4xQKARuEuhrVuV+WmBC7+NCNd==Zi9nGmze5mfSjF1kdw@mail.gmail.com>
-Subject: Re: [RFC PATCH 1/2] mm/filemap: Retry fault by VMA lock if the lock
- was released for I/O
-To: Pedro Falcato <pfalcato@suse.de>
-Cc: akpm@linux-foundation.org, linux-mm@kvack.org, 
-	Oven Liyang <liyangouwen1@oppo.com>, Russell King <linux@armlinux.org.uk>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
-	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Alexandre Ghiti <alex@ghiti.fr>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
-	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, x86@kernel.org, 
-	"H . Peter Anvin" <hpa@zytor.com>, David Hildenbrand <david@kernel.org>, 
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, "Liam R . Howlett" <Liam.Howlett@oracle.com>, 
-	Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
-	Michal Hocko <mhocko@suse.com>, Matthew Wilcox <willy@infradead.org>, 
-	Jarkko Sakkinen <jarkko@kernel.org>, Oscar Salvador <osalvador@suse.de>, 
-	Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>, Mark Rutland <mark.rutland@arm.com>, 
-	Ada Couprie Diaz <ada.coupriediaz@arm.com>, Robin Murphy <robin.murphy@arm.com>, 
-	=?UTF-8?Q?Kristina_Mart=C5=A1enko?= <kristina.martsenko@arm.com>, 
-	Kevin Brodsky <kevin.brodsky@arm.com>, Yeoreum Yun <yeoreum.yun@arm.com>, 
-	Wentao Guan <guanwentao@uniontech.com>, Thorsten Blum <thorsten.blum@linux.dev>, 
-	Steven Rostedt <rostedt@goodmis.org>, Yunhui Cui <cuiyunhui@bytedance.com>, 
-	Nam Cao <namcao@linutronix.de>, linux-arm-kernel@lists.infradead.org, 
-	linux-kernel@vger.kernel.org, loongarch@lists.linux.dev, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
-	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, 
-	Baoquan He <bhe@redhat.com>, Barry Song <v-songbaohua@oppo.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 3/3] KVM: s390: Use generic VIRT_XFER_TO_GUEST_WORK
+ functions
+To: Andrew Donnellan <ajd@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Cc: Nicholas Miehlbradt <nicholas@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        David Hildenbrand <david@kernel.org>
+References: <20251126-s390-kvm-xfer-to-guest-work-v2-0-1b8767879235@linux.ibm.com>
+ <20251126-s390-kvm-xfer-to-guest-work-v2-3-1b8767879235@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20251126-s390-kvm-xfer-to-guest-work-v2-3-1b8767879235@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTIyMDAyMSBTYWx0ZWRfXyQ6Cp4xJI7NH
+ +PxqYwJPk2LyGV4huPqzWhfRzy5loyJ0NGU0LbqZV59jCkJ2Bz9OHzrKakFN9+u2TFEa63q+x4Y
+ oyjNNXGa41EPUUu0+UaE2Nd3E0fslnkQ94V2pCi9oQMgGzEbxNplr4T2Jovr69G5gavsX6oRcg7
+ TsOSNRdkKcgYGg5QhgH7j2wC2TT0PuWOCPHv/Z2c5TuOUuQaBAXxajz+FfkIdlL3vB1xZNMClIh
+ l/4D9ObvclMkYc8YilgPtpey8C8bZNin2oVyE1naBzdBv8NCALyVv4GxONz4g+bn/Dvf7L1sqm3
+ zpMCKHTQFnymLvpvEPcA5mvf78R8bQcVoneGgUIA3ir2wuWyRFvUM/gMsOMxXavDPgn4MYFhnnP
+ XASmkgbYt0FrXlds9gymD9bPIAguRA==
+X-Authority-Analysis: v=2.4 cv=SuidKfO0 c=1 sm=1 tr=0 ts=69286240 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VnNF1IyMAAAA:8 a=gfTFqVgN0iytZCg8HA0A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: seCphrIKBa2ZNNOrcGNebb-viN3IX26C
+X-Proofpoint-GUID: seCphrIKBa2ZNNOrcGNebb-viN3IX26C
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-11-25_02,2025-11-27_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 lowpriorityscore=0 clxscore=1011 impostorscore=0
+ malwarescore=0 spamscore=0 suspectscore=0 phishscore=0 adultscore=0
+ bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2511220021
 
-On Thu, Nov 27, 2025 at 6:52=E2=80=AFPM Pedro Falcato <pfalcato@suse.de> wr=
-ote:
->
-> On Thu, Nov 27, 2025 at 09:14:37AM +0800, Barry Song wrote:
-> > From: Oven Liyang <liyangouwen1@oppo.com>
-> >
-> > If the current page fault is using the per-VMA lock, and we only releas=
-ed
-> > the lock to wait for I/O completion (e.g., using folio_lock()), then wh=
-en
-> > the fault is retried after the I/O completes, it should still qualify f=
-or
-> > the per-VMA-lock path.
-> >
-> <snip>
-> > Signed-off-by: Oven Liyang <liyangouwen1@oppo.com>
-> > Signed-off-by: Barry Song <v-songbaohua@oppo.com>
-> > ---
-> >  arch/arm/mm/fault.c       | 5 +++++
-> >  arch/arm64/mm/fault.c     | 5 +++++
-> >  arch/loongarch/mm/fault.c | 4 ++++
-> >  arch/powerpc/mm/fault.c   | 5 ++++-
-> >  arch/riscv/mm/fault.c     | 4 ++++
-> >  arch/s390/mm/fault.c      | 4 ++++
-> >  arch/x86/mm/fault.c       | 4 ++++
->
-> If only we could unify all these paths :(
+On 11/26/25 06:33, Andrew Donnellan wrote:
+> Switch to using the generic infrastructure to check for and handle pending
+> work before transitioning into guest mode.
+> 
+> xfer_to_guest_mode_handle_work() does a few more things than the current
+> code does when deciding whether or not to exit the __vcpu_run() loop. The
+> exittime tests from kvm-unit-tests, in my tests, were within a few percent
+> compared to before this series, which is within noise tolerance.
+> 
+> Co-developed-by: Heiko Carstens <hca@linux.ibm.com>
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
+> ---
+> v2: if work is handled, recheck for outstanding work with interrupts
+>      disabled before entering guest (Heiko)
+> 
+> The way I've implemented this, I do the check between vcpu_pre_run() and
+> entering the guest, and bail out of the loop if
+> kvm_xfer_to_guest_mode_handle_work() returns nonzero, without calling
+> vcpu_post_run(). My impression is that this is safe, but it does mean
+> there is an sie_enter vcpu event and trace event which isn't matched with
+> corresponding exit events. Is this a problem?
 
-Right, it=E2=80=99s a pain, but we do have bots for that?
-And it=E2=80=99s basically just copy-and-paste across different architectur=
-es.
 
->
-> >  include/linux/mm_types.h  | 9 +++++----
-> >  mm/filemap.c              | 5 ++++-
-> >  9 files changed, 39 insertions(+), 6 deletions(-)
-> >
-> > diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-> > index b71625378ce3..12b2d65ef1b9 100644
-> > --- a/include/linux/mm_types.h
-> > +++ b/include/linux/mm_types.h
-> > @@ -1670,10 +1670,11 @@ enum vm_fault_reason {
-> >       VM_FAULT_NOPAGE         =3D (__force vm_fault_t)0x000100,
-> >       VM_FAULT_LOCKED         =3D (__force vm_fault_t)0x000200,
-> >       VM_FAULT_RETRY          =3D (__force vm_fault_t)0x000400,
-> > -     VM_FAULT_FALLBACK       =3D (__force vm_fault_t)0x000800,
-> > -     VM_FAULT_DONE_COW       =3D (__force vm_fault_t)0x001000,
-> > -     VM_FAULT_NEEDDSYNC      =3D (__force vm_fault_t)0x002000,
-> > -     VM_FAULT_COMPLETED      =3D (__force vm_fault_t)0x004000,
-> > +     VM_FAULT_RETRY_VMA      =3D (__force vm_fault_t)0x000800,
->
-> So, what I am wondering here is why we need one more fault flag versus
-> just blindly doing this on a plain-old RETRY. Is there any particular
-> reason why? I can't think of one.
-
-Because in some cases we retry simply due to needing to take mmap_lock.
-For example:
-
-/**
- * __vmf_anon_prepare - Prepare to handle an anonymous fault.
- * @vmf: The vm_fault descriptor passed from the fault handler.
- *
- * When preparing to insert an anonymous page into a VMA from a
- * fault handler, call this function rather than anon_vma_prepare().
- * If this vma does not already have an associated anon_vma and we are
- * only protected by the per-VMA lock, the caller must retry with the
- * mmap_lock held.  __anon_vma_prepare() will look at adjacent VMAs to
- * determine if this VMA can share its anon_vma, and that's not safe to
- * do with only the per-VMA lock held for this VMA.
- *
- * Return: 0 if fault handling can proceed.  Any other value should be
- * returned to the caller.
- */
-vm_fault_t __vmf_anon_prepare(struct vm_fault *vmf)
-{
-...
-}
-
-Thus, we have to check each branch one by one, but I/O wait is the most
-frequent path, so we handle it first.
-
->
-> I would also like to see performance numbers.
-
-Yes. From what I understand, this patchset should improve performance in a
-fairly straightforward way.
-But yes, I can certainly include some data in v2.
-
->
-> The rest of the patch looks OK to me.
-
-Thanks
-Barry
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
