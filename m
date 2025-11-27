@@ -1,138 +1,238 @@
-Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77D5B27D77D
-	for <linux-s390@vger.kernel.org>; Wed, 26 Nov 2025 19:01:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5E7D29BD8E
+	for <linux-s390@vger.kernel.org>; Thu, 27 Nov 2025 01:15:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764183676; cv=none; b=E0YJPY8PZ8JIF3SqNoEV/Ql4P9bN3jAkeVThoRjmDfaYphBI71qVtWDFQvrKbCY+76L/Vh//gWSyMBWXy7jFmN9lS+eRqf/d2F9UA/Klb740euDAkkhv74BXL/DfPCggqQ1WEDsZqBYI5ImCrqBMRwawN0Dtb/yokgWZqcZWhbs=
+	t=1764206109; cv=none; b=TiQaVQa70n/vA6SnvWJ60k6Vfeg/DIzqPWjgts9XXiQao3H3mSa4SVd7XFXxLcmpGKNSZ85YMPiIhkRhauEYqCcI/lcPPl0ryJe31j2rgDx2AoR4zB8hipx5GxUQ3fvpr0pLCVMBPeGsIkQi1bVk/O4J8f+1saoa4OkvaovWY0A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764183676; c=relaxed/simple;
-	bh=NL34pD8T4V00Vzzl+/Qr2PvsfK2RCcscZu3ICWTHDPs=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=C2zgxc/ZcZuy90tu1/toxJKVodVvxn58Mb1H/o/6k2N20BuJKq74bPAU6A7nwlO8KCR0mo2PXxlYH7Sw4e6OuWcFi6uS2GEG+TK+9PuRbzjsAKa1LjxnQ79j4Z50C8sUURVIdB8KXgWOSrqkGanCe9X9xoR2v7FTnkn9QWO1rlw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=loaQ73Lb; arc=none smtp.client-ip=209.85.222.180
+	s=arc-20240116; t=1764206109; c=relaxed/simple;
+	bh=jbv/5yqfSa0KJ/IeA29hXhIEAtQ59RgN8Zbg7ZWt3Bs=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=GLCrIcITHotpBXl/bi4BMvyKwopFb/nnvQzD9ZsUPprKB6JIo/P9HEGZWh6zpMzY1LPUf7Mp61kxiTxSFoJWfdupdXOKFNdjwYhBW4SL4Gu9hpyVcODFH/PazvcXe+GxGpLCU+bhfVzNg/yFDQEOavVB25epF/sBDC/xn7wo49g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VtXWOBz5; arc=none smtp.client-ip=209.85.210.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="loaQ73Lb"
-Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-8b2d32b9777so7436785a.2
-        for <linux-s390@vger.kernel.org>; Wed, 26 Nov 2025 11:01:14 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VtXWOBz5"
+Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-7a9c64dfa8aso216345b3a.3
+        for <linux-s390@vger.kernel.org>; Wed, 26 Nov 2025 17:15:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1764183673; x=1764788473; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=9olSEKmUg2DoH3BJkC4PHVJmILXcxuZR8suDptjbXkg=;
-        b=loaQ73LbPfNDbbyWUhxsWaccrEL98o4Bk9aKPs5BJ/jPYOgYteY51gmmjxYrF1teK3
-         qbqTNjjhkgDCQ2iMeR2j9hasQr4J2z6JQ3W86fq/DLQY29WFEmuzUmfOJoEYMUtOxzt5
-         lasjsNIH8OVBMNYFJe4ETx6icKZRu9tJWrP81nhxew0HMy7kon9SFz7AJy8njUgzNM01
-         jJnzjxD9LpxL1kZgwC1rhoVoVlRL0Gvs5HOzq3+LmHpNitInfjdVPUSZBlql1Hsy7MYS
-         izMLHFBDTdZUOkm5sz6Z6L4oZ3EOaaOTqEPsjMHa6QBqflwAW8zpzYv4sMPvOQzoCBOF
-         nG9A==
+        d=gmail.com; s=20230601; t=1764206106; x=1764810906; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=YN0BTLFbTgqhPvFlS+d/VYwmsgL4p5TAnUdzEI0ntIc=;
+        b=VtXWOBz5kvhlT+HHpT42BUwUQ5eVLkegSXUfr6Q0m7BVHOLfcSyR8EWL7GHT4H9F4W
+         kxtLyRtcwtI6RABWmXedgM+SBB8mH9Jo5bC71KczP7sGnDMqRRDtH2SrpQBpT7M8UswM
+         6/ZADe6us54p9OcxEjskT0c1+hztXlYM9h3gAYooUTVwCUo+xgJF27cS9V3kRbO9dnYS
+         FngzepAHNjrKMcGH2/1ITVHRSg6q1X1sGDfX3L8M4LcULRknxhgbfM6ciCGMkqkC2ySs
+         VNNnVkQA/sv3Zc9Sd7DmAXC/3ObsZqOgT1EInbxI0B+ew+ZXKp5+lcZxxYqipJj+li6V
+         QhbQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764183673; x=1764788473;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=9olSEKmUg2DoH3BJkC4PHVJmILXcxuZR8suDptjbXkg=;
-        b=Ee6Rh++0uwcMRkdYdzEyqB271npiKjTbnKMudvywt1D7r9BByn7WAnIJx44i0AjkRv
-         AZiINYJTMM07SfZ0AN7GQ4VJiPMLiij/tEcSGhLMNuXr8iC97yMRO+y7B9D3iXKyuFwK
-         CM+NipYeN1NWWz9lZD2euA5wu+xxgfVULegpqJ2uN1XFX9zg3Q0EXkAm7IbDDhuK7bb9
-         UT/r2bLEYDqV47COTp9gRfGr2ys7pR7XoRd1qkhir4JWRa/P7lt/G7jE76LOjyak38vN
-         4Ef7VuSX44xrcWSg8ZZIZsgpGbj4QKS6FlKTMR9PBPBkhQDv3ZYivT9LZsEYxnUTr2OA
-         b0tQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXAn+S156gAiOo0fmNBWmIzVQJlY/xK39Dj2Fyf6bXicOfLljQ/rZpSxTj+vSum6I8Fvh+aMypNuHcK@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy3A9bgIPzKl+9wNvCJbOlx8eVlYNbDmQmhBEiXsrkXmaejXk62
-	GeJwk0/WxPw13fus5PbemDGGt7/bT7eeC5VsV1lAG2+Z2tOu1qbxw6kEUtwqTVwJKlJ83ctwh1P
-	8yEkZsntBiYz3Y1Y5n1Vt0vdXl/sJtlVPuFxY
-X-Gm-Gg: ASbGncsNzySHK8ko9Fsm2QUdZsL7JlC8XHAhltNm+YnCXHLRL2cQkcsSS9K9+yUQjw+
-	jZrkitfk0/dNztHksOIamsItFqO9Kn3HE1ReO9nmG5Z03tH0/v6LOSRAGIPzl2YIBK8FK1cbtv2
-	k4hIRC1MTJX5lpgVh0Fj8ady5uunHFDWkOjzfL3KYv1+ITxEAUT15EbEp5cGA8sFmGzw9zqoiDA
-	ls+ionXuw3KbWliZn9xZxIoT+P0TjvauJH1u7TEZLFfst3+IAxjOGRBTYVbxrklJfyqD9Y=
-X-Google-Smtp-Source: AGHT+IG4lMOCibB3xzn94c2hznIJFr1UtmXTtjH3mj3s4ig5rqGWjzJDEXka6fS7dx4D8DrQHjiL2yRwRkQGSbtzW/0=
-X-Received: by 2002:a05:620a:28d5:b0:8b3:aa:f61d with SMTP id
- af79cd13be357-8b33d4a77famr2884287285a.49.1764183673026; Wed, 26 Nov 2025
- 11:01:13 -0800 (PST)
+        d=1e100.net; s=20230601; t=1764206106; x=1764810906;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=YN0BTLFbTgqhPvFlS+d/VYwmsgL4p5TAnUdzEI0ntIc=;
+        b=nZV2zme+V+uFATCbEN9SqCXn7ppd8hhYpoBwFAO/dcxyCOgMVsSuTjJNO/U0aTtf/V
+         O4JZTPtcYjghgXQIWhyDZfYp3dbt5KYLklkk/SC1WB8TGBippNDnpxwvgS1dp6I6ANCb
+         u3qCVFTAnOW0hsE61/R/QMrQSYzstIhS3uuMWgkIqEVbBslSH9YMrYN119yqH06y/oO2
+         xYtNq+v7HG/C2A6g1ZJAlvDEvBdTb0sTWFI9pJeIOHwlgGp0LP5xrRJaA1nhZCD4vYtw
+         DCV8684Jt0XmhJRoXdtIbDYM5jul1FiUfVoUr+IE6N1RkrD2REMNWDjO84p/otvZQ+Gx
+         neyQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWRSH5x6iHmWhOsumkNGub7uoVgtc0LTcYjd8P4uSV8T0hoc4bv5ZlYxBEWm6l42BbveLsDBDidoEPn@vger.kernel.org
+X-Gm-Message-State: AOJu0YwqFwXra6366tFSmkdIZh58ZqLJXXw+WZBxoqodrgoU5PW2bJ4U
+	3HfvTk9C/mBXaBwgILZFIfi3f/JnZovz6D1uGrOGnF3kTYzFvMV2BaNv
+X-Gm-Gg: ASbGncuFJxzvlNJH/yVmry8N2yPoORZytquZBIocfr3nRXvKilkE9ISe7L45+sAekfQ
+	tYERJDqxxsUILwm6zLvWtpUlF/QIEY2iIittTWrh1hIzCY5GV1QoNNVPYC9nKDWZ9m1UXoTIKC5
+	9H975JCsk07kjuK4gbxvm18iaSopJa3NC2YDKykNS66UghhbpQFONT5p2cgKwSmva4Hylm/bRx2
+	JGVBroVqZztonjg3Hn55dUtbudsLjX3cvSr70D2JZLxzgeA09GAwRYsAkmGwmqZgqPSgpyRMes7
+	xwZ9rtjGGZ+qKBhNroEP2vfyg+MF6olXEg/SCPy/JSyJDLK/YHBn15LrJxtlXXApSjTpEZxY8qq
+	lB6mIt+4SWNitWEgHl4HJ+WxeP1FXTgLC1If4SX0268d58+c6iq7Fkfzu1erE601mRU8B9nLKg1
+	t1rWFDczneFRqJII/RM8F1mQcV
+X-Google-Smtp-Source: AGHT+IFOjeQ0nHa/gitKNf1wf8IwI8ZEjtO1qVKyyQQ31rBE2Lfq+ONwSrRkJugnArpqn7KBTPKjcA==
+X-Received: by 2002:a05:6a00:114f:b0:7a4:f552:b524 with SMTP id d2e1a72fcca58-7ca8b2b16e0mr9121834b3a.28.1764206105589;
+        Wed, 26 Nov 2025 17:15:05 -0800 (PST)
+Received: from Barrys-MBP.hub ([47.72.129.29])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7c414c226f9sm22447356b3a.53.2025.11.26.17.14.44
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Wed, 26 Nov 2025 17:15:04 -0800 (PST)
+From: Barry Song <21cnbao@gmail.com>
+To: akpm@linux-foundation.org,
+	linux-mm@kvack.org
+Cc: Barry Song <v-songbaohua@oppo.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Paul Walmsley <pjw@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Alexandre Ghiti <alex@ghiti.fr>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	x86@kernel.org,
+	"H . Peter Anvin" <hpa@zytor.com>,
+	David Hildenbrand <david@kernel.org>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	"Liam R . Howlett" <Liam.Howlett@oracle.com>,
+	Vlastimil Babka <vbabka@suse.cz>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Matthew Wilcox <willy@infradead.org>,
+	Pedro Falcato <pfalcato@suse.de>,
+	Jarkko Sakkinen <jarkko@kernel.org>,
+	Oscar Salvador <osalvador@suse.de>,
+	Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+	Oven Liyang <liyangouwen1@oppo.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ada Couprie Diaz <ada.coupriediaz@arm.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	=?UTF-8?q?Kristina=20Mart=C5=A1enko?= <kristina.martsenko@arm.com>,
+	Kevin Brodsky <kevin.brodsky@arm.com>,
+	Yeoreum Yun <yeoreum.yun@arm.com>,
+	Wentao Guan <guanwentao@uniontech.com>,
+	Thorsten Blum <thorsten.blum@linux.dev>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Yunhui Cui <cuiyunhui@bytedance.com>,
+	Nam Cao <namcao@linutronix.de>,
+	Chris Li <chrisl@kernel.org>,
+	Kairui Song <kasong@tencent.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Nhat Pham <nphamcs@gmail.com>,
+	Baoquan He <bhe@redhat.com>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org
+Subject: [RFC PATCH 0/2] mm: continue using per-VMA lock when retrying page faults after I/O
+Date: Thu, 27 Nov 2025 09:14:36 +0800
+Message-Id: <20251127011438.6918-1-21cnbao@gmail.com>
+X-Mailer: git-send-email 2.39.3 (Apple Git-146)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <aRvSv03cqarM5dY9@google.com> <d60860b4-e84b-48e1-87dd-4bd8203a69ad@linux.ibm.com>
- <aRwVifZ_-7puFUVC@google.com> <20251118132451.29a35127@gandalf.local.home>
- <aR1JXlhJ8rC8Ujb3@google.com> <20251119125903.417f595e@gandalf.local.home>
- <aR5mTLRWA-SLAFUM@google.com> <a7a5f95b-25e0-4816-9d0b-04d955c95821@linux.ibm.com>
- <20251126102401.37af98bb@gandalf.local.home> <20251126121229.0638407b@gandalf.local.home>
- <aSdNiF2VZMtjQnUQ@google.com>
-In-Reply-To: <aSdNiF2VZMtjQnUQ@google.com>
-From: Howard Chu <howardchu95@gmail.com>
-Date: Wed, 26 Nov 2025 11:01:02 -0800
-X-Gm-Features: AWmQ_blDXna8aYwwz0QjzlA-7bZ22wVZAwET2gWg5CMksczKVoPZReS2q9UbnzA
-Message-ID: <CAH0uvoiB4EFu4x_87cdoU5DezKcGXyT8OEhrs0qNYW7aDktgnQ@mail.gmail.com>
-Subject: Re: [PATCH Linux-next] perf test: Fix test case perf trace BTF
- general tests
-To: Namhyung Kim <namhyung@kernel.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>, acme@kernel.org, 
-	Thomas Richter <tmricht@linux.ibm.com>, linux-kernel@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org, 
-	agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com, 
-	hca@linux.ibm.com, japo@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Hi guys,
+From: Barry Song <v-songbaohua@oppo.com>
 
-On Wed, Nov 26, 2025 at 10:57=E2=80=AFAM Namhyung Kim <namhyung@kernel.org>=
- wrote:
->
-> On Wed, Nov 26, 2025 at 12:12:29PM -0500, Steven Rostedt wrote:
-> >
-> > Arnaldo,
-> >
-> > How can I make perf trace not confused by the extra fields in the syste=
-m
-> > call trace events?
-> >
-> > Ftrace can now show the contents of the system call user space buffers,=
- but
-> > it appears that this breaks perf!!!
-> >
-> > system: syscalls
-> > name: sys_enter_write
-> > ID: 791
-> > format:
-> >       field:unsigned short common_type;       offset:0;       size:2; s=
-igned:0;
-> >       field:unsigned char common_flags;       offset:2;       size:1; s=
-igned:0;
-> >       field:unsigned char common_preempt_count;       offset:3;       s=
-ize:1; signed:0;
-> >       field:int common_pid;   offset:4;       size:4; signed:1;
-> >
-> >       field:int __syscall_nr; offset:8;       size:4; signed:1;
-> >       field:unsigned int fd;  offset:16;      size:8; signed:0;
-> >       field:const char * buf; offset:24;      size:8; signed:0;
-> >       field:size_t count;     offset:32;      size:8; signed:0;
-> >       field:__data_loc char[] __buf_val;      offset:40;      size:4; s=
-igned:0;
-> >
-> > That new __buf_val appears to confuse perf, but I'm having a hell of a =
-time
-> > trying to figure out where it reads it!
->
-> I've discussed with Steven and concluded that we should change perf to
-> ignore fields with "__data_loc char[]" type in syscalls.  Let me take a
-> look.
+Oven observed most mmap_lock contention and priority inversion
+come from page fault retries after waiting for I/O completion.
+Oven subsequently raised the following idea:
 
-Thanks, I'll also give it a look.
+There is no need to always fall back to mmap_lock if the per-VMA
+lock was released only to wait for pagecache or swapcache to
+become ready.
 
-Thanks,
-Howard
+In this case, the retry path can continue using the per-VMA lock.
+This is a big win: it greatly reduces mmap_lock acquisitions.
 
->
-> Thanks,
-> Namhyung
->
->
+Oven Liyang (1):
+  mm/filemap: Retry fault by VMA lock if the lock was released for I/O
+
+Barry Song (1):
+  mm/swapin: Retry swapin by VMA lock if the lock was released for I/O
+
+ arch/arm/mm/fault.c       |  5 +++++
+ arch/arm64/mm/fault.c     |  5 +++++
+ arch/loongarch/mm/fault.c |  4 ++++
+ arch/powerpc/mm/fault.c   |  5 ++++-
+ arch/riscv/mm/fault.c     |  4 ++++
+ arch/s390/mm/fault.c      |  4 ++++
+ arch/x86/mm/fault.c       |  4 ++++
+ include/linux/mm_types.h  |  9 +++++----
+ mm/filemap.c              |  5 ++++-
+ mm/memory.c               | 10 ++++++++--
+ 10 files changed, 47 insertions(+), 8 deletions(-)
+
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Huacai Chen <chenhuacai@kernel.org>
+Cc: WANG Xuerui <kernel@xen0n.name>
+Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Paul Walmsley <pjw@kernel.org>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Alexandre Ghiti <alex@ghiti.fr>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: x86@kernel.org
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: David Hildenbrand <david@kernel.org>
+Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: Liam R. Howlett <Liam.Howlett@oracle.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: Suren Baghdasaryan <surenb@google.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Pedro Falcato <pfalcato@suse.de>
+Cc: Jarkko Sakkinen <jarkko@kernel.org>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Cc: Oven Liyang <liyangouwen1@oppo.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Ada Couprie Diaz <ada.coupriediaz@arm.com>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: Kristina Martšenko <kristina.martsenko@arm.com>
+Cc: Kevin Brodsky <kevin.brodsky@arm.com>
+Cc: Yeoreum Yun <yeoreum.yun@arm.com>
+Cc: Wentao Guan <guanwentao@uniontech.com>
+Cc: Thorsten Blum <thorsten.blum@linux.dev>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Yunhui Cui <cuiyunhui@bytedance.com>
+Cc: Nam Cao <namcao@linutronix.de>
+Cc: Chris Li <chrisl@kernel.org>
+Cc: Kairui Song <kasong@tencent.com>
+Cc: Kemeng Shi <shikemeng@huaweicloud.com>
+Cc: Nhat Pham <nphamcs@gmail.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Cc: loongarch@lists.linux.dev
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-mm@kvack.org
+Cc: linux-fsdevel@vger.kernel.org
+
+-- 
+2.39.3 (Apple Git-146)
+
