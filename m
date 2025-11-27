@@ -1,185 +1,223 @@
 Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FFD92D248C
-	for <linux-s390@vger.kernel.org>; Thu, 27 Nov 2025 16:26:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7A8426CE32
+	for <linux-s390@vger.kernel.org>; Thu, 27 Nov 2025 17:00:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764260799; cv=none; b=knPkUKb+HPLEFuTR6ObfBfDWLR8C0v/1UAmKUphQ9MoOsh7anr1wQG3QugkafKRF7qzdBWgTFWHZHIzilzFGmbIhts0TTnGyu1nUc2P7+nM6vnkvyHI6y2c7IALin5tqd1SqLKimo9SF0q4wSR4yqT0LDvqcaQPMbxBLuSTbB4s=
+	t=1764262822; cv=none; b=u3rbfL8pG23Sv4WeJEidXP973Jme41k6nnXqWFXoTb5mAKAQGjidwPOqHHuKAdEPcF9mXsJdyF6ULxzjN5O0jUSvKvd4T0rnJ+D/1X3Y2koaMGvIhmBcGZrj3MN4lXAbjZVTahY3IQs2pELUeNt1G/JaMiTU1VahwsKXTaAno4k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764260799; c=relaxed/simple;
-	bh=pzeqql03IOqRYw2QFnOlDD1jswAd6lKoIUORmNt774Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Jf77agEikrDC4bK9OSgOuAO5ongZ9eGEOoLpX4NkQJpqqRPFTKG696j7ezW+rv64VknfbB6guJyb6yKuTYaqklgNVCNjv5hlAW6hEO0qXIY97HvA+/LteGgf6LfRbZp8OxPNRWf8jmL62Bvtu3yLoiSNMyyLODNQksiGSr4JHzA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	s=arc-20240116; t=1764262822; c=relaxed/simple;
+	bh=+hnO4TY9T+nASXSErYan2fnxZNfKsWigWvdgMEPcEEA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=j6rooZEIePVjzDlf9flum38f4qpeM7VBOfZD9XT5GJ6gPgonVDxALlI+tlYvfiVLxIs48wrjIybQ3UWnbWW31eRYFB2Wvy81Rhs+7wNoFN+cxPEmtlGTyxk3gq3kJfdWlYFJtQwkmj6GIBmd3ePyyXFRwLOlwmUoeW/QxoP9k+Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=ERSHELQl; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=mQ3Y28wU; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=ERSHELQl; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=mQ3Y28wU; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="ERSHELQl";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="mQ3Y28wU";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="ERSHELQl";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="mQ3Y28wU"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id DBC9E2124F;
-	Thu, 27 Nov 2025 16:26:35 +0000 (UTC)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 0A45C219DE;
+	Thu, 27 Nov 2025 17:00:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1764262819; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=c67LjBa5JtjIC6K1nDTL3mxFIcVdzFmTVEnOKZiAqm0=;
+	b=ERSHELQlwm+nOrI/ThkX2ZfyikTLfFaEdEBlYZL621PydLzMEqLue3TNr21gxrJa9xFsuT
+	vzvjbbUfU5FiOyhTT19/BR48mkipPX+vKodF9hyy/tMS0ujzic2icA1Mm0q12YMZM+0D92
+	ttl1KAljZYswsKkIiBKic2Nq98Qg38A=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1764262819;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=c67LjBa5JtjIC6K1nDTL3mxFIcVdzFmTVEnOKZiAqm0=;
+	b=mQ3Y28wUbEcgjAao8nV4G4bYlJDbYfrr5KCqwBi0QG2NpYPSoc9TbbJW/FzojbY4sE81RN
+	AwnCSb9k9hWR7UCQ==
 Authentication-Results: smtp-out1.suse.de;
 	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1764262819; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=c67LjBa5JtjIC6K1nDTL3mxFIcVdzFmTVEnOKZiAqm0=;
+	b=ERSHELQlwm+nOrI/ThkX2ZfyikTLfFaEdEBlYZL621PydLzMEqLue3TNr21gxrJa9xFsuT
+	vzvjbbUfU5FiOyhTT19/BR48mkipPX+vKodF9hyy/tMS0ujzic2icA1Mm0q12YMZM+0D92
+	ttl1KAljZYswsKkIiBKic2Nq98Qg38A=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1764262819;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=c67LjBa5JtjIC6K1nDTL3mxFIcVdzFmTVEnOKZiAqm0=;
+	b=mQ3Y28wUbEcgjAao8nV4G4bYlJDbYfrr5KCqwBi0QG2NpYPSoc9TbbJW/FzojbY4sE81RN
+	AwnCSb9k9hWR7UCQ==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 1DDE43EA63;
-	Thu, 27 Nov 2025 16:26:32 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 82D643EA63;
+	Thu, 27 Nov 2025 17:00:18 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id pdD/A7h7KGnRfwAAD6G6ig
-	(envelope-from <pfalcato@suse.de>); Thu, 27 Nov 2025 16:26:32 +0000
-Date: Thu, 27 Nov 2025 16:26:30 +0000
-From: Pedro Falcato <pfalcato@suse.de>
-To: Barry Song <21cnbao@gmail.com>
-Cc: akpm@linux-foundation.org, linux-mm@kvack.org, 
-	Oven Liyang <liyangouwen1@oppo.com>, Russell King <linux@armlinux.org.uk>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
-	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, 
-	Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, x86@kernel.org, 
-	"H . Peter Anvin" <hpa@zytor.com>, David Hildenbrand <david@kernel.org>, 
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, "Liam R . Howlett" <Liam.Howlett@oracle.com>, 
-	Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>, 
-	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
-	Matthew Wilcox <willy@infradead.org>, Jarkko Sakkinen <jarkko@kernel.org>, 
-	Oscar Salvador <osalvador@suse.de>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>, 
-	Mark Rutland <mark.rutland@arm.com>, Ada Couprie Diaz <ada.coupriediaz@arm.com>, 
-	Robin Murphy <robin.murphy@arm.com>, Kristina =?utf-8?Q?Mart=C5=A1enko?= <kristina.martsenko@arm.com>, 
-	Kevin Brodsky <kevin.brodsky@arm.com>, Yeoreum Yun <yeoreum.yun@arm.com>, 
-	Wentao Guan <guanwentao@uniontech.com>, Thorsten Blum <thorsten.blum@linux.dev>, 
-	Steven Rostedt <rostedt@goodmis.org>, Yunhui Cui <cuiyunhui@bytedance.com>, 
-	Nam Cao <namcao@linutronix.de>, linux-arm-kernel@lists.infradead.org, 
-	linux-kernel@vger.kernel.org, loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
-	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>, 
-	Barry Song <v-songbaohua@oppo.com>
-Subject: Re: [RFC PATCH 1/2] mm/filemap: Retry fault by VMA lock if the lock
- was released for I/O
-Message-ID: <kzwpwntmta4bpt27stif2hs5cwlu54kayfi34o562jpr2mjbew@h3ddkbxibxhf>
-References: <20251127011438.6918-1-21cnbao@gmail.com>
- <20251127011438.6918-2-21cnbao@gmail.com>
- <5by7tko4v3kqvvpu4fdsgpw42yl5ed5qisbaz3la4an52hq4j2@v75fagey6gva>
- <CAGsJ_4xQKARuEuhrVuV+WmBC7+NCNd==Zi9nGmze5mfSjF1kdw@mail.gmail.com>
+	id ujPmHqKDKGm3IQAAD6G6ig
+	(envelope-from <vbabka@suse.cz>); Thu, 27 Nov 2025 17:00:18 +0000
+Message-ID: <67da7b44-6975-44c2-b37d-9fadf7dceff8@suse.cz>
+Date: Thu, 27 Nov 2025 18:00:18 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAGsJ_4xQKARuEuhrVuV+WmBC7+NCNd==Zi9nGmze5mfSjF1kdw@mail.gmail.com>
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Spamd-Result: default: False [-4.00 / 50.00];
-	REPLY(-4.00)[]
-X-Rspamd-Queue-Id: DBC9E2124F
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Spam-Flag: NO
-X-Spam-Score: -4.00
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 11/16] mm: introduce pmd_is_huge() and use where
+ appropriate
+Content-Language: en-US
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ Andrew Morton <akpm@linux-foundation.org>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ David Hildenbrand <david@redhat.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Peter Xu <peterx@redhat.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ Arnd Bergmann <arnd@arndb.de>, Zi Yan <ziy@nvidia.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>,
+ "Liam R . Howlett" <Liam.Howlett@oracle.com>, Nico Pache
+ <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+ Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+ Lance Yang <lance.yang@linux.dev>, Muchun Song <muchun.song@linux.dev>,
+ Oscar Salvador <osalvador@suse.de>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ Matthew Brost <matthew.brost@intel.com>,
+ Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+ Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
+ Ying Huang <ying.huang@linux.alibaba.com>,
+ Alistair Popple <apopple@nvidia.com>,
+ Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
+ Wei Xu <weixugc@google.com>, Kemeng Shi <shikemeng@huaweicloud.com>,
+ Kairui Song <kasong@tencent.com>, Nhat Pham <nphamcs@gmail.com>,
+ Baoquan He <bhe@redhat.com>, Chris Li <chrisl@kernel.org>,
+ SeongJae Park <sj@kernel.org>, Matthew Wilcox <willy@infradead.org>,
+ Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
+ Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>,
+ Jann Horn <jannh@google.com>, Miaohe Lin <linmiaohe@huawei.com>,
+ Naoya Horiguchi <nao.horiguchi@gmail.com>, Pedro Falcato <pfalcato@suse.de>,
+ Pasha Tatashin <pasha.tatashin@soleen.com>, Rik van Riel <riel@surriel.com>,
+ Harry Yoo <harry.yoo@oracle.com>, Hugh Dickins <hughd@google.com>,
+ linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-mm@kvack.org, linux-arch@vger.kernel.org, damon@lists.linux.dev
+References: <cover.1762812360.git.lorenzo.stoakes@oracle.com>
+ <00f79db3b15293cac8f7040a48d69c52d00117e4.1762812360.git.lorenzo.stoakes@oracle.com>
+From: Vlastimil Babka <vbabka@suse.cz>
+Autocrypt: addr=vbabka@suse.cz; keydata=
+ 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
+ m6M14QORSWTLRg==
+In-Reply-To: <00f79db3b15293cac8f7040a48d69c52d00117e4.1762812360.git.lorenzo.stoakes@oracle.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-0.999];
+	MIME_GOOD(-0.10)[text/plain];
+	TAGGED_RCPT(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[linux.ibm.com,redhat.com,zeniv.linux.org.uk,kernel.org,suse.cz,arndb.de,nvidia.com,linux.alibaba.com,oracle.com,arm.com,linux.dev,suse.de,google.com,suse.com,intel.com,gmail.com,sk.com,gourry.net,huaweicloud.com,tencent.com,infradead.org,ziepe.ca,zte.com.cn,huawei.com,soleen.com,surriel.com,vger.kernel.org,kvack.org,lists.linux.dev];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_SOME(0.00)[];
+	RCPT_COUNT_GT_50(0.00)[65];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.cz:mid,suse.cz:email]
 X-Spam-Level: 
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spam-Score: -2.80
+X-Spam-Flag: NO
 
-On Thu, Nov 27, 2025 at 07:39:11PM +0800, Barry Song wrote:
-> On Thu, Nov 27, 2025 at 6:52 PM Pedro Falcato <pfalcato@suse.de> wrote:
-> >
-> > On Thu, Nov 27, 2025 at 09:14:37AM +0800, Barry Song wrote:
-> > > From: Oven Liyang <liyangouwen1@oppo.com>
-> > >
-> > > If the current page fault is using the per-VMA lock, and we only released
-> > > the lock to wait for I/O completion (e.g., using folio_lock()), then when
-> > > the fault is retried after the I/O completes, it should still qualify for
-> > > the per-VMA-lock path.
-> > >
-> > <snip>
-> > > Signed-off-by: Oven Liyang <liyangouwen1@oppo.com>
-> > > Signed-off-by: Barry Song <v-songbaohua@oppo.com>
-> > > ---
-> > >  arch/arm/mm/fault.c       | 5 +++++
-> > >  arch/arm64/mm/fault.c     | 5 +++++
-> > >  arch/loongarch/mm/fault.c | 4 ++++
-> > >  arch/powerpc/mm/fault.c   | 5 ++++-
-> > >  arch/riscv/mm/fault.c     | 4 ++++
-> > >  arch/s390/mm/fault.c      | 4 ++++
-> > >  arch/x86/mm/fault.c       | 4 ++++
-> >
-> > If only we could unify all these paths :(
+On 11/10/25 23:21, Lorenzo Stoakes wrote:
+> The leaf entry PMD case is confusing as only migration entries and
+> device private entries are valid at PMD level, not true swap entries.
 > 
-> Right, it’s a pain, but we do have bots for that?
-> And it’s basically just copy-and-paste across different architectures.
+> We repeatedly perform checks of the form is_swap_pmd() || pmd_trans_huge()
+> which is itself confusing - it implies that leaf entries at PMD level exist
+> and are different from huge entries.
 > 
-> >
-> > >  include/linux/mm_types.h  | 9 +++++----
-> > >  mm/filemap.c              | 5 ++++-
-> > >  9 files changed, 39 insertions(+), 6 deletions(-)
-> > >
-> > > diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-> > > index b71625378ce3..12b2d65ef1b9 100644
-> > > --- a/include/linux/mm_types.h
-> > > +++ b/include/linux/mm_types.h
-> > > @@ -1670,10 +1670,11 @@ enum vm_fault_reason {
-> > >       VM_FAULT_NOPAGE         = (__force vm_fault_t)0x000100,
-> > >       VM_FAULT_LOCKED         = (__force vm_fault_t)0x000200,
-> > >       VM_FAULT_RETRY          = (__force vm_fault_t)0x000400,
-> > > -     VM_FAULT_FALLBACK       = (__force vm_fault_t)0x000800,
-> > > -     VM_FAULT_DONE_COW       = (__force vm_fault_t)0x001000,
-> > > -     VM_FAULT_NEEDDSYNC      = (__force vm_fault_t)0x002000,
-> > > -     VM_FAULT_COMPLETED      = (__force vm_fault_t)0x004000,
-> > > +     VM_FAULT_RETRY_VMA      = (__force vm_fault_t)0x000800,
-> >
-> > So, what I am wondering here is why we need one more fault flag versus
-> > just blindly doing this on a plain-old RETRY. Is there any particular
-> > reason why? I can't think of one.
+> Address this confusion by introduced pmd_is_huge() which checks for either
+> case. Sadly due to header dependency issues (huge_mm.h is included very
+> early on in headers and cannot really rely on much else) we cannot use
+> pmd_is_valid_softleaf() here.
 > 
-> Because in some cases we retry simply due to needing to take mmap_lock.
-> For example:
+> However since these are the only valid, handled cases the function is still
+> achieving what it intends to do.
 > 
-> /**
->  * __vmf_anon_prepare - Prepare to handle an anonymous fault.
->  * @vmf: The vm_fault descriptor passed from the fault handler.
->  *
->  * When preparing to insert an anonymous page into a VMA from a
->  * fault handler, call this function rather than anon_vma_prepare().
->  * If this vma does not already have an associated anon_vma and we are
->  * only protected by the per-VMA lock, the caller must retry with the
->  * mmap_lock held.  __anon_vma_prepare() will look at adjacent VMAs to
->  * determine if this VMA can share its anon_vma, and that's not safe to
->  * do with only the per-VMA lock held for this VMA.
->  *
->  * Return: 0 if fault handling can proceed.  Any other value should be
->  * returned to the caller.
->  */
-> vm_fault_t __vmf_anon_prepare(struct vm_fault *vmf)
-> {
-> ...
-> }
+> We then replace all instances of is_swap_pmd() || pmd_trans_huge() with
+> pmd_is_huge() invocations and adjust logic accordingly to accommodate
+> this.
 > 
-> Thus, we have to check each branch one by one, but I/O wait is the most
-> frequent path, so we handle it first.
->
+> No functional change intended.
+> 
+> Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
 
-Hmm, right, good point. I think this is the safest option then.
+Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
 
-FWIW:
-Acked-by: Pedro Falcato <pfalcato@suse.de>
-
--- 
-Pedro
