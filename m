@@ -1,77 +1,117 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C876618FDDE;
-	Thu, 27 Nov 2025 01:20:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B35624886A;
+	Thu, 27 Nov 2025 04:10:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764206444; cv=none; b=MYAHgyDqR8Q7Jh75No/AbLGQqemqv8wf1mSywySoqRO41BCxusNmRLMQDhmqEkW+E+NXY49MNUK9qDog8BX3a/uMK58WPQVtO1jRJLxCzMf6Ti0f3dfStKrokEN60dJWIxXXnMXsSgTRfrIw1cNRlqDYWdKzPONecRDra/fFoJw=
+	t=1764216621; cv=none; b=kUuSTKik6skAh57b9AtbGw1HqIgAVs5gcUN/vSe24LDbKJRe8NuwJbu9J2FQXGdjt3JAtg116Hf9/KYDobDd2VZaWmOKm13bOkY7BnX2272gecCKtFlXRlhNlJeDpWigRQrg2AI9Q7At4lC9nRidWxg1UrDgiw3Cv9cctVAF1ss=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764206444; c=relaxed/simple;
-	bh=wM7dKGQih8wNeHB3SYwddmyWbom77K0D1phrZv4gnCo=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=Dt/S5jdLYEtyiF/H2rx8/CBXzUdG5QadqeQFyQtK5cDoqAZm4vzYA1+Gn1vjsHmin5RYtuTQnTzb0pz0xpm8xT5B90pB6hKym0QbwXuf2tRo1nu+Qs1YnRwzuVD06Ai0mjwQWblBhdGEhdQd6kuschKjo/OL90oG2iPDO4fE1cM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LN10YqxM; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1764216621; c=relaxed/simple;
+	bh=ooxdkvf2rxgsy0xRVRRnZiTwICu8IYYojYmiU6bahEI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=tGYdPz6iJontL0/WjVY+AB3G+dSmKbIyjEvkBcxxOwvU/tkcMPX3zWNVkpzuUY4mhlY3uMyrucdIHwxdoxMY5cFunBmon0IJbFbfZ5RIinD5Bg5jiAGWWJXo3WAcLIB8SSPiPmmT1zkmXFpMRPD1CnukFwqV8C9nHBd79HrZDSg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=AP3I5dIw; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LN10YqxM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 486D1C4CEF7;
-	Thu, 27 Nov 2025 01:20:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1764206444;
-	bh=wM7dKGQih8wNeHB3SYwddmyWbom77K0D1phrZv4gnCo=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=LN10YqxMrMqw1Ulg9TOwGWLMhZYG1iCgtJ+J2oBnv0tL5hPKE/I1bKqBj1lJ3JNIk
-	 Tsuo8Rf5+u6hBiAp/226iOjr5W06DrbY4b5HvAKOMPAwdxmsSBxDmbBXZ4n8TSv+QW
-	 O//PncOqLjLlyobWxEYJIefRh8RJh72/gpky35vJC9iQ+ZsicvS/9mWfSROPJAQCKG
-	 5RnuEglKD08cdZxil8cSxVQLhKmNakhBeI0gzNZlYobrV6dWjLFJsDTydlGyV99IPB
-	 H9tY/3Ie0Y+F9lT3HMop9tyGsQ7MC9DCa0NxW9Ahwd4pLGGNCbIHNHRG1JBtIHLeTT
-	 p+ZV9qlogR+/w==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33E83380CEF8;
-	Thu, 27 Nov 2025 01:20:07 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="AP3I5dIw"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=9UH5HZWU7w1Qz5ka8h7XjqhmojO13fL0L+YMlTFhSDA=; b=AP3I5dIw8MUlt7xSzk3qgcc3sN
+	AHu26Cs0wtwdgwSRwY+BmvEPRpHfoPjKAv6EqeaGAtEZ8MvH02yG8ScNHL7P49Rb/gM+u6ij5a6XG
+	jy4hg3/q6KDo+jTVMSPbxO9fXKm9iGjW+uF8fMcq7GPSByWP3cICDpktaeP3bee4XCg1AvMMv/Moj
+	YSEuEpY6zqKoGrYyt7uU+flpdycrYQcResJLx8oQU2IoaQaPpPfiBo/O1co/fExGrf5J1lFda0oK/
+	nNuM2+NAvUP42wEG8HkfVsWnCKASM8uniovBmROKgYy8568Nvncst6z24djS+35maVgZIA3CoAYDO
+	v2Mud80A==;
+Received: from willy by casper.infradead.org with local (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1vOTJl-0000000BB6Z-3S6J;
+	Thu, 27 Nov 2025 04:09:17 +0000
+Date: Thu, 27 Nov 2025 04:09:17 +0000
+From: Matthew Wilcox <willy@infradead.org>
+To: Barry Song <21cnbao@gmail.com>
+Cc: akpm@linux-foundation.org, linux-mm@kvack.org,
+	Barry Song <v-songbaohua@oppo.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	x86@kernel.org, "H . Peter Anvin" <hpa@zytor.com>,
+	David Hildenbrand <david@kernel.org>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	"Liam R . Howlett" <Liam.Howlett@oracle.com>,
+	Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>, Pedro Falcato <pfalcato@suse.de>,
+	Jarkko Sakkinen <jarkko@kernel.org>,
+	Oscar Salvador <osalvador@suse.de>,
+	Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+	Oven Liyang <liyangouwen1@oppo.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ada Couprie Diaz <ada.coupriediaz@arm.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Kristina =?utf-8?Q?Mart=C5=A1enko?= <kristina.martsenko@arm.com>,
+	Kevin Brodsky <kevin.brodsky@arm.com>,
+	Yeoreum Yun <yeoreum.yun@arm.com>,
+	Wentao Guan <guanwentao@uniontech.com>,
+	Thorsten Blum <thorsten.blum@linux.dev>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Yunhui Cui <cuiyunhui@bytedance.com>,
+	Nam Cao <namcao@linutronix.de>, Chris Li <chrisl@kernel.org>,
+	Kairui Song <kasong@tencent.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC PATCH 0/2] mm: continue using per-VMA lock when retrying
+ page faults after I/O
+Message-ID: <aSfO7fA-04SBtTug@casper.infradead.org>
+References: <20251127011438.6918-1-21cnbao@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next] s390/net: list Aswin Karuvally as maintainer
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <176420640585.1910295.5604261419675228939.git-patchwork-notify@kernel.org>
-Date: Thu, 27 Nov 2025 01:20:05 +0000
-References: <20251125085829.3679506-1-wintera@linux.ibm.com>
-In-Reply-To: <20251125085829.3679506-1-wintera@linux.ibm.com>
-To: Alexandra Winter <wintera@linux.ibm.com>
-Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
- edumazet@google.com, andrew+netdev@lunn.ch, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, aswin@linux.ibm.com, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
- svens@linux.ibm.com, horms@kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251127011438.6918-1-21cnbao@gmail.com>
 
-Hello:
+On Thu, Nov 27, 2025 at 09:14:36AM +0800, Barry Song wrote:
+> There is no need to always fall back to mmap_lock if the per-VMA
+> lock was released only to wait for pagecache or swapcache to
+> become ready.
 
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+Something I've been wondering about is removing all the "drop the MM
+locks while we wait for I/O" gunk.  It's a nice amount of code removed:
 
-On Tue, 25 Nov 2025 09:58:29 +0100 you wrote:
-> Thank you Aswin for taking this responsibility.
-> 
-> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-> Acked-by: Aswin Karuvally <aswin@linux.ibm.com>
-> ---
->  MAINTAINERS | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/pagemap.h |  8 +---
+ mm/filemap.c            | 98 ++++++++++++-------------------------------------
+ mm/internal.h           | 21 -----------
+ mm/memory.c             | 13 +------
+ mm/shmem.c              |  6 ---
+ 5 files changed, 27 insertions(+), 119 deletions(-)
 
-Here is the summary with links:
-  - [net-next] s390/net: list Aswin Karuvally as maintainer
-    https://git.kernel.org/netdev/net/c/b9ba6338bc6e
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+and I'm not sure we still need to do it with per-VMA locks.  What I
+have here doesn't boot and I ran out of time to debug it.
