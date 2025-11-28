@@ -1,84 +1,160 @@
-Received: from cstnet.cn (smtp21.cstnet.cn [159.226.251.21])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from canpmsgout12.his.huawei.com (canpmsgout12.his.huawei.com [113.46.200.227])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E4591CEAA3;
-	Fri, 28 Nov 2025 08:11:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 094D42DF151;
+	Fri, 28 Nov 2025 08:52:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.227
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764317504; cv=none; b=k8XJmzNRbvsGePPihL76AKlAQvsEbtANMd+H+XCJT5/c2PcVhUxEBCZvzT7FixKhzeddPpj/wcmOweUeKd7omLKPbet5Lgb8tfU0a7JBJj4GakUgVt0gI7aMWm0fBCf0doApQqWZBaWoQu/RkBps+7Qy77Bm2Manq5rpab0Kv6E=
+	t=1764319980; cv=none; b=CKWRs5MS1qOYqx4fD71BZPU8HkliiSsHKtJRxkWHqhQzEIae9TmCCbJ7N12zYuC6KbZOv4Ml4p8HUK1S3lrGwY76NlMkO4ae52O5dB+kjWZbu+xtIna+P4ebAm74g81RIikLzF2cpNTbY7zC9D3EGMlO9SRVUyIdReRn79Gp0TE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764317504; c=relaxed/simple;
-	bh=G2SvmhlP8I718p/EVUwg15ly9Y+AyBpAzbzmJqG6zsk=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=I0C3Q8WaS5xM15e3+MjhgznsJIxWmlFnza9N31NCh9Nxtk7hBmf0oiU+dNO6o5CaLORXhmD94JxSG3+xQySwe2DA/jQUJqgSFfM4ohdJvgwBDOS07+C0MRmFem2tsUaRMjdWn9FpNd3jWVO6yaSlPdmguQu9wo9eGF1znusvbFo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from localhost (unknown [124.16.138.129])
-	by APP-01 (Coremail) with SMTP id qwCowACXMNAzWSlppnxYAg--.1701S2;
-	Fri, 28 Nov 2025 16:11:31 +0800 (CST)
-From: Chen Ni <nichen@iscas.ac.cn>
-To: borntraeger@linux.ibm.com,
-	frankja@linux.ibm.com,
-	imbrenda@linux.ibm.com,
-	david@kernel.org,
-	hca@linux.ibm.com,
-	gor@linux.ibm.com,
-	agordeev@linux.ibm.com,
-	svens@linux.ibm.com
-Cc: kvm@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Chen Ni <nichen@iscas.ac.cn>
-Subject: [PATCH] KVM: s390: Remove unneeded semicolon
-Date: Fri, 28 Nov 2025 16:07:07 +0800
-Message-Id: <20251128080707.1314772-1-nichen@iscas.ac.cn>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1764319980; c=relaxed/simple;
+	bh=tcJnmG/0N41wLsikN8n+boY/xzfoXWe6sikUsFin6M8=;
+	h=Subject:To:CC:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=Bz8xEGWMjFc39w4LF4u40kvH4jAfIS95w7ugBJhUbdxoEFIyE04fm66xsnwcOo7GHpLkRp9UZUZ206jzvkRsYbCDmSWNyRrF7ob/K77wuCqpLoGM0BS+qYngtbsSoOKOh5T4GAVARNJFaRM0TIw9wC0hq8AjlMRGaiDuBXNRCkg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=SCrmvzLM; arc=none smtp.client-ip=113.46.200.227
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="SCrmvzLM"
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=ayeORpzjOdSu5Dq1+NuiLmYPQmPfa5NTJ2zt1jOYWc0=;
+	b=SCrmvzLMmh6Hd3DbJ/bqPri2/8mw7SfJDmO30i3bxLYDUfybVvkPFlzScb2MrwDTA6IWJSRe0
+	BjeVqsKYP1cC+EJXe43rfWBYkvZkMo7W3WUoLgDNT2q7hJ/JmNpgA0fH/VdXxsex6QKEJjVTrgJ
+	3qtEaJqxro70/djqoli5NKU=
+Received: from mail.maildlp.com (unknown [172.19.163.44])
+	by canpmsgout12.his.huawei.com (SkyGuard) with ESMTPS id 4dHn7T5BYYznTY7;
+	Fri, 28 Nov 2025 16:50:29 +0800 (CST)
+Received: from dggpemf500015.china.huawei.com (unknown [7.185.36.143])
+	by mail.maildlp.com (Postfix) with ESMTPS id 0AB451401F4;
+	Fri, 28 Nov 2025 16:52:54 +0800 (CST)
+Received: from [10.67.121.110] (10.67.121.110) by
+ dggpemf500015.china.huawei.com (7.185.36.143) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Fri, 28 Nov 2025 16:52:51 +0800
+Subject: Re: [PATCH v2 02/22] vfio/hisi: Convert to the get_region_info op
+To: Alex Williamson <alex@shazbot.org>
+CC: Jason Gunthorpe <jgg@nvidia.com>, Alexander Gordeev
+	<agordeev@linux.ibm.com>, David Airlie <airlied@gmail.com>, Alex Williamson
+	<alex.williamson@redhat.com>, Ankit Agrawal <ankita@nvidia.com>, Christian
+ Borntraeger <borntraeger@linux.ibm.com>, Brett Creeley
+	<brett.creeley@amd.com>, <dri-devel@lists.freedesktop.org>, Eric Auger
+	<eric.auger@redhat.com>, Eric Farman <farman@linux.ibm.com>, Giovanni Cabiddu
+	<giovanni.cabiddu@intel.com>, Vasily Gorbik <gor@linux.ibm.com>, Heiko
+ Carstens <hca@linux.ibm.com>, <intel-gfx@lists.freedesktop.org>, Jani Nikula
+	<jani.nikula@linux.intel.com>, Joonas Lahtinen
+	<joonas.lahtinen@linux.intel.com>, <kvm@vger.kernel.org>, Kirti Wankhede
+	<kwankhede@nvidia.com>, <linux-s390@vger.kernel.org>, Matthew Rosato
+	<mjrosato@linux.ibm.com>, Nikhil Agarwal <nikhil.agarwal@amd.com>, Nipun
+ Gupta <nipun.gupta@amd.com>, Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Halil Pasic <pasic@linux.ibm.com>, <qat-linux@intel.com>, Rodrigo Vivi
+	<rodrigo.vivi@intel.com>, Simona Vetter <simona@ffwll.ch>, Shameer Kolothum
+	<skolothumtho@nvidia.com>, Sven Schnelle <svens@linux.ibm.com>, Tvrtko
+ Ursulin <tursulin@ursulin.net>, <virtualization@lists.linux.dev>, Vineeth
+ Vijayan <vneethv@linux.ibm.com>, Yishai Hadas <yishaih@nvidia.com>, Zhenyu
+ Wang <zhenyuw.linux@gmail.com>, Zhi Wang <zhi.wang.linux@gmail.com>, Kevin
+ Tian <kevin.tian@intel.com>, <patches@lists.linux.dev>, Pranjal Shrivastava
+	<praan@google.com>, Mostafa Saleh <smostafa@google.com>
+References: <2-v2-2a9e24d62f1b+e10a-vfio_get_region_info_op_jgg@nvidia.com>
+ <b5ffda6e-d8e9-5f02-69b3-e9f1a0901f90@huawei.com>
+ <20251123194535.42acb382@shazbot.org>
+From: liulongfang <liulongfang@huawei.com>
+Message-ID: <9cdadb2d-579f-f86a-ac4e-a15c792506aa@huawei.com>
+Date: Fri, 28 Nov 2025 16:52:35 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qwCowACXMNAzWSlppnxYAg--.1701S2
-X-Coremail-Antispam: 1UD129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73
-	VFW2AGmfu7bjvjm3AaLaJ3UjIYCTnIWjp_UUUYA7AC8VAFwI0_Gr0_Xr1l1xkIjI8I6I8E
-	6xAIw20EY4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28Cjx
-	kF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW8JVW5JwA2z4x0Y4vE2Ix0cI8I
-	cVCY1x0267AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIE14v26F4UJVW0owA2z4x0Y4vEx4A2js
-	IEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE
-	5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeV
-	CFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1l
-	FIxGxcIEc7CjxVA2Y2ka0xkIwI1lc2xSY4AK67AK6r43MxAIw28IcxkI7VAKI48JMxAqzx
-	v26xkF7I0En4kS14v26r1q6r43MxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAF
-	wI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc4
-	0Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AK
-	xVW8JVWxJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr
-	1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7VUjNJ55UU
-	UUU==
-X-CM-SenderInfo: xqlfxv3q6l2u1dvotugofq/
+In-Reply-To: <20251123194535.42acb382@shazbot.org>
+Content-Type: text/plain; charset="gbk"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: kwepems100001.china.huawei.com (7.221.188.238) To
+ dggpemf500015.china.huawei.com (7.185.36.143)
 
-Remove unnecessary semicolons reported by Coccinelle/coccicheck and the
-semantic patch at scripts/coccinelle/misc/semicolon.cocci.
+On 2025/11/24 10:45, Alex Williamson wrote:
+> On Mon, 24 Nov 2025 09:39:58 +0800
+> liulongfang <liulongfang@huawei.com> wrote:
+> 
+>> On 2025/11/8 1:41, Jason Gunthorpe wrote:
+>>> Change the function signature of hisi_acc_vfio_pci_ioctl()
+>>> and re-indent it.
+>>>
+>>> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+>>> Acked-by: Pranjal Shrivastava <praan@google.com>
+>>> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+>>> ---
+>>>  .../vfio/pci/hisilicon/hisi_acc_vfio_pci.c    | 57 +++++++++----------
+>>>  1 file changed, 27 insertions(+), 30 deletions(-)
+>>>
+>>> diff --git a/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c b/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
+>>> index fde33f54e99ec5..899db4d742a010 100644
+>>> --- a/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
+>>> +++ b/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
+>>> @@ -1324,43 +1324,39 @@ static ssize_t hisi_acc_vfio_pci_read(struct vfio_device *core_vdev,
+>>>  	return vfio_pci_core_read(core_vdev, buf, new_count, ppos);
+>>>  }
+>>>  
+>>> -static long hisi_acc_vfio_pci_ioctl(struct vfio_device *core_vdev, unsigned int cmd,
+>>> -				    unsigned long arg)
+>>> +static int hisi_acc_vfio_ioctl_get_region(struct vfio_device *core_vdev,
+>>> +					  struct vfio_region_info __user *arg)
+>>>  {
+>>> -	if (cmd == VFIO_DEVICE_GET_REGION_INFO) {
+>>> -		struct vfio_pci_core_device *vdev =
+>>> -			container_of(core_vdev, struct vfio_pci_core_device, vdev);
+>>> -		struct pci_dev *pdev = vdev->pdev;
+>>> -		struct vfio_region_info info;
+>>> -		unsigned long minsz;
+>>> +	struct vfio_pci_core_device *vdev =
+>>> +		container_of(core_vdev, struct vfio_pci_core_device, vdev);
+>>> +	struct pci_dev *pdev = vdev->pdev;
+>>> +	struct vfio_region_info info;
+>>> +	unsigned long minsz;
+>>>  
+>>> -		minsz = offsetofend(struct vfio_region_info, offset);
+>>> +	minsz = offsetofend(struct vfio_region_info, offset);
+>>>  
+>>> -		if (copy_from_user(&info, (void __user *)arg, minsz))
+>>> -			return -EFAULT;
+>>> +	if (copy_from_user(&info, arg, minsz))
+>>> +		return -EFAULT;
+>>>  
+>>> -		if (info.argsz < minsz)
+>>> -			return -EINVAL;
+>>> +	if (info.argsz < minsz)
+>>> +		return -EINVAL;
+>>>  
+>>> -		if (info.index == VFIO_PCI_BAR2_REGION_INDEX) {
+>>> -			info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
+>>> +	if (info.index != VFIO_PCI_BAR2_REGION_INDEX)
+>>> +		return vfio_pci_ioctl_get_region_info(core_vdev, arg);
+>>>  
+>>> -			/*
+>>> -			 * ACC VF dev BAR2 region consists of both functional
+>>> -			 * register space and migration control register space.
+>>> -			 * Report only the functional region to Guest.
+>>> -			 */
+>>> -			info.size = pci_resource_len(pdev, info.index) / 2;
+>>> +	info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
+>>>  
+>>
+>> Please adapt based on the latest code in the Next branch.
+>> Code updates have already been made here.
+> 
+> I resolved this on commit, please verify in the vfio next branch.
+> Thanks,
+>
 
-Signed-off-by: Chen Ni <nichen@iscas.ac.cn>
----
- arch/s390/kvm/kvm-s390.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On the next branch, the code after your adaptation modifications is correct.
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 746a17135a5c..56a50524b3ee 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -5040,7 +5040,7 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
- 			kvm_vcpu_srcu_read_unlock(vcpu);
- 			break;
- 		}
--	};
-+	}
- 
- 	return rc;
- }
--- 
-2.25.1
+Thanks.
+Longfang!
 
+> Alex
+> .
+> 
