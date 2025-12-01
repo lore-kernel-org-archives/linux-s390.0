@@ -1,66 +1,66 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25149313525;
-	Mon,  1 Dec 2025 12:45:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C88D313264;
+	Mon,  1 Dec 2025 12:45:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764593122; cv=none; b=tksehC4Psm6AZlhsFptxJNHoBS1PJd6kmOaiZbcE9FiJFI6pg2m3rqZ+eX2LjKpI/wBau0VTTdHA40ABw/7djvXgy0JhJdd/GaJquMrF10EOxc0DDoFbRcnoRT5GzfTrgjwJRWxmfZb7wiJQOCToaSTULfm49hCI+2tejrB9LC0=
+	t=1764593123; cv=none; b=aGgLAeQSxc60hAqX0wxMSVIue4JAobNAU8Nom/QfIVgafKY4h8kREWBwxDmAEvds4Wwa6ugvbO3ZY9gt6SjoHDExwYk4vfD6mpxR7dFG/8pONbYg2RtUqbYAgtKxbxTZ4rQn6MDcctMUYkTDwgmgcoIUOsNjfjqLjofvDlcFijw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764593122; c=relaxed/simple;
-	bh=MIxbwnOmkQfp9pYdSU2ywXWUkH8knNaSMlnnAknw70U=;
+	s=arc-20240116; t=1764593123; c=relaxed/simple;
+	bh=OfKZGdEgPK7vlZUF6YWA+ybENhzgjBiJ10CcXPcof7k=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=rsIXcqlNQelAhYo+MhBWSm37v7MM9vc8higxyOrSKgAKX/aE9o3vZeR/XyXzguJQ5MDm5WGhnr+Bx0GUFYfDhe+O+wOsOG3CTEfMiw3tr1t5Dg5nNmdA1f8fCc66sGUHMUpXyPXVhr/LeDYp07f3szOaJluJcuseWkKok4rxNwI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qi/UFCdo; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=c4dqFU+UVz8R2Bpl+eQC5ovBxRpC/uLkaCcGXP0UZGG+cLVxC6OpVX9bLznsCBkB1F0CZsgNmVoeAJTB6zkosG6ab3Wac4kG65MkHMGdtpNQeNU/fpym4gicPHtsOaQWi/q4xAaQ3yW7p7W1rcBEjpbcN9+h99JhxdesJ+Bm3lg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=X4jgdYTn; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qi/UFCdo"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B1Cdo3p010952;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="X4jgdYTn"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B1AxibQ031757;
 	Mon, 1 Dec 2025 12:45:18 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=JM2O/e3Y+Rfa/fnB6
-	zWjcTyYwUsZt6TaSv0KVqiPqLY=; b=qi/UFCdoMZa59OWEyBQ2GBqHZGAf3Rzmb
-	PoLsrswrIGfWcwfLvz6JGxWkQ4CwylvfDyT/iqjaevI/LdD+E90P/HMEyGdJmPrT
-	gLCgKZfU3xx1eZfrscOWuWq1Ur7lITNWWWIB39+f5O8v6QRBegNXiP0RhT3FiM9H
-	8qvJzb2AtNwgG525F5eZldabv99ATZ7dbO2HstmRwBdn1w3nwhOa2bZElNJz4uim
-	Nr8LE0vegPy8MsbkTf5uLavEIXZ/tdXy7wqvjJW70Yq8q3ii+uRu/SnkdN4NESz4
-	T4XUSXRmzHW8wUPsuJZ1cDgu1X53ZD42wzjGcU2fFuYFW44zlfAvA==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrh6q3py-1
+	:mime-version:references:subject:to; s=pp1; bh=ZvMRIdthVh61hXIDt
+	Ji246eiJcEcOXQARVNgxEebk8w=; b=X4jgdYTnPkkKQQyW/SP8D30puVYl5sBnX
+	GoL31Rsx2n+s92aSYqJfUKsv64B6xWMWzYHMvylu/X5ghP+oftf6YDNQ9NJPlO16
+	CzQ6aSKb4GVPL9HsTmnBDYkXoXNzdusTk0gQqizQ2co4sJm+qxFUmEK7G5MBfuWF
+	8Ar8bxFT2eH8JrLJg8fzwwdQ+gNQq81lIwJQCFnhysc4NQ16n93jEfrw9RWWUv3k
+	TZPmqU1Pwa4Ru+FzqjzRQMT3EFdwkArff/EdYh4hW1mtjdXj5d2LbmteePA8nLej
+	wEQiq7GPLFU3ba7xyvQS7v2U17EmSPKtOqx2umY84q+3SrtD19+fg==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrbfy571-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 01 Dec 2025 12:45:18 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B1CG9WH019035;
-	Mon, 1 Dec 2025 12:45:16 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4arbhxpfq3-1
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B1AHGCm029328;
+	Mon, 1 Dec 2025 12:45:17 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ardv164ce-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 01 Dec 2025 12:45:16 +0000
+	Mon, 01 Dec 2025 12:45:17 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B1CjDF224641806
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B1CjE2W41026042
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 1 Dec 2025 12:45:13 GMT
+	Mon, 1 Dec 2025 12:45:14 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 053C120040;
+	by IMSVA (Postfix) with ESMTP id 0B53420040;
+	Mon,  1 Dec 2025 12:45:14 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 94DA62004B;
 	Mon,  1 Dec 2025 12:45:13 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8BABE20043;
-	Mon,  1 Dec 2025 12:45:12 +0000 (GMT)
 Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.ibm.com.com (unknown [9.111.74.48])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  1 Dec 2025 12:45:12 +0000 (GMT)
+	Mon,  1 Dec 2025 12:45:13 +0000 (GMT)
 From: Janosch Frank <frankja@linux.ibm.com>
 To: pbonzini@redhat.com
 Cc: kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
         borntraeger@linux.ibm.com, cohuck@redhat.com,
         linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, hca@linux.ibm.com,
         Andrew Donnellan <ajd@linux.ibm.com>
-Subject: [GIT PULL 08/10] KVM: s390: Add signal_exits counter
-Date: Mon,  1 Dec 2025 13:33:50 +0100
-Message-ID: <20251201124334.110483-9-frankja@linux.ibm.com>
+Subject: [GIT PULL 10/10] KVM: s390: Use generic VIRT_XFER_TO_GUEST_WORK functions
+Date: Mon,  1 Dec 2025 13:33:52 +0100
+Message-ID: <20251201124334.110483-11-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251201124334.110483-1-frankja@linux.ibm.com>
 References: <20251201124334.110483-1-frankja@linux.ibm.com>
@@ -72,79 +72,185 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=dK+rWeZb c=1 sm=1 tr=0 ts=692d8dde cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Proofpoint-ORIG-GUID: JMcwiOnyK1YW9wKs4Cfws4rrTr8JEdLJ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAxNiBTYWx0ZWRfXw+i2Yd+PjOsz
+ klGiAaJVDNG5PmPRdvTJMLLdAM2u6DIC/oJeIAvayUoPSTzB3g+krFs3Yem83n9RC0NNz9FpnAG
+ ua3esdpxgaS7wgpP1SSOuq3QeDJljNjQdp9GBpsWJZkdS62HvffISGuHJSpnd2/jWzJeSdoh81j
+ hHTdvoi7+UTfhinL0+TGIKfrXrdtY8uA2s01d2j90+91NnmzMc+2oeAP/Yf6Z8TXt8txwHuDvyJ
+ fEOJHlPHUPOn7+NtJ4xpzfFqtZe1TOZDhkYq3jZs7uMOxyGL+ApM9IXlC/20jfk33QxTu8be5UQ
+ L3X1vVIrx07JOh9EZWabG/kXs8TxgF29UgPwNM7cFTRF787nv5EMRwySaUJJiqxoMEQ7zL3y6I5
+ XwQ5XKOYUtvpMyxykZdYLLWr/IE0xA==
+X-Authority-Analysis: v=2.4 cv=UO7Q3Sfy c=1 sm=1 tr=0 ts=692d8dde cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
- a=G-lmFN37WTdQfOt6kDkA:9
-X-Proofpoint-GUID: Srn4eFlzuaFnJSvkeu2koepa_BKPCrcw
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAyMCBTYWx0ZWRfX0R43SV0PPzVw
- 82DJ6JCj6zlXYF7d2eUIxpcE/WpgNkSXAO4usD8Y+6TMdWDNQNwW+qBSVsTiHuscn8CdiVOwkMs
- ya9u8ugN54vCBBBhWMESwHRuHl9/pPfXjzLvbv+nJQgr20AWfRazfqw9UNQkpgwajcKiuTkcoNg
- jbp0qcVvrNJTstjSy4GRjlWu2v5KFB5VKy+5GWM/dSA/5wxCrLdjmnxaDSywaV1Bfvs4urAjP0E
- GBEM181p55XH7FucJbEDwz3wQbcqjQe+TvODFFwsWr62+jl7BTsUJZQM2wZp//77qDrIkqxrxdO
- m55k9FAvZGsEuAVlEg6JmQwwQHArSH2VPXfqzzo2hrSqWK7+Ouh2T5/idmqEFBzNh8lwHCv1b1W
- HtfJsRJP4r8yfj0v3hjEoAtWPCZlGw==
-X-Proofpoint-ORIG-GUID: Srn4eFlzuaFnJSvkeu2koepa_BKPCrcw
+ a=1US_Z202mYDpc0AvFX8A:9
+X-Proofpoint-GUID: JMcwiOnyK1YW9wKs4Cfws4rrTr8JEdLJ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-11-28_08,2025-11-27_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 lowpriorityscore=0 clxscore=1015 priorityscore=1501
- bulkscore=0 adultscore=0 phishscore=0 impostorscore=0 spamscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
- definitions=main-2511290020
+ lowpriorityscore=0 malwarescore=0 bulkscore=0 adultscore=0 priorityscore=1501
+ impostorscore=0 spamscore=0 phishscore=0 clxscore=1015 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511290016
 
 From: Andrew Donnellan <ajd@linux.ibm.com>
 
-Add a signal_exits counter for s390, as exists on arm64, loongarch, mips,
-powerpc, riscv and x86.
+Switch to using the generic infrastructure to check for and handle pending
+work before transitioning into guest mode.
 
-This is used by kvm_handle_signal_exit(), which we will use when we
-later enable CONFIG_VIRT_XFER_TO_GUEST_WORK.
+xfer_to_guest_mode_handle_work() does a few more things than the current
+code does when deciding whether or not to exit the __vcpu_run() loop. The
+exittime tests from kvm-unit-tests, in my tests, were within a few percent
+compared to before this series, which is within noise tolerance.
 
+Co-developed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
+[frankja@linux.ibm.com: Removed semicolon]
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h | 1 +
- arch/s390/kvm/kvm-s390.c         | 4 +++-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ arch/s390/kvm/Kconfig    |  1 +
+ arch/s390/kvm/kvm-s390.c | 25 ++++++++++++++++++-------
+ arch/s390/kvm/vsie.c     | 18 +++++++++++++-----
+ 3 files changed, 32 insertions(+), 12 deletions(-)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 1e4829c70216..ae1223264d3c 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -146,6 +146,7 @@ struct kvm_vcpu_stat {
- 	u64 instruction_diagnose_500;
- 	u64 instruction_diagnose_other;
- 	u64 pfault_sync;
-+	u64 signal_exits;
- };
- 
- #define PGM_OPERATION			0x01
+diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
+index cae908d64550..0ca9d6587243 100644
+--- a/arch/s390/kvm/Kconfig
++++ b/arch/s390/kvm/Kconfig
+@@ -30,6 +30,7 @@ config KVM
+ 	select HAVE_KVM_NO_POLL
+ 	select KVM_VFIO
+ 	select MMU_NOTIFIER
++	select VIRT_XFER_TO_GUEST_WORK
+ 	help
+ 	  Support hosting paravirtualized guest machines using the SIE
+ 	  virtualization capability on the mainframe. This should work
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 56d4730b7c41..8db37e508a71 100644
+index 4d13601ec217..d31155e371df 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -185,7 +185,8 @@ const struct _kvm_stats_desc kvm_vcpu_stats_desc[] = {
- 	STATS_DESC_COUNTER(VCPU, instruction_diagnose_308),
- 	STATS_DESC_COUNTER(VCPU, instruction_diagnose_500),
- 	STATS_DESC_COUNTER(VCPU, instruction_diagnose_other),
--	STATS_DESC_COUNTER(VCPU, pfault_sync)
-+	STATS_DESC_COUNTER(VCPU, pfault_sync),
-+	STATS_DESC_COUNTER(VCPU, signal_exits)
- };
+@@ -14,6 +14,7 @@
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
  
- const struct kvm_stats_header kvm_vcpu_stats_header = {
-@@ -5251,6 +5252,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
+ #include <linux/compiler.h>
++#include <linux/entry-virt.h>
+ #include <linux/export.h>
+ #include <linux/err.h>
+ #include <linux/fs.h>
+@@ -4675,9 +4676,6 @@ static int vcpu_pre_run(struct kvm_vcpu *vcpu)
+ 	vcpu->arch.sie_block->gg14 = vcpu->run->s.regs.gprs[14];
+ 	vcpu->arch.sie_block->gg15 = vcpu->run->s.regs.gprs[15];
  
- 	if (signal_pending(current) && !rc) {
- 		kvm_run->exit_reason = KVM_EXIT_INTR;
-+		vcpu->stat.signal_exits++;
- 		rc = -EINTR;
+-	if (need_resched())
+-		schedule();
+-
+ 	if (!kvm_is_ucontrol(vcpu->kvm)) {
+ 		rc = kvm_s390_deliver_pending_interrupts(vcpu);
+ 		if (rc || guestdbg_exit_pending(vcpu))
+@@ -4982,12 +4980,12 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ 	 */
+ 	kvm_vcpu_srcu_read_lock(vcpu);
+ 
+-	do {
++	while (true) {
+ 		rc = vcpu_pre_run(vcpu);
++		kvm_vcpu_srcu_read_unlock(vcpu);
+ 		if (rc || guestdbg_exit_pending(vcpu))
+ 			break;
+ 
+-		kvm_vcpu_srcu_read_unlock(vcpu);
+ 		/*
+ 		 * As PF_VCPU will be used in fault handler, between
+ 		 * guest_timing_enter_irqoff and guest_timing_exit_irqoff
+@@ -4999,7 +4997,17 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ 			       sizeof(sie_page->pv_grregs));
+ 		}
+ 
++xfer_to_guest_mode_check:
+ 		local_irq_disable();
++		xfer_to_guest_mode_prepare();
++		if (xfer_to_guest_mode_work_pending()) {
++			local_irq_enable();
++			rc = kvm_xfer_to_guest_mode_handle_work(vcpu);
++			if (rc)
++				break;
++			goto xfer_to_guest_mode_check;
++		}
++
+ 		guest_timing_enter_irqoff();
+ 		__disable_cpu_timer_accounting(vcpu);
+ 
+@@ -5029,9 +5037,12 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ 		kvm_vcpu_srcu_read_lock(vcpu);
+ 
+ 		rc = vcpu_post_run(vcpu, exit_reason);
+-	} while (!signal_pending(current) && !guestdbg_exit_pending(vcpu) && !rc);
++		if (rc || guestdbg_exit_pending(vcpu)) {
++			kvm_vcpu_srcu_read_unlock(vcpu);
++			break;
++		}
++	}
+ 
+-	kvm_vcpu_srcu_read_unlock(vcpu);
+ 	return rc;
+ }
+ 
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index d23ab5120888..b526621d2a1b 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -1180,12 +1180,23 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 	current->thread.gmap_int_code = 0;
+ 	barrier();
+ 	if (!kvm_s390_vcpu_sie_inhibited(vcpu)) {
++xfer_to_guest_mode_check:
+ 		local_irq_disable();
++		xfer_to_guest_mode_prepare();
++		if (xfer_to_guest_mode_work_pending()) {
++			local_irq_enable();
++			rc = kvm_xfer_to_guest_mode_handle_work(vcpu);
++			if (rc)
++				goto skip_sie;
++			goto xfer_to_guest_mode_check;
++		}
+ 		guest_timing_enter_irqoff();
+ 		rc = kvm_s390_enter_exit_sie(scb_s, vcpu->run->s.regs.gprs, vsie_page->gmap->asce);
+ 		guest_timing_exit_irqoff();
+ 		local_irq_enable();
+ 	}
++
++skip_sie:
+ 	barrier();
+ 	vcpu->arch.sie_block->prog0c &= ~PROG_IN_SIE;
+ 
+@@ -1345,13 +1356,11 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		 * but rewind the PSW to re-enter SIE once that's completed
+ 		 * instead of passing a "no action" intercept to the guest.
+ 		 */
+-		if (signal_pending(current) ||
+-		    kvm_s390_vcpu_has_irq(vcpu, 0) ||
++		if (kvm_s390_vcpu_has_irq(vcpu, 0) ||
+ 		    kvm_s390_vcpu_sie_inhibited(vcpu)) {
+ 			kvm_s390_rewind_psw(vcpu, 4);
+ 			break;
+ 		}
+-		cond_resched();
  	}
  
+ 	if (rc == -EFAULT) {
+@@ -1483,8 +1492,7 @@ int kvm_s390_handle_vsie(struct kvm_vcpu *vcpu)
+ 	if (unlikely(scb_addr & 0x1ffUL))
+ 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+ 
+-	if (signal_pending(current) || kvm_s390_vcpu_has_irq(vcpu, 0) ||
+-	    kvm_s390_vcpu_sie_inhibited(vcpu)) {
++	if (kvm_s390_vcpu_has_irq(vcpu, 0) || kvm_s390_vcpu_sie_inhibited(vcpu)) {
+ 		kvm_s390_rewind_psw(vcpu, 4);
+ 		return 0;
+ 	}
 -- 
 2.52.0
 
