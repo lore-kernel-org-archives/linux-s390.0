@@ -1,193 +1,282 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A733E29BDBF;
-	Tue,  2 Dec 2025 18:12:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 632972C327A;
+	Tue,  2 Dec 2025 18:14:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764699149; cv=none; b=KziG+fl0v50MzbtfCQDLYLs9WqMxkQrJI0f3cxuKilTkovqIfzPY1SNb8PSz9jd8hSgUaDR3/s+BZCVUbP+Cmz4vQXnUuCylBh4t6fzw9+vU0p6PKoohUFweNa9z5uh903bNr/bSoopuEQSZcodIbokcHISzgbiLBHkBm+OXxG8=
+	t=1764699296; cv=none; b=VTsSgV/qNdkusH+fvErzVn4A6cJQ8a5g4O4m+4+6A8e6/U3OtCVhuXcAAgl+qH1BW9Ng1Pp0RDCgmNrTd4M7mmCu6zcRJtyGl/MP5Rqjq6Ikd3rhAh/w5mhuckWcmWk4c7m3XS+yxizQcIRu3X6gHEe6u5LIIN4k7uxZFplLf3s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764699149; c=relaxed/simple;
-	bh=1HuM9qJaws2GmyGZwkys+MVrv3q15fGptUGeF+uLitE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NXyEQWZFWDeKBFWzd9/IuHv4z7irhAdtJ3B6LC1NLFd8xbphPKhI4jSnFu8clwDpaypPilKMaJLVMw74rHN8x9QFQP8ce98Bl5RMcFb5mA671yk1p6acIfa1Nn3OK6obQ1zGRcbzbKqnpwwlxMoKes1FUobslys9n61YrhTB+/0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tgvr7URa; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1764699296; c=relaxed/simple;
+	bh=iKwBFR6dX4+uHjsv/uJ2h1d6PrMbnGcB8kM7dPjIWDQ=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=VyXr5g9CeAM/PiqjHIKLS/S6EDP015aT4AmieUoodIE/rgRsIFEzuvXnIcDF99cgi0uN59aEsZMohxKylre6RDnxQG4OrxZ16art4LtjYJCGMHlvp+bky6VABEmoZ9Sg+gKoRxreYoJW1/PXzYohlnQlxHUcoUUNgcoWywDmTGM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YdybvIJu; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tgvr7URa"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B2AjkGq005729;
-	Tue, 2 Dec 2025 18:12:21 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YdybvIJu"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B2CS79P009101;
+	Tue, 2 Dec 2025 18:14:51 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=eGFHFT
-	DyR7GXYxRu0mfTEjBnEovYErAKSscDA0pOW5U=; b=tgvr7URakwth3fE2VEz8JB
-	Y2evq1VvKMsnZ29+pMn8Xgc1RAKKnJ/T8DQxJTse8V4cF2b9WQjOnCWa3eMhUGcg
-	fsvGlfJiJLbmk7nm13DafZGa7dxI6gORUIDbMxqId+iUCbDiPXeDzaT1XQOdAovk
-	m3470xGVLydMphXRGy0KvM54WcEeanAUHOWoZft+BXWRrKt4AAMi4f613yY27kNG
-	FfpHre+di7BIjDskb4XSv0hsH+FKZVTCLqc5xLA9CbsaholpICFDr6rGHDU3U943
-	NZSZaBozQ9sWo/elrhovAyZ6ak1MyRKQ0XvyYyWaUtqi0Wxq6L3hobcNp1xyW5Tw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=RAhLSt
+	fsE6TWDkvzGxH4u8xei1dO++AmMZUYPviAPvg=; b=YdybvIJus+qqtyu+RAO5fb
+	hXYomj7tce+1sZbHJQDZGSsUE532AZPgwkWdwEtOVhfXrBqgIIBrE8mPPsPf1EY4
+	kQNyFlKpgimLnNdFfoixt4lrCQpzpw+mevaGDEWa4gyfhiIE/wrd3d+ctuy1JYS8
+	lQDtNd1GqjQhsOKj7TrPpaVsd3SmMKRSx68tGiToveiV/p2cfma0pRXm/vAqdZ9h
+	CykkXtyYuucCb1WkdM5wX5fY9pmoYLtSylJJ6QFKAeBftjOXJJ1X00Z6T2vh8bof
+	P+ot4dfrkcNPgsQ28m0nNMzQWoNlVAW21jy1i5SF7V+MgCls6O/yso+pIwoBufsg
 	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrbg6rkk-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqp8pxjxk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Dec 2025 18:12:20 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B2I8Yx2003891;
-	Tue, 2 Dec 2025 18:12:19 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ardcjnq3y-1
+	Tue, 02 Dec 2025 18:14:51 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B2I1rLh029392;
+	Tue, 2 Dec 2025 18:14:50 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ardv1dpe5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Dec 2025 18:12:19 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B2IC3iG17957464
+	Tue, 02 Dec 2025 18:14:50 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B2IEkV545351186
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 2 Dec 2025 18:12:03 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0B2E158057;
-	Tue,  2 Dec 2025 18:12:18 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3ABB258065;
-	Tue,  2 Dec 2025 18:12:17 +0000 (GMT)
-Received: from [9.61.252.247] (unknown [9.61.252.247])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  2 Dec 2025 18:12:17 +0000 (GMT)
-Message-ID: <8ac8ac53-1b53-4cb0-9d85-d8b6896a610a@linux.ibm.com>
-Date: Tue, 2 Dec 2025 10:12:15 -0800
+	Tue, 2 Dec 2025 18:14:46 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 779B72004B;
+	Tue,  2 Dec 2025 18:14:46 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BEF1320040;
+	Tue,  2 Dec 2025 18:14:45 +0000 (GMT)
+Received: from [9.111.70.46] (unknown [9.111.70.46])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  2 Dec 2025 18:14:45 +0000 (GMT)
+Message-ID: <33d2feb221c2ca89a4d09876a00c40ed0a893118.camel@linux.ibm.com>
+Subject: Re: [PATCH v7 2/2] s390/pci: Migrate s390 IRQ logic to IRQ domain
+ API
+From: Gerd Bayer <gbayer@linux.ibm.com>
+To: Tobias Schumacher <ts@linux.ibm.com>, Heiko Carstens
+ <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger	
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Niklas
+ Schnelle <schnelle@linux.ibm.com>,
+        Gerald Schaefer
+ <gerald.schaefer@linux.ibm.com>,
+        Halil Pasic	 <pasic@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Thomas Gleixner	
+ <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Date: Tue, 02 Dec 2025 19:14:45 +0100
+In-Reply-To: <20251127-implement-msi-domain-v7-2-86c9a4837e8c@linux.ibm.com>
+References: <20251127-implement-msi-domain-v7-0-86c9a4837e8c@linux.ibm.com>
+	 <20251127-implement-msi-domain-v7-2-86c9a4837e8c@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.2 (3.58.2-1.fc43) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 3/9] PCI: Avoid saving config space state if
- inaccessible
-To: Niklas Schnelle <schnelle@linux.ibm.com>, helgaas@kernel.org,
-        lukas@wunner.de, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
-Cc: alex@shazbot.org, clg@redhat.com, stable@vger.kernel.org,
-        mjrosato@linux.ibm.com
-References: <20251201220823.3350-1-alifm@linux.ibm.com>
- <20251201220823.3350-4-alifm@linux.ibm.com>
- <2940d7cd662aed9d8b60f7c8fec9ced44f059166.camel@linux.ibm.com>
-Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <2940d7cd662aed9d8b60f7c8fec9ced44f059166.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: NpmhpJ2U7QOvUOCYzjr2tl8HVAaGNPB-
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAxNiBTYWx0ZWRfXwadt2qIEpr8e
- s1iVkdVOGu1US3tPTokU0Sj6htZGOHAN1oDRveiXe7SV7KQ523iHCGIjPH6EGQFYrtXlyKbGpZE
- GyZ0oGJNv7KhSp0RQZrcL/WKIF4MYR9xYpIJVEFvpGobEMJWfByPnky2i7Qb4s1vgWLoblYEFxc
- EiKjITgSBaNK7SQYp97pm2FPcx7w+7i4hpwnxsUqRMp6KfLyRQjeFhSb696ZtBwVGkO9MkFYe+A
- RQ31oYldeF0ZaNTvoTjLdM/43yCLrAY8dV3+XL9PkOIHwvsGQVE8ASuX59OtY+BW5dUkrwmQN7N
- ohtx9uQiXJxdgc6/bAbo/heIY9TZV3bZr4ElKYMmSM3WyO/vch4GpZnJ2dkNTXEXfMs2HPvftqM
- 90D1nTQp8xeTr8Gfno/QTN7CEWQ1Og==
-X-Authority-Analysis: v=2.4 cv=UO7Q3Sfy c=1 sm=1 tr=0 ts=692f2c04 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAwMCBTYWx0ZWRfX0z39cZRiEKj3
+ 1mPNUM8deNrycdEVjFjjmcLxltuItiq6MvopKWly61I+5RMSALUt3r//5dFByWdUwBChzNj7KVa
+ sw5sCKqy7axklAmj77jMMmaD9zbpZcE16BUvSSiQhTAAMxgWMflYOWj4E5XICx3erPyHeHB98T3
+ aEiwQForEOdd50vy7VTA8kdSD/sh9FzZhWW2L4l4fzurjAa7TGOKHmOoRBFg178TmfOwuSKtLzp
+ P6THByiS8zPzH3Jy0BPVxAqix7DuD71o6f2plOThsWhWdfeJhqZ/olfLKc1vsJZukxgezNw4fpa
+ bXMQsk0OrbJGafuz3OuTrDClOIaY0x7qHOIoyGy2xv2YcV96oaad2HZeqTgWjCc+l4E+OrQ/Xpm
+ IkzM41V74CY4zduhquJZuKgMtbvwyA==
+X-Authority-Analysis: v=2.4 cv=dIerWeZb c=1 sm=1 tr=0 ts=692f2c9b cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=IkcTkHD0fZMA:10 a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=pKAynnjCjeUSSpGqxDMA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: NpmhpJ2U7QOvUOCYzjr2tl8HVAaGNPB-
+ a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=erOAOvTrSR6KKPRzvjcA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: lFqppT5uqX7yGw9qhfIWJF6FIf1ULJdE
+X-Proofpoint-GUID: lFqppT5uqX7yGw9qhfIWJF6FIf1ULJdE
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-12-01_01,2025-11-27_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 malwarescore=0 bulkscore=0 adultscore=0 priorityscore=1501
- impostorscore=0 spamscore=0 phishscore=0 clxscore=1015 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511290016
+ priorityscore=1501 lowpriorityscore=0 clxscore=1015 spamscore=0
+ malwarescore=0 suspectscore=0 adultscore=0 bulkscore=0 impostorscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2511290000
+
+On Thu, 2025-11-27 at 16:07 +0100, Tobias Schumacher wrote:
+> s390 is one of the last architectures using the legacy API for setup and
+> teardown of PCI MSI IRQs. Migrate the s390 IRQ allocation and teardown
+> to the MSI parent domain API. For details, see:
+>=20
+> https://lore.kernel.org/lkml/20221111120501.026511281@linutronix.de
+>=20
+> In detail, create an MSI parent domain for each PCI domain. When a PCI
+> device sets up MSI or MSI-X IRQs, the library creates a per-device IRQ
+> domain for this device, which is used by the device for allocating and
+> freeing IRQs.
+>=20
+> The per-device domain delegates this allocation and freeing to the
+> parent-domain. In the end, the corresponding callbacks of the parent
+> domain are responsible for allocating and freeing the IRQs.
+>=20
+> The allocation is split into two parts:
+> - zpci_msi_prepare() is called once for each device and allocates the
+>   required resources. On s390, each PCI function has its own airq
+>   vector and a summary bit, which must be configured once per function.
+>   This is done in prepare().
+> - zpci_msi_alloc() can be called multiple times for allocating one or
+>   more MSI/MSI-X IRQs. This creates a mapping between the virtual IRQ
+>   number in the kernel and the hardware IRQ number.
+>=20
+> Freeing is split into two counterparts:
+> - zpci_msi_free() reverts the effects of zpci_msi_alloc() and
+> - zpci_msi_teardown() reverts the effects of zpci_msi_prepare(). This is
+>   called once when all IRQs are freed before a device is removed.
+>=20
+> Since the parent domain in the end allocates the IRQs, the hwirq
+> encoding must be unambiguous for all IRQs of all devices. This is
+> achieved by encoding the hwirq using the devfn and the MSI index.
+>=20
+> Signed-off-by: Tobias Schumacher <ts@linux.ibm.com>
+> ---
+>  arch/s390/Kconfig           |   1 +
+>  arch/s390/include/asm/pci.h |   5 +
+>  arch/s390/pci/pci.c         |   6 +
+>  arch/s390/pci/pci_bus.c     |  18 ++-
+>  arch/s390/pci/pci_irq.c     | 310 ++++++++++++++++++++++++++++----------=
+------
+>  5 files changed, 224 insertions(+), 116 deletions(-)
+>=20
+
+  [ ... snip ... ]
+
+> diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
+> index e73be96ce5fe6473fc193d65b8f0ff635d6a98ba..2ac0fab605a83a2f06be6a0a6=
+8718e528125ced6 100644
+> --- a/arch/s390/pci/pci_irq.c
+> +++ b/arch/s390/pci/pci_irq.c
+> @@ -290,146 +325,196 @@ static int __alloc_airq(struct zpci_dev *zdev, in=
+t msi_vecs,
+>  	return 0;
+>  }
+> =20
+> -int arch_setup_msi_irqs(struct pci_dev *pdev, int nvec, int type)
+> +bool arch_restore_msi_irqs(struct pci_dev *pdev)
+>  {
+> -	unsigned int hwirq, msi_vecs, irqs_per_msi, i, cpu;
+>  	struct zpci_dev *zdev =3D to_zpci(pdev);
+> -	struct msi_desc *msi;
+> -	struct msi_msg msg;
+> -	unsigned long bit;
+> -	int cpu_addr;
+> -	int rc, irq;
+> =20
+> +	zpci_set_irq(zdev);
+> +	return true;
+> +}
+>=20
+
+It's always a little tricky to distinguish which code handles both MSI
+and MSI-X or just MSI proper when routines have _msi_ in their name.
+But apparently, both __pci_restore_msi_state() and
+__pci_restore_msix_state() inside pci_restore_msi_state() do call
+arch_restore_msi_irqs() - so life is good!
 
 
-On 12/2/2025 4:20 AM, Niklas Schnelle wrote:
-> On Mon, 2025-12-01 at 14:08 -0800, Farhan Ali wrote:
->> The current reset process saves the device's config space state before
->> reset and restores it afterward. However, errors may occur unexpectedly,
->> and the device may become inaccessible or the config space itself may
->> be corrupted. This results in saving corrupted values that get
->> written back to the device during state restoration.
->>
->> With a reset we want to recover/restore the device into a functional
->> state. So avoid saving the state of the config space when the
->> device config space is inaccessible/corrupted.
->>
->> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-> I think the commit message needs more focus. Specifically I think the
-> main point is the case that Lukas mentioned in the following quote from
-> the cover letter of his "PCI: Universal error recoverability of
-> devices" series:
->
-> "However errors may occur unexpectedly and it may then be impossible
-> to save Config Space because the device may be inaccessible (e.g. DPC)
-> or Config Space may be corrupted. So it must be saved ahead of time."
+  [ ... snip ... ]
 
-I agree, I can add this bit verbatim to the commit message.
+> +static void zpci_msi_domain_free(struct irq_domain *domain, unsigned int=
+ virq,
+> +				 unsigned int nr_irqs)
+> +{
+> +	struct irq_data *d;
+> +	int i;
+> =20
+> -	return (zdev->msi_nr_irqs =3D=3D nvec) ? 0 : zdev->msi_nr_irqs;
+> +	for (i =3D 0; i < nr_irqs; i++) {
+> +		d =3D irq_domain_get_irq_data(domain, virq + i);
+> +		irq_domain_reset_irq_data(d);
+
+Question: zpci_msi_alloc_domain() did modify airq data, can this be
+left as is in zpci_msi_domain_free()?
+
+> +	}
+>  }
+>=20
+
+   [ ... snip ... ]
 
 
->
-> That case will inevitably happen when state save / reset happens while
-> a PCI device is in the error state on a platform like s390, POWER, or
-> with DPC where Config Space will be inaccessible.
->
-> Moreover, I'd like to stress that this is an issue independent from the
-> rest of your series. As we've seen in your experiments this can be
-> triggered today when a vfio-pci user process blocks recovery, e.g. by
-> not handling the eventfd, and then the user tries to mitigate the
-> situation by performing a reset through sysfs, which then saves the
-> 0xff bytes from inaccessible config space which may subsequently kill
-> the device on restore.
->
->> ---
->>   drivers/pci/pci.c | 7 +++++++
->>   1 file changed, 7 insertions(+)
->>
->> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
->> index 608d64900fee..28c6b9e7f526 100644
->> --- a/drivers/pci/pci.c
->> +++ b/drivers/pci/pci.c
->> @@ -5105,6 +5105,7 @@ EXPORT_SYMBOL_GPL(pci_dev_unlock);
->>   
->>   static void pci_dev_save_and_disable(struct pci_dev *dev)
->>   {
->> +	u32 val;
->>   	const struct pci_error_handlers *err_handler =
->>   			dev->driver ? dev->driver->err_handler : NULL;
->>   
->> @@ -5125,6 +5126,12 @@ static void pci_dev_save_and_disable(struct pci_dev *dev)
->>   	 */
->>   	pci_set_power_state(dev, PCI_D0);
->>   
->> +	pci_read_config_dword(dev, PCI_COMMAND, &val);
->> +	if (PCI_POSSIBLE_ERROR(val)) {
->> +		pci_warn(dev, "Device config space inaccessible\n");
->> +		return;
->> +	}
->> +
-> Can you explain your reasoning for not using pci_channel_offline()
-> here? This was suggested by Lukas in a previous iteration (link below)
-> and I would tend to prefer that as well.
->
-> https://lore.kernel.org/all/aOZoWDQV0TNh-NiM@wunner.de/
+> +
+> +int zpci_create_parent_msi_domain(struct zpci_bus *zbus)
+> +{
+> +	char fwnode_name[18];
+> =20
+> -	if (zdev->aisb !=3D -1UL) {
+> -		zpci_ibv[zdev->aisb] =3D NULL;
+> -		airq_iv_free_bit(zpci_sbv, zdev->aisb);
+> -		zdev->aisb =3D -1UL;
+> +	snprintf(fwnode_name, sizeof(fwnode_name), "ZPCI_MSI_DOM_%04x", zbus->d=
+omain_nr);
+> +	struct irq_domain_info info =3D {
+> +		.fwnode		=3D irq_domain_alloc_named_fwnode(fwnode_name),
+> +		.ops		=3D &zpci_msi_domain_ops,
+> +	};
+> +
+> +	if (!info.fwnode) {
+> +		pr_err("Failed to allocate fwnode for MSI IRQ domain\n");
+> +		return -ENOMEM;
+>  	}
+> -	if (zdev->aibv) {
+> -		airq_iv_release(zdev->aibv);
+> -		zdev->aibv =3D NULL;
+> +
+> +	if (irq_delivery =3D=3D FLOATING)
+> +		zpci_msi_parent_ops.required_flags |=3D MSI_FLAG_NO_AFFINITY;
 
-AFAICT the error_state flag (checked in pci_channel_offline()) is set by 
-error recovery code, when we get an error. I think using 
-pci_channel_offline() creates a small window where the device may have 
-already gone into an error state and thus the config space is 
-inaccessible, but the error recovery code might not have set the flag. 
-This can happen for example if we try to reset a device (with an ioctl 
-like VFIO_DEVICE_PCI_HOT_RESET), and an error happens while we are in 
-this function, in the middle of handling the reset.
+Add empty line here, so the intent is clear that the following
+assignment is executed unconditionally.
 
-I think reading directly from the config space, might be better 
-indicator of device's state?
+> +	zbus->msi_parent_domain =3D msi_create_parent_irq_domain(&info, &zpci_m=
+si_parent_ops);
+> +	if (!zbus->msi_parent_domain) {
+> +		irq_domain_free_fwnode(info.fwnode);
+> +		pr_err("Failed to create MSI IRQ domain\n");
+> +		return -ENOMEM;
+>  	}
+> =20
+> -	if ((irq_delivery =3D=3D DIRECTED) && zdev->msi_first_bit !=3D -1U)
+> -		airq_iv_free(zpci_ibv[0], zdev->msi_first_bit, zdev->msi_nr_irqs);
+> +	return 0;
+>  }
+>=20
 
-Thanks
+   [ ... snip ... ]
+=20
+> @@ -466,6 +551,7 @@ static int __init zpci_directed_irq_init(void)
+>  		 * is only done on the first vector.
+>  		 */
+>  		zpci_ibv[cpu] =3D airq_iv_create(cache_line_size() * BITS_PER_BYTE,
+> +					       AIRQ_IV_PTR |
+>  					       AIRQ_IV_DATA |
+>  					       AIRQ_IV_CACHELINE |
+>  					       (!cpu ? AIRQ_IV_ALLOC : 0), NULL);
 
-Farhan
 
->
->>   	pci_save_state(dev);
->>   	/*
->>   	 * Disable the device by clearing the Command register, except for
+This looks very good to me already. Unfortunately, I was unable to
+relieve my MSI vs. MSI-X anxiety regarding arch_restore_msi_irqs() with
+a test since the only MSI-using PCI function (ISM) is not supporting
+PCI auto-recovery :(
+
+But a mlx5 VF now recovers just fine!
+
+Thanks,
+Gerd
