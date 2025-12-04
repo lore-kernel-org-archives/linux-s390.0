@@ -1,147 +1,84 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EFA2342534;
-	Thu,  4 Dec 2025 13:09:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F085A341AC7;
+	Thu,  4 Dec 2025 13:28:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764853749; cv=none; b=VS/p8QxFB4cPwab4oNvKdzRkMCUIBAkT89YvdRQYeLpNlj9DyFeQFeRQtbsF6rZyGGuKAjaqLQdx0eKmC9sMkl7HI4cpkSuGhp5qdfFcvhJDjSP+NT7441XMzxH2mwBrFnIZ39nCA+wPm0N8+TwmxQIgY6MiJLDSN3uW0FcQhlg=
+	t=1764854937; cv=none; b=N72sxkyY4Cutv2/RTcpvrv1aJkn0FVQpYv4RSdrHUwYDCg7H/41r2zB12FHEGyvlrid7/W+UzfOnk4Ny5pm+l7aZ1awPldBmGy8uCOThqvqot91+wcl2lY+el7nHmAiKi1ewy5c5xnBeWLd/GFAwydfMBgz7WGQjcwpN1/SU2fU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764853749; c=relaxed/simple;
-	bh=/vhJp4Era/lCT7cwvDoW8hENCXitZDB/pJNpWJ/xu5Y=;
+	s=arc-20240116; t=1764854937; c=relaxed/simple;
+	bh=7hyrV3LM9dB0uk4iRt6U2yJSippzVNJyHltkiPBv5vA=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=lfDyW1GUJkkEcwmfVMEWSqUEOEDTK3Rdbbuf22ftTOJgeZD+Zje9IlBL2oDwHcPcY84et4nn7RVf0rXcMd+1RH+6selbbTzQf/LRMjnEiouRsiy/PvPQm+eQf7FZAvGk0aQGpb+kq7KHoPSl99XCdfipm0gl4OrPBxNj51M+rr8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cGeMRVWi; arc=none smtp.client-ip=148.163.158.5
+	 Content-Type:MIME-Version; b=Q32Iy5MdnHuAj4oPKlc/HRKqv/2gpG3IzSErGVaAbsQidtLk+U6sm0TyPGSGEho78YBy11UEoNcKNtJ34YuytZIPqiEXsCjVXLACh7hQ5+p9zzeKWMveLSBiShlD171RbSVp37iNUaRqZB/hvGJhIwV7ItHQrwviOK2DuI5x1l8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ijm5qKsD; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cGeMRVWi"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B40qlD4021132;
-	Thu, 4 Dec 2025 13:09:07 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ijm5qKsD"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4Ch1pt020195;
+	Thu, 4 Dec 2025 13:28:14 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=/vhJp4
-	Era/lCT7cwvDoW8hENCXitZDB/pJNpWJ/xu5Y=; b=cGeMRVWiFSgAVYnEhb23py
-	ijN3mFS5mvG93fcyz11xk/0tzRTkv2ZUw1hvcRwQQZLc2DlfkPgVefaiZPkK2Wz0
-	r/afe35gigu10BkOlOrcurFIc1UIGGcM33RegdRPDyH+7iPbvaBxPdkduPKTzTtk
-	viCL2LXJZUGeKa9NCBPHXvdjICxAKszlLJoXYpPB1t79hRZ8wWzFTwMthNtiG2P2
-	c9FZap5Lg3Z/+ORqmORHD5WvQQrmSKZpbZLK3jXLbJtP34teo+NIpwgDZTx6kpsc
-	DZk4MEUyC8apzlvOFIvuQQOpQkbXqN/rvsTPzdQ/ZEqGPWEnA/eWpJxCDCgYWVDg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=bc25Ox
+	UPMxGCa4F1t/vPJJJOFo3QZi/rbN0wLKgDP00=; b=Ijm5qKsDQuF0ilFdMjIDQJ
+	H+w1h74Fryd5JinhFbctciCfagRNPiChk8bke8vqLe2FcYpgrj5lCj0uRGJtXJyW
+	7Nlo3baJgaoKWW8kFSW4bQK/nz+bW5zAFgB0IPFmnI273Kb04flK6I8CINvXP/MU
+	UraAFTM9tRcPAVZ5Si85lA4DvE1ND+8eVQu33FkjNF7HfVDsc5BfzOVNZzOO0u2T
+	Y45gJ3WHr8cZHs/kf3r0BTpp4yfsTRBlneLdT/KVDTZYe/wtOO7wJPkYt/yDoj7b
+	sCzw9y6EE95liMU9rPYhNg3Br9AYpsx7WagIid8cVctSA3VkKmQO3gXjue+TlK1g
 	==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqq8uyv10-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrja0f15-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Dec 2025 13:09:06 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B4D96FM014368;
-	Thu, 4 Dec 2025 13:09:06 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqq8uyv0v-1
+	Thu, 04 Dec 2025 13:28:14 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B4DHaJj003844;
+	Thu, 4 Dec 2025 13:28:13 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrja0f12-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Dec 2025 13:09:06 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4Bs5j5010292;
-	Thu, 4 Dec 2025 13:09:05 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4arcnkfsfw-1
+	Thu, 04 Dec 2025 13:28:13 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4AoXTP024120;
+	Thu, 4 Dec 2025 13:28:12 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4arb5sr2u0-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Dec 2025 13:09:05 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B4D94oF28705390
+	Thu, 04 Dec 2025 13:28:12 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B4DS8tf47710634
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 4 Dec 2025 13:09:04 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7173F5805D;
-	Thu,  4 Dec 2025 13:09:04 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EF01258055;
-	Thu,  4 Dec 2025 13:09:01 +0000 (GMT)
-Received: from [9.111.38.114] (unknown [9.111.38.114])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  4 Dec 2025 13:09:01 +0000 (GMT)
-Message-ID: <f49c568303ec861a721969251da9b686cc051303.camel@linux.ibm.com>
-Subject: Re: [PATCH v3] PCI: s390: Expose the UID as an arch specific PCI
- slot attribute
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Gerd Bayer <gbayer@linux.ibm.com>, Bjorn Helgaas <bhelgaas@google.com>,
-        Lukas Wunner <lukas@wunner.de>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Christian Borntraeger	
- <borntraeger@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Heiko
- Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander
- Gordeev	 <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Julian Ruess	 <julianr@linux.ibm.com>,
-        Peter Oberparleiter
- <oberpar@linux.ibm.com>,
-        Ramesh Errabolu <ramesh@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
-Date: Thu, 04 Dec 2025 14:09:01 +0100
-In-Reply-To: <c66fe13cf2dbe9def72cbd5ae703538dcb770d7b.camel@linux.ibm.com>
-References: <20251015-uid_slot-v3-1-44389895c1bb@linux.ibm.com>
-	 <c66fe13cf2dbe9def72cbd5ae703538dcb770d7b.camel@linux.ibm.com>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=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
+	Thu, 4 Dec 2025 13:28:08 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 881862004B;
+	Thu,  4 Dec 2025 13:28:08 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4F8A820043;
+	Thu,  4 Dec 2025 13:28:07 +0000 (GMT)
+Received: from [127.0.0.1] (unknown [9.111.25.150])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  4 Dec 2025 13:28:07 +0000 (GMT)
+Message-ID: <4ddbb5a1244cf444f330cc73b7d573f47b02f7eb.camel@linux.ibm.com>
+Subject: Re: [PATCH 00/17] Paravirt CPUs and push task for less vCPU
+ preemption
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+To: Shrikanth Hegde <sshegde@linux.ibm.com>, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Cc: mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
+        vincent.guittot@linaro.org, tglx@linutronix.de, yury.norov@gmail.com,
+        maddy@linux.ibm.com, srikar@linux.ibm.com, gregkh@linuxfoundation.org,
+        pbonzini@redhat.com, seanjc@google.com, kprateek.nayak@amd.com,
+        vschneid@redhat.com, huschle@linux.ibm.com, rostedt@goodmis.org,
+        dietmar.eggemann@arm.com, christophe.leroy@csgroup.eu,
+        linux-s390@vger.kernel.org
+Date: Thu, 04 Dec 2025 14:28:07 +0100
+In-Reply-To: <20251119124449.1149616-1-sshegde@linux.ibm.com>
+References: <20251119124449.1149616-1-sshegde@linux.ibm.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.58.2 (3.58.2-1.fc43) 
+User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -149,89 +86,377 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: dLYNHFuJPZXyohLucuu6DGpz4VqXPQss
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAwOCBTYWx0ZWRfX+lwHBp/btG+m
- FeAbPsngqQx/K5HC52q1sO0r1osqeLnIgeEXv8qUlTo5mF05MoZ1IrAdYSsYdwqGY2ArvRJofwU
- Wl2qe/GbCu4CTJz7QOox48PTKZSbj3RZLyAf72VXx9386CcgfrOcWqaRZ9V097FeOuGcY/NXwPp
- NrUc/nJBA2/OpZSL7QZmTbAl7LSnn7iLYJSc/RQuJ5aCMSs+ULaiXNnfPeSmHhDUx29Lhz1CPNo
- P9hHPZrYEJPY+EsEqZAnyS0AZ5iSqSuckFFHeXsVkYFNdXDP2sphmeGQv/BKw160Amla/yZZlzP
- lETBBW4oICL/dRCqfMlf0n+HJaD3UrqLP95noz8hZt/IzMK5c/e9+w+Nf0Qr0RDrfWIQ1ZQOp3T
- OaO9t+AqKJyCcX8OAjb5HDBw3uu3EA==
-X-Authority-Analysis: v=2.4 cv=Scz6t/Ru c=1 sm=1 tr=0 ts=693187f2 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-GUID: NkTHhROwv8hM6suNj8-hS3ocQyxUDJhb
+X-Proofpoint-ORIG-GUID: PtBQL-tkHnge3f35R1yqQWE0sFbnp_KL
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAyMCBTYWx0ZWRfX+rJAzX7S9oVk
+ gX3CI4vpDBN7LaYUi3qkYKNcXFAOunW37eyz/ZW8jRU9mjEYNWaxYYvo0JGeEedlpZ2wwlYur+s
+ Kyz1+UMbSMIWmmJ2UFt0aHpos54Vxt7YxEabB5duxWGe0KrMpwfwzz2w5dQ7QDxmgGU2hageORN
+ oC5LN1CosCyRhpRMfB+sk0jSm+sk+CY2oRorK5bLTTwYBxrrcPyIjrtsZh5+BKCHOQvzcLizCF+
+ F/7CoEV/oUlcMgwZyImS+3StHYqYjiCM4nxrn8Q6uJrxFqpbGyQ/eb2zyu7biv5VE8kHnARHnwD
+ oq/xiUD931TfF0GyrkGZ4gJ4GorS4Jb2DY7Tz0ScfBd80MI8T2EQ81ejqWMfzNRnsgRslcvERWb
+ M7obHABQIsa8MTmnT4jBrcLlw86CRg==
+X-Authority-Analysis: v=2.4 cv=dYGNHHXe c=1 sm=1 tr=0 ts=69318c6e cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=IkcTkHD0fZMA:10 a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=loEuMJwbk0X0rLMOwskA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: BnPuDKurt7NUTjmKWVxx4Lwvi3YXCcFt
+ a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=NEAV23lmAAAA:8 a=bA8r-5xvC28MtSijCsoA:9
+ a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-12-04_03,2025-12-03_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 phishscore=0 bulkscore=0 lowpriorityscore=0 adultscore=0
- clxscore=1015 spamscore=0 impostorscore=0 priorityscore=1501 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511290008
+ malwarescore=0 spamscore=0 suspectscore=0 clxscore=1011 adultscore=0
+ lowpriorityscore=0 bulkscore=0 phishscore=0 priorityscore=1501
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2511290020
 
-On Thu, 2025-12-04 at 13:45 +0100, Gerd Bayer wrote:
-> On Wed, 2025-10-15 at 15:42 +0200, Niklas Schnelle wrote:
-> > On s390, an individual PCI function can generally be identified by two
-> > identifiers, the FID and the UID. Which identifier is used depends on
-> > the scope and the platform configuration.
-> >=20
-> > The first identifier, the FID, is always available and identifies a PCI
-> > device uniquely within a machine. The FID may be virtualized by
-> > hypervisors, but on the LPAR level, the machine scope makes it
-> > impossible to create the same configuration based on FIDs on two
-> > different LPARs of the same machine, and difficult to reuse across
-> > machines.
-> >=20
-> > Such matching LPAR configurations are useful, though, allowing
-> > standardized setups and booting a Linux installation on different LPARs=
-.
-> > To this end the UID, or user-defined identifier, was introduced. While
-> > it is only guaranteed to be unique within an LPAR and only if indicated
-> > by firmware, it allows users to replicate PCI device setups.
-> >=20
-> > On s390, which uses a machine hypervisor, a per PCI function hotplug
-> > model is used. The shortcoming with the UID then is, that it is not
-> > visible to the user without first attaching the PCI function and
-> > accessing the "uid" device attribute. The FID, on the other hand, is
-> > used as the slot name and is thus known even with the PCI function in
-> > standby.
-> >=20
-> > Remedy this shortcoming by providing the UID as an attribute on the slo=
-t
-> > allowing the user to identify a PCI function based on the UID without
-> > having to first attach it. Do this via a macro mechanism analogous to
-> > what was introduced by commit 265baca69a07 ("s390/pci: Stop usurping
-> > pdev->dev.groups") for the PCI device attributes.
+On Wed, 2025-11-19 at 18:14 +0530, Shrikanth Hegde wrote:
+> Detailed problem statement and some of the implementation choices
+> were=20
+> discussed earlier[1].
 >=20
-> Hi Niklas,
+> [1]:
+> https://lore.kernel.org/all/20250910174210.1969750-1-sshegde@linux.ibm.co=
+m/
 >=20
-> I like this addition a lot. Also, Lukas' method to add arch-specific
-> attributes to sysfs. Is there a reason why you didn't apply that
-> mechanism 1-to-1?
+> This is likely the version which would be used for LPC2025 discussion
+> on
+> this topic. Feel free to provide your suggestion and hoping for a
+> solution
+> that works for different architectures and it's use cases.
+>=20
+> All the existing alternatives such as cpu hotplug, creating isolated
+> partitions etc break the user affinity. Since number of CPUs to use
+> change
+> depending on the steal time, it is not driven by User. Hence it would
+> be
+> wrong to break the affinity. This series allows if the task is pinned
+> only paravirt CPUs, it will continue running there.
+>=20
+> Changes compared v3[1]:
+>=20
+> - Introduced computation of steal time in powerpc code.
+> - Derive number of CPUs to use and mark the remaining as paravirt
+> based
+> =C2=A0 on steal values.=20
+> - Provide debugfs knobs to alter how steal time values being used.
+> - Removed static key check for paravirt CPUs (Yury)
+> - Removed preempt_disable/enable while calling stopper (Prateek)
+> - Made select_idle_sibling and friends aware of paravirt CPUs.
+> - Removed 3 unused schedstat fields and introduced 2 related to
+> paravirt
+> =C2=A0 handling.
+> - Handled nohz_full case by enabling tick on it when there is CFS/RT
+> on
+> =C2=A0 it.
+> - Updated helper patch to override arch behaviour for easier
+> debugging
+> =C2=A0 during development.
+> - Kept=20
+>=20
+> Changes compared to v4[2]:
+> - Last two patches were sent out separate instead of being with
+> series.
+> =C2=A0 That created confusion. Those two patches are debug patches one ca=
+n
+> =C2=A0 make use to check functionality across acrhitectures. Sorry about
+> =C2=A0 that.
+> - Use DEVICE_ATTR_RW instead (greg)
+> - Made it as PATCH since arch specific handling completes the
+> =C2=A0 functionality.
+>=20
+> [2]:
+> https://lore.kernel.org/all/20251119062100.1112520-1-sshegde@linux.ibm.co=
+m/
+>=20
+> TODO:=20
+>=20
+> - Get performance numbers on PowerPC, x86 and S390. Hopefully by next
+> =C2=A0 week. Didn't want to hold the series till then.
+>=20
+> - The CPUs to mark as paravirt is very simple and doesn't work when
+> =C2=A0 vCPUs aren't spread out uniformly across NUMA nodes. Ideal would b=
+e
+> splice
+> =C2=A0 the numbers based on how many CPUs each NUMA node has. It is quite
+> =C2=A0 tricky to do specially since cpumask can be on stack too. Given
+> =C2=A0 NR_CPUS can be 8192 and nr_possible_nodes 32. Haven't got my head
+> into
+> =C2=A0 solving it yet. Maybe there is easier way.
+>=20
+> - DLPAR Add/Remove needs to call init of EC/VP cores (powerpc
+> specific)
+>=20
+> - Userspace tools awareness such as irqbalance.=20
+>=20
+> - Delve into design of hint from Hyeprvisor(HW Hint). i.e Host
+> informs
+> =C2=A0 guest which/how many CPUs it has to use at this moment. This
+> interface
+> =C2=A0 should work across archs with each arch doing its specific
+> handling.
+>=20
+> - Determine the default values for steal time related knobs
+> =C2=A0 empirically and document them.
+>=20
+> - Need to check safety against CPU hotplug specially in
+> process_steal.
+>=20
+>=20
+> Applies cleanly on tip/master:
+> commit c2ef745151b21d4dcc4b29a1eabf1096f5ba544b
+>=20
+>=20
+> Thanks to srikar for providing the initial code around powerpc steal
+> time handling code. Thanks to all who went through and provided
+> reviews.
+>=20
+> PS: I haven't found a better name. Please suggest if you have any.
+>=20
+> Shrikanth Hegde (17):
+> =C2=A0 sched/docs: Document cpu_paravirt_mask and Paravirt CPU concept
+> =C2=A0 cpumask: Introduce cpu_paravirt_mask
+> =C2=A0 sched/core: Dont allow to use CPU marked as paravirt
+> =C2=A0 sched/debug: Remove unused schedstats
+> =C2=A0 sched/fair: Add paravirt movements for proc sched file
+> =C2=A0 sched/fair: Pass current cpu in select_idle_sibling
+> =C2=A0 sched/fair: Don't consider paravirt CPUs for wakeup and load
+> balance
+> =C2=A0 sched/rt: Don't select paravirt CPU for wakeup and push/pull rt
+> task
+> =C2=A0 sched/core: Add support for nohz_full CPUs
+> =C2=A0 sched/core: Push current task from paravirt CPU
+> =C2=A0 sysfs: Add paravirt CPU file
+> =C2=A0 powerpc: method to initialize ec and vp cores
+> =C2=A0 powerpc: enable/disable paravirt CPUs based on steal time
+> =C2=A0 powerpc: process steal values at fixed intervals
+> =C2=A0 powerpc: add debugfs file for controlling handling on steal values
+> =C2=A0 sysfs: Provide write method for paravirt
+> =C2=A0 sysfs: disable arch handling if paravirt file being written
+>=20
+> =C2=A0.../ABI/testing/sysfs-devices-system-cpu=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0 |=C2=A0=C2=A0 9 +
+> =C2=A0Documentation/scheduler/sched-arch.rst=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0 |=C2=A0 37 +++
+> =C2=A0arch/powerpc/include/asm/smp.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0 1 +
+> =C2=A0arch/powerpc/kernel/smp.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0 |=C2=A0=C2=A0 1 +
+> =C2=A0arch/powerpc/platforms/pseries/lpar.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0 | 223
+> ++++++++++++++++++
+> =C2=A0arch/powerpc/platforms/pseries/pseries.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0 |=C2=A0=C2=A0 1 +
+> =C2=A0drivers/base/cpu.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 59 +++++
+> =C2=A0include/linux/cpumask.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0 |=C2=A0 20 ++
+> =C2=A0include/linux/sched.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0 9 +-
+> =C2=A0kernel/sched/core.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 | 106 ++++++++-
+> =C2=A0kernel/sched/debug.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0 5 +-
+> =C2=A0kernel/sched/fair.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 42 +++-
+> =C2=A0kernel/sched/rt.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 11 +-
+> =C2=A0kernel/sched/sched.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0 9 +
+> =C2=A014 files changed, 519 insertions(+), 14 deletions(-)
 
-I considered that and actually had basically the same as your diff in
-an intermediate version. To me it looked cleaner with the #ifdef in the
-attribute_group array initialization as I feel that it is more obvious
-if the macroed elements are used. This may be because my editor grays
-out the code between unused #ifdef or just because "it's in one place"
-either way just a matter of taste. Also the comma gave me checkpatch
-complaints.
+The capability to temporarily exclude CPUs from scheduling might be
+beneficial for s390x, where users often run Linux using a proprietary
+hypervisor called PR/SM and with high overcommit. In these
+circumstances virtual CPUs may not be scheduled by a hypervisor for a
+very long time.
 
->=20
-> >=20
-> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> > ---
-> > Note: I considered adding the UID as a generic "index" via the hotplug
-> > slot driver but felt like there is probably too little commonality on
-> > format and usage patterns
->=20
-> Sorry for my ignorance but how is the hotplug slot driver defining an
-> "index" or how is used?
->=20
+Today we have an upstream feature called "Hiperdispatch", which
+determines that this is about to happen and uses Capacity Aware
+Scheduling to prevent processes from being placed on the affected CPUs.
+However, at least when used for this purpose, Capacity Aware Scheduling
+is best effort and fails to move tasks away from the affected CPUs
+under high load.
 
-It's not. I meant that I considered that the UID could be turned into a
-generic "index" attribute in the same way that the UID is used as
-/sys/bus/pci/devices/<dev>/index on s390 while the same attribute is an
-SMBIOS index thing on x86 and others.
+Therefore I have decided to smoke test this series.
+
+For the purposes of smoke testing, I set up a number of KVM virtual
+machines and start the same benchmark inside each one. Then I collect
+and compare the aggregate throughput numbers. I have not done testing
+with PR/SM yet, but I plan to do this and report back. I also have not
+tested this with VMs that are not 100% utilized yet.
+
+Benchmark parameters:
+
+$ sysbench cpu run --threads=3D$(nproc) --time=3D10
+$ schbench -r 10 --json --no-locking=20
+$ hackbench --groups 10 --process --loops 5000
+$ pgbench -h $WORKDIR --client=3D$(nproc) --time=3D10
+
+Figures:
+
+s390x (16 host CPUs):
+
+Benchmark      #VMs    #CPUs/VM  =CE=94RPS (%)
+-----------  ------  ----------  ----------
+hackbench        16           4  60.58%
+pgbench          16           4  50.01%
+hackbench         8           8  46.18%
+hackbench         4           8  43.54%
+hackbench         2          16  43.23%
+hackbench        12           4  42.92%
+hackbench         8           4  35.53%
+hackbench         4          16  30.98%
+pgbench          12           4  18.41%
+hackbench         2          24  7.32%
+pgbench           8           4  6.84%
+pgbench           2          24  3.38%
+pgbench           2          16  3.02%
+pgbench           4          16  2.08%
+hackbench         2          32  1.46%
+pgbench           4           8  1.30%
+schbench          2          16  0.72%
+schbench          4           8  -0.09%
+schbench          4           4  -0.20%
+schbench          8           8  -0.41%
+sysbench          8           4  -0.46%
+sysbench          4           8  -0.53%
+schbench          8           4  -0.65%
+sysbench          2          16  -0.76%
+schbench          2           8  -0.77%
+sysbench          8           8  -1.72%
+schbench          2          24  -1.98%
+schbench         12           4  -2.03%
+sysbench         12           4  -2.13%
+pgbench           2          32  -3.15%
+sysbench         16           4  -3.17%
+schbench         16           4  -3.50%
+sysbench          2           8  -4.01%
+pgbench           8           8  -4.10%
+schbench          4          16  -5.93%
+sysbench          4           4  -5.94%
+pgbench           2           4  -6.40%
+hackbench         2           8  -10.04%
+hackbench         4           4  -10.91%
+pgbench           4           4  -11.05%
+sysbench          2          24  -13.07%
+sysbench          4          16  -13.59%
+hackbench         2           4  -13.96%
+pgbench           2           8  -16.16%
+schbench          2           4  -24.14%
+schbench          2          32  -24.25%
+sysbench          2           4  -24.98%
+sysbench          2          32  -32.84%
+
+x86_64 (32 host CPUs):
+
+Benchmark      #VMs    #CPUs/VM  =CE=94RPS (%)
+-----------  ------  ----------  ----------
+hackbench         4          32  87.02%
+hackbench         8          16  48.45%
+hackbench         4          24  47.95%
+hackbench         2           8  42.74%
+hackbench         2          32  34.90%
+pgbench          16           8  27.87%
+pgbench          12           8  25.17%
+hackbench         8           8  24.92%
+hackbench        16           8  22.41%
+hackbench        16           4  20.83%
+pgbench           8          16  20.40%
+hackbench        12           8  20.37%
+hackbench         4          16  20.36%
+pgbench          16           4  16.60%
+pgbench           8           8  14.92%
+hackbench        12           4  14.49%
+pgbench           4          32  9.49%
+pgbench           2          32  7.26%
+hackbench         2          24  6.54%
+pgbench           4           4  4.67%
+pgbench           8           4  3.24%
+pgbench          12           4  2.66%
+hackbench         4           8  2.53%
+pgbench           4           8  1.96%
+hackbench         2          16  1.93%
+schbench          4          32  1.24%
+pgbench           2           8  0.82%
+schbench          4           4  0.69%
+schbench          2          32  0.44%
+schbench          2          16  0.25%
+schbench         12           8  -0.02%
+sysbench          2           4  -0.02%
+schbench          4          24  -0.12%
+sysbench          2          16  -0.17%
+schbench         12           4  -0.18%
+schbench          2           4  -0.19%
+sysbench          4           8  -0.23%
+schbench          8           4  -0.24%
+sysbench          2           8  -0.24%
+schbench          4           8  -0.28%
+sysbench          8           4  -0.30%
+schbench          4          16  -0.37%
+schbench          2          24  -0.39%
+schbench          8          16  -0.49%
+schbench          2           8  -0.67%
+pgbench           4          16  -0.68%
+schbench          8           8  -0.83%
+sysbench          4           4  -0.92%
+schbench         16           4  -0.94%
+sysbench         12           4  -0.98%
+sysbench          8          16  -1.52%
+sysbench         16           4  -1.57%
+pgbench           2           4  -1.62%
+sysbench         12           8  -1.69%
+schbench         16           8  -1.97%
+sysbench          8           8  -2.08%
+hackbench         8           4  -2.11%
+pgbench           4          24  -3.20%
+pgbench           2          24  -3.35%
+sysbench          2          24  -3.81%
+pgbench           2          16  -4.55%
+sysbench          4          16  -5.10%
+sysbench         16           8  -6.56%
+sysbench          2          32  -8.24%
+sysbench          4          32  -13.54%
+sysbench          4          24  -13.62%
+hackbench         2           4  -15.40%
+hackbench         4           4  -17.71%
+
+There are some huge wins, especially for hackbench, which corresponds
+to Shrikanth's findings. There are some significant degradations too,
+which I plan to debug. This may simply have to do with the simplistic
+heuristic I am using for testing [1].
+
+sysbench, for example, is not supposed to benefit from this series,
+because it is not affected by overcommit. However, it definitely should
+not degrade by 30%. Interestingly enough, this happens only with
+certain combinations of VM and CPU counts, and this is reproducible.
+
+Initially I have seen degradations as bad as -80% with schbench. It
+turned out this was caused by userspace per-CPU locking it implements;
+turning it off caused the degradation to go away. To me this looks like
+something synthetic and not something used by real-world application,
+but please correct me if I am wrong - then this will have to be
+resolved.
+
+
+One note regarding the PARAVIRT Kconfig gating: s390x does not
+select PARAVIRT	today. For example, steal time we determine based on
+CPU timers and clocks, and not hypervisor hints. For now I had to add
+dummy paravirt headers to test this series. But I would appreciate if
+Kconfig gating was removed.
+
+Others have already commented on the naming, and I would agree that
+"paravirt" is really misleading. I cannot say that the previous "cpu-
+avoid" one was perfect, but it was much better.
+
+
+[1] https://github.com/iii-i/linux/commits/iii/poc/cpu-avoid/v3/
