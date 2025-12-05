@@ -1,208 +1,294 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D641931AF1D;
-	Fri,  5 Dec 2025 08:24:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88B1C34B426;
+	Fri,  5 Dec 2025 17:15:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764923061; cv=none; b=edyy3AkP2L+I4y4/1qvOHS21anetPIAn1tWqedBAenkTdaUnzMbc9pFs9bqcF6SzrMmZxeucvgHfjueistBa+HeEVgdYa4DOuK12pmqdYroE5+twaBTFJwtvG3NFsaXGQWnrc4B/uf7R7JyQqqCAkqftypY0X4Qq5zn+g6CBu0s=
+	t=1764954931; cv=none; b=QSDD0UVBQZgxebBv6/JpJ9Yvxm4OHorAYwbkXr8FGE1d5v4XN2yJpBcbl25f6my2zGcjI0PDKxnJlIOyD+B+dvX5Fy31uTkn5ebk4dTOiNbRxUzYsBJ1JsCe+hsqeC0MNEl5gK3dZSwvI/F/KB27QfBrRIuJNPPHS3PuC3rst3k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764923061; c=relaxed/simple;
-	bh=9vP47oLCw1RtzDds1FS7AFmXMKeCAIulIP1WYbkq2Oc=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=NM91RC3rVBYTyoXiFHdI2fyNiH5xrecGpmcpxL6JYAVpO6hh8sz694aAuD4oYL/HXEEnRnoj1nSRF/hkWKezZ1YXvvL2E2hs4OGoH+RvSzJLRs62Vudo00+mSVtLdIF+UjDZWF5BpyAAbc/LYEM59wma1W0BjxSJSx6g/wEM570=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=F0NiX5yV; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1764954931; c=relaxed/simple;
+	bh=HBCyKAoA65FFXNpzph30OSPt55chhPw8iKxAUaVC4dk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=IgyhXJVt3X/i0DFXq19RYTeBu0a4TT4N2hSqXFpKE66vtwY26x0031Cz1/PtSB4z8ejLRNZwIdgygT58aHOh2+ksp3ASqB/b1wttxq2kLlW+6Y+jdJv9KxdMdQ5Cw4wTOEnIPHS2CCtEEX8yaX/bMGDoYpQSrHMKQYSny+LP6NQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aqOUGcpK; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="F0NiX5yV"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4N2E7S001393;
-	Fri, 5 Dec 2025 08:23:51 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aqOUGcpK"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B58Tblq006115;
+	Fri, 5 Dec 2025 17:14:59 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=RhMstk
-	u0nqy7N1IclbBOGtkEPP4UWjRAtuZ8gpeiK1Y=; b=F0NiX5yVJnaHEJkKDA1zxl
-	XeYsR6oClxyG+pMD/gOBsS6mB+Wvx/DrJ/0/ZxtSGuz3860uWuwA8gjlfmEWyiQd
-	rF6FkKWTsoNYk8SJycAZNYhQKO7ZyUxafip51V/Dtcm1WhEyqvL3swtUq9gWHf3V
-	NZB/18DQxMAB5CIkV3YYoGkO3UD2Eg6ZW2o7E/WyDZbmTj2B5hL+OTvThxmxQm/s
-	4DhnrCb830S1JIP8JLP/2ZUrsK0kN/HitgC6YUniIURE1/UrB3SkLOUzbZog+2Z0
-	1SVZhlKr+dqzWn8AerY2XQziPIl3urBRonNP8r6UlgAHYWADOKhxd2IB4NXb9l7A
-	==
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=RGUGmb81k/upQMUHk
+	zVbqvFouk7RSTWlms+ka3S7kHM=; b=aqOUGcpK9AtQ29UIhucxljR9whixRAVTP
+	zCSwhgNvvses0Dg6hj8x/16SKWfUqbxnq4F9Sv1lW3nnVlHSM1xUdTWPbOGI9DZr
+	U1G2PMDg9hAUSVO6YujZj5u2NGcZQPF0OuBj9h8T2/k9RxzB2FBmhEcUakHALKmR
+	1l0jJrzvBywLNLT3afsOqZEZfUhfNzVgMtd7evy8/XA2iftXt10j6eZrXqYPAc7T
+	ELurEXAdktAXPaO/MxSqotf5uv4gxg+9DyBk2A4+ng4edis6UZJ074Vc1NTKgFcx
+	nstxfwq7WqvaxKr6YQj57mMUCpFVVzQNZxcl5ci6WkV4BtJgYoLXw==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqq8v404j-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrg5x3c0-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 05 Dec 2025 08:23:50 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B58GECL017907;
-	Fri, 5 Dec 2025 08:23:50 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqq8v404g-1
+	Fri, 05 Dec 2025 17:14:58 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B5HDNQA015566;
+	Fri, 5 Dec 2025 17:14:58 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrg5x3br-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 05 Dec 2025 08:23:50 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B57X4f9010237;
-	Fri, 5 Dec 2025 08:23:49 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4arcnkm7q3-1
+	Fri, 05 Dec 2025 17:14:58 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B5G794b021504;
+	Fri, 5 Dec 2025 17:14:57 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4at8c6qj4g-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 05 Dec 2025 08:23:49 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B58NjYO19792332
+	Fri, 05 Dec 2025 17:14:57 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B5HEr1D15401368
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 5 Dec 2025 08:23:45 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5EB8220043;
-	Fri,  5 Dec 2025 08:23:45 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 563D520040;
-	Fri,  5 Dec 2025 08:23:44 +0000 (GMT)
-Received: from [9.87.132.26] (unknown [9.87.132.26])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  5 Dec 2025 08:23:44 +0000 (GMT)
-Message-ID: <ee27de5e81e4545d697a8c78b88e3590e8849817.camel@linux.ibm.com>
-Subject: Re: [PATCH net] net/mlx5: Fix double unregister of HCA_PORTS
- component
-From: Gerd Bayer <gbayer@linux.ibm.com>
-To: Moshe Shemesh <moshe@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>,
-        Leon Romanovsky	 <leon@kernel.org>, Tariq Toukan <tariqt@nvidia.com>,
-        Mark
- Bloch	 <mbloch@nvidia.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
-        "David S.
- Miller"	 <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub
- Kicinski	 <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Shay Drory
- <shayd@nvidia.com>,
-        Simon Horman <horms@kernel.org>
-Cc: Lukas Wunner <lukas@wunner.de>, Bjorn Helgaas <helgaas@kernel.org>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Farhan Ali <alifm@linux.ibm.com>, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
-Date: Fri, 05 Dec 2025 09:23:44 +0100
-In-Reply-To: <1bef8fd9-e9b8-4184-98be-98d016df20d0@nvidia.com>
-References: <20251202-fix_lag-v1-1-59e8177ffce0@linux.ibm.com>
-	 <7ae1ae03-b62d-4c49-9718-f01ac8713872@nvidia.com>
-	 <502727b0ad4a9bc34afb421d465646248c69f7d4.camel@linux.ibm.com>
-	 <1bef8fd9-e9b8-4184-98be-98d016df20d0@nvidia.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.58.2 (3.58.2-1.fc43) 
+	Fri, 5 Dec 2025 17:14:53 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 23E5720043;
+	Fri,  5 Dec 2025 17:14:53 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D6F162005A;
+	Fri,  5 Dec 2025 17:14:52 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  5 Dec 2025 17:14:52 +0000 (GMT)
+From: Jens Remus <jremus@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, bpf@vger.kernel.org, x86@kernel.org,
+        Steven Rostedt <rostedt@kernel.org>
+Cc: Jens Remus <jremus@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Indu Bhagat <indu.bhagat@oracle.com>,
+        "Jose E. Marchesi" <jemarch@gnu.org>,
+        Beau Belgrave <beaub@linux.microsoft.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Florian Weimer <fweimer@redhat.com>, Kees Cook <kees@kernel.org>,
+        "Carlos O'Donell" <codonell@redhat.com>, Sam James <sam@gentoo.org>,
+        Dylan Hatch <dylanbhatch@google.com>
+Subject: [RFC PATCH v2 15/15] s390/unwind_user/backchain: Enable HAVE_UNWIND_USER_BACKCHAIN
+Date: Fri,  5 Dec 2025 18:14:46 +0100
+Message-ID: <20251205171446.2814872-16-jremus@linux.ibm.com>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <20251205171446.2814872-1-jremus@linux.ibm.com>
+References: <20251205171446.2814872-1-jremus@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ntzkUzJrCDLvH1vmukWEsCOlq0HNJf1l
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAwOCBTYWx0ZWRfX2Q28eqZi4Xa6
- 6oSDXmNMvzheKPKgr7KrXjBrwzfp4Js2kzztjRGmBpKQou3ZEDDEzakBBGIYxLx55T+FyceWnDO
- hPUSJy/CfMeY8qKky6SaF52RnVGxdKPm/PqwlhTj5w6mHPAMqBJLSYvTpzybkHDH6Fay8cce7JF
- n45allhJKUs6N9lnZ48SErGexTRToV6IbklQ+AM8DSRQw6CLq32JWCYaT0br0Me2Nn94os4GPgO
- FCwTIBVzhhORKDz80cKQ67mR3heql5xVGIJtmGMFLh+8GwyyVLPxhYteEKh/rn/Ht/80QQHBhPC
- hwiDUtbes2hlVLI+Q/tEGhLKOOdHVVDh0oIwJtjkKl2cWWM7n9efkvxj3CQCrfRZOZnA17mSqXt
- 5nLm9Hm4dTImx5zklHqwPmNlpmZV0A==
-X-Authority-Analysis: v=2.4 cv=Scz6t/Ru c=1 sm=1 tr=0 ts=69329696 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=P-IC7800AAAA:8 a=VnNF1IyMAAAA:8 a=Ikd4Dj_1AAAA:8 a=V3l9L5bX4ASNRFpQsxoA:9
- a=QEXdDO2ut3YA:10 a=d3PnA9EDa4IxuAV0gXij:22
-X-Proofpoint-GUID: hWJND_K9tjRBx8p2s4M8FXMy3ZhA2tU5
+X-Proofpoint-ORIG-GUID: 1jo5pWau_LBs9yTaqt7mzvhYz3fWWAxy
+X-Authority-Analysis: v=2.4 cv=Ir0Tsb/g c=1 sm=1 tr=0 ts=69331312 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
+ a=3bOCESsrY8nbLZwxsYcA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAyMCBTYWx0ZWRfX1RgK7csGZO/+
+ oTpnAdWMvXg9qvixPltY1x4UvcTrEDSvQkqsBxul1a/MLNNN9zQOSwRRWlDlqAXddpUIGDdP1mx
+ 2i/cO0cDKhIwHhYbJyORsvNfkYJZQZv/BnPOUtWkf1Y1bWQ7KR32KtfEbXPIuJVnFp/c82DxvYY
+ ht31XYx30QpR1oFNsuYoahBMq8pANzjCqXHx9uj0j5YyoF5EOzmKYbVB2gp07Ok11w6y9aswEHH
+ np5gE8jY6jjx3d87Fkrh8hmNeHmyV4L9YziCnwDJO/NSF1HReD7zjeD/QVz0hm4rbPcwfFCUFbS
+ 4APUBJgI3sBrkOOyNonVGuAS+twwP/QV36Em9FzKzLd0MwW4QI3p84FBiNxqzkSejboJDz4Ebhg
+ YvusOUpvla+2wpHWntNrTouKi0ixPA==
+X-Proofpoint-GUID: I1CWD7Dl6WYB5hea1O3PRbZ_-STnTtSh
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-12-05_03,2025-12-04_04,2025-10-01_01
+ definitions=2025-12-05_06,2025-12-04_04,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 phishscore=0 bulkscore=0 lowpriorityscore=0 adultscore=0
- clxscore=1015 spamscore=0 impostorscore=0 priorityscore=1501 malwarescore=0
+ malwarescore=0 adultscore=0 impostorscore=0 clxscore=1015 priorityscore=1501
+ bulkscore=0 spamscore=0 lowpriorityscore=0 suspectscore=0 phishscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511290008
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511290020
 
-On Thu, 2025-12-04 at 19:07 +0200, Moshe Shemesh wrote:
->=20
-> On 12/4/2025 11:48 AM, Gerd Bayer wrote:
-> >=20
-> > On Wed, 2025-12-03 at 17:14 +0200, Moshe Shemesh wrote:
-> > >=20
-> > > On 12/2/2025 1:12 PM, Gerd Bayer wrote:
-> > > >=20
-> >=20
-> >    [ ... snip ... ]
-> >=20
-> > > >=20
-> > > > Fixes: 5a977b5833b7 ("net/mlx5: Lag, move devcom registration to LA=
-G layer")
-> > > > Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
-> > >=20
-> > > Reviewed-by: Moshe Shemesh <moshe@nvidia.com>> ---
-> > > > Hi Shay et al,
-> > > >=20
-> > >=20
-> > > Hi Gerd,
-> > >    I stepped on this bug recently too, without s390 and was about to
-> > > submit same fix :) So as you wrote it is unrelated to Lukas' patches =
-and
-> > > this fix is correct.
-> >=20
-> > Good to hear. I wonder if you could share how you got to run into this?
-> >=20
->=20
-> mlx5_unload_one() can be called from few flows.
-> Even that it is always called with devlink lock, serial of=20
-> mlx5_unload_one() twice caused it. I got it on fw_reset and shutdown. I=
-=20
-> I will submit also a patch for calling mlx5_drain_fw_reset() on shutdown=
-=20
-> soon.
+Enable unwinding of user space using back chain on s390.  Based on
+arch_stack_walk_user_common() in arch/s390/kernel/stacktrace.c.
 
-I agree, serialization through the devlink lock does not help if
-mlx5_unload_one() does not clean up all the references.
+Note that an invalid RA obtained from the stack frame pointed to by the
+back chain is not a valid indication that the IP is still early in the
+function prologue and a fallback to the RA and SP register r14 and r15
+contents should be made.
 
->=20
-> > >=20
-> > > >=20
-> > > > I've spotted two additional places where the devcom reference is no=
-t
-> > > > cleared after calling mlx5_devcom_unregister_component() in
-> > > > drivers/net/ethernet/mellanox/mlx5/core/lib/sd.c that I have not
-> > > > addressed with a patch, since I'm unclear about how to test these
-> > > > paths.
-> > >=20
-> > > As for the other cases, we had the patch 664f76be38a1 ("net/mlx5: Fix
-> > > IPsec cleanup over MPV device") and two other cases on shared clock a=
-nd
-> > > SD but I don't see any flow the shared clock or SD can fail,
-> > > specifically mlx5_sd_cleanup() checks sd pointer at beginning of the
-> > > function and nullify it right after sd_unregister() that free devcom.
-> >=20
-> > I didn't locate any calls to mxl5_devcom_unregister_component() in
-> > "shared clock" - is that not yet upstream?
->=20
-> mlx5_shared_clock_unregister() in=20
-> drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
+Signed-off-by: Jens Remus <jremus@linux.ibm.com>
+---
 
-Hah - my fault! I was searching through the indexer's parameterized
-cross-references, and w/o CONFIG_PTP_1588_CLOCK that file was excluded.
+Notes (jremus):
+    Changes in RFC v2:
+    - Adjusted to latest unwind user changes.
+    - Use struct stack_frame_user and struct stack_frame_vdso_wrapper from
+      asm/stacktrace.h.
+    - In topmost frame do not fallback to RA (and SP) register values if
+      RA is invalid.  This is not a valid indication for early prologue.
+    - In topmost frame use RA and SP register values if they match those
+      saved in the frame.  This indicates early prologue.
 
->=20
-> >=20
-> > Regarding SD, I follow that sd_cleanup() is followed immediately after
-> > sd_unregister() and does the clean-up. One path remains uncovered
-> > though: The error exit at
-> > https://elixir.bootlin.com/linux/v6.18/source/drivers/net/ethernet/mell=
-anox/mlx5/core/lib/sd.c#L265
-> >=20
-> > Not sure, how likely that is...
->=20
-> It comes on error flow but after successful=20
-> mlx5_devcom_register_component() in sd_register(), and that error leads=
-=20
-> to error flow in mlx5_sd_init(), which calls sd_cleanup() too.
->=20
-> >=20
-> > Thanks,
-> > Gerd
+ arch/s390/Kconfig                        |   1 +
+ arch/s390/kernel/Makefile                |   2 +
+ arch/s390/kernel/unwind_user_backchain.c | 112 +++++++++++++++++++++++
+ 3 files changed, 115 insertions(+)
+ create mode 100644 arch/s390/kernel/unwind_user_backchain.c
 
-Thanks for you explanations,
-Gerd
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 52d3f3b3e086..5aeb2abd390f 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -246,6 +246,7 @@ config S390
+ 	select HAVE_SETUP_PER_CPU_AREA
+ 	select HAVE_SOFTIRQ_ON_OWN_STACK
+ 	select HAVE_SYSCALL_TRACEPOINTS
++	select HAVE_UNWIND_USER_BACKCHAIN
+ 	select HAVE_UNWIND_USER_SFRAME
+ 	select HAVE_VIRT_CPU_ACCOUNTING
+ 	select HAVE_VIRT_CPU_ACCOUNTING_IDLE
+diff --git a/arch/s390/kernel/Makefile b/arch/s390/kernel/Makefile
+index eb06ff888314..eb662e95c5fd 100644
+--- a/arch/s390/kernel/Makefile
++++ b/arch/s390/kernel/Makefile
+@@ -83,6 +83,8 @@ obj-$(CONFIG_PERF_EVENTS)	+= perf_pai_crypto.o perf_pai_ext.o
+ 
+ obj-$(CONFIG_TRACEPOINTS)	+= trace.o
+ 
++obj-$(CONFIG_HAVE_UNWIND_USER_BACKCHAIN)	+= unwind_user_backchain.o
++
+ # vdso
+ obj-y				+= vdso64/
+ obj-$(CONFIG_COMPAT)		+= vdso32/
+diff --git a/arch/s390/kernel/unwind_user_backchain.c b/arch/s390/kernel/unwind_user_backchain.c
+new file mode 100644
+index 000000000000..4e10ca43ea36
+--- /dev/null
++++ b/arch/s390/kernel/unwind_user_backchain.c
+@@ -0,0 +1,112 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#define pr_fmt(fmt)	"backchain: " fmt
++
++#include <asm/asm-offsets.h>
++#include <asm/stacktrace.h>
++#include <linux/security.h>
++#include <linux/unwind_user.h>
++#include <linux/unwind_user_backchain.h>
++
++/**
++ * ip_invalid - Perform some basic checks whether an instruction pointer (IP)
++ * taken from an unreliable source is invalid
++ * @ip: The instruction pointer to be validated
++ *
++ * returns whether the instruction pointer is invalid
++ */
++static inline bool ip_invalid(unsigned long ip)
++{
++	/* Architecture requires IP to be 2-byte aligned. */
++	if (ip & 1)
++		return true;
++	if (ip < mmap_min_addr)
++		return true;
++	if (ip >= current->mm->context.asce_limit)
++		return true;
++	return false;
++}
++
++/**
++ * ip_within_vdso - Check whether an instruction pointer (IP) is within vDSO
++ * @ip: The instruction pointer
++ *
++ * returns whether the instruction pointer is within vDSO
++ */
++static inline bool ip_within_vdso(unsigned long ip)
++{
++	return in_range(ip, current->mm->context.vdso_base, vdso_text_size());
++}
++
++/**
++ * arch_unwind_user_next_backchain - Unwind one frame using s390 back chain
++ * @state: The unwind user state
++ *
++ * returns zero when successful, otherwise -EINVAL.
++ */
++int arch_unwind_user_next_backchain(struct unwind_user_state *state)
++{
++	struct stack_frame_user __user *sf;
++	unsigned long sp, ra;
++
++	sf = (void __user *)state->sp;
++
++	/*
++	 * In topmost frame check whether IP in early prologue, RA and SP
++	 * registers saved, and no new stack frame allocated.
++	 */
++	if (state->topmost) {
++		unsigned long ra_reg;
++
++		if (__get_user(ra, (unsigned long __user *)&sf->gprs[8]))
++			return -EINVAL;
++		if (__get_user(sp, (unsigned long __user *)&sf->gprs[9]))
++			return -EINVAL;
++		if (unwind_user_get_ra_reg(&ra_reg))
++			return -EINVAL;
++		if (ra == ra_reg && sp == state->sp)
++			goto done;
++	}
++
++	if (__get_user(sp, (unsigned long __user *)&sf->back_chain))
++		return -EINVAL;
++	if (!sp && ip_within_vdso(state->ip)) {
++		/*
++		 * Assume non-standard vDSO user wrapper stack frame.
++		 * See vDSO user wrapper code for details.
++		 */
++		struct stack_frame_vdso_wrapper *sf_vdso = (void __user *)sf;
++
++		if (__get_user(ra, (unsigned long __user *)&sf_vdso->return_address))
++			return -EINVAL;
++		sf = (void __user *)((unsigned long)sf + STACK_FRAME_VDSO_OVERHEAD);
++		if (__get_user(sp, (unsigned long __user *)&sf->back_chain))
++			return -EINVAL;
++	} else if (!sp) {
++		/* Assume outermost frame reached. */
++		state->done = true;
++		return 0;
++	} else {
++		/*
++		 * Assume IP past prologue and new stack frame allocated.
++		 * Follow back chain, which then equals the SP at entry.
++		 * Skips caller if wrong in topmost frame.
++		 */
++		sf = (void __user *)sp;
++		if (__get_user(ra, (unsigned long __user *)&sf->gprs[8]))
++			return -EINVAL;
++		/* Skip validation: ABI requires SP to be saved as well. */
++	}
++
++done:
++	/* Validate SP and RA (ABI requires SP to be 8-byte aligned). */
++	if (sp & 7 || ip_invalid(ra))
++		return -EINVAL;
++
++	state->ip = ra;
++	state->sp = sp;
++	state->fp = 0;		/* Cannot unwind FP. */
++	state->topmost = false;
++
++	return 0;
++}
+-- 
+2.51.0
+
