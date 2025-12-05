@@ -1,462 +1,208 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FAB61F4615;
-	Fri,  5 Dec 2025 05:31:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D641931AF1D;
+	Fri,  5 Dec 2025 08:24:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764912674; cv=none; b=AMdntRkcjXljSNMpZv9mL5s5BTrHknya1WxbgHZvjZYoDQkF91HgtTPB0dCGKUr52dOEWd6k1HoMDI2EaiGd1O1mzY0i3+ZsqibogfmmnNIJK3Pcjgqxn5P39JF1lkALzl7EXCPFhwixQIlNDEt8L2hDntYHXX3J3QtD9D5flwY=
+	t=1764923061; cv=none; b=edyy3AkP2L+I4y4/1qvOHS21anetPIAn1tWqedBAenkTdaUnzMbc9pFs9bqcF6SzrMmZxeucvgHfjueistBa+HeEVgdYa4DOuK12pmqdYroE5+twaBTFJwtvG3NFsaXGQWnrc4B/uf7R7JyQqqCAkqftypY0X4Qq5zn+g6CBu0s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764912674; c=relaxed/simple;
-	bh=1xftRtQuUFPOuCzMoV5V8m8VDYM+Scbeqc+ksi87yJQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=s+QhA0QC2s+qpQnwGraPJm5/EwexqBjMpZ3ry9cvGOpMEVsZAuRQwa7jA8lQLhHGKokq38FUZ29/K1xlsmiBfETKIC7UrHP8PfHUdg1QGHozcJ+y7TeXacewb71j0eGgtTjp5+vvPAAv6C9vB1bTXgvhTIkvAdQKeXgIRYR+PXo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=a1NbSxUF; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1764923061; c=relaxed/simple;
+	bh=9vP47oLCw1RtzDds1FS7AFmXMKeCAIulIP1WYbkq2Oc=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=NM91RC3rVBYTyoXiFHdI2fyNiH5xrecGpmcpxL6JYAVpO6hh8sz694aAuD4oYL/HXEEnRnoj1nSRF/hkWKezZ1YXvvL2E2hs4OGoH+RvSzJLRs62Vudo00+mSVtLdIF+UjDZWF5BpyAAbc/LYEM59wma1W0BjxSJSx6g/wEM570=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=F0NiX5yV; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="a1NbSxUF"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4KS1Uk018231;
-	Fri, 5 Dec 2025 05:30:30 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="F0NiX5yV"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4N2E7S001393;
+	Fri, 5 Dec 2025 08:23:51 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=IDi1DY
-	c3BmeXqjTazx86TE3x4dLXzaqQAXgtGK3Dx7A=; b=a1NbSxUF1JxCOvRgI1Qd/R
-	WUYIjd+gl0P2I/k6WgDhfMp7+ScqAdgxyctxceJ5pNO+xVp1OjiyR0juaT0u6jQN
-	I9aEZ3UHiIUCX6RWTywGo5LapAVXLETQZHzBoOhZzJXDhds/CEl79Fm6ettDh+RH
-	3hniXO8DobdO1VF93njsElbA9udCI2jXQ2YKUGDzGTFFHsvGw9cIx6Lc+uWRQuL0
-	zMQQBloj11rJSJsN9HGr2p0n5XgjZtllPONH9znaEa6TonV/4oU4nEbatX7taetG
-	8UbmjrXoLzST48wSHFnjYoqR7y5/KelH2idFxwq0pXzWfKQYX4yn4tq0zvE2xDwQ
+	:message-id:mime-version:references:subject:to; s=pp1; bh=RhMstk
+	u0nqy7N1IclbBOGtkEPP4UWjRAtuZ8gpeiK1Y=; b=F0NiX5yVJnaHEJkKDA1zxl
+	XeYsR6oClxyG+pMD/gOBsS6mB+Wvx/DrJ/0/ZxtSGuz3860uWuwA8gjlfmEWyiQd
+	rF6FkKWTsoNYk8SJycAZNYhQKO7ZyUxafip51V/Dtcm1WhEyqvL3swtUq9gWHf3V
+	NZB/18DQxMAB5CIkV3YYoGkO3UD2Eg6ZW2o7E/WyDZbmTj2B5hL+OTvThxmxQm/s
+	4DhnrCb830S1JIP8JLP/2ZUrsK0kN/HitgC6YUniIURE1/UrB3SkLOUzbZog+2Z0
+	1SVZhlKr+dqzWn8AerY2XQziPIl3urBRonNP8r6UlgAHYWADOKhxd2IB4NXb9l7A
 	==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrg5ubxq-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqq8v404j-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 05 Dec 2025 05:30:29 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B55Oe5g026186;
-	Fri, 5 Dec 2025 05:30:29 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrg5ubxm-1
+	Fri, 05 Dec 2025 08:23:50 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B58GECL017907;
+	Fri, 5 Dec 2025 08:23:50 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqq8v404g-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 05 Dec 2025 05:30:29 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B537AFn029338;
-	Fri, 5 Dec 2025 05:30:28 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ardv1ue30-1
+	Fri, 05 Dec 2025 08:23:50 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B57X4f9010237;
+	Fri, 5 Dec 2025 08:23:49 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4arcnkm7q3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 05 Dec 2025 05:30:28 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B55UOPh62849440
+	Fri, 05 Dec 2025 08:23:49 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B58NjYO19792332
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 5 Dec 2025 05:30:24 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6E34B20040;
-	Fri,  5 Dec 2025 05:30:24 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B49F920043;
-	Fri,  5 Dec 2025 05:30:19 +0000 (GMT)
-Received: from [9.124.223.52] (unknown [9.124.223.52])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  5 Dec 2025 05:30:19 +0000 (GMT)
-Message-ID: <8368868e-48aa-4a90-95d1-1be4de9879e8@linux.ibm.com>
-Date: Fri, 5 Dec 2025 11:00:18 +0530
+	Fri, 5 Dec 2025 08:23:45 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5EB8220043;
+	Fri,  5 Dec 2025 08:23:45 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 563D520040;
+	Fri,  5 Dec 2025 08:23:44 +0000 (GMT)
+Received: from [9.87.132.26] (unknown [9.87.132.26])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  5 Dec 2025 08:23:44 +0000 (GMT)
+Message-ID: <ee27de5e81e4545d697a8c78b88e3590e8849817.camel@linux.ibm.com>
+Subject: Re: [PATCH net] net/mlx5: Fix double unregister of HCA_PORTS
+ component
+From: Gerd Bayer <gbayer@linux.ibm.com>
+To: Moshe Shemesh <moshe@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>,
+        Leon Romanovsky	 <leon@kernel.org>, Tariq Toukan <tariqt@nvidia.com>,
+        Mark
+ Bloch	 <mbloch@nvidia.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+        "David S.
+ Miller"	 <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub
+ Kicinski	 <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Shay Drory
+ <shayd@nvidia.com>,
+        Simon Horman <horms@kernel.org>
+Cc: Lukas Wunner <lukas@wunner.de>, Bjorn Helgaas <helgaas@kernel.org>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Farhan Ali <alifm@linux.ibm.com>, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
+Date: Fri, 05 Dec 2025 09:23:44 +0100
+In-Reply-To: <1bef8fd9-e9b8-4184-98be-98d016df20d0@nvidia.com>
+References: <20251202-fix_lag-v1-1-59e8177ffce0@linux.ibm.com>
+	 <7ae1ae03-b62d-4c49-9718-f01ac8713872@nvidia.com>
+	 <502727b0ad4a9bc34afb421d465646248c69f7d4.camel@linux.ibm.com>
+	 <1bef8fd9-e9b8-4184-98be-98d016df20d0@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.2 (3.58.2-1.fc43) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 00/17] Paravirt CPUs and push task for less vCPU
- preemption
-To: Ilya Leoshkevich <iii@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Cc: mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
-        vincent.guittot@linaro.org, tglx@linutronix.de, yury.norov@gmail.com,
-        maddy@linux.ibm.com, srikar@linux.ibm.com, gregkh@linuxfoundation.org,
-        pbonzini@redhat.com, seanjc@google.com, kprateek.nayak@amd.com,
-        vschneid@redhat.com, huschle@linux.ibm.com, rostedt@goodmis.org,
-        dietmar.eggemann@arm.com, christophe.leroy@csgroup.eu,
-        linux-s390@vger.kernel.org
-References: <20251119124449.1149616-1-sshegde@linux.ibm.com>
- <4ddbb5a1244cf444f330cc73b7d573f47b02f7eb.camel@linux.ibm.com>
-Content-Language: en-US
-From: Shrikanth Hegde <sshegde@linux.ibm.com>
-In-Reply-To: <4ddbb5a1244cf444f330cc73b7d573f47b02f7eb.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 3tmHFW3U2xA0oAhESm6nR3A9UPkgS1V-
-X-Authority-Analysis: v=2.4 cv=Ir0Tsb/g c=1 sm=1 tr=0 ts=69326df5 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-ORIG-GUID: ntzkUzJrCDLvH1vmukWEsCOlq0HNJf1l
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAwOCBTYWx0ZWRfX2Q28eqZi4Xa6
+ 6oSDXmNMvzheKPKgr7KrXjBrwzfp4Js2kzztjRGmBpKQou3ZEDDEzakBBGIYxLx55T+FyceWnDO
+ hPUSJy/CfMeY8qKky6SaF52RnVGxdKPm/PqwlhTj5w6mHPAMqBJLSYvTpzybkHDH6Fay8cce7JF
+ n45allhJKUs6N9lnZ48SErGexTRToV6IbklQ+AM8DSRQw6CLq32JWCYaT0br0Me2Nn94os4GPgO
+ FCwTIBVzhhORKDz80cKQ67mR3heql5xVGIJtmGMFLh+8GwyyVLPxhYteEKh/rn/Ht/80QQHBhPC
+ hwiDUtbes2hlVLI+Q/tEGhLKOOdHVVDh0oIwJtjkKl2cWWM7n9efkvxj3CQCrfRZOZnA17mSqXt
+ 5nLm9Hm4dTImx5zklHqwPmNlpmZV0A==
+X-Authority-Analysis: v=2.4 cv=Scz6t/Ru c=1 sm=1 tr=0 ts=69329696 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=IkcTkHD0fZMA:10 a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=NEAV23lmAAAA:8 a=tVq6XiAQccX39fkiOKoA:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAyMCBTYWx0ZWRfX4jodFYBVAJ2T
- fNb4lqkuXEqgHzOABAIcbG6qeBU+JqszMfryOPonBlqT1jrGm4cX8WmGPY9BcYiNu6raAg6xr+c
- YU/3uK/pE9DfKdqpQOsfttWlHPRwiKne1Y2REN3c+Dtqe/tDBDqCD/ZVpMe727Snc71cXxzbnsm
- wGXeZyfkJ4X9S+JswGthUfB71MTNrLoQMyXL7AHw6Wi/SUTxuVZFbkY//6aEwNXts8oDYu1ETw8
- Ey8XgE4p/879VENKa8jGLtc55R/xrbIqBmV2ub+YygGEUUNHvrneqebzCdsXLYB+thsqeJQqsI9
- hE21TaX6DK7wMx629UPGJy2F1j8VRY3I6+q4mWpEKFuEAZhF/1WMjYMYNznFNc6siqvgYfFjzgJ
- ajEha9YQsouBI5clnR2hcyiB3NeP5A==
-X-Proofpoint-GUID: WvKRZDUUP65yUwcALCLmBb8P5VcoltYU
+ a=P-IC7800AAAA:8 a=VnNF1IyMAAAA:8 a=Ikd4Dj_1AAAA:8 a=V3l9L5bX4ASNRFpQsxoA:9
+ a=QEXdDO2ut3YA:10 a=d3PnA9EDa4IxuAV0gXij:22
+X-Proofpoint-GUID: hWJND_K9tjRBx8p2s4M8FXMy3ZhA2tU5
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-12-05_01,2025-12-04_04,2025-10-01_01
+ definitions=2025-12-05_03,2025-12-04_04,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 adultscore=0 impostorscore=0 clxscore=1011 priorityscore=1501
- bulkscore=0 spamscore=0 lowpriorityscore=0 suspectscore=0 phishscore=0
+ suspectscore=0 phishscore=0 bulkscore=0 lowpriorityscore=0 adultscore=0
+ clxscore=1015 spamscore=0 impostorscore=0 priorityscore=1501 malwarescore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511290020
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511290008
 
+On Thu, 2025-12-04 at 19:07 +0200, Moshe Shemesh wrote:
+>=20
+> On 12/4/2025 11:48 AM, Gerd Bayer wrote:
+> >=20
+> > On Wed, 2025-12-03 at 17:14 +0200, Moshe Shemesh wrote:
+> > >=20
+> > > On 12/2/2025 1:12 PM, Gerd Bayer wrote:
+> > > >=20
+> >=20
+> >    [ ... snip ... ]
+> >=20
+> > > >=20
+> > > > Fixes: 5a977b5833b7 ("net/mlx5: Lag, move devcom registration to LA=
+G layer")
+> > > > Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
+> > >=20
+> > > Reviewed-by: Moshe Shemesh <moshe@nvidia.com>> ---
+> > > > Hi Shay et al,
+> > > >=20
+> > >=20
+> > > Hi Gerd,
+> > >    I stepped on this bug recently too, without s390 and was about to
+> > > submit same fix :) So as you wrote it is unrelated to Lukas' patches =
+and
+> > > this fix is correct.
+> >=20
+> > Good to hear. I wonder if you could share how you got to run into this?
+> >=20
+>=20
+> mlx5_unload_one() can be called from few flows.
+> Even that it is always called with devlink lock, serial of=20
+> mlx5_unload_one() twice caused it. I got it on fw_reset and shutdown. I=
+=20
+> I will submit also a patch for calling mlx5_drain_fw_reset() on shutdown=
+=20
+> soon.
 
+I agree, serialization through the devlink lock does not help if
+mlx5_unload_one() does not clean up all the references.
 
-On 12/4/25 6:58 PM, Ilya Leoshkevich wrote:
-> On Wed, 2025-11-19 at 18:14 +0530, Shrikanth Hegde wrote:
->> Detailed problem statement and some of the implementation choices
->> were
->> discussed earlier[1].
->>
->> [1]:
->> https://lore.kernel.org/all/20250910174210.1969750-1-sshegde@linux.ibm.com/
->>
->> This is likely the version which would be used for LPC2025 discussion
->> on
->> this topic. Feel free to provide your suggestion and hoping for a
->> solution
->> that works for different architectures and it's use cases.
->>
->> All the existing alternatives such as cpu hotplug, creating isolated
->> partitions etc break the user affinity. Since number of CPUs to use
->> change
->> depending on the steal time, it is not driven by User. Hence it would
->> be
->> wrong to break the affinity. This series allows if the task is pinned
->> only paravirt CPUs, it will continue running there.
->>
->> Changes compared v3[1]:
->>
->> - Introduced computation of steal time in powerpc code.
->> - Derive number of CPUs to use and mark the remaining as paravirt
->> based
->>    on steal values.
->> - Provide debugfs knobs to alter how steal time values being used.
->> - Removed static key check for paravirt CPUs (Yury)
->> - Removed preempt_disable/enable while calling stopper (Prateek)
->> - Made select_idle_sibling and friends aware of paravirt CPUs.
->> - Removed 3 unused schedstat fields and introduced 2 related to
->> paravirt
->>    handling.
->> - Handled nohz_full case by enabling tick on it when there is CFS/RT
->> on
->>    it.
->> - Updated helper patch to override arch behaviour for easier
->> debugging
->>    during development.
->> - Kept
->>
->> Changes compared to v4[2]:
->> - Last two patches were sent out separate instead of being with
->> series.
->>    That created confusion. Those two patches are debug patches one can
->>    make use to check functionality across acrhitectures. Sorry about
->>    that.
->> - Use DEVICE_ATTR_RW instead (greg)
->> - Made it as PATCH since arch specific handling completes the
->>    functionality.
->>
->> [2]:
->> https://lore.kernel.org/all/20251119062100.1112520-1-sshegde@linux.ibm.com/
->>
->> TODO:
->>
->> - Get performance numbers on PowerPC, x86 and S390. Hopefully by next
->>    week. Didn't want to hold the series till then.
->>
->> - The CPUs to mark as paravirt is very simple and doesn't work when
->>    vCPUs aren't spread out uniformly across NUMA nodes. Ideal would be
->> splice
->>    the numbers based on how many CPUs each NUMA node has. It is quite
->>    tricky to do specially since cpumask can be on stack too. Given
->>    NR_CPUS can be 8192 and nr_possible_nodes 32. Haven't got my head
->> into
->>    solving it yet. Maybe there is easier way.
->>
->> - DLPAR Add/Remove needs to call init of EC/VP cores (powerpc
->> specific)
->>
->> - Userspace tools awareness such as irqbalance.
->>
->> - Delve into design of hint from Hyeprvisor(HW Hint). i.e Host
->> informs
->>    guest which/how many CPUs it has to use at this moment. This
->> interface
->>    should work across archs with each arch doing its specific
->> handling.
->>
->> - Determine the default values for steal time related knobs
->>    empirically and document them.
->>
->> - Need to check safety against CPU hotplug specially in
->> process_steal.
->>
->>
->> Applies cleanly on tip/master:
->> commit c2ef745151b21d4dcc4b29a1eabf1096f5ba544b
->>
->>
->> Thanks to srikar for providing the initial code around powerpc steal
->> time handling code. Thanks to all who went through and provided
->> reviews.
->>
->> PS: I haven't found a better name. Please suggest if you have any.
->>
->> Shrikanth Hegde (17):
->>    sched/docs: Document cpu_paravirt_mask and Paravirt CPU concept
->>    cpumask: Introduce cpu_paravirt_mask
->>    sched/core: Dont allow to use CPU marked as paravirt
->>    sched/debug: Remove unused schedstats
->>    sched/fair: Add paravirt movements for proc sched file
->>    sched/fair: Pass current cpu in select_idle_sibling
->>    sched/fair: Don't consider paravirt CPUs for wakeup and load
->> balance
->>    sched/rt: Don't select paravirt CPU for wakeup and push/pull rt
->> task
->>    sched/core: Add support for nohz_full CPUs
->>    sched/core: Push current task from paravirt CPU
->>    sysfs: Add paravirt CPU file
->>    powerpc: method to initialize ec and vp cores
->>    powerpc: enable/disable paravirt CPUs based on steal time
->>    powerpc: process steal values at fixed intervals
->>    powerpc: add debugfs file for controlling handling on steal values
->>    sysfs: Provide write method for paravirt
->>    sysfs: disable arch handling if paravirt file being written
->>
->>   .../ABI/testing/sysfs-devices-system-cpu      |   9 +
->>   Documentation/scheduler/sched-arch.rst        |  37 +++
->>   arch/powerpc/include/asm/smp.h                |   1 +
->>   arch/powerpc/kernel/smp.c                     |   1 +
->>   arch/powerpc/platforms/pseries/lpar.c         | 223
->> ++++++++++++++++++
->>   arch/powerpc/platforms/pseries/pseries.h      |   1 +
->>   drivers/base/cpu.c                            |  59 +++++
->>   include/linux/cpumask.h                       |  20 ++
->>   include/linux/sched.h                         |   9 +-
->>   kernel/sched/core.c                           | 106 ++++++++-
->>   kernel/sched/debug.c                          |   5 +-
->>   kernel/sched/fair.c                           |  42 +++-
->>   kernel/sched/rt.c                             |  11 +-
->>   kernel/sched/sched.h                          |   9 +
->>   14 files changed, 519 insertions(+), 14 deletions(-)
-> 
-> The capability to temporarily exclude CPUs from scheduling might be
-> beneficial for s390x, where users often run Linux using a proprietary
-> hypervisor called PR/SM and with high overcommit. In these
-> circumstances virtual CPUs may not be scheduled by a hypervisor for a
-> very long time.
-> 
-> Today we have an upstream feature called "Hiperdispatch", which
-> determines that this is about to happen and uses Capacity Aware
-> Scheduling to prevent processes from being placed on the affected CPUs.
-> However, at least when used for this purpose, Capacity Aware Scheduling
-> is best effort and fails to move tasks away from the affected CPUs
-> under high load.
-> 
-> Therefore I have decided to smoke test this series.
-> 
-> For the purposes of smoke testing, I set up a number of KVM virtual
-> machines and start the same benchmark inside each one. Then I collect
-> and compare the aggregate throughput numbers. I have not done testing
-> with PR/SM yet, but I plan to do this and report back. I also have not
-> tested this with VMs that are not 100% utilized yet.
-> 
+>=20
+> > >=20
+> > > >=20
+> > > > I've spotted two additional places where the devcom reference is no=
+t
+> > > > cleared after calling mlx5_devcom_unregister_component() in
+> > > > drivers/net/ethernet/mellanox/mlx5/core/lib/sd.c that I have not
+> > > > addressed with a patch, since I'm unclear about how to test these
+> > > > paths.
+> > >=20
+> > > As for the other cases, we had the patch 664f76be38a1 ("net/mlx5: Fix
+> > > IPsec cleanup over MPV device") and two other cases on shared clock a=
+nd
+> > > SD but I don't see any flow the shared clock or SD can fail,
+> > > specifically mlx5_sd_cleanup() checks sd pointer at beginning of the
+> > > function and nullify it right after sd_unregister() that free devcom.
+> >=20
+> > I didn't locate any calls to mxl5_devcom_unregister_component() in
+> > "shared clock" - is that not yet upstream?
+>=20
+> mlx5_shared_clock_unregister() in=20
+> drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
 
-Best results would be when it works as HW hint from hypervisor.
+Hah - my fault! I was searching through the indexer's parameterized
+cross-references, and w/o CONFIG_PTP_1588_CLOCK that file was excluded.
 
-> Benchmark parameters:
-> 
-> $ sysbench cpu run --threads=$(nproc) --time=10
-> $ schbench -r 10 --json --no-locking
-> $ hackbench --groups 10 --process --loops 5000
-> $ pgbench -h $WORKDIR --client=$(nproc) --time=10
-> 
-> Figures:
-> 
-> s390x (16 host CPUs):
-> 
-> Benchmark      #VMs    #CPUs/VM  ΔRPS (%)
-> -----------  ------  ----------  ----------
-> hackbench        16           4  60.58%
-> pgbench          16           4  50.01%
-> hackbench         8           8  46.18%
-> hackbench         4           8  43.54%
-> hackbench         2          16  43.23%
-> hackbench        12           4  42.92%
-> hackbench         8           4  35.53%
-> hackbench         4          16  30.98%
-> pgbench          12           4  18.41%
-> hackbench         2          24  7.32%
-> pgbench           8           4  6.84%
-> pgbench           2          24  3.38%
-> pgbench           2          16  3.02%
-> pgbench           4          16  2.08%
-> hackbench         2          32  1.46%
-> pgbench           4           8  1.30%
-> schbench          2          16  0.72%
-> schbench          4           8  -0.09%
-> schbench          4           4  -0.20%
-> schbench          8           8  -0.41%
-> sysbench          8           4  -0.46%
-> sysbench          4           8  -0.53%
-> schbench          8           4  -0.65%
-> sysbench          2          16  -0.76%
-> schbench          2           8  -0.77%
-> sysbench          8           8  -1.72%
-> schbench          2          24  -1.98%
-> schbench         12           4  -2.03%
-> sysbench         12           4  -2.13%
-> pgbench           2          32  -3.15%
-> sysbench         16           4  -3.17%
-> schbench         16           4  -3.50%
-> sysbench          2           8  -4.01%
-> pgbench           8           8  -4.10%
-> schbench          4          16  -5.93%
-> sysbench          4           4  -5.94%
-> pgbench           2           4  -6.40%
-> hackbench         2           8  -10.04%
-> hackbench         4           4  -10.91%
-> pgbench           4           4  -11.05%
-> sysbench          2          24  -13.07%
-> sysbench          4          16  -13.59%
-> hackbench         2           4  -13.96%
-> pgbench           2           8  -16.16%
-> schbench          2           4  -24.14%
-> schbench          2          32  -24.25%
-> sysbench          2           4  -24.98%
-> sysbench          2          32  -32.84%
-> 
-> x86_64 (32 host CPUs):
-> 
-> Benchmark      #VMs    #CPUs/VM  ΔRPS (%)
-> -----------  ------  ----------  ----------
-> hackbench         4          32  87.02%
-> hackbench         8          16  48.45%
-> hackbench         4          24  47.95%
-> hackbench         2           8  42.74%
-> hackbench         2          32  34.90%
-> pgbench          16           8  27.87%
-> pgbench          12           8  25.17%
-> hackbench         8           8  24.92%
-> hackbench        16           8  22.41%
-> hackbench        16           4  20.83%
-> pgbench           8          16  20.40%
-> hackbench        12           8  20.37%
-> hackbench         4          16  20.36%
-> pgbench          16           4  16.60%
-> pgbench           8           8  14.92%
-> hackbench        12           4  14.49%
-> pgbench           4          32  9.49%
-> pgbench           2          32  7.26%
-> hackbench         2          24  6.54%
-> pgbench           4           4  4.67%
-> pgbench           8           4  3.24%
-> pgbench          12           4  2.66%
-> hackbench         4           8  2.53%
-> pgbench           4           8  1.96%
-> hackbench         2          16  1.93%
-> schbench          4          32  1.24%
-> pgbench           2           8  0.82%
-> schbench          4           4  0.69%
-> schbench          2          32  0.44%
-> schbench          2          16  0.25%
-> schbench         12           8  -0.02%
-> sysbench          2           4  -0.02%
-> schbench          4          24  -0.12%
-> sysbench          2          16  -0.17%
-> schbench         12           4  -0.18%
-> schbench          2           4  -0.19%
-> sysbench          4           8  -0.23%
-> schbench          8           4  -0.24%
-> sysbench          2           8  -0.24%
-> schbench          4           8  -0.28%
-> sysbench          8           4  -0.30%
-> schbench          4          16  -0.37%
-> schbench          2          24  -0.39%
-> schbench          8          16  -0.49%
-> schbench          2           8  -0.67%
-> pgbench           4          16  -0.68%
-> schbench          8           8  -0.83%
-> sysbench          4           4  -0.92%
-> schbench         16           4  -0.94%
-> sysbench         12           4  -0.98%
-> sysbench          8          16  -1.52%
-> sysbench         16           4  -1.57%
-> pgbench           2           4  -1.62%
-> sysbench         12           8  -1.69%
-> schbench         16           8  -1.97%
-> sysbench          8           8  -2.08%
-> hackbench         8           4  -2.11%
-> pgbench           4          24  -3.20%
-> pgbench           2          24  -3.35%
-> sysbench          2          24  -3.81%
-> pgbench           2          16  -4.55%
-> sysbench          4          16  -5.10%
-> sysbench         16           8  -6.56%
-> sysbench          2          32  -8.24%
-> sysbench          4          32  -13.54%
-> sysbench          4          24  -13.62%
-> hackbench         2           4  -15.40%
-> hackbench         4           4  -17.71%
-> 
-> There are some huge wins, especially for hackbench, which corresponds
-> to Shrikanth's findings. There are some significant degradations too,
-> which I plan to debug. This may simply have to do with the simplistic
-> heuristic I am using for testing [1].
-> 
+>=20
+> >=20
+> > Regarding SD, I follow that sd_cleanup() is followed immediately after
+> > sd_unregister() and does the clean-up. One path remains uncovered
+> > though: The error exit at
+> > https://elixir.bootlin.com/linux/v6.18/source/drivers/net/ethernet/mell=
+anox/mlx5/core/lib/sd.c#L265
+> >=20
+> > Not sure, how likely that is...
+>=20
+> It comes on error flow but after successful=20
+> mlx5_devcom_register_component() in sd_register(), and that error leads=
+=20
+> to error flow in mlx5_sd_init(), which calls sd_cleanup() too.
+>=20
+> >=20
+> > Thanks,
+> > Gerd
 
-Thank you very much!! for running these numbers.
-
-> sysbench, for example, is not supposed to benefit from this series,
-> because it is not affected by overcommit. However, it definitely should
-> not degrade by 30%. Interestingly enough, this happens only with
-> certain combinations of VM and CPU counts, and this is reproducible.
-> 
-
-is the host baremetal? is those cases cpufreq governer ramp up or down
-might play a role. (speculating)
-
-> Initially I have seen degradations as bad as -80% with schbench. It
-> turned out this was caused by userspace per-CPU locking it implements;
-> turning it off caused the degradation to go away. To me this looks like
-> something synthetic and not something used by real-world application,
-> but please correct me if I am wrong - then this will have to be
-> resolved.
-> 
-
-That's nice to hear. I was concerned with schbench rps. Now i am bit relieved.
-
-
-Is this with schbench -L option?
-I ran with it. and regression i was seeing earlier is gone now.
-
-> 
-> One note regarding the PARAVIRT Kconfig gating: s390x does not
-> select PARAVIRT	today. For example, steal time we determine based on
-> CPU timers and clocks, and not hypervisor hints. For now I had to add
-> dummy paravirt headers to test this series. But I would appreciate if
-> Kconfig gating was removed.
-> 
-
-Keeping PARAVIRT checks on is probably right thing. I will wait to see if
-anyone objects.
-
-> Others have already commented on the naming, and I would agree that
-> "paravirt" is really misleading. I cannot say that the previous "cpu-
-> avoid" one was perfect, but it was much better.
-> 
-> 
-> [1] https://github.com/iii-i/linux/commits/iii/poc/cpu-avoid/v3/
-
-Will look into it. one thing to to be careful are CPU numbers.
+Thanks for you explanations,
+Gerd
