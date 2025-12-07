@@ -1,81 +1,82 @@
-Received: from mail-oo1-f69.google.com (mail-oo1-f69.google.com [209.85.161.69])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F5B3242D97
-	for <linux-s390@vger.kernel.org>; Sun,  7 Dec 2025 04:29:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.69
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 392E52D1F64;
+	Sun,  7 Dec 2025 15:10:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765081745; cv=none; b=E7z2vZwotcvxtb0UxlESYzOUzlbstq8ahgyViqTDBTMnG2mxnX5iCVCwAs28Css1kXCLHG49sms8m/73P2DUboAACkn6lqxB8uxDZtcP/Wl8KDtvd/Gfd7IrElsuIMs8m6tix9ou+YUgdc3ex6V/QPz4TttraXHB1Lf/Vgafgcg=
+	t=1765120250; cv=none; b=H6NVLZmoP6P1QGDzHadxJWldE6NPM7R6Q9YLwHwQDDv1FwgqAPEKPM+aboSr8TGRMHsy1HwAxnOthj++jq/RWQSo/s0WQsO9GAmBeS9cjK6hkKg/it2ddq1AG4bIq/KK5vVoKesq+HaTs4zC6vNglv062mCYxXclOoynh6KWVh4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765081745; c=relaxed/simple;
-	bh=eFje0BYZc36c7GlxVwvHcOD5WpJMi+Oo3iQMgT02PVs=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
-	 Content-Type; b=gDCWySc6KTVhF0i5Wm5qk5iSXuWqhHKk+PXHqSGllEfT3LQRdnMyiwEFx3Ol0oXB5k4GnhrGtDtMSc3YauHtCE7f1v0y0bQcuTHcFku05XHAfsqzl5qbRJQMfKkbwZkpZqj2CGlfsIn7dEl+a24TF/QsVL4pXr83Z4dKNwi+HYw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.69
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oo1-f69.google.com with SMTP id 006d021491bc7-65742d1c7f9so4831299eaf.3
-        for <linux-s390@vger.kernel.org>; Sat, 06 Dec 2025 20:29:03 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765081743; x=1765686543;
-        h=to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=JUNWBhctNH94PHBLcTezwPnZsKvlmgikXPpcfVicFU4=;
-        b=RhuwVuvTrGbyIDU30rb/UtoYea6og2MLSSAQkXzul5LgrdSWIvooz1EE0duuUrSWiS
-         1mBELKnYDdQm6Z51+mH/IvWjTqMol1hXVQ3NRmDsQ/N2LLQdyVMJujIRwkeVgh6qI0TF
-         ehQf+C6uAZotux3Bm2U7tDQPXy/JDv2GANsnAJzq32z2rj65M9mTY3BzT+Kk9665+iRo
-         v35NuX01BD+TbAbEMBcUU8+Sl8hu0b5QwCwwzyil7zkIx0I8BrYPm+1ToS+mkwfh9UUe
-         UFVkRxM2hM4MEyBt5sC2KZBbdBvGgd3DXpXHpCczcEebhqTFaz2uX5TXVhd0hqstbgWj
-         7Cgw==
-X-Forwarded-Encrypted: i=1; AJvYcCWhHS5Gs1VGfzeQLjq1v5gDFkWhQuDyQHM1OIVGKagbNq7+T+CViWrMh3sOIG5+VU57SpjSX7vFwJX9@vger.kernel.org
-X-Gm-Message-State: AOJu0YxjKWEfumljU4ACaqtddVk61ZAo0z+pWIYuLdvl/XZld/meXyL4
-	71+FdScmaBYVyMFeSM5Qulprvi2KePBjXQejX81uIkRmZMKXROVXzJLE5Atr7HLuX96pDV2SSWO
-	7abrybbP2RPpzqRZjjo/bAZopDaFP+BxUOYrz+fIPY7BoHcoZxroTs3cAz7c=
-X-Google-Smtp-Source: AGHT+IHSeHYCjH1WF30LC4vlZ9tiWk2MUfW3UKXh1nskP+uvymmYU7oe3qVXmpZw1STQmVgtt4N2m3Kw9QoZWaaBCcXocytzU+OS
+	s=arc-20240116; t=1765120250; c=relaxed/simple;
+	bh=OzF7hS6TrInXl3mCcNu9qnyxA3CdmEZ4IbhduQGYtII=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=nLFDFnuDIOrB6VO1Ln3u9QdxJtYp9fzN5Ztx/kVLh5hF32u9KmhDeU5kA3JbbL5jGhYo8CR207DV2TGEm9L54VQjOIh8+uaHV9lRWwLeLKLMDg2YfT8TSejVdrIIwEDGdcrzJNfJ2BtAepa+eDjqybfZNbMlCfBhjiBgj15lOtc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=asmsHUdv; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="asmsHUdv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6551BC4CEFB;
+	Sun,  7 Dec 2025 15:10:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1765120249;
+	bh=OzF7hS6TrInXl3mCcNu9qnyxA3CdmEZ4IbhduQGYtII=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=asmsHUdvMM2cCAnZUnx16UexGWR1yWUVU4LB8ks1o0iZFdoifARMV/4pgO5o9Wtcq
+	 YhCgZaXlBoafmQ58s//PZX8b5GZ6c0vbP2nOIDqcE9QRFS1yVCUcIqSNDmWsJReD3h
+	 jyYI0k9Oviqnwj2ckrtpw9+sQSqFkN9mWtm69jhDfvmuvcbFGcx7Hj1OQHgWiVAPZz
+	 4Lw9s4w7Rb1skuJh1fefC7iFDEa3CKHl7FTpTUKwZ+x6niZMDFx6JNB18lpnu30s2H
+	 jHW7GHnTniWzg57MsEQav42xNh9RNSleOzw5JP4s2VigfTOZ50AVUbU5EolslYt0lH
+	 lon+H+7W3YtyA==
+Date: Sun, 7 Dec 2025 07:10:44 -0800
+From: Josh Poimboeuf <jpoimboe@kernel.org>
+To: Jens Remus <jremus@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
+	linux-s390@vger.kernel.org, bpf@vger.kernel.org, x86@kernel.org, 
+	Steven Rostedt <rostedt@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
+	Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@kernel.org>, 
+	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
+	Thomas Gleixner <tglx@linutronix.de>, Andrii Nakryiko <andrii@kernel.org>, 
+	Indu Bhagat <indu.bhagat@oracle.com>, "Jose E. Marchesi" <jemarch@gnu.org>, 
+	Beau Belgrave <beaub@linux.microsoft.com>, Linus Torvalds <torvalds@linux-foundation.org>, 
+	Andrew Morton <akpm@linux-foundation.org>, Florian Weimer <fweimer@redhat.com>, Kees Cook <kees@kernel.org>, 
+	Carlos O'Donell <codonell@redhat.com>, Sam James <sam@gentoo.org>, Dylan Hatch <dylanbhatch@google.com>
+Subject: Re: [RFC PATCH v2 14/15] unwind_user/backchain: Introduce back chain
+ user space unwinding
+Message-ID: <iidpbjmxnjf3zu4fa3atiubgb365yonv4gymaj76l6jvuxy67s@2y5o4txs4vhr>
+References: <20251205171446.2814872-1-jremus@linux.ibm.com>
+ <20251205171446.2814872-15-jremus@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:80b:b0:659:9a49:8f33 with SMTP id
- 006d021491bc7-6599a973dc8mr1988629eaf.68.1765081742693; Sat, 06 Dec 2025
- 20:29:02 -0800 (PST)
-Date: Sat, 06 Dec 2025 20:29:02 -0800
-In-Reply-To: <000000000000fabef5061f429db7@google.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6935028e.a70a0220.38f243.0041.GAE@google.com>
-Subject: Re: [syzbot] [smc?] general protection fault in smc_diag_dump_proto
-From: syzbot <syzbot+f69bfae0a4eb29976e44@syzkaller.appspotmail.com>
-To: agordeev@linux.ibm.com, aha310510@gmail.com, alibuda@linux.alibaba.com, 
-	davem@davemloft.net, dust.li@linux.alibaba.com, edumazet@google.com, 
-	gbayer@linux.ibm.com, guwen@linux.alibaba.com, horms@kernel.org, 
-	jaka@linux.ibm.com, julianr@linux.ibm.com, kuba@kernel.org, 
-	linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org, 
-	linux-s390@vger.kernel.org, lizhi.xu@windriver.com, netdev@vger.kernel.org, 
-	pabeni@redhat.com, sidraya@linux.ibm.com, syzkaller-bugs@googlegroups.com, 
-	tonylu@linux.alibaba.com, wenjia@linux.ibm.com, wintera@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20251205171446.2814872-15-jremus@linux.ibm.com>
 
-syzbot suspects this issue was fixed by commit:
+On Fri, Dec 05, 2025 at 06:14:45PM +0100, Jens Remus wrote:
+> @@ -159,6 +165,10 @@ static int unwind_user_next(struct unwind_user_state *state)
+>  			if (!unwind_user_next_fp(state))
+>  				return 0;
+>  			continue;
+> +		case UNWIND_USER_TYPE_BACKCHAIN:
+> +			if (!unwind_user_next_backchain(state))
+> +				return 0;
+> +			continue;		/* Try next method. */
+>  		default:
+>  			WARN_ONCE(1, "Undefined unwind bit %d", bit);
+>  			break;
+> @@ -187,6 +197,8 @@ static int unwind_user_start(struct unwind_user_state *state)
+>  		state->available_types |= UNWIND_USER_TYPE_SFRAME;
+>  	if (IS_ENABLED(CONFIG_HAVE_UNWIND_USER_FP))
+>  		state->available_types |= UNWIND_USER_TYPE_FP;
+> +	if (IS_ENABLED(CONFIG_HAVE_UNWIND_USER_BACKCHAIN))
+> +		state->available_types |= UNWIND_USER_TYPE_BACKCHAIN;
 
-commit d324a2ca3f8efd57f5839aa2690554a5cbb3586f
-Author: Alexandra Winter <wintera@linux.ibm.com>
-Date:   Thu Sep 18 11:04:50 2025 +0000
+Any reason not to just use the existing CONFIG_HAVE_UNWIND_USER_FP hook
+here rather than create the new BACKCHAIN one?
 
-    dibs: Register smc as dibs_client
-
-bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=16d64eb4580000
-start commit:   dbb9a7ef3478 net: fjes: use ethtool string helpers
-git tree:       net-next
-kernel config:  https://syzkaller.appspot.com/x/.config?x=a9d1c42858837b59
-dashboard link: https://syzkaller.appspot.com/bug?extid=f69bfae0a4eb29976e44
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=178f0d5f980000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=10906b40580000
-
-If the result looks correct, please mark the issue as fixed by replying with:
-
-#syz fix: dibs: Register smc as dibs_client
-
-For information about bisection process see: https://goo.gl/tpsmEJ#bisection
+-- 
+Josh
