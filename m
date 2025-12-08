@@ -1,64 +1,64 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDCB13161A5;
-	Mon,  8 Dec 2025 17:16:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 716F7274643;
+	Mon,  8 Dec 2025 17:16:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765214215; cv=none; b=gvEqYWv7hux29Civ/HCT8HhZhejeXFjDrO9PQkGzfVIKkTK7L/E06libK7PyyIj7KORZMGXhHhbL6FpRYMTzd1ck4OSSSOFOWmMCB+8YgNl+NzapDD0AGxzpkA/MCUtvkXkHlCLU0yPFEEWjQ4GcCP6tIadSKrMMVxnJg1NNQ8k=
+	t=1765214217; cv=none; b=tjbehpnGab5tgbmFcAcobSPv4epP0bvSLuCSWjED6Cza4fbrvGhpRnWF3Lltkdw7Py4DMeRYiwaNLf9E0mHRwgKjOfV785NXy5EwccOgGkCzL+u5E+YgW7x42Lna0q8OAyDPTUJyDSvSCYoIIq7IVEGTzACnyFsGN2uzfiznBRA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765214215; c=relaxed/simple;
-	bh=+PTAx+xk0uWM77FaXhFQt3ax5/oyP+squs7mk+HZo5w=;
+	s=arc-20240116; t=1765214217; c=relaxed/simple;
+	bh=Ig76xTemWnBp5V9wcafXhVnewT4GyeDWXCD4NFeuEEI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=iuevG9sHlQ7nCdsALab3vAtNgxigYVj99oRzFlmtxfnrFnuuwT5TmifXUv8giV073TN5pijpRKdNC4RfvODNrPFu+dTO48BM2JQezt5PH7wh5MdbH+V0iP8SA1wdYAhei6CQMKTFmkJX8lWfRbWlbXryMvM1UBtwCkQlTMXbyN8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZS84WJuv; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=JYoXP0K9jX2/DDxZ4rnW9TgkFTp2p2PBemmEkVeQ2TtehhT7iOyXIMciPnpg5xsas54sNMUbECPvwKWserLI9PUA0YkMv0lgSYDLRiMKLfkwJukOVnuhJnxBWebGgJi6lPoEnTMXzb8dY9D6lQb5Ev3ao0pGwvZTP4RvpoXDD3E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Sb8xK7PE; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZS84WJuv"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B8E0o2Z002119;
-	Mon, 8 Dec 2025 17:16:13 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Sb8xK7PE"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B8DY0gf014495;
+	Mon, 8 Dec 2025 17:16:11 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=ERKVCVG8jzqXJzGSx
-	S764A/gXKRZvq6CU6QCd1pLJow=; b=ZS84WJuvxHGkAzwD1f+WQwWLd9XR+PZG5
-	d5bVQ+IJP7w/XPWU1jVYIctNqUr2hTgQLV1rkMjyZ+yer4QvfKkfqkfq7CPwxC1U
-	L27F5H3RsKlfI4J8noUXM5u+xUVdGIk9ngDRcknXbazSkit25FjpeylgTCYIt2A8
-	2voXWh3i2l1/bIzS/EldmrI3E2Hqfd/wTHjxZzVDAsqa7mxpjqKkoC2gsnEi282c
-	7tLewXE6eQqV5FcqdsxwdKUHL7JlKF1yEYJL6TnICJI6suHFZTPT7MVFL3I7u6Fz
-	LtEawg4wVq2yrweDLFXDNIDwBFafN0AMne6gqKaLp+GELt6walPIw==
+	:mime-version:references:subject:to; s=pp1; bh=XDw2tSBsdhyOzenUT
+	DEc+daDW0YtX3pVwUrUg8mkf/0=; b=Sb8xK7PEF7wtPxNXuCWeQBXR79NS3R2TD
+	b8KkH1SYSZMFkk9ihuyaxUkzSqBSOtbISXqkfAQePzH3qIlWuC+hsSwhcrKDVNMf
+	tutxsC7l8qqohdQpMYhN34KUK7c840a1mZJxCgt1NQs6nYYQhXQ9l0JJ/BBRvKUO
+	FDXkohCF4lHJDAbE7z2qq7GRMk0f+02fTN6ErLD4+knXRB3rdTtOjAek/76OhQqM
+	L1i4tDghqnG+LpJ8N1Ia6Ee/lMO5pUosaAI6K/o18tIL5AJ6f9UXvnNsMMCnwQHs
+	o+ZnVTLHUljc1MgLM+gB3P8gy9y9J1xru4o1CStI/nbabrgaVZkww==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4avc0jrwuk-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4avc538dmy-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 08 Dec 2025 17:16:13 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B8H0pOj016147;
-	Mon, 8 Dec 2025 17:16:12 GMT
+	Mon, 08 Dec 2025 17:16:10 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B8HG94O026302;
+	Mon, 8 Dec 2025 17:16:10 GMT
 Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4avc0jrwud-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4avc538dmt-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 08 Dec 2025 17:16:12 +0000 (GMT)
+	Mon, 08 Dec 2025 17:16:09 +0000 (GMT)
 Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B8EPJHb030452;
-	Mon, 8 Dec 2025 17:16:11 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4avxtrxxsg-1
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B8EPJHZ030452;
+	Mon, 8 Dec 2025 17:16:08 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4avxtrxxs7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 08 Dec 2025 17:16:11 +0000
+	Mon, 08 Dec 2025 17:16:08 +0000
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B8HG7hu27328864
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B8HG5XZ24314486
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 8 Dec 2025 17:16:07 GMT
+	Mon, 8 Dec 2025 17:16:05 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6F50F20040;
-	Mon,  8 Dec 2025 17:16:07 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 2B33C20043;
+	Mon,  8 Dec 2025 17:16:05 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1318D2004B;
-	Mon,  8 Dec 2025 17:16:07 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id CA6F52004D;
+	Mon,  8 Dec 2025 17:16:04 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  8 Dec 2025 17:16:07 +0000 (GMT)
+	Mon,  8 Dec 2025 17:16:04 +0000 (GMT)
 From: Jens Remus <jremus@linux.ibm.com>
 To: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org, bpf@vger.kernel.org, x86@kernel.org,
@@ -83,9 +83,9 @@ Cc: Jens Remus <jremus@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
         Florian Weimer <fweimer@redhat.com>, Kees Cook <kees@kernel.org>,
         "Carlos O'Donell" <codonell@redhat.com>, Sam James <sam@gentoo.org>,
         Dylan Hatch <dylanbhatch@google.com>
-Subject: [RFC PATCH v3 14/17] s390/unwind_user/sframe: Enable HAVE_UNWIND_USER_SFRAME
-Date: Mon,  8 Dec 2025 18:15:56 +0100
-Message-ID: <20251208171559.2029709-15-jremus@linux.ibm.com>
+Subject: [RFC PATCH v3 08/17] s390/vdso: Enable SFrame generation in vDSO
+Date: Mon,  8 Dec 2025 18:15:50 +0100
+Message-ID: <20251208171559.2029709-9-jremus@linux.ibm.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20251208171559.2029709-1-jremus@linux.ibm.com>
 References: <20251208171559.2029709-1-jremus@linux.ibm.com>
@@ -97,301 +97,150 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Cf8FJbrl c=1 sm=1 tr=0 ts=693707dd cx=c_pps
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjA2MDAyMCBTYWx0ZWRfX0dLDgmwqv5fS
+ YsMcHt+8bojwggFr03PzXDfRsrzQdiUIhhX5Z6UwjlkEVxCRAzaa68TVkoGJRzsAznWRyv3LpN5
+ 6U4CRcy1yQwQOlQeM7rJbc8+1tOD6ibEVoQZ/CcgwAc/FvXcS5SCsJs/qHuUDi1TfVIc/8RfOT3
+ LmzBMJGyieup00AMO/ZxsXlg6SoxfDrNCEmvaP64Ru8xgUvfY0KSxsR2C3zmuWmoj0nwOgpFP8i
+ MSZ0Vw5KQiVzvd5nEd/KhFR9x44yjn1otWQnD7LPhqWzHYHMS5KG7C9t4Drds/rh83xCiN/4upD
+ 8Lg6pSZJ2EOrWHIVbNyHxiJlxL9UaVlJyPofhgrQGx7ts7A0Kyx1W+AI/iN7U/X3QQj0Kf49VKv
+ mhDiIH2UMicT3mnmXjQUIqAUsV8r1Q==
+X-Authority-Analysis: v=2.4 cv=S/DUAYsP c=1 sm=1 tr=0 ts=693707da cx=c_pps
  a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=NEAV23lmAAAA:8 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=SgTjFYeX4wDDoTrxqN8A:9
-X-Proofpoint-ORIG-GUID: 2ffayoUyB0-OeWRLb9-TG8hsPYrlY6PC
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjA2MDAxNiBTYWx0ZWRfX23xzFk2YT9gP
- kI5wsYAAgfKZPr+qrEaVN28O1pSXX80AWKK1wB7rj5eVAKO3p885ftLj+Q4M+nt9EtW4ImkUWIi
- 3DExCwhERzbnVQHv7nHJvU81EwirEhT78U5a5RpHiNcMJ7g6a9VeQcxdssgtudQoJISeKf/03A9
- OK+ihIGT7ZJQ5dziKZyolpWUDN3fUwUeonF2EoPsxObabQkQ14yZ15lca3SzjOkql3yczletbe2
- YJAZpgiqr/fW2VoJVq0Bdr+n25Nr3mNJA3EUeJ7e9bbheHOPa1xTyAlfuyAs9RFzmDzhc9oTUOK
- USp7voYr7pU7kxal1ikIDga1BOeZ/fjRQlEgnoo+uzELPNl9qXmtRPZI1uOFFdu4lLt2ePZgUIY
- sjFnmK+0G8N/VwQ2wNeO80WAMwXPnA==
-X-Proofpoint-GUID: w72dwIz2zjyYTJ5puLevut7RTloBJquv
+ a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VwQbUJbxAAAA:8 a=meVymXHHAAAA:8
+ a=VnNF1IyMAAAA:8 a=dAJiN8YmCtcRjYQ6G8MA:9 a=2JgSa4NbpEOStq-L5dxp:22
+X-Proofpoint-ORIG-GUID: zweHWsrF6Dru09rXtEtp9m74b0LQbiE3
+X-Proofpoint-GUID: z-xVEMQKP681mfiWoo96vjf3j-uVaQio
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-12-06_02,2025-12-04_04,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 bulkscore=0 malwarescore=0 clxscore=1015 adultscore=0
- lowpriorityscore=0 impostorscore=0 priorityscore=1501 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
- definitions=main-2512060016
+ malwarescore=0 phishscore=0 clxscore=1015 impostorscore=0 suspectscore=0
+ lowpriorityscore=0 adultscore=0 spamscore=0 bulkscore=0 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2512060020
 
-Add s390 support for unwinding of user space using SFrame.  This
-leverages the previous commits to address the following s390
-particularities:
+This replicates Josh's x86 patch "x86/vdso: Enable sframe generation
+in VDSO" [1] for s390.
 
-- The CFA is defined as the value of the stack pointer (SP) at call
-  site in the previous frame + 160.  Therefore the SP unwinds as
-  SP = CFA - 160.  Therefore use a SP value offset from CFA of -160.
+Test whether the assembler supports generating SFrame stack trace
+information.  Note that it is insufficient to test whether the assembler
+supports option --gsframe, as GNU assembler supports that regardless
+of whether it is actually capable of generating SFrame stack trace
+information for the architecture.
 
-- The return address (RA) is not saved on the stack at function entry.
-  It is also not saved in the function prologue, when in leaf functions.
-  Therefore the RA does not necessarily need to be unwound in the first
-  unwinding step for the topmost frame.
+If so enable SFrame stack trace information generation in the vDSO
+library so kernel and user space can unwind through it.
 
-- The frame pointer (FP) and/or return address (RA) may be saved in
-  other registers when in leaf functions.  GCC effectively uses
-  floating-point registers (FPR) for this purpose.  Therefore DWARF
-  register numbers may be encoded in the SFrame FP/RA offsets.
-
-- To make use of the signed 8-bit SFrame offset size and effectively
-  reduce the .sframe section size the SFrame CFA offset values are
-  encoded as (CFA - 160) / 8.  This is because the lowest CFA offset
-  value on s390 is by definition +160 (= value at function entry),
-  which does not fit into a signed 8-bit SFrame offset.  Therefore
-  the CFA offset values are stored adjusted by -160.  Additionally
-  they are scaled by the s390-specific DWARF data scaling factor of 8.
-  The s390x ELF ABI [1] guarantees that the CFA offset values are
-  always aligned on an 8-byte boundary.
-
-Add s390-specific SFrame format definitions.  Note that SFRAME_ABI_*
-(and thus SFRAME_ABI_S390_ENDIAN_BIG) is currently unused.
-
-Include <asm/unwind_user_sframe.h> after "sframe.h" to make those
-s390-specific definitions available to architecture-specific unwind
-user sframe code, particularly the s390-specific one.
-
-[1]: s390x ELF ABI, https://github.com/IBM/s390x-abi/releases
+[1]: x86/vdso: Enable sframe generation in VDSO,
+     https://lore.kernel.org/all/20250425024023.173709192@goodmis.org/
 
 Signed-off-by: Jens Remus <jremus@linux.ibm.com>
 ---
 
 Notes (jremus):
-    Changes in RFC v3:
-    - Adjust to rename of UNWIND_USER_LOC_NONE to UNWIND_USER_LOC_RETAIN.
-    - Adjust s390-specific unwind_user_word_size() to changes in the
-      x86-specific (see patch 4).
-    
     Changes in RFC v2:
-    - Provide unwind_user_word_size() to satisfy new unwind user need.  Note
-      that support for COMPAT has not been implemented as s390 support for
-      COMPAT is expected to be removed with v6.19:
-      https://lore.kernel.org/all/20251201102713.22472A5b-hca@linux.ibm.com/
-    - Adjust to changes in preceding patches in this series that enable
-      support in unwind user (sframe) for s390 particularities.
+    - Introduce config option AS_SFRAME instead of requiring Josh's x86
+      patch as pre-requisite.
+    - Reword commit message.
     
-    Alternatively the s390-specific definitions could also be added to the
-    s390-specific unwind user sframe header.  The current implementation
-    follows Binutils approach to have all SFrame format definitions in one
-    central header file.
+    Link to Josh's latest x86 patch:
+    https://lore.kernel.org/all/20250425024023.173709192@goodmis.org/
 
- arch/s390/Kconfig                          |   1 +
- arch/s390/include/asm/unwind_user.h        | 100 +++++++++++++++++++++
- arch/s390/include/asm/unwind_user_sframe.h |  33 +++++++
- kernel/unwind/sframe.c                     |   2 +-
- kernel/unwind/sframe.h                     |  14 +++
- 5 files changed, 149 insertions(+), 1 deletion(-)
- create mode 100644 arch/s390/include/asm/unwind_user.h
- create mode 100644 arch/s390/include/asm/unwind_user_sframe.h
+ arch/Kconfig                         | 3 +++
+ arch/s390/include/asm/dwarf.h        | 4 ++++
+ arch/s390/kernel/vdso64/Makefile     | 7 ++++++-
+ arch/s390/kernel/vdso64/vdso64.lds.S | 9 +++++++++
+ 4 files changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index df22b10d9141..52d3f3b3e086 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -246,6 +246,7 @@ config S390
- 	select HAVE_SETUP_PER_CPU_AREA
- 	select HAVE_SOFTIRQ_ON_OWN_STACK
- 	select HAVE_SYSCALL_TRACEPOINTS
-+	select HAVE_UNWIND_USER_SFRAME
- 	select HAVE_VIRT_CPU_ACCOUNTING
- 	select HAVE_VIRT_CPU_ACCOUNTING_IDLE
- 	select HOTPLUG_SMT
-diff --git a/arch/s390/include/asm/unwind_user.h b/arch/s390/include/asm/unwind_user.h
-new file mode 100644
-index 000000000000..3a95be1eb886
---- /dev/null
-+++ b/arch/s390/include/asm/unwind_user.h
-@@ -0,0 +1,100 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ASM_S390_UNWIND_USER_H
-+#define _ASM_S390_UNWIND_USER_H
-+
-+#include <linux/sched/task_stack.h>
-+#include <linux/types.h>
-+#include <asm/fpu-insn.h>
-+
-+#ifdef CONFIG_UNWIND_USER
-+
-+static inline int unwind_user_word_size(struct pt_regs *regs)
-+{
-+	return 8;
-+}
-+
-+static inline int arch_unwind_user_get_ra_reg(unsigned long *val)
-+{
-+	struct pt_regs *regs = task_pt_regs(current);
-+	*val = regs->gprs[14];
-+	return 0;
-+}
-+#define unwind_user_get_ra_reg arch_unwind_user_get_ra_reg
-+
-+static inline int __s390_get_dwarf_fpr(unsigned long *val, int regnum)
-+{
-+	switch (regnum) {
-+	case 16:
-+		fpu_std(0, (freg_t *)val);
-+		break;
-+	case 17:
-+		fpu_std(2, (freg_t *)val);
-+		break;
-+	case 18:
-+		fpu_std(4, (freg_t *)val);
-+		break;
-+	case 19:
-+		fpu_std(6, (freg_t *)val);
-+		break;
-+	case 20:
-+		fpu_std(1, (freg_t *)val);
-+		break;
-+	case 21:
-+		fpu_std(3, (freg_t *)val);
-+		break;
-+	case 22:
-+		fpu_std(5, (freg_t *)val);
-+		break;
-+	case 23:
-+		fpu_std(7, (freg_t *)val);
-+		break;
-+	case 24:
-+		fpu_std(8, (freg_t *)val);
-+		break;
-+	case 25:
-+		fpu_std(10, (freg_t *)val);
-+		break;
-+	case 26:
-+		fpu_std(12, (freg_t *)val);
-+		break;
-+	case 27:
-+		fpu_std(14, (freg_t *)val);
-+		break;
-+	case 28:
-+		fpu_std(9, (freg_t *)val);
-+		break;
-+	case 29:
-+		fpu_std(11, (freg_t *)val);
-+		break;
-+	case 30:
-+		fpu_std(13, (freg_t *)val);
-+		break;
-+	case 31:
-+		fpu_std(15, (freg_t *)val);
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static inline int arch_unwind_user_get_reg(unsigned long *val, int regnum)
-+{
-+	if (0 <= regnum && regnum <= 15) {
-+		struct pt_regs *regs = task_pt_regs(current);
-+		*val = regs->gprs[regnum];
-+		return 0;
-+	} else if (16 <= regnum && regnum <= 31) {
-+		return __s390_get_dwarf_fpr(val, regnum);
-+	}
-+
-+	return -EINVAL;
-+}
-+#define unwind_user_get_reg arch_unwind_user_get_reg
-+
-+#endif /* CONFIG_UNWIND_USER */
-+
-+#include <asm-generic/unwind_user.h>
-+
-+#endif /* _ASM_S390_UNWIND_USER_H */
-diff --git a/arch/s390/include/asm/unwind_user_sframe.h b/arch/s390/include/asm/unwind_user_sframe.h
-new file mode 100644
-index 000000000000..af650596cb5d
---- /dev/null
-+++ b/arch/s390/include/asm/unwind_user_sframe.h
-@@ -0,0 +1,33 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ASM_S390_UNWIND_USER_SFRAME_H
-+#define _ASM_S390_UNWIND_USER_SFRAME_H
-+
-+#include <linux/unwind_user.h>
-+#include <linux/types.h>
-+
-+#define SFRAME_SP_OFFSET SFRAME_S390X_SP_VAL_OFFSET
-+
-+static inline s32 arch_sframe_cfa_offset_decode(s32 offset)
-+{
-+	return SFRAME_V2_S390X_CFA_OFFSET_DECODE(offset);
-+}
-+#define sframe_cfa_offset_decode arch_sframe_cfa_offset_decode
-+
-+static inline void
-+arch_sframe_init_reginfo(struct unwind_user_reginfo *reginfo, s32 offset)
-+{
-+	if (SFRAME_V2_S390X_OFFSET_IS_REGNUM(offset)) {
-+		reginfo->loc = UNWIND_USER_LOC_REG;
-+		reginfo->regnum = SFRAME_V2_S390X_OFFSET_DECODE_REGNUM(offset);
-+	} else if (offset) {
-+		reginfo->loc = UNWIND_USER_LOC_STACK;
-+		reginfo->offset = offset;
-+	} else {
-+		reginfo->loc = UNWIND_USER_LOC_RETAIN;
-+	}
-+}
-+#define sframe_init_reginfo arch_sframe_init_reginfo
-+
-+#include <asm-generic/unwind_user_sframe.h>
-+
-+#endif /* _ASM_S390_UNWIND_USER_SFRAME_H */
-diff --git a/kernel/unwind/sframe.c b/kernel/unwind/sframe.c
-index 92f770fc21f6..bd446d55b552 100644
---- a/kernel/unwind/sframe.c
-+++ b/kernel/unwind/sframe.c
-@@ -12,11 +12,11 @@
- #include <linux/mm.h>
- #include <linux/string_helpers.h>
- #include <linux/sframe.h>
--#include <asm/unwind_user_sframe.h>
- #include <linux/unwind_user_types.h>
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 06c4f909398c..7fa89d70b244 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -482,6 +482,9 @@ config HAVE_HARDLOCKUP_DETECTOR_ARCH
+ 	  It uses the same command line parameters, and sysctl interface,
+ 	  as the generic hardlockup detectors.
  
- #include "sframe.h"
- #include "sframe_debug.h"
-+#include <asm/unwind_user_sframe.h>
++config AS_SFRAME
++	def_bool $(as-instr,.cfi_sections .sframe\n.cfi_startproc\n.cfi_endproc)
++
+ config UNWIND_USER
+ 	bool
  
- struct sframe_fde_internal {
- 	unsigned long	func_start_addr;
-diff --git a/kernel/unwind/sframe.h b/kernel/unwind/sframe.h
-index 69ce0d5b9694..c09f25fbaa2f 100644
---- a/kernel/unwind/sframe.h
-+++ b/kernel/unwind/sframe.h
-@@ -18,6 +18,7 @@
- #define SFRAME_ABI_AARCH64_ENDIAN_BIG		1
- #define SFRAME_ABI_AARCH64_ENDIAN_LITTLE	2
- #define SFRAME_ABI_AMD64_ENDIAN_LITTLE		3
-+#define SFRAME_ABI_S390X_ENDIAN_BIG		4	/* s390 64-bit (s390x) */
+diff --git a/arch/s390/include/asm/dwarf.h b/arch/s390/include/asm/dwarf.h
+index 6bcf37256feb..2f148b15fd7d 100644
+--- a/arch/s390/include/asm/dwarf.h
++++ b/arch/s390/include/asm/dwarf.h
+@@ -16,7 +16,11 @@
+ 	 * symbols for the .dbg file.
+ 	 */
  
- #define SFRAME_FDE_TYPE_PCINC			0
- #define SFRAME_FDE_TYPE_PCMASK			1
-@@ -69,4 +70,17 @@ struct sframe_fde {
- #define SFRAME_FRE_OFFSET_SIZE(data)		((data >> 5) & 0x3)
- #define SFRAME_FRE_MANGLED_RA_P(data)		((data >> 7) & 0x1)
++#ifdef CONFIG_AS_SFRAME
++	.cfi_sections .eh_frame, .debug_frame, .sframe
++#else
+ 	.cfi_sections .eh_frame, .debug_frame
++#endif
  
-+/* s390 64-bit (s390x) */
+ #define CFI_STARTPROC		.cfi_startproc
+ #define CFI_ENDPROC		.cfi_endproc
+diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
+index 8e78dc3ba025..f597f3b863d7 100644
+--- a/arch/s390/kernel/vdso64/Makefile
++++ b/arch/s390/kernel/vdso64/Makefile
+@@ -20,7 +20,11 @@ targets := $(obj-vdso64) $(obj-cvdso64) vdso64.so vdso64.so.dbg
+ obj-vdso64 := $(addprefix $(obj)/, $(obj-vdso64))
+ obj-cvdso64 := $(addprefix $(obj)/, $(obj-cvdso64))
+ 
+-KBUILD_AFLAGS += -DBUILD_VDSO
++ifeq ($(CONFIG_AS_SFRAME),y)
++	SFRAME_CFLAGS := -Wa,--gsframe
++endif
 +
-+#define SFRAME_S390X_SP_VAL_OFFSET			(-160)
++KBUILD_AFLAGS += -DBUILD_VDSO $(SFRAME_CFLAGS)
+ KBUILD_CFLAGS += -DBUILD_VDSO -DDISABLE_BRANCH_PROFILING
+ 
+ KBUILD_AFLAGS_64 := $(filter-out -m64,$(KBUILD_AFLAGS))
+@@ -32,6 +36,7 @@ KBUILD_CFLAGS_64 := $(filter-out -mno-pic-data-is-text-relative,$(KBUILD_CFLAGS_
+ KBUILD_CFLAGS_64 := $(filter-out -munaligned-symbols,$(KBUILD_CFLAGS_64))
+ KBUILD_CFLAGS_64 := $(filter-out -fno-asynchronous-unwind-tables,$(KBUILD_CFLAGS_64))
+ KBUILD_CFLAGS_64 += -m64 -fPIC -fno-common -fno-builtin -fasynchronous-unwind-tables
++KBUILD_CFLAGS_64 += $(SFRAME_CFLAGS)
+ ldflags-y := -shared -soname=linux-vdso64.so.1 \
+ 	     --hash-style=both --build-id=sha1 -T
+ 
+diff --git a/arch/s390/kernel/vdso64/vdso64.lds.S b/arch/s390/kernel/vdso64/vdso64.lds.S
+index e4f6551ae898..0205d84369ca 100644
+--- a/arch/s390/kernel/vdso64/vdso64.lds.S
++++ b/arch/s390/kernel/vdso64/vdso64.lds.S
+@@ -50,6 +50,11 @@ SECTIONS
+ 
+ 	.eh_frame_hdr	: { *(.eh_frame_hdr) }		:text	:eh_frame_hdr
+ 	.eh_frame	: { KEEP (*(.eh_frame)) }	:text
 +
-+#define SFRAME_S390X_CFA_OFFSET_ADJUSTMENT		SFRAME_S390X_SP_VAL_OFFSET
-+#define SFRAME_S390X_CFA_OFFSET_ALIGNMENT_FACTOR	8
-+#define SFRAME_V2_S390X_CFA_OFFSET_DECODE(offset) \
-+	(((offset) * SFRAME_S390X_CFA_OFFSET_ALIGNMENT_FACTOR) \
-+	- SFRAME_S390X_CFA_OFFSET_ADJUSTMENT)
++#ifdef CONFIG_AS_SFRAME
++	.sframe		: { *(.sframe) }		:text	:sframe
++#endif
 +
-+#define SFRAME_V2_S390X_OFFSET_IS_REGNUM(offset)	((offset) & 1)
-+#define SFRAME_V2_S390X_OFFSET_DECODE_REGNUM(offset)	((offset) >> 1)
-+
- #endif /* _SFRAME_H */
+ 	.gcc_except_table : { *(.gcc_except_table .gcc_except_table.*) }
+ 
+ 	.rela.dyn ALIGN(8) : { *(.rela.dyn) }
+@@ -114,6 +119,7 @@ SECTIONS
+  * Very old versions of ld do not recognize this name token; use the constant.
+  */
+ #define PT_GNU_EH_FRAME	0x6474e550
++#define PT_GNU_SFRAME	0x6474e554
+ 
+ /*
+  * We must supply the ELF program headers explicitly to get just one
+@@ -125,6 +131,9 @@ PHDRS
+ 	dynamic		PT_DYNAMIC FLAGS(4);		/* PF_R */
+ 	note		PT_NOTE FLAGS(4);		/* PF_R */
+ 	eh_frame_hdr	PT_GNU_EH_FRAME;
++#ifdef CONFIG_AS_SFRAME
++	sframe		PT_GNU_SFRAME;
++#endif
+ }
+ 
+ /*
 -- 
 2.51.0
 
