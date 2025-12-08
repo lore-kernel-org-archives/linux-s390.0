@@ -1,64 +1,64 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82F112FBE11;
-	Mon,  8 Dec 2025 17:16:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9883131352F;
+	Mon,  8 Dec 2025 17:16:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765214200; cv=none; b=i0yauood1m6p5t5mIY5yvchWJkuw8Re5cmI4qffo94p0160YZ6lEciLBDnO+hysDOhkuFmQOKRGGcrXezexJx3+vuSV9kiYn4JPD5HffsJ+Z+4tZ/zuVimlwBrepN+/U0mMdzjSaw/DZC2IJLB0yuOiqqK84r9+WqQECxXyQTVg=
+	t=1765214201; cv=none; b=pcBocBQfNAZGtoW95me6k7cKO3iKZErMQg3XLKUQdhqfElIAD2NjehKSGU6vVAbcPMUGCablSDjgcWLjet+ni1Kg/1i5liSykx00GInz6qk9fkm64q3laotWKqqZEXwdCHuLcLIu8bRLh2uyOR8r5XMC8GJAN8M3n2h1q05E4EA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765214200; c=relaxed/simple;
-	bh=n4UqXtWKP9aM7+of2a9zTKNpugsdsHjeuZZ9Y6vQt1g=;
+	s=arc-20240116; t=1765214201; c=relaxed/simple;
+	bh=vLEhnj0MnCVRnj7evIOY+Rc9ZySnab5v4buMSoJ2Faw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Ats3zMS/NbfaaCF7P4usWnJeRoSpkzXYm8NA45wNFrqiYVBMq5bwyb9LE08rnyPo6Jb0XMac1OUVqlfE0P93JZIGC7yVFs7YvAdoGLBKTHQFfhwcjYI/DRi1Itpxd9kDM0vS/P7O+8tGDjDzyCBdCQJc5KQ/Qla6SnqtTYHmUNE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JIodgsqQ; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=JOab/Sz2/L2BVPRmDsymZVWvHgTs9WrJixrPLkvgh+SXNitmqso6CAwXZOe5Fd2RPlPGikXuKcx2ceXvb65FUYJ4Fs8RXI0HaIGyoylY9GM3j4l1UOLEPRNPWK+DL0EgvXnY21u9YfiVO1Z+dKtyqczZhkBPJUv+y2RDSIhROQk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Y/9om1dH; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JIodgsqQ"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B87jU2o032400;
-	Mon, 8 Dec 2025 17:16:10 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Y/9om1dH"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B882Bpk005499;
+	Mon, 8 Dec 2025 17:16:08 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=YwkCBIDx+CdwD1PaP
-	1iGkMwFtK6nggvYnNMUdWID+FY=; b=JIodgsqQ5giB9xuBFH9zGASMVHgEwm1nM
-	01lhgp7nALV4lC1ZOAGksr2nSFNzu4z8oIG1MX8sSWnmPipggwTLOJGXqZO2I/JU
-	8fUfsovZNsJSQNtD/m5HCvDDtLf6pVXNqudYFiR0mnUWhyGFkNT3LTPiOe8Qh1pR
-	xtx6RWvP6/ry7xKVfh07v+z0HPPSH/WC4FOSgtYqh5BRdQOTx8AoN0obker9q+gS
-	sEkba3W2hBwcSMYNMGE9DmRqE8tMVA58aGwUVVhalSm7gPrG+xAqMiCWVWEN87U9
-	kefGqqaLh/X8v0mF99A4oQm222cRtfKAZnobckug9jQV+Z01vlOIg==
+	:mime-version:references:subject:to; s=pp1; bh=WYnGAj471FGyqUSMT
+	rvQ4NfweJpV1tdUDWT4qKBKhhU=; b=Y/9om1dHIddnG8ack4dWvsiwTmBErYlCX
+	/RK5myVD+GnteIPq87s21YBk+chTe/WI4wMeh9pRcsFyMTVyDpWbpWY5UbWt14Rl
+	ZuX3rJ2iQ0IG3XTL5ady8tgoZn/eGr2Wc7ya3nhNAdNPC5PUGGRyDLPmT0GJoa8E
+	i7eWPQIpAo+EUM9F6owe6ATholnvkzYDVLMHmFard+699zW4qZUA10YXqw4vARkb
+	FlZk9tg3FTcwyyIuo2bsSlS7TJ/oCOqL1lnsGDYi47KmsgDpWu2ASLflVDpH9ySI
+	6pa3OZjP3igzXnX4ASucRzE67pLAS6R9sak1A9seSF/ujYrskE0cg==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4avc618x5h-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4av9wvgqcw-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 08 Dec 2025 17:16:10 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B8H1lPv013244;
-	Mon, 8 Dec 2025 17:16:09 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4avc618x58-1
+	Mon, 08 Dec 2025 17:16:08 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B8HG7N1004190;
+	Mon, 8 Dec 2025 17:16:07 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4av9wvgqct-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 08 Dec 2025 17:16:09 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B8G7IjH026799;
-	Mon, 8 Dec 2025 17:16:08 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4aw1h0xfku-1
+	Mon, 08 Dec 2025 17:16:07 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B8F8nc5008391;
+	Mon, 8 Dec 2025 17:16:06 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4avytmpsqd-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 08 Dec 2025 17:16:08 +0000
+	Mon, 08 Dec 2025 17:16:06 +0000
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B8HG4cR60358938
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B8HG3eB37290440
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 8 Dec 2025 17:16:04 GMT
+	Mon, 8 Dec 2025 17:16:03 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 69F5020043;
-	Mon,  8 Dec 2025 17:16:04 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id E24D720043;
+	Mon,  8 Dec 2025 17:16:02 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 158AD2004D;
-	Mon,  8 Dec 2025 17:16:04 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 8DA4D2005A;
+	Mon,  8 Dec 2025 17:16:02 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  8 Dec 2025 17:16:04 +0000 (GMT)
+	Mon,  8 Dec 2025 17:16:02 +0000 (GMT)
 From: Jens Remus <jremus@linux.ibm.com>
 To: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org, bpf@vger.kernel.org, x86@kernel.org,
@@ -83,9 +83,9 @@ Cc: Jens Remus <jremus@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
         Florian Weimer <fweimer@redhat.com>, Kees Cook <kees@kernel.org>,
         "Carlos O'Donell" <codonell@redhat.com>, Sam James <sam@gentoo.org>,
         Dylan Hatch <dylanbhatch@google.com>
-Subject: [RFC PATCH v3 06/17] s390/vdso: Avoid emitting DWARF CFI for non-vDSO
-Date: Mon,  8 Dec 2025 18:15:48 +0100
-Message-ID: <20251208171559.2029709-7-jremus@linux.ibm.com>
+Subject: [RFC PATCH v3 02/17] unwind_user/fp: Use dummies instead of ifdef
+Date: Mon,  8 Dec 2025 18:15:44 +0100
+Message-ID: <20251208171559.2029709-3-jremus@linux.ibm.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20251208171559.2029709-1-jremus@linux.ibm.com>
 References: <20251208171559.2029709-1-jremus@linux.ibm.com>
@@ -97,116 +97,116 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjA2MDAyMCBTYWx0ZWRfX5jZeM+WTsfn3
- +sHyJsDIzkJhxX+p7VsSQk+OkoKrvSlqkEd+oWE1rM6r+xqrqU+T3pCQPbiJZd7JcnW84j9idPJ
- maLMdn2xBHFZppX1gdzYnHzT1rO+vQbPs8bsspWOytwmEKnC+yF25txMLPioICoFHPx+VOpAB4H
- qNBB9qYzRX/1yYBDm8mMggGziFxS2KtWOPytlQ8zXZ/5Nz+hSIz7vHHAHKw78yDlPOqAD76WMam
- hLp4h2QqJ/BIk5iNVRY8H+yLiExPreMp0qdKJunf6au0ED6U8f/vZ2GMY8p5MYF9ZVFN45f/vTE
- tsY6P6X0E4TEnwbIfOwZq2TtpzlaaAMIrSeccN/m9AwnRxaUjFiiSg/9teXg8iime+wMNK2LXVm
- 2Kim3+HJ++mj6BGDGoCq3iprbLgv/w==
-X-Proofpoint-GUID: AtyoosCu-jjGI1nH9HptHZlond16_jBv
-X-Proofpoint-ORIG-GUID: 6lGGs0Rc-y0qYKZC9_9Tp_ni9O2crJcA
-X-Authority-Analysis: v=2.4 cv=O/U0fR9W c=1 sm=1 tr=0 ts=693707da cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VwQbUJbxAAAA:8 a=meVymXHHAAAA:8
- a=VnNF1IyMAAAA:8 a=BeDKgDnIR9-QKG0Pbi4A:9 a=2JgSa4NbpEOStq-L5dxp:22
+X-Proofpoint-GUID: f3gH4bKxUzS9Pwz9hMzHAGi1psWY5JJ5
+X-Proofpoint-ORIG-GUID: dNrD6h2fz8VwR_OVDxlgbcuH_YvPbsdy
+X-Authority-Analysis: v=2.4 cv=AdS83nXG c=1 sm=1 tr=0 ts=693707d8 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
+ a=pRS0VBzutSDFB64YrXgA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjA2MDAwMCBTYWx0ZWRfX1oDoCmta2Fup
+ rOoxG8uZTjNFO5brjg9d/uOkSDP/JJfNAnY+w4/cBLdT769pc2ZqvjqKg/SW80QGeQQKQBpXyI8
+ k/B9ZGg+lnHgLGqI9aJQOs1kRrnuPHJm4NVBdDeq8XcfBL0wqb8IW2tDGQWxwCDSduH4l1V5PQu
+ i6IP5zEJ7ZUs1GRuuU7Khj22bFEUpVKpt+CgtIViIrQ22k3upI7Dhjhd+TNaT1yHArOn/9pFFEE
+ PcaaPQa9FZ+1Zy8VINee6WOfKso72ZfakiRCknS4yF3LkSjiYcnT4oxO9TzH0zzp3XlwxGeDtrn
+ s/AHffQdXHqIRuX13LZItnUM/GLxnPb+15L05Vm0SgbuXKDopZjLs6xIiHNRqXOBLNflHajmtpO
+ x7ne/10n3pbI8IgF5gD5+VLn7ZLITw==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-12-06_02,2025-12-04_04,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 lowpriorityscore=0 bulkscore=0 clxscore=1015 phishscore=0
- suspectscore=0 adultscore=0 spamscore=0 malwarescore=0 priorityscore=1501
+ suspectscore=0 adultscore=0 priorityscore=1501 spamscore=0 phishscore=0
+ lowpriorityscore=0 bulkscore=0 clxscore=1015 malwarescore=0 impostorscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2512060020
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2512060000
 
-This replicates Josh's x86 commit TODO ("x86/asm: Avoid emitting DWARF
-CFI for non-VDSO") for s390.  It also aligns asm/dwarf.h to x86
-asm/dwarf2.h.
+This simplifies the code.   unwind_user_next_fp() does not need to
+return -EINVAL if config option HAVE_UNWIND_USER_FP is disabled, as
+unwind_user_start() will then not select this unwind method and
+unwind_user_next() will therefore not call it.
 
-It was decided years ago that .cfi_* annotations aren't maintainable in
-the kernel.  For the kernel proper, ensure the CFI_* macros don't do
-anything.
+Provide (1) a dummy definition of ARCH_INIT_USER_FP_FRAME, if the unwind
+user method HAVE_UNWIND_USER_FP is not enabled, (2) a common fallback
+definition of unwind_user_at_function_start() which returns false, and
+(3) a common dummy definition of ARCH_INIT_USER_FP_ENTRY_FRAME.
 
-On the other hand the vDSO library *does* use them, so user space can
-unwind through it.
-
-Make sure these macros only work for vDSO.  They aren't actually being
-used outside of vDSO anyway, so there's no functional change.
+Note that enabling the config option HAVE_UNWIND_USER_FP without
+defining ARCH_INIT_USER_FP_FRAME triggers a compile error, which is
+helpful when implementing support for this unwind user method in an
+architecture.  Enabling the config option when providing an arch-
+specific unwind_user_at_function_start() definition makes it necessary
+to also provide an arch-specific ARCH_INIT_USER_FP_ENTRY_FRAME
+definition.
 
 Signed-off-by: Jens Remus <jremus@linux.ibm.com>
 ---
+ arch/x86/include/asm/unwind_user.h |  1 +
+ include/linux/unwind_user.h        | 18 ++++++++++++++++--
+ kernel/unwind/user.c               |  4 ----
+ 3 files changed, 17 insertions(+), 6 deletions(-)
 
-Notes (jremus):
-    Link to latest x86 patch:
-    https://lore.kernel.org/all/20250425024022.477374378@goodmis.org/
-
- arch/s390/include/asm/dwarf.h | 45 ++++++++++++++++++++++-------------
- 1 file changed, 29 insertions(+), 16 deletions(-)
-
-diff --git a/arch/s390/include/asm/dwarf.h b/arch/s390/include/asm/dwarf.h
-index df9f467910f7..6bcf37256feb 100644
---- a/arch/s390/include/asm/dwarf.h
-+++ b/arch/s390/include/asm/dwarf.h
-@@ -6,6 +6,18 @@
- #warning "asm/dwarf.h should be only included in pure assembly files"
+diff --git a/arch/x86/include/asm/unwind_user.h b/arch/x86/include/asm/unwind_user.h
+index f9a1c460150d..a528eee80dd6 100644
+--- a/arch/x86/include/asm/unwind_user.h
++++ b/arch/x86/include/asm/unwind_user.h
+@@ -37,6 +37,7 @@ static inline bool unwind_user_at_function_start(struct pt_regs *regs)
+ {
+ 	return is_uprobe_at_func_entry(regs);
+ }
++#define unwind_user_at_function_start unwind_user_at_function_start
+ 
+ #endif /* CONFIG_HAVE_UNWIND_USER_FP */
+ 
+diff --git a/include/linux/unwind_user.h b/include/linux/unwind_user.h
+index 7f7282516bf5..64618618febd 100644
+--- a/include/linux/unwind_user.h
++++ b/include/linux/unwind_user.h
+@@ -5,8 +5,22 @@
+ #include <linux/unwind_user_types.h>
+ #include <asm/unwind_user.h>
+ 
+-#ifndef ARCH_INIT_USER_FP_FRAME
+- #define ARCH_INIT_USER_FP_FRAME
++#ifndef CONFIG_HAVE_UNWIND_USER_FP
++
++#define ARCH_INIT_USER_FP_FRAME(ws)
++
++#endif
++
++#ifndef ARCH_INIT_USER_FP_ENTRY_FRAME
++#define ARCH_INIT_USER_FP_ENTRY_FRAME(ws)
++#endif
++
++#ifndef unwind_user_at_function_start
++static inline bool unwind_user_at_function_start(struct pt_regs *regs)
++{
++	return false;
++}
++#define unwind_user_at_function_start unwind_user_at_function_start
  #endif
  
-+.macro nocfi args:vararg
-+.endm
-+
-+#ifdef BUILD_VDSO
-+
-+	/*
-+	 * For the vDSO, emit both runtime unwind information and debug
-+	 * symbols for the .dbg file.
-+	 */
-+
-+	.cfi_sections .eh_frame, .debug_frame
-+
- #define CFI_STARTPROC		.cfi_startproc
- #define CFI_ENDPROC		.cfi_endproc
- #define CFI_DEF_CFA_OFFSET	.cfi_def_cfa_offset
-@@ -16,23 +28,24 @@
- #ifdef CONFIG_AS_CFI_VAL_OFFSET
- #define CFI_VAL_OFFSET		.cfi_val_offset
- #else
--#define CFI_VAL_OFFSET		#
-+#define CFI_VAL_OFFSET		nocfi
- #endif
+ int unwind_user(struct unwind_stacktrace *trace, unsigned int max_entries);
+diff --git a/kernel/unwind/user.c b/kernel/unwind/user.c
+index f81c36ab2861..fdb1001e3750 100644
+--- a/kernel/unwind/user.c
++++ b/kernel/unwind/user.c
+@@ -74,7 +74,6 @@ static int unwind_user_next_common(struct unwind_user_state *state,
  
--#ifndef BUILD_VDSO
--	/*
--	 * Emit CFI data in .debug_frame sections and not in .eh_frame
--	 * sections.  The .eh_frame CFI is used for runtime unwind
--	 * information that is not being used.  Hence, vmlinux.lds.S
--	 * can discard the .eh_frame sections.
--	 */
--	.cfi_sections .debug_frame
+ static int unwind_user_next_fp(struct unwind_user_state *state)
+ {
+-#ifdef CONFIG_HAVE_UNWIND_USER_FP
+ 	struct pt_regs *regs = task_pt_regs(current);
+ 
+ 	if (state->topmost && unwind_user_at_function_start(regs)) {
+@@ -88,9 +87,6 @@ static int unwind_user_next_fp(struct unwind_user_state *state)
+ 		ARCH_INIT_USER_FP_FRAME(state->ws)
+ 	};
+ 	return unwind_user_next_common(state, &fp_frame);
 -#else
--	/*
--	 * For vDSO, emit CFI data in both, .eh_frame and .debug_frame
--	 * sections.
--	 */
--	.cfi_sections .eh_frame, .debug_frame
+-	return -EINVAL;
 -#endif
-+#else /* !BUILD_VDSO */
-+
-+/*
-+ * On s390, these macros aren't used outside vDSO.  As well they shouldn't be:
-+ * they're fragile and very difficult to maintain.
-+ */
-+
-+#define CFI_STARTPROC		nocfi
-+#define CFI_ENDPROC		nocfi
-+#define CFI_DEF_CFA_OFFSET	nocfi
-+#define CFI_ADJUST_CFA_OFFSET	nocfi
-+#define CFI_RESTORE		nocfi
-+#define CFI_REL_OFFSET		nocfi
-+#define CFI_VAL_OFFSET		nocfi
-+
-+#endif /* !BUILD_VDSO */
+ }
  
- #endif	/* _ASM_S390_DWARF_H */
+ static int unwind_user_next_sframe(struct unwind_user_state *state)
 -- 
 2.51.0
 
