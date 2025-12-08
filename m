@@ -1,64 +1,64 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEB3D2773E9;
-	Mon,  8 Dec 2025 17:16:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 024662E541E;
+	Mon,  8 Dec 2025 17:16:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765214208; cv=none; b=ZK2WECgeBepuoeGyfgFb1UCK0hREoPLWuxbX5dC3r1e9EYB8rip/cWvGNP59ejcANFeQvSdZSEfpZrKJDXPpjS0ImjlBz0Us7KM1jSIKoyvNwiEr6PNsI8sysFiey4GnDnQSmhJ4O7gXKbfJFcaC70F6NzujlnIGPGa996THWD4=
+	t=1765214212; cv=none; b=JWa3Fbs+PC0DA+uJ42vZs4+e7SAdlKp4+OGPAW9AZqKqpibF4q7gCGMapBANo/r7cHEcCBzJgNMsNJ2yJyfCPXt4UF1WCQEqzoIQzcPrH1f/E3dng+agHqbyvXf8yRzBayfYD9cqITrEVAeLIvu2WpmGlla+7h8zLy6GG2RETDI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765214208; c=relaxed/simple;
-	bh=aenwfhx2mw2rIw5PQso+Di6yopaT7T3SKI/cAE1vB94=;
+	s=arc-20240116; t=1765214212; c=relaxed/simple;
+	bh=pskiul7wuQhnws55cHzQbPHcnioIsPs1Z5w3rGSBLy0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=VKC4M5z+NF0c9lyq8ZMULPoOZlaL5Iwmlstyz/zWtRru3ESjCgV7afXYgngjWBWEFSrP9dFULRnPdHbP/8E5KW+QvDFbvOGB/74PUXHLfhjcSsJtHTi+82OAJP9HMPfYb1+ICbPlPQp3Fa6QD4Osre/3n8olKVCpVtBmh1YSUPs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dVmZa0s1; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=lAPW9+L/dluIeRgwjB1iqxhEJEqJYyg62wjtkbh+MhHETNLVHPFP2bdJhTsn34UNZuS84BgnZN5rbVmbLYFDuGWjsKhrm/PdReBxE8N747X6aHQSz6o66CjcWaAiF3G0cvakOOLYG8QIc0Ic2ZAbaC5x0iBKsDUThSp6BY9Ji58=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=jK64uG+r; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dVmZa0s1"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B88HRlE017182;
-	Mon, 8 Dec 2025 17:16:09 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jK64uG+r"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B8ChWP1025102;
+	Mon, 8 Dec 2025 17:16:13 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=0hK0tYdmj3jslxflr
-	OLJrqC00CsnCBO2v37b6rM+FIA=; b=dVmZa0s1zeNklrZUTE4hWhwF63ZEO3u3Q
-	MLAmRC0dX3IcRkac0Zzau8YQ7VMQGpo16/qmzwuq3ZZ9b/bqo0In9cEk/Jla1gXC
-	VyyF2sGc5bCJ5ds+lf01jAzGEHTPXf0ePu7qpqv2U2tYXCbaPrxkDyL7GI7NTtvY
-	MmfK/B/5JTRL3uL7K21zVMV1tBqNa9seZDFMzx9SmsxF2GR1FIAkGhsW/s4oHa/z
-	a08L3ywthMjktMTseEhmNHkiVsvAO2LOfyoLXMND4sB+RPfZw/QLqX/Zk4nSlk8U
-	mStcj3udT4Nlltme2XCdGUpUJHGohgKcea8O3bFIzEd9E+BiqALGw==
+	:mime-version:references:subject:to; s=pp1; bh=Z5/UfwjvWZX1WG6/r
+	xkMXyCmweuEMkm3uOtgOELVIDg=; b=jK64uG+rLWUz6li9S0Eurv67nOhiEM1WZ
+	GGc5lB2C+wQqfknqm6jIimnv8p2yA7lVjosFpjtVISCYP3jzxycsdkNuHekWsKou
+	O+xJm/4rTDqmkRpcozJrMsbjh2UPrNLdI5MH+sBt7o9zBPFVGeBJkUQVfbIxfgVD
+	phTLtYdml8i5+QMtUgUy/P9PATFsxLEWKmxjacrEXJJcg5oCL1INa4SN6HB8QXbE
+	GFRJYXXFz54pFu4b+9KVtQqSgP9gwwYiDuKb2T/sK33tm3mJjqym0B58o/oxZugk
+	DeYGpSMkzaaX4yMDV+VDKyV8SNWKPKqqjsOtA6mt/iKWMs4CffMoA==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4avc618x5a-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4avc538dnc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 08 Dec 2025 17:16:09 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B8HG8hZ010527;
-	Mon, 8 Dec 2025 17:16:09 GMT
+	Mon, 08 Dec 2025 17:16:13 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B8HGCkp026386;
+	Mon, 8 Dec 2025 17:16:12 GMT
 Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4avc618x56-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4avc538dn3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 08 Dec 2025 17:16:08 +0000 (GMT)
+	Mon, 08 Dec 2025 17:16:12 +0000 (GMT)
 Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B8EJwuE028141;
-	Mon, 8 Dec 2025 17:16:07 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4avy6xpw8t-1
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B8Ek57Q028102;
+	Mon, 8 Dec 2025 17:16:10 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4avy6xpw94-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 08 Dec 2025 17:16:07 +0000
+	Mon, 08 Dec 2025 17:16:10 +0000
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B8HG3ZW53281062
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B8HG64F44827096
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 8 Dec 2025 17:16:03 GMT
+	Mon, 8 Dec 2025 17:16:06 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4BF0220043;
-	Mon,  8 Dec 2025 17:16:03 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id A6FC420040;
+	Mon,  8 Dec 2025 17:16:06 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E7F3B2004B;
-	Mon,  8 Dec 2025 17:16:02 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 52D142004D;
+	Mon,  8 Dec 2025 17:16:06 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  8 Dec 2025 17:16:02 +0000 (GMT)
+	Mon,  8 Dec 2025 17:16:06 +0000 (GMT)
 From: Jens Remus <jremus@linux.ibm.com>
 To: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org, bpf@vger.kernel.org, x86@kernel.org,
@@ -83,9 +83,9 @@ Cc: Jens Remus <jremus@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
         Florian Weimer <fweimer@redhat.com>, Kees Cook <kees@kernel.org>,
         "Carlos O'Donell" <codonell@redhat.com>, Sam James <sam@gentoo.org>,
         Dylan Hatch <dylanbhatch@google.com>
-Subject: [RFC PATCH v3 03/17] x86/unwind_user: Guard unwind_user_word_size() by UNWIND_USER
-Date: Mon,  8 Dec 2025 18:15:45 +0100
-Message-ID: <20251208171559.2029709-4-jremus@linux.ibm.com>
+Subject: [RFC PATCH v3 12/17] unwind_user/sframe: Enable archs with encoded SFrame CFA offsets
+Date: Mon,  8 Dec 2025 18:15:54 +0100
+Message-ID: <20251208171559.2029709-13-jremus@linux.ibm.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20251208171559.2029709-1-jremus@linux.ibm.com>
 References: <20251208171559.2029709-1-jremus@linux.ibm.com>
@@ -97,97 +97,74 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjA2MDAyMCBTYWx0ZWRfX2YK54vZXEuOC
- rdufLDG6oZ4GREPkf4oo/gNXDjIJmhGpUxguJo0tumqru6qyLShiJJCu3/aUViusB68yGn+Ft0M
- LXLZVmcqMdeNGZGPdr0UZ2lSTzrnS2IicyiL11+gSsO8oXRpvKF75t96vSWfI4dHsllzmneG3Jv
- w7oHhuhasr8TAYMw7bHmQ92J8PzUKryhrsseItUR1nUJ7nzQ/v9gq2tSFNOw9xcaDjSCDfzAScL
- ZlOmvddPFW95E36rTeA+LhSVtK1YwMvJqOeywJ41GRQQBSWm2puZNGUYXRl3pIXry6/bqe5WADi
- B6GQ0Esj38pm9zrwGh65Gqw/0I+OTq095sh2w/I300BMu+DAzLrrymIpNoXI0AmexJ2xPOTgmvh
- pEDpAF3LI5QVUXRoSJ8lkj/bsnRlCw==
-X-Proofpoint-GUID: 1UvrnEsv392L44cRA5zsBKXiyM1y4frA
-X-Proofpoint-ORIG-GUID: 8JqOHWuFjTwUwHJueH_2tY_HPpCoL0D3
-X-Authority-Analysis: v=2.4 cv=O/U0fR9W c=1 sm=1 tr=0 ts=693707d9 cx=c_pps
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjA2MDAyMCBTYWx0ZWRfX4ulFtPIMsMnd
+ n0lN4X0iPrCkl1VcExJoIuYN/iqAhLqppOGqjT2VTN/F69hw2zPETUe6xVyDH1zjgnGtXt573GL
+ LnZKuWhtrFo3H1ajudeWA5K1FkPHTxDnhxCCp+nWbEpRx6HvbQwImH/40OH6Y83N6eID4O6IAdA
+ nX50F2ig2rRs3NnkjgVT20y/T3zH4Jh+1OPtQAVOfFIb13F1uQTxjmXAEwGn+XXkccN3pksdKpz
+ krvTH7qwLMftGKm9TL8lqTyZvFmWfUvFL5qilUJ1UtWqqa3sPpPVIaNRrLfZFu2cODs8V4g+03c
+ nX03yVBM2rmrRMieje/eV3WWb+u2MVmcmGfSQCSrwApsdWSKTICYbDVzwzhiXZPa/cgf2GMl9yf
+ fypmX9tHVwCMrOgSYcns+C/EnfSCzw==
+X-Authority-Analysis: v=2.4 cv=S/DUAYsP c=1 sm=1 tr=0 ts=693707dd cx=c_pps
  a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
- a=6672XSL41Qr-fkzUQtYA:9
+ a=Og4hOgGxDI197znzLmcA:9
+X-Proofpoint-ORIG-GUID: j1cFiGjG-JjgXe0GVQaeUbPpxwj2kWTS
+X-Proofpoint-GUID: 4i3zmLYnvV2DU_7tgMgCWL4naFKjb--l
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-12-06_02,2025-12-04_04,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 lowpriorityscore=0 bulkscore=0 clxscore=1015 phishscore=0
- suspectscore=0 adultscore=0 spamscore=0 malwarescore=0 priorityscore=1501
+ malwarescore=0 phishscore=0 clxscore=1015 impostorscore=0 suspectscore=0
+ lowpriorityscore=0 adultscore=0 spamscore=0 bulkscore=0 priorityscore=1501
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2512060020
 
-The unwind user framework in general requires an architecture-specific
-implementation of unwind_user_word_size() to be present for any unwind
-method, whether that is fp or a future other method, such as potentially
-sframe.
-
-Guard unwind_user_word_size() by the availability of the UNWIND_USER
-framework instead of the specific HAVE_UNWIND_USER_FP method.
-
-This facilitates to selectively disable HAVE_UNWIND_USER_FP on x86
-(e.g. for test purposes) once a new unwind method is added to unwind
-user.
+Enable architectures, such as s390, which store SFrame CFA offset values
+encoded, to e.g. make (better) use of unsigned 8-bit SFrame offsets.
 
 Signed-off-by: Jens Remus <jremus@linux.ibm.com>
 ---
- arch/x86/include/asm/unwind_user.h | 30 +++++++++++++++++-------------
- 1 file changed, 17 insertions(+), 13 deletions(-)
 
-diff --git a/arch/x86/include/asm/unwind_user.h b/arch/x86/include/asm/unwind_user.h
-index a528eee80dd6..4d699e4954ed 100644
---- a/arch/x86/include/asm/unwind_user.h
-+++ b/arch/x86/include/asm/unwind_user.h
-@@ -2,11 +2,27 @@
- #ifndef _ASM_X86_UNWIND_USER_H
- #define _ASM_X86_UNWIND_USER_H
+Notes (jremus):
+    Changes in RFC v2:
+    - Rename generic_sframe_cfa_offset_decode() to
+      sframe_cfa_offset_decode(). (Josh)
+
+ include/asm-generic/unwind_user_sframe.h | 8 ++++++++
+ kernel/unwind/sframe.c                   | 1 +
+ 2 files changed, 9 insertions(+)
+
+diff --git a/include/asm-generic/unwind_user_sframe.h b/include/asm-generic/unwind_user_sframe.h
+index fd71d6b1916b..ec68a77551f0 100644
+--- a/include/asm-generic/unwind_user_sframe.h
++++ b/include/asm-generic/unwind_user_sframe.h
+@@ -10,6 +10,14 @@
+ #define SFRAME_SP_OFFSET 0
+ #endif
  
--#ifdef CONFIG_HAVE_UNWIND_USER_FP
-+#ifdef CONFIG_UNWIND_USER
- 
- #include <asm/ptrace.h>
- #include <asm/uprobes.h>
- 
-+static inline int unwind_user_word_size(struct pt_regs *regs)
++#ifndef sframe_cfa_offset_decode
++static inline s32 sframe_cfa_offset_decode(s32 offset)
 +{
-+	/* We can't unwind VM86 stacks */
-+	if (regs->flags & X86_VM_MASK)
-+		return 0;
-+#ifdef CONFIG_X86_64
-+	if (!user_64bit_mode(regs))
-+		return sizeof(int);
-+#endif
-+	return sizeof(long);
++	return offset;
 +}
++#define sframe_cfa_offset_decode sframe_cfa_offset_decode
++#endif
 +
-+#endif /* CONFIG_UNWIND_USER */
-+
-+#ifdef CONFIG_HAVE_UNWIND_USER_FP
-+
- #define ARCH_INIT_USER_FP_FRAME(ws)			\
- 	.cfa_off	=  2*(ws),			\
- 	.ra_off		= -1*(ws),			\
-@@ -21,18 +37,6 @@
- 	.use_fp		= false,			\
- 	.outermost	= false,
+ #ifndef sframe_init_reginfo
+ static inline void
+ sframe_init_reginfo(struct unwind_user_reginfo *reginfo, s32 offset)
+diff --git a/kernel/unwind/sframe.c b/kernel/unwind/sframe.c
+index 45cd7380ac38..92f770fc21f6 100644
+--- a/kernel/unwind/sframe.c
++++ b/kernel/unwind/sframe.c
+@@ -226,6 +226,7 @@ static __always_inline int __read_fre(struct sframe_section *sec,
  
--static inline int unwind_user_word_size(struct pt_regs *regs)
--{
--	/* We can't unwind VM86 stacks */
--	if (regs->flags & X86_VM_MASK)
--		return 0;
--#ifdef CONFIG_X86_64
--	if (!user_64bit_mode(regs))
--		return sizeof(int);
--#endif
--	return sizeof(long);
--}
--
- static inline bool unwind_user_at_function_start(struct pt_regs *regs)
- {
- 	return is_uprobe_at_func_entry(regs);
+ 	UNSAFE_GET_USER_INC(cfa_off, cur, offset_size, Efault);
+ 	offset_count--;
++	cfa_off = sframe_cfa_offset_decode(cfa_off);
+ 
+ 	ra_off = sec->ra_off;
+ 	if (!ra_off && offset_count) {
 -- 
 2.51.0
 
