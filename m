@@ -1,57 +1,58 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A64A727380A;
-	Tue,  9 Dec 2025 12:17:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97457322B67;
+	Tue,  9 Dec 2025 12:17:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765282631; cv=none; b=eHRsHbx6o0V08xoU/jiNcmdw2nbrEYxyCZwE4giEhnV2BVNp8739VSZL9MYFzW9gkBBgeNwlFd5bYo313zqKJI1x1NAQytJ3O8rz3JWMkUZukYqxZAKysVxgUGATUVVQtFln3byyWl41LerwL3IGVH2zyswC4isOYJwUShA06Oc=
+	t=1765282636; cv=none; b=jtBjlrEQrMQtZbbQ8unpSpXaBeUgJW/hMn+EuKFLNdd42PoF952QS4YWXsLvf79v2RoZ0hPaGpiQpzGMxpsIIdjnNR7+AZIyeCjwwqWcCNuk1NdAntneh0jh3mLQkN2rHm6HZzpcnvReqg8uGOQbzsYmCjR3L0/CmfYLR/F7pek=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765282631; c=relaxed/simple;
-	bh=QaRx1UkAn32WurAO0wIdjnA4tym1sc7QHJZNm8354Mo=;
+	s=arc-20240116; t=1765282636; c=relaxed/simple;
+	bh=5eFzsiFl/P17OXxhiM+WV1YJZTXLQzoSb9eZAyj/jIk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=K5G/ajbVDdO7VmATvDFWa4k0YalyQmSLoFrNEwGnY4/vmaOFrO+nzDrSynGqlhM+hRZu2khkv5mjuwsMRzwwmUzYDYNsSuRZvEC2872XB3fM3qN5jdt8mcmo1dlicngJBmJXkTAuSOErhxclCv+cSjupzBjIGsPbNo4+PTJGP0M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bzjE5Ogl; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version:Content-Type; b=muuZQtmZnOLNQWZWDY7DzS6Dpwsc11hjVXYt27s6WB3tS7lGrpDjYRGdN3F6Bk34L8Esntzrn2JjODMb4xzSqDoLO5eKww7V4Wgpfy/lyrAYnpDfl0/nKZcSwWd7bNmsnBu08ZkmP7D26LEeMdRJT2xgMZjeK437pZ4v3kfJ3hc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rTAw5mj8; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bzjE5Ogl"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B9312ah029935;
-	Tue, 9 Dec 2025 12:17:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=m11Efmma+EjHgNF9r
-	jTSsc11defZAuUDNNsmmunS9TI=; b=bzjE5OglDPm70ktwPmywwfxxQ0znh9izX
-	Ajq+3YBsKcrOGttvdmZH/YBp/0vt91kNDxZHDN3/zdZiXt0lBAHmdHV61QYvbbr9
-	sjME+TScDLS9yawpZkyhh/6Kn1tGRODoTSwypCL9I/EeVLJfGB3C+qQoOAK30XNz
-	NPL1aJNzSQZvPQzhWJoyZVpL54Pn4Ee3jsaHJDGXecUPB+iAqUk4kRZD9zeMKVjL
-	9D1xF1ms7ZPh72WWSCmlShyZZIm2to5u0mee4EE6H+O1cxobw4dthUUwvvep5afZ
-	vDB1ThlYNyHhvFi/LQkN08e7cXTzA7vqfcGwmshpNVOPq+u2Cb5Cw==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4avc61crdk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Dec 2025 12:17:07 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B998kGR026887;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rTAw5mj8"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B9AgGqe016858;
 	Tue, 9 Dec 2025 12:17:06 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4aw1h12fus-1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=74tm+C
+	zkfwW6ByXYcCFxHiGIFYnJhJLfCO/A4PQjn9A=; b=rTAw5mj83EBRVfbDoY4hg7
+	DhDMr/1lR1Sll5xxzHQxYTIP5r1U0hn1gPr6jyC0xbshML4QCVVDes2DIQa1RasP
+	ht3RufaMdsT1TrpZDFHKGNv2U+PGPa6uNhr1mAOw0fKIa7nosAXKgTt+vcqdHWbF
+	u5o356tQrLvzWAq2cl8PyqC7y2ikKLjGuXIuszQawW47CslGK3ROrHn9MBhHdFzE
+	F7AOQL2KEvUI/y7Fe6MZ0GoD6aHRfzwgZPy+nrXEMyEF8VLZrNbEM6FZQLSbORkj
+	z7L1p3j8VDmH5kuH1IW0/2THBUzq5EjYtfTX/PTuPPudf61xyJ3whMkhItI3fZJQ
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4av9wvmdnr-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Dec 2025 12:17:06 +0000
+	Tue, 09 Dec 2025 12:17:06 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B9Aag4x030254;
+	Tue, 9 Dec 2025 12:17:05 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4avxts2xjh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 09 Dec 2025 12:17:05 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B9CH3gs57475480
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B9CH2Up24773330
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 9 Dec 2025 12:17:03 GMT
+	Tue, 9 Dec 2025 12:17:02 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D2C2F20040;
+	by IMSVA (Postfix) with ESMTP id 07E2B2004E;
 	Tue,  9 Dec 2025 12:17:02 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A05B820043;
-	Tue,  9 Dec 2025 12:17:02 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id CFA022004B;
+	Tue,  9 Dec 2025 12:17:01 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  9 Dec 2025 12:17:02 +0000 (GMT)
+	Tue,  9 Dec 2025 12:17:01 +0000 (GMT)
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
@@ -62,9 +63,9 @@ To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Stefan Schulze Frielinghaus <stefansf@linux.ibm.com>,
         Juergen Christ <jchrist@linux.ibm.com>
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH 6/9] s390/bug: Implement __WARN_printf()
-Date: Tue,  9 Dec 2025 13:16:58 +0100
-Message-ID: <20251209121701.1856271-7-hca@linux.ibm.com>
+Subject: [PATCH 2/9] s390/bug: Convert to inline assembly with input operands
+Date: Tue,  9 Dec 2025 13:16:54 +0100
+Message-ID: <20251209121701.1856271-3-hca@linux.ibm.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20251209121701.1856271-1-hca@linux.ibm.com>
 References: <20251209121701.1856271-1-hca@linux.ibm.com>
@@ -74,278 +75,160 @@ List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjA2MDAyMCBTYWx0ZWRfX+L0PJQtnfO3J
- e42rnZLIv7+c9HgUJLh2kYtjK6WxDqPdEFLwp6myBqh95WzsTXZ/JoNCS1lFeX9WTZTSSkriSxl
- MBlYHsXMhGE6l00jPCxJkJT6QkY2l6l3cVDJ9O5Rn2Fr0TzpmQOv8B76pyP/+kIGgqrZKkytKn4
- CwHO/SVDn+4Prv+psdOUU0zJvRiNDq22uDTcr1SpQ8Lf5zxAsOtleUNHHlfJsgAF+nr+Eg8aEAh
- zVdZx53ot+MTuNYV8u78swnVkfKXeB9LcBnclYvcYNTjQYHZydYh/mvkvx7GMufKD6KidYYC80k
- +tbkMYS2S5w5feK7um3DC70FH4S77maydAVnObLryOX3KppfIRpWfuuEeybsD4aMCCnTXywhqlL
- d192LKLPKx4U5V/O14zk7w8XdFCPTg==
-X-Proofpoint-GUID: MXa84x5MNYsHdPHwcHJdaozLMvRsQ_PU
-X-Proofpoint-ORIG-GUID: MXa84x5MNYsHdPHwcHJdaozLMvRsQ_PU
-X-Authority-Analysis: v=2.4 cv=O/U0fR9W c=1 sm=1 tr=0 ts=69381343 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
- a=1LMq0zfvll1xo8deCS4A:9
+X-Proofpoint-GUID: 4tbiLz7dGGWj4acycLqn-hJQDHHgi_zf
+X-Proofpoint-ORIG-GUID: 4tbiLz7dGGWj4acycLqn-hJQDHHgi_zf
+X-Authority-Analysis: v=2.4 cv=AdS83nXG c=1 sm=1 tr=0 ts=69381342 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VnNF1IyMAAAA:8 a=36klhH69ptpTDPabKO0A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjA2MDAwMCBTYWx0ZWRfX5nAG4nwOJKV8
+ W4z3dewj0Xi4vHYOEHoNYjqRixpFx+5Nkhhb39mKMjiUcGMlGpQn097NMSreLenbQH0V3R4QfyB
+ eigqnNV6MF+35xN/BgS2mQoztORBrXUs3DZAbAD6LJI6MdOO2e+rQMdWzDlsGey25tCMNtYzgRN
+ HnVUqRWaElZZQ9rrwvxaQfe2F/delW/5AtOb03hNucFDJ3Dxq81p2cJ8cUS0Z5/FUjFazJsLliW
+ tyEIq0dkptktj4SxkwqhY8NmNjqxubxNkRdJueXHJvoHaW3/J+iJ9CEjBE2E/IlP5ddkYKVc6uf
+ sD2gqZbSGgjkUFYQtZXyFFhcfzuVGbKepoOYeXJAw6VJeRagq7X/UIbYHTM4cgPJEUSZw6z4n/f
+ C7wXmac4y8lLkRdwPfdAJoMLqYD2lw==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-12-09_02,2025-12-04_04,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 lowpriorityscore=0 bulkscore=0 clxscore=1015 phishscore=0
- suspectscore=0 adultscore=0 spamscore=0 malwarescore=0 priorityscore=1501
+ suspectscore=0 adultscore=0 priorityscore=1501 spamscore=0 phishscore=0
+ lowpriorityscore=0 bulkscore=0 clxscore=1015 malwarescore=0 impostorscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2512060020
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2512060000
 
-This is the s390 variant of commit 5b472b6e5bd9 ("x86_64/bug: Implement
-__WARN_printf()"). See the x86 commit for the general idea; there are only
-implementation details which are different.
+Rewrite the bug inline assembly so it uses input operands again instead of
+pure macro replacements. This more or less reverts the conversion done when
+'cond_str' support was added [1].
 
-With the new exception based __WARN_printf() implementation the generated
-code for a simple WARN() is simplified.
+Reason for this is that the upcoming __WARN_printf() implementation
+requires an inline assembly with an output operand. At the same time input
+strings (format specifier and condition string) may contain the special '%'
+character. As soon as an inline assembly is specified to have input/output
+operands the '%' has a special meaning: e.g. converting the existing
 
-For example:
+ #define __BUG_FLAGS(cond_str, flags) \
+   asm_inline volatile(__stringify(ASM_BUG_FLAGS(cond_str, flags)));
 
-void foo(int a) { WARN(a, "bar"); }
+to
 
-Before this change the generated code looks like this:
+ #define __BUG_FLAGS(cond_str, flags) \
+   asm_inline volatile(__stringify(ASM_BUG_FLAGS(cond_str, flags))::);
 
-0000000000000210 <foo>:
- 210:   c0 04 00 00 00 00       jgnop   210 <foo>
- 216:   ec 26 00 06 00 7c       cgijne  %r2,0,222 <foo+0x12>
- 21c:   c0 f4 00 00 00 00       jg      21c <foo+0xc>
-                        21e: R_390_PC32DBL      __s390_indirect_jump_r14+0x2
- 222:   eb ef f0 88 00 24       stmg    %r14,%r15,136(%r15)
- 228:   b9 04 00 ef             lgr     %r14,%r15
- 22c:   e3 f0 ff e8 ff 71       lay     %r15,-24(%r15)
- 232:   e3 e0 f0 98 00 24       stg     %r14,152(%r15)
- 238:   c0 20 00 00 00 00       larl    %r2,238 <foo+0x28>
-                        23a: R_390_PC32DBL      .LC48+0x2
- 23e:   c0 e5 00 00 00 00       brasl   %r14,23e <foo+0x2e>
-                        240: R_390_PLT32DBL     __warn_printk+0x2
- 244:   af 00 00 00             mc      0,0
- 248:   eb ef f0 a0 00 04       lmg     %r14,%r15,160(%r15)
- 24e:   c0 f4 00 00 00 00       jg      24e <foo+0x3e>
-                        250: R_390_PC32DBL      __s390_indirect_jump_r14+0x2
+will result in a compile error as soon as 'cond_str' contains a '%'
+character:
 
-With this change the generated code looks like this:
-
-0000000000000210 <foo>:
- 210:   c0 04 00 00 00 00       jgnop   210 <foo>
- 216:   ec 26 00 06 00 7c       cgijne  %r2,0,222 <foo+0x12>
- 21c:   c0 f4 00 00 00 00       jg      21c <foo+0xc>
-                        21e: R_390_PC32DBL      __s390_indirect_jump_r14+0x2
- 222:   c0 20 00 00 00 00       larl    %r2,222 <foobar+0x12>
-                        224: R_390_PC32DBL      __bug_table+0x2
- 228:   c0 f4 00 00 00 00       jg      228 <foobar+0x18>
-                        22a: R_390_PLT32DBL     __WARN_trap+0x2
-
-Downside is that the call trace now starts at __WARN_trap():
-
-------------[ cut here ]------------
-bar
-WARNING: arch/s390/kernel/setup.c:1017 at 0x0, CPU#0: swapper/0/0
+net/core/neighbour.c: In function ‘neigh_table_init’:
+././include/linux/compiler_types.h:546:20: error: invalid 'asm': invalid %-code
 ...
-Krnl PSW : 0704c00180000000 000003ffe0f6a3b4 (__WARN_trap+0x4/0x10)
-...
-Krnl Code: 000003ffe0f6a3ac: 0707                bcr     0,%r7
-           000003ffe0f6a3ae: 0707                bcr     0,%r7
-          *000003ffe0f6a3b0: af000001            mc      1,0
-          >000003ffe0f6a3b4: 07fe                bcr     15,%r14
-           000003ffe0f6a3b6: 47000700            bc      0,1792
-           000003ffe0f6a3ba: 0707                bcr     0,%r7
-           000003ffe0f6a3bc: 0707                bcr     0,%r7
-           000003ffe0f6a3be: 0707                bcr     0,%r7
-Call Trace:
- [<000003ffe0f6a3b4>] __WARN_trap+0x4/0x10
-([<000003ffe185a54c>] start_kernel+0x53c/0x5d8)
- [<000003ffe010002e>] startup_continue+0x2e/0x40
+net/core/neighbour.c:1838:17: note: in expansion of macro ‘WARN_ON’
+ 1838 |                 WARN_ON(tbl->entry_size % NEIGH_PRIV_ALIGN);
+      |                 ^~~~~~~
 
-Which isn't too helpful. This can be addressed by just skipping __WARN_trap(),
-which will be addressed in a later patch.
+Convert the code, use immediate operands, and also add comments similar to
+x86 which are emitted to the generated assembly file, which makes debugging
+much easier.
+
+[1] 6584ff203aec ("bugs/s390: Use 'cond_str' in __EMIT_BUG()")
 
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/s390/include/asm/bug.h | 62 +++++++++++++++++++++++++++++++++----
- arch/s390/kernel/entry.S    |  7 +++++
- arch/s390/kernel/traps.c    | 34 +++++++++++++++++++-
- 3 files changed, 96 insertions(+), 7 deletions(-)
+ arch/s390/include/asm/bug.h | 71 ++++++++++++++++---------------------
+ 1 file changed, 30 insertions(+), 41 deletions(-)
 
 diff --git a/arch/s390/include/asm/bug.h b/arch/s390/include/asm/bug.h
-index 1e1dece0eee4..f3aca691bae2 100644
+index ee9221bb5d18..61496143a382 100644
 --- a/arch/s390/include/asm/bug.h
 +++ b/arch/s390/include/asm/bug.h
-@@ -6,6 +6,7 @@
- #include <linux/const.h>
+@@ -2,55 +2,44 @@
+ #ifndef _ASM_S390_BUG_H
+ #define _ASM_S390_BUG_H
  
- #define	MONCODE_BUG	_AC(0, U)
-+#define	MONCODE_BUG_ARG _AC(1, U)
+-#include <linux/stringify.h>
++#include <linux/compiler.h>
  
- #ifndef __ASSEMBLER__
  #ifdef CONFIG_BUG
-@@ -25,16 +26,20 @@
- #define WARN_CONDITION_STR(cond_str) ""
+ 
+-#ifndef CONFIG_DEBUG_BUGVERBOSE
+-#define _BUGVERBOSE_LOCATION(file, line)
++#ifdef CONFIG_DEBUG_BUGVERBOSE
++#define __BUG_ENTRY_VERBOSE(file, line)					\
++	"	.long	" file " - .	# bug_entry::file\n"		\
++	"	.short	" line "	# bug_entry::line\n"
+ #else
+-#define __BUGVERBOSE_LOCATION(file, line)			\
+-		.pushsection .rodata.str, "aMS", @progbits, 1;	\
+-		.align 2;					\
+-	10002:	.ascii file "\0";				\
+-		.popsection;					\
+-								\
+-		.long 10002b - .;				\
+-		.short line;
+-#define _BUGVERBOSE_LOCATION(file, line) __BUGVERBOSE_LOCATION(file, line)
++#define __BUG_ENTRY_VERBOSE(file, line)
  #endif
  
-+#define __BUG_ENTRY(format, file, line, flags, size)			\
+-#ifndef CONFIG_GENERIC_BUG
+-#define __BUG_ENTRY(cond_str, flags)
+-#else
+-#define __BUG_ENTRY(cond_str, flags)				\
+-		.pushsection __bug_table, "aw";			\
+-		.align 4;					\
+-	10000:	.long 10001f - .;				\
+-		_BUGVERBOSE_LOCATION(WARN_CONDITION_STR(cond_str) __FILE__, __LINE__) \
+-		.short flags;					\
+-		.popsection;					\
+-	10001:
+-#endif
+-
+-#define ASM_BUG_FLAGS(cond_str, flags)				\
+-	__BUG_ENTRY(cond_str, flags)				\
+-	mc		0,0
+-
+-#define ASM_BUG()	ASM_BUG_FLAGS("", 0)
+-
+-#define __BUG_FLAGS(cond_str, flags)				\
+-	asm_inline volatile(__stringify(ASM_BUG_FLAGS(cond_str, flags)));
+-
+-#define __WARN_FLAGS(cond_str, flags)				\
+-do {								\
+-	__BUG_FLAGS(cond_str, BUGFLAG_WARNING|(flags));		\
++#define __BUG_ASM(cond_str, flags)					\
++do {									\
++	asm_inline volatile("\n"					\
++		"0:	mc	0,0\n"					\
 +		"	.section __bug_table,\"aw\"\n"			\
 +		"1:	.long	0b - .	# bug_entry::bug_addr\n"	\
-+		__BUG_ENTRY_VERBOSE(format, file, line)			\
-+		"	.short	"flags"	# bug_entry::flags\n"		\
-+		"	.org	1b+"size"\n"				\
-+		"	.previous"
-+
- #define __BUG_ASM(cond_str, flags)					\
- do {									\
- 	asm_inline volatile("\n"					\
- 		"0:	mc	%[monc](%%r0),0\n"			\
--		"	.section __bug_table,\"aw\"\n"			\
--		"1:	.long	0b - .	# bug_entry::bug_addr\n"	\
--		__BUG_ENTRY_VERBOSE("%[frmt]", "%[file]", "%[line]")	\
--		"	.short	%[flgs]	# bug_entry::flags\n"		\
--		"	.org	1b+%[size]\n"				\
--		"	.previous"					\
-+		__BUG_ENTRY("%[frmt]", "%[file]", "%[line]",		\
-+			    "%[flgs]", "%[size]")			\
- 		:							\
- 		: [monc] "i" (MONCODE_BUG),				\
- 		  [frmt] "i" (WARN_CONDITION_STR(cond_str)),		\
-@@ -55,8 +60,53 @@ do {									\
- 	__BUG_ASM(cond_str, BUGFLAG_WARNING | (flags));			\
- } while (0)
- 
-+#define __WARN_bug_entry(flags, format)					\
-+({									\
-+	struct bug_entry *bug;						\
-+									\
-+	asm_inline volatile("\n"					\
-+		"0:	larl	%[bug],1f\n"				\
-+		__BUG_ENTRY("%[frmt]", "%[file]", "%[line]",		\
-+			    "%[flgs]", "%[size]")			\
-+		: [bug] "=d" (bug)					\
-+		: [frmt] "i" (format),					\
-+		  [file] "i" (__FILE__),				\
++		__BUG_ENTRY_VERBOSE("%[file]", "%[line]")		\
++		"	.short	%[flgs]	# bug_entry::flags\n"		\
++		"	.org	1b+%[size]\n"				\
++		"	.previous"					\
++		:							\
++		: [file] "i" (WARN_CONDITION_STR(cond_str) __FILE__),	\
 +		  [line] "i" (__LINE__),				\
 +		  [flgs] "i" (flags),					\
 +		  [size] "i" (sizeof(struct bug_entry)));		\
-+	bug;								\
-+})
-+
-+/*
-+ * Variable Argument List (va_list) as defined in ELF Application
-+ * Binary Interface s390x Supplement documentation.
-+ */
-+struct arch_va_list {
-+	long __gpr;
-+	long __fpr;
-+	void *__overflow_arg_area;
-+	void *__reg_save_area;
-+};
-+
-+struct bug_entry;
-+struct pt_regs;
-+
-+void *__warn_args(struct arch_va_list *args, struct pt_regs *regs);
-+void __WARN_trap(struct bug_entry *bug, ...);
-+
-+#define __WARN_print_arg(flags, format, arg...)				\
+ } while (0)
+ 
+-#define BUG()							\
+-do {								\
+-	__BUG_FLAGS("", 0);					\
+-	unreachable();						\
++#define BUG()								\
 +do {									\
-+	int __flags = (flags) | BUGFLAG_WARNING | BUGFLAG_ARGS;		\
-+									\
-+	__WARN_trap(__WARN_bug_entry(__flags, format), ## arg);		\
++	__BUG_ASM("", 0);						\
++	unreachable();							\
 +} while (0)
 +
-+#define __WARN_printf(taint, fmt, arg...) \
-+	__WARN_print_arg(BUGFLAG_TAINT(taint), fmt, ## arg)
-+
++#define __WARN_FLAGS(cond_str, flags)					\
++do {									\
++	__BUG_ASM(cond_str, BUGFLAG_WARNING | (flags));			\
+ } while (0)
+ 
  #define HAVE_ARCH_BUG
- #define HAVE_ARCH_BUG_FORMAT
-+#define HAVE_ARCH_BUG_FORMAT_ARGS
- 
- #endif /* CONFIG_BUG */
- #endif /* __ASSEMBLER__ */
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index b7f1553d9ee5..23ff05746aa6 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -23,6 +23,7 @@
- #include <asm/unistd.h>
- #include <asm/page.h>
- #include <asm/sigp.h>
-+#include <asm/bug.h>
- #include <asm/irq.h>
- #include <asm/fpu-insn.h>
- #include <asm/setup.h>
-@@ -173,6 +174,12 @@ SYM_FUNC_START(__switch_to_asm)
- 	BR_EX	%r14
- SYM_FUNC_END(__switch_to_asm)
- 
-+SYM_FUNC_START(__WARN_trap)
-+	mc	MONCODE_BUG_ARG(%r0),0
-+	BR_EX	%r14
-+SYM_FUNC_END(__WARN_trap)
-+EXPORT_SYMBOL(__WARN_trap)
-+
- #if IS_ENABLED(CONFIG_KVM)
- /*
-  * __sie64a calling convention:
-diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
-index b2d6d7cc3b17..8aca5858b403 100644
---- a/arch/s390/kernel/traps.c
-+++ b/arch/s390/kernel/traps.c
-@@ -23,6 +23,7 @@
- #include <linux/cpu.h>
- #include <linux/entry-common.h>
- #include <linux/kmsan.h>
-+#include <linux/bug.h>
- #include <asm/asm-extable.h>
- #include <asm/irqflags.h>
- #include <asm/ptrace.h>
-@@ -220,11 +221,42 @@ static void space_switch_exception(struct pt_regs *regs)
- 	do_trap(regs, SIGILL, ILL_PRVOPC, "space switch event");
- }
- 
-+void *__warn_args(struct arch_va_list *args, struct pt_regs *regs)
-+{
-+	struct stack_frame *stack_frame;
-+
-+	/*
-+	 * Generate va_list from pt_regs. See ELF Application Binary Interface
-+	 * s390x Supplement documentation for details.
-+	 *
-+	 * - __overflow_arg_area needs to point to the parameter area, which
-+	 *   is right above the standard stack frame (160 bytes)
-+	 *
-+	 * - __reg_save_area needs to point to a register save area where
-+	 *   general registers (%r2 - %r6) can be found at offset 16. Which
-+	 *   means that the gprs save area of pt_regs can be used
-+	 *
-+	 * - __gpr must be set to one, since the first parameter has been
-+	 *   processed (pointer to bug_entry)
-+	 */
-+	stack_frame = (struct stack_frame *)regs->gprs[15];
-+	args->__overflow_arg_area = stack_frame + 1;
-+	args->__reg_save_area = regs->gprs;
-+	args->__gpr = 1;
-+	return args;
-+}
-+
- static void monitor_event_exception(struct pt_regs *regs)
- {
-+	enum bug_trap_type btt;
-+
- 	if (user_mode(regs))
- 		return;
--	switch (report_bug(regs->psw.addr - (regs->int_code >> 16), regs)) {
-+	if (regs->monitor_code == MONCODE_BUG_ARG)
-+		btt = report_bug_entry((struct bug_entry *)regs->gprs[2], regs);
-+	else
-+		btt = report_bug(regs->psw.addr - (regs->int_code >> 16), regs);
-+	switch (btt) {
- 	case BUG_TRAP_TYPE_NONE:
- 		fixup_exception(regs);
- 		break;
 -- 
 2.51.0
 
