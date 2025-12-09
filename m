@@ -1,135 +1,140 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 469A5275864;
-	Tue,  9 Dec 2025 14:42:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDC9B3271F9
+	for <linux-s390@vger.kernel.org>; Tue,  9 Dec 2025 16:40:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765291336; cv=none; b=tfWUBMhtTzI0fibu4dnouflz7CIe1W4aSkk5PnZT3KPLnhoufGvbc7qhe1gCIRE9FlzZ5dzExjH7g1HSoUIPiTVs5Kh2YScGGSIPtYI0/hhom63VYawKJY3D7RfpVraIIkHzB2aGRvlIV/f2ksKu8MRfx2dxdz79tMKKbAEuv2Q=
+	t=1765298426; cv=none; b=pLAyFqtI3L5wvNnfx6oqHR2wgAPM1VuQsZvLR9nD/IWHPJttx/roQdsbdHpUPbQRBJLeya3KmTadnaXlhi/t/M8LKJvUb7sWAlzuVqE2iq94EGrVjaXO2PWdoaGTiqn8l053ObaglR99TR88awfNoDKt8mQEwpPnIMhabDfqCnw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765291336; c=relaxed/simple;
-	bh=3tpmDb3z1zLFkuI2f/6vQUz453SmuBDQx53AkKGK+OI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lZMVJfkTDsaw9inAbPcjdkGa4cEd04DAUdIceJT8wN+NW6yMvYqxTjeH1N/35VJWahuonimuOL8OhamHaE67OTuOE7G7Xfjw4lPe3n5g8kKijlBEWdd4vhzjL+NhECs8HG/sqp+Sf7wDJirtjrwpzaLjXrVzKjv7khnCynzAQas=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qrvhIzEZ; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1765298426; c=relaxed/simple;
+	bh=JvFF6+FOKEAOJj9t/hxDHDO1jVTcnLAYiVmuSofMOCU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=KTfCX4U0xKlL767udOo6+uakrD0cUsG5lqq3ZsA7ZMs6oGcoHY4gmWVSSN5r1jN1B83M9LW/g+xrve50HPkM7Yl6hdfw5ClXBhSQT1FfwNnbawHE1bLAGjODXaUdIT1Ra81baDZGQEyLFdFqaBygoYkcSGfNLgfl2zmMGIv45ek=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=cYV6hfle; arc=none smtp.client-ip=209.85.214.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qrvhIzEZ"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B9AgG71016858;
-	Tue, 9 Dec 2025 14:42:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=ULh2eoR8GTvStCHRY+Oa+y5ogDftLx
-	PO6TQM5ytS18E=; b=qrvhIzEZL+5/ptYPjkMsZZpkVrxpjHesWk2FyB/EqkiSQX
-	S49KRncAHFvx9WDDPg6QBZ5AMFpOW6Y4XIbSDeHTl7eCf3e8jjLE6MUGAcDBmYXD
-	B6PnGglBHQA8/Sd5Q/dksvoovYF72Mc3q6SkOLQoFjNwKR9LwBVRSCoHQ308NCyf
-	BZ81vMB0vBcwvPlyHnOt0Cpqlt9JaoQ7SoadYAS0PCg77Ax/B8rYc7hdZq0a1Ojl
-	6GNLefRyrc1cN2YJUNrcxwhHdhmBAwh1Uv+TVOI+w3AecYdeAaEDverwD6Bjh2l4
-	VMcYHe3cjMIFUYpKw3mkwor0gOS5+CIkAHBdXJrw==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4av9wvn1u5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Dec 2025 14:42:07 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B9BcjTn008472;
-	Tue, 9 Dec 2025 14:42:06 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4avytmucyk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Dec 2025 14:42:06 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B9Eg2R658130864
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 9 Dec 2025 14:42:02 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9F7CE20040;
-	Tue,  9 Dec 2025 14:42:02 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1E2BB20043;
-	Tue,  9 Dec 2025 14:42:02 +0000 (GMT)
-Received: from osiris (unknown [9.87.133.248])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  9 Dec 2025 14:42:02 +0000 (GMT)
-Date: Tue, 9 Dec 2025 15:42:00 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>,
-        Jens Remus <jremus@linux.ibm.com>,
-        Stefan Schulze Frielinghaus <stefansf@linux.ibm.com>,
-        Juergen Christ <jchrist@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH 6/9] s390/bug: Implement __WARN_printf()
-Message-ID: <20251209144200.15189D45-hca@linux.ibm.com>
-References: <20251209121701.1856271-1-hca@linux.ibm.com>
- <20251209121701.1856271-7-hca@linux.ibm.com>
- <20251209123540.GE3707837@noisy.programming.kicks-ass.net>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="cYV6hfle"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-29e7ec26e3dso252865ad.0
+        for <linux-s390@vger.kernel.org>; Tue, 09 Dec 2025 08:40:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1765298424; x=1765903224; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=QIKlOB/KgpJP9kT0dnjJxhFbF65TR4r34o2YIc6jtW4=;
+        b=cYV6hfleOG4s2Xj8TORMH/MEzSoM1XY+wzrjv+3M0wqUlgy8BiC6HnQwf3JGxnjeSA
+         ODYaJ0bAyPYv49ZXj7AApUYroUjAI6NoAt6oFe6dESqsQWTaqxE0GqJaqQhveDctsMQP
+         SQwAf/jWd4BGvSHHPoOffVkBQlHQtlG3T7TR49re+5/hHcPeDxOaH5xV9q9mk8EY9k9H
+         jWgRbehXbgbAJMaypGApx2F8+zbeAnJIBFckGskru1s/bsVRIR/1UO4rYZrFaONPhnKX
+         kfyZLH8gb6TZzdLDcAQV5PztKSTxahnTvFpboEg7FNdnLSPxfnS/DdS1Nk2i6VYHwiWZ
+         JJBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1765298424; x=1765903224;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=QIKlOB/KgpJP9kT0dnjJxhFbF65TR4r34o2YIc6jtW4=;
+        b=p1aHb9bAT49IiA+A0djf0k6j6VXYWUHx35u4slWwDEmtA96zZyvBIsWJ3B84jdgH57
+         NIOBEkGLeUDIsAEVSrjvFurB+A40yFJBb/hDoVshGZY/TFCij/Eg98D5KCM1FVOC5GdH
+         DKzeNWNwDOZ+J5qlqL7bOivIQbpn7CAmYAXr7EkLB4HKszigZg3iFBSpJvGMfHLqm+TR
+         QSRq81mRKmpmwqdYpVd4DqKJfKShlwrr6v5AeICZh372kUPPPtTGACUwhXqoU2HPtya2
+         mZMCelcYg8DLqvwInly5iri9dFSwapkYCVVAPRUlfSP1wgVhAEnIs98H+6RmSQyUrHLw
+         +ukA==
+X-Forwarded-Encrypted: i=1; AJvYcCV+W+yRfEWN0NAhhL6oeDsu2BiWP7CXo7+pS6lxM9HXvr25jPAw+GB6Kj1pIKkdQH6saWWPD/MvKEM+@vger.kernel.org
+X-Gm-Message-State: AOJu0YxbdzGkCjd8GSTSLj5kRTXO0xysNrvc34stCiGslMWt5uI0zUiv
+	56MTAramXSqvaMuZpFQ7nAQSmz+BSWK0OkmCYM8KNJMTC2WaLaiY94/TkTBd3dKPiRBB2qh/lKt
+	Ixm9LSw2q7iSQDdDf8z1wZhN0R+l1igf2vVZwxN7u
+X-Gm-Gg: AY/fxX55XAFqgNIKeMYQ7k3zFbfNlayHR0ZkzDnR0DQnaaoXVM8/XeRZV8rbR8PFw7h
+	h8KTE/c69JINY1T2UARDRN2B0f9mJ2d8Sx7Fs5F7bq/teFJ/qf6Vw1GZGMo7oi+laohzBYVfQCU
+	ULr68V4APabxGOMvNtFfCLH8p6prK5NAr4i5qSo1WmVI79cS1ZjdGz5E2d3F+P3weWIMP/y4qTa
+	F+pFkOBOvHXyWbm8drplEuKZktWHhczcrjfFUicoNXu75SFeBRQpsIlPwq7G8UlDB3q/zrLBOJs
+	irYDWI1bfJJN6zgQZ+Ugu7Ur
+X-Google-Smtp-Source: AGHT+IG+tXtxqxAs5MZsdZ8QQBhYZxwYfw3KSnJRGGNeVnKDA+uhxtLhn7sIFa6Z7B6HlmBTov8Y3nqdUn5WPLykovg=
+X-Received: by 2002:a17:903:22c9:b0:298:3544:aa72 with SMTP id
+ d9443c01a7336-29e99730116mr3216545ad.9.1765298423750; Tue, 09 Dec 2025
+ 08:40:23 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251209123540.GE3707837@noisy.programming.kicks-ass.net>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Dl6sGS1vblE9xbklErm9IWii7ugkcO19
-X-Proofpoint-ORIG-GUID: Dl6sGS1vblE9xbklErm9IWii7ugkcO19
-X-Authority-Analysis: v=2.4 cv=AdS83nXG c=1 sm=1 tr=0 ts=6938353f cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=kj9zAlcOel0A:10 a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=HNeoXCU7dB-zGeRosEQA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjA2MDAwMCBTYWx0ZWRfXyT3QMJZyWebP
- gokl+aPCEYmpR7XKolEBMyQb6Gjb/CZIk7I4bww39q8si53Dl++S/0lAHfbiIH+ItPFX0rsH1to
- IO4mBwi/hNSyICZoEP8jO14yhQeJxRYSInlpoB2or3jzN4qQq6Sg+H4BYhclRwU+lc5Ci1vhtU6
- Tbq5W4rZ8aCrdPFusGEgAZMwIjIj9rTVxkB5jjGT9tD5A9pdRrVI9HOTfE1/VpgQDhHyXpE/FhB
- frSeJ3NsinYXik/5l5CZgSQfj/2mbfEk/g49qu96zlGc9T4Tcs2dHndl3957YpE+dKrR9SLQddl
- XlVJP01bWf/EiPWDOGiZd7b0WsvE5hPW0IJb0HqnWfEk3bZwmqVXO2wIT/8W3iyDr0Blwc7ivNR
- Eu4+SSf44B8eKF0MxWf5HH7za3A5Wg==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-12-09_04,2025-12-04_04,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 priorityscore=1501 spamscore=0 phishscore=0
- lowpriorityscore=0 bulkscore=0 clxscore=1015 malwarescore=0 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2512060000
+References: <20251209105029.142517-1-tmricht@linux.ibm.com>
+In-Reply-To: <20251209105029.142517-1-tmricht@linux.ibm.com>
+From: Ian Rogers <irogers@google.com>
+Date: Tue, 9 Dec 2025 08:40:12 -0800
+X-Gm-Features: AQt7F2o2b-TqXVYAJS0WsHVzROtpYWKCgPgSD2vNxwquDaWtEtxWSQOanCjh5Kk
+Message-ID: <CAP-5=fVxFEzOwQN610gE9F5XiHYP2wHKD6K5zfBHhFOrxD1fDw@mail.gmail.com>
+Subject: Re: [PATCH] perf test: Fix test case perf evlist tests for s390x
+To: Thomas Richter <tmricht@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org, 
+	agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com, 
+	hca@linux.ibm.com, japo@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 09, 2025 at 01:35:40PM +0100, Peter Zijlstra wrote:
-> On Tue, Dec 09, 2025 at 01:16:58PM +0100, Heiko Carstens wrote:
-> > +#define __WARN_print_arg(flags, format, arg...)				\
-> > +do {									\
-> > +	int __flags = (flags) | BUGFLAG_WARNING | BUGFLAG_ARGS;		\
-> > +									\
-> > +	__WARN_trap(__WARN_bug_entry(__flags, format), ## arg);		\
-> > +} while (0)
-> 
-> So on x86 I had to add:
-> 
-> 	asm("");
-> 
-> after the __WARN_trap() call above, to inhibit tail call optimization,
-> because:
-> 
-> > +void *__warn_args(struct arch_va_list *args, struct pt_regs *regs)
-> > +{
-> > +	struct stack_frame *stack_frame;
-...
-> > +	stack_frame = (struct stack_frame *)regs->gprs[15];
-> > +	args->__overflow_arg_area = stack_frame + 1;
-> > +	args->__reg_save_area = regs->gprs;
-> > +	args->__gpr = 1;
-> > +	return args;
-> > +}
-> 
-> that would affect the stack layout here. You don't suffer this because
-> you have a link register like setup?
+On Tue, Dec 9, 2025 at 2:50=E2=80=AFAM Thomas Richter <tmricht@linux.ibm.co=
+m> wrote:
+>
+> Perf test case 78: perf evlist tests fails on s390. The failure
+> is causes by grouping events cycles and instructions because
+> sampling does only support event cycles.
+> Change the group to -e '{cycles,cycles}' to fix this.
+>
+> Output before:
+>   # ./perf test 78
+>   78: perf evlist tests              : FAILED!
+>   #
+>
+> Output after:
+>   # ./perf test 78
+>   78: perf evlist tests              : Ok
+>   #
+>
+> Fixes: db452961de939 ("perf tests evlist: Add basic evlist test")
+> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
 
-Yes, in case of tail call optimization everything which needs to be known to
-setup va_list is passed in registers. __overflow_arg_area will then point to
-garbage, but it doesn't matter since it is unused for such cases.
+Thanks Thomas, I always appreciate your help and fixes! Do you think
+we should switch to software events to remedy this issue? Perhaps
+cpu-clock and task-clock? I worry about event deduplication possibly
+causing issues were it to happen.
+
+Thanks,
+Ian
+
+> ---
+>  tools/perf/tests/shell/evlist.sh | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/tools/perf/tests/shell/evlist.sh b/tools/perf/tests/shell/ev=
+list.sh
+> index 140f099e75c1..80f808b3059d 100755
+> --- a/tools/perf/tests/shell/evlist.sh
+> +++ b/tools/perf/tests/shell/evlist.sh
+> @@ -38,13 +38,13 @@ test_evlist_simple() {
+>
+>  test_evlist_group() {
+>         echo "Group evlist test"
+> -       if ! perf record -e "{cycles,instructions}" -o "${perfdata}" true=
+ 2> /dev/null
+> +       if ! perf record -e "{cycles,cycles}" -o "${perfdata}" true 2> /d=
+ev/null
+>         then
+>                 echo "Group evlist [Skipped event group recording failed]=
+"
+>                 return
+>         fi
+>
+> -       if ! perf evlist -i "${perfdata}" -g | grep -q "{.*cycles.*,.*ins=
+tructions.*}"
+> +       if ! perf evlist -i "${perfdata}" -g | grep -q "{.*cycles.*,.*cyc=
+les.*}"
+>         then
+>                 echo "Group evlist [Failed to list event group]"
+>                 err=3D1
+> --
+> 2.52.0
+>
