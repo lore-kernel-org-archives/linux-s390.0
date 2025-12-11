@@ -1,155 +1,104 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-108-mta198.mxroute.com (mail-108-mta198.mxroute.com [136.175.108.198])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F21BF2D5C83;
-	Thu, 11 Dec 2025 09:44:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E43D13074A0
+	for <linux-s390@vger.kernel.org>; Thu, 11 Dec 2025 10:59:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=136.175.108.198
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765446255; cv=none; b=gqG7rpSwMG5Y77hEIUYgtHBoQeGqiD2Qzv6vSqBBaCmO8/4W5ZjFPWykF+CteEgJrtltnobwl5KIsL0GotE/zsimrIycRf7w8L6cOp7kZJA7iNl/ONUuBfN5OiAiex6CiFFyppnBNYnienqfgPnwq3M/9SIEO9EE/v8YwqaBwgk=
+	t=1765450777; cv=none; b=m7xwBBB09MbDvhcsF6WlYJr0346rY9efxuf1cSaJM56kQtQaXHcdCWq+mxfSkplHh1O6ExFqKXAhY1dG+SIKkLax9v8Jgg292ipSasZENs4wy+OzRIiSyx2YDcp1tqON8Qx+PDLXAEF8SXEXvdKqEIOKjk4P2mSfyl9gHcDwcvs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765446255; c=relaxed/simple;
-	bh=D+cmyrsZQVAh2W/giFHJiiGkqAYiu0cvjDOq7WnpF5g=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fcbVU2+p423p4RKGlQrvj8vhptkVyv3I+DwQJUK8pXK1X3yEXnM7ZCISLAfvXo5dUIxKATE0Yn2BcYW32YJqXi2yfdUUd1Kq4YcKc0Y0V2H1zqzk4R1PxNUvk+nFwKM+fAHZf25JoDvL81OwqI/00iTMicBVRpeeqJWI4prXi38=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GBFb2+Fk; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1765450777; c=relaxed/simple;
+	bh=dN8E80CdySwxsmhwuXZgg5f6wG9/5RIPBVfpk10OCZQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=cwsyqF+Uly9TJuVIWcDjgTTm8uGaKUfPpt+kIhixlKR1c2pFeBlMvcAisB9sYe16ROuoqffbU9SPHFkNw9B2MbiLAqL1yvusR+sbcC3Tm/3lwwR8ItatdBa5wC7q2MKwwBfhcXMUk4VLS4nDl35E+5o/dt3ycQrjJ9IMU+EvqG8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=josie.lol; spf=pass smtp.mailfrom=josie.lol; dkim=pass (2048-bit key) header.d=josie.lol header.i=@josie.lol header.b=XCUQAbdw; arc=none smtp.client-ip=136.175.108.198
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=josie.lol
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=josie.lol
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GBFb2+Fk"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5BB2NIXF028098;
-	Thu, 11 Dec 2025 09:43:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=FD8maE
-	HeTgDD71fz+2/5BPQXB7msWRXHabxVFcpu/Po=; b=GBFb2+FkWsOeFj5sfRxm5I
-	D5AlOKUnvhfkKHyUuBPwI+4I8oV7k0V4qfF8SYyLBAzBfRZ6G+FQN4dC3RMyva01
-	JA2NAjgguR3joGqqjEuvUO0KCcZd9K0CFqMASf4fdsAlFWbq5QYkX6AyvqeCOH6m
-	F7xLYrvNkqNWs52ZUXQDgi36GE91F+/FGjyx5eZ2mw8oIR+QcXREiH32M3/DRBjp
-	+0V7t2eOip9C1MRn0juawvz+GiVhNpqeLf6eYLQziFcSv6pwD1+T4llte6b1i1eE
-	e6zqZrhUPylXCsOrNqMAqMxItLm7rOEKDSgDexjfKP/gQrj1xaxQ6VhSro8AsCtw
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4avc53pamc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Dec 2025 09:43:45 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5BB9faXG023078;
-	Thu, 11 Dec 2025 09:43:44 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4avc53pama-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Dec 2025 09:43:44 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5BB8XFdO012425;
-	Thu, 11 Dec 2025 09:43:44 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4aw0ak5fcx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Dec 2025 09:43:43 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5BB9hdJV19333646
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 11 Dec 2025 09:43:39 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A184A20043;
-	Thu, 11 Dec 2025 09:43:38 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2C30320040;
-	Thu, 11 Dec 2025 09:43:37 +0000 (GMT)
-Received: from [9.111.167.168] (unknown [9.111.167.168])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 11 Dec 2025 09:43:37 +0000 (GMT)
-Message-ID: <84d843d7-d827-4945-b1f5-78189e63753d@linux.ibm.com>
-Date: Thu, 11 Dec 2025 10:43:36 +0100
+	dkim=pass (2048-bit key) header.d=josie.lol header.i=@josie.lol header.b="XCUQAbdw"
+Received: from filter006.mxroute.com ([136.175.111.3] filter006.mxroute.com)
+ (Authenticated sender: mN4UYu2MZsgR)
+ by mail-108-mta198.mxroute.com (ZoneMTA) with ESMTPSA id 19b0d0c2b8b0004eea.00b
+ for <linux-s390@vger.kernel.org>
+ (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
+ Thu, 11 Dec 2025 10:54:20 +0000
+X-Zone-Loop: f03d9b979b5684edcf0bdeab004b2448a77967f49a0a
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=josie.lol;
+	s=x; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Date:
+	Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID; bh=ha5pCxRKxayQ8qBstOBlp614/GriMM6unQD08kdlSYk=; b=XCUQAb
+	dwArKb76gxz2P8fNcZwW7oihkwH7CNrr3in5qiE8O2OFiMgewFhw7cRHnMdVbIWjeaUDhcpgihbc8
+	lADyNPKG5hx2aJfoZZRAMJfKQ388QJA8lYeIdH4iID7v7loQ1YPbvricSskGG6xZfvU6cxYCncuP0
+	40HyphE4bx676NzpiaYAu+3+QNYITEjreOGxzG9PIeg20Nn10KnQDBkx4WR9uQppR+L8kC6S3HT0h
+	BG0MlmE27Re8o62iuaY4B897tMGoO8XL/Z7gzXF3/cvWABHWTyLntlvePYRHt/PY8c77WacLYPQJg
+	z3AdPjf6n0CyYA+tCxH6AQWITkUA==;
+From: Josephine Pfeiffer <hi@josie.lol>
+To: frankja@linux.ibm.com
+Cc: agordeev@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	david@kernel.org,
+	gor@linux.ibm.com,
+	hca@linux.ibm.com,
+	imbrenda@linux.ibm.com,
+	kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	svens@linux.ibm.com
+Subject: Re: [PATCH] KVM: s390: Implement CHECK_STOP support and fix GET_MP_STATE
+Date: Thu, 11 Dec 2025 11:54:12 +0100
+Message-ID: <20251211105412.207458-1-hi@josie.lol>
+In-Reply-To: <fd5ad2be-f15f-425f-b8ef-087dc639024d@linux.ibm.com>
+References: <fd5ad2be-f15f-425f-b8ef-087dc639024d@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v3 05/17] s390: asm/dwarf.h should only be included in
- assembly files
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, bpf@vger.kernel.org, x86@kernel.org,
-        Steven Rostedt <rostedt@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Indu Bhagat <indu.bhagat@oracle.com>,
-        "Jose E. Marchesi" <jemarch@gnu.org>,
-        Beau Belgrave <beaub@linux.microsoft.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Florian Weimer <fweimer@redhat.com>, Kees Cook <kees@kernel.org>,
-        "Carlos O'Donell" <codonell@redhat.com>, Sam James <sam@gentoo.org>,
-        Dylan Hatch <dylanbhatch@google.com>
-References: <20251208171559.2029709-1-jremus@linux.ibm.com>
- <20251208171559.2029709-6-jremus@linux.ibm.com>
- <20251210151636.40732C96-hca@linux.ibm.com>
-Content-Language: en-US
-From: Jens Remus <jremus@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <20251210151636.40732C96-hca@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjA2MDAyMCBTYWx0ZWRfX4Xjlv3yyQSZB
- 2GOKiYgU9tycGA3ef8DQ9txByK/m4hbZLgHyfZG3YTcxSwWFzfZ6bgkEcz8NyBb/mJy5qlEnUBw
- 9t1GTraPwBNpf0NLzZhW4R/47WyF4WH7QJuJ8ib0ae/Shayz4u/ZyPaLsSv8/ZTIWSK3AhsdIBG
- llKdLQ2WNR2/HpUod6PsTtZF1GI0lcSuiMJR/oSoWD/k8q7dbl0a3bY6ve+iy9tuP+TJ6n9+HsN
- UI0Bdr+SCrRf/y3pJFUyjYHFEz8hObL6GhsTZrcwrXP2g2SLhlPFuzT93WSwJ7jlT80QoLH9Nwh
- gIIb7s2eQ3ej3tqDoyuOtgi9JvSv4z8WODE2TGbzr8PmelpUosjlKaI3HGzWhTZOoOw1kTODO8T
- +RTFLHVhWqk6dk2MoeuRscfMRgHaGA==
-X-Authority-Analysis: v=2.4 cv=S/DUAYsP c=1 sm=1 tr=0 ts=693a9251 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=62EC5onNXgn9lpaB:21 a=IkcTkHD0fZMA:10 a=wP3pNCr1ah4A:10
- a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8 a=qXztJ9kz0_brgplrvAIA:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: 3gelZydcZdPV3ZIYmrk0w-Gsmm1pMOXj
-X-Proofpoint-GUID: KM7DR54WwKW8nE1qjDjXvs63VtVcksTo
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-12-10_03,2025-12-09_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 phishscore=0 clxscore=1015 impostorscore=0 suspectscore=0
- lowpriorityscore=0 adultscore=0 spamscore=0 bulkscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2512060020
+X-Authenticated-Id: hi@josie.lol
 
-On 12/10/2025 4:16 PM, Heiko Carstens wrote:
-> On Mon, Dec 08, 2025 at 06:15:47PM +0100, Jens Remus wrote:
->> Align to x86 and add a compile-time check that asm/dwarf.h is only
->> included in pure assembly files.
+On Tue, 25 Nov 2025 19:10:43 +0100, Janosch Frank wrote:
+> On 11/20/25 19:28, Josephine Pfeiffer wrote:
+> > The use cases I see are:
+> >
+> > 1. API completeness: The state was added to the UAPI 11 years ago but never
+> >     implemented. Userspace cannot use a documented API feature.
+>
+> I'd rather have stubs which properly fence than code that's never tested
+> since we don't use it.
+>
+> Since this never worked it might make sense to remove it since future
+> users will need to check for this "feature" anyway before using it.
 
-> Is there a reason why this and the next two patches couldn't go upstream
-> already now? It looks like they improve things in any case.
-> No dependency to the sframe work.
+That's a fair point. If you think there's no real use case, removing the dead 
+API is cleaner than implementing unused code.
 
-They probably could go upstream now.  At least this one.  For the two
-other patches the question is whether we want to wait for whether the
-respective x86 changes go upstream, as their descriptions claim to align
-to x86.
+> > 2. Fault injection testing: Administrators testing failover/monitoring for
+> >     hardware failures could programmatically put a CPU into CHECK_STOP to
+> >     verify their procedures work.
+>
+> How would that work?
+> What can we gain from putting a CPU into checkstop?
+> How would QEMU would use this?
+>
+> Checkstop is not an error communication medium, that's the machine check
+> interrupt. If you want to inject faults then use the machine check
+> interface.
+>
+> If you want to crash the guest, then panic it or just stop cpus.
 
-Regards,
-Jens
--- 
-Jens Remus
-Linux on Z Development (D3303)
-+49-7031-16-1128 Office
-jremus@de.ibm.com
+You're right - machine check interrupts are the correct mechanism for fault
+injection. I was conflating the error state with error signaling.
 
-IBM
+I'll withdraw this patch and can send a cleanup patch instead to remove
+KVM_MP_STATE_CHECK_STOP from the documentation. Would that be useful?
 
-IBM Deutschland Research & Development GmbH; Vorsitzender des Aufsichtsrats: Wolfgang Wendt; Geschäftsführung: David Faller; Sitz der Gesellschaft: Böblingen; Registergericht: Amtsgericht Stuttgart, HRB 243294
-IBM Data Privacy Statement: https://www.ibm.com/privacy/
+If so, should I also remove KVM_MP_STATE_LOAD from the docs while I'm at it? It has
+the same "not supported yet" comment from the original 2014 commit [1].
 
+Thanks,
+Josephine
+
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6352e4d2dd9a
