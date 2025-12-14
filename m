@@ -1,337 +1,115 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D209E271A6D;
-	Sun, 14 Dec 2025 06:56:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F8CB215F5C
+	for <linux-s390@vger.kernel.org>; Sun, 14 Dec 2025 16:06:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765695385; cv=none; b=fH2ixiCeeCia7mYRKj3IwpS2rQLjbDnY+ullBUq/SqIy6bpJVhmthQyvYVNqQOuHQRvB/t0lfPmwKHweL3NZaAnmMilXn/zMEyAaJV+1CSAUctL4cSMJ7vrbkPUlKUBGE8j6X03rtGJ45z7QLg/qbZ/292xIVHldg+xo0r3k6sM=
+	t=1765728374; cv=none; b=SXa06gpT0sWnd9yW+rW+Oj5avAd7xHkeD1RuZYo8435Lw057P/as7aNtOsC0abF2JtGO2M52U8SMNWyEoKEmbeVtTvk9OIADDauK1uDtOh2sjzmkafADK/yb+SFIIIe29voH5ByOIbtrXuSQJ3v5W21SGBHPaVNVHPRveB+0Pm8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765695385; c=relaxed/simple;
-	bh=rNokNUbqhtDAZzRvGy68XrNneuZAbKP4ZIJlFMKF+7U=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=TyXs+77cn11M9+TifpIHjO6QVNZWV7G+9EJWlDeX9sqD6PJoT+camdOSqI2UY9mdEz9qOQZaJV6qrfPgcp0jF2GC2s0vtbsmKZD8FxeUr8FZb34lqyghXBBBJCpUp98TzOsaBsGTgaf2R7zNdRKQzJQvNWVlTJ3V5KiapQIP0ks=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=c/af4ehC; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1765728374; c=relaxed/simple;
+	bh=uFvsVnvnN0c5L+Y9Y2WN8HIE6Qa0UMSnf0k7nnRuxrU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=EZBQIP73DTKwd+fT+0JxHR1415IdgBUE+azMKRHQNps7ukt9aBBsHyXuvfUDbKlfEB3iqA1/Zu6x1SaBMpeUWwfnvD9KDlvc00KN8VmDvXeSVI+5OI9UxygHNEJSVNMZiTVxT/GPfpbTgHtMYtLahloWFjkuat6P0y/h4bWX7l8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmpxchg.org; spf=pass smtp.mailfrom=cmpxchg.org; dkim=pass (2048-bit key) header.d=cmpxchg.org header.i=@cmpxchg.org header.b=DeQrj/E1; arc=none smtp.client-ip=209.85.160.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmpxchg.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmpxchg.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="c/af4ehC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F724C4CEF1;
-	Sun, 14 Dec 2025 06:56:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1765695385;
-	bh=rNokNUbqhtDAZzRvGy68XrNneuZAbKP4ZIJlFMKF+7U=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=c/af4ehCIryGWDPXN8wqNy/88J0nXqpVQGHfqT2+toiUwTP+C5J5RtU9Geyw2VF0p
-	 QklRyp0qRhxs2uNnXKsuFbrGQWuVRKkwOznqKwNyMQ08nPkeKu8AT+vSKcJWGZRbJO
-	 SWUiE+ata5yHDPcug0nZnZ9bCIjH71HjJJpZNSNn2ivRvv+Io94l2TRfBiZK2mBtHo
-	 hkL5VrDGRW4/PzdFMq9L3tNB1EnsVC8laoIofiC/y2FO28Zz5QyMKGgbNBL7ThA2xf
-	 2G5seFkvmZm6EfVw5Y8/g6FTtlsCMWO9JubLhTHribjDG3T2/qZGR26d+3tpea+B2I
-	 7q/v9Rx2Ou0Fg==
-From: alexs@kernel.org
-To: Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"David S . Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
+	dkim=pass (2048-bit key) header.d=cmpxchg.org header.i=@cmpxchg.org header.b="DeQrj/E1"
+Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-4eda6c385c0so19691771cf.3
+        for <linux-s390@vger.kernel.org>; Sun, 14 Dec 2025 08:06:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cmpxchg.org; s=google; t=1765728371; x=1766333171; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=f7QTVg+iX6g7+TSOdJvwQOGJXyEHc6ip79S31gdlfTY=;
+        b=DeQrj/E1GhJDPlGnsxSRykoATcu0jYw7B+Rm9T3N4eppujlKcI2dQWdA+XiqlwT1R0
+         fGriOolhVtgiCm2KzumZWOAqGgydOeyZSp8QtIMrBAzhFP3j3e2GbUVLTX0UyMVSS+Td
+         IQZ8ArPRwugEQfBR1Kf/RHGagvGTNcu0oUDy28U4K7XoQSOO+Sdtn35Fi/CfK5PJXlql
+         wqGuutgoPR4q7OP9gdvMxZP32HHZT9kZ6QzmQ2tyVLjJHFfQEeJoqYh/S2dGSSmqd6pt
+         VMXhIFBrN2qmpJYQthuiwPGubTCt617mnBkVwLyGQA+xkd020Ifg6hK6trECXx3lT3/E
+         kgpg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1765728371; x=1766333171;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=f7QTVg+iX6g7+TSOdJvwQOGJXyEHc6ip79S31gdlfTY=;
+        b=MW+gTaDvp+2oolAytIvcd8v+oZeWjTe0re1MWljTahEcLg1Hd+WtejQr0TaGek1frR
+         Kl6wStujDQn0rO85F6CJ+cxykiKXCgAsSp8QFFHGDq8qhifz3O7jf8QPWOImSL+ZjfbB
+         bQlqr26P5NIIBXB9sXhsTo8hSI/RBVIFZB+EdGJSL7FriLZ+Ioyoq1GhFgWkDifDXB9y
+         N9aLCMi67TJA+zPac4Xr3gnY3DFEIOllN+noTBZFtztyohMGCA/FY+zil6+Al5NO8aDP
+         klwoaGXlcPsDbk3WVrDOccZoy5PUy/ZPlRJ2XbIssBXr4X2p1v4Xjh2k+xMQNCXqF4Au
+         pNUA==
+X-Forwarded-Encrypted: i=1; AJvYcCUSnBUWFXpaW74TZAo0Ifv9dkl7EoPBC9sQkPnS+ymnxxqKIjCRnrZy1pwG3YXp1ZkyN3NPLAZ817wf@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw92li1DIgPN+kCOB43k+odCVzObBHd7CI2s5J7qfUv9zKQdCNG
+	tw05GIFbgB8SMrZCeIZfJI75vA/Y2mfE+XYXlbgC4/0UWqfwmDDGuXjKYBSPHxrA93I=
+X-Gm-Gg: AY/fxX5VLtZOHedZS75lP+7wPtegQOb2coalgnM1Kahpcdg9DWZU1vJQ23DovQfNsz8
+	HOgVKT+mkrtKv41KC+52pstr5+z48OIANdo5JaTi0El/nJbK6d3TWRRUyBTek3fL0/4/PvdcA3y
+	bv8hcdnI1k3w10Kr9vxN4cT0x2OCUA5HHnFMw5nJd/k9Xnm3BJf1jj7XTxyQBtp5DVkrWIdvmVI
+	drZbJdPvtpBSMIkfgZjHEXRnbNUqRNiuZDQbOmy7gFpQXv62q+tSF++QQFYoEaGd9m8YzYNuYAu
+	DOjW0wJANI5FQe+Gi0wsY+/bk/L14EeI2aXfuQhd5GkuY+wb5ZgB1fBXN4xaWy0dkUBIvUbLS8u
+	fDOxpKfufzbzZJguOZvQzUiY2e6KIW4MOt75y1vPHy7ePQ/hQDgQEG6NKfkRXisJXMJx6locEC9
+	oBJONBYLse/A==
+X-Google-Smtp-Source: AGHT+IEiGuI0GotUgdY/1hqH2sbbXfUs3Nw/EuyNFpfnTQhvh/Wgt2YuycOrvgw2U3cHqkVlTTD5Cw==
+X-Received: by 2002:a05:622a:11d1:b0:4ee:28d1:4b91 with SMTP id d75a77b69052e-4f1d059d49dmr106375541cf.54.1765728371049;
+        Sun, 14 Dec 2025 08:06:11 -0800 (PST)
+Received: from localhost ([2603:7000:c01:2716:929a:4aff:fe16:c778])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4f1bd70c2a7sm78168641cf.33.2025.12.14.08.06.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 14 Dec 2025 08:06:10 -0800 (PST)
+Date: Sun, 14 Dec 2025 11:06:06 -0500
+From: Johannes Weiner <hannes@cmpxchg.org>
+To: Vlastimil Babka <vbabka@suse.cz>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
 	Andrew Morton <akpm@linux-foundation.org>,
-	David Hildenbrand <david@kernel.org>,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	"Liam R . Howlett" <Liam.Howlett@oracle.com>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <npache@redhat.com>,
-	Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>,
-	Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>,
-	Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Gregory Price <gourry@gourry.net>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Thomas Huth <thuth@redhat.com>,
-	Will Deacon <will@kernel.org>,
-	Matthew Wilcox <willy@infradead.org>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org,
-	linux-mm@kvack.org
-Cc: Alex Shi <alexs@kernel.org>,
-	Juergen Gross <jgross@suse.com>,
-	Jason Gunthorpe <jgg@ziepe.ca>
-Subject: [RFC PATCH 2/2] mm/pgtable: convert pgtable_trans_huge_withdraw to ptdesc
-Date: Sun, 14 Dec 2025 14:55:46 +0800
-Message-ID: <20251214065546.156209-2-alexs@kernel.org>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20251214065546.156209-1-alexs@kernel.org>
-References: <20251214065546.156209-1-alexs@kernel.org>
+	Marc Hartmayer <mhartmay@linux.ibm.com>, linux-mm@kvack.org,
+	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm/page_alloc: change all pageblocks migrate type on
+ coalescing
+Message-ID: <20251214160606.GA905277@cmpxchg.org>
+References: <20251212151457.3898073Add-agordeev@linux.ibm.com>
+ <5e79bed1-598d-4e34-8f1e-87b6dba52bf8@suse.cz>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5e79bed1-598d-4e34-8f1e-87b6dba52bf8@suse.cz>
 
-From: Alex Shi <alexs@kernel.org>
+On Fri, Dec 12, 2025 at 04:46:46PM +0100, Vlastimil Babka wrote:
+> On 12/12/25 16:14, Alexander Gordeev wrote:
+> > When a page is freed it coalesces with a buddy into a higher
+> > order page while possible. When the buddy page migrate type
+> > differs, it is expected to be updated to match the one of the
+> > page being freed.
+> > 
+> > However, only the first pageblock of the buddy page is updated,
+> > while the rest of the pageblocks are left unchanged.
+> > 
+> > That causes warnings in later expand() and other code paths
+> > (like below), since an inconsistency between migration type
+> > of the list containing the page and the page-owned pageblocks
+> > migration types is introduced.
 
-Following the last function change in pgtable_trans_huge_deposit().
-this time we convert the return value for pgtable_trans_huge_withdraw()
+Absolutely right, and the fix makes sense to me. Thanks!
 
-In future, we could do further to convert more pgtable_t to ptdesc
-struct and then replace the pgtable_t to ptdesc* except s390/powerpc/sparc
-archs.
+> Hm I guess we haven't seen this before because it's common that
+> pageblock_order is just one below MAX_ORDER so we're only merging two
+> pageblocks. But your arch/config must be different to expose it. In any case
+> LGTM, thanks.
 
-Signed-off-by: Alex Shi <alexs@kernel.org>
-Cc: linux-mm@kvack.org
-Cc: sparclinux@vger.kernel.org
-Cc: linux-s390@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Matthew Wilcox  <willy@infradead.org>
-Cc: Magnus Lindholm <linmag7@gmail.com>
-Cc: Thomas Huth <thuth@redhat.com>
-Cc: Alistair Popple <apopple@nvidia.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Lance Yang <lance.yang@linux.dev>
-Cc: Barry Song <baohua@kernel.org>
-Cc: Dev Jain <dev.jain@arm.com>
-Cc: Ryan Roberts <ryan.roberts@arm.com>
-Cc: Nico Pache <npache@redhat.com>
-Cc: Baolin Wang <baolin.wang@linux.alibaba.com>
-Cc: Zi Yan <ziy@nvidia.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Suren Baghdasaryan <surenb@google.com>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Liam R. Howlett <Liam.Howlett@oracle.com>
-Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Cc: David Hildenbrand <david@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andreas Larsson <andreas@gaisler.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christophe Leroy  <chleroy@kernel.org>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
----
- arch/powerpc/include/asm/book3s/64/pgtable.h |  8 ++++----
- arch/s390/include/asm/pgtable.h              |  2 +-
- arch/s390/mm/pgtable.c                       |  4 ++--
- arch/sparc/include/asm/pgtable_64.h          |  2 +-
- arch/sparc/mm/tlb.c                          |  4 ++--
- include/linux/pgtable.h                      |  3 ++-
- mm/huge_memory.c                             | 15 +++++++--------
- mm/pgtable-generic.c                         |  4 ++--
- 8 files changed, 21 insertions(+), 21 deletions(-)
++1
 
-diff --git a/arch/powerpc/include/asm/book3s/64/pgtable.h b/arch/powerpc/include/asm/book3s/64/pgtable.h
-index f10736af296d..3485de5178b5 100644
---- a/arch/powerpc/include/asm/book3s/64/pgtable.h
-+++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
-@@ -1328,12 +1328,12 @@ static inline void pgtable_trans_huge_deposit(struct mm_struct *mm,
- }
- 
- #define __HAVE_ARCH_PGTABLE_WITHDRAW
--static inline pgtable_t pgtable_trans_huge_withdraw(struct mm_struct *mm,
--						    pmd_t *pmdp)
-+static inline struct ptdesc *pgtable_trans_huge_withdraw(struct mm_struct *mm,
-+							 pmd_t *pmdp)
- {
- 	if (radix_enabled())
--		return radix__pgtable_trans_huge_withdraw(mm, pmdp);
--	return hash__pgtable_trans_huge_withdraw(mm, pmdp);
-+		return page_ptdesc(radix__pgtable_trans_huge_withdraw(mm, pmdp));
-+	return page_ptdesc(hash__pgtable_trans_huge_withdraw(mm, pmdp));
- }
- 
- #define __HAVE_ARCH_PMDP_INVALIDATE
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index e45cb52a923a..5f7fab7b121b 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1754,7 +1754,7 @@ void pgtable_trans_huge_deposit(struct mm_struct *mm, pmd_t *pmdp,
- 				struct ptdesc *pgtable);
- 
- #define __HAVE_ARCH_PGTABLE_WITHDRAW
--pgtable_t pgtable_trans_huge_withdraw(struct mm_struct *mm, pmd_t *pmdp);
-+struct ptdesc *pgtable_trans_huge_withdraw(struct mm_struct *mm, pmd_t *pmdp);
- 
- #define  __HAVE_ARCH_PMDP_SET_ACCESS_FLAGS
- static inline int pmdp_set_access_flags(struct vm_area_struct *vma,
-diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-index c301af71b3ec..6e53a30dd3ae 100644
---- a/arch/s390/mm/pgtable.c
-+++ b/arch/s390/mm/pgtable.c
-@@ -534,7 +534,7 @@ void pgtable_trans_huge_deposit(struct mm_struct *mm, pmd_t *pmdp,
- 	pmd_huge_pte(mm, pmdp) = pgtable;
- }
- 
--pgtable_t pgtable_trans_huge_withdraw(struct mm_struct *mm, pmd_t *pmdp)
-+struct ptdesc *pgtable_trans_huge_withdraw(struct mm_struct *mm, pmd_t *pmdp)
- {
- 	struct list_head *lh;
- 	pgtable_t pgtable;
-@@ -555,7 +555,7 @@ pgtable_t pgtable_trans_huge_withdraw(struct mm_struct *mm, pmd_t *pmdp)
- 	set_pte(ptep, __pte(_PAGE_INVALID));
- 	ptep++;
- 	set_pte(ptep, __pte(_PAGE_INVALID));
--	return pgtable;
-+	return page_ptdesc(pgtable);
- }
- #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
- 
-diff --git a/arch/sparc/include/asm/pgtable_64.h b/arch/sparc/include/asm/pgtable_64.h
-index 4b7f7113a1b3..29fc86175300 100644
---- a/arch/sparc/include/asm/pgtable_64.h
-+++ b/arch/sparc/include/asm/pgtable_64.h
-@@ -995,7 +995,7 @@ void pgtable_trans_huge_deposit(struct mm_struct *mm, pmd_t *pmdp,
- 				struct ptdesc *pgtable);
- 
- #define __HAVE_ARCH_PGTABLE_WITHDRAW
--pgtable_t pgtable_trans_huge_withdraw(struct mm_struct *mm, pmd_t *pmdp);
-+struct ptdesc *pgtable_trans_huge_withdraw(struct mm_struct *mm, pmd_t *pmdp);
- #endif
- 
- /*
-diff --git a/arch/sparc/mm/tlb.c b/arch/sparc/mm/tlb.c
-index 5dfee57d2440..8b00b62c06bd 100644
---- a/arch/sparc/mm/tlb.c
-+++ b/arch/sparc/mm/tlb.c
-@@ -284,7 +284,7 @@ void pgtable_trans_huge_deposit(struct mm_struct *mm, pmd_t *pmdp,
- 	pmd_huge_pte(mm, pmdp) = pgtable;
- }
- 
--pgtable_t pgtable_trans_huge_withdraw(struct mm_struct *mm, pmd_t *pmdp)
-+struct ptdesc *pgtable_trans_huge_withdraw(struct mm_struct *mm, pmd_t *pmdp)
- {
- 	struct list_head *lh;
- 	pgtable_t pgtable;
-@@ -303,6 +303,6 @@ pgtable_t pgtable_trans_huge_withdraw(struct mm_struct *mm, pmd_t *pmdp)
- 	pte_val(pgtable[0]) = 0;
- 	pte_val(pgtable[1]) = 0;
- 
--	return pgtable;
-+	return page_ptdesc(pgtable);
- }
- #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
-diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-index a5b1e3f7452a..4b20b3d7aaec 100644
---- a/include/linux/pgtable.h
-+++ b/include/linux/pgtable.h
-@@ -1021,7 +1021,8 @@ extern void pgtable_trans_huge_deposit(struct mm_struct *mm, pmd_t *pmdp,
- #endif
- 
- #ifndef __HAVE_ARCH_PGTABLE_WITHDRAW
--extern pgtable_t pgtable_trans_huge_withdraw(struct mm_struct *mm, pmd_t *pmdp);
-+extern struct ptdesc *pgtable_trans_huge_withdraw(struct mm_struct *mm,
-+						  pmd_t *pmdp);
- #endif
- 
- #ifndef arch_needs_pgtable_deposit
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index ff74bd70690d..6f6cdb3ae888 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -2334,7 +2334,7 @@ static inline void zap_deposited_table(struct mm_struct *mm, pmd_t *pmd)
- {
- 	pgtable_t pgtable;
- 
--	pgtable = pgtable_trans_huge_withdraw(mm, pmd);
-+	pgtable = ptdesc_page(pgtable_trans_huge_withdraw(mm, pmd));
- 	pte_free(mm, pgtable);
- 	mm_dec_nr_ptes(mm);
- }
-@@ -2492,10 +2492,9 @@ bool move_huge_pmd(struct vm_area_struct *vma, unsigned long old_addr,
- 		VM_BUG_ON(!pmd_none(*new_pmd));
- 
- 		if (pmd_move_must_withdraw(new_ptl, old_ptl, vma)) {
--			pgtable_t pgtable;
-+			struct ptdesc *pgtable;
- 			pgtable = pgtable_trans_huge_withdraw(mm, old_pmd);
--			pgtable_trans_huge_deposit(mm, new_pmd,
--							page_ptdesc(pgtable));
-+			pgtable_trans_huge_deposit(mm, new_pmd,	pgtable);
- 		}
- 		pmd = move_soft_dirty_pmd(pmd);
- 		if (vma_has_uffd_without_event_remap(vma))
-@@ -2710,7 +2709,7 @@ int move_pages_huge_pmd(struct mm_struct *mm, pmd_t *dst_pmd, pmd_t *src_pmd, pm
- 	struct page *src_page;
- 	struct folio *src_folio;
- 	spinlock_t *src_ptl, *dst_ptl;
--	pgtable_t src_pgtable;
-+	struct ptdesc *src_pgtable;
- 	struct mmu_notifier_range range;
- 	int err = 0;
- 
-@@ -2801,7 +2800,7 @@ int move_pages_huge_pmd(struct mm_struct *mm, pmd_t *dst_pmd, pmd_t *src_pmd, pm
- 	set_pmd_at(mm, dst_addr, dst_pmd, _dst_pmd);
- 
- 	src_pgtable = pgtable_trans_huge_withdraw(mm, src_pmd);
--	pgtable_trans_huge_deposit(mm, dst_pmd, page_ptdesc(src_pgtable));
-+	pgtable_trans_huge_deposit(mm, dst_pmd, src_pgtable);
- unlock_ptls:
- 	double_pt_unlock(src_ptl, dst_ptl);
- 	/* unblock rmap walks */
-@@ -2962,7 +2961,7 @@ static void __split_huge_zero_page_pmd(struct vm_area_struct *vma,
- 	 */
- 	old_pmd = pmdp_huge_clear_flush(vma, haddr, pmd);
- 
--	pgtable = pgtable_trans_huge_withdraw(mm, pmd);
-+	pgtable = ptdesc_page(pgtable_trans_huge_withdraw(mm, pmd));
- 	pmd_populate(mm, &_pmd, pgtable);
- 
- 	pte = pte_offset_map(&_pmd, haddr);
-@@ -3169,7 +3168,7 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
- 	 * Withdraw the table only after we mark the pmd entry invalid.
- 	 * This's critical for some architectures (Power).
- 	 */
--	pgtable = pgtable_trans_huge_withdraw(mm, pmd);
-+	pgtable = ptdesc_page(pgtable_trans_huge_withdraw(mm, pmd));
- 	pmd_populate(mm, &_pmd, pgtable);
- 
- 	pte = pte_offset_map(&_pmd, haddr);
-diff --git a/mm/pgtable-generic.c b/mm/pgtable-generic.c
-index 220844a81e38..a95d9309215e 100644
---- a/mm/pgtable-generic.c
-+++ b/mm/pgtable-generic.c
-@@ -179,7 +179,7 @@ void pgtable_trans_huge_deposit(struct mm_struct *mm, pmd_t *pmdp,
- 
- #ifndef __HAVE_ARCH_PGTABLE_WITHDRAW
- /* no "address" argument so destroys page coloring of some arch */
--pgtable_t pgtable_trans_huge_withdraw(struct mm_struct *mm, pmd_t *pmdp)
-+struct ptdesc *pgtable_trans_huge_withdraw(struct mm_struct *mm, pmd_t *pmdp)
- {
- 	struct ptdesc *pgtable;
- 
-@@ -191,7 +191,7 @@ pgtable_t pgtable_trans_huge_withdraw(struct mm_struct *mm, pmd_t *pmdp)
- 							  struct ptdesc, pt_list);
- 	if (pmd_huge_pte(mm, pmdp))
- 		list_del(&pgtable->pt_list);
--	return ptdesc_page(pgtable);
-+	return pgtable;
- }
- #endif
- 
--- 
-2.43.0
+> Acked-by: Vlastimil Babka <vbabka@suse.cz>
 
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+
+The warning makes the issue loud, but your patch is arguably fixing an
+earlier commit that introduces type updates during merges.  How about:
+
+Fixes: e6cf9e1c4cde ("mm: page_alloc: fix up block types when merging compatible blocks")
+Cc: stable@kernel.org
