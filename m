@@ -1,286 +1,79 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from out-188.mta0.migadu.com (out-188.mta0.migadu.com [91.218.175.188])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 406FD286417;
-	Mon, 15 Dec 2025 08:10:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB5581C2334
+	for <linux-s390@vger.kernel.org>; Mon, 15 Dec 2025 12:22:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.188
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765786221; cv=none; b=QNkVRI4G5Bzl/dkfcjQfLKvPKET0usCbJfcHPgL02Et+9bVdOWc/WxKTJ9aK8cUGc9EfHpJQX1ImYHzo1ZjSnks9NsyYFS/j8P7WF+RqvIzbKoBFf1klS4pFCsRDBAVQoqNWQbymK1NDb2RLjiw0/MZqI62gVzw+HqNv8fAJkBs=
+	t=1765801360; cv=none; b=brGoGOxcTm7Gylok9Km4MkHRkkb7UXV8V20xWbaQKzpgM02qES08KcbT/lA2G0u/SxLqwEz5PwXOoBE+F+cwX4cEeoqM0ycU/womDN3McIBSHUKVgYi8CV7hWI44o3i8Ii9BzjJNlgZv7+WU/kgk8MNARJapOVPsXAxwMcb+YUA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765786221; c=relaxed/simple;
-	bh=SSVOGwp3sbrQqeHlXrknV2g7/roxspr77GroKPhgoEk=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=Rvk7LquJ5XaDFO/n9/Sr7SlO3ea5HSe4ZtPxDmgmN8Ioxbu5LJbpT9WfPS657WDT+qf79ZJjo9PQDzLW1hAW7fi0qx0xlTVDaAYIleOnn/tH+Ac6pNhbFnHtm98j+5sDXbPZzlsKRQlI6dRXqcPdVOOwD89zicLCBN8Eyv4UoC0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=M3fZMWLd; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1765801360; c=relaxed/simple;
+	bh=96QLPrrc2OBC50JADV6ayGtUDJLMXKRTwoyE2D7yP6I=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=lJJZ4Js23jUC071M/elH455Ggm0/S7MUGdGelLLi/dk1Taqe1ZW4pa4ockbBgBuINgEl4ztDolL0yr6waK0udhxf4BtQWCnxuK3Xh6x24PvqHrN37w/cf+OCMLyD6FiYy+2u0lyhSXPLC6Zdpd3mtdtLVr+Au3ONULpvXox/Jtk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=ox7RqcDJ; arc=none smtp.client-ip=91.218.175.188
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="M3fZMWLd"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5BEKl5pQ018905;
-	Mon, 15 Dec 2025 08:10:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:message-id:mime-version:subject:to; s=
-	pp1; bh=9TN0+WLfq+iOFz2n55/gTGboSo278w86sYqh9vG51qQ=; b=M3fZMWLd
-	R7UpK1F0UrZip9JftLjorD6dmtRIb832XjUV9dpr6tcyuqEsqT4sppaX3JvUSJiW
-	X5Ci1RlsGqm5RkMmW/a+yo0A06G30w45Fh6Z9RYguPQBEHAottO17PEE7DSkWdlh
-	6zHfWpwPsL5o96bH43fLjHP+XY5Ju9iV6yR+WWoZ1dG42JogaXpbMbKriDUgkALO
-	+da6I1BGERKxQ62alueD1hrHIO1SJI2VDpd74j9KvpJ35YNWrQ/U5Exz8Z9rpcl0
-	rIsgxYtRUAenlDE7QeVdTQzsKSsGcwQ+ZCEn4Ssj95dnNM/VCgRhsscWRoIM741o
-	7cM174NeXH+rbQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4b0wjpre6k-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Dec 2025 08:10:07 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5BF80uK3021788;
-	Mon, 15 Dec 2025 08:10:06 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4b0wjpre6f-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Dec 2025 08:10:06 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5BF4IDUF002755;
-	Mon, 15 Dec 2025 08:10:06 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4b1kfmw8e6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Dec 2025 08:10:06 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5BF8A4Qg9437574
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 15 Dec 2025 08:10:04 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0438F2004F;
-	Mon, 15 Dec 2025 08:10:04 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C48212004B;
-	Mon, 15 Dec 2025 08:10:03 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 15 Dec 2025 08:10:03 +0000 (GMT)
-Date: Mon, 15 Dec 2025 09:10:02 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>, Johannes Weiner <hannes@cmpxchg.org>,
-        Wei Yang <richard.weiyang@gmail.com>
-Cc: Marc Hartmayer <mhartmay@linux.ibm.com>, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@kernel.org
-Subject: [PATCH v2] mm/page_alloc: change all pageblocks migrate type on
- coalescing
-Message-ID: <20251215081002.3353900A9c-agordeev@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="ox7RqcDJ"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1765801351;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=6ld/ZmD/dR1Psr1Cq3hfkaiQuLXvNdSYI64jtTRWPdE=;
+	b=ox7RqcDJfCIcIN8Y6nnJ60fsocwgT9g22sg68FHHhiMZWthLRI5LHTYqnwNnFH6KrJQzGG
+	t1XroUe6YNU4V1cy7aRmk682c1hrI4fbYGbZYjBG7fS+bwHQzIngYmUsrUN2bjCmPP3Ge6
+	Cnw2tMXn5Xk8JyndLkvV23gQuky4j6Q=
+From: Thorsten Blum <thorsten.blum@linux.dev>
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>
+Cc: Thorsten Blum <thorsten.blum@linux.dev>,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] s390/cmm: Account for NUL when calculating 'len' in cmm_timeout_handler
+Date: Mon, 15 Dec 2025 13:22:14 +0100
+Message-ID: <20251215122214.381098-2-thorsten.blum@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjEzMDAwMSBTYWx0ZWRfXyqEMxmo4zfwJ
- D/AkJd2GqsRUGWSIBOwYzU1jHfllnWOMURy3m82sOP5uH2lDAfBcgV7FOeX3BzwnHDYEil7G2pD
- l/Kao9xLvpNoEJYvmJHf+70RGCTAopkJZ2MDk7ma8C6nlv1jNmQl+nRU+2q2wZnSF4sfLBqujVk
- WXw8vH8irCxgkqz0y9f2JLJXz6MqaQZ4IKyetT6K4YctPITFgDHoLw+zEaEbTqFYB9myeClC1dj
- NBT+K9sH1WsnXw9NcRf3boXzoOjX8aggxW8Ckmg709/nUOHWrtvZr0doVICDuojA9PTxMzqGDAV
- +/RKfQDZg7GCa5SmsoMkpXMfSimA/H49pEfxQodawGwDgomiELeY5SYIWUqgPfS98RI/GpjWNz6
- aW8lwEYCB3ezc5atJx/q4lB+HbmoGw==
-X-Proofpoint-GUID: utTcJlh2SA9fm9DNl7XaUa0LSOI0lmM1
-X-Proofpoint-ORIG-GUID: xvODBwdLgvL1sqz35cOHofl8jzJIiH9A
-X-Authority-Analysis: v=2.4 cv=Kq5AGGWN c=1 sm=1 tr=0 ts=693fc25f cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=kj9zAlcOel0A:10 a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=ufHFDILaAAAA:8 a=pGLkceISAAAA:8
- a=AwSrL8ALKR89N_BTLjEA:9 a=CjuIK1q_8ugA:10 a=ZmIg1sZ3JBWsdXgziEIF:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-12-15_01,2025-12-15_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 malwarescore=0 impostorscore=0 clxscore=1011 spamscore=0
- priorityscore=1501 lowpriorityscore=0 bulkscore=0 phishscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2512130001
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-When a page is freed it coalesces with a buddy into a higher
-order page while possible. When the buddy page migrate type
-differs, it is expected to be updated to match the one of the
-page being freed.
+When the input length 'lenp' equals sizeof(buf), the current code copies
+all 64 bytes, but then immediately overwrites the last byte with a NUL
+terminator. Limit the number of bytes to copy to 'sizeof(buf) - 1' to
+reserve space for the NUL terminator.
 
-However, only the first pageblock of the buddy page is updated,
-while the rest of the pageblocks are left unchanged.
-
-That causes warnings in later expand() and other code paths
-(like below), since an inconsistency between migration type
-of the list containing the page and the page-owned pageblocks
-migration types is introduced.
-
-[  308.986589] ------------[ cut here ]------------
-[  308.987227] page type is 0, passed migratetype is 1 (nr=256)
-[  308.987275] WARNING: CPU: 1 PID: 5224 at mm/page_alloc.c:812 expand+0x23c/0x270
-[  308.987293] Modules linked in: algif_hash(E) af_alg(E) nft_fib_inet(E) nft_fib_ipv4(E) nft_fib_ipv6(E) nft_fib(E) nft_reject_inet(E) nf_reject_ipv4(E) nf_reject_ipv6(E) nft_reject(E) nft_ct(E) nft_chain_nat(E) nf_nat(E) nf_conntrack(E) nf_defrag_ipv6(E) nf_defrag_ipv4(E) nf_tables(E) s390_trng(E) vfio_ccw(E) mdev(E) vfio_iommu_type1(E) vfio(E) sch_fq_codel(E) drm(E) i2c_core(E) drm_panel_orientation_quirks(E) loop(E) nfnetlink(E) vsock_loopback(E) vmw_vsock_virtio_transport_common(E) vsock(E) ctcm(E) fsm(E) diag288_wdt(E) watchdog(E) zfcp(E) scsi_transport_fc(E) ghash_s390(E) prng(E) aes_s390(E) des_generic(E) des_s390(E) libdes(E) sha3_512_s390(E) sha3_256_s390(E) sha_common(E) paes_s390(E) crypto_engine(E) pkey_cca(E) pkey_ep11(E) zcrypt(E) rng_core(E) pkey_pckmo(E) pkey(E) autofs4(E)
-[  308.987439] Unloaded tainted modules: hmac_s390(E):2
-[  308.987650] CPU: 1 UID: 0 PID: 5224 Comm: mempig_verify Kdump: loaded Tainted: G            E       6.18.0-gcc-bpf-debug #431 PREEMPT
-[  308.987657] Tainted: [E]=UNSIGNED_MODULE
-[  308.987661] Hardware name: IBM 3906 M04 704 (z/VM 7.3.0)
-[  308.987666] Krnl PSW : 0404f00180000000 00000349976fa600 (expand+0x240/0x270)
-[  308.987676]            R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:3 PM:0 RI:0 EA:3
-[  308.987682] Krnl GPRS: 0000034980000004 0000000000000005 0000000000000030 000003499a0e6d88
-[  308.987688]            0000000000000005 0000034980000005 000002be803ac000 0000023efe6c8300
-[  308.987692]            0000000000000008 0000034998d57290 000002be00000100 0000023e00000008
-[  308.987696]            0000000000000000 0000000000000000 00000349976fa5fc 000002c99b1eb6f0
-[  308.987708] Krnl Code: 00000349976fa5f0: c020008a02f2	larl	%r2,000003499883abd4
-                          00000349976fa5f6: c0e5ffe3f4b5	brasl	%r14,0000034997378f60
-                         #00000349976fa5fc: af000000		mc	0,0
-                         >00000349976fa600: a7f4ff4c		brc	15,00000349976fa498
-                          00000349976fa604: b9040026		lgr	%r2,%r6
-                          00000349976fa608: c0300088317f	larl	%r3,0000034998800906
-                          00000349976fa60e: c0e5fffdb6e1	brasl	%r14,00000349976b13d0
-                          00000349976fa614: af000000		mc	0,0
-[  308.987734] Call Trace:
-[  308.987738]  [<00000349976fa600>] expand+0x240/0x270
-[  308.987744] ([<00000349976fa5fc>] expand+0x23c/0x270)
-[  308.987749]  [<00000349976ff95e>] rmqueue_bulk+0x71e/0x940
-[  308.987754]  [<00000349976ffd7e>] __rmqueue_pcplist+0x1fe/0x2a0
-[  308.987759]  [<0000034997700966>] rmqueue.isra.0+0xb46/0xf40
-[  308.987763]  [<0000034997703ec8>] get_page_from_freelist+0x198/0x8d0
-[  308.987768]  [<0000034997706fa8>] __alloc_frozen_pages_noprof+0x198/0x400
-[  308.987774]  [<00000349977536f8>] alloc_pages_mpol+0xb8/0x220
-[  308.987781]  [<0000034997753bf6>] folio_alloc_mpol_noprof+0x26/0xc0
-[  308.987786]  [<0000034997753e4c>] vma_alloc_folio_noprof+0x6c/0xa0
-[  308.987791]  [<0000034997775b22>] vma_alloc_anon_folio_pmd+0x42/0x240
-[  308.987799]  [<000003499777bfea>] __do_huge_pmd_anonymous_page+0x3a/0x210
-[  308.987804]  [<00000349976cb08e>] __handle_mm_fault+0x4de/0x500
-[  308.987809]  [<00000349976cb14c>] handle_mm_fault+0x9c/0x3a0
-[  308.987813]  [<000003499734d70e>] do_exception+0x1de/0x540
-[  308.987822]  [<0000034998387390>] __do_pgm_check+0x130/0x220
-[  308.987830]  [<000003499839a934>] pgm_check_handler+0x114/0x160
-[  308.987838] 3 locks held by mempig_verify/5224:
-[  308.987842]  #0: 0000023ea44c1e08 (vm_lock){++++}-{0:0}, at: lock_vma_under_rcu+0xb2/0x2a0
-[  308.987859]  #1: 0000023ee4d41b18 (&pcp->lock){+.+.}-{2:2}, at: rmqueue.isra.0+0xad6/0xf40
-[  308.987871]  #2: 0000023efe6c8998 (&zone->lock){..-.}-{2:2}, at: rmqueue_bulk+0x5a/0x940
-[  308.987886] Last Breaking-Event-Address:
-[  308.987890]  [<0000034997379096>] __warn_printk+0x136/0x140
-[  308.987897] irq event stamp: 52330356
-[  308.987901] hardirqs last  enabled at (52330355): [<000003499838742e>] __do_pgm_check+0x1ce/0x220
-[  308.987907] hardirqs last disabled at (52330356): [<000003499839932e>] _raw_spin_lock_irqsave+0x9e/0xe0
-[  308.987913] softirqs last  enabled at (52329882): [<0000034997383786>] handle_softirqs+0x2c6/0x530
-[  308.987922] softirqs last disabled at (52329859): [<0000034997382f86>] __irq_exit_rcu+0x126/0x140
-[  308.987929] ---[ end trace 0000000000000000 ]---
-[  308.987936] ------------[ cut here ]------------
-[  308.987940] page type is 0, passed migratetype is 1 (nr=256)
-[  308.987951] WARNING: CPU: 1 PID: 5224 at mm/page_alloc.c:860 __del_page_from_free_list+0x1be/0x1e0
-[  308.987960] Modules linked in: algif_hash(E) af_alg(E) nft_fib_inet(E) nft_fib_ipv4(E) nft_fib_ipv6(E) nft_fib(E) nft_reject_inet(E) nf_reject_ipv4(E) nf_reject_ipv6(E) nft_reject(E) nft_ct(E) nft_chain_nat(E) nf_nat(E) nf_conntrack(E) nf_defrag_ipv6(E) nf_defrag_ipv4(E) nf_tables(E) s390_trng(E) vfio_ccw(E) mdev(E) vfio_iommu_type1(E) vfio(E) sch_fq_codel(E) drm(E) i2c_core(E) drm_panel_orientation_quirks(E) loop(E) nfnetlink(E) vsock_loopback(E) vmw_vsock_virtio_transport_common(E) vsock(E) ctcm(E) fsm(E) diag288_wdt(E) watchdog(E) zfcp(E) scsi_transport_fc(E) ghash_s390(E) prng(E) aes_s390(E) des_generic(E) des_s390(E) libdes(E) sha3_512_s390(E) sha3_256_s390(E) sha_common(E) paes_s390(E) crypto_engine(E) pkey_cca(E) pkey_ep11(E) zcrypt(E) rng_core(E) pkey_pckmo(E) pkey(E) autofs4(E)
-[  308.988070] Unloaded tainted modules: hmac_s390(E):2
-[  308.988087] CPU: 1 UID: 0 PID: 5224 Comm: mempig_verify Kdump: loaded Tainted: G        W   E       6.18.0-gcc-bpf-debug #431 PREEMPT
-[  308.988095] Tainted: [W]=WARN, [E]=UNSIGNED_MODULE
-[  308.988100] Hardware name: IBM 3906 M04 704 (z/VM 7.3.0)
-[  308.988105] Krnl PSW : 0404f00180000000 00000349976f9e32 (__del_page_from_free_list+0x1c2/0x1e0)
-[  308.988118]            R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:3 PM:0 RI:0 EA:3
-[  308.988127] Krnl GPRS: 0000034980000004 0000000000000005 0000000000000030 000003499a0e6d88
-[  308.988133]            0000000000000005 0000034980000005 0000034998d57290 0000023efe6c8300
-[  308.988139]            0000000000000001 0000000000000008 000002be00000100 000002be803ac000
-[  308.988144]            0000000000000000 0000000000000001 00000349976f9e2e 000002c99b1eb728
-[  308.988153] Krnl Code: 00000349976f9e22: c020008a06d9	larl	%r2,000003499883abd4
-                          00000349976f9e28: c0e5ffe3f89c	brasl	%r14,0000034997378f60
-                         #00000349976f9e2e: af000000		mc	0,0
-                         >00000349976f9e32: a7f4ff4e		brc	15,00000349976f9cce
-                          00000349976f9e36: b904002b		lgr	%r2,%r11
-                          00000349976f9e3a: c030008a06e7	larl	%r3,000003499883ac08
-                          00000349976f9e40: c0e5fffdbac8	brasl	%r14,00000349976b13d0
-                          00000349976f9e46: af000000		mc	0,0
-[  308.988184] Call Trace:
-[  308.988188]  [<00000349976f9e32>] __del_page_from_free_list+0x1c2/0x1e0
-[  308.988195] ([<00000349976f9e2e>] __del_page_from_free_list+0x1be/0x1e0)
-[  308.988202]  [<00000349976ff946>] rmqueue_bulk+0x706/0x940
-[  308.988208]  [<00000349976ffd7e>] __rmqueue_pcplist+0x1fe/0x2a0
-[  308.988214]  [<0000034997700966>] rmqueue.isra.0+0xb46/0xf40
-[  308.988221]  [<0000034997703ec8>] get_page_from_freelist+0x198/0x8d0
-[  308.988227]  [<0000034997706fa8>] __alloc_frozen_pages_noprof+0x198/0x400
-[  308.988233]  [<00000349977536f8>] alloc_pages_mpol+0xb8/0x220
-[  308.988240]  [<0000034997753bf6>] folio_alloc_mpol_noprof+0x26/0xc0
-[  308.988247]  [<0000034997753e4c>] vma_alloc_folio_noprof+0x6c/0xa0
-[  308.988253]  [<0000034997775b22>] vma_alloc_anon_folio_pmd+0x42/0x240
-[  308.988260]  [<000003499777bfea>] __do_huge_pmd_anonymous_page+0x3a/0x210
-[  308.988267]  [<00000349976cb08e>] __handle_mm_fault+0x4de/0x500
-[  308.988273]  [<00000349976cb14c>] handle_mm_fault+0x9c/0x3a0
-[  308.988279]  [<000003499734d70e>] do_exception+0x1de/0x540
-[  308.988286]  [<0000034998387390>] __do_pgm_check+0x130/0x220
-[  308.988293]  [<000003499839a934>] pgm_check_handler+0x114/0x160
-[  308.988300] 3 locks held by mempig_verify/5224:
-[  308.988305]  #0: 0000023ea44c1e08 (vm_lock){++++}-{0:0}, at: lock_vma_under_rcu+0xb2/0x2a0
-[  308.988322]  #1: 0000023ee4d41b18 (&pcp->lock){+.+.}-{2:2}, at: rmqueue.isra.0+0xad6/0xf40
-[  308.988334]  #2: 0000023efe6c8998 (&zone->lock){..-.}-{2:2}, at: rmqueue_bulk+0x5a/0x940
-[  308.988346] Last Breaking-Event-Address:
-[  308.988350]  [<0000034997379096>] __warn_printk+0x136/0x140
-[  308.988356] irq event stamp: 52330356
-[  308.988360] hardirqs last  enabled at (52330355): [<000003499838742e>] __do_pgm_check+0x1ce/0x220
-[  308.988366] hardirqs last disabled at (52330356): [<000003499839932e>] _raw_spin_lock_irqsave+0x9e/0xe0
-[  308.988373] softirqs last  enabled at (52329882): [<0000034997383786>] handle_softirqs+0x2c6/0x530
-[  308.988380] softirqs last disabled at (52329859): [<0000034997382f86>] __irq_exit_rcu+0x126/0x140
-[  308.988388] ---[ end trace 0000000000000000 ]---
-
-Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
-Closes: https://lore.kernel.org/linux-mm/87wmalyktd.fsf@linux.ibm.com/
-Fixes: e6cf9e1c4cde ("mm: page_alloc: fix up block types when merging compatible blocks")
-Cc: stable@kernel.org
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Reviewed-by: Wei Yang <richard.weiyang@gmail.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Thorsten Blum <thorsten.blum@linux.dev>
 ---
- mm/page_alloc.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ arch/s390/mm/cmm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 822e05f1a964..f6586f165b89 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -914,6 +914,17 @@ buddy_merge_likely(unsigned long pfn, unsigned long buddy_pfn,
- 			NULL) != NULL;
- }
+diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
+index eb7ef63fab1e..06512bc178a5 100644
+--- a/arch/s390/mm/cmm.c
++++ b/arch/s390/mm/cmm.c
+@@ -311,9 +311,9 @@ static int cmm_timeout_handler(const struct ctl_table *ctl, int write,
+ 	}
  
-+static void change_pageblock_range(struct page *pageblock_page,
-+				   int start_order, int migratetype)
-+{
-+	int nr_pageblocks = 1 << (start_order - pageblock_order);
-+
-+	while (nr_pageblocks--) {
-+		set_pageblock_migratetype(pageblock_page, migratetype);
-+		pageblock_page += pageblock_nr_pages;
-+	}
-+}
-+
- /*
-  * Freeing function for a buddy system allocator.
-  *
-@@ -1000,7 +1011,7 @@ static inline void __free_one_page(struct page *page,
- 			 * expand() down the line puts the sub-blocks
- 			 * on the right freelists.
- 			 */
--			set_pageblock_migratetype(buddy, migratetype);
-+			change_pageblock_range(buddy, order, migratetype);
- 		}
- 
- 		combined_pfn = buddy_pfn & pfn;
-@@ -2147,17 +2158,6 @@ bool pageblock_unisolate_and_move_free_pages(struct zone *zone, struct page *pag
- 
- #endif /* CONFIG_MEMORY_ISOLATION */
- 
--static void change_pageblock_range(struct page *pageblock_page,
--					int start_order, int migratetype)
--{
--	int nr_pageblocks = 1 << (start_order - pageblock_order);
--
--	while (nr_pageblocks--) {
--		set_pageblock_migratetype(pageblock_page, migratetype);
--		pageblock_page += pageblock_nr_pages;
--	}
--}
--
- static inline bool boost_watermark(struct zone *zone)
- {
- 	unsigned long max_boost;
+ 	if (write) {
+-		len = min(*lenp, sizeof(buf));
++		len = min(*lenp, sizeof(buf) - 1);
+ 		memcpy(buf, buffer, len);
+-		buf[len - 1] = '\0';
++		buf[len] = '\0';
+ 		cmm_skip_blanks(buf, &p);
+ 		nr = simple_strtoul(p, &p, 0);
+ 		cmm_skip_blanks(p, &p);
 -- 
-2.51.0
+Thorsten Blum <thorsten.blum@linux.dev>
+GPG: 1D60 735E 8AEF 3BE4 73B6  9D84 7336 78FD 8DFE EAD4
 
