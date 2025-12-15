@@ -1,140 +1,174 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57B8930F941;
-	Mon, 15 Dec 2025 15:42:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 411ED28B3E2;
+	Mon, 15 Dec 2025 16:35:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765813338; cv=none; b=aL4mVVZMQYs5j4wogBFzGAjsxhygz9ge1IbmiHvpNn5wYUZ4qI63ElJsZAe6TU0okDShNhfxWScpS6KjCcwd/O0HbJmBpgbzcyZMaL6zYkBFpq0n0o4oHITJs2wDxIxPHMghwhl7vcfRkEY73vaFqbXj03egD75UBfJG3lELNV0=
+	t=1765816541; cv=none; b=ktlAO09yiYs6Brb3M/gXV35hyUZS5p5nHNdicT6frZnpyk3nNUscVaPeO2aTYU3kT3dWtxH1Iv4An+IE0v0FZLgSK/e1VCx+OZWL/s8HlOqr71+48DY9NGTXNa/U3hrYBQ8b15mdY6yt8TCDvGx/odlW5eeEp/8Pnsm98RHjdms=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765813338; c=relaxed/simple;
-	bh=dJS6PDNzy5SX9DFgslkRBMWCk8nU43CN1Eb994NOW2Y=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=n9Noq2S+jw0T7r30x4oJZZ1/BJBvUHh8KdJ0o0Pk0w42TkiskEDhphRm/7Q3Bem+O3Oh9zP/72R7dbkGtsHNBsH+QJ3dzYuA60OP5nkToVNKq5Oz7NAL4TBIbvi11F+fG3OzydVYaIhJC2blWMKyc/7ITBrGNVeAIiXZzzT1Y/k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=l6o1JL8E; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=5XRdeOdi; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="l6o1JL8E";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="5XRdeOdi"
-From: Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1765813335;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qNQsIHP9fHBp8xC+0dW3l0G1EY9NhEVbQNXrV3I9Txo=;
-	b=l6o1JL8EEW9krcVDf/3SVEqIOq7qu5Lmvn1vrETvn5YQEo8YFjol7JUHrEknz8K6RNgPQN
-	FKW7BQUnYRVVDVRlT7YQN4De/Ldapy+1xEp3lgFvjvbu7yu0mQ86emPtfMyk+rHxcwseJ2
-	yLvH05FPZoAZ2xsPfmi3wNh0H7OUuLqyE8Mf9Sq1U4GjHn1x4qwrcFfRNiz6jvUow9nbze
-	xXyMx8FfgNWS3qnYTsP4fR78CQUG5d8UGl6d1hpq1EImwAXNw8p2lOtrR7clMYG1nDxPHB
-	m9QPbt56w6aBOHWkJO359PC+76vqXyJ4Co57cxuMJgJZGqVHpGS3nbScA6/X+g==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1765813335;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qNQsIHP9fHBp8xC+0dW3l0G1EY9NhEVbQNXrV3I9Txo=;
-	b=5XRdeOdi7Z8jPn2I8e0wJwRxbmi816hPnPyZ//AKwL4kDs/uSE6sqgSXzo/PDUUV+r1rSZ
-	B92xvrm4+KVuAcCQ==
-To: Xie Yuanbin <qq570070308@gmail.com>, peterz@infradead.org,
- riel@surriel.com, segher@kernel.crashing.org, david@kernel.org,
- hpa@zytor.com, arnd@arndb.de, acme@kernel.org, adrian.hunter@intel.com,
- agordeev@linux.ibm.com, akpm@linux-foundation.org, alex@ghiti.fr,
- alexander.shishkin@linux.intel.com, andreas@gaisler.com,
- anshuman.khandual@arm.com, aou@eecs.berkeley.edu,
- borntraeger@linux.ibm.com, bp@alien8.de, bsegall@google.com,
- dave.hansen@linux.intel.com, davem@davemloft.net,
- dietmar.eggemann@arm.com, frederic@kernel.org, gor@linux.ibm.com,
- hca@linux.ibm.com, irogers@google.com, james.clark@linaro.org,
- jolsa@kernel.org, juri.lelli@redhat.com, justinstitt@google.com,
- lorenzo.stoakes@oracle.com, luto@kernel.org, mark.rutland@arm.com,
- mathieu.desnoyers@efficios.com, max.kellermann@ionos.com, mgorman@suse.de,
- mingo@redhat.com, morbo@google.com, namhyung@kernel.org,
- nathan@kernel.org, nick.desaulniers+lkml@gmail.com, nysal@linux.ibm.com,
- palmer@dabbelt.com, paulmck@kernel.org, pjw@kernel.org,
- rostedt@goodmis.org, ryan.roberts@arm.com, svens@linux.ibm.com,
- thuth@redhat.com, urezki@gmail.com, vincent.guittot@linaro.org,
- vschneid@redhat.com, linux@armlinux.org.uk
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-perf-users@vger.kernel.org, llvm@lists.linux.dev
-Subject: Re: [PATCH v5 1/3] x86/mm/tlb: Make enter_lazy_tlb() always inline
- on x86
-In-Reply-To: <20251214190907.184793-2-qq570070308@gmail.com>
-References: <20251214190907.184793-1-qq570070308@gmail.com>
- <20251214190907.184793-2-qq570070308@gmail.com>
-Date: Mon, 15 Dec 2025 16:42:13 +0100
-Message-ID: <87345beoq2.ffs@tglx>
+	s=arc-20240116; t=1765816541; c=relaxed/simple;
+	bh=h7YVrvePnITJ14SiwAjoVcfMwNTOP1EnaiwZkFEXsZ4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jXQPt2hqkSFT1ioQlO7hvItSsnaHlVY/3Fce4cXGya6nMPkGxKSg6U6VO01IsHyF9NOxEoiDhdL48e9xBKM1caEP7fDvBp2Bgs4zzkee+CvXX3Ol6lmDzUmV+GH3xljMg42fvXt4A/7pI+wYWu3c72Ne/uUtcj0iEUBqcWVjBME=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id ECF2EFEC;
+	Mon, 15 Dec 2025 08:35:29 -0800 (PST)
+Received: from e125769.cambridge.arm.com (e125769.cambridge.arm.com [10.1.196.27])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 24DE43F694;
+	Mon, 15 Dec 2025 08:35:33 -0800 (PST)
+From: Ryan Roberts <ryan.roberts@arm.com>
+To: Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Paul Walmsley <pjw@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Kees Cook <kees@kernel.org>,
+	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Mark Rutland <mark.rutland@arm.com>,
+	"Jason A. Donenfeld" <Jason@zx2c4.com>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Jeremy Linton <jeremy.linton@arm.com>
+Cc: Ryan Roberts <ryan.roberts@arm.com>,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	loongarch@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-hardening@vger.kernel.org
+Subject: [PATCH v2 0/3] Fix bugs and performance of kstack offset randomisation
+Date: Mon, 15 Dec 2025 16:35:14 +0000
+Message-ID: <20251215163520.1144179-1-ryan.roberts@arm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-On Mon, Dec 15 2025 at 03:09, Xie Yuanbin wrote:
-> enter_lazy_tlb() on x86 is short enough, and is called in context
-> switching, which is the hot code path.
->
-> Make enter_lazy_tlb() always inline on x86 to optimize performance.
->
-> Signed-off-by: Xie Yuanbin <qq570070308@gmail.com>
-> Reviewed-by: Rik van Riel <riel@surriel.com>
-> Reported-by: kernel test robot <lkp@intel.com>
-> Closes: https://lore.kernel.org/oe-kbuild-all/202511091959.kfmo9kPB-lkp@intel.com/
-> Closes: https://lore.kernel.org/oe-kbuild-all/202511092219.73aMMES4-lkp@intel.com/
-> Closes: https://lore.kernel.org/oe-kbuild-all/202511100042.ZklpqjOY-lkp@intel.com/
+Hi All,
 
-These Reported-by and Closes tags are just wrong. This is a new patch
-and the robot reported failures against earlier versions. The robot
-report is very clear about that:
+As I reported at [1], kstack offset randomisation suffers from a couple of bugs
+and, on arm64 at least, the performance is poor. This series attempts to fix
+both; patch 1 provides back-portable fixes for the functional bugs. Patches 2-3
+propose a performance improvement approach.
 
-  "If you fix the issue in a separate patch/commit (i.e. not just a new version of
-   the same patch/commit), kindly add following tags
-     Reported-by:...
-     Closes:..."
+I've looked at a few different options but ultimately decided that Jeremy's
+original prng approach is the fastest. I made the argument that this approach is
+secure "enough" in the RFC [2] and the responses indicated agreement.
 
-No?
+More details in the commit logs.
 
-> +/*
-> + * Please ignore the name of this function.  It should be called
-> + * switch_to_kernel_thread().
 
-And why is it not renamed then?
+Performance
+===========
 
-> + *
-> + * enter_lazy_tlb() is a hint from the scheduler that we are entering a
+Mean and tail performance of 3 "small" syscalls was measured. syscall was made
+10 million times and each individually measured and binned. These results have
+low noise so I'm confident that they are trustworthy.
 
-We enter a kernel thread? AFAIK the metaverse has been canceled.
+The baseline is v6.18-rc5 with stack randomization turned *off*. So I'm showing
+performance cost of turning it on without any changes to the implementation,
+then the reduced performance cost of turning it on with my changes applied.
 
-> + * kernel thread or other context without an mm.  Acceptable implementations
-> + * include doing nothing whatsoever, switching to init_mm, or various clever
-> + * lazy tricks to try to minimize TLB flushes.
-> + *
-> + * The scheduler reserves the right to call enter_lazy_tlb() several times
-> + * in a row.  It will notify us that we're going back to a real mm by
+**NOTE**: The below results were generated using the RFC patches but there is no
+meaningful change, so the numbers are still valid.
 
-It will notify us by sending email or what?
+arm64 (AWS Graviton3):
++-----------------+--------------+-------------+---------------+
+| Benchmark       | Result Class |   v6.18-rc5 | per-task-prng |
+|                 |              | rndstack-on |               |
+|                 |              |             |               |
++=================+==============+=============+===============+
+| syscall/getpid  | mean (ns)    |  (R) 15.62% |     (R) 3.43% |
+|                 | p99 (ns)     | (R) 155.01% |     (R) 3.20% |
+|                 | p99.9 (ns)   | (R) 156.71% |     (R) 2.93% |
++-----------------+--------------+-------------+---------------+
+| syscall/getppid | mean (ns)    |  (R) 14.09% |     (R) 2.12% |
+|                 | p99 (ns)     | (R) 152.81% |         1.55% |
+|                 | p99.9 (ns)   | (R) 153.67% |         1.77% |
++-----------------+--------------+-------------+---------------+
+| syscall/invalid | mean (ns)    |  (R) 13.89% |     (R) 3.32% |
+|                 | p99 (ns)     | (R) 165.82% |     (R) 3.51% |
+|                 | p99.9 (ns)   | (R) 168.83% |     (R) 3.77% |
++-----------------+--------------+-------------+---------------+
 
-> + * calling switch_mm_irqs_off().
-> + */
->  #define enter_lazy_tlb enter_lazy_tlb
-> -extern void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk);
-> +#ifndef MODULE
-> +static __always_inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
-> +{
-> +	if (this_cpu_read(cpu_tlbstate.loaded_mm) == &init_mm)
-> +		return;
-> +
-> +	this_cpu_write(cpu_tlbstate_shared.is_lazy, true);
-> +}
+Because arm64 was previously using get_random_u16(), it was expensive when it
+didn't have any buffered bits and had to call into the crng. That's what caused
+the enormous tail latency.
 
-Please move the '#define enter_....' under the inline function. That's
-way simpler to read.
+
+x86 (AWS Sapphire Rapids):
++-----------------+--------------+-------------+---------------+
+| Benchmark       | Result Class |   v6.18-rc5 | per-task-prng |
+|                 |              | rndstack-on |               |
+|                 |              |             |               |
++=================+==============+=============+===============+
+| syscall/getpid  | mean (ns)    |  (R) 13.32% |     (R) 4.60% |
+|                 | p99 (ns)     |  (R) 13.38% |    (R) 18.08% |
+|                 | p99.9 (ns)   |      16.26% |    (R) 19.38% |
++-----------------+--------------+-------------+---------------+
+| syscall/getppid | mean (ns)    |  (R) 11.96% |     (R) 5.26% |
+|                 | p99 (ns)     |  (R) 11.83% |     (R) 8.35% |
+|                 | p99.9 (ns)   |  (R) 11.42% |    (R) 22.37% |
++-----------------+--------------+-------------+---------------+
+| syscall/invalid | mean (ns)    |  (R) 10.58% |     (R) 2.91% |
+|                 | p99 (ns)     |  (R) 10.51% |     (R) 4.36% |
+|                 | p99.9 (ns)   |  (R) 10.35% |    (R) 21.97% |
++-----------------+--------------+-------------+---------------+
+
+I was surprised to see that the baseline cost on x86 is 10-12% since it is just
+using rdtsc. But as I say, I believe the results are accurate.
+
+
+Changes since v1 (RFC) [2]
+==========================
+
+- Introduced patch 2 to make prandom_u32_state() __always_inline (needed since
+  its called from noinstr code)
+- In patch 3, prng is now per-cpu instead of per-task (per Ard)
+
+
+[1] https://lore.kernel.org/all/dd8c37bc-795f-4c7a-9086-69e584d8ab24@arm.com/
+[2] https://lore.kernel.org/all/20251127105958.2427758-1-ryan.roberts@arm.com/
 
 Thanks,
+Ryan
 
-        tglx
+
+Ryan Roberts (3):
+  randomize_kstack: Maintain kstack_offset per task
+  prandom: Convert prandom_u32_state() to __always_inline
+  randomize_kstack: Unify random source across arches
+
+ arch/Kconfig                         |  5 +--
+ arch/arm64/kernel/syscall.c          | 11 -----
+ arch/loongarch/kernel/syscall.c      | 11 -----
+ arch/powerpc/kernel/syscall.c        | 12 ------
+ arch/riscv/kernel/traps.c            | 12 ------
+ arch/s390/include/asm/entry-common.h |  8 ----
+ arch/x86/include/asm/entry-common.h  | 12 ------
+ include/linux/prandom.h              | 19 ++++++++-
+ include/linux/randomize_kstack.h     | 61 ++++++++++++----------------
+ init/main.c                          |  2 +-
+ kernel/fork.c                        |  1 +
+ lib/random32.c                       | 19 ---------
+ 12 files changed, 49 insertions(+), 124 deletions(-)
+
+--
+2.43.0
+
