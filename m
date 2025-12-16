@@ -1,202 +1,162 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0519130FF3A;
-	Tue, 16 Dec 2025 16:32:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63BCE2F7468;
+	Tue, 16 Dec 2025 17:04:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765902733; cv=none; b=KN7/x3swUNbGI/Ylg9h3rWWnvxK544X9NqvK80OW+80p2t2j6/KQojpZ1EWVAjUyd+hZ/K2tDEr24R2J3HlRifYQDmsXqZtDBV5N6jFHlwo3flCtdCe4xpNyGEM09uxyyNwUow+Up0tEhmJ1rVKuu1Rm8eRqdo7RGq6z/TNiB5M=
+	t=1765904695; cv=none; b=pAL6iRI/LqaQi8D6BOYm6en5+0jq4+3KOh7trpf7LL62sGn+IfLq+xZZ5r8lDIxggMsGbs3ugBRfJaa6NVbM1oCYL6CmIaE+uXi88dEPbrsaiyML+Fa4+R5hQRr5ktDZU4BBnkRRO1TRy/CN8i+hYLrdxAruHmk8TOUerQ0cdq8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765902733; c=relaxed/simple;
-	bh=BYYyvPXCv/z3Zv/yIQlMx58UIuXYnnZWL+o4/ZYGJM8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CDLqoycV056I55f/H0P3WnmOROeXVqBWJrx1+RjmrEy09m4kq9NA7XZirmHiOPaC+/1Hvp/VmTuvZ/MsMo0TsuEJSbVm98iqwKvmhYE9um4q/kNoBswhJGGJaMysWRUkxFbPYnU36xl6ENJokQ80fkK7JOANdpAoW3M3szVzsIM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=TSYQJK1C; arc=none smtp.client-ip=198.175.65.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1765904695; c=relaxed/simple;
+	bh=JSKmZh43t535aDBzLTONnQn3+h8TvyyPjhpTy93Wy2k=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=UBvOYY2fMNo1skegONvc3tjxzY0ZUXUKL8NZvhbQQlR2QzDcJa8IhvP5NKSTqac7oIod2AW8eH6QnNhcctfu70BCyMET9MHNqCjwicAgealzMTPOQTDwgjpwxIl8cXkCgRjChJWzVkvJGpZ8B//nUy8fB3pqpd+X8PCCTF89Dus=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ki2YJ+vd; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="TSYQJK1C"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1765902730; x=1797438730;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=BYYyvPXCv/z3Zv/yIQlMx58UIuXYnnZWL+o4/ZYGJM8=;
-  b=TSYQJK1CzK13r7rV90cwDC0V70BYOOCk1VzxuCnFScHajQ/nWTlmY9ix
-   0mdOjbQ+519XvKbZCqxuJ8lL5HWDzjbKxWhZNdfpRFLG2sLZxeyHz8CjY
-   0FJeWrqXvtRU/U23XvmecnOrP0qHHceaQoYbBESrUOi69Ro6SZsikoLgY
-   ML+uJWJBUfFYd2fd85Dzuz2jrSYctftjWQUt4UvTT0rTdTodEKDgSXWni
-   4QvDVtEu0zL2Oi6iEJ3fMA4SJW847VJ5ml67lv9puOwoJJ/3kYJWiG18L
-   xxLon1x2amc19Sl3eqVz+wiL3Lhpqu09MiX2WCCQDi8hbNj4g1s5ueKXe
-   w==;
-X-CSE-ConnectionGUID: cGDTdSJ3SBWn4qil73vDMg==
-X-CSE-MsgGUID: x9NJ0GbIRn+AVenpLZQWqw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11644"; a="67868235"
-X-IronPort-AV: E=Sophos;i="6.21,153,1763452800"; 
-   d="scan'208";a="67868235"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Dec 2025 08:32:07 -0800
-X-CSE-ConnectionGUID: hOe0vqPVR7CciV+fTWvORw==
-X-CSE-MsgGUID: v02B96M3SIa8VhPps1uokQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,153,1763452800"; 
-   d="scan'208";a="197808734"
-Received: from lkp-server02.sh.intel.com (HELO 034c7e8e53c3) ([10.239.97.151])
-  by orviesa009.jf.intel.com with ESMTP; 16 Dec 2025 08:32:00 -0800
-Received: from kbuild by 034c7e8e53c3 with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1vVXxu-000000003YO-0J5B;
-	Tue, 16 Dec 2025 16:31:58 +0000
-Date: Wed, 17 Dec 2025 00:31:27 +0800
-From: kernel test robot <lkp@intel.com>
-To: Ryan Roberts <ryan.roberts@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	Kees Cook <kees@kernel.org>,
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>, Mark Rutland <mark.rutland@arm.com>,
-	"Jason A. Donenfeld" <Jason@zx2c4.com>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	Jeremy Linton <jeremy.linton@arm.com>
-Cc: oe-kbuild-all@lists.linux.dev, Ryan Roberts <ryan.roberts@arm.com>,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-hardening@vger.kernel.org
-Subject: Re: [PATCH v2 3/3] randomize_kstack: Unify random source across
- arches
-Message-ID: <202512170038.vJZdUhEN-lkp@intel.com>
-References: <20251215163520.1144179-4-ryan.roberts@arm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ki2YJ+vd"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5BG8es23025635;
+	Tue, 16 Dec 2025 17:04:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=Jm/uGORFgz04aIOKV5Slyh9BoCns
+	Rw5KiZ47ift5Hxo=; b=Ki2YJ+vd3K6Q/FLL6k3Hfb60zli6CqkIxtptOKaRkL/+
+	2+u3/a4X6ZAUceNrLKAD12PNcq+fQMkU2abOHOka8enfI+q4VwtXmRHCbguW8WUG
+	96gSROQIk5aMNHfv3SJhMDXqx4P2hpqtgZA8x8mH6tYTlECAcy8ZdJT5dRUxubnv
+	t3yV3TH+fgKiMaz0FewJrH3Oq1PVKnJPJBjSBfGKW3VAX5MeOgPi9eDGwzwAIpdO
+	FadisHwPEB2EX/3ia+6lLvRq0G/zB1UzAvV/VBZ/Z2WVlY+dymi2iUdqym5AiTRG
+	0FOEq7RwVDt+06+5moUkNmvwBwOzfMi9nbVppJtgYA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4b0ytv8dj9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Dec 2025 17:04:49 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5BGH4mcj010877;
+	Tue, 16 Dec 2025 17:04:48 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4b0ytv8dhx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Dec 2025 17:04:48 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5BGGBIUt012788;
+	Tue, 16 Dec 2025 17:04:47 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4b1juy5pa6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Dec 2025 17:04:47 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5BGH4hSG43581744
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 16 Dec 2025 17:04:43 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 77B772004B;
+	Tue, 16 Dec 2025 17:04:43 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4EBED20040;
+	Tue, 16 Dec 2025 17:04:43 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 16 Dec 2025 17:04:43 +0000 (GMT)
+From: Gerd Bayer <gbayer@linux.ibm.com>
+Subject: [PATCH v2 0/2] PCI: AtomicOps: Fix pci_enable_atomic_ops_to_root()
+Date: Tue, 16 Dec 2025 18:04:41 +0100
+Message-Id: <20251216-fix_pciatops-v2-0-d013e9b7e2ee@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251215163520.1144179-4-ryan.roberts@arm.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIACmRQWkC/1XMQQqDMBCF4avIrBuZpESlq95DpMQ4rQPVhMSKR
+ XL3ptJNl/8M79shUmCKcCl2CLRyZDfnUKcC7GjmBwkecoNCpaXEStx5u3nLZnE+ipqaChuytsc
+ z5IkPlP8H13a5R46LC+9DX+X3+oMk/kOrFChosLoxuu4rRdcnz6+t5H4qrZugSyl9AHSmu0KsA
+ AAA
+X-Change-ID: 20251106-fix_pciatops-7e8608eccb03
+To: Bjorn Helgaas <bhelgaas@google.com>, Jay Cornwall <Jay.Cornwall@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>
+Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
+        Alexander Schmidt <alexs@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Gerd Bayer <gbayer@linux.ibm.com>, Leon Romanovsky <leon@kernel.org>,
+        stable@vger.kernel.org
+X-Mailer: b4 0.14.2
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjEzMDAyMyBTYWx0ZWRfX+BEudRYYVAOF
+ 3vf9ZUPYzaKTK1kHBE4gLCKJ421ewprmQDwH+tE6vNn783O8EdiZMZmcvuM0ReWRDVethdzKXuX
+ kPwZixWaMSVPG/8UxcVeuRKbFvVChengSAm+LjSDIC50r4FQzgj0hGb/Q91gKhrfyS4hy6kxOpg
+ kXFw6zuziAfHOFcjaPCL3sGYuA0HolvIDiURcexo8YQn6j2SMiCuTIqFLkd55tTdrXZUp2qd4W3
+ FRcMw9DRhdTnLGO/Kt0aOCya+PwUFcx4y/ajG2CkFgdeS1+pJYAstV7BGGGw0Kfha1TFaJIvR3B
+ 5NJQ/HDdKvjNDwG4Hr+smKE44ZzGjP0raHc873yh27bacaNzX4cJrd8XR6hfKYQD7kgBBSr8Cf7
+ vrcFTbp0AH+oRfXNikaty8xo/qC9lw==
+X-Proofpoint-ORIG-GUID: v4IUPvNaloUwxEnaw9mGPChGFVI64mSo
+X-Authority-Analysis: v=2.4 cv=QtRTHFyd c=1 sm=1 tr=0 ts=69419131 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=AXBlPMOSM4AmvKD3g9wA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: YweaWI9enJTufc_DD9dBRPmVg_r8kRYr
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-12-16_02,2025-12-16_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 adultscore=0 malwarescore=0 lowpriorityscore=0 spamscore=0
+ priorityscore=1501 bulkscore=0 suspectscore=0 impostorscore=0 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2512130023
 
-Hi Ryan,
+Hi Bjorn et al.
 
-kernel test robot noticed the following build errors:
+this series addresses a few issues that have come up with the helper
+function that enables Atomic Op Requests to be initiated by PCI
+enpoints:
 
-[auto build test ERROR on tip/sched/core]
-[also build test ERROR on akpm-mm/mm-everything linus/master v6.19-rc1 next-20251216]
-[cannot apply to kees/for-next/hardening kees/for-next/execve]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+A. Most in-tree users of this helper use it incorrectly [0].
+B. On s390, Atomic Op Requests are enabled, although the helper
+   cannot know whether the root port is really supporting them.
+C. Loop control in the helper function does not guarantee that a root
+   port's capabilities are ever checked against those requested by the
+   caller.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Ryan-Roberts/prandom-Convert-prandom_u32_state-to-__always_inline/20251216-013546
-base:   tip/sched/core
-patch link:    https://lore.kernel.org/r/20251215163520.1144179-4-ryan.roberts%40arm.com
-patch subject: [PATCH v2 3/3] randomize_kstack: Unify random source across arches
-config: x86_64-rhel-9.4-ltp (https://download.01.org/0day-ci/archive/20251217/202512170038.vJZdUhEN-lkp@intel.com/config)
-compiler: gcc-14 (Debian 14.2.0-19) 14.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20251217/202512170038.vJZdUhEN-lkp@intel.com/reproduce)
+Address these issue with the following patches:
+Patch 1: Make it harder to mis-use the enablement function,
+Patch 2: Addresses issues B. and C.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202512170038.vJZdUhEN-lkp@intel.com/
+I did test that issue B is fixed with these patches. Also, I verified
+that Atomic Ops enablement on a Mellanox/Nvidia ConnectX-6 adapter
+plugged straight into the root port of a x86 system still gets AtomicOp
+Requests enabled. However, I did not test this with any PCIe switches
+between root port and endpoint.
 
-All error/warnings (new ones prefixed by >>):
+Ideally, both patches would be incorporated immediately, so we could
+start correcting the mis-uses in the device drivers. I don't know of any
+complaints when using Atomic Ops on devices where the driver is
+mis-using the helper. Patch 2 however, is fixing an obseved issue.
 
->> arch/x86/boot/startup/sev-startup.o: warning: objtool: section .discard.addressable has absolute relocation at offset 0x0
---
-   In file included from include/linux/device/driver.h:21,
-                    from include/linux/device.h:32,
-                    from include/linux/blk_types.h:11,
-                    from include/linux/writeback.h:13,
-                    from include/linux/memcontrol.h:23,
-                    from include/linux/resume_user_mode.h:8,
-                    from include/linux/entry-virt.h:6,
-                    from include/linux/kvm_host.h:5,
-                    from arch/x86/kvm/svm/svm.c:3:
->> include/linux/module.h:132:49: error: redefinition of '__inittest'
-     132 |         static inline initcall_t __maybe_unused __inittest(void)                \
-         |                                                 ^~~~~~~~~~
-   arch/x86/kvm/svm/svm.c:5509:1: note: in expansion of macro 'module_init'
-    5509 | module_init(svm_init)
-         | ^~~~~~~~~~~
-   include/linux/module.h:132:49: note: previous definition of '__inittest' with type 'int (*(void))(void)'
-     132 |         static inline initcall_t __maybe_unused __inittest(void)                \
-         |                                                 ^~~~~~~~~~
-   include/linux/module.h:125:41: note: in expansion of macro 'module_init'
-     125 | #define late_initcall(fn)               module_init(fn)
-         |                                         ^~~~~~~~~~~
-   include/linux/randomize_kstack.h:86:1: note: in expansion of macro 'late_initcall'
-      86 | late_initcall(random_kstack_init);
-         | ^~~~~~~~~~~~~
->> include/linux/module.h:134:13: error: redefinition of 'init_module'
-     134 |         int init_module(void) __copy(initfn)                    \
-         |             ^~~~~~~~~~~
-   arch/x86/kvm/svm/svm.c:5509:1: note: in expansion of macro 'module_init'
-    5509 | module_init(svm_init)
-         | ^~~~~~~~~~~
-   include/linux/module.h:134:13: note: previous definition of 'init_module' with type 'int(void)'
-     134 |         int init_module(void) __copy(initfn)                    \
-         |             ^~~~~~~~~~~
-   include/linux/module.h:125:41: note: in expansion of macro 'module_init'
-     125 | #define late_initcall(fn)               module_init(fn)
-         |                                         ^~~~~~~~~~~
-   include/linux/randomize_kstack.h:86:1: note: in expansion of macro 'late_initcall'
-      86 | late_initcall(random_kstack_init);
-         | ^~~~~~~~~~~~~
---
-   ld: arch/x86/kvm/vmx/main.o: in function `vt_init':
->> arch/x86/kvm/vmx/main.c:1038: multiple definition of `init_module'; arch/x86/kvm/vmx/vmx.o:include/linux/randomize_kstack.h:81: first defined here
---
-   In file included from drivers/misc/sgi-xp/xpc_main.c:47:
->> include/linux/module.h:132:49: error: redefinition of '__inittest'
-     132 |         static inline initcall_t __maybe_unused __inittest(void)                \
-         |                                                 ^~~~~~~~~~
-   drivers/misc/sgi-xp/xpc_main.c:1285:1: note: in expansion of macro 'module_init'
-    1285 | module_init(xpc_init);
-         | ^~~~~~~~~~~
-   include/linux/module.h:132:49: note: previous definition of '__inittest' with type 'int (*(void))(void)'
-     132 |         static inline initcall_t __maybe_unused __inittest(void)                \
-         |                                                 ^~~~~~~~~~
-   include/linux/module.h:125:41: note: in expansion of macro 'module_init'
-     125 | #define late_initcall(fn)               module_init(fn)
-         |                                         ^~~~~~~~~~~
-   include/linux/randomize_kstack.h:86:1: note: in expansion of macro 'late_initcall'
-      86 | late_initcall(random_kstack_init);
-         | ^~~~~~~~~~~~~
->> include/linux/module.h:134:13: error: redefinition of 'init_module'
-     134 |         int init_module(void) __copy(initfn)                    \
-         |             ^~~~~~~~~~~
-   drivers/misc/sgi-xp/xpc_main.c:1285:1: note: in expansion of macro 'module_init'
-    1285 | module_init(xpc_init);
-         | ^~~~~~~~~~~
-   include/linux/module.h:134:13: note: previous definition of 'init_module' with type 'int(void)'
-     134 |         int init_module(void) __copy(initfn)                    \
-         |             ^~~~~~~~~~~
-   include/linux/module.h:125:41: note: in expansion of macro 'module_init'
-     125 | #define late_initcall(fn)               module_init(fn)
-         |                                         ^~~~~~~~~~~
-   include/linux/randomize_kstack.h:86:1: note: in expansion of macro 'late_initcall'
-      86 | late_initcall(random_kstack_init);
-         | ^~~~~~~~~~~~~
+[0]: https://lore.kernel.org/all/fbe34de16f5c0bf25a16f9819a57fdd81e5bb08c.camel@linux.ibm.com/
+[1]: https://lore.kernel.org/all/20251105-mlxatomics-v1-0-10c71649e08d@linux.ibm.com/
 
+Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
+---
+Changes in v2:
+- rebase to 6.19-rc1
+- otherwise unchanged to v1
+- Link to v1: https://lore.kernel.org/r/20251110-fix_pciatops-v1-0-edc58a57b62e@linux.ibm.com
 
-vim +1038 arch/x86/kvm/vmx/main.c
+---
+Gerd Bayer (2):
+      PCI: AtomicOps: Define valid root port capabilities
+      PCI: AtomicOps: Fix logic in enable function
 
-d6bee7813752b3 Kai Huang 2025-01-22  1036  
-d6bee7813752b3 Kai Huang 2025-01-22  1037  static int __init vt_init(void)
-d6bee7813752b3 Kai Huang 2025-01-22 @1038  {
+ drivers/pci/pci.c             | 43 +++++++++++++++++++++----------------------
+ include/uapi/linux/pci_regs.h |  8 ++++++++
+ 2 files changed, 29 insertions(+), 22 deletions(-)
+---
+base-commit: 40fbbd64bba6c6e7a72885d2f59b6a3be9991eeb
+change-id: 20251106-fix_pciatops-7e8608eccb03
 
+Best regards,
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Gerd Bayer <gbayer@linux.ibm.com>
+
