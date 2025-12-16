@@ -1,120 +1,145 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8789A30DD22;
-	Tue, 16 Dec 2025 09:17:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC1733AD474;
+	Tue, 16 Dec 2025 13:32:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765876627; cv=none; b=UWyu4vQubqcrMjZRz5kj8vYRO8jjpqwH/Odc8H9zDOxHcdMvT4UgzaHwR1fkDFh4EYfUf+aIIoWzK2uI+ckpL1TlomREjeVTvMygtYfEtMLIKljQBp0JvKRL3Q6HVjEFxrb9+pzyZl2cGlK7tH7KBYcJ3wjjORzbylEBmnHDqHE=
+	t=1765891970; cv=none; b=fl4uhl7thJIxQ+H79bBJKP0BjcXQ/JHfK6Gs3AvTUktXKcm6mnmZIOu09vVEWiprc4KkewHK1ExeN8K7WY/Rsh3plcBNd3M4oGEYbvv4T5qf7FAoAAlP2teFCNK3ptRNLxYsiTi+BHYOeW7/7SByoVILSNU1y4duxr5Nk+ubF24=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765876627; c=relaxed/simple;
-	bh=sy1h3UIGBeG2MMT25lIycWl3qhGlqb0+xamWgNDUFNk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=cbaoB7mJ/igIPfI3GE6NhHOxkM19nhiTopOt501DQ/rsvbsLhXG76wkqoxyNmAUPbbd1hRPTY7+kobCYAs6aKR4kYj9Cwgut7KBqltuj0CYtqoIFhGBQXwX//253D5AQOytbwFzhbFrq7GW49zxczqZrddXB9jtSoaVhXhHgTqk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B6985FEC;
-	Tue, 16 Dec 2025 01:16:57 -0800 (PST)
-Received: from [10.57.91.77] (unknown [10.57.91.77])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E956C3F73B;
-	Tue, 16 Dec 2025 01:16:59 -0800 (PST)
-Message-ID: <9ae8655f-e537-43bb-ae0e-3067d2481d79@arm.com>
-Date: Tue, 16 Dec 2025 09:16:58 +0000
+	s=arc-20240116; t=1765891970; c=relaxed/simple;
+	bh=OGlD9+eICs1p9JnEUgREbiPhQd7Aw9ANTeQYDastStk=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=SQ87b1Q8Ket8JNxtZlPyiPHMvJ8mYj2S74ylJbskRQOVjNH4XpgORDt2fYk8AazCbxcrbVvrRFZEtlmojA1nMQz5qk0g6rW7DCwnOIZ2lWdQsuVgXpF0z6bwhjqcIV9vit53CEfTkH704bsdMDeCru9TreuOVfI2Ql9O+/UcCZU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mdpgeZil; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mdpgeZil"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5BG87ud5030256;
+	Tue, 16 Dec 2025 13:32:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:message-id:mime-version:subject:to; s=
+	pp1; bh=OBUMQF5x78uHpCU2/wnojo0aDNU5pXqiqAUbmsFPGAU=; b=mdpgeZil
+	UlmGNgcSC5H00qqhBDd5avO+Z3+i4e37F0HN5HqUCD8X0UyyUYX10dqmnVNGbjH3
+	1TT8tMhQQRmdlnqMlVwSkGkqnqVsFz6DWNjw/koMvDMAhGqIioSkHGpV9dE+p9v+
+	jefFwLdvQM+cfDKfYoNqybQcVRQKaSV7ZkO3zy9iju+UqaB/oZ0ql+wJ96qaI0hJ
+	HtfkVDDOaQMTnjtbxSbvwXJqXCatekfN4JOQFp/3e/FuzPWEiw+JN7nOy7bYIeb/
+	Fjkavqv417ZaVy3pzYx+BEuY1JX2mu1gTR5aNqLQlT2MJ7cr6aRlXLW/K5d0WyXG
+	k1jFd4+J76KXmw==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4b0yt1ejph-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Dec 2025 13:32:46 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5BGCK60O005744;
+	Tue, 16 Dec 2025 13:32:46 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4b1tgntws7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Dec 2025 13:32:45 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5BGDWgrT60883406
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 16 Dec 2025 13:32:42 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4F2D020040;
+	Tue, 16 Dec 2025 13:32:42 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 33D462004E;
+	Tue, 16 Dec 2025 13:32:42 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 16 Dec 2025 13:32:42 +0000 (GMT)
+Date: Tue, 16 Dec 2025 14:32:40 +0100
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] s390 fixes for 6.19-rc2
+Message-ID: <20251216133240.3233961A30-agordeev@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 3/3] randomize_kstack: Unify random source across
- arches
-Content-Language: en-GB
-To: Ard Biesheuvel <ardb@kernel.org>, Kees Cook <kees@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Huacai Chen <chenhuacai@kernel.org>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <pjw@kernel.org>,
- Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "Gustavo A. R. Silva" <gustavoars@kernel.org>, Arnd Bergmann
- <arnd@arndb.de>, Mark Rutland <mark.rutland@arm.com>,
- "Jason A. Donenfeld" <Jason@zx2c4.com>, Jeremy Linton
- <jeremy.linton@arm.com>, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org
-References: <20251215163520.1144179-1-ryan.roberts@arm.com>
- <20251215163520.1144179-4-ryan.roberts@arm.com>
- <202512160024.B688A8D0@keescook>
- <CAMj1kXHaqfEqDpvC-iC1fUn+JpTj=oqfM2sh+sbaC8_PBVHBUQ@mail.gmail.com>
-From: Ryan Roberts <ryan.roberts@arm.com>
-In-Reply-To: <CAMj1kXHaqfEqDpvC-iC1fUn+JpTj=oqfM2sh+sbaC8_PBVHBUQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: kE6Ks0JiSnI-6sY0uZQd8GjhjmWjKTPD
+X-Proofpoint-ORIG-GUID: kE6Ks0JiSnI-6sY0uZQd8GjhjmWjKTPD
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjEzMDAyMyBTYWx0ZWRfX2zYQebHtyjrH
+ FSfxjEQjs+39VYvp64ktH7tKojhSUD8aUP13XZss1zyxBbQztOFhEaRdf1rM/Ugjna5zmC7Q6u2
+ 7yaNAMBYBFwKidBd2eT89FRq4vzqfrHP2VYP641n5KGRpheH43abVpkri66s3i3ZqU5OVUeVMz2
+ hQLliTlSQRDW2DBahQZpWvHdfDlPAjUal/qpO2s2fTXbo+qyn5yAqfGVSt1BYamwwqUc/egK4Nl
+ LO3AXWxjGg+dht4XDsSrGx4qp3Sv8RvcMzjoGndSPIV8XTEYBlzu5Nms3YpYzPKWahgDyFuTxcY
+ N/i9PtKwUbV+5XzW0hIXRsvmt0SkdgGrFQh6gGXcPmF6h9tr5J/CJlKL1k1cv7ukGDPEuXeZsvD
+ N8gvJCeZ+spX3M6Ym17d5YkkX4EL8w==
+X-Authority-Analysis: v=2.4 cv=L/MQguT8 c=1 sm=1 tr=0 ts=69415f7f cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=kj9zAlcOel0A:10 a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VwQbUJbxAAAA:8 a=xPjGjizghBwIW1tp3b4A:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-12-16_02,2025-12-16_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 phishscore=0 malwarescore=0 adultscore=0 priorityscore=1501
+ clxscore=1015 lowpriorityscore=0 bulkscore=0 spamscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2512130023
 
-On 16/12/2025 08:30, Ard Biesheuvel wrote:
-> On Tue, 16 Dec 2025 at 09:27, Kees Cook <kees@kernel.org> wrote:
->>
->> On Mon, Dec 15, 2025 at 04:35:17PM +0000, Ryan Roberts wrote:
->>> [...]
->>> @@ -45,9 +46,22 @@ DECLARE_STATIC_KEY_MAYBE(CONFIG_RANDOMIZE_KSTACK_OFFSET_DEFAULT,
->>>  #define KSTACK_OFFSET_MAX(x) ((x) & 0b1111111100)
->>>  #endif
->>>
->>> +DECLARE_PER_CPU(struct rnd_state, kstack_rnd_state);
->>> +
->>> +static __always_inline u32 get_kstack_offset(void)
->>> +{
->>> +     struct rnd_state *state;
->>> +     u32 rnd;
->>> +
->>> +     state = &get_cpu_var(kstack_rnd_state);
->>> +     rnd = prandom_u32_state(state);
->>> +     put_cpu_var(kstack_rnd_state);
->>> +
->>> +     return rnd;
->>> +}
->>> [...]
->>> -static inline void random_kstack_task_init(struct task_struct *tsk)
->>> +static int random_kstack_init(void)
->>>  {
->>> -     tsk->kstack_offset = 0;
->>> +     prandom_seed_full_state(&kstack_rnd_state);
->>> +     return 0;
->>>  }
->>> +
->>> +late_initcall(random_kstack_init);
->>
->> Doesn't this need to be run for every CPU? (And how does hotplug work
->> for such things?) And doesn't it need a get_cpu_var?
->>
-> 
-> 
->  prandom_seed_full_state() takes a 'struct rnd_state __percpu
-> *pcpu_state', and performs the initialization for all possible CPUs.
+Hi Linus,
 
-Yes, indeed, prandom_seed_full_state() is initializing all possible CPUs so it
-doesn't matter if it gets migrated. I believe this is correct as is.
+please pull s390 fixes for 6.19-rc2.
 
-void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state)
-{
-	int i;
+Thanks,
+Alexander
 
-	for_each_possible_cpu(i) {
-		struct rnd_state *state = per_cpu_ptr(pcpu_state, i);
-		u32 seeds[4];
+The following changes since commit 8f0b4cce4481fb22653697cced8d0d04027cb1e8:
 
-		get_random_bytes(&seeds, sizeof(seeds));
-		state->s1 = __seed(seeds[0],   2U);
-		state->s2 = __seed(seeds[1],   8U);
-		state->s3 = __seed(seeds[2],  16U);
-		state->s4 = __seed(seeds[3], 128U);
+  Linux 6.19-rc1 (2025-12-14 16:05:07 +1200)
 
-		prandom_warmup(state);
-	}
-}
+are available in the Git repository at:
 
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.19-3
+
+for you to fetch changes up to 489e96651dfe59794195c6b2ddb78835edd9f2ed:
+
+  s390/stacktrace: Do not fallback to RA register (2025-12-14 11:03:58 +0100)
+
+----------------------------------------------------------------
+s390 fixes for 6.19-rc2
+
+- clear 'Search boot program' flag when 'bootprog' sysfs file is
+  written to override a value set from Hardware Management Console
+
+- fix cyclic dead-lock in zpci_zdev_put() and zpci_scan_devices()
+  functions when triggering PCI device recovery using sysfs
+
+- annotate the expected lock context imbalance in zpci_release_device()
+  function to fix a sparse complaint
+
+- fix the logic to fallback to the return address register value in
+  the topmost frame when stack tracing uses a back chain
+
+----------------------------------------------------------------
+Benjamin Block (2):
+      s390/pci: Fix cyclic dead-lock in zpci_zdev_put() and zpci_scan_devices()
+      s390/pci: Annotate lock context imbalance in zpci_release_device()
+
+Jens Remus (1):
+      s390/stacktrace: Do not fallback to RA register
+
+Sven Schnelle (1):
+      s390/ipl: Clear SBP flag when bootprog is set
+
+ .clang-format                    |  1 +
+ arch/s390/include/uapi/asm/ipl.h |  1 +
+ arch/s390/kernel/ipl.c           | 48 +++++++++++++++-----
+ arch/s390/kernel/stacktrace.c    | 18 +-------
+ arch/s390/pci/pci.c              |  7 ++-
+ arch/s390/pci/pci_bus.c          | 98 +++++++++++++++++++++++++++++-----------
+ arch/s390/pci/pci_bus.h          | 15 +++++-
+ 7 files changed, 131 insertions(+), 57 deletions(-)
