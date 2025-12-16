@@ -1,64 +1,82 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC1733AD474;
-	Tue, 16 Dec 2025 13:32:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0531F366DD3;
+	Tue, 16 Dec 2025 15:28:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765891970; cv=none; b=fl4uhl7thJIxQ+H79bBJKP0BjcXQ/JHfK6Gs3AvTUktXKcm6mnmZIOu09vVEWiprc4KkewHK1ExeN8K7WY/Rsh3plcBNd3M4oGEYbvv4T5qf7FAoAAlP2teFCNK3ptRNLxYsiTi+BHYOeW7/7SByoVILSNU1y4duxr5Nk+ubF24=
+	t=1765898897; cv=none; b=PnyRyhDJKUqmpCitZAOjRcUu8S+nAyuZNJbegngFmY7aB1kHouuc2nMuvkkSCYwWofmd5P9564RbXYa6Lxxg82/wfv784xMBkD05MexJyPhUGMvK2N5nC6TkxnSmvz6/Q+dc/npSeqD4zwziRg00KP+2OJBTCM9Wj4hu1MMiCNc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765891970; c=relaxed/simple;
-	bh=OGlD9+eICs1p9JnEUgREbiPhQd7Aw9ANTeQYDastStk=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=SQ87b1Q8Ket8JNxtZlPyiPHMvJ8mYj2S74ylJbskRQOVjNH4XpgORDt2fYk8AazCbxcrbVvrRFZEtlmojA1nMQz5qk0g6rW7DCwnOIZ2lWdQsuVgXpF0z6bwhjqcIV9vit53CEfTkH704bsdMDeCru9TreuOVfI2Ql9O+/UcCZU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mdpgeZil; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1765898897; c=relaxed/simple;
+	bh=sD65R5UGhCtay10P/5W+7TM+UmAjlbjVbXwRe2em6yA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IAdCwvg5BI+HCAJW75v8PVq1ZIWs9EGYu2FQFwn4/EUBL1+5FhmMcN6AgTUuwCMrTJ0DdRFkFQa3b+KNSAUfxxgNUVsX1JqzP/BFWlNmwhTs9AyXiXpLjNnIe2/33hxy4AZANZzb76KDapqkwbCOEM3wWfgIew3sIu2vW9s3jZo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mD9XwJ3L; arc=none smtp.client-ip=192.198.163.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mdpgeZil"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5BG87ud5030256;
-	Tue, 16 Dec 2025 13:32:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:message-id:mime-version:subject:to; s=
-	pp1; bh=OBUMQF5x78uHpCU2/wnojo0aDNU5pXqiqAUbmsFPGAU=; b=mdpgeZil
-	UlmGNgcSC5H00qqhBDd5avO+Z3+i4e37F0HN5HqUCD8X0UyyUYX10dqmnVNGbjH3
-	1TT8tMhQQRmdlnqMlVwSkGkqnqVsFz6DWNjw/koMvDMAhGqIioSkHGpV9dE+p9v+
-	jefFwLdvQM+cfDKfYoNqybQcVRQKaSV7ZkO3zy9iju+UqaB/oZ0ql+wJ96qaI0hJ
-	HtfkVDDOaQMTnjtbxSbvwXJqXCatekfN4JOQFp/3e/FuzPWEiw+JN7nOy7bYIeb/
-	Fjkavqv417ZaVy3pzYx+BEuY1JX2mu1gTR5aNqLQlT2MJ7cr6aRlXLW/K5d0WyXG
-	k1jFd4+J76KXmw==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4b0yt1ejph-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Dec 2025 13:32:46 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5BGCK60O005744;
-	Tue, 16 Dec 2025 13:32:46 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4b1tgntws7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Dec 2025 13:32:45 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5BGDWgrT60883406
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 16 Dec 2025 13:32:42 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4F2D020040;
-	Tue, 16 Dec 2025 13:32:42 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 33D462004E;
-	Tue, 16 Dec 2025 13:32:42 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 16 Dec 2025 13:32:42 +0000 (GMT)
-Date: Tue, 16 Dec 2025 14:32:40 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [GIT PULL] s390 fixes for 6.19-rc2
-Message-ID: <20251216133240.3233961A30-agordeev@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mD9XwJ3L"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1765898896; x=1797434896;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=sD65R5UGhCtay10P/5W+7TM+UmAjlbjVbXwRe2em6yA=;
+  b=mD9XwJ3Lj01xTNoXj9cQpEmoILV6uN5IVsDZ9H8/DuoaYVgrTIO8qVJt
+   ngZUt5SxDHlXR6Rx3LtKPfDqQFZ0+bCLCfRgyZQlOLLyoBQZ0cJuFvpB2
+   t4H9aspp7UnO7b7qTnOQerWA0BVpabnR8s/BhkNowD5AJEGx4LAbdTjY3
+   Y+aaVsRNgc2dbeoj3QUlj9xa7EWzWgIpuMqoxLRUOohl8bfSuyy6cfRZS
+   0cPKPg/pk0g+C2MyHa0Vcu00/zSAGilLdIsVMGpIOY1RWSXZ9HBF7le9O
+   S/6wWbs/BPdJQfNwNPMhhbM9DTK+VTXfohGJSlawz8jMKSOhLVAX1hqnK
+   w==;
+X-CSE-ConnectionGUID: vYP8RkaiT6yEjFn657MCPg==
+X-CSE-MsgGUID: Zqd02a0tT76qKnai4hT0hQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11644"; a="79187679"
+X-IronPort-AV: E=Sophos;i="6.21,153,1763452800"; 
+   d="scan'208";a="79187679"
+Received: from fmviesa005.fm.intel.com ([10.60.135.145])
+  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Dec 2025 07:28:15 -0800
+X-CSE-ConnectionGUID: 2xFsI/dBQXKE8DWUTEVNrg==
+X-CSE-MsgGUID: HIgAl8RFQHWXgAdjx3aUnw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,153,1763452800"; 
+   d="scan'208";a="202458915"
+Received: from lkp-server02.sh.intel.com (HELO 034c7e8e53c3) ([10.239.97.151])
+  by fmviesa005.fm.intel.com with ESMTP; 16 Dec 2025 07:28:08 -0800
+Received: from kbuild by 034c7e8e53c3 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1vVWy6-000000003RG-37cv;
+	Tue, 16 Dec 2025 15:28:06 +0000
+Date: Tue, 16 Dec 2025 23:27:25 +0800
+From: kernel test robot <lkp@intel.com>
+To: Ryan Roberts <ryan.roberts@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Kees Cook <kees@kernel.org>,
+	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>, Mark Rutland <mark.rutland@arm.com>,
+	"Jason A. Donenfeld" <Jason@zx2c4.com>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Jeremy Linton <jeremy.linton@arm.com>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	Ryan Roberts <ryan.roberts@arm.com>, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org
+Subject: Re: [PATCH v2 3/3] randomize_kstack: Unify random source across
+ arches
+Message-ID: <202512162320.WFgo042e-lkp@intel.com>
+References: <20251215163520.1144179-4-ryan.roberts@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,79 +85,105 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: kE6Ks0JiSnI-6sY0uZQd8GjhjmWjKTPD
-X-Proofpoint-ORIG-GUID: kE6Ks0JiSnI-6sY0uZQd8GjhjmWjKTPD
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjEzMDAyMyBTYWx0ZWRfX2zYQebHtyjrH
- FSfxjEQjs+39VYvp64ktH7tKojhSUD8aUP13XZss1zyxBbQztOFhEaRdf1rM/Ugjna5zmC7Q6u2
- 7yaNAMBYBFwKidBd2eT89FRq4vzqfrHP2VYP641n5KGRpheH43abVpkri66s3i3ZqU5OVUeVMz2
- hQLliTlSQRDW2DBahQZpWvHdfDlPAjUal/qpO2s2fTXbo+qyn5yAqfGVSt1BYamwwqUc/egK4Nl
- LO3AXWxjGg+dht4XDsSrGx4qp3Sv8RvcMzjoGndSPIV8XTEYBlzu5Nms3YpYzPKWahgDyFuTxcY
- N/i9PtKwUbV+5XzW0hIXRsvmt0SkdgGrFQh6gGXcPmF6h9tr5J/CJlKL1k1cv7ukGDPEuXeZsvD
- N8gvJCeZ+spX3M6Ym17d5YkkX4EL8w==
-X-Authority-Analysis: v=2.4 cv=L/MQguT8 c=1 sm=1 tr=0 ts=69415f7f cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=kj9zAlcOel0A:10 a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VwQbUJbxAAAA:8 a=xPjGjizghBwIW1tp3b4A:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-12-16_02,2025-12-16_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 phishscore=0 malwarescore=0 adultscore=0 priorityscore=1501
- clxscore=1015 lowpriorityscore=0 bulkscore=0 spamscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2512130023
+In-Reply-To: <20251215163520.1144179-4-ryan.roberts@arm.com>
 
-Hi Linus,
+Hi Ryan,
 
-please pull s390 fixes for 6.19-rc2.
+kernel test robot noticed the following build errors:
 
-Thanks,
-Alexander
+[auto build test ERROR on tip/sched/core]
+[also build test ERROR on akpm-mm/mm-everything linus/master v6.19-rc1 next-20251216]
+[cannot apply to kees/for-next/hardening kees/for-next/execve]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-The following changes since commit 8f0b4cce4481fb22653697cced8d0d04027cb1e8:
+url:    https://github.com/intel-lab-lkp/linux/commits/Ryan-Roberts/prandom-Convert-prandom_u32_state-to-__always_inline/20251216-013546
+base:   tip/sched/core
+patch link:    https://lore.kernel.org/r/20251215163520.1144179-4-ryan.roberts%40arm.com
+patch subject: [PATCH v2 3/3] randomize_kstack: Unify random source across arches
+config: x86_64-rhel-9.4-rust (https://download.01.org/0day-ci/archive/20251216/202512162320.WFgo042e-lkp@intel.com/config)
+compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
+rustc: rustc 1.88.0 (6b00bc388 2025-06-23)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20251216/202512162320.WFgo042e-lkp@intel.com/reproduce)
 
-  Linux 6.19-rc1 (2025-12-14 16:05:07 +1200)
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202512162320.WFgo042e-lkp@intel.com/
 
-are available in the Git repository at:
+All errors (new ones prefixed by >>):
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.19-3
+>> arch/x86/kvm/svm/svm.c:5509:1: error: redefinition of '__inittest'
+    5509 | module_init(svm_init)
+         | ^
+   include/linux/module.h:132:42: note: expanded from macro 'module_init'
+     132 |         static inline initcall_t __maybe_unused __inittest(void)                \
+         |                                                 ^
+   include/linux/randomize_kstack.h:86:1: note: previous definition is here
+      86 | late_initcall(random_kstack_init);
+         | ^
+   include/linux/module.h:125:28: note: expanded from macro 'late_initcall'
+     125 | #define late_initcall(fn)               module_init(fn)
+         |                                         ^
+   include/linux/module.h:132:42: note: expanded from macro 'module_init'
+     132 |         static inline initcall_t __maybe_unused __inittest(void)                \
+         |                                                 ^
+>> arch/x86/kvm/svm/svm.c:5509:1: error: redefinition of 'init_module'
+    5509 | module_init(svm_init)
+         | ^
+   include/linux/module.h:134:6: note: expanded from macro 'module_init'
+     134 |         int init_module(void) __copy(initfn)                    \
+         |             ^
+   include/linux/randomize_kstack.h:86:1: note: previous definition is here
+      86 | late_initcall(random_kstack_init);
+         | ^
+   include/linux/module.h:125:28: note: expanded from macro 'late_initcall'
+     125 | #define late_initcall(fn)               module_init(fn)
+         |                                         ^
+   include/linux/module.h:134:6: note: expanded from macro 'module_init'
+     134 |         int init_module(void) __copy(initfn)                    \
+         |             ^
+   2 errors generated.
+--
+>> drivers/misc/sgi-xp/xpc_main.c:1285:1: error: redefinition of '__inittest'
+    1285 | module_init(xpc_init);
+         | ^
+   include/linux/module.h:132:42: note: expanded from macro 'module_init'
+     132 |         static inline initcall_t __maybe_unused __inittest(void)                \
+         |                                                 ^
+   include/linux/randomize_kstack.h:86:1: note: previous definition is here
+      86 | late_initcall(random_kstack_init);
+         | ^
+   include/linux/module.h:125:28: note: expanded from macro 'late_initcall'
+     125 | #define late_initcall(fn)               module_init(fn)
+         |                                         ^
+   include/linux/module.h:132:42: note: expanded from macro 'module_init'
+     132 |         static inline initcall_t __maybe_unused __inittest(void)                \
+         |                                                 ^
+>> drivers/misc/sgi-xp/xpc_main.c:1285:1: error: redefinition of 'init_module'
+    1285 | module_init(xpc_init);
+         | ^
+   include/linux/module.h:134:6: note: expanded from macro 'module_init'
+     134 |         int init_module(void) __copy(initfn)                    \
+         |             ^
+   include/linux/randomize_kstack.h:86:1: note: previous definition is here
+      86 | late_initcall(random_kstack_init);
+         | ^
+   include/linux/module.h:125:28: note: expanded from macro 'late_initcall'
+     125 | #define late_initcall(fn)               module_init(fn)
+         |                                         ^
+   include/linux/module.h:134:6: note: expanded from macro 'module_init'
+     134 |         int init_module(void) __copy(initfn)                    \
+         |             ^
+   2 errors generated.
 
-for you to fetch changes up to 489e96651dfe59794195c6b2ddb78835edd9f2ed:
 
-  s390/stacktrace: Do not fallback to RA register (2025-12-14 11:03:58 +0100)
+vim +/__inittest +5509 arch/x86/kvm/svm/svm.c
 
-----------------------------------------------------------------
-s390 fixes for 6.19-rc2
+6aa8b732ca01c3d drivers/kvm/svm.c Avi Kivity 2006-12-10  5508  
+6aa8b732ca01c3d drivers/kvm/svm.c Avi Kivity 2006-12-10 @5509  module_init(svm_init)
 
-- clear 'Search boot program' flag when 'bootprog' sysfs file is
-  written to override a value set from Hardware Management Console
-
-- fix cyclic dead-lock in zpci_zdev_put() and zpci_scan_devices()
-  functions when triggering PCI device recovery using sysfs
-
-- annotate the expected lock context imbalance in zpci_release_device()
-  function to fix a sparse complaint
-
-- fix the logic to fallback to the return address register value in
-  the topmost frame when stack tracing uses a back chain
-
-----------------------------------------------------------------
-Benjamin Block (2):
-      s390/pci: Fix cyclic dead-lock in zpci_zdev_put() and zpci_scan_devices()
-      s390/pci: Annotate lock context imbalance in zpci_release_device()
-
-Jens Remus (1):
-      s390/stacktrace: Do not fallback to RA register
-
-Sven Schnelle (1):
-      s390/ipl: Clear SBP flag when bootprog is set
-
- .clang-format                    |  1 +
- arch/s390/include/uapi/asm/ipl.h |  1 +
- arch/s390/kernel/ipl.c           | 48 +++++++++++++++-----
- arch/s390/kernel/stacktrace.c    | 18 +-------
- arch/s390/pci/pci.c              |  7 ++-
- arch/s390/pci/pci_bus.c          | 98 +++++++++++++++++++++++++++++-----------
- arch/s390/pci/pci_bus.h          | 15 +++++-
- 7 files changed, 131 insertions(+), 57 deletions(-)
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
