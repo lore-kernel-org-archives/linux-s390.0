@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 103F32C08D4;
-	Fri, 19 Dec 2025 08:13:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C56CC2F25FB;
+	Fri, 19 Dec 2025 08:13:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766132002; cv=none; b=MLTq1Q0gx7CLXd0fHbzMVFm3+Up8hZwX/uUaKuiuEt4H3FsNGpq6caWuZu6T7pXVEGHnOH2k7yxGbbV+BVmO5PrsUgu2vzYW8329kUGeUBwKc3/7saG6gTKBcHjuWSrhAlXtsXDZoolwKtXv26IaZSadWmzd7OHikOQU39WBzT8=
+	t=1766132003; cv=none; b=fPdesRixe4dOn7jAPbAHFJTPl8QpywoxE1CvbX6dR0ezO7AJaBodM/VQxVWBZ6Ec4pwgsqbNrz0wWURI/TH8fQPGQn3j9pa9PJDiao+yjPX563ILSxRbRD+ytyYLR0OpfBScqIbrfyhMhrcLSOsGOV1ycOPAKBuQkuCvQUKx+PQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766132002; c=relaxed/simple;
-	bh=lvn+iw5IxWpNsx5ppx7UaT4z6tDEmv9IRQkqRmBQGQc=;
+	s=arc-20240116; t=1766132003; c=relaxed/simple;
+	bh=Nh4bNCxQArVNKStHwunAd0nAadgCxl/5Y0MhYvrhhA4=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=X6Zj7BN4qkU4LGHLkiciIf5Aww90aWgl36vXBF8tdQEn6jb/ORtZaKhGqSMs3592U+Ax1ESsAkIc+K4IODERKZSoNQlL2KrfJlQikM20zMAbUqTyMfSuIQohuFjIXyk5B/hhGgSlH3xtF6sOwbWhQpzrfoznKTd7JXe70UsCm/g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=M/IUrif+; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=JZeVJhGKF9HrsmMQu5dHDgvF/3VTBJCFGyFMvTyZajvr+giSEnUrN+mBzy8HtxSuL4yDxdHYOMl28PnBNU04PNKeYlZ0ILzgnXdKDpAUDknBDnKAge53FGMxmxGyVozUi7pngGxfrdHU9jzW8duxY0wrOHk+ctAGby8YknjxWow=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KrQ01xcr; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="M/IUrif+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12A1FC4CEF1;
-	Fri, 19 Dec 2025 08:13:21 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KrQ01xcr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B07DC116D0;
+	Fri, 19 Dec 2025 08:13:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1766132001;
-	bh=lvn+iw5IxWpNsx5ppx7UaT4z6tDEmv9IRQkqRmBQGQc=;
+	s=k20201202; t=1766132003;
+	bh=Nh4bNCxQArVNKStHwunAd0nAadgCxl/5Y0MhYvrhhA4=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=M/IUrif+d4VKn/MpBzO8oXg7fyF4udbLWjFGC+kaeTKXVdK9pnVZSk9qfn61Oncpi
-	 GhR5l8VAZ4IA86aoju4qY4COjaufMk77R9+qzFfwAZOU9Mv14DiZsPZrAzz0fP8C8O
-	 RVHu5dAXut9fzq8uA8rHcl2hgk3qtCR3o7FIhbbxw1etaHqlACnKIZpUTGy4fOBicw
-	 mUDSllG1LCmoO9eVDdYT7nQEkxN8ixdDPeXlwtWDpLBykJTtiH2K8RTzj7p3zgR18A
-	 EftOxjTcUmtQ5u7Eo9SivKx97gnYTIzCDyvlh8FtZdCb56p0NX1TrxQ6CjwLInTtmr
-	 ati6fNfjsc4FQ==
+	b=KrQ01xcrbwQWKQ0F78yn78ahzA97qwvNR9Pw+Q526pBm5+X6gDYIO9CNYymLeRk0E
+	 ZeoqNVNLts2A+jqw1Ovp2vk6AC67N40g4CisyTOpmgLZDRQvLQIQ2pVjoUpj09ivIa
+	 ZcimKcA+6epLIHHxV3HeX1HwAtuKRCpw0OvtH/glgC0VDYtkFi4iWqIV4yBFZ218s9
+	 mL4+6Zqvfgf0isksNC3MpFvm5K/GsLNwiogk1x5iopcqLeLmW5vG9EJo7nunl8dFd3
+	 zerwTiyf2THJDZXOCHtaB1n9UonvrcWmWLjKN7yFolOruk8m3r1hGw9jual2pfz+eG
+	 kw8fQM72Fuiuw==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 3BBE4380AA50;
-	Fri, 19 Dec 2025 08:10:11 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id B5B12380AA50;
+	Fri, 19 Dec 2025 08:10:13 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -37,61 +37,66 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v2 0/6] iommu: Pass in old_domain pointer to attach_dev
+Subject: Re: [patch V3 00/12] uaccess: Provide and use scopes for user masked
+ access
 From: patchwork-bot+linux-riscv@kernel.org
 Message-Id: 
- <176613180983.3684357.11179224135837486617.git-patchwork-notify@kernel.org>
-Date: Fri, 19 Dec 2025 08:10:09 +0000
-References: <cover.1761017765.git.nicolinc@nvidia.com>
-In-Reply-To: <cover.1761017765.git.nicolinc@nvidia.com>
-To: Nicolin Chen <nicolinc@nvidia.com>
-Cc: linux-riscv@lists.infradead.org, joro@8bytes.org, jgg@nvidia.com,
- kevin.tian@intel.com, suravee.suthikulpanit@amd.com, will@kernel.org,
- robin.murphy@arm.com, sven@kernel.org, j@jannau.net,
- robin.clark@oss.qualcomm.com, m.szyprowski@samsung.com, krzk@kernel.org,
- dwmw2@infradead.org, baolu.lu@linux.intel.com, yong.wu@mediatek.com,
- matthias.bgg@gmail.com, angelogioacchino.delregno@collabora.com,
- tjeznach@rivosinc.com, pjw@kernel.org, palmer@dabbelt.com,
- aou@eecs.berkeley.edu, heiko@sntech.de, schnelle@linux.ibm.com,
- mjrosato@linux.ibm.com, orsonzhai@gmail.com, baolin.wang@linux.alibaba.com,
- wens@csie.org, jernej.skrabec@gmail.com, samuel@sholland.org,
- thierry.reding@gmail.com, jonathanh@nvidia.com, jean-philippe@linaro.org,
- iommu@lists.linux.dev, linux-kernel@vger.kernel.org, asahi@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
- linux-samsung-soc@vger.kernel.org, linux-mediatek@lists.infradead.org,
- linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
- virtualization@lists.linux.dev, patches@lists.linux.dev
+ <176613181252.3684357.901874888075051255.git-patchwork-notify@kernel.org>
+Date: Fri, 19 Dec 2025 08:10:12 +0000
+References: <20251017085938.150569636@linutronix.de>
+In-Reply-To: <20251017085938.150569636@linutronix.de>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
+ lkp@intel.com, linux@armlinux.org.uk, linux-arm-kernel@lists.infradead.org,
+ torvalds@linux-foundation.org, x86@kernel.org, maddy@linux.ibm.com,
+ mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
+ linuxppc-dev@lists.ozlabs.org, pjw@kernel.org, palmer@dabbelt.com,
+ hca@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ linux-s390@vger.kernel.org, mathieu.desnoyers@efficios.com,
+ andrew.cooper3@citrix.com, Julia.Lawall@inria.fr, nicolas.palix@imag.fr,
+ peterz@infradead.org, dvhart@infradead.org, dave@stgolabs.net,
+ andrealmeid@igalia.com, viro@zeniv.linux.org.uk, brauner@kernel.org,
+ jack@suse.cz, linux-fsdevel@vger.kernel.org
 
 Hello:
 
 This series was applied to riscv/linux.git (fixes)
-by Joerg Roedel <joerg.roedel@amd.com>:
+by Peter Zijlstra <peterz@infradead.org>:
 
-On Wed, 22 Oct 2025 19:21:03 -0700 you wrote:
-> Tidy the release_device callbacks in the drivers and switch to the core
-> managed release_domain.
+On Fri, 17 Oct 2025 12:08:54 +0200 (CEST) you wrote:
+> This is a follow up on the V2 feedback:
 > 
-> This allows the core further to pass in the old domain pointer into the
-> attach_dev callbacks to reduce the use of iommu_get_domain_for_dev().
+>    https://lore.kernel.org/20250916163004.674341701@linutronix.de
 > 
-> This is a preparatory series for new iommu_dev_reset APIs:
-> https://lore.kernel.org/all/cover.1756682135.git.nicolinc@nvidia.com/
+> The main concern over the V2 implementation was the requirement to have
+> the code within the macro itself.
 > 
 > [...]
 
 Here is the summary with links:
-  - [v2,1/6] iommu: Generic support for RMRs during device release
-    https://git.kernel.org/riscv/c/e94160488e65
-  - [v2,2/6] iommu/arm-smmu-v3: Set release_domain to arm_smmu_blocked_domain
-    https://git.kernel.org/riscv/c/52f77fb176ec
-  - [v2,3/6] iommu/exynos-iommu: Set release_domain to exynos_identity_domain
-    https://git.kernel.org/riscv/c/680a6a60fc08
-  - [v2,4/6] iommu/amd: Set release_domain to blocked_domain
-    https://git.kernel.org/riscv/c/c21b34762e2f
-  - [v2,5/6] iommu: Do not revert set_domain for the last gdev
-    https://git.kernel.org/riscv/c/2b33598e666d
-  - [v2,6/6] iommu: Pass in old domain to attach_dev callback functions
+  - [V3,01/12] ARM: uaccess: Implement missing __get_user_asm_dword()
+    (no matching commit)
+  - [V3,02/12] uaccess: Provide ASM GOTO safe wrappers for unsafe_*_user()
+    (no matching commit)
+  - [V3,03/12] x86/uaccess: Use unsafe wrappers for ASM GOTO
+    (no matching commit)
+  - [V3,04/12] powerpc/uaccess: Use unsafe wrappers for ASM GOTO
+    (no matching commit)
+  - [V3,05/12] riscv/uaccess: Use unsafe wrappers for ASM GOTO
+    https://git.kernel.org/riscv/c/0988ea18c624
+  - [V3,06/12] s390/uaccess: Use unsafe wrappers for ASM GOTO
+    (no matching commit)
+  - [V3,07/12] uaccess: Provide scoped masked user access regions
+    (no matching commit)
+  - [V3,08/12] uaccess: Provide put/get_user_masked()
+    (no matching commit)
+  - [V3,09/12,RFC] coccinelle: misc: Add scoped_masked_$MODE_access() checker script
+    (no matching commit)
+  - [V3,10/12] futex: Convert to scoped masked user access
+    (no matching commit)
+  - [V3,11/12] x86/futex: Convert to scoped masked user access
+    (no matching commit)
+  - [V3,12/12] select: Convert to scoped masked user access
     (no matching commit)
 
 You are awesome, thank you!
