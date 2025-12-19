@@ -1,147 +1,143 @@
-Received: from mail-yx1-f47.google.com (mail-yx1-f47.google.com [74.125.224.47])
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4C55281376
-	for <linux-s390@vger.kernel.org>; Thu, 18 Dec 2025 14:16:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37EBC2D5A13
+	for <linux-s390@vger.kernel.org>; Fri, 19 Dec 2025 05:42:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766067396; cv=none; b=bMCajkAAU7AxMbgDsDsBJaLcItIASIAiZB1tYOf1wtV235Mh6W7QbC8ULGIHk1b0uKXyld/PYrkmrtUpnaXr9wambHUyYONgs+7pE8oJegD+CaYBcGcLEBaxTmQenWXZ4XWUyCuDx+f9Hs/QMTojL5BRqxS18jD0ajCDQvtI7cQ=
+	t=1766122962; cv=none; b=mFpRyrnPxyMDJkhxlNSbqJLq4NWJhZqPCoNkA0zo5msC3uueedayxmmAXVyeLq37KginWZki1DBEgN/CuXbxmv8QyN1AsgFraWas8zVUtOSCa+D2VCc6FP8xG7zTCyUSrv8FMSu08aF8NS+usn5V7Zo9PQTKAus2QoL78J7dlvI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766067396; c=relaxed/simple;
-	bh=X3AetqFr0Rs5Pr4ASvORkz3yAjAZv7TTnmXwVQ+MVjQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=A4nGAQVwTJ0z+ZAKHB/pMM/dCfH4vkLOkCMZyG0ywtdIzJFIZBztnjR+b1qCLbRPm2P+3gqSOK6HMPYbt8DYOLZdRAJYglRBb0XihZdSOBewX+G44TvtGsN1Vx2PZxWIBGcyIrGP6OEAX62r/OXwNCZQVru8fUMcDTWL/OsRcw4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J6F7rLWi; arc=none smtp.client-ip=74.125.224.47
+	s=arc-20240116; t=1766122962; c=relaxed/simple;
+	bh=IEnkmMkvBLHbjCpXsYVUXQfPmf3NVslrHp9Qvjpb+dw=;
+	h=From:To:Cc:Subject:In-Reply-To:Date:Message-ID:References; b=IkpWF7QUtgPqceo490ft0B0+AQP9P8sYCZsOCXMF3IXdSUPkvOTzwCC4rOTnW/jrZpIeoyDzpQj85UZsUVMKy0EnRZTPaEh4AJGhfORBspqClSgVoLatEaztanWptTut53rwctIizAgqPU2kUmw9vmbDKtZBP791c8fCkG78CIU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TIVMHVzf; arc=none smtp.client-ip=209.85.210.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J6F7rLWi"
-Received: by mail-yx1-f47.google.com with SMTP id 956f58d0204a3-6420c08f886so824346d50.3
-        for <linux-s390@vger.kernel.org>; Thu, 18 Dec 2025 06:16:33 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TIVMHVzf"
+Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-7aae5f2633dso1413558b3a.3
+        for <linux-s390@vger.kernel.org>; Thu, 18 Dec 2025 21:42:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1766067393; x=1766672193; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:to:subject:user-agent:mime-version:date:message-id:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=fXzxKl4n/8RvMAsuC5o0CHJyqBCSHbh1Hg5d0ZUuzDk=;
-        b=J6F7rLWi6E1H9pOATmMmbgtG+g3Awq3ldDk5zgt5lBNDPX6MH9Yz1xBeb5pQj8riBK
-         j5UznOUKAg6MFra7ThfGxgbN3PuyoOprEcO5Rr1khYY+k3JdH23C1mbIx4xkXeF1QT4y
-         augowEqmdDxRQL3Tb5RtT50bPEZO8O9EONyVL2eO3PVDNEM6XE+FhN6ZOUHg7MDbfJG4
-         A1knCUy4d4hvGDdQxZHVI4NKita3Kn9MlKHax0v9I06oCxgUbUfK1DJd/BIb/laqdOrm
-         jr02RSvIiEV5r9keHZBdBb2y0vDFJ6kdWWml/9MqwBE8s5vhDJBprGze9lq3cDtFzevs
-         moBQ==
+        d=gmail.com; s=20230601; t=1766122955; x=1766727755; darn=vger.kernel.org;
+        h=references:message-id:date:in-reply-to:subject:cc:to:from:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=3YZTuXKJS0jJ/FjWVkX1S0/dpihzlaBm67evQ8OxNp4=;
+        b=TIVMHVzf80UtOLy3yfMtE3Vgfltrpx+uPHBdjn7XLOnyzztJRO8IUwWfBcNXRW/GdL
+         VH4hQFJ5YmfFbnuG9nmMvmsXSFhNhjf0B0m40fdz55di93/8GTJKxRDoIA+EjhGwchdM
+         xdK471r0j2fWAA5Ragz7jdneYFW8MCn0vMcYO1W5XtEVvLit/cmVlmwMS1AWTsmxfHTO
+         Td9XNDvoQCkssMWKSx+H4mYi5iLufhsfVWxNq87UQWlLq9yFJqAntzbHeD2jkkTcWolr
+         qZgH3mSqEnGLtUtx1ixzYDKB84HsCJBoeUAOe2ZnBUPreP/b1TgmwzJMp4aX4/EtZrUU
+         0S3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766067393; x=1766672193;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=fXzxKl4n/8RvMAsuC5o0CHJyqBCSHbh1Hg5d0ZUuzDk=;
-        b=X7sHpbNB7jZlXxZfjAQpklj2FQf06KRrMMCuwvE5jd6eTZf338Es9wSRYObzLBlhbY
-         davy+xqiNmr3Ca7XOv+oeVHHF7/pkiqj2CpaPXDlms7teSjbe815UOW420B1iyOAlleG
-         5zYMArT7EjDu2GZcKlkpO67td5RrfHtIKpohsj0i16j4PyM7tTddmm7EZjw2Li8gYwIu
-         iFOeP0UOH010OH6AIJWb6eRMKpD432mLzvbYpjLRlNoyEz2bHgfHCmGYWtP8t31wzOFC
-         kdRKhiZiSmDEKI8AroKXzoqJJCYNzOJkXvxxzdbIAZb4UJ4ugIjUBdR112at8IYeKl02
-         4+WQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUSR7j6t+ZwodjiCAMhHcBdBCf2k+4TpuxDDLko4Ur3HTne+DpPQp4t1GEOG+ZckGwpzaGP25ini0hE@vger.kernel.org
-X-Gm-Message-State: AOJu0YyldsjwJ0nGJ+bH8NA0zmIwDyMJPDJWvWQe4/DgC62/kbI7odQl
-	wdvdULvUS4yUo4NFzJUFqvKbAgPNean9O2uESp6tFoIv/ypmIHfeDcfR
-X-Gm-Gg: AY/fxX6g5dKPQq50ZuMPBvHO4fWz4iPkyf5voNdySJTg+o72M1MjM3aBK4BCj5YgFea
-	OWsQhaDUMs+pDzjCC712D/aiMDCNANLjn17HW5x8JhTsWCwuQI2iDnWoEsr/RW5UKdlKRWyfMAV
-	DRN1tdzKx9jt7CwRP3dME4z8prnfbATSEJZmsJpNFTfRKux5Z0dn3wICdF17Sijy+u4ihp8hfJL
-	kXJ7QpU/w6H5h2s4Nn0iusmOKGzJ2RYFBUZ1QICtq8LZRPpH36UF4zc29MwofhtTBe1T/l0shZe
-	4orTFkhamfKX+vqMzhu+lcZwsdfLi45ebNsQdCoiX/y99z3/v/wM2wLE+G7iCtYQmfsEpM51/tF
-	mFdZ8irSBWj+yxSXrGkdLV0EOCrgGQUjdBcELKPqL3Mc2b93q7UYNIVmCIACmPJzpBCVwT3W9Jq
-	lyfFS7DveyVxXjCQJijyIVWxDNHXQZrgWgsVRbJw==
-X-Google-Smtp-Source: AGHT+IHiyiDMA9Ch4dS+LVHDAxXzncC3LuoMgD0ZQuZ+G9ON0TWb1O0iMOdyZnWTo8KMI06Ox9pplg==
-X-Received: by 2002:a05:690e:4086:b0:645:5a9f:8002 with SMTP id 956f58d0204a3-6455a9f836bmr15444591d50.6.1766067392483;
-        Thu, 18 Dec 2025 06:16:32 -0800 (PST)
-Received: from [192.168.2.226] (104.194.78.75.16clouds.com. [104.194.78.75])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-78fa72b48efsm8363757b3.51.2025.12.18.06.16.11
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 18 Dec 2025 06:16:31 -0800 (PST)
-Message-ID: <4249e49a-c91a-4e9c-92c1-79c272627540@gmail.com>
-Date: Thu, 18 Dec 2025 22:16:05 +0800
+        d=1e100.net; s=20230601; t=1766122955; x=1766727755;
+        h=references:message-id:date:in-reply-to:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=3YZTuXKJS0jJ/FjWVkX1S0/dpihzlaBm67evQ8OxNp4=;
+        b=hnOvePLybSXczkuvZoQI4YtsX0rhIN8udGp+0/iqhi70Tt4h3V4E0Fjtj9IeJgx2ug
+         D1iyj2617iHXNXqszvEOA0c2/XFDFOYcA+nvYGBjmcLVn9MrCLRtnU/CnmILO1ofWf+G
+         ZsE0P7JoutsiE6FZvQrl9nihqIiM1dLhlmAxdcXNLiDUMLXz/dFem5lmPxVYCk8Nhxoe
+         YMrEvOIRib0i8dvd24VDieWmR65loqDPj4zbbT0ijsmvSbZ0FtTo7gu4csM62YBH3QS7
+         UbIziDLix6i5ilel2gLpnsAqItvhlo05anjn82+W8jjrsHa8GlY1uzEAYikF0sBK1Rb2
+         99gg==
+X-Forwarded-Encrypted: i=1; AJvYcCUqjoF3d8SNUiEcd3amfRTKkjt2KD1yiwEOWp5+1WNShNwnqoN6dhW95TE6Vlu0IJDR92hoRJQpFqk/@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy3O09VG+T3wHVdc1hN/BZhhMfBuj21+93KNesf5zwvXOOED8mV
+	EH+QGMMQMhZEIYajvWqr33nTPZAnXZMLhjuJOngSLMm+oMQDPIK3VeQApKitH+iD4dw=
+X-Gm-Gg: AY/fxX6fdhO3IVJSSPmrNa5idQ1X6dKj3He0+e9jDklo0Zjzd+zX+rmIU5l61uy4CjZ
+	Ca3WPzyrEJ3G0EBeorekKM3MaPrJ6XTco6gYOKGwCeIWdDKIUiAZGtfZV6mE0R4lbTEN++RX4Hr
+	T/VRnHOynaw4NQNa2mXQHdh+yQqmrp9VKefzqvEyVRFs7MxCvaLDN520KLmos6LyNNCPKe6hDb2
+	K+C7y9c61L1u+sCDqlJT4+Ed3NutT4ouA23vPWjNkFNe8WwVz0/YRTfsBm3ov5Fv2HDpt4oWxL3
+	Gg3aWsY/QuLcbQxuECRCeI3rRG+6iSoCuRpwissaJ/+Uc1YRhgijLIOZQ1VWgLScxWFaXv1mCAP
+	9Cmy0dAVsqPQc/XrUKSgaSAS18ip48OPw7PZUag6b2HsI5lPbahI+vtUsnfN6OVzoHum+EId+Dr
+	mMzm0BAg==
+X-Google-Smtp-Source: AGHT+IGI8fuFuucCjImuX4l87nELJyNl9OPjlv6P1lULzof6E2V8PchTbygl/w/ZX4miaVw5gIXTMA==
+X-Received: by 2002:a05:6a00:414b:b0:7e8:450c:61b6 with SMTP id d2e1a72fcca58-7ff6607cf9emr1880110b3a.38.1766122955457;
+        Thu, 18 Dec 2025 21:42:35 -0800 (PST)
+Received: from dw-tp ([203.81.243.211])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7ff7e0a19besm1067558b3a.40.2025.12.18.21.42.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Dec 2025 21:42:34 -0800 (PST)
+From: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
+To: Sourabh Jain <sourabhjain@linux.ibm.com>, linux-kernel@vger.kernel.org
+Cc: Sourabh Jain <sourabhjain@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Borislav Petkov <bp@alien8.de>, Christophe Leroy <christophe.leroy@csgroup.eu>, David Hildenbrand <david@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, x86@kernel.org, linux-arm64@lists.infradead.org, linux-riscv@lists.infradead.org
+Subject: Re: [PATCH v5] mm/hugetlb: ignore hugepage kernel args if hugepages are unsupported
+In-Reply-To: <20251218114154.228484-1-sourabhjain@linux.ibm.com>
+Date: Fri, 19 Dec 2025 09:45:06 +0530
+Message-ID: <875xa3ksz9.ritesh.list@gmail.com>
+References: <20251218114154.228484-1-sourabhjain@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 1/2] mm/pgtable: use ptdesc for pmd_huge_pte
-To: "David Hildenbrand (Red Hat)" <david@kernel.org>, alexs@kernel.org,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <chleroy@kernel.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, "David S . Miller"
- <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- "Liam R . Howlett" <Liam.Howlett@oracle.com>,
- Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- Zi Yan <ziy@nvidia.com>, Baolin Wang <baolin.wang@linux.alibaba.com>,
- Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
- Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
- Lance Yang <lance.yang@linux.dev>, Matthew Brost <matthew.brost@intel.com>,
- Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
- Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
- Ying Huang <ying.huang@linux.alibaba.com>,
- Alistair Popple <apopple@nvidia.com>, Thomas Huth <thuth@redhat.com>,
- Will Deacon <will@kernel.org>, Matthew Wilcox <willy@infradead.org>,
- Magnus Lindholm <linmag7@gmail.com>, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org
-References: <20251214065546.156209-1-alexs@kernel.org>
- <52e2c1eb-67cf-41ee-9088-760fb6258153@gmail.com>
- <ee42b057-b2d1-4a61-a6b0-39f81f78a918@kernel.org>
-Content-Language: en-US
-From: Alex Shi <seakeel@gmail.com>
-In-Reply-To: <ee42b057-b2d1-4a61-a6b0-39f81f78a918@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
+Sourabh Jain <sourabhjain@linux.ibm.com> writes:
 
+> Skip processing hugepage kernel arguments (hugepagesz, hugepages, and
+> default_hugepagesz) when hugepages are not supported by the
+> architecture.
+>
+> Some architectures may need to disable hugepages based on conditions
+> discovered during kernel boot. The hugepages_supported() helper allows
+> architecture code to advertise whether hugepages are supported.
+>
+> Currently, normal hugepage allocation is guarded by
+> hugepages_supported(), but gigantic hugepages are allocated regardless
+> of this check. This causes problems on powerpc for fadump (firmware-
+> assisted dump).
+>
+> In the fadump (firmware-assisted dump) scenario, a production kernel
+> crash causes the system to boot into a special kernel whose sole
+> purpose is to collect the memory dump and reboot. Features such as
+> hugepages are not required in this environment and should be
+> disabled.
+>
+> For example, fadump kernel booting with the kernel arguments
+> default_hugepagesz=1GB hugepagesz=1GB hugepages=200 prints the
+> following logs:
+>
+> HugeTLB: allocating 200 of page size 1.00 GiB failed.  Only allocated 58 hugepages.
+> HugeTLB support is disabled!
+> HugeTLB: huge pages not supported, ignoring associated command-line parameters
+> hugetlbfs: disabling because there are no supported hugepage sizes
+>
+> Even though the logs say that hugetlb support is disabled, gigantic
+> hugepages are still getting allocated, which causes the fadump kernel
+> to run out of memory during boot.
+>
+> To fix this, the gigantic hugepage allocation should come under
+> hugepages_supported().
+>
+> To bring gigantic hugepage allocation under hugepages_supported(), two
+> approaches were previously proposed:
+> [1] Check hugepages_supported() in the generic code before allocating
+> gigantic hugepages.
+> [2] Make arch_hugetlb_valid_size() return false for all hugetlb sizes.
+>
+> Approach [2] has two minor issues:
+> 1. It prints misleading logs about invalid hugepage sizes
+> 2. The kernel still processes hugepage kernel arguments unnecessarily
+>
 
-On 2025/12/18 18:01, David Hildenbrand (Red Hat) wrote:
-> On 12/15/25 01:53, Alex Shi wrote:
->>
->>
->> On 2025/12/14 14:55, alexs@kernel.org wrote:
->>> From: Alex Shi<alexs@kernel.org>
->>>
->>> 'pmd_huge_pte' are pgtable variables, but used 'pgtable->lru'
->>> instead of pgtable->pt_list in pgtable_trans_huge_deposit/withdraw
->>> functions, That's a bit weird.
->>>
->>> So let's convert the pgtable_t to precise 'struct ptdesc *' for
->>> ptdesc->pmd_huge_pte, and mm->pmd_huge_pte, then convert function
->>> pgtable_trans_huge_deposit() to use correct ptdesc.
->>>
->>> This convertion works for most of arch, but failed on s390/sparc/powerpc
->>> since they use 'pte_t *' as pgtable_t. Is there any suggestion for these
->>> archs? If we could have a solution, we may remove the pgtable_t for 
->>> other
->>> archs.
->>
->> If s390/sparc/powerpc can't align pgtable_t with others, we have to keep
->> the pgtable_t to bridge different types. But we could take step to
->> change pgtable_t as 'struct ptdesc *' in other archs. That could
->> simplify and clarify related code too, isn't it?
-> 
-> Not sure. s390 and friends squeeze multiple actual page tables into a 
-> single page and that single page has a single ptdesc.
-> 
-> I was rather hoping that we can make the code more consistent by making 
-> everybody just point at the start of the page table? (that is, make it 
-> consistent for all, not use ptdesc for some and pte_t * for others)
-> 
+And that every other architecture will have to duplicate this in their
+arch_hugetlb_valid_size() whenever they face the same problem.
 
-Got it. That would be great if owners of these archs like to work on this.
+Instead like at other places, hugepages_supported() should also be
+checked in the following cmdlines setup functions.
 
-Thanks
-Alex
+> To control gigantic hugepage allocation, it is proposed to skip
+> processing the hugepage kernel arguments (hugepagesz, hugepages, and
+> default_hugepagesz) when hugepages_support() returns false.
+>
+
+Right. Thanks for taking care of it. I guess after this patch [1] moves
+hugetlbpage_init_defaultsize() to mmu_early_init_devtree(), it's good to
+bring back these checks in the respective cmdline setup functions which
+was removed as part of commit [2]
+
+[1]:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2354ad252b66695be02f4acd18e37bf6264f0464
+
+[2]: https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=c2833a5bf75b3657c4dd20b3709c8c702754cb1f
+
+LGTM. Please feel free to add:
+Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
