@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BAB72E2846;
-	Fri, 19 Dec 2025 08:13:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5CDC2DCBE3;
+	Fri, 19 Dec 2025 08:13:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766131992; cv=none; b=oNZ0GlqcgKn6CrKtrpaDLEIiIP4YVB1/OCPsSlEQViA0OxLCLPdUaE3JVQNrsOF9DIFOpMY3UoDfUx3z2XTwr+P6u0cEY3B8AdSTOqCyOxUHsyJPgpQ2xl38qmO50viYcnCXGw9QfsiNvtwvEego7U4yHMoRbqeSVlmGJjideVU=
+	t=1766131998; cv=none; b=pYNXSEQK3kK3tjGnaVY1KM7xX0lu/8zGYGkOCxSSmkpbJCoj+vVtQennubij7EoN3CTmFF+ZAlhCnsJ3X5CmcBevQTVpPPrBDroTDpiLtB+LJJ63tE5bxa7v9RL6WgXNzF1TMDjdCzDYcCghZ5OZquwbUIOSx7+MN0KmkGvX01k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766131992; c=relaxed/simple;
-	bh=VHoS82AXfCFO1ejAKfSVVHRYub84nw1PWg6S5l2Exag=;
+	s=arc-20240116; t=1766131998; c=relaxed/simple;
+	bh=ZpBHca7oN52iVgWXthIDFgDhI9A0INgKqTumn5Wu6+Y=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=LVY5QcYHJVQ/+GlT0peSC2qjl4+57jHjORYXl8ctxeFj8fNIDujNxL6/tW3OeD9tRy/eC54+jnKQOQZJ+ONO89ndzDK3aXGzGGmcJFxtObUFG5FQjVutsppPnovYIkAtWLVK95XU2/gQ5Z8NcLemybnzLLFJUIPfI393BRKMxUQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IaLW4S1t; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=dJeGGgzNQUVNh/nAgnGjw7DsCDIRsazEpdvz4La3SFfSw3t9wceLru/pwiXPHcoTiE9bYxodcTDBSXi2L95zUfFlpsg5OOYY3QoYiZ0Zp7fEzaSHtehumIHHuCy1BPGWcL9u1XcSjsbPPg5PclyF0lxWLtYepd75m+7m/mw4v2s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GLiYOmvP; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IaLW4S1t"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 830A6C4CEF1;
-	Fri, 19 Dec 2025 08:13:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GLiYOmvP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43DA1C4CEF1;
+	Fri, 19 Dec 2025 08:13:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1766131991;
-	bh=VHoS82AXfCFO1ejAKfSVVHRYub84nw1PWg6S5l2Exag=;
+	s=k20201202; t=1766131998;
+	bh=ZpBHca7oN52iVgWXthIDFgDhI9A0INgKqTumn5Wu6+Y=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=IaLW4S1tN6Y5d0CEwtYrP7pEFFatg4+zyVk42le/G1ucAiucsqwdqRrXSmIZwetfz
-	 2zs60fMbWBsq8viNHscFfmAKLsGTsX8ViZtlMfKG9WYxS113c6NsRFI8XmO0QqXa/c
-	 G0kwrN1ENE+XMTcx1FH3lNlIq0qG47mawO0dWLcFaANMO7XG7pRpYaBN+N0AlY0L56
-	 ULFhlpqrcbAvM1rLyzbhF9iEwedS5paG2uV9+u0arVl40hVQMgM6e0mGyCZneg8EU8
-	 smrcfl6UIkPgQ9go9rjfopU/D3bUCirJ/35nYbjYY0piCkggs9AMgBsGaHp6htqpnM
-	 PkespiJB9S78Q==
+	b=GLiYOmvPUPoGBBkA0Ts0/kjAyBBbJ5CVV866J5BiVEgPJj3OYjRgC+9kPctyKNkbY
+	 OTmQcFlqulWRizG9DOeVMcBBx3TMpnVx8OsXdwOLS+oyRNZ43rplVORNJeOQQd5TCz
+	 VpcmAphzU3UsvkI5L30JzY+yn/H0KfEWqpVte7ln/hSbjF1dNKhUJB0U1REatJzEyR
+	 lb/rrla5Oq6RnkhwpZlVihV4NT0itGutxX9yV+3Mu7xreaNE+7eVmbadIEeUslLbKZ
+	 K6SjjazHiexJwS8UcYibsLYI3osV5J/1Mf1cfAxG4KlgZXMP2+gQZEcu1CfsRsvhQs
+	 DlwDgJSLvSrwg==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id B5C24380AA50;
-	Fri, 19 Dec 2025 08:10:01 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 7872A380AA50;
+	Fri, 19 Dec 2025 08:10:08 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -37,64 +37,68 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v2 00/10] kbuild: userprogs: introduce
- architecture-specific CC_CAN_LINK and userprog flags
+Subject: Re: [patch V5 00/12] uaccess: Provide and use scopes for user access
 From: patchwork-bot+linux-riscv@kernel.org
 Message-Id: 
- <176613180027.3684357.16322390150390680475.git-patchwork-notify@kernel.org>
-Date: Fri, 19 Dec 2025 08:10:00 +0000
-References: <20251014-kbuild-userprogs-bits-v2-0-faeec46e887a@linutronix.de>
-In-Reply-To: <20251014-kbuild-userprogs-bits-v2-0-faeec46e887a@linutronix.de>
-To: =?utf-8?q?Thomas_Wei=C3=9Fschuh_=3Cthomas=2Eweissschuh=40linutronix=2Ede=3E?=@aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org
-Cc: linux-riscv@lists.infradead.org, nathan@kernel.org,
- nicolas.schier@linux.dev, nsc@kernel.org, pjw@kernel.org, palmer@dabbelt.com,
- aou@eecs.berkeley.edu, alex@ghiti.fr, hca@linux.ibm.com, gor@linux.ibm.com,
- agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
- maddy@linux.ibm.com, mpe@ellerman.id.au, npiggin@gmail.com,
- christophe.leroy@csgroup.eu, tsbogend@alpha.franken.de, tglx@linutronix.de,
- mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
- hpa@zytor.com, davem@davemloft.net, andreas@gaisler.com,
- linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
- masahiroy@kernel.org, linux-s390@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-mips@vger.kernel.org,
- sparclinux@vger.kernel.org
+ <176613180728.3684357.15978002339429469981.git-patchwork-notify@kernel.org>
+Date: Fri, 19 Dec 2025 08:10:07 +0000
+References: <20251027083700.573016505@linutronix.de>
+In-Reply-To: <20251027083700.573016505@linutronix.de>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
+ lkp@intel.com, linux@armlinux.org.uk, linux-arm-kernel@lists.infradead.org,
+ torvalds@linux-foundation.org, x86@kernel.org, maddy@linux.ibm.com,
+ mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
+ linuxppc-dev@lists.ozlabs.org, pjw@kernel.org, palmer@dabbelt.com,
+ hca@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ linux-s390@vger.kernel.org, mathieu.desnoyers@efficios.com,
+ andrew.cooper3@citrix.com, david.laight.linux@gmail.com,
+ Julia.Lawall@inria.fr, nicolas.palix@imag.fr, peterz@infradead.org,
+ dvhart@infradead.org, dave@stgolabs.net, andrealmeid@igalia.com,
+ viro@zeniv.linux.org.uk, brauner@kernel.org, jack@suse.cz,
+ linux-fsdevel@vger.kernel.org
 
 Hello:
 
 This series was applied to riscv/linux.git (fixes)
-by Nicolas Schier <nsc@kernel.org>:
+by Ingo Molnar <mingo@kernel.org>:
 
-On Tue, 14 Oct 2025 15:05:15 +0200 you wrote:
-> The current logic to inherit -m32/-m64 from the kernel build only works
-> for a few architectures. It does not handle byte order differences,
-> architectures using different compiler flags or different kinds of ABIs.
+On Mon, 27 Oct 2025 09:43:40 +0100 (CET) you wrote:
+> This is a follow up on the V4 feedback:
 > 
-> Introduce a per-architecture override mechanism to set CC_CAN_LINK and
-> the flags used for userprogs.
+>    https://lore.kernel.org/20251022102427.400699796@linutronix.de
+> 
+> Changes vs. V4:
+> 
+>   - Rename get/put_user_masked() to get/put_user_inline()
 > 
 > [...]
 
 Here is the summary with links:
-  - [v2,01/10] kbuild: don't enable CC_CAN_LINK if the dummy program generates warnings
-    https://git.kernel.org/riscv/c/d81d9d389b9b
-  - [v2,02/10] init: deduplicate cc-can-link.sh invocations
-    https://git.kernel.org/riscv/c/80623f2c83d7
-  - [v2,03/10] kbuild: allow architectures to override CC_CAN_LINK
+  - [V5,01/12] ARM: uaccess: Implement missing __get_user_asm_dword()
+    https://git.kernel.org/riscv/c/44c5b6768e3a
+  - [V5,02/12] uaccess: Provide ASM GOTO safe wrappers for unsafe_*_user()
     (no matching commit)
-  - [v2,04/10] riscv: Implement custom CC_CAN_LINK
+  - [V5,03/12] x86/uaccess: Use unsafe wrappers for ASM GOTO
+    https://git.kernel.org/riscv/c/14219398e3e1
+  - [V5,04/12] powerpc/uaccess: Use unsafe wrappers for ASM GOTO
+    https://git.kernel.org/riscv/c/5002dd53144f
+  - [V5,05/12] riscv/uaccess: Use unsafe wrappers for ASM GOTO
+    https://git.kernel.org/riscv/c/0988ea18c624
+  - [V5,06/12] s390/uaccess: Use unsafe wrappers for ASM GOTO
+    https://git.kernel.org/riscv/c/43cc54d8dbe6
+  - [V5,07/12] uaccess: Provide scoped user access regions
+    https://git.kernel.org/riscv/c/e497310b4ffb
+  - [V5,08/12] uaccess: Provide put/get_user_inline()
+    https://git.kernel.org/riscv/c/b2cfc0cd68b8
+  - [V5,09/12,RFC] coccinelle: misc: Add scoped_masked_$MODE_access() checker script
     (no matching commit)
-  - [v2,05/10] s390: Implement custom CC_CAN_LINK
-    (no matching commit)
-  - [v2,06/10] powerpc: Implement custom CC_CAN_LINK
-    (no matching commit)
-  - [v2,07/10] MIPS: Implement custom CC_CAN_LINK
-    (no matching commit)
-  - [v2,08/10] x86/Kconfig: Implement custom CC_CAN_LINK
-    (no matching commit)
-  - [v2,09/10] sparc: Implement custom CC_CAN_LINK
-    (no matching commit)
-  - [v2,10/10] kbuild: simplify CC_CAN_LINK
-    (no matching commit)
+  - [V5,10/12] futex: Convert to get/put_user_inline()
+    https://git.kernel.org/riscv/c/e4e28fd6986e
+  - [V5,11/12] x86/futex: Convert to scoped user access
+    https://git.kernel.org/riscv/c/e02718c9865c
+  - [V5,12/12] select: Convert to scoped user access
+    https://git.kernel.org/riscv/c/3ce17e690994
 
 You are awesome, thank you!
 -- 
