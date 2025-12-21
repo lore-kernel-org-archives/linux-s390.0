@@ -1,220 +1,276 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E60482C235E;
-	Sat, 20 Dec 2025 14:51:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F06D3150997;
+	Sun, 21 Dec 2025 05:38:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766242320; cv=none; b=aqHFEoDgYBe54+lq9oXU9phpbjk/fPkchWOfR4oEA2Ep63f9LKeDeVIVkpND7dfViduj/vUNtP5CL09yPA4uWhdbSyDWl7HD8YZmJrkQBnrH420VsPbraH81sos8eOoGVrOxgIK3AIjJeU5W4w1hf+0R/9g1qTtpUzGATSN83O8=
+	t=1766295531; cv=none; b=F1jmPUDZj7aJjGVIrdjs2XjNWNwQZzQXRmiDfk/XoFo+2VT8uc8Iv+oVNd8kaWDBeSG01k2p13dDQC4svHHPTjB9Rg2gV8JlqhrJRpzOwga5VCl0czf+0S8PoHMmkPX1S5oPk3dqM4yNDVT1HjtKh58Pzh9g/fFDvZ52HBdbho4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766242320; c=relaxed/simple;
-	bh=wGYA5pmQtbqWCCPNcnh6oxr6nGO+Y0/SjIPw4z0eA7E=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=uUeNvGDoPZM9bPQdfoIh2iG13fbPFFJeedWk2XOs1p5oEXpUTQF6TrgkpeUgHzcSJCVIE1J93KEdfKUGnnmd8L3jnSkTneOF4TbOB9gmeHI2YVwbi1qfhX/IfrY73LCU7bepQ+iAGIVev3lrVUj/kfcqBEUJRIlNpsC9BUcM/Gk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dxSCe++J; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1766295531; c=relaxed/simple;
+	bh=VoTpbsKiXLmAV7ePJgrvtLqvux/vHyYbbBVOeCmhAT0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=aaO+vMYwcbPbYmGTxDw4OO/xOtwAAa0Z1Wlc8XA8hXbYIH95FWA8V3IpjrZdDl+rmmvpaGF0z8Xvap7UigafYHT9GUbpAJDhy2diPQzp2JlU9mIVqNmGtLFNNttuaoKu2zlMxd6AV3iZIYr1IbxayFplcwyMXxnbgEcgsnX+x3w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kxRKsLeq; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dxSCe++J"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kxRKsLeq"
 Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5BK2u2OC016773;
-	Sat, 20 Dec 2025 14:50:55 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5BKIoPsO022712;
+	Sun, 21 Dec 2025 05:36:45 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=djfhIu
-	JvYr8fZjpwPdnh6ePE1iA9EV9e5HBHaApl7YE=; b=dxSCe++Jf2cc1xWe9cI8+q
-	8VhoG/4hiDU81tLrM9wnVlYBVLxkcVtNq0/dbohCXCiKgDI8/F6h0DuegrzDndXk
-	kcMHdpnBrgZGYIbb5lvFhr0fH/y05s1M1aeWsvCZpJfP6J8paz7ZAiAMqSEXgU4f
-	ubBxEFHG0+FaAlGY8Vmvjy3ychYjHG51gFCok4DTFsBUv0vd1o1KbY/IM0Y8afCD
-	ZDkopg94qC8GTbx7rMCvt4lZwiFj+o2HQ5TqWNasPOxdL+rnRCaBW5fZA2ALjFer
-	gzhC6vtNAK6BOU/V+fkO5QdRDw0wyu9sAwrbOXB2lauLrqOWFOZCiIRa4deC25lw
-	==
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=cqxenW3eTMrmUzN1izliAYJlLBq9s39JQlwm88uLn
+	Zk=; b=kxRKsLeqBYwyVpQiJXJb1YE3w/yESnjk3yNZ2/mHOxEerz6pNc6+qY8oI
+	XyHgS3bROoz+CRBn5hlyDMqzra1fOauqgxnLlMdWMSIo2ZGke/3SpLttWPr4Sl9t
+	pY899nwugLs2UO15XlTUoGVDfuuLC2tADQ9vL49dRaLItVwoVojOnEtkHRVKtdH1
+	W4gufMX49oqJIz5ZD0+kNwCQ1i+kNM81Tw5pPC+BhcR+MZ2GO7UJ6WBY1Ax9hKuF
+	nPYzrgdK0jVXe+wPQzjBI783S+NmevaMBH2vkR1GOfVgxu3TUChHnevEmVtmLZlA
+	wR2na8s0RqGwcjqVRvd1mrWxbymJg==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4b5kethexa-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4b5ketk3h4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sat, 20 Dec 2025 14:50:55 +0000 (GMT)
+	Sun, 21 Dec 2025 05:36:45 +0000 (GMT)
 Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5BKEosAG001104;
-	Sat, 20 Dec 2025 14:50:54 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4b5kethex8-1
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5BL5aivp023120;
+	Sun, 21 Dec 2025 05:36:44 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4b5ketk3gy-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sat, 20 Dec 2025 14:50:54 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5BK954Q5006164;
-	Sat, 20 Dec 2025 14:50:53 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4b4qvqrrw0-1
+	Sun, 21 Dec 2025 05:36:44 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5BL3FPUD032332;
+	Sun, 21 Dec 2025 05:36:43 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4b68u0rb3w-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sat, 20 Dec 2025 14:50:53 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5BKEonUX31588812
+	Sun, 21 Dec 2025 05:36:43 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5BL5addg53018994
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Sat, 20 Dec 2025 14:50:49 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8AC7C2004B;
-	Sat, 20 Dec 2025 14:50:49 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0ACF420040;
-	Sat, 20 Dec 2025 14:50:46 +0000 (GMT)
-Received: from [9.124.209.127] (unknown [9.124.209.127])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Sat, 20 Dec 2025 14:50:45 +0000 (GMT)
-Message-ID: <a2bc427d-a41c-4b8f-b006-021390ff0070@linux.ibm.com>
-Date: Sat, 20 Dec 2025 20:20:44 +0530
-Precedence: bulk
-X-Mailing-List: linux-s390@vger.kernel.org
-List-Id: <linux-s390.vger.kernel.org>
-List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
-List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5] mm/hugetlb: ignore hugepage kernel args if hugepages
- are unsupported
-To: "David Hildenbrand (Red Hat)" <david@kernel.org>,
-        linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>, Borislav Petkov
- <bp@alien8.de>,
+	Sun, 21 Dec 2025 05:36:39 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id ABD3220043;
+	Sun, 21 Dec 2025 05:36:39 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AA73D20040;
+	Sun, 21 Dec 2025 05:36:35 +0000 (GMT)
+Received: from li-4f5ba44c-27d4-11b2-a85c-a08f5b49eada.ibm.com.com (unknown [9.124.223.251])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Sun, 21 Dec 2025 05:36:35 +0000 (GMT)
+From: Sourabh Jain <sourabhjain@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: Sourabh Jain <sourabhjain@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Borislav Petkov <bp@alien8.de>,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
         Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
         Madhavan Srinivasan <maddy@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Muchun Song <muchun.song@linux.dev>,
         Oscar Salvador <osalvador@suse.de>,
-        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Vasily Gorbik <gor@linux.ibm.com>, linux-mm@kvack.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        x86@kernel.org, linux-riscv@lists.infradead.org
-References: <20251218114154.228484-1-sourabhjain@linux.ibm.com>
- <83920c44-47f5-4a46-bfa7-76713197d7e4@kernel.org>
- <1fddcf72-26f7-4fb4-84b8-1328e486d58e@linux.ibm.com>
- <64a9ca24-2968-4532-ac04-594c340ec2a2@kernel.org>
-Content-Language: en-US
-From: Sourabh Jain <sourabhjain@linux.ibm.com>
-In-Reply-To: <64a9ca24-2968-4532-ac04-594c340ec2a2@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        x86@kernel.org, linux-riscv@lists.infradead.org,
+        "David Hildenbrand (Red Hat)" <david@kernel.org>,
+        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>
+Subject: [PATCH v6] mm/hugetlb: ignore hugepage kernel args if hugepages are unsupported
+Date: Sun, 21 Dec 2025 11:06:11 +0530
+Message-ID: <20251221053611.441251-1-sourabhjain@linux.ibm.com>
+X-Mailer: git-send-email 2.51.1
+Precedence: bulk
+X-Mailing-List: linux-s390@vger.kernel.org
+List-Id: <linux-s390.vger.kernel.org>
+List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
+List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: -UJ_23oZBmFZhfvHtHo9iau46cSaqYPO
-X-Authority-Analysis: v=2.4 cv=Qdxrf8bv c=1 sm=1 tr=0 ts=6946b7cf cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VwQbUJbxAAAA:8 a=z6Ez1-wMAixVQXjHHx4A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: EIWVDUCMc9Mrg17J49sUpCdeutt-GuAL
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjIwMDEyNyBTYWx0ZWRfX1+huJTyQIbeo
- no9LO/EePOuyWY0Qs78ZfePtdlkwmKgnzx5jBZObrMuKxOyrfYlTYF3BN+3NJVMPqtsAvxUU+9Y
- wjG92PrqHSel+FQFGRaCGHi+PReMrcJc9bfI56RtoJ/WaxUXqSyXBwzuZ9hlzQiYdvrOUKGyarP
- UNMex/W0oJmqmhKn6vDN5nUTXXPjQga6nJ1Yf1S7NmUV3DcvSeninTQwBQMhSIpmvBmgprGPEx0
- LKIBT+0iV/uX8x5r8yQLxAZVmlM/5jrYVemys26LU8bEu/5Ad6MMwnWTWztK0aEpMXxq/YVTZPk
- OP25uBUwHptUDNSvIRgHXlZYbbL/m7m0Cn/xrYSE44X3ZkMa5s5HC/fodbo6C18T1SCToTVO3Pu
- PktBc5LbgoaID+BINaW097kiiNX7Xki+zD2+bXyVWRnnVBN9/nggJ8iV1V4IgqtX0MxB3XYAVbT
- +4pdLD2EAQy96bAU+tA==
+X-Proofpoint-GUID: IkuzYnWWG9IjSp_0Gla-YCTWDZ3vkUNM
+X-Authority-Analysis: v=2.4 cv=Qdxrf8bv c=1 sm=1 tr=0 ts=6947876d cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=Z4Rwk6OoAAAA:8 a=1UX6Do5GAAAA:8 a=20KFwNOVAAAA:8 a=37rDS-QxAAAA:8
+ a=voM4FWlXAAAA:8 a=JfrnYn6hAAAA:8 a=pGLkceISAAAA:8 a=4Gij-p89FXQWKqtjjkgA:9
+ a=HkZW87K1Qel5hWWM3VKY:22 a=Et2XPkok5AAZYJIKzHr1:22 a=k1Nq6YrhK2t884LQW06G:22
+ a=IC2XNlieTeVoXbcui8wp:22 a=1CNFftbPRP8L7MoqJWF3:22
+X-Proofpoint-ORIG-GUID: eQTIUVpUUHp_XrIuF6PTtd0qUoTnYCSL
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjIxMDA0NiBTYWx0ZWRfXy3ULg6E+ewT8
+ X/SzCzVkCaMVY/+7LKrZ53JGDS1u0TNM9ikOkxdJen8eXdRW1MvtlSMUI5e3Q2WNEzbMx3YV/0g
+ nEg1fR0u9IXP2kfF9uyiLDOPXM4kEBc/wcCUEe+vqDTXmJD83bEFHIzKjRI9Zyq5OCElK4k7D7L
+ 1+c6YmzKoHN4nLqCKxO17kYAw0WBVMf93r0XEEy1ynYL28fUSmKUfeXbjVgNc3wMzsSC4NIP2ot
+ Uczj8vR4wcIcEqfiAWdmQq4p+1U8t1vaKE0dVjyEePAORKtTAyrx9T7vvdPXRAC9IadlrwY5hct
+ +64NMyn/ozJd4AwGa7A3d4LyzwaoZlQu4rxa9bJCDc7cem/uh7cm6KOIW1kkECz2zaoANu5b5+P
+ xcR/uZGUMqiT6fTU5TNe2/k9r7Dn5cLJAQcroyZ75eXIIuxTkw3FOUlBMPVwaIrO2wiMTAcJfPM
+ UIPNhyzvNFuUINUxGVA==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-12-20_03,2025-12-19_02,2025-10-01_01
+ definitions=2025-12-21_02,2025-12-19_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  suspectscore=0 bulkscore=0 lowpriorityscore=0 malwarescore=0 clxscore=1015
  priorityscore=1501 phishscore=0 impostorscore=0 adultscore=0 spamscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2512120000 definitions=main-2512200127
+ reason=mlx scancount=1 engine=8.19.0-2512120000 definitions=main-2512210046
 
+Skip processing hugepage kernel arguments (hugepagesz, hugepages, and
+default_hugepagesz) when hugepages are not supported by the
+architecture.
 
+Some architectures may need to disable hugepages based on conditions
+discovered during kernel boot. The hugepages_supported() helper allows
+architecture code to advertise whether hugepages are supported.
 
-On 19/12/25 11:43, David Hildenbrand (Red Hat) wrote:
-> On 12/18/25 14:06, Sourabh Jain wrote:
->>
->>
->> On 18/12/25 17:32, David Hildenbrand (Red Hat) wrote:
->>> On 12/18/25 12:41, Sourabh Jain wrote:
->>>> Skip processing hugepage kernel arguments (hugepagesz, hugepages, and
->>>> default_hugepagesz) when hugepages are not supported by the
->>>> architecture.
->>>>
->>>> Some architectures may need to disable hugepages based on conditions
->>>> discovered during kernel boot. The hugepages_supported() helper allows
->>>> architecture code to advertise whether hugepages are supported.
->>>>
->>>> Currently, normal hugepage allocation is guarded by
->>>> hugepages_supported(), but gigantic hugepages are allocated regardless
->>>> of this check. This causes problems on powerpc for fadump (firmware-
->>>> assisted dump).
->>>>
->>>> In the fadump (firmware-assisted dump) scenario, a production kernel
->>>> crash causes the system to boot into a special kernel whose sole
->>>> purpose is to collect the memory dump and reboot. Features such as
->>>> hugepages are not required in this environment and should be
->>>> disabled.
->>>>
->>>> For example, fadump kernel booting with the kernel arguments
->>>> default_hugepagesz=1GB hugepagesz=1GB hugepages=200 prints the
->>>> following logs:
->>>>
->>>> HugeTLB: allocating 200 of page size 1.00 GiB failed.  Only allocated
->>>> 58 hugepages.
->>>> HugeTLB support is disabled!
->>>> HugeTLB: huge pages not supported, ignoring associated command-line
->>>> parameters
->>>> hugetlbfs: disabling because there are no supported hugepage sizes
->>>>
->>>> Even though the logs say that hugetlb support is disabled, gigantic
->>>> hugepages are still getting allocated, which causes the fadump kernel
->>>> to run out of memory during boot.
->>>
->>> Yeah, that's suboptimal.
->>>
->>>>
->>>> To fix this, the gigantic hugepage allocation should come under
->>>> hugepages_supported().
->>>>
->>>> To bring gigantic hugepage allocation under hugepages_supported(), two
->>>> approaches were previously proposed:
->>>> [1] Check hugepages_supported() in the generic code before allocating
->>>> gigantic hugepages.
->>>> [2] Make arch_hugetlb_valid_size() return false for all hugetlb sizes.
->>>>
->>>> Approach [2] has two minor issues:
->>>> 1. It prints misleading logs about invalid hugepage sizes
->>>> 2. The kernel still processes hugepage kernel arguments unnecessarily
->>>>
->>>> To control gigantic hugepage allocation, it is proposed to skip
->>>> processing the hugepage kernel arguments (hugepagesz, hugepages, and
->>>> default_hugepagesz) when hugepages_support() returns false.
->>>
->>> You could briefly mention the new output here, so one has a
->>> before-after comparison.
->>
->> Here is the fadump kernel boot logs after this patch applied:
->> kernel command had: default_hugepagesz=1GB hugepagesz=1GB hugepages=200
->>
->> HugeTLB: hugepages unsupported, ignoring default_hugepagesz=1GB cmdline
->> HugeTLB: hugepages unsupported, ignoring hugepagesz=1GB cmdline
->> HugeTLB: hugepages unsupported, ignoring hugepages=200 cmdline
->> HugeTLB support is disabled!
->> hugetlbfs: disabling because there are no supported hugepage sizes
->>
->> I will wait for a day or two before sending v2 with the above logs
->> included in
->> the commit message.
->>
->>>
->>> Curious, should we at least add a Fixes: tag? Allocating memory when
->>> it's completely unusable sounds wrong.
->>
->> Not sure which commit I should use for Fixes. This issue has
->> been present for a long time, possibly since the beginning.
->
-> I don't know the full history, but I would assume that support for 
-> gigantic pages was added later?
->
-> It would be great if you could dig a bit so we could add a Fixes:.
+Currently, normal hugepage allocation is guarded by
+hugepages_supported(), but gigantic hugepages are allocated regardless
+of this check. This causes problems on powerpc for fadump (firmware-
+assisted dump).
 
-The below commit removed the hugepages_supported() call from all three
-command-line parsing functions, which inadvertently created an issue
-for fadump that my changes attempt to fix.
+In the fadump (firmware-assisted dump) scenario, a production kernel
+crash causes the system to boot into a special kernel whose sole
+purpose is to collect the memory dump and reboot. Features such as
+hugepages are not required in this environment and should be
+disabled.
 
-https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=c2833a5bf75b3657c4dd20b3709c8c702754cb1f
+For example, when the fadump kernel boots with the following kernel
+arguments:
+default_hugepagesz=1GB hugepagesz=1GB hugepages=200
 
-I will add fixes tag on above commit and send the next version.
+Before this patch, the kernel prints the following logs:
 
-- Sourabh Jain
+HugeTLB: allocating 200 of page size 1.00 GiB failed.  Only allocated 58 hugepages.
+HugeTLB support is disabled!
+HugeTLB: huge pages not supported, ignoring associated command-line parameters
+hugetlbfs: disabling because there are no supported hugepage sizes
+
+Even though the logs state that HugeTLB support is disabled, gigantic
+hugepages are still allocated. This causes the fadump kernel to run out
+of memory during boot.
+
+After this patch is applied, the kernel prints the following logs for
+the same command line:
+
+HugeTLB: hugepages unsupported, ignoring default_hugepagesz=1GB cmdline
+HugeTLB: hugepages unsupported, ignoring hugepagesz=1GB cmdline
+HugeTLB: hugepages unsupported, ignoring hugepages=200 cmdline
+HugeTLB support is disabled!
+hugetlbfs: disabling because there are no supported hugepage sizes
+
+To fix the issue, gigantic hugepage allocation should be guarded by
+hugepages_supported().
+
+Previously, two approaches were proposed to bring gigantic hugepage
+allocation under hugepages_supported():
+
+[1] Check hugepages_supported() in the generic code before allocating
+gigantic hugepages
+[2] Make arch_hugetlb_valid_size() return false for all hugetlb sizes
+
+Approach [2] has two minor issues:
+1. It prints misleading logs about invalid hugepage sizes
+2. The kernel still processes hugepage kernel arguments unnecessarily
+
+To control gigantic hugepage allocation, skip processing hugepage kernel
+arguments (default_hugepagesz, hugepagesz and hugepages) when
+hugepages_supported() returns false.
+
+Link: https://lore.kernel.org/all/20250121150419.1342794-1-sourabhjain@linux.ibm.com/ [1]
+Link: https://lore.kernel.org/all/20250128043358.163372-1-sourabhjain@linux.ibm.com/ [2]
+Fixes: c2833a5bf75b ("hugetlbfs: fix changes to command line processing")
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Muchun Song <muchun.song@linux.dev>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: linux-mm@kvack.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Cc: x86@kernel.org
+Cc: linux-riscv@lists.infradead.org
+Acked-by: David Hildenbrand (Red Hat) <david@kernel.org>
+Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
+Signed-off-by: Sourabh Jain <sourabhjain@linux.ibm.com>
+---
+Changelog:
+
+v1:
+https://lore.kernel.org/all/20250121150419.1342794-1-sourabhjain@linux.ibm.com/
+
+v2:
+https://lore.kernel.org/all/20250124103220.111303-1-sourabhjain@linux.ibm.com/
+ - disable gigantic hugepage in arch code, arch_hugetlb_valid_size()
+
+v3:
+https://lore.kernel.org/all/20250125104928.88881-1-sourabhjain@linux.ibm.com/
+ - Do not modify the initialization of the shift variable
+
+v4:
+https://lore.kernel.org/all/20250128043358.163372-1-sourabhjain@linux.ibm.com/
+ - Update commit message to include how hugepages_supported() detects
+   hugepages support when fadump is active
+ - Add Reviewed-by tag
+ - NO functional change
+
+v5:
+https://lore.kernel.org/all/20251218114154.228484-1-sourabhjain@linux.ibm.com/
+ - Significant change in approach: disable processing of hugepage kernel
+   arguments if hugepages_supported() returns false
+ - Drop a Reviewed-by tag
+
+v6:
+ - Updated commit message with additional logs and tags
+ - No functional changes
+---
+ mm/hugetlb.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index 51273baec9e5..e0ab14020513 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -4286,6 +4286,11 @@ static int __init hugepages_setup(char *s)
+ 	unsigned long tmp;
+ 	char *p = s;
+ 
++	if (!hugepages_supported()) {
++		pr_warn("HugeTLB: hugepages unsupported, ignoring hugepages=%s cmdline\n", s);
++		return 0;
++	}
++
+ 	if (!parsed_valid_hugepagesz) {
+ 		pr_warn("HugeTLB: hugepages=%s does not follow a valid hugepagesz, ignoring\n", s);
+ 		parsed_valid_hugepagesz = true;
+@@ -4366,6 +4371,11 @@ static int __init hugepagesz_setup(char *s)
+ 	unsigned long size;
+ 	struct hstate *h;
+ 
++	if (!hugepages_supported()) {
++		pr_warn("HugeTLB: hugepages unsupported, ignoring hugepagesz=%s cmdline\n", s);
++		return 0;
++	}
++
+ 	parsed_valid_hugepagesz = false;
+ 	size = (unsigned long)memparse(s, NULL);
+ 
+@@ -4414,6 +4424,12 @@ static int __init default_hugepagesz_setup(char *s)
+ 	unsigned long size;
+ 	int i;
+ 
++	if (!hugepages_supported()) {
++		pr_warn("HugeTLB: hugepages unsupported, ignoring default_hugepagesz=%s cmdline\n",
++			s);
++		return 0;
++	}
++
+ 	parsed_valid_hugepagesz = false;
+ 	if (parsed_default_hugepagesz) {
+ 		pr_err("HugeTLB: default_hugepagesz previously specified, ignoring %s\n", s);
+-- 
+2.51.1
+
