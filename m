@@ -1,144 +1,125 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57C3515746E;
-	Mon, 22 Dec 2025 10:54:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84BFF30AACF;
+	Mon, 22 Dec 2025 10:57:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766400893; cv=none; b=qpHmlBU+xBQrNmpcbX/FyuTJuiQrSHYHO3AZRsZF+RVku104tYtUcyZkI29OCHf/rqKb168gsyq9JvI0RXlKpbkN6T8lu3zTmk2tKWNu7uQO9NGSiyHOJPqeiPEg+M9ruurhOrSvoJCE2Ud+YGKl7oL4erAvg9qkKixB63zXeHU=
+	t=1766401074; cv=none; b=RVDA11jreW+aYDry3Z5ajU91Lo8moa7EqGm8gmHE4sRxrizwQf3E1WsqtbhvpsUps5+BPh8tyYPliTJP9mIS59Ndi2jUvk5ajQJYiPlBIgvBBaikcAsEKUjw8BRE0JKU0sbYzaQbEsggzeWGQyUsFV2x5dXmktbD96vvCn5dn5U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766400893; c=relaxed/simple;
-	bh=cv/VTMXLxul+HjudSJW7wkMxfJdfBr+el6AQMlItv9w=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=g5mZU+WrzFsPvhipPOaQCadZJrsJ0dC5yqPnyQ8vvhrBRY+Q6Ec1l+8/w9ucTg1Gt+AcuhkY8JxpXVgyoGNx9aIEI1iFpHFigESWyt4ADnIE+kS5Ky7TUeXgND0wt5XqCnw7DdzMWiu+NfS+k1O38WZhHM8Hikt3nVJqZra8DYY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TBbcOWnS; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1766401074; c=relaxed/simple;
+	bh=qNM+KWz0mYFHKjkoDjsaNFW5IFvecxY8gTHSTwShpyE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=sqSPshIR+gM105dMMUHIm8lLqQBTS9TLxCjvg1go8QNbTTZZKYddI7jX+Zales4vrNr4jRSLAbdTHzAbnOo8ZxdCgvRA1dySYdAXv2Vu5K6UeGicSIFRiPafObYUVdqNxKtFlji6BFGFbdUiFbdjW7uVM6ZgnY05rmDfSq1Wgvg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bssZAyT5; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TBbcOWnS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6255C4CEF1;
-	Mon, 22 Dec 2025 10:54:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1766400892;
-	bh=cv/VTMXLxul+HjudSJW7wkMxfJdfBr+el6AQMlItv9w=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=TBbcOWnSr19MwF0MKrCb2IoabYD0Nb+Hare+gEpTLzqusRx2+g7sBBoVWN7mXfVuZ
-	 9g48PR844JLrnIVBXNJDcPRzZ9OqZquI7XiHNGeRwHRykZYpEycTOUpmGN0z4nW/2x
-	 exNm6rPf3N4LEfbJUmfd492tMzcaecLPdXqfDuC4XviG8bw0zrKfc340q+uV2v7A31
-	 tSGddRTWmUAG4XhmWs/NugkfoosrV9ks7Kz30Zoom9Se8/nzViTi1v4hjixSRy25gU
-	 EU0bg8YbcDJPHiMekaav/bto5jUZ768ihhxepiBF9REEAyupmmRO5IMAzEtlO7J7ps
-	 8hPuYpgjOVq+g==
-Message-ID: <e97c41cd-44f7-4560-bc75-79283a438e91@kernel.org>
-Date: Mon, 22 Dec 2025 11:54:46 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bssZAyT5"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5BM6ntxe015092;
+	Mon, 22 Dec 2025 10:57:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=n5tRBbw+vMzK3jJsD2KImFfm9Ig6ZA
+	0qLw2TisqBlUU=; b=bssZAyT5FyFLY1UfZFcJ2WWPXJKqhCbIaZKwz+aVNWwDmz
+	S+4x1E4afcThzSftB1UFK2cl0A9GOESTBvXvCWJ53oLeWJdBVbN9CvDfvO0gmKda
+	jiy8ivAG0qNdrrblF8X7i9NMMAnx5FTk6fJdVANVesP/e89UTWNdMia7ACbWng/o
+	VKYCm7j/0TKKXzZZGlhg+DXMpbZpiomgrDIkhfyenrh3fk9NXlXmnCT5NxZYivT0
+	2C4VAasfJr9Qt2lvSmMV3NTQ4k9bUTdcIMkul9bHZFp6R+Q5tH2QQJMYdTzTrZ18
+	2DfCls8VthdvuswIbI3mZQWuJczTIAR23uKGlCJw==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4b5kh47k2w-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 22 Dec 2025 10:57:33 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5BMAfa5e027014;
+	Mon, 22 Dec 2025 10:57:32 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4b6r932q46-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 22 Dec 2025 10:57:32 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5BMAvSc130802340
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 22 Dec 2025 10:57:28 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BEBB020040;
+	Mon, 22 Dec 2025 10:57:28 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 56FED2004B;
+	Mon, 22 Dec 2025 10:57:28 +0000 (GMT)
+Received: from osiris (unknown [9.111.59.181])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 22 Dec 2025 10:57:28 +0000 (GMT)
+Date: Mon, 22 Dec 2025 11:57:26 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Thorsten Blum <thorsten.blum@linux.dev>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390/cmm: Use max to simplify cmm_timer_fn
+Message-ID: <20251222105726.16440Adf-hca@linux.ibm.com>
+References: <20251222103917.635026-2-thorsten.blum@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6] mm/hugetlb: ignore hugepage kernel args if hugepages
- are unsupported
-To: "David Hildenbrand (Red Hat)" <david@kernel.org>,
- Sourabh Jain <sourabhjain@linux.ibm.com>,
- "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
- Andrew Morton <akpm@linux-foundation.org>
-Cc: Borislav Petkov <bp@alien8.de>, Heiko Carstens <hca@linux.ibm.com>,
- Ingo Molnar <mingo@redhat.com>, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Muchun Song <muchun.song@linux.dev>,
- Oscar Salvador <osalvador@suse.de>, Thomas Gleixner <tglx@linutronix.de>,
- Vasily Gorbik <gor@linux.ibm.com>, linux-mm@kvack.org,
- linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, x86@kernel.org,
- linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
-References: <20251221053611.441251-1-sourabhjain@linux.ibm.com>
- <87a4zcml36.ritesh.list@gmail.com>
- <655cc605-2ce1-4ccb-8cc0-a0a31a9c89fd@kernel.org>
- <87fr93ky5i.ritesh.list@gmail.com>
- <16fef7a5-6853-4a6f-8d27-e005fa351eb7@linux.ibm.com>
- <051628be-ed70-4a56-8704-f2b8cdea1984@kernel.org>
-Content-Language: fr-FR
-From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-In-Reply-To: <051628be-ed70-4a56-8704-f2b8cdea1984@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251222103917.635026-2-thorsten.blum@linux.dev>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=bulBxUai c=1 sm=1 tr=0 ts=6949241d cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=kj9zAlcOel0A:10 a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=qEcfGbZqEg3S2triV5MA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: RNtUgmYrgIsr-r1Lj9lDEciiG0EIVso8
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjIyMDA5OCBTYWx0ZWRfXwEOqgWy82ISo
+ QLIpYECy1/HHuLJMlubWSRcBfFQp//fmqs77TyD+jyT+pfPMGjaSRGOifcQSI35QBwjMf2OUbbt
+ LoycTQduJqEQRFpOQt4BcYmtK+8N1McbNbSRLSM4oWFds3wjWqnLnE0GZUNVmz4Wa88c4qo4wuy
+ ab7JG81EA4uUuNnIg0OEnL/eg+MN2rX41rSs3oaRNF9E/2WKEo9PPXMNc7zXGrp0NoK15kPfkXz
+ 4K6unINFftjLoUAmAcr15fg7winffF9erRQztpBoql3Gmdn0PRLETBZdqgfoUNKRIGDrCxsoYRs
+ vEyA3fbi+9s8cK/5ZEyu0OfFG0x2Y2bgP6Mnl30UgGHDSrcWsdbNBqAZFWpyyrEtzfe0R6vYIbh
+ v1ouxoOjUX63m6dsaBKO830hr/uESLDR5e75dZ4wAJh4Xgff+3hxlvpVTF0PauwQ/nO1d5qoPrE
+ Jkfivl8hpLXduguLlxw==
+X-Proofpoint-GUID: RNtUgmYrgIsr-r1Lj9lDEciiG0EIVso8
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-12-21_05,2025-12-19_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0
+ priorityscore=1501 spamscore=0 malwarescore=0 bulkscore=0 phishscore=0
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2512120000
+ definitions=main-2512220098
 
+Thorsten,
 
-
-Le 22/12/2025 à 11:28, David Hildenbrand (Red Hat) a écrit :
-> On 12/22/25 06:57, Sourabh Jain wrote:
->>
->>
->> On 22/12/25 08:42, Ritesh Harjani (IBM) wrote:
->>> "David Hildenbrand (Red Hat)" <david@kernel.org> writes:
->>>
->>>>> Coming back to the fixes tag. I did mention a bit of a history [2] of
->>>>> whatever I could find while reviewing this patch. I am not sure 
->>>>> whether
->>>>> you have looked into the links shared in that email or not. Here [2]:
->>>>>
->>>>> [2]: https://eur01.safelinks.protection.outlook.com/? 
->>>>> url=https%3A%2F%2Flore.kernel.org%2Flinuxppc- 
->>>>> dev%2F875xa3ksz9.ritesh.list%40gmail.com%2F&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7Cfe40f4881e8441ab3ebf08de4144e747%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639019961377096292%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=Dnvzy5kJ%2ByF9GJjIw%2B12FTjaVgeAM2gA9g7hsYl7Qok%3D&reserved=0
->>>>>
->>>>> Where I am coming from is.. The current patch is acutally a partial
->>>>> revert of the patch mentioned in the fixes tag. That means if this 
->>>>> patch
->>>>> gets applied to the older stable kernels, it would end up bringing the
->>>>> same problem back, which the "Fixes" tagged patch is fixing in the 1st
->>>>> place, isnt' it? See this discussion [3]...
->>>>>
->>>>> [3]: https://eur01.safelinks.protection.outlook.com/? 
->>>>> url=https%3A%2F%2Flore.kernel.org%2Fall%2Fb1f04f9f-fa46- 
->>>>> c2a0-7693-4a0679d2a1ee%40oracle.com%2FT%2F%23m0eee87b458d93559426b8b0e78dc6ebcd26ad3ae&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7Cfe40f4881e8441ab3ebf08de4144e747%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639019961377117150%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=bOO7FGN4jAtX3jjBnJVpSurmM9rGmz8vIs1iGtbm1gU%3D&reserved=0
->>>>>
->>>>> ... So, IMO - the right fixes tag, if we have to add, it should be the
->>>>> patch which moved the hpage_shift initialization to happen early 
->>>>> i.e. in
->>>>> mmu_early_init_devtree. That would be this patch [4]:
->>>>>
->>>>> [4]: https://eur01.safelinks.protection.outlook.com/? 
->>>>> url=https%3A%2F%2Fgit.kernel.org%2Fpub%2Fscm%2Flinux%2Fkernel%2Fgit%2Ftorvalds%2Flinux.git%2Fcommit%2F%3Fid%3D2354ad252b66695be02f4acd18e37bf6264f0464&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7Cfe40f4881e8441ab3ebf08de4144e747%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639019961377133860%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=0yTuECy%2BBGDLiSNYuqYH9xGBOSxiRLxAtW%2FWTQU%2FB%2BA%3D&reserved=0
->>>>>
->>>>> Now, it's not really that the patch [4] had any issue as such. But it
->>>>> seems like, that the current fix can only be applied after patch 
->>>>> [4] is
->>>>> taken.
->>>>>
->>>>> Do we agree?
->>>> I think we should document all that in the cover letter, an describe
->>>> that this partial revert is only possible after [4],
->>> Yes, I agree. Let's add the above details in the commit msg.
->>>
->>>> and that that must
->>>> be considered when attempting any kind of stable backports.
->>> Sure. I would prefer if we change the Fixes tag to the one which I
->>> pointed in above [4] (with explaination in the commit msg). However I am
->>> still ok if we would like to retain the existing fixes tag and show [4]
->>> as a dependency.
->>
->> I think we should keep the current Fixes tag with an explanation for
->> dependency
->> on [1] in the commit message.
->>
->> Would anyone have a different view?
+On Mon, Dec 22, 2025 at 11:39:17AM +0100, Thorsten Blum wrote:
+> Use max() to replace the open-coded version and simplify cmm_timer_fn().
 > 
-> Whatever introduced the issue should be called out in the Fixes tag; if 
-> there are dependencies for the fix through other patches that were 
-> already merged, that can be documented in the patch description 
-> (relevant for stable or distro backports only).
-> 
+> Signed-off-by: Thorsten Blum <thorsten.blum@linux.dev>
+> ---
+>  arch/s390/mm/cmm.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
 
-We can also use the Depends-on: tag, see for exemple commit 9517b82d8d42 
-("nbd: defer config put in recv_work"):
+...
 
-     Reported-by: syzbot+56fbf4c7ddf65e95c7cc@syzkaller.appspotmail.com
-     Closes: 
-https://lore.kernel.org/all/6907edce.a70a0220.37351b.0014.GAE@google.com/T/
-     Fixes: 87aac3a80af5 ("nbd: make the config put is called before the 
-notifying the waiter")
-     Depends-on: e2daec488c57 ("nbd: Fix hungtask when nbd_config_put")
-     Signed-off-by: Zheng Qixing <zhengqixing@huawei.com>
-     Signed-off-by: Jens Axboe <axboe@kernel.dk>
+>  	nr = cmm_timed_pages_target - cmm_timeout_pages;
+> -	if (nr < 0)
+> -		cmm_timed_pages_target = 0;
+> -	else
+> -		cmm_timed_pages_target = nr;
+> +	cmm_timed_pages_target = max(0, nr);
 
+Just in case it wasn't clear in the past: trivial patches like this won't be
+taken. You already managed to send buggy patches which look trivial, and I'm
+not willing to spend time to look for subtle bugs such trivial patches might
+introduce.
 
-Christophe
-
-
+In other words: you may stop sending such patches which address s390 code.
