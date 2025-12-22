@@ -1,57 +1,57 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08E20346A05;
-	Mon, 22 Dec 2025 16:51:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69B0A346A0F;
+	Mon, 22 Dec 2025 16:51:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766422275; cv=none; b=AO6N+VpotwyejdCWR4XKJnIeVMvaVXpCQxIRC650yocvJlZMkG0bYgWoCSqXk5rAFpyiBaZXfmT5AJvn6KZ5LSQ9IC8UjCRVi2PbY1cCbmErIDle1aMJE+/64KI91cga6tGtDPo0D+8A1Xc62ccppSuquFyHqASCO6fgT5RNmng=
+	t=1766422277; cv=none; b=Hu1YZb5Y47XIBKpF/bQEczhxB51GdybDpKj5z30QQX8LLHEvU0Al1j3rhc/FVeNNssBlNUHoH0PNrplULjiT5V5jcPiwgWZTlwywcxR9FuLBkLNnkyYOLP/EZwkQ/Hr52ffnge5Y84s8uuX4UrbHjBRnPZrJAlVktzZtMsaLOws=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766422275; c=relaxed/simple;
-	bh=M+czOadzoFvgMv1Fx4fUfJMtXLjRcRowuKOqyGcoe0k=;
+	s=arc-20240116; t=1766422277; c=relaxed/simple;
+	bh=of3lYvcLbms99qSG5RwvlyIFH06bv0/41A95CrzPfsM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=d9wifWUwDzeLiNJp722C6UDsARhZKtJ3MOS527yfEKNNg4AJF6u75ggnBl/Nx46aZgPI6/4zNj9gPIWAS4fp47qjw/nHUs5ZzHJlQZeWA7g7tH+4JVfQG9cuDDX6B556DxoQ+zsNdcSACF2QFpa852Xj7WcwdO42UdJL9b8y8Ls=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Xk2BL67p; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=uYDdSGSR+lML1ILVAiVsRv56SCNL7jXmrdWR5PMjws+i+GfTlO+HBhTAGgTM4+8l+Hb4KzwZlai/GoVrliVcYAj23QSGCd96b6VArGZNst4kjY3WcxxZQbEhnqOqkW2uzSeTeKT0Vfuz8kKAU1eYR5HgUgYGWBAh8CQWo232C/E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GxZYeeCB; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Xk2BL67p"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5BMDwHW1007191;
-	Mon, 22 Dec 2025 16:51:11 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GxZYeeCB"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5BM8e8V2011222;
+	Mon, 22 Dec 2025 16:51:03 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=fxj3oYfd0W1KwfxP2
-	KNSUi1hqNZHvPqvToB0azzAAk4=; b=Xk2BL67pjwzhyEUBGak6aj5Ccsku+jUkr
-	SSWmSTDd6do3XsJGAtGCpUmbcinBxTJ3xqymo/gfWcqurEfgHWOKHLAkrYrZM3Pv
-	pANbO0esbTVMz+rUit3MkqldRhhRsxX03I3udU+kIVrNtDghrsQ3O41CotbwTpIS
-	wGFJl4bZmxMXkQMJoLO2s+JyJH2h3XRp9Ym+6QDIfcIW8FyanEAjTqhPTrBCPp2o
-	lVxyDOfQRDz6bqGtBfLTMJWR8RRZZ7U4hJLaq2XFU7IrdHzWNUv/gvyi8BJjFNLy
-	k8BZu7jW6aT/DL5u02gCafwf1pJjyVgjaGJqmCWoe7xJ9P0pxx0UA==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4b5kfq16y5-1
+	:mime-version:references:subject:to; s=pp1; bh=grH8tOJZn9+NERonw
+	cyRmROq4CPB+nBGfXbnHu/EVdM=; b=GxZYeeCBvVYVcLWyH2auDbPFbLZ6EO1+W
+	0zR/5tVy0CuWh42pUrg17FVLMAeXl/CjwdrOB/eV5dF3vRBcSnEKlE6KM06NTqUa
+	29B8oOtaxmRG3ixZP7IvQl0lmnlqxifya+Vs8OgRE752CScmJ7YillPJx32r7Bav
+	zMEWUS41SFdJRzhET5DDX4EgcONKWF1dBmsXLzCX0twpQ1aTtQ2Q0IdyFEyinmbv
+	g0pQwbaghXzPzvCxK1Zz9eGce5XJWtaThL7JfolQOf1ElAOXqHg1WxXtvCb5FSIB
+	ZJaIIcbRaedhQSvpB4BNkq8qTtoeDtYOx1lc8j5JeLDG8HTAnj86w==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4b5ka399g9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 22 Dec 2025 16:51:11 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5BMDcXZE005286;
-	Mon, 22 Dec 2025 16:51:09 GMT
+	Mon, 22 Dec 2025 16:51:02 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5BME7GhC026979;
+	Mon, 22 Dec 2025 16:51:02 GMT
 Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4b67mjy3k8-1
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4b6r93487g-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 22 Dec 2025 16:51:09 +0000
+	Mon, 22 Dec 2025 16:51:01 +0000
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5BMGp52Z50987440
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5BMGowkV51315036
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 22 Dec 2025 16:51:06 GMT
+	Mon, 22 Dec 2025 16:50:58 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D0B7420040;
-	Mon, 22 Dec 2025 16:51:05 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 0EE0620040;
+	Mon, 22 Dec 2025 16:50:58 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A942120043;
-	Mon, 22 Dec 2025 16:51:04 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id E7FE220043;
+	Mon, 22 Dec 2025 16:50:56 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.111.79.149])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 22 Dec 2025 16:51:04 +0000 (GMT)
+	Mon, 22 Dec 2025 16:50:56 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
@@ -60,9 +60,9 @@ Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         schlameuss@linux.ibm.com, hca@linux.ibm.com, svens@linux.ibm.com,
         agordeev@linux.ibm.com, gor@linux.ibm.com, david@redhat.com,
         gerald.schaefer@linux.ibm.com
-Subject: [PATCH v6 23/28] KVM: s390: Storage key functions refactoring
-Date: Mon, 22 Dec 2025 17:50:28 +0100
-Message-ID: <20251222165033.162329-24-imbrenda@linux.ibm.com>
+Subject: [PATCH v6 17/28] KVM: s390: KVM page table management functions: lifecycle management
+Date: Mon, 22 Dec 2025 17:50:22 +0100
+Message-ID: <20251222165033.162329-18-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251222165033.162329-1-imbrenda@linux.ibm.com>
 References: <20251222165033.162329-1-imbrenda@linux.ibm.com>
@@ -74,272 +74,433 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=carfb3DM c=1 sm=1 tr=0 ts=694976ff cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-GUID: lYkHhPywXz3KU29ZPRmKWegKyNj3i5Vd
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjIyMDE1NCBTYWx0ZWRfXxMAjhhEaY8lA
+ RKTytjESpZxuV9VccXxh/dP0OSisnDCX+E90bBnbl0aIuN5ssdK8LjcGp5oV+VBsNP2sn9WCzEi
+ Sk3dwPtSQygpW4TDIbMjJztjy0aNlnvgHx2l883lZY+dSnYKiGiPrn2HHpydIkpgl7YY6+GkcsY
+ PxMnmTmXveLq6tFJjGiw7kxX4afcF9Yj/dh2Tk4GfcuQAb/WSNVsMBXApozvKcdCVUDujVAzzu8
+ jP/kbsmIzQ42VLXsHhI2ed5VNkWAoxbDchkbPd3Xt37arg7xHsbQFzsN2Dio1q1sBYz5tXvnwDg
+ jUjqhJ/cbcBa5eaZTZ093ggWFarBtOpHyTj9OjHIRBbnfKDoC+Wtr/hL1lHgarsPJnzra7tlYr+
+ SgfWK9EKbFmiH31u0mmMScY7DFjX46/iewwK9XfBm/HtBo+ILrSYILebQxxST78q+TEj0UwAK9V
+ hAjIKcgcoVyx2NlWU8Q==
+X-Proofpoint-ORIG-GUID: lYkHhPywXz3KU29ZPRmKWegKyNj3i5Vd
+X-Authority-Analysis: v=2.4 cv=dqHWylg4 c=1 sm=1 tr=0 ts=694976f7 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
- a=pIs5vcIGI8bcUft9BRQA:9
-X-Proofpoint-ORIG-GUID: GFeOCg1ZIvjAOzFz3utUctV-DwVwmeF9
-X-Proofpoint-GUID: GFeOCg1ZIvjAOzFz3utUctV-DwVwmeF9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjIyMDE1NCBTYWx0ZWRfX2WxjFGwdHMtP
- WbAsVszdn8wFvaTFKfYYVhLdWJuPKBIVByQ3Ik836G582gUJTa1cBMDiCILrdGqOjmGfgKYsznf
- R7Ov0mYkdlI7Z1KWPSMHOXHGiGdWX4EzVOBKhzOd7mVvQaO6H76ficyBK56x15PJViuWVsc00+Y
- iX6v/MG7aCB8bev+lgrtFfK1WE3awQXVlZZ4ctH88EUVvZy/8SuTj3Oqb9XgaKa47BBunlmASl6
- Fl1osDJKOdWfeqO9eCXtjN3BYpV8Mgg4qxeK+PZhATTCWQBJa42L07ChlJavDZflygFtnkTl7Gt
- ek59Dh2KAVetjX5HGwFArJfpraTK367zNAAvBj46aba1gnVn9SmTw/hUObsDPw0p7dbHFX/uAAh
- FLHQhbs46EL2aT1TTaDiwRDYeJMR/OBQHSIjv1SfcKo5ZJ++Bau5AGy10aureEhqM9DCvfGlgzM
- qVcTIFz1UNgGa2lJx+A==
+ a=iJ2WplcNSJuwDbTYnpEA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-12-22_02,2025-12-22_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 bulkscore=0 suspectscore=0 spamscore=0 clxscore=1015
- malwarescore=0 impostorscore=0 priorityscore=1501 adultscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2512120000 definitions=main-2512220154
+ priorityscore=1501 spamscore=0 clxscore=1015 lowpriorityscore=0
+ impostorscore=0 malwarescore=0 bulkscore=0 phishscore=0 suspectscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2512120000
+ definitions=main-2512220154
 
-Refactor some storage key functions to improve readability.
+Add page table management functions to be used for KVM guest (gmap)
+page tables.
 
-Introduce helper functions that will be used in the next patches.
+This patch adds functions to handle memslot creation and destruction,
+additional per-pagetable data stored in the PGSTEs, mapping physical
+addresses into the gmap, and marking address ranges as prefix.
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- arch/s390/kvm/gaccess.c  | 36 +++++++++---------
- arch/s390/kvm/gaccess.h  |  4 +-
- arch/s390/kvm/kvm-s390.c | 80 +++++++++++++++-------------------------
- arch/s390/kvm/kvm-s390.h |  8 ++++
- 4 files changed, 58 insertions(+), 70 deletions(-)
+ arch/s390/kvm/dat.c | 284 ++++++++++++++++++++++++++++++++++++++++++++
+ arch/s390/kvm/dat.h |  54 +++++++++
+ 2 files changed, 338 insertions(+)
 
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index 9df868bddf9a..1d0725f3951a 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -974,9 +974,8 @@ int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
-  *         * -EAGAIN: transient failure (len 1 or 2)
-  *         * -EOPNOTSUPP: read-only memslot (should never occur)
-  */
--int cmpxchg_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, int len,
--			       __uint128_t *old_addr, __uint128_t new,
--			       u8 access_key, bool *success)
-+int cmpxchg_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, int len, union kvm_s390_quad *old_addr,
-+			       union kvm_s390_quad new, u8 acc, bool *success)
- {
- 	gfn_t gfn = gpa_to_gfn(gpa);
- 	struct kvm_memory_slot *slot = gfn_to_memslot(kvm, gfn);
-@@ -1008,41 +1007,42 @@ int cmpxchg_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, int len,
- 	case 1: {
- 		u8 old;
+diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
+index d75329cf1f47..cafbcb665da4 100644
+--- a/arch/s390/kvm/dat.c
++++ b/arch/s390/kvm/dat.c
+@@ -102,6 +102,38 @@ void dat_free_level(struct crst_table *table, bool owns_ptes)
+ 	dat_free_crst(table);
+ }
  
--		ret = cmpxchg_user_key((u8 __user *)hva, &old, *old_addr, new, access_key);
--		*success = !ret && old == *old_addr;
--		*old_addr = old;
-+		ret = cmpxchg_user_key((u8 __user *)hva, &old, old_addr->one, new.one, acc);
-+		*success = !ret && old == old_addr->one;
-+		old_addr->one = old;
- 		break;
- 	}
- 	case 2: {
- 		u16 old;
- 
--		ret = cmpxchg_user_key((u16 __user *)hva, &old, *old_addr, new, access_key);
--		*success = !ret && old == *old_addr;
--		*old_addr = old;
-+		ret = cmpxchg_user_key((u16 __user *)hva, &old, old_addr->two, new.two, acc);
-+		*success = !ret && old == old_addr->two;
-+		old_addr->two = old;
- 		break;
- 	}
- 	case 4: {
- 		u32 old;
- 
--		ret = cmpxchg_user_key((u32 __user *)hva, &old, *old_addr, new, access_key);
--		*success = !ret && old == *old_addr;
--		*old_addr = old;
-+		ret = cmpxchg_user_key((u32 __user *)hva, &old, old_addr->four, new.four, acc);
-+		*success = !ret && old == old_addr->four;
-+		old_addr->four = old;
- 		break;
- 	}
- 	case 8: {
- 		u64 old;
- 
--		ret = cmpxchg_user_key((u64 __user *)hva, &old, *old_addr, new, access_key);
--		*success = !ret && old == *old_addr;
--		*old_addr = old;
-+		ret = cmpxchg_user_key((u64 __user *)hva, &old, old_addr->eight, new.eight, acc);
-+		*success = !ret && old == old_addr->eight;
-+		old_addr->eight = old;
- 		break;
- 	}
- 	case 16: {
- 		__uint128_t old;
- 
--		ret = cmpxchg_user_key((__uint128_t __user *)hva, &old, *old_addr, new, access_key);
--		*success = !ret && old == *old_addr;
--		*old_addr = old;
-+		ret = cmpxchg_user_key((__uint128_t __user *)hva, &old, old_addr->sixteen,
-+				       new.sixteen, acc);
-+		*success = !ret && old == old_addr->sixteen;
-+		old_addr->sixteen = old;
- 		break;
- 	}
- 	default:
-diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
-index 3fde45a151f2..774cdf19998f 100644
---- a/arch/s390/kvm/gaccess.h
-+++ b/arch/s390/kvm/gaccess.h
-@@ -206,8 +206,8 @@ int access_guest_with_key(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
- int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
- 		      void *data, unsigned long len, enum gacc_mode mode);
- 
--int cmpxchg_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, int len, __uint128_t *old,
--			       __uint128_t new, u8 access_key, bool *success);
-+int cmpxchg_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, int len, union kvm_s390_quad *old_addr,
-+			       union kvm_s390_quad new, u8 access_key, bool *success);
- 
- /**
-  * write_guest_with_key - copy data from kernel space to guest space
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 2b5ecdc3814e..f5411e093fb5 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2900,9 +2900,9 @@ static int mem_op_validate_common(struct kvm_s390_mem_op *mop, u64 supported_fla
- static int kvm_s390_vm_mem_op_abs(struct kvm *kvm, struct kvm_s390_mem_op *mop)
- {
- 	void __user *uaddr = (void __user *)mop->buf;
-+	void *tmpbuf __free(kvfree) = NULL;
- 	enum gacc_mode acc_mode;
--	void *tmpbuf = NULL;
--	int r, srcu_idx;
-+	int r;
- 
- 	r = mem_op_validate_common(mop, KVM_S390_MEMOP_F_SKEY_PROTECTION |
- 					KVM_S390_MEMOP_F_CHECK_ONLY);
-@@ -2915,52 +2915,36 @@ static int kvm_s390_vm_mem_op_abs(struct kvm *kvm, struct kvm_s390_mem_op *mop)
- 			return -ENOMEM;
- 	}
- 
--	srcu_idx = srcu_read_lock(&kvm->srcu);
-+	acc_mode = mop->op == KVM_S390_MEMOP_ABSOLUTE_READ ? GACC_FETCH : GACC_STORE;
- 
--	if (!kvm_is_gpa_in_memslot(kvm, mop->gaddr)) {
--		r = PGM_ADDRESSING;
--		goto out_unlock;
--	}
-+	scoped_guard(srcu, &kvm->srcu) {
-+		if (!kvm_is_gpa_in_memslot(kvm, mop->gaddr))
-+			return PGM_ADDRESSING;
- 
--	acc_mode = mop->op == KVM_S390_MEMOP_ABSOLUTE_READ ? GACC_FETCH : GACC_STORE;
--	if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
--		r = check_gpa_range(kvm, mop->gaddr, mop->size, acc_mode, mop->key);
--		goto out_unlock;
--	}
--	if (acc_mode == GACC_FETCH) {
-+		if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY)
-+			return check_gpa_range(kvm, mop->gaddr, mop->size, acc_mode, mop->key);
++int dat_set_asce_limit(struct kvm_s390_mmu_cache *mc, union asce *asce, int newtype)
++{
++	struct crst_table *table;
++	union crste crste;
 +
-+		if (acc_mode == GACC_STORE && copy_from_user(tmpbuf, uaddr, mop->size))
-+			return -EFAULT;
- 		r = access_guest_abs_with_key(kvm, mop->gaddr, tmpbuf,
--					      mop->size, GACC_FETCH, mop->key);
-+					      mop->size, acc_mode, mop->key);
- 		if (r)
--			goto out_unlock;
--		if (copy_to_user(uaddr, tmpbuf, mop->size))
--			r = -EFAULT;
--	} else {
--		if (copy_from_user(tmpbuf, uaddr, mop->size)) {
--			r = -EFAULT;
--			goto out_unlock;
--		}
--		r = access_guest_abs_with_key(kvm, mop->gaddr, tmpbuf,
--					      mop->size, GACC_STORE, mop->key);
-+			return r;
-+		if (acc_mode != GACC_STORE && copy_to_user(uaddr, tmpbuf, mop->size))
-+			return -EFAULT;
- 	}
- 
--out_unlock:
--	srcu_read_unlock(&kvm->srcu, srcu_idx);
--
--	vfree(tmpbuf);
--	return r;
-+	return 0;
- }
- 
- static int kvm_s390_vm_mem_op_cmpxchg(struct kvm *kvm, struct kvm_s390_mem_op *mop)
- {
- 	void __user *uaddr = (void __user *)mop->buf;
- 	void __user *old_addr = (void __user *)mop->old_addr;
--	union {
--		__uint128_t quad;
--		char raw[sizeof(__uint128_t)];
--	} old = { .quad = 0}, new = { .quad = 0 };
--	unsigned int off_in_quad = sizeof(new) - mop->size;
--	int r, srcu_idx;
--	bool success;
-+	union kvm_s390_quad old = { .sixteen = 0 };
-+	union kvm_s390_quad new = { .sixteen = 0 };
-+	bool success = false;
-+	int r;
- 
- 	r = mem_op_validate_common(mop, KVM_S390_MEMOP_F_SKEY_PROTECTION);
- 	if (r)
-@@ -2972,25 +2956,21 @@ static int kvm_s390_vm_mem_op_cmpxchg(struct kvm *kvm, struct kvm_s390_mem_op *m
- 	 */
- 	if (mop->size > sizeof(new))
- 		return -EINVAL;
--	if (copy_from_user(&new.raw[off_in_quad], uaddr, mop->size))
-+	if (copy_from_user(&new, uaddr, mop->size))
- 		return -EFAULT;
--	if (copy_from_user(&old.raw[off_in_quad], old_addr, mop->size))
-+	if (copy_from_user(&old, old_addr, mop->size))
- 		return -EFAULT;
- 
--	srcu_idx = srcu_read_lock(&kvm->srcu);
-+	scoped_guard(srcu, &kvm->srcu) {
-+		if (!kvm_is_gpa_in_memslot(kvm, mop->gaddr))
-+			return PGM_ADDRESSING;
- 
--	if (!kvm_is_gpa_in_memslot(kvm, mop->gaddr)) {
--		r = PGM_ADDRESSING;
--		goto out_unlock;
--	}
--
--	r = cmpxchg_guest_abs_with_key(kvm, mop->gaddr, mop->size, &old.quad,
--				       new.quad, mop->key, &success);
--	if (!success && copy_to_user(old_addr, &old.raw[off_in_quad], mop->size))
--		r = -EFAULT;
-+		r = cmpxchg_guest_abs_with_key(kvm, mop->gaddr, mop->size, &old, new,
-+					       mop->key, &success);
- 
--out_unlock:
--	srcu_read_unlock(&kvm->srcu, srcu_idx);
-+		if (!success && copy_to_user(old_addr, &old, mop->size))
-+			return -EFAULT;
++	while (asce->dt > newtype) {
++		table = dereference_asce(*asce);
++		crste = table->crstes[0];
++		if (crste.h.fc)
++			return 0;
++		if (!crste.h.i) {
++			asce->rsto = crste.h.fc0.to;
++			dat_free_crst(table);
++		} else {
++			crste.h.tt--;
++			crst_table_init((void *)table, crste.val);
++		}
++		asce->dt--;
 +	}
- 	return r;
++	while (asce->dt < newtype) {
++		crste = _crste_fc0(asce->rsto, asce->dt + 1);
++		table = dat_alloc_crst_noinit(mc);
++		if (!table)
++			return -ENOMEM;
++		crst_table_init((void *)table, _CRSTE_HOLE(crste.h.tt).val);
++		table->crstes[0] = crste;
++		asce->rsto = __pa(table) >> PAGE_SHIFT;
++		asce->dt++;
++	}
++	return 0;
++}
++
+ /**
+  * dat_crstep_xchg - exchange a gmap CRSTE with another
+  * @crstep: pointer to the CRST entry
+@@ -820,3 +852,255 @@ long dat_reset_skeys(union asce asce, gfn_t start)
+ 
+ 	return _dat_walk_gfn_range(start, asce_end(asce), asce, &ops, DAT_WALK_IGN_HOLES, NULL);
  }
- 
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 9ce71c8433a1..c44c52266e26 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -22,6 +22,14 @@
- 
- #define KVM_S390_UCONTROL_MEMSLOT (KVM_USER_MEM_SLOTS + 0)
- 
-+union kvm_s390_quad {
-+	__uint128_t sixteen;
-+	unsigned long eight;
-+	unsigned int four;
-+	unsigned short two;
-+	unsigned char one;
++
++struct slot_priv {
++	unsigned long token;
++	struct kvm_s390_mmu_cache *mc;
 +};
 +
- static inline void kvm_s390_fpu_store(struct kvm_run *run)
- {
- 	fpu_stfpc(&run->s.regs.fpc);
++static long _dat_slot_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
++{
++	struct slot_priv *p = walk->priv;
++	union crste dummy = { .val = p->token };
++	union pte new_pte, pte = READ_ONCE(*ptep);
++
++	new_pte = _PTE_TOK(dummy.tok.type, dummy.tok.par);
++
++	/* Table entry already in the desired state */
++	if (pte.val == new_pte.val)
++		return 0;
++
++	dat_ptep_xchg(ptep, new_pte, gfn, walk->asce, false);
++	return 0;
++}
++
++static long _dat_slot_crste(union crste *crstep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
++{
++	union crste new_crste, crste = READ_ONCE(*crstep);
++	struct slot_priv *p = walk->priv;
++
++	new_crste.val = p->token;
++	new_crste.h.tt = crste.h.tt;
++
++	/* Table entry already in the desired state */
++	if (crste.val == new_crste.val)
++		return 0;
++
++	/* This table entry needs to be updated */
++	if (walk->start <= gfn && walk->end >= next) {
++		dat_crstep_xchg_atomic(crstep, crste, new_crste, gfn, walk->asce);
++		/* A lower level table was present, needs to be freed */
++		if (!crste.h.fc && !crste.h.i)
++			dat_free_level(dereference_crste(crste), true);
++		return 0;
++	}
++
++	/* A lower level table is present, things will handled there */
++	if (!crste.h.fc && !crste.h.i)
++		return 0;
++	/* Split (install a lower level table), and handle things there */
++	return dat_split_crste(p->mc, crstep, gfn, walk->asce, false);
++}
++
++static const struct dat_walk_ops dat_slot_ops = {
++	.pte_entry = _dat_slot_pte,
++	.crste_ops = { _dat_slot_crste, _dat_slot_crste, _dat_slot_crste, _dat_slot_crste, },
++};
++
++int dat_set_slot(struct kvm_s390_mmu_cache *mc, union asce asce, gfn_t start, gfn_t end,
++		 u16 type, u16 param)
++{
++	struct slot_priv priv = {
++		.token = _CRSTE_TOK(0, type, param).val,
++		.mc = mc,
++	};
++
++	return _dat_walk_gfn_range(start, end, asce, &dat_slot_ops,
++				   DAT_WALK_IGN_HOLES | DAT_WALK_ANY, &priv);
++}
++
++static void pgste_set_unlock_multiple(union pte *first, int n, union pgste *pgstes)
++{
++	int i;
++
++	for (i = 0; i < n; i++) {
++		if (!pgstes[i].pcl)
++			break;
++		pgste_set_unlock(first + i, pgstes[i]);
++	}
++}
++
++static bool pgste_get_trylock_multiple(union pte *first, int n, union pgste *pgstes)
++{
++	int i;
++
++	for (i = 0; i < n; i++) {
++		if (!pgste_get_trylock(first + i, pgstes + i))
++			break;
++	}
++	if (i == n)
++		return true;
++	pgste_set_unlock_multiple(first, n, pgstes);
++	return false;
++}
++
++unsigned long dat_get_ptval(struct page_table *table, struct ptval_param param)
++{
++	union pgste pgstes[4] = {};
++	unsigned long res = 0;
++	int i, n;
++
++	n = param.len + 1;
++
++	while (!pgste_get_trylock_multiple(table->ptes + param.offset, n, pgstes))
++		cpu_relax();
++
++	for (i = 0; i < n; i++)
++		res = res << 16 | pgstes[i].val16;
++
++	pgste_set_unlock_multiple(table->ptes + param.offset, n, pgstes);
++	return res;
++}
++
++void dat_set_ptval(struct page_table *table, struct ptval_param param, unsigned long val)
++{
++	union pgste pgstes[4] = {};
++	int i, n;
++
++	n = param.len + 1;
++
++	while (!pgste_get_trylock_multiple(table->ptes + param.offset, n, pgstes))
++		cpu_relax();
++
++	for (i = param.len; i >= 0; i--) {
++		pgstes[i].val16 = val;
++		val = val >> 16;
++	}
++
++	pgste_set_unlock_multiple(table->ptes + param.offset, n, pgstes);
++}
++
++static long _dat_test_young_pte(union pte *ptep, gfn_t start, gfn_t end, struct dat_walk *walk)
++{
++	return ptep->s.y;
++}
++
++static long _dat_test_young_crste(union crste *crstep, gfn_t start, gfn_t end,
++				  struct dat_walk *walk)
++{
++	return crstep->h.fc && crstep->s.fc1.y;
++}
++
++static const struct dat_walk_ops test_age_ops = {
++	.pte_entry = _dat_test_young_pte,
++	.pmd_entry = _dat_test_young_crste,
++	.pud_entry = _dat_test_young_crste,
++};
++
++/**
++ * dat_test_age_gfn() - test young
++ * @asce: the ASCE whose address range is to be tested
++ * @start: the first guest frame of the range to check
++ * @end: the guest frame after the last in the range
++ *
++ * Context: called by KVM common code with the kvm mmu write lock held
++ * Return: 1 if any page in the given range is young, otherwise 0.
++ */
++bool dat_test_age_gfn(union asce asce, gfn_t start, gfn_t end)
++{
++	return _dat_walk_gfn_range(start, end, asce, &test_age_ops, 0, NULL) > 0;
++}
++
++int dat_link(struct kvm_s390_mmu_cache *mc, union asce asce, int level,
++	     bool uses_skeys, struct guest_fault *f)
++{
++	union crste oldval, newval;
++	union pte newpte, oldpte;
++	union pgste pgste;
++	int rc = 0;
++
++	rc = dat_entry_walk(mc, f->gfn, asce, DAT_WALK_ALLOC_CONTINUE, level, &f->crstep, &f->ptep);
++	if (rc == -EINVAL || rc == -ENOMEM)
++		return rc;
++	if (rc)
++		return -EAGAIN;
++
++	if (WARN_ON_ONCE(unlikely(get_level(f->crstep, f->ptep) > level)))
++		return -EINVAL;
++
++	if (f->ptep) {
++		pgste = pgste_get_lock(f->ptep);
++		oldpte = *f->ptep;
++		newpte = _pte(f->pfn, f->writable, f->write_attempt | oldpte.s.d, !f->page);
++		newpte.s.sd = oldpte.s.sd;
++		oldpte.s.sd = 0;
++		if (oldpte.val == _PTE_EMPTY.val || oldpte.h.pfra == f->pfn) {
++			pgste = __dat_ptep_xchg(f->ptep, pgste, newpte, f->gfn, asce, uses_skeys);
++			if (f->callback)
++				f->callback(f);
++		} else {
++			rc = -EAGAIN;
++		}
++		pgste_set_unlock(f->ptep, pgste);
++	} else {
++		oldval = READ_ONCE(*f->crstep);
++		newval = _crste_fc1(f->pfn, oldval.h.tt, f->writable,
++				    f->write_attempt | oldval.s.fc1.d);
++		newval.s.fc1.sd = oldval.s.fc1.sd;
++		if (oldval.val != _CRSTE_EMPTY(oldval.h.tt).val &&
++		    crste_origin_large(oldval) != crste_origin_large(newval))
++			return -EAGAIN;
++		if (!dat_crstep_xchg_atomic(f->crstep, oldval, newval, f->gfn, asce))
++			return -EAGAIN;
++		if (f->callback)
++			f->callback(f);
++	}
++
++	return rc;
++}
++
++static long dat_set_pn_crste(union crste *crstep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
++{
++	union crste crste = READ_ONCE(*crstep);
++	int *n = walk->priv;
++
++	if (!crste.h.fc || crste.h.i || crste.h.p)
++		return 0;
++
++	*n = 2;
++	if (crste.s.fc1.prefix_notif)
++		return 0;
++	crste.s.fc1.prefix_notif = 1;
++	dat_crstep_xchg(crstep, crste, gfn, walk->asce);
++	return 0;
++}
++
++static long dat_set_pn_pte(union pte *ptep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
++{
++	int *n = walk->priv;
++	union pgste pgste;
++
++	pgste = pgste_get_lock(ptep);
++	if (!ptep->h.i && !ptep->h.p) {
++		pgste.prefix_notif = 1;
++		*n += 1;
++	}
++	pgste_set_unlock(ptep, pgste);
++	return 0;
++}
++
++int dat_set_prefix_notif_bit(union asce asce, gfn_t gfn)
++{
++	static const struct dat_walk_ops ops = {
++		.pte_entry = dat_set_pn_pte,
++		.pmd_entry = dat_set_pn_crste,
++		.pud_entry = dat_set_pn_crste,
++	};
++
++	int n = 0;
++
++	_dat_walk_gfn_range(gfn, gfn + 2, asce, &ops, DAT_WALK_IGN_HOLES, &n);
++	if (n != 2)
++		return -EAGAIN;
++	return 0;
++}
+diff --git a/arch/s390/kvm/dat.h b/arch/s390/kvm/dat.h
+index 4cd573fcbdd6..11573b1002f6 100644
+--- a/arch/s390/kvm/dat.h
++++ b/arch/s390/kvm/dat.h
+@@ -361,6 +361,11 @@ struct dat_walk {
+ 	void *priv;
+ };
+ 
++struct ptval_param {
++	unsigned char offset : 6;
++	unsigned char len : 2;
++};
++
+ /**
+  * _pte() - Useful constructor for union pte
+  * @pfn: the pfn this pte should point to.
+@@ -459,6 +464,32 @@ struct kvm_s390_mmu_cache {
+ 	short int n_rmaps;
+ };
+ 
++struct guest_fault {
++	gfn_t gfn;		/* Guest frame */
++	kvm_pfn_t pfn;		/* Host PFN */
++	struct page *page;	/* Host page */
++	union pte *ptep;	/* Used to resolve the fault, or NULL */
++	union crste *crstep;	/* Used to resolve the fault, or NULL */
++	bool writable;		/* Mapping is writable */
++	bool write_attempt;	/* Write access attempted */
++	bool attempt_pfault;	/* Attempt a pfault first */
++	bool valid;		/* This entry contains valid data */
++	void (*callback)(struct guest_fault *f);
++	void *priv;
++};
++
++/*
++ *	0	1	2	3	4	5	6	7
++ *	+-------+-------+-------+-------+-------+-------+-------+-------+
++ *  0	|				|	    PGT_ADDR		|
++ *  8	|	 VMADDR		|					|
++ * 16	|								|
++ * 24	|								|
++ */
++#define MKPTVAL(o, l) ((struct ptval_param) { .offset = (o), .len = ((l) + 1) / 2 - 1})
++#define PTVAL_PGT_ADDR	MKPTVAL(4, 8)
++#define PTVAL_VMADDR	MKPTVAL(8, 6)
++
+ union pgste __must_check __dat_ptep_xchg(union pte *ptep, union pgste pgste, union pte new,
+ 					 gfn_t gfn, union asce asce, bool uses_skeys);
+ bool dat_crstep_xchg_atomic(union crste *crstep, union crste old, union crste new, gfn_t gfn,
+@@ -472,6 +503,7 @@ int dat_entry_walk(struct kvm_s390_mmu_cache *mc, gfn_t gfn, union asce asce, in
+ 		   int walk_level, union crste **last, union pte **ptepp);
+ void dat_free_level(struct crst_table *table, bool owns_ptes);
+ struct crst_table *dat_alloc_crst_sleepable(unsigned long init);
++int dat_set_asce_limit(struct kvm_s390_mmu_cache *mc, union asce *asce, int newtype);
+ int dat_get_storage_key(union asce asce, gfn_t gfn, union skey *skey);
+ int dat_set_storage_key(struct kvm_s390_mmu_cache *mc, union asce asce, gfn_t gfn,
+ 			union skey skey, bool nq);
+@@ -480,6 +512,16 @@ int dat_cond_set_storage_key(struct kvm_s390_mmu_cache *mmc, union asce asce, gf
+ int dat_reset_reference_bit(union asce asce, gfn_t gfn);
+ long dat_reset_skeys(union asce asce, gfn_t start);
+ 
++unsigned long dat_get_ptval(struct page_table *table, struct ptval_param param);
++void dat_set_ptval(struct page_table *table, struct ptval_param param, unsigned long val);
++
++int dat_set_slot(struct kvm_s390_mmu_cache *mc, union asce asce, gfn_t start, gfn_t end,
++		 u16 type, u16 param);
++int dat_set_prefix_notif_bit(union asce asce, gfn_t gfn);
++bool dat_test_age_gfn(union asce asce, gfn_t start, gfn_t end);
++int dat_link(struct kvm_s390_mmu_cache *mc, union asce asce, int level,
++	     bool uses_skeys, struct guest_fault *f);
++
+ int kvm_s390_mmu_cache_topup(struct kvm_s390_mmu_cache *mc);
+ 
+ #define GFP_KVM_S390_MMU_CACHE (GFP_ATOMIC | __GFP_ACCOUNT | __GFP_NOWARN)
+@@ -880,4 +922,16 @@ static inline int get_level(union crste *crstep, union pte *ptep)
+ 	return ptep ? TABLE_TYPE_PAGE_TABLE : crstep->h.tt;
+ }
+ 
++static inline int dat_delete_slot(struct kvm_s390_mmu_cache *mc, union asce asce, gfn_t start,
++				  unsigned long npages)
++{
++	return dat_set_slot(mc, asce, start, start + npages, _DAT_TOKEN_PIC, PGM_ADDRESSING);
++}
++
++static inline int dat_create_slot(struct kvm_s390_mmu_cache *mc, union asce asce, gfn_t start,
++				  unsigned long npages)
++{
++	return dat_set_slot(mc, asce, start, start + npages, _DAT_TOKEN_NONE, 0);
++}
++
+ #endif /* __KVM_S390_DAT_H */
 -- 
 2.52.0
 
