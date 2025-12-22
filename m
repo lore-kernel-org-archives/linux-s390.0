@@ -1,57 +1,57 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10CF633D4F3;
-	Mon, 22 Dec 2025 16:50:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B860F33F374;
+	Mon, 22 Dec 2025 16:50:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766422259; cv=none; b=f4UAUJ8stOuoZXN1fbI3+FNqzFrZqjaXG636l1pe/5MJJ02RMRzoEyw13H9BtBD+aF/H8s8+NB6yztFUBmnZqDrN5xwuQmGq166stjdEw1ccISaVZIoj0QtZYw/aoCD9n06+TR9bSoGACz9+nIkktm8a2nz0GfbhoNa17nEWSdM=
+	t=1766422262; cv=none; b=f4VxLBcVJR5FITjqx0a4/F8yJWAmiZhmGkaWrrCQaYSTm+ZWZytHWzceHSa9/Gr3knR+fSOjBryUOQ4VSxsRWqvVxyu3XUDOY37g7oXrN2GaqXK+t5eyaSP1WPzo6EGn0SI74N7GAaJoyWasRmpre+DEVyKkrwTYCJ7tfAzhxIM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766422259; c=relaxed/simple;
-	bh=gvAnFdHT/XMjCR1zs+fqNo8NXhkPFU1ciyQBZIXGeAY=;
+	s=arc-20240116; t=1766422262; c=relaxed/simple;
+	bh=eoxuQcXQTIkizKSt1WAd0DTo5vVsXjCYfBx5zhUqhbo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ds5/JBMNLTHlMAFCAxxMHoBE9TIwztOpxW/zm9hrNv4nQdDTGCZprbwxj5l7s40JpFozx8fsFhp7WC45RvJf6MWE/9s+oXpUxsTPPj+WTqSwGcBh4sFeQIj8i7RNEFWNHoiQeu8LnuEw7jB5yIzBZ35MQR+ti8I0WcOoLuSwiXM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=As2BtLOa; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=nKIT80wyzn5A5Ed+s6fgI4h5zHKUObYG6aQ7NJCFqvYjp3VBzvPeOMuvNbSrME4982mgeXQO+sF6w7rcVWkgeTf5C1HNnZMjjOsaA967G8n4B9W4bOred0RE6h/QQ3FmO/QqO3ydekYIKJQIF0X4exyxH0HwhivFPb75SgzE+tQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OB6rbylj; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="As2BtLOa"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5BM98BRG006456;
-	Mon, 22 Dec 2025 16:50:55 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OB6rbylj"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5BME1LGi008674;
+	Mon, 22 Dec 2025 16:50:57 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=JtFCSxrF9CLU3LvfT
-	rCfyoeTzzbfLQKkoH4wpG6bzTA=; b=As2BtLOaQnTj9VnDUzi309on7nUIDo1ys
-	xK/tGuT3l7QTYNB5ukFiFx8f9+seaeFwgv2v/2Sa4KiRocwxJEQ1cvWUvYOMeQ3t
-	YPnNd7YixPfiqMrPVTCMjhdkWq/ahk45PeRW7ajerIxWK4yinmUURrG9r9+pDebO
-	Q3jUR/i2/NeuI2L6dqua2HBf/RAQuTEdyAKEXir2yxP9C95/a1FZ7fOvh8pdhDP4
-	x+GeqTaBnNa3ENTuxaWxxALwjx4g0/UN2z2FjxugLwv3mWtQ/9TmyGiKuQX9Ds9G
-	DrPaaTUAPd4VuFDPLE46Gx9vDkMiDBR/FLHzZRDhWYlqWT60YkKdg==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4b5ka399fk-1
+	:mime-version:references:subject:to; s=pp1; bh=HbKFka+cfEybw+wKr
+	JAUM/1DHwPpFXpwTBFJ49GKlFw=; b=OB6rbyljUhBzbvhgPC4iHTuo2Q8mBvcC0
+	UCEauX0pOeOlKZYUUJLegcjvEos/yVNvi3n9t4BIlE7FLusw6xCSc5GZmNHeSnFN
+	RencSTKahU1MmvRL16c7adbP+5QeF0bcKWbN1FvO9moGnzSjNDRhsVJfMFzhPpqm
+	YqYrIg7EfHSJkQqM0V4YCct050FRstfgMA8ARHHnPm8EvdXp4xdsE7qXwCv5J/po
+	hHVVfOHf+HaIOaB8hBWSbbNbbMeoUNXkWWV0qeuUrg8hjsVM9k1gGlQ2mfux1WZL
+	X6xHBmOYGCBYODkx9z0ekZi/2/Qh8mqnu/SzPCPyeskJSL4K9cBOA==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4b5ketrtbf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 22 Dec 2025 16:50:55 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5BMGJQkw005081;
-	Mon, 22 Dec 2025 16:50:54 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4b674mq594-1
+	Mon, 22 Dec 2025 16:50:57 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5BMETqc5032307;
+	Mon, 22 Dec 2025 16:50:56 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4b68u0xvb5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 22 Dec 2025 16:50:54 +0000
+	Mon, 22 Dec 2025 16:50:56 +0000
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5BMGoogs30867750
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5BMGoqeh57213260
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 22 Dec 2025 16:50:50 GMT
+	Mon, 22 Dec 2025 16:50:52 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E383920043;
-	Mon, 22 Dec 2025 16:50:49 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id BDA9020040;
+	Mon, 22 Dec 2025 16:50:52 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B95F820040;
-	Mon, 22 Dec 2025 16:50:48 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 6CF7A2004B;
+	Mon, 22 Dec 2025 16:50:51 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.111.79.149])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 22 Dec 2025 16:50:48 +0000 (GMT)
+	Mon, 22 Dec 2025 16:50:51 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
@@ -60,9 +60,9 @@ Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         schlameuss@linux.ibm.com, hca@linux.ibm.com, svens@linux.ibm.com,
         agordeev@linux.ibm.com, gor@linux.ibm.com, david@redhat.com,
         gerald.schaefer@linux.ibm.com
-Subject: [PATCH v6 11/28] KVM: s390: Rename some functions in gaccess.c
-Date: Mon, 22 Dec 2025 17:50:16 +0100
-Message-ID: <20251222165033.162329-12-imbrenda@linux.ibm.com>
+Subject: [PATCH v6 13/28] KVM: s390: KVM page table management functions: allocation
+Date: Mon, 22 Dec 2025 17:50:18 +0100
+Message-ID: <20251222165033.162329-14-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251222165033.162329-1-imbrenda@linux.ibm.com>
 References: <20251222165033.162329-1-imbrenda@linux.ibm.com>
@@ -74,192 +74,270 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rrLLpt03bAYDQLi4t1WDVC-UlZZ16wYQ
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjIyMDE1NCBTYWx0ZWRfX9p3wcmZFzSUk
- UsoJA3pf3MWuFG+T0enCEt31+Ic1hijs9odYAsjo9q++5NUuf12ApPwMoQeRu6GgLmPBxLjqAR9
- cgg4VvV5lMgU8lsM1kAvooBD/fWh8Mc1MMGQDexS57KxGSy++dm6bt4Tzky/NtuVzqoV3Hjk7Hb
- E0vHp3Rw9rHVMoHVSENQRJB0xE4rrI798ExdVMgKrgrkZSl4Jg2VVi0ZINZ0dxdyRIkIF+44Z50
- Z+yuSnqidgEgzSz99kdh1iuccXtnaanVIqMfe3OR9ahhvCw/VDVZXQeqQB2mcpbiVNp4gCgu3VK
- JcMv3+zobdTUPtdK7uLkJI9Syxit5HQi3l0BGvorSGwPfpcO2ob61xa/KeSUGV/xwREt8946TqC
- ZAdzq9MCChNqBo8oTupSV9A8NlVAv/al3HNbIy+foqXvZaOJFOCTcis34LaiDnAw4MJBFBuYADh
- h58jDqlrAvFI8XtnVaQ==
-X-Proofpoint-ORIG-GUID: rrLLpt03bAYDQLi4t1WDVC-UlZZ16wYQ
-X-Authority-Analysis: v=2.4 cv=dqHWylg4 c=1 sm=1 tr=0 ts=694976ef cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
- a=daTLW1200KpnZZ0VTdgA:9
+X-Proofpoint-GUID: MUQnp7uS6yOx_gN5wD9F0GyYZ0CprvZ6
+X-Authority-Analysis: v=2.4 cv=Qdxrf8bv c=1 sm=1 tr=0 ts=694976f1 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8 a=20KFwNOVAAAA:8
+ a=ciOewYurfqE_QU1RCzEA:9
+X-Proofpoint-ORIG-GUID: MUQnp7uS6yOx_gN5wD9F0GyYZ0CprvZ6
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjIyMDE1NCBTYWx0ZWRfX5fzV+yvMWjam
+ tbK0A8jg6SF037k20PstZekc0vV+8E7F3vzOn8Lewb54hggLBPJ6bcw3hLooGe5FpnQm+qktMzW
+ FxjZJQ5FBo1I1Fob9xhm4ZBgowJnk64w5/4meKc2ZsBMJJN2uKzu8rDB6uE26h9NmYPROCJTExY
+ xb3dwC5Xa+CSIy1Kq+hLCKPpQLQt53v0VfhxhdAn0rN6sYtc+GSZcfvX+FlhpKEizi5yT3MyWxj
+ SHO6ivdb41Wue7vY+oB3ZtQ7NcmeodObjJk83+YbjC57SYs3iVVXaH77tCuZUg1T4vFSYMtjLzS
+ GGtyHFCTKbqhUXPfe/CXbJEdfZ++lddJsVU/U3pc/ZIn7Wrp6W4ogUXmh8gahCmCsj8JKlyl7BF
+ owJ9v+a1+9G88gk89+Vz+Fd943Qga1TlVIWeWFlzdkalon4otjgEpCNuCcEdml5ySd0T4Y9aKVu
+ BFLFnlPPtxIZvUNHqQw==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-12-22_02,2025-12-22_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 clxscore=1015 lowpriorityscore=0
- impostorscore=0 malwarescore=0 bulkscore=0 phishscore=0 suspectscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2512120000
- definitions=main-2512220154
+ suspectscore=0 bulkscore=0 lowpriorityscore=0 malwarescore=0 clxscore=1015
+ priorityscore=1501 phishscore=0 impostorscore=0 adultscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2512120000 definitions=main-2512220154
 
-Rename some functions in gaccess.c to add a _gva or _gpa suffix to
-indicate whether the function accepts a virtual or a guest-absolute
-address.
+Add page table management functions to be used for KVM guest (gmap)
+page tables.
 
-This makes it easier to understand the code.
+This patch adds the boilerplate and functions for the allocation and
+deallocation of DAT tables.
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
-Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 ---
- arch/s390/kvm/gaccess.c | 51 +++++++++++++++++++----------------------
- 1 file changed, 24 insertions(+), 27 deletions(-)
+ arch/s390/kvm/Makefile     |   1 +
+ arch/s390/kvm/dat.c        | 103 +++++++++++++++++++++++++++++++++++++
+ arch/s390/kvm/dat.h        |  77 +++++++++++++++++++++++++++
+ arch/s390/mm/page-states.c |   1 +
+ 4 files changed, 182 insertions(+)
+ create mode 100644 arch/s390/kvm/dat.c
 
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index d8347f7cbe51..9df868bddf9a 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -397,7 +397,7 @@ static int deref_table(struct kvm *kvm, unsigned long gpa, unsigned long *val)
+diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
+index 9a723c48b05a..84315d2f75fb 100644
+--- a/arch/s390/kvm/Makefile
++++ b/arch/s390/kvm/Makefile
+@@ -9,6 +9,7 @@ ccflags-y := -Ivirt/kvm -Iarch/s390/kvm
+ 
+ kvm-y += kvm-s390.o intercept.o interrupt.o priv.o sigp.o
+ kvm-y += diag.o gaccess.o guestdbg.o vsie.o pv.o gmap-vsie.o
++kvm-y += dat.o
+ 
+ kvm-$(CONFIG_VFIO_PCI_ZDEV_KVM) += pci.o
+ obj-$(CONFIG_KVM) += kvm.o
+diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
+new file mode 100644
+index 000000000000..c324a27f379f
+--- /dev/null
++++ b/arch/s390/kvm/dat.c
+@@ -0,0 +1,103 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ *  KVM guest address space mapping code
++ *
++ *    Copyright IBM Corp. 2007, 2020, 2024
++ *    Author(s): Claudio Imbrenda <imbrenda@linux.ibm.com>
++ *		 Martin Schwidefsky <schwidefsky@de.ibm.com>
++ *		 David Hildenbrand <david@redhat.com>
++ *		 Janosch Frank <frankja@linux.ibm.com>
++ */
++
++#include <linux/kernel.h>
++#include <linux/pagewalk.h>
++#include <linux/swap.h>
++#include <linux/smp.h>
++#include <linux/spinlock.h>
++#include <linux/slab.h>
++#include <linux/swapops.h>
++#include <linux/ksm.h>
++#include <linux/mm.h>
++#include <linux/mman.h>
++#include <linux/pgtable.h>
++#include <linux/kvm_types.h>
++#include <linux/kvm_host.h>
++#include <linux/pgalloc.h>
++
++#include <asm/page-states.h>
++#include <asm/tlb.h>
++#include "dat.h"
++
++int kvm_s390_mmu_cache_topup(struct kvm_s390_mmu_cache *mc)
++{
++	void *o;
++
++	for ( ; mc->n_crsts < KVM_S390_MMU_CACHE_N_CRSTS; mc->n_crsts++) {
++		o = (void *)__get_free_pages(GFP_KERNEL_ACCOUNT | __GFP_COMP, CRST_ALLOC_ORDER);
++		if (!o)
++			return -ENOMEM;
++		mc->crsts[mc->n_crsts] = o;
++	}
++	for ( ; mc->n_pts < KVM_S390_MMU_CACHE_N_PTS; mc->n_pts++) {
++		o = (void *)__get_free_page(GFP_KERNEL_ACCOUNT);
++		if (!o)
++			return -ENOMEM;
++		mc->pts[mc->n_pts] = o;
++	}
++	for ( ; mc->n_rmaps < KVM_S390_MMU_CACHE_N_RMAPS; mc->n_rmaps++) {
++		o = kzalloc(sizeof(*mc->rmaps[0]), GFP_KERNEL_ACCOUNT);
++		if (!o)
++			return -ENOMEM;
++		mc->rmaps[mc->n_rmaps] = o;
++	}
++	return 0;
++}
++
++static inline struct page_table *dat_alloc_pt_noinit(struct kvm_s390_mmu_cache *mc)
++{
++	struct page_table *res;
++
++	res = kvm_s390_mmu_cache_alloc_pt(mc);
++	if (res)
++		__arch_set_page_dat(res, 1);
++	return res;
++}
++
++static inline struct crst_table *dat_alloc_crst_noinit(struct kvm_s390_mmu_cache *mc)
++{
++	struct crst_table *res;
++
++	res = kvm_s390_mmu_cache_alloc_crst(mc);
++	if (res)
++		__arch_set_page_dat(res, 1UL << CRST_ALLOC_ORDER);
++	return res;
++}
++
++struct crst_table *dat_alloc_crst_sleepable(unsigned long init)
++{
++	struct page *page;
++	void *virt;
++
++	page = alloc_pages(GFP_KERNEL_ACCOUNT | __GFP_COMP, CRST_ALLOC_ORDER);
++	if (!page)
++		return NULL;
++	virt = page_to_virt(page);
++	__arch_set_page_dat(virt, 1UL << CRST_ALLOC_ORDER);
++	crst_table_init(virt, init);
++	return virt;
++}
++
++void dat_free_level(struct crst_table *table, bool owns_ptes)
++{
++	unsigned int i;
++
++	for (i = 0; i < _CRST_ENTRIES; i++) {
++		if (table->crstes[i].h.fc || table->crstes[i].h.i)
++			continue;
++		if (!is_pmd(table->crstes[i]))
++			dat_free_level(dereference_crste(table->crstes[i]), owns_ptes);
++		else if (owns_ptes)
++			dat_free_pt(dereference_pmd(table->crstes[i].pmd));
++	}
++	dat_free_crst(table);
++}
+diff --git a/arch/s390/kvm/dat.h b/arch/s390/kvm/dat.h
+index 4d2b7a7bf898..4c75d3f75b33 100644
+--- a/arch/s390/kvm/dat.h
++++ b/arch/s390/kvm/dat.h
+@@ -418,6 +418,46 @@ struct vsie_rmap {
+ 
+ static_assert(sizeof(struct vsie_rmap) == 2 * sizeof(long));
+ 
++#define KVM_S390_MMU_CACHE_N_CRSTS	6
++#define KVM_S390_MMU_CACHE_N_PTS	2
++#define KVM_S390_MMU_CACHE_N_RMAPS	16
++struct kvm_s390_mmu_cache {
++	void *crsts[KVM_S390_MMU_CACHE_N_CRSTS];
++	void *pts[KVM_S390_MMU_CACHE_N_PTS];
++	void *rmaps[KVM_S390_MMU_CACHE_N_RMAPS];
++	short int n_crsts;
++	short int n_pts;
++	short int n_rmaps;
++};
++
++void dat_free_level(struct crst_table *table, bool owns_ptes);
++struct crst_table *dat_alloc_crst_sleepable(unsigned long init);
++
++int kvm_s390_mmu_cache_topup(struct kvm_s390_mmu_cache *mc);
++
++#define GFP_KVM_S390_MMU_CACHE (GFP_ATOMIC | __GFP_ACCOUNT | __GFP_NOWARN)
++
++static inline struct page_table *kvm_s390_mmu_cache_alloc_pt(struct kvm_s390_mmu_cache *mc)
++{
++	if (mc->n_pts)
++		return mc->pts[--mc->n_pts];
++	return (void *)__get_free_page(GFP_KVM_S390_MMU_CACHE);
++}
++
++static inline struct crst_table *kvm_s390_mmu_cache_alloc_crst(struct kvm_s390_mmu_cache *mc)
++{
++	if (mc->n_crsts)
++		return mc->crsts[--mc->n_crsts];
++	return (void *)__get_free_pages(GFP_KVM_S390_MMU_CACHE | __GFP_COMP, CRST_ALLOC_ORDER);
++}
++
++static inline struct vsie_rmap *kvm_s390_mmu_cache_alloc_rmap(struct kvm_s390_mmu_cache *mc)
++{
++	if (mc->n_rmaps)
++		return mc->rmaps[--mc->n_rmaps];
++	return kzalloc(sizeof(struct vsie_rmap), GFP_KVM_S390_MMU_CACHE);
++}
++
+ static inline struct crst_table *crste_table_start(union crste *crstep)
+ {
+ 	return (struct crst_table *)ALIGN_DOWN((unsigned long)crstep, _CRST_TABLE_SIZE);
+@@ -717,4 +757,41 @@ static inline void pgste_set_unlock(union pte *ptep, union pgste pgste)
+ 	WRITE_ONCE(*pgste_of(ptep), pgste);
  }
  
- /**
-- * guest_translate - translate a guest virtual into a guest absolute address
-+ * guest_translate_gva() - translate a guest virtual into a guest absolute address
-  * @vcpu: virtual cpu
-  * @gva: guest virtual address
-  * @gpa: points to where guest physical (absolute) address should be stored
-@@ -417,9 +417,9 @@ static int deref_table(struct kvm *kvm, unsigned long gpa, unsigned long *val)
-  *	      the returned value is the program interruption code as defined
-  *	      by the architecture
-  */
--static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
--				     unsigned long *gpa, const union asce asce,
--				     enum gacc_mode mode, enum prot_type *prot)
-+static unsigned long guest_translate_gva(struct kvm_vcpu *vcpu, unsigned long gva,
-+					 unsigned long *gpa, const union asce asce,
-+					 enum gacc_mode mode, enum prot_type *prot)
++static inline void dat_free_pt(struct page_table *pt)
++{
++	free_page((unsigned long)pt);
++}
++
++static inline void _dat_free_crst(struct crst_table *table)
++{
++	free_pages((unsigned long)table, CRST_ALLOC_ORDER);
++}
++
++#define dat_free_crst(x) _dat_free_crst(_CRSTP(x))
++
++static inline void kvm_s390_free_mmu_cache(struct kvm_s390_mmu_cache *mc)
++{
++	if (!mc)
++		return;
++	while (mc->n_pts)
++		dat_free_pt(mc->pts[--mc->n_pts]);
++	while (mc->n_crsts)
++		_dat_free_crst(mc->crsts[--mc->n_crsts]);
++	while (mc->n_rmaps)
++		kfree(mc->rmaps[--mc->n_rmaps]);
++	kfree(mc);
++}
++
++DEFINE_FREE(kvm_s390_mmu_cache, struct kvm_s390_mmu_cache *, if (_T) kvm_s390_free_mmu_cache(_T))
++
++static inline struct kvm_s390_mmu_cache *kvm_s390_new_mmu_cache(void)
++{
++	struct kvm_s390_mmu_cache *mc __free(kvm_s390_mmu_cache) = NULL;
++
++	mc = kzalloc(sizeof(*mc), GFP_KERNEL_ACCOUNT);
++	if (mc && !kvm_s390_mmu_cache_topup(mc))
++		return_ptr(mc);
++	return NULL;
++}
++
+ #endif /* __KVM_S390_DAT_H */
+diff --git a/arch/s390/mm/page-states.c b/arch/s390/mm/page-states.c
+index 01f9b39e65f5..5bee173db72e 100644
+--- a/arch/s390/mm/page-states.c
++++ b/arch/s390/mm/page-states.c
+@@ -13,6 +13,7 @@
+ #include <asm/page.h>
+ 
+ int __bootdata_preserved(cmma_flag);
++EXPORT_SYMBOL(cmma_flag);
+ 
+ void arch_free_page(struct page *page, int order)
  {
- 	union vaddress vaddr = {.addr = gva};
- 	union raddress raddr = {.addr = gva};
-@@ -600,8 +600,8 @@ static int low_address_protection_enabled(struct kvm_vcpu *vcpu,
- 	return 1;
- }
- 
--static int vm_check_access_key(struct kvm *kvm, u8 access_key,
--			       enum gacc_mode mode, gpa_t gpa)
-+static int vm_check_access_key_gpa(struct kvm *kvm, u8 access_key,
-+				   enum gacc_mode mode, gpa_t gpa)
- {
- 	u8 storage_key, access_control;
- 	bool fetch_protected;
-@@ -663,9 +663,9 @@ static bool storage_prot_override_applies(u8 access_control)
- 	return access_control == PAGE_SPO_ACC;
- }
- 
--static int vcpu_check_access_key(struct kvm_vcpu *vcpu, u8 access_key,
--				 enum gacc_mode mode, union asce asce, gpa_t gpa,
--				 unsigned long ga, unsigned int len)
-+static int vcpu_check_access_key_gpa(struct kvm_vcpu *vcpu, u8 access_key,
-+				     enum gacc_mode mode, union asce asce, gpa_t gpa,
-+				     unsigned long ga, unsigned int len)
- {
- 	u8 storage_key, access_control;
- 	unsigned long hva;
-@@ -757,7 +757,7 @@ static int guest_range_to_gpas(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
- 			return trans_exc(vcpu, PGM_PROTECTION, ga, ar, mode,
- 					 PROT_TYPE_LA);
- 		if (psw_bits(*psw).dat) {
--			rc = guest_translate(vcpu, ga, &gpa, asce, mode, &prot);
-+			rc = guest_translate_gva(vcpu, ga, &gpa, asce, mode, &prot);
- 			if (rc < 0)
- 				return rc;
- 		} else {
-@@ -769,8 +769,7 @@ static int guest_range_to_gpas(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
- 		}
- 		if (rc)
- 			return trans_exc(vcpu, rc, ga, ar, mode, prot);
--		rc = vcpu_check_access_key(vcpu, access_key, mode, asce, gpa, ga,
--					   fragment_len);
-+		rc = vcpu_check_access_key_gpa(vcpu, access_key, mode, asce, gpa, ga, fragment_len);
- 		if (rc)
- 			return trans_exc(vcpu, rc, ga, ar, mode, PROT_TYPE_KEYC);
- 		if (gpas)
-@@ -782,8 +781,8 @@ static int guest_range_to_gpas(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
- 	return 0;
- }
- 
--static int access_guest_page(struct kvm *kvm, enum gacc_mode mode, gpa_t gpa,
--			     void *data, unsigned int len)
-+static int access_guest_page_gpa(struct kvm *kvm, enum gacc_mode mode, gpa_t gpa,
-+				 void *data, unsigned int len)
- {
- 	const unsigned int offset = offset_in_page(gpa);
- 	const gfn_t gfn = gpa_to_gfn(gpa);
-@@ -798,9 +797,8 @@ static int access_guest_page(struct kvm *kvm, enum gacc_mode mode, gpa_t gpa,
- 	return rc;
- }
- 
--static int
--access_guest_page_with_key(struct kvm *kvm, enum gacc_mode mode, gpa_t gpa,
--			   void *data, unsigned int len, u8 access_key)
-+static int access_guest_page_with_key_gpa(struct kvm *kvm, enum gacc_mode mode, gpa_t gpa,
-+					  void *data, unsigned int len, u8 access_key)
- {
- 	struct kvm_memory_slot *slot;
- 	bool writable;
-@@ -808,7 +806,7 @@ access_guest_page_with_key(struct kvm *kvm, enum gacc_mode mode, gpa_t gpa,
- 	hva_t hva;
- 	int rc;
- 
--	gfn = gpa >> PAGE_SHIFT;
-+	gfn = gpa_to_gfn(gpa);
- 	slot = gfn_to_memslot(kvm, gfn);
- 	hva = gfn_to_hva_memslot_prot(slot, gfn, &writable);
- 
-@@ -841,7 +839,7 @@ int access_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, void *data,
- 
- 	while (min(PAGE_SIZE - offset, len) > 0) {
- 		fragment_len = min(PAGE_SIZE - offset, len);
--		rc = access_guest_page_with_key(kvm, mode, gpa, data, fragment_len, access_key);
-+		rc = access_guest_page_with_key_gpa(kvm, mode, gpa, data, fragment_len, access_key);
- 		if (rc)
- 			return rc;
- 		offset = 0;
-@@ -901,15 +899,14 @@ int access_guest_with_key(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
- 	for (idx = 0; idx < nr_pages; idx++) {
- 		fragment_len = min(PAGE_SIZE - offset_in_page(gpas[idx]), len);
- 		if (try_fetch_prot_override && fetch_prot_override_applies(ga, fragment_len)) {
--			rc = access_guest_page(vcpu->kvm, mode, gpas[idx],
--					       data, fragment_len);
-+			rc = access_guest_page_gpa(vcpu->kvm, mode, gpas[idx], data, fragment_len);
- 		} else {
--			rc = access_guest_page_with_key(vcpu->kvm, mode, gpas[idx],
--							data, fragment_len, access_key);
-+			rc = access_guest_page_with_key_gpa(vcpu->kvm, mode, gpas[idx],
-+							    data, fragment_len, access_key);
- 		}
- 		if (rc == PGM_PROTECTION && try_storage_prot_override)
--			rc = access_guest_page_with_key(vcpu->kvm, mode, gpas[idx],
--							data, fragment_len, PAGE_SPO_ACC);
-+			rc = access_guest_page_with_key_gpa(vcpu->kvm, mode, gpas[idx],
-+							    data, fragment_len, PAGE_SPO_ACC);
- 		if (rc)
- 			break;
- 		len -= fragment_len;
-@@ -943,7 +940,7 @@ int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
- 	while (len && !rc) {
- 		gpa = kvm_s390_real_to_abs(vcpu, gra);
- 		fragment_len = min(PAGE_SIZE - offset_in_page(gpa), len);
--		rc = access_guest_page(vcpu->kvm, mode, gpa, data, fragment_len);
-+		rc = access_guest_page_gpa(vcpu->kvm, mode, gpa, data, fragment_len);
- 		len -= fragment_len;
- 		gra += fragment_len;
- 		data += fragment_len;
-@@ -1134,7 +1131,7 @@ int check_gpa_range(struct kvm *kvm, unsigned long gpa, unsigned long length,
- 
- 	while (length && !rc) {
- 		fragment_len = min(PAGE_SIZE - offset_in_page(gpa), length);
--		rc = vm_check_access_key(kvm, access_key, mode, gpa);
-+		rc = vm_check_access_key_gpa(kvm, access_key, mode, gpa);
- 		length -= fragment_len;
- 		gpa += fragment_len;
- 	}
 -- 
 2.52.0
 
