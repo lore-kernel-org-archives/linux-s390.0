@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B7812E7F20;
-	Sun, 28 Dec 2025 12:44:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28A572E9ED6;
+	Sun, 28 Dec 2025 12:45:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766925890; cv=none; b=lutyqQqNju3wr6eZdnJKbgqYbBJtqZkmCIqi2rwUUZhN6IYlnQdFKlftK487L3Tjs2wgXZE8V4ZsAtqWoADjvWVCmaT2zg3PCk7I8My4vaEDFiUP3+KQ/Mj50FbEscgFvGvEyy45pfn5K0YPWQR7+HHSwxXd5WfUlk06lySxIzo=
+	t=1766925904; cv=none; b=PPU1NAo2FerTXKY57YxUs2YGSUBKFuWmKK71HPt5L9t4rjtJB9NV+Wt1GdxS/VH00Tz7kj5S9848p6d8pEKh+pyGOHRC9Mp2eQjv33oE4Req97xQrJgSrML+mH3KV+IIiHCcNE4u0aGdKJuX1pxmoK5EyR88PpE9I6YwshkUm2Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766925890; c=relaxed/simple;
-	bh=2fA0ShJu41IpFxgmfkKiNARLhjMIlJQdtqcPZZQwJv0=;
+	s=arc-20240116; t=1766925904; c=relaxed/simple;
+	bh=4MJzw8wq/vYacVlPos8SheQzjEj4nCDptI3YxDfhXAU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=JB3ejDIMYqKzOq3qTLX/JjXkYtSEtg6dLzW5BiVY/LfLg5kHLI6CpkLoyQLpAQquHzj8KPSzyZQZto7XzEkYQuwLEpcZLabK0V5FEKzQcYqDWoVkd9D9eOTCDx2GV8+AcRPge74kYnJgzUKxB+yS7XZYE6FLzIfj1nwXZXZ7JKQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mEm8Nhjf; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=oH37r41XgVwaJ7e4c1+wp1IYpJaIyOS6iVDLsPLv7tIoeKzFgG6OAGduMZWsvpUM6JQnZ7m3x7JRyyGecdXyKTgeTYde+B0ur/ENl8AfYIg2UR2YavHj9XRavEDjI33QilgyA/BNzf4N756oUaXjy8pfZt37hqzc2xA5KzKQP4M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CxPNjOVV; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mEm8Nhjf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F9D2C4CEFB;
-	Sun, 28 Dec 2025 12:44:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CxPNjOVV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77041C4CEFB;
+	Sun, 28 Dec 2025 12:44:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1766925890;
-	bh=2fA0ShJu41IpFxgmfkKiNARLhjMIlJQdtqcPZZQwJv0=;
+	s=k20201202; t=1766925904;
+	bh=4MJzw8wq/vYacVlPos8SheQzjEj4nCDptI3YxDfhXAU=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=mEm8Nhjfa6WWs8SePkiyzNds8GzMMs1SPN2jgDBA0dfwWgdDDslcRJD+GKgSW45/y
-	 GbOIkT3BV+fa0vU0kDDKhS3+67JuiXWIW4Jsc1AdG/WqHKxcYGMJ2iho93EdLWkZ+8
-	 7mLE0tTFcfOqarDYFmF/qKg7Lu5I3f8nFV59M5Cxc1IR5mODrC7xvNCnlv31ejHDTp
-	 rpLdvktJ3vP3bXGEZcAI0t9PA3nYG61tLbt8rOZz3BeRqoMyqdkKWS7HkdolRjw6xP
-	 eMud/Jg+SPNHEg6cwsztEiHEgwUj3LbkXHwARzJa2ZS3UUDjlhRzvC1p8pt/D/jIhJ
-	 fb4ImkZ5vEPpg==
+	b=CxPNjOVVd0StOxavRFUsVhEOWsAS8OrNcL7iTTpWZTXAvzmk8IqRe7bfh5k6lFUyv
+	 8SQa4EeE6FYeLFyNhdG4wCVlnIfnaa5C3ZbZnS+pV1zmbNvkQ0JwMdpt7jWfVmM5Nx
+	 tKzTB0VZD6MNq/AcBYYo/PYix+seShT/lM2/4uWm6Whjy8AqFAbCGHw7an3gTOWPoN
+	 bHu1VKUJ5qIwVNKjw1zwaDwuA65JNBEr+b+0NrP+raiP6/vF7osPeWM8T0aedu6Jo9
+	 RLrCGjKAcSbq0lZDjhY7IPyid/QSNKMz4Hpx3OO1IMo5WzR5M+p8pGf5KnEPcCwWvP
+	 llIvW+yUdRaaA==
 From: Mike Rapoport <rppt@kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>
 Cc: Alex Shi <alexs@kernel.org>,
@@ -92,9 +92,9 @@ Cc: Alex Shi <alexs@kernel.org>,
 	linuxppc-dev@lists.ozlabs.org,
 	loongarch@lists.linux.dev,
 	sparclinux@vger.kernel.org
-Subject: [PATCH 19/28] um: introduce arch_zone_limits_init()
-Date: Sun, 28 Dec 2025 14:39:49 +0200
-Message-ID: <20251228124001.3624742-20-rppt@kernel.org>
+Subject: [PATCH 20/28] x86: introduce arch_zone_limits_init()
+Date: Sun, 28 Dec 2025 14:39:50 +0200
+Message-ID: <20251228124001.3624742-21-rppt@kernel.org>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20251228124001.3624742-1-rppt@kernel.org>
 References: <20251228124001.3624742-1-rppt@kernel.org>
@@ -117,32 +117,41 @@ call free_area_init() from every architecture.
 
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- arch/um/kernel/mem.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/x86/mm/init.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/arch/um/kernel/mem.c b/arch/um/kernel/mem.c
-index 39c4a7e21c6f..2ac4e9debedd 100644
---- a/arch/um/kernel/mem.c
-+++ b/arch/um/kernel/mem.c
-@@ -84,6 +84,11 @@ void __init mem_init(void)
- 	kmalloc_ok = 1;
+diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
+index 8bf6ad4b9400..e7ef605a18d6 100644
+--- a/arch/x86/mm/init.c
++++ b/arch/x86/mm/init.c
+@@ -997,12 +997,8 @@ void __init free_initrd_mem(unsigned long start, unsigned long end)
  }
+ #endif
  
+-void __init zone_sizes_init(void)
 +void __init arch_zone_limits_init(unsigned long *max_zone_pfns)
-+{
-+	max_zone_pfns[ZONE_NORMAL] = high_physmem >> PAGE_SHIFT;
+ {
+-	unsigned long max_zone_pfns[MAX_NR_ZONES];
+-
+-	memset(max_zone_pfns, 0, sizeof(max_zone_pfns));
+-
+ #ifdef CONFIG_ZONE_DMA
+ 	max_zone_pfns[ZONE_DMA]		= min(MAX_DMA_PFN, max_low_pfn);
+ #endif
+@@ -1013,7 +1009,15 @@ void __init zone_sizes_init(void)
+ #ifdef CONFIG_HIGHMEM
+ 	max_zone_pfns[ZONE_HIGHMEM]	= max_pfn;
+ #endif
 +}
 +
- void __init paging_init(void)
- {
- 	unsigned long max_zone_pfn[MAX_NR_ZONES] = { 0 };
-@@ -94,7 +99,7 @@ void __init paging_init(void)
- 		panic("%s: Failed to allocate %lu bytes align=%lx\n",
- 		      __func__, PAGE_SIZE, PAGE_SIZE);
++void __init zone_sizes_init(void)
++{
++	unsigned long max_zone_pfns[MAX_NR_ZONES];
++
++	memset(max_zone_pfns, 0, sizeof(max_zone_pfns));
  
--	max_zone_pfn[ZONE_NORMAL] = high_physmem >> PAGE_SHIFT;
-+	arch_zone_limits_init(max_zone_pfn);
- 	free_area_init(max_zone_pfn);
++	arch_zone_limits_init(max_zone_pfns);
+ 	free_area_init(max_zone_pfns);
  }
  
 -- 
