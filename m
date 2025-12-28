@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFB442D5955;
-	Sun, 28 Dec 2025 12:42:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EE572D77F6;
+	Sun, 28 Dec 2025 12:43:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766925778; cv=none; b=ZKtX7W92HOE1QtpjzpbbNBceUJ3pWigSxpc3/Ia/9hoiWsXkUcCfmW+ZTQ1TctmlSlDJwswmflSTDAmFWH6/U8bRZARqUr8CUCh70++gM4aplav72CZ/0332RuSV6azTp/hJjHT5rY4V50u5B4MG1Ql9cmSuC0CaXk/ftDGgU90=
+	t=1766925792; cv=none; b=expchE9Ec9j/dR78ED7Gvlhbwb18bpgBhFaHeDsJCYj+u4m1pdkHo2XBIaiLmfveSBE5qknsnSe8qagnOoFxgMV2JhP5xakKfoguzvIFC8jtzpLzJWH7YTPGW5ivqJUNLgnPFiVblkwV2ZxYvBixUI0C01DKVpKbwTG5CQyttec=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766925778; c=relaxed/simple;
-	bh=7/XO61OP3oJL3oXo5SwiraqhSSBSqBw3/hQeqUzArSI=;
+	s=arc-20240116; t=1766925792; c=relaxed/simple;
+	bh=YC7hFXptZV2vdW9aMAEwYEJyXUoPJivVkcdf9qZf+do=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=sGhQt/LWkW1ILdnBnozROxNAZ5l4fonooW9e06GvgFB4DJTjlzZdkI8pvT/pD9xrNlD6STPSJ8b5hRiClotT5Y2i1gzL7373MKVBa44KaoBW8N2DPJsn0BCv1e8f5rwshzK7TfjdcllS2F+d8F2yMkDCwXMeq85oVW2ohKQELfw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UD2BERPl; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=Z3oat/H6x2irnVZO3kv+8qY9gP5R4FLjVdJyPVIIcwozK2OsESLuuzJezUgjqZrp6L01RdktdYjCE3Gy4vWo2OtSSwmcqDijepbWoaYHkYISOXip0wflD6eyRrD/pxapd4Nw0K/3EiEUVFMqLmUUnIKcWtw8XkVkj4WS5DU4+qU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QrkxuRje; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UD2BERPl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1380CC4CEFB;
-	Sun, 28 Dec 2025 12:42:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QrkxuRje"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18212C113D0;
+	Sun, 28 Dec 2025 12:42:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1766925777;
-	bh=7/XO61OP3oJL3oXo5SwiraqhSSBSqBw3/hQeqUzArSI=;
+	s=k20201202; t=1766925791;
+	bh=YC7hFXptZV2vdW9aMAEwYEJyXUoPJivVkcdf9qZf+do=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=UD2BERPlZ3ba4OSn/ykAf8NN0SaXrPzwsTk5aklWZwegjHk4YPqFP+mPCH1Og4nl2
-	 wtcJ2uIyxWlfn1ediLSSmTIsfKU3/ze9Gq7AgyseaWU/v8PuZKG/ibcGLHdaqGs/XI
-	 1Wx77f7NgvP4aGd9BtfQN6kCMWnqp0KZ3GSCAOLYmW8HRNtlSa6XTWWpkt0gSZPOUh
-	 JnxNER3OfiH9ng60Vlm/awFv8D6oyJR6moDue9xFg+0rJO7htyIPTEKQD4sJJiYkPu
-	 IYpzRIxBkyogdh33QXcABVHe6ViOEpZtcC7KoONKuCr6PTH+VdpveD1N3juKNj518C
-	 j9t2gzzEoApfw==
+	b=QrkxuRjeoBqT45eWaWTb4GyN5mvdPvm7P/ypq3b7ackOraR4PTpHd9pRbZ6i6kO4N
+	 97hmQlJlJx3RR4oGwFEqSIecIjyWdldzVJrezh4/O3IlJFDwvEfZFQhdWYY4O7Ps+s
+	 kACkB1HXzlzU/AMGBfP0XWzLsCttaOuvlAqNZVnnfZmNdk1yb7CdgatEFSlqpjw4yV
+	 1izKUT566ScNJsmJy6w6R3+EgIwlD+sdx2tXndUSgJ8SgT+cdpxegWpGNdiSHyMHE/
+	 N572Ve1tnKWow+M2vFlpUlHDmcNe3iyu6yt5R86wUIb2hZT7G3KKfbWLkf7toUIKdF
+	 em9WX24oSmkWA==
 From: Mike Rapoport <rppt@kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>
 Cc: Alex Shi <alexs@kernel.org>,
@@ -92,9 +92,9 @@ Cc: Alex Shi <alexs@kernel.org>,
 	linuxppc-dev@lists.ozlabs.org,
 	loongarch@lists.linux.dev,
 	sparclinux@vger.kernel.org
-Subject: [PATCH 11/28] nios2: introduce arch_zone_limits_init()
-Date: Sun, 28 Dec 2025 14:39:41 +0200
-Message-ID: <20251228124001.3624742-12-rppt@kernel.org>
+Subject: [PATCH 12/28] openrisc: introduce arch_zone_limits_init()
+Date: Sun, 28 Dec 2025 14:39:42 +0200
+Message-ID: <20251228124001.3624742-13-rppt@kernel.org>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20251228124001.3624742-1-rppt@kernel.org>
 References: <20251228124001.3624742-1-rppt@kernel.org>
@@ -117,34 +117,36 @@ call free_area_init() from every architecture.
 
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- arch/nios2/mm/init.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/openrisc/mm/init.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/arch/nios2/mm/init.c b/arch/nios2/mm/init.c
-index 94efa3de3933..2cb666a65d9e 100644
---- a/arch/nios2/mm/init.c
-+++ b/arch/nios2/mm/init.c
-@@ -38,6 +38,11 @@
+diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
+index 9382d9a0ec78..67de93e7a685 100644
+--- a/arch/openrisc/mm/init.c
++++ b/arch/openrisc/mm/init.c
+@@ -39,15 +39,19 @@
  
- pgd_t *pgd_current;
+ int mem_init_done;
  
+-static void __init zone_sizes_init(void)
 +void __init arch_zone_limits_init(unsigned long *max_zone_pfns)
-+{
+ {
+-	unsigned long max_zone_pfn[MAX_NR_ZONES] = { 0 };
+-
+ 	/*
+ 	 * We use only ZONE_NORMAL
+ 	 */
+-	max_zone_pfn[ZONE_NORMAL] = max_low_pfn;
 +	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
 +}
 +
- /*
-  * paging_init() continues the virtual memory environment setup which
-  * was begun by the code in arch/head.S.
-@@ -51,8 +56,7 @@ void __init paging_init(void)
- 	pagetable_init();
- 	pgd_current = swapper_pg_dir;
++static void __init zone_sizes_init(void)
++{
++	unsigned long max_zone_pfn[MAX_NR_ZONES] = { 0 };
  
--	max_zone_pfn[ZONE_NORMAL] = max_low_pfn;
--
 +	arch_zone_limits_init(max_zone_pfn);
- 	/* pass the memory from the bootmem allocator to the main allocator */
  	free_area_init(max_zone_pfn);
+ }
  
 -- 
 2.51.0
