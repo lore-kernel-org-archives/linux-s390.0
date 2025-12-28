@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4DE62FC011;
-	Sun, 28 Dec 2025 12:46:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 572B02FFF90;
+	Sun, 28 Dec 2025 12:46:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766925960; cv=none; b=VxsgvQhrIBpXWil6myMVxw10VRGnLGUoDdxGpEZareII64YAXzlTjhbvhO377xa0sOnMVby/JVHRM7J4qB1vmlQ29B7BsLIqW2IllPK9TWrHn3g3ZcHec5KCdlHzwb2mOssa7u+F5iLFUte0XXxFmB7DQKvgfrVDYivsZr9bbgg=
+	t=1766925974; cv=none; b=uu2JUWROwcExr6dq23d/sNqSk9zoV+f5iITv9rbbW+SB6lF68Ojbxo3ZSeca+dWUE3bEJe/Drjzgnx9Axv49miu74SP4CZ4oROUSERlAVmY046w/LWsvjkqR9ULfKjQAbelh5bdXCoaCMN8gy1Qdt81Hwxgos8R6+AM40OrBg3o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766925960; c=relaxed/simple;
-	bh=zd5p0i2OlJkjqXnS1oV6Bjn1onLoj8/4tNSvugcI3Wg=;
+	s=arc-20240116; t=1766925974; c=relaxed/simple;
+	bh=RZ/DiLSy5d6B26KkgahmhRPqqfwFfapSaWjdzs9zbh4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BARecAqsPXPXl9tZXgwkdroT6dxdYmQe3sfj/J5/3BoCaWtJ/3M4Y7UR5zIiz5lCYQ6ejIjByyOJNLl0rC5en/HjRcI98nqjFzvHfkQ1jm3bVtcy+g9JzZh42IEoKoR8YWP4PUK3GY083mnixiFq4Q89ootgtBKHL+YhfG+nSzA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sfjQZ4Ma; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=eQf2E3dfP4eDsM0UG3maxlU9YEkGjQgQRWxjmrVdhhS7wx3pqb0PD0vXQPgdr5iY6Dn6MwsjYx7owBZHH0T1g9RadcNY+KEzBPBRfUj0ppcqhndpfohg4NicwKGREgno4sqZULR1V2n8zrYVCdQ6ME8BDvfuYMfl0QtdgJTaT1E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HP+mA+BZ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sfjQZ4Ma"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B37A8C19422;
-	Sun, 28 Dec 2025 12:45:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HP+mA+BZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B19A2C4CEFB;
+	Sun, 28 Dec 2025 12:46:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1766925960;
-	bh=zd5p0i2OlJkjqXnS1oV6Bjn1onLoj8/4tNSvugcI3Wg=;
+	s=k20201202; t=1766925974;
+	bh=RZ/DiLSy5d6B26KkgahmhRPqqfwFfapSaWjdzs9zbh4=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=sfjQZ4MaJbYdgWueLdXcBmDVU38OdK56kgVm+DeDe8fqmqjt1fCb6ErJZO9P1rIEt
-	 GRJeqLqBy0TlDwsKktTLsNK6umjRi12aUfepLg+2ZgTGR4HU1zTAT8cadFa1bbcPqk
-	 Hq02jezoVzB3ovYJaouQxYn4EhXEyd4p42VaB8FalDOHjiuDHtBmE8SXFzsb3Qybvs
-	 zT2EI02+yjpeL+u6PNj5jGcA5nKlMhyKwQknu5W+D7x1RuSUvncx+6LFSDf0i+7zI2
-	 faRLXte7BWgSIT3A3h5I1dHTU7z2ib/JULlm1VMjgFv4M9KdIUcHy4u9xMyfE/W3EK
-	 7OoAMM9Lvwh6Q==
+	b=HP+mA+BZahH8JKqMnF569bvDW7aEOc3ZV2OzZ8CeJV0pYGatK4hGWAcTJZtJKMc1l
+	 zQa5VLTkCrBWM5fbpERPbQ1eZnpBZhfcIVKsdvya2ruS9g4VKsLOvR4muWleMIXdla
+	 N4/GhIBuMW0Jb4/krptZ6sXqeyLQQT0F8Ku6SldAUhjleZjmJZC7Jv3LxQ7CPEH24Z
+	 z9gWkCFCTS/wqOBx+z47sRhJJDJM0wnI33NNyzKaPRXEoRxTuQveIyJMBXpW7feKtO
+	 92D+nORg+iwZw37Q98hv9ae8aJIO4Z062T9I/ZK+PBtq9Bt9jycEry4Sf1W/NPPXcE
+	 GjRe8TOVu5LkQ==
 From: Mike Rapoport <rppt@kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>
 Cc: Alex Shi <alexs@kernel.org>,
@@ -92,9 +92,9 @@ Cc: Alex Shi <alexs@kernel.org>,
 	linuxppc-dev@lists.ozlabs.org,
 	loongarch@lists.linux.dev,
 	sparclinux@vger.kernel.org
-Subject: [PATCH 24/28] mips: drop paging_init()
-Date: Sun, 28 Dec 2025 14:39:54 +0200
-Message-ID: <20251228124001.3624742-25-rppt@kernel.org>
+Subject: [PATCH 25/28] x86: don't reserve hugetlb memory in setup_arch()
+Date: Sun, 28 Dec 2025 14:39:55 +0200
+Message-ID: <20251228124001.3624742-26-rppt@kernel.org>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20251228124001.3624742-1-rppt@kernel.org>
 References: <20251228124001.3624742-1-rppt@kernel.org>
@@ -108,113 +108,33 @@ Content-Transfer-Encoding: 8bit
 
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
 
-All three variants of paging_init() on MIPS are wrappers for
-pagetable_init().
+Commit 665eaf313314 ("x86/setup: call hugetlb_bootmem_alloc early")
+added an early call to hugetlb_bootmem_alloc() to setup_arch() to allow
+HVO style pre-initialization of vmemmap on x86.
 
-Instead of having three identical wrappers, call pagetable_init() directly
-from setup_arch() and remove the unnecessary paging_init() functions.
+With the ordering of hugetlb reservation vs memory map initiaization
+sorted out in core MM this no longer needs to be an architecture specific
+quirk.
+
+Drop the call to hugetlb_bootmem_alloc() from x86::setup_arch().
 
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- arch/mips/include/asm/pgalloc.h  | 2 --
- arch/mips/include/asm/pgtable.h  | 2 +-
- arch/mips/kernel/setup.c         | 4 ++--
- arch/mips/loongson64/numa.c      | 5 -----
- arch/mips/mm/init.c              | 5 -----
- arch/mips/sgi-ip27/ip27-memory.c | 5 -----
- 6 files changed, 3 insertions(+), 20 deletions(-)
+ arch/x86/kernel/setup.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/mips/include/asm/pgalloc.h b/arch/mips/include/asm/pgalloc.h
-index 7a04381efa0b..6efd4a58bf10 100644
---- a/arch/mips/include/asm/pgalloc.h
-+++ b/arch/mips/include/asm/pgalloc.h
-@@ -101,6 +101,4 @@ static inline void p4d_populate(struct mm_struct *mm, p4d_t *p4d, pud_t *pud)
+diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
+index 1b2edd07a3e1..e2318fa9b1bb 100644
+--- a/arch/x86/kernel/setup.c
++++ b/arch/x86/kernel/setup.c
+@@ -1191,7 +1191,6 @@ void __init setup_arch(char **cmdline_p)
  
- #endif /* __PAGETABLE_PUD_FOLDED */
+ 	if (boot_cpu_has(X86_FEATURE_GBPAGES)) {
+ 		hugetlb_cma_reserve(PUD_SHIFT - PAGE_SHIFT);
+-		hugetlb_bootmem_alloc();
+ 	}
  
--extern void pagetable_init(void);
--
- #endif /* _ASM_PGALLOC_H */
-diff --git a/arch/mips/include/asm/pgtable.h b/arch/mips/include/asm/pgtable.h
-index 9c06a612d33a..fa7b935f947c 100644
---- a/arch/mips/include/asm/pgtable.h
-+++ b/arch/mips/include/asm/pgtable.h
-@@ -56,7 +56,7 @@ extern unsigned long zero_page_mask;
- 	(virt_to_page((void *)(empty_zero_page + (((unsigned long)(vaddr)) & zero_page_mask))))
- #define __HAVE_COLOR_ZERO_PAGE
- 
--extern void paging_init(void);
-+extern void pagetable_init(void);
- 
- /*
-  * Conversion functions: convert a page and protection to a page entry,
-diff --git a/arch/mips/kernel/setup.c b/arch/mips/kernel/setup.c
-index d36d89d01fa4..7622aad0f0b3 100644
---- a/arch/mips/kernel/setup.c
-+++ b/arch/mips/kernel/setup.c
-@@ -614,7 +614,7 @@ static void __init bootcmdline_init(void)
-  * kernel but generic memory management system is still entirely uninitialized.
-  *
-  *  o bootmem_init()
-- *  o paging_init()
-+ *  o pagetable_init()
-  *  o dma_contiguous_reserve()
-  *
-  * At this stage the bootmem allocator is ready to use.
-@@ -778,7 +778,7 @@ void __init setup_arch(char **cmdline_p)
- 	prefill_possible_map();
- 
- 	cpu_cache_init();
--	paging_init();
-+	pagetable_init();
- 
- 	memblock_dump_all();
- 
-diff --git a/arch/mips/loongson64/numa.c b/arch/mips/loongson64/numa.c
-index 2cd95020df08..16ffb32cca50 100644
---- a/arch/mips/loongson64/numa.c
-+++ b/arch/mips/loongson64/numa.c
-@@ -160,11 +160,6 @@ void __init arch_zone_limits_init(unsigned long *max_zone_pfns)
- 	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
- }
- 
--void __init paging_init(void)
--{
--	pagetable_init();
--}
--
- /* All PCI device belongs to logical Node-0 */
- int pcibus_to_node(struct pci_bus *bus)
- {
-diff --git a/arch/mips/mm/init.c b/arch/mips/mm/init.c
-index c479c42141c3..cd04200d0573 100644
---- a/arch/mips/mm/init.c
-+++ b/arch/mips/mm/init.c
-@@ -415,11 +415,6 @@ void __init arch_zone_limits_init(unsigned long *max_zone_pfns)
- #endif
- }
- 
--void __init paging_init(void)
--{
--	pagetable_init();
--}
--
- #ifdef CONFIG_64BIT
- static struct kcore_list kcore_kseg0;
- #endif
-diff --git a/arch/mips/sgi-ip27/ip27-memory.c b/arch/mips/sgi-ip27/ip27-memory.c
-index 082651facf4f..4317f5ae1fd1 100644
---- a/arch/mips/sgi-ip27/ip27-memory.c
-+++ b/arch/mips/sgi-ip27/ip27-memory.c
-@@ -410,8 +410,3 @@ void __init arch_zone_limits_init(unsigned long *max_zone_pfns)
- {
- 	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
- }
--
--void __init paging_init(void)
--{
--	pagetable_init();
--}
+ 	/*
 -- 
 2.51.0
 
