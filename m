@@ -1,132 +1,168 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 205E62BD5B2;
-	Tue, 30 Dec 2025 22:30:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E9D53B1B3
+	for <linux-s390@vger.kernel.org>; Wed, 31 Dec 2025 03:00:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767133812; cv=none; b=WtoAPjZA1NOEKBZpdIgTzJr+A2CcZkrRH9y0pxd3LJ/kGIcFXmebWRGSs2ifHW0RA/0WLWwIRyhX84Hr9VbRs7xOsX34S4BEb+7E3iFtapBnmQqyoPWfLYfL7Q2J8oLGf/SsGNlBdid6ds/DLkQWCVKYa8rOREsKMkFxQoALJMA=
+	t=1767150043; cv=none; b=RO3Q9d5oSbY4ESmsG3NHWpIZ0PeY8ZIs+3dZGfe7atXq7kC7qCA62ebv4HaSzY/+GS3e9ki9jrksKnY6awL7UBv2+ybWUB4uZcDNl4UXPA/iHPXz8zXGipIOnNp/pQDX8pljvBWTvdpAuqnu+HpHX8Rsnxz8Z5tmf68VpdVSpGQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767133812; c=relaxed/simple;
-	bh=yhNHEVyHwzbAGKw2k0mPXkKjytox3Wq0DZ/d3GYPKTA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FVfJC2vWJ6f5i6js4sLSyI0XlyjjAHaNnbLLWAvHuetS7Dy3abjarKLJz0LWswI4cMyzOa09/A5gXv5ptAqzhQvJQ+tCBK5MG2h+S3SjszjfMe3azU5auDFT9B1oyAInM3tCHJ2g6mukmnZE62AGYrQHmBQnjfNZ2Pcg5x0G9wc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UsKCZIUo; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1767150043; c=relaxed/simple;
+	bh=dHwD+0A9amhmH8NdE47S8FVYcVASPYZHLixjaKOa6oE=;
+	h=From:To:Cc:Subject:Date:Message-Id; b=SiT5tuSu3NsS8t63R5tzjPUgSDNfDQ7yiz/h7DSQVM80dbLmaO4K8K1d0UPMnHTlojyLfZ/YgxPqWvyfpHdRz+HKlIkgS7+mUPVLjFhnYGYso3DThhzrYq3x2jR+VpF4eNYZQfS9J3E60SZHhP8CjaRXRQXvYOzv20Bnjj4ArmU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VogUHt8q; arc=none smtp.client-ip=209.85.218.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UsKCZIUo"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5BUCFUfB032018;
-	Tue, 30 Dec 2025 22:29:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ZQE+9A
-	1MhhESPJ5j/+v5z7o286UmQFi/EUHQ2Fe0TP0=; b=UsKCZIUo+8rbov/I+UL4X+
-	p4QOGdwSNphepR4ecl5z9GggHSNhOORc6PPM4GkSzUUR5JVVd+6th2e5g06Cpppz
-	p/1NzfZF5+DhZCe0CrgX7aI2GeRmCGgKOfZwO7QP5Wos9mLZi9o/ywcGbDpyhENr
-	C/drrUfYjmRD7Z1WiqX6xEoDEIM50BNunFh0FA77PB1QcyYn/G/jsmAXKuK5WqVH
-	Ly0WFlsF8UkvB+2KUMzIZu1WRo14/DUIVMPtkvxHR8KoXn+G7b3qSbVgFX6MtI4h
-	Cw/WIvjhqMGzg/VWAxUQKSqhj5aXj1ds6KH8sBGj4yoOd1huKPvJgnt74/3jdAXQ
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bb46xhs98-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Dec 2025 22:29:59 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5BUJPT5c026066;
-	Tue, 30 Dec 2025 22:29:58 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4batsnc0h9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Dec 2025 22:29:58 +0000
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5BUMTue526346002
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 30 Dec 2025 22:29:56 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C5E4758059;
-	Tue, 30 Dec 2025 22:29:56 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0178958058;
-	Tue, 30 Dec 2025 22:29:56 +0000 (GMT)
-Received: from [9.61.11.78] (unknown [9.61.11.78])
-	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 30 Dec 2025 22:29:55 +0000 (GMT)
-Message-ID: <670091f4-0187-4350-939a-bd0040e5edd7@linux.ibm.com>
-Date: Tue, 30 Dec 2025 16:29:55 -0600
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VogUHt8q"
+Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-b79ea617f55so1981901466b.3
+        for <linux-s390@vger.kernel.org>; Tue, 30 Dec 2025 19:00:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1767150040; x=1767754840; darn=vger.kernel.org;
+        h=message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=MMZvWbbIBBmy2hVTByTqVU/28wHL8fmh5GRIKAADEPk=;
+        b=VogUHt8qE0JG0+ZR+BZdGNgTM0lQ0RbLlihyPCCYyRa6Owo4AXogDmTcf8mEtFZpl0
+         gmT/ufgX+s+y07qhWiIieLOWwgJO9dJy+hnLR3R1v7oCU9rzZscMgwvOoydNVvAmD0Mx
+         Uh7lcHXn5neVC8qi+hcG/amzx9Lzvq4ydVsfNbFPASHML0VvMSlrebElHAt6ZHtIMHiv
+         oUISMCngwToQqQQlQyk51G3y1oPBeBbjOhet6xya4KaC1+c8hrJFvtBBrWFHi4gvpGvp
+         cFVzVU7ukzmjwtwMCLBLlEkdEluOTjzhlIKOhjpOj9UUSZoeqx7tSuuByO8T54aN/exT
+         TtEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1767150040; x=1767754840;
+        h=message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=MMZvWbbIBBmy2hVTByTqVU/28wHL8fmh5GRIKAADEPk=;
+        b=nvnbtBA4SnBPbnp/UQtLJvOWq0rOQWvpSXj8KJAT5UNmZI4zxEUgayqdVKbxXCzhS5
+         0PrJJhCZ7PT2FgMle3N6SvI3TiJsZMp9RbYWMSWrDNZqFFi/1+nr7xRqU6BDzX9VlMi2
+         2Z/KAJScxt0jj9zdI9yeQziukUcTNnvNzsVhehWwhBXNWCOV5rO3bz5ThNSfoyM+xUZ8
+         86OF8ZB9HgTOQjZPAUGE1vc7D4Pdl7iq3E5hLBZHqMdWqsWV3DaaUK2pjLbQ4dPLZHqJ
+         1Gnljw+CoQyTrsSxaJad7Kcg3AKKhJ9NTuOtm4U0GGa9w3cRWtjKp64sYiRSAVIt+QMA
+         RMKw==
+X-Forwarded-Encrypted: i=1; AJvYcCXxlEvhXzHc1eIYZWUiyllpG4oV+SovPkCq3M/84n+ACjbkqpNUakzx47pXjYnOrjCL+ZZZy3IiKJiJ@vger.kernel.org
+X-Gm-Message-State: AOJu0YyTXGQfvV658E9GG4+ogkTNBZXeRZQ7tgwYx0IT7tT2skNRJ/5o
+	ka7G/bEivIjrhTSGC6h8m1E06vP9f56HxAEB1UBWGeXTIZR3PNlTm3kn
+X-Gm-Gg: AY/fxX7EwZ3673oPyG2Id3S4P0FqnxpSqQuz4xfgwciJ1r2Qusapk2bpM/9rwbjvG4z
+	6joexc6WpueQLOqT17EUp5yG/6L62zePbfKq+pWMoBUx04SHDIRPRzsRsc6wwFaI4d3Gx38OwJo
+	ufueobaIHeaJt7jKt442lSo+2LhdWRbPntJGE00oBsV7Uf+aIWYyjBGTGjjwcFB1/nOBnpFVOP9
+	KXZHGI+M8eH43Ar/1aibzOxmVDCG8ICJUTHk2t9DSc9GQIV4F0gZQjQftJrVwvjqjjQDl6U6ymc
+	5Q+/aJA9O8+F7NbZ4eCNI5ejgKxAA24erFLgzp9W4IZ+aAYv6c3k26g4kpQEvrYMT2oAvoAGoXI
+	4Ym3r8TlKOBP6t2VHlzkvHjbAtkQyjxygCJJvslPN5OFGLyey+XdI3HVUpyJBYTBmtlTY4kJnyD
+	0dZnj5YyJLWw==
+X-Google-Smtp-Source: AGHT+IF8S0Qg+GmPFjjVlu2NlHvua7TCiotJg06/+N0u+q+yODVpwkPNVE7It1PwxVV5gykBDT11FQ==
+X-Received: by 2002:a17:907:78b:b0:b83:975:f8a5 with SMTP id a640c23a62f3a-b830976511cmr2325146266b.40.1767150039609;
+        Tue, 30 Dec 2025 19:00:39 -0800 (PST)
+Received: from localhost ([185.92.221.13])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8037a6050dsm3865880566b.9.2025.12.30.19.00.39
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 30 Dec 2025 19:00:39 -0800 (PST)
+From: Wei Yang <richard.weiyang@gmail.com>
+To: will@kernel.org,
+	aneesh.kumar@kernel.org,
+	akpm@linux-foundation.org,
+	npiggin@gmail.com,
+	peterz@infradead.org,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	svens@linux.ibm.com,
+	arnd@arndb.de
+Cc: linux-arch@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-s390@vger.kernel.org,
+	Wei Yang <richard.weiyang@gmail.com>,
+	"David Hildenbrand (Red Hat)" <david@kernel.org>
+Subject: [PATCH] mm/mmu_gather: remove @delay_remap of __tlb_remove_page_size()
+Date: Wed, 31 Dec 2025 03:00:26 +0000
+Message-Id: <20251231030026.15938-1-richard.weiyang@gmail.com>
+X-Mailer: git-send-email 2.11.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] s390/ap: fix typo in function name reference
-To: Julia Lawall <Julia.Lawall@inria.fr>,
-        Harald Freudenberger <freude@linux.ibm.com>
-Cc: yunbolyu@smu.edu.sg, kexinsun@smail.nju.edu.cn, ratnadiraw@smu.edu.sg,
-        xutong.ma@inria.fr, Holger Dengler <dengler@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20251230154239.98756-1-Julia.Lawall@inria.fr>
-Content-Language: en-US
-From: Jimmy Brisson <jbrisson@linux.ibm.com>
-In-Reply-To: <20251230154239.98756-1-Julia.Lawall@inria.fr>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjMwMDE5OSBTYWx0ZWRfX6n21sSCfA2RD
- BfCnV4wg0Bg4c5+/ElhYqw9+DL5qmBVew2Nj8Ktosc8OwfgoFlL980OGDxIHl+7PzAIK8QGzbSB
- 1/Uhf9ZeTVNkiL/Jcvxy/XuapnZxo5mIb1Yq8vkkMkLxdCf1WCMPMGuGl2eEav2y1VJpzyqdjbo
- WhQ/PpfuQYkAWcH5U+thcEk7HTiEAD+/zyXwfKxpw4ZsFl+x61uQRBqke3SMMu13eFulsHDpWxo
- zEK+Ex3S9NuKgfuktr8aK9RsqOUK0Xynn/M9oRW4ZrqPv92pK+ocy1JViNCa5QlUWri1G3juboX
- PGqg2ya6dsBM0N5xTPo/0IxJr8XHVvObMLZyzCejhdz/EjZOBHM9FLb8OunkV+NiAYEYlUF2ye2
- 0rK2z0fsH8gg/nTLALjN1bvjvG8TlmLAWN5H7mbASYDJIURf1zkQl7PQ2BGJWdZdtZa87fR5V/a
- Lk/47csBNEuZnxq5ckw==
-X-Proofpoint-ORIG-GUID: e8e4GrB7xCvvjdq1VLucg9awApiTjk36
-X-Authority-Analysis: v=2.4 cv=L7AQguT8 c=1 sm=1 tr=0 ts=69545267 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=ULJ_M-2MmIJxTCu8-3gA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: e8e4GrB7xCvvjdq1VLucg9awApiTjk36
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-12-30_04,2025-12-30_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 phishscore=0 suspectscore=0 lowpriorityscore=0 spamscore=0
- impostorscore=0 priorityscore=1501 malwarescore=0 clxscore=1011 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2512120000 definitions=main-2512300199
 
-On 12/30/25 9:42 AM, Julia Lawall wrote:
-> Add missing s into ap_intructions_available.
-> 
-> Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
-> 
-> ---
->   arch/s390/include/asm/ap.h |    2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/include/asm/ap.h b/arch/s390/include/asm/ap.h
-> index b24459f692fa..3b95c6531a67 100644
-> --- a/arch/s390/include/asm/ap.h
-> +++ b/arch/s390/include/asm/ap.h
-> @@ -78,7 +78,7 @@ union ap_queue_status_reg {
->   };
->   
->   /**
-> - * ap_intructions_available() - Test if AP instructions are available.
-> + * ap_instructions_available() - Test if AP instructions are available.
->    *
->    * Returns true if the AP instructions are installed, otherwise false.
->    */
-> 
-> 
+Functioin __tlb_remove_page_size() is only used in
+tlb_remove_page_size() with @delay_remap set to false and it is passed
+directly to __tlb_remove_folio_pages_size().
 
-Looks great, Thanks
+Remove @delay_remap of __tlb_remove_page_size() and call
+__tlb_remove_folio_pages_size() with false @delay_remap.
 
-Reviewed-by: Jimmy Brisson <jbrisson@linux.ibm.com>
+Signed-off-by: Wei Yang <richard.weiyang@gmail.com>
+Cc: "David Hildenbrand (Red Hat)" <david@kernel.org>
+---
+ arch/s390/include/asm/tlb.h | 6 ++----
+ include/asm-generic/tlb.h   | 5 ++---
+ mm/mmu_gather.c             | 5 ++---
+ 3 files changed, 6 insertions(+), 10 deletions(-)
+
+diff --git a/arch/s390/include/asm/tlb.h b/arch/s390/include/asm/tlb.h
+index 1e50f6f1ad9d..0b7b4df94b24 100644
+--- a/arch/s390/include/asm/tlb.h
++++ b/arch/s390/include/asm/tlb.h
+@@ -24,7 +24,7 @@
+ 
+ static inline void tlb_flush(struct mmu_gather *tlb);
+ static inline bool __tlb_remove_page_size(struct mmu_gather *tlb,
+-		struct page *page, bool delay_rmap, int page_size);
++		struct page *page, int page_size);
+ static inline bool __tlb_remove_folio_pages(struct mmu_gather *tlb,
+ 		struct page *page, unsigned int nr_pages, bool delay_rmap);
+ 
+@@ -46,10 +46,8 @@ static inline bool __tlb_remove_folio_pages(struct mmu_gather *tlb,
+  * s390 doesn't delay rmap removal.
+  */
+ static inline bool __tlb_remove_page_size(struct mmu_gather *tlb,
+-		struct page *page, bool delay_rmap, int page_size)
++		struct page *page, int page_size)
+ {
+-	VM_WARN_ON_ONCE(delay_rmap);
+-
+ 	free_folio_and_swap_cache(page_folio(page));
+ 	return false;
+ }
+diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
+index 4d679d2a206b..3975f7d11553 100644
+--- a/include/asm-generic/tlb.h
++++ b/include/asm-generic/tlb.h
+@@ -287,8 +287,7 @@ struct mmu_gather_batch {
+  */
+ #define MAX_GATHER_BATCH_COUNT	(10000UL/MAX_GATHER_BATCH)
+ 
+-extern bool __tlb_remove_page_size(struct mmu_gather *tlb, struct page *page,
+-		bool delay_rmap, int page_size);
++extern bool __tlb_remove_page_size(struct mmu_gather *tlb, struct page *page, int page_size);
+ bool __tlb_remove_folio_pages(struct mmu_gather *tlb, struct page *page,
+ 		unsigned int nr_pages, bool delay_rmap);
+ 
+@@ -510,7 +509,7 @@ static inline void tlb_flush_mmu_tlbonly(struct mmu_gather *tlb)
+ static inline void tlb_remove_page_size(struct mmu_gather *tlb,
+ 					struct page *page, int page_size)
+ {
+-	if (__tlb_remove_page_size(tlb, page, false, page_size))
++	if (__tlb_remove_page_size(tlb, page, page_size))
+ 		tlb_flush_mmu(tlb);
+ }
+ 
+diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
+index 7468ec388455..2faa23d7f8d4 100644
+--- a/mm/mmu_gather.c
++++ b/mm/mmu_gather.c
+@@ -210,10 +210,9 @@ bool __tlb_remove_folio_pages(struct mmu_gather *tlb, struct page *page,
+ 					     PAGE_SIZE);
+ }
+ 
+-bool __tlb_remove_page_size(struct mmu_gather *tlb, struct page *page,
+-		bool delay_rmap, int page_size)
++bool __tlb_remove_page_size(struct mmu_gather *tlb, struct page *page, int page_size)
+ {
+-	return __tlb_remove_folio_pages_size(tlb, page, 1, delay_rmap, page_size);
++	return __tlb_remove_folio_pages_size(tlb, page, 1, false, page_size);
+ }
+ 
+ #endif /* MMU_GATHER_NO_GATHER */
+-- 
+2.34.1
+
