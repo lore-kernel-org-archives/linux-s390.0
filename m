@@ -1,168 +1,176 @@
-Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
+Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E9D53B1B3
-	for <linux-s390@vger.kernel.org>; Wed, 31 Dec 2025 03:00:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2E351B81D3
+	for <linux-s390@vger.kernel.org>; Wed, 31 Dec 2025 15:49:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767150043; cv=none; b=RO3Q9d5oSbY4ESmsG3NHWpIZ0PeY8ZIs+3dZGfe7atXq7kC7qCA62ebv4HaSzY/+GS3e9ki9jrksKnY6awL7UBv2+ybWUB4uZcDNl4UXPA/iHPXz8zXGipIOnNp/pQDX8pljvBWTvdpAuqnu+HpHX8Rsnxz8Z5tmf68VpdVSpGQ=
+	t=1767196187; cv=none; b=pWLzTzc2jEPitmvVTSt7EXBqTLyAvYQ9ukt0B8HXM0F3g2rjr99QYCw5wdB8K3TAv3CJWcwTaYcFegr24f6fQzyyDCIi5GiPG7acw5nz4aAZuacX9J3eBz6SlJbSCix5WsyNBe8mreHAfEHtJEmpBjQVdwtIQ+yC+4ziaM9L2f4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767150043; c=relaxed/simple;
-	bh=dHwD+0A9amhmH8NdE47S8FVYcVASPYZHLixjaKOa6oE=;
-	h=From:To:Cc:Subject:Date:Message-Id; b=SiT5tuSu3NsS8t63R5tzjPUgSDNfDQ7yiz/h7DSQVM80dbLmaO4K8K1d0UPMnHTlojyLfZ/YgxPqWvyfpHdRz+HKlIkgS7+mUPVLjFhnYGYso3DThhzrYq3x2jR+VpF4eNYZQfS9J3E60SZHhP8CjaRXRQXvYOzv20Bnjj4ArmU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VogUHt8q; arc=none smtp.client-ip=209.85.218.54
+	s=arc-20240116; t=1767196187; c=relaxed/simple;
+	bh=3O2pKoi3Hwirhh0+J04ChOJnDVUiP3w0hlE8zKMOybs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=CkrMlli2FL76Q7PGpGsR4MK8Wn6DfO2Y5wO1KUX38a3N3+NARWC1wHt+Esy899zW/famE2bDlVYxu2e87ljcJuSH6Mk5kWTAUb4O23i4uCj7w8a4iYv4RR9z0ROpImJieWpRZdqzkuTzVbz/0WDLgDWa9PI6yGwOIF+7Pte5Cv4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=k2mBtzVR; arc=none smtp.client-ip=209.85.208.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VogUHt8q"
-Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-b79ea617f55so1981901466b.3
-        for <linux-s390@vger.kernel.org>; Tue, 30 Dec 2025 19:00:41 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="k2mBtzVR"
+Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-649e28dccadso18458980a12.3
+        for <linux-s390@vger.kernel.org>; Wed, 31 Dec 2025 07:49:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1767150040; x=1767754840; darn=vger.kernel.org;
-        h=message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1767196183; x=1767800983; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=MMZvWbbIBBmy2hVTByTqVU/28wHL8fmh5GRIKAADEPk=;
-        b=VogUHt8qE0JG0+ZR+BZdGNgTM0lQ0RbLlihyPCCYyRa6Owo4AXogDmTcf8mEtFZpl0
-         gmT/ufgX+s+y07qhWiIieLOWwgJO9dJy+hnLR3R1v7oCU9rzZscMgwvOoydNVvAmD0Mx
-         Uh7lcHXn5neVC8qi+hcG/amzx9Lzvq4ydVsfNbFPASHML0VvMSlrebElHAt6ZHtIMHiv
-         oUISMCngwToQqQQlQyk51G3y1oPBeBbjOhet6xya4KaC1+c8hrJFvtBBrWFHi4gvpGvp
-         cFVzVU7ukzmjwtwMCLBLlEkdEluOTjzhlIKOhjpOj9UUSZoeqx7tSuuByO8T54aN/exT
-         TtEA==
+        bh=H6r7yw9l553CBnZ0Oq6/Kvj3e3aIbXAlTRdm8Qc8sow=;
+        b=k2mBtzVRSH1v+FGKxeSAlmrpoWJXHRrGk48w1hRSCCe+VJ02bBPiRZANqhLbXR2hOY
+         21EyUlifjsLEM1xVf7OaJZ4iu4dIVgA20ZoP7Cq8CpTWrjZWh1QDQ1BWcQjTafZgZEqG
+         x6ytaO0jlKRb6Mf+R/ITTbD0YqfAkioqr0gj4YHlF4ga4ax0mckcgaZE4aljhudBNybJ
+         KOKmnhZiYOw4i8T9WFUm2qI08zlv1FS9OSrj2KblI4Ym88f7dxhWmAhoUlxE0sjMDeCY
+         8AIReZEkVs2R+Y/ApvqNJsTv5vZot/ZOaI2Hk/ccXAtkHRBXtm9S44o2QsdjPbWS2YRi
+         C5Qw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767150040; x=1767754840;
-        h=message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20230601; t=1767196183; x=1767800983;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=MMZvWbbIBBmy2hVTByTqVU/28wHL8fmh5GRIKAADEPk=;
-        b=nvnbtBA4SnBPbnp/UQtLJvOWq0rOQWvpSXj8KJAT5UNmZI4zxEUgayqdVKbxXCzhS5
-         0PrJJhCZ7PT2FgMle3N6SvI3TiJsZMp9RbYWMSWrDNZqFFi/1+nr7xRqU6BDzX9VlMi2
-         2Z/KAJScxt0jj9zdI9yeQziukUcTNnvNzsVhehWwhBXNWCOV5rO3bz5ThNSfoyM+xUZ8
-         86OF8ZB9HgTOQjZPAUGE1vc7D4Pdl7iq3E5hLBZHqMdWqsWV3DaaUK2pjLbQ4dPLZHqJ
-         1Gnljw+CoQyTrsSxaJad7Kcg3AKKhJ9NTuOtm4U0GGa9w3cRWtjKp64sYiRSAVIt+QMA
-         RMKw==
-X-Forwarded-Encrypted: i=1; AJvYcCXxlEvhXzHc1eIYZWUiyllpG4oV+SovPkCq3M/84n+ACjbkqpNUakzx47pXjYnOrjCL+ZZZy3IiKJiJ@vger.kernel.org
-X-Gm-Message-State: AOJu0YyTXGQfvV658E9GG4+ogkTNBZXeRZQ7tgwYx0IT7tT2skNRJ/5o
-	ka7G/bEivIjrhTSGC6h8m1E06vP9f56HxAEB1UBWGeXTIZR3PNlTm3kn
-X-Gm-Gg: AY/fxX7EwZ3673oPyG2Id3S4P0FqnxpSqQuz4xfgwciJ1r2Qusapk2bpM/9rwbjvG4z
-	6joexc6WpueQLOqT17EUp5yG/6L62zePbfKq+pWMoBUx04SHDIRPRzsRsc6wwFaI4d3Gx38OwJo
-	ufueobaIHeaJt7jKt442lSo+2LhdWRbPntJGE00oBsV7Uf+aIWYyjBGTGjjwcFB1/nOBnpFVOP9
-	KXZHGI+M8eH43Ar/1aibzOxmVDCG8ICJUTHk2t9DSc9GQIV4F0gZQjQftJrVwvjqjjQDl6U6ymc
-	5Q+/aJA9O8+F7NbZ4eCNI5ejgKxAA24erFLgzp9W4IZ+aAYv6c3k26g4kpQEvrYMT2oAvoAGoXI
-	4Ym3r8TlKOBP6t2VHlzkvHjbAtkQyjxygCJJvslPN5OFGLyey+XdI3HVUpyJBYTBmtlTY4kJnyD
-	0dZnj5YyJLWw==
-X-Google-Smtp-Source: AGHT+IF8S0Qg+GmPFjjVlu2NlHvua7TCiotJg06/+N0u+q+yODVpwkPNVE7It1PwxVV5gykBDT11FQ==
-X-Received: by 2002:a17:907:78b:b0:b83:975:f8a5 with SMTP id a640c23a62f3a-b830976511cmr2325146266b.40.1767150039609;
-        Tue, 30 Dec 2025 19:00:39 -0800 (PST)
-Received: from localhost ([185.92.221.13])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8037a6050dsm3865880566b.9.2025.12.30.19.00.39
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 30 Dec 2025 19:00:39 -0800 (PST)
-From: Wei Yang <richard.weiyang@gmail.com>
-To: will@kernel.org,
-	aneesh.kumar@kernel.org,
-	akpm@linux-foundation.org,
-	npiggin@gmail.com,
-	peterz@infradead.org,
-	hca@linux.ibm.com,
-	gor@linux.ibm.com,
-	agordeev@linux.ibm.com,
-	borntraeger@linux.ibm.com,
-	svens@linux.ibm.com,
-	arnd@arndb.de
-Cc: linux-arch@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-s390@vger.kernel.org,
-	Wei Yang <richard.weiyang@gmail.com>,
-	"David Hildenbrand (Red Hat)" <david@kernel.org>
-Subject: [PATCH] mm/mmu_gather: remove @delay_remap of __tlb_remove_page_size()
-Date: Wed, 31 Dec 2025 03:00:26 +0000
-Message-Id: <20251231030026.15938-1-richard.weiyang@gmail.com>
-X-Mailer: git-send-email 2.11.0
+        bh=H6r7yw9l553CBnZ0Oq6/Kvj3e3aIbXAlTRdm8Qc8sow=;
+        b=eaGMg+RcT4y33k2vGykvv3mdJDUTZxIuDUfnh0YLa10+n8RJyVrHuVul9JmQOUQBve
+         gFlughc/bqh9oxqFofFJWFpS1UDWz7EcLLywZuEDmC2clP+vx8NKOfjgJ9D+gnGvt2ld
+         IBFD51em08VVefKZRT/c/lUvxPZ9GeSVEWTTD+KS9l9rrY3betio+gi3WtOpyJkzwSWH
+         aBu7X85FK2KrK+7QQKyVD3DKTNMtbeQqXjBMxcV9FWz0tqX9IciaSRFFE+L8SfqwPyxQ
+         slriyx5J2LrMtMAU33kdzIt1X/v0ZD3qvVCJf5GFyCRCh6ENvwFoJ6VlVcUF76M5koys
+         bt+Q==
+X-Forwarded-Encrypted: i=1; AJvYcCXsRrZfkUOaCQ9qcTGlDRrYiiPm3vqCny5FvJS7WQUs2cOS6cTVVmRpnyZfuod0eXLZMbvT42tzJd9J@vger.kernel.org
+X-Gm-Message-State: AOJu0YyF1b2sYv9Upe8Dj/D+SZgdabKi6IDzVxbe9cY92IzssxOgt1b2
+	QZGGPJB/khKUBdhBVgyLOoQO0jL3U0nx3GougB2TSd5qC2UHaFonwupPb+Xz6ycyBrXsFQ+SkRs
+	I/py7XlyDLA1HfPyLUbp+5GQQ0cophxY=
+X-Gm-Gg: AY/fxX6zMtZfEFFqA7ZkS+FmkvueATVPp1WCZO8eSGMoqaQnJ7h3AR+qTAo/I+Sgn1n
+	pliplHKmKYK567tV2q3zoCcoS4L9XtElzJ7WUYcQPcluEzFmWp5ZFc2Ff9QPp6Sx20rdHItaEh1
+	qbkdlj4lv2xH4TkJPEa30p2jYl1xzvdExLJ8ciKdAm45tvczxwq6ytG6UgOvODDD9cQ0sMnlFhm
+	K3Doi/8L1mD8H9dY4JEJfUIvXSw2SJpmHAOiUA8nPdZyscxzdAefeOiC8Ux8BiuLngZCGvq
+X-Google-Smtp-Source: AGHT+IFWPXcZKnGq0Krk9SV9S7c2h0pNtpTmEWv1Brc1vDiv5zIRm5JUQPWxix5qBNEZM9fT8eFcchz/mGnlgfTZ7QQ=
+X-Received: by 2002:a05:6402:430d:b0:64d:170:7976 with SMTP id
+ 4fb4d7f45d1cf-64d01707bacmr33060451a12.16.1767196183052; Wed, 31 Dec 2025
+ 07:49:43 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20251228124001.3624742-1-rppt@kernel.org> <20251228124001.3624742-2-rppt@kernel.org>
+In-Reply-To: <20251228124001.3624742-2-rppt@kernel.org>
+From: Magnus Lindholm <linmag7@gmail.com>
+Date: Wed, 31 Dec 2025 16:49:31 +0100
+X-Gm-Features: AQt7F2rayRHt2K_8t_heYN2h4Fxse0t-QPEGBzoKWlAlrWu2fr6sWsAyLE9oYEU
+Message-ID: <CA+=Fv5TDfwnu7Qf2y=PLWWN1EvNpNbr8habnTO7R4_caAySDzw@mail.gmail.com>
+Subject: Re: [PATCH 01/28] alpha: introduce arch_zone_limits_init()
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Alex Shi <alexs@kernel.org>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Andreas Larsson <andreas@gaisler.com>, 
+	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>, 
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
+	"David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	David Hildenbrand <david@kernel.org>, Dinh Nguyen <dinguyen@kernel.org>, 
+	Geert Uytterhoeven <geert@linux-m68k.org>, Guo Ren <guoren@kernel.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Johannes Berg <johannes@sipsolutions.net>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Jonathan Corbet <corbet@lwn.net>, 
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, 
+	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Michal Hocko <mhocko@suse.com>, Michal Simek <monstr@monstr.eu>, 
+	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Pratyush Yadav <pratyush@kernel.org>, 
+	Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>, 
+	Stafford Horne <shorne@gmail.com>, Suren Baghdasaryan <surenb@google.com>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Thomas Gleixner <tglx@linutronix.de>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>, Vlastimil Babka <vbabka@suse.cz>, 
+	Will Deacon <will@kernel.org>, x86@kernel.org, linux-alpha@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, 
+	linux-cxl@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
+	linux-mm@kvack.org, linux-openrisc@vger.kernel.org, 
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
+	linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org, 
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, 
+	sparclinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Functioin __tlb_remove_page_size() is only used in
-tlb_remove_page_size() with @delay_remap set to false and it is passed
-directly to __tlb_remove_folio_pages_size().
+On Sun, Dec 28, 2025 at 1:40=E2=80=AFPM Mike Rapoport <rppt@kernel.org> wro=
+te:
+>
+> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+>
+> Move calculations of zone limits to a dedicated arch_zone_limits_init()
+> function.
+>
+> Later MM core will use this function as an architecture specific callback
+> during nodes and zones initialization and thus there won't be a need to
+> call free_area_init() from every architecture.
+>
+> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> ---
+>  arch/alpha/mm/init.c | 15 ++++++++++-----
+>  include/linux/mm.h   |  1 +
+>  2 files changed, 11 insertions(+), 5 deletions(-)
+>
+> diff --git a/arch/alpha/mm/init.c b/arch/alpha/mm/init.c
+> index 4c5ab9cd8a0a..cd0cb1abde5f 100644
+> --- a/arch/alpha/mm/init.c
+> +++ b/arch/alpha/mm/init.c
+> @@ -208,12 +208,8 @@ callback_init(void * kernel_end)
+>         return kernel_end;
+>  }
+>
+> -/*
+> - * paging_init() sets up the memory map.
+> - */
+> -void __init paging_init(void)
+> +void __init arch_zone_limits_init(unsigned long *max_zone_pfn)
+>  {
+> -       unsigned long max_zone_pfn[MAX_NR_ZONES] =3D {0, };
+>         unsigned long dma_pfn;
+>
+>         dma_pfn =3D virt_to_phys((char *)MAX_DMA_ADDRESS) >> PAGE_SHIFT;
+> @@ -221,8 +217,17 @@ void __init paging_init(void)
+>
+>         max_zone_pfn[ZONE_DMA] =3D dma_pfn;
+>         max_zone_pfn[ZONE_NORMAL] =3D max_pfn;
+> +}
+> +
+> +/*
+> + * paging_init() sets up the memory map.
+> + */
+> +void __init paging_init(void)
+> +{
+> +       unsigned long max_zone_pfn[MAX_NR_ZONES] =3D {0, };
+>
+>         /* Initialize mem_map[].  */
+> +       arch_zone_limits_init(max_zone_pfn);
+>         free_area_init(max_zone_pfn);
+>
+>         /* Initialize the kernel's ZERO_PGE. */
+> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> index 15076261d0c2..628c0e0ac313 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -3552,6 +3552,7 @@ static inline unsigned long get_num_physpages(void)
+>   * free_area_init(max_zone_pfns);
+>   */
+>  void free_area_init(unsigned long *max_zone_pfn);
+> +void arch_zone_limits_init(unsigned long *max_zone_pfn);
+>  unsigned long node_map_pfn_alignment(void);
+>  extern unsigned long absent_pages_in_range(unsigned long start_pfn,
+>                                                 unsigned long end_pfn);
+> --
+> 2.51.0
+>
 
-Remove @delay_remap of __tlb_remove_page_size() and call
-__tlb_remove_folio_pages_size() with false @delay_remap.
+This looks fine to me from the Alpha side.
 
-Signed-off-by: Wei Yang <richard.weiyang@gmail.com>
-Cc: "David Hildenbrand (Red Hat)" <david@kernel.org>
----
- arch/s390/include/asm/tlb.h | 6 ++----
- include/asm-generic/tlb.h   | 5 ++---
- mm/mmu_gather.c             | 5 ++---
- 3 files changed, 6 insertions(+), 10 deletions(-)
-
-diff --git a/arch/s390/include/asm/tlb.h b/arch/s390/include/asm/tlb.h
-index 1e50f6f1ad9d..0b7b4df94b24 100644
---- a/arch/s390/include/asm/tlb.h
-+++ b/arch/s390/include/asm/tlb.h
-@@ -24,7 +24,7 @@
- 
- static inline void tlb_flush(struct mmu_gather *tlb);
- static inline bool __tlb_remove_page_size(struct mmu_gather *tlb,
--		struct page *page, bool delay_rmap, int page_size);
-+		struct page *page, int page_size);
- static inline bool __tlb_remove_folio_pages(struct mmu_gather *tlb,
- 		struct page *page, unsigned int nr_pages, bool delay_rmap);
- 
-@@ -46,10 +46,8 @@ static inline bool __tlb_remove_folio_pages(struct mmu_gather *tlb,
-  * s390 doesn't delay rmap removal.
-  */
- static inline bool __tlb_remove_page_size(struct mmu_gather *tlb,
--		struct page *page, bool delay_rmap, int page_size)
-+		struct page *page, int page_size)
- {
--	VM_WARN_ON_ONCE(delay_rmap);
--
- 	free_folio_and_swap_cache(page_folio(page));
- 	return false;
- }
-diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
-index 4d679d2a206b..3975f7d11553 100644
---- a/include/asm-generic/tlb.h
-+++ b/include/asm-generic/tlb.h
-@@ -287,8 +287,7 @@ struct mmu_gather_batch {
-  */
- #define MAX_GATHER_BATCH_COUNT	(10000UL/MAX_GATHER_BATCH)
- 
--extern bool __tlb_remove_page_size(struct mmu_gather *tlb, struct page *page,
--		bool delay_rmap, int page_size);
-+extern bool __tlb_remove_page_size(struct mmu_gather *tlb, struct page *page, int page_size);
- bool __tlb_remove_folio_pages(struct mmu_gather *tlb, struct page *page,
- 		unsigned int nr_pages, bool delay_rmap);
- 
-@@ -510,7 +509,7 @@ static inline void tlb_flush_mmu_tlbonly(struct mmu_gather *tlb)
- static inline void tlb_remove_page_size(struct mmu_gather *tlb,
- 					struct page *page, int page_size)
- {
--	if (__tlb_remove_page_size(tlb, page, false, page_size))
-+	if (__tlb_remove_page_size(tlb, page, page_size))
- 		tlb_flush_mmu(tlb);
- }
- 
-diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
-index 7468ec388455..2faa23d7f8d4 100644
---- a/mm/mmu_gather.c
-+++ b/mm/mmu_gather.c
-@@ -210,10 +210,9 @@ bool __tlb_remove_folio_pages(struct mmu_gather *tlb, struct page *page,
- 					     PAGE_SIZE);
- }
- 
--bool __tlb_remove_page_size(struct mmu_gather *tlb, struct page *page,
--		bool delay_rmap, int page_size)
-+bool __tlb_remove_page_size(struct mmu_gather *tlb, struct page *page, int page_size)
- {
--	return __tlb_remove_folio_pages_size(tlb, page, 1, delay_rmap, page_size);
-+	return __tlb_remove_folio_pages_size(tlb, page, 1, false, page_size);
- }
- 
- #endif /* MMU_GATHER_NO_GATHER */
--- 
-2.34.1
-
+Acked-by: Magnus Lindholm <linmag7@gmail.com>
