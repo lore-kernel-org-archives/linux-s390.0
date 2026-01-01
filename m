@@ -1,60 +1,60 @@
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C3102F999A
-	for <linux-s390@vger.kernel.org>; Wed, 31 Dec 2025 18:14:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C516C1E8342
+	for <linux-s390@vger.kernel.org>; Thu,  1 Jan 2026 00:28:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767204842; cv=none; b=sU3kkfdOl34xy1O5TiFGGJBF0GAJrAj5i7j4RC1fpO+AaRbRfcDrisBu3AvIJs9tA7ErLUxIIxv3R40fSDeKRWxaxJIhq4malMQy7VBZshQAwUBZf9xO+unE3fgdBGBCETiT3YH460FiImiB8UkgcuTv/kk9uT3fqKl+kG0lV4o=
+	t=1767227323; cv=none; b=cp2G3iUBIKK9hvQLvMQEYNTHEzMqYg8GWN+uWvLdmMoCEz6wO6YKvNvYxCXeRafIaVhAwuP2ZN2IJv0DN2SvFt3ZxQiViexcc0+kvfJBJ82FY2Wn1HJBq0j8Q2ROBM0jdz4PdkYkpyDtce1hjhI+7IkZmZQd9W55Xy4yZKZSj5U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767204842; c=relaxed/simple;
-	bh=l0LRvl1kqcmBpJ+oiXL+hUtJD8MnLQw7yRd+cy/68MI=;
+	s=arc-20240116; t=1767227323; c=relaxed/simple;
+	bh=+kPcMSmk7R+Gdq2EzKirCklN8/HPtQfdcLKStyPOwlc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TzIzLYWgVIZVNNJkn/jfaWHeel5ooymMhfxobosUClQCIxvoMmbeIoi3NxrhubIwNd1sRWE5wgIR6Uo8TUVWGo25+l3PcuVN10F36qfmZ2tvuK9O0iyjNBnD6EVkVhp7UdQg/FQSyblA/n4wa5jupca6f6qRgy0cJymjDe7d16Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OfLzlWNU; arc=none smtp.client-ip=209.85.221.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=ImD37jUgbZiHWD7X7hRkC70SjILNpEpCjzlN19GBGtwE6OkG/2MY8gXp9A7R8B65k+cG8NVIGUbco+XYFHRNbogiVSg8LydJHT6zjHEKuhFr+79rSHShZ3JE8mpXMlTtC+XVnV+Hqj20tgYydal2OAniHf79IUUxf4y9IF7FTU8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=purestorage.com; spf=fail smtp.mailfrom=purestorage.com; dkim=pass (2048-bit key) header.d=purestorage.com header.i=@purestorage.com header.b=GwHgbc9r; arc=none smtp.client-ip=209.85.214.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=purestorage.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=purestorage.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OfLzlWNU"
-Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-42fb2314f52so6169043f8f.0
-        for <linux-s390@vger.kernel.org>; Wed, 31 Dec 2025 10:14:00 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=purestorage.com header.i=@purestorage.com header.b="GwHgbc9r"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2a08cb5e30eso21811225ad.1
+        for <linux-s390@vger.kernel.org>; Wed, 31 Dec 2025 16:28:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1767204839; x=1767809639; darn=vger.kernel.org;
+        d=purestorage.com; s=google2022; t=1767227321; x=1767832121; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=80wuQlyFH/FTtp28IkHfYhaeWqE7rS7z6vp3Trh+jc4=;
-        b=OfLzlWNU9tNh19lSAgaTDAAozHeFHEju+uWNAjP9QTUwb8+5hd+Nq9C8dAiR0RPdYg
-         J2czUTeqjfPVMQ4ePBDiPsfUjuCNlI2iAxFhljFDCeoTJ5vDlXEsrqi8GN7n0iQKa483
-         YmLoaPgSHLGADSqNRv6rmSRSB+8oHnY6/hy3v82ss0yvfk6125AncvXKghhsQCzenEuJ
-         drtwjRNp8bU1+aDi+7jqdM8/bS5plGkyolcMmSD9xvY/2jhlaG5q+eyFZ71S98AHJlmE
-         uQwtrCw9PU9u8SsPUsfe7ZLdrwA1qQpB6YMJJPwY1HzSzWxPQ0CllxHFZ/sYcgwVaXVz
-         J4wg==
+        bh=S2uWD+3+uKcWSebatXzToxK0XPCm9Txe1uJXgdjEiEI=;
+        b=GwHgbc9r30Ug/mgssLkcZMbvvGVTEIKLD02ashIzCLtfm6ZCgTMRZW6nX+ldXWlhMO
+         18m0rs+7ZizGE9ulyqa78mVGaPbsUs1NhfftCftyPExezEdexRD0QEMN/R6W+QPvATWe
+         Ld+mCKpk1/dRRsnqU0CUEo8L0+UeSEJut4YtxkAKjlHDX7t5YB8e9fJTGEOdPjN3qGnR
+         acEcVh1hqQNbzHUgxw2BDa9fURZZwe+2M/IS9VEJRARrlxkPBM71IdWz/Mm9G/LnLuMx
+         tdl91nW0Ocdpir1EYE2CPjQhfsm0tT7hWQlQyQSVW9XVppr20DG1VRMUJjKQvTJXzAUt
+         ROLw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767204839; x=1767809639;
+        d=1e100.net; s=20230601; t=1767227321; x=1767832121;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=80wuQlyFH/FTtp28IkHfYhaeWqE7rS7z6vp3Trh+jc4=;
-        b=r/1uHuaW+omMC406RGziWGyYP6AH04Uzccp8Evx1TvnifZC/I9eXke7N0QY49O4IST
-         WFaKxtna5z6vCHESCZgG2e71fWwrDDjSQbXtBgQVQR6+5q0t8gm/vdKMK+flUqPy1RIO
-         7rZuPCQB38cbxuOeytsZp/fSYjW2cFyEwbprV5ehePOgbVUNiV6LeVzXIBFoBCh3sGil
-         uZ6bgVWdHyDt3GJt/OJCkxZ/JPfE4wB1odNEN3UeLi71XjVxa8Unlzw6s35w3sr7T559
-         X46dQWF8F2oxZORMr1SvTnlRmA8+NV1FbeA7ZflI/3ZdTIv80uU27U/fywx+lOjbl2/p
-         ib3g==
-X-Forwarded-Encrypted: i=1; AJvYcCUzJiBdC4/P8jXohmTzFtRZ2pyhgGqLrnOdtrpUzOeXiavw8GJK9OcT2rSwe0LWpvxOr4S/hScyDsY8@vger.kernel.org
-X-Gm-Message-State: AOJu0YzHneD/2Yg3obi0YXpH3NIq/MSQ1VYHm4Vmz/OL1RT/+3chhd7l
-	uLb6VjDBuP66qtFPU0L2jSinaFBNIvjkKBMgkxUZ04gxmjp4KJR4vHl11a8ceKjJRlLbh8Svmv7
-	WR/HEBOJLmSvqzBkz2C6B6b0A4cAkEas=
-X-Gm-Gg: AY/fxX4zGY8sHX68llv1fg5TdlBx+WNtZML0j4Uti1WCbRZE+cKNAzVobaecU9qp+SQ
-	sCzzzrKiMbJgGHGWlk8Pw2SeCelo9J8iSV5dovnSO/llTYpKplMDdOg+ODFTV0zWo+FneMgil3B
-	hdXJhnehrKVdEoNPGK7rpbuFFPC3TSYpCuon4iC7VduN75Rw6LGelyhVx1NC9bJ03ET0ETsIyUt
-	HoFVxlQZmEXmGQIzDVIHtXMjCdSYu69kDPjKP3jVcJt3tuernyT3T6ZYyyzBp9cPQlxwIaxcG/c
-	drz3Dib1AlykM700wgjdZP0Ga+Fn
-X-Google-Smtp-Source: AGHT+IE7rn8UGO5FxmIqC7DPe8kHIdUtmNgCuEKioyalqiNjU4yifPpIQxEAl6/RRsYuU+/knbKXbX9dpW9nJ6ADD+Y=
-X-Received: by 2002:a05:6000:611:b0:431:3ba:1188 with SMTP id
- ffacd0b85a97d-4324e4c70e5mr40336157f8f.3.1767204838828; Wed, 31 Dec 2025
- 10:13:58 -0800 (PST)
+        bh=S2uWD+3+uKcWSebatXzToxK0XPCm9Txe1uJXgdjEiEI=;
+        b=Mj63yLJ0cJCzBCO/9cQ+NTmQk+52YPv0gk12e9FedXlqJGxqpUbJ0OAmQ919z01SDY
+         17gOtGyNyYbvis1cRCaQSAhGCbkIrFh4q8xkelpUJFr6301XOAEY3UdT5dcO1Spgr8NB
+         iPUg0I2j3y8aNSFhdv2T5SdRQjsZR0AXFPRya92lPgRD7RjH7zVy72zjazp2qwGU6MsE
+         uEgi8lvFx5hI2vJB7M0yiUeei0gBSKGzYb4GDeZMFindDbNbzfNxxv9kL11dkyWuNYwn
+         K5ZbKFMTL25hnTHVqxbqRzXovv3aQsFEeIK95KIl137vpGz3zP1V7dSpTNzjzVmh2wsq
+         63DQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUhoHxezEs6I1JPwT+hbjyFeihU4ZyPvaKWJqMTkgsdwKUgry4mFYLJ1ROLyNnoNoetkQOdCL66VJiA@vger.kernel.org
+X-Gm-Message-State: AOJu0YxySSnKdNFBzvMccLOdDot44NMx4uFRTCavPkP8HCiu7t7WkPmb
+	taQ2KlvW7oTB39tdQibXSSt2MAjTTGQYOOmlEzAtgvo3EL7kpncaI5tIe5V6FCUfzjvbexsE3dn
+	I2gc6AVYq8HgiFBFT4WBul+1r8kFZdCQhQ1PI7uBuUQ==
+X-Gm-Gg: AY/fxX5sjgpMVnqZot4PlI600GwX2bWLC3DNdvhp5NMACC91Z9PjEA9Qt45/bIgqfr4
+	rdo2QIac9Z4hYCTIan4afReQzfmzVsxIX2BHR00Nra3ced3gwN9Qd+vPwJE2dwvego4ABmo7ohY
+	VoIR123T6YRU76oYG3jHmAxqQJzxfmuc4kxp9cNtsJgsOUyB/rraig4OXaLvxUcUUe3q7ioU5F/
+	8A6anM939sXpv/zWazwftEDZss1QFSitrFmvqTgCFZT7Jjc9Wf2yYp3UIWAtVsmrrc8EkcgOAqC
+	hQ3PR0g=
+X-Google-Smtp-Source: AGHT+IFdBMje3pnEFdkXLIfnRWJ5hysTabkkamtVS8bCSG8FnqVHfzLw8gfE0QdSc/2hoIrXIja460pqGNnL6T+duQk=
+X-Received: by 2002:a05:7022:f007:b0:11e:3e9:3e89 with SMTP id
+ a92af1059eb24-12172312c16mr18360486c88.7.1767227320930; Wed, 31 Dec 2025
+ 16:28:40 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -63,14 +63,14 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20251231173633.3981832-6-csander@purestorage.com>
  <e9a1bd633fb4bb3d2820f63f41a8dd60d8c9c5e3c699fa56057ae393ef2f31d0@mail.kernel.org>
- <CADUfDZpSSikiZ8d8eWvfucj=Cvhc=k-sHN03EVExGBQ4Lx+23Q@mail.gmail.com>
-In-Reply-To: <CADUfDZpSSikiZ8d8eWvfucj=Cvhc=k-sHN03EVExGBQ4Lx+23Q@mail.gmail.com>
-From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Date: Wed, 31 Dec 2025 10:13:47 -0800
-X-Gm-Features: AQt7F2oHF_qxr3_KPJ-VT5eeYhG4tvvvWKJxtIn11KSC3ODYIcBGmV1QpWm3ri0
-Message-ID: <CAADnVQKXUUNn=P=2-UECF1X7SR+oqm4xsr-2trpgTy1q+0c5FQ@mail.gmail.com>
+ <CADUfDZpSSikiZ8d8eWvfucj=Cvhc=k-sHN03EVExGBQ4Lx+23Q@mail.gmail.com> <CAADnVQKXUUNn=P=2-UECF1X7SR+oqm4xsr-2trpgTy1q+0c5FQ@mail.gmail.com>
+In-Reply-To: <CAADnVQKXUUNn=P=2-UECF1X7SR+oqm4xsr-2trpgTy1q+0c5FQ@mail.gmail.com>
+From: Caleb Sander Mateos <csander@purestorage.com>
+Date: Wed, 31 Dec 2025 19:28:29 -0500
+X-Gm-Features: AQt7F2r4zx9aMRYNSaKUcm0Gdej6msD8c2I3CLYONDae3Dt0B2iooTor-dsXV_A
+Message-ID: <CADUfDZq5Bf8mVD9o=VHsUqYgqyMJx82_fhy73ZzkvawQi2Ko2g@mail.gmail.com>
 Subject: Re: [PATCH 5/5] selftests/bpf: make cfi_stubs globals const
-To: Caleb Sander Mateos <csander@purestorage.com>
+To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
 Cc: bot+bpf-ci@kernel.org, Jiri Kosina <jikos@kernel.org>, 
 	Benjamin Tissoires <bentiss@kernel.org>, Alexei Starovoitov <ast@kernel.org>, 
 	Daniel Borkmann <daniel@iogearbox.net>, John Fastabend <john.fastabend@gmail.com>, 
@@ -101,44 +101,65 @@ Cc: bot+bpf-ci@kernel.org, Jiri Kosina <jikos@kernel.org>,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 31, 2025 at 10:09=E2=80=AFAM Caleb Sander Mateos
-<csander@purestorage.com> wrote:
+On Wed, Dec 31, 2025 at 10:13=E2=80=AFAM Alexei Starovoitov
+<alexei.starovoitov@gmail.com> wrote:
 >
-> On Wed, Dec 31, 2025 at 10:04=E2=80=AFAM <bot+bpf-ci@kernel.org> wrote:
+> On Wed, Dec 31, 2025 at 10:09=E2=80=AFAM Caleb Sander Mateos
+> <csander@purestorage.com> wrote:
 > >
-> > > diff --git a/tools/testing/selftests/bpf/test_kmods/bpf_testmod.c b/t=
-ools/testing/selftests/bpf/test_kmods/bpf_testmod.c
-> > > index 90c4b1a51de6..5e460b1dbdb6 100644
-> > > --- a/tools/testing/selftests/bpf/test_kmods/bpf_testmod.c
-> > > +++ b/tools/testing/selftests/bpf/test_kmods/bpf_testmod.c
-> >
-> > [ ... ]
-> >
-> > > @@ -1275,7 +1275,7 @@ bpf_testmod_ops__test_return_ref_kptr(int dummy=
-, struct task_struct *task__ref,
-> > >       return NULL;
-> > >  }
+> > On Wed, Dec 31, 2025 at 10:04=E2=80=AFAM <bot+bpf-ci@kernel.org> wrote:
 > > >
-> > > -static struct bpf_testmod_ops __bpf_testmod_ops =3D {
-> > > +static const struct bpf_testmod_ops __bpf_testmod_ops =3D {
-> > >       .test_1 =3D bpf_testmod_test_1,
-> > >       .test_2 =3D bpf_testmod_test_2,
+> > > > diff --git a/tools/testing/selftests/bpf/test_kmods/bpf_testmod.c b=
+/tools/testing/selftests/bpf/test_kmods/bpf_testmod.c
+> > > > index 90c4b1a51de6..5e460b1dbdb6 100644
+> > > > --- a/tools/testing/selftests/bpf/test_kmods/bpf_testmod.c
+> > > > +++ b/tools/testing/selftests/bpf/test_kmods/bpf_testmod.c
+> > >
+> > > [ ... ]
+> > >
+> > > > @@ -1275,7 +1275,7 @@ bpf_testmod_ops__test_return_ref_kptr(int dum=
+my, struct task_struct *task__ref,
+> > > >       return NULL;
+> > > >  }
+> > > >
+> > > > -static struct bpf_testmod_ops __bpf_testmod_ops =3D {
+> > > > +static const struct bpf_testmod_ops __bpf_testmod_ops =3D {
+> > > >       .test_1 =3D bpf_testmod_test_1,
+> > > >       .test_2 =3D bpf_testmod_test_2,
+> > >
+> > > Is it safe to make __bpf_testmod_ops const here? In bpf_testmod_init(=
+),
+> > > this struct is modified at runtime:
+> > >
+> > >     tramp =3D (void **)&__bpf_testmod_ops.tramp_1;
+> > >     while (tramp <=3D (void **)&__bpf_testmod_ops.tramp_40)
+> > >         *tramp++ =3D bpf_testmod_tramp;
+> > >
+> > > Writing to a const-qualified object is undefined behavior and may cau=
+se a
+> > > protection fault when the compiler places this in read-only memory. W=
+ould
+> > > the module fail to load on systems where .rodata is actually read-onl=
+y?
 > >
-> > Is it safe to make __bpf_testmod_ops const here? In bpf_testmod_init(),
-> > this struct is modified at runtime:
-> >
-> >     tramp =3D (void **)&__bpf_testmod_ops.tramp_1;
-> >     while (tramp <=3D (void **)&__bpf_testmod_ops.tramp_40)
-> >         *tramp++ =3D bpf_testmod_tramp;
-> >
-> > Writing to a const-qualified object is undefined behavior and may cause=
- a
-> > protection fault when the compiler places this in read-only memory. Wou=
-ld
-> > the module fail to load on systems where .rodata is actually read-only?
+> > Yup, that's indeed the bug caught by KASAN. Missed this mutation at
+> > init time, I'll leave __bpf_testmod_ops as mutable.
 >
-> Yup, that's indeed the bug caught by KASAN. Missed this mutation at
-> init time, I'll leave __bpf_testmod_ops as mutable.
+> No. You're missing the point. The whole patch set is no go.
+> The pointer to cfi stub can be updated just as well.
 
-No. You're missing the point. The whole patch set is no go.
-The pointer to cfi stub can be updated just as well.
+Do you mean the BPF core code would modify the struct pointed to by
+cfi_stubs? Or some BPF struct_ops implementation (like this one in
+bpf_testmod.c) would modify it? If you're talking about the BPF core
+code, could you point out where this happens? I couldn't find it when
+looking through the handful of uses of cfi_stubs (see patch 1/5). Or
+are you talking about some hypothetical future code that would write
+through the cfi_stubs pointer? If you're talking about a struct_ops
+implementation, I certainly agree it could modify the struct pointed
+to by cfi_stubs (before calling register_bpf_struct_ops()). But then
+the struct_ops implementation doesn't have to declare the global
+variable as const. A non-const pointer is allowed anywhere a const
+pointer is expected.
+
+Thanks,
+Caleb
