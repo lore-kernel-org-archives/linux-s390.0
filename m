@@ -1,429 +1,91 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 001C130DD3C;
-	Fri,  2 Jan 2026 13:12:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D976311C11
+	for <linux-s390@vger.kernel.org>; Fri,  2 Jan 2026 13:39:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767359543; cv=none; b=pALA7ygdkq97m830SIUljkQ6BLAPZa2dY7NIoMospi2DIEqUe1ITiX8HgZnh/kaVSAOM/h2JZaPizI/jE9aRdbo6Iun0P3RKIgWbjquSD2fWY3scbwtUKoJnzXGjSSFNJ8Z9EaPXI2KCDoef4/G9zNBXVRgxSo6h1+9+qiCohIM=
+	t=1767361185; cv=none; b=W8xqT6UEsZrKzpOXNhMLQ0J9Suwd1BLZGE+b3YEf4TLm32jIURj/yLj8hJZWB/yzLiif0Cg2Hju1UcyTP6STzJZ+ZTjYMu+fIa3pE5nSPAI7mX37Ol9R/z/gDgupxywNc4UTdEfcLRavNgbNnNv8IqLsXcMcSdz9gZ/lT4VU+VY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767359543; c=relaxed/simple;
-	bh=niw+833AbjD0oTWYwRu248iapk8rwsJ9OzvxLcz33FE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=fWHy+5FJY8FC2YbCa0r88NRlTkKPQukCZ9FSXESvPv73B6+WVPyh9lqZMRDh0ez2cO13oygABjXW4DL2zhB2vMLLz4Kl1Ow7UOS7UQAr+wt6xMuqciSxfFnkqlaEsGLDcRnKzfqNAAMwuC5Q4hGcFhttRrK+lpH8hKzxDcmc1HU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4E6901595;
-	Fri,  2 Jan 2026 05:12:12 -0800 (PST)
-Received: from e125769.cambridge.arm.com (e125769.cambridge.arm.com [10.1.196.27])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9FDE33F5A1;
-	Fri,  2 Jan 2026 05:12:15 -0800 (PST)
-From: Ryan Roberts <ryan.roberts@arm.com>
-To: Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	Kees Cook <kees@kernel.org>,
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Mark Rutland <mark.rutland@arm.com>,
-	"Jason A. Donenfeld" <Jason@zx2c4.com>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	Jeremy Linton <jeremy.linton@arm.com>
-Cc: Ryan Roberts <ryan.roberts@arm.com>,
-	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	loongarch@lists.linux.dev,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	linux-hardening@vger.kernel.org
-Subject: [PATCH v3 3/3] randomize_kstack: Unify random source across arches
-Date: Fri,  2 Jan 2026 13:11:54 +0000
-Message-ID: <20260102131156.3265118-4-ryan.roberts@arm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260102131156.3265118-1-ryan.roberts@arm.com>
-References: <20260102131156.3265118-1-ryan.roberts@arm.com>
+	s=arc-20240116; t=1767361185; c=relaxed/simple;
+	bh=SVGIiSWIzg80Bqq7LCYYlALqbBWZ2ofIsrcdUHfyZPU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=KVcUBCphy+ar1hxyZ4ickBuGSUlYSM6d1T3b4GYCW0X3xYdYq1n72daC0jWvHUqnjyh0r55mB1LcpZ5LCexlZUt9jme8JyIWHVqCNJxHkTOo6Dt5jE9I7W0RcilHZ1/Fp9lj14ND36rRcKZG6cWMUoy74wXxjrkdmQ0CHl0FSbA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b=bW2ENvpW; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="bW2ENvpW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 403D3C19424
+	for <linux-s390@vger.kernel.org>; Fri,  2 Jan 2026 13:39:45 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+	dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="bW2ENvpW"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+	t=1767361177;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=SVGIiSWIzg80Bqq7LCYYlALqbBWZ2ofIsrcdUHfyZPU=;
+	b=bW2ENvpWXyyENTYao9a8vpF6KdMw2iFyt3fMDnWm28sEiGCG1ZAVfj8QBckNS1URBdKuSy
+	qMkKWGSU/R3XJnRP9oKK+a6PfgA0khTJvm4Y4kYpV+AgAW4PmlGOVPDAd3T5sq+1zoMJ/V
+	G5EA9eYLmQnrQH/pUXdhhleeLIDRB8c=
+Received: 
+	by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 79c768c2 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO)
+	for <linux-s390@vger.kernel.org>;
+	Fri, 2 Jan 2026 13:39:37 +0000 (UTC)
+Received: by mail-ot1-f51.google.com with SMTP id 46e09a7af769-7ce0ef9d4eeso1073403a34.1
+        for <linux-s390@vger.kernel.org>; Fri, 02 Jan 2026 05:39:36 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCUHIRqlFvhiwOwk4xEfSVPnFu3KpNJ9Tkr1bjsIaSOoQZdMIe8+1JvfN5ax9NfNeaoxhozABS7L1Rg6@vger.kernel.org
+X-Gm-Message-State: AOJu0YyzkVQ7JzTud/V7GET+cVzG03csru9jOwUB0pUEZEpHMr0Gq9+E
+	IsIpiiL+USH0oYz6TfUEV0VHtm3xLoym9N6+Y8lbGGFPwMLFme4O2nN9fnkBHioBp4jdXCh7f7Z
+	+bXqIVLyPmSqwEXMjGCldEiS2brF3jHc=
+X-Google-Smtp-Source: AGHT+IFV0P4UwOKgGcidVSe3+C3GT9JSRutBmyTJY+Ko+TYwuWXifwQH5m/QQSPv0qrqCY9iwE1wKuoYX25E7txH4AI=
+X-Received: by 2002:a05:6830:4c08:b0:7c7:65f4:1120 with SMTP id
+ 46e09a7af769-7cc66a6f068mr24618037a34.23.1767361173696; Fri, 02 Jan 2026
+ 05:39:33 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260102131156.3265118-1-ryan.roberts@arm.com> <20260102131156.3265118-3-ryan.roberts@arm.com>
+In-Reply-To: <20260102131156.3265118-3-ryan.roberts@arm.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date: Fri, 2 Jan 2026 14:39:21 +0100
+X-Gmail-Original-Message-ID: <CAHmME9qHiVZwf4TAringRHSZ-yqHuPwmP=Wnx98n09jv7Vu_Rg@mail.gmail.com>
+X-Gm-Features: AQt7F2qdo3e8gMqv9IRozONnOouAGf6XyGKVO6JwEtjeNVfJ3A-5G4I57eyZbDw
+Message-ID: <CAHmME9qHiVZwf4TAringRHSZ-yqHuPwmP=Wnx98n09jv7Vu_Rg@mail.gmail.com>
+Subject: Re: [PATCH v3 2/3] prandom: Convert prandom_u32_state() to __always_inline
+To: Ryan Roberts <ryan.roberts@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+	Huacai Chen <chenhuacai@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
+	Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, Kees Cook <kees@kernel.org>, 
+	"Gustavo A. R. Silva" <gustavoars@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
+	Mark Rutland <mark.rutland@arm.com>, Ard Biesheuvel <ardb@kernel.org>, 
+	Jeremy Linton <jeremy.linton@arm.com>, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev, 
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Previously different architectures were using random sources of
-differing strength and cost to decide the random kstack offset. A number
-of architectures (loongarch, powerpc, s390, x86) were using their
-timestamp counter, at whatever the frequency happened to be. Other
-arches (arm64, riscv) were using entropy from the crng via
-get_random_u16().
+Hi Ryan,
 
-There have been concerns that in some cases the timestamp counters may
-be too weak, because they can be easily guessed or influenced by user
-space. And get_random_u16() has been shown to be too costly for the
-level of protection kstack offset randomization provides.
+On Fri, Jan 2, 2026 at 2:12=E2=80=AFPM Ryan Roberts <ryan.roberts@arm.com> =
+wrote:
+> context. Given the function is just a handful of operations and doesn't
 
-So let's use a common, architecture-agnostic source of entropy; a
-per-cpu prng, seeded at boot-time from the crng. This has a few
-benefits:
+How many? What's this looking like in terms of assembly? It'd also be
+nice to have some brief analysis of other call sites to have
+confirmation this isn't blowing up other users.
 
-  - We can remove choose_random_kstack_offset(); That was only there to
-    try to make the timestamp counter value a bit harder to influence
-    from user space.
+> +static __always_inline u32 prandom_u32_state(struct rnd_state *state)
 
-  - The architecture code is simplified. All it has to do now is call
-    add_random_kstack_offset() in the syscall path.
+Why not just normal `inline`? Is gcc disagreeing with the inlinability
+of this function?
 
-  - The strength of the randomness can be reasoned about independently
-    of the architecture.
-
-  - Arches previously using get_random_u16() now have much faster
-    syscall paths, see below results.
-
-There have been some claims that a prng may be less strong than the
-timestamp counter if not regularly reseeded. But the prng has a period
-of about 2^113. So as long as the prng state remains secret, it should
-not be possible to guess. If the prng state can be accessed, we have
-bigger problems.
-
-Additionally, we are only consuming 6 bits to randomize the stack, so
-there are only 64 possible random offsets. I assert that it would be
-trivial for an attacker to brute force by repeating their attack and
-waiting for the random stack offset to be the desired one. The prng
-approach seems entirely proportional to this level of protection.
-
-Performance data are provided below. The baseline is v6.18 with rndstack
-on for each respective arch. (I)/(R) indicate statistically significant
-improvement/regression. arm64 platform is AWS Graviton3 (m7g.metal).
-x86_64 platform is AWS Sapphire Rapids (m7i.24xlarge):
-
-+-----------------+--------------+---------------+---------------+
-| Benchmark       | Result Class | per-task-prng | per-task-prng |
-|                 |              | arm64 (metal) |   x86_64 (VM) |
-+=================+==============+===============+===============+
-| syscall/getpid  | mean (ns)    |    (I) -9.50% |   (I) -17.65% |
-|                 | p99 (ns)     |   (I) -59.24% |   (I) -24.41% |
-|                 | p99.9 (ns)   |   (I) -59.52% |   (I) -28.52% |
-+-----------------+--------------+---------------+---------------+
-| syscall/getppid | mean (ns)    |    (I) -9.52% |   (I) -19.24% |
-|                 | p99 (ns)     |   (I) -59.25% |   (I) -25.03% |
-|                 | p99.9 (ns)   |   (I) -59.50% |   (I) -28.17% |
-+-----------------+--------------+---------------+---------------+
-| syscall/invalid | mean (ns)    |   (I) -10.31% |   (I) -18.56% |
-|                 | p99 (ns)     |   (I) -60.79% |   (I) -20.06% |
-|                 | p99.9 (ns)   |   (I) -61.04% |   (I) -25.04% |
-+-----------------+--------------+---------------+---------------+
-
-I tested an earlier version of this change on x86 bare metal and it
-showed a smaller but still significant improvement. The bare metal
-system wasn't available this time around so testing was done in a VM
-instance. I'm guessing the cost of rdtsc is higher for VMs.
-
-Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
----
- arch/Kconfig                         |  5 ++-
- arch/arm64/kernel/syscall.c          | 11 ------
- arch/loongarch/kernel/syscall.c      | 11 ------
- arch/powerpc/kernel/syscall.c        | 12 -------
- arch/riscv/kernel/traps.c            | 12 -------
- arch/s390/include/asm/entry-common.h |  8 -----
- arch/x86/include/asm/entry-common.h  | 12 -------
- include/linux/randomize_kstack.h     | 52 +++++++++-------------------
- include/linux/sched.h                |  4 ---
- init/main.c                          |  8 +++++
- kernel/fork.c                        |  1 -
- 11 files changed, 27 insertions(+), 109 deletions(-)
-
-diff --git a/arch/Kconfig b/arch/Kconfig
-index 31220f512b16..8591fe7b4ac1 100644
---- a/arch/Kconfig
-+++ b/arch/Kconfig
-@@ -1516,9 +1516,8 @@ config HAVE_ARCH_RANDOMIZE_KSTACK_OFFSET
- 	def_bool n
- 	help
- 	  An arch should select this symbol if it can support kernel stack
--	  offset randomization with calls to add_random_kstack_offset()
--	  during syscall entry and choose_random_kstack_offset() during
--	  syscall exit. Careful removal of -fstack-protector-strong and
-+	  offset randomization with a call to add_random_kstack_offset()
-+	  during syscall entry. Careful removal of -fstack-protector-strong and
- 	  -fstack-protector should also be applied to the entry code and
- 	  closely examined, as the artificial stack bump looks like an array
- 	  to the compiler, so it will attempt to add canary checks regardless
-diff --git a/arch/arm64/kernel/syscall.c b/arch/arm64/kernel/syscall.c
-index c062badd1a56..358ddfbf1401 100644
---- a/arch/arm64/kernel/syscall.c
-+++ b/arch/arm64/kernel/syscall.c
-@@ -52,17 +52,6 @@ static void invoke_syscall(struct pt_regs *regs, unsigned int scno,
- 	}
- 
- 	syscall_set_return_value(current, regs, 0, ret);
--
--	/*
--	 * This value will get limited by KSTACK_OFFSET_MAX(), which is 10
--	 * bits. The actual entropy will be further reduced by the compiler
--	 * when applying stack alignment constraints: the AAPCS mandates a
--	 * 16-byte aligned SP at function boundaries, which will remove the
--	 * 4 low bits from any entropy chosen here.
--	 *
--	 * The resulting 6 bits of entropy is seen in SP[9:4].
--	 */
--	choose_random_kstack_offset(get_random_u16());
- }
- 
- static inline bool has_syscall_work(unsigned long flags)
-diff --git a/arch/loongarch/kernel/syscall.c b/arch/loongarch/kernel/syscall.c
-index 1249d82c1cd0..85da7e050d97 100644
---- a/arch/loongarch/kernel/syscall.c
-+++ b/arch/loongarch/kernel/syscall.c
-@@ -79,16 +79,5 @@ void noinstr __no_stack_protector do_syscall(struct pt_regs *regs)
- 					   regs->regs[7], regs->regs[8], regs->regs[9]);
- 	}
- 
--	/*
--	 * This value will get limited by KSTACK_OFFSET_MAX(), which is 10
--	 * bits. The actual entropy will be further reduced by the compiler
--	 * when applying stack alignment constraints: 16-bytes (i.e. 4-bits)
--	 * aligned, which will remove the 4 low bits from any entropy chosen
--	 * here.
--	 *
--	 * The resulting 6 bits of entropy is seen in SP[9:4].
--	 */
--	choose_random_kstack_offset(get_cycles());
--
- 	syscall_exit_to_user_mode(regs);
- }
-diff --git a/arch/powerpc/kernel/syscall.c b/arch/powerpc/kernel/syscall.c
-index be159ad4b77b..b3d8b0f9823b 100644
---- a/arch/powerpc/kernel/syscall.c
-+++ b/arch/powerpc/kernel/syscall.c
-@@ -173,17 +173,5 @@ notrace long system_call_exception(struct pt_regs *regs, unsigned long r0)
- 	}
- #endif
- 
--	/*
--	 * Ultimately, this value will get limited by KSTACK_OFFSET_MAX(),
--	 * so the maximum stack offset is 1k bytes (10 bits).
--	 *
--	 * The actual entropy will be further reduced by the compiler when
--	 * applying stack alignment constraints: the powerpc architecture
--	 * may have two kinds of stack alignment (16-bytes and 8-bytes).
--	 *
--	 * So the resulting 6 or 7 bits of entropy is seen in SP[9:4] or SP[9:3].
--	 */
--	choose_random_kstack_offset(mftb());
--
- 	return ret;
- }
-diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
-index 80230de167de..79b285bdfd1a 100644
---- a/arch/riscv/kernel/traps.c
-+++ b/arch/riscv/kernel/traps.c
-@@ -342,18 +342,6 @@ void do_trap_ecall_u(struct pt_regs *regs)
- 		if (syscall >= 0 && syscall < NR_syscalls)
- 			syscall_handler(regs, syscall);
- 
--		/*
--		 * Ultimately, this value will get limited by KSTACK_OFFSET_MAX(),
--		 * so the maximum stack offset is 1k bytes (10 bits).
--		 *
--		 * The actual entropy will be further reduced by the compiler when
--		 * applying stack alignment constraints: 16-byte (i.e. 4-bit) aligned
--		 * for RV32I or RV64I.
--		 *
--		 * The resulting 6 bits of entropy is seen in SP[9:4].
--		 */
--		choose_random_kstack_offset(get_random_u16());
--
- 		syscall_exit_to_user_mode(regs);
- 	} else {
- 		irqentry_state_t state = irqentry_nmi_enter(regs);
-diff --git a/arch/s390/include/asm/entry-common.h b/arch/s390/include/asm/entry-common.h
-index 979af986a8fe..35450a485323 100644
---- a/arch/s390/include/asm/entry-common.h
-+++ b/arch/s390/include/asm/entry-common.h
-@@ -51,14 +51,6 @@ static __always_inline void arch_exit_to_user_mode(void)
- 
- #define arch_exit_to_user_mode arch_exit_to_user_mode
- 
--static inline void arch_exit_to_user_mode_prepare(struct pt_regs *regs,
--						  unsigned long ti_work)
--{
--	choose_random_kstack_offset(get_tod_clock_fast());
--}
--
--#define arch_exit_to_user_mode_prepare arch_exit_to_user_mode_prepare
--
- static __always_inline bool arch_in_rcu_eqs(void)
- {
- 	if (IS_ENABLED(CONFIG_KVM))
-diff --git a/arch/x86/include/asm/entry-common.h b/arch/x86/include/asm/entry-common.h
-index ce3eb6d5fdf9..7535131c711b 100644
---- a/arch/x86/include/asm/entry-common.h
-+++ b/arch/x86/include/asm/entry-common.h
-@@ -82,18 +82,6 @@ static inline void arch_exit_to_user_mode_prepare(struct pt_regs *regs,
- 	current_thread_info()->status &= ~(TS_COMPAT | TS_I386_REGS_POKED);
- #endif
- 
--	/*
--	 * This value will get limited by KSTACK_OFFSET_MAX(), which is 10
--	 * bits. The actual entropy will be further reduced by the compiler
--	 * when applying stack alignment constraints (see cc_stack_align4/8 in
--	 * arch/x86/Makefile), which will remove the 3 (x86_64) or 2 (ia32)
--	 * low bits from any entropy chosen here.
--	 *
--	 * Therefore, final stack offset entropy will be 7 (x86_64) or
--	 * 8 (ia32) bits.
--	 */
--	choose_random_kstack_offset(rdtsc());
--
- 	/* Avoid unnecessary reads of 'x86_ibpb_exit_to_user' */
- 	if (cpu_feature_enabled(X86_FEATURE_IBPB_EXIT_TO_USER) &&
- 	    this_cpu_read(x86_ibpb_exit_to_user)) {
-diff --git a/include/linux/randomize_kstack.h b/include/linux/randomize_kstack.h
-index 5d3916ca747c..024fc20e7762 100644
---- a/include/linux/randomize_kstack.h
-+++ b/include/linux/randomize_kstack.h
-@@ -6,6 +6,7 @@
- #include <linux/kernel.h>
- #include <linux/jump_label.h>
- #include <linux/percpu-defs.h>
-+#include <linux/prandom.h>
- 
- DECLARE_STATIC_KEY_MAYBE(CONFIG_RANDOMIZE_KSTACK_OFFSET_DEFAULT,
- 			 randomize_kstack_offset);
-@@ -45,9 +46,22 @@ DECLARE_STATIC_KEY_MAYBE(CONFIG_RANDOMIZE_KSTACK_OFFSET_DEFAULT,
- #define KSTACK_OFFSET_MAX(x)	((x) & 0b1111111100)
- #endif
- 
-+DECLARE_PER_CPU(struct rnd_state, kstack_rnd_state);
-+
-+static __always_inline u32 get_kstack_offset(void)
-+{
-+	struct rnd_state *state;
-+	u32 rnd;
-+
-+	state = &get_cpu_var(kstack_rnd_state);
-+	rnd = prandom_u32_state(state);
-+	put_cpu_var(kstack_rnd_state);
-+
-+	return rnd;
-+}
-+
- /**
-- * add_random_kstack_offset - Increase stack utilization by previously
-- *			      chosen random offset
-+ * add_random_kstack_offset - Increase stack utilization by a random offset.
-  *
-  * This should be used in the syscall entry path after user registers have been
-  * stored to the stack. Preemption may be enabled. For testing the resulting
-@@ -56,47 +70,15 @@ DECLARE_STATIC_KEY_MAYBE(CONFIG_RANDOMIZE_KSTACK_OFFSET_DEFAULT,
- #define add_random_kstack_offset() do {					\
- 	if (static_branch_maybe(CONFIG_RANDOMIZE_KSTACK_OFFSET_DEFAULT,	\
- 				&randomize_kstack_offset)) {		\
--		u32 offset = current->kstack_offset;			\
-+		u32 offset = get_kstack_offset();			\
- 		u8 *ptr = __kstack_alloca(KSTACK_OFFSET_MAX(offset));	\
- 		/* Keep allocation even after "ptr" loses scope. */	\
- 		asm volatile("" :: "r"(ptr) : "memory");		\
- 	}								\
- } while (0)
- 
--/**
-- * choose_random_kstack_offset - Choose the random offset for the next
-- *				 add_random_kstack_offset()
-- *
-- * This should only be used during syscall exit. Preemption may be enabled. This
-- * position in the syscall flow is done to frustrate attacks from userspace
-- * attempting to learn the next offset:
-- * - Maximize the timing uncertainty visible from userspace: if the
-- *   offset is chosen at syscall entry, userspace has much more control
-- *   over the timing between choosing offsets. "How long will we be in
-- *   kernel mode?" tends to be more difficult to predict than "how long
-- *   will we be in user mode?"
-- * - Reduce the lifetime of the new offset sitting in memory during
-- *   kernel mode execution. Exposure of "thread-local" memory content
-- *   (e.g. current, percpu, etc) tends to be easier than arbitrary
-- *   location memory exposure.
-- */
--#define choose_random_kstack_offset(rand) do {				\
--	if (static_branch_maybe(CONFIG_RANDOMIZE_KSTACK_OFFSET_DEFAULT,	\
--				&randomize_kstack_offset)) {		\
--		u32 offset = current->kstack_offset;			\
--		offset = ror32(offset, 5) ^ (rand);			\
--		current->kstack_offset = offset;			\
--	}								\
--} while (0)
--
--static inline void random_kstack_task_init(struct task_struct *tsk)
--{
--	tsk->kstack_offset = 0;
--}
- #else /* CONFIG_RANDOMIZE_KSTACK_OFFSET */
- #define add_random_kstack_offset()		do { } while (0)
--#define choose_random_kstack_offset(rand)	do { } while (0)
--#define random_kstack_task_init(tsk)		do { } while (0)
- #endif /* CONFIG_RANDOMIZE_KSTACK_OFFSET */
- 
- #endif
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 9e0080ed1484..d395f2810fac 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1591,10 +1591,6 @@ struct task_struct {
- 	unsigned long			prev_lowest_stack;
- #endif
- 
--#ifdef CONFIG_RANDOMIZE_KSTACK_OFFSET
--	u32				kstack_offset;
--#endif
--
- #ifdef CONFIG_X86_MCE
- 	void __user			*mce_vaddr;
- 	__u64				mce_kflags;
-diff --git a/init/main.c b/init/main.c
-index 27fcbbde933e..8626e048095a 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -830,6 +830,14 @@ static inline void initcall_debug_enable(void)
- #ifdef CONFIG_RANDOMIZE_KSTACK_OFFSET
- DEFINE_STATIC_KEY_MAYBE_RO(CONFIG_RANDOMIZE_KSTACK_OFFSET_DEFAULT,
- 			   randomize_kstack_offset);
-+DEFINE_PER_CPU(struct rnd_state, kstack_rnd_state);
-+
-+static int __init random_kstack_init(void)
-+{
-+	prandom_seed_full_state(&kstack_rnd_state);
-+	return 0;
-+}
-+late_initcall(random_kstack_init);
- 
- static int __init early_randomize_kstack_offset(char *buf)
- {
-diff --git a/kernel/fork.c b/kernel/fork.c
-index b061e1edbc43..68d9766288fd 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -2232,7 +2232,6 @@ __latent_entropy struct task_struct *copy_process(
- 	if (retval)
- 		goto bad_fork_cleanup_io;
- 
--	random_kstack_task_init(p);
- 	stackleak_task_init(p);
- 
- 	if (pid != &init_struct_pid) {
--- 
-2.43.0
-
+Jason
