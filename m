@@ -1,111 +1,116 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC018249E5;
-	Fri,  2 Jan 2026 12:27:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 2D539276051;
+	Fri,  2 Jan 2026 12:58:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767356833; cv=none; b=ImCb8Wiwf5ywDcc4or/h0Dxw1ASPPg3fYarv0rW8DBNBzvHEW2ZoTYQzhGNM/IumkgHSYmQ2PheaK77azl+vV7vy9JH4obWQzhvHzvKTP1Dpj6yfTGI8NcyNforiFQCeSHtusfx/QtjQZsc579LUaBkzsreQf/KDdf/YGIGS/iM=
+	t=1767358721; cv=none; b=dxAJWOqOWCWGuZBEpd73Vq54tJFLTYrHHE4Tnoite3Zu2r0xKj/l8y5H6gf505sVr2wxXuMpIUjA1BGdCLzBQJVn1jzyqfVwDYvRc7ZGDgpkSeHJREQSRm9cjOZ1Rz0vJwVBTCMKvjZwoMC4PaHWNvmaCw3DOtmPngX2rBLHX1A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767356833; c=relaxed/simple;
-	bh=nLRP2xvg/Gqu+jcPubf6ay+AO2e5WewQYbcjrwYzWSo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RFrXZE17S6t5EFwO8ZEojBRi27OWcJjwGbERQ0Sg1tEVCy7gGqEc8h8aDiXne3ZPXijlkJLXMpJYOrxiaf4Pqtb/8E/stCIHXESzCht17EBav31aTYJ+sKFeqU3V3grj+a4ooxwho8SSerk6jCxpHS77sWKVEGTzDwNdSWJ+eCs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KvlUT2Kg; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KvlUT2Kg"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 601KOuhj027398;
-	Fri, 2 Jan 2026 12:25:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=WytNTtY26hXeOquq7wZ72AosSXoDBo
-	edrG065XS6lEI=; b=KvlUT2KgaUt8f0+kMAx5l3OjDKE7itkF7sKz5Clfup7LGt
-	DAUmIo5jqMp5P9qiU0/U6cHKNhPsxcoagcOT1dgy0xPpZXiZwt51nFlMj+FnevE4
-	YMcjtfwPMEjOnxgZy3MnXJxagszJbnxMZOX46FmqXtmu2/XWsS7YFXkfd/hzTJjm
-	Du9kRA7nUXbyNoxOSKUR4ISIe55SKtf50S78Xry01ZGbyakw3WCq108mgb8qaL9O
-	S4AtU56CpU5W611cBD/hi4DUSzs2VFdmHNW5ePA+lNPkUt3QAr4FpDaQ5M0PPJp1
-	YW0mibBGJM8GpKF7jLzS6wXWQoV2raU5DKuQSeTw==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ba73w4cv9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 02 Jan 2026 12:25:15 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 6029uS32023931;
-	Fri, 2 Jan 2026 12:25:14 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4bat5ypfyf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 02 Jan 2026 12:25:14 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 602CPAbb17891680
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 2 Jan 2026 12:25:10 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8D2BE2004B;
-	Fri,  2 Jan 2026 12:25:10 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1719320040;
-	Fri,  2 Jan 2026 12:25:10 +0000 (GMT)
-Received: from osiris (unknown [9.111.41.241])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri,  2 Jan 2026 12:25:10 +0000 (GMT)
-Date: Fri, 2 Jan 2026 13:25:08 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Julia Lawall <Julia.Lawall@inria.fr>
-Cc: Harald Freudenberger <freude@linux.ibm.com>, yunbolyu@smu.edu.sg,
-        kexinsun@smail.nju.edu.cn, ratnadiraw@smu.edu.sg, xutong.ma@inria.fr,
-        Holger Dengler <dengler@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390/ap: fix typo in function name reference
-Message-ID: <20260102122508.10318B3e-hca@linux.ibm.com>
-References: <20251230154239.98756-1-Julia.Lawall@inria.fr>
+	s=arc-20240116; t=1767358721; c=relaxed/simple;
+	bh=ditwgOA9BujE7Ln+5ZTlpsZZZAx+WuGc26hWEh8Pa7Y=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=CcjCvdaDfiN/EjxX+HR0iuOrdIfKBcwMt7NDpEZ/TF6jMG1OvSNtlQ5SZWLw0EteFkFVap7wFyZ25HizmjoDkgjmNMmJJlHwybtAjE/s1XsW0pGShUuBuJsnTUugL5iBh7TylcfuXa8DTKJrAqONXCgq83Tu2EB4DuXCJ4JSUkw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 81774497;
+	Fri,  2 Jan 2026 04:58:31 -0800 (PST)
+Received: from [10.57.94.221] (unknown [10.57.94.221])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9905D3F5A1;
+	Fri,  2 Jan 2026 04:58:33 -0800 (PST)
+Message-ID: <581a0fac-7891-4644-af65-0354e22b9311@arm.com>
+Date: Fri, 2 Jan 2026 12:58:32 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251230154239.98756-1-Julia.Lawall@inria.fr>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 8vNtZse86giOYz9XlQrrP6kIwdKNvVTq
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTAyMDEwOCBTYWx0ZWRfXxe/7aCTrOvY2
- XrQWTdwRyLDwg9JWsFJ5dOxT2M5WXFG+XQbfWbEyMsvmf8RDnmPlNc0UkP8FViFj/KRZpz2Bl0T
- J5/ialtNClGIOIiFYvJ3gHFFdydTBuddjFWvC3RaLmiM3E4v+X0+oYmgytbg4t5fbaFU34snhBr
- XsfKDmzQSiGwTm1ZglTwrWv4nhLUQYvXJeWxPU8Kf/ELa6tay0cIpVJJDauol45NldCIr3Uide4
- cDcfug4W4GoRzxqXpc91gOxlBZcSCvnEMebK/iTWXR3HcVrl1EGKy6kvmbil0I5Hn91NIP3IQ+5
- DtNcu1wNQa0T2+Yx/JhRqGqYEwBsD3rPbHgQkNkyxhd5bFG1g48RKy6H5fCZvU8ReJLwCLYnrSl
- 3K+Rio+t40vtxK45OVYHneipEwe/8J7f2Bta7KIRSKc/2Suh4ce/SInASL9yeqbBMDpWhCxG8xS
- OO07b0FNgKte9cndhbw==
-X-Authority-Analysis: v=2.4 cv=fobRpV4f c=1 sm=1 tr=0 ts=6957b92b cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=kj9zAlcOel0A:10 a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=ULJ_M-2MmIJxTCu8-3gA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: 8vNtZse86giOYz9XlQrrP6kIwdKNvVTq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2026-01-02_01,2025-12-31_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 suspectscore=0 phishscore=0 adultscore=0 malwarescore=0
- spamscore=0 bulkscore=0 impostorscore=0 priorityscore=1501 clxscore=1011
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2512120000 definitions=main-2601020108
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 3/3] randomize_kstack: Unify random source across
+ arches
+Content-Language: en-GB
+To: kernel test robot <lkp@intel.com>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Huacai Chen <chenhuacai@kernel.org>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <pjw@kernel.org>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ Kees Cook <kees@kernel.org>, "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+ Arnd Bergmann <arnd@arndb.de>, Mark Rutland <mark.rutland@arm.com>,
+ "Jason A. Donenfeld" <Jason@zx2c4.com>, Ard Biesheuvel <ardb@kernel.org>,
+ Jeremy Linton <jeremy.linton@arm.com>
+Cc: oe-kbuild-all@lists.linux.dev, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org
+References: <20251215163520.1144179-4-ryan.roberts@arm.com>
+ <202512170038.vJZdUhEN-lkp@intel.com>
+From: Ryan Roberts <ryan.roberts@arm.com>
+In-Reply-To: <202512170038.vJZdUhEN-lkp@intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Dec 30, 2025 at 04:42:39PM +0100, Julia Lawall wrote:
-> Add missing s into ap_intructions_available.
+On 16/12/2025 16:31, kernel test robot wrote:
+> Hi Ryan,
 > 
-> Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
+> kernel test robot noticed the following build errors:
 > 
-> ---
->  arch/s390/include/asm/ap.h |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> [auto build test ERROR on tip/sched/core]
+> [also build test ERROR on akpm-mm/mm-everything linus/master v6.19-rc1 next-20251216]
+> [cannot apply to kees/for-next/hardening kees/for-next/execve]
+> [If your patch is applied to the wrong git tree, kindly drop us a note.
+> And when submitting patch, we suggest to use '--base' as documented in
+> https://git-scm.com/docs/git-format-patch#_base_tree_information]
+> 
+> url:    https://github.com/intel-lab-lkp/linux/commits/Ryan-Roberts/prandom-Convert-prandom_u32_state-to-__always_inline/20251216-013546
+> base:   tip/sched/core
+> patch link:    https://lore.kernel.org/r/20251215163520.1144179-4-ryan.roberts%40arm.com
+> patch subject: [PATCH v2 3/3] randomize_kstack: Unify random source across arches
+> config: x86_64-rhel-9.4-ltp (https://download.01.org/0day-ci/archive/20251217/202512170038.vJZdUhEN-lkp@intel.com/config)
+> compiler: gcc-14 (Debian 14.2.0-19) 14.2.0
+> reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20251217/202512170038.vJZdUhEN-lkp@intel.com/reproduce)
+> 
+> If you fix the issue in a separate patch/commit (i.e. not just a new version of
+> the same patch/commit), kindly add following tags
+> | Reported-by: kernel test robot <lkp@intel.com>
+> | Closes: https://lore.kernel.org/oe-kbuild-all/202512170038.vJZdUhEN-lkp@intel.com/
+> 
+> All error/warnings (new ones prefixed by >>):
+> 
+>>> arch/x86/boot/startup/sev-startup.o: warning: objtool: section .discard.addressable has absolute relocation at offset 0x0
+> --
+>    In file included from include/linux/device/driver.h:21,
+>                     from include/linux/device.h:32,
+>                     from include/linux/blk_types.h:11,
+>                     from include/linux/writeback.h:13,
+>                     from include/linux/memcontrol.h:23,
+>                     from include/linux/resume_user_mode.h:8,
+>                     from include/linux/entry-virt.h:6,
+>                     from include/linux/kvm_host.h:5,
+>                     from arch/x86/kvm/svm/svm.c:3:
+>>> include/linux/module.h:132:49: error: redefinition of '__inittest'
+>      132 |         static inline initcall_t __maybe_unused __inittest(void)                \
+>          |                                                 ^~~~~~~~~~
+>    arch/x86/kvm/svm/svm.c:5509:1: note: in expansion of macro 'module_init'
+>     5509 | module_init(svm_init)
+>          | ^~~~~~~~~~~
+>    include/linux/module.h:132:49: note: previous definition of '__inittest' with type 'int (*(void))(void)'
+>      132 |         static inline initcall_t __maybe_unused __inittest(void)                \
+>          |                                                 ^~~~~~~~~~
+>    include/linux/module.h:125:41: note: in expansion of macro 'module_init'
+>      125 | #define late_initcall(fn)               module_init(fn)
+>          |                                         ^~~~~~~~~~~
+>    include/linux/randomize_kstack.h:86:1: note: in expansion of macro 'late_initcall'
+>       86 | late_initcall(random_kstack_init);
+>          | ^~~~~~~~~~~~~
 
-Applied, thanks!
+Oops, this is due to having put late_initcall() in the header file. I'll move
+this to a c file for the next version.
+
+Thanks for the report!
+
