@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B551D1C84D7;
-	Fri,  2 Jan 2026 07:01:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BB422D29C2;
+	Fri,  2 Jan 2026 07:01:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767337267; cv=none; b=mIhMyhFxkJfXDFsrDk2skBpJId9Vb+KxfCgnTbNbwTBLxoL65JreCj493rq6dyWmEmynrwC/jzjLKd+wdcAZ8q0c+oSz+yIyfR0nBfcx1Qy/d/RuQC7X+En9dQv8EVkp9c5A3lvVlOkRMHwlSFV8AKrEM1Xi5WDDFsmMH4349So=
+	t=1767337282; cv=none; b=gjv5c9bWrq/k2USSDI1fECTg69xjqrIhB7lLjvheaaUB+iE8tqp7tA+6vR5A41f3JB5kIlL/pu6OOj0ubE07RB3vROuQJ9u9OjUIsSLhX6ngh6iIIgkb5zspraKB3udn4QTo6ffKl6BoSbed3VAr41m9iErIkR9A8rrVTLCu0so=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767337267; c=relaxed/simple;
-	bh=sY65/RaZssilanqAkKMZORd+RGdNjje1eX8P0rlpw6A=;
+	s=arc-20240116; t=1767337282; c=relaxed/simple;
+	bh=djQarGwsnsMGImsgSQVJ5sD5jo+ZigjiDeQZakHIJZw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=uAb7BAjcKPLHYucnhFOvUngWb3gS/lo9vAF1dc3oqr5VcKXhToTwS59bFI+iNNSHEtFtZ+/OrJGR05Q67EleeAID4e2oYWUQ3LePJrHt6NkI6352KVSYdg9MlETfmQlJKETI6btIbzeuFHyJXdm0VaqMtrZX1nnglqhtf24urF8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FFZ7SBqL; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=rRJkooSTN6C/yY1D++NtF5Z8p6PQ7f7G5FpZpK5mIkAz6pnxAQh9C74f/ASN7ofhzKhvjI/TkZmnz+htYhn0lcufHMpnFdYvATGUCSD7qkOHCo7avgmmtADKx7+D9BNYKeeQqGIF9czdUrbAym7V5Zwpbw3iEq+6/BN2wNlE/Hw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YfFbGR66; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FFZ7SBqL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABEB7C116D0;
-	Fri,  2 Jan 2026 07:00:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YfFbGR66"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E256C116B1;
+	Fri,  2 Jan 2026 07:01:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1767337267;
-	bh=sY65/RaZssilanqAkKMZORd+RGdNjje1eX8P0rlpw6A=;
+	s=k20201202; t=1767337281;
+	bh=djQarGwsnsMGImsgSQVJ5sD5jo+ZigjiDeQZakHIJZw=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=FFZ7SBqLRszGA55Y0dcTAeVUAFfhPI1J/Zu+nhszyk401f32Bb6bWLRKqrB+W2AKm
-	 N38QT5+aUkSxN75WEW+blTrdKEOqeUiAH0BX1iOcat59Cv/SoweGwGsDzNvWrsSMlc
-	 3QSzDoZKQleHv/14oFELN4CDb8KsNap/u7uUJ7UeoPHZ3CgPa49XZbUQPGXWMVadAQ
-	 iGDYvbAw7yh54e+JFc4Kkqc0pB207lzVasPVl3cUpS+igbsvBxYsRn7xuxZTZdnkDI
-	 isfveZxYymcuq0kzbQxRSK8ezAytSigXlJWJalxOdK1KDDwocwk/lYGd7pPWjjMlNX
-	 rJZb3YeomLfgQ==
+	b=YfFbGR66VHayErTkQoIoUIc4G3/Zokhn15LvFAqjzKw26utOu1LBn48hs2H6HzNQq
+	 enWDeSBA/K3oa8124S39Ky2QzRfQWKFy5skfNoCEkG9sz9vKEVoMX6gEHdOtbCXbst
+	 YovEdBmAC4uGLaHGNAqP3BqXeZF+EKxoW8SDO9IcHD6qwesn+Gli/x6/TpHAYsUlrD
+	 UCxGtUCULcfUxhXrs9KtImo/ip7nUbo9TQd43s1ekjsaSWhD1ejl+EXFJWf86KxJTp
+	 WhffTvUE+ThhBNL4rEwUFZ6nXbB9jltND/rGE7Zw/xtewRIoZJM55k7N+y1oDTnXyg
+	 wl/J8tjy8RWJQ==
 From: Mike Rapoport <rppt@kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>
 Cc: Alex Shi <alexs@kernel.org>,
@@ -92,9 +92,9 @@ Cc: Alex Shi <alexs@kernel.org>,
 	linuxppc-dev@lists.ozlabs.org,
 	loongarch@lists.linux.dev,
 	sparclinux@vger.kernel.org
-Subject: [PATCH v2 03/28] arm: introduce arch_zone_limits_init()
-Date: Fri,  2 Jan 2026 08:59:39 +0200
-Message-ID: <20260102070005.65328-4-rppt@kernel.org>
+Subject: [PATCH v2 04/28] arm64: introduce arch_zone_limits_init()
+Date: Fri,  2 Jan 2026 08:59:40 +0200
+Message-ID: <20260102070005.65328-5-rppt@kernel.org>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260102070005.65328-1-rppt@kernel.org>
 References: <20260102070005.65328-1-rppt@kernel.org>
@@ -115,46 +115,69 @@ Later MM core will use this function as an architecture specific callback
 during nodes and zones initialization and thus there won't be a need to
 call free_area_init() from every architecture.
 
+While on it rename zone_sizes_init() to dma_limits_init() to better
+reflect what that function does.
+
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- arch/arm/mm/init.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ arch/arm64/mm/init.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
-index 54bdca025c9f..bdcc3639681f 100644
---- a/arch/arm/mm/init.c
-+++ b/arch/arm/mm/init.c
-@@ -107,18 +107,23 @@ void __init setup_dma_zone(const struct machine_desc *mdesc)
- #endif
+diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+index 524d34a0e921..06815d34cc11 100644
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -118,7 +118,21 @@ static phys_addr_t __init max_zone_phys(phys_addr_t zone_limit)
+ 	return min(zone_limit, memblock_end_of_DRAM() - 1) + 1;
  }
  
--static void __init zone_sizes_init(unsigned long min, unsigned long max_low,
--	unsigned long max_high)
-+void __init arch_zone_limits_init(unsigned long *max_zone_pfn)
- {
--	unsigned long max_zone_pfn[MAX_NR_ZONES] = { 0 };
--
- #ifdef CONFIG_ZONE_DMA
--	max_zone_pfn[ZONE_DMA] = min(arm_dma_pfn_limit, max_low);
-+	max_zone_pfn[ZONE_DMA] = min(arm_dma_pfn_limit, max_low_pfn);
- #endif
--	max_zone_pfn[ZONE_NORMAL] = max_low;
-+	max_zone_pfn[ZONE_NORMAL] = max_low_pfn;
- #ifdef CONFIG_HIGHMEM
--	max_zone_pfn[ZONE_HIGHMEM] = max_high;
-+	max_zone_pfn[ZONE_HIGHMEM] = max_pfn;
- #endif
+-static void __init zone_sizes_init(void)
++void __init arch_zone_limits_init(unsigned long *max_zone_pfns)
++{
++	phys_addr_t __maybe_unused dma32_phys_limit =
++		max_zone_phys(DMA_BIT_MASK(32));
++
++#ifdef CONFIG_ZONE_DMA
++	max_zone_pfns[ZONE_DMA] = PFN_DOWN(max_zone_phys(zone_dma_limit));
++#endif
++#ifdef CONFIG_ZONE_DMA32
++	max_zone_pfns[ZONE_DMA32] = PFN_DOWN(dma32_phys_limit);
++#endif
++	max_zone_pfns[ZONE_NORMAL] = max_pfn;
 +}
 +
-+static void __init zone_sizes_init(unsigned long min, unsigned long max_low,
-+	unsigned long max_high)
-+{
-+	unsigned long max_zone_pfn[MAX_NR_ZONES] = { 0 };
-+
-+	arch_zone_limits_init(max_zone_pfn);
- 	free_area_init(max_zone_pfn);
++static void __init dma_limits_init(void)
+ {
+ 	unsigned long max_zone_pfns[MAX_NR_ZONES]  = {0};
+ 	phys_addr_t __maybe_unused acpi_zone_dma_limit;
+@@ -139,17 +153,15 @@ static void __init zone_sizes_init(void)
+ 	if (memblock_start_of_DRAM() < U32_MAX)
+ 		zone_dma_limit = min(zone_dma_limit, U32_MAX);
+ 	arm64_dma_phys_limit = max_zone_phys(zone_dma_limit);
+-	max_zone_pfns[ZONE_DMA] = PFN_DOWN(arm64_dma_phys_limit);
+ #endif
+ #ifdef CONFIG_ZONE_DMA32
+-	max_zone_pfns[ZONE_DMA32] = PFN_DOWN(dma32_phys_limit);
+ 	if (!arm64_dma_phys_limit)
+ 		arm64_dma_phys_limit = dma32_phys_limit;
+ #endif
+ 	if (!arm64_dma_phys_limit)
+ 		arm64_dma_phys_limit = PHYS_MASK + 1;
+-	max_zone_pfns[ZONE_NORMAL] = max_pfn;
+ 
++	arch_zone_limits_init(max_zone_pfns);
+ 	free_area_init(max_zone_pfns);
  }
  
+@@ -319,7 +331,7 @@ void __init bootmem_init(void)
+ 	 * done after the fixed reservations
+ 	 */
+ 	sparse_init();
+-	zone_sizes_init();
++	dma_limits_init();
+ 
+ 	/*
+ 	 * Reserve the CMA area after arm64_dma_phys_limit was initialised.
 -- 
 2.51.0
 
