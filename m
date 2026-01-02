@@ -1,89 +1,124 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04B0B288C08;
-	Fri,  2 Jan 2026 18:04:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 520D818A6A8
+	for <linux-s390@vger.kernel.org>; Fri,  2 Jan 2026 22:54:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767377074; cv=none; b=S2xFvuh3QBo29dnRln/1irMEtuaHWuXjghfyTkCgVE+5fMny444E9SzB4FmlrOGIygy7bLBgQLFUoAFD0O2h6sP0uZZWnkBv50vKyJOVdbeZmSNpnMwHbl23S4sxhirxHHd5TxWu+h/+gnshBheK2g+Bt7nHal576dXBHbhQWGw=
+	t=1767394449; cv=none; b=UX5sl96gf+U+iaNBRCCz4sV14o+ImK1k0CYxDCkuRO3FJ4EnT0QV2I2fdXxnYrXFLUOOKFJbBmJFFTjsep6bsrxbh1GDN5CStsnXG3k01JCJOTK8SfPY8T+LOqFS0LLZcAFi2wgsHT0OoecdciETVETk9rdFH31edDyxzm3BxVw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767377074; c=relaxed/simple;
-	bh=9Q3BCyqOSN+oJgFNTsghHD+u6iamA25tuC/5QoeUzQI=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=duraF7lyrEPP1WZU4yIkiZPZL6RHVlZpevVMUKDvYqbJlQ4s48ngzUn4wzDJ4DuM9yu60mqdMeP0L7xXi0nIK7YMGrfdh+Td9szq6wMVfOYCHcblBdEOFjZDsTHCJf+yKj7y8zeedHfd3tAKyU5yJTZXlPscgxMub/qKCp4KwRo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=m4LVIjF3; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1767394449; c=relaxed/simple;
+	bh=kPMxx2R7Gx5ZxYwa7SRt+S3sFaD5KMccJKMZB0MZviE=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=fA29PwsGDdcsCSHXgzsjlx4bOUJ9BSpEioVNXUKq3exGdWxDKr/BZ0qyo9tA+3IMKFIa5oD2y4hcoAKEQz0KAcus9OOQwYUs3xO8kkU3PSTkL+s6y0ZqNBxduTLjMCgqrjk6mCd7HPl/+s8EhEfyHXj/BsAev5KlwIIgwPQuhpY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SYXCMywc; arc=none smtp.client-ip=209.85.221.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="m4LVIjF3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDEB7C116B1;
-	Fri,  2 Jan 2026 18:04:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-	s=korg; t=1767377072;
-	bh=9Q3BCyqOSN+oJgFNTsghHD+u6iamA25tuC/5QoeUzQI=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=m4LVIjF3/x1+uJPkmzdQVneFBhdr/tNflWJvzon2aAKXFzapOWWp8T9zfIUe6d3Fu
-	 /gElMshb/CMy7xVVdFVFtfq0zPQL7Po74BU1gTpXa7kMFv+gt7F6M9I77NtH9DPO1l
-	 PeYULVm06wYXARz/UnbL6bNqJludz4ddsr/It9s4=
-Date: Fri, 2 Jan 2026 10:04:30 -0800
-From: Andrew Morton <akpm@linux-foundation.org>
-To: Mike Rapoport <rppt@kernel.org>
-Cc: Alex Shi <alexs@kernel.org>, Alexander Gordeev <agordeev@linux.ibm.com>,
- Andreas Larsson <andreas@gaisler.com>, Borislav Petkov <bp@alien8.de>,
- Brian Cain <bcain@kernel.org>, "Christophe Leroy (CS GROUP)"
- <chleroy@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>,
- "David S. Miller" <davem@davemloft.net>, Dave Hansen
- <dave.hansen@linux.intel.com>, David Hildenbrand <david@kernel.org>, Dinh
- Nguyen <dinguyen@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>,
- Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Helge
- Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar
- <mingo@redhat.com>, Johannes Berg <johannes@sipsolutions.net>, John Paul
- Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Jonathan Corbet
- <corbet@lwn.net>, "Liam R. Howlett" <Liam.Howlett@oracle.com>, Lorenzo
- Stoakes <lorenzo.stoakes@oracle.com>, Magnus Lindholm <linmag7@gmail.com>,
- Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Michal Hocko <mhocko@suse.com>,
- Michal Simek <monstr@monstr.eu>, Muchun Song <muchun.song@linux.dev>, Oscar
- Salvador <osalvador@suse.de>, Palmer Dabbelt <palmer@dabbelt.com>, Pratyush
- Yadav <pratyush@kernel.org>, Richard Weinberger <richard@nod.at>, Russell
- King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Suren
- Baghdasaryan <surenb@google.com>, Thomas Bogendoerfer
- <tsbogend@alpha.franken.de>, Thomas Gleixner <tglx@linutronix.de>, Vasily
- Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>, Vlastimil
- Babka <vbabka@suse.cz>, Will Deacon <will@kernel.org>, x86@kernel.org,
- linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-csky@vger.kernel.org, linux-cxl@vger.kernel.org,
- linux-doc@vger.kernel.org, linux-hexagon@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-mm@kvack.org,
- linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
- linux-um@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
- loongarch@lists.linux.dev, sparclinux@vger.kernel.org
-Subject: Re: [PATCH 00/28] arch, mm: consolidate hugetlb early reservation
-Message-Id: <20260102100430.623bc1d19b867588bc64f890@linux-foundation.org>
-In-Reply-To: <aVdswNM9PUN6Kr8Q@kernel.org>
-References: <20251228124001.3624742-1-rppt@kernel.org>
-	<20251231172714.a7fe44e856c14fdc8fe1cb43@linux-foundation.org>
-	<aVdswNM9PUN6Kr8Q@kernel.org>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SYXCMywc"
+Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-430f5ecaa08so5070459f8f.3
+        for <linux-s390@vger.kernel.org>; Fri, 02 Jan 2026 14:54:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1767394446; x=1767999246; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=StGZh5UIhFdeUEf/ngmSy2NSY5Z+LAPTFt5BciOr9oI=;
+        b=SYXCMywc3jtTL3eeoySGXWzOryGNIh716Yk2bb5NqvXUeaI0YVh7snV0fnf7BsuMOa
+         PIDk0tLAD/eNgqSMUAfaEYm6bsGmlCYPJ4SAP7mTO5V2ihUnjtY0paWhTe5U7mzXQGOF
+         NXEO87yUbnAAxGQBEhwheV5eHqRRan5hrOmPSvYBaa6Zdyp1r1YfLjYOuR4x1j+yZh/h
+         jzmvLp0XizDEgpnSmob3rsXlXJnnIaojUNjILlYXZq2Xbv990ROsc/xZEmRc733xZj3Z
+         +IZHI69tinmTsmuc6iIiX48zrFX4tuN4Xe+UG4HvVwjsp5JWOQVZGscpJTZ23SeejvmI
+         jL4w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1767394446; x=1767999246;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=StGZh5UIhFdeUEf/ngmSy2NSY5Z+LAPTFt5BciOr9oI=;
+        b=R1dFWmLv9I5OY0iL65Nwj8zRPzfCLzurCi9mUsrx2ylzztCN2tv58btpTEQGrdtQ5B
+         3EorYinT/yE0HfO8ZQ/7qDKQ2dANC1ZiqYV6joRWyScbUXiqYEi7gt1uVb7DeEViYB8j
+         j3Vh/q42kejYekef51SxMW7yZxz3Xct+wPspv3NVCMbv8YkCcqxjSwp0DDZdBkBglP/3
+         78locV7FfludNiegdCdfd80HKNe/c5rZ/6nynqN+o2iFAKTiMmaKNqUbe6yJrRCRW0iH
+         g7mWWgs9/C1VY8yoKXK0RwjRw2sMYuTiLL6UP7ovLT0QdWmb5rP36wwntH0DAGQHzoFw
+         xjWw==
+X-Forwarded-Encrypted: i=1; AJvYcCWJBRrYVFggXZPdwYd6v4m9wml7DmANHqnw+sYyP4pFIYa0jFoTIoUwjsqFb/Ece2+bmbz5dWRbrAMx@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz/5EgxOJ2qOyTyPIcPlA3yBAH6tVSDUv56OCH4u+dIsC5/EleE
+	+CpUe9oxnBEpgpaKjsBqN4vZ7lAt4UFNbS4qhzf4aGYxFihilS8RW6FS
+X-Gm-Gg: AY/fxX55t9OCsICSVO1wF1A/kdZ1Nc7e0hf8Ewyl5WcAQE/1NP7ErZsqD7wesJRB82R
+	wjVTfZjmygMhGx/lcCiU1pJBzRhpcxCGFOtXqK60pKiYBSnL43hccP8pSDXAUkK6jkHLGHx5T0Q
+	tHjdOEoMs8caj1kxGHGBao+lfAue+8304+01nvK75MVwB7LRG/kwcin30cIh7sd4PerkLwcsAQZ
+	bWnlAVhasWlM/EFjcMl4e5AAyiCpm1m7zF65jCa4Yxjb6tMuvf/2oJV0DkhlQJYfpBoLsRyD8e3
+	QuOq/3Z5eqW7/V06ZMjtrRzmLchxkM8P7qOi5qSD8PhiMG68b9jFGtuQot6MLJX9qTSZzjeynoJ
+	mmiX3duHo3hT+6uwxGigOc5jWYb7GeRyY5wvXmbIkuHMJa+GU/IVEWjFYgdXbNYCoznBX/+n0mO
+	EUxo3pPNyDJBb3ecSkmjQ5c+Hz6iTfYv9G2raamVLrzaueIO0zC6A7
+X-Google-Smtp-Source: AGHT+IHhZlcstoHojBz97OFk5owjy0cbb1cp4fYnQEbcnWo+WUycqSneA9mdGDNlnSrZ5xQclO2tXg==
+X-Received: by 2002:a5d:5392:0:b0:42f:edb6:3642 with SMTP id ffacd0b85a97d-4324e704c03mr44422531f8f.60.1767394445433;
+        Fri, 02 Jan 2026 14:54:05 -0800 (PST)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4324eab2ebfsm86000586f8f.40.2026.01.02.14.54.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 02 Jan 2026 14:54:05 -0800 (PST)
+Date: Fri, 2 Jan 2026 22:54:03 +0000
+From: David Laight <david.laight.linux@gmail.com>
+To: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: Ryan Roberts <ryan.roberts@arm.com>, Catalin Marinas
+ <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Huacai Chen
+ <chenhuacai@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael
+ Ellerman <mpe@ellerman.id.au>, Paul Walmsley <pjw@kernel.org>, Palmer
+ Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Heiko
+ Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander
+ Gordeev <agordeev@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
+ <dave.hansen@linux.intel.com>, Kees Cook <kees@kernel.org>, "Gustavo A. R.
+ Silva" <gustavoars@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Mark Rutland
+ <mark.rutland@arm.com>, Ard Biesheuvel <ardb@kernel.org>, Jeremy Linton
+ <jeremy.linton@arm.com>, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org
+Subject: Re: [PATCH v3 2/3] prandom: Convert prandom_u32_state() to
+ __always_inline
+Message-ID: <20260102225403.78e26214@pumpkin>
+In-Reply-To: <CAHmME9qHiVZwf4TAringRHSZ-yqHuPwmP=Wnx98n09jv7Vu_Rg@mail.gmail.com>
+References: <20260102131156.3265118-1-ryan.roberts@arm.com>
+	<20260102131156.3265118-3-ryan.roberts@arm.com>
+	<CAHmME9qHiVZwf4TAringRHSZ-yqHuPwmP=Wnx98n09jv7Vu_Rg@mail.gmail.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Fri, 2 Jan 2026 08:59:12 +0200 Mike Rapoport <rppt@kernel.org> wrote:
+On Fri, 2 Jan 2026 14:39:21 +0100
+"Jason A. Donenfeld" <Jason@zx2c4.com> wrote:
 
-> > > I tried to trim the distribution list and although it's still quite long
-> > > if you feel that someone was wrongly excluded please add them back.
-> > 
-> > I'll add these to mm.git's mm-new branch for some testing.  I'll
-> > suppress the usual email storm because 41 * 28 is a lot of emails ;)
+> Hi Ryan,
+...
+> > +static __always_inline u32 prandom_u32_state(struct rnd_state *state)  
 > 
-> kbuild reported failures on some configurations so I'm anyway going to send
-> a lot of emails for v2 :)
+> Why not just normal `inline`? Is gcc disagreeing with the inlinability
+> of this function?
 
-Cool, I grabbed v2.
+gcc has a mind of its own when it comes to inlining.
+If there weren't some massive functions marked 'inline' that should never
+really be inlined then making 'inline' '__always_inline' would make sense.
+But first an audit would be needed.
+(This has come up several times in the past.)
+But if you need a function to be inlined (for any reason) it needs to be
+always_inline.
+
+Whether there should be an non-inlined 'option' here is another matter.
+There could be a normal function that calls the inlined version.
+
+	David
+
+
+> 
+> Jason
+> 
+
