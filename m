@@ -1,91 +1,152 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D976311C11
-	for <linux-s390@vger.kernel.org>; Fri,  2 Jan 2026 13:39:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5F99C30F547;
+	Fri,  2 Jan 2026 14:09:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767361185; cv=none; b=W8xqT6UEsZrKzpOXNhMLQ0J9Suwd1BLZGE+b3YEf4TLm32jIURj/yLj8hJZWB/yzLiif0Cg2Hju1UcyTP6STzJZ+ZTjYMu+fIa3pE5nSPAI7mX37Ol9R/z/gDgupxywNc4UTdEfcLRavNgbNnNv8IqLsXcMcSdz9gZ/lT4VU+VY=
+	t=1767362976; cv=none; b=cN0GooGU7fqzNYxsssCCIeMARrK/sRM3uhunXSovMAAsYHe84nCKmUmqdjityWeSgOQ1gWfqUIMwg9o+Gu9d0StkBHS2ibKV5NLMJEliJmBWoEIGlsmtbqc8E9nOcMPFlGfzVRyTOEC33KURdCTYC5oBbtw5pAyWPe/Gy0qwxh4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767361185; c=relaxed/simple;
-	bh=SVGIiSWIzg80Bqq7LCYYlALqbBWZ2ofIsrcdUHfyZPU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KVcUBCphy+ar1hxyZ4ickBuGSUlYSM6d1T3b4GYCW0X3xYdYq1n72daC0jWvHUqnjyh0r55mB1LcpZ5LCexlZUt9jme8JyIWHVqCNJxHkTOo6Dt5jE9I7W0RcilHZ1/Fp9lj14ND36rRcKZG6cWMUoy74wXxjrkdmQ0CHl0FSbA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b=bW2ENvpW; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="bW2ENvpW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 403D3C19424
-	for <linux-s390@vger.kernel.org>; Fri,  2 Jan 2026 13:39:45 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-	dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="bW2ENvpW"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-	t=1767361177;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SVGIiSWIzg80Bqq7LCYYlALqbBWZ2ofIsrcdUHfyZPU=;
-	b=bW2ENvpWXyyENTYao9a8vpF6KdMw2iFyt3fMDnWm28sEiGCG1ZAVfj8QBckNS1URBdKuSy
-	qMkKWGSU/R3XJnRP9oKK+a6PfgA0khTJvm4Y4kYpV+AgAW4PmlGOVPDAd3T5sq+1zoMJ/V
-	G5EA9eYLmQnrQH/pUXdhhleeLIDRB8c=
-Received: 
-	by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 79c768c2 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO)
-	for <linux-s390@vger.kernel.org>;
-	Fri, 2 Jan 2026 13:39:37 +0000 (UTC)
-Received: by mail-ot1-f51.google.com with SMTP id 46e09a7af769-7ce0ef9d4eeso1073403a34.1
-        for <linux-s390@vger.kernel.org>; Fri, 02 Jan 2026 05:39:36 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCUHIRqlFvhiwOwk4xEfSVPnFu3KpNJ9Tkr1bjsIaSOoQZdMIe8+1JvfN5ax9NfNeaoxhozABS7L1Rg6@vger.kernel.org
-X-Gm-Message-State: AOJu0YyzkVQ7JzTud/V7GET+cVzG03csru9jOwUB0pUEZEpHMr0Gq9+E
-	IsIpiiL+USH0oYz6TfUEV0VHtm3xLoym9N6+Y8lbGGFPwMLFme4O2nN9fnkBHioBp4jdXCh7f7Z
-	+bXqIVLyPmSqwEXMjGCldEiS2brF3jHc=
-X-Google-Smtp-Source: AGHT+IFV0P4UwOKgGcidVSe3+C3GT9JSRutBmyTJY+Ko+TYwuWXifwQH5m/QQSPv0qrqCY9iwE1wKuoYX25E7txH4AI=
-X-Received: by 2002:a05:6830:4c08:b0:7c7:65f4:1120 with SMTP id
- 46e09a7af769-7cc66a6f068mr24618037a34.23.1767361173696; Fri, 02 Jan 2026
- 05:39:33 -0800 (PST)
+	s=arc-20240116; t=1767362976; c=relaxed/simple;
+	bh=tUD7t3uTv1XjlGmiwab57iZIIVFTQQvmPiyZ4sShcT8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=aJjbvZucGEdgBDjcxt08UgGT7yM0LUW4wSIUEfZKUIxbqz/4mtJw/GreKBY/ZDa5YYUFlOitvr/JJ9Q/2R/aJlYaNlCB+feQyGVt397d0t1tOTeCbTnqgojdEMOWg7SWmIOQRr5FNg0dQa7nRVfdSZojELkgrIbCHh9ZNV1vpOc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C207F497;
+	Fri,  2 Jan 2026 06:09:25 -0800 (PST)
+Received: from [10.57.94.221] (unknown [10.57.94.221])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3DD043F63F;
+	Fri,  2 Jan 2026 06:09:28 -0800 (PST)
+Message-ID: <719b7b99-3615-46cd-84d9-8b8fc21e3ce9@arm.com>
+Date: Fri, 2 Jan 2026 14:09:26 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260102131156.3265118-1-ryan.roberts@arm.com> <20260102131156.3265118-3-ryan.roberts@arm.com>
-In-Reply-To: <20260102131156.3265118-3-ryan.roberts@arm.com>
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date: Fri, 2 Jan 2026 14:39:21 +0100
-X-Gmail-Original-Message-ID: <CAHmME9qHiVZwf4TAringRHSZ-yqHuPwmP=Wnx98n09jv7Vu_Rg@mail.gmail.com>
-X-Gm-Features: AQt7F2qdo3e8gMqv9IRozONnOouAGf6XyGKVO6JwEtjeNVfJ3A-5G4I57eyZbDw
-Message-ID: <CAHmME9qHiVZwf4TAringRHSZ-yqHuPwmP=Wnx98n09jv7Vu_Rg@mail.gmail.com>
-Subject: Re: [PATCH v3 2/3] prandom: Convert prandom_u32_state() to __always_inline
-To: Ryan Roberts <ryan.roberts@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
-	Huacai Chen <chenhuacai@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, Kees Cook <kees@kernel.org>, 
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
-	Mark Rutland <mark.rutland@arm.com>, Ard Biesheuvel <ardb@kernel.org>, 
-	Jeremy Linton <jeremy.linton@arm.com>, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 2/3] prandom: Convert prandom_u32_state() to
+ __always_inline
+Content-Language: en-GB
+To: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Huacai Chen <chenhuacai@kernel.org>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <pjw@kernel.org>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ Kees Cook <kees@kernel.org>, "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+ Arnd Bergmann <arnd@arndb.de>, Mark Rutland <mark.rutland@arm.com>,
+ Ard Biesheuvel <ardb@kernel.org>, Jeremy Linton <jeremy.linton@arm.com>,
+ linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-hardening@vger.kernel.org
+References: <20260102131156.3265118-1-ryan.roberts@arm.com>
+ <20260102131156.3265118-3-ryan.roberts@arm.com>
+ <CAHmME9qHiVZwf4TAringRHSZ-yqHuPwmP=Wnx98n09jv7Vu_Rg@mail.gmail.com>
+From: Ryan Roberts <ryan.roberts@arm.com>
+In-Reply-To: <CAHmME9qHiVZwf4TAringRHSZ-yqHuPwmP=Wnx98n09jv7Vu_Rg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Hi Ryan,
+On 02/01/2026 13:39, Jason A. Donenfeld wrote:
+> Hi Ryan,
+> 
+> On Fri, Jan 2, 2026 at 2:12 PM Ryan Roberts <ryan.roberts@arm.com> wrote:
+>> context. Given the function is just a handful of operations and doesn't
+> 
+> How many? What's this looking like in terms of assembly? 
 
-On Fri, Jan 2, 2026 at 2:12=E2=80=AFPM Ryan Roberts <ryan.roberts@arm.com> =
-wrote:
-> context. Given the function is just a handful of operations and doesn't
+25 instructions on arm64:
 
-How many? What's this looking like in terms of assembly? It'd also be
-nice to have some brief analysis of other call sites to have
-confirmation this isn't blowing up other users.
+0000000000000000 <prandom_u32_state>:
+   0:	29401403 	ldp	w3, w5, [x0]
+   4:	aa0003e1 	mov	x1, x0
+   8:	29410002 	ldp	w2, w0, [x0, #8]
+   c:	531e74a4 	lsl	w4, w5, #2
+  10:	530e3468 	lsl	w8, w3, #18
+  14:	4a0400a5 	eor	w5, w5, w4
+  18:	4a031863 	eor	w3, w3, w3, lsl #6
+  1c:	53196047 	lsl	w7, w2, #7
+  20:	53134806 	lsl	w6, w0, #13
+  24:	4a023442 	eor	w2, w2, w2, lsl #13
+  28:	4a000c00 	eor	w0, w0, w0, lsl #3
+  2c:	121b6884 	and	w4, w4, #0xffffffe0
+  30:	120d3108 	and	w8, w8, #0xfff80000
+  34:	121550e7 	and	w7, w7, #0xfffff800
+  38:	120c2cc6 	and	w6, w6, #0xfff00000
+  3c:	2a456c85 	orr	w5, w4, w5, lsr #27
+  40:	2a433504 	orr	w4, w8, w3, lsr #13
+  44:	2a4254e3 	orr	w3, w7, w2, lsr #21
+  48:	2a4030c2 	orr	w2, w6, w0, lsr #12
+  4c:	4a020066 	eor	w6, w3, w2
+  50:	4a050080 	eor	w0, w4, w5
+  54:	4a0000c0 	eor	w0, w6, w0
+  58:	29001424 	stp	w4, w5, [x1]
+  5c:	29010823 	stp	w3, w2, [x1, #8]
+  60:	d65f03c0 	ret
 
-> +static __always_inline u32 prandom_u32_state(struct rnd_state *state)
+> It'd also be
+> nice to have some brief analysis of other call sites to have
+> confirmation this isn't blowing up other users.
 
-Why not just normal `inline`? Is gcc disagreeing with the inlinability
-of this function?
+I compiled defconfig before and after this patch on arm64 and compared the text
+sizes:
 
-Jason
+$ ./scripts/bloat-o-meter -t vmlinux.before vmlinux.after
+add/remove: 3/4 grow/shrink: 4/1 up/down: 836/-128 (708)
+Function                                     old     new   delta
+prandom_seed_full_state                      364     932    +568
+pick_next_task_fair                         1940    2036     +96
+bpf_user_rnd_u32                             104     196     +92
+prandom_bytes_state                          204     260     +56
+e843419@0f2b_00012d69_e34                      -       8      +8
+e843419@0db7_00010ec3_23ec                     -       8      +8
+e843419@02cb_00003767_25c                      -       8      +8
+bpf_prog_select_runtime                      448     444      -4
+e843419@0aa3_0000cfd1_1580                     8       -      -8
+e843419@0aa2_0000cfba_147c                     8       -      -8
+e843419@075f_00008d8c_184                      8       -      -8
+prandom_u32_state                            100       -    -100
+Total: Before=19078072, After=19078780, chg +0.00%
+
+So 708 bytes more after inlining. The main cost is prandom_seed_full_state(),
+which calls prandom_u32_state() 10 times (via prandom_warmup()). I expect we
+could turn that into a loop to reduce ~450 bytes overall.
+
+I'm not really sure if 708 is good or bad...
+
+> 
+>> +static __always_inline u32 prandom_u32_state(struct rnd_state *state)
+> 
+> Why not just normal `inline`? Is gcc disagreeing with the inlinability
+> of this function?
+
+Given this needs to be called from a noinstr function, I didn't want to give the
+compiler the opportunity to decide not to inline it, since in that case, some
+instrumentation might end up being applied to the function body which would blow
+up when called in the noinstr context.
+
+I think the other 2 options are to keep prandom_u32_state() in the c file but
+mark it noinstr or rearrange all the users so that thay don't call it until
+instrumentation is allowable. The latter is something I was trying to avoid.
+
+There is some previous discussion of this at [1].
+
+[1] https://lore.kernel.org/all/aS65LFUfdgRPKv1l@J2N7QTR9R3/
+
+Perhaps keeping prandom_u32_state() in the c file and making it noinstr is the
+best compromise?
+
+Thanks,
+Ryan
+
+> 
+> Jason
+
