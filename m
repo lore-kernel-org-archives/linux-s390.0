@@ -1,25 +1,25 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0680B2DA779;
-	Mon,  5 Jan 2026 10:34:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id D5AE717A303;
+	Mon,  5 Jan 2026 10:36:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767609289; cv=none; b=KOe0/y0EyAHGmJFKW8TiRdTe+tD7au7z4K9AgBEtFSDH/Vbp4kDk/OuLVBsxKVaPIuUY/06e39wKO6LNRol6r5DvOTN+ujmDNYRLq51UH7wM6Dpm7u7YAi0tmSIMQ4C/4OlYfw6R2K3JY8f4vFbzIHRKtrhf/0a3jDYdw00mezU=
+	t=1767609401; cv=none; b=Viy0Yrx8Y0E4kwdw4bMs9axMm8Q/HtKE2STcu/t7CZoraCAjm/BMbdDe6AqQcJrgazsDnVH36O3OBOnrSEk9mIGUp23HW2hNp/5e7u3uYSi6luWWVzH2VP5mzmuMStRzCkD1FBwGhfJtFbN5+wZ5v7SCcsUhGYpywU6NbOoJQIw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767609289; c=relaxed/simple;
-	bh=E3GvZCozys+lMIyheRjUCxITkUVnHzz4azIXvRjyRHk=;
+	s=arc-20240116; t=1767609401; c=relaxed/simple;
+	bh=FL6VuC88Y38HekqbcaZzP32fl5ORxtJOS42gNVYn6BY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kGuqnvxK8fsiCxfxgMsNPbaLFRz210WBzR/pCs9XbgM7LZq3khvKR3egQU9rZZBcOItvT2DlKUxCLrDfgF3x+N+FZikNNX3M8ZTeOMgqsi41aZ4YTq1RRjAnYbjx0sATyAIgQpS0Ig09yxVwVFUUKtebYuQPHk0UhCknZbpa0DI=
+	 In-Reply-To:Content-Type; b=FINon+SquwagAFOrzUZZjl9L0LXW9vG/Bsn1LE6m1SHTkSpy/+2VONrR0eSLe4BnKrrwQL5BVT2a6wr4QPnCX44N2uwEOUPhOmcg5xhXgC54OUYiQU+BLwqj4QGTQ7RUkPl7tk0R2TKKvvDgGW9JmLvulvNopcJ6RGI5aun+618=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2E915497;
-	Mon,  5 Jan 2026 02:34:39 -0800 (PST)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 610D5497;
+	Mon,  5 Jan 2026 02:36:32 -0800 (PST)
 Received: from [10.1.38.150] (XHFQ2J9959.cambridge.arm.com [10.1.38.150])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id A24513F6A8;
-	Mon,  5 Jan 2026 02:34:42 -0800 (PST)
-Message-ID: <76a21b45-31f4-462d-a51f-9ae72004ffc7@arm.com>
-Date: Mon, 5 Jan 2026 10:34:41 +0000
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id C66F83F6A8;
+	Mon,  5 Jan 2026 02:36:35 -0800 (PST)
+Message-ID: <3062af1d-48b3-4d64-8528-3470e07069bb@arm.com>
+Date: Mon, 5 Jan 2026 10:36:34 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -30,9 +30,9 @@ User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v3 2/3] prandom: Convert prandom_u32_state() to
  __always_inline
 Content-Language: en-GB
-To: David Laight <david.laight.linux@gmail.com>
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+To: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+ "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
  Huacai Chen <chenhuacai@kernel.org>,
  Madhavan Srinivasan <maddy@linux.ibm.com>,
  Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <pjw@kernel.org>,
@@ -52,189 +52,203 @@ References: <20260102131156.3265118-1-ryan.roberts@arm.com>
  <20260102131156.3265118-3-ryan.roberts@arm.com>
  <CAHmME9qHiVZwf4TAringRHSZ-yqHuPwmP=Wnx98n09jv7Vu_Rg@mail.gmail.com>
  <719b7b99-3615-46cd-84d9-8b8fc21e3ce9@arm.com>
- <20260103104627.2f385d20@pumpkin>
+ <563a5d0d-c27a-45de-9495-a82403026886@kernel.org>
 From: Ryan Roberts <ryan.roberts@arm.com>
-In-Reply-To: <20260103104627.2f385d20@pumpkin>
+In-Reply-To: <563a5d0d-c27a-45de-9495-a82403026886@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On 03/01/2026 10:46, David Laight wrote:
-> On Fri, 2 Jan 2026 14:09:26 +0000
-> Ryan Roberts <ryan.roberts@arm.com> wrote:
+On 03/01/2026 08:00, Christophe Leroy (CS GROUP) wrote:
 > 
+> 
+> Le 02/01/2026 à 15:09, Ryan Roberts a écrit :
 >> On 02/01/2026 13:39, Jason A. Donenfeld wrote:
 >>> Hi Ryan,
 >>>
->>> On Fri, Jan 2, 2026 at 2:12 PM Ryan Roberts <ryan.roberts@arm.com> wrote:  
->>>> context. Given the function is just a handful of operations and doesn't  
+>>> On Fri, Jan 2, 2026 at 2:12 PM Ryan Roberts <ryan.roberts@arm.com> wrote:
+>>>> context. Given the function is just a handful of operations and doesn't
 >>>
->>> How many? What's this looking like in terms of assembly?   
+>>> How many? What's this looking like in terms of assembly?
 >>
 >> 25 instructions on arm64:
->>
->> 0000000000000000 <prandom_u32_state>:
->>    0:	29401403 	ldp	w3, w5, [x0]
->>    4:	aa0003e1 	mov	x1, x0
->>    8:	29410002 	ldp	w2, w0, [x0, #8]
->>    c:	531e74a4 	lsl	w4, w5, #2
->>   10:	530e3468 	lsl	w8, w3, #18
->>   14:	4a0400a5 	eor	w5, w5, w4
->>   18:	4a031863 	eor	w3, w3, w3, lsl #6
->>   1c:	53196047 	lsl	w7, w2, #7
->>   20:	53134806 	lsl	w6, w0, #13
->>   24:	4a023442 	eor	w2, w2, w2, lsl #13
->>   28:	4a000c00 	eor	w0, w0, w0, lsl #3
->>   2c:	121b6884 	and	w4, w4, #0xffffffe0
->>   30:	120d3108 	and	w8, w8, #0xfff80000
->>   34:	121550e7 	and	w7, w7, #0xfffff800
->>   38:	120c2cc6 	and	w6, w6, #0xfff00000
->>   3c:	2a456c85 	orr	w5, w4, w5, lsr #27
->>   40:	2a433504 	orr	w4, w8, w3, lsr #13
->>   44:	2a4254e3 	orr	w3, w7, w2, lsr #21
->>   48:	2a4030c2 	orr	w2, w6, w0, lsr #12
->>   4c:	4a020066 	eor	w6, w3, w2
->>   50:	4a050080 	eor	w0, w4, w5
->>   54:	4a0000c0 	eor	w0, w6, w0
->>   58:	29001424 	stp	w4, w5, [x1]
->>   5c:	29010823 	stp	w3, w2, [x1, #8]
->>   60:	d65f03c0 	ret
 > 
-> That is gcc, clang seems to generate something horrid (from godbolt).
-> I'm not sure what it has tried to do (and maybe it can't in kernel)
-> but it clearly doesn't help!
-> .LCPI0_0:
->         .word   18
->         .word   2
->         .word   7
->         .word   13
-> .LCPI0_1:
->         .word   6
->         .word   2
->         .word   13
->         .word   3
-> .LCPI0_2:
->         .word   4294443008
->         .word   4294967264
->         .word   4294965248
->         .word   4293918720
-> .LCPI0_3:
->         .word   4294967283
->         .word   4294967269
->         .word   4294967275
->         .word   4294967284
-> prandom_u32_state:
->         adrp    x9, .LCPI0_1
->         ldr     q0, [x0]
->         adrp    x10, .LCPI0_3
->         ldr     q1, [x9, :lo12:.LCPI0_1]
->         adrp    x9, .LCPI0_0
->         ldr     q3, [x10, :lo12:.LCPI0_3]
->         ldr     q2, [x9, :lo12:.LCPI0_0]
->         adrp    x9, .LCPI0_2
->         mov     x8, x0
->         ushl    v1.4s, v0.4s, v1.4s
->         ushl    v2.4s, v0.4s, v2.4s
->         eor     v0.16b, v1.16b, v0.16b
->         ldr     q1, [x9, :lo12:.LCPI0_2]
->         and     v1.16b, v2.16b, v1.16b
->         ushl    v0.4s, v0.4s, v3.4s
->         orr     v0.16b, v0.16b, v1.16b
->         ext     v1.16b, v0.16b, v0.16b, #8
->         str     q0, [x8]
->         eor     v1.8b, v0.8b, v1.8b
->         fmov    x9, d1
->         lsr     x10, x9, #32
->         eor     w0, w9, w10
->         ret
+> 31 instructions on powerpc:
 > 
-> The x86 versions are a little longer (arm's barrel shifter helps a lot).
+> 00000000 <prandom_u32_state>:
+>    0:    7c 69 1b 78     mr      r9,r3
+>    4:    80 63 00 00     lwz     r3,0(r3)
+>    8:    80 89 00 08     lwz     r4,8(r9)
+>    c:    81 69 00 04     lwz     r11,4(r9)
+>   10:    80 a9 00 0c     lwz     r5,12(r9)
+>   14:    54 67 30 32     slwi    r7,r3,6
+>   18:    7c e7 1a 78     xor     r7,r7,r3
+>   1c:    55 66 10 3a     slwi    r6,r11,2
+>   20:    54 88 68 24     slwi    r8,r4,13
+>   24:    54 63 90 18     rlwinm  r3,r3,18,0,12
+>   28:    7d 6b 32 78     xor     r11,r11,r6
+>   2c:    7d 08 22 78     xor     r8,r8,r4
+>   30:    54 aa 18 38     slwi    r10,r5,3
+>   34:    54 e7 9b 7e     srwi    r7,r7,13
+>   38:    7c e7 1a 78     xor     r7,r7,r3
+>   3c:    51 66 2e fe     rlwimi  r6,r11,5,27,31
+>   40:    54 84 38 28     rlwinm  r4,r4,7,0,20
+>   44:    7d 4a 2a 78     xor     r10,r10,r5
+>   48:    55 08 5d 7e     srwi    r8,r8,21
+>   4c:    7d 08 22 78     xor     r8,r8,r4
+>   50:    7c e3 32 78     xor     r3,r7,r6
+>   54:    54 a5 68 16     rlwinm  r5,r5,13,0,11
+>   58:    55 4a a3 3e     srwi    r10,r10,12
+>   5c:    7d 4a 2a 78     xor     r10,r10,r5
+>   60:    7c 63 42 78     xor     r3,r3,r8
+>   64:    90 e9 00 00     stw     r7,0(r9)
+>   68:    90 c9 00 04     stw     r6,4(r9)
+>   6c:    91 09 00 08     stw     r8,8(r9)
+>   70:    91 49 00 0c     stw     r10,12(r9)
+>   74:    7c 63 52 78     xor     r3,r3,r10
+>   78:    4e 80 00 20     blr
+> 
+> Among those, 8 instructions are for reading/writing the state in stack. They of
+> course disappear when inlining.
 > 
 >>
 >>> It'd also be
 >>> nice to have some brief analysis of other call sites to have
->>> confirmation this isn't blowing up other users.  
+>>> confirmation this isn't blowing up other users.
 >>
 >> I compiled defconfig before and after this patch on arm64 and compared the text
 >> sizes:
 >>
 >> $ ./scripts/bloat-o-meter -t vmlinux.before vmlinux.after
 >> add/remove: 3/4 grow/shrink: 4/1 up/down: 836/-128 (708)
->> Function                                     old     new   delta
->> prandom_seed_full_state                      364     932    +568
->> pick_next_task_fair                         1940    2036     +96
->> bpf_user_rnd_u32                             104     196     +92
->> prandom_bytes_state                          204     260     +56
->> e843419@0f2b_00012d69_e34                      -       8      +8
->> e843419@0db7_00010ec3_23ec                     -       8      +8
->> e843419@02cb_00003767_25c                      -       8      +8
->> bpf_prog_select_runtime                      448     444      -4
->> e843419@0aa3_0000cfd1_1580                     8       -      -8
->> e843419@0aa2_0000cfba_147c                     8       -      -8
->> e843419@075f_00008d8c_184                      8       -      -8
->> prandom_u32_state                            100       -    -100
+>> Function                                     old     new   delta
+>> prandom_seed_full_state                      364     932    +568
+>> pick_next_task_fair                         1940    2036     +96
+>> bpf_user_rnd_u32                             104     196     +92
+>> prandom_bytes_state                          204     260     +56
+>> e843419@0f2b_00012d69_e34                      -       8      +8
+>> e843419@0db7_00010ec3_23ec                     -       8      +8
+>> e843419@02cb_00003767_25c                      -       8      +8
+>> bpf_prog_select_runtime                      448     444      -4
+>> e843419@0aa3_0000cfd1_1580                     8       -      -8
+>> e843419@0aa2_0000cfba_147c                     8       -      -8
+>> e843419@075f_00008d8c_184                      8       -      -8
+>> prandom_u32_state                            100       -    -100
 >> Total: Before=19078072, After=19078780, chg +0.00%
 >>
->> So 708 bytes more after inlining.
-> 
-> Doesn't look like there are many calls.
-> 
->> The main cost is prandom_seed_full_state(),
+>> So 708 bytes more after inlining. The main cost is prandom_seed_full_state(),
 >> which calls prandom_u32_state() 10 times (via prandom_warmup()). I expect we
 >> could turn that into a loop to reduce ~450 bytes overall.
-> 
-> That would always have helped the code size.
-> And I suspect the other costs of that code make unrolling the loop pointless.
-> 
 >>
+> With following change the increase of prandom_seed_full_state() remains
+> reasonnable and performance wise it is a lot better as it avoids the read/write
+> of the state via the stack
+> 
+> diff --git a/lib/random32.c b/lib/random32.c
+> index 24e7acd9343f6..28a5b109c9018 100644
+> --- a/lib/random32.c
+> +++ b/lib/random32.c
+> @@ -94,17 +94,11 @@ EXPORT_SYMBOL(prandom_bytes_state);
+> 
+>  static void prandom_warmup(struct rnd_state *state)
+>  {
+> +    int i;
+> +
+>      /* Calling RNG ten times to satisfy recurrence condition */
+> -    prandom_u32_state(state);
+> -    prandom_u32_state(state);
+> -    prandom_u32_state(state);
+> -    prandom_u32_state(state);
+> -    prandom_u32_state(state);
+> -    prandom_u32_state(state);
+> -    prandom_u32_state(state);
+> -    prandom_u32_state(state);
+> -    prandom_u32_state(state);
+> -    prandom_u32_state(state);
+> +    for (i = 0; i < 10; i++)
+> +        prandom_u32_state(state);
+>  }
+> 
+>  void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state)
+> 
+> The loop is:
+> 
+>  248:    38 e0 00 0a     li      r7,10
+>  24c:    7c e9 03 a6     mtctr   r7
+>  250:    55 05 30 32     slwi    r5,r8,6
+>  254:    55 46 68 24     slwi    r6,r10,13
+>  258:    55 27 18 38     slwi    r7,r9,3
+>  25c:    7c a5 42 78     xor     r5,r5,r8
+>  260:    7c c6 52 78     xor     r6,r6,r10
+>  264:    7c e7 4a 78     xor     r7,r7,r9
+>  268:    54 8b 10 3a     slwi    r11,r4,2
+>  26c:    7d 60 22 78     xor     r0,r11,r4
+>  270:    54 a5 9b 7e     srwi    r5,r5,13
+>  274:    55 08 90 18     rlwinm  r8,r8,18,0,12
+>  278:    54 c6 5d 7e     srwi    r6,r6,21
+>  27c:    55 4a 38 28     rlwinm  r10,r10,7,0,20
+>  280:    54 e7 a3 3e     srwi    r7,r7,12
+>  284:    55 29 68 16     rlwinm  r9,r9,13,0,11
+>  288:    7d 64 5b 78     mr      r4,r11
+>  28c:    7c a8 42 78     xor     r8,r5,r8
+>  290:    7c ca 52 78     xor     r10,r6,r10
+>  294:    7c e9 4a 78     xor     r9,r7,r9
+>  298:    50 04 2e fe     rlwimi  r4,r0,5,27,31
+>  29c:    42 00 ff b4     bdnz    250 <prandom_seed_full_state+0x7c>
+> 
+> Which replaces the 10 calls to prandom_u32_state()
+> 
+>   fc:    91 3f 00 0c     stw     r9,12(r31)
+>  100:    7f e3 fb 78     mr      r3,r31
+>  104:    48 00 00 01     bl      104 <prandom_seed_full_state+0x88>
+>             104: R_PPC_REL24    prandom_u32_state
+>  108:    7f e3 fb 78     mr      r3,r31
+>  10c:    48 00 00 01     bl      10c <prandom_seed_full_state+0x90>
+>             10c: R_PPC_REL24    prandom_u32_state
+>  110:    7f e3 fb 78     mr      r3,r31
+>  114:    48 00 00 01     bl      114 <prandom_seed_full_state+0x98>
+>             114: R_PPC_REL24    prandom_u32_state
+>  118:    7f e3 fb 78     mr      r3,r31
+>  11c:    48 00 00 01     bl      11c <prandom_seed_full_state+0xa0>
+>             11c: R_PPC_REL24    prandom_u32_state
+>  120:    7f e3 fb 78     mr      r3,r31
+>  124:    48 00 00 01     bl      124 <prandom_seed_full_state+0xa8>
+>             124: R_PPC_REL24    prandom_u32_state
+>  128:    7f e3 fb 78     mr      r3,r31
+>  12c:    48 00 00 01     bl      12c <prandom_seed_full_state+0xb0>
+>             12c: R_PPC_REL24    prandom_u32_state
+>  130:    7f e3 fb 78     mr      r3,r31
+>  134:    48 00 00 01     bl      134 <prandom_seed_full_state+0xb8>
+>             134: R_PPC_REL24    prandom_u32_state
+>  138:    7f e3 fb 78     mr      r3,r31
+>  13c:    48 00 00 01     bl      13c <prandom_seed_full_state+0xc0>
+>             13c: R_PPC_REL24    prandom_u32_state
+>  140:    7f e3 fb 78     mr      r3,r31
+>  144:    48 00 00 01     bl      144 <prandom_seed_full_state+0xc8>
+>             144: R_PPC_REL24    prandom_u32_state
+>  148:    80 01 00 24     lwz     r0,36(r1)
+>  14c:    7f e3 fb 78     mr      r3,r31
+>  150:    83 e1 00 1c     lwz     r31,28(r1)
+>  154:    7c 08 03 a6     mtlr    r0
+>  158:    38 21 00 20     addi    r1,r1,32
+>  15c:    48 00 00 00     b       15c <prandom_seed_full_state+0xe0>
+>             15c: R_PPC_REL24    prandom_u32_state
+> 
+> 
+> So approx the same number of instructions in size, while better performance.
+> 
 >> I'm not really sure if 708 is good or bad...
->>
->>>   
->>>> +static __always_inline u32 prandom_u32_state(struct rnd_state *state)  
->>>
->>> Why not just normal `inline`? Is gcc disagreeing with the inlinability
->>> of this function?  
->>
->> Given this needs to be called from a noinstr function, I didn't want to give the
->> compiler the opportunity to decide not to inline it, since in that case, some
->> instrumentation might end up being applied to the function body which would blow
->> up when called in the noinstr context.
->>
->> I think the other 2 options are to keep prandom_u32_state() in the c file but
->> mark it noinstr or rearrange all the users so that thay don't call it until
->> instrumentation is allowable. The latter is something I was trying to avoid.
->>
->> There is some previous discussion of this at [1].
->>
->> [1] https://lore.kernel.org/all/aS65LFUfdgRPKv1l@J2N7QTR9R3/
->>
->> Perhaps keeping prandom_u32_state() in the c file and making it noinstr is the
->> best compromise?
 > 
-> Or define prandom_u32_state_inline() as always_inline and have the
-> real function:
-> u32 prandom_u32_state(struct rnd_state *state)
-> {
-> 	return prandom_u32_state_inline(state);
-> }
-> 
-> So that the callers can pick the inline version if it really matters.
+> That's in the noise compared to the overall size of vmlinux, but if we change it
+> to a loop we also reduce pressure on the cache.
 
-Ahh yes, that sounds like the simplest/best idea to me. I'll take this approach
-for the next version assuming Jason is ok with it?
+Thanks for the analysis; I'm going to follow David's suggestion and refactor
+this into both an __always_inline and an out-of-line version. That way the
+existing callsites can continue to use the out-of-line version and we will only
+use the inline version for the kstack offset randomization.
 
 Thanks,
 Ryan
 
 > 
-> 	David
-> 
->>
->> Thanks,
->> Ryan
->>
->>>
->>> Jason  
->>
->>
-> 
+> Christophe
 
