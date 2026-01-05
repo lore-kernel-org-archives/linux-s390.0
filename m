@@ -1,240 +1,189 @@
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from PH0PR06CU001.outbound.protection.outlook.com (mail-westus3azon11011060.outbound.protection.outlook.com [40.107.208.60])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4243330B50A
-	for <linux-s390@vger.kernel.org>; Mon,  5 Jan 2026 14:45:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767624353; cv=none; b=BBhYP30jxFyo0ESRir62xKKt+/2tP9EPO+SA0sryFppRtU1wpWQteU42T0V6dL/klkm3i8qIchPkMATLOAQH6suEjn1kyYeyhJhYYbIlNfsv+ndu6bq3LVuiFt5FfADEIWfBybwRX7TTSk7szQOANVhzY9RUNcgBM06bOxAAgZo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767624353; c=relaxed/simple;
-	bh=SHzH2YatMTJEak8gFqKEZdJe9xo/UPeNX1MXbrpo6iU=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=jmHaBu0qHt8fdiVXHqw+8MxRpQbDTsy+jG776/OBqjVvX/VRO5t/yay1kW93HFFo/ZXUjaYUJKOgKhLGbgQ/9fNY7DvGTAW6cSeXj0yT8aI1pHLFy19WnnwrbU5VM2n7jAocR18Ni7yJI0dz3TcyYv/v8XRhAejHWc1du7KxD6k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hC3xtS3F; arc=none smtp.client-ip=209.85.128.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9E361E5B88;
+	Mon,  5 Jan 2026 15:40:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.208.60
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1767627630; cv=fail; b=Sv2ckUa1g/osTKbvE53WrF7Y7KXHVQAplWzI9JlyeuwEjkPoSHjGO/dF3ywd+o4Taz09QdiY6ZF9w1uNOUwrvn84k2AAeqi1h7mppFP7H1NuVVb19bwWJNE9U5bec1OIuRN+n09dd8ZzsNEntlX14sTeNUqHtYxQh6O2AAspzJg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1767627630; c=relaxed/simple;
+	bh=8M/oqfH0zPJ0o/KmqXOvo8ZRHJvoDqPvZv8zVzxlPRw=;
+	h=Message-ID:Date:To:Cc:References:Subject:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=LZ2ZHI8cEpWwtoL87AaSC5iGHLUuSzKhNJOluxAEohiMSFAnvfziNv8gMPh+HUSrd6MwZ9meCbTSHXEflSDLTGmYD6VLHPA/dIFptgusNywVKr0GL53OSxbTa809zv0pv5Cq5G1Wj04HPfpK7GL87tnbvxbumHGPwIosDQINwhc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=citrix.com; spf=pass smtp.mailfrom=citrix.com; dkim=pass (1024-bit key) header.d=citrix.com header.i=@citrix.com header.b=Gy7TVWzG; arc=fail smtp.client-ip=40.107.208.60
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=citrix.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=citrix.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hC3xtS3F"
-Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4779cb0a33fso146463065e9.0
-        for <linux-s390@vger.kernel.org>; Mon, 05 Jan 2026 06:45:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1767624348; x=1768229148; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=XSwPcNo8o0N6KCcNlfNXq5S6yUSOj9uBi5hsA/QPZGo=;
-        b=hC3xtS3FL8GvFdhxwfw8XHSw0if6H1F0E7o6/PUvVFmgvAX65aOGd5FQ+mJMsgUFY+
-         7et5IIx63M6W4bgDN7eO1k17HwcOzk7a3XuQ+TSw1xVwlSRtsDmZLrs7COoC1x9C6kmY
-         XK1u8bYepv2/3NDOrntjELnrqbSx4osbx1WNy9eILgqE2BgJ9Uwz0jnynJc/Z9In9Sv3
-         W1dA3uGiI42/AU3dTgjt0/QtGjwNG1fbxiMVM+GJir2waaNI8IDb7l8CNLUqRuLPQRpe
-         FGt+B7rVS6KK/Bwlp4HSC9AgFIj0WrvwluWDyfG6yTcOEtw7wTc5LkNdAZ7Qt9k5Dfdo
-         wv4Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767624348; x=1768229148;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=XSwPcNo8o0N6KCcNlfNXq5S6yUSOj9uBi5hsA/QPZGo=;
-        b=DW620ySc6TtA8uOSFHdfY7Fj4oTdkiCONbKPUCe7Yb1v6tkBTpQz8v0lb3ztFGjIu3
-         /QBJrZELjmT9tSxrBzIUAFZACX9tYTvNwPpmreiN1b0HXfTZTMe0SOReQRS/xgAhv2zA
-         bFEqe9xfEtkyG5g8rYkEvC2ppBrCuvLkAjuV1CiP1Uu0krOgAg+79A3Nuf+l3BoC25wV
-         wh2EofGUmXpwV5ngLx0lyuTfCCS+mEx30CV6AZcKtgHaf/nTTd1Wf0z/Aeh6brhMrN0Q
-         zlyYStVSAaaCvd/ni7jESFem2jt2y6VLzxmWjHL84gs7MjTsadQ4iQ3DAvnyP4LN6xU7
-         wQWw==
-X-Forwarded-Encrypted: i=1; AJvYcCVhHdgc1l4NDAvhCxb1A6CRcO2GktscflaEA7xJMvs3KQDfMSUoE7g4nZGK/P1O7AGqUyHZlF0t0Apj@vger.kernel.org
-X-Gm-Message-State: AOJu0YxIBsehbpj1Fju19nVyJfVUEB1Nv2Psxmh15N8gZlPBZmqPsTdB
-	ns9oC9BQQimqg1Fg7rkrZ5l75sMW0WweZTvp/COUYmD7asUzzfdlrcix
-X-Gm-Gg: AY/fxX7wWcS3uQP0PrOL5mqQ3i/zeHaYWn/3eROuekcA7OLcTVZUVrvfdR9VWVj0l+q
-	5Cd4Ue1e+/G95Zm12aGZsJE9REACr3m5QzSon57aamW7/h6HMhPhH3od35RpOhlrHRPZEqxlQWd
-	8bb6Bvd2m7ExS8k/EvlI6pN7QLK/Jtr94Aznc3YG3NtlG7KSOdq4/T9xJd2A0ehh5vnzcpXiP2m
-	ynJkKCn+t0XlcYIQ7DQl1LL3luPrjvqT9104TpmlAkLZgHyjp5fVh4EuUHSpPhYx9MI+T4Z+wI/
-	2YBf/eyfk1c/lVg2Nqp9zh4QeHO1/pQ/iKLygtti7HXomq4LATKTd557Xt2X3j0n7K0K7iNDcF+
-	D8gt9H9trdWqxj0id0rG4ytCv4GMGF7i4ozoLLGBI8OYLcKDGG5JmCp9wO6kuWfSWGe2X8dIDXy
-	zHRXUDrWpuobTNngYAc3FRcH4OqRMFPV6Z/EmwSSwkW57Ly04Hyc6OAzYFDam5kaU=
-X-Google-Smtp-Source: AGHT+IEzQJ2d8LdW+ZAISEQqtjJZ6hu3kCqntkmy/4NpDB13AhMox7IMuU26/rlmQkOaOYroxoA3pQ==
-X-Received: by 2002:a05:600c:1991:b0:477:5af7:6fa with SMTP id 5b1f17b1804b1-47d195aa354mr674903875e9.32.1767624347886;
-        Mon, 05 Jan 2026 06:45:47 -0800 (PST)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d6d452c69sm195826845e9.9.2026.01.05.06.45.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 05 Jan 2026 06:45:47 -0800 (PST)
-Date: Mon, 5 Jan 2026 14:45:45 +0000
-From: David Laight <david.laight.linux@gmail.com>
-To: Ryan Roberts <ryan.roberts@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon
- <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, Madhavan Srinivasan
- <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley
- <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou
- <aou@eecs.berkeley.edu>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
- <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, Thomas
- Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav
- Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Kees Cook
- <kees@kernel.org>, "Gustavo A. R. Silva" <gustavoars@kernel.org>, Arnd
- Bergmann <arnd@arndb.de>, Mark Rutland <mark.rutland@arm.com>, "Jason A.
- Donenfeld" <Jason@zx2c4.com>, Ard Biesheuvel <ardb@kernel.org>, Jeremy
- Linton <jeremy.linton@arm.com>, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH v3 3/3] randomize_kstack: Unify random source across
- arches
-Message-ID: <20260105144545.45f2b0ba@pumpkin>
-In-Reply-To: <60c5d7b1-1ab7-490c-8cb8-dfd50cf23856@arm.com>
-References: <20260102131156.3265118-1-ryan.roberts@arm.com>
-	<20260102131156.3265118-4-ryan.roberts@arm.com>
-	<20260104230136.7aaf8886@pumpkin>
-	<60c5d7b1-1ab7-490c-8cb8-dfd50cf23856@arm.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	dkim=pass (1024-bit key) header.d=citrix.com header.i=@citrix.com header.b="Gy7TVWzG"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=f0xDPFJA+gkPK0NGVT8mkux7honSQr78A2FVu+0AmpxVmaBaEn1RPeimeATcdDkQrfPuyY8wWqLZ7DhH5wfVUz9E7y7IIUmGgDgLwB7Tpx94GKqydM7nkg4VInG7DJmHGsHee2212VMpui4rWs5jKuejnNi/8EWO4TD4TiGdb3MfsRlSvbs8lUHJK6+BtCIyR5HV/+yi+/mLVaBJQCzr0oyTo/9KcqhMViZ1q0tFX1ZCpfknsczId2VCwZGH2sma4xNfeW+gmV9/fp0lNtrcof5gCvLlD5ofQSoiOUk9gSWUytCLVbW3tbuoiHvkVVYn+LiScBjD9AZ6etPVRglccg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=K/SyEFboBJRMVI1zenrCqgDw4qYn0/JfuIpdzYy39LA=;
+ b=QhooKH0JPyuRbeETE2jNMFFx6pyuxC/pcH5+VBo8az5gtXV8Sg5nlp7PJy8zQSYjrVhqTfRK1bYluOWPZZCofmiYW2cRy8s+WORDhA2B2VIPxucRfik8oCDo1sNh6SLRvtb4JkDwzVUWOpVYCN0yrwVJhiOMC5ABFKDOMtQEQbGe/9dBL+Ke0kd0bXjxPOoyfBGVNHrZ1RwNf3DF4kInxkJcy8SGfCPhrVsJxfPdpOSS/3QeYz2oN+gXetSHhuKaRucMkfdLXUowprZfFKsXT/qDK1Rj08JozKphd4hDWfNxLulZdIiiEQd88H98yoCc9fowWqfE6DowXlNkLTp0ig==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=citrix.com; dmarc=pass action=none header.from=citrix.com;
+ dkim=pass header.d=citrix.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=citrix.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=K/SyEFboBJRMVI1zenrCqgDw4qYn0/JfuIpdzYy39LA=;
+ b=Gy7TVWzGQWZkXXUV5/o8XHxG/tSFfcQ2n0AGjpb8JpIsuihxu2rV5ZMuFfazTmcEgNaSaCewjiDfYMX6BM1DYg2SnrYrnHlZRyd32EDZDx6Y/u2XBqz1gLD5/YMtkA0ps5q4H/q4MA8XxFj6oP8ziC83Jjf5zgO+Werx9XW7bHw=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=citrix.com;
+Received: from CH8PR03MB8275.namprd03.prod.outlook.com (2603:10b6:610:2b9::7)
+ by PH8PR03MB989118.namprd03.prod.outlook.com (2603:10b6:510:3a9::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9478.4; Mon, 5 Jan
+ 2026 15:40:27 +0000
+Received: from CH8PR03MB8275.namprd03.prod.outlook.com
+ ([fe80::a70d:dc32:bba8:ce37]) by CH8PR03MB8275.namprd03.prod.outlook.com
+ ([fe80::a70d:dc32:bba8:ce37%4]) with mapi id 15.20.9478.004; Mon, 5 Jan 2026
+ 15:40:26 +0000
+Message-ID: <859377de-cb72-4e87-8ee5-97f8c58a5720@citrix.com>
+Date: Mon, 5 Jan 2026 15:40:22 +0000
+User-Agent: Mozilla Thunderbird
+To: ebiggers@kernel.org
+Cc: Andrew Cooper <andrew.cooper3@citrix.com>, Jason@zx2c4.com,
+ ardb@kernel.org, dengler@linux.ibm.com, freude@linux.ibm.com,
+ herbert@gondor.apana.org.au, linux-arm-kernel@lists.infradead.org,
+ linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
+References: <20260105051311.1607207-20-ebiggers@kernel.org>
+Subject: Re: [PATCH 19/36] Bluetooth: SMP: Use new AES library API
+Content-Language: en-GB
+From: Andrew Cooper <andrew.cooper3@citrix.com>
+In-Reply-To: <20260105051311.1607207-20-ebiggers@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: LO4P123CA0594.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:600:295::23) To IA1PR03MB8288.namprd03.prod.outlook.com
+ (2603:10b6:208:59e::6)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CH8PR03MB8275:EE_|PH8PR03MB989118:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6f0b81cd-66ac-4829-82a1-08de4c70bf4a
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|366016|1800799024;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?ZGNHT1dZRmJQeDloNFRxNE9LRWxORUdNcDRidWhEQ3dGdkNMR3Vtb01YZnF0?=
+ =?utf-8?B?OTd0emxWSG5OckhWRVNCSXF1c3pGZjU2UmhQakNDeHYydXVWY09nVjc2VlRT?=
+ =?utf-8?B?cldsZndaTmg1bjlTSkRIb0hMMy9yOWtYSjgrK3V1cFdQRGtTRCt1M2hpbzN3?=
+ =?utf-8?B?Vy91SzFDNmJobHJoclFNM240bDEzUmtFRFpiR000UTkxWDc1blpVQm1EUlNV?=
+ =?utf-8?B?UzAxRGt2d2FnYmhvVm5lQ1Fhdm00ODByTkE3SjRHbkhhYWhmSUNEaEFXVFRL?=
+ =?utf-8?B?NUlIUmRZM0tJbElsQ3p6Z21xL3plbFZ1V3RPRG53ZVlxR0ZFNlhFTzZXMjFD?=
+ =?utf-8?B?Z00vc0xaWjVwNGltcjVuYWtQbnp3UmlCeWhNSmtIWU1jM01rMml6bzFMaEs1?=
+ =?utf-8?B?Tk5NYldaVU1vbHl2RFl5bzJOakZJblZ2K2MvZzNZeDNXajZ1TUZLSXJLNFQy?=
+ =?utf-8?B?eXZWaklKUjdNOUpxSjRSZDlIZ2JiVFVzVFJSOW1WK2dsQWl0QVhlVkI0YXpa?=
+ =?utf-8?B?K21zQjlnUkVNQlI0MHIzRGl6YlJSaU5RZStRRGQ3SnJkcnJnRVl3cTlzT2RJ?=
+ =?utf-8?B?VFZJcFlFWTUzQVd2eUl5TktCUzVwTE5CSU9uMU92YTlMaXlTYjdiTnMvVVdh?=
+ =?utf-8?B?R3pMQ1lrcUQ5K05LZDMwUVlZQnE1bjFEeElRQzhLd3NTTkl4eEtQb1hDamk0?=
+ =?utf-8?B?dS9zcEFxVjk0WWIrUGt5Tnc1NmhocHZaVlpuRnIvei9CK09zcy8vNGFHWGI5?=
+ =?utf-8?B?NnlnR1JubWhXSWxsVWpUS1NYbTlKckhFaFFvZU5QWW1WNnI2WmpWNHpEVHVS?=
+ =?utf-8?B?N3N6VmxvNmFtT055TmRWdVJxUEdBTHNHb05uUFdDRkIxc0JYUUI4aTdRZHRX?=
+ =?utf-8?B?WGV4Z2gwbWRHNGRENTBuNGNMTm92YUI3eTh0eGVpK2Y0YVNsQ212UDV3eFAw?=
+ =?utf-8?B?akZBYkd4N1V0QnRvcCtsZkthUzZwZDBVaDNOeXNnK0p1WFJ6Z2JZZFdYZ0Zs?=
+ =?utf-8?B?RXJoenNBNElxdlRya2hPUkJJZzg2REhLeElZRmVIQ25hU05YQ29TWTM1TkV2?=
+ =?utf-8?B?d3RGTE9SWGduSGN1VlE2M0w3dW40TU5XNGNHSGdpVEV0K1dDMDVZS0dSbVFF?=
+ =?utf-8?B?TXZVM2QwUlBUMmpodWxPdEo2aU11MGFibkdObVhCMTArS3didTlXV2s3bGdi?=
+ =?utf-8?B?TVhRSzlpSnVGMDVLcFJYcUJ3WHoya01VaWx3NFFMazV5ODFzcVFLS1RvSEMv?=
+ =?utf-8?B?c3drVjZsRmlJbnJaN2dtdVhidmovYjVQNUxPMThzdmNweHp0QTB5K3VScnVI?=
+ =?utf-8?B?VTcvMlJDSS9wTDBKbXNGT3VCZkJwYUhFbkUxa3dMQVJGdnhBZVlicU8rdUd0?=
+ =?utf-8?B?S0FtOVBESzlVSXpYYkw0c1VmaWNzenU1cXhJc25YN2lWYWttbWRBMjJLTlQ1?=
+ =?utf-8?B?ZnAveGVFZDNwV0xxVGJrUmNVWFpObXIxTnZsTFNONDhXenZJUGp3L2pGbGxl?=
+ =?utf-8?B?UE5BcENoaE5XcnBKaXFyNzAzTW05T1BJTWxaL1RqODZ2NVdtOE1LdWhqb1p4?=
+ =?utf-8?B?ZHFxTDU0QkwzdUE5aVMvcjNHYzRaZjZZOUo4MnFrbEttcDhpaThhanRrMzFM?=
+ =?utf-8?B?RW9WNlcvZmZTbjhpWkE3WHNLcGFITGFXYVYxTjN5NXdaeG9yNUFGOEVqTy96?=
+ =?utf-8?B?VHArSVNPMmpXU1dnaEtoWHArVk04bjBpc2hqaXB3WVV5ZHlWZjhweHlHSDZx?=
+ =?utf-8?B?dCtHVFVZOC9VcVp3L2J2NWdlNTV1NU1xVnFtUUZlZ2NoeTMwbG1XN1F0bXVG?=
+ =?utf-8?B?QzdaSEQ3VW1ZU2huQ21lTzVMNmY2c1dlNXVZYUlLcTNiYTYrNWVMbWM0ZXpx?=
+ =?utf-8?B?THFxa1ExcllDQk9VdmZYL1ppVjV3SE1Ga3lqVjJBWkdWYXNYRTU5UGJUbnRP?=
+ =?utf-8?Q?waZAuU/QC9qktBZpMPwquqw/EEZ5P/hN?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH8PR03MB8275.namprd03.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(1800799024);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?V2FRT3k4M2l3Rm00R1psTkZBem8zZUJESmxRYnlhN1o1WFNrK0s0d1Y4MUJ1?=
+ =?utf-8?B?QVdZZUJKa1d5R2tOMUE2L3JyT3MyUUE3WitaRVhOR09ZTlJSNm1CdEpVN2w3?=
+ =?utf-8?B?N2pKMzcxSnZWV2xQVmNXL2VXMkpxK2JESERZZ3lqK294aWhpd25qMTJEek1I?=
+ =?utf-8?B?bjZvR1JjN0lFOWR3MkVPbXB3RTJCSkhuOVhuK3l3eXNSaW9HU2FPblhCb2Ni?=
+ =?utf-8?B?TllobWRkekRqS29RN0dVdXhzQ1p6NjZRZVR6UmR0ZjVNcTdudFk4YjdzTWRj?=
+ =?utf-8?B?dG05YlQyVndPVzV5ZEdUamhEY214Qm8ycHVoU3dCSFZQVWxTaW85S3I3YVg4?=
+ =?utf-8?B?OHNHb2Z6TDRxbmZDNWZ3QlRVU2pvTnk1MWkzRmtJQnRoZWw3TzM1RE16elhP?=
+ =?utf-8?B?dmhabkdpVWp4cmZpQTNFT2tadk9oL2FnV2tUc0duVzc4dFB4VUxHK0xPLzVU?=
+ =?utf-8?B?dUNhcUlMN1Zhc2YyUVkyK2VqNGQ3alB2YndxdmF6R2JNdUNxZ2llaW1rZmJi?=
+ =?utf-8?B?UGlrZ21WMmtjNGFXNzNrS0VDK0E2cERma0JHMXQ3NDdFVXdBd1NBYlNxbk0x?=
+ =?utf-8?B?eXpHa2hQcTY2MGZBNWpSeHVzZ0p2UmppSnllbjBDeWwwd1ZhN3Zjd3kzQ1Z1?=
+ =?utf-8?B?Nm9jLzdLZUlLQVBMV0dtUXcrMWJzK21jL2tWUm5GVGJvdGF1SEFZUXZjNDZ2?=
+ =?utf-8?B?Z2JIaXR3K1MzR3pYMk83SFAzbWN5dlJuK2ZxRXBrWmIrek5QQ3ZYTlBlcXAw?=
+ =?utf-8?B?ZWlQR0ljT2RQbFF2cUFQdUdpOTE5eTlQU3M2T0F3dlRUVXA3akJKMmV5T2FE?=
+ =?utf-8?B?WmRrVWo3TGhOUkNHRkxCeWd2YXIrWGlWSzlYVnRISkFMNkhsZDJhSVh5U3kv?=
+ =?utf-8?B?c0M1RXZNY0gwL0ZLd1gvNjUvc0pJV3BwcXF6djYzbEQ4eWdtQjRrb0lKd1Ny?=
+ =?utf-8?B?dDZEbThBZGI1eFBxYVlsSjJJeWdZOTZVVTdJd1VxZ1dQK01jekJZRUxlMlNk?=
+ =?utf-8?B?NVdhSi9tYjdXNkN6SERqYjZVdTBsMkM1WUJWRFl3OTU5bEk2QUN4VWQvaXpn?=
+ =?utf-8?B?N1ZPUzN1dlA0MFdlSGRyQlNPcHMzNG81TVhwSjd6czduRndLb1M5eURMT3By?=
+ =?utf-8?B?eTRwR2dNUG5zYkJMeUs0ejRRZlUzbVEyS3JoVEViTU5FakZOVVh0elJmd3hQ?=
+ =?utf-8?B?N2R1MlNZRFBYYVhkT1NoanBjYS80SjFLS09lamVyNEg0K1dDd0pPTHdHNDNY?=
+ =?utf-8?B?RkhVQ2xVTlhWMjdrMFhCK0h4Y0lSQlQxM1JJM3hIMXVpeFh6MXZsSkJGS3Yz?=
+ =?utf-8?B?ZlNHbUVEOHk0aFJSMmJRS1VDWkFscjhONHBzYUg3dFZGYmJsaWtxTjdBbzMv?=
+ =?utf-8?B?eWgvbkltVFFCd0NFY0lzWDRSbkFxRkdiM1hpTWlOdzMvWnJnTG9oLzVDYXB4?=
+ =?utf-8?B?b1JRNFduaFY0aTBXbTlmRFJJUTFJNGttWTJwYk4zQ3N4RzVacEx6NzJUZlA4?=
+ =?utf-8?B?WndIQkdWOEhUTjJzdStKR3lxbXhYaGM3U1FCZjdDaS8xNEhVcmo2cG9sNmhh?=
+ =?utf-8?B?VnFEVyt6ZHZpWVpINlZVaXZkcUlNNkIxYjFZdzZndjNaeVd2bDVMWTc3b1Rn?=
+ =?utf-8?B?ZTJTR1RHVE5MSHczRzFyUWowYXB4WEh6cTkraEI3ZUt1S0ZOamJsNVpxZzRE?=
+ =?utf-8?B?QUdHanJIcFMzdDVEa3dlRm5JeUkzQUxXUjdxNnV6NWo0R3IyY0ZodFR2eWhJ?=
+ =?utf-8?B?aWJwN2dDUHh6bkxPcGs3RkxmZlVYY3Z0c29pR2pCU0JFZWdHcDROcjhPb1lJ?=
+ =?utf-8?B?K0hrZDN0cHo4aC9LVVFMaXIrQTg2dGhIY2Voa2wwV090TWp2UVk5Ly9CTTV4?=
+ =?utf-8?B?N1gvcjZwVG96ZnpKWjJHRFhvQkFqYWE5eHVWai9jdm5tSVJmdUlTRm5lRHRB?=
+ =?utf-8?B?SFBGWCswNTdIbkczQXR5RTYxbUJKc0RLMGZ2bXA1azFidldOTWkzUm82UC8x?=
+ =?utf-8?B?ZnErbFF0NWtWSnZ2TUs1K09pcFZnNitEWWQ2ZkJ5U29RdS93N2NnY292UXFM?=
+ =?utf-8?B?TFZ5NFVDc0ZTc3lnY2tQc2s4WWFvTnVJaDJ6SDNReHVpZmVUMkpDRmhnMVF3?=
+ =?utf-8?B?dGdrU0pNb2UyUXNiK3dEVWVsSUM2UUdER0dZV2g2enY2aGVlTDZvd3RaNjZF?=
+ =?utf-8?B?QUFXYnZZY2V2WEFxekNqN0NyNCsxNkpiYjdJblZvekRnV2pQVmlFODZacC9J?=
+ =?utf-8?B?ZnhTTDBrekJyUUlvWHFML0krTWQ0V3gwOFVJUWorRTFXc3ZKelduN1lWY3NH?=
+ =?utf-8?B?UitrZGhsYnVMcmFSVjJOWFYxYU1Nd2M2RGRpN3d3T3ZIRWc0VFRVdz09?=
+X-OriginatorOrg: citrix.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6f0b81cd-66ac-4829-82a1-08de4c70bf4a
+X-MS-Exchange-CrossTenant-AuthSource: IA1PR03MB8288.namprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Jan 2026 15:40:26.8428
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 335836de-42ef-43a2-b145-348c2ee9ca5b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: ypj4k0v0cQBN6pfz9bvMZ6cHe6UtKlueBfPooMiaNJ5GH0YtZwxoppOzD390pdBWw8Q8QsynKRSr/H8Bjou9fQzAssoZtBH3LLclDBCUfTw=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR03MB989118
 
-On Mon, 5 Jan 2026 11:05:18 +0000
-Ryan Roberts <ryan.roberts@arm.com> wrote:
+>  	/* Most significant octet of plaintextData corresponds to data[0] */
+>  	swap_buf(r, data, 16);
+>  
+> - aes_encrypt(&ctx, data, data); + aes_encrypt_new(&aes, data, data);
 
-> On 04/01/2026 23:01, David Laight wrote:
-> > On Fri,  2 Jan 2026 13:11:54 +0000
-> > Ryan Roberts <ryan.roberts@arm.com> wrote:
-> >   
-> >> Previously different architectures were using random sources of
-> >> differing strength and cost to decide the random kstack offset. A number
-> >> of architectures (loongarch, powerpc, s390, x86) were using their
-> >> timestamp counter, at whatever the frequency happened to be. Other
-> >> arches (arm64, riscv) were using entropy from the crng via
-> >> get_random_u16().
-> >>
-> >> There have been concerns that in some cases the timestamp counters may
-> >> be too weak, because they can be easily guessed or influenced by user
-> >> space. And get_random_u16() has been shown to be too costly for the
-> >> level of protection kstack offset randomization provides.
-> >>
-> >> So let's use a common, architecture-agnostic source of entropy; a
-> >> per-cpu prng, seeded at boot-time from the crng. This has a few
-> >> benefits:
-> >>
-> >>   - We can remove choose_random_kstack_offset(); That was only there to
-> >>     try to make the timestamp counter value a bit harder to influence
-> >>     from user space.
-> >>
-> >>   - The architecture code is simplified. All it has to do now is call
-> >>     add_random_kstack_offset() in the syscall path.
-> >>
-> >>   - The strength of the randomness can be reasoned about independently
-> >>     of the architecture.
-> >>
-> >>   - Arches previously using get_random_u16() now have much faster
-> >>     syscall paths, see below results.
-> >>
-> >> There have been some claims that a prng may be less strong than the
-> >> timestamp counter if not regularly reseeded. But the prng has a period
-> >> of about 2^113. So as long as the prng state remains secret, it should
-> >> not be possible to guess. If the prng state can be accessed, we have
-> >> bigger problems.  
-> > 
-> > If you have 128 bits of output from consecutive outputs I think you
-> > can trivially determine the full state using (almost) 'school boy' maths
-> > that could be done on pencil and paper.
-> > (Most of the work only has to be done once.)
-> > 
-> > The underlying problem is that the TAUSWORTHE() transformation is 'linear'
-> > So that TAUSWORTHE(x ^ y) == TAUSWORTHE(x) ^ TAUSWORTHE(y).
-> > (This is true of a LFSR/CRC and TOUSWORTH() is doing some subset of CRCs.)
-> > This means that each output bit is the 'xor' of some of the input bits.
-> > The four new 'state' values are just xor of the the bits of the old ones.
-> > The final xor of the four states gives a 32bit value with each bit just
-> > an xor of some of the 128 state bits.
-> > Get four consecutive 32 bit values and you can solve the 128 simultaneous
-> > equations (by trivial substitution) and get the initial state.
-> > The solution gives you the 128 128bit constants for:
-> > 	u128 state = 0;
-> > 	u128 val = 'value returned from 4 calls';
-> > 	for (int i = 0; i < 128; i++)
-> > 		state |= parity(const128[i] ^ val) << i;  
-> 
-> What is const128[] here?
+One thing you might want to consider, which reduces the churn in the series.
 
-Some values you prepared earlier :-)
+You can use _Generic() to do type-based dispatch on the first pointer. 
+Something like this:
 
-> > You done need all 32bits, just accumulate 128 bits.  
-> > So if you can get the 5bit stack offset from 26 system calls you know the
-> > value that will be used for all the subsequent calls.  
-> 
-> It's not immediately obvious to me how user space would do this, but I'll take
-> it on faith that it may be possible.
+void aes_encrypt(const struct crypto_aes_ctx *ctx, u8 *out, const u8 *in);
+void aes_encrypt_new(aes_encrypt_arg key, u8 out[at_least AES_BLOCK_SIZE],
+             const u8 in[at_least AES_BLOCK_SIZE]);
 
-It shouldn't be possible, but anything that leaks a stack address would
-give it away.
-It is also pretty much why you care about the cycle length of the PRNG.
-(If the length is short a rogue application can remember all the values.)
-
-> > 
-> > Simply changing the final line to use + not ^ makes the output non-linear
-> > and solving the equations a lot harder.  
-> 
-> There has been pushback on introducing new primitives [1] but I don't think
-> that's a reason not to considder it.
-
-That is a more general issue with the PRNG.
-ISTR it was true for the previous version that explicitly used four CRC.
-Jason should know more about whether the xor are a good idea.
-
-> 
-> [1] https://lore.kernel.org/all/aRyppb8PCxFKVphr@zx2c4.com/
-> 
-> > 
-> > I might sit down tomorrow and see if I can actually code it...  
-> 
-> Thanks for the analysis! I look forward to seeing your conclusion... although
-> I'm not sure I'll be qualified to evaluate it mathematically.
-
-I need to drag out the brian cells from when I learnt about CRC (actually
-relating to burst error correction) over 40 years ago...
- 
-> FWIW, I previously had a go at various schemes using siphash to calculate some
-> random bits. I found it to be significantly slower than this prng. I've so far
-> taken the view that 6 bits of randomness is not much of a defence against brute
-> force so we really shouldn't be spending too many cycles to generate the bits.
-> If we can get to approach to work, I think that's best.
-
-Indeed.
-A single 32bit CRC using (crc + (crc >> 16)) & 0x3f could be 'good enough'.
-Especially if the value is 'perturbed' during (say) context switch.
-The '16' might need adjusting for the actual CRC, especially if TAUSWORTHE()
-is used - you don't want the value to match one of the shifts it uses.
-
-prandom_u32_state() is defined as:
-#define TAUSWORTHE(s, a, b, c, d) ((s & c) << d) ^ (((s << a) ^ s) >> b)
-	state->s1 = TAUSWORTHE(state->s1,  6U, 13U, 4294967294U, 18U);
-	state->s2 = TAUSWORTHE(state->s2,  2U, 27U, 4294967288U,  2U);
-	state->s3 = TAUSWORTHE(state->s3, 13U, 21U, 4294967280U,  7U);
-	state->s4 = TAUSWORTHE(state->s4,  3U, 12U, 4294967168U, 13U);
-	return (state->s1 ^ state->s2 ^ state->s3 ^ state->s4);
-This is equivalent to:
-#define TAUSWORTHE(s, a, b, c, d) ((s & ~c) << d) ^ (s >> a) ^ (s >> b)
-	state->s1 = TAUSWORTHE(state->s1,  7, 13,   1, 18);
-	state->s2 = TAUSWORTHE(state->s2, 25, 27,   7,  2);
-	state->s3 = TAUSWORTHE(state->s3,  8, 21,  15,  7);
-	state->s4 = TAUSWORTHE(state->s4,  9, 12, 127, 13);
-which makes it clear that some low bits of each 's' get discarded reducing
-the length of each CRC to (I think) 31, 29, 28 and 25.
-Since 'b + d' matches the bits discarded by 'c', two of those shifts are
-actually just a rotate, so there isn't really much 'bit stirring' going on.
-
-By comparison CRC-16 (for hdlc comms like x25, isdn and ss7) reduces to:
-u32 crc_step(u32 crc, u8 byte_val)
-{
-    u8 t = crc ^ byte_val;
-    t = (t ^ t << 4);
-    return crc >> 8 ^ t << 8 ^ t << 3 ^ t >> 4;
-}
-Much more 'stirring'.
-
-	David
+#define aes_encrypt(ctx, out, in)                                       \
+    _Generic(ctx,                                                       \
+             const struct crypto_aes_ctx *: aes_encrypt(ctx, out, in),  \
+             aes_encrypt_arg: aes_encrypt_new(ctx, out, in))
 
 
+i.e. it keeps the _new()-ism in a single header, without needing to
+change the drivers a second time.
+
+~Andrew
