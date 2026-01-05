@@ -1,157 +1,240 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3ED922144CF;
-	Mon,  5 Jan 2026 12:41:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4243330B50A
+	for <linux-s390@vger.kernel.org>; Mon,  5 Jan 2026 14:45:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767616878; cv=none; b=ewiFhbQraSO4AIylwWu8+BaixZ7nkJqIt2+j3+pfSuqnRSbYQVWzSV35rQ7S3EXfB3pKX/EEuUAMz4rShzIDJiWY6Yl7l1oIUZQlgvYmVeXuttpgh2JfF6GY174f7NvwLtPiqatmYmb6nIirxHCj3J3VSblLh1N5YmmbjH/CBJE=
+	t=1767624353; cv=none; b=BBhYP30jxFyo0ESRir62xKKt+/2tP9EPO+SA0sryFppRtU1wpWQteU42T0V6dL/klkm3i8qIchPkMATLOAQH6suEjn1kyYeyhJhYYbIlNfsv+ndu6bq3LVuiFt5FfADEIWfBybwRX7TTSk7szQOANVhzY9RUNcgBM06bOxAAgZo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767616878; c=relaxed/simple;
-	bh=ohRFA2SsxigtGWJ9Jty8HMuNyFjdUR3xCO/oC2jfltc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=UeI97bGG7iRT7kS6+lNORH50KOk/uwYhlBOKMeqZz/om9vuqa0aGEd16qFCElrbwx3/kRIo21CFXh9E0m2J+KrfKRKFo3LcGXtUN2Nq/dwy9KWViIDZ0UbQTOQA0t8Ymp8TXwqogU1Jj/WHuGza5lKMjDQxgvkeRNkZeWWPdAjk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Nf7qVhrM; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1767624353; c=relaxed/simple;
+	bh=SHzH2YatMTJEak8gFqKEZdJe9xo/UPeNX1MXbrpo6iU=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=jmHaBu0qHt8fdiVXHqw+8MxRpQbDTsy+jG776/OBqjVvX/VRO5t/yay1kW93HFFo/ZXUjaYUJKOgKhLGbgQ/9fNY7DvGTAW6cSeXj0yT8aI1pHLFy19WnnwrbU5VM2n7jAocR18Ni7yJI0dz3TcyYv/v8XRhAejHWc1du7KxD6k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hC3xtS3F; arc=none smtp.client-ip=209.85.128.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Nf7qVhrM"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 604MsL74012556;
-	Mon, 5 Jan 2026 12:41:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=w/QbCH
-	KmWNjbqP+Y5ss5cSepA4PBGKy0zpLUfFIdM2g=; b=Nf7qVhrMK0vPb70UaS8DEP
-	177FXuGcstE0tAc4wR8aAfyXLpz6BpuqVZJ18VZlVG8D4cD6xuhswrWCD/Ee7Fxe
-	JrAI/NMGm8daTlY60v2oJdMwN/eODNLAn69xdgLIhsu3mXnnhex+ZrortV2Qk8BO
-	bZcUb0I1JKERZeIEDmYx8q5gsQfNJEX7Zh3dcCJO4PZUR6L3xWGdsUi0Gf9xlwyV
-	BKDKgIUTS6uK0rJiIVKXEibnoG5nFdwI5W96yF7IuPJ/zt5D/wgl8LjxcGz9mN/P
-	qODcvTupz9KOw7gu1zPWbNtj3/MU3rFqlJCcl7drmyfZIQNxanxpml6DlELpQslw
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4betu5y5by-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 05 Jan 2026 12:41:14 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 605AGmSj023555;
-	Mon, 5 Jan 2026 12:41:13 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4bg3rm2c3n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 05 Jan 2026 12:41:13 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 605Cf9nK26542718
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 5 Jan 2026 12:41:09 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1D7C620040;
-	Mon,  5 Jan 2026 12:41:09 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CE9D020043;
-	Mon,  5 Jan 2026 12:41:08 +0000 (GMT)
-Received: from [9.111.54.210] (unknown [9.111.54.210])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  5 Jan 2026 12:41:08 +0000 (GMT)
-Message-ID: <8334988f-2caa-4361-b0b9-50b9f41f6d8a@linux.ibm.com>
-Date: Mon, 5 Jan 2026 13:41:08 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hC3xtS3F"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4779cb0a33fso146463065e9.0
+        for <linux-s390@vger.kernel.org>; Mon, 05 Jan 2026 06:45:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1767624348; x=1768229148; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=XSwPcNo8o0N6KCcNlfNXq5S6yUSOj9uBi5hsA/QPZGo=;
+        b=hC3xtS3FL8GvFdhxwfw8XHSw0if6H1F0E7o6/PUvVFmgvAX65aOGd5FQ+mJMsgUFY+
+         7et5IIx63M6W4bgDN7eO1k17HwcOzk7a3XuQ+TSw1xVwlSRtsDmZLrs7COoC1x9C6kmY
+         XK1u8bYepv2/3NDOrntjELnrqbSx4osbx1WNy9eILgqE2BgJ9Uwz0jnynJc/Z9In9Sv3
+         W1dA3uGiI42/AU3dTgjt0/QtGjwNG1fbxiMVM+GJir2waaNI8IDb7l8CNLUqRuLPQRpe
+         FGt+B7rVS6KK/Bwlp4HSC9AgFIj0WrvwluWDyfG6yTcOEtw7wTc5LkNdAZ7Qt9k5Dfdo
+         wv4Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1767624348; x=1768229148;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=XSwPcNo8o0N6KCcNlfNXq5S6yUSOj9uBi5hsA/QPZGo=;
+        b=DW620ySc6TtA8uOSFHdfY7Fj4oTdkiCONbKPUCe7Yb1v6tkBTpQz8v0lb3ztFGjIu3
+         /QBJrZELjmT9tSxrBzIUAFZACX9tYTvNwPpmreiN1b0HXfTZTMe0SOReQRS/xgAhv2zA
+         bFEqe9xfEtkyG5g8rYkEvC2ppBrCuvLkAjuV1CiP1Uu0krOgAg+79A3Nuf+l3BoC25wV
+         wh2EofGUmXpwV5ngLx0lyuTfCCS+mEx30CV6AZcKtgHaf/nTTd1Wf0z/Aeh6brhMrN0Q
+         zlyYStVSAaaCvd/ni7jESFem2jt2y6VLzxmWjHL84gs7MjTsadQ4iQ3DAvnyP4LN6xU7
+         wQWw==
+X-Forwarded-Encrypted: i=1; AJvYcCVhHdgc1l4NDAvhCxb1A6CRcO2GktscflaEA7xJMvs3KQDfMSUoE7g4nZGK/P1O7AGqUyHZlF0t0Apj@vger.kernel.org
+X-Gm-Message-State: AOJu0YxIBsehbpj1Fju19nVyJfVUEB1Nv2Psxmh15N8gZlPBZmqPsTdB
+	ns9oC9BQQimqg1Fg7rkrZ5l75sMW0WweZTvp/COUYmD7asUzzfdlrcix
+X-Gm-Gg: AY/fxX7wWcS3uQP0PrOL5mqQ3i/zeHaYWn/3eROuekcA7OLcTVZUVrvfdR9VWVj0l+q
+	5Cd4Ue1e+/G95Zm12aGZsJE9REACr3m5QzSon57aamW7/h6HMhPhH3od35RpOhlrHRPZEqxlQWd
+	8bb6Bvd2m7ExS8k/EvlI6pN7QLK/Jtr94Aznc3YG3NtlG7KSOdq4/T9xJd2A0ehh5vnzcpXiP2m
+	ynJkKCn+t0XlcYIQ7DQl1LL3luPrjvqT9104TpmlAkLZgHyjp5fVh4EuUHSpPhYx9MI+T4Z+wI/
+	2YBf/eyfk1c/lVg2Nqp9zh4QeHO1/pQ/iKLygtti7HXomq4LATKTd557Xt2X3j0n7K0K7iNDcF+
+	D8gt9H9trdWqxj0id0rG4ytCv4GMGF7i4ozoLLGBI8OYLcKDGG5JmCp9wO6kuWfSWGe2X8dIDXy
+	zHRXUDrWpuobTNngYAc3FRcH4OqRMFPV6Z/EmwSSwkW57Ly04Hyc6OAzYFDam5kaU=
+X-Google-Smtp-Source: AGHT+IEzQJ2d8LdW+ZAISEQqtjJZ6hu3kCqntkmy/4NpDB13AhMox7IMuU26/rlmQkOaOYroxoA3pQ==
+X-Received: by 2002:a05:600c:1991:b0:477:5af7:6fa with SMTP id 5b1f17b1804b1-47d195aa354mr674903875e9.32.1767624347886;
+        Mon, 05 Jan 2026 06:45:47 -0800 (PST)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d6d452c69sm195826845e9.9.2026.01.05.06.45.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 05 Jan 2026 06:45:47 -0800 (PST)
+Date: Mon, 5 Jan 2026 14:45:45 +0000
+From: David Laight <david.laight.linux@gmail.com>
+To: Ryan Roberts <ryan.roberts@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon
+ <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, Madhavan Srinivasan
+ <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley
+ <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou
+ <aou@eecs.berkeley.edu>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
+ <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, Thomas
+ Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav
+ Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Kees Cook
+ <kees@kernel.org>, "Gustavo A. R. Silva" <gustavoars@kernel.org>, Arnd
+ Bergmann <arnd@arndb.de>, Mark Rutland <mark.rutland@arm.com>, "Jason A.
+ Donenfeld" <Jason@zx2c4.com>, Ard Biesheuvel <ardb@kernel.org>, Jeremy
+ Linton <jeremy.linton@arm.com>, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org
+Subject: Re: [PATCH v3 3/3] randomize_kstack: Unify random source across
+ arches
+Message-ID: <20260105144545.45f2b0ba@pumpkin>
+In-Reply-To: <60c5d7b1-1ab7-490c-8cb8-dfd50cf23856@arm.com>
+References: <20260102131156.3265118-1-ryan.roberts@arm.com>
+	<20260102131156.3265118-4-ryan.roberts@arm.com>
+	<20260104230136.7aaf8886@pumpkin>
+	<60c5d7b1-1ab7-490c-8cb8-dfd50cf23856@arm.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] KVM: s390: vsie: retry SIE when unable to get vsie_page
-To: Eric Farman <farman@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Christoph Schlameuss <schlameuss@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20251217030107.1729776-1-farman@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20251217030107.1729776-1-farman@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=QbNrf8bv c=1 sm=1 tr=0 ts=695bb16a cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=K6PXcvzj_mSOQNv_xU4A:9 a=NqO74GWdXPXpGKcKHaDJD/ajO6k=:19
- a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: AKbGoLeDMnm7mHA_XthvgLoScw_xWe66
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTA1MDEwOCBTYWx0ZWRfX4xnXZvQJwGD3
- zzxluT1xl79Thg/WW9JT463od1S9KUUli2K9eug9NEkpU5MRnUqQOfkV4VcUtrctq2CbIgxwjNe
- JZzMsgV/NPNrmruJ+zJE7Ipy6Ty6LgHQWLrSLIjfDiPQUNCJXr8nzLomYVMROUS/NFCKmhjyLDz
- 7HyUqehGNGuAcwDh9JDDUWlbDUEyc954zG+vh1gAxFQXzhS1lrEcVVb5ZaL3TaT4Z9YbW78J/bt
- f/yoE4Gvnv5m0TIspSlQZrWaXKRRT0YKjOLHlnqTdtKPmjsr1CltHGxmCj/NsUiDlQ/mhBTDc2v
- CSj0ma4UTJ0omfrDPDihVfIHxw3nPMuVNSpb39BTf5LAvFSkCNuUg2slq6hHoXn/d7gAHkv0lGt
- L9g8YuitBHTYmNK9ACvG7of+QuFpJIB/gOmTUSuIMtj45ihB8zoZg5DWsM3i11pOglTr+zUUXay
- jHOXBaU74XVeYS0x3Yg==
-X-Proofpoint-GUID: AKbGoLeDMnm7mHA_XthvgLoScw_xWe66
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2026-01-05_01,2025-12-31_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 clxscore=1015 bulkscore=0 suspectscore=0 priorityscore=1501
- adultscore=0 lowpriorityscore=0 impostorscore=0 phishscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2512120000 definitions=main-2601050108
 
-On 12/17/25 04:01, Eric Farman wrote:
-> SIE may exit because of pending host work, such as handling an interrupt,
-> in which case VSIE rewinds the guest PSW such that it is transparently
-> resumed (see Fixes tag). There is still one scenario where those conditions
-> are not present, but that the VSIE processor returns with effectively rc=0,
-> resulting in additional (and unnecessary) guest work to be performed.
-> 
-> For this case, rewind the guest PSW as we do in the other non-error exits.
-> 
-> Fixes: 33a729a1770b ("KVM: s390: vsie: retry SIE instruction on host intercepts")
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+On Mon, 5 Jan 2026 11:05:18 +0000
+Ryan Roberts <ryan.roberts@arm.com> wrote:
 
-This is purely cosmetic to have all instances look the same, right?
+> On 04/01/2026 23:01, David Laight wrote:
+> > On Fri,  2 Jan 2026 13:11:54 +0000
+> > Ryan Roberts <ryan.roberts@arm.com> wrote:
+> >   
+> >> Previously different architectures were using random sources of
+> >> differing strength and cost to decide the random kstack offset. A number
+> >> of architectures (loongarch, powerpc, s390, x86) were using their
+> >> timestamp counter, at whatever the frequency happened to be. Other
+> >> arches (arm64, riscv) were using entropy from the crng via
+> >> get_random_u16().
+> >>
+> >> There have been concerns that in some cases the timestamp counters may
+> >> be too weak, because they can be easily guessed or influenced by user
+> >> space. And get_random_u16() has been shown to be too costly for the
+> >> level of protection kstack offset randomization provides.
+> >>
+> >> So let's use a common, architecture-agnostic source of entropy; a
+> >> per-cpu prng, seeded at boot-time from the crng. This has a few
+> >> benefits:
+> >>
+> >>   - We can remove choose_random_kstack_offset(); That was only there to
+> >>     try to make the timestamp counter value a bit harder to influence
+> >>     from user space.
+> >>
+> >>   - The architecture code is simplified. All it has to do now is call
+> >>     add_random_kstack_offset() in the syscall path.
+> >>
+> >>   - The strength of the randomness can be reasoned about independently
+> >>     of the architecture.
+> >>
+> >>   - Arches previously using get_random_u16() now have much faster
+> >>     syscall paths, see below results.
+> >>
+> >> There have been some claims that a prng may be less strong than the
+> >> timestamp counter if not regularly reseeded. But the prng has a period
+> >> of about 2^113. So as long as the prng state remains secret, it should
+> >> not be possible to guess. If the prng state can be accessed, we have
+> >> bigger problems.  
+> > 
+> > If you have 128 bits of output from consecutive outputs I think you
+> > can trivially determine the full state using (almost) 'school boy' maths
+> > that could be done on pencil and paper.
+> > (Most of the work only has to be done once.)
+> > 
+> > The underlying problem is that the TAUSWORTHE() transformation is 'linear'
+> > So that TAUSWORTHE(x ^ y) == TAUSWORTHE(x) ^ TAUSWORTHE(y).
+> > (This is true of a LFSR/CRC and TOUSWORTH() is doing some subset of CRCs.)
+> > This means that each output bit is the 'xor' of some of the input bits.
+> > The four new 'state' values are just xor of the the bits of the old ones.
+> > The final xor of the four states gives a 32bit value with each bit just
+> > an xor of some of the 128 state bits.
+> > Get four consecutive 32 bit values and you can solve the 128 simultaneous
+> > equations (by trivial substitution) and get the initial state.
+> > The solution gives you the 128 128bit constants for:
+> > 	u128 state = 0;
+> > 	u128 val = 'value returned from 4 calls';
+> > 	for (int i = 0; i < 128; i++)
+> > 		state |= parity(const128[i] ^ val) << i;  
+> 
+> What is const128[] here?
+
+Some values you prepared earlier :-)
+
+> > You done need all 32bits, just accumulate 128 bits.  
+> > So if you can get the 5bit stack offset from 26 system calls you know the
+> > value that will be used for all the subsequent calls.  
+> 
+> It's not immediately obvious to me how user space would do this, but I'll take
+> it on faith that it may be possible.
+
+It shouldn't be possible, but anything that leaks a stack address would
+give it away.
+It is also pretty much why you care about the cycle length of the PRNG.
+(If the length is short a rogue application can remember all the values.)
+
+> > 
+> > Simply changing the final line to use + not ^ makes the output non-linear
+> > and solving the equations a lot harder.  
+> 
+> There has been pushback on introducing new primitives [1] but I don't think
+> that's a reason not to considder it.
+
+That is a more general issue with the PRNG.
+ISTR it was true for the previous version that explicitly used four CRC.
+Jason should know more about whether the xor are a good idea.
+
+> 
+> [1] https://lore.kernel.org/all/aRyppb8PCxFKVphr@zx2c4.com/
+> 
+> > 
+> > I might sit down tomorrow and see if I can actually code it...  
+> 
+> Thanks for the analysis! I look forward to seeing your conclusion... although
+> I'm not sure I'll be qualified to evaluate it mathematically.
+
+I need to drag out the brian cells from when I learnt about CRC (actually
+relating to burst error correction) over 40 years ago...
+ 
+> FWIW, I previously had a go at various schemes using siphash to calculate some
+> random bits. I found it to be significantly slower than this prng. I've so far
+> taken the view that 6 bits of randomness is not much of a defence against brute
+> force so we really shouldn't be spending too many cycles to generate the bits.
+> If we can get to approach to work, I think that's best.
+
+Indeed.
+A single 32bit CRC using (crc + (crc >> 16)) & 0x3f could be 'good enough'.
+Especially if the value is 'perturbed' during (say) context switch.
+The '16' might need adjusting for the actual CRC, especially if TAUSWORTHE()
+is used - you don't want the value to match one of the shifts it uses.
+
+prandom_u32_state() is defined as:
+#define TAUSWORTHE(s, a, b, c, d) ((s & c) << d) ^ (((s << a) ^ s) >> b)
+	state->s1 = TAUSWORTHE(state->s1,  6U, 13U, 4294967294U, 18U);
+	state->s2 = TAUSWORTHE(state->s2,  2U, 27U, 4294967288U,  2U);
+	state->s3 = TAUSWORTHE(state->s3, 13U, 21U, 4294967280U,  7U);
+	state->s4 = TAUSWORTHE(state->s4,  3U, 12U, 4294967168U, 13U);
+	return (state->s1 ^ state->s2 ^ state->s3 ^ state->s4);
+This is equivalent to:
+#define TAUSWORTHE(s, a, b, c, d) ((s & ~c) << d) ^ (s >> a) ^ (s >> b)
+	state->s1 = TAUSWORTHE(state->s1,  7, 13,   1, 18);
+	state->s2 = TAUSWORTHE(state->s2, 25, 27,   7,  2);
+	state->s3 = TAUSWORTHE(state->s3,  8, 21,  15,  7);
+	state->s4 = TAUSWORTHE(state->s4,  9, 12, 127, 13);
+which makes it clear that some low bits of each 's' get discarded reducing
+the length of each CRC to (I think) 31, 29, 28 and 25.
+Since 'b + d' matches the bits discarded by 'c', two of those shifts are
+actually just a rotate, so there isn't really much 'bit stirring' going on.
+
+By comparison CRC-16 (for hdlc comms like x25, isdn and ss7) reduces to:
+u32 crc_step(u32 crc, u8 byte_val)
+{
+    u8 t = crc ^ byte_val;
+    t = (t ^ t << 4);
+    return crc >> 8 ^ t << 8 ^ t << 3 ^ t >> 4;
+}
+Much more 'stirring'.
+
+	David
+
+
