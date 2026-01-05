@@ -1,105 +1,83 @@
-Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDD45A59
-	for <linux-s390@vger.kernel.org>; Mon,  5 Jan 2026 07:47:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.175
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 1249E313E02;
+	Mon,  5 Jan 2026 10:30:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767599254; cv=none; b=auUepc4NZubcUexiQTTn9+jOg02CT5AQ/oHGq2Nl81r5aUyHNYYg0MX6hx86oFZTtirQUNGJiPzT22Gzg7J3kyOiQbpo5qVQyouMiBTxmttnXyOTWgnMGQzUFImHMoVMaVRCE7LhQqgszoCeNiw9nkLrBe/eZjbav+wP0QZvRPs=
+	t=1767609010; cv=none; b=mVHxo4JVgWknCKJEVaxhToJg4FtguCVnS83hx5a6xr8oNOTnYib1kXac6JrBHajb0OOyGkKMNMbDlAkuvyB07GmDqMBPJlPfEQ0ESKrBKl4eQT+r8NeCmCDZ6A/+q74X71I686cj5e0TpS0jlPi/X7jKsozCBh8EqW8ctlUebmE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767599254; c=relaxed/simple;
-	bh=nZVAqheaPq5rGRSWmaOVnJe8g46n6sKwiOrt8BkPTmg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ss4e+Ugx9DwmJ/c5eBHO1LjjKyXeOUNelB9ok87wbGNj+r9dp3F6ZnGZZDbtdBzhnNDy0I03vHqCRrH3I3dyFtRIz58m99tLV/Ck3LHI2cukPNwnpQNXfZsSHHOnu7/4MSpRTjZkp5SnN0Nqj8tSWo4ADVXo65q+SclO1aWZs5Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XDKMJWyr; arc=none smtp.client-ip=209.85.215.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XDKMJWyr"
-Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-c227206e6dcso13332021a12.2
-        for <linux-s390@vger.kernel.org>; Sun, 04 Jan 2026 23:47:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1767599252; x=1768204052; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=2Smn7G9NNF4TKpSBrLZt6/rkru/ozPf2jYkxgsCOt/U=;
-        b=XDKMJWyrvDbiwDOfmQKLltH6IiyxEaweMnOAZFBZVGTYC2GOqTfKh3n04lf5GJ84qu
-         5s0gbg4aU+QvgUmtV7ytpI0dXCqPB+akAz5slCfWkIk9tIcmZWrmUxBoEwmp6kRQeVdB
-         mWGTurcze4OqqRw5CUYJ8rQ8v9uWuLvqfyqXF/tOyXXg/195fsYvebVWZJ6Ki+oIuXZa
-         lq8f2FsrXZaPRS0o17VkIPhBt2cfSseITAlkOoe59bKGSK7ub90fst0TVAjIauffDcOP
-         3+BOPMFIVMQjTL+v2cHEnTNRAFpbbJ/cCITAJrPSRtrSDdpNrBJvN+U/6tGxmjdBBmBl
-         8Xvw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767599252; x=1768204052;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=2Smn7G9NNF4TKpSBrLZt6/rkru/ozPf2jYkxgsCOt/U=;
-        b=lYzB08mk8PKX1qAIIuRQJ8f5jsMLx9Y839yvtBJPoKWqIbslGGvSsi6S7cQZ+qUwTf
-         WuIiUyslNVdB8nTIcS3PgM8Frw2xo/k/mUuJddErmGKsttqYkt7DsNnvCjdVb89npjYl
-         2te8IqJAluL1q2r0xC9UksgqWt2V1GtgQrW/4dyQeYHfW9DcG7HrYhplJXiAp5UJ7hKc
-         aHuUmjLv0W9eq0+kzpyg8h6oZKFxguxCySgx7Sr1th2lb6v07OyHtxT5IpDcccS/NB/T
-         B9r7C5yQ+YZ9ykryoxasQQqeQB1bXVc1VQrVfbjP16j+6CHiXbGLJneOq91OOvxHiMA6
-         hNGQ==
-X-Forwarded-Encrypted: i=1; AJvYcCURTkbkHt6tguck51ey8GjCOaDFcqhAbKnPWUq3BxVmhCnzjffROljA6lWqTg5ZD9OjlPVwBjGD+CLa@vger.kernel.org
-X-Gm-Message-State: AOJu0YyGc/dbRGDv63c1XxpOrkYJS9w3wIN9IVqpooPPgBoA4ZkKTxBj
-	69vSl6emqVE3kL3l3n6LbafZVSahDcCzNhHIU7Krb002164tjpXa2I3j
-X-Gm-Gg: AY/fxX53H+/UXSNln/ZEM3G9r7JuIj3rTblDbICSomvvAoyaHnEiUL1gUil7Wb67hSS
-	JFN22ZWqCJeQ8QGcK1I4M46vRhmJ6DQK4JiQrH1fLTPebPmpmQIFUrL8JopYgGH6ioUPLojnFaE
-	1BFbnCyvm7W968mt4+UFBDYvWp4In4xFD2XCIz9P/i70COZSRbq5TZq824sAPRBvpiEXar/Eelh
-	aWVjz/LMfS6Ilk0bFohRIwQDdKjky7C3nKuIb4S5llBZQXCPzAylwL7N+Z4UyQMam0SmnFyXe4z
-	dt2zyr3tRJ/TfP78WshNSdZ1xX/PAIqpTm0XA9QmiY2hyb5iSNsuKWHAU8m+/XujbYCw6L0K19G
-	Oi+X+1udtFvexqTttJzIog7CeyGYcPG0Os4tl0atPJ+SPMHUsjKMgkTE5J9f0m+2Fmvv5y2r7eQ
-	==
-X-Google-Smtp-Source: AGHT+IHVaBHzL3ldcoq10mQ0DvSoQNAzO29+h1IBrSy2gZY7Qh6quSoh5XWNmgIvhDzcT+gz+HyNHQ==
-X-Received: by 2002:a05:693c:8008:b0:2b0:4f8e:3273 with SMTP id 5a478bee46e88-2b05ebd7223mr36936529eec.6.1767599252090;
-        Sun, 04 Jan 2026 23:47:32 -0800 (PST)
-Received: from gmail.com ([2a09:bac5:1f0f:28::4:33f])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b05ffad66fsm101610210eec.4.2026.01.04.23.47.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 04 Jan 2026 23:47:31 -0800 (PST)
-From: Qingfang Deng <dqfext@gmail.com>
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: linux-crypto@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Ard Biesheuvel <ardb@kernel.org>,
-	"Jason A. Donenfeld" <Jason@zx2c4.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	linux-arm-kernel@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org,
-	x86@kernel.org,
-	Holger Dengler <dengler@linux.ibm.com>,
-	Harald Freudenberger <freude@linux.ibm.com>
-Subject: Re: [PATCH 02/36] lib/crypto: aes: Introduce improved AES library
-Date: Mon,  5 Jan 2026 15:47:12 +0800
-Message-ID: <20260105074712.498-1-dqfext@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260105051311.1607207-3-ebiggers@kernel.org>
-References: <20260105051311.1607207-1-ebiggers@kernel.org> <20260105051311.1607207-3-ebiggers@kernel.org>
+	s=arc-20240116; t=1767609010; c=relaxed/simple;
+	bh=hmC/fEh5Y3cGVFt4ebDm4DtwX1ROeVu94xmGiHcSwjY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=SEoYmkyfd6yrfmoCcczujkBhG9pySKUmlEFjm07nBQdseIW6Q8RHef4EXoVCSmntxP0MYMp7eENdzWiWd7lAcgbAf/+MDPZfeonT+wIK70zITqN/Ck5YHDm6oL8GucEJrkYAjAW5Y5xYU11Az7cV/d7llXthZds4O/29KONDBzQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 45673497;
+	Mon,  5 Jan 2026 02:30:00 -0800 (PST)
+Received: from [10.1.38.150] (XHFQ2J9959.cambridge.arm.com [10.1.38.150])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9EA473F6A8;
+	Mon,  5 Jan 2026 02:30:03 -0800 (PST)
+Message-ID: <19a0da52-5322-40b0-9195-5d191f582bc5@arm.com>
+Date: Mon, 5 Jan 2026 10:30:02 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 1/3] randomize_kstack: Maintain kstack_offset per task
+Content-Language: en-GB
+To: David Laight <david.laight.linux@gmail.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Huacai Chen <chenhuacai@kernel.org>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <pjw@kernel.org>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ Kees Cook <kees@kernel.org>, "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+ Arnd Bergmann <arnd@arndb.de>, Mark Rutland <mark.rutland@arm.com>,
+ "Jason A. Donenfeld" <Jason@zx2c4.com>, Ard Biesheuvel <ardb@kernel.org>,
+ Jeremy Linton <jeremy.linton@arm.com>, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org,
+ stable@vger.kernel.org
+References: <20260102131156.3265118-1-ryan.roberts@arm.com>
+ <20260102131156.3265118-2-ryan.roberts@arm.com>
+ <20260102224432.172b1247@pumpkin>
+From: Ryan Roberts <ryan.roberts@arm.com>
+In-Reply-To: <20260102224432.172b1247@pumpkin>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On 4 Jan 2026 21:12:35 -0800, Eric Biggers wrote:
->  extern const u8 crypto_aes_sbox[];
->  extern const u8 crypto_aes_inv_sbox[];
-> +extern const u32 __cacheline_aligned aes_enc_tab[256];
-> +extern const u32 __cacheline_aligned aes_dec_tab[256];
- 
-__cacheline_aligned puts the array in ".data..cacheline_aligned"
-section. As a const array, it should be in ".rodata" section, so
-____cacheline_aligned (note the extra underscores) should be used
-instead.
-You can also apply the same to crypto_aes_sbox and crypto_aes_inv_sbox
-while at it.
+On 02/01/2026 22:44, David Laight wrote:
+> On Fri,  2 Jan 2026 13:11:52 +0000
+> Ryan Roberts <ryan.roberts@arm.com> wrote:
+> 
+>> kstack_offset was previously maintained per-cpu, but this caused a
+>> couple of issues. So let's instead make it per-task.
+>>
+>> Issue 1: add_random_kstack_offset() and choose_random_kstack_offset()
+>> expected and required to be called with interrupts and preemption
+>> disabled so that it could manipulate per-cpu state. But arm64, loongarch
+>> and risc-v are calling them with interrupts and preemption enabled. I
+>> don't _think_ this causes any functional issues, but it's certainly
+>> unexpected and could lead to manipulating the wrong cpu's state, which
+>> could cause a minor performance degradation due to bouncing the cache
+>> lines. By maintaining the state per-task those functions can safely be
+>> called in preemptible context.
+>>
+>> Issue 2: add_random_kstack_offset() is called before executing the
+>> syscall and expands the stack using a previously chosen rnadom offset.
+>                                                            <>
+> 	David
 
-Regards,
-Qingfang
+Cheers; will fix in next version.
+
+Thanks,
+Ryan
