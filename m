@@ -1,25 +1,25 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id D5AE717A303;
-	Mon,  5 Jan 2026 10:36:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 65FB932ED52;
+	Mon,  5 Jan 2026 11:05:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767609401; cv=none; b=Viy0Yrx8Y0E4kwdw4bMs9axMm8Q/HtKE2STcu/t7CZoraCAjm/BMbdDe6AqQcJrgazsDnVH36O3OBOnrSEk9mIGUp23HW2hNp/5e7u3uYSi6luWWVzH2VP5mzmuMStRzCkD1FBwGhfJtFbN5+wZ5v7SCcsUhGYpywU6NbOoJQIw=
+	t=1767611125; cv=none; b=mH4XgpF40aDN3mSDSxGcjYgFg2+nyresTOiQHdk4iA25dfZcPU1wlOCo+1eoHcG3MmfhVLG8ex9venUV/t7ljdPbPFuSMYaLqlyJGlpsynsHvjedahTs3zPyMEfgeEDym2TKi7MJw+wI83SXt0wyvgprJDm4JoNsnKU9w80MWx4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767609401; c=relaxed/simple;
-	bh=FL6VuC88Y38HekqbcaZzP32fl5ORxtJOS42gNVYn6BY=;
+	s=arc-20240116; t=1767611125; c=relaxed/simple;
+	bh=/IWMkjWKAb7cBRk9rXBo7XSunxAC8lWcg1+e5MkGQ1E=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FINon+SquwagAFOrzUZZjl9L0LXW9vG/Bsn1LE6m1SHTkSpy/+2VONrR0eSLe4BnKrrwQL5BVT2a6wr4QPnCX44N2uwEOUPhOmcg5xhXgC54OUYiQU+BLwqj4QGTQ7RUkPl7tk0R2TKKvvDgGW9JmLvulvNopcJ6RGI5aun+618=
+	 In-Reply-To:Content-Type; b=k5tC3VMaM5+evfmTJQe4S6vE9MN6jlnxxPKIoTFopP2BQFAlGtFCqRwNjbxOaTElv8FVgdnsH9UY9CBgIRfsjgY766eNGvQirocV4q7yrhitxuZJyc7Bklh1li372khRpkuU3vuXxfhsAoOWwf5ofRtPhTABfR+MATcVbnFX21c=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 610D5497;
-	Mon,  5 Jan 2026 02:36:32 -0800 (PST)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E6BC5497;
+	Mon,  5 Jan 2026 03:05:15 -0800 (PST)
 Received: from [10.1.38.150] (XHFQ2J9959.cambridge.arm.com [10.1.38.150])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id C66F83F6A8;
-	Mon,  5 Jan 2026 02:36:35 -0800 (PST)
-Message-ID: <3062af1d-48b3-4d64-8528-3470e07069bb@arm.com>
-Date: Mon, 5 Jan 2026 10:36:34 +0000
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 652C93F5A1;
+	Mon,  5 Jan 2026 03:05:19 -0800 (PST)
+Message-ID: <60c5d7b1-1ab7-490c-8cb8-dfd50cf23856@arm.com>
+Date: Mon, 5 Jan 2026 11:05:18 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -27,11 +27,10 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/3] prandom: Convert prandom_u32_state() to
- __always_inline
+Subject: Re: [PATCH v3 3/3] randomize_kstack: Unify random source across
+ arches
 Content-Language: en-GB
-To: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
- "Jason A. Donenfeld" <Jason@zx2c4.com>
+To: David Laight <david.laight.linux@gmail.com>
 Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
  Huacai Chen <chenhuacai@kernel.org>,
  Madhavan Srinivasan <maddy@linux.ibm.com>,
@@ -43,212 +42,113 @@ Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
  Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
  Kees Cook <kees@kernel.org>, "Gustavo A. R. Silva" <gustavoars@kernel.org>,
  Arnd Bergmann <arnd@arndb.de>, Mark Rutland <mark.rutland@arm.com>,
- Ard Biesheuvel <ardb@kernel.org>, Jeremy Linton <jeremy.linton@arm.com>,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-hardening@vger.kernel.org
+ "Jason A. Donenfeld" <Jason@zx2c4.com>, Ard Biesheuvel <ardb@kernel.org>,
+ Jeremy Linton <jeremy.linton@arm.com>, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org
 References: <20260102131156.3265118-1-ryan.roberts@arm.com>
- <20260102131156.3265118-3-ryan.roberts@arm.com>
- <CAHmME9qHiVZwf4TAringRHSZ-yqHuPwmP=Wnx98n09jv7Vu_Rg@mail.gmail.com>
- <719b7b99-3615-46cd-84d9-8b8fc21e3ce9@arm.com>
- <563a5d0d-c27a-45de-9495-a82403026886@kernel.org>
+ <20260102131156.3265118-4-ryan.roberts@arm.com>
+ <20260104230136.7aaf8886@pumpkin>
 From: Ryan Roberts <ryan.roberts@arm.com>
-In-Reply-To: <563a5d0d-c27a-45de-9495-a82403026886@kernel.org>
+In-Reply-To: <20260104230136.7aaf8886@pumpkin>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 03/01/2026 08:00, Christophe Leroy (CS GROUP) wrote:
+On 04/01/2026 23:01, David Laight wrote:
+> On Fri,  2 Jan 2026 13:11:54 +0000
+> Ryan Roberts <ryan.roberts@arm.com> wrote:
 > 
-> 
-> Le 02/01/2026 à 15:09, Ryan Roberts a écrit :
->> On 02/01/2026 13:39, Jason A. Donenfeld wrote:
->>> Hi Ryan,
->>>
->>> On Fri, Jan 2, 2026 at 2:12 PM Ryan Roberts <ryan.roberts@arm.com> wrote:
->>>> context. Given the function is just a handful of operations and doesn't
->>>
->>> How many? What's this looking like in terms of assembly?
+>> Previously different architectures were using random sources of
+>> differing strength and cost to decide the random kstack offset. A number
+>> of architectures (loongarch, powerpc, s390, x86) were using their
+>> timestamp counter, at whatever the frequency happened to be. Other
+>> arches (arm64, riscv) were using entropy from the crng via
+>> get_random_u16().
 >>
->> 25 instructions on arm64:
-> 
-> 31 instructions on powerpc:
-> 
-> 00000000 <prandom_u32_state>:
->    0:    7c 69 1b 78     mr      r9,r3
->    4:    80 63 00 00     lwz     r3,0(r3)
->    8:    80 89 00 08     lwz     r4,8(r9)
->    c:    81 69 00 04     lwz     r11,4(r9)
->   10:    80 a9 00 0c     lwz     r5,12(r9)
->   14:    54 67 30 32     slwi    r7,r3,6
->   18:    7c e7 1a 78     xor     r7,r7,r3
->   1c:    55 66 10 3a     slwi    r6,r11,2
->   20:    54 88 68 24     slwi    r8,r4,13
->   24:    54 63 90 18     rlwinm  r3,r3,18,0,12
->   28:    7d 6b 32 78     xor     r11,r11,r6
->   2c:    7d 08 22 78     xor     r8,r8,r4
->   30:    54 aa 18 38     slwi    r10,r5,3
->   34:    54 e7 9b 7e     srwi    r7,r7,13
->   38:    7c e7 1a 78     xor     r7,r7,r3
->   3c:    51 66 2e fe     rlwimi  r6,r11,5,27,31
->   40:    54 84 38 28     rlwinm  r4,r4,7,0,20
->   44:    7d 4a 2a 78     xor     r10,r10,r5
->   48:    55 08 5d 7e     srwi    r8,r8,21
->   4c:    7d 08 22 78     xor     r8,r8,r4
->   50:    7c e3 32 78     xor     r3,r7,r6
->   54:    54 a5 68 16     rlwinm  r5,r5,13,0,11
->   58:    55 4a a3 3e     srwi    r10,r10,12
->   5c:    7d 4a 2a 78     xor     r10,r10,r5
->   60:    7c 63 42 78     xor     r3,r3,r8
->   64:    90 e9 00 00     stw     r7,0(r9)
->   68:    90 c9 00 04     stw     r6,4(r9)
->   6c:    91 09 00 08     stw     r8,8(r9)
->   70:    91 49 00 0c     stw     r10,12(r9)
->   74:    7c 63 52 78     xor     r3,r3,r10
->   78:    4e 80 00 20     blr
-> 
-> Among those, 8 instructions are for reading/writing the state in stack. They of
-> course disappear when inlining.
-> 
+>> There have been concerns that in some cases the timestamp counters may
+>> be too weak, because they can be easily guessed or influenced by user
+>> space. And get_random_u16() has been shown to be too costly for the
+>> level of protection kstack offset randomization provides.
 >>
->>> It'd also be
->>> nice to have some brief analysis of other call sites to have
->>> confirmation this isn't blowing up other users.
+>> So let's use a common, architecture-agnostic source of entropy; a
+>> per-cpu prng, seeded at boot-time from the crng. This has a few
+>> benefits:
 >>
->> I compiled defconfig before and after this patch on arm64 and compared the text
->> sizes:
+>>   - We can remove choose_random_kstack_offset(); That was only there to
+>>     try to make the timestamp counter value a bit harder to influence
+>>     from user space.
 >>
->> $ ./scripts/bloat-o-meter -t vmlinux.before vmlinux.after
->> add/remove: 3/4 grow/shrink: 4/1 up/down: 836/-128 (708)
->> Function                                     old     new   delta
->> prandom_seed_full_state                      364     932    +568
->> pick_next_task_fair                         1940    2036     +96
->> bpf_user_rnd_u32                             104     196     +92
->> prandom_bytes_state                          204     260     +56
->> e843419@0f2b_00012d69_e34                      -       8      +8
->> e843419@0db7_00010ec3_23ec                     -       8      +8
->> e843419@02cb_00003767_25c                      -       8      +8
->> bpf_prog_select_runtime                      448     444      -4
->> e843419@0aa3_0000cfd1_1580                     8       -      -8
->> e843419@0aa2_0000cfba_147c                     8       -      -8
->> e843419@075f_00008d8c_184                      8       -      -8
->> prandom_u32_state                            100       -    -100
->> Total: Before=19078072, After=19078780, chg +0.00%
+>>   - The architecture code is simplified. All it has to do now is call
+>>     add_random_kstack_offset() in the syscall path.
 >>
->> So 708 bytes more after inlining. The main cost is prandom_seed_full_state(),
->> which calls prandom_u32_state() 10 times (via prandom_warmup()). I expect we
->> could turn that into a loop to reduce ~450 bytes overall.
+>>   - The strength of the randomness can be reasoned about independently
+>>     of the architecture.
 >>
-> With following change the increase of prandom_seed_full_state() remains
-> reasonnable and performance wise it is a lot better as it avoids the read/write
-> of the state via the stack
+>>   - Arches previously using get_random_u16() now have much faster
+>>     syscall paths, see below results.
+>>
+>> There have been some claims that a prng may be less strong than the
+>> timestamp counter if not regularly reseeded. But the prng has a period
+>> of about 2^113. So as long as the prng state remains secret, it should
+>> not be possible to guess. If the prng state can be accessed, we have
+>> bigger problems.
 > 
-> diff --git a/lib/random32.c b/lib/random32.c
-> index 24e7acd9343f6..28a5b109c9018 100644
-> --- a/lib/random32.c
-> +++ b/lib/random32.c
-> @@ -94,17 +94,11 @@ EXPORT_SYMBOL(prandom_bytes_state);
+> If you have 128 bits of output from consecutive outputs I think you
+> can trivially determine the full state using (almost) 'school boy' maths
+> that could be done on pencil and paper.
+> (Most of the work only has to be done once.)
 > 
->  static void prandom_warmup(struct rnd_state *state)
->  {
-> +    int i;
-> +
->      /* Calling RNG ten times to satisfy recurrence condition */
-> -    prandom_u32_state(state);
-> -    prandom_u32_state(state);
-> -    prandom_u32_state(state);
-> -    prandom_u32_state(state);
-> -    prandom_u32_state(state);
-> -    prandom_u32_state(state);
-> -    prandom_u32_state(state);
-> -    prandom_u32_state(state);
-> -    prandom_u32_state(state);
-> -    prandom_u32_state(state);
-> +    for (i = 0; i < 10; i++)
-> +        prandom_u32_state(state);
->  }
-> 
->  void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state)
-> 
-> The loop is:
-> 
->  248:    38 e0 00 0a     li      r7,10
->  24c:    7c e9 03 a6     mtctr   r7
->  250:    55 05 30 32     slwi    r5,r8,6
->  254:    55 46 68 24     slwi    r6,r10,13
->  258:    55 27 18 38     slwi    r7,r9,3
->  25c:    7c a5 42 78     xor     r5,r5,r8
->  260:    7c c6 52 78     xor     r6,r6,r10
->  264:    7c e7 4a 78     xor     r7,r7,r9
->  268:    54 8b 10 3a     slwi    r11,r4,2
->  26c:    7d 60 22 78     xor     r0,r11,r4
->  270:    54 a5 9b 7e     srwi    r5,r5,13
->  274:    55 08 90 18     rlwinm  r8,r8,18,0,12
->  278:    54 c6 5d 7e     srwi    r6,r6,21
->  27c:    55 4a 38 28     rlwinm  r10,r10,7,0,20
->  280:    54 e7 a3 3e     srwi    r7,r7,12
->  284:    55 29 68 16     rlwinm  r9,r9,13,0,11
->  288:    7d 64 5b 78     mr      r4,r11
->  28c:    7c a8 42 78     xor     r8,r5,r8
->  290:    7c ca 52 78     xor     r10,r6,r10
->  294:    7c e9 4a 78     xor     r9,r7,r9
->  298:    50 04 2e fe     rlwimi  r4,r0,5,27,31
->  29c:    42 00 ff b4     bdnz    250 <prandom_seed_full_state+0x7c>
-> 
-> Which replaces the 10 calls to prandom_u32_state()
-> 
->   fc:    91 3f 00 0c     stw     r9,12(r31)
->  100:    7f e3 fb 78     mr      r3,r31
->  104:    48 00 00 01     bl      104 <prandom_seed_full_state+0x88>
->             104: R_PPC_REL24    prandom_u32_state
->  108:    7f e3 fb 78     mr      r3,r31
->  10c:    48 00 00 01     bl      10c <prandom_seed_full_state+0x90>
->             10c: R_PPC_REL24    prandom_u32_state
->  110:    7f e3 fb 78     mr      r3,r31
->  114:    48 00 00 01     bl      114 <prandom_seed_full_state+0x98>
->             114: R_PPC_REL24    prandom_u32_state
->  118:    7f e3 fb 78     mr      r3,r31
->  11c:    48 00 00 01     bl      11c <prandom_seed_full_state+0xa0>
->             11c: R_PPC_REL24    prandom_u32_state
->  120:    7f e3 fb 78     mr      r3,r31
->  124:    48 00 00 01     bl      124 <prandom_seed_full_state+0xa8>
->             124: R_PPC_REL24    prandom_u32_state
->  128:    7f e3 fb 78     mr      r3,r31
->  12c:    48 00 00 01     bl      12c <prandom_seed_full_state+0xb0>
->             12c: R_PPC_REL24    prandom_u32_state
->  130:    7f e3 fb 78     mr      r3,r31
->  134:    48 00 00 01     bl      134 <prandom_seed_full_state+0xb8>
->             134: R_PPC_REL24    prandom_u32_state
->  138:    7f e3 fb 78     mr      r3,r31
->  13c:    48 00 00 01     bl      13c <prandom_seed_full_state+0xc0>
->             13c: R_PPC_REL24    prandom_u32_state
->  140:    7f e3 fb 78     mr      r3,r31
->  144:    48 00 00 01     bl      144 <prandom_seed_full_state+0xc8>
->             144: R_PPC_REL24    prandom_u32_state
->  148:    80 01 00 24     lwz     r0,36(r1)
->  14c:    7f e3 fb 78     mr      r3,r31
->  150:    83 e1 00 1c     lwz     r31,28(r1)
->  154:    7c 08 03 a6     mtlr    r0
->  158:    38 21 00 20     addi    r1,r1,32
->  15c:    48 00 00 00     b       15c <prandom_seed_full_state+0xe0>
->             15c: R_PPC_REL24    prandom_u32_state
-> 
-> 
-> So approx the same number of instructions in size, while better performance.
-> 
->> I'm not really sure if 708 is good or bad...
-> 
-> That's in the noise compared to the overall size of vmlinux, but if we change it
-> to a loop we also reduce pressure on the cache.
+> The underlying problem is that the TAUSWORTHE() transformation is 'linear'
+> So that TAUSWORTHE(x ^ y) == TAUSWORTHE(x) ^ TAUSWORTHE(y).
+> (This is true of a LFSR/CRC and TOUSWORTH() is doing some subset of CRCs.)
+> This means that each output bit is the 'xor' of some of the input bits.
+> The four new 'state' values are just xor of the the bits of the old ones.
+> The final xor of the four states gives a 32bit value with each bit just
+> an xor of some of the 128 state bits.
+> Get four consecutive 32 bit values and you can solve the 128 simultaneous
+> equations (by trivial substitution) and get the initial state.
+> The solution gives you the 128 128bit constants for:
+> 	u128 state = 0;
+> 	u128 val = 'value returned from 4 calls';
+> 	for (int i = 0; i < 128; i++)
+> 		state |= parity(const128[i] ^ val) << i;
 
-Thanks for the analysis; I'm going to follow David's suggestion and refactor
-this into both an __always_inline and an out-of-line version. That way the
-existing callsites can continue to use the out-of-line version and we will only
-use the inline version for the kstack offset randomization.
+What is const128[] here?
+
+> You done need all 32bits, just accumulate 128 bits.  
+> So if you can get the 5bit stack offset from 26 system calls you know the
+> value that will be used for all the subsequent calls.
+
+It's not immediately obvious to me how user space would do this, but I'll take
+it on faith that it may be possible.
+
+> 
+> Simply changing the final line to use + not ^ makes the output non-linear
+> and solving the equations a lot harder.
+
+There has been pushback on introducing new primitives [1] but I don't think
+that's a reason not to considder it.
+
+[1] https://lore.kernel.org/all/aRyppb8PCxFKVphr@zx2c4.com/
+
+> 
+> I might sit down tomorrow and see if I can actually code it...
+
+Thanks for the analysis! I look forward to seeing your conclusion... although
+I'm not sure I'll be qualified to evaluate it mathematically.
+
+FWIW, I previously had a go at various schemes using siphash to calculate some
+random bits. I found it to be significantly slower than this prng. I've so far
+taken the view that 6 bits of randomness is not much of a defence against brute
+force so we really shouldn't be spending too many cycles to generate the bits.
+If we can get to approach to work, I think that's best.
 
 Thanks,
 Ryan
 
 > 
-> Christophe
+> 	David
+> 
+>  
 
