@@ -1,117 +1,119 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB2963009C1;
-	Tue,  6 Jan 2026 06:58:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6528332EC9
+	for <linux-s390@vger.kernel.org>; Tue,  6 Jan 2026 11:38:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767682717; cv=none; b=cnU5FThlLyYF5k6JMBFmkwKIcMdobPhz4m+5PK9an800499sN0u3emGvXMS3GtxqPoF3BY9ZOMTr0c/UrAjEOeIw2TrXd5J7BJvSFB6nTRkYUSliST17+Cu7kVpEQRmPzQBILNXeYt4SHm1bVzM+exgcVzpSpzTQPk/dQVNx5Ik=
+	t=1767699485; cv=none; b=gvZlCnEJj0k+39KyAIvec9g92fCRLOqINGbDtT07OzZibGUS5mGzOO2h9D2PBU99coxhiuK4yF4CqacY0m4As/Uvf8fMKOkEmJczDR8MFrSe8ZFFMXgEpHz6W3Ru+PUblDMratItfPzFtlipQWnlUcDiDxgdMSm/fVnC+lH55C4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767682717; c=relaxed/simple;
-	bh=QQtOk2YRE84AoYQ+kSLZyLAyg4ikVDFr3IES1pY5ozA=;
+	s=arc-20240116; t=1767699485; c=relaxed/simple;
+	bh=U/UNWaSZOM/1nnt6plnyQwwSA8jtgy4FJfpB9IxR0vM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kelyriLihvhEfn3FBmwnxP+T0oO3UP6MM4zoJYVf7BxamgWa00+LMs83kBCYkb/Wv7iABT3e4o6GCW+5Ka3SOI2A75Sma+B/yLvmnD1hrgIqlxjrEw+WPWBRbbkeO3eSz8wcvFqF4vXIVV3oyHqtpxSnOtM9QYoBWznZi+8DKBU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gH/mbhwW; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=gJAN0HYCycdUJIhyb+UIeHA4RpULVoAl4gCcVqFO1Dmk8TybCtrhAqAjUlz3xnlHxJENpMMaiHiPlvKS9HzblmbVxXRcOZgzq/mTIUehYyw7q1W3nKyDLbNIwW34e7VtsOP4MXDpUgBaKH2Qi6tl3VRyIjcbHOhEdOiCNpn1Dl8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UiUF3LO9; arc=none smtp.client-ip=209.85.218.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gH/mbhwW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 076F4C116C6;
-	Tue,  6 Jan 2026 06:58:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1767682716;
-	bh=QQtOk2YRE84AoYQ+kSLZyLAyg4ikVDFr3IES1pY5ozA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=gH/mbhwWcmbSviWB2aCXqeJKPYzexAoK01Yg6s6cLwpp5mznoR4J9YtzBX0+JaB2Q
-	 RGzl1CWYt5ctBprLFLGJSvPejfop4znvHRnWwqgqpJHcHC0j9ob/Np83XrO9+Cl3TX
-	 VS8m3uLgzCzbvtCwipbPzokR0Dek9Wxm/0Ippytis8vLZ/I6x2I70gfKMwQbmEhFro
-	 NAdguE5T18zqwp0QS2kDwlBde/OWsN6qjyPmGKZIp7wCv7/K32g7gRemPHItu6WY9g
-	 OF83QkAKrc+JLLzKj3XjbpThHQLvD4g3n1HMYbOp1iZmU15u/EOi4JVaYquL+5oCoh
-	 XLNrjl71mrNfw==
-Date: Mon, 5 Jan 2026 22:58:17 -0800
-From: Eric Biggers <ebiggers@kernel.org>
-To: David Laight <david.laight.linux@gmail.com>
-Cc: Andrew Cooper <andrew.cooper3@citrix.com>, Jason@zx2c4.com,
-	ardb@kernel.org, dengler@linux.ibm.com, freude@linux.ibm.com,
-	herbert@gondor.apana.org.au, linux-arm-kernel@lists.infradead.org,
-	linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org,
-	x86@kernel.org
-Subject: Re: [PATCH 19/36] Bluetooth: SMP: Use new AES library API
-Message-ID: <20260106065817.GB2630@sol>
-References: <20260105051311.1607207-20-ebiggers@kernel.org>
- <859377de-cb72-4e87-8ee5-97f8c58a5720@citrix.com>
- <20260105190503.53cc31dd@pumpkin>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UiUF3LO9"
+Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-b7ffa5d1b80so141137666b.0
+        for <linux-s390@vger.kernel.org>; Tue, 06 Jan 2026 03:38:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1767699482; x=1768304282; darn=vger.kernel.org;
+        h=user-agent:in-reply-to:content-disposition:mime-version:references
+         :reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=MiPIfmjv3b05N/bw/XvHmU5o9/AUPMqaF5FRtYSnf34=;
+        b=UiUF3LO9e5SX8lDFd+crV/iEOr46Pzj0BOrE44g2fdAsfPQD1TFBNoQRtj5gYQAOLt
+         jkcAN0iz5X1x91fWE+yrR0cpIAisv1PONaSiWTBak9zpEHh7VwNUV2px/Zrp8v3oCI1q
+         /qh+FZw1GyRq3nyEmay5OELa2LfkpU9r1hxd/goBFzVhDevmteHyuecF1WXucRCKJPft
+         jjNejUKANHeLDGPtD4LvMbmJWv27E539ut2nyFsVUmzJAPSzsLRWDkB1FPRQhUP3fPEg
+         iccA31hvM0FzTpI0928X35R3p3WSUcjw0qHzHsef3+2go2p29sq9EWk5HvlHbvYKaEal
+         LVbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1767699482; x=1768304282;
+        h=user-agent:in-reply-to:content-disposition:mime-version:references
+         :reply-to:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=MiPIfmjv3b05N/bw/XvHmU5o9/AUPMqaF5FRtYSnf34=;
+        b=vpoFxMoJL7zjit6brG2SXN0KQ+k5a5OjlpXyI3QyH+hUJrJwdY7TnlLqPGuPB/Y9Y0
+         FKIQEGjYaVTteRwzZcvw9hQlr3bW+TcKyhht4ZxTeAfJcS4iz9QtBIduw7BEk6Mbs7xG
+         seUKwlJapALp8wIy+inpXTwckaa2pYSHFQ9s7ChmrsXionA/EycehI5rCj1JqsB8dB7S
+         SzB7UvqyQwwl9lf/VJiXpa45iK7vnlF5L7CH15YlrG14Y+whPGL6YchzvC1heNDc4pSx
+         3x1IAWXDTCr15G5fN8gciUti4ne5sEkSF3dsJmJGo1Q79zTx0JXXNLgAOukUjUjqFgxP
+         FX0A==
+X-Forwarded-Encrypted: i=1; AJvYcCVwXvN9yCTugZhKfBHiQcTnk5KIISx8Zu15aks3U1wRIncAPLey0XHuyywvlV0vwivCXTPn7LXpmHC8@vger.kernel.org
+X-Gm-Message-State: AOJu0YzA+fIDij2jSZ13QVVXCUrTppkdsALylr7RR7n7Mc0IiNpJ5hR0
+	z0zWvJFvZhu50uTuiBh7W9O/OUnhQ7/BEdPWgN84ng9wK/s76MCTWi1/
+X-Gm-Gg: AY/fxX5TEpUD/TWPg1UQ2KDmTs60BI+CcdtC5GnsZ43EchQ0/jwED5a8QFwILCUwsbJ
+	uYeKOEFHSqeb4poCaAZxQg+RahmQM9ysKjFbSN85UpTCJWD7LR3hGwEtHhXQTcSfj9eUA4X4nAm
+	VPHb31x1mjuDhfgfBgqm/PZ24AemlWBY9MRMw58FFofIjYjK0iR1KObYUpkKkd0pcl6zjf6D90W
+	yR95TC2FUI/SPI+OkOrYmipPlJ718B/U1zdoSf7DNm7lCGKnFKkeMeMDGc9ixMztl1GKeK39xpe
+	6Rka/EUwd+kMy+U09rwZp12S2zLXXF0fuAVJEQmnWWDY0yi9IToW7zWA8pAlKH4zJBy/rQ7THGf
+	EXIfETERhRTfvBRi0OwC7nJ4dXqKvISHelCTKBDpx7rdbk7TmerKI61VLIAHAOdw/TwmFbni3b+
+	NUMcuczg0C/w==
+X-Google-Smtp-Source: AGHT+IE4vK7Idw33w0dr627IjMwMmN4O113exdBdmGZBRMY89j9Rrr4y7a7t8aNrQBWlB/zASfmhOw==
+X-Received: by 2002:a17:907:3f0e:b0:b80:1b27:f2fd with SMTP id a640c23a62f3a-b8426c4e48emr335853166b.54.1767699481671;
+        Tue, 06 Jan 2026 03:38:01 -0800 (PST)
+Received: from localhost ([185.92.221.13])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b842a2bc6bbsm212937266b.27.2026.01.06.03.38.01
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 06 Jan 2026 03:38:01 -0800 (PST)
+Date: Tue, 6 Jan 2026 11:38:00 +0000
+From: Wei Yang <richard.weiyang@gmail.com>
+To: "David Hildenbrand (Red Hat)" <david@kernel.org>
+Cc: Wei Yang <richard.weiyang@gmail.com>, will@kernel.org,
+	aneesh.kumar@kernel.org, akpm@linux-foundation.org,
+	npiggin@gmail.com, peterz@infradead.org, hca@linux.ibm.com,
+	gor@linux.ibm.com, agordeev@linux.ibm.com,
+	borntraeger@linux.ibm.com, svens@linux.ibm.com, arnd@arndb.de,
+	linux-arch@vger.kernel.org, linux-mm@kvack.org,
+	linux-s390@vger.kernel.org
+Subject: Re: [PATCH] mm/mmu_gather: remove @delay_remap of
+ __tlb_remove_page_size()
+Message-ID: <20260106113800.rilod6iajre7wzxs@master>
+Reply-To: Wei Yang <richard.weiyang@gmail.com>
+References: <20251231030026.15938-1-richard.weiyang@gmail.com>
+ <51e72690-8a0a-4532-b6a2-79a851edc44e@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260105190503.53cc31dd@pumpkin>
+In-Reply-To: <51e72690-8a0a-4532-b6a2-79a851edc44e@kernel.org>
+User-Agent: NeoMutt/20170113 (1.7.2)
 
-On Mon, Jan 05, 2026 at 07:05:03PM +0000, David Laight wrote:
-> On Mon, 5 Jan 2026 15:40:22 +0000
-> Andrew Cooper <andrew.cooper3@citrix.com> wrote:
-> 
-> > >  	/* Most significant octet of plaintextData corresponds to data[0] */
-> > >  	swap_buf(r, data, 16);
-> > >  
-> > > - aes_encrypt(&ctx, data, data); + aes_encrypt_new(&aes, data, data);  
-> > 
-> > One thing you might want to consider, which reduces the churn in the series.
-> > 
-> > You can use _Generic() to do type-based dispatch on the first pointer. 
-> > Something like this:
-> > 
-> > void aes_encrypt(const struct crypto_aes_ctx *ctx, u8 *out, const u8 *in);
-> > void aes_encrypt_new(aes_encrypt_arg key, u8 out[at_least AES_BLOCK_SIZE],
-> >              const u8 in[at_least AES_BLOCK_SIZE]);
-> > 
-> > #define aes_encrypt(ctx, out, in)                                       \
-> >     _Generic(ctx,                                                       \
-> >              const struct crypto_aes_ctx *: aes_encrypt(ctx, out, in),  \
-> >              aes_encrypt_arg: aes_encrypt_new(ctx, out, in))
-> > 
-> > 
-> > i.e. it keeps the _new()-ism in a single header, without needing to
-> > change the drivers a second time.
-> 
-> You'll need to cast the 'ctx' argument in both calls.
-> All the code in an _Generic() must compile cleanly in all the cases.
-> (Totally annoying....)
-> 
-> 	David
+On Mon, Jan 05, 2026 at 04:44:28PM +0100, David Hildenbrand (Red Hat) wrote:
+>On 12/31/25 04:00, Wei Yang wrote:
+>> Functioin __tlb_remove_page_size() is only used in
+>
+>s/Functioin/Function/
+>
+>> tlb_remove_page_size() with @delay_remap set to false and it is passed
+>> directly to __tlb_remove_folio_pages_size().
+>> 
+>> Remove @delay_remap of __tlb_remove_page_size() and call
+>> __tlb_remove_folio_pages_size() with false @delay_remap.
+>> 
+>> Signed-off-by: Wei Yang <richard.weiyang@gmail.com>
+>> Cc: "David Hildenbrand (Red Hat)" <david@kernel.org>
+>
+>Right, the only code that sets delay_rmap=true is zap_present_folio_ptes()
+>where we now only call __tlb_remove_folio_pages() directly.
+>
+>Acked-by: David Hildenbrand (Red Hat) <david@kernel.org>
+>
 
-It seems it would actually have to be:
+Thanks
 
-#define aes_encrypt(key, out, in) \
-_Generic(key, \
-	 struct crypto_aes_ctx *: aes_encrypt_old((const struct crypto_aes_ctx *)key, out, in), \
-	 const struct crypto_aes_ctx *: aes_encrypt_old((const struct crypto_aes_ctx *)key, out, in), \
-	 struct aes_enckey *: aes_encrypt_new((const struct aes_enckey *)key, out, in), \
-	 const struct aes_enckey *: aes_encrypt_new((const struct aes_enckey *)key, out, in), \
-	 struct aes_key *: aes_encrypt_new((const struct aes_key *)key, out, in), \
-	 const struct aes_key *: aes_encrypt_new((const struct aes_key *)key, out, in))
+>-- 
+>Cheers
+>
+>David
 
-#define aes_decrypt(key, out, in) \
-_Generic(key, \
-	 struct crypto_aes_ctx *: aes_decrypt_old((const struct crypto_aes_ctx *)key, out, in), \
-	 const struct crypto_aes_ctx *: aes_decrypt_old((const struct crypto_aes_ctx *)key, out, in), \
-	 struct aes_key *: aes_decrypt_new((const struct aes_key *)key, out, in), \
-	 const struct aes_key *: aes_decrypt_new((const struct aes_key *)key, out, in))
-
-Note that both const and non-const args need to be handled.
-
-It also doesn't work for any callers passing a 'void *' or
-'const void *' and relying on an implicit cast.  I didn't notice any,
-but that needs to be considered too.
-
-I guess maybe it would still be worth it to avoid the "*_new" name
-temporarily leaking into too many files.  (It goes away by the end of
-the series anyway.)  It's just not quite as simple as you're suggesting,
-and all the callers have to be checked for compatibility with it.
-
-- Eric
+-- 
+Wei Yang
+Help you, Help me
