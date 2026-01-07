@@ -1,160 +1,139 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B78F325496;
-	Wed,  7 Jan 2026 09:48:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 419192DBF4B;
+	Wed,  7 Jan 2026 10:20:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767779336; cv=none; b=F/tnn+p6eFX7BNQyvg1lwQ7zR1YW1PLDBTBM0OLV4DdAFgxlFet7cljCaflNQNtPmWN+BgOpQxl8xX4O3EKUBNldNOxtwcDse5u9N2ud22diKVcKgJg+ojFg5vRwGYbP9nggjEYkMnqjyH2/4EAbUKGG8azN77Vxxg633mwHNRc=
+	t=1767781244; cv=none; b=ohDY8wpreqv8XGJyVOw7crRkmGcacGRsi+znTE+3GZEwxBDjzfAEvxfQnqAdIxO2Ru4tthTml5Vb8Rxy+wqoqV08FDL7ZCaaUxYYjr4vzf2V/Pn0KBvnF5ywdcWHGav3wy5NbpJ85U6RftgwMX+CxaLKjbrkinQMVruaKIKbJis=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767779336; c=relaxed/simple;
-	bh=oZKC028Z3QXIrAUDNuQLoBmqL7yRhPYrPJxt2Y4G4/w=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=iJ7SfFyrOjNiDjlq6PwQwjcxhWAbY+5vgeI2keJsX6IKzpK6kE08V76yKvepgGebOnSiLiQ82C/ccIONQkImy1sw9ERdrmoh++4LQQRKUIKKK6/PFIPZFpUhskn6BHa7UdNJQXuxbY4vxe3A+xRWR9iKXxgeI9h0THopesR2Lvk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NljUXzVZ; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1767781244; c=relaxed/simple;
+	bh=2N7QgaN9sMjltiFqaQG4UkyiWR5RDDQ2n4IgHLPouW4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=eEyua+8T5cp4yjT5z4zsBQOsGjJIQKj+73aTCJ/yqN9jBkezrvLTBPUz2k7AVVbmS58tV2qBCAUMWZnbjFJOhdjAaH6hwqsttMofOP6b871+bmybV+iZcDnI+FAfAXuWD+zbuLfTbqKfVXKybwwMk5YdTmum/RMoj5FGyFUHZyU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HG3UgZmi; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NljUXzVZ"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 6074pf4W012994;
-	Wed, 7 Jan 2026 09:48:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=FBvZikJRdqdsJy7zDRmQHwGCKaTqRX/GR2ibMhY6/
-	+4=; b=NljUXzVZ9tVzLVPrASgBadmiP7twlrXjyNA5qJ9yT+RjiceHqVKTxWpHT
-	tOOM0f/jR/DywnMYUQQhiJjN/Sx3x1vJvowjdPKS7S/9XndvbDvy9ttWp65ILP63
-	PCAbd9m3d7StIe6tNG960ZMZ1YK02ZbLPqNADFVDNCm/Sbn9tHZllu/hO0eOKZTl
-	K7hHfotBCwowgRJ8+iAeIlhhk+RFi0Fpi5vWtLVN6RwgdepIwjVoGhKedZ+UaqI4
-	yNLqmDfqKdwB2djKdOtBxLff4CFNf/xYJc/qV+/zXKjcRENr0/q7ZVVvZSeewaVg
-	LoT1MO7XknyzZJIbjcSQUoy54L/bQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4betrtq2jk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Jan 2026 09:48:50 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 6079ksar022785;
-	Wed, 7 Jan 2026 09:48:50 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4betrtq2jj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Jan 2026 09:48:50 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60797jiq019177;
-	Wed, 7 Jan 2026 09:48:49 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4bfg5180bc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Jan 2026 09:48:49 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6079mjIc28967386
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 7 Jan 2026 09:48:45 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 811732004B;
-	Wed,  7 Jan 2026 09:48:45 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5099820043;
-	Wed,  7 Jan 2026 09:48:45 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  7 Jan 2026 09:48:45 +0000 (GMT)
-From: Thomas Richter <tmricht@linux.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org,
-        james.clark@linaro.org, irogers@google.com
-Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
-        hca@linux.ibm.com, japo@linux.ibm.com,
-        Thomas Richter <tmricht@linux.ibm.com>
-Subject: [PATCH] perf test: Fix test perf stat tests for virtualized machines
-Date: Wed,  7 Jan 2026 10:48:34 +0100
-Message-ID: <20260107094835.131882-1-tmricht@linux.ibm.com>
-X-Mailer: git-send-email 2.51.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HG3UgZmi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 332F3C4CEF7;
+	Wed,  7 Jan 2026 10:20:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1767781243;
+	bh=2N7QgaN9sMjltiFqaQG4UkyiWR5RDDQ2n4IgHLPouW4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=HG3UgZmir72YPYFm/emlV/3aORPdbjLAnBvpX04p5XtFP762LStn/wPAzNuqOQyK8
+	 k7OnYBM5tMSwl6jbeHb8PLi19AGtC/53sTnfGuvHRwU1J5fTUCYLII+PuhChCRsuuP
+	 lesNvqozgo8UJHTVTNpJsDervk1O2VsPtftbzvVYNlT5k9C+Ou7zoWZDNLa9w7OL7l
+	 1I+dvThsPPRQrJPx2bNt/P7eQY786Hlh4y2DUZqzVomuI/Tc2vep7bqbTNymx1RDAb
+	 W1AWrPHPHnhn5oDQwiHOAOhH7g90DnMJIt+6Fqkfre323p/NzMyoEh/2zKKa/f4rTg
+	 6GL2C2ybj5rcA==
+Date: Wed, 7 Jan 2026 12:20:23 +0200
+From: Mike Rapoport <rppt@kernel.org>
+To: Ritesh Harjani <ritesh.list@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Alex Shi <alexs@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	David Hildenbrand <david@kernel.org>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+	Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Jonathan Corbet <corbet@lwn.net>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	Magnus Lindholm <linmag7@gmail.com>,
+	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Michal Hocko <mhocko@suse.com>, Michal Simek <monstr@monstr.eu>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Pratyush Yadav <pratyush@kernel.org>,
+	Richard Weinberger <richard@nod.at>,
+	Russell King <linux@armlinux.org.uk>,
+	Stafford Horne <shorne@gmail.com>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>,
+	Vlastimil Babka <vbabka@suse.cz>, Will Deacon <will@kernel.org>,
+	x86@kernel.org, linux-alpha@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+	linux-cxl@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+	linux-mm@kvack.org, linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+	sparclinux@vger.kernel.org
+Subject: Re: [PATCH v2 14/28] powerpc: introduce arch_zone_limits_init()
+Message-ID: <aV4zZ8D5eaLC6K-w@kernel.org>
+References: <20260102070005.65328-1-rppt@kernel.org>
+ <20260102070005.65328-15-rppt@kernel.org>
+ <87ldia9he1.ritesh.list@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=aaJsXBot c=1 sm=1 tr=0 ts=695e2c02 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22 a=KKAkSRfTAAAA:8 a=1XWaLZrsAAAA:8
- a=VnNF1IyMAAAA:8 a=ES110z2zfcq2d9H_b0wA:9 a=cvBusfyB2V15izCimMoJ:22
-X-Proofpoint-GUID: HniPeJF81023eeROaBqgkU8abRveXX9s
-X-Proofpoint-ORIG-GUID: 7c6PyDHdwJlcuRClxOTQmvzCs5bVni2f
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTA3MDA3OSBTYWx0ZWRfX2oBWz9grm2PY
- WxOaxFkIe7gRW1FOcbFtGX1TjJW7nx5s4BAkQYY3kySu/DygMvhNWz0eOfu9w36LCTli6R0CkEf
- vObR7xiZ0mM9ek50IwcJTMnm7xNtgkcBWHXrXvGoeqj8BkwEubWrmDIBau9RTITTdor+wy2Iu8d
- nKd+wBC6tbGhjralh9mUSHmvwE8RQ2PCf02Q/aY0o3v0ZseBUPxWqwjrI47Qv5AtXTkH/59X03M
- kgOVdaCeUFlW3OTnB+pjbcZceWfxL42PY4K1j33Rdw6E8ah4VzoO2TvvMbe+Cx3TZPjKeuSom8X
- v1okOCM1RwrS8zvTvNP49NIUIkWT0RyoGpeYxFKqizEX+raBLSqS81XrN/ksDag2W6GMurEMJk9
- wACCRBO/wVhuJKlLH70NwYp1gmzJrvQZ7U8MjtgdNWsCX+DK7/zqL6PrFMMki3kk7ZD7KgFZq6Y
- 6UH82vWHHDajLZsiCZg==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2026-01-06_03,2026-01-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 lowpriorityscore=0 bulkscore=0 malwarescore=0
- priorityscore=1501 clxscore=1015 phishscore=0 spamscore=0 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2512120000 definitions=main-2601070079
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87ldia9he1.ritesh.list@gmail.com>
 
-On s390 perf test 'perf stat tests', subtest test_hybrid fails
-for z/VM systems.
-The root cause is this statement:
+Hi,
 
-  $(perf stat -a -- sleep 0.1 2>&1 |\
-                  grep -E "/cpu-cycles/[uH]*|  cpu-cycles[:uH]* -c)
+On Wed, Jan 07, 2026 at 09:57:34AM +0530, Ritesh Harjani wrote:
+> Mike Rapoport <rppt@kernel.org> writes:
+> 
+> > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+> >
+> > Move calculations of zone limits to a dedicated arch_zone_limits_init()
+> > function.
+> >
+> > Later MM core will use this function as an architecture specific callback
+> > during nodes and zones initialization and thus there won't be a need to
+> > call free_area_init() from every architecture.
+> >
+> > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> > ---
+> >  arch/powerpc/mm/mem.c | 22 ++++++++++++----------
+> >  1 file changed, 12 insertions(+), 10 deletions(-)
+> >
+> > diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
+> > index 3ddbfdbfa941..32c496bfab4f 100644
+> > --- a/arch/powerpc/mm/mem.c
+> > +++ b/arch/powerpc/mm/mem.c
+> > @@ -221,13 +221,23 @@ static int __init mark_nonram_nosave(void)
+> >   * anyway) will take a first dip into ZONE_NORMAL and get otherwise served by
+> >   * ZONE_DMA.
+> >   */
+> > -static unsigned long max_zone_pfns[MAX_NR_ZONES];
+> > +void __init arch_zone_limits_init(unsigned long *max_zone_pfns)
+> > +{
+> > +#ifdef CONFIG_ZONE_DMA
+> > +	max_zone_pfns[ZONE_DMA]	= min(zone_dma_limit, max_low_pfn - 1) + 1;
+> 
+> Hi Mike, 
+> 
+> This doesn't look correct. Isn't the zone_dma_limit value in bytes actually?
+> Shouldn't it be -
+> 
+>      max_zone_pfns[ZONE_DMA] = min((zone_dma_limit >> PAGE_SHIFT) + 1, max_low_pfn);
 
-The perf stat output on a s390 z/VM system is
-
- # perf stat -a -- sleep 0.1 2>&1
- Performance counter stats for 'system wide':
-
-       56      context-switches  #     46.3 cs/sec  cs_per_second
- 1,210.41 msec cpu-clock         #     11.9 CPUs  CPUs_utilized
-       12      cpu-migrations    #      9.9 migrations/sec ...
-       81      page-faults       #     66.9 faults/sec ...
-
-       0.100891009 seconds time elapsed
-
-The grep command does not match any single line and exits with error
-code 1. As the bash script is executed with set -e, it aborts with the
-first error code being non-zero.
-
-Fix this and use wc -l to count matching lines instead of grep ... -c.
-
-Output before:
- # perf test 102
- 102: perf stat tests                      : FAILED!
- #
-Output after:
- # perf test 102
- 102: perf stat tests                      : Ok
- #
-
-Fixes: 65d11821910bd ("perf test: Add a test for default perf stat command")
-Cc: James Clark <james.clark@linaro.org>
-Cc: Ian Rogers <irogers@google.com>
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
----
- tools/perf/tests/shell/stat.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/tools/perf/tests/shell/stat.sh b/tools/perf/tests/shell/stat.sh
-index 0b2f0f88ca16..792a0b79f6b8 100755
---- a/tools/perf/tests/shell/stat.sh
-+++ b/tools/perf/tests/shell/stat.sh
-@@ -233,7 +233,7 @@ test_hybrid() {
-   fi
+You are right, I'll update it for v3. 
  
-   # Run default Perf stat
--  cycles_events=$(perf stat -a -- sleep 0.1 2>&1 | grep -E "/cpu-cycles/[uH]*|  cpu-cycles[:uH]*  " -c)
-+  cycles_events=$(perf stat -a -- sleep 0.1 2>&1 | grep -E "/cpu-cycles/[uH]*|  cpu-cycles[:uH]*  "  | wc -l)
- 
-   # The expectation is that default output will have a cycles events on each
-   # hybrid PMU. In situations with no cycles PMU events, like virtualized, this
+> -ritesh
+
 -- 
-2.52.0
-
+Sincerely yours,
+Mike.
