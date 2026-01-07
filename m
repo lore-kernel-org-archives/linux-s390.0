@@ -1,140 +1,97 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CE76343D74;
-	Wed,  7 Jan 2026 18:32:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99DE91A0712;
+	Wed,  7 Jan 2026 20:35:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767810767; cv=none; b=jvh3a5t+akyfdxf8cv1iyHXLbj1vwybMYpvWpBtbOELVFDxRKQ7eMT5zEtwp7ANjfSFQIWK3G1qBubG3kj2uRiWZZBzw8CiphcDeLrLqWkmBJJEyHNdaUzxmNfen8ui2qj7xTP9Gqa0vIf9iUXT5X9NgWZR+vmXiR7zf1hMdwfk=
+	t=1767818102; cv=none; b=CQMKqrKV6qEBP2e3CT6c/uFzp0qWO7v+oEmNJnL+cg0GKWtCCL7No/8wRZZokzjTzspeMpe5nm1C85Pid3GY5NEN4fsGppbWLdORC0clFNXEcnJXwQJvCAiM3A9byK3jwTHZj1TzkpFWomwQg3B4A+5bLGOXM0MttOfFYdjZypo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767810767; c=relaxed/simple;
-	bh=r84q0MdYMVDl8K675ATsNJMSYCWBGgPRCrHAN2+oYeA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=phQXR3wHttzfihl3lCqdzcTtHjvSuJdz3Q+0LTCEvlaCUlz9NWNyUA4DwZ76x8Bf/VFfhe82/OcSPp6gjzEQ8ShRiGPNR8OsqT2ur3iDHtnS/3t4KaFcmn8OoxMWCY5OBSz3qRQJU8TmjF3/oXjWIpcH0qYqt8BCbaZuBr0pBS4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sS0bXBDt; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1767818102; c=relaxed/simple;
+	bh=vKhxxji3EawjSoSR0eYv3ESIoEzWRCnC8y7NrYlJoHw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bWqC7vSrhze90BmNMMtIOvZKYC/xRz427bzeIY2hfpWxEDW8o+Vo66LIQkY8Z2td5dOIOL9MJ5HMAyk4Y/43WP++cPJUc3mFZDEBov8jUFNnC/r70nllw4ExdOzD5yTlu9a/i/jsTv5l4UvfOZyxbfRbJFNs9tgAK8qn7Xc6hyw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DrImanlq; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sS0bXBDt"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 607AJKjX002444;
-	Wed, 7 Jan 2026 18:32:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=rRPDZNwhA5bZLVtt3
-	hdn9/kei+AuLcUpYrSpAROO2k4=; b=sS0bXBDt3qMnU7gqKOjODDzlZEox+PhCa
-	ZE6fmaaMmOqPHT9TwwdXFlbobNvccXM9E7Uba304Gey0ggAfGxWz018j3/G+PJMu
-	hJAi56MSsXlrw34loPW3fgdeBKfnDM8Srd5C4Ri68pTTNyMGJzLViwtGOgAs0Fyv
-	eIWCbrXmN1ghcCllV5cvqKbWgIIONcaqolaCk+Wh1VW1v0Tu8fM/mhM13TuvKKKa
-	cth/pgcuTQlGbOTDaBxCUosOXZdzrnDP0SZjbrACkNYTMUajrYOlsm9fUQPGa81g
-	anbH/88nGEvBRErtP63yxMjvQqxQigU3Ns0DmI+OyR0agM/W+uqGA==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4betsqaq0t-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Jan 2026 18:32:32 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 607H0X4p023511;
-	Wed, 7 Jan 2026 18:32:31 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4bg3rmfd86-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Jan 2026 18:32:31 +0000
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 607IWU4I60424498
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 7 Jan 2026 18:32:30 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 29BEF58059;
-	Wed,  7 Jan 2026 18:32:30 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 03C935804B;
-	Wed,  7 Jan 2026 18:32:29 +0000 (GMT)
-Received: from IBM-D32RQW3.ibm.com (unknown [9.61.241.168])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  7 Jan 2026 18:32:28 +0000 (GMT)
-From: Farhan Ali <alifm@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org
-Cc: helgaas@kernel.org, lukas@wunner.de, alex@shazbot.org, clg@redhat.com,
-        stable@vger.kernel.org, alifm@linux.ibm.com, schnelle@linux.ibm.com,
-        mjrosato@linux.ibm.com
-Subject: [PATCH v7 8/9] vfio: Add a reset_done callback for vfio-pci driver
-Date: Wed,  7 Jan 2026 10:32:16 -0800
-Message-ID: <20260107183217.1365-9-alifm@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260107183217.1365-1-alifm@linux.ibm.com>
-References: <20260107183217.1365-1-alifm@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DrImanlq"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EE70C4CEF1;
+	Wed,  7 Jan 2026 20:35:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1767818101;
+	bh=vKhxxji3EawjSoSR0eYv3ESIoEzWRCnC8y7NrYlJoHw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=DrImanlqQNEn8WqBqIPDAFwBghL1vkzPQ/Yb/fhl9jwCjpo9Bg2qJ2Kq56c0SOIJx
+	 XEq9YTZ4bNnlJ32sMsDOJyCAA415rqCFHPJ7Dq2SsLw42f/fMNCOIFsQbOa7OX1FO9
+	 cAXQtLJFygLKYp7EN85FvAo1cTsL5Ecvw0H3zHsLl5Yrwztkyk39kw0qOFSu/VrFZR
+	 MMPySeQMcrSYFQxLrUZAnxci5iKikOA5vfK8QjUZRpKaDP3xX2C8Q6OVKsFJOL6dBa
+	 vhyLQoEaQyvNP5SsYFkgsjtLwS9Zzx7yYNwFMHF4ryuQvbweSoz0KM95lJYISZHhOv
+	 9TjiuqgHfQufQ==
+Date: Wed, 7 Jan 2026 12:34:58 -0800
+From: Eric Biggers <ebiggers@kernel.org>
+To: Holger Dengler <dengler@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+	"Jason A . Donenfeld" <Jason@zx2c4.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	sparclinux@vger.kernel.org, x86@kernel.org,
+	Harald Freudenberger <freude@linux.ibm.com>,
+	linux-crypto@vger.kernel.org
+Subject: Re: [PATCH 15/36] lib/crypto: s390/aes: Migrate optimized code into
+ library
+Message-ID: <20260107203458.GA2200@quark>
+References: <20260105051311.1607207-1-ebiggers@kernel.org>
+ <20260105051311.1607207-16-ebiggers@kernel.org>
+ <167cbd49-e0ba-4b1d-a724-e64ab6ee863c@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 1FsjHc5XVwjFemg93QdRzW4Nyug1Myg1
-X-Authority-Analysis: v=2.4 cv=Jvf8bc4C c=1 sm=1 tr=0 ts=695ea6c0 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
- a=hcTHx3Z5Akp3fEzgVBYA:9
-X-Proofpoint-ORIG-GUID: 1FsjHc5XVwjFemg93QdRzW4Nyug1Myg1
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTA3MDE0NSBTYWx0ZWRfX3+Co5aFCDOqq
- sXAf1CT6/B/rO2zYo7uF5eK+vtK26/fArWaJj0AOfTqzosJxoNt0jfKBIaOrH572pZH659fAan4
- 0YicT6TISLtQUOZz2LeTaTipTKCh75ADI0cJuufucDp94OMOv82mm6C4BqgvBijWbcq8tgSB03n
- GvM3h7uCPn/Qs6RfGL4WlGWBLEm0UfrxBsD6ULK3qCEos50C4FSZL72hiGdCJBG+JMOhPyLjtHn
- L8vteJZbkEHgdebQuopOX+iBFc6hWSoJhOp4HqZYbc6ecGr3OD3qYYUuWIiDBSVl7+nA31y4ERv
- hIO0Q3ugFXQHlhkOzyTm6p3TKSWWyuK8tQamhHzI++MnXG7Ju5UXv3lhjZuoV5t8h/0ghmkH1w7
- ihcmec2t5jN7XwP0lJMPoxSiD/yX2Cxczl5SQaDMfT4TQ6XfhOc1tny7TFeMDD1CifD2pAIs5Dw
- /GE3H8GOgWTrIeAjy6g==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2026-01-07_03,2026-01-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 suspectscore=0 impostorscore=0 lowpriorityscore=0
- priorityscore=1501 phishscore=0 adultscore=0 spamscore=0 bulkscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2512120000
- definitions=main-2601070145
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <167cbd49-e0ba-4b1d-a724-e64ab6ee863c@linux.ibm.com>
 
-On error recovery for a PCI device bound to vfio-pci driver, we want to
-recover the state of the device to its last known saved state. The callback
-restores the state of the device to its initial saved state.
+On Wed, Jan 07, 2026 at 08:41:02AM +0100, Holger Dengler wrote:
+> Hi Eric,
+> 
+> first of all: happy New Year! ANd thanks for the series.
+> 
+> On 05/01/2026 06:12, Eric Biggers wrote:
+> > Implement aes_preparekey_arch(), aes_encrypt_arch(), and 
+> > aes_decrypt_arch() using the CPACF AES instructions.
+> 
+> I'm not sure, it it makes sense to implement this on s390 at all. The CPACF
+> instructions cover full modes of operations and are  to process more
+> than one cipher-block-size (*). For single-block operations, the performance
+> might be worth than using the generic functions. I will look into it and do
+> some performance tests. If there is a possibility to plug-in to the level
+> where the modes of operation are implemented, it would make much more sense
+> for s390.
+> 
+> (*) Yes, it's a bit uncommon, but the CPACF instructions on s390 can process
+> multiple block with a single instruction call! They are so called long running
+> instructions.
 
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
----
- drivers/vfio/pci/vfio_pci_core.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+I'm happy to drop the CPACF single-block AES code if it's not
+worthwhile.  I included it only because arch/s390/crypto/ already has
+such code.  Since I'm making it so that the crypto_cipher API simply
+wraps the library API, if this code is not brought into the library it
+will effectively be dropped.  You had pushed back the last time I
+proposed dropping one of the s390 optimizations, even a fairly minor one
+(https://lore.kernel.org/linux-crypto/51fc91b6-3a6e-44f7-ae93-aef0bcb48964@linux.ibm.com/).
 
-diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-index f677705921e6..c92c6c512b24 100644
---- a/drivers/vfio/pci/vfio_pci_core.c
-+++ b/drivers/vfio/pci/vfio_pci_core.c
-@@ -2249,6 +2249,17 @@ pci_ers_result_t vfio_pci_core_aer_err_detected(struct pci_dev *pdev,
- }
- EXPORT_SYMBOL_GPL(vfio_pci_core_aer_err_detected);
- 
-+static void vfio_pci_core_aer_reset_done(struct pci_dev *pdev)
-+{
-+	struct vfio_pci_core_device *vdev = dev_get_drvdata(&pdev->dev);
-+
-+	if (!vdev->pci_saved_state)
-+		return;
-+
-+	pci_load_saved_state(pdev, vdev->pci_saved_state);
-+	pci_restore_state(pdev);
-+}
-+
- int vfio_pci_core_sriov_configure(struct vfio_pci_core_device *vdev,
- 				  int nr_virtfn)
- {
-@@ -2313,6 +2324,7 @@ EXPORT_SYMBOL_GPL(vfio_pci_core_sriov_configure);
- 
- const struct pci_error_handlers vfio_pci_core_err_handlers = {
- 	.error_detected = vfio_pci_core_aer_err_detected,
-+	.reset_done = vfio_pci_core_aer_reset_done,
- };
- EXPORT_SYMBOL_GPL(vfio_pci_core_err_handlers);
- 
--- 
-2.43.0
+But I have no way to test or benchmark the s390 code myself.  If the
+CPACF single-block AES en/decryption code isn't worthwhile, there's no
+reason to keep it, so I'll remove it.
 
+As for AES modes, later patchsets are going to introduce
+architecture-optimized AES modes into the library, and the traditional
+crypto API for those modes will similarly be reimplemented on top of it.
+This patchset just focuses on the existing library API for key expansion
+and single block en/decryption as a first step.  (As with the
+traditional API, single block en/decryption is needed as a fallback to
+handle any modes that don't have a standalone implementation.)
+
+- Eric
