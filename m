@@ -1,126 +1,162 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1F9048B389;
-	Thu,  8 Jan 2026 10:41:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 056423D6F14
+	for <linux-s390@vger.kernel.org>; Thu,  8 Jan 2026 11:32:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767868882; cv=none; b=UQGY5O0Fi+ER8d8F5SdmV3OaIi9x8zIljdGVeBOia4ZjUPwl4NLa/QIwUZe5CUlHCGR4q5QXpqT7Yi6qvtSQCynhT74D2sWTYHqym+giFzWud47uKkszuHE6zr5+Jd9mIqQq+GCZv4FIKAkyyZs13SmIpXrRYrCp6KVHsweVPH8=
+	t=1767871933; cv=none; b=T4QrcMEFgNqOI1dPkt3tJDU8S5X8SepqiM6mUw4PifL+Vdws/PkuCdmWGihQTzs2iPrBrZh4lhPAUoS/HCj/ug0/8aWn+4n9laSIKWkHzDEe92FujQu+8F7H4wfo24Tsw9Qc7KFoY6yzvdwu7oMxQtpX/zxB4VVmR4LNDlM4+ho=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767868882; c=relaxed/simple;
-	bh=aXgaMegsrBk1+i2p8L6sBSd00SfqVF7uIcMgYtcUFaI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EH14yeUXYrH9yTfUvA9cIvlES++3vvRNgxfyX2PMh5DaBMDvlzdAsBXzcoNX3tEjADNEnMOwddoZYuJECzKc0Nv2zLXBcbZjoYzbqA3LOo7kGDoOSsXXezjHrR1TOXrA06AZwnEZwQG8za0eF1DR2GoEG0gz2hquctKqJsAN46Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aYOWi/WD; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1767871933; c=relaxed/simple;
+	bh=pYfshooaQVx14ogaTwRBPlNZFkj/iWvrj8HN1katBFM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=oaD/HUMk13rUTjpOpSSEfQfQiJt6WCpaOs9DqltkfDs9LzNwoK3ZLn7A3r+w4/phIC45HafO0PeJOwy3IhJwJi+kb2yHbcXVB7LxRPQKtc71AJaTfxJWMJ0UgUq3n30yu0BIBDiRPTB84LX3f8tUs6ZX2QtnRQBOb9+GN1D676Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Tt8VmR3V; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aYOWi/WD"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 607K106Q003588;
-	Thu, 8 Jan 2026 10:40:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=4TTBroKnN0eLVOHeCy8YsD1wmF7eal
-	rZ7/OBBXM8gtM=; b=aYOWi/WDbsEI6QFGhzuBiObqdHsOaTK2Kc3HcoQ+zoovzX
-	2r75nvofMVCPDwbPyv5wPkaeODzKnO0wyvu+4tP59Gq+5oHSnCgONreEStsY1F09
-	RHWMjyc8yvGTApGtmyD3h3ro6ZeQOnd9Ad2DcmKJ15HIY4aQ/F2tBQ++SYvryniS
-	2oyA4uMNbrAYQCU41sot8qjPBl8ZbtkNlQW6pLXLE4KwKj1ro2Pj4f5Ezufwe1QL
-	EAgGcv3bIthcBgnBEMak5xqMRF2eLMycOp/2vLycVyceIsQY1Vu5N522lNqwSOpk
-	d/QbiOURcW0uEjCrtbktJCiAroKlkd3CjM1q17Cw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4betsqdssu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 08 Jan 2026 10:40:54 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 608AdSul025029;
-	Thu, 8 Jan 2026 10:40:53 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4betsqdsss-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 08 Jan 2026 10:40:53 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60871mDp019411;
-	Thu, 8 Jan 2026 10:40:52 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4bfg51e0yq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 08 Jan 2026 10:40:52 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 608AenKO39321866
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 8 Jan 2026 10:40:49 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E700C20040;
-	Thu,  8 Jan 2026 10:40:48 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3E21520043;
-	Thu,  8 Jan 2026 10:40:48 +0000 (GMT)
-Received: from osiris (unknown [9.111.54.4])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  8 Jan 2026 10:40:48 +0000 (GMT)
-Date: Thu, 8 Jan 2026 11:40:46 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Wei Yang <richard.weiyang@gmail.com>
-Cc: will@kernel.org, aneesh.kumar@kernel.org, akpm@linux-foundation.org,
-        npiggin@gmail.com, peterz@infradead.org, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        arnd@arndb.de, linux-arch@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org,
-        "David Hildenbrand (Red Hat)" <david@kernel.org>
-Subject: Re: [PATCH] mm/mmu_gather: remove @delay_remap of
- __tlb_remove_page_size()
-Message-ID: <20260108104046.9857B79-hca@linux.ibm.com>
-References: <20251231030026.15938-1-richard.weiyang@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Tt8VmR3V"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66A96C2BCAF
+	for <linux-s390@vger.kernel.org>; Thu,  8 Jan 2026 11:32:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1767871932;
+	bh=pYfshooaQVx14ogaTwRBPlNZFkj/iWvrj8HN1katBFM=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=Tt8VmR3VshCgHL0sX0ZHoLqIfD0Rl3cLJfl1ZhoX+viQNalklsP3KEGhmpF2PQABL
+	 i/e4fQeEWCP3E8UrGxvJAz3JuiRdFBXe9UimxMdTmRlLsZNu/U5vTUEyP7Ks+4qkxU
+	 XxkejKAY6NBLbl/r1AsLAyAnuNWCjV0RjM7is+V+ou17Bcc2h2b/jwV3sTJ8RfZ0mU
+	 5QCe8I5A9kvK9DS1HJ9oD7trUK76a+ekfIJRJLeJFGPYGgEycSjFxndrstt2RPdvCq
+	 g0kCEYTkOBwHO0b6P+CdVWNXzaaTEiF2vxlnRRUwhG5MIv4f5YIZKepkz/7OWtnjS/
+	 F/DxUh7mTqQMQ==
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-34ab8e0df53so2600896a91.3
+        for <linux-s390@vger.kernel.org>; Thu, 08 Jan 2026 03:32:12 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCVwvcgSnDb/gmW2aeEgKDBXT0gjlfQYrz9fDgQ1KFuozFuALxWGo+HgfNCvd5bQ+kA3E3gWZPRFSWlO@vger.kernel.org
+X-Gm-Message-State: AOJu0YyOPWMuV64XXRJRbfm//wcKtz2QVnm41/zfoCu3f5MJc6nsYf2x
+	yWU5K6c6P4MLHWEZ323+ZUC5U/r0/xn9yWS9RnnJpvD8Pcgt5baFy/IIZ9e9Ynti2+0wnM8mN/4
+	lBaxMA3mGzxl1SAftcQIGY7ZEFeCSb/o=
+X-Google-Smtp-Source: AGHT+IGDINyxTPkhAN4b7317PDsO1QtIqu1Y45mlnouNM/WvPFlwsh7kX9R86h9783kJT5r1JA/b7Ab2jLcoi2FXZJU=
+X-Received: by 2002:a17:90b:4c46:b0:34c:f92a:ad05 with SMTP id
+ 98e67ed59e1d1-34f68b9a0ffmr5904349a91.11.1767871931935; Thu, 08 Jan 2026
+ 03:32:11 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251231030026.15938-1-richard.weiyang@gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: sCafAl5JZ-iCW3CEVShbxhFeg-5utwS-
-X-Authority-Analysis: v=2.4 cv=Jvf8bc4C c=1 sm=1 tr=0 ts=695f89b6 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=kj9zAlcOel0A:10 a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=pGLkceISAAAA:8 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=BpKC6iUb4ImYL19sRPUA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: zuf_APRcevyr7dXxP5ZWDs6PkNI1Voh9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTA4MDA2OSBTYWx0ZWRfXzpscs6TxyynH
- GM7L6OI3Ws+IgqfpA+zIxpv3g0cDNmEZ/IsLExpoUxgnppjOzx6AhaVUtaAgtU8mFbPuVL+rn+4
- lrUL7rSb6nn6tSeCPET9w9tNZ8R2CTMAEA71UWmpMvWZL/2Mj1UMNshrUJH8rvDKQOcyC/DhtrU
- 2uEGv2fR/6zrWtwG0ze7n83IBhVnSTYyTZNpzzScmGa36PKYWnytnvN7Qi1ZFMNySvxgGAGpUpc
- gCFJarXBC02LdthiirYxfczNrqQV9dA3ica6qPpc7Hi3hLoKDVe756pxH9KvmrMfJVSWXtSzxqK
- kpJ6N/TyFPzncHda6iQTQm+yGYWp8g7zk7GfyhNIlF+StvIRDgq5uNblcllPNRUFhBQmUWRZ7lp
- l0EN6nLKcEHmxhg9xqnRNCZKfJKz0Kii0JRPB1+ord0BAPOHGtMyIF+5Gt8VeDQMex+gmOXkayF
- TtB/BteVCNu8pUZqD2w==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2026-01-08_02,2026-01-07_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 suspectscore=0 impostorscore=0 lowpriorityscore=0
- priorityscore=1501 phishscore=0 adultscore=0 spamscore=0 bulkscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2512120000
- definitions=main-2601080069
+References: <20260105051311.1607207-1-ebiggers@kernel.org>
+In-Reply-To: <20260105051311.1607207-1-ebiggers@kernel.org>
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Thu, 8 Jan 2026 12:32:00 +0100
+X-Gmail-Original-Message-ID: <CAMj1kXGRTfyXPD3+Ravr7O5ZUMAUeabQw455sW5g7aRy3BU+2Q@mail.gmail.com>
+X-Gm-Features: AQt7F2osJiUBFnBRtOlALeERCnUAMf6rielCvEbX7HMdjqJIXrz86eWJVpNeDcU
+Message-ID: <CAMj1kXGRTfyXPD3+Ravr7O5ZUMAUeabQw455sW5g7aRy3BU+2Q@mail.gmail.com>
+Subject: Re: [PATCH 00/36] AES library improvements
+To: Eric Biggers <ebiggers@kernel.org>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	"Jason A . Donenfeld" <Jason@zx2c4.com>, Herbert Xu <herbert@gondor.apana.org.au>, 
+	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, 
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+	sparclinux@vger.kernel.org, x86@kernel.org, 
+	Holger Dengler <dengler@linux.ibm.com>, Harald Freudenberger <freude@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On Wed, Dec 31, 2025 at 03:00:26AM +0000, Wei Yang wrote:
-> Functioin __tlb_remove_page_size() is only used in
-> tlb_remove_page_size() with @delay_remap set to false and it is passed
-> directly to __tlb_remove_folio_pages_size().
-> 
-> Remove @delay_remap of __tlb_remove_page_size() and call
-> __tlb_remove_folio_pages_size() with false @delay_remap.
-> 
-> Signed-off-by: Wei Yang <richard.weiyang@gmail.com>
-> Cc: "David Hildenbrand (Red Hat)" <david@kernel.org>
-> ---
->  arch/s390/include/asm/tlb.h | 6 ++----
->  include/asm-generic/tlb.h   | 5 ++---
->  mm/mmu_gather.c             | 5 ++---
->  3 files changed, 6 insertions(+), 10 deletions(-)
+On Mon, 5 Jan 2026 at 06:14, Eric Biggers <ebiggers@kernel.org> wrote:
+>
+> This series applies to libcrypto-next.  It can also be retrieved from:
+>
+>     git fetch https://git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git aes-lib-v1
+>
+> This series makes three main improvements to the kernel's AES library:
+>
+>   1. Make it use the kernel's existing architecture-optimized AES code,
+>      including AES instructions, when available.  Previously, only the
+>      traditional crypto API gave access to the optimized AES code.
+>      (As a reminder, AES instructions typically make AES over 10 times
+>      as fast as the generic code.  They also make it constant-time.)
+>
+>   2. Support preparing an AES key for only the forward direction of the
+>      block cipher, using about half as much memory.  This is a helpful
+>      optimization for many common AES modes of operation.  It also helps
+>      keep structs small enough to be allocated on the stack, especially
+>      considering potential future library APIs for AES modes.
+>
+>   3. Replace the library's generic AES implementation with a much faster
+>      one that is almost as fast as "aes-generic", while still keeping
+>      the table size reasonably small and maintaining some constant-time
+>      hardening.  This allows removing "aes-generic", unifying the
+>      current two generic AES implementations in the kernel tree.
+>
 
-Acked-by: Heiko Carstens <hca@linux.ibm.com> # s390
+Architectures that support memory operands will be impacted by
+dropping the pre-rotated lookup tables, especially if they have few
+GPRs.
+
+I suspect that doesn't really matter in practice: if your pre-AESNI
+IA-32 workload has a bottleneck on "aes-generic", you would have
+probably moved it to a different machine by now. But the performance
+delta will likely be noticeable so it is something that deserves a
+mention.
+
+> (1) and (2) end up being interrelated: the existing
+> 'struct crypto_aes_ctx' does not work for either one (in general).
+> Thus, this series reworks the AES library to be based around new data
+> types 'struct aes_key' and 'struct aes_enckey'.
+>
+> As has been the case for other algorithms, to achieve (1) without
+> duplicating the architecture-optimized code, it had to be moved into
+> lib/crypto/ rather than copied.  To allow actually removing the
+> arch-specific crypto_cipher "aes" algorithms, a consolidated "aes-lib"
+> crypto_cipher algorithm which simply wraps the library is also added.
+> That's most easily done with it replacing "aes-generic" too, so that is
+> done too.  (That's another reason for doing (3) at the same time.)
+>
+> As usual, care is taken to support all the existing arch-optimized code.
+> This makes it possible for users of the traditional crypto API to switch
+> to the library API, which is generally much easier to use, without being
+> concerned about performance regressions.
+>
+> That being said, this series only deals with the bare (single-block) AES
+> library.  Future patchsets are expected to build on this work to provide
+> architecture-optimized library APIs for specific AES modes of operation.
+>
+> Eric Biggers (36):
+>   crypto: powerpc/aes - Rename struct aes_key
+>   lib/crypto: aes: Introduce improved AES library
+>   crypto: arm/aes-neonbs - Use AES library for single blocks
+>   crypto: arm/aes - Switch to aes_enc_tab[] and aes_dec_tab[]
+>   crypto: arm64/aes - Switch to aes_enc_tab[] and aes_dec_tab[]
+>   crypto: arm64/aes - Select CRYPTO_LIB_SHA256 from correct places
+>   crypto: aegis - Switch from crypto_ft_tab[] to aes_enc_tab[]
+>   crypto: aes - Remove aes-fixed-time / CONFIG_CRYPTO_AES_TI
+>   crypto: aes - Replace aes-generic with wrapper around lib
+>   lib/crypto: arm/aes: Migrate optimized code into library
+>   lib/crypto: arm64/aes: Migrate optimized code into library
+>   lib/crypto: powerpc/aes: Migrate SPE optimized code into library
+>   lib/crypto: powerpc/aes: Migrate POWER8 optimized code into library
+>   lib/crypto: riscv/aes: Migrate optimized code into library
+>   lib/crypto: s390/aes: Migrate optimized code into library
+>   lib/crypto: sparc/aes: Migrate optimized code into library
+>   lib/crypto: x86/aes: Add AES-NI optimization
+>   crypto: x86/aes - Remove the superseded AES-NI crypto_cipher
+>   Bluetooth: SMP: Use new AES library API
+>   chelsio: Use new AES library API
+>   net: phy: mscc: macsec: Use new AES library API
+>   staging: rtl8723bs: core: Use new AES library API
+>   crypto: arm/ghash - Use new AES library API
+>   crypto: arm64/ghash - Use new AES library API
+>   crypto: x86/aes-gcm - Use new AES library API
+>   crypto: ccp - Use new AES library API
+>   crypto: chelsio - Use new AES library API
+>   crypto: crypto4xx - Use new AES library API
+>   crypto: drbg - Use new AES library API
+>   crypto: inside-secure - Use new AES library API
+>   crypto: omap - Use new AES library API
+>   lib/crypto: aescfb: Use new AES library API
+>   lib/crypto: aesgcm: Use new AES library API
+>   lib/crypto: aes: Remove old AES en/decryption functions
+>   lib/crypto: aes: Drop "_new" suffix from en/decryption functions
+>   lib/crypto: aes: Drop 'volatile' from aes_sbox and aes_inv_sbox
+>
+
+Nice cleanup
+
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
