@@ -1,233 +1,200 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 2718930EF94;
-	Mon, 12 Jan 2026 12:26:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 943E7357A5D
+	for <linux-s390@vger.kernel.org>; Mon, 12 Jan 2026 12:54:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768220794; cv=none; b=k0TCoolMgUI7n4662iadRdJXzSb3Shot6bJ3YS/s19wD0JZm4CQXmYcH2PWMFSbT7+tTmtWKClAGkN3vROW5MKB2p8gilu2yL50+RsQgTHS4+0P/zhuOy6PXs3g8wm3fORusQRH7eX7Ctq5tSr5HhUZM2anwUxb+9agGxUr+F7I=
+	t=1768222488; cv=none; b=tjeZkbmfVi28KVIYINlWnGqgvp8EakIhK74j9IhP53MCJFEDcmumuzh73sHxXjydi3kuT7Ae0Lhbi5oNrX2ojEkvibjzRTLqGADHwpQgmSdBb28y7Hy/uAkXXBsmZtAXS71qOdoi+l3LD5u88mSbxIdzk0f7V1RUtn7sHRLu8Mo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768220794; c=relaxed/simple;
-	bh=IOz/0cRFYtfPIWNv1W0KIDRSBDCMapaNOnPEZTHhwuY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=euZlsKUg8DfQqU0n1vfZxjle4IFj/awv8Gi76+yBhIOjeEXyJ01yggzxXNguv0VJVg2nKYmAM5kOF2lNdccaYGvR/12++68dyy0BlJY3VP57VVQ1O5M0lDxsrBwsNlNs9o/0h3GYjO6mycRXIzVXBPuZgIB/TR47e6VUso9uaY8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9D88E497;
-	Mon, 12 Jan 2026 04:26:25 -0800 (PST)
-Received: from [10.57.95.123] (unknown [10.57.95.123])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E6C913F59E;
-	Mon, 12 Jan 2026 04:26:27 -0800 (PST)
-Message-ID: <09de87bc-d952-41e7-9657-852c2924aaa7@arm.com>
-Date: Mon, 12 Jan 2026 12:26:26 +0000
+	s=arc-20240116; t=1768222488; c=relaxed/simple;
+	bh=ArVVBiqIBetgJi+p5f+cmJSVHQwk79p7Tqq1GTf/FIY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Hb2QQUCswruj3VwvPvdv9g5BaF97DO1S+wvRZGlO6pT6JiYnkeGAbAZ/A7Y2GmhjhWLZj/YyV48RNIXgX5FBxOxX15Owp3WacX8k4A/DP4DFz0B/sdaEKDEZEXifwGnn5Sm7C3ZmlR6XElZdnEYNKaZoGi9jQWuG0OG7z3QxXag=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=E9j4cyk5; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=rCxp4Ryz; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E9j4cyk5";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="rCxp4Ryz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1768222483;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=iKF0BzHe4DoMZWSEsankET3G7Dd2Xauwml8GRRGytpc=;
+	b=E9j4cyk5z0iEToT85F/Oc74/7Vp/ox9v9+St2NSE2BbsvfxfVnI7M6DsWgeC6i0jZZBejb
+	dAn6CK65rZSSIXwbaJihC/fIekDj1Sp6ZJlkPaO0uD9wEaXuVDPyBVyr2itqMBCeIxKVOj
+	o4DwzypcW/YD3mpcYZaXTztk8gWUBSQ=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-568-Nq4Vbo6dO1q7fU2OHN5uig-1; Mon, 12 Jan 2026 07:54:42 -0500
+X-MC-Unique: Nq4Vbo6dO1q7fU2OHN5uig-1
+X-Mimecast-MFC-AGG-ID: Nq4Vbo6dO1q7fU2OHN5uig_1768222481
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-b870f354682so133023566b.3
+        for <linux-s390@vger.kernel.org>; Mon, 12 Jan 2026 04:54:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1768222481; x=1768827281; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=iKF0BzHe4DoMZWSEsankET3G7Dd2Xauwml8GRRGytpc=;
+        b=rCxp4RyzYa1uRlHfi4XCk6oEMRJJXQ9SgGaYEBF/YfmuGPtkoZrDAfaxomS6GCz6Za
+         QiN9IH2twxYg+43Ig2uUrdLwb3VuNarUO8ZDZfruxNxxxT8n3txWJS7ZxBvGpxY1Marm
+         w2N0QCCS58hX+iD7Q3wlj6wTnNiTQAg30DJFY/HwEaUR+1w8K9zQfHZNLP3rST+puygG
+         S5TKaTzGsSxcicY34XgrKC/7iSg5UcrA5ppX9ojDzluwSo9+pCpfJenj0wgiCn7A9nSR
+         2/mgXe3TuUFIJlmkjqC6oS82ir5qMn0wr4ssq8/HLwbsFVwSS/YtEnjtvtr+Ga6DCD1w
+         JjOQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768222481; x=1768827281;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=iKF0BzHe4DoMZWSEsankET3G7Dd2Xauwml8GRRGytpc=;
+        b=fZINjClU+izKtvoJ3lbB34/kjWqIiaxMrvoQInbqBYJfdl+NvUnc6dY5hgql0KBSAO
+         h5v2SxY9BFlmomZOrEpdRGhrmOThsHU/oPTUPtQWU97q4kaF4tSP8ZEPba1s99sOHD8A
+         5ETrF0uUBBP/UwOWF2MUHV2QORVjAW5p7wRfHj1MiEdjliKWXRTUEymx7z7yd/Bp9FUP
+         ntXe2doDYR5cGOw+cQ26Hh/vJd/RRf7H1MsF+kw0EvOAfT3KAehNcAH5pnfiJEwfi5yW
+         kRSAZxVBf6sNT75OUsWKhofv1mo97GoJl+gDf8hRc1dKaOnz4yRH6yycrqVxzT8eAlQG
+         xHgA==
+X-Forwarded-Encrypted: i=1; AJvYcCW+chfB+nExwJG//dr4MS3U6vloK5HBIuGlEtaXe4/nRAvlIGgpUA2UM1ttTV8KdI6354ViY3KygMH3@vger.kernel.org
+X-Gm-Message-State: AOJu0YynWKXK78O7Yyo0KI9QaAj8W/aV7kcyMcVTWc5NBPTw+Flw+U0B
+	ouRLMPlxLzaD6qF8Cfl0g9kNVBI7ulYtw5otrxUhyJDisdRzxrKn9m0RsdOjjKTnTBBJpakiZpN
+	BfggDo72uabhLj3fugw25WjGl6fAfLkdzKUg2nYX6VEsQOMw6f0G6lhl7FygBQnw=
+X-Gm-Gg: AY/fxX5uAUeXf1C2fVtOfy5WvmUHJqvGGl0p0efZR09f5dyM/tcLJwexFg7v55+fcYM
+	EudHwH4Ub4PJuBgEQ6dY6bmI0fahHnZiayGdGacUNVH6Z06qot/KHjC9oW0uTG1Ep7bICPUCfMr
+	R2KAlM3pW8UaIQjbjJwfZGOER6JATsnD/fiXGq+pduIPHlQjkCSjqdE0Oy+7D9A3qrfzjYAZFOO
+	CH/m4olHlBqQrx2131/mQB4CRdAEGfQ1IMcmRwOjMLvdG5sE8CTSLSFQWYihu81MWwwbkPDCStP
+	2f1LPiutI1xLDrXOotdVoTkD7M6devqOOypOOtjI/G4BxiKLV4onGryA0s40EN4tP3fOewkeMXt
+	YABrkqwh/OxtADDoRDX+lZQVOJejl7ZWiLcpNeeu/wQ93LtzMAIu89xcdN1M=
+X-Received: by 2002:a17:907:a4a:b0:b83:8f35:773b with SMTP id a640c23a62f3a-b844501e49emr1772457366b.54.1768222480787;
+        Mon, 12 Jan 2026 04:54:40 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGSZz6AlBAsyDbYMyXJssyt5r14tT5j/dhOjPD0uwwtT32eYJd5F4wjSbE4zxf083DcjrlpEg==
+X-Received: by 2002:a17:907:a4a:b0:b83:8f35:773b with SMTP id a640c23a62f3a-b844501e49emr1772452766b.54.1768222480270;
+        Mon, 12 Jan 2026 04:54:40 -0800 (PST)
+Received: from lbulwahn-thinkpadx1carbongen12.rmtde.csb ([2a02:810d:7e01:ef00:ff56:9b88:c93b:ed43])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8706c2604bsm497062466b.16.2026.01.12.04.54.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Jan 2026 04:54:39 -0800 (PST)
+From: Lukas Bulwahn <lbulwahn@redhat.com>
+X-Google-Original-From: Lukas Bulwahn <lukas.bulwahn@redhat.com>
+To: "David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Pablo Neira Ayuso <pablo@netfilter.org>,
+	Florian Westphal <fw@strlen.de>,
+	Phil Sutter <phil@nwl.cc>,
+	David Ahern <dsahern@kernel.org>,
+	netdev@vger.kernel.org,
+	netfilter-devel@vger.kernel.org,
+	coreteam@netfilter.org
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+	Paul Walmsley <pjw@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Alexandre Ghiti <alex@ghiti.fr>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	linux-riscv@lists.infradead.org,
+	linux-m68k@lists.linux-m68k.org,
+	linux-s390@vger.kernel.org,
+	kernel-janitors@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Lukas Bulwahn <lukas.bulwahn@redhat.com>
+Subject: [RFC PATCH 0/5] net: make config options NF_LOG_{ARP,IPV4,IPV6} transitional
+Date: Mon, 12 Jan 2026 13:54:26 +0100
+Message-ID: <20260112125432.61218-1-lukas.bulwahn@redhat.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 3/3] randomize_kstack: Unify random source across
- arches
-Content-Language: en-GB
-To: David Laight <david.laight.linux@gmail.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Huacai Chen <chenhuacai@kernel.org>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <pjw@kernel.org>,
- Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- Kees Cook <kees@kernel.org>, "Gustavo A. R. Silva" <gustavoars@kernel.org>,
- Arnd Bergmann <arnd@arndb.de>, Mark Rutland <mark.rutland@arm.com>,
- "Jason A. Donenfeld" <Jason@zx2c4.com>, Ard Biesheuvel <ardb@kernel.org>,
- Jeremy Linton <jeremy.linton@arm.com>, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org
-References: <20260102131156.3265118-1-ryan.roberts@arm.com>
- <20260102131156.3265118-4-ryan.roberts@arm.com>
- <20260104230136.7aaf8886@pumpkin> <20260107140533.2b3c46a1@pumpkin>
-From: Ryan Roberts <ryan.roberts@arm.com>
-In-Reply-To: <20260107140533.2b3c46a1@pumpkin>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 07/01/2026 14:05, David Laight wrote:
-> On Sun, 4 Jan 2026 23:01:36 +0000
-> David Laight <david.laight.linux@gmail.com> wrote:
-> 
->> On Fri,  2 Jan 2026 13:11:54 +0000
->> Ryan Roberts <ryan.roberts@arm.com> wrote:
->>
->>> Previously different architectures were using random sources of
->>> differing strength and cost to decide the random kstack offset. A number
->>> of architectures (loongarch, powerpc, s390, x86) were using their
->>> timestamp counter, at whatever the frequency happened to be. Other
->>> arches (arm64, riscv) were using entropy from the crng via
->>> get_random_u16().
->>>
->>> There have been concerns that in some cases the timestamp counters may
->>> be too weak, because they can be easily guessed or influenced by user
->>> space. And get_random_u16() has been shown to be too costly for the
->>> level of protection kstack offset randomization provides.
->>>
->>> So let's use a common, architecture-agnostic source of entropy; a
->>> per-cpu prng, seeded at boot-time from the crng. This has a few
->>> benefits:
->>>
->>>   - We can remove choose_random_kstack_offset(); That was only there to
->>>     try to make the timestamp counter value a bit harder to influence
->>>     from user space.
->>>
->>>   - The architecture code is simplified. All it has to do now is call
->>>     add_random_kstack_offset() in the syscall path.
->>>
->>>   - The strength of the randomness can be reasoned about independently
->>>     of the architecture.
->>>
->>>   - Arches previously using get_random_u16() now have much faster
->>>     syscall paths, see below results.
->>>
->>> There have been some claims that a prng may be less strong than the
->>> timestamp counter if not regularly reseeded. But the prng has a period
->>> of about 2^113. So as long as the prng state remains secret, it should
->>> not be possible to guess. If the prng state can be accessed, we have
->>> bigger problems.  
->>
->> If you have 128 bits of output from consecutive outputs I think you
->> can trivially determine the full state using (almost) 'school boy' maths
->> that could be done on pencil and paper.
->> (Most of the work only has to be done once.)
->>
->> The underlying problem is that the TAUSWORTHE() transformation is 'linear'
->> So that TAUSWORTHE(x ^ y) == TAUSWORTHE(x) ^ TAUSWORTHE(y).
->> (This is true of a LFSR/CRC and TOUSWORTH() is doing some subset of CRCs.)
->> This means that each output bit is the 'xor' of some of the input bits.
->> The four new 'state' values are just xor of the the bits of the old ones.
->> The final xor of the four states gives a 32bit value with each bit just
->> an xor of some of the 128 state bits.
->> Get four consecutive 32 bit values and you can solve the 128 simultaneous
->> equations (by trivial substitution) and get the initial state.
->> The solution gives you the 128 128bit constants for:
->> 	u128 state = 0;
->> 	u128 val = 'value returned from 4 calls';
->> 	for (int i = 0; i < 128; i++)
->> 		state |= parity(const128[i] ^ val) << i;
->> You don't need all 32bits, just accumulate 128 bits.  
->> So if you can get the 5bit stack offset from 26 system calls you know the
->> value that will be used for all the subsequent calls.
-> 
-> Some of the state bits don't get used, so you only need 123 bits.
-> The stack offset is 6 bits - so you need the values from 19 calls.
-> 
->> Simply changing the final line to use + not ^ makes the output non-linear
->> and solving the equations a lot harder.
->>
->> I might sit down tomorrow and see if I can actually code it...
-> 
-> Finally done:
-> 
-> #include <stdio.h>
-> #include <unistd.h>
-> #include <fcntl.h>
-> 
-> typedef unsigned int u32;
-> typedef unsigned long long u64;
-> typedef unsigned __int128 u128;
-> 
-> struct rnd_state { u32 s1; u32 s2; u32 s3; u32 s4; };
-> u32 prandom_u32_state(struct rnd_state *state)
-> {
-> #define TAUSWORTHE(s, a, b, c, d) ((s & c) << d) ^ (((s << a) ^ s) >> b)
->         state->s1 = TAUSWORTHE(state->s1,  6U, 13U, 4294967294U, 18U);
->         state->s2 = TAUSWORTHE(state->s2,  2U, 27U, 4294967288U,  2U);
->         state->s3 = TAUSWORTHE(state->s3, 13U, 21U, 4294967280U,  7U);
->         state->s4 = TAUSWORTHE(state->s4,  3U, 12U, 4294967168U, 13U);
-> 
->         return (state->s1 ^ state->s2 ^ state->s3 ^ state->s4);
-> }
-> 
-> #define X(n, hi, lo) [n] = (u128)0x##hi << 64 | 0x##lo
-> u128 map[128] = {
->         X(  1, 23acb122e4a76, e206c3f6fe435cb6),
-> 	...
->         X(127, 00d3276d8a76a, e560d1975675be24) };
-> 
-> u128 parity_128(u128 v)                 
-> {                               
->         return __builtin_parityll(v) ^ __builtin_parityll(v >> 64);
-> }
-> 
-> int main(int argc, char **argv)
-> {
->         struct rnd_state s = {};
->         u128 s0, v, r = 0;
-> 
->         read(open("/dev/urandom", O_RDONLY), &s, sizeof s);
->         // Remove low bits that get masked by the (s & c) term.
->         s.s1 &= ~1; s.s2 &= ~7; s.s3 &= ~15; s.s4 &= ~127;
->         s0 = (((u128)s.s4 << 32 | s.s3) << 32 | s.s2) << 32 | s.s1;
->         v = prandom_u32_state(&s);
->         v |= (u128)prandom_u32_state(&s) << 32;
->         v |= (u128)prandom_u32_state(&s) << 64;
->         v |= (u128)prandom_u32_state(&s) << 96;
-> 
->         for (int n = 0; n < 128; n++)
->                 r |= parity_128(v & map[n]) << n;
-> 
->         printf("%016llx%016llx\n", (u64)(s0 >> 64), (u64)s0);
->         printf("values%s match\n", r == s0 ? "" : " do not");
-> 
->         return r != s0;
-> }
-> 
-> I've trimmed the initialiser - it is very boring.
-> The code to create the initialiser is actually slightly smaller than it is.
-> Doable by hand provided you can do 128bit shift and xor without making
-> any mistakes.
-> 
-> I've just done a quick search through the kernel sources and haven't found
-> many uses of prandom_u32_state() outside of test code.
-> There is sched_rng() which uses a per-cpu rng to throw a 1024 sized die.
-> bpf also has a per-cpu one for 'unprivileged user space'.
-> net/sched/sch_netem.c seems to use one - mostly for packet loss generation.
-> 
-> Since the randomize_kstack code is now using a per-task rng (initialised
-> by clone?) that could be used instead of all the others provided they
-> are run when 'current' is valid.
-> 
-> But the existing prandom_u32_state() needs a big health warning that
-> four outputs leak the entire state.
-> That is fixable by changing the last line to:
->         return state->s1 + state->s2 + state->s3 + state->s4;
-> That only affects the output value, the period is unchanged.
+Hi,
 
-Hi David,
+This RFC patch series makes the config options NF_LOG_{ARP,IPV4,IPV6}
+transitional. Recently, Kees Cook added a feature to kconfig to assist
+transitioning deprecated config options. Here is a first RFC patch to apply
+this feature for NF_LOG_{ARP,IPV4,IPV6}.
 
-This all seems interesting, but I'm not clear that it is a blocker for this
-series. As I keep saying, we only use 6 bits for offset randmization so it is
-trival to brute force, regardless of how easy it is to recover the prng state.
+The plan is to mark all deprecated config options in net transitional, and
+update the kernel configurations in the kernel tree to not use those
+transitional config options. Then we leave these transitional config
+options for a year or two to allow users that only update from one LTS to
+the next to see that these config options are deprecated. After such a
+grace period, we can finally drop these transitional config options.
 
-Perhaps we can decouple these 2 things and make them independent:
+This patch series is the manifestation of that plan for the three
+deprecated options NF_LOG_{ARP,IPV4,IPV6}. If there is general agreement
+that this is how deprecated config options are to be handled, then please
+apply the patches 1 and 2 to the net-next tree.
 
- - this series, which is motivated by speeding up syscalls on arm64; given 6
-   bits is not hard to brute force, spending a lot of cycles calculating those
-   bits is unjustified.
+Note that for the time being, as there is no dedicated kernel-wide Kconfig
+file for collecting transitional config options right now, so simply adding
+them at the end of the net/Kconfig file seems the best choice for now. 
 
- - Your observation that that the current prng could be improved to make
-   recoving it's state harder.
+The patches 3, 4 and 5 are added here to understand the complete treewide
+change to transition the deprecated config options; I expect the patches
+3, 4 and 5 to be applied by the corresponding arch maintainers, though.
+Note that all patches in this series can be applied independently from each
+other without causing any regression, i.e., if any patch 2 to 5 is applied
+without patch 1, the resulting kernel configurations still enable the same
+functionality as before as well as with patch 1 applied.
 
-What do you think?
+Once the general approach and patches are accepted, I plan to send some
+further patch series to transition more net config options. My current
+investigation identified that these further config options in net can be
+transitioned:
 
-Thanks,
-Ryan
+  IP_NF_MATCH_ECN -> NETFILTER_XT_MATCH_ECN
+  IP_NF_MATCH_TTL -> NETFILTER_XT_MATCH_HL
+  IP_NF_TARGET_MASQUERADE -> NETFILTER_XT_TARGET_MASQUERADE
+  IP_NF_TARGET_NETMAP -> NETFILTER_XT_TARGET_NETMAP
+  IP_NF_TARGET_REDIRECT -> NETFILTER_XT_TARGET_REDIRECT
+  IP_NF_TARGET_TTL -> NETFILTER_XT_TARGET_HL
+  NETFILTER_XT_TARGET_CONNMARK -> NETFILTER_XT_CONNMARK
+  NETFILTER_XT_TARGET_MARK -> NETFILTER_XT_MARK
 
 
-> 
-> 	David
-> 
-> 
+Lukas
+
+
+Lukas Bulwahn (5):
+  net: make configs NF_LOG_{ARP,IPV4,IPV6} transitional
+  selftests: net: replace deprecated NF_LOG configs by NF_LOG_SYSLOG
+  m68k: defconfig: replace deprecated NF_LOG configs by NF_LOG_SYSLOG
+  riscv: defconfig: replace deprecated NF_LOG configs by NF_LOG_SYSLOG
+  s390/configs: replace deprecated NF_LOG configs by NF_LOG_SYSLOG
+
+ arch/m68k/configs/amiga_defconfig            |  3 +--
+ arch/m68k/configs/apollo_defconfig           |  3 +--
+ arch/m68k/configs/atari_defconfig            |  3 +--
+ arch/m68k/configs/bvme6000_defconfig         |  3 +--
+ arch/m68k/configs/hp300_defconfig            |  3 +--
+ arch/m68k/configs/mac_defconfig              |  3 +--
+ arch/m68k/configs/multi_defconfig            |  3 +--
+ arch/m68k/configs/mvme147_defconfig          |  3 +--
+ arch/m68k/configs/mvme16x_defconfig          |  3 +--
+ arch/m68k/configs/q40_defconfig              |  3 +--
+ arch/m68k/configs/sun3_defconfig             |  3 +--
+ arch/m68k/configs/sun3x_defconfig            |  3 +--
+ arch/riscv/configs/defconfig                 |  4 +---
+ arch/s390/configs/debug_defconfig            |  2 +-
+ arch/s390/configs/defconfig                  |  2 +-
+ net/Kconfig                                  | 21 ++++++++++++++++++++
+ net/ipv4/netfilter/Kconfig                   | 16 ---------------
+ net/ipv6/netfilter/Kconfig                   |  8 --------
+ net/netfilter/Kconfig                        |  1 +
+ tools/testing/selftests/net/netfilter/config |  3 +--
+ 20 files changed, 38 insertions(+), 55 deletions(-)
+
+-- 
+2.52.0
 
