@@ -1,71 +1,67 @@
-Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [91.216.245.30])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57BF23793D1;
-	Mon, 12 Jan 2026 17:21:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.216.245.30
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6717B37E2FC;
+	Mon, 12 Jan 2026 18:51:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768238514; cv=none; b=jdjvR9ZxNQEmFAL7DXr1MQbAoe1GGqDwKiUNL/Cx+yamDlIJfZVS619ubcMWqTO/hCKaEipa7JMTvCp4cNTlCgR2InNf6NHMEqT6GRk9auQQuhLiEYXGpAdysux8jut19QwHUNlLYlZF13fBqcw4U4Hr86bQ6ovKUx1e6o/Wbho=
+	t=1768243918; cv=none; b=HSeeKM5J9+HecWflu50jTwATlBsmI8n36SUEOICgffp3jVzxaWU9pX4dcpCauG1tQhEx82V4/ukLhkaMrWnUOYvDh0xh2UZq7wExsQ2RfA3tUWST/8nbIlDtnIk9bGDa3NC9cUTORDJJwm4Oo8mxVOzLCmbBc+2N7imzW7Sh/nE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768238514; c=relaxed/simple;
-	bh=FriJ77hn49zbC4lpZfOzwpyItW5/S8uMxDg26uaH/KI=;
+	s=arc-20240116; t=1768243918; c=relaxed/simple;
+	bh=lXH34tPpi9gC06FqoWff06TrHtRa1kynr19tm8tSGH4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EtSH+vQ/syuKm1KYGEV426e4ktskHEBkNSx39sjOA+zWJm+DntOp9aRAHT2+9rbToq+TARscbvsBOYnGUO13CT8cm8pK+SZjuO/SHuKVoNDpSSmZFPXIs9o2BYo0woeGQA8sW0wGlIW3NvHchTPvMLuzdlwad63k5toSnoaxEHw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de; spf=pass smtp.mailfrom=strlen.de; arc=none smtp.client-ip=91.216.245.30
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=strlen.de
-Received: by Chamillionaire.breakpoint.cc (Postfix, from userid 1003)
-	id 0329C607AC; Mon, 12 Jan 2026 18:13:52 +0100 (CET)
-Date: Mon, 12 Jan 2026 18:13:52 +0100
-From: Florian Westphal <fw@strlen.de>
-To: Lukas Bulwahn <lbulwahn@redhat.com>
-Cc: "David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Pablo Neira Ayuso <pablo@netfilter.org>, Phil Sutter <phil@nwl.cc>,
-	David Ahern <dsahern@kernel.org>, netdev@vger.kernel.org,
-	netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	linux-riscv@lists.infradead.org, linux-m68k@lists.linux-m68k.org,
-	linux-s390@vger.kernel.org, kernel-janitors@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Lukas Bulwahn <lukas.bulwahn@redhat.com>
-Subject: Re: [RFC PATCH 0/5] net: make config options NF_LOG_{ARP,IPV4,IPV6}
- transitional
-Message-ID: <aWUr0MpAaoPDED-f@strlen.de>
-References: <20260112125432.61218-1-lukas.bulwahn@redhat.com>
+	 Content-Type:Content-Disposition:In-Reply-To; b=pv8TxYtSrYV/a4JZovREJMiuxgLXI+oIy//jI01J8mlzIFVnsqZVTo9XGHF8S3fzdVwvlCXWuFgac42EvOB5YqvlfaNegY/GOA7OXJtpnYej3dfVA30IJdbLFBpnCEV1jH+b6Bao+PECeqBHOhhjbSecQLsc7exziWR9EJVezZg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JYl+kMBu; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JYl+kMBu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8760C116D0;
+	Mon, 12 Jan 2026 18:51:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768243916;
+	bh=lXH34tPpi9gC06FqoWff06TrHtRa1kynr19tm8tSGH4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=JYl+kMBuO+4NR/GAihg7u8ryF9XE/ab/21HT7ydThiIb+q/fTlmBzVpXbbURinPQY
+	 LVIGZqnMcWWIVWk2HfTHRd7xWnlIMSbqOYlj1dzeGzG3I25qQqy2kLuUL7ei004ruB
+	 EnK0tNaT1nhrfcmg0aE3QO4VtcrMhbZ1CSZvm7VGCbBQRr1BX58Nf4l4KdcIPdLIi7
+	 Z4Gav1ZtdzIhmn1OqaUcYAQf4AgoFBC4bjJsO671iZzRNl2g1fXRtAa2vS6DXiW+v+
+	 fS8MpFwzhxvZDRteIPeVEr0Z0RKgRlEeDx8gUnCQSJdoTqNRaxR2OFNlGIYxyWrCF4
+	 05mUARebkVs1g==
+Date: Mon, 12 Jan 2026 15:51:52 -0300
+From: Arnaldo Carvalho de Melo <acme@kernel.org>
+To: Ian Rogers <irogers@google.com>
+Cc: James Clark <james.clark@linaro.org>,
+	Thomas Richter <tmricht@linux.ibm.com>, agordeev@linux.ibm.com,
+	gor@linux.ibm.com, sumanthk@linux.ibm.com, hca@linux.ibm.com,
+	japo@linux.ibm.com, linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
+	namhyung@kernel.org
+Subject: Re: [PATCH V2] perf test: Fix test perf stat tests for virtualized
+ machines
+Message-ID: <aWVCyFX6UURztKXA@x1>
+References: <20260107133216.2070400-1-tmricht@linux.ibm.com>
+ <eca46457-0e1a-43b8-b6ac-bd61a7a273f1@linaro.org>
+ <CAP-5=fUrqq5fH9DRtXM0KvYhG5LWzWMf0E4r+62=kAQgbzDHAA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260112125432.61218-1-lukas.bulwahn@redhat.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAP-5=fUrqq5fH9DRtXM0KvYhG5LWzWMf0E4r+62=kAQgbzDHAA@mail.gmail.com>
 
-Lukas Bulwahn <lbulwahn@redhat.com> wrote:
-> Once the general approach and patches are accepted, I plan to send some
-> further patch series to transition more net config options. My current
-> investigation identified that these further config options in net can be
-> transitioned:
->
->   IP_NF_MATCH_ECN -> NETFILTER_XT_MATCH_ECN
+On Thu, Jan 08, 2026 at 10:03:49AM -0800, Ian Rogers wrote:
+> On Wed, Jan 7, 2026 at 7:30 AM James Clark <james.clark@linaro.org> wrote:
+> > On 07/01/2026 1:32 pm, Thomas Richter wrote:
+> > >     # The expectation is that default output will have a cycles events on each
+> > >     # hybrid PMU. In situations with no cycles PMU events, like virtualized, this
 
-[..]
+> > Reviewed-by: James Clark <james.clark@linaro.org>
+ 
+> Reviewed-by: Ian Rogers <irogers@google.com>
 
-Plan LGTM.
+Thanks, applied to perf-tools-next,
 
-In case you'll target net-next tree for patches 1 and 2:
-
-Acked-by: Florian Westphal <fw@strlen.de>
-
-I can also take them via nf-next if you prefer.
+- Arnaldo
