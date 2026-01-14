@@ -1,127 +1,150 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CE5038E11C
-	for <linux-s390@vger.kernel.org>; Tue, 13 Jan 2026 12:33:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 617433557E3;
+	Wed, 14 Jan 2026 09:33:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768307609; cv=none; b=n6o+5h9usZxM4PMdGCF9DioD4nljH72F1ZowPXyPSg8T8DdHbz6d6oNX5fPJ8mfVQsF7eUNfgagh2kTizwQek11ahfgph2hqFeVSi1E3v01v9XcaAgIBLg35fslFKbxZJrUvc5wUhPgKuF408D6DQsWUhGtGEZr+di/XPPivNNM=
+	t=1768383218; cv=none; b=Ub81EL8GGAgQBSJegXyRBYUUmXRlh0ZiX/hpdmaVVNk7BeeaWErof4Wb+uZBOfxBmGPlvAl90djMBJZV7tW0qSS9zyWiy1UMPQm6Eec5J+y1697n5B7GH5WvOFOg1aZuUiiLgX/nBin7XJPV3JRjkh/YLakLzVnNItDPg4642ps=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768307609; c=relaxed/simple;
-	bh=c2pQGNsmx4TXSTG4ks/OmiO2LMby6F7I6nhF1Yls93E=;
-	h=From:To:Cc:Subject:In-Reply-To:Date:Message-ID:References:
-	 MIME-Version:Content-Type; b=Xqd8Kb3p2nlZwayjSD7AY+g397xryqhhrHhmcFzduXidogj518A9LIgVpI2gudymEgkBlyFMLzFByXeIKJagNssZmPClhxWYgl5rvCUwsD67/ldUp4bmf4cjuLcxD2IbPK9YKQe1uJduHY4kc0ir89kFd4Pi3FSABg5iPS52j+w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GCrBvpZe; arc=none smtp.client-ip=209.85.216.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1768383218; c=relaxed/simple;
+	bh=Jyovhn7yxmYFuVvriTfpome5NbhRP9E921PTw+JVtBg=;
+	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
+	 References:In-Reply-To; b=RiIxMYt8K/LIfDg9y0KmwfMVzDkMcASfBmriZ9VvQ7P5VVCszA8HtdBQVVNbovmJRyJkF8vg7luydSuRkpzsfuW0dttVHPxeCdnuioiKoX1LO/2tpDT1by34newNWBDKrSK5MwbyJ3LPSxtj4es1RkjzPdAgf47O374YlBTHPuE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OH3Y+rho; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GCrBvpZe"
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-34be2be4b7cso3724743a91.3
-        for <linux-s390@vger.kernel.org>; Tue, 13 Jan 2026 04:33:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768307607; x=1768912407; darn=vger.kernel.org;
-        h=mime-version:references:message-id:date:in-reply-to:subject:cc:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=j4BCb4tuwUydlXX/lekB/MWAbo5xTWmBY98lhxIZgCk=;
-        b=GCrBvpZeucBOdNpJseUbRKNa77J3jEjSKSr2rQltUiOSzioURb4448Kr9GVdc4A4M6
-         EeRxRTsOfiRVNkUEGN4mkvBWr7+cqibFBBnbNCpse52V2sMsMNI9lEm95Cnlek63otZl
-         syjrb7MRSUA4zfswNNSYnSNoKl7QdqKysebTzPHBsCeNlTTSfvgjmp0e0FuW/B95Alst
-         oe/iuaWn7B8uGt+o/gTqlwZd0wTuqVGIQR6mFwzUCdAVrz2qHLtEl1u3M5lND7sa/YIo
-         WJVxnqKjY+DdRZteDSadMj1yuf/MI2IqhwEjkDmLAD+876PYUwT4dDvY2csrpor9dpk1
-         na4g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768307607; x=1768912407;
-        h=mime-version:references:message-id:date:in-reply-to:subject:cc:to
-         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=j4BCb4tuwUydlXX/lekB/MWAbo5xTWmBY98lhxIZgCk=;
-        b=vIDuoueL5/tH5ykhdayQ3zdUXssTbKIkQIzu3oozPBDu7TtoehNT/qTu5zU1m/4XSi
-         qPPoplcvu7rTv2YCRGjFISFZp0qyUusu5xBGjbcCFZhqRwtRLI02fdtIbCbKnnqB2n0m
-         oNnrrJIqC22A0b4e28+HthoW+AUyRiyXV1Fr3yHLDyAcZObdLf0fTjW95GMdNsuOgldr
-         Ze2GLvu8DzJhZaxksjpI1wYiLuYuMQ4X6/X93HTgrd52CVw9T7pAOJhoL9MNcQruy/ZG
-         Xi/Xa8+3RI2GihkJe/sLqcGTtVh3LnzdzGNvrXkEKzl9y+iFR6FN85Mvnsn1Sun8JFuW
-         cbJw==
-X-Forwarded-Encrypted: i=1; AJvYcCXqQM2ndxm3yrrIP0Pr/6vu4Dm8p4nKxEMPj+UGN7YUrJS/VjfnkAIvPkeXfZ5XIn9pTlDMgWtwYke1@vger.kernel.org
-X-Gm-Message-State: AOJu0YwQSFawTZO5CNkP1Wt20vUPxRO0XvhtsoNFurxCYHWvB6hVSBM8
-	UzzJUCR81kZdfDUn7hUtgLkV93UKz7unvl8f4e0pHaB5W5v0p5M2+k6g
-X-Gm-Gg: AY/fxX5i1mL0T5urH6+KRwVR3yDPj6kiKqzL3xTgr2olL8nnfxT2jTJfIlpabdTUW6T
-	DF9tAtwLZZfkeGWFe8wh92U1MvMX8aiT7+gdd2RotRKHrh7HRLqdcVQxVJ4e+kmRxOCDbiHn1LC
-	aQGwwxK87zefdyelP61+oXYWBe/53qm6tMM2ApElHjIvNVajIMk2ThppP5zSiLqrG002l7KFxU8
-	iXZ1v2Ebr/B7dnTx2ZYLwyAfy3k5aJ1lg1b3epHTPHPurtE06WtoSS0LuZXe4+yc3Fh97z36Yye
-	Hn6nYYUGd7hXjZBBAgTk6BcAHLAgK6XOW1ezTihc6OlCTK3k4m85hoPO2zy3rmYLx+yleaWzUg4
-	xMxpvCb3wQegnrZT6yGrEk37PzEwCT/X410ZRtX2f9/xp6X8pcj56xRS5DaGM3+KSF8DYMpHbAk
-	a8+/Vg
-X-Google-Smtp-Source: AGHT+IFw8NQUhXWsNFLNcy9VnhtaeqSccMp4bageDierszWlx1Kxyih6osyfD1+uAcqTN4o2oK4SYQ==
-X-Received: by 2002:a17:90b:3ccc:b0:340:9ba6:8af4 with SMTP id 98e67ed59e1d1-34f68c47f0amr18570023a91.35.1768307607428;
-        Tue, 13 Jan 2026 04:33:27 -0800 (PST)
-Received: from dw-tp ([49.205.216.49])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-350fd6e343bsm1428958a91.1.2026.01.13.04.33.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Jan 2026 04:33:26 -0800 (PST)
-From: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
-To: Mike Rapoport <rppt@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Alex Shi <alexs@kernel.org>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Andreas Larsson <andreas@gaisler.com>, Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>, 
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
-	"David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	David Hildenbrand <david@kernel.org>, Dinh Nguyen <dinguyen@kernel.org>, 
-	Geert Uytterhoeven <geert@linux-m68k.org>, Guo Ren <guoren@kernel.org>, 
-	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Johannes Berg <johannes@sipsolutions.net>, 
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Jonathan Corbet <corbet@lwn.net>, 
-	Klara Modin <klarasmodin@gmail.com>, "Liam R. Howlett" <Liam.Howlett@oracle.com>, 
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Magnus Lindholm <linmag7@gmail.com>, 
-	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Michal Hocko <mhocko@suse.com>, Michal Simek <monstr@monstr.eu>, 
-	Mike Rapoport <rppt@kernel.org>, Muchun Song <muchun.song@linux.dev>, 
-	Oscar Salvador <osalvador@suse.de>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Pratyush Yadav <pratyush@kernel.org>, Richard Weinberger <richard@nod.at>, 
-	Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, 
-	Suren Baghdasaryan <surenb@google.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>, 
-	Vlastimil Babka <vbabka@suse.cz>, Will Deacon <will@kernel.org>, x86@kernel.org, 
-	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-csky@vger.kernel.org, linux-cxl@vger.kernel.org, 
-	linux-doc@vger.kernel.org, linux-hexagon@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
-	linux-mips@vger.kernel.org, linux-mm@kvack.org, 
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org, 
-	linux-um@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, 
-	loongarch@lists.linux.dev, sparclinux@vger.kernel.org
-Subject: Re: [PATCH v3 15/29] powerpc: introduce arch_zone_limits_init()
-In-Reply-To: <20260111082105.290734-16-rppt@kernel.org>
-Date: Tue, 13 Jan 2026 17:59:49 +0530
-Message-ID: <87zf6hu24i.ritesh.list@gmail.com>
-References: <20260111082105.290734-1-rppt@kernel.org> <20260111082105.290734-16-rppt@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OH3Y+rho"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60E8YR7w009533;
+	Wed, 14 Jan 2026 09:33:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=qM2vlz
+	smLjnVZTawf17xyY7zcmp3H6gVf4xMVxjEa4w=; b=OH3Y+rhouBP0N+6boTRnew
+	voRnFIwnfpcMFu3IvN+hrFi9ycHeKyb+IIcxE5v5V5Kwm87oVg0LE2DmBArzTTMr
+	d9AxQHKb8sC4PIKkQNaFRSdBHEHfrrn+S0aeWttioiJgMbkZk2zspfxGc6mxbpJC
+	3El/wEW4m8bghZCByR9WiAfgCeDj6Pfgj3WCPIfquU3BjmzWc4Wis8Mm2r0jYw5o
+	QzuUXppPiTNoUZCk7Ok3E+2TG1ika8XYOsJS6zsKDqo5QKf3752BEbjI3H2rdE4c
+	+VkWt+2/u8tENlWqCoK7LndPnY7UoKllGxauh5d/0ib/AwdeJkPXfESNdXKRU5cA
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bkeg4gm60-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 14 Jan 2026 09:33:32 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60E7jcY5030146;
+	Wed, 14 Jan 2026 09:33:31 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4bm3ajs3jd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 14 Jan 2026 09:33:31 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60E9XSXk53674458
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 14 Jan 2026 09:33:28 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E550120043;
+	Wed, 14 Jan 2026 09:33:27 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CDF4920040;
+	Wed, 14 Jan 2026 09:33:27 +0000 (GMT)
+Received: from darkmoore (unknown [9.52.198.246])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 14 Jan 2026 09:33:27 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 14 Jan 2026 10:33:22 +0100
+Message-Id: <DFO7J08IZ4HZ.3O6LSE6J09CD3@linux.ibm.com>
+From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        <borntraeger@de.ibm.com>, <frankja@linux.ibm.com>, <nsg@linux.ibm.com>,
+        <nrb@linux.ibm.com>, <seiden@linux.ibm.com>, <gra@linux.ibm.com>,
+        <schlameuss@linux.ibm.com>, <hca@linux.ibm.com>, <svens@linux.ibm.com>,
+        <agordeev@linux.ibm.com>, <gor@linux.ibm.com>, <david@redhat.com>,
+        <gerald.schaefer@linux.ibm.com>
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, <kvm@vger.kernel.org>
+Subject: Re: [PATCH v6 28/28] KVM: s390: Storage key manipulation IOCTL
+X-Mailer: aerc 0.21.0
+References: <20251222165033.162329-1-imbrenda@linux.ibm.com>
+ <20251222165033.162329-29-imbrenda@linux.ibm.com>
+In-Reply-To: <20251222165033.162329-29-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTE0MDA3MCBTYWx0ZWRfX+SP4IZ1X6BdT
+ iP+muSFSxeU5vL+v86JhPbk98MCGFCA1dC6gPWEOHY6OkOmYEox3TVxDP4fkuaYEULhzvKipqeh
+ XKookPVNIpaM3LN4gX+1SeGZ+0BXW56n7mxnznSIAIXQ1jaAi9iWctgim8aoUjopjjTaGStONBM
+ g03Bn21PrFzR42gTHC2TI5ZrAVQ/YLLn1D/MzBdujt3VYT6OZ8Mu7MJStHCzc7E3OLuWq7Yb5Cc
+ 2rPWdMPb6x7KlaSpfJJRbJzobA/mhiruJ2uUejgElCgj+P96i4SDObFp32Jevqwx/eW+QLFnpya
+ cP82k+cauUxRS47ECtuuhRhCl6SfGgodmALb3cQ9S1eG6jdNyo4d8mkP0b1KKvQo8BopOSGoeJP
+ I3zRnaSE4Gu3FqIPTZnsAek0hrGQXBS9kg7PPVtQ4eEfRU7yPTM4ZlmbjB6Irn/NzH89OdmwUTV
+ Ifq+CShpljYlBR1gr5w==
+X-Proofpoint-ORIG-GUID: IL4fVZOSfDiMgkpCafyo9AbXxoKu2K-k
+X-Authority-Analysis: v=2.4 cv=B/60EetM c=1 sm=1 tr=0 ts=696762ec cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VnNF1IyMAAAA:8 a=nq-VQYysc4rh_9LpSKcA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: IL4fVZOSfDiMgkpCafyo9AbXxoKu2K-k
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2026-01-14_02,2026-01-09_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 suspectscore=0 bulkscore=0 spamscore=0 impostorscore=0
+ malwarescore=0 phishscore=0 adultscore=0 clxscore=1015 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2512120000 definitions=main-2601140070
 
-Mike Rapoport <rppt@kernel.org> writes:
-
-> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+On Mon Dec 22, 2025 at 5:50 PM CET, Claudio Imbrenda wrote:
+> Add a new IOCTL to allow userspace to manipulate storage keys directly.
 >
-> Move calculations of zone limits to a dedicated arch_zone_limits_init()
-> function.
+> This will make it easier to write selftests related to storage keys.
 >
-> Later MM core will use this function as an architecture specific callback
-> during nodes and zones initialization and thus there won't be a need to
-> call free_area_init() from every architecture.
->
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> ---
->  arch/powerpc/mm/mem.c | 22 ++++++++++++----------
->  1 file changed, 12 insertions(+), 10 deletions(-)
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-This v2 looks good to me. 
-I have also done a basic bootup testing using Linux PPC CI.
+Please add some user documentation for the new IOCTL.
 
-Please feel free to add:
+[...]
 
-Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
+> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+> index dddb781b0507..845417e56778 100644
+> --- a/include/uapi/linux/kvm.h
+> +++ b/include/uapi/linux/kvm.h
+> @@ -1219,6 +1219,15 @@ struct kvm_vfio_spapr_tce {
+>  	__s32	tablefd;
+>  };
+> =20
+> +#define KVM_S390_KEYOP_SSKE 0x01
+> +#define KVM_S390_KEYOP_ISKE 0x02
+> +#define KVM_S390_KEYOP_RRBE 0x03
+
+Just a nitpik, but why this order? In the arch the order is ISKE, SSKE, RRB=
+E.
+Would it not be more logical to keep that order?
+
+> +struct kvm_s390_keyop {
+> +	__u64 user_addr;
+> +	__u8  key;
+> +	__u8  operation;
+> +};
+> +
+>  /*
+>   * KVM_CREATE_VCPU receives as a parameter the vcpu slot, and returns
+>   * a vcpu fd.
+> @@ -1238,6 +1247,7 @@ struct kvm_vfio_spapr_tce {
+>  #define KVM_S390_UCAS_MAP        _IOW(KVMIO, 0x50, struct kvm_s390_ucas_=
+mapping)
+>  #define KVM_S390_UCAS_UNMAP      _IOW(KVMIO, 0x51, struct kvm_s390_ucas_=
+mapping)
+>  #define KVM_S390_VCPU_FAULT	 _IOW(KVMIO, 0x52, unsigned long)
+> +#define KVM_S390_KEYOP           _IOWR(KVMIO, 0x53, struct kvm_s390_keyo=
+p)
+> =20
+>  /* Device model IOC */
+>  #define KVM_CREATE_IRQCHIP        _IO(KVMIO,   0x60)
+
