@@ -1,55 +1,55 @@
-Received: from fra-out-012.esa.eu-central-1.outbound.mail-perimeter.amazon.com (fra-out-012.esa.eu-central-1.outbound.mail-perimeter.amazon.com [52.57.120.243])
+Received: from fra-out-003.esa.eu-central-1.outbound.mail-perimeter.amazon.com (fra-out-003.esa.eu-central-1.outbound.mail-perimeter.amazon.com [3.72.182.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D696E191F94;
-	Wed, 14 Jan 2026 13:45:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.57.120.243
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8963223DD6;
+	Wed, 14 Jan 2026 13:46:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=3.72.182.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768398360; cv=none; b=hVNglxza5HW9ChpSjsEY2qFBNWv/QTmS4I8vxWPebajOqUM4a/VeawrNSh5yfRvSSbPFQT7p/R6ta4XdA8PovH8SVuNk90qseOKrAYQsmZGQQcD+EGAEXnrMeBEdq93L9f8PtnSnhsxcypotUVUIsbmu5e9Np16xUjpcEHsZb9g=
+	t=1768398376; cv=none; b=swAo5g5JQ5M3zxqk8TY6je7g7WsRZcRD3T0GNz2Lc6fEE1ZTvjGg1HNiXizD9o2E0rLSRLd2t2iKWqxPrFicAfRHw1pBlvT0acwgowU5LXuzJW8YJ3/gJyM54zgR22B4Obvi0P4x7PwQaKb+ZRXNcHzzHS/ySks0EZT2XmO9x08=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768398360; c=relaxed/simple;
-	bh=3OEWxWLemb/3MRcHCVKr2B1/J174A9OYiZwuHZt46ew=;
+	s=arc-20240116; t=1768398376; c=relaxed/simple;
+	bh=uscAv0ZOrJ7JzQOd3sbmaT4mGOxC0tA+wUUmeuMqHpg=;
 	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=AanV+GuDcBBOufM38OS87WVxDalA2Z5T/cTaBNz1JffqxX0rkUNFToScCrkdwTwCbzGkgzS5AKdKnZwMhX9JCAmgHIzN4GLAxQe0RSS/+U+SynAX4Eu4l2sMTP+eJTWVzjGgze1Tox1gItnEeW249NukW45Mm41Ws64Xkg/GJmw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b=cOY72ynj; arc=none smtp.client-ip=52.57.120.243
+	 Content-Type:MIME-Version; b=d7w3nTHnHQZGVRHnqseX77s+vqE0lvM9a1PeNLL0qdMDMA3lni9YSweRjrusGqyrvFCeBPDF0vciSlBkR/SEjcLVeFZWj6qpeIqYZZ759UrVJ7K57MGlzifSQ3rHqgMimKItZ+SFQUOxjWnwRXR8VZYPZ4uQR+thZQ7hfmZ9XPA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b=WmRSu3BR; arc=none smtp.client-ip=3.72.182.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b="cOY72ynj"
+	dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b="WmRSu3BR"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.co.uk; i=@amazon.co.uk; q=dns/txt;
-  s=amazoncorp2; t=1768398358; x=1799934358;
+  s=amazoncorp2; t=1768398374; x=1799934374;
   h=from:to:cc:subject:date:message-id:references:
    in-reply-to:content-transfer-encoding:mime-version;
-  bh=s3g/BhJoffjBll6+LAykcl+3VxzHbXMRload35szxP0=;
-  b=cOY72ynjrmxHrctZ6M7YdR0c1qjZC9k1ggI7TGvdtAlrjhdqD+XYngoP
-   BQYrvRoYxhpV8WNHoUBIgAI655fvKJvSK4DXmmkcrY/m4MqmZtXe6KXjM
-   i8HUxSgzvOJizywTEYJx4UgoQI00hanZ8nurbRgc3plOeFOL5KNad9ipD
-   WPWGM8ULvia/61Rdi+DAMyUiZYn5W60470QbPCKumityzfR2XsFxXDwUD
-   iLY9u5f0pGkTuKEwBTB02O7aVVOMMzyMDl0fWpq85IEAkvKjMib9Afgit
-   El4fwRoNBH5pKQ3Pd+zKtHkGFttK/F1ZVwNMp2xDuBtGuIOf8CW+3ijLs
+  bh=Qx10YQyM1n7Bzq/TmzHM+nwXVd+92kjURQXs15/Kk1I=;
+  b=WmRSu3BR1nTIoJuhhs2m8EhI56bICAl50ygry+WTM1D+cHr4cOuNIflh
+   LdHg2C+UDPSTKPFPmjlCPETYouZjoMSjJ7L7Fw2D8h6g0TAniK2+RUFjM
+   AxEpeTVyaFWtJudxSbEpFQgPCqgbBosJYyzcmq+UYNDShRGCjNV6jvHZO
+   aicxyPjhn5wC/XUzzhLkCCIQIDFVunjJbXN3vsRb08hyhPVCA1Di0V16n
+   T23r0eAYFWid+dG34bypQYOab0x1kCWAwDHeKqiftzrqMztzqB87WlyYB
+   ajlLu/Shw4FlkzbOg0LxcHETV+s6FFqpIBVdCSuNpGnqQbmiJ/tS5eeA0
    g==;
-X-CSE-ConnectionGUID: 5ad1dBhRT8y+vW+Jvuxn1Q==
-X-CSE-MsgGUID: H2NoQRaNSbiw6D3O58r8Lw==
+X-CSE-ConnectionGUID: 6F6gMhRMTLC+B19uMUHjbw==
+X-CSE-MsgGUID: nq2OO95sS4WesM1K/I1Kjg==
 X-IronPort-AV: E=Sophos;i="6.21,225,1763424000"; 
-   d="scan'208";a="7792774"
-Received: from ip-10-6-3-216.eu-central-1.compute.internal (HELO smtpout.naws.eu-central-1.prod.farcaster.email.amazon.dev) ([10.6.3.216])
-  by internal-fra-out-012.esa.eu-central-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jan 2026 13:45:38 +0000
-Received: from EX19MTAEUC002.ant.amazon.com [54.240.197.236:22656]
+   d="scan'208";a="7899040"
+Received: from ip-10-6-11-83.eu-central-1.compute.internal (HELO smtpout.naws.eu-central-1.prod.farcaster.email.amazon.dev) ([10.6.11.83])
+  by internal-fra-out-003.esa.eu-central-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jan 2026 13:46:11 +0000
+Received: from EX19MTAEUC001.ant.amazon.com [54.240.197.225:23123]
  by smtpin.naws.eu-central-1.prod.farcaster.email.amazon.dev [10.0.6.3:2525] with esmtp (Farcaster)
- id 36ad4fac-fb8e-4058-8e33-3add72648e47; Wed, 14 Jan 2026 13:45:37 +0000 (UTC)
-X-Farcaster-Flow-ID: 36ad4fac-fb8e-4058-8e33-3add72648e47
+ id 646304cb-9c48-4747-8d9d-d4686df9ea29; Wed, 14 Jan 2026 13:46:11 +0000 (UTC)
+X-Farcaster-Flow-ID: 646304cb-9c48-4747-8d9d-d4686df9ea29
 Received: from EX19D005EUB002.ant.amazon.com (10.252.51.103) by
- EX19MTAEUC002.ant.amazon.com (10.252.51.181) with Microsoft SMTP Server
+ EX19MTAEUC001.ant.amazon.com (10.252.51.155) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.35;
- Wed, 14 Jan 2026 13:45:35 +0000
+ Wed, 14 Jan 2026 13:46:10 +0000
 Received: from EX19D005EUB003.ant.amazon.com (10.252.51.31) by
  EX19D005EUB002.ant.amazon.com (10.252.51.103) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.35;
- Wed, 14 Jan 2026 13:45:35 +0000
+ Wed, 14 Jan 2026 13:46:10 +0000
 Received: from EX19D005EUB003.ant.amazon.com ([fe80::b825:becb:4b38:da0c]) by
  EX19D005EUB003.ant.amazon.com ([fe80::b825:becb:4b38:da0c%3]) with mapi id
- 15.02.2562.035; Wed, 14 Jan 2026 13:45:35 +0000
+ 15.02.2562.035; Wed, 14 Jan 2026 13:46:09 +0000
 From: "Kalyazin, Nikita" <kalyazin@amazon.co.uk>
 To: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-doc@vger.kernel.org"
 	<linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org"
@@ -117,13 +117,13 @@ CC: "pbonzini@redhat.com" <pbonzini@redhat.com>, "corbet@lwn.net"
 	<jackabt@amazon.co.uk>, "Itazuri, Takahiro" <itazur@amazon.co.uk>,
 	"Manwaring, Derek" <derekmn@amazon.com>, "Cali, Marco"
 	<xmarcalx@amazon.co.uk>, "Kalyazin, Nikita" <kalyazin@amazon.co.uk>
-Subject: [PATCH v9 02/13] mm/gup: drop secretmem optimization from
- gup_fast_folio_allowed
-Thread-Topic: [PATCH v9 02/13] mm/gup: drop secretmem optimization from
- gup_fast_folio_allowed
-Thread-Index: AQHchVwPmIqi9oVtQkSM4KLPC6j+aA==
-Date: Wed, 14 Jan 2026 13:45:35 +0000
-Message-ID: <20260114134510.1835-3-kalyazin@amazon.com>
+Subject: [PATCH v9 05/13] KVM: x86: define
+ kvm_arch_gmem_supports_no_direct_map()
+Thread-Topic: [PATCH v9 05/13] KVM: x86: define
+ kvm_arch_gmem_supports_no_direct_map()
+Thread-Index: AQHchVwjbMmxqTepZEW4NnK8Myz8WQ==
+Date: Wed, 14 Jan 2026 13:46:09 +0000
+Message-ID: <20260114134510.1835-6-kalyazin@amazon.com>
 References: <20260114134510.1835-1-kalyazin@amazon.com>
 In-Reply-To: <20260114134510.1835-1-kalyazin@amazon.com>
 Accept-Language: en-GB, en-US
@@ -141,65 +141,42 @@ MIME-Version: 1.0
 
 From: Patrick Roy <patrick.roy@linux.dev>=0A=
 =0A=
-This drops an optimization in gup_fast_folio_allowed() where=0A=
-secretmem_mapping() was only called if CONFIG_SECRETMEM=3Dy. secretmem is=
-=0A=
-enabled by default since commit b758fe6df50d ("mm/secretmem: make it on=0A=
-by default"), so the secretmem check did not actually end up elided in=0A=
-most cases anymore anyway.=0A=
-=0A=
-This is in preparation of the generalization of handling mappings where=0A=
-direct map entries of folios are set to not present.  Currently,=0A=
-mappings that match this description are secretmem mappings=0A=
-(memfd_secret()).  Later, some guest_memfd configurations will also fall=0A=
-into this category.=0A=
+x86 supports GUEST_MEMFD_FLAG_NO_DIRECT_MAP whenever direct map=0A=
+modifications are possible (which is always the case).=0A=
 =0A=
 Signed-off-by: Patrick Roy <patrick.roy@linux.dev>=0A=
-Acked-by: Vlastimil Babka <vbabka@suse.cz>=0A=
 Signed-off-by: Nikita Kalyazin <kalyazin@amazon.com>=0A=
 ---=0A=
- mm/gup.c | 11 +----------=0A=
- 1 file changed, 1 insertion(+), 10 deletions(-)=0A=
+ arch/x86/include/asm/kvm_host.h | 9 +++++++++=0A=
+ 1 file changed, 9 insertions(+)=0A=
 =0A=
-diff --git a/mm/gup.c b/mm/gup.c=0A=
-index 95d948c8e86c..9cad53acbc99 100644=0A=
---- a/mm/gup.c=0A=
-+++ b/mm/gup.c=0A=
-@@ -2739,7 +2739,6 @@ static bool gup_fast_folio_allowed(struct folio *foli=
-o, unsigned int flags)=0A=
- {=0A=
- 	bool reject_file_backed =3D false;=0A=
- 	struct address_space *mapping;=0A=
--	bool check_secretmem =3D false;=0A=
- 	unsigned long mapping_flags;=0A=
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_hos=
+t.h=0A=
+index 5a3bfa293e8b..68bd29a52f24 100644=0A=
+--- a/arch/x86/include/asm/kvm_host.h=0A=
++++ b/arch/x86/include/asm/kvm_host.h=0A=
+@@ -28,6 +28,7 @@=0A=
+ #include <linux/sched/vhost_task.h>=0A=
+ #include <linux/call_once.h>=0A=
+ #include <linux/atomic.h>=0A=
++#include <linux/set_memory.h>=0A=
  =0A=
- 	/*=0A=
-@@ -2751,14 +2750,6 @@ static bool gup_fast_folio_allowed(struct folio *fol=
-io, unsigned int flags)=0A=
- 		reject_file_backed =3D true;=0A=
+ #include <asm/apic.h>=0A=
+ #include <asm/pvclock-abi.h>=0A=
+@@ -2481,4 +2482,12 @@ static inline bool kvm_arch_has_irq_bypass(void)=0A=
+ 	return enable_device_posted_irqs;=0A=
+ }=0A=
  =0A=
- 	/* We hold a folio reference, so we can safely access folio fields. */=0A=
--=0A=
--	/* secretmem folios are always order-0 folios. */=0A=
--	if (IS_ENABLED(CONFIG_SECRETMEM) && !folio_test_large(folio))=0A=
--		check_secretmem =3D true;=0A=
--=0A=
--	if (!reject_file_backed && !check_secretmem)=0A=
--		return true;=0A=
--=0A=
- 	if (WARN_ON_ONCE(folio_test_slab(folio)))=0A=
- 		return false;=0A=
- =0A=
-@@ -2800,7 +2791,7 @@ static bool gup_fast_folio_allowed(struct folio *foli=
-o, unsigned int flags)=0A=
- 	 * At this point, we know the mapping is non-null and points to an=0A=
- 	 * address_space object.=0A=
- 	 */=0A=
--	if (check_secretmem && secretmem_mapping(mapping))=0A=
-+	if (secretmem_mapping(mapping))=0A=
- 		return false;=0A=
- 	/* The only remaining allowed file system is shmem. */=0A=
- 	return !reject_file_backed || shmem_mapping(mapping);=0A=
++#ifdef CONFIG_KVM_GUEST_MEMFD=0A=
++static inline bool kvm_arch_gmem_supports_no_direct_map(void)=0A=
++{=0A=
++	return can_set_direct_map();=0A=
++}=0A=
++#define kvm_arch_gmem_supports_no_direct_map kvm_arch_gmem_supports_no_dir=
+ect_map=0A=
++#endif /* CONFIG_KVM_GUEST_MEMFD */=0A=
++=0A=
+ #endif /* _ASM_X86_KVM_HOST_H */=0A=
 -- =0A=
 2.50.1=0A=
 =0A=
