@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09E0323D2B2;
-	Fri, 16 Jan 2026 14:52:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BE453358D4;
+	Fri, 16 Jan 2026 14:52:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768575170; cv=none; b=iyonIydXSJdi0/dwst94OINOnpiFuyZbL08SkC8/Ok+y3eXeic9dNyYWY8C3LUlU/LRSEk9h7xAYElPYnJYueUyvrGPO0J/1NrE+xdB4hME7tyxiL5M94J8H5LIGWoT8JhPHGCRVrPP4NhRYP3TuI1B1MXbvx0Zhw2OGdf+etKA=
+	t=1768575177; cv=none; b=Jr0p1disjRWgNW+ex9X6ba0NIDnP2Z/DnIoCaRy8Iwkfqb0z00tTTVx2kY3PicVhFlt3U/0sDoCA8iVxWF1ue3s2bb/Lzocjim94qawa7FvdjFiW2EJbj00L4F2OK1KkntvBJfc2nAzl6hygdIE1Vde3d8ctj0z0RYbMvxJU3Zs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768575170; c=relaxed/simple;
-	bh=vTAmht3VvCxwglnCR59QaOOlh1TAQz905bg6fnPgSy8=;
+	s=arc-20240116; t=1768575177; c=relaxed/simple;
+	bh=vvbridxIQso7KWjeK226R2O4tHRCA31JE5Z2K7DDlx0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Au8HTO7EqnibuZrS30Ch3EBvh+0GnrSW2bLlvnRj0VYbPHt8Cz/7+1PlvweRd0A+C7afe9GwVSiwUV/uAzxLbLV7xCYs+FngrZGHftvPw9WfsCsDEepyBU4jSNuORLWDIq5oR/I7MroFt6Jy+/LJktTNWSfTDnurb53uRSHGDPo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UEoSi17t; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=fte0X0qm54Th/gY5cv+hD81PexSlUsVgYTKnq/YI5slntG20UdWob/CLff0AMXA0FrXQWD22yfRKxOKoigAe+H0kqEDD+1qchptGyWUuwJKCUxvS6a1FkBSoUDl8KCOvqhu74olcVfMAAL4YjaxvlUu7ODgljfz/FKFVSlFfifo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lXLhbUJp; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UEoSi17t"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0DE8C16AAE;
-	Fri, 16 Jan 2026 14:52:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lXLhbUJp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D6E9C19421;
+	Fri, 16 Jan 2026 14:52:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768575169;
-	bh=vTAmht3VvCxwglnCR59QaOOlh1TAQz905bg6fnPgSy8=;
+	s=k20201202; t=1768575177;
+	bh=vvbridxIQso7KWjeK226R2O4tHRCA31JE5Z2K7DDlx0=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=UEoSi17t6WTlsc/9elJnbU5m2di5zQiFmaaEPydlxspyxVW8BJOvt2Px/1Q6krNYH
-	 4p1ylHoqFM3zx3CX7/IHivpHfYGcmYHwb+auopjehxccS5rNt652IzTP2EJSdg2lJ1
-	 xB568wT6GQPtqB716s6yLv8x+3ARbS6XrjSSYRzTUPQAN7+QvN2sQlW278sAbR3EqS
-	 BwDebrYlVQYnko+lQJGextI/w9bjBkkC5ED6q17ErxBNQWZn0hXmTr8im+4Q1PpOkM
-	 +HVFdPOXhG3ONyMe5zE3VuNlN36AK/qBTkGFXubevPai7RrYy3pms3o+EjKvAKuq93
-	 +9q1kn/BXq43A==
+	b=lXLhbUJpSe2jZoljJhKsDC27GLZ/Nje4Dfdzt+9e5A8Qe8HbJQL7AtTSlBBvtQxYD
+	 JEoEUArdN7c3biSjO8pjEpKLgy7I+x7b5EXJ363hnEJgvBoZ7tBYEZi9O1iG8ihbmx
+	 OiKewfemzThz7ZiIqZtX1yp/OwINnAHXAkawnJCl5Uv7QUVyhWRkLIvuoXNMyOqUtp
+	 Wacczq3p1j2eXAzBRjlloY9pra1JLen6QZ8H5kz+I+b/GguE0H5BY85+SBDFweFt9k
+	 IrF8ut5IrXm87oPBfxgY3ztrHxHfFSNiUltGY0wE56dwU1pbhAy5XE2ybMtWzgE/yJ
+	 7QQq0bJS/Kv5g==
 From: Frederic Weisbecker <frederic@kernel.org>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Frederic Weisbecker <frederic@kernel.org>,
@@ -62,9 +62,9 @@ Cc: Frederic Weisbecker <frederic@kernel.org>,
 	linux-pm@vger.kernel.org,
 	linux-s390@vger.kernel.org,
 	linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH 04/15] powerpc/time: Prepare to stop elapsing in dynticks-idle
-Date: Fri, 16 Jan 2026 15:51:57 +0100
-Message-ID: <20260116145208.87445-5-frederic@kernel.org>
+Subject: [PATCH 05/15] s390/time: Prepare to stop elapsing in dynticks-idle
+Date: Fri, 16 Jan 2026 15:51:58 +0100
+Message-ID: <20260116145208.87445-6-frederic@kernel.org>
 X-Mailer: git-send-email 2.51.1
 In-Reply-To: <20260116145208.87445-1-frederic@kernel.org>
 References: <20260116145208.87445-1-frederic@kernel.org>
@@ -91,11 +91,13 @@ Prepare for that and introduce three new APIs which will be used in
 subsequent patches:
 
 _ vtime_dynticks_start() is deemed to be called when idle enters in
-  dyntick mode. The idle cputime that elapsed so far is accumulated.
+  dyntick mode. The idle cputime that elapsed so far is accumulated
+  and accounted. Also idle time accounting is ignored.
 
 - vtime_dynticks_stop() is deemed to be called when idle exits from
   dyntick mode. The vtime entry clocks are fast-forward to current time
-  so that idle accounting restarts elapsing from now.
+  so that idle accounting restarts elapsing from now. Also idle time
+  accounting is resumed.
 
 - vtime_reset() is deemed to be called from dynticks idle IRQ entry to
   fast-forward the clock to current time so that the IRQ time is still
@@ -106,19 +108,128 @@ accounting twice the idle cputime, along with nohz accounting.
 
 Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
 ---
- arch/powerpc/kernel/time.c | 41 ++++++++++++++++++++++++++++++++++++++
- include/linux/vtime.h      |  6 ++++++
- 2 files changed, 47 insertions(+)
+ arch/s390/include/asm/idle.h | 11 +++---
+ arch/s390/kernel/idle.c      | 13 ++++++--
+ arch/s390/kernel/vtime.c     | 65 ++++++++++++++++++++++++++++++------
+ 3 files changed, 71 insertions(+), 18 deletions(-)
 
-diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-index 4bbeb8644d3d..9b3167274653 100644
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -376,6 +376,47 @@ void vtime_task_switch(struct task_struct *prev)
- 		acct->starttime = acct0->starttime;
+diff --git a/arch/s390/include/asm/idle.h b/arch/s390/include/asm/idle.h
+index 09f763b9eb40..2770c4f761e1 100644
+--- a/arch/s390/include/asm/idle.h
++++ b/arch/s390/include/asm/idle.h
+@@ -12,11 +12,12 @@
+ #include <linux/device.h>
+ 
+ struct s390_idle_data {
+-	unsigned long idle_count;
+-	unsigned long idle_time;
+-	unsigned long clock_idle_enter;
+-	unsigned long timer_idle_enter;
+-	unsigned long mt_cycles_enter[8];
++	bool		idle_dyntick;
++	unsigned long	idle_count;
++	unsigned long	idle_time;
++	unsigned long	clock_idle_enter;
++	unsigned long	timer_idle_enter;
++	unsigned long	mt_cycles_enter[8];
+ };
+ 
+ extern struct device_attribute dev_attr_idle_count;
+diff --git a/arch/s390/kernel/idle.c b/arch/s390/kernel/idle.c
+index 39cb8d0ae348..54bb932184dd 100644
+--- a/arch/s390/kernel/idle.c
++++ b/arch/s390/kernel/idle.c
+@@ -35,6 +35,12 @@ void account_idle_time_irq(void)
+ 			this_cpu_add(mt_cycles[i], cycles_new[i] - idle->mt_cycles_enter[i]);
  	}
- }
+ 
++	WRITE_ONCE(idle->idle_count, READ_ONCE(idle->idle_count) + 1);
 +
++	/* Dyntick idle time accounted by nohz/scheduler */
++	if (idle->idle_dyntick)
++		return;
++
+ 	idle_time = lc->int_clock - idle->clock_idle_enter;
+ 
+ 	lc->steal_timer += idle->clock_idle_enter - lc->last_update_clock;
+@@ -45,7 +51,6 @@ void account_idle_time_irq(void)
+ 
+ 	/* Account time spent with enabled wait psw loaded as idle time. */
+ 	WRITE_ONCE(idle->idle_time, READ_ONCE(idle->idle_time) + idle_time);
+-	WRITE_ONCE(idle->idle_count, READ_ONCE(idle->idle_count) + 1);
+ 	account_idle_time(cputime_to_nsecs(idle_time));
+ }
+ 
+@@ -61,8 +66,10 @@ void noinstr arch_cpu_idle(void)
+ 	set_cpu_flag(CIF_ENABLED_WAIT);
+ 	if (smp_cpu_mtid)
+ 		stcctm(MT_DIAG, smp_cpu_mtid, (u64 *)&idle->mt_cycles_enter);
+-	idle->clock_idle_enter = get_tod_clock_fast();
+-	idle->timer_idle_enter = get_cpu_timer();
++	if (!idle->idle_dyntick) {
++		idle->clock_idle_enter = get_tod_clock_fast();
++		idle->timer_idle_enter = get_cpu_timer();
++	}
+ 	bpon();
+ 	__load_psw_mask(psw_mask);
+ }
+diff --git a/arch/s390/kernel/vtime.c b/arch/s390/kernel/vtime.c
+index 234a0ba30510..c19528eb4ee3 100644
+--- a/arch/s390/kernel/vtime.c
++++ b/arch/s390/kernel/vtime.c
+@@ -17,6 +17,7 @@
+ #include <asm/vtimer.h>
+ #include <asm/vtime.h>
+ #include <asm/cpu_mf.h>
++#include <asm/idle.h>
+ #include <asm/smp.h>
+ 
+ #include "entry.h"
+@@ -111,23 +112,30 @@ static void account_system_index_scaled(struct task_struct *p, u64 cputime,
+ 	account_system_index_time(p, cputime_to_nsecs(cputime), index);
+ }
+ 
+-/*
+- * Update process times based on virtual cpu times stored by entry.S
+- * to the lowcore fields user_timer, system_timer & steal_clock.
+- */
+-static int do_account_vtime(struct task_struct *tsk)
++static inline void vtime_reset_last_update(struct lowcore *lc)
+ {
+-	u64 timer, clock, user, guest, system, hardirq, softirq;
+-	struct lowcore *lc = get_lowcore();
+-
+-	timer = lc->last_update_timer;
+-	clock = lc->last_update_clock;
+ 	asm volatile(
+ 		"	stpt	%0\n"	/* Store current cpu timer value */
+ 		"	stckf	%1"	/* Store current tod clock value */
+ 		: "=Q" (lc->last_update_timer),
+ 		  "=Q" (lc->last_update_clock)
+ 		: : "cc");
++}
++
++/*
++ * Update process times based on virtual cpu times stored by entry.S
++ * to the lowcore fields user_timer, system_timer & steal_clock.
++ */
++static int do_account_vtime(struct task_struct *tsk)
++{
++	u64 timer, clock, user, guest, system, hardirq, softirq;
++	struct lowcore *lc = get_lowcore();
++
++	timer = lc->last_update_timer;
++	clock = lc->last_update_clock;
++
++	vtime_reset_last_update(lc);
++
+ 	clock = lc->last_update_clock - clock;
+ 	timer -= lc->last_update_timer;
+ 
+@@ -261,6 +269,43 @@ void vtime_account_hardirq(struct task_struct *tsk)
+ 	virt_timer_forward(delta);
+ }
+ 
 +#ifdef CONFIG_NO_HZ_COMMON
 +/**
 + * vtime_reset - Fast forward vtime entry clocks
@@ -128,62 +239,37 @@ index 4bbeb8644d3d..9b3167274653 100644
 + */
 +void vtime_reset(void)
 +{
-+	struct cpu_accounting_data *acct = get_accounting(current);
-+
-+	acct->starttime = mftb();
-+#ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
-+	acct->startspurr = read_spurr(now);
-+#endif
++	vtime_reset_last_update(get_lowcore());
 +}
 +
 +/**
 + * vtime_dyntick_start - Inform vtime about entry to idle-dynticks
 + *
 + * Called when idle enters in dyntick mode. The idle cputime that elapsed so far
-+ * is accumulated and the tick subsystem takes over the idle cputime accounting.
++ * is flushed and the tick subsystem takes over the idle cputime accounting.
 + */
 +void vtime_dyntick_start(void)
 +{
-+	vtime_account_idle(current);
++	__this_cpu_write(s390_idle.idle_dyntick, true);
++	vtime_flush(current);
 +}
 +
 +/**
 + * vtime_dyntick_stop - Inform vtime about exit from idle-dynticks
 + *
 + * Called when idle exits from dyntick mode. The vtime entry clocks are
-+ * fast-forward to current time so that idle accounting restarts elapsing from
-+ * now.
++ * fast-forward to current time and idle accounting resumes.
 + */
 +void vtime_dyntick_stop(void)
 +{
-+	vtime_reset();
++	vtime_reset_last_update(get_lowcore());
++	__this_cpu_write(s390_idle.idle_dyntick, false);
 +}
 +#endif /* CONFIG_NO_HZ_COMMON */
- #endif /* CONFIG_VIRT_CPU_ACCOUNTING_NATIVE */
- 
- void __no_kcsan __delay(unsigned long loops)
-diff --git a/include/linux/vtime.h b/include/linux/vtime.h
-index 737930f66c3e..10cdb08f960b 100644
---- a/include/linux/vtime.h
-+++ b/include/linux/vtime.h
-@@ -37,11 +37,17 @@ extern void vtime_account_irq(struct task_struct *tsk, unsigned int offset);
- extern void vtime_account_softirq(struct task_struct *tsk);
- extern void vtime_account_hardirq(struct task_struct *tsk);
- extern void vtime_flush(struct task_struct *tsk);
-+extern void vtime_reset(void);
-+extern void vtime_dyntick_start(void);
-+extern void vtime_dyntick_stop(void);
- #else /* !CONFIG_VIRT_CPU_ACCOUNTING_NATIVE */
- static inline void vtime_account_irq(struct task_struct *tsk, unsigned int offset) { }
- static inline void vtime_account_softirq(struct task_struct *tsk) { }
- static inline void vtime_account_hardirq(struct task_struct *tsk) { }
- static inline void vtime_flush(struct task_struct *tsk) { }
-+static inline void vtime_reset(void) { }
-+static inline void vtime_dyntick_start(void) { }
-+extern inline void vtime_dyntick_stop(void) { }
- #endif
- 
++
  /*
+  * Sorted add to a list. List is linear searched until first bigger
+  * element is found.
 -- 
 2.51.1
 
