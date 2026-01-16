@@ -1,97 +1,132 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DFE02FFDD8;
-	Fri, 16 Jan 2026 08:15:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B2B031AA83
+	for <linux-s390@vger.kernel.org>; Fri, 16 Jan 2026 09:42:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768551326; cv=none; b=qorfQz6UeM8GEvFVCWS0XGqsiZbdJKxLMG3JK9K3lUiL++NyCbtU6llP1eAIOZIU4q2m+y0FbM9t5BV3hp2WMp5UAaPaWhntPZqRCS2wJ0g3noKQxdgc3lL1mdNyok6YbzjBGcE4j0OIBJdH9BDZIK6vSv3IttD7N2PpMiP+B7c=
+	t=1768556520; cv=none; b=KtLvt5+zWqkGW1RMpjI3nvtW8+bTQMSpO7DBIW8NlHy6pl/t+D11UAqSI3WSeeCBZCU8lzES9AyVBDni5hF/tkJo4Q0MSbHoM/m+JblmltDmtIdP4ykD3fcti+JJ1sXPUQJsXeqRx217VUgUHsvdY0/aGAPTxv8z9PtmUhCV8P4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768551326; c=relaxed/simple;
-	bh=qfyi8d0/0C+LuYOJaqZylC8AUVd42U4bxDzWgeXXuLw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XTAUB6WBoZlasDpJthnHcdUF2lzhm69EI5jf9cyxpsIQK2l45fCo5wgK2XZCYXHBH439Ku1CmZiVy1xxeuq++ckSQFWy3beZ22CwPxk831vLPy4FF/2cSCTLUIbOgHcUVXBrGmYcdH/Qt0a40SAe6Sle+EoOWNPjGb7+PUimKSc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=RDvMYr6j; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Y8AIgy8v; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1768556520; c=relaxed/simple;
+	bh=/E8pjL1Rg4kjh10yWKXAfqGFi3+btd20CKL87Qc6xYk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=d+q6iXRQSExSycFq64PBO8lMCOxTfD+oSZNt9lZTkIATEXakMOfee7n+TnZhsJvwH+Vr0nTJ6V99/42O/J8/0evWB3gcGVL6jiPAtyrciK8B7T1dlHIXSVoSWsMMPPhWYsBFpXHDdMGk/8BOfPLPqQakx/jNpx6/JtmuYmQiWhQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=puKnPhOk; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="RDvMYr6j";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Y8AIgy8v"
-Date: Fri, 16 Jan 2026 09:15:22 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1768551323;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=VZ9t9VI6sM0SIpP0Ehrlucw2Pq4omhPEIAajqXkX+S0=;
-	b=RDvMYr6jQ6t5vZMyQBAufN5jvBe6P7B4HhmJ4zz63Knu5tFPiDzNyyoJTkcOoQ3/cZunFb
-	dfWqhDk4q/57EMBdQfNRaH67BSRJ9QKFNFcQlcJWDcbyDmkhoHT0VBy3MVZOxus+LZ4+mR
-	aX6kmcnvqtJAvJ4YFvlSHmWBsNegwqgqf62XhJeFnh8Vh58GDoTqRbX59zZ1uuGa5dun9z
-	YITOWI2IA03s73OMdB7LQEZ5d/oem0et7Lr3o8vbarXEkHB+HVoLRVbCZumtUNhegBiSWx
-	UMzeNFb5IQCSawOakTwX9ZdFIMaq1U/u2iTuzDhMURE2VZaRawqvEltO5vjfEw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1768551323;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=VZ9t9VI6sM0SIpP0Ehrlucw2Pq4omhPEIAajqXkX+S0=;
-	b=Y8AIgy8vdc6miMMyy0DldO7jUqGszY8g7VxoM9i8TQSXy62bMu9M4IA5ps0w66rzMSmewy
-	H/hQzTDpll456QAQ==
-From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: "David S . Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>, 
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Linux-Arch <linux-arch@vger.kernel.org>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 3/4] s390/vdso: Trim includes in linker script
-Message-ID: <20260116091110-17084414-30a6-4d56-8f88-734d1840ea2b@linutronix.de>
-References: <20260116-vdso-compat-checkflags-v1-0-4a83b4fbb0d3@linutronix.de>
- <20260116-vdso-compat-checkflags-v1-3-4a83b4fbb0d3@linutronix.de>
- <7827adb0-b2a8-4809-8f5e-859102600e02@app.fastmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="puKnPhOk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E22E3C2BCAF
+	for <linux-s390@vger.kernel.org>; Fri, 16 Jan 2026 09:41:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768556519;
+	bh=/E8pjL1Rg4kjh10yWKXAfqGFi3+btd20CKL87Qc6xYk=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=puKnPhOk3owN3Sj4LnlRh8Q5bdF/lvK/xmQPnPcVkGBhBg6Hbtac8bkfEOz7zhezm
+	 AbfSg9/ibyoePfnv3Nk5WCsNImTd8tXKNmHWYVKDYQMsZNKDcLiROGajxYxymeq5t6
+	 lZO5aV56/7MThnUpqBrdvdCEFe37U1HFJgbiAi33eyvFRP8EMj51ReE9Bv8KZf4zrc
+	 OVog7LVJe7HVJa4LCSvEGjUuSMjol80EVN3efhpsSaFW68fLTz8KhPPy+6AjTqB5Z0
+	 4xQK8+qxnovH1eiqTo+KWzA1BPLr4ixYD/5/FZoPRIKl7o0gt7XB5QMmVGUuU27p63
+	 t/VlQCkOF3r0A==
+Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-34c1d98ba11so1388003a91.3
+        for <linux-s390@vger.kernel.org>; Fri, 16 Jan 2026 01:41:59 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCXQnZsH4lQDmB0x412lKG98w/WptXdBLSHB4PHAHt9wBe1renP5B+z9BdHgn7+Fe/1exSGuQjBGkSfF@vger.kernel.org
+X-Gm-Message-State: AOJu0YzKpGkv94oLD218DBokWt6FLFwKxeS8ey3iZPa4d8gmmp8IgoRu
+	bCasggBCRs5WYGgK5HYV9hKLOwA6EdKyNKtH3OeKnHBA35AJckKu3JwkJBYjLN0NQxNlNDhS2NY
+	eO4rb0AviXpAqew/dfRnnJfVrUdix94g=
+X-Received: by 2002:a17:90b:3dcc:b0:340:c4dc:4b70 with SMTP id
+ 98e67ed59e1d1-3527315e60dmr2091280a91.6.1768556519441; Fri, 16 Jan 2026
+ 01:41:59 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <7827adb0-b2a8-4809-8f5e-859102600e02@app.fastmail.com>
+References: <20260115004328.194142-1-coxu@redhat.com> <20260115004328.194142-2-coxu@redhat.com>
+In-Reply-To: <20260115004328.194142-2-coxu@redhat.com>
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Fri, 16 Jan 2026 10:41:48 +0100
+X-Gmail-Original-Message-ID: <CAMj1kXFXNo1-pMbo-VZrjQ3TYe1tufebrLr_avL12A0nHMSGnA@mail.gmail.com>
+X-Gm-Features: AZwV_QjmUt_PmrwfWvkU01-td52KzVOAwQnoeyg_Oar6lj-mB--Ez-fk2UXAfCg
+Message-ID: <CAMj1kXFXNo1-pMbo-VZrjQ3TYe1tufebrLr_avL12A0nHMSGnA@mail.gmail.com>
+Subject: Re: [PATCH 1/3] integrity: Make arch_ima_get_secureboot integrity-wide
+To: Coiby Xu <coxu@redhat.com>
+Cc: linux-integrity@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, 
+	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huaweicloud.com>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, 
+	"maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
+	Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, Eric Snowberg <eric.snowberg@oracle.com>, 
+	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+	"Serge E. Hallyn" <serge@hallyn.com>, Jarkko Sakkinen <jarkko@kernel.org>, 
+	"moderated list:ARM64 PORT (AARCH64 ARCHITECTURE)" <linux-arm-kernel@lists.infradead.org>, 
+	open list <linux-kernel@vger.kernel.org>, 
+	"open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" <linuxppc-dev@lists.ozlabs.org>, 
+	"open list:S390 ARCHITECTURE" <linux-s390@vger.kernel.org>, 
+	"open list:EXTENSIBLE FIRMWARE INTERFACE (EFI)" <linux-efi@vger.kernel.org>, 
+	"open list:SECURITY SUBSYSTEM" <linux-security-module@vger.kernel.org>, 
+	"open list:KEYS/KEYRINGS_INTEGRITY" <keyrings@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-On Fri, Jan 16, 2026 at 08:45:02AM +0100, Arnd Bergmann wrote:
-> On Fri, Jan 16, 2026, at 08:40, Thomas Weiﬂschuh wrote:
-> > Some of the included files are unnecessary or too broad.
-> >
-> > This is a preparation for a new validation step to validate the
-> > consistency of __BITS_PER_LONG. vdso.lds.S may be preprocessed with a
-> > 32-bit compiler, but __BITS_PER_LONG is always 64.
-> >
-> > Trim the includes to the necessary ones.
-> >
-> > Signed-off-by: Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de>
-> 
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
-> 
-> It's certainly a good idea to limit the use of asm/page.h and the
-> other headers here. 
-> 
-> > There are other ways to solve this issue, for example using
-> > KBUILD_CPPFLAGS += -m64.
-> 
-> I think we should probably do that as well, especially since my
-> kernel.org cross-compilers still default to a 32-bit s390 target
-> for historic reasons, but the kernel no longer supports 32-bit
-> userland.
+On Thu, 15 Jan 2026 at 01:43, Coiby Xu <coxu@redhat.com> wrote:
+>
+> EVM and other LSMs need the ability to query the secure boot status of
+> the system, without directly calling the IMA arch_ima_get_secureboot
+> function. Refactor the secure boot status check into a general,
+> integrity-wide function named arch_integrity_get_secureboot.
+>
+> Define a new Kconfig option CONFIG_INTEGRITY_SECURE_BOOT, which is
+> automatically configured by the supported architectures. The existing
+> IMA_SECURE_AND_OR_TRUSTED_BOOT Kconfig loads the architecture specific
+> IMA policy based on the refactored secure boot status code.
+>
+> Reported-and-suggested-by: Mimi Zohar <zohar@linux.ibm.com>
+> Suggested-by: Roberto Sassu <roberto.sassu@huaweicloud.com>
+> Signed-off-by: Coiby Xu <coxu@redhat.com>
+> ---
+>  arch/arm64/Kconfig                            |  1 +
+>  arch/powerpc/Kconfig                          |  1 +
+>  arch/powerpc/kernel/Makefile                  |  2 +-
+>  arch/powerpc/kernel/ima_arch.c                |  5 --
+>  arch/powerpc/kernel/integrity_sb_arch.c       | 13 +++++
+>  arch/s390/Kconfig                             |  1 +
+>  arch/s390/kernel/Makefile                     |  1 +
+>  arch/s390/kernel/ima_arch.c                   |  6 --
+>  arch/s390/kernel/integrity_sb_arch.c          |  9 +++
+>  arch/x86/Kconfig                              |  1 +
+>  arch/x86/include/asm/efi.h                    |  4 +-
+>  arch/x86/platform/efi/efi.c                   |  2 +-
+>  include/linux/ima.h                           |  7 +--
+>  include/linux/integrity.h                     |  8 +++
+>  security/integrity/Kconfig                    |  6 ++
+>  security/integrity/Makefile                   |  3 +
+>  security/integrity/efi_secureboot.c           | 56 +++++++++++++++++++
+>  security/integrity/ima/ima_appraise.c         |  2 +-
+>  security/integrity/ima/ima_efi.c              | 47 +---------------
+>  security/integrity/ima/ima_main.c             |  4 +-
+>  security/integrity/platform_certs/load_uefi.c |  2 +-
+>  21 files changed, 111 insertions(+), 70 deletions(-)
+>  create mode 100644 arch/powerpc/kernel/integrity_sb_arch.c
+>  create mode 100644 arch/s390/kernel/integrity_sb_arch.c
+>  create mode 100644 security/integrity/efi_secureboot.c
+>
+> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+> index 93173f0a09c7..4c265b7386bb 100644
+> --- a/arch/arm64/Kconfig
+> +++ b/arch/arm64/Kconfig
+> @@ -2427,6 +2427,7 @@ config EFI
+>         select EFI_STUB
+>         select EFI_GENERIC_STUB
+>         imply IMA_SECURE_AND_OR_TRUSTED_BOOT
+> +       imply INTEGRITY_SECURE_BOOT
 
-Agreed. However I'd like to keep this series as small as possible.
-The same change should also be done to a bunch of other architectures.
+This allows both to be en/disabled individually, which I don't think
+is what we want. It also results in more churn across the
+arch-specific Kconfigs than needed.
 
-
-Thomas
+Wouldn't it be better if IMA_SECURE_AND_OR_TRUSTED_BOOT 'select'ed
+INTEGRITY_SECURE_BOOT in its Kconfig definition?
