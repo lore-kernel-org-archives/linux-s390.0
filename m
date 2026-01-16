@@ -1,136 +1,175 @@
-Received: from mail-pl1-f201.google.com (mail-pl1-f201.google.com [209.85.214.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F48E33986E
-	for <linux-s390@vger.kernel.org>; Fri, 16 Jan 2026 15:41:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6005258EE9;
+	Fri, 16 Jan 2026 15:45:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768578067; cv=none; b=VUBgMvvK73NXuVS9G3U/I8ICbO7I8BV/JOY5iq1zk6w5mdU+nU860VlU1sPiYUSmQIBFz8oBeQ5lKkI7SB96C7Pci9NadrKpQGiI2jaTxTUJEtPVTpp3tA4qUy46xPhweIQUnPNfzlYQWYwyDy5jyqPKPDdJjzPn7XfZKf1UrR8=
+	t=1768578330; cv=none; b=MdP2YEzNNHO/6tJQKb4QSgkz205FuKn6kEbWLnjHxA6T3VzshgSU+ziqL9w2lKb/bsCEUHkWGlksng6E1FfxRf6EF3qWQ+5X53ZSvS7WffZfx02CRFexiKUUTxUCQyOCcewakTiukwgZbNMSaVFfMgpY85L7gu49ejpKMMAsAq0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768578067; c=relaxed/simple;
-	bh=cbz4P0q8LjyF0OVI7OVejj9Lnkf5fBOIA9+hzT8ibrU=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=iOptkY95HB5pqA/PLdM/mcnBdWqvvzMWandUDlEJPvhZo2N7XANEMksWB3mhfwU8ffAfCRncizDO6VnV28DN6M4cn7XInzmLG1bvA5s2B8hdGRyB+m5NjFGGplZ+sSc1sdGcAwOal47okiybr/v4icfvfxDZNILLyftGbxteocM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=dbO//O9G; arc=none smtp.client-ip=209.85.214.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1768578330; c=relaxed/simple;
+	bh=sYkApZCf7ikxNWqJYnWdzJEmSOQpdFclHStAuxtQcV0=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=VKb8x9sPa34WrdLoTsS2wfqkWve2CLZu4xnwHIc4dE45tvGVGpjfoMk7misoTlAGEsDJFZBvvSNQSfkeUnwuZq3hrzNUx/ujJUw345oN/uWdyRgZ2yQixbmHbSnHHIWtdbb89ZFNd+tV4l7a8knu4sKMu8OA5l0ITKVTJ3uoM+I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XO5aPHKa; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="dbO//O9G"
-Received: by mail-pl1-f201.google.com with SMTP id d9443c01a7336-2a0d59f0198so23284215ad.1
-        for <linux-s390@vger.kernel.org>; Fri, 16 Jan 2026 07:41:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1768578064; x=1769182864; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=cbz4P0q8LjyF0OVI7OVejj9Lnkf5fBOIA9+hzT8ibrU=;
-        b=dbO//O9G332HhBxJtKD2JQbZXK+wnfpwC3CQvQdXruUpCU57QkYhLoE6roepa/T/BJ
-         b2U9QTNYTDXYM1jnVjamlkZ11yafdYxSc2lqrCLiLTrAID0EED8UiSLuWClSP7SdGAhL
-         VEg/nR0AyoIciYoDj2SfSQ8VAysUDxh8K5rd3qfFEU5qyHg+kM6mSVcrggtSnqoscvNn
-         M26BO8fQuN3lafBfW2vvav43Wy8ZKkD0gXxAKpHKHJ/NXK83VgQPP+x1zgHCVHRYpfFI
-         RgoPXlK6/kyxRKGDnYFNAbZC3z+Se0A6SUSvIYINsdjJ0rsO4EQXgvwcwTQm1E6IPVg/
-         m8NQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768578064; x=1769182864;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=cbz4P0q8LjyF0OVI7OVejj9Lnkf5fBOIA9+hzT8ibrU=;
-        b=bDNXSVF6EMhEwVLFfaAOW0p7eFZbH6+w0OOcfsjixoPGqH9rTazg8TpKyCp1Tsi899
-         lXn2TzFlMFsm3KBnioVzlRpsdwozflNaA63mnqlw992pZh8B93l/HZ9KGpC1dkbrOL0S
-         S2uIG23Xq1dnWdsh91TWN4rY2HPXn714f3SnZ14y4VxJX1HLUInn3SNcH9nIaY3ALpqb
-         x7ji6rdibnay/j90LjYyVbagcTo1hNN16pNkj0ztd3Q2XmL/+M+PTWmCcd9GiM4dzt1U
-         OL9lcerKugEopFHnwRBcnwqSMO9EAf2X4LDnNwTbJpXXmo03YeBea+PuPOfJL+oIxuNI
-         qjsw==
-X-Forwarded-Encrypted: i=1; AJvYcCXZm37gkhdpgZqQRoQBGr1in0OPE9BA6vANl3IDewAig02+A2xWGFcMc3vw1EoxpHYGy2KYcHpLsQSG@vger.kernel.org
-X-Gm-Message-State: AOJu0YxQCwhXC7B9fKEb3R5K4klK4vhnDF0IcZqN3sXPuXI3jh7GVSJM
-	McWV4tw9Kpk6JbcFhMHk9FnnpSCHTg8wX+2OkUVh9tcyPSo1TjBp2NEZYl1yIsDxgZSecSUFIEX
-	lqvhO8g==
-X-Received: from plss10.prod.google.com ([2002:a17:902:c64a:b0:29f:68b:3550])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:902:cf07:b0:2a2:bff6:42ef
- with SMTP id d9443c01a7336-2a7174fa860mr37848805ad.7.1768578064299; Fri, 16
- Jan 2026 07:41:04 -0800 (PST)
-Date: Fri, 16 Jan 2026 07:41:02 -0800
-In-Reply-To: <4781ba9c5d16394cdd785d008cf2a2d81c5cda35.camel@intel.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XO5aPHKa"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60GCesGT032354;
+	Fri, 16 Jan 2026 15:45:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=sYkApZ
+	Cf7ikxNWqJYnWdzJEmSOQpdFclHStAuxtQcV0=; b=XO5aPHKaeY+rUTuA+h75Zg
+	dzyiCGldyWJ4kYcADCyDBe3w4Q/q1usvT6violTuObvqIz0RlmYba2PmfexjHGuX
+	qXkM3l/QI17VmnCqlsuCjKDOWNH8HgEMZ4L1dDcDsLD8KwaXvliR6/gw/mRa8apM
+	paHx4ncuwLHuleOGGe71rQYyu4MCwj+cb5FdO45If1wurZncnHd9mrNZSOTmpmI7
+	XugZzItnQS4N/9mixjFg2ddkIUTrl3bout5BQCXCUWiGjCRvneXrmaXNoinWeC96
+	YPYSJZ70kS7Eq2/EfuZZsu/GHZ0pEgb18IUapn3pg/ZAyBGPVk3yfNdpSIvoVVlQ
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bq9bmkmek-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 16 Jan 2026 15:45:26 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60GEHudW025866;
+	Fri, 16 Jan 2026 15:45:25 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4bm2kky4h1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 16 Jan 2026 15:45:25 +0000
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60GFj56031195664
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 16 Jan 2026 15:45:05 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A56C658056;
+	Fri, 16 Jan 2026 15:45:23 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 203DF5803F;
+	Fri, 16 Jan 2026 15:45:23 +0000 (GMT)
+Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.83.216])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 16 Jan 2026 15:45:23 +0000 (GMT)
+Message-ID: <3d997b2645c80396c0f7c69f95fd8ec0d4784b20.camel@linux.ibm.com>
+Subject: Re: [PATCH] KVM: s390: vsie: retry SIE when unable to get vsie_page
+From: Eric Farman <farman@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: Janosch Frank <frankja@linux.ibm.com>,
+        Christian Borntraeger	
+ <borntraeger@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>,
+        Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Date: Fri, 16 Jan 2026 10:45:22 -0500
+In-Reply-To: <23154a0c6b4b9e625daa2b1bbaadc349bf3a99ed.camel@linux.ibm.com>
+References: <20251217030107.1729776-1-farman@linux.ibm.com>
+			<8334988f-2caa-4361-b0b9-50b9f41f6d8a@linux.ibm.com>
+			<f34d767b2a56fb26526566e43fa355235ee53932.camel@linux.ibm.com>
+		 <20260114105033.23d3c699@p-imbrenda>
+	 <23154a0c6b4b9e625daa2b1bbaadc349bf3a99ed.camel@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.2 (3.58.2-1.fc43) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260114134510.1835-1-kalyazin@amazon.com> <20260114134510.1835-8-kalyazin@amazon.com>
- <ed01838830679880d3eadaf6f11c539b9c72c22d.camel@intel.com>
- <208b151b-f458-4327-94bc-eb3f32d20a68@amazon.com> <4781ba9c5d16394cdd785d008cf2a2d81c5cda35.camel@intel.com>
-Message-ID: <aWpcDrGVLrZOqdcg@google.com>
-Subject: Re: [PATCH v9 07/13] KVM: guest_memfd: Add flag to remove from direct map
-From: Sean Christopherson <seanjc@google.com>
-To: Rick P Edgecombe <rick.p.edgecombe@intel.com>
-Cc: "kalyazin@amazon.com" <kalyazin@amazon.com>, "kalyazin@amazon.co.uk" <kalyazin@amazon.co.uk>, 
-	"linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, 
-	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, 
-	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, 
-	"linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>, "kernel@xen0n.name" <kernel@xen0n.name>, 
-	"kvmarm@lists.linux.dev" <kvmarm@lists.linux.dev>, 
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
-	"bpf@vger.kernel.org" <bpf@vger.kernel.org>, 
-	"loongarch@lists.linux.dev" <loongarch@lists.linux.dev>, 
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "david@kernel.org" <david@kernel.org>, 
-	"svens@linux.ibm.com" <svens@linux.ibm.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, 
-	"palmer@dabbelt.com" <palmer@dabbelt.com>, "jgross@suse.com" <jgross@suse.com>, 
-	"surenb@google.com" <surenb@google.com>, "vbabka@suse.cz" <vbabka@suse.cz>, 
-	"riel@surriel.com" <riel@surriel.com>, "pfalcato@suse.de" <pfalcato@suse.de>, "x86@kernel.org" <x86@kernel.org>, 
-	"rppt@kernel.org" <rppt@kernel.org>, "thuth@redhat.com" <thuth@redhat.com>, 
-	"borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>, "maz@kernel.org" <maz@kernel.org>, 
-	"peterx@redhat.com" <peterx@redhat.com>, "ast@kernel.org" <ast@kernel.org>, 
-	Vishal Annapurve <vannapurve@google.com>, "pjw@kernel.org" <pjw@kernel.org>, "alex@ghiti.fr" <alex@ghiti.fr>, 
-	"dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, "tglx@linutronix.de" <tglx@linutronix.de>, 
-	"hca@linux.ibm.com" <hca@linux.ibm.com>, "willy@infradead.org" <willy@infradead.org>, 
-	"wyihan@google.com" <wyihan@google.com>, "ryan.roberts@arm.com" <ryan.roberts@arm.com>, 
-	"yang@os.amperecomputing.com" <yang@os.amperecomputing.com>, "jolsa@kernel.org" <jolsa@kernel.org>, 
-	"jmattson@google.com" <jmattson@google.com>, "luto@kernel.org" <luto@kernel.org>, 
-	"aneesh.kumar@kernel.org" <aneesh.kumar@kernel.org>, "haoluo@google.com" <haoluo@google.com>, 
-	"patrick.roy@linux.dev" <patrick.roy@linux.dev>, 
-	"akpm@linux-foundation.org" <akpm@linux-foundation.org>, "coxu@redhat.com" <coxu@redhat.com>, 
-	"mhocko@suse.com" <mhocko@suse.com>, "mlevitsk@redhat.com" <mlevitsk@redhat.com>, "jgg@ziepe.ca" <jgg@ziepe.ca>, 
-	"hpa@zytor.com" <hpa@zytor.com>, "song@kernel.org" <song@kernel.org>, 
-	"Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>, "maobibo@loongson.cn" <maobibo@loongson.cn>, 
-	"peterz@infradead.org" <peterz@infradead.org>, "oupton@kernel.org" <oupton@kernel.org>, 
-	"lorenzo.stoakes@oracle.com" <lorenzo.stoakes@oracle.com>, "jhubbard@nvidia.com" <jhubbard@nvidia.com>, 
-	"martin.lau@linux.dev" <martin.lau@linux.dev>, "jthoughton@google.com" <jthoughton@google.com>, 
-	"Jonathan.Cameron@huawei.com" <Jonathan.Cameron@huawei.com>, "Yu, Yu-cheng" <yu-cheng.yu@intel.com>, 
-	"eddyz87@gmail.com" <eddyz87@gmail.com>, "yonghong.song@linux.dev" <yonghong.song@linux.dev>, 
-	"chenhuacai@kernel.org" <chenhuacai@kernel.org>, "shuah@kernel.org" <shuah@kernel.org>, 
-	"prsampat@amd.com" <prsampat@amd.com>, "kevin.brodsky@arm.com" <kevin.brodsky@arm.com>, 
-	"shijie@os.amperecomputing.com" <shijie@os.amperecomputing.com>, "itazur@amazon.co.uk" <itazur@amazon.co.uk>, 
-	"suzuki.poulose@arm.com" <suzuki.poulose@arm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, 
-	"dev.jain@arm.com" <dev.jain@arm.com>, "yuzenghui@huawei.com" <yuzenghui@huawei.com>, 
-	"gor@linux.ibm.com" <gor@linux.ibm.com>, "jackabt@amazon.co.uk" <jackabt@amazon.co.uk>, 
-	"daniel@iogearbox.net" <daniel@iogearbox.net>, "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>, 
-	"andrii@kernel.org" <andrii@kernel.org>, "mingo@redhat.com" <mingo@redhat.com>, 
-	"aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>, "joey.gouly@arm.com" <joey.gouly@arm.com>, 
-	"derekmn@amazon.com" <derekmn@amazon.com>, "xmarcalx@amazon.co.uk" <xmarcalx@amazon.co.uk>, 
-	"kpsingh@kernel.org" <kpsingh@kernel.org>, "sdf@fomichev.me" <sdf@fomichev.me>, 
-	"jackmanb@google.com" <jackmanb@google.com>, "bp@alien8.de" <bp@alien8.de>, "corbet@lwn.net" <corbet@lwn.net>, 
-	"ackerleytng@google.com" <ackerleytng@google.com>, "jannh@google.com" <jannh@google.com>, 
-	"john.fastabend@gmail.com" <john.fastabend@gmail.com>, "kas@kernel.org" <kas@kernel.org>, 
-	"will@kernel.org" <will@kernel.org>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: dDH18FFknHcJR0GCRpPV3nK2hie-m5J4
+X-Proofpoint-ORIG-GUID: dDH18FFknHcJR0GCRpPV3nK2hie-m5J4
+X-Authority-Analysis: v=2.4 cv=TrvrRTXh c=1 sm=1 tr=0 ts=696a5d16 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VnNF1IyMAAAA:8 a=R0r9cqHsO0Xgfa1iM50A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTE2MDEwOSBTYWx0ZWRfX+CLOBUBHEfVh
+ W/pmCbNpapgeZBOYQw5FcyiNJbxrt8gD5yplIGjIgl7iY1zeDKt6sZE82GRiCgp79PBwF6UjqKI
+ WTdY3r/lELOFlXUVZdG+zO4HY0Su+ZApE51UEkDr9A8pbohYqIWEcZwHyew9s727Bg+E8HD+PLI
+ YRBcPwE61M5UvUzjJ/0jKqIMDKcaK684XEE034OWHv32EY89ZiD7N6WwOrMsg7HVNokTqI0epR5
+ 5+JEk5uNDpmNPGzYhMiiaOfKpHH527oUM0FxowDsk9eSIbjJXl39uglbEh2r7oGpi7AqN2Re1Sq
+ mjdSUmOSdj6qKv4yYIgC/SE+s5SrdE+uwCFTqUJ+5exx2lLiR8E+H+GEm6N7fEOnvCjuHIDnTZa
+ ACIjE3azeni3JjZV+oDK9LTs1t7QWv5yyCwAmcmDv7mWWCRZTD/4C+CfWsJ9ho6Skwrr0UCcNyW
+ uAiVdJ1N45pPj/PWujg==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2026-01-16_06,2026-01-15_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 priorityscore=1501 lowpriorityscore=0 phishscore=0 clxscore=1015
+ bulkscore=0 impostorscore=0 malwarescore=0 suspectscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2512120000 definitions=main-2601160109
 
-On Fri, Jan 16, 2026, Rick P Edgecombe wrote:
-> On Fri, 2026-01-16 at 15:02 +0000, Nikita Kalyazin wrote:
-> > > TDX does some clearing at the direct map mapping for pages that
-> > > comes from gmem, using a special instruction. It also does some
-> > > clflushing at the direct map address for these pages. So I think we
-> > > need to make sure TDs don't pull from gmem fds with this flag.
+On Thu, 2026-01-15 at 16:17 -0500, Eric Farman wrote:
+> On Wed, 2026-01-14 at 10:50 +0100, Claudio Imbrenda wrote:
+> > On Mon, 05 Jan 2026 10:46:53 -0500
+> > Eric Farman <farman@linux.ibm.com> wrote:
 > >=20
-> > Would you be able to give a pointer on how we can do that?=C2=A0 I'm no=
-t
-> > very familiar with the TDX code.
+> > > On Mon, 2026-01-05 at 13:41 +0100, Janosch Frank wrote:
+> > > > On 12/17/25 04:01, Eric Farman wrote: =20
+> > > > > SIE may exit because of pending host work, such as handling an in=
+terrupt,
+> > > > > in which case VSIE rewinds the guest PSW such that it is transpar=
+ently
+> > > > > resumed (see Fixes tag). There is still one scenario where those =
+conditions
+> >=20
+> > can you add a few words to (very briefly) explain what the scenario is?
 >=20
-> Uhh, that is a good question. Let me think.
+> Maybe if this paragraph were rewritten this way, instead?
+>=20
+> --8<--
+> SIE may exit because of pending host work, such as handling an interrupt,
+> in which case VSIE rewinds the guest PSW such that it is transparently
+> resumed (see Fixes tag). Unlike those other places that return rc=3D0, th=
+is
+> return leaves the guest PSW in place, requiring the guest to handle an
+> intercept that was meant to be serviced by the host. This showed up when
+> testing heavy I/O workloads, when multiple vcpus attempted to dispatch th=
+e
+> same SIE block and incurred failures inserting them into the radix tree.
+> -->8--
 
-Pass @kvm to kvm_arch_gmem_supports_no_direct_map() and then return %false =
-if
-it's a TDX VM.
+Spoke to Claudio offline, and he suggested the following edit to the above:
+
+--8<--
+SIE may exit because of pending host work, such as handling an interrupt,
+in which case VSIE rewinds the guest PSW such that it is transparently
+resumed (see Fixes tag). Unlike those other places that return rc=3D0, this
+return leaves the guest PSW in place, requiring the guest to handle a
+spurious intercept. This showed up when testing heavy I/O workloads,
+when multiple vcpus attempted to dispatch the same SIE block and incurred
+failures inserting them into the radix tree.
+-->8--
+
+>=20
+> @Janosch, if that ends up being okay, can you update the patch or do you =
+want me to send a v2?
+>=20
+> >=20
+> > > > > are not present, but that the VSIE processor returns with effecti=
+vely rc=3D0,
+> > > > > resulting in additional (and unnecessary) guest work to be perfor=
+med.
+> > > > >=20
+> > > > > For this case, rewind the guest PSW as we do in the other non-err=
+or exits.
+> > > > >=20
+> > > > > Fixes: 33a729a1770b ("KVM: s390: vsie: retry SIE instruction on h=
+ost intercepts")
+> > > > > Signed-off-by: Eric Farman <farman@linux.ibm.com> =20
+> > > >=20
+> > > > This is purely cosmetic to have all instances look the same, right?=
+ =20
+> > >=20
+> > > Nope, I can take this path with particularly high I/O loads on the sy=
+stem, which ends up
+> > > (incorrectly) sending the intercept to the guest.
+> >=20
+> > this is a good candidate for the explanation I mentioned above :)
+> >=20
+> >=20
+> > (the patch itself looks fine)
