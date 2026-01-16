@@ -1,46 +1,44 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C21B52E03EA;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1904288530;
 	Fri, 16 Jan 2026 07:40:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768549253; cv=none; b=JUzntmsXQXzy/Nfkwy4orKsAYNoWCpnNN/aTQ9ft2TcDCPdMnNz+tn1y0akOVVmOegxVnJZRSWIeswIlyUUb2G7zf0YO/o8MjdShX+c/V4dcuYfntIKshXYY82uiKuFf2RUPcb7gXMEIcquHVl4j73sLDaKap3+azzKmX/VUS28=
+	t=1768549253; cv=none; b=ViChyQtfNzfreiEvcKUO2WTnjJE9njiGFxksxyXQZCRng3Qy02SgQFs8da+3IsQIJEMPbCBplHc4dIo+oBz1AFMag4buQMSXrbJELOAyMDzWycAVpV//WEB/ou+c43yCJlSxbTWwEtZjoDsr6l5DD4Q7YNOWor2ceXKzmKiVLVs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1768549253; c=relaxed/simple;
-	bh=7teLdiabr9gzZFxBT7yVIs+xm2LR+TxpwbFKw+jdnMQ=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=TjbbBAGWcB3qrS7RAhmSa1TjLW4EvLD1WpttdpF7cy350WMpye/Njg28olQMFz2nwgDjoigu+esDnic1+yGYiI1zr8J7m3XhScdu1ZFf4yZCHPyekzkUca0v/n6eR6WV22aUPfxclXxYxMDHMIZ6HAkCmzqI+DFZ/w+hoo3t5dA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=BXgnMOdN; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=wrdQk5I9; arc=none smtp.client-ip=193.142.43.55
+	bh=kt3CvuNn1vmevL7BAYsXxXqmblyxRHDlhsiDvWPlU10=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=PZcEuEQEFLE9UcTwVvvwrCMQh2I+Rh2ApoNwXK5JpDh/Dg2dUowza/7RoJT2vT+XNLLNIBot9Dfdl1bzYZrbgK1c1A4kFawWY6Jiq1x7rFmqo+PNW2VnYCokto/7IumSr5rotjJRxnbZVrqNgwd6SHTiuQ6Kpzz/ggcTpI6KEQk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=MeZlsSQ1; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Db0rjIAH; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="BXgnMOdN";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="wrdQk5I9"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="MeZlsSQ1";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Db0rjIAH"
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1768549250;
+	s=2020; t=1768549249;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=wGlcXRYVBwExM0rRQdy6sucMiGtLR0ho2JhjSoimGCA=;
-	b=BXgnMOdN3l9jc59a9PBJ1BoA9MW1BpgySWr09Uw+HCmurprL7Oruyt6EHOD4u0b1KTScbM
-	LSOcien52VWAr4xSUhBFlsIaZ2fBU6hirkG/HP11kdXi6TSu8EIhUFyOffu7Cx6nI9oIAy
-	wWARItgIcT6orlNKffa4kNwol2OEwzGgxH6JEGvlYbzoNz/JQrMHP+PzI+lQ8sYah6pdrH
-	XfQ10Lxn8keQYrnecJhs0842Lfcs2quRLzOvdvlKbxEpf4Kd5Nhx/JW0ACQSG6cee5sMAX
-	/4uXH9FJ8e0Pqfp8qj72u1ULkUd27kSwRui8WU0hQDeRGwI2OcG3lfztun3W6A==
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=LAw4SEgm1iYpfHS2Ouzdt/ovhQF+PmdRD53d7/vg21k=;
+	b=MeZlsSQ1s2qfGUEKRXsJvSvhTKRA0FrkZRItOT7mS6hZGxOEtYuBcBnUi6zaRIpzPuCnaD
+	KTceVf1Q60SlAVBmGOn+pKZsaXzYpjkidrk8iV+fXleYDz01FwihtBu/djyS9FWGWEVohD
+	owrvcd6ajsQ+nGIWVSb3+5Sc1wpYaeTnZ4cypfvvZsMkQbp72JhYN4Rnk61fLhtb81vrpZ
+	XnrJ8BLE2piOSOu76Iez8TfWi5T64eVXTznNGQswoXZdK7XxvIl5BSsCmiD41qVDTmsVFp
+	RAmo8Fu6fPyoes+5yTwj0IqAee8Lzo/yvIgDXk/Un77+lEDZ/D7p++LGTivi7g==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1768549250;
+	s=2020e; t=1768549249;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=wGlcXRYVBwExM0rRQdy6sucMiGtLR0ho2JhjSoimGCA=;
-	b=wrdQk5I9bnKTvYheXpWDYN1R5f8N+BhbQdqYBmzxtIFB+cHkpkP9zmUbkuFCbyQ4LurL4+
-	e1bAdWzXtetkO1AQ==
-Date: Fri, 16 Jan 2026 08:40:24 +0100
-Subject: [PATCH 1/4] sparc64: vdso: Use 32-bit CHECKFLAGS for compat vDSO
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=LAw4SEgm1iYpfHS2Ouzdt/ovhQF+PmdRD53d7/vg21k=;
+	b=Db0rjIAH6+WFttd10HLcSKZHKrtM5QO/QqcYiGFo2inQjubN4HfXpzJ1MugcH5WkLbh+ht
+	ZNPH58ys0bSXPEDg==
+Subject: [PATCH 0/4] vDSO: Use 32-bit CHECKFLAGS for compat vDSO
+Date: Fri, 16 Jan 2026 08:40:23 +0100
+Message-Id: <20260116-vdso-compat-checkflags-v1-0-4a83b4fbb0d3@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,9 +47,10 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260116-vdso-compat-checkflags-v1-1-4a83b4fbb0d3@linutronix.de>
-References: <20260116-vdso-compat-checkflags-v1-0-4a83b4fbb0d3@linutronix.de>
-In-Reply-To: <20260116-vdso-compat-checkflags-v1-0-4a83b4fbb0d3@linutronix.de>
+X-B4-Tracking: v=1; b=H4sIAGfraWkC/x3MQQqEMAxA0atI1hOwnSmCV5FZtGnUMGpLIzIg3
+ t3i8i3+P0G5CCv0zQmFD1FJW4V5NUCz3yZGidVgW+uMaTs8oiaktGa/I81Mv3Hxk6KLoXPhHT7
+ BE9Q4Fx7l/4yH73Xd+cHd8GgAAAA=
+X-Change-ID: 20251107-vdso-compat-checkflags-5db75b3b4bac
 To: "David S. Miller" <davem@davemloft.net>, 
  Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>, 
  Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
@@ -65,12 +64,12 @@ To: "David S. Miller" <davem@davemloft.net>,
 Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org, 
  linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>, 
- kernel test robot <lkp@intel.com>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1768549244; l=1394;
+ kernel test robot <lkp@intel.com>, Sun Jian <sun.jian.kdev@gmail.com>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1768549244; l=1326;
  i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=7teLdiabr9gzZFxBT7yVIs+xm2LR+TxpwbFKw+jdnMQ=;
- b=TqIQrqyBly5afX0eQk3+j16jTKkGeKkqE8As+HS8Q0nOgHv1xwdMKphg2R2xoi5V0pR8m4hoH
- 7glHPBHxJZwC3sagFe926hfBk/np1GUUls+nkgHZtnDlm1Jq9Vo6qNm
+ bh=kt3CvuNn1vmevL7BAYsXxXqmblyxRHDlhsiDvWPlU10=;
+ b=nY6udk/40JJAZYyFQWQkS3swjpPXvepYYMH/581rN/ew8hk0e07KhSWLT7UYX4CwZuKJ2IVMn
+ xB0WUe1U+rqAXol8v6gAmkPyg/qW0JRyTHFnaqyEM+5+9rRecQ6WN6D
 X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
  pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
@@ -82,34 +81,31 @@ real issues.
 Manually override the CHECKFLAGS for the compat vDSO with the correct
 32-bit configuration.
 
-Reported-by: From: kernel test robot <lkp@intel.com>
-Closes: https://lore.kernel.org/lkml/202511030021.9v1mIgts-lkp@intel.com/
+Not all architectures are supported, as many do not use sparse for their
+(compat) vDSO. These can be enabled later.
+
+Also add some checks to bitsperlong.h to detect such issues earlier.
+
+Based on tip/timers/vdso.
+
 Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
-
 ---
-The actual false-positive is only reported when SPARC is converted over
-to the generic vDSO library. However the issue is already present.
-To avoid dependencies between different patch queues, I have this patch
-in this one.
+Thomas Weißschuh (4):
+      sparc64: vdso: Use 32-bit CHECKFLAGS for compat vDSO
+      x86/vdso: Use 32-bit CHECKFLAGS for compat vDSO
+      s390/vdso: Trim includes in linker script
+      asm-generic/bitsperlong.h: Add sanity checks for __BITS_PER_LONG
+
+ arch/s390/kernel/vdso/vdso.lds.S       |  3 +--
+ arch/sparc/vdso/Makefile               |  3 +++
+ arch/x86/entry/vdso/Makefile           |  3 +++
+ include/uapi/asm-generic/bitsperlong.h | 14 ++++++++++++++
+ 4 files changed, 21 insertions(+), 2 deletions(-)
 ---
- arch/sparc/vdso/Makefile | 3 +++
- 1 file changed, 3 insertions(+)
+base-commit: a37abd052c0bd9d1194710a39008801379f8ff5a
+change-id: 20251107-vdso-compat-checkflags-5db75b3b4bac
 
-diff --git a/arch/sparc/vdso/Makefile b/arch/sparc/vdso/Makefile
-index 13f1d7be00f1..945d917b0058 100644
---- a/arch/sparc/vdso/Makefile
-+++ b/arch/sparc/vdso/Makefile
-@@ -90,6 +90,9 @@ KBUILD_CFLAGS_32 += -DDISABLE_BRANCH_PROFILING
- KBUILD_CFLAGS_32 += -mv8plus
- $(obj)/vdso32.so.dbg: KBUILD_CFLAGS = $(KBUILD_CFLAGS_32)
- 
-+CHECKFLAGS_32 := $(CHECKFLAGS) -U__sparc_v9__ -U__arch64__ -m32
-+$(obj)/vdso32.so.dbg: CHECKFLAGS = $(CHECKFLAGS_32)
-+
- $(obj)/vdso32.so.dbg: FORCE \
- 			$(obj)/vdso32/vdso32.lds \
- 			$(obj)/vdso32/vclock_gettime.o \
-
+Best regards,
 -- 
-2.52.0
+Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 
