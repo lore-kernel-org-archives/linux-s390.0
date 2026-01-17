@@ -1,174 +1,124 @@
-Received: from fra-out-008.esa.eu-central-1.outbound.mail-perimeter.amazon.com (fra-out-008.esa.eu-central-1.outbound.mail-perimeter.amazon.com [35.158.23.94])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B18D30214B;
-	Fri, 16 Jan 2026 18:17:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.158.23.94
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62130B67E;
+	Sat, 17 Jan 2026 15:22:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768587436; cv=none; b=g7y1nceU7TCs46I990qjgsj8T7LqL8wTHkMPAk1NjH/ND0MzYoGZotcb229AFgM8NCc/QWI3nt8z1Az+xqWa538bpnTVHK0wnLg9zcpzFCbPKTNbB/cADLKuQbt4vS2SqyD1dlwxHuFLiY7v/DcegcMuqHLMZ+CqOz0wQ2iT4e0=
+	t=1768663363; cv=none; b=uok9c+vhZOWFgTIIVow2delIaH7DBebftqiGrIvTpYC8ddWfNkahi80pII1LqsCf7FvniuzXmrPNQpFLvGZXeEDR4BFfCE05eDwcNEycTWog/WC32Mf70LqwC8ziT9wvQjntecPs1nHbunNsZ4EC4CRGzWn6ffF0q3U9BsR8fAw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768587436; c=relaxed/simple;
-	bh=zrf911BvhStWuhjVEELF/Ajfn8rz9WHah1btkRBe1lA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=QNqTzRLgx8GAzPMfddKIiAkm/MnHppr0VAyGUZ5h3kjYdO9RFN7+GcNQTv2U2r/uZHkPg032bHmH6HbZJhPZaXmZ38BJL/VlFzo1j/hx1jrmW7wb0PzpiATiJV/pq9Sc7K4GkGESvxagyqPDF5NeDlnJGDJahWSgum62S5/wvcM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=I0MBfWtw; arc=none smtp.client-ip=35.158.23.94
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.uk
+	s=arc-20240116; t=1768663363; c=relaxed/simple;
+	bh=N7HXwdjfE30uqy04iJU1FStgTIhiDvhGzOQxh9Ebvro=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SmnNWXWy0sf+QjM+pDZrIQI+da+0gQNQfkT/Pb/8lHhhX4A3bAelwxpfmISttlVJieZ0ntaP9Zl9B8oyrtirn+V33loXPJ1yGSia3WpiKDqJvzE08BhTiLB9/2gMiBqAqqnXrhnKWBHTJjyVNfXBZMPwdidMaC0x1edUpKekMmI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZVmpNk7F; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="I0MBfWtw"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1768587435; x=1800123435;
-  h=message-id:date:mime-version:reply-to:subject:to:cc:
-   references:from:in-reply-to:content-transfer-encoding;
-  bh=YapVUMmpOwobMagVZxDJCeWDb1gq+ZQf1FJDAqu8vU0=;
-  b=I0MBfWtwMj/4d9o8Qo09Bvi97Fdkgii+OIU/xcBtB6vDCdVz930MJlp4
-   7iA8wYC6yCRY4gYp8XT91C0q02KlwiFbbAz4hynTpaojFoPxPDqCAHIcV
-   yiwg53gCDcQzKo3y611nu0iDN3GzJwHax8XfeZJOM3frY/3jWykM3K4gP
-   h0rmyZOFnbEMmUtT/v7F7nWVPh8CUTxjphtA4UROiH2ePTjM1PRr7un5P
-   ra7C+XJd+hQAHcjkJ3UUB3L3muRa6t5/doBjDzBHFYUmLFm9Yndpi09xb
-   8p6tGrUC/fOisV3rULKXGStpRWS1ge2LyzakX2p5x4jX6GmDeHjHxeAo4
-   Q==;
-X-CSE-ConnectionGUID: NWjda1oCRYKn9baULLv/sw==
-X-CSE-MsgGUID: IK3nVvd5RcyK2jXvKFHlAw==
-X-IronPort-AV: E=Sophos;i="6.21,231,1763424000"; 
-   d="scan'208";a="8025027"
-Received: from ip-10-6-11-83.eu-central-1.compute.internal (HELO smtpout.naws.eu-central-1.prod.farcaster.email.amazon.dev) ([10.6.11.83])
-  by internal-fra-out-008.esa.eu-central-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jan 2026 18:16:56 +0000
-Received: from EX19MTAEUA001.ant.amazon.com [54.240.197.233:23681]
- by smtpin.naws.eu-central-1.prod.farcaster.email.amazon.dev [10.0.8.163:2525] with esmtp (Farcaster)
- id 6045a328-4a68-479c-a4ff-a5f3e38bc599; Fri, 16 Jan 2026 18:16:56 +0000 (UTC)
-X-Farcaster-Flow-ID: 6045a328-4a68-479c-a4ff-a5f3e38bc599
-Received: from EX19D005EUB003.ant.amazon.com (10.252.51.31) by
- EX19MTAEUA001.ant.amazon.com (10.252.50.50) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.35;
- Fri, 16 Jan 2026 18:16:53 +0000
-Received: from [192.168.12.13] (10.106.82.9) by EX19D005EUB003.ant.amazon.com
- (10.252.51.31) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.35; Fri, 16 Jan 2026
- 18:16:48 +0000
-Message-ID: <e4cc7e98-9c1f-4ced-a22f-5d0fe29a6893@amazon.com>
-Date: Fri, 16 Jan 2026 18:16:47 +0000
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZVmpNk7F"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60H9uQIW022057;
+	Sat, 17 Jan 2026 15:22:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=39V+5n
+	TQx+ZGw4NWhKS5TRKL8x8VYeVQW3Z2+AElGIA=; b=ZVmpNk7FYpAsSSfh2qsnLL
+	4cT4ffdjOAi6sO3KNv8NykuPC+0ab99Z5G/kf2wiMastZWtHTwyuAjNeUSHkkETG
+	REPuxwQG2Et1ct0bRBm5CpB/vad5Lf2FUesonF/TAVOsH9y/Yo9JjtWs3XmqG5HN
+	eVS3pL7kZhQyGJeHK4wvUq9KygyulxXmLQo73fFtFFXP1pCGI4ykx6NEJH70b5fJ
+	MFpW4LVJ0XJq/vdMTTYpEzYSPdaJq5G/KNVYC75bGsq8MtsFTY0cZ3beqF6xBRWX
+	1v+XfQD+znk8GN+Leln0Ld+q/ykl5F0/FmtFn1rKrnkAyywldvOWqL5bRnf8g1aA
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4br0uf1hse-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 17 Jan 2026 15:22:22 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60HAo4HK021581;
+	Sat, 17 Jan 2026 15:22:21 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4bqv8uucq3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 17 Jan 2026 15:22:21 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60HFMHrG36176378
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sat, 17 Jan 2026 15:22:17 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C4C4520043;
+	Sat, 17 Jan 2026 15:22:17 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DBF7620040;
+	Sat, 17 Jan 2026 15:22:16 +0000 (GMT)
+Received: from osiris (unknown [9.111.69.86])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Sat, 17 Jan 2026 15:22:16 +0000 (GMT)
+Date: Sat, 17 Jan 2026 16:22:15 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Thomas =?iso-8859-1?Q?Wei=DFschuh?= <thomas.weissschuh@linutronix.de>
+Cc: "David S. Miller" <davem@davemloft.net>,
+        Andreas Larsson <andreas@gaisler.com>,
+        Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, sparclinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH 3/4] s390/vdso: Trim includes in linker script
+Message-ID: <20260117152215.9947Cd3-hca@linux.ibm.com>
+References: <20260116-vdso-compat-checkflags-v1-0-4a83b4fbb0d3@linutronix.de>
+ <20260116-vdso-compat-checkflags-v1-3-4a83b4fbb0d3@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Reply-To: <kalyazin@amazon.com>
-Subject: Re: [PATCH v9 07/13] KVM: guest_memfd: Add flag to remove from direct
- map
-To: "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "kalyazin@amazon.co.uk"
-	<kalyazin@amazon.co.uk>, "linux-riscv@lists.infradead.org"
-	<linux-riscv@lists.infradead.org>, "linux-s390@vger.kernel.org"
-	<linux-s390@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>,
-	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-	"linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>,
-	"kernel@xen0n.name" <kernel@xen0n.name>, "kvmarm@lists.linux.dev"
-	<kvmarm@lists.linux.dev>, "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"bpf@vger.kernel.org" <bpf@vger.kernel.org>, "loongarch@lists.linux.dev"
-	<loongarch@lists.linux.dev>, "linux-doc@vger.kernel.org"
-	<linux-doc@vger.kernel.org>
-CC: "david@kernel.org" <david@kernel.org>, "svens@linux.ibm.com"
-	<svens@linux.ibm.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-	"palmer@dabbelt.com" <palmer@dabbelt.com>, "jgross@suse.com"
-	<jgross@suse.com>, "surenb@google.com" <surenb@google.com>, "vbabka@suse.cz"
-	<vbabka@suse.cz>, "riel@surriel.com" <riel@surriel.com>, "pfalcato@suse.de"
-	<pfalcato@suse.de>, "x86@kernel.org" <x86@kernel.org>, "rppt@kernel.org"
-	<rppt@kernel.org>, "thuth@redhat.com" <thuth@redhat.com>,
-	"borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>, "maz@kernel.org"
-	<maz@kernel.org>, "peterx@redhat.com" <peterx@redhat.com>, "ast@kernel.org"
-	<ast@kernel.org>, "Annapurve, Vishal" <vannapurve@google.com>,
-	"pjw@kernel.org" <pjw@kernel.org>, "alex@ghiti.fr" <alex@ghiti.fr>,
-	"dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
-	"tglx@linutronix.de" <tglx@linutronix.de>, "hca@linux.ibm.com"
-	<hca@linux.ibm.com>, "willy@infradead.org" <willy@infradead.org>,
-	"wyihan@google.com" <wyihan@google.com>, "ryan.roberts@arm.com"
-	<ryan.roberts@arm.com>, "yang@os.amperecomputing.com"
-	<yang@os.amperecomputing.com>, "jolsa@kernel.org" <jolsa@kernel.org>,
-	"jmattson@google.com" <jmattson@google.com>, "luto@kernel.org"
-	<luto@kernel.org>, "aneesh.kumar@kernel.org" <aneesh.kumar@kernel.org>,
-	"haoluo@google.com" <haoluo@google.com>, "patrick.roy@linux.dev"
-	<patrick.roy@linux.dev>, "akpm@linux-foundation.org"
-	<akpm@linux-foundation.org>, "coxu@redhat.com" <coxu@redhat.com>,
-	"mhocko@suse.com" <mhocko@suse.com>, "mlevitsk@redhat.com"
-	<mlevitsk@redhat.com>, "jgg@ziepe.ca" <jgg@ziepe.ca>, "hpa@zytor.com"
-	<hpa@zytor.com>, "song@kernel.org" <song@kernel.org>,
-	"Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>, "maobibo@loongson.cn"
-	<maobibo@loongson.cn>, "peterz@infradead.org" <peterz@infradead.org>,
-	"oupton@kernel.org" <oupton@kernel.org>, "lorenzo.stoakes@oracle.com"
-	<lorenzo.stoakes@oracle.com>, "jhubbard@nvidia.com" <jhubbard@nvidia.com>,
-	"martin.lau@linux.dev" <martin.lau@linux.dev>, "jthoughton@google.com"
-	<jthoughton@google.com>, "Jonathan.Cameron@huawei.com"
-	<Jonathan.Cameron@huawei.com>, "Yu, Yu-cheng" <yu-cheng.yu@intel.com>,
-	"eddyz87@gmail.com" <eddyz87@gmail.com>, "yonghong.song@linux.dev"
-	<yonghong.song@linux.dev>, "chenhuacai@kernel.org" <chenhuacai@kernel.org>,
-	"shuah@kernel.org" <shuah@kernel.org>, "prsampat@amd.com" <prsampat@amd.com>,
-	"kevin.brodsky@arm.com" <kevin.brodsky@arm.com>,
-	"shijie@os.amperecomputing.com" <shijie@os.amperecomputing.com>,
-	"itazur@amazon.co.uk" <itazur@amazon.co.uk>, "suzuki.poulose@arm.com"
-	<suzuki.poulose@arm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>,
-	"dev.jain@arm.com" <dev.jain@arm.com>, "yuzenghui@huawei.com"
-	<yuzenghui@huawei.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>,
-	"jackabt@amazon.co.uk" <jackabt@amazon.co.uk>, "daniel@iogearbox.net"
-	<daniel@iogearbox.net>, "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
-	"andrii@kernel.org" <andrii@kernel.org>, "mingo@redhat.com"
-	<mingo@redhat.com>, "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>,
-	"joey.gouly@arm.com" <joey.gouly@arm.com>, "derekmn@amazon.com"
-	<derekmn@amazon.com>, "xmarcalx@amazon.co.uk" <xmarcalx@amazon.co.uk>,
-	"kpsingh@kernel.org" <kpsingh@kernel.org>, "sdf@fomichev.me"
-	<sdf@fomichev.me>, "jackmanb@google.com" <jackmanb@google.com>,
-	"bp@alien8.de" <bp@alien8.de>, "corbet@lwn.net" <corbet@lwn.net>,
-	"ackerleytng@google.com" <ackerleytng@google.com>, "jannh@google.com"
-	<jannh@google.com>, "john.fastabend@gmail.com" <john.fastabend@gmail.com>,
-	"kas@kernel.org" <kas@kernel.org>, "will@kernel.org" <will@kernel.org>,
-	"seanjc@google.com" <seanjc@google.com>
-References: <20260114134510.1835-1-kalyazin@amazon.com>
- <20260114134510.1835-8-kalyazin@amazon.com>
- <e619ded526a2f9a4cec4f74383cef31519624935.camel@intel.com>
- <294bca75-2f3e-46db-bb24-7c471a779cc1@amazon.com>
- <bb58a21f91113ca39f8888d718d4450a5fd72808.camel@intel.com>
- <318407ba-ecb6-4691-8911-645fb8c20250@amazon.com>
- <c42cc00f3902673b1a964c3d098b8c3f236cf9a1.camel@intel.com>
- <98b8ea1e-3bdd-4987-8acc-58112076d451@amazon.com>
- <a84835708eb92d99ba524149bde819c4ba944cb9.camel@intel.com>
-Content-Language: en-US
-From: Nikita Kalyazin <kalyazin@amazon.com>
-Autocrypt: addr=kalyazin@amazon.com; keydata=
- xjMEY+ZIvRYJKwYBBAHaRw8BAQdA9FwYskD/5BFmiiTgktstviS9svHeszG2JfIkUqjxf+/N
- JU5pa2l0YSBLYWx5YXppbiA8a2FseWF6aW5AYW1hem9uLmNvbT7CjwQTFggANxYhBGhhGDEy
- BjLQwD9FsK+SyiCpmmTzBQJnrNfABQkFps9DAhsDBAsJCAcFFQgJCgsFFgIDAQAACgkQr5LK
- IKmaZPOpfgD/exazh4C2Z8fNEz54YLJ6tuFEgQrVQPX6nQ/PfQi2+dwBAMGTpZcj9Z9NvSe1
- CmmKYnYjhzGxzjBs8itSUvWIcMsFzjgEY+ZIvRIKKwYBBAGXVQEFAQEHQCqd7/nb2tb36vZt
- ubg1iBLCSDctMlKHsQTp7wCnEc4RAwEIB8J+BBgWCAAmFiEEaGEYMTIGMtDAP0Wwr5LKIKma
- ZPMFAmes18AFCQWmz0MCGwwACgkQr5LKIKmaZPNTlQEA+q+rGFn7273rOAg+rxPty0M8lJbT
- i2kGo8RmPPLu650A/1kWgz1AnenQUYzTAFnZrKSsXAw5WoHaDLBz9kiO5pAK
-In-Reply-To: <a84835708eb92d99ba524149bde819c4ba944cb9.camel@intel.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: EX19D006EUA002.ant.amazon.com (10.252.50.65) To
- EX19D005EUB003.ant.amazon.com (10.252.51.31)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260116-vdso-compat-checkflags-v1-3-4a83b4fbb0d3@linutronix.de>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 0_Q8dhcxnTwvsodtYh7ZiRR6Ct30TEZc
+X-Proofpoint-ORIG-GUID: 0_Q8dhcxnTwvsodtYh7ZiRR6Ct30TEZc
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTE3MDEyNyBTYWx0ZWRfXxAqNzok56/7J
+ YxADf3KtO309+FCgjdhZ+ykru8inQlM6HmFCI2DBBR9Dw8mKP6BllHvDAdJFZS7hxx7F4YgqQZn
+ ZIJncmWnku0p3LYOruUOIZa5ztAXQW8o05nnvjiqG2P8y+DdcKH19zIA15FRteFPaMKUstxJ3L+
+ n2fu5WOHuFVqC3xYqMI8Su8RwS7gyKYfQnIL2diydSj2OfJzTM8LJy71JuIJYmyhvTrk/cK431C
+ VWwDH3YfNaqIMgLrxoHWsv47tegfXGh7PuwZ0PoRJ/v6CNfv8ILGNVzSSZ9spMk7N+1/p+5CMFf
+ t2P6aPsvUpjkTJwwd0gTUMV03obtgzqSRL+4y3aRKm9RHVpwAs4CIXdwD+PD+Ba1DSiftzhs5wu
+ dJq+fR9Z6s8WnlfKdzxiDgwVn/TCSuFHAAkwkJXqcvRLLEzZR8RtC1g66wpD/I5uZYL2Jwj81gu
+ 6LNwz5tprgM+uqZBNKw==
+X-Authority-Analysis: v=2.4 cv=bopBxUai c=1 sm=1 tr=0 ts=696ba92e cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=8nJEP1OIZ-IA:10 a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VnNF1IyMAAAA:8 a=96DDLKwRfJTpT7j2upIA:9 a=3ZKOabzyN94A:10 a=wPNLvfGTeEIA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2026-01-17_02,2026-01-15_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 bulkscore=0 adultscore=0 suspectscore=0 impostorscore=0
+ phishscore=0 malwarescore=0 lowpriorityscore=0 priorityscore=1501
+ clxscore=1011 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2601150000
+ definitions=main-2601170127
 
-
-
-On 16/01/2026 18:10, Edgecombe, Rick P wrote:
-> On Fri, 2026-01-16 at 17:51 +0000, Nikita Kalyazin wrote:
->> Yes, this is a problem that we'd like to address.  We have been
->> discussing it in [1].  The effect of flushing on memory population
->> that we see on x86 is 5-7x elongation.  We are thinking of making use
->> of the no-direct-map memory allocator that Brendan is working on [2].
+On Fri, Jan 16, 2026 at 08:40:26AM +0100, Thomas Weiﬂschuh wrote:
+> Some of the included files are unnecessary or too broad.
 > 
-> Ah, makes sense.
+> This is a preparation for a new validation step to validate the
+> consistency of __BITS_PER_LONG. vdso.lds.S may be preprocessed with a
+> 32-bit compiler, but __BITS_PER_LONG is always 64.
 > 
-> Do you plan to merge this before the performance problems are
-> addressed? I guess this series focuses on safety and functionality
-> first.
-
-Yes, we'd like to merge the functional part first and then optimise it 
-in the further series.
-
+> Trim the includes to the necessary ones.
 > 
+> Signed-off-by: Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de>
+> ---
+>  arch/s390/kernel/vdso/vdso.lds.S | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
 
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
