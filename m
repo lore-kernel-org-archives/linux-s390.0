@@ -1,193 +1,153 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 13EFC3587A5;
-	Mon, 19 Jan 2026 10:53:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87E501EE00A;
+	Mon, 19 Jan 2026 10:56:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768819989; cv=none; b=S/HCG1OU3dHsTsr9XBgivlr4eRtXYsZq6K0JpXiTcQMb0FpbJVWLv3d4L0h49Zz3YlK9CaDssdnwMZnx/CQ7cT2CXOYPa7CF9AMQo77dWepj61yhp9w3upJnv6k+tz+Y6fUQnwDYkSZ4r5tePWT5mWOzvlwIJ64op3MpTssIY4U=
+	t=1768820196; cv=none; b=Yrc2ZaboMfFlvWxPuvJIYBkYQdad0708mtl42kjv9ydZ1nY7th1fLjabKxg0UCUB2VT2l/Qz/8r7WgNdSX1tiuWGcLSDP3B5o5Co5NdOK35wmH1WfVhY8mKE7LAysKs937hbL4k7aoZApg1dfOLP2aPAyz1nYeO2PCJib+938Ng=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768819989; c=relaxed/simple;
-	bh=eZcYLrOrZr4lRiCJ3TdUZo06dWdX2VZXenzn28FE97k=;
+	s=arc-20240116; t=1768820196; c=relaxed/simple;
+	bh=Qe36xxsayxzili9KvOuan72oG60zGsm7wCxbTI+pONE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=o31lwCIiha5wQu90dWHZgmidfEPuMi4YhehoDQuOXfDjKUXFZMgMXkMIaOE+LymygMNVAzaJHK8Ji/ftE+gwocbdycAtUUyHALHHnNjuzSqrelXJS9Lu2RlZmBokNGYeTzoVyerWuEReI9+r5Bt+Zz5xmcSkDJziRSaszgStkxo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CD4E31517;
-	Mon, 19 Jan 2026 02:53:00 -0800 (PST)
-Received: from J2N7QTR9R3 (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 7ABD13F740;
-	Mon, 19 Jan 2026 02:53:02 -0800 (PST)
-Date: Mon, 19 Jan 2026 10:52:59 +0000
-From: Mark Rutland <mark.rutland@arm.com>
-To: Ryan Roberts <ryan.roberts@arm.com>, Kees Cook <kees@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	"Jason A. Donenfeld" <Jason@zx2c4.com>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	Jeremy Linton <jeremy.linton@arm.com>, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH v3 0/3] Fix bugs and performance of kstack offset
- randomisation
-Message-ID: <aW4NC9P3K7Ab_e8j@J2N7QTR9R3>
-References: <20260102131156.3265118-1-ryan.roberts@arm.com>
+	 Content-Type:Content-Disposition:In-Reply-To; b=dCbIUKF+Thae1c8BLLGOucfyO1T+lTwJ2lknS2aO/BAscFY0kqiRswUkbESciGu9vAm7q9wiMguBCnDZpvTgc00wbbcr58sJBLEuCPSA5d4amhg3qx9EISFelduYpkG7F3p3uViVUHzjmEfC6B9P67dsAtFJGisNRw4b5H8wI8o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=nBtopyHM; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=u7K9TASj; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="nBtopyHM";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="u7K9TASj"
+Date: Mon, 19 Jan 2026 11:56:33 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1768820193;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=US981aT1yOWgtxQBdKHnIdawJA/x+KBeaYSqijIuhE8=;
+	b=nBtopyHMca4CWnNPtxDaHWzRTIdVDSukcOGB7SmXaZmQjoPjBpxFiiGScGdP4oufflGS79
+	DXQ3alypPSNrp0K4OdjMOMyJLtDIt7pQj823TxvOt9KfIufPoYXmlIyPup8SQ2cymcIbp4
+	tajj/QKjzQ8YBJDk+JBojjF1JO3Z3aIKLArD9nQ/UN1SmC+TM30LeUCOBiYPsmk4UKZS+d
+	GWPatq1MOJJ4ZbFGUFpiV542DSUtxAmEMPJM7Swz+R5wUi/KGSggUCSsIF9xL0iJfYVww0
+	BeTlfZUmSVU6+XeGdO33litM4b299u8wItMpIhuVO0cIjkE9Mx+Wg0i7RE9lAA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1768820193;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=US981aT1yOWgtxQBdKHnIdawJA/x+KBeaYSqijIuhE8=;
+	b=u7K9TASj3v7TkS74Pata02ESy9TL0w6e4KlWv/yylOtf0M7czd+Lv9bGa46LYNgzsvKLKz
+	jlEzqhxT6/Tny6Bw==
+From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+To: David Laight <david.laight.linux@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>, 
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+	Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, sparclinux@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 4/4] asm-generic/bitsperlong.h: Add sanity checks for
+ __BITS_PER_LONG
+Message-ID: <20260119114526-a15e7172-fc4c-40d0-a651-7c4a21acb1c8@linutronix.de>
+References: <20260116-vdso-compat-checkflags-v1-0-4a83b4fbb0d3@linutronix.de>
+ <20260116-vdso-compat-checkflags-v1-4-4a83b4fbb0d3@linutronix.de>
+ <20260119100619.479bcff3@pumpkin>
+ <20260119111037-4decf57f-2094-4fac-bcf4-03506791b197@linutronix.de>
+ <20260119103758.3afb5927@pumpkin>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20260102131156.3265118-1-ryan.roberts@arm.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260119103758.3afb5927@pumpkin>
 
-On Fri, Jan 02, 2026 at 01:11:51PM +0000, Ryan Roberts wrote:
-> Hi All,
+On Mon, Jan 19, 2026 at 10:37:58AM +0000, David Laight wrote:
+> On Mon, 19 Jan 2026 11:13:08 +0100
+> Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de> wrote:
+> 
+> > On Mon, Jan 19, 2026 at 10:06:19AM +0000, David Laight wrote:
+> > > On Fri, 16 Jan 2026 08:40:27 +0100
+> > > Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de> wrote:
+> > >   
+> > > > The value of __BITS_PER_LONG from architecture-specific logic should
+> > > > always match the generic one if that is available. It should also match
+> > > > the actual C type 'long'.
+> > > > 
+> > > > Mismatches can happen for example when building the compat vDSO. Either
+> > > > during the compilation, see commit 9a6d3ff10f7f ("arm64: uapi: Provide
+> > > > correct __BITS_PER_LONG for the compat vDSO"), or when running sparse
+> > > > when mismatched CHECKFLAGS are inherited from the kernel build.
+> > > > 
+> > > > Add some consistency checks which detect such issues early and clearly.
+> > > > The tests are added to the UAPI header to make sure it is also used when
+> > > > building the vDSO as that is not supposed to use regular kernel headers.
+> > > > 
+> > > > The kernel-interal BITS_PER_LONG is not checked as it is derived from
+> > > > CONFIG_64BIT and therefore breaks for the compat vDSO. See the similar,
+> > > > deactivated check in include/asm-generic/bitsperlong.h.
+> > > > 
+> > > > Signed-off-by: Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de>
+> > > > ---
+> > > >  include/uapi/asm-generic/bitsperlong.h | 14 ++++++++++++++
+> > > >  1 file changed, 14 insertions(+)
+> > > > 
+> > > > diff --git a/include/uapi/asm-generic/bitsperlong.h b/include/uapi/asm-generic/bitsperlong.h
+> > > > index fadb3f857f28..9d762097ae0c 100644
+> > > > --- a/include/uapi/asm-generic/bitsperlong.h
+> > > > +++ b/include/uapi/asm-generic/bitsperlong.h
+> > > > @@ -28,4 +28,18 @@
+> > > >  #define __BITS_PER_LONG_LONG 64
+> > > >  #endif
+> > > >  
+> > > > +/* Consistency checks */
+> > > > +#ifdef __KERNEL__
+> > > > +#if defined(__CHAR_BIT__) && defined(__SIZEOF_LONG__)
+> > > > +#if __BITS_PER_LONG != (__CHAR_BIT__ * __SIZEOF_LONG__)
+> > > > +#error Inconsistent word size. Check uapi/asm/bitsperlong.h
+> > > > +#endif
+> > > > +#endif
+> > > > +
+> > > > +#ifndef __ASSEMBLER__
+> > > > +_Static_assert(sizeof(long) * 8 == __BITS_PER_LONG,
+> > > > +	       "Inconsistent word size. Check uapi/asm/bitsperlong.h");  
+> > > 
+> > > nak...
+> > > 
+> > > You can't assume the compiler has _Static_assert().
+> > > All the ones that do probably define __SIZEOF_LONG__.
+> > > You could use something 'old-school' like:
+> > > typedef char __inconsistent_long_size[1 - 2 * (sizeof(long) * 8 != __BITS_PER_LONG))];  
+> > 
+> > This is only used when building the kernel, it never actually reaches
+> > userspace. And all supported compilers for the kernel do have _Static_assert().
+> > As indicated by other users of _Static_assert() we have elsewhere in the tree.
+> 
+> Don't you need a check that it isn't wrong on a user system?
+> Which is what I thought it was doing.
 
-Hi Ryan,
+Not really. The overrides defined by arch/*/include/uapi/asm/bitsperlong.h are
+being tested here. If they work in the kernel build I assume they also work
+in userspace.
 
-> As I reported at [1], kstack offset randomisation suffers from a couple of bugs
-> and, on arm64 at least, the performance is poor. This series attempts to fix
-> both; patch 1 provides back-portable fixes for the functional bugs. Patches 2-3
-> propose a performance improvement approach.
+> The earlier check can also just be:
 > 
-> I've looked at a few different options but ultimately decided that Jeremy's
-> original prng approach is the fastest. I made the argument that this approach is
-> secure "enough" in the RFC [2] and the responses indicated agreement.
+> #if defined(__SIZEOF_LONG__) && __BITS_PER_LONG != 8 * __SIZEOF_LONG__
+> #error Inconsistent word size. Check uapi/asm/bitsperlong.h
+> #endif
 
-FWIW, the series all looks good to me. I understand you're likely to
-spin a v4 with a couple of minor tweaks (fixing typos and adding an
-out-of-line wrapper for a prandom function), but I don't think there's
-anything material that needs to change.
+The if defined(__SIZEOF_LONG__) is also unnecessary as that is always present
+with the supported kernel compilers.  So we can drop one level of ifdeffery.
 
-I've given my Ack on all three patches. I've given the series a quick
-boot test (atop v6.19-rc4) with a bunch of debug options enabled, and
-all looks well.
+Testing __CHAR_BIT__ == 8 would again test the compiler implementation and not
+the UAPI headers, so I'd rather not do it. Using __CHAR_BIT__ in the test is
+done for consistency with the generic implementation.
 
-Kees, do you have any comments? It would be nice if we could queue this
-up soon.
 
-Mark.
-
-> More details in the commit logs.
-> 
-> 
-> Performance
-> ===========
-> 
-> Mean and tail performance of 3 "small" syscalls was measured. syscall was made
-> 10 million times and each individually measured and binned. These results have
-> low noise so I'm confident that they are trustworthy.
-> 
-> The baseline is v6.18-rc5 with stack randomization turned *off*. So I'm showing
-> performance cost of turning it on without any changes to the implementation,
-> then the reduced performance cost of turning it on with my changes applied.
-> 
-> **NOTE**: The below results were generated using the RFC patches but there is no
-> meaningful change, so the numbers are still valid.
-> 
-> arm64 (AWS Graviton3):
-> +-----------------+--------------+-------------+---------------+
-> | Benchmark       | Result Class |   v6.18-rc5 | per-task-prng |
-> |                 |              | rndstack-on |               |
-> |                 |              |             |               |
-> +=================+==============+=============+===============+
-> | syscall/getpid  | mean (ns)    |  (R) 15.62% |     (R) 3.43% |
-> |                 | p99 (ns)     | (R) 155.01% |     (R) 3.20% |
-> |                 | p99.9 (ns)   | (R) 156.71% |     (R) 2.93% |
-> +-----------------+--------------+-------------+---------------+
-> | syscall/getppid | mean (ns)    |  (R) 14.09% |     (R) 2.12% |
-> |                 | p99 (ns)     | (R) 152.81% |         1.55% |
-> |                 | p99.9 (ns)   | (R) 153.67% |         1.77% |
-> +-----------------+--------------+-------------+---------------+
-> | syscall/invalid | mean (ns)    |  (R) 13.89% |     (R) 3.32% |
-> |                 | p99 (ns)     | (R) 165.82% |     (R) 3.51% |
-> |                 | p99.9 (ns)   | (R) 168.83% |     (R) 3.77% |
-> +-----------------+--------------+-------------+---------------+
-> 
-> Because arm64 was previously using get_random_u16(), it was expensive when it
-> didn't have any buffered bits and had to call into the crng. That's what caused
-> the enormous tail latency.
-> 
-> 
-> x86 (AWS Sapphire Rapids):
-> +-----------------+--------------+-------------+---------------+
-> | Benchmark       | Result Class |   v6.18-rc5 | per-task-prng |
-> |                 |              | rndstack-on |               |
-> |                 |              |             |               |
-> +=================+==============+=============+===============+
-> | syscall/getpid  | mean (ns)    |  (R) 13.32% |     (R) 4.60% |
-> |                 | p99 (ns)     |  (R) 13.38% |    (R) 18.08% |
-> |                 | p99.9 (ns)   |      16.26% |    (R) 19.38% |
-> +-----------------+--------------+-------------+---------------+
-> | syscall/getppid | mean (ns)    |  (R) 11.96% |     (R) 5.26% |
-> |                 | p99 (ns)     |  (R) 11.83% |     (R) 8.35% |
-> |                 | p99.9 (ns)   |  (R) 11.42% |    (R) 22.37% |
-> +-----------------+--------------+-------------+---------------+
-> | syscall/invalid | mean (ns)    |  (R) 10.58% |     (R) 2.91% |
-> |                 | p99 (ns)     |  (R) 10.51% |     (R) 4.36% |
-> |                 | p99.9 (ns)   |  (R) 10.35% |    (R) 21.97% |
-> +-----------------+--------------+-------------+---------------+
-> 
-> I was surprised to see that the baseline cost on x86 is 10-12% since it is just
-> using rdtsc. But as I say, I believe the results are accurate.
-> 
-> 
-> Changes since v2 (RFC) [3]
-> ==========================
-> 
-> - Moved late_initcall() to initialize kstack_rnd_state out of
->   randomize_kstack.h and into main.c. (issue noticed by kernel test robot)
-> 
-> Changes since v1 (RFC) [2]
-> ==========================
-> 
-> - Introduced patch 2 to make prandom_u32_state() __always_inline (needed since
->   its called from noinstr code)
-> - In patch 3, prng is now per-cpu instead of per-task (per Ard)
-> 
-> 
-> [1] https://lore.kernel.org/all/dd8c37bc-795f-4c7a-9086-69e584d8ab24@arm.com/
-> [2] https://lore.kernel.org/all/20251127105958.2427758-1-ryan.roberts@arm.com/
-> [3] https://lore.kernel.org/all/20251215163520.1144179-1-ryan.roberts@arm.com/
-> 
-> Thanks,
-> Ryan
-> 
-> 
-> Ryan Roberts (3):
->   randomize_kstack: Maintain kstack_offset per task
->   prandom: Convert prandom_u32_state() to __always_inline
->   randomize_kstack: Unify random source across arches
-> 
->  arch/Kconfig                         |  5 ++-
->  arch/arm64/kernel/syscall.c          | 11 ------
->  arch/loongarch/kernel/syscall.c      | 11 ------
->  arch/powerpc/kernel/syscall.c        | 12 -------
->  arch/riscv/kernel/traps.c            | 12 -------
->  arch/s390/include/asm/entry-common.h |  8 -----
->  arch/x86/include/asm/entry-common.h  | 12 -------
->  include/linux/prandom.h              | 19 +++++++++-
->  include/linux/randomize_kstack.h     | 54 +++++++++++-----------------
->  init/main.c                          |  9 ++++-
->  kernel/fork.c                        |  1 +
->  lib/random32.c                       | 19 ----------
->  12 files changed, 49 insertions(+), 124 deletions(-)
-> 
-> --
-> 2.43.0
-> 
+Thomas
