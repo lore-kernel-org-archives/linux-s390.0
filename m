@@ -1,299 +1,134 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4560632ED45
-	for <linux-s390@vger.kernel.org>; Mon, 19 Jan 2026 04:05:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F9092DE70D
+	for <linux-s390@vger.kernel.org>; Mon, 19 Jan 2026 05:37:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768795561; cv=none; b=qXLs4+4P56avpgk8mKRg/iRipuzFegeSWhQlA83dM35ws8+Ioqp1GYPOsqQT2jseGaA2+nV1SKAbiLAAWl5FUMBFAcG9ZZVKcc2uZ2zxxwPRc2hMM/jlE9yGQPH/hzVCdx8/ADPXViYDuBvfQU/e3+BhpOzCiy4uwuXkFs8gJCI=
+	t=1768801072; cv=none; b=VXR/JBLQ61lxO7xvDhxsWIDuW5D8Bznp8kP7rzwnzfPMTWRdowrDzuaxgJZJNJEyN0nyMeAug5uGe5eZFmc/otJYcF4CUZwDPB3pRelgGRH+k/KUNIh1KTjnnzFp6kVL8uvTjPZGur854jmbTHx4oZTNhL2tEdvlr8fbKBx00TI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768795561; c=relaxed/simple;
-	bh=MlQiZHsczuCG7bk02SmnUlxgCfXMKdwjGin7u8Q6OKs=;
+	s=arc-20240116; t=1768801072; c=relaxed/simple;
+	bh=kpZ6kpUv/7LKQiaUs7sFoIfYQd0e2AXe/uijT3vOfW4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qTtqnqYXTfz6RR/ya9XLuEk6E5C2HYmBOftfENlKvrAiNX0CU6aALi5qUl0lLNOYn604LDetrcK0ufTysS8HYTdJLSWjiR2Z8HKrR1MK+RJmYyYWVkhxFKFoygcG7xycPngJVqYhwNg9rXd7u8avyINSlgIIbURGRfy+/zBAIIo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DgXieibL; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=chB39v8t; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=TEHALItCSqUsVscSa1xAfQnsGmE94wLoqOh1sSqydN16L5lAVAkdGU8sGnNsqj0Rtwa+Vkk/3lN64F12eo3aXrA717qyh6sDGjvg1/CPmJR5VM7VG52Gi7sHzRyS8zgNVQ5ONhrB3m8oBJPtLSFPSvBkeI0epT/FfEMnBTEKoeY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=aN32r5M0; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DgXieibL";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="chB39v8t"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768795557;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=rQ/pt5veFEgJZqTxKk8ueI9Za/xjDVCyikH3Hycx4Iw=;
-	b=DgXieibLcMH4HVZrVIFcKrKvJ0SzuBLDD7IZ2Jfjw2O3J/qsAIZ5DpMBOPUM9Slz+g9rym
-	Fmunwn1Zq7DbF0nNd9xJGVSPosBzMAZxWZsemwndLkZvJkGs5Mb3ZBPBRucwT2kTWZHncT
-	yAu8eAgVuJLGlUin2mpn/HMQ5Ut5Rzs=
-Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com
- [209.85.210.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-624-j4iQviXeOtatwMH9li_v8A-1; Sun, 18 Jan 2026 23:05:56 -0500
-X-MC-Unique: j4iQviXeOtatwMH9li_v8A-1
-X-Mimecast-MFC-AGG-ID: j4iQviXeOtatwMH9li_v8A_1768795555
-Received: by mail-pf1-f197.google.com with SMTP id d2e1a72fcca58-804c73088daso2575630b3a.0
-        for <linux-s390@vger.kernel.org>; Sun, 18 Jan 2026 20:05:55 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="aN32r5M0"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2a081c163b0so21270615ad.0
+        for <linux-s390@vger.kernel.org>; Sun, 18 Jan 2026 21:37:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1768795555; x=1769400355; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1768801070; x=1769405870; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=rQ/pt5veFEgJZqTxKk8ueI9Za/xjDVCyikH3Hycx4Iw=;
-        b=chB39v8tobET9/KZ66uFKHE97xMrTZ1ss1TDEDgS64np6sWEoTmBbnIOjSYnVK+8io
-         3FRHnRiCAGMfUuzE2yc17BJbbEDZmNqTqPt8a5hcxmiysN83fXVSlmEh1tLvvDEtka94
-         owfeu/exuMhFCnuDBF5rpDXBPHh4XiaqTORBFdRuBoRjP1PLDRp+jhM4xaSJbOut+l6O
-         u0BgcQQsu4tlCQkKKY+LM/Q3elo5q33UGGVVhoqOX/glbuYwIk+Zt6EA1WJX0pSRwL6p
-         JEypxlsmhHeZ5HjzvRhLrl0k8v5vVouj0mXqtZWBCip6CyN6FPtckonvNMEdgMl1xt1a
-         3dMA==
+        bh=rV07savPRO0IKbzKw21+aHwR+cCqLisS1/gIxq8rFVs=;
+        b=aN32r5M0+IYay5flQUpiovdjwzlOwX4ikkWLriAJV5DLlcr7Th5sxrXH+SLd2l40YE
+         4j27zrpyKMso/mYQch954DuE9KUOlNTNUU5J7UiUvUEeyFzIw1fND1KzwVuK+W/BiyY6
+         KisfHfjJaPn7l99XX0UIkWgZT9rBOqDCiLF64k5hnxGXW1ZS++lC0cfM00gcL4JjQVko
+         RwY3kNa9F02BX37gxGKUSAP6uTcL+eEDc+AnMxz+tDXTzEk4NgHcaBZgTWMc2M978bRU
+         hr7FqIzuedrjPNZE3OLHJy726Ncr0aPTr7GuVZLlsLUS06dIFdXGgMgFw9LNMHKqztNm
+         gXKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768795555; x=1769400355;
+        d=1e100.net; s=20230601; t=1768801070; x=1769405870;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=rQ/pt5veFEgJZqTxKk8ueI9Za/xjDVCyikH3Hycx4Iw=;
-        b=KhO89sYvLk1tORYZv4Y+WCrEALiPjCLbcqZ/cTs43irOEyYAnosORkH1kz7YgV2Ort
-         fgy+lzvrURmN8oZOpotmmrCP0bkLjV273CRkc2VWrYye86gafehqAPWjRVesp3kVv71+
-         aY3bYq9ESYKsylaC2t5jHl6OEoxT/6aHxNSCuFMf6Bs/E3kJLGo3InXgu8n/DV8MTtjH
-         nKb0cvwO/10Bbd8KzrFWEGCg9VELWlmu11Qum7fE2lTRUK9AJ8iVYjnl6b03TGW7UCiG
-         KzOFjUaS6vsLpXGkkCcqpUNvtk7DVeTJcid7jKZdTdDloik4J6MMiFiLGvi/k0d5Hlmm
-         E3YA==
-X-Forwarded-Encrypted: i=1; AJvYcCUHulOWVSL3iO5wOtt7kF+kQhiZ7dGq6bAoX3ly93CBtSguor73FuiMsxBZKQzUBzE4Ermsby0JveC1@vger.kernel.org
-X-Gm-Message-State: AOJu0YyNMRtjvV9to7nLmXY6vtR4pfY3uawFIGc+dChqOQx+3uVqo6Hx
-	TvbPKx6AwOrlzsycxv65usVJba8odApFHSpGcmvozxySFnYICOv/6n4fO5bo+GIFnu8YNu6VfjW
-	jPaAcs8OX24Ot4c03f2vGSyi7trZUvbfCrt7X9vLf1hGpu0/433LE+Adx/31kQ7o=
-X-Gm-Gg: AY/fxX6MxsLRVUlAil3S/QmO4RWaequ1A1Ll/ER8qy9OC25poju0fESXRcCJ1C/+IgY
-	zFbpglzP1hu4snQFT0exz4CtvIzLuxd4ZfrFn1QPV/hEW8YeuvC+Cq8pe2jmz/EtHdmITLNSSFn
-	qjrH3T97vYpEAYaH6AkTfKLRgOdmx7CVbDOhXdY3zBG47vUWkBPbh/DZjm322o9309jNbC1yJ8S
-	p/Bfe90xoSJbGYrO9wxoPw3V1X184TcvafLy9lm/ya7UXvG3pMbEESBeS6vudGyj1O+R8l+ZU96
-	ndsvm91fGdToDfvM895O2RA+NcdNj0VniHACGJDbQ1WNNnO698Dt5RK4Uq6/6oxgDjDCwpsuvbh
-	F
-X-Received: by 2002:aa7:888b:0:b0:81e:b93a:ab09 with SMTP id d2e1a72fcca58-81f8efbbe1amr10668394b3a.1.1768795554631;
-        Sun, 18 Jan 2026 20:05:54 -0800 (PST)
-X-Received: by 2002:aa7:888b:0:b0:81e:b93a:ab09 with SMTP id d2e1a72fcca58-81f8efbbe1amr10668347b3a.1.1768795553931;
-        Sun, 18 Jan 2026 20:05:53 -0800 (PST)
-Received: from localhost ([209.132.188.88])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-81fa10bdc65sm7831738b3a.21.2026.01.18.20.05.52
+        bh=rV07savPRO0IKbzKw21+aHwR+cCqLisS1/gIxq8rFVs=;
+        b=xC4xtCSok57T6iWD4KWSA9lGRMsRYoEjnIcWCR18+0wyYViz+ciNVOtn1Fs297ngv5
+         mJXUo3JqTH3u4DSXtsDQvCD3CXO3Bx25YHaa4RSBFjzxAE679SyndxEh+/yeSTVlpUcA
+         Xr58KQg5wKejjoNdDX0QOrEbhrJ3ZpCQWq7D1jGXuk0ihBj2io29UPG5A9Qr+6U9NE+6
+         UerAMorD2hIny8Co8slztwYVvaGg07uUD7Kfwp1rgkJrMJ9o8BHY6qQQTicYSqORpSCj
+         T66IFTHwpuOGw/oDWNdL/Q8RTLgeW2ZxNQNbPNNMVSPrwuIdRDiJzUbSs6587DAgcOou
+         Gl5w==
+X-Forwarded-Encrypted: i=1; AJvYcCUaKLljGWpcJRoP3QPhIe83KXVMulOcJChFSDue8TqcbRZAd9TffFgwC/IatgxFEn7GIKSBrHM6A6u3@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx2z/xFf4btvNttmUILcAHQQqahxuXud/gCdO2aDX6n63Qtvo/Y
+	eXYz+2bx+BiEgssV0zJG/ikt2yKxqtnKVLLZiYxQ4UbxbCtxhUfYtGNlgrT3+pEO6kt0MCkgdCn
+	/PlL/
+X-Gm-Gg: AZuq6aI+DwGBmNqvMtherWfuhiwaXlfkKx0q8EUAwppzn8WX7cKiP7aYFnFpmkg0e/i
+	HqIDKZv09zEUMB3uujebaTUvJKa9yWullilvHE1WnCg7QxRuovel1NAnVjCiPAisdq8w9MKeSrL
+	N3dwYnLvJ8/eTGR1IOrrKslZ7Zbg6B8PL/Fc6LrZthdY6ByRRQn84bj+s/BROEXbbwRFN66Yybr
+	4ThHJ/JrHmiamTVI3ofsgdr8q6SZT0jiy+QXYZa3mo4n7A+PuoMQ2wguHX0fT9EEllawnu3M3LP
+	t+Qh/xidaW8hUSb7q3ulTDcJZ0ES1V4USB287CvcupVYfX955c8pifgaaz5QpBgjAnGCTuZ/B0M
+	M9RJOiPUOJeiJsnT9WcVfjZS2rRk+Dxkc+pLOZLbQ6LSbOZxhVh1sZiUhN6MxYmVXoY/b5sXGPV
+	V6VH3qzFS2geQ=
+X-Received: by 2002:a17:903:28d:b0:298:efa:511f with SMTP id d9443c01a7336-2a7176c5c7amr104119265ad.39.1768801070083;
+        Sun, 18 Jan 2026 21:37:50 -0800 (PST)
+Received: from localhost ([122.172.80.63])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a7190eee4fsm81033725ad.42.2026.01.18.21.37.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 18 Jan 2026 20:05:53 -0800 (PST)
-Date: Mon, 19 Jan 2026 12:04:04 +0800
-From: Coiby Xu <coxu@redhat.com>
-To: Ard Biesheuvel <ardb@kernel.org>, Mimi Zohar <zohar@linux.ibm.com>
-Cc: linux-integrity@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, 
-	Roberto Sassu <roberto.sassu@huaweicloud.com>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+        Sun, 18 Jan 2026 21:37:49 -0800 (PST)
+Date: Mon, 19 Jan 2026 11:07:47 +0530
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: Frederic Weisbecker <frederic@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, 
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Anna-Maria Behnsen <anna-maria@linutronix.de>, 
+	Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Dietmar Eggemann <dietmar.eggemann@arm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, 
+	Jan Kiszka <jan.kiszka@siemens.com>, Joel Fernandes <joelagnelf@nvidia.com>, 
+	Juri Lelli <juri.lelli@redhat.com>, Kieran Bingham <kbingham@kernel.org>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Mel Gorman <mgorman@suse.de>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Neeraj Upadhyay <neeraj.upadhyay@kernel.org>, 
+	Nicholas Piggin <npiggin@gmail.com>, "Paul E . McKenney" <paulmck@kernel.org>, 
+	Peter Zijlstra <peterz@infradead.org>, Steven Rostedt <rostedt@goodmis.org>, 
 	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, 
-	"maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, 
-	Roberto Sassu <roberto.sassu@huawei.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, 
-	Eric Snowberg <eric.snowberg@oracle.com>, Paul Moore <paul@paul-moore.com>, 
-	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	Jarkko Sakkinen <jarkko@kernel.org>, 
-	"moderated list:ARM64 PORT (AARCH64 ARCHITECTURE)" <linux-arm-kernel@lists.infradead.org>, open list <linux-kernel@vger.kernel.org>, 
-	"open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" <linuxppc-dev@lists.ozlabs.org>, "open list:S390 ARCHITECTURE" <linux-s390@vger.kernel.org>, 
-	"open list:EXTENSIBLE FIRMWARE INTERFACE (EFI)" <linux-efi@vger.kernel.org>, 
-	"open list:SECURITY SUBSYSTEM" <linux-security-module@vger.kernel.org>, "open list:KEYS/KEYRINGS_INTEGRITY" <keyrings@vger.kernel.org>
-Subject: Re: [PATCH 1/3] integrity: Make arch_ima_get_secureboot
- integrity-wide
-Message-ID: <aW2i3yacr5TvWU-m@Rk>
-References: <20260115004328.194142-1-coxu@redhat.com>
- <20260115004328.194142-2-coxu@redhat.com>
- <CAMj1kXFXNo1-pMbo-VZrjQ3TYe1tufebrLr_avL12A0nHMSGnA@mail.gmail.com>
- <8bfa859ed3a4f1cf0db0ab64d8c1c3b24684582a.camel@linux.ibm.com>
- <CAMj1kXHsJNZoUEnbD1y=v4Ftuv9d2c08VckRV7ru4k4P83vZbQ@mail.gmail.com>
- <97b69bc79a5d9246f7a399510908c7b95b2e95e7.camel@linux.ibm.com>
- <CAMj1kXGx4ebaK87W7k0SNUNQnO9+=z1nmYxXC7retmp3OqRRFg@mail.gmail.com>
- <ac5e5e45c12e9b0bda19807e60b06057d74be0b3.camel@linux.ibm.com>
+	Uladzislau Rezki <urezki@gmail.com>, Valentin Schneider <vschneid@redhat.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Vincent Guittot <vincent.guittot@linaro.org>, 
+	Xin Zhao <jackzxcui1989@163.com>, linux-pm@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org
+Subject: Re: [PATCH 07/15] cpufreq: ondemand: Simplify idle cputime
+ granularity test
+Message-ID: <rnnx7nges4otjixz4n62q7vtgrdcphepbkpmdntupbdft2yvi7@b3ong66tikoh>
+References: <20260116145208.87445-1-frederic@kernel.org>
+ <20260116145208.87445-8-frederic@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ac5e5e45c12e9b0bda19807e60b06057d74be0b3.camel@linux.ibm.com>
+In-Reply-To: <20260116145208.87445-8-frederic@kernel.org>
 
-On Sun, Jan 18, 2026 at 01:25:52PM -0500, Mimi Zohar wrote:
->On Fri, 2026-01-16 at 18:27 +0100, Ard Biesheuvel wrote:
+On 16-01-26, 15:52, Frederic Weisbecker wrote:
+> cpufreq calls get_cpu_idle_time_us() just to know if idle cputime
+> accounting has a nanoseconds granularity.
+> 
+> Use the appropriate indicator instead to make that deduction.
+> 
+> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+> ---
+>  drivers/cpufreq/cpufreq_ondemand.c | 7 +------
+>  1 file changed, 1 insertion(+), 6 deletions(-)
+> 
+> diff --git a/drivers/cpufreq/cpufreq_ondemand.c b/drivers/cpufreq/cpufreq_ondemand.c
+> index a6ecc203f7b7..2d52ee035702 100644
+> --- a/drivers/cpufreq/cpufreq_ondemand.c
+> +++ b/drivers/cpufreq/cpufreq_ondemand.c
+> @@ -334,17 +334,12 @@ static void od_free(struct policy_dbs_info *policy_dbs)
+>  static int od_init(struct dbs_data *dbs_data)
+>  {
+>  	struct od_dbs_tuners *tuners;
+> -	u64 idle_time;
+> -	int cpu;
+>  
+>  	tuners = kzalloc(sizeof(*tuners), GFP_KERNEL);
+>  	if (!tuners)
+>  		return -ENOMEM;
+>  
+> -	cpu = get_cpu();
+> -	idle_time = get_cpu_idle_time_us(cpu, NULL);
+> -	put_cpu();
+> -	if (idle_time != -1ULL) {
+> +	if (tick_nohz_enabled) {
+>  		/* Idle micro accounting is supported. Use finer thresholds */
+>  		dbs_data->up_threshold = MICRO_FREQUENCY_UP_THRESHOLD;
+>  	} else {
 
-Hi Ard and Mimi,
-
-Thanks for your discussion on improving the patch!
-
->> On Fri, 16 Jan 2026 at 17:39, Mimi Zohar <zohar@linux.ibm.com> wrote:
->> >
->> > On Fri, 2026-01-16 at 14:18 +0100, Ard Biesheuvel wrote:
->> > > On Fri, 16 Jan 2026 at 14:11, Mimi Zohar <zohar@linux.ibm.com> wrote:
->> > > >
->> > > > On Fri, 2026-01-16 at 10:41 +0100, Ard Biesheuvel wrote:
->> > > > > On Thu, 15 Jan 2026 at 01:43, Coiby Xu <coxu@redhat.com> wrote:
->> > > > > >
->> > > > > > EVM and other LSMs need the ability to query the secure boot status of
->> > > > > > the system, without directly calling the IMA arch_ima_get_secureboot
->> > > > > > function. Refactor the secure boot status check into a general,
->> > > > > > integrity-wide function named arch_integrity_get_secureboot.
->> > > > > >
->> > > > > > Define a new Kconfig option CONFIG_INTEGRITY_SECURE_BOOT, which is
->> > > > > > automatically configured by the supported architectures. The existing
->> > > > > > IMA_SECURE_AND_OR_TRUSTED_BOOT Kconfig loads the architecture specific
->> > > > > > IMA policy based on the refactored secure boot status code.
->> > > > > >
->> > > > > > Reported-and-suggested-by: Mimi Zohar <zohar@linux.ibm.com>
->> > > > > > Suggested-by: Roberto Sassu <roberto.sassu@huaweicloud.com>
->> > > > > > Signed-off-by: Coiby Xu <coxu@redhat.com>
->> > > > > > ---
->> > > > > >  arch/arm64/Kconfig                            |  1 +
->> > > > > >  arch/powerpc/Kconfig                          |  1 +
->> > > > > >  arch/powerpc/kernel/Makefile                  |  2 +-
->> > > > > >  arch/powerpc/kernel/ima_arch.c                |  5 --
->> > > > > >  arch/powerpc/kernel/integrity_sb_arch.c       | 13 +++++
->> > > > > >  arch/s390/Kconfig                             |  1 +
->> > > > > >  arch/s390/kernel/Makefile                     |  1 +
->> > > > > >  arch/s390/kernel/ima_arch.c                   |  6 --
->> > > > > >  arch/s390/kernel/integrity_sb_arch.c          |  9 +++
->> > > > > >  arch/x86/Kconfig                              |  1 +
->> > > > > >  arch/x86/include/asm/efi.h                    |  4 +-
->> > > > > >  arch/x86/platform/efi/efi.c                   |  2 +-
->> > > > > >  include/linux/ima.h                           |  7 +--
->> > > > > >  include/linux/integrity.h                     |  8 +++
->> > > > > >  security/integrity/Kconfig                    |  6 ++
->> > > > > >  security/integrity/Makefile                   |  3 +
->> > > > > >  security/integrity/efi_secureboot.c           | 56 +++++++++++++++++++
->> > > > > >  security/integrity/ima/ima_appraise.c         |  2 +-
->> > > > > >  security/integrity/ima/ima_efi.c              | 47 +---------------
->> > > > > >  security/integrity/ima/ima_main.c             |  4 +-
->> > > > > >  security/integrity/platform_certs/load_uefi.c |  2 +-
->> > > > > >  21 files changed, 111 insertions(+), 70 deletions(-)
->> > > > > >  create mode 100644 arch/powerpc/kernel/integrity_sb_arch.c
->> > > > > >  create mode 100644 arch/s390/kernel/integrity_sb_arch.c
->> > > > > >  create mode 100644 security/integrity/efi_secureboot.c
->> > > > > >
->> > > > > > diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
->> > > > > > index 93173f0a09c7..4c265b7386bb 100644
->> > > > > > --- a/arch/arm64/Kconfig
->> > > > > > +++ b/arch/arm64/Kconfig
->> > > > > > @@ -2427,6 +2427,7 @@ config EFI
->> > > > > >         select EFI_STUB
->> > > > > >         select EFI_GENERIC_STUB
->> > > > > >         imply IMA_SECURE_AND_OR_TRUSTED_BOOT
->> > > > > > +       imply INTEGRITY_SECURE_BOOT
->> > > > >
->> > > > > This allows both to be en/disabled individually, which I don't think
->> > > > > is what we want. It also results in more churn across the
->> > > > > arch-specific Kconfigs than needed.
->> > > > >
->> > > > > Wouldn't it be better if IMA_SECURE_AND_OR_TRUSTED_BOOT 'select'ed
->> > > > > INTEGRITY_SECURE_BOOT in its Kconfig definition?
->> > > >
->> > > > As much as possible, EVM (and other LSMs) shouldn't be dependent on another LSM,
->> > > > in this case IMA, being configured.
->> > >
->> > > Sure, but that is not my point.
->> > >
->> > > This arrangement allows for IMA_SECURE_AND_OR_TRUSTED_BOOT to be
->> > > enabled without INTEGRITY_SECURE_BOOT, resulting in the stub
->> > > implementation of arch_integrity_get_secureboot() being used, which
->> > > always returns false.
-
-Since both INTEGRITY_SECURE_BOOT and IMA_SECURE_AND_OR_TRUSTED_BOOT
-don't define a prompt, they are not user-configurable and will always be
-enable/disabled together with arch-specific secure boot feature. So
-despite the "imply" key word, the case where
-IMA_SECURE_AND_OR_TRUSTED_BOOT is enabled whereas INTEGRITY_SECURE_BOOT
-is disabled won't happen.
-
-But I agree an arch may not care much about INTEGRITY_SECURE_BOOT so it
-may be a churn. So limiting it to the scope of the integrity subsystem
-can be a better idea.
-
->> >
->> > I understand your concern, but instead of "select"ing INTEGRITY_SECURE_BOOT from
->> > IMA_SECURE_AND_OR_TRUSTED_BOOT, how making IMA_SECURE_AND_OR_TRUSTED_BOOT
->> > dependent on both IMA_ARCH_POLICY and INTEGRITY_SECURE_BOOT.
->> >
->>
->> Given that INTEGRITY_SECURE_BOOT has no dependencies of its own,
->> afaict, selecting it is the least disruptive option, as otherwise,
->> existing configs will disable IMA_SECURE_AND_OR_TRUSTED_BOOT as the
->> kernel is being upgraded. But conceptually, I agree that they are
->> equivalent.
-
-As already pointed out on by Mimi, INTEGRITY_SECURE_BOOT depend on
-arch-specific secure boot feature. So we can't say INTEGRITY_SECURE_BOOT
-has no dependencies. 
-
->>
->> > Including the "imply INTEGRITY_SECURE_BOOT" here in the arch Kconfig allows EVM
->> > to query the secure boot state without relying on IMA_SECURE_AND_OR_TRUSTED_BOOT
->> > being configured.
->>
->> Yes, I understand that this is the whole point of the exercise. But
->> 'imply' should be used with care, and in this case, implying both from
->> CONFIG_EFI really makes little sense. INTEGRITY_SECURE_BOOT should be
->> selected by options that need the functionality, not 'implied' by
->> options that might provide it.
-
-But again I agree INTEGRITY_SECURE_BOOT should "not 'implied' by options
-that might provide it".
-
->
->As not all arch's implement arch_integrity_get_secureboot, the definition in
->include/linux/integrity.h would need to be updated.  Something like:
->
->-#ifdef CONFIG_INTEGRITY_SECURE_BOOT
->+#if (defined(CONFIG_INTEGRITY_SECURE_BOOT) && \
->+       (defined(CONFIG_X86) && defined(CONFIG_EFI)) || defined(CONFIG_S390) \
->+        || defined(CONFIG_PPC_SECURE_BOOT))
->
->Then IMA_SECURE_AND_OR_TRUSTED_BOOT and EVM could select INTEGRITY_SECURE_BOOT,
->as suggested.
-
-Since INTEGRITY_SECURE_BOOT has a dependency, select doesn't seem to be
-a good choice. If EVM does select INTEGRITY_SECURE_BOOT,
-INTEGRITY_SECURE_BOOT will be enabled even if arch-specific secure boot
-feature is disabled and this can lead to a building failure. How about
-always enabling INTEGRITY_SECURE_BOOT when secure boot feature is
-enabled and also making IMA_SECURE_AND_OR_TRUSTED_BOOT depend on
-INTEGRITY_SECURE_BOOT?
-
-diff --git a/security/integrity/Kconfig b/security/integrity/Kconfig
-index 916d4f2bfc44..cd44b46d0325 100644
---- a/security/integrity/Kconfig
-+++ b/security/integrity/Kconfig
-@@ -97,6 +97,13 @@ config INTEGRITY_CA_MACHINE_KEYRING_MAX
-           will not be loaded. The remaining MOK keys are loaded into the
-           .platform keyring.
-  
-+config INTEGRITY_SECURE_BOOT
-+       def_bool y
-+       depends on EFI || PPC_SECURE_BOOT || S390
-+       help
-+         Provide secure boot related helper functions like querying the
-+         secure boot status.
-+
-
-diff --git a/security/integrity/ima/Kconfig b/security/integrity/ima/Kconfig
-index 976e75f9b9ba..5dce572192d6 100644
---- a/security/integrity/ima/Kconfig
-+++ b/security/integrity/ima/Kconfig
-@@ -311,6 +311,7 @@ config IMA_QUEUE_EARLY_BOOT_KEYS
-  config IMA_SECURE_AND_OR_TRUSTED_BOOT
-         bool
-         depends on IMA_ARCH_POLICY
-+       depends on INTEGRITY_SECURE_BOOT
-
-
-Another idea is make a tree-wide arch_get_secureboot i.e. to move
-current arch_ima_get_secureboot code to arch-specific secure boot
-implementation. By this way, there will no need for a new Kconfig option
-INTEGRITY_SECURE_BOOT. But I'm not sure if there is any unforeseen
-concern.
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
 
 -- 
-Best regards,
-Coiby
-
+viresh
