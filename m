@@ -1,93 +1,101 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2495E36999D;
-	Mon, 19 Jan 2026 13:41:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0087F37B3FD;
+	Mon, 19 Jan 2026 14:26:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768830078; cv=none; b=cp2epA1DW5DZC3bQlO/CvmtGPAVnfC2EvYtqOSG6Kcd5nUmilVdrcZ7WvOXld7cuEoR07pzi7nNJZLPmFd2/PWoUKsTVarVh4TZwgzvB7T3buLsk/CvW2nodAPhNq16QdRCFfHU/7joScK+1b8YUne27TXxKK5qdkzBicJePlZ8=
+	t=1768832784; cv=none; b=swvSPb6XAOCAXcRGZmUAhF3o0B+EOGhQOygkzE1diDuzEQhwthyV2VFVm6Ui8AJ6eNyBu9W2cUd5PGYxCWl6ll3awrRiOiWof5/Kh4oYQ2y/PXz7NFYpK9lkmJpJHzEfx9ApgVgeOucsuzK73XvEOSEtFW6TmmXkzAO5XLszbTc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768830078; c=relaxed/simple;
-	bh=oVdx3cIc0dMEnIutawq+qTTWCVNcuBjYE9hqwaaxoM4=;
+	s=arc-20240116; t=1768832784; c=relaxed/simple;
+	bh=m6aD/X2y0FNcAmZ9GWybNcS/CHc+XooX2ctcxGXuAmw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XGC+40Evsk7ojb+giTXlu1luA3mjEprVo96YYXHMt4p34e7KnG7J6us/5uMDqYSufTBjars0k9u+icUbjCSlq0T+CJMSjhu/Xwirl9bYlwCo2PQS9u1CH6Ha65gG2U0RM0fa1GDtCq977Fk66vx7d5TdjjKwes88br3RGV2Ax5g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=jaNERwwI; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=eLEuXHsn; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	 Content-Type:Content-Disposition:In-Reply-To; b=s2M+PEAyyQ/k+8xivTbiBtcOTWdu8gtv3ZJC+W+pigQQX6vMZJELJipu5AQ2U6xzYk1pWoeUZETM8M7pslUeV6MSaDMufZh9RkmV8JNmuIK/FrsJxDZfmeCnfORjp/pdfw8bAKCzVHB1/6IICWQW4YMJOZUcDqZ0C1bJDYHY0Ek=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=phVpzmPF; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="jaNERwwI";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="eLEuXHsn"
-Date: Mon, 19 Jan 2026 14:41:09 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1768830075;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=v8DQuCSjqZcOp0ukZjubxvPi4HiOBJqZty0BJ1RXCO4=;
-	b=jaNERwwIwOe8s10At6ZYavtCo9DOHAtmhY/ziVl8LqVmv4uM0FcaONWPZWA6XrGza9SLqG
-	yvMmuKZNPJVwTY2tCIJ+beFIG6OvLzMyiHFBU7On5tpEU49O3rxQRsLUztqJLXVBXLD0ZZ
-	lZNkFCIubGb0JSeGwom5yIxIl2eWauzcqtvFQVJR4LxA4K8SYrn4u9tj3ThUXwY085PwnH
-	yM+kuMCMBHwHJTU9BEiQzZUpbwzO3Mc/0xCSpsnlH4ezTyBkqn5Suf8499oPPUwztc0p78
-	de2C74kHoo87muA5eGS/tDJ5oxZvY+hJF3cj0Ywi35Jr2+1c9brb/kzcC2pMzQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1768830075;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=v8DQuCSjqZcOp0ukZjubxvPi4HiOBJqZty0BJ1RXCO4=;
-	b=eLEuXHsnNhwpAu5MO+KusHxbyTsxnbvRmPuhpR4aYjFbn3FIMd1vbkN9DFtK0CZC2BXUpo
-	05BX7Va86/oRcdCQ==
-From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: David Laight <david.laight.linux@gmail.com>, 
-	"David S . Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
-	Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Linux-Arch <linux-arch@vger.kernel.org>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 4/4] asm-generic/bitsperlong.h: Add sanity checks for
- __BITS_PER_LONG
-Message-ID: <20260119143735-ca5b7901-b501-4cb8-8e5d-10f4e2f8b650@linutronix.de>
-References: <20260116-vdso-compat-checkflags-v1-0-4a83b4fbb0d3@linutronix.de>
- <20260116-vdso-compat-checkflags-v1-4-4a83b4fbb0d3@linutronix.de>
- <20260119100619.479bcff3@pumpkin>
- <20260119111037-4decf57f-2094-4fac-bcf4-03506791b197@linutronix.de>
- <20260119103758.3afb5927@pumpkin>
- <20260119114526-a15e7172-fc4c-40d0-a651-7c4a21acb1c8@linutronix.de>
- <72a2744a-debc-4d8f-b418-5d6a595c2578@app.fastmail.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="phVpzmPF"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=J7YR6Ss4GR1p+SXEIbKvrV+9SeOL7XVCLDPQxRbp/9Q=; b=phVpzmPFu1Lg5Wwsu+BOkmfOW+
+	7MEiiANgQ2k/WAjssImTBsBtsTReEql3LfWeR3eFCTJMcXjNSQuIO7LbmizlIxbjd7SrLLSKCcBSp
+	aDO/nN6wrUdvONoFpb1boJnDyyb9lER3VTnG9922Knms3+B9j6HFUVGinLdmiEyvhWAyM1emPfId0
+	3ejQrUhO0sHyp8rUFpwu26JS3ZZq0CPSKVHkIzEgF64hdM1+c+1BQTsyQUJrF/KtLBbP6GFbLLb2j
+	Jm6wiXTO8fSdUEnK92SIQIyQQDwiIUBCAg2WEYqWULtN4+kC03qtQtM6yeOYdsHHp/DqXmbnbADUG
+	Oa7LNwWA==;
+Received: from 2001-1c00-8d85-5700-266e-96ff-fe07-7dcc.cable.dynamic.v6.ziggo.nl ([2001:1c00:8d85:5700:266e:96ff:fe07:7dcc] helo=noisy.programming.kicks-ass.net)
+	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1vhqCm-0000000CGLf-3TCN;
+	Mon, 19 Jan 2026 14:26:09 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id DA8703006CD; Mon, 19 Jan 2026 15:26:07 +0100 (CET)
+Date: Mon, 19 Jan 2026 15:26:07 +0100
+From: Peter Zijlstra <peterz@infradead.org>
+To: Frederic Weisbecker <frederic@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Anna-Maria Behnsen <anna-maria@linutronix.de>,
+	Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
+	Jan Kiszka <jan.kiszka@siemens.com>,
+	Joel Fernandes <joelagnelf@nvidia.com>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Kieran Bingham <kbingham@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Mel Gorman <mgorman@suse.de>, Michael Ellerman <mpe@ellerman.id.au>,
+	Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Paul E . McKenney" <paulmck@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Valentin Schneider <vschneid@redhat.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Viresh Kumar <viresh.kumar@linaro.org>,
+	Xin Zhao <jackzxcui1989@163.com>, linux-pm@vger.kernel.org,
+	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Subject: Re: [PATCH 06/15] tick/sched: Unify idle cputime accounting
+Message-ID: <20260119142607.GG830229@noisy.programming.kicks-ass.net>
+References: <20260116145208.87445-1-frederic@kernel.org>
+ <20260116145208.87445-7-frederic@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <72a2744a-debc-4d8f-b418-5d6a595c2578@app.fastmail.com>
+In-Reply-To: <20260116145208.87445-7-frederic@kernel.org>
 
-On Mon, Jan 19, 2026 at 01:45:04PM +0100, Arnd Bergmann wrote:
-> On Mon, Jan 19, 2026, at 11:56, Thomas Weißschuh wrote:
-> > On Mon, Jan 19, 2026 at 10:37:58AM +0000, David Laight wrote:
-> >> 
-> >> Don't you need a check that it isn't wrong on a user system?
-> >> Which is what I thought it was doing.
-> >
-> > Not really. The overrides defined by arch/*/include/uapi/asm/bitsperlong.h are
-> > being tested here. If they work in the kernel build I assume they also work
-> > in userspace.
-> 
-> I think You could just move check into include/asm-generic/bitsperlong.h
-> to make this more obvious with the #ifdef __KERNEL__, and remove the
-> disabled check from my original version there.
+On Fri, Jan 16, 2026 at 03:51:59PM +0100, Frederic Weisbecker wrote:
 
-Ok. I'd like to keep your existing test though, as it tests something different
-and it would be nice to have that too at some point.
+> +#ifdef CONFIG_NO_HZ_COMMON
+> +void kcpustat_dyntick_start(void)
+> +{
+> +	if (!vtime_generic_enabled_this_cpu()) {
+> +		vtime_dyntick_start();
+> +		__this_cpu_write(kernel_cpustat.idle_dyntick, 1);
+> +	}
+> +}
 
+Why don't we need to make sure steal time is up-to-date at this point?
 
-Thomas
+> +void kcpustat_dyntick_stop(void)
+> +{
+> +	if (!vtime_generic_enabled_this_cpu()) {
+> +		__this_cpu_write(kernel_cpustat.idle_dyntick, 0);
+> +		vtime_dyntick_stop();
+> +		steal_account_process_time(ULONG_MAX);
+> +	}
+> +}
+> +#endif /* CONFIG_NO_HZ_COMMON */
