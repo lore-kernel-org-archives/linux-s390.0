@@ -1,25 +1,25 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 1539731D750;
-	Mon, 19 Jan 2026 12:58:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id E507136212B;
+	Mon, 19 Jan 2026 13:00:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768827541; cv=none; b=Fe2vimVnlTwXiyyEYd5Cdmj0KGOUfq4V9u+AFKlCERxHmQkIXmAdR9RJbvbnUDu2N40uOTzzEmu2KFvpPLSPriS1o5OsYoOCtZIP/bNVfacar5gTfKgkPIPUO3TzU6k2ia+oQeg0lQRethtDbtpfFHqRaXeOGhdPd+h3gtmu7K0=
+	t=1768827606; cv=none; b=JFrmBWQe5qLyri5Fp++PPXTbjPISHgfyQtVMIMLlKdLlHrKbHW98Q6vB9l8zvBoSrIk4bILjb5Wz+xsuCfWtePlbkILMDSOkrSWwlta/4WDXa+XT0hYjgBXs3Q6S7R4hKKowWzO4ioX3tpIbNyKIu6S2dvWEvw3Ngt6+Pnkz1t8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768827541; c=relaxed/simple;
-	bh=NttKztIOy0IasX59E5ekHublqridOFTmX2aRWJnlsmY=;
+	s=arc-20240116; t=1768827606; c=relaxed/simple;
+	bh=R+3nwdRynboPRKN0wMkyKYy7AfSC7YOCXWI9kb02krc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YhfydNk3tpRrWDULjkeJ7oK/op38dmZuO8nP+31M8wJw+GoccbMwGWEFdwrQ0T+maVmGDmlQH1UV1yYoQ+Q3xRgEB1xf2SkFIoG66UuKSiNzjsxkU/BTOYeHdeC6pkFvWf9QXwEa/5ESz2zEmRE3pwYYYjKKlLSsEP1PJkTfGu4=
+	 In-Reply-To:Content-Type; b=LznBwFMbTJYZURQfG669BHe5ByZA8ympccw6FIYFWaUYuRjx33LAmnSeU+jUwArHuIiQQg826RMC4Ui3Sa1KyaYTMnOfWBxddju13ijl2540q2P3jpYNPLBTcTexIXollMmWBpDar0mKrNksEYdfKJBkCv+BIIImvBNETEAsWlc=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C31E1497;
-	Mon, 19 Jan 2026 04:58:52 -0800 (PST)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id AE1A4497;
+	Mon, 19 Jan 2026 04:59:56 -0800 (PST)
 Received: from [10.57.93.204] (unknown [10.57.93.204])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CEBCD3F740;
-	Mon, 19 Jan 2026 04:58:54 -0800 (PST)
-Message-ID: <95da406c-e8e9-4029-bdbe-845322037be5@arm.com>
-Date: Mon, 19 Jan 2026 12:58:53 +0000
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id F3DC63F740;
+	Mon, 19 Jan 2026 04:59:58 -0800 (PST)
+Message-ID: <d3573f72-e476-43ba-8929-c3b6931d06f2@arm.com>
+Date: Mon, 19 Jan 2026 12:59:57 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -30,10 +30,9 @@ User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v3 0/3] Fix bugs and performance of kstack offset
  randomisation
 Content-Language: en-GB
-To: David Laight <david.laight.linux@gmail.com>,
- Mark Rutland <mark.rutland@arm.com>
-Cc: Kees Cook <kees@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>,
- Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+To: Mark Rutland <mark.rutland@arm.com>, Kees Cook <kees@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Huacai Chen <chenhuacai@kernel.org>,
  Madhavan Srinivasan <maddy@linux.ibm.com>,
  Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <pjw@kernel.org>,
  Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
@@ -49,108 +48,150 @@ Cc: Kees Cook <kees@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>,
  linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
  linux-hardening@vger.kernel.org
 References: <20260102131156.3265118-1-ryan.roberts@arm.com>
- <aW4NC9P3K7Ab_e8j@J2N7QTR9R3> <20260119122248.30974c78@pumpkin>
+ <aW4NC9P3K7Ab_e8j@J2N7QTR9R3>
 From: Ryan Roberts <ryan.roberts@arm.com>
-In-Reply-To: <20260119122248.30974c78@pumpkin>
+In-Reply-To: <aW4NC9P3K7Ab_e8j@J2N7QTR9R3>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 19/01/2026 12:22, David Laight wrote:
-> On Mon, 19 Jan 2026 10:52:59 +0000
-> Mark Rutland <mark.rutland@arm.com> wrote:
+On 19/01/2026 10:52, Mark Rutland wrote:
+> On Fri, Jan 02, 2026 at 01:11:51PM +0000, Ryan Roberts wrote:
+>> Hi All,
 > 
->> On Fri, Jan 02, 2026 at 01:11:51PM +0000, Ryan Roberts wrote:
->>> Hi All,  
+> Hi Ryan,
+> 
+>> As I reported at [1], kstack offset randomisation suffers from a couple of bugs
+>> and, on arm64 at least, the performance is poor. This series attempts to fix
+>> both; patch 1 provides back-portable fixes for the functional bugs. Patches 2-3
+>> propose a performance improvement approach.
 >>
->> Hi Ryan,
+>> I've looked at a few different options but ultimately decided that Jeremy's
+>> original prng approach is the fastest. I made the argument that this approach is
+>> secure "enough" in the RFC [2] and the responses indicated agreement.
+> 
+> FWIW, the series all looks good to me. I understand you're likely to
+> spin a v4 with a couple of minor tweaks (fixing typos and adding an
+> out-of-line wrapper for a prandom function), but I don't think there's
+> anything material that needs to change.
+
+Thanks for the review, Mark! v4 incomming...
+
+> 
+> I've given my Ack on all three patches. I've given the series a quick
+> boot test (atop v6.19-rc4) with a bunch of debug options enabled, and
+> all looks well.
+> 
+> Kees, do you have any comments? It would be nice if we could queue this
+> up soon.
+> 
+> Mark.
+> 
+>> More details in the commit logs.
 >>
->>> As I reported at [1], kstack offset randomisation suffers from a couple of bugs
->>> and, on arm64 at least, the performance is poor. This series attempts to fix
->>> both; patch 1 provides back-portable fixes for the functional bugs. Patches 2-3
->>> propose a performance improvement approach.
->>>
->>> I've looked at a few different options but ultimately decided that Jeremy's
->>> original prng approach is the fastest. I made the argument that this approach is
->>> secure "enough" in the RFC [2] and the responses indicated agreement.  
 >>
->> FWIW, the series all looks good to me. I understand you're likely to
->> spin a v4 with a couple of minor tweaks (fixing typos and adding an
->> out-of-line wrapper for a prandom function), but I don't think there's
->> anything material that needs to change.
+>> Performance
+>> ===========
 >>
->> I've given my Ack on all three patches. I've given the series a quick
->> boot test (atop v6.19-rc4) with a bunch of debug options enabled, and
->> all looks well.
+>> Mean and tail performance of 3 "small" syscalls was measured. syscall was made
+>> 10 million times and each individually measured and binned. These results have
+>> low noise so I'm confident that they are trustworthy.
 >>
->> Kees, do you have any comments? It would be nice if we could queue this
->> up soon.
-> 
-> I don't want to stop this being queued up in its current form.
-> But I don't see an obvious need for multiple per-cpu prng
-> (there are a couple of others lurking), surely one will do.
-
-I see 2 other per-cpu prngs; one for BPF and one for the scheduler. The state is
-16 bytes per prng, per cpu. So personally I think the maintainability advantages
-of keeping them separate to their respective subsystems wins out vs the memory
-cost in this particular case?
-
-> 
-> How much overhead does the get_cpu_var() add?
-> I think it has to disable pre-emption (or interrupts) which might
-> be more expensive on non-x86 (which can just do 'inc %gs:address').
-
-The RFC used a per-task prng, then v2 switched to per-cpu. Performance numbers
-can be compared from those 2 for arm64 only (the x86 numbers are from different
-systems in the 2 version):
-
-RFC: https://lore.kernel.org/all/20251127105958.2427758-3-ryan.roberts@arm.com/
-v2: https://lore.kernel.org/all/20251215163520.1144179-4-ryan.roberts@arm.com/
-
-+-----------------+--------------+---------------+---------------+
-| Benchmark       | Result Class | per-task-prng |  per-cpu-prng |
-|                 |              |         arm64 |         arm64 |
-+=================+==============+===============+===============+
-| syscall/getpid  | mean (ns)    |   (I) -10.54% |    (I) -9.50% |
-|                 | p99 (ns)     |   (I) -59.53% |   (I) -59.24% |
-|                 | p99.9 (ns)   |   (I) -59.90% |   (I) -59.52% |
-+-----------------+--------------+---------------+---------------+
-| syscall/getppid | mean (ns)    |   (I) -10.49% |    (I) -9.52% |
-|                 | p99 (ns)     |   (I) -59.83% |   (I) -59.25% |
-|                 | p99.9 (ns)   |   (I) -59.88% |   (I) -59.50% |
-+-----------------+--------------+---------------+---------------+
-| syscall/invalid | mean (ns)    |    (I) -9.28% |   (I) -10.31% |
-|                 | p99 (ns)     |   (I) -61.06% |   (I) -60.79% |
-|                 | p99.9 (ns)   |   (I) -61.40% |   (I) -61.04% |
-+-----------------+--------------+---------------+---------------+
-
-So getpid and getppid are a small amount better with per-task. invalid is a
-small amount better with per-cpu. I decided that it's likely mostly noise and
-per-cpu is therefore preferable since it costs (a bit) less memory.
-
-> 
-> I'm sure I remember a version that used a per-task prng.
-
-Yes; as per above.
-
-> That just needs 'current' - which might be known and/or be cheaper
-> to get.
-> (Although I also remember a reference some system where it was slow...)
-> 
-> The other option is just to play 'fast and loose' with the prng data.
-> Using the state from the 'wrong cpu' (if the code is pre-empted) won't
-> really matter.
-> You might get a RrwW (or even RrwrwW) sequence, but the prng won't be used
-> for anything 'really important' so it shouldn't matter.
-
-As per above, I'm not really seeing much performance cost.
-
-My opinion is that this series represents an improvement over what's already
-there. I'd be happy to review an additional series to merge per-cpu prngs, but I
-don't think that should be a prerequisite for getting this series merged.
-
-Thanks,
-Ryan
-
-> 
-> 	David
+>> The baseline is v6.18-rc5 with stack randomization turned *off*. So I'm showing
+>> performance cost of turning it on without any changes to the implementation,
+>> then the reduced performance cost of turning it on with my changes applied.
+>>
+>> **NOTE**: The below results were generated using the RFC patches but there is no
+>> meaningful change, so the numbers are still valid.
+>>
+>> arm64 (AWS Graviton3):
+>> +-----------------+--------------+-------------+---------------+
+>> | Benchmark       | Result Class |   v6.18-rc5 | per-task-prng |
+>> |                 |              | rndstack-on |               |
+>> |                 |              |             |               |
+>> +=================+==============+=============+===============+
+>> | syscall/getpid  | mean (ns)    |  (R) 15.62% |     (R) 3.43% |
+>> |                 | p99 (ns)     | (R) 155.01% |     (R) 3.20% |
+>> |                 | p99.9 (ns)   | (R) 156.71% |     (R) 2.93% |
+>> +-----------------+--------------+-------------+---------------+
+>> | syscall/getppid | mean (ns)    |  (R) 14.09% |     (R) 2.12% |
+>> |                 | p99 (ns)     | (R) 152.81% |         1.55% |
+>> |                 | p99.9 (ns)   | (R) 153.67% |         1.77% |
+>> +-----------------+--------------+-------------+---------------+
+>> | syscall/invalid | mean (ns)    |  (R) 13.89% |     (R) 3.32% |
+>> |                 | p99 (ns)     | (R) 165.82% |     (R) 3.51% |
+>> |                 | p99.9 (ns)   | (R) 168.83% |     (R) 3.77% |
+>> +-----------------+--------------+-------------+---------------+
+>>
+>> Because arm64 was previously using get_random_u16(), it was expensive when it
+>> didn't have any buffered bits and had to call into the crng. That's what caused
+>> the enormous tail latency.
+>>
+>>
+>> x86 (AWS Sapphire Rapids):
+>> +-----------------+--------------+-------------+---------------+
+>> | Benchmark       | Result Class |   v6.18-rc5 | per-task-prng |
+>> |                 |              | rndstack-on |               |
+>> |                 |              |             |               |
+>> +=================+==============+=============+===============+
+>> | syscall/getpid  | mean (ns)    |  (R) 13.32% |     (R) 4.60% |
+>> |                 | p99 (ns)     |  (R) 13.38% |    (R) 18.08% |
+>> |                 | p99.9 (ns)   |      16.26% |    (R) 19.38% |
+>> +-----------------+--------------+-------------+---------------+
+>> | syscall/getppid | mean (ns)    |  (R) 11.96% |     (R) 5.26% |
+>> |                 | p99 (ns)     |  (R) 11.83% |     (R) 8.35% |
+>> |                 | p99.9 (ns)   |  (R) 11.42% |    (R) 22.37% |
+>> +-----------------+--------------+-------------+---------------+
+>> | syscall/invalid | mean (ns)    |  (R) 10.58% |     (R) 2.91% |
+>> |                 | p99 (ns)     |  (R) 10.51% |     (R) 4.36% |
+>> |                 | p99.9 (ns)   |  (R) 10.35% |    (R) 21.97% |
+>> +-----------------+--------------+-------------+---------------+
+>>
+>> I was surprised to see that the baseline cost on x86 is 10-12% since it is just
+>> using rdtsc. But as I say, I believe the results are accurate.
+>>
+>>
+>> Changes since v2 (RFC) [3]
+>> ==========================
+>>
+>> - Moved late_initcall() to initialize kstack_rnd_state out of
+>>   randomize_kstack.h and into main.c. (issue noticed by kernel test robot)
+>>
+>> Changes since v1 (RFC) [2]
+>> ==========================
+>>
+>> - Introduced patch 2 to make prandom_u32_state() __always_inline (needed since
+>>   its called from noinstr code)
+>> - In patch 3, prng is now per-cpu instead of per-task (per Ard)
+>>
+>>
+>> [1] https://lore.kernel.org/all/dd8c37bc-795f-4c7a-9086-69e584d8ab24@arm.com/
+>> [2] https://lore.kernel.org/all/20251127105958.2427758-1-ryan.roberts@arm.com/
+>> [3] https://lore.kernel.org/all/20251215163520.1144179-1-ryan.roberts@arm.com/
+>>
+>> Thanks,
+>> Ryan
+>>
+>>
+>> Ryan Roberts (3):
+>>   randomize_kstack: Maintain kstack_offset per task
+>>   prandom: Convert prandom_u32_state() to __always_inline
+>>   randomize_kstack: Unify random source across arches
+>>
+>>  arch/Kconfig                         |  5 ++-
+>>  arch/arm64/kernel/syscall.c          | 11 ------
+>>  arch/loongarch/kernel/syscall.c      | 11 ------
+>>  arch/powerpc/kernel/syscall.c        | 12 -------
+>>  arch/riscv/kernel/traps.c            | 12 -------
+>>  arch/s390/include/asm/entry-common.h |  8 -----
+>>  arch/x86/include/asm/entry-common.h  | 12 -------
+>>  include/linux/prandom.h              | 19 +++++++++-
+>>  include/linux/randomize_kstack.h     | 54 +++++++++++-----------------
+>>  init/main.c                          |  9 ++++-
+>>  kernel/fork.c                        |  1 +
+>>  lib/random32.c                       | 19 ----------
+>>  12 files changed, 49 insertions(+), 124 deletions(-)
+>>
+>> --
+>> 2.43.0
+>>
 
