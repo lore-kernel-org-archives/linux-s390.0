@@ -1,111 +1,89 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE5D82ECD2A;
-	Mon, 19 Jan 2026 21:04:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C58962F9C3D;
+	Mon, 19 Jan 2026 21:13:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768856692; cv=none; b=e9eZbrW+5ImMvLfoBe0LAuR7iEnuC9s2EG6oLmLG9OiGQP5METNuwOR9+aSZabrlpE2RZlifmC7GHhKphbcE2VNDQR/95mgDDkI5lVgn03rQ044QcrI2ASYoh7PBs0s2xNPG4WEr2H3a0vctkIIFwb71tcxB4jRqmXXBUR6OwiQ=
+	t=1768857191; cv=none; b=MfQXlVtllx57SgP0rwqI5XuWC54QGvHqbq56aRz9JltonEhxdpUcypLCbOfSfkIlCVZ0hEfJpXGA9UkKjtquS+zBm6tvOOxCEnUdL8vTCslsZaq4iUNDnZTxDH3paIGOg1MTB7tz/+RQ5m7r1/34LQVw3WJQyw7NUAED4OpRXgU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768856692; c=relaxed/simple;
-	bh=6o+770Yuc3JjhJgvTCTVGSnWnwzkyqp25xUHsXx/C6U=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FeByR0d1kd6xt+S3OTCtqZb3i3HGY82+hGBzWKKJd+y1FlFCnp+RUDykTH2DzuqBnirWCZlZA3FT26zxvrkRAPOMor2Bmo7H9MmZq1cuuTq5oZrk5aWboPOYknDguY0NcthzKpC4mqqnSRUKinoyn/E5mY48orqRz0ah3cV1hbk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iXD2y8uy; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1768857191; c=relaxed/simple;
+	bh=lO21w8YI62eDPVGN/zRNqGCyxqbEKdCyOC+Ijx/wSMk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=fS8d68qZCVSsTSHRx/uDnMC6BW113XK5U3yQ93ScukwrInyOpRKaFmsc6adcOOJtVH0rKi4iSNCObR/z7+ieuSLW2j1SRYSJczpWIOtn3l47iufgHGp1qF5UX3RgxerDYdWjCj8DVRFK/RVcfffEUDw6HmiE/zH9YerQb69Ew3w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=eTz1pzSv; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iXD2y8uy"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7ABEC116C6;
-	Mon, 19 Jan 2026 21:04:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768856692;
-	bh=6o+770Yuc3JjhJgvTCTVGSnWnwzkyqp25xUHsXx/C6U=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=iXD2y8uyJXn1wpB61gKSaO/rK1kVC3HviBmxyTELifn8la3q38wzR/8/FAe+5fNYl
-	 ik+9L6OTEhlmGu1UQdY4aD1a5aW7HYIXswoYSgJh7xMmBDk3dBcl2jDRPQ3Gekd589
-	 SW9zUCR9XPe6pZCj0TKHTnObA3HPP0+tHT8d3okl57iIQ4vOrOe60WdPZmfCCXT5Sc
-	 6Z8dPnAGg1Dv34Rm1pypG+/y+3MHgCNUROe90BwGxYzcjF9MSHa3jR/Mg0xsSEaBI0
-	 mYwEoCld9S81GOQ2xQZh3gPzMLIX2nazcrTF/Va1DfE4XpjmaE6W4b3KxEe9XYL5Ud
-	 PiMpAlO96fSFA==
-Date: Mon, 19 Jan 2026 22:04:49 +0100
-From: Frederic Weisbecker <frederic@kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Anna-Maria Behnsen <anna-maria@linutronix.de>,
-	Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
-	Jan Kiszka <jan.kiszka@siemens.com>,
-	Joel Fernandes <joelagnelf@nvidia.com>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Kieran Bingham <kbingham@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Mel Gorman <mgorman@suse.de>, Michael Ellerman <mpe@ellerman.id.au>,
-	Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Paul E . McKenney" <paulmck@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Uladzislau Rezki <urezki@gmail.com>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Viresh Kumar <viresh.kumar@linaro.org>,
-	Xin Zhao <jackzxcui1989@163.com>, linux-pm@vger.kernel.org,
-	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH 01/15] sched/idle: Handle offlining first in idle loop
-Message-ID: <aW6ccexiQaPLQcS1@pavilion.home>
-References: <20260116145208.87445-1-frederic@kernel.org>
- <20260116145208.87445-2-frederic@kernel.org>
- <20260119125347.GT830755@noisy.programming.kicks-ass.net>
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="eTz1pzSv"
+Received: from [IPV6:2601:646:8081:9483:13a:c452:d5de:4aa7] ([IPv6:2601:646:8081:9483:13a:c452:d5de:4aa7])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 60JLCIGR3152313
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Mon, 19 Jan 2026 13:12:30 -0800
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 60JLCIGR3152313
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2025122301; t=1768857152;
+	bh=SzNZZN5J1ffXvI4mZJ9mNoD2W0pR7DkOp5TvgAGiTfI=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=eTz1pzSv5xPcKf9MqcDrJkTY8yQfAFdGl2lY435TB2HmDzBUtmX8It7UCjXXiYOJl
+	 QzHlRVEfTN0NIuJLNOwmi7pzWQT1HXm6AJgSIFSAF0ydOnVz8Z6JC0XN69ErNff4gf
+	 yXXXg5ft1fZG1t6gk7lGUTRyWb7yP6pTVvbLPpHo9q1t6z5rbNm6omuKBEMOiROZ3I
+	 9BBtEijPPY/1vepKUXNRXkGoymEXBsiVUYD1L1mtcsPJ9CIglME21nrtdSTZZTfanL
+	 iXdnR6ankJ32ZHdbGgYfedbt1h3AQDRiHZyTfHj7QHdrREXNaKU+jw3DsYpJXRvbHJ
+	 vRzNCTDyilnZQ==
+Message-ID: <f3bd8bfd-d66c-45fe-a634-9ac418806f40@zytor.com>
+Date: Mon, 19 Jan 2026 13:12:13 -0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 4/4] asm-generic/bitsperlong.h: Add sanity checks for
+ __BITS_PER_LONG
+To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+Cc: "David S. Miller" <davem@davemloft.net>,
+        Andreas Larsson <andreas@gaisler.com>,
+        Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, sparclinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20260116-vdso-compat-checkflags-v1-0-4a83b4fbb0d3@linutronix.de>
+ <20260116-vdso-compat-checkflags-v1-4-4a83b4fbb0d3@linutronix.de>
+ <1a77fda4-3cf6-4c19-aa36-b5f0e305b313@zytor.com>
+ <20260119163559-b20b14d7-56ca-4f17-8800-83f618d778b8@linutronix.de>
+Content-Language: en-US, sv-SE
+From: "H. Peter Anvin" <hpa@zytor.com>
+In-Reply-To: <20260119163559-b20b14d7-56ca-4f17-8800-83f618d778b8@linutronix.de>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260119125347.GT830755@noisy.programming.kicks-ass.net>
 
-Le Mon, Jan 19, 2026 at 01:53:47PM +0100, Peter Zijlstra a écrit :
-> On Fri, Jan 16, 2026 at 03:51:54PM +0100, Frederic Weisbecker wrote:
+On 2026-01-19 07:39, Thomas WeiÃŸschuh wrote:
+>>
+>> Do we actually support any compilers which *don't* define __SIZEOF_LONG__?
 > 
-> >  kernel/sched/idle.c | 11 ++++++-----
-> >  1 file changed, 6 insertions(+), 5 deletions(-)
-> > 
-> > diff --git a/kernel/sched/idle.c b/kernel/sched/idle.c
-> > index c174afe1dd17..35d79af3286d 100644
-> > --- a/kernel/sched/idle.c
-> > +++ b/kernel/sched/idle.c
-> > @@ -260,6 +260,12 @@ static void do_idle(void)
-> >  {
-> >  	int cpu = smp_processor_id();
-> >  
-> > +	if (cpu_is_offline(cpu)) {
+> When building the kernel not. I used this pattern because it is used
+> further up in the file. There it makes sense as it is actually a userspace
+> header which needs to support all kinds of compilers.
+> But this new check is gated behind __KERNEL__ anyways...
+> For the next revision I will move it into the regular kernel-internal
+> bitsperlong.h. That will be less confusing and still handle the vDSO build,
+> due to the way our header hierarchy works.
 > 
-> Does it make sense to make that: if (unlikely(cpu_is_offline(cpu))) ?
 
-Yes indeed!
+The point is that we can simply do:
 
-> 
-> > +		local_irq_disable();
-> 
-> Also, do we want something like:
-> 
-> 		WARN_ON_ONCE(need_resched());
-> 
-> ?
+#define __BITS_PER_LONG (__SIZEOF_LONG__ << 3)
 
-Definetly.
+... and it will always be consistent.
 
-Thanks.
+	-hpa
 
--- 
-Frederic Weisbecker
-SUSE Labs
