@@ -1,151 +1,98 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0041D37E2F4;
-	Mon, 19 Jan 2026 16:41:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32BB4314A95;
+	Mon, 19 Jan 2026 16:44:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768840912; cv=none; b=mOioTsA667Atl55g2+hqu+h2ushu0CfQshnXN6D1cxA+LonFkVDPBmuTnBsW78T33mfN+Sw2GpgTzjcRAW3/quOjmAr1hV1ES2ppvbtHxOJQf2yuJdQhjgZlSRHIsxsVmjgWgkOWW0tjUfMdgE7hmgF4qxc/DDOXNQ5r+wHNVY4=
+	t=1768841060; cv=none; b=bvSJ/KszOCdT6r8ICJEDnEso3ReKZ7lg+aYHi8gIdgZUXz0i4LGT384+CtD6achCkQZ++wdCBeBc4gz42TfSwoltxvkQmnkuDCJmbsmYDnPLIR4/fdl8OU6pzSgLQcbqHPXe7mfcloop1Th24NU50ETFODMyqyOBds8S2kIefKw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768840912; c=relaxed/simple;
-	bh=8Cly1GNk3mzFV8x9Zkf123bjtN9EA4JdBcM0Ptv/1Cw=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=R8YdfTFe6CrMo5HUuOHor0CbFoxQQnEsrT0zhn7tWj28yUeAOXMTYSUchN42vOw4F2tNcFe6FRxJr9dIoLYaVJ9jiXcNukhwvwZo06EfzAB9oeGAmC4+uYGy0qH1oL1Y8sZzaYxjP6bV2tuISHDh0V6iX8lnRM85XvtN31RkW2w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nj0Y258/; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1768841060; c=relaxed/simple;
+	bh=16FGOoiet4+IrVT+FcqrHcvY6YUTC0QcugfuzrxpDdk=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
+	 MIME-Version:Content-Type; b=lhwdOT42hY318Mb87rgRlbHXno6nkfKSYUCCBv6nsYsgVVg+KzaPLURLLgblRa0hf2Zi/JxeFTzro6KdgDFMCobjXllY5y3FpTY3uwmqTMjjmVnCtc4fegHzs+ixuZVS/EX6jkGMsGaloAIzQUw15WRj1SLOzGMluiCbr1MAtYg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=q0tAOJQS; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nj0Y258/"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60JD23K7021348;
-	Mon, 19 Jan 2026 16:41:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Uu1yRz
-	y+SJbnUICqN/kuc63CT+bwXeCFlWsXFTz7C44=; b=nj0Y258/iYDviv7zCPKnQG
-	WOvsMuA7krNcoa7JXMoosBTLoq99V/M5ra1P73Aha1lVAwiK03rkMm0T1pRO915O
-	yD9HIIjke8YL3puTmR3L/sswG/vGVRUPWoDfymZ918Yv21Oe/dmHDwW1NPReHqsL
-	cpSOE/pW7koJ/zGZV0riMszuAJhTjc4FE/aYdvmUfniM/NRoiGTFCPgGhqBB7OwA
-	VaFRK9/PuagTM2Zp6AuW8aJIjrv+mxnZvrSbRy1bz+aaGe2Blnc0TlBv2PQWlt9M
-	CPhmSYuyXLNhC/ag9WA4RBXJRbYkWL4OG9p8ICQwtuWWqgDUXTWyR7h9lS7K23Bg
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4br22u8pcm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 19 Jan 2026 16:41:45 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60JGBMVg016636;
-	Mon, 19 Jan 2026 16:41:44 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4brn4xr1mj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 19 Jan 2026 16:41:44 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60JGfeZl56361256
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 19 Jan 2026 16:41:40 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9502F20049;
-	Mon, 19 Jan 2026 16:41:40 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 654F620040;
-	Mon, 19 Jan 2026 16:41:40 +0000 (GMT)
-Received: from localhost (unknown [9.52.203.172])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 19 Jan 2026 16:41:40 +0000 (GMT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="q0tAOJQS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B80FAC116C6;
+	Mon, 19 Jan 2026 16:44:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768841059;
+	bh=16FGOoiet4+IrVT+FcqrHcvY6YUTC0QcugfuzrxpDdk=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+	b=q0tAOJQSpR4lAPo9D9a0ZLzj9fmk4VEFSuwyHRGgr6m2/2bnlj2msqm1OK35ZA72i
+	 BsoEW2Hi1Kd0mpXDYPCuFTDERjp9sFatntALxM7RaexoblAcWHEgiVDgn5GR/Cfhs5
+	 lJ+7nmPuUhjsYr7LMg0JLovICzoM9fTlHD0eazCWxNpHY+vxS6kc8rz0ZKG0d1VEWg
+	 IIhlCXiVHIe0pBTCOoVEENtJxJ+QEakuwJKi7yA2fm+eSBFbxX2gEsdDI8+DoA1Vyk
+	 WSTb5IyXokPQcIaRg69SRVfbN0PLcfWUE2soFEJxCYrdO9X8LHmJmpvUejzzI3uzi8
+	 2/W6/Js/SDGRw==
+Date: Mon, 19 Jan 2026 08:44:17 -0800
+From: Kees Cook <kees@kernel.org>
+To: Dave Hansen <dave.hansen@intel.com>, Ryan Roberts <ryan.roberts@arm.com>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Huacai Chen <chenhuacai@kernel.org>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <pjw@kernel.org>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "Gustavo A. R. Silva" <gustavoars@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+ Mark Rutland <mark.rutland@arm.com>, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+ Ard Biesheuvel <ardb@kernel.org>, Jeremy Linton <jeremy.linton@arm.com>,
+ David Laight <david.laight.linux@gmail.com>
+CC: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-hardening@vger.kernel.org
+Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_v4_0/3=5D_Fix_bugs_and_perfo?=
+ =?US-ASCII?Q?rmance_of_kstack_offset_randomisation?=
+User-Agent: K-9 Mail for Android
+In-Reply-To: <20fb97f1-7e50-485a-bdfd-a2901d20ec84@intel.com>
+References: <20260119130122.1283821-1-ryan.roberts@arm.com> <20fb97f1-7e50-485a-bdfd-a2901d20ec84@intel.com>
+Message-ID: <C502BCE6-2FB2-4A06-93A8-E8DEDFC22914@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 19 Jan 2026 17:41:40 +0100
-Message-Id: <DFSPRNLTB21S.3LEKR3G14X5XD@linux.ibm.com>
-Cc: <helgaas@kernel.org>, <lukas@wunner.de>, <alex@shazbot.org>,
-        <clg@redhat.com>, <stable@vger.kernel.org>, <schnelle@linux.ibm.com>,
-        <mjrosato@linux.ibm.com>
-Subject: Re: [PATCH v7 8/9] vfio: Add a reset_done callback for vfio-pci
- driver
-From: "Julian Ruess" <julianr@linux.ibm.com>
-To: "Farhan Ali" <alifm@linux.ibm.com>, <linux-s390@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-pci@vger.kernel.org>
-X-Mailer: aerc 0.21.0-0-g5549850facc2
-References: <20260107183217.1365-1-alifm@linux.ibm.com>
- <20260107183217.1365-9-alifm@linux.ibm.com>
-In-Reply-To: <20260107183217.1365-9-alifm@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: bBJNYWwFpTr6Twf6X4K_jIcGoRKR0iga
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTE5MDEzNiBTYWx0ZWRfX2MTGIISrZrNP
- Mxggeb+oBX0n8Dbb/yqV+d518lFaaTYf12jcLgcSUuBalASpmxm/0iOgSwT25/VsGJ5AxZbC9Ld
- vC4/WfsC+MT8a0Oqod/t0CqTOPW4zK9PXDDPlVL7nRjSoOcC2ZDE4FKUI4sl5JBhJd/sLyN1l37
- mKbnQG+WcuFouaK4RxMqdv51m59C9gkKayMMPjZdg+xYGpLhr8c+fooOylRmNvb+T9koJUQ1cVF
- yQVOnB4CtFaUN93DbZbCaT7uzosNlEwypRO4Mvq4zPApVxVdr6w1QE5hf1uUM3BnsPwCMmq5YFM
- qVRTIz9PGUTC8BdzDWOiyREc249QK5K8EvKMY7rXy3sfwR4I7Mzhv4voObf8BALK12P6orSO++t
- rjEWM+zJ694XjF2lA9CqD+liV20g9h0OwLirGKYUP1jb+CHmJn4SLE0bVbjrZEjk/uETtItFxkQ
- N/T+xoAZGug0K7jlkQQ==
-X-Proofpoint-ORIG-GUID: bBJNYWwFpTr6Twf6X4K_jIcGoRKR0iga
-X-Authority-Analysis: v=2.4 cv=Sp2dKfO0 c=1 sm=1 tr=0 ts=696e5ec9 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=ufQ_8dze9sbmFIOUPKIA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2026-01-19_04,2026-01-19_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 bulkscore=0 spamscore=0 adultscore=0 phishscore=0
- priorityscore=1501 lowpriorityscore=0 malwarescore=0 suspectscore=0
- clxscore=1015 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2601150000
- definitions=main-2601190136
 
-On Wed Jan 7, 2026 at 7:32 PM CET, Farhan Ali wrote:
-> On error recovery for a PCI device bound to vfio-pci driver, we want to
-> recover the state of the device to its last known saved state. The callba=
-ck
-> restores the state of the device to its initial saved state.
+
+
+On January 19, 2026 8:00:00 AM PST, Dave Hansen <dave=2Ehansen@intel=2Ecom=
+> wrote:
+>On 1/19/26 05:01, Ryan Roberts wrote:
+>> x86 (AWS Sapphire Rapids):
+>> +-----------------+--------------+-------------+---------------+
+>> | Benchmark       | Result Class |   v6=2E18-rc5 | per-task-prng |
+>> |                 |              | rndstack-on |               |
+>> |                 |              |             |               |
+>> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D+=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D+=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D+
+>> | syscall/getpid  | mean (ns)    |  (R) 13=2E32% |     (R) 4=2E60% |
+>> |                 | p99 (ns)     |  (R) 13=2E38% |    (R) 18=2E08% |
+>> |                 | p99=2E9 (ns)   |      16=2E26% |    (R) 19=2E38% |
 >
-> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-> ---
->  drivers/vfio/pci/vfio_pci_core.c | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
->
-> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci=
-_core.c
-> index f677705921e6..c92c6c512b24 100644
-> --- a/drivers/vfio/pci/vfio_pci_core.c
-> +++ b/drivers/vfio/pci/vfio_pci_core.c
-> @@ -2249,6 +2249,17 @@ pci_ers_result_t vfio_pci_core_aer_err_detected(st=
-ruct pci_dev *pdev,
->  }
->  EXPORT_SYMBOL_GPL(vfio_pci_core_aer_err_detected);
-> =20
-> +static void vfio_pci_core_aer_reset_done(struct pci_dev *pdev)
-> +{
-> +	struct vfio_pci_core_device *vdev =3D dev_get_drvdata(&pdev->dev);
-> +
-> +	if (!vdev->pci_saved_state)
-> +		return;
-> +
-> +	pci_load_saved_state(pdev, vdev->pci_saved_state);
-> +	pci_restore_state(pdev);
-> +}
-> +
->  int vfio_pci_core_sriov_configure(struct vfio_pci_core_device *vdev,
->  				  int nr_virtfn)
->  {
-> @@ -2313,6 +2324,7 @@ EXPORT_SYMBOL_GPL(vfio_pci_core_sriov_configure);
-> =20
->  const struct pci_error_handlers vfio_pci_core_err_handlers =3D {
->  	.error_detected =3D vfio_pci_core_aer_err_detected,
-> +	.reset_done =3D vfio_pci_core_aer_reset_done,
->  };
->  EXPORT_SYMBOL_GPL(vfio_pci_core_err_handlers);
-> =20
+>Like you noted, this is surprising=2E This would be a good thing to make
+>sure it goes in very early after -rc1 and gets plenty of wide testing=2E
 
-Feel free to add my
-Reviewed-by: Julian Ruess <julianr@linux.ibm.com>
+Right, we are pretty late in the dev cycle (rc6)=2E It would be prudent to=
+ get this into -next after the coming rc1 (1 month from now)=2E
 
-Thanks,
-Julian
+On the other hand, the changes are pretty "binary" in the sense that mista=
+kes should be VERY visible right away=2E Would it be better to take this in=
+to -next immediately instead?
+
+>But I don't see any problems with the approach, and the move to common
+>code looks like a big win as well:
+
+Agreed; I think it's looking great=2E
+
+--=20
+Kees Cook
