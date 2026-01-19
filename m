@@ -1,122 +1,130 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from fhigh-b3-smtp.messagingengine.com (fhigh-b3-smtp.messagingengine.com [202.12.124.154])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D1BB35B136
-	for <linux-s390@vger.kernel.org>; Mon, 19 Jan 2026 12:30:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCDBA35E53F;
+	Mon, 19 Jan 2026 12:45:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768825822; cv=none; b=lhR4TcjLA4ucAGPpGBZvR/UCW4PkcdrBp5fzQC5b4wFYzTGq9KmTkkA1eDQiPUdHRf0KHNARLc6efLCZZM0IygkGrsa4ouRKYuKwl+8SqQeQZ6+JQltqIn0vkaPnqbshSxRIU0mE6cqrSDjr4NSYJVKUC9A013GQtIFaIZylWPA=
+	t=1768826729; cv=none; b=Ir4cWD5iK0Gis+qCX4MGOkHI3kjisZWgY1LXoPfLIPgrbbDIbRy573RZrh1edgI73gq5xO4rkvounXXJUZIelGI1C7LxjxPk5tot0JHznh+qLqPNWVebVBWyBhoI3nRyhrgDc/mpY9N/QVY3VBSLJyb8/QCmRGGAOSkxXQSYS0I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768825822; c=relaxed/simple;
-	bh=AGiSWdIjqcCkIzUWZ+e2XIl/XdcoubBgfAl3S0l0Yy4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=LyFPkQ4Rk8HfYIVpCvWBbPrqLfZpn2FKfeIqtY5Gy39oXG1L4fvy8VkSWAWEh4Ta7mjqVV0OqVJ1PcBmrah85wqmiJx65ES5LT1bgevK8zf2E7zUOWTyMdu5CBhZTfysL2qFTkdYjWNElMaKT3zw82xOM9fctjTndrRxO3nw+0g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BUJo4cYk; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1768826729; c=relaxed/simple;
+	bh=yKEXZ+AAxn84ABe/O9md/rSjO5b/3r1QcNr4Mj/qup4=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=bGjY7jx/cs129YeJIDaW337ekS+CdhCkNpDk7LswDLpnNVfjLPzmW0asE20yOHtlrVJskuSptPWnCSZp/nf1ilqmBewjYOE8VxzSMKJpSviVDjUyU5NrNHw9vlsNBNhUmKc5RqguNtI0uOUxhhpLmynF3yo4EAJareYcBSs+RBo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=Rb8NIRkU; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=KAGEZ6q8; arc=none smtp.client-ip=202.12.124.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BUJo4cYk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A83EAC19425
-	for <linux-s390@vger.kernel.org>; Mon, 19 Jan 2026 12:30:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768825821;
-	bh=AGiSWdIjqcCkIzUWZ+e2XIl/XdcoubBgfAl3S0l0Yy4=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=BUJo4cYknabYZtdBbL+/mLHuuDSar6nIIwS1EvDKN3SwsYO7sZET9/lQywm1vdesA
-	 OhPiVl7AYa1DO85LIiYFx6ee7r/TzQ7EE+VZtijohfZ4Ec4iFcfRhGWc79gqHwPN+X
-	 IeqXTb9HEwq0wsq3eRGy1DWh3ovF8HFIZkUXNNYMOjcBo/rP8OJQ7z+c2NoL/C8Plv
-	 srVRkJhugAjIPHV7HfCGpiOWlrh1n+De9/CZZ3DwBDiOxtWWIyWtYjIzl1NuttS9CE
-	 r1c+zinZVYu6/oMs6jNjauvLcFmTPUuUXW5n/Tt13c9Gk1twM4dLtaWwlmLIcQFZWG
-	 zgCOvQvcFhteA==
-Received: by mail-oo1-f48.google.com with SMTP id 006d021491bc7-6611c3b147eso1877140eaf.2
-        for <linux-s390@vger.kernel.org>; Mon, 19 Jan 2026 04:30:21 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCVHPHMJRXkM/HtMEU/ifEDVEwwR2p3LiM9rff8Q1ExZUqVW2+r2zTgN2KI2AyE4ZeCi8Gj2NjSL7jBA@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy2YlCWp/Uh6V4mlT0rpIYKFQ3a4ALMUQ1njBWTCOWRtHJXJ4/a
-	2fHiUqoBNXpyXUUlvkBavIDLIwg0tWd1KgktPbMBhQk8eJozlFza6yr9w6zWnv5jHWXg8odvQEM
-	MAFez0QSfdDo/dfTm9CyUBQMhsGxCUYw=
-X-Received: by 2002:a05:6820:625:b0:661:ae2:95ed with SMTP id
- 006d021491bc7-661189adbd2mr4500479eaf.60.1768825820390; Mon, 19 Jan 2026
- 04:30:20 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="Rb8NIRkU";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="KAGEZ6q8"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 927CA7A002D;
+	Mon, 19 Jan 2026 07:45:26 -0500 (EST)
+Received: from phl-imap-02 ([10.202.2.81])
+  by phl-compute-04.internal (MEProxy); Mon, 19 Jan 2026 07:45:27 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1768826726;
+	 x=1768913126; bh=70s7Zko6UnDtDy+h/M/P5ubFxQr/sFl87utIN9PwsIo=; b=
+	Rb8NIRkUH+XGwhGWhURvfKe3MEz+hWFrSF2o77ViVW+Ojh7hjFBL/+NGuRNDnf8x
+	O/Z6yp5crPLSctINxKTJ5VrD89A6/hJoXCw+EZIUvbW/rBOrvx6K8mQ/H5+ZS0OI
+	tqp7XvzgwKq+UgrRVj4IZFbaOG7BqHxPYE2T+tZcnFgsI3BfY+v+mdBCBd7UGM7C
+	X+hyLeO/gcE5rYrWJDfKdSJH31GwD0q3loDHvR14wcNbB3DU3dvdGMLq+5HSdMPY
+	04b7f1CEW/X+aiqpPnCGEgnOwrIoNxJDNVsteUFAQI9wExvCOVXpDuaH10V0CGiU
+	TRXcDc2CSSvrEPeFKQ+E7Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1768826726; x=
+	1768913126; bh=70s7Zko6UnDtDy+h/M/P5ubFxQr/sFl87utIN9PwsIo=; b=K
+	AGEZ6q8DsmNV8OcI6m/vICQd873Cqgh0BhHZn7DgQzyH/wIsomJsLsaT1vVIvQsN
+	U+CE5Qao7w5BZkUgjk7MSfkIFLhEXREMQo4Kzm12RmnEjJcmZWNb9bk4PEXee7ba
+	Gtriey0GwAAiiqX8dW1pwwsedA0gVuH/t3gxusGB+0mkuxRk3H/Qu4/oPLnypdg3
+	TTfQliJExRMaLzqDcjM1p//ipWFvvk7GjNHDBEnUDK/ToEAmsAIkBVjhgGqcLMRE
+	izqXhb1c8VIqHutCKuSZ2dG+oaa3RA+HRBOxvj5/e303vXdL9Et0+Ldd81EBwNyZ
+	55pIsiPDu8AibhjpRZDig==
+X-ME-Sender: <xms:ZSduad4WSCrsMecfkgobWSs_VwUocNxPKMGhz8K74wfP-M7woZxKWA>
+    <xme:ZSduaVsEdDlVxltznCfb3ruTjHedo4uqRe6DHOHgeLAwhHyLO1Sv5uQvG5e3CCApL
+    TxN1RDzMbAkiKN1_xMYhPcUu8No5mbD0KjjohnzMuOtp7f3ILRBZDdh>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddufeejiedtucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepofggfffhvfevkfgjfhfutgfgsehtqhertdertdejnecuhfhrohhmpedftehrnhgu
+    uceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrthhtvg
+    hrnhepvdfhvdekueduveffffetgfdvveefvdelhedvvdegjedvfeehtdeggeevheefleej
+    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprghrnh
+    gusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohepvddtpdhmohguvgepshhmthhpohhu
+    thdprhgtphhtthhopegsphesrghlihgvnhekrdguvgdprhgtphhtthhopegurghvvghmse
+    gurghvvghmlhhofhhtrdhnvghtpdhrtghpthhtoheprghnughrvggrshesghgrihhslhgv
+    rhdrtghomhdprhgtphhtthhopegurghvihgurdhlrghighhhthdrlhhinhhugiesghhmrg
+    hilhdrtghomhdprhgtphhtthhopehluhhtoheskhgvrhhnvghlrdhorhhgpdhrtghpthht
+    ohepthhglhigsehkvghrnhgvlhdrohhrghdprhgtphhtthhopeigkeeisehkvghrnhgvlh
+    drohhrghdprhgtphhtthhopehthhhomhgrshdrfigvihhsshhstghhuhhhsehlihhnuhht
+    rhhonhhigidruggvpdhrtghpthhtoheprghgohhruggvvghvsehlihhnuhigrdhisghmrd
+    gtohhm
+X-ME-Proxy: <xmx:ZSduaRoYnEWRBbm7VelJEuph9Utr8cfKrxgdZ0M0co-2KNNHJ8PdKQ>
+    <xmx:ZSduaQ32TbtFI-rHjTXAi1I0ZrHDUOTZEnrtSSerQayGCMPX6YGVPg>
+    <xmx:ZSduaSvq9Nw1G9GTryHCMG_vlm_SoMt2BtS2R2Hf_1w1xyAfW5l6Mg>
+    <xmx:ZSduaZFdF1417SvU3r0caID2GYiWMZYsTIlTLHuKltytSmxDtqAmHw>
+    <xmx:ZiduaYjin3CdjrfyQ5RzsKlcz32txh4gqxxr_DDZC04eLW8_WsiCJehq>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 2173E700065; Mon, 19 Jan 2026 07:45:25 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260116145208.87445-1-frederic@kernel.org> <20260116145208.87445-8-frederic@kernel.org>
-In-Reply-To: <20260116145208.87445-8-frederic@kernel.org>
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Date: Mon, 19 Jan 2026 13:30:07 +0100
-X-Gmail-Original-Message-ID: <CAJZ5v0hn81J_0N0Hy6QYtc3655w-9hDqVgWWY1BVhW=DT56Deg@mail.gmail.com>
-X-Gm-Features: AZwV_QijNtZmi1zR4iwR07o__vPOI-DD5wfQBm2ysAJARvjnZxZ46W3q48jp7lk
-Message-ID: <CAJZ5v0hn81J_0N0Hy6QYtc3655w-9hDqVgWWY1BVhW=DT56Deg@mail.gmail.com>
-Subject: Re: [PATCH 07/15] cpufreq: ondemand: Simplify idle cputime
- granularity test
-To: Frederic Weisbecker <frederic@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, 
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Anna-Maria Behnsen <anna-maria@linutronix.de>, 
-	Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Dietmar Eggemann <dietmar.eggemann@arm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, 
-	Jan Kiszka <jan.kiszka@siemens.com>, Joel Fernandes <joelagnelf@nvidia.com>, 
-	Juri Lelli <juri.lelli@redhat.com>, Kieran Bingham <kbingham@kernel.org>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Mel Gorman <mgorman@suse.de>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Neeraj Upadhyay <neeraj.upadhyay@kernel.org>, 
-	Nicholas Piggin <npiggin@gmail.com>, "Paul E . McKenney" <paulmck@kernel.org>, 
-	Peter Zijlstra <peterz@infradead.org>, Steven Rostedt <rostedt@goodmis.org>, 
-	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, 
-	Uladzislau Rezki <urezki@gmail.com>, Valentin Schneider <vschneid@redhat.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Vincent Guittot <vincent.guittot@linaro.org>, 
-	Viresh Kumar <viresh.kumar@linaro.org>, Xin Zhao <jackzxcui1989@163.com>, 
-	linux-pm@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org
-Content-Type: text/plain; charset="UTF-8"
+X-ThreadId: A42RL7jkrr-J
+Date: Mon, 19 Jan 2026 13:45:04 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
+ "David Laight" <david.laight.linux@gmail.com>
+Cc: "David S . Miller" <davem@davemloft.net>,
+ "Andreas Larsson" <andreas@gaisler.com>, "Andy Lutomirski" <luto@kernel.org>,
+ "Thomas Gleixner" <tglx@kernel.org>, "Ingo Molnar" <mingo@redhat.com>,
+ "Borislav Petkov" <bp@alien8.de>,
+ "Dave Hansen" <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>, "Heiko Carstens" <hca@linux.ibm.com>,
+ "Vasily Gorbik" <gor@linux.ibm.com>,
+ "Alexander Gordeev" <agordeev@linux.ibm.com>,
+ "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+ "Sven Schnelle" <svens@linux.ibm.com>, sparclinux@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>,
+ linux-s390@vger.kernel.org
+Message-Id: <72a2744a-debc-4d8f-b418-5d6a595c2578@app.fastmail.com>
+In-Reply-To: 
+ <20260119114526-a15e7172-fc4c-40d0-a651-7c4a21acb1c8@linutronix.de>
+References: <20260116-vdso-compat-checkflags-v1-0-4a83b4fbb0d3@linutronix.de>
+ <20260116-vdso-compat-checkflags-v1-4-4a83b4fbb0d3@linutronix.de>
+ <20260119100619.479bcff3@pumpkin>
+ <20260119111037-4decf57f-2094-4fac-bcf4-03506791b197@linutronix.de>
+ <20260119103758.3afb5927@pumpkin>
+ <20260119114526-a15e7172-fc4c-40d0-a651-7c4a21acb1c8@linutronix.de>
+Subject: Re: [PATCH 4/4] asm-generic/bitsperlong.h: Add sanity checks for
+ __BITS_PER_LONG
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 16, 2026 at 3:53=E2=80=AFPM Frederic Weisbecker <frederic@kerne=
-l.org> wrote:
+On Mon, Jan 19, 2026, at 11:56, Thomas Wei=C3=9Fschuh wrote:
+> On Mon, Jan 19, 2026 at 10:37:58AM +0000, David Laight wrote:
+>>=20
+>> Don't you need a check that it isn't wrong on a user system?
+>> Which is what I thought it was doing.
 >
-> cpufreq calls get_cpu_idle_time_us() just to know if idle cputime
-> accounting has a nanoseconds granularity.
->
-> Use the appropriate indicator instead to make that deduction.
->
-> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+> Not really. The overrides defined by arch/*/include/uapi/asm/bitsperlo=
+ng.h are
+> being tested here. If they work in the kernel build I assume they also=
+ work
+> in userspace.
 
-Acked-by: Rafael J. Wysocki (Intel) <rafael@kernel.org>
+I think You could just move check into include/asm-generic/bitsperlong.h
+to make this more obvious with the #ifdef __KERNEL__, and remove the
+disabled check from my original version there.
 
-or please let me know if you want me to take this patch.
-
-> ---
->  drivers/cpufreq/cpufreq_ondemand.c | 7 +------
->  1 file changed, 1 insertion(+), 6 deletions(-)
->
-> diff --git a/drivers/cpufreq/cpufreq_ondemand.c b/drivers/cpufreq/cpufreq=
-_ondemand.c
-> index a6ecc203f7b7..2d52ee035702 100644
-> --- a/drivers/cpufreq/cpufreq_ondemand.c
-> +++ b/drivers/cpufreq/cpufreq_ondemand.c
-> @@ -334,17 +334,12 @@ static void od_free(struct policy_dbs_info *policy_=
-dbs)
->  static int od_init(struct dbs_data *dbs_data)
->  {
->         struct od_dbs_tuners *tuners;
-> -       u64 idle_time;
-> -       int cpu;
->
->         tuners =3D kzalloc(sizeof(*tuners), GFP_KERNEL);
->         if (!tuners)
->                 return -ENOMEM;
->
-> -       cpu =3D get_cpu();
-> -       idle_time =3D get_cpu_idle_time_us(cpu, NULL);
-> -       put_cpu();
-> -       if (idle_time !=3D -1ULL) {
-> +       if (tick_nohz_enabled) {
->                 /* Idle micro accounting is supported. Use finer threshol=
-ds */
->                 dbs_data->up_threshold =3D MICRO_FREQUENCY_UP_THRESHOLD;
->         } else {
-> --
-> 2.51.1
->
->
+      Arnd
