@@ -1,151 +1,170 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8410A2C11F0
-	for <linux-s390@vger.kernel.org>; Mon, 19 Jan 2026 17:47:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2992D32B9AE;
+	Mon, 19 Jan 2026 18:44:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768844855; cv=none; b=AOSXZj1ZDBnp8C8Cqlo1qtGAN/bjrjUwSqx0SYd6zKvcWHwHIyzEoH9wRszUn5KgXfsdIHBsjNHVvkYjCMtjVReAlW97E9DFA58hCV+vHxm9Q1RNRrCmJQBtsUnXinfX6icxfOkD5H5lDYpnxDs3XHF7mQq50l85SKR/BSF0Cu0=
+	t=1768848253; cv=none; b=CoH7pRtxEXo6xw6gO97nErcMcuZfj/VE631+i7C0iO7lR8vazmPJ4RYhbAqvv8ojgnY3Vxj6i9K1/WZZyPTVpJ572ad+dPwzcsJ4eNCXwWWszWl3EcnTIMKF/l2XAp9mIp0qlGW6u7msSFkVhpvxoQkZ1FCES17kkpX7ZFgnVSE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768844855; c=relaxed/simple;
-	bh=uFWIzT/NGXdCZyvcgR0/FUoFNBord156hv8OfVms58Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=oAOc5Pm+S3e0X5RJr1ailbFwx+e/khZADmZdLMFk3lEMXvMipc+g0ZCKMkkx8pSSYek8pHu3KzUY/xar+hvdNluvq4ZSQradSAEyK59L//MHJvLIXf0mQm3rJbRRbSLrNmZ/0CcddNMbMh00ZjcVnhOCeAXGU8+GPJrALfzQHSg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GMtYY/zm; arc=none smtp.client-ip=209.85.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1768848253; c=relaxed/simple;
+	bh=BMldLl77NMD8cmCWSX1A1dU6NeqpUmWsQbs3YjsAVhs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=WuBno2zATmnT9O4hcRRXmi4IchkMfCc8BYds685t+rndk+AQQPMNPK95RzGMqLpDC9GYsEknygugxjv/ippkZtao3butRgXxPQKQclPulQmrRNRmvYF4fAGe6kmieNuosi/mrn7VTjmy+xkcXAtAx/qIiq+O3y+p06P10pQg34g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=XceDiyGj; arc=none smtp.client-ip=192.198.163.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GMtYY/zm"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4801bc328easo37302385e9.3
-        for <linux-s390@vger.kernel.org>; Mon, 19 Jan 2026 09:47:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768844853; x=1769449653; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=l2ACadv0hgsZtux+LBE5pG2d7aO4i+uY5axwwBu8vVQ=;
-        b=GMtYY/zmJhPX5Xs7FJm3rgdUKdWIuhIklepJ1p4sddiSk/m48GgcuCFWYojivUWl0S
-         ItcXWhV3LEwOv4TzwJv2L8CLKQ44AK3D7QBES/aeXyukZebzf2e+NZ46lwP+vS2RJDr5
-         Fas+NRvNzp81+95dkDBYnUxXK/nnySKrAwae2kWZV4CNSP878KpANRKljUJLJ2uB15oC
-         sAxiISTwz31imERKHeIZ9AEFL9R6RLEjaJRY0JjT2sDdN+s30Rb5I1AXTdLHzspGThuB
-         tiCttjFFxbiQp8IPlnnIJDSDi/RKZC4j2b5/myFO+GiYQyFzJrxUbAtTdQo9bs/p5O/b
-         sM7g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768844853; x=1769449653;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=l2ACadv0hgsZtux+LBE5pG2d7aO4i+uY5axwwBu8vVQ=;
-        b=G7Hi0/6br52x6Z4SmMfn5Ss110ETQEyYufh/2iVTOT/HV/D+gWx0ZZqz5D4wk2eQql
-         gG9TxjLg9adlvjWdFjknBEyZjeiqCHZeFQs8WXgY4bkAmXWhBabGBnsYqmL2MBOfEMiY
-         E3QMfkEZ7h6DQ8I2qPPhKAKrFVDum/ZasAyb4W8iQOJW47YYcor55NxKtm1Ze/qTwajA
-         LvQs1bQgSjUMXWydgN+pQnfBrtk85HUCqCvvmYvXj2OCF2QpE36zI/ZfDorvd4DTnPg+
-         eoZzc7FVxA0exqPE+WXOYFArbH1DFJsqFDHfN54pQn7jnWj5ro6hmkFTj/kShyYJ6vCY
-         U3ow==
-X-Forwarded-Encrypted: i=1; AJvYcCWyDsD0hXHiw19RAI88BnFgyc1SEp5mbPlCHuF7j+RAb6YEo+8qOselVukn5k6W8HAKZtK5miiMpJbY@vger.kernel.org
-X-Gm-Message-State: AOJu0YyFDG2L6yunEauBgwtFSLOGsrkNtaCrmM21o6zdInWNde4hWIxT
-	Y6q52y1vI27jg2k8hT2GC/mC4s04mGSzGKrPfAmAD4up5McBoi0dntaB
-X-Gm-Gg: AZuq6aKIXecoxt5Cfu3M8y1YQK9sSn6a4Wz9NBzykgqnUVU2VIJEFSfcjbgsj6aSNWy
-	GFIxhR1Nrjsnp2N/Pd3rDeOIGZjzlp8V3dryut/q5S3RNEk66JZuAEYKuIFxtgupMc7plWBb8Dh
-	wA+2kfd5z5bF702uTwBDaEeUPNyrygn5R53ReTSBdq8tr0S1Ul/lebs7sSygRSNYLB+O84CfoCz
-	Qww6M9rbaF9QrzSDoygIiFD7ZNf77wPszPPNjRK+PmQDUnRg+mHPpd0Qa80GUd8NKVoqy0VpNRx
-	BEjJuh9kmhpj60C4yuZ3WytqUS536yxUHS6Cfs2jjknJc8C4er0A3odfh2t+DPhTnigb5e/B8F2
-	Ru4iusa1+CYgqldBDjDW9bYUqtgE7oFI+5s79ShoUJrBxtzBVcv3uYGm/OaTUm47mRwIW9fSi6x
-	LYhxAeQfJ+F3/YvWrdnybo4j5WZEYqeqqM5u89ry0D2G2r1k69F0R4
-X-Received: by 2002:a5d:588e:0:b0:431:9b2:61b0 with SMTP id ffacd0b85a97d-4356a03dd73mr15899699f8f.25.1768844852626;
-        Mon, 19 Jan 2026 09:47:32 -0800 (PST)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43569921dedsm24242699f8f.9.2026.01.19.09.47.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Jan 2026 09:47:32 -0800 (PST)
-Date: Mon, 19 Jan 2026 17:47:30 +0000
-From: David Laight <david.laight.linux@gmail.com>
-To: "Arnd Bergmann" <arnd@arndb.de>
-Cc: Thomas =?UTF-8?B?V2Vpw59zY2h1aA==?= <thomas.weissschuh@linutronix.de>,
- "David S . Miller" <davem@davemloft.net>, "Andreas Larsson"
- <andreas@gaisler.com>, "Andy Lutomirski" <luto@kernel.org>, "Thomas
- Gleixner" <tglx@kernel.org>, "Ingo Molnar" <mingo@redhat.com>, "Borislav
- Petkov" <bp@alien8.de>, "Dave Hansen" <dave.hansen@linux.intel.com>,
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, "Heiko Carstens"
- <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger"
- <borntraeger@linux.ibm.com>, "Sven Schnelle" <svens@linux.ibm.com>,
- sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org, Linux-Arch
- <linux-arch@vger.kernel.org>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 4/4] asm-generic/bitsperlong.h: Add sanity checks for
- __BITS_PER_LONG
-Message-ID: <20260119174730.5a20169d@pumpkin>
-In-Reply-To: <4e4b1b5b-5f7d-4604-b5ef-0d0726263843@app.fastmail.com>
-References: <20260116-vdso-compat-checkflags-v1-0-4a83b4fbb0d3@linutronix.de>
-	<20260116-vdso-compat-checkflags-v1-4-4a83b4fbb0d3@linutronix.de>
-	<20260119100619.479bcff3@pumpkin>
-	<20260119111037-4decf57f-2094-4fac-bcf4-03506791b197@linutronix.de>
-	<20260119103758.3afb5927@pumpkin>
-	<20260119114526-a15e7172-fc4c-40d0-a651-7c4a21acb1c8@linutronix.de>
-	<72a2744a-debc-4d8f-b418-5d6a595c2578@app.fastmail.com>
-	<20260119143735-ca5b7901-b501-4cb8-8e5d-10f4e2f8b650@linutronix.de>
-	<4e4b1b5b-5f7d-4604-b5ef-0d0726263843@app.fastmail.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="XceDiyGj"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1768848252; x=1800384252;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=BMldLl77NMD8cmCWSX1A1dU6NeqpUmWsQbs3YjsAVhs=;
+  b=XceDiyGj1ri69lz6FZpA4TKGmac2DUJmkb7vmbSTtcuLRs7rRDu+29gd
+   N/wpnWMwsp99kZUoD6c28pbTN5THEa9G0wF6IR8ugMD+i0IJHX3sZ0VNc
+   GqqyLt5CvUP9N2K00pQdWMAzdUD/QC3guaXhLrTajsEjSUoUa0cl2XB7F
+   gH9TNXly0cBdbHq/P9ScOlg55RQBzpzzLf2fmyJlgsTY29JpieMkVFFDJ
+   1zSSdy3SjFVof2Xw/+K5QhETl0uDT+uzEMAbGA/xAI0dgl4bVpRkxBgc7
+   YXbVzy0vnoMBFg4eqIdxXYBhDFmYbg77czA7wrfD9K9Md5dGxGxlyKdRu
+   Q==;
+X-CSE-ConnectionGUID: zGyW0aF/R3OHzcGNOj0Okw==
+X-CSE-MsgGUID: /A1H5Up/RseMx/0vtSyyBw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11676"; a="69074315"
+X-IronPort-AV: E=Sophos;i="6.21,238,1763452800"; 
+   d="scan'208";a="69074315"
+Received: from fmviesa005.fm.intel.com ([10.60.135.145])
+  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2026 10:44:11 -0800
+X-CSE-ConnectionGUID: tVjDHPwBRL6Hp+CAFZtr/w==
+X-CSE-MsgGUID: CYQx7FCnQ0uvk61ZGqxr9g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,238,1763452800"; 
+   d="scan'208";a="210416095"
+Received: from jmaxwel1-mobl.amr.corp.intel.com (HELO [10.125.111.250]) ([10.125.111.250])
+  by fmviesa005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2026 10:44:09 -0800
+Message-ID: <79185163-bf8f-4490-9396-3fd73b7a0c73@intel.com>
+Date: Mon, 19 Jan 2026 10:44:08 -0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/3] integrity: Make arch_ima_get_secureboot
+ integrity-wide
+To: Mimi Zohar <zohar@linux.ibm.com>, Ard Biesheuvel <ardb@kernel.org>
+Cc: Coiby Xu <coxu@redhat.com>, linux-integrity@vger.kernel.org,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Roberto Sassu <roberto.sassu@huaweicloud.com>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+ "H. Peter Anvin" <hpa@zytor.com>, Roberto Sassu <roberto.sassu@huawei.com>,
+ Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+ Eric Snowberg <eric.snowberg@oracle.com>, Paul Moore <paul@paul-moore.com>,
+ James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
+ Jarkko Sakkinen <jarkko@kernel.org>,
+ "moderated list:ARM64 PORT (AARCH64 ARCHITECTURE)"
+ <linux-arm-kernel@lists.infradead.org>,
+ open list <linux-kernel@vger.kernel.org>,
+ "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)"
+ <linuxppc-dev@lists.ozlabs.org>,
+ "open list:S390 ARCHITECTURE" <linux-s390@vger.kernel.org>,
+ "open list:EXTENSIBLE FIRMWARE INTERFACE (EFI)" <linux-efi@vger.kernel.org>,
+ "open list:SECURITY SUBSYSTEM" <linux-security-module@vger.kernel.org>,
+ "open list:KEYS/KEYRINGS_INTEGRITY" <keyrings@vger.kernel.org>
+References: <20260115004328.194142-1-coxu@redhat.com>
+ <20260115004328.194142-2-coxu@redhat.com>
+ <CAMj1kXFXNo1-pMbo-VZrjQ3TYe1tufebrLr_avL12A0nHMSGnA@mail.gmail.com>
+ <8bfa859ed3a4f1cf0db0ab64d8c1c3b24684582a.camel@linux.ibm.com>
+ <CAMj1kXHsJNZoUEnbD1y=v4Ftuv9d2c08VckRV7ru4k4P83vZbQ@mail.gmail.com>
+ <97b69bc79a5d9246f7a399510908c7b95b2e95e7.camel@linux.ibm.com>
+ <CAMj1kXGx4ebaK87W7k0SNUNQnO9+=z1nmYxXC7retmp3OqRRFg@mail.gmail.com>
+ <ac5e5e45c12e9b0bda19807e60b06057d74be0b3.camel@linux.ibm.com>
+Content-Language: en-US
+From: Dave Hansen <dave.hansen@intel.com>
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+In-Reply-To: <ac5e5e45c12e9b0bda19807e60b06057d74be0b3.camel@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 
-On Mon, 19 Jan 2026 15:57:49 +0100
-"Arnd Bergmann" <arnd@arndb.de> wrote:
+On 1/18/26 10:25, Mimi Zohar wrote:
+> As not all arch's implement arch_integrity_get_secureboot, the definition in
+> include/linux/integrity.h would need to be updated.  Something like:
+> 
+> -#ifdef CONFIG_INTEGRITY_SECURE_BOOT
+> +#if (defined(CONFIG_INTEGRITY_SECURE_BOOT) && \
+> +       (defined(CONFIG_X86) && defined(CONFIG_EFI)) || defined(CONFIG_S390) \
+> +        || defined(CONFIG_PPC_SECURE_BOOT))
+> 
+> Then IMA_SECURE_AND_OR_TRUSTED_BOOT and EVM could select INTEGRITY_SECURE_BOOT,
+> as suggested.
 
-> On Mon, Jan 19, 2026, at 14:41, Thomas Wei=C3=9Fschuh wrote:
-> > On Mon, Jan 19, 2026 at 01:45:04PM +0100, Arnd Bergmann wrote: =20
-> >> On Mon, Jan 19, 2026, at 11:56, Thomas Wei=C3=9Fschuh wrote: =20
-> >> > On Mon, Jan 19, 2026 at 10:37:58AM +0000, David Laight wrote: =20
-> >> >>=20
-> >> >> Don't you need a check that it isn't wrong on a user system?
-> >> >> Which is what I thought it was doing. =20
-> >> >
-> >> > Not really. The overrides defined by arch/*/include/uapi/asm/bitsper=
-long.h are
-> >> > being tested here. If they work in the kernel build I assume they al=
-so work
-> >> > in userspace. =20
-> >>=20
-> >> I think You could just move check into include/asm-generic/bitsperlong=
-.h
-> >> to make this more obvious with the #ifdef __KERNEL__, and remove the
-> >> disabled check from my original version there. =20
-> >
-> > Ok. I'd like to keep your existing test though, as it tests something d=
-ifferent
-> > and it would be nice to have that too at some point. =20
->=20
-> Sure, that works too. I wonder if one of the recent vdso cleanups
-> also happened to address the problem with the incorrect BITS_PER_LONG
-> being visible in the vdso code. Maybe we can already turn that on again.
+This seems to be going a wee bit sideways. :)
 
-There is vdso/bits.h, but everything actually includes linux/bits.h first.
+This kind of CONFIG complexity really should be left to Kconfig. C
+macros really aren't a great place to do it.
 
-I was wondering what happens if you are actually using the 'uapi' headers
-to build programs (may nolibc ones).
-On x86-64, 'gcc foo.c' might work, but 'gcc -m32 foo.c' will find exactly
-the same headers and go badly wrong unless everything is based on
-compiler defines.
+The other idiom we use a lot is this in generic code:
 
-An assert (of some kind) that checks the pre-processor BITS_PER_LONG
-constant actually matches sizof (long) seems reasonable for all build.
-The alternative is to (somehow) manage to avoid needing a pre-processor
-constant at all, moving everything to 'integer constant expressions'
-instead (good luck with that...).
+#ifndef arch_foo
+static inline void arch_foo(void) {}
+#endif
 
-I'm most of the way through a 'de-bloat' patchset for bits.h.
-I'm sure there is a good reason why GENMASK(hi, lo) isn't defined
-as '((type)2 << hi) - ((type)1 << lo)'.
-Since that definition doesn't need the bit-width in any form.
-(Just beat up any static checker that objects to '2 << hi' being zero.)
-I've only made that change for ASM files - IIRC the assembler only
-supports one size of signed integer.
+Then all you have to do is make sure the arch header that #defines it is
+included before the generic code. I'm not a super huge fan of these
+because it can be hard to tell (for humans at least) _if_ the
+architecture has done the #define.
 
-	David
-
+But it sure beats that #ifdef maze.
