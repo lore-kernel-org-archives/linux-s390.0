@@ -1,153 +1,143 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87E501EE00A;
-	Mon, 19 Jan 2026 10:56:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37E7C1DE3B7
+	for <linux-s390@vger.kernel.org>; Mon, 19 Jan 2026 12:22:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768820196; cv=none; b=Yrc2ZaboMfFlvWxPuvJIYBkYQdad0708mtl42kjv9ydZ1nY7th1fLjabKxg0UCUB2VT2l/Qz/8r7WgNdSX1tiuWGcLSDP3B5o5Co5NdOK35wmH1WfVhY8mKE7LAysKs937hbL4k7aoZApg1dfOLP2aPAyz1nYeO2PCJib+938Ng=
+	t=1768825376; cv=none; b=l4thaSSPMtxtieYSY6LqvLc63QynQV59/ybBbCXzEcla5itUOZKaxBD79gT8aGLO7v8LPAvGJS7hjTEqAETdfuT/CN6fBFw30ywqYNy/ELeFEZnwhtW+FT+bKqIjiyvr3KhzSdlHBNM4AkOxHBR7ilwvMuownQ+fxYcwiNiBMkw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768820196; c=relaxed/simple;
-	bh=Qe36xxsayxzili9KvOuan72oG60zGsm7wCxbTI+pONE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dCbIUKF+Thae1c8BLLGOucfyO1T+lTwJ2lknS2aO/BAscFY0kqiRswUkbESciGu9vAm7q9wiMguBCnDZpvTgc00wbbcr58sJBLEuCPSA5d4amhg3qx9EISFelduYpkG7F3p3uViVUHzjmEfC6B9P67dsAtFJGisNRw4b5H8wI8o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=nBtopyHM; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=u7K9TASj; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1768825376; c=relaxed/simple;
+	bh=iL5a5vWD3elCqNsh2PkBrIKfV1bPfWFLdSevvtw348k=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=THXfbiwr1SD8lmLhq8SbZJKYkEdmbzSeOp2EVbQuIQVPVN8ak7ROuX2p1/Wv2PEFIRZjEJ2bX2brbCgp5oykg9eEMI4dMezOveN3X8brw6e0mwnmD9HqHder9TqNbNo39M7Nfaym/JWo7BVONUVGdcSOikMa+jDtNvJD6lMKH+8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PCF69CPM; arc=none smtp.client-ip=209.85.128.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="nBtopyHM";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="u7K9TASj"
-Date: Mon, 19 Jan 2026 11:56:33 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1768820193;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=US981aT1yOWgtxQBdKHnIdawJA/x+KBeaYSqijIuhE8=;
-	b=nBtopyHMca4CWnNPtxDaHWzRTIdVDSukcOGB7SmXaZmQjoPjBpxFiiGScGdP4oufflGS79
-	DXQ3alypPSNrp0K4OdjMOMyJLtDIt7pQj823TxvOt9KfIufPoYXmlIyPup8SQ2cymcIbp4
-	tajj/QKjzQ8YBJDk+JBojjF1JO3Z3aIKLArD9nQ/UN1SmC+TM30LeUCOBiYPsmk4UKZS+d
-	GWPatq1MOJJ4ZbFGUFpiV542DSUtxAmEMPJM7Swz+R5wUi/KGSggUCSsIF9xL0iJfYVww0
-	BeTlfZUmSVU6+XeGdO33litM4b299u8wItMpIhuVO0cIjkE9Mx+Wg0i7RE9lAA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1768820193;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=US981aT1yOWgtxQBdKHnIdawJA/x+KBeaYSqijIuhE8=;
-	b=u7K9TASj3v7TkS74Pata02ESy9TL0w6e4KlWv/yylOtf0M7czd+Lv9bGa46LYNgzsvKLKz
-	jlEzqhxT6/Tny6Bw==
-From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-To: David Laight <david.laight.linux@gmail.com>
-Cc: "David S. Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>, 
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, sparclinux@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 4/4] asm-generic/bitsperlong.h: Add sanity checks for
- __BITS_PER_LONG
-Message-ID: <20260119114526-a15e7172-fc4c-40d0-a651-7c4a21acb1c8@linutronix.de>
-References: <20260116-vdso-compat-checkflags-v1-0-4a83b4fbb0d3@linutronix.de>
- <20260116-vdso-compat-checkflags-v1-4-4a83b4fbb0d3@linutronix.de>
- <20260119100619.479bcff3@pumpkin>
- <20260119111037-4decf57f-2094-4fac-bcf4-03506791b197@linutronix.de>
- <20260119103758.3afb5927@pumpkin>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PCF69CPM"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-4801d98cf39so17390245e9.1
+        for <linux-s390@vger.kernel.org>; Mon, 19 Jan 2026 04:22:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1768825373; x=1769430173; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=hizH6Y0dclm/GlFu897aCLzhsPW9G/RqQepyEMFpeE8=;
+        b=PCF69CPM0lLs+Yyg0Fgq0uDLVyEcxNqGvMHx3WNWpGAwuvvmvejaa8o6vuVCtJb2Sw
+         E/kvMsMgdmn0sm8yAPQ7PB5tELTzEgycup8KYF+X6xNlkQpwT1AGLCdOb21Sd5rkq+Rm
+         aMLnzCs7uaQCvxz7u/1RLjh/mLcmehTR2XEzC5To/r15Cbb70osJCX1imhRhwPUywwAw
+         qlIAYhR8b6yl7vO8ZGIAIPtX5NKLPUvrxHLE0E7Lc+wh9Yw0UY4MORlhoY3y4YyrRUh4
+         jw+92nCjcUMpVaZj+gTR1A2ofZw/aKwhaEqhk6ARhOKdbwVshW4z97MF2o/x2bmst2nb
+         3CAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768825373; x=1769430173;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=hizH6Y0dclm/GlFu897aCLzhsPW9G/RqQepyEMFpeE8=;
+        b=cT8IFR/JFV9eA8qYbS5HMUQXTmYRygd2X7/KnahIQzE9V4MPZTaYDivZxd3fuyNt7Q
+         0V7UCKsOmMafbaDCCL/oRVZjG0+ADzyrbDlLYbh1UIKZPlGyxgLkBBvn55eFCY/nhXK+
+         FjBOa7vG7bCAhb0zxQy+RdUyzrS0JsCOi9t9k/NIeeN+XnZlbWgNCtGYzzpIptDGsdJq
+         w4ChJd9FDLIFkvpAbz2GHeoPyFY43jwh2s+zw8Y+ubW2SPKLIKfzh5sjL9HgDPNa2idx
+         8AurMPq7N+dH39XBHXU9OJ0fJxkOGW/A9MBGRq6MQvXxTIXMJFA7ldXCWUOQ25dDPa/n
+         ixmw==
+X-Forwarded-Encrypted: i=1; AJvYcCXpqAm4PsiY5sQ009Wdtu9gpK1vTzODbuvwnU0S3ohHgpenMljNCrvQQ+AW3qD8dltd1umm6HOvm9F1@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy8n6sdLKb8HmeZmSZGKoS+mXn0/j1pSwSDVVnzriCuA9XrW0Qf
+	7+MFks2hwYPpTDqWdGS058h1oCvpG7QwIJe30YBEkN9HJPYvftV6IvUD
+X-Gm-Gg: AY/fxX4qqVP5TiA7pMV3cTKavZaM0FF7o29EWFxuwTiTy/fiTmfuRoOGXxdCVRN8Kbe
+	4MnRr9O9Dfse84gsQujoGaQIUi+bKPw8mm/XOVlBMlQv54+v/azBmSAb/SxIq4JRIg+NeUcsven
+	M2wO100rI3bZs72WKE39FMU3rBRUYXOWYOcBD+YlldTfEqIn+Oy59XF2P2+bH0ScpZuC4UjRe52
+	ZtLN5DX9bWeUYZWJUUSVaK+bZ6aTbangOxw1re9Q3K4VcT2HDE8HLJcuCQXThC0QHVh7pBNwMVm
+	KNn4I1nE9N57TTyE+jAY7DqqHdMqrm1g+JwD6krQRO+rohdcT52lBL6sCCxj6eFcmU5Bpx6DoBu
+	cQpEzhwxtintAwd/7KydOmvR+55T1s7tlsB+9DSG89FxWkkMPRudlxIZSew8XO5gUpqQxzM6lRl
+	ixVbSpC07Ye9+MhUgDH6vOseLlFwj/oOzgmZqhXJxCb79WP9KUwuvS
+X-Received: by 2002:a05:600c:3509:b0:47a:94fc:d057 with SMTP id 5b1f17b1804b1-4801eab54e2mr107589925e9.2.1768825373288;
+        Mon, 19 Jan 2026 04:22:53 -0800 (PST)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4801fe67780sm78105625e9.16.2026.01.19.04.22.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 19 Jan 2026 04:22:52 -0800 (PST)
+Date: Mon, 19 Jan 2026 12:22:48 +0000
+From: David Laight <david.laight.linux@gmail.com>
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: Ryan Roberts <ryan.roberts@arm.com>, Kees Cook <kees@kernel.org>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Huacai Chen <chenhuacai@kernel.org>, Madhavan Srinivasan
+ <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley
+ <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou
+ <aou@eecs.berkeley.edu>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
+ <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, Thomas
+ Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav
+ Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, "Gustavo
+ A. R. Silva" <gustavoars@kernel.org>, Arnd Bergmann <arnd@arndb.de>, "Jason
+ A. Donenfeld" <Jason@zx2c4.com>, Ard Biesheuvel <ardb@kernel.org>, Jeremy
+ Linton <jeremy.linton@arm.com>, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org
+Subject: Re: [PATCH v3 0/3] Fix bugs and performance of kstack offset
+ randomisation
+Message-ID: <20260119122248.30974c78@pumpkin>
+In-Reply-To: <aW4NC9P3K7Ab_e8j@J2N7QTR9R3>
+References: <20260102131156.3265118-1-ryan.roberts@arm.com>
+	<aW4NC9P3K7Ab_e8j@J2N7QTR9R3>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260119103758.3afb5927@pumpkin>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Mon, Jan 19, 2026 at 10:37:58AM +0000, David Laight wrote:
-> On Mon, 19 Jan 2026 11:13:08 +0100
-> Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de> wrote:
+On Mon, 19 Jan 2026 10:52:59 +0000
+Mark Rutland <mark.rutland@arm.com> wrote:
+
+> On Fri, Jan 02, 2026 at 01:11:51PM +0000, Ryan Roberts wrote:
+> > Hi All,  
 > 
-> > On Mon, Jan 19, 2026 at 10:06:19AM +0000, David Laight wrote:
-> > > On Fri, 16 Jan 2026 08:40:27 +0100
-> > > Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de> wrote:
-> > >   
-> > > > The value of __BITS_PER_LONG from architecture-specific logic should
-> > > > always match the generic one if that is available. It should also match
-> > > > the actual C type 'long'.
-> > > > 
-> > > > Mismatches can happen for example when building the compat vDSO. Either
-> > > > during the compilation, see commit 9a6d3ff10f7f ("arm64: uapi: Provide
-> > > > correct __BITS_PER_LONG for the compat vDSO"), or when running sparse
-> > > > when mismatched CHECKFLAGS are inherited from the kernel build.
-> > > > 
-> > > > Add some consistency checks which detect such issues early and clearly.
-> > > > The tests are added to the UAPI header to make sure it is also used when
-> > > > building the vDSO as that is not supposed to use regular kernel headers.
-> > > > 
-> > > > The kernel-interal BITS_PER_LONG is not checked as it is derived from
-> > > > CONFIG_64BIT and therefore breaks for the compat vDSO. See the similar,
-> > > > deactivated check in include/asm-generic/bitsperlong.h.
-> > > > 
-> > > > Signed-off-by: Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de>
-> > > > ---
-> > > >  include/uapi/asm-generic/bitsperlong.h | 14 ++++++++++++++
-> > > >  1 file changed, 14 insertions(+)
-> > > > 
-> > > > diff --git a/include/uapi/asm-generic/bitsperlong.h b/include/uapi/asm-generic/bitsperlong.h
-> > > > index fadb3f857f28..9d762097ae0c 100644
-> > > > --- a/include/uapi/asm-generic/bitsperlong.h
-> > > > +++ b/include/uapi/asm-generic/bitsperlong.h
-> > > > @@ -28,4 +28,18 @@
-> > > >  #define __BITS_PER_LONG_LONG 64
-> > > >  #endif
-> > > >  
-> > > > +/* Consistency checks */
-> > > > +#ifdef __KERNEL__
-> > > > +#if defined(__CHAR_BIT__) && defined(__SIZEOF_LONG__)
-> > > > +#if __BITS_PER_LONG != (__CHAR_BIT__ * __SIZEOF_LONG__)
-> > > > +#error Inconsistent word size. Check uapi/asm/bitsperlong.h
-> > > > +#endif
-> > > > +#endif
-> > > > +
-> > > > +#ifndef __ASSEMBLER__
-> > > > +_Static_assert(sizeof(long) * 8 == __BITS_PER_LONG,
-> > > > +	       "Inconsistent word size. Check uapi/asm/bitsperlong.h");  
-> > > 
-> > > nak...
-> > > 
-> > > You can't assume the compiler has _Static_assert().
-> > > All the ones that do probably define __SIZEOF_LONG__.
-> > > You could use something 'old-school' like:
-> > > typedef char __inconsistent_long_size[1 - 2 * (sizeof(long) * 8 != __BITS_PER_LONG))];  
+> Hi Ryan,
+> 
+> > As I reported at [1], kstack offset randomisation suffers from a couple of bugs
+> > and, on arm64 at least, the performance is poor. This series attempts to fix
+> > both; patch 1 provides back-portable fixes for the functional bugs. Patches 2-3
+> > propose a performance improvement approach.
 > > 
-> > This is only used when building the kernel, it never actually reaches
-> > userspace. And all supported compilers for the kernel do have _Static_assert().
-> > As indicated by other users of _Static_assert() we have elsewhere in the tree.
+> > I've looked at a few different options but ultimately decided that Jeremy's
+> > original prng approach is the fastest. I made the argument that this approach is
+> > secure "enough" in the RFC [2] and the responses indicated agreement.  
 > 
-> Don't you need a check that it isn't wrong on a user system?
-> Which is what I thought it was doing.
-
-Not really. The overrides defined by arch/*/include/uapi/asm/bitsperlong.h are
-being tested here. If they work in the kernel build I assume they also work
-in userspace.
-
-> The earlier check can also just be:
+> FWIW, the series all looks good to me. I understand you're likely to
+> spin a v4 with a couple of minor tweaks (fixing typos and adding an
+> out-of-line wrapper for a prandom function), but I don't think there's
+> anything material that needs to change.
 > 
-> #if defined(__SIZEOF_LONG__) && __BITS_PER_LONG != 8 * __SIZEOF_LONG__
-> #error Inconsistent word size. Check uapi/asm/bitsperlong.h
-> #endif
+> I've given my Ack on all three patches. I've given the series a quick
+> boot test (atop v6.19-rc4) with a bunch of debug options enabled, and
+> all looks well.
+> 
+> Kees, do you have any comments? It would be nice if we could queue this
+> up soon.
 
-The if defined(__SIZEOF_LONG__) is also unnecessary as that is always present
-with the supported kernel compilers.  So we can drop one level of ifdeffery.
+I don't want to stop this being queued up in its current form.
+But I don't see an obvious need for multiple per-cpu prng
+(there are a couple of others lurking), surely one will do.
 
-Testing __CHAR_BIT__ == 8 would again test the compiler implementation and not
-the UAPI headers, so I'd rather not do it. Using __CHAR_BIT__ in the test is
-done for consistency with the generic implementation.
+How much overhead does the get_cpu_var() add?
+I think it has to disable pre-emption (or interrupts) which might
+be more expensive on non-x86 (which can just do 'inc %gs:address').
 
+I'm sure I remember a version that used a per-task prng.
+That just needs 'current' - which might be known and/or be cheaper
+to get.
+(Although I also remember a reference some system where it was slow...)
 
-Thomas
+The other option is just to play 'fast and loose' with the prng data.
+Using the state from the 'wrong cpu' (if the code is pre-empted) won't
+really matter.
+You might get a RrwW (or even RrwrwW) sequence, but the prng won't be used
+for anything 'really important' so it shouldn't matter.
+
+	David
