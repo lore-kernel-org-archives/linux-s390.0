@@ -1,132 +1,218 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29D34246782;
-	Mon, 19 Jan 2026 10:13:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id CCB3D3587B5;
+	Mon, 19 Jan 2026 10:23:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768817597; cv=none; b=tqxUbXNKYgN85PKyFpYq8RWOIMe6RX+aai+PKVPJsqJCscGBfzNFbiEn5kK2yOZBZeBcYxRMQK8Tql32drCsCrdHhEYyUtRBVjDaUfk/IV3RfG7p/RrhhM0/koNCTZohcJVGE/oRl05KKhnnWCnQD6CFMpEeI/xA0Vo6ragduCk=
+	t=1768818208; cv=none; b=lg8ejxp4U6mZu1IpijSp8kbPn3kApJGxbhJzZuiCWuIKRnZIyBrAzA+BCSfcWA021XZxLY0mBajPmdUrBc5DVfwe+aoTGtPocUMFRWJG470TfDWYLiA6gtULwRkg5MyEZCGqfvS1kkE1UvuKOQMsxZnzOvLzaYGMvULQt4oHHa0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768817597; c=relaxed/simple;
-	bh=LQSL6q2ninGB3gtxgKvh/AR0iuPs4o5A0K69cbwxURg=;
+	s=arc-20240116; t=1768818208; c=relaxed/simple;
+	bh=yBC2w/4OMqdbc4/rilCsP6o3MCUfWlvlunHW2Qg/2qk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cUOTeMmUATzc/frdN3BO557nDeUEmfSG6JsT7dq8ve38itg9ECXmzamfQ7MzkYyvrMkYGERmiSP9f3w0pIzyZ8Yg1IR4f0xL0CQ0WykBzSGq35ngvgaJmI+m9URGo5HWkfyRJZQ1GyLEuJBizsbcd3QbQvn38KdUSpnnbI4QrH8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=svy1vXYt; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=cMI3iOhe; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="svy1vXYt";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="cMI3iOhe"
-Date: Mon, 19 Jan 2026 11:13:08 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1768817594;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Lta+KWAcIF9doaLiUNXBWL3sWYTW3dzvu5HOqlgjRA8=;
-	b=svy1vXYtafoNzAvQXNSkBBrApbRCCMDHaCnHHWabIr76vv7u8Z6NRMMnuAumFV5pIFQLGk
-	5dPXY8B0gGULDLuXpUh4xV6xJan8FeuH7yC4R3PwDUa12I6SW5yD4zBibkTV0ZD8HDJs9B
-	fNvFOXdeYvugTHmPaqS/L/P50tzQe0vq+nWdmyPnnaH3gMvpsJ/7RMbB++o2X0QnvNVJda
-	VqmY3iHEHV+n/tITIuZqr3P4lRe0avcqL3cdfXUJtlZGnbuJ/lBRThHalA3HMDmGRyNhs0
-	nX6CyKtn5umX8gzknT0BFLMK88PLQ5LBuz6RzuhXi823QQKSlc2NuyEpuFzI7Q==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1768817594;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Lta+KWAcIF9doaLiUNXBWL3sWYTW3dzvu5HOqlgjRA8=;
-	b=cMI3iOheCPv5/aNGPN8X3GIH0tvx4zjpLdLBkH9cJFcDIVe2QUthhPnPMZ2qPYt9qJEh8P
-	YUwttDakW+Hc4bBw==
-From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-To: David Laight <david.laight.linux@gmail.com>
-Cc: "David S. Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>, 
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, sparclinux@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 4/4] asm-generic/bitsperlong.h: Add sanity checks for
- __BITS_PER_LONG
-Message-ID: <20260119111037-4decf57f-2094-4fac-bcf4-03506791b197@linutronix.de>
-References: <20260116-vdso-compat-checkflags-v1-0-4a83b4fbb0d3@linutronix.de>
- <20260116-vdso-compat-checkflags-v1-4-4a83b4fbb0d3@linutronix.de>
- <20260119100619.479bcff3@pumpkin>
+	 Content-Type:Content-Disposition:In-Reply-To; b=a/glhDQ+KLV6IEic/jXVWrY4gugYn57gYKLvCEFIOzuteAL4r3kq3hDKpLF9liNsRdf55m3K4rrPjBxZTncCh4PxhCM/LaNDFBdBZKb3mEnBm7+wxm7TeMYnOql+ag7IL0V10PLZ07X13+reFCFml5DiQMHCo/qooDIE05wGy6s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9ABCC1517;
+	Mon, 19 Jan 2026 02:23:18 -0800 (PST)
+Received: from J2N7QTR9R3 (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2614E3F632;
+	Mon, 19 Jan 2026 02:23:19 -0800 (PST)
+Date: Mon, 19 Jan 2026 10:23:14 +0000
+From: Mark Rutland <mark.rutland@arm.com>
+To: Ryan Roberts <ryan.roberts@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Kees Cook <kees@kernel.org>,
+	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	"Jason A. Donenfeld" <Jason@zx2c4.com>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Jeremy Linton <jeremy.linton@arm.com>, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: Re: [PATCH v3 1/3] randomize_kstack: Maintain kstack_offset per task
+Message-ID: <aW4GEi9C_F6K9Qck@J2N7QTR9R3>
+References: <20260102131156.3265118-1-ryan.roberts@arm.com>
+ <20260102131156.3265118-2-ryan.roberts@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260119100619.479bcff3@pumpkin>
+In-Reply-To: <20260102131156.3265118-2-ryan.roberts@arm.com>
 
-On Mon, Jan 19, 2026 at 10:06:19AM +0000, David Laight wrote:
-> On Fri, 16 Jan 2026 08:40:27 +0100
-> Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de> wrote:
+On Fri, Jan 02, 2026 at 01:11:52PM +0000, Ryan Roberts wrote:
+> kstack_offset was previously maintained per-cpu, but this caused a
+> couple of issues. So let's instead make it per-task.
 > 
-> > The value of __BITS_PER_LONG from architecture-specific logic should
-> > always match the generic one if that is available. It should also match
-> > the actual C type 'long'.
-> > 
-> > Mismatches can happen for example when building the compat vDSO. Either
-> > during the compilation, see commit 9a6d3ff10f7f ("arm64: uapi: Provide
-> > correct __BITS_PER_LONG for the compat vDSO"), or when running sparse
-> > when mismatched CHECKFLAGS are inherited from the kernel build.
-> > 
-> > Add some consistency checks which detect such issues early and clearly.
-> > The tests are added to the UAPI header to make sure it is also used when
-> > building the vDSO as that is not supposed to use regular kernel headers.
-> > 
-> > The kernel-interal BITS_PER_LONG is not checked as it is derived from
-> > CONFIG_64BIT and therefore breaks for the compat vDSO. See the similar,
-> > deactivated check in include/asm-generic/bitsperlong.h.
-> > 
-> > Signed-off-by: Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de>
-> > ---
-> >  include/uapi/asm-generic/bitsperlong.h | 14 ++++++++++++++
-> >  1 file changed, 14 insertions(+)
-> > 
-> > diff --git a/include/uapi/asm-generic/bitsperlong.h b/include/uapi/asm-generic/bitsperlong.h
-> > index fadb3f857f28..9d762097ae0c 100644
-> > --- a/include/uapi/asm-generic/bitsperlong.h
-> > +++ b/include/uapi/asm-generic/bitsperlong.h
-> > @@ -28,4 +28,18 @@
-> >  #define __BITS_PER_LONG_LONG 64
-> >  #endif
-> >  
-> > +/* Consistency checks */
-> > +#ifdef __KERNEL__
-> > +#if defined(__CHAR_BIT__) && defined(__SIZEOF_LONG__)
-> > +#if __BITS_PER_LONG != (__CHAR_BIT__ * __SIZEOF_LONG__)
-> > +#error Inconsistent word size. Check uapi/asm/bitsperlong.h
-> > +#endif
-> > +#endif
-> > +
-> > +#ifndef __ASSEMBLER__
-> > +_Static_assert(sizeof(long) * 8 == __BITS_PER_LONG,
-> > +	       "Inconsistent word size. Check uapi/asm/bitsperlong.h");
+> Issue 1: add_random_kstack_offset() and choose_random_kstack_offset()
+> expected and required to be called with interrupts and preemption
+> disabled so that it could manipulate per-cpu state. But arm64, loongarch
+> and risc-v are calling them with interrupts and preemption enabled. I
+> don't _think_ this causes any functional issues, but it's certainly
+> unexpected and could lead to manipulating the wrong cpu's state, which
+> could cause a minor performance degradation due to bouncing the cache
+> lines. By maintaining the state per-task those functions can safely be
+> called in preemptible context.
 > 
-> nak...
+> Issue 2: add_random_kstack_offset() is called before executing the
+> syscall and expands the stack using a previously chosen rnadom offset.
+> choose_random_kstack_offset() is called after executing the syscall and
+> chooses and stores a new random offset for the next syscall. With
+> per-cpu storage for this offset, an attacker could force cpu migration
+> during the execution of the syscall and prevent the offset from being
+> updated for the original cpu such that it is predictable for the next
+> syscall on that cpu. By maintaining the state per-task, this problem
+> goes away because the per-task random offset is updated after the
+> syscall regardless of which cpu it is executing on.
 > 
-> You can't assume the compiler has _Static_assert().
-> All the ones that do probably define __SIZEOF_LONG__.
-> You could use something 'old-school' like:
-> typedef char __inconsistent_long_size[1 - 2 * (sizeof(long) * 8 != __BITS_PER_LONG))];
+> Fixes: 39218ff4c625 ("stack: Optionally randomize kernel stack offset each syscall")
+> Closes: https://lore.kernel.org/all/dd8c37bc-795f-4c7a-9086-69e584d8ab24@arm.com/
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
 
-This is only used when building the kernel, it never actually reaches
-userspace. And all supported compilers for the kernel do have _Static_assert().
-As indicated by other users of _Static_assert() we have elsewhere in the tree.
+Acked-by: Mark Rutland <mark.rutland@arm.com>
 
+Mark.
+
+> ---
+>  include/linux/randomize_kstack.h | 26 +++++++++++++++-----------
+>  include/linux/sched.h            |  4 ++++
+>  init/main.c                      |  1 -
+>  kernel/fork.c                    |  2 ++
+>  4 files changed, 21 insertions(+), 12 deletions(-)
 > 
-> 	David
+> diff --git a/include/linux/randomize_kstack.h b/include/linux/randomize_kstack.h
+> index 1d982dbdd0d0..5d3916ca747c 100644
+> --- a/include/linux/randomize_kstack.h
+> +++ b/include/linux/randomize_kstack.h
+> @@ -9,7 +9,6 @@
+>  
+>  DECLARE_STATIC_KEY_MAYBE(CONFIG_RANDOMIZE_KSTACK_OFFSET_DEFAULT,
+>  			 randomize_kstack_offset);
+> -DECLARE_PER_CPU(u32, kstack_offset);
+>  
+>  /*
+>   * Do not use this anywhere else in the kernel. This is used here because
+> @@ -50,15 +49,14 @@ DECLARE_PER_CPU(u32, kstack_offset);
+>   * add_random_kstack_offset - Increase stack utilization by previously
+>   *			      chosen random offset
+>   *
+> - * This should be used in the syscall entry path when interrupts and
+> - * preempt are disabled, and after user registers have been stored to
+> - * the stack. For testing the resulting entropy, please see:
+> - * tools/testing/selftests/lkdtm/stack-entropy.sh
+> + * This should be used in the syscall entry path after user registers have been
+> + * stored to the stack. Preemption may be enabled. For testing the resulting
+> + * entropy, please see: tools/testing/selftests/lkdtm/stack-entropy.sh
+>   */
+>  #define add_random_kstack_offset() do {					\
+>  	if (static_branch_maybe(CONFIG_RANDOMIZE_KSTACK_OFFSET_DEFAULT,	\
+>  				&randomize_kstack_offset)) {		\
+> -		u32 offset = raw_cpu_read(kstack_offset);		\
+> +		u32 offset = current->kstack_offset;			\
+>  		u8 *ptr = __kstack_alloca(KSTACK_OFFSET_MAX(offset));	\
+>  		/* Keep allocation even after "ptr" loses scope. */	\
+>  		asm volatile("" :: "r"(ptr) : "memory");		\
+> @@ -69,9 +67,9 @@ DECLARE_PER_CPU(u32, kstack_offset);
+>   * choose_random_kstack_offset - Choose the random offset for the next
+>   *				 add_random_kstack_offset()
+>   *
+> - * This should only be used during syscall exit when interrupts and
+> - * preempt are disabled. This position in the syscall flow is done to
+> - * frustrate attacks from userspace attempting to learn the next offset:
+> + * This should only be used during syscall exit. Preemption may be enabled. This
+> + * position in the syscall flow is done to frustrate attacks from userspace
+> + * attempting to learn the next offset:
+>   * - Maximize the timing uncertainty visible from userspace: if the
+>   *   offset is chosen at syscall entry, userspace has much more control
+>   *   over the timing between choosing offsets. "How long will we be in
+> @@ -85,14 +83,20 @@ DECLARE_PER_CPU(u32, kstack_offset);
+>  #define choose_random_kstack_offset(rand) do {				\
+>  	if (static_branch_maybe(CONFIG_RANDOMIZE_KSTACK_OFFSET_DEFAULT,	\
+>  				&randomize_kstack_offset)) {		\
+> -		u32 offset = raw_cpu_read(kstack_offset);		\
+> +		u32 offset = current->kstack_offset;			\
+>  		offset = ror32(offset, 5) ^ (rand);			\
+> -		raw_cpu_write(kstack_offset, offset);			\
+> +		current->kstack_offset = offset;			\
+>  	}								\
+>  } while (0)
+> +
+> +static inline void random_kstack_task_init(struct task_struct *tsk)
+> +{
+> +	tsk->kstack_offset = 0;
+> +}
+>  #else /* CONFIG_RANDOMIZE_KSTACK_OFFSET */
+>  #define add_random_kstack_offset()		do { } while (0)
+>  #define choose_random_kstack_offset(rand)	do { } while (0)
+> +#define random_kstack_task_init(tsk)		do { } while (0)
+>  #endif /* CONFIG_RANDOMIZE_KSTACK_OFFSET */
+>  
+>  #endif
+> diff --git a/include/linux/sched.h b/include/linux/sched.h
+> index d395f2810fac..9e0080ed1484 100644
+> --- a/include/linux/sched.h
+> +++ b/include/linux/sched.h
+> @@ -1591,6 +1591,10 @@ struct task_struct {
+>  	unsigned long			prev_lowest_stack;
+>  #endif
+>  
+> +#ifdef CONFIG_RANDOMIZE_KSTACK_OFFSET
+> +	u32				kstack_offset;
+> +#endif
+> +
+>  #ifdef CONFIG_X86_MCE
+>  	void __user			*mce_vaddr;
+>  	__u64				mce_kflags;
+> diff --git a/init/main.c b/init/main.c
+> index b84818ad9685..27fcbbde933e 100644
+> --- a/init/main.c
+> +++ b/init/main.c
+> @@ -830,7 +830,6 @@ static inline void initcall_debug_enable(void)
+>  #ifdef CONFIG_RANDOMIZE_KSTACK_OFFSET
+>  DEFINE_STATIC_KEY_MAYBE_RO(CONFIG_RANDOMIZE_KSTACK_OFFSET_DEFAULT,
+>  			   randomize_kstack_offset);
+> -DEFINE_PER_CPU(u32, kstack_offset);
+>  
+>  static int __init early_randomize_kstack_offset(char *buf)
+>  {
+> diff --git a/kernel/fork.c b/kernel/fork.c
+> index b1f3915d5f8e..b061e1edbc43 100644
+> --- a/kernel/fork.c
+> +++ b/kernel/fork.c
+> @@ -95,6 +95,7 @@
+>  #include <linux/thread_info.h>
+>  #include <linux/kstack_erase.h>
+>  #include <linux/kasan.h>
+> +#include <linux/randomize_kstack.h>
+>  #include <linux/scs.h>
+>  #include <linux/io_uring.h>
+>  #include <linux/bpf.h>
+> @@ -2231,6 +2232,7 @@ __latent_entropy struct task_struct *copy_process(
+>  	if (retval)
+>  		goto bad_fork_cleanup_io;
+>  
+> +	random_kstack_task_init(p);
+>  	stackleak_task_init(p);
+>  
+>  	if (pid != &init_struct_pid) {
+> -- 
+> 2.43.0
 > 
-> > +#endif
-> > +#endif /* __KERNEL__ */
-> > +
-> >  #endif /* _UAPI__ASM_GENERIC_BITS_PER_LONG */
