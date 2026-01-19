@@ -1,38 +1,38 @@
 Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0087F37B3FD;
-	Mon, 19 Jan 2026 14:26:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0107522A4E9;
+	Mon, 19 Jan 2026 14:36:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768832784; cv=none; b=swvSPb6XAOCAXcRGZmUAhF3o0B+EOGhQOygkzE1diDuzEQhwthyV2VFVm6Ui8AJ6eNyBu9W2cUd5PGYxCWl6ll3awrRiOiWof5/Kh4oYQ2y/PXz7NFYpK9lkmJpJHzEfx9ApgVgeOucsuzK73XvEOSEtFW6TmmXkzAO5XLszbTc=
+	t=1768833369; cv=none; b=S8pdoJ5TNgjlRxwdaX1rlXK0RTWPHjs8qomG0zHqtEfsU0gPTRC0Rna4+E1xH0ekNdROTYOPSuArhEJRwHugr7k4097rctt7RzvtCIPtz0Po1s0PavJOPmKSYiOYra/gtrX8BSbmsYrn7ihiaORVatzwW9zLvEWwvakfexmkBl8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768832784; c=relaxed/simple;
-	bh=m6aD/X2y0FNcAmZ9GWybNcS/CHc+XooX2ctcxGXuAmw=;
+	s=arc-20240116; t=1768833369; c=relaxed/simple;
+	bh=ntm+khmj31hDPtEYjX20KmZZmZzQw0TMZe6p5iXV14Q=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=s2M+PEAyyQ/k+8xivTbiBtcOTWdu8gtv3ZJC+W+pigQQX6vMZJELJipu5AQ2U6xzYk1pWoeUZETM8M7pslUeV6MSaDMufZh9RkmV8JNmuIK/FrsJxDZfmeCnfORjp/pdfw8bAKCzVHB1/6IICWQW4YMJOZUcDqZ0C1bJDYHY0Ek=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=phVpzmPF; arc=none smtp.client-ip=90.155.92.199
+	 Content-Type:Content-Disposition:In-Reply-To; b=VrpB7M3iRoNhGpRa6dRitOKQgp5rvwB6soe9sH3NUPQpk9KuWT5tmuxlF2wMlJ3TO93AaNQJ/X4FO4/IajWQXnlgUAlOtBw5pJ74kRsRr9OMmS7ChmPCYI0fnPeznkajoE+9GAIcS7h7WYePqopVtCc9uXHBD2RnhzYiJOmJ39o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=S2HzY/XR; arc=none smtp.client-ip=90.155.92.199
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="phVpzmPF"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="S2HzY/XR"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
 	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
 	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=J7YR6Ss4GR1p+SXEIbKvrV+9SeOL7XVCLDPQxRbp/9Q=; b=phVpzmPFu1Lg5Wwsu+BOkmfOW+
-	7MEiiANgQ2k/WAjssImTBsBtsTReEql3LfWeR3eFCTJMcXjNSQuIO7LbmizlIxbjd7SrLLSKCcBSp
-	aDO/nN6wrUdvONoFpb1boJnDyyb9lER3VTnG9922Knms3+B9j6HFUVGinLdmiEyvhWAyM1emPfId0
-	3ejQrUhO0sHyp8rUFpwu26JS3ZZq0CPSKVHkIzEgF64hdM1+c+1BQTsyQUJrF/KtLBbP6GFbLLb2j
-	Jm6wiXTO8fSdUEnK92SIQIyQQDwiIUBCAg2WEYqWULtN4+kC03qtQtM6yeOYdsHHp/DqXmbnbADUG
-	Oa7LNwWA==;
+	bh=TX9AK0WImvqy6dbeoXuKKxGGurru6lbB0iFY3euRVeA=; b=S2HzY/XR2q1WCyKLHrFfbS4AxR
+	et3K2ZgiAkkP63sYcmvG204nTiWLK0kC3G2PJf6V1KiEUkEeoUezCOh2cnhMiN2s9yjXIHfQoDoHw
+	Z90M+Sy8CpezVCfXRh90k543tDcFttQuVEdYT+e/CZKRmgHRPfry/p67XsGwUAQKyrw3tjBPeyjfu
+	Xgn1MvzIeMr63yFZdT4arLMfequ48RPuquozifiDFof8bLDa3iemT3EX5mvDbq3wDHJlnpYi064W1
+	JHHGkuZ9k7ZQyU5s+uf8z0TG70YZ2y9Q+Z+D8NJClTlgadNZMLaImy6JIizLm9bibrVJ6gAhATKxJ
+	RI0mrhLQ==;
 Received: from 2001-1c00-8d85-5700-266e-96ff-fe07-7dcc.cable.dynamic.v6.ziggo.nl ([2001:1c00:8d85:5700:266e:96ff:fe07:7dcc] helo=noisy.programming.kicks-ass.net)
 	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vhqCm-0000000CGLf-3TCN;
-	Mon, 19 Jan 2026 14:26:09 +0000
+	id 1vhqMD-0000000CHyO-1Lbz;
+	Mon, 19 Jan 2026 14:35:54 +0000
 Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id DA8703006CD; Mon, 19 Jan 2026 15:26:07 +0100 (CET)
-Date: Mon, 19 Jan 2026 15:26:07 +0100
+	id D83BB3006CD; Mon, 19 Jan 2026 15:35:52 +0100 (CET)
+Date: Mon, 19 Jan 2026 15:35:52 +0100
 From: Peter Zijlstra <peterz@infradead.org>
 To: Frederic Weisbecker <frederic@kernel.org>
 Cc: LKML <linux-kernel@vger.kernel.org>,
@@ -63,10 +63,11 @@ Cc: LKML <linux-kernel@vger.kernel.org>,
 	Viresh Kumar <viresh.kumar@linaro.org>,
 	Xin Zhao <jackzxcui1989@163.com>, linux-pm@vger.kernel.org,
 	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH 06/15] tick/sched: Unify idle cputime accounting
-Message-ID: <20260119142607.GG830229@noisy.programming.kicks-ass.net>
+Subject: Re: [PATCH 09/15] tick/sched: Move dyntick-idle cputime accounting
+ to cputime code
+Message-ID: <20260119143552.GH830229@noisy.programming.kicks-ass.net>
 References: <20260116145208.87445-1-frederic@kernel.org>
- <20260116145208.87445-7-frederic@kernel.org>
+ <20260116145208.87445-10-frederic@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -75,27 +76,58 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260116145208.87445-7-frederic@kernel.org>
+In-Reply-To: <20260116145208.87445-10-frederic@kernel.org>
 
-On Fri, Jan 16, 2026 at 03:51:59PM +0100, Frederic Weisbecker wrote:
+On Fri, Jan 16, 2026 at 03:52:02PM +0100, Frederic Weisbecker wrote:
 
-> +#ifdef CONFIG_NO_HZ_COMMON
-> +void kcpustat_dyntick_start(void)
-> +{
-> +	if (!vtime_generic_enabled_this_cpu()) {
-> +		vtime_dyntick_start();
-> +		__this_cpu_write(kernel_cpustat.idle_dyntick, 1);
-> +	}
-> +}
+> +static void kcpustat_idle_stop(struct kernel_cpustat *kc, ktime_t now)
+>  {
+> +	u64 *cpustat = kc->cpustat;
+> +	ktime_t delta;
+> +
+> +	if (!kc->idle_elapse)
+> +		return;
+> +
+> +	delta = ktime_sub(now, kc->idle_entrytime);
+> +
+> +	write_seqcount_begin(&kc->idle_sleeptime_seq);
+> +	if (nr_iowait_cpu(smp_processor_id()) > 0)
+> +		cpustat[CPUTIME_IOWAIT] = ktime_add(cpustat[CPUTIME_IOWAIT], delta);
+> +	else
+> +		cpustat[CPUTIME_IDLE] = ktime_add(cpustat[CPUTIME_IDLE], delta);
+> +
+> +	kc->idle_entrytime = now;
+> +	kc->idle_elapse = false;
+> +	write_seqcount_end(&kc->idle_sleeptime_seq);
+>  }
 
-Why don't we need to make sure steal time is up-to-date at this point?
+I realize this is mostly code movement; but do we really want to
+preserve ktime_{sub,add}() and all that?
 
-> +void kcpustat_dyntick_stop(void)
-> +{
-> +	if (!vtime_generic_enabled_this_cpu()) {
-> +		__this_cpu_write(kernel_cpustat.idle_dyntick, 0);
-> +		vtime_dyntick_stop();
-> +		steal_account_process_time(ULONG_MAX);
-> +	}
-> +}
-> +#endif /* CONFIG_NO_HZ_COMMON */
+I mean, we killed that 32bit ktime nonsense ages ago.
+
+> -static void tick_nohz_stop_idle(struct tick_sched *ts, ktime_t now)
+> -{
+> -	u64 *cpustat = kcpustat_this_cpu->cpustat;
+> -	ktime_t delta;
+> -
+> -	if (vtime_generic_enabled_this_cpu())
+> -		return;
+> -
+> -	if (WARN_ON_ONCE(!tick_sched_flag_test(ts, TS_FLAG_IDLE_ACTIVE)))
+> -		return;
+> -
+> -	delta = ktime_sub(now, ts->idle_entrytime);
+> -
+> -	write_seqcount_begin(&ts->idle_sleeptime_seq);
+> -	if (nr_iowait_cpu(smp_processor_id()) > 0)
+> -		cpustat[CPUTIME_IOWAIT] = ktime_add(cpustat[CPUTIME_IOWAIT], delta);
+> -	else
+> -		cpustat[CPUTIME_IDLE] = ktime_add(cpustat[CPUTIME_IDLE], delta);
+> -
+> -	ts->idle_entrytime = now;
+> -	tick_sched_flag_clear(ts, TS_FLAG_IDLE_ACTIVE);
+> -	write_seqcount_end(&ts->idle_sleeptime_seq);
+> -
+> -	sched_clock_idle_wakeup_event();
+> -}
