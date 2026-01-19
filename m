@@ -1,48 +1,50 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C685038B9AC;
-	Mon, 19 Jan 2026 16:00:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E597E299959;
+	Mon, 19 Jan 2026 16:10:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768838404; cv=none; b=UlvHjMcNACTKFbR4HGtj02NhhwQegNcMeDIg8d5mqSj03jZDZDnjvQoFhqcC1WIM+oSQOV7ieDHUMVImeDPakYy5wWSahq+pXE+74WPSXRZzgCH7smBgOjqf3CGDyRXFFMMPCqMn/brpI23NbyRIidWI/gqAV84/MgK8YWrM01U=
+	t=1768839046; cv=none; b=pJiObgD/YWGP2F0RHAvvmkCxLgVttOqON02wd1Lbiqg5R2q4hQSWoS9ZInGgUE81GvBSF/J+c2NacPpMFYcDcq+bUnHjnSy9bmQPc48a/+VWs7nuvIX36DgfM3Ej1fg/SlGFJE73wPncGQyvg0LX0cXAHXemthjaQ8j8K76u03M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768838404; c=relaxed/simple;
-	bh=Yyv3m0ULnW37JqDe3o4/cJ3o5zdP90I/r40PxaOIQdI=;
+	s=arc-20240116; t=1768839046; c=relaxed/simple;
+	bh=dPaEw2aa5u0SVM5+XwHOK0y6nSiExAWMwRY/JJ5VvQ4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CL+FETcAfTMsy78XsyhxheXLgtBdoIyJT5wN1FQFl5VKK8+35SJQEBeB/illh20gtnTk4kHQ5lB52OJxNfkCDct3nkr32WqBIjD0uWmLuFzh3C0v7Fb1cnM5WAka9Y+WY+ftK/FJ4wZ9bvwXFv7Ke7Ka74zo6nb3NFE2KI5zd/Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nDKmyLkR; arc=none smtp.client-ip=192.198.163.9
+	 In-Reply-To:Content-Type; b=T1W3ICV05j6nX/hTXNl8pWhLsZ8uC9WBBpQKyRKdGM642WSYSrN/yKBI7lET8zwH98bXgqj/fGmEfWs/zSKsCUd7SteRv1WINUPW0rPX9IXTbRPKxqcekfcj2Kr6ihY80qp7Q2D5+kipmvptinbP0pH0GEpI7gWSO59yLxzcsIg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=k+PIHz9I; arc=none smtp.client-ip=198.175.65.14
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nDKmyLkR"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="k+PIHz9I"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1768838403; x=1800374403;
+  t=1768839045; x=1800375045;
   h=message-id:date:mime-version:subject:to:cc:references:
    from:in-reply-to:content-transfer-encoding;
-  bh=Yyv3m0ULnW37JqDe3o4/cJ3o5zdP90I/r40PxaOIQdI=;
-  b=nDKmyLkRGZnWkbzoaoNEo5CBfAJfsazo7GNhfnU2Xdt5gN3DNeS5XR3+
-   GQNkMGMATOuagk5YqxOyhKAzKh0BDfZ1P3M9uhyrNDdz5ldUmf6p+W5D9
-   3IllPMoadanHAbSHwGGesZUGrhs2BOIBAnbWjIbd6VFsLL8O51zgjnwjH
-   KfM3z14VRDb6aoq7CVLojB+BL5XkjPAdCrJLwsA78DNlgbtWq4rjh6gH1
-   mZF7xxG8wGfXp1g1inrfHmbo5JUdotxpVx7In9xVJ2B/QSpfgxfsLGQEo
-   VztbaM5+wAxLQqsRwBlNk7QXuxxu+se6NOesvFg+T024xenu4+QKJcFwh
-   g==;
-X-CSE-ConnectionGUID: LE6BPqNyTIeET+E26owjHA==
-X-CSE-MsgGUID: P8dtxW0uQYKfOD2lMD9gWA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11676"; a="80772357"
+  bh=dPaEw2aa5u0SVM5+XwHOK0y6nSiExAWMwRY/JJ5VvQ4=;
+  b=k+PIHz9I8Orj1wctlZeRofEqBMCeaA2Zh+3LsKp/jVCC8CM84puvCQwa
+   3d797mBm5LD6W/9AL3m2hZOFGFNsS4gNuWRbcBK70VDnV+/kmVNK37SRi
+   QX23supjR+fOLnCHoP+CFDbarryon807RV8onJuscq1nJqSXn66GCW39j
+   xvyWKoqlGUZOiwP6/RTA6S51ThBzTMp5NFD46Y+fn7UKb6jPGcCFIzc4q
+   oXls8eSXJtkWOim+bXey97f8uuOzY6MD30fOkSdtZQMAcfhi8Pgfl77Xj
+   XbqdDdt4vZWaKn/Mm9p7lRkzuIIGvIm/l8ajuHedkct6f+VAoWBUpi8cw
+   A==;
+X-CSE-ConnectionGUID: nOReYuNQQL+Wojau+UXpzQ==
+X-CSE-MsgGUID: sbTNt0k1TBqM3YtdhcMoiQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11676"; a="73906851"
 X-IronPort-AV: E=Sophos;i="6.21,238,1763452800"; 
-   d="scan'208";a="80772357"
-Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2026 08:00:02 -0800
-X-CSE-ConnectionGUID: fn69LaQYSYWVbojmE0QC8g==
-X-CSE-MsgGUID: zz9FJ/hMTSe0YLohU0G/fw==
+   d="scan'208";a="73906851"
+Received: from orviesa010.jf.intel.com ([10.64.159.150])
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2026 08:10:44 -0800
+X-CSE-ConnectionGUID: EjVT2CTdSL+iBJ4OGRaOlQ==
+X-CSE-MsgGUID: 8Px4MFfoQeC7IU/aMGjpQQ==
 X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,238,1763452800"; 
+   d="scan'208";a="205150360"
 Received: from cjhill-mobl.amr.corp.intel.com (HELO [10.125.111.233]) ([10.125.111.233])
-  by fmviesa003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2026 08:00:01 -0800
-Message-ID: <20fb97f1-7e50-485a-bdfd-a2901d20ec84@intel.com>
-Date: Mon, 19 Jan 2026 08:00:00 -0800
+  by orviesa010-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2026 08:10:43 -0800
+Message-ID: <85d0d013-eca2-4b9f-bee3-d583d0eeb99e@intel.com>
+Date: Mon, 19 Jan 2026 08:10:42 -0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -50,8 +52,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 0/3] Fix bugs and performance of kstack offset
- randomisation
+Subject: Re: [PATCH v4 1/3] randomize_kstack: Maintain kstack_offset per task
 To: Ryan Roberts <ryan.roberts@arm.com>,
  Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
  Huacai Chen <chenhuacai@kernel.org>,
@@ -70,8 +71,9 @@ To: Ryan Roberts <ryan.roberts@arm.com>,
 Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
  loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
  linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-hardening@vger.kernel.org
+ linux-hardening@vger.kernel.org, stable@vger.kernel.org
 References: <20260119130122.1283821-1-ryan.roberts@arm.com>
+ <20260119130122.1283821-2-ryan.roberts@arm.com>
 From: Dave Hansen <dave.hansen@intel.com>
 Content-Language: en-US
 Autocrypt: addr=dave.hansen@intel.com; keydata=
@@ -117,25 +119,47 @@ Autocrypt: addr=dave.hansen@intel.com; keydata=
  MTsCeQDdjpgHsj+P2ZDeEKCbma4m6Ez/YWs4+zDm1X8uZDkZcfQlD9NldbKDJEXLIjYWo1PH
  hYepSffIWPyvBMBTW2W5FRjJ4vLRrJSUoEfJuPQ3vW9Y73foyo/qFoURHO48AinGPZ7PC7TF
  vUaNOTjKedrqHkaOcqB185ahG2had0xnFsDPlx5y
-In-Reply-To: <20260119130122.1283821-1-ryan.roberts@arm.com>
+In-Reply-To: <20260119130122.1283821-2-ryan.roberts@arm.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 1/19/26 05:01, Ryan Roberts wrote:
-> x86 (AWS Sapphire Rapids):
-> +-----------------+--------------+-------------+---------------+
-> | Benchmark       | Result Class |   v6.18-rc5 | per-task-prng |
-> |                 |              | rndstack-on |               |
-> |                 |              |             |               |
-> +=================+==============+=============+===============+
-> | syscall/getpid  | mean (ns)    |  (R) 13.32% |     (R) 4.60% |
-> |                 | p99 (ns)     |  (R) 13.38% |    (R) 18.08% |
-> |                 | p99.9 (ns)   |      16.26% |    (R) 19.38% |
+...
+> Cc: stable@vger.kernel.org
 
-Like you noted, this is surprising. This would be a good thing to make
-sure it goes in very early after -rc1 and gets plenty of wide testing.
+Since this doesn't fix any known functional issues, if it were me, I'd
+leave stable@ alone. It isn't clear that this is stable material.
 
-But I don't see any problems with the approach, and the move to common
-code looks like a big win as well:
+> --- a/include/linux/sched.h
+> +++ b/include/linux/sched.h
+> @@ -1591,6 +1591,10 @@ struct task_struct {
+>  	unsigned long			prev_lowest_stack;
+>  #endif
+>  
+> +#ifdef CONFIG_RANDOMIZE_KSTACK_OFFSET
+> +	u32				kstack_offset;
+> +#endif
+> +
+>  #ifdef CONFIG_X86_MCE
+>  	void __user			*mce_vaddr;
 
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+Nit: This seems to be throwing a u32 potentially in between a couple of
+void*/ulong sized objects.
+
+It probably doesn't matter with struct randomization and it's really
+hard to get right among the web of task_struct #ifdefs. But, it would be
+nice to at _least_ nestle this next to another int-sized thing.
+
+Does it really even need to be 32 bits? x86 has this comment:
+
+>         /*
+>          * This value will get limited by KSTACK_OFFSET_MAX(), which is 10
+>          * bits. The actual entropy will be further reduced by the compiler
+>          * when applying stack alignment constraints (see cc_stack_align4/8 in
+>          * arch/x86/Makefile), which will remove the 3 (x86_64) or 2 (ia32)
+>          * low bits from any entropy chosen here.
+>          *
+>          * Therefore, final stack offset entropy will be 7 (x86_64) or
+>          * 8 (ia32) bits.
+>          */
+
