@@ -1,147 +1,151 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 019A22C158F;
-	Mon, 19 Jan 2026 16:56:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8410A2C11F0
+	for <linux-s390@vger.kernel.org>; Mon, 19 Jan 2026 17:47:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768841814; cv=none; b=OaiSbjyZbfvZrSsgw4+Z6uOipIn9eeSDsgir6JMV5Q/vGNyuVq/w1+8JzFszngTz1H4sOmD7IsredLa/GQU/yTzeARXyYzTwL2qHCA+3uzmB4qjOKR9pdkddwvQmxAOoSTcC26ECzBhxdM2HfIMXHQNaxml517oyNH1IhCcHJ1M=
+	t=1768844855; cv=none; b=AOSXZj1ZDBnp8C8Cqlo1qtGAN/bjrjUwSqx0SYd6zKvcWHwHIyzEoH9wRszUn5KgXfsdIHBsjNHVvkYjCMtjVReAlW97E9DFA58hCV+vHxm9Q1RNRrCmJQBtsUnXinfX6icxfOkD5H5lDYpnxDs3XHF7mQq50l85SKR/BSF0Cu0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768841814; c=relaxed/simple;
-	bh=GYLwx0Hne15W5ZSKTaTY96zz6Id4CzMzEygkuRoJRGI=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=eMxKEL1hE0U1HbV5nE5RX65JSpnzXMHifoWXngiimF5n6WYtBzameub00KtXfUAh+eFRVTLWDV1CvYfEvAasRX56jIhfvgS+t4qoc3/u285vqAqLg3Y/22CvTEHfpcdw/QEqlAbQaCjJbzJV/AFdzvO2BvSjzgRus6Sv9l4Ntk4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Dzgbg+ok; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1768844855; c=relaxed/simple;
+	bh=uFWIzT/NGXdCZyvcgR0/FUoFNBord156hv8OfVms58Y=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=oAOc5Pm+S3e0X5RJr1ailbFwx+e/khZADmZdLMFk3lEMXvMipc+g0ZCKMkkx8pSSYek8pHu3KzUY/xar+hvdNluvq4ZSQradSAEyK59L//MHJvLIXf0mQm3rJbRRbSLrNmZ/0CcddNMbMh00ZjcVnhOCeAXGU8+GPJrALfzQHSg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GMtYY/zm; arc=none smtp.client-ip=209.85.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Dzgbg+ok"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60JDcHpb012605;
-	Mon, 19 Jan 2026 16:56:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=fVQAwn
-	ZY3xGcrB47UXLurStptNlnnObHCmQwjyhqQK0=; b=Dzgbg+okFzoC3e5YXfxg97
-	25+9a8+WELWr4ZfvbJ1O0Hzba2Q/AKrhOuUqf/rSNR8sGPQW97ro+nIwj0yYrD6z
-	r6VGRbnyfsafZWNQyyvp71JR4EAhiC3lUoT7to1Sp7BY/HVckMLByV04zUWGNTdc
-	wYoupwIXqc+Nh5m3gawlQZOni+4RUmQZrG5hRuWXiRZFSNwZnIgi740efmUzvl6M
-	OYYLGbp9KuZYjrl1bUBk7RNS6iKoHH9trxROQ9XQ7SntpIwoJS3KskWf4VKX2CHi
-	00v6Y89Fbt4B2wgLcrskkVMP9hGDKBcpxpnLJ0WGVXwadRFeeB21ctEKfna1ZXcg
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4br1x51f1k-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 19 Jan 2026 16:56:46 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60JGCjXc024583;
-	Mon, 19 Jan 2026 16:56:45 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4brxareb6r-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 19 Jan 2026 16:56:45 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60JGufBf56295776
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 19 Jan 2026 16:56:41 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7D1D520043;
-	Mon, 19 Jan 2026 16:56:41 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4F0682004B;
-	Mon, 19 Jan 2026 16:56:41 +0000 (GMT)
-Received: from localhost (unknown [9.52.203.172])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 19 Jan 2026 16:56:41 +0000 (GMT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GMtYY/zm"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4801bc328easo37302385e9.3
+        for <linux-s390@vger.kernel.org>; Mon, 19 Jan 2026 09:47:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1768844853; x=1769449653; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=l2ACadv0hgsZtux+LBE5pG2d7aO4i+uY5axwwBu8vVQ=;
+        b=GMtYY/zmJhPX5Xs7FJm3rgdUKdWIuhIklepJ1p4sddiSk/m48GgcuCFWYojivUWl0S
+         ItcXWhV3LEwOv4TzwJv2L8CLKQ44AK3D7QBES/aeXyukZebzf2e+NZ46lwP+vS2RJDr5
+         Fas+NRvNzp81+95dkDBYnUxXK/nnySKrAwae2kWZV4CNSP878KpANRKljUJLJ2uB15oC
+         sAxiISTwz31imERKHeIZ9AEFL9R6RLEjaJRY0JjT2sDdN+s30Rb5I1AXTdLHzspGThuB
+         tiCttjFFxbiQp8IPlnnIJDSDi/RKZC4j2b5/myFO+GiYQyFzJrxUbAtTdQo9bs/p5O/b
+         sM7g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768844853; x=1769449653;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=l2ACadv0hgsZtux+LBE5pG2d7aO4i+uY5axwwBu8vVQ=;
+        b=G7Hi0/6br52x6Z4SmMfn5Ss110ETQEyYufh/2iVTOT/HV/D+gWx0ZZqz5D4wk2eQql
+         gG9TxjLg9adlvjWdFjknBEyZjeiqCHZeFQs8WXgY4bkAmXWhBabGBnsYqmL2MBOfEMiY
+         E3QMfkEZ7h6DQ8I2qPPhKAKrFVDum/ZasAyb4W8iQOJW47YYcor55NxKtm1Ze/qTwajA
+         LvQs1bQgSjUMXWydgN+pQnfBrtk85HUCqCvvmYvXj2OCF2QpE36zI/ZfDorvd4DTnPg+
+         eoZzc7FVxA0exqPE+WXOYFArbH1DFJsqFDHfN54pQn7jnWj5ro6hmkFTj/kShyYJ6vCY
+         U3ow==
+X-Forwarded-Encrypted: i=1; AJvYcCWyDsD0hXHiw19RAI88BnFgyc1SEp5mbPlCHuF7j+RAb6YEo+8qOselVukn5k6W8HAKZtK5miiMpJbY@vger.kernel.org
+X-Gm-Message-State: AOJu0YyFDG2L6yunEauBgwtFSLOGsrkNtaCrmM21o6zdInWNde4hWIxT
+	Y6q52y1vI27jg2k8hT2GC/mC4s04mGSzGKrPfAmAD4up5McBoi0dntaB
+X-Gm-Gg: AZuq6aKIXecoxt5Cfu3M8y1YQK9sSn6a4Wz9NBzykgqnUVU2VIJEFSfcjbgsj6aSNWy
+	GFIxhR1Nrjsnp2N/Pd3rDeOIGZjzlp8V3dryut/q5S3RNEk66JZuAEYKuIFxtgupMc7plWBb8Dh
+	wA+2kfd5z5bF702uTwBDaEeUPNyrygn5R53ReTSBdq8tr0S1Ul/lebs7sSygRSNYLB+O84CfoCz
+	Qww6M9rbaF9QrzSDoygIiFD7ZNf77wPszPPNjRK+PmQDUnRg+mHPpd0Qa80GUd8NKVoqy0VpNRx
+	BEjJuh9kmhpj60C4yuZ3WytqUS536yxUHS6Cfs2jjknJc8C4er0A3odfh2t+DPhTnigb5e/B8F2
+	Ru4iusa1+CYgqldBDjDW9bYUqtgE7oFI+5s79ShoUJrBxtzBVcv3uYGm/OaTUm47mRwIW9fSi6x
+	LYhxAeQfJ+F3/YvWrdnybo4j5WZEYqeqqM5u89ry0D2G2r1k69F0R4
+X-Received: by 2002:a5d:588e:0:b0:431:9b2:61b0 with SMTP id ffacd0b85a97d-4356a03dd73mr15899699f8f.25.1768844852626;
+        Mon, 19 Jan 2026 09:47:32 -0800 (PST)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43569921dedsm24242699f8f.9.2026.01.19.09.47.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 19 Jan 2026 09:47:32 -0800 (PST)
+Date: Mon, 19 Jan 2026 17:47:30 +0000
+From: David Laight <david.laight.linux@gmail.com>
+To: "Arnd Bergmann" <arnd@arndb.de>
+Cc: Thomas =?UTF-8?B?V2Vpw59zY2h1aA==?= <thomas.weissschuh@linutronix.de>,
+ "David S . Miller" <davem@davemloft.net>, "Andreas Larsson"
+ <andreas@gaisler.com>, "Andy Lutomirski" <luto@kernel.org>, "Thomas
+ Gleixner" <tglx@kernel.org>, "Ingo Molnar" <mingo@redhat.com>, "Borislav
+ Petkov" <bp@alien8.de>, "Dave Hansen" <dave.hansen@linux.intel.com>,
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, "Heiko Carstens"
+ <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger"
+ <borntraeger@linux.ibm.com>, "Sven Schnelle" <svens@linux.ibm.com>,
+ sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org, Linux-Arch
+ <linux-arch@vger.kernel.org>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 4/4] asm-generic/bitsperlong.h: Add sanity checks for
+ __BITS_PER_LONG
+Message-ID: <20260119174730.5a20169d@pumpkin>
+In-Reply-To: <4e4b1b5b-5f7d-4604-b5ef-0d0726263843@app.fastmail.com>
+References: <20260116-vdso-compat-checkflags-v1-0-4a83b4fbb0d3@linutronix.de>
+	<20260116-vdso-compat-checkflags-v1-4-4a83b4fbb0d3@linutronix.de>
+	<20260119100619.479bcff3@pumpkin>
+	<20260119111037-4decf57f-2094-4fac-bcf4-03506791b197@linutronix.de>
+	<20260119103758.3afb5927@pumpkin>
+	<20260119114526-a15e7172-fc4c-40d0-a651-7c4a21acb1c8@linutronix.de>
+	<72a2744a-debc-4d8f-b418-5d6a595c2578@app.fastmail.com>
+	<20260119143735-ca5b7901-b501-4cb8-8e5d-10f4e2f8b650@linutronix.de>
+	<4e4b1b5b-5f7d-4604-b5ef-0d0726263843@app.fastmail.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Date: Mon, 19 Jan 2026 17:56:41 +0100
-Message-Id: <DFSQ35HIT6YT.3DTUUNUOEEDHM@linux.ibm.com>
-Cc: <helgaas@kernel.org>, <lukas@wunner.de>, <alex@shazbot.org>,
-        <clg@redhat.com>, <stable@vger.kernel.org>, <schnelle@linux.ibm.com>,
-        <mjrosato@linux.ibm.com>
-Subject: Re: [PATCH v7 9/9] vfio: Remove the pcie check for
- VFIO_PCI_ERR_IRQ_INDEX
-From: "Julian Ruess" <julianr@linux.ibm.com>
-To: "Farhan Ali" <alifm@linux.ibm.com>, <linux-s390@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-pci@vger.kernel.org>
-X-Mailer: aerc 0.21.0-0-g5549850facc2
-References: <20260107183217.1365-1-alifm@linux.ibm.com>
- <20260107183217.1365-10-alifm@linux.ibm.com>
-In-Reply-To: <20260107183217.1365-10-alifm@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=R8AO2NRX c=1 sm=1 tr=0 ts=696e624e cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=Okk2yIgg9Z9Hp2RjL0IA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: QzRipjxLbY9YVaDZM2Fkn7cNSMc88EjY
-X-Proofpoint-GUID: QzRipjxLbY9YVaDZM2Fkn7cNSMc88EjY
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTE5MDE0MCBTYWx0ZWRfX2qlhnSxI8lYN
- 64rpgvPsXZnrxCNPsQNMp3dBb+j2mqVYVDz8/83NwKlu8BmqgbKzpzt3vQfLkl54MPDcgs3Wr93
- 1IkZMdEACUdzFn/lV67iNMilfQpFoenS8UNGX4Aavko4j9sbaEuk1kkLJ+GCzDxz/ZfCOlHlbKz
- u60LV3pbRv+mpNhwsgFB0CiK4ntnVZz951/eGDaipaIQyz7U8XdXTlKAStEPcBdseQY6tp6gtXb
- S/525lc1B4CQFHltL2ORIcaruSIKj9V36VvLXgITRYUBkbzfs3OsN/Ie8RN4MKLjEEBJyRvO7JW
- p/8nIzgsYs9o8ey81D/Tc0/AVxZMaXOOu0/6vdQUvvlvMRUV3ph95TqcpACrUKuay2XB7ZfZam4
- I0vU+NEqDe7bP7FzUsAKvmjPyt3upyUbfXLAwXaMKpSIsYhjZQ0HCeFlt79M6OpdSJryvJphGGm
- l9X2TNOhDGCfSbSxpow==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2026-01-19_04,2026-01-19_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 priorityscore=1501 bulkscore=0 lowpriorityscore=0 adultscore=0
- spamscore=0 phishscore=0 malwarescore=0 suspectscore=0 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2601150000 definitions=main-2601190140
+Content-Transfer-Encoding: quoted-printable
 
-On Wed Jan 7, 2026 at 7:32 PM CET, Farhan Ali wrote:
-> We are configuring the error signaling on the vast majority of devices an=
-d
-> it's extremely rare that it fires anyway. This allows userspace to be
-> notified on errors for legacy PCI devices. The Internal Shared Memory (IS=
-M)
-> device on s390x is one such device. For PCI devices on IBM s390x error
-> recovery involves platform firmware and notification to operating system
-> is done by architecture specific way. So the ISM device can still be
-> recovered when notified of an error.
->
-> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-> ---
->  drivers/vfio/pci/vfio_pci_core.c  | 6 ++----
->  drivers/vfio/pci/vfio_pci_intrs.c | 3 +--
->  2 files changed, 3 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci=
-_core.c
-> index c92c6c512b24..0fdce5234914 100644
-> --- a/drivers/vfio/pci/vfio_pci_core.c
-> +++ b/drivers/vfio/pci/vfio_pci_core.c
-> @@ -778,8 +778,7 @@ static int vfio_pci_get_irq_count(struct vfio_pci_cor=
-e_device *vdev, int irq_typ
->  			return (flags & PCI_MSIX_FLAGS_QSIZE) + 1;
->  		}
->  	} else if (irq_type =3D=3D VFIO_PCI_ERR_IRQ_INDEX) {
-> -		if (pci_is_pcie(vdev->pdev))
-> -			return 1;
-> +		return 1;
->  	} else if (irq_type =3D=3D VFIO_PCI_REQ_IRQ_INDEX) {
->  		return 1;
->  	}
-> @@ -1157,8 +1156,7 @@ static int vfio_pci_ioctl_get_irq_info(struct vfio_=
-pci_core_device *vdev,
->  	case VFIO_PCI_REQ_IRQ_INDEX:
->  		break;
->  	case VFIO_PCI_ERR_IRQ_INDEX:
-> -		if (pci_is_pcie(vdev->pdev))
-> -			break;
-> +		break;
->  		fallthrough;
+On Mon, 19 Jan 2026 15:57:49 +0100
+"Arnd Bergmann" <arnd@arndb.de> wrote:
 
-Isn't the fallthrough unreachable now?
+> On Mon, Jan 19, 2026, at 14:41, Thomas Wei=C3=9Fschuh wrote:
+> > On Mon, Jan 19, 2026 at 01:45:04PM +0100, Arnd Bergmann wrote: =20
+> >> On Mon, Jan 19, 2026, at 11:56, Thomas Wei=C3=9Fschuh wrote: =20
+> >> > On Mon, Jan 19, 2026 at 10:37:58AM +0000, David Laight wrote: =20
+> >> >>=20
+> >> >> Don't you need a check that it isn't wrong on a user system?
+> >> >> Which is what I thought it was doing. =20
+> >> >
+> >> > Not really. The overrides defined by arch/*/include/uapi/asm/bitsper=
+long.h are
+> >> > being tested here. If they work in the kernel build I assume they al=
+so work
+> >> > in userspace. =20
+> >>=20
+> >> I think You could just move check into include/asm-generic/bitsperlong=
+.h
+> >> to make this more obvious with the #ifdef __KERNEL__, and remove the
+> >> disabled check from my original version there. =20
+> >
+> > Ok. I'd like to keep your existing test though, as it tests something d=
+ifferent
+> > and it would be nice to have that too at some point. =20
+>=20
+> Sure, that works too. I wonder if one of the recent vdso cleanups
+> also happened to address the problem with the incorrect BITS_PER_LONG
+> being visible in the vdso code. Maybe we can already turn that on again.
 
--- snip --
+There is vdso/bits.h, but everything actually includes linux/bits.h first.
+
+I was wondering what happens if you are actually using the 'uapi' headers
+to build programs (may nolibc ones).
+On x86-64, 'gcc foo.c' might work, but 'gcc -m32 foo.c' will find exactly
+the same headers and go badly wrong unless everything is based on
+compiler defines.
+
+An assert (of some kind) that checks the pre-processor BITS_PER_LONG
+constant actually matches sizof (long) seems reasonable for all build.
+The alternative is to (somehow) manage to avoid needing a pre-processor
+constant at all, moving everything to 'integer constant expressions'
+instead (good luck with that...).
+
+I'm most of the way through a 'de-bloat' patchset for bits.h.
+I'm sure there is a good reason why GENMASK(hi, lo) isn't defined
+as '((type)2 << hi) - ((type)1 << lo)'.
+Since that definition doesn't need the bit-width in any form.
+(Just beat up any static checker that objects to '2 << hi' being zero.)
+I've only made that change for ASM files - IIRC the assembler only
+supports one size of signed integer.
+
+	David
+
