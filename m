@@ -1,198 +1,154 @@
-Received: from SN4PR0501CU005.outbound.protection.outlook.com (mail-southcentralusazon11011047.outbound.protection.outlook.com [40.93.194.47])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E51934253C;
-	Tue, 20 Jan 2026 04:26:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.194.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768883198; cv=fail; b=rf+PES0tLXqSGvpzhMXaaDcLUNDu3buH2xO+cJtzhM3B1KHDuy+uJG61KTqaxdgLTuehXoqanH1epj4BzHP6gIkAB55v+hMhFVYwuZ4w8AwApFxBHH4MEQz0fXZSg+S+j/aAqH0ZwS+QhDDgU8vexkAxZHNGKvrtNaPA8JUDhiU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768883198; c=relaxed/simple;
-	bh=ZAxweTuG09op3JbeeGlwj5lkZ37lsMdHNCyoIO/8MHE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=ofHzqy24K1iA1W8jTnh2EN8sVNzEbjcHfBTAIFMr8Da+zl01q01VeFuHY/RLKEIB///aAYyMLs++11ne/bDUE4+MEfx8UVefZ+/EbGj6XamPPrdUCDlLfmEF/8JNbUc4DAscfXgg0+VvyzKuYQjs2kLcmmGfFaivBzl6E98OC8k=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=iy+BivWM; arc=fail smtp.client-ip=40.93.194.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08E9039E6D5;
+	Tue, 20 Jan 2026 07:23:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1768893832; cv=none; b=Q6ane6yQjP+7g54svv9Vys0ZtgVKkJdo9lIKC1I3rMbxCnf1P4VAgQoktfNy8BickPTrrDeE0yG3lE7/ioasl02j09P1ZFqqQylcOVZvwB3zQG6UKeaztdzV7SCBrni1lh6Dk/PyPIwbCEKV7lpEQBtbUyzFrO+mmyYCKocoDqE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1768893832; c=relaxed/simple;
+	bh=Ljz+Gi83a+JjPR+sLBysbfNI9oaAQkIfbhdX/r1AD/U=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SnJxQLDfc6K9nQp+UxRv8IXY0EIXIyp6XLiGbg9QXxBqAhVM7V/FmidHFDuV2rESvR3BuyQ/HC9+BB53j+BlqNvAfTuBe98/pb7JlKQ0LnTG71qu6UIL1EMch2q3L8puY7+PmD5GxHPRXG37HR1QEqJ6zv5MILtDrwdM35XCypU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=qRtM2/LI; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=ux0BDTS3; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="iy+BivWM"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=RMg4I57bJWvW0r+hQmMOXU+qOXHk2y58N7Vw5iGLv+yhQE7Tl619MgQAvxxHNniHgF3LkxNEE5WT04d855NpGH7kiMUS6MMU0cBNpCstKFnNBuMxhLcil06U/cS1B5Ov5MVo78vjYaOmcmDoHE4kjtF/INuEXg+hiqJftS3ww6nicSU00AKv3sEOu0uHeGrrlhS8RQL3E/W18EwKQ1YaJbB63EInwWGugegbRF3eDshJDvaE7g6788bodLY2pVfBT1PPKSPXGTeWTjDwRmD7W3MtjtY8HA6lSQyB1kBNsd7rR+eZI0wFZonhOBeY3nbbHTiSwX+sw/Z6zY4H3g37Vg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=DGiGywc3TY5DG7+SAEV+h5XnPCOzsETv8/1UfPQyolg=;
- b=RcZupDzCO3h26AviXJ1/lNdCikz3d9ETub1DdUtbrCAutg2ZsxUTUlOIaSXqV8bzH1PEoaE19OB/1zscsvEgWmUt7C/qXKioj+SVy4dh0Wt5Ub7iFhJYpI0ll4DrARkUdrcnfrZFhTRdWg42bZtRagZRyA8UhIcXRwL/nCLuPGFwMOmJPUTHr4DeVzSmX4cuEY8Jt0lqmL9gsLYooJQriqyjmnP3TjBnx4UpDQo3HcfnKuCMQ3dEZr+jAVROprjEHm3IcLcJjZOY2EB780YVpjaXbhyXsCLP79RiX+0zCep9lCVUs/n0ddbmy+RtoR9NmM+B/hcedIvkYE577EzpkQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=kernel.org smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=DGiGywc3TY5DG7+SAEV+h5XnPCOzsETv8/1UfPQyolg=;
- b=iy+BivWMtTM6CEeKGgfE7jEeIHgPm7H3xuIPLq0a1eIK6KITlvDnJ+jUcSXEuPXTya44ONiKttxAmPd4DnnyM31qohUWWkzNE4dCTPsuMwt65ohBVnES6Y9bhOzdL1lHm5JskbquuLPMe0TFwublCAUw9qS986HebqcMQKiTP2U=
-Received: from BLAPR03CA0083.namprd03.prod.outlook.com (2603:10b6:208:329::28)
- by PH7PR12MB5781.namprd12.prod.outlook.com (2603:10b6:510:1d0::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9520.12; Tue, 20 Jan
- 2026 04:26:24 +0000
-Received: from BL6PEPF0001AB4C.namprd04.prod.outlook.com
- (2603:10b6:208:329:cafe::74) by BLAPR03CA0083.outlook.office365.com
- (2603:10b6:208:329::28) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9520.12 via Frontend Transport; Tue,
- 20 Jan 2026 04:26:24 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
-Received: from satlexmb07.amd.com (165.204.84.17) by
- BL6PEPF0001AB4C.mail.protection.outlook.com (10.167.242.70) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9542.4 via Frontend Transport; Tue, 20 Jan 2026 04:26:24 +0000
-Received: from Satlexmb09.amd.com (10.181.42.218) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Mon, 19 Jan
- 2026 22:26:24 -0600
-Received: from satlexmb07.amd.com (10.181.42.216) by satlexmb09.amd.com
- (10.181.42.218) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Mon, 19 Jan
- 2026 20:26:24 -0800
-Received: from [10.136.37.139] (10.180.168.240) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server id 15.2.2562.17 via Frontend
- Transport; Mon, 19 Jan 2026 20:26:13 -0800
-Message-ID: <ec1fbc52-3e72-4a0f-954c-9ecf581f9e39@amd.com>
-Date: Tue, 20 Jan 2026 09:56:12 +0530
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="qRtM2/LI";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="ux0BDTS3"
+Date: Tue, 20 Jan 2026 08:23:39 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1768893820;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jdrEJPqx1MFOvrLI5OPYmPHWL96zfvhnQqnu+2d5v4w=;
+	b=qRtM2/LICWrYpv7CqHVGjW3oNUf5zeSQFvVn7pxVIbqfRjNlWsKtowiCAuo7wPw4bTMhZF
+	vZ7kyPZkvRrJ6SFbDfsGauMu/yAWoXgh0+otpAtdHkwjXeaXrDj/ddU+0M796ldT3py2FA
+	H/J7J6LCXcTjNsypVemOAhQjSwu2xYplIpe6Lc3xHt+S8d6b/6GQKP4HK12fl9yyDBYG6e
+	iXHhGl4u+cbf0LkeSEz1Ot2nLWG1O1Kprw+SAXFWTU2YORD/K1EdiTmK96nQ5VbnNr6FGb
+	9OBJg+7ZhGSfG8bRIjWQ7Wn9oLuHZOTx6IEK0JDbJ3KblXlfJH61VFq0pkxfIw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1768893820;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jdrEJPqx1MFOvrLI5OPYmPHWL96zfvhnQqnu+2d5v4w=;
+	b=ux0BDTS3LJjapFbL4YTAJJf8nKUPpr8oWdyJfad7Z3Tu4BKdj46czIj7hpk/EJnJHSsTDa
+	K9T/V5n3wFQW6oAA==
+From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+To: David Laight <david.laight.linux@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, 
+	"David S . Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
+	Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Linux-Arch <linux-arch@vger.kernel.org>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 4/4] asm-generic/bitsperlong.h: Add sanity checks for
+ __BITS_PER_LONG
+Message-ID: <20260120081136-f413a6d5-05a5-4adc-a687-474ae349e771@linutronix.de>
+References: <20260116-vdso-compat-checkflags-v1-0-4a83b4fbb0d3@linutronix.de>
+ <20260116-vdso-compat-checkflags-v1-4-4a83b4fbb0d3@linutronix.de>
+ <20260119100619.479bcff3@pumpkin>
+ <20260119111037-4decf57f-2094-4fac-bcf4-03506791b197@linutronix.de>
+ <20260119103758.3afb5927@pumpkin>
+ <20260119114526-a15e7172-fc4c-40d0-a651-7c4a21acb1c8@linutronix.de>
+ <72a2744a-debc-4d8f-b418-5d6a595c2578@app.fastmail.com>
+ <20260119143735-ca5b7901-b501-4cb8-8e5d-10f4e2f8b650@linutronix.de>
+ <4e4b1b5b-5f7d-4604-b5ef-0d0726263843@app.fastmail.com>
+ <20260119174730.5a20169d@pumpkin>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 01/15] sched/idle: Handle offlining first in idle loop
-To: Frederic Weisbecker <frederic@kernel.org>, Peter Zijlstra
-	<peterz@infradead.org>
-CC: LKML <linux-kernel@vger.kernel.org>, "Christophe Leroy (CS GROUP)"
-	<chleroy@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, Anna-Maria Behnsen
-	<anna-maria@linutronix.de>, Ben Segall <bsegall@google.com>, Boqun Feng
-	<boqun.feng@gmail.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>, Heiko Carstens
-	<hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Jan Kiszka
-	<jan.kiszka@siemens.com>, Joel Fernandes <joelagnelf@nvidia.com>, Juri Lelli
-	<juri.lelli@redhat.com>, Kieran Bingham <kbingham@kernel.org>, "Madhavan
- Srinivasan" <maddy@linux.ibm.com>, Mel Gorman <mgorman@suse.de>, "Michael
- Ellerman" <mpe@ellerman.id.au>, Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
-	Nicholas Piggin <npiggin@gmail.com>, "Paul E . McKenney"
-	<paulmck@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Sven Schnelle
-	<svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Uladzislau Rezki
-	<urezki@gmail.com>, Valentin Schneider <vschneid@redhat.com>, Vasily Gorbik
-	<gor@linux.ibm.com>, Vincent Guittot <vincent.guittot@linaro.org>, "Viresh
- Kumar" <viresh.kumar@linaro.org>, Xin Zhao <jackzxcui1989@163.com>,
-	<linux-pm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-	<linuxppc-dev@lists.ozlabs.org>
-References: <20260116145208.87445-1-frederic@kernel.org>
- <20260116145208.87445-2-frederic@kernel.org>
- <20260119125347.GT830755@noisy.programming.kicks-ass.net>
- <aW6ccexiQaPLQcS1@pavilion.home>
-Content-Language: en-US
-From: K Prateek Nayak <kprateek.nayak@amd.com>
-In-Reply-To: <aW6ccexiQaPLQcS1@pavilion.home>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL6PEPF0001AB4C:EE_|PH7PR12MB5781:EE_
-X-MS-Office365-Filtering-Correlation-Id: 111d7472-34ce-4c05-5add-08de57dc1269
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|1800799024|36860700013|7416014|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?TUFnT0l5YlNJU3FxQ0wvQjc5WmNUcUgxZjF4NVdqbmgvM2J5MFNCQ01jMlZh?=
- =?utf-8?B?Z1hOOUFhNEpMc2owUk5RN1dtaXUvbzBGOXBlOTlnWDR4bXlUZERUaGNuQmho?=
- =?utf-8?B?M2FITTZTUE5LTnZ2MzZwaFYveHB6czZnN2RwZDNxcnJYMnNmK1pjL2tDaVl4?=
- =?utf-8?B?eW9tWFU4WE5FcC8zSERIcDJnY21pWURIZ0VsMFdLMmlicDJrUjVVQmtjSXM0?=
- =?utf-8?B?eFRGRW5zaFpGT1d5bXdTU2J5VUw1Zm81S0MyTDZkTElxV3FXdU44d0RUdmJa?=
- =?utf-8?B?ZzV3S3lvclZQRDVoc0NDdi9oZitmOG4wVE8yUmpZQzREMjZpOE9UeVU1REtE?=
- =?utf-8?B?U3RYRHA2Z2JIRHVNR2RkUXpOWDhpd0pMQ3lzNzVqTEI5YkpnR0J0UzZvTGtu?=
- =?utf-8?B?SUxacWpGL2tCa2Q5bXVUbnMrc0dTcEpnbm1lZm1HNXRUdTNtRHZZMjQ3UzBV?=
- =?utf-8?B?YS9YZGtHMjc2MDFIYmJDK2hNVERuc29Ed2dXWWRqWE5Bek44UXhvcjJPbjda?=
- =?utf-8?B?bUlZMTU0eXgxUFRrTElyMm5JbUIyTWJ1dTFoTWQ1TForMDdPYW00RHpOT0Jm?=
- =?utf-8?B?bUlxU3psdFY3WXl2RG0vR2Fnd0Z2TnVqeE9kQzBXMytSNVl4Zzg1Y0dtbnJk?=
- =?utf-8?B?M05JQ0dyc3hTTE1qVkV2TzlncU55clYvVnEyTkY3Tzg0eUNKK1VaYTZqMlIx?=
- =?utf-8?B?Q3ZLUG1lVFBYLzlFYzdIeU5QL0ZsNjNnS3Z5ZmVZUVdXMlZPb3JUcmd1cHlT?=
- =?utf-8?B?UmRCQUdxa1RRZ01CZlNXanB3UlB3VlRnZ2VvaWJTWEVveEV4YzJ5WTU0Ynp1?=
- =?utf-8?B?R1ppZFY4cWRtTTRXa0x0elB6aFhybWNjb3R5RHBvTnQ0c2FRQ2tURkMyNkdO?=
- =?utf-8?B?RllZdDh1cUZSWjgwd0x6aStlTUVtbjIwbUNrdWpqZkNoQ2p0MG1VdU9renhx?=
- =?utf-8?B?bnlaRW44VkpQQWdHVnJCN29tckpLYlpXRGpadFloa3BuVEVSeFBiQWpOMmt2?=
- =?utf-8?B?L2dJZkJsQ1hhOXJRN1FBVEIrbjRteFdRMW9BMEM0RnpDT1YxQTQ1eFpLMWJv?=
- =?utf-8?B?Vlg5S2t3SjJVWG5mT29SVXJ2dncyY2QwNWdWaTJsanlLUXRHSE81Znl6SlJl?=
- =?utf-8?B?UlBvYmxPcEE1cTVSQ1VJSTdKU3dPN3lpUmU1NFM4M0t2VDBLSVpXcjRPNk8y?=
- =?utf-8?B?Qzg4S01pSlpSWkw3UE13MnV0bkV4UndnK3pmK21IRVhWNzQ3QlF3NGwxeHVl?=
- =?utf-8?B?RldFd3pMa1JBd2ZmQUZDOHZZMDQwZWEyZmhCTVozcmxwYnp6c0k0cnM4Q0hR?=
- =?utf-8?B?VDRCeGVST0JReU1FNTNER0F4WitPTEdjVkg5dFE1SWZ3bXl2ZDNhU25YNVpq?=
- =?utf-8?B?VmhhQnBKblN5YWRFWlIwaHdoOE0vVXpiTCtPZmVZZHVhelMwRXpiN0dySkg5?=
- =?utf-8?B?eWJRTWIxRmk3TmNMSllsWlpkdXlmTE9FQXdoUm1TNzFnajR5T0d3OE44U1VR?=
- =?utf-8?B?YUZibTR0K3NzNWVYblBSMlZQMDIzWUJnUTZ0QnVkb2F1eE9zblJrVEMvb29M?=
- =?utf-8?B?clN5dGdGNmNuT3k1N1BEd1Zmc1VBMThmQXgySXpacU1UR1huV2pCMjlxdFJU?=
- =?utf-8?B?dTdIMmtjV05JSGI0OU11b2JrQ1RSby9WNzJHZlFXOEc3Z09DOE1Rdmdkb1du?=
- =?utf-8?B?a1dpSll4SlkyQW51VVNpOVc0aVYzUkM4Qk5LSi9JY002ZkZ2WWU5b2FOcFNv?=
- =?utf-8?B?QmpoUURoaXEzMzAzQnI3RXVyd0xsNHZQYk9JSjhkWmQwT01lQkJHSHc1aXFh?=
- =?utf-8?B?dnFRRXQySlhNV21sWllydHczclp6YVVrKzNWSVhXYzY2K3ZzcjRlYStSK2dB?=
- =?utf-8?B?TWxCQ0R5dng0ekhWOWZIclA0OFd6cUNUNm5wNm93SXNNZTdXUDJ0MWU2SGZr?=
- =?utf-8?B?c1EyaUticlBIbzNVdnRENGplalArZ283M1RyWDlFZS83cEQyeHhoMU9CVkhn?=
- =?utf-8?B?WnpzaDJiY05sRUtnbEtsYitKVmNOWjFGdllUR1dIS0xVZjNsdWhUQzZkMVYr?=
- =?utf-8?B?Z2tCUnVSRFpmRW8xUXA3VkxWRGNZbnJxR05heml2aW9FYkJZRVZFeEtURGpK?=
- =?utf-8?B?M0JPakpReWJDNGxPR3oxbFhpR1Z4cGM2eHk5TVRHUnU0cWNLbFhKQUxTTnM5?=
- =?utf-8?B?OFAzTVA2elQwUGZMdHFLcm1GVmhSR0RvVWRSdXdYbjJ3MjZicGhtajM3SVh6?=
- =?utf-8?B?Q3hXYU1EMjBZaWdOWjRvMHpab2tRPT0=?=
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(1800799024)(36860700013)(7416014)(376014);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Jan 2026 04:26:24.6078
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 111d7472-34ce-4c05-5add-08de57dc1269
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	BL6PEPF0001AB4C.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB5781
+In-Reply-To: <20260119174730.5a20169d@pumpkin>
 
-Hello Frederic, Peter,
-
-On 1/20/2026 2:34 AM, Frederic Weisbecker wrote:
-> Le Mon, Jan 19, 2026 at 01:53:47PM +0100, Peter Zijlstra a Ã©crit :
->> On Fri, Jan 16, 2026 at 03:51:54PM +0100, Frederic Weisbecker wrote:
->>
->>>  kernel/sched/idle.c | 11 ++++++-----
->>>  1 file changed, 6 insertions(+), 5 deletions(-)
->>>
->>> diff --git a/kernel/sched/idle.c b/kernel/sched/idle.c
->>> index c174afe1dd17..35d79af3286d 100644
->>> --- a/kernel/sched/idle.c
->>> +++ b/kernel/sched/idle.c
->>> @@ -260,6 +260,12 @@ static void do_idle(void)
->>>  {
->>>  	int cpu = smp_processor_id();
->>>  
->>> +	if (cpu_is_offline(cpu)) {
->>
->> Does it make sense to make that: if (unlikely(cpu_is_offline(cpu))) ?
+On Mon, Jan 19, 2026 at 05:47:30PM +0000, David Laight wrote:
+> On Mon, 19 Jan 2026 15:57:49 +0100
+> "Arnd Bergmann" <arnd@arndb.de> wrote:
 > 
-> Yes indeed!
+> > On Mon, Jan 19, 2026, at 14:41, Thomas Weißschuh wrote:
+> > > On Mon, Jan 19, 2026 at 01:45:04PM +0100, Arnd Bergmann wrote:  
+> > >> On Mon, Jan 19, 2026, at 11:56, Thomas Weißschuh wrote:  
+> > >> > On Mon, Jan 19, 2026 at 10:37:58AM +0000, David Laight wrote:  
+> > >> >> 
+> > >> >> Don't you need a check that it isn't wrong on a user system?
+> > >> >> Which is what I thought it was doing.  
+> > >> >
+> > >> > Not really. The overrides defined by arch/*/include/uapi/asm/bitsperlong.h are
+> > >> > being tested here. If they work in the kernel build I assume they also work
+> > >> > in userspace.  
+> > >> 
+> > >> I think You could just move check into include/asm-generic/bitsperlong.h
+> > >> to make this more obvious with the #ifdef __KERNEL__, and remove the
+> > >> disabled check from my original version there.  
+> > >
+> > > Ok. I'd like to keep your existing test though, as it tests something different
+> > > and it would be nice to have that too at some point.  
+> > 
+> > Sure, that works too. I wonder if one of the recent vdso cleanups
+> > also happened to address the problem with the incorrect BITS_PER_LONG
+> > being visible in the vdso code. Maybe we can already turn that on again.
+> 
+> There is vdso/bits.h, but everything actually includes linux/bits.h first.
 
-nit. but don't we inherit it from:
+These cleanups do not help unfortunately. We can skip the check for BUILD_VDSO,
+but there are still plenty other places where it will break.
 
-#define cpu_is_offline(cpu)     unlikely(!cpu_online(cpu))
+> I was wondering what happens if you are actually using the 'uapi' headers
+> to build programs (may nolibc ones).
+> On x86-64, 'gcc foo.c' might work, but 'gcc -m32 foo.c' will find exactly
+> the same headers and go badly wrong unless everything is based on
+> compiler defines.
 
-so it will end up being annotated with unlikely() no?
+I can't follow. __BITS_PER_LONG automatically adapts.
 
--- 
-Thanks and Regards,
-Prateek
+From arch/x86/include/uapi/asm/bitsperlong.h:
 
+#if defined(__x86_64__) && !defined(__ILP32__)
+# define __BITS_PER_LONG 64
+#else
+# define __BITS_PER_LONG 32
+#endif
+
+
+BITS_PER_LONG on the other hand is never exposed in the uapi headers.
+
+> An assert (of some kind) that checks the pre-processor BITS_PER_LONG
+> constant actually matches sizof (long) seems reasonable for all build.
+> The alternative is to (somehow) manage to avoid needing a pre-processor
+> constant at all, moving everything to 'integer constant expressions'
+> instead (good luck with that...).
+
+We do have exactly that assertion in include/asm-generic/bitsperlong.h.
+(As mentioned in the patch description we are discussing)
+The assertion is disabled because it fails. There are multiple places where
+we build 32-bit code with a 64-bit kernel configuration.
+The compat vDSO, early boot code and probably more I don't know about.
+Is it ugly? Yes. Should we '#define BITS_PER_LONG __BITS_PER_LONG' at some
+point? Yes. But we first need to audit all the users to check if it is safe
+to do so. At some point in the future in another series.
+
+> I'm most of the way through a 'de-bloat' patchset for bits.h.
+> I'm sure there is a good reason why GENMASK(hi, lo) isn't defined
+> as '((type)2 << hi) - ((type)1 << lo)'.
+> Since that definition doesn't need the bit-width in any form.
+> (Just beat up any static checker that objects to '2 << hi' being zero.)
+> I've only made that change for ASM files - IIRC the assembler only
+> supports one size of signed integer.
+
+No idea, and I don't see the relation to the patches under discussion.
+
+
+Thomas
