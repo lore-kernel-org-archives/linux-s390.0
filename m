@@ -1,50 +1,25 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E030A44103F;
-	Tue, 20 Jan 2026 16:37:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 47258313290;
+	Tue, 20 Jan 2026 16:45:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768927068; cv=none; b=fKvQ9GAyqOTVU7bl5wOmwbMukKSeefBYMDbefIPEM3dZWyEdpj7P/Ksg2ZFUVuEXdBf0nOdIuabOCyp3ZNdDU4V3GPZrgAZW6Zy70/tAwHIR/sJ4K2TR8wUQbnb6JZcnUhZRMQC+4QuU6mxZSU08QufTNEKAJJZePeqZGCZWPVs=
+	t=1768927539; cv=none; b=k3xr9RXQ1SZkzeO1d4u6Aj1flx5Tf8XqYf5WxMIS+HBj82j7J/j5H0IAQymVpazT1lJUx9mtwCrD6GLIk4ubK3srBKDkJYAUcFE3hKZRqLgfcEFyfNUrEY9igMDcDncsnHiyN0ejTPdzcgKk1ESLXrj/OgCIPrZPd4uTPn6ppw8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768927068; c=relaxed/simple;
-	bh=l6zt9Aq16n1bm0FvTo8vindZbxHrJGqWuAngHOx6RHU=;
+	s=arc-20240116; t=1768927539; c=relaxed/simple;
+	bh=EktYAkt/rHqN46GzGHWmpJQENSXTbh6gia76OHdxpfE=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EpMLz6HedIARnPXIVi/EuRFZ05LQS3AwTioCjzdHSlnCuagP+Nv3lVPfhPaw6auABHaT93ezHHBk7mulf2AqEeVOV26if8r6ikogssfMAvlzRw4L3S8oMxdbn6d4xi+/pQLI5/EM5LlvXZkcBiwnbRNryUSBEmV9zyYuIzDu0CE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=GAaCmbrq; arc=none smtp.client-ip=192.198.163.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="GAaCmbrq"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1768927067; x=1800463067;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=l6zt9Aq16n1bm0FvTo8vindZbxHrJGqWuAngHOx6RHU=;
-  b=GAaCmbrqlIqXiJQMsSktCjG5f9iSqRTyGt0JRS4MFmt1RyuGtg9wdIxS
-   OapoWbBsIJClmnbz/Q8LM6oaccg87AoJ6BLngTfUtL8fhToxdgipF1ffe
-   yi6b1wH+BH5V6goSB3q6cPMA7+D2QHw3ihHKJMG1k01NUGaM+4V3GQ+s/
-   02RNmJDZLUlo1icIQ63pFjJ1YSfGaPUVDiuFJce4VjQQi+sAy8z6+oUb9
-   ppP4V5CrmwC7ItIQocwaEU5mBPICBzpn4lRZ2knRSCn8qHPYxJzrO+Baw
-   J7ffmFrY/sdXPCWAr9sTkxBrOESU4wngpljY0lcaCWatWiuUvtxRlzqaJ
-   A==;
-X-CSE-ConnectionGUID: qf1vRlM0QGG6B/b8UJHsog==
-X-CSE-MsgGUID: wtrnHyi0TsugLekFDF9PoA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11677"; a="69156587"
-X-IronPort-AV: E=Sophos;i="6.21,241,1763452800"; 
-   d="scan'208";a="69156587"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jan 2026 08:37:46 -0800
-X-CSE-ConnectionGUID: i8YmVT04SAqzglnbuUMMhg==
-X-CSE-MsgGUID: ukbzNSMQRBCd4IS3CMSH7Q==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,241,1763452800"; 
-   d="scan'208";a="206422303"
-Received: from vverma7-desk1.amr.corp.intel.com (HELO [10.125.108.22]) ([10.125.108.22])
-  by fmviesa008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jan 2026 08:37:44 -0800
-Message-ID: <a8ca3483-d61a-41bd-9b1b-17a8f3ac03eb@intel.com>
-Date: Tue, 20 Jan 2026 08:37:43 -0800
+	 In-Reply-To:Content-Type; b=pLPyJyhUnNvt0CBFFOcfT6Evn22OiGNQqFRLbrC7sbS+80ahOpyYRjJZ88Y3eppVEJ+1pjghvROVBFhTuKM/q+470zpS20yeQj6RKONlBBstwekWypSVM2WLLLvsmnHypJJcFe6pRQ5r3iN98WPo0PKfrJhe2iUslg0l1yOq3lU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E55491476;
+	Tue, 20 Jan 2026 08:45:30 -0800 (PST)
+Received: from [10.1.39.200] (XHFQ2J9959.cambridge.arm.com [10.1.39.200])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 600763F694;
+	Tue, 20 Jan 2026 08:45:33 -0800 (PST)
+Message-ID: <c5922290-f01c-4c77-995a-9a0ef89053a1@arm.com>
+Date: Tue, 20 Jan 2026 16:45:31 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -54,7 +29,8 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v4 0/3] Fix bugs and performance of kstack offset
  randomisation
-To: Ryan Roberts <ryan.roberts@arm.com>, Kees Cook <kees@kernel.org>,
+Content-Language: en-GB
+To: Dave Hansen <dave.hansen@intel.com>, Kees Cook <kees@kernel.org>,
  Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
  Huacai Chen <chenhuacai@kernel.org>,
  Madhavan Srinivasan <maddy@linux.ibm.com>,
@@ -77,66 +53,26 @@ References: <20260119130122.1283821-1-ryan.roberts@arm.com>
  <20fb97f1-7e50-485a-bdfd-a2901d20ec84@intel.com>
  <C502BCE6-2FB2-4A06-93A8-E8DEDFC22914@kernel.org>
  <785a7d90-babe-43af-93a6-c220c1877bcf@arm.com>
-From: Dave Hansen <dave.hansen@intel.com>
-Content-Language: en-US
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
-In-Reply-To: <785a7d90-babe-43af-93a6-c220c1877bcf@arm.com>
+ <a8ca3483-d61a-41bd-9b1b-17a8f3ac03eb@intel.com>
+From: Ryan Roberts <ryan.roberts@arm.com>
+In-Reply-To: <a8ca3483-d61a-41bd-9b1b-17a8f3ac03eb@intel.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On 1/20/26 08:32, Ryan Roberts wrote:
-> I don't think this question was really addressed to me, but I'll give my opinion
-> anyway; I agree it's pretty binary - it will either work or it will explode.
-> I've tested on arm64 and x86_64 so I have high confidence that it works. If you
-> get it into -next ASAP it has 3 weeks to soak before the merge window opens
-> right? (Linus said he would do an -rc8 this cycle). That feels like enough time
-> to me. But it's your tree 😉
+On 20/01/2026 16:37, Dave Hansen wrote:
+> On 1/20/26 08:32, Ryan Roberts wrote:
+>> I don't think this question was really addressed to me, but I'll give my opinion
+>> anyway; I agree it's pretty binary - it will either work or it will explode.
+>> I've tested on arm64 and x86_64 so I have high confidence that it works. If you
+>> get it into -next ASAP it has 3 weeks to soak before the merge window opens
+>> right? (Linus said he would do an -rc8 this cycle). That feels like enough time
+>> to me. But it's your tree 😉
+> 
+> First of all, thank you for testing it on x86! Having that one data
+> point where it helped performance is super valuable.
+> 
+> I'm more worried that it's going to regress performance somewhere and
+> then it's going to be a pain to back out. I'm not super worried about
+> functional regressions.
 
-First of all, thank you for testing it on x86! Having that one data
-point where it helped performance is super valuable.
-
-I'm more worried that it's going to regress performance somewhere and
-then it's going to be a pain to back out. I'm not super worried about
-functional regressions.
+Fair enough. Let's go slow then.
