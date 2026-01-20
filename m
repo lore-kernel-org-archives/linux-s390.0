@@ -1,123 +1,183 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 429DD33E36D;
-	Tue, 20 Jan 2026 12:01:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 265D7426D21;
+	Tue, 20 Jan 2026 12:15:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768910510; cv=none; b=Ko+YEUs3jcqMQkjpacGIJtDBLiLkUaBhVEGGbSdNMPz+Lqf0ST31IWSpSsmA3g2rrBCYU7fO95QuB04fqs413//SJzKFe+QG7ltb/hAaz2i4HFNS7YDBgj7hqQPwoF0K6uD6+x9rqa5hHZJ0vDq9jzSIB3kIIuU+hS/R7K14KH0=
+	t=1768911325; cv=none; b=Qg3Htg8KV6mdvphlv/BkoUzazOGHq4ZVQdMAiOqWNSvonIyUeFUOuNUGB65Ki9t/GCQ51plyaVFjQ0xE4WGvyA2fPwEAD8VrFGl4Dr6hn+9WEUykRcFAxhxl5nR7c4Ao9b4Dn0A3E1S/pW9tabneUxtYmSEffA9mBwildC3PnZY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768910510; c=relaxed/simple;
-	bh=A/88BX6WHXgwt4c8NHPI2rYuIJ+ge6nx0nDRL1TMRoY=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=g9yI90xpLhEEZPXoskQMeeVASpg1jDACCxQAto3d7qK+JwOxm+YvpYLTkKoOHqzDqDMfXWO/KrSRuD2lvseg9ujoGeh9nfNFrZS3OIXJ713QEtuJ43d9zJVdCnC85lunGnRPS9c+IrmJXkqPbFpdWtjTWAcQgTJrs8JZES6C/yY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=c9U1FUOf; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1768911325; c=relaxed/simple;
+	bh=myp55O+IpDlFdc5GvRnas2AIPq8UgEBklw/ISjdDWZY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Px1c2Vn3Y6kWnmxWetOW6VpDU+9ghEgkaH+uc4BHsHSCpKNqi3zUEx+gUdhM7mMIM7EraPEMpNaIXjIOyJ311z40rBoQjEPoIOLdgDPxyl3R4VErqXdI0xYCmsfq5EBkcwEWw0BSu1PzjPjYeneOYoLvOQv45lcV1xtwAy60b18=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Zizi+9a2; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="c9U1FUOf"
-Received: from ehlo.thunderbird.net (c-76-133-66-138.hsd1.ca.comcast.net [76.133.66.138])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 60KC19LM3649757
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Tue, 20 Jan 2026 04:01:10 -0800
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 60KC19LM3649757
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025122301; t=1768910471;
-	bh=KO8ul0X7dWGEIi2sHNkJt/YDkwbyDctLAsFNAcFTbiw=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-	b=c9U1FUOfBmmQ/Lt/dqq7lwtswx8Ydv2sG16JfNt+MIj6GOHWB7sSAYU2BPyzbXmAD
-	 kf4Fgl1n4jry+C/ZK3YjgQQxCXjTflEa/K2eEtaXpDcsCYkTGjpdKFSfht72XkOl+J
-	 vuHYWgx2i9gNBbWjEC0jExFX7+iMHVDFkULU0FWzHNal3/ERclr2XGt4TOaTtvMLD4
-	 E5BXqwo35txoQ7wY5vohqn4KyYsPAe6PoGd+o5VoAeXhsnj/zJU351+iwbGYyMpJbD
-	 JkgYGsL8oYd2TYXNpRFsQSV5XX54sBcO3gTiKL9SgGdy+lYua5rgbBwv7ujdG4SEdP
-	 YXu7y2Qw+QbAQ==
-Date: Tue, 20 Jan 2026 04:01:04 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-To: David Laight <david.laight.linux@gmail.com>, Arnd Bergmann <arnd@arndb.de>
-CC: =?ISO-8859-1?Q?Thomas_Wei=DFschuh?= <thomas.weissschuh@linutronix.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Andreas Larsson <andreas@gaisler.com>,
-        Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, sparclinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>,
-        linux-s390@vger.kernel.org
-Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_4/4=5D_asm-generic/bitsperlong=2E?=
- =?US-ASCII?Q?h=3A_Add_sanity_checks_for_=5F=5FBITS=5FPER=5FLONG?=
-User-Agent: K-9 Mail for Android
-In-Reply-To: <20260120100331.1f57aa99@pumpkin>
-References: <20260116-vdso-compat-checkflags-v1-0-4a83b4fbb0d3@linutronix.de> <20260116-vdso-compat-checkflags-v1-4-4a83b4fbb0d3@linutronix.de> <1a77fda4-3cf6-4c19-aa36-b5f0e305b313@zytor.com> <20260119163559-b20b14d7-56ca-4f17-8800-83f618d778b8@linutronix.de> <f3bd8bfd-d66c-45fe-a634-9ac418806f40@zytor.com> <7b10344c-bb71-44fb-a391-32f7784db0e6@app.fastmail.com> <20260120100331.1f57aa99@pumpkin>
-Message-ID: <DCF1A7F6-727F-4094-8DB9-0B566D0970BA@zytor.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Zizi+9a2"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60K165X8028293;
+	Tue, 20 Jan 2026 12:15:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=lw/4WqAq5BDVzO3jXrSgXVCdmL2DGDOXG2zg6Ikqf
+	vg=; b=Zizi+9a2XnqB9YsiVk4KnYt4g9VpyFqwZyZC3ktKdnD1Tf3KKodLU9VKS
+	G3OF10Dv06M8zFztdACqqOOdwsh4o6rQdBlsbK9XitVrgIwGOAwJh9f440si/f38
+	k+baNgWeOsuA8rIAxvTYn+GPqE5nYoLiCP4TKFGpkgJHA49vby2gvawmPiu8eV2F
+	ynDjKm+YqW4HtRdF/gjCKgICKWp+Yhv5x1cbl7xyxXIqM8ZbHMU9iMImBDgIQlPE
+	O6pxPxDeO6pd5rfdwmIARadPbrIhtQoGC1sKCYnVvfyzpLMl6bjaRefK15pmP5ML
+	xR647i5bFF3HSgZxEYkn6QiPV0fZA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4br23rwrb7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 20 Jan 2026 12:15:21 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 60KC7fv8003293;
+	Tue, 20 Jan 2026 12:15:21 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4br23rwrb5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 20 Jan 2026 12:15:21 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60KATggU027220;
+	Tue, 20 Jan 2026 12:15:19 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4brnrmvrnc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 20 Jan 2026 12:15:19 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60KCFF5q42664280
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 20 Jan 2026 12:15:15 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BF57C20040;
+	Tue, 20 Jan 2026 12:15:15 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 703362004E;
+	Tue, 20 Jan 2026 12:15:15 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 20 Jan 2026 12:15:15 +0000 (GMT)
+From: Thomas Richter <tmricht@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org,
+        irogers@google.com
+Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+        hca@linux.ibm.com, japo@linux.ibm.com,
+        Thomas Richter <tmricht@linux.ibm.com>
+Subject: [PATCH] perf test: Subtest Exclude disjoint subcmd names fails
+Date: Tue, 20 Jan 2026 13:15:08 +0100
+Message-ID: <20260120121508.4054348-1-tmricht@linux.ibm.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 9mnh4xe-mOcXjmX2b-PCkUUfyaDH9c79
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTIwMDA5OCBTYWx0ZWRfX1lniZ0OTAka4
+ JY2Jw9Cv21/Nj+IEN31aWmIVd3LyvDbvOaiO70KyVuJ7s0YXMavAQruzIAf3hnbtZzHqVtdCaTy
+ 0Kv0bVOfvh3CXV+4y2YIgk1fMrnqJ5aJCStGCmP2O5CdA1bNBoz9biY0hGGOq8Th4/L12jBl5OZ
+ bhAUqx2Ytw5rzCziz6YxITdZCfjaR35AiE1tlclD3QDZPY572tM6Z5Te+cFw3py6tY9EpsAVdZM
+ UNwgOZkl/SoF9QsgWbj4dW768z3uMzGWhRvHJCgH1sNS9RLJvrV98FX1ZoschhjvUY8hDtSSgQq
+ W6AGsy+pbsU3BPUmvhgpMORJ4lKBAGTT3pZ+eX1A2IUN7RHxcpFVbchk2rZi5WUkk4AAVF+OqzT
+ 4KB/G+KA5kmtj7p8ilGSS+8TpyMzKH9a0MmHhmpDe6/mui2SIqZ24Y06w/mrnmDdPrgUsLk9rzj
+ DdG+Wxt/H0U3WHdTXWg==
+X-Authority-Analysis: v=2.4 cv=J9SnLQnS c=1 sm=1 tr=0 ts=696f71d9 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VwQbUJbxAAAA:8 a=1XWaLZrsAAAA:8
+ a=VnNF1IyMAAAA:8 a=cyf6OluC0b55awWC7yQA:9
+X-Proofpoint-ORIG-GUID: F3rLe15zWIsxhbshVVngL2vrGLiwPHgb
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.20,FMLib:17.12.100.49
+ definitions=2026-01-20_03,2026-01-20_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 impostorscore=0 adultscore=0 suspectscore=0 spamscore=0
+ lowpriorityscore=0 malwarescore=0 clxscore=1015 bulkscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2601150000 definitions=main-2601200098
 
-On January 20, 2026 2:03:31 AM PST, David Laight <david=2Elaight=2Elinux@gm=
-ail=2Ecom> wrote:
->On Mon, 19 Jan 2026 22:39:53 +0100
->"Arnd Bergmann" <arnd@arndb=2Ede> wrote:
->
->> On Mon, Jan 19, 2026, at 22:12, H=2E Peter Anvin wrote:
->> > On 2026-01-19 07:39, Thomas Wei=C3=9Fschuh wrote: =20
->> >>>
->> >>> Do we actually support any compilers which *don't* define __SIZEOF_=
-LONG__? =20
->> >>=20
->> >> When building the kernel not=2E I used this pattern because it is us=
-ed
->> >> further up in the file=2E There it makes sense as it is actually a u=
-serspace
->> >> header which needs to support all kinds of compilers=2E
->> >> But this new check is gated behind __KERNEL__ anyways=2E=2E=2E
->> >> For the next revision I will move it into the regular kernel-interna=
-l
->> >> bitsperlong=2Eh=2E That will be less confusing and still handle the =
-vDSO build,
->> >> due to the way our header hierarchy works=2E
->> >>  =20
->> >
->> > The point is that we can simply do:
->> >
->> > #define __BITS_PER_LONG (__SIZEOF_LONG__ << 3)
->> >
->> > =2E=2E=2E and it will always be consistent=2E =20
->>=20
->> We have discussed this before, but decided it was too early to
->> assume that userspace compilers are recent enough for that=2E
->> According to godbolt=2Eorg, gcc-4=2E1 lacks __SIZEOF_LONG__ while
->> gcc-4=2E4 has it, as do all versions of clang=2E Not sure what other
->> compilers one may encounter using Linux kernel headers=2E
->
->For instance MSVC doesn't define __SIZEOF_LONG__ or __x86_64__=2E
->Unlikely to be used, but=2E=2E=2E
->
->So you can use __SIZEOF_LONG__ if it is defined, if not hunt for
->something else (possible just fixed in the installed headers)=2E
->But in the latter case (at least) a compile-time check that the
->value is correct makes sense=2E
->And that can be done portably - probable with a negative array size=2E
->
->	David
->
->>=20
->>      Arnd
->>=20
->
->
+The perf test case 'libsubcmd help tests', subtest
+'Exclude disjoint subcmd names' fails all the time.
 
-If it doesn't define __x86_64__ it isn't API compliant at all, so it doesn=
-'t make any sense to talk about it=2E=20
+Root case is a special case of sorted input which the exclude_cmds()
+in libsubcmd can not handle. Assume the following inputs:
+cmds = { X, Y, Z } and excludes = { A, B }.
 
-The most portable way to do it in standard C is to use <limits=2Eh>, but t=
-hat of course has the header pollution problem=2E
+This leads to
+ ci  cj  ei   cmds-name  excludes
+ ----------|--------------------
+ 0   0   0 |     X         A       :    cmp > 0, ei++
+ 0   0   1 |     X         B       :    cmp > 0, ei++
+
+At this point, the loop is terminated due to ei == excludes->cnt.
+The for-loop now checks for trailing names which had to be deleted.
+But the first entry points to a name: cmds->names[0].name == "X"
+and this is a valid entry.
+
+This is the case when all commands listed in excludes are less than
+all commands listed in cmds.
+Only check for existing names when cmds list was changed, that is ci != cj.
+
+Also remove an needed if (cmp > 0).
+
+-
+Output before:
+ # ./perf test -F 68
+ 68.1: Load subcmd names                           : Ok
+ 68.2: Uniquify subcmd names                       : Ok
+ 68.3: Exclude duplicate subcmd names              : Ok
+ perf: help.c:112: exclude_cmds: Assertion `cmds->names[ci] == NULL' \
+	failed.
+ Aborted                    ./perf test -F 68
+
+Output after:
+ # ./perf test -F 68
+ 68.1: Load subcmd names                           : Ok
+ 68.2: Uniquify subcmd names                       : Ok
+ 68.3: Exclude duplicate subcmd names              : Ok
+ 68.4: Exclude disjoint subcmd names               : Ok
+
+Fixes: 1fdf938168c4 ("perf tools: Fix use-after-free in help_unknown_cmd()")
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Ian Rogers <irogers@google.com>
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+---
+ tools/lib/subcmd/help.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/tools/lib/subcmd/help.c b/tools/lib/subcmd/help.c
+index ddaeb4eb3e24..1ce5fe507687 100644
+--- a/tools/lib/subcmd/help.c
++++ b/tools/lib/subcmd/help.c
+@@ -93,19 +93,19 @@ void exclude_cmds(struct cmdnames *cmds, struct cmdnames *excludes)
+ 			zfree(&cmds->names[ci]);
+ 			ci++;
+ 			ei++;
+-		} else if (cmp > 0) {
++		} else {
+ 			ei++;
+ 		}
+ 	}
+-	if (ci != cj) {
++	if (ci != cj) {		/* Verify cmds list only if it changed */
+ 		while (ci < cmds->cnt) {
+ 			cmds->names[cj++] = cmds->names[ci];
+ 			cmds->names[ci++] = NULL;
+ 		}
++		for (ci = cj; ci < cmds->cnt; ci++)
++			assert(!cmds->names[ci]);
++		cmds->cnt = cj;
+ 	}
+-	for (ci = cj; ci < cmds->cnt; ci++)
+-		assert(cmds->names[ci] == NULL);
+-	cmds->cnt = cj;
+ }
+ 
+ static void get_term_dimensions(struct winsize *ws)
+-- 
+2.52.0
+
