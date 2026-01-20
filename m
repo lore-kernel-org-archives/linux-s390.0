@@ -1,154 +1,122 @@
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C811F3ED121
-	for <linux-s390@vger.kernel.org>; Tue, 20 Jan 2026 22:52:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 945B63D649D;
+	Tue, 20 Jan 2026 23:51:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768949577; cv=none; b=MMgKUKEr+Kna9rfRDXzL9wJ88LvNwKQgZ60hHOw7ZKi53IidStiCShNGRsrppEPZk7bWTKZv7C3BzwsuG2QbrWYj5FfXl994R2tCRB39L5i7hUeSu29QEyvgjfAsbIadACruj6fj8gCNfIQpM9aD+XpvUu7RoTAR+7p2hdqumII=
+	t=1768953072; cv=none; b=Kt/zU2A+DYA3ochEDPuy9vBqWAUIvkObrkezs9+lrQFtg+PGlf4jI1wJFB9A+ycP328Z3Ez7D3SDkifkN8IAFJmOlSd+QvvxikHLo2YsoG21t93/1D/4yVBpXOW2sTuG0DjpH+VIShz7Q764HcNYyCMBPEmA3k2YF2l75ohaF0A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768949577; c=relaxed/simple;
-	bh=qD/j26TG8QB/fvfqN+5aQUCl7c2plCaXil2V0bd2omE=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=KDlAQSuD9DpyOuu0waVHioo28BVko7VghGXB73ORsGXYtofCHFBMepYqN68ckwwBeFmy22p6vLYxPQZYkcGyTrhQurmiu8KT74GueouK9d8IXccA/id41HQ03MVTi7ImdGbGqCGrU5VwOIIThGRTb8Ef23QpY8+rAweXsXPBjk8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=O7TdXsoD; arc=none smtp.client-ip=209.85.128.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1768953072; c=relaxed/simple;
+	bh=F5yoRbWch+cbaLBVp1uSb8AEgbjGteKlxCkICYJXx74=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=P7QZ9G1pmGyY3ZPKilmVCj62Z9E2A5KBck7XulOaCY0JDs2OQTdFrIhR1PSOZPKFmQQeG5q/UplvFolHNBen0B00EBbFxGFpbpfZ0mFVWQ0o99CyiHAZnRqdVNBp4zfN6/hqBIpp1iEZ6zIy7W3J4pW2I/IqBSwtpmHJFsENTSQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ldAHDPt3; arc=none smtp.client-ip=198.175.65.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="O7TdXsoD"
-Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4801c731d0aso35673405e9.1
-        for <linux-s390@vger.kernel.org>; Tue, 20 Jan 2026 14:52:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1768949571; x=1769554371; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :references:cc:to:from:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=S4KjfyJdWQNEIqVWGJNO+4LCq8tlO+7CgBGNqDLqJz4=;
-        b=O7TdXsoDSgf5/wS0w90/6Rq2mOajxhVz7XgLcJVAbWpYSeqzL8khoxytg7CC/2VcE4
-         fg0vX9pPy07anYnnkD3oMavnlQv13XZ4NNJv6sxXikTFNh2KmElOZ8Zwy1a0MYq0Kew0
-         0aKfUxlZmHaB1wpjHQIriTfxgMm0PV5E4sJ0+5zDCZD00J/3w79yXOaKkSIPMdGdskPh
-         X8Onf+762IQSHyzBWOZ48qhljl5ZrMEH5S0zWX1kTpyTY5Qw1Qp2dj17Uz9y6yyiVQz5
-         OrxWfMvmZdcAy/729ngHuktgoyNM4XlwxZYppwWoL9APa+6mlxE3W1ZxWq2roZXu/CAO
-         fEvQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768949571; x=1769554371;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :references:cc:to:from:subject:user-agent:mime-version:date
-         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=S4KjfyJdWQNEIqVWGJNO+4LCq8tlO+7CgBGNqDLqJz4=;
-        b=B8U2MDpYm+GvkdXJ/vZ1uQQjoTBW9ixSUJxQeSqOFj1KaCXVF93k2WrM2dUjpOXsZi
-         AXYPiJfO/yXsyn15o3tX0lqfxoNzaV3prX0CHw0OUxnBoJq3Iu8qYm8N/685wKkVq00x
-         Ih0OrgSkIWqWNj5C/6qweO0SbIBqNSXvh+gvHjfCP/ibVmxNRGvjIoNaWnTfNxEfBS20
-         bO8OqvOs/CCO66UNo6wt/WO2pKVChLgE/cyQh+p6C9Gf4jPTCLS501mmRYBWgh3bth21
-         PwKDuWpQ1vBDiwjZdNxtWnKrBum27DYrW9Ey2Fhg4HV0f8mbMumja7aczNTMtMtszizy
-         E9PA==
-X-Gm-Message-State: AOJu0YxkcI5PqImZOaGwOFAn2/zW7EQ1bSGjffTdGXRbkF/cSRWgtdiv
-	eAvCvi4pqcyYRU/+EhozR9Knuedr4ZhAPjSHm8+mp4GkopjZkZjITj425sb5ZXrrNJfbm+Dlgdk
-	kBvUZ
-X-Gm-Gg: AY/fxX7dPwIJtvRqOW8ClunIR4szjPDw41Y8SwMGVyyhvZacIUe+0C4ooZTrnKcho4Y
-	Jbsx8u7DvejI293XXLlRR4rwevLADzoV0c5RPZ6L9n9KStJlf2Fadsv3WklcvYSvQZZ47aYOe3N
-	08YMvMBFj0lR11bKAZs8nWviIQrwsQXhwv9AKJsgEpVjKORLX5+fMMSQJWEEZfbemYy13lzrMGf
-	Y+OWEgIhmbGFkknjIq7J2ETg7pJrJ4HDxzqGvSpJh7DBsMu9U4siKli2VHqrbLVL6SEefT228Po
-	mGn1fNmQH022lCcHCnmyMbPjzHuDyuGrIvdX4eCas3M9Tn0px53TYSPGQN+Fa4hN7IGa2SOtEK/
-	30r0I7dyxLN3ztCzJDijG5sVHXXV66cqYaW+hh6iFdaCet78mgqZS0fS3s4vKGMz3qGDPUo33sR
-	fxMbD/vRK2fzAt99f+IIUEc5O62LPHuEzwl213t5k=
-X-Received: by 2002:a05:600c:c178:b0:477:a977:b8c5 with SMTP id 5b1f17b1804b1-4801e34cd0emr235686375e9.31.1768949571510;
-        Tue, 20 Jan 2026 14:52:51 -0800 (PST)
-Received: from ?IPV6:2403:580d:fda1::299? (2403-580d-fda1--299.ip6.aussiebb.net. [2403:580d:fda1::299])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c5edf355ca7sm13058529a12.27.2026.01.20.14.52.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 20 Jan 2026 14:52:50 -0800 (PST)
-Message-ID: <1218d786-ad7a-4971-9cd5-273232f62d79@suse.com>
-Date: Wed, 21 Jan 2026 09:22:47 +1030
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ldAHDPt3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1768953071; x=1800489071;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=F5yoRbWch+cbaLBVp1uSb8AEgbjGteKlxCkICYJXx74=;
+  b=ldAHDPt3OJ0YY7n5Jfdg+04uAMatFou6QORMT6n8S5i8uGQWT3DoHwr3
+   2goVF2bFwLevEsztzwxZTq7eCosa9f0T5yu3cjoaisxWMmEKP/jtyQin9
+   YWFkvb6Uq2LAz3OjRe2pf7mjCbbLF8bH8fISdGlWNM+3MMAGnKaZVcExG
+   eW8xNrVRRdJVeFKzT99+VpXonott/sOD4A1I/Gw4jTAL4QJwyLbh1no5K
+   7VjEfenvfqM5cwjBNMdT102aPdd1wDqnpTZsfYV5PmYbTAzH1y8kIWCrB
+   KimZ7yfvXdM9uxOjxAMwLZP+lgbMe7gRucyVqvjTfcCtlxToy31L1uPW0
+   Q==;
+X-CSE-ConnectionGUID: YBE7MXN+QaO5plREikG3+g==
+X-CSE-MsgGUID: YjbitI00S8Co3J1+N+RH+Q==
+X-IronPort-AV: E=McAfee;i="6800,10657,11677"; a="70085032"
+X-IronPort-AV: E=Sophos;i="6.21,241,1763452800"; 
+   d="scan'208";a="70085032"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jan 2026 15:51:11 -0800
+X-CSE-ConnectionGUID: rOndJBMSThSjHWZZ9Umqow==
+X-CSE-MsgGUID: IGZYyd04RMieHEmL0zc4kQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,241,1763452800"; 
+   d="scan'208";a="206068459"
+Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
+  by orviesa009.jf.intel.com with ESMTP; 20 Jan 2026 15:51:03 -0800
+Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1viLUy-00000000Phh-3QZT;
+	Tue, 20 Jan 2026 23:51:00 +0000
+Date: Wed, 21 Jan 2026 07:50:16 +0800
+From: kernel test robot <lkp@intel.com>
+To: Ryan Roberts <ryan.roberts@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Kees Cook <kees@kernel.org>,
+	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>, Mark Rutland <mark.rutland@arm.com>,
+	"Jason A. Donenfeld" <Jason@zx2c4.com>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Jeremy Linton <jeremy.linton@arm.com>,
+	David Laight <david.laight.linux@gmail.com>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	Ryan Roberts <ryan.roberts@arm.com>, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org
+Subject: Re: [PATCH v4 3/3] randomize_kstack: Unify random source across
+ arches
+Message-ID: <202601210752.6Nsv9et9-lkp@intel.com>
+References: <20260119130122.1283821-4-ryan.roberts@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] btrfs: fix the folio leak on S390 hardware acceleration
-From: Qu Wenruo <wqu@suse.com>
-To: linux-btrfs@vger.kernel.org
-Cc: linux-s390@vger.kernel.org
-References: <bcf36edfb7ac3caf3373174e741bb29c0feb268b.1768802004.git.wqu@suse.com>
-Content-Language: en-US
-Autocrypt: addr=wqu@suse.com; keydata=
- xsBNBFnVga8BCACyhFP3ExcTIuB73jDIBA/vSoYcTyysFQzPvez64TUSCv1SgXEByR7fju3o
- 8RfaWuHCnkkea5luuTZMqfgTXrun2dqNVYDNOV6RIVrc4YuG20yhC1epnV55fJCThqij0MRL
- 1NxPKXIlEdHvN0Kov3CtWA+R1iNN0RCeVun7rmOrrjBK573aWC5sgP7YsBOLK79H3tmUtz6b
- 9Imuj0ZyEsa76Xg9PX9Hn2myKj1hfWGS+5og9Va4hrwQC8ipjXik6NKR5GDV+hOZkktU81G5
- gkQtGB9jOAYRs86QG/b7PtIlbd3+pppT0gaS+wvwMs8cuNG+Pu6KO1oC4jgdseFLu7NpABEB
- AAHNGFF1IFdlbnJ1byA8d3F1QHN1c2UuY29tPsLAlAQTAQgAPgIbAwULCQgHAgYVCAkKCwIE
- FgIDAQIeAQIXgBYhBC3fcuWlpVuonapC4cI9kfOhJf6oBQJnEXVgBQkQ/lqxAAoJEMI9kfOh
- Jf6o+jIH/2KhFmyOw4XWAYbnnijuYqb/obGae8HhcJO2KIGcxbsinK+KQFTSZnkFxnbsQ+VY
- fvtWBHGt8WfHcNmfjdejmy9si2jyy8smQV2jiB60a8iqQXGmsrkuR+AM2V360oEbMF3gVvim
- 2VSX2IiW9KERuhifjseNV1HLk0SHw5NnXiWh1THTqtvFFY+CwnLN2GqiMaSLF6gATW05/sEd
- V17MdI1z4+WSk7D57FlLjp50F3ow2WJtXwG8yG8d6S40dytZpH9iFuk12Sbg7lrtQxPPOIEU
- rpmZLfCNJJoZj603613w/M8EiZw6MohzikTWcFc55RLYJPBWQ+9puZtx1DopW2jOwE0EWdWB
- rwEIAKpT62HgSzL9zwGe+WIUCMB+nOEjXAfvoUPUwk+YCEDcOdfkkM5FyBoJs8TCEuPXGXBO
- Cl5P5B8OYYnkHkGWutAVlUTV8KESOIm/KJIA7jJA+Ss9VhMjtePfgWexw+P8itFRSRrrwyUf
- E+0WcAevblUi45LjWWZgpg3A80tHP0iToOZ5MbdYk7YFBE29cDSleskfV80ZKxFv6koQocq0
- vXzTfHvXNDELAuH7Ms/WJcdUzmPyBf3Oq6mKBBH8J6XZc9LjjNZwNbyvsHSrV5bgmu/THX2n
- g/3be+iqf6OggCiy3I1NSMJ5KtR0q2H2Nx2Vqb1fYPOID8McMV9Ll6rh8S8AEQEAAcLAfAQY
- AQgAJgIbDBYhBC3fcuWlpVuonapC4cI9kfOhJf6oBQJnEXWBBQkQ/lrSAAoJEMI9kfOhJf6o
- cakH+QHwDszsoYvmrNq36MFGgvAHRjdlrHRBa4A1V1kzd4kOUokongcrOOgHY9yfglcvZqlJ
- qfa4l+1oxs1BvCi29psteQTtw+memmcGruKi+YHD7793zNCMtAtYidDmQ2pWaLfqSaryjlzR
- /3tBWMyvIeWZKURnZbBzWRREB7iWxEbZ014B3gICqZPDRwwitHpH8Om3eZr7ygZck6bBa4MU
- o1XgbZcspyCGqu1xF/bMAY2iCDcq6ULKQceuKkbeQ8qxvt9hVxJC2W3lHq8dlK1pkHPDg9wO
- JoAXek8MF37R8gpLoGWl41FIUb3hFiu3zhDDvslYM4BmzI18QgQTQnotJH8=
-In-Reply-To: <bcf36edfb7ac3caf3373174e741bb29c0feb268b.1768802004.git.wqu@suse.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260119130122.1283821-4-ryan.roberts@arm.com>
 
-Adding S390 to the mailing list, I got the incorrect address in the 
-initial patch.
+Hi Ryan,
 
-Much appreciated if S390 people can give it a test.
+kernel test robot noticed the following build warnings:
 
-Thanks,
-Qu
+[auto build test WARNING on akpm-mm/mm-everything]
+[also build test WARNING on linus/master v6.19-rc6 next-20260119]
+[cannot apply to tip/sched/core kees/for-next/hardening kees/for-next/execve]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
+url:    https://github.com/intel-lab-lkp/linux/commits/Ryan-Roberts/randomize_kstack-Maintain-kstack_offset-per-task/20260119-210329
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm.git mm-everything
+patch link:    https://lore.kernel.org/r/20260119130122.1283821-4-ryan.roberts%40arm.com
+patch subject: [PATCH v4 3/3] randomize_kstack: Unify random source across arches
+config: x86_64-allmodconfig (https://download.01.org/0day-ci/archive/20260121/202601210752.6Nsv9et9-lkp@intel.com/config)
+compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260121/202601210752.6Nsv9et9-lkp@intel.com/reproduce)
 
-在 2026/1/19 16:24, Qu Wenruo 写道:
-> [BUG]
-> After commit aa60fe12b4f4 ("btrfs: zlib: refactor S390x HW acceleration
-> buffer preparation"), we no longer release the folio of the page cache
-> of folio returned by btrfs_compress_filemap_get_folio() for S390
-> hardware accerlation path.
-> 
-> [CAUSE]
-> Before that commit, we call kumap_local() and folio_put() after handling
-> each folio.
-> 
-> Although the timing is not ideal (it release previous folio at the
-> beginning of the loop, and rely on some extra cleanup out of the loop),
-> it at least handles the folio release correctly.
-> 
-> Meanwhile the refactored code is easier to read, it lacks the call to
-> release the filemap folio.
-> 
-> [FIX]
-> Add the missing folio_put() for copy_data_into_buffer().
-> 
-> Cc: linux-s390@vger.kernel.orgaa60fe12b4f49f49fc73e5023f8675e2df1f7805
-> Fixes: aa60fe12b4f4 ("btrfs: zlib: refactor S390x HW acceleration buffer preparation")
-> Signed-off-by: Qu Wenruo <wqu@suse.com>
-> ---
->   fs/btrfs/zlib.c | 1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/fs/btrfs/zlib.c b/fs/btrfs/zlib.c
-> index 6caba8be7c84..10ed48d4a846 100644
-> --- a/fs/btrfs/zlib.c
-> +++ b/fs/btrfs/zlib.c
-> @@ -139,6 +139,7 @@ static int copy_data_into_buffer(struct address_space *mapping,
->   		data_in = kmap_local_folio(folio, offset);
->   		memcpy(workspace->buf + cur - filepos, data_in, copy_length);
->   		kunmap_local(data_in);
-> +		folio_put(folio);
->   		cur += copy_length;
->   	}
->   	return 0;
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202601210752.6Nsv9et9-lkp@intel.com/
 
+All warnings (new ones prefixed by >>):
+
+>> vmlinux.o: warning: objtool: do_syscall_64+0x2c: call to preempt_count_add() leaves .noinstr.text section
+>> vmlinux.o: warning: objtool: __do_fast_syscall_32+0x3d: call to preempt_count_add() leaves .noinstr.text section
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
