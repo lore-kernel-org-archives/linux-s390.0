@@ -1,223 +1,232 @@
-Received: from fra-out-011.esa.eu-central-1.outbound.mail-perimeter.amazon.com (fra-out-011.esa.eu-central-1.outbound.mail-perimeter.amazon.com [52.28.197.132])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA03D3EBF03;
-	Thu, 22 Jan 2026 18:48:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.28.197.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D9B3353ECC;
+	Thu, 22 Jan 2026 19:45:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769107711; cv=none; b=mdJvft92ImXQ1WDmbr1bB/kT+vfqdzo65wxV7hk5nbU3OxvphZN+/kCsL7MTxVGbikHWtnhN9uXiYOW/v0ii8oWazlh2ld2KmuvvsV7aa2N13hrW48vGMxVZPmwFPvEyor0FzPToAh6rwD7BTRzmZiELRsK5z9tMituNxQvzRf8=
+	t=1769111110; cv=none; b=kloJqxaWkxYbHtyff9X0DzbJ8F/S7nCXGhCYOISuMoi+JZEhxEKV2z0qkdg7TAyX3gwu4MG6FC0/MF//0TTL3Y5RBOffomUOVqV152A2ndUg/TjFtAVUUuXkJWeHXk8bWbSc5WJPjxH6c7uGuKLfL7Zc8gQ3nWZo/2sXyqZOmAc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769107711; c=relaxed/simple;
-	bh=e473fGbaxEFgQov/AWdKjragoZNg0WVx0cwAlSFTVVg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=QJ5U9tM0oO2q9RzVrHlSIO/jsP5B4fKfbLa/hcOsLIx7BiXMRz4R9Qs52nHV83btDC3l2LcpGVidarur4v9TLL00Qod3kKdcIJ8u08rQkcYTSfH6fFnvjO5IZCuaZoIoG4vl6qg1MQqeUt+c8KYq0c1tUB3hJ+mAwyJeZC7WJBo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=MJHsmS6+; arc=none smtp.client-ip=52.28.197.132
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.uk
+	s=arc-20240116; t=1769111110; c=relaxed/simple;
+	bh=rpGbw6aPatBFoO1n6MG8kM9PgC511SMrfUTMIJhpc3g=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Zvf1Slh7EK4VJLpblURlDiR93wA58agD3DzPV90PSuKbzGJN6OUBDciTc5VhG4tCT76mvKyhRXq/OqdEoblQ0BdfxORmMv9WCpMqQGVes25QNWjK8rtA7IftingyNJ3NzIW1VFhW1xUobZly2C+eb2TxMZEy5NpCAjEqWihdGdQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=N7MFIPD2; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="MJHsmS6+"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1769107706; x=1800643706;
-  h=message-id:date:mime-version:reply-to:subject:to:cc:
-   references:from:in-reply-to:content-transfer-encoding;
-  bh=EvBM3L4II/cGkagk2VbdKNvKqQzeUtAnRgo+PSoIV/Y=;
-  b=MJHsmS6+mfH44e8BXBEhngiAk4MKZAiWWgJy1uRFQ4V6WBLfGuNZKbwZ
-   fiz+6bzSVYAsekdqIH74MmSxIRoTU9czCYllXjLu3vaEG+gToXvxCkfEF
-   PGXyuy3UFB/E46qsjYGFFKU837+iOfsOf/fZuocv82Gd0HdR3929b/m0K
-   mOBEv42ebZ5DBfB2GcWwy2OCS9SI6u0IbFOL1L7opBrAXP4pvAglGLmEX
-   wFR0Kwi+85ket/Th484vnHIfMngW170wmjuVG9QaWXDrtmYhu/VPa14h5
-   bUADxVqlQFE9x5JB4yAjuglHeMLPUFkQL1A7HWEAnLWyU5vGgoEW6Ew9U
-   A==;
-X-CSE-ConnectionGUID: tcmKhT3uQH6oov/07SCvrg==
-X-CSE-MsgGUID: qNQV+8P6Qz6tQEAKSD8cQQ==
-X-IronPort-AV: E=Sophos;i="6.21,246,1763424000"; 
-   d="scan'208";a="8196021"
-Received: from ip-10-6-6-97.eu-central-1.compute.internal (HELO smtpout.naws.eu-central-1.prod.farcaster.email.amazon.dev) ([10.6.6.97])
-  by internal-fra-out-011.esa.eu-central-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2026 18:48:03 +0000
-Received: from EX19MTAEUC002.ant.amazon.com [54.240.197.236:17130]
- by smtpin.naws.eu-central-1.prod.farcaster.email.amazon.dev [10.0.29.47:2525] with esmtp (Farcaster)
- id 32c357db-7900-4592-9eca-47dae0cab1ce; Thu, 22 Jan 2026 18:48:02 +0000 (UTC)
-X-Farcaster-Flow-ID: 32c357db-7900-4592-9eca-47dae0cab1ce
-Received: from EX19D005EUB003.ant.amazon.com (10.252.51.31) by
- EX19MTAEUC002.ant.amazon.com (10.252.51.181) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.35;
- Thu, 22 Jan 2026 18:48:02 +0000
-Received: from [192.168.23.186] (10.106.82.17) by
- EX19D005EUB003.ant.amazon.com (10.252.51.31) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.35;
- Thu, 22 Jan 2026 18:47:43 +0000
-Message-ID: <cfb0b8e8-b12a-4014-9070-63cfe8693f59@amazon.com>
-Date: Thu, 22 Jan 2026 18:47:41 +0000
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="N7MFIPD2"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60MCSYnS007700;
+	Thu, 22 Jan 2026 19:44:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=Y9znmSbPzfrs06b6s
+	0xx9RdEZOPm29RJowDzYc/AEco=; b=N7MFIPD2/kNCHnc2I3eN0yni9a+O0tfi9
+	6Qa2YEXEIXoZ0RzNwAgKPYU0A9Tk5gWtogNihtUpWiuHOjGK2ultxp7Gy7MgNEoF
+	+ct5+JK6272bbvqDIJlH/RTT/8nlYu+dtkiZhMZXXv00VVV4fjqJS17IIBdmkVqL
+	DgM/Qcdg/zKYhJgaLSE1ViaIWspo8xcZcpRQUyELai9byI0V0Fzrq9NIII/UK2Xp
+	EJJU8lu677euz0Dw0ikR8kBnsRISiTRQiMpWWoiRX6uVbj6BQMKR7UprdaqdxUbX
+	D5IS3xpyQQPaltCac91JYCUsM/H/Dv5QjMrU9SbzoB5FwriRzDCFA==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bqyukjgra-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 22 Jan 2026 19:44:44 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60MIkCXA024640;
+	Thu, 22 Jan 2026 19:44:43 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4brxas2t9e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 22 Jan 2026 19:44:43 +0000
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60MJiNm525231914
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 22 Jan 2026 19:44:23 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9EB1658056;
+	Thu, 22 Jan 2026 19:44:41 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B437758060;
+	Thu, 22 Jan 2026 19:44:40 +0000 (GMT)
+Received: from IBM-D32RQW3.ibm.com (unknown [9.61.248.216])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 22 Jan 2026 19:44:40 +0000 (GMT)
+From: Farhan Ali <alifm@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Cc: helgaas@kernel.org, lukas@wunner.de, alex@shazbot.org, clg@redhat.com,
+        stable@vger.kernel.org, alifm@linux.ibm.com, schnelle@linux.ibm.com,
+        mjrosato@linux.ibm.com, julianr@linux.ibm.com
+Subject: [PATCH v8 2/9] s390/pci: Add architecture specific resource/bus address translation
+Date: Thu, 22 Jan 2026 11:44:30 -0800
+Message-ID: <20260122194437.1903-3-alifm@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260122194437.1903-1-alifm@linux.ibm.com>
+References: <20260122194437.1903-1-alifm@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Reply-To: <kalyazin@amazon.com>
-Subject: Re: [PATCH v9 07/13] KVM: guest_memfd: Add flag to remove from direct
- map
-To: Ackerley Tng <ackerleytng@google.com>, "Edgecombe, Rick P"
-	<rick.p.edgecombe@intel.com>, "linux-riscv@lists.infradead.org"
-	<linux-riscv@lists.infradead.org>, "kalyazin@amazon.co.uk"
-	<kalyazin@amazon.co.uk>, "kernel@xen0n.name" <kernel@xen0n.name>,
-	"linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>,
-	"linux-mm@kvack.org" <linux-mm@kvack.org>, "linux-fsdevel@vger.kernel.org"
-	<linux-fsdevel@vger.kernel.org>, "linux-s390@vger.kernel.org"
-	<linux-s390@vger.kernel.org>, "kvmarm@lists.linux.dev"
-	<kvmarm@lists.linux.dev>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "kvm@vger.kernel.org"
-	<kvm@vger.kernel.org>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-	"loongarch@lists.linux.dev" <loongarch@lists.linux.dev>
-CC: "david@kernel.org" <david@kernel.org>, "palmer@dabbelt.com"
-	<palmer@dabbelt.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-	"svens@linux.ibm.com" <svens@linux.ibm.com>, "jgross@suse.com"
-	<jgross@suse.com>, "surenb@google.com" <surenb@google.com>,
-	"riel@surriel.com" <riel@surriel.com>, "pfalcato@suse.de" <pfalcato@suse.de>,
-	"peterx@redhat.com" <peterx@redhat.com>, "x86@kernel.org" <x86@kernel.org>,
-	"rppt@kernel.org" <rppt@kernel.org>, "thuth@redhat.com" <thuth@redhat.com>,
-	"maz@kernel.org" <maz@kernel.org>, "dave.hansen@linux.intel.com"
-	<dave.hansen@linux.intel.com>, "ast@kernel.org" <ast@kernel.org>,
-	"vbabka@suse.cz" <vbabka@suse.cz>, "Annapurve, Vishal"
-	<vannapurve@google.com>, "borntraeger@linux.ibm.com"
-	<borntraeger@linux.ibm.com>, "alex@ghiti.fr" <alex@ghiti.fr>,
-	"pjw@kernel.org" <pjw@kernel.org>, "tglx@linutronix.de" <tglx@linutronix.de>,
-	"willy@infradead.org" <willy@infradead.org>, "hca@linux.ibm.com"
-	<hca@linux.ibm.com>, "wyihan@google.com" <wyihan@google.com>,
-	"ryan.roberts@arm.com" <ryan.roberts@arm.com>, "jolsa@kernel.org"
-	<jolsa@kernel.org>, "yang@os.amperecomputing.com"
-	<yang@os.amperecomputing.com>, "jmattson@google.com" <jmattson@google.com>,
-	"luto@kernel.org" <luto@kernel.org>, "aneesh.kumar@kernel.org"
-	<aneesh.kumar@kernel.org>, "haoluo@google.com" <haoluo@google.com>,
-	"patrick.roy@linux.dev" <patrick.roy@linux.dev>, "akpm@linux-foundation.org"
-	<akpm@linux-foundation.org>, "coxu@redhat.com" <coxu@redhat.com>,
-	"mhocko@suse.com" <mhocko@suse.com>, "mlevitsk@redhat.com"
-	<mlevitsk@redhat.com>, "jgg@ziepe.ca" <jgg@ziepe.ca>, "hpa@zytor.com"
-	<hpa@zytor.com>, "song@kernel.org" <song@kernel.org>, "oupton@kernel.org"
-	<oupton@kernel.org>, "peterz@infradead.org" <peterz@infradead.org>,
-	"maobibo@loongson.cn" <maobibo@loongson.cn>, "lorenzo.stoakes@oracle.com"
-	<lorenzo.stoakes@oracle.com>, "Liam.Howlett@oracle.com"
-	<Liam.Howlett@oracle.com>, "jthoughton@google.com" <jthoughton@google.com>,
-	"martin.lau@linux.dev" <martin.lau@linux.dev>, "jhubbard@nvidia.com"
-	<jhubbard@nvidia.com>, "Yu, Yu-cheng" <yu-cheng.yu@intel.com>,
-	"Jonathan.Cameron@huawei.com" <Jonathan.Cameron@huawei.com>,
-	"eddyz87@gmail.com" <eddyz87@gmail.com>, "yonghong.song@linux.dev"
-	<yonghong.song@linux.dev>, "chenhuacai@kernel.org" <chenhuacai@kernel.org>,
-	"shuah@kernel.org" <shuah@kernel.org>, "prsampat@amd.com" <prsampat@amd.com>,
-	"kevin.brodsky@arm.com" <kevin.brodsky@arm.com>,
-	"shijie@os.amperecomputing.com" <shijie@os.amperecomputing.com>,
-	"suzuki.poulose@arm.com" <suzuki.poulose@arm.com>, "itazur@amazon.co.uk"
-	<itazur@amazon.co.uk>, "pbonzini@redhat.com" <pbonzini@redhat.com>,
-	"yuzenghui@huawei.com" <yuzenghui@huawei.com>, "dev.jain@arm.com"
-	<dev.jain@arm.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>,
-	"jackabt@amazon.co.uk" <jackabt@amazon.co.uk>, "daniel@iogearbox.net"
-	<daniel@iogearbox.net>, "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
-	"andrii@kernel.org" <andrii@kernel.org>, "mingo@redhat.com"
-	<mingo@redhat.com>, "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>,
-	"joey.gouly@arm.com" <joey.gouly@arm.com>, "derekmn@amazon.com"
-	<derekmn@amazon.com>, "xmarcalx@amazon.co.uk" <xmarcalx@amazon.co.uk>,
-	"kpsingh@kernel.org" <kpsingh@kernel.org>, "sdf@fomichev.me"
-	<sdf@fomichev.me>, "jackmanb@google.com" <jackmanb@google.com>,
-	"bp@alien8.de" <bp@alien8.de>, "corbet@lwn.net" <corbet@lwn.net>,
-	"jannh@google.com" <jannh@google.com>, "john.fastabend@gmail.com"
-	<john.fastabend@gmail.com>, "kas@kernel.org" <kas@kernel.org>,
-	"will@kernel.org" <will@kernel.org>, "seanjc@google.com" <seanjc@google.com>
-References: <20260114134510.1835-1-kalyazin@amazon.com>
- <20260114134510.1835-8-kalyazin@amazon.com>
- <e619ded526a2f9a4cec4f74383cef31519624935.camel@intel.com>
- <294bca75-2f3e-46db-bb24-7c471a779cc1@amazon.com>
- <CAEvNRgEvd9tSwrkaYrQyibO2DP99vgVj6_zr=jBH5+zMnJwYbA@mail.gmail.com>
-Content-Language: en-US
-From: Nikita Kalyazin <kalyazin@amazon.com>
-Autocrypt: addr=kalyazin@amazon.com; keydata=
- xjMEY+ZIvRYJKwYBBAHaRw8BAQdA9FwYskD/5BFmiiTgktstviS9svHeszG2JfIkUqjxf+/N
- JU5pa2l0YSBLYWx5YXppbiA8a2FseWF6aW5AYW1hem9uLmNvbT7CjwQTFggANxYhBGhhGDEy
- BjLQwD9FsK+SyiCpmmTzBQJnrNfABQkFps9DAhsDBAsJCAcFFQgJCgsFFgIDAQAACgkQr5LK
- IKmaZPOpfgD/exazh4C2Z8fNEz54YLJ6tuFEgQrVQPX6nQ/PfQi2+dwBAMGTpZcj9Z9NvSe1
- CmmKYnYjhzGxzjBs8itSUvWIcMsFzjgEY+ZIvRIKKwYBBAGXVQEFAQEHQCqd7/nb2tb36vZt
- ubg1iBLCSDctMlKHsQTp7wCnEc4RAwEIB8J+BBgWCAAmFiEEaGEYMTIGMtDAP0Wwr5LKIKma
- ZPMFAmes18AFCQWmz0MCGwwACgkQr5LKIKmaZPNTlQEA+q+rGFn7273rOAg+rxPty0M8lJbT
- i2kGo8RmPPLu650A/1kWgz1AnenQUYzTAFnZrKSsXAw5WoHaDLBz9kiO5pAK
-In-Reply-To: <CAEvNRgEvd9tSwrkaYrQyibO2DP99vgVj6_zr=jBH5+zMnJwYbA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: EX19D011EUA001.ant.amazon.com (10.252.50.114) To
- EX19D005EUB003.ant.amazon.com (10.252.51.31)
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTIyMDE0OCBTYWx0ZWRfX+//u5YZN6dlt
+ eMwOc61cGf7ag5Wncjm708VwJnyoYm0bMxPjSD1KOonp883x2zopbQsXVpmsvo0IU3W7LaXxCqw
+ 8ZOkeHbHl7xj00kZh1Fd730WJwhVSeBDuMn4+ZbJQVlqb31ZZwTYFtRnzE3/WBKcESLcfrJaOqo
+ pLeWHP6RopHO9WWy117OkRjrCS+jf8NdyO9fBTXpmcOwDEZyFRzaI7YZmRZn3s7BOgK0cW3UnCa
+ NL4PRfYeZlEtno2VewyW/esxLp+G8PhSRcwDSHC5kUptKAM3hIe3EQXBqFR5R8PiR+j2XlYy0+C
+ cpx6K6VwNaaJ4VmqUdLolwATbi5b1zbkipA4AfKWETwLyDs5VmBeY9LK0me7fUC0XO05pIMmFqa
+ nXYiY2UYTcq0PLiW7Nw9oTdpGtgYNWCmBRVHHD2+WN0mrUPcntbbGaHdsn10nl4j5hZmGfO4iX4
+ pcRQG3vY10aM8WdZbaQ==
+X-Authority-Analysis: v=2.4 cv=bsBBxUai c=1 sm=1 tr=0 ts=69727e2c cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
+ a=WI2LcE4NPZyv2LzpnzYA:9
+X-Proofpoint-ORIG-GUID: RYunstVLvxQQISuc7w9rxjfStLq4SJCZ
+X-Proofpoint-GUID: RYunstVLvxQQISuc7w9rxjfStLq4SJCZ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.20,FMLib:17.12.100.49
+ definitions=2026-01-22_04,2026-01-22_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 suspectscore=0 phishscore=0 lowpriorityscore=0 bulkscore=0
+ impostorscore=0 malwarescore=0 clxscore=1015 adultscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2601150000 definitions=main-2601220148
 
+On s390 today we overwrite the PCI BAR resource address to either an
+artificial cookie address or MIO address. However this address is different
+from the bus address of the BARs programmed by firmware. The artificial
+cookie address was created to index into an array of function handles
+(zpci_iomap_start). The MIO (mapped I/O) addresses are provided by firmware
+but maybe different from the bus addresses. This creates an issue when
+trying to convert the BAR resource address to bus address using the generic
+pcibios_resource_to_bus().
 
+Implement an architecture specific pcibios_resource_to_bus() function to
+correctly translate PCI BAR resource addresses to bus addresses for s390.
+Similarly add architecture specific pcibios_bus_to_resource function to do
+the reverse translation.
 
-On 22/01/2026 18:37, Ackerley Tng wrote:
-> Nikita Kalyazin <kalyazin@amazon.com> writes:
-> 
->> On 16/01/2026 00:00, Edgecombe, Rick P wrote:
->>> On Wed, 2026-01-14 at 13:46 +0000, Kalyazin, Nikita wrote:
->>>> +static void kvm_gmem_folio_restore_direct_map(struct folio *folio)
->>>> +{
->>>> +     /*
->>>> +      * Direct map restoration cannot fail, as the only error condition
->>>> +      * for direct map manipulation is failure to allocate page tables
->>>> +      * when splitting huge pages, but this split would have already
->>>> +      * happened in folio_zap_direct_map() in kvm_gmem_folio_zap_direct_map().
-> 
-> Do you know if folio_restore_direct_map() will also end up merging page
-> table entries to a higher level?
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+---
+ arch/s390/pci/pci.c       | 74 +++++++++++++++++++++++++++++++++++++++
+ drivers/pci/host-bridge.c |  8 ++---
+ 2 files changed, 78 insertions(+), 4 deletions(-)
 
-By looking at the callchain in x86 at least, I can't see how it would.
-
-> 
->>>> +      * Thus folio_restore_direct_map() here only updates prot bits.
->>>> +      */
->>>> +     if (kvm_gmem_folio_no_direct_map(folio)) {
->>>> +             WARN_ON_ONCE(folio_restore_direct_map(folio));
->>>> +             folio->private = (void *)((u64)folio->private & ~KVM_GMEM_FOLIO_NO_DIRECT_MAP);
->>>> +     }
->>>> +}
->>>> +
->>>
->>> Does this assume the folio would not have been split after it was zapped? As in,
->>> if it was zapped at 2MB granularity (no 4KB direct map split required) but then
->>> restored at 4KB (split required)? Or it gets merged somehow before this?
-> 
-> I agree with the rest of the discussion that this will probably land
-> before huge page support, so I will have to figure out the intersection
-> of the two later.
-> 
->>
->> AFAIK it can't be zapped at 2MB granularity as the zapping code will
->> inevitably cause splitting because guest_memfd faults occur at the base
->> page granularity as of now.
-> 
-> Here's what I'm thinking for now:
-> 
-> [HugeTLB, no conversions]
-> With initial HugeTLB support (no conversions), host userspace
-> guest_memfd faults will be:
-> 
-> + For guest_memfd with PUD-sized pages
->      + At PUD level or PTE level
-> + For guest_memfd with PMD-sized pages
->      + At PMD level or PTE level
-> 
-> Since this guest_memfd doesn't support conversions, the folio is never
-> split/merged, so the direct map is restored at whatever level it was
-> zapped. I think this works out well.
-> 
-> [HugeTLB + conversions]
-> For a guest_memfd with HugeTLB support and conversions, host userspace
-> guest_memfd faults will always be at PTE level, so the direct map will
-> be split and the faulted pages have the direct map zapped in 4K chunks
-> as they are faulted.
-> 
-> On conversion back to private, put those back into the direct map
-> (putting aside whether to merge the direct map PTEs for now).
-> 
-> 
-> Unfortunately there's no unmapping callback for guest_memfd to use, so
-> perhaps the principle should be to put the folios back into the direct
-> map ASAP - at unmapping if guest_memfd is doing the unmapping, otherwise
-> at freeing time?
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index 57f3980b98a9..81e7e6b689d1 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -263,6 +263,80 @@ resource_size_t pcibios_align_resource(void *data, const struct resource *res,
+ 	return 0;
+ }
+ 
++void pcibios_resource_to_bus(struct pci_bus *bus, struct pci_bus_region *region,
++			     struct resource *res)
++{
++	struct zpci_bus *zbus = bus->sysdata;
++	struct zpci_bar_struct *zbar;
++	struct zpci_dev *zdev;
++
++	region->start = res->start;
++	region->end = res->end;
++
++	for (int i = 0; i < ZPCI_FUNCTIONS_PER_BUS; i++) {
++		int j = 0;
++
++		zbar = NULL;
++		zdev = zbus->function[i];
++		if (!zdev)
++			continue;
++
++		for (j = 0; j < PCI_STD_NUM_BARS; j++) {
++			if (zdev->bars[j].res->start == res->start &&
++			    zdev->bars[j].res->end == res->end &&
++			    res->flags & IORESOURCE_MEM) {
++				zbar = &zdev->bars[j];
++				break;
++			}
++		}
++
++		if (zbar) {
++			/* only MMIO is supported */
++			region->start = zbar->val & PCI_BASE_ADDRESS_MEM_MASK;
++			if (zbar->val & PCI_BASE_ADDRESS_MEM_TYPE_64)
++				region->start |= (u64)zdev->bars[j + 1].val << 32;
++
++			region->end = region->start + (1UL << zbar->size) - 1;
++			return;
++		}
++	}
++}
++
++void pcibios_bus_to_resource(struct pci_bus *bus, struct resource *res,
++			     struct pci_bus_region *region)
++{
++	struct zpci_bus *zbus = bus->sysdata;
++	struct zpci_dev *zdev;
++	resource_size_t start, end;
++
++	res->start = region->start;
++	res->end = region->end;
++
++	for (int i = 0; i < ZPCI_FUNCTIONS_PER_BUS; i++) {
++		zdev = zbus->function[i];
++		if (!zdev || !zdev->has_resources)
++			continue;
++
++		for (int j = 0; j < PCI_STD_NUM_BARS; j++) {
++			if (!zdev->bars[j].size)
++				continue;
++
++			/* only MMIO is supported */
++			start = zdev->bars[j].val & PCI_BASE_ADDRESS_MEM_MASK;
++			if (zdev->bars[j].val & PCI_BASE_ADDRESS_MEM_TYPE_64)
++				start |= (u64)zdev->bars[j + 1].val << 32;
++
++			end = start + (1UL << zdev->bars[j].size) - 1;
++
++			if (start == region->start && end == region->end) {
++				res->start = zdev->bars[j].res->start;
++				res->end = zdev->bars[j].res->end;
++				return;
++			}
++		}
++	}
++}
++
+ void __iomem *ioremap_prot(phys_addr_t phys_addr, size_t size,
+ 			   pgprot_t prot)
+ {
+diff --git a/drivers/pci/host-bridge.c b/drivers/pci/host-bridge.c
+index be5ef6516cff..aed031b8a9f3 100644
+--- a/drivers/pci/host-bridge.c
++++ b/drivers/pci/host-bridge.c
+@@ -49,8 +49,8 @@ void pci_set_host_bridge_release(struct pci_host_bridge *bridge,
+ }
+ EXPORT_SYMBOL_GPL(pci_set_host_bridge_release);
+ 
+-void pcibios_resource_to_bus(struct pci_bus *bus, struct pci_bus_region *region,
+-			     struct resource *res)
++void __weak pcibios_resource_to_bus(struct pci_bus *bus, struct pci_bus_region *region,
++				    struct resource *res)
+ {
+ 	struct pci_host_bridge *bridge = pci_find_host_bridge(bus);
+ 	struct resource_entry *window;
+@@ -74,8 +74,8 @@ static bool region_contains(struct pci_bus_region *region1,
+ 	return region1->start <= region2->start && region1->end >= region2->end;
+ }
+ 
+-void pcibios_bus_to_resource(struct pci_bus *bus, struct resource *res,
+-			     struct pci_bus_region *region)
++void __weak pcibios_bus_to_resource(struct pci_bus *bus, struct resource *res,
++				    struct pci_bus_region *region)
+ {
+ 	struct pci_host_bridge *bridge = pci_find_host_bridge(bus);
+ 	struct resource_entry *window;
+-- 
+2.43.0
 
