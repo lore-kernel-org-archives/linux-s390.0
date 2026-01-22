@@ -1,256 +1,191 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs1-f41.google.com (mail-vs1-f41.google.com [209.85.217.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FB1439BA48;
-	Thu, 22 Jan 2026 19:45:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769111132; cv=none; b=HcCb5yQYOWEmveWn6prhH8HYxj51TCNh38wqg37a6Y/I3yCwyUI3UmgVGj4d42GN9RzDrhZ+cmHHdqpBqFj40cNG9+fpdxayZeCnO+zmf902LvrTvyYX8qcDcFoBtkZBh0nFv+s8XyT8Swq45ob0pqkd8lu5ARg8mD7vTjtNpos=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769111132; c=relaxed/simple;
-	bh=BLiCdqknto/ayI6crtjR5Zr6UgXyLqxN/SxFgDgKQyQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UAiQLpz2cGGBoDDFu9A8laWN31bkIWmO5ksNATOPnC8RVqVCQ9Lm3STRnZqtk6pTc8XQ+TmoM8QwknE5fcpKqm32wFciBECK2Q4W4nRLegkf0IiCg300Js/hq3TBZAz92+6LJQMi6in8JDgYxjwQ5HKpWrqOhI57wqJFZwd6Eic=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KibJa0pB; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1625339CB3C
+	for <linux-s390@vger.kernel.org>; Thu, 22 Jan 2026 20:30:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.217.41
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769113862; cv=pass; b=nAUxqiEnoDvbLAmCccc1pNJ6hkBNDCJAWDTUbmhCufuFUFUXyPNBgY/8/30pZXfGnFX9b6lW3Vm2RBVcz8tXaG/gcnr7oHbW5xPCBdXUiIWtY/hSHMC00Xp+nJF18M3nlen53m1PKTSo3IszlOLkbREX41mBFkX60uaq1ubz2l0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769113862; c=relaxed/simple;
+	bh=ASZplhRqMNnIuXI0Gmdw3pwrAxGsQ+x5dICWN1yZY84=;
+	h=From:In-Reply-To:References:MIME-Version:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=SsdxosHwAnbiBKJifD0OsLm2O9CrQMFDja8VWXBXsEc5H719qzdSzLf9ASYG1MR36oxm1TmwWO3/cmIUaZ3W0Spilsc70elMYg1tNKs0+Qz6+4br2cxCaGfYOd1NKjNAtCMgKmwzFs1ZwxJDERyw8gKYi6iIgQGv6iPpZ7MSl7c=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=s9cWSTdk; arc=pass smtp.client-ip=209.85.217.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KibJa0pB"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60MFoop1028455;
-	Thu, 22 Jan 2026 19:44:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=5v7SNCiRnD9Isx5cUuwUHtst3+0KmR4FcRQZIb4D0
-	7U=; b=KibJa0pBzbKaL0DEe00eITSyhBCZVPyntCaPdjMMHMDFlwuigeVcgnm5+
-	uAFVcTQUcWEEO1lPa/cXda//OtSiIv5AuaV5ut80XNqZlR6XK4dvq+HwstfutN2K
-	yTujxXVaMkN/sa0KGkfFHNqUtDsvgZjJ17HpZREYSnw1gHwsx4owTAOAwF3QFonA
-	BgwBXoaQnhAx8QDI3Zcyq8UlWXU7iJxpkNP/L6d87RiK9G6Db/z2zGMS40IHYX2Q
-	sgtDEYHERIq8qBbwPuFW/BB+tK+AkDG/QK7kDH44RI62n8hzY+c6lND+4kLn7dgC
-	cQl6Z26cNSBsb+e9yP5Mgk0uRyn3Q==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bt60eycxe-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 22 Jan 2026 19:44:42 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60MIwFUw027382;
-	Thu, 22 Jan 2026 19:44:41 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4brnrncg22-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 22 Jan 2026 19:44:41 +0000
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60MJidHS25035300
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 22 Jan 2026 19:44:40 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 95AE25805A;
-	Thu, 22 Jan 2026 19:44:39 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AAF6958056;
-	Thu, 22 Jan 2026 19:44:38 +0000 (GMT)
-Received: from IBM-D32RQW3.ibm.com (unknown [9.61.248.216])
-	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 22 Jan 2026 19:44:38 +0000 (GMT)
-From: Farhan Ali <alifm@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org
-Cc: helgaas@kernel.org, lukas@wunner.de, alex@shazbot.org, clg@redhat.com,
-        stable@vger.kernel.org, alifm@linux.ibm.com, schnelle@linux.ibm.com,
-        mjrosato@linux.ibm.com, julianr@linux.ibm.com
-Subject: [PATCH v8 0/9] Error recovery for vfio-pci devices on s390x
-Date: Thu, 22 Jan 2026 11:44:28 -0800
-Message-ID: <20260122194437.1903-1-alifm@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="s9cWSTdk"
+Received: by mail-vs1-f41.google.com with SMTP id ada2fe7eead31-5f1b9fe06b8so1255915137.0
+        for <linux-s390@vger.kernel.org>; Thu, 22 Jan 2026 12:30:57 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1769113855; cv=none;
+        d=google.com; s=arc-20240605;
+        b=I2FMFAt8vgMeX67Q1qyErerAb1PG7gL4gLm4SIzBVo9mi71GfXks2qkwGylRbenteO
+         6pfoagM8l8EVKkPF22Ra/R54FzDholmL8s/R2hLUy2v2H3kSjcfNGo2XU6PO723GdtUZ
+         gNnGN8juAcphhBskeK+W0GFvGUOGKANtkAzZL9cHoA4DmnC3GoRefCb5Crb55roqxQ+J
+         wf2nJDVc90HNhL4lwqTHxMZF7BnLEkTjry77Dlg/zg1NX/IQrhS6Q1OfK9kvyD4lDqjH
+         b8mOK/Y9+//Sszhwd5xfzB+6zO21rdLEAU0IWMoEz79JGc4kk836StfbE95gs31jKqva
+         GukQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
+         :from:dkim-signature;
+        bh=BQj97zlME5zzETPT7vCk6obWp/pKKcD8Mr+mou6nGos=;
+        fh=cte0KqAPNLrJIx/DF4LGM5EoML0REPU24dSJ2hZyH+4=;
+        b=X8+ypW+Te6VGsP84BNM1r1SbjQ/E4fBcvK+2Q1ui8KIz8sxPbXWmRORahTPlLM578O
+         lL8dcj8Jhnms8qXqWz7AE1sp1gxBnLzr8bcPWVlX3yv8j93cnY6qmZnrYSuhhcvIhefF
+         jHvPFNvQ+jb2N7dZHPiFq2DE/97FH6icvlgk6Vl0sln9+6H2P5wPDTIPFwNINjbQasfq
+         4fLMKci5dNGxGHOcTy7KonxvxoQ12HC1ESq4KqlBoUHwwPgk6ufYqXjyPHXIl9QeCUPx
+         bdrZx8aHLFtsNyEz8Un67jz2T7luIGLNGVAnVejBFrxzgsjFr6L8kWv42EBwIfUq2f/z
+         4oyQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1769113855; x=1769718655; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=BQj97zlME5zzETPT7vCk6obWp/pKKcD8Mr+mou6nGos=;
+        b=s9cWSTdkMw0DTkJpj9RD4xeqwJKTvnEuQS6o2lmxQr8yI+JxygOpcXlQyNkodNWeZN
+         QlKZDCW7kA5FN/zuUfMW+HDnPtJb7+ympe2kD78TTtBk3Ck2FvYXAReK2lt1XILLSw5H
+         QBh7wNT0aVnhZEGEA9qz8tOTHNL8dWPiJ/VwHvxBkQ4Iw8zhruQzF52rDb9aaAEUrJGQ
+         yps1d7pBZmraCX4fYe9cRXLfT55iWdDhZtRb8YG5PeNfs5p2Z5eKu/TyGz2PN2paNK5J
+         HBy8zc98eJILnjq8u5EUZT90+sZ4aSreI25/HQbyOqGmDODp8u4zcr2XsIp4ecAuBwL/
+         6qXA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769113855; x=1769718655;
+        h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
+         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=BQj97zlME5zzETPT7vCk6obWp/pKKcD8Mr+mou6nGos=;
+        b=cDGpgGKFCXgbdnHxYXB/nl9wBU9e3BnK1iabDUm2sio55bKsl2zOJ6iFNhbypleWaX
+         QDZe7ziOwj8M4DDKvoIl8qCdCGvfZtL2bRunMEoY5Qm7TXNAP1JH/5DyB7P8HhCQHkir
+         yfKH6N/hbIG/B4nmK9eKXKUyThgeJaHpbt0RFZitgRcAQRYvUR9UIYdAwSiFfN5bjRWQ
+         QrLHKaD0ubspTZwxZBlLtRxHwHDpGe0XHbI4C2I+/lHAC7T7ui1fLy5gOQxYNgY8/de+
+         CJL+Xkt5qoHOcA5rGX2WnS8D8RIb0Uz37ME9UXX2vimRvAXirg3M/+/h9HVrfK66Qa4d
+         4Lhw==
+X-Forwarded-Encrypted: i=1; AJvYcCVS+wKo+2hrSuM8OdwEZuWSRU5DPukRkJpnMowrdBSRhJV9zmGO7lROS0s7mEJeOOkURo7XJJLm5Siv@vger.kernel.org
+X-Gm-Message-State: AOJu0YyCXaHG1f6VPyhGYL3ypU8v8Sh9TvkF19AFl33X7gNM08B3qfol
+	1EaZIT+me3RdSmU7o6C7bNjMRgVm+OMoNLfjqX5dIIBzsrSjLGH4lP1/FoASC2+cs7VbGknmg4S
+	P2AeERUa68D1BvOSQKhpyFUzCcjsoFqnzpNQa8lRU
+X-Gm-Gg: AZuq6aKIP0ZRxFTfn+BhPdoCStNCTQRPgqiU8DKe9gNEUTpeP4dd1aOoffdKmjncMLi
+	oD6uy44PecjkSh6dUD5i3K9AJKve9tL9tkxRmnW/KPSLPCuf2FniTxFR3RvT/mmtihkSNk1ELMF
+	VzgHi1KH4GpZBKaEruRZtSXV2wq0PM0av2RzZYtfXhMbDKZ26n4WPNqane/g/6F8e+nPVa4ouDh
+	akRrK1830LmliY5ZHRxjqgTaT9LZ0JMPm0yMhg4CD3jYFbxjkcuRnbn9gxrbgi+iDGUS36m7IjV
+	9dxEKhPOI+B1nyymNXJILypJ
+X-Received: by 2002:a05:6102:d89:b0:5ee:a8c4:18d4 with SMTP id
+ ada2fe7eead31-5f54bd0c3f6mr359613137.35.1769113854610; Thu, 22 Jan 2026
+ 12:30:54 -0800 (PST)
+Received: from 176938342045 named unknown by gmailapi.google.com with
+ HTTPREST; Thu, 22 Jan 2026 12:30:53 -0800
+Received: from 176938342045 named unknown by gmailapi.google.com with
+ HTTPREST; Thu, 22 Jan 2026 12:30:53 -0800
+From: Ackerley Tng <ackerleytng@google.com>
+In-Reply-To: <f2f2a6bd-5cb4-46c9-a0f8-3240670094b5@amazon.com>
+References: <20260114134510.1835-1-kalyazin@amazon.com> <20260114134510.1835-8-kalyazin@amazon.com>
+ <CAEvNRgEzVhEzr-3GWTsE7GSBsPdvVLq7WFEeLHzcmMe=R9S51w@mail.gmail.com>
+ <a2b79af7-e5d1-4668-bff3-606f57d32dfc@amazon.com> <CAEvNRgF46M1jp0+eBu2wQMO7P1afyo00SOkENFwvB2KYX3dnFA@mail.gmail.com>
+ <f2f2a6bd-5cb4-46c9-a0f8-3240670094b5@amazon.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=WMdyn3sR c=1 sm=1 tr=0 ts=69727e2b cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=Qtm5l5LcizsofoGoYxAA:9
-X-Proofpoint-GUID: H_Q4x0ahxOzZPlj0rIx5RG9P0gZWyk66
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTIyMDE0OCBTYWx0ZWRfXxcLrEReAC1Qe
- KdCRHJO8dx9RZEpvN9HRFvN2CjSKFoimGDIQ1KQ45K02pkF6uSHht1JraQgPPOYQBknv95zYk45
- FUaec3KLjrH/L415XJ03o/hiMYfsAzrekyAuu0hNzEXlWCe1Qrz5K8c9Ex9qwMl2MEE0WjwAWqx
- dn0fQOUUu+NtNL8NgTY3Z9GpseXZspIQbxZDMqd1jJD67nywoi3ahfHPA9V/wKkPVQayIDt5Z+o
- Dip9yXpgphPUmxBia10n6gx52Ra7lWNLcu54DHHP3BbOiI5auCAL7+UVkEFL+nCN/72JpB4NO+M
- Ie3/tekO7uyHjGQlisWprIsY4bPrqWfXPjXXOhhSeF646DzNb0ccKeLW9fT2MXtkz399w70Q7oU
- K2AXHdJWbv+oq+fLQzlvkkZzNmra8xD8gfoOdq01ILFNVWSvQ1dTvJKoLt7Yiex9rA3wIvgnxsy
- G3IlvQlMDBD5KVVvfMg==
-X-Proofpoint-ORIG-GUID: H_Q4x0ahxOzZPlj0rIx5RG9P0gZWyk66
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.20,FMLib:17.12.100.49
- definitions=2026-01-22_04,2026-01-22_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 malwarescore=0 suspectscore=0 bulkscore=0 adultscore=0
- impostorscore=0 spamscore=0 clxscore=1015 priorityscore=1501
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2601150000
- definitions=main-2601220148
+Date: Thu, 22 Jan 2026 12:30:53 -0800
+X-Gm-Features: AZwV_QhoTAbsDcZFNCQXVZ12J6m5MEBpBa-k8I2xwSPIY6AXvlNDgQnkgPrJ79I
+Message-ID: <CAEvNRgEd=Uh09dU_P7_vvzRpOyMYd=OKazpkxzr=VLe5HcQhGw@mail.gmail.com>
+Subject: Re: [PATCH v9 07/13] KVM: guest_memfd: Add flag to remove from direct map
+To: kalyazin@amazon.com, "Kalyazin, Nikita" <kalyazin@amazon.co.uk>, 
+	"kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, 
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, 
+	"kvmarm@lists.linux.dev" <kvmarm@lists.linux.dev>, 
+	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, 
+	"bpf@vger.kernel.org" <bpf@vger.kernel.org>, 
+	"linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>, "kernel@xen0n.name" <kernel@xen0n.name>, 
+	"linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, 
+	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, 
+	"loongarch@lists.linux.dev" <loongarch@lists.linux.dev>
+Cc: "pbonzini@redhat.com" <pbonzini@redhat.com>, "corbet@lwn.net" <corbet@lwn.net>, 
+	"maz@kernel.org" <maz@kernel.org>, "oupton@kernel.org" <oupton@kernel.org>, 
+	"joey.gouly@arm.com" <joey.gouly@arm.com>, "suzuki.poulose@arm.com" <suzuki.poulose@arm.com>, 
+	"yuzenghui@huawei.com" <yuzenghui@huawei.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, 
+	"will@kernel.org" <will@kernel.org>, "seanjc@google.com" <seanjc@google.com>, 
+	"tglx@linutronix.de" <tglx@linutronix.de>, "mingo@redhat.com" <mingo@redhat.com>, "bp@alien8.de" <bp@alien8.de>, 
+	"dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, "x86@kernel.org" <x86@kernel.org>, 
+	"hpa@zytor.com" <hpa@zytor.com>, "luto@kernel.org" <luto@kernel.org>, 
+	"peterz@infradead.org" <peterz@infradead.org>, "willy@infradead.org" <willy@infradead.org>, 
+	"akpm@linux-foundation.org" <akpm@linux-foundation.org>, "david@kernel.org" <david@kernel.org>, 
+	"lorenzo.stoakes@oracle.com" <lorenzo.stoakes@oracle.com>, 
+	"Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>, "vbabka@suse.cz" <vbabka@suse.cz>, 
+	"rppt@kernel.org" <rppt@kernel.org>, "surenb@google.com" <surenb@google.com>, "mhocko@suse.com" <mhocko@suse.com>, 
+	"ast@kernel.org" <ast@kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>, 
+	"andrii@kernel.org" <andrii@kernel.org>, "martin.lau@linux.dev" <martin.lau@linux.dev>, 
+	"eddyz87@gmail.com" <eddyz87@gmail.com>, "song@kernel.org" <song@kernel.org>, 
+	"yonghong.song@linux.dev" <yonghong.song@linux.dev>, 
+	"john.fastabend@gmail.com" <john.fastabend@gmail.com>, "kpsingh@kernel.org" <kpsingh@kernel.org>, 
+	"sdf@fomichev.me" <sdf@fomichev.me>, "haoluo@google.com" <haoluo@google.com>, 
+	"jolsa@kernel.org" <jolsa@kernel.org>, "jgg@ziepe.ca" <jgg@ziepe.ca>, 
+	"jhubbard@nvidia.com" <jhubbard@nvidia.com>, "peterx@redhat.com" <peterx@redhat.com>, 
+	"jannh@google.com" <jannh@google.com>, "pfalcato@suse.de" <pfalcato@suse.de>, 
+	"shuah@kernel.org" <shuah@kernel.org>, "riel@surriel.com" <riel@surriel.com>, 
+	"ryan.roberts@arm.com" <ryan.roberts@arm.com>, "jgross@suse.com" <jgross@suse.com>, 
+	"yu-cheng.yu@intel.com" <yu-cheng.yu@intel.com>, "kas@kernel.org" <kas@kernel.org>, 
+	"coxu@redhat.com" <coxu@redhat.com>, "kevin.brodsky@arm.com" <kevin.brodsky@arm.com>, 
+	"maobibo@loongson.cn" <maobibo@loongson.cn>, "prsampat@amd.com" <prsampat@amd.com>, 
+	"mlevitsk@redhat.com" <mlevitsk@redhat.com>, "jmattson@google.com" <jmattson@google.com>, 
+	"jthoughton@google.com" <jthoughton@google.com>, "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>, 
+	"alex@ghiti.fr" <alex@ghiti.fr>, "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>, 
+	"borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>, "chenhuacai@kernel.org" <chenhuacai@kernel.org>, 
+	"dev.jain@arm.com" <dev.jain@arm.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>, 
+	"hca@linux.ibm.com" <hca@linux.ibm.com>, 
+	"Jonathan.Cameron@huawei.com" <Jonathan.Cameron@huawei.com>, "palmer@dabbelt.com" <palmer@dabbelt.com>, 
+	"pjw@kernel.org" <pjw@kernel.org>, 
+	"shijie@os.amperecomputing.com" <shijie@os.amperecomputing.com>, "svens@linux.ibm.com" <svens@linux.ibm.com>, 
+	"thuth@redhat.com" <thuth@redhat.com>, "wyihan@google.com" <wyihan@google.com>, 
+	"yang@os.amperecomputing.com" <yang@os.amperecomputing.com>, 
+	"vannapurve@google.com" <vannapurve@google.com>, "jackmanb@google.com" <jackmanb@google.com>, 
+	"aneesh.kumar@kernel.org" <aneesh.kumar@kernel.org>, "patrick.roy@linux.dev" <patrick.roy@linux.dev>, 
+	"Thomson, Jack" <jackabt@amazon.co.uk>, "Itazuri, Takahiro" <itazur@amazon.co.uk>, 
+	"Manwaring, Derek" <derekmn@amazon.com>, "Cali, Marco" <xmarcalx@amazon.co.uk>
+Content-Type: text/plain; charset="UTF-8"
 
-Hi,
+Nikita Kalyazin <kalyazin@amazon.com> writes:
 
-This Linux kernel patch series introduces support for error recovery for
-passthrough PCI devices on System Z (s390x). 
+>
+> [...snip...]
+>
+>>>>> @@ -533,6 +580,8 @@ static void kvm_gmem_free_folio(struct folio *folio)
+>>>>>         kvm_pfn_t pfn = page_to_pfn(page);
+>>>>>         int order = folio_order(folio);
+>>>>>
+>>>>> +     kvm_gmem_folio_restore_direct_map(folio);
+>>>>> +
+>>>>
+>>>> I can't decide if the kvm_gmem_folio_no_direct_map(folio) should be in
+>>>> the caller or within kvm_gmem_folio_restore_direct_map(), since this
+>>>> time it's a folio-specific property being checked.
+>>>
+>>> I'm tempted to keep it similar to the kvm_gmem_folio_zap_direct_map()
+>>> case.  How does the fact it's a folio-speicific property change your
+>>> reasoning?
+>>>
+>>
+>> This is good too:
+>>
+>>    if (kvm_gmem_folio_no_direct_map(folio))
+>>            kvm_gmem_folio_restore_direct_map(folio)
+>
+> It turns out we can't do that because folio->mapping is gone by the time
+> filemap_free_folio() is called so we can't inspect the flags.  Are you
+> ok with only having this check when zapping (but not when restoring)?
+> Do you think we should add a comment saying it's conditional here?
+>
 
-Background
-----------
-For PCI devices on s390x an operating system receives platform specific
-error events from firmware rather than through AER.Today for
-passthrough/userspace devices, we don't attempt any error recovery and
-ignore any error events for the devices. The passthrough/userspace devices
-are managed by the vfio-pci driver. The driver does register error handling
-callbacks (error_detected), and on an error trigger an eventfd to
-userspace.  But we need a mechanism to notify userspace
-(QEMU/guest/userspace drivers) about the error event. 
+I thought kvm_gmem_folio_no_direct_map() only reads folio->private,
+which I think should still be there at the point of
+filemap_free_folio().
 
-Proposal
---------
-We can expose this error information (currently only the PCI Error Code)
-via a device feature. Userspace can then obtain the error information 
-via VFIO_DEVICE_FEATURE ioctl and take appropriate actions such as driving 
-a device reset.
-
-This is how a typical flow for passthrough devices to a VM would work:
-For passthrough devices to a VM, the driver bound to the device on the host 
-is vfio-pci. vfio-pci driver does support the error_detected() callback 
-(vfio_pci_core_aer_err_detected()), and on an PCI error s390x recovery 
-code on the host will call the vfio-pci error_detected() callback. The 
-vfio-pci error_detected() callback will notify userspace/QEMU via an 
-eventfd, and return PCI_ERS_RESULT_CAN_RECOVER. At this point the s390x 
-error recovery on the host will skip any further action(see patch 6) and 
-let userspace drive the error recovery.
-
-Once userspace/QEMU is notified, it then injects this error into the VM 
-so device drivers in the VM can take recovery actions. For example for a 
-passthrough NVMe device, the VM's OS NVMe driver will access the device. 
-At this point the VM's NVMe driver's error_detected() will drive the 
-recovery by returning PCI_ERS_RESULT_NEED_RESET, and the s390x error 
-recovery in the VM's OS will try to do a reset. Resets are privileged 
-operations and so the VM will need intervention from QEMU to perform the 
-reset. QEMU will invoke the VFIO_DEVICE_RESET ioctl to now notify the 
-host that the VM is requesting a reset of the device. The vfio-pci driver 
-on the host will then perform the reset on the device to recover it.
-
-
-Thanks
-Farhan
-
-ChangeLog
----------
-v7 series https://lore.kernel.org/all/20260107183217.1365-1-alifm@linux.ibm.com/
-v7 - v8
-   - Rebase on 6.19-rc4
-
-   - Address feedback from Niklas and Julien.
-
-
-v6 series https://lore.kernel.org/all/2c609e61-1861-4bf3-b019-a11c137d26a5@linux.ibm.com/
-v6 -> v7
-    - Rebase on 6.19-rc4
-
-    - Update commit message based on Niklas's suggestion (patch 3).
-
-v5 series https://lore.kernel.org/all/20251113183502.2388-1-alifm@linux.ibm.com/
-v5 -> v6
-   - Rebase on 6.18 + Lukas's PCI: Universal error recoverability of
-   devices series (https://lore.kernel.org/all/cover.1763483367.git.lukas@wunner.de/)
-
-   - Re-work config space accessibility check to pci_dev_save_and_disable() (patch 3).
-   This avoids saving the config space, in the reset path, if the device's config space is
-   corrupted or inaccessible.
-
-v4 series https://lore.kernel.org/all/20250924171628.826-1-alifm@linux.ibm.com/
-v4 -> v5
-    - Rebase on 6.18-rc5
-
-    - Move bug fixes to the beginning of the series (patch 1 and 2). These patches
-    were posted as a separate fixes series 
-https://lore.kernel.org/all/a14936ac-47d6-461b-816f-0fd66f869b0f@linux.ibm.com/
-
-    - Add matching pci_put_dev() for pci_get_slot() (patch 6).
-
-v3 series https://lore.kernel.org/all/20250911183307.1910-1-alifm@linux.ibm.com/
-v3 -> v4
-    - Remove warn messages for each PCI capability not restored (patch 1)
-
-    - Check PCI_COMMAND and PCI_STATUS register for error value instead of device id 
-    (patch 1)
-
-    - Fix kernel crash in patch 3
-
-    - Added reviewed by tags
-
-    - Address comments from Niklas's (patches 4, 5, 7)
-
-    - Fix compilation error non s390x system (patch 8)
-
-    - Explicitly align struct vfio_device_feature_zpci_err (patch 8)
-
-
-v2 series https://lore.kernel.org/all/20250825171226.1602-1-alifm@linux.ibm.com/
-v2 -> v3
-   - Patch 1 avoids saving any config space state if the device is in error
-   (suggested by Alex)
-
-   - Patch 2 adds additional check only for FLR reset to try other function 
-     reset method (suggested by Alex).
-
-   - Patch 3 fixes a bug in s390 for resetting PCI devices with multiple
-     functions. Creates a new flag pci_slot to allow per function slot.
-
-   - Patch 4 fixes a bug in s390 for resource to bus address translation.
-
-   - Rebase on 6.17-rc5
-
-
-v1 series https://lore.kernel.org/all/20250813170821.1115-1-alifm@linux.ibm.com/
-v1 - > v2
-   - Patches 1 and 2 adds some additional checks for FLR/PM reset to 
-     try other function reset method (suggested by Alex).
-
-   - Patch 3 fixes a bug in s390 for resetting PCI devices with multiple
-     functions.
-
-   - Patch 7 adds a new device feature for zPCI devices for the VFIO_DEVICE_FEATURE 
-     ioctl. The ioctl is used by userspace to retriece any PCI error
-     information for the device (suggested by Alex).
-
-   - Patch 8 adds a reset_done() callback for the vfio-pci driver, to
-     restore the state of the device after a reset.
-
-   - Patch 9 removes the pcie check for triggering VFIO_PCI_ERR_IRQ_INDEX.
-
-Farhan Ali (9):
-  PCI: Allow per function PCI slots
-  s390/pci: Add architecture specific resource/bus address translation
-  PCI: Avoid saving config space state if inaccessible
-  PCI: Add additional checks for flr reset
-  s390/pci: Update the logic for detecting passthrough device
-  s390/pci: Store PCI error information for passthrough devices
-  vfio-pci/zdev: Add a device feature for error information
-  vfio: Add a reset_done callback for vfio-pci driver
-  vfio: Remove the pcie check for VFIO_PCI_ERR_IRQ_INDEX
-
- arch/s390/include/asm/pci.h       |  29 ++++++++
- arch/s390/pci/pci.c               |  75 +++++++++++++++++++++
- arch/s390/pci/pci_event.c         | 107 +++++++++++++++++-------------
- drivers/pci/host-bridge.c         |   8 +--
- drivers/pci/pci.c                 |  26 +++++++-
- drivers/pci/slot.c                |  25 ++++++-
- drivers/vfio/pci/vfio_pci_core.c  |  22 ++++--
- drivers/vfio/pci/vfio_pci_intrs.c |   3 +-
- drivers/vfio/pci/vfio_pci_priv.h  |   9 +++
- drivers/vfio/pci/vfio_pci_zdev.c  |  46 ++++++++++++-
- include/linux/pci.h               |   1 +
- include/uapi/linux/vfio.h         |  16 +++++
- 12 files changed, 302 insertions(+), 65 deletions(-)
-
--- 
-2.43.0
-
+>>
+>> [...snip...]
+>>
