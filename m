@@ -1,149 +1,145 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f195.google.com (mail-qt1-f195.google.com [209.85.160.195])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E32101D8E10;
-	Sat, 24 Jan 2026 14:58:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769266687; cv=none; b=ElC6PsO3aPTmOaZD9jrpekYFt6ld6p/tG5hBub483CRf62uZDXPMqVbpbiqS8+RNRqlvMUwCnX62jr5UdvktRimzd6XiGDz31dglPnmqQOMzFpDkD6cjJD5e74V42QLfdQFSfV6mhqZm9tRuZ4Mx/O3OQdOp5mGnZyD2PUmNbBo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769266687; c=relaxed/simple;
-	bh=dm8Ct+dHvdTsQ8RTyKSos3OmynlqH5EjrJzZcnN2LuQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GR4pmqcOBXYBzYRQ2Y0br4UARTj9RoPhiKUlJzo4gI0gbdr0sLWX7MjGlWEvIiZQAZZ8WGxXakmxErlTjaOfwUyZGRzFukeZX4LFxWWwyiHXEVDTAvzYeWH1fGGcpSdPulXnjm/aObjXS+UZ9h2/L/IRVDwMOzhrd6GiSxIOx2s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=qLMQh7xd; arc=none smtp.client-ip=115.124.30.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CA233EBF01
+	for <linux-s390@vger.kernel.org>; Sat, 24 Jan 2026 23:32:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.195
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769297552; cv=pass; b=HYaj/dPvBd77ylfyoiHe6vmxYBzr4PtTiAUuU8HvcFyR/n5/r321tM1GTpqH+CthbPMQy+ueWhCagmoHXZCVEnMBVvWy44UI0RV6kGj14xCBb0mTqmtyj7aoPLWA3SqWXQeDZyTw5qEZRwR3NDHwKBd4nYsPFILRoqKAgJ3/tZo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769297552; c=relaxed/simple;
+	bh=62AUfn3TepYhzwErRqoDeLZjyZJQUDkNhXA5ssHqF2g=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Yo+neGOurrgy6xETQ+1XVECfDLhIu3iePthCLz6oPWdeuBtRwFj449haodxNT9QZ+W4LtXy65d3EOtvd9YsN8ddg9aILkSf0+ZSn5op/ippRs7dqQn53iud/pn7ok40EO/lM0K6MP8oTcOYSx3uersuuKErOpy4eR6tuUA0Dpz0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CaszhpSV; arc=pass smtp.client-ip=209.85.160.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="qLMQh7xd"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1769266676; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=CPWuCV8/90YbisajP7XufYM2YYkYUVDqVYcpinvbKXw=;
-	b=qLMQh7xdIcdmuC4QVLXEsAR6u2W28NZEIu574FJuOTY6WkmSudQvNhw3iIGSyQ5pKjdjE3WFtPZqCszuv1Xd9cPMZc+2tKtlEJlR059mRXx1XzQt/z6vcy1nZoPbLa3jTAeuDKQCKAK09UxvwkYXHvboVDaYDpIKYuhqg+0T4Cs=
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WxjCWVN_1769266674 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Sat, 24 Jan 2026 22:57:55 +0800
-Date: Sat, 24 Jan 2026 22:57:54 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com    >
-To: Uladzislau Rezki <urezki@gmail.com>
-Cc: "D. Wythe" <alibuda@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>, Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	oliver.yang@linux.alibaba.com
-Subject: Re: [PATCH net-next 2/3] mm: vmalloc: export find_vm_area()
-Message-ID: <20260124145754.GA57116@j66a10360.sqa.eu95>
-References: <20260123082349.42663-1-alibuda@linux.alibaba.com>
- <20260123082349.42663-3-alibuda@linux.alibaba.com>
- <aXPEFdEdtSmd6AzF@milan>
- <20260124093505.GA98529@j66a10360.sqa.eu95>
- <aXSjm1DXm6yP62tD@pc636>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CaszhpSV"
+Received: by mail-qt1-f195.google.com with SMTP id d75a77b69052e-502b698e510so44188981cf.0
+        for <linux-s390@vger.kernel.org>; Sat, 24 Jan 2026 15:32:30 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1769297549; cv=none;
+        d=google.com; s=arc-20240605;
+        b=MWL4wen1b5wLAREVouA63c/agUfStikAGza3kTbc1zllreAnPUzZhmzMOjEsuX04Ob
+         padZjDSlPWmzY1UyLp+OOOlrXSIh0Hi3/wIxZo5r0NZtSGrrCsx47vUr8gIP8emNrfsq
+         amtDCKIXPnxdu0djtPx7TBOcWvkbSuq7crxjSMLyAgbsxSuZJ1jYkzLLsszfHwZJDHJ+
+         4wh4zbyoy0KZQQxoBvfH1kaQ0CdO+5EqUNyuMCROG8a0Alxi4sfDdoDj/gcAJS52cFTr
+         uvT+tOag0Ck+djTbkkW8XspzG+2a7Sa8l+mlG4qyrK71xcaPavT9S22MORKvpwkphLrY
+         gi/g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=62AUfn3TepYhzwErRqoDeLZjyZJQUDkNhXA5ssHqF2g=;
+        fh=sly2KqHrmg4Yp+CMgz2b5yR/689K1GZBlGnI8v+mp8I=;
+        b=KynNkp+fzwgaOiirfk/CjBw2bmPkeSIFKPHr/hZo4krO+ZFZvpMvseR+MVN114luBw
+         fsS4pIwN+PPvejXGNH+LSU75rbJG5L0boB5fDmcrOtVsS52gjYVWw/YjVoWmCT7dEQk+
+         TBmORm2ZWk1JNZqZV1HWlyc7ADv5M84HirzUJYrjmGr2idxZxbY0dMk96I/qQueKfI8c
+         UUHRKZm5757Qpr8rmfPwlck3Y0Qc3+cA361iFgHiY8b0bHXFIhgy5xJLFSAzNCvydXoa
+         DUKNfSENy6YVQl2umRbNWH09J+bw5dS5ROGSmi5eKhhc7SbJtSRsGq8zZzFARltjViLX
+         ATMg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1769297549; x=1769902349; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=62AUfn3TepYhzwErRqoDeLZjyZJQUDkNhXA5ssHqF2g=;
+        b=CaszhpSVDhvXzlO7i5v7MZuDpk3LEVYj90HYC5ggSo+i0hWCkXMXeL2ps/7SGClU0a
+         oagfcI+67P9PYN50vUA1FDHzyLylIVj//6r7kPr33pdWNZG7OetHNJmVqH+RLue2f4Ti
+         RyASq2nBsmRb82ZFGibxAdGiuiuySBj06PDEupDqzEYB0rBAYozg7/aJhtBCt3tt6xzL
+         65TaECbGBd8wY8fCaLeVtZ6Vi86EIj8CBo5Wd1ntGwAZjFi+XN1qJ13vy8y6CTYTO0X8
+         aN/lXBDHBZVyGzzEWqy6gkKrqikTEWYj1sr6AkDSoEB+QLGF5lPbzUj3fJXyyGRwSGcE
+         xU+g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769297549; x=1769902349;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=62AUfn3TepYhzwErRqoDeLZjyZJQUDkNhXA5ssHqF2g=;
+        b=b/l+2KY2hedvQteP/sIn9c/ZX7iIYGaBtEvYPlRiKNnpht3sJLViZ26dWq3WJMaC9U
+         3to+qP50hSDglr8eefe3eNO+hlgIhznN+PzO1MCjOdafIDbkxx2fpBK8b3QwFfQC1m9p
+         44gj7Bu3yqjsA01byN4qyv7bpfwX/XNPt/IQuZYagZ4Cjp0WphA/2m3/d7//D2DJyW0r
+         N0Jyj+I7xDu9WxMpV/LyOEFcnzIDxKJA6ob7zVstdxxmNqEeVyAN0l9qwrp0G1TAQHPv
+         kU8WfPoxH7mT7xzma1BIWv3Fm3SGwuCkHmJl3PKlGnALqJIxslcVEoVmclVYY6jxTMqC
+         bmag==
+X-Forwarded-Encrypted: i=1; AJvYcCW38chW8gem4wJoultsX7gh2qmA5GorxW/BTJ3ad53lH66oBUN8Nrq7Regpu/+VjmkpiYgLOHfmgu/L@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzh9iTjxfrl8RkM1N0zueL4d4dpq5bXx5AYJCsG5+LJ3x3ZPfUO
+	tvIot3e2k9q6QlJsrfkoqgGfs6iscmV2kWHtaHhMFg+6rv/hxbpLiTmUGNjpbm0LUJdIIE4xQTn
+	1/3WNjjm7MWZe3j+1RViQaCMBTJPMs20=
+X-Gm-Gg: AZuq6aJ8DrrH8lGGZju/oCGCwCEmG0UN8W3/TscuC8wiDlsOhK533d+9uRY25rsAOWj
+	4+tbLum5f+eb6xZacYegbB5buriQtaau30erEHy1ghbUpABfg+3G0z/ka5KITRjE5+UDxNTnA0T
+	wsdZTRGKYpVMyhItaq0/PEqM7NSfRsfqyzNRwFMe6hu0Hcgp3KlD/+iQE+Se54LHijt08x76JJ9
+	rxI4L/M7fGt0FD6QMrbkGjCWkHgbEauXy67+4IzsnQ3iPJegjFZ9QoDQ+WlsIXDwb3fSonnINH1
+	sdNYsAN1H7z+2ujqHstgdAXQh3zhIIpeyB/b+if0l93cxzAxA4T/PhduHVQpBqM5+Jzvtu1KmND
+	EZvKE/YSih3reAyw=
+X-Received: by 2002:a05:622a:55:b0:502:6312:8d6 with SMTP id
+ d75a77b69052e-50314b7a6e1mr2969171cf.12.1769297549164; Sat, 24 Jan 2026
+ 15:32:29 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aXSjm1DXm6yP62tD@pc636>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+References: <20260123033233.16906-1-enelsonmoore@gmail.com>
+ <20260123181156.GA84531@bhelgaas> <CADkSEUg5EqpKg2_X3LRc1CaQ2RVFNucJbuxDcHQxvjdLq1Qg1A@mail.gmail.com>
+ <8477da83-2441-440c-80f1-66dac9700523@kernel.org>
+In-Reply-To: <8477da83-2441-440c-80f1-66dac9700523@kernel.org>
+From: Ethan Nelson-Moore <enelsonmoore@gmail.com>
+Date: Sat, 24 Jan 2026 15:32:17 -0800
+X-Gm-Features: AZwV_QgT7HJ5RzGZbmSKdUH5ZCEsN2PptDSPTNTy9vD6bN7Rq-MPZtQjsOmB-V8
+Message-ID: <CADkSEUjyXH74izTrsfhdAjh=n-jnGx=tXbqPx86M9OYqjXj0PA@mail.gmail.com>
+Subject: Re: [PATCH net-next] net: ethernet: neterion: s2io: remove unused driver
+To: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+Cc: Bjorn Helgaas <helgaas@kernel.org>, netdev@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-pci@vger.kernel.org, linux-mips@vger.kernel.org, 
+	linux-s390@vger.kernel.org, rust-for-linux@vger.kernel.org, 
+	Jon Mason <jdmason@kudzu.us>, Jonathan Corbet <corbet@lwn.net>, 
+	Linas Vepstas <linasvepstas@gmail.com>, Mahesh J Salgaonkar <mahesh@linux.ibm.com>, 
+	"Oliver O'Halloran" <oohall@gmail.com>, Bjorn Helgaas <bhelgaas@google.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+	Danilo Krummrich <dakr@kernel.org>, =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?= <kwilczynski@kernel.org>, 
+	Miguel Ojeda <ojeda@kernel.org>, Boqun Feng <boqun.feng@gmail.com>, Gary Guo <gary@garyguo.net>, 
+	=?UTF-8?Q?Bj=C3=B6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>, 
+	Benno Lossin <lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>, 
+	Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>, 
+	Andrew Morton <akpm@linux-foundation.org>, 
+	=?UTF-8?Q?Martin_Kepplinger=2DNovakovi=C4=87?= <martink@posteo.de>, 
+	Pavel Machek <pavel@ucw.cz>, MD Danish Anwar <danishanwar@ti.com>, 
+	Mengyuan Lou <mengyuanlou@net-swift.com>, Pablo Neira Ayuso <pablo@netfilter.org>, 
+	Huacai Chen <chenhuacai@kernel.org>, "Theodore Ts'o" <tytso@mit.edu>, Takashi Iwai <tiwai@suse.de>, 
+	Eric Biggers <ebiggers@google.com>, Madadi Vineeth Reddy <vineethr@linux.ibm.com>, 
+	Ard Biesheuvel <ardb@kernel.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, 
+	Frederic Barrat <fbarrat@linux.ibm.com>, Andrew Donnellan <ajd@linux.ibm.com>, 
+	Herbert Xu <herbert@gondor.apana.org.au>, Vadim Fedorenko <vadim.fedorenko@linux.dev>, 
+	Lorenzo Bianconi <lorenzo@kernel.org>, Dong Yibo <dong100@mucse.com>, 
+	Lukas Bulwahn <lukas.bulwahn@redhat.com>, Vivian Wang <wangruikang@iscas.ac.cn>, 
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jan 24, 2026 at 11:48:59AM +0100, Uladzislau Rezki wrote:
-> Hello, D. Wythe!
-> 
-> > On Fri, Jan 23, 2026 at 07:55:17PM +0100, Uladzislau Rezki wrote:
-> > > On Fri, Jan 23, 2026 at 04:23:48PM +0800, D. Wythe wrote:
-> > > > find_vm_area() provides a way to find the vm_struct associated with a
-> > > > virtual address. Export this symbol to modules so that modularized
-> > > > subsystems can perform lookups on vmalloc addresses.
-> > > > 
-> > > > Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> > > > ---
-> > > >  mm/vmalloc.c | 1 +
-> > > >  1 file changed, 1 insertion(+)
-> > > > 
-> > > > diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-> > > > index ecbac900c35f..3eb9fe761c34 100644
-> > > > --- a/mm/vmalloc.c
-> > > > +++ b/mm/vmalloc.c
-> > > > @@ -3292,6 +3292,7 @@ struct vm_struct *find_vm_area(const void *addr)
-> > > >  
-> > > >  	return va->vm;
-> > > >  }
-> > > > +EXPORT_SYMBOL_GPL(find_vm_area);
-> > > >  
-> > > This is internal. We can not just export it.
-> > > 
-> > > --
-> > > Uladzislau Rezki
-> > 
-> > Hi Uladzislau,
-> > 
-> > Thank you for the feedback. I agree that we should avoid exposing
-> > internal implementation details like struct vm_struct to external
-> > subsystems.
-> > 
-> > Following Christoph's suggestion, I'm planning to encapsulate the page
-> > order lookup into a minimal helper instead:
-> > 
-> > unsigned int vmalloc_page_order(const void *addr){
-> > 	struct vm_struct *vm;
-> >  	vm = find_vm_area(addr);
-> > 	return vm ? vm->page_order : 0;
-> > }
-> > EXPORT_SYMBOL_GPL(vmalloc_page_order);
-> > 
-> > Does this approach look reasonable to you? It would keep the vm_struct
-> > layout private while satisfying the optimization needs of SMC.
-> > 
-> Could you please clarify why you need info about page_order? I have not
-> looked at your second patch.
-> 
-> Thanks!
-> 
-> --
-> Uladzislau Rezki
+On Fri, Jan 23, 2026 at 11:25=E2=80=AFPM Christophe Leroy (CS GROUP)
+<chleroy@kernel.org> wrote:
+> Yes and that's exactly the reason why removing unused IDs will be a probl=
+em.
+>
+> Let's take an exemple: some patch adds PCI_DEVICE_ID_ARECA_1682 after
+> PCI_DEVICE_ID_ARECA_1681 in pci_ids.h in the mainline. That patch needs
+> to be backported and it conflicts with PCI_VENDOR_ID_S2IO which is not
+> anymore in the mainline but is still in stable.
 
-Hi Uladzislau,
+Hi, Christophe,
 
-This stems from optimizing memory registration in SMC-R. To provide the
-RDMA hardware with direct access to memory buffers, we must register
-them with the NIC. During this process, the hardware generates one MTT
-entry for each physically contiguous block. Since these hardware entries
-are a finite and scarce resource, and SMC currently defaults to a 4KB
-registration granularity, a single 2MB buffer consumes 512 entries. In
-high-concurrency scenarios, this inefficiency quickly exhausts NIC
-resources and becomes a major bottleneck for system scalability.
+I understand your reasoning now. Thanks for clarifying. In my opinion,
+changes to pci_ids.h don't happen often enough for that to be a
+problem. Unused IDs have been removed from it before.
 
-To address this, we intend to use vmalloc_huge(). When it successfully
-allocates high-order pages, the vmalloc area is backed by a sequence of
-physically contiguous chunks (e.g., 2MB each). If we know this
-page_order, we can register these larger physical blocks instead of
-individual 4KB pages, reducing MTT consumption from 512 entries down to
-1 for every 2MB of memory (with page_order == 9).
-
-However, the result of vmalloc_huge() is currently opaque to the caller.
-We cannot determine whether it successfully allocated huge pages or fell
-back to 4KB pages based solely on the returned pointer. Therefore, we
-need a helper function to query the actual page order, enabling SMC-R to
-adapt its registration logic to the underlying physical layout.
-
-I hope this clarifies our design motivation!
-
-Best regards,
-D. Wythe
-
-
-
-
+Sincerely,
+Ethan
