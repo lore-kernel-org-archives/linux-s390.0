@@ -1,160 +1,133 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f67.google.com (mail-qv1-f67.google.com [209.85.219.67])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63A56199385
-	for <linux-s390@vger.kernel.org>; Sat, 24 Jan 2026 00:20:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769214060; cv=none; b=QMNq9rEDTqjPIEdB6CdBzVOuhsds5JP1pFX7kMHNRtY3FjoFbokEXVA0pNL4IsxOhCRc/BIH/VaQ8LZ42asOgmFz68JgY2X8YuyXLdM36oeJO3WGYKhOJgLyg+amQs8OZkyZOsRH5ziNVpnFd6BtokEy/kNRth8oDLmu/biOt2g=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769214060; c=relaxed/simple;
-	bh=j2cnf66j7Tyeo03Ht3nxIfKsvE0nQ1mv6D7kqhjkBJ8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VIQOXC22fE47Z7lDvoNKeCOcP1ivrEckHhFNgq/nIqJaG7CuXBUPI2Ns5cYX4Bg9PTcsjfg3/HZI0X1bYb5QNaZjdezW8zN+0zRG9eKY9Y4QYxqGC6a3Owxh0aiXPyHL59DbpZT9b4X2h8H30dU4v2Tb74v0684cFW066M1ewe8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Nh1jvGaU; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=M9E2uMmr; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 969DD1448E0
+	for <linux-s390@vger.kernel.org>; Sat, 24 Jan 2026 02:01:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.67
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769220100; cv=pass; b=BmjCHaDYjKHmAuFJbB2NlvqPVXilBVQPYvUFZYjONbh3vViaHOjVwUBofQQIcE8HeUWUJPr/SxPMjFFGJofdAStEZbBH/XRTpBk9oG332jWgSh11xQomPZOR1iczUQeV+lN4kYImfmfTrK0QWjVwx65nYABqMNlViZpYAtKFre8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769220100; c=relaxed/simple;
+	bh=jLt0PwGKxUNFP/UMurV5/9hmISNtz6t9H2HpKnVOTXI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=t1/leD+4H+CmuR37ad9M2yiKczI9K0T4B0j5praKfGjfVoM93Asajn+zx9CO3ESun+/itkxiYeoZELjWImXK7FV+ErjkUGpdWhTmOccTAaYu6XylZSp8D5vDgudVKIwt0L/AiMVL7VLOaPbVa52Ei34TkvyXIQv6/XPjEEbJj3k=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MbnLfBIw; arc=pass smtp.client-ip=209.85.219.67
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Nh1jvGaU";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="M9E2uMmr"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1769214057;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=xhgLPiYR6xEsxXnQ/SeaMjXXghHvMuOe7YsndhfrobA=;
-	b=Nh1jvGaUjRm0atvydNlFFcW0SGiWwOYFpOdTr4FsomtL9qdYU+lsoKPYZQ/oTEFfdVlIFN
-	N+bjUvd+u6NUv4R012H2KaeQ6qtKfPv98GcgZHcSau+9q456oOuIes5Ywj7Z67w+zv8VdE
-	jxe3YXmMkcgTLM5xpkflhgGfV4Frk5c=
-Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com
- [209.85.214.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-526-Zeyqb7DqP3uLRB0PLA3UFw-1; Fri, 23 Jan 2026 19:20:55 -0500
-X-MC-Unique: Zeyqb7DqP3uLRB0PLA3UFw-1
-X-Mimecast-MFC-AGG-ID: Zeyqb7DqP3uLRB0PLA3UFw_1769214055
-Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-2a78c094ad6so24961155ad.1
-        for <linux-s390@vger.kernel.org>; Fri, 23 Jan 2026 16:20:55 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MbnLfBIw"
+Received: by mail-qv1-f67.google.com with SMTP id 6a1803df08f44-8947e6ffd30so31383086d6.0
+        for <linux-s390@vger.kernel.org>; Fri, 23 Jan 2026 18:01:38 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1769220097; cv=none;
+        d=google.com; s=arc-20240605;
+        b=F19VAy46h2hUJVBawyTFqUQahpev1SjyrkWuAiY3wuUuyYAQgDvRS3BRsOzajrspPK
+         /ldWA+LtlcQ1PtQBrG/lhszj29np/lmyAw67EoopdepyJtapxHK0xglkwISpuJAOYB79
+         AeovFi4lxZqDQ6fNV2SEhPNci3vicJ/oA+yQdkPlO+nfxbBc4zZagdkgAvqXZmFnbCiR
+         l6US+/Gl9ncw4wOPdMVXc5iDoSYeD/JZ1mXbbJQDfv44U7AytGzv1detmnMrMIsEi2dx
+         sHYNNvhCHyinfLpC35KZf6WJiJCXEA64MIwKgz/rRLQSt6fFN3YLzUyq6Ovy9rHaJzoM
+         QkDg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=GcF2ydOy+nfomakh5Blwon1hHz6tHyuDcePaQDWXLgo=;
+        fh=z3qYsW1OIf24D6ulTURtH7u6MOGclfGG6/DEcnmqZDU=;
+        b=cI/fUaOyVcB38ULolmnFt1Pxm4M2IRQnOj7wkSQ2ITnOqGG3vKxWbdE6p8MjmmGnS4
+         X5LpRgQFL9ovW8A3Af7am3rI+rupIUcAAyFCVko7+xq7XRlv7//jbKl6SgbtDn6xaxBi
+         XZRErHoKd6hfbajP5SnqxRmfh6xmxS4uwv9g3qKtc0vB7b+qCp+ldYrGzvzmbwXfFf2c
+         FVFJeTSPLclHfpz6fQOb8J7ALzOc0B7LN1x2P6hJDsEA6QmydZ6nRv/Cmlflz1SCPeC6
+         Gh+BM277PTBBJy6Daj/HV1iJLFx4Tu2FTSIgX90Bsbb4XQdezhlSqs1xQF+AfrwrZEeL
+         nMkQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1769214055; x=1769818855; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=xhgLPiYR6xEsxXnQ/SeaMjXXghHvMuOe7YsndhfrobA=;
-        b=M9E2uMmrBsQzGPqqCCdAcOKF8GqJoCk5ounUMhUSjiNg+2Pv66u2bgnSSgR+X/K7LA
-         J5xRj63g/g40BSIo1dK9UUGNON7DepvQkjaVAktwmT+VmdWjUBclOGmf8Ea2YRHXaXIx
-         XhK9Dq+5M6NZlsghGT++Ep5sTDWUBwLSdyKCAbwGGQGOtjskG2XcSpA/r+IL7yRdlGFK
-         UP9ixpn2LrK2xaBGo55mxwIx1XxsRFKiYrkLi8V41h9DyxM1HtmJNjW5zzMk/ZMflzWe
-         6rzOjlSQfAfZ/Zr6E3n/qehhM32/DgUIrt8/inuo+syrj66zTbP8dkXQTRriiQkgpbGC
-         2EOg==
+        d=gmail.com; s=20230601; t=1769220097; x=1769824897; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=GcF2ydOy+nfomakh5Blwon1hHz6tHyuDcePaQDWXLgo=;
+        b=MbnLfBIwUY7s5JWxSi5k0cNKlLxO3lYFzN9LojBwsQ4pDdC8XVwO5+R+/h+1IFsf27
+         q4+PzSgB5wS2PNv4PdEsCJ7UbiYfZgzZKLXxVZ/og1hakbRn20Qs921fX4Wi6iHStHP/
+         bZMael74BErb/s1YoYs/jlUHmtO4iUSIc4i3YVtT+n0Da7PNQkQwkbe/xytokq57lRgm
+         PsuOLQU9ZgR3LRwtXFTVbA0QPf/vb7m0+kd51rAeLmrvmBurK/1mB/3C9tcPWVpi0mIS
+         DaDojl0ddnaXDI//bByPqXD8Cp22LeM6eaCpRT3Ov9K2Kvo0R/cDo3HVb7uwFcDO14+m
+         ZbkA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769214055; x=1769818855;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=xhgLPiYR6xEsxXnQ/SeaMjXXghHvMuOe7YsndhfrobA=;
-        b=MxmwA8o8u7eVs/tgogF3Vq8dYQw+XjMrUxMt5FkB0NRC7e1QoZ6vGoxx+aCUdaRHgh
-         b7h92vI5AQIQWvhIE+SEl2bf6HjuPdzScIzV6kMbwWw07suwznmWtZtwHOG+rW7ecqIb
-         qrJcs/6/TJK91csl5lFo0mB5e22E7PhRP1ePB4yMM4lwKFAIQU5TuTUKa1cK10PHKIIE
-         /uN0OnveXtJcASwaFI5kmpOOmFJrCMG7jgA0VwwE3yI3UWxQ4HQIGV0+eHTIhmfrg8se
-         VCx5Gdj1n45zQZmPe7qWcbdxZb/NR3JSQHvKAAqysAgUMzvmy0J8Nj1CWZAa+4+u1Pzf
-         3s8Q==
-X-Forwarded-Encrypted: i=1; AJvYcCWpaCPpJAiJA2/55a82oa4xJrpslFZHUo9icA/iZyFBCkIRLrn7TOHjLdd6U7Dx9uxX5wqXXaXSoUwE@vger.kernel.org
-X-Gm-Message-State: AOJu0YwbknojjL4QYP7ixw9/rKqt+h08l3h/jbCcSdv43kvbgupYy2Ob
-	u5hJiIJyf+HiVts8JeWvvWzkqK28hi8LaWSGRvktgbuEzv9P8Jh665P4fnWfa2yx7LeWj0ykGfy
-	Y91n+5WngALDTaYR/Du4rs9rdgGAm2tioHoLLyZL9jwOqusBnC8GnDAMjhX5Y1GE=
-X-Gm-Gg: AZuq6aIrRO2TT61hKlJv2bITV2QkyyTwuoIqy3VWQbhKDILMujq8zhmZz3bTF2cS5Dm
-	F8ZXBUMrrgMZzo/1xCP5gwQF3PfilXn1JhmwIIjBpdFG6hc6MMo+VxyA4LpAca/daJUBnTFrR9u
-	DKb726dTNZULSAusub9ChrtOMqfs5oZ8o6HNPYuzx6oo2HO1ViLW4E2fIuarFtEBiMpJr8EBg6O
-	x06Mn6vYZM1M7ClrG2JQ50Yx3BnhUq2PwoFtv1sG+E8BioqeuqiagQ3huEjUC/PDKsNP7Q0mRpM
-	7D1SrfQfd68b1m1LKAiyBy5T7tcFrG2u4oY9xujiZAdwFPnPoCqbX1VFW2R5NSgZ53ABzFOCF0q
-	e
-X-Received: by 2002:a17:902:e54d:b0:2a7:682b:50ac with SMTP id d9443c01a7336-2a7fe625118mr44257565ad.28.1769214054356;
-        Fri, 23 Jan 2026 16:20:54 -0800 (PST)
-X-Received: by 2002:a17:902:e54d:b0:2a7:682b:50ac with SMTP id d9443c01a7336-2a7fe625118mr44257045ad.28.1769214053812;
-        Fri, 23 Jan 2026 16:20:53 -0800 (PST)
-Received: from localhost ([209.132.188.88])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a802faf6f9sm29695045ad.71.2026.01.23.16.20.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Jan 2026 16:20:53 -0800 (PST)
-Date: Sat, 24 Jan 2026 08:18:46 +0800
-From: Coiby Xu <coxu@redhat.com>
-To: Ard Biesheuvel <ardb@kernel.org>, Mimi Zohar <zohar@linux.ibm.com>
-Cc: Dave Hansen <dave.hansen@intel.com>, linux-integrity@vger.kernel.org, 
-	Heiko Carstens <hca@linux.ibm.com>, Roberto Sassu <roberto.sassu@huaweicloud.com>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, 
-	"maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, 
-	Roberto Sassu <roberto.sassu@huawei.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, 
-	Eric Snowberg <eric.snowberg@oracle.com>, Paul Moore <paul@paul-moore.com>, 
-	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	Jarkko Sakkinen <jarkko@kernel.org>, 
-	"moderated list:ARM64 PORT (AARCH64 ARCHITECTURE)" <linux-arm-kernel@lists.infradead.org>, open list <linux-kernel@vger.kernel.org>, 
-	"open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" <linuxppc-dev@lists.ozlabs.org>, "open list:S390 ARCHITECTURE" <linux-s390@vger.kernel.org>, 
-	"open list:EXTENSIBLE FIRMWARE INTERFACE (EFI)" <linux-efi@vger.kernel.org>, 
-	"open list:SECURITY SUBSYSTEM" <linux-security-module@vger.kernel.org>, "open list:KEYS/KEYRINGS_INTEGRITY" <keyrings@vger.kernel.org>
-Subject: Re: [PATCH 1/3] integrity: Make arch_ima_get_secureboot
- integrity-wide
-Message-ID: <aXQN-ZNhT5olbf6X@Rk>
-References: <20260115004328.194142-2-coxu@redhat.com>
- <CAMj1kXFXNo1-pMbo-VZrjQ3TYe1tufebrLr_avL12A0nHMSGnA@mail.gmail.com>
- <8bfa859ed3a4f1cf0db0ab64d8c1c3b24684582a.camel@linux.ibm.com>
- <CAMj1kXHsJNZoUEnbD1y=v4Ftuv9d2c08VckRV7ru4k4P83vZbQ@mail.gmail.com>
- <97b69bc79a5d9246f7a399510908c7b95b2e95e7.camel@linux.ibm.com>
- <CAMj1kXGx4ebaK87W7k0SNUNQnO9+=z1nmYxXC7retmp3OqRRFg@mail.gmail.com>
- <ac5e5e45c12e9b0bda19807e60b06057d74be0b3.camel@linux.ibm.com>
- <aW2i3yacr5TvWU-m@Rk>
- <1a0b6e5601a673a81f8823de0815f92b7afbeb60.camel@linux.ibm.com>
- <CAMj1kXFBMSEdRL8FotASbQO3dcfNG0bpp9Vnm5JPn-yjyDr=GA@mail.gmail.com>
+        d=1e100.net; s=20230601; t=1769220097; x=1769824897;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=GcF2ydOy+nfomakh5Blwon1hHz6tHyuDcePaQDWXLgo=;
+        b=jzfvzGfYYfQxUlBBBfPpaUXctWHLvvlhwRqWX01igXrD4fabws09JvmTGEouBZD60J
+         xoP96uOQDmrA+y2CrFqL3K2jnojWYI2IL0JkLMOsOg2WqOSaodBzMMfScD0YvkMx1bpX
+         sAB3dnNHmC0J0ivknepKQr19K9tSi5h1urwtNa3RO2MtRraUtJGcrYrnHBy6g6B89Jho
+         NxQFD2OIwMRA2kPtSt8t8Hh+QxA7CCjzto/AYS65E+lhhS7hNKqSeyX8CEufUnZYZXN2
+         ewLKIN0ubA93SfXlM4EQzhdq/eaQK9EMx02yhe3bAVLzxzlomMYX7a2g7LQUx5TIagUG
+         sSWg==
+X-Forwarded-Encrypted: i=1; AJvYcCXgrkS5IMSFxSz+U+EPApsXx2HginTflBFas9V7/F9PKrLechnKVcTKmVoqUFzqMmyziSAJ7dppTP3y@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzde2wpO/MdBl3z6k7qp+2ahByvxFqchS6iE2O9w6uWWtZk2+Gf
+	aKmyRtY0CRgJ5uRNrS7eTFvhu70KemGljpdIzrQD3TwtPpsVx+Va6OtBqrzex9S7qGZ0NnNxo+N
+	HQ/S/KdTw0+AIXGtZgz/AKIfgKkUYvmc=
+X-Gm-Gg: AZuq6aLwP+K5p3z0ICV9Y/tYhAMb10iW0jtqxGZjKE3JdwkuU+fhltXYj/Ww8sIGfsT
+	6f0dUN4Dn9+Pb2LhWFqd5PFKSFUVp2i1uYMHzsnhILPStdNoM/uSjXzXQBTOt1KVx08e8I1oehH
+	MmMcLdzY9KjLJiDCvOITNcQiQUvU7TvyUwC46ArqMmStRTlCPOmfTV/8jWSyRJsuxB7oayufxa3
+	ygpek7OYP2C2sCVphvROYfqloPDbXbXLoRjSQEgGq9QuGM4kjQUq5vyR+ohTwFIrCm6FlbIjvud
+	3SvFukXJSG4/CU9cGxUWWfrY7L0Tn80AJfv38xtoXl101EZRvguvgULp
+X-Received: by 2002:a05:6214:20ab:b0:890:5973:a567 with SMTP id
+ 6a1803df08f44-894901b45f3mr66553036d6.12.1769220097575; Fri, 23 Jan 2026
+ 18:01:37 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <CAMj1kXFBMSEdRL8FotASbQO3dcfNG0bpp9Vnm5JPn-yjyDr=GA@mail.gmail.com>
+References: <20260123033233.16906-1-enelsonmoore@gmail.com> <20260123181156.GA84531@bhelgaas>
+In-Reply-To: <20260123181156.GA84531@bhelgaas>
+From: Ethan Nelson-Moore <enelsonmoore@gmail.com>
+Date: Fri, 23 Jan 2026 18:01:26 -0800
+X-Gm-Features: AZwV_Qihtc5vhyYPwevTdmoQ3m_JYluy6sboC_AzdDpVbJp4Phlr8m3XaH144WU
+Message-ID: <CADkSEUg5EqpKg2_X3LRc1CaQ2RVFNucJbuxDcHQxvjdLq1Qg1A@mail.gmail.com>
+Subject: Re: [PATCH net-next] net: ethernet: neterion: s2io: remove unused driver
+To: Bjorn Helgaas <helgaas@kernel.org>
+Cc: netdev@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-pci@vger.kernel.org, linux-mips@vger.kernel.org, 
+	linux-s390@vger.kernel.org, rust-for-linux@vger.kernel.org, 
+	Jon Mason <jdmason@kudzu.us>, Jonathan Corbet <corbet@lwn.net>, 
+	Linas Vepstas <linasvepstas@gmail.com>, Mahesh J Salgaonkar <mahesh@linux.ibm.com>, 
+	"Oliver O'Halloran" <oohall@gmail.com>, Bjorn Helgaas <bhelgaas@google.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, Danilo Krummrich <dakr@kernel.org>, 
+	=?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?= <kwilczynski@kernel.org>, 
+	Miguel Ojeda <ojeda@kernel.org>, Boqun Feng <boqun.feng@gmail.com>, Gary Guo <gary@garyguo.net>, 
+	=?UTF-8?Q?Bj=C3=B6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>, 
+	Benno Lossin <lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>, 
+	Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>, 
+	Andrew Morton <akpm@linux-foundation.org>, 
+	=?UTF-8?Q?Martin_Kepplinger=2DNovakovi=C4=87?= <martink@posteo.de>, 
+	Pavel Machek <pavel@ucw.cz>, MD Danish Anwar <danishanwar@ti.com>, 
+	Mengyuan Lou <mengyuanlou@net-swift.com>, Pablo Neira Ayuso <pablo@netfilter.org>, 
+	Huacai Chen <chenhuacai@kernel.org>, "Theodore Ts'o" <tytso@mit.edu>, Takashi Iwai <tiwai@suse.de>, 
+	Eric Biggers <ebiggers@google.com>, Madadi Vineeth Reddy <vineethr@linux.ibm.com>, 
+	Ard Biesheuvel <ardb@kernel.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, 
+	Frederic Barrat <fbarrat@linux.ibm.com>, Andrew Donnellan <ajd@linux.ibm.com>, 
+	Herbert Xu <herbert@gondor.apana.org.au>, Vadim Fedorenko <vadim.fedorenko@linux.dev>, 
+	Lorenzo Bianconi <lorenzo@kernel.org>, Dong Yibo <dong100@mucse.com>, 
+	Lukas Bulwahn <lukas.bulwahn@redhat.com>, Vivian Wang <wangruikang@iscas.ac.cn>, 
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 21, 2026 at 05:25:39PM +0100, Ard Biesheuvel wrote:
->On Wed, 21 Jan 2026 at 16:41, Mimi Zohar <zohar@linux.ibm.com> wrote:
->>
->> On Mon, 2026-01-19 at 12:04 +0800, Coiby Xu wrote:
->>
->> > diff --git a/security/integrity/ima/Kconfig b/security/integrity/ima/Kconfig
->> > index 976e75f9b9ba..5dce572192d6 100644
->> > --- a/security/integrity/ima/Kconfig
->> > +++ b/security/integrity/ima/Kconfig
->> > @@ -311,6 +311,7 @@ config IMA_QUEUE_EARLY_BOOT_KEYS
->> >   config IMA_SECURE_AND_OR_TRUSTED_BOOT
->> >          bool
->> >          depends on IMA_ARCH_POLICY
->> > +       depends on INTEGRITY_SECURE_BOOT
->> >
->> >
->> > Another idea is make a tree-wide arch_get_secureboot i.e. to move
->> > current arch_ima_get_secureboot code to arch-specific secure boot
->> > implementation. By this way, there will no need for a new Kconfig option
->> > INTEGRITY_SECURE_BOOT. But I'm not sure if there is any unforeseen
->> > concern.
->>
->> Originally basing IMA policy on the secure boot mode was an exception.  As long
->> as making it public isn't an issue any longer, this sounds to me.  Ard, Dave, do
->> you have any issues with replacing arch_ima_get_secureboot() with
->> arch_get_secureboot()?
->
->I don't see an issue with that. If there is a legitimate need to
->determine this even if IMA is not enabled, then this makes sense.
+On Fri, Jan 23, 2026 at 10:11=E2=80=AFAM Bjorn Helgaas <helgaas@kernel.org>=
+ wrote:
+> Not sure there's value in removing the IDs from pci_ids.h.  It may
+> lead to unnecessary conflicts later for stable and other backports.
 
-Thanks for the confirmation! Here's the updated patch
-https://github.com/coiby/linux/commit/c222c1d08d90ef1ec85ef81ece90afc9efde7937.patch
-
-If there is no objection, I'll send v2.
-
--- 
-Best regards,
-Coiby
-
+Patches to remove drivers are generally not backported to stable
+versions, even if the driver is broken, so I don't think this will be
+an issue. There is no point in keeping unused IDs around.
