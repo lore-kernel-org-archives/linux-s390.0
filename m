@@ -1,111 +1,104 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F4D33EBF1E;
-	Sat, 24 Jan 2026 07:25:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A53213EBF34;
+	Sat, 24 Jan 2026 09:22:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769239510; cv=none; b=RCn3nTu3Vp6FqP1I+g/WCusiDBn8vL3Ub6rXlPgMAwAYHKMLQYUGwvvfN5zhvVVkJK+AoSmLJkTr9WUfxvwZ3dQVjI6Jpnp8r+aHPukfjbxoSUNjnhDdkjJZg2dafAlfCKRhqQAANmmW8bkWSDE2D0aGFrKjJoou0xp5ACx7ix0=
+	t=1769246557; cv=none; b=pKjsmZ2JMOiaZw4R+Nmizf+PnU/vt9TvNiBQHdxUEk46euqwBkgAFOQn6ycaoUoxqJFF+0ZqQlGnQyE5bKHM3hls3bZn9QkFPwNwJNb6RXHHB5veR+ZcJz7dQooXo/Zi7uy9wsQExdavMgeLSjhrdBeyHZwBkydevoNWtv0E27k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769239510; c=relaxed/simple;
-	bh=BpoHXPSY5AwaQmN6Xw7QMaOi0dRnd72osdnYD0X4kPY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=u8h2fI3SkxFHdgh4+lkqtwkih5keB9Jy8XTWqTRALpS177KkjszMcxLDe/0LGWjci0xx2psfMB79gh+Tk31eB0B2+G9Xym5QHA+ZtLBiQQmhpIdqX7kYuSVYVCufa1ZH0hxaxLczymbUt4Yqyrvt20v8j/3X3rqixZZ1TVBvfWw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lqCXsxeU; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1769246557; c=relaxed/simple;
+	bh=QmWvenW9ze+OPCIN43D1aT/M5hDWbE0p8JTYbw2Ap94=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SNkhIJ33A0DHeCnbeFwD/aMprTCaNldYrxkgIH+Zd10FsoGCS/9OB1wt+KVZ+Jpvfob9M61LUxb7dNmuwaIAG7EFfh7fsbD5VbiYTy5QW04dCXmTrGODHZ05aDT929jq9UdPPGPE79wfxFjDwaK2ksH6BFXrOK93aOm9lPX83oE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=jJdKJg/Y; arc=none smtp.client-ip=115.124.30.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lqCXsxeU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47DC9C116D0;
-	Sat, 24 Jan 2026 07:24:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769239510;
-	bh=BpoHXPSY5AwaQmN6Xw7QMaOi0dRnd72osdnYD0X4kPY=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=lqCXsxeURasvHP4unVWE7PgUKtV41NIhdpM5vvDoekklddO/E8dY6AGHT6g46ECmE
-	 jAqr/Ps7aGYp+PMRIA3YPw/Vwo9C+TpR/sdjlCknPM+8dAleph3X/4bU5wz1IumbJ4
-	 vsIyOm7lmyAqlf6I/LEv+1yiLfUCgQG5Qep86ZG9pnUsCEjekEe9P1WoWrrEtjnmQI
-	 QDhJCZSHNho0ytQ1vYlLxEHC3JmuX9H5jIR2xZzspstMFBwT5DWK5sGJiegpaS1O84
-	 ta04pSX1Y2X93B0O1gM0i3o07Wqvm66WeMTmtMVkp9TeOCvY9mMZIkCPgoXqmAL2FG
-	 PTBGII1HLujNQ==
-Message-ID: <8477da83-2441-440c-80f1-66dac9700523@kernel.org>
-Date: Sat, 24 Jan 2026 08:24:47 +0100
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="jJdKJg/Y"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1769246547; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=JJIvyfyanGB9J6au1bCV2+bGjwvOLICjUu5CtLQtQkg=;
+	b=jJdKJg/YACnJdaykw8f82QUI7lAfTu8ACkvAGoUUJv92nYDCQZfFSRTqHCtdpNSUAiBk/BkqtUJhf6vXemr5DyYQgJbJGCPV3BFZjIrgyXpBQO8TBwBCi85temLwJZEw9MM9jEkdvuy+9cfiLQLJxz2MK+dZYHEgM8dr6aMPEOE=
+Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0Wxia0AB_1769246545 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Sat, 24 Jan 2026 17:22:26 +0800
+Date: Sat, 24 Jan 2026 17:22:25 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com    >
+To: Alexandra Winter <wintera@linux.ibm.com>
+Cc: "D. Wythe" <alibuda@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Simon Horman <horms@kernel.org>, Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+	oliver.yang@linux.alibaba.com
+Subject: Re: [PATCH net-next 1/3] net/smc: cap allocation order for SMC-R
+ physically contiguous buffers
+Message-ID: <20260124092225.GA85316@j66a10360.sqa.eu95>
+References: <20260123082349.42663-1-alibuda@linux.alibaba.com>
+ <20260123082349.42663-2-alibuda@linux.alibaba.com>
+ <6f8de95e-b034-4ea8-a246-605047d142db@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next] net: ethernet: neterion: s2io: remove unused
- driver
-To: Ethan Nelson-Moore <enelsonmoore@gmail.com>,
- Bjorn Helgaas <helgaas@kernel.org>
-Cc: netdev@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-pci@vger.kernel.org, linux-mips@vger.kernel.org,
- linux-s390@vger.kernel.org, rust-for-linux@vger.kernel.org,
- Jon Mason <jdmason@kudzu.us>, Jonathan Corbet <corbet@lwn.net>,
- Linas Vepstas <linasvepstas@gmail.com>,
- Mahesh J Salgaonkar <mahesh@linux.ibm.com>,
- Oliver O'Halloran <oohall@gmail.com>, Bjorn Helgaas <bhelgaas@google.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- Danilo Krummrich <dakr@kernel.org>,
- =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
- Miguel Ojeda <ojeda@kernel.org>, Boqun Feng <boqun.feng@gmail.com>,
- Gary Guo <gary@garyguo.net>, =?UTF-8?Q?Bj=C3=B6rn_Roy_Baron?=
- <bjorn3_gh@protonmail.com>, Benno Lossin <lossin@kernel.org>,
- Andreas Hindborg <a.hindborg@kernel.org>, Alice Ryhl <aliceryhl@google.com>,
- Trevor Gross <tmgross@umich.edu>, Andrew Morton <akpm@linux-foundation.org>,
- =?UTF-8?Q?Martin_Kepplinger-Novakovi=C4=87?= <martink@posteo.de>,
- Pavel Machek <pavel@ucw.cz>, MD Danish Anwar <danishanwar@ti.com>,
- Mengyuan Lou <mengyuanlou@net-swift.com>,
- Pablo Neira Ayuso <pablo@netfilter.org>, Huacai Chen
- <chenhuacai@kernel.org>, Theodore Ts'o <tytso@mit.edu>,
- Takashi Iwai <tiwai@suse.de>, Eric Biggers <ebiggers@google.com>,
- Madadi Vineeth Reddy <vineethr@linux.ibm.com>,
- Ard Biesheuvel <ardb@kernel.org>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- Frederic Barrat <fbarrat@linux.ibm.com>, Andrew Donnellan
- <ajd@linux.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>,
- Vadim Fedorenko <vadim.fedorenko@linux.dev>,
- Lorenzo Bianconi <lorenzo@kernel.org>, Dong Yibo <dong100@mucse.com>,
- Lukas Bulwahn <lukas.bulwahn@redhat.com>,
- Vivian Wang <wangruikang@iscas.ac.cn>, Thomas Gleixner <tglx@kernel.org>,
- Ingo Molnar <mingo@kernel.org>
-References: <20260123033233.16906-1-enelsonmoore@gmail.com>
- <20260123181156.GA84531@bhelgaas>
- <CADkSEUg5EqpKg2_X3LRc1CaQ2RVFNucJbuxDcHQxvjdLq1Qg1A@mail.gmail.com>
-Content-Language: fr-FR
-From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-In-Reply-To: <CADkSEUg5EqpKg2_X3LRc1CaQ2RVFNucJbuxDcHQxvjdLq1Qg1A@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6f8de95e-b034-4ea8-a246-605047d142db@linux.ibm.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 
-
-
-Le 24/01/2026 à 03:01, Ethan Nelson-Moore a écrit :
-> [Vous ne recevez pas souvent de courriers de enelsonmoore@gmail.com. Découvrez pourquoi ceci est important à https://aka.ms/LearnAboutSenderIdentification ]
+On Fri, Jan 23, 2026 at 11:54:37AM +0100, Alexandra Winter wrote:
 > 
-> On Fri, Jan 23, 2026 at 10:11 AM Bjorn Helgaas <helgaas@kernel.org> wrote:
->> Not sure there's value in removing the IDs from pci_ids.h.  It may
->> lead to unnecessary conflicts later for stable and other backports.
 > 
-> Patches to remove drivers are generally not backported to stable
-> versions, even if the driver is broken, so I don't think this will be
-> an issue. There is no point in keeping unused IDs around.
+> On 23.01.26 09:23, D. Wythe wrote:
+> Describe your changes in imperative mood.
+> https://docs.kernel.org/process/submitting-patches.html#describe-your-changes
+> 
+> 
+> > For SMCR_PHYS_CONT_BUFS, the allocation order is now capped to
+> > MAX_PAGE_ORDER, ensures the attempts to allocate the largest possible
+> > physically contiguous chunk instead of failing with an invalid order,
+> > which also avoid redundant "try-fail-degrade" cycles in __smc_buf_create().
+> > 
+> > For SMCR_MIXED_BUFS, If it's order exceeds MAX_PAGE_ORDER, skips the
+> > doomed physical allocation attempt and fallback to virtual memory
+> > immediately.
+> > 
+> 
+> Proposal for a version in imperative mood (iiuc):
+> "
+> For SMCR_PHYS_CONT_BUFS, cap the allocation order to MAX_PAGE_ORDER. This
+> ensures the attempts to allocate the largest possible physically contiguous
+> chunk succeed, instead of failing with an invalid order. This also avoids
+> redundant "try-fail-degrade" cycles in __smc_buf_create().
+> 
+> For SMCR_MIXED_BUFS, if its order exceeds MAX_PAGE_ORDER, skip the doomed
+> physical allocation attempt and fallback to virtual memory immediately.
+> "
+> 
+> 
+> > Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+> > Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+> 
+> Other than that: LGTM
+> Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
 
-Yes and that's exactly the reason why removing unused IDs will be a problem.
+Hi Alexandra,
 
-Let's take an exemple: some patch adds PCI_DEVICE_ID_ARECA_1682 after 
-PCI_DEVICE_ID_ARECA_1681 in pci_ids.h in the mainline. That patch needs 
-to be backported and it conflicts with PCI_VENDOR_ID_S2IO which is not 
-anymore in the mainline but is still in stable.
+Thank you for your review and for providing the refined description.
+I will use your suggested wording for the commit message in V2.
 
-Christophe
+Best regards,
+D. Wythe
