@@ -1,81 +1,117 @@
-Received: from cstnet.cn (smtp81.cstnet.cn [159.226.251.81])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FC3531B117;
-	Sun, 25 Jan 2026 13:14:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.81
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 581F51DDC3F;
+	Sun, 25 Jan 2026 18:11:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769346866; cv=none; b=tmwjZYfcy6nMLsXJTTX/eVKWSErlvg7of2HwIF2dUUkFs2QbY6swMJtjf5F3uLkvcIAJQ9a+arHDluhmykPRKCXdFkrBb5C9Y2pGXhQ5AqstC53was75rIN2vBjk0GT48rCaJhI6h99JUz2ZPx/CSY1T7GT08QkxiJd2d/Q0bV0=
+	t=1769364687; cv=none; b=Ql2T7YaLkM2+Pm6BrMOkqgPuFdP2v9TNB8Fqo3XS/XE8b/+l9iWc/vUE9pMBXric3BTOKsHMg491aQ7LqK23lrgXLAef7RtC4Ybi/Odxap4bf0ftSnKHabL8mNBv4bBFlEWpbTz637P0CR1BQSdMfqNt/7GAvYclRcIwlyhDusg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769346866; c=relaxed/simple;
-	bh=wCYComRYh/0eukGCvEwfbJyZ9wozogqelCAmEDHqta0=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=fRK2pzp8eNVrr2Vjc71nzNv8nxAwxCjamiSaDty/YIYHacqPGGzx4yK/QIladnMqZPBUnrF0qFiNHwZObCXKLs0ye716oMmlJtqZsRFXb7xwCFfzNxerFHJDxo3FjR3Kzqlz7LVW7cLXswzIGd9mNKwFDwc97l5J2LkyuZ1PMU0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=isrc.iscas.ac.cn; spf=pass smtp.mailfrom=isrc.iscas.ac.cn; arc=none smtp.client-ip=159.226.251.81
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=isrc.iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=isrc.iscas.ac.cn
-Received: from localhost.localdomain (unknown [36.112.3.223])
-	by APP-03 (Coremail) with SMTP id rQCowABnaL8nF3Zp6W6rBg--.43718S2;
-	Sun, 25 Jan 2026 21:14:15 +0800 (CST)
-From: Haoxiang Li <lihaoxiang@isrc.iscas.ac.cn>
-To: hca@linux.ibm.com,
-	gor@linux.ibm.com,
-	agordeev@linux.ibm.com,
-	borntraeger@linux.ibm.com,
-	svens@linux.ibm.com,
-	tglx@linutronix.de,
-	mingo@kernel.org
-Cc: linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Haoxiang Li <lihaoxiang@isrc.iscas.ac.cn>
-Subject: [PATCH] s390/con3215: add unregister in tty3215_init()
-Date: Sun, 25 Jan 2026 21:14:13 +0800
-Message-Id: <20260125131413.2042746-1-lihaoxiang@isrc.iscas.ac.cn>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1769364687; c=relaxed/simple;
+	bh=qgVtO8mWSRuxFs90xJYzoTYRLOJL+pr5SZ3KzZGHvdk=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=JrBl8NqOHqK/+j7aHq721HekzwPww8lzJE8c7RS/tLIqqwwc30YLXyEAb51V5OTuQoJH16wNfdVWLnIpZWwBNVeNUYDOtS0kFSb1T1AxiWednqEGG71jV/br1DwUP5oQrLjXWrRjMWztBidI5JTVLis24RaWJlzrHzKZuC+xejQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fSXPgBM6; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fSXPgBM6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFF50C4CEF1;
+	Sun, 25 Jan 2026 18:11:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769364687;
+	bh=qgVtO8mWSRuxFs90xJYzoTYRLOJL+pr5SZ3KzZGHvdk=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:From;
+	b=fSXPgBM6pyKu6dxW7/SPJOT2E4JeiGkQ610PJjUqTKkJD9/f6FdXDhiGS/C9infEx
+	 NjqBQ+VPIKS16IbneeZpeiRn3dBNpjmUKDKCm9NK0GT4y2zfbjmuo+gQ6x1UmoXMTD
+	 kZz2Irh3PGvFPBoVFaVH+V3BFLlM+GH3c0KBgTuGpNwBKg5MJWfMWSlJbD0UIfkwg5
+	 DKDEIsbflP87ympyOXbQ3AF+c2uoO5v7DXWIhl6viE/qlEoW0SJxIRMkuV34fF3QjY
+	 jWtTRONGo64Ey2japsnD7I9qrRXOkuY7b6Ww8c/lrOxcIhdtkuaKfpAI/o6fDzgsqu
+	 Y3/fmBHYDsx6w==
+Date: Sun, 25 Jan 2026 12:11:25 -0600
+From: Bjorn Helgaas <helgaas@kernel.org>
+To: Ethan Nelson-Moore <enelsonmoore@gmail.com>
+Cc: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	netdev@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-pci@vger.kernel.org, linux-mips@vger.kernel.org,
+	linux-s390@vger.kernel.org, rust-for-linux@vger.kernel.org,
+	Jon Mason <jdmason@kudzu.us>, Jonathan Corbet <corbet@lwn.net>,
+	Linas Vepstas <linasvepstas@gmail.com>,
+	Mahesh J Salgaonkar <mahesh@linux.ibm.com>,
+	Oliver O'Halloran <oohall@gmail.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
+	Miguel Ojeda <ojeda@kernel.org>, Boqun Feng <boqun.feng@gmail.com>,
+	Gary Guo <gary@garyguo.net>,
+	=?utf-8?B?QmrDtnJu?= Roy Baron <bjorn3_gh@protonmail.com>,
+	Benno Lossin <lossin@kernel.org>,
+	Andreas Hindborg <a.hindborg@kernel.org>,
+	Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Martin =?utf-8?Q?Kepplinger-Novakovi=C4=87?= <martink@posteo.de>,
+	Pavel Machek <pavel@ucw.cz>, MD Danish Anwar <danishanwar@ti.com>,
+	Mengyuan Lou <mengyuanlou@net-swift.com>,
+	Pablo Neira Ayuso <pablo@netfilter.org>,
+	Huacai Chen <chenhuacai@kernel.org>, Theodore Ts'o <tytso@mit.edu>,
+	Takashi Iwai <tiwai@suse.de>, Eric Biggers <ebiggers@google.com>,
+	Madadi Vineeth Reddy <vineethr@linux.ibm.com>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Frederic Barrat <fbarrat@linux.ibm.com>,
+	Andrew Donnellan <ajd@linux.ibm.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Vadim Fedorenko <vadim.fedorenko@linux.dev>,
+	Lorenzo Bianconi <lorenzo@kernel.org>,
+	Dong Yibo <dong100@mucse.com>,
+	Lukas Bulwahn <lukas.bulwahn@redhat.com>,
+	Vivian Wang <wangruikang@iscas.ac.cn>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH net-next] net: ethernet: neterion: s2io: remove unused
+ driver
+Message-ID: <20260125181125.GA209392@bhelgaas>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:rQCowABnaL8nF3Zp6W6rBg--.43718S2
-X-Coremail-Antispam: 1UD129KBjvdXoW7Xw4fAw4rXrW8JF4xCF4fGrg_yoWxCFXEkF
-	WIqr9Fyr45CrZakry5Zr4Sv34v9F1rWws7uF1ftFy5Jr1xWr40qFyjvFW3Gr1DXr47ZFyD
-	tryDGFnYk343CjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUIcSsGvfJTRUUUb3xFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k26cxKx2IYs7xG
-	6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
-	A2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_
-	Cr1l84ACjcxK6I8E87Iv67AKxVWUJVW8JwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr0_Gr
-	1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xII
-	jxv20xvE14v26r106r15McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr
-	1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7M4IIrI8v6xkF7I0E8cxa
-	n2IY04v7MxkF7I0En4kS14v26r1q6r43MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4
-	AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE
-	17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMI
-	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4l
-	IxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvf
-	C2KfnxnUUI43ZEXa7VU13ku3UUUUU==
-X-CM-SenderInfo: 5olkt0x0ld0ww6lv2u4olvutnvoduhdfq/1tbiDAcSE2l1qZuEdAABsV
+In-Reply-To: <CADkSEUjyXH74izTrsfhdAjh=n-jnGx=tXbqPx86M9OYqjXj0PA@mail.gmail.com>
 
-Add ccw_driver_unregister() if tty_register_driver() fails.
+On Sat, Jan 24, 2026 at 03:32:17PM -0800, Ethan Nelson-Moore wrote:
+> On Fri, Jan 23, 2026 at 11:25 PM Christophe Leroy (CS GROUP)
+> <chleroy@kernel.org> wrote:
+> > Yes and that's exactly the reason why removing unused IDs will be a problem.
+> >
+> > Let's take an exemple: some patch adds PCI_DEVICE_ID_ARECA_1682 after
+> > PCI_DEVICE_ID_ARECA_1681 in pci_ids.h in the mainline. That patch needs
+> > to be backported and it conflicts with PCI_VENDOR_ID_S2IO which is not
+> > anymore in the mainline but is still in stable.
+> 
+> Hi, Christophe,
+> 
+> I understand your reasoning now. Thanks for clarifying. In my opinion,
+> changes to pci_ids.h don't happen often enough for that to be a
+> problem. Unused IDs have been removed from it before.
 
-Signed-off-by: Haoxiang Li <lihaoxiang@isrc.iscas.ac.cn>
----
- drivers/s390/char/con3215.c | 1 +
- 1 file changed, 1 insertion(+)
+What is the value in removing the IDs?
 
-diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
-index 56e43d43c713..3ffa5ac075c7 100644
---- a/drivers/s390/char/con3215.c
-+++ b/drivers/s390/char/con3215.c
-@@ -1181,6 +1181,7 @@ static int __init tty3215_init(void)
- 	tty_set_operations(driver, &tty3215_ops);
- 	ret = tty_register_driver(driver);
- 	if (ret) {
-+		ccw_driver_unregister(&raw3215_ccw_driver);
- 		tty_driver_kref_put(driver);
- 		return ret;
- 	}
--- 
-2.25.1
-
+The values can never be reused for new hardware, so removal doesn't
+make room for anything in the future.  Unlike the removal of driver
+code, removing the IDs doesn't reduce complexity or improve
+readability or maintainability.
