@@ -1,150 +1,189 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com [209.85.167.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 713C1330327;
-	Mon, 26 Jan 2026 10:18:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D19133032B
+	for <linux-s390@vger.kernel.org>; Mon, 26 Jan 2026 10:28:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769422733; cv=none; b=lqyg9FOANEguz4aZQCrLK0aR0nE1ZDmpKcC1i86etbKLM1IWAsP35/RoB2yTqReQgMn/WUfnkK6cAMKjXiIVcobITeejGba7V7Fk0jgSJX34kJQ3/75O/RgpRzywQ26Q+yRd4P0qfbHSPBun2/G85IXUEXoYWyNYWxJzThaNgEI=
+	t=1769423332; cv=none; b=aqGlOAiyVtNVjLBl04Q3PmhOejZoCLrvfo1D2pidIwIIPHStK+s8talw+iYr/9dpzpOWwHdcLxkQAr1HQYl9/ZvSGeybIWneXCT8n3A/uwO4k7M00XVwV8GlLtuNV55E5lzy9FVgtxYueIZnofebx+VmFdgCGG9/oGnrYplKq1c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769422733; c=relaxed/simple;
-	bh=Ucmve+dluwtbj64/JNEJDhr/8sDAs37zDDHqIbQQZHo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=V6AsLN+O37OnON605FGzyv7+0iWxpLciuqKKtck/GXNSNQwqxGrAHAyiydRl93aJspt7GZRnnotsOHNxoJa538XcZXJwHtMfF/IYEgoIVu81MsO9A1WEOt30Ni793Kcjsz0+ZfTS/pVJSJwg9J4USKryZoh2lrM+/7nzXUh1SHM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dWWpu+o1; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1769423332; c=relaxed/simple;
+	bh=Mq4jhoQwiChk2fbSJkOenkl/50i+ECFFT+yZETA5cbY=;
+	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HG9g0KUj02SnYIiRjRCnZxGiCHGMAC+x+AfAlX4RBAm55afZWByf+l+qnImkGsjhc2VQrTq/kokeuQ0XaKld52Q3JUmXvDyPvRb3L/7Z4gkuufH4ucRfUMH4LyuhkbOOtTDmaneG6x7TsplZhSrA4yr7ZiUd/dWU5D2bfCqXnWM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZxR15TY3; arc=none smtp.client-ip=209.85.167.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dWWpu+o1"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60PDP21P021571;
-	Mon, 26 Jan 2026 10:18:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=2qjptHA0YmxDPIgJHXhmwBovQ8WntJd8SiYn0/Dpr
-	q8=; b=dWWpu+o1xH4/2suz8Gn0MqbQyTLYzeSz5BLuffjifaIx2FW0/3Q5xVYwn
-	Eazu/t/XZKJNjCBpARXT/kjSDBx18VJSVrjN6zvbiFm8Q+eIbikusB6LnYoKGheO
-	co7wKOMAmHptnlayg4UPk1z67MWH2WEx/tPhnWUqzGrBLT95xBCE5sLCevYDGDvB
-	XpK8RY6jb6P3gZxkSgbK3co/GC1/kcZ21+HNU0B3l3kHdTf6QgLATNZ6Coqvclkk
-	PBbFazRCAFZ5NrVH6j/1IatjA7w1tse4OcJDZLPvhnfD08HnLa15U1stWW0Mhl17
-	fCskIsH7Kvda06odsrgehPa9zkYSg==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bvnt7fg30-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 26 Jan 2026 10:18:44 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 60QAGaHx025557;
-	Mon, 26 Jan 2026 10:18:43 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bvnt7fg2x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 26 Jan 2026 10:18:43 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60Q5oc88019630;
-	Mon, 26 Jan 2026 10:18:42 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4bw9dmv67k-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 26 Jan 2026 10:18:42 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60QAIb8l61669794
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 26 Jan 2026 10:18:38 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CCE332004F;
-	Mon, 26 Jan 2026 10:18:37 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9F2702004E;
-	Mon, 26 Jan 2026 10:18:37 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 26 Jan 2026 10:18:37 +0000 (GMT)
-From: Thomas Richter <tmricht@linux.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org,
-        irogers@google.com
-Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
-        hca@linux.ibm.com, japo@linux.ibm.com,
-        Thomas Richter <tmricht@linux.ibm.com>
-Subject: [PATCH linux-next] perf test: Fix test perf evlist for z/VM s390x
-Date: Mon, 26 Jan 2026 11:18:23 +0100
-Message-ID: <20260126101823.2090077-1-tmricht@linux.ibm.com>
-X-Mailer: git-send-email 2.51.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZxR15TY3"
+Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-59dd22b9895so5108115e87.0
+        for <linux-s390@vger.kernel.org>; Mon, 26 Jan 2026 02:28:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1769423329; x=1770028129; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=auhtqvKNqSuy3B8gISIK2h86XPLcfd95W6hmGc7ctWo=;
+        b=ZxR15TY381sdQAr7ox85tqd7OVr7m8CmarXwuhqN1oDLdoTqFXENoWv9cnF7LHJ+Nc
+         lfh2Rek/CbjStFrNBqGB69iT+ngjbV2qZxJER9DNM2m12lRh6L5f/uDeoeT6ok7iovZU
+         q6eYr06ipygPk62Nac/szrd5PsS9OkXI92Jn6hUvKTtbqu6goNK4Qlb54F80s0jXCVSG
+         IONXBaQe55ANxUezmhTY8h88oMXNGZVo2J3KLexpgM6RUX3UZmiqvQXLLDFn0kkXLspz
+         42SK8/OoUt6VKvNoCLjrtr3tGWsBbSfUflAKz2wGu0PcPijRw9r5xTBJmCmq8QIUHVRL
+         c7KQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769423329; x=1770028129;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:date:from:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=auhtqvKNqSuy3B8gISIK2h86XPLcfd95W6hmGc7ctWo=;
+        b=ONaOz7XeDEkSe3S7he8e3PK2vmnxtYtB8C/8x9dzeKao8GK4sZZgeG+KCcpZ/44i1/
+         BfLQiqUUbak7dH+DO+hbMkY1f83q338tyI1ALci69ytjcTHVuK8XrQmyMQZCCpzA8yDm
+         EtqBuWT395SJ+kG/noEa56LN3UatThI7y4dRyuKOSy39e4FN1VKGWiWCPLCNE5jP7p7q
+         eiKdWYX9iJ1MsG1xSdDqwGLN+1kybaWnJ90wqQXfERvylAeEJCLMhbNuTqa+K+0WzkZd
+         xU975w8Ft8uLtaSjPAHF/as3cpiVCRVaaNSrdLPWaMix0cg/9s7LfnZLTlzkMHeJaLMf
+         /D3Q==
+X-Forwarded-Encrypted: i=1; AJvYcCXFed7+fmWmlT9W9suD9fZ5nbt/AnppWSd+ukvoipmxcMBjdQoNgSSMTyYrldPk58wtQomU3ASIakM3@vger.kernel.org
+X-Gm-Message-State: AOJu0YxfiWIAODJ3RGWKKaexnbwmmJMezEeVSfZ2/7kWlXm+rqKw9ubb
+	UoIxnceoYs5SlRngUxuvfwaXAJwPVT7HC+bWyZSq8YXfg1eHZrVNEN7F
+X-Gm-Gg: AZuq6aKMZAk6IFa0WgxQ3KlbwisGHrc3MaDoOW5pBhS9h7lQWnWfLGqGl06HStv4AYQ
+	OT9WVvOGjnVVTvmCx9Nr6tbbEsMFOUnGbWhd4Zk6dW0KOmCYaGgsYcA5qdtfFCSR/3n+pJ8RMET
+	6nUEqCGy8Sg7gtPmAzyQXDMY3+drQGH0Sr64OmAMRP/Qrvcc5552tkyZHF1bETUgsYg/D+tNTwy
+	rb2WhzQtu/lM9ufKh9+L8kqFaYXqBCHFN9SrJLLesyi1gd1VtY9R8w17L2Hf8Z/RQ/TKBt+kVvq
+	Spc7pTgnztUGsEA/2AcOTtd3p2Lg9mTYbjIQqGB7zbAHUkRO4MopevlopBUDSZ9hCP/wpPfbiLh
+	iWmkp/tzKxIs9SjjLii3m+d4iTH5bJ2pxJf582YLWou8O0UoWr2hugEJBUivQwI8=
+X-Received: by 2002:ac2:4bd6:0:b0:59d:f5ad:1267 with SMTP id 2adb3069b0e04-59df5ad12a3mr1093590e87.9.1769423328970;
+        Mon, 26 Jan 2026 02:28:48 -0800 (PST)
+Received: from milan ([2001:9b1:d5a0:a500::24b])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-59de491f8b9sm2596674e87.68.2026.01.26.02.28.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Jan 2026 02:28:48 -0800 (PST)
+From: Uladzislau Rezki <urezki@gmail.com>
+X-Google-Original-From: Uladzislau Rezki <urezki@milan>
+Date: Mon, 26 Jan 2026 11:28:46 +0100
+To: "D. Wythe" <alibuda@linux.alibaba.com>
+Cc: Uladzislau Rezki <urezki@gmail.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Simon Horman <horms@kernel.org>, Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+	oliver.yang@linux.alibaba.com
+Subject: Re: [PATCH net-next 2/3] mm: vmalloc: export find_vm_area()
+Message-ID: <aXdB3lsm3w0fJT3Q@milan>
+References: <20260123082349.42663-1-alibuda@linux.alibaba.com>
+ <20260123082349.42663-3-alibuda@linux.alibaba.com>
+ <aXPEFdEdtSmd6AzF@milan>
+ <20260124093505.GA98529@j66a10360.sqa.eu95>
+ <aXSjm1DXm6yP62tD@pc636>
+ <20260124145754.GA57116@j66a10360.sqa.eu95>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Lcn6XM0tDV287h4KNVlgvwpqvVKko1Z0
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTI2MDA4OCBTYWx0ZWRfX5EmYOGKpqBkm
- 2WeOwJDngoAOv4Y5i5oyUrQQEY9rGtAklme+yBaFP4+3sXazqMc70CtYdsiKG6ph7Cie+1z/T4e
- YeKh4uAu5MF0zKrtHxTDxkP5aqpj1oJaedpZ7+bn7lDHGQ742FfoB5hPjkIyhpEQ6bocZzlV8z6
- CbTqGtEuiFT49pvvW83QEiWTrycB20LOT3olO4qi8lmxhS9DHCn92Glu9Zw4UtjRzWlIkYedDl/
- KZ/oJoz9ne1ow5IdXQtLQt+ACfB4KTgvNzYKDC91UqeFwHF3/e66C02XbSAGmO4hhQ1B6WSaqeY
- O7ir0MExb6M0yH8aiq5rRZqdUvdqSE4soOsPTmNp26m93q3m3AKyxOtH1J4GFJmCQ3InNFV+Ewh
- b8sVUKup6fz/pVwNX1vT57U9vjsXXZswisyDkcmS040TW4rrkWT9eDZKaIxKa8MRygf1KQliKA8
- d4/xC1qSVjpEgfBgz9w==
-X-Authority-Analysis: v=2.4 cv=Zs3g6t7G c=1 sm=1 tr=0 ts=69773f84 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8 a=1XWaLZrsAAAA:8
- a=wtJ5Ps83P7bbEB45bnAA:9
-X-Proofpoint-ORIG-GUID: 44tDskLyFHCKiXVPU9L22Dosj6seD7AJ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.20,FMLib:17.12.100.49
- definitions=2026-01-26_02,2026-01-22_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 lowpriorityscore=0 adultscore=0 phishscore=0 suspectscore=0
- bulkscore=0 impostorscore=0 priorityscore=1501 malwarescore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2601150000 definitions=main-2601260088
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260124145754.GA57116@j66a10360.sqa.eu95>
 
-Perf test case 'perf evlist tests' fails on z/VM machines on s390.
+Hello, D. Wythe!
 
-The failure is causes by event cycles. This event is not available
-on virtualized machines like z/VM on s390.
-Change to software event cpu-clock to fix this.
+> > > On Fri, Jan 23, 2026 at 07:55:17PM +0100, Uladzislau Rezki wrote:
+> > > > On Fri, Jan 23, 2026 at 04:23:48PM +0800, D. Wythe wrote:
+> > > > > find_vm_area() provides a way to find the vm_struct associated with a
+> > > > > virtual address. Export this symbol to modules so that modularized
+> > > > > subsystems can perform lookups on vmalloc addresses.
+> > > > > 
+> > > > > Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+> > > > > ---
+> > > > >  mm/vmalloc.c | 1 +
+> > > > >  1 file changed, 1 insertion(+)
+> > > > > 
+> > > > > diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+> > > > > index ecbac900c35f..3eb9fe761c34 100644
+> > > > > --- a/mm/vmalloc.c
+> > > > > +++ b/mm/vmalloc.c
+> > > > > @@ -3292,6 +3292,7 @@ struct vm_struct *find_vm_area(const void *addr)
+> > > > >  
+> > > > >  	return va->vm;
+> > > > >  }
+> > > > > +EXPORT_SYMBOL_GPL(find_vm_area);
+> > > > >  
+> > > > This is internal. We can not just export it.
+> > > > 
+> > > > --
+> > > > Uladzislau Rezki
+> > > 
+> > > Hi Uladzislau,
+> > > 
+> > > Thank you for the feedback. I agree that we should avoid exposing
+> > > internal implementation details like struct vm_struct to external
+> > > subsystems.
+> > > 
+> > > Following Christoph's suggestion, I'm planning to encapsulate the page
+> > > order lookup into a minimal helper instead:
+> > > 
+> > > unsigned int vmalloc_page_order(const void *addr){
+> > > 	struct vm_struct *vm;
+> > >  	vm = find_vm_area(addr);
+> > > 	return vm ? vm->page_order : 0;
+> > > }
+> > > EXPORT_SYMBOL_GPL(vmalloc_page_order);
+> > > 
+> > > Does this approach look reasonable to you? It would keep the vm_struct
+> > > layout private while satisfying the optimization needs of SMC.
+> > > 
+> > Could you please clarify why you need info about page_order? I have not
+> > looked at your second patch.
+> > 
+> > Thanks!
+> > 
+> > --
+> > Uladzislau Rezki
+> 
+> Hi Uladzislau,
+> 
+> This stems from optimizing memory registration in SMC-R. To provide the
+> RDMA hardware with direct access to memory buffers, we must register
+> them with the NIC. During this process, the hardware generates one MTT
+> entry for each physically contiguous block. Since these hardware entries
+> are a finite and scarce resource, and SMC currently defaults to a 4KB
+> registration granularity, a single 2MB buffer consumes 512 entries. In
+> high-concurrency scenarios, this inefficiency quickly exhausts NIC
+> resources and becomes a major bottleneck for system scalability.
+> 
+> To address this, we intend to use vmalloc_huge(). When it successfully
+> allocates high-order pages, the vmalloc area is backed by a sequence of
+> physically contiguous chunks (e.g., 2MB each). If we know this
+> page_order, we can register these larger physical blocks instead of
+> individual 4KB pages, reducing MTT consumption from 512 entries down to
+> 1 for every 2MB of memory (with page_order == 9).
+> 
+> However, the result of vmalloc_huge() is currently opaque to the caller.
+> We cannot determine whether it successfully allocated huge pages or fell
+> back to 4KB pages based solely on the returned pointer. Therefore, we
+> need a helper function to query the actual page order, enabling SMC-R to
+> adapt its registration logic to the underlying physical layout.
+> 
+> I hope this clarifies our design motivation!
+> 
+Appreciate for the explanation. Yes it clarifies an intention.
 
-    Output before:
-      # ./perf test 78
-      79: perf evlist tests              : FAILED!
-      #
+As for proposed patch above:
 
-    Output after:
-      # ./perf test 78
-      79: perf evlist tests              : Ok
-      #
+- A page_order is available if CONFIG_HAVE_ARCH_HUGE_VMALLOC is defined;
+- It makes sense to get a node, grab a spin-lock and find VM, save
+  page_order and release the lock.
 
-Fixes: b04d2b919912 ("perf test: Fix test case perf evlist tests for s390x")
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Tested-by: Jan Polensky <japo@linux.ibm.com>
-Reviewed-by: Jan Polensky <japo@linux.ibm.com>
-Cc: Ian Rogers <irogers@google.com>
----
- tools/perf/tests/shell/evlist.sh | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+You can have a look at the vmalloc_dump_obj(void *object) function.
+We try-spinlock there whereas you need just spin-lock. But the idea
+is the same.
 
-diff --git a/tools/perf/tests/shell/evlist.sh b/tools/perf/tests/shell/evlist.sh
-index 5632be391710..8a22f4171c07 100755
---- a/tools/perf/tests/shell/evlist.sh
-+++ b/tools/perf/tests/shell/evlist.sh
-@@ -21,13 +21,13 @@ trap trap_cleanup EXIT TERM INT
- 
- test_evlist_simple() {
- 	echo "Simple evlist test"
--	if ! perf record -e cycles -o "${perfdata}" true 2> /dev/null
-+	if ! perf record -e cpu-clock -o "${perfdata}" true 2> /dev/null
- 	then
- 		echo "Simple evlist [Failed record]"
- 		err=1
- 		return
- 	fi
--	if ! perf evlist -i "${perfdata}" | grep -q "cycles"
-+	if ! perf evlist -i "${perfdata}" | grep -q "cpu-clock"
- 	then
- 		echo "Simple evlist [Failed to list event]"
- 		err=1
--- 
-2.52.0
-
+--
+Uladzislau Rezki
