@@ -1,145 +1,157 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 623E6168BD;
-	Mon, 26 Jan 2026 17:38:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769449101; cv=none; b=p8aOVWz5qPXUEssh3ukn5LhkuCEF2m6OHNe1+BM+dhmxexV/3B+pNcOSvD8h7bZwpJZwGK0wQMDt7kHqiUL3qdnfcPc82i092sfFcVZe4iwOSlgNEBCzVU2AEYmaiQsf4VCBG4Ex+0PwFXQ9+HROBNPNmkK97C3UG4Q1Nfw71jg=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769449101; c=relaxed/simple;
-	bh=7tZOxm/f9TWhthbZfH8e1dR77+9Yhq9V3GEr567lFgI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Lihwa6A2fCm/rjP4B+6UiztUrYDZuHBRSs9ax8qmEFppUChQY4Y1Fo9Rbsk2LHLE4flyBmVRl5yJmy221R73xGWEducvbiSp8nzM5ika6vu/07E+KoWEexE+MyUHXgcZdEXOhQ20NskO9csNbaHmiUHt981GwKDGa63xgILSOpg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IbyBwK12; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BABA33BBD3
+	for <linux-s390@vger.kernel.org>; Mon, 26 Jan 2026 17:43:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.173
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769449387; cv=pass; b=hMB/hT4IcOq/WzDRDu2WV8qp1jgcTTW7s5n6jnFtybpUKNm6FuEksE5tlqoKoMwTBK4oxSMcVXo4jo0xpKzGZrW+OpPaExxo/kg0ynCFg8BOTcfi5pkbBh4ClwQEIFStMSHr4eeDeVzNgkXKsHXLaSbDOC5Il9qY9Q5ozSmBlb0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769449387; c=relaxed/simple;
+	bh=g7YzmZlLzxLm1WxnED0D7dK8pgHNCsq9mTJ/fFxN1c4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=THCOIsJRWthjN9ZQJndV3xnrKfyOzvAn3Ibfy8MSMpBkx9SsEK8ReCaUVAOjb2mYXu46ZoNGus44eeapM/IVf9YLg/5tjskXCxkXUJ0PzXiXftVooQRsoMgSFog1ZHlA/pFqZuglAJ5jgVEXDx4F/ny/Sdp5206nFuZyOxKY0qA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=B51EwUA6; arc=pass smtp.client-ip=209.85.214.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IbyBwK12"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60QFsxO9016363;
-	Mon, 26 Jan 2026 17:38:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=tGOfEE
-	XHGWGecGMH2ijG4TDmUOUPYZs4bsHOugMcYYw=; b=IbyBwK12jbAJCj92DO64+l
-	91yRe/fVGoJCP8fdagOHeLtblG/fmWQz6L3htkIlCDivjvc5LJpMSGpIUFCc/txf
-	ogGZtAtmHYtUMgaGRRJbOtoKUP3gNW6x4LaL6x0300U459/KRAhJqd8BYT5IxSBS
-	rMeFm1OZ1yNBuT56S/0D3F6YpBpCiKIyGk11i8sP/MoMMzblTHdvvLRjmWLH6SJN
-	ulkT9ep7Ki9yLy5FaLR7LWpOMVnLz5NS4hFTMe7IEnlgiG9oSmL5hiS2IOsdVw3y
-	oDase11VaLIvdnF66yPrYgFSh4LEg2HrLwewL7F2oFHZ95+1BX2m54vvLrx/jQ9Q
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bvnt7hae7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 26 Jan 2026 17:38:13 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60QFeP14006741;
-	Mon, 26 Jan 2026 17:38:12 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4bw8sy5m6a-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 26 Jan 2026 17:38:12 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60QHcBor30933586
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 26 Jan 2026 17:38:11 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6834758058;
-	Mon, 26 Jan 2026 17:38:11 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9EE155805D;
-	Mon, 26 Jan 2026 17:38:10 +0000 (GMT)
-Received: from [9.61.248.165] (unknown [9.61.248.165])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 26 Jan 2026 17:38:10 +0000 (GMT)
-Message-ID: <6acb9f29-28bc-431c-bf72-099d698add29@linux.ibm.com>
-Date: Mon, 26 Jan 2026 09:38:10 -0800
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="B51EwUA6"
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2a35ae38bdfso125ad.1
+        for <linux-s390@vger.kernel.org>; Mon, 26 Jan 2026 09:43:06 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1769449386; cv=none;
+        d=google.com; s=arc-20240605;
+        b=QCpu3Y/0LBMe8qK0FctH1b6gJhcVCbuf94U2lRNTOK1jCVdkvCnqlL3yhxBCbpsECK
+         QkAXuvovrBSTOIc7g56MInZvpkX0cwtqLhRQoCOrt78ZrjEOTFy23vznW+QGFSjAnQwx
+         wD7lGT+u/o9hgz2cfiP/6AqTtguyleNC1jjl9T1A8igk9aMxbxg07B2o0nq6CvwHcGlW
+         HHAGuhrdsOXVydLsPvali6ziQGUoNPNBomwu5LwfxYP09Wx+R7r0/0J2A3Wp7wgPYFaR
+         oCVp2y/eOrXbbqHMAnmCrsUSwL6kFhBj234f0AF5WqRZtiZle+zlsEyYAg9Uc4dAzMD4
+         YmUw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=buGfk5/1aHFZlIIMOertm0h+v4ooWBsjxJ1vRzpNYwo=;
+        fh=eTMcoEbR/DRWykqP9xqJfAOh8Iz25iBPHXPftkEABcg=;
+        b=d8yF7nIsHLHru6IWMe0X52BSQKn0sqey23iS3lJScc8AW1E8ns2TACf6KhpOtm1/hH
+         /TDzZ3U3ET2KtAG5JkmQamYIbIZDE+LKlUeqgbC/3jg0U69rbYFf8Z5gvrj5oct4GE/S
+         HtrMosxQiCu4uODOTj+G+6dGX0X4dw2JiHrEcd3xZI1//TQ6tV50rbRvYssJoHtWlXd0
+         EpmflAn2OtuR317BL5uGQERicZyhE1EM+Alvw8GTzMS9VPqTO3poo5lmUHwm+7oNpKz+
+         RaX0NVBMoKPfP93F4CAHuPfLtrqZUrpVa2RHz4HUV3tVhw93wNkJKDi3yq0yU1OWfBLd
+         MRRg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1769449386; x=1770054186; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=buGfk5/1aHFZlIIMOertm0h+v4ooWBsjxJ1vRzpNYwo=;
+        b=B51EwUA6Vmu4RIEZ7hQonAMTKUfBc07lmiAOUa91ij8q4It9iuOQwLmu+bY+xRfWB9
+         DOnBLcrL163/DTPPzAQMHRVCVBxdOaaTQGLohr6qnmFT8JXEnZ9TlWbcslhUpzKYRvqy
+         88DviBcjigF614jR1jpuIV+OoUn/g9aBQfJjeXZCZ8o5DrGl6UC4T6VXw4nnJd/ly+iU
+         rTT+mU5vAvg+uH/aDtGnNg41DIl6+/nFHsC0Zaqwl4QyX/0uDhtQLPsdnG0O4A8kbuMm
+         o59g13JGaeUhy2hP8wAEmZaoCacMk8MaxPRH/Y6xGo41EDcsnAmf/oEIPww7N501kMeK
+         ZWZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769449386; x=1770054186;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=buGfk5/1aHFZlIIMOertm0h+v4ooWBsjxJ1vRzpNYwo=;
+        b=mPy1OFUSH3ye41wpCWKNnSCuj60GyXgGc8oO4U6LFHZ+huWZaeWhsYmm1/wnW28tQP
+         02udVnqmLqL50CTlueEmY8L4j58r+zwt4/tqYtYPJUozkEl0DGeRfltKG2iPi9vsl2XM
+         X23vEmlvk3YUY8I5efSte7uBgTtsBPEWG2iGLZ4LTs1z+UGlKcGoHtnwPRmSpHMmZOcy
+         9dqbKwk9TTE/9p1BR8OGDBU0YzYkWV8VcaOCr6FbS4T/kXP09UuqOFD8hi+G1AUD+Lr3
+         Uww0835YYWjzFwvr8UTEq4H4c90BYACK98EFdiHRYyGeb8yb1c3v+DKnMF1WvMEDPyDy
+         jqng==
+X-Forwarded-Encrypted: i=1; AJvYcCUzuwk2P4hm3f69t+P1F0H79VG8P9I96I4bzeTC+IixMgB0gLQ/f4OskF2kbT04CqprtqwV5Equ4LsH@vger.kernel.org
+X-Gm-Message-State: AOJu0YyRidtrRtXd0oJASThA8YJeYqiQjUYh/7UMTcfh8pMKaqEx4tSy
+	nSQ3MK1b9r45k/gFMT7tXh0IOawu6xn5aijpoQjmglAEsljb6qdlZx8WH1dalgsLmqYtnuFQ44S
+	cmwp71fcF57UVa7Xl869HBV956g5zlaazpiV6TZ/h
+X-Gm-Gg: AZuq6aLbI407SqRBZm5V/8f+Y9v657MXpOjRFFDX1dDsSTJktqdmjsVS53/iXS/PRem
+	k3bRpcNmzfxWrQcvPoT4v76lKd6GtvJ3VE81LGgSrjYUXR9qw4nGI+K0GcqqF2aamfQqP7FJEiY
+	fHs8ywNb6Em821lu6UW51AoMWsTE/tlUvoLY742OFUfEmcpRMnert24JOyCSGtGFNUc5CYxue2S
+	kM1vIgBemb3o3L/mjruxRrx6Z1yX+QPiZg+BuTIsYPpLT4nC+fP6Gf4NVJLRodMDV6YqGe+FlpX
+	VPH0P0ix7bgiCAwGWoXcZTzugA==
+X-Received: by 2002:a17:903:249:b0:2a7:87c2:fcde with SMTP id
+ d9443c01a7336-2a844e940f6mr1999015ad.15.1769449385360; Mon, 26 Jan 2026
+ 09:43:05 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v8 9/9] vfio: Remove the pcie check for
- VFIO_PCI_ERR_IRQ_INDEX
-To: Julian Ruess <julianr@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
-Cc: helgaas@kernel.org, lukas@wunner.de, alex@shazbot.org, clg@redhat.com,
-        stable@vger.kernel.org, schnelle@linux.ibm.com, mjrosato@linux.ibm.com
-References: <20260122194437.1903-1-alifm@linux.ibm.com>
- <20260122194437.1903-10-alifm@linux.ibm.com>
- <DFYMO05UXGKY.2HG19ERN69ZUW@linux.ibm.com>
-Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <DFYMO05UXGKY.2HG19ERN69ZUW@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rPdC2KTTPVsWVVy4G-isNWMhQ7hAatVy
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTI2MDE0OCBTYWx0ZWRfX/fywO6AVPmjc
- ztfRVJ0mCNailQ0dQbAiObue3WIpOXIlzjmAflBsy4EJqE0geWrBv4ccQARnHaRs/iU28Z8kt7y
- Pa6jGJhvxy1fXGfUWbnw6Saw3be32tpidm6L3RQH2baL9CKdmHAyd9sOMTK1DBFPcvQeXWFQuC7
- E7q5t9rCZurvfvLqapy6s4SBWtY4eg61/MZMQXZpe1Q4KRSFzZPB62urZX99M0yqBjTBOnO6vEx
- p/iuD2HoCWeTlT/72wiDzUT7f2Ol7dKFcz163rh9rpz7hMCDG+vlI8JdsA5Z3H591oIUC/vVteo
- yBCZmzXgnP1SUeJ5Fknmm7w3fE88BCvH0gUfZ35lo/VVhnM1ZNvE7iUw+O+Vt5p7FF0aHBpMVLa
- vz746CHYXfYOjD9sPZoviY2g/KQ0ML53lEDgAekB+fkIanr6U2iWYTbs5gE0WOpt3uOn7mao5Cp
- AB95smGsOE5kJ+rX+rg==
-X-Authority-Analysis: v=2.4 cv=Zs3g6t7G c=1 sm=1 tr=0 ts=6977a686 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=q_SdFccrKIupyLLHt0MA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: rPdC2KTTPVsWVVy4G-isNWMhQ7hAatVy
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.20,FMLib:17.12.100.49
- definitions=2026-01-26_04,2026-01-26_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 lowpriorityscore=0 adultscore=0 phishscore=0 suspectscore=0
- bulkscore=0 impostorscore=0 priorityscore=1501 malwarescore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2601150000 definitions=main-2601260148
+References: <20260126101823.2090077-1-tmricht@linux.ibm.com>
+In-Reply-To: <20260126101823.2090077-1-tmricht@linux.ibm.com>
+From: Ian Rogers <irogers@google.com>
+Date: Mon, 26 Jan 2026 09:42:54 -0800
+X-Gm-Features: AZwV_QhnBtYvUOa0-W3O55v68ICGZGXde2Tro63ayWgS4vBkaOy5iMUVh04ueaw
+Message-ID: <CAP-5=fXPGXJMDPQc4XxrEWW_HgJTbrbL6g1xfTBn14jDiW0Yxw@mail.gmail.com>
+Subject: Re: [PATCH linux-next] perf test: Fix test perf evlist for z/VM s390x
+To: Thomas Richter <tmricht@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org, 
+	agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com, 
+	hca@linux.ibm.com, japo@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-
-On 1/26/2026 7:31 AM, Julian Ruess wrote:
-> On Thu Jan 22, 2026 at 8:44 PM CET, Farhan Ali wrote:
->> We are configuring the error signaling on the vast majority of devices and
->> it's extremely rare that it fires anyway. This allows userspace to be
->> notified on errors for legacy PCI devices. The Internal Shared Memory (ISM)
->> device on s390x is one such device. For PCI devices on IBM s390x error
->> recovery involves platform firmware and notification to operating system
->> is done by architecture specific way. So the ISM device can still be
->> recovered when notified of an error.
->>
->> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
->> ---
->>   drivers/vfio/pci/vfio_pci_core.c  | 8 ++------
->>   drivers/vfio/pci/vfio_pci_intrs.c | 3 +--
->>   2 files changed, 3 insertions(+), 8 deletions(-)
->>
->> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
->> index c92c6c512b24..9d44df9e21db 100644
->> --- a/drivers/vfio/pci/vfio_pci_core.c
->> +++ b/drivers/vfio/pci/vfio_pci_core.c
->> @@ -778,8 +778,7 @@ static int vfio_pci_get_irq_count(struct vfio_pci_core_device *vdev, int irq_typ
->>   			return (flags & PCI_MSIX_FLAGS_QSIZE) + 1;
->>   		}
->>   	} else if (irq_type == VFIO_PCI_ERR_IRQ_INDEX) {
->> -		if (pci_is_pcie(vdev->pdev))
-> I'm wondering why this pci_is_pcie was introduced here in the first place.
+On Mon, Jan 26, 2026 at 2:18=E2=80=AFAM Thomas Richter <tmricht@linux.ibm.c=
+om> wrote:
 >
-> Do you have any ideas?
+> Perf test case 'perf evlist tests' fails on z/VM machines on s390.
 >
-We actually don't know why it was originally added. The change was added 
-with the commit dad9f89 "VFIO-AER:Vfio-pci driver changes for supporting 
-AER".
+> The failure is causes by event cycles. This event is not available
+> on virtualized machines like z/VM on s390.
+> Change to software event cpu-clock to fix this.
+>
+>     Output before:
+>       # ./perf test 78
+>       79: perf evlist tests              : FAILED!
+>       #
+>
+>     Output after:
+>       # ./perf test 78
+>       79: perf evlist tests              : Ok
+>       #
+>
+> Fixes: b04d2b919912 ("perf test: Fix test case perf evlist tests for s390=
+x")
+> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+> Tested-by: Jan Polensky <japo@linux.ibm.com>
+> Reviewed-by: Jan Polensky <japo@linux.ibm.com>
+> Cc: Ian Rogers <irogers@google.com>
 
-But after discussion on it with Alex, we decided to remove the check 
-(https://lore.kernel.org/all/ffc2fc08-2e95-4b35-840c-be8f5511340f@linux.ibm.com/) 
+Reviewed-by: Ian Rogers <irogers@google.com>
 
+Thanks!
+Ian
 
-Thanks
-
-Farhan
-
-> -- snip --
+> ---
+>  tools/perf/tests/shell/evlist.sh | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/tools/perf/tests/shell/evlist.sh b/tools/perf/tests/shell/ev=
+list.sh
+> index 5632be391710..8a22f4171c07 100755
+> --- a/tools/perf/tests/shell/evlist.sh
+> +++ b/tools/perf/tests/shell/evlist.sh
+> @@ -21,13 +21,13 @@ trap trap_cleanup EXIT TERM INT
+>
+>  test_evlist_simple() {
+>         echo "Simple evlist test"
+> -       if ! perf record -e cycles -o "${perfdata}" true 2> /dev/null
+> +       if ! perf record -e cpu-clock -o "${perfdata}" true 2> /dev/null
+>         then
+>                 echo "Simple evlist [Failed record]"
+>                 err=3D1
+>                 return
+>         fi
+> -       if ! perf evlist -i "${perfdata}" | grep -q "cycles"
+> +       if ! perf evlist -i "${perfdata}" | grep -q "cpu-clock"
+>         then
+>                 echo "Simple evlist [Failed to list event]"
+>                 err=3D1
+> --
+> 2.52.0
+>
