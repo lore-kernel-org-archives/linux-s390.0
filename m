@@ -1,54 +1,60 @@
-Received: from fra-out-010.esa.eu-central-1.outbound.mail-perimeter.amazon.com (fra-out-010.esa.eu-central-1.outbound.mail-perimeter.amazon.com [63.178.143.178])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A335934846A;
-	Mon, 26 Jan 2026 16:56:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=63.178.143.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 623E6168BD;
+	Mon, 26 Jan 2026 17:38:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769446600; cv=none; b=bqJjo7hjdmwMu35ryXPYYQBrZelDNDXhXIzLtBvPWf4IoBWW0Hd4ng/Iwgg42cgRbG0P/Uw6T3kIAuc/7fyM6fnZ3o1jQn0QbCjjoqPU+2nvLxqoNntweSLfjVhfwyd0gS7z4rcvfynqUq+VqBdCOE0fST6GxgnPlkK+G1O/Nyg=
+	t=1769449101; cv=none; b=p8aOVWz5qPXUEssh3ukn5LhkuCEF2m6OHNe1+BM+dhmxexV/3B+pNcOSvD8h7bZwpJZwGK0wQMDt7kHqiUL3qdnfcPc82i092sfFcVZe4iwOSlgNEBCzVU2AEYmaiQsf4VCBG4Ex+0PwFXQ9+HROBNPNmkK97C3UG4Q1Nfw71jg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769446600; c=relaxed/simple;
-	bh=ukU/E1N/NHrpDBckIGLgNFAyQe4bWfQrJe2+TaF7Pt4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=JoVPEr9fvWnfqVhA5UxMTpJv85l+9AVE+e00Z7/iPvWYF8QuHhyekGA72UOxpoBhi/sx9EKQk+YdBYXqGJw2c4q0C6p6XqpQnugC4956ljUmVRPkHoAVHg4pZPKydUVHAsCGuVdiqHm8qwD6+f8kIqMNl/Jdrm8Friyk8ohpExQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=Jnr8mIUb; arc=none smtp.client-ip=63.178.143.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.uk
+	s=arc-20240116; t=1769449101; c=relaxed/simple;
+	bh=7tZOxm/f9TWhthbZfH8e1dR77+9Yhq9V3GEr567lFgI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Lihwa6A2fCm/rjP4B+6UiztUrYDZuHBRSs9ax8qmEFppUChQY4Y1Fo9Rbsk2LHLE4flyBmVRl5yJmy221R73xGWEducvbiSp8nzM5ika6vu/07E+KoWEexE+MyUHXgcZdEXOhQ20NskO9csNbaHmiUHt981GwKDGa63xgILSOpg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IbyBwK12; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="Jnr8mIUb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1769446598; x=1800982598;
-  h=message-id:date:mime-version:reply-to:subject:to:cc:
-   references:from:in-reply-to:content-transfer-encoding;
-  bh=i1wNPmaVv8oAnx46s+pv/CwmAbOdzYrpQ/gTMvCUjdA=;
-  b=Jnr8mIUb9PqMlTRnZfWLuDCFinsXK/iikp5GVYjdFk0J3VD8rlqQ+xUC
-   1jei9tRzoZ0vQ13/OiK5T5d1GN1bL7b6LwQQtEu3k1Olcemwb4t96yPm1
-   0PDuK5BJlfjrKRZy54JLnA5T6dwUIZFzCANvZ0UgupXgTSJGfvh1Psqug
-   faqflUyTwfS0tQi/oY0b25bP+5ag2wS58w5PWwo8pSQwx3rNBezUNwVBE
-   5mSnHv+u2leHYnoJDuuT4thSe3gM68tuvX5QfqCrrFJiiyy+f9fTUj9q5
-   KIyMPRJ7ZOyTtJ1sdSpIg77UBbT65WAS0gvUP3/J5Zoh/+d2IHFjlxcBc
-   A==;
-X-CSE-ConnectionGUID: hG/nmz7vTNmceFnAp6G6SA==
-X-CSE-MsgGUID: 3E3qoK4vTpqzDoxpd4XG1Q==
-X-IronPort-AV: E=Sophos;i="6.21,255,1763424000"; 
-   d="scan'208";a="8357615"
-Received: from ip-10-6-3-216.eu-central-1.compute.internal (HELO smtpout.naws.eu-central-1.prod.farcaster.email.amazon.dev) ([10.6.3.216])
-  by internal-fra-out-010.esa.eu-central-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jan 2026 16:56:36 +0000
-Received: from EX19MTAEUC001.ant.amazon.com [54.240.197.225:22549]
- by smtpin.naws.eu-central-1.prod.farcaster.email.amazon.dev [10.0.9.185:2525] with esmtp (Farcaster)
- id 8a3ce0b8-5cfe-49f5-b875-46094201b2e6; Mon, 26 Jan 2026 16:56:35 +0000 (UTC)
-X-Farcaster-Flow-ID: 8a3ce0b8-5cfe-49f5-b875-46094201b2e6
-Received: from EX19D005EUB003.ant.amazon.com (10.252.51.31) by
- EX19MTAEUC001.ant.amazon.com (10.252.51.193) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.35;
- Mon, 26 Jan 2026 16:56:30 +0000
-Received: from [192.168.25.27] (10.106.82.32) by EX19D005EUB003.ant.amazon.com
- (10.252.51.31) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.35; Mon, 26 Jan 2026
- 16:56:11 +0000
-Message-ID: <afddc163-4b1e-46ee-920a-85de3b347291@amazon.com>
-Date: Mon, 26 Jan 2026 16:56:10 +0000
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IbyBwK12"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60QFsxO9016363;
+	Mon, 26 Jan 2026 17:38:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=tGOfEE
+	XHGWGecGMH2ijG4TDmUOUPYZs4bsHOugMcYYw=; b=IbyBwK12jbAJCj92DO64+l
+	91yRe/fVGoJCP8fdagOHeLtblG/fmWQz6L3htkIlCDivjvc5LJpMSGpIUFCc/txf
+	ogGZtAtmHYtUMgaGRRJbOtoKUP3gNW6x4LaL6x0300U459/KRAhJqd8BYT5IxSBS
+	rMeFm1OZ1yNBuT56S/0D3F6YpBpCiKIyGk11i8sP/MoMMzblTHdvvLRjmWLH6SJN
+	ulkT9ep7Ki9yLy5FaLR7LWpOMVnLz5NS4hFTMe7IEnlgiG9oSmL5hiS2IOsdVw3y
+	oDase11VaLIvdnF66yPrYgFSh4LEg2HrLwewL7F2oFHZ95+1BX2m54vvLrx/jQ9Q
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bvnt7hae7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 26 Jan 2026 17:38:13 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60QFeP14006741;
+	Mon, 26 Jan 2026 17:38:12 GMT
+Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4bw8sy5m6a-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 26 Jan 2026 17:38:12 +0000
+Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
+	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60QHcBor30933586
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 26 Jan 2026 17:38:11 GMT
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6834758058;
+	Mon, 26 Jan 2026 17:38:11 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9EE155805D;
+	Mon, 26 Jan 2026 17:38:10 +0000 (GMT)
+Received: from [9.61.248.165] (unknown [9.61.248.165])
+	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 26 Jan 2026 17:38:10 +0000 (GMT)
+Message-ID: <6acb9f29-28bc-431c-bf72-099d698add29@linux.ibm.com>
+Date: Mon, 26 Jan 2026 09:38:10 -0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -56,173 +62,84 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Reply-To: <kalyazin@amazon.com>
-Subject: Re: [PATCH v9 07/13] KVM: guest_memfd: Add flag to remove from direct
- map
-To: Ackerley Tng <ackerleytng@google.com>, "Edgecombe, Rick P"
-	<rick.p.edgecombe@intel.com>, "linux-riscv@lists.infradead.org"
-	<linux-riscv@lists.infradead.org>, "kalyazin@amazon.co.uk"
-	<kalyazin@amazon.co.uk>, "kernel@xen0n.name" <kernel@xen0n.name>,
-	"linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>,
-	"linux-mm@kvack.org" <linux-mm@kvack.org>, "linux-fsdevel@vger.kernel.org"
-	<linux-fsdevel@vger.kernel.org>, "linux-s390@vger.kernel.org"
-	<linux-s390@vger.kernel.org>, "kvmarm@lists.linux.dev"
-	<kvmarm@lists.linux.dev>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "kvm@vger.kernel.org"
-	<kvm@vger.kernel.org>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-	"loongarch@lists.linux.dev" <loongarch@lists.linux.dev>
-CC: "david@kernel.org" <david@kernel.org>, "palmer@dabbelt.com"
-	<palmer@dabbelt.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-	"svens@linux.ibm.com" <svens@linux.ibm.com>, "jgross@suse.com"
-	<jgross@suse.com>, "surenb@google.com" <surenb@google.com>,
-	"riel@surriel.com" <riel@surriel.com>, "pfalcato@suse.de" <pfalcato@suse.de>,
-	"peterx@redhat.com" <peterx@redhat.com>, "x86@kernel.org" <x86@kernel.org>,
-	"rppt@kernel.org" <rppt@kernel.org>, "thuth@redhat.com" <thuth@redhat.com>,
-	"maz@kernel.org" <maz@kernel.org>, "dave.hansen@linux.intel.com"
-	<dave.hansen@linux.intel.com>, "ast@kernel.org" <ast@kernel.org>,
-	"vbabka@suse.cz" <vbabka@suse.cz>, "Annapurve, Vishal"
-	<vannapurve@google.com>, "borntraeger@linux.ibm.com"
-	<borntraeger@linux.ibm.com>, "alex@ghiti.fr" <alex@ghiti.fr>,
-	"pjw@kernel.org" <pjw@kernel.org>, "tglx@linutronix.de" <tglx@linutronix.de>,
-	"willy@infradead.org" <willy@infradead.org>, "hca@linux.ibm.com"
-	<hca@linux.ibm.com>, "wyihan@google.com" <wyihan@google.com>,
-	"ryan.roberts@arm.com" <ryan.roberts@arm.com>, "jolsa@kernel.org"
-	<jolsa@kernel.org>, "yang@os.amperecomputing.com"
-	<yang@os.amperecomputing.com>, "jmattson@google.com" <jmattson@google.com>,
-	"luto@kernel.org" <luto@kernel.org>, "aneesh.kumar@kernel.org"
-	<aneesh.kumar@kernel.org>, "haoluo@google.com" <haoluo@google.com>,
-	"patrick.roy@linux.dev" <patrick.roy@linux.dev>, "akpm@linux-foundation.org"
-	<akpm@linux-foundation.org>, "coxu@redhat.com" <coxu@redhat.com>,
-	"mhocko@suse.com" <mhocko@suse.com>, "mlevitsk@redhat.com"
-	<mlevitsk@redhat.com>, "jgg@ziepe.ca" <jgg@ziepe.ca>, "hpa@zytor.com"
-	<hpa@zytor.com>, "song@kernel.org" <song@kernel.org>, "oupton@kernel.org"
-	<oupton@kernel.org>, "peterz@infradead.org" <peterz@infradead.org>,
-	"maobibo@loongson.cn" <maobibo@loongson.cn>, "lorenzo.stoakes@oracle.com"
-	<lorenzo.stoakes@oracle.com>, "Liam.Howlett@oracle.com"
-	<Liam.Howlett@oracle.com>, "jthoughton@google.com" <jthoughton@google.com>,
-	"martin.lau@linux.dev" <martin.lau@linux.dev>, "jhubbard@nvidia.com"
-	<jhubbard@nvidia.com>, "Yu, Yu-cheng" <yu-cheng.yu@intel.com>,
-	"Jonathan.Cameron@huawei.com" <Jonathan.Cameron@huawei.com>,
-	"eddyz87@gmail.com" <eddyz87@gmail.com>, "yonghong.song@linux.dev"
-	<yonghong.song@linux.dev>, "chenhuacai@kernel.org" <chenhuacai@kernel.org>,
-	"shuah@kernel.org" <shuah@kernel.org>, "prsampat@amd.com" <prsampat@amd.com>,
-	"kevin.brodsky@arm.com" <kevin.brodsky@arm.com>,
-	"shijie@os.amperecomputing.com" <shijie@os.amperecomputing.com>,
-	"suzuki.poulose@arm.com" <suzuki.poulose@arm.com>, "itazur@amazon.co.uk"
-	<itazur@amazon.co.uk>, "pbonzini@redhat.com" <pbonzini@redhat.com>,
-	"yuzenghui@huawei.com" <yuzenghui@huawei.com>, "dev.jain@arm.com"
-	<dev.jain@arm.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>,
-	"jackabt@amazon.co.uk" <jackabt@amazon.co.uk>, "daniel@iogearbox.net"
-	<daniel@iogearbox.net>, "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
-	"andrii@kernel.org" <andrii@kernel.org>, "mingo@redhat.com"
-	<mingo@redhat.com>, "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>,
-	"joey.gouly@arm.com" <joey.gouly@arm.com>, "derekmn@amazon.com"
-	<derekmn@amazon.com>, "xmarcalx@amazon.co.uk" <xmarcalx@amazon.co.uk>,
-	"kpsingh@kernel.org" <kpsingh@kernel.org>, "sdf@fomichev.me"
-	<sdf@fomichev.me>, "jackmanb@google.com" <jackmanb@google.com>,
-	"bp@alien8.de" <bp@alien8.de>, "corbet@lwn.net" <corbet@lwn.net>,
-	"jannh@google.com" <jannh@google.com>, "john.fastabend@gmail.com"
-	<john.fastabend@gmail.com>, "kas@kernel.org" <kas@kernel.org>,
-	"will@kernel.org" <will@kernel.org>, "seanjc@google.com" <seanjc@google.com>
-References: <20260114134510.1835-1-kalyazin@amazon.com>
- <20260114134510.1835-8-kalyazin@amazon.com>
- <e619ded526a2f9a4cec4f74383cef31519624935.camel@intel.com>
- <294bca75-2f3e-46db-bb24-7c471a779cc1@amazon.com>
- <CAEvNRgEvd9tSwrkaYrQyibO2DP99vgVj6_zr=jBH5+zMnJwYbA@mail.gmail.com>
+Subject: Re: [PATCH v8 9/9] vfio: Remove the pcie check for
+ VFIO_PCI_ERR_IRQ_INDEX
+To: Julian Ruess <julianr@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
+Cc: helgaas@kernel.org, lukas@wunner.de, alex@shazbot.org, clg@redhat.com,
+        stable@vger.kernel.org, schnelle@linux.ibm.com, mjrosato@linux.ibm.com
+References: <20260122194437.1903-1-alifm@linux.ibm.com>
+ <20260122194437.1903-10-alifm@linux.ibm.com>
+ <DFYMO05UXGKY.2HG19ERN69ZUW@linux.ibm.com>
 Content-Language: en-US
-From: Nikita Kalyazin <kalyazin@amazon.com>
-Autocrypt: addr=kalyazin@amazon.com; keydata=
- xjMEY+ZIvRYJKwYBBAHaRw8BAQdA9FwYskD/5BFmiiTgktstviS9svHeszG2JfIkUqjxf+/N
- JU5pa2l0YSBLYWx5YXppbiA8a2FseWF6aW5AYW1hem9uLmNvbT7CjwQTFggANxYhBGhhGDEy
- BjLQwD9FsK+SyiCpmmTzBQJnrNfABQkFps9DAhsDBAsJCAcFFQgJCgsFFgIDAQAACgkQr5LK
- IKmaZPOpfgD/exazh4C2Z8fNEz54YLJ6tuFEgQrVQPX6nQ/PfQi2+dwBAMGTpZcj9Z9NvSe1
- CmmKYnYjhzGxzjBs8itSUvWIcMsFzjgEY+ZIvRIKKwYBBAGXVQEFAQEHQCqd7/nb2tb36vZt
- ubg1iBLCSDctMlKHsQTp7wCnEc4RAwEIB8J+BBgWCAAmFiEEaGEYMTIGMtDAP0Wwr5LKIKma
- ZPMFAmes18AFCQWmz0MCGwwACgkQr5LKIKmaZPNTlQEA+q+rGFn7273rOAg+rxPty0M8lJbT
- i2kGo8RmPPLu650A/1kWgz1AnenQUYzTAFnZrKSsXAw5WoHaDLBz9kiO5pAK
-In-Reply-To: <CAEvNRgEvd9tSwrkaYrQyibO2DP99vgVj6_zr=jBH5+zMnJwYbA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+From: Farhan Ali <alifm@linux.ibm.com>
+In-Reply-To: <DFYMO05UXGKY.2HG19ERN69ZUW@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: EX19D001EUB003.ant.amazon.com (10.252.51.38) To
- EX19D005EUB003.ant.amazon.com (10.252.51.31)
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: rPdC2KTTPVsWVVy4G-isNWMhQ7hAatVy
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTI2MDE0OCBTYWx0ZWRfX/fywO6AVPmjc
+ ztfRVJ0mCNailQ0dQbAiObue3WIpOXIlzjmAflBsy4EJqE0geWrBv4ccQARnHaRs/iU28Z8kt7y
+ Pa6jGJhvxy1fXGfUWbnw6Saw3be32tpidm6L3RQH2baL9CKdmHAyd9sOMTK1DBFPcvQeXWFQuC7
+ E7q5t9rCZurvfvLqapy6s4SBWtY4eg61/MZMQXZpe1Q4KRSFzZPB62urZX99M0yqBjTBOnO6vEx
+ p/iuD2HoCWeTlT/72wiDzUT7f2Ol7dKFcz163rh9rpz7hMCDG+vlI8JdsA5Z3H591oIUC/vVteo
+ yBCZmzXgnP1SUeJ5Fknmm7w3fE88BCvH0gUfZ35lo/VVhnM1ZNvE7iUw+O+Vt5p7FF0aHBpMVLa
+ vz746CHYXfYOjD9sPZoviY2g/KQ0ML53lEDgAekB+fkIanr6U2iWYTbs5gE0WOpt3uOn7mao5Cp
+ AB95smGsOE5kJ+rX+rg==
+X-Authority-Analysis: v=2.4 cv=Zs3g6t7G c=1 sm=1 tr=0 ts=6977a686 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=q_SdFccrKIupyLLHt0MA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: rPdC2KTTPVsWVVy4G-isNWMhQ7hAatVy
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.20,FMLib:17.12.100.49
+ definitions=2026-01-26_04,2026-01-26_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 lowpriorityscore=0 adultscore=0 phishscore=0 suspectscore=0
+ bulkscore=0 impostorscore=0 priorityscore=1501 malwarescore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2601150000 definitions=main-2601260148
 
 
-
-On 22/01/2026 18:37, Ackerley Tng wrote:
-> Nikita Kalyazin <kalyazin@amazon.com> writes:
-> 
->> On 16/01/2026 00:00, Edgecombe, Rick P wrote:
->>> On Wed, 2026-01-14 at 13:46 +0000, Kalyazin, Nikita wrote:
->>>> +static void kvm_gmem_folio_restore_direct_map(struct folio *folio)
->>>> +{
->>>> +     /*
->>>> +      * Direct map restoration cannot fail, as the only error condition
->>>> +      * for direct map manipulation is failure to allocate page tables
->>>> +      * when splitting huge pages, but this split would have already
->>>> +      * happened in folio_zap_direct_map() in kvm_gmem_folio_zap_direct_map().
-> 
-> Do you know if folio_restore_direct_map() will also end up merging page
-> table entries to a higher level?
-> 
->>>> +      * Thus folio_restore_direct_map() here only updates prot bits.
->>>> +      */
->>>> +     if (kvm_gmem_folio_no_direct_map(folio)) {
->>>> +             WARN_ON_ONCE(folio_restore_direct_map(folio));
->>>> +             folio->private = (void *)((u64)folio->private & ~KVM_GMEM_FOLIO_NO_DIRECT_MAP);
->>>> +     }
->>>> +}
->>>> +
->>>
->>> Does this assume the folio would not have been split after it was zapped? As in,
->>> if it was zapped at 2MB granularity (no 4KB direct map split required) but then
->>> restored at 4KB (split required)? Or it gets merged somehow before this?
-> 
-> I agree with the rest of the discussion that this will probably land
-> before huge page support, so I will have to figure out the intersection
-> of the two later.
-> 
+On 1/26/2026 7:31 AM, Julian Ruess wrote:
+> On Thu Jan 22, 2026 at 8:44 PM CET, Farhan Ali wrote:
+>> We are configuring the error signaling on the vast majority of devices and
+>> it's extremely rare that it fires anyway. This allows userspace to be
+>> notified on errors for legacy PCI devices. The Internal Shared Memory (ISM)
+>> device on s390x is one such device. For PCI devices on IBM s390x error
+>> recovery involves platform firmware and notification to operating system
+>> is done by architecture specific way. So the ISM device can still be
+>> recovered when notified of an error.
 >>
->> AFAIK it can't be zapped at 2MB granularity as the zapping code will
->> inevitably cause splitting because guest_memfd faults occur at the base
->> page granularity as of now.
-> 
-> Here's what I'm thinking for now:
-> 
-> [HugeTLB, no conversions]
-> With initial HugeTLB support (no conversions), host userspace
-> guest_memfd faults will be:
-> 
-> + For guest_memfd with PUD-sized pages
->      + At PUD level or PTE level
-> + For guest_memfd with PMD-sized pages
->      + At PMD level or PTE level
-> 
-> Since this guest_memfd doesn't support conversions, the folio is never
-> split/merged, so the direct map is restored at whatever level it was
-> zapped. I think this works out well.
-> 
-> [HugeTLB + conversions]
-> For a guest_memfd with HugeTLB support and conversions, host userspace
-> guest_memfd faults will always be at PTE level, so the direct map will
-> be split and the faulted pages have the direct map zapped in 4K chunks
-> as they are faulted.
-> 
-> On conversion back to private, put those back into the direct map
-> (putting aside whether to merge the direct map PTEs for now).
+>> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+>> ---
+>>   drivers/vfio/pci/vfio_pci_core.c  | 8 ++------
+>>   drivers/vfio/pci/vfio_pci_intrs.c | 3 +--
+>>   2 files changed, 3 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+>> index c92c6c512b24..9d44df9e21db 100644
+>> --- a/drivers/vfio/pci/vfio_pci_core.c
+>> +++ b/drivers/vfio/pci/vfio_pci_core.c
+>> @@ -778,8 +778,7 @@ static int vfio_pci_get_irq_count(struct vfio_pci_core_device *vdev, int irq_typ
+>>   			return (flags & PCI_MSIX_FLAGS_QSIZE) + 1;
+>>   		}
+>>   	} else if (irq_type == VFIO_PCI_ERR_IRQ_INDEX) {
+>> -		if (pci_is_pcie(vdev->pdev))
+> I'm wondering why this pci_is_pcie was introduced here in the first place.
+>
+> Do you have any ideas?
+>
+We actually don't know why it was originally added. The change was added 
+with the commit dad9f89 "VFIO-AER:Vfio-pci driver changes for supporting 
+AER".
 
-Makes sense to me.
+But after discussion on it with Alex, we decided to remove the check 
+(https://lore.kernel.org/all/ffc2fc08-2e95-4b35-840c-be8f5511340f@linux.ibm.com/) 
 
-> 
-> 
-> Unfortunately there's no unmapping callback for guest_memfd to use, so
-> perhaps the principle should be to put the folios back into the direct
-> map ASAP - at unmapping if guest_memfd is doing the unmapping, otherwise
-> at freeing time?
 
-I'm not sure I fully understand what you mean here.  What would be the 
-purpose for hooking up to unmapping?  Why would making sure we put 
-folios back into the direct map whenever they are freed or converted to 
-private not be sufficient?
+Thanks
 
+Farhan
+
+> -- snip --
