@@ -1,55 +1,55 @@
-Received: from fra-out-014.esa.eu-central-1.outbound.mail-perimeter.amazon.com (fra-out-014.esa.eu-central-1.outbound.mail-perimeter.amazon.com [18.199.210.3])
+Received: from fra-out-008.esa.eu-central-1.outbound.mail-perimeter.amazon.com (fra-out-008.esa.eu-central-1.outbound.mail-perimeter.amazon.com [35.158.23.94])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3AE934B40F;
-	Mon, 26 Jan 2026 16:51:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=18.199.210.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37C032FE595;
+	Mon, 26 Jan 2026 16:53:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.158.23.94
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769446267; cv=none; b=tv2Z7bmmYul5UMq3Ch1F2F6spvEivpk4ZHr/NI7CfvyR6guNv0qv4Hng8df9ElWEfnEwZj6NVzTVvPhb497s142sDbceXHhXb1FRSQOcpRpMT2GayQvIqNqHku4Mm3F6rYzMrUhh2t1f1Ne441YkcdQcSAXSts/yOk5FtelHii4=
+	t=1769446409; cv=none; b=Xg0ruJz11SQ78DajWzJtQIfo/eoAtkm5OrVjAudcxWfbGwPftywuDRVCbJST0Y8+TJGLpwjsXfntFV8NXDX5reJChgNxFtsP8XZRHCokUDl4+6FiB15JKG8K2GTcKqolfizt1bIQORiGm5cS5qKprmI4d7JSYToJQNaMw4Gk/F0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769446267; c=relaxed/simple;
-	bh=l3J7MMjkFcUdCnCJi5gFhSLq2InQjltnE6+7oF8VtNM=;
+	s=arc-20240116; t=1769446409; c=relaxed/simple;
+	bh=+XLKM1HMOFNNPu4cU3SY1UKMhfjGTgNxGUTHgOxbOaY=;
 	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=uR7vnwm4hpfmy51+g2/HwJ+6pTd2oUKJzw2lQZpbLBEIMSaHssA/CZSp4tvaWYT0hhcO9+dpzUPwFxlvbO86Ll/EeJoe9uftZ5216neOVvbCM5FJJR93IC4NwlmK4jfaYAVYzGwtxOdw7z0Z7h0/nYhBs3OOn21dTsuXOevsQ6M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b=BGGz7kSE; arc=none smtp.client-ip=18.199.210.3
+	 Content-Type:MIME-Version; b=X0ULNS11SzqUB4mhoOCAO8RBmzOg3dJHbDbyHfcVbmriDXmeXNrXm1PiiJ7eVU/pj1IqcZnAGeh42I4iTE09fpBVbUyJeRq+h+a62sv7LKXh7YKQaUiHDPVyLU9tuz2APVg33l2UK3Pxl33N208wjPaJ5qhxjG90aBdEk467hNk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b=ChUysUrQ; arc=none smtp.client-ip=35.158.23.94
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b="BGGz7kSE"
+	dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b="ChUysUrQ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.co.uk; i=@amazon.co.uk; q=dns/txt;
-  s=amazoncorp2; t=1769446266; x=1800982266;
+  s=amazoncorp2; t=1769446407; x=1800982407;
   h=from:to:cc:subject:date:message-id:references:
    in-reply-to:content-transfer-encoding:mime-version;
-  bh=CWGOx1LJU1Lp2rVsMU/Gh8xhbQtWU2hA9WJ9kcqa2lY=;
-  b=BGGz7kSEINr38IIxvuNSipEViWAg/rhQ7P0gn5GDR0Osc77+/DQ77wCY
-   J1NH37GmDKXWyioTQXxsteaHbH1e99xsC1EC64ZuuIV00F+K/yrWS/38l
-   rJShNiUzaA3Ss5z40CptAJClw10fnQUgTjHADv/6FkuRql9LBWe1H6MK+
-   pWHDe3hD+ISXZ3VcEcggRxwdhsetk1j5uW7DoBiuLAC+zYCJS/mnfBasI
-   6aJyr0r0ZHZiQTSoUbpk8m4MURqHdROc65H9c6aTY9xCXm66h4ozcFwk/
-   SuU1mMdIgvc4Xos6Yt6kF/YqIXTTIKLVN7TcrTHpe3PuCx7UL9d9TuryY
+  bh=j+Z5wrixfI4H8rTwsRxl2yKp4vaZueJxgsH7jlHoBL4=;
+  b=ChUysUrQkE4JmjGGAEDRdbEPJei1an1NC+Y6CkhthRJ6SKRx/44c5M7i
+   QoUfxckZ7MjekkUgqzqQhnrRZLjECHqkbzNW5gJ+9yEvviqkucs03Cc2+
+   Bgt+Zq/5X3tbkbCkVunvgplKOsVQIsbPr0Hr5xUzfyqntuyvpsdw5kW83
+   7q+t/vJVgDxz2gWnEeLgvBmAb0O99IeYvsQbKPM6b+ekQVyXFZewZarps
+   KSVu/banYLSEcUmr3jW2t/FH0Q8BkZZBI5m4HzV7Y1NUWNEYEElOaP26P
+   dB3dqojKxp998hSmHPdPRrOSA9TTe6f9vBWtT8P7NnljUAuqcPelHn7dU
    g==;
-X-CSE-ConnectionGUID: OTPDPd+WRq6SnWkJKAJ4vQ==
-X-CSE-MsgGUID: WBzqhBMjTtmhVyyuALB2qA==
+X-CSE-ConnectionGUID: Yh5g7urpQqWpn4CqoGKYfA==
+X-CSE-MsgGUID: 17QVleK0SeyL2TgczznQFA==
 X-IronPort-AV: E=Sophos;i="6.21,255,1763424000"; 
-   d="scan'208";a="8355925"
+   d="scan'208";a="8451565"
 Received: from ip-10-6-11-83.eu-central-1.compute.internal (HELO smtpout.naws.eu-central-1.prod.farcaster.email.amazon.dev) ([10.6.11.83])
-  by internal-fra-out-014.esa.eu-central-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jan 2026 16:50:46 +0000
-Received: from EX19MTAEUC001.ant.amazon.com [54.240.197.233:6441]
- by smtpin.naws.eu-central-1.prod.farcaster.email.amazon.dev [10.0.13.191:2525] with esmtp (Farcaster)
- id 11366de5-e0f8-4887-8ca6-1fe533487262; Mon, 26 Jan 2026 16:50:46 +0000 (UTC)
-X-Farcaster-Flow-ID: 11366de5-e0f8-4887-8ca6-1fe533487262
-Received: from EX19D005EUB003.ant.amazon.com (10.252.51.31) by
- EX19MTAEUC001.ant.amazon.com (10.252.51.193) with Microsoft SMTP Server
+  by internal-fra-out-008.esa.eu-central-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jan 2026 16:53:19 +0000
+Received: from EX19MTAEUC002.ant.amazon.com [54.240.197.228:31653]
+ by smtpin.naws.eu-central-1.prod.farcaster.email.amazon.dev [10.0.20.120:2525] with esmtp (Farcaster)
+ id 73c5d942-d46d-4131-8f3e-538958800243; Mon, 26 Jan 2026 16:53:19 +0000 (UTC)
+X-Farcaster-Flow-ID: 73c5d942-d46d-4131-8f3e-538958800243
+Received: from EX19D005EUB004.ant.amazon.com (10.252.51.126) by
+ EX19MTAEUC002.ant.amazon.com (10.252.51.181) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.35;
- Mon, 26 Jan 2026 16:50:44 +0000
+ Mon, 26 Jan 2026 16:53:19 +0000
 Received: from EX19D005EUB003.ant.amazon.com (10.252.51.31) by
- EX19D005EUB003.ant.amazon.com (10.252.51.31) with Microsoft SMTP Server
+ EX19D005EUB004.ant.amazon.com (10.252.51.126) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.35;
- Mon, 26 Jan 2026 16:50:44 +0000
+ Mon, 26 Jan 2026 16:53:18 +0000
 Received: from EX19D005EUB003.ant.amazon.com ([fe80::b825:becb:4b38:da0c]) by
  EX19D005EUB003.ant.amazon.com ([fe80::b825:becb:4b38:da0c%3]) with mapi id
- 15.02.2562.035; Mon, 26 Jan 2026 16:50:44 +0000
+ 15.02.2562.035; Mon, 26 Jan 2026 16:53:18 +0000
 From: "Kalyazin, Nikita" <kalyazin@amazon.co.uk>
 To: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-doc@vger.kernel.org"
 	<linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org"
@@ -123,11 +123,13 @@ CC: "pbonzini@redhat.com" <pbonzini@redhat.com>, "corbet@lwn.net"
 	<jackabt@amazon.co.uk>, "Itazuri, Takahiro" <itazur@amazon.co.uk>,
 	"Manwaring, Derek" <derekmn@amazon.com>, "Cali, Marco"
 	<xmarcalx@amazon.co.uk>, "Kalyazin, Nikita" <kalyazin@amazon.co.uk>
-Subject: [PATCH v10 10/15] KVM: selftests: load elf via bounce buffer
-Thread-Topic: [PATCH v10 10/15] KVM: selftests: load elf via bounce buffer
-Thread-Index: AQHcjuPpjxdWuZs0h0+r9kXLDgvviw==
-Date: Mon, 26 Jan 2026 16:50:44 +0000
-Message-ID: <20260126164445.11867-11-kalyazin@amazon.com>
+Subject: [PATCH v10 13/15] KVM: selftests: cover
+ GUEST_MEMFD_FLAG_NO_DIRECT_MAP in existing selftests
+Thread-Topic: [PATCH v10 13/15] KVM: selftests: cover
+ GUEST_MEMFD_FLAG_NO_DIRECT_MAP in existing selftests
+Thread-Index: AQHcjuRFfdDw6PnQdUi9fE6WE495GA==
+Date: Mon, 26 Jan 2026 16:53:18 +0000
+Message-ID: <20260126164445.11867-14-kalyazin@amazon.com>
 References: <20260126164445.11867-1-kalyazin@amazon.com>
 In-Reply-To: <20260126164445.11867-1-kalyazin@amazon.com>
 Accept-Language: en-GB, en-US
@@ -145,116 +147,98 @@ MIME-Version: 1.0
 
 From: Patrick Roy <patrick.roy@linux.dev>=0A=
 =0A=
-If guest memory is backed using a VMA that does not allow GUP (e.g. a=0A=
-userspace mapping of guest_memfd when the fd was allocated using=0A=
-GUEST_MEMFD_FLAG_NO_DIRECT_MAP), then directly loading the test ELF=0A=
-binary into it via read(2) potentially does not work. To nevertheless=0A=
-support loading binaries in this cases, do the read(2) syscall using a=0A=
-bounce buffer, and then memcpy from the bounce buffer into guest memory.=0A=
+Extend mem conversion selftests to cover the scenario that the guest can=0A=
+fault in and write gmem-backed guest memory even if its direct map=0A=
+removed. Also cover the new flag in guest_memfd_test.c tests.=0A=
 =0A=
 Signed-off-by: Patrick Roy <patrick.roy@linux.dev>=0A=
 Signed-off-by: Nikita Kalyazin <kalyazin@amazon.com>=0A=
 ---=0A=
- .../testing/selftests/kvm/include/test_util.h |  1 +=0A=
- tools/testing/selftests/kvm/lib/elf.c         |  8 +++----=0A=
- tools/testing/selftests/kvm/lib/io.c          | 23 +++++++++++++++++++=0A=
- 3 files changed, 28 insertions(+), 4 deletions(-)=0A=
+ tools/testing/selftests/kvm/guest_memfd_test.c  | 17 ++++++++++++++++-=0A=
+ .../kvm/x86/private_mem_conversions_test.c      |  7 ++++---=0A=
+ 2 files changed, 20 insertions(+), 4 deletions(-)=0A=
 =0A=
-diff --git a/tools/testing/selftests/kvm/include/test_util.h b/tools/testin=
-g/selftests/kvm/include/test_util.h=0A=
-index b4872ba8ed12..8140e59b59e5 100644=0A=
---- a/tools/testing/selftests/kvm/include/test_util.h=0A=
-+++ b/tools/testing/selftests/kvm/include/test_util.h=0A=
-@@ -48,6 +48,7 @@ do {								\=0A=
+diff --git a/tools/testing/selftests/kvm/guest_memfd_test.c b/tools/testing=
+/selftests/kvm/guest_memfd_test.c=0A=
+index 618c937f3c90..9615018a1a67 100644=0A=
+--- a/tools/testing/selftests/kvm/guest_memfd_test.c=0A=
++++ b/tools/testing/selftests/kvm/guest_memfd_test.c=0A=
+@@ -403,6 +403,17 @@ static void test_guest_memfd(unsigned long vm_type)=0A=
+ 		__test_guest_memfd(vm, GUEST_MEMFD_FLAG_MMAP |=0A=
+ 				       GUEST_MEMFD_FLAG_INIT_SHARED);=0A=
  =0A=
- ssize_t test_write(int fd, const void *buf, size_t count);=0A=
- ssize_t test_read(int fd, void *buf, size_t count);=0A=
-+ssize_t test_read_bounce(int fd, void *buf, size_t count);=0A=
- int test_seq_read(const char *path, char **bufp, size_t *sizep);=0A=
++	if (flags & GUEST_MEMFD_FLAG_NO_DIRECT_MAP) {=0A=
++		__test_guest_memfd(vm, GUEST_MEMFD_FLAG_NO_DIRECT_MAP);=0A=
++		if (flags & GUEST_MEMFD_FLAG_MMAP)=0A=
++			__test_guest_memfd(vm, GUEST_MEMFD_FLAG_NO_DIRECT_MAP |=0A=
++					       GUEST_MEMFD_FLAG_MMAP);=0A=
++		if (flags & GUEST_MEMFD_FLAG_INIT_SHARED)=0A=
++			__test_guest_memfd(vm, GUEST_MEMFD_FLAG_NO_DIRECT_MAP |=0A=
++					       GUEST_MEMFD_FLAG_MMAP |=0A=
++					       GUEST_MEMFD_FLAG_INIT_SHARED);=0A=
++	}=0A=
++=0A=
+ 	kvm_vm_free(vm);=0A=
+ }=0A=
  =0A=
- void __printf(5, 6) test_assert(bool exp, const char *exp_str,=0A=
-diff --git a/tools/testing/selftests/kvm/lib/elf.c b/tools/testing/selftest=
-s/kvm/lib/elf.c=0A=
-index f34d926d9735..e829fbe0a11e 100644=0A=
---- a/tools/testing/selftests/kvm/lib/elf.c=0A=
-+++ b/tools/testing/selftests/kvm/lib/elf.c=0A=
-@@ -31,7 +31,7 @@ static void elfhdr_get(const char *filename, Elf64_Ehdr *=
-hdrp)=0A=
- 	 * the real size of the ELF header.=0A=
- 	 */=0A=
- 	unsigned char ident[EI_NIDENT];=0A=
--	test_read(fd, ident, sizeof(ident));=0A=
-+	test_read_bounce(fd, ident, sizeof(ident));=0A=
- 	TEST_ASSERT((ident[EI_MAG0] =3D=3D ELFMAG0) && (ident[EI_MAG1] =3D=3D ELF=
-MAG1)=0A=
- 		&& (ident[EI_MAG2] =3D=3D ELFMAG2) && (ident[EI_MAG3] =3D=3D ELFMAG3),=
+@@ -445,10 +456,14 @@ static void test_guest_memfd_guest(void)=0A=
+ 	TEST_ASSERT(vm_check_cap(vm, KVM_CAP_GUEST_MEMFD_FLAGS) & GUEST_MEMFD_FLA=
+G_INIT_SHARED,=0A=
+ 		    "Default VM type should support INIT_SHARED, supported flags =3D 0x%=
+x",=0A=
+ 		    vm_check_cap(vm, KVM_CAP_GUEST_MEMFD_FLAGS));=0A=
++	TEST_ASSERT(vm_check_cap(vm, KVM_CAP_GUEST_MEMFD_FLAGS) & GUEST_MEMFD_FLA=
+G_NO_DIRECT_MAP,=0A=
++		    "Default VM type should support INIT_SHARED, supported flags =3D 0x%=
+x",=0A=
++		    vm_check_cap(vm, KVM_CAP_GUEST_MEMFD_FLAGS));=0A=
+ =0A=
+ 	size =3D vm->page_size;=0A=
+ 	fd =3D vm_create_guest_memfd(vm, size, GUEST_MEMFD_FLAG_MMAP |=0A=
+-					     GUEST_MEMFD_FLAG_INIT_SHARED);=0A=
++					     GUEST_MEMFD_FLAG_INIT_SHARED |=0A=
++					     GUEST_MEMFD_FLAG_NO_DIRECT_MAP);=0A=
+ 	vm_set_user_memory_region2(vm, slot, KVM_MEM_GUEST_MEMFD, gpa, size, NULL=
+, fd, 0);=0A=
+ =0A=
+ 	mem =3D kvm_mmap(size, PROT_READ | PROT_WRITE, MAP_SHARED, fd);=0A=
+diff --git a/tools/testing/selftests/kvm/x86/private_mem_conversions_test.c=
+ b/tools/testing/selftests/kvm/x86/private_mem_conversions_test.c=0A=
+index 1969f4ab9b28..8767cb4a037e 100644=0A=
+--- a/tools/testing/selftests/kvm/x86/private_mem_conversions_test.c=0A=
++++ b/tools/testing/selftests/kvm/x86/private_mem_conversions_test.c=0A=
+@@ -367,7 +367,7 @@ static void *__test_mem_conversions(void *__vcpu)=0A=
+ }=0A=
+ =0A=
+ static void test_mem_conversions(enum vm_mem_backing_src_type src_type, ui=
+nt32_t nr_vcpus,=0A=
+-				 uint32_t nr_memslots)=0A=
++				 uint32_t nr_memslots, uint64_t gmem_flags)=0A=
+ {=0A=
+ 	/*=0A=
+ 	 * Allocate enough memory so that each vCPU's chunk of memory can be=0A=
+@@ -394,7 +394,7 @@ static void test_mem_conversions(enum vm_mem_backing_sr=
+c_type src_type, uint32_t=0A=
+ =0A=
+ 	vm_enable_cap(vm, KVM_CAP_EXIT_HYPERCALL, (1 << KVM_HC_MAP_GPA_RANGE));=
 =0A=
- 		"ELF MAGIC Mismatch,\n"=0A=
-@@ -79,7 +79,7 @@ static void elfhdr_get(const char *filename, Elf64_Ehdr *=
-hdrp)=0A=
- 	offset_rv =3D lseek(fd, 0, SEEK_SET);=0A=
- 	TEST_ASSERT(offset_rv =3D=3D 0, "Seek to ELF header failed,\n"=0A=
- 		"  rv: %zi expected: %i", offset_rv, 0);=0A=
--	test_read(fd, hdrp, sizeof(*hdrp));=0A=
-+	test_read_bounce(fd, hdrp, sizeof(*hdrp));=0A=
- 	TEST_ASSERT(hdrp->e_phentsize =3D=3D sizeof(Elf64_Phdr),=0A=
- 		"Unexpected physical header size,\n"=0A=
- 		"  hdrp->e_phentsize: %x\n"=0A=
-@@ -146,7 +146,7 @@ void kvm_vm_elf_load(struct kvm_vm *vm, const char *fil=
-ename)=0A=
  =0A=
- 		/* Read in the program header. */=0A=
- 		Elf64_Phdr phdr;=0A=
--		test_read(fd, &phdr, sizeof(phdr));=0A=
-+		test_read_bounce(fd, &phdr, sizeof(phdr));=0A=
+-	memfd =3D vm_create_guest_memfd(vm, memfd_size, 0);=0A=
++	memfd =3D vm_create_guest_memfd(vm, memfd_size, gmem_flags);=0A=
  =0A=
- 		/* Skip if this header doesn't describe a loadable segment. */=0A=
- 		if (phdr.p_type !=3D PT_LOAD)=0A=
-@@ -187,7 +187,7 @@ void kvm_vm_elf_load(struct kvm_vm *vm, const char *fil=
-ename)=0A=
- 				"  expected: 0x%jx",=0A=
- 				n1, errno, (intmax_t) offset_rv,=0A=
- 				(intmax_t) phdr.p_offset);=0A=
--			test_read(fd, addr_gva2hva(vm, phdr.p_vaddr),=0A=
-+			test_read_bounce(fd, addr_gva2hva(vm, phdr.p_vaddr),=0A=
- 				phdr.p_filesz);=0A=
+ 	for (i =3D 0; i < nr_memslots; i++)=0A=
+ 		vm_mem_add(vm, src_type, BASE_DATA_GPA + slot_size * i,=0A=
+@@ -474,7 +474,8 @@ int main(int argc, char *argv[])=0A=
  		}=0A=
  	}=0A=
-diff --git a/tools/testing/selftests/kvm/lib/io.c b/tools/testing/selftests=
-/kvm/lib/io.c=0A=
-index fedb2a741f0b..74419becc8bc 100644=0A=
---- a/tools/testing/selftests/kvm/lib/io.c=0A=
-+++ b/tools/testing/selftests/kvm/lib/io.c=0A=
-@@ -155,3 +155,26 @@ ssize_t test_read(int fd, void *buf, size_t count)=0A=
  =0A=
- 	return num_read;=0A=
+-	test_mem_conversions(src_type, nr_vcpus, nr_memslots);=0A=
++	test_mem_conversions(src_type, nr_vcpus, nr_memslots, 0);=0A=
++	test_mem_conversions(src_type, nr_vcpus, nr_memslots, GUEST_MEMFD_FLAG_NO=
+_DIRECT_MAP);=0A=
+ =0A=
+ 	return 0;=0A=
  }=0A=
-+=0A=
-+/* Test read via intermediary buffer=0A=
-+ *=0A=
-+ * Same as test_read, except read(2)s happen into a bounce buffer that is =
-memcpy'd=0A=
-+ * to buf. For use with buffers that cannot be GUP'd (e.g. guest_memfd VMA=
-s if=0A=
-+ * guest_memfd was created with GUEST_MEMFD_FLAG_NO_DIRECT_MAP).=0A=
-+ */=0A=
-+ssize_t test_read_bounce(int fd, void *buf, size_t count)=0A=
-+{=0A=
-+	void *bounce_buffer;=0A=
-+	ssize_t num_read;=0A=
-+=0A=
-+	TEST_ASSERT(count >=3D 0, "Unexpected count, count: %li", count);=0A=
-+=0A=
-+	bounce_buffer =3D malloc(count);=0A=
-+	TEST_ASSERT(bounce_buffer !=3D NULL, "Failed to allocate bounce buffer");=
-=0A=
-+=0A=
-+	num_read =3D test_read(fd, bounce_buffer, count);=0A=
-+	memcpy(buf, bounce_buffer, num_read);=0A=
-+	free(bounce_buffer);=0A=
-+=0A=
-+	return num_read;=0A=
-+}=0A=
 -- =0A=
 2.50.1=0A=
 =0A=
