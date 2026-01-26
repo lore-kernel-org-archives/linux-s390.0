@@ -1,172 +1,143 @@
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B95329DB65;
-	Mon, 26 Jan 2026 12:02:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C23413382E3;
+	Mon, 26 Jan 2026 13:11:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769428959; cv=none; b=E8tpB+JHXXGH9ROE2AsBbBeFHzYALLAOH7ni6vkW8lLBZCsTXymmoaG05KMb9wpuuY1VjP8Oz0qP+WDOQ0bsjyvJbplkm3DIudtv8v0/dIGUTCGU2wi9LFZm+OwF5plDzvTeNpSRnAuK/P8PbJHrXRAAYWKa3cqDH16qjdOCQhc=
+	t=1769433109; cv=none; b=qizBK9RQ8ZEFHanq6OlnhAorkCRJ7AbO9rx4n1JY+KIIC58/oH7DvsqzpdYc4+mRUfaZjNcW3Mqju4j8ZENe74QEgSuX3gSN6Jbxim8jq/0EoLvITiqlp7PbcVuUKQ6azFGuSW6ik9LZfScv0BMhC83X3hr3ulnZiyLUkciXQ/0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769428959; c=relaxed/simple;
-	bh=1ejtWTPxC7QhHvmJf8Z6FrtDXKg5bPC5ZA2RhQSYSfU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XltjkHzefBz8NZ78nn7/+/xVk2yG2OWb7F0sBvdoErHaNchDuRLnGVBiWTEhYxFi6hZfT7kQGXQIlNqPmOCiPaSzteMtDBCa5ridxMx8b6dQaeYuKsdOW6HXvxWfmaGABfvrocf9cqk+7kEN4Vw/TSS0Y80G7dFYXSHgAQOvaoc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=wKDDG/mK; arc=none smtp.client-ip=115.124.30.98
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1769433109; c=relaxed/simple;
+	bh=HzovIko6p1oZiDuHaWX+trvrpsQeRFadqkx3PZQ/G1o=;
+	h=Mime-Version:Content-Type:Date:Message-Id:From:To:Cc:Subject:
+	 References:In-Reply-To; b=jOP7KMmQP9DnDd8Wk1HlPEqFwp0hR04pzpTj4x2N1FF5cm0Rakl4qXrG6sgEIHitFPFy1TWTB73Zu27txvrdRE2jJuFIwJxKYNWbKyp+KClbyUutkRWfhFqDMgyvPiwkctq2WlcNydf4XS9SpMx1P1+RpkSwwvxp6gwNtzXMeME=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FxiDhn0M; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="wKDDG/mK"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1769428947; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=Hc/TS0tY4HUOfWDij4WQGV+0xonDLwbrony8b89dCv8=;
-	b=wKDDG/mKMb9rg1cLvtpdeRV6Ej+XS4VU9btC3v9XsSKFdLVhqEG+t93h7q1K7L1/Wg7whOH5s81CgVK5ykmsa2qmEorvV09GLh9AwykleuNC66DIgUwHYrIFTaWqOPdfNe2X+Vx6/sHQEK+eYSzBRhG/g+pRF1dHlE2VzZPhOtU=
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0Wxu-mhe_1769428946 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 26 Jan 2026 20:02:26 +0800
-Date: Mon, 26 Jan 2026 20:02:26 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com    >
-To: Uladzislau Rezki <urezki@gmail.com>
-Cc: "D. Wythe" <alibuda@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>, Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	oliver.yang@linux.alibaba.com
-Subject: Re: [PATCH net-next 2/3] mm: vmalloc: export find_vm_area()
-Message-ID: <20260126120226.GA6424@j66a10360.sqa.eu95>
-References: <20260123082349.42663-1-alibuda@linux.alibaba.com>
- <20260123082349.42663-3-alibuda@linux.alibaba.com>
- <aXPEFdEdtSmd6AzF@milan>
- <20260124093505.GA98529@j66a10360.sqa.eu95>
- <aXSjm1DXm6yP62tD@pc636>
- <20260124145754.GA57116@j66a10360.sqa.eu95>
- <aXdB3lsm3w0fJT3Q@milan>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FxiDhn0M"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60PJuLxo028552;
+	Mon, 26 Jan 2026 13:11:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=JI/+pT
+	wyNrmLic2KBBIzLBvMgqE9z2pLpfVA1fdwKp4=; b=FxiDhn0MZIoEicZFvOjFST
+	YkcnsDNSn04p7Re2TpRX25zALVcL6e6UTB95lm8lTtYYvWE7j2E/THmk2uA1a2W+
+	8xHQ2/GXdtWBFuV0syyVTMCWIXtuY/OKo3/Hnr3df1+mp8QNP9/xYbx+5b9UC+i+
+	8dDDKHVoUxfef+joBTOycc/0RFKB6dU98BQ12RNlBoLUKKzOzQ4spNTkj+5M6vFy
+	w4pP7JaGQcvHb6ZKkL5wmBL1gM6wGWW3HJhIrNjjcSbiyfjsiFbFvoVS8P3oyOO/
+	ekz7tWvdaEMexdlxDCmS2RgziU3zDHcE7x6j3aBrmsoBweT/c8455fQDPy6CK9xQ
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bvnt7g3ax-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 26 Jan 2026 13:11:41 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60QAqMVt006687;
+	Mon, 26 Jan 2026 13:11:40 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4bw8sy4rcu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 26 Jan 2026 13:11:39 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60QDBZmc51773810
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 26 Jan 2026 13:11:35 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C615920049;
+	Mon, 26 Jan 2026 13:11:35 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 937AE20040;
+	Mon, 26 Jan 2026 13:11:35 +0000 (GMT)
+Received: from localhost (unknown [9.52.203.172])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 26 Jan 2026 13:11:35 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aXdB3lsm3w0fJT3Q@milan>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 26 Jan 2026 14:11:35 +0100
+Message-Id: <DFYJOMBIETXN.2WABG9BS0HG2H@linux.ibm.com>
+From: "Julian Ruess" <julianr@linux.ibm.com>
+To: "Farhan Ali" <alifm@linux.ibm.com>, <linux-s390@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-pci@vger.kernel.org>
+Cc: <helgaas@kernel.org>, <lukas@wunner.de>, <alex@shazbot.org>,
+        <clg@redhat.com>, <stable@vger.kernel.org>, <schnelle@linux.ibm.com>,
+        <mjrosato@linux.ibm.com>, <julianr@linux.ibm.com>,
+        "Benjamin Block"
+ <bblock@linux.ibm.com>
+Subject: Re: [PATCH v8 4/9] PCI: Add additional checks for flr reset
+X-Mailer: aerc 0.21.0-0-g5549850facc2
+References: <20260122194437.1903-1-alifm@linux.ibm.com>
+ <20260122194437.1903-5-alifm@linux.ibm.com>
+In-Reply-To: <20260122194437.1903-5-alifm@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: rYiUiZEHKW-IeWPsppGRHuF7bxKDqW-s
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTI2MDEwOSBTYWx0ZWRfX826iJkkZUHPr
+ LXfOhiISsptOTfMl4roK0qYGEqUpLBzlHE8n0X831KQOX80BaEj/lJCOjqfFStMIjBzabevhoiM
+ OT3R8QT/h9e9PQnPnplZg4doNxD7yTJLYHrsS5Xv1MhHi+4FwQSb1htdPw2LMs0JfbcWZuoju9R
+ ZL9W5vOGQNVfRoGd8qoQTgmjz3+WTABnMFUHphKJrumJKkcq9oDcPBii08gL7IGIST8mMqxn6oN
+ gJaeo9LKb1KNMIen0louu+NnyBtzTLuNTNsV3lytAdxqsSrnDK+EGZD/KYOKICtKzj8vRGBYV29
+ /tMUPDfiH2JEBp2v4XPGAMRQFxbK/wCJuOlz1kyNhje+2/bMFDDGzCe6Sjrstxb5xjM3BOwRv2J
+ YYfNBp1faoqJRbEY+AcEqqQwO43gPbFvrt/bnV/QyzAeYxPBEVuXVjD37+jRBeDhsJA9XCSpWyd
+ 4lzCEOu0RLZS2Mmrk3w==
+X-Authority-Analysis: v=2.4 cv=Zs3g6t7G c=1 sm=1 tr=0 ts=6977680d cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=23YMnp3XVaxGsJNIDs4A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: rYiUiZEHKW-IeWPsppGRHuF7bxKDqW-s
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.20,FMLib:17.12.100.49
+ definitions=2026-01-26_03,2026-01-22_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 lowpriorityscore=0 adultscore=0 phishscore=0 suspectscore=0
+ bulkscore=0 impostorscore=0 priorityscore=1501 malwarescore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2601150000 definitions=main-2601260109
 
-On Mon, Jan 26, 2026 at 11:28:46AM +0100, Uladzislau Rezki wrote:
-> Hello, D. Wythe!
-> 
-> > > > On Fri, Jan 23, 2026 at 07:55:17PM +0100, Uladzislau Rezki wrote:
-> > > > > On Fri, Jan 23, 2026 at 04:23:48PM +0800, D. Wythe wrote:
-> > > > > > find_vm_area() provides a way to find the vm_struct associated with a
-> > > > > > virtual address. Export this symbol to modules so that modularized
-> > > > > > subsystems can perform lookups on vmalloc addresses.
-> > > > > > 
-> > > > > > Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> > > > > > ---
-> > > > > >  mm/vmalloc.c | 1 +
-> > > > > >  1 file changed, 1 insertion(+)
-> > > > > > 
-> > > > > > diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-> > > > > > index ecbac900c35f..3eb9fe761c34 100644
-> > > > > > --- a/mm/vmalloc.c
-> > > > > > +++ b/mm/vmalloc.c
-> > > > > > @@ -3292,6 +3292,7 @@ struct vm_struct *find_vm_area(const void *addr)
-> > > > > >  
-> > > > > >  	return va->vm;
-> > > > > >  }
-> > > > > > +EXPORT_SYMBOL_GPL(find_vm_area);
-> > > > > >  
-> > > > > This is internal. We can not just export it.
-> > > > > 
-> > > > > --
-> > > > > Uladzislau Rezki
-> > > > 
-> > > > Hi Uladzislau,
-> > > > 
-> > > > Thank you for the feedback. I agree that we should avoid exposing
-> > > > internal implementation details like struct vm_struct to external
-> > > > subsystems.
-> > > > 
-> > > > Following Christoph's suggestion, I'm planning to encapsulate the page
-> > > > order lookup into a minimal helper instead:
-> > > > 
-> > > > unsigned int vmalloc_page_order(const void *addr){
-> > > > 	struct vm_struct *vm;
-> > > >  	vm = find_vm_area(addr);
-> > > > 	return vm ? vm->page_order : 0;
-> > > > }
-> > > > EXPORT_SYMBOL_GPL(vmalloc_page_order);
-> > > > 
-> > > > Does this approach look reasonable to you? It would keep the vm_struct
-> > > > layout private while satisfying the optimization needs of SMC.
-> > > > 
-> > > Could you please clarify why you need info about page_order? I have not
-> > > looked at your second patch.
-> > > 
-> > > Thanks!
-> > > 
-> > > --
-> > > Uladzislau Rezki
-> > 
-> > Hi Uladzislau,
-> > 
-> > This stems from optimizing memory registration in SMC-R. To provide the
-> > RDMA hardware with direct access to memory buffers, we must register
-> > them with the NIC. During this process, the hardware generates one MTT
-> > entry for each physically contiguous block. Since these hardware entries
-> > are a finite and scarce resource, and SMC currently defaults to a 4KB
-> > registration granularity, a single 2MB buffer consumes 512 entries. In
-> > high-concurrency scenarios, this inefficiency quickly exhausts NIC
-> > resources and becomes a major bottleneck for system scalability.
-> > 
-> > To address this, we intend to use vmalloc_huge(). When it successfully
-> > allocates high-order pages, the vmalloc area is backed by a sequence of
-> > physically contiguous chunks (e.g., 2MB each). If we know this
-> > page_order, we can register these larger physical blocks instead of
-> > individual 4KB pages, reducing MTT consumption from 512 entries down to
-> > 1 for every 2MB of memory (with page_order == 9).
-> > 
-> > However, the result of vmalloc_huge() is currently opaque to the caller.
-> > We cannot determine whether it successfully allocated huge pages or fell
-> > back to 4KB pages based solely on the returned pointer. Therefore, we
-> > need a helper function to query the actual page order, enabling SMC-R to
-> > adapt its registration logic to the underlying physical layout.
-> > 
-> > I hope this clarifies our design motivation!
-> > 
-> Appreciate for the explanation. Yes it clarifies an intention.
-> 
-> As for proposed patch above:
-> 
-> - A page_order is available if CONFIG_HAVE_ARCH_HUGE_VMALLOC is defined;
-> - It makes sense to get a node, grab a spin-lock and find VM, save
->   page_order and release the lock.
-> 
-> You can have a look at the vmalloc_dump_obj(void *object) function.
-> We try-spinlock there whereas you need just spin-lock. But the idea
-> is the same.
-> 
-> --
-> Uladzislau Rezki
+On Thu Jan 22, 2026 at 8:44 PM CET, Farhan Ali wrote:
+> If a device is in an error state, then any reads of device registers can
+> return error value. Add addtional checks to validate if a device is in an
 
-Hi Uladzislau,
+typo: additional
 
-Thanks very much for the detailed guidance, especially on the correct
-locking pattern. This is extremely helpful.I will follow it and send
-a v2 patch series with the new helper implemented in mm/vmalloc.c.
-
-Thanks again for your support.
-
-Best regards,
-D. Wythe
-
+> error state before doing an flr reset.
+>
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> ---
+>  drivers/pci/pci.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
+>
+> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+> index e7beaf1f65a7..2d0a4c7714af 100644
+> --- a/drivers/pci/pci.c
+> +++ b/drivers/pci/pci.c
+> @@ -4358,12 +4358,19 @@ EXPORT_SYMBOL_GPL(pcie_flr);
+>   */
+>  int pcie_reset_flr(struct pci_dev *dev, bool probe)
+>  {
+> +	u32 reg;
+> +
+>  	if (dev->dev_flags & PCI_DEV_FLAGS_NO_FLR_RESET)
+>  		return -ENOTTY;
+> =20
+>  	if (!(dev->devcap & PCI_EXP_DEVCAP_FLR))
+>  		return -ENOTTY;
+> =20
+> +	if (pcie_capability_read_dword(dev, PCI_EXP_DEVCAP, &reg)) {
+> +		pci_warn(dev, "Device unable to do an FLR\n");
+> +		return -ENOTTY;
+> +	}
+> +
+>  	if (probe)
+>  		return 0;
+> =20
 
