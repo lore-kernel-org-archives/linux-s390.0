@@ -1,64 +1,64 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EED5E2652B2;
-	Tue, 27 Jan 2026 15:33:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72E9A2DFA46;
+	Tue, 27 Jan 2026 15:33:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769528040; cv=none; b=s+N2goXYkiezcUBnkX/mTJlA48Kx/R6D6wcUgQ18iA23vIdL5A9lqhEJ303s47o0Xsaa9HYz/mV1iFBhqdKEZDHixNyEScz6EcTSXDgGmlkoVtdl1t7GZkpm5Se+3fDF9XuDPnNX2wxWWM8r9G/yoXkxX2EDzYDg1mUQ5r9TP7k=
+	t=1769528040; cv=none; b=DC7fBe6+j5j4AU7rxIJA4V2dezsE6wgHlIv/O+xlxSz9a5u94ePEifNiZTIbu1IGXzteJM2zOYU/4lk/H6FeGKB+kIDQbOqjtCpHmr5y83fAW7uPCkwELoBnpoRaCdgzm2F/2kyeX43PABRVuVcjQz/gwA243f8MjoPcxzJIqac=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1769528040; c=relaxed/simple;
-	bh=6wF8XaQDxfz966svEGjEX62SHz+yu4PVfqIF2EC8+bI=;
+	bh=8EpHxZmbo5MA89kwaBMFvsr5o9QT3VveoDjwUfOUgBE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dgunWYQWc0EZ591YKrGCwkeZpavYEnZKSdrU4Y1ue24LSmUEJ69OeeaZmODxgeoU+BPB2R00fd9E850n3cWAVijuU9pG2571G3fK1m9yFijQi/w4m+6aHdnjaFIQiUFI2JpenegfaDDzwtWYU7ToEqZPZ+IrnJiOMB7xANZ98ok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Jp2Mj893; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=ZTPLr5TGkwXj/AytfDjCl0gtUh/uYbyrmlsLc+KAlQ4nwREvUWyzib6xbIWegUUGVoqhya0YWFkFTvlnZGvpa/vtSB6nPeHgnZq5ygB9hI/QTUtE5fUJROKCIRS4Rd1zZU/+UjsUoLKESJA2m6hKGdg+wyAIqcgFu5ns9ykZVg4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Wh4gcOtU; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Jp2Mj893"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60R4IfNG010997;
-	Tue, 27 Jan 2026 15:33:41 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Wh4gcOtU"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60R7xVZj021517;
+	Tue, 27 Jan 2026 15:33:40 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=q9xWw3J6O/0w+A2Ag
-	FzZG5+Z1M2XrO4YIdPqlsT8BVk=; b=Jp2Mj8932FMCdb+TT6aofLZAlp0RJ/sHQ
-	XKip5bXq91kQnG8RBx+mjQvGBpi1CkSyDvwcbjhg5LI+Y46pTJXlB4DvvAVP0yFz
-	JMOXgRnP24VeIPtl6ZClJcsWfTfxFHol0XWRBpLP98MdTU78B43GEVAM9ru5L6B3
-	skrhIUlPzvAs6gnDUIYCYORk2ogRJs4uBQ2+pQi88DBINt+CrGFfxsUmC4U6W/3j
-	Qb1sJgxiROtF+byU+QRvfX05vX6r+DffOpMD30F0L+tWgdN2QGhVLzlcuTE7xWqA
-	ewNBV6qofLVvA/VcyxgFefiOCILji4DSceCSTQQliFtjBKtIVQU5w==
+	:mime-version:references:subject:to; s=pp1; bh=A6LNSorwzVv4H5Mhx
+	oq3cEEmuKyMfMFGQ0xYyBTQIzg=; b=Wh4gcOtUlcxviEzQI7qHSGK6ylDMHEGaX
+	UHrFXrMQIaH6eb4iNOOo9Qx/BjmRUWg7Gf3R8fFzf/a4xNDFtKmGCO/Ab1A6LVE6
+	fE9g5tpVs5U3e7h34jUQlEmcCDIZh/3m85fdMBdcj0jmdVeqRJc7qMk1plw8+/Qj
+	OYcueNumLGcnZgNDzzsZvR4zkbChNvgtWXH4OXKEJMYS10mlW+cflpHjwXSRa9jc
+	DcTSLMS/ghMXqHK8S79p9NVy3fMa6h+Yzj4Z2gWPX2/kewHV+Ezil/lIZUH0nvsx
+	Owouv8nzKelRR6pqbYVFdRi2jOr+VwIrM2MDYXLJL8F86OHhUsToA==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bvnt7p63h-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bvkgmmnnc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 27 Jan 2026 15:33:40 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 60RFTQ8b013023;
-	Tue, 27 Jan 2026 15:33:40 GMT
+	Tue, 27 Jan 2026 15:33:39 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 60RFJc72000308;
+	Tue, 27 Jan 2026 15:33:39 GMT
 Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bvnt7p63b-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bvkgmmnmy-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 27 Jan 2026 15:33:39 +0000 (GMT)
 Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60RDaigl026334;
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60RDXlxe026805;
 	Tue, 27 Jan 2026 15:33:38 GMT
 Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4bw9wk94jj-1
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4bw9wk94jf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 27 Jan 2026 15:33:38 +0000
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60RFXY8617826178
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60RFXYR217826170
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Tue, 27 Jan 2026 15:33:34 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A56D220043;
+	by IMSVA (Postfix) with ESMTP id 1187E20040;
 	Tue, 27 Jan 2026 15:33:34 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 60C4C20040;
-	Tue, 27 Jan 2026 15:33:34 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id C1C4020043;
+	Tue, 27 Jan 2026 15:33:33 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 27 Jan 2026 15:33:34 +0000 (GMT)
+	Tue, 27 Jan 2026 15:33:33 +0000 (GMT)
 From: Jens Remus <jremus@linux.ibm.com>
 To: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org, bpf@vger.kernel.org, x86@kernel.org,
@@ -83,9 +83,9 @@ Cc: Jens Remus <jremus@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
         Florian Weimer <fweimer@redhat.com>, Kees Cook <kees@kernel.org>,
         "Carlos O'Donell" <codonell@redhat.com>, Sam James <sam@gentoo.org>,
         Dylan Hatch <dylanbhatch@google.com>
-Subject: [RFC PATCH v1 4/5] s390/signal: Move struct [rt_]sigframe to asm/sigframe.h
-Date: Tue, 27 Jan 2026 16:33:30 +0100
-Message-ID: <20260127153331.2902504-5-jremus@linux.ibm.com>
+Subject: [RFC PATCH v1 2/5] unwind_user/sframe: Add support for signal frame indication
+Date: Tue, 27 Jan 2026 16:33:28 +0100
+Message-ID: <20260127153331.2902504-3-jremus@linux.ibm.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260127153331.2902504-1-jremus@linux.ibm.com>
 References: <20260127153331.2902504-1-jremus@linux.ibm.com>
@@ -97,207 +97,90 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Qb4EApp12JCRn_T5hpvaHaPXdJqDRXMm
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTI3MDEyNSBTYWx0ZWRfX3Wku2S3ysnWv
- m1+BsFGQEBmf/HQAYi0Aw26JFSB5L4JCqGkNCmFOjBU9BnNChHUM8YSEmJNcBmbF19mJKjWJd19
- sH7SSYSiVHNgVvBewPQMW/Ag+fM927aK79TL/kmpuGFXeq64XVY7vYJLzc6QWK5/OaJymQdsDOr
- aspLIliNQuQQrybuHE0vRnzx/9UUE1jJ7+M/3SHTlULd7oah43PpUKpMZT7QN3Ra/HF41M83Gw3
- 7OrbLSM/ZeESAR8ntJiHzaS4ibEY8E8AG4REh5SLC+td8kghD5WLalb/8BbaM8p54Kfx/a/p/k1
- 996JleWH+drlaA++ntq1rVBrCMAZAuGJWfo9wtcrivWJaSkqVm7at1vNfYSVTSH0yxAj4hGpw8t
- DnOaGHQ+SLcM3qiNSpr/iCtTtu26Ng3xlTNmSivMvscpdSBAJO1uHSKlkl4IoPhLq+peuI0Sr7c
- OIIeSDJFudjMBsJk5gw==
-X-Authority-Analysis: v=2.4 cv=Zs3g6t7G c=1 sm=1 tr=0 ts=6978dad4 cx=c_pps
+X-Authority-Analysis: v=2.4 cv=Gr1PO01C c=1 sm=1 tr=0 ts=6978dad3 cx=c_pps
  a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
- a=vr68hYBkSomNBJpq4wcA:9
-X-Proofpoint-ORIG-GUID: hpKplGUd3QhEkBUect78SS6ekHow8NrU
+ a=2aD4vtywDDCJo0oALMAA:9
+X-Proofpoint-GUID: 7V0RLH_uAxNet9SNUFsSWHiZ3uiWnj5f
+X-Proofpoint-ORIG-GUID: zWvwnW9BxTrisa8ZJ1QcNz7HD8q0pL7K
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTI3MDEyNSBTYWx0ZWRfX4gj2vaKP5sGl
+ j10QJ+t5anyfJa8nl2vSyXDe3LnULkBHEuvNVuz52n6zKXVIIFihkcEdOXrV6ANdnOHxLxuYtPc
+ 4XLo0W5gprSAT/M9xbT3wO/fZ1HU5OyJG2e9jfQ2+QC2qgNZRuhxXYoc04pgVH9HqeGr1vMsbpE
+ YwcvuJkl3fHQJcS1BVklp7gmSjWyck+l8mHbgEaor+eoA9jgK5Yuoj2RdahoVY5anfdKch3yCr2
+ 8khSpefxYHhBce99Uw6yvuEX0rLrKYgwmA3rpaZiYtiR/f/TZAEkq8AcWiCNPQWiSH+913BPU1t
+ f9DgCFOfnb2KAgxr0Gf9pSToymbo9L1/S0WJKPQJE1GW+VWs6XRFb//8VFH4Vs4M9AUZoI1Z1Fi
+ OLOQFwkI1o3d/h1JIzzNVAVW/qvejxiII44c37yl+GrAxSIxcJw9Zc+shplUDqaZ7IozpGs3mcR
+ zyBT2xomHdHC9uMRAGg==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-01-27_03,2026-01-27_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 lowpriorityscore=0 adultscore=0 phishscore=0 suspectscore=0
- bulkscore=0 impostorscore=0 priorityscore=1501 malwarescore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2601150000 definitions=main-2601270125
+ priorityscore=1501 clxscore=1015 lowpriorityscore=0 suspectscore=0
+ impostorscore=0 phishscore=0 malwarescore=0 adultscore=0 spamscore=0
+ bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.19.0-2601150000
+ definitions=main-2601270125
 
-This enables use of struct sigframe and struct rt_sigframe elsewhere,
-such as unwind user.
+SFrame V3 represents the assembler directive .cfi_signal_frame using
+a SFrame FDE flag.  Note that a SFrame FDE with this particular flag set
+may have no SFrame FREs.
+
+Introduce a SFRAME_V3_FDE_SIGNAL_P() helper macro.  Use it in
+__find_fre() to populate the signal flag in struct unwind_user_frame,
+even if there are no FREs.
 
 Signed-off-by: Jens Remus <jremus@linux.ibm.com>
 ---
- arch/s390/include/asm/sigframe.h | 78 ++++++++++++++++++++++++++++++++
- arch/s390/kernel/signal.c        | 71 +----------------------------
- 2 files changed, 79 insertions(+), 70 deletions(-)
- create mode 100644 arch/s390/include/asm/sigframe.h
+ kernel/unwind/sframe.c | 8 +++++++-
+ kernel/unwind/sframe.h | 1 +
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/sigframe.h b/arch/s390/include/asm/sigframe.h
-new file mode 100644
-index 000000000000..7539fd802675
---- /dev/null
-+++ b/arch/s390/include/asm/sigframe.h
-@@ -0,0 +1,78 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#ifndef _ASM_S390_SIGFRAME_H
-+#define _ASM_S390_SIGFRAME_H
-+
-+#include <uapi/asm/sigcontext.h>
-+#include <asm/ucontext.h>
-+
-+/*
-+ * Layout of an old-style signal-frame:
-+ *	-----------------------------------------
-+ *	| save area (_SIGNAL_FRAMESIZE)		|
-+ *	-----------------------------------------
-+ *	| struct sigcontext			|
-+ *	|	oldmask				|
-+ *	|	_sigregs *			|
-+ *	-----------------------------------------
-+ *	| _sigregs with				|
-+ *	|	_s390_regs_common		|
-+ *	|	_s390_fp_regs			|
-+ *	-----------------------------------------
-+ *	| int signo				|
-+ *	-----------------------------------------
-+ *	| _sigregs_ext with			|
-+ *	|	gprs_high 64 byte (opt)		|
-+ *	|	vxrs_low 128 byte (opt)		|
-+ *	|	vxrs_high 256 byte (opt)	|
-+ *	|	reserved 128 byte (opt)		|
-+ *	-----------------------------------------
-+ *	| __u16 svc_insn			|
-+ *	-----------------------------------------
-+ * The svc_insn entry with the sigreturn system call opcode does not
-+ * have a fixed position and moves if gprs_high or vxrs exist.
-+ * Future extensions will be added to _sigregs_ext.
-+ */
-+struct sigframe
-+{
-+	__u8 callee_used_stack[__SIGNAL_FRAMESIZE];
-+	struct sigcontext sc;
-+	_sigregs sregs;
-+	int signo;
-+	_sigregs_ext sregs_ext;
-+	__u16 svc_insn;		/* Offset of svc_insn is NOT fixed! */
-+};
-+
-+/*
-+ * Layout of an rt signal-frame:
-+ *	-----------------------------------------
-+ *	| save area (_SIGNAL_FRAMESIZE)		|
-+ *	-----------------------------------------
-+ *	| svc __NR_rt_sigreturn 2 byte		|
-+ *	-----------------------------------------
-+ *	| struct siginfo			|
-+ *	-----------------------------------------
-+ *	| struct ucontext_extended with		|
-+ *	|	unsigned long uc_flags		|
-+ *	|	struct ucontext *uc_link	|
-+ *	|	stack_t uc_stack		|
-+ *	|	_sigregs uc_mcontext with	|
-+ *	|		_s390_regs_common	|
-+ *	|		_s390_fp_regs		|
-+ *	|	sigset_t uc_sigmask		|
-+ *	|	_sigregs_ext uc_mcontext_ext	|
-+ *	|		gprs_high 64 byte (opt)	|
-+ *	|		vxrs_low 128 byte (opt)	|
-+ *	|		vxrs_high 256 byte (opt)|
-+ *	|		reserved 128 byte (opt)	|
-+ *	-----------------------------------------
-+ * Future extensions will be added to _sigregs_ext.
-+ */
-+struct rt_sigframe
-+{
-+	__u8 callee_used_stack[__SIGNAL_FRAMESIZE];
-+	__u16 svc_insn;
-+	struct siginfo info;
-+	struct ucontext_extended uc;
-+};
-+
-+#endif /* _ASM_S390_SIGFRAME_H */
-diff --git a/arch/s390/kernel/signal.c b/arch/s390/kernel/signal.c
-index 4874de5edea0..42675066399f 100644
---- a/arch/s390/kernel/signal.c
-+++ b/arch/s390/kernel/signal.c
-@@ -32,78 +32,9 @@
- #include <asm/vdso-symbols.h>
- #include <asm/access-regs.h>
- #include <asm/lowcore.h>
-+#include <asm/sigframe.h>
- #include "entry.h"
- 
--/*
-- * Layout of an old-style signal-frame:
-- *	-----------------------------------------
-- *	| save area (_SIGNAL_FRAMESIZE)		|
-- *	-----------------------------------------
-- *	| struct sigcontext			|
-- *	|	oldmask				|
-- *	|	_sigregs *			|
-- *	-----------------------------------------
-- *	| _sigregs with				|
-- *	|	_s390_regs_common		|
-- *	|	_s390_fp_regs			|
-- *	-----------------------------------------
-- *	| int signo				|
-- *	-----------------------------------------
-- *	| _sigregs_ext with			|
-- *	|	gprs_high 64 byte (opt)		|
-- *	|	vxrs_low 128 byte (opt)		|
-- *	|	vxrs_high 256 byte (opt)	|
-- *	|	reserved 128 byte (opt)		|
-- *	-----------------------------------------
-- *	| __u16 svc_insn			|
-- *	-----------------------------------------
-- * The svc_insn entry with the sigreturn system call opcode does not
-- * have a fixed position and moves if gprs_high or vxrs exist.
-- * Future extensions will be added to _sigregs_ext.
-- */
--struct sigframe
--{
--	__u8 callee_used_stack[__SIGNAL_FRAMESIZE];
--	struct sigcontext sc;
--	_sigregs sregs;
--	int signo;
--	_sigregs_ext sregs_ext;
--	__u16 svc_insn;		/* Offset of svc_insn is NOT fixed! */
--};
--
--/*
-- * Layout of an rt signal-frame:
-- *	-----------------------------------------
-- *	| save area (_SIGNAL_FRAMESIZE)		|
-- *	-----------------------------------------
-- *	| svc __NR_rt_sigreturn 2 byte		|
-- *	-----------------------------------------
-- *	| struct siginfo			|
-- *	-----------------------------------------
-- *	| struct ucontext_extended with		|
-- *	|	unsigned long uc_flags		|
-- *	|	struct ucontext *uc_link	|
-- *	|	stack_t uc_stack		|
-- *	|	_sigregs uc_mcontext with	|
-- *	|		_s390_regs_common	|
-- *	|		_s390_fp_regs		|
-- *	|	sigset_t uc_sigmask		|
-- *	|	_sigregs_ext uc_mcontext_ext	|
-- *	|		gprs_high 64 byte (opt)	|
-- *	|		vxrs_low 128 byte (opt)	|
-- *	|		vxrs_high 256 byte (opt)|
-- *	|		reserved 128 byte (opt)	|
-- *	-----------------------------------------
-- * Future extensions will be added to _sigregs_ext.
-- */
--struct rt_sigframe
--{
--	__u8 callee_used_stack[__SIGNAL_FRAMESIZE];
--	__u16 svc_insn;
--	struct siginfo info;
--	struct ucontext_extended uc;
--};
--
- /* Store registers needed to create the signal frame */
- static void store_sigregs(void)
+diff --git a/kernel/unwind/sframe.c b/kernel/unwind/sframe.c
+index 21283e3bda42..9fd2fc1572cc 100644
+--- a/kernel/unwind/sframe.c
++++ b/kernel/unwind/sframe.c
+@@ -446,6 +446,7 @@ static __always_inline int __find_fre(struct sframe_section *sec,
+ 				      struct unwind_user_frame *frame)
  {
+ 	unsigned char fde_pctype = SFRAME_V3_FDE_PCTYPE(fde->info);
++	bool signal = SFRAME_V3_FDE_SIGNAL_P(fde->info);
+ 	struct sframe_fre_internal *fre, *prev_fre = NULL;
+ 	struct sframe_fre_internal fres[2];
+ 	unsigned long fre_addr;
+@@ -486,8 +487,11 @@ static __always_inline int __find_fre(struct sframe_section *sec,
+ 		prev_fre = fre;
+ 	}
+ 
+-	if (!prev_fre)
++	if (!prev_fre) {
++		if (signal)
++			goto signal;
+ 		return -EINVAL;
++	}
+ 	fre = prev_fre;
+ 
+ 	ret = __read_fre_datawords(sec, fde, fre);
+@@ -500,6 +504,8 @@ static __always_inline int __find_fre(struct sframe_section *sec,
+ 	sframe_init_rule_data(&frame->fp, fre->fp_ctl, fre->fp_off);
+ 	frame->sp_off  = SFRAME_SP_OFFSET;
+ 	frame->outermost = SFRAME_V3_FRE_RA_UNDEFINED_P(fre->info);
++signal:
++	frame->signal = signal;
+ 
+ 	return 0;
+ }
+diff --git a/kernel/unwind/sframe.h b/kernel/unwind/sframe.h
+index 8a5322e95403..78432857f84c 100644
+--- a/kernel/unwind/sframe.h
++++ b/kernel/unwind/sframe.h
+@@ -65,6 +65,7 @@ struct sframe_fda_v3 {
+ #define SFRAME_V3_FDE_FRE_TYPE(info)		((info) & 0xf)
+ #define SFRAME_V3_FDE_PCTYPE(info)		(((info) >> 4) & 0x1)
+ #define SFRAME_V3_AARCH64_FDE_PAUTH_KEY(info)	(((info) >> 5) & 0x1)
++#define SFRAME_V3_FDE_SIGNAL_P(info)		(((info) >> 7) & 0x1)
+ 
+ #define SFRAME_FDE_TYPE_REGULAR			0
+ #define SFRAME_FDE_TYPE_FLEXIBLE		1
 -- 
 2.51.0
 
