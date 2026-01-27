@@ -1,159 +1,148 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03FCA242D79;
-	Tue, 27 Jan 2026 13:34:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CBCD1DEFE9;
+	Tue, 27 Jan 2026 14:45:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769520863; cv=none; b=mIVJ+pd7MMl66rsPxz2Gcfn4bwI3ysHDQx/qI11QcfJks6RrVYEQONu7dF/i1CZCk55/CKpO3vx4NKNpSuos4abNa4rRNvkXWU0YFM6si3s4BnjeauXPaCN5P31NB93gIXRqH4adjij9sUgKWWjZeL0Nbue2i0/TpwFFBp0jUEE=
+	t=1769525132; cv=none; b=VDKTZzG9zIk4tvLha2+Erc8eWuUJMNph0xOk1o8bSNeUwRl6JAr5psC0ZOrJfe48cC6f/un94ZQrxEqLY8X+4/DORA4myzVJd5gCtGcF4fm89A0ng52LGF4kq2lrxr090vlOi3dNnjz05zhyCTaY9Fc53U9PvYv5cNZBB/ahZPI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769520863; c=relaxed/simple;
-	bh=xM07q8aW4efWcWvz4c8IbKTY17sRaIR8OIvcte7xxIk=;
+	s=arc-20240116; t=1769525132; c=relaxed/simple;
+	bh=0YGeP0O62Pc53bwcfFkz6Pdb1KEkMMpDyI0yE++MS9Q=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KbXncc4yDMrmrwzfz+8pA9Gf8YFF5HNadeAZF6OTECTHZQJot/wi78krfKHJdbxYH60L/UI57jRWD5WWEAscO28x1FWTAgCKkbjFfu8BNnLDMtTLo0F0kqedmpHIrnur0C13WR25fYWDDOmVP2sbI34OwMsLQOjRfU1tMcWMazo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=C1tKzPHO; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=C3Yg/eTOBnVgdXMVAIH6VT70hs/jKYuTG2hyLPSSmoBO/UU2CZKa8SlkJXEB8YrP+Zt+fvDnE1xdXNY4lm4uy1pwoZ50RLsy2LKeeMHrMITTEi5dl9hdh1kMhFpTK13O2UJaiquGOPT7k2fh5Q2sv4GvTQr16yeEJsMeq6w9y/0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k1FxynCb; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="C1tKzPHO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50D4FC116C6;
-	Tue, 27 Jan 2026 13:34:21 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k1FxynCb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38C21C116C6;
+	Tue, 27 Jan 2026 14:45:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769520862;
-	bh=xM07q8aW4efWcWvz4c8IbKTY17sRaIR8OIvcte7xxIk=;
+	s=k20201202; t=1769525131;
+	bh=0YGeP0O62Pc53bwcfFkz6Pdb1KEkMMpDyI0yE++MS9Q=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=C1tKzPHO+Xd9T9Sns/qz07JJiCpwBYzGLGyYKigc3cYDYN9ptNQVAmsibRisal4S0
-	 36gbvdB5BEwQ73XwT1CaHOCJVGTKJ6qdbGoqyxSA4rwbnQnFgtT3NlRpuL2qN4hRap
-	 PwySs7bTSJ6MWfsUrWXfL4TbqVpPuZdIpTklBHyZT/Wkhj5Tm5OmdvhA10z+mtCAEa
-	 h3m42WpedulW1BCszBT3xLdGFEUHN6F6WZjh+o8sO/FMutTD1s3FArDWHIvqit6K3V
-	 fflfyHLe9MrqIbzUrr+gtkya8m9G3zJMFo/dVTqG6xiJyF3g5wJ8U0+UIFxd1pgZv2
-	 qa+l7MFvZc8vA==
-Date: Tue, 27 Jan 2026 15:34:17 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: Uladzislau Rezki <urezki@gmail.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>, Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	oliver.yang@linux.alibaba.com
-Subject: Re: [PATCH net-next 2/3] mm: vmalloc: export find_vm_area()
-Message-ID: <20260127133417.GU13967@unreal>
-References: <20260123082349.42663-1-alibuda@linux.alibaba.com>
- <20260123082349.42663-3-alibuda@linux.alibaba.com>
- <aXPEFdEdtSmd6AzF@milan>
- <20260124093505.GA98529@j66a10360.sqa.eu95>
- <aXSjm1DXm6yP62tD@pc636>
- <20260124145754.GA57116@j66a10360.sqa.eu95>
+	b=k1FxynCbgFyhQaZBWbdQ3U3/gG7zvUiYTdT05s4SfRvueGwkwdMXfQ67RXYmWXNMt
+	 nJcwbHtZ7igNbyW3UV297EDBMkUnggDFqkNCcRRA+vRpQtytrAnvyEHNrTU6qtdODo
+	 1LbCma+SiMl2LT5ZuLyH7tZpYFN9UJ2XKhsK4xuHGPaRH8LD/O8BLUfTlNb0oHlPNi
+	 O/otIJveig2kXrzcfYZMWTt5fvWceAjmmlhVGZjLExQFzzscRRARYyYJJl4ENA3zWK
+	 zldlROZ0P7SlFX+FcV4aIGqzhLCTEzmtf2d26kCH+JflCjYXc+hEeq7F76jfRgZo4e
+	 vcqAUDXHE61jQ==
+Date: Tue, 27 Jan 2026 15:45:29 +0100
+From: Frederic Weisbecker <frederic@kernel.org>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Anna-Maria Behnsen <anna-maria@linutronix.de>,
+	Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Ingo Molnar <mingo@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>,
+	Joel Fernandes <joelagnelf@nvidia.com>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Kieran Bingham <kbingham@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Mel Gorman <mgorman@suse.de>, Michael Ellerman <mpe@ellerman.id.au>,
+	Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Paul E . McKenney" <paulmck@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Valentin Schneider <vschneid@redhat.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Viresh Kumar <viresh.kumar@linaro.org>,
+	Xin Zhao <jackzxcui1989@163.com>, linux-pm@vger.kernel.org,
+	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Subject: Re: [PATCH 05/15] s390/time: Prepare to stop elapsing in
+ dynticks-idle
+Message-ID: <aXjPiZCHZ77R4awi@localhost.localdomain>
+References: <20260116145208.87445-1-frederic@kernel.org>
+ <20260116145208.87445-6-frederic@kernel.org>
+ <20260121121748.9719Bab-hca@linux.ibm.com>
+ <aXEVM-04lj0lntMr@localhost.localdomain>
+ <20260122144045.38254A3e-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20260124145754.GA57116@j66a10360.sqa.eu95>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260122144045.38254A3e-hca@linux.ibm.com>
 
-On Sat, Jan 24, 2026 at 10:57:54PM +0800, D. Wythe wrote:
-> On Sat, Jan 24, 2026 at 11:48:59AM +0100, Uladzislau Rezki wrote:
-> > Hello, D. Wythe!
+Le Thu, Jan 22, 2026 at 03:40:45PM +0100, Heiko Carstens a écrit :
+> On Wed, Jan 21, 2026 at 07:04:35PM +0100, Frederic Weisbecker wrote:
+> > BTW here is a question for you, does the timer (as in get_cpu_timer()) still
+> > decrements while in idle? I would assume not, given how lc->system_timer
+> > is updated in account_idle_time_irq().
+> 
+> It is not decremented while in idle (or when the hypervisor schedules
+> the virtual cpu away). We use the fact that the cpu timer is not
+> decremented when the virtual cpu is not running vs the real
+> time-of-day clock to calculate steal time.
+
+Ok, good then!
+
+> 
+> > And another question in this same function is this :
 > > 
-> > > On Fri, Jan 23, 2026 at 07:55:17PM +0100, Uladzislau Rezki wrote:
-> > > > On Fri, Jan 23, 2026 at 04:23:48PM +0800, D. Wythe wrote:
-> > > > > find_vm_area() provides a way to find the vm_struct associated with a
-> > > > > virtual address. Export this symbol to modules so that modularized
-> > > > > subsystems can perform lookups on vmalloc addresses.
-> > > > > 
-> > > > > Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> > > > > ---
-> > > > >  mm/vmalloc.c | 1 +
-> > > > >  1 file changed, 1 insertion(+)
-> > > > > 
-> > > > > diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-> > > > > index ecbac900c35f..3eb9fe761c34 100644
-> > > > > --- a/mm/vmalloc.c
-> > > > > +++ b/mm/vmalloc.c
-> > > > > @@ -3292,6 +3292,7 @@ struct vm_struct *find_vm_area(const void *addr)
-> > > > >  
-> > > > >  	return va->vm;
-> > > > >  }
-> > > > > +EXPORT_SYMBOL_GPL(find_vm_area);
-> > > > >  
-> > > > This is internal. We can not just export it.
-> > > > 
-> > > > --
-> > > > Uladzislau Rezki
-> > > 
-> > > Hi Uladzislau,
-> > > 
-> > > Thank you for the feedback. I agree that we should avoid exposing
-> > > internal implementation details like struct vm_struct to external
-> > > subsystems.
-> > > 
-> > > Following Christoph's suggestion, I'm planning to encapsulate the page
-> > > order lookup into a minimal helper instead:
-> > > 
-> > > unsigned int vmalloc_page_order(const void *addr){
-> > > 	struct vm_struct *vm;
-> > >  	vm = find_vm_area(addr);
-> > > 	return vm ? vm->page_order : 0;
-> > > }
-> > > EXPORT_SYMBOL_GPL(vmalloc_page_order);
-> > > 
-> > > Does this approach look reasonable to you? It would keep the vm_struct
-> > > layout private while satisfying the optimization needs of SMC.
-> > > 
-> > Could you please clarify why you need info about page_order? I have not
-> > looked at your second patch.
+> >     lc->steal_timer += idle->clock_idle_enter - lc->last_update_clock;
 > > 
-> > Thanks!
+> > clock_idle_enter is updated right before halting the CPU. But when was
+> > last_update_clock updated last? Could be either task switch to idle, or
+> > a previous idle tick interrupt or a previous idle IRQ entry. In any case
+> > I'm not sure the difference is meaningful as steal time.
 > > 
-> > --
-> > Uladzislau Rezki
+> > I must be missing something.
 > 
-> Hi Uladzislau,
+> "It has been like that forever" :) However I do agree that this doesn't seem
+> to make any sense. At least with the current implementation I cannot see how
+> that makes sense, since the difference of two time stamps, which do not
+> include any steal time are added.
 > 
-> This stems from optimizing memory registration in SMC-R. To provide the
-> RDMA hardware with direct access to memory buffers, we must register
-> them with the NIC. During this process, the hardware generates one MTT
-> entry for each physically contiguous block. Since these hardware entries
-> are a finite and scarce resource, and SMC currently defaults to a 4KB
-> registration granularity, a single 2MB buffer consumes 512 entries. In
-> high-concurrency scenarios, this inefficiency quickly exhausts NIC
-> resources and becomes a major bottleneck for system scalability.
+> Maybe it broke by some of all the changes over the years, or it was always
+> wrong, or I am missing something too.
+> 
+> Will investigate and address it if required. Thank you for bringing this up!
 
-I believe this complexity can be avoided by using the RDMA MR pool API,
-as other ULPs do, for example NVMe.
-
-Thanks
+Ok, I take some relief from the fact it's not only unclear to me :-)
 
 > 
-> To address this, we intend to use vmalloc_huge(). When it successfully
-> allocates high-order pages, the vmalloc area is backed by a sequence of
-> physically contiguous chunks (e.g., 2MB each). If we know this
-> page_order, we can register these larger physical blocks instead of
-> individual 4KB pages, reducing MTT consumption from 512 entries down to
-> 1 for every 2MB of memory (with page_order == 9).
+> > > Not sure what to do with this. I thought about removing those sysfs files
+> > > already in the past, since they are of very limited use; and most likely
+> > > nothing in user space would miss them.
+> > 
+> > Perhaps but this file is a good comparison point against /proc/stat because
+> > s390 vtime is much closer to measuring the actual CPU halted time than what
+> > the generic nohz accounting does (which includes more idle code execution).
 > 
-> However, the result of vmalloc_huge() is currently opaque to the caller.
-> We cannot determine whether it successfully allocated huge pages or fell
-> back to 4KB pages based solely on the returned pointer. Therefore, we
-> need a helper function to query the actual page order, enabling SMC-R to
-> adapt its registration logic to the underlying physical layout.
+> Yes, while comparing those files I also see an unexpected difference of
+> several seconds after two days of uptime; that is before your changes.
 > 
-> I hope this clarifies our design motivation!
-> 
-> Best regards,
-> D. Wythe
-> 
-> 
-> 
-> 
-> 
+> In theory the sum of idle and iowait in /proc/stat should be the same like the
+> per-cpu idle_time_us sysfs file. But there is a difference, which shouldn't be
+> there as far as I can tell. Yet another thing to look into.
+
+Yes and that's expected both before and after my changes.
+
+* /proc/stat is the time spent between tick_nohz_idle_enter() and
+  tick_nohz_idle_exit() (to simplify, because there are some pause during
+  idle IRQs).
+
+* The s390 idle sysfs file depicts more closely the time spent while the
+  CPU is really idle (and not executing idle code).
+
+Different semantics and this is why you observe different results. I guess
+/proc/stat has higher values (with idle + iowait) and that is expected.
+
+Thanks.
+
+-- 
+Frederic Weisbecker
+SUSE Labs
