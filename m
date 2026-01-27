@@ -1,185 +1,127 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5898360757
-	for <linux-s390@vger.kernel.org>; Tue, 27 Jan 2026 16:16:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5339C361669;
+	Tue, 27 Jan 2026 16:54:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769530586; cv=none; b=P9ALAj4nHy2rsTdfQ6lfrn+1qvBS5lVo20XBQRtuCT7NyC5rFkmqSHGyMRJ9INendiIKOH4UlQBXhyLScI/Ju/sR6ytupsBboFgG5fls+DpOelMCx7gshulkmyY3Vk6B7LFidYp3h1jw2lYoBp2F1Zeeh3hRJbfMZRMiYHL4IoU=
+	t=1769532842; cv=none; b=lqJGKlPKdl5zak33x7GuEvSkD5ozOYXPGYHPW2goaUmfiGaZYJXM/ujyYd7x6/8yOWrr2pMrv7JTJWhwHUn/FksrY9EaBGSD8K2OJUJf7rpcJvf3P/+ZfSA3Z+xS2Cmd+18hnkhfyFh5TeaogxGh0+SPcQ9wQFrewFS6cJSriV4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769530586; c=relaxed/simple;
-	bh=+GktQ1kyEhAdFafRvrsn3ptLLIIul+XG9ykOzNal5tE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LU3QEkNLnYbycpEogh0GDBXeG0AWBVdPikX4bSIC1FW0i5yXoKMr8zrqByop4mAnY7kklWzCuJr7G6uJK1IodqLBghvMj/38PmZJKIzxKRhyCl9szuVNCI2QtCz4ITt9pM7CNzrz8/ugB8Eo0gzuqSjuHPbOPuTU+Lx+c7hFjCA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=WZnNkT0F; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=OMwGReJQ; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=WZnNkT0F; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=OMwGReJQ; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1769532842; c=relaxed/simple;
+	bh=eFC749sjPtlyKTEwBkQZAR0hEuKAsBFJvmgDAof3iiQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Ydnt7VMjLEJF/VgpFLg4faiCpZwwtoLk5/UGVStqyd+B0U0L62pQbG7bcJOJCh16w7HKpWFC5zQMMIdvtbS8q0Hb8nUq2fQ5zrYowPC0TuJ3tFu6CkTeOBKcg/FJsmVLrsJE1lsJ28oriVWLZEhN91LZJc9k5HNwP9OBB5VCxVE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lKp0qJm/; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="WZnNkT0F";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="OMwGReJQ";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="WZnNkT0F";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="OMwGReJQ"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 4AE1C5BCE6;
-	Tue, 27 Jan 2026 16:16:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1769530581; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=NM3xZy/NVVYdo7OOJlkDOtIlQ2nqjY+Mi3ZBRUML5Xs=;
-	b=WZnNkT0FlPmVQ3WXjLki1NeDkV2a1R4UuerK1dkKu9WamYDro4YaRn6w7IWLr3PNy4Iw6Y
-	CKg+YXhhX2XkrMWKOzepw7Rc2URg2u+4pAMRtSpttHGMX4Fy8L9Vfy3FMfjGV+dV31ZoSS
-	e1Zl0kWjhnNv7nVzqxSIwMwebXe6k6c=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1769530581;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=NM3xZy/NVVYdo7OOJlkDOtIlQ2nqjY+Mi3ZBRUML5Xs=;
-	b=OMwGReJQTKdY/hIAlTFTij6F4MU3HFa+mJsYuJnptp1PvhQ+dVL4wdKyvD//7Mc5nKxLOk
-	ET+3T0TtJfTAwoDg==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1769530581; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=NM3xZy/NVVYdo7OOJlkDOtIlQ2nqjY+Mi3ZBRUML5Xs=;
-	b=WZnNkT0FlPmVQ3WXjLki1NeDkV2a1R4UuerK1dkKu9WamYDro4YaRn6w7IWLr3PNy4Iw6Y
-	CKg+YXhhX2XkrMWKOzepw7Rc2URg2u+4pAMRtSpttHGMX4Fy8L9Vfy3FMfjGV+dV31ZoSS
-	e1Zl0kWjhnNv7nVzqxSIwMwebXe6k6c=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1769530581;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=NM3xZy/NVVYdo7OOJlkDOtIlQ2nqjY+Mi3ZBRUML5Xs=;
-	b=OMwGReJQTKdY/hIAlTFTij6F4MU3HFa+mJsYuJnptp1PvhQ+dVL4wdKyvD//7Mc5nKxLOk
-	ET+3T0TtJfTAwoDg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C1C293EA61;
-	Tue, 27 Jan 2026 16:16:20 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id OQ7SLdTkeGlULQAAD6G6ig
-	(envelope-from <sjaeckel@suse.de>); Tue, 27 Jan 2026 16:16:20 +0000
-From: Steffen Jaeckel <sjaeckel@suse.de>
-To: Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Alexandra Winter <wintera@linux.ibm.com>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Matthieu Baerts <matttbe@kernel.org>
-Cc: Wenjia Zhang <wenjia@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>,
-	"D . Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Simon Horman <horms@kernel.org>,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 1/1] dibs: Re-apply lost patch
-Date: Tue, 27 Jan 2026 17:16:11 +0100
-Message-ID: <20260127161611.2228083-1-sjaeckel@suse.de>
-X-Mailer: git-send-email 2.52.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lKp0qJm/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5535CC116C6;
+	Tue, 27 Jan 2026 16:53:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769532842;
+	bh=eFC749sjPtlyKTEwBkQZAR0hEuKAsBFJvmgDAof3iiQ=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=lKp0qJm/KYO+9EsXo7ZdNAYji/Yv0r7Oc/vYulaDcQnnoCgDJdPSsQvIvHSqENSE6
+	 Bt+05iLAopqsA78Q2Qb5jmwRvpU9zxsHBB/WtVLDJua719z2K2mEKX7+LcWldzcDcK
+	 ixz0LL25YtQOQ1ILX1rx5AUorGZo1kJWXqKQXmR5JJ/rjDq4SXsj4uQkoULXOnWzFx
+	 I6VSSxWYzRIasWFeY08wNI8zNM8ZhsuhUJbrkaVEe/OlMw/FxXfnbbShH9P8/x/tRj
+	 vjItEkuEp19soRy05h+NUKlH6oUlUEF/dqS16a2d+35SeO/Rgkd6JeqON+0mMACmJh
+	 YEfPrKaDZE/gA==
+Message-ID: <9e1100d7-87cf-4fd3-9840-028e63ffb184@kernel.org>
+Date: Tue, 27 Jan 2026 17:53:54 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: -2.80
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_CONTAINS_FROM(1.00)[];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MIME_TRACE(0.00)[0:+];
-	RCPT_COUNT_TWELVE(0.00)[16];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid,suse.de:email];
-	RCVD_COUNT_TWO(0.00)[2];
-	RCVD_TLS_ALL(0.00)[]
-X-Spam-Level: 
-X-Spam-Flag: NO
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/1] dibs: Re-apply lost patch
+Content-Language: en-GB, fr-BE
+To: Steffen Jaeckel <sjaeckel@suse.de>
+Cc: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
+ "D . Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>,
+ Wen Gu <guwen@linux.alibaba.com>, "David S . Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Simon Horman <horms@kernel.org>, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Sidraya Jayagond <sidraya@linux.ibm.com>,
+ Alexandra Winter <wintera@linux.ibm.com>, Paolo Abeni <pabeni@redhat.com>
+References: <20260127161611.2228083-1-sjaeckel@suse.de>
+From: Matthieu Baerts <matttbe@kernel.org>
+Autocrypt: addr=matttbe@kernel.org; keydata=
+ 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
+ lzVbFe7fduHbABmYz9cefQpO7wDE/Q==
+Organization: NGI0 Core
+In-Reply-To: <20260127161611.2228083-1-sjaeckel@suse.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-While merging the dibs layer, Matt [1] noticed that the changes which were
-done in [2] conflicted and were missing. He subsequently fixed this in the
-merge commit of his own tree, but the changes never made it upstream.
+Hi Steffen,
 
-This commit re-introduces the changes.
+On 27/01/2026 17:16, Steffen Jaeckel wrote:
+> While merging the dibs layer, Matt [1] noticed that the changes which were
+> done in [2] conflicted and were missing. He subsequently fixed this in the
+> merge commit of his own tree, but the changes never made it upstream.
+> 
+> This commit re-introduces the changes.
+> 
+> [1] https://lore.kernel.org/netdev/74368a5c-48ac-4f8e-a198-40ec1ed3cf5f@kernel.org/
+> [2] a35c04de2565d ("net/smc: fix warning in smc_rx_splice() when calling get_page()")
 
-[1] https://lore.kernel.org/netdev/74368a5c-48ac-4f8e-a198-40ec1ed3cf5f@kernel.org/
-[2] a35c04de2565d ("net/smc: fix warning in smc_rx_splice() when calling get_page()")
+Thank you for the follow-up.
 
-Fixes: cc21191b584c ("dibs: Move data path to dibs layer")
-Signed-off-by: Steffen Jaeckel <sjaeckel@suse.de>
----
- drivers/dibs/dibs_loopback.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+On which tree is this patch based on? Because I don't see the missing
+resolution on net-next and even in Linus tree, see commit 203e3beb73e5
+("Merge git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net") or
+check the file in Linus tree:
 
-diff --git a/drivers/dibs/dibs_loopback.c b/drivers/dibs/dibs_loopback.c
-index b3fd0f8100d4..aa029e29c6b2 100644
---- a/drivers/dibs/dibs_loopback.c
-+++ b/drivers/dibs/dibs_loopback.c
-@@ -12,6 +12,7 @@
- #include <linux/bitops.h>
- #include <linux/device.h>
- #include <linux/dibs.h>
-+#include <linux/mm.h>
- #include <linux/slab.h>
- #include <linux/spinlock.h>
- #include <linux/types.h>
-@@ -49,6 +50,7 @@ static int dibs_lo_register_dmb(struct dibs_dev *dibs, struct dibs_dmb *dmb,
- {
- 	struct dibs_lo_dmb_node *dmb_node, *tmp_node;
- 	struct dibs_lo_dev *ldev;
-+	struct folio *folio;
- 	unsigned long flags;
- 	int sba_idx, rc;
- 
-@@ -70,13 +72,16 @@ static int dibs_lo_register_dmb(struct dibs_dev *dibs, struct dibs_dmb *dmb,
- 
- 	dmb_node->sba_idx = sba_idx;
- 	dmb_node->len = dmb->dmb_len;
--	dmb_node->cpu_addr = kzalloc(dmb_node->len, GFP_KERNEL |
--				     __GFP_NOWARN | __GFP_NORETRY |
--				     __GFP_NOMEMALLOC);
--	if (!dmb_node->cpu_addr) {
-+
-+	/* not critical; fail under memory pressure and fallback to TCP */
-+	folio = folio_alloc(GFP_KERNEL | __GFP_NOWARN | __GFP_NOMEMALLOC |
-+			    __GFP_NORETRY | __GFP_ZERO,
-+			    get_order(dmb_node->len));
-+	if (!folio) {
- 		rc = -ENOMEM;
- 		goto err_node;
- 	}
-+	dmb_node->cpu_addr = folio_address(folio);
- 	dmb_node->dma_addr = DIBS_DMA_ADDR_INVALID;
- 	refcount_set(&dmb_node->refcnt, 1);
- 
-@@ -122,7 +127,7 @@ static void __dibs_lo_unregister_dmb(struct dibs_lo_dev *ldev,
- 	write_unlock_bh(&ldev->dmb_ht_lock);
- 
- 	clear_bit(dmb_node->sba_idx, ldev->sba_idx_mask);
--	kfree(dmb_node->cpu_addr);
-+	folio_put(virt_to_folio(dmb_node->cpu_addr));
- 	kfree(dmb_node);
- 
- 	if (atomic_dec_and_test(&ldev->dmb_cnt))
+
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/dibs/dibs_loopback.c
+
+Am I missing something?
+
+Cheers,
+Matt
 -- 
-2.52.0
+Sponsored by the NGI0 Core fund.
 
