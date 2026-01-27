@@ -1,148 +1,289 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CBCD1DEFE9;
-	Tue, 27 Jan 2026 14:45:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E23923E23C;
+	Tue, 27 Jan 2026 15:19:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769525132; cv=none; b=VDKTZzG9zIk4tvLha2+Erc8eWuUJMNph0xOk1o8bSNeUwRl6JAr5psC0ZOrJfe48cC6f/un94ZQrxEqLY8X+4/DORA4myzVJd5gCtGcF4fm89A0ng52LGF4kq2lrxr090vlOi3dNnjz05zhyCTaY9Fc53U9PvYv5cNZBB/ahZPI=
+	t=1769527200; cv=none; b=LbV1VGHbwAlyvYN7d2KN2lmDygXqDJk/erVN+cDoE1ZjCdfW251gOeYwAfLSKZCbQX0wON31vE4Zm2yimlXJMcid2i3s44dCSPaO7g9s/qgXNFWobxpQEKhjjTogjESVKzY3sTU0Xh3gNdXb8qla2tNg9ke4KcNrUp7vSNkEY1Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769525132; c=relaxed/simple;
-	bh=0YGeP0O62Pc53bwcfFkz6Pdb1KEkMMpDyI0yE++MS9Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=C3Yg/eTOBnVgdXMVAIH6VT70hs/jKYuTG2hyLPSSmoBO/UU2CZKa8SlkJXEB8YrP+Zt+fvDnE1xdXNY4lm4uy1pwoZ50RLsy2LKeeMHrMITTEi5dl9hdh1kMhFpTK13O2UJaiquGOPT7k2fh5Q2sv4GvTQr16yeEJsMeq6w9y/0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k1FxynCb; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1769527200; c=relaxed/simple;
+	bh=RT8EBSR8WUQAbyvZRvXCygdtoMjanu9p9cPL0JHiKSc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Vggo9FU5vnN14XYFjHd5Zdu++Ptv8Rd8JESRpX4BiSQy8HgX0LX+il7ZNnTYFMWVKYakJRjVvN/7sRuGNnhU7dkQrczNfjvgeGjlDqJsHL7V8mX9jAwLicCEqcrvhojC2umnfPUTfyRn1Fp94u7SNjaMta9wBs6p8pemSWdyguU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=X1W9jFj+; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k1FxynCb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38C21C116C6;
-	Tue, 27 Jan 2026 14:45:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769525131;
-	bh=0YGeP0O62Pc53bwcfFkz6Pdb1KEkMMpDyI0yE++MS9Q=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=k1FxynCbgFyhQaZBWbdQ3U3/gG7zvUiYTdT05s4SfRvueGwkwdMXfQ67RXYmWXNMt
-	 nJcwbHtZ7igNbyW3UV297EDBMkUnggDFqkNCcRRA+vRpQtytrAnvyEHNrTU6qtdODo
-	 1LbCma+SiMl2LT5ZuLyH7tZpYFN9UJ2XKhsK4xuHGPaRH8LD/O8BLUfTlNb0oHlPNi
-	 O/otIJveig2kXrzcfYZMWTt5fvWceAjmmlhVGZjLExQFzzscRRARYyYJJl4ENA3zWK
-	 zldlROZ0P7SlFX+FcV4aIGqzhLCTEzmtf2d26kCH+JflCjYXc+hEeq7F76jfRgZo4e
-	 vcqAUDXHE61jQ==
-Date: Tue, 27 Jan 2026 15:45:29 +0100
-From: Frederic Weisbecker <frederic@kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Anna-Maria Behnsen <anna-maria@linutronix.de>,
-	Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Ingo Molnar <mingo@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>,
-	Joel Fernandes <joelagnelf@nvidia.com>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Kieran Bingham <kbingham@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Mel Gorman <mgorman@suse.de>, Michael Ellerman <mpe@ellerman.id.au>,
-	Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Paul E . McKenney" <paulmck@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Uladzislau Rezki <urezki@gmail.com>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Viresh Kumar <viresh.kumar@linaro.org>,
-	Xin Zhao <jackzxcui1989@163.com>, linux-pm@vger.kernel.org,
-	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH 05/15] s390/time: Prepare to stop elapsing in
- dynticks-idle
-Message-ID: <aXjPiZCHZ77R4awi@localhost.localdomain>
-References: <20260116145208.87445-1-frederic@kernel.org>
- <20260116145208.87445-6-frederic@kernel.org>
- <20260121121748.9719Bab-hca@linux.ibm.com>
- <aXEVM-04lj0lntMr@localhost.localdomain>
- <20260122144045.38254A3e-hca@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="X1W9jFj+"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60R80wX1010200;
+	Tue, 27 Jan 2026 15:19:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=1TqPmQcpDe5apq/kR
+	pvca83qGv9hWGr5mzGDqs1lLgI=; b=X1W9jFj+b26zgpaIINIlniXat7mR1Vy/3
+	oMasOd4CsZktmzGfSjJd4Y1CFKgfzcQc9UgDOJw/R9GKutk25tj+VXh5+BDx2A02
+	iGzptLL9Q/+xLnfiq58K8e6sKcfdQ7FU0n4bbOIU6J0lwdm44tidIlepfTsrwHDv
+	/OqACNriQHAS8p35cPGNf/xcXPKq+l7nXQtNr7j9amdO+h7H/eAkk3870GR6Zw2t
+	78RxhEyO9zxlXGAJ1KH7w/ou+/Ln+uHZ+seXF+rNhkzEaF3o0kKA+sVZ4FSzcRFJ
+	BAV95Wyo0PkN/xLFS1uuPzOgnfVxzdSeLohoxRf/vBdJQTH//kPSQ==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bvnrte1vh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 27 Jan 2026 15:19:38 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 60RFD6S9025596;
+	Tue, 27 Jan 2026 15:19:38 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bvnrte1v9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 27 Jan 2026 15:19:37 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60REZjgE017966;
+	Tue, 27 Jan 2026 15:19:36 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4bwb41rvgh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 27 Jan 2026 15:19:36 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60RFJXJp14680446
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 27 Jan 2026 15:19:33 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0D0B820040;
+	Tue, 27 Jan 2026 15:19:33 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BC60020043;
+	Tue, 27 Jan 2026 15:19:32 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 27 Jan 2026 15:19:32 +0000 (GMT)
+From: Jens Remus <jremus@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, bpf@vger.kernel.org, x86@kernel.org,
+        Steven Rostedt <rostedt@kernel.org>
+Cc: Jens Remus <jremus@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Indu Bhagat <indu.bhagat@oracle.com>,
+        "Jose E. Marchesi" <jemarch@gnu.org>,
+        Beau Belgrave <beaub@linux.microsoft.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Florian Weimer <fweimer@redhat.com>, Kees Cook <kees@kernel.org>,
+        "Carlos O'Donell" <codonell@redhat.com>, Sam James <sam@gentoo.org>,
+        Dylan Hatch <dylanbhatch@google.com>
+Subject: [PATCH v4 05/12] unwind_user: Enable archs that define CFA = SP_callsite + offset
+Date: Tue, 27 Jan 2026 16:19:18 +0100
+Message-ID: <20260127151926.2805123-6-jremus@linux.ibm.com>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <20260127151926.2805123-1-jremus@linux.ibm.com>
+References: <20260127151926.2805123-1-jremus@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260122144045.38254A3e-hca@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: KyIC7bF4FuLeyIQSv9yvDDXMGlNmPLkq
+X-Authority-Analysis: v=2.4 cv=Uptu9uwB c=1 sm=1 tr=0 ts=6978d78a cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
+ a=D-3WH5monn3MMgO2UeQA:9
+X-Proofpoint-ORIG-GUID: JGPGDIlhc6TzCi6TuXKlwH2paykcZ1eT
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTI3MDEyMSBTYWx0ZWRfXxJ1Rn4mBPI46
+ MvDaOth+MUyvapytBn/p9OcYA0ITq100qKf3vt56RfVBRpjy0rCuLZluFoOd2MxDQS5BAJXtMdo
+ HOjwd2z612x9KiuhJAUivQNfL/6UhiKIdl/RKD4+xPujUlo1noqnVW9kCaackarEcMSNSmIFgh/
+ m1M7m8n01+UnLBSGxtuaqioeL+bFgoQMCWsvdAGC4quWBt/WJkSmXLlLjXZ+X1SSEeWM3qHs9c7
+ fMHpL3BMsKpvfAj/+QyDHfkWDIy2HLcHrpuxKlNBpAAUMPUfKZxoLkj3YQYsdy7ex04tt3vamXv
+ /vZI0bBCZ6jeimjjnft59cupRLcrvXAeWF2Zm8Q3sOCuF5YSZPRBd/UIqQ11lk6XGqAUtFWklB7
+ iNRZjBySw/DHhlUXzn/UkOHdCh7zP+L1JGKW38k37l5yL0/MTPNpU8Bp6BwKDyDeRnaDzXe6eEu
+ yaE3vN80AutUCCycOiA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-01-27_03,2026-01-27_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 priorityscore=1501 clxscore=1015 lowpriorityscore=0
+ phishscore=0 adultscore=0 impostorscore=0 bulkscore=0 spamscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2601150000
+ definitions=main-2601270121
 
-Le Thu, Jan 22, 2026 at 03:40:45PM +0100, Heiko Carstens a écrit :
-> On Wed, Jan 21, 2026 at 07:04:35PM +0100, Frederic Weisbecker wrote:
-> > BTW here is a question for you, does the timer (as in get_cpu_timer()) still
-> > decrements while in idle? I would assume not, given how lc->system_timer
-> > is updated in account_idle_time_irq().
-> 
-> It is not decremented while in idle (or when the hypervisor schedules
-> the virtual cpu away). We use the fact that the cpu timer is not
-> decremented when the virtual cpu is not running vs the real
-> time-of-day clock to calculate steal time.
+Most architectures define their CFA as the value of the stack pointer
+(SP) at the call site in the previous frame, as suggested by the DWARF
+standard.  Therefore the SP at call site can be unwound using an
+implicitly assumed value offset from CFA rule with an offset of zero:
 
-Ok, good then!
+  .cfi_val_offset <SP>, 0
 
-> 
-> > And another question in this same function is this :
-> > 
-> >     lc->steal_timer += idle->clock_idle_enter - lc->last_update_clock;
-> > 
-> > clock_idle_enter is updated right before halting the CPU. But when was
-> > last_update_clock updated last? Could be either task switch to idle, or
-> > a previous idle tick interrupt or a previous idle IRQ entry. In any case
-> > I'm not sure the difference is meaningful as steal time.
-> > 
-> > I must be missing something.
-> 
-> "It has been like that forever" :) However I do agree that this doesn't seem
-> to make any sense. At least with the current implementation I cannot see how
-> that makes sense, since the difference of two time stamps, which do not
-> include any steal time are added.
-> 
-> Maybe it broke by some of all the changes over the years, or it was always
-> wrong, or I am missing something too.
-> 
-> Will investigate and address it if required. Thank you for bringing this up!
+As a result the SP at call site computes as follows:
 
-Ok, I take some relief from the fact it's not only unclear to me :-)
+  SP = CFA
 
-> 
-> > > Not sure what to do with this. I thought about removing those sysfs files
-> > > already in the past, since they are of very limited use; and most likely
-> > > nothing in user space would miss them.
-> > 
-> > Perhaps but this file is a good comparison point against /proc/stat because
-> > s390 vtime is much closer to measuring the actual CPU halted time than what
-> > the generic nohz accounting does (which includes more idle code execution).
-> 
-> Yes, while comparing those files I also see an unexpected difference of
-> several seconds after two days of uptime; that is before your changes.
-> 
-> In theory the sum of idle and iowait in /proc/stat should be the same like the
-> per-cpu idle_time_us sysfs file. But there is a difference, which shouldn't be
-> there as far as I can tell. Yet another thing to look into.
+Enable unwinding of user space for architectures, such as s390, which
+define their CFA as the value of the SP at the call site in the previous
+frame with an offset.  Do so by enabling architectures to override the
+default SP value offset from CFA of zero with an architecture-specific
+one:
 
-Yes and that's expected both before and after my changes.
+  .cfi_val_offset <SP>, offset
 
-* /proc/stat is the time spent between tick_nohz_idle_enter() and
-  tick_nohz_idle_exit() (to simplify, because there are some pause during
-  idle IRQs).
+So that the SP at call site computes as follows:
 
-* The s390 idle sysfs file depicts more closely the time spent while the
-  CPU is really idle (and not executing idle code).
+  SP = CFA + offset
 
-Different semantics and this is why you observe different results. I guess
-/proc/stat has higher values (with idle + iowait) and that is expected.
+Signed-off-by: Jens Remus <jremus@linux.ibm.com>
+---
+ arch/x86/include/asm/unwind_user.h        |  2 ++
+ arch/x86/include/asm/unwind_user_sframe.h |  2 ++
+ include/asm-generic/Kbuild                |  1 +
+ include/asm-generic/unwind_user_sframe.h  | 12 ++++++++++++
+ include/linux/unwind_user_types.h         |  1 +
+ kernel/unwind/sframe.c                    |  1 +
+ kernel/unwind/user.c                      | 11 ++++++-----
+ 7 files changed, 25 insertions(+), 5 deletions(-)
+ create mode 100644 include/asm-generic/unwind_user_sframe.h
 
-Thanks.
-
+diff --git a/arch/x86/include/asm/unwind_user.h b/arch/x86/include/asm/unwind_user.h
+index ae46906c3b39..0650bcfae461 100644
+--- a/arch/x86/include/asm/unwind_user.h
++++ b/arch/x86/include/asm/unwind_user.h
+@@ -66,6 +66,7 @@ static inline int unwind_user_get_reg(unsigned long *val, unsigned int regnum)
+ 		.rule		= UNWIND_USER_RULE_CFA_OFFSET_DEREF,\
+ 		.offset		= -2*(ws),		\
+ 			},				\
++	.sp_off		= 0,				\
+ 	.outermost	= false,
+ 
+ #define ARCH_INIT_USER_FP_ENTRY_FRAME(ws)		\
+@@ -80,6 +81,7 @@ static inline int unwind_user_get_reg(unsigned long *val, unsigned int regnum)
+ 	.fp		= {				\
+ 		.rule		= UNWIND_USER_RULE_RETAIN,\
+ 			},				\
++	.sp_off		= 0,				\
+ 	.outermost	= false,
+ 
+ static inline bool unwind_user_at_function_start(struct pt_regs *regs)
+diff --git a/arch/x86/include/asm/unwind_user_sframe.h b/arch/x86/include/asm/unwind_user_sframe.h
+index d828ae1a4aac..40b03b482d1a 100644
+--- a/arch/x86/include/asm/unwind_user_sframe.h
++++ b/arch/x86/include/asm/unwind_user_sframe.h
+@@ -9,4 +9,6 @@
+ 
+ #endif
+ 
++#include <asm-generic/unwind_user_sframe.h>
++
+ #endif /* _ASM_X86_UNWIND_USER_SFRAME_H */
+diff --git a/include/asm-generic/Kbuild b/include/asm-generic/Kbuild
+index 9aff61e7b8f2..91f86dd84677 100644
+--- a/include/asm-generic/Kbuild
++++ b/include/asm-generic/Kbuild
+@@ -61,6 +61,7 @@ mandatory-y += topology.h
+ mandatory-y += trace_clock.h
+ mandatory-y += uaccess.h
+ mandatory-y += unwind_user.h
++mandatory-y += unwind_user_sframe.h
+ mandatory-y += vermagic.h
+ mandatory-y += vga.h
+ mandatory-y += video.h
+diff --git a/include/asm-generic/unwind_user_sframe.h b/include/asm-generic/unwind_user_sframe.h
+new file mode 100644
+index 000000000000..8c9ac47bc8bd
+--- /dev/null
++++ b/include/asm-generic/unwind_user_sframe.h
+@@ -0,0 +1,12 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _ASM_GENERIC_UNWIND_USER_SFRAME_H
++#define _ASM_GENERIC_UNWIND_USER_SFRAME_H
++
++#include <linux/types.h>
++
++#ifndef SFRAME_SP_OFFSET
++/* Most archs/ABIs define CFA as SP at call site, so that SP = CFA + 0. */
++#define SFRAME_SP_OFFSET 0
++#endif
++
++#endif /* _ASM_GENERIC_UNWIND_USER_SFRAME_H */
+diff --git a/include/linux/unwind_user_types.h b/include/linux/unwind_user_types.h
+index 059e5c76f2f3..89c71a4553b2 100644
+--- a/include/linux/unwind_user_types.h
++++ b/include/linux/unwind_user_types.h
+@@ -65,6 +65,7 @@ struct unwind_user_frame {
+ 	struct unwind_user_cfa_rule_data cfa;
+ 	struct unwind_user_rule_data ra;
+ 	struct unwind_user_rule_data fp;
++	s32 sp_off;
+ 	bool outermost;
+ };
+ 
+diff --git a/kernel/unwind/sframe.c b/kernel/unwind/sframe.c
+index f24997e84e05..6a6221ce6d12 100644
+--- a/kernel/unwind/sframe.c
++++ b/kernel/unwind/sframe.c
+@@ -496,6 +496,7 @@ static __always_inline int __find_fre(struct sframe_section *sec,
+ 		return -EINVAL;
+ 	sframe_init_rule_data(&frame->ra, fre->ra_ctl, fre->ra_off);
+ 	sframe_init_rule_data(&frame->fp, fre->fp_ctl, fre->fp_off);
++	frame->sp_off  = SFRAME_SP_OFFSET;
+ 	frame->outermost = SFRAME_V3_FRE_RA_UNDEFINED_P(fre->info);
+ 
+ 	return 0;
+diff --git a/kernel/unwind/user.c b/kernel/unwind/user.c
+index eb7d9489f671..e21d088f7543 100644
+--- a/kernel/unwind/user.c
++++ b/kernel/unwind/user.c
+@@ -30,7 +30,7 @@ get_user_word(unsigned long *word, unsigned long base, int off, unsigned int ws)
+ static int unwind_user_next_common(struct unwind_user_state *state,
+ 				   const struct unwind_user_frame *frame)
+ {
+-	unsigned long cfa, fp, ra;
++	unsigned long cfa, sp, fp, ra;
+ 
+ 	/* Stop unwinding when reaching an outermost frame. */
+ 	if (frame->outermost) {
+@@ -62,16 +62,17 @@ static int unwind_user_next_common(struct unwind_user_state *state,
+ 	    get_user_word(&cfa, cfa, 0, state->ws))
+ 		return -EINVAL;
+ 
++	/* Get the Stack Pointer (SP) */
++	sp = cfa + frame->sp_off;
+ 	/*
+ 	 * Make sure that stack is not going in wrong direction.  Allow SP
+ 	 * to be unchanged for the topmost frame, by subtracting topmost,
+ 	 * which is either 0 or 1.
+ 	 */
+-	if (cfa <= state->sp - state->topmost)
++	if (sp <= state->sp - state->topmost)
+ 		return -EINVAL;
+-
+ 	/* Make sure that the address is word aligned */
+-	if (cfa & (state->ws - 1))
++	if (sp & (state->ws - 1))
+ 		return -EINVAL;
+ 
+ 	/* Get the Return Address (RA) */
+@@ -122,7 +123,7 @@ static int unwind_user_next_common(struct unwind_user_state *state,
+ 		return -EINVAL;
+ 
+ 	state->ip = ra;
+-	state->sp = cfa;
++	state->sp = sp;
+ 	state->fp = fp;
+ 	state->topmost = false;
+ 	return 0;
 -- 
-Frederic Weisbecker
-SUSE Labs
+2.51.0
+
