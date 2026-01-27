@@ -1,65 +1,64 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A211A35F8A3;
-	Tue, 27 Jan 2026 15:20:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B0BB35F8DC;
+	Tue, 27 Jan 2026 15:20:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769527202; cv=none; b=KyYOwtyFcOoqb4pEoVV8+UsfJpgnvcL6wU9g9acvSlLw8FYNxUbWYo++LJzW1OxlZgTYFleFuCW0qxM84FXSu/asA05KHQeZNV5XZz9i0fyptWE2p8AszuhVl+m90OmyN8rDmWDVsAV+JbU4l6ReK+163D7bueTkfYElwJOmvjE=
+	t=1769527203; cv=none; b=ag6qjDQAjvGx/qJ0QE67YVWH2zfYaOhGusZm+bRhabB7yBDoJh63B69b+jZVVre82Z2Ned01hySuy9GVNfMRVfJUmXiMPZTlgPRYnlgfEVn+NvNDpDLXssPD8Fb9KjaVAJ7qh1PnlwTa0UO2DHDYWwG8FdROjz6EWfhErBkbLMI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769527202; c=relaxed/simple;
-	bh=gmcluVRdPAJ1NG6VlNqtxyM27ANShcw9L2i/GfJzdo8=;
+	s=arc-20240116; t=1769527203; c=relaxed/simple;
+	bh=n4UqXtWKP9aM7+of2a9zTKNpugsdsHjeuZZ9Y6vQt1g=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=QuQJLT2FVEn1GEaE6Vc4MW8UrUcN2GEV+OPQeS/bwfZS0Z+9jwwp+Qs8C7GqDmDjpF+4+NxKoL386E90nDnNCgKKOf8lwoKzwDzGWrazgv/0DJz0nQGfzX3OiU0lnu+kiUgpJOkgp08LwOOv+ebk4ZCu4SA2BXZAuKYWlKMasik=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KS88Db5G; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=LNpTACnt3jLKTdf3JLQL1+UnWLpX8n08paMoPYTEVcDvLgJFZbtUU1NNGqojx5HjHcq5V7PdWYWryufEsitnHk5ifiX9vI27RO1KSEMsyHmXiG3kJEu45iMvfSHDiFQnaClIswddg7B7uom6Zs3zg5r/L3GCXqVUNVgNqYL0HxM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=d9wYm5H1; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KS88Db5G"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60R6uQiH031862;
-	Tue, 27 Jan 2026 15:19:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=280g+6
-	Hai+7g9ZIuQWaVCWEmjVCE/Ja3nHYE00m10iE=; b=KS88Db5GN/bmvu8o14OnT3
-	zr62i4esg8xr5Qr5F+3lCJwhJwIPHBcac/QFf+Ssp75tXh3nKnLJ2vvYm3jpULjR
-	t43pC2t8XlBWVO4nm6jrNUbXKJkyh2VhEzNTqMvT+r9vKEPk9ZjCcNX18cGthAHw
-	YSUtmhNLxAGvnZRXuRRnz6zp7L9zRUpgvdP8/A7HSKNcByAAxSsELlp1DDFj9AnP
-	o4VSFddj/YiLH6j6XKSRVW6/lSOqtvEITX+fpTX1HMSFzhEVk0qXv4pqQVtfi4pq
-	xN5UPzspj1yK/Mfgn4Nj5VreopTonPD8zeCvAjQOj2LGp6F3R5EmVdwbs/e1RCWA
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bvkgmmkpc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 27 Jan 2026 15:19:39 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 60RFJc6o000308;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="d9wYm5H1"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60R8JYWi021655;
 	Tue, 27 Jan 2026 15:19:38 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bvkgmmkp8-1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=YwkCBIDx+CdwD1PaP
+	1iGkMwFtK6nggvYnNMUdWID+FY=; b=d9wYm5H1bnAJo4F6vo4IW5OyLc2T+n2XR
+	6/SYNP55taYa5OBXkHAaWwXsci9/7jA04Z0bGhyogvMX6+TI361cmZKlmqxQeYHT
+	qRongjx2vma9aVcPmx6kqKxzQzeGwyhAe9i/ShSzlf9J60UtPpLDxjB6kJFZQUNs
+	mYdhlOQCUmIcqaGnA66oS+4mJAdlNaU4QNYcPy3erbupNuHbPmNP6iQbfDBAq1JC
+	iykkiClHGu68AA1UKENGBHquOmGGYA/31QewyjCHfDfTvQCu7FmcpkZxyWwiQW6S
+	el3IbRe3gbHDK5xHsTbqfsUFXT7Fqj1UN63i1S9lyO1f2W/9KL9qg==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bvnk6x5hh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 27 Jan 2026 15:19:38 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60RCxjAj019653;
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 60RFFtfW006394;
 	Tue, 27 Jan 2026 15:19:37 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4bw9dn1541-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bvnk6x5he-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 27 Jan 2026 15:19:37 +0000
+	Tue, 27 Jan 2026 15:19:37 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60REptfE017960;
+	Tue, 27 Jan 2026 15:19:36 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4bwb41rvge-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 27 Jan 2026 15:19:36 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60RFJXgo24904260
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60RFJWFD61866366
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 27 Jan 2026 15:19:33 GMT
+	Tue, 27 Jan 2026 15:19:32 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A13252004B;
-	Tue, 27 Jan 2026 15:19:33 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 25DB920040;
+	Tue, 27 Jan 2026 15:19:32 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5AB4A2004D;
-	Tue, 27 Jan 2026 15:19:33 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id D0D3D20043;
+	Tue, 27 Jan 2026 15:19:31 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 27 Jan 2026 15:19:33 +0000 (GMT)
+	Tue, 27 Jan 2026 15:19:31 +0000 (GMT)
 From: Jens Remus <jremus@linux.ibm.com>
 To: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org, bpf@vger.kernel.org, x86@kernel.org,
@@ -84,9 +83,9 @@ Cc: Jens Remus <jremus@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
         Florian Weimer <fweimer@redhat.com>, Kees Cook <kees@kernel.org>,
         "Carlos O'Donell" <codonell@redhat.com>, Sam James <sam@gentoo.org>,
         Dylan Hatch <dylanbhatch@google.com>
-Subject: [PATCH v4 07/12] s390/ptrace: Convert function macros to inline functions
-Date: Tue, 27 Jan 2026 16:19:20 +0100
-Message-ID: <20260127151926.2805123-8-jremus@linux.ibm.com>
+Subject: [PATCH v4 02/12] s390/vdso: Avoid emitting DWARF CFI for non-vDSO
+Date: Tue, 27 Jan 2026 16:19:15 +0100
+Message-ID: <20260127151926.2805123-3-jremus@linux.ibm.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260127151926.2805123-1-jremus@linux.ibm.com>
 References: <20260127151926.2805123-1-jremus@linux.ibm.com>
@@ -96,161 +95,120 @@ List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Gr1PO01C c=1 sm=1 tr=0 ts=6978d78b cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=buFWL2FryyfO44b410EA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: gOItHQAEK5JdQYqBc_Pcq3_YFFraa12s
-X-Proofpoint-ORIG-GUID: IaA5Ab-IWkgSsCsR44k1qWZ9LHka8NSn
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTI3MDEyNSBTYWx0ZWRfX6f9V5uayh0cJ
- K14q/8u7jPMmPmsJLD4HLLJzXHF+kcVFQjy45fq1CCVM+f4H0UHqlM+jFeb4U4Pyx7S7jVjqbwn
- xx+js9ezjDsYPj2qLXUt6FWusaMG0PMBbA19AqRZ5+0vYthRmTCDPlMqTODxfnhlL3JExjjnilK
- 9H4H3Hf3bPzbYa2dBBb2W3rbQc+M8moSMS3W//Bde2Kb31KVRe1RB+eo9NQUHn61awXPnrhZKVQ
- XkxtN2/wVcQlkbMhP3t1XMhGcz6yOgaAByoUVxj3237FBaONYwXC4U1BuZu99jvcPoLTEV+zuKf
- /8JlKJZrOmSMseT1sbTmCv4VumN93EvDra9IR9U42FEu6HkV/Q84bkjbZvw217EtxT/aqxTW2sd
- CsUKgbG0ewSNIrg1+XIC7ARw41YJ9n8PbOSet3LA5m0FVDNhC9bw4v+m8/y57UZaP/oCCTHHfci
- k9hS16xzHWHUbV0ZrKw==
+X-Proofpoint-GUID: h_nc00dc0Tt1Wj7AikvB-Ktd9HCsR19H
+X-Proofpoint-ORIG-GUID: bzr1sWWmmNhoHfzG0j-EJXNVzzOZJstn
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTI3MDEyNSBTYWx0ZWRfX/AlT+89Tcx18
+ BVzYUI9JvLp7ubq0wMfau7ye6qk5kfujksQjXfZ62SLH1DZGSRHzlGKq2pTzQLHqMZXMPQXyWdG
+ WxGvWz7v9QuwibLseupLQ3WaTlDWmYfOpys6xSwJk/QTfIuNARABklgDmAHRk4wfE5nVCQSzCkb
+ 0LJfKUaP7WHGBVEk94DbLl6YjB7bSTrweKcUsP1uhbLdJJ2NiXQtr8LfEd45jivTTLMyI8fbYnZ
+ KMu7nmTa//l8fXLbKhLko+SWLgFy6ch9/52IDx43nIx627n+37ATAeNtu16MLjRmp13lxb/zkS2
+ TGD4biolxS+8dg10/uWFxxiRGq2TNSmqVA0fnlfIzp3ZVELqCSo5QQYDEQbRTdT/3S4w3x+Gnhj
+ qxI3pzqmAO+7MftRMP9xebKN6H+krbo8ywnT+aax4/9zLSHQrECQ7jYRF7xW2bquakePb9xxv4r
+ tuHvjMl903EjNhMgQYQ==
+X-Authority-Analysis: v=2.4 cv=AMiVTGgp c=1 sm=1 tr=0 ts=6978d78a cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VwQbUJbxAAAA:8 a=meVymXHHAAAA:8
+ a=VnNF1IyMAAAA:8 a=BeDKgDnIR9-QKG0Pbi4A:9 a=2JgSa4NbpEOStq-L5dxp:22
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-01-27_03,2026-01-27_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 clxscore=1015 lowpriorityscore=0 suspectscore=0
- impostorscore=0 phishscore=0 malwarescore=0 adultscore=0 spamscore=0
- bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.19.0-2601150000
+ malwarescore=0 spamscore=0 phishscore=0 bulkscore=0 suspectscore=0
+ adultscore=0 clxscore=1015 priorityscore=1501 lowpriorityscore=0
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2601150000
  definitions=main-2601270125
 
-Convert the function macros user_mode(), instruction_pointer(), and
-user_stack_pointer() to inline functions, to align their definition
-with x86 and arm64.
+This replicates Josh's x86 commit TODO ("x86/asm: Avoid emitting DWARF
+CFI for non-VDSO") for s390.  It also aligns asm/dwarf.h to x86
+asm/dwarf2.h.
 
-Use const qualifier on struct pt_regs pointer parameters to prevent
-compiler warnings:
+It was decided years ago that .cfi_* annotations aren't maintainable in
+the kernel.  For the kernel proper, ensure the CFI_* macros don't do
+anything.
 
-arch/s390/kernel/stacktrace.c: In function ‘arch_stack_walk_user_common’:
-arch/s390/kernel/stacktrace.c:114:34: warning: passing argument 1 of
-‘instruction_pointer’ discards ‘const’ qualifier from pointer target
-type [-Wdiscarded-qualifiers]
-...
-arch/s390/kernel/stacktrace.c:117:48: warning: passing argument 1 of
-‘user_stack_pointer’ discards ‘const’ qualifier from pointer target
-type [-Wdiscarded-qualifiers]
-...
+On the other hand the vDSO library *does* use them, so user space can
+unwind through it.
 
-While at it add const qualifier to all struct pt_regs pointer parameters
-that are accessed read-only and use __always_inline instead of inline to
-harmonize the helper functions.
+Make sure these macros only work for vDSO.  They aren't actually being
+used outside of vDSO anyway, so there's no functional change.
 
-[hca@linux.ibm.com: Use psw_bits() helper]
-
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Jens Remus <jremus@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 ---
 
 Notes (jremus):
-    Changes in v4:
-    - New patch.  Split out "while at it" changes from patch "s390/ptrace:
-      Provide frame_pointer()" to go upstream separately. (Heiko)
+    Link to latest x86 patch:
+    https://lore.kernel.org/all/20250425024022.477374378@goodmis.org/
 
- arch/s390/include/asm/ptrace.h | 37 ++++++++++++++++++++++++----------
- 1 file changed, 26 insertions(+), 11 deletions(-)
+ arch/s390/include/asm/dwarf.h | 45 ++++++++++++++++++++++-------------
+ 1 file changed, 29 insertions(+), 16 deletions(-)
 
-diff --git a/arch/s390/include/asm/ptrace.h b/arch/s390/include/asm/ptrace.h
-index 962cf042c66d..e6ec0ccf3d73 100644
---- a/arch/s390/include/asm/ptrace.h
-+++ b/arch/s390/include/asm/ptrace.h
-@@ -214,16 +214,23 @@ void update_cr_regs(struct task_struct *task);
- #define arch_has_single_step()	(1)
- #define arch_has_block_step()	(1)
+diff --git a/arch/s390/include/asm/dwarf.h b/arch/s390/include/asm/dwarf.h
+index df9f467910f7..6bcf37256feb 100644
+--- a/arch/s390/include/asm/dwarf.h
++++ b/arch/s390/include/asm/dwarf.h
+@@ -6,6 +6,18 @@
+ #warning "asm/dwarf.h should be only included in pure assembly files"
+ #endif
  
--#define user_mode(regs) (((regs)->psw.mask & PSW_MASK_PSTATE) != 0)
--#define instruction_pointer(regs) ((regs)->psw.addr)
--#define user_stack_pointer(regs)((regs)->gprs[15])
- #define profile_pc(regs) instruction_pointer(regs)
- 
--static inline long regs_return_value(struct pt_regs *regs)
-+static __always_inline bool user_mode(const struct pt_regs *regs)
-+{
-+	return psw_bits(regs->psw).pstate;
-+}
++.macro nocfi args:vararg
++.endm
 +
-+static inline long regs_return_value(const struct pt_regs *regs)
- {
- 	return regs->gprs[2];
- }
- 
-+static __always_inline unsigned long instruction_pointer(const struct pt_regs *regs)
-+{
-+	return regs->psw.addr;
-+}
++#ifdef BUILD_VDSO
 +
- static inline void instruction_pointer_set(struct pt_regs *regs,
- 					   unsigned long val)
- {
-@@ -233,19 +240,26 @@ static inline void instruction_pointer_set(struct pt_regs *regs,
- int regs_query_register_offset(const char *name);
- const char *regs_query_register_name(unsigned int offset);
- 
--static __always_inline unsigned long kernel_stack_pointer(struct pt_regs *regs)
-+static __always_inline unsigned long kernel_stack_pointer(const struct pt_regs *regs)
-+{
-+	return regs->gprs[15];
-+}
++	/*
++	 * For the vDSO, emit both runtime unwind information and debug
++	 * symbols for the .dbg file.
++	 */
 +
-+static __always_inline unsigned long user_stack_pointer(const struct pt_regs *regs)
- {
- 	return regs->gprs[15];
- }
++	.cfi_sections .eh_frame, .debug_frame
++
+ #define CFI_STARTPROC		.cfi_startproc
+ #define CFI_ENDPROC		.cfi_endproc
+ #define CFI_DEF_CFA_OFFSET	.cfi_def_cfa_offset
+@@ -16,23 +28,24 @@
+ #ifdef CONFIG_AS_CFI_VAL_OFFSET
+ #define CFI_VAL_OFFSET		.cfi_val_offset
+ #else
+-#define CFI_VAL_OFFSET		#
++#define CFI_VAL_OFFSET		nocfi
+ #endif
  
--static __always_inline unsigned long regs_get_register(struct pt_regs *regs, unsigned int offset)
-+static __always_inline unsigned long regs_get_register(const struct pt_regs *regs,
-+						       unsigned int offset)
- {
- 	if (offset >= NUM_GPRS)
- 		return 0;
- 	return regs->gprs[offset];
- }
+-#ifndef BUILD_VDSO
+-	/*
+-	 * Emit CFI data in .debug_frame sections and not in .eh_frame
+-	 * sections.  The .eh_frame CFI is used for runtime unwind
+-	 * information that is not being used.  Hence, vmlinux.lds.S
+-	 * can discard the .eh_frame sections.
+-	 */
+-	.cfi_sections .debug_frame
+-#else
+-	/*
+-	 * For vDSO, emit CFI data in both, .eh_frame and .debug_frame
+-	 * sections.
+-	 */
+-	.cfi_sections .eh_frame, .debug_frame
+-#endif
++#else /* !BUILD_VDSO */
++
++/*
++ * On s390, these macros aren't used outside vDSO.  As well they shouldn't be:
++ * they're fragile and very difficult to maintain.
++ */
++
++#define CFI_STARTPROC		nocfi
++#define CFI_ENDPROC		nocfi
++#define CFI_DEF_CFA_OFFSET	nocfi
++#define CFI_ADJUST_CFA_OFFSET	nocfi
++#define CFI_RESTORE		nocfi
++#define CFI_REL_OFFSET		nocfi
++#define CFI_VAL_OFFSET		nocfi
++
++#endif /* !BUILD_VDSO */
  
--static __always_inline int regs_within_kernel_stack(struct pt_regs *regs, unsigned long addr)
-+static __always_inline int regs_within_kernel_stack(const struct pt_regs *regs,
-+						    unsigned long addr)
- {
- 	unsigned long ksp = kernel_stack_pointer(regs);
- 
-@@ -261,7 +275,8 @@ static __always_inline int regs_within_kernel_stack(struct pt_regs *regs, unsign
-  * is specifined by @regs. If the @n th entry is NOT in the kernel stack,
-  * this returns 0.
-  */
--static __always_inline unsigned long regs_get_kernel_stack_nth(struct pt_regs *regs, unsigned int n)
-+static __always_inline unsigned long regs_get_kernel_stack_nth(const struct pt_regs *regs,
-+							       unsigned int n)
- {
- 	unsigned long addr;
- 
-@@ -278,8 +293,8 @@ static __always_inline unsigned long regs_get_kernel_stack_nth(struct pt_regs *r
-  *
-  * regs_get_kernel_argument() returns @n th argument of the function call.
-  */
--static inline unsigned long regs_get_kernel_argument(struct pt_regs *regs,
--						     unsigned int n)
-+static __always_inline unsigned long regs_get_kernel_argument(const struct pt_regs *regs,
-+							      unsigned int n)
- {
- 	unsigned int argoffset = STACK_FRAME_OVERHEAD / sizeof(long);
- 
-@@ -290,7 +305,7 @@ static inline unsigned long regs_get_kernel_argument(struct pt_regs *regs,
- 	return regs_get_kernel_stack_nth(regs, argoffset + n);
- }
- 
--static inline void regs_set_return_value(struct pt_regs *regs, unsigned long rc)
-+static __always_inline void regs_set_return_value(struct pt_regs *regs, unsigned long rc)
- {
- 	regs->gprs[2] = rc;
- }
+ #endif	/* _ASM_S390_DWARF_H */
 -- 
 2.51.0
 
