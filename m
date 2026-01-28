@@ -1,128 +1,155 @@
-Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
+Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2162A374162
-	for <linux-s390@vger.kernel.org>; Wed, 28 Jan 2026 18:06:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 318F437106B
+	for <linux-s390@vger.kernel.org>; Wed, 28 Jan 2026 18:32:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769623593; cv=none; b=R6eyjCcyG1smIDz0UERIsyD+l2/R4oJ86T0ksSbrSOb4HMygkpOqmnRzPz5+/q1X8BMV/KdHtYHfZmFreMRFTaBa3Lh+kfb4EbNS7f0QcjpTdwvm9KgrsXo9l4niQITDlvuM9LPRJ+MqdtgHiFq7hj3AHvFUA+ZPp6q1V5sI3uY=
+	t=1769625180; cv=none; b=tdCtUUDKoOZgzRVHxtUbEw3SSe6VXTq96Es2+BIJVBJTV07pCROkgsiibtgrZdtoahnVbdgVjJW267dvxuHD8P+phya9ZxoBLr9KeiIbPZW51fSqkFzOArvrVvU9FRgQNhAERJx0Dmrd8/x//mksSPr0/Nb0doS51jBJjQUaUyU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769623593; c=relaxed/simple;
-	bh=YaIZPczUt0JTVA89TpBrq/++CRfdlHNIhDlOkzrTVzQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=sNqfiofPQO4wDCJNbHj0/2uF7BKgey1+w6Z8CIUvRjsxTXJm9NwnzUQ+Y4VfRYVwzg3jsfinagNdxUGvLDmKpU7qPYU5JdAi4xElUgZq9qZZTMAi0P93Ha6AfMk1DB4UmEuPQ8bl99zQoE9/xYou3KXkPP9JJVHJZcrArYAam9s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=H8mWeFsS; arc=none smtp.client-ip=209.85.222.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1769625180; c=relaxed/simple;
+	bh=OBdwcZUm6PgM3WhIEW36ryu3bfpAIHNKO61eL0eZiMs=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=R2T3KAnguUQl9PRfACba1HH6kKvxqKbsFbA+eJXiyZ1PJwBnH9Ng8kAUeyWQPJGOL3ox0zWZQWptbkvAxkZ+WfpmToU+Yp63W2mMq0PmTeJk0QDgonYjc+AsO07NXxeqoyrRx1IrfVZEl/Ce2/qvlOjGo5uKL93XlyQTsgfR71s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BdFmsbnx; arc=none smtp.client-ip=209.85.221.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="H8mWeFsS"
-Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-8c6a50c17fdso15810685a.2
-        for <linux-s390@vger.kernel.org>; Wed, 28 Jan 2026 10:06:31 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BdFmsbnx"
+Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-432da746749so145597f8f.0
+        for <linux-s390@vger.kernel.org>; Wed, 28 Jan 2026 10:32:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1769623591; x=1770228391; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=YaIZPczUt0JTVA89TpBrq/++CRfdlHNIhDlOkzrTVzQ=;
-        b=H8mWeFsSdwADWoWWfEA0w+bwR8tO5PHsGO8YFyoPYpDKG0sMyli8Ex3dHcuo63SAE5
-         r4Gn6lEHuyjoUITTiyG053SeObk1eqjhP5AGP/tx3s1n/WvyZEqqNNkdn1NUNZYB7Mj8
-         1majS3rb6gLXjS9Kl/S4X/nshAyAfPVXIRkGKYhVU/ks0d1NMjTPrD3WCLJmYjQ7egD6
-         x97U1qiMggsHkQCrXUdyxC1z1FymH3HVJjnhE46eO9UXV+l7ZKoGhkW9xrMgkFTt2Q52
-         NAvCR/D387hBy/DvGoiX1EYiWKTjqS4Pw8T3QNUVmojUjIalMdRtayzMk2OEBNPw2Lzo
-         IcGg==
+        d=gmail.com; s=20230601; t=1769625174; x=1770229974; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Kfg6UdscjkpEoTOhSlRT2LAj46aYr5XBfZJkEddMCkI=;
+        b=BdFmsbnxp8k31MlUlHep/s4Q0Dg3v5+tAMK33xoJ3jXeqMes8g07JjqsqflIEEhqnO
+         sG1937uKP2JY8EUJPxIA6IQfHaLhjTtCJyaxwMQZAmC6EloPPEI660WDXqdSPhZKZ590
+         0jbATOwvxyKb32EhkWI9EMXeX2Qs3RUwwFa0iiAqCx6Bc0vzVcUNkMrjQ/AgWNkcmc1n
+         o22rWj5tKI/50uBN9Vjj5v6lgsS4gtAfT4NE6IehsVva4vY1AlWbDKWcrKtrUzmPqsHe
+         C491oGNXnow2Up8aRmzQ1D1SnJtNmf7GIrRYdXTQYCNi573RM0xCnlhL5wB7MrWzWZua
+         uPzg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769623591; x=1770228391;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=YaIZPczUt0JTVA89TpBrq/++CRfdlHNIhDlOkzrTVzQ=;
-        b=lm8NqLQNAhijBOWtnMJwN+68R3xxFBMDoUXw8mHrDvvP4SFptTV5NKS/meMeHCt6fp
-         c9Ko5Xnu7+I/fvsxAHu1IpwA+20EXvFzf+xWVsnM04x+CO6X3iiJvnYySLpygBUVGKkJ
-         opxpPTNnG2tgmNYeEOZoXDJg2ByB3Q2SNUH8BgXsYehpvyBBWDtk1ZYA843u/wJq0FwL
-         DOn5JMSqv2GRv5notH5cCjQU3IhAgmEtOxEIhVOSjEeVcjULwoxmAZDUOSZ+Fi95UVqw
-         Tl1ficCbsnT6NuzWGazKlbiJvtR47OCSntfwQJO2UeHU4YKd5udQy2CPtrghHJCAj/yL
-         SK+A==
-X-Forwarded-Encrypted: i=1; AJvYcCX8V6uTQj8DIh3iJi5191i3ka/TUy4fyNTPTdtq7vhCQ/1DXGZEcqypV4ly4ocBSSKhe+nSO1TfZZ93@vger.kernel.org
-X-Gm-Message-State: AOJu0YwGMgf9o21MDHds2k9dLicbFiXqL4gbJT6xGrhY0B9rM/5LOy/S
-	Y/xyEpPgid1QktgA/Wr7jsGfzUD81ugi0kIye6JWAgO0f1YAqnN2rUgfrMlfd0lCqeg=
-X-Gm-Gg: AZuq6aKhl4a+kLRA1j0xe6u9tBduZRTIZ4Fx4P1LiJkA4AriyegY+nV89hu1hVreZ0s
-	aX4G1u1u2yrjh0QaWEnVjKfEY+nDGME6Pp15TU7iPxksI2Wu8dPMNRZ1n8Y1QPHgnOqcfzOwlNB
-	vsC4lkVn5ld08OrZESGbS5y6pls8ZpobCcWC4cQKgDjV0I3SYMmZC9fIOxhkVASfQ4dPQiqsglO
-	PoeyvvsyCLb2dH1JD7F2ajaS18CaEmavNugSbABjkm+CBXCBn00BnMfFoHwMrOPiIW1f0KX+T2s
-	oOeQfkUEGqf86MUUvuhSIP7S0stna1MRQG9gW8AGqt7xqVZ5gBxXozzk/r5QloREF/BWZA2bYcm
-	On5TQdBbmZ7UjU4vtt88MgnF9zmruM1JpNfJFCe9/afmhNMOEARTu0rixfvQwfoGa87w52s+mfi
-	AVUpYcse368BQBi9y8QlUvLbne6WQOjLSa1nHHav5tc9ziur0uQ5Oxxf5vqQPYC3xo5qM=
-X-Received: by 2002:ae9:f404:0:b0:8c7:136e:bad7 with SMTP id af79cd13be357-8c7136ebb3cmr341643785a.85.1769623591045;
-        Wed, 28 Jan 2026 10:06:31 -0800 (PST)
-Received: from ziepe.ca (hlfxns017vw-142-162-112-119.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.112.119])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-894d375ce71sm21598586d6.45.2026.01.28.10.06.30
+        d=1e100.net; s=20230601; t=1769625174; x=1770229974;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=Kfg6UdscjkpEoTOhSlRT2LAj46aYr5XBfZJkEddMCkI=;
+        b=NEv8P458Jg4EAPHrd1GHAyLOyPiVSR1fq+hG5e68rINZOEWUnkUbL/0AQOdWVXGWVu
+         iaGE285fx/nAOyDRc/wHbmzAJfrptJerAVxjLTUsJ1Gp3K30sK9HvUH6fTc/FquNAepn
+         2RjVvhT+FTOKfZq9cYd32pUYcYPCduQFzX/rDKUik4JB15JZc7S3dgH1tSIa1zpOGZRF
+         Id7gJOEL9g9y6siSkA/o7fGBE1qr2LkrsG5SuD70PX4qFhqlz1PMPnGjXvqr0UInWukn
+         ZKKJtL5KDiwYDnf8u9bexR4TadnC9/QEoH/qRhk1NCouKNp2ut0MT8GFJwMnPxPVly50
+         OO7g==
+X-Forwarded-Encrypted: i=1; AJvYcCW3AzisAjpAYMtRXic8UEyIbGrVOs60tA92vbx0cn+xpRmjwN3IWkxMJwSorP+DJa8VkpW4SVHEfQ2B@vger.kernel.org
+X-Gm-Message-State: AOJu0YyfqVpydm/2ObEpOONjiWx3yFbTJ5DPvQOnSyqRpruxzPyIei4D
+	q3UKuNvdMslpQzfNZW6Vq6/O+g5zUgQa0NcSnvIGjuGZ4aLUZNZz+wgI
+X-Gm-Gg: AZuq6aJ0bYbWfnHVkM6j5t7z8pc/aT04p/BVrvF73bytXSYJ19JZAz/hYRwYpKCDIR6
+	RHcUxOxH1FjGLOSjQQtm6mJ0XweWz8IBJDz8wgKvtNScA29KaO2ndvtCF6yexgWRiydRFjmMu8A
+	rj4jz+QB/Qs91oLxDXixTCCCHdjKg2Z78YX32GHI1bFE0t3CgYtuP9LeadeoORk53zg8Lfa0mRG
+	GZ2kGTmR+zu+ynMSqoLUSX03+Qm0JDn9xYGc/yP0VXvk/R757ucSMxg6EmDM2S+SmTUr0EOcGUD
+	r6rT/Vaq6nvh9tTqiX3VFc91bCvw3ap5S+Qf+QvLbd4/BYv3LLudYF44xg9uFDTDYGbk3JJnbh8
+	C0jL3iUsGkSeSHkIOJhN/nqh/qPSnPZzyEPeXqOUmEZcRMX7WTP6uN3HNb1CkdgruPjRJPKZJqU
+	oS/jXw8Mp4oxOUn+MIRn74GOkrn0XH20z3bCDyCmJOyk53eMb7xXLP
+X-Received: by 2002:a05:6000:3113:b0:435:9241:37c2 with SMTP id ffacd0b85a97d-435dd01e23fmr8152542f8f.9.1769625174058;
+        Wed, 28 Jan 2026 10:32:54 -0800 (PST)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-435e131ce64sm9165906f8f.26.2026.01.28.10.32.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Jan 2026 10:06:30 -0800 (PST)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1vl9vx-00000009aHB-3e3a;
-	Wed, 28 Jan 2026 14:06:29 -0400
-Date: Wed, 28 Jan 2026 14:06:29 -0400
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: Leon Romanovsky <leon@kernel.org>, Uladzislau Rezki <urezki@gmail.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>, Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	oliver.yang@linux.alibaba.com
-Subject: Re: [PATCH net-next 2/3] mm: vmalloc: export find_vm_area()
-Message-ID: <20260128180629.GT1641016@ziepe.ca>
-References: <20260123082349.42663-1-alibuda@linux.alibaba.com>
- <20260123082349.42663-3-alibuda@linux.alibaba.com>
- <aXPEFdEdtSmd6AzF@milan>
- <20260124093505.GA98529@j66a10360.sqa.eu95>
- <aXSjm1DXm6yP62tD@pc636>
- <20260124145754.GA57116@j66a10360.sqa.eu95>
- <20260127133417.GU13967@unreal>
- <20260128034558.GA126415@j66a10360.sqa.eu95>
+        Wed, 28 Jan 2026 10:32:53 -0800 (PST)
+Date: Wed, 28 Jan 2026 18:32:51 +0000
+From: David Laight <david.laight.linux@gmail.com>
+To: Ryan Roberts <ryan.roberts@arm.com>
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>, Catalin Marinas
+ <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Huacai Chen
+ <chenhuacai@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael
+ Ellerman <mpe@ellerman.id.au>, Paul Walmsley <pjw@kernel.org>, Palmer
+ Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Heiko
+ Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander
+ Gordeev <agordeev@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
+ <dave.hansen@linux.intel.com>, Kees Cook <kees@kernel.org>, "Gustavo A. R.
+ Silva" <gustavoars@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Mark Rutland
+ <mark.rutland@arm.com>, Ard Biesheuvel <ardb@kernel.org>, Jeremy Linton
+ <jeremy.linton@arm.com>, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org
+Subject: Re: [PATCH v4 2/3] prandom: Add __always_inline version of
+ prandom_u32_state()
+Message-ID: <20260128183251.7177c345@pumpkin>
+In-Reply-To: <670c2b78-02e2-4617-80d9-3c896077f02a@arm.com>
+References: <20260119130122.1283821-1-ryan.roberts@arm.com>
+	<20260119130122.1283821-3-ryan.roberts@arm.com>
+	<aXpArjZ1QQowshnA@zx2c4.com>
+	<670c2b78-02e2-4617-80d9-3c896077f02a@arm.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260128034558.GA126415@j66a10360.sqa.eu95>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Wed, Jan 28, 2026 at 11:45:58AM +0800, D. Wythe wrote:
+On Wed, 28 Jan 2026 17:33:19 +0000
+Ryan Roberts <ryan.roberts@arm.com> wrote:
 
-> By leveraging vmalloc_huge() and the proposed helper to increase the
-> page_size in ib_map_mr_sg(), each MTTE covers a much larger contiguous
-> physical block.
+> On 28/01/2026 17:00, Jason A. Donenfeld wrote:
+> > On Mon, Jan 19, 2026 at 01:01:09PM +0000, Ryan Roberts wrote:  
+> >> We will shortly use prandom_u32_state() to implement kstack offset
+> >> randomization and some arches need to call it from non-instrumentable
+> >> context. So let's implement prandom_u32_state() as an out-of-line
+> >> wrapper around a new __always_inline prandom_u32_state_inline(). kstack
+> >> offset randomization will use this new version.
+> >>
+> >> Acked-by: Mark Rutland <mark.rutland@arm.com>
+> >> Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
+> >> ---
+> >>  include/linux/prandom.h | 20 ++++++++++++++++++++
+> >>  lib/random32.c          |  8 +-------
+> >>  2 files changed, 21 insertions(+), 7 deletions(-)
+> >>
+> >> diff --git a/include/linux/prandom.h b/include/linux/prandom.h
+> >> index ff7dcc3fa105..801188680a29 100644
+> >> --- a/include/linux/prandom.h
+> >> +++ b/include/linux/prandom.h
+> >> @@ -17,6 +17,26 @@ struct rnd_state {
+> >>  	__u32 s1, s2, s3, s4;
+> >>  };
+> >>  
+> >> +/**
+> >> + * prandom_u32_state_inline - seeded pseudo-random number generator.
+> >> + * @state: pointer to state structure holding seeded state.
+> >> + *
+> >> + * This is used for pseudo-randomness with no outside seeding.
+> >> + * For more random results, use get_random_u32().
+> >> + * For use only where the out-of-line version, prandom_u32_state(), cannot be
+> >> + * used (e.g. noinstr code).
 
-This doesn't seem right, if your goal is to take a vmalloc() pointer
-and convert it to a MR via a scatterlist and ib_map_mr_sg() then you
-should be asking for a helper to convert a kernel pointer into a
-scatterlist.
+If you are going to respin:
+		(e.g. noinst or performance critical code).
 
-Even if you do this in a naive way and call the
-sg_alloc_append_table_from_pages() function it will automatically join
-physically contiguous ranges together for you.
+	David
 
-From there you can check the resulting scatterlist and compute the
-page_size to pass to ib_map_mr_sg().
+> >> + */
+> >> +static __always_inline u32 prandom_u32_state_inline(struct rnd_state *state)  
+> > 
+> > This is pretty bikesheddy and I'm not really entirely convinced that my
+> > intuition is correct here, but I thought I should at least ask. Do you
+> > think this would be better called __prandom_u32_state(), where the "__"
+> > is kind of a, "don't use this directly unless you know what you're doing
+> > because it's sort of internal"? It seems like either we make this inline
+> > for everybody, or if there's a good reason for having most users use the
+> > non-inline version, then we should be careful that new users don't use
+> > the inline version. I was thinking the __ would help with that.  
+> 
+> I'm certainly happy to do that, if that's your preference. I have to respin this
+> anyway, given the noinstr issue.
+> 
+> > 
+> > Jason  
+> 
 
-No need to ask the MM for anything other than the list of physicals to
-build the scatterlist with.
-
-Still, I wouldn't mind seeing a helper to convert a kernel pointer
-into a scatterlist because I have see that opencoded in a few places,
-and maybe there are ways to optimize that using more information from
-the MM - but it should be APIs used only by this helper not exposed to
-drivers.
-
-Jason
