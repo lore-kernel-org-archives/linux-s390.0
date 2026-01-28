@@ -1,192 +1,143 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF3E02D9EDC;
-	Wed, 28 Jan 2026 11:21:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DADFA20125F;
+	Wed, 28 Jan 2026 12:18:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769599286; cv=none; b=W02BX7768GpeVQ1eEO6/26kCIGhiLJt7lSCkXbs+vdESMeFaUzuz1Gr6UY5rz0SrrMuvvjuoCkcWIlcFAFEgSyC0+L9HKsP99MTHj1ya3ieS8IuAp46slUaegcNYuXPlv16cMoX8zpLUZVktbYFn1GX1ZcDivnbItbZXRHCftnI=
+	t=1769602724; cv=none; b=AhChG77u/DmFJSDKJKuQ2HiTalYHiXVVhOY6rcPv49DJYhwSrsqinyB0niJWvxSDPGnqcVrL11SvvZchL2B/KA+R/haxcmOUyNnwOItyNTSPBhTdElGne16CzA56k/VRodK4nlA7+rrNy1jhyvZ+Tbqpo+NfPyBmJIu2SawgtNI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769599286; c=relaxed/simple;
-	bh=RcNC7ajtZO93y2kR8qbqgL3LBjq5vZlEqWbWUZ97gFc=;
+	s=arc-20240116; t=1769602724; c=relaxed/simple;
+	bh=irHF387VhKHjsOnpsnW9NUk3sxxbxWzln/uy9xgtwqM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=E9ZZRlXnk2fOylQYZVLcMfDHXMtOTAIj7BoG7CShq72WP8QUH6aDtFhM4jHMp4sUnUbpvtRyKQJdpRYISoTdp662QzispAqISs0KE8ekiIBCb35MxGMwand2bGqpsBLDwpNxgmVJCAd9hm0vQOGXt5G5+V2uyrv7VZf7eGIeDaY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b4Nq8o3f; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=awkHM1aP4xodEhPeiEM8aN85iNxQ3jt2azKUTCmW2qnmc8HjM6PWRiB43xi2VEpHkb/MQ73nskNgWNAagvetip7B/aQYPU2knFMXvAJfUeQHZRA+h3bcL7MQrSTa0Lq2uWI+WtQMIaSJpmH9/06TJ9jFYeMMlkH5mmuZyHxxZtc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=TGlHRR6F; arc=none smtp.client-ip=198.175.65.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b4Nq8o3f"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B68EC4CEF1;
-	Wed, 28 Jan 2026 11:21:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769599285;
-	bh=RcNC7ajtZO93y2kR8qbqgL3LBjq5vZlEqWbWUZ97gFc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=b4Nq8o3fCXx0FDgmtXIfNAjrlw/nomtT4FV+RlBYv5vJDcqQpEsAVC+IDaUThfD54
-	 T0kdfd+QLrQMW8Wyw6HzovMb8kBxSSFuR+5mNa/9rVNgeMyDHf7rGcL8a41k4dcg74
-	 p+eSk7FT3kkn2/gJffltIHbl9ScxFdkNATA4HRA67q9UIk4GLTAcUfmH9tvfuwbw8U
-	 OOkCn7IuljSE3NZP/87ZexqP9pB2/3Str2phSo6CkBAODgdy3uQ4VMuHTGLWyfY9u/
-	 rX+fr7UjGRYm0s//GQUMkkh3RbtvPgEOfL1yGYSQlLRi5zRXZfVazXnBiax/aH3qJr
-	 MkafyUnlhMEkA==
-Date: Wed, 28 Jan 2026 13:21:22 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: Liu Jian <liujian56@huawei.com>, dust.li@linux.alibaba.com,
-	sidraya@linux.ibm.com, wenjia@linux.ibm.com, mjambigi@linux.ibm.com,
-	tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, horms@kernel.org,
-	guangguan.wang@linux.alibaba.com, linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	Christoph Hellwig <hch@lst.de>, Jason Gunthorpe <jgg@nvidia.com>
-Subject: Re: [PATCH net v2] net/smc: fix one NULL pointer dereference in
- smc_ib_is_sg_need_sync()
-Message-ID: <20260128112122.GE12149@unreal>
-References: <20250828124117.2622624-1-liujian56@huawei.com>
- <20250909094532.GD341237@unreal>
- <20260126044501.GA18724@j66a10360.sqa.eu95>
- <20260127120004.GT13967@unreal>
- <20260128055051.GA79132@j66a10360.sqa.eu95>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="TGlHRR6F"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1769602723; x=1801138723;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=irHF387VhKHjsOnpsnW9NUk3sxxbxWzln/uy9xgtwqM=;
+  b=TGlHRR6F94rKBRysVGoeJUVVWNt0zxHcxUUHuGMVDEqG6cxjzZLmjTVh
+   zigjLlb+2U1wBFRVoTfL3919JzOQG/KyWzA3jTIUOyz58xeQBP0FdLJ+z
+   spzvXvY2wrp4kTwZD+hxyWWnzz6JXZWYzzqjcZAe2oGIZPXJspe6r+RvC
+   BJbktKaB0UGBZtPrNs2Z3M5R+ROzLzeE0qXwcvh3yz9xw4S+kCAnAPVlM
+   nVNfUL7B3UrEtVrHcp902Qq2ykB+vNPTTbEvSVuNxGVpxPlLTkb/OWSQ8
+   sivcrokU6gFz9flZablWyus71nF16DvcXnceFNs9VIDfN1LwwbItjmn74
+   Q==;
+X-CSE-ConnectionGUID: BeKq8/W3QImhw2GFekEqtA==
+X-CSE-MsgGUID: yBW1TNNqRJGfBg1J7jsj5Q==
+X-IronPort-AV: E=McAfee;i="6800,10657,11684"; a="93469830"
+X-IronPort-AV: E=Sophos;i="6.21,258,1763452800"; 
+   d="scan'208";a="93469830"
+Received: from orviesa003.jf.intel.com ([10.64.159.143])
+  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2026 04:18:43 -0800
+X-CSE-ConnectionGUID: Q7Z5V0R1RjCKaaK9/1JSxA==
+X-CSE-MsgGUID: tIAdhHReTWOiiIA7g/WWbw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,258,1763452800"; 
+   d="scan'208";a="212353797"
+Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
+  by orviesa003.jf.intel.com with ESMTP; 28 Jan 2026 04:18:35 -0800
+Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1vl4VE-00000000ZeC-2fMW;
+	Wed, 28 Jan 2026 12:18:32 +0000
+Date: Wed, 28 Jan 2026 20:18:08 +0800
+From: kernel test robot <lkp@intel.com>
+To: "Kalyazin, Nikita" <kalyazin@amazon.co.uk>,
+	"kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"kvmarm@lists.linux.dev" <kvmarm@lists.linux.dev>,
+	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+	"linux-mm@kvack.org" <linux-mm@kvack.org>,
+	"bpf@vger.kernel.org" <bpf@vger.kernel.org>,
+	"linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>,
+	"kernel@xen0n.name" <kernel@xen0n.name>,
+	"linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+	"loongarch@lists.linux.dev" <loongarch@lists.linux.dev>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	"pbonzini@redhat.com" <pbonzini@redhat.com>,
+	"corbet@lwn.net" <corbet@lwn.net>,
+	"maz@kernel.org" <maz@kernel.org>,
+	"oupton@kernel.org" <oupton@kernel.org>,
+	"joey.gouly@arm.com" <joey.gouly@arm.com>,
+	"suzuki.poulose@arm.com" <suzuki.poulose@arm.com>,
+	"yuzenghui@huawei.com" <yuzenghui@huawei.com>,
+	"catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+	"will@kernel.org" <will@kernel.org>,
+	"seanjc@google.com" <seanjc@google.com>,
+	"tglx@kernel.org" <tglx@kernel.org>,
+	"mingo@redhat.com" <mingo@redhat.com>,
+	"bp@alien8.de" <bp@alien8.de>,
+	"dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+	"x86@kernel.org" <x86@kernel.org>, "hpa@zytor.com" <hpa@zytor.com>,
+	"luto@kernel.org" <luto@kernel.org>
+Subject: Re: [PATCH v10 01/15] set_memory: set_direct_map_* to take address
+Message-ID: <202601282023.vzRHJBfU-lkp@intel.com>
+References: <20260126164445.11867-2-kalyazin@amazon.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260128055051.GA79132@j66a10360.sqa.eu95>
+In-Reply-To: <20260126164445.11867-2-kalyazin@amazon.com>
 
-On Wed, Jan 28, 2026 at 01:50:51PM +0800, D. Wythe wrote:
-> On Tue, Jan 27, 2026 at 02:00:04PM +0200, Leon Romanovsky wrote:
-> > On Mon, Jan 26, 2026 at 12:45:01PM +0800, D. Wythe wrote:
-> > > On Tue, Sep 09, 2025 at 12:45:32PM +0300, Leon Romanovsky wrote:
-> > > > On Thu, Aug 28, 2025 at 08:41:17PM +0800, Liu Jian wrote:
-> > > > > BUG: kernel NULL pointer dereference, address: 00000000000002ec
-> > > > > PGD 0 P4D 0
-> > > > > Oops: Oops: 0000 [#1] SMP PTI
-> > > > > CPU: 28 UID: 0 PID: 343 Comm: kworker/28:1 Kdump: loaded Tainted: G        OE       6.17.0-rc2+ #9 NONE
-> > > > > Tainted: [O]=OOT_MODULE, [E]=UNSIGNED_MODULE
-> > > > > Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1 04/01/2014
-> > > > > Workqueue: smc_hs_wq smc_listen_work [smc]
-> > > > > RIP: 0010:smc_ib_is_sg_need_sync+0x9e/0xd0 [smc]
-> > > > > ...
-> > > > > Call Trace:
-> > > > >  <TASK>
-> > > > >  smcr_buf_map_link+0x211/0x2a0 [smc]
-> > > > >  __smc_buf_create+0x522/0x970 [smc]
-> > > > >  smc_buf_create+0x3a/0x110 [smc]
-> > > > >  smc_find_rdma_v2_device_serv+0x18f/0x240 [smc]
-> > > > >  ? smc_vlan_by_tcpsk+0x7e/0xe0 [smc]
-> > > > >  smc_listen_find_device+0x1dd/0x2b0 [smc]
-> > > > >  smc_listen_work+0x30f/0x580 [smc]
-> > > > >  process_one_work+0x18c/0x340
-> > > > >  worker_thread+0x242/0x360
-> > > > >  kthread+0xe7/0x220
-> > > > >  ret_from_fork+0x13a/0x160
-> > > > >  ret_from_fork_asm+0x1a/0x30
-> > > > >  </TASK>
-> > > > > 
-> > > > > If the software RoCE device is used, ibdev->dma_device is a null pointer.
-> > > > > As a result, the problem occurs. Null pointer detection is added to
-> > > > > prevent problems.
-> > > > > 
-> > > > > Fixes: 0ef69e788411c ("net/smc: optimize for smc_sndbuf_sync_sg_for_device and smc_rmb_sync_sg_for_cpu")
-> > > > > Signed-off-by: Liu Jian <liujian56@huawei.com>
-> > > > > ---
-> > > > > v1->v2:
-> > > > > move the check outside of loop.
-> > > > >  net/smc/smc_ib.c | 3 +++
-> > > > >  1 file changed, 3 insertions(+)
-> > > > > 
-> > > > > diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-> > > > > index 53828833a3f7..a42ef3f77b96 100644
-> > > > > --- a/net/smc/smc_ib.c
-> > > > > +++ b/net/smc/smc_ib.c
-> > > > > @@ -742,6 +742,9 @@ bool smc_ib_is_sg_need_sync(struct smc_link *lnk,
-> > > > >  	unsigned int i;
-> > > > >  	bool ret = false;
-> > > > >  
-> > > > > +	if (!lnk->smcibdev->ibdev->dma_device)
-> > > > > +		return ret;
-> > > > 
-> > > > Please use ib_uses_virt_dma() function for that.
-> > > > 
-> > > > It is clearly stated in the code:
-> > > >   2784 struct ib_device {
-> > > >   2785         /* Do not access @dma_device directly from ULP nor from HW drivers. */
-> > > >   2786         struct device                *dma_device;     
-> > > > 
-> > > > Thanks
-> > > > 
-> > > >
-> > > 
-> > > Hi Leon,
-> > > 
-> > > Sorry for the late reply, I just noticed this and thank you for your review.
-> > > I agree completely with your feedback: we should not be accessing ibdev->dma_device
-> > > directly. Following your advice, replacing the
-> > > 
-> > > 	if (!lnk->smcibdev->ibdev->dma_device)
-> > > 
-> > > check with ib_uses_virt_dma() is straightforward and absolutely the correct
-> > > thing to do for that part of the logic.
-> > > 
-> > > However, this has led me to a further challenge. The main purpose of the
-> > > smc_ib_is_sg_need_sync() function is to get the result of dma_need_sync().
-> > > This means that even after correctly using ib_uses_virt_dma(), the function
-> > > still needs to call dma_need_sync(ibdev->dma_device, ...), which forces us
-> > > right back into the direct access pattern we are trying to eliminate.
-> > 
-> > I would like to challenge the use of dma_need_sync() in smc_ib.c. From
-> > what I see, it is used to avoid calls to dma_sync_single_*_device()
-> > which will be NOP anyway in that case.
-> > 
-> > Why did you copy that logic from XSK?
-> > 
-> 
-> You are right. I just noticed that the DMA has already introduced a
-> similar optimization.
-> 
-> The check in SMC was added back in 2022, while the DMA introduced
-> the internal "skip redundant sync" mechanism in 2024 (commit f406c8e4b770).
-> 
-> Given this, it might be better to simply remove this redundant check
-> from SMC now, which would also eliminate the need for direct access to
-> ibdev->dma_device. I need to perform some tests to confirm this.
+Hi Nikita,
 
-It may also be worth looking at this series from Chuck, which reuses the
-recently introduced DMA API to remove the SG conversions:
-https://lore.kernel.org/linux-rdma/20260128005400.25147-1-cel@kernel.org/
+kernel test robot noticed the following build errors:
 
-You might be able to apply a similar approach and drop SG from your
-datapath entirely.
+[auto build test ERROR on 0499add8efd72456514c6218c062911ccc922a99]
 
-Thanks.
+url:    https://github.com/intel-lab-lkp/linux/commits/Kalyazin-Nikita/set_memory-set_direct_map_-to-take-address/20260127-005641
+base:   0499add8efd72456514c6218c062911ccc922a99
+patch link:    https://lore.kernel.org/r/20260126164445.11867-2-kalyazin%40amazon.com
+patch subject: [PATCH v10 01/15] set_memory: set_direct_map_* to take address
+config: loongarch-allnoconfig (https://download.01.org/0day-ci/archive/20260128/202601282023.vzRHJBfU-lkp@intel.com/config)
+compiler: clang version 22.0.0git (https://github.com/llvm/llvm-project 9b8addffa70cee5b2acc5454712d9cf78ce45710)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260128/202601282023.vzRHJBfU-lkp@intel.com/reproduce)
 
-> 
-> Thanks for your feedback.
-> 
-> D. Wythe
-> 
-> > > 
-> > > Since the RDMA doesn't currently offer a helper for this "check" functionality,
-> > > I'd like to propose adding one. What are your thoughts on a new helper like
-> > > the one below, which would allow us to solve this cleanly?
-> > > 
-> > > /* ib_verbs.h */
-> > > static inline bool ib_dma_need_sync(struct ib_device *dev, dma_addr_t dma_addr) {
-> > > 	return !ib_uses_virt_dma(dev) && dma_need_sync(dev->dma_device, dma_addr);
-> > > }
-> > 
-> > If we're discussing wrappers, it's likely better to provide a wrapper around
-> > dma_sync_sg_for_cpu() for use in ib_dma_sync_sg_for_cpu(), rather than
-> > open‑coding the logic.
-> > 
-> > Thanks
-> > 
-> > > 
-> > > Best wishes,
-> > > D. Wythe
-> > > 
-> > > 
-> 
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202601282023.vzRHJBfU-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+>> arch/loongarch/mm/pageattr.c:211:16: error: redefinition of 'addr' with a different type: 'unsigned long' vs 'const void *'
+     211 |         unsigned long addr = (unsigned long)addr;
+         |                       ^
+   arch/loongarch/mm/pageattr.c:209:48: note: previous definition is here
+     209 | int set_direct_map_invalid_noflush(const void *addr)
+         |                                                ^
+   1 error generated.
+
+
+vim +211 arch/loongarch/mm/pageattr.c
+
+   208	
+   209	int set_direct_map_invalid_noflush(const void *addr)
+   210	{
+ > 211		unsigned long addr = (unsigned long)addr;
+   212	
+   213		if ((unsigned long)addr < vm_map_base)
+   214			return 0;
+   215	
+   216		return __set_memory((unsigned long)addr, 1, __pgprot(0),
+   217				    __pgprot(_PAGE_PRESENT | _PAGE_VALID));
+   218	}
+   219	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
