@@ -1,115 +1,108 @@
-Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3A771E0B86
-	for <linux-s390@vger.kernel.org>; Thu, 29 Jan 2026 13:21:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
+Received: from angie.orcam.me.uk (angie.orcam.me.uk [78.133.224.34])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 96A533A1CD;
+	Thu, 29 Jan 2026 13:43:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.133.224.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769692862; cv=none; b=Zkl9NU215Jx0j2Z5nJqEehi+tfFClIS7yqQsW0zn1pxpFj9XDaHKnwu+qoKGhEMQTpJ2VYIS1/K87HvQHPN5vQeZEkJQgxl8vZCpdBFQnYDw8yzUAFZRuBMBHA78YxYJgflWURvs0NfiDTeHMd2eDKRt3RMZ+EZG56yzpDVWZzM=
+	t=1769694185; cv=none; b=HBSL6QnzSAWIk/T5qQC2Nh8HIM/VtOtX+ceu76LRjZBHpFDj7lFp11IQAqp7rjduFaxgznYGF/HXD7qjIhdJWGkJoJzlXgU2Fc0B30m9lEs7y/58Yt+3UnpS8VnhfH+D2oUtW2xO/mZlhN4RlSDFgrEb4KtH+CupfxprPlKbmOc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769692862; c=relaxed/simple;
-	bh=vh7VpdWClqvupBRtUyQ4oaehf0QJg+QlY6j9lsmTLm0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VGbyMEwnqFcmWK9ZMRpjqbG3IhAXwd075Df8LkRiSwxcvGrazjLnXhvQHCmg/0DDaIBYiR/CQHx0S5FpB9DpqAWEvgAkKpwGPR4n6/0yGEDdpokSyqduTJs0e9H0lBgZun8gVuIOdOKnAdAQHfu4OrFqmqrqJh6DLZ9Cx3yE8zM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=P91dyL7G; arc=none smtp.client-ip=209.85.222.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="P91dyL7G"
-Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-8c710439535so76341285a.1
-        for <linux-s390@vger.kernel.org>; Thu, 29 Jan 2026 05:21:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1769692860; x=1770297660; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=vh7VpdWClqvupBRtUyQ4oaehf0QJg+QlY6j9lsmTLm0=;
-        b=P91dyL7GH3Q3LC1VWC0ggnpPNgv2Ft+cnx2Jr0aJlCZFs9gQAU9NwkQiHHUhx+lXBj
-         /zDrpCaRR/VC4OEg21KoY57JaR3Lt/ArETPe9W+zwQxZATbLOzUq/GZ4H1e12lo6tYYp
-         Je9ouB5/T1ePvvGCr91wVQGBHGInWtK9m/Kh1WdC8qvd663Vw9OobOtqjbCejw82R3jj
-         a+oqHZkjTK27Qs9WslKpOG/HZH6gWVC1y6gKf/i66lflCwYxfKEdka6ZUp76liThwQG2
-         QH3Ikpom6eUTKGcDL4FyUWc/rm5/C/Pk0XSCmsXTKgaDRv6n0u0Dp8jOlc2P0Pbeck5e
-         /I2Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769692860; x=1770297660;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=vh7VpdWClqvupBRtUyQ4oaehf0QJg+QlY6j9lsmTLm0=;
-        b=TPpk4/DdSPxBum08zv4mP6O0a6D+WUCJztoUFD/UeY4Nk5cdKO7dh0kxFFkrKtul7C
-         48Fvcb68JPBIumQIwQXCQidq0g48IvBFSUkp38m+tIVrq2nxAkSQK0KwVSECP3JS96xk
-         Z096feb21qDnB7EiTwMUdCkoAY/8Q1CxB5sKiGG89xp1LzVTVBKKGf+cSBj2XgShSqd+
-         VMOMZgMwBBm422x3ifktbp2DwBJBONM9ksGPMIhuWI7y+cH9Q8nZjS8SHLfJZf3X4nFw
-         2PwbChP3kNvrhRbIdBVUiUSnFNeGAp313p9bPYnnJMK70hU7OfDVrEtEarpG6JN+Wann
-         t7nQ==
-X-Forwarded-Encrypted: i=1; AJvYcCW0swtPdH9OvmZu7jC8FEeCw2M2ZFQgQIwktA/B8CPDHNo5ktPdyqrjKRgRwCpr/4WmqUn7CI3mVrH1@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy07GEv1rkZB9jryWeWi1TYoi62R0kSgZIpDLhm1eOG5gzPpeyV
-	L2mzqKl8JcksZn4hcupWQLQGg8mxS4f+5UJu44xLhONtwE4RnQF31pQPv0aBrhPQkxA=
-X-Gm-Gg: AZuq6aIrvR80MkEGGvDjMxAjbKJ60HsVZNCDJhUHV+Pwyx4/r0HXCS2D/nDQv57ALHk
-	fVxi5OV2gZWBP0/b/hV393sfpN4JGr+wnLqhYGz7VVz9dUw22CveWu8xGdPJglQSLSTGNm/8ENi
-	bYVGf1Jt4o+OAEZ0Tz4VUVq6E4FGzfEjqRgZ4UtdZmdVWi2DFuN4oWF+vFjdtojAGAyslfaRidt
-	UNz4q93Y9PL8hBLFvNkCNL8FKqoFVO/TNc8302p1rozYaCN+VZbDhEheVE6o+a4lGRZmQMWY6kS
-	WkG5c/i8Ymn4s7GdpvC3SBw/qB+BCjc+SQL5Ga0eji3JFKkbJyRh9HV/OYM+YIv88B2oIm4txzb
-	s59+8TbgVChqjHZWFFQLuk0calBQl3ZTeEvs73QgASoWc1Gw1punTPESaR6XygkPtxtBOPJyGHm
-	OjwjIOK/YDdTggF9cxqU4ItHgTqmEflYVNnO915P/DD6U7kh8dV62xJ2BRVSDs5QLb/6Q=
-X-Received: by 2002:a05:620a:444d:b0:8c7:177f:cc17 with SMTP id af79cd13be357-8c7177fcf62mr589344485a.46.1769692859712;
-        Thu, 29 Jan 2026 05:20:59 -0800 (PST)
-Received: from ziepe.ca (hlfxns017vw-142-162-112-119.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.112.119])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-894d36a5fb1sm37087576d6.9.2026.01.29.05.20.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Jan 2026 05:20:59 -0800 (PST)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1vlRxC-00000009joR-3Dw2;
-	Thu, 29 Jan 2026 09:20:58 -0400
-Date: Thu, 29 Jan 2026 09:20:58 -0400
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: Leon Romanovsky <leon@kernel.org>, Uladzislau Rezki <urezki@gmail.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>, Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	oliver.yang@linux.alibaba.com
-Subject: Re: [PATCH net-next 2/3] mm: vmalloc: export find_vm_area()
-Message-ID: <20260129132058.GC2307128@ziepe.ca>
-References: <20260123082349.42663-1-alibuda@linux.alibaba.com>
- <20260123082349.42663-3-alibuda@linux.alibaba.com>
- <aXPEFdEdtSmd6AzF@milan>
- <20260124093505.GA98529@j66a10360.sqa.eu95>
- <aXSjm1DXm6yP62tD@pc636>
- <20260124145754.GA57116@j66a10360.sqa.eu95>
- <20260127133417.GU13967@unreal>
- <20260128034558.GA126415@j66a10360.sqa.eu95>
- <20260128180629.GT1641016@ziepe.ca>
- <20260129113609.GA37734@j66a10360.sqa.eu95>
+	s=arc-20240116; t=1769694185; c=relaxed/simple;
+	bh=ibKK0IcqWngoOXa8EwyaZZK2r6ZumQd3dGbnqk2e2VM=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=RJVs3l0/HRnYT/1YLW8/RBfpuPYqDbpByeE91Iql2jTv8r9GcyAssuxk+zLfYs0cZAfdtPhzdyxnEF89vAmwV/3e5R/iGWmyvNDhAWFs2klVa2/yud5GochRilzupX5d18IZEIfnxJfnUgLDC+r5B6h59UnUQm53Qk4dRcAaoIE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=orcam.me.uk; spf=none smtp.mailfrom=orcam.me.uk; arc=none smtp.client-ip=78.133.224.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=orcam.me.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=orcam.me.uk
+Received: by angie.orcam.me.uk (Postfix, from userid 500)
+	id C51D492009C; Thu, 29 Jan 2026 14:42:53 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+	by angie.orcam.me.uk (Postfix) with ESMTP id C152692009B;
+	Thu, 29 Jan 2026 13:42:53 +0000 (GMT)
+Date: Thu, 29 Jan 2026 13:42:53 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@orcam.me.uk>
+To: Jakub Kicinski <kuba@kernel.org>
+cc: Ethan Nelson-Moore <enelsonmoore@gmail.com>, netdev@vger.kernel.org, 
+    linux-doc@vger.kernel.org, linux-pci@vger.kernel.org, 
+    linux-mips@vger.kernel.org, linux-s390@vger.kernel.org, 
+    Jonathan Corbet <corbet@lwn.net>, Linas Vepstas <linasvepstas@gmail.com>, 
+    Mahesh J Salgaonkar <mahesh@linux.ibm.com>, 
+    Oliver O'Halloran <oohall@gmail.com>, Bjorn Helgaas <bhelgaas@google.com>, 
+    "David S. Miller" <davem@davemloft.net>, 
+    Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, 
+    Simon Horman <horms@kernel.org>, 
+    Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+    Madhavan Srinivasan <maddy@linux.ibm.com>, 
+    Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+    "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
+    Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+    Alexander Gordeev <agordeev@linux.ibm.com>, 
+    Christian Borntraeger <borntraeger@linux.ibm.com>, 
+    Sven Schnelle <svens@linux.ibm.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+    Andrew Morton <akpm@linux-foundation.org>, 
+    =?UTF-8?Q?Martin_Kepplinger-Novakovi=C4=87?= <martink@posteo.de>, 
+    Pavel Machek <pavel@ucw.cz>, MD Danish Anwar <danishanwar@ti.com>, 
+    Mengyuan Lou <mengyuanlou@net-swift.com>, 
+    Pablo Neira Ayuso <pablo@netfilter.org>, Takashi Iwai <tiwai@suse.de>, 
+    Huacai Chen <chenhuacai@kernel.org>, Theodore Ts'o <tytso@mit.edu>, 
+    Eric Biggers <ebiggers@google.com>, 
+    Madadi Vineeth Reddy <vineethr@linux.ibm.com>, 
+    Shrikanth Hegde <sshegde@linux.ibm.com>, 
+    Geert Uytterhoeven <geert@linux-m68k.org>, 
+    Ard Biesheuvel <ardb@kernel.org>, 
+    "Martin K. Petersen" <martin.petersen@oracle.com>, 
+    Frederic Barrat <fbarrat@linux.ibm.com>, 
+    Andrew Donnellan <ajd@linux.ibm.com>, 
+    Herbert Xu <herbert@gondor.apana.org.au>, 
+    Konstantin Shkolnyy <kshk@linux.ibm.com>, 
+    Vadim Fedorenko <vadim.fedorenko@linux.dev>, 
+    Lorenzo Bianconi <lorenzo@kernel.org>, 
+    Lukas Bulwahn <lukas.bulwahn@redhat.com>, Dong Yibo <dong100@mucse.com>, 
+    Heiner Kallweit <hkallweit1@gmail.com>, Thomas Gleixner <tglx@kernel.org>, 
+    Ingo Molnar <mingo@kernel.org>, Lukas Wunner <lukas@wunner.de>, 
+    Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Subject: Re: [PATCH net-next v2] net: ethernet: neterion: s2io: remove unused
+ driver
+In-Reply-To: <20260127155607.3f80ec99@kernel.org>
+Message-ID: <alpine.DEB.2.21.2601290525150.40317@angie.orcam.me.uk>
+References: <20260126031352.22997-1-enelsonmoore@gmail.com> <alpine.DEB.2.21.2601270110590.40317@angie.orcam.me.uk> <20260127155607.3f80ec99@kernel.org>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260129113609.GA37734@j66a10360.sqa.eu95>
+Content-Type: text/plain; charset=US-ASCII
 
-On Thu, Jan 29, 2026 at 07:36:09PM +0800, D. Wythe wrote:
+On Tue, 27 Jan 2026, Jakub Kicinski wrote:
 
-> > From there you can check the resulting scatterlist and compute the
-> > page_size to pass to ib_map_mr_sg().
+> > > highly unlikely that this driver is still being used. Remove the
+> > > driver, and move the former maintainer to the CREDITS file (restoring
+> > > credit for the vxge driver, which was removed in commit f05643a0f60b
+> > > ("eth: remove neterion/vxge").  
+> > 
+> >  How do you know it's not used? 
+> 
+> Hard to prove a negative and whatnot.
+> 
+> We deleted the vxge which I think(?) was for a newer version of this HW
+> 3+ years ago and nobody complained. 
 
-I should clarify this is done after DMA mapping the scatterlist. dma
-mapping can improve the page size.
+ It may or may not mean anything.  Overall I think it would be fair to 
+have a deprecation period of say a year with the affected code guarded 
+with CONFIG_DEPRECATED, giving a chance for people downstream to notice 
+and act.  That seems to work for the other projects I've been involved 
+with (GNU toolchain components and the policy for target removal).
 
-And maybe the core code should be helping compute the MR's target page
-size for a scatterlist.. We already have code to do this in umem, and
-it is a pretty bit tricky considering the IOVA related rules.
+> > What's the gain from removing a driver unless say it's broken and
+> > does not build?
+> 
+> People keep sending cleanups and fixes for these old drivers.
+> It takes time to review that stuff.
 
-Jason
+ Fair point, however the driver has a maintainer listed who should be 
+taking care of that.  I can see he was cc'd on v1 but not this revision, 
+so does that mean the address bounces?  If so, it should be stated in an
+updated change description, and that would certainly be a good reason to 
+first deprecate a driver and if no one steps up, then discard it.
+
+  Maciej
