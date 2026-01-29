@@ -1,155 +1,142 @@
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+Received: from mail-qv1-f67.google.com (mail-qv1-f67.google.com [209.85.219.67])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 318F437106B
-	for <linux-s390@vger.kernel.org>; Wed, 28 Jan 2026 18:32:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769625180; cv=none; b=tdCtUUDKoOZgzRVHxtUbEw3SSe6VXTq96Es2+BIJVBJTV07pCROkgsiibtgrZdtoahnVbdgVjJW267dvxuHD8P+phya9ZxoBLr9KeiIbPZW51fSqkFzOArvrVvU9FRgQNhAERJx0Dmrd8/x//mksSPr0/Nb0doS51jBJjQUaUyU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769625180; c=relaxed/simple;
-	bh=OBdwcZUm6PgM3WhIEW36ryu3bfpAIHNKO61eL0eZiMs=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=R2T3KAnguUQl9PRfACba1HH6kKvxqKbsFbA+eJXiyZ1PJwBnH9Ng8kAUeyWQPJGOL3ox0zWZQWptbkvAxkZ+WfpmToU+Yp63W2mMq0PmTeJk0QDgonYjc+AsO07NXxeqoyrRx1IrfVZEl/Ce2/qvlOjGo5uKL93XlyQTsgfR71s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BdFmsbnx; arc=none smtp.client-ip=209.85.221.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C97AD3644AB
+	for <linux-s390@vger.kernel.org>; Thu, 29 Jan 2026 03:55:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.67
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769658947; cv=pass; b=b2n7Bh06VXhgrftxTd4dBsFO0/AF0NMzIUh3ACBu8VHDG0jM419zPRJTWD2WxdCoM2xmbGHnPSnDi3lpOX8vDiX40FBvSHH2A4+hy6CVOk09fzG69yoc4EPgJtek5mQ4xqR76r2cEfMZ0ErYZr3Pp8Q0YUq+0G3l0Hwt31hBZtA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769658947; c=relaxed/simple;
+	bh=dreyxwAadnjRw4GmLNjYV9KTAhpZn4PH/bUL/r3ljrU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Nr4hOa+8pe2H4GWTKoAoKnLzpEJjklPQtit68UpWrfOiqOAw49tn17HQSqX4ENT23sI8HSpoStPHHPPULSRy5rwjG+C5h0GByp2sY7V0ozA+jnqiJpQsWUznDYQZ8yeJfpsDWmSyny3o6UqEXvQuQgf0hYJvmPEk4PgDOzG5jik=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lb5j6+FE; arc=pass smtp.client-ip=209.85.219.67
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BdFmsbnx"
-Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-432da746749so145597f8f.0
-        for <linux-s390@vger.kernel.org>; Wed, 28 Jan 2026 10:32:55 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lb5j6+FE"
+Received: by mail-qv1-f67.google.com with SMTP id 6a1803df08f44-88a367a1dbbso8002456d6.0
+        for <linux-s390@vger.kernel.org>; Wed, 28 Jan 2026 19:55:45 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1769658945; cv=none;
+        d=google.com; s=arc-20240605;
+        b=dNquukrt+CN3bYlyaO6mO7pnKjsVID2fvCu6/aJ0fj+5WmP9sdUW9WjjhuPDb98/Yt
+         vL4jHDV0Zk0ZuDXlyvWz+cnh/yn6zIY74hhoO87K5q7qQrPQlDl6/Lcu2BwRNVFuSozv
+         xTBkzC9fpiA7r60eKb4c0H2qaAd+uDXubqIv6MzNzoML025dZWfG1lHI8PDyj80UVAiF
+         pN/v5Je5hAFfx9yHInkwSWPYNPqSPJsGYlaNGFBp4F5vkfVAMgr+bp2Wat50Ffv4H5qf
+         GoV3vPjZHOPqKO1bUjRdDwSD97eunrmbQ1hurb1Trh/kmsNBDH6PpriStvbv01xcNIEI
+         XgIg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=dreyxwAadnjRw4GmLNjYV9KTAhpZn4PH/bUL/r3ljrU=;
+        fh=BxXCNeUrOsmGf81bHR6DkVe6DlzzwSR7qTGZgNjfHdQ=;
+        b=WNvgIMMRw6v0yQrgRJPkC1Px31iugUy9ZSNnIIZpTo/NsBh/K5BwVlnjCzlIUx1GDm
+         mDAd1kKM+xDPQzIlg6d38c2GaYDoJvlG6vvsVGAnDrFVAOCR6rEi+w7sMkuVEwF7NhKd
+         zTAmvPqn2e9VeXtC9R9A/vlK+ycjr/XwSF0wJyMteldfqkOVRW6kPWjNc1/6G4/V72jA
+         Exi/fA2gH73gUpTrTkXuZFGNe69jc5kaNcr3nLyDZKmuRz6+31Ww5vAJCvv5cUhAW0KD
+         l/6tei/U+0q4Gnuy92CWGUsulDCeqNa/ubOoPAhWxbTN34w4zahlGQl06a0xvU1z/ikZ
+         AkNQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769625174; x=1770229974; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1769658945; x=1770263745; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Kfg6UdscjkpEoTOhSlRT2LAj46aYr5XBfZJkEddMCkI=;
-        b=BdFmsbnxp8k31MlUlHep/s4Q0Dg3v5+tAMK33xoJ3jXeqMes8g07JjqsqflIEEhqnO
-         sG1937uKP2JY8EUJPxIA6IQfHaLhjTtCJyaxwMQZAmC6EloPPEI660WDXqdSPhZKZ590
-         0jbATOwvxyKb32EhkWI9EMXeX2Qs3RUwwFa0iiAqCx6Bc0vzVcUNkMrjQ/AgWNkcmc1n
-         o22rWj5tKI/50uBN9Vjj5v6lgsS4gtAfT4NE6IehsVva4vY1AlWbDKWcrKtrUzmPqsHe
-         C491oGNXnow2Up8aRmzQ1D1SnJtNmf7GIrRYdXTQYCNi573RM0xCnlhL5wB7MrWzWZua
-         uPzg==
+        bh=dreyxwAadnjRw4GmLNjYV9KTAhpZn4PH/bUL/r3ljrU=;
+        b=lb5j6+FE2O0Pl62pBEhMsNfLi2bWioImX+YbzHIDJk4U2UjdvonV9hoEojHeu1HDGU
+         ba9+vJKWf1JgciuIV0brHuUb2cXLpY+i87GPeZ3NzF2nlRluwxkLtohrda4B2cyDQmuv
+         QKBBR4tT++0NpInsKX2COkILgZq4+SO1iCr99j6B1qV8SSxithPR44AxSL9unhlsMynZ
+         WvZxyvrSYf/7P3kQ1uEPugknX2eFqjtca+Q6W68zkBAH2dcFkWm7rkGxxuJp0ZME/a28
+         +Hcmnnd1SMohD30jCpLbPFXK5AnpHyZz/JP4CVz2Kz4GBOQSSW1rOFr3rDLAQ4IfnJa7
+         6dDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769625174; x=1770229974;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20230601; t=1769658945; x=1770263745;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=Kfg6UdscjkpEoTOhSlRT2LAj46aYr5XBfZJkEddMCkI=;
-        b=NEv8P458Jg4EAPHrd1GHAyLOyPiVSR1fq+hG5e68rINZOEWUnkUbL/0AQOdWVXGWVu
-         iaGE285fx/nAOyDRc/wHbmzAJfrptJerAVxjLTUsJ1Gp3K30sK9HvUH6fTc/FquNAepn
-         2RjVvhT+FTOKfZq9cYd32pUYcYPCduQFzX/rDKUik4JB15JZc7S3dgH1tSIa1zpOGZRF
-         Id7gJOEL9g9y6siSkA/o7fGBE1qr2LkrsG5SuD70PX4qFhqlz1PMPnGjXvqr0UInWukn
-         ZKKJtL5KDiwYDnf8u9bexR4TadnC9/QEoH/qRhk1NCouKNp2ut0MT8GFJwMnPxPVly50
-         OO7g==
-X-Forwarded-Encrypted: i=1; AJvYcCW3AzisAjpAYMtRXic8UEyIbGrVOs60tA92vbx0cn+xpRmjwN3IWkxMJwSorP+DJa8VkpW4SVHEfQ2B@vger.kernel.org
-X-Gm-Message-State: AOJu0YyfqVpydm/2ObEpOONjiWx3yFbTJ5DPvQOnSyqRpruxzPyIei4D
-	q3UKuNvdMslpQzfNZW6Vq6/O+g5zUgQa0NcSnvIGjuGZ4aLUZNZz+wgI
-X-Gm-Gg: AZuq6aJ0bYbWfnHVkM6j5t7z8pc/aT04p/BVrvF73bytXSYJ19JZAz/hYRwYpKCDIR6
-	RHcUxOxH1FjGLOSjQQtm6mJ0XweWz8IBJDz8wgKvtNScA29KaO2ndvtCF6yexgWRiydRFjmMu8A
-	rj4jz+QB/Qs91oLxDXixTCCCHdjKg2Z78YX32GHI1bFE0t3CgYtuP9LeadeoORk53zg8Lfa0mRG
-	GZ2kGTmR+zu+ynMSqoLUSX03+Qm0JDn9xYGc/yP0VXvk/R757ucSMxg6EmDM2S+SmTUr0EOcGUD
-	r6rT/Vaq6nvh9tTqiX3VFc91bCvw3ap5S+Qf+QvLbd4/BYv3LLudYF44xg9uFDTDYGbk3JJnbh8
-	C0jL3iUsGkSeSHkIOJhN/nqh/qPSnPZzyEPeXqOUmEZcRMX7WTP6uN3HNb1CkdgruPjRJPKZJqU
-	oS/jXw8Mp4oxOUn+MIRn74GOkrn0XH20z3bCDyCmJOyk53eMb7xXLP
-X-Received: by 2002:a05:6000:3113:b0:435:9241:37c2 with SMTP id ffacd0b85a97d-435dd01e23fmr8152542f8f.9.1769625174058;
-        Wed, 28 Jan 2026 10:32:54 -0800 (PST)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-435e131ce64sm9165906f8f.26.2026.01.28.10.32.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Jan 2026 10:32:53 -0800 (PST)
-Date: Wed, 28 Jan 2026 18:32:51 +0000
-From: David Laight <david.laight.linux@gmail.com>
-To: Ryan Roberts <ryan.roberts@arm.com>
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>, Catalin Marinas
- <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Huacai Chen
- <chenhuacai@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael
- Ellerman <mpe@ellerman.id.au>, Paul Walmsley <pjw@kernel.org>, Palmer
- Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Heiko
- Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander
- Gordeev <agordeev@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
- <dave.hansen@linux.intel.com>, Kees Cook <kees@kernel.org>, "Gustavo A. R.
- Silva" <gustavoars@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Mark Rutland
- <mark.rutland@arm.com>, Ard Biesheuvel <ardb@kernel.org>, Jeremy Linton
- <jeremy.linton@arm.com>, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH v4 2/3] prandom: Add __always_inline version of
- prandom_u32_state()
-Message-ID: <20260128183251.7177c345@pumpkin>
-In-Reply-To: <670c2b78-02e2-4617-80d9-3c896077f02a@arm.com>
-References: <20260119130122.1283821-1-ryan.roberts@arm.com>
-	<20260119130122.1283821-3-ryan.roberts@arm.com>
-	<aXpArjZ1QQowshnA@zx2c4.com>
-	<670c2b78-02e2-4617-80d9-3c896077f02a@arm.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+        bh=dreyxwAadnjRw4GmLNjYV9KTAhpZn4PH/bUL/r3ljrU=;
+        b=xTZ6DauUlo/hizGim52uhELvKBgLYkA4AizDaVRmICN8fFlcT0kH3OW/0MagRv3EBU
+         2yewfBHFBYHnOmlyNRjfvBjfyxEd9NhduIXvn5nRO/H1l9gnF3Srk35sV8NtDAoHVWp9
+         WaSwaWJf4wFvQakuvbsOA0HWS88pkOIeTOhokRxsGK+gcmWSEcWqpbnxfAw/WrvrRA7+
+         XafKkdMGO4vRPoKZIjTfxbhF9Hu1o1ywhvvlYr0nPVa5Kkjd3Dw5IXlKlOFMklpfEtcv
+         cRagwLkCCpn26Hzk0czD7VollnNjiarzznpOsVk65+5FomQNJIEkI7szMO1XUl2qatUM
+         3toA==
+X-Forwarded-Encrypted: i=1; AJvYcCVOWDs4JS2V3HUfQ/QUOhqyafWQmlDkJnPezcvzHBTWn0/QT/h651gFVU7ixbfYG44IgUHQ4gcirBTQ@vger.kernel.org
+X-Gm-Message-State: AOJu0YzfbJWww71osFbcLnTcgzowmLJT22T777F2bcEyMSK/YWP8DFFN
+	v28c7AodZs6fuKyhYwjKEPe9jSBz6aSbvYbKoqFpFy4Bav5yhGSoajkVrQDxFVD8GmpgLks1pU7
+	JbuqA9YWRDxdUyw80MDUwuVTdpIItB9g=
+X-Gm-Gg: AZuq6aKhotoeYyjlFva2giORC712bZJXv9xqT4DFjbUhDYMYJnCelUrIFD3oFtKMHUd
+	jZzzXbG4UmrvhKY6RAmoygYfXDuT33PCZ3sun53VfIQ1IcNvR4JaH6vqVi1UVaejTQfVh9fkJ4o
+	cgHn4UsbrnpJ5ZgEVPvMZH2OhffxIkSH/BC5YryVq3lZb7JqjiU48vfMezmxJNkrELq3qabedQG
+	VNWMlL5Eg86ueU/6FYGCmJnTua7V/X76z2APHHHEobs5pCuFdwOXkpxWJIRLuHN2lLJf87e2Aic
+	yns2xAq+gUYALH5VFWkihOJvEHwv1+huaEYPzvKH2VgGub4mXMZy7lwz
+X-Received: by 2002:a05:6214:d47:b0:894:2d44:509e with SMTP id
+ 6a1803df08f44-894cc821c27mr116372646d6.23.1769658944665; Wed, 28 Jan 2026
+ 19:55:44 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20260126031352.22997-1-enelsonmoore@gmail.com>
+ <alpine.DEB.2.21.2601270110590.40317@angie.orcam.me.uk> <20260127155607.3f80ec99@kernel.org>
+In-Reply-To: <20260127155607.3f80ec99@kernel.org>
+From: Ethan Nelson-Moore <enelsonmoore@gmail.com>
+Date: Wed, 28 Jan 2026 19:55:33 -0800
+X-Gm-Features: AZwV_Qjhl5q7xOvj31R-bM_rs_0zlvr3v6oaj-AmWEWA1eTbTy2My24hcAGKR1E
+Message-ID: <CADkSEUjfBQLqibc2zrcWHhOwu7kUf8FceYDfevAFHV4rCqsUUQ@mail.gmail.com>
+Subject: Re: [PATCH net-next v2] net: ethernet: neterion: s2io: remove unused driver
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: "Maciej W. Rozycki" <macro@orcam.me.uk>, netdev@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-pci@vger.kernel.org, linux-mips@vger.kernel.org, 
+	linux-s390@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, 
+	Linas Vepstas <linasvepstas@gmail.com>, Mahesh J Salgaonkar <mahesh@linux.ibm.com>, 
+	"Oliver O'Halloran" <oohall@gmail.com>, Bjorn Helgaas <bhelgaas@google.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, Andrew Morton <akpm@linux-foundation.org>, 
+	=?UTF-8?Q?Martin_Kepplinger=2DNovakovi=C4=87?= <martink@posteo.de>, 
+	Pavel Machek <pavel@ucw.cz>, MD Danish Anwar <danishanwar@ti.com>, 
+	Mengyuan Lou <mengyuanlou@net-swift.com>, Pablo Neira Ayuso <pablo@netfilter.org>, 
+	Takashi Iwai <tiwai@suse.de>, Huacai Chen <chenhuacai@kernel.org>, "Theodore Ts'o" <tytso@mit.edu>, 
+	Eric Biggers <ebiggers@google.com>, Madadi Vineeth Reddy <vineethr@linux.ibm.com>, 
+	Shrikanth Hegde <sshegde@linux.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, 
+	Ard Biesheuvel <ardb@kernel.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, 
+	Frederic Barrat <fbarrat@linux.ibm.com>, Andrew Donnellan <ajd@linux.ibm.com>, 
+	Herbert Xu <herbert@gondor.apana.org.au>, Konstantin Shkolnyy <kshk@linux.ibm.com>, 
+	Vadim Fedorenko <vadim.fedorenko@linux.dev>, Lorenzo Bianconi <lorenzo@kernel.org>, 
+	Lukas Bulwahn <lukas.bulwahn@redhat.com>, Dong Yibo <dong100@mucse.com>, 
+	Heiner Kallweit <hkallweit1@gmail.com>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@kernel.org>, 
+	Lukas Wunner <lukas@wunner.de>, Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 28 Jan 2026 17:33:19 +0000
-Ryan Roberts <ryan.roberts@arm.com> wrote:
+On Tue, Jan 27, 2026 at 3:56=E2=80=AFPM Jakub Kicinski <kuba@kernel.org> wr=
+ote:
+> We deleted the vxge which I think(?) was for a newer version of this HW
+> 3+ years ago and nobody complained.
+Yes, it was for the newer PCIe version of this hardware. Since no one
+complained about that (unlike when fealnx and sundance were removed
+and then restored on request), it's even less likely someone is using
+the PCI-X version. FWIW, 64-bit PCI and 66MHz PCI are even rarer than
+PCI-X, so there's basically no way to use this card with reasonable
+performance nowadays.
 
-> On 28/01/2026 17:00, Jason A. Donenfeld wrote:
-> > On Mon, Jan 19, 2026 at 01:01:09PM +0000, Ryan Roberts wrote:  
-> >> We will shortly use prandom_u32_state() to implement kstack offset
-> >> randomization and some arches need to call it from non-instrumentable
-> >> context. So let's implement prandom_u32_state() as an out-of-line
-> >> wrapper around a new __always_inline prandom_u32_state_inline(). kstack
-> >> offset randomization will use this new version.
-> >>
-> >> Acked-by: Mark Rutland <mark.rutland@arm.com>
-> >> Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
-> >> ---
-> >>  include/linux/prandom.h | 20 ++++++++++++++++++++
-> >>  lib/random32.c          |  8 +-------
-> >>  2 files changed, 21 insertions(+), 7 deletions(-)
-> >>
-> >> diff --git a/include/linux/prandom.h b/include/linux/prandom.h
-> >> index ff7dcc3fa105..801188680a29 100644
-> >> --- a/include/linux/prandom.h
-> >> +++ b/include/linux/prandom.h
-> >> @@ -17,6 +17,26 @@ struct rnd_state {
-> >>  	__u32 s1, s2, s3, s4;
-> >>  };
-> >>  
-> >> +/**
-> >> + * prandom_u32_state_inline - seeded pseudo-random number generator.
-> >> + * @state: pointer to state structure holding seeded state.
-> >> + *
-> >> + * This is used for pseudo-randomness with no outside seeding.
-> >> + * For more random results, use get_random_u32().
-> >> + * For use only where the out-of-line version, prandom_u32_state(), cannot be
-> >> + * used (e.g. noinstr code).
+> On Tue, 27 Jan 2026 01:19:34 +0000 (GMT) Maciej W. Rozycki wrote:
+[...]
+> > What's the gain from removing a driver unless say it's broken and
+> > does not build?
+It very well might be broken. When vxge was removed it emerged that
+someone had reported it as having last worked in 4.1 and broken
+somewhere between there and 4.4 - see:
+https://bugzilla.kernel.org/show_bug.cgi?id=3D197881
 
-If you are going to respin:
-		(e.g. noinst or performance critical code).
-
-	David
-
-> >> + */
-> >> +static __always_inline u32 prandom_u32_state_inline(struct rnd_state *state)  
-> > 
-> > This is pretty bikesheddy and I'm not really entirely convinced that my
-> > intuition is correct here, but I thought I should at least ask. Do you
-> > think this would be better called __prandom_u32_state(), where the "__"
-> > is kind of a, "don't use this directly unless you know what you're doing
-> > because it's sort of internal"? It seems like either we make this inline
-> > for everybody, or if there's a good reason for having most users use the
-> > non-inline version, then we should be careful that new users don't use
-> > the inline version. I was thinking the __ would help with that.  
-> 
-> I'm certainly happy to do that, if that's your preference. I have to respin this
-> anyway, given the noinstr issue.
-> 
-> > 
-> > Jason  
-> 
-
+Ethan
