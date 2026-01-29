@@ -1,101 +1,206 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B91581EB5FD;
-	Thu, 29 Jan 2026 05:00:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D857333D4F4;
+	Thu, 29 Jan 2026 11:03:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769662825; cv=none; b=jvQYIggpc4Ayvb1YyM2Yl6iqfcHWfG4etTvKKyEWY1kVgYukfpaxQ3N3GQ85zL2qUuR+JCEY1nd17BnWpD8wPEDopF9lUod/M+w613N3a8dtXZbWUQxcWbSKA94uvvMPlxggsJ0SW0gMvReVE6YPUgzGLql+0BK094Sk9CqSvf8=
+	t=1769684611; cv=none; b=ukOLhrpykVr4EyXBmnJj7m0UJMG75WL6Yelpgp/1GeLSFbnJOGC/ASAKH3Ss+ZIdaHxW/9S+plppy9Y3oc0m5qan4pXOa4lX6Flz4ZMtDO0/XubZhgypKR5qR+vZ+zp4RB5+oSaSc4WIhFmRCKRi7nxVwrZoAhsggdmY7y8Sf5k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769662825; c=relaxed/simple;
-	bh=U9ISJ2KDjOyPzPKwTm6AD9pt7euDC4veAsPtcj8Du54=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=WoeqW4ZdMzaUSQqvArfCYFuLa8CBVndgrxCnLl7f7Z7nB5+wvi5aMfcLni7Ljgi27VmWAkpG78/M2YU5DrnRjqJk/IxaM2Bn0rbhdQT7mfEUUWLUNiyWpgLDflGxxbvGJJKyKUjUNn0E86BzNsF3LejyxyAVrr6kRMYnWA2/DnQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=da88MNC9; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1769684611; c=relaxed/simple;
+	bh=s+7eKjfiFWwp/XMzM1I3YIG7pT5T6zNPNymOXIdiByQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=o6fSlisRc6zOy3+8bG3xhyOsoTdTRncbbgd3lflV5uJrgxbhRkpkOKU6VVZVl7Bgs2NvFmxozfnHlmZT+n4Hhenj8g3eD/tKCMKrRdrijcPd8t8DNK/4eujsG5Jg3XTpuVcMupO4uHLe4AD0QdiB6ODPVWXh5aNZWaie2JlLyIw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=saizImo6; arc=none smtp.client-ip=115.124.30.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="da88MNC9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ECF1C116D0;
-	Thu, 29 Jan 2026 05:00:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769662825;
-	bh=U9ISJ2KDjOyPzPKwTm6AD9pt7euDC4veAsPtcj8Du54=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=da88MNC9sKTq68aX+hdCzQbV7WEIc/oJPndbWzWJbGhOMCmKEsU/MkyVLPl9Z0FTx
-	 nQvKUs1Y+JVmAdVmoNoQsHj6WeLv4XzjCS4L4Q2O9evTj9oZPjeFkgbbzt4oJGLypA
-	 C7BgDdirTJFNSjpPJNURqh7xSko4RKom22yUHVb+6epWHdGgtaxqij8nQku1PowpFM
-	 dwrce6ITTtU9hBCJ/NmFwUMsv8oMlQ5tUGJyQzXiiI8rG7KQopQvWcXk/JT+SZ9bhP
-	 EJt6zcPXX08BeTd7xvmNKACuFFYapRimMFMUMqoIJwQLaLNoAuMcdVyYb8EmWfLE4+
-	 sbDxglOu2XInA==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id C8DAF380AA69;
-	Thu, 29 Jan 2026 05:00:19 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="saizImo6"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1769684604; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=DelJ78oXDrf5D0hOyeRyjgDAeKvn8heincO0PqIPRF8=;
+	b=saizImo6hmMmEFLMgGMQz1xhfHLGTjleTmgFAOC3dJir+mbDnG2daLLohrSw/384Jz5xllZ4gFlula8pl99Sjuk7xGhNTtU2rSxBOpDUMtD21krhBlazBjprRyYXmBPxZB/y78tivGEUIb59GVy/990M4CH2wKn/C53TA0stQ7M=
+Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0Wy7BXL7_1769684603 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Thu, 29 Jan 2026 19:03:23 +0800
+Date: Thu, 29 Jan 2026 19:03:23 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com    >
+To: Leon Romanovsky <leon@kernel.org>
+Cc: "D. Wythe" <alibuda@linux.alibaba.com>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Simon Horman <horms@kernel.org>, Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+	oliver.yang@linux.alibaba.com
+Subject: Re: [PATCH net-next 2/3] mm: vmalloc: export find_vm_area()
+Message-ID: <20260129110323.GA80118@j66a10360.sqa.eu95>
+References: <20260123082349.42663-3-alibuda@linux.alibaba.com>
+ <aXPEFdEdtSmd6AzF@milan>
+ <20260124093505.GA98529@j66a10360.sqa.eu95>
+ <aXSjm1DXm6yP62tD@pc636>
+ <20260124145754.GA57116@j66a10360.sqa.eu95>
+ <20260127133417.GU13967@unreal>
+ <20260128034558.GA126415@j66a10360.sqa.eu95>
+ <20260128111346.GD12149@unreal>
+ <20260128124404.GA96868@j66a10360.sqa.eu95>
+ <20260128134934.GD40916@unreal>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next v2] net: ethernet: neterion: s2io: remove unused
- driver
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <176966281835.2353118.1929748319198442783.git-patchwork-notify@kernel.org>
-Date: Thu, 29 Jan 2026 05:00:18 +0000
-References: <20260126031352.22997-1-enelsonmoore@gmail.com>
-In-Reply-To: <20260126031352.22997-1-enelsonmoore@gmail.com>
-To: Ethan Nelson-Moore <enelsonmoore@gmail.com>
-Cc: netdev@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-pci@vger.kernel.org, linux-mips@vger.kernel.org,
- linux-s390@vger.kernel.org, corbet@lwn.net, linasvepstas@gmail.com,
- mahesh@linux.ibm.com, oohall@gmail.com, bhelgaas@google.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- horms@kernel.org, tsbogend@alpha.franken.de, maddy@linux.ibm.com,
- mpe@ellerman.id.au, npiggin@gmail.com, chleroy@kernel.org, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
- svens@linux.ibm.com, andrew+netdev@lunn.ch, akpm@linux-foundation.org,
- martink@posteo.de, pavel@ucw.cz, danishanwar@ti.com,
- mengyuanlou@net-swift.com, pablo@netfilter.org, tiwai@suse.de,
- chenhuacai@kernel.org, tytso@mit.edu, ebiggers@google.com,
- vineethr@linux.ibm.com, sshegde@linux.ibm.com, geert@linux-m68k.org,
- ardb@kernel.org, martin.petersen@oracle.com, fbarrat@linux.ibm.com,
- ajd@linux.ibm.com, herbert@gondor.apana.org.au, kshk@linux.ibm.com,
- vadim.fedorenko@linux.dev, lorenzo@kernel.org, lukas.bulwahn@redhat.com,
- dong100@mucse.com, hkallweit1@gmail.com, tglx@kernel.org, mingo@kernel.org,
- lukas@wunner.de, giovanni.cabiddu@intel.com
+In-Reply-To: <20260128134934.GD40916@unreal>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 
-Hello:
-
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Sun, 25 Jan 2026 19:08:07 -0800 you wrote:
-> The s2io driver supports Exar (formerly Neterion and S2io) PCI-X 10
-> Gigabit Ethernet cards. Hardware supporting PCI-X has not been
-> manufactured in years. On x86, it was quickly replaced by PCIe. While
-> it stuck around longer on POWER hardware, the last POWER hardware to
-> support it was POWER7, which is not supported by ppc64le Linux
-> distributions. The last supported mainstream ppc64 Linux distribution
-> was RHEL 7; while it is still supported under ELS, ELS is only
-> available for x86 and IBM Z. It is possible to use many PCI-X cards in
-> standard PCI slots (which are still available on new motherboards), but
-> it does not make sense to do so for 10 Gigabit Ethernet because the
-> maximum bandwidth of standard PCI is only 1067 Mbps. It is therefore
-> highly unlikely that this driver is still being used. Remove the
-> driver, and move the former maintainer to the CREDITS file (restoring
-> credit for the vxge driver, which was removed in commit f05643a0f60b
-> ("eth: remove neterion/vxge").
+On Wed, Jan 28, 2026 at 03:49:34PM +0200, Leon Romanovsky wrote:
+> On Wed, Jan 28, 2026 at 08:44:04PM +0800, D. Wythe wrote:
+> > On Wed, Jan 28, 2026 at 01:13:46PM +0200, Leon Romanovsky wrote:
+> > > On Wed, Jan 28, 2026 at 11:45:58AM +0800, D. Wythe wrote:
+> > > > On Tue, Jan 27, 2026 at 03:34:17PM +0200, Leon Romanovsky wrote:
+> > > > > On Sat, Jan 24, 2026 at 10:57:54PM +0800, D. Wythe wrote:
+> > > > > > On Sat, Jan 24, 2026 at 11:48:59AM +0100, Uladzislau Rezki wrote:
+> > > > > > > Hello, D. Wythe!
+> > > > > > > 
+> > > > > > > > On Fri, Jan 23, 2026 at 07:55:17PM +0100, Uladzislau Rezki wrote:
+> > > > > > > > > On Fri, Jan 23, 2026 at 04:23:48PM +0800, D. Wythe wrote:
+> > > > > > > > > > find_vm_area() provides a way to find the vm_struct associated with a
+> > > > > > > > > > virtual address. Export this symbol to modules so that modularized
+> > > > > > > > > > subsystems can perform lookups on vmalloc addresses.
+> > > > > > > > > > 
+> > > > > > > > > > Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+> > > > > > > > > > ---
+> > > > > > > > > >  mm/vmalloc.c | 1 +
+> > > > > > > > > >  1 file changed, 1 insertion(+)
+> > > > > > > > > > 
+> > > > > > > > > > diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+> > > > > > > > > > index ecbac900c35f..3eb9fe761c34 100644
+> > > > > > > > > > --- a/mm/vmalloc.c
+> > > > > > > > > > +++ b/mm/vmalloc.c
+> > > > > > > > > > @@ -3292,6 +3292,7 @@ struct vm_struct *find_vm_area(const void *addr)
+> > > > > > > > > >  
+> > > > > > > > > >  	return va->vm;
+> > > > > > > > > >  }
+> > > > > > > > > > +EXPORT_SYMBOL_GPL(find_vm_area);
+> > > > > > > > > >  
+> > > > > > > > > This is internal. We can not just export it.
+> > > > > > > > > 
+> > > > > > > > > --
+> > > > > > > > > Uladzislau Rezki
+> > > > > > > > 
+> > > > > > > > Hi Uladzislau,
+> > > > > > > > 
+> > > > > > > > Thank you for the feedback. I agree that we should avoid exposing
+> > > > > > > > internal implementation details like struct vm_struct to external
+> > > > > > > > subsystems.
+> > > > > > > > 
+> > > > > > > > Following Christoph's suggestion, I'm planning to encapsulate the page
+> > > > > > > > order lookup into a minimal helper instead:
+> > > > > > > > 
+> > > > > > > > unsigned int vmalloc_page_order(const void *addr){
+> > > > > > > > 	struct vm_struct *vm;
+> > > > > > > >  	vm = find_vm_area(addr);
+> > > > > > > > 	return vm ? vm->page_order : 0;
+> > > > > > > > }
+> > > > > > > > EXPORT_SYMBOL_GPL(vmalloc_page_order);
+> > > > > > > > 
+> > > > > > > > Does this approach look reasonable to you? It would keep the vm_struct
+> > > > > > > > layout private while satisfying the optimization needs of SMC.
+> > > > > > > > 
+> > > > > > > Could you please clarify why you need info about page_order? I have not
+> > > > > > > looked at your second patch.
+> > > > > > > 
+> > > > > > > Thanks!
+> > > > > > > 
+> > > > > > > --
+> > > > > > > Uladzislau Rezki
+> > > > > > 
+> > > > > > Hi Uladzislau,
+> > > > > > 
+> > > > > > This stems from optimizing memory registration in SMC-R. To provide the
+> > > > > > RDMA hardware with direct access to memory buffers, we must register
+> > > > > > them with the NIC. During this process, the hardware generates one MTT
+> > > > > > entry for each physically contiguous block. Since these hardware entries
+> > > > > > are a finite and scarce resource, and SMC currently defaults to a 4KB
+> > > > > > registration granularity, a single 2MB buffer consumes 512 entries. In
+> > > > > > high-concurrency scenarios, this inefficiency quickly exhausts NIC
+> > > > > > resources and becomes a major bottleneck for system scalability.
+> > > > > 
+> > > > > I believe this complexity can be avoided by using the RDMA MR pool API,
+> > > > > as other ULPs do, for example NVMe.
+> > > > > 
+> > > > > Thanks
+> > > > > 
+> > > > 
+> > > > Hi Leon,
+> > > > 
+> > > > Am I correct in assuming you are suggesting mr_pool to limit the number
+> > > > of MRs as a way to cap MTTE consumption?
+> > > 
+> > > I don't see this a limit, but something that is considered standard
+> > > practice to reduce MTT consumption.
+> > > 
+> > > > 
+> > > > However, our goal is to maximize the total registered memory within
+> > > > the MTTE limits rather than to cap it. In SMC-R, each connection
+> > > > occupies a configurable, fixed-size registered buffer; consequently,
+> > > > the more memory we can register, the more concurrent connections
+> > > > we can support.
+> > > 
+> > > It is not cap, but more efficient use of existing resources.
+> > 
+> > Got it. While MRs pool might be more standard practice, but it doesn't
+> > address our specific bottleneck. In fact, smc already has its own internal
+> > MR reuse; our core issue remains reducing MTTE consumption by increasing the
+> > registration granularity to maximize the memory size mapped per MTT entry.
 > 
-> [...]
+> And this is something MR pools can handle as well. We are going in circles,
+> so let's summarize.
 
-Here is the summary with links:
-  - [net-next,v2] net: ethernet: neterion: s2io: remove unused driver
-    https://git.kernel.org/netdev/net-next/c/aba0138eb7d7
+I believe some points need to be thoroughly clarified here:
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+> 
+> I see SMC‑R as one of the RDMA ULPs, and it should ideally rely on the
+> existing ULP API used by NVMe, NFS, and others, rather than maintaining its
+> own internal logic.
 
+SMC is not opposed to adopting newer RDMA interfaces; in fact, I have
+already planned a gradual migration to the updated RDMA APIs. We are
+currently in the process of adapting to ib_cqe, for instance. As long as
+functionality remains intact, there is no reason to oppose changes that
+reduce maintenance overhead or provide additional gains, but such a
+transition takes time.
 
+> 
+> I also do not know whether vmalloc_page_order() is an appropriate solution;
+> I only want to show that we can probably achieve the same result without
+> introducing a new function.
+
+Regarding the specific issue under discussion, I believe the newer RDMA
+APIs you mentioned do not solve my problem, at least for now. My
+understanding is that regardless of how MRs are pooled, the core
+requirement is to increase the page_size parameter in ib_map_mr_sg to
+maximize the physical size mapped per MTTE. From the code I have
+examined, I see no evidence of these new APIs utilizing values other
+than 4KB.
+
+Of course, I believe that regardless of whether this issue
+currently exists, it is something the RDMA community can resolve.
+However, as I mentioned, adapting to new API takes time. Before a
+complete transition is achieved, we need to allow for some necessary
+updates to SMC.
+
+Thanks
