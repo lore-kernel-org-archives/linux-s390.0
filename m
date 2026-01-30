@@ -1,174 +1,151 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5539F244665;
-	Fri, 30 Jan 2026 09:18:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49C27305E3B
+	for <linux-s390@vger.kernel.org>; Fri, 30 Jan 2026 15:16:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769764734; cv=none; b=nRiAiVechVuBTS1fo4SSsQOI1w0XKaTcwAg9R+qmKYVRIjbgDrRxZCNwnr9fGdS/pX5eg1fWAUaPLo8jYOiMAP91UAGC/Biju7iRLNJuS5VSEkUEuDp6SaFpN+uqgqdqirPs4vvL38zPKIIAsCOK5xK4ld0d/Wbd4lRhBEpV4lI=
+	t=1769786203; cv=none; b=fdi1z70P0DcpuDNRn8CKiInMrHDT8r0wMl1OnHFLIQ2fggZD+kECEW7Z02VqjbSvIO8UMaBoDtaNMYtD3ebb2gu4YTaT7PFsM3JN1V6NDT1LqXQmtRJa7COAqNau6MBK5sWlcEeUU2U3pKMApLZXh2xL4c0MLdUTGXtnv9qZfZo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769764734; c=relaxed/simple;
-	bh=qGYEFSveyQjRI+xZW9jenCLk3w6BzBS5Pf7t46XDjVI=;
+	s=arc-20240116; t=1769786203; c=relaxed/simple;
+	bh=WmHtBHSTYxbfJ263YgNe7PXPFBdQFrEByiiVtkOz+uw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=claaTdc7wYxp/1BYjtV2hf63Ynawv+0yPLZRRRzMiplUuMctCdPuH7MUhYQ3HUwb40PxUEBmyyjbe6S64kkYvGQkRETrHmqkiRcdEbTDT/sUZF1r6ZK+HS6q2uZfw2D4UD4Ly4+vvEYFEVliNJLzUsO2Z74bRICZT3vNwTSO4dU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=QDsenhYz; arc=none smtp.client-ip=115.124.30.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=DFDPXLxgoVf4knPfdC2bHGDfHkKyi4ueNjKspyCXUbwPc/cA+otnJg8dEryMfmO0wo5YTvKY9CgBo+InSfKZJ7avk9895qiAtOvZs6j0Qy/7Uo6oY24v7tSrUn3hH+MvLYjAPvGFfq75Rqin4nujeBBH5HnBPtGhuRXMqYSebYA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=o3p/t+Oz; arc=none smtp.client-ip=209.85.219.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="QDsenhYz"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1769764729; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=b+N5hpKEHqYXdO7/x7HSMbv7XXcD6Y7cxIhWmqLUT1w=;
-	b=QDsenhYzSKXyIVx63osBoxgVqiFCRj2ZT0JOq42WZxA0XkD/GrB2JeGxX6+fGqu4z1pnjk3uNmLahp0YAXw5fpybycQXpUAYJ9W0YKdqKzakLcvVFbUD4UHhluZJdF7XJUMuuR8h0zpIrMN7Xx43yeBJLfBPjxut1cJIrqvaP+I=
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WyAFf78_1769764727 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Fri, 30 Jan 2026 17:18:48 +0800
-Date: Fri, 30 Jan 2026 17:18:47 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com    >
-To: Leon Romanovsky <leon@kernel.org>
-Cc: "D. Wythe" <alibuda@linux.alibaba.com>, Liu Jian <liujian56@huawei.com>,
-	dust.li@linux.alibaba.com, sidraya@linux.ibm.com,
-	wenjia@linux.ibm.com, mjambigi@linux.ibm.com,
-	tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, horms@kernel.org,
-	guangguan.wang@linux.alibaba.com, linux-rdma@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="o3p/t+Oz"
+Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-8948273f5d0so32543506d6.0
+        for <linux-s390@vger.kernel.org>; Fri, 30 Jan 2026 07:16:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1769786199; x=1770390999; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=9si664lpAABtSRH5NCDTNiWW5Zo1E2FOdd2kZn8cRsw=;
+        b=o3p/t+OzNolmstthDKxfQ2xaDr4SG5Cd5MhbMtCpLSmb1pSCcPW8jaVlip9X438OsU
+         pvqcK+zIuEQTlyP6cyjSPpPISnUcNH8HBRF8XscGM0zgrtsq9YMvJCbOascyJ6SYle3K
+         5+lplx4rOZBELiGFXi7Z029vg2gzMC0aiSCWP/xkR9Zj42Ur8ylSVCaRV6w/kOkYPsRI
+         NCWMbQlXq7eyk4aNHKTwPQQYIk6ntQG++EF1z3KRTnDa5JBk2tRP7dJov/Sgzp0Jnu5a
+         SVuV3RCSgr6Qe2RLxTELd34T9s4IMJbMo5I1OeLdPPTA68gyCEv8RiFwF6w3hkirjZTv
+         /fhA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769786199; x=1770390999;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=9si664lpAABtSRH5NCDTNiWW5Zo1E2FOdd2kZn8cRsw=;
+        b=vA6c+yf9/pmC5H8sCUeXw2F16b7sEfgxU/UsgwsRV/iFpWUFkEZlVV8qbp8NC1/z0j
+         VkMGF1QbTICVPdYcAPf2qcgR8J0DNi2cTyD9CThOsIPFj8V7zuuik28EMQwiFAcEuV+q
+         gEeYiFhWh/1skr/A0u2dKfBCwNXfp8JLdcVprjRiiPd9WrqByODrromBm4yrJ8Zf0oMV
+         mU2WxWSTwT+gHn3LLVCMcPRlzQajjAPzgh73rYCbZf8xL+cUOt4Je2+9Hb/U3RYsHI+P
+         D5DroMMZoBNWxlZgIkLBiYlnzRY7Rjn3Y4e3e9HDrskOqWREK6L74rKBGo0/+WXenrEt
+         S/7Q==
+X-Forwarded-Encrypted: i=1; AJvYcCXh6HKwZ2VG7jELJbAV5JPk6zMKt1z6enXTrB9XIe7S8ibZPDlrM4Zk65cxNzVq+xNzaCTcGDakybfe@vger.kernel.org
+X-Gm-Message-State: AOJu0YzBwM+fbyguLBzvnjsLTiyjWiZ8xPlZ1HEkFf+3vnK8Xp4N9qIo
+	AczmJezquJa+FCaeZiMGIwjFsDvyzXyZSolHDlGq5J4mIfKPzoR8POH5aeHc70VyPH4=
+X-Gm-Gg: AZuq6aJcMfRhLzh7ee6KmL7qostRC8s6ywy9YZk01tf28Ui0F/8Y/12x6g1TxdJYK5C
+	LZFD/3DRdYzCtfRzIVwfrca+v3Iqu6aEkwEufqhH3E+0QXMTkiNUcxHLKW/mnTivICbKj+NwcIi
+	pFiJ+ZeQqjJk6wQly0ZpQE9SzK3JN8TbBSzJu/Vb8DXbN0XAEdY8RxT1Abg/1orFzoEY39reZho
+	cbpkR/dBhcrVPJgUY5e/pXjtIHddwXtLyCYRZrVWqyCb7ManOH9sqXe9np43h5cKBDL9XQ26n/P
+	DT54X6I0jdD+cRkEF5GlmDpH5z+nuSWuCvFpOjQdDDYtuWA8rqMCyaOVy3olfro5k/UAtyXMGuC
+	Dp0Sc1Q9UCdZx/IHyejT6UA0yz9nqczsrvHBcWpbTfe5CQE5ufcDl9QBVwQ53qw+8R6GdKdfd9e
+	PzVw1O7jNoNh4GapWZJhaiYoZ+GMdtQPcqlRUElNlYmszxDQaeDYqit1hjvbhxa9thFes=
+X-Received: by 2002:a05:6214:501d:b0:88a:4c50:3be0 with SMTP id 6a1803df08f44-894df970109mr86470926d6.6.1769786198441;
+        Fri, 30 Jan 2026 07:16:38 -0800 (PST)
+Received: from ziepe.ca (hlfxns017vw-142-162-112-119.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.112.119])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5033745c5d4sm58414081cf.3.2026.01.30.07.16.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Jan 2026 07:16:37 -0800 (PST)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1vlqEe-0000000BAef-38VG;
+	Fri, 30 Jan 2026 11:16:36 -0400
+Date: Fri, 30 Jan 2026 11:16:36 -0400
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: "D. Wythe" <alibuda@linux.alibaba.com>
+Cc: Leon Romanovsky <leon@kernel.org>, Uladzislau Rezki <urezki@gmail.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Simon Horman <horms@kernel.org>, Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, linux-rdma@vger.kernel.org,
 	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	Christoph Hellwig <hch@lst.de>, Jason Gunthorpe <jgg@nvidia.com>
-Subject: Re: [PATCH net v2] net/smc: fix one NULL pointer dereference in
- smc_ib_is_sg_need_sync()
-Message-ID: <20260130091847.GA43189@j66a10360.sqa.eu95>
-References: <20250828124117.2622624-1-liujian56@huawei.com>
- <20250909094532.GD341237@unreal>
- <20260126044501.GA18724@j66a10360.sqa.eu95>
- <20260127120004.GT13967@unreal>
- <20260128055051.GA79132@j66a10360.sqa.eu95>
- <20260128112122.GE12149@unreal>
+	oliver.yang@linux.alibaba.com
+Subject: Re: [PATCH net-next 2/3] mm: vmalloc: export find_vm_area()
+Message-ID: <20260130151636.GF2328995@ziepe.ca>
+References: <aXPEFdEdtSmd6AzF@milan>
+ <20260124093505.GA98529@j66a10360.sqa.eu95>
+ <aXSjm1DXm6yP62tD@pc636>
+ <20260124145754.GA57116@j66a10360.sqa.eu95>
+ <20260127133417.GU13967@unreal>
+ <20260128034558.GA126415@j66a10360.sqa.eu95>
+ <20260128180629.GT1641016@ziepe.ca>
+ <20260129113609.GA37734@j66a10360.sqa.eu95>
+ <20260129132058.GC2307128@ziepe.ca>
+ <20260130085131.GA122673@j66a10360.sqa.eu95>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260128112122.GE12149@unreal>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260130085131.GA122673@j66a10360.sqa.eu95>
 
-On Wed, Jan 28, 2026 at 01:21:22PM +0200, Leon Romanovsky wrote:
-> On Wed, Jan 28, 2026 at 01:50:51PM +0800, D. Wythe wrote:
-> > On Tue, Jan 27, 2026 at 02:00:04PM +0200, Leon Romanovsky wrote:
-> > > On Mon, Jan 26, 2026 at 12:45:01PM +0800, D. Wythe wrote:
-> > > > On Tue, Sep 09, 2025 at 12:45:32PM +0300, Leon Romanovsky wrote:
-> > > > > On Thu, Aug 28, 2025 at 08:41:17PM +0800, Liu Jian wrote:
-> > > > > > BUG: kernel NULL pointer dereference, address: 00000000000002ec
-> > > > > > PGD 0 P4D 0
-> > > > > > Oops: Oops: 0000 [#1] SMP PTI
-> > > > > > CPU: 28 UID: 0 PID: 343 Comm: kworker/28:1 Kdump: loaded Tainted: G        OE       6.17.0-rc2+ #9 NONE
-> > > > > > Tainted: [O]=OOT_MODULE, [E]=UNSIGNED_MODULE
-> > > > > > Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1 04/01/2014
-> > > > > > Workqueue: smc_hs_wq smc_listen_work [smc]
-> > > > > > RIP: 0010:smc_ib_is_sg_need_sync+0x9e/0xd0 [smc]
-> > > > > > ...
-> > > > > > Call Trace:
-> > > > > >  <TASK>
-> > > > > >  smcr_buf_map_link+0x211/0x2a0 [smc]
-> > > > > >  __smc_buf_create+0x522/0x970 [smc]
-> > > > > >  smc_buf_create+0x3a/0x110 [smc]
-> > > > > >  smc_find_rdma_v2_device_serv+0x18f/0x240 [smc]
-> > > > > >  ? smc_vlan_by_tcpsk+0x7e/0xe0 [smc]
-> > > > > >  smc_listen_find_device+0x1dd/0x2b0 [smc]
-> > > > > >  smc_listen_work+0x30f/0x580 [smc]
-> > > > > >  process_one_work+0x18c/0x340
-> > > > > >  worker_thread+0x242/0x360
-> > > > > >  kthread+0xe7/0x220
-> > > > > >  ret_from_fork+0x13a/0x160
-> > > > > >  ret_from_fork_asm+0x1a/0x30
-> > > > > >  </TASK>
-> > > > > > 
-> > > > > > If the software RoCE device is used, ibdev->dma_device is a null pointer.
-> > > > > > As a result, the problem occurs. Null pointer detection is added to
-> > > > > > prevent problems.
-> > > > > > 
-> > > > > > Fixes: 0ef69e788411c ("net/smc: optimize for smc_sndbuf_sync_sg_for_device and smc_rmb_sync_sg_for_cpu")
-> > > > > > Signed-off-by: Liu Jian <liujian56@huawei.com>
-> > > > > > ---
-> > > > > > v1->v2:
-> > > > > > move the check outside of loop.
-> > > > > >  net/smc/smc_ib.c | 3 +++
-> > > > > >  1 file changed, 3 insertions(+)
-> > > > > > 
-> > > > > > diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-> > > > > > index 53828833a3f7..a42ef3f77b96 100644
-> > > > > > --- a/net/smc/smc_ib.c
-> > > > > > +++ b/net/smc/smc_ib.c
-> > > > > > @@ -742,6 +742,9 @@ bool smc_ib_is_sg_need_sync(struct smc_link *lnk,
-> > > > > >  	unsigned int i;
-> > > > > >  	bool ret = false;
-> > > > > >  
-> > > > > > +	if (!lnk->smcibdev->ibdev->dma_device)
-> > > > > > +		return ret;
-> > > > > 
-> > > > > Please use ib_uses_virt_dma() function for that.
-> > > > > 
-> > > > > It is clearly stated in the code:
-> > > > >   2784 struct ib_device {
-> > > > >   2785         /* Do not access @dma_device directly from ULP nor from HW drivers. */
-> > > > >   2786         struct device                *dma_device;     
-> > > > > 
-> > > > > Thanks
-> > > > > 
-> > > > >
-> > > > 
-> > > > Hi Leon,
-> > > > 
-> > > > Sorry for the late reply, I just noticed this and thank you for your review.
-> > > > I agree completely with your feedback: we should not be accessing ibdev->dma_device
-> > > > directly. Following your advice, replacing the
-> > > > 
-> > > > 	if (!lnk->smcibdev->ibdev->dma_device)
-> > > > 
-> > > > check with ib_uses_virt_dma() is straightforward and absolutely the correct
-> > > > thing to do for that part of the logic.
-> > > > 
-> > > > However, this has led me to a further challenge. The main purpose of the
-> > > > smc_ib_is_sg_need_sync() function is to get the result of dma_need_sync().
-> > > > This means that even after correctly using ib_uses_virt_dma(), the function
-> > > > still needs to call dma_need_sync(ibdev->dma_device, ...), which forces us
-> > > > right back into the direct access pattern we are trying to eliminate.
-> > > 
-> > > I would like to challenge the use of dma_need_sync() in smc_ib.c. From
-> > > what I see, it is used to avoid calls to dma_sync_single_*_device()
-> > > which will be NOP anyway in that case.
-> > > 
-> > > Why did you copy that logic from XSK?
-> > > 
+On Fri, Jan 30, 2026 at 04:51:31PM +0800, D. Wythe wrote:
+> On Thu, Jan 29, 2026 at 09:20:58AM -0400, Jason Gunthorpe wrote:
+> > On Thu, Jan 29, 2026 at 07:36:09PM +0800, D. Wythe wrote:
 > > 
-> > You are right. I just noticed that the DMA has already introduced a
-> > similar optimization.
+> > > > From there you can check the resulting scatterlist and compute the
+> > > > page_size to pass to ib_map_mr_sg().
 > > 
-> > The check in SMC was added back in 2022, while the DMA introduced
-> > the internal "skip redundant sync" mechanism in 2024 (commit f406c8e4b770).
+> > I should clarify this is done after DMA mapping the scatterlist. dma
+> > mapping can improve the page size.
 > > 
-> > Given this, it might be better to simply remove this redundant check
-> > from SMC now, which would also eliminate the need for direct access to
-> > ibdev->dma_device. I need to perform some tests to confirm this.
+> > And maybe the core code should be helping compute the MR's target page
+> > size for a scatterlist.. We already have code to do this in umem, and
+> > it is a pretty bit tricky considering the IOVA related rules.
+> >
 > 
-> It may also be worth looking at this series from Chuck, which reuses the
-> recently introduced DMA API to remove the SG conversions:
-> https://lore.kernel.org/linux-rdma/20260128005400.25147-1-cel@kernel.org/
+> Hi Jason,
 > 
-> You might be able to apply a similar approach and drop SG from your
-> datapath entirely.
+> After a deep dive into ib_umem_find_best_pgsz(), I have to say it is
+> much more subtle than it first appears. The IOVA-to-PA relative offset
+> rules, in particular, make it quite easy to get wrong.
 > 
-> Thanks.
->
+> While SMC could duplicate this logic, it is certainly not ideal for
+> maintenance. Are there any plans to refactor this into a generic RDMA
+> core helper—for instance, one that can determine the best page size
+> directly from an sg_table or scatterlist?
 
-After a quick look at the rdma_rw_ctx, but it doesn't seem
-suitable for SMC. SMC uses a ring buffer for its transmit path and
-requires frequent offset adjustments during data transmission.
-The rdma_rw_ctx model is likely not flexible enough for this
-kind of circular buffer logic.
+I have not heard of anyone touching this.
 
-D. Wythe
+It looks like there are only two users in the kernel that pass
+something other than PAGE_SIZE, so it seems nobody has cared about
+this till now.
+
+With high order folios being more common it seems like something
+missing.
+
+However, I wonder what the drivers do with the input page size, 
+segmenting a scatterlist is a bit hard and we have helpers for that
+already too.
+
+It is a bigger project but probably the right thing is to remove the
+page size input, wrap the scatterlist in a umem and fixup the drivers
+to use the existing umem support for building mtts, splitting
+scatterlists into blocks and so on.
+
+The kernel side here has been left alone for a long time..
+
+Jason
