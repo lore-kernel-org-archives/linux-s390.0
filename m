@@ -1,135 +1,97 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0556314D13;
-	Fri, 30 Jan 2026 08:23:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8CDA2E0926;
+	Fri, 30 Jan 2026 08:51:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769761430; cv=none; b=iuSXubSMOl65cL54/9kLOjbpMkQ6/Q8PHm3t6vlFt29tRU1t7ia9gFfTCYLAxcSStP47DAjHmaJt4cTeCezPXuYSJ7FOeP9WEZe7H5HD5FJweE91K09qg+Q7micM2fivkIxYDlJzHaVKggB5FfljmRzRcLQk8QdGbIVn5R9gukM=
+	t=1769763098; cv=none; b=PnPs3xJsgw62GWn5GPtTkEFab96mfBowQdRgkW4v8QtvYvLniT2MDU4roaXQNl2c1NpswD7oLDn9AIpHg+WzV2j5p5Gpv+6HwF0mxU3tucItlfpOHYPW6lTk02gvRScbw6IRrmhuiEe3I0jKIlSuDK4Cg5xVswodprL+rGFVnHU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769761430; c=relaxed/simple;
-	bh=YgQLkb8jX1AH0tbkh+QGod/x7UP32YjFb2qPFDBVPr8=;
+	s=arc-20240116; t=1769763098; c=relaxed/simple;
+	bh=FaoWFuc8Lf1DLkdGOsvF+wLgIPVDLi4pj2Mq/rs7om4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Z7WC2V1oITZvRtbuPTNCvJNfTgWUwtYT85uhUGnjXv1M/AEhO1NeKmvtMB2VHe/1Y2pZyXM4Sja8dUa9uvMYMhO4S0t0vKTaPILJPaUx8AOhfZxGDrQlkQjyaehv2SfIhSekmJ5xdDJS5vWUgpycdyj2IM+9XcDP6DMnhX6y1Dw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=lCY5wdKj; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=DVBc4VdE; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ih+ALsAnzySpt4h0aMysaf8HYa8nooLDZtO9uE/z5suHkKwpVY+2sxDj8epWbHL+Pc2hoKCfeFXRT0eQFFkGoldWLyDbEsT39GggG9TrZFJIEIpoSA5OnFiTdrvLpH18mwk26l8Ic47MGYPCyO1dfI2R64jeGay1sxnlAAfVkvY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Ul6c6DoD; arc=none smtp.client-ip=115.124.30.111
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="lCY5wdKj";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="DVBc4VdE"
-Date: Fri, 30 Jan 2026 09:23:45 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1769761427;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=chYIUBt/EugIr0AL9E0F3IgPc9RzQg0oeO5t8YDREvM=;
-	b=lCY5wdKjIO3MK8kbGlbMUkDaALYyAEWlUiFPNaF1WgnTixxuoXJu5RM7dtG1PgS5jHU3Ht
-	PQQ1iKP+G8yy/wIk8p2IpWjPV7eRZm1aWTTWs1rfSAzvtsDjdCaAaxmxSxEpUP4n9a5c+N
-	ZbXm2AlPgDA91dYAGgVs+F/H6zH4zaqwSfjpzBgSMKY0/KOWhf8pvPeJDYikRYWH/Hhwm7
-	9pR5Rs7VqeHOC6wsXIFs52nzocC3bLNcwbK8H7laA1d6PPXP9XVdr1K7pK+KABINGctqMc
-	FaTHiKuvg++ebTkPdvcvychobShHN57Maw2ZaahlO1nkyYA7iQf6FxfXVaIPmg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1769761427;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=chYIUBt/EugIr0AL9E0F3IgPc9RzQg0oeO5t8YDREvM=;
-	b=DVBc4VdE9Ucp8bmBCDVhHHvEJ4Rdf4j0vFFrMDD4EVwC7yGODIWxsO4enXJjqWXWgJhUSw
-	s3wZafA+rfQ0DZBQ==
-From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-To: Kir Chou <note351@hotmail.com>
-Cc: akpm@linux-foundation.org, davidgow@google.com, geert@linux-m68k.org, 
-	visitorckw@gmail.com, brendan.higgins@linux.dev, linux-kselftest@vger.kernel.org, 
-	kunit-dev@googlegroups.com, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	"open list:S390 ARCHITECTURE" <linux-s390@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, 
-	"open list:NETWORKING [GENERAL]" <netdev@vger.kernel.org>
-Subject: Re: [PATCH] lib/random32: convert selftest to KUnit
-Message-ID: <20260130091838-33f432c5-8a36-4844-aa8c-bd71b7470f52@linutronix.de>
-References: <20260124054134.71369-1-note351@hotmail.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Ul6c6DoD"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1769763093; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=DkUtsb7QwZdL+LDizpsEkBxaLkE/G58Yn4o4w4mhoyg=;
+	b=Ul6c6DoDuXzMooXfYNPtaJhBlLlbpvZ6/7jTSiQSyYEGLv7thskdKquSRQLXNTRtVtEXKIvyyxbOWyJa6EH8Q9R0euJGHj1KZvCNRA4MP4Cm0ugQ+CP66Q2YSKWrt0Ds7s9tL4IC8kygseKotFddSw0UQxP32sdRr6185WjuJus=
+Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WyACWjW_1769763091 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Fri, 30 Jan 2026 16:51:32 +0800
+Date: Fri, 30 Jan 2026 16:51:31 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com    >
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: "D. Wythe" <alibuda@linux.alibaba.com>,
+	Leon Romanovsky <leon@kernel.org>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Simon Horman <horms@kernel.org>, Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+	oliver.yang@linux.alibaba.com
+Subject: Re: [PATCH net-next 2/3] mm: vmalloc: export find_vm_area()
+Message-ID: <20260130085131.GA122673@j66a10360.sqa.eu95>
+References: <20260123082349.42663-3-alibuda@linux.alibaba.com>
+ <aXPEFdEdtSmd6AzF@milan>
+ <20260124093505.GA98529@j66a10360.sqa.eu95>
+ <aXSjm1DXm6yP62tD@pc636>
+ <20260124145754.GA57116@j66a10360.sqa.eu95>
+ <20260127133417.GU13967@unreal>
+ <20260128034558.GA126415@j66a10360.sqa.eu95>
+ <20260128180629.GT1641016@ziepe.ca>
+ <20260129113609.GA37734@j66a10360.sqa.eu95>
+ <20260129132058.GC2307128@ziepe.ca>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260124054134.71369-1-note351@hotmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260129132058.GC2307128@ziepe.ca>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 
-On Sat, Jan 24, 2026 at 02:41:33PM +0900, Kir Chou wrote:
-> This patch converts the existing prandom selftest (lib/random32.c) to use
-> the KUnit framework (lib/tests/random32_kunit.c). Unlike typical KUnit
-> tests, this file is directly #included into lib/random32.c.
+On Thu, Jan 29, 2026 at 09:20:58AM -0400, Jason Gunthorpe wrote:
+> On Thu, Jan 29, 2026 at 07:36:09PM +0800, D. Wythe wrote:
 > 
-> Only the file name "random32_kunit.c" keeps random32, "prandom" is used
-> for all other places for aligning with the API semantics and avoiding
-> confusion with the cryptographically secure random.c,
+> > > From there you can check the resulting scatterlist and compute the
+> > > page_size to pass to ib_map_mr_sg().
 > 
-> The new test:
-> - Removes the legacy CONFIG_RANDOM32_SELFTEST.
-
-This bit seems to be missing from the patch.
-'config RANDOM32_SELFTEST' still exists in lib/Kconfig.
-
-> - Adds CONFIG_PRANDOM_KUNIT_TEST (defaulting to KUNIT_ALL_TESTS).
-> - Moves the test logic to lib/tests/random32_kunit.c.
-> - Updates arch/s390/configs/debug_defconfig to use the new KUnit symbol.
+> I should clarify this is done after DMA mapping the scatterlist. dma
+> mapping can improve the page size.
 > 
-> This commit is verified by `./tools/testing/kunit/kunit.py run`
-> with the .kunit/.kunitconfig:
-> 
-> ```
-> CONFIG_KUNIT=y
-> CONFIG_PRANDOM_KUNIT_TEST=y
-> ```
-> 
-> Signed-off-by: Kir Chou <note351@hotmail.com>
-> ---
->  arch/s390/configs/debug_defconfig |   2 +-
->  lib/Kconfig.debug                 |  12 +++
->  lib/random32.c                    | 173 +----------------------------
->  lib/tests/random32_kunit.c        | 174 ++++++++++++++++++++++++++++++
->  4 files changed, 189 insertions(+), 172 deletions(-)
->  create mode 100644 lib/tests/random32_kunit.c
-> 
+> And maybe the core code should be helping compute the MR's target page
+> size for a scatterlist.. We already have code to do this in umem, and
+> it is a pretty bit tricky considering the IOVA related rules.
+>
 
-(...)
+Hi Jason,
 
-> diff --git a/lib/tests/random32_kunit.c b/lib/tests/random32_kunit.c
-> new file mode 100644
-> index 000000000..ee50205b8
-> --- /dev/null
-> +++ b/lib/tests/random32_kunit.c
-> @@ -0,0 +1,174 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * Test cases for random32 functions.
-> + */
-> +
-> +#include <kunit/test.h>
-> +
-> +static struct prandom_test1 {
-> +	u32 seed;
-> +	u32 result;
-> +} test1[] = {
-> +	{ 1U, 3484351685U },
-> +	{ 2U, 2623130059U },
-> +	{ 3U, 3125133893U },
-> +	{ 4U,  984847254U },
-> +};
-> +
-> +static struct prandom_test2 {
+After a deep dive into ib_umem_find_best_pgsz(), I have to say it is
+much more subtle than it first appears. The IOVA-to-PA relative offset
+rules, in particular, make it quite easy to get wrong.
 
-These arrays can be 'const'.
+While SMC could duplicate this logic, it is certainly not ideal for
+maintenance. Are there any plans to refactor this into a generic RDMA
+core helper—for instance, one that can determine the best page size
+directly from an sg_table or scatterlist?
 
-> +	u32 seed;
-> +	u32 iteration;
-> +	u32 result;
-> +} test2[] = {
+Best regards,
+D. Wythe
 
-(...)
