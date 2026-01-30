@@ -1,136 +1,118 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B72642561AB;
-	Fri, 30 Jan 2026 16:16:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 116C32E6CA0
+	for <linux-s390@vger.kernel.org>; Fri, 30 Jan 2026 20:48:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769789802; cv=none; b=ZKsSi+UrjLhx/WUxE2l4yjCxnQlkXAO47FM4Cgneh7RANN9TRP/qlhA7cImim72Fs6x/8wZYgJgAAZ2Nb90pKcWmT9VGy24kLBL5+M3QverotKTvb2viNmUEdK0CFtLLnyzIKL1g6AoLuU+b/PhnT0lKFM1ZFetC9h6XMiFFDEI=
+	t=1769806106; cv=none; b=HoFMqEtMbEX4n8C+/wPA43FWcFIqT9JtXVMI6WTjIkTW/kH13oG3jE+X83LrcWSroa3lPV2adgwlDkwPHWILQN24VkhPesYU/dgtnA+s1pCD5bS2Bu6M2ukzHYmgFyjVTo8JRuFODq21ktaAwllZ5oLayxsS13u22HezhfeQku4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769789802; c=relaxed/simple;
-	bh=AlNS0o8O55cP7ZrafFrQalBO7KdanY5615Qax8Ig75c=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=m6ex15sPO+GSPmfsOejU3l5ceMQcWcuSp3sDyXQPfmY8/alb4hBiaynhAT/Srt6R3xFTjYVjEL5ys4JnkvQ4dZSuZk//12n4rhsCjrzlIS0cXR+fM7oXAbB7/in2sw1g0OWEWMFkLNId8/145Ark4Y6YhF02i5uh5v9WOX2uzUo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hOS7PmZZ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1769806106; c=relaxed/simple;
+	bh=WcTJzlSzYQ3GdQ4ZKrgKXfine1j1UbideT72PsQJz7o=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ubAbNIOVCiFIW81EFSB4urW+0np3OqTcxl1pH5Qs3V6wYrMSJxBqZyDcwHKaW2yr/7iplAi3Hkn37Eh4TPJp1N7uHtLnVdIWWfATdRA2kHucLk/Qcj2a377vHvElHUSpzypaEZY7Jbtny+6y5oc9aw6uuAIH0BTP3cm+jVIHl1I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JxKbmbFb; arc=none smtp.client-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hOS7PmZZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D006C4CEF7;
-	Fri, 30 Jan 2026 16:16:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769789802;
-	bh=AlNS0o8O55cP7ZrafFrQalBO7KdanY5615Qax8Ig75c=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=hOS7PmZZrFc5HSN1dVXhZyg9M/cciPSolaQqfWhYDg7HfF1XDoB1HNjJxeiK86UnM
-	 t0paeaoxtYjhwYcMLP8ehpw722gawXSmnt1Ff80sY7yEF5L7T7o1KVKgfa1P6xx/Uk
-	 S7DHHq636jQuWcXVs9rBcbEQ2QAQvrKFpcJM6bhZnxkVAsJwslEvfWUX4cXWiSjnms
-	 hkZcBfTLn6d4cw+9OyK7Jpzkky0ySo8aVXdV/3Vs41kEzOIubFCXlw7rvKNAruk9J0
-	 NRQPKWhrHubAf3UrGWI3BkY7UvozmV6Ss4pPyWqiFlF2wY0RZojtLxb1ipESYS24SU
-	 AnDTT8wKSbTgQ==
-Message-ID: <993fb876-7958-4f1d-ba69-2601976a42d7@kernel.org>
-Date: Fri, 30 Jan 2026 17:16:32 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JxKbmbFb"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-47ee0291921so23434105e9.3
+        for <linux-s390@vger.kernel.org>; Fri, 30 Jan 2026 12:48:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1769806103; x=1770410903; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=wyJyqKV6sfd+4rm1C0f1aBd4NEfWaqE99sc9YOO/X6o=;
+        b=JxKbmbFbcnEPYltNFT+3kpskrhkR37I42Nem/xhMqrj9fcMPKmjAtUGewtlRd06Ov3
+         UFRxklA6iVhnHZ3bPmsHs4w+U8Ct1aOXLclZwe/xKk3w64JEcNxi7uHnGihQt802LJAQ
+         4AAswBSeXVjbQFGbp19pntzR+0oiJ48inkYfWb+qi2eY4G6Fly1mHVloMn5XIbYnbEo7
+         SEFFLj0b8jgp2tgcj98Gij7vHpQCUPyY4QOFyOkr97p7hFhppxdG4KvhPlcH7nBv4SBG
+         MKqTQ6dDr6wc3AA+J+T6FxGrXzWf8+1+ss65e+9YDb6qAdypHGS4E0mYqKCeoBNwpCyE
+         kVZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769806103; x=1770410903;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wyJyqKV6sfd+4rm1C0f1aBd4NEfWaqE99sc9YOO/X6o=;
+        b=riuKw5q0ra+4OYRDyIL9zB6ygdGQ+L7g1mxJ1n5hXRQeolqHjydUoL/yo8AOeIb2yf
+         9ygDGYnTccUNCOELMa4+1wWvHj13CO5OstxSGoX7jMw2ERTR4C6MtFG7l5AEpGyyHHJ2
+         I4Q07lhQiibcOJmTLgmdy62swKSC6qydaLlVCy3aOyB3OBwCKYgx09+DVg9eZcsZXeVB
+         xejK+wivRnf5obX4tAil2KFYRdYaVr3+r9BAZJPOsIp9SpKhUZWer0/JaCIBpRWz4U84
+         8rDdoDxgTSd+ntEytlK+e3SDig8pBTyptHkS+C/gJQwq6cczNvDk6ZaLs1mHFea7/zRE
+         tESw==
+X-Gm-Message-State: AOJu0YypBnLhwQA/3nwdMNCLo80N2YMKFhEDo1YmctIAXaFct0aQl9Hr
+	OrzdKfbIw9UkPs0EovYGHD2DezqO7NLA1ob3vAk/vAvtQTCOXYke+hfR
+X-Gm-Gg: AZuq6aI8RHtObN9ziN0WCTmaegZCpZlTFmeh28yntn+KhMsK8HV4rsN7LB7oEwXzXD/
+	tlzCtBfYv1DeG8ohcv/AXP76VUdLp3C3gcIA13FmpSG3Cjv5pTzgdcZeABANsQf1FfMTBXyYSIP
+	v5AV7bqtX6P0BBXMFlHawjMjafcoCAdwusoQXLSMoWwrg/YnFqXYSA0apRkCJGOGvXiSOXinc7e
+	0WrWofOTG2U6pluEBNC6jGThiJOzkStm8IAwAg1PmKJaopRZiASvO+sx1J5G6qvK9rHAcPi5iTj
+	s3dzx7PzqjGChWz1EHmnRx07o42aEt8T9fNckjRp94ZoDe9Qqk7bpIJ8F9JcCLlOZWJ7CAKXX1I
+	ieFGLNzQ9FKqHKRdfvAOL8NfHJNmhcpVPVwMMOBrCHXJ1pTIFAI9J1iXevltMW54W4ph09E/94B
+	I7OQt1pAD2F9C50NNe5Sj8Gq6QZWLaRl1QdfEp
+X-Received: by 2002:a05:600c:3ba0:b0:47e:e71a:e13a with SMTP id 5b1f17b1804b1-482db4ee2camr47791655e9.32.1769806103186;
+        Fri, 30 Jan 2026 12:48:23 -0800 (PST)
+Received: from localhost.localdomain ([196.235.250.51])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4806cd8fadfsm221557985e9.0.2026.01.30.12.48.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Jan 2026 12:48:22 -0800 (PST)
+From: Salah Triki <salah.triki@gmail.com>
+To: Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Salah Triki <salah.triki@gmail.com>
+Subject: [PATCH] s390/cio: fix device lifecycle handling in css_alloc_subchannel()
+Date: Fri, 30 Jan 2026 21:47:59 +0100
+Message-ID: <20260130204800.217395-1-salah.triki@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 2/3] prandom: Add __always_inline version of
- prandom_u32_state()
-To: "Jason A. Donenfeld" <Jason@zx2c4.com>,
- Ryan Roberts <ryan.roberts@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Huacai Chen <chenhuacai@kernel.org>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <pjw@kernel.org>,
- Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- Kees Cook <kees@kernel.org>, "Gustavo A. R. Silva" <gustavoars@kernel.org>,
- Arnd Bergmann <arnd@arndb.de>, Mark Rutland <mark.rutland@arm.com>,
- Ard Biesheuvel <ardb@kernel.org>, Jeremy Linton <jeremy.linton@arm.com>,
- David Laight <david.laight.linux@gmail.com>, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org
-References: <20260119130122.1283821-1-ryan.roberts@arm.com>
- <20260119130122.1283821-3-ryan.roberts@arm.com> <aXpArjZ1QQowshnA@zx2c4.com>
-Content-Language: fr-FR
-From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-In-Reply-To: <aXpArjZ1QQowshnA@zx2c4.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
+`css_alloc_subchannel()` calls `device_initialize()` before setting up
+the DMA masks. If `dma_set_coherent_mask()` or `dma_set_mask()` fails,
+the error path frees the subchannel structure directly, bypassing
+the device model reference counting.
 
+Once `device_initialize()` has been called, the embedded struct device
+must be released via `put_device()`, allowing the release callback to
+free the container structure.
 
-Le 28/01/2026 à 18:00, Jason A. Donenfeld a écrit :
-> On Mon, Jan 19, 2026 at 01:01:09PM +0000, Ryan Roberts wrote:
->> We will shortly use prandom_u32_state() to implement kstack offset
->> randomization and some arches need to call it from non-instrumentable
->> context. So let's implement prandom_u32_state() as an out-of-line
->> wrapper around a new __always_inline prandom_u32_state_inline(). kstack
->> offset randomization will use this new version.
->>
->> Acked-by: Mark Rutland <mark.rutland@arm.com>
->> Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
->> ---
->>   include/linux/prandom.h | 20 ++++++++++++++++++++
->>   lib/random32.c          |  8 +-------
->>   2 files changed, 21 insertions(+), 7 deletions(-)
->>
->> diff --git a/include/linux/prandom.h b/include/linux/prandom.h
->> index ff7dcc3fa105..801188680a29 100644
->> --- a/include/linux/prandom.h
->> +++ b/include/linux/prandom.h
->> @@ -17,6 +17,26 @@ struct rnd_state {
->>   	__u32 s1, s2, s3, s4;
->>   };
->>   
->> +/**
->> + * prandom_u32_state_inline - seeded pseudo-random number generator.
->> + * @state: pointer to state structure holding seeded state.
->> + *
->> + * This is used for pseudo-randomness with no outside seeding.
->> + * For more random results, use get_random_u32().
->> + * For use only where the out-of-line version, prandom_u32_state(), cannot be
->> + * used (e.g. noinstr code).
->> + */
->> +static __always_inline u32 prandom_u32_state_inline(struct rnd_state *state)
-> 
-> This is pretty bikesheddy and I'm not really entirely convinced that my
-> intuition is correct here, but I thought I should at least ask. Do you
-> think this would be better called __prandom_u32_state(), where the "__"
-> is kind of a, "don't use this directly unless you know what you're doing
-> because it's sort of internal"? It seems like either we make this inline
-> for everybody, or if there's a good reason for having most users use the
-> non-inline version, then we should be careful that new users don't use
-> the inline version. I was thinking the __ would help with that.
+Fix the error path by dropping the initial device reference with
+`put_device()` instead of calling `kfree()` directly.
 
-I looked into kernel sources and there are several functions named 
-something_something_else_inline() and it doesn't mean those functions 
-get inlined, so I would also prefer __prandom_u32_state() which means 
-"If you use it you know what you are doing", just like __get_user() for 
-instance.
+This ensures correct device lifetime handling and avoids potential
+use-after-free or double-free issues.
 
-However maybe we could also reconsider making it inline for everyone. We 
-have spotted half a dozen of places where the code size increases a lot 
-when forcing it inline, but those places deserve a local trampoline to 
-avoid code duplication, and then the compiler decides to inline or not.
+Fixes: e5dcf0025d7af ("s390/css: move subchannel lock allocation")
 
-Because there are also several places that benefit from the inlining 
-because it allows GCC to simplify the calculation, for instance when 
-some calculation is performed with the result like with 
-(prandom_u32_state(rng) % ceil) where ceil is 2 or 4.
+Signed-off-by: Salah Triki <salah.triki@gmail.com>
+---
+ drivers/s390/cio/css.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-That can of course be done as a followup patch but it means at the end 
-we will have to rename all __prandom_u32_state() to prandom_u32_state().
+diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+index 4c85df7a548e..ac24e019020e 100644
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -235,7 +235,7 @@ struct subchannel *css_alloc_subchannel(struct subchannel_id schid,
+ 	return sch;
+ 
+ err:
+-	kfree(sch);
++	put_device(&sch->dev);
+ 	return ERR_PTR(ret);
+ }
+ 
+-- 
+2.43.0
 
-Or should we do the other way round ? Make __prandom_u32_state() the 
-out-of-line version and just change the few places where the size 
-explodes like drm_test_buddy_alloc_range_bias(), loss_gilb_ell(), 
-generate_random_testvec_config(), generate_random_sgl_divisions(), 
-mutate_buffer(), ... ?
-
-Christophe
