@@ -1,100 +1,82 @@
-Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E92930B517;
-	Sat, 31 Jan 2026 02:57:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=180.181.231.80
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C9D78C1F;
+	Sat, 31 Jan 2026 03:40:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769828258; cv=none; b=ic6iHO4qgDhiGlOl47dDbMpUMN3AybMS3XREKoxipV8HHmFIhRHGwBuK1840PqgciLM1Md9Cna8CQ5D5Pd+kOjLU/9aWPR4jSgBIjYHCo0vOm9WfbshqG+S4vX6QefLDm8xO0wTLYQenrFB0HLRf9aKmE+WOeH5Ot/0g6lPCYZI=
+	t=1769830813; cv=none; b=fFmuHX/gUZwTDPvhtGpB5XJ4HoCm6ZF3WKGBfcwUnH/R+2Mc6ZthuYVfL8Ki18VWqDO6hHzKHHOKMFp1+gvJj+T6XVfQEM+YCCGOVVFcfb3qTy4lIB8djA9oIxWimGRn4Is5+VzLqcsKVsah5ToiSvnXU05H73IrD+ArkO4Sfmo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769828258; c=relaxed/simple;
-	bh=oyw4qxQ9aKEeO3I4dGus8c5TMQkAHI6aL0/Yzq07Rwk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oz2tIrFd8+u+RIlHuJ6QI7/T1rorBv9AG+BDhiKtB6TOOHMgvnGNqUhHCH2VJfLhrr0wt3cKfXKspaiscsCyxTUiTJF5Tsit4J4RS56HWn7v8ZOHE9aXUGvpfgvF2H2eVTT30w1dpAm3CfdqRFskZ5uSg0voRpakE/Pzuzp842A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b=Zoh8m/D2; arc=none smtp.client-ip=180.181.231.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1769830813; c=relaxed/simple;
+	bh=SPa2ky00MTlgAVW6CPBZYtqiEy57G6865mcHfn5Fva4=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=GHjTfJDCWI3dADeupbBZaDztd8osojiHOtoCSgU8S2Pp6vAoakKgDHYf9RRTVCcIB9NGGZfz4aXPR25FQneWUvJH8+BLTuoOXmICiMGV2GkCGI1HQwKK8r3aWcPYHrot3HkEnDZqVz/lCu1gw0pk0/D/IFMLXvqL2p/FKiC7vpo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hl3Q32je; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b="Zoh8m/D2"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=gondor.apana.org.au; s=h01; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:cc:to:subject:message-id:date:
-	from:content-type:reply-to; bh=PbmHJi7+ZZdhmCHdlTxWH9iRruNjhuV0J18meGymZFs=; 
-	b=Zoh8m/D2FnzcNVgaT+gYOxEyw+5CcEijJDMsodVtumj8d8E3UmwaoKwb9aI/OmNFM4q7A0PuoF6
-	i6zH/jWiHmc2UL0HzqxOw9VYWh9VpmTDzOAcGhwL1ECgIbUqaODD5lQX89ontraSGkAEYZEmDVOgy
-	2f8kXP9dQPvxM/Sx7Zwfb2WklwyPv+IUCKHdt9w7ddCOFremSQgBQX911/LlHZrMyBzx0w0jIuDhk
-	lGxDQ708G1/KxSiEHG0DScqUbmP6NfNgZutLs+iO2zXy4IkOsIdKIF4CPcjhdN/SyvJbUU1XsHwim
-	CpmXk5wp+hNAz1l/QaGhslseppuM9J10+nfQ==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1vm1Az-003S1o-2R;
-	Sat, 31 Jan 2026 10:57:34 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Sat, 31 Jan 2026 10:57:33 +0800
-Date: Sat, 31 Jan 2026 10:57:33 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
-	hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com
-Subject: Re: [PATCH v2 0/4] Paes and Phmac: Refuse clear key material by
- default
-Message-ID: <aX1vnU06JiY1q0ua@gondor.apana.org.au>
-References: <20260115120026.4286-1-freude@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hl3Q32je"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8D19C4CEF1;
+	Sat, 31 Jan 2026 03:40:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769830812;
+	bh=SPa2ky00MTlgAVW6CPBZYtqiEy57G6865mcHfn5Fva4=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=hl3Q32jesSmbR2hXuuoqdTRzotmtlIy8xD0XeqEbyuc9r4NTXzG/9oaF/N5Kwu5fv
+	 MUoKS06t3AlPtYepLp0PSJunGKx888rIwCL+4lV7WSO4YOJDSOf71G9CtDHgtBx+D9
+	 cKkDpPzvSdZdB/f3JUfhfmv/vJeHPwGI3KVZGEa9SsnjNbI9lHWJJuv431vHpNyCW3
+	 RzujlV7YGmCYVQxuTg2KY7b/QkinWmBPtCIGwT9dr5y7+3dcEMNPg5K9yP5/7abpAS
+	 wW3Er7XEk4OslLCDAE50UnOx+b0wfPh9yLjn4gJBhaYxFp7our83XPoZjkZrF2+z/D
+	 5idM+zmOLWGMw==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 11B0B380CFFF;
+	Sat, 31 Jan 2026 03:40:06 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260115120026.4286-1-freude@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] Revert "net/smc: Introduce TCP ULP support"
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <176983080486.3985311.3826362708256060586.git-patchwork-notify@kernel.org>
+Date: Sat, 31 Jan 2026 03:40:04 +0000
+References: <20260128055452.98251-1-alibuda@linux.alibaba.com>
+In-Reply-To: <20260128055452.98251-1-alibuda@linux.alibaba.com>
+To: D. Wythe <alibuda@linux.alibaba.com>
+Cc: davem@davemloft.net, dust.li@linux.alibaba.com, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, sidraya@linux.ibm.com,
+ wenjia@linux.ibm.com, mjambigi@linux.ibm.com, horms@kernel.org,
+ tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+ linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ oliver.yang@linux.alibaba.com, viro@zeniv.linux.org.uk
 
-On Thu, Jan 15, 2026 at 01:00:22PM +0100, Harald Freudenberger wrote:
-> The modivation of these patches is to disable clear key usage
-> of the protected key implementations paes and phmac by default.
-> 
-> With a new kernel module parameter "clrkey" this behavior can be
-> controlled. By default clrkey is 'N' but for testing purpose on module
-> load a true value (1, 'Y') may be given to accept clear key tokens.
-> 
-> Note that during selftest clear keys are always used and thus as long
-> as the algorithm is in larval state indicated by
-> crypto_skcipher_tested() clear keys need to be accepted. However, in
-> this state there is no way to establish an instance of the tfm other
-> than for selftest reasons.
-> 
-> Changelog:
-> 
-> v0: Initial version. Request for internal feedback and review
->     Please note I assume that patch #1 goes via s390, whereas
->     patch #2, #3 and #4 may go via Herbert Xu's Linux Kernel Crypto.
-> v1: Sequence changed and feedback from Ingo, Holger and Heiko
->     integrated.
-> v2: Integrated the feedback from Holger and Ingo. First version
->     going out to the linux kernel crypto mailing list
-> 
-> Harald Freudenberger (4):
->   crypto: skcipher - Add new helper function crypto_skcipher_tested
->   s390/pkey: Support new xflag PKEY_XFLAG_NOCLEARKEY
->   crypto: s390/phmac - Refuse clear key material by default
->   crypto: s390/paes - Refuse clear key material by default
-> 
->  arch/s390/crypto/paes_s390.c       | 93 ++++++++++++++++++------------
->  arch/s390/crypto/phmac_s390.c      | 29 +++++++---
->  arch/s390/include/asm/pkey.h       |  8 ++-
->  drivers/s390/crypto/pkey_cca.c     |  5 ++
->  drivers/s390/crypto/pkey_ep11.c    |  5 ++
->  drivers/s390/crypto/pkey_pckmo.c   | 12 +++-
->  include/crypto/internal/skcipher.h |  7 +++
->  7 files changed, 110 insertions(+), 49 deletions(-)
-> 
-> 
-> base-commit: 9448598b22c50c8a5bb77a9103e2d49f134c9578
-> --
-> 2.43.0
+Hello:
 
-All applied.  Thanks.
+This patch was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Wed, 28 Jan 2026 13:54:52 +0800 you wrote:
+> This reverts commit d7cd421da9da2cc7b4d25b8537f66db5c8331c40.
+> 
+> As reported by Al Viro, the TCP ULP support for SMC is fundamentally
+> broken. The implementation attempts to convert an active TCP socket
+> into an SMC socket by modifying the underlying `struct file`, dentry,
+> and inode in-place, which violates core VFS invariants that assume
+> these structures are immutable for an open file, creating a risk of
+> use after free errors and general system instability.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net] Revert "net/smc: Introduce TCP ULP support"
+    https://git.kernel.org/netdev/net-next/c/df31a6b0a305
+
+You are awesome, thank you!
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
