@@ -1,35 +1,44 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from cstnet.cn (smtp84.cstnet.cn [159.226.251.84])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C9D78C1F;
-	Sat, 31 Jan 2026 03:40:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CBC6275AEB;
+	Sat, 31 Jan 2026 09:46:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.84
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769830813; cv=none; b=fFmuHX/gUZwTDPvhtGpB5XJ4HoCm6ZF3WKGBfcwUnH/R+2Mc6ZthuYVfL8Ki18VWqDO6hHzKHHOKMFp1+gvJj+T6XVfQEM+YCCGOVVFcfb3qTy4lIB8djA9oIxWimGRn4Is5+VzLqcsKVsah5ToiSvnXU05H73IrD+ArkO4Sfmo=
+	t=1769852771; cv=none; b=M9FAEtyGF3AlXy56txrvXGiXtujdNOAQuNyCMmYnexBNNQ1CcxXIKftDOEIG+qrZsgVPHJhf7t8fJAIQwFkoPzq4cL4xZME6MXCC1mboob7TnilNfCpcQYu0TQOvLcbFSx8j4QblZSphx+2gIiQAGhlbni+zZDLG+Wzy6jbKjGs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769830813; c=relaxed/simple;
-	bh=SPa2ky00MTlgAVW6CPBZYtqiEy57G6865mcHfn5Fva4=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=GHjTfJDCWI3dADeupbBZaDztd8osojiHOtoCSgU8S2Pp6vAoakKgDHYf9RRTVCcIB9NGGZfz4aXPR25FQneWUvJH8+BLTuoOXmICiMGV2GkCGI1HQwKK8r3aWcPYHrot3HkEnDZqVz/lCu1gw0pk0/D/IFMLXvqL2p/FKiC7vpo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hl3Q32je; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hl3Q32je"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8D19C4CEF1;
-	Sat, 31 Jan 2026 03:40:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769830812;
-	bh=SPa2ky00MTlgAVW6CPBZYtqiEy57G6865mcHfn5Fva4=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=hl3Q32jesSmbR2hXuuoqdTRzotmtlIy8xD0XeqEbyuc9r4NTXzG/9oaF/N5Kwu5fv
-	 MUoKS06t3AlPtYepLp0PSJunGKx888rIwCL+4lV7WSO4YOJDSOf71G9CtDHgtBx+D9
-	 cKkDpPzvSdZdB/f3JUfhfmv/vJeHPwGI3KVZGEa9SsnjNbI9lHWJJuv431vHpNyCW3
-	 RzujlV7YGmCYVQxuTg2KY7b/QkinWmBPtCIGwT9dr5y7+3dcEMNPg5K9yP5/7abpAS
-	 wW3Er7XEk4OslLCDAE50UnOx+b0wfPh9yLjn4gJBhaYxFp7our83XPoZjkZrF2+z/D
-	 5idM+zmOLWGMw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 11B0B380CFFF;
-	Sat, 31 Jan 2026 03:40:06 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=arc-20240116; t=1769852771; c=relaxed/simple;
+	bh=F/HOxzCJ+d6erv3pLy8YREVLhjqD+8zeMOqYr1zgLDs=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=cWlR5U/GSBIAsecvfqeqth2mtWj5SZxeOszvkP8rVN6qEHSQTSpDmEboxpgQag6bWDDrXUQKq/lmGIbuNm+8TxVGFyZbYpYYi8c4nwbQsD8lab/7/OKYY5zeiyfdt+3Eq77GLHvzoIWIg2gN027lODw7zUotjnH+6cz+ccYYlBI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.84
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
+Received: from edelgard.fodlan.icenowy.me (unknown [112.94.102.235])
+	by APP-05 (Coremail) with SMTP id zQCowAC3Sw9Rz31p9UgiBw--.57463S3;
+	Sat, 31 Jan 2026 17:46:01 +0800 (CST)
+From: Icenowy Zheng <zhengxingda@iscas.ac.cn>
+To: Thomas Gleixner <tglx@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc: linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-mips@vger.kernel.org,
+	Icenowy Zheng <zhengxingda@iscas.ac.cn>,
+	linux-s390@vger.kernel.org,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: [PATCH 1/8] genirq: reserve NR_IRQS_LEGACY IRQs in dynirq by default
+Date: Sat, 31 Jan 2026 17:45:40 +0800
+Message-ID: <20260131094547.455916-2-zhengxingda@iscas.ac.cn>
+X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20260131094547.455916-1-zhengxingda@iscas.ac.cn>
+References: <20260131094547.455916-1-zhengxingda@iscas.ac.cn>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -37,46 +46,72 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] Revert "net/smc: Introduce TCP ULP support"
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <176983080486.3985311.3826362708256060586.git-patchwork-notify@kernel.org>
-Date: Sat, 31 Jan 2026 03:40:04 +0000
-References: <20260128055452.98251-1-alibuda@linux.alibaba.com>
-In-Reply-To: <20260128055452.98251-1-alibuda@linux.alibaba.com>
-To: D. Wythe <alibuda@linux.alibaba.com>
-Cc: davem@davemloft.net, dust.li@linux.alibaba.com, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, sidraya@linux.ibm.com,
- wenjia@linux.ibm.com, mjambigi@linux.ibm.com, horms@kernel.org,
- tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
- linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- oliver.yang@linux.alibaba.com, viro@zeniv.linux.org.uk
+X-CM-TRANSID:zQCowAC3Sw9Rz31p9UgiBw--.57463S3
+X-Coremail-Antispam: 1UD129KBjvJXoW7urWkXFW5Zw17XFWDAr1xGrg_yoW8ZF48pr
+	WxWry3W34xJ347Za45Ww1S9a4fua95G342kF9Ikw13Zwn8JrnYv3sa9F45Xr10vrs5GF4Y
+	yFya9Fy5Xa4DZFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPE14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_Jr4l82xGYIkIc2
+	x26xkF7I0E14v26r4j6ryUM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0
+	Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84
+	ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I2
+	62IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcV
+	AFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG
+	0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2Y2ka0xkIwI
+	1lc7CjxVAaw2AFwI0_Jw0_GFyl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_
+	Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17
+	CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0
+	I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I
+	8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73
+	UjIFyTuYvjfU8XdbUUUUU
+X-CM-SenderInfo: x2kh0wp0lqwv3d6l2u1dvotugofq/
 
-Hello:
+Several architectures define NR_IRQS_LEGACY to reserve a low range of IRQ
+numbers for fixed legacy allocations (e.g. ISA interrupts) which should
+not be handed out by the dynamic IRQ allocator.
 
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+arch_dynirq_lower_bound() exists to enforce this, but today only x86 wires
+it up. In the current boot order this typically works because legacy IRQ
+domains register early and claim the low IRQ numbers first; however, that
+assumption breaks if the legacy controller is probed later.
 
-On Wed, 28 Jan 2026 13:54:52 +0800 you wrote:
-> This reverts commit d7cd421da9da2cc7b4d25b8537f66db5c8331c40.
-> 
-> As reported by Al Viro, the TCP ULP support for SMC is fundamentally
-> broken. The implementation attempts to convert an active TCP socket
-> into an SMC socket by modifying the underlying `struct file`, dentry,
-> and inode in-place, which violates core VFS invariants that assume
-> these structures are immutable for an open file, creating a risk of
-> use after free errors and general system instability.
-> 
-> [...]
+Make the default arch_dynirq_lower_bound() implementation honour
+NR_IRQS_LEGACY by clamping the allocation start to at least that value.
 
-Here is the summary with links:
-  - [net] Revert "net/smc: Introduce TCP ULP support"
-    https://git.kernel.org/netdev/net-next/c/df31a6b0a305
+Architectures that do not define NR_IRQS_LEGACY keep the current behaviour
+(effectively 0). Arm/PowerPC/MIPS/LoongArch use legacy IRQ domains for ISA
+interrupts and benefit from this change. x86 and s390 already provide their
+own implementations.
 
-You are awesome, thank you!
+Cc: linux-s390@vger.kernel.org
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Co-developed-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Signed-off-by: Icenowy Zheng <zhengxingda@iscas.ac.cn>
+---
+If this change turns out to be problematic for any architecture, we can
+always override arch_dynirq_lower_bound() for MIPS and LoongArch only.
+
+BTW it looks that S390 has a arch_dynirq_lower_bound() override that has
+the same behavior, but not with the same code. This is why S390
+maintainers are Cc'ed by this patch.
+
+ kernel/softirq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/kernel/softirq.c b/kernel/softirq.c
+index 77198911b8dd4..cdc77d52c36b2 100644
+--- a/kernel/softirq.c
++++ b/kernel/softirq.c
+@@ -1184,5 +1184,5 @@ int __init __weak arch_early_irq_init(void)
+ 
+ unsigned int __weak arch_dynirq_lower_bound(unsigned int from)
+ {
+-	return from;
++	return MAX(from, NR_IRQS_LEGACY);
+ }
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.52.0
 
