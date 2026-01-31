@@ -1,117 +1,88 @@
-Received: from cstnet.cn (smtp84.cstnet.cn [159.226.251.84])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CBC6275AEB;
-	Sat, 31 Jan 2026 09:46:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.84
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A3B0239E79;
+	Sat, 31 Jan 2026 21:11:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769852771; cv=none; b=M9FAEtyGF3AlXy56txrvXGiXtujdNOAQuNyCMmYnexBNNQ1CcxXIKftDOEIG+qrZsgVPHJhf7t8fJAIQwFkoPzq4cL4xZME6MXCC1mboob7TnilNfCpcQYu0TQOvLcbFSx8j4QblZSphx+2gIiQAGhlbni+zZDLG+Wzy6jbKjGs=
+	t=1769893893; cv=none; b=IB1t6X9kgsZyGvEz71TZeozoWWxyWakHVB/k9UEGQ/8igB+p0cSBf03Vhzdcsu8UFk1X2UPQRi8OrbwHhjIT8+P9svp3DsS7R1a6ewVM6rSH8QoYi2/B9hzn6FWm7nhyxeRo98LMR9ZSabdzPZrydiFgrNPel6OoJmyjxEnPp0s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769852771; c=relaxed/simple;
-	bh=F/HOxzCJ+d6erv3pLy8YREVLhjqD+8zeMOqYr1zgLDs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=cWlR5U/GSBIAsecvfqeqth2mtWj5SZxeOszvkP8rVN6qEHSQTSpDmEboxpgQag6bWDDrXUQKq/lmGIbuNm+8TxVGFyZbYpYYi8c4nwbQsD8lab/7/OKYY5zeiyfdt+3Eq77GLHvzoIWIg2gN027lODw7zUotjnH+6cz+ccYYlBI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.84
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from edelgard.fodlan.icenowy.me (unknown [112.94.102.235])
-	by APP-05 (Coremail) with SMTP id zQCowAC3Sw9Rz31p9UgiBw--.57463S3;
-	Sat, 31 Jan 2026 17:46:01 +0800 (CST)
-From: Icenowy Zheng <zhengxingda@iscas.ac.cn>
-To: Thomas Gleixner <tglx@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Jiaxun Yang <jiaxun.yang@flygoat.com>
-Cc: linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-mips@vger.kernel.org,
-	Icenowy Zheng <zhengxingda@iscas.ac.cn>,
-	linux-s390@vger.kernel.org,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [PATCH 1/8] genirq: reserve NR_IRQS_LEGACY IRQs in dynirq by default
-Date: Sat, 31 Jan 2026 17:45:40 +0800
-Message-ID: <20260131094547.455916-2-zhengxingda@iscas.ac.cn>
-X-Mailer: git-send-email 2.52.0
-In-Reply-To: <20260131094547.455916-1-zhengxingda@iscas.ac.cn>
-References: <20260131094547.455916-1-zhengxingda@iscas.ac.cn>
+	s=arc-20240116; t=1769893893; c=relaxed/simple;
+	bh=ZmumTbCrYT1hQwjIqNBI5dJ3+Tbzc2Y1urg6lmvFMf0=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=SrjVmmytH7AXSyvi/FSo/t805C7rRGfc6XLVtoLV3MqGh1B/weZXVdkX/FXkqXA72pOXNTsnPadxrF1nJXhp7XggCwvhwuzPyoRcI24Xa9TAg1me4wm0oYnrkj0ph2e10yfvbEnkfrPIxGpcEM0b3Ql+cNKXAQZPj8qJLAY6apU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AkcaNEBV; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AkcaNEBV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 813E4C116D0;
+	Sat, 31 Jan 2026 21:11:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769893892;
+	bh=ZmumTbCrYT1hQwjIqNBI5dJ3+Tbzc2Y1urg6lmvFMf0=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=AkcaNEBVGUjZQcywaG27We4ef05UleeONxr40wrNdOdDk/iMRlfWjgB5Baykdm+ef
+	 Yo+AlLqTuNyRX6wB8vzaq9ZRuqo+jLS9cMoWGvcOv7t8E8LNFO6BVld7Wjb/L9aRry
+	 aHH4xYceNbUIf9r/sabiVurdyPBg+RCrnVzfG4NzmpOKuBskjTbJ8l8anV2B3d9Ttp
+	 m1msRvu53zhuXuGSBV9KvcvGSkY6v4JUJ4p+7M32+4bMxi+rtLbMpVItA7TwSXKe0L
+	 X8/JHMQL0H97pfdBYS+iYfGYkhmTHItDjmaF7/oOPVg40rDZEM7gDMrfN6iPkcF6jG
+	 dP8kI0bsxJC8Q==
+Date: Sat, 31 Jan 2026 13:11:31 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: netdev@vger.kernel.org, Alexandra Winter <wintera@linux.ibm.com>,
+ Thorsten Winkler <twinkler@linux.ibm.com>, linux-s390@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet
+ <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Simon Horman
+ <horms@kernel.org>
+Subject: Re: [PATCH net-next] net/iucv: clean up iucv kernel-doc warnings
+Message-ID: <20260131131131.0d854805@kernel.org>
+In-Reply-To: <20260130054759.1301608-1-rdunlap@infradead.org>
+References: <20260130054759.1301608-1-rdunlap@infradead.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:zQCowAC3Sw9Rz31p9UgiBw--.57463S3
-X-Coremail-Antispam: 1UD129KBjvJXoW7urWkXFW5Zw17XFWDAr1xGrg_yoW8ZF48pr
-	WxWry3W34xJ347Za45Ww1S9a4fua95G342kF9Ikw13Zwn8JrnYv3sa9F45Xr10vrs5GF4Y
-	yFya9Fy5Xa4DZFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUPE14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_Jr4l82xGYIkIc2
-	x26xkF7I0E14v26r4j6ryUM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0
-	Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84
-	ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I2
-	62IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcV
-	AFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG
-	0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2Y2ka0xkIwI
-	1lc7CjxVAaw2AFwI0_Jw0_GFyl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_
-	Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17
-	CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0
-	I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I
-	8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73
-	UjIFyTuYvjfU8XdbUUUUU
-X-CM-SenderInfo: x2kh0wp0lqwv3d6l2u1dvotugofq/
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Several architectures define NR_IRQS_LEGACY to reserve a low range of IRQ
-numbers for fixed legacy allocations (e.g. ISA interrupts) which should
-not be handed out by the dynamic IRQ allocator.
+On Thu, 29 Jan 2026 21:47:59 -0800 Randy Dunlap wrote:
+>  /**
+> - * __iucv_message_receive
+> + * __iucv_message_receive - Terminates an IUCV path.
 
-arch_dynirq_lower_bound() exists to enforce this, but today only x86 wires
-it up. In the current boot order this typically works because legacy IRQ
-domains register early and claim the low IRQ numbers first; however, that
-assumption breaks if the legacy controller is probed later.
+AI code review complains this is odd wording since the main body
+describes reception not termination.
 
-Make the default arch_dynirq_lower_bound() implementation honour
-NR_IRQS_LEGACY by clamping the allocation start to at least that value.
+>   * @path: address of iucv path structure
+>   * @msg: address of iucv msg structure
+>   * @flags: flags that affect how the message is received (IUCV_IPBUFLST)
+> @@ -374,7 +363,7 @@ int __iucv_message_receive(struct iucv_p
+>  			   size_t *residual);
+>  
+>  /**
+> - * iucv_message_reject
+> + * iucv_message_reject - Refuses a specified message
+>   * @path: address of iucv path structure
+>   * @msg: address of iucv msg structure
+>   *
+> @@ -387,7 +376,7 @@ int __iucv_message_receive(struct iucv_p
+>  int iucv_message_reject(struct iucv_path *path, struct iucv_message *msg);
+>  
+>  /**
+> - * iucv_message_reply
+> + * iucv_message_reply - Refuses a specified message
 
-Architectures that do not define NR_IRQS_LEGACY keep the current behaviour
-(effectively 0). Arm/PowerPC/MIPS/LoongArch use legacy IRQ domains for ISA
-interrupts and benefit from this change. x86 and s390 already provide their
-own implementations.
+Same here, refuses or replies?
 
-Cc: linux-s390@vger.kernel.org
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Co-developed-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Signed-off-by: Icenowy Zheng <zhengxingda@iscas.ac.cn>
----
-If this change turns out to be problematic for any architecture, we can
-always override arch_dynirq_lower_bound() for MIPS and LoongArch only.
+>   * @path: address of iucv path structure
+>   * @msg: address of iucv msg structure
+>   * @flags: how the reply is sent (IUCV_IPRMDATA, IUCV_IPPRTY, IUCV_IPBUFLST)
 
-BTW it looks that S390 has a arch_dynirq_lower_bound() override that has
-the same behavior, but not with the same code. This is why S390
-maintainers are Cc'ed by this patch.
-
- kernel/softirq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/kernel/softirq.c b/kernel/softirq.c
-index 77198911b8dd4..cdc77d52c36b2 100644
---- a/kernel/softirq.c
-+++ b/kernel/softirq.c
-@@ -1184,5 +1184,5 @@ int __init __weak arch_early_irq_init(void)
- 
- unsigned int __weak arch_dynirq_lower_bound(unsigned int from)
- {
--	return from;
-+	return MAX(from, NR_IRQS_LEGACY);
- }
+In general -- Could we possibly delete the duplicated kdocs in 
+the header. As clearly shown by this patch it's double the work
+and kernel-doc will be able to find the definition wherever it is.
+Kernel coding guide recommends kdoc next to definition.
 -- 
-2.52.0
-
+pw-bot: cr
