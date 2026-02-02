@@ -1,60 +1,37 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3769037D136;
-	Mon,  2 Feb 2026 17:41:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44B313242D7;
+	Mon,  2 Feb 2026 22:07:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770054071; cv=none; b=dHIgEJOJxg1dsDwV8C6woB0TqoN691hy3YkDGAAUlaHwpmuGiUoa7sdYpRcZJkkd+5DcYYsRuVLz9BoAYwATV0zQ9dN1sV5aSacNYqVyMV+hGo/0bG3qzqwGtssGFpE5dEpJAyLIr7gn2qNF73FJHkKwmyLug/9RwAjFKhI6Xvo=
+	t=1770070076; cv=none; b=AX//4Uiz0Ri/iJzYrcJGL69Mod3P3LcZAfr5tIgw6iG+e6/elQmKlxDH9p+t3MRO2tGzvWl+VFo4Id4KqZ5jZj483DIebTFqlSWACNu1fhObKgGVodwUKT/IEf4zyp9ODbd/3CDrIALt5RtEAdg1ZpwRavmQ3PNN/49bYz20cD8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770054071; c=relaxed/simple;
-	bh=FpCyJfFuuFXb37hoTr8yir9QjAylNg8XFSFGhFI+cVU=;
+	s=arc-20240116; t=1770070076; c=relaxed/simple;
+	bh=bnqz5Lg6zNKkWyFFDbFNMuu1DFfsTzpptKhA1xhLbYY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Ymtjl8ZO/zN+WUIr2/R6+OLwFyY6OjnHtptKlwSbmTFdvTLgiL03mYAyPcelB9HUteRA7GbB5n2VUgXjsgEzwGCmaci6TRpfDCNs/fMe7qDuQCDrxaEvUavwkGHM9+rPLvNznAMZ/dHS4VRRWnbCqb+P2CckWYfmDQNs+2j0dkc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=i5bEI+OT; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=BDr6GmbHrS0KthF0I1t//77gfhymM/kMHo1Lop8SpUuPAB1SSf7+C2NOxyS3KtqkpBNHvYxV2ectJp2PTBUSFqhY6L+Zj6cf+C+ezEptR61YAp6LlJtYkglNaBggLoYFI6jzXx6C+ufM1CbRPOHaUYoqTeBjum0Gok28K71x08o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=0VGAEeMQ; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="i5bEI+OT"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 612FjNpp016604;
-	Mon, 2 Feb 2026 17:41:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=PCz7dj
-	2AzVhYdoJKoe6BuLmGc6b0ebQCXW7Uwtokg6w=; b=i5bEI+OT2dgzYwIP8W9Ua8
-	gfJ9z1/nPCt6/oC/pq5hB2R1MqInE2lLgY7wgTbqt5K6zKkyMQS02cjToIfhOCkZ
-	7ZA2HCmEuANk5Y1+ulA9buI4Wg+RxKOObDV5vlD8J4q7II7MpMseYyqW0l32jv3E
-	iedISdZpvrkEGz+Z7IVtLHk8JVCnsyxmapIj1ESg8n2225xSNX1X79NixbTCwdw/
-	lst3cttMLYUTI+L5tOhthPVo/ZiJiXXQDO6ij2hCaGctzEGUB+PG/jA7Nub6YOt0
-	5kYQNnwFEYct7ZCrBHRtfQf6dNmR9NzzUcc86Gf4SWqcYau02RyYBelHLsGbZMFg
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c175mr6ys-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Feb 2026 17:41:07 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 612EEk5K004437;
-	Mon, 2 Feb 2026 17:41:06 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4c1wjjnwu3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Feb 2026 17:41:06 +0000
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 612Hf4Nj26804908
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 2 Feb 2026 17:41:04 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7497F58068;
-	Mon,  2 Feb 2026 17:41:04 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9F28C5804B;
-	Mon,  2 Feb 2026 17:41:03 +0000 (GMT)
-Received: from [9.61.254.56] (unknown [9.61.254.56])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  2 Feb 2026 17:41:03 +0000 (GMT)
-Message-ID: <b77f16da-ff8f-4e22-ae9c-0b9164902912@linux.ibm.com>
-Date: Mon, 2 Feb 2026 09:41:03 -0800
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="0VGAEeMQ"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+	bh=tQeInzoDicgl882XpJgNlflAuI9sUNfJX9nLKOj1C6U=; b=0VGAEeMQq9zyPoVeCSBkEdtC1b
+	IyATzwMpgVSpweaqcrhV45DJMFaK8BGy6taCJ3kfc5O0tGd1fyOK+bVZiykflvhRHwJffw5DOcqiI
+	8zN4qf53qI7I1D5dUPUnx31er1WJzEuf8e4k9OggbUJdkrddZHmpC3rkEhYQE7kg2qyai5E6/7b4n
+	6ooPCHL/zX3QWjOELoDMUd49WgSWf9/gTc2oRzYBlrZcRmF18nsY/fbKh8T6MSLr/NVg7157hhIon
+	tE3eq6eU5vEw7VDTw0LTmX8TT9Q8HUw88la6Rvh8hQ0QjS2dr+OWk1n8Xydg4/uRbn7EJusPAAE2x
+	zAMNh1eQ==;
+Received: from [50.53.43.113] (helo=[192.168.254.34])
+	by bombadil.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1vn25I-00000005goZ-0Nzk;
+	Mon, 02 Feb 2026 22:07:52 +0000
+Message-ID: <136674a3-cf8d-4da9-a82d-d0edea6aca03@infradead.org>
+Date: Mon, 2 Feb 2026 14:07:51 -0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,73 +39,138 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] MAINTAINERS: Replace backup for s390 vfio-pci
-To: Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org
-References: <20260202144557.1771203-1-farman@linux.ibm.com>
+Subject: Re: [PATCH v2 net-next] net/iucv: clean up iucv kernel-doc warnings
+To: Alexandra Winter <wintera@linux.ibm.com>, netdev@vger.kernel.org
+Cc: Thorsten Winkler <twinkler@linux.ibm.com>, linux-s390@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Simon Horman <horms@kernel.org>
+References: <20260201072309.222155-1-rdunlap@infradead.org>
+ <2ddf6abd-d10c-4d75-8f84-0fd1ccb5435c@linux.ibm.com>
 Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <20260202144557.1771203-1-farman@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+From: Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <2ddf6abd-d10c-4d75-8f84-0fd1ccb5435c@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: MIzsbHEr-GQ8Sqn9jrebdqH0kaKzp4a0
-X-Authority-Analysis: v=2.4 cv=VcX6/Vp9 c=1 sm=1 tr=0 ts=6980e1b3 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=STK_0p3wlTkmVyiQI7oA:9
- a=NqO74GWdXPXpGKcKHaDJD/ajO6k=:19 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: MIzsbHEr-GQ8Sqn9jrebdqH0kaKzp4a0
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjAyMDEzNyBTYWx0ZWRfXyea+Zm6w+Gan
- ZGvBhZg8X3moDJjxtO1NydejJpHeWlX3RlunYRTCp0eanIKIRT3v6+zHW+AQ3Rp98IwAAdlDXKW
- lhgyVXILiSv96Xsg3FoeBb/oPJlCiqpTVT0P11hqLZCWlH2sharr6sbF9ZK8Ju8scd0eMez1797
- fVmj4h6BvKy64j8Z9hiwyHz2RSnB/U+Z8j0BpKVEIN59R/kT3kuMM/Z99T50Opv4EJP6hTU9Tib
- 96DqHSnSyDtXmGKk8TiPBl23oQ1+SrpqkNSxtYnUlEOx+yeVI3yvVHm0IzvuobaE+OcOEGqVLbc
- YNnpBjCxZoUZZjJHai/aAnMzv95NlKomTqn9JmVNmcAt++cLrM3a7t7EmIUj5COgneXy1AQykOO
- 6PjCYcKkCS3VDanyDwyQJOuZKn6SHplNT1+Yb2ef38SbHa06D/nBWkSv3BC1noZWgmMjscR0FW+
- XBGFG/RxC0+pZg/DnMQ==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-02_05,2026-02-02_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 malwarescore=0 suspectscore=0 spamscore=0 adultscore=0
- bulkscore=0 phishscore=0 lowpriorityscore=0 impostorscore=0 clxscore=1011
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2601150000 definitions=main-2602020137
+
+Hi,
+
+On 2/2/26 7:35 AM, Alexandra Winter wrote:
+> 
+> 
+> On 01.02.26 08:23, Randy Dunlap wrote:
+>> Fix numerous (many) kernel-doc warnings in iucv.[ch]:
+>>
+>> - remove kernel-doc on static functions in iucv.c
+>> - convert function documentation comments to a common (kernel-doc) look,
+>>   even for static functions (without "/**")
+>> - use matching parameter and parameter description names
+>>
+>> Examples:
+>>
+>> Warning: include/net/iucv/iucv.h:210 missing initial short description
+>>  on line: * iucv_unregister
+>> Warning: include/net/iucv/iucv.h:216 function parameter 'handle' not
+>>  described in 'iucv_unregister'
+>> Warning: include/net/iucv/iucv.h:467 function parameter 'answer' not
+>>  described in 'iucv_message_send2way'
+>> Warning: net/iucv/iucv.c:727 missing initial short description on line:
+>>  * iucv_cleanup_queue
+>>
+>> Build-tested with both "make htmldocs" and "make ARCH=s390 defconfig all".
+>>
+>> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+>> ---
+> 
+> Thank you very much for your effort Randy.
+> FYI: I had to use 'scripts/kernel-doc.py -none -Wall include/net/iucv/*' to see the warnings.
+> 
+> 
+> 
+>> v2:
+>> - correct verbs in descriptions of 2 functions (Jakub)
+>> - removed duplicate kernel-doc comments from the header file (Jakub)
+>>
+>> Cc: Alexandra Winter <wintera@linux.ibm.com>
+>> Cc: Thorsten Winkler <twinkler@linux.ibm.com>
+>> Cc: linux-s390@vger.kernel.org
+>> Cc: "David S. Miller" <davem@davemloft.net>
+>> Cc: Eric Dumazet <edumazet@google.com>
+>> Cc: Jakub Kicinski <kuba@kernel.org>
+>> Cc: Paolo Abeni <pabeni@redhat.com>
+>> Cc: Simon Horman <horms@kernel.org>
+>>
+>>  include/net/iucv/iucv.h |  209 ------------------------------
+>>  net/iucv/iucv.c         |  259 ++++++++++++++++++--------------------
+>>  2 files changed, 128 insertions(+), 340 deletions(-)
+>>
+>> --- linux-next-20260130.orig/include/net/iucv/iucv.h
+>> +++ linux-next-20260130/include/net/iucv/iucv.h
+>> @@ -70,7 +70,7 @@
+>>  #define IUCV_IPLOCAL	0x01
+>>  
+>>  /*
+>> - * iucv_array : Defines buffer array.
+>> + * iucv_array - Defines buffer array.
+> 
+> Did that create a kernel doc warning? It's a struct, not a function.
+
+It's not kernel-doc, so no warning.
+However, JFYI, for kernel-doc, it would need a "short description" after the
+hyphen, whether it's a function, struct, enum, typedef, union, or define (macro).
 
 
-On 2/2/2026 6:45 AM, Eric Farman wrote:
-> Farhan has been doing a masterful job coming on in the
-> s390 PCI space, and my own attention has been lacking.
-> Let's make MAINTAINERS reflect reality.
->
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> ---
->   MAINTAINERS | 3 ++-
->   1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 0efa8cc6775b..0d7e76313492 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -23094,7 +23094,8 @@ F:	include/uapi/linux/vfio_ccw.h
->   
->   S390 VFIO-PCI DRIVER
->   M:	Matthew Rosato <mjrosato@linux.ibm.com>
-> -M:	Eric Farman <farman@linux.ibm.com>
-> +M:	Farhan Ali <alifm@linux.ibm.com>
-> +R:	Eric Farman <farman@linux.ibm.com>
->   L:	linux-s390@vger.kernel.org
->   L:	kvm@vger.kernel.org
->   S:	Supported
+> I propose
+> + * struct iucv_array
+> like other structs in this file.
 
-Thanks a lot Eric!
+OK, that's fine for structs that don't have kernel-doc notation.
 
-Acked-by: Farhan Ali <alifm@linux.ibm.com>
+> [...]
+> 
+>> @@ -757,13 +742,12 @@ static void iucv_cleanup_queue(void)
+>>  }
+>>
+>>  /**
+>> - * iucv_register:
+>> + * iucv_register - Registers a driver with IUCV.
+>> + *
+>>   * @handler: address of iucv handler structure
+>>   * @smp: != 0 indicates that the handler can deal with out of order messages
+>>   *
+>> - * Registers a driver with IUCV.
+>> - *
+>> - * Returns 0 on success, -ENOMEM if the memory allocation for the pathid
+>> + * Returns: 0 on success, -ENOMEM if the memory allocation for the pathid
+>>   * table failed, or -EIO if IUCV_DECLARE_BUFFER failed on all cpus.
+>>   */
+>>  int iucv_register(struct iucv_handler *handler, int smp)
+> 
+> Before this one, you changed /** to /*
+> after this one you left /**
+> That's a bit inconsistent.
 
+That's described in the patch description:
+
+>> - remove kernel-doc on static functions in iucv.c
+
+but I can restore the "/**" (i.e., not change them to "/*").
+OK, I'll do that.
+
+
+> 
+> All the fixes look good to me. And they get rid of the mentioned warnings.
+> I appreciate your approach to use the existing wording, though it may not
+> be according to the latest style guidelines.
+
+Is that IBM style guidelines or kernel?
+
+> Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+
+
+I'll send a v3. Hopefully it will be satisfactory.
+
+Thanks.
+-- 
+~Randy
 
