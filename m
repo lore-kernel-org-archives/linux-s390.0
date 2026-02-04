@@ -1,258 +1,140 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F305B2C3745
-	for <linux-s390@vger.kernel.org>; Wed,  4 Feb 2026 11:47:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.133.124
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770205661; cv=pass; b=PtJkftXu210+OJEC6JdaCh7ZiaDSJLiDIfXPx7HeKZLvHjvIDyaLk3iF9vtHq/pxXgPvBG4vYqG6sMPxWZPx5W2Wp6fxEasZcVt5SUkDoNynMbMvnI5DCYR7ZxoFPmoL2M/VEn8XmzJX3dax+wXuwOe+MNevr6wwAePlCTaRSqs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770205661; c=relaxed/simple;
-	bh=bEVPeML+wLtbEJlc7Ek2zFugLGebCrtuCYqQUr+0kT4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KC2M9MKpQs/uDCBWThvG5a14w/RCJAuLWZJM9byZgGNx+7eQvJ5Lftb0fE6QlZjp9DhR58VsEOvS/pyRIgJYQUX0j6PCXK7vTR9tySrygMFczYEckgW9Hte8XezGrjxJy1mEkLuwvFgtJ+fwXAowB08DX/Bzp+e1vJUElVQ/p20=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bfKOwu2B; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=M2qPUC4I; arc=pass smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E24132C3745;
+	Wed,  4 Feb 2026 11:47:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770205678; cv=none; b=iEBETugbENEFcrAXPDBa26xsyISCbPYlA5PCrcGUQHAeknddjure/wPAaAxlW41uKl88R6XLh2t183I5Ym0aQe8wgIdbHTnqb+TX/VUnI4mxEwtG7pxUadI2Hos/nqz36ZIGo5ihNJMdZkL4dv2/T6TljmzMlXDaKTqFFXOT4Fw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770205678; c=relaxed/simple;
+	bh=zm63p4BoOasofx6QJZn3TkcEuRg7um96Cq4qAYNg/vs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ob+1PK1RJpAS9mEjRwPL6gKARBFJvlDdBKcHD0a/mR6MuL/qAMNiXebl/WbeD7jXbn7eANE/zFHRCsZX6HEa/jt8m1bUduFQywQ39J7NV5G6poFBZooAGlGjNx4qlZotLlRCd7v007r+0uT7vlbibij5OUtpBitc5YaWzgmCBW0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UP2CSSin; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bfKOwu2B";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="M2qPUC4I"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1770205660;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=41m/oc+dMSUkM8uHzNx611jXZiOBNudNWORLl8cHNfw=;
-	b=bfKOwu2BaPEmE9qTmR7hB0XERStiimwl5upEdHnUUBknzVrUXBK8AlGsW/gVEUHVKT1TNp
-	yn8iTOuGCf3Ald+5aFiUFC5hHc7IxlAcBSR6zUZiHujRyL10gizYmLhLsefLw2OiNRn/mz
-	yNilhI06K7QuvEVbO/XT9Xyv0D98jbw=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-402-LPzyZXCtNlierB93M6ReBA-1; Wed, 04 Feb 2026 06:47:39 -0500
-X-MC-Unique: LPzyZXCtNlierB93M6ReBA-1
-X-Mimecast-MFC-AGG-ID: LPzyZXCtNlierB93M6ReBA_1770205657
-Received: by mail-lj1-f199.google.com with SMTP id 38308e7fff4ca-385c90cbca6so6749331fa.1
-        for <linux-s390@vger.kernel.org>; Wed, 04 Feb 2026 03:47:38 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1770205657; cv=none;
-        d=google.com; s=arc-20240605;
-        b=XvUC8ituvEKwXTCYtC31DqtVhI97lr7TsZWAkGBBXkv3vcFJIeiFKwQ07tdexwuGdq
-         BQDgvc9lvQTuZNaxSVyFmfPcpHDO6tUrIBDOicMX0KTtCns+N+evkSNMgJkSziOJEVnt
-         zg7veBzeZlZyPlqAsmFJQA0f5FxiGf0/8NpkijRDeQX06fHI2mtw/4J6na83nheFs9PL
-         zpCzaVpjYe88aVEgVu7YUS+fHr25TtOtVy/NfXy/lDDkjmXd3x2N5TV0CzbP5vPT+303
-         yW/4NihMdfgmbS4pomQ+zOYHt8x8eoaTUyFWNOQbqY/9zZbXPq4drCOjrOdaMCAj2+wb
-         M4pw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=41m/oc+dMSUkM8uHzNx611jXZiOBNudNWORLl8cHNfw=;
-        fh=doQ/N3TlIkb3FI0FKXFuJM2F3g8r0Xc4Se1Zi/GxILk=;
-        b=Cs7sSUlEfvogE8TuyqPQtSaSioWaoy5D2G+g1CrNGjZne6LQyFlORHgGj3eUMsxCKv
-         Cu7XG6ofkRAEVKkYb7osscGRVgh/kzv9ywDH8za6SpMjTarhlcDbSpRUpNzLosBGuzUm
-         8WlyB7ZaP0AId7+Hfc3sOXBM8sgLzYmq1n+KmjLegfJM6PqC8ePZgLrXyDR8LDmHuhQ3
-         cNdVNtTuZouf0wzUQB0feVSb0nCbu7lXU1YEGmL4FpvUV9eNUAT9KBjZXyjZ3A0yfVxs
-         1H7Kq5E7Dg3MNq5US8qTX04UwEiZLrBxDX53t9OM6Us39Kld2L8UinhWjRctkyI9wKRi
-         YgHg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1770205657; x=1770810457; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=41m/oc+dMSUkM8uHzNx611jXZiOBNudNWORLl8cHNfw=;
-        b=M2qPUC4Irz5aJrx/Tlfh5k6I8F8doU2zNZmBHrCE0a90fBcYq4idfXRKVyZsJDypup
-         vnKpBfJI4OhTMN/l2tXzygyRIs1QQQNiF7LlvBh4KIjD9nJhf3rA/wWCvownRoXhEmaw
-         mnW9hwzybzrrPNbDEsDGyHSpkvb0ujVdCMsTTNTMEyyUFU+zy4zfBPQlYnedP3Ojj5tP
-         g1tdHIeF7ovViXJIJrxU+ceL+oouMqQ7dg+yhU8aLJmdssetMD3ceOegy+UYfCvTcL2N
-         rd/xP0l09qTNJqHrFvBfvWYskMEui4F5bgC1w9ZUmaG83iqGZlEkH32Dyf1OZm1/4YeQ
-         oRVQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770205657; x=1770810457;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=41m/oc+dMSUkM8uHzNx611jXZiOBNudNWORLl8cHNfw=;
-        b=Q+nE9EOQ1++Arzp4dOou3eOOVjzKFQ1yidSeMxyfmYUOxHjzeoDfmIx4fYgf5zJhPR
-         TTctvnD7hncBPWiSJJIL0lgJAhr4EUt5c+PxgVPFq7g3Gq2F40qw1T5Z9z93fZogf+6r
-         RV6xwZY2ZONO2iG9+6/zt3OIswqXVDair0bd/6P8G7KsxSBqg3Od0mtXazfrZ46r5frQ
-         T6+qhal3ZHQeV8QWXKj6kraPf7xh7jK3x6u5pQDIttn0OIb4hjfrfRUKJ2C57uz5GtPm
-         AsOQqBwQns2KhQLR7h9vwuheKwkb5Ol54JuHl/Y8mFF9DDvD/fv7VuBWkuGgL5r9TXi+
-         4OXA==
-X-Gm-Message-State: AOJu0YzfIKg1y9woiRAsbmSzjzgYVwI1s0DhZ5bSOFCdZ4/LEQxwv2fI
-	N2hh3Ky+OTpmb2lJyKZAr1JLtlDVlbkmjaRXw/+2NI4JD4OJIN0kRQHCfwXxGho+Vtb39kFSk01
-	CDvMw5dcxHTTS26Qzwc6nP1aMxOgehkZ5CZnEIhTp0i9+34S+2NMOQv0DJMxzYHYqeHOxbz1oC8
-	oYlbG/0ByNLGw3VUg16BjLLaFLhjN2rO6p9U0szg==
-X-Gm-Gg: AZuq6aK+19WyHRv1rCrqkZm2gZuNkNfTX0p9zSA377q7/352FexnOG9KNemnYkvUid7
-	c/WL1++vFzMRWqy8QorslzodRz6krT9cgclW8y24fjfhP7K9DjAd1ecylCp6oj38Mwzi8r9g7zX
-	VAUaYjQkx6Te+vopTEySxi99DrfR5N5dCF4fi2PeA0+EK/Y7EME5zMSNX2t37l9WT7pRE=
-X-Received: by 2002:a2e:be9e:0:b0:385:f50e:3f4c with SMTP id 38308e7fff4ca-38691cbb5b0mr10975331fa.16.1770205657315;
-        Wed, 04 Feb 2026 03:47:37 -0800 (PST)
-X-Received: by 2002:a2e:be9e:0:b0:385:f50e:3f4c with SMTP id
- 38308e7fff4ca-38691cbb5b0mr10975201fa.16.1770205656841; Wed, 04 Feb 2026
- 03:47:36 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UP2CSSin"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 6144ggoY023248;
+	Wed, 4 Feb 2026 11:47:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=rWNaoF
+	zYDYkptyQo8XPdtJMeLuhuZy/D2ImIdGHuafY=; b=UP2CSSinAekr1m1VEuLnx/
+	XwqhGEYbTCQytRzJ0wAZjpuPqLpijKcFuItng+GxMLU0eprKEdBu3OQRAKIupP03
+	yPT2fSEL9BTl7bqJA3m/dOThmt20oLPcjZQ3G8tnqGWlMORnJ3be7Uz6Y8tuw0DR
+	Li+HRTi8SdvaZrxLOMfdAjc0xpJVwFd8qLr9eiHu+3J6A/doIKN9pBlsDbvEXVyt
+	f0Xybltdv/FPeLMmui2IUYb2trX+hl3srpKS7gTFFqDGvN6FeSnge6NIkiIMpI6J
+	mGG7nlJ5v0e8hvE0n0W6hXdzfGpD1l868hG0GJAUBOhFhAkyWrPupe/UhLsE1k/g
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c1986hpyn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 04 Feb 2026 11:47:57 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 614Blul7004195;
+	Wed, 4 Feb 2026 11:47:56 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c1986hpyh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 04 Feb 2026 11:47:56 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 6147MAlC009156;
+	Wed, 4 Feb 2026 11:47:55 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4c1vey54u9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 04 Feb 2026 11:47:55 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 614BlppP57606428
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 4 Feb 2026 11:47:51 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2DB172004B;
+	Wed,  4 Feb 2026 11:47:51 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EB1FB20043;
+	Wed,  4 Feb 2026 11:47:50 +0000 (GMT)
+Received: from [9.52.196.90] (unknown [9.52.196.90])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed,  4 Feb 2026 11:47:50 +0000 (GMT)
+Message-ID: <1ab8cc09-5efb-4c7e-ba75-170e9b8d3815@linux.ibm.com>
+Date: Wed, 4 Feb 2026 12:47:50 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAHj4cs_GH0O7-nkh=8EhwscjzesawBJ+6b0MxuWZOOsp4B7HsA@mail.gmail.com>
- <f08b53ccdfc069f4e8c49511b04171bc@linux.ibm.com>
-In-Reply-To: <f08b53ccdfc069f4e8c49511b04171bc@linux.ibm.com>
-From: Yi Zhang <yi.zhang@redhat.com>
-Date: Wed, 4 Feb 2026 19:47:22 +0800
-X-Gm-Features: AZwV_QiCdBZ8WO6a6aTbcm_ycGmixNJulUN9wFg9vFAjVkU4MYhRp4tYPK-mu00
-Message-ID: <CAHj4cs9H67Uz0iVaRQv447p7JFPRPy3TKAT4=Y6_e=wSHCZM5w@mail.gmail.com>
-Subject: Re: [bug report] kmemleak observed on zcrypt module after system
- boots up
-To: freude@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, dengler@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Feb 4, 2026 at 6:18=E2=80=AFPM Harald Freudenberger
-<freude@linux.ibm.com> wrote:
->
-> On 2026-01-30 09:23, Yi Zhang wrote:
-> > Hi
-> > I found this kmemleak issue after the system boots up with
-> > linux-block/for-next, please help check it and let me know if you need
-> > any test/info.
-> >
-> > # uname -r
-> > 6.19.0-rc7+
-> > # dmesg | grep kmemleak
-> > [ 1648.765780] kmemleak: 1 new suspected memory leaks (see
-> > /sys/kernel/debug/kmemleak)
-> > [ 6148.698090] kmemleak: 2 new suspected memory leaks (see
-> > /sys/kernel/debug/kmemleak)
-> > [10419.366662] kmemleak: 3 new suspected memory leaks (see
-> > /sys/kernel/debug/kmemleak)
-> > [14843.424498] kmemleak: 2 new suspected memory leaks (see
-> > /sys/kernel/debug/kmemleak)
-> > [20987.442195] kmemleak: 2 new suspected memory leaks (see
-> > /sys/kernel/debug/kmemleak)
-> >
-> > # cat   /sys/kernel/debug/kmemleak
-> > unreferenced object 0x990d0000 (size 12288):
-> >   comm "dnf", pid 48539, jiffies 4296356469
-> >   hex dump (first 32 bytes):
-> >     00 00 00 00 99 0d 36 30 00 00 bb af 00 f7 1d 60  ......60.......`
-> >     00 00 00 00 99 0d 00 10 00 00 00 00 99 0d 00 10  ................
-> >   backtrace (crc 9893fb1d):
-> >     kmemleak_alloc+0x6c/0xc0
-> >     ___kmalloc_large_node+0x106/0x160
-> >     __kmalloc_large_node_noprof+0x32/0x170
-> >     __kmalloc_noprof+0x6d8/0xa00
-> >     ap_init_apmsg+0xf6/0x190
-> >     zcrypt_rsa_modexpo+0x15c/0x1310 [zcrypt]
-> >     icarsamodexpo_ioctl+0x110/0x270 [zcrypt]
-> >     zcrypt_unlocked_ioctl+0xc60/0x10e0 [zcrypt]
-> >     __s390x_sys_ioctl+0x178/0x1e0
-> >     __do_syscall+0x166/0x460
-> >     system_call+0x6e/0x90
-> > unreferenced object 0xae148000 (size 12288):
-> >   comm "dnf", pid 48539, jiffies 4296356470
-> >   hex dump (first 32 bytes):
-> >     00 00 00 00 ae 14 b6 30 00 00 bb af 00 f7 1d 60  .......0.......`
-> >     00 00 00 00 ae 14 80 10 00 00 00 00 ae 14 80 10  ................
-> >   backtrace (crc 41938ebb):
-> >     kmemleak_alloc+0x6c/0xc0
-> >     ___kmalloc_large_node+0x106/0x160
-> >     __kmalloc_large_node_noprof+0x32/0x170
-> >     __kmalloc_noprof+0x6d8/0xa00
-> >     ap_init_apmsg+0xf6/0x190
-> >     zcrypt_rsa_modexpo+0x15c/0x1310 [zcrypt]
-> >     icarsamodexpo_ioctl+0x110/0x270 [zcrypt]
-> >     zcrypt_unlocked_ioctl+0xc60/0x10e0 [zcrypt]
-> >     __s390x_sys_ioctl+0x178/0x1e0
-> >     __do_syscall+0x166/0x460
-> >     system_call+0x6e/0x90
-> > unreferenced object 0x87dd4000 (size 12288):
-> >   comm "dnf", pid 48633, jiffies 4296914470
-> >   hex dump (first 32 bytes):
-> >     00 00 00 00 94 c7 20 00 00 00 00 00 00 fe 90 80  ...... .........
-> >     ff ff ff ff ff ff ff ff 00 10 63 c9 1e a5 48 b8  ..........c...H.
-> >   backtrace (crc fb3113e3):
-> >     kmemleak_alloc+0x6c/0xc0
-> >     ___kmalloc_large_node+0x106/0x160
-> >     __kmalloc_large_node_noprof+0x32/0x170
-> >     __kmalloc_noprof+0x6d8/0xa00
-> >     ap_init_apmsg+0xf6/0x190
-> >     zcrypt_rsa_modexpo+0x15c/0x1310 [zcrypt]
-> >     icarsamodexpo_ioctl+0x110/0x270 [zcrypt]
-> >     zcrypt_unlocked_ioctl+0xc60/0x10e0 [zcrypt]
-> >     __s390x_sys_ioctl+0x178/0x1e0
-> >     __do_syscall+0x166/0x460
-> >     system_call+0x6e/0x90
-> > unreferenced object 0x8e65c000 (size 12288):
-> >   comm "dnf", pid 48633, jiffies 4296914470
-> >   hex dump (first 32 bytes):
-> >     00 00 00 00 aa 22 2e 00 00 00 00 00 00 fe 90 80  ....."..........
-> >     ff ff ff ff ff ff ff ff 00 10 63 c9 1e a5 48 b8  ..........c...H.
-> >   backtrace (crc 1b33772d):
-> >     kmemleak_alloc+0x6c/0xc0
-> >     ___kmalloc_large_node+0x106/0x160
-> >     __kmalloc_large_node_noprof+0x32/0x170
-> >     __kmalloc_noprof+0x6d8/0xa00
-> >     ap_init_apmsg+0xf6/0x190
-> >     zcrypt_rsa_modexpo+0x15c/0x1310 [zcrypt]
-> >     icarsamodexpo_ioctl+0x110/0x270 [zcrypt]
-> >     zcrypt_unlocked_ioctl+0xc60/0x10e0 [zcrypt]
-> >     __s390x_sys_ioctl+0x178/0x1e0
-> >     __do_syscall+0x166/0x460
-> >     system_call+0x6e/0x90--
-> >
-> >
-> >
-> > Best Regards,
-> >   Yi Zhang
->
-> I pulled exactly the repo you mentioned with the "for-linux" branch. But
-> again
-> there is no kmemleak reported regardless on how I play around with that.
-> Can you please describe the environment you ran for this issue in more
-> detail?
-
-Hi
-Sorry for the late response, the original environment was destroyed.
-And the kernel I used was not linux-block/for-next, it's
-6.19.0-0.rc7.47.eln154.s390x+debug and can be downloaded here[1].
-I also tried to reinstall the server with
-6.19.0-0.rc7.47.eln154.s390x+debug, but with no luck in reproducing it
-now.
-
-[1]
-https://kojipkgs.fedoraproject.org//packages/kernel/6.19.0/0.rc7.47.eln154/=
-s390x/
-[root@ibm-z-516 ~]# uname -r
-6.19.0-0.rc7.47.eln154.s390x+debug
-[root@ibm-z-516 ~]# lszcrypt -V
-CARD.DOM TYPE  MODE        STATUS     REQUESTS  PENDING HWTYPE QDEPTH
-FUNCTIONS  DRIVER
----------------------------------------------------------------------------=
------------------
-01       CEX7C CCA-Coproc  online            0        0     13     09
----D--N--R cex4card
-01.0001  CEX7C CCA-Coproc  online            0        0     13     09
----D--N--R cex4queue
-[root@ibm-z-516 ~]# cat /proc/cpuinfo
-vendor_id       : IBM/S390
-
-> I assume you ran a "real" s390 LPAR or zVM and there must have been some
-> kind of crypto card in your system. Could you please give me the output
-> of
-> "lszcrypt -V" for that system?
->
-> Thanks
-> Harald Freudenberger
-> to send a request down to the kernel.
->
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] s390/cio: fix device lifecycle handling in
+ css_alloc_subchannel()
+To: Salah Triki <salah.triki@gmail.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260130204800.217395-1-salah.triki@gmail.com>
+Content-Language: en-US
+From: Vineeth Vijayan <vneethv@linux.ibm.com>
+In-Reply-To: <20260130204800.217395-1-salah.triki@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA0MDA4NiBTYWx0ZWRfX4+uUfo/eOlHk
+ KRSCilBLD5v5968Rb/yvigxgF5KfmlKwuN4DwugdwiXLOa6IZm2JD9Jo/5ll5gH0ZkDO+v2ZjgV
+ zBxjnxFZcLvPC+Xpq4hwvggPw5hU/Jvb9BAg3lpQfcvRPhBjS8tx3qig83GqceSh3poKpQY4mAm
+ glQTkmtD1z6OFD/hvMz10IY6ul4GIr0jP0y5hQGBjZvTvU/iLoIkUeJBO+1lTtHL8WHKLK10wij
+ wfOQmVyPOanIahqerpcAtnvlTdnlWOywCYuiTEyDL3aZPw+A/fM36Unsf2RyN77SGnR0H0U+q83
+ T/KtWpK9EKGz8KoZLtcv+YN/kVUPcsKSHsdmjYw6j03cMYDA24py6UGjj7u3bIxrnv4muSAmmO8
+ 0p0zzTaC0xgo98GcVKqkuZooln61jPem9YhcdmSzoitCWzeqFEWbhs8VkBLNv0YTFVZHrigqnoU
+ n2ZG8cIO/PiWDUb4Vrw==
+X-Proofpoint-GUID: zjznR82CQ_xg5mt10Z6pUkkcg-cbVKlL
+X-Authority-Analysis: v=2.4 cv=DbAaa/tW c=1 sm=1 tr=0 ts=698331ed cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=pGLkceISAAAA:8 a=VnNF1IyMAAAA:8 a=8-j6lBzqcow7hk2kIeYA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: H05tNg5M8hcKGhjh6SB3WcFICy5ws5E7
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-04_02,2026-02-04_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 phishscore=0 adultscore=0 malwarescore=0 impostorscore=0
+ priorityscore=1501 lowpriorityscore=0 clxscore=1011 suspectscore=0
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.19.0-2601150000
+ definitions=main-2602040086
 
 
---=20
-Best Regards,
-  Yi Zhang
+
+On 1/30/26 21:47, Salah Triki wrote:
+> `css_alloc_subchannel()` calls `device_initialize()` before setting up
+> the DMA masks. If `dma_set_coherent_mask()` or `dma_set_mask()` fails,
+> the error path frees the subchannel structure directly, bypassing
+> the device model reference counting.
+> 
+> Once `device_initialize()` has been called, the embedded struct device
+> must be released via `put_device()`, allowing the release callback to
+> free the container structure.
+> 
+> Fix the error path by dropping the initial device reference with
+> `put_device()` instead of calling `kfree()` directly.
+> 
+> This ensures correct device lifetime handling and avoids potential
+> use-after-free or double-free issues.
+> 
+> Fixes: e5dcf0025d7af ("s390/css: move subchannel lock allocation")
+> 
+> Signed-off-by: Salah Triki<salah.triki@gmail.com>
+> ---
+
+Thank you.
+this looks good to me.
+
+Reviewed-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+
 
