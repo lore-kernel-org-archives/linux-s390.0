@@ -1,57 +1,57 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75112426EB7;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF479426ED1;
 	Wed,  4 Feb 2026 15:03:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770217397; cv=none; b=ohhWb+2JZdaXCeazV9dSxqNUrAe3dy9CcuN85LBVk5XwwqAfVC9sbPMaZCPaz+5DraRojNDuxykRBn0FqPY3ovOALGK1dRpFNCGUAvHy6hFhCe5zrLuIVgYaZIIw+i6j3nPPbiXGboW0wj62FpYbFYzqd3//Y+iRHLxPMvNhAa0=
+	t=1770217397; cv=none; b=XL89JRMgDiFE+ru8qxM50lqBnOp5ZIvx1gi6Qi2bH2/yMBKBmyn0Qlstj/7Qiw4+JyR30sshGmzMfbJvlUIRI8u/bwf9wfG3e1INk5Qa2Qvi9cloaa+XDEOCEU6wzBpgMsdxGWrKsIjXCSbSwb3R5KTYhXyMOTc89UCuKT8Y2Lk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1770217397; c=relaxed/simple;
-	bh=Vjj9x0om/TE5l/TnOuT6oFg8gd3mI14YxbuDYWY/aD8=;
+	bh=wKdozpnCyQvNwmdirVgYmW7edwrvcJKS2i2moIpVW20=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gcXDjsiOhZgLyEDnT0alhYfwlAW5/KmQtTbNYi+o5SBkTzwe0WKe6CWyHbJ9gJz5dU0tlrAzTmOz+cmoIlgJEQ5ka3qt7zI4NL30Ay40jcm/JOiFUZse78VlO6GxOWvTwq9AKVsjVTR1l7MoHDzkVhWI07nFTwDvvymS1lOR8yo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ErEOwL2X; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=ED/n8g1WpIvBP02iOuNasQ8KOY1IX9uggRMHAibaKdIy4MN/wSmLU7rbF2W6HltVzT/0S8YSGMZ4ay4KynwDai4y3JXiJA89qF1Fa6I7mkTk+G6cySNazA3VbPKR2fI8OwU9eotP0XLbgVECU3a6fTRCUjJ7WucyPLuXshEj22g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cx5RugB4; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ErEOwL2X"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 613MZQha024345;
-	Wed, 4 Feb 2026 15:03:13 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cx5RugB4"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 61407h9e023046;
+	Wed, 4 Feb 2026 15:03:12 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=xoow5PPmZXyqk0bxm
-	kYGArhZeaNXf1UPw8ifuUMYBFw=; b=ErEOwL2X6PQADCiIVl30mwfUJPWTmOnSc
-	1jaCymmZcmUg7/v29uIDuYWfFfFznrF5Ss2797RYg06b0tkDfLKMxkjG2bdpK2Ca
-	wJ/rackoVD+Z+hqf1EVqBK62DLB36jqcbkzxpRwCwAZzEJYnMGPLzVYP8sM/1kmN
-	S3nVuPSruh12IGaii8l4t2nnui4EQLSNjG9nYA6lvkvxlm0WoEBQnln6ZUtcrmQT
-	UsckI58CDIlqOl2jXHJW2jIR5dgtSnMgvrqaNiFWYeZKv7ih3rTDQUDNtQnmERYS
-	3SVKWNLkyi3ySDEhcd27DM0I3k8MnNQq5DC5sF8ex0lDqLnytHvwQ==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c175n00fc-1
+	:mime-version:references:subject:to; s=pp1; bh=74meehHv84eHrso5Q
+	QwTJJrBsUKtPpVb5UjMLtZ0AV8=; b=cx5RugB48yizG+UcBpuQM9iaOE1zpAqQB
+	oW1dC0kT2wgMRrkUR3kDk/JrX8vM/+SfnUDGbAW78gl4ttpr6mu44wrExELDQgpT
+	viWDAdl7du87Y74FBq53E9Osnt57jGNqLKeC9ULeCKbWcVOWeach7Dfn2qJtr8ZH
+	Kkb/af98DTZAFHmouNxms35sxXU/IPnR1hgVj5z8rbBLYq5O6LOmjuM3cAySXxX3
+	HwPUYIz0lXc8dxkW+5SJJuyLHYstKGoIipB419dySEKOff8ou2ePacCwIvR+uJqH
+	cR7Z+TCLVukLdzU2tXVosYNM1+8jPHFVnYSUTzm6Daw82zvjUoptQ==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c19dtad75-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Feb 2026 15:03:13 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 614BYpMH029047;
-	Wed, 4 Feb 2026 15:03:12 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4c1v2sdsq2-1
+	Wed, 04 Feb 2026 15:03:11 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 614CV4Y1025812;
+	Wed, 4 Feb 2026 15:03:10 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4c1w2mwnk8-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Feb 2026 15:03:12 +0000
+	Wed, 04 Feb 2026 15:03:10 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 614F387U30474824
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 614F36Hl53608902
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 4 Feb 2026 15:03:08 GMT
+	Wed, 4 Feb 2026 15:03:07 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 96B6120043;
-	Wed,  4 Feb 2026 15:03:08 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id DA89520040;
+	Wed,  4 Feb 2026 15:03:06 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 55A2520040;
-	Wed,  4 Feb 2026 15:03:08 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 9299A2004F;
+	Wed,  4 Feb 2026 15:03:06 +0000 (GMT)
 Received: from p-imbrenda.aag-de.ibm.com (unknown [9.52.223.175])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  4 Feb 2026 15:03:08 +0000 (GMT)
+	Wed,  4 Feb 2026 15:03:06 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
@@ -60,9 +60,9 @@ Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         schlameuss@linux.ibm.com, hca@linux.ibm.com, svens@linux.ibm.com,
         agordeev@linux.ibm.com, gor@linux.ibm.com, david@kernel.org,
         gerald.schaefer@linux.ibm.com
-Subject: [PATCH v7 28/29] KVM: s390: Storage key manipulation IOCTL
-Date: Wed,  4 Feb 2026 16:02:57 +0100
-Message-ID: <20260204150259.60425-29-imbrenda@linux.ibm.com>
+Subject: [PATCH v7 23/29] KVM: s390: Storage key functions refactoring
+Date: Wed,  4 Feb 2026 16:02:52 +0100
+Message-ID: <20260204150259.60425-24-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260204150259.60425-1-imbrenda@linux.ibm.com>
 References: <20260204150259.60425-1-imbrenda@linux.ibm.com>
@@ -74,219 +74,281 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: d0Q2CYolNDsfLQuLVl0ZONy5LoH9KwR2
-X-Authority-Analysis: v=2.4 cv=VcX6/Vp9 c=1 sm=1 tr=0 ts=69835fb1 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA0MDExMyBTYWx0ZWRfX8ya7OoAWG8Zn
+ /WS8uIyOdKmUMDqDUfxTd1NZH+TnxTtkfPaW4p6uQWuaK9nK863v3xFZzrDGXP7O8aleRS8w/67
+ LbvGV7XmekAmlZ+aU9/nXOG1/QOXDa1F9/j9IoxhXn2IwSYWJyTRMrdWItO61kz0shStcjU/S5Q
+ GN1KZBMlOnyvfo0Wc3cw/Ym/mU4wTZHPeo6HNoTgQO5lD9Lu5D8FoGwBIoMt+poPU1SG+YYHDMD
+ 2Zzxdpi8RuC7rE57+ryFmDsjm3auev4o3AxxfDGzRgRIJV3e0ZMXdaAHwnA5BUus85dqzAd4e3G
+ 4Z6I+dBCYoYm6H4q3o1UYNeC6GO+tT7w0xlBBY/IxmkPWK5IIcLRGbgasM8d7q2d/JMdw6/Jp+t
+ Fvp5C59KvtUYIHRe0RFPThapkrmEyCGsJYUO4XWK397c3q5d5SIePyf44cvz5Uf0X5q5eZ8hJ3w
+ oMI1ae54d8ESJ5LSn6Q==
+X-Proofpoint-GUID: dZ4qbL8XeosjKvpcrGH2_7nwFJjwudIt
+X-Proofpoint-ORIG-GUID: dZ4qbL8XeosjKvpcrGH2_7nwFJjwudIt
+X-Authority-Analysis: v=2.4 cv=LesxKzfi c=1 sm=1 tr=0 ts=69835fb0 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
- a=jVMGocEsZ36WJnCjVsIA:9
-X-Proofpoint-GUID: d0Q2CYolNDsfLQuLVl0ZONy5LoH9KwR2
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA0MDExMyBTYWx0ZWRfX0yBCghTj79AK
- Gc/0eudK07H+oByZhT/EWlm1lnEfgP3m66qM5oLn3GSDjiHVnBUSEGJbFBuja5fyaYImRSGLQnk
- olPstaThebGdwfg6xVhZrqCaL+CINB3qzbbmPEpu6cWMZYgVmC/Z5pACOe8I/5znAz21f9t4Tez
- NoPr8mXSyfgjFiiFb1rW1HzQJMpooWbU6WDi4md4Ri6tBgh3iN7DaN3CVrZeOiy7RwOmVOcfl1H
- 7bEas1CAkdhxeCdIxsSOOhLtLJueHoDqClETYYdOui3vEriDM812Yv0d5IEEnehFL3Z04ok7Hg1
- PLyVOPS5qey5CwJepwfhU3QOw5DfmyKh6m07rP2mVEYSEfPCCQUDyQr+Se2BxWt7VBX+jL4HYA2
- MrJn7hXT/EAMmEo4B7cEp2jjI+SdKsNO7rPsSI8nqSlmCcr4ztyEGDawwW2edgr3gHyyb73yZ/Q
- UcyiyO39gXTx+Zoc4Zg==
+ a=HyGg85_KfVV_UHYI6-AA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-02-04_04,2026-02-04_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 malwarescore=0 suspectscore=0 spamscore=0 adultscore=0
- bulkscore=0 phishscore=0 lowpriorityscore=0 impostorscore=0 clxscore=1015
+ bulkscore=0 impostorscore=0 spamscore=0 lowpriorityscore=0 clxscore=1015
+ adultscore=0 suspectscore=0 priorityscore=1501 phishscore=0 malwarescore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.19.0-2601150000 definitions=main-2602040113
 
-Add a new IOCTL to allow userspace to manipulate storage keys directly.
+Refactor some storage key functions to improve readability.
 
-This will make it easier to write selftests related to storage keys.
+Introduce helper functions that will be used in the next patches.
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- Documentation/virt/kvm/api.rst | 42 ++++++++++++++++++++++++
- arch/s390/kvm/kvm-s390.c       | 58 ++++++++++++++++++++++++++++++++++
- include/uapi/linux/kvm.h       | 11 +++++++
- 3 files changed, 111 insertions(+)
+ arch/s390/kvm/gaccess.c  | 38 +++++++++----------
+ arch/s390/kvm/gaccess.h  |  4 +-
+ arch/s390/kvm/kvm-s390.c | 80 +++++++++++++++-------------------------
+ arch/s390/kvm/kvm-s390.h |  8 ++++
+ 4 files changed, 59 insertions(+), 71 deletions(-)
 
-diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-index 01a3abef8abb..72e04dedb068 100644
---- a/Documentation/virt/kvm/api.rst
-+++ b/Documentation/virt/kvm/api.rst
-@@ -6517,6 +6517,40 @@ the capability to be present.
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index 9df868bddf9a..2649365bf054 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -961,7 +961,7 @@ int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
+  *            *@old_addr contains the value at @gpa before the attempt to
+  *            exchange the value.
+  * @new: The value to place at @gpa.
+- * @access_key: The access key to use for the guest access.
++ * @acc: The access key to use for the guest access.
+  * @success: output value indicating if an exchange occurred.
+  *
+  * Atomically exchange the value at @gpa by @new, if it contains *@old.
+@@ -974,9 +974,8 @@ int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
+  *         * -EAGAIN: transient failure (len 1 or 2)
+  *         * -EOPNOTSUPP: read-only memslot (should never occur)
+  */
+-int cmpxchg_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, int len,
+-			       __uint128_t *old_addr, __uint128_t new,
+-			       u8 access_key, bool *success)
++int cmpxchg_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, int len, union kvm_s390_quad *old_addr,
++			       union kvm_s390_quad new, u8 acc, bool *success)
+ {
+ 	gfn_t gfn = gpa_to_gfn(gpa);
+ 	struct kvm_memory_slot *slot = gfn_to_memslot(kvm, gfn);
+@@ -1008,41 +1007,42 @@ int cmpxchg_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, int len,
+ 	case 1: {
+ 		u8 old;
  
- `flags` must currently be zero.
- 
-+4.144 KVM_S390_KEYOP
-+--------------------
-+
-+:Capability: KVM_CAP_S390_KEYOP
-+:Architectures: s390
-+:Type: vm ioctl
-+:Parameters: struct kvm_s390_keyop (in/out)
-+:Returns: 0 in case of success, < 0 on error
-+
-+The specified key operation is performed on the given guest address. The
-+previous storage key (or the relevant part thereof) will be returned in
-+`key`.
-+
-+::
-+
-+  struct kvm_s390_keyop {
-+	__u64 guest_addr;
-+	__u8  key;
-+	__u8  operation;
-+  };
-+
-+Currently supported values for ``operation``:
-+
-+KVM_S390_KEYOP_ISKE
-+  Returns the storage key for the guest address ``guest_addr`` in ``key``.
-+
-+KVM_S390_KEYOP_RRBE
-+  Resets the reference bit for the guest address ``guest_addr``, returning the
-+  R and C bits of the old storage key in ``key``; the remaining fields of
-+  the storage key will be set to 0.
-+
-+KVM_S390_KEYOP_SSKE
-+  Sets the storage key for the guest address ``guest_addr`` to the key
-+  specified in ``key``, returning the previous value in ``key``.
- 
- .. _kvm_run:
- 
-@@ -9287,6 +9321,14 @@ The presence of this capability indicates that KVM_RUN will update the
- KVM_RUN_X86_GUEST_MODE bit in kvm_run.flags to indicate whether the
- vCPU was executing nested guest code when it exited.
- 
-+8.46 KVM_CAP_S390_KEYOP
-+-----------------------
-+
-+:Architectures: s390
-+
-+The presence of this capability indicates that the KVM_S390_KEYOP ioctl is
-+available.
-+
- KVM exits with the register state of either the L1 or L2 guest
- depending on which executed at the time of an exit. Userspace must
- take care to differentiate between these cases.
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index ac7b5f56f0b5..9f24252775dd 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -554,6 +554,37 @@ static void __kvm_s390_exit(void)
- 	debug_unregister(kvm_s390_dbf_uv);
- }
- 
-+static int kvm_s390_keyop(struct kvm_s390_mmu_cache *mc, struct kvm *kvm, int op,
-+			  unsigned long addr, union skey skey)
-+{
-+	union asce asce = kvm->arch.gmap->asce;
-+	gfn_t gfn = gpa_to_gfn(addr);
-+	int r;
-+
-+	guard(read_lock)(&kvm->mmu_lock);
-+
-+	switch (op) {
-+	case KVM_S390_KEYOP_SSKE:
-+		r = dat_cond_set_storage_key(mc, asce, gfn, skey, &skey, 0, 0, 0);
-+		if (r >= 0)
-+			return skey.skey;
-+		break;
-+	case KVM_S390_KEYOP_ISKE:
-+		r = dat_get_storage_key(asce, gfn, &skey);
-+		if (!r)
-+			return skey.skey;
-+		break;
-+	case KVM_S390_KEYOP_RRBE:
-+		r = dat_reset_reference_bit(asce, gfn);
-+		if (r > 0)
-+			return r << 1;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+	return r;
-+}
-+
- /* Section: device related */
- long kvm_arch_dev_ioctl(struct file *filp,
- 			unsigned int ioctl, unsigned long arg)
-@@ -598,6 +629,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- 	case KVM_CAP_S390_DIAG318:
- 	case KVM_CAP_IRQFD_RESAMPLE:
- 	case KVM_CAP_S390_USER_OPEREXEC:
-+	case KVM_CAP_S390_KEYOP:
- 		r = 1;
- 		break;
- 	case KVM_CAP_SET_GUEST_DEBUG2:
-@@ -2931,6 +2963,32 @@ int kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
- 			r = -EFAULT;
+-		ret = cmpxchg_user_key((u8 __user *)hva, &old, *old_addr, new, access_key);
+-		*success = !ret && old == *old_addr;
+-		*old_addr = old;
++		ret = cmpxchg_user_key((u8 __user *)hva, &old, old_addr->one, new.one, acc);
++		*success = !ret && old == old_addr->one;
++		old_addr->one = old;
  		break;
  	}
-+	case KVM_S390_KEYOP: {
-+		struct kvm_s390_mmu_cache *mc;
-+		struct kvm_s390_keyop kop;
-+		union skey skey;
+ 	case 2: {
+ 		u16 old;
+ 
+-		ret = cmpxchg_user_key((u16 __user *)hva, &old, *old_addr, new, access_key);
+-		*success = !ret && old == *old_addr;
+-		*old_addr = old;
++		ret = cmpxchg_user_key((u16 __user *)hva, &old, old_addr->two, new.two, acc);
++		*success = !ret && old == old_addr->two;
++		old_addr->two = old;
+ 		break;
+ 	}
+ 	case 4: {
+ 		u32 old;
+ 
+-		ret = cmpxchg_user_key((u32 __user *)hva, &old, *old_addr, new, access_key);
+-		*success = !ret && old == *old_addr;
+-		*old_addr = old;
++		ret = cmpxchg_user_key((u32 __user *)hva, &old, old_addr->four, new.four, acc);
++		*success = !ret && old == old_addr->four;
++		old_addr->four = old;
+ 		break;
+ 	}
+ 	case 8: {
+ 		u64 old;
+ 
+-		ret = cmpxchg_user_key((u64 __user *)hva, &old, *old_addr, new, access_key);
+-		*success = !ret && old == *old_addr;
+-		*old_addr = old;
++		ret = cmpxchg_user_key((u64 __user *)hva, &old, old_addr->eight, new.eight, acc);
++		*success = !ret && old == old_addr->eight;
++		old_addr->eight = old;
+ 		break;
+ 	}
+ 	case 16: {
+ 		__uint128_t old;
+ 
+-		ret = cmpxchg_user_key((__uint128_t __user *)hva, &old, *old_addr, new, access_key);
+-		*success = !ret && old == *old_addr;
+-		*old_addr = old;
++		ret = cmpxchg_user_key((__uint128_t __user *)hva, &old, old_addr->sixteen,
++				       new.sixteen, acc);
++		*success = !ret && old == old_addr->sixteen;
++		old_addr->sixteen = old;
+ 		break;
+ 	}
+ 	default:
+diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+index 3fde45a151f2..774cdf19998f 100644
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -206,8 +206,8 @@ int access_guest_with_key(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
+ int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
+ 		      void *data, unsigned long len, enum gacc_mode mode);
+ 
+-int cmpxchg_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, int len, __uint128_t *old,
+-			       __uint128_t new, u8 access_key, bool *success);
++int cmpxchg_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, int len, union kvm_s390_quad *old_addr,
++			       union kvm_s390_quad new, u8 access_key, bool *success);
+ 
+ /**
+  * write_guest_with_key - copy data from kernel space to guest space
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 2b5ecdc3814e..f5411e093fb5 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2900,9 +2900,9 @@ static int mem_op_validate_common(struct kvm_s390_mem_op *mop, u64 supported_fla
+ static int kvm_s390_vm_mem_op_abs(struct kvm *kvm, struct kvm_s390_mem_op *mop)
+ {
+ 	void __user *uaddr = (void __user *)mop->buf;
++	void *tmpbuf __free(kvfree) = NULL;
+ 	enum gacc_mode acc_mode;
+-	void *tmpbuf = NULL;
+-	int r, srcu_idx;
++	int r;
+ 
+ 	r = mem_op_validate_common(mop, KVM_S390_MEMOP_F_SKEY_PROTECTION |
+ 					KVM_S390_MEMOP_F_CHECK_ONLY);
+@@ -2915,52 +2915,36 @@ static int kvm_s390_vm_mem_op_abs(struct kvm *kvm, struct kvm_s390_mem_op *mop)
+ 			return -ENOMEM;
+ 	}
+ 
+-	srcu_idx = srcu_read_lock(&kvm->srcu);
++	acc_mode = mop->op == KVM_S390_MEMOP_ABSOLUTE_READ ? GACC_FETCH : GACC_STORE;
+ 
+-	if (!kvm_is_gpa_in_memslot(kvm, mop->gaddr)) {
+-		r = PGM_ADDRESSING;
+-		goto out_unlock;
+-	}
++	scoped_guard(srcu, &kvm->srcu) {
++		if (!kvm_is_gpa_in_memslot(kvm, mop->gaddr))
++			return PGM_ADDRESSING;
+ 
+-	acc_mode = mop->op == KVM_S390_MEMOP_ABSOLUTE_READ ? GACC_FETCH : GACC_STORE;
+-	if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
+-		r = check_gpa_range(kvm, mop->gaddr, mop->size, acc_mode, mop->key);
+-		goto out_unlock;
+-	}
+-	if (acc_mode == GACC_FETCH) {
++		if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY)
++			return check_gpa_range(kvm, mop->gaddr, mop->size, acc_mode, mop->key);
 +
-+		if (copy_from_user(&kop, argp, sizeof(kop))) {
-+			r = -EFAULT;
-+			break;
-+		}
-+		skey.skey = kop.key;
-+
-+		mc = kvm_s390_new_mmu_cache();
-+		if (!mc)
-+			return -ENOMEM;
-+
-+		r = kvm_s390_keyop(mc, kvm, kop.operation, kop.guest_addr, skey);
-+		kvm_s390_free_mmu_cache(mc);
-+		if (r < 0)
-+			break;
-+
-+		kop.key = r;
-+		r = 0;
-+		if (copy_to_user(argp, &kop, sizeof(kop)))
-+			r = -EFAULT;
-+		break;
++		if (acc_mode == GACC_STORE && copy_from_user(tmpbuf, uaddr, mop->size))
++			return -EFAULT;
+ 		r = access_guest_abs_with_key(kvm, mop->gaddr, tmpbuf,
+-					      mop->size, GACC_FETCH, mop->key);
++					      mop->size, acc_mode, mop->key);
+ 		if (r)
+-			goto out_unlock;
+-		if (copy_to_user(uaddr, tmpbuf, mop->size))
+-			r = -EFAULT;
+-	} else {
+-		if (copy_from_user(tmpbuf, uaddr, mop->size)) {
+-			r = -EFAULT;
+-			goto out_unlock;
+-		}
+-		r = access_guest_abs_with_key(kvm, mop->gaddr, tmpbuf,
+-					      mop->size, GACC_STORE, mop->key);
++			return r;
++		if (acc_mode != GACC_STORE && copy_to_user(uaddr, tmpbuf, mop->size))
++			return -EFAULT;
+ 	}
+ 
+-out_unlock:
+-	srcu_read_unlock(&kvm->srcu, srcu_idx);
+-
+-	vfree(tmpbuf);
+-	return r;
++	return 0;
+ }
+ 
+ static int kvm_s390_vm_mem_op_cmpxchg(struct kvm *kvm, struct kvm_s390_mem_op *mop)
+ {
+ 	void __user *uaddr = (void __user *)mop->buf;
+ 	void __user *old_addr = (void __user *)mop->old_addr;
+-	union {
+-		__uint128_t quad;
+-		char raw[sizeof(__uint128_t)];
+-	} old = { .quad = 0}, new = { .quad = 0 };
+-	unsigned int off_in_quad = sizeof(new) - mop->size;
+-	int r, srcu_idx;
+-	bool success;
++	union kvm_s390_quad old = { .sixteen = 0 };
++	union kvm_s390_quad new = { .sixteen = 0 };
++	bool success = false;
++	int r;
+ 
+ 	r = mem_op_validate_common(mop, KVM_S390_MEMOP_F_SKEY_PROTECTION);
+ 	if (r)
+@@ -2972,25 +2956,21 @@ static int kvm_s390_vm_mem_op_cmpxchg(struct kvm *kvm, struct kvm_s390_mem_op *m
+ 	 */
+ 	if (mop->size > sizeof(new))
+ 		return -EINVAL;
+-	if (copy_from_user(&new.raw[off_in_quad], uaddr, mop->size))
++	if (copy_from_user(&new, uaddr, mop->size))
+ 		return -EFAULT;
+-	if (copy_from_user(&old.raw[off_in_quad], old_addr, mop->size))
++	if (copy_from_user(&old, old_addr, mop->size))
+ 		return -EFAULT;
+ 
+-	srcu_idx = srcu_read_lock(&kvm->srcu);
++	scoped_guard(srcu, &kvm->srcu) {
++		if (!kvm_is_gpa_in_memslot(kvm, mop->gaddr))
++			return PGM_ADDRESSING;
+ 
+-	if (!kvm_is_gpa_in_memslot(kvm, mop->gaddr)) {
+-		r = PGM_ADDRESSING;
+-		goto out_unlock;
+-	}
+-
+-	r = cmpxchg_guest_abs_with_key(kvm, mop->gaddr, mop->size, &old.quad,
+-				       new.quad, mop->key, &success);
+-	if (!success && copy_to_user(old_addr, &old.raw[off_in_quad], mop->size))
+-		r = -EFAULT;
++		r = cmpxchg_guest_abs_with_key(kvm, mop->gaddr, mop->size, &old, new,
++					       mop->key, &success);
+ 
+-out_unlock:
+-	srcu_read_unlock(&kvm->srcu, srcu_idx);
++		if (!success && copy_to_user(old_addr, &old, mop->size))
++			return -EFAULT;
 +	}
- 	case KVM_S390_ZPCI_OP: {
- 		struct kvm_s390_zpci_op args;
+ 	return r;
+ }
  
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index dddb781b0507..ab3d3d96e75f 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -974,6 +974,7 @@ struct kvm_enable_cap {
- #define KVM_CAP_GUEST_MEMFD_FLAGS 244
- #define KVM_CAP_ARM_SEA_TO_USER 245
- #define KVM_CAP_S390_USER_OPEREXEC 246
-+#define KVM_CAP_S390_KEYOP 247
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index 9ce71c8433a1..c44c52266e26 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -22,6 +22,14 @@
  
- struct kvm_irq_routing_irqchip {
- 	__u32 irqchip;
-@@ -1219,6 +1220,15 @@ struct kvm_vfio_spapr_tce {
- 	__s32	tablefd;
- };
+ #define KVM_S390_UCONTROL_MEMSLOT (KVM_USER_MEM_SLOTS + 0)
  
-+#define KVM_S390_KEYOP_ISKE 0x01
-+#define KVM_S390_KEYOP_RRBE 0x02
-+#define KVM_S390_KEYOP_SSKE 0x03
-+struct kvm_s390_keyop {
-+	__u64 guest_addr;
-+	__u8  key;
-+	__u8  operation;
++union kvm_s390_quad {
++	__uint128_t sixteen;
++	unsigned long eight;
++	unsigned int four;
++	unsigned short two;
++	unsigned char one;
 +};
 +
- /*
-  * KVM_CREATE_VCPU receives as a parameter the vcpu slot, and returns
-  * a vcpu fd.
-@@ -1238,6 +1248,7 @@ struct kvm_vfio_spapr_tce {
- #define KVM_S390_UCAS_MAP        _IOW(KVMIO, 0x50, struct kvm_s390_ucas_mapping)
- #define KVM_S390_UCAS_UNMAP      _IOW(KVMIO, 0x51, struct kvm_s390_ucas_mapping)
- #define KVM_S390_VCPU_FAULT	 _IOW(KVMIO, 0x52, unsigned long)
-+#define KVM_S390_KEYOP           _IOWR(KVMIO, 0x53, struct kvm_s390_keyop)
- 
- /* Device model IOC */
- #define KVM_CREATE_IRQCHIP        _IO(KVMIO,   0x60)
+ static inline void kvm_s390_fpu_store(struct kvm_run *run)
+ {
+ 	fpu_stfpc(&run->s.regs.fpc);
 -- 
 2.52.0
 
