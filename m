@@ -1,120 +1,107 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28EDD1C84D0;
-	Wed,  4 Feb 2026 15:24:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A07427F163;
+	Wed,  4 Feb 2026 15:29:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770218644; cv=none; b=SBWXuE+heSwblI0le4t3CiDHI5z+kBdlQ8vpXApTHLSCXbovHHFiqTQR6oCFrynuMJ/17A2mUGQYLDqwh0iOXmqMyhVG0MgvH/jJcFEk/MRVjDbhc+Deqe5qRixgimprKGxkONzvHqJAaUUBtXBjchN/c35/LJiRg6qbI03bYmw=
+	t=1770218942; cv=none; b=flURjKrpQY7IrPmOxNmYKDboNlSr+MjNZE/QD7qfJpetlH3ALhA7cS4n1jzeuaX2lJOJMeO75L84V0jRKQBHv4EszLnAAr5dc6V0oWaowbls4O5nI4H/LVUP7RLoeWeKDTCywItTmcwoTtb8JwxUgMrx2rnOgXgbIG5cLslrtD0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770218644; c=relaxed/simple;
-	bh=uWY7fOB+LiiUmBddkPW1rqmepZ7GlPohSQ90qGCIIag=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oU+wJuw6VVN0/qXTE0WvmiurmNpwR+iuJxh3Qjp30wjUP6fSS4754Qdwub79zxDSJ0FZetEbP7bQ8SrfeI9I++8FmN+4lIj9g5sDUCChNBKeseE9+gIvtHyeW9GFAoInDNqR7v5fVTOAWSXq+D4LqNDnsGDuz9Je1EwHriiJQcc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=a/19D7CX; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1770218942; c=relaxed/simple;
+	bh=fW8YkMmwBeWot5NfO4UwNbbEbDAZT0u/G6MUt+tgTQ0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=rCnzPFkdw9nK02tdvmXXG+Jenxp2bnOVqcq+cZDZz8djt9Ct+i6a2RHcmFIU3k57cLEFoS45LlIdhGZC1koQM8uxOdDX4hOU9QiNZyrVdjHkogU8qU77NHsKVTmACmE6MqLUOSkSJVsCYH2qgRXiPMtV6wDWRfTPhFBOEkDb0fw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=wgHA2Ysq; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="a/19D7CX"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 613NOM5x001994;
-	Wed, 4 Feb 2026 15:24:02 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=m5qdg2XaLdBjhbT8tebMsuDzrLHbgV
-	hXtdSSOJaG13c=; b=a/19D7CXyI3UstzfpF26HD4NhVInjis9tbAb8piScRxDND
-	HhfVKmA6Nbo8DwYXJskbQFgMzJvfbYNIp2iwhfT8XJeZAD6NEkmmGX/0vWnSRwfz
-	m4Ja1TJ25kwIbeRrcuzWOUhmxCMFPLOtJlXeATseMi1lr3JZ3gcFsfyi7shGGKWV
-	PGeZcTSN2MZY91gPqHUWlaZ+voAW8vE3/9l0PKGU2xdxXNCvG4K2S1PxZbimQxSd
-	fCSOhFzJPJzlZQvIHln5+RrTILW1rcrVac0aW1prxr73xIYm0e4E5Dp972qltjoQ
-	yo41JtmMKqFuRq/s1BU+YLNKMU4jTW8Xj+QlExLw==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c19dtag9d-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Feb 2026 15:24:02 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 614Cj1HZ025735;
-	Wed, 4 Feb 2026 15:24:01 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4c1w2mwrap-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Feb 2026 15:24:00 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 614FNuAJ28377580
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 4 Feb 2026 15:23:56 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5B44F20043;
-	Wed,  4 Feb 2026 15:23:56 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2545D20040;
-	Wed,  4 Feb 2026 15:23:56 +0000 (GMT)
-Received: from osiris (unknown [9.52.214.206])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed,  4 Feb 2026 15:23:56 +0000 (GMT)
-Date: Wed, 4 Feb 2026 16:23:54 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
-        seiden@linux.ibm.com, gra@linux.ibm.com, schlameuss@linux.ibm.com,
-        svens@linux.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
-        david@kernel.org, gerald.schaefer@linux.ibm.com
-Subject: Re: [PATCH v7 00/29] KVM: s390: gmap rewrite, the real deal
-Message-ID: <20260204152354.6906B2f-hca@linux.ibm.com>
-References: <20260204150259.60425-1-imbrenda@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="wgHA2Ysq"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C5D2C4CEF7;
+	Wed,  4 Feb 2026 15:29:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1770218941;
+	bh=fW8YkMmwBeWot5NfO4UwNbbEbDAZT0u/G6MUt+tgTQ0=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=wgHA2Ysq4xh2x6UjNc7UMyRMq2iseAMSL6ctFWtbGh+qBp9vg12RNZVV1yQKelpak
+	 aUxws7bEBuNf6AfW+xSf9zYh/F1bjQ8vj3uuhUNLfv8Ho/VmmUSsSofosp5W/K9Vs9
+	 UtYZRoVSutATyDsrGl490JhyNKSMNe7lrq+hRvRo=
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: stable@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	patches@lists.linux.dev,
+	Boris Burkov <boris@bur.io>,
+	Qu Wenruo <wqu@suse.com>,
+	David Sterba <dsterba@suse.com>,
+	Sasha Levin <sashal@kernel.org>,
+	linux-s390@vger.kernel.org
+Subject: [PATCH 6.18 002/122] btrfs: zlib: fix the folio leak on S390 hardware acceleration
+Date: Wed,  4 Feb 2026 15:39:44 +0100
+Message-ID: <20260204143851.948762654@linuxfoundation.org>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260204143851.857060534@linuxfoundation.org>
+References: <20260204143851.857060534@linuxfoundation.org>
+User-Agent: quilt/0.69
+X-stable: review
+X-Patchwork-Hint: ignore
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260204150259.60425-1-imbrenda@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA0MDExNyBTYWx0ZWRfX1J8Lp1NuzHDb
- in3VtW8ZIye0Vn0FG2sL2ekA0ZT6rKjF3mq8HXmW1Dsp/hpMsKV56C+i0lga1ncP7Xrq9wO+EjI
- m+cwAVBBbCeHipsF8/G5osb4dkO+PSHQl03lfNyhGMj9c/Ieti0e1alxoH7V+NI1YBoYfoPtwnh
- vOWF/ijw3E753wpKj8f5RugrVh2a6/I7BjyBpe//AilnDggwEQBLXFBdYRj8OG50LM4yz56OK1e
- Dp5/psvqfmqB2VZB/8bFtu4lfGBZ6oaNZ+QgNEuQdPGaW2DD9YjctzLE2e+C76hJAZwQIUZG9cA
- 5j1RjTOXwYaoEi+C8ryK08sNepjlUvRzFlqah1Ybx7A8XU/GLG0XhmipIC93OSiyHBKWnpzlL48
- AZjPIeoZTaQi/oJtVAQJMl3o2kx0M4Fi8P6AslDlozg5ppRdh6KmupGWN4oAdzrfC3/d2F9bH3i
- 65GaJ7hsXYHMghVP5Xw==
-X-Proofpoint-GUID: lJWw9RLpYBM_GQ6KM8oQ2GX-0BMkzTVl
-X-Proofpoint-ORIG-GUID: lJWw9RLpYBM_GQ6KM8oQ2GX-0BMkzTVl
-X-Authority-Analysis: v=2.4 cv=LesxKzfi c=1 sm=1 tr=0 ts=69836492 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=kj9zAlcOel0A:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=zp8rA2SfgbRMV71b97gA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-04_04,2026-02-04_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 impostorscore=0 spamscore=0 lowpriorityscore=0 clxscore=1015
- adultscore=0 suspectscore=0 priorityscore=1501 phishscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2601150000 definitions=main-2602040117
+Content-Transfer-Encoding: 8bit
 
-On Wed, Feb 04, 2026 at 04:02:29PM +0100, Claudio Imbrenda wrote:
-> This series is the last big series of the gmap rewrite. It introduces
-> the new code and actually uses it. The old code is then removed.
-> 
-> KVM on s390 will now use the mmu_notifier, like most other
-> architectures. The gmap address space is now completely separate from
-> userspace; no level of the page tables is shared between guest mapping
-> and userspace.
-> 
-> One of the biggest advantages is that the page size of userspace is
-> completely independent of the page size used by the guest. Userspace
-> can mix normal pages, THPs, hugetlbfs, and more.
-> 
-> It's now possible to have nested guests and guests with huge pages
-> running on the same host. In fact, it's possible to have a nested
-> guest on a guest with huge pages. Transparent hugepages are also
-> possible.
+6.18-stable review patch.  If anyone has any objections, please let me know.
 
-FWIW, for everything that touches code which is not only KVM:
+------------------
 
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
+From: Qu Wenruo <wqu@suse.com>
+
+[ Upstream commit 0d0f1314e8f86f5205f71f9e31e272a1d008e40b ]
+
+[BUG]
+After commit aa60fe12b4f4 ("btrfs: zlib: refactor S390x HW acceleration
+buffer preparation"), we no longer release the folio of the page cache
+of folio returned by btrfs_compress_filemap_get_folio() for S390
+hardware acceleration path.
+
+[CAUSE]
+Before that commit, we call kumap_local() and folio_put() after handling
+each folio.
+
+Although the timing is not ideal (it release previous folio at the
+beginning of the loop, and rely on some extra cleanup out of the loop),
+it at least handles the folio release correctly.
+
+Meanwhile the refactored code is easier to read, it lacks the call to
+release the filemap folio.
+
+[FIX]
+Add the missing folio_put() for copy_data_into_buffer().
+
+CC: linux-s390@vger.kernel.org # 6.18+
+Fixes: aa60fe12b4f4 ("btrfs: zlib: refactor S390x HW acceleration buffer preparation")
+Reviewed-by: Boris Burkov <boris@bur.io>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/btrfs/zlib.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/fs/btrfs/zlib.c b/fs/btrfs/zlib.c
+index 6caba8be7c845..10ed48d4a8466 100644
+--- a/fs/btrfs/zlib.c
++++ b/fs/btrfs/zlib.c
+@@ -139,6 +139,7 @@ static int copy_data_into_buffer(struct address_space *mapping,
+ 		data_in = kmap_local_folio(folio, offset);
+ 		memcpy(workspace->buf + cur - filepos, data_in, copy_length);
+ 		kunmap_local(data_in);
++		folio_put(folio);
+ 		cur += copy_length;
+ 	}
+ 	return 0;
+-- 
+2.51.0
+
+
+
