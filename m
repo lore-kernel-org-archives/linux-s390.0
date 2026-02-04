@@ -1,57 +1,57 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A75D421890;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 206C64218BB;
 	Wed,  4 Feb 2026 15:03:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770217390; cv=none; b=OYBQRqZpONn+OfuTMBfWwz53tmpmjmiQULUkXrxgNqOq+dSUUegCKm2KREsJMT095t749CUgZ2mhGLSIOETQxBL0lwg+BCB/9qCNXoTcx/HECqKGAr/iPPk0BI0OZOeip46v+Cbk8BPueeQy7byITtELuna6TnJv7zR9kAf/U0g=
+	t=1770217391; cv=none; b=Bay8wTQOfssmupoyeBPJWfSLHkmEUpEeXdIg35cL43JvqHX5IZvttxIsRcvSdFKiBEZ9NBVLxvFUZXulFsgh1JCn99OoYpp2v0uVb2Pkm2lk2dNeOsCZ5RCOmcrBXbP483dvajeeoYwwDTW8F9xiL7HXNAGhh5sM/rw5X5K0Zo4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770217390; c=relaxed/simple;
-	bh=9J579RODsBY3NHU28XOdCR6DAB1tRTgjQOLebDa/iz0=;
+	s=arc-20240116; t=1770217391; c=relaxed/simple;
+	bh=8UkpGTWwtwpBCmzbEuC+cxDdvga6PTHi3Kdv9DBkpd4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=utkspyojGFOiwOfaJkUKS1642aQ0MPZHDK3xbTcA+N8ScllixBC7YN78nq/ggBGcaeI6LDKlQQtFdshFbE/hnzf643FcGa5ST2RdLOCTKRlyrWy6aZ1EhikfVw46TnAd1hECPJbWV6PP0mZp0pq8zTrQCC3PYdUnMgWCMT7ufTM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=L8LwRJ6v; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=SFFwzoFjU+bqnTT7sZCb12FxnNRc1hbK4PcRolTPR4Dexm4aGGdf2ExD4cm35054A232s2dGCsVEk2RPcpZRj8g2IYCi3VcsrFuzgSuUHUo/4gPLntD9TWCFv4RSo138zy/h21PTikZ4+O7IM1A57MWQ3nLV0D0bxhv2XA4xH3U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=afTRYFRy; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="L8LwRJ6v"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 614F228Q014475;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="afTRYFRy"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 61407IjU005992;
 	Wed, 4 Feb 2026 15:03:07 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=oOx4bRoIpElNi+6/4
-	tyln67C51SNBcTtwkDt4dOQoUw=; b=L8LwRJ6vDQvKHjeBWZF0K8O+LSn/YuHRi
-	TjjZqGJRVAdfEk/a7iiegK6047WY2PCVxEAK9NbYRzrG0a64ZbKhAtn4+w9Ao+jv
-	dMJ1DhztUzD5aYf0Fmo1VniH35OL102Wdih+cVbo0gw7wRnebCUxWGSniNHTz2AR
-	z2S54AdfNRQwhizduVDIM02KTHj1G6i39h4Sk5F3qqUBMDvI43x6x09WFo2BMP8N
-	gEdHzf6tsKXD5mMy7PGSsOaCMWfldwLw9OsmglmoCLxCV5ohtXf2+EqQKofOhCYA
-	6Gr1YeMTPdga7CSy4JIpFM3wmg0B9plI9wSwAk/sHf2dR92fgvzVQ==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c19dtad6h-1
+	:mime-version:references:subject:to; s=pp1; bh=lwTngDyaNYF1vtCdZ
+	/G6YT4Oibj8h9KDMYrxj6jl/Wg=; b=afTRYFRygHGdhppPyxlL7BWj96hgupLR6
+	P5VPrdZ8sldHEO4r+nUhrW5xC5UqMluPEiiu+1igVvEsMas9RJb4duGJjNsWhkHe
+	Fh9yFzgVuhhu6cdFcaqp5vTw6sp4EW7JcxJXFPEF+spR7P5+bSHea11wglBt4ksD
+	Bn9IQyX81jsRW/X8jmCPiieCClnULvJiwM9A6QyPEoxwyzTyVHe0Q8A/sSrOr9E1
+	7bqs3O1FUIIJj3U+LaibAxTOwUfL2Jp5SGssOf4hk3Zp1oZW3wx+Yo5qilSBTABy
+	WMWtQkrgt3qR/LYUz4n8221mOW1+iQbO3+9YeF+dxXoYcYLz97iqQ==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c19cw7rng-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 04 Feb 2026 15:03:07 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 614D1fOZ004411;
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 614DdM65005959;
 	Wed, 4 Feb 2026 15:03:06 GMT
 Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4c1wjjwk8p-1
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4c1x9jde59-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Feb 2026 15:03:05 +0000
+	Wed, 04 Feb 2026 15:03:06 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 614F32sv43975124
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 614F32tC36897240
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Wed, 4 Feb 2026 15:03:02 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EF96C20040;
-	Wed,  4 Feb 2026 15:03:01 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 8F2A82004B;
+	Wed,  4 Feb 2026 15:03:02 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AEB3E2004D;
-	Wed,  4 Feb 2026 15:03:01 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 4E84A20040;
+	Wed,  4 Feb 2026 15:03:02 +0000 (GMT)
 Received: from p-imbrenda.aag-de.ibm.com (unknown [9.52.223.175])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  4 Feb 2026 15:03:01 +0000 (GMT)
+	Wed,  4 Feb 2026 15:03:02 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
@@ -60,9 +60,9 @@ Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         schlameuss@linux.ibm.com, hca@linux.ibm.com, svens@linux.ibm.com,
         agordeev@linux.ibm.com, gor@linux.ibm.com, david@kernel.org,
         gerald.schaefer@linux.ibm.com
-Subject: [PATCH v7 08/29] s390/mm: Warn if uv_convert_from_secure_pte() fails
-Date: Wed,  4 Feb 2026 16:02:37 +0100
-Message-ID: <20260204150259.60425-9-imbrenda@linux.ibm.com>
+Subject: [PATCH v7 10/29] KVM: s390: Enable KVM_GENERIC_MMU_NOTIFIER
+Date: Wed,  4 Feb 2026 16:02:39 +0100
+Message-ID: <20260204150259.60425-11-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260204150259.60425-1-imbrenda@linux.ibm.com>
 References: <20260204150259.60425-1-imbrenda@linux.ibm.com>
@@ -74,78 +74,132 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA0MDExMyBTYWx0ZWRfXyBnAd7/AiFXG
- NqIZ8otL826+ELG1ypCe15/2ypbCO7027oPOJk8c8Xi5mMIyjtBlmCVMWxkOvSmSdmBfkW7ts8M
- aQtN0+REDPJH36pROLG8lAASouSrmAIWloAZQ9Spgh/iSHbMTfP5F7Wzc7BRiII7QsR7upBVa8a
- QeUrwgZxqaryhbnaoofZxj43Kp7OnDcUXKCjp0WUQFqBCUUkj18FmbrYTX7iotN0s3tkwyRH+GS
- pYECrw0UmdFgy9Ocq8a+3pwy1LS5xJjk9QA/X/3tz86zJ3+J7WimEXXj4f4+V8PTjRBCUT3Nitd
- KWzMKTGkP1rgJe8fAxf4mo6T8nun3NE39CZWScUcHtTE4qCP8NOSzluvQpD5y7+8MSz/DZ0aM6W
- nGZ9M1vGOJX0Obfo6ACdLspi/Pk5YayQ9+DjphqwWnYzp1NKNr6vJqM0N5qrmh9fi7ufdHM+wQJ
- 3UiKnNpYDpfy9S0dsOw==
-X-Proofpoint-GUID: OBo_1wYLNWGoA9Tb0Fh3liAmLAa0ft-n
-X-Proofpoint-ORIG-GUID: OBo_1wYLNWGoA9Tb0Fh3liAmLAa0ft-n
-X-Authority-Analysis: v=2.4 cv=LesxKzfi c=1 sm=1 tr=0 ts=69835fab cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA0MDExMyBTYWx0ZWRfX1bR9wHgpCccQ
+ ijr78ARjMXdVw1BuAruwTJb/bTqNKvWtPhaRzMFP/Vyebe4od2brHQ/P2ELrBKZWnKxdCP+zOjN
+ jWhlnl5R8EoHJz1a8z9jP1dE4YUWNZSeWqhN0i2Od51HlUaf0VTQcCkW0HgFaG7qrMtWBhe0dXS
+ 32r5qJePwBH++gCgJuhZBay4UmbRpNXh07LjVuD+21a+93fIZsMIq/PkLmuziT+bJ0sMZ0HT2N4
+ Ef4UYidptSRSg2cMk4dZp+wfrEvzIafpXd0ypsMF0xbDMK+kYxSqXne+MWz7sn7Km2o7XHv9afk
+ 0A60KgJH/xMnxAPwsTPI2+v0k8tRPMJKliGVNWbNj1SSvbb7iYnxRgv8a1QVwBGp8KDTIe6O8ht
+ loc+9rtLNw3odAzDm4OZ2r8KCj2PhND/Mg6sWYiiIu6ohWY1qRMvzTHuxWJScj9qcT8H5qi9Xms
+ ewoGEWi6bzvrhG6Cj9g==
+X-Authority-Analysis: v=2.4 cv=UuRu9uwB c=1 sm=1 tr=0 ts=69835fab cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
- a=gEHK17p0qXyn9eJGjbgA:9
+ a=sWpJ-_il0aw9mM0vlR0A:9
+X-Proofpoint-ORIG-GUID: JBhZwtGI8A2FbpnkPh3cIxmHSgMeWUr7
+X-Proofpoint-GUID: JBhZwtGI8A2FbpnkPh3cIxmHSgMeWUr7
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-02-04_04,2026-02-04_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 impostorscore=0 spamscore=0 lowpriorityscore=0 clxscore=1015
- adultscore=0 suspectscore=0 priorityscore=1501 phishscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2601150000 definitions=main-2602040113
+ spamscore=0 bulkscore=0 adultscore=0 clxscore=1015 phishscore=0
+ malwarescore=0 lowpriorityscore=0 priorityscore=1501 impostorscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2601150000
+ definitions=main-2602040113
 
-If uv_convert_from_secure_pte() fails, the page becomes unusable by the
-host. The failure can only occour in case of hardware malfunction or a
-serious KVM bug.
+Enable KVM_GENERIC_MMU_NOTIFIER, for now with empty placeholder callbacks.
 
-When the unusable page is reused, the system can have issues and
-hang.
-
-Print a warning to aid debugging such unlikely scenarios.
+Also enable KVM_MMU_LOCKLESS_AGING and define KVM_HAVE_MMU_RWLOCK.
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
+Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 ---
- arch/s390/include/asm/pgtable.h | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/s390/include/asm/kvm_host.h |  1 +
+ arch/s390/kvm/Kconfig            |  2 ++
+ arch/s390/kvm/kvm-s390.c         | 45 +++++++++++++++++++++++++++++++-
+ 3 files changed, 47 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 73c30b811b98..04335f5e7f47 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1239,7 +1239,7 @@ static inline pte_t ptep_get_and_clear(struct mm_struct *mm,
- 	res = ptep_xchg_lazy(mm, addr, ptep, __pte(_PAGE_INVALID));
- 	/* At this point the reference through the mapping is still present */
- 	if (mm_is_protected(mm) && pte_present(res))
--		uv_convert_from_secure_pte(res);
-+		WARN_ON_ONCE(uv_convert_from_secure_pte(res));
- 	return res;
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 3dbddb7c60a9..6ba99870fc32 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -27,6 +27,7 @@
+ #include <asm/isc.h>
+ #include <asm/guarded_storage.h>
+ 
++#define KVM_HAVE_MMU_RWLOCK
+ #define KVM_MAX_VCPUS 255
+ 
+ #define KVM_INTERNAL_MEM_SLOTS 1
+diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
+index f4ec8c1ce214..917ac740513e 100644
+--- a/arch/s390/kvm/Kconfig
++++ b/arch/s390/kvm/Kconfig
+@@ -30,6 +30,8 @@ config KVM
+ 	select KVM_VFIO
+ 	select MMU_NOTIFIER
+ 	select VIRT_XFER_TO_GUEST_WORK
++	select KVM_GENERIC_MMU_NOTIFIER
++	select KVM_MMU_LOCKLESS_AGING
+ 	help
+ 	  Support hosting paravirtualized guest machines using the SIE
+ 	  virtualization capability on the mainframe. This should work
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index cd39b2f099ca..ec92e6361eab 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4805,7 +4805,7 @@ int __kvm_s390_handle_dat_fault(struct kvm_vcpu *vcpu, gfn_t gfn, gpa_t gaddr, u
+ 	rc = fixup_user_fault(vcpu->arch.gmap->mm, vmaddr, fault_flags, &unlocked);
+ 	if (!rc)
+ 		rc = __gmap_link(vcpu->arch.gmap, gaddr, vmaddr);
+-	scoped_guard(spinlock, &vcpu->kvm->mmu_lock) {
++	scoped_guard(read_lock, &vcpu->kvm->mmu_lock) {
+ 		kvm_release_faultin_page(vcpu->kvm, page, false, writable);
+ 	}
+ 	mmap_read_unlock(vcpu->arch.gmap->mm);
+@@ -6021,6 +6021,49 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
+ 	return;
  }
  
-@@ -1257,7 +1257,7 @@ static inline pte_t ptep_clear_flush(struct vm_area_struct *vma,
- 	res = ptep_xchg_direct(vma->vm_mm, addr, ptep, __pte(_PAGE_INVALID));
- 	/* At this point the reference through the mapping is still present */
- 	if (mm_is_protected(vma->vm_mm) && pte_present(res))
--		uv_convert_from_secure_pte(res);
-+		WARN_ON_ONCE(uv_convert_from_secure_pte(res));
- 	return res;
- }
- 
-@@ -1294,9 +1294,10 @@ static inline pte_t ptep_get_and_clear_full(struct mm_struct *mm,
- 	/*
- 	 * If something went wrong and the page could not be destroyed, or
- 	 * if this is not a mm teardown, the slower export is used as
--	 * fallback instead.
-+	 * fallback instead. If even that fails, print a warning and leak
-+	 * the page, to avoid crashing the whole system.
- 	 */
--	uv_convert_from_secure_pte(res);
-+	WARN_ON_ONCE(uv_convert_from_secure_pte(res));
- 	return res;
- }
- 
++/**
++ * kvm_test_age_gfn() - test young
++ * @kvm: the kvm instance
++ * @range: the range of guest addresses whose young status needs to be cleared
++ *
++ * Context: called by KVM common code without holding the kvm mmu lock
++ * Return: true if any page in the given range is young, otherwise 0.
++ */
++bool kvm_test_age_gfn(struct kvm *kvm, struct kvm_gfn_range *range)
++{
++	return false;
++}
++
++/**
++ * kvm_age_gfn() - clear young
++ * @kvm: the kvm instance
++ * @range: the range of guest addresses whose young status needs to be cleared
++ *
++ * Context: called by KVM common code without holding the kvm mmu lock
++ * Return: true if any page in the given range was young, otherwise 0.
++ */
++bool kvm_age_gfn(struct kvm *kvm, struct kvm_gfn_range *range)
++{
++	return false;
++}
++
++/**
++ * kvm_unmap_gfn_range() - Unmap a range of guest addresses
++ * @kvm: the kvm instance
++ * @range: the range of guest page frames to invalidate
++ *
++ * This function always returns false because every DAT table modification
++ * has to use the appropriate DAT table manipulation instructions, which will
++ * keep the TLB coherent, hence no additional TLB flush is ever required.
++ *
++ * Context: called by KVM common code with the kvm mmu write lock held
++ * Return: false
++ */
++bool kvm_unmap_gfn_range(struct kvm *kvm, struct kvm_gfn_range *range)
++{
++	return false;
++}
++
+ static inline unsigned long nonhyp_mask(int i)
+ {
+ 	unsigned int nonhyp_fai = (sclp.hmfai << i * 2) >> 30;
 -- 
 2.52.0
 
