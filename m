@@ -1,57 +1,57 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03BC9426D22;
-	Wed,  4 Feb 2026 15:03:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75112426EB7;
+	Wed,  4 Feb 2026 15:03:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770217397; cv=none; b=dAKJFDcn5TnEs+VQal6AGktxh+F60pxWPXo4Uwp0BxXU11juQGbrQFeFltOiboh9yYozDnkc6YmFJHhUQtLCvX8KNW1LklXsYtTgcNCGpEyakRrhLurpY8WoipONGzfkJ4YnAB99pTOcw9lld4NJi1F7vZ+3vo11ydc9pgXIs44=
+	t=1770217397; cv=none; b=ohhWb+2JZdaXCeazV9dSxqNUrAe3dy9CcuN85LBVk5XwwqAfVC9sbPMaZCPaz+5DraRojNDuxykRBn0FqPY3ovOALGK1dRpFNCGUAvHy6hFhCe5zrLuIVgYaZIIw+i6j3nPPbiXGboW0wj62FpYbFYzqd3//Y+iRHLxPMvNhAa0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1770217397; c=relaxed/simple;
-	bh=/p+i/QujsQQU/ZwL4OyIXyZpIIMJfZDVzHm3GO5CSd4=;
+	bh=Vjj9x0om/TE5l/TnOuT6oFg8gd3mI14YxbuDYWY/aD8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=uIXDr4fMqvrWsTIudmUN9uj40jJg4IsDvOBin2VI6bDQDCmJHQD5N/IfDQknupkfXBOxnNAHEIKfiKttcvUjGICqjwYjSJfMDynkrHny13TE8zyjWRjOj3rHLIcGxUX6eyyDcLQr1BfF6zKOr9u07qS2OFi4jFh44xcmHyh5sgI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bbN6A8N3; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=gcXDjsiOhZgLyEDnT0alhYfwlAW5/KmQtTbNYi+o5SBkTzwe0WKe6CWyHbJ9gJz5dU0tlrAzTmOz+cmoIlgJEQ5ka3qt7zI4NL30Ay40jcm/JOiFUZse78VlO6GxOWvTwq9AKVsjVTR1l7MoHDzkVhWI07nFTwDvvymS1lOR8yo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ErEOwL2X; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bbN6A8N3"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 6143djKs009940;
-	Wed, 4 Feb 2026 15:03:11 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ErEOwL2X"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 613MZQha024345;
+	Wed, 4 Feb 2026 15:03:13 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=pwlc668bdqJLP5XmI
-	5/C81RNIDr2mgzF7IgrHRephDc=; b=bbN6A8N3UAHDJHqxqW9yWgLoWwtSeTq/F
-	3Taez2cMetFWYwDTPU1VpHi/HeSt04HVJieYH7reR47TmWCGgX0K0b4aeq3adQ0b
-	2W6Hs3INze0bJOruNxgWiqpWwASmhy7vMAGnqfsOjv/GOH7srlx45mvtDq+lNS9T
-	ocUlf8zQdAITMUCQQar0YIspnw8PjQ+VToLYR4EXv/eVIU7xcctjQHbUyLG8a377
-	/zIwsw4vcjhRplz3+O5Mta3ezBDGq3tNd+Xrle92ZliODT1Z5nAa2dfsCHROT93X
-	NMqK224aZC13f9sA5XfnoZMyEJEmmm85TTcgomU0htpj/8qZfeSqw==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c185gyw7j-1
+	:mime-version:references:subject:to; s=pp1; bh=xoow5PPmZXyqk0bxm
+	kYGArhZeaNXf1UPw8ifuUMYBFw=; b=ErEOwL2X6PQADCiIVl30mwfUJPWTmOnSc
+	1jaCymmZcmUg7/v29uIDuYWfFfFznrF5Ss2797RYg06b0tkDfLKMxkjG2bdpK2Ca
+	wJ/rackoVD+Z+hqf1EVqBK62DLB36jqcbkzxpRwCwAZzEJYnMGPLzVYP8sM/1kmN
+	S3nVuPSruh12IGaii8l4t2nnui4EQLSNjG9nYA6lvkvxlm0WoEBQnln6ZUtcrmQT
+	UsckI58CDIlqOl2jXHJW2jIR5dgtSnMgvrqaNiFWYeZKv7ih3rTDQUDNtQnmERYS
+	3SVKWNLkyi3ySDEhcd27DM0I3k8MnNQq5DC5sF8ex0lDqLnytHvwQ==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c175n00fc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Feb 2026 15:03:10 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 614Dd0c3006033;
-	Wed, 4 Feb 2026 15:03:09 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4c1x9jde5m-1
+	Wed, 04 Feb 2026 15:03:13 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 614BYpMH029047;
+	Wed, 4 Feb 2026 15:03:12 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4c1v2sdsq2-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Feb 2026 15:03:09 +0000
+	Wed, 04 Feb 2026 15:03:12 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 614F36f547645058
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 614F387U30474824
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 4 Feb 2026 15:03:06 GMT
+	Wed, 4 Feb 2026 15:03:08 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EE1E720040;
-	Wed,  4 Feb 2026 15:03:05 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 96B6120043;
+	Wed,  4 Feb 2026 15:03:08 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A56B12004B;
-	Wed,  4 Feb 2026 15:03:05 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 55A2520040;
+	Wed,  4 Feb 2026 15:03:08 +0000 (GMT)
 Received: from p-imbrenda.aag-de.ibm.com (unknown [9.52.223.175])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  4 Feb 2026 15:03:05 +0000 (GMT)
+	Wed,  4 Feb 2026 15:03:08 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
@@ -60,9 +60,9 @@ Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         schlameuss@linux.ibm.com, hca@linux.ibm.com, svens@linux.ibm.com,
         agordeev@linux.ibm.com, gor@linux.ibm.com, david@kernel.org,
         gerald.schaefer@linux.ibm.com
-Subject: [PATCH v7 20/29] KVM: s390: Add helper functions for fault handling
-Date: Wed,  4 Feb 2026 16:02:49 +0100
-Message-ID: <20260204150259.60425-21-imbrenda@linux.ibm.com>
+Subject: [PATCH v7 28/29] KVM: s390: Storage key manipulation IOCTL
+Date: Wed,  4 Feb 2026 16:02:57 +0100
+Message-ID: <20260204150259.60425-29-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260204150259.60425-1-imbrenda@linux.ibm.com>
 References: <20260204150259.60425-1-imbrenda@linux.ibm.com>
@@ -74,351 +74,219 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=UdxciaSN c=1 sm=1 tr=0 ts=69835fae cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Proofpoint-ORIG-GUID: d0Q2CYolNDsfLQuLVl0ZONy5LoH9KwR2
+X-Authority-Analysis: v=2.4 cv=VcX6/Vp9 c=1 sm=1 tr=0 ts=69835fb1 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
- a=5alz5MtixxWFdSgp2hYA:9
-X-Proofpoint-GUID: Kct3_3uodc2xxxRwfk9QSrIVgJIlNPKo
-X-Proofpoint-ORIG-GUID: Kct3_3uodc2xxxRwfk9QSrIVgJIlNPKo
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA0MDExMyBTYWx0ZWRfX4KDvSnO51C7T
- Wi9T9SvTb7pFJ3x51FPEPXaQl88BgaroIjvh6iE4zr5NgyiTpKky8kNJLpM6FAEVhup702B8qzN
- RX+9ORtu3Jaq+NjNCahBhhc6O61VQG7wTSpndNCJ3JDedHU3Ya4StYV5Yzjx2rLGv/PSyrvECGj
- Yu2SzU/ypN2cuqWn4uZMlwdGJ6uhhKy6i2itXti9tvmx1601AzsDaA/e/yaSbZop95eKtFtNB9i
- fQL231Xh4oKmn9g2f/c/HfWgXN1b/4+BL3CBDSRt0b/y0CmDSqlCZRfx799EPDKkwJ+fywGaWzH
- +7NGPaJ2Kix7o3ziEdS60dag51fs+6rRXeYIITIV+NrDCFREGj/Ueb8hlpC5YmZKGfDfw5SmtPN
- xdSli3MLtQ2o15Ihxm87inO8PdXO9uH7v9GMBR9yJDyGnVWao2wasEtqDBXoGMZBPQ1aWN1KCbC
- 1gAj3vBrecz1woDHQkQ==
+ a=jVMGocEsZ36WJnCjVsIA:9
+X-Proofpoint-GUID: d0Q2CYolNDsfLQuLVl0ZONy5LoH9KwR2
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA0MDExMyBTYWx0ZWRfX0yBCghTj79AK
+ Gc/0eudK07H+oByZhT/EWlm1lnEfgP3m66qM5oLn3GSDjiHVnBUSEGJbFBuja5fyaYImRSGLQnk
+ olPstaThebGdwfg6xVhZrqCaL+CINB3qzbbmPEpu6cWMZYgVmC/Z5pACOe8I/5znAz21f9t4Tez
+ NoPr8mXSyfgjFiiFb1rW1HzQJMpooWbU6WDi4md4Ri6tBgh3iN7DaN3CVrZeOiy7RwOmVOcfl1H
+ 7bEas1CAkdhxeCdIxsSOOhLtLJueHoDqClETYYdOui3vEriDM812Yv0d5IEEnehFL3Z04ok7Hg1
+ PLyVOPS5qey5CwJepwfhU3QOw5DfmyKh6m07rP2mVEYSEfPCCQUDyQr+Se2BxWt7VBX+jL4HYA2
+ MrJn7hXT/EAMmEo4B7cEp2jjI+SdKsNO7rPsSI8nqSlmCcr4ztyEGDawwW2edgr3gHyyb73yZ/Q
+ UcyiyO39gXTx+Zoc4Zg==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-02-04_04,2026-02-04_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 malwarescore=0 impostorscore=0 lowpriorityscore=0
- suspectscore=0 clxscore=1015 bulkscore=0 spamscore=0 phishscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2601150000
- definitions=main-2602040113
+ priorityscore=1501 malwarescore=0 suspectscore=0 spamscore=0 adultscore=0
+ bulkscore=0 phishscore=0 lowpriorityscore=0 impostorscore=0 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2601150000 definitions=main-2602040113
 
-Add some helper functions for handling multiple guest faults at the
-same time.
+Add a new IOCTL to allow userspace to manipulate storage keys directly.
 
-This will be needed for VSIE, where a nested guest access also needs to
-access all the page tables that map it.
+This will make it easier to write selftests related to storage keys.
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |   1 +
- arch/s390/kvm/Makefile           |   2 +-
- arch/s390/kvm/faultin.c          | 148 +++++++++++++++++++++++++++++++
- arch/s390/kvm/faultin.h          |  92 +++++++++++++++++++
- arch/s390/kvm/kvm-s390.c         |   2 +-
- arch/s390/kvm/kvm-s390.h         |   2 +
- 6 files changed, 245 insertions(+), 2 deletions(-)
- create mode 100644 arch/s390/kvm/faultin.c
- create mode 100644 arch/s390/kvm/faultin.h
+ Documentation/virt/kvm/api.rst | 42 ++++++++++++++++++++++++
+ arch/s390/kvm/kvm-s390.c       | 58 ++++++++++++++++++++++++++++++++++
+ include/uapi/linux/kvm.h       | 11 +++++++
+ 3 files changed, 111 insertions(+)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 6ba99870fc32..816776a8a8e3 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -442,6 +442,7 @@ struct kvm_vcpu_arch {
- 	bool acrs_loaded;
- 	struct kvm_s390_pv_vcpu pv;
- 	union diag318_info diag318_info;
-+	void *mc; /* Placeholder */
- };
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index 01a3abef8abb..72e04dedb068 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -6517,6 +6517,40 @@ the capability to be present.
  
- struct kvm_vm_stat {
-diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
-index 21088265402c..1e2dcd3e2436 100644
---- a/arch/s390/kvm/Makefile
-+++ b/arch/s390/kvm/Makefile
-@@ -9,7 +9,7 @@ ccflags-y := -Ivirt/kvm -Iarch/s390/kvm
+ `flags` must currently be zero.
  
- kvm-y += kvm-s390.o intercept.o interrupt.o priv.o sigp.o
- kvm-y += diag.o gaccess.o guestdbg.o vsie.o pv.o gmap-vsie.o
--kvm-y += dat.o gmap.o
-+kvm-y += dat.o gmap.o faultin.o
++4.144 KVM_S390_KEYOP
++--------------------
++
++:Capability: KVM_CAP_S390_KEYOP
++:Architectures: s390
++:Type: vm ioctl
++:Parameters: struct kvm_s390_keyop (in/out)
++:Returns: 0 in case of success, < 0 on error
++
++The specified key operation is performed on the given guest address. The
++previous storage key (or the relevant part thereof) will be returned in
++`key`.
++
++::
++
++  struct kvm_s390_keyop {
++	__u64 guest_addr;
++	__u8  key;
++	__u8  operation;
++  };
++
++Currently supported values for ``operation``:
++
++KVM_S390_KEYOP_ISKE
++  Returns the storage key for the guest address ``guest_addr`` in ``key``.
++
++KVM_S390_KEYOP_RRBE
++  Resets the reference bit for the guest address ``guest_addr``, returning the
++  R and C bits of the old storage key in ``key``; the remaining fields of
++  the storage key will be set to 0.
++
++KVM_S390_KEYOP_SSKE
++  Sets the storage key for the guest address ``guest_addr`` to the key
++  specified in ``key``, returning the previous value in ``key``.
  
- kvm-$(CONFIG_VFIO_PCI_ZDEV_KVM) += pci.o
- obj-$(CONFIG_KVM) += kvm.o
-diff --git a/arch/s390/kvm/faultin.c b/arch/s390/kvm/faultin.c
-new file mode 100644
-index 000000000000..e37cd18200f5
---- /dev/null
-+++ b/arch/s390/kvm/faultin.c
-@@ -0,0 +1,148 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ *  KVM guest fault handling.
-+ *
-+ *    Copyright IBM Corp. 2025
-+ *    Author(s): Claudio Imbrenda <imbrenda@linux.ibm.com>
-+ */
-+#include <linux/kvm_types.h>
-+#include <linux/kvm_host.h>
+ .. _kvm_run:
+ 
+@@ -9287,6 +9321,14 @@ The presence of this capability indicates that KVM_RUN will update the
+ KVM_RUN_X86_GUEST_MODE bit in kvm_run.flags to indicate whether the
+ vCPU was executing nested guest code when it exited.
+ 
++8.46 KVM_CAP_S390_KEYOP
++-----------------------
 +
-+#include "gmap.h"
-+#include "trace.h"
-+#include "faultin.h"
++:Architectures: s390
 +
-+bool kvm_arch_setup_async_pf(struct kvm_vcpu *vcpu);
++The presence of this capability indicates that the KVM_S390_KEYOP ioctl is
++available.
 +
-+/*
-+ * kvm_s390_faultin_gfn() - handle a dat fault.
-+ * @vcpu: The vCPU whose gmap is to be fixed up, or NULL if operating on the VM.
-+ * @kvm: The VM whose gmap is to be fixed up, or NULL if operating on a vCPU.
-+ * @f: The guest fault that needs to be resolved.
-+ *
-+ * Return:
-+ * * 0 on success
-+ * * < 0 in case of error
-+ * * > 0 in case of guest exceptions
-+ *
-+ * Context:
-+ * * The mm lock must not be held before calling
-+ * * kvm->srcu must be held
-+ * * may sleep
-+ */
-+int kvm_s390_faultin_gfn(struct kvm_vcpu *vcpu, struct kvm *kvm, struct guest_fault *f)
-+{
-+	struct kvm_s390_mmu_cache *local_mc __free(kvm_s390_mmu_cache) = NULL;
-+	struct kvm_s390_mmu_cache *mc = NULL;
-+	struct kvm_memory_slot *slot;
-+	unsigned long inv_seq;
-+	int foll, rc = 0;
-+
-+	foll = f->write_attempt ? FOLL_WRITE : 0;
-+	foll |= f->attempt_pfault ? FOLL_NOWAIT : 0;
-+
-+	if (vcpu) {
-+		kvm = vcpu->kvm;
-+		mc = vcpu->arch.mc;
-+	}
-+
-+	lockdep_assert_held(&kvm->srcu);
-+
-+	scoped_guard(read_lock, &kvm->mmu_lock) {
-+		if (gmap_try_fixup_minor(kvm->arch.gmap, f) == 0)
-+			return 0;
-+	}
-+
-+	while (1) {
-+		f->valid = false;
-+		inv_seq = kvm->mmu_invalidate_seq;
-+		/* Pairs with the smp_wmb() in kvm_mmu_invalidate_end(). */
-+		smp_rmb();
-+
-+		if (vcpu)
-+			slot = kvm_vcpu_gfn_to_memslot(vcpu, f->gfn);
-+		else
-+			slot = gfn_to_memslot(kvm, f->gfn);
-+		f->pfn = __kvm_faultin_pfn(slot, f->gfn, foll, &f->writable, &f->page);
-+
-+		/* Needs I/O, try to setup async pfault (only possible with FOLL_NOWAIT). */
-+		if (f->pfn == KVM_PFN_ERR_NEEDS_IO) {
-+			if (unlikely(!f->attempt_pfault))
-+				return -EAGAIN;
-+			if (unlikely(!vcpu))
-+				return -EINVAL;
-+			trace_kvm_s390_major_guest_pfault(vcpu);
-+			if (kvm_arch_setup_async_pf(vcpu))
-+				return 0;
-+			vcpu->stat.pfault_sync++;
-+			/* Could not setup async pfault, try again synchronously. */
-+			foll &= ~FOLL_NOWAIT;
-+			f->pfn = __kvm_faultin_pfn(slot, f->gfn, foll, &f->writable, &f->page);
-+		}
-+
-+		/* Access outside memory, addressing exception. */
-+		if (is_noslot_pfn(f->pfn))
-+			return PGM_ADDRESSING;
-+		/* Signal pending: try again. */
-+		if (f->pfn == KVM_PFN_ERR_SIGPENDING)
-+			return -EAGAIN;
-+		/* Check if it's read-only memory; don't try to actually handle that case. */
-+		if (f->pfn == KVM_PFN_ERR_RO_FAULT)
-+			return -EOPNOTSUPP;
-+		/* Any other error. */
-+		if (is_error_pfn(f->pfn))
-+			return -EFAULT;
-+
-+		if (!mc) {
-+			local_mc = kvm_s390_new_mmu_cache();
-+			if (!local_mc)
-+				return -ENOMEM;
-+			mc = local_mc;
-+		}
-+
-+		/* Loop, will automatically release the faulted page. */
-+		if (mmu_invalidate_retry_gfn_unsafe(kvm, inv_seq, f->gfn)) {
-+			kvm_release_faultin_page(kvm, f->page, true, false);
-+			continue;
-+		}
-+
-+		scoped_guard(read_lock, &kvm->mmu_lock) {
-+			if (!mmu_invalidate_retry_gfn(kvm, inv_seq, f->gfn)) {
-+				f->valid = true;
-+				rc = gmap_link(mc, kvm->arch.gmap, f);
-+				kvm_release_faultin_page(kvm, f->page, !!rc, f->write_attempt);
-+				f->page = NULL;
-+			}
-+		}
-+		kvm_release_faultin_page(kvm, f->page, true, false);
-+
-+		if (rc == -ENOMEM) {
-+			rc = kvm_s390_mmu_cache_topup(mc);
-+			if (rc)
-+				return rc;
-+		} else if (rc != -EAGAIN) {
-+			return rc;
-+		}
-+	}
-+}
-+
-+int kvm_s390_get_guest_page(struct kvm *kvm, struct guest_fault *f, gfn_t gfn, bool w)
-+{
-+	struct kvm_memory_slot *slot = gfn_to_memslot(kvm, gfn);
-+	int foll = w ? FOLL_WRITE : 0;
-+
-+	f->write_attempt = w;
-+	f->gfn = gfn;
-+	f->pfn = __kvm_faultin_pfn(slot, gfn, foll, &f->writable, &f->page);
-+	if (is_noslot_pfn(f->pfn))
-+		return PGM_ADDRESSING;
-+	if (is_sigpending_pfn(f->pfn))
-+		return -EINTR;
-+	if (f->pfn == KVM_PFN_ERR_NEEDS_IO)
-+		return -EAGAIN;
-+	if (is_error_pfn(f->pfn))
-+		return -EFAULT;
-+
-+	f->valid = true;
-+	return 0;
-+}
-diff --git a/arch/s390/kvm/faultin.h b/arch/s390/kvm/faultin.h
-new file mode 100644
-index 000000000000..f86176d2769c
---- /dev/null
-+++ b/arch/s390/kvm/faultin.h
-@@ -0,0 +1,92 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ *  KVM guest fault handling.
-+ *
-+ *    Copyright IBM Corp. 2025
-+ *    Author(s): Claudio Imbrenda <imbrenda@linux.ibm.com>
-+ */
-+
-+#ifndef __KVM_S390_FAULTIN_H
-+#define __KVM_S390_FAULTIN_H
-+
-+#include <linux/kvm_host.h>
-+
-+#include "dat.h"
-+
-+int kvm_s390_faultin_gfn(struct kvm_vcpu *vcpu, struct kvm *kvm, struct guest_fault *f);
-+int kvm_s390_get_guest_page(struct kvm *kvm, struct guest_fault *f, gfn_t gfn, bool w);
-+
-+static inline int kvm_s390_faultin_gfn_simple(struct kvm_vcpu *vcpu, struct kvm *kvm,
-+					      gfn_t gfn, bool wr)
-+{
-+	struct guest_fault f = { .gfn = gfn, .write_attempt = wr, };
-+
-+	return kvm_s390_faultin_gfn(vcpu, kvm, &f);
-+}
-+
-+static inline int kvm_s390_get_guest_page_and_read_gpa(struct kvm *kvm, struct guest_fault *f,
-+						       gpa_t gaddr, unsigned long *val)
-+{
-+	int rc;
-+
-+	rc = kvm_s390_get_guest_page(kvm, f, gpa_to_gfn(gaddr), false);
-+	if (rc)
-+		return rc;
-+
-+	*val = *(unsigned long *)phys_to_virt(pfn_to_phys(f->pfn) | offset_in_page(gaddr));
-+
-+	return 0;
-+}
-+
-+static inline void kvm_s390_release_multiple(struct kvm *kvm, struct guest_fault *guest_faults,
-+					     int n, bool ignore)
-+{
-+	int i;
-+
-+	for (i = 0; i < n; i++) {
-+		kvm_release_faultin_page(kvm, guest_faults[i].page, ignore,
-+					 guest_faults[i].write_attempt);
-+		guest_faults[i].page = NULL;
-+	}
-+}
-+
-+static inline bool kvm_s390_multiple_faults_need_retry(struct kvm *kvm, unsigned long seq,
-+						       struct guest_fault *guest_faults, int n,
-+						       bool unsafe)
-+{
-+	int i;
-+
-+	for (i = 0; i < n; i++) {
-+		if (!guest_faults[i].valid)
-+			continue;
-+		if (unsafe && mmu_invalidate_retry_gfn_unsafe(kvm, seq, guest_faults[i].gfn))
-+			return true;
-+		if (!unsafe && mmu_invalidate_retry_gfn(kvm, seq, guest_faults[i].gfn))
-+			return true;
-+	}
-+	return false;
-+}
-+
-+static inline int kvm_s390_get_guest_pages(struct kvm *kvm, struct guest_fault *guest_faults,
-+					   gfn_t start, int n_pages, bool write_attempt)
-+{
-+	int i, rc;
-+
-+	for (i = 0; i < n_pages; i++) {
-+		rc = kvm_s390_get_guest_page(kvm, guest_faults + i, start + i, write_attempt);
-+		if (rc)
-+			break;
-+	}
-+	return rc;
-+}
-+
-+#define kvm_s390_release_faultin_array(kvm, array, ignore) \
-+	kvm_s390_release_multiple(kvm, array, ARRAY_SIZE(array), ignore)
-+
-+#define kvm_s390_array_needs_retry_unsafe(kvm, seq, array) \
-+	kvm_s390_multiple_faults_need_retry(kvm, seq, array, ARRAY_SIZE(array), true)
-+
-+#define kvm_s390_array_needs_retry_safe(kvm, seq, array) \
-+	kvm_s390_multiple_faults_need_retry(kvm, seq, array, ARRAY_SIZE(array), false)
-+
-+#endif /* __KVM_S390_FAULTIN_H */
+ KVM exits with the register state of either the L1 or L2 guest
+ depending on which executed at the time of an exit. Userspace must
+ take care to differentiate between these cases.
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index ec92e6361eab..2b5ecdc3814e 100644
+index ac7b5f56f0b5..9f24252775dd 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -4637,7 +4637,7 @@ bool kvm_arch_can_dequeue_async_page_present(struct kvm_vcpu *vcpu)
- 	return true;
+@@ -554,6 +554,37 @@ static void __kvm_s390_exit(void)
+ 	debug_unregister(kvm_s390_dbf_uv);
  }
  
--static bool kvm_arch_setup_async_pf(struct kvm_vcpu *vcpu)
-+bool kvm_arch_setup_async_pf(struct kvm_vcpu *vcpu)
- {
- 	hva_t hva;
- 	struct kvm_arch_async_pf arch;
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 65c950760993..9ce71c8433a1 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -470,6 +470,8 @@ static inline int kvm_s390_handle_dat_fault(struct kvm_vcpu *vcpu, gpa_t gaddr,
- 	return __kvm_s390_handle_dat_fault(vcpu, gpa_to_gfn(gaddr), gaddr, flags);
- }
- 
-+bool kvm_arch_setup_async_pf(struct kvm_vcpu *vcpu);
++static int kvm_s390_keyop(struct kvm_s390_mmu_cache *mc, struct kvm *kvm, int op,
++			  unsigned long addr, union skey skey)
++{
++	union asce asce = kvm->arch.gmap->asce;
++	gfn_t gfn = gpa_to_gfn(addr);
++	int r;
 +
- /* implemented in diag.c */
- int kvm_s390_handle_diag(struct kvm_vcpu *vcpu);
++	guard(read_lock)(&kvm->mmu_lock);
++
++	switch (op) {
++	case KVM_S390_KEYOP_SSKE:
++		r = dat_cond_set_storage_key(mc, asce, gfn, skey, &skey, 0, 0, 0);
++		if (r >= 0)
++			return skey.skey;
++		break;
++	case KVM_S390_KEYOP_ISKE:
++		r = dat_get_storage_key(asce, gfn, &skey);
++		if (!r)
++			return skey.skey;
++		break;
++	case KVM_S390_KEYOP_RRBE:
++		r = dat_reset_reference_bit(asce, gfn);
++		if (r > 0)
++			return r << 1;
++		break;
++	default:
++		return -EINVAL;
++	}
++	return r;
++}
++
+ /* Section: device related */
+ long kvm_arch_dev_ioctl(struct file *filp,
+ 			unsigned int ioctl, unsigned long arg)
+@@ -598,6 +629,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+ 	case KVM_CAP_S390_DIAG318:
+ 	case KVM_CAP_IRQFD_RESAMPLE:
+ 	case KVM_CAP_S390_USER_OPEREXEC:
++	case KVM_CAP_S390_KEYOP:
+ 		r = 1;
+ 		break;
+ 	case KVM_CAP_SET_GUEST_DEBUG2:
+@@ -2931,6 +2963,32 @@ int kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
+ 			r = -EFAULT;
+ 		break;
+ 	}
++	case KVM_S390_KEYOP: {
++		struct kvm_s390_mmu_cache *mc;
++		struct kvm_s390_keyop kop;
++		union skey skey;
++
++		if (copy_from_user(&kop, argp, sizeof(kop))) {
++			r = -EFAULT;
++			break;
++		}
++		skey.skey = kop.key;
++
++		mc = kvm_s390_new_mmu_cache();
++		if (!mc)
++			return -ENOMEM;
++
++		r = kvm_s390_keyop(mc, kvm, kop.operation, kop.guest_addr, skey);
++		kvm_s390_free_mmu_cache(mc);
++		if (r < 0)
++			break;
++
++		kop.key = r;
++		r = 0;
++		if (copy_to_user(argp, &kop, sizeof(kop)))
++			r = -EFAULT;
++		break;
++	}
+ 	case KVM_S390_ZPCI_OP: {
+ 		struct kvm_s390_zpci_op args;
  
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index dddb781b0507..ab3d3d96e75f 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -974,6 +974,7 @@ struct kvm_enable_cap {
+ #define KVM_CAP_GUEST_MEMFD_FLAGS 244
+ #define KVM_CAP_ARM_SEA_TO_USER 245
+ #define KVM_CAP_S390_USER_OPEREXEC 246
++#define KVM_CAP_S390_KEYOP 247
+ 
+ struct kvm_irq_routing_irqchip {
+ 	__u32 irqchip;
+@@ -1219,6 +1220,15 @@ struct kvm_vfio_spapr_tce {
+ 	__s32	tablefd;
+ };
+ 
++#define KVM_S390_KEYOP_ISKE 0x01
++#define KVM_S390_KEYOP_RRBE 0x02
++#define KVM_S390_KEYOP_SSKE 0x03
++struct kvm_s390_keyop {
++	__u64 guest_addr;
++	__u8  key;
++	__u8  operation;
++};
++
+ /*
+  * KVM_CREATE_VCPU receives as a parameter the vcpu slot, and returns
+  * a vcpu fd.
+@@ -1238,6 +1248,7 @@ struct kvm_vfio_spapr_tce {
+ #define KVM_S390_UCAS_MAP        _IOW(KVMIO, 0x50, struct kvm_s390_ucas_mapping)
+ #define KVM_S390_UCAS_UNMAP      _IOW(KVMIO, 0x51, struct kvm_s390_ucas_mapping)
+ #define KVM_S390_VCPU_FAULT	 _IOW(KVMIO, 0x52, unsigned long)
++#define KVM_S390_KEYOP           _IOWR(KVMIO, 0x53, struct kvm_s390_keyop)
+ 
+ /* Device model IOC */
+ #define KVM_CREATE_IRQCHIP        _IO(KVMIO,   0x60)
 -- 
 2.52.0
 
