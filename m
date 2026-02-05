@@ -1,49 +1,52 @@
 Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 471CD34F27B;
-	Thu,  5 Feb 2026 08:39:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23B6739FD4;
+	Thu,  5 Feb 2026 08:45:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770280793; cv=none; b=ci4c6V9gGOiG3gbmDkorXQsU7ofqUoKM9vNSgyUT/fTljJlW7hB1KwmMGZfLIR8teSySS0qm+paKKI+1A/9e7X+EiGOx7TmCuVEOa4J+SmM1TA4yry5MmNSaSlhJZ0rHLvKrgTwWGVHzcyy70GbITNRXOV+Tp/RbDja2CL0x8R4=
+	t=1770281148; cv=none; b=RyNU8h9TIBBHryAoT/kPNnXjvPQul5BDbnMce9OQogoum40rV5W2H5/nVLDfCsJdgs0E2hrPkKLqdF3bL3SkgYhk+1vmDPqFY1c38Iw7OAmoTavY2ALmg11bj/JR2PNlKHKxd9gpN/W3HJbSTVRdvB2MC+Q+A6d7G4aESLpM5wk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770280793; c=relaxed/simple;
-	bh=vZ9a0nKUmCYcn7DfvYPN6ExSS1v9vungJj4KM43Jl5A=;
+	s=arc-20240116; t=1770281148; c=relaxed/simple;
+	bh=g9RuaGYqUYBnwLnrwzUoVTNzFaCa3kHkguYYbxgeL9o=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LbRCLu9udn4KrrG0/4LfTFJl+oyPz8ubK+DewkRuVWNd8ToogignKPGCKT/mShjOvyfIPQSJnjVLsTpTUJU41gQ1xfV5Bx533bsnBhrRKHXxlGB47nVun1Rj044PdoI3rH11TEd0uVzWTa5DvPDn64bmqueP2yMXHo5uWdaSQ98=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=YFfwJBaK; arc=none smtp.client-ip=90.155.92.199
+	 Content-Type:Content-Disposition:In-Reply-To; b=BehRjDWU4pPJdqDWM7nT5eTdD4bKOh2QhFJ6jltJdJG7RMCMGjgturzVrFmBBvxwYdwn74CkAKe+xtyMqFedZxOX/V/hJQcDD5cTDyaFlJOo9QJ2+gJLU9GugICuv1QWwh3Bm51WbBHCrkZIkdW2jTnu0Hj3D8ALMpbpOJhswC8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=fQQ7DqjT; arc=none smtp.client-ip=90.155.92.199
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="YFfwJBaK"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="fQQ7DqjT"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
 	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
 	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=8UqNmiqy/+DVRkRvDg0YgIjJhg5UJoRJjVfp0oSweMA=; b=YFfwJBaKby6FBHyytTEpsoArfs
-	O78Vdb8Decqf6jUN13LUS7cTTND5NslHu/VB30zjdc4hbz1aNS+Z8DJOnd57tto6L/N5pyPItTJ9h
-	pO581nm/xW23SxJ50BV+yU8vmLkyAFqgjd8dVBDQfloq06X0ybdZJg3qkyc1Pu7kW5AClDor5IZg4
-	3VgYACeNbSJa6g0A1+yp5RW5xHg4yxww1N5HyEu9x0BHzgtIWqWRiSFG/TzdvWRgY0L+XTmrwAw7b
-	9VWkT0hapR/CSI8g8NEtQdOL4M+OjnDfpkEpNOQQiSk/yIjHE4AkqiXqrlLwnvpLoYqgDTgqQ9bHB
-	lYNU82/w==;
-Received: from 2001-1c00-8d85-5700-266e-96ff-fe07-7dcc.cable.dynamic.v6.ziggo.nl ([2001:1c00:8d85:5700:266e:96ff:fe07:7dcc] helo=noisy.programming.kicks-ass.net)
+	bh=fugNcIq91z91zlP18EL4UwOiWpTOJo086a+OO6V5k0k=; b=fQQ7DqjT6Sde/WdpJkoeFuhQrx
+	m2xzlztr1g+INZLnpQK/Oa/KDLrOrn8s94pFRnPi2obcXCEJEcbXRjJg7tULOGgTaiZm2hOk9L2E9
+	BFN+ulIy5us/hgxdzTP8pxgiuD2p5wnocAW3xXbkRxbweBVwjKPMKM5I6NpByGocdCRtlKwmGXdfi
+	TL2qc/4v5CuBITQhtENgGHSHed9CKHWeYwrY0VoiRM/9mdw+r1ydooM0Bi8uT0N7VkZ1OUe6wHB1e
+	y0PU2Mgmh2z8kCO/wb3E6/HyQVS1mJ1qiIRnQ1suFVqtjTKIE98yDjcwx+fxXn/DTvInI3NKLMlpq
+	Uk9TS/5A==;
+Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
 	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vnutw-00000001mo1-2uHt;
-	Thu, 05 Feb 2026 08:39:49 +0000
+	id 1vnuze-00000001n2I-1Ize;
+	Thu, 05 Feb 2026 08:45:43 +0000
 Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id CE6D2300BD2; Thu, 05 Feb 2026 09:39:47 +0100 (CET)
-Date: Thu, 5 Feb 2026 09:39:47 +0100
+	id C3C8C300BD2; Thu, 05 Feb 2026 09:45:41 +0100 (CET)
+Date: Thu, 5 Feb 2026 09:45:41 +0100
 From: Peter Zijlstra <peterz@infradead.org>
 To: Heiko Carstens <hca@linux.ibm.com>
 Cc: Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org,
+	kvm@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH] s390: remove kvm_types.h from Kbuild
-Message-ID: <20260205083947.GC232055@noisy.programming.kicks-ass.net>
-References: <20260203184204.1329414-1-rdunlap@infradead.org>
- <20260205074643.7870A22-hca@linux.ibm.com>
+Subject: Re: [PATCH v2] s390: remove kvm_types.h from Kbuild
+Message-ID: <20260205084541.GD232055@noisy.programming.kicks-ass.net>
+References: <20260205073119.1886986-1-rdunlap@infradead.org>
+ <20260205075144.7870B7f-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -52,10 +55,10 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260205074643.7870A22-hca@linux.ibm.com>
+In-Reply-To: <20260205075144.7870B7f-hca@linux.ibm.com>
 
-On Thu, Feb 05, 2026 at 08:46:43AM +0100, Heiko Carstens wrote:
-> On Tue, Feb 03, 2026 at 10:42:04AM -0800, Randy Dunlap wrote:
+On Thu, Feb 05, 2026 at 08:51:44AM +0100, Heiko Carstens wrote:
+> On Wed, Feb 04, 2026 at 11:31:19PM -0800, Randy Dunlap wrote:
 > > kvm_types.h is mandatory in include/asm-generic/Kbuild so having it
 > > in another Kbuild file causes a warning. Remove it from the arch/
 > > Kbuild file to fix the warning.
@@ -64,23 +67,22 @@ On Thu, Feb 05, 2026 at 08:46:43AM +0100, Heiko Carstens wrote:
 > > 
 > > Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 > > ---
-> >  arch/s390/include/asm/Kbuild |    1 -
-> >  1 file changed, 1 deletion(-)
+> > v2: add more Cc:s
 > > 
-> > --- linux-next-20260202.orig/arch/s390/include/asm/Kbuild
-> > +++ linux-next-20260202/arch/s390/include/asm/Kbuild
-> > @@ -5,6 +5,5 @@ generated-y += syscall_table.h
-> >  generated-y += unistd_nr.h
-> >  
-> >  generic-y += asm-offsets.h
-> > -generic-y += kvm_types.h
-> >  generic-y += mcs_spinlock.h
-> >  generic-y += mmzone.h
+> > Cc: kvm@vger.kernel.org
+> > Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+> > Cc: Sean Christopherson <seanjc@google.com>
+> > Cc: Paolo Bonzini <pbonzini@redhat.com>
+> > Cc: Heiko Carstens <hca@linux.ibm.com>
+> > Cc: Vasily Gorbik <gor@linux.ibm.com>
+> > Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> > Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> > Cc: Sven Schnelle <svens@linux.ibm.com>
+> > Cc: linux-s390@vger.kernel.org
 > 
-> This should go via perf/core from the tip tree, since Peter's not-yet upstream
-> commit 01122b89361e ("perf: Use EXPORT_SYMBOL_FOR_KVM() for the mediated
-> APIs") adds the mandatory-y statement to include/asm-generic/Kbuild.
+> The additional cc's still miss Peter :)
 > 
-> Peter?
+> https://lore.kernel.org/all/20260205074643.7870A22-hca@linux.ibm.com/
 
-Let me see if I can manage to apply a patch I don't have ;-)
+I managed to invoke the right b4 incantation and it should be applied to
+tpi/perf/core.
