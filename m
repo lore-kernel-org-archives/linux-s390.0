@@ -1,161 +1,142 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f78.google.com (mail-oo1-f78.google.com [209.85.161.78])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C55C33ADA3;
-	Thu,  5 Feb 2026 22:54:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB21C224B0E
+	for <linux-s390@vger.kernel.org>; Fri,  6 Feb 2026 06:16:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.78
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770332067; cv=none; b=fq9OpLc+w4CYIpUHgud0kz5LF/NcW0zBi3QDTuovsjpbYLp0Vx+HxbtnPa5IYWJflOHSB3BpcVWuage99PXmq64dgJUdxkC8lVTTSvH/ey3CdzmbWz5bK+QsKqdhqWiy84EnRNA3478DvSSpbNb3iQqky1oJjtwzKocoY2YewUo=
+	t=1770358586; cv=none; b=N5zYKMFHsoMWwZOGywD6267fUAqKx9Vws9xKPrfhEByUeELXnqEcm519ARQVFe01Q+ckx6BH3J1riXay/nr+jW5vYAEIuYOAak8FOjLngSyRvtwPfYkhZ1KA7sr+o8u8AFiKzMGt9JXHWCoeRwEtdZNqOJjNL24A0nqHqKpCneM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770332067; c=relaxed/simple;
-	bh=S7ft3si6HKCpAVxukuwcWtXuCFBz/xMD0gq7hKmO9DM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=a7Mg0IgHZLqTj7SaEBLi3Z9Q2WysTu/tpJdwF/k8hEmhtIG9NqGVZAAjvqpXJ7eEbpEYttikJD9Ter9282QHtxK20ly1YbxSWhaiVP2lMa45wfl0TW+G+p7MKFDYFFLBgJ9NvPZFgKK4N2cwFVSoTc4r9h+LzVhu1ZDucoGv5u0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aryRxg7C; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aryRxg7C"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 615ErE3g017917;
-	Thu, 5 Feb 2026 22:54:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=BwcU6v
-	aUxwhLgi4mT1m3Bp/fTxfIRXC12GVSXxYHwKc=; b=aryRxg7CgiNbfz7XuaGdu2
-	FQMXCvfB8pP5riJvxhX9P9Cl/nvAqnRqbixfLUpCnqhGzxKXQgF+HS2x08+8NjTW
-	JOLs19HkNJzKiYw0jEN3Ur4BzxGDgHGEcboaFblSGt7wFpfai8HblEtjLHdBwikY
-	UkvtpnhMlaJRlSW9KyZPI9p7W+azOLnBCbnAi6wvP57S8/Qbb4EytH11M22UooRX
-	FrUIrXGq4f+RP1s7DXsvdEAwS3bwar5wLkCul9ytTAeG4l4XnVIii1WW+PXh/Iab
-	VeB044AEIWnMqkE1CV6IPhYRZZpvwnYimJJZVAZPUR4IefIXcWph0At39KSpQ1tA
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c19cwe1h7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 05 Feb 2026 22:54:25 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 615M27Mk027684;
-	Thu, 5 Feb 2026 22:54:24 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4c1xs1kggn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 05 Feb 2026 22:54:24 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 615MsNMa24117864
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 5 Feb 2026 22:54:23 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 747365805D;
-	Thu,  5 Feb 2026 22:54:23 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A9B5A58043;
-	Thu,  5 Feb 2026 22:54:22 +0000 (GMT)
-Received: from [9.111.171.53] (unknown [9.111.171.53])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  5 Feb 2026 22:54:22 +0000 (GMT)
-Message-ID: <4055f852-0488-4ccf-abb5-bc5f8d2c9635@linux.ibm.com>
-Date: Thu, 5 Feb 2026 23:54:21 +0100
+	s=arc-20240116; t=1770358586; c=relaxed/simple;
+	bh=4sW91DONuEZ2nAmyynltCSmDCpZ5X/Jb4bSRstGCYfM=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=Tjkvl3j3nmK/BadYZcjyaliw9d5XGa9fzNrp9UoDfhQ580ifD+ZPvEUu7n2e/fsSusrzmRQjGFri4RSPhTm6uh5e8HR4nHjjS+94EPBqYxMyzSBCwJZgvwana0soxeZgIkC+59LXUSR6kXp4CrJwHQlKwq/wXld8yinBfI1+7Ss=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.78
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oo1-f78.google.com with SMTP id 006d021491bc7-6630b0a016aso7240484eaf.0
+        for <linux-s390@vger.kernel.org>; Thu, 05 Feb 2026 22:16:25 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770358585; x=1770963385;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Qix4/FgbsiFhyzHPSg9byFXxtny+dN9gBCfI2BW8FMY=;
+        b=wnNfh3Mw7NjvCiKX4EFEWDpRlSsi74iT1AnxOqQ8mBf2HzGWfSSy4TdeyNn9x70ERj
+         EtY2bUNVh3itZeUIyXcqK5DHBBIo2lokqIoe/lGvNe885ymF3Rz9VTlAKsqyY8M+EeBC
+         88Wwew1taFc9zKnegKbZRdtM4cIgngTTKxTNXhfaM81Q7y9eM0zh4RD3wGitP/j7lnJj
+         jWSBT315vLwOrkUDaO6J3HQsCBpVGcFFByaeVIHuhedoMgaSlb34JVGjFo0LW6HQak3R
+         Q6C5aDhaYm4adTsDi9wYk2XI/2jjEOrIBARgMSzIJm+oqBDbLcmS+ezeRA1YpHQpeTTZ
+         MTPQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVTlTEaKv+XW3xuWjkhRhecEGrQ0J8v6unG4vhiikSMZkMrn4bhJmyOfgfHuSROzJ4gekBUJeTFt2WD@vger.kernel.org
+X-Gm-Message-State: AOJu0YxxY2wISDiNeADz9uOXsAPBRw4m4Def+RjXINBUf8bb+ZG57DLm
+	CZbJdFKP8D3PN4LL1vlsTk5wIQSAvJQGrdbNuHEjOEz6xjJQl7EQr6ZcIoIjkw6ZayEBTaPnWjG
+	o09PgRaLVrNZgnWE28btyWrLP2shMGJEMq6Z7KodbklqMoxBiYHsamI/O6zM=
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] btrfs: fix the folio leak on S390 hardware acceleration
-To: Qu Wenruo <wqu@suse.com>, linux-btrfs@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>
-References: <bcf36edfb7ac3caf3373174e741bb29c0feb268b.1768802004.git.wqu@suse.com>
- <1218d786-ad7a-4971-9cd5-273232f62d79@suse.com>
-Content-Language: en-US
-From: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-In-Reply-To: <1218d786-ad7a-4971-9cd5-273232f62d79@suse.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA1MDE3NSBTYWx0ZWRfX/xg6EqhvPTvq
- wQXfEqW2Uhbt/QbytWF7ndxvYZ+OBypD8iFMfZrPOKDJaHvhHkCn1pVYFv3GlpdfGQYOk8BhfZB
- wqkxYr/MKUT53ONDGLTJijNvgh+P4dlBwcZ+VX4uBT0n0pjbNXnjvXPOvThmel9V4Wn52+eUsbd
- xrdThRIt2AcXDwaSw2hKzSPVsTVZS1eD95z7Q3qGC732bQhGtsFlTZpWmiiMThY3wQKcg36AevA
- g04Fz8u9qFjtLhmkHpJc2WqwxdJfFZGA7fUKtt+jaTmZchBODzRBhq9bK1pLDZZnYnD73IJ9d1R
- 5zbN7tngk9+1QGKlvJEKT4HfWkn2p9MMvB/Fvp4AOUtNxIwkE8eqN59p93ue7oWs19dn7YoaZjt
- 2dEjIYcfSPr1lt07muRSrY+pjLUCjzygg+4AfcuQxbjHM8SNPMHL+N3X6DFmoyEOxBq+Egr0vwb
- hWMCD8Y3k8KXlGzR5tA==
-X-Authority-Analysis: v=2.4 cv=UuRu9uwB c=1 sm=1 tr=0 ts=69851fa1 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8
- a=iox4zFpeAAAA:8 a=vIqduxIiGwg5IhLgSugA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
- a=WzC6qhA0u3u7Ye7llzcV:22
-X-Proofpoint-ORIG-GUID: JV7asJn1KThmDX0vkNgW92WnIDNdhlPk
-X-Proofpoint-GUID: JV7asJn1KThmDX0vkNgW92WnIDNdhlPk
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-05_06,2026-02-05_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 bulkscore=0 adultscore=0 clxscore=1011 phishscore=0
- malwarescore=0 lowpriorityscore=0 priorityscore=1501 impostorscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2601150000
- definitions=main-2602050175
+X-Received: by 2002:a05:6820:4de8:b0:659:9a49:8eaa with SMTP id
+ 006d021491bc7-66d0bf9e128mr808995eaf.46.1770358584945; Thu, 05 Feb 2026
+ 22:16:24 -0800 (PST)
+Date: Thu, 05 Feb 2026 22:16:24 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <69858738.050a0220.3b3015.002e.GAE@google.com>
+Subject: [syzbot] [smc?] KCSAN: data-race in smc_switch_to_fallback /
+ sock_poll (2)
+From: syzbot <syzbot+198c20fde37cb9f6b0ac@syzkaller.appspotmail.com>
+To: alibuda@linux.alibaba.com, davem@davemloft.net, dust.li@linux.alibaba.com, 
+	edumazet@google.com, guwen@linux.alibaba.com, horms@kernel.org, 
+	kuba@kernel.org, linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org, 
+	linux-s390@vger.kernel.org, mjambigi@linux.ibm.com, netdev@vger.kernel.org, 
+	pabeni@redhat.com, sidraya@linux.ibm.com, syzkaller-bugs@googlegroups.com, 
+	tonylu@linux.alibaba.com, wenjia@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
 
-Hello Qu,
+Hello,
 
-Sorry for the late response. 
-I ran some test on s390 including folio-leak verification. LGTM.
+syzbot found the following issue on:
 
-Tested-by:   Mikhail Zaslonko <zaslonko@linux.ibm.com>
+HEAD commit:    5fd0a1df5d05 Merge tag 'v6.19rc8-smb3-client-fixes' of git..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=1070aa5a580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=8e27f4588a0f2183
+dashboard link: https://syzkaller.appspot.com/bug?extid=198c20fde37cb9f6b0ac
+compiler:       Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
+
+Unfortunately, I don't have any reproducer for this issue yet.
+
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/a09cd69509c3/disk-5fd0a1df.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/f218ec1eb157/vmlinux-5fd0a1df.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/8549229eee91/bzImage-5fd0a1df.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+198c20fde37cb9f6b0ac@syzkaller.appspotmail.com
+
+==================================================================
+BUG: KCSAN: data-race in smc_switch_to_fallback / sock_poll
+
+write to 0xffff888127398c18 of 8 bytes by task 14369 on cpu 1:
+ smc_switch_to_fallback+0x4ea/0x7e0 net/smc/af_smc.c:933
+ smc_sendmsg+0xce/0x2f0 net/smc/af_smc.c:2797
+ sock_sendmsg_nosec net/socket.c:727 [inline]
+ __sock_sendmsg net/socket.c:742 [inline]
+ ____sys_sendmsg+0x5af/0x600 net/socket.c:2592
+ ___sys_sendmsg+0x195/0x1e0 net/socket.c:2646
+ __sys_sendmsg net/socket.c:2678 [inline]
+ __do_sys_sendmsg net/socket.c:2683 [inline]
+ __se_sys_sendmsg net/socket.c:2681 [inline]
+ __x64_sys_sendmsg+0xd4/0x160 net/socket.c:2681
+ x64_sys_call+0x17ba/0x3000 arch/x86/include/generated/asm/syscalls_64.h:47
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0xc0/0x2a0 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+read to 0xffff888127398c18 of 8 bytes by task 14367 on cpu 0:
+ sock_poll+0x27/0x240 net/socket.c:1427
+ vfs_poll include/linux/poll.h:82 [inline]
+ __io_arm_poll_handler+0x1ee/0xb80 io_uring/poll.c:581
+ io_poll_add+0x69/0xf0 io_uring/poll.c:899
+ __io_issue_sqe+0xfd/0x2d0 io_uring/io_uring.c:1793
+ io_issue_sqe+0x20b/0xc20 io_uring/io_uring.c:1816
+ io_queue_sqe io_uring/io_uring.c:2043 [inline]
+ io_submit_sqe io_uring/io_uring.c:2321 [inline]
+ io_submit_sqes+0x78a/0x11b0 io_uring/io_uring.c:2435
+ __do_sys_io_uring_enter io_uring/io_uring.c:3285 [inline]
+ __se_sys_io_uring_enter+0x1bf/0x1c70 io_uring/io_uring.c:3224
+ __x64_sys_io_uring_enter+0x78/0x90 io_uring/io_uring.c:3224
+ x64_sys_call+0x27e4/0x3000 arch/x86/include/generated/asm/syscalls_64.h:427
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0xc0/0x2a0 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+value changed: 0xffff88811a6056c0 -> 0xffff88811a606080
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 UID: 0 PID: 14367 Comm: syz.8.3658 Not tainted syzkaller #0 PREEMPT(voluntary) 
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/25/2025
+==================================================================
 
 
-On 20-Jan-26 23:52, Qu Wenruo wrote:
-> Adding S390 to the mailing list, I got the incorrect address in the initial patch.
-> 
-> Much appreciated if S390 people can give it a test.
-> 
-> Thanks,
-> Qu
-> 
-> 
-> 在 2026/1/19 16:24, Qu Wenruo 写道:
->> [BUG]
->> After commit aa60fe12b4f4 ("btrfs: zlib: refactor S390x HW acceleration
->> buffer preparation"), we no longer release the folio of the page cache
->> of folio returned by btrfs_compress_filemap_get_folio() for S390
->> hardware accerlation path.
->>
->> [CAUSE]
->> Before that commit, we call kumap_local() and folio_put() after handling
->> each folio.
->>
->> Although the timing is not ideal (it release previous folio at the
->> beginning of the loop, and rely on some extra cleanup out of the loop),
->> it at least handles the folio release correctly.
->>
->> Meanwhile the refactored code is easier to read, it lacks the call to
->> release the filemap folio.
->>
->> [FIX]
->> Add the missing folio_put() for copy_data_into_buffer().
->>
->> Cc: linux-s390@vger.kernel.orgaa60fe12b4f49f49fc73e5023f8675e2df1f7805
->> Fixes: aa60fe12b4f4 ("btrfs: zlib: refactor S390x HW acceleration buffer preparation")
->> Signed-off-by: Qu Wenruo <wqu@suse.com>
->> ---
->>   fs/btrfs/zlib.c | 1 +
->>   1 file changed, 1 insertion(+)
->>
->> diff --git a/fs/btrfs/zlib.c b/fs/btrfs/zlib.c
->> index 6caba8be7c84..10ed48d4a846 100644
->> --- a/fs/btrfs/zlib.c
->> +++ b/fs/btrfs/zlib.c
->> @@ -139,6 +139,7 @@ static int copy_data_into_buffer(struct address_space *mapping,
->>           data_in = kmap_local_folio(folio, offset);
->>           memcpy(workspace->buf + cur - filepos, data_in, copy_length);
->>           kunmap_local(data_in);
->> +        folio_put(folio);
->>           cur += copy_length;
->>       }
->>       return 0;
-> 
-> 
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
