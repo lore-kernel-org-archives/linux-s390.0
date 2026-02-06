@@ -1,88 +1,71 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED8442FF67A
-	for <linux-s390@vger.kernel.org>; Fri,  6 Feb 2026 16:00:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB115328B75;
+	Fri,  6 Feb 2026 16:29:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770393622; cv=none; b=N3XHdCba1zEvPlQdkgzORlFayDSfsDVtKlG3xizU4fCMgO318nmuUXUREqYWIa/BM0t4aPAnbnwFemPR956BMIeRRqdaA3BvHjCzuqP9Roj5/WonVAg8p/v18swrgPZKOX/TATq3eHSTDE8iX58KzSylRajSz2XpPcKOrpSJjwg=
+	t=1770395366; cv=none; b=KTPS6cp3vHDf42QQRC+Xee7UKLUFeAlFOHEp8SPD89VChFx3DTGQ0gh7aewyIpPcdkfJDIxqg0POfkKrxklj2iXZ9THlXFnjKSJB3SSnb1hLGM1/hWWkZUM2ODVT02q4en0JVAiMfZ2ft4R2GILWR+6Spv3sgaIevw2LMUDnHTY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770393622; c=relaxed/simple;
-	bh=rcxzcqAouXCG1ArqwW67/U0pigdeAS5kRKR5aH2BLc0=;
+	s=arc-20240116; t=1770395366; c=relaxed/simple;
+	bh=h8VOFi6tP/rRrpw+ZQx9hJ0/5NEfHpTxu++qhjrV80c=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=D3eujkrSICMorDvw7Mx3jxJcNbVZiFnSEZRvfgiZ9cKJo1ahEAiTppC0u5PFR4C07Mq3+5/dLFhnpHX66ESLx5gWSGwTib83BRiYCfPpihFkbuA9ObAXUvYuEbwenYjgnwwBwMYkNWS3GLUCEY9AefyKbwfBcgMWG5RYdwBhw0Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=e5IyKtc7; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=nvcp9gX+; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=e5IyKtc7; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=nvcp9gX+; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	 Content-Type:Content-Disposition:In-Reply-To; b=f2fK+GBz+SaKOjNTRH/CAh91VU69LDzEeZ898+ByuOiLMaoxheirIi5OW4JutOpkJC9yBzcTsRYrrqUyoIn6YmloqnkDXgqwPvktvoKo6+UJ/ow/VF23YEsggRqpIjseAsIQSu6irP1ryGqSV3PTRgPEsj3sWNho+QkqcuOTzw8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ex0DD7CL; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="e5IyKtc7";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="nvcp9gX+";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="e5IyKtc7";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="nvcp9gX+"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 0967A3E6E1;
-	Fri,  6 Feb 2026 16:00:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1770393620;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=h4ZOS76nVTJyE8LigoojRCT3Poo6wLDijFn9dj6mxYQ=;
-	b=e5IyKtc7xaU1RCz+e7zu1gv8JUOlqsBZx36Cr8onYYnIWwa3mtmKD7luksdOPfhV+y9qvQ
-	MPCd32jG8DeDBkXdHCjL0yMZomw2kto5cNLhwtbLWzIcdrYVKC3CJq5DufuwZ/JOJVnmtK
-	67JrdvTloPH3yNFj2NIx42OnwlVF86k=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1770393620;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=h4ZOS76nVTJyE8LigoojRCT3Poo6wLDijFn9dj6mxYQ=;
-	b=nvcp9gX+2MRvlr/YhRldw2bWvGUqV0yXgZIBLxeo/gxp5BOfvWyoy3Cx/wR5pu+BnKOpdO
-	H+MyF+sXFA39oUDg==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=e5IyKtc7;
-	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=nvcp9gX+
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1770393620;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=h4ZOS76nVTJyE8LigoojRCT3Poo6wLDijFn9dj6mxYQ=;
-	b=e5IyKtc7xaU1RCz+e7zu1gv8JUOlqsBZx36Cr8onYYnIWwa3mtmKD7luksdOPfhV+y9qvQ
-	MPCd32jG8DeDBkXdHCjL0yMZomw2kto5cNLhwtbLWzIcdrYVKC3CJq5DufuwZ/JOJVnmtK
-	67JrdvTloPH3yNFj2NIx42OnwlVF86k=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1770393620;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=h4ZOS76nVTJyE8LigoojRCT3Poo6wLDijFn9dj6mxYQ=;
-	b=nvcp9gX+2MRvlr/YhRldw2bWvGUqV0yXgZIBLxeo/gxp5BOfvWyoy3Cx/wR5pu+BnKOpdO
-	H+MyF+sXFA39oUDg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id D70BA3EA63;
-	Fri,  6 Feb 2026 16:00:19 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id S71RNBMQhmnuDQAAD6G6ig
-	(envelope-from <dsterba@suse.cz>); Fri, 06 Feb 2026 16:00:19 +0000
-Date: Fri, 6 Feb 2026 17:00:18 +0100
-From: David Sterba <dsterba@suse.cz>
-To: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-Cc: Qu Wenruo <wqu@suse.com>, linux-btrfs@vger.kernel.org,
-	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>
-Subject: Re: [PATCH] btrfs: fix the folio leak on S390 hardware acceleration
-Message-ID: <20260206160018.GY26902@twin.jikos.cz>
-Reply-To: dsterba@suse.cz
-References: <bcf36edfb7ac3caf3373174e741bb29c0feb268b.1768802004.git.wqu@suse.com>
- <1218d786-ad7a-4971-9cd5-273232f62d79@suse.com>
- <4055f852-0488-4ccf-abb5-bc5f8d2c9635@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ex0DD7CL"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 616FSA8v003180;
+	Fri, 6 Feb 2026 16:29:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=oh5jBWRYQDuUXvmU4nBzgRSa+Sxu5l
+	CT+lyEhhKEkig=; b=Ex0DD7CLA/bMl3gtpFErZPZIxHwkOpH5soFeUSlwBNhkw6
+	snq3JTey1KNLW8oSgutvfK02z1ZJnYfN5+WKoCbxODbziOwnBFCl2vB+jxbnNuus
+	lCZv01+trhoT1ENZgRmuGtGE6+4oRRl16cOsp+N5tj1LTHHhhCQzTVBN4lnsUuDM
+	KSOwVil1e3f1UibdUaQA6Wu9ykiil3b/7BNusuDzuq7YIGidNa7sjoiDbeN7fKtY
+	7sf/+ZY9hXhPMpuyaS0DyzYhqWcj5EdxOlj4Z6qKys9+8K7ujsVQk7V9GWERE4Pj
+	btLU7Ky1VGBa+UZreW/Q2J/sB13VTRxeGTWSBFSA==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c19f6vhwc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 06 Feb 2026 16:29:24 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 616D7sve005921;
+	Fri, 6 Feb 2026 16:29:23 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4c1x9jpmm4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 06 Feb 2026 16:29:23 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 616GTJ5r59769308
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 6 Feb 2026 16:29:19 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7EF5420043;
+	Fri,  6 Feb 2026 16:29:19 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EE5A420040;
+	Fri,  6 Feb 2026 16:29:18 +0000 (GMT)
+Received: from osiris (unknown [9.111.23.118])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri,  6 Feb 2026 16:29:18 +0000 (GMT)
+Date: Fri, 6 Feb 2026 17:29:12 +0100
+From: Steffen Eiden <seiden@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
+        gra@linux.ibm.com, schlameuss@linux.ibm.com, hca@linux.ibm.com,
+        svens@linux.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
+        david@kernel.org, gerald.schaefer@linux.ibm.com
+Subject: Re: [PATCH v1 1/3] KVM: s390: Use guest address to mark guest page
+ dirty
+Message-ID: <20260206162912.38172-A-seiden@linux.ibm.com>
+References: <20260206143553.14730-1-imbrenda@linux.ibm.com>
+ <20260206143553.14730-2-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -91,48 +74,49 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4055f852-0488-4ccf-abb5-bc5f8d2c9635@linux.ibm.com>
-User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
-X-Spamd-Result: default: False [-4.21 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	HAS_REPLYTO(0.30)[dsterba@suse.cz];
-	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-0.999];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	TO_DN_SOME(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	RCPT_COUNT_FIVE(0.00)[5];
-	RCVD_COUNT_TWO(0.00)[2];
-	REPLYTO_ADDR_EQ_FROM(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	REPLYTO_DOM_NEQ_TO_DOM(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DKIM_TRACE(0.00)[suse.cz:+];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.cz:dkim,suse.cz:replyto,twin.jikos.cz:mid,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
-X-Spam-Flag: NO
-X-Spam-Score: -4.21
-X-Rspamd-Queue-Id: 0967A3E6E1
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spam-Level: 
+In-Reply-To: <20260206143553.14730-2-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: iFV9PLZnv1LLuw_Pwl_PqNsZ2Pj4-QSD
+X-Authority-Analysis: v=2.4 cv=drTWylg4 c=1 sm=1 tr=0 ts=698616e4 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=kj9zAlcOel0A:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8
+ a=66t2VqmaeCk1KhDUqx4A:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: iFV9PLZnv1LLuw_Pwl_PqNsZ2Pj4-QSD
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA2MDExOSBTYWx0ZWRfX87aVVqAbRuTT
+ NTZv3E260c/I0/ITXV2jjuk8dCnPTHnmqwKn88Rm1S64XHL3yh1/TYymsJdtRwFN4bXjFhH78c9
+ 4Nt2KGUeHcoeDSbF4WzJ7H+pFrjWc7yTJ6/aXTAWDVv81XyEQ67edfZp6H2PxwZwKf2uoqkik4M
+ qs9MAZBHtfDFoin5fQ2DEoDk7wEvgq3CHcrdRyFDNbSBgRmNn7983GQJfm2l4kTFv+Rt00TX++h
+ uzSneSIw593dq9Z8nYsN4CYHYK2Ci23bRHjKakuXxdRJp7YjwdkEA76OGKnJYM2WHJ3YtHxtB8p
+ LJctKK21geTGZD10Bpoaw45TLElhNTf0BKHg9kTMhh1Utrzg3lzywa1SwKPiEfW+Ndeluf4G4iJ
+ 1Tfs4Q1a1EP/nQUNL1Of7meHsHPDdlvUeV009TTHRuWk4hajvVxO4cct2Q0U7pKyDQXdMGyxSgo
+ kmsc6TJRdJrPCtqCqIQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-06_05,2026-02-05_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 clxscore=1011 spamscore=0 malwarescore=0 bulkscore=0
+ phishscore=0 adultscore=0 lowpriorityscore=0 impostorscore=0
+ priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2601150000
+ definitions=main-2602060119
 
-On Thu, Feb 05, 2026 at 11:54:21PM +0100, Mikhail Zaslonko wrote:
-> Hello Qu,
+On Fri, Feb 06, 2026 at 03:35:51PM +0100, Claudio Imbrenda wrote:
+> Stop using the userspace address to mark the guest page dirty.
+> mark_page_dirty() expects a guest frame number, but was being passed a
+> host virtual frame number. When slot == NULL, mark_page_dirty_in_slot()
+> does nothing and does not complain.
 > 
-> Sorry for the late response. 
-> I ran some test on s390 including folio-leak verification. LGTM.
+> This means that in some circumstances the dirtiness of the guest page
+> might have been lost.
 > 
-> Tested-by:   Mikhail Zaslonko <zaslonko@linux.ibm.com>
+> Fix by adding two fields in struct kvm_s390_adapter_int to keep the
+> guest addressses, and use those for mark_page_dirty().
+> 
+> Fixes: f65470661f36 ("KVM: s390/interrupt: do not pin adapter interrupt pages")
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Great catch!
 
-Thanks for testing, the patch has been merged to 6.19.
+Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
+
+...
