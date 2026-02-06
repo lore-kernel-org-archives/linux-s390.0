@@ -1,131 +1,97 @@
-Received: from fout-b8-smtp.messagingengine.com (fout-b8-smtp.messagingengine.com [202.12.124.151])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4630F303A1A;
-	Fri,  6 Feb 2026 22:13:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 811EE1E86E;
+	Fri,  6 Feb 2026 22:35:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770416012; cv=none; b=GCPgtwTlaUUvV+7jCJXQjTMdFpt5/QSvfDdhdLVPMBLOp7P6yHePxLDj3LXnBuVKNPWENoNYGgws+bOSMY1X8+qiO9gozq7EyxjGs+4IDPc83+HKi9ChwQ4V6EjCpZzfqvxzQ4BnlTiH3gX9Lsu3vBYdWCyimAP/iTrybLyBSz0=
+	t=1770417317; cv=none; b=V8ZJbOlVOg2yr17LCl/O9sF95lWLNBAY4OAoAniwikZSttCPc8FzlxOzYtjfY0OU5NdJYSq7Da02hL7y5PEXCBql1rAUd9nClQXREtUPKOK6U07h93vlLcqTKiQwNJrqps0RtfypzaJlp19b4Nkiv0R7QcOUHytnWHunNW8KLtc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770416012; c=relaxed/simple;
-	bh=L7i0Sz3eO7RBI5TN5ntjQtLExJefod8fLQ5VVDQ0yDQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=mUHdStbhi0bgacwlm0vBKAeva5A13e8+tEbftgbSoej+z4vFescNyovc5L2Jn6PAx0cJK3VYhSv7b2rwwCXGEy2pfg/hLyR778jml93dHlh5mYzd9+o2YAJpUqc0RIXDSlzhAU1DYcQJbqWNf7h2d62KCt4ThgL6kAcWILABLZg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=ZMFI7pNg; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=cMoF1xgh; arc=none smtp.client-ip=202.12.124.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
+	s=arc-20240116; t=1770417317; c=relaxed/simple;
+	bh=pCN1+Vk7aDCoWI7wtIHCxSIf8mtraNIBweDErysiq/U=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qamMvOxMAv31xAHjoj2gdeZ9oyIa4CgrmxpTg5dt+uvu+SR9A8HKl1YtamGARiMIZS0P1dJJ2K/jcCQ4e05g1+GG8Adczv7dgoXI5DMuV6FDeFnFXtW2NpLvjZc0wNcreRa8KSQFaPuGv0ap5okwUqV/zjnUjLQp3aMiy7Rta8I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R2SVvC/9; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="ZMFI7pNg";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="cMoF1xgh"
-Received: from phl-compute-12.internal (phl-compute-12.internal [10.202.2.52])
-	by mailfout.stl.internal (Postfix) with ESMTP id 7C3721D00011;
-	Fri,  6 Feb 2026 17:13:31 -0500 (EST)
-Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-12.internal (MEProxy); Fri, 06 Feb 2026 17:13:31 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1770416011;
-	 x=1770502411; bh=kDc1sN6h/MEdA3hS+mH1kELrGrgw+AmtTh16NpDYUmw=; b=
-	ZMFI7pNgcIiciXNyGLvsIaCt/Zd4ld2qZ/f+flQUHyNb0wx4HadcYbuIzd5SzGgs
-	G/D1N50yTEHrOA2Pl2Adoh2GXoq/HAKV10EIcnnipVUK6LT+lg8gO7Xhn+VZadur
-	yBzj1SabZ4rgFvcILSf9LIqpWfblM+Kwmqs0SgiMlWOPoo5uEj8TXa1e3KZ1Em2H
-	S0Sl3HW81lC4bY35cr/VklaIlUSYF6IgIQiOwM2XRWwlJA+oiEICprlRuYVx+H67
-	oOKjSOapaDEVXRrFv9oExu6pjoRHc3KcfEywn+TFo/FoFcjjYddUXwCqjaMSaZHY
-	Fz5089LvC5sKiYswyymEpQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1770416011; x=
-	1770502411; bh=kDc1sN6h/MEdA3hS+mH1kELrGrgw+AmtTh16NpDYUmw=; b=c
-	MoF1xghZ9fphvIUsPiENuvaoDhsoZtLdZM5C8Fe4m5c9dU0vsQmdxmMTK3oL0e7C
-	L+eosJSSqYGuRzxXADj4WfUgSivldhr7MXnIyxi320hJin+DZJ1wkwnPVrnOfQ3n
-	L/7F197bTv+GwFuOwY7ZRUk/5pJ6+xaIkWsH5YzF0xazAZlnvUsSQ2mxqwrisogQ
-	35gIex+MD0QE0cheJL+ZPKdFcmZ9lyHoUZH+0MTYzZgLMTVkPueVk5A9xHFLwLnL
-	JrdFNYDhd46oEEwwyyOyQW2hqb1x0uRW0sOJ2KaQFHPN5mZ/LM7qslnizmRNj/NO
-	fTYP+ftP9Ag0gWvXzfoEw==
-X-ME-Sender: <xms:i2eGaR8mDnXq-C2DJKF7CCa5lhJatXRKBW6fGURNgDV9ohvUl82FIw>
-    <xme:i2eGaT-bUvYJvNFwXA7q1UoSads207_Ih8s7Khp95aeIoO6pQM7yZoSL13QkgvvAD
-    E2BpgOfwhuMfqTqwnnlnfn6Co73JAEUnjrdt5zXV0H4jR3QgkN0>
-X-ME-Received: <xmr:i2eGaYX3CNC_PQmg9FGzV2bGxbKHmXUoqkn6e3Su4mmhIaMVSHs03gPNZkk>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddukeelfeefucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepfffhvfevuffkjghfofggtgfgsehtjeertdertddvnecuhfhrohhmpeetlhgvgicu
-    hghilhhlihgrmhhsohhnuceorghlvgigsehshhgriigsohhtrdhorhhgqeenucggtffrrg
-    htthgvrhhnpedvkeefjeekvdduhfduhfetkedugfduieettedvueekvdehtedvkefgudeg
-    veeuueenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    grlhgvgiesshhhrgiisghothdrohhrghdpnhgspghrtghpthhtohepledpmhhouggvpehs
-    mhhtphhouhhtpdhrtghpthhtohepfhgrrhhmrghnsehlihhnuhigrdhisghmrdgtohhmpd
-    hrtghpthhtohepmhhjrhhoshgrthhosehlihhnuhigrdhisghmrdgtohhmpdhrtghpthht
-    oheprghlihhfmheslhhinhhugidrihgsmhdrtghomhdprhgtphhtthhopegsohhrnhhtrh
-    grvghgvghrsehlihhnuhigrdhisghmrdgtohhmpdhrtghpthhtohepfhhrrghnkhhjrges
-    lhhinhhugidrihgsmhdrtghomhdprhgtphhtthhopehimhgsrhgvnhgurgeslhhinhhugi
-    drihgsmhdrtghomhdprhgtphhtthhopegurghvihgusehkvghrnhgvlhdrohhrghdprhgt
-    phhtthhopehlihhnuhigqdhsfeeltdesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtph
-    htthhopehkvhhmsehvghgvrhdrkhgvrhhnvghlrdhorhhg
-X-ME-Proxy: <xmx:i2eGaYe0sx0mCxasNf_FMrmXBWhVkyJnQ0TPBkQLHUkM5dzzFdE2vw>
-    <xmx:i2eGaZZC9GdddHeaRkxqdzsn_H_KKUo5m6MzCspE1BbmSdRk4M-bjg>
-    <xmx:i2eGacOITOrKA9A6PTPXTlgqGawGRsgxS6H8ChGQheqlfJlsEHvX5Q>
-    <xmx:i2eGaXWminvFSqfAqTrxYHg91eF3ceU8FtiSzJTjdV7wNrg6T2X7nQ>
-    <xmx:i2eGaUSgfQk_uJNDX4-sUaMZaW7OhacWgTV9SYQLILsOMP_IKFhDo6oY>
-Feedback-ID: i03f14258:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 6 Feb 2026 17:13:30 -0500 (EST)
-Date: Fri, 6 Feb 2026 15:13:29 -0700
-From: Alex Williamson <alex@shazbot.org>
-To: Eric Farman <farman@linux.ibm.com>
-Cc: Matthew Rosato <mjrosato@linux.ibm.com>, Farhan Ali
- <alifm@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda
- <imbrenda@linux.ibm.com>, David Hildenbrand <david@kernel.org>,
- linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Subject: Re: [PATCH] MAINTAINERS: Replace backup for s390 vfio-pci
-Message-ID: <20260206151329.0d92d78e@shazbot.org>
-In-Reply-To: <20260202144557.1771203-1-farman@linux.ibm.com>
-References: <20260202144557.1771203-1-farman@linux.ibm.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R2SVvC/9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FB67C116C6;
+	Fri,  6 Feb 2026 22:35:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1770417317;
+	bh=pCN1+Vk7aDCoWI7wtIHCxSIf8mtraNIBweDErysiq/U=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=R2SVvC/9neUKjwY9SuJQZzfGdjfayUl+p9mdM5bYYOyQyUI750s7pRb3O4VmhwWvf
+	 rpReglSno/G6AbwA9t6nP+/kvP8u/xyit/sw3KwGGS/ZHc7gP18inMvT7Nvjhp7wo2
+	 /6sNy0nKHOunh6ramFJrLHeCvt6QsRPPUWZZsdSGiQ3CjelpYWCqi6ezYUNlXwrQOw
+	 TAkX3Quvnx1lxFLNQxEmWLe5Ge6rbAIluUugpHPmsfLSeq4KedxNq4CjdA/CFUexDs
+	 NHAwPdZnkXnJ1DnMnnfffHCK6wj2cojO32tXyZsM+4Ur/INBmaD0GXlZOM4u7vZFhs
+	 H1hUFKRQAlfWA==
+Date: Fri, 6 Feb 2026 23:35:14 +0100
+From: Frederic Weisbecker <frederic@kernel.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Anna-Maria Behnsen <anna-maria@linutronix.de>,
+	Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
+	Jan Kiszka <jan.kiszka@siemens.com>,
+	Joel Fernandes <joelagnelf@nvidia.com>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Kieran Bingham <kbingham@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Mel Gorman <mgorman@suse.de>, Michael Ellerman <mpe@ellerman.id.au>,
+	Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Paul E . McKenney" <paulmck@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Valentin Schneider <vschneid@redhat.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Viresh Kumar <viresh.kumar@linaro.org>,
+	Xin Zhao <jackzxcui1989@163.com>, linux-pm@vger.kernel.org,
+	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	Shrikanth Hegde <sshegde@linux.ibm.com>
+Subject: Re: [PATCH 12/15] tick/sched: Consolidate idle time fetching APIs
+Message-ID: <aYZsol2OIzMxoJXv@pavilion.home>
+References: <20260206142245.58987-1-frederic@kernel.org>
+ <20260206142245.58987-13-frederic@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260206142245.58987-13-frederic@kernel.org>
 
-On Mon,  2 Feb 2026 15:45:57 +0100
-Eric Farman <farman@linux.ibm.com> wrote:
+Le Fri, Feb 06, 2026 at 03:22:42PM +0100, Frederic Weisbecker a écrit :
+> +static u64 get_cpu_sleep_time_us(int cpu, enum cpu_usage_stat idx,
+> +				 bool compute_delta, u64 *last_update_time)
+> +{
+> +	ktime_t now = ktime_get();
+> +	u64 res;
+> +
+> +	if (vtime_generic_enabled_cpu(cpu))
+> +		res = kcpustat_field(idx, cpu);
+> +	else
+> +		res = kcpustat_field_dyntick(cpu, idx, compute_delta, now);
+> +
+> +	do_div(res, NSEC_PER_USEC);
+> +
+> +	if (last_update_time)
+> +		*last_update_time = res;
 
-> Farhan has been doing a masterful job coming on in the
-> s390 PCI space, and my own attention has been lacking.
-> Let's make MAINTAINERS reflect reality.
-> 
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> ---
->  MAINTAINERS | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 0efa8cc6775b..0d7e76313492 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -23094,7 +23094,8 @@ F:	include/uapi/linux/vfio_ccw.h
->  
->  S390 VFIO-PCI DRIVER
->  M:	Matthew Rosato <mjrosato@linux.ibm.com>
-> -M:	Eric Farman <farman@linux.ibm.com>
-> +M:	Farhan Ali <alifm@linux.ibm.com>
-> +R:	Eric Farman <farman@linux.ibm.com>
->  L:	linux-s390@vger.kernel.org
->  L:	kvm@vger.kernel.org
->  S:	Supported
+Urgh, this should be *last_update_time = ktime_to_us(now)
 
-Acked-by: Alex Williamson <alex@shazbot.org>
-
-Given the cc list, I'm guessing this is intended to go via s390,
-otherwise please let me know if I should take it.  Thanks,
-
-Alex
+-- 
+Frederic Weisbecker
+SUSE Labs
