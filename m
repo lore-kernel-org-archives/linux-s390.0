@@ -1,139 +1,127 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFCD43806AA;
-	Mon,  9 Feb 2026 17:16:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87A723876DA;
+	Mon,  9 Feb 2026 17:20:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770657379; cv=none; b=D81muHvdLl1TebBgGSLCSzgjl9jmd9QHJNTsgPOriHfx+jwIsq1tMh2amNYYJq5GWT0ZDhKGoCKbZ1N6i83PbTgoz4yuiFjdPoberBeHf65DFgNmtq1Xo93cFmgdzJq/33RbpXx6SVeiwh7FeSqzzkDEbdfQ7Nc4gBzlMBScmvg=
+	t=1770657649; cv=none; b=Op7csWQI+t6Ws/qsuW0ESuoCa+eHa0slaDQE/T4SKaSfC9Ui5QQfTS9CmNlomc5psT2L+jxgefKF/z5vBMuAb3VNDwYqxVTZO5b7Av7WaGVd2prqgW7Va+ynMV2D58OBzEaVLmQjWOpnMzt6vgujYsWkO2E965vFGI5/iMhvvSg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770657379; c=relaxed/simple;
-	bh=S/3dy0LZvzdYg2cl05G3RhIvBpiAacPctOuBf3b6pXU=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=kPikyTVoWnCVgjnbe8u9bVy+s6lbrv2sSO1mqkbZUpg7tZrdWRRAbWdfyHc6pBsO0T24j7GilR6gXlwmu5r9HLhNNSF7Nwe5LNM7HxdFgFrygqjos9qRfz/oBYfyT9PUT2Quuh293WOVKcWfo9H+DS6S2R72e+LjjiaxmquJ324=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qvLkadHt; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1770657649; c=relaxed/simple;
+	bh=1IUMEdxL08VdYaLCJcOGBOf6NpUtqYTr5jUCbHwihpw=;
+	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
+	 References:In-Reply-To; b=FDUwpifVSM0wgu3VZB7XKRbmfj8G9SjuyajdqfnpPChppc1GPBXN/gI0LXSfdx982QKqLiNYw3+14y3wiuHBPIFsO9Cx5l5MUXbs6JbgsdP4GvCGQaZ3ysu7Dsu3zQwImpYoS/9QchG7CcvOm6HO7T9oHHWYpz5Ka3pdFZhBwZw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gj6VFQ+S; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qvLkadHt"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 619ExF2U241452;
-	Mon, 9 Feb 2026 17:16:18 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gj6VFQ+S"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6192tRNg821302;
+	Mon, 9 Feb 2026 17:20:47 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Bj5D5t
-	CmPYGSPf0QKj4iOIQS13T3lX2tNxirF5p+FYw=; b=qvLkadHtJ84XugAw4PkCi5
-	sZBplVI6o0zNpsfYgOwnU3Hl9Ok9hCPLThY4y4zm4WLuKDq+Yqg5lfC0BWDyt2Yy
-	fqc8gcRYgPA7ZFfVe2iT8Rprd89FSHjIEozuhvVvduaFC+jO2uVF46flhikbEDxV
-	4/EtoUnuR80jzAzkS+MEjdmY+T6oHZNuNalY5iDDPTzO4K6aj3rTPfstx4ZkeG1E
-	4TWGj0eFhin0vG1GTcPvSeIJrKEXnI0RbBrDA1bSozq4H3PLC4AHgsdgZI1jHpX9
-	AtEP16Q6ejaC6PkQKtgOXvZxevAYwzNJ5YbmgLWnR4HYU1Iom1mhllP2XGyx2HRg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=twFoeW
+	TV2EmvrNgCmrSWhFhKce16jO2O10PiHHBMD2c=; b=gj6VFQ+ShSwblg0Z5e5sgo
+	nPLr7ro24kvYbKCcXntH8Pz/y6y0EKldbQ5+xaQsGJ+L52uf3XclRyeJyagfTo7e
+	RLQcmk7QN97ASnSLFJHu6OyQRDQa/8yZmsMXv2Jqn8MvP7m0ebvpeGnDjwfAsT4h
+	CrBFDzwQ/3lt3cG4GaHN61L7/hhSoJLvix0EbQ/gKtbFRZsIN5wpD/ymhL1Z3ACN
+	dGRq0d8k+hvWHf4oeaA6T1odv6zCiZ0SdGVeGvaulAKYsN7YrWM03e0p/6HJ6ebI
+	92Aw76C9LAkXdcMkHCsskbT3zjOc6gKo80Eh0nr/a2STQxogoyMcWP68I3dY6H3A
 	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c696upwhq-1
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c696u8duf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 09 Feb 2026 17:16:17 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 619EBXJJ019225;
-	Mon, 9 Feb 2026 17:16:17 GMT
+	Mon, 09 Feb 2026 17:20:47 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 619Dt3B9012610;
+	Mon, 9 Feb 2026 17:20:46 GMT
 Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4c6hxjwvb5-1
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4c6h7k5yyk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 09 Feb 2026 17:16:16 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 619HGCA234800062
+	Mon, 09 Feb 2026 17:20:46 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 619HKf3x44302596
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 9 Feb 2026 17:16:13 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DE0EA20043;
-	Mon,  9 Feb 2026 17:16:12 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4AFEE20040;
-	Mon,  9 Feb 2026 17:16:12 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.111.49.104])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Mon,  9 Feb 2026 17:16:12 +0000 (GMT)
-Date: Mon, 9 Feb 2026 18:16:10 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Steffen Eiden <seiden@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Andreas
- Grapentin <gra@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>
-Subject: Re: [PATCH v1 1/1] KVM: s390: Increase permitted SE header size to
- 1 MiB
-Message-ID: <20260209181610.550b8ff0@p-imbrenda>
-In-Reply-To: <20260209152925.578872-1-seiden@linux.ibm.com>
-References: <20260209152925.578872-1-seiden@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
+	Mon, 9 Feb 2026 17:20:42 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D13312004B;
+	Mon,  9 Feb 2026 17:20:41 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AB76F20043;
+	Mon,  9 Feb 2026 17:20:41 +0000 (GMT)
+Received: from darkmoore (unknown [9.87.130.153])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  9 Feb 2026 17:20:41 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 09 Feb 2026 18:20:36 +0100
+Message-Id: <DGALQWNIDAFQ.VQK91435WO52@linux.ibm.com>
+From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        <borntraeger@de.ibm.com>, <frankja@linux.ibm.com>, <nsg@linux.ibm.com>,
+        <nrb@linux.ibm.com>, <seiden@linux.ibm.com>, <gra@linux.ibm.com>,
+        <schlameuss@linux.ibm.com>, <hca@linux.ibm.com>, <svens@linux.ibm.com>,
+        <agordeev@linux.ibm.com>, <gor@linux.ibm.com>, <david@kernel.org>,
+        <gerald.schaefer@linux.ibm.com>
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, <kvm@vger.kernel.org>
+Subject: Re: [PATCH v1 1/3] KVM: s390: Use guest address to mark guest page
+ dirty
+X-Mailer: aerc 0.21.0
+References: <20260206143553.14730-1-imbrenda@linux.ibm.com>
+ <20260206143553.14730-2-imbrenda@linux.ibm.com>
+In-Reply-To: <20260206143553.14730-2-imbrenda@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA5MDE0MSBTYWx0ZWRfXyVgTMZVWs59l
- mKJk0mGhiuKhtd9ZSk+7XREZUJVsmJsmMbIpBLAEb9pjxq0mFZ6oXjnRgTE3iuwa9NO6gGkO6bw
- t43Rk9ZOSvcuCccm8BJLlXsdxu9X0AOkglVFmji6rXigKV7YbDHSTGyeqqdw8CaB15ZRcXn9s4O
- CT/O2QAoHYWdZr+tD6VszA7kYTcQOyCKN48HgYNZKBGVHbVLXI8bq3yOLne/aNGjXJzSQKMMc3Z
- tN47vv/+bQHNG5XcFo6sIiboeaTF7/tHGRb4AVVN0TWUcwHih231JTHcahIduPYm4Yt0/qqIaql
- yOCHGLTNDlVCbztC3XQc//eLI46e1SsM/HbjPOXB+PiwMMjIJzc0daoWlTucOYgZ4pXO/NEWuz7
- 2ssYRnvELEIup/F0lJc86vkAVpLPBUE0cfIY3EdOZU0lqNIe392JUW+hmYAi3ylzRjSK3GDq6gP
- S3awOmY9Lme/q21yvLw==
-X-Proofpoint-ORIG-GUID: -bdRg4JV-HfEOiun5W4b7CfV-1t40n8v
-X-Proofpoint-GUID: -bdRg4JV-HfEOiun5W4b7CfV-1t40n8v
-X-Authority-Analysis: v=2.4 cv=O+Y0fR9W c=1 sm=1 tr=0 ts=698a1661 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=kj9zAlcOel0A:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
+X-Authority-Analysis: v=2.4 cv=KZnfcAYD c=1 sm=1 tr=0 ts=698a176f cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
  a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8
- a=yz80Hj2ai0dgsENxVL4A:9 a=CjuIK1q_8ugA:10
+ a=66t2VqmaeCk1KhDUqx4A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA5MDE0NSBTYWx0ZWRfX9BjvW+Pd3S6L
+ G0D5kH2Tf1FQfn4NblSHYcLCTJ18vEOTsjg93ZUBfyeIb5P9isTNz/ySBfV49D9SiCEgTQY2LFv
+ xj2wnypSvbZ8eog3RF2c+mEBphzKtLnwOuEhER8LE20IBo7XRaQ+iitUmkkYoesvVwNo6ERIyPV
+ xSEQKOlEk9f/99P+4Cqbd1FEoPuPg04vIVpmlZk2630EZvdOjuwA/I0sjqvuBbXaU2XtmvTHhi+
+ 3B1y7n/470zKIfjHq81JPg9jsKQUZXPHreQ/QkwDnjEKU1OHye6WgL/43+nwMHfGmQ7NsqSh5ar
+ Xgtd2jLrcGdV0ScCb2OdHLpn5z2lJ1QecHl8kstvRR8iOcDFVHa61W1Trs1HYeP5H2c8xbENaST
+ 4cxYHccEdMSTutMkOWGdAPF3tXyzpDDncvJ6a2Ef5yQCmTtdYThMYVaiVOqTOCSC0+4vZrOvR/P
+ TGPDsT8owSuPPrJRlyA==
+X-Proofpoint-ORIG-GUID: UWfNcE51SwSljhg4mXx4XzO3U4iWXw4Y
+X-Proofpoint-GUID: UWfNcE51SwSljhg4mXx4XzO3U4iWXw4Y
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-02-09_01,2026-02-09_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 priorityscore=1501 phishscore=0 adultscore=0
- malwarescore=0 impostorscore=0 bulkscore=0 clxscore=1015 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
- definitions=main-2602090141
+ spamscore=0 impostorscore=0 bulkscore=0 priorityscore=1501 adultscore=0
+ clxscore=1011 suspectscore=0 phishscore=0 malwarescore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602090145
 
-On Mon,  9 Feb 2026 16:29:25 +0100
-Steffen Eiden <seiden@linux.ibm.com> wrote:
+On Fri Feb 6, 2026 at 3:35 PM CET, Claudio Imbrenda wrote:
+> Stop using the userspace address to mark the guest page dirty.
+> mark_page_dirty() expects a guest frame number, but was being passed a
+> host virtual frame number. When slot =3D=3D NULL, mark_page_dirty_in_slot=
+()
+> does nothing and does not complain.
+>
+> This means that in some circumstances the dirtiness of the guest page
+> might have been lost.
+>
+> Fix by adding two fields in struct kvm_s390_adapter_int to keep the
+> guest addressses, and use those for mark_page_dirty().
+>
+> Fixes: f65470661f36 ("KVM: s390/interrupt: do not pin adapter interrupt p=
+ages")
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-> Relax the maximum allowed Secure Execution (SE) header size from
-> 8 KiB to 1 MiB. This allows individual secure guest images to run on a
-> wider range of physical machines.
-> 
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
 > ---
->  arch/s390/kvm/kvm-s390.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 56a50524b3ee..3428a8d427b2 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -2744,9 +2744,9 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
->  		if (copy_from_user(&parms, argp, sizeof(parms)))
->  			break;
->  
-> -		/* Currently restricted to 8KB */
-> +		/* Currently restricted to 1MiB */
->  		r = -EINVAL;
-> -		if (parms.length > PAGE_SIZE * 2)
-> +		if (parms.length > SZ_1M)
->  			break;
->  
->  		r = -ENOMEM;
-
+>  arch/s390/kvm/interrupt.c | 6 ++++--
+>  include/linux/kvm_host.h  | 2 ++
+>  2 files changed, 6 insertions(+), 2 deletions(-)
