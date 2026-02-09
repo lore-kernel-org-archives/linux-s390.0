@@ -1,309 +1,149 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B07735503D
-	for <linux-s390@vger.kernel.org>; Sat,  7 Feb 2026 22:07:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.179
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770502024; cv=pass; b=bYbBYLFVWf4XfILhKM1JJxzefVg6yX++e1sNShxdJaMZCDnYEfTeUg7P+racan+jr7zNxcMQSvPgtARCPq9kY42tpaE4YRq1VIy2S/WKtjfDlWI+4EWCMpr1VqTjLVxBMyB1FaqzxLqf4TqixGxd4XLnn2ns64FXQDy6m+NJRbo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770502024; c=relaxed/simple;
-	bh=7kTLyrIqEeBYMPXrfcKIpipgbii4dBxT1afSE5hho0M=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pWBMSnsVVH5UatTD5VzsY81qOmC8S3KW8qMUGoYRtzB9EWGVONHxKBLB7CFjBL2W4mk0JE2dcrmhwTpkoL8BXdxPTm562e0CzoZEnTYPSTmSetxzJNO6aSiVLC9mQBDL9rGFvY22BPh+VjObtaUYZXVagFtEXTobM4mZStaVdw0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=02DfaiRy; arc=pass smtp.client-ip=209.85.214.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7841F330664
+	for <linux-s390@vger.kernel.org>; Mon,  9 Feb 2026 07:44:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770623080; cv=none; b=QiLWwLsMnUauPNH7FxET4gumxVxRCkt5svaQJ0Km4y/pyNuBax/Y+eEYY5abJeUBVs3c8GWr0LpE4F5898FcxtTX/p1crJqhTbHrmojM4UjLmF+i9lW0fpc0JeJHHrtpPJiBj9j8lJE23VrAZwLvH8ZlSJK49cckgw1Wu7gMNdk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770623080; c=relaxed/simple;
+	bh=lv0P1xjPep6VmlYtdKekQJnwYYyTtEQehCdYlaJYG84=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=RGMVEmTyyzNe28AkHQK33pApGER764NnrziHtdG660UNZqTUxEMaingCxswhihZrtspWW46iu+11LhfjQz+hd2VJem460L0tdPk6jm0PDRIxEqB7+O+UZEgVkw5hjqnD2FPHvW3ghhXEhYtjHKE/7/xOgroQU79Kw7UaAxRSvHs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VAqZ13/M; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="02DfaiRy"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2a76b39587aso59535ad.0
-        for <linux-s390@vger.kernel.org>; Sat, 07 Feb 2026 14:07:04 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1770502023; cv=none;
-        d=google.com; s=arc-20240605;
-        b=jGljm4dJ8oz07k8+IumaruNjc9PAKyWkFIsLpnx2P6bHEmhOG18eW1TsGk3OOlWdJX
-         pSEVtX1hQZaN86XkmAROg/4Uf1FUEC68qp6vwf/h559c+ulRrzeVytaO9u/+AxX5U5+z
-         EOw7UWv7xme1is5q1AHC7tW5m9PiEil8IJRmTWLou3sF/wxLJPAKZR0D4oKfiq4wWpss
-         rL+TXoR+g+FRDUtQw1edMX68zTaHUV+sT4tHtDIl+HvlD0BAcDDVsyziKJemoZtLSUN1
-         lOdJhvXeWPh6C2Z6xo164kPgE3DtcTFSe6fl+caC8bn1iFXvgqh80/Ohe1y8VQYsvpZn
-         +Ljw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=J3C2hEyl05hEdCU16Qu+GAUyjf5mEA691562VQd1BHo=;
-        fh=HrOsuLhw6iOl5JNX86HZ8alVzcgzLnt5Mt78eZm/lO4=;
-        b=NTpmnUaaUlU8CwwNVFheq7/YKI/9Eg92D6vRcwuJjE0P9mWVjuiiG2ThPdimfu7pRD
-         WRL2i9Y9yAiQaAjSP5s4XIgKZCp1iZjCszVmPxXdd2xPUQ33g9mj54UFnSAfy3KfYYdn
-         y50ZFUPyHzvOJYT/h21h5av7bVao4B1ThQtvpmpA3z+0EX6t8LVCuvnE1gFnr/T+KNRi
-         ssSNFZ0CdIrODv4hcdOSh3hQmkZYORteafHl8dCv8p4oLNQjj/txHKnZspewbdKoq7Wu
-         3hQU9X4PxS2yXbBYTPRwgXhs42gPyDr8kw6vOf+CvUaBS3L4sOdQoqvGXl5iUni6f0Z2
-         Behg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1770502023; x=1771106823; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=J3C2hEyl05hEdCU16Qu+GAUyjf5mEA691562VQd1BHo=;
-        b=02DfaiRyWqh1ZnOVxBQhrO3X1GUpQ1tBQq3VzoszXMpdsTLvIRngrL+1Q7JNdNloNq
-         bjvTVbCyLiBwrUzZMoqv+AbHectrQKifULJCJOgbZKTSmvcf2C0cCE7uNVqxoKFROB3A
-         eo0eiR5tmRbymssjRWtu4M5qtLrP7f1rq9+4HDGJQmKPAxoS5wgrKA1RiWTNJD0Oc65r
-         NTrYMH5pU4N5lHOCHbBKfyYMm5tEDw29dmWDzXDfPhFbWY2kqc7Bm/rbsfPoye7kbk+w
-         clmU5/dZTEQ4OiC1ZLOqD7zBRdJhhDNNcO2ccxO/tYUKK7PHJ0HT8j3a7onXAe8I8K1x
-         dhQw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770502023; x=1771106823;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=J3C2hEyl05hEdCU16Qu+GAUyjf5mEA691562VQd1BHo=;
-        b=iEy0aCuwwhmsgkUGS3P52waWtYHFzTnJIzDcDbgCVITyfhCll5PQp6BebQAR0pcexW
-         UruLIxxVPwB3ac+2fRF2aZqCze9vI3crq6L3CciOKNWOfxjVmYQF2xeMp+T9McZYytP0
-         MTOHuUKezHWj+8EAtmhaFp7upSrPg8oe/ZWrgEV4NECrU+oVbUYA0Gty1ekwHNilgwNs
-         AaXbJR78Zbpo980xxOeuFrNOXYuqClSxqUwkc6f8Lpul8kwGJhiF/HNXfhR1lCCPGiIr
-         Nz87BIurVy57n/yVGj0tbQ0nqWj+9FBYf8yBjgKj0l5Vm9s6uAegfa6WScK/iOpqFcro
-         QjIw==
-X-Forwarded-Encrypted: i=1; AJvYcCUplapYEMcw4GfwPQLZZEKwgBOm4mT/7cBxRBiEg0DxQ/riRZXu47qmCPfOlfHloBIOnwMmyRT4D8d8@vger.kernel.org
-X-Gm-Message-State: AOJu0YwClvVle5NeS6llweeuMThufhDqdjktYgysNNoJqkx+eIFWFi7V
-	W8cVKj4CzaeMXlTqRW7/RyColrey+1UiWOu197AWFHonWpxnrv9SwDytD2skzSh5A2NjUotwGq1
-	JRZjHQELkpMBkhs1t4ZZjlacEF+Ducml48tbvCrzB0XBWJZGn0FSFGqEbhCk=
-X-Gm-Gg: AZuq6aK5y7scJ7vof7su+r0H0thKTNAo+0kLSjtIqCq1B6v74TH9GdfsgsO7t/YL5q3
-	/xgA0bIblu0FYwih0zJHyvlcUQPztrsDOBUYftiDUhhib8CaGKtGUPiU5rdikZgQbFB70pZm9Pw
-	RSry7Lyym5M3rVRKj1HL67DRIrU4WHBCDtaORaa0VnrKAM4L9oAEzBzAw2AFBBIqgySi0vHvbIh
-	JTlSCJPMERR+l6DePNtNmJoN1y+OVoU7DZyOBsurudNSVPHAZSJPe4AjisGuDtbKfj8kkny
-X-Received: by 2002:a17:903:18e:b0:295:3f35:a315 with SMTP id
- d9443c01a7336-2a96317bcf8mr1841385ad.5.1770502023030; Sat, 07 Feb 2026
- 14:07:03 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VAqZ13/M"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1770623079;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=C8SG5vj47sxBMLdkL3M3WRQbHk+A7eAjeDn/d2EThN8=;
+	b=VAqZ13/Mj4D32TjVVOpDa06AT2aU0JuFzmw0ZjslaQG79tp8c/Uj3B8bdOS42pTikbRg65
+	nnptXJVYgd13+6RDODV7xFJu4is2MuR89ioAOgC+TKoPzB4ROChdobhVLizkfaFatj98r+
+	tElmO/OAbA8UZp7AfTdiBEdGjOdtuNA=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-561-kncDunJKPV6X2l-tDYWaCQ-1; Mon,
+ 09 Feb 2026 02:44:34 -0500
+X-MC-Unique: kncDunJKPV6X2l-tDYWaCQ-1
+X-Mimecast-MFC-AGG-ID: kncDunJKPV6X2l-tDYWaCQ_1770623072
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 7AE7B18003F6;
+	Mon,  9 Feb 2026 07:44:32 +0000 (UTC)
+Received: from [10.44.32.227] (unknown [10.44.32.227])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 06C9F1956053;
+	Mon,  9 Feb 2026 07:44:28 +0000 (UTC)
+Message-ID: <8976d802-2edb-4239-ae74-2a5bca12be14@redhat.com>
+Date: Mon, 9 Feb 2026 08:44:27 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251128091139.1309755-1-tmricht@linux.ibm.com> <aYZgGlh3e84ZrUNQ@x1>
-In-Reply-To: <aYZgGlh3e84ZrUNQ@x1>
-From: Ian Rogers <irogers@google.com>
-Date: Sat, 7 Feb 2026 14:06:51 -0800
-X-Gm-Features: AZwV_Qj4lIuevn1tAZJddgShRS2g2WCpdZDPcsAzuoyzJJJEN9NqPq_JGAkEYIg
-Message-ID: <CAP-5=fXJd+gXWrgRC1vBzueCgsLjGesV+oenq3a9irq0+gLNDw@mail.gmail.com>
-Subject: Re: [PATCH] perf/test: Fix test case Leader sampling on s390.
-To: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Thomas Richter <tmricht@linux.ibm.com>, linux-kernel@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org, 
-	namhyung@kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com, 
-	sumanthk@linux.ibm.com, hca@linux.ibm.com, japo@linux.ibm.com, 
-	James Clark <james.clark@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] MAINTAINERS: Replace backup for s390 vfio-pci
+To: Alex Williamson <alex@shazbot.org>, Eric Farman <farman@linux.ibm.com>
+Cc: Matthew Rosato <mjrosato@linux.ibm.com>, Farhan Ali
+ <alifm@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ David Hildenbrand <david@kernel.org>, linux-s390@vger.kernel.org,
+ kvm@vger.kernel.org
+References: <20260202144557.1771203-1-farman@linux.ibm.com>
+ <20260206151329.0d92d78e@shazbot.org>
+From: Thomas Huth <thuth@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=thuth@redhat.com; keydata=
+ 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
+In-Reply-To: <20260206151329.0d92d78e@shazbot.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-On Fri, Feb 6, 2026 at 1:41=E2=80=AFPM Arnaldo Carvalho de Melo <acme@kerne=
-l.org> wrote:
->
-> On Fri, Nov 28, 2025 at 10:11:39AM +0100, Thomas Richter wrote:
-> > The subtest 'Leader sampling' some time fails on s390.
-> > - for z/VM guest: Disable the test for z/VM guest. There is no
-> >   CPU Measurement facility to run the test successfully.
-> > - for LPAR: Use correct event names.
->
-> This one fell thru the cracks, still applies cleanly and the extra logic
-> affects only s390, applying to perf-tools-next,
->
-> - Arnaldo
->
-> > A detailed analysis follows here:
-> > Now to the debugging and investigation:
-> > 1. With command
-> >        perf record -e '{cycles,cycles}:S' -- ....
-> >    the first cycles event starts sampling.
-> >    On s390 this sets up sampling with a frequency of 4000 Hz.
-> >    This translates to hardware sample rate of 1377000 instructions per
-> >    micro-second to meet a frequency of 4000 HZ.
-> >
-> > 2. With first event cycles now sampling into a hardware buffer, an
-> >    interrupt is triggered each time a sampling buffer gets full.
-> >    The interrupt handler is then invoked and debug output shows the
-> >    processing of samples.  The size of one hardware sample is 32 bytes.
-> >    With an interrupt triggered when the hardware buffer page of 4KB
-> >    gets full, the interrupt handler processes 128 samples.
-> >    (This is taken from s390 specific fast debug data gathering)
-> >    2025-11-07 14:35:51.977248  000003ffe013cbfa \
-> >          perf_event_count_update event->count 0x0 count 0x1502e8
-> >    2025-11-07 14:35:51.977248  000003ffe013cbfa \
-> >          perf_event_count_update event->count 0x1502e8 count 0x1502e8
-> >    2025-11-07 14:35:51.977248  000003ffe013cbfa \
-> >          perf_event_count_update event->count 0x2a05d0 count 0x1502e8
-> >    2025-11-07 14:35:51.977252  000003ffe013cbfa \
-> >          perf_event_count_update event->count 0x3f08b8 count 0x1502e8
-> >    2025-11-07 14:35:51.977252  000003ffe013cbfa \
-> >          perf_event_count_update event->count 0x540ba0 count 0x1502e8
-> >    2025-11-07 14:35:51.977253  000003ffe013cbfa \
-> >          perf_event_count_update event->count 0x690e88 count 0x1502e8
-> >    2025-11-07 14:35:51.977254  000003ffe013cbfa \
-> >          perf_event_count_update event->count 0x7e1170 count 0x1502e8
-> >    2025-11-07 14:35:51.977254  000003ffe013cbfa \
-> >          perf_event_count_update event->count 0x931458 count 0x1502e8
-> >    2025-11-07 14:35:51.977254  000003ffe013cbfa \
-> >          perf_event_count_update event->count 0xa81740 count 0x1502e8
-> >
-> > 3. The value is constantly increasing by the number of instructions
-> >    executed to generate a sample entry.  This is the first line of the
-> >    pairs of lines. count 0x1502e8 --> 1377000
-> >
-> >    # perf script | grep 1377000 | wc -l
-> >    214
-> >    # perf script | wc -l
-> >    428
-> >    #
-> >    That is 428 lines in total, and half of the lines contain value
-> >    1377000.
-> >
-> > 4. The second event cycles is opened against the counting PMU, which
-> >    is an independent PMU and is not interrupt driven.  Once enabled it
-> >    runs in the background and keeps running, incrementing silently
-> >    about 400+ counters. The counter values are read via assembly
-> >    instructions.
-> >
-> >    This second counter PMU's read call back function is called when the
-> >    interrupt handler of the sampling facility processes each sample. Th=
-e
-> >    function call sequence is:
-> >
-> >    perf_event_overflow()
-> >    +--> __perf_event_overflow()
-> >         +--> __perf_event_output()
-> >                +--> perf_output_sample()
-> >                     +--> perf_output_read()
-> >                          +--> perf_output_read_group()
-> >                                 for_each_sibling_event(sub, leader) {
-> >               values[n++] =3D perf_event_count(sub, self);
-> >               printk("%s sub %p values %#lx\n", __func__, sub, values[n=
--1]);
-> >                                 }
-> >
-> >    The last function perf_event_count() is invoked on the second event
-> >    cylces *on* the counting PMU. An added printk statement shows the
-> >    following lines in the dmesg output:
-> >
-> >    # dmesg|grep perf_output_read_group |head -10
-> >    [  332.368620] perf_output_read_group sub 00000000d80b7c1f values 0x=
-3a80917 (1)
-> >    [  332.368624] perf_output_read_group sub 00000000d80b7c1f values 0x=
-3a86c7f (2)
-> >    [  332.368627] perf_output_read_group sub 00000000d80b7c1f values 0x=
-3a89c15 (3)
-> >    [  332.368629] perf_output_read_group sub 00000000d80b7c1f values 0x=
-3a8c895 (4)
-> >    [  332.368631] perf_output_read_group sub 00000000d80b7c1f values 0x=
-3a8f569 (5)
-> >    [  332.368633] perf_output_read_group sub 00000000d80b7c1f values 0x=
-3a9204b
-> >    [  332.368635] perf_output_read_group sub 00000000d80b7c1f values 0x=
-3a94790
-> >    [  332.368637] perf_output_read_group sub 00000000d80b7c1f values 0x=
-3a9704b
-> >    [  332.368638] perf_output_read_group sub 00000000d80b7c1f values 0x=
-3a99888
-> >    #
-> >
-> >    This correlates with the output of
-> >    # perf report -D | grep 'id 00000000000000'|head -10
-> >    ..... id 0000000000000006, value 00000000001502e8, lost 0
-> >    ..... id 000000000000000e, value 0000000003a80917, lost 0 --> line (=
-1) above
-> >    ..... id 0000000000000006, value 00000000002a05d0, lost 0
-> >    ..... id 000000000000000e, value 0000000003a86c7f, lost 0 --> line (=
-2) above
-> >    ..... id 0000000000000006, value 00000000003f08b8, lost 0
-> >    ..... id 000000000000000e, value 0000000003a89c15, lost 0 --> line (=
-3) above
-> >    ..... id 0000000000000006, value 0000000000540ba0, lost 0
-> >    ..... id 000000000000000e, value 0000000003a8c895, lost 0 --> line (=
-4) above
-> >    ..... id 0000000000000006, value 0000000000690e88, lost 0
-> >    ..... id 000000000000000e, value 0000000003a8f569, lost 0 --> line (=
-5) above
-> >
-> > Summary:
-> > - Above command starts the CPU sampling facility, with runs interrupt
-> >   driven when a 4KB page is full. An interrupt processes the 128 sample=
-s
-> >   and calls eventually perf_output_read_group() for each sample to save=
- it
-> >   in the event's ring buffer.
-> >
-> > - At that time the CPU counting facility is invoked to read the value o=
-f
-> >   the event cycles. This value is saved as the second value in the
-> >   sample_read structure.
-> >
-> > - The first and odd lines in the perf script output displays the period
-> >   value between 2 samples being created by hardware. It is the number
-> >   of instructions executes before the hardware writes a sample.
-> >
-> > - The second and even lines in the perf script output displays the numb=
-er
-> >   of CPU cycles needed to process each sample and save it in the event'=
-s
-> >   ring buffer.
-> > These 2 different values can never be identical on s390.
-> >
-> > Since event leader sampling is not possible on s390 the perf tool will
-> > return EOPNOTSUPP soon. Perpare the test case for that.
-> >
-> > Suggested-by: James Clark <james.clark@linaro.org>
-> > Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> > Tested-by: Jan Polensky <japo@linux.ibm.com>
-> > Reviewed-by: Jan Polensky <japo@linux.ibm.com>
-> > ---
-> >  tools/perf/tests/shell/record.sh | 16 +++++++++++++++-
-> >  1 file changed, 15 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/tools/perf/tests/shell/record.sh b/tools/perf/tests/shell/=
-record.sh
-> > index 0f5841c479e7..46b96d565680 100755
-> > --- a/tools/perf/tests/shell/record.sh
-> > +++ b/tools/perf/tests/shell/record.sh
-> > @@ -260,7 +260,21 @@ test_uid() {
-> >
-> >  test_leader_sampling() {
-> >    echo "Basic leader sampling test"
-> > -  if ! perf record -o "${perfdata}" -e "{cycles,cycles}:Su" -- \
-> > +  events=3D"{cycles,cycles}:Su"
-> > +  [ $(uname -m) =3D "s390x" ] && {
+On 06/02/2026 23.13, Alex Williamson wrote:
+> On Mon,  2 Feb 2026 15:45:57 +0100
+> Eric Farman <farman@linux.ibm.com> wrote:
+> 
+>> Farhan has been doing a masterful job coming on in the
+>> s390 PCI space, and my own attention has been lacking.
+>> Let's make MAINTAINERS reflect reality.
+>>
+>> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+>> ---
+>>   MAINTAINERS | 3 ++-
+>>   1 file changed, 2 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/MAINTAINERS b/MAINTAINERS
+>> index 0efa8cc6775b..0d7e76313492 100644
+>> --- a/MAINTAINERS
+>> +++ b/MAINTAINERS
+>> @@ -23094,7 +23094,8 @@ F:	include/uapi/linux/vfio_ccw.h
+>>   
+>>   S390 VFIO-PCI DRIVER
+>>   M:	Matthew Rosato <mjrosato@linux.ibm.com>
+>> -M:	Eric Farman <farman@linux.ibm.com>
+>> +M:	Farhan Ali <alifm@linux.ibm.com>
+>> +R:	Eric Farman <farman@linux.ibm.com>
+>>   L:	linux-s390@vger.kernel.org
+>>   L:	kvm@vger.kernel.org
+>>   S:	Supported
+> 
+> Acked-by: Alex Williamson <alex@shazbot.org>
+> 
+> Given the cc list, I'm guessing this is intended to go via s390,
+> otherwise please let me know if I should take it.  Thanks,
 
-This broke shell check for me:
-```
-In tests/shell/record.sh line 264:
- [ $(uname -m) =3D "s390x" ] && {
-   ^---------^ SC2046 (warning): Quote this to prevent word splitting.
+Yes, I'll queue it for my next PR.
 
-For more information:
- https://www.shellcheck.net/wiki/SC2046 -- Quote this to prevent word split=
-t...
-```
+   Thomas
 
-I'll mail the fix.
-
-Thanks,
-Ian
-
-> > +    [ ! -d /sys/devices/cpum_sf ] && {
-> > +      echo "No CPUMF [Skipped record]"
-> > +      return
-> > +    }
-> > +    events=3D"{cpum_sf/SF_CYCLES_BASIC/,cycles}:Su"
-> > +    perf record -o "${perfdata}" -e "$events" -- perf test -w brstack =
-2> /dev/null
-> > +    # Perf grouping might be unsupported, depends on version.
-> > +    [ "$?" -ne 0 ] && {
-> > +      echo "Grouping not support [Skipped record]"
-> > +      return
-> > +    }
-> > +  }
-> > +  if ! perf record -o "${perfdata}" -e "$events" -- \
-> >      perf test -w brstack 2> /dev/null
-> >    then
-> >      echo "Leader sampling [Failed record]"
-> > --
-> > 2.52.0
->
