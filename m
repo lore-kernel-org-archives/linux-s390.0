@@ -1,149 +1,128 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7841F330664
-	for <linux-s390@vger.kernel.org>; Mon,  9 Feb 2026 07:44:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6E761EA7DB;
+	Mon,  9 Feb 2026 07:53:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770623080; cv=none; b=QiLWwLsMnUauPNH7FxET4gumxVxRCkt5svaQJ0Km4y/pyNuBax/Y+eEYY5abJeUBVs3c8GWr0LpE4F5898FcxtTX/p1crJqhTbHrmojM4UjLmF+i9lW0fpc0JeJHHrtpPJiBj9j8lJE23VrAZwLvH8ZlSJK49cckgw1Wu7gMNdk=
+	t=1770623624; cv=none; b=cMdnDySvO7AH8vBuwdMocPo3QuqJx2EzowwhFNVBdKEv/o9VmZAPb81/0YQsDcu5k2n86jbFUXbALYLcBGksuSw3gf/RMaJRmTHQFpXRZUUCMbDv3+1cQHfY3jNg2BCYU3WQ996xFUJt+e6UwuLV1GRiFeSSv9/+Iblru+Cl3uY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770623080; c=relaxed/simple;
-	bh=lv0P1xjPep6VmlYtdKekQJnwYYyTtEQehCdYlaJYG84=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RGMVEmTyyzNe28AkHQK33pApGER764NnrziHtdG660UNZqTUxEMaingCxswhihZrtspWW46iu+11LhfjQz+hd2VJem460L0tdPk6jm0PDRIxEqB7+O+UZEgVkw5hjqnD2FPHvW3ghhXEhYtjHKE/7/xOgroQU79Kw7UaAxRSvHs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VAqZ13/M; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1770623624; c=relaxed/simple;
+	bh=x/1MGRSI8f2/EHxwYmPfmvnGPgI7fwl6Tpgv7bmTgdw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mWiwNH0IEv39GblGeVoa/Dl409VONW53Vn88+EK37D+oCRBCrQ6aHdDcZPOupHgFpc6mdYDurxZvu2gtSHa4jms5OBAwqR8nuZTxBz/7XyA6jNIaJsL+I+bm7gEnpKNlXfY0Q/xhNkoISo0sXracA8PsV9eHVU9WHeh/ZTavNKc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=dIkt8XzW; arc=none smtp.client-ip=115.124.30.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VAqZ13/M"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1770623079;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=C8SG5vj47sxBMLdkL3M3WRQbHk+A7eAjeDn/d2EThN8=;
-	b=VAqZ13/Mj4D32TjVVOpDa06AT2aU0JuFzmw0ZjslaQG79tp8c/Uj3B8bdOS42pTikbRg65
-	nnptXJVYgd13+6RDODV7xFJu4is2MuR89ioAOgC+TKoPzB4ROChdobhVLizkfaFatj98r+
-	tElmO/OAbA8UZp7AfTdiBEdGjOdtuNA=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-561-kncDunJKPV6X2l-tDYWaCQ-1; Mon,
- 09 Feb 2026 02:44:34 -0500
-X-MC-Unique: kncDunJKPV6X2l-tDYWaCQ-1
-X-Mimecast-MFC-AGG-ID: kncDunJKPV6X2l-tDYWaCQ_1770623072
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 7AE7B18003F6;
-	Mon,  9 Feb 2026 07:44:32 +0000 (UTC)
-Received: from [10.44.32.227] (unknown [10.44.32.227])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 06C9F1956053;
-	Mon,  9 Feb 2026 07:44:28 +0000 (UTC)
-Message-ID: <8976d802-2edb-4239-ae74-2a5bca12be14@redhat.com>
-Date: Mon, 9 Feb 2026 08:44:27 +0100
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="dIkt8XzW"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1770623619; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=0AEmXZmOG2VM+xnXftYt5+WSp/YKD3yjyUsUFqPOhMk=;
+	b=dIkt8XzWyaNCxP47qL47D673ScD5jK/e0iH1RnqC6WvfbwdnGHj8yHZrbrmWi5fjiCIDLkYx7715IJAqA2oPUw3xNrbMFns22lwDfB6V6Zc6HBuyblLpR6WRvaWzg17uJkJ/SzJCHgQXET9zIVmrsMre07X7ixYlp1SvPnLiGfQ=
+Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WypALM._1770623618 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Mon, 09 Feb 2026 15:53:39 +0800
+Date: Mon, 9 Feb 2026 15:53:38 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com    >
+To: Mahanta Jambigi <mjambigi@linux.ibm.com>
+Cc: "D. Wythe" <alibuda@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Simon Horman <horms@kernel.org>, Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org,
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org, oliver.yang@linux.alibaba.com,
+	pasic@linux.ibm.com
+Subject: Re: [PATCH RFC net-next] net/smc: transition to RDMA core CQ pooling
+Message-ID: <20260209075338.GA61095@j66a10360.sqa.eu95>
+References: <20260202094800.30373-1-alibuda@linux.alibaba.com>
+ <daefb72f-398e-489f-bdbc-db997ef9c5ae@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] MAINTAINERS: Replace backup for s390 vfio-pci
-To: Alex Williamson <alex@shazbot.org>, Eric Farman <farman@linux.ibm.com>
-Cc: Matthew Rosato <mjrosato@linux.ibm.com>, Farhan Ali
- <alifm@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- David Hildenbrand <david@kernel.org>, linux-s390@vger.kernel.org,
- kvm@vger.kernel.org
-References: <20260202144557.1771203-1-farman@linux.ibm.com>
- <20260206151329.0d92d78e@shazbot.org>
-From: Thomas Huth <thuth@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=thuth@redhat.com; keydata=
- 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
-In-Reply-To: <20260206151329.0d92d78e@shazbot.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <daefb72f-398e-489f-bdbc-db997ef9c5ae@linux.ibm.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 
-On 06/02/2026 23.13, Alex Williamson wrote:
-> On Mon,  2 Feb 2026 15:45:57 +0100
-> Eric Farman <farman@linux.ibm.com> wrote:
+On Fri, Feb 06, 2026 at 04:58:23PM +0530, Mahanta Jambigi wrote:
 > 
->> Farhan has been doing a masterful job coming on in the
->> s390 PCI space, and my own attention has been lacking.
->> Let's make MAINTAINERS reflect reality.
->>
->> Signed-off-by: Eric Farman <farman@linux.ibm.com>
->> ---
->>   MAINTAINERS | 3 ++-
->>   1 file changed, 2 insertions(+), 1 deletion(-)
->>
->> diff --git a/MAINTAINERS b/MAINTAINERS
->> index 0efa8cc6775b..0d7e76313492 100644
->> --- a/MAINTAINERS
->> +++ b/MAINTAINERS
->> @@ -23094,7 +23094,8 @@ F:	include/uapi/linux/vfio_ccw.h
->>   
->>   S390 VFIO-PCI DRIVER
->>   M:	Matthew Rosato <mjrosato@linux.ibm.com>
->> -M:	Eric Farman <farman@linux.ibm.com>
->> +M:	Farhan Ali <alifm@linux.ibm.com>
->> +R:	Eric Farman <farman@linux.ibm.com>
->>   L:	linux-s390@vger.kernel.org
->>   L:	kvm@vger.kernel.org
->>   S:	Supported
 > 
-> Acked-by: Alex Williamson <alex@shazbot.org>
+> On 02/02/26 3:18 pm, D. Wythe wrote:
+> > The current SMC-R implementation relies on global per-device CQs
+> > and manual polling within tasklets, which introduces severe
+> > scalability bottlenecks due to global lock contention and tasklet
+> > scheduling overhead, resulting in poor performance as concurrency
+> > increases.
+> > 
+> > Refactor the completion handling to utilize the ib_cqe API and
+> > standard RDMA core CQ pooling. This transition provides several key
+> > advantages:
+> > 
+> > 1. Multi-CQ: Shift from a single shared per-device CQ to multiple
+> > link-specific CQs via the CQ pool. This allows completion processing
+> > to be parallelized across multiple CPU cores, effectively eliminating
+> > the global CQ bottleneck.
+> > 
+> > 2. Leverage DIM: Utilizing the standard CQ pool with IB_POLL_SOFTIRQ
+> > enables Dynamic Interrupt Moderation from the RDMA core, optimizing
+> > interrupt frequency and reducing CPU load under high pressure.
+> > 
+> > 3. O(1) Context Retrieval: Replaces the expensive wr_id based lookup
+> > logic (e.g., smc_wr_tx_find_pending_index) with direct context retrieval
+> > using container_of() on the embedded ib_cqe.
+> > 
+> > 4. Code Simplification: This refactoring results in a reduction of
+> > ~150 lines of code. It removes redundant sequence tracking, complex lookup
+> > helpers, and manual CQ management, significantly improving maintainability.
+> > 
+> > Performance Test: redis-benchmark with max 32 connections per QP
+> > Data format: Requests Per Second (RPS), Percentage in brackets
+> > represents the gain/loss compared to TCP.
+> > 
+> > | Clients | TCP      | SMC (original)      | SMC (cq_pool)       |
+> > |---------|----------|---------------------|---------------------|
+> > | c = 1   | 24449    | 31172  (+27%)       | 34039  (+39%)       |
+> > | c = 2   | 46420    | 53216  (+14%)       | 64391  (+38%)       |
+> > | c = 16  | 159673   | 83668  (-48%)  <--  | 216947 (+36%)       |
+> > | c = 32  | 164956   | 97631  (-41%)  <--  | 249376 (+51%)       |
+> > | c = 64  | 166322   | 118192 (-29%)  <--  | 249488 (+50%)       |
+> > | c = 128 | 167700   | 121497 (-27%)  <--  | 249480 (+48%)       |
+> > | c = 256 | 175021   | 146109 (-16%)  <--  | 240384 (+37%)       |
+> > | c = 512 | 168987   | 101479 (-40%)  <--  | 226634 (+34%)       |
+> > 
+> > The results demonstrate that this optimization effectively resolves the
+> > scalability bottleneck, with RPS increasing by over 110% at c=64
+> > compared to the original implementation.
 > 
-> Given the cc list, I'm guessing this is intended to go via s390,
-> otherwise please let me know if I should take it.  Thanks,
+> I applied your patch to the latest kernel(6.19-rc8) & saw below
+> Performance results:
+> 
+> 1) In my evaluation, I ran several *uperf* based workloads using a
+> request/response (RR) pattern, and I observed performance *degradation*
+> ranging from *4%* to *59%*, depending on the specific read/write sizes
+> used. For example, with a TCP RR workload using 50 parallel clients
+> (nprocs=50) sending a 200‑byte request and reading a 1000‑byte response
+> over a 60‑second run, I measured approximately 59% degradation compared
+> to SMC‑R original performance.
+>
 
-Yes, I'll queue it for my next PR.
+The only setting I changed was net.smc.smcr_max_conns_per_lgr = 32, all
+other parameters were left at their default values. redis-benchmark is a
+classic Request/Response (RR) workload, which contradicts your test
+results. Since I'm unable to reproduce your results, it would be
+very helpful if you could share the specific test configuration for my
+analysis.
 
-   Thomas
-
+Thanks,
+D. Wythe
