@@ -1,128 +1,126 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6E761EA7DB;
-	Mon,  9 Feb 2026 07:53:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 224553793C6;
+	Mon,  9 Feb 2026 15:29:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770623624; cv=none; b=cMdnDySvO7AH8vBuwdMocPo3QuqJx2EzowwhFNVBdKEv/o9VmZAPb81/0YQsDcu5k2n86jbFUXbALYLcBGksuSw3gf/RMaJRmTHQFpXRZUUCMbDv3+1cQHfY3jNg2BCYU3WQ996xFUJt+e6UwuLV1GRiFeSSv9/+Iblru+Cl3uY=
+	t=1770650972; cv=none; b=cYPlGBAAP88T9YvWYGB1mNchSDmZC4C+S0UPxJsSrrEVNg90qTTwoV0tys3CiRu4nZ0SSrxDP/c6R9YYRIXz9dIeACDww0C3aBroqknf29xqnS6OtqtCIMaJ8/XVZwC1kbbDPQGDY29M5YSjnWDVSXwUgGZcgiNDCr4lsrcERIg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770623624; c=relaxed/simple;
-	bh=x/1MGRSI8f2/EHxwYmPfmvnGPgI7fwl6Tpgv7bmTgdw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mWiwNH0IEv39GblGeVoa/Dl409VONW53Vn88+EK37D+oCRBCrQ6aHdDcZPOupHgFpc6mdYDurxZvu2gtSHa4jms5OBAwqR8nuZTxBz/7XyA6jNIaJsL+I+bm7gEnpKNlXfY0Q/xhNkoISo0sXracA8PsV9eHVU9WHeh/ZTavNKc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=dIkt8XzW; arc=none smtp.client-ip=115.124.30.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1770650972; c=relaxed/simple;
+	bh=8rh/5nyvKx1OUvPTe9dHQuymZme3RENu7OYXRyc6UVg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qLcH3To7EPY/qfD/SgBvw31chAa7St4IyjxrD5igPynrCCjr/2xHctL3Wr/BWS0gKV+ogGBOuREkbGdludD7iCwy92vH2W46yYMySnRjLyiXyNRDSiSc18vIXqjq+QfyhTZto1dHeY2joG3BSgmTva/Do7UIJORVr6O2QDIb1eY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=si1Rz/dR; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="dIkt8XzW"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1770623619; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=0AEmXZmOG2VM+xnXftYt5+WSp/YKD3yjyUsUFqPOhMk=;
-	b=dIkt8XzWyaNCxP47qL47D673ScD5jK/e0iH1RnqC6WvfbwdnGHj8yHZrbrmWi5fjiCIDLkYx7715IJAqA2oPUw3xNrbMFns22lwDfB6V6Zc6HBuyblLpR6WRvaWzg17uJkJ/SzJCHgQXET9zIVmrsMre07X7ixYlp1SvPnLiGfQ=
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WypALM._1770623618 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 09 Feb 2026 15:53:39 +0800
-Date: Mon, 9 Feb 2026 15:53:38 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com    >
-To: Mahanta Jambigi <mjambigi@linux.ibm.com>
-Cc: "D. Wythe" <alibuda@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>, Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org,
-	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org, oliver.yang@linux.alibaba.com,
-	pasic@linux.ibm.com
-Subject: Re: [PATCH RFC net-next] net/smc: transition to RDMA core CQ pooling
-Message-ID: <20260209075338.GA61095@j66a10360.sqa.eu95>
-References: <20260202094800.30373-1-alibuda@linux.alibaba.com>
- <daefb72f-398e-489f-bdbc-db997ef9c5ae@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="si1Rz/dR"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 619FR9Gb169452;
+	Mon, 9 Feb 2026 15:29:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=Hx617PIOI3M1xDuib2pP8eVTssD+bpbR9hn4wNydx
+	vM=; b=si1Rz/dRSoeVRd4YASnwNUUOM49XfVWjlTx/Ms8JkFz4jftba+71I/EYi
+	HEW/j/WkC3/Ht7is1FBY7MK22wr2967kS1m0a14iNiBB6XW3pyWwaeVKVGKE5Aq7
+	t22Qxnl9QOtvXhEdC/OQ+OUgIq5cdLQQ1CFsQJ0ajGimh1fbSMyP32yN0rVaN78d
+	nuuNqneGf/O73IGPPVHVXXFYoyCq1pIk7ab8F35aEXmwuaoGLwQpXvSma3+GaDBs
+	02dtqba4XLjVYD/aNC+2mgvtzv/GJDliy4XxfcLERT63MkwBKULR3zZLkOhK3eVD
+	P36E6QbH8Vk1tJbkFWoNnhhSc0k9g==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c696vyt5j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 09 Feb 2026 15:29:31 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 619E2v27012626;
+	Mon, 9 Feb 2026 15:29:30 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4c6h7k5k76-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 09 Feb 2026 15:29:29 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 619FTPLO40763712
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 9 Feb 2026 15:29:25 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AE48D2004F;
+	Mon,  9 Feb 2026 15:29:25 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7B0DA2004E;
+	Mon,  9 Feb 2026 15:29:25 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  9 Feb 2026 15:29:25 +0000 (GMT)
+From: Steffen Eiden <seiden@linux.ibm.com>
+To: linux-s390@vger.kernel.org
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Andreas Grapentin <gra@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>
+Subject: [PATCH v1 1/1] KVM: s390: Increase permitted SE header size to 1 MiB
+Date: Mon,  9 Feb 2026 16:29:25 +0100
+Message-ID: <20260209152925.578872-1-seiden@linux.ibm.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <daefb72f-398e-489f-bdbc-db997ef9c5ae@linux.ibm.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=YeCwJgRf c=1 sm=1 tr=0 ts=6989fd5b cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=Mpw57Om8IfrbqaoTuvik:22
+ a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8 a=nzWhWrZSqZcqTgXQ2MUA:9
+ a=ZXulRonScM0A:10
+X-Proofpoint-GUID: U0uLEOU4ljsiM3tpfPotPj2JwLK3BClG
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA5MDEyOCBTYWx0ZWRfXw8dE5JOjUjo8
+ 6q41KlIjSr2og0MxWOWZh8tGZWb/SlR0tocg2lTIJIA0lk+0xLglcXZJ5wqyoc7vhrDSvqR3yfO
+ uNHMh2I+TPPSqmgTUzNnKVCVkPMj3DnVmwOevwmYHZ1U5S9ByB0qyhzbfNWuge80QtUQoY4ecp7
+ MNfTsY1fd+wrFZxGJB30zQ1qo5yKnlEufiNQDm4IciJ9rJI8ShA5xDW6kB4azrHJtUsyUVjf7j/
+ a1UVNB3Za/V2HxphDW4qZHX3wTuaJuz+7d5QkAvGH32mHjmEtI6lzJjEvOZe24To/ILQvqxd6DU
+ VBVDpPo4ZNm1mPMGGOy31K44BXS63RbjKwZq4cOkORIh588Vg2dNePdIZwLJ6SLoWgKXpwZ7G33
+ zzJg28jrVUoVUK1plB61URemR69u8QT5w63QSl3bALpZ2ENpvrvbbPDSrg/y4/D3//929jIvjjO
+ P6l7uXsEKwm79x/Xt9A==
+X-Proofpoint-ORIG-GUID: U0uLEOU4ljsiM3tpfPotPj2JwLK3BClG
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-09_01,2026-02-09_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 adultscore=0 bulkscore=0 malwarescore=0 phishscore=0
+ priorityscore=1501 lowpriorityscore=0 clxscore=1015 impostorscore=0
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
+ definitions=main-2602090128
 
-On Fri, Feb 06, 2026 at 04:58:23PM +0530, Mahanta Jambigi wrote:
-> 
-> 
-> On 02/02/26 3:18 pm, D. Wythe wrote:
-> > The current SMC-R implementation relies on global per-device CQs
-> > and manual polling within tasklets, which introduces severe
-> > scalability bottlenecks due to global lock contention and tasklet
-> > scheduling overhead, resulting in poor performance as concurrency
-> > increases.
-> > 
-> > Refactor the completion handling to utilize the ib_cqe API and
-> > standard RDMA core CQ pooling. This transition provides several key
-> > advantages:
-> > 
-> > 1. Multi-CQ: Shift from a single shared per-device CQ to multiple
-> > link-specific CQs via the CQ pool. This allows completion processing
-> > to be parallelized across multiple CPU cores, effectively eliminating
-> > the global CQ bottleneck.
-> > 
-> > 2. Leverage DIM: Utilizing the standard CQ pool with IB_POLL_SOFTIRQ
-> > enables Dynamic Interrupt Moderation from the RDMA core, optimizing
-> > interrupt frequency and reducing CPU load under high pressure.
-> > 
-> > 3. O(1) Context Retrieval: Replaces the expensive wr_id based lookup
-> > logic (e.g., smc_wr_tx_find_pending_index) with direct context retrieval
-> > using container_of() on the embedded ib_cqe.
-> > 
-> > 4. Code Simplification: This refactoring results in a reduction of
-> > ~150 lines of code. It removes redundant sequence tracking, complex lookup
-> > helpers, and manual CQ management, significantly improving maintainability.
-> > 
-> > Performance Test: redis-benchmark with max 32 connections per QP
-> > Data format: Requests Per Second (RPS), Percentage in brackets
-> > represents the gain/loss compared to TCP.
-> > 
-> > | Clients | TCP      | SMC (original)      | SMC (cq_pool)       |
-> > |---------|----------|---------------------|---------------------|
-> > | c = 1   | 24449    | 31172  (+27%)       | 34039  (+39%)       |
-> > | c = 2   | 46420    | 53216  (+14%)       | 64391  (+38%)       |
-> > | c = 16  | 159673   | 83668  (-48%)  <--  | 216947 (+36%)       |
-> > | c = 32  | 164956   | 97631  (-41%)  <--  | 249376 (+51%)       |
-> > | c = 64  | 166322   | 118192 (-29%)  <--  | 249488 (+50%)       |
-> > | c = 128 | 167700   | 121497 (-27%)  <--  | 249480 (+48%)       |
-> > | c = 256 | 175021   | 146109 (-16%)  <--  | 240384 (+37%)       |
-> > | c = 512 | 168987   | 101479 (-40%)  <--  | 226634 (+34%)       |
-> > 
-> > The results demonstrate that this optimization effectively resolves the
-> > scalability bottleneck, with RPS increasing by over 110% at c=64
-> > compared to the original implementation.
-> 
-> I applied your patch to the latest kernel(6.19-rc8) & saw below
-> Performance results:
-> 
-> 1) In my evaluation, I ran several *uperf* based workloads using a
-> request/response (RR) pattern, and I observed performance *degradation*
-> ranging from *4%* to *59%*, depending on the specific read/write sizes
-> used. For example, with a TCP RR workload using 50 parallel clients
-> (nprocs=50) sending a 200‑byte request and reading a 1000‑byte response
-> over a 60‑second run, I measured approximately 59% degradation compared
-> to SMC‑R original performance.
->
+Relax the maximum allowed Secure Execution (SE) header size from
+8 KiB to 1 MiB. This allows individual secure guest images to run on a
+wider range of physical machines.
 
-The only setting I changed was net.smc.smcr_max_conns_per_lgr = 32, all
-other parameters were left at their default values. redis-benchmark is a
-classic Request/Response (RR) workload, which contradicts your test
-results. Since I'm unable to reproduce your results, it would be
-very helpful if you could share the specific test configuration for my
-analysis.
+Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Thanks,
-D. Wythe
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 56a50524b3ee..3428a8d427b2 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2744,9 +2744,9 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+ 		if (copy_from_user(&parms, argp, sizeof(parms)))
+ 			break;
+ 
+-		/* Currently restricted to 8KB */
++		/* Currently restricted to 1MiB */
+ 		r = -EINVAL;
+-		if (parms.length > PAGE_SIZE * 2)
++		if (parms.length > SZ_1M)
+ 			break;
+ 
+ 		r = -ENOMEM;
+-- 
+2.51.0
+
