@@ -1,64 +1,64 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEB3E2EC09B;
-	Tue, 10 Feb 2026 15:34:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47694385520;
+	Tue, 10 Feb 2026 15:34:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770737688; cv=none; b=q4cbs3LwESDPiRzgAemigXKTZ9UbehnAYuOdsoSPca7Ya3beo1rPZ2cGqeaZFDXmkxNFl9hvYJzSuLD2Hml/whCH4UVf/mt5QC8Hq4g8VjnAWgkTimz2RVGNhsOefAE+1NKUgVt9Uzh2yOn7sCItDq4cmTRgPzZBIqXBothiFdA=
+	t=1770737688; cv=none; b=IlFsyxHkmI9GNguZieMd1Lxgf45zKoTPd8shuyqGcKG33dympxzEydXuh+jmHnKZizXWpIaMily7MIQPIuzK8WOQIiEC4vByCruCVTDCwRWqVXbwPMBmrVNDDQs4TUUKdGWSArwSY1bKcQwW7ay07Zr6jae3HboMklkiIDYhS3Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1770737688; c=relaxed/simple;
-	bh=AVR1p8niQlB+5FWX2KR1JUvvxCC0Ely48lbUOQenmfA=;
+	bh=sIbgcBmI28EV46mj8T46qBOmtsQDkG8mKzmQOy/wCZ0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Vy0QKRK3TRfLTkuLv225fEwfbhEnpc7Ey2hNKvdyC+fDySRNPdS7ykBOxwUi44fHxzRmmN8YGDPWyv9J113SG9Npi+R7KjnXclohOTfMKgT6wu+uFSISDd6O9LAigwkfKvrmdgpxqLkBgeFtqt5MzIQS2rifrNFMvLaB8bEoo54=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OXur9BOs; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=VLyRNg4M6SwPbIByGmbQNi9KVZDsWTc8ZCba7Vu3b2vpBHTymy9qPpzuIMCHV4Pl/cynE5u0UYYpSmIncExBHT8EFyT52+G3BRLdEP+6thALkcIJTXY/wr+85ZmCS9o5jQFrFvQiGIxl6zQHF+e3IgJ0cXU2zMeaSRP6rxG5m+M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dLTC0zak; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OXur9BOs"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61A8d1YF3988415;
-	Tue, 10 Feb 2026 15:34:41 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dLTC0zak"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61AACK06198637;
+	Tue, 10 Feb 2026 15:34:40 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=8HtDQT0rsd7sFJEyF
-	B10Ek379155+S/9RDAhjjd0qKU=; b=OXur9BOsAih51pnvAZsfxwvegiY9g3HTf
-	5FHtkFhEbUc7/G0UHZFmL5cF3DHLfmPTdBYyNfz7sPSlns7Nx3iMACH/YHyrjiUy
-	suPFesTjpxqXCxNxJJ65XCaPE/scAgMrAgNIQavqe4LyqIIz6uu/wOaOJPaOqVjU
-	naRcpA3YF0BPYmu8Wmn87Av48kbfDO/tC8DsnRGvgdFfNSt8mISYG4lL4pQmfYlI
-	0X4Njx0IqGKf9TUyqKdsqU/VzLVKZe9DsOEqNOLtR+OMM8gelZDCQYl7wJULBTMK
-	kyy7TQZqcCoTrYD9LYd9n8eS8YA6jLk2lEJJgJ1N5EF8E88M12J9A==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c696w4xa0-1
+	:mime-version:references:subject:to; s=pp1; bh=X0n1X79GPAkbISG1/
+	8Ah4RvG+GOhR3x8VBPyiMWsXm4=; b=dLTC0zakeefM3HEEl7B0eL8wsnACTiKm+
+	GvkSZqUlnAUsxh+xIQa9C+cnNiI79BRzufBqae3BfdsMd1nznorBBDr57hCwUBfe
+	ZSW/qvERf1d1wgz3hnEGHbLjsiBtSDJbXfpioijMNO2Doptr+8dSNaqADbVS+l10
+	yfRxkZ7TA0yhNhTzocJsbElka7VZuDdanlnmlm4L5YFpXcpJmyxca10P5TRowmXd
+	79qD1TwDaj632o55UcmdHaVmeJu1R5eisA1AnqgjXJ/aQZm/LwrgJLcsjweZG0QL
+	vwM6ayRz2ItubiEZLxr7oxwNUyBi5OikHyXYJ+ILoH+daVkjZy9WQ==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c696ucyc7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Feb 2026 15:34:41 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61AEKBHS001412;
-	Tue, 10 Feb 2026 15:34:40 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4c6gqn1vfy-1
+	Tue, 10 Feb 2026 15:34:39 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61AE2WtN008404;
+	Tue, 10 Feb 2026 15:34:38 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4c6g3y9y4a-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Feb 2026 15:34:40 +0000
+	Tue, 10 Feb 2026 15:34:38 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61AFYaZF16187704
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61AFYYU761079984
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 10 Feb 2026 15:34:36 GMT
+	Tue, 10 Feb 2026 15:34:34 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 12B6B20040;
-	Tue, 10 Feb 2026 15:34:36 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 51F1D20040;
+	Tue, 10 Feb 2026 15:34:34 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8D1E020043;
-	Tue, 10 Feb 2026 15:34:35 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id D56402004B;
+	Tue, 10 Feb 2026 15:34:33 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.111.20.252])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 10 Feb 2026 15:34:35 +0000 (GMT)
+	Tue, 10 Feb 2026 15:34:33 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: pbonzini@redhat.com
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
         borntraeger@de.ibm.com, david@kernel.org
-Subject: [GIT PULL v1 31/36] KVM: s390: Add explicit padding to struct kvm_s390_keyop
-Date: Tue, 10 Feb 2026 16:34:12 +0100
-Message-ID: <20260210153417.77403-32-imbrenda@linux.ibm.com>
+Subject: [GIT PULL v1 28/36] KVM: s390: Enable 1M pages for gmap
+Date: Tue, 10 Feb 2026 16:34:09 +0100
+Message-ID: <20260210153417.77403-29-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260210153417.77403-1-imbrenda@linux.ibm.com>
 References: <20260210153417.77403-1-imbrenda@linux.ibm.com>
@@ -70,61 +70,99 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=YeCwJgRf c=1 sm=1 tr=0 ts=698b5011 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Authority-Analysis: v=2.4 cv=KZnfcAYD c=1 sm=1 tr=0 ts=698b500f cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=Mpw57Om8IfrbqaoTuvik:22
- a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8 a=i3t3eYffWquF8k63CIkA:9
-X-Proofpoint-GUID: AbM7qTx45RRFN3r5ToTdw6oWm6etkd8q
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjEwMDEyOCBTYWx0ZWRfX173FAZ3Gp9+q
- E0fPTlo93/65ZyzYvYP7BmF5CjOuOxqb0F7VcKSVDLn8WIVAPzByLXNJht6T5kes8WEpICv4p7Z
- OJyZ4SRmRKuX+k35GxvslIz+SrN3lNyo3ZYfOyPUI1VOFqs1ZHaG5jHmAF6SvLidKk3wWu8B8qY
- nJzz+29ehAWm0eNFBJWlcO+E6CfQM8VgDVP+g0Wwl3abAR/7lRv6LfU+KCURh0nViplw9jQyGll
- j5jyL2vTVGIqXfY6rgblvG6BDUkRhPqUOatSSvxtQ+M3Q8LlDPHDAPFnchCMqeN7W6K9BMkpa1e
- P27hQik6HkaYLNNsoKGhrTSvbzEhTW80INYdsjZqIzJFrXpkK/mvfOI0NMgXUxFo3h8xxbaE/Zu
- trVAtBc28szeCghRytePBXsgRq3/U0uE6dLpt4R9M/2cY4WkUlHfwBJhO8O9V5b5ufeJLlmuXfg
- hGzuTEhXTqDpnwkyZJg==
-X-Proofpoint-ORIG-GUID: AbM7qTx45RRFN3r5ToTdw6oWm6etkd8q
+ a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8 a=2DwSK8QdlStOok5YbGYA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjEwMDEyOCBTYWx0ZWRfXye3agoHbdh1+
+ gsPQrjIjc7tNPsnedjNJxVbInzDV3dXObPaEEoZav70AXVEmOWvXtRewV2FijWU7/IQHipr/xDr
+ OIwM/tjLG7p3IcQ0HCfgt7tZ0sKHvUkx32nbBLp7wahp/RVwMDqyHYSvf8X648Ox3hIk6M1N76i
+ ah68YLpg57IOhT1U/BHOjiVdfYZhHO2jLUo8sg3ngbbKwJcrxoSLkRyZFUfd+spprXKcqJ4IFg6
+ ycjwEJSjQg7J5lJyJmhRcE/JihlqrErbdWLOKhUrDo/OmOZXnsRwHvlSou9JJ4EiJRG4a3xQvUc
+ 7ekx4EBLZjgReoozVFyKF2SY6JjzkpFOI1v9G8NcVdNxDz1OWfQY+5HPFZc0myIQYLQoUb+P3Ju
+ vghjBUwNsf388RrkEUCOK6A3U6WB9peIsjqyuyvYQo00hKUERQQ9r/iftW809mkh/LUTY2pqInm
+ B0gWGnMCVoF9p9DN4zA==
+X-Proofpoint-ORIG-GUID: AS2WZyKM40zvMqv0Q5kJbhFLoS3MfQYO
+X-Proofpoint-GUID: AS2WZyKM40zvMqv0Q5kJbhFLoS3MfQYO
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-02-10_01,2026-02-10_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 bulkscore=0 malwarescore=0 phishscore=0
- priorityscore=1501 lowpriorityscore=0 clxscore=1015 impostorscore=0
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
- definitions=main-2602100128
+ spamscore=0 impostorscore=0 bulkscore=0 priorityscore=1501 adultscore=0
+ clxscore=1015 suspectscore=0 phishscore=0 malwarescore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602100128
 
-From: Arnd Bergmann <arnd@arndb.de>
+While userspace is allowed to have pages of any size, the new gmap
+would always use 4k pages to back the guest.
 
-The newly added structure causes a warning about implied padding:
+Enable 1M pages for gmap.
 
-./usr/include/linux/kvm.h:1247:1: error: padding struct size to alignment boundary with 6 bytes [-Werror=padded]
+This allows 1M pages to be used to back a guest when userspace is using
+1M pages for the corresponding addresses (e.g. THP or hugetlbfs).
 
-The padding can lead to leaking kernel data and ABI incompatibilies
-when used on x86. Neither of these is a problem in this specific
-patch, but it's best to avoid it and use explicit padding fields
-in general.
+Remove the limitation that disallowed having nested guests and
+hugepages at the same time.
 
-Fixes: 0ee4ddc1647b ("KVM: s390: Storage key manipulation IOCTL")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- include/uapi/linux/kvm.h | 1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/kvm/gmap.c     | 2 +-
+ arch/s390/kvm/kvm-s390.c | 6 +-----
+ arch/s390/kvm/pv.c       | 3 +++
+ 3 files changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index ab3d3d96e75f..d4250ab662fe 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -1227,6 +1227,7 @@ struct kvm_s390_keyop {
- 	__u64 guest_addr;
- 	__u8  key;
- 	__u8  operation;
-+	__u8  pad[6];
- };
+diff --git a/arch/s390/kvm/gmap.c b/arch/s390/kvm/gmap.c
+index fea1c66fcabe..da222962ef6d 100644
+--- a/arch/s390/kvm/gmap.c
++++ b/arch/s390/kvm/gmap.c
+@@ -620,7 +620,7 @@ static inline bool gmap_2g_allowed(struct gmap *gmap, gfn_t gfn)
  
- /*
+ static inline bool gmap_1m_allowed(struct gmap *gmap, gfn_t gfn)
+ {
+-	return false;
++	return test_bit(GMAP_FLAG_ALLOW_HPAGE_1M, &gmap->flags);
+ }
+ 
+ int gmap_link(struct kvm_s390_mmu_cache *mc, struct gmap *gmap, struct guest_fault *f)
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index bde55761bf8a..ac7b5f56f0b5 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -851,6 +851,7 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
+ 			r = -EINVAL;
+ 		else {
+ 			r = 0;
++			set_bit(GMAP_FLAG_ALLOW_HPAGE_1M, &kvm->arch.gmap->flags);
+ 			/*
+ 			 * We might have to create fake 4k page
+ 			 * tables. To avoid that the hardware works on
+@@ -5729,11 +5730,6 @@ static int __init kvm_s390_init(void)
+ 		return -ENODEV;
+ 	}
+ 
+-	if (nested && hpage) {
+-		pr_info("A KVM host that supports nesting cannot back its KVM guests with huge pages\n");
+-		return -EINVAL;
+-	}
+-
+ 	for (i = 0; i < 16; i++)
+ 		kvm_s390_fac_base[i] |=
+ 			stfle_fac_list[i] & nonhyp_mask(i);
+diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+index a48a8afd40df..461b413c76a3 100644
+--- a/arch/s390/kvm/pv.c
++++ b/arch/s390/kvm/pv.c
+@@ -721,6 +721,9 @@ int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+ 	uvcb.flags.ap_allow_instr = kvm->arch.model.uv_feat_guest.ap;
+ 	uvcb.flags.ap_instr_intr = kvm->arch.model.uv_feat_guest.ap_intr;
+ 
++	clear_bit(GMAP_FLAG_ALLOW_HPAGE_1M, &kvm->arch.gmap->flags);
++	gmap_split_huge_pages(kvm->arch.gmap);
++
+ 	cc = uv_call_sched(0, (u64)&uvcb);
+ 	*rc = uvcb.header.rc;
+ 	*rrc = uvcb.header.rrc;
 -- 
 2.53.0
 
