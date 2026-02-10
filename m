@@ -1,176 +1,160 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A72AC33E360;
-	Tue, 10 Feb 2026 09:45:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC3713164B7
+	for <linux-s390@vger.kernel.org>; Tue, 10 Feb 2026 13:37:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770716732; cv=none; b=elR1cO3D6tZGA4+28oqtLuPTu66Fe3xzmD1BMi0d3nMdAAAUWS+pN0Qz7qyppsRPEbrHTJP7VbEm+1DcCm8s17QM8Ra9aTIdt1iBWdRpQWETXXoMdqXpyPJYbrbwzfj4lp87DiHOhYnvCSs1YXfjrvEf6DMDEr3YcEpYTzGL7ug=
+	t=1770730624; cv=none; b=fLELCXzLDWQxc2x/qBlxZUR0F7MjYa4pBCa5uORvYRmtxNx4l3P53qdghAuWRJFZzAM29qsmItiDAAIF8KZwSpmzSwlqjRa7guUKX+6AWxGY6XE9EkNsQcNhursGBdFh+SMx8KachwFeqFRkdqlUHoveC0IfBsk2NG713qNT2P8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770716732; c=relaxed/simple;
-	bh=biZs8UG9UaVbjlNywV3IfUHz+eTaQtk+Dib48VP2P4k=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GeEfsjIDByczMj6Yt+AYE6/fmwlnMUKE6ucdbh3t6vgSFjZ5/mcMTtD+0OAmGV/4s789Cq6KYM8j/uod0qQzGTW7TVPs0O/NS+Dw/DRXAp3xZ+3oFlNm9JyIqPVBND6xDm1abmpb6LEsdSmtMjK2ED6YnkVAlxBrSoiUmn2S9hA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=q9/9cMBj; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1770730624; c=relaxed/simple;
+	bh=96LJtkGFUPwfdwUSgtDbnY+Mc+ppasTHrD08xIO9WbI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GiGy+Upzf7ykezYAKs1sYEGi6yEq8a3isc+3yr3z8ULNrKG/hLfLoBxSJcobJU6LaK1Z4ZLfds8FaONT6zvZ/Ixps6ds8BfwFWqD/2VZfAoGKWItJYEQn5kD/9ICtUQrwILCBKAyrtBBxSY7OewsZNRdsUjjeI9dJno97Vap9do=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YTot/sDd; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="q9/9cMBj"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 619IcMAn1232437;
-	Tue, 10 Feb 2026 09:45:25 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YTot/sDd"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61A9xmT5034466;
+	Tue, 10 Feb 2026 13:36:57 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Z2DO/8
-	HQi3/u7QAShLLtJuN9V31eJ4And8QGAaN/Q8c=; b=q9/9cMBjmjwqOZemBsy5xa
-	AO7cTVjXCZ5k03UPQmrIvvTATdequxBs1uU3F89kyy5FFvyL3/bBFIA42WyMPVm5
-	+H0FdxEwM7x8MT58ivjS6c9pFmrc8CVt+vUWd7NTEltXYoRgNm6sf82fQHhRJ9JY
-	yFeFamxi9jmBKRouztJcGQ7EDDowoDe2uzy9SFM8uMowk6BUJwJAKB2/xcytT5FF
-	sI6OOl6vehsYK/7UGqVfgL4rN2NkreZ0k6CsDByt9/BX1gEY+2UmIcRqQtNf6p8p
-	LYfQQCsJ7CVtfkXBs9UelIGtb3PIzV1ud++Czrciz8Pab9ZG7yt0xZJr3K91AQdg
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c696ubgcg-1
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=IySkXN6/Kv+1/jKQ2ErA9SLDV0vhsg
+	tXQW9vcCmV8Ec=; b=YTot/sDd0D91w3/L+6WNPjCeBkn5+gY/HAbAJEd4vYfMZC
+	xGwBL5vlRvXJ/ahAcfg20dtVL8IJB5P+GkJZrvdyjRPEh/hSWEVAMpBjYqkd2JxL
+	5fXhxXrLjyhTSPNy6yma4xfmk1vzM1Ld+yCH+8idLgr5+ocbws96oVlSkxhcwpQ/
+	f4bMbzt1xCK5ICzdBqHvVKJhloDRiXRsYKRqkhQb/UI0KG3p1RXwdQpuzmq3ZzNT
+	2CXn9EVGz3m3PguX2s6RE4Vai0Qj+28jylS4qWMMBB05bTS7H2pQ0mzu08Vg2qqB
+	3HX0EHJHNjjF3pmJmyPJGdUKrUOduUrjOsWHJgTg==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c696ucfaf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Feb 2026 09:45:25 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61A62IhM019221;
-	Tue, 10 Feb 2026 09:45:24 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4c6hxk0hvp-1
+	Tue, 10 Feb 2026 13:36:57 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61A9LgJV002557;
+	Tue, 10 Feb 2026 13:36:56 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4c6fqshn7s-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Feb 2026 09:45:24 +0000
+	Tue, 10 Feb 2026 13:36:56 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61A9jKsj43975042
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61ADasWm50856298
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 10 Feb 2026 09:45:20 GMT
+	Tue, 10 Feb 2026 13:36:54 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5611B2004E;
-	Tue, 10 Feb 2026 09:45:20 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 9982120040;
+	Tue, 10 Feb 2026 13:36:54 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0174B2004D;
-	Tue, 10 Feb 2026 09:45:20 +0000 (GMT)
-Received: from [9.111.61.43] (unknown [9.111.61.43])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 10 Feb 2026 09:45:19 +0000 (GMT)
-Message-ID: <c6b90007-1b58-4076-869c-22d3ca04984f@linux.ibm.com>
-Date: Tue, 10 Feb 2026 10:45:19 +0100
+	by IMSVA (Postfix) with ESMTP id 4D2E420043;
+	Tue, 10 Feb 2026 13:36:54 +0000 (GMT)
+Received: from osiris (unknown [9.111.80.220])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 10 Feb 2026 13:36:54 +0000 (GMT)
+Date: Tue, 10 Feb 2026 14:36:52 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Baoquan He <bhe@redhat.com>
+Cc: Alexander Egorenkov <egorenar@linux.ibm.com>, linux-s390@vger.kernel.org,
+        akpm@linux-foundation.org, kexec@lists.infradead.org
+Subject: Re: [RESEND PATCH v1 1/1] s390/kexec: Make KEXEC_SIG available when
+ CONFIG_MODULES=n
+Message-ID: <20260210133652.15669A6b-hca@linux.ibm.com>
+References: <20260209133308.118364-1-egorenar@linux.ibm.com>
+ <aYqWhWQO265YRnPP@fedora>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 1/1] KVM: s390: Increase permitted SE header size to 1
- MiB
-To: Steffen Eiden <seiden@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Andreas Grapentin <gra@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>
-References: <20260209152925.578872-1-seiden@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20260209152925.578872-1-seiden@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aYqWhWQO265YRnPP@fedora>
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=YZiwJgRf c=1 sm=1 tr=0 ts=698afe35 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8
- a=ycHnYxuuFyCDzNjIPycA:9 a=QEXdDO2ut3YA:10 a=ZXulRonScM0A:10
-X-Proofpoint-ORIG-GUID: rWwyKyWE4grVW6h-IyLs_fNwQKa1pENQ
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjEwMDA3NyBTYWx0ZWRfX1a2YCoAh9Rge
- WAVMpJXvzzwDO1ryBocm3odZ51ytGkq+4RCkWpgwMSupOPub+Lf2K5nvRo01p7sSJFJvRyqfyAc
- QOnbflYXSs/3OEq6p05lSUs9iRfVMS7CLHQ9s7sPRLql0mDpz1RTFaq5Rdm8WlYRYwfRciLif4B
- yJOzygBWQn59CvpEbB4birKtkxeBrXP45aeKPGBR6TPDfGUgNeyvTGiVPjj1LpsdiggpX68oS/k
- ZvEXLvXNHGfZkgot4gmq6AwRhsh4U+qiwEtMe9wDGtrj0r5UGxZ4rWlHPnFB7NtmpYOY8zI34iy
- ip32cTCmXxBa8n3ISyAVSVLoVbbiOQ1J2hp3KjrZx24TTy3p+VhRo/Nlv31ZzcALktJbLJELkrB
- vh5wZEjnEByqIp27h7dJMggMeIk6eomDsSxzKNng5kDrUx+lx6lrlgeVXtn+ms05uWYZ5TYSZYo
- IHR4ll6RiL1O0h55UGA==
-X-Proofpoint-GUID: rWwyKyWE4grVW6h-IyLs_fNwQKa1pENQ
+X-Authority-Analysis: v=2.4 cv=KZnfcAYD c=1 sm=1 tr=0 ts=698b3479 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=kj9zAlcOel0A:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=JXtalL-oA2qBwtQa0loA:9
+ a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjEwMDExMiBTYWx0ZWRfX5xeq7CBlznzk
+ p4pWwCpIspFAGpI64LwEj2HTw36hQnWTtIXgP0a/z5rUUpUhgvAz6nZCQ4ZjctBOxNSNUpf1nKI
+ /1eO0764bUk+W38ohagmIen1a53f+hC4fKTyKoW7fp+25CIigmEdQtAJnWoOujp72cCg534tE52
+ o6wotKwM/KjC9+JDM1uFsPYXinRQeM+pS/wNJjAwLh/e1PMumZ5RjfXXMUq5aE93Q2TCDZE/nSy
+ W4R3GZ4AxlbV+rSJJvvH1KJETSJ2pbLjPeZcK1OtOtP8hFppIeOLciTdHyAKa5Wgu6PUzRZHcR1
+ dO/22MHN3K8Mw3km+e402t+olCBnaNbbTpvXFpor1frqYnIZUxjD41ENB2cqWymYMT0u/o8JYeT
+ NPnnpQz5ozBaeFGvZkGqE3xrlx9sJ9r1za10OlvziFVSsdYhwVrQ8ARbybFEvdW0XaNCH7iG0uU
+ aMemuBe3EvVoPOm5XpQ==
+X-Proofpoint-ORIG-GUID: IIGXGzk1runHBRi7ESUJiCbvSTTaKwgN
+X-Proofpoint-GUID: IIGXGzk1runHBRi7ESUJiCbvSTTaKwgN
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-09_01,2026-02-09_04,2025-10-01_01
+ definitions=2026-02-10_01,2026-02-10_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 impostorscore=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 adultscore=0 clxscore=1015 lowpriorityscore=0
+ spamscore=0 impostorscore=0 bulkscore=0 priorityscore=1501 adultscore=0
+ clxscore=1011 suspectscore=0 phishscore=0 malwarescore=0 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602100077
+ reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602100112
 
-On 2/9/26 16:29, Steffen Eiden wrote:
-> Relax the maximum allowed Secure Execution (SE) header size from
-> 8 KiB to 1 MiB. This allows individual secure guest images to run on a
-> wider range of physical machines.
+On Tue, Feb 10, 2026 at 10:23:01AM +0800, Baoquan He wrote:
+> On 02/09/26 at 02:33pm, Alexander Egorenkov wrote:
+> > The commit c8424e776b09 ("MODSIGN: Export module signature definitions")
+> > replaced the dependency of KEXEC_SIG on SYSTEM_DATA_VERIFICATION with
+> > the dependency on MODULE_SIG_FORMAT. This change disables KEXEC_SIG
+> > in s390 kernels built with MODULES=n if nothing else selects
+> > MODULE_SIG_FORMAT.
+> > 
+> > Furthermore, the signature verification in s390 kexec does not require
+> > MODULE_SIG_FORMAT because it requires only the struct module_signature and,
+> > therefore, does not depend on code in kernel/module_signature.c.
+> > 
+> > But making ARCH_SUPPORTS_KEXEC_SIG depend on SYSTEM_DATA_VERIFICATION
+> > is also incorrect because it makes KEXEC_SIG available on s390 only
+> > if some other arbitrary option (for instance a file system or device driver)
+> > selects it directly or indirectly.
+> > 
+> > To properly make KEXEC_SIG available for s390 kernels built with MODULES=y
+> > as well as MODULES=n _and_ also not depend on arbitrary options selecting
+> > SYSTEM_DATA_VERIFICATION, we set ARCH_SUPPORTS_KEXEC_SIG=y for s390 and
+> > select SYSTEM_DATA_VERIFICATION when KEXEC_SIG=y.
 > 
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-
-
-> ---
->   arch/s390/kvm/kvm-s390.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
+> Thanks for fixing the issue.
 > 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 56a50524b3ee..3428a8d427b2 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -2744,9 +2744,9 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
->   		if (copy_from_user(&parms, argp, sizeof(parms)))
->   			break;
->   
-> -		/* Currently restricted to 8KB */
-> +		/* Currently restricted to 1MiB */
->   		r = -EINVAL;
-> -		if (parms.length > PAGE_SIZE * 2)
-> +		if (parms.length > SZ_1M)
->   			break;
->   
->   		r = -ENOMEM;
+> Seems the background and change is a little twisting, and selecting
+> SYSTEM_DATA_VERIFICATION will cause a bunch of verification feature
+> selected. While the change is only s390 related, request s390 expert to
+> have look at this change. If no concern from s390 developer, I am also
+> fine to it.
 
+...
+
+> > diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> > index c2c7bf974397..385c1052cf45 100644
+> > --- a/arch/s390/Kconfig
+> > +++ b/arch/s390/Kconfig
+> > @@ -313,7 +313,7 @@ config ARCH_SUPPORTS_KEXEC_FILE
+> >  	def_bool y
+> >  
+> >  config ARCH_SUPPORTS_KEXEC_SIG
+> > -	def_bool MODULE_SIG_FORMAT
+> > +	def_bool y
+> >  
+> >  config ARCH_SUPPORTS_KEXEC_PURGATORY
+> >  	def_bool y
+> > diff --git a/kernel/Kconfig.kexec b/kernel/Kconfig.kexec
+> > index 15632358bcf7..df97227cfca9 100644
+> > --- a/kernel/Kconfig.kexec
+> > +++ b/kernel/Kconfig.kexec
+> > @@ -50,6 +50,7 @@ config KEXEC_SIG
+> >  	bool "Verify kernel signature during kexec_file_load() syscall"
+> >  	depends on ARCH_SUPPORTS_KEXEC_SIG
+> >  	depends on KEXEC_FILE
+> > +	select SYSTEM_DATA_VERIFICATION if S390
+
+Alexander, would it make sense to move this to arch/s390/Kconfig and
+add something like
+
+	select SYSTEM_DATA_VERIFICATION if KEXEC_SIG
+
+instead? This would have the slight advantage to keep arch specifics
+out of common code Kconfig.
