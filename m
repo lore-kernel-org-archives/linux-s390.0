@@ -1,64 +1,67 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EC312E2EF9;
-	Tue, 10 Feb 2026 15:34:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CE962ED159;
+	Tue, 10 Feb 2026 15:34:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770737668; cv=none; b=NoxCeQY04Vi850XvOJWCD/RiUkq9/di6rqOV/TMWPwisH8vhrvmZKb5S11CDwTqz1ucOwLAjcDQYJmgp+M00nCbAtEDzPYZoHiQMjxgn0YIZjU7QwrunHJHx5rgfpn5mo40tEucoqS5TayxB3Kt55y75lccwsQBXTDZSB1LiWtg=
+	t=1770737669; cv=none; b=uxPnVPMNNVU94LLbhDPT04R/c9W/ChSA70ihilG7XlJjNtTtH5JdyJYYTmqkT6pgfMMOD1ihp3A4avafrJie61nldWA6jWaRVDcgRNWtWwGxR4d2SXNYg+9VCZ2YWZJbQwofMaeXgrpPo7u2Jf1681p43inzuksQo/6yIk3clnU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770737668; c=relaxed/simple;
-	bh=EMviT+WYQIwXAUgQ0YywqH1JYNXKOvoLHu9f1Z9ip1A=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VK0B7M0nse2ndB7Ouy0ZNI331ATQitXaEuIlcUXIdTriNN2kMwjcM95YT4wSJh4jfkVVSQVNFIfXKahGsb7uR24BVNee8hXYn0iJax0vzL4u0DXvo6Idy1EEDVG1eFKtt9DU83qG/OJUdieULiHOl/lBjWllvLtWhdtMvC/gNcY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=i04IeQcP; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1770737669; c=relaxed/simple;
+	bh=60muwHQpdJbJvA4hVkVooOTmRLS3UGj1TrUrqP6qlwI=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=XJUUm0jq3elfJ1IZsLBhxjOtLucowmfZScQ2dEr5tLNgQuXSMpcJkWuWU0KA8DsHmy1T1J4icyRuEyxQBPkPsdSII0czLSdo4PodmZ5WKg/yn48cHxJGinH9Au8U6XPZydxFVZZ75XG6SunsJqWCBHvymJyR6uTJyFfMAC8F4fU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=m4OJ4KDg; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="i04IeQcP"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61ABHxJX220316;
-	Tue, 10 Feb 2026 15:34:23 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="m4OJ4KDg"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61ACE8j2626186;
+	Tue, 10 Feb 2026 15:34:24 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=cs7aCMljptkjCcpU/IFRRfmTicDzMdrn89ic24HUW
-	a0=; b=i04IeQcPLdYpPybKTau13pymlFpURZRPYcHMNljSZmMIDV2Tliy+B7Iyz
-	TzR1ruY+26iLZwFgCgcpRAyEFpFoMZIEpX3A8sMjE+qhQM6a0NDskW4j+QIqNRVl
-	XvtiH7Mu5aE/BVbB4NUyoRTPR71VSb4U1R7p7VJmb33O+OMs4/SbCHBwfekSX/Kw
-	UX3JXzJPHFtk0Sp2KfuuCOeIjgvzwe9kL858ZMwPF+WQ0WdljgTR7BbRnQLn0sIb
-	2WAY4a2dEQ97MAnxxIu+kX6NSWYhQdHBVFtdDkEN098/UzY1p5CEESNfDBp/Owu6
-	deJyuQOnrCmPqebjxJ5LY71k9Z2kA==
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=dd/GQ3Sm4MVZx+7Uf
+	NL4349XEoHH8L3U+u6yHniCta4=; b=m4OJ4KDg4qXUdDGy+23EeaPDIH0ZAiXdb
+	57r86SLf4os1mvgRbMJuY0rDnaS8ic+y9FrkUbSywV1RNwwnPdYyLkMq3CiBptx2
+	9otHDSqzs3/XI4HtJu46mJ9UgOCDQblLJoxjVS6WFBFdRSywV6Js2gK94UKM+1zL
+	aDqFedRoRf4WClYSqWpYxM1rvmFuLfpRpnZuHmJUcM4P3QCMZ7n2dw3doHIE6J7A
+	QI3w9DJ3aUJGweOovB6+AE22ZkuoXksJDlm45O/I1rSLk6cJu2rlnXoOZMEyhQt1
+	fdZNXvA6t6kLi4yJPfaoYaWh68yHZBw9PnaX+LJRUK1nyUO+YDpWg==
 Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c696ucyb4-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c696wtska-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 10 Feb 2026 15:34:23 +0000 (GMT)
 Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61AEbFaP001499;
-	Tue, 10 Feb 2026 15:34:22 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4c6gqn1ven-1
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61AEk30d001407;
+	Tue, 10 Feb 2026 15:34:23 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4c6gqn1veq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Feb 2026 15:34:22 +0000
+	Tue, 10 Feb 2026 15:34:23 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61AFYIIW19333446
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61AFYJJA37093868
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 10 Feb 2026 15:34:18 GMT
+	Tue, 10 Feb 2026 15:34:19 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EC0F42004D;
-	Tue, 10 Feb 2026 15:34:17 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 1D3F820043;
+	Tue, 10 Feb 2026 15:34:19 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7A1122004B;
-	Tue, 10 Feb 2026 15:34:17 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 9FE6620040;
+	Tue, 10 Feb 2026 15:34:18 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.111.20.252])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 10 Feb 2026 15:34:17 +0000 (GMT)
+	Tue, 10 Feb 2026 15:34:18 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: pbonzini@redhat.com
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
         borntraeger@de.ibm.com, david@kernel.org
-Subject: [GIT PULL v1 00/36] KVM/s390: Three small patches, and a huge series
-Date: Tue, 10 Feb 2026 16:33:41 +0100
-Message-ID: <20260210153417.77403-1-imbrenda@linux.ibm.com>
+Subject: [GIT PULL v1 02/36] KVM: s390: Refactor pgste lock and unlock functions
+Date: Tue, 10 Feb 2026 16:33:43 +0100
+Message-ID: <20260210153417.77403-3-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260210153417.77403-1-imbrenda@linux.ibm.com>
+References: <20260210153417.77403-1-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,162 +70,155 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=KZnfcAYD c=1 sm=1 tr=0 ts=698b4fff cx=c_pps
+X-Authority-Analysis: v=2.4 cv=WZYBqkhX c=1 sm=1 tr=0 ts=698b4fff cx=c_pps
  a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=Mpw57Om8IfrbqaoTuvik:22
- a=GgsMoib0sEa3-_RKJdDe:22 a=VwQbUJbxAAAA:8 a=TBH9b2Q15OCi6qkdPXcA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjEwMDEyOCBTYWx0ZWRfXyAoruUZ3NbMb
- hSGSQFuZVAINgy7hqN+Y1xA1Zk1cgR1vpPKVdAIoCLRJAqeZfnqdtuZYpE8QZBSbeaz28cSojrU
- ANSQEiH36gi0bqwr8bd5YK8xCBD0UhQS6iO+RS+szroP1TPRP1RscvUd/rbpba4Kd9n8GVKVvre
- BAxlc7PILg1/tk+xpNLf8WAgIDsTAY6gKnt+DJ83UjViWBJXWatSMN2PAPuJKz0++VAHct25O3b
- SDFStopeU3N1wDKkUn4lZU63DWNzWnS3yR/6OixeD2HeNWWIBn5TbN2NIRCLvJ8xE0YJX7kQy/7
- f59BOaRFXLEA0YTOwrLFHIPu80/LiQ29HKAR1saKTmtxZGZWLXALdITc6xzJdTNUvIWRUFWsOlb
- ebOwo72c9+HPu8B/AlT/Vq5uwkaeeo9Cmt/4amnKJxX5pif+3JQ/zwkr4LaSHFYDURwyWaq7vM6
- cbveAy9fYENEGMDFHHw==
-X-Proofpoint-ORIG-GUID: 53D5qIqjtfqOELPsfTW7n1GAxsn6hiDC
-X-Proofpoint-GUID: 53D5qIqjtfqOELPsfTW7n1GAxsn6hiDC
+ a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8 a=gw90SDbXj9Ny8T8iXsQA:9
+X-Proofpoint-GUID: V8v-CTxnYzawGDPdK61L70ahTK-CaAiM
+X-Proofpoint-ORIG-GUID: V8v-CTxnYzawGDPdK61L70ahTK-CaAiM
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjEwMDEyOCBTYWx0ZWRfX4z4WG67+DT7x
+ fZHq33AzZVQxfZZ/za1sGBoRBE0bIjmk5q9aVuRTYzFz6DDfSG85uireKeTKM+oojm9p3Coz5et
+ iyxcTtqDNaHRue2yzkpqKay07PXKu3h+TtJe0FoHFzvJAWNqgNo2recf1fjVpzmJsoV0cwCXUUb
+ FktJvR1wo9b+Gin65aAuub/7t6kFoip33ywKtZwalI2BNk8IXlYLTVvh+MEP1aRJgvOuwJXaV55
+ UAoA0KtsDFdrJ/iRlvJqWkBK7cpRq9kTcyTZJSyitp33co4IYQTwmp6FSWW2LCd4/h8QB3gsZfA
+ e4ytm1YodTtBBVPHgl6Fy3qNUf6KojcZniBBhpRXpZfXD/0BsQLRAjLObLlk1Vb1we+XLeXalzh
+ 8DWfWwyOxska3D6TgALMrL3uWj8+utHZ4km9pByP/cV5EB1oy74s90rg/MA5dHl4S1uxQ1RbZRY
+ k2xk5eW7pFuqjHxpIDA==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-02-10_01,2026-02-10_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 impostorscore=0 bulkscore=0 priorityscore=1501 adultscore=0
- clxscore=1015 suspectscore=0 phishscore=0 malwarescore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602100128
+ spamscore=0 clxscore=1015 phishscore=0 bulkscore=0 adultscore=0
+ priorityscore=1501 lowpriorityscore=0 suspectscore=0 impostorscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
+ definitions=main-2602100128
 
-Ciao Paolo, 
+Move the pgste lock and unlock functions back into mm/pgtable.c and
+duplicate them in mm/gmap_helpers.c to avoid function name collisions
+later on.
 
-Today's pull request is rather large, as it (finally!) contains the gmap
-rewrite.
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+---
+ arch/s390/include/asm/pgtable.h | 22 ----------------------
+ arch/s390/mm/gmap_helpers.c     | 23 ++++++++++++++++++++++-
+ arch/s390/mm/pgtable.c          | 23 ++++++++++++++++++++++-
+ 3 files changed, 44 insertions(+), 24 deletions(-)
 
-It also contains 3 small items:
-* vSIE performance improvement
-* maintainership update for s390 vfio-pci
-* small (but important) quality of life improvement for protected guests
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index bca9b29778c3..8194a2b12ecf 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -2040,26 +2040,4 @@ static inline unsigned long gmap_pgste_get_pgt_addr(unsigned long *pgt)
+ 	return res;
+ }
+ 
+-static inline pgste_t pgste_get_lock(pte_t *ptep)
+-{
+-	unsigned long value = 0;
+-#ifdef CONFIG_PGSTE
+-	unsigned long *ptr = (unsigned long *)(ptep + PTRS_PER_PTE);
+-
+-	do {
+-		value = __atomic64_or_barrier(PGSTE_PCL_BIT, ptr);
+-	} while (value & PGSTE_PCL_BIT);
+-	value |= PGSTE_PCL_BIT;
+-#endif
+-	return __pgste(value);
+-}
+-
+-static inline void pgste_set_unlock(pte_t *ptep, pgste_t pgste)
+-{
+-#ifdef CONFIG_PGSTE
+-	barrier();
+-	WRITE_ONCE(*(unsigned long *)(ptep + PTRS_PER_PTE), pgste_val(pgste) & ~PGSTE_PCL_BIT);
+-#endif
+-}
+-
+ #endif /* _S390_PAGE_H */
+diff --git a/arch/s390/mm/gmap_helpers.c b/arch/s390/mm/gmap_helpers.c
+index d41b19925a5a..4fba13675950 100644
+--- a/arch/s390/mm/gmap_helpers.c
++++ b/arch/s390/mm/gmap_helpers.c
+@@ -15,7 +15,6 @@
+ #include <linux/pagewalk.h>
+ #include <linux/ksm.h>
+ #include <asm/gmap_helpers.h>
+-#include <asm/pgtable.h>
+ 
+ /**
+  * ptep_zap_softleaf_entry() - discard a software leaf entry.
+@@ -35,6 +34,28 @@ static void ptep_zap_softleaf_entry(struct mm_struct *mm, softleaf_t entry)
+ 	free_swap_and_cache(entry);
+ }
+ 
++static inline pgste_t pgste_get_lock(pte_t *ptep)
++{
++	unsigned long value = 0;
++#ifdef CONFIG_PGSTE
++	unsigned long *ptr = (unsigned long *)(ptep + PTRS_PER_PTE);
++
++	do {
++		value = __atomic64_or_barrier(PGSTE_PCL_BIT, ptr);
++	} while (value & PGSTE_PCL_BIT);
++	value |= PGSTE_PCL_BIT;
++#endif
++	return __pgste(value);
++}
++
++static inline void pgste_set_unlock(pte_t *ptep, pgste_t pgste)
++{
++#ifdef CONFIG_PGSTE
++	barrier();
++	WRITE_ONCE(*(unsigned long *)(ptep + PTRS_PER_PTE), pgste_val(pgste) & ~PGSTE_PCL_BIT);
++#endif
++}
++
+ /**
+  * gmap_helper_zap_one_page() - discard a page if it was swapped.
+  * @mm: the mm
+diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+index 666adcd681ab..08743c1dac2f 100644
+--- a/arch/s390/mm/pgtable.c
++++ b/arch/s390/mm/pgtable.c
+@@ -24,7 +24,6 @@
+ #include <asm/tlbflush.h>
+ #include <asm/mmu_context.h>
+ #include <asm/page-states.h>
+-#include <asm/pgtable.h>
+ #include <asm/machine.h>
+ 
+ pgprot_t pgprot_writecombine(pgprot_t prot)
+@@ -116,6 +115,28 @@ static inline pte_t ptep_flush_lazy(struct mm_struct *mm,
+ 	return old;
+ }
+ 
++static inline pgste_t pgste_get_lock(pte_t *ptep)
++{
++	unsigned long value = 0;
++#ifdef CONFIG_PGSTE
++	unsigned long *ptr = (unsigned long *)(ptep + PTRS_PER_PTE);
++
++	do {
++		value = __atomic64_or_barrier(PGSTE_PCL_BIT, ptr);
++	} while (value & PGSTE_PCL_BIT);
++	value |= PGSTE_PCL_BIT;
++#endif
++	return __pgste(value);
++}
++
++static inline void pgste_set_unlock(pte_t *ptep, pgste_t pgste)
++{
++#ifdef CONFIG_PGSTE
++	barrier();
++	WRITE_ONCE(*(unsigned long *)(ptep + PTRS_PER_PTE), pgste_val(pgste) & ~PGSTE_PCL_BIT);
++#endif
++}
++
+ static inline pgste_t pgste_get(pte_t *ptep)
+ {
+ 	unsigned long pgste = 0;
+-- 
+2.53.0
 
-
-The following changes since commit 9448598b22c50c8a5bb77a9103e2d49f134c9578:
-
-  Linux 6.19-rc2 (2025-12-21 15:52:04 -0800)
-
-are available in the Git repository at:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-next-7.0-1
-
-for you to fetch changes up to e3372ffb5f9e2dda3da259b768aab6271672b90d:
-
-  KVM: s390: Increase permitted SE header size to 1 MiB (2026-02-10 12:21:30 +0100)
-
-----------------------------------------------------------------
-- gmap rewrite: completely new memory management for kvm/s390
-- vSIE improvement
-- maintainership change for s390 vfio-pci
-- small quality of life improvement for protected guests
-
-----------------------------------------------------------------
-Arnd Bergmann (1):
-      KVM: s390: Add explicit padding to struct kvm_s390_keyop
-
-Claudio Imbrenda (32):
-      KVM: s390: Refactor pgste lock and unlock functions
-      KVM: s390: Add P bit in table entry bitfields, move union vaddress
-      s390: Make UV folio operations work on whole folio
-      s390: Move sske_frame() to a header
-      KVM: s390: Add gmap_helper_set_unused()
-      KVM: s390: Introduce import_lock
-      KVM: s390: Export two functions
-      s390/mm: Warn if uv_convert_from_secure_pte() fails
-      KVM: s390: vsie: Pass gmap explicitly as parameter
-      KVM: s390: Enable KVM_GENERIC_MMU_NOTIFIER
-      KVM: s390: Rename some functions in gaccess.c
-      KVM: s390: KVM-specific bitfields and helper functions
-      KVM: s390: KVM page table management functions: allocation
-      KVM: s390: KVM page table management functions: clear and replace
-      KVM: s390: KVM page table management functions: walks
-      KVM: s390: KVM page table management functions: storage keys
-      KVM: s390: KVM page table management functions: lifecycle management
-      KVM: s390: KVM page table management functions: CMMA
-      KVM: s390: New gmap code
-      KVM: s390: Add helper functions for fault handling
-      KVM: s390: Add some helper functions needed for vSIE
-      KVM: s390: Stop using CONFIG_PGSTE
-      KVM: s390: Storage key functions refactoring
-      KVM: s390: Switch to new gmap
-      KVM: s390: Remove gmap from s390/mm
-      KVM: S390: Remove PGSTE code from linux/s390 mm
-      KVM: s390: Enable 1M pages for gmap
-      KVM: s390: Storage key manipulation IOCTL
-      KVM: s390: selftests: Add selftest for the KVM_S390_KEYOP ioctl
-      KVM: s390: Use guest address to mark guest page dirty
-      KVM: s390: vsie: Fix race in walk_guest_tables()
-      KVM: s390: vsie: Fix race in acquire_gmap_shadow()
-
-Eric Farman (2):
-      KVM: s390: vsie: retry SIE when unable to get vsie_page
-      MAINTAINERS: Replace backup for s390 vfio-pci
-
-Steffen Eiden (1):
-      KVM: s390: Increase permitted SE header size to 1 MiB
-
- Documentation/virt/kvm/api.rst           |   42 +
- MAINTAINERS                              |    5 +-
- arch/s390/Kconfig                        |    3 -
- arch/s390/include/asm/dat-bits.h         |   32 +-
- arch/s390/include/asm/gmap.h             |  174 ---
- arch/s390/include/asm/gmap_helpers.h     |    1 +
- arch/s390/include/asm/hugetlb.h          |    6 -
- arch/s390/include/asm/kvm_host.h         |    7 +
- arch/s390/include/asm/mmu.h              |   13 -
- arch/s390/include/asm/mmu_context.h      |    6 +-
- arch/s390/include/asm/page.h             |    4 -
- arch/s390/include/asm/pgalloc.h          |    4 -
- arch/s390/include/asm/pgtable.h          |  171 +--
- arch/s390/include/asm/tlb.h              |    3 -
- arch/s390/include/asm/uaccess.h          |   70 +-
- arch/s390/include/asm/uv.h               |    3 +-
- arch/s390/kernel/uv.c                    |  142 +-
- arch/s390/kvm/Kconfig                    |    2 +
- arch/s390/kvm/Makefile                   |    3 +-
- arch/s390/kvm/dat.c                      | 1391 +++++++++++++++++
- arch/s390/kvm/dat.h                      |  970 ++++++++++++
- arch/s390/kvm/diag.c                     |    2 +-
- arch/s390/kvm/faultin.c                  |  148 ++
- arch/s390/kvm/faultin.h                  |   92 ++
- arch/s390/kvm/gaccess.c                  |  961 +++++++-----
- arch/s390/kvm/gaccess.h                  |   20 +-
- arch/s390/kvm/gmap-vsie.c                |  141 --
- arch/s390/kvm/gmap.c                     | 1244 +++++++++++++++
- arch/s390/kvm/gmap.h                     |  244 +++
- arch/s390/kvm/intercept.c                |   15 +-
- arch/s390/kvm/interrupt.c                |   12 +-
- arch/s390/kvm/kvm-s390.c                 |  958 +++++-------
- arch/s390/kvm/kvm-s390.h                 |   27 +-
- arch/s390/kvm/priv.c                     |  213 +--
- arch/s390/kvm/pv.c                       |  177 ++-
- arch/s390/kvm/vsie.c                     |  202 +--
- arch/s390/lib/uaccess.c                  |  184 +--
- arch/s390/mm/Makefile                    |    1 -
- arch/s390/mm/fault.c                     |    4 +-
- arch/s390/mm/gmap.c                      | 2436 ------------------------------
- arch/s390/mm/gmap_helpers.c              |   96 +-
- arch/s390/mm/hugetlbpage.c               |   24 -
- arch/s390/mm/page-states.c               |    1 +
- arch/s390/mm/pageattr.c                  |    7 -
- arch/s390/mm/pgalloc.c                   |   24 -
- arch/s390/mm/pgtable.c                   |  814 +---------
- include/linux/kvm_host.h                 |    2 +
- include/uapi/linux/kvm.h                 |   12 +
- mm/khugepaged.c                          |    9 -
- tools/testing/selftests/kvm/Makefile.kvm |    1 +
- tools/testing/selftests/kvm/s390/keyop.c |  299 ++++
- 51 files changed, 5920 insertions(+), 5502 deletions(-)
- delete mode 100644 arch/s390/include/asm/gmap.h
- create mode 100644 arch/s390/kvm/dat.c
- create mode 100644 arch/s390/kvm/dat.h
- create mode 100644 arch/s390/kvm/faultin.c
- create mode 100644 arch/s390/kvm/faultin.h
- delete mode 100644 arch/s390/kvm/gmap-vsie.c
- create mode 100644 arch/s390/kvm/gmap.c
- create mode 100644 arch/s390/kvm/gmap.h
- delete mode 100644 arch/s390/mm/gmap.c
- create mode 100644 tools/testing/selftests/kvm/s390/keyop.c
