@@ -1,64 +1,64 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2B933168FB;
-	Tue, 10 Feb 2026 15:34:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F16C13876DE;
+	Tue, 10 Feb 2026 15:34:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770737674; cv=none; b=Wv3KCvNpWktBbbNNlvXYzrtHv1VbFeq9nPKfDsYYUxOtF8d5U1u/5CfZew+2dXdXCdeS38UWUWGVpObss6Fx6ot/nyjK1HjO8Xc7PURtx2Tcf2Fbix69qPytOqGCnhzK9HeaFF4cZrNObkGFdKlCHauWVO3/tVvpg46v6cR4jnE=
+	t=1770737677; cv=none; b=N8tYBebu2/CTBXzpVoyYpIiyZf1e5bqJyjWM2oYd2fnnjK85HtyBykFrBI/aNKnLX8wdZbaTq64vAEifzOgggRVZbVLVUSbLpIWSe1st8PcPdl0R1OfeB48cEf/jDdwwf/Sc2C/lClaZ00ycKNP174bR+8Y9csMlk7IdJjn2D9I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770737674; c=relaxed/simple;
-	bh=lYcOBwceqJl6dgBwGgTT3r6m/jio3B/zEMFURvVwi1Q=;
+	s=arc-20240116; t=1770737677; c=relaxed/simple;
+	bh=JKojCQvri4Hh5DPjQNQmzpTzSfGXmx0a8lmsDtfaVEk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dX+YKbeMJZTgRzCybRrtpxOKKNaLjiebYwtjfjTBxMVEikqY8IXGSCyeHUURfVHPDipnO34ZCCwxtnHVy53hYyM4yu6uuYuTP+KUPkWEIY/CMT816FSkFW5ud0kKx7jt4ixOuGLKdSF0azYdOBUbqHmC2BPoYl8K98w0Pn5Plcs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=V1O5tcl7; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=fIvkTyMbDvmWr16k3abVTCum8YuvZD57R34PjT0c62WUystKBaVWMnRQ/Y2pBKA7bDxdhgqea4QLx9RqtEMhL+H0o/iZEIJp5kBth8jsNdK7B8IynHsNOuZOF5kuN0VgkUJgJF3fpR1fBcM5jLKT7wKc8VZcV3NndOFWdcFSi9s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LF0v5c/s; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="V1O5tcl7"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LF0v5c/s"
 Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61A8URIs238024;
-	Tue, 10 Feb 2026 15:34:30 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61A9U6iP169452;
+	Tue, 10 Feb 2026 15:34:31 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=2rlpQDWL+jQ7ihryU
-	Jy6xst+JFg/i/8ic7ARCHqXioU=; b=V1O5tcl75+o0PlYKWswqGulD7i9SwGiam
-	ksK/KJ0TfctMsyUnsQtGgV2b5cJvQqbwIBDHKb89QoS+Q/FnUwHAdokLxDWa/sAZ
-	oE5YSyuwWStiHReDcxYvNuWzlFYpu3iI7VbtpmbbIWSM/nlgvXwbC6xHOUcgQrB2
-	34024H4vTDWKXv84Fcj79mc91h54Qqg4tZglKziAwlv6TPlDtcVpWBE+803D3Ak3
-	un1PB1wGATf3WjVgFQoj9SkFyYw+PcCB25hixmQTJrYl/lHLKJN4tUGfxcQvT4Vk
-	GKbPtBNwBw+a5Q+sIlZLG8MOq7SoVm0bl3vtonUTb/70cCF2zv9fg==
+	:mime-version:references:subject:to; s=pp1; bh=8Ka7ANGKUYlYsC2q2
+	0si1LZvoXzOb0Lr13OYaU8q55Q=; b=LF0v5c/sTuZ0Nxy6zJm36f5P8MF5NMmgZ
+	5jNxRRc2rtINKGgCjceyfGGOAMa14d8bHBFPiiH7xSWqv18GeVke3JHVyh/ZzcV1
+	h3PNkgG4q6SqZ8+YI8MwKbO7bD8L/BK/9oCchO/ziPipN2mPsvYBCcDAu4AQuSk9
+	ZLLiGUgzAdKaQvVjfF8JwcpXW0L4A6KXi5408hcKYMsZtABs93RYtqRmls/kg705
+	W4f7AE3rgfWcm0Q3XV/FnJScfvfS6lz2zN/i4vvVWyV+7VXsfBMmoKhJv3A+MlmQ
+	IGlhCWFNUfOQbZ6adItZav5vn1KLZOLT+avb6XrUFPTh1KK/BsTGw==
 Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c696w4x96-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c696w4x9c-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Feb 2026 15:34:30 +0000 (GMT)
+	Tue, 10 Feb 2026 15:34:31 +0000 (GMT)
 Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61AEtiOZ012996;
-	Tue, 10 Feb 2026 15:34:28 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4c6h7k9rg2-1
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61AEtiOa012996;
+	Tue, 10 Feb 2026 15:34:30 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4c6h7k9rg5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Feb 2026 15:34:28 +0000
+	Tue, 10 Feb 2026 15:34:30 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61AFYOLU35324262
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61AFYQYj39190986
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 10 Feb 2026 15:34:25 GMT
+	Tue, 10 Feb 2026 15:34:26 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D263D20043;
-	Tue, 10 Feb 2026 15:34:24 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 0CBD820040;
+	Tue, 10 Feb 2026 15:34:26 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 62E0520040;
-	Tue, 10 Feb 2026 15:34:24 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 8F4A92004B;
+	Tue, 10 Feb 2026 15:34:25 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.111.20.252])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 10 Feb 2026 15:34:24 +0000 (GMT)
+	Tue, 10 Feb 2026 15:34:25 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: pbonzini@redhat.com
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
         borntraeger@de.ibm.com, david@kernel.org
-Subject: [GIT PULL v1 12/36] KVM: s390: Rename some functions in gaccess.c
-Date: Tue, 10 Feb 2026 16:33:53 +0100
-Message-ID: <20260210153417.77403-13-imbrenda@linux.ibm.com>
+Subject: [GIT PULL v1 14/36] KVM: s390: KVM page table management functions: allocation
+Date: Tue, 10 Feb 2026 16:33:55 +0100
+Message-ID: <20260210153417.77403-15-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260210153417.77403-1-imbrenda@linux.ibm.com>
 References: <20260210153417.77403-1-imbrenda@linux.ibm.com>
@@ -70,20 +70,21 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=YeCwJgRf c=1 sm=1 tr=0 ts=698b5006 cx=c_pps
+X-Authority-Analysis: v=2.4 cv=YeCwJgRf c=1 sm=1 tr=0 ts=698b5007 cx=c_pps
  a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=Mpw57Om8IfrbqaoTuvik:22
- a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8 a=daTLW1200KpnZZ0VTdgA:9
-X-Proofpoint-GUID: HPt5apcoqj29d30RQCC2Ly9SKstMV9P-
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjEwMDEyOCBTYWx0ZWRfX67NnAvw435L8
- 8SWnf4K8N5dNxjiu64nY4Rzx3z0wPp/s+s8rkOr/iwuQe6H2Jwki7a1UEQFf31V/GMndm8UrJMj
- uHirHYoWvsFWvoR83YoUpyudkb+f2x5jDPkU83e7GtjIbMgGvDTmTaM4au1O5Z7YON+VCoo26Oh
- bRCy8HzXBxUpIbqIZrhr0pR7RAwsqJl8sgbQp166jT/C0+420wugZdAC0L0XTAU7UuGoOThh7Ha
- ZQdVighzDS7UC+HCZb4jXdxKdRnN25t2C4jPc9QXMxZEONlH6sh+zWQowN7VRjzhVdSo9wXlzCw
- k4cYZtaGGoUQnX6crh49/4ESMxVYItJQvD2gdNLv97Sd5ZskqoYIO5asD7uSFikia7Wyvyp2OYa
- /XnOjV2xUZjOIiZ00cXwRkRhgh0SZQldkBweA87aRb0mOqPNVtp8JIdn0Ady/eaEtAzTJ4OYifh
- WF2ZuSOI6lrtG/jn7iw==
-X-Proofpoint-ORIG-GUID: HPt5apcoqj29d30RQCC2Ly9SKstMV9P-
+ a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8 a=20KFwNOVAAAA:8
+ a=8uwlcYluBythuep4mtsA:9
+X-Proofpoint-GUID: 7enHlgfFF6t2Tdle9F-0jhoGA73j7hPd
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjEwMDEyOCBTYWx0ZWRfX0zlZCOV3RdrP
+ QhOLoL6dMGuQZDC91zZbsX+wWzjSUDj5IkjA8mKIHEJUnBeSUpzTWGgupUJ81ceSWDiBtS64F3x
+ DgVPP2xOOhu5gOXS9YLZ88HweplsSZYV1GX59IFWJRNSbdUCd/GKe+oCdx/pLYs9+py8v7lErZ+
+ PW9WeJrR+ukxcB0y6OEjMQ1/Vqle/Lb0emVJyGEXQZluG7Q9Z1nTShUjnaeZIyMwVAi9wisZGWy
+ B/RpGT5SFNK/zWBmPRkEjfEAOfAQ6uE2jodDNrU5+HEmWyc6jCOgqP4usGwLm6wMeMJEMFRFkPm
+ DIHUZjgRxi1V1T19UFzEVEN5qAi0JSo/vovBQPWbipjNjLzPpAdVHtyT3Imw30OdmTWUdZd5GSi
+ BwQROSfM2J5NtqH59p6TJZtrj8xgrd4Azr9PNXgj8YXAhwkYMiqYd3qsxUC6P94Ma++naLdGHtC
+ zq6ZoSw9zYCHJRHVyCA==
+X-Proofpoint-ORIG-GUID: 7enHlgfFF6t2Tdle9F-0jhoGA73j7hPd
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-02-10_01,2026-02-10_02,2025-10-01_01
@@ -94,169 +95,248 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
  definitions=main-2602100128
 
-Rename some functions in gaccess.c to add a _gva or _gpa suffix to
-indicate whether the function accepts a virtual or a guest-absolute
-address.
+Add page table management functions to be used for KVM guest (gmap)
+page tables.
 
-This makes it easier to understand the code.
+This patch adds the boilerplate and functions for the allocation and
+deallocation of DAT tables.
 
-Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
-Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 Acked-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- arch/s390/kvm/gaccess.c | 51 +++++++++++++++++++----------------------
- 1 file changed, 24 insertions(+), 27 deletions(-)
+ arch/s390/kvm/Makefile     |   1 +
+ arch/s390/kvm/dat.c        | 103 +++++++++++++++++++++++++++++++++++++
+ arch/s390/kvm/dat.h        |  77 +++++++++++++++++++++++++++
+ arch/s390/mm/page-states.c |   1 +
+ 4 files changed, 182 insertions(+)
+ create mode 100644 arch/s390/kvm/dat.c
 
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index d8347f7cbe51..9df868bddf9a 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -397,7 +397,7 @@ static int deref_table(struct kvm *kvm, unsigned long gpa, unsigned long *val)
+diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
+index 9a723c48b05a..84315d2f75fb 100644
+--- a/arch/s390/kvm/Makefile
++++ b/arch/s390/kvm/Makefile
+@@ -9,6 +9,7 @@ ccflags-y := -Ivirt/kvm -Iarch/s390/kvm
+ 
+ kvm-y += kvm-s390.o intercept.o interrupt.o priv.o sigp.o
+ kvm-y += diag.o gaccess.o guestdbg.o vsie.o pv.o gmap-vsie.o
++kvm-y += dat.o
+ 
+ kvm-$(CONFIG_VFIO_PCI_ZDEV_KVM) += pci.o
+ obj-$(CONFIG_KVM) += kvm.o
+diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
+new file mode 100644
+index 000000000000..c324a27f379f
+--- /dev/null
++++ b/arch/s390/kvm/dat.c
+@@ -0,0 +1,103 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ *  KVM guest address space mapping code
++ *
++ *    Copyright IBM Corp. 2007, 2020, 2024
++ *    Author(s): Claudio Imbrenda <imbrenda@linux.ibm.com>
++ *		 Martin Schwidefsky <schwidefsky@de.ibm.com>
++ *		 David Hildenbrand <david@redhat.com>
++ *		 Janosch Frank <frankja@linux.ibm.com>
++ */
++
++#include <linux/kernel.h>
++#include <linux/pagewalk.h>
++#include <linux/swap.h>
++#include <linux/smp.h>
++#include <linux/spinlock.h>
++#include <linux/slab.h>
++#include <linux/swapops.h>
++#include <linux/ksm.h>
++#include <linux/mm.h>
++#include <linux/mman.h>
++#include <linux/pgtable.h>
++#include <linux/kvm_types.h>
++#include <linux/kvm_host.h>
++#include <linux/pgalloc.h>
++
++#include <asm/page-states.h>
++#include <asm/tlb.h>
++#include "dat.h"
++
++int kvm_s390_mmu_cache_topup(struct kvm_s390_mmu_cache *mc)
++{
++	void *o;
++
++	for ( ; mc->n_crsts < KVM_S390_MMU_CACHE_N_CRSTS; mc->n_crsts++) {
++		o = (void *)__get_free_pages(GFP_KERNEL_ACCOUNT | __GFP_COMP, CRST_ALLOC_ORDER);
++		if (!o)
++			return -ENOMEM;
++		mc->crsts[mc->n_crsts] = o;
++	}
++	for ( ; mc->n_pts < KVM_S390_MMU_CACHE_N_PTS; mc->n_pts++) {
++		o = (void *)__get_free_page(GFP_KERNEL_ACCOUNT);
++		if (!o)
++			return -ENOMEM;
++		mc->pts[mc->n_pts] = o;
++	}
++	for ( ; mc->n_rmaps < KVM_S390_MMU_CACHE_N_RMAPS; mc->n_rmaps++) {
++		o = kzalloc(sizeof(*mc->rmaps[0]), GFP_KERNEL_ACCOUNT);
++		if (!o)
++			return -ENOMEM;
++		mc->rmaps[mc->n_rmaps] = o;
++	}
++	return 0;
++}
++
++static inline struct page_table *dat_alloc_pt_noinit(struct kvm_s390_mmu_cache *mc)
++{
++	struct page_table *res;
++
++	res = kvm_s390_mmu_cache_alloc_pt(mc);
++	if (res)
++		__arch_set_page_dat(res, 1);
++	return res;
++}
++
++static inline struct crst_table *dat_alloc_crst_noinit(struct kvm_s390_mmu_cache *mc)
++{
++	struct crst_table *res;
++
++	res = kvm_s390_mmu_cache_alloc_crst(mc);
++	if (res)
++		__arch_set_page_dat(res, 1UL << CRST_ALLOC_ORDER);
++	return res;
++}
++
++struct crst_table *dat_alloc_crst_sleepable(unsigned long init)
++{
++	struct page *page;
++	void *virt;
++
++	page = alloc_pages(GFP_KERNEL_ACCOUNT | __GFP_COMP, CRST_ALLOC_ORDER);
++	if (!page)
++		return NULL;
++	virt = page_to_virt(page);
++	__arch_set_page_dat(virt, 1UL << CRST_ALLOC_ORDER);
++	crst_table_init(virt, init);
++	return virt;
++}
++
++void dat_free_level(struct crst_table *table, bool owns_ptes)
++{
++	unsigned int i;
++
++	for (i = 0; i < _CRST_ENTRIES; i++) {
++		if (table->crstes[i].h.fc || table->crstes[i].h.i)
++			continue;
++		if (!is_pmd(table->crstes[i]))
++			dat_free_level(dereference_crste(table->crstes[i]), owns_ptes);
++		else if (owns_ptes)
++			dat_free_pt(dereference_pmd(table->crstes[i].pmd));
++	}
++	dat_free_crst(table);
++}
+diff --git a/arch/s390/kvm/dat.h b/arch/s390/kvm/dat.h
+index d5e1a45813bc..a053f0d49bae 100644
+--- a/arch/s390/kvm/dat.h
++++ b/arch/s390/kvm/dat.h
+@@ -418,6 +418,46 @@ struct vsie_rmap {
+ 
+ static_assert(sizeof(struct vsie_rmap) == 2 * sizeof(long));
+ 
++#define KVM_S390_MMU_CACHE_N_CRSTS	6
++#define KVM_S390_MMU_CACHE_N_PTS	2
++#define KVM_S390_MMU_CACHE_N_RMAPS	16
++struct kvm_s390_mmu_cache {
++	void *crsts[KVM_S390_MMU_CACHE_N_CRSTS];
++	void *pts[KVM_S390_MMU_CACHE_N_PTS];
++	void *rmaps[KVM_S390_MMU_CACHE_N_RMAPS];
++	short int n_crsts;
++	short int n_pts;
++	short int n_rmaps;
++};
++
++void dat_free_level(struct crst_table *table, bool owns_ptes);
++struct crst_table *dat_alloc_crst_sleepable(unsigned long init);
++
++int kvm_s390_mmu_cache_topup(struct kvm_s390_mmu_cache *mc);
++
++#define GFP_KVM_S390_MMU_CACHE (GFP_ATOMIC | __GFP_ACCOUNT | __GFP_NOWARN)
++
++static inline struct page_table *kvm_s390_mmu_cache_alloc_pt(struct kvm_s390_mmu_cache *mc)
++{
++	if (mc->n_pts)
++		return mc->pts[--mc->n_pts];
++	return (void *)__get_free_page(GFP_KVM_S390_MMU_CACHE);
++}
++
++static inline struct crst_table *kvm_s390_mmu_cache_alloc_crst(struct kvm_s390_mmu_cache *mc)
++{
++	if (mc->n_crsts)
++		return mc->crsts[--mc->n_crsts];
++	return (void *)__get_free_pages(GFP_KVM_S390_MMU_CACHE | __GFP_COMP, CRST_ALLOC_ORDER);
++}
++
++static inline struct vsie_rmap *kvm_s390_mmu_cache_alloc_rmap(struct kvm_s390_mmu_cache *mc)
++{
++	if (mc->n_rmaps)
++		return mc->rmaps[--mc->n_rmaps];
++	return kzalloc(sizeof(struct vsie_rmap), GFP_KVM_S390_MMU_CACHE);
++}
++
+ static inline struct crst_table *crste_table_start(union crste *crstep)
+ {
+ 	return (struct crst_table *)ALIGN_DOWN((unsigned long)crstep, _CRST_TABLE_SIZE);
+@@ -717,4 +757,41 @@ static inline void pgste_set_unlock(union pte *ptep, union pgste pgste)
+ 	WRITE_ONCE(*pgste_of(ptep), pgste);
  }
  
- /**
-- * guest_translate - translate a guest virtual into a guest absolute address
-+ * guest_translate_gva() - translate a guest virtual into a guest absolute address
-  * @vcpu: virtual cpu
-  * @gva: guest virtual address
-  * @gpa: points to where guest physical (absolute) address should be stored
-@@ -417,9 +417,9 @@ static int deref_table(struct kvm *kvm, unsigned long gpa, unsigned long *val)
-  *	      the returned value is the program interruption code as defined
-  *	      by the architecture
-  */
--static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
--				     unsigned long *gpa, const union asce asce,
--				     enum gacc_mode mode, enum prot_type *prot)
-+static unsigned long guest_translate_gva(struct kvm_vcpu *vcpu, unsigned long gva,
-+					 unsigned long *gpa, const union asce asce,
-+					 enum gacc_mode mode, enum prot_type *prot)
++static inline void dat_free_pt(struct page_table *pt)
++{
++	free_page((unsigned long)pt);
++}
++
++static inline void _dat_free_crst(struct crst_table *table)
++{
++	free_pages((unsigned long)table, CRST_ALLOC_ORDER);
++}
++
++#define dat_free_crst(x) _dat_free_crst(_CRSTP(x))
++
++static inline void kvm_s390_free_mmu_cache(struct kvm_s390_mmu_cache *mc)
++{
++	if (!mc)
++		return;
++	while (mc->n_pts)
++		dat_free_pt(mc->pts[--mc->n_pts]);
++	while (mc->n_crsts)
++		_dat_free_crst(mc->crsts[--mc->n_crsts]);
++	while (mc->n_rmaps)
++		kfree(mc->rmaps[--mc->n_rmaps]);
++	kfree(mc);
++}
++
++DEFINE_FREE(kvm_s390_mmu_cache, struct kvm_s390_mmu_cache *, if (_T) kvm_s390_free_mmu_cache(_T))
++
++static inline struct kvm_s390_mmu_cache *kvm_s390_new_mmu_cache(void)
++{
++	struct kvm_s390_mmu_cache *mc __free(kvm_s390_mmu_cache) = NULL;
++
++	mc = kzalloc(sizeof(*mc), GFP_KERNEL_ACCOUNT);
++	if (mc && !kvm_s390_mmu_cache_topup(mc))
++		return_ptr(mc);
++	return NULL;
++}
++
+ #endif /* __KVM_S390_DAT_H */
+diff --git a/arch/s390/mm/page-states.c b/arch/s390/mm/page-states.c
+index 01f9b39e65f5..5bee173db72e 100644
+--- a/arch/s390/mm/page-states.c
++++ b/arch/s390/mm/page-states.c
+@@ -13,6 +13,7 @@
+ #include <asm/page.h>
+ 
+ int __bootdata_preserved(cmma_flag);
++EXPORT_SYMBOL(cmma_flag);
+ 
+ void arch_free_page(struct page *page, int order)
  {
- 	union vaddress vaddr = {.addr = gva};
- 	union raddress raddr = {.addr = gva};
-@@ -600,8 +600,8 @@ static int low_address_protection_enabled(struct kvm_vcpu *vcpu,
- 	return 1;
- }
- 
--static int vm_check_access_key(struct kvm *kvm, u8 access_key,
--			       enum gacc_mode mode, gpa_t gpa)
-+static int vm_check_access_key_gpa(struct kvm *kvm, u8 access_key,
-+				   enum gacc_mode mode, gpa_t gpa)
- {
- 	u8 storage_key, access_control;
- 	bool fetch_protected;
-@@ -663,9 +663,9 @@ static bool storage_prot_override_applies(u8 access_control)
- 	return access_control == PAGE_SPO_ACC;
- }
- 
--static int vcpu_check_access_key(struct kvm_vcpu *vcpu, u8 access_key,
--				 enum gacc_mode mode, union asce asce, gpa_t gpa,
--				 unsigned long ga, unsigned int len)
-+static int vcpu_check_access_key_gpa(struct kvm_vcpu *vcpu, u8 access_key,
-+				     enum gacc_mode mode, union asce asce, gpa_t gpa,
-+				     unsigned long ga, unsigned int len)
- {
- 	u8 storage_key, access_control;
- 	unsigned long hva;
-@@ -757,7 +757,7 @@ static int guest_range_to_gpas(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
- 			return trans_exc(vcpu, PGM_PROTECTION, ga, ar, mode,
- 					 PROT_TYPE_LA);
- 		if (psw_bits(*psw).dat) {
--			rc = guest_translate(vcpu, ga, &gpa, asce, mode, &prot);
-+			rc = guest_translate_gva(vcpu, ga, &gpa, asce, mode, &prot);
- 			if (rc < 0)
- 				return rc;
- 		} else {
-@@ -769,8 +769,7 @@ static int guest_range_to_gpas(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
- 		}
- 		if (rc)
- 			return trans_exc(vcpu, rc, ga, ar, mode, prot);
--		rc = vcpu_check_access_key(vcpu, access_key, mode, asce, gpa, ga,
--					   fragment_len);
-+		rc = vcpu_check_access_key_gpa(vcpu, access_key, mode, asce, gpa, ga, fragment_len);
- 		if (rc)
- 			return trans_exc(vcpu, rc, ga, ar, mode, PROT_TYPE_KEYC);
- 		if (gpas)
-@@ -782,8 +781,8 @@ static int guest_range_to_gpas(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
- 	return 0;
- }
- 
--static int access_guest_page(struct kvm *kvm, enum gacc_mode mode, gpa_t gpa,
--			     void *data, unsigned int len)
-+static int access_guest_page_gpa(struct kvm *kvm, enum gacc_mode mode, gpa_t gpa,
-+				 void *data, unsigned int len)
- {
- 	const unsigned int offset = offset_in_page(gpa);
- 	const gfn_t gfn = gpa_to_gfn(gpa);
-@@ -798,9 +797,8 @@ static int access_guest_page(struct kvm *kvm, enum gacc_mode mode, gpa_t gpa,
- 	return rc;
- }
- 
--static int
--access_guest_page_with_key(struct kvm *kvm, enum gacc_mode mode, gpa_t gpa,
--			   void *data, unsigned int len, u8 access_key)
-+static int access_guest_page_with_key_gpa(struct kvm *kvm, enum gacc_mode mode, gpa_t gpa,
-+					  void *data, unsigned int len, u8 access_key)
- {
- 	struct kvm_memory_slot *slot;
- 	bool writable;
-@@ -808,7 +806,7 @@ access_guest_page_with_key(struct kvm *kvm, enum gacc_mode mode, gpa_t gpa,
- 	hva_t hva;
- 	int rc;
- 
--	gfn = gpa >> PAGE_SHIFT;
-+	gfn = gpa_to_gfn(gpa);
- 	slot = gfn_to_memslot(kvm, gfn);
- 	hva = gfn_to_hva_memslot_prot(slot, gfn, &writable);
- 
-@@ -841,7 +839,7 @@ int access_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, void *data,
- 
- 	while (min(PAGE_SIZE - offset, len) > 0) {
- 		fragment_len = min(PAGE_SIZE - offset, len);
--		rc = access_guest_page_with_key(kvm, mode, gpa, data, fragment_len, access_key);
-+		rc = access_guest_page_with_key_gpa(kvm, mode, gpa, data, fragment_len, access_key);
- 		if (rc)
- 			return rc;
- 		offset = 0;
-@@ -901,15 +899,14 @@ int access_guest_with_key(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
- 	for (idx = 0; idx < nr_pages; idx++) {
- 		fragment_len = min(PAGE_SIZE - offset_in_page(gpas[idx]), len);
- 		if (try_fetch_prot_override && fetch_prot_override_applies(ga, fragment_len)) {
--			rc = access_guest_page(vcpu->kvm, mode, gpas[idx],
--					       data, fragment_len);
-+			rc = access_guest_page_gpa(vcpu->kvm, mode, gpas[idx], data, fragment_len);
- 		} else {
--			rc = access_guest_page_with_key(vcpu->kvm, mode, gpas[idx],
--							data, fragment_len, access_key);
-+			rc = access_guest_page_with_key_gpa(vcpu->kvm, mode, gpas[idx],
-+							    data, fragment_len, access_key);
- 		}
- 		if (rc == PGM_PROTECTION && try_storage_prot_override)
--			rc = access_guest_page_with_key(vcpu->kvm, mode, gpas[idx],
--							data, fragment_len, PAGE_SPO_ACC);
-+			rc = access_guest_page_with_key_gpa(vcpu->kvm, mode, gpas[idx],
-+							    data, fragment_len, PAGE_SPO_ACC);
- 		if (rc)
- 			break;
- 		len -= fragment_len;
-@@ -943,7 +940,7 @@ int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
- 	while (len && !rc) {
- 		gpa = kvm_s390_real_to_abs(vcpu, gra);
- 		fragment_len = min(PAGE_SIZE - offset_in_page(gpa), len);
--		rc = access_guest_page(vcpu->kvm, mode, gpa, data, fragment_len);
-+		rc = access_guest_page_gpa(vcpu->kvm, mode, gpa, data, fragment_len);
- 		len -= fragment_len;
- 		gra += fragment_len;
- 		data += fragment_len;
-@@ -1134,7 +1131,7 @@ int check_gpa_range(struct kvm *kvm, unsigned long gpa, unsigned long length,
- 
- 	while (length && !rc) {
- 		fragment_len = min(PAGE_SIZE - offset_in_page(gpa), length);
--		rc = vm_check_access_key(kvm, access_key, mode, gpa);
-+		rc = vm_check_access_key_gpa(kvm, access_key, mode, gpa);
- 		length -= fragment_len;
- 		gpa += fragment_len;
- 	}
 -- 
 2.53.0
 
