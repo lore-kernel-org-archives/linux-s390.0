@@ -1,64 +1,64 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CE962ED159;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6B922EC09B;
 	Tue, 10 Feb 2026 15:34:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770737669; cv=none; b=uxPnVPMNNVU94LLbhDPT04R/c9W/ChSA70ihilG7XlJjNtTtH5JdyJYYTmqkT6pgfMMOD1ihp3A4avafrJie61nldWA6jWaRVDcgRNWtWwGxR4d2SXNYg+9VCZ2YWZJbQwofMaeXgrpPo7u2Jf1681p43inzuksQo/6yIk3clnU=
+	t=1770737669; cv=none; b=s6S68JmbaeN2g4r7phis+FNHPBhtES4MgEMNI6GILh7LH7eWOCM7kWIyzLg8hSibE0Q5y/W9mBxlva0W2TJ7YdJ3Zl/yB8SgFUudN8WiJoh2yOT0byi7GpZhlq2+jHsZbbnqeUByILZYU7nx6FGBC44kC1RjxvXg1J6aVQ3sBYs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1770737669; c=relaxed/simple;
-	bh=60muwHQpdJbJvA4hVkVooOTmRLS3UGj1TrUrqP6qlwI=;
+	bh=p/gOpi0D7OMrt6kNeQy8qase9TgkdVKaAlFfz0PV6ZA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=XJUUm0jq3elfJ1IZsLBhxjOtLucowmfZScQ2dEr5tLNgQuXSMpcJkWuWU0KA8DsHmy1T1J4icyRuEyxQBPkPsdSII0czLSdo4PodmZ5WKg/yn48cHxJGinH9Au8U6XPZydxFVZZ75XG6SunsJqWCBHvymJyR6uTJyFfMAC8F4fU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=m4OJ4KDg; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=uZyqPcXzecnVvykCPa80hngA6dDkGzS8aR5+SS0S48+HXe4Om0n0a+5JgEabanvub948SIFavhLMjF+ySK8qiJ8r0KkPj3cyMlnu0zCyowmrvdw3V6JEmESDrxP2oueLFthHRqdG5FDr3RNNt09LCFurG5DjorUsOVmpVzDgdkY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bF8LCdLx; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="m4OJ4KDg"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61ACE8j2626186;
-	Tue, 10 Feb 2026 15:34:24 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bF8LCdLx"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61AA7Fe0328612;
+	Tue, 10 Feb 2026 15:34:25 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=dd/GQ3Sm4MVZx+7Uf
-	NL4349XEoHH8L3U+u6yHniCta4=; b=m4OJ4KDg4qXUdDGy+23EeaPDIH0ZAiXdb
-	57r86SLf4os1mvgRbMJuY0rDnaS8ic+y9FrkUbSywV1RNwwnPdYyLkMq3CiBptx2
-	9otHDSqzs3/XI4HtJu46mJ9UgOCDQblLJoxjVS6WFBFdRSywV6Js2gK94UKM+1zL
-	aDqFedRoRf4WClYSqWpYxM1rvmFuLfpRpnZuHmJUcM4P3QCMZ7n2dw3doHIE6J7A
-	QI3w9DJ3aUJGweOovB6+AE22ZkuoXksJDlm45O/I1rSLk6cJu2rlnXoOZMEyhQt1
-	fdZNXvA6t6kLi4yJPfaoYaWh68yHZBw9PnaX+LJRUK1nyUO+YDpWg==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c696wtska-1
+	:mime-version:references:subject:to; s=pp1; bh=pKqlgRAY2lBdS7BZm
+	AZ1T0IyXXzM2JNX/rOIrchCiVc=; b=bF8LCdLxeohvl//JkAptHr1qrSjzNvriW
+	vqpMpPw1yoVEzg4WOaoNQmZDUsCVVlN05Wk+cEqx7seuVJZL2A5d4nVf8VEvEfbj
+	pdOJK+EV9AE4IO+ypMOqS89gxPRN8j9bhWqSr3JWdqqixU0Xbs7vYdat157UO3G5
+	SSw/kQPi+S5nu4uKHAyk6KmnYNFlgshaO6rn9RVT4BDgOuuNw65gClmopJ45/kxd
+	0WuvIQCrvBTJzP5a4cWK9OghFzDMC4UoaF6zKP67gbFgOg5BeU03IwE1SgEeBNPK
+	7ZJamVZD//+VH9uyJthqT1zFgS8VSdcPKPq2/KB5aVIZcy1KwFOJA==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c696uts1c-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Feb 2026 15:34:23 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61AEk30d001407;
-	Tue, 10 Feb 2026 15:34:23 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4c6gqn1veq-1
+	Tue, 10 Feb 2026 15:34:24 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61ABYTSa019258;
+	Tue, 10 Feb 2026 15:34:24 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4c6hxk1nvv-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 10 Feb 2026 15:34:23 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61AFYJJA37093868
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61AFYKOH59638074
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 10 Feb 2026 15:34:19 GMT
+	Tue, 10 Feb 2026 15:34:20 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1D3F820043;
+	by IMSVA (Postfix) with ESMTP id 412472004B;
+	Tue, 10 Feb 2026 15:34:20 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C31E820040;
 	Tue, 10 Feb 2026 15:34:19 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9FE6620040;
-	Tue, 10 Feb 2026 15:34:18 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.111.20.252])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 10 Feb 2026 15:34:18 +0000 (GMT)
+	Tue, 10 Feb 2026 15:34:19 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: pbonzini@redhat.com
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
         borntraeger@de.ibm.com, david@kernel.org
-Subject: [GIT PULL v1 02/36] KVM: s390: Refactor pgste lock and unlock functions
-Date: Tue, 10 Feb 2026 16:33:43 +0100
-Message-ID: <20260210153417.77403-3-imbrenda@linux.ibm.com>
+Subject: [GIT PULL v1 04/36] s390: Make UV folio operations work on whole folio
+Date: Tue, 10 Feb 2026 16:33:45 +0100
+Message-ID: <20260210153417.77403-5-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260210153417.77403-1-imbrenda@linux.ibm.com>
 References: <20260210153417.77403-1-imbrenda@linux.ibm.com>
@@ -70,155 +70,88 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=WZYBqkhX c=1 sm=1 tr=0 ts=698b4fff cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjEwMDEyOCBTYWx0ZWRfXxgztr73ETiqP
+ 8ZB0zVp/VG9sIaFg5iBBrr2b7To91A3SO5ZnEcuJNqe6yAiLqLHC4YUX5N8yntZgVOjXwQJheHi
+ 6pr5ZyhveE9hrKKrSIEGGJjQtoGDBZOscVw1wIFDDMHwKt1j3CN5iatQXrE5i/xj9ReaBQsgAre
+ Om8Nno1m8mfHgnuyY6wcmonLGIJ3Yk793/1OPfI5xcMnoPiuoMqw7tDajutuyHN9JL05dEGkfdT
+ 0Q1F18kQ4krazgK9Gw1/LiLHduuM0a0kitr+rSj7ngVc1IjaTTTO1KYwPUBHVqnLj+TnuNk4jMd
+ 9QTRVKudZbm491HAXJe6gBX49VjjCYqU6HmQZQ6EpOKdNVkeGHYKPaq7dGs1G0q5iK5w7NxRRHI
+ BR3wo+VoRnajg0vQHfRAzpBaT4CYVOefP8/WBDhPSOcvoCNStcIz/q+fG+SWuJXo0Z7iCR/mvFj
+ O5SI1cZg/ONZry1kxWA==
+X-Proofpoint-ORIG-GUID: k8nnA1fvfwD99ZH4Ss3mgc4FwEHSD0bZ
+X-Proofpoint-GUID: k8nnA1fvfwD99ZH4Ss3mgc4FwEHSD0bZ
+X-Authority-Analysis: v=2.4 cv=O+Y0fR9W c=1 sm=1 tr=0 ts=698b5000 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=Mpw57Om8IfrbqaoTuvik:22
- a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8 a=gw90SDbXj9Ny8T8iXsQA:9
-X-Proofpoint-GUID: V8v-CTxnYzawGDPdK61L70ahTK-CaAiM
-X-Proofpoint-ORIG-GUID: V8v-CTxnYzawGDPdK61L70ahTK-CaAiM
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjEwMDEyOCBTYWx0ZWRfX4z4WG67+DT7x
- fZHq33AzZVQxfZZ/za1sGBoRBE0bIjmk5q9aVuRTYzFz6DDfSG85uireKeTKM+oojm9p3Coz5et
- iyxcTtqDNaHRue2yzkpqKay07PXKu3h+TtJe0FoHFzvJAWNqgNo2recf1fjVpzmJsoV0cwCXUUb
- FktJvR1wo9b+Gin65aAuub/7t6kFoip33ywKtZwalI2BNk8IXlYLTVvh+MEP1aRJgvOuwJXaV55
- UAoA0KtsDFdrJ/iRlvJqWkBK7cpRq9kTcyTZJSyitp33co4IYQTwmp6FSWW2LCd4/h8QB3gsZfA
- e4ytm1YodTtBBVPHgl6Fy3qNUf6KojcZniBBhpRXpZfXD/0BsQLRAjLObLlk1Vb1we+XLeXalzh
- 8DWfWwyOxska3D6TgALMrL3uWj8+utHZ4km9pByP/cV5EB1oy74s90rg/MA5dHl4S1uxQ1RbZRY
- k2xk5eW7pFuqjHxpIDA==
+ a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8 a=56eYp6RrapUnXBmR778A:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-02-10_01,2026-02-10_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 clxscore=1015 phishscore=0 bulkscore=0 adultscore=0
- priorityscore=1501 lowpriorityscore=0 suspectscore=0 impostorscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ lowpriorityscore=0 priorityscore=1501 phishscore=0 adultscore=0
+ malwarescore=0 impostorscore=0 bulkscore=0 clxscore=1015 spamscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
  definitions=main-2602100128
 
-Move the pgste lock and unlock functions back into mm/pgtable.c and
-duplicate them in mm/gmap_helpers.c to avoid function name collisions
-later on.
+uv_destroy_folio() and uv_convert_from_secure_folio() should work on
+all pages in the folio, not just the first one.
+
+This was fine until now, but it will become a problem with upcoming
+patches.
 
 Acked-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- arch/s390/include/asm/pgtable.h | 22 ----------------------
- arch/s390/mm/gmap_helpers.c     | 23 ++++++++++++++++++++++-
- arch/s390/mm/pgtable.c          | 23 ++++++++++++++++++++++-
- 3 files changed, 44 insertions(+), 24 deletions(-)
+ arch/s390/kernel/uv.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index bca9b29778c3..8194a2b12ecf 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -2040,26 +2040,4 @@ static inline unsigned long gmap_pgste_get_pgt_addr(unsigned long *pgt)
- 	return res;
- }
- 
--static inline pgste_t pgste_get_lock(pte_t *ptep)
--{
--	unsigned long value = 0;
--#ifdef CONFIG_PGSTE
--	unsigned long *ptr = (unsigned long *)(ptep + PTRS_PER_PTE);
--
--	do {
--		value = __atomic64_or_barrier(PGSTE_PCL_BIT, ptr);
--	} while (value & PGSTE_PCL_BIT);
--	value |= PGSTE_PCL_BIT;
--#endif
--	return __pgste(value);
--}
--
--static inline void pgste_set_unlock(pte_t *ptep, pgste_t pgste)
--{
--#ifdef CONFIG_PGSTE
--	barrier();
--	WRITE_ONCE(*(unsigned long *)(ptep + PTRS_PER_PTE), pgste_val(pgste) & ~PGSTE_PCL_BIT);
--#endif
--}
--
- #endif /* _S390_PAGE_H */
-diff --git a/arch/s390/mm/gmap_helpers.c b/arch/s390/mm/gmap_helpers.c
-index d41b19925a5a..4fba13675950 100644
---- a/arch/s390/mm/gmap_helpers.c
-+++ b/arch/s390/mm/gmap_helpers.c
-@@ -15,7 +15,6 @@
- #include <linux/pagewalk.h>
- #include <linux/ksm.h>
- #include <asm/gmap_helpers.h>
--#include <asm/pgtable.h>
- 
- /**
-  * ptep_zap_softleaf_entry() - discard a software leaf entry.
-@@ -35,6 +34,28 @@ static void ptep_zap_softleaf_entry(struct mm_struct *mm, softleaf_t entry)
- 	free_swap_and_cache(entry);
- }
- 
-+static inline pgste_t pgste_get_lock(pte_t *ptep)
-+{
-+	unsigned long value = 0;
-+#ifdef CONFIG_PGSTE
-+	unsigned long *ptr = (unsigned long *)(ptep + PTRS_PER_PTE);
-+
-+	do {
-+		value = __atomic64_or_barrier(PGSTE_PCL_BIT, ptr);
-+	} while (value & PGSTE_PCL_BIT);
-+	value |= PGSTE_PCL_BIT;
-+#endif
-+	return __pgste(value);
-+}
-+
-+static inline void pgste_set_unlock(pte_t *ptep, pgste_t pgste)
-+{
-+#ifdef CONFIG_PGSTE
-+	barrier();
-+	WRITE_ONCE(*(unsigned long *)(ptep + PTRS_PER_PTE), pgste_val(pgste) & ~PGSTE_PCL_BIT);
-+#endif
-+}
-+
- /**
-  * gmap_helper_zap_one_page() - discard a page if it was swapped.
-  * @mm: the mm
-diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-index 666adcd681ab..08743c1dac2f 100644
---- a/arch/s390/mm/pgtable.c
-+++ b/arch/s390/mm/pgtable.c
-@@ -24,7 +24,6 @@
- #include <asm/tlbflush.h>
- #include <asm/mmu_context.h>
- #include <asm/page-states.h>
--#include <asm/pgtable.h>
- #include <asm/machine.h>
- 
- pgprot_t pgprot_writecombine(pgprot_t prot)
-@@ -116,6 +115,28 @@ static inline pte_t ptep_flush_lazy(struct mm_struct *mm,
- 	return old;
- }
- 
-+static inline pgste_t pgste_get_lock(pte_t *ptep)
-+{
-+	unsigned long value = 0;
-+#ifdef CONFIG_PGSTE
-+	unsigned long *ptr = (unsigned long *)(ptep + PTRS_PER_PTE);
-+
-+	do {
-+		value = __atomic64_or_barrier(PGSTE_PCL_BIT, ptr);
-+	} while (value & PGSTE_PCL_BIT);
-+	value |= PGSTE_PCL_BIT;
-+#endif
-+	return __pgste(value);
-+}
-+
-+static inline void pgste_set_unlock(pte_t *ptep, pgste_t pgste)
-+{
-+#ifdef CONFIG_PGSTE
-+	barrier();
-+	WRITE_ONCE(*(unsigned long *)(ptep + PTRS_PER_PTE), pgste_val(pgste) & ~PGSTE_PCL_BIT);
-+#endif
-+}
-+
- static inline pgste_t pgste_get(pte_t *ptep)
+diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+index ed46950be86f..ca0849008c0d 100644
+--- a/arch/s390/kernel/uv.c
++++ b/arch/s390/kernel/uv.c
+@@ -134,14 +134,15 @@ static int uv_destroy(unsigned long paddr)
+  */
+ int uv_destroy_folio(struct folio *folio)
  {
- 	unsigned long pgste = 0;
++	unsigned long i;
+ 	int rc;
+ 
+-	/* Large folios cannot be secure */
+-	if (unlikely(folio_test_large(folio)))
+-		return 0;
+-
+ 	folio_get(folio);
+-	rc = uv_destroy(folio_to_phys(folio));
++	for (i = 0; i < (1 << folio_order(folio)); i++) {
++		rc = uv_destroy(folio_to_phys(folio) + i * PAGE_SIZE);
++		if (rc)
++			break;
++	}
+ 	if (!rc)
+ 		clear_bit(PG_arch_1, &folio->flags.f);
+ 	folio_put(folio);
+@@ -183,14 +184,15 @@ EXPORT_SYMBOL_GPL(uv_convert_from_secure);
+  */
+ int uv_convert_from_secure_folio(struct folio *folio)
+ {
++	unsigned long i;
+ 	int rc;
+ 
+-	/* Large folios cannot be secure */
+-	if (unlikely(folio_test_large(folio)))
+-		return 0;
+-
+ 	folio_get(folio);
+-	rc = uv_convert_from_secure(folio_to_phys(folio));
++	for (i = 0; i < (1 << folio_order(folio)); i++) {
++		rc = uv_convert_from_secure(folio_to_phys(folio) + i * PAGE_SIZE);
++		if (rc)
++			break;
++	}
+ 	if (!rc)
+ 		clear_bit(PG_arch_1, &folio->flags.f);
+ 	folio_put(folio);
 -- 
 2.53.0
 
