@@ -1,882 +1,337 @@
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26B231D7E42;
-	Wed, 11 Feb 2026 12:51:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFE0D3161BC;
+	Wed, 11 Feb 2026 13:44:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770814304; cv=none; b=QQUfIZXCYdGAkr0+0bEnJhGYZQTg6Kujwhfd8nOlhN7V51eomyVk7hZGDMYpdvH6trlisOuFzn1owFGUbl1wwjRKkM8AfZ5HY5l6H7OUOIIEJRoFiTVVovp/TEwIFFAaHBd8EhqnUO/O3MX/qwhuNoN8Do0cWhyXqnHXEsu/WFQ=
+	t=1770817486; cv=none; b=lg41+ZucxrJHmwZyh0D6gngMdW5QcZGFIhaXdHzpBV/fgfVAkaNh6CP5oEb3OOr+JYp4omckAwEuRv631oCJqhIsgjLYnNe9AuAXs/LWDRWItMeDp19Q5he+9pme/+gmVsMePpRjeUrZXygqUWPHTYotbnyc3otIPN7a8izWhVM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770814304; c=relaxed/simple;
-	bh=+WL7Lmnbzaroy7AbAGkyjdX7h2YQhtUHW8h2+nVHqig=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bU7IOSFL/oNkLr19VUX5bTPmiE3pWxAMdLeVqFCXxZjrWGKpPRtR5lQGi474hScB5rFYDeOo3Wa/UQf4xAkz0NVot2/WHwKzuaaOtsq4cuUWdK20kKNmsj0f+MBkYjvNUYL/MWn+q1t3f+xSdZdSXf3BpCwq02+6Wt4MKDbxK+8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=RYByEFth; arc=none smtp.client-ip=115.124.30.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1770817486; c=relaxed/simple;
+	bh=m9GuyAiTKMH3RpB0F+EMrQU/EQc/ta0j8JC/xwQzeoA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=e3TucQqX25YPrqjpjaXLFqlItuNnr74FoO2toEE0kv5lqg182P/rqL5nwFqbr1HrCSoTXqqYjhRG2N9yN/dM8mgWnTTeBQpTfhaSTWTek3SjGM/Z4FuVz8M6RVWONfMhvn9waFFbLy5TEhZljcRahV5TI0lN2e4SodYQDprdnAE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=q7KbrV19; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="RYByEFth"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1770814292; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=tmdsAgLmsKrxHaQOEiWE2Ff+1uosnCEiseEPXTLQizM=;
-	b=RYByEFthHlXgtEL+P2Eaj1J0WP5GfezCi3wXvj5v4JTB9mcd0u6b8G2x1P9fSmrDh+aG6dAh8XM8nGF/NvzEYayY7XmipHbUDXZV7beZ2iUrH5JQE2EQ1PTKxNb8c9LFGsfrUSRzrSkVmet5UcUWBE/FSM2XiW6mtBuIIfi+2RY=
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0Wz1Idlb_1770814290 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 11 Feb 2026 20:51:31 +0800
-Date: Wed, 11 Feb 2026 20:51:30 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: "D. Wythe" <alibuda@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>
-Cc: Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>, Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org,
-	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org, oliver.yang@linux.alibaba.com,
-	pasic@linux.ibm.com
-Subject: Re: [PATCH RFC net-next] net/smc: transition to RDMA core CQ pooling
-Message-ID: <aYx7Uh9MmJsPWUu4@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20260202094800.30373-1-alibuda@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="q7KbrV19"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61BCpdJb3391389;
+	Wed, 11 Feb 2026 13:44:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ofhnE7
+	U+P29+zIVstVseiGSwWxufrhAvNzNGwjee5OA=; b=q7KbrV19dkbdzpj/hNBhdS
+	OotzLr5k5mMa5bSdymsmT06pwBzNA9SXb6yV6kk6hB7Tx9ibW3zhBi3sB2o00TSv
+	vvFS7k1DdEBXtA/ZXmfdTBj/m5CVZUGBnIcIzNg8bqi95r9VX2iPNf10UBe8CXwO
+	ZPtJWMuZIa3YMiNMmcAJbqc7CTbIHWIGgk4D8fLl5DCLZEWaXa1MmwSnQ4WDhUV8
+	mNSJsyvpV1+a5Yk+SV01FdSFXqJrMwH4a7xsWzqpXw8IwQbFi3oIoIKxX1zHtFe3
+	LdlRu3zIxYKNdWRmII5e0lvO0tugG0peHr06v04ExFBF3oWv7PSvoe9zAO999Btw
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c696wxw7c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 11 Feb 2026 13:44:01 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61B9E9Ic001499;
+	Wed, 11 Feb 2026 13:44:00 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4c6gqn60dw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 11 Feb 2026 13:44:00 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61BDhuC729622612
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 11 Feb 2026 13:43:56 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A11DE20043;
+	Wed, 11 Feb 2026 13:43:56 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5A9B520040;
+	Wed, 11 Feb 2026 13:43:46 +0000 (GMT)
+Received: from [9.111.79.122] (unknown [9.111.79.122])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 11 Feb 2026 13:43:46 +0000 (GMT)
+Message-ID: <f5f7cc0e-81c1-49c4-9bfa-61b111c69ae2@linux.ibm.com>
+Date: Wed, 11 Feb 2026 19:13:45 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260202094800.30373-1-alibuda@linux.alibaba.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 00/15 v2] tick/sched: Refactor idle cputime accounting
+To: Frederic Weisbecker <frederic@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Cc: Vasily Gorbik <gor@linux.ibm.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Kieran Bingham <kbingham@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+        Xin Zhao <jackzxcui1989@163.com>,
+        Joel Fernandes <joelagnelf@nvidia.com>,
+        Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>, Boqun Feng <boqun.feng@gmail.com>,
+        Mel Gorman <mgorman@suse.de>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Ben Segall <bsegall@google.com>, Michael Ellerman <mpe@ellerman.id.au>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Anna-Maria Behnsen <anna-maria@linutronix.de>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>, linux-s390@vger.kernel.org,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+        linux-pm@vger.kernel.org, Uladzislau Rezki <urezki@gmail.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Heiko Carstens <hca@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Valentin Schneider <vschneid@redhat.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>
+References: <20260206142245.58987-1-frederic@kernel.org>
+Content-Language: en-US
+From: Shrikanth Hegde <sshegde@linux.ibm.com>
+In-Reply-To: <20260206142245.58987-1-frederic@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=WZYBqkhX c=1 sm=1 tr=0 ts=698c87a1 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VwQbUJbxAAAA:8
+ a=Byx-y9mGAAAA:8 a=WHM7aQrYW9fwOdz2DaoA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: HteRaXx1ui5kfmfs6alyEJh98C_G2gvZ
+X-Proofpoint-ORIG-GUID: 91FmO37-_cpg74FvCX_EFuJb5r_G1axG
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjExMDEwMyBTYWx0ZWRfX+xRAmu0RW3c8
+ BSFli7yshkQZbRM9ypod1YueeQjiCUBCFaR1PvLMpab1nrIQf9vb5IWB3GhqmL8f8rlWBARLG+i
+ umUODBavJihrNOvk7Qv3P4WmMGWwu2ZpwNFHfX9bVDgxQrcaXiPNcUXYZ+Tmbnw2ut1XBb98pYE
+ 1zqHPlN42eMfiYedrjAFdscpPdrBrHah3ErvUk4TCY8DHIOjR5x9y2u1K2MRXscoWpzILpKAlrm
+ WfmG1oyDPqiFGluYiUf8G49n37dQMwX1qZBZe/fu3pCFLjdP+5ImSlh+cJFjSES0pRadHqtM29t
+ dDQk4B3RU+9mqCag7RhDPfvByWb5cPFghp1EdPb92SUTRvwJFh1UPrEU+fgFsYwIN+p147+g3NV
+ XxatsZPmvFmCeoMJtIP97Qs9wRM34tDqnmO6m1zD+b2AeEWx7sDhdJaM6WhFgOAAtLDMrYaVOZC
+ 1oBii5s47p4pEEGXEdw==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-11_01,2026-02-11_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 clxscore=1015 phishscore=0 bulkscore=0 adultscore=0
+ priorityscore=1501 lowpriorityscore=0 suspectscore=0 impostorscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
+ definitions=main-2602110103
 
-On 2026-02-02 17:48:00, D. Wythe wrote:
->The current SMC-R implementation relies on global per-device CQs
->and manual polling within tasklets, which introduces severe
->scalability bottlenecks due to global lock contention and tasklet
->scheduling overhead, resulting in poor performance as concurrency
->increases.
->
->Refactor the completion handling to utilize the ib_cqe API and
->standard RDMA core CQ pooling. This transition provides several key
->advantages:
->
->1. Multi-CQ: Shift from a single shared per-device CQ to multiple
->link-specific CQs via the CQ pool. This allows completion processing
->to be parallelized across multiple CPU cores, effectively eliminating
->the global CQ bottleneck.
->
->2. Leverage DIM: Utilizing the standard CQ pool with IB_POLL_SOFTIRQ
->enables Dynamic Interrupt Moderation from the RDMA core, optimizing
->interrupt frequency and reducing CPU load under high pressure.
->
->3. O(1) Context Retrieval: Replaces the expensive wr_id based lookup
->logic (e.g., smc_wr_tx_find_pending_index) with direct context retrieval
->using container_of() on the embedded ib_cqe.
->
->4. Code Simplification: This refactoring results in a reduction of
->~150 lines of code. It removes redundant sequence tracking, complex lookup
->helpers, and manual CQ management, significantly improving maintainability.
+Hi Frederic,
+Gave this series a spin on the same system as v1.
 
-Excellent !
+On 2/6/26 7:52 PM, Frederic Weisbecker wrote:
+> Hi,
+> 
+> After the issue reported here:
+> 
+>          https://lore.kernel.org/all/20251210083135.3993562-1-jackzxcui1989@163.com/
+> 
+> It occurs that the idle cputime accounting is a big mess that
+> accumulates within two concurrent statistics, each having their own
+> shortcomings:
+> 
+> * The accounting for online CPUs which is based on the delta between
+>    tick_nohz_start_idle() and tick_nohz_stop_idle().
+> 
+>    Pros:
+>         - Works when the tick is off
+> 
+>         - Has nsecs granularity
+> 
+>    Cons:
+>         - Account idle steal time but doesn't substract it from idle
+>           cputime.
+> 
+>         - Assumes CONFIG_IRQ_TIME_ACCOUNTING by not accounting IRQs but
+>           the IRQ time is simply ignored when
+>           CONFIG_IRQ_TIME_ACCOUNTING=n
+> 
+>         - The windows between 1) idle task scheduling and the first call
+>           to tick_nohz_start_idle() and 2) idle task between the last
+>           tick_nohz_stop_idle() and the rest of the idle time are
+>           blindspots wrt. cputime accounting (though mostly insignificant
+>           amount)
+> 
+>         - Relies on private fields outside of kernel stats, with specific
+>           accessors.
+> 
+> * The accounting for offline CPUs which is based on ticks and the
+>    jiffies delta during which the tick was stopped.
+> 
+>    Pros:
+>         - Handles steal time correctly
+> 
+>         - Handle CONFIG_IRQ_TIME_ACCOUNTING=y and
+>           CONFIG_IRQ_TIME_ACCOUNTING=n correctly.
+> 
+>         - Handles the whole idle task
+> 
+>         - Accounts directly to kernel stats, without midlayer accumulator.
+> 
+>     Cons:
+>         - Doesn't elapse when the tick is off, which doesn't make it
+>           suitable for online CPUs.
+> 
+>         - Has TICK_NSEC granularity (jiffies)
+> 
+>         - Needs to track the dyntick-idle ticks that were accounted and
+>           substract them from the total jiffies time spent while the tick
+>           was stopped. This is an ugly workaround.
+> 
+> Having two different accounting for a single context is not the only
+> problem: since those accountings are of different natures, it is
+> possible to observe the global idle time going backward after a CPU goes
+> offline, as reported by Xin Zhao.
+> 
+> Clean up the situation with introducing a hybrid approach that stays
+> coherent, fixes the backward jumps and works for both online and offline
+> CPUs:
+> 
+> * Tick based or native vtime accounting operate before the tick is
+>    stopped and resumes once the tick is restarted.
+> 
+> * When the idle loop starts, switch to dynticks-idle accounting as is
+>    done currently, except that the statistics accumulate directly to the
+>    relevant kernel stat fields.
+> 
+> * Private dyntick cputime accounting fields are removed.
+> 
+> * Works on both online and offline case.
+> 
+> * Move most of the relevant code to the common sched/cputime subsystem
+> 
+> * Handle CONFIG_IRQ_TIME_ACCOUNTING=n correctly such that the
+>    dynticks-idle accounting still elapses while on IRQs.
+> 
+> * Correctly substract idle steal cputime from idle time
+> 
+> Changes since v1:
+> 
+> - Fix deadlock involving double seq count lock on idle
+> 
+> - Fix build breakage on powerpc
+> 
+> - Fix build breakage on s390 (Heiko)
+> 
+> - Fix broken sysfs s390 idle time file (Heiko)
+> 
+> - Convert most ktime usage here into u64 (Peterz)
+> 
+> - Add missing (or too implicit) <linux/sched/clock.h> (Peterz)
+> 
+> - Fix whole idle time acccounting breakage due to missing TS_FLAG_ set
+>    on idle entry (Shrikanth Hegde)
+> 
+> git://git.kernel.org/pub/scm/linux/kernel/git/frederic/linux-dynticks.git
+> 	timers/core-v2
+> 
+> HEAD: 21458b98c80a0567d48131240317b7b73ba34c3c
+> Thanks,
+> 	Frederic
 
-Some comments below.
+idle and runtime utilization with mpstat while running stress-ng looks
+correct now.
 
->
->Performance Test: redis-benchmark with max 32 connections per QP
->Data format: Requests Per Second (RPS), Percentage in brackets
->represents the gain/loss compared to TCP.
->
->| Clients | TCP      | SMC (original)      | SMC (cq_pool)       |
->|---------|----------|---------------------|---------------------|
->| c = 1   | 24449    | 31172  (+27%)       | 34039  (+39%)       |
->| c = 2   | 46420    | 53216  (+14%)       | 64391  (+38%)       |
->| c = 16  | 159673   | 83668  (-48%)  <--  | 216947 (+36%)       |
->| c = 32  | 164956   | 97631  (-41%)  <--  | 249376 (+51%)       |
->| c = 64  | 166322   | 118192 (-29%)  <--  | 249488 (+50%)       |
->| c = 128 | 167700   | 121497 (-27%)  <--  | 249480 (+48%)       |
->| c = 256 | 175021   | 146109 (-16%)  <--  | 240384 (+37%)       |
->| c = 512 | 168987   | 101479 (-40%)  <--  | 226634 (+34%)       |
->
->The results demonstrate that this optimization effectively resolves the
->scalability bottleneck, with RPS increasing by over 110% at c=64
->compared to the original implementation.
->
->Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
->---
-> net/smc/smc_core.c |   8 +-
-> net/smc/smc_core.h |  16 ++-
-> net/smc/smc_ib.c   | 114 ++++++-------------
-> net/smc/smc_ib.h   |   5 -
-> net/smc/smc_tx.c   |   1 -
-> net/smc/smc_wr.c   | 267 ++++++++++++++++-----------------------------
-> net/smc/smc_wr.h   |  38 ++-----
-> 7 files changed, 150 insertions(+), 299 deletions(-)
->
->diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
->index 8aca5dc54be7..9590c8aed3dd 100644
->--- a/net/smc/smc_core.c
->+++ b/net/smc/smc_core.c
->@@ -815,17 +815,11 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
-> 	lnk->lgr = lgr;
-> 	smc_lgr_hold(lgr); /* lgr_put in smcr_link_clear() */
-> 	lnk->link_idx = link_idx;
->-	lnk->wr_rx_id_compl = 0;
-> 	smc_ibdev_cnt_inc(lnk);
-> 	smcr_copy_dev_info_to_link(lnk);
-> 	atomic_set(&lnk->conn_cnt, 0);
-> 	smc_llc_link_set_uid(lnk);
-> 	INIT_WORK(&lnk->link_down_wrk, smc_link_down_work);
->-	if (!lnk->smcibdev->initialized) {
+However, when running hackbench I am noticing the below data. hackbench shows
+severe regressions.
 
-The initialized in smcibdev has no references now, it's better to remove it.
+base: tip/master at 9c61ebbdb587a3950072700ab74a9310afe3ad73.
+(nit: patch 7 is already part of tip. so skipped applying it)
++-----------------------------------------------+-------+---------+-----------+
+| Test                                          | base  | +series | % Diff    |
++-----------------------------------------------+-------+---------+-----------+
+| HackBench Process 10 groups                   |  2.23 |  3.05   |   -36.77%  |
+| HackBench Process 20 groups                   |  4.17 |  5.82   |   -39.57%  |
+| HackBench Process 30 groups                   |  6.04 |  8.49   |   -40.56%  |
+| HackBench Process 40 groups                   |  7.90 | 11.10   |   -40.51%  |
+| HackBench thread 10                           |  2.44 |  3.36   |   -37.70%  |
+| HackBench thread 20                           |  4.57 |  6.35   |   -38.95%  |
+| HackBench Process(Pipe) 10                    |  1.76 |  2.29   |   -30.11%  |
+| HackBench Process(Pipe) 20                    |  3.49 |  4.76   |   -36.39%  |
+| HackBench Process(Pipe) 30                    |  5.21 |  7.13   |   -36.85%  |
+| HackBench Process(Pipe) 40                    |  6.89 |  9.31   |   -35.12%  |
+| HackBench thread(Pipe) 10                     |  1.91 |  2.50   |   -30.89%  |
+| HackBench thread(Pipe) 20                     |  3.74 |  5.16   |   -37.97%  |
++-----------------------------------------------+-------+---------+-----------+
 
+I have these in .config and I don't have nohz_full or isolated cpus.
 
->-		rc = (int)smc_ib_setup_per_ibdev(lnk->smcibdev);
->-		if (rc)
->-			goto out;
->-	}
-> 	get_random_bytes(rndvec, sizeof(rndvec));
-> 	lnk->psn_initial = rndvec[0] + (rndvec[1] << 8) +
-> 		(rndvec[2] << 16);
->@@ -1373,7 +1367,7 @@ void smcr_link_clear(struct smc_link *lnk, bool log)
-> 	smc_llc_link_clear(lnk, log);
-> 	smcr_buf_unmap_lgr(lnk);
-> 	smcr_rtoken_clear_link(lnk);
->-	smc_ib_modify_qp_error(lnk);
->+	smc_wr_drain_qp(lnk);
-> 	smc_wr_free_link(lnk);
-> 	smc_ib_destroy_queue_pair(lnk);
-> 	smc_ib_dealloc_protection_domain(lnk);
->diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
->index 5c18f08a4c8a..00468b7a279f 100644
->--- a/net/smc/smc_core.h
->+++ b/net/smc/smc_core.h
->@@ -92,6 +92,12 @@ struct smc_rdma_wr {				/* work requests per message
-> 	struct ib_rdma_wr	wr_tx_rdma[SMC_MAX_RDMA_WRITES];
-> };
-> 
->+struct smc_ib_recv_wr {
->+	struct ib_cqe		cqe;
->+	struct ib_recv_wr	wr;
->+	int index;
+CONFIG_TICK_ONESHOT=y
+CONFIG_NO_HZ_COMMON=y
+# CONFIG_HZ_PERIODIC is not set
+# CONFIG_NO_HZ_IDLE is not set
+CONFIG_NO_HZ_FULL=y
 
-How about index -> idx. Other index fields use idx abbr in SMC.
+# CPU/Task time and stats accounting
+#
+CONFIG_VIRT_CPU_ACCOUNTING=y
+CONFIG_VIRT_CPU_ACCOUNTING_GEN=y
+CONFIG_IRQ_TIME_ACCOUNTING=y
+CONFIG_HAVE_SCHED_AVG_IRQ=y
 
->+};
->+
-> #define SMC_LGR_ID_SIZE		4
-> 
-> struct smc_link {
->@@ -100,6 +106,8 @@ struct smc_link {
-> 	struct ib_pd		*roce_pd;	/* IB protection domain,
-> 						 * unique for every RoCE QP
-> 						 */
->+	int			nr_cqe;
->+	struct ib_cq		*ib_cq;
-> 	struct ib_qp		*roce_qp;	/* IB queue pair */
-> 	struct ib_qp_attr	qp_attr;	/* IB queue pair attributes */
-> 
->@@ -107,6 +115,7 @@ struct smc_link {
-> 	struct ib_send_wr	*wr_tx_ibs;	/* WR send meta data */
-> 	struct ib_sge		*wr_tx_sges;	/* WR send gather meta data */
-> 	struct smc_rdma_sges	*wr_tx_rdma_sges;/*RDMA WRITE gather meta data*/
->+	struct ib_cqe		tx_rdma_cqe;	/* CQE RDMA WRITE */
-> 	struct smc_rdma_wr	*wr_tx_rdmas;	/* WR RDMA WRITE */
-> 	struct smc_wr_tx_pend	*wr_tx_pends;	/* WR send waiting for CQE */
-> 	struct completion	*wr_tx_compl;	/* WR send CQE completion */
->@@ -116,7 +125,6 @@ struct smc_link {
-> 	struct smc_wr_tx_pend	*wr_tx_v2_pend;	/* WR send v2 waiting for CQE */
-> 	dma_addr_t		wr_tx_dma_addr;	/* DMA address of wr_tx_bufs */
-> 	dma_addr_t		wr_tx_v2_dma_addr; /* DMA address of v2 tx buf*/
->-	atomic_long_t		wr_tx_id;	/* seq # of last sent WR */
-> 	unsigned long		*wr_tx_mask;	/* bit mask of used indexes */
-> 	u32			wr_tx_cnt;	/* number of WR send buffers */
-> 	wait_queue_head_t	wr_tx_wait;	/* wait for free WR send buf */
->@@ -126,7 +134,7 @@ struct smc_link {
-> 	struct completion	tx_ref_comp;
-> 
-> 	u8			*wr_rx_bufs;	/* WR recv payload buffers */
->-	struct ib_recv_wr	*wr_rx_ibs;	/* WR recv meta data */
->+	struct smc_ib_recv_wr	*wr_rx_ibs;	/* WR recv meta data */
-> 	struct ib_sge		*wr_rx_sges;	/* WR recv scatter meta data */
-> 	/* above three vectors have wr_rx_cnt elements and use the same index */
-> 	int			wr_rx_sge_cnt; /* rx sge, V1 is 1, V2 is either 2 or 1 */
->@@ -135,13 +143,11 @@ struct smc_link {
-> 						 */
-> 	dma_addr_t		wr_rx_dma_addr;	/* DMA address of wr_rx_bufs */
-> 	dma_addr_t		wr_rx_v2_dma_addr; /* DMA address of v2 rx buf*/
->-	u64			wr_rx_id;	/* seq # of last recv WR */
->-	u64			wr_rx_id_compl; /* seq # of last completed WR */
-> 	u32			wr_rx_cnt;	/* number of WR recv buffers */
-> 	unsigned long		wr_rx_tstamp;	/* jiffies when last buf rx */
->-	wait_queue_head_t       wr_rx_empty_wait; /* wait for RQ empty */
-> 
-> 	struct ib_reg_wr	wr_reg;		/* WR register memory region */
->+	struct ib_cqe		wr_reg_cqe;
-> 	wait_queue_head_t	wr_reg_wait;	/* wait for wr_reg result */
-> 	struct {
-> 		struct percpu_ref	wr_reg_refs;
->diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
->index 67211d44a1db..77047ad7d452 100644
->--- a/net/smc/smc_ib.c
->+++ b/net/smc/smc_ib.c
->@@ -112,15 +112,6 @@ int smc_ib_modify_qp_rts(struct smc_link *lnk)
-> 			    IB_QP_MAX_QP_RD_ATOMIC);
-> }
-> 
->-int smc_ib_modify_qp_error(struct smc_link *lnk)
->-{
->-	struct ib_qp_attr qp_attr;
->-
->-	memset(&qp_attr, 0, sizeof(qp_attr));
->-	qp_attr.qp_state = IB_QPS_ERR;
->-	return ib_modify_qp(lnk->roce_qp, &qp_attr, IB_QP_STATE);
->-}
->-
-> int smc_ib_ready_link(struct smc_link *lnk)
-> {
-> 	struct smc_link_group *lgr = smc_get_lgr(lnk);
->@@ -134,10 +125,7 @@ int smc_ib_ready_link(struct smc_link *lnk)
-> 	if (rc)
-> 		goto out;
-> 	smc_wr_remember_qp_attr(lnk);
->-	rc = ib_req_notify_cq(lnk->smcibdev->roce_cq_recv,
->-			      IB_CQ_SOLICITED_MASK);
->-	if (rc)
->-		goto out;
->+
-> 	rc = smc_wr_rx_post_init(lnk);
-> 	if (rc)
-> 		goto out;
->@@ -658,38 +646,60 @@ void smc_ib_destroy_queue_pair(struct smc_link *lnk)
-> 	if (lnk->roce_qp)
-> 		ib_destroy_qp(lnk->roce_qp);
-> 	lnk->roce_qp = NULL;
->+	if (lnk->ib_cq) {
->+		ib_cq_pool_put(lnk->ib_cq, lnk->nr_cqe);
->+		lnk->ib_cq = NULL;
->+	}
-> }
-> 
-> /* create a queue pair within the protection domain for a link */
-> int smc_ib_create_queue_pair(struct smc_link *lnk)
-> {
->+	int max_send_wr, max_recv_wr, rc;
->+	struct ib_cq *cq;
->+
->+	/* include unsolicited rdma_writes as well,
->+	 * there are max. 2 RDMA_WRITE per 1 WR_SEND.
->+	 * +1 for ib_drain_qp()
->+	 */
->+	max_send_wr = 3 * lnk->lgr->max_send_wr + 1;
->+	max_recv_wr = lnk->lgr->max_recv_wr + 1;
->+
->+	cq = ib_cq_pool_get(lnk->smcibdev->ibdev, max_send_wr + max_recv_wr, -1,
->+			    IB_POLL_SOFTIRQ);
->+
->+	if (IS_ERR(cq)) {
->+		rc = PTR_ERR(cq);
->+		return rc;
->+	}
->+
-> 	struct ib_qp_init_attr qp_attr = {
-> 		.event_handler = smc_ib_qp_event_handler,
-> 		.qp_context = lnk,
->-		.send_cq = lnk->smcibdev->roce_cq_send,
->-		.recv_cq = lnk->smcibdev->roce_cq_recv,
->+		.send_cq = cq,
->+		.recv_cq = cq,
-> 		.srq = NULL,
-> 		.cap = {
-> 			.max_send_sge = SMC_IB_MAX_SEND_SGE,
-> 			.max_recv_sge = lnk->wr_rx_sge_cnt,
->+			.max_send_wr = max_send_wr,
->+			.max_recv_wr = max_recv_wr,
-> 			.max_inline_data = 0,
-> 		},
-> 		.sq_sig_type = IB_SIGNAL_REQ_WR,
-> 		.qp_type = IB_QPT_RC,
-> 	};
->-	int rc;
-> 
->-	/* include unsolicited rdma_writes as well,
->-	 * there are max. 2 RDMA_WRITE per 1 WR_SEND
->-	 */
->-	qp_attr.cap.max_send_wr = 3 * lnk->lgr->max_send_wr;
->-	qp_attr.cap.max_recv_wr = lnk->lgr->max_recv_wr;
-> 	lnk->roce_qp = ib_create_qp(lnk->roce_pd, &qp_attr);
-> 	rc = PTR_ERR_OR_ZERO(lnk->roce_qp);
->-	if (IS_ERR(lnk->roce_qp))
->+	if (IS_ERR(lnk->roce_qp)) {
-> 		lnk->roce_qp = NULL;
->-	else
->+		ib_cq_pool_put(cq, max_send_wr + max_recv_wr);
->+	} else {
-> 		smc_wr_remember_qp_attr(lnk);
->+		lnk->nr_cqe = max_send_wr + max_recv_wr;
->+		lnk->ib_cq = cq;
->+	}
-> 	return rc;
-> }
-> 
->@@ -855,62 +865,6 @@ void smc_ib_buf_unmap_sg(struct smc_link *lnk,
-> 	buf_slot->sgt[lnk->link_idx].sgl->dma_address = 0;
-> }
-> 
->-long smc_ib_setup_per_ibdev(struct smc_ib_device *smcibdev)
->-{
->-	struct ib_cq_init_attr cqattr =	{
->-		.cqe = SMC_MAX_CQE, .comp_vector = 0 };
->-	int cqe_size_order, smc_order;
->-	long rc;
->-
->-	mutex_lock(&smcibdev->mutex);
->-	rc = 0;
->-	if (smcibdev->initialized)
->-		goto out;
->-	/* the calculated number of cq entries fits to mlx5 cq allocation */
->-	cqe_size_order = cache_line_size() == 128 ? 7 : 6;
->-	smc_order = MAX_PAGE_ORDER - cqe_size_order;
->-	if (SMC_MAX_CQE + 2 > (0x00000001 << smc_order) * PAGE_SIZE)
->-		cqattr.cqe = (0x00000001 << smc_order) * PAGE_SIZE - 2;
->-	smcibdev->roce_cq_send = ib_create_cq(smcibdev->ibdev,
->-					      smc_wr_tx_cq_handler, NULL,
->-					      smcibdev, &cqattr);
->-	rc = PTR_ERR_OR_ZERO(smcibdev->roce_cq_send);
->-	if (IS_ERR(smcibdev->roce_cq_send)) {
->-		smcibdev->roce_cq_send = NULL;
->-		goto out;
->-	}
->-	smcibdev->roce_cq_recv = ib_create_cq(smcibdev->ibdev,
->-					      smc_wr_rx_cq_handler, NULL,
->-					      smcibdev, &cqattr);
->-	rc = PTR_ERR_OR_ZERO(smcibdev->roce_cq_recv);
->-	if (IS_ERR(smcibdev->roce_cq_recv)) {
->-		smcibdev->roce_cq_recv = NULL;
->-		goto err;
->-	}
->-	smc_wr_add_dev(smcibdev);
->-	smcibdev->initialized = 1;
->-	goto out;
->-
->-err:
->-	ib_destroy_cq(smcibdev->roce_cq_send);
->-out:
->-	mutex_unlock(&smcibdev->mutex);
->-	return rc;
->-}
->-
->-static void smc_ib_cleanup_per_ibdev(struct smc_ib_device *smcibdev)
->-{
->-	mutex_lock(&smcibdev->mutex);
->-	if (!smcibdev->initialized)
->-		goto out;
->-	smcibdev->initialized = 0;
->-	ib_destroy_cq(smcibdev->roce_cq_recv);
->-	ib_destroy_cq(smcibdev->roce_cq_send);
->-	smc_wr_remove_dev(smcibdev);
->-out:
->-	mutex_unlock(&smcibdev->mutex);
->-}
->-
-> static struct ib_client smc_ib_client;
-> 
-> static void smc_copy_netdev_ifindex(struct smc_ib_device *smcibdev, int port)
->@@ -969,7 +923,6 @@ static int smc_ib_add_dev(struct ib_device *ibdev)
-> 	INIT_WORK(&smcibdev->port_event_work, smc_ib_port_event_work);
-> 	atomic_set(&smcibdev->lnk_cnt, 0);
-> 	init_waitqueue_head(&smcibdev->lnks_deleted);
->-	mutex_init(&smcibdev->mutex);
-> 	mutex_lock(&smc_ib_devices.mutex);
-> 	list_add_tail(&smcibdev->list, &smc_ib_devices.list);
-> 	mutex_unlock(&smc_ib_devices.mutex);
->@@ -1018,7 +971,6 @@ static void smc_ib_remove_dev(struct ib_device *ibdev, void *client_data)
-> 	pr_warn_ratelimited("smc: removing ib device %s\n",
-> 			    smcibdev->ibdev->name);
-> 	smc_smcr_terminate_all(smcibdev);
->-	smc_ib_cleanup_per_ibdev(smcibdev);
-> 	ib_unregister_event_handler(&smcibdev->event_handler);
-> 	cancel_work_sync(&smcibdev->port_event_work);
-> 	kfree(smcibdev);
->diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
->index ef8ac2b7546d..c5a0d773b73f 100644
->--- a/net/smc/smc_ib.h
->+++ b/net/smc/smc_ib.h
->@@ -37,10 +37,6 @@ struct smc_ib_device {				/* ib-device infos for smc */
-> 	struct ib_device	*ibdev;
-> 	struct ib_port_attr	pattr[SMC_MAX_PORTS];	/* ib dev. port attrs */
-> 	struct ib_event_handler	event_handler;	/* global ib_event handler */
->-	struct ib_cq		*roce_cq_send;	/* send completion queue */
->-	struct ib_cq		*roce_cq_recv;	/* recv completion queue */
->-	struct tasklet_struct	send_tasklet;	/* called by send cq handler */
->-	struct tasklet_struct	recv_tasklet;	/* called by recv cq handler */
-> 	char			mac[SMC_MAX_PORTS][ETH_ALEN];
-> 						/* mac address per port*/
-> 	u8			pnetid[SMC_MAX_PORTS][SMC_MAX_PNETID_LEN];
->@@ -96,7 +92,6 @@ void smc_ib_destroy_queue_pair(struct smc_link *lnk);
-> int smc_ib_create_queue_pair(struct smc_link *lnk);
-> int smc_ib_ready_link(struct smc_link *lnk);
-> int smc_ib_modify_qp_rts(struct smc_link *lnk);
->-int smc_ib_modify_qp_error(struct smc_link *lnk);
-> long smc_ib_setup_per_ibdev(struct smc_ib_device *smcibdev);
-> int smc_ib_get_memory_region(struct ib_pd *pd, int access_flags,
-> 			     struct smc_buf_desc *buf_slot, u8 link_idx);
->diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
->index 3144b4b1fe29..d301df9ed58b 100644
->--- a/net/smc/smc_tx.c
->+++ b/net/smc/smc_tx.c
->@@ -321,7 +321,6 @@ static int smc_tx_rdma_write(struct smc_connection *conn, int peer_rmbe_offset,
-> 	struct smc_link *link = conn->lnk;
-> 	int rc;
-> 
->-	rdma_wr->wr.wr_id = smc_wr_tx_get_next_wr_id(link);
-> 	rdma_wr->wr.num_sge = num_sges;
-> 	rdma_wr->remote_addr =
-> 		lgr->rtokens[conn->rtoken_idx][link->link_idx].dma_addr +
->diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
->index 5feafa98ab1a..3a361aa020ab 100644
->--- a/net/smc/smc_wr.c
->+++ b/net/smc/smc_wr.c
->@@ -38,7 +38,7 @@ static DEFINE_HASHTABLE(smc_wr_rx_hash, SMC_WR_RX_HASH_BITS);
-> static DEFINE_SPINLOCK(smc_wr_rx_hash_lock);
-> 
-> struct smc_wr_tx_pend {	/* control data for a pending send request */
->-	u64			wr_id;		/* work request id sent */
->+	struct ib_cqe		cqe;
-> 	smc_wr_tx_handler	handler;
-> 	enum ib_wc_status	wc_status;	/* CQE status */
-> 	struct smc_link		*link;
->@@ -63,62 +63,51 @@ void smc_wr_tx_wait_no_pending_sends(struct smc_link *link)
-> 	wait_event(link->wr_tx_wait, !smc_wr_is_tx_pend(link));
-> }
-> 
->-static inline int smc_wr_tx_find_pending_index(struct smc_link *link, u64 wr_id)
->+static void smc_wr_tx_rdma_process_cqe(struct ib_cq *cq, struct ib_wc *wc)
-> {
->-	u32 i;
->+	struct smc_link *link = wc->qp->qp_context;
-> 
->-	for (i = 0; i < link->wr_tx_cnt; i++) {
->-		if (link->wr_tx_pends[i].wr_id == wr_id)
->-			return i;
->-	}
->-	return link->wr_tx_cnt;
->+	/* terminate link */
->+	if (unlikely(wc->status))
->+		smcr_link_down_cond_sched(link);
+I did a git bisect and below is what it says.
 
-I think this isn't unlikey, we haven't signal the RDMA WRITE wr, so it
-shouldn't have CQEs when wc->status == 0.
-If we are here, wc->status should always != 0.
+git bisect start
+# status: waiting for both good and bad commits
+# bad: [6821315886a3b5267ea31d29dba26fd34647fbbc] sched/cputime: Handle dyntick-idle steal time correctly
+git bisect bad 6821315886a3b5267ea31d29dba26fd34647fbbc
+# status: waiting for good commit(s), bad commit known
+# good: [9c61ebbdb587a3950072700ab74a9310afe3ad73] Merge branch into tip/master: 'x86/sev'
+git bisect good 9c61ebbdb587a3950072700ab74a9310afe3ad73
+# good: [dc8bb3c84d162f7d9aa6becf9f8392474f92655a] tick/sched: Remove nohz disabled special case in cputime fetch
+git bisect good dc8bb3c84d162f7d9aa6becf9f8392474f92655a
+# good: [5070a778a581cd668f5d717f85fb22b078d8c20c] tick/sched: Account tickless idle cputime only when tick is stopped
+git bisect good 5070a778a581cd668f5d717f85fb22b078d8c20c
+# bad: [1e0ccc25a9a74b188b239c4de716fde279adbf8e] sched/cputime: Provide get_cpu_[idle|iowait]_time_us() off-case
+git bisect bad 1e0ccc25a9a74b188b239c4de716fde279adbf8e
+# bad: [ee7c735b76071000d401869fc2883c451ee3fa61] tick/sched: Consolidate idle time fetching APIs
+git bisect bad ee7c735b76071000d401869fc2883c451ee3fa61
+# first bad commit: [ee7c735b76071000d401869fc2883c451ee3fa61] tick/sched: Consolidate idle time fetching APIs
 
 
->+}
->+
->+static void smc_wr_reg_process_cqe(struct ib_cq *cq, struct ib_wc *wc)
->+{
->+	struct smc_link *link = wc->qp->qp_context;
->+
->+	if (wc->status)
->+		link->wr_reg_state = FAILED;
->+	else
->+		link->wr_reg_state = CONFIRMED;
->+	smc_wr_wakeup_reg_wait(link);
-> }
-> 
->-static inline void smc_wr_tx_process_cqe(struct ib_wc *wc)
->+static void smc_wr_tx_process_cqe(struct ib_cq *cq, struct ib_wc *wc)
-> {
->-	struct smc_wr_tx_pend pnd_snd;
->+	struct smc_wr_tx_pend *tx_pend, pnd_snd;
-> 	struct smc_link *link;
-> 	u32 pnd_snd_idx;
-> 
-> 	link = wc->qp->qp_context;
-> 
->-	if (wc->opcode == IB_WC_REG_MR) {
->-		if (wc->status)
->-			link->wr_reg_state = FAILED;
->-		else
->-			link->wr_reg_state = CONFIRMED;
->-		smc_wr_wakeup_reg_wait(link);
->-		return;
->-	}
->+	tx_pend = container_of(wc->wr_cqe, struct smc_wr_tx_pend, cqe);
->+	pnd_snd_idx = tx_pend->idx;
->+
->+	tx_pend->wc_status = wc->status;
->+	memcpy(&pnd_snd, tx_pend, sizeof(pnd_snd));
-> 
->-	pnd_snd_idx = smc_wr_tx_find_pending_index(link, wc->wr_id);
-> 	if (pnd_snd_idx == link->wr_tx_cnt) {
->-		if (link->lgr->smc_version != SMC_V2 ||
->-		    link->wr_tx_v2_pend->wr_id != wc->wr_id)
->-			return;
->-		link->wr_tx_v2_pend->wc_status = wc->status;
->-		memcpy(&pnd_snd, link->wr_tx_v2_pend, sizeof(pnd_snd));
->-		/* clear the full struct smc_wr_tx_pend including .priv */
->-		memset(link->wr_tx_v2_pend, 0,
->-		       sizeof(*link->wr_tx_v2_pend));
-Why remove this memset ?
+I did a perf diff between the two (collected perf record -a for hackbench 60 process 10000 loops)
 
->-		memset(link->lgr->wr_tx_buf_v2, 0,
->-		       sizeof(*link->lgr->wr_tx_buf_v2));
->+		memset(link->lgr->wr_tx_buf_v2, 0, sizeof(*link->lgr->wr_tx_buf_v2));
-> 	} else {
->-		link->wr_tx_pends[pnd_snd_idx].wc_status = wc->status;
->-		if (link->wr_tx_pends[pnd_snd_idx].compl_requested)
->+		if (tx_pend->compl_requested)
-> 			complete(&link->wr_tx_compl[pnd_snd_idx]);
->-		memcpy(&pnd_snd, &link->wr_tx_pends[pnd_snd_idx],
->-		       sizeof(pnd_snd));
->-		/* clear the full struct smc_wr_tx_pend including .priv */
->-		memset(&link->wr_tx_pends[pnd_snd_idx], 0,
->-		       sizeof(link->wr_tx_pends[pnd_snd_idx]));
-
-ditto
-
->-		memset(&link->wr_tx_bufs[pnd_snd_idx], 0,
->-		       sizeof(link->wr_tx_bufs[pnd_snd_idx]));
->+		memset(&link->wr_tx_bufs[tx_pend->idx], 0, sizeof(link->wr_tx_bufs[tx_pend->idx]));
-> 		if (!test_and_clear_bit(pnd_snd_idx, link->wr_tx_mask))
-> 			return;
-> 	}
-> 
->-	if (wc->status) {
->+	if (unlikely(wc->status)) {
-> 		if (link->lgr->smc_version == SMC_V2) {
-> 			memset(link->wr_tx_v2_pend, 0,
-> 			       sizeof(*link->wr_tx_v2_pend));
->@@ -128,44 +117,12 @@ static inline void smc_wr_tx_process_cqe(struct ib_wc *wc)
-> 		/* terminate link */
-> 		smcr_link_down_cond_sched(link);
-> 	}
->+
-> 	if (pnd_snd.handler)
-> 		pnd_snd.handler(&pnd_snd.priv, link, wc->status);
-> 	wake_up(&link->wr_tx_wait);
-> }
-> 
->-static void smc_wr_tx_tasklet_fn(struct tasklet_struct *t)
->-{
->-	struct smc_ib_device *dev = from_tasklet(dev, t, send_tasklet);
->-	struct ib_wc wc[SMC_WR_MAX_POLL_CQE];
->-	int i = 0, rc;
->-	int polled = 0;
->-
->-again:
->-	polled++;
->-	do {
->-		memset(&wc, 0, sizeof(wc));
->-		rc = ib_poll_cq(dev->roce_cq_send, SMC_WR_MAX_POLL_CQE, wc);
->-		if (polled == 1) {
->-			ib_req_notify_cq(dev->roce_cq_send,
->-					 IB_CQ_NEXT_COMP |
->-					 IB_CQ_REPORT_MISSED_EVENTS);
->-		}
->-		if (!rc)
->-			break;
->-		for (i = 0; i < rc; i++)
->-			smc_wr_tx_process_cqe(&wc[i]);
->-	} while (rc > 0);
->-	if (polled == 1)
->-		goto again;
->-}
->-
->-void smc_wr_tx_cq_handler(struct ib_cq *ib_cq, void *cq_context)
->-{
->-	struct smc_ib_device *dev = (struct smc_ib_device *)cq_context;
->-
->-	tasklet_schedule(&dev->send_tasklet);
->-}
->-
-> /*---------------------------- request submission ---------------------------*/
-> 
-> static inline int smc_wr_tx_get_free_slot_index(struct smc_link *link, u32 *idx)
->@@ -202,7 +159,6 @@ int smc_wr_tx_get_free_slot(struct smc_link *link,
-> 	struct smc_wr_tx_pend *wr_pend;
-> 	u32 idx = link->wr_tx_cnt;
-> 	struct ib_send_wr *wr_ib;
->-	u64 wr_id;
-> 	int rc;
-> 
-> 	*wr_buf = NULL;
->@@ -226,14 +182,13 @@ int smc_wr_tx_get_free_slot(struct smc_link *link,
-> 		if (idx == link->wr_tx_cnt)
-> 			return -EPIPE;
-> 	}
->-	wr_id = smc_wr_tx_get_next_wr_id(link);
->+
-> 	wr_pend = &link->wr_tx_pends[idx];
->-	wr_pend->wr_id = wr_id;
-> 	wr_pend->handler = handler;
-> 	wr_pend->link = link;
-> 	wr_pend->idx = idx;
-> 	wr_ib = &link->wr_tx_ibs[idx];
->-	wr_ib->wr_id = wr_id;
->+	wr_ib->wr_cqe = &wr_pend->cqe;
-> 	*wr_buf = &link->wr_tx_bufs[idx];
-> 	if (wr_rdma_buf)
-> 		*wr_rdma_buf = &link->wr_tx_rdmas[idx];
->@@ -248,21 +203,18 @@ int smc_wr_tx_get_v2_slot(struct smc_link *link,
-> {
-> 	struct smc_wr_tx_pend *wr_pend;
-> 	struct ib_send_wr *wr_ib;
->-	u64 wr_id;
-> 
-> 	if (link->wr_tx_v2_pend->idx == link->wr_tx_cnt)
-> 		return -EBUSY;
-> 
-> 	*wr_buf = NULL;
-> 	*wr_pend_priv = NULL;
->-	wr_id = smc_wr_tx_get_next_wr_id(link);
-> 	wr_pend = link->wr_tx_v2_pend;
->-	wr_pend->wr_id = wr_id;
-> 	wr_pend->handler = handler;
-> 	wr_pend->link = link;
-> 	wr_pend->idx = link->wr_tx_cnt;
-> 	wr_ib = link->wr_tx_v2_ib;
->-	wr_ib->wr_id = wr_id;
->+	wr_ib->wr_cqe = &wr_pend->cqe;
-> 	*wr_buf = link->lgr->wr_tx_buf_v2;
-> 	*wr_pend_priv = &wr_pend->priv;
-> 	return 0;
->@@ -306,8 +258,6 @@ int smc_wr_tx_send(struct smc_link *link, struct smc_wr_tx_pend_priv *priv)
-> 	struct smc_wr_tx_pend *pend;
-> 	int rc;
-> 
->-	ib_req_notify_cq(link->smcibdev->roce_cq_send,
->-			 IB_CQ_NEXT_COMP | IB_CQ_REPORT_MISSED_EVENTS);
-> 	pend = container_of(priv, struct smc_wr_tx_pend, priv);
-> 	rc = ib_post_send(link->roce_qp, &link->wr_tx_ibs[pend->idx], NULL);
-> 	if (rc) {
->@@ -323,8 +273,6 @@ int smc_wr_tx_v2_send(struct smc_link *link, struct smc_wr_tx_pend_priv *priv,
-> 	int rc;
-> 
-> 	link->wr_tx_v2_ib->sg_list[0].length = len;
->-	ib_req_notify_cq(link->smcibdev->roce_cq_send,
->-			 IB_CQ_NEXT_COMP | IB_CQ_REPORT_MISSED_EVENTS);
-> 	rc = ib_post_send(link->roce_qp, link->wr_tx_v2_ib, NULL);
-> 	if (rc) {
-> 		smc_wr_tx_put_slot(link, priv);
->@@ -367,10 +315,7 @@ int smc_wr_reg_send(struct smc_link *link, struct ib_mr *mr)
-> {
-> 	int rc;
-> 
->-	ib_req_notify_cq(link->smcibdev->roce_cq_send,
->-			 IB_CQ_NEXT_COMP | IB_CQ_REPORT_MISSED_EVENTS);
-> 	link->wr_reg_state = POSTED;
->-	link->wr_reg.wr.wr_id = (u64)(uintptr_t)mr;
-> 	link->wr_reg.mr = mr;
-> 	link->wr_reg.key = mr->rkey;
-> 	rc = ib_post_send(link->roce_qp, &link->wr_reg.wr, NULL);
->@@ -431,94 +376,76 @@ static inline void smc_wr_rx_demultiplex(struct ib_wc *wc)
-> {
-> 	struct smc_link *link = (struct smc_link *)wc->qp->qp_context;
-> 	struct smc_wr_rx_handler *handler;
->+	struct smc_ib_recv_wr *recv_wr;
-> 	struct smc_wr_rx_hdr *wr_rx;
->-	u64 temp_wr_id;
->-	u32 index;
-> 
-> 	if (wc->byte_len < sizeof(*wr_rx))
-> 		return; /* short message */
->-	temp_wr_id = wc->wr_id;
->-	index = do_div(temp_wr_id, link->wr_rx_cnt);
->-	wr_rx = (struct smc_wr_rx_hdr *)(link->wr_rx_bufs + index * link->wr_rx_buflen);
->+
->+	recv_wr = container_of(wc->wr_cqe, struct smc_ib_recv_wr, cqe);
->+
->+	wr_rx = (struct smc_wr_rx_hdr *)(link->wr_rx_bufs + recv_wr->index * link->wr_rx_buflen);
-> 	hash_for_each_possible(smc_wr_rx_hash, handler, list, wr_rx->type) {
-> 		if (handler->type == wr_rx->type)
-> 			handler->handler(wc, wr_rx);
-> 	}
-> }
-> 
->-static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
->+static void smc_wr_rx_process_cqe(struct ib_cq *cq, struct ib_wc *wc)
-> {
->-	struct smc_link *link;
->-	int i;
->-
->-	for (i = 0; i < num; i++) {
->-		link = wc[i].qp->qp_context;
->-		link->wr_rx_id_compl = wc[i].wr_id;
->-		if (wc[i].status == IB_WC_SUCCESS) {
->-			link->wr_rx_tstamp = jiffies;
->-			smc_wr_rx_demultiplex(&wc[i]);
->-			smc_wr_rx_post(link); /* refill WR RX */
->-		} else {
->-			/* handle status errors */
->-			switch (wc[i].status) {
->-			case IB_WC_RETRY_EXC_ERR:
->-			case IB_WC_RNR_RETRY_EXC_ERR:
->-			case IB_WC_WR_FLUSH_ERR:
->-				smcr_link_down_cond_sched(link);
->-				if (link->wr_rx_id_compl == link->wr_rx_id)
->-					wake_up(&link->wr_rx_empty_wait);
->-				break;
->-			default:
->-				smc_wr_rx_post(link); /* refill WR RX */
->-				break;
->-			}
->+	struct smc_link *link = wc->qp->qp_context;
->+
->+	if (wc->status == IB_WC_SUCCESS) {
->+		link->wr_rx_tstamp = jiffies;
->+		smc_wr_rx_demultiplex(wc);
->+		smc_wr_rx_post(link, wc->wr_cqe); /* refill WR RX */
->+	} else {
->+		/* handle status errors */
->+		switch (wc->status) {
->+		case IB_WC_RETRY_EXC_ERR:
->+		case IB_WC_RNR_RETRY_EXC_ERR:
->+		case IB_WC_WR_FLUSH_ERR:
->+			smcr_link_down_cond_sched(link);
->+			break;
->+		default:
->+			smc_wr_rx_post(link, wc->wr_cqe); /* refill WR RX */
->+			break;
-> 		}
-> 	}
-> }
-> 
->-static void smc_wr_rx_tasklet_fn(struct tasklet_struct *t)
->+int smc_wr_rx_post_init(struct smc_link *link)
-> {
->-	struct smc_ib_device *dev = from_tasklet(dev, t, recv_tasklet);
->-	struct ib_wc wc[SMC_WR_MAX_POLL_CQE];
->-	int polled = 0;
->-	int rc;
->+	u32 i;
->+	int rc = 0;
-> 
->-again:
->-	polled++;
->-	do {
->-		memset(&wc, 0, sizeof(wc));
->-		rc = ib_poll_cq(dev->roce_cq_recv, SMC_WR_MAX_POLL_CQE, wc);
->-		if (polled == 1) {
->-			ib_req_notify_cq(dev->roce_cq_recv,
->-					 IB_CQ_SOLICITED_MASK
->-					 | IB_CQ_REPORT_MISSED_EVENTS);
->-		}
->-		if (!rc)
->-			break;
->-		smc_wr_rx_process_cqes(&wc[0], rc);
->-	} while (rc > 0);
->-	if (polled == 1)
->-		goto again;
->+	for (i = 0; i < link->wr_rx_cnt; i++)
->+		rc = smc_wr_rx_post(link, &link->wr_rx_ibs[i].cqe);
->+	return rc;
-> }
-> 
->-void smc_wr_rx_cq_handler(struct ib_cq *ib_cq, void *cq_context)
->-{
->-	struct smc_ib_device *dev = (struct smc_ib_device *)cq_context;
->+/***************************** init, exit, misc ******************************/
->+
-> 
->-	tasklet_schedule(&dev->recv_tasklet);
->+static inline void smc_wr_reg_init_cqe(struct ib_cqe *cqe)
->+{
->+	cqe->done = smc_wr_reg_process_cqe;
-> }
-> 
->-int smc_wr_rx_post_init(struct smc_link *link)
->+static inline void smc_wr_tx_init_cqe(struct ib_cqe *cqe)
-> {
->-	u32 i;
->-	int rc = 0;
->+	cqe->done = smc_wr_tx_process_cqe;
->+}
-> 
->-	for (i = 0; i < link->wr_rx_cnt; i++)
->-		rc = smc_wr_rx_post(link);
->-	return rc;
->+static inline void smc_wr_rx_init_cqe(struct ib_cqe *cqe)
->+{
->+	cqe->done = smc_wr_rx_process_cqe;
-> }
-> 
->-/***************************** init, exit, misc ******************************/
->+static inline void smc_wr_tx_rdma_init_cqe(struct ib_cqe *cqe)
->+{
->+	cqe->done = smc_wr_tx_rdma_process_cqe;
->+}
-> 
-> void smc_wr_remember_qp_attr(struct smc_link *lnk)
-> {
->@@ -548,9 +475,9 @@ void smc_wr_remember_qp_attr(struct smc_link *lnk)
-> 		    &init_attr);
-> 
-> 	lnk->wr_tx_cnt = min_t(size_t, lnk->max_send_wr,
->-			       lnk->qp_attr.cap.max_send_wr);
->+			       lnk->qp_attr.cap.max_send_wr - 1);
-> 	lnk->wr_rx_cnt = min_t(size_t, lnk->max_recv_wr,
->-			       lnk->qp_attr.cap.max_recv_wr);
->+			       lnk->qp_attr.cap.max_recv_wr - 1);
-> }
-> 
-> static void smc_wr_init_sge(struct smc_link *lnk)
->@@ -585,6 +512,8 @@ static void smc_wr_init_sge(struct smc_link *lnk)
-> 			lnk->wr_tx_rdma_sges[i].tx_rdma_sge[0].wr_tx_rdma_sge;
-> 		lnk->wr_tx_rdmas[i].wr_tx_rdma[1].wr.sg_list =
-> 			lnk->wr_tx_rdma_sges[i].tx_rdma_sge[1].wr_tx_rdma_sge;
->+		lnk->wr_tx_rdmas[i].wr_tx_rdma[0].wr.wr_cqe = &lnk->tx_rdma_cqe;
->+		lnk->wr_tx_rdmas[i].wr_tx_rdma[1].wr.wr_cqe = &lnk->tx_rdma_cqe;
-> 	}
-> 
-> 	if (lnk->lgr->smc_version == SMC_V2) {
->@@ -622,10 +551,13 @@ static void smc_wr_init_sge(struct smc_link *lnk)
-> 			lnk->wr_rx_sges[x + 1].lkey =
-> 					lnk->roce_pd->local_dma_lkey;
-> 		}
->-		lnk->wr_rx_ibs[i].next = NULL;
->-		lnk->wr_rx_ibs[i].sg_list = &lnk->wr_rx_sges[x];
->-		lnk->wr_rx_ibs[i].num_sge = lnk->wr_rx_sge_cnt;
->+		lnk->wr_rx_ibs[i].wr.next = NULL;
->+		lnk->wr_rx_ibs[i].wr.sg_list = &lnk->wr_rx_sges[x];
->+		lnk->wr_rx_ibs[i].wr.num_sge = lnk->wr_rx_sge_cnt;
-> 	}
->+
->+	smc_wr_reg_init_cqe(&lnk->wr_reg_cqe);
->+	lnk->wr_reg.wr.wr_cqe = &lnk->wr_reg_cqe;
-> 	lnk->wr_reg.wr.next = NULL;
-> 	lnk->wr_reg.wr.num_sge = 0;
-> 	lnk->wr_reg.wr.send_flags = IB_SEND_SIGNALED;
->@@ -641,7 +573,6 @@ void smc_wr_free_link(struct smc_link *lnk)
-> 		return;
-> 	ibdev = lnk->smcibdev->ibdev;
-> 
->-	smc_wr_drain_cq(lnk);
-> 	smc_wr_wakeup_reg_wait(lnk);
-> 	smc_wr_wakeup_tx_wait(lnk);
-> 
->@@ -758,11 +689,19 @@ int smc_wr_alloc_link_mem(struct smc_link *link)
-> 				  GFP_KERNEL);
-> 	if (!link->wr_rx_ibs)
-> 		goto no_mem_wr_tx_ibs;
->+	/* init wr_rx_ibs cqe */
->+	for (int i = 0; i < link->max_recv_wr; i++) {
->+		smc_wr_rx_init_cqe(&link->wr_rx_ibs[i].cqe);
->+		link->wr_rx_ibs[i].wr.wr_cqe = &link->wr_rx_ibs[i].cqe;
->+		link->wr_rx_ibs[i].index = i;
->+	}
-
-Can we group all those xxx_init_cqe into a function and move them out of
-smc_wr_alloc_link_mem() ? All what smc_wr_alloc_link_mem() is all about
-allocating memory.
-
-Maybe we can define a smc_wr_init_cqes() and call it in
-smc_wr_create_link() ?
+perf diff base series:
+# Baseline  Delta Abs  Shared Object                Symbol
+# ........  .........  ...........................  ................................................
+#
+                +5.43%  [kernel.kallsyms]            [k] __update_freelist_slow
+      0.00%     +4.55%  [kernel.kallsyms]            [k] _raw_spin_lock
+                +3.35%  [kernel.kallsyms]            [k] __memcg_slab_free_hook
+      0.55%     +2.58%  [kernel.kallsyms]            [k] sock_wfree
+                +2.51%  [kernel.kallsyms]            [k] __account_obj_stock
+      2.29%     -2.29%  [kernel.kallsyms]            [k] _raw_write_lock_irq
+                +2.25%  [kernel.kallsyms]            [k] _copy_from_iter
+                +1.96%  [kernel.kallsyms]            [k] fdget_pos
+                +1.87%  [kernel.kallsyms]            [k] _copy_to_iter
+                +1.69%  [kernel.kallsyms]            [k] sock_def_readable
+      2.32%     -1.68%  [kernel.kallsyms]            [k] mod_memcg_lruvec_state
+      0.82%     +1.67%  [kernel.kallsyms]            [k] skb_set_owner_w
+      0.08%     +1.65%  [kernel.kallsyms]            [k] vfs_read
+      0.42%     +1.57%  [kernel.kallsyms]            [k] kmem_cache_alloc_node_noprof
+      1.53%     -1.53%  [kernel.kallsyms]            [k] kmem_cache_alloc_lru_noprof
+      1.56%     -1.41%  [kernel.kallsyms]            [k] simple_copy_to_iter
+      0.27%     +1.32%  [kernel.kallsyms]            [k] kfree
+      0.01%     +1.25%  [kernel.kallsyms]            [k] __slab_free
+      0.19%     +1.24%  [kernel.kallsyms]            [k] kmem_cache_free
+      1.23%     -1.23%  [kernel.kallsyms]            [k] __pcs_replace_full_main
+      0.35%     +1.21%  [kernel.kallsyms]            [k] __skb_datagram_iter
+      0.21%     +1.13%  [kernel.kallsyms]            [k] sock_alloc_send_pskb
+                +1.09%  [kernel.kallsyms]            [k] mutex_lock
+                +0.98%  [kernel.kallsyms].head.text  [k] 0x0000000000013004
 
 
-Best regards,
-Dust
+I haven't gone through the series yet. trying to go through meanwhile.
+maybe different allocation scheme or more allocation/free everytime instead of
+pre-allocated percpu variables?
 
+First thought of reporting it. Let me know if you need any additional data.
