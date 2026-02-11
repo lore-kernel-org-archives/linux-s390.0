@@ -1,337 +1,156 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFE0D3161BC;
-	Wed, 11 Feb 2026 13:44:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 196B721B191;
+	Wed, 11 Feb 2026 15:00:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770817486; cv=none; b=lg41+ZucxrJHmwZyh0D6gngMdW5QcZGFIhaXdHzpBV/fgfVAkaNh6CP5oEb3OOr+JYp4omckAwEuRv631oCJqhIsgjLYnNe9AuAXs/LWDRWItMeDp19Q5he+9pme/+gmVsMePpRjeUrZXygqUWPHTYotbnyc3otIPN7a8izWhVM=
+	t=1770822013; cv=none; b=M34j5QclqnauSTYyX+3UGFF7DnuGk3OvEG3DSBiBfufTJCH+wTMuDdlYXfTZSPYcApIaMiGHPvIWjHgG7I5RAc1Wa7W6zhuiF40mnL9UweuujrUPGeFmF4VFGbAaosP6vZ8iOG6nVeyNyzdqeHfONDIDc334YzYybZFSnG2CdHw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770817486; c=relaxed/simple;
-	bh=m9GuyAiTKMH3RpB0F+EMrQU/EQc/ta0j8JC/xwQzeoA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=e3TucQqX25YPrqjpjaXLFqlItuNnr74FoO2toEE0kv5lqg182P/rqL5nwFqbr1HrCSoTXqqYjhRG2N9yN/dM8mgWnTTeBQpTfhaSTWTek3SjGM/Z4FuVz8M6RVWONfMhvn9waFFbLy5TEhZljcRahV5TI0lN2e4SodYQDprdnAE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=q7KbrV19; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1770822013; c=relaxed/simple;
+	bh=5yqyUJ54Yi7dyZmv92DJxAVcrMP379V4125a2x3pgas=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=iQw8iN7x3uHrpFlg0ACLhB8q4OHfg7Z492D9tiltZQqxFCIwssqLpfnWMFjLi35xpFrrWR7GvcifzmydtxXAMZirFszmGWHNYbrrKu6zG3hCwNsb0WXwC5J9Sm+1+WW9NdTItGt70w/X6FJ5DkjzQI9vX0bQH+7LtDUImN9GA64=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OPISN+k+; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="q7KbrV19"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61BCpdJb3391389;
-	Wed, 11 Feb 2026 13:44:02 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OPISN+k+"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61AM0IrP239438;
+	Wed, 11 Feb 2026 15:00:09 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ofhnE7
-	U+P29+zIVstVseiGSwWxufrhAvNzNGwjee5OA=; b=q7KbrV19dkbdzpj/hNBhdS
-	OotzLr5k5mMa5bSdymsmT06pwBzNA9SXb6yV6kk6hB7Tx9ibW3zhBi3sB2o00TSv
-	vvFS7k1DdEBXtA/ZXmfdTBj/m5CVZUGBnIcIzNg8bqi95r9VX2iPNf10UBe8CXwO
-	ZPtJWMuZIa3YMiNMmcAJbqc7CTbIHWIGgk4D8fLl5DCLZEWaXa1MmwSnQ4WDhUV8
-	mNSJsyvpV1+a5Yk+SV01FdSFXqJrMwH4a7xsWzqpXw8IwQbFi3oIoIKxX1zHtFe3
-	LdlRu3zIxYKNdWRmII5e0lvO0tugG0peHr06v04ExFBF3oWv7PSvoe9zAO999Btw
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c696wxw7c-1
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=TUuNKFsSy9H+KzNGodO8keB9HNik
+	S3lkO6Ytoze51as=; b=OPISN+k+UsfXqknyTzBeTeLAezudM8bQUe0BOd4zb44y
+	/SWcdtY5kLXiPuAnUkh05UCBSaCGEXPrFZbGs8MYLujo2ea//+npJXrd5cRmdzBP
+	J/+n5d5wme7h9hg51Dowk0dql+lCU1C9hzODvjUiX6Th87pMxsBGW8ecHzlU1Dz5
+	zv5PD5nd3hiF7jYN9QiAdkrhvFr0nREOBlI7wXeWWtQW/rzRE+p544TEauynsli5
+	v99wGzk6r9pDG3r5tll/yx4Y4ankTU+lNdMQhBaSuskUqAmDsrFTSYTVT8VsCxJY
+	/PTshlKSgQucNy3Lpqzdmu+yAZiMNWoQlpCwLBFZ6w==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c696uy6he-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 11 Feb 2026 13:44:01 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61B9E9Ic001499;
-	Wed, 11 Feb 2026 13:44:00 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4c6gqn60dw-1
+	Wed, 11 Feb 2026 15:00:09 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61BAu4Vo001833;
+	Wed, 11 Feb 2026 15:00:08 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4c6je25x9w-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 11 Feb 2026 13:44:00 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61BDhuC729622612
+	Wed, 11 Feb 2026 15:00:08 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61BF04NC48628128
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 11 Feb 2026 13:43:56 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A11DE20043;
-	Wed, 11 Feb 2026 13:43:56 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5A9B520040;
-	Wed, 11 Feb 2026 13:43:46 +0000 (GMT)
-Received: from [9.111.79.122] (unknown [9.111.79.122])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 11 Feb 2026 13:43:46 +0000 (GMT)
-Message-ID: <f5f7cc0e-81c1-49c4-9bfa-61b111c69ae2@linux.ibm.com>
-Date: Wed, 11 Feb 2026 19:13:45 +0530
+	Wed, 11 Feb 2026 15:00:04 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B31CB2004B;
+	Wed, 11 Feb 2026 15:00:04 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 53FEC20040;
+	Wed, 11 Feb 2026 15:00:04 +0000 (GMT)
+Received: from [192.168.88.251] (unknown [9.111.49.16])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 11 Feb 2026 15:00:04 +0000 (GMT)
+From: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH 0/3] s390x: Add test for STFLE interpretive
+ execution (format-2)
+Date: Wed, 11 Feb 2026 15:57:04 +0100
+Message-Id: <20260211-vsie-stfle-fac-v1-0-46c7aec5912b@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 00/15 v2] tick/sched: Refactor idle cputime accounting
-To: Frederic Weisbecker <frederic@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-Cc: Vasily Gorbik <gor@linux.ibm.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Kieran Bingham <kbingham@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-        Xin Zhao <jackzxcui1989@163.com>,
-        Joel Fernandes <joelagnelf@nvidia.com>,
-        Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
-        Sven Schnelle <svens@linux.ibm.com>, Boqun Feng <boqun.feng@gmail.com>,
-        Mel Gorman <mgorman@suse.de>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Ben Segall <bsegall@google.com>, Michael Ellerman <mpe@ellerman.id.au>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Anna-Maria Behnsen <anna-maria@linutronix.de>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-        linux-pm@vger.kernel.org, Uladzislau Rezki <urezki@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Heiko Carstens <hca@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Valentin Schneider <vschneid@redhat.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>
-References: <20260206142245.58987-1-frederic@kernel.org>
-Content-Language: en-US
-From: Shrikanth Hegde <sshegde@linux.ibm.com>
-In-Reply-To: <20260206142245.58987-1-frederic@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x2MwQqDMBAFf0X23IUYg5b+SulB9EUX21iyMQjiv
+ xu8DMxh5iBFFCi9qoMisqisoUj9qGiY+zCBZSxO1tjWFHBWAWvyX7DvB3amgXNtNz5hqUT/CC/
+ 7PXzTkn+8BUmcoEnpc54Xz0DX2XAAAAA=
+X-Change-ID: 20260202-vsie-stfle-fac-403e4467d8e2
+To: linux-s390@vger.kernel.org
+Cc: Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        =?utf-8?q?Nico_B=C3=B6hr?= <nrb@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>, kvm@vger.kernel.org,
+        Christoph Schlameuss <schlameuss@linux.ibm.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1421;
+ i=schlameuss@linux.ibm.com; h=from:subject:message-id;
+ bh=5yqyUJ54Yi7dyZmv92DJxAVcrMP379V4125a2x3pgas=;
+ b=owGbwMvMwCUmoqVx+bqN+mXG02pJDJk9M4sZC6p2Tm4Xzgk5ZxDuyDnnvXVli0X2+vCp80rL/
+ TRZXi3qKGVhEONikBVTZKkWt86r6mtdOueg5TWYOaxMIEMYuDgFYCJTbjEyrK5ct3XqlVBJoylq
+ G3YKv12guafSme/djZ1rZqROY7/HfI3hn8WUK2IJ6Sdu95iGKonx7ldtt4xVl+Tylrzr9cPiNFs
+ HAwA=
+X-Developer-Key: i=schlameuss@linux.ibm.com; a=openpgp;
+ fpr=0E34A68642574B2253AF4D31EEED6AB388551EC3
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=WZYBqkhX c=1 sm=1 tr=0 ts=698c87a1 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjExMDExNCBTYWx0ZWRfX41F2fr5ygund
+ EeEALoPYDGkvWKxnuYaK7Q5TKq227Mee8QD6KJDomaeYGmV2WXVlecFLvzBlKuUF35l5mxf02a4
+ olWD2V2ndPoDqFJqW1ppF9zAyoDwjthYpOCj3XhIXo68EE5g1X+YJEzOHZ4NMYYeyttsgETBVRW
+ Hc1N+O1bfwcSaPZQqcIm8XBhz7sXT9ZSOtbnr9o0v+ej1xE/bAfJd+qD7Z7dRvL8lDxsLj2PIk5
+ PGsircrI7Z76HigX+6yDxr7fsR58t0IxQMdwX2wdcuvdkU82mjlJIi6aOBwiuFypuuMj+HK+oxb
+ DiZDJLR1Ho1ADLgRhHRYEQGdUKUOPJ/jlJb0608xtinhZZgyuW/ZwNEn5t3xN/f4tpl7tlK1SHu
+ qU6ejl6LdBal8cMS/yTNj8JIZaz2KUhqn2sB7LRMTZaIsJOrIiq92xpjJdCKUJM03K+IZVVCqDc
+ q9eODhN8TnNoxRpgBIg==
+X-Proofpoint-ORIG-GUID: pSnwY72oMrcpSMKDFA-JNjfRshRTPPxU
+X-Proofpoint-GUID: pSnwY72oMrcpSMKDFA-JNjfRshRTPPxU
+X-Authority-Analysis: v=2.4 cv=O+Y0fR9W c=1 sm=1 tr=0 ts=698c9979 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VwQbUJbxAAAA:8
- a=Byx-y9mGAAAA:8 a=WHM7aQrYW9fwOdz2DaoA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: HteRaXx1ui5kfmfs6alyEJh98C_G2gvZ
-X-Proofpoint-ORIG-GUID: 91FmO37-_cpg74FvCX_EFuJb5r_G1axG
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjExMDEwMyBTYWx0ZWRfX+xRAmu0RW3c8
- BSFli7yshkQZbRM9ypod1YueeQjiCUBCFaR1PvLMpab1nrIQf9vb5IWB3GhqmL8f8rlWBARLG+i
- umUODBavJihrNOvk7Qv3P4WmMGWwu2ZpwNFHfX9bVDgxQrcaXiPNcUXYZ+Tmbnw2ut1XBb98pYE
- 1zqHPlN42eMfiYedrjAFdscpPdrBrHah3ErvUk4TCY8DHIOjR5x9y2u1K2MRXscoWpzILpKAlrm
- WfmG1oyDPqiFGluYiUf8G49n37dQMwX1qZBZe/fu3pCFLjdP+5ImSlh+cJFjSES0pRadHqtM29t
- dDQk4B3RU+9mqCag7RhDPfvByWb5cPFghp1EdPb92SUTRvwJFh1UPrEU+fgFsYwIN+p147+g3NV
- XxatsZPmvFmCeoMJtIP97Qs9wRM34tDqnmO6m1zD+b2AeEWx7sDhdJaM6WhFgOAAtLDMrYaVOZC
- 1oBii5s47p4pEEGXEdw==
+ a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8
+ a=20KFwNOVAAAA:8 a=VwQbUJbxAAAA:8 a=1pEIAPF2W-qNjrGd5QYA:9 a=3ZKOabzyN94A:10
+ a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-11_01,2026-02-11_01,2025-10-01_01
+ definitions=2026-02-11_01,2026-02-11_04,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 clxscore=1015 phishscore=0 bulkscore=0 adultscore=0
- priorityscore=1501 lowpriorityscore=0 suspectscore=0 impostorscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ lowpriorityscore=0 priorityscore=1501 phishscore=0 adultscore=0
+ malwarescore=0 impostorscore=0 bulkscore=0 clxscore=1011 spamscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
- definitions=main-2602110103
+ definitions=main-2602110114
 
-Hi Frederic,
-Gave this series a spin on the same system as v1.
+Test the shadowing of format-2 facility list when running in VSIE.
 
-On 2/6/26 7:52 PM, Frederic Weisbecker wrote:
-> Hi,
-> 
-> After the issue reported here:
-> 
->          https://lore.kernel.org/all/20251210083135.3993562-1-jackzxcui1989@163.com/
-> 
-> It occurs that the idle cputime accounting is a big mess that
-> accumulates within two concurrent statistics, each having their own
-> shortcomings:
-> 
-> * The accounting for online CPUs which is based on the delta between
->    tick_nohz_start_idle() and tick_nohz_stop_idle().
-> 
->    Pros:
->         - Works when the tick is off
-> 
->         - Has nsecs granularity
-> 
->    Cons:
->         - Account idle steal time but doesn't substract it from idle
->           cputime.
-> 
->         - Assumes CONFIG_IRQ_TIME_ACCOUNTING by not accounting IRQs but
->           the IRQ time is simply ignored when
->           CONFIG_IRQ_TIME_ACCOUNTING=n
-> 
->         - The windows between 1) idle task scheduling and the first call
->           to tick_nohz_start_idle() and 2) idle task between the last
->           tick_nohz_stop_idle() and the rest of the idle time are
->           blindspots wrt. cputime accounting (though mostly insignificant
->           amount)
-> 
->         - Relies on private fields outside of kernel stats, with specific
->           accessors.
-> 
-> * The accounting for offline CPUs which is based on ticks and the
->    jiffies delta during which the tick was stopped.
-> 
->    Pros:
->         - Handles steal time correctly
-> 
->         - Handle CONFIG_IRQ_TIME_ACCOUNTING=y and
->           CONFIG_IRQ_TIME_ACCOUNTING=n correctly.
-> 
->         - Handles the whole idle task
-> 
->         - Accounts directly to kernel stats, without midlayer accumulator.
-> 
->     Cons:
->         - Doesn't elapse when the tick is off, which doesn't make it
->           suitable for online CPUs.
-> 
->         - Has TICK_NSEC granularity (jiffies)
-> 
->         - Needs to track the dyntick-idle ticks that were accounted and
->           substract them from the total jiffies time spent while the tick
->           was stopped. This is an ugly workaround.
-> 
-> Having two different accounting for a single context is not the only
-> problem: since those accountings are of different natures, it is
-> possible to observe the global idle time going backward after a CPU goes
-> offline, as reported by Xin Zhao.
-> 
-> Clean up the situation with introducing a hybrid approach that stays
-> coherent, fixes the backward jumps and works for both online and offline
-> CPUs:
-> 
-> * Tick based or native vtime accounting operate before the tick is
->    stopped and resumes once the tick is restarted.
-> 
-> * When the idle loop starts, switch to dynticks-idle accounting as is
->    done currently, except that the statistics accumulate directly to the
->    relevant kernel stat fields.
-> 
-> * Private dyntick cputime accounting fields are removed.
-> 
-> * Works on both online and offline case.
-> 
-> * Move most of the relevant code to the common sched/cputime subsystem
-> 
-> * Handle CONFIG_IRQ_TIME_ACCOUNTING=n correctly such that the
->    dynticks-idle accounting still elapses while on IRQs.
-> 
-> * Correctly substract idle steal cputime from idle time
-> 
-> Changes since v1:
-> 
-> - Fix deadlock involving double seq count lock on idle
-> 
-> - Fix build breakage on powerpc
-> 
-> - Fix build breakage on s390 (Heiko)
-> 
-> - Fix broken sysfs s390 idle time file (Heiko)
-> 
-> - Convert most ktime usage here into u64 (Peterz)
-> 
-> - Add missing (or too implicit) <linux/sched/clock.h> (Peterz)
-> 
-> - Fix whole idle time acccounting breakage due to missing TS_FLAG_ set
->    on idle entry (Shrikanth Hegde)
-> 
-> git://git.kernel.org/pub/scm/linux/kernel/git/frederic/linux-dynticks.git
-> 	timers/core-v2
-> 
-> HEAD: 21458b98c80a0567d48131240317b7b73ba34c3c
-> Thanks,
-> 	Frederic
+The tests will skip the format 2 tests
+* if running with unpatched kernels or qemu in G1 or G2
+* if running on machines prior IBM z16 GA1 (where ASTFLEIE2 is not
+  available)
 
-idle and runtime utilization with mpstat while running stress-ng looks
-correct now.
+Cc: Janosch Frank <frankja@linux.ibm.com>
+Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: "Nico Böhr" <nrb@linux.ibm.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Thomas Huth <thuth@redhat.com>
+Cc: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+To: linux-s390@vger.kernel.org
+Cc: kvm@vger.kernel.org
 
-However, when running hackbench I am noticing the below data. hackbench shows
-severe regressions.
+Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+---
+The original series was started by Nina and finished by me.
 
-base: tip/master at 9c61ebbdb587a3950072700ab74a9310afe3ad73.
-(nit: patch 7 is already part of tip. so skipped applying it)
-+-----------------------------------------------+-------+---------+-----------+
-| Test                                          | base  | +series | % Diff    |
-+-----------------------------------------------+-------+---------+-----------+
-| HackBench Process 10 groups                   |  2.23 |  3.05   |   -36.77%  |
-| HackBench Process 20 groups                   |  4.17 |  5.82   |   -39.57%  |
-| HackBench Process 30 groups                   |  6.04 |  8.49   |   -40.56%  |
-| HackBench Process 40 groups                   |  7.90 | 11.10   |   -40.51%  |
-| HackBench thread 10                           |  2.44 |  3.36   |   -37.70%  |
-| HackBench thread 20                           |  4.57 |  6.35   |   -38.95%  |
-| HackBench Process(Pipe) 10                    |  1.76 |  2.29   |   -30.11%  |
-| HackBench Process(Pipe) 20                    |  3.49 |  4.76   |   -36.39%  |
-| HackBench Process(Pipe) 30                    |  5.21 |  7.13   |   -36.85%  |
-| HackBench Process(Pipe) 40                    |  6.89 |  9.31   |   -35.12%  |
-| HackBench thread(Pipe) 10                     |  1.91 |  2.50   |   -30.89%  |
-| HackBench thread(Pipe) 20                     |  3.74 |  5.16   |   -37.97%  |
-+-----------------------------------------------+-------+---------+-----------+
+---
+Nina Schoetterl-Glausch (3):
+      s390x: snippets: Add reset_guest() to lib
+      s390x: sclp: Add detection of alternate STFLE facilities
+      s390x: Add test for STFLE interpretive execution (format-2)
 
-I have these in .config and I don't have nohz_full or isolated cpus.
+ lib/s390x/sclp.c    |  2 ++
+ lib/s390x/sclp.h    |  6 +++-
+ lib/s390x/sie.c     | 11 +++++++
+ lib/s390x/sie.h     |  1 +
+ lib/s390x/snippet.h |  6 ++++
+ s390x/spec_ex-sie.c | 10 ++----
+ s390x/stfle-sie.c   | 91 ++++++++++++++++++++++++++++++++++++++++++++++-------
+ 7 files changed, 107 insertions(+), 20 deletions(-)
+---
+base-commit: 86e53277ac80dabb04f4fa5fa6a6cc7649392bdc
+change-id: 20260202-vsie-stfle-fac-403e4467d8e2
 
-CONFIG_TICK_ONESHOT=y
-CONFIG_NO_HZ_COMMON=y
-# CONFIG_HZ_PERIODIC is not set
-# CONFIG_NO_HZ_IDLE is not set
-CONFIG_NO_HZ_FULL=y
+Best regards,
+-- 
+Christoph Schlameuss <schlameuss@linux.ibm.com>
 
-# CPU/Task time and stats accounting
-#
-CONFIG_VIRT_CPU_ACCOUNTING=y
-CONFIG_VIRT_CPU_ACCOUNTING_GEN=y
-CONFIG_IRQ_TIME_ACCOUNTING=y
-CONFIG_HAVE_SCHED_AVG_IRQ=y
-
-I did a git bisect and below is what it says.
-
-git bisect start
-# status: waiting for both good and bad commits
-# bad: [6821315886a3b5267ea31d29dba26fd34647fbbc] sched/cputime: Handle dyntick-idle steal time correctly
-git bisect bad 6821315886a3b5267ea31d29dba26fd34647fbbc
-# status: waiting for good commit(s), bad commit known
-# good: [9c61ebbdb587a3950072700ab74a9310afe3ad73] Merge branch into tip/master: 'x86/sev'
-git bisect good 9c61ebbdb587a3950072700ab74a9310afe3ad73
-# good: [dc8bb3c84d162f7d9aa6becf9f8392474f92655a] tick/sched: Remove nohz disabled special case in cputime fetch
-git bisect good dc8bb3c84d162f7d9aa6becf9f8392474f92655a
-# good: [5070a778a581cd668f5d717f85fb22b078d8c20c] tick/sched: Account tickless idle cputime only when tick is stopped
-git bisect good 5070a778a581cd668f5d717f85fb22b078d8c20c
-# bad: [1e0ccc25a9a74b188b239c4de716fde279adbf8e] sched/cputime: Provide get_cpu_[idle|iowait]_time_us() off-case
-git bisect bad 1e0ccc25a9a74b188b239c4de716fde279adbf8e
-# bad: [ee7c735b76071000d401869fc2883c451ee3fa61] tick/sched: Consolidate idle time fetching APIs
-git bisect bad ee7c735b76071000d401869fc2883c451ee3fa61
-# first bad commit: [ee7c735b76071000d401869fc2883c451ee3fa61] tick/sched: Consolidate idle time fetching APIs
-
-
-I did a perf diff between the two (collected perf record -a for hackbench 60 process 10000 loops)
-
-perf diff base series:
-# Baseline  Delta Abs  Shared Object                Symbol
-# ........  .........  ...........................  ................................................
-#
-                +5.43%  [kernel.kallsyms]            [k] __update_freelist_slow
-      0.00%     +4.55%  [kernel.kallsyms]            [k] _raw_spin_lock
-                +3.35%  [kernel.kallsyms]            [k] __memcg_slab_free_hook
-      0.55%     +2.58%  [kernel.kallsyms]            [k] sock_wfree
-                +2.51%  [kernel.kallsyms]            [k] __account_obj_stock
-      2.29%     -2.29%  [kernel.kallsyms]            [k] _raw_write_lock_irq
-                +2.25%  [kernel.kallsyms]            [k] _copy_from_iter
-                +1.96%  [kernel.kallsyms]            [k] fdget_pos
-                +1.87%  [kernel.kallsyms]            [k] _copy_to_iter
-                +1.69%  [kernel.kallsyms]            [k] sock_def_readable
-      2.32%     -1.68%  [kernel.kallsyms]            [k] mod_memcg_lruvec_state
-      0.82%     +1.67%  [kernel.kallsyms]            [k] skb_set_owner_w
-      0.08%     +1.65%  [kernel.kallsyms]            [k] vfs_read
-      0.42%     +1.57%  [kernel.kallsyms]            [k] kmem_cache_alloc_node_noprof
-      1.53%     -1.53%  [kernel.kallsyms]            [k] kmem_cache_alloc_lru_noprof
-      1.56%     -1.41%  [kernel.kallsyms]            [k] simple_copy_to_iter
-      0.27%     +1.32%  [kernel.kallsyms]            [k] kfree
-      0.01%     +1.25%  [kernel.kallsyms]            [k] __slab_free
-      0.19%     +1.24%  [kernel.kallsyms]            [k] kmem_cache_free
-      1.23%     -1.23%  [kernel.kallsyms]            [k] __pcs_replace_full_main
-      0.35%     +1.21%  [kernel.kallsyms]            [k] __skb_datagram_iter
-      0.21%     +1.13%  [kernel.kallsyms]            [k] sock_alloc_send_pskb
-                +1.09%  [kernel.kallsyms]            [k] mutex_lock
-                +0.98%  [kernel.kallsyms].head.text  [k] 0x0000000000013004
-
-
-I haven't gone through the series yet. trying to go through meanwhile.
-maybe different allocation scheme or more allocation/free everytime instead of
-pre-allocated percpu variables?
-
-First thought of reporting it. Let me know if you need any additional data.
