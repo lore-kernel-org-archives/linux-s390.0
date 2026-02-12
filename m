@@ -1,239 +1,215 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 843DF211A28
-	for <linux-s390@vger.kernel.org>; Thu, 12 Feb 2026 18:17:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.176
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770920276; cv=pass; b=RiXgULOs2LFGtfP0I9VB8PmLy1o70TRye3y8zezWyRj1MNeVbz7ZZTwrDJ3bKPgACTCIP9JQDlF0xqUqwoVnDuS99xDiUD0NLUX258L9IxsZLqcx4aLjWDdyVbzAdS/wrtAKu6KvM+hSy7Tib0h0sOuO8u+erHMo/iLDqvimgH0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770920276; c=relaxed/simple;
-	bh=R7o/cpkDQO7wHK4vBLyOAKkN9uJz6DrV9/7FvH9dkZo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=SZs5bjD4GplbYWgKQ+J5qnfrbjUSN7mUF8J5d6infag4btyqtXHxESFETjskuj4NjIxxrITSqqcDIgZNe1C/k5Ug5eLBpirNeHT/bnsvLbOlX4Xfpaqybqz+lDI8pCYMktI018/DYW+IJnQQbtEvZfoG6n+fMZFagLX4zAJMZP4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=PNlY5ARh; arc=pass smtp.client-ip=209.85.214.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DA00242D84;
+	Thu, 12 Feb 2026 20:26:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770927972; cv=none; b=sOXpE0vbMK9J2Bd6sppzVH+Ota2dh0Ruz1Xqg0DyHs+Ne392wk6l1QiV+LBKBX6PsZlM7pHOlfZFOp3rcQOgohS0F/pKx3OflfB9ORmss8yyR6G7aTH/WiW0xg3jF3RESzlm0qEDDwtVVPOoOsPcRoyywQxj3COhSVwLHjzT7dQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770927972; c=relaxed/simple;
+	bh=8IaK+mPLmqODUT1T5Ma9a4TIwbT/y3MgP/VUortegzM=;
+	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
+	 Date:MIME-Version; b=WcDJYD/TvM/wxoQUyvbwjTw6xdXxBDr+jWvHF4irB/YlU+dN8tnpgs556wnpDRuip92a9Am61OoJ6NJkTEaiZmF5hk7t5QA9t3AMxwTFgDYSGPLRzT1t3lrQEgouq4qghElvt0vS64LwrlCJMpgJgUfz6JWaopJ1IBX/8JoU50A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZWbkLAwn; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="PNlY5ARh"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2a964077671so5265ad.0
-        for <linux-s390@vger.kernel.org>; Thu, 12 Feb 2026 10:17:55 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1770920275; cv=none;
-        d=google.com; s=arc-20240605;
-        b=IyHlGjuvndyLbNGRU3i1exg8VebncNuIqTJzlFWfMuIAB2/OQeoH9FYzQ84rhegmGg
-         GtZcTc8s7EdQX0oDZ5DJwUW2CW+ULPDNE4Mc2K2RhR70mPTdC/+wdaynfYRSJdtjWwd0
-         yY95lbI+BJLuxl7q8KS5QaNvQLsuKYfNjEgsTakr9OF8bed59u912BmU1xmKWyX0bbTp
-         swYA2pz+9SOt7TKetOZLUhRwYST8j+H7gYfoIbCb+XbkukZnssOM3RbQLsRKAn/cYhR/
-         34T0fwOPdA0H7LR0L7knSEBFCyAuZqWXR/OJtODUGFpJ4MhintGZA+s9dLKlimU4v9Md
-         HddQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=kLWeXrRWq1Z8R0G6ScWpddv+wpe/jmdqorkcO6NIr+c=;
-        fh=zXDVb0FZxAvgltBgKZEqBpTTQ4PYZ6Wm/WO4ivUg6/Q=;
-        b=Y5vqdhYIvspNCsCpJFJCC+54jCxTX/TsgqQ2WZmcbgmgRdrXOsQ/5KZvkx9azvGCmo
-         OoQF5sqCw69rh7QYe8b8sCZkWeFwhKspTnlSJjdNSLCLMnBL7nwo5FOAaXrEM1NiLAKm
-         SAN49Av1O/qe1Tuxz+/PQOCGLKAdtdTa7EuVaLCSYvWJ1SNNh5rWgIxzmNukb2P9Ow2A
-         YcA84Ye7pmroV42RA36/Q9/6qVM29/1fMYxQenFDVC97Zels6Si0ivS0XCOH5uvWxmBU
-         RU5rxW17RZ8gdki8Eh2qXtok/rT3ruKnrbJdNFCpOl9HmQ2ZHYSTkpBYnVVfSjNt1VQJ
-         GvTw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1770920275; x=1771525075; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kLWeXrRWq1Z8R0G6ScWpddv+wpe/jmdqorkcO6NIr+c=;
-        b=PNlY5ARhHXLwLuN6rt63oruUo9/JgY/knXcQGrOoDgoHVkLRPwdHHCpXRiE5dsKnio
-         1adJc/3rL2XfP2Gd6n2TgpASTw0CQMr047rrE+n4YzpV6uIvHvWgZyxES415AFCUzzv+
-         l3K/ruptKqTkX43ZiUIM3WeliTNUvVfYsyeguWUQ6wdL9po/VOTnP1tkjEzMSWn0o/Eb
-         59dPx1VeOXC4meYO3f92EwJGaiLNzX+rhKrcLVFXet8y6M2WhIvraVoxeAALiFiKAL7p
-         DN+Oq8foXTAUccOzbxpaX+acPb7RjIzL4pIUrzWUuGxbcaXHNgkTJB45whg4X7208R2P
-         6cTg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770920275; x=1771525075;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=kLWeXrRWq1Z8R0G6ScWpddv+wpe/jmdqorkcO6NIr+c=;
-        b=SAAI3FPZY+bJ2w+xj+14nkX8Hu5iKir3P0TZoXWgUx5gwGSEWXjTS05b3MKexIIgw/
-         416rEV1Y+kDE+4MB+iBwVa22WgZsRdlhjkAVMxPqgP2kjGHINJfVFLYV0O9+A71RaITX
-         UYRDv3JAjgFsbIE2zj2vysXtsuf7+g/3I6ZqbCuVEDJ2pRlWazcLrmxanK3UPk9kCw6L
-         9EO7i6c0pvKuxH0lvQrJCIanNDRAHfPY/q/ifnmMsD0hoPokGdxRH5DemnGnKttwn0Jr
-         HRIHxHkfdX1CQrTO+PR0DEPSWgIfCh6cM0zfr7YxelfZqlBqTITwjpTkSRQ/IF+jxU+i
-         AM9A==
-X-Forwarded-Encrypted: i=1; AJvYcCX6m5gU/yCc6zYWgaghOBIjkBabRNkZigMV1u6yIxhY6gNc5gm14F/aUTXs5mtVzSudpz4zgaFl2XmE@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzzc8E362IyB//2THy0s57gUnrL1ULTQZA9x/JsORkOGedsoDa6
-	zOSH7vmzuO6LkCut5SyMGLGA1t/WN88WHPRAd6X10d3DAMHKt2EFSRwuzt5uhX/SxX4Eu8tL/n7
-	twdf+XjbjpizVDFUj9BR8lKE/SNdMQyOyHmejfQc0
-X-Gm-Gg: AZuq6aKcCRU+PmJVmstOqseVidgnn6oSx0+HtX/bUTNnHzmLZTVj1vh+bP5CHjbB5Hl
-	S8J3k6KbKVKZsHVMy2UR2FpNc/UrMFHcPIHvFzdXiTlyxjU1we0tY0J3p4CTZsVQnxNidabdrPS
-	AafxHYoQbfDj706tGGKX+GHxPJqdSrThUJgM3sK3HDA59S0KDVD9KDEcoe94SWipQjisbuLLAYy
-	40eTysHODE2JESWOdgQi//YzsHQm3Yr5U2WC9PtWWsYE+b81zsf1kYEDoy0OPhbH43o73Z/YYDs
-	FjAQfRs6DpGXqofPyO2NigRMUffLaylj9BZ1
-X-Received: by 2002:a17:902:db05:b0:291:6858:ee60 with SMTP id
- d9443c01a7336-2ab4c64ae54mr64455ad.4.1770920274175; Thu, 12 Feb 2026 10:17:54
- -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZWbkLAwn"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61CK42Oq2890525;
+	Thu, 12 Feb 2026 20:25:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=/AQFd9
+	vIuiZK1MsItmBHlvbYNCfVXPM+5ScmYYs9mLw=; b=ZWbkLAwnH/Mf7Vb3Fq2Hmh
+	mByWePhvy1+ieWdA9hRLCmoYbYwnWs8zrbIW/8/Uac2QT/zGITnLJohKhAOxooh2
+	cPufbdU1Xk4UgxZSY8Lw0INMeSIaBejxrW26T/dr87KkvcauiAKoURtMGF5rs2kj
+	DPeSc1QxeWokVwBS/Vri5yb+ltCOjQuv/W3qRa/RZOGgINq/I7iW6xgs7ZHu8VkV
+	kl1fLZoa4o9/34g/aERijUGC/58aZtp+swTMRAN8Am5v7uhivD9YR4EOuMu81iCu
+	fk99bxwQdOp5dzuRM9yP4Laiwe9vVP2+SOz8gPYhrYCuTIywBbNe+cnk0KPE5FgQ
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c696x5a69-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 12 Feb 2026 20:25:23 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61CGf35A008400;
+	Thu, 12 Feb 2026 20:25:23 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4c6g3ym5yd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 12 Feb 2026 20:25:23 +0000
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61CKP0Qw22807052
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 12 Feb 2026 20:25:00 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id ACCD658052;
+	Thu, 12 Feb 2026 20:25:20 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8221258045;
+	Thu, 12 Feb 2026 20:25:17 +0000 (GMT)
+Received: from li-43857255-d5e6-4659-90f1-fc5cee4750ad.ibm.com (unknown [9.61.21.193])
+	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 12 Feb 2026 20:25:17 +0000 (GMT)
+Message-ID: <0df1685d630035d5ab0e32f4b4d26db9bb6a91a4.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 1/3] integrity: Make arch_ima_get_secureboot
+ integrity-wide
+From: Mimi Zohar <zohar@linux.ibm.com>
+To: Coiby Xu <coxu@redhat.com>
+Cc: linux-integrity@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Ard Biesheuvel
+ <ardb@kernel.org>, Dave Hansen <dave.hansen@intel.com>,
+        Roberto Sassu
+ <roberto.sassu@huawei.com>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman	 <mpe@ellerman.id.au>,
+        Nicholas Piggin
+ <npiggin@gmail.com>,
+        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev	
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas
+ Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+        Borislav
+ Petkov	 <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)"	 <x86@kernel.org>,
+        "H.
+ Peter Anvin" <hpa@zytor.com>,
+        Dmitry Kasatkin	 <dmitry.kasatkin@gmail.com>,
+        Eric Snowberg <eric.snowberg@oracle.com>,
+        Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn"	 <serge@hallyn.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        open list	
+ <linux-kernel@vger.kernel.org>,
+        "open list:LINUX FOR POWERPC (32-BIT AND
+ 64-BIT)" <linuxppc-dev@lists.ozlabs.org>,
+        "open list:S390 ARCHITECTURE"
+ <linux-s390@vger.kernel.org>,
+        "open list:EXTENSIBLE FIRMWARE INTERFACE
+ (EFI)"	 <linux-efi@vger.kernel.org>,
+        "open list:SECURITY SUBSYSTEM"	
+ <linux-security-module@vger.kernel.org>,
+        "open
+ list:KEYS/KEYRINGS_INTEGRITY"	 <keyrings@vger.kernel.org>
+In-Reply-To: <aY0rZp9ROwfjPgD8@Rk>
+References: <20260203041434.872784-1-coxu@redhat.com>
+	 <20260203041434.872784-2-coxu@redhat.com>
+	 <66f9d13875e81a965984e2a661e992a3fe43c516.camel@linux.ibm.com>
+	 <aY0rZp9ROwfjPgD8@Rk>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 12 Feb 2026 15:25:17 -0500
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260212125315.777356-1-tmricht@linux.ibm.com>
-In-Reply-To: <20260212125315.777356-1-tmricht@linux.ibm.com>
-From: Ian Rogers <irogers@google.com>
-Date: Thu, 12 Feb 2026 10:17:43 -0800
-X-Gm-Features: AZwV_QhShl-HZziCq5mgH_V2A4kBmbbFEo85Wm1G0WQ_YJnpQquqDRpIFIzq5jo
-Message-ID: <CAP-5=fWxHfGZaLyrvzuQF83K1g=LaFC4uRvg3HjM0=W9ts_yxQ@mail.gmail.com>
-Subject: Re: [PATCH linux-next] perf parse-events: Fix big-endian 'overwrite'
- by writing correct union member
-To: Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org, 
-	james.clark@linaro.org, agordeev@linux.ibm.com, gor@linux.ibm.com, 
-	sumanthk@linux.ibm.com, hca@linux.ibm.com, japo@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=WZYBqkhX c=1 sm=1 tr=0 ts=698e3734 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8
+ a=i0EeH86SAAAA:8 a=20KFwNOVAAAA:8 a=rnUjhx4C2NHl8nqPuY0A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: 4ry9PeEgol-hXXYqsZobF_X61z83qHwt
+X-Proofpoint-ORIG-GUID: akyquk1pgbcHhjp5hBb1sq5u85ZLzeyN
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjEyMDE1NyBTYWx0ZWRfXxoerCjpT3xeC
+ zVMGloxz4oW7ZH0W1JnLHvCmD2zg4YHQTE47xu8EW/NtZWUolzpugCzh88tpiXJj8iOkzbnbbPZ
+ oyEF2cGUDTu5zmXg0GtBJXqiqr97EYRxO1V21iNJikJ916bkPjgSnFA6BpA0M0rYIdcdoIj+kk4
+ 1i4FJaLyFR/moFs0b8otGG1PH+MKLZ+oHFFnHFHQ4sPEx9WulQqY/E3jyU7GINS1QGXJvKCJk5I
+ BLQ7JehWDeB/ooCr0Ujtj8QDw/HRUHHNwldeQYGrazfVdj3idM15NpDUooVHxmuDbFoH3gEM7lj
+ WHoVf28JqVzJbgbGqq81WWiNeu5YIu98GvfuDJuYYZdRvSHON/dYzvAFm3KkVh314o3tn6yJWfJ
+ nKyi9ZPtfKieX3I0MtXxxahawVM8cAFwxtUb8gSHq0E7kpxWNF3F7pER/1KycdC4WYFEmoMCZUX
+ i1bGF7uv4SxiPXz7Egw==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-12_05,2026-02-12_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 clxscore=1015 phishscore=0 bulkscore=0 adultscore=0
+ priorityscore=1501 lowpriorityscore=0 suspectscore=0 impostorscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
+ definitions=main-2602120157
 
-On Thu, Feb 12, 2026 at 4:53=E2=80=AFAM Thomas Richter <tmricht@linux.ibm.c=
-om> wrote:
->
-> The "Read backward ring buffer" test crashes on big-endian (e.g. s390x)
-> due to a NULL dereference when the backward mmap path isn't enabled.
->
-> Reproducer:
->   # ./perf test -F 'Read backward ring buffer'
->   Segmentation fault (core dumped)
->   # uname -m
->   s390x
->   #
->
-> Root cause:
-> get_config_terms() stores into evsel_config_term::val.val (u64) while lat=
-er
-> code reads boolean fields such as evsel_config_term::val.overwrite.
-> On big-endian the 1-byte boolean is left-aligned, so writing
-> evsel_config_term::val.val =3D 1 is read back as
-> evsel_config_term::val.overwrite =3D 0,
-> leaving backward mmap disabled and a NULL map being used.
->
-> Store values in the union member that matches the term type, e.g.:
->   /* for OVERWRITE */
->   new_term->val.overwrite =3D 1;  /* not new_term->val.val =3D 1 */
-> to fix this.
->
-> Impact:
-> Enables backward mmap on big-endian and prevents the crash.
-> No change on little-endian.
->
-> Output after:
->  # ./perf test -Fv 44
->  --- start ---
->  Using CPUID IBM,9175,705,ME1,3.8,002f
->  mmap size 1052672B
->  mmap size 8192B
->  ---- end ----
->  44: Read backward ring buffer                         : Ok
->  #
->
-> Fixes: 159ca97cd97c ("perf parse-events: Refactor get_config_terms() to r=
-emove macros")
-> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> Reviewed-by: Jan Polensky <japo@linux.ibm.com>
-> Cc: James Clark <james.clark@linaro.org>
-> Cc: Ian Rogers <irogers@google.com>
-> ---
->  tools/perf/util/parse-events.c | 49 +++++++++++++++++++++++++++++++++-
->  1 file changed, 48 insertions(+), 1 deletion(-)
->
-> diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-event=
-s.c
-> index d4647ded340f..12fe5392c832 100644
-> --- a/tools/perf/util/parse-events.c
-> +++ b/tools/perf/util/parse-events.c
-> @@ -1250,7 +1250,54 @@ static int get_config_terms(const struct parse_eve=
-nts_terms *head_config,
->                         }
->                         new_term->free_str =3D true;
->                 } else {
-> -                       new_term->val.val =3D val;
-> +                       switch (new_type) {
-> +                       case EVSEL__CONFIG_TERM_PERIOD:
-> +                               new_term->val.period =3D val;
-> +                               break;
+On Thu, 2026-02-12 at 09:28 +0800, Coiby Xu wrote:
+> On Mon, Feb 09, 2026 at 03:43:08PM -0500, Mimi Zohar wrote:
+> > On Tue, 2026-02-03 at 12:14 +0800, Coiby Xu wrote:
+> > > EVM and other LSMs need the ability to query the secure boot status o=
+f
+> > > the system, without directly calling the IMA arch_ima_get_secureboot
+> > > function. Refactor the secure boot status check into a general functi=
+on
+> > > named arch_get_secureboot.
+> > >=20
+> > > Reported-and-suggested-by: Mimi Zohar <zohar@linux.ibm.com>
+> > > Suggested-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > > Signed-off-by: Coiby Xu <coxu@redhat.com>
+> >=20
+> > Thanks, Coiby.  Other than unnecessarily splitting a line, the patch se=
+t looks
+> > good.  As soon as the open window closes, I'll queue these patches for =
+linux-
+> > next.
+>=20
+> Hi Mimi, thanks for reviewing the patch set! Would you like me to send a
+> new version with the line splitting issue fixed?
 
-Thanks Thomas and sorry big endian got broken! I'm a little confused
-here as period is a u64 so I think this one can be a default case.
+Yes, thanks.
 
-> +                       case EVSEL__CONFIG_TERM_FREQ:
-> +                               new_term->val.freq =3D val;
-> +                               break;
+Mimi
 
-Also a u64.
-
-> +                       case EVSEL__CONFIG_TERM_TIME:
-> +                               new_term->val.time =3D val;
-> +                               break;
-> +                       case EVSEL__CONFIG_TERM_STACK_USER:
-> +                               new_term->val.stack_user =3D val;
-> +                               break;
-
-Also a u64.
-
-> +                       case EVSEL__CONFIG_TERM_INHERIT:
-> +                               new_term->val.inherit =3D val;
-> +                               break;
-> +                       case EVSEL__CONFIG_TERM_OVERWRITE:
-> +                               new_term->val.overwrite =3D val;
-> +                               break;
-> +                       case EVSEL__CONFIG_TERM_MAX_STACK:
-> +                               new_term->val.max_stack =3D val;
-> +                               break;
-> +                       case EVSEL__CONFIG_TERM_MAX_EVENTS:
-> +                               new_term->val.max_events =3D val;
-> +                               break;
-> +                       case EVSEL__CONFIG_TERM_PERCORE:
-> +                               new_term->val.percore =3D val;
-> +                               break;
-> +                       case EVSEL__CONFIG_TERM_AUX_OUTPUT:
-> +                               new_term->val.aux_output =3D val;
-> +                               break;
-> +                       case EVSEL__CONFIG_TERM_AUX_SAMPLE_SIZE:
-> +                               new_term->val.aux_sample_size =3D val;
-> +                               break;
-> +                       case EVSEL__CONFIG_TERM_CALLGRAPH:
-> +                       case EVSEL__CONFIG_TERM_DRV_CFG:
-> +                       case EVSEL__CONFIG_TERM_BRANCH:
-> +                       case EVSEL__CONFIG_TERM_AUX_ACTION:
-> +                       case EVSEL__CONFIG_TERM_USR_CHG_CONFIG:
-> +                       case EVSEL__CONFIG_TERM_USR_CHG_CONFIG1:
-> +                       case EVSEL__CONFIG_TERM_USR_CHG_CONFIG2:
-> +                       case EVSEL__CONFIG_TERM_USR_CHG_CONFIG3:
-> +                       case EVSEL__CONFIG_TERM_USR_CHG_CONFIG4:
-> +                       case EVSEL__CONFIG_TERM_RATIO_TO_PREV:
-
-I think these cases are all assigning a str so would using str rather
-than val be cleaner?
-
-The change looks good but it is a little inconsistent that the default
-copying is done for str values but not for u64. It would kind of be
-nice to remove the default copying so that if a new config term is
-added the switch will fail to compile due to a missing case statement.
-Then we can do the right copy for big endian. Given we've broken
-big-endian here we should probably add a comment.
-
-Thanks,
-Ian
-
-I> +                       default:
-> +                               new_term->val.val =3D val;
-> +                               break;
-> +                       }
->                 }
->         }
->         return 0;
-> --
-> 2.53.0
->
+>=20
+> >=20
+> > > diff --git a/security/integrity/ima/ima_efi.c b/security/integrity/im=
+a/ima_efi.c
+> > > index 138029bfcce1..27521d665d33 100644
+> > > --- a/security/integrity/ima/ima_efi.c
+> > > +++ b/security/integrity/ima/ima_efi.c
+> [...]
+> > >  {
+> > > -	if (IS_ENABLED(CONFIG_IMA_ARCH_POLICY) && arch_ima_get_secureboot()=
+) {
+> > > +	if (IS_ENABLED(CONFIG_IMA_ARCH_POLICY) &&
+> > > +	    arch_get_secureboot()) {
+> >=20
+> > No need to split the line here or below.
+> >=20
+> >=20
+> > >  		if (IS_ENABLED(CONFIG_MODULE_SIG))
+> > >  			set_module_sig_enforced();
+> > >  		if (IS_ENABLED(CONFIG_KEXEC_SIG))
+> > > diff --git a/security/integrity/ima/ima_main.c b/security/integrity/i=
+ma/ima_main.c
+> > > index 5770cf691912..6d093ac82a45 100644
+> > > --- a/security/integrity/ima/ima_main.c
+> > > +++ b/security/integrity/ima/ima_main.c
+> > > @@ -949,8 +949,8 @@ static int ima_load_data(enum kernel_load_data_id=
+ id, bool contents)
+> > >=20
+> > >  	switch (id) {
+> > >  	case LOADING_KEXEC_IMAGE:
+> > > -		if (IS_ENABLED(CONFIG_KEXEC_SIG)
+> > > -		    && arch_ima_get_secureboot()) {
+> > > +		if (IS_ENABLED(CONFIG_KEXEC_SIG) &&
+> > > +		    arch_get_secureboot()) {
+> >=20
+> > =3D=3D=3D>
+> >=20
+> > Mimi
+> >=20
+> > >  			pr_err("impossible to appraise a kernel image without a file desc=
+riptor; try using kexec_file_load syscall.\n");
+> > >  			return -EACCES;
+> > >  		}
+> >=20
