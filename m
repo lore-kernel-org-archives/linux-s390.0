@@ -1,215 +1,122 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DA00242D84;
-	Thu, 12 Feb 2026 20:26:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E7AB29ACC6;
+	Thu, 12 Feb 2026 22:47:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770927972; cv=none; b=sOXpE0vbMK9J2Bd6sppzVH+Ota2dh0Ruz1Xqg0DyHs+Ne392wk6l1QiV+LBKBX6PsZlM7pHOlfZFOp3rcQOgohS0F/pKx3OflfB9ORmss8yyR6G7aTH/WiW0xg3jF3RESzlm0qEDDwtVVPOoOsPcRoyywQxj3COhSVwLHjzT7dQ=
+	t=1770936452; cv=none; b=liVdfpCwGtG95tMH4qkX9IziidXN+NJwXWcGhMien8X+5I2f7VWotyjIFDVOj3IDLi5C2yQZMMZdD+xQXbBR6vnJvq3v7AKr2diOTS7za+ZpSQQbA97wgFPuOkCYFuaSL+6ojpHAX8XveVq8m3gUAvB1ziMmHvXEKWJmJQiZY3M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770927972; c=relaxed/simple;
-	bh=8IaK+mPLmqODUT1T5Ma9a4TIwbT/y3MgP/VUortegzM=;
-	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
-	 Date:MIME-Version; b=WcDJYD/TvM/wxoQUyvbwjTw6xdXxBDr+jWvHF4irB/YlU+dN8tnpgs556wnpDRuip92a9Am61OoJ6NJkTEaiZmF5hk7t5QA9t3AMxwTFgDYSGPLRzT1t3lrQEgouq4qghElvt0vS64LwrlCJMpgJgUfz6JWaopJ1IBX/8JoU50A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZWbkLAwn; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1770936452; c=relaxed/simple;
+	bh=AiIS+Wm375XPUvioqsfLcR/Bc/OtkuBLuqfu5HEZOEY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rmMKZXvT86/abC91cnZ8zBd3TVeIiwbE66QXVJrV0cWlUvMv02KkjPmfzQv3ntpALeeqLoL7Ts4/iFSrRVXlivTbkdQS9j/spDhr1Fn3C0pqlbA24Og5/Ge+EYkDxg5k4qnYz4sUgF77UkQPBrPLH/lNH7xwafSF5xzwapaUkLs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=TXhp6yor; arc=none smtp.client-ip=192.198.163.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZWbkLAwn"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61CK42Oq2890525;
-	Thu, 12 Feb 2026 20:25:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=/AQFd9
-	vIuiZK1MsItmBHlvbYNCfVXPM+5ScmYYs9mLw=; b=ZWbkLAwnH/Mf7Vb3Fq2Hmh
-	mByWePhvy1+ieWdA9hRLCmoYbYwnWs8zrbIW/8/Uac2QT/zGITnLJohKhAOxooh2
-	cPufbdU1Xk4UgxZSY8Lw0INMeSIaBejxrW26T/dr87KkvcauiAKoURtMGF5rs2kj
-	DPeSc1QxeWokVwBS/Vri5yb+ltCOjQuv/W3qRa/RZOGgINq/I7iW6xgs7ZHu8VkV
-	kl1fLZoa4o9/34g/aERijUGC/58aZtp+swTMRAN8Am5v7uhivD9YR4EOuMu81iCu
-	fk99bxwQdOp5dzuRM9yP4Laiwe9vVP2+SOz8gPYhrYCuTIywBbNe+cnk0KPE5FgQ
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4c696x5a69-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 12 Feb 2026 20:25:23 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61CGf35A008400;
-	Thu, 12 Feb 2026 20:25:23 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4c6g3ym5yd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 12 Feb 2026 20:25:23 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61CKP0Qw22807052
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 12 Feb 2026 20:25:00 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id ACCD658052;
-	Thu, 12 Feb 2026 20:25:20 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8221258045;
-	Thu, 12 Feb 2026 20:25:17 +0000 (GMT)
-Received: from li-43857255-d5e6-4659-90f1-fc5cee4750ad.ibm.com (unknown [9.61.21.193])
-	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 12 Feb 2026 20:25:17 +0000 (GMT)
-Message-ID: <0df1685d630035d5ab0e32f4b4d26db9bb6a91a4.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 1/3] integrity: Make arch_ima_get_secureboot
- integrity-wide
-From: Mimi Zohar <zohar@linux.ibm.com>
-To: Coiby Xu <coxu@redhat.com>
-Cc: linux-integrity@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Ard Biesheuvel
- <ardb@kernel.org>, Dave Hansen <dave.hansen@intel.com>,
-        Roberto Sassu
- <roberto.sassu@huawei.com>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman	 <mpe@ellerman.id.au>,
-        Nicholas Piggin
- <npiggin@gmail.com>,
-        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev	
- <agordeev@linux.ibm.com>,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas
- Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-        Borislav
- Petkov	 <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)"	 <x86@kernel.org>,
-        "H.
- Peter Anvin" <hpa@zytor.com>,
-        Dmitry Kasatkin	 <dmitry.kasatkin@gmail.com>,
-        Eric Snowberg <eric.snowberg@oracle.com>,
-        Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn"	 <serge@hallyn.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        open list	
- <linux-kernel@vger.kernel.org>,
-        "open list:LINUX FOR POWERPC (32-BIT AND
- 64-BIT)" <linuxppc-dev@lists.ozlabs.org>,
-        "open list:S390 ARCHITECTURE"
- <linux-s390@vger.kernel.org>,
-        "open list:EXTENSIBLE FIRMWARE INTERFACE
- (EFI)"	 <linux-efi@vger.kernel.org>,
-        "open list:SECURITY SUBSYSTEM"	
- <linux-security-module@vger.kernel.org>,
-        "open
- list:KEYS/KEYRINGS_INTEGRITY"	 <keyrings@vger.kernel.org>
-In-Reply-To: <aY0rZp9ROwfjPgD8@Rk>
-References: <20260203041434.872784-1-coxu@redhat.com>
-	 <20260203041434.872784-2-coxu@redhat.com>
-	 <66f9d13875e81a965984e2a661e992a3fe43c516.camel@linux.ibm.com>
-	 <aY0rZp9ROwfjPgD8@Rk>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 12 Feb 2026 15:25:17 -0500
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="TXhp6yor"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1770936451; x=1802472451;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=AiIS+Wm375XPUvioqsfLcR/Bc/OtkuBLuqfu5HEZOEY=;
+  b=TXhp6yorRsmKGaOmK8ephPJMtTjvxEp+SkN2cnoA+pAITQ+q1n2AhBrr
+   9D2zT8hxcZ9NlPB6qtgY/4c19nL6ExOCyuuZ+OlFePgs53PC/XQBBwo3i
+   wKjm22m9AH6zJ7v98BjI7UFgjzGcLSRmpaeQeoJVMR/sapJ06j05NTQvh
+   jOd6dG01J0DD8AG0fmG4mhrtZkdXWnACnGNgfzMBOicee61hCBNKoh4/Z
+   3IO6WI+mKHw80y8/jlDVO+89OSdbm2uyzG3wULJcwKbaIxHz7sd8HfdSH
+   zUymQUd7GpHaA6j5+NrocQo2m/VPjiYQU//RrD+a88z3gv8j522Emhyvh
+   w==;
+X-CSE-ConnectionGUID: D5PHm02xS1mZokMn5EsfWQ==
+X-CSE-MsgGUID: ikMLpPWITty3eVMKUaSnLA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11699"; a="72193914"
+X-IronPort-AV: E=Sophos;i="6.21,287,1763452800"; 
+   d="scan'208";a="72193914"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Feb 2026 14:47:31 -0800
+X-CSE-ConnectionGUID: PwkwoEJQT22h09w+CL+wZw==
+X-CSE-MsgGUID: LdK8fGYwRmGYFAo8AoWvDg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,287,1763452800"; 
+   d="scan'208";a="211954712"
+Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
+  by fmviesa010.fm.intel.com with ESMTP; 12 Feb 2026 14:47:26 -0800
+Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1vqfT2-00000000tvY-2HJ9;
+	Thu, 12 Feb 2026 22:47:24 +0000
+Date: Fri, 13 Feb 2026 06:46:57 +0800
+From: kernel test robot <lkp@intel.com>
+To: Julian Ruess <julianr@linux.ibm.com>, schnelle@linux.ibm.com,
+	wintera@linux.ibm.com, ts@linux.ibm.com, oberpar@linux.ibm.com,
+	gbayer@linux.ibm.com, Alex Williamson <alex@shazbot.org>,
+	Jason Gunthorpe <jgg@ziepe.ca>, Yishai Hadas <yishaih@nvidia.com>,
+	Shameer Kolothum <skolothumtho@nvidia.com>,
+	Kevin Tian <kevin.tian@intel.com>
+Cc: oe-kbuild-all@lists.linux.dev, mjrosato@linux.ibm.com,
+	alifm@linux.ibm.com, raspl@linux.ibm.com, hca@linux.ibm.com,
+	agordeev@linux.ibm.com, gor@linux.ibm.com, julianr@linux.ibm.com,
+	kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
+Subject: Re: [PATCH 1/3] vfio/pci: Set VFIO_PCI_OFFSET_SHIFT to 48
+Message-ID: <202602130659.urh1Dx2i-lkp@intel.com>
+References: <20260212-vfio_pci_ism-v1-1-333262ade074@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=WZYBqkhX c=1 sm=1 tr=0 ts=698e3734 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8
- a=i0EeH86SAAAA:8 a=20KFwNOVAAAA:8 a=rnUjhx4C2NHl8nqPuY0A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: 4ry9PeEgol-hXXYqsZobF_X61z83qHwt
-X-Proofpoint-ORIG-GUID: akyquk1pgbcHhjp5hBb1sq5u85ZLzeyN
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjEyMDE1NyBTYWx0ZWRfXxoerCjpT3xeC
- zVMGloxz4oW7ZH0W1JnLHvCmD2zg4YHQTE47xu8EW/NtZWUolzpugCzh88tpiXJj8iOkzbnbbPZ
- oyEF2cGUDTu5zmXg0GtBJXqiqr97EYRxO1V21iNJikJ916bkPjgSnFA6BpA0M0rYIdcdoIj+kk4
- 1i4FJaLyFR/moFs0b8otGG1PH+MKLZ+oHFFnHFHQ4sPEx9WulQqY/E3jyU7GINS1QGXJvKCJk5I
- BLQ7JehWDeB/ooCr0Ujtj8QDw/HRUHHNwldeQYGrazfVdj3idM15NpDUooVHxmuDbFoH3gEM7lj
- WHoVf28JqVzJbgbGqq81WWiNeu5YIu98GvfuDJuYYZdRvSHON/dYzvAFm3KkVh314o3tn6yJWfJ
- nKyi9ZPtfKieX3I0MtXxxahawVM8cAFwxtUb8gSHq0E7kpxWNF3F7pER/1KycdC4WYFEmoMCZUX
- i1bGF7uv4SxiPXz7Egw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-12_05,2026-02-12_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 clxscore=1015 phishscore=0 bulkscore=0 adultscore=0
- priorityscore=1501 lowpriorityscore=0 suspectscore=0 impostorscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
- definitions=main-2602120157
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260212-vfio_pci_ism-v1-1-333262ade074@linux.ibm.com>
 
-On Thu, 2026-02-12 at 09:28 +0800, Coiby Xu wrote:
-> On Mon, Feb 09, 2026 at 03:43:08PM -0500, Mimi Zohar wrote:
-> > On Tue, 2026-02-03 at 12:14 +0800, Coiby Xu wrote:
-> > > EVM and other LSMs need the ability to query the secure boot status o=
-f
-> > > the system, without directly calling the IMA arch_ima_get_secureboot
-> > > function. Refactor the secure boot status check into a general functi=
-on
-> > > named arch_get_secureboot.
-> > >=20
-> > > Reported-and-suggested-by: Mimi Zohar <zohar@linux.ibm.com>
-> > > Suggested-by: Roberto Sassu <roberto.sassu@huawei.com>
-> > > Signed-off-by: Coiby Xu <coxu@redhat.com>
-> >=20
-> > Thanks, Coiby.  Other than unnecessarily splitting a line, the patch se=
-t looks
-> > good.  As soon as the open window closes, I'll queue these patches for =
-linux-
-> > next.
->=20
-> Hi Mimi, thanks for reviewing the patch set! Would you like me to send a
-> new version with the line splitting issue fixed?
+Hi Julian,
 
-Yes, thanks.
+kernel test robot noticed the following build warnings:
 
-Mimi
+[auto build test WARNING on 05f7e89ab9731565d8a62e3b5d1ec206485eeb0b]
 
->=20
-> >=20
-> > > diff --git a/security/integrity/ima/ima_efi.c b/security/integrity/im=
-a/ima_efi.c
-> > > index 138029bfcce1..27521d665d33 100644
-> > > --- a/security/integrity/ima/ima_efi.c
-> > > +++ b/security/integrity/ima/ima_efi.c
-> [...]
-> > >  {
-> > > -	if (IS_ENABLED(CONFIG_IMA_ARCH_POLICY) && arch_ima_get_secureboot()=
-) {
-> > > +	if (IS_ENABLED(CONFIG_IMA_ARCH_POLICY) &&
-> > > +	    arch_get_secureboot()) {
-> >=20
-> > No need to split the line here or below.
-> >=20
-> >=20
-> > >  		if (IS_ENABLED(CONFIG_MODULE_SIG))
-> > >  			set_module_sig_enforced();
-> > >  		if (IS_ENABLED(CONFIG_KEXEC_SIG))
-> > > diff --git a/security/integrity/ima/ima_main.c b/security/integrity/i=
-ma/ima_main.c
-> > > index 5770cf691912..6d093ac82a45 100644
-> > > --- a/security/integrity/ima/ima_main.c
-> > > +++ b/security/integrity/ima/ima_main.c
-> > > @@ -949,8 +949,8 @@ static int ima_load_data(enum kernel_load_data_id=
- id, bool contents)
-> > >=20
-> > >  	switch (id) {
-> > >  	case LOADING_KEXEC_IMAGE:
-> > > -		if (IS_ENABLED(CONFIG_KEXEC_SIG)
-> > > -		    && arch_ima_get_secureboot()) {
-> > > +		if (IS_ENABLED(CONFIG_KEXEC_SIG) &&
-> > > +		    arch_get_secureboot()) {
-> >=20
-> > =3D=3D=3D>
-> >=20
-> > Mimi
-> >=20
-> > >  			pr_err("impossible to appraise a kernel image without a file desc=
-riptor; try using kexec_file_load syscall.\n");
-> > >  			return -EACCES;
-> > >  		}
-> >=20
+url:    https://github.com/intel-lab-lkp/linux/commits/Julian-Ruess/vfio-pci-Set-VFIO_PCI_OFFSET_SHIFT-to-48/20260212-220938
+base:   05f7e89ab9731565d8a62e3b5d1ec206485eeb0b
+patch link:    https://lore.kernel.org/r/20260212-vfio_pci_ism-v1-1-333262ade074%40linux.ibm.com
+patch subject: [PATCH 1/3] vfio/pci: Set VFIO_PCI_OFFSET_SHIFT to 48
+config: riscv-randconfig-001-20260213 (https://download.01.org/0day-ci/archive/20260213/202602130659.urh1Dx2i-lkp@intel.com/config)
+compiler: riscv64-linux-gcc (GCC) 11.5.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260213/202602130659.urh1Dx2i-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202602130659.urh1Dx2i-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+   drivers/vfio/pci/nvgrace-gpu/main.c: In function 'addr_to_pgoff':
+>> drivers/vfio/pci/nvgrace-gpu/main.c:196:22: warning: left shift count >= width of type [-Wshift-count-overflow]
+     196 |                 ((1U << (VFIO_PCI_OFFSET_SHIFT - PAGE_SHIFT)) - 1);
+         |                      ^~
+   drivers/vfio/pci/nvgrace-gpu/main.c: In function 'nvgrace_gpu_mmap':
+   drivers/vfio/pci/nvgrace-gpu/main.c:272:22: warning: left shift count >= width of type [-Wshift-count-overflow]
+     272 |                 ((1U << (VFIO_PCI_OFFSET_SHIFT - PAGE_SHIFT)) - 1);
+         |                      ^~
+
+
+vim +196 drivers/vfio/pci/nvgrace-gpu/main.c
+
+a23b10608d4203 Ankit Agrawal 2025-11-27  191  
+9db65489b87298 Ankit Agrawal 2025-11-27  192  static unsigned long addr_to_pgoff(struct vm_area_struct *vma,
+9db65489b87298 Ankit Agrawal 2025-11-27  193  				   unsigned long addr)
+9db65489b87298 Ankit Agrawal 2025-11-27  194  {
+9db65489b87298 Ankit Agrawal 2025-11-27  195  	u64 pgoff = vma->vm_pgoff &
+9db65489b87298 Ankit Agrawal 2025-11-27 @196  		((1U << (VFIO_PCI_OFFSET_SHIFT - PAGE_SHIFT)) - 1);
+9db65489b87298 Ankit Agrawal 2025-11-27  197  
+9db65489b87298 Ankit Agrawal 2025-11-27  198  	return ((addr - vma->vm_start) >> PAGE_SHIFT) + pgoff;
+9db65489b87298 Ankit Agrawal 2025-11-27  199  }
+9db65489b87298 Ankit Agrawal 2025-11-27  200  
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
