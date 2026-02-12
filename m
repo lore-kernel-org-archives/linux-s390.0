@@ -1,161 +1,239 @@
-Received: from fhigh-b3-smtp.messagingengine.com (fhigh-b3-smtp.messagingengine.com [202.12.124.154])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57099F4F1;
-	Thu, 12 Feb 2026 15:26:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.154
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770910018; cv=none; b=d36Y+H0ii21bwUBo9AlXt8SA4JjPXm9KsIObMlwARjhmqquwKfcK1YIGjfkilqFH7/WF2ypFhO6PrLtPUrMEiLC86AdVVSitBrN5Y1vgNJ+qZaWEwf+INjLv5KpSp8CAU3u52HqfHxZ5GgM88u5GJ117ERxkwZrJYqomEBK/h24=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770910018; c=relaxed/simple;
-	bh=zo8EfRvL4ErM4vuWDCr9QM8yJQQnDfW6TzDH3cUDgZs=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=s+VmNJ4Rfchdd4C+fi3MGbhIiRcxhWS6ZICsQ4l4+qoosAOxxNSe57mOky/Lepor9hHlzXPNpQqvcLEtuSQS5lokXIeWTgSi7OmEbb7fKD0x3azfNUdW1J4eqwj+Q+TDdy4PMOnJVnpoUv5PFSRP5PypOJcbr5iwBCOhIbtL+eU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=RscQ3NJ/; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=MGOkiXiB; arc=none smtp.client-ip=202.12.124.154
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 843DF211A28
+	for <linux-s390@vger.kernel.org>; Thu, 12 Feb 2026 18:17:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.176
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770920276; cv=pass; b=RiXgULOs2LFGtfP0I9VB8PmLy1o70TRye3y8zezWyRj1MNeVbz7ZZTwrDJ3bKPgACTCIP9JQDlF0xqUqwoVnDuS99xDiUD0NLUX258L9IxsZLqcx4aLjWDdyVbzAdS/wrtAKu6KvM+hSy7Tib0h0sOuO8u+erHMo/iLDqvimgH0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770920276; c=relaxed/simple;
+	bh=R7o/cpkDQO7wHK4vBLyOAKkN9uJz6DrV9/7FvH9dkZo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=SZs5bjD4GplbYWgKQ+J5qnfrbjUSN7mUF8J5d6infag4btyqtXHxESFETjskuj4NjIxxrITSqqcDIgZNe1C/k5Ug5eLBpirNeHT/bnsvLbOlX4Xfpaqybqz+lDI8pCYMktI018/DYW+IJnQQbtEvZfoG6n+fMZFagLX4zAJMZP4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=PNlY5ARh; arc=pass smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="RscQ3NJ/";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="MGOkiXiB"
-Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id F04517A012C;
-	Thu, 12 Feb 2026 10:26:53 -0500 (EST)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-02.internal (MEProxy); Thu, 12 Feb 2026 10:26:54 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1770910013;
-	 x=1770996413; bh=fGs6hFzdbPYEGWzAEwqMf/QHmFwxHFZ3J98kX4iykqU=; b=
-	RscQ3NJ/NSZyYBoxHEzXalqKlWDA8RDopHlXsCgcGEZnwsx0B73WP6TCcheRtnNG
-	YT1rn9zntXsrKGWXRUvPx9BsKrx9SwuF028xpccWP92gbQOe4DFtnGFu7cMkIdrP
-	6iwv5ID8YcR5E79qMjnK8h3dqEuLtd4gKbThQ3xGE838+uotJCHc56oLkS3nmxHE
-	jvcJooeXhBddWXorRqA1BGP90a5Q+ZtoxxgNAbfnHdMc+RomWdChVMyewn2/+Bi3
-	2cMtMie+3DeRmJYvzooA894HgOJOKJ0gI+dTlIZgGnM0pMll+YkvYSEFxljOWbcY
-	BKv1T0e6ZA914BK7mjtwIQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1770910013; x=
-	1770996413; bh=fGs6hFzdbPYEGWzAEwqMf/QHmFwxHFZ3J98kX4iykqU=; b=M
-	GOkiXiBIS3cLMVP3rPgrzitzMGRSST5oKrf6s1BJgbgdJlX27lLNjyDRiXHg4sEw
-	ASBAGW2XMgaiIR/753F3vgtzWpzAMI2/XnC0kQGLY42TseWROk2oSLRahVhEgZBo
-	sXiiE+7ZhIFkIcYNybF6Z5TiX8w8t7q/gKwu2pAlzjd4CsLcSRrhTv8rwvgcodDy
-	YWJP6Xd5+Wcskpdn1rc9Y5QyYkixvxEGPFDXwpXOts4qMqGKOpHftqSZDPrqcpxx
-	tKYpP/TeoEyA4vlHqrfjGoQrMUD9q+EePq2f5AMap1A6/9NCaCPkGV1vETyoq7Nx
-	8pNs8H9g4i0fmATEIBB0A==
-X-ME-Sender: <xms:PfGNaWcCELajyZzojmVKNYJI2bEUi4GR4STsN9bQiCkhkPdcVjRAKQ>
-    <xme:PfGNaULXFz4VrkJ2u4WthKEQ3KgKJzbA5SjzKE2QUYocQU5fZI9p9svduVIQ7C2B5
-    yG_rt-3FfrDLJC7DLrD_TmTJS_JkO8SifbjcjZo12f0q7iRNTj0AA>
-X-ME-Received: <xmr:PfGNaQAzIdH522q77e9nWA5IhPyyE4DoOvu-UEyEyvWtdyOAkIEFOlrkFG0>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvtdehjedvucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepfffhvfevuffkjghfofggtgfgsehtjeertdertddvnecuhfhrohhmpeetlhgvgicu
-    hghilhhlihgrmhhsohhnuceorghlvgigsehshhgriigsohhtrdhorhhgqeenucggtffrrg
-    htthgvrhhnpedvkeefjeekvdduhfduhfetkedugfduieettedvueekvdehtedvkefgudeg
-    veeuueenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    grlhgvgiesshhhrgiisghothdrohhrghdpnhgspghrtghpthhtohepvddtpdhmohguvgep
-    shhmthhpohhuthdprhgtphhtthhopehjuhhlihgrnhhrsehlihhnuhigrdhisghmrdgtoh
-    hmpdhrtghpthhtohepshgthhhnvghllhgvsehlihhnuhigrdhisghmrdgtohhmpdhrtghp
-    thhtohepfihinhhtvghrrgeslhhinhhugidrihgsmhdrtghomhdprhgtphhtthhopehtsh
-    eslhhinhhugidrihgsmhdrtghomhdprhgtphhtthhopehosggvrhhprghrsehlihhnuhig
-    rdhisghmrdgtohhmpdhrtghpthhtohepghgsrgihvghrsehlihhnuhigrdhisghmrdgtoh
-    hmpdhrtghpthhtohepjhhgghesiihivghpvgdrtggrpdhrtghpthhtohephihishhhrghi
-    hhesnhhvihguihgrrdgtohhmpdhrtghpthhtohepshhkohhlohhthhhumhhthhhosehnvh
-    hiughirgdrtghomh
-X-ME-Proxy: <xmx:PfGNadjH0FTgv0cvFaRyZ1qlmvf4KM2nrdnsSpF2aEiI-hbzE9BRKw>
-    <xmx:PfGNaaN5WQo1kTb9jrPplf1IcjuTjt2zBJIB_sMgnSWh-1Sr_J5CFA>
-    <xmx:PfGNaUZO7kbUOl2mC5RPcwaHzLW8_1dpTIeKgHF1w9xwlnqeKCNzkw>
-    <xmx:PfGNaf9dQ3q44LK_tYQAJ2rtd_HG63Avi10SfeJP7h56AhCvRfbBrg>
-    <xmx:PfGNadmCIw9vKifu5z8BULVpQ-hPNPMPXVjPwqEog-YB2MiMi-X4zlz4>
-Feedback-ID: i03f14258:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 12 Feb 2026 10:26:52 -0500 (EST)
-Date: Thu, 12 Feb 2026 08:26:50 -0700
-From: Alex Williamson <alex@shazbot.org>
-To: Julian Ruess <julianr@linux.ibm.com>
-Cc: schnelle@linux.ibm.com, wintera@linux.ibm.com, ts@linux.ibm.com,
- oberpar@linux.ibm.com, gbayer@linux.ibm.com, Jason Gunthorpe
- <jgg@ziepe.ca>, Yishai Hadas <yishaih@nvidia.com>, Shameer Kolothum
- <skolothumtho@nvidia.com>, Kevin Tian <kevin.tian@intel.com>,
- mjrosato@linux.ibm.com, alifm@linux.ibm.com, raspl@linux.ibm.com,
- hca@linux.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
- kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
-Subject: Re: [PATCH 1/3] vfio/pci: Set VFIO_PCI_OFFSET_SHIFT to 48
-Message-ID: <20260212082650.5b233d0a@shazbot.org>
-In-Reply-To: <20260212-vfio_pci_ism-v1-1-333262ade074@linux.ibm.com>
-References: <20260212-vfio_pci_ism-v1-0-333262ade074@linux.ibm.com>
-	<20260212-vfio_pci_ism-v1-1-333262ade074@linux.ibm.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="PNlY5ARh"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2a964077671so5265ad.0
+        for <linux-s390@vger.kernel.org>; Thu, 12 Feb 2026 10:17:55 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770920275; cv=none;
+        d=google.com; s=arc-20240605;
+        b=IyHlGjuvndyLbNGRU3i1exg8VebncNuIqTJzlFWfMuIAB2/OQeoH9FYzQ84rhegmGg
+         GtZcTc8s7EdQX0oDZ5DJwUW2CW+ULPDNE4Mc2K2RhR70mPTdC/+wdaynfYRSJdtjWwd0
+         yY95lbI+BJLuxl7q8KS5QaNvQLsuKYfNjEgsTakr9OF8bed59u912BmU1xmKWyX0bbTp
+         swYA2pz+9SOt7TKetOZLUhRwYST8j+H7gYfoIbCb+XbkukZnssOM3RbQLsRKAn/cYhR/
+         34T0fwOPdA0H7LR0L7knSEBFCyAuZqWXR/OJtODUGFpJ4MhintGZA+s9dLKlimU4v9Md
+         HddQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=kLWeXrRWq1Z8R0G6ScWpddv+wpe/jmdqorkcO6NIr+c=;
+        fh=zXDVb0FZxAvgltBgKZEqBpTTQ4PYZ6Wm/WO4ivUg6/Q=;
+        b=Y5vqdhYIvspNCsCpJFJCC+54jCxTX/TsgqQ2WZmcbgmgRdrXOsQ/5KZvkx9azvGCmo
+         OoQF5sqCw69rh7QYe8b8sCZkWeFwhKspTnlSJjdNSLCLMnBL7nwo5FOAaXrEM1NiLAKm
+         SAN49Av1O/qe1Tuxz+/PQOCGLKAdtdTa7EuVaLCSYvWJ1SNNh5rWgIxzmNukb2P9Ow2A
+         YcA84Ye7pmroV42RA36/Q9/6qVM29/1fMYxQenFDVC97Zels6Si0ivS0XCOH5uvWxmBU
+         RU5rxW17RZ8gdki8Eh2qXtok/rT3ruKnrbJdNFCpOl9HmQ2ZHYSTkpBYnVVfSjNt1VQJ
+         GvTw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1770920275; x=1771525075; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=kLWeXrRWq1Z8R0G6ScWpddv+wpe/jmdqorkcO6NIr+c=;
+        b=PNlY5ARhHXLwLuN6rt63oruUo9/JgY/knXcQGrOoDgoHVkLRPwdHHCpXRiE5dsKnio
+         1adJc/3rL2XfP2Gd6n2TgpASTw0CQMr047rrE+n4YzpV6uIvHvWgZyxES415AFCUzzv+
+         l3K/ruptKqTkX43ZiUIM3WeliTNUvVfYsyeguWUQ6wdL9po/VOTnP1tkjEzMSWn0o/Eb
+         59dPx1VeOXC4meYO3f92EwJGaiLNzX+rhKrcLVFXet8y6M2WhIvraVoxeAALiFiKAL7p
+         DN+Oq8foXTAUccOzbxpaX+acPb7RjIzL4pIUrzWUuGxbcaXHNgkTJB45whg4X7208R2P
+         6cTg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770920275; x=1771525075;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=kLWeXrRWq1Z8R0G6ScWpddv+wpe/jmdqorkcO6NIr+c=;
+        b=SAAI3FPZY+bJ2w+xj+14nkX8Hu5iKir3P0TZoXWgUx5gwGSEWXjTS05b3MKexIIgw/
+         416rEV1Y+kDE+4MB+iBwVa22WgZsRdlhjkAVMxPqgP2kjGHINJfVFLYV0O9+A71RaITX
+         UYRDv3JAjgFsbIE2zj2vysXtsuf7+g/3I6ZqbCuVEDJ2pRlWazcLrmxanK3UPk9kCw6L
+         9EO7i6c0pvKuxH0lvQrJCIanNDRAHfPY/q/ifnmMsD0hoPokGdxRH5DemnGnKttwn0Jr
+         HRIHxHkfdX1CQrTO+PR0DEPSWgIfCh6cM0zfr7YxelfZqlBqTITwjpTkSRQ/IF+jxU+i
+         AM9A==
+X-Forwarded-Encrypted: i=1; AJvYcCX6m5gU/yCc6zYWgaghOBIjkBabRNkZigMV1u6yIxhY6gNc5gm14F/aUTXs5mtVzSudpz4zgaFl2XmE@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzzc8E362IyB//2THy0s57gUnrL1ULTQZA9x/JsORkOGedsoDa6
+	zOSH7vmzuO6LkCut5SyMGLGA1t/WN88WHPRAd6X10d3DAMHKt2EFSRwuzt5uhX/SxX4Eu8tL/n7
+	twdf+XjbjpizVDFUj9BR8lKE/SNdMQyOyHmejfQc0
+X-Gm-Gg: AZuq6aKcCRU+PmJVmstOqseVidgnn6oSx0+HtX/bUTNnHzmLZTVj1vh+bP5CHjbB5Hl
+	S8J3k6KbKVKZsHVMy2UR2FpNc/UrMFHcPIHvFzdXiTlyxjU1we0tY0J3p4CTZsVQnxNidabdrPS
+	AafxHYoQbfDj706tGGKX+GHxPJqdSrThUJgM3sK3HDA59S0KDVD9KDEcoe94SWipQjisbuLLAYy
+	40eTysHODE2JESWOdgQi//YzsHQm3Yr5U2WC9PtWWsYE+b81zsf1kYEDoy0OPhbH43o73Z/YYDs
+	FjAQfRs6DpGXqofPyO2NigRMUffLaylj9BZ1
+X-Received: by 2002:a17:902:db05:b0:291:6858:ee60 with SMTP id
+ d9443c01a7336-2ab4c64ae54mr64455ad.4.1770920274175; Thu, 12 Feb 2026 10:17:54
+ -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20260212125315.777356-1-tmricht@linux.ibm.com>
+In-Reply-To: <20260212125315.777356-1-tmricht@linux.ibm.com>
+From: Ian Rogers <irogers@google.com>
+Date: Thu, 12 Feb 2026 10:17:43 -0800
+X-Gm-Features: AZwV_QhShl-HZziCq5mgH_V2A4kBmbbFEo85Wm1G0WQ_YJnpQquqDRpIFIzq5jo
+Message-ID: <CAP-5=fWxHfGZaLyrvzuQF83K1g=LaFC4uRvg3HjM0=W9ts_yxQ@mail.gmail.com>
+Subject: Re: [PATCH linux-next] perf parse-events: Fix big-endian 'overwrite'
+ by writing correct union member
+To: Thomas Richter <tmricht@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org, 
+	james.clark@linaro.org, agordeev@linux.ibm.com, gor@linux.ibm.com, 
+	sumanthk@linux.ibm.com, hca@linux.ibm.com, japo@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, 12 Feb 2026 15:02:15 +0100
-Julian Ruess <julianr@linux.ibm.com> wrote:
-
-> Extend VFIO_PCI_OFFSET_SHIFT to 48 to use the vfio-pci
-> VFIO_PCI_OFFSET_TO_INDEX() mechanism with the 256 TiB pseudo-BAR 0 of
-> the ISM device on s390. This bar is never mapped.
-
-Why does the entirety of vfio-pci need to adapt to the BAR requirements
-of this device?  There's a variant driver included here that implements
-its own read/write handlers and doesn't support mmap, so you're already
-halfway there to implement your own region offsets independent of the
-conventions of the rest of vfio-pci.  Thanks,
-
-Alex
- 
-> Acked-by: Alexandra Winter <wintera@linux.ibm.com>
-> Signed-off-by: Julian Ruess <julianr@linux.ibm.com>
+On Thu, Feb 12, 2026 at 4:53=E2=80=AFAM Thomas Richter <tmricht@linux.ibm.c=
+om> wrote:
+>
+> The "Read backward ring buffer" test crashes on big-endian (e.g. s390x)
+> due to a NULL dereference when the backward mmap path isn't enabled.
+>
+> Reproducer:
+>   # ./perf test -F 'Read backward ring buffer'
+>   Segmentation fault (core dumped)
+>   # uname -m
+>   s390x
+>   #
+>
+> Root cause:
+> get_config_terms() stores into evsel_config_term::val.val (u64) while lat=
+er
+> code reads boolean fields such as evsel_config_term::val.overwrite.
+> On big-endian the 1-byte boolean is left-aligned, so writing
+> evsel_config_term::val.val =3D 1 is read back as
+> evsel_config_term::val.overwrite =3D 0,
+> leaving backward mmap disabled and a NULL map being used.
+>
+> Store values in the union member that matches the term type, e.g.:
+>   /* for OVERWRITE */
+>   new_term->val.overwrite =3D 1;  /* not new_term->val.val =3D 1 */
+> to fix this.
+>
+> Impact:
+> Enables backward mmap on big-endian and prevents the crash.
+> No change on little-endian.
+>
+> Output after:
+>  # ./perf test -Fv 44
+>  --- start ---
+>  Using CPUID IBM,9175,705,ME1,3.8,002f
+>  mmap size 1052672B
+>  mmap size 8192B
+>  ---- end ----
+>  44: Read backward ring buffer                         : Ok
+>  #
+>
+> Fixes: 159ca97cd97c ("perf parse-events: Refactor get_config_terms() to r=
+emove macros")
+> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+> Reviewed-by: Jan Polensky <japo@linux.ibm.com>
+> Cc: James Clark <james.clark@linaro.org>
+> Cc: Ian Rogers <irogers@google.com>
 > ---
->  drivers/vfio/pci/vfio_pci_core.c | 4 ++--
->  include/linux/vfio_pci_core.h    | 2 +-
->  2 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-> index 3a11e6f450f70105f17a3a621520c195d99e0671..3d70bf6668c7a69c4b46674195954d1ada662006 100644
-> --- a/drivers/vfio/pci/vfio_pci_core.c
-> +++ b/drivers/vfio/pci/vfio_pci_core.c
-> @@ -1647,7 +1647,7 @@ static unsigned long vma_to_pfn(struct vm_area_struct *vma)
->  	u64 pgoff;
->  
->  	pgoff = vma->vm_pgoff &
-> -		((1U << (VFIO_PCI_OFFSET_SHIFT - PAGE_SHIFT)) - 1);
-> +		((1UL << (VFIO_PCI_OFFSET_SHIFT - PAGE_SHIFT)) - 1);
->  
->  	return (pci_resource_start(vdev->pdev, index) >> PAGE_SHIFT) + pgoff;
->  }
-> @@ -1751,7 +1751,7 @@ int vfio_pci_core_mmap(struct vfio_device *core_vdev, struct vm_area_struct *vma
->  	phys_len = PAGE_ALIGN(pci_resource_len(pdev, index));
->  	req_len = vma->vm_end - vma->vm_start;
->  	pgoff = vma->vm_pgoff &
-> -		((1U << (VFIO_PCI_OFFSET_SHIFT - PAGE_SHIFT)) - 1);
-> +		((1UL << (VFIO_PCI_OFFSET_SHIFT - PAGE_SHIFT)) - 1);
->  	req_start = pgoff << PAGE_SHIFT;
->  
->  	if (req_start + req_len > phys_len)
-> diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
-> index 1ac86896875cf5c9b5cc8ef25fae8bbd4394de05..12781707f086a330161990dc3579ec0d75887da8 100644
-> --- a/include/linux/vfio_pci_core.h
-> +++ b/include/linux/vfio_pci_core.h
-> @@ -20,7 +20,7 @@
->  #ifndef VFIO_PCI_CORE_H
->  #define VFIO_PCI_CORE_H
->  
-> -#define VFIO_PCI_OFFSET_SHIFT   40
-> +#define VFIO_PCI_OFFSET_SHIFT   48
->  #define VFIO_PCI_OFFSET_TO_INDEX(off)	(off >> VFIO_PCI_OFFSET_SHIFT)
->  #define VFIO_PCI_INDEX_TO_OFFSET(index)	((u64)(index) << VFIO_PCI_OFFSET_SHIFT)
->  #define VFIO_PCI_OFFSET_MASK	(((u64)(1) << VFIO_PCI_OFFSET_SHIFT) - 1)
-> 
+>  tools/perf/util/parse-events.c | 49 +++++++++++++++++++++++++++++++++-
+>  1 file changed, 48 insertions(+), 1 deletion(-)
+>
+> diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-event=
+s.c
+> index d4647ded340f..12fe5392c832 100644
+> --- a/tools/perf/util/parse-events.c
+> +++ b/tools/perf/util/parse-events.c
+> @@ -1250,7 +1250,54 @@ static int get_config_terms(const struct parse_eve=
+nts_terms *head_config,
+>                         }
+>                         new_term->free_str =3D true;
+>                 } else {
+> -                       new_term->val.val =3D val;
+> +                       switch (new_type) {
+> +                       case EVSEL__CONFIG_TERM_PERIOD:
+> +                               new_term->val.period =3D val;
+> +                               break;
 
+Thanks Thomas and sorry big endian got broken! I'm a little confused
+here as period is a u64 so I think this one can be a default case.
+
+> +                       case EVSEL__CONFIG_TERM_FREQ:
+> +                               new_term->val.freq =3D val;
+> +                               break;
+
+Also a u64.
+
+> +                       case EVSEL__CONFIG_TERM_TIME:
+> +                               new_term->val.time =3D val;
+> +                               break;
+> +                       case EVSEL__CONFIG_TERM_STACK_USER:
+> +                               new_term->val.stack_user =3D val;
+> +                               break;
+
+Also a u64.
+
+> +                       case EVSEL__CONFIG_TERM_INHERIT:
+> +                               new_term->val.inherit =3D val;
+> +                               break;
+> +                       case EVSEL__CONFIG_TERM_OVERWRITE:
+> +                               new_term->val.overwrite =3D val;
+> +                               break;
+> +                       case EVSEL__CONFIG_TERM_MAX_STACK:
+> +                               new_term->val.max_stack =3D val;
+> +                               break;
+> +                       case EVSEL__CONFIG_TERM_MAX_EVENTS:
+> +                               new_term->val.max_events =3D val;
+> +                               break;
+> +                       case EVSEL__CONFIG_TERM_PERCORE:
+> +                               new_term->val.percore =3D val;
+> +                               break;
+> +                       case EVSEL__CONFIG_TERM_AUX_OUTPUT:
+> +                               new_term->val.aux_output =3D val;
+> +                               break;
+> +                       case EVSEL__CONFIG_TERM_AUX_SAMPLE_SIZE:
+> +                               new_term->val.aux_sample_size =3D val;
+> +                               break;
+> +                       case EVSEL__CONFIG_TERM_CALLGRAPH:
+> +                       case EVSEL__CONFIG_TERM_DRV_CFG:
+> +                       case EVSEL__CONFIG_TERM_BRANCH:
+> +                       case EVSEL__CONFIG_TERM_AUX_ACTION:
+> +                       case EVSEL__CONFIG_TERM_USR_CHG_CONFIG:
+> +                       case EVSEL__CONFIG_TERM_USR_CHG_CONFIG1:
+> +                       case EVSEL__CONFIG_TERM_USR_CHG_CONFIG2:
+> +                       case EVSEL__CONFIG_TERM_USR_CHG_CONFIG3:
+> +                       case EVSEL__CONFIG_TERM_USR_CHG_CONFIG4:
+> +                       case EVSEL__CONFIG_TERM_RATIO_TO_PREV:
+
+I think these cases are all assigning a str so would using str rather
+than val be cleaner?
+
+The change looks good but it is a little inconsistent that the default
+copying is done for str values but not for u64. It would kind of be
+nice to remove the default copying so that if a new config term is
+added the switch will fail to compile due to a missing case statement.
+Then we can do the right copy for big endian. Given we've broken
+big-endian here we should probably add a comment.
+
+Thanks,
+Ian
+
+I> +                       default:
+> +                               new_term->val.val =3D val;
+> +                               break;
+> +                       }
+>                 }
+>         }
+>         return 0;
+> --
+> 2.53.0
+>
