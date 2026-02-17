@@ -1,202 +1,274 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D30E2D7397;
-	Tue, 17 Feb 2026 09:02:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E40CB3271E4
+	for <linux-s390@vger.kernel.org>; Tue, 17 Feb 2026 10:40:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771318969; cv=none; b=HDas4uVLrPGHmVSjYqQhvm8VnT67hfHKyZKDqRSEYCef2wNXIxkFk5eU57gqSKlWqozYPjKVA2+7jmLePOd6wbZLrwqWLMFWkwK0WYo0M7jKuHHuwDiuLA6Qef720xgfc8NLoPCAKFxEZn9UIrUoUjykcvZNckZkuwQznspVRWo=
+	t=1771324855; cv=none; b=AP7/zZ/arkpWcO+KkZmatAb44WIX+GrqA5kTtv7OCVRqFoLhggAYlcWkTWMzJWhW9HxaiBsQgbR0JN/xHPQ54bhLfY8u3sGDwPiAoU/J3w4ibFh6b5LqYQadAeu2IXux8jcXZad6YmcvchZX4toaqVr62pJZQwPxogyLPzEls9g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771318969; c=relaxed/simple;
-	bh=qiVeohC0yLT25HLMgWbzmgwVcAtjmDj7vlR+jozHZn0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FXrv0A+AKCOm8sAoli/dkeqbnulH6rO6K1sbgMZH9dXaYpUNdZ4sGdl1GzgjqJINhXpcPoVDs18Zu3Sccn2zYWYr12VvUvkayFve9kzsorTapJeEAlGsJme3OsGg2fCcD5stoz7191fvsGkwedHlkR+CfrfZX1OPIYwvYcCZHl8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Dkdd1tFm; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1771324855; c=relaxed/simple;
+	bh=n07Xnc69x7O23LpLRZxtS2yk+qtvvObSQsLjDfgqsjc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=V5RHZzw7QDfmPpUxSwabWXGxv8LVxYYbJMJlmKnbVHDKvHskgGdvZumD5H2NOc6kCo/ic3ETNnWZQmZolhifLlYSvPkBUYkXfWV7WtwZ/R3IYEdxacjVdx8AkYvxQ5QRm0kRR3G+WcA/JZ4M7EIfJeoi0B5eb2w4LWkufxLlxz4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=c4btM4FA; arc=none smtp.client-ip=209.85.128.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Dkdd1tFm"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61GGdtMx3855186;
-	Tue, 17 Feb 2026 09:02:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=fhP7thMkX1mRywxXa
-	M3698nxv/sPPhTh1r+J2jZvVBA=; b=Dkdd1tFmzzfcdPYDxRocxsj+gf3A3nFrS
-	dcb6+g01QAgvghIpOGsbvxIM5D+JGLM6Gl4p19KAPTsyUz9inNUP50ns9QdTp5wj
-	xn38gmhZ7zzW/Gss2EMEPvGdcL4rIG4i0bzVvMqlIgua344ATp42MSv4P4mqwsqz
-	2sMMbqk9HuocPHRawkhWcPT9P23jm0ogamDOzijxLzBV5wjVKR/y83SYP5VnhzjW
-	lAU+d4G6kKXnRAcFavFXrzOhFN7mSLWPKKXfIacGGfR2kfe7YqNp0cMh35Dzegw+
-	CgBn6Xpz4htDDDBCMBenT+27wL9cnUVr1T2m5C0TzQKKGrs9ufXAg==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cajcjadp5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Feb 2026 09:02:47 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61H8npuX015679;
-	Tue, 17 Feb 2026 09:02:47 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ccb451skv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Feb 2026 09:02:46 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61H92gvh28836138
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 17 Feb 2026 09:02:43 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DF4652004E;
-	Tue, 17 Feb 2026 09:02:42 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AB79E2004B;
-	Tue, 17 Feb 2026 09:02:42 +0000 (GMT)
-Received: from b46lp25.lnxne.boe (unknown [9.87.84.240])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 17 Feb 2026 09:02:42 +0000 (GMT)
-From: Janosch Frank <frankja@linux.ibm.com>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        borntraeger@linux.ibm.com, freimuth@linux.ibm.com,
-        mjrosato@linux.ibm.com
-Subject: [PATCH 2/2] KVM: s390: selftests: Add IRQ routing address offset tests
-Date: Tue, 17 Feb 2026 09:54:23 +0100
-Message-ID: <20260217090230.8116-3-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260217090230.8116-1-frankja@linux.ibm.com>
-References: <20260217090230.8116-1-frankja@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="c4btM4FA"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-48373a4bca3so21052025e9.0
+        for <linux-s390@vger.kernel.org>; Tue, 17 Feb 2026 02:40:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1771324851; x=1771929651; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=2PhxNjCXpdi4s6/r1iBSfRnqmVR2UnYY0FetbgzR3vg=;
+        b=c4btM4FAdPh5jy+4WTlHjo4EiB1eont/c65NY9U+WTVZvYDl5ONULd5TPYYp6q+4UL
+         YYqujJcwcTG3GRTbtttzYdx9NrnA0xXbWouKMVLDqcsYb9SMSUZiMl/wgQmlOFg6ugwn
+         Ei9Fqch+eDTfpYwoDIryqsKfKjhwWiEVahpcVJA/lOhf4Xopls4p6XewyWi8gg7LuIud
+         vJjXPo2mmsZHxGfqsFbLbN7tKsFMOUyWtk2OXdwN83jIZYqDw+280PGWrg1YjljGAM7N
+         euJ9wGJCQV/qfCExOdRTUSGVFEP5+TQ4iLynrgorFIsV54/4vKvMK5ziDCceoZaivWYq
+         2aLw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771324851; x=1771929651;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=2PhxNjCXpdi4s6/r1iBSfRnqmVR2UnYY0FetbgzR3vg=;
+        b=EsMZAV8bEfuFHHynVvG167jtvQf1RXwCIbN6+pYToDEI040fSw/F1tTW/rXunwbsgL
+         +VFswWb7S9ASjlnNtD8g6tfiGq0qhmGudcA/e0pqb5Kr+6hFOjM/wqdpg63ZswF06j17
+         AGjhGxBWK8qfmipvDEvODsgrycPMDv/gjD/0QqX2+pnrx0C6+qweQaLoW0P9d+zDzrb0
+         daHs5Rl7faTSjjFBi9/SV+8RRCXQaiCp22r2Xl1n1RTrSJ/JlBTpEeZB3mnqIgE3mOOw
+         EVt58a8+5Ng52hwMrzuAzPP1DuOSVCfAZ0Qhjy7oJuUe82mKEi8/3t3btCmTDeJ0YzKs
+         40GQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVWFt2ox3DtugH4GFE1g0O/8nz0qacWOQyivsyG/ywNnaa7DEFH8Y0W6qHQfPjTx6rQ47b+12Zu7YfZ@vger.kernel.org
+X-Gm-Message-State: AOJu0YwaNEcvmRYXL42VoBtdMrDRA6cwIWDoRVaqFoAddjk18iK9Ulb7
+	SDU+3R5h9apqBhFbQLxVqCDvTcxA+Y6OVVC3V8zLqGWPh1NjEiu7Bjtws+MxaDhu8d4=
+X-Gm-Gg: AZuq6aJWCPH97uK2Vz05wkD7bgKqkuQ4bCD/YfwUBYdPYvbQCkTI5IIqiGuOW4ixYvb
+	mSdu347wP1gmDPNm9UpW3qJX2wLtO2jZUmLJQQ8dYUtW7v3Xb3EM8oEfs3+uS+rInXhs5Y9ch78
+	gBuXoCS+WHlPTS+/d9YlH6+kuqhGQ1T6R4QKGuEfMhs9HV9lMHyMDEhOJes9Un1XsMWCK7k9s/y
+	pYTcsQerzjDLpeyoyFyTaFPUgg9hQ0iSTo5L33z+zgS32SwpmKbyXDd1p3yDsfXQJgSnm//S9se
+	JoixgDv6QBd5i1tjRQAwMyKF7we/2WJiDDcvkl52Jwqu8rDyQEj1xvtPuY8igrss7WeZzSyZ75m
+	QcrY48W+VRBietAKIGgC32mmt2kKPYvpyVpUjJyREpKbgqt80a4W38LcaeXiEUARkeGLDH8kRJh
+	tlRjm3q4QmQTvptl7vr/DEnf3zojBg
+X-Received: by 2002:a05:600c:548e:b0:480:6dff:e786 with SMTP id 5b1f17b1804b1-48379bff816mr173842505e9.37.1771324851131;
+        Tue, 17 Feb 2026 02:40:51 -0800 (PST)
+Received: from [192.168.1.3] ([185.48.77.170])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4835dd0deeasm462623585e9.12.2026.02.17.02.40.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 17 Feb 2026 02:40:50 -0800 (PST)
+Message-ID: <f1bc86c5-45aa-4cce-b344-7969c16288fb@linaro.org>
+Date: Tue, 17 Feb 2026 10:40:49 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: DEZF3-oerF-BMekCez1xox1biYc5uPLM
-X-Authority-Analysis: v=2.4 cv=Md9hep/f c=1 sm=1 tr=0 ts=69942eb7 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=Mpw57Om8IfrbqaoTuvik:22
- a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8 a=nmqUFfGTdH_2drHDQF0A:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjE3MDA3MSBTYWx0ZWRfXwJyIjh72+1RD
- II0FqBIA/W7nmNXGviKJFGIfC8cLrFgRzJ14n2cEu2RZocLLXtaxWrFX9zNETT3h9Ac7t6n80ZV
- bvKFYFz7PLN+E1kGlYToCxtFRPzsyRn3m13BJVm8dbqCcU+IF4Sfu45IDl2tq9KVbHhvdFB7uEk
- DeVNLGeLzpURa2/eiGbesWJWCAvTPSn1mKxHiWzdS6nQmxX6ibxNeR3IipUAAY5Sji9OoUj9n8c
- k4ztK/QYh4ByFqBLTr64eW72jyokY8AVOSThU/OQK02Po18xCE0TrbhcuzMVdd3QbrNzP+GPFab
- qXYLIpNuHBRXuLURA3ccdKaXtCwNj8jEhXLy36zc0JvgSHc/6+hPbXcgz1YrYyHVGTnj7RypdHu
- 4igoKrlIiFfk2DcsBrMgkzIRuABzLtg6Q9Gfbx+ht3EjBRNiOBfvXTGZuQmQXw3Me8xyO/4rsy4
- b4f9lEATBjeJR0uL7tg==
-X-Proofpoint-GUID: DEZF3-oerF-BMekCez1xox1biYc5uPLM
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-17_01,2026-02-16_04,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 impostorscore=0 lowpriorityscore=0 spamscore=0 adultscore=0
- priorityscore=1501 suspectscore=0 malwarescore=0 phishscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602170071
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 linux-next] perf parse-events: Fix big-endian
+ 'overwrite' by writing correct union member
+To: Thomas Richter <tmricht@linux.ibm.com>
+Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+ hca@linux.ibm.com, japo@linux.ibm.com, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ acme@kernel.org, namhyung@kernel.org, irogers@google.com
+References: <20260217081344.654399-1-tmricht@linux.ibm.com>
+Content-Language: en-US
+From: James Clark <james.clark@linaro.org>
+In-Reply-To: <20260217081344.654399-1-tmricht@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This test tries to setup routes which have address + offset
-combinations which cross a page.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- tools/testing/selftests/kvm/Makefile.kvm      |  1 +
- .../testing/selftests/kvm/s390/irq_routing.c  | 75 +++++++++++++++++++
- 2 files changed, 76 insertions(+)
- create mode 100644 tools/testing/selftests/kvm/s390/irq_routing.c
 
-diff --git a/tools/testing/selftests/kvm/Makefile.kvm b/tools/testing/selftests/kvm/Makefile.kvm
-index 7cfdfe7edfbf..c757704a0cb7 100644
---- a/tools/testing/selftests/kvm/Makefile.kvm
-+++ b/tools/testing/selftests/kvm/Makefile.kvm
-@@ -201,6 +201,7 @@ TEST_GEN_PROGS_s390 += s390/ucontrol_test
- TEST_GEN_PROGS_s390 += s390/user_operexec
- TEST_GEN_PROGS_s390 += s390/keyop
- TEST_GEN_PROGS_s390 += rseq_test
-+TEST_GEN_PROGS_s390 += s390/irq_routing
- 
- TEST_GEN_PROGS_riscv = $(TEST_GEN_PROGS_COMMON)
- TEST_GEN_PROGS_riscv += riscv/sbi_pmu_test
-diff --git a/tools/testing/selftests/kvm/s390/irq_routing.c b/tools/testing/selftests/kvm/s390/irq_routing.c
-new file mode 100644
-index 000000000000..4d9b5df2e456
---- /dev/null
-+++ b/tools/testing/selftests/kvm/s390/irq_routing.c
-@@ -0,0 +1,75 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * IRQ routing offset tests.
-+ *
-+ * Copyright IBM Corp. 2026
-+ *
-+ * Authors:
-+ *  Janosch Frank <frankja@linux.ibm.com>
-+ */
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <sys/ioctl.h>
-+
-+#include "test_util.h"
-+#include "kvm_util.h"
-+#include "kselftest.h"
-+#include "ucall_common.h"
-+
-+extern char guest_code[];
-+asm("guest_code:\n"
-+    "diag %r0,%r0,0\n"
-+    "j .\n");
-+
-+static void test(void)
-+{
-+	struct kvm_irq_routing *routing;
-+	struct kvm_vcpu *vcpu;
-+	struct kvm_vm *vm;
-+	vm_paddr_t mem;
-+	int ret;
-+
-+	struct kvm_irq_routing_entry ue = {
-+		.type = KVM_IRQ_ROUTING_S390_ADAPTER,
-+		.gsi = 1,
-+	};
-+
-+	vm = vm_create_with_one_vcpu(&vcpu, guest_code);
-+	mem = vm_phy_pages_alloc(vm, 2, 4096 * 42, 0);
-+
-+	routing = kvm_gsi_routing_create();
-+	routing->nr = 1;
-+	routing->entries[0] = ue;
-+	routing->entries[0].u.adapter.summary_addr = (uintptr_t)mem;
-+	routing->entries[0].u.adapter.ind_addr = (uintptr_t)mem;
-+
-+	routing->entries[0].u.adapter.summary_offset = 4096 * 8;
-+	ret = __vm_ioctl(vm, KVM_SET_GSI_ROUTING, routing);
-+	ksft_test_result(ret == -1 && errno == EINVAL, "summary offset outside of page\n");
-+
-+	routing->entries[0].u.adapter.summary_offset -= 8;
-+	ret = __vm_ioctl(vm, KVM_SET_GSI_ROUTING, routing);
-+	ksft_test_result(ret == 0, "summary offset inside of page\n");
-+
-+	routing->entries[0].u.adapter.ind_offset = 4096 * 8;
-+	ret = __vm_ioctl(vm, KVM_SET_GSI_ROUTING, routing);
-+	ksft_test_result(ret == -1 && errno == EINVAL, "ind offset outside of page\n");
-+
-+	routing->entries[0].u.adapter.ind_offset -= 8;
-+	ret = __vm_ioctl(vm, KVM_SET_GSI_ROUTING, routing);
-+	ksft_test_result(ret == 0, "ind offset inside of page\n");
-+
-+	kvm_vm_free(vm);
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	TEST_REQUIRE(kvm_has_cap(KVM_CAP_IRQ_ROUTING));
-+
-+	ksft_print_header();
-+	ksft_set_plan(4);
-+	test();
-+
-+	ksft_finished();	/* Print results and exit() accordingly */
-+}
--- 
-2.53.0
+On 17/02/2026 8:13 am, Thomas Richter wrote:
+> The "Read backward ring buffer" test crashes on big-endian (e.g. s390x)
+> due to a NULL dereference when the backward mmap path isn't enabled.
+> 
+> Reproducer:
+>    # ./perf test -F 'Read backward ring buffer'
+>    Segmentation fault (core dumped)
+>    # uname -m
+>    s390x
+>    #
+> 
+> Root cause:
+> get_config_terms() stores into evsel_config_term::val.val (u64) while later
+> code reads boolean fields such as evsel_config_term::val.overwrite.
+> On big-endian the 1-byte boolean is left-aligned, so writing
+> evsel_config_term::val.val = 1 is read back as
+> evsel_config_term::val.overwrite = 0,
+> leaving backward mmap disabled and a NULL map being used.
+> 
+> Store values in the union member that matches the term type, e.g.:
+>    /* for OVERWRITE */
+>    new_term->val.overwrite = 1;  /* not new_term->val.val = 1 */
+> to fix this. Improve add_config_term() and add two more parameters for
+> string and value. Function add_config_term() now creates a complete node
+> element of type evsel_config_term and handles all evsel_config_term::val
+> union members.
+> 
+> Impact:
+> Enables backward mmap on big-endian and prevents the crash.
+> No change on little-endian.
+> 
+> Output after:
+>   # ./perf test -Fv 44
+>   --- start ---
+>   Using CPUID IBM,9175,705,ME1,3.8,002f
+>   mmap size 1052672B
+>   mmap size 8192B
+>   ---- end ----
+>   44: Read backward ring buffer                         : Ok
+>   #
+> 
+> Fixes: 159ca97cd97c ("perf parse-events: Refactor get_config_terms() to remove macros")
+> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+> Reviewed-by: Jan Polensky <japo@linux.ibm.com>
+> Cc: James Clark <james.clark@linaro.org>
+> Cc: Ian Rogers <irogers@google.com>
+> ---
+>   tools/perf/util/parse-events.c | 78 +++++++++++++++++++++++++++-------
+>   1 file changed, 62 insertions(+), 16 deletions(-)
+> 
+> diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
+> index b9efb296bba5..0a87987d8c6f 100644
+> --- a/tools/perf/util/parse-events.c
+> +++ b/tools/perf/util/parse-events.c
+> @@ -1117,7 +1117,7 @@ static int config_attr(struct perf_event_attr *attr,
+>   
+>   static struct evsel_config_term *add_config_term(enum evsel_term_type type,
+>   						 struct list_head *head_terms,
+> -						 bool weak)
+> +						 bool weak, char *str, u64 val)
+>   {
+>   	struct evsel_config_term *t;
+>   
+> @@ -1128,8 +1128,60 @@ static struct evsel_config_term *add_config_term(enum evsel_term_type type,
+>   	INIT_LIST_HEAD(&t->list);
+>   	t->type = type;
+>   	t->weak	= weak;
+> +
+> +	switch (type) {
+> +	case EVSEL__CONFIG_TERM_PERIOD:
+> +	case EVSEL__CONFIG_TERM_FREQ:
+> +	case EVSEL__CONFIG_TERM_STACK_USER:
+> +	case EVSEL__CONFIG_TERM_USR_CHG_CONFIG:
+> +	case EVSEL__CONFIG_TERM_USR_CHG_CONFIG1:
+> +	case EVSEL__CONFIG_TERM_USR_CHG_CONFIG2:
+> +	case EVSEL__CONFIG_TERM_USR_CHG_CONFIG3:
+> +	case EVSEL__CONFIG_TERM_USR_CHG_CONFIG4:
+> +		t->val.val = val;
+> +		break;
+> +	case EVSEL__CONFIG_TERM_TIME:
+> +		t->val.time = val;
+> +		break;
+> +	case EVSEL__CONFIG_TERM_INHERIT:
+> +		t->val.inherit = val;
+> +		break;
+> +	case EVSEL__CONFIG_TERM_OVERWRITE:
+> +		t->val.overwrite = val;
+> +		break;
+> +	case EVSEL__CONFIG_TERM_MAX_STACK:
+> +		t->val.max_stack = val;
+> +		break;
+> +	case EVSEL__CONFIG_TERM_MAX_EVENTS:
+> +		t->val.max_events = val;
+> +		break;
+> +	case EVSEL__CONFIG_TERM_PERCORE:
+> +		t->val.percore = val;
+> +		break;
+> +	case EVSEL__CONFIG_TERM_AUX_OUTPUT:
+> +		t->val.aux_output = val;
+> +		break;
+> +	case EVSEL__CONFIG_TERM_AUX_SAMPLE_SIZE:
+> +		t->val.aux_sample_size = val;
+> +		break;
+> +	case EVSEL__CONFIG_TERM_CALLGRAPH:
+> +	case EVSEL__CONFIG_TERM_BRANCH:
+> +	case EVSEL__CONFIG_TERM_DRV_CFG:
+> +	case EVSEL__CONFIG_TERM_RATIO_TO_PREV:
+> +	case EVSEL__CONFIG_TERM_AUX_ACTION:
+> +		if (str) {
+> +			t->val.str = strdup(str);
+> +			if (!t->val.str) {
+> +				zfree(&t);
+> +				return NULL;
+> +			}
+> +			t->free_str = true;
+> +		}
+> +		break;
+> +	default:
+> +	}
+
+Hi Thomas,
+
+This still has nothing for the default label which clang doesn't like:
+
+util/parse-events.c:1182:10: error: label at end of compound statement: 
+expected statement
+         default:
+
+And then fixing that by replacing all the "t->val.val = val;" cases with 
+just "default:" gives a new error. "val" in get_config_terms() is 
+uninitialized (although unused, but the compiler doesn't know that):
+
+util/parse-events.c:1269:8: error: variable 'val' is used uninitialized 
+whenever switch case is taken [-Werror,-Wsometimes-uninitialized]
+                 case PARSE_EVENTS__TERM_TYPE_RATIO_TO_PREV:
+                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+util/parse-events.c:1296:42: note: uninitialized use occurs here
+                                            str_type ? term->val.str : 
+NULL, val);
+
+
+> +
+>   	list_add_tail(&t->list, head_terms);
+> -
+>   	return t;
+>   }
+>   
+> @@ -1234,20 +1286,15 @@ static int get_config_terms(const struct parse_events_terms *head_config,
+>   			continue;
+>   		}
+>   
+> -		new_term = add_config_term(new_type, head_terms, term->weak);
+> +		/*
+> +		 * Note: Members evsel_config_term::val and
+> +		 * parse_events_term::val are unions and endianness needs
+> +		 * to be taken into account when changing such union members.
+> +		 */
+> +		new_term = add_config_term(new_type, head_terms, term->weak,
+> +					   str_type ? term->val.str : NULL, val);
+>   		if (!new_term)
+>   			return -ENOMEM;
+> -
+> -		if (str_type) {
+> -			new_term->val.str = strdup(term->val.str);
+> -			if (!new_term->val.str) {
+> -				zfree(&new_term);
+> -				return -ENOMEM;
+> -			}
+> -			new_term->free_str = true;
+> -		} else {
+> -			new_term->val.val = val;
+> -		}
+>   	}
+>   	return 0;
+>   }
+> @@ -1277,10 +1324,9 @@ static int add_cfg_chg(const struct perf_pmu *pmu,
+>   	if (bits) {
+>   		struct evsel_config_term *new_term;
+>   
+> -		new_term = add_config_term(new_term_type, head_terms, false);
+> +		new_term = add_config_term(new_term_type, head_terms, false, NULL, bits);
+>   		if (!new_term)
+>   			return -ENOMEM;
+> -		new_term->val.cfg_chg = bits;
+>   	}
+>   
+>   	return 0;
 
