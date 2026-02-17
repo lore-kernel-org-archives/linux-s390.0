@@ -1,133 +1,133 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f171.google.com (mail-qt1-f171.google.com [209.85.160.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF63925D1E9;
-	Tue, 17 Feb 2026 19:55:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771358160; cv=none; b=JVhklWVEnpf+RAzbc10jxK0mV9Kj3ZnDNQbRoHhUYsH8niBGoZVW4W4iw50aMcBGP3bmCofpMGoW1b/e/zUS4pzYUUDgJD3nFzrsj1I5EQdqp0UiRy6nngwE92qwlphf9QBGn4M4DebE0scOw8kDQck1zlrBpMlrbm9EaIfOCQU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771358160; c=relaxed/simple;
-	bh=giOWjCQH6wS7nPGAjIXXxjZXzDGkoQy3N64lkyRWLIU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=AoTS1/PTuSZqWVEJrAmPYTtY2pkBd/MZQZa+r58i9KZtgw0NYa/7AaO0SqVsEjZKUU2MSB6LnrLeJqWQ/4jaDaIoR9ut1tmBrSFp1XwBitEy0JqCUbBA0YAqKbhJzwmowdHxCexsFaoJ7LZ4d71w3YKCbwBFAmyUnQO92aUUOq8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rQwFnpJt; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C119374178
+	for <linux-s390@vger.kernel.org>; Tue, 17 Feb 2026 20:31:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.171
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1771360309; cv=pass; b=Mk4fggod3Cp9PDhjWKHWmjPVH+EEnOSeJo5lYrGESEvnKXKAOxXIYll+LvDXcN12Cs7dsU+F9xL5mFSXarN1zylKOe0D/LuLRMu1OWgJk8NqOdPCTMLw9vPdUgjHulISstn1gtpdJUsrbpKchjo+Dw6TZdeWaZhlHciaOT9vlbg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1771360309; c=relaxed/simple;
+	bh=O6hX9dg3oPdI5w6wnUKEspXcKuxPryEjYBIewl5phQA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=HEZI1lP5HMNwwF1nugMjBA96MEUtVLsFXbtte5jFcDs/nIDmcxd/vMVjoV5VkFbJvjiVGpYnxyHTyOQLGxAjuQ6DgE23QBAOIRLxSc5s7u+b7MrqUd8Rk3WmFShnz8pYCVBaks0+QzAfNmgZOR4KHJU7UqHOjjiEJzQDrKB4zpw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=UeVHbMib; arc=pass smtp.client-ip=209.85.160.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rQwFnpJt"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61HIrcqT3309338;
-	Tue, 17 Feb 2026 19:55:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=e857/+
-	XeurNCek9z3d0m6OAoBNZWbSgBh2bjyUUuag0=; b=rQwFnpJtsfcYzwPDbQcIKu
-	ekmHddiYKtxEeHXMKXNEpvVuOqXLlRr9nGpiTRULQzHhxB2awY3iPqz5bS8Z2B+B
-	Pj3LM4xdWI5T//EvRUDJu3j8XOWDMl1X/4R9NwRaKMO2vsQ/rfp4Xq5SaJgx0wMC
-	YBHFsp7xNXTgScI/NLZeU4tlaISi6qjH4myFVLlCaYbqqmwsr4vFUfOn49H+rB+o
-	rmp1khhp0o+bjZGEJYJMwryWd44paL58QgrzmiREN83FalcciY473QnMZNgUMNDi
-	47iCQ4FyF2tIP5Si4KjXbyzCcIlXQmoIiLsumzYRE8D1uZ3dIpvZeKEYqGhD4vBw
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4caj4kdcje-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Feb 2026 19:55:47 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61HJ2Ek4023889;
-	Tue, 17 Feb 2026 19:55:46 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ccb454u1x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Feb 2026 19:55:46 +0000
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61HJtia315205048
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 17 Feb 2026 19:55:44 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 535B55805E;
-	Tue, 17 Feb 2026 19:55:44 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 746505806D;
-	Tue, 17 Feb 2026 19:55:43 +0000 (GMT)
-Received: from [9.61.242.249] (unknown [9.61.242.249])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 17 Feb 2026 19:55:43 +0000 (GMT)
-Message-ID: <2818bf62-54c0-4416-82fe-b47f5ae2fcd0@linux.ibm.com>
-Date: Tue, 17 Feb 2026 11:55:43 -0800
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="UeVHbMib"
+Received: by mail-qt1-f171.google.com with SMTP id d75a77b69052e-5033b64256dso128451cf.0
+        for <linux-s390@vger.kernel.org>; Tue, 17 Feb 2026 12:31:46 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1771360305; cv=none;
+        d=google.com; s=arc-20240605;
+        b=lGeBuuY/ywssrZZMLRnpjtCJG629QLBwXGYMeRwtHD3Nz+YaUGS9j2KeuJsZRUsqbQ
+         JGYD0TCCnlruoPm0/VjxFNTo8VgRM+Ep8pkR8KaqkXnttIw7Zp04f26F4043nM3cqSPC
+         v4jvp4+uOL5MrrVfRjGDs8YSu9cg0p25rBpYGWX+cFz+s3m60qAWPFACEGQ9pxJFXmPJ
+         4GfAWJ44FFbA7kJG7dbISYxD5lQ3uGlIbhFYuf7WSknyckxwIrfaMCr35ApfTsoknSj/
+         itBubimoSQR9UdM3u0P+8+WV0jrGiAtUNmeUsBooH7R8xTDDhwKk1TicSx8Z9TmsbBG7
+         HOrQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=bBuR5hoi+JIoThnLErWVLc3d8raQLXMxIFo7dRHtl7Q=;
+        fh=sivEvNsCjDzoTOoxAM6XkcSSoMCLMv7RU2/XZuEipUo=;
+        b=SyWUmLgmZLCdnsG0qAMcUhFfRpvEZGpvGrPpP8o2hEbuGlfalPZ9+UoDVV7mwAouKv
+         kXylUaFzaVpzIYsvMO3DvVXMc7X7CP9/OWiMIfL9C+vqSg2AWbHAMERbOjqnild2+UHa
+         yYbH3dDrYtizAMHfZK7uL/ktt84CKllkh5hNgdzfd7V91QRBuFnhfOHrrtDOQOOUD2eq
+         A41Y2qWsEM8D5azquWoRONM3JkZrKCr2plk5B0MDTLBAZGfQkt/yGAgqkkfRMPMATnJ8
+         gR0xldtzzBPUj3nDfRgIeI2VeFa4fMVu0jO8yW6Vi96k7zDzTCIbA0ITsbDr/zogqaik
+         87Cw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1771360305; x=1771965105; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bBuR5hoi+JIoThnLErWVLc3d8raQLXMxIFo7dRHtl7Q=;
+        b=UeVHbMibqOfRQKGYKAh/WRjskzuqNuGewj5Dj+apgjsEjuBzhDfIsnD23PEgJpxicM
+         GtonqZ79YXpeGY7YZxuPk5TAKfJ5zKwhPYQNR7+GnsUNiPcyjPuJP3FeMnOeZBsw1y7k
+         Vvt0YJa2del8puxvK+dDnZ1T+/jW/QRN8clTbwfu2YpUHi4vqt1e2iporg7aAZ/a9hZ8
+         aqXSRBOk+KR8TmyjmhsJv2TILjh6GeofkYID3UaiKqw8fYq1He+zNTkQI6wDkal3kkbd
+         Nqv+R2WaJunaw5qubIBhFRLpLYiI6cKaUpKBugcN9Gtz6FSBw9Qth0tM0EbtJdcKcB10
+         UvIQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771360305; x=1771965105;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=bBuR5hoi+JIoThnLErWVLc3d8raQLXMxIFo7dRHtl7Q=;
+        b=gmn1HIdXqaLzZJ4gYup0z2pGjYaq9eIwZuUnGC3/PdsiGFhOzkZDeKkpL6yGjBDMDQ
+         l1Op9BJyqNKMGkUKiImQZuDo6JvzhEmQs3zL5z7TOvbENrYQN3QfAqe0W5qR7mfnsiDw
+         EJJbVnLbu93TOUDuVp5wbfLp+CQfaN1c/dym5JhmDHEhP2vTRCjUBBZ0sVkqoM14udnz
+         3QGw3HW4MAhjSl4+90LaKxMibBUJbS4DwzrCnIL1gXKkjPQdSHWrb8qDab2WhoRBgDSa
+         plC9muZkQ1YMO76y/k4VJNc6Skvr+A3/bv6lUTIG+R5tdhc7ibOLUnoeTEnemqX663NS
+         OY9A==
+X-Forwarded-Encrypted: i=1; AJvYcCVDr2s+OYkd55eeFfawuMPScagHxSoK6a00VeU/feEO32/P2yVWnHdzyeFll+ofXr//27jmqJ2H3O9O@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy1jPzdzIxZrSasoJtBKR7aQst34ZabK7LcsliKqXDYmGrSK6io
+	UsQGHBQEdIZk8NGKaZx1cVvJCtfpnd/veS7AdLxojFgodDNXsflh/WMVlmplpgX27QRdIAhG+R9
+	AamfIFRpbGYyul/2yWsmBilSi19ScML+euPV//NsS
+X-Gm-Gg: AZuq6aKy9OVWFi8O3UwW+CZUUhqWmblNSVN8N3phJeQ/gYzTj/dUIITKSiX0XrU0Xpx
+	e5bx1cvdVCNNv6u3mWgcSQcXj6moebmMHtXk2G6+/osdLVs9ShlngHzjICV6nbqrHJaGbRSlTgm
+	VVXNGVgE6yDUsK9jvaVWuaE2UcyjKMCMfh90a4TOYnC4YTciE9Y17rRwV7NOILEpc42FOv5dzLX
+	RHVnLupGZx/dqSyaynCdEbhLOaz5lWpQ/+n8g1ucTnbTUpE/TN/1GHtObM//jLrNmoPkqvW+TUU
+	Ky8W6HjuD5UbMYAEbSzZNnsTHtHGarBhkWyOMg==
+X-Received: by 2002:ac8:5746:0:b0:506:9852:75ec with SMTP id
+ d75a77b69052e-506cdb4c09cmr21741071cf.9.1771360303253; Tue, 17 Feb 2026
+ 12:31:43 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v9 3/9] PCI: Avoid saving config space state in reset path
-To: Keith Busch <kbusch@kernel.org>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org, helgaas@kernel.org, lukas@wunner.de,
-        alex@shazbot.org, clg@redhat.com, stable@vger.kernel.org,
-        schnelle@linux.ibm.com, mjrosato@linux.ibm.com,
-        Bjorn Helgaas <bhelgaas@google.com>
-References: <20260217182257.1582-1-alifm@linux.ibm.com>
- <20260217182257.1582-4-alifm@linux.ibm.com> <aZS9X_CQBuo7gQpC@kbusch-mbp>
-Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <aZS9X_CQBuo7gQpC@kbusch-mbp>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjE3MDE2MSBTYWx0ZWRfX2IajmBNvZO4m
- xz49fdcSeGPQCx0IV0Yg7M1K5w/9IEEfEBKxWEulgeRiRR8tHisoPFVV55AUfxTSaCKulminPve
- YdQu4M5zeYQ0WJJIOu23o06cjxhH6PdE0tKURyBSFnw6Hl5pF9hf22HXv0ubu1iAdNsdoqT3OS5
- hZokVyLkBpdg5yxWldf7vkZecg77k6WCRsaa89Sylyj6RZe10eiKBPKVGokXC1nvQLdc97lgLCp
- kjtUenJd6GK3mBUDjjjImNRbNecRAJacHuVqJIE5fDQrRlHFoUY0Zj1h/aVgOlqVu9vd3Djl9sL
- wU5ABf/j+MtiD7yEueQbbEvU6i7J4TqJNMIsEphVNo5XBWhgWQcbuWF90JgNhNCfTU+acvj6RHn
- BE7SJ3JR6K33yYxUT4SZRWPiXLqCklm6YQvzx3Ca3kOu4XvWZCKcVSGokT9XRWiRW67C+PsuMhr
- Z9gWGqWVWGfqaOg1uRg==
-X-Proofpoint-ORIG-GUID: wnIxsI2QEjug02k4k4EMN77zuRDJq61H
-X-Proofpoint-GUID: kq08CJRypp2_CBkq94u-gkvRos6n1SBo
-X-Authority-Analysis: v=2.4 cv=M7hA6iws c=1 sm=1 tr=0 ts=6994c7c3 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=Q7f48Jf6utwjRvlCK7UA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-17_03,2026-02-16_04,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 malwarescore=0 lowpriorityscore=0 clxscore=1011 phishscore=0
- impostorscore=0 suspectscore=0 priorityscore=1501 adultscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602170161
+References: <20260217163250.2326001-1-surenb@google.com> <20260217163250.2326001-4-surenb@google.com>
+ <20260217191530.13857Aae-hca@linux.ibm.com>
+In-Reply-To: <20260217191530.13857Aae-hca@linux.ibm.com>
+From: Suren Baghdasaryan <surenb@google.com>
+Date: Tue, 17 Feb 2026 12:31:32 -0800
+X-Gm-Features: AaiRm503YYR0kTgCvbJHDicLagxX0QqBNRpofu84bYZnAbv1-xnaYHyLZPIeE6k
+Message-ID: <CAJuCfpGxsX6kZAzZJZo7aGNxEbeqOhTV8epF+sHXyqUFOP1few@mail.gmail.com>
+Subject: Re: [PATCH v2 3/3] mm: use vma_start_write_killable() in process_vma_walk_lock()
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: akpm@linux-foundation.org, willy@infradead.org, david@kernel.org, 
+	ziy@nvidia.com, matthew.brost@intel.com, joshua.hahnjy@gmail.com, 
+	rakie.kim@sk.com, byungchul@sk.com, gourry@gourry.net, 
+	ying.huang@linux.alibaba.com, apopple@nvidia.com, lorenzo.stoakes@oracle.com, 
+	baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, npache@redhat.com, 
+	ryan.roberts@arm.com, dev.jain@arm.com, baohua@kernel.org, 
+	lance.yang@linux.dev, vbabka@suse.cz, jannh@google.com, rppt@kernel.org, 
+	mhocko@suse.com, pfalcato@suse.de, kees@kernel.org, maddy@linux.ibm.com, 
+	npiggin@gmail.com, mpe@ellerman.id.au, chleroy@kernel.org, 
+	borntraeger@linux.ibm.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com, 
+	gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com, 
+	gerald.schaefer@linux.ibm.com, linux-mm@kvack.org, 
+	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Tue, Feb 17, 2026 at 11:15=E2=80=AFAM Heiko Carstens <hca@linux.ibm.com>=
+ wrote:
+>
+> On Tue, Feb 17, 2026 at 08:32:50AM -0800, Suren Baghdasaryan wrote:
+> > Replace vma_start_write() with vma_start_write_killable() when
+> > process_vma_walk_lock() is used with PGWALK_WRLOCK option.
+> > Adjust its direct and indirect users to check for a possible error
+> > and handle it.
+> >
+> > Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+> > ---
+> >  arch/s390/kvm/kvm-s390.c |  5 +++--
+> >  arch/s390/mm/gmap.c      | 13 ++++++++++---
+> >  fs/proc/task_mmu.c       |  7 ++++++-
+> >  mm/pagewalk.c            | 20 ++++++++++++++------
+> >  4 files changed, 33 insertions(+), 12 deletions(-)
+>
+> The s390 code modified with this patch does not exist upstream
+> anymore. It has been replaced with Claudio's huge gmap rewrite.
 
-On 2/17/2026 11:11 AM, Keith Busch wrote:
-> On Tue, Feb 17, 2026 at 10:22:51AM -0800, Farhan Ali wrote:
->> The current reset process saves the device's config space state before
->> reset and restores it afterward. However errors may occur unexpectedly and
->> it may then be impossible to save config space because the device may be
->> inaccessible (e.g. DPC) or config space may be corrupted. This results in
->> saving corrupted values that get written back to the device during state
->> restoration.
->>
->> Since commit a2f1e22390ac ("PCI/ERR: Ensure error recoverability at all times"),
->> we now save the state of device at enumeration. On every restore we should
->> either use the enumeration saved state or driver's intentional saved state,
->> never a state saved at the unpredictable time of an error recovery reset.
-> The vfio driver calls pci_try_reset_function after pci_enable_device,
-> but before calling pci_store_saved_state. Won't this change, then, mean
-> that the PCI Command register will get restored to the wrong state with
-> the resources disabled?
-
-Yes I think you are right, with this change the PCI Command register 
-gets restored to state at enumeration. So we will lose the updated state 
-after pci_clear_master() and pci_enable_device(). I think we can update 
-the vfio driver to call pci_save_state() after pci_enable_device()?
-
-Thanks
-
-Farhan
-
-
+Hmm. My patchset is based on mm-new. I guess the code was modified in
+some other tree. Could you please provide a link to that patchset so I
+can track it? I'll probably remove this patch from my set until that
+one is merged.
