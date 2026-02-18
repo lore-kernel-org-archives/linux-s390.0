@@ -1,139 +1,144 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C4D43168F6;
-	Tue, 17 Feb 2026 22:26:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 774C72EDD7E;
+	Wed, 18 Feb 2026 07:11:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771367176; cv=none; b=L1sZy1t7W9xpXJl/dNq5OpeHl9xIknbUg2VN3/1qmD6nICC0/fzA+YFXW6xK0dp5mmfRe//l+RDjeFeS4Bi0keZCC+4lAUiS7DfsyczrTFfTDn8YQ5cMK410To88m5djrbZzldD8jq4TltYOFd6LUz/pOdS7t+wifiVXJ8CLf9E=
+	t=1771398663; cv=none; b=FxNplFiyKxZlmn7L4ocbYkqhkL44oQ9mvune/RUFKQurCPxnsog43lrAsDDkhAQn4Zg8aTMu8RPxAaGzUdVzvEr5fpyTdxWNwu3zteY3DLAsVhpUtLSdjll5XFrApmeg2G0pTgKEUG7oiiRc0Ek2JVhPQwunqh9/PchoFMMp+Fw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771367176; c=relaxed/simple;
-	bh=CauXCMMScNpDHMis5FXdfmpRKk7l7qV/1VODtjPxiy0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=H+gHZdMUGlO6pwT4vFzwjEnW3kz90jbrdgYmvXmEPOrwy2JwJM0fsUvdOOMYd0iZKIrRA7ZPGG9yeAIPmCOJY4es+jjUgQKLH4/vb4Xu8mSJ9W2YYk/4lZMXJ4hcI+ShViA4NtVePU8TRUj0axA8AblukV6vrpPFhpjnTKvxEkA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TA5BMCcb; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1771398663; c=relaxed/simple;
+	bh=Ox2dOVXmbRBgdEYNhXg+PDFwMPH7Y7MKBtXaUVHfz2c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IWaxBHRpRxFUlr+sg4j3jlkt+m1oYOKkNMRtwakUOKoAVEjC+pAI0GzOLbKosM3tdUCweh8PJbsYJ9ymZVJmCAQMAEXcGOb+ZW/JWCygRpPqycGikEutIfnM7OYKwJWII+kgT39Xdun/0BP6CFK4J/i+NMiosQ05sdpvkcNMhxs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tSqb9du/; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TA5BMCcb"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61HFNtfu3162998;
-	Tue, 17 Feb 2026 22:26:09 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tSqb9du/"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61HHJtU63183117;
+	Wed, 18 Feb 2026 07:10:23 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=QwjtRP
-	wA/PezjxlQV3WevGyD2tRCq3nS5TSoVTM0NJw=; b=TA5BMCcbD958MjA6IeR/0s
-	agtrYOJtMy3f1zuSgBfJhsi9/+dOid5DfNJ+bZgybrJ//8xp94VCBirmTwcMIesq
-	5JaRJrqD5iKVyOPpqIM3OCf9UMYBmJOoXe5ASM1drbRt4/tMOYs4YYQA/DpABlho
-	1dUDxAYqpGFDDUp83YEc6HdUY0UB0M/d9/cLLfwMWZvJPHPz9fulWCScvehuQI3l
-	fcTBL/dOaUQLrZQul6dx81Xer3sI/bgCTL6dcquSxKPQM1G2+8GVlaCd+xiloOCi
-	hX2AeesTWvoI/V/KvJHodft3YAAnKzz9njLFepmCsvNYpG61D8AUvpgmYq09q4Dg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=wukgO5
+	j/8aNavjZq33Drvjb9PS5A9guZ5fwgIH2CROE=; b=tSqb9du/lZex2lVtiYWD4f
+	4+NKT9c72HZeLfQEX58ryWHQ3hvgyuWLaSUMpdHZtt2JntnhH2u+IZ/QC/icgL+A
+	Tg5dA6p3JDM5tB3B29LFqlyYWbWWoO5OCxWTnmWovrTDnZG77upkcWMHISKqegoL
+	vxjPiSH4wle69PTZzRLhc5XhZObUv7+hv1JJi9u9Bw5lqOjBxArce1guC7Wq2+Ge
+	SyMBmoO0/8UabAQS290vPdEpNVy+KD32N+npTFPYEhfN8HvdwzA/BK06bVBOLfAn
+	ccNndGaf2xlrUDjvj7wHsT9fnZR4Ma6Ec3ONIukB68qW8WRZIjxzXmf0/EQQRCyw
 	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4caj6rxsju-1
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4caj6ur280-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Feb 2026 22:26:08 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61HLReJn015721;
-	Tue, 17 Feb 2026 22:26:07 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ccb455fgr-1
+	Wed, 18 Feb 2026 07:10:22 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61I34Ffg011961;
+	Wed, 18 Feb 2026 07:10:21 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ccb26xvbw-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Feb 2026 22:26:07 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61HMQ6DD28967664
+	Wed, 18 Feb 2026 07:10:20 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61I7AGkO10879402
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 17 Feb 2026 22:26:06 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 294FB5805D;
-	Tue, 17 Feb 2026 22:26:06 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5129458043;
-	Tue, 17 Feb 2026 22:26:05 +0000 (GMT)
-Received: from [9.61.242.249] (unknown [9.61.242.249])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 17 Feb 2026 22:26:05 +0000 (GMT)
-Message-ID: <54301c56-1add-4029-b6ed-b441e4fda8dc@linux.ibm.com>
-Date: Tue, 17 Feb 2026 14:26:05 -0800
+	Wed, 18 Feb 2026 07:10:16 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C72FC2004D;
+	Wed, 18 Feb 2026 07:10:16 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 19AE12004E;
+	Wed, 18 Feb 2026 07:10:15 +0000 (GMT)
+Received: from osiris (unknown [9.111.88.61])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 18 Feb 2026 07:10:15 +0000 (GMT)
+Date: Wed, 18 Feb 2026 08:10:13 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Suren Baghdasaryan <surenb@google.com>
+Cc: akpm@linux-foundation.org, willy@infradead.org, david@kernel.org,
+        ziy@nvidia.com, matthew.brost@intel.com, joshua.hahnjy@gmail.com,
+        rakie.kim@sk.com, byungchul@sk.com, gourry@gourry.net,
+        ying.huang@linux.alibaba.com, apopple@nvidia.com,
+        lorenzo.stoakes@oracle.com, baolin.wang@linux.alibaba.com,
+        Liam.Howlett@oracle.com, npache@redhat.com, ryan.roberts@arm.com,
+        dev.jain@arm.com, baohua@kernel.org, lance.yang@linux.dev,
+        vbabka@suse.cz, jannh@google.com, rppt@kernel.org, mhocko@suse.com,
+        pfalcato@suse.de, kees@kernel.org, maddy@linux.ibm.com,
+        npiggin@gmail.com, mpe@ellerman.id.au, chleroy@kernel.org,
+        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-mm@kvack.org,
+        linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2 3/3] mm: use vma_start_write_killable() in
+ process_vma_walk_lock()
+Message-ID: <20260218071013.12861A0b-hca@linux.ibm.com>
+References: <20260217163250.2326001-1-surenb@google.com>
+ <20260217163250.2326001-4-surenb@google.com>
+ <20260217191530.13857Aae-hca@linux.ibm.com>
+ <CAJuCfpGxsX6kZAzZJZo7aGNxEbeqOhTV8epF+sHXyqUFOP1few@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v9 1/9] PCI: Allow per function PCI slots
-To: Keith Busch <kbusch@kernel.org>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org, helgaas@kernel.org, lukas@wunner.de,
-        alex@shazbot.org, clg@redhat.com, stable@vger.kernel.org,
-        schnelle@linux.ibm.com, mjrosato@linux.ibm.com
-References: <20260217182257.1582-1-alifm@linux.ibm.com>
- <20260217182257.1582-2-alifm@linux.ibm.com> <aZTaPH85j5R81Vna@kbusch-mbp>
-Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <aZTaPH85j5R81Vna@kbusch-mbp>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAJuCfpGxsX6kZAzZJZo7aGNxEbeqOhTV8epF+sHXyqUFOP1few@mail.gmail.com>
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=dvvWylg4 c=1 sm=1 tr=0 ts=6994eb01 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=E+/AZKdl c=1 sm=1 tr=0 ts=699565de cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
  a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VwQbUJbxAAAA:8
- a=VabnemYjAAAA:8 a=4BKzHjxeoT3xkgTLmf0A:9 a=QEXdDO2ut3YA:10
- a=gKebqoRLp9LExxC7YDUY:22
-X-Proofpoint-GUID: abp-wa7Y40mvobzzDtxKv440EMz939mo
-X-Proofpoint-ORIG-GUID: abp-wa7Y40mvobzzDtxKv440EMz939mo
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjE3MDE4MiBTYWx0ZWRfX5LkuWb2sNnek
- i0/xoZdRkZ6BbxhdyyXUv3KcwtSaiSOtGsBd/g7zHR0uVP1vgg6y2s+asomtA59XDA0ZLELk0dV
- 1X8xE8mm3/mb1fy2zvgNtU84zeYnAjppaMJGq+kJ0Zt1sh0uidMvih8Wtu4ojeMxhjp01izA5S7
- Vhi/DInsNfk50I7tW2VRTrdiQ+nIGqcvcijoMpZzkPyJSvp5xoODgFoBIrLr6VL1DUmOmh/4elE
- geZuxTm+4yQJKmx51e4dCHjqOsSp+R0aI4/3XQ3GfaMasWGeVH2Vw0qXc02N7XU7UH8jSUhsXZy
- D/J6lp8sDR+qZPZen9Vm7X3oKlKky+yKtua9qt7TxITKUyzzS6rLnn1JgozHw0l6GasMkMRNUzG
- VBYnRdcG5cuZFXTWxQBLHmhiF6LrQsZRW2ZGp19uwRzcnXAL5oe6QD6ooinPSoYlymtJI0vZQoI
- Vefe/wuTVIYu0be2X3w==
+ a=VnNF1IyMAAAA:8 a=1XWaLZrsAAAA:8 a=gGe32zGur58IqnNnNnwA:9 a=3ZKOabzyN94A:10
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjE4MDA2MSBTYWx0ZWRfX1GbVKY+hQw/0
+ xMtVyPtOGHwPd3EvY3nh6LAsZThMFJsu5ApLK0jWevZKbg8TbjdxYIQecUxKtVhACccLtW3/zOX
+ oXfxEgPkBvBgxXpdYd4IiGZO6F6kxXCTlXhpq8QxhGoMU/i+eNxWKBdnJrgxUW13IMkTmMUU8Jy
+ PE2PznWt7Z0CFRkIA9b4M1T2JSLNkyHoRD36p5g21pqtvSoDnC3ZF4OV3qSIUEkMDjr5OU6QQU8
+ kbq35WpgDeMM3zXcuij2KgAt/FMKzfQkWjGWjXhhHaH45znBtDSdRxTPUnj4IoF9PL4C0U7v9vn
+ qoBxoxHMJrgrOptI0h/YGNJTGe/dEAWaHLCAURLaZvUSSY/hXZgobo9hhruCwnnI+2L3b4+mOSV
+ yyhCj4oZT+xipsWn8sM1Ji+oTx+mUeiXxi/G6CAeTdIuoBs0LXQgfIUFLqHLFZgKFP9rmV4Z5dA
+ QQp6GdcAZOyxDFd0iAA==
+X-Proofpoint-ORIG-GUID: PrNeiywUXSPNpfowIMohoR-adwD3XkAW
+X-Proofpoint-GUID: 7NyzMkwUS6QnxMs17XYqyWDlVFmp7jpO
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-17_03,2026-02-16_04,2025-10-01_01
+ definitions=2026-02-17_04,2026-02-16_04,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 lowpriorityscore=0 impostorscore=0 adultscore=0
- priorityscore=1501 clxscore=1015 malwarescore=0 phishscore=0 suspectscore=0
- bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
- definitions=main-2602170182
+ lowpriorityscore=0 priorityscore=1501 malwarescore=0 phishscore=0 bulkscore=0
+ suspectscore=0 spamscore=0 clxscore=1015 impostorscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602180061
 
+On Tue, Feb 17, 2026 at 12:31:32PM -0800, Suren Baghdasaryan wrote:
+> On Tue, Feb 17, 2026 at 11:15 AM Heiko Carstens <hca@linux.ibm.com> wrote:
+> >
+> > On Tue, Feb 17, 2026 at 08:32:50AM -0800, Suren Baghdasaryan wrote:
+> > > Replace vma_start_write() with vma_start_write_killable() when
+> > > process_vma_walk_lock() is used with PGWALK_WRLOCK option.
+> > > Adjust its direct and indirect users to check for a possible error
+> > > and handle it.
+> > >
+> > > Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+> > > ---
+> > >  arch/s390/kvm/kvm-s390.c |  5 +++--
+> > >  arch/s390/mm/gmap.c      | 13 ++++++++++---
+> > >  fs/proc/task_mmu.c       |  7 ++++++-
+> > >  mm/pagewalk.c            | 20 ++++++++++++++------
+> > >  4 files changed, 33 insertions(+), 12 deletions(-)
+> >
+> > The s390 code modified with this patch does not exist upstream
+> > anymore. It has been replaced with Claudio's huge gmap rewrite.
+> 
+> Hmm. My patchset is based on mm-new. I guess the code was modified in
+> some other tree. Could you please provide a link to that patchset so I
+> can track it? I'll probably remove this patch from my set until that
+> one is merged.
 
-On 2/17/2026 1:14 PM, Keith Busch wrote:
-> On Tue, Feb 17, 2026 at 10:22:49AM -0800, Farhan Ali wrote:
->> Currently, the kernel's PCI_SLOT() macro assigns the same pci_slot object
->> to multifunction devices. This approach worked fine on s390 systems that
->> only exposed virtual functions as individual PCI domains to the operating
->> system.  Since commit 44510d6fa0c0 ("s390/pci: Handling multifunctions")
->> s390 supports exposing the topology of multifunction PCI devices by
->> grouping them in a shared PCI domain. When attempting to reset a function
->> through the hotplug driver, the shared slot assignment causes the wrong
->> function to be reset instead of the intended one. It also leaks memory as
->> we do create a pci_slot object for the function, but don't correctly free
->> it in pci_slot_release().
-> I think leakage is because s390 is passing in devfn when pci_create_slot
-> is expecting devnr, so things are not getting matched and assigned as
-> expected.
->
-> If you're able to make this change, it will clash with one existing
-> thing, and another proposal I've got at v5 now(*). Specifically, this
-> would allow all 8 bits to be used for the pci_slot 'number' when it's
-> currently expected to be limited to 5 bits. 0xff is special, and I'm
-> proposing another special value. If we are going to allow the slot
-> numbers to use all 8 bits, I think we need to change the type from u8 to
-> u16 so that there is space to encode such special values.
->
->   * https://lore.kernel.org/linux-pci/20260217160836.2709885-3-kbusch@meta.com/
-
-I am open to suggestions on how we can better model a pci_slot per 
-function. And yeah, I think it makes sense to update the pci_slot 
-'number' to u16.
-
-Thanks
-
-Farhan
-
+This is the corresponding merge commit in Linus' tree:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b1195183ed42f1522fae3fe44ebee3af437aa000
