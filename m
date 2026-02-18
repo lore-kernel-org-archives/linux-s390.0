@@ -1,144 +1,195 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 774C72EDD7E;
-	Wed, 18 Feb 2026 07:11:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3579309EF0;
+	Wed, 18 Feb 2026 12:13:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771398663; cv=none; b=FxNplFiyKxZlmn7L4ocbYkqhkL44oQ9mvune/RUFKQurCPxnsog43lrAsDDkhAQn4Zg8aTMu8RPxAaGzUdVzvEr5fpyTdxWNwu3zteY3DLAsVhpUtLSdjll5XFrApmeg2G0pTgKEUG7oiiRc0Ek2JVhPQwunqh9/PchoFMMp+Fw=
+	t=1771416790; cv=none; b=JIvTy3eqg9Y/vhI+UlNSBiR+5ISFTHZYztGXn03h7ll6jzmbG0bejnyOQQAW6nN1xXAYf9aZrf8WxMVsqssTYL/RA6ZJd2BCmi1NE7PIZdEluvEwDr3Hsye219O3Ox9C1scI5Rgt5W8wuz1X1jK0Okh6erBZzTIpU1sIZK87sHE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771398663; c=relaxed/simple;
-	bh=Ox2dOVXmbRBgdEYNhXg+PDFwMPH7Y7MKBtXaUVHfz2c=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=IWaxBHRpRxFUlr+sg4j3jlkt+m1oYOKkNMRtwakUOKoAVEjC+pAI0GzOLbKosM3tdUCweh8PJbsYJ9ymZVJmCAQMAEXcGOb+ZW/JWCygRpPqycGikEutIfnM7OYKwJWII+kgT39Xdun/0BP6CFK4J/i+NMiosQ05sdpvkcNMhxs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tSqb9du/; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1771416790; c=relaxed/simple;
+	bh=0NoEhwk1s/RrrvP/QdOj1gmEEN0oX3xLt/hTX7N6Aq0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=b9qkgrLyjJL3vajm0iZy+3qOjJTX8Vu0M3zZy72zYq+K9Vkc6YotJBZyDAQZT5E31ktTJef92yRATZ4UVh4HX5sMyOejVTuEpSU0joGtqAb/goTXns5PolNSvF/3v1LfbPsAWXFJDtjtCQOeU0y7bXAwDNZXX4oMmF6EetbJGnw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BwC0a5Vt; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tSqb9du/"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61HHJtU63183117;
-	Wed, 18 Feb 2026 07:10:23 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BwC0a5Vt"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61I9ftHQ2869250;
+	Wed, 18 Feb 2026 12:13:02 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=wukgO5
-	j/8aNavjZq33Drvjb9PS5A9guZ5fwgIH2CROE=; b=tSqb9du/lZex2lVtiYWD4f
-	4+NKT9c72HZeLfQEX58ryWHQ3hvgyuWLaSUMpdHZtt2JntnhH2u+IZ/QC/icgL+A
-	Tg5dA6p3JDM5tB3B29LFqlyYWbWWoO5OCxWTnmWovrTDnZG77upkcWMHISKqegoL
-	vxjPiSH4wle69PTZzRLhc5XhZObUv7+hv1JJi9u9Bw5lqOjBxArce1guC7Wq2+Ge
-	SyMBmoO0/8UabAQS290vPdEpNVy+KD32N+npTFPYEhfN8HvdwzA/BK06bVBOLfAn
-	ccNndGaf2xlrUDjvj7wHsT9fnZR4Ma6Ec3ONIukB68qW8WRZIjxzXmf0/EQQRCyw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=O8Vmah
+	eIvFxB7hw5xVoUcyamcqZJhV0PQrhleF22A2s=; b=BwC0a5Vt9ELS5rZtBL2vyB
+	EoxMPUxWYjBU6gcDLt0HAjDHupq7hliFGCQFdwVE8ui/UWvza5XvNT1nEsjvA1MB
+	cJLUtASM1DJ2kM3/R22mwbW21MDHg9zAItrVL2ozGUkZHDuxPF9djGGCpAm95ncD
+	5CdLSlVqk78VbgC2Yvulu39zMlwmweJAPDMvnJfSgKFTEKOTKwI1OJU+CaPAFEEU
+	HyF5z+9uAYIGBEjT+x0r2IePvXrZw54/Ts1QsRCPnTs+0xMqTEKl1IKIfUB+00Zs
+	LMCXWYgmloWSsfktHeztaqAtruBw7gd8ZVTu8xwQbKyfbr37ZC8BdEZWjErUGg8Q
 	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4caj6ur280-1
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4caj64802f-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Feb 2026 07:10:22 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61I34Ffg011961;
-	Wed, 18 Feb 2026 07:10:21 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ccb26xvbw-1
+	Wed, 18 Feb 2026 12:13:02 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61I8SVMj024324;
+	Wed, 18 Feb 2026 12:13:01 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ccb457prf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Feb 2026 07:10:20 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61I7AGkO10879402
+	Wed, 18 Feb 2026 12:13:01 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61ICCveD49480166
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 18 Feb 2026 07:10:16 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C72FC2004D;
-	Wed, 18 Feb 2026 07:10:16 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 19AE12004E;
-	Wed, 18 Feb 2026 07:10:15 +0000 (GMT)
-Received: from osiris (unknown [9.111.88.61])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 18 Feb 2026 07:10:15 +0000 (GMT)
-Date: Wed, 18 Feb 2026 08:10:13 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Suren Baghdasaryan <surenb@google.com>
-Cc: akpm@linux-foundation.org, willy@infradead.org, david@kernel.org,
-        ziy@nvidia.com, matthew.brost@intel.com, joshua.hahnjy@gmail.com,
-        rakie.kim@sk.com, byungchul@sk.com, gourry@gourry.net,
-        ying.huang@linux.alibaba.com, apopple@nvidia.com,
-        lorenzo.stoakes@oracle.com, baolin.wang@linux.alibaba.com,
-        Liam.Howlett@oracle.com, npache@redhat.com, ryan.roberts@arm.com,
-        dev.jain@arm.com, baohua@kernel.org, lance.yang@linux.dev,
-        vbabka@suse.cz, jannh@google.com, rppt@kernel.org, mhocko@suse.com,
-        pfalcato@suse.de, kees@kernel.org, maddy@linux.ibm.com,
-        npiggin@gmail.com, mpe@ellerman.id.au, chleroy@kernel.org,
-        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-mm@kvack.org,
-        linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v2 3/3] mm: use vma_start_write_killable() in
- process_vma_walk_lock()
-Message-ID: <20260218071013.12861A0b-hca@linux.ibm.com>
-References: <20260217163250.2326001-1-surenb@google.com>
- <20260217163250.2326001-4-surenb@google.com>
- <20260217191530.13857Aae-hca@linux.ibm.com>
- <CAJuCfpGxsX6kZAzZJZo7aGNxEbeqOhTV8epF+sHXyqUFOP1few@mail.gmail.com>
+	Wed, 18 Feb 2026 12:12:58 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DDB1220043;
+	Wed, 18 Feb 2026 12:12:57 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6264F20040;
+	Wed, 18 Feb 2026 12:12:57 +0000 (GMT)
+Received: from [9.111.8.26] (unknown [9.111.8.26])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 18 Feb 2026 12:12:57 +0000 (GMT)
+Message-ID: <9cdca2ae-241e-454d-bc25-462b0e2825ee@linux.ibm.com>
+Date: Wed, 18 Feb 2026 13:12:57 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAJuCfpGxsX6kZAzZJZo7aGNxEbeqOhTV8epF+sHXyqUFOP1few@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/4] s390/sclp: Detect ASTFLEIE 2 facility
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>, kvm@vger.kernel.org
+References: <20260212-vsie-alter-stfle-fac-v1-0-d772be74a4da@linux.ibm.com>
+ <20260212-vsie-alter-stfle-fac-v1-2-d772be74a4da@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ xsFNBFubpD4BEADX0uhkRhkj2AVn7kI4IuPY3A8xKat0ihuPDXbynUC77mNox7yvK3X5QBO6
+ qLqYr+qrG3buymJJRD9xkp4mqgasHdB5WR9MhXWKH08EvtvAMkEJLnqxgbqf8td3pCQ2cEpv
+ 15mH49iKSmlTcJ+PvJpGZcq/jE42u9/0YFHhozm8GfQdb9SOI/wBSsOqcXcLTUeAvbdqSBZe
+ zuMRBivJQQI1esD9HuADmxdE7c4AeMlap9MvxvUtWk4ZJ/1Z3swMVCGzZb2Xg/9jZpLsyQzb
+ lDbbTlEeyBACeED7DYLZI3d0SFKeJZ1SUyMmSOcr9zeSh4S4h4w8xgDDGmeDVygBQZa1HaoL
+ Esb8Y4avOYIgYDhgkCh0nol7XQ5i/yKLtnNThubAcxNyryw1xSstnKlxPRoxtqTsxMAiSekk
+ 0m3WJwvwd1s878HrQNK0orWd8BzzlSswzjNfQYLF466JOjHPWFOok9pzRs+ucrs6MUwDJj0S
+ cITWU9Rxb04XyigY4XmZ8dywaxwi2ZVTEg+MD+sPmRrTw+5F+sU83cUstuymF3w1GmyofgsU
+ Z+/ldjToHnq21MNa1wx0lCEipCCyE/8K9B9bg9pUwy5lfx7yORP3JuAUfCYb8DVSHWBPHKNj
+ HTOLb2g2UT65AjZEQE95U2AY9iYm5usMqaWD39pAHfhC09/7NQARAQABzSVKYW5vc2NoIEZy
+ YW5rIDxmcmFua2phQGxpbnV4LmlibS5jb20+wsF3BBMBCAAhBQJbm6Q+AhsjBQsJCAcCBhUI
+ CQoLAgQWAgMBAh4BAheAAAoJEONU5rjiOLn4p9gQALjkdj5euJVI2nNT3/IAxAhQSmRhPEt0
+ AmnCYnuTcHRWPujNr5kqgtyER9+EMQ0ZkX44JU2q7OWxTdSNSAN/5Z7qmOR9JySvDOf4d3mS
+ bMB5zxL9d8SbnSs1uW96H9ZBTlTQnmLfsiM9TetAjSrR8nUmjGhe2YUhJLR1v1LguME+YseT
+ eXnLzIzqqpu311/eYiiIGcmaOjPCE+vFjcXL5oLnGUE73qSYiujwhfPCCUK0850o1fUAYq5p
+ CNBCoKT4OddZR+0itKc/cT6NwEDwdokeg0+rAhxb4Rv5oFO70lziBplEjOxu3dqgIKbHbjza
+ EXTb+mr7VI9O4tTdqrwJo2q9zLqqOfDBi7NDvZFLzaCewhbdEpDYVu6/WxprAY94hY3F4trT
+ rQMHJKQENtF6ZTQc9fcT5I3gAmP+OEvDE5hcTALpWm6Z6SzxO7gEYCnF+qGXqp8sJVrweMub
+ UscyLqHoqdZC2UG4LQ1OJ97nzDpIRe0g6oJ9ZIYHKmfw5jjwH6rASTld5MFWajWdNsqK15k/
+ RZnHAGICKVIBOBsq26m4EsBlfCdt3b/6emuBjUXR1pyjHMz2awWzCq6/6OWs5eANZ0sdosNq
+ dq2v0ULYTazJz2rlCXV89qRa7ukkNwdBSZNEwsD4eEMicj1LSrqWDZMAALw50L4jxaMD7lPL
+ jJbazsFNBFubpD4BEADAcUTRqXF/aY53OSH7IwIK9lFKxIm0IoFkOEh7LMfp7FGzaP7ANrZd
+ cIzhZi38xyOkcaFY+npGEWvko7rlIAn0JpBO4x3hfhmhBD/WSY8LQIFQNNjEm3vzrMo7b9Jb
+ JAqQxfbURY3Dql3GUzeWTG9uaJ00u+EEPlY8zcVShDltIl5PLih20e8xgTnNzx5c110lQSu0
+ iZv2lAE6DM+2bJQTsMSYiwKlwTuv9LI9Chnoo6+tsN55NqyMxYqJgElk3VzlTXSr3+rtSCwf
+ tq2cinETbzxc1XuhIX6pu/aCGnNfuEkM34b7G1D6CPzDMqokNFbyoO6DQ1+fW6c5gctXg/lZ
+ 602iEl4C4rgcr3+EpfoPUWzKeM8JXv5Kpq4YDxhvbitr8Dm8gr38+UKFZKlWLlwhQ56r/zAU
+ v6LIsm11GmFs2/cmgD1bqBTNHHcTWwWtRTLgmnqJbVisMJuYJt4KNPqphTWsPY8SEtbufIlY
+ HXOJ2lqUzOReTrie2u0qcSvGAbSfec9apTFl2Xko/ddqPcZMpKhBiXmY8tJzSPk3+G4tqur4
+ 6TYAm5ouitJsgAR61Cu7s+PNuq/pTLDhK+6/Njmc94NGBcRA4qTuysEGE79vYWP2oIAU4Fv6
+ gqaWHZ4MEI2XTqH8wiwzPdCQPYsSE0fXWiYu7ObeErT6iLSTZGx4rQARAQABwsFfBBgBCAAJ
+ BQJbm6Q+AhsMAAoJEONU5rjiOLn4DDEP/RuyckW65SZcPG4cMfNgWxZF8rVjeVl/9PBfy01K
+ 8R0hajU40bWtXSMiby7j0/dMjz99jN6L+AJHJvrLz4qYRzn2Ys843W+RfXj62Zde4YNBE5SL
+ jJweRCbMWKaJLj6499fctxTyeb9+AMLQS4yRSwHuAZLmAb5AyCW1gBcTWZb8ON5BmWnRqeGm
+ IgC1EvCnHy++aBnHTn0m+zV89BhTLTUal35tcjUFwluBY39R2ux/HNlBO1GY3Z+WYXhBvq7q
+ katThLjaQSmnOrMhzqYmdShP1leFTVbzXUUIYv/GbynO/YrL2gaQpaP1bEUEi8lUAfXJbEWG
+ dnHFkciryi092E8/9j89DJg4mmZqOau7TtUxjRMlBcIliXkzSLUk+QvD4LK1kWievJse4mte
+ FBdkWHfP4BH/+8DxapRcG1UAheSnSRQ5LiO50annOB7oXF+vgKIaie2TBfZxQNGAs3RQ+bga
+ DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
+ Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
+ phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
+In-Reply-To: <20260212-vsie-alter-stfle-fac-v1-2-d772be74a4da@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=E+/AZKdl c=1 sm=1 tr=0 ts=699565de cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-ORIG-GUID: Deayi7KZ0g7Ipg-N2Rdq7kzYsp645OnT
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjE4MDEwNyBTYWx0ZWRfX9AuIRe/hxtFo
+ 6KoWj4BmCBU8xUTszNtUnjgL6aeTXH6/r65Og/8CCkyKd9UeL+I8rDropSv5uAjmFO6BqwSNp25
+ T/wMKLpPCsIQj1umKdUohVmU11ttjHMgoZuODKdmum4E5X644T9yxJVWQHjsM9DW4O5G5kNpz9r
+ FkNlGSkqJrvE/C1U7SHFxcotUY/32lcdWyqtKTnv9LD+KG1gbeiWIRL/bss/HItabNtfr+NOOqc
+ JSF5IPq7QgFR+a8CVpBzo9j24fMVoePagu3rBVRMO75V3kM5FRWT1g4dOyxf8EK6Gh8ZxsRz8K/
+ ywJcOBe82Kkbv+eZWJVOqLmLPF/BK9uVUiNQgZ1LKNkZSUUyUYqqPm0KySNfYkX7cxAmYvpre7Z
+ S652QPLBAzP47pp803SKRIk2QLha1OHrfZ4j0OtihlnhgqcdGK7GtuTtrWmtuAWGS3R7SvOlf1N
+ cT1DtQa2iZ/DFaK25Cw==
+X-Proofpoint-GUID: Deayi7KZ0g7Ipg-N2Rdq7kzYsp645OnT
+X-Authority-Analysis: v=2.4 cv=U+mfzOru c=1 sm=1 tr=0 ts=6995acce cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=1XWaLZrsAAAA:8 a=gGe32zGur58IqnNnNnwA:9 a=3ZKOabzyN94A:10
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjE4MDA2MSBTYWx0ZWRfX1GbVKY+hQw/0
- xMtVyPtOGHwPd3EvY3nh6LAsZThMFJsu5ApLK0jWevZKbg8TbjdxYIQecUxKtVhACccLtW3/zOX
- oXfxEgPkBvBgxXpdYd4IiGZO6F6kxXCTlXhpq8QxhGoMU/i+eNxWKBdnJrgxUW13IMkTmMUU8Jy
- PE2PznWt7Z0CFRkIA9b4M1T2JSLNkyHoRD36p5g21pqtvSoDnC3ZF4OV3qSIUEkMDjr5OU6QQU8
- kbq35WpgDeMM3zXcuij2KgAt/FMKzfQkWjGWjXhhHaH45znBtDSdRxTPUnj4IoF9PL4C0U7v9vn
- qoBxoxHMJrgrOptI0h/YGNJTGe/dEAWaHLCAURLaZvUSSY/hXZgobo9hhruCwnnI+2L3b4+mOSV
- yyhCj4oZT+xipsWn8sM1Ji+oTx+mUeiXxi/G6CAeTdIuoBs0LXQgfIUFLqHLFZgKFP9rmV4Z5dA
- QQp6GdcAZOyxDFd0iAA==
-X-Proofpoint-ORIG-GUID: PrNeiywUXSPNpfowIMohoR-adwD3XkAW
-X-Proofpoint-GUID: 7NyzMkwUS6QnxMs17XYqyWDlVFmp7jpO
+ a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8
+ a=pEn9Gj0DkaCfSj8do8EA:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-17_04,2026-02-16_04,2025-10-01_01
+ definitions=2026-02-18_02,2026-02-16_04,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 priorityscore=1501 malwarescore=0 phishscore=0 bulkscore=0
- suspectscore=0 spamscore=0 clxscore=1015 impostorscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602180061
+ clxscore=1015 bulkscore=0 impostorscore=0 malwarescore=0 spamscore=0
+ adultscore=0 phishscore=0 lowpriorityscore=0 priorityscore=1501
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
+ definitions=main-2602180107
 
-On Tue, Feb 17, 2026 at 12:31:32PM -0800, Suren Baghdasaryan wrote:
-> On Tue, Feb 17, 2026 at 11:15 AM Heiko Carstens <hca@linux.ibm.com> wrote:
-> >
-> > On Tue, Feb 17, 2026 at 08:32:50AM -0800, Suren Baghdasaryan wrote:
-> > > Replace vma_start_write() with vma_start_write_killable() when
-> > > process_vma_walk_lock() is used with PGWALK_WRLOCK option.
-> > > Adjust its direct and indirect users to check for a possible error
-> > > and handle it.
-> > >
-> > > Signed-off-by: Suren Baghdasaryan <surenb@google.com>
-> > > ---
-> > >  arch/s390/kvm/kvm-s390.c |  5 +++--
-> > >  arch/s390/mm/gmap.c      | 13 ++++++++++---
-> > >  fs/proc/task_mmu.c       |  7 ++++++-
-> > >  mm/pagewalk.c            | 20 ++++++++++++++------
-> > >  4 files changed, 33 insertions(+), 12 deletions(-)
-> >
-> > The s390 code modified with this patch does not exist upstream
-> > anymore. It has been replaced with Claudio's huge gmap rewrite.
+On 2/12/26 10:24, Christoph Schlameuss wrote:
+> From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 > 
-> Hmm. My patchset is based on mm-new. I guess the code was modified in
-> some other tree. Could you please provide a link to that patchset so I
-> can track it? I'll probably remove this patch from my set until that
-> one is merged.
+> Detect alternate STFLE interpretive execution facility 2.
+> 
+> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
-This is the corresponding merge commit in Linus' tree:
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b1195183ed42f1522fae3fe44ebee3af437aa000
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+
+> ---
+>   arch/s390/include/asm/sclp.h   | 1 +
+>   drivers/s390/char/sclp_early.c | 4 +++-
+>   2 files changed, 4 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
+> index 0f184dbdbe5e0748fcecbca38b9e55a56968dc79..0f21501d3e866338895caeed385aa4f586384d69 100644
+> --- a/arch/s390/include/asm/sclp.h
+> +++ b/arch/s390/include/asm/sclp.h
+> @@ -104,6 +104,7 @@ struct sclp_info {
+>   	unsigned char has_aisii : 1;
+>   	unsigned char has_aeni : 1;
+>   	unsigned char has_aisi : 1;
+> +	unsigned char has_astfleie2 : 1;
+>   	unsigned int ibc;
+>   	unsigned int mtid;
+>   	unsigned int mtid_cp;
+> diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
+> index 6bf501ad8ff0ea6d3df0a721f29fd24506409493..22dd797e62291fef087d46ac1c7f805486e3935b 100644
+> --- a/drivers/s390/char/sclp_early.c
+> +++ b/drivers/s390/char/sclp_early.c
+> @@ -61,8 +61,10 @@ static void __init sclp_early_facilities_detect(void)
+>   		sclp.has_sipl = !!(sccb->cbl & 0x4000);
+>   		sclp.has_sipl_eckd = !!(sccb->cbl & 0x2000);
+>   	}
+> -	if (sccb->cpuoff > 139)
+> +	if (sccb->cpuoff > 139) {
+>   		sclp.has_diag324 = !!(sccb->byte_139 & 0x80);
+> +		sclp.has_astfleie2 = !!(sccb->byte_139 & 0x40);
+> +	}
+>   	sclp.rnmax = sccb->rnmax ? sccb->rnmax : sccb->rnmax2;
+>   	sclp.rzm = sccb->rnsize ? sccb->rnsize : sccb->rnsize2;
+>   	sclp.rzm <<= 20;
+> 
+
