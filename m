@@ -1,239 +1,138 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85DB9334C1B;
-	Wed, 18 Feb 2026 14:20:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id DC7AF334683;
+	Wed, 18 Feb 2026 15:20:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771424424; cv=none; b=TjL0PUET/BzGN5PgXZCAg8LZHLDdCI5BLqWE3JG6MToXgmpNe5KEiExHqPVxtmnzi0Nsr/V/QamIA23ooMF22fcqnU8rzgDbgDtZP21fiRQVPF3F0ekX2P3YK8d7rRQjWoKNdXrQsNdewHFJI6B/WZSrIaBMM2i3OQj7in2qx3Q=
+	t=1771428049; cv=none; b=NyjFYHIYP/w4napMz2yHX8ykZcUCm6XtQNnhCQUTG5Op+Yh0WY4tztPl33ctVuNtBwY+i6Vq5opbb/g5eSLyaByCEeZIHIHZ+BURcodyimTcBJrkoAQ2GPmMoTWhBog+lVXevK64PyUlwWrjG4BZP7SvVADyASiKO5Fez6OBVoE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771424424; c=relaxed/simple;
-	bh=ELh00Bb8DK9VFq+/7jcmPhT9fEC9OYKEPjUQyC9jYpY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=RJoeCACYtzjQIFP6vdc7j+CAn7bfy63yoYD9taVo/9A3qhu4psY/au6PesL8zmVD1BYCey6aAv6+Ic+O2vEzkmKBWWG2U7dd5EzXxV/Az+9J0DShCenJZLP1Ye9aLu4GIRGp2bAqmeGqM/W/QsrH7p51I7vYKhTygD3nWBVYADo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=iF3UIkWk; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="iF3UIkWk"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61I6ucK62749445;
-	Wed, 18 Feb 2026 14:20:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=gv/ovjkPaQXawhGo7
-	8gf1fT4H1MiqMsf1/WLRgUf5S8=; b=iF3UIkWk5G49Ngs66PAwejXoJiuU+Qu3R
-	0s65+KFb6/h5d8QRHdk3UB48xsRwKzebCpetjNsPb1XI9/dp1esdQ8utUlpUKQCC
-	3masj9+ekCC6P6dPJh9bYz7giHJaXqoFaLoQiaL/FKUc9ACoZUHG2HNsSc0bwmQo
-	aMghFD4Wghnogtm19M0jj1RAO0joBpefUNmvZmEboJeCVFVhloiwokuLOOdDpAV5
-	WTexOQlmdFwq5aC4RnIz/xH4stM08Rug+eaJPWfe+Zb2cd19Xz9pOchQcTSAmLwQ
-	CYBYaOQtq3KOsDFpqrqKw4j9byH7aTBp5i4+VKrBzSa6d9ZdnWv6A==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4caj4kgdt5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Feb 2026 14:20:18 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61IDbaqf001375;
-	Wed, 18 Feb 2026 14:20:17 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ccb2bg31p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Feb 2026 14:20:17 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61IEKEDW15204756
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 18 Feb 2026 14:20:14 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1946220040;
-	Wed, 18 Feb 2026 14:20:14 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id ED0BD2004F;
-	Wed, 18 Feb 2026 14:20:13 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 18 Feb 2026 14:20:13 +0000 (GMT)
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Frederic Weisbecker <frederic@kernel.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH 5/9] s390/idle: Inline update_timer_idle()
-Date: Wed, 18 Feb 2026 15:20:08 +0100
-Message-ID: <20260218142012.863464-6-hca@linux.ibm.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260218142012.863464-1-hca@linux.ibm.com>
-References: <20260218142012.863464-1-hca@linux.ibm.com>
+	s=arc-20240116; t=1771428049; c=relaxed/simple;
+	bh=Ao5mD3Q+WTXCpJ+gFtNlcVBNBqafVvxRYOedK/Uy9Vk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=HA4wTv4N9L0sFbzX6zSkMbl3X5dBZXHvfqYGy6hE2FXvynDdomnDLW8Ca6SDRW5HXShP8+kJvlAGdZid+NhGGFwHjiLw61TU50kYYRjPJwsXsbzkzK2kdQYf+StanDwiGv8zXCA54zgjUldIZn9MVEvGZyLHrkB6tNLue38zI6k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B9997339;
+	Wed, 18 Feb 2026 07:20:33 -0800 (PST)
+Received: from [10.57.81.199] (unknown [10.57.81.199])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 990193F7F5;
+	Wed, 18 Feb 2026 07:20:34 -0800 (PST)
+Message-ID: <8531da33-a4dc-48ac-abf3-c831d4493afb@arm.com>
+Date: Wed, 18 Feb 2026 15:20:32 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjE4MDEyMCBTYWx0ZWRfX47uZ8K2yITQB
- nXwJEKhV/r/ZTN4eL03i13qR2qlSLksZkGwMs6p4iW9maL6XDHBp+01kW+RhU2yrwDPPI0hPc3j
- tSSoV63Itts1sYSl8Pmqb4tZeE4rHW+10uNda0m61PIWEZ2fpmANnGJZhhlnTQrMLj/8Fg5SzcR
- JEx9uD2QHigDqiREtl2HimIViHy8cstqC4uRb6ojqVwojh9QMt1ZnBxME4pf3Dg589MnxNOfehW
- liiA/+hHwVLSAU/zXr0EvoaDHMlNOQiMozAzYwoSlszfYjTGxlvv0MO6L1zwGSn++RLuaneiga4
- StD51+sfn3QBAFoXFdjCee46UtvIxHMyoDE7ooAdmKsDVvrjMIZclBCshjKuOt4p98NM8VtBSoZ
- f74Tb6VeldTDa5glqfjY9i2BoBJY681WScq5UCxsVFR1B2DUzK4QvPYeGZLUHRUPba90kUCdVui
- wS/9osLr1sVsyp/6dnA==
-X-Proofpoint-ORIG-GUID: rfyObM6X41IXQG4u93dEXu8jR2DyLPjT
-X-Proofpoint-GUID: rfyObM6X41IXQG4u93dEXu8jR2DyLPjT
-X-Authority-Analysis: v=2.4 cv=M7hA6iws c=1 sm=1 tr=0 ts=6995caa2 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=Mpw57Om8IfrbqaoTuvik:22
- a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8 a=tAyWV0bZ07vegb1XaBYA:9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-18_02,2026-02-18_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 malwarescore=0 lowpriorityscore=0 clxscore=1015 phishscore=0
- impostorscore=0 suspectscore=0 priorityscore=1501 adultscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602180120
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 3/3] randomize_kstack: Unify random source across
+ arches
+Content-Language: en-GB
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: kernel test robot <lkp@intel.com>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Huacai Chen <chenhuacai@kernel.org>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <pjw@kernel.org>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ Kees Cook <kees@kernel.org>, "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+ Arnd Bergmann <arnd@arndb.de>, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+ Ard Biesheuvel <ardb@kernel.org>, Jeremy Linton <jeremy.linton@arm.com>,
+ David Laight <david.laight.linux@gmail.com>, llvm@lists.linux.dev,
+ oe-kbuild-all@lists.linux.dev, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org
+References: <20260119130122.1283821-4-ryan.roberts@arm.com>
+ <202601210752.6Nsv9et9-lkp@intel.com>
+ <46c7d109-b076-4bb3-9e6e-36c34c546c20@arm.com> <aXDHSIn3hIvESjXg@J2N7QTR9R3>
+From: Ryan Roberts <ryan.roberts@arm.com>
+In-Reply-To: <aXDHSIn3hIvESjXg@J2N7QTR9R3>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Inline update_timer_idle() again to avoid an extra function call. This
-way the generated code is close to old assembler version again.
+On 21/01/2026 12:32, Mark Rutland wrote:
+> On Wed, Jan 21, 2026 at 10:52:21AM +0000, Ryan Roberts wrote:
+>> On 20/01/2026 23:50, kernel test robot wrote:
+>>> Hi Ryan,
+>>>
+>>> kernel test robot noticed the following build warnings:
+>>>
+>>> [auto build test WARNING on akpm-mm/mm-everything]
+>>> [also build test WARNING on linus/master v6.19-rc6 next-20260119]
+>>> [cannot apply to tip/sched/core kees/for-next/hardening kees/for-next/execve]
+>>> [If your patch is applied to the wrong git tree, kindly drop us a note.
+>>> And when submitting patch, we suggest to use '--base' as documented in
+>>> https://git-scm.com/docs/git-format-patch#_base_tree_information]
+>>>
+>>> url:    https://github.com/intel-lab-lkp/linux/commits/Ryan-Roberts/randomize_kstack-Maintain-kstack_offset-per-task/20260119-210329
+>>> base:   https://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm.git mm-everything
+>>> patch link:    https://lore.kernel.org/r/20260119130122.1283821-4-ryan.roberts%40arm.com
+>>> patch subject: [PATCH v4 3/3] randomize_kstack: Unify random source across arches
+>>> config: x86_64-allmodconfig (https://download.01.org/0day-ci/archive/20260121/202601210752.6Nsv9et9-lkp@intel.com/config)
+>>> compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
+>>> reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260121/202601210752.6Nsv9et9-lkp@intel.com/reproduce)
+>>>
+>>> If you fix the issue in a separate patch/commit (i.e. not just a new version of
+>>> the same patch/commit), kindly add following tags
+>>> | Reported-by: kernel test robot <lkp@intel.com>
+>>> | Closes: https://lore.kernel.org/oe-kbuild-all/202601210752.6Nsv9et9-lkp@intel.com/
+>>>
+>>> All warnings (new ones prefixed by >>):
+>>>
+>>>>> vmlinux.o: warning: objtool: do_syscall_64+0x2c: call to preempt_count_add() leaves .noinstr.text section
+>>>>> vmlinux.o: warning: objtool: __do_fast_syscall_32+0x3d: call to preempt_count_add() leaves .noinstr.text section
+>>
+>> Hmm, clearly Dave was correct not to rush this through... yuck. I'll take a
+>> look, but I guess there is no rush if this won't go into -next until shortly
+>> after -rc1.
+> 
+> Sorry, I should have checked the entry sequencing more thoroughly when I
+> reviewed this,.
+> 
+> From a quick look, I suspect the right thing to do is to pull the call
+> to add_random_kstack_offset() a bit later in a few cases; after the
+> entry logic has run, and after instrumentation_begin() (if the arch code
+> uses that), such that it doesn't matter if this gets instrumented.
+> 
+> Considering the callers of add_random_kstack_offset(), if we did that:
+> 
+> * arm64 is fine as-is.
+> 
+> * loongarch is fine as-is.
+> 
+> * powerpc's system_call_exception() would need this moved after the
+>   user_exit_irqoff(). Given that function is notrace rather than
+>   noinstr, it looks like there are bigger extant issues here.
+> 
+> * riscv is fine as-is.
+> 
+> * s390's __do_syscall() would need this moved after
+>   enter_from_user_mode().
+> 
+> * On x86:
+>   - do_int80_emulation() is fine as-is.
+>   - int80_emulation() is fine as-is.
+>   - do_int80_syscall_32() would need this moved after
+>     instrumentation_begin().
+>   - __do_fast_syscall_32() would need this moved after
+>     instrumentation_begin().
+>   - do_syscall_64() would need this moved after instrumentation_begin().
 
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
----
- arch/s390/include/asm/idle.h  |  3 ++-
- arch/s390/include/asm/vtime.h | 34 ++++++++++++++++++++++++++++++++++
- arch/s390/kernel/entry.h      |  2 --
- arch/s390/kernel/idle.c       | 34 ++--------------------------------
- 4 files changed, 38 insertions(+), 35 deletions(-)
+Thanks for the detailed suggestions, Mark. I've taken this approach, and
+assuming perf testing doesn't throw up any issue, I'm going to revert back to
+using the out-of-line version of prandom_u32_state() and will drop patch 2.
 
-diff --git a/arch/s390/include/asm/idle.h b/arch/s390/include/asm/idle.h
-index 133059d9a949..8c5aa7329461 100644
---- a/arch/s390/include/asm/idle.h
-+++ b/arch/s390/include/asm/idle.h
-@@ -19,10 +19,11 @@ struct s390_idle_data {
- 	unsigned long mt_cycles_enter[8];
- };
- 
-+DECLARE_PER_CPU(struct s390_idle_data, s390_idle);
-+
- extern struct device_attribute dev_attr_idle_count;
- extern struct device_attribute dev_attr_idle_time_us;
- 
- void psw_idle(struct s390_idle_data *data, unsigned long psw_mask);
--void update_timer_idle(void);
- 
- #endif /* _S390_IDLE_H */
-diff --git a/arch/s390/include/asm/vtime.h b/arch/s390/include/asm/vtime.h
-index 9d25fb35a042..b1db75d14e9d 100644
---- a/arch/s390/include/asm/vtime.h
-+++ b/arch/s390/include/asm/vtime.h
-@@ -2,6 +2,12 @@
- #ifndef _S390_VTIME_H
- #define _S390_VTIME_H
- 
-+#include <asm/lowcore.h>
-+#include <asm/cpu_mf.h>
-+#include <asm/idle.h>
-+
-+DECLARE_PER_CPU(u64, mt_cycles[8]);
-+
- static inline void update_timer_sys(void)
- {
- 	struct lowcore *lc = get_lowcore();
-@@ -20,4 +26,32 @@ static inline void update_timer_mcck(void)
- 	lc->last_update_timer = lc->mcck_enter_timer;
- }
- 
-+static inline void update_timer_idle(void)
-+{
-+	struct s390_idle_data *idle = this_cpu_ptr(&s390_idle);
-+	struct lowcore *lc = get_lowcore();
-+	u64 cycles_new[8];
-+	int i, mtid;
-+
-+	mtid = smp_cpu_mtid;
-+	if (mtid) {
-+		stcctm(MT_DIAG, mtid, cycles_new);
-+		for (i = 0; i < mtid; i++)
-+			__this_cpu_add(mt_cycles[i], cycles_new[i] - idle->mt_cycles_enter[i]);
-+	}
-+	/*
-+	 * This is a bit subtle: Forward last_update_clock so it excludes idle
-+	 * time. For correct steal time calculation in do_account_vtime() add
-+	 * passed wall time before idle_enter to steal_timer:
-+	 * During the passed wall time before idle_enter CPU time may have
-+	 * been accounted to system, hardirq, softirq, etc. lowcore fields.
-+	 * The accounted CPU times will be subtracted again from steal_timer
-+	 * when accumulated steal time is calculated in do_account_vtime().
-+	 */
-+	lc->steal_timer += idle->clock_idle_enter - lc->last_update_clock;
-+	lc->last_update_clock = lc->int_clock;
-+	lc->system_timer += lc->last_update_timer - idle->timer_idle_enter;
-+	lc->last_update_timer = lc->sys_enter_timer;
-+}
-+
- #endif /* _S390_VTIME_H */
-diff --git a/arch/s390/kernel/entry.h b/arch/s390/kernel/entry.h
-index dd55cc6bbc28..fb67b4abe68c 100644
---- a/arch/s390/kernel/entry.h
-+++ b/arch/s390/kernel/entry.h
-@@ -56,8 +56,6 @@ long sys_s390_pci_mmio_write(unsigned long, const void __user *, size_t);
- long sys_s390_pci_mmio_read(unsigned long, void __user *, size_t);
- long sys_s390_sthyi(unsigned long function_code, void __user *buffer, u64 __user *return_code, unsigned long flags);
- 
--DECLARE_PER_CPU(u64, mt_cycles[8]);
--
- unsigned long stack_alloc(void);
- void stack_free(unsigned long stack);
- 
-diff --git a/arch/s390/kernel/idle.c b/arch/s390/kernel/idle.c
-index 627d82dd900e..1f1b06b6b4ef 100644
---- a/arch/s390/kernel/idle.c
-+++ b/arch/s390/kernel/idle.c
-@@ -15,41 +15,11 @@
- #include <trace/events/power.h>
- #include <asm/cpu_mf.h>
- #include <asm/cputime.h>
-+#include <asm/idle.h>
- #include <asm/nmi.h>
- #include <asm/smp.h>
--#include "entry.h"
- 
--static DEFINE_PER_CPU(struct s390_idle_data, s390_idle);
--
--void update_timer_idle(void)
--{
--	struct s390_idle_data *idle = this_cpu_ptr(&s390_idle);
--	struct lowcore *lc = get_lowcore();
--	u64 cycles_new[8];
--	int i, mtid;
--
--	mtid = smp_cpu_mtid;
--	if (mtid) {
--		stcctm(MT_DIAG, mtid, cycles_new);
--		for (i = 0; i < mtid; i++)
--			__this_cpu_add(mt_cycles[i], cycles_new[i] - idle->mt_cycles_enter[i]);
--	}
--
--	/*
--	 * This is a bit subtle: Forward last_update_clock so it excludes idle
--	 * time. For correct steal time calculation in do_account_vtime() add
--	 * passed wall time before idle_enter to steal_timer:
--	 * During the passed wall time before idle_enter CPU time may have
--	 * been accounted to system, hardirq, softirq, etc. lowcore fields.
--	 * The accounted CPU times will be subtracted again from steal_timer
--	 * when accumulated steal time is calculated in do_account_vtime().
--	 */
--	lc->steal_timer += idle->clock_idle_enter - lc->last_update_clock;
--	lc->last_update_clock = lc->int_clock;
--
--	lc->system_timer += lc->last_update_timer - idle->timer_idle_enter;
--	lc->last_update_timer = lc->sys_enter_timer;
--}
-+DEFINE_PER_CPU(struct s390_idle_data, s390_idle);
- 
- void account_idle_time_irq(void)
- {
--- 
-2.51.0
+Thanks,
+Ryan
+
+
+> 
+> Mark.
 
