@@ -1,348 +1,225 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC1561BC2A;
-	Thu, 19 Feb 2026 18:31:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7FEF32AAB6;
+	Thu, 19 Feb 2026 21:38:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771525878; cv=none; b=P2d3rUkhoE77g0p2/5a4FcV2yPQpbkh2VpLf6KMJ7BlI6/3/g/W4wGc3l2g6x6RZXAoW8dJqjWwhkB9R2krBmj7BnOZWKXA6BnMd5BqBiFNB3AfMc+49UTEP0m3hVbCzoYtr9eSMz0jNQ2P42ywvEkcDjm0imRprZxiD6nh9aEE=
+	t=1771537106; cv=none; b=GVS51B4XoXKofQSyIGNL68xkI6AVO0qoDO+7uf1gDubfiJK/Jw3couezTCAjj8z0hCAdeA9PRfT3nR3HShdwLLhYwKTe5vqrGE11M3XT78tqFj6sAfl+CJBL8qh76ubuQUwFR9cKoAlmdwkMnpw5OHmIE7NBnDknx/EVjW5K44Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771525878; c=relaxed/simple;
-	bh=M5AeCZqxWr3qIRd4WLtY4dp+wlycaOsl+tjpNhb3EPM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gBBgJc5Jm3ivzPj9aLesnerdERxhQobEgxzGGx8nLHaX9QctfAxAX09EphjsMDTFcdtB0qukUZMfTOIyzXtsiJMnlMEv9dBpXchVz2qzzznCjHgt5GSo2Xknw35gWKiKI+Fvb3Zy3BqYB/Pfkebsf9ki9fw05EpcPvDxXyBm2CU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SFWg1clY; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1771537106; c=relaxed/simple;
+	bh=xHIZ8InWsWt7cRxRhkSl7jAPYEW2L5LYlecHFeUG3Ic=;
+	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
+	 Date:MIME-Version; b=umHmy1J+5pBGwjnE8OMofkR3DQl4eft7WxO/SToWg6VC7RimJ119u5nBoJpIfAnYDqFTBkiJdtqG426bNRA+QEZTEsWgUJDrdP4vJ6LWSvuAv3XRh7isi1uTKL6xRugZUjcjeEmSXepayHm630eLQOZDNMHA5x6BxwZbPL/c0nA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cNl8VD81; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SFWg1clY"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61J9ACWk1261180;
-	Thu, 19 Feb 2026 18:30:23 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cNl8VD81"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61JKsp0N1600928;
+	Thu, 19 Feb 2026 21:38:13 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=UyqtE5
-	dFClD4qUnTIg5kBZRFtx9J4UpArQv5TR4phSc=; b=SFWg1clY7vnfwxc2JH30jJ
-	GJyI4qt6fn1359Gi0VIHaY13aqwYWLOj6niHzBfsHP5AavkHlDE/vcNM2azVxa07
-	0Zel6Es13bpMv4TGzSTxPKyEjvfE5AhzRlvYMEuPDIAjrJ27RKQJChBMjT8ZMFyI
-	E3lShnVceGQMb/zRm3DsYqC0D0i6SEwdDkv74HM220HMvNTpB/+6OriXCGBjEbhP
-	mJhjlRD7I+qgk8g3wBrUGqLGBcVEVm2RApSFTCYTPi+Wez+l9FuCSEuNL0bF3XNq
-	cZx7xJ40MSy+Ykw0yUWGf+8teGiGPXVQnxjyG+r4bMFA0nWqqWOFb9Cb+bNiV8jA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=UIUedV
+	f8Uz5SgZ13wnLmKWU+kgTpHTtHsnKGIUtPsS4=; b=cNl8VD81FFqIvHJXOCcZLE
+	lxaTGOCP7vPp7fxDIHP9CwsJL+ZKTkMTLs/KvmDSOXlc1pLgUL++mFCcfsafeMMF
+	vtTEO+aK2sZ7NrXHkfewRPCjkueu69VYvPrQ0CC0EYJuYzjZr+3Ywm9WFCvFrQzp
+	fqh9gp037p/VYRjMjyTCgVYCY1DC3uusi7K+X8vKCctGvOGnFH1kpYknBW4JkLsI
+	azG4SajDGSLp1fhxtZEiuvw3CNiB9Wgme8d5qHRSpgPwn3ZNP2XEGdD3FjBdV8NO
+	q2QyhkHc/eX1HoOKtUH5SZPeZIasnl8yKhle+ByjRW7ZGq5t5HvOqgnZtDKFKzXQ
 	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4caj6s7h9u-1
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cajcr881y-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 19 Feb 2026 18:30:23 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61JI5k01015697;
-	Thu, 19 Feb 2026 18:30:21 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ccb45dbya-1
+	Thu, 19 Feb 2026 21:38:12 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61JI3J4F023889;
+	Thu, 19 Feb 2026 21:38:11 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ccb45e069-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 19 Feb 2026 18:30:21 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61JIUHLX29229328
+	Thu, 19 Feb 2026 21:38:11 +0000
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61JLcATF22544952
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 19 Feb 2026 18:30:17 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C524720043;
-	Thu, 19 Feb 2026 18:30:17 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 66FC720040;
-	Thu, 19 Feb 2026 18:30:07 +0000 (GMT)
-Received: from [9.111.92.82] (unknown [9.111.92.82])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 19 Feb 2026 18:30:07 +0000 (GMT)
-Message-ID: <9413517d-963b-4e6d-b11b-b440acd7cb5a@linux.ibm.com>
-Date: Fri, 20 Feb 2026 00:00:06 +0530
+	Thu, 19 Feb 2026 21:38:10 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8EAFC58050;
+	Thu, 19 Feb 2026 21:38:10 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 51FF158045;
+	Thu, 19 Feb 2026 21:38:08 +0000 (GMT)
+Received: from [9.111.94.239] (unknown [9.111.94.239])
+	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 19 Feb 2026 21:38:08 +0000 (GMT)
+Message-ID: <873a948a74df082bb22672cd58136337ffb54083.camel@linux.ibm.com>
+Subject: Re: [PATCH v9 1/9] PCI: Allow per function PCI slots
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Farhan Ali <alifm@linux.ibm.com>, Keith Busch <kbusch@kernel.org>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org, helgaas@kernel.org, lukas@wunner.de,
+        alex@shazbot.org, clg@redhat.com, stable@vger.kernel.org,
+        mjrosato@linux.ibm.com
+In-Reply-To: <54301c56-1add-4029-b6ed-b441e4fda8dc@linux.ibm.com>
+References: <20260217182257.1582-1-alifm@linux.ibm.com>
+	 <20260217182257.1582-2-alifm@linux.ibm.com> <aZTaPH85j5R81Vna@kbusch-mbp>
+	 <54301c56-1add-4029-b6ed-b441e4fda8dc@linux.ibm.com>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=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
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 19 Feb 2026 22:37:06 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 04/15] powerpc/time: Prepare to stop elapsing in
- dynticks-idle
-To: Frederic Weisbecker <frederic@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>
-Cc: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Anna-Maria Behnsen <anna-maria@linutronix.de>,
-        Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Joel Fernandes <joelagnelf@nvidia.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Kieran Bingham <kbingham@kernel.org>, Mel Gorman <mgorman@suse.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        "Paul E . McKenney"
- <paulmck@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Valentin Schneider <vschneid@redhat.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Xin Zhao <jackzxcui1989@163.com>, linux-pm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-References: <20260206142245.58987-1-frederic@kernel.org>
- <20260206142245.58987-5-frederic@kernel.org>
-From: Shrikanth Hegde <sshegde@linux.ibm.com>
-Content-Language: en-US
-In-Reply-To: <20260206142245.58987-5-frederic@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+User-Agent: Evolution 3.58.2 (3.58.2-1.fc43) 
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=dvvWylg4 c=1 sm=1 tr=0 ts=699756bf cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Proofpoint-GUID: Gu1USADTSAeiuQcL4G9WUlzhAPz-C5K-
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjE5MDE5MiBTYWx0ZWRfX3qb8LJLprNle
+ 7GGxsgTl3xAebK5YUDOysu4eYlpvqWLKVQJM8t9GBKjHpP4hUsiuVbA/Ib8GnMCw3eIZviKkpwN
+ 630AdRwYVrPqdvx+Pm1nYwsmbMJf1pmHTg0EongFd+uukaYVAsi9cpJNCePgVzuF9W9rbvO//pe
+ qtvv5AtPGn7KA3LJYv24+30W/JhrM6BvrAdQf+ndSyZIfwNf4y7QlrVMHdP8FwIGEMcX0gcAe+i
+ +jNMMKFvQURwQK57A34I/Dq4rlS/EEssLN8ANwfaKNYdAUBnalLdAYu8n/5T+Aa9LufoN8ryA7J
+ pDRoW6xDKPvQ2qCCdwXdiMEDuQbt2dqGmODYF9Ak8oZ/3we+83ROzONm1jMSHWMyW6RUDyNRQkX
+ +J+gOPl6yyushJim+p6g4hD8Cso7SBn4SEXPcAkX7Q/hVpo7rzt6xvF9d1hnQf6PetOgUy+zvex
+ 1QcWhMGS/NcF8wpg/Rg==
+X-Authority-Analysis: v=2.4 cv=UPXQ3Sfy c=1 sm=1 tr=0 ts=699782c4 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
  a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=YJB6otqPPJUw7w8ZA6oA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: wBr2Fja_KVXT4_1MKa1HvqQ-fZlDiO8G
-X-Proofpoint-ORIG-GUID: 0riturGGUpWqAjVXmFdvyORGCGQiEQj9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjE5MDE2NCBTYWx0ZWRfXydBM+OSLWTzC
- ZXK3WUprw2QRv0CstNwfm1HYMX09fQc9mgkhfmkAeYae0qdpXwTYM2fTlEGcxaxiS3ph0VWCZIY
- dXPnepPQ8PSxKduvuvQtq8HT/njmynffdUIClnWG5BvjEju0vZwrHWcJVMq85gYQf3KapPljO+O
- uWju3HnVtoEcV6YCBUrho8+uZm5qjE8oggcTXLzzgrzb4OzOIrwf3RfnxxnPYoym7PTbgGDDqCv
- Ev+o3/YrxQTD9A6ydZur6C18ZLRUz9SokEpx0p+KrHT6k7nLP4JGu9qDEWjtpiJO18Lmkdtv4wx
- KDyBtbLse6zROCdEJ6eTsp2PUdhxK3lgANAw+965RN6cCwIPWZ0QoGtdxvMbFlKiCAOGwmHnD/0
- LMTlzF8iSkZ8CITcxADOqNh9xfH5zpcK2sEV6TZTSW1eMjIZKcmvqCSH5vy5VObjdsIMstZVPv0
- iK7e9YgDm58GOlOhDBQ==
+ a=VabnemYjAAAA:8 a=D9_2xHumePqsTmCLSkIA:9 a=QEXdDO2ut3YA:10
+ a=gKebqoRLp9LExxC7YDUY:22
+X-Proofpoint-ORIG-GUID: Gu1USADTSAeiuQcL4G9WUlzhAPz-C5K-
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-19_04,2026-02-19_03,2025-10-01_01
+ definitions=2026-02-19_05,2026-02-19_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 lowpriorityscore=0 impostorscore=0 adultscore=0
- priorityscore=1501 clxscore=1015 malwarescore=0 phishscore=0 suspectscore=0
- bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
- definitions=main-2602190164
+ malwarescore=0 suspectscore=0 phishscore=0 impostorscore=0 adultscore=0
+ bulkscore=0 clxscore=1015 lowpriorityscore=0 priorityscore=1501 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602190192
 
+On Tue, 2026-02-17 at 14:26 -0800, Farhan Ali wrote:
+> On 2/17/2026 1:14 PM, Keith Busch wrote:
+> > On Tue, Feb 17, 2026 at 10:22:49AM -0800, Farhan Ali wrote:
+> > > Currently, the kernel's PCI_SLOT() macro assigns the same pci_slot ob=
+ject
+> > > to multifunction devices. This approach worked fine on s390 systems t=
+hat
+> > > only exposed virtual functions as individual PCI domains to the opera=
+ting
+> > > system.  Since commit 44510d6fa0c0 ("s390/pci: Handling multifunction=
+s")
+> > > s390 supports exposing the topology of multifunction PCI devices by
+> > > grouping them in a shared PCI domain. When attempting to reset a func=
+tion
+> > > through the hotplug driver, the shared slot assignment causes the wro=
+ng
+> > > function to be reset instead of the intended one. It also leaks memor=
+y as
+> > > we do create a pci_slot object for the function, but don't correctly =
+free
+> > > it in pci_slot_release().
+> > I think leakage is because s390 is passing in devfn when pci_create_slo=
+t
+> > is expecting devnr, so things are not getting matched and assigned as
+> > expected.
+> >=20
+> > If you're able to make this change, it will clash with one existing
+> > thing, and another proposal I've got at v5 now(*). Specifically, this
+> > would allow all 8 bits to be used for the pci_slot 'number' when it's
+> > currently expected to be limited to 5 bits. 0xff is special, and I'm
+> > proposing another special value. If we are going to allow the slot
+> > numbers to use all 8 bits, I think we need to change the type from u8 t=
+o
+> > u16 so that there is space to encode such special values.
+> >=20
+> >   * https://lore.kernel.org/linux-pci/20260217160836.2709885-3-kbusch@m=
+eta.com/
+>=20
+> I am open to suggestions on how we can better model a pci_slot per=20
+> function. And yeah, I think it makes sense to update the pci_slot=20
+> 'number' to u16.
+>=20
+> Thanks
+>=20
+> Farhan
 
+It may give some better context to emphasize that s390 has been using a
+per PCI function hotplug slot model since commit 7441b0627e22
+("s390/pci: PCI hotplug support via SCLP") from 2012. Quoting the
+commit description here:
 
-On 2/6/26 7:52 PM, Frederic Weisbecker wrote:
-> Currently the tick subsystem stores the idle cputime accounting in
-> private fields, allowing cohabitation with architecture idle vtime
-> accounting. The former is fetched on online CPUs, the latter on offline
-> CPUs.
-> 
-> For consolidation purpose, architecture vtime accounting will continue
-> to account the cputime but will make a break when the idle tick is
-> stopped. The dyntick cputime accounting will then be relayed by the tick
-> subsystem so that the idle cputime is still seen advancing coherently
-> even when the tick isn't there to flush the idle vtime.
-> 
-> Prepare for that and introduce three new APIs which will be used in
-> subsequent patches:
-> 
-> _ vtime_dynticks_start() is deemed to be called when idle enters in
->    dyntick mode. The idle cputime that elapsed so far is accumulated.
-> 
-> - vtime_dynticks_stop() is deemed to be called when idle exits from
->    dyntick mode. The vtime entry clocks are fast-forward to current time
->    so that idle accounting restarts elapsing from now.
-> 
-> - vtime_reset() is deemed to be called from dynticks idle IRQ entry to
->    fast-forward the clock to current time so that the IRQ time is still
->    accounted by vtime while nohz cputime is paused.
-> 
-> Also accumulated vtime won't be flushed from dyntick-idle ticks to avoid
-> accounting twice the idle cputime, along with nohz accounting.
-> 
-> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+   "The hotplug controller creates a slot for every PCI function in=C2=A0
+   stand-by or configured state. The PCI functions are named after
+   the PCI function ID (fid). By writing to the power attribute=C2=A0
+   in /sys/bus/pci/slots/<fid>/power the PCI function
+   is moved to stand-by or configured state."
 
-Reviewed-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+So this isn't a new concept or something we can really change since
+users and documentation relies on this for over a decade. It's only
+that for the longest time the mismatch between the hotplug slot and the
+pci slot went unnoticed because it really only causes trouble in very
+specific circumstances even after we've started exposing the devfn part
+of the geographic PCI addresses for SR-IOV capable multi-function
+devices e.g. for the two PFs of ConnectX series NICs.
 
-> ---
->   arch/powerpc/kernel/time.c | 41 ++++++++++++++++++++++++++++++++++++++
->   include/linux/vtime.h      |  6 ++++++
->   2 files changed, 47 insertions(+)
-> 
-> diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-> index 4bbeb8644d3d..18506740f4a4 100644
-> --- a/arch/powerpc/kernel/time.c
-> +++ b/arch/powerpc/kernel/time.c
-> @@ -376,6 +376,47 @@ void vtime_task_switch(struct task_struct *prev)
->   		acct->starttime = acct0->starttime;
->   	}
->   }
-> +
-> +#ifdef CONFIG_NO_HZ_COMMON
-> +/**
-> + * vtime_reset - Fast forward vtime entry clocks
-> + *
-> + * Called from dynticks idle IRQ entry to fast-forward the clocks to current time
-> + * so that the IRQ time is still accounted by vtime while nohz cputime is paused.
-> + */
-> +void vtime_reset(void)
-> +{
-> +	struct cpu_accounting_data *acct = get_accounting(current);
-> +
-> +	acct->starttime = mftb();
-
-I figured out why those huge values happen.
-
-This happens because mftb is from when the system is booted.
-I was doing kexec to start the new kernel and mftb wasn't getting
-reset.
-
-I thought about this. This is concern for pseries too, where LPAR's
-restart but system won't restart and mftb will continue to run instead of
-reset.
-
-I think we should be using sched_clock instead of mftb here.
-Though we need it a few more places and some cosmetic changes around it.
-
-Note: Some values being huge exists without series for few CPUs, with series it
-shows up in most of the CPUs.
-
-So I am planning send out fix below fix separately keeping your
-series as dependency.
-
----
-  arch/powerpc/include/asm/accounting.h |  4 ++--
-  arch/powerpc/include/asm/cputime.h    | 14 +++++++-------
-  arch/powerpc/kernel/time.c            | 22 +++++++++++-----------
-  3 files changed, 20 insertions(+), 20 deletions(-)
-
-diff --git a/arch/powerpc/include/asm/accounting.h b/arch/powerpc/include/asm/accounting.h
-index 6d79c31700e2..50f120646e6d 100644
---- a/arch/powerpc/include/asm/accounting.h
-+++ b/arch/powerpc/include/asm/accounting.h
-@@ -21,8 +21,8 @@ struct cpu_accounting_data {
-  	unsigned long steal_time;
-  	unsigned long idle_time;
-  	/* Internal counters */
--	unsigned long starttime;	/* TB value snapshot */
--	unsigned long starttime_user;	/* TB value on exit to usermode */
-+	unsigned long starttime;	/* Time value snapshot */
-+	unsigned long starttime_user;	/* Time value on exit to usermode */
-  #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
-  	unsigned long startspurr;	/* SPURR value snapshot */
-  	unsigned long utime_sspurr;	/* ->user_time when ->startspurr set */
-diff --git a/arch/powerpc/include/asm/cputime.h b/arch/powerpc/include/asm/cputime.h
-index aff858ca99c0..eb6b629b113f 100644
---- a/arch/powerpc/include/asm/cputime.h
-+++ b/arch/powerpc/include/asm/cputime.h
-@@ -20,9 +20,9 @@
-  #include <asm/time.h>
-  #include <asm/param.h>
-  #include <asm/firmware.h>
-+#include <linux/sched/clock.h>
-  
-  #ifdef __KERNEL__
--#define cputime_to_nsecs(cputime) tb_to_ns(cputime)
-  
-  /*
-   * PPC64 uses PACA which is task independent for storing accounting data while
-@@ -44,20 +44,20 @@
-   */
-  static notrace inline void account_cpu_user_entry(void)
-  {
--	unsigned long tb = mftb();
-+	unsigned long now = sched_clock();
-  	struct cpu_accounting_data *acct = raw_get_accounting(current);
-  
--	acct->utime += (tb - acct->starttime_user);
--	acct->starttime = tb;
-+	acct->utime += (now - acct->starttime_user);
-+	acct->starttime = now;
-  }
-  
-  static notrace inline void account_cpu_user_exit(void)
-  {
--	unsigned long tb = mftb();
-+	unsigned long now = sched_clock();
-  	struct cpu_accounting_data *acct = raw_get_accounting(current);
-  
--	acct->stime += (tb - acct->starttime);
--	acct->starttime_user = tb;
-+	acct->stime += (now - acct->starttime);
-+	acct->starttime_user = now;
-  }
-  
-  static notrace inline void account_stolen_time(void)
-diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-index 18506740f4a4..fb67cdae3bcb 100644
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -215,7 +215,7 @@ static unsigned long vtime_delta(struct cpu_accounting_data *acct,
-  
-  	WARN_ON_ONCE(!irqs_disabled());
-  
--	now = mftb();
-+	now = sched_clock();
-  	stime = now - acct->starttime;
-  	acct->starttime = now;
-  
-@@ -299,9 +299,9 @@ static void vtime_flush_scaled(struct task_struct *tsk,
-  {
-  #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
-  	if (acct->utime_scaled)
--		tsk->utimescaled += cputime_to_nsecs(acct->utime_scaled);
-+		tsk->utimescaled += acct->utime_scaled;
-  	if (acct->stime_scaled)
--		tsk->stimescaled += cputime_to_nsecs(acct->stime_scaled);
-+		tsk->stimescaled += acct->stime_scaled;
-  
-  	acct->utime_scaled = 0;
-  	acct->utime_sspurr = 0;
-@@ -321,28 +321,28 @@ void vtime_flush(struct task_struct *tsk)
-  	struct cpu_accounting_data *acct = get_accounting(tsk);
-  
-  	if (acct->utime)
--		account_user_time(tsk, cputime_to_nsecs(acct->utime));
-+		account_user_time(tsk, acct->utime);
-  
-  	if (acct->gtime)
--		account_guest_time(tsk, cputime_to_nsecs(acct->gtime));
-+		account_guest_time(tsk, acct->gtime);
-  
-  	if (IS_ENABLED(CONFIG_PPC_SPLPAR) && acct->steal_time) {
--		account_steal_time(cputime_to_nsecs(acct->steal_time));
-+		account_steal_time(acct->steal_time);
-  		acct->steal_time = 0;
-  	}
-  
-  	if (acct->idle_time)
--		account_idle_time(cputime_to_nsecs(acct->idle_time));
-+		account_idle_time(acct->idle_time);
-  
-  	if (acct->stime)
--		account_system_index_time(tsk, cputime_to_nsecs(acct->stime),
-+		account_system_index_time(tsk, acct->stime,
-  					  CPUTIME_SYSTEM);
-  
-  	if (acct->hardirq_time)
--		account_system_index_time(tsk, cputime_to_nsecs(acct->hardirq_time),
-+		account_system_index_time(tsk, acct->hardirq_time,
-  					  CPUTIME_IRQ);
-  	if (acct->softirq_time)
--		account_system_index_time(tsk, cputime_to_nsecs(acct->softirq_time),
-+		account_system_index_time(tsk, acct->softirq_time,
-  					  CPUTIME_SOFTIRQ);
-  
-  	vtime_flush_scaled(tsk, acct);
-@@ -388,7 +388,7 @@ void vtime_reset(void)
-  {
-  	struct cpu_accounting_data *acct = get_accounting(current);
-  
--	acct->starttime = mftb();
-+	acct->starttime = sched_clock();
-  #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
-  	acct->startspurr = read_spurr(acct->starttime);
-  #endif
--- 
-2.43.0
-
+Thanks,
+Niklas
