@@ -1,105 +1,227 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9D5932B9AC;
-	Fri, 20 Feb 2026 04:10:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9375D31AA95;
+	Fri, 20 Feb 2026 09:19:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771560654; cv=none; b=O2M98dtiOjFjn6gWK90AqGKI0dTwIHw5XwGyCazEDpfdnhe3DkotMQvSRjyhIXnx3BQfiUeBuB9kSNo7B2FNx3/rgDmDrLdapa4uWN0V2vG+fjKPUH1KqFe+4Z+2sN+1cpua1GRimrSaYcctFvid753Fua4UckpQvXNXvVcBKrQ=
+	t=1771579178; cv=none; b=f3wnNfCQJ98SqxnlhJKfikleC6dcOWJpfaIthcQGZ1mZdZwpCYJthZVRmaovx8dvnJPqvZXDdgYsP8Rgiy7oUic7d6Bq3rOyTjmkUanw2t5slBQj5vPushrA3/B3hw3+AZNFAcq16yVAwsHT7uTgK1iYSYSTZW/zgeV7ZGn348U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771560654; c=relaxed/simple;
-	bh=Wl/q2I9MW4EAYAIqkkPs9cMuPySyeP7Ys0yLcRoxiik=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=sWrcsNMX8CCeDPiwtCNI6d/bzG5pwSTgZyiwzTkp9o5PQsqTYBFxJPjNPxAUZxiNpBSlBDvjkrJ1dAr8mbAFhmoWIQwwnREQOgbBUAJwObyN76NTufuBt8R5Fbf6Lj8QYOWWdFxeSZ6ItzoFE4r7Q/2lY9LJE0QczEr82Zb3AV8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N1VrZuK9; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1771579178; c=relaxed/simple;
+	bh=n3jijSEJWU0KpTJLzgbc+d6hbkgn5eenhXNvnUqGO8A=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Rno98+SjeUWuObAB9q57GFWl7r4r5vv6Af0FHJgFvG2TNYd7Uo8nYYSyA5dy11yrj68DJ0iVzGKLQ9tI48WPpCxaJFmbcCk2YIFoEzMJ3hpfU/BKuYoq14Pg9wSIN7i0QzBwjPv8sRY7asiK/XCGziju9BLHUOTurZO7oKI2Ghs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HXrxUO7K; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N1VrZuK9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BDE6C19425;
-	Fri, 20 Feb 2026 04:10:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771560654;
-	bh=Wl/q2I9MW4EAYAIqkkPs9cMuPySyeP7Ys0yLcRoxiik=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=N1VrZuK9lrvi+0jv5UrnpCwpMzW70T8EtjcsHnyvYb/C3ysXhXnwcXh0J1BUrz/fQ
-	 FXvJgc0MX5grtuvCDCjFOveYmh43k7YKrhJKjA6KNPY5GbthY3tSAB5Rd8DWyI60O4
-	 60LGpZhdpz2TPplFhz9GOt22IkO9j9SafKfb23NhzY6Pqtbyy2AyC4nRduEnajg21H
-	 pPrMunHoqFuSELpIJz/FNzbQUBVTQ/4/r5X9keCr5k8mekJQPLFSEN/1VTk4FKKX96
-	 mGvQFqOn+07PQ7stZW8usaIlrYxFaew9yX4CoBIDJ2elY6T+mswJuAAcc8jX+e9rPf
-	 2Anz+jmhWYL+g==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 3FEBA3809A88;
-	Fri, 20 Feb 2026 04:11:04 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HXrxUO7K"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61JKwYpD1294743;
+	Fri, 20 Feb 2026 09:19:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=n+rEej
+	NezbCFYXEfgSwtRYb1UC2UqeYH5ndwgqsmi7w=; b=HXrxUO7KhWEw3ANwuieXXu
+	twyK+QFdHBTnzP48GlpBc0dLMlmKj/g/0gvKbELUBJ80Fo4/XtwmM/Kct+4mtM4v
+	C64gJoN/Zem6ZVxGlv26zACyt2fIl5PiOAlxNiToH7xkC8x0i1hLYzZhHEXHp4wF
+	+Vt9t/ko1E3Y/ACzis+IcH6+qSNzTSeeJQ5OvyfOjbMKZrYNyK3TBugcX7HOcPeH
+	/1Ji8syZNQj/g7CgIr9Lh8DpS3PvF4ziHf5ItCnTfNlS2iEN2Y5JeKL6FrzRqeGj
+	3KTVRMnUu6F7cFyuG/r730ulS8exmug2YMXLi53lBGNGfZJL7A5E+0SmofpqKN5A
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4caj64gvcb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 20 Feb 2026 09:19:36 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61K93PUd011912;
+	Fri, 20 Feb 2026 09:19:35 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ccb277vu5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 20 Feb 2026 09:19:35 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61K9JVwa50856320
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 20 Feb 2026 09:19:31 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 61F9A20040;
+	Fri, 20 Feb 2026 09:19:31 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BB2AD2004B;
+	Fri, 20 Feb 2026 09:19:30 +0000 (GMT)
+Received: from [9.111.87.59] (unknown [9.111.87.59])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 20 Feb 2026 09:19:30 +0000 (GMT)
+Message-ID: <8d5b9395-0d35-4558-9020-71cc634595c2@linux.ibm.com>
+Date: Fri, 20 Feb 2026 10:19:30 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH 3.5] arm: make initialization of zero page independent of
- the
- memory map (was Re: [PATCH v2 22/28] arch, mm: consolidate initialization of
- nodes, zones and memory map)
-From: patchwork-bot+linux-riscv@kernel.org
-Message-Id: 
- <177156066278.189817.13783312336351868850.git-patchwork-notify@kernel.org>
-Date: Fri, 20 Feb 2026 04:11:02 +0000
-References: <aVpWpLV4Dut5Muo2@kernel.org>
-In-Reply-To: <aVpWpLV4Dut5Muo2@kernel.org>
-To: Mike Rapoport <rppt@kernel.org>
-Cc: linux-riscv@lists.infradead.org, klarasmodin@gmail.com,
- akpm@linux-foundation.org, alexs@kernel.org, agordeev@linux.ibm.com,
- andreas@gaisler.com, bp@alien8.de, bcain@kernel.org, chleroy@kernel.org,
- catalin.marinas@arm.com, davem@davemloft.net, dave.hansen@linux.intel.com,
- david@kernel.org, dinguyen@kernel.org, geert@linux-m68k.org,
- guoren@kernel.org, hca@linux.ibm.com, deller@gmx.de, chenhuacai@kernel.org,
- mingo@redhat.com, johannes@sipsolutions.net, glaubitz@physik.fu-berlin.de,
- corbet@lwn.net, Liam.Howlett@oracle.com, lorenzo.stoakes@oracle.com,
- linmag7@gmail.com, mattst88@gmail.com, jcmvbkbc@gmail.com,
- mpe@ellerman.id.au, mhocko@suse.com, monstr@monstr.eu, muchun.song@linux.dev,
- osalvador@suse.de, palmer@dabbelt.com, pratyush@kernel.org, richard@nod.at,
- linux@armlinux.org.uk, shorne@gmail.com, surenb@google.com,
- tsbogend@alpha.franken.de, tglx@linutronix.de, gor@linux.ibm.com,
- vgupta@kernel.org, vbabka@suse.cz, will@kernel.org, x86@kernel.org,
- linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-csky@vger.kernel.org, linux-cxl@vger.kernel.org,
- linux-doc@vger.kernel.org, linux-hexagon@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-mm@kvack.org,
- linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
- linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
- sparclinux@vger.kernel.org
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 3/4] KVM: s390: vsie: Refactor handle_stfle
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>, kvm@vger.kernel.org
+References: <20260212-vsie-alter-stfle-fac-v1-0-d772be74a4da@linux.ibm.com>
+ <20260212-vsie-alter-stfle-fac-v1-3-d772be74a4da@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20260212-vsie-alter-stfle-fac-v1-3-d772be74a4da@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: rgBSdZUzypu-4eLj8nIjVrlmwy5-cn1M
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjIwMDA3OSBTYWx0ZWRfX8uWSQOW/UHV/
+ CTG+Q0LuVXmlpija1GY/TQyDtRKeDIuwzoNfU7RHN6n2use3dxyHAQt+EWxvvlNfaQT+g16BRxc
+ S42NHytWyRMQOzQidj5yWg5bnMsJx1LMszfH9CXIJwOccGarkBwih+/NTMmROn7314Jj4k5nzUn
+ Gd98oWsUyZ7HOnsgLT2Kec4xZeVIA0Vjf5ms8iM1RGOE709BWQLzwJZ/gkHuIn+TUTC/AgtZW0f
+ /ix2ZaaydBLkne87989Q/n0QsHcjoFbrbbGlOdnSeaMq2jybc2vMXUDueus9WAMnqBu7KorMI3+
+ u0TT6RDBed6wX0EiD6bLmA/Gw8IM34QRFmGsD7S2VGrIojjhWKV0bY0p1jRQjjeHwWIanEAeG93
+ z6VXmc06rITeMZ4wrPhiqUlx8FJQ3rYhCwx1JtEymxCuU2J/vQwKwyQ5c8PTnVhKsd740ZgTZ54
+ qT9sjxiV+w73VpIMPMg==
+X-Proofpoint-GUID: rgBSdZUzypu-4eLj8nIjVrlmwy5-cn1M
+X-Authority-Analysis: v=2.4 cv=U+mfzOru c=1 sm=1 tr=0 ts=69982728 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8
+ a=XpNOKP_mB-KeKCqz8qQA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-19_06,2026-02-20_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 bulkscore=0 impostorscore=0 malwarescore=0 spamscore=0
+ adultscore=0 phishscore=0 lowpriorityscore=0 priorityscore=1501
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
+ definitions=main-2602200079
 
-Hello:
-
-This patch was applied to riscv/linux.git (fixes)
-by Andrew Morton <akpm@linux-foundation.org>:
-
-On Sun, 4 Jan 2026 14:01:40 +0200 you wrote:
-> Andrew,
+On 2/12/26 10:24, Christoph Schlameuss wrote:
+> From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 > 
-> Can you please stick this between patch 3 (arm: introduce
-> arch_zone_limits_init()) and patch 4 (arm64: introduce
-> arch_zone_limits_init())?
+> Use switch case in anticipation of handling format-1 and format-2
+> facility list designations in the future.
+> As the alternate STFLE facilities are not enabled, only case 0 is
+> possible.
+> No functional change intended.
 > 
-> From 35d016bbf5da7c08cc5c5547c85558fc50cb63aa Mon Sep 17 00:00:00 2001
-> From: Klara Modin <klarasmodin@gmail.com>
-> Date: Sat, 3 Jan 2026 20:40:09 +0200
-> Subject: [PATCH] arm: make initialization of zero page independent of the
->  memory map
+> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+
+[...]
+
+>   /*
+>    * Try to shadow + enable the guest 2 provided facility list.
+>    * Retry instruction execution if enabled for and provided by guest 2.
+> @@ -1017,29 +1037,30 @@ static void retry_vsie_icpt(struct vsie_page *vsie_page)
+>    */
+>   static int handle_stfle(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>   {
+> -	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
+> -	__u32 fac = READ_ONCE(vsie_page->scb_o->fac);
+> +	u32 fac = READ_ONCE(vsie_page->scb_o->fac);
+> +	int fac_list_format_mask, fac_list_format;
+> +	u32 fac_list_origin;
+> +	bool has_astfleie2;
+
+I hate the fact that we called the fld "fac", we have names for that 
+field and the parts that it consists of.
+
+Drop the "fac_list_" prefix.
+Pull the test_kvm_cpu_feat() up and directly assign has_astfleie2 so 
+that the code below is more readable.
+
+
+Code looks fine to me though
+
+>   
+> -	/*
+> -	 * Alternate-STFLE-Interpretive-Execution facilities are not supported
+> -	 * -> format-0 flcb
+> -	 */
+> +	BUILD_BUG_ON(!IS_ALIGNED(offsetof(struct vsie_page, fac), 8));
+>   	if (fac && test_kvm_facility(vcpu->kvm, 7)) {
+>   		retry_vsie_icpt(vsie_page);
+>   		/*
+>   		 * The facility list origin (FLO) is in bits 1 - 28 of the FLD
+>   		 * so we need to mask here before reading.
+>   		 */
+> -		fac = fac & 0x7ffffff8U;
+> -		/*
+> -		 * format-0 -> size of nested guest's facility list == guest's size
+> -		 * guest's size == host's size, since STFLE is interpretatively executed
+> -		 * using a format-0 for the guest, too.
+> -		 */
+> -		if (read_guest_real(vcpu, fac, &vsie_page->fac,
+> -				    stfle_size() * sizeof(u64)))
+> -			return set_validity_icpt(scb_s, 0x1090U);
+> -		scb_s->fac = (u32)virt_to_phys(&vsie_page->fac);
+> +		fac_list_origin = fac & 0x7ffffff8U;
+> +		has_astfleie2 = test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_ASTFLEIE2);
+> +		fac_list_format_mask = has_astfleie2 ? 3 : 0;
+> +		fac_list_format = fac & fac_list_format_mask;
+> +		switch (fac_list_format) {
+> +		case 0:
+> +			return handle_stfle_0(vcpu, vsie_page, fac_list_origin);
+> +		case 1:
+> +		case 2:
+> +		case 3:
+> +			unreachable();
+> +		}
+>   	}
+>   	return 0;
+>   }
 > 
-> [...]
-
-Here is the summary with links:
-  - [3.5] arm: make initialization of zero page independent of the memory map (was Re: [PATCH v2 22/28] arch, mm: consolidate initialization of nodes, zones and memory map)
-    https://git.kernel.org/riscv/c/18b7cc70dea8
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
 
