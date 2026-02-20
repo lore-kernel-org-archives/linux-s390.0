@@ -1,110 +1,153 @@
-Received: from mout-p-201.mailbox.org (mout-p-201.mailbox.org [80.241.56.171])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F98D3191D8;
-	Thu, 19 Feb 2026 23:41:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30B37301002;
+	Fri, 20 Feb 2026 04:10:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771544479; cv=none; b=KgjGesJHe6O0q08C902uHstS7YQxjHhLCZVpcgwoPEstAaSHHuZG7zuGpsGRFT3oxWsjNIEk8voQuJ7BUCDsvAWZ6gJL7XklGtxlzyiZYtZFRRZZwFEBJxrVLO0BpL71436GZr3Yi2+/2hHxyWeHRjoBxEpDm0FUAImsbM4GKwc=
+	t=1771560634; cv=none; b=Yb+Zx5ZVSzcIqFe22v+A00Xb/+RqOJhVXdngDb508ICx//stbUJHo7AVayxKszk32v/MSYpmFxUOGFbWPTc6ytMGCCnJLs4o3rJHFPIOzOU5ednRb6utQHuB0+TlNEBdMnaxLhbO6MLQeOERMioROMrimU01taG9+uEYtKkY4jk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771544479; c=relaxed/simple;
-	bh=VTQ95hJqzOo2h7kigE+Yn3hWdRxeEherTHC6Y3ja1R0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=md5+N9/bJpoIF7T+Ic7fnR/ggeSABaMY+AcQgM2DyrdTUytKSE4h+LWsHFNqRyZalTWWXYVMPU9/ufRhZEdS4rXE/E4ejFutBdJMI9cERiw20KqywHhdVslkqe0XEFi1I98RgbahWYuWWvxAJDjiyfuUQgbOsy7UoPD9KPvuNmg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mssola.com; spf=fail smtp.mailfrom=mssola.com; dkim=pass (2048-bit key) header.d=mssola.com header.i=@mssola.com header.b=pQKUJmWr; arc=none smtp.client-ip=80.241.56.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mssola.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=mssola.com
+	s=arc-20240116; t=1771560634; c=relaxed/simple;
+	bh=im5T2AhfGDyXaPXyhpLfgJGQ91DbQgM5VZmwKBunt1A=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=dEI4sm+VOycTpuitjCQ/wrmNPOcbOz2yr5KO/k2xCthHTHHiIMT1/qms04XsEHuG4qu+JnaHBCmZqGidapT4BEWh1gwMHAimws//u+C0OQg2vzBpRqoDB/aBqCk+oV24azh38cq+n4rPukrfIZnlVxQl6lbA6K80PlI6549GMno=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BY31bXLu; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mssola.com header.i=@mssola.com header.b="pQKUJmWr"
-Received: from smtp1.mailbox.org (smtp1.mailbox.org [IPv6:2001:67c:2050:b231:465::1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-201.mailbox.org (Postfix) with ESMTPS id 4fH8ym0N3Rz9smk;
-	Fri, 20 Feb 2026 00:41:04 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mssola.com; s=MBO0001;
-	t=1771544464;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=xFceRmR8Q2zbOemIjUsCxHLvvbJHP4BrivlhG/ClUsQ=;
-	b=pQKUJmWrtXVMoVdr5Zf4qnDTcNN7sKIg/id6TJmSlPChP5H3NZ/4vdyEHKcXJGNr1gTRxm
-	nGERj4NfoXtOt3qhNf2S15wL5zqNf8nvbtjWQ13QvDbfAplHSBtLtlODOGq8bRDwYVmxmX
-	Ix8tYsXi9sN+lxEM5t/hHvfdXIvaDsR6QMp9Ln7yivGW2r7sG4O/0X3Zm1V+Nmp1UFxMuG
-	2gxDGj0uUioxiWvTbgsGKQZcf00rDncX7s1OOTiZ8DLKd3yFxdqs/JUHCR12KY3MICo7RW
-	N3Atyo72Ddy1VdFAJ1ImAv+FFdPa+b8MQdI0OX28/f7nSt+L02OvdK7US2B9qg==
-Authentication-Results: outgoing_mbo_mout;
-	dkim=none;
-	spf=softfail (outgoing_mbo_mout: 2001:67c:2050:b231:465::1 is neither permitted nor denied by domain of mssola@mssola.com) smtp.mailfrom=mssola@mssola.com
-From: =?UTF-8?q?Miquel=20Sabat=C3=A9=20Sol=C3=A0?= <mssola@mssola.com>
-To: corbet@lwn.net
-Cc: linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	=?UTF-8?q?Miquel=20Sabat=C3=A9=20Sol=C3=A0?= <mssola@mssola.com>
-Subject: [PATCH] documentation: update arch features
-Date: Fri, 20 Feb 2026 00:40:40 +0100
-Message-ID: <20260219234040.3260616-1-mssola@mssola.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BY31bXLu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3828C19421;
+	Fri, 20 Feb 2026 04:10:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1771560633;
+	bh=im5T2AhfGDyXaPXyhpLfgJGQ91DbQgM5VZmwKBunt1A=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=BY31bXLuYwaDNUvbU0KhmqMJP3M/Awj2XilOUUrqfd5tse5Bs+Sof47ei7f2ySnfn
+	 tFNi7q7K9gluSvI0HlMVWVeaLxpkyoeKBDi/rrNOewr0OuAFpDC7j/iRqwMKPlJ5Wa
+	 P3ScJYlX18vFMmmARgpPLIChzrvUE2kp6Q3jnE9jYkAe7srv3PTOOcxMtCzqbU7qAw
+	 IToOjDmvHez/A8mTg3Q3sBsLUBSNAWxLa0iZsksGoJ/G/rax+WVfDfh7lH4OceXS15
+	 qVM1jLAxgENfoZP8fJU+Wp+4V3bOt53kAg6T75fF/G3mbGiObvL/fXyvhcTJ2XNYm0
+	 uwW0QrKe9zoGw==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 7CFE83809A88;
+	Fri, 20 Feb 2026 04:10:43 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Rspamd-Queue-Id: 4fH8ym0N3Rz9smk
+Subject: Re: [PATCH v3 00/29] arch, mm: consolidate hugetlb early reservation
+From: patchwork-bot+linux-riscv@kernel.org
+Message-Id: 
+ <177156064229.189817.6698956997773300471.git-patchwork-notify@kernel.org>
+Date: Fri, 20 Feb 2026 04:10:42 +0000
+References: <20260111082105.290734-1-rppt@kernel.org>
+In-Reply-To: <20260111082105.290734-1-rppt@kernel.org>
+To: Mike Rapoport <rppt@kernel.org>
+Cc: linux-riscv@lists.infradead.org, akpm@linux-foundation.org,
+ alexs@kernel.org, agordeev@linux.ibm.com, andreas@gaisler.com, bp@alien8.de,
+ bcain@kernel.org, chleroy@kernel.org, catalin.marinas@arm.com,
+ davem@davemloft.net, dave.hansen@linux.intel.com, david@kernel.org,
+ dinguyen@kernel.org, geert@linux-m68k.org, guoren@kernel.org,
+ hca@linux.ibm.com, deller@gmx.de, chenhuacai@kernel.org, mingo@redhat.com,
+ johannes@sipsolutions.net, glaubitz@physik.fu-berlin.de, corbet@lwn.net,
+ klarasmodin@gmail.com, Liam.Howlett@oracle.com, lorenzo.stoakes@oracle.com,
+ linmag7@gmail.com, mattst88@gmail.com, jcmvbkbc@gmail.com,
+ mpe@ellerman.id.au, mhocko@suse.com, monstr@monstr.eu, muchun.song@linux.dev,
+ osalvador@suse.de, palmer@dabbelt.com, pratyush@kernel.org, richard@nod.at,
+ ritesh.list@gmail.com, linux@armlinux.org.uk, shorne@gmail.com,
+ surenb@google.com, tsbogend@alpha.franken.de, tglx@linutronix.de,
+ gor@linux.ibm.com, vgupta@kernel.org, vbabka@suse.cz, will@kernel.org,
+ x86@kernel.org, linux-alpha@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ linux-cxl@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+ linux-mm@kvack.org, linux-openrisc@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ linux-um@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+ loongarch@lists.linux.dev, sparclinux@vger.kernel.org
 
-PA-RISC has perf-event support since commit 610cb23bcc75 ("parisc: Add
-initial kernel-side perf_event support"); and s390 has stackprotector
-support since commit f5730d44e05e ("s390: Add stackprotector support").
+Hello:
 
-Signed-off-by: Miquel Sabaté Solà <mssola@mssola.com>
----
- Documentation/features/debug/stackprotector/arch-support.txt | 2 +-
- Documentation/features/perf/perf-regs/arch-support.txt       | 2 +-
- Documentation/features/perf/perf-stackdump/arch-support.txt  | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+This series was applied to riscv/linux.git (fixes)
+by Andrew Morton <akpm@linux-foundation.org>:
 
-diff --git a/Documentation/features/debug/stackprotector/arch-support.txt b/Documentation/features/debug/stackprotector/arch-support.txt
-index de8f43f2e5d6..43e49c71612e 100644
---- a/Documentation/features/debug/stackprotector/arch-support.txt
-+++ b/Documentation/features/debug/stackprotector/arch-support.txt
-@@ -21,7 +21,7 @@
-     |      parisc: | TODO |
-     |     powerpc: |  ok  |
-     |       riscv: |  ok  |
--    |        s390: | TODO |
-+    |        s390: |  ok  |
-     |          sh: |  ok  |
-     |       sparc: | TODO |
-     |          um: | TODO |
-diff --git a/Documentation/features/perf/perf-regs/arch-support.txt b/Documentation/features/perf/perf-regs/arch-support.txt
-index 09431518b0e8..4c9a5a012075 100644
---- a/Documentation/features/perf/perf-regs/arch-support.txt
-+++ b/Documentation/features/perf/perf-regs/arch-support.txt
-@@ -18,7 +18,7 @@
-     |        mips: |  ok  |
-     |       nios2: | TODO |
-     |    openrisc: | TODO |
--    |      parisc: | TODO |
-+    |      parisc: |  ok  |
-     |     powerpc: |  ok  |
-     |       riscv: |  ok  |
-     |        s390: |  ok  |
-diff --git a/Documentation/features/perf/perf-stackdump/arch-support.txt b/Documentation/features/perf/perf-stackdump/arch-support.txt
-index f9db4dd8ef79..dd362b5cb638 100644
---- a/Documentation/features/perf/perf-stackdump/arch-support.txt
-+++ b/Documentation/features/perf/perf-stackdump/arch-support.txt
-@@ -18,7 +18,7 @@
-     |        mips: |  ok  |
-     |       nios2: | TODO |
-     |    openrisc: | TODO |
--    |      parisc: | TODO |
-+    |      parisc: |  ok  |
-     |     powerpc: |  ok  |
-     |       riscv: |  ok  |
-     |        s390: |  ok  |
+On Sun, 11 Jan 2026 10:20:34 +0200 you wrote:
+> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+> 
+> Hi,
+> 
+> Order in which early memory reservation for hugetlb happens depends on
+> architecture, on configuration options and on command line parameters.
+> 
+> [...]
+
+Here is the summary with links:
+  - [v3,01/29] alpha: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/ba1c86874e25
+  - [v3,02/29] arc: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/7988e8518904
+  - [v3,03/29] arm: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/30a66f8a8cd3
+  - [v3,04/29] arm: make initialization of zero page independent of the memory map
+    https://git.kernel.org/riscv/c/18b7cc70dea8
+  - [v3,05/29] arm64: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/60b35af0a6aa
+  - [v3,06/29] csky: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/37318eb97f23
+  - [v3,07/29] hexagon: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/934afdf7f4cc
+  - [v3,08/29] loongarch: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/63cadcb731c9
+  - [v3,09/29] m68k: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/41b08a7abf89
+  - [v3,10/29] microblaze: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/2ce38c9ae840
+  - [v3,11/29] mips: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/f61385e29444
+  - [v3,12/29] nios2: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/3b1b0e5797bd
+  - [v3,13/29] openrisc: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/1d28b1142383
+  - [v3,14/29] parisc: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/950696afe400
+  - [v3,15/29] powerpc: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/27bebe446f8d
+  - [v3,16/29] riscv: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/db8cdb0ad603
+  - [v3,17/29] s390: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/76c4c463bbc0
+  - [v3,18/29] sh: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/8bfa6c2259f4
+  - [v3,19/29] sparc: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/6ad7ea22cf6f
+  - [v3,20/29] um: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/531de7f02d51
+  - [v3,21/29] x86: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/34f6b9c6e417
+  - [v3,22/29] xtensa: introduce arch_zone_limits_init()
+    https://git.kernel.org/riscv/c/2d3c8c5f33e0
+  - [v3,23/29] arch, mm: consolidate initialization of nodes, zones and memory map
+    https://git.kernel.org/riscv/c/d49004c5f0c1
+  - [v3,24/29] arch, mm: consolidate initialization of SPARSE memory model
+    https://git.kernel.org/riscv/c/4267739cabb8
+  - [v3,25/29] mips: drop paging_init()
+    https://git.kernel.org/riscv/c/5dea39496c68
+  - [v3,26/29] x86: don't reserve hugetlb memory in setup_arch()
+    https://git.kernel.org/riscv/c/6632314fddc4
+  - [v3,27/29] mm, arch: consolidate hugetlb CMA reservation
+    https://git.kernel.org/riscv/c/9fac145b6d3f
+  - [v3,28/29] mm/hugetlb: drop hugetlb_cma_check()
+    https://git.kernel.org/riscv/c/7a9c0bf0aec6
+  - [v3,29/29] Revert "mm/hugetlb: deal with multiple calls to hugetlb_bootmem_alloc"
+    https://git.kernel.org/riscv/c/743758ccf8be
+
+You are awesome, thank you!
 -- 
-2.53.0
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
