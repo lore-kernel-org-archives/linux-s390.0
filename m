@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4DBF30CD92;
-	Fri, 20 Feb 2026 04:10:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9D5932B9AC;
+	Fri, 20 Feb 2026 04:10:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771560639; cv=none; b=Om1/XpFvHd3l49rUEzZr2YLx7IJEG9TeCn1gk2Xecp/S72qHNhM8knmhD4nQd7vmaPiwLLJamIA9q+mT1I4BWXVJzv68xOJJjxL0r74OiJsmE5UsIwkJtFg4IkWCG3WngZgFudXCEicq583ybyHi9FPmwNOuL/KO9652Y1vuqMs=
+	t=1771560654; cv=none; b=O2M98dtiOjFjn6gWK90AqGKI0dTwIHw5XwGyCazEDpfdnhe3DkotMQvSRjyhIXnx3BQfiUeBuB9kSNo7B2FNx3/rgDmDrLdapa4uWN0V2vG+fjKPUH1KqFe+4Z+2sN+1cpua1GRimrSaYcctFvid753Fua4UckpQvXNXvVcBKrQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771560639; c=relaxed/simple;
-	bh=0PM3EvHMCr8BvaAe9tsZy3ke/nSbfi2Vm8wcUfyZoLQ=;
+	s=arc-20240116; t=1771560654; c=relaxed/simple;
+	bh=Wl/q2I9MW4EAYAIqkkPs9cMuPySyeP7Ys0yLcRoxiik=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=HQd+K4fJbr/z3Obf2oGeXBzGN/1eoK+kO8csfZsTPivRyf10tsMbPg6McnXyufWP5X3Ww1v427PNUKYqNVTwofsJfpDzg1ML1E/a2UO/Kqw8uSVT3faq5v12dPOvxdUU9jp/eHA0kHYwAakUbfniaCexNRFUAWajGQ9OZfyntf8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IVx2kUNS; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=sWrcsNMX8CCeDPiwtCNI6d/bzG5pwSTgZyiwzTkp9o5PQsqTYBFxJPjNPxAUZxiNpBSlBDvjkrJ1dAr8mbAFhmoWIQwwnREQOgbBUAJwObyN76NTufuBt8R5Fbf6Lj8QYOWWdFxeSZ6ItzoFE4r7Q/2lY9LJE0QczEr82Zb3AV8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N1VrZuK9; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IVx2kUNS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B270C2BCB0;
-	Fri, 20 Feb 2026 04:10:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N1VrZuK9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BDE6C19425;
+	Fri, 20 Feb 2026 04:10:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771560639;
-	bh=0PM3EvHMCr8BvaAe9tsZy3ke/nSbfi2Vm8wcUfyZoLQ=;
+	s=k20201202; t=1771560654;
+	bh=Wl/q2I9MW4EAYAIqkkPs9cMuPySyeP7Ys0yLcRoxiik=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=IVx2kUNSxwdn74f3azX658a2kTXvhnAo2uYJ0bpEMr+c6aO+cz8pL8626VIS81zgm
-	 Hm3ohw27VvABIpU01I09pS6tpRkCKzGBFkizfiQXloXkQcFj535JY1NtJlcUUz/yQz
-	 zI76CKiCR6bQjllggKkYdueNsdTPXwg+xKkV36RH19CiBgxQu7xPPz0+xBQu5qw0M6
-	 vwGsQ+XlvFXFuRYrufowmz9SeyWMjUvTD8CENbNArppvg1nbNfcMdcv3TryDcEhFlz
-	 q/Og6P925mDm6YJX8HiVuSIqJEiyiW79umNtOcgxrYOC5QBWJMXHsx+jot4W3TOkKB
-	 m8Y5bX+jeVa3A==
+	b=N1VrZuK9lrvi+0jv5UrnpCwpMzW70T8EtjcsHnyvYb/C3ysXhXnwcXh0J1BUrz/fQ
+	 FXvJgc0MX5grtuvCDCjFOveYmh43k7YKrhJKjA6KNPY5GbthY3tSAB5Rd8DWyI60O4
+	 60LGpZhdpz2TPplFhz9GOt22IkO9j9SafKfb23NhzY6Pqtbyy2AyC4nRduEnajg21H
+	 pPrMunHoqFuSELpIJz/FNzbQUBVTQ/4/r5X9keCr5k8mekJQPLFSEN/1VTk4FKKX96
+	 mGvQFqOn+07PQ7stZW8usaIlrYxFaew9yX4CoBIDJ2elY6T+mswJuAAcc8jX+e9rPf
+	 2Anz+jmhWYL+g==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 3FE3B3809A88;
-	Fri, 20 Feb 2026 04:10:49 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 3FEBA3809A88;
+	Fri, 20 Feb 2026 04:11:04 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -37,64 +37,65 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v2 00/10] kbuild: userprogs: introduce
- architecture-specific CC_CAN_LINK and userprog flags
+Subject: Re: [PATCH 3.5] arm: make initialization of zero page independent of
+ the
+ memory map (was Re: [PATCH v2 22/28] arch, mm: consolidate initialization of
+ nodes, zones and memory map)
 From: patchwork-bot+linux-riscv@kernel.org
 Message-Id: 
- <177156064779.189817.8600732238018283033.git-patchwork-notify@kernel.org>
-Date: Fri, 20 Feb 2026 04:10:47 +0000
-References: <20251014-kbuild-userprogs-bits-v2-0-faeec46e887a@linutronix.de>
-In-Reply-To: <20251014-kbuild-userprogs-bits-v2-0-faeec46e887a@linutronix.de>
-To: =?utf-8?q?Thomas_Wei=C3=9Fschuh_=3Cthomas=2Eweissschuh=40linutronix=2Ede=3E?=@aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org
-Cc: linux-riscv@lists.infradead.org, nathan@kernel.org,
- nicolas.schier@linux.dev, nsc@kernel.org, pjw@kernel.org, palmer@dabbelt.com,
- aou@eecs.berkeley.edu, alex@ghiti.fr, hca@linux.ibm.com, gor@linux.ibm.com,
- agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
- maddy@linux.ibm.com, mpe@ellerman.id.au, npiggin@gmail.com,
- christophe.leroy@csgroup.eu, tsbogend@alpha.franken.de, tglx@linutronix.de,
- mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
- hpa@zytor.com, davem@davemloft.net, andreas@gaisler.com,
- linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
- masahiroy@kernel.org, linux-s390@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-mips@vger.kernel.org,
+ <177156066278.189817.13783312336351868850.git-patchwork-notify@kernel.org>
+Date: Fri, 20 Feb 2026 04:11:02 +0000
+References: <aVpWpLV4Dut5Muo2@kernel.org>
+In-Reply-To: <aVpWpLV4Dut5Muo2@kernel.org>
+To: Mike Rapoport <rppt@kernel.org>
+Cc: linux-riscv@lists.infradead.org, klarasmodin@gmail.com,
+ akpm@linux-foundation.org, alexs@kernel.org, agordeev@linux.ibm.com,
+ andreas@gaisler.com, bp@alien8.de, bcain@kernel.org, chleroy@kernel.org,
+ catalin.marinas@arm.com, davem@davemloft.net, dave.hansen@linux.intel.com,
+ david@kernel.org, dinguyen@kernel.org, geert@linux-m68k.org,
+ guoren@kernel.org, hca@linux.ibm.com, deller@gmx.de, chenhuacai@kernel.org,
+ mingo@redhat.com, johannes@sipsolutions.net, glaubitz@physik.fu-berlin.de,
+ corbet@lwn.net, Liam.Howlett@oracle.com, lorenzo.stoakes@oracle.com,
+ linmag7@gmail.com, mattst88@gmail.com, jcmvbkbc@gmail.com,
+ mpe@ellerman.id.au, mhocko@suse.com, monstr@monstr.eu, muchun.song@linux.dev,
+ osalvador@suse.de, palmer@dabbelt.com, pratyush@kernel.org, richard@nod.at,
+ linux@armlinux.org.uk, shorne@gmail.com, surenb@google.com,
+ tsbogend@alpha.franken.de, tglx@linutronix.de, gor@linux.ibm.com,
+ vgupta@kernel.org, vbabka@suse.cz, will@kernel.org, x86@kernel.org,
+ linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-csky@vger.kernel.org, linux-cxl@vger.kernel.org,
+ linux-doc@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, linux-mm@kvack.org,
+ linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
+ linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
  sparclinux@vger.kernel.org
 
 Hello:
 
-This series was applied to riscv/linux.git (fixes)
-by Andreas Larsson <andreas@gaisler.com>:
+This patch was applied to riscv/linux.git (fixes)
+by Andrew Morton <akpm@linux-foundation.org>:
 
-On Tue, 14 Oct 2025 15:05:15 +0200 you wrote:
-> The current logic to inherit -m32/-m64 from the kernel build only works
-> for a few architectures. It does not handle byte order differences,
-> architectures using different compiler flags or different kinds of ABIs.
+On Sun, 4 Jan 2026 14:01:40 +0200 you wrote:
+> Andrew,
 > 
-> Introduce a per-architecture override mechanism to set CC_CAN_LINK and
-> the flags used for userprogs.
+> Can you please stick this between patch 3 (arm: introduce
+> arch_zone_limits_init()) and patch 4 (arm64: introduce
+> arch_zone_limits_init())?
+> 
+> From 35d016bbf5da7c08cc5c5547c85558fc50cb63aa Mon Sep 17 00:00:00 2001
+> From: Klara Modin <klarasmodin@gmail.com>
+> Date: Sat, 3 Jan 2026 20:40:09 +0200
+> Subject: [PATCH] arm: make initialization of zero page independent of the
+>  memory map
 > 
 > [...]
 
 Here is the summary with links:
-  - [v2,01/10] kbuild: don't enable CC_CAN_LINK if the dummy program generates warnings
-    (no matching commit)
-  - [v2,02/10] init: deduplicate cc-can-link.sh invocations
-    (no matching commit)
-  - [v2,03/10] kbuild: allow architectures to override CC_CAN_LINK
-    (no matching commit)
-  - [v2,04/10] riscv: Implement custom CC_CAN_LINK
-    (no matching commit)
-  - [v2,05/10] s390: Implement custom CC_CAN_LINK
-    (no matching commit)
-  - [v2,06/10] powerpc: Implement custom CC_CAN_LINK
-    (no matching commit)
-  - [v2,07/10] MIPS: Implement custom CC_CAN_LINK
-    (no matching commit)
-  - [v2,08/10] x86/Kconfig: Implement custom CC_CAN_LINK
-    (no matching commit)
-  - [v2,09/10] sparc: Implement custom CC_CAN_LINK
-    https://git.kernel.org/riscv/c/dc2f4d41a6b6
-  - [v2,10/10] kbuild: simplify CC_CAN_LINK
-    (no matching commit)
+  - [3.5] arm: make initialization of zero page independent of the memory map (was Re: [PATCH v2 22/28] arch, mm: consolidate initialization of nodes, zones and memory map)
+    https://git.kernel.org/riscv/c/18b7cc70dea8
 
 You are awesome, thank you!
 -- 
