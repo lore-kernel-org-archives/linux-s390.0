@@ -1,47 +1,42 @@
-Received: from ms.lwn.net (ms.lwn.net [45.79.88.28])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A64F32641C6;
-	Mon, 23 Feb 2026 21:41:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.79.88.28
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BFA91C84B8;
+	Mon, 23 Feb 2026 21:46:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771882878; cv=none; b=XWnmtynMURjJjJEYQziwCttur2YXWgcLFHVa+O0ckxkLqSHMKOgXqJpFyDagoS4jhV4fTpET2K0iJ7L3DcMEeR3IYN8PRPYA4AuQJ2ay3zyCk5hRhWO3xZDteeahgVnX4XnQObrcj5Qy2iyIGkWaGjuMSgefDXfsbyhJgNQ2thk=
+	t=1771883184; cv=none; b=PYRa2EtClxsZudiFnwDOF++pyrEr/p9KnBXdcQ9NtvxkgSyMuLtxYmYZpRy24Lr/94Whk7oVXoFQR5EIi1wOFw/8SJz/hfeX1dNSZu44XKNz3y/GAdXReEDZjNOWHCK52ITCP4wQ9ZAENc6uCdQ2uq3SI/JoJp2w+j68lWhC70M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771882878; c=relaxed/simple;
-	bh=wrr10yUbLz45GAK1lj/y1Kf0SDtNxNPpmCwrCE0/gGw=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=P0Zdc4QRYdwKVj6UiMbwZbgpaonGekiH1Y+5GAfkb3fbEmmqjZi+TAABUOOEVs/1nlTM27hxSgGVz1+qn3OYNiSr3CWrOR/OIU3mVZV0l38HF8NfrIV2I1G7ZCl5ReiGdpzMwpFsiQplpEB4H5Yd7x3mlyOtYtwhl4NToWKrvuk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lwn.net; spf=pass smtp.mailfrom=lwn.net; dkim=pass (2048-bit key) header.d=lwn.net header.i=@lwn.net header.b=RZWdv4YW; arc=none smtp.client-ip=45.79.88.28
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lwn.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lwn.net
+	s=arc-20240116; t=1771883184; c=relaxed/simple;
+	bh=sXw/xuIPZ/muxOcqNvQkiUZ0xy5gHeQLJtTjwQF68l8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=N1auvVWUWBDbeZLEVjShSC5osuOlWyZ+uth3fvK19ymBLD1x+mu1Wts7J7T5XgT7ur9pckzC3O6QPTiGwdSWevZT5CfFZAwYvHCaaZH2iKLkefqgLfnqzweVfi6pHZx50ANC6m1+eAGixAJdwCU0/yjQzbZaUcRVLz97NSOEpJA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g3VAwrvu; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=lwn.net header.i=@lwn.net header.b="RZWdv4YW"
-DKIM-Filter: OpenDKIM Filter v2.11.0 ms.lwn.net 15A06411D3
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lwn.net; s=20201203;
-	t=1771882877; bh=ZRQa2cOn659cnxVYpFsMZCFW3idK5YofI4YJEYo6eC8=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=RZWdv4YWLSMCgc0lq4KWV2Rr3zeCtq5R+7pGrvvDTPfAkiCtebImA2EwtC85211YK
-	 9A+GEIpQDwBzgQJ1lKhZuh+A9e531sC9M3reRofDCnPp9lmGgftZ0dU44SfPH4hqZb
-	 GS5lIQWJgesk1IlOmAk0Zb0M/5CdQ7MZJfCnJ1rWd4lBTKGIQqJnnXaOa1jGZLNaGq
-	 hknvWfrrUs6XY7ZKYwjLOLutUBJ7AEvAFG0TB4rxkL0YpHUxVv7/Zy00cDA9kfbKf6
-	 /7jsjqYhWbSYDb/Sq3th214LIp3qcpIA3syEdnjoeVQYri19n+DekHrxA87oOJe0hz
-	 uj6O0I+16dxbA==
-Received: from localhost (c-71-229-227-126.hsd1.co.comcast.net [71.229.227.126])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by ms.lwn.net (Postfix) with ESMTPSA id 15A06411D3;
-	Mon, 23 Feb 2026 21:41:17 +0000 (UTC)
-From: Jonathan Corbet <corbet@lwn.net>
-To: Miquel =?utf-8?B?U2FiYXTDqSBTb2zDoA==?= <mssola@mssola.com>
-Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, Miquel
- =?utf-8?B?U2FiYXTDqSBTb2zDoA==?= <mssola@mssola.com>
-Subject: Re: [PATCH] documentation: update arch features
-In-Reply-To: <20260219234040.3260616-1-mssola@mssola.com>
-References: <20260219234040.3260616-1-mssola@mssola.com>
-Date: Mon, 23 Feb 2026 14:41:16 -0700
-Message-ID: <87ecmb3zpf.fsf@trenco.lwn.net>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g3VAwrvu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5109AC116C6;
+	Mon, 23 Feb 2026 21:46:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1771883183;
+	bh=sXw/xuIPZ/muxOcqNvQkiUZ0xy5gHeQLJtTjwQF68l8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=g3VAwrvuW9OBgR/BfYwPEupNT2r17XHju8pD7v09Np5bqkbyt52e8I5T9c106Y2EK
+	 91oELYFdWdKbiKCC1uINofm7WyaoTD6fND/rNhOHjQfC+YgYm4jPQn4lILDHyMqnTx
+	 S/BMiuQO5BjluSrkZ2plRnihYGsFX+T8COcM23oZWXBNu7FBpGxqMDw3Oksd1ZTrUS
+	 vz8Dqs1Gm8vJdriq9se49nP4ScnvXtZZXJL2pHGTHuTLEZQ+KIX45a9+f2wVXB51QA
+	 GlCsueYHAADYsRK/CIi23sF4wcEuIodlGTpl9k1FmmOtzhDq+kvusSw4HYo5MqHP/Q
+	 ZaLwiuUwGc0Bw==
+Date: Mon, 23 Feb 2026 13:46:21 -0800
+From: Namhyung Kim <namhyung@kernel.org>
+To: Thomas Richter <tmricht@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-perf-users@vger.kernel.org, acme@kernel.org,
+	agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+	hca@linux.ibm.com, japo@linux.ibm.com
+Subject: Re: [PATCH v2] perf symbol: Remove psw_idle() from list of idle
+ symbols
+Message-ID: <aZzKrRB0__RahFJV@google.com>
+References: <20260219113850.354271-1-tmricht@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,21 +44,43 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+In-Reply-To: <20260219113850.354271-1-tmricht@linux.ibm.com>
 
-Miquel Sabat=C3=A9 Sol=C3=A0 <mssola@mssola.com> writes:
+On Thu, Feb 19, 2026 at 12:38:50PM +0100, Thomas Richter wrote:
+> Commit fa2ae4a377c0 ("s390/idle: Rewrite psw_idle() in C")
+> 
+> removes symbols psw_idle() and psw_idle_exit() from the linux
+> kernel for s390. Remove them in perf tool's list of idle
+> functions. They can not be detected anymore.
 
-> PA-RISC has perf-event support since commit 610cb23bcc75 ("parisc: Add
-> initial kernel-side perf_event support"); and s390 has stackprotector
-> support since commit f5730d44e05e ("s390: Add stackprotector support").
->
-> Signed-off-by: Miquel Sabat=C3=A9 Sol=C3=A0 <mssola@mssola.com>
+But I think old kernels may still run somewhere.  It seems the above
+commit was merged to v6.10.  Maybe we should wait some more time before
+removing it in the tool.
+
+Thanks,
+Namhyung
+
+> 
+> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+> Suggested-by: Heiko Carstens <hca@linux.ibm.com>
 > ---
->  Documentation/features/debug/stackprotector/arch-support.txt | 2 +-
->  Documentation/features/perf/perf-regs/arch-support.txt       | 2 +-
->  Documentation/features/perf/perf-stackdump/arch-support.txt  | 2 +-
->  3 files changed, 3 insertions(+), 3 deletions(-)
-
-Applied, thanks.
-
-jon
+>  tools/perf/util/symbol.c | 2 --
+>  1 file changed, 2 deletions(-)
+> 
+> diff --git a/tools/perf/util/symbol.c b/tools/perf/util/symbol.c
+> index 814f960fa8f8..575951d98b1b 100644
+> --- a/tools/perf/util/symbol.c
+> +++ b/tools/perf/util/symbol.c
+> @@ -752,8 +752,6 @@ static bool symbol__is_idle(const char *name)
+>  		"poll_idle",
+>  		"ppc64_runlatch_off",
+>  		"pseries_dedicated_idle_sleep",
+> -		"psw_idle",
+> -		"psw_idle_exit",
+>  		NULL
+>  	};
+>  	int i;
+> -- 
+> 2.53.0
+> 
