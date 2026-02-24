@@ -1,121 +1,320 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 086A739B49B;
-	Tue, 24 Feb 2026 13:05:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD4563A4F42;
+	Tue, 24 Feb 2026 15:41:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771938320; cv=none; b=YxGwJ5JprNjYTMOXsMheb1ROuYZBjY6gGl1qExlw1GT72UW8vWmOqu3vhyGTUBoqCc5Gc2+e9+46+vi3yop5AjiRVueNs2fPyilZdbPeCIHP+g2Ogyxx3A5HSTgQjMwgBtxQVhIuTMZ+D2fexfHy4PlJuABsHpTvE4LmWWf+9xU=
+	t=1771947704; cv=none; b=dI64PQBu3zkh1k9Iqu3A2woKhY3VlhSNfBXr0oeEE6GQU9C6fZRhYibzZaOt617tbL4bReFEuxeMykMSOkJqefIchK+1l6WFd/pNqe28BcSod3Q2z9l9kFMvphdNYTZ1t8UxKQ8PeV2LvWseo5y4el9GGgBfMmpkfwlwWfcwmZw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771938320; c=relaxed/simple;
-	bh=TLXO9SsWB13vq7bPCpMwkcE2rX4n2VFTYu6EubhMPOE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HHLnfHj4fsdEyie4cGMMeceureASx1Fy2mh5HyESzMDtroVxnStT0HPNCH4VUGEIy+LJxF5U3c9fhvPDwzO13jUEwUZDrG8QqR/PWkGfIQSkArgFlcZDI8gmYKk1UW1oug95Tjk92MOMmHM+pgHBNEZGvxSb+XBHhNyX7DKfV+c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OVtLzw38; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1771947704; c=relaxed/simple;
+	bh=H208v0Z5rUJBYXeJ3UAVS2bjkma/8IcplUAsueh/KvI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=XZ5U8jT2oqsRhrQylzfElvSc4rLhqkkr2qcjwYZk7mcbfbEzughAli/qZ0R3Z+tQLpIoXWovmqo81ueEKkmic1Ro4+C85lzR4xtFYwPxND5bVS0tMtx2vmKvgGhlbfIHkiU4v+VmFMPXHyzrIzIxE2HSm99Xow+/PGxGp/GPorI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YT1nNitk; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OVtLzw38"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61O83maL2345992;
-	Tue, 24 Feb 2026 13:05:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=wO64/dkjbW/dvFC/vqTXMyNPJLKJF7
-	tJot1AAAqsBp4=; b=OVtLzw386cqqEN37RlRH6SOPVS0YfpM6+NNCREe1cEwYeg
-	O7FA3I9ee7WboClZR71kA5J+WFSubxzJC+nE+aJypc3bjKqXgQCeDf/4qTy5SKhr
-	ZhTaoJIPi9HIcvAtdUN8Ks8KIcJ6aB5ipwyzjSA7QQXQvsUl7hEtmuy7qpjD9ftr
-	fR7lnjFAJTuRe3c0ZX+kDTM29i9GtoqMqLZWyI6Po6asx10ZCZTh6RU0HlnLZqjZ
-	7z7LU2cq15D5/dVqRXUbKSvcly+RBU2lFfFWN9v4v/snifEbXfNrG+9nKnyuQnJP
-	ubiYhIbCCpi66j+0hwlJSYXTRljAozQhlnGyLidA==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ch858h0m3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Feb 2026 13:05:04 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61OCQq3G013438;
-	Tue, 24 Feb 2026 13:05:03 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cfqdy118h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Feb 2026 13:05:03 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61OD4xLB57475566
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 24 Feb 2026 13:04:59 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 63BDE2004B;
-	Tue, 24 Feb 2026 13:04:59 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BCBA820043;
-	Tue, 24 Feb 2026 13:04:58 +0000 (GMT)
-Received: from localhost (unknown [9.111.88.84])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 24 Feb 2026 13:04:58 +0000 (GMT)
-Date: Tue, 24 Feb 2026 14:04:57 +0100
-From: Vasily Gorbik <gor@linux.ibm.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>, linux-s390@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
-        x86@kernel.org
-Subject: Re: [PATCH 1/4] mm/page_table_check: Pass mm_struct to
- pxx_user_accessible_page()
-Message-ID: <your-ad-here.call-01771938297-ext-2808@work.hours>
-References: <cover.1771845678.git.agordeev@linux.ibm.com>
- <68c2f6df2955033cbf1ccbd2b5c2816e72ac345c.1771845678.git.agordeev@linux.ibm.com>
- <20260223101335.aa3696d86341260e03989ac0@linux-foundation.org>
- <cfdc9b3d-06fd-4cc1-b946-076ff1479c66-agordeev@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YT1nNitk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D7D2C116D0;
+	Tue, 24 Feb 2026 15:41:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1771947704;
+	bh=H208v0Z5rUJBYXeJ3UAVS2bjkma/8IcplUAsueh/KvI=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=YT1nNitkIs1wxq/nUgyyR3B4XFXAgL+IyMDXqYQ6Z3rT+glSBDtF97WKCv29iB0y2
+	 Xk7zMHtfwitGW9QzX0X5SiRnx43ho7uBE6Y7EfcPijcre74Rn7Q1eJZ/3cksgvOVFt
+	 yA8J3IAPQ9uyqSIzalsAQ5Ml9PK76/6xa5jD5pNJF3vt4Ru6sa9Uz0O3ecqrxWDtH6
+	 yBktcj8R6JncfgY/Elh5yhRZsZlKlNWsvc+0YItIvNUPWn0IIfJRfYStlO47PkxLlx
+	 KwIFYKFOxYec0jBXC6ThrHncVLOvN+7rwjn8C9dYv/y0w6MaxC68NS1uTGT2zTIuJm
+	 1lm+AOGPIghbw==
+Message-ID: <9ab1e7d7-57ee-49f9-963c-3a1b96dda684@kernel.org>
+Date: Tue, 24 Feb 2026 16:41:32 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <cfdc9b3d-06fd-4cc1-b946-076ff1479c66-agordeev@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI0MDEwMyBTYWx0ZWRfX82K/iej59Gbi
- jcOJ4LV65vjd++THoXAxHcOdHzl9vxwXul+tKmMciocrWFcM4MzDCiFMma5wnoQRFwQzwk2EUBo
- owgONljOlgoxYQ/sphxEac8MzWSTdSTmmJ1euVadS2kLw2mK651rPT6pc4Y8JUKpz9+kA0i3Qdr
- 0NjLoQ/uXZ4ylbetYJiJi3eLDnxuBmvkISzhb5p3iHvDssAio/iJP3IhtlhLBtIntIKgtZ9jvQY
- N9UvSFPPSWb+D7jqlrvouPooEObPd0Ls/OaMZsv0oPQpzoQWIDGhIC9pPsqz8KYKLAxWPGkOYqe
- xvgEJpXH9jQLtd4G6OrmHss4/N8DuG3FasVJOptPVsjLFxrmQpgI9vS48WGLo4GGfHF/pUL//u+
- dzDB3AI8mMgPzjh+Uue9Gm/engWga5K7G9IVgo/bX9fukaUzzkeWhv/HczqOxdZfsFvXjrwQOyl
- SfanzqqZBDLrB1sjlbg==
-X-Proofpoint-GUID: -kGng4CI3unx1jXZ8zqVfjNMiflOOOSx
-X-Authority-Analysis: v=2.4 cv=S4HUAYsP c=1 sm=1 tr=0 ts=699da200 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=Z4Rwk6OoAAAA:8
- a=8RkruKr-LY4rosFeA0QA:9 a=QEXdDO2ut3YA:10 a=HkZW87K1Qel5hWWM3VKY:22
-X-Proofpoint-ORIG-GUID: -kGng4CI3unx1jXZ8zqVfjNMiflOOOSx
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-24_01,2026-02-23_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 clxscore=1011 impostorscore=0 malwarescore=0 bulkscore=0
- phishscore=0 adultscore=0 lowpriorityscore=0 spamscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602240103
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 04/15] powerpc/time: Prepare to stop elapsing in
+ dynticks-idle
+To: Shrikanth Hegde <sshegde@linux.ibm.com>,
+ Frederic Weisbecker <frederic@kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Anna-Maria Behnsen <anna-maria@linutronix.de>,
+ Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Dietmar Eggemann <dietmar.eggemann@arm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
+ Jan Kiszka <jan.kiszka@siemens.com>, Joel Fernandes <joelagnelf@nvidia.com>,
+ Juri Lelli <juri.lelli@redhat.com>, Kieran Bingham <kbingham@kernel.org>,
+ Mel Gorman <mgorman@suse.de>, Michael Ellerman <mpe@ellerman.id.au>,
+ Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+ Nicholas Piggin <npiggin@gmail.com>, "Paul E . McKenney"
+ <paulmck@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Steven Rostedt <rostedt@goodmis.org>, Sven Schnelle <svens@linux.ibm.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Uladzislau Rezki <urezki@gmail.com>,
+ Valentin Schneider <vschneid@redhat.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Viresh Kumar <viresh.kumar@linaro.org>, Xin Zhao <jackzxcui1989@163.com>,
+ linux-pm@vger.kernel.org, linux-s390@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org
+References: <20260206142245.58987-1-frederic@kernel.org>
+ <20260206142245.58987-5-frederic@kernel.org>
+ <9413517d-963b-4e6d-b11b-b440acd7cb5a@linux.ibm.com>
+Content-Language: fr-FR
+From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+In-Reply-To: <9413517d-963b-4e6d-b11b-b440acd7cb5a@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Tue, Feb 24, 2026 at 07:06:28AM +0100, Alexander Gordeev wrote:
-> On Mon, Feb 23, 2026 at 10:13:35AM -0800, Andrew Morton wrote:
-> > >  arch/arm64/include/asm/pgtable.h |  6 +++---
-> > >  arch/riscv/include/asm/pgtable.h |  6 +++---
-> > >  arch/x86/include/asm/pgtable.h   |  6 +++---
-> > >  mm/page_table_check.c            | 15 ++++++---------
-> > >  4 files changed, 15 insertions(+), 18 deletions(-)
-> > 
-> > Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-> 
-> Thank you, Andrew!
-> 
-> > I assume this can go into the s390 tree?
-> 
-> I think so.
-> @Vasily?
+Hi Hegde,
 
-I've picked it up, thank you!
+Le 19/02/2026 à 19:30, Shrikanth Hegde a écrit :
+> 
+> 
+> On 2/6/26 7:52 PM, Frederic Weisbecker wrote:
+>> Currently the tick subsystem stores the idle cputime accounting in
+>> private fields, allowing cohabitation with architecture idle vtime
+>> accounting. The former is fetched on online CPUs, the latter on offline
+>> CPUs.
+>>
+>> For consolidation purpose, architecture vtime accounting will continue
+>> to account the cputime but will make a break when the idle tick is
+>> stopped. The dyntick cputime accounting will then be relayed by the tick
+>> subsystem so that the idle cputime is still seen advancing coherently
+>> even when the tick isn't there to flush the idle vtime.
+>>
+>> Prepare for that and introduce three new APIs which will be used in
+>> subsequent patches:
+>>
+>> _ vtime_dynticks_start() is deemed to be called when idle enters in
+>>    dyntick mode. The idle cputime that elapsed so far is accumulated.
+>>
+>> - vtime_dynticks_stop() is deemed to be called when idle exits from
+>>    dyntick mode. The vtime entry clocks are fast-forward to current time
+>>    so that idle accounting restarts elapsing from now.
+>>
+>> - vtime_reset() is deemed to be called from dynticks idle IRQ entry to
+>>    fast-forward the clock to current time so that the IRQ time is still
+>>    accounted by vtime while nohz cputime is paused.
+>>
+>> Also accumulated vtime won't be flushed from dyntick-idle ticks to avoid
+>> accounting twice the idle cputime, along with nohz accounting.
+>>
+>> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+> 
+> Reviewed-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+> 
+>> ---
+>>   arch/powerpc/kernel/time.c | 41 ++++++++++++++++++++++++++++++++++++++
+>>   include/linux/vtime.h      |  6 ++++++
+>>   2 files changed, 47 insertions(+)
+>>
+>> diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+>> index 4bbeb8644d3d..18506740f4a4 100644
+>> --- a/arch/powerpc/kernel/time.c
+>> +++ b/arch/powerpc/kernel/time.c
+>> @@ -376,6 +376,47 @@ void vtime_task_switch(struct task_struct *prev)
+>>           acct->starttime = acct0->starttime;
+>>       }
+>>   }
+>> +
+>> +#ifdef CONFIG_NO_HZ_COMMON
+>> +/**
+>> + * vtime_reset - Fast forward vtime entry clocks
+>> + *
+>> + * Called from dynticks idle IRQ entry to fast-forward the clocks to 
+>> current time
+>> + * so that the IRQ time is still accounted by vtime while nohz 
+>> cputime is paused.
+>> + */
+>> +void vtime_reset(void)
+>> +{
+>> +    struct cpu_accounting_data *acct = get_accounting(current);
+>> +
+>> +    acct->starttime = mftb();
+> 
+> I figured out why those huge values happen.
+> 
+> This happens because mftb is from when the system is booted.
+> I was doing kexec to start the new kernel and mftb wasn't getting
+> reset.
+> 
+> I thought about this. This is concern for pseries too, where LPAR's
+> restart but system won't restart and mftb will continue to run instead of
+> reset.
+> 
+> I think we should be using sched_clock instead of mftb here.
+> Though we need it a few more places and some cosmetic changes around it.
+> 
+> Note: Some values being huge exists without series for few CPUs, with 
+> series it
+> shows up in most of the CPUs.
+> 
+> So I am planning send out fix below fix separately keeping your
+> series as dependency.
+> 
+> ---
+>   arch/powerpc/include/asm/accounting.h |  4 ++--
+>   arch/powerpc/include/asm/cputime.h    | 14 +++++++-------
+>   arch/powerpc/kernel/time.c            | 22 +++++++++++-----------
+>   3 files changed, 20 insertions(+), 20 deletions(-)
+> 
+> diff --git a/arch/powerpc/include/asm/accounting.h b/arch/powerpc/ 
+> include/asm/accounting.h
+> index 6d79c31700e2..50f120646e6d 100644
+> --- a/arch/powerpc/include/asm/accounting.h
+> +++ b/arch/powerpc/include/asm/accounting.h
+> @@ -21,8 +21,8 @@ struct cpu_accounting_data {
+>       unsigned long steal_time;
+>       unsigned long idle_time;
+>       /* Internal counters */
+> -    unsigned long starttime;    /* TB value snapshot */
+> -    unsigned long starttime_user;    /* TB value on exit to usermode */
+> +    unsigned long starttime;    /* Time value snapshot */
+> +    unsigned long starttime_user;    /* Time value on exit to usermode */
+>   #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
+>       unsigned long startspurr;    /* SPURR value snapshot */
+>       unsigned long utime_sspurr;    /* ->user_time when ->startspurr 
+> set */
+> diff --git a/arch/powerpc/include/asm/cputime.h b/arch/powerpc/include/ 
+> asm/cputime.h
+> index aff858ca99c0..eb6b629b113f 100644
+> --- a/arch/powerpc/include/asm/cputime.h
+> +++ b/arch/powerpc/include/asm/cputime.h
+> @@ -20,9 +20,9 @@
+>   #include <asm/time.h>
+>   #include <asm/param.h>
+>   #include <asm/firmware.h>
+> +#include <linux/sched/clock.h>
+> 
+>   #ifdef __KERNEL__
+> -#define cputime_to_nsecs(cputime) tb_to_ns(cputime)
+> 
+>   /*
+>    * PPC64 uses PACA which is task independent for storing accounting 
+> data while
+> @@ -44,20 +44,20 @@
+>    */
+>   static notrace inline void account_cpu_user_entry(void)
+>   {
+> -    unsigned long tb = mftb();
+> +    unsigned long now = sched_clock();
+
+Now way !
+
+By doing that you'll kill performance for no reason. All we need when 
+accounting time spent in kernel or in user is the difference between 
+time at entry and time at exit, no mater what the time was at boot time.
+
+Also sched_clock() returns nanoseconds which implies calculation from 
+timebase. This is pointless CPU consumption. The current implementation 
+calculates nanoseconds at task switch when calling vtime_flush().Your 
+change will now do it at every kernel entry and kernel exit by calling 
+sched_clock().
+
+Another point is that sched_clock() returns a long long not a long.
+
+And also sched_clock() uses get_tb() which does mftb and mftbu. Which is 
+pointless for calculating time deltas unless your application spends 
+hours without being re-scheduled.
+
+
+>       struct cpu_accounting_data *acct = raw_get_accounting(current);
+> 
+> -    acct->utime += (tb - acct->starttime_user);
+> -    acct->starttime = tb;
+> +    acct->utime += (now - acct->starttime_user);
+> +    acct->starttime = now;
+>   }
+> 
+>   static notrace inline void account_cpu_user_exit(void)
+>   {
+> -    unsigned long tb = mftb();
+> +    unsigned long now = sched_clock();
+>       struct cpu_accounting_data *acct = raw_get_accounting(current);
+> 
+> -    acct->stime += (tb - acct->starttime);
+> -    acct->starttime_user = tb;
+> +    acct->stime += (now - acct->starttime);
+> +    acct->starttime_user = now;
+>   }
+> 
+>   static notrace inline void account_stolen_time(void)
+> diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+> index 18506740f4a4..fb67cdae3bcb 100644
+> --- a/arch/powerpc/kernel/time.c
+> +++ b/arch/powerpc/kernel/time.c
+> @@ -215,7 +215,7 @@ static unsigned long vtime_delta(struct 
+> cpu_accounting_data *acct,
+> 
+>       WARN_ON_ONCE(!irqs_disabled());
+> 
+> -    now = mftb();
+> +    now = sched_clock();
+>       stime = now - acct->starttime;
+>       acct->starttime = now;
+> 
+> @@ -299,9 +299,9 @@ static void vtime_flush_scaled(struct task_struct *tsk,
+>   {
+>   #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
+>       if (acct->utime_scaled)
+> -        tsk->utimescaled += cputime_to_nsecs(acct->utime_scaled);
+> +        tsk->utimescaled += acct->utime_scaled;
+>       if (acct->stime_scaled)
+> -        tsk->stimescaled += cputime_to_nsecs(acct->stime_scaled);
+> +        tsk->stimescaled += acct->stime_scaled;
+> 
+>       acct->utime_scaled = 0;
+>       acct->utime_sspurr = 0;
+> @@ -321,28 +321,28 @@ void vtime_flush(struct task_struct *tsk)
+>       struct cpu_accounting_data *acct = get_accounting(tsk);
+> 
+>       if (acct->utime)
+> -        account_user_time(tsk, cputime_to_nsecs(acct->utime));
+> +        account_user_time(tsk, acct->utime);
+> 
+>       if (acct->gtime)
+> -        account_guest_time(tsk, cputime_to_nsecs(acct->gtime));
+> +        account_guest_time(tsk, acct->gtime);
+> 
+>       if (IS_ENABLED(CONFIG_PPC_SPLPAR) && acct->steal_time) {
+> -        account_steal_time(cputime_to_nsecs(acct->steal_time));
+> +        account_steal_time(acct->steal_time);
+>           acct->steal_time = 0;
+>       }
+> 
+>       if (acct->idle_time)
+> -        account_idle_time(cputime_to_nsecs(acct->idle_time));
+> +        account_idle_time(acct->idle_time);
+> 
+>       if (acct->stime)
+> -        account_system_index_time(tsk, cputime_to_nsecs(acct->stime),
+> +        account_system_index_time(tsk, acct->stime,
+>                         CPUTIME_SYSTEM);
+> 
+>       if (acct->hardirq_time)
+> -        account_system_index_time(tsk, cputime_to_nsecs(acct- 
+>  >hardirq_time),
+> +        account_system_index_time(tsk, acct->hardirq_time,
+>                         CPUTIME_IRQ);
+>       if (acct->softirq_time)
+> -        account_system_index_time(tsk, cputime_to_nsecs(acct- 
+>  >softirq_time),
+> +        account_system_index_time(tsk, acct->softirq_time,
+>                         CPUTIME_SOFTIRQ);
+> 
+>       vtime_flush_scaled(tsk, acct);
+> @@ -388,7 +388,7 @@ void vtime_reset(void)
+>   {
+>       struct cpu_accounting_data *acct = get_accounting(current);
+> 
+> -    acct->starttime = mftb();
+> +    acct->starttime = sched_clock();
+>   #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
+>       acct->startspurr = read_spurr(acct->starttime);
+>   #endif
+
