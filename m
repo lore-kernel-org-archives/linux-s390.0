@@ -1,133 +1,222 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56CCD3D4130;
-	Wed, 25 Feb 2026 16:34:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C9D93DA7FA
+	for <linux-s390@vger.kernel.org>; Wed, 25 Feb 2026 17:41:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772037257; cv=none; b=llaJzPWmv89oYz7FLZuVYN/I5qegFJypuDl4RTfmFEA8sMpgehs3xy+G8LuqC2yKrSrwpoyaHzm2U74LhHW6fpgNTDV1L/FJnATo6HlHJh5UwVjul5lfbL23T/CnZyDaZmTmIdX5Pdb/mSzQPgk2Imyh97iFgq+VQi8rKG2Cf18=
+	t=1772041320; cv=none; b=I55qL2WySj/46UN+Nm2BYnI+7RPwSFZZTsls/yAeXwAWGEADdr5Ll0DZ+eA66eXnMZ4PoYN1HkgB8gPi9NFjyYGAdXfVjnNErTFzVAQwzmMOSqx2tprzUhKOezfrYtvMu52B5tvVdPPqtqZIL9dZubDLU8BSS51ETFEcJPRLm8E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772037257; c=relaxed/simple;
-	bh=BuPpzU2Nm3plTuenq90o+rwVvZqFkD2fENtwM+9OBJg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Ip5Mb9UiBVMRMMApCxAobzwdj99A2IINqiq9sA8f67Gr1bD4jm5tQs8p7Ki8Jom19dAl9tJ9Wyuimt9ZJV+sN+sQZD3KnqxqF94D0zYLquhrLulFQh9N3uG8jVql/SZVBdf6ztMg0cJIviM6pXoCfvD180WmSFYWInG6GKBw+6Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=n/mvk8v/; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1772041320; c=relaxed/simple;
+	bh=jOatpcXoBL6KLZUfPVa5YPNNuKV2Y/R+E7YOi+QvXiQ=;
+	h=From:To:Cc:Subject:In-Reply-To:Date:Message-ID:References:
+	 MIME-Version:Content-Type; b=nMkRYHJjXLKubj4kXH7qbyLiCfKZicQ6oe1L2i6kEKLKZtbxQ8/AFB/N2nOfegzH7UJDL9FZeCSR9XZYRhbNW8ovhWk1zL4qNOfSVCbcb+WFVu4ktIKxUv6Jdg/7e/ky/phDZqj5FHwYTq76d1b3C/q5efx2vM2qq1Kct2Pdc8Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CaQIE8Rb; arc=none smtp.client-ip=209.85.210.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="n/mvk8v/"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61PFWdDD3390406;
-	Wed, 25 Feb 2026 16:33:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ghQx12
-	tzZR240553HTc14VsOQxWrW7/HCl8J94RRd6g=; b=n/mvk8v/LvGM2KzeULhDHe
-	JnPcUIeCxDsUrVce8Ac9HhQRAF2c4vrgcJimRk7me061OaWqUow3m0qCcjrzh34X
-	PTDUEFDdhkpmqKTW0HEaIbprkOmttO/8gO19anmItDZh0hdj6IzKnOCWZUAsMd4R
-	lkJD8QhyiEuocsf6THbT5FymDBaQJPSHiPbmugY9rVshg/QDulmjycKeN2g4xKLt
-	EkJOlmO4+H9nhXn/IJ0FTCkmGhWfc5is1BLbi6RXk5fVvtGzCuyoCW2DyFQtb/6D
-	wXzpVdEG4Y9YMNS0259xxtsRIRVhoXwHivsX2tSvdecFtUsBUXNOyHMjL/NOljMw
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cf47218ka-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Feb 2026 16:33:39 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61PE2JOm027887;
-	Wed, 25 Feb 2026 16:33:38 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cfsr1wuxu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Feb 2026 16:33:38 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61PGXYeM29688218
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 25 Feb 2026 16:33:34 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BF8142004B;
-	Wed, 25 Feb 2026 16:33:34 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8244D20040;
-	Wed, 25 Feb 2026 16:33:32 +0000 (GMT)
-Received: from [9.57.233.77] (unknown [9.57.233.77])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 25 Feb 2026 16:33:32 +0000 (GMT)
-Message-ID: <ec3987e3-4eb7-4d07-be9e-bd8dc9ad176f@linux.ibm.com>
-Date: Wed, 25 Feb 2026 11:33:31 -0500
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CaQIE8Rb"
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-8230c33f477so15030b3a.2
+        for <linux-s390@vger.kernel.org>; Wed, 25 Feb 2026 09:41:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1772041318; x=1772646118; darn=vger.kernel.org;
+        h=mime-version:references:message-id:date:in-reply-to:subject:cc:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=aMnEPXSeAknTUn6pBGQAEqhzdOlacieP4zL+mwxArg0=;
+        b=CaQIE8RbUyOkoSmCFKRJbZFjSrsqh7x5RlwDFyyFM18qmlqolP18GUAVZ+nv7t1Sqh
+         vvWPA6H0Mf3pi4ZiJ7bNTkD4+Eurf4Zic+DGsXTM4pDTnd+Tsyo0aYU218udYhfFIKyU
+         y90NmHECCwix96rOl+KiN/9KZ7fbxIenwLU0a9VlWNYJnt9GtMZi2hv+JSZSmHNsCfR8
+         45o3xwEnksJFn5XKsblVX/wJP9HObSM0yTg5ZE1OQ2UQTUOI0AsZAaqxUAqV7n+0f1v1
+         tte6sRIph189lX7Fazv2FXMqbFTl0s5jH8a63L8aZcclp3Uv4Uf3tKmjvZz8WyPkQGvt
+         f08w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772041318; x=1772646118;
+        h=mime-version:references:message-id:date:in-reply-to:subject:cc:to
+         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=aMnEPXSeAknTUn6pBGQAEqhzdOlacieP4zL+mwxArg0=;
+        b=D/y6G4HIRw6Yse9uMMBigK+mASPDKTRt5ouxl9YCk+wOCFUXBc0fzGzn6OXgbdbD55
+         WPD2tgjRBm82nIA1sEWKAn4cIdcWZtcYCA0/JhsUVM5B5DXlcMUeA60tIPccdxpGpIJF
+         xeR2MDax5lHlBA7g1jkqFcfegYagZCz5iym3oFBoD3r/LKZkGRCLuN8rsfuJ5P7CCdqU
+         o9QEFkH7QjbZBSL93V69hF5B8l17HPmLF+PqkYUjAa1TB9tikBWHTYPUQSf0NmUvvcCC
+         lfsUL7R45R9FAjUhxT257gsH95xHsV11CjG7Fnfsn7GKHUrz5LUmeNANVmAR04lSLuT8
+         yTDw==
+X-Forwarded-Encrypted: i=1; AJvYcCXZFSkKf2KkdiK02yfUWj9CNFZuIiqS7Y2HAJwnfmM2Z+jviTgk7FE+WJ582ez/o4K2Mmv+GOavTKPO@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx3PE3qsPdF76OsV77KDviWgFaO4ZnB0sZ7Zj3noOOeJN8y8mOj
+	wu5eTGXh/kQR4tNcBvUYgCFUEhYzrJ3ck/TkwuSOOsl+x4OaJKB1vspd
+X-Gm-Gg: ATEYQzw6FhZXBwvjt7uhb8y61iYQB4i1GmVu8HfZtFv8MHtenwXl9xWP1S0hzR5rJbv
+	DpKTgey500DNBuzDY/sp4wpMtc/MX8zYRmOGjJw+H/puwbDQty8QJZNVCfox3gEfzqSXfGI5ziQ
+	D6EQiJwU568gD95JGrzUM61YLQfAPFd5pMsdEtsNAgawiGxLSDiPYUXYa8jnT0+any1+79zPheJ
+	cGNMp84G1JBQEU8fEdWe/+kNRHI7IwbW8zGxNKT6mtadU1pLdf0jvQnuF4IAYTz7DWc//2r8B8r
+	tKDnmjVfkwF9SmY7zIJnEPD1ulOnk3CjEghmGf4lgucF4FDbR1AMd+zcjBwTf4Ehx1+Uh8IWdt9
+	3gyKyzyzVagoHpHoCUE5cn9EVP2l+Yz2FJ9/YX8weEkpnMJK5XYM5tV40CXmdpNSJuzMyIi659r
+	lqapLqN798LX1nhuNheg==
+X-Received: by 2002:a05:6a21:3290:b0:38d:edd4:2fbe with SMTP id adf61e73a8af0-39545ed058emr15020115637.31.1772041317482;
+        Wed, 25 Feb 2026 09:41:57 -0800 (PST)
+Received: from dw-tp ([203.81.243.177])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-826dd8fdb81sm14825760b3a.64.2026.02.25.09.41.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 25 Feb 2026 09:41:56 -0800 (PST)
+From: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Alex Shi <alexs@kernel.org>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Andreas Larsson <andreas@gaisler.com>, 
+	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>, 
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
+	"David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	David Hildenbrand <david@kernel.org>, Dinh Nguyen <dinguyen@kernel.org>, 
+	Geert Uytterhoeven <geert@linux-m68k.org>, Guo Ren <guoren@kernel.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Johannes Berg <johannes@sipsolutions.net>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Jonathan Corbet <corbet@lwn.net>, 
+	Klara Modin <klarasmodin@gmail.com>, "Liam R. Howlett" <Liam.Howlett@oracle.com>, 
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Magnus Lindholm <linmag7@gmail.com>, 
+	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Michal Hocko <mhocko@suse.com>, Michal Simek <monstr@monstr.eu>, 
+	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Pratyush Yadav <pratyush@kernel.org>, 
+	Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>, 
+	Stafford Horne <shorne@gmail.com>, Suren Baghdasaryan <surenb@google.com>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Thomas Gleixner <tglx@linutronix.de>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>, Vlastimil Babka <vbabka@suse.cz>, 
+	Will Deacon <will@kernel.org>, x86@kernel.org, linux-alpha@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, 
+	linux-cxl@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
+	linux-mm@kvack.org, linux-openrisc@vger.kernel.org, 
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
+	linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org, 
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, 
+	sparclinux@vger.kernel.org
+Subject: Re: [PATCH v3 24/29] arch, mm: consolidate initialization of SPARSE memory model
+In-Reply-To: <aZ8idANginXzhf0_@kernel.org>
+Date: Wed, 25 Feb 2026 23:08:38 +0530
+Message-ID: <87seaohgf5.ritesh.list@gmail.com>
+References: <20260111082105.290734-1-rppt@kernel.org> <20260111082105.290734-25-rppt@kernel.org> <87tsv5h544.ritesh.list@gmail.com> <aZ8idANginXzhf0_@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] sched: Further restrict the preemption modes
-To: Ilya Leoshkevich <iii@linux.ibm.com>,
-        Ciunas Bennett <ciunas@linux.ibm.com>,
-        Peter Zijlstra
- <peterz@infradead.org>, mingo@kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: juri.lelli@redhat.com, vincent.guittot@linaro.org,
-        dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
-        mgorman@suse.de, vschneid@redhat.com, clrkwllms@kernel.org,
-        linux-kernel@vger.kernel.org, linux-rt-devel@lists.linux.dev,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-s390@vger.kernel.org, Douglas Freimuth <freimuth@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>
-References: <20251219101502.GB1132199@noisy.programming.kicks-ass.net>
- <182f110b-ac63-4db4-8b01-0e841639bc39@linux.ibm.com>
- <a7180379-04f5-4f61-b60a-0ff7cf85134d@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <a7180379-04f5-4f61-b60a-0ff7cf85134d@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: Jfh7EpHEygh8w8jW0O2VLecuoOEBQ4M4
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI1MDE1NSBTYWx0ZWRfXwcrDQp8Tsqdj
- cfc9eaQxVRiR1uHKNVFQEAmfHTBMEAb1TdQe8IndsLk1JpYXkbmD4JXByPQn6PVQFg6HgcQip8G
- VpUOjdgRh9hTTnKtQ6aH0nujHc5NsZUpiJLVSgWr8NOvStxR3OazgxIBEP0ldxRiGr3dsUC/oO3
- tFHMjp43xFO16ccs/BULesRvVIJoF9CepehNhQtHLrhrOawKWFW2yqCMPG7A0I9W27mKb/yXKPp
- zRw6ULmiL+hjyoFD7AYmTRUkhpFre2N0AcnPSmWPV0ptBInD91vziySDQ5S6hDjGflVgIrkzx4l
- IMKSzy3mIEiG1HuHHIoRWzGMBHAcgEjbIoKKJNEqiNUNaCaRl0vhR14DYIxEOKRDf5kmMlKuLzq
- f4Rwvk/XkBRuLxzJD2Zc67UltzFscScdQMLF6SzrDnJAEDN8XZt1gBWWWH12DlM8o6Hwfwuzi5w
- TeEXH/B4uf+fD1UZcbg==
-X-Authority-Analysis: v=2.4 cv=R7wO2NRX c=1 sm=1 tr=0 ts=699f2464 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=bkn2mIghrU8GsfLpAlsA:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: HqLlew1xnvvr9pOSEmkxZGAeHmrI8HDg
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-25_02,2026-02-25_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 clxscore=1011 impostorscore=0 phishscore=0 spamscore=0
- suspectscore=0 malwarescore=0 bulkscore=0 adultscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602250155
+Content-Type: text/plain
 
-Am 24.02.26 um 21:30 schrieb Ilya Leoshkevich:
-> Finally, what is the worker doing? I looked at __queue_work() kstacks, and they all come from irqfd_wakeup().
-> 
-> irqfd_wakeup() calls arch-specific kvm_arch_set_irq_inatomic(), which is implemented on x86 and not implemented on s390.
-> 
-> 
-> This may explain why we on s390 are the first to see this.
-> 
-> 
-> Christian, do you think if it would make sense to implement kvm_arch_set_irq_inatomic() on s390?
+Mike Rapoport <rppt@kernel.org> writes:
 
-So in fact Doug is working on that at the moment. There are some corner
-cases where we had concerns as we have to pin the guest pages holding
-the interrupt bits. This was secure execution, I need to followup if
-we have already solved those cases. But we can try if the current patch
-will help this particular problem.
+> Hello Ritesh,
+>
+> On Wed, Feb 25, 2026 at 09:00:35AM +0530, Ritesh Harjani wrote:
+>> Mike Rapoport <rppt@kernel.org> writes:
+>> 
+>> > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+>> >
+>> > Every architecture calls sparse_init() during setup_arch() although the
+>> > data structures created by sparse_init() are not used until the
+>> > initialization of the core MM.
+>> >
+>> > Beside the code duplication, calling sparse_init() from architecture
+>> > specific code causes ordering differences of vmemmap and HVO initialization
+>> > on different architectures.
+>> >
+>> > Move the call to sparse_init() from architecture specific code to
+>> > free_area_init() to ensure that vmemmap and HVO initialization order is
+>> > always the same.
+>> >
+>> 
+>> Hello Mike,
+>> 
+>> [    0.000000][    T0] ------------[ cut here ]------------
+>> [    0.000000][    T0] WARNING: arch/powerpc/include/asm/io.h:879 at virt_to_phys+0x44/0x1b8, CPU#0: swapper/0
+>> [    0.000000][    T0] Modules linked in:
+>> [    0.000000][    T0] CPU: 0 UID: 0 PID: 0 Comm: swapper Not tainted 6.19.0-12139-gc57b1c00145a #31 PREEMPT
+>> [    0.000000][    T0] Hardware name: IBM pSeries (emulated by qemu) POWER10 (architected) 0x801200 0xf000006 of:SLOF,git-ee03ae pSeries
+>> [    0.000000][    T0] NIP:  c000000000601584 LR: c000000004075de4 CTR: c000000000601548
+>> [    0.000000][    T0] REGS: c000000004d1f870 TRAP: 0700   Not tainted  (6.19.0-12139-gc57b1c00145a)
+>> [    0.000000][    T0] MSR:  8000000000021033 <SF,ME,IR,DR,RI,LE>  CR: 48022448  XER: 20040000
+>> [    0.000000][    T0] CFAR: c0000000006016c4 IRQMASK: 1
+>> [    0.000000][    T0] GPR00: c000000004075dd4 c000000004d1fb10 c00000000304bb00 c000000180000000
+>> [    0.000000][    T0] GPR04: 0000000000000009 0000000000000009 c000000004ec94a0 0000000000000000
+>> [    0.000000][    T0] GPR08: 0000000000018000 0000000000000001 c000000004921280 0000000048022448
+>> [    0.000000][    T0] GPR12: c000000000601548 c000000004fe0000 0000000000000004 0000000000000004
+>> [    0.000000][    T0] GPR16: 000000000287fb08 0000000000000060 0000000000000002 0000000002831750
+>> [    0.000000][    T0] GPR20: 0000000002831778 fffffffffffffffd c000000004d78050 00000000051cbb00
+>> [    0.000000][    T0] GPR24: 0000000005a40008 c000000000000000 c000000000400000 0000000000000100
+>> [    0.000000][    T0] GPR28: c000000004d78050 0000000000000000 c000000004ecd4a8 0000000000000001
+>> [    0.000000][    T0] NIP [c000000000601584] virt_to_phys+0x44/0x1b8
+>> [    0.000000][    T0] LR [c000000004075de4] alloc_bootmem+0x144/0x1a8
+>> [    0.000000][    T0] Call Trace:
+>> [    0.000000][    T0] [c000000004d1fb50] [c000000004075dd4] alloc_bootmem+0x134/0x1a8
+>> [    0.000000][    T0] [c000000004d1fba0] [c000000004075fac] __alloc_bootmem_huge_page+0x164/0x230
+>> [    0.000000][    T0] [c000000004d1fbe0] [c000000004030bc4] alloc_bootmem_huge_page+0x44/0x138
+>> [    0.000000][    T0] [c000000004d1fc10] [c000000004076e48] hugetlb_hstate_alloc_pages+0x350/0x5ac
+>> [    0.000000][    T0] [c000000004d1fd30] [c0000000040782f0] hugetlb_bootmem_alloc+0x15c/0x19c
+>> [    0.000000][    T0] [c000000004d1fd70] [c00000000406d7b4] mm_core_init_early+0x7c/0xdf4
+>> [    0.000000][    T0] [c000000004d1ff30] [c000000004011d84] start_kernel+0xac/0xc58
+>> [    0.000000][    T0] [c000000004d1ffe0] [c00000000000e99c] start_here_common+0x1c/0x20
+>> [    0.000000][    T0] Code: 6129ffff 792907c6 6529ffff 6129ffff 7c234840 40810018 3d2201e8 3929a7a8 e9290000 7c291840 41810044 3be00001 <0b1f0000> 3d20bfff 6129ffff 792907c6
+>> 
+>> 
+>> I think this is happening because, now in mm_core_early_init(), the
+>> order of initialization between hugetlb_bootmem_alloc() and
+>> free_area_init() is reversed. Since free_area_init() -> sparse_init()
+>> is responsible for setting SECTIONS and vmemmap area. 
+>> 
+>> Then in alloc_bootmem() (from hugetlb_bootmem_alloc() path), it uses virt_to_phys(m)...
+>> 
+>> 			/*
+>> 			 * For pre-HVO to work correctly, pages need to be on
+>> 			 * the list for the node they were actually allocated
+>> 			 * from. That node may be different in the case of
+>> 			 * fallback by memblock_alloc_try_nid_raw. So,
+>> 			 * extract the actual node first.
+>> 			 */
+>> 			if (m)
+>> 				listnode = early_pfn_to_nid(PHYS_PFN(virt_to_phys(m)));
+>> 
+>> 
+>> ... virt_to_phys on powerpc uses:
+>> 
+>> static inline unsigned long virt_to_phys(const volatile void * address)
+>> {
+>> 	WARN_ON(IS_ENABLED(CONFIG_DEBUG_VIRTUAL) && !virt_addr_valid(address));
+>> 
+>> 	return __pa((unsigned long)address);
+>> }
+>> 
+>> #define virt_addr_valid(vaddr)	({					\
+>> 	unsigned long _addr = (unsigned long)vaddr;			\
+>> 	_addr >= PAGE_OFFSET && _addr < (unsigned long)high_memory &&	\
+>> 	pfn_valid(virt_to_pfn((void *)_addr));				\
+>> })
+>> 
+>> 
+>> I think the above warning in dmesg gets printed from above WARN_ON, i.e.
+>> because pfn_valid() is false, since we haven't done sparse_init() yet.
+>
+> Yes, I agree.
+>  
+>> So, what I wanted to check was - do you think instead of virt_to_phys(), we
+>> could directly use __pa() here() in mm/hugetlb.c, since these are
+>> memblock alloc addresses? i.e.: 
+>> 
+>> // alloc_bootmem():
+>> -   listnode = early_pfn_to_nid(PHYS_PFN(virt_to_phys(m)));
+>> +   listnode = early_pfn_to_nid(PHYS_PFN(__pa(m)));
+>> 
+>> // __alloc_bootmem_huge_page():
+>> -   memblock_reserved_mark_noinit(virt_to_phys((void *)m + PAGE_SIZE),
+>> +   memblock_reserved_mark_noinit(__pa((void *)m + PAGE_SIZE),
+>
+> It surely will work for powerpc :)
+> I checked the definitions of __pa() on other architectures and it seems the
+> safest and the easiest way to fix this.
+>  
+> Would you send a formal patch?
+>
 
-If yes, then we can try to speed up the work on this.
+Thanks Mike for taking a look at above and confirming. Sure, let me
+prepare the patch and send it by tomorrow. 
 
-Christian
+-ritesh
