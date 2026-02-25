@@ -1,436 +1,217 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1EF1286889;
-	Wed, 25 Feb 2026 07:47:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CF8E3016E0
+	for <linux-s390@vger.kernel.org>; Wed, 25 Feb 2026 08:14:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772005660; cv=none; b=mbpJVHsvLfmlyRq2Bs9O35nqMQ5v2QXtfveD377GifP8nbKkS0OrDT+lOPpEYOLWW28Rv2wGhsNLMw5h1iVctq0splhAN1nyY0axYoRfGQp6DWIuzAlHdyvhwuXB+CJxnKt5BheBvI6+qI3iFNcudfLBSmPRj6s/3S3Oy/KHdhk=
+	t=1772007287; cv=none; b=H5uXxGzUbMtaS3kn4OT1nSHLnX1L5OwQYAUfrUnaYWUOhza3yuoZCbfbHZyskZdy0q6WYp03gq8A/9VgppqmgNkU8IxIPMZ7ukmjcnODXBn6fmIEWpusXn5xqc9lQ/6U+3aA09GZIedivtdCLFt5Rb9Ak3cWnFFSD/aQ+MfvlrE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772005660; c=relaxed/simple;
-	bh=OqeooUI7pZ5BaxuFLTOrKbBhq69+NLA4rXszyAl+W8Q=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=lZbKxq6AeQ5tbPg6/PGS8Ec//zcuN2p20mo+MPF3YVQOV2xgJTWvqqPodRg7vdyyB1a15mZP+5KlpKLlRxLTihjRiL6wL6r+3fH1jLm0BOXZSBCAXkTTyYiZWkDowSlUqQKzitkmWTDJvM1J7jet4XDCOPB100lFROG7VsEInPU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UBiqe4Jv; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1772007287; c=relaxed/simple;
+	bh=h+tpPqw8AsgODJEQncsIs35uIKU3vmAZCPspYgg/of4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-type; b=KuhmLeLH7E6PvcfZH8mSAmCoJSuxLY57LkpceaBnGFQwhSVKyNqLbFsX6ni0olL/+tJx0ODxZ4VpYbmE49RVuvXmbWJeDJdNpa9NKPjUHHBCLQQGQUuTsSRtDbFhBYfrv6YC4z2ERBlq4026o3OKDNXVGd75NXzxeyawe+yUDJ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=A5QC44Tg; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UBiqe4Jv"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61OJWgZP2347063;
-	Wed, 25 Feb 2026 07:46:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=d1bXe+
-	YZJukwpe334qIRVVA3qbpmzBuCIUTLT5KqR1o=; b=UBiqe4Jvy07djaZq7EEzfv
-	9a/pUthbCLWxZyBFoa4ywhjVo+RE3tpswVGEpGFXclhLVf7NdX/fnBiZ2gL4LYBk
-	OyPF1YyDl945UeoPgP005soOpS/Vwxn24ajonDZUh4kC8nA2PE+k71WMhJlsA3Ux
-	OF0SQYd9AV29j/mHUpIylrUq5smn8QT8SdYR+ZIJfJPCS+le1tDIIv9mrtJqzfhW
-	O2Lr69pxkCOUZVotA2h8KLyjFbJXBBjoHrpzbIz1pc0jP8BHG8YCCq0fhP1e/t/+
-	FpylegVBMOtcVMQryaofelIXqtf2Ks1Wmsomt6saVDGjYSrrlRCsLuvw/bTX1HpA
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ch858mkqk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Feb 2026 07:46:58 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61P4H3fo027797;
-	Wed, 25 Feb 2026 07:46:57 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cfsr1v3u9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Feb 2026 07:46:56 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61P7krm57864644
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 25 Feb 2026 07:46:53 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 26B902004B;
-	Wed, 25 Feb 2026 07:46:53 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8D23620040;
-	Wed, 25 Feb 2026 07:46:45 +0000 (GMT)
-Received: from [9.124.223.55] (unknown [9.124.223.55])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 25 Feb 2026 07:46:45 +0000 (GMT)
-Message-ID: <120884b0-0b09-43a9-b0f6-7dc2affe1ac0@linux.ibm.com>
-Date: Wed, 25 Feb 2026 13:16:44 +0530
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="A5QC44Tg"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1772007285;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=re7E4sxplbVcSJsRUE0dixF3rx550iAmXm+wmG0q1R4=;
+	b=A5QC44TgvZ84nuJ8Balk6+xYd5gq7uh5bNZYYn3fc3tm3MnAM8hOuZF2yFqcmY4nQCGYwr
+	XfOJ1YVqnAEM4SnRbw7HkrixstUVghEx5jQVqArn88HC4AVg6E5pjskIBjJrVMdFZ4orb6
+	VaGCzVrCcb9Plv7hLfyyF46l+5V1W00=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-497-8STCbgGpNdSEQd8WeY9I3A-1; Wed,
+ 25 Feb 2026 03:14:40 -0500
+X-MC-Unique: 8STCbgGpNdSEQd8WeY9I3A-1
+X-Mimecast-MFC-AGG-ID: 8STCbgGpNdSEQd8WeY9I3A_1772007278
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 6A1281956067;
+	Wed, 25 Feb 2026 08:14:37 +0000 (UTC)
+Received: from MiWiFi-R3L-srv.redhat.com (unknown [10.72.112.55])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 7C6291800465;
+	Wed, 25 Feb 2026 08:14:26 +0000 (UTC)
+From: Baoquan He <bhe@redhat.com>
+To: kasan-dev@googlegroups.com
+Cc: linux-mm@kvack.org,
+	andreyknvl@gmail.com,
+	ryabinin.a.a@gmail.com,
+	glider@google.com,
+	dvyukov@google.com,
+	linux-kernel@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	loongarch@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	x86@kernel.org,
+	chris@zankel.net,
+	jcmvbkbc@gmail.com,
+	linux-s390@vger.kernel.org,
+	hca@linux.ibm.com,
+	Baoquan He <bhe@redhat.com>
+Subject: [PATCH v5 00/15] mm/kasan: make kasan=on|off work for all three modes
+Date: Wed, 25 Feb 2026 16:13:57 +0800
+Message-ID: <20260225081412.76502-1-bhe@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 04/15] powerpc/time: Prepare to stop elapsing in
- dynticks-idle
-To: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Anna-Maria Behnsen <anna-maria@linutronix.de>,
-        Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Joel Fernandes <joelagnelf@nvidia.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Kieran Bingham <kbingham@kernel.org>, Mel Gorman <mgorman@suse.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        "Paul E . McKenney"
- <paulmck@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Valentin Schneider <vschneid@redhat.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Xin Zhao <jackzxcui1989@163.com>, linux-pm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-References: <20260206142245.58987-1-frederic@kernel.org>
- <20260206142245.58987-5-frederic@kernel.org>
- <9413517d-963b-4e6d-b11b-b440acd7cb5a@linux.ibm.com>
- <9ab1e7d7-57ee-49f9-963c-3a1b96dda684@kernel.org>
-Content-Language: en-US
-From: Shrikanth Hegde <sshegde@linux.ibm.com>
-In-Reply-To: <9ab1e7d7-57ee-49f9-963c-3a1b96dda684@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-type: text/plain
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI1MDA3NCBTYWx0ZWRfX5zL8nlc3Tkin
- WFP3VRrkGibb7X4+XFy6DJdpJSRGWFJ1dWNfbFAYy8rXwU6bmmiNFKp3HD+XdclwfASH84hP8aT
- vT+bCqxZifm5okjgmfBNqzV/t3pqtiyPu1Q64jd+AqX5SydlxkK04BgJLGB2yFOp3FkFbf8zbO9
- G7vgrq3Sf2991tZre15QhAao+rrZTiTurqtYWHJIJkwcpOeg/tW6rAwfB0js6N25UTi2dut26k6
- xp8/upN5ts5+5C+ICu8qYpENvDnq/3q4RV1C44h9ObFPuGPIjRRSkOrr++zusTLLy6vq4PX945r
- JDiVBlurD2kalIYQGBQm7hlUddeX1y5FdJSaXmH0f1Lh8W9jHr1ZNCeUlLoRU7pi0gEY10g5Q67
- QwxhBGMAJ5RVbPPw3IAH9an7bpEf3hUKBwlNDByiFH7VnimlT0bUuS6F60xQ7RM9XO0Yw9xgPFl
- 6YNOEsjXcyfmEVsE6zA==
-X-Proofpoint-GUID: W_fCjhEa7lyx7huGXmAwSIvtcFXEtHaw
-X-Authority-Analysis: v=2.4 cv=S4HUAYsP c=1 sm=1 tr=0 ts=699ea8f2 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=WUffXJQcQjR-2s-BLAsA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: nL94bN1xdGzMzsg1sXV_icGzGDZcPqGR
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-24_03,2026-02-23_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 clxscore=1015 impostorscore=0 malwarescore=0 bulkscore=0
- phishscore=0 adultscore=0 lowpriorityscore=0 spamscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602250074
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-Hi Christophe,
+Currently only hw_tags mode of kasan can be enabled or disabled with
+kernel parameter kasan=on|off for built kernel. For kasan generic and
+sw_tags mode, there's no way to disable them once kernel is built.
 
-On 2/24/26 9:11 PM, Christophe Leroy (CS GROUP) wrote:
-> Hi Hegde,
-> 
-> Le 19/02/2026 à 19:30, Shrikanth Hegde a écrit :
->>
->>
->> On 2/6/26 7:52 PM, Frederic Weisbecker wrote:
->>> Currently the tick subsystem stores the idle cputime accounting in
->>> private fields, allowing cohabitation with architecture idle vtime
->>> accounting. The former is fetched on online CPUs, the latter on offline
->>> CPUs.
->>>
->>> For consolidation purpose, architecture vtime accounting will continue
->>> to account the cputime but will make a break when the idle tick is
->>> stopped. The dyntick cputime accounting will then be relayed by the tick
->>> subsystem so that the idle cputime is still seen advancing coherently
->>> even when the tick isn't there to flush the idle vtime.
->>>
->>> Prepare for that and introduce three new APIs which will be used in
->>> subsequent patches:
->>>
->>> _ vtime_dynticks_start() is deemed to be called when idle enters in
->>>    dyntick mode. The idle cputime that elapsed so far is accumulated.
->>>
->>> - vtime_dynticks_stop() is deemed to be called when idle exits from
->>>    dyntick mode. The vtime entry clocks are fast-forward to current time
->>>    so that idle accounting restarts elapsing from now.
->>>
->>> - vtime_reset() is deemed to be called from dynticks idle IRQ entry to
->>>    fast-forward the clock to current time so that the IRQ time is still
->>>    accounted by vtime while nohz cputime is paused.
->>>
->>> Also accumulated vtime won't be flushed from dyntick-idle ticks to avoid
->>> accounting twice the idle cputime, along with nohz accounting.
->>>
->>> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
->>
->> Reviewed-by: Shrikanth Hegde <sshegde@linux.ibm.com>
->>
->>> ---
->>>   arch/powerpc/kernel/time.c | 41 ++++++++++++++++++++++++++++++++++++++
->>>   include/linux/vtime.h      |  6 ++++++
->>>   2 files changed, 47 insertions(+)
->>>
->>> diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
->>> index 4bbeb8644d3d..18506740f4a4 100644
->>> --- a/arch/powerpc/kernel/time.c
->>> +++ b/arch/powerpc/kernel/time.c
->>> @@ -376,6 +376,47 @@ void vtime_task_switch(struct task_struct *prev)
->>>           acct->starttime = acct0->starttime;
->>>       }
->>>   }
->>> +
->>> +#ifdef CONFIG_NO_HZ_COMMON
->>> +/**
->>> + * vtime_reset - Fast forward vtime entry clocks
->>> + *
->>> + * Called from dynticks idle IRQ entry to fast-forward the clocks to 
->>> current time
->>> + * so that the IRQ time is still accounted by vtime while nohz 
->>> cputime is paused.
->>> + */
->>> +void vtime_reset(void)
->>> +{
->>> +    struct cpu_accounting_data *acct = get_accounting(current);
->>> +
->>> +    acct->starttime = mftb();
->>
->> I figured out why those huge values happen.
->>
->> This happens because mftb is from when the system is booted.
->> I was doing kexec to start the new kernel and mftb wasn't getting
->> reset.
->>
->> I thought about this. This is concern for pseries too, where LPAR's
->> restart but system won't restart and mftb will continue to run instead of
->> reset.
->>
->> I think we should be using sched_clock instead of mftb here.
->> Though we need it a few more places and some cosmetic changes around it.
->>
->> Note: Some values being huge exists without series for few CPUs, with 
->> series it
->> shows up in most of the CPUs.
->>
->> So I am planning send out fix below fix separately keeping your
->> series as dependency.
->>
->> ---
->>   arch/powerpc/include/asm/accounting.h |  4 ++--
->>   arch/powerpc/include/asm/cputime.h    | 14 +++++++-------
->>   arch/powerpc/kernel/time.c            | 22 +++++++++++-----------
->>   3 files changed, 20 insertions(+), 20 deletions(-)
->>
->> diff --git a/arch/powerpc/include/asm/accounting.h b/arch/powerpc/ 
->> include/asm/accounting.h
->> index 6d79c31700e2..50f120646e6d 100644
->> --- a/arch/powerpc/include/asm/accounting.h
->> +++ b/arch/powerpc/include/asm/accounting.h
->> @@ -21,8 +21,8 @@ struct cpu_accounting_data {
->>       unsigned long steal_time;
->>       unsigned long idle_time;
->>       /* Internal counters */
->> -    unsigned long starttime;    /* TB value snapshot */
->> -    unsigned long starttime_user;    /* TB value on exit to usermode */
->> +    unsigned long starttime;    /* Time value snapshot */
->> +    unsigned long starttime_user;    /* Time value on exit to 
->> usermode */
->>   #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
->>       unsigned long startspurr;    /* SPURR value snapshot */
->>       unsigned long utime_sspurr;    /* ->user_time when ->startspurr 
->> set */
->> diff --git a/arch/powerpc/include/asm/cputime.h b/arch/powerpc/ 
->> include/ asm/cputime.h
->> index aff858ca99c0..eb6b629b113f 100644
->> --- a/arch/powerpc/include/asm/cputime.h
->> +++ b/arch/powerpc/include/asm/cputime.h
->> @@ -20,9 +20,9 @@
->>   #include <asm/time.h>
->>   #include <asm/param.h>
->>   #include <asm/firmware.h>
->> +#include <linux/sched/clock.h>
->>
->>   #ifdef __KERNEL__
->> -#define cputime_to_nsecs(cputime) tb_to_ns(cputime)
->>
->>   /*
->>    * PPC64 uses PACA which is task independent for storing accounting 
->> data while
->> @@ -44,20 +44,20 @@
->>    */
->>   static notrace inline void account_cpu_user_entry(void)
->>   {
->> -    unsigned long tb = mftb();
->> +    unsigned long now = sched_clock();
-> 
-> Now way !
-> 
-> By doing that you'll kill performance for no reason. All we need when 
-> accounting time spent in kernel or in user is the difference between 
-> time at entry and time at exit, no mater what the time was at boot time.
-> 
+This is not convenient sometime, e.g in system kdump is configured.
+When the 1st kernel has KASAN enabled and crash triggered to switch to
+kdump kernel, the generic or sw_tags mode will cost much extra memory
+while in fact it's meaningless to have kasan in kdump kernel
 
-No. With this patch there will not be any performance difference.
-All it does is, instead of using mftb uses sched_clock at those places.
+There are two parts of big amount of memory requiring for kasan enabed
+kernel. One is the direct memory mapping shadow of kasan, which is 1/8
+of system RAM in generic mode and 1/16 of system RAM in sw_tags mode;
+the other is the shadow meomry for vmalloc which causes big meomry
+usage in kdump kernel because of lazy vmap freeing. By introducing
+"kasan=off|on", if we specify 'kasan=off', the former is avoided by
+skipping the kasan_init(), and the latter is avoided by not building the
+vmalloc shadow for vmalloc.
 
+So this patchset moves the kasan=on|off out of hw_tags scope and into
+common code to make it visible in generic and sw_tags mode too. Then we
+can add kasan=off in kdump kernel to reduce the unneeded meomry cost for
+kasan.
 
-In arch/powerpc/kernel/time.c we have sched_clock().
-notrace unsigned long long sched_clock(void)
-{
-         return mulhdu(get_tb() - boot_tb, tb_to_ns_scale) << tb_to_ns_shift;
-}
+Note that this hasn't been supported on s390 since I am not familiar
+with s390 code. Hope s390 developer will make it work.
 
-It does the same mftb call, and accounts only the time after boot, which is
-what /proc/stat should do as well.
+Testing:
+========
+Testing is done on upstream kernel 6.19.0+:
 
-"
-the amount of time, measured in units of USER_HZ
-(1/100ths of a second on most architectures
+- For generic mode, testing is taken on below systems and passed.
+  - x86_64 baremetal system
+  - aarch64 baremetal system
+  - ppc64le baremetal system (Model 9183-22X)
+  - risc-v kvm guest
 
-user   (1) Time spent in user mode.
+- For sw_tags mode, testing is taken on below system and passed.
+  - aarch64 baremetal system 
 
-idle   (4) Time spent in the idle task.  This value
-        should be USER_HZ times the second entry in
-        the /proc/uptime pseudo-file.
-"
-/proc/uptime is based on sched_clock, so i infer /proc/stat also should show
-values w.r.t to boot of the OS.
+- For hw_tags mode, testing is taken on below system and passed.
+  - aarch64 kvm guest with "-machine virt,mte=on -cpu max" qemu command.
 
+Changelog:
+====
+v4->v5:
+- Add helper __kasan_cache_shrink() in mm/kasan/generic.c so that the
+  kasan_enabled() checking done in kasan_cache_shrink() which is in
+  include/linux/kasan.h. This change is made in patch 1.
+- Carve out the change of renaming 'kasan_arg' to 'kasan_arg_disabled'
+  into a separate patch from the old patch 2.
+- put the old patch 12 to earlier place as patch 4 in this sereis so
+  that the ifdeffery scope embracing kasan_flag_enabled definition is
+  meaningful and understandable.
+- Remove the stale and incorrect comment above kasan_enabled() in the
+  old patch 12.
+- Add comment 'If KASAN is disabled via command line, don't initialize
+  it.' to all places where kasan is initialized and kasan_arg_disabled
+  is checked.
+- Add document in kernel-parameters.txt to note kasan=on|off.
+- Remove unneeded ARCH_DEFER_KASAN and kasan_arch_is_ready().
+- All these changes are made according to reviewers' suggestion in v4,
+  thanks to Andrey Konovalov, Andrey Ryabinin and Alexander Potapenko.
+  
 
-> Also sched_clock() returns nanoseconds which implies calculation from 
-> timebase. This is pointless CPU consumption. The current implementation 
-> calculates nanoseconds at task switch when calling vtime_flush().Your 
-> change will now do it at every kernel entry and kernel exit by calling 
-> sched_clock().
+v3->v4:
+- Rebase code to the latest linux-next/master to make the whole patchset
+  set on top of
+  [PATCH 0/2] kasan: cleanups for kasan_enabled() checks
+  [PATCH v6 0/2] kasan: unify kasan_enabled() and remove arch-specific implementations
 
-This change doesn't add any additional paths. Even without patches, mftb would have
-been called in every kernel entry/exit.  See mftb usage account_cpu_user_exit/enter
+v2->v3:
+- Fix a building error on UML ARCH when CONFIG_KASAN is not set. The
+  change of fixing is appended into patch patch 11. This is reported
+  by LKP, thanks to them.
 
-Now instead of mftb sched_clock is used, that's all. No additional entry/exit points.
-And previously when accounting we would have done cputime_to_nsecs, now that conversion
-is done automatically in sched_clock. So overall computation-wise it should be same.
+v1->v2:
+- Add __ro_after_init for kasan_arg_disabled, and remove redundant blank
+  lines in mm/kasan/common.c. Thanks to Marco.
+- Fix a code bug in <linux/kasan-enabled.h> when CONFIG_KASAN is unset,
+  this is found out by SeongJae and Lorenzo, and also reported by LKP
+  report, thanks to them.
+- Add a missing kasan_enabled() checking in kasan_report(). This will
+  cause a KASAN report info even though kasan=off is set:
+- Add jump_label_init() calling before kasan_init() in setup_arch() in these
+  architectures: xtensa, arm. Because they currenly rely on
+  jump_label_init() in main() which is a little late. Then the early static
+  key kasan_flag_enabled in kasan_init() won't work.
+- In UML architecture, change to enable kasan_flag_enabled in arch_mm_preinit()
+  because kasan_init() is enabled before main(), there's no chance to operate
+  on static key in kasan_init().
 
-What i am missing to see it here?
+Baoquan He (15):
+  mm/kasan: add conditional checks in functions to return directly if
+    kasan is disabled
+  mm/kasan: rename 'kasan_arg' to 'kasan_arg_disabled'
+  mm/kasan: mm/kasan: move kasan= code to common place
+  mm/kasan: make kasan=on|off take effect for all three modes
+  mm/kasan/sw_tags: don't initialize kasan if it's disabled
+  arch/arm: don't initialize kasan if it's disabled
+  arch/arm64: don't initialize kasan if it's disabled
+  arch/loongarch: don't initialize kasan if it's disabled
+  arch/powerpc: don't initialize kasan if it's disabled
+  arch/riscv: don't initialize kasan if it's disabled
+  arch/x86: don't initialize kasan if it's disabled
+  arch/xtensa: don't initialize kasan if it's disabled
+  arch/um: don't initialize kasan if it's disabled
+  mm/kasan: add document into kernel-parameters.txt
+  mm/kasan: clean up unneeded ARCH_DEFER_KASAN and kasan_arch_is_ready
 
-> 
-> Another point is that sched_clock() returns a long long not a long.
+ .../admin-guide/kernel-parameters.txt         |  4 +++
+ Documentation/dev-tools/kasan.rst             |  2 --
+ arch/arm/kernel/setup.c                       |  6 ++++
+ arch/arm/mm/kasan_init.c                      |  3 ++
+ arch/arm64/mm/kasan_init.c                    |  7 +++++
+ arch/loongarch/Kconfig                        |  1 -
+ arch/loongarch/mm/kasan_init.c                |  3 ++
+ arch/powerpc/Kconfig                          |  1 -
+ arch/powerpc/mm/kasan/init_32.c               |  6 +++-
+ arch/powerpc/mm/kasan/init_book3e_64.c        |  4 +++
+ arch/powerpc/mm/kasan/init_book3s_64.c        |  4 +++
+ arch/riscv/mm/kasan_init.c                    |  4 +++
+ arch/um/Kconfig                               |  1 -
+ arch/um/kernel/mem.c                          |  5 +++-
+ arch/x86/mm/kasan_init_64.c                   |  4 +++
+ arch/xtensa/kernel/setup.c                    |  1 +
+ arch/xtensa/mm/kasan_init.c                   |  4 +++
+ include/linux/kasan-enabled.h                 | 10 +++----
+ include/linux/kasan.h                         |  7 ++++-
+ lib/Kconfig.kasan                             | 12 --------
+ mm/kasan/common.c                             | 21 ++++++++++++--
+ mm/kasan/generic.c                            | 16 +++++++++--
+ mm/kasan/hw_tags.c                            | 28 ++-----------------
+ mm/kasan/init.c                               |  6 ++++
+ mm/kasan/kasan.h                              |  6 ----
+ mm/kasan/quarantine.c                         |  3 ++
+ mm/kasan/report.c                             |  4 ++-
+ mm/kasan/shadow.c                             | 11 +++++++-
+ mm/kasan/sw_tags.c                            |  7 +++++
+ 29 files changed, 128 insertions(+), 63 deletions(-)
 
-Thanks for pointing that out.
-
-Ok. Let me change some of those variables into unsigned long long.
-Compiler didn't warn me, so i didn't see it.
-
-> 
-> And also sched_clock() uses get_tb() which does mftb and mftbu. Which is 
-> pointless for calculating time deltas unless your application spends 
-> hours without being re-scheduled.
-> 
-
-I didn't get this. At current also, we use mftb, that functionality should be the same.
-Could you please explain how?
-
-> 
->>       struct cpu_accounting_data *acct = raw_get_accounting(current);
->>
->> -    acct->utime += (tb - acct->starttime_user);
->> -    acct->starttime = tb;
->> +    acct->utime += (now - acct->starttime_user);
->> +    acct->starttime = now;
->>   }
->>
->>   static notrace inline void account_cpu_user_exit(void)
->>   {
->> -    unsigned long tb = mftb();
->> +    unsigned long now = sched_clock();
->>       struct cpu_accounting_data *acct = raw_get_accounting(current);
->>
->> -    acct->stime += (tb - acct->starttime);
->> -    acct->starttime_user = tb;
->> +    acct->stime += (now - acct->starttime);
->> +    acct->starttime_user = now;
->>   }
->>
->>   static notrace inline void account_stolen_time(void)
->> diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
->> index 18506740f4a4..fb67cdae3bcb 100644
->> --- a/arch/powerpc/kernel/time.c
->> +++ b/arch/powerpc/kernel/time.c
->> @@ -215,7 +215,7 @@ static unsigned long vtime_delta(struct 
->> cpu_accounting_data *acct,
->>
->>       WARN_ON_ONCE(!irqs_disabled());
->>
->> -    now = mftb();
->> +    now = sched_clock();
->>       stime = now - acct->starttime;
->>       acct->starttime = now;
->>
->> @@ -299,9 +299,9 @@ static void vtime_flush_scaled(struct task_struct 
->> *tsk,
->>   {
->>   #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
->>       if (acct->utime_scaled)
->> -        tsk->utimescaled += cputime_to_nsecs(acct->utime_scaled);
->> +        tsk->utimescaled += acct->utime_scaled;
->>       if (acct->stime_scaled)
->> -        tsk->stimescaled += cputime_to_nsecs(acct->stime_scaled);
->> +        tsk->stimescaled += acct->stime_scaled;
->>
->>       acct->utime_scaled = 0;
->>       acct->utime_sspurr = 0;
->> @@ -321,28 +321,28 @@ void vtime_flush(struct task_struct *tsk)
->>       struct cpu_accounting_data *acct = get_accounting(tsk);
->>
->>       if (acct->utime)
->> -        account_user_time(tsk, cputime_to_nsecs(acct->utime));
->> +        account_user_time(tsk, acct->utime);
->>
->>       if (acct->gtime)
->> -        account_guest_time(tsk, cputime_to_nsecs(acct->gtime));
->> +        account_guest_time(tsk, acct->gtime);
->>
->>       if (IS_ENABLED(CONFIG_PPC_SPLPAR) && acct->steal_time) {
->> -        account_steal_time(cputime_to_nsecs(acct->steal_time));
->> +        account_steal_time(acct->steal_time);
->>           acct->steal_time = 0;
->>       }
->>
->>       if (acct->idle_time)
->> -        account_idle_time(cputime_to_nsecs(acct->idle_time));
->> +        account_idle_time(acct->idle_time);
->>
->>       if (acct->stime)
->> -        account_system_index_time(tsk, cputime_to_nsecs(acct->stime),
->> +        account_system_index_time(tsk, acct->stime,
->>                         CPUTIME_SYSTEM);
->>
->>       if (acct->hardirq_time)
->> -        account_system_index_time(tsk, cputime_to_nsecs(acct- 
->>  >hardirq_time),
->> +        account_system_index_time(tsk, acct->hardirq_time,
->>                         CPUTIME_IRQ);
->>       if (acct->softirq_time)
->> -        account_system_index_time(tsk, cputime_to_nsecs(acct- 
->>  >softirq_time),
->> +        account_system_index_time(tsk, acct->softirq_time,
->>                         CPUTIME_SOFTIRQ);
->>
->>       vtime_flush_scaled(tsk, acct);
->> @@ -388,7 +388,7 @@ void vtime_reset(void)
->>   {
->>       struct cpu_accounting_data *acct = get_accounting(current);
->>
->> -    acct->starttime = mftb();
->> +    acct->starttime = sched_clock();
->>   #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
->>       acct->startspurr = read_spurr(acct->starttime);
->>   #endif
-> 
-
-PS: I measured the performance with hackbench. I don't see any degradation.
+-- 
+2.52.0
 
