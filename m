@@ -1,462 +1,177 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9C2E3191D3;
-	Wed, 25 Feb 2026 22:03:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7DB7376BFF;
+	Wed, 25 Feb 2026 23:42:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772056992; cv=none; b=ModbOKD9jHbGh0GHAXEsFulgKWQj3M+M9l7gO3GRgHOwvoM6rlvgLFX5Gq45G1HEL78/9AX2QNUS8fFjYuq/i6NZngmf5AEN87vtOtD2+akHTX0OEfYq23EbzGKsUvICWQ+C1EPFf9DRBzAupK2CQQqYLWOUCJ9txkp0nNMpnbg=
+	t=1772062971; cv=none; b=gh9ntpVlSR7lkqq10rRiy7MH9Dgl607zS9lsjxQ5VsrcXPv+E+ioKuF6DX2Ll1QKXBJu0PmP5qzKd0GGUZz8Ayr2pL8OqQI+YVbN9C3d9gcSfXLhPuxoH6nLcqTg2FSSjUU5fjMSC3oGupQ/bXWawtPEN9YYaMNH3SVYFbRNOok=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772056992; c=relaxed/simple;
-	bh=gYzWYbqUVyUWAs9EGE5ShllXabtNZu/2sUv3FCUuj7w=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=qTAN8uSZhsn9WqwWaT+AEBGvgRP/Bo5D6Ahn+TajH3i9GepwsFhpTbHkOXAGfJiZnSUIZbKsgs2qMTd9m19mS3pBwwgRe2gIOkFkHehXqJIOKLkhLh3wWhGVja9z5CKbfAFngxl1/6GYMGU95a6bECvWsSUKcJ1A1YSdymUanQI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Lh2Gp07e; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772062971; c=relaxed/simple;
+	bh=LJlpi5wuKe2Ygqgec+SIKK0p59KvieoD4ReMMDS1aGU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=sZcleSPwnMC2Pgo15B5AS+fAIjHY+hQIBpgdYLfBRfOMyzMP3hSYJa7wlMYHJybGHpip8H5wdLxChbVVWmPShIBlWroYnFxoPAAGvUJn7wrRrwBvXpenVv6L5GMkDHI2Mn6KvgjesBXyVGoXnOeLX2Q6R4GPj5kHUCGEv48xggQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Nx61voTY; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Lh2Gp07e"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71333C116D0;
-	Wed, 25 Feb 2026 22:02:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772056991;
-	bh=gYzWYbqUVyUWAs9EGE5ShllXabtNZu/2sUv3FCUuj7w=;
-	h=From:Date:Subject:To:Cc:From;
-	b=Lh2Gp07eMCKl2XdNkedsqAZVkfBDWlOl2fsRxHEWE9tKv6jQh0edVVUsxDh6W5Xp/
-	 cpuHLuvKro/8fpHAIcfb6xh/0YkDcRPPmsCi3vH9hoM2N/cp4Zu293fjw8x0Y3sBRt
-	 xrryrjjtuF0G+GfHoJWSUPrL9Ub+h33d7ZDtN9xF5vWiBWN/Dqwh64X9F4ye8SQCek
-	 kzV0xNeQjeGNvdSYha+gv6+Zs0BqrJ4PL5GFW9IS3v5kg8ppoQ0ELPzksn51X2e+bF
-	 DsAPQYsTPAgDK9wa/O/d5HZiuyl/GUUOQtp0CrrKYMUtc7XQZ+nQdyI2fcEiQZeqbq
-	 KLkKqVrgOPu2w==
-From: Nathan Chancellor <nathan@kernel.org>
-Date: Wed, 25 Feb 2026 15:02:51 -0700
-Subject: [PATCH] kbuild: Split .modinfo out from ELF_DETAILS
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Nx61voTY"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61PKla3W2460426;
+	Wed, 25 Feb 2026 23:42:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=hmdacT
+	ALJh28DvVcdwZtkaL65/31pNSDaP4wG4Nd1t0=; b=Nx61voTYz+2nyc8256tY6C
+	jsbH5g83YI7wWorMCCUvjt2I0o/ypc0lVAfNtYvkUDY52N7GZUt/YvTBAJV0PwvE
+	UsLagrP5LlqIc5JhT4Zy6QmUTW4dXUTRi96dJjwwhWWF8oF5kfbNoVHaNDfa6B5O
+	jxN+hdkYEh/3Aeacx9u1MVfzNEc3p6Ik0esRvDOUTaF0fiWBVniYQ4+xE//C847e
+	0MH2DFThS5tmrjuyQSKPTELWQiTLlS7AxYlVYDUrdZLY6q/c/KugTCbX8jinUbNK
+	idC6ptlWYeJOs0d6rjCcaz41+cS96ubsdLPQo0EMgoCMHb77HYOIMnRbx1HhUhJQ
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cf4cr35n9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Feb 2026 23:42:49 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61PMbpAn015962;
+	Wed, 25 Feb 2026 23:42:49 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cfq1sr757-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Feb 2026 23:42:49 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61PNglXd66191660
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 25 Feb 2026 23:42:47 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 68B9B5805D;
+	Wed, 25 Feb 2026 23:42:47 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AD12D5805A;
+	Wed, 25 Feb 2026 23:42:46 +0000 (GMT)
+Received: from [9.61.38.72] (unknown [9.61.38.72])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 25 Feb 2026 23:42:46 +0000 (GMT)
+Message-ID: <67c8bb91-32ac-4e1e-8b97-9ff8f55a4e61@linux.ibm.com>
+Date: Wed, 25 Feb 2026 18:42:46 -0500
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] KVM: s390: Limit adapter indicator access to mapped
+ page
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        borntraeger@linux.ibm.com, freimuth@linux.ibm.com
+References: <20260217090230.8116-1-frankja@linux.ibm.com>
+ <20260217090230.8116-2-frankja@linux.ibm.com>
+Content-Language: en-US
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <20260217090230.8116-2-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260225-separate-modinfo-from-elf-details-v1-1-387ced6baf4b@kernel.org>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXNwQrCMAyA4VcZORvoOh3MVxEPcUk1srWj6UQYe
- 3erHr/L/29gklUMzs0GWV5qmmJFe2hgfFC8CypXg3e+d94f0WShTEVwTqwxJAw5zShTQJZCOhl
- y1/aO6RS6YYDaWbIEff8el+vftt6eMpZvGPb9A+qYJnaFAAAA
-X-Change-ID: 20260224-separate-modinfo-from-elf-details-d3160da5f399
-To: Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>
-Cc: Richard Henderson <richard.henderson@linaro.org>, 
- Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>, 
- Vineet Gupta <vgupta@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
- Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, 
- Brian Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, 
- WANG Xuerui <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>, 
- Sam Creasey <sammy@sammy.net>, 
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
- Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, 
- Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, 
- Stafford Horne <shorne@gmail.com>, 
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
- Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
- Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, 
- Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
- "David S. Miller" <davem@davemloft.net>, 
- Andreas Larsson <andreas@gaisler.com>, Richard Weinberger <richard@nod.at>, 
- Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
- Johannes Berg <johannes@sipsolutions.net>, 
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
- Kees Cook <kees@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
- Masahiro Yamada <masahiroy@kernel.org>, Alexey Gladkov <legion@kernel.org>, 
- linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
- linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
- loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, 
- linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, 
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
- linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
- linux-um@lists.infradead.org, linux-kbuild@vger.kernel.org, 
- stable@vger.kernel.org, Ed W <lists@wildgooses.com>
-X-Mailer: b4 0.15-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=11544; i=nathan@kernel.org;
- h=from:subject:message-id; bh=gYzWYbqUVyUWAs9EGE5ShllXabtNZu/2sUv3FCUuj7w=;
- b=owGbwMvMwCUmm602sfCA1DTG02pJDJnzCyeriCZdaxI+5Sf0rTM57l6D0sWGw+sO7C6JuqWuV
- lv08cGpjhIWBjEuBlkxRZbqx6rHDQ3nnGW8cWoSzBxWJpAhDFycAjAR9SKG75EsPLMZNsz8+2PX
- foVJdy5bdNqZ6l3jFRDMuD/jsMiKLoa/Andbtyi/Z/w0p6XQ5urDDXN8jKJenk+u2/pZubeWW6q
- QDwA=
-X-Developer-Key: i=nathan@kernel.org; a=openpgp;
- fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: GEFaDYcRZuzS82YOs7OZ3M7l4lHQHZeK
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI1MDIyNiBTYWx0ZWRfXzLRXARkGE/6s
+ zgGr/9EyyecA3uozxtH/ogtUfhjEwj8WNBmHCER9il+QGJqIlo2kzTv5wuvwL4xMCntiPrPslxP
+ 5n5vuUS74fwyDC3bnGvbdZIxXjGBqDfq2n7IwIqTxZN72KAbJL3mKfnglO49V0yGtCQuxN5nx3a
+ AxxLRmcmhm4pCKsZ9d0SjSYzU4QfRNgr8COoZWstAOf0naGmhX+hj/a3l8buq/rgPflbtfDMjcX
+ UHY6Jbn75gn/9zIfCLco2K08eXdfkjEPWl+jepfZo+/tnULpj/8eonhPOdk9XayY8qSpXvHobTN
+ Wh1+edZcnUFNmEDpKwlfiKxZPbCZ/pLp8Rhc8EpS4AvwfPCAq4rquRFUVgAiyFLRwl+TrKpYmAM
+ dRWvW9odNxS7ti4LsDzcc8IxmaIGOH23YkGWvEUELD9Gd/8jrk6vQ0H+ysdjnOmw6mZk7D105Os
+ 4rQWwAO3SYRFHwXGGCQ==
+X-Proofpoint-GUID: GEFaDYcRZuzS82YOs7OZ3M7l4lHQHZeK
+X-Authority-Analysis: v=2.4 cv=bbBmkePB c=1 sm=1 tr=0 ts=699f88fa cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8
+ a=G87O5jEwh3kmkZiQiTUA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-25_04,2026-02-25_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 bulkscore=0 adultscore=0 impostorscore=0 lowpriorityscore=0
+ priorityscore=1501 suspectscore=0 clxscore=1015 phishscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602250226
 
-Commit 3e86e4d74c04 ("kbuild: keep .modinfo section in
-vmlinux.unstripped") added .modinfo to ELF_DETAILS while removing it
-from DISCARDS, as it was needed in vmlinux.unstripped and ELF_DETAILS
-was present in all architecture specific vmlinux linker scripts. While
-this shuffle is fine for vmlinux, ELF_DETAILS and DISCARDS may be used
-by other linker scripts, such as the s390 and x86 compressed boot
-images, which may not expect to have a modinfo section. In certain
-circumstances, this could result in a bootloader failing to load the
-compressed kernel [1].
+On 2/17/26 3:54 AM, Janosch Frank wrote:
+> While we check the address for errors, we don't seem to check the bit
+> offsets and since they are 32 and 64 bits a lot of memory can be
+> reached indirectly via those offsets.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Fixes: 84223598778b ("KVM: s390: irq routing for adapter interrupts.")
+> ---
+>  arch/s390/kvm/interrupt.c | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
+> 
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 1c2bb5cd7e12..cd4851e33a5b 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -2724,6 +2724,9 @@ static unsigned long get_ind_bit(__u64 addr, unsigned long bit_nr, bool swap)
+>  
+>  	bit = bit_nr + (addr % PAGE_SIZE) * 8;
+>  
+> +	/* kvm_set_routing_entry() should never allow this to happen */
+> +	WARN_ON_ONCE(bit > (PAGE_SIZE * BITS_PER_BYTE - 1));
+> +
+>  	return swap ? (bit ^ (BITS_PER_LONG - 1)) : bit;
+>  }
+>  
+> @@ -2852,6 +2855,7 @@ int kvm_set_routing_entry(struct kvm *kvm,
+>  			  struct kvm_kernel_irq_routing_entry *e,
+>  			  const struct kvm_irq_routing_entry *ue)
+>  {
+> +	const struct kvm_irq_routing_s390_adapter *adapter;
+>  	u64 uaddr_s, uaddr_i;
+>  	int idx;
+>  
+> @@ -2862,6 +2866,14 @@ int kvm_set_routing_entry(struct kvm *kvm,
+>  			return -EINVAL;
+>  		e->set = set_adapter_int;
+>  
+> +		adapter = &ue->u.adapter;
+> +		if (adapter->summary_addr + BITS_TO_BYTES(adapter->summary_offset) >=
+> +		    (adapter->summary_addr & PAGE_MASK) + PAGE_SIZE)
+> +			return -EINVAL;
+> +		if (adapter->ind_addr + BITS_TO_BYTES(adapter->ind_offset) >=
+> +		    (adapter->ind_addr & PAGE_MASK) + PAGE_SIZE)
+> +			return -EINVAL;
+> +
 
-Commit ddc6cbef3ef1 ("s390/boot/vmlinux.lds.S: Ensure bzImage ends with
-SecureBoot trailer") recently addressed this for the s390 bzImage but
-the same bug remains for parisc and x86. The presence of .modinfo in the
-x86 bzImage was the root cause of the issue workad around with
-commit d50f21091358 ("kbuild: align modinfo section for Secureboot
-Authenticode EDK2 compat"). misc.c in arch/x86/boot/compressed includes
-lib/decompress_unzstd.c, which in turn includes lib/xxhash.c and its
-MODULE_LICENSE / MODULE_DESCRIPTION macros due to the STATIC definition.
 
-Split .modinfo out from ELF_DETAILS into its own macro and handle it in
-all vmlinux linker scripts. Discard .modinfo in the places where it was
-previously being discarded from being in DISCARDS, as it has never been
-necessary in those uses.
+I think this is slightly off.
 
-Cc: stable@vger.kernel.org
-Fixes: 3e86e4d74c04 ("kbuild: keep .modinfo section in vmlinux.unstripped")
-Reported-by: Ed W <lists@wildgooses.com>
-Closes: https://lore.kernel.org/587f25e0-a80e-46a5-9f01-87cb40cfa377@wildgooses.com/ [1]
-Tested-by: Ed W <lists@wildgooses.com> # x86_64
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
----
-I intend to take this as a fix via the Kbuild tree for 7.0 after
-sufficient testing in -next, please Ack accordingly.
----
- arch/alpha/kernel/vmlinux.lds.S           | 1 +
- arch/arc/kernel/vmlinux.lds.S             | 1 +
- arch/arm64/kernel/vmlinux.lds.S           | 1 +
- arch/csky/kernel/vmlinux.lds.S            | 1 +
- arch/hexagon/kernel/vmlinux.lds.S         | 1 +
- arch/loongarch/kernel/vmlinux.lds.S       | 1 +
- arch/m68k/kernel/vmlinux-nommu.lds        | 1 +
- arch/m68k/kernel/vmlinux-std.lds          | 1 +
- arch/m68k/kernel/vmlinux-sun3.lds         | 1 +
- arch/mips/kernel/vmlinux.lds.S            | 1 +
- arch/nios2/kernel/vmlinux.lds.S           | 1 +
- arch/openrisc/kernel/vmlinux.lds.S        | 1 +
- arch/parisc/boot/compressed/vmlinux.lds.S | 1 +
- arch/parisc/kernel/vmlinux.lds.S          | 1 +
- arch/powerpc/kernel/vmlinux.lds.S         | 1 +
- arch/riscv/kernel/vmlinux.lds.S           | 1 +
- arch/s390/kernel/vmlinux.lds.S            | 1 +
- arch/sh/kernel/vmlinux.lds.S              | 1 +
- arch/sparc/kernel/vmlinux.lds.S           | 1 +
- arch/um/kernel/dyn.lds.S                  | 1 +
- arch/um/kernel/uml.lds.S                  | 1 +
- arch/x86/boot/compressed/vmlinux.lds.S    | 2 +-
- arch/x86/kernel/vmlinux.lds.S             | 1 +
- include/asm-generic/vmlinux.lds.h         | 4 +++-
- 24 files changed, 26 insertions(+), 2 deletions(-)
+The offset should indicate a bit offset from the beginning of the byte, so offsets 0-7 are all within the same byte as the specified address, 8-15 are in the next byte, etc.
 
-diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
-index 2efa7dfc798a..2d136c63db16 100644
---- a/arch/alpha/kernel/vmlinux.lds.S
-+++ b/arch/alpha/kernel/vmlinux.lds.S
-@@ -71,6 +71,7 @@ SECTIONS
- 
- 	STABS_DEBUG
- 	DWARF_DEBUG
-+	MODINFO
- 	ELF_DETAILS
- 
- 	DISCARDS
-diff --git a/arch/arc/kernel/vmlinux.lds.S b/arch/arc/kernel/vmlinux.lds.S
-index 61a1b2b96e1d..6af63084ff28 100644
---- a/arch/arc/kernel/vmlinux.lds.S
-+++ b/arch/arc/kernel/vmlinux.lds.S
-@@ -123,6 +123,7 @@ SECTIONS
- 	_end = . ;
- 
- 	STABS_DEBUG
-+	MODINFO
- 	ELF_DETAILS
- 	DISCARDS
- 
-diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
-index ad6133b89e7a..2964aad0362e 100644
---- a/arch/arm64/kernel/vmlinux.lds.S
-+++ b/arch/arm64/kernel/vmlinux.lds.S
-@@ -349,6 +349,7 @@ SECTIONS
- 
- 	STABS_DEBUG
- 	DWARF_DEBUG
-+	MODINFO
- 	ELF_DETAILS
- 
- 	HEAD_SYMBOLS
-diff --git a/arch/csky/kernel/vmlinux.lds.S b/arch/csky/kernel/vmlinux.lds.S
-index d718961786d2..81943981b3af 100644
---- a/arch/csky/kernel/vmlinux.lds.S
-+++ b/arch/csky/kernel/vmlinux.lds.S
-@@ -109,6 +109,7 @@ SECTIONS
- 
- 	STABS_DEBUG
- 	DWARF_DEBUG
-+	MODINFO
- 	ELF_DETAILS
- 
- 	DISCARDS
-diff --git a/arch/hexagon/kernel/vmlinux.lds.S b/arch/hexagon/kernel/vmlinux.lds.S
-index 1150b77fa281..aae22283b5e0 100644
---- a/arch/hexagon/kernel/vmlinux.lds.S
-+++ b/arch/hexagon/kernel/vmlinux.lds.S
-@@ -62,6 +62,7 @@ SECTIONS
- 
- 	STABS_DEBUG
- 	DWARF_DEBUG
-+	MODINFO
- 	ELF_DETAILS
- 	.hexagon.attributes 0 : { *(.hexagon.attributes) }
- 
-diff --git a/arch/loongarch/kernel/vmlinux.lds.S b/arch/loongarch/kernel/vmlinux.lds.S
-index 08ea921cdec1..d0e1377a041d 100644
---- a/arch/loongarch/kernel/vmlinux.lds.S
-+++ b/arch/loongarch/kernel/vmlinux.lds.S
-@@ -147,6 +147,7 @@ SECTIONS
- 
- 	STABS_DEBUG
- 	DWARF_DEBUG
-+	MODINFO
- 	ELF_DETAILS
- 
- #ifdef CONFIG_EFI_STUB
-diff --git a/arch/m68k/kernel/vmlinux-nommu.lds b/arch/m68k/kernel/vmlinux-nommu.lds
-index 2624fc18c131..45d7f4b0177b 100644
---- a/arch/m68k/kernel/vmlinux-nommu.lds
-+++ b/arch/m68k/kernel/vmlinux-nommu.lds
-@@ -85,6 +85,7 @@ SECTIONS {
- 	_end = .;
- 
- 	STABS_DEBUG
-+	MODINFO
- 	ELF_DETAILS
- 
- 	/* Sections to be discarded */
-diff --git a/arch/m68k/kernel/vmlinux-std.lds b/arch/m68k/kernel/vmlinux-std.lds
-index 1ccdd04ae462..7326586afe15 100644
---- a/arch/m68k/kernel/vmlinux-std.lds
-+++ b/arch/m68k/kernel/vmlinux-std.lds
-@@ -58,6 +58,7 @@ SECTIONS
-   _end = . ;
- 
-   STABS_DEBUG
-+  MODINFO
-   ELF_DETAILS
- 
-   /* Sections to be discarded */
-diff --git a/arch/m68k/kernel/vmlinux-sun3.lds b/arch/m68k/kernel/vmlinux-sun3.lds
-index f13ddcc2af5c..1b19fef201fb 100644
---- a/arch/m68k/kernel/vmlinux-sun3.lds
-+++ b/arch/m68k/kernel/vmlinux-sun3.lds
-@@ -51,6 +51,7 @@ __init_begin = .;
-   _end = . ;
- 
-   STABS_DEBUG
-+  MODINFO
-   ELF_DETAILS
- 
-   /* Sections to be discarded */
-diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.S
-index 2b708fac8d2c..579b2cc1995a 100644
---- a/arch/mips/kernel/vmlinux.lds.S
-+++ b/arch/mips/kernel/vmlinux.lds.S
-@@ -217,6 +217,7 @@ SECTIONS
- 
- 	STABS_DEBUG
- 	DWARF_DEBUG
-+	MODINFO
- 	ELF_DETAILS
- 
- 	/* These must appear regardless of  .  */
-diff --git a/arch/nios2/kernel/vmlinux.lds.S b/arch/nios2/kernel/vmlinux.lds.S
-index 37b958055064..206f92445bfa 100644
---- a/arch/nios2/kernel/vmlinux.lds.S
-+++ b/arch/nios2/kernel/vmlinux.lds.S
-@@ -57,6 +57,7 @@ SECTIONS
- 
- 	STABS_DEBUG
- 	DWARF_DEBUG
-+	MODINFO
- 	ELF_DETAILS
- 
- 	DISCARDS
-diff --git a/arch/openrisc/kernel/vmlinux.lds.S b/arch/openrisc/kernel/vmlinux.lds.S
-index 049bff45f612..9b29c3211774 100644
---- a/arch/openrisc/kernel/vmlinux.lds.S
-+++ b/arch/openrisc/kernel/vmlinux.lds.S
-@@ -101,6 +101,7 @@ SECTIONS
- 	/* Throw in the debugging sections */
- 	STABS_DEBUG
- 	DWARF_DEBUG
-+	MODINFO
- 	ELF_DETAILS
- 
-         /* Sections to be discarded -- must be last */
-diff --git a/arch/parisc/boot/compressed/vmlinux.lds.S b/arch/parisc/boot/compressed/vmlinux.lds.S
-index ab7b43990857..87d24cc824b6 100644
---- a/arch/parisc/boot/compressed/vmlinux.lds.S
-+++ b/arch/parisc/boot/compressed/vmlinux.lds.S
-@@ -90,6 +90,7 @@ SECTIONS
- 	/* Sections to be discarded */
- 	DISCARDS
- 	/DISCARD/ : {
-+		*(.modinfo)
- #ifdef CONFIG_64BIT
- 		/* temporary hack until binutils is fixed to not emit these
- 		 * for static binaries
-diff --git a/arch/parisc/kernel/vmlinux.lds.S b/arch/parisc/kernel/vmlinux.lds.S
-index b445e47903cf..0ca93d6d7235 100644
---- a/arch/parisc/kernel/vmlinux.lds.S
-+++ b/arch/parisc/kernel/vmlinux.lds.S
-@@ -165,6 +165,7 @@ SECTIONS
- 	_end = . ;
- 
- 	STABS_DEBUG
-+	MODINFO
- 	ELF_DETAILS
- 	.note 0 : { *(.note) }
- 
-diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
-index 15850296c0a9..8fc11d6565bf 100644
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -397,6 +397,7 @@ SECTIONS
- 	_end = . ;
- 
- 	DWARF_DEBUG
-+	MODINFO
- 	ELF_DETAILS
- 
- 	DISCARDS
-diff --git a/arch/riscv/kernel/vmlinux.lds.S b/arch/riscv/kernel/vmlinux.lds.S
-index 61bd5ba6680a..997f9eb3b22b 100644
---- a/arch/riscv/kernel/vmlinux.lds.S
-+++ b/arch/riscv/kernel/vmlinux.lds.S
-@@ -170,6 +170,7 @@ SECTIONS
- 
- 	STABS_DEBUG
- 	DWARF_DEBUG
-+	MODINFO
- 	ELF_DETAILS
- 	.riscv.attributes 0 : { *(.riscv.attributes) }
- 
-diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
-index 53bcbb91bb9b..2b62395e35bf 100644
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -221,6 +221,7 @@ SECTIONS
- 	/* Debugging sections.	*/
- 	STABS_DEBUG
- 	DWARF_DEBUG
-+	MODINFO
- 	ELF_DETAILS
- 
- 	/*
-diff --git a/arch/sh/kernel/vmlinux.lds.S b/arch/sh/kernel/vmlinux.lds.S
-index 008c30289eaa..169c63fb3c1d 100644
---- a/arch/sh/kernel/vmlinux.lds.S
-+++ b/arch/sh/kernel/vmlinux.lds.S
-@@ -89,6 +89,7 @@ SECTIONS
- 
- 	STABS_DEBUG
- 	DWARF_DEBUG
-+	MODINFO
- 	ELF_DETAILS
- 
- 	DISCARDS
-diff --git a/arch/sparc/kernel/vmlinux.lds.S b/arch/sparc/kernel/vmlinux.lds.S
-index f1b86eb30340..7ea510d9b42f 100644
---- a/arch/sparc/kernel/vmlinux.lds.S
-+++ b/arch/sparc/kernel/vmlinux.lds.S
-@@ -191,6 +191,7 @@ SECTIONS
- 
- 	STABS_DEBUG
- 	DWARF_DEBUG
-+	MODINFO
- 	ELF_DETAILS
- 
- 	DISCARDS
-diff --git a/arch/um/kernel/dyn.lds.S b/arch/um/kernel/dyn.lds.S
-index a36b7918a011..ad3cefeff2ac 100644
---- a/arch/um/kernel/dyn.lds.S
-+++ b/arch/um/kernel/dyn.lds.S
-@@ -172,6 +172,7 @@ SECTIONS
- 
-   STABS_DEBUG
-   DWARF_DEBUG
-+  MODINFO
-   ELF_DETAILS
- 
-   DISCARDS
-diff --git a/arch/um/kernel/uml.lds.S b/arch/um/kernel/uml.lds.S
-index a409d4b66114..30aa24348d60 100644
---- a/arch/um/kernel/uml.lds.S
-+++ b/arch/um/kernel/uml.lds.S
-@@ -113,6 +113,7 @@ SECTIONS
- 
-   STABS_DEBUG
-   DWARF_DEBUG
-+  MODINFO
-   ELF_DETAILS
- 
-   DISCARDS
-diff --git a/arch/x86/boot/compressed/vmlinux.lds.S b/arch/x86/boot/compressed/vmlinux.lds.S
-index 587ce3e7c504..e0b152715d9c 100644
---- a/arch/x86/boot/compressed/vmlinux.lds.S
-+++ b/arch/x86/boot/compressed/vmlinux.lds.S
-@@ -88,7 +88,7 @@ SECTIONS
- 	/DISCARD/ : {
- 		*(.dynamic) *(.dynsym) *(.dynstr) *(.dynbss)
- 		*(.hash) *(.gnu.hash)
--		*(.note.*)
-+		*(.note.*) *(.modinfo)
- 	}
- 
- 	.got.plt (INFO) : {
-diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
-index 3a24a3fc55f5..4711a35e706c 100644
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -427,6 +427,7 @@ SECTIONS
- 	.llvm_bb_addr_map : { *(.llvm_bb_addr_map) }
- #endif
- 
-+	MODINFO
- 	ELF_DETAILS
- 
- 	DISCARDS
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index eeb070f330bd..1e1580febe4b 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -848,12 +848,14 @@
- 
- /* Required sections not related to debugging. */
- #define ELF_DETAILS							\
--		.modinfo : { *(.modinfo) . = ALIGN(8); }		\
- 		.comment 0 : { *(.comment) }				\
- 		.symtab 0 : { *(.symtab) }				\
- 		.strtab 0 : { *(.strtab) }				\
- 		.shstrtab 0 : { *(.shstrtab) }
- 
-+#define MODINFO								\
-+		.modinfo : { *(.modinfo) . = ALIGN(8); }
-+
- #ifdef CONFIG_GENERIC_BUG
- #define BUG_TABLE							\
- 	. = ALIGN(8);							\
+I hacked QEMU and tested something like...
+1) addr 8126efff offset 7 -- this would be the very last bit in the page.
+2) addr 8126efff offset 8 -- this would be the very first bit in the next page.  
+3) addr 8126efff offset 9 -- this would be the 2nd bit in the next page.
 
----
-base-commit: 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f
-change-id: 20260224-separate-modinfo-from-elf-details-d3160da5f399
+I expected (1) to pass while (2) and (3) were rejected, but all 3 were rejected by your check.
 
-Best regards,
---  
-Nathan Chancellor <nathan@kernel.org>
+I think the problem is that BITS_TO_BYTES rounds up.  So:
+BITS_TO_BYTES(0) = 0
+BITS_TO_BYTES(1..8) = 1
+BITS_TO_BYTES(9..16) = 2
+and so on.
+
+But your offset check expects
+0..7 = 0
+8..15 = 1
+and so on.
+
+AFAICT replacing BITS_TO_BYTES(offset) with (offset / 8) would work.
+
+
+>  		idx = srcu_read_lock(&kvm->srcu);
+>  		uaddr_s = gpa_to_hva(kvm, ue->u.adapter.summary_addr);
+>  		uaddr_i = gpa_to_hva(kvm, ue->u.adapter.ind_addr);
 
