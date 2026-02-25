@@ -1,207 +1,425 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3A2F38E5FC
-	for <linux-s390@vger.kernel.org>; Wed, 25 Feb 2026 09:34:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C844E283CB5;
+	Wed, 25 Feb 2026 09:46:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772012056; cv=none; b=HKkmHYVbUGM44czbXEcS9Ln8+PcNKxD6SCRPi2ktci/juM/QyFAh7P84VXIC8BYgj8PfyxZasOvZ2BDnuRo08MA+7GgpnECTz+FKZtYDSISUkEjw2aTEHMIjXWGt8y6PucSrT+EYgHtrK21PcjaeEv1RTBS3qkCjHgJebZbN1nE=
+	t=1772012762; cv=none; b=b1JdsWrJvxVmcExq8DKv+z6TZJyOfjcDOrV9XlVPl9BqTW/4t/5kkT20C+aZi1A9DaUsUruve7LND/3r8UxsVLnCLNdDcdXeJt8vQUJhwq3YWu2QK/NLzRlV2AHIUcprZl67RJBjqjAPrCCdK1qof3FR9Qy7d0doG+ZQgGFDHcc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772012056; c=relaxed/simple;
-	bh=EChnaz/wNdUCH/LaAhkqduGVIV85xoH+0j8ZN2XBYUg=;
-	h=From:To:Cc:Subject:In-Reply-To:Date:Message-ID:References:
-	 MIME-Version:Content-Type; b=fy2dHCbEm+KegI8hVjZhr2aHqWLiwtkodXZPo3oEY4FkQxhtAFS25D4Y4I59eLmT2S+21XThV2ugGyunBwMwtWty3r+/sre+SiOtzQH5wddXC5bpAdWO+6Zl3ImiQSkvtSo040LUYm+bUqH40onB7mdPX2Iws1/aYzd1JDM2D08=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=E4h3WVnV; arc=none smtp.client-ip=209.85.216.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1772012762; c=relaxed/simple;
+	bh=e1tQggcgK40+SWAwt4lGz/ga/c6lFzPkuamY/wn1pao=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=k7wlKQV0WvSv5tol81BFDOuZY45zAZM9dtpB308acfAm69D9vMbKdZQgpQI8AKS00hfryP/dqxGHEjbDiO/cx4gekZZv+iBsFqAmlwFEegtwRlzfzoyGqjz0pM1ZXcjsDpTf7yUWvOWSWA1dHR5CXtrPn76qgdzWgnywHVNSD44=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pZamFFOV; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E4h3WVnV"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-3562212b427so2697695a91.1
-        for <linux-s390@vger.kernel.org>; Wed, 25 Feb 2026 01:34:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772012054; x=1772616854; darn=vger.kernel.org;
-        h=mime-version:references:message-id:date:in-reply-to:subject:cc:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=JxnsaOQZey5wMq56BxN2EdEuMBW71mGq+RSuzcss/8M=;
-        b=E4h3WVnVoBDWixEI3M7sRAhWcGnqkgnMkrRN354zlXhRhc9W1sDSE7sIdADBxrhF3G
-         7H7pa8egtVR+7ar95UobKjIdgO/POBr9tKnMHQwwbD7sYP90AWCwFLOpdbZZgL/+mPI9
-         qYrUk9/IM8m/2FDAs9UrXJPIg11Efn89UxCEKT3dz0xeuI6nGuT26RYfvMwRf354syjk
-         lNaRZ7uFuCwu8dKuXpLeIb0i3Tr7E3VEaIP1P6+HoC3NZ/iSXQ/1yREjjUC88ttCJxqW
-         Th9RXRLgyHHDGWXN/hsVf7SKNGPmsfZr9BQjmNviNfxFrYlZyD1CiP5SuqV/fBP3Ml/y
-         6Qug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772012054; x=1772616854;
-        h=mime-version:references:message-id:date:in-reply-to:subject:cc:to
-         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=JxnsaOQZey5wMq56BxN2EdEuMBW71mGq+RSuzcss/8M=;
-        b=g/929ZkatyuH1n6adlgf6MZoxZNwV82ZAnVL3sP0GKDR715zPHSb2dnovfDnAhCnLb
-         F/1fmI2gT1Atr5HXpXkcyQ4/NBV5+ev705PNSBkKTZ0KhVFaUzbjytIiNd3mW6nZq8pe
-         PYw2PG7KUn0nOlyp2SX6CfuHFIxnx/rmNC69hk8zSnvS6Nyd2uw//5bKbBm/Sj5vTlB2
-         95PrZM75HPnGV/GEq8kPWljseDq5uCAsfNdhumxUUOgrPd/Bhw6VxES2yngEaPI4JHBA
-         tVp3QOMGj83zZGwJCXZzIRGa0RaA32eBbkUjBI2VjpEDpj4kiu89W9b9jSAjMe+9/RkU
-         fY8A==
-X-Forwarded-Encrypted: i=1; AJvYcCXu+TxzNQ6U9X/UJeRIN4BTpJoYrT/cSQphb9NL/Jd8g93fY2ZPcTDnCAdyuQkUGa4Ip+gIZuKSbOiI@vger.kernel.org
-X-Gm-Message-State: AOJu0YzHjwD6cWYz0ihxsxxfXExY7fAu58N98FAxstlgMSdR1sjE6wYy
-	NLQGZ/NPYhBq028LHpOifds7J320CjCJZcuLewuyl/YxmCXhTzFlqLM48x1hNQ==
-X-Gm-Gg: ATEYQzzlxwapTjkYqmnrWRmKINkCFEuLK6zMuATvAspmLkPtovYO/kZdVU00LHo8gfe
-	8KHrLRTturvshdOMck8fqMW+/EaoGiT8KcW4y9vR9nmFP7RgzSFgkvzizRNDhIL26E5dUYEgDlX
-	mxGBw50Fp7XvmqsJDwpQionkTTEWEES1fKbUbM8wydW3rIEW63MqziiAZ/4OY57vFcm9hc39lB4
-	jLTZfSDfr/akZ0a60vls95JS70hR9Vh5qSj3EyJ13GlA1mzhxsOTS/AeTFE7AlysNnl30QLqbwe
-	xXFFwuBJ3vcbzLxyfI1gbjiamCQOoF/kZuyaEDUHKAGYHaLg3riAImQsqyRW6NbAJ5He2VRTNc/
-	wVFb/PHsAGbOIGgId3pAgeMXOaaBL47Xh0B0G+5ynQWzKNojDIXsakS5vnD8jEI5D2cx0R4j8td
-	9IspfLB4lYLGgxp8A+6A==
-X-Received: by 2002:a17:90b:3dcc:b0:340:c60b:f362 with SMTP id 98e67ed59e1d1-358ae7c6ca9mr13087754a91.6.1772012054135;
-        Wed, 25 Feb 2026 01:34:14 -0800 (PST)
-Received: from dw-tp ([203.81.242.210])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3590188126esm2256635a91.6.2026.02.25.01.33.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Feb 2026 01:34:13 -0800 (PST)
-From: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
-To: Mike Rapoport <rppt@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Alex Shi <alexs@kernel.org>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Andreas Larsson <andreas@gaisler.com>, Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>, 
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
-	"David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	David Hildenbrand <david@kernel.org>, Dinh Nguyen <dinguyen@kernel.org>, 
-	Geert Uytterhoeven <geert@linux-m68k.org>, Guo Ren <guoren@kernel.org>, 
-	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Johannes Berg <johannes@sipsolutions.net>, 
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Jonathan Corbet <corbet@lwn.net>, 
-	Klara Modin <klarasmodin@gmail.com>, "Liam R. Howlett" <Liam.Howlett@oracle.com>, 
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Magnus Lindholm <linmag7@gmail.com>, 
-	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Michal Hocko <mhocko@suse.com>, Michal Simek <monstr@monstr.eu>, 
-	Mike Rapoport <rppt@kernel.org>, Muchun Song <muchun.song@linux.dev>, 
-	Oscar Salvador <osalvador@suse.de>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Pratyush Yadav <pratyush@kernel.org>, Richard Weinberger <richard@nod.at>, 
-	Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, 
-	Suren Baghdasaryan <surenb@google.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>, 
-	Vlastimil Babka <vbabka@suse.cz>, Will Deacon <will@kernel.org>, x86@kernel.org, 
-	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-csky@vger.kernel.org, linux-cxl@vger.kernel.org, 
-	linux-doc@vger.kernel.org, linux-hexagon@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
-	linux-mips@vger.kernel.org, linux-mm@kvack.org, 
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org, 
-	linux-um@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, 
-	loongarch@lists.linux.dev, sparclinux@vger.kernel.org
-Subject: Re: [PATCH v3 24/29] arch, mm: consolidate initialization of SPARSE memory model
-In-Reply-To: <20260111082105.290734-25-rppt@kernel.org>
-Date: Wed, 25 Feb 2026 09:00:35 +0530
-Message-ID: <87tsv5h544.ritesh.list@gmail.com>
-References: <20260111082105.290734-1-rppt@kernel.org> <20260111082105.290734-25-rppt@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pZamFFOV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB0C7C116D0;
+	Wed, 25 Feb 2026 09:45:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772012762;
+	bh=e1tQggcgK40+SWAwt4lGz/ga/c6lFzPkuamY/wn1pao=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=pZamFFOVtclVCnwxSmXZYX1KReIgG+KclKS2BhZcJLh6yJflCG6+ZblLIShf9DeXr
+	 jJ1ajAkdlDa980REQ117y+bYIjXNVjZmXuDyolDsRb0805WtnX3L/On20paXjcAcYz
+	 741K6MH2SqCjbQMMTs7VdXOzHtLEQFiju2CNiYJODgGzWyhGF3yvHpteL5lpkx26ks
+	 02jwVU+9VlPzbgEgKIFcZBlVZNgPhF7CT2C/7c5pZdNke9CkU7RtqEhBORqB0+3RCy
+	 6IR/YL1IdGjkXSWylFpx350dgrqHvqc6RO0NvWy1cSK911YYkVKJotelztdnihCryq
+	 ViYH5BMFaP0oQ==
+Message-ID: <55720b5b-f643-4e67-8841-d81a9e712faf@kernel.org>
+Date: Wed, 25 Feb 2026 10:45:53 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 04/15] powerpc/time: Prepare to stop elapsing in
+ dynticks-idle
+To: Shrikanth Hegde <sshegde@linux.ibm.com>,
+ Frederic Weisbecker <frederic@kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Anna-Maria Behnsen <anna-maria@linutronix.de>,
+ Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Dietmar Eggemann <dietmar.eggemann@arm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
+ Jan Kiszka <jan.kiszka@siemens.com>, Joel Fernandes <joelagnelf@nvidia.com>,
+ Juri Lelli <juri.lelli@redhat.com>, Kieran Bingham <kbingham@kernel.org>,
+ Mel Gorman <mgorman@suse.de>, Michael Ellerman <mpe@ellerman.id.au>,
+ Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+ Nicholas Piggin <npiggin@gmail.com>, "Paul E . McKenney"
+ <paulmck@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Steven Rostedt <rostedt@goodmis.org>, Sven Schnelle <svens@linux.ibm.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Uladzislau Rezki <urezki@gmail.com>,
+ Valentin Schneider <vschneid@redhat.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Viresh Kumar <viresh.kumar@linaro.org>, Xin Zhao <jackzxcui1989@163.com>,
+ linux-pm@vger.kernel.org, linux-s390@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org
+References: <20260206142245.58987-1-frederic@kernel.org>
+ <20260206142245.58987-5-frederic@kernel.org>
+ <9413517d-963b-4e6d-b11b-b440acd7cb5a@linux.ibm.com>
+ <9ab1e7d7-57ee-49f9-963c-3a1b96dda684@kernel.org>
+ <120884b0-0b09-43a9-b0f6-7dc2affe1ac0@linux.ibm.com>
+Content-Language: fr-FR
+From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+In-Reply-To: <120884b0-0b09-43a9-b0f6-7dc2affe1ac0@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Mike Rapoport <rppt@kernel.org> writes:
+Hi Hegde,
 
-> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
->
-> Every architecture calls sparse_init() during setup_arch() although the
-> data structures created by sparse_init() are not used until the
-> initialization of the core MM.
->
-> Beside the code duplication, calling sparse_init() from architecture
-> specific code causes ordering differences of vmemmap and HVO initialization
-> on different architectures.
->
-> Move the call to sparse_init() from architecture specific code to
-> free_area_init() to ensure that vmemmap and HVO initialization order is
-> always the same.
->
+Le 25/02/2026 à 08:46, Shrikanth Hegde a écrit :
+> Hi Christophe,
+> 
+> On 2/24/26 9:11 PM, Christophe Leroy (CS GROUP) wrote:
+>> Hi Hegde,
+>>
+>> Le 19/02/2026 à 19:30, Shrikanth Hegde a écrit :
+>>>
+>>>
+>>> On 2/6/26 7:52 PM, Frederic Weisbecker wrote:
+>>>> Currently the tick subsystem stores the idle cputime accounting in
+>>>> private fields, allowing cohabitation with architecture idle vtime
+>>>> accounting. The former is fetched on online CPUs, the latter on offline
+>>>> CPUs.
+>>>>
+>>>> For consolidation purpose, architecture vtime accounting will continue
+>>>> to account the cputime but will make a break when the idle tick is
+>>>> stopped. The dyntick cputime accounting will then be relayed by the 
+>>>> tick
+>>>> subsystem so that the idle cputime is still seen advancing coherently
+>>>> even when the tick isn't there to flush the idle vtime.
+>>>>
+>>>> Prepare for that and introduce three new APIs which will be used in
+>>>> subsequent patches:
+>>>>
+>>>> _ vtime_dynticks_start() is deemed to be called when idle enters in
+>>>>    dyntick mode. The idle cputime that elapsed so far is accumulated.
+>>>>
+>>>> - vtime_dynticks_stop() is deemed to be called when idle exits from
+>>>>    dyntick mode. The vtime entry clocks are fast-forward to current 
+>>>> time
+>>>>    so that idle accounting restarts elapsing from now.
+>>>>
+>>>> - vtime_reset() is deemed to be called from dynticks idle IRQ entry to
+>>>>    fast-forward the clock to current time so that the IRQ time is still
+>>>>    accounted by vtime while nohz cputime is paused.
+>>>>
+>>>> Also accumulated vtime won't be flushed from dyntick-idle ticks to 
+>>>> avoid
+>>>> accounting twice the idle cputime, along with nohz accounting.
+>>>>
+>>>> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+>>>
+>>> Reviewed-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+>>>
+>>>> ---
+>>>>   arch/powerpc/kernel/time.c | 41 ++++++++++++++++++++++++++++++++++ 
+>>>> ++++
+>>>>   include/linux/vtime.h      |  6 ++++++
+>>>>   2 files changed, 47 insertions(+)
+>>>>
+>>>> diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+>>>> index 4bbeb8644d3d..18506740f4a4 100644
+>>>> --- a/arch/powerpc/kernel/time.c
+>>>> +++ b/arch/powerpc/kernel/time.c
+>>>> @@ -376,6 +376,47 @@ void vtime_task_switch(struct task_struct *prev)
+>>>>           acct->starttime = acct0->starttime;
+>>>>       }
+>>>>   }
+>>>> +
+>>>> +#ifdef CONFIG_NO_HZ_COMMON
+>>>> +/**
+>>>> + * vtime_reset - Fast forward vtime entry clocks
+>>>> + *
+>>>> + * Called from dynticks idle IRQ entry to fast-forward the clocks 
+>>>> to current time
+>>>> + * so that the IRQ time is still accounted by vtime while nohz 
+>>>> cputime is paused.
+>>>> + */
+>>>> +void vtime_reset(void)
+>>>> +{
+>>>> +    struct cpu_accounting_data *acct = get_accounting(current);
+>>>> +
+>>>> +    acct->starttime = mftb();
+>>>
+>>> I figured out why those huge values happen.
+>>>
+>>> This happens because mftb is from when the system is booted.
+>>> I was doing kexec to start the new kernel and mftb wasn't getting
+>>> reset.
+>>>
+>>> I thought about this. This is concern for pseries too, where LPAR's
+>>> restart but system won't restart and mftb will continue to run 
+>>> instead of
+>>> reset.
+>>>
+>>> I think we should be using sched_clock instead of mftb here.
+>>> Though we need it a few more places and some cosmetic changes around it.
+>>>
+>>> Note: Some values being huge exists without series for few CPUs, with 
+>>> series it
+>>> shows up in most of the CPUs.
+>>>
+>>> So I am planning send out fix below fix separately keeping your
+>>> series as dependency.
+>>>
+>>> ---
+>>>   arch/powerpc/include/asm/accounting.h |  4 ++--
+>>>   arch/powerpc/include/asm/cputime.h    | 14 +++++++-------
+>>>   arch/powerpc/kernel/time.c            | 22 +++++++++++-----------
+>>>   3 files changed, 20 insertions(+), 20 deletions(-)
+>>>
+>>> diff --git a/arch/powerpc/include/asm/accounting.h b/arch/powerpc/ 
+>>> include/asm/accounting.h
+>>> index 6d79c31700e2..50f120646e6d 100644
+>>> --- a/arch/powerpc/include/asm/accounting.h
+>>> +++ b/arch/powerpc/include/asm/accounting.h
+>>> @@ -21,8 +21,8 @@ struct cpu_accounting_data {
+>>>       unsigned long steal_time;
+>>>       unsigned long idle_time;
+>>>       /* Internal counters */
+>>> -    unsigned long starttime;    /* TB value snapshot */
+>>> -    unsigned long starttime_user;    /* TB value on exit to usermode */
+>>> +    unsigned long starttime;    /* Time value snapshot */
+>>> +    unsigned long starttime_user;    /* Time value on exit to 
+>>> usermode */
+>>>   #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
+>>>       unsigned long startspurr;    /* SPURR value snapshot */
+>>>       unsigned long utime_sspurr;    /* ->user_time when ->startspurr 
+>>> set */
+>>> diff --git a/arch/powerpc/include/asm/cputime.h b/arch/powerpc/ 
+>>> include/ asm/cputime.h
+>>> index aff858ca99c0..eb6b629b113f 100644
+>>> --- a/arch/powerpc/include/asm/cputime.h
+>>> +++ b/arch/powerpc/include/asm/cputime.h
+>>> @@ -20,9 +20,9 @@
+>>>   #include <asm/time.h>
+>>>   #include <asm/param.h>
+>>>   #include <asm/firmware.h>
+>>> +#include <linux/sched/clock.h>
+>>>
+>>>   #ifdef __KERNEL__
+>>> -#define cputime_to_nsecs(cputime) tb_to_ns(cputime)
+>>>
+>>>   /*
+>>>    * PPC64 uses PACA which is task independent for storing accounting 
+>>> data while
+>>> @@ -44,20 +44,20 @@
+>>>    */
+>>>   static notrace inline void account_cpu_user_entry(void)
+>>>   {
+>>> -    unsigned long tb = mftb();
+>>> +    unsigned long now = sched_clock();
+>>
+>> Now way !
+>>
+>> By doing that you'll kill performance for no reason. All we need when 
+>> accounting time spent in kernel or in user is the difference between 
+>> time at entry and time at exit, no mater what the time was at boot time.
+>>
+> 
+> No. With this patch there will not be any performance difference.
+> All it does is, instead of using mftb uses sched_clock at those places.
+> 
+> 
+> In arch/powerpc/kernel/time.c we have sched_clock().
+> notrace unsigned long long sched_clock(void)
+> {
+>          return mulhdu(get_tb() - boot_tb, tb_to_ns_scale) << 
+> tb_to_ns_shift;
+> }
+> 
+> It does the same mftb call, and accounts only the time after boot, which is
+> what /proc/stat should do as well.
+> 
+> "
+> the amount of time, measured in units of USER_HZ
+> (1/100ths of a second on most architectures
+> 
+> user   (1) Time spent in user mode.
+> 
+> idle   (4) Time spent in the idle task.  This value
+>         should be USER_HZ times the second entry in
+>         the /proc/uptime pseudo-file.
+> "
+> /proc/uptime is based on sched_clock, so i infer /proc/stat also should 
+> show
+> values w.r.t to boot of the OS.
+> 
+> 
+>> Also sched_clock() returns nanoseconds which implies calculation from 
+>> timebase. This is pointless CPU consumption. The current 
+>> implementation calculates nanoseconds at task switch when calling 
+>> vtime_flush().Your change will now do it at every kernel entry and 
+>> kernel exit by calling sched_clock().
+> 
+> This change doesn't add any additional paths. Even without patches, mftb 
+> would have
+> been called in every kernel entry/exit.  See mftb usage 
+> account_cpu_user_exit/enter
+> 
+> Now instead of mftb sched_clock is used, that's all. No additional 
+> entry/exit points.
+> And previously when accounting we would have done cputime_to_nsecs, now 
+> that conversion
+> is done automatically in sched_clock. So overall computation-wise it 
+> should be same.
+> 
+> What i am missing to see it here?
 
-Hello Mike,
+Ok, lets try to explain in more details:
 
-[    0.000000][    T0] ------------[ cut here ]------------
-[    0.000000][    T0] WARNING: arch/powerpc/include/asm/io.h:879 at virt_to_phys+0x44/0x1b8, CPU#0: swapper/0
-[    0.000000][    T0] Modules linked in:
-[    0.000000][    T0] CPU: 0 UID: 0 PID: 0 Comm: swapper Not tainted 6.19.0-12139-gc57b1c00145a #31 PREEMPT
-[    0.000000][    T0] Hardware name: IBM pSeries (emulated by qemu) POWER10 (architected) 0x801200 0xf000006 of:SLOF,git-ee03ae pSeries
-[    0.000000][    T0] NIP:  c000000000601584 LR: c000000004075de4 CTR: c000000000601548
-[    0.000000][    T0] REGS: c000000004d1f870 TRAP: 0700   Not tainted  (6.19.0-12139-gc57b1c00145a)
-[    0.000000][    T0] MSR:  8000000000021033 <SF,ME,IR,DR,RI,LE>  CR: 48022448  XER: 20040000
-[    0.000000][    T0] CFAR: c0000000006016c4 IRQMASK: 1
-[    0.000000][    T0] GPR00: c000000004075dd4 c000000004d1fb10 c00000000304bb00 c000000180000000
-[    0.000000][    T0] GPR04: 0000000000000009 0000000000000009 c000000004ec94a0 0000000000000000
-[    0.000000][    T0] GPR08: 0000000000018000 0000000000000001 c000000004921280 0000000048022448
-[    0.000000][    T0] GPR12: c000000000601548 c000000004fe0000 0000000000000004 0000000000000004
-[    0.000000][    T0] GPR16: 000000000287fb08 0000000000000060 0000000000000002 0000000002831750
-[    0.000000][    T0] GPR20: 0000000002831778 fffffffffffffffd c000000004d78050 00000000051cbb00
-[    0.000000][    T0] GPR24: 0000000005a40008 c000000000000000 c000000000400000 0000000000000100
-[    0.000000][    T0] GPR28: c000000004d78050 0000000000000000 c000000004ecd4a8 0000000000000001
-[    0.000000][    T0] NIP [c000000000601584] virt_to_phys+0x44/0x1b8
-[    0.000000][    T0] LR [c000000004075de4] alloc_bootmem+0x144/0x1a8
-[    0.000000][    T0] Call Trace:
-[    0.000000][    T0] [c000000004d1fb50] [c000000004075dd4] alloc_bootmem+0x134/0x1a8
-[    0.000000][    T0] [c000000004d1fba0] [c000000004075fac] __alloc_bootmem_huge_page+0x164/0x230
-[    0.000000][    T0] [c000000004d1fbe0] [c000000004030bc4] alloc_bootmem_huge_page+0x44/0x138
-[    0.000000][    T0] [c000000004d1fc10] [c000000004076e48] hugetlb_hstate_alloc_pages+0x350/0x5ac
-[    0.000000][    T0] [c000000004d1fd30] [c0000000040782f0] hugetlb_bootmem_alloc+0x15c/0x19c
-[    0.000000][    T0] [c000000004d1fd70] [c00000000406d7b4] mm_core_init_early+0x7c/0xdf4
-[    0.000000][    T0] [c000000004d1ff30] [c000000004011d84] start_kernel+0xac/0xc58
-[    0.000000][    T0] [c000000004d1ffe0] [c00000000000e99c] start_here_common+0x1c/0x20
-[    0.000000][    T0] Code: 6129ffff 792907c6 6529ffff 6129ffff 7c234840 40810018 3d2201e8 3929a7a8 e9290000 7c291840 41810044 3be00001 <0b1f0000> 3d20bfff 6129ffff 792907c6
+While a process is running, it will enter and leave the kernel multiple 
+times, without task switch. For instance for system calls or for interrupts.
 
+At every kernel entry and exit, account_cpu_user_entry() and 
+account_cpu_user_exit() are called. That's a very hot path.
 
-I think this is happening because, now in mm_core_early_init(), the
-order of initialization between hugetlb_bootmem_alloc() and
-free_area_init() is reversed. Since free_area_init() -> sparse_init()
-is responsible for setting SECTIONS and vmemmap area. 
+I have added the following functions to see what the code looks like:
 
-Then in alloc_bootmem() (from hugetlb_bootmem_alloc() path), it uses virt_to_phys(m)...
++
++void my_account_cpu_user_entry(void);
++void my_account_cpu_user_entry(void)
++{
++       account_cpu_user_entry();
++}
++
++void my_account_cpu_user_exit(void);
++void my_account_cpu_user_exit(void)
++{
++       account_cpu_user_exit();
++}
 
-			/*
-			 * For pre-HVO to work correctly, pages need to be on
-			 * the list for the node they were actually allocated
-			 * from. That node may be different in the case of
-			 * fallback by memblock_alloc_try_nid_raw. So,
-			 * extract the actual node first.
-			 */
-			if (m)
-				listnode = early_pfn_to_nid(PHYS_PFN(virt_to_phys(m)));
+What we have today is very optimised:
+
+00000148 <my_account_cpu_user_entry>:
+  148:	7d 0c 42 e6 	mftb    r8
+  14c:	80 e2 00 08 	lwz     r7,8(r2)
+  150:	81 22 00 28 	lwz     r9,40(r2)
+  154:	91 02 00 24 	stw     r8,36(r2)
+  158:	7d 29 38 50 	subf    r9,r9,r7
+  15c:	7d 29 42 14 	add     r9,r9,r8
+  160:	91 22 00 08 	stw     r9,8(r2)
+  164:	4e 80 00 20 	blr
+
+00000168 <my_account_cpu_user_exit>:
+  168:	7d 0c 42 e6 	mftb    r8
+  16c:	80 e2 00 0c 	lwz     r7,12(r2)
+  170:	81 22 00 24 	lwz     r9,36(r2)
+  174:	91 02 00 28 	stw     r8,40(r2)
+  178:	7d 29 38 50 	subf    r9,r9,r7
+  17c:	7d 29 42 14 	add     r9,r9,r8
+  180:	91 22 00 0c 	stw     r9,12(r2)
+  184:	4e 80 00 20 	blr
 
 
-... virt_to_phys on powerpc uses:
 
-static inline unsigned long virt_to_phys(const volatile void * address)
-{
-	WARN_ON(IS_ENABLED(CONFIG_DEBUG_VIRTUAL) && !virt_addr_valid(address));
+With your change we now get a call to sched_clock() instead of a simple 
+mftb,
 
-	return __pa((unsigned long)address);
-}
+00000154 <my_account_cpu_user_entry>:
+  154:	94 21 ff f0 	stwu    r1,-16(r1)
+  158:	7c 08 02 a6 	mflr    r0
+  15c:	90 01 00 14 	stw     r0,20(r1)
+  160:	48 00 00 01 	bl      160 <my_account_cpu_user_entry+0xc>
+			160: R_PPC_REL24	sched_clock
+  164:	81 02 00 08 	lwz     r8,8(r2)
+  168:	81 22 00 28 	lwz     r9,40(r2)
+  16c:	90 82 00 24 	stw     r4,36(r2)
+  170:	7d 29 40 50 	subf    r9,r9,r8
+  174:	7d 29 22 14 	add     r9,r9,r4
+  178:	91 22 00 08 	stw     r9,8(r2)
+  17c:	80 01 00 14 	lwz     r0,20(r1)
+  180:	38 21 00 10 	addi    r1,r1,16
+  184:	7c 08 03 a6 	mtlr    r0
+  188:	4e 80 00 20 	blr
 
-#define virt_addr_valid(vaddr)	({					\
-	unsigned long _addr = (unsigned long)vaddr;			\
-	_addr >= PAGE_OFFSET && _addr < (unsigned long)high_memory &&	\
-	pfn_valid(virt_to_pfn((void *)_addr));				\
-})
+0000018c <my_account_cpu_user_exit>:
+  18c:	94 21 ff f0 	stwu    r1,-16(r1)
+  190:	7c 08 02 a6 	mflr    r0
+  194:	90 01 00 14 	stw     r0,20(r1)
+  198:	48 00 00 01 	bl      198 <my_account_cpu_user_exit+0xc>
+			198: R_PPC_REL24	sched_clock
+  19c:	81 02 00 0c 	lwz     r8,12(r2)
+  1a0:	81 22 00 24 	lwz     r9,36(r2)
+  1a4:	90 82 00 28 	stw     r4,40(r2)
+  1a8:	7d 29 40 50 	subf    r9,r9,r8
+  1ac:	7d 29 22 14 	add     r9,r9,r4
+  1b0:	91 22 00 0c 	stw     r9,12(r2)
+  1b4:	80 01 00 14 	lwz     r0,20(r1)
+  1b8:	38 21 00 10 	addi    r1,r1,16
+  1bc:	7c 08 03 a6 	mtlr    r0
+  1c0:	4e 80 00 20 	blr
 
+And sched_clock() is heavy, first it has the sequence mftbu/mftb/mftbu, 
+and then it does awful lot of calculations including many multiply:
 
-I think the above warning in dmesg gets printed from above WARN_ON, i.e.
-because pfn_valid() is false, since we haven't done sparse_init() yet.
+000004d8 <sched_clock>:
+  4d8:	7d 2d 42 e6 	mftbu   r9
+  4dc:	7d 0c 42 e6 	mftb    r8
+  4e0:	7d 4d 42 e6 	mftbu   r10
+  4e4:	7c 09 50 40 	cmplw   r9,r10
+  4e8:	40 82 ff f0 	bne     4d8 <sched_clock>
+  4ec:	3d 40 00 00 	lis     r10,0
+			4ee: R_PPC_ADDR16_HA	.data..ro_after_init
+  4f0:	38 ca 00 00 	addi    r6,r10,0
+			4f2: R_PPC_ADDR16_LO	.data..ro_after_init
+  4f4:	3c e0 00 00 	lis     r7,0
+			4f6: R_PPC_ADDR16_HA	.data..read_mostly
+  4f8:	38 87 00 00 	addi    r4,r7,0
+			4fa: R_PPC_ADDR16_LO	.data..read_mostly
+  4fc:	80 66 00 04 	lwz     r3,4(r6)
+  500:	80 e7 00 00 	lwz     r7,0(r7)
+			502: R_PPC_ADDR16_LO	.data..read_mostly
+  504:	80 c4 00 04 	lwz     r6,4(r4)
+  508:	81 4a 00 00 	lwz     r10,0(r10)
+			50a: R_PPC_ADDR16_LO	.data..ro_after_init
+  50c:	7c 63 40 10 	subfc   r3,r3,r8
+  510:	7d 0a 49 10 	subfe   r8,r10,r9
+  514:	7d 27 19 d6 	mullw   r9,r7,r3
+  518:	7d 43 30 16 	mulhwu  r10,r3,r6
+  51c:	7c 08 31 d6 	mullw   r0,r8,r6
+  520:	7d 4a 48 14 	addc    r10,r10,r9
+  524:	7c 67 18 16 	mulhwu  r3,r7,r3
+  528:	39 20 00 00 	li      r9,0
+  52c:	7c c8 30 16 	mulhwu  r6,r8,r6
+  530:	7c a9 49 14 	adde    r5,r9,r9
+  534:	7d 67 41 d6 	mullw   r11,r7,r8
+  538:	7d 4a 00 14 	addc    r10,r10,r0
+  53c:	7c a5 01 94 	addze   r5,r5
+  540:	7c 63 30 14 	addc    r3,r3,r6
+  544:	7d 29 49 14 	adde    r9,r9,r9
+  548:	80 84 00 08 	lwz     r4,8(r4)
+  54c:	7c 63 58 14 	addc    r3,r3,r11
+  550:	7c e7 40 16 	mulhwu  r7,r7,r8
+  554:	7d 29 01 94 	addze   r9,r9
+  558:	7c 63 28 14 	addc    r3,r3,r5
+  55c:	7d 29 39 14 	adde    r9,r9,r7
+  560:	35 44 ff e0 	addic.  r10,r4,-32
+  564:	41 80 00 10 	blt     574 <sched_clock+0x9c>
+  568:	7c 63 50 30 	slw     r3,r3,r10
+  56c:	38 80 00 00 	li      r4,0
+  570:	4e 80 00 20 	blr
+  574:	21 04 00 1f 	subfic  r8,r4,31
+  578:	54 6a f8 7e 	srwi    r10,r3,1
+  57c:	7d 29 20 30 	slw     r9,r9,r4
+  580:	7d 4a 44 30 	srw     r10,r10,r8
+  584:	7c 64 20 30 	slw     r4,r3,r4
+  588:	7d 43 4b 78 	or      r3,r10,r9
+  58c:	4e 80 00 20 	blr
 
-So, what I wanted to check was - do you think instead of virt_to_phys(), we
-could directly use __pa() here() in mm/hugetlb.c, since these are
-memblock alloc addresses? i.e.: 
+I think the difference is obvious, no need of benchmarking. We shall 
+refrain from calling sched_clock() at every kernel entry/exit. 
+Converting from timebase to nanoseconds only need to be done in 
+vtime_flush() called by vtime_task_switch() during task switch.
 
-// alloc_bootmem():
--   listnode = early_pfn_to_nid(PHYS_PFN(virt_to_phys(m)));
-+   listnode = early_pfn_to_nid(PHYS_PFN(__pa(m)));
+Hope it is more explicit now.
 
-// __alloc_bootmem_huge_page():
--   memblock_reserved_mark_noinit(virt_to_phys((void *)m + PAGE_SIZE),
-+   memblock_reserved_mark_noinit(__pa((void *)m + PAGE_SIZE),
-
-
-Thoughts?
-
--ritesh
+Christophe
