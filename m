@@ -1,222 +1,196 @@
-Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C9D93DA7FA
-	for <linux-s390@vger.kernel.org>; Wed, 25 Feb 2026 17:41:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DC942DA775;
+	Wed, 25 Feb 2026 17:48:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772041320; cv=none; b=I55qL2WySj/46UN+Nm2BYnI+7RPwSFZZTsls/yAeXwAWGEADdr5Ll0DZ+eA66eXnMZ4PoYN1HkgB8gPi9NFjyYGAdXfVjnNErTFzVAQwzmMOSqx2tprzUhKOezfrYtvMu52B5tvVdPPqtqZIL9dZubDLU8BSS51ETFEcJPRLm8E=
+	t=1772041721; cv=none; b=HD7oENL3JJu9xWIcEirQn/E7+eNkPk6G7iFST+SvqpOle5zM3V0AnElnmrVpRZOnQCEIxPCrsF4Lwyv/U8As0444zAdODd0xQ3gKkGrCNNAGyQ0XbD5TbjuLpkRlV9lRHw0F9wgaQOkdFfHukHOrQSZVjyTVJkrehG5flRNeCcw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772041320; c=relaxed/simple;
-	bh=jOatpcXoBL6KLZUfPVa5YPNNuKV2Y/R+E7YOi+QvXiQ=;
-	h=From:To:Cc:Subject:In-Reply-To:Date:Message-ID:References:
-	 MIME-Version:Content-Type; b=nMkRYHJjXLKubj4kXH7qbyLiCfKZicQ6oe1L2i6kEKLKZtbxQ8/AFB/N2nOfegzH7UJDL9FZeCSR9XZYRhbNW8ovhWk1zL4qNOfSVCbcb+WFVu4ktIKxUv6Jdg/7e/ky/phDZqj5FHwYTq76d1b3C/q5efx2vM2qq1Kct2Pdc8Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CaQIE8Rb; arc=none smtp.client-ip=209.85.210.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1772041721; c=relaxed/simple;
+	bh=H5Ts7nIt8oQEZQBiJ8wcb0uvhSdyoTCywp4BAXgdCw8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=alCDNxL/p+w0XUuzg/tNa0mq+NAC2b/2VY/5PHt/4ay2+TsXU2LX9+xHslbZSq3oe0gzTi/73qQkhjdX3DKk0yJ1vVC4AJoExrz414mD6eT33fMkLOzNgK6xR1jn9j+hHAj5WupJCwjumLUOEL2MXK/8H/vcqL24OrUc8lak7AI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hGOB5Fzl; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CaQIE8Rb"
-Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-8230c33f477so15030b3a.2
-        for <linux-s390@vger.kernel.org>; Wed, 25 Feb 2026 09:41:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772041318; x=1772646118; darn=vger.kernel.org;
-        h=mime-version:references:message-id:date:in-reply-to:subject:cc:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=aMnEPXSeAknTUn6pBGQAEqhzdOlacieP4zL+mwxArg0=;
-        b=CaQIE8RbUyOkoSmCFKRJbZFjSrsqh7x5RlwDFyyFM18qmlqolP18GUAVZ+nv7t1Sqh
-         vvWPA6H0Mf3pi4ZiJ7bNTkD4+Eurf4Zic+DGsXTM4pDTnd+Tsyo0aYU218udYhfFIKyU
-         y90NmHECCwix96rOl+KiN/9KZ7fbxIenwLU0a9VlWNYJnt9GtMZi2hv+JSZSmHNsCfR8
-         45o3xwEnksJFn5XKsblVX/wJP9HObSM0yTg5ZE1OQ2UQTUOI0AsZAaqxUAqV7n+0f1v1
-         tte6sRIph189lX7Fazv2FXMqbFTl0s5jH8a63L8aZcclp3Uv4Uf3tKmjvZz8WyPkQGvt
-         f08w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772041318; x=1772646118;
-        h=mime-version:references:message-id:date:in-reply-to:subject:cc:to
-         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=aMnEPXSeAknTUn6pBGQAEqhzdOlacieP4zL+mwxArg0=;
-        b=D/y6G4HIRw6Yse9uMMBigK+mASPDKTRt5ouxl9YCk+wOCFUXBc0fzGzn6OXgbdbD55
-         WPD2tgjRBm82nIA1sEWKAn4cIdcWZtcYCA0/JhsUVM5B5DXlcMUeA60tIPccdxpGpIJF
-         xeR2MDax5lHlBA7g1jkqFcfegYagZCz5iym3oFBoD3r/LKZkGRCLuN8rsfuJ5P7CCdqU
-         o9QEFkH7QjbZBSL93V69hF5B8l17HPmLF+PqkYUjAa1TB9tikBWHTYPUQSf0NmUvvcCC
-         lfsUL7R45R9FAjUhxT257gsH95xHsV11CjG7Fnfsn7GKHUrz5LUmeNANVmAR04lSLuT8
-         yTDw==
-X-Forwarded-Encrypted: i=1; AJvYcCXZFSkKf2KkdiK02yfUWj9CNFZuIiqS7Y2HAJwnfmM2Z+jviTgk7FE+WJ582ez/o4K2Mmv+GOavTKPO@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx3PE3qsPdF76OsV77KDviWgFaO4ZnB0sZ7Zj3noOOeJN8y8mOj
-	wu5eTGXh/kQR4tNcBvUYgCFUEhYzrJ3ck/TkwuSOOsl+x4OaJKB1vspd
-X-Gm-Gg: ATEYQzw6FhZXBwvjt7uhb8y61iYQB4i1GmVu8HfZtFv8MHtenwXl9xWP1S0hzR5rJbv
-	DpKTgey500DNBuzDY/sp4wpMtc/MX8zYRmOGjJw+H/puwbDQty8QJZNVCfox3gEfzqSXfGI5ziQ
-	D6EQiJwU568gD95JGrzUM61YLQfAPFd5pMsdEtsNAgawiGxLSDiPYUXYa8jnT0+any1+79zPheJ
-	cGNMp84G1JBQEU8fEdWe/+kNRHI7IwbW8zGxNKT6mtadU1pLdf0jvQnuF4IAYTz7DWc//2r8B8r
-	tKDnmjVfkwF9SmY7zIJnEPD1ulOnk3CjEghmGf4lgucF4FDbR1AMd+zcjBwTf4Ehx1+Uh8IWdt9
-	3gyKyzyzVagoHpHoCUE5cn9EVP2l+Yz2FJ9/YX8weEkpnMJK5XYM5tV40CXmdpNSJuzMyIi659r
-	lqapLqN798LX1nhuNheg==
-X-Received: by 2002:a05:6a21:3290:b0:38d:edd4:2fbe with SMTP id adf61e73a8af0-39545ed058emr15020115637.31.1772041317482;
-        Wed, 25 Feb 2026 09:41:57 -0800 (PST)
-Received: from dw-tp ([203.81.243.177])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-826dd8fdb81sm14825760b3a.64.2026.02.25.09.41.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Feb 2026 09:41:56 -0800 (PST)
-From: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
-To: Mike Rapoport <rppt@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Alex Shi <alexs@kernel.org>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Andreas Larsson <andreas@gaisler.com>, 
-	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>, 
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
-	"David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	David Hildenbrand <david@kernel.org>, Dinh Nguyen <dinguyen@kernel.org>, 
-	Geert Uytterhoeven <geert@linux-m68k.org>, Guo Ren <guoren@kernel.org>, 
-	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Johannes Berg <johannes@sipsolutions.net>, 
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Jonathan Corbet <corbet@lwn.net>, 
-	Klara Modin <klarasmodin@gmail.com>, "Liam R. Howlett" <Liam.Howlett@oracle.com>, 
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Magnus Lindholm <linmag7@gmail.com>, 
-	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Michal Hocko <mhocko@suse.com>, Michal Simek <monstr@monstr.eu>, 
-	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Pratyush Yadav <pratyush@kernel.org>, 
-	Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>, 
-	Stafford Horne <shorne@gmail.com>, Suren Baghdasaryan <surenb@google.com>, 
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Thomas Gleixner <tglx@linutronix.de>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>, Vlastimil Babka <vbabka@suse.cz>, 
-	Will Deacon <will@kernel.org>, x86@kernel.org, linux-alpha@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, 
-	linux-cxl@vger.kernel.org, linux-doc@vger.kernel.org, 
-	linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-mm@kvack.org, linux-openrisc@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
-	linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org, 
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, 
-	sparclinux@vger.kernel.org
-Subject: Re: [PATCH v3 24/29] arch, mm: consolidate initialization of SPARSE memory model
-In-Reply-To: <aZ8idANginXzhf0_@kernel.org>
-Date: Wed, 25 Feb 2026 23:08:38 +0530
-Message-ID: <87seaohgf5.ritesh.list@gmail.com>
-References: <20260111082105.290734-1-rppt@kernel.org> <20260111082105.290734-25-rppt@kernel.org> <87tsv5h544.ritesh.list@gmail.com> <aZ8idANginXzhf0_@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hGOB5Fzl"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61PFFhkW2771372;
+	Wed, 25 Feb 2026 17:47:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Fi/scU
+	Cz0hk1ClyLWcfCwCSy/YzR+Pqnuv6JZ11frhM=; b=hGOB5FzlB9IxhDHx4qvcjN
+	o5k9aol/f16id6Q9kaa61JSGa1RQglfiwuB4qu1PLYhJIEmPlhsV/zlX/IBoRaQl
+	ztKmd8l8q7rJdeZ1ms8WNxdCMiBKOmnweAt1vutKlV+TJb1h0OrUPdhpt2yKKc0f
+	/yGkC/AWTeAUFhohb/jro4dcmJwKUynpm0a9li6vcwMnAFdbaq7kN6EwX/0MZBJe
+	3IUh6zMSJevB0Ub8vcc7u5oBqLtXEOPpK6qaM/QvHBwbe2COkAErkoLn9+vvtD8I
+	+EfcB4eC9nXn3EQglJstKnbA6FMRTJcZmt+v/x/a0qjxXXOICtSeZsq3X4bendoQ
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cf34c8u96-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Feb 2026 17:47:54 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61PGRpts013406;
+	Wed, 25 Feb 2026 17:47:53 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cfqdy6j70-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Feb 2026 17:47:53 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61PHlndC52429258
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 25 Feb 2026 17:47:49 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3A34020043;
+	Wed, 25 Feb 2026 17:47:49 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E6F2A20040;
+	Wed, 25 Feb 2026 17:47:42 +0000 (GMT)
+Received: from [9.124.222.200] (unknown [9.124.222.200])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 25 Feb 2026 17:47:42 +0000 (GMT)
+Message-ID: <62f50aad-05ce-42ac-bdf6-dcb4af69c1c2@linux.ibm.com>
+Date: Wed, 25 Feb 2026 23:17:42 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 04/15] powerpc/time: Prepare to stop elapsing in
+ dynticks-idle
+To: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Anna-Maria Behnsen <anna-maria@linutronix.de>,
+        Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Joel Fernandes <joelagnelf@nvidia.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Kieran Bingham <kbingham@kernel.org>, Mel Gorman <mgorman@suse.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        "Paul E . McKenney"
+ <paulmck@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Valentin Schneider <vschneid@redhat.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Xin Zhao <jackzxcui1989@163.com>, linux-pm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+References: <20260206142245.58987-1-frederic@kernel.org>
+ <20260206142245.58987-5-frederic@kernel.org>
+ <9413517d-963b-4e6d-b11b-b440acd7cb5a@linux.ibm.com>
+ <9ab1e7d7-57ee-49f9-963c-3a1b96dda684@kernel.org>
+ <120884b0-0b09-43a9-b0f6-7dc2affe1ac0@linux.ibm.com>
+ <55720b5b-f643-4e67-8841-d81a9e712faf@kernel.org>
+ <a20beb34-0e4b-4063-b6b0-6c5886bbb971@linux.ibm.com>
+ <a0c6e65c-3331-402a-94eb-14ba7f4b7ba7@kernel.org>
+ <729a7e7f-a50e-480c-87ce-c45221fbb326@linux.ibm.com>
+ <6c007cf1-46d5-4853-ae2e-90ee5257c6c9@kernel.org>
+Content-Language: en-US
+From: Shrikanth Hegde <sshegde@linux.ibm.com>
+In-Reply-To: <6c007cf1-46d5-4853-ae2e-90ee5257c6c9@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI1MDE2OSBTYWx0ZWRfXyoXr+gaINCkX
+ swtLpILwXDJFyN/y0EQ/PZ6BsXh7ez8fMiRIFQX1Kuvmd0cTkULq2NEg+gsiOSUI9+8+V/bfqvt
+ BCEwPgwsRHOUNk8y2Fm7+NOe+fRW3mrNjsOctq3c0QFljM91aj1CDDETUkQLYEhDrZrJs+gfc4T
+ 0KHhGDrntMSNoRCLDSVrvPGA7tApvjLpc8Dc3OlpCiRs1UVE06uKamvhqS6W2j5R7XKlsu2U5pZ
+ Mfimy3SZ2nCMFT8pZvPMyT8rwDKzYBdDkKhMNMbeOTyyLViJhQSOBITwdWbY0ftlpRtviwTdfO2
+ FMD9AtfmjzbbVWVlSfxd2GUx6KH96iwpcENvdcZnlTxRb70VSdeHd/WFnivdjuy8emwMld1JZAC
+ /95Np8ehXGeW2R/LePIcVP7WGBjvoGjU0puVnGn5JcTeHs+p3/SW48g6jPQJQBA6ffhQsGNftVM
+ 8031OmFKUBPXwq3YhXg==
+X-Proofpoint-ORIG-GUID: Tv4S2untdyEH1R38ppz_YIjtG6ZEtY6R
+X-Authority-Analysis: v=2.4 cv=F9lat6hN c=1 sm=1 tr=0 ts=699f35ca cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=lk4ULvty7AM7_XruhlkA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: kqxW0WId8-MSaE3TJ8tfVvU82vXknTAu
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-25_02,2026-02-25_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 phishscore=0 bulkscore=0 adultscore=0 spamscore=0
+ clxscore=1015 suspectscore=0 malwarescore=0 lowpriorityscore=0
+ priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
+ definitions=main-2602250169
 
-Mike Rapoport <rppt@kernel.org> writes:
+Hi Christophe.
 
-> Hello Ritesh,
->
-> On Wed, Feb 25, 2026 at 09:00:35AM +0530, Ritesh Harjani wrote:
->> Mike Rapoport <rppt@kernel.org> writes:
->> 
->> > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
->> >
->> > Every architecture calls sparse_init() during setup_arch() although the
->> > data structures created by sparse_init() are not used until the
->> > initialization of the core MM.
->> >
->> > Beside the code duplication, calling sparse_init() from architecture
->> > specific code causes ordering differences of vmemmap and HVO initialization
->> > on different architectures.
->> >
->> > Move the call to sparse_init() from architecture specific code to
->> > free_area_init() to ensure that vmemmap and HVO initialization order is
->> > always the same.
->> >
->> 
->> Hello Mike,
->> 
->> [    0.000000][    T0] ------------[ cut here ]------------
->> [    0.000000][    T0] WARNING: arch/powerpc/include/asm/io.h:879 at virt_to_phys+0x44/0x1b8, CPU#0: swapper/0
->> [    0.000000][    T0] Modules linked in:
->> [    0.000000][    T0] CPU: 0 UID: 0 PID: 0 Comm: swapper Not tainted 6.19.0-12139-gc57b1c00145a #31 PREEMPT
->> [    0.000000][    T0] Hardware name: IBM pSeries (emulated by qemu) POWER10 (architected) 0x801200 0xf000006 of:SLOF,git-ee03ae pSeries
->> [    0.000000][    T0] NIP:  c000000000601584 LR: c000000004075de4 CTR: c000000000601548
->> [    0.000000][    T0] REGS: c000000004d1f870 TRAP: 0700   Not tainted  (6.19.0-12139-gc57b1c00145a)
->> [    0.000000][    T0] MSR:  8000000000021033 <SF,ME,IR,DR,RI,LE>  CR: 48022448  XER: 20040000
->> [    0.000000][    T0] CFAR: c0000000006016c4 IRQMASK: 1
->> [    0.000000][    T0] GPR00: c000000004075dd4 c000000004d1fb10 c00000000304bb00 c000000180000000
->> [    0.000000][    T0] GPR04: 0000000000000009 0000000000000009 c000000004ec94a0 0000000000000000
->> [    0.000000][    T0] GPR08: 0000000000018000 0000000000000001 c000000004921280 0000000048022448
->> [    0.000000][    T0] GPR12: c000000000601548 c000000004fe0000 0000000000000004 0000000000000004
->> [    0.000000][    T0] GPR16: 000000000287fb08 0000000000000060 0000000000000002 0000000002831750
->> [    0.000000][    T0] GPR20: 0000000002831778 fffffffffffffffd c000000004d78050 00000000051cbb00
->> [    0.000000][    T0] GPR24: 0000000005a40008 c000000000000000 c000000000400000 0000000000000100
->> [    0.000000][    T0] GPR28: c000000004d78050 0000000000000000 c000000004ecd4a8 0000000000000001
->> [    0.000000][    T0] NIP [c000000000601584] virt_to_phys+0x44/0x1b8
->> [    0.000000][    T0] LR [c000000004075de4] alloc_bootmem+0x144/0x1a8
->> [    0.000000][    T0] Call Trace:
->> [    0.000000][    T0] [c000000004d1fb50] [c000000004075dd4] alloc_bootmem+0x134/0x1a8
->> [    0.000000][    T0] [c000000004d1fba0] [c000000004075fac] __alloc_bootmem_huge_page+0x164/0x230
->> [    0.000000][    T0] [c000000004d1fbe0] [c000000004030bc4] alloc_bootmem_huge_page+0x44/0x138
->> [    0.000000][    T0] [c000000004d1fc10] [c000000004076e48] hugetlb_hstate_alloc_pages+0x350/0x5ac
->> [    0.000000][    T0] [c000000004d1fd30] [c0000000040782f0] hugetlb_bootmem_alloc+0x15c/0x19c
->> [    0.000000][    T0] [c000000004d1fd70] [c00000000406d7b4] mm_core_init_early+0x7c/0xdf4
->> [    0.000000][    T0] [c000000004d1ff30] [c000000004011d84] start_kernel+0xac/0xc58
->> [    0.000000][    T0] [c000000004d1ffe0] [c00000000000e99c] start_here_common+0x1c/0x20
->> [    0.000000][    T0] Code: 6129ffff 792907c6 6529ffff 6129ffff 7c234840 40810018 3d2201e8 3929a7a8 e9290000 7c291840 41810044 3be00001 <0b1f0000> 3d20bfff 6129ffff 792907c6
->> 
->> 
->> I think this is happening because, now in mm_core_early_init(), the
->> order of initialization between hugetlb_bootmem_alloc() and
->> free_area_init() is reversed. Since free_area_init() -> sparse_init()
->> is responsible for setting SECTIONS and vmemmap area. 
->> 
->> Then in alloc_bootmem() (from hugetlb_bootmem_alloc() path), it uses virt_to_phys(m)...
->> 
->> 			/*
->> 			 * For pre-HVO to work correctly, pages need to be on
->> 			 * the list for the node they were actually allocated
->> 			 * from. That node may be different in the case of
->> 			 * fallback by memblock_alloc_try_nid_raw. So,
->> 			 * extract the actual node first.
->> 			 */
->> 			if (m)
->> 				listnode = early_pfn_to_nid(PHYS_PFN(virt_to_phys(m)));
->> 
->> 
->> ... virt_to_phys on powerpc uses:
->> 
->> static inline unsigned long virt_to_phys(const volatile void * address)
->> {
->> 	WARN_ON(IS_ENABLED(CONFIG_DEBUG_VIRTUAL) && !virt_addr_valid(address));
->> 
->> 	return __pa((unsigned long)address);
->> }
->> 
->> #define virt_addr_valid(vaddr)	({					\
->> 	unsigned long _addr = (unsigned long)vaddr;			\
->> 	_addr >= PAGE_OFFSET && _addr < (unsigned long)high_memory &&	\
->> 	pfn_valid(virt_to_pfn((void *)_addr));				\
->> })
->> 
->> 
->> I think the above warning in dmesg gets printed from above WARN_ON, i.e.
->> because pfn_valid() is false, since we haven't done sparse_init() yet.
->
-> Yes, I agree.
->  
->> So, what I wanted to check was - do you think instead of virt_to_phys(), we
->> could directly use __pa() here() in mm/hugetlb.c, since these are
->> memblock alloc addresses? i.e.: 
->> 
->> // alloc_bootmem():
->> -   listnode = early_pfn_to_nid(PHYS_PFN(virt_to_phys(m)));
->> +   listnode = early_pfn_to_nid(PHYS_PFN(__pa(m)));
->> 
->> // __alloc_bootmem_huge_page():
->> -   memblock_reserved_mark_noinit(virt_to_phys((void *)m + PAGE_SIZE),
->> +   memblock_reserved_mark_noinit(__pa((void *)m + PAGE_SIZE),
->
-> It surely will work for powerpc :)
-> I checked the definitions of __pa() on other architectures and it seems the
-> safest and the easiest way to fix this.
->  
-> Would you send a formal patch?
->
+> I think I'm starting to understand now.
+> 
+> I think the problem is that acct->starttime has an invalid value the 
+> very first time it is used.
+> 
+> We are probably lacking an initial value in paca->accounting.starttime.
+> This should likely be initialised from mftb in head_64.S in 
+> start_here_common for main CPU and __secondary_start for other CPUs or 
+> maybe at higher level in C in setup_arch() and start_secondary()
+> 
+> Christophe
 
-Thanks Mike for taking a look at above and confirming. Sure, let me
-prepare the patch and send it by tomorrow. 
+How about below? this works too.
 
--ritesh
+---
+
+diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+index 18506740f4a4..af129645b7f7 100644
+--- a/arch/powerpc/kernel/time.c
++++ b/arch/powerpc/kernel/time.c
+@@ -928,9 +928,24 @@ static void __init set_decrementer_max(void)
+                 bits, decrementer_max);
+  }
+
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING_NATIVE
++/*
++ * This is done to initialize the starttime correctly. with this
++ * /proc/stat show correct values similar to CONFIG_VIRT_CPU_ACCOUNTING_GEN
++ */
++static void init_cpu_accounting_startime(void)
++{
++       struct cpu_accounting_data *acct = get_accounting(current);
++       acct->starttime = mftb();
++}
++#else
++static void init_cpu_accounting_startime(void) { };
++#endif
++
+  static void __init init_decrementer_clockevent(void)
+  {
+         register_decrementer_clockevent(smp_processor_id());
++       init_cpu_accounting_startime();
+  }
+
+  void secondary_cpu_time_init(void)
+@@ -946,6 +961,8 @@ void secondary_cpu_time_init(void)
+         /* FIME: Should make unrelated change to move snapshot_timebase
+          * call here ! */
+         register_decrementer_clockevent(smp_processor_id());
++
++       init_cpu_accounting_startime();
+  }
+
+  /*
+
