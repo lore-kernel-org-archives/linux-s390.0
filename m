@@ -1,47 +1,47 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73A1630EF9A
-	for <linux-s390@vger.kernel.org>; Wed, 25 Feb 2026 08:15:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CBA03016E0
+	for <linux-s390@vger.kernel.org>; Wed, 25 Feb 2026 08:15:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772007323; cv=none; b=iPu/8Uw0KPULP+b15OSLodaTGENy/5DNiGyBKxEOXz/C3E8wlslE1PotLqRJoadrMuHE8dY/vfy6ELJJuDq1ZM4PKKETbwlgHOhLX5Uc7PpRrz6QSq39CnKp6hy7yXDCOp/ZhVaZjDes6JrXzgbmFYKI2uWWZF+LdCGytKuxF/g=
+	t=1772007331; cv=none; b=c95yD6Pnpw5fb/hi/poHv5LM1IhQaxvoaPWH/53K4Dfq4xY47JF61PdkqPGhM59gEqePGnFbhPmCSnZkYZRk6xB83LjvF2RsIhqR3bL1S9iDRxetrrV1n9iRO1gWpyaDdOuZJy8ubwuhupRFNeU1zhJhoi8JOfMKm0jblWcY+KA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772007323; c=relaxed/simple;
-	bh=6y9yGb1KomQEBH/3B4vy/U8GsLaTCLQkmSCA7l0nNBI=;
+	s=arc-20240116; t=1772007331; c=relaxed/simple;
+	bh=LanImvKLX9Jg/kKmnRDnHcw1cAnp8QGv+qKVqiPRSHM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-type; b=Zqx6t0lKEyN6QQ1ryHMGL7ADRFbPrzQWGqr9BEHmdUy09eWcud/zgztfqPJTV7GUKcImvRGYSiD0bVNubRFjmgU07f3SDGfoy69uW7DMVqix5j5ZBVybf+U8vYzvuzjrZUKfcB+HeEwEWjuOPMbq8e/4LDzhHhHcQ2Nf05tlTHs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=L8lH5NRm; arc=none smtp.client-ip=170.10.129.124
+	 MIME-Version:Content-type; b=uHSgEF5GmghDSQuYf7g971st6OoSxg+x1lSJvKa/Fx5Lky1ruRMhhFn4d1Ybi9iUyZWyb5it19FHfaUvilgtnKR3FNkh78Ta0oukbu5F8Eza6FSuYbW+eQPMjlDVMXWDL8QU6u4vm9zpo7GZX5BjDxDPkd0Q8aTzMB8pnz8rcIo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EnnvQlcn; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="L8lH5NRm"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EnnvQlcn"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1772007321;
+	s=mimecast20190719; t=1772007329;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=krRB48lflglDsnK+MbRSOk31duSyM0PDe9SlLiivSrU=;
-	b=L8lH5NRm1MJEeFnOge0c5hiH6crUmPFwlYZsZuD3ASdI1aJV4cXA2z7YzgRfdmuOVY98J3
-	0OnP88tAQj9WMeOeHy2BhHg7gxlvvETuJl6K21P897vaYS/pK1Qc5gTfbov6Q53HutNV/x
-	9eOGRAhzDb3ejKNEkUXPAUPpwityekY=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+	bh=yJ/15auNTcs4bEnKE4TKOadihs1pA/T7OdgqiTtaDyY=;
+	b=EnnvQlcnvXG/kzahIj/uUPGHyA6y8E7bEe88bi57op0ezsij31kxu1G7FIRhQdvH42r4Kl
+	yrA/57eQDprGLhgHvsVw/YskNccQUsPxXjJ6w4aPqZUFD0rfAudTvMJmOSGyF8HJAyukYh
+	CyrUuqowhUtiJ5YK/N+FurQDujDvTxE=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-297-WO8-mb7BPemrfREQOcvRnw-1; Wed,
- 25 Feb 2026 03:15:11 -0500
-X-MC-Unique: WO8-mb7BPemrfREQOcvRnw-1
-X-Mimecast-MFC-AGG-ID: WO8-mb7BPemrfREQOcvRnw_1772007308
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-110-MO7Loi8qMuGy7jOa06YqRg-1; Wed,
+ 25 Feb 2026 03:15:25 -0500
+X-MC-Unique: MO7Loi8qMuGy7jOa06YqRg-1
+X-Mimecast-MFC-AGG-ID: MO7Loi8qMuGy7jOa06YqRg_1772007319
 Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 14EC918004AD;
-	Wed, 25 Feb 2026 08:15:08 +0000 (UTC)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 320AA1800349;
+	Wed, 25 Feb 2026 08:15:19 +0000 (UTC)
 Received: from MiWiFi-R3L-srv.redhat.com (unknown [10.72.112.55])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 860561800465;
-	Wed, 25 Feb 2026 08:14:58 +0000 (UTC)
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id BFB231800465;
+	Wed, 25 Feb 2026 08:15:08 +0000 (UTC)
 From: Baoquan He <bhe@redhat.com>
 To: kasan-dev@googlegroups.com
 Cc: linux-mm@kvack.org,
@@ -61,9 +61,9 @@ Cc: linux-mm@kvack.org,
 	linux-s390@vger.kernel.org,
 	hca@linux.ibm.com,
 	Baoquan He <bhe@redhat.com>
-Subject: [PATCH v5 03/15] mm/kasan: mm/kasan: move kasan= code to common place
-Date: Wed, 25 Feb 2026 16:14:00 +0800
-Message-ID: <20260225081412.76502-4-bhe@redhat.com>
+Subject: [PATCH v5 04/15] mm/kasan: make kasan=on|off take effect for all three modes
+Date: Wed, 25 Feb 2026 16:14:01 +0800
+Message-ID: <20260225081412.76502-5-bhe@redhat.com>
 In-Reply-To: <20260225081412.76502-1-bhe@redhat.com>
 References: <20260225081412.76502-1-bhe@redhat.com>
 Precedence: bulk
@@ -76,95 +76,82 @@ Content-type: text/plain
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-This allows generic and sw_tags to be set in kernel cmdline too.
+Now everything is ready, setting kasan=off can disable kasan for all
+three modes.
 
 Signed-off-by: Baoquan He <bhe@redhat.com>
 ---
- include/linux/kasan-enabled.h |  2 ++
- mm/kasan/common.c             | 21 +++++++++++++++++++++
- mm/kasan/hw_tags.c            | 18 ------------------
- 3 files changed, 23 insertions(+), 18 deletions(-)
+ include/linux/kasan-enabled.h | 12 +++++-------
+ mm/kasan/common.c             |  4 ----
+ 2 files changed, 5 insertions(+), 11 deletions(-)
 
 diff --git a/include/linux/kasan-enabled.h b/include/linux/kasan-enabled.h
-index 9eca967d8526..b7cb906825ca 100644
+index b7cb906825ca..cec21a08446e 100644
 --- a/include/linux/kasan-enabled.h
 +++ b/include/linux/kasan-enabled.h
-@@ -35,6 +35,8 @@ static inline void kasan_enable(void) {}
- #endif /* CONFIG_ARCH_DEFER_KASAN || CONFIG_KASAN_HW_TAGS */
+@@ -4,10 +4,11 @@
  
- #ifdef CONFIG_KASAN_HW_TAGS
+ #include <linux/static_key.h>
+ 
+-#if defined(CONFIG_ARCH_DEFER_KASAN) || defined(CONFIG_KASAN_HW_TAGS)
++#ifdef CONFIG_KASAN
 +extern bool kasan_arg_disabled;
 +
+ /*
+  * Global runtime flag for KASAN modes that need runtime control.
+- * Used by ARCH_DEFER_KASAN architectures and HW_TAGS mode.
+  */
+ DECLARE_STATIC_KEY_FALSE(kasan_flag_enabled);
+ 
+@@ -25,18 +26,15 @@ static inline void kasan_enable(void)
+ 	static_branch_enable(&kasan_flag_enabled);
+ }
+ #else
+-/* For architectures that can enable KASAN early, use compile-time check. */
+ static __always_inline bool kasan_enabled(void)
+ {
+-	return IS_ENABLED(CONFIG_KASAN);
++	return false;
+ }
+ 
+ static inline void kasan_enable(void) {}
+-#endif /* CONFIG_ARCH_DEFER_KASAN || CONFIG_KASAN_HW_TAGS */
++#endif
+ 
+ #ifdef CONFIG_KASAN_HW_TAGS
+-extern bool kasan_arg_disabled;
+-
  static inline bool kasan_hw_tags_enabled(void)
  {
  	return kasan_enabled();
 diff --git a/mm/kasan/common.c b/mm/kasan/common.c
-index b7d05c2a6d93..0d788a468e96 100644
+index 0d788a468e96..fc6513fa5795 100644
 --- a/mm/kasan/common.c
 +++ b/mm/kasan/common.c
-@@ -42,6 +42,27 @@ DEFINE_STATIC_KEY_FALSE(kasan_flag_enabled);
+@@ -33,16 +33,13 @@
+ #include "kasan.h"
+ #include "../slab.h"
+ 
+-#if defined(CONFIG_ARCH_DEFER_KASAN) || defined(CONFIG_KASAN_HW_TAGS)
+ /*
+  * Definition of the unified static key declared in kasan-enabled.h.
+  * This provides consistent runtime enable/disable across KASAN modes.
+  */
+ DEFINE_STATIC_KEY_FALSE(kasan_flag_enabled);
  EXPORT_SYMBOL_GPL(kasan_flag_enabled);
- #endif
+-#endif
  
-+#ifdef CONFIG_KASAN_HW_TAGS
-+bool kasan_arg_disabled __ro_after_init;
-+
-+/* kasan=off/on */
-+static int __init early_kasan_flag(char *arg)
-+{
-+	if (!arg)
-+		return -EINVAL;
-+
-+	if (!strcmp(arg, "off"))
-+		kasan_arg_disabled = true;
-+	else if (!strcmp(arg, "on"))
-+		kasan_arg_disabled = false;
-+	else
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+early_param("kasan", early_kasan_flag);
-+#endif
-+
+-#ifdef CONFIG_KASAN_HW_TAGS
+ bool kasan_arg_disabled __ro_after_init;
+ 
+ /* kasan=off/on */
+@@ -61,7 +58,6 @@ static int __init early_kasan_flag(char *arg)
+ 	return 0;
+ }
+ early_param("kasan", early_kasan_flag);
+-#endif
+ 
  struct slab *kasan_addr_to_slab(const void *addr)
- {
- 	if (virt_addr_valid(addr))
-diff --git a/mm/kasan/hw_tags.c b/mm/kasan/hw_tags.c
-index 26a69f0d822c..9602ea4861e2 100644
---- a/mm/kasan/hw_tags.c
-+++ b/mm/kasan/hw_tags.c
-@@ -35,7 +35,6 @@ enum kasan_arg_vmalloc {
- 	KASAN_ARG_VMALLOC_ON,
- };
- 
--bool kasan_arg_disabled __ro_after_init;
- static enum kasan_arg_mode kasan_arg_mode __ro_after_init;
- static enum kasan_arg_vmalloc kasan_arg_vmalloc __initdata;
- 
-@@ -75,23 +74,6 @@ unsigned int kasan_page_alloc_sample_order = PAGE_ALLOC_SAMPLE_ORDER_DEFAULT;
- 
- DEFINE_PER_CPU(long, kasan_page_alloc_skip);
- 
--/* kasan=off/on */
--static int __init early_kasan_flag(char *arg)
--{
--	if (!arg)
--		return -EINVAL;
--
--	if (!strcmp(arg, "off"))
--		kasan_arg_disabled = true;
--	else if (!strcmp(arg, "on"))
--		kasan_arg_disabled = false;
--	else
--		return -EINVAL;
--
--	return 0;
--}
--early_param("kasan", early_kasan_flag);
--
- /* kasan.mode=sync/async/asymm */
- static int __init early_kasan_mode(char *arg)
  {
 -- 
 2.52.0
