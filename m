@@ -1,173 +1,133 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CC2B30EF6D
-	for <linux-s390@vger.kernel.org>; Wed, 25 Feb 2026 08:17:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B82DC38E13D;
+	Wed, 25 Feb 2026 09:19:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772007449; cv=none; b=QDxZ/TdxfrU++/c+e6nAxFQLJr3JZD/Vnx0CXhMdcYRIHBGgGv0sMgHtro6+j4a2XqedzrXfOC0kXu1/RQqAT+5C0TYPtWeCTTKC1EppijirzUm6M6RV4+VFgg0KensSu99ISDjkr6t0BagOxGKWh9A9ij03CMcf0uZwsOIUW80=
+	t=1772011173; cv=none; b=WpNNjDLr1cFlJkfm2DZpBu/gZdAeh5z/v7mLYTg3n92Tw/DJ2EkAOiLqHQZK4+VzY0bf8Sy/JMZ4ltknxTU4SoEyYnPcGLGF4RUYXhNBfygbxIvEWW29vVrOvW4m6dLc58BxfaMWL6Miy1NGOjIJb/eE0aLZvd/swn3U8i+qCic=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772007449; c=relaxed/simple;
-	bh=GZRNLbLZyPXE+uhRZMEWFIKDo4G2bYROWiAbH1IyQ5M=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-type; b=AxsbEB741CtJ1o0BmFaMHIHGD+BciXsLgQXzh6Co0qcVtTiDg1jAJ1o9GS7f+sz3UB9uZPM9nXnqnD7la1rXVQh+b5PPolkwXKu/1GqE67rJM/yFXPs9ICM+BoKFSIEbZR73aV0kCl47cJLaKbckJK+o9FDjMvihOzubxff6gJA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PXiNa+Yj; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1772011173; c=relaxed/simple;
+	bh=0meuorykT4zFIKJ01w8wv7iLcoHa6OtLoVxSULAqE1s=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=VPfEjARD+4nRf0O8mnSm3Ybk5aDr/R9moKQ74KSiLYNBhN6d/UaV5bVWvYAK4ILxjUdy4NHMasgsGQ8YCqpjBvfwgnMNtoRjDe0q7av6CGmLDxM9QBtLgvOYgg389JuX1YNy1YWO2QXPYFFCQAC6dT4/7N8WGVqO+b1Lqt55J/w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=s9ehq6KB; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PXiNa+Yj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1772007447;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=oV6MOc6IZ/eQSfEt7lDYf3QV1I2fYi7uzloZcjfdDk8=;
-	b=PXiNa+YjYf9xRoxDJFv0X8xYotSgTZb+UCAGyQJpbI1XoG+ndyD3n7vbbvbV1Bx8e8Hn8h
-	ycSwt6juZm7qhv1WeGlkglpJy1Z3i0/NWkv6bOk5LuKF5nCNECD8/KJIBIcXBHYlklkDhS
-	RwrZYJJGLHUJG+ABKACsHbGi2Hkq404=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-477-d1eK6WOzOV6_MuYcbjoUdg-1; Wed,
- 25 Feb 2026 03:17:22 -0500
-X-MC-Unique: d1eK6WOzOV6_MuYcbjoUdg-1
-X-Mimecast-MFC-AGG-ID: d1eK6WOzOV6_MuYcbjoUdg_1772007439
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 33B381955E8C;
-	Wed, 25 Feb 2026 08:17:16 +0000 (UTC)
-Received: from MiWiFi-R3L-srv.redhat.com (unknown [10.72.112.55])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 657C01800465;
-	Wed, 25 Feb 2026 08:17:04 +0000 (UTC)
-From: Baoquan He <bhe@redhat.com>
-To: kasan-dev@googlegroups.com
-Cc: linux-mm@kvack.org,
-	andreyknvl@gmail.com,
-	ryabinin.a.a@gmail.com,
-	glider@google.com,
-	dvyukov@google.com,
-	linux-kernel@vger.kernel.org,
-	linux-um@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	loongarch@lists.linux.dev,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	x86@kernel.org,
-	chris@zankel.net,
-	jcmvbkbc@gmail.com,
-	linux-s390@vger.kernel.org,
-	hca@linux.ibm.com,
-	Baoquan He <bhe@redhat.com>
-Subject: [PATCH v5 15/15] mm/kasan: clean up unneeded ARCH_DEFER_KASAN and kasan_arch_is_ready
-Date: Wed, 25 Feb 2026 16:14:12 +0800
-Message-ID: <20260225081412.76502-16-bhe@redhat.com>
-In-Reply-To: <20260225081412.76502-1-bhe@redhat.com>
-References: <20260225081412.76502-1-bhe@redhat.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="s9ehq6KB"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61OLCJ0o3039381;
+	Wed, 25 Feb 2026 09:19:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=tft1VbLqTO1YStaWTqpmRc4gmZ9XBA
+	RBCVDYbd3HgKo=; b=s9ehq6KBCLYj+RpB9XiHiD1zQ8Vsyq7BGcdUN4F6FTRpfD
+	6UonMK7ked51ljqhNXLaofloy10brUPETtGmoRlmXPCf6V++3cmPDFocqx1thBIj
+	Rx7GSClA2dGdo/iIhg4pyABFYEWAuvhG+DJmRenhcvgkPmLlD1ao5VotpQNdenVp
+	55S4ELVjxaBfKn7MbWwtZqzZ4OjzrLLbEob3yq4xEJ/mfY3VojfaE+hOseSiNCIL
+	dB4sTXyZToOUAn0cVY//yr6EzeJAzkyYEsomiNaVf6QbQXpzE9lqsIsX7zA9hION
+	7VeTVHUqTqqYOGv0mV+OPL0jFKxvjhTqKMB55SHA==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cf4cqyfqm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Feb 2026 09:19:28 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61P8nUq5004541;
+	Wed, 25 Feb 2026 09:19:27 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cfs8jvfhe-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Feb 2026 09:19:27 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61P9JN6Y46989618
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 25 Feb 2026 09:19:23 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 800432004B;
+	Wed, 25 Feb 2026 09:19:23 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 629E320049;
+	Wed, 25 Feb 2026 09:19:23 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.87.85.9])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 25 Feb 2026 09:19:23 +0000 (GMT)
+From: Sven Schnelle <svens@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Frederic Weisbecker <frederic@kernel.org>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian
+ Borntraeger <borntraeger@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 0/9] s390/idle/vtime: Minor fixes and cleanups
+In-Reply-To: <20260218142012.863464-1-hca@linux.ibm.com> (Heiko Carstens's
+	message of "Wed, 18 Feb 2026 15:20:03 +0100")
+References: <20260218142012.863464-1-hca@linux.ibm.com>
+Date: Wed, 25 Feb 2026 10:19:23 +0100
+Message-ID: <yt9d342p18pw.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: f8JWUVl4r8QUynhte05SsHUBTD95EkUQ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI1MDA4OSBTYWx0ZWRfXwNW43bgskPNf
+ bZt/VIDxVJwD7KyTTzQLVLu2zXrIRBUL3d89K7ArrzfIJZPoLrQo37wcOX2d1LAjxk/qOUwSvZR
+ V1ySlYGhVI9s0EsKVpJ7nNsB87mfwx0SkN4ONERKZE6VeisZoVgdemZHSX5GPmI0MHB78Bjh67S
+ Yi3cljkMxdRxUUoHWxEF4W7sFelWvGsIEYqnqTF2tqLrRXiSk5hqepS6zqR+dq7tmyTmGN+9mJV
+ RjA3pVQnELnglSslN0e4LNFafbi814s/gh46NczWUBy0cP6BHt3s2tQFoopGngoNU1uiVxbN7us
+ z8QyB6p5uDKxGeuheIjA9gsFFwoZdVuNeAgepPYCO6RdDRpUQuXxYF+oM62Iuj3n/Bo8w6ODw17
+ rpmFr0GrcpUecjrgIrkzFMK5NRcoLZmMJtZ0GVh19OqkK+jqLa5SPx/ZQPg/fweRhYjrzuSLVZ4
+ vZabpmiyLXBTduuHcaw==
+X-Proofpoint-GUID: f8JWUVl4r8QUynhte05SsHUBTD95EkUQ
+X-Authority-Analysis: v=2.4 cv=bbBmkePB c=1 sm=1 tr=0 ts=699ebea0 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=Mpw57Om8IfrbqaoTuvik:22
+ a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8 a=JTawB1T5yoWm6DnOLoUA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-24_03,2026-02-23_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 bulkscore=0 adultscore=0 impostorscore=0 lowpriorityscore=0
+ priorityscore=1501 suspectscore=0 clxscore=1011 phishscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602250089
 
-Since commit 1e338f4d99e6 ("kasan: introduce ARCH_DEFER_KASAN and unify
-static key across modes"), kasan_arch_is_ready() has been dead code.
-And up to now, ARCH_DEFER_KASAN is useless too because of code change
-for 'kasan=on|off'.
+Heiko Carstens <hca@linux.ibm.com> writes:
 
-Here clean them up.
+> Frederic Weisbecker's cputime accounting patch series motivated me to
+> finally have a deeper look at the s390 cputime accounting code. The result
+> are two bug fixes, which are not at all critical, and a couple of cleanups
+> and improvements.
+>
+> Heiko Carstens (9):
+>   s390/idle: Fix cpu idle exit cpu time accounting
+>   s390/vtime: Fix virtual timer forwarding
+>   s390/idle: Add comment for non obvious code
+>   s390/idle: Slightly optimize idle time accounting
+>   s390/idle: Inline update_timer_idle()
+>   s390/irq/idle: Remove psw bits early
+>   s390/vtime: Use __this_cpu_read() / get rid of READ_ONCE()
+>   s390/vtime: Use lockdep_assert_irqs_disabled() instead of BUG_ON()
+>   s390/idle: Remove psw_idle() prototype
+>
+>  arch/s390/include/asm/idle.h  |  4 ++--
+>  arch/s390/include/asm/vtime.h | 34 ++++++++++++++++++++++++++++
+>  arch/s390/kernel/entry.h      |  2 --
+>  arch/s390/kernel/idle.c       | 25 +++++----------------
+>  arch/s390/kernel/irq.c        | 20 ++++++++++-------
+>  arch/s390/kernel/vtime.c      | 42 +++++++++--------------------------
+>  6 files changed, 63 insertions(+), 64 deletions(-)
+>
+>
+> base-commit: 9702969978695d9a699a1f34771580cdbb153b33
 
-Signed-off-by: Baoquan He <bhe@redhat.com>
----
- arch/loongarch/Kconfig |  1 -
- arch/powerpc/Kconfig   |  1 -
- arch/um/Kconfig        |  1 -
- lib/Kconfig.kasan      | 12 ------------
- mm/kasan/kasan.h       |  6 ------
- 5 files changed, 21 deletions(-)
+For the series:
 
-diff --git a/arch/loongarch/Kconfig b/arch/loongarch/Kconfig
-index d211c6572b0a..4b7802d02911 100644
---- a/arch/loongarch/Kconfig
-+++ b/arch/loongarch/Kconfig
-@@ -9,7 +9,6 @@ config LOONGARCH
- 	select ACPI_PPTT if ACPI
- 	select ACPI_SYSTEM_POWER_STATES_SUPPORT	if ACPI
- 	select ARCH_BINFMT_ELF_STATE
--	select ARCH_NEEDS_DEFER_KASAN
- 	select ARCH_DISABLE_KASAN_INLINE
- 	select ARCH_ENABLE_MEMORY_HOTPLUG
- 	select ARCH_ENABLE_MEMORY_HOTREMOVE
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index ad7a2fe63a2a..b51fbc25bdc9 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -122,7 +122,6 @@ config PPC
- 	# Please keep this list sorted alphabetically.
- 	#
- 	select ARCH_32BIT_OFF_T if PPC32
--	select ARCH_NEEDS_DEFER_KASAN		if PPC_RADIX_MMU
- 	select ARCH_DISABLE_KASAN_INLINE	if PPC_RADIX_MMU
- 	select ARCH_DMA_DEFAULT_COHERENT	if !NOT_COHERENT_CACHE
- 	select ARCH_ENABLE_MEMORY_HOTPLUG
-diff --git a/arch/um/Kconfig b/arch/um/Kconfig
-index 098cda44db22..fd0bedd2c696 100644
---- a/arch/um/Kconfig
-+++ b/arch/um/Kconfig
-@@ -6,7 +6,6 @@ config UML
- 	bool
- 	default y
- 	select ARCH_DISABLE_KASAN_INLINE if STATIC_LINK
--	select ARCH_NEEDS_DEFER_KASAN if STATIC_LINK
- 	select ARCH_WANTS_DYNAMIC_TASK_STRUCT
- 	select ARCH_HAS_CACHE_LINE_SIZE
- 	select ARCH_HAS_CPU_FINALIZE_INIT
-diff --git a/lib/Kconfig.kasan b/lib/Kconfig.kasan
-index a4bb610a7a6f..f82889a830fa 100644
---- a/lib/Kconfig.kasan
-+++ b/lib/Kconfig.kasan
-@@ -19,18 +19,6 @@ config ARCH_DISABLE_KASAN_INLINE
- 	  Disables both inline and stack instrumentation. Selected by
- 	  architectures that do not support these instrumentation types.
- 
--config ARCH_NEEDS_DEFER_KASAN
--	bool
--
--config ARCH_DEFER_KASAN
--	def_bool y
--	depends on KASAN && ARCH_NEEDS_DEFER_KASAN
--	help
--	  Architectures should select this if they need to defer KASAN
--	  initialization until shadow memory is properly set up. This
--	  enables runtime control via static keys. Otherwise, KASAN uses
--	  compile-time constants for better performance.
--
- config CC_HAS_KASAN_GENERIC
- 	def_bool $(cc-option, -fsanitize=kernel-address)
- 
-diff --git a/mm/kasan/kasan.h b/mm/kasan/kasan.h
-index fc9169a54766..f08f7f75c285 100644
---- a/mm/kasan/kasan.h
-+++ b/mm/kasan/kasan.h
-@@ -552,12 +552,6 @@ static inline void kasan_poison_last_granule(const void *address, size_t size) {
- 
- #endif /* CONFIG_KASAN_GENERIC */
- 
--#ifndef kasan_arch_is_ready
--static inline bool kasan_arch_is_ready(void)	{ return true; }
--#elif !defined(CONFIG_KASAN_GENERIC) || !defined(CONFIG_KASAN_OUTLINE)
--#error kasan_arch_is_ready only works in KASAN generic outline mode!
--#endif
--
- #if IS_ENABLED(CONFIG_KASAN_KUNIT_TEST)
- 
- void kasan_kunit_test_suite_start(void);
--- 
-2.52.0
-
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
