@@ -1,33 +1,60 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8C8F3E8C7A;
-	Wed, 25 Feb 2026 17:59:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AF763D4138;
+	Wed, 25 Feb 2026 18:31:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772042363; cv=none; b=Mza69mZIXtnEcZV0Jhd5hYQAHg37Ipw+l48yxzbbTt+M1L5gaYMb691aaML5q5F5KtskDy2IXoch5iauwmak6XhuNmBVxRqJfEKLhcEemc6gjvxl0u0vCgZyB5QUrdftiu2WKNg2HOTD8KR3ayDHqHFGj6mEnjCW+BpNwITJkRI=
+	t=1772044269; cv=none; b=V+Knufk8BOtUDPPRjdfuCKxooJKkWY4kgetcizq6LR+Y7pwRE8BmAlBO0yi8AyUjnG4FmQeijDWdyl/tx8nI+Q8DO9vnZFHW5PRdlDeYJgBMrVCWhDdNB4E/sRdqQTxC1g6G00HDPC+6zv6JyfBoLcaNOlrhrXp07Xh4KG1E4G0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772042363; c=relaxed/simple;
-	bh=gcndrDOD28MklPQt/Lh2XJCyQBbbmbxuz7jAD2TN7rY=;
+	s=arc-20240116; t=1772044269; c=relaxed/simple;
+	bh=GutYVpSx9aABE+IgnhvSdNkcvXNfkecqqjnqmX1E4Dc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ukod8fP/qjb/sqvg5Vhe/Pz+700sCnUL6CKT0yLueT2R5n+QrBGD/31TMa/XXwTiAJPkRv0SCNEgZ5eni/ZEQAY+4tNbt3qCiKNxSx6S4JYp5o3QnAc9ITcxwUCEEqh/phDjOod30P3m+VRZg6yDgRCWs5PDHRnkkilwkTSI3Qs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JTtQ4To1; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=NitivI+CRgRyPgyCpoT3XFhMEmnIW4TpObKt6Vh1zF//XNPa6sQhIpHHRA58UgRBn4AFK7gsNHdmIcumm+UBIR6WSLCpDhhzwNNkrjVYhQnoO0thaXKpxyTXZzSqnaEXbPanEMNbxWsXLqCwGsg0pmxndrMaxwXA8129yc6/PoQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=njb8Kprc; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JTtQ4To1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A07DCC116D0;
-	Wed, 25 Feb 2026 17:59:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772042362;
-	bh=gcndrDOD28MklPQt/Lh2XJCyQBbbmbxuz7jAD2TN7rY=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=JTtQ4To1CYUcPEg1qBHhdgllrxEgtibOC+WjvHacKlGLhV2HkSVlqwr9QiVz0aPkz
-	 SVmlcLkdgoW5MoWjEmU8wSCqeRUFYMMrIehEiv41hU6TbclJwspiG6AR9oJknqpA8I
-	 G/9sAfx6DhHQF4lgHtiXZhV1E2+9AVXLGbZDw6HOkkIKyo4fNi8f7SJNGtZf7MTwW0
-	 gTYo7UCmQxvz1w3GcuHAnC2rid/Cs5G6yDK9WQOXXm0aQMPV0qmstXuSuFV7W6xvTS
-	 XuX8hwDqAbABYkBvOE0pcsXUp59Q5gT+0vrg4qc7Er1X6GNGRpRi+Ipv/4nNAl2hgs
-	 FIEQQUglHNysg==
-Message-ID: <cd10be19-e0bc-4e0c-8dac-4f1c05d0de8f@kernel.org>
-Date: Wed, 25 Feb 2026 18:59:11 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="njb8Kprc"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61PEij3B3015564;
+	Wed, 25 Feb 2026 18:30:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ZvD/f7
+	IRLTLmldnkTjsJwBCbwWd/dUwI6kc6EhPH8/k=; b=njb8Kprcrstdg42bXr3/gD
+	hM4zrv6nOTrEsOJdZARtOe7dAck9LOlGkJltDY9VLDLNzKZIpkbDuGdi05AVpDQn
+	V/itMfwAyo5eu7mi69pIaErJ/xLe0D5tMWymcvSDJeAsATf0vgCXXNSn4Oxhatms
+	FcztnV2B40QFm+JNSfYw4rUHAGPCoOTLI3YZsdaa468qaDbadNCurlgAlwlWXV9T
+	kfvjtSFyU/4oTBYLQFuzeTISedIF9gZF658NpKI/y1A6saI8tIcgabrX3iw/0Ue+
+	Sb1iTHJSNnSEbZ/9wR/lBjkoq73PnKW+DIk0+aNbxhWdVhNwbgzO5ADYQ2VWiUGQ
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cf4bs10sp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Feb 2026 18:30:18 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61PHdFWL003382;
+	Wed, 25 Feb 2026 18:30:17 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cfs8jxgf2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Feb 2026 18:30:17 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61PIUFgU40829632
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 25 Feb 2026 18:30:15 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id ACB525805E;
+	Wed, 25 Feb 2026 18:30:15 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A85B75806B;
+	Wed, 25 Feb 2026 18:30:13 +0000 (GMT)
+Received: from [9.61.247.27] (unknown [9.61.247.27])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 25 Feb 2026 18:30:13 +0000 (GMT)
+Message-ID: <08307223-88ad-4550-963e-5d1ee315023c@linux.ibm.com>
+Date: Wed, 25 Feb 2026 13:30:13 -0500
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,151 +62,85 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 04/15] powerpc/time: Prepare to stop elapsing in
- dynticks-idle
-To: Shrikanth Hegde <sshegde@linux.ibm.com>,
- Frederic Weisbecker <frederic@kernel.org>,
- LKML <linux-kernel@vger.kernel.org>,
- Madhavan Srinivasan <maddy@linux.ibm.com>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Anna-Maria Behnsen <anna-maria@linutronix.de>,
- Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Dietmar Eggemann <dietmar.eggemann@arm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
- Jan Kiszka <jan.kiszka@siemens.com>, Joel Fernandes <joelagnelf@nvidia.com>,
- Juri Lelli <juri.lelli@redhat.com>, Kieran Bingham <kbingham@kernel.org>,
- Mel Gorman <mgorman@suse.de>, Michael Ellerman <mpe@ellerman.id.au>,
- Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
- Nicholas Piggin <npiggin@gmail.com>, "Paul E . McKenney"
- <paulmck@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
- Steven Rostedt <rostedt@goodmis.org>, Sven Schnelle <svens@linux.ibm.com>,
- Thomas Gleixner <tglx@linutronix.de>, Uladzislau Rezki <urezki@gmail.com>,
- Valentin Schneider <vschneid@redhat.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Viresh Kumar <viresh.kumar@linaro.org>, Xin Zhao <jackzxcui1989@163.com>,
- linux-pm@vger.kernel.org, linux-s390@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org
-References: <20260206142245.58987-1-frederic@kernel.org>
- <20260206142245.58987-5-frederic@kernel.org>
- <9413517d-963b-4e6d-b11b-b440acd7cb5a@linux.ibm.com>
- <9ab1e7d7-57ee-49f9-963c-3a1b96dda684@kernel.org>
- <120884b0-0b09-43a9-b0f6-7dc2affe1ac0@linux.ibm.com>
- <55720b5b-f643-4e67-8841-d81a9e712faf@kernel.org>
- <a20beb34-0e4b-4063-b6b0-6c5886bbb971@linux.ibm.com>
- <a0c6e65c-3331-402a-94eb-14ba7f4b7ba7@kernel.org>
- <729a7e7f-a50e-480c-87ce-c45221fbb326@linux.ibm.com>
- <6c007cf1-46d5-4853-ae2e-90ee5257c6c9@kernel.org>
- <62f50aad-05ce-42ac-bdf6-dcb4af69c1c2@linux.ibm.com>
-Content-Language: fr-FR
-From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-In-Reply-To: <62f50aad-05ce-42ac-bdf6-dcb4af69c1c2@linux.ibm.com>
+Subject: Re: [PATCH] sched: Further restrict the preemption modes
+To: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Ciunas Bennett <ciunas@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>, mingo@kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: juri.lelli@redhat.com, vincent.guittot@linaro.org,
+        dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
+        mgorman@suse.de, vschneid@redhat.com, clrkwllms@kernel.org,
+        linux-kernel@vger.kernel.org, linux-rt-devel@lists.linux.dev,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-s390@vger.kernel.org, Matthew Rosato <mjrosato@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>
+References: <20251219101502.GB1132199@noisy.programming.kicks-ass.net>
+ <182f110b-ac63-4db4-8b01-0e841639bc39@linux.ibm.com>
+ <a7180379-04f5-4f61-b60a-0ff7cf85134d@linux.ibm.com>
+ <ec3987e3-4eb7-4d07-be9e-bd8dc9ad176f@linux.ibm.com>
+Content-Language: en-US
+From: Douglas Freimuth <freimuth@linux.ibm.com>
+In-Reply-To: <ec3987e3-4eb7-4d07-be9e-bd8dc9ad176f@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: _0UMUoKIZlKOKqau5XTtb0XTWq94cAbn
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI1MDE3NCBTYWx0ZWRfX5hzxm1BQVqPQ
+ FGBk6ZpsteTOtLR+qOOvnM7R1Pnx3O1g2NTK0XK/e+EVxWjmAPdRrjmfWb2ISMfhn/2sYt4nr3B
+ OI+Xh7TjlzW02J38u/lQoMB3U8wBrxZcXzVIpkUubfXFNYIgVd2I9uTQ8GVLdsDfux1LnjtTJua
+ o1jG+m7XT4X1qF6G5HUt7i0Q/uaYE8GMnkz/210nVH2x9i1xn2b9d0P2A3VP04KjvQWaql2WIgV
+ d3TRrZrkkH+Hl05em2OUxd6Fmiv3RY4/tQCOlLxVWUJKuXA81e3Td9o65CG6YBD5UPAEvDAOO5E
+ 2Yg0ACUPu6qvQgS4TBvlJNCkYGy5EU2Hl13u0CPOPGUH7ZmollwyqqxIFNomN72w7wlm0hPFuBo
+ 6fJMs2vLCQwywDeBPYuymJXMwUr/FJLcRvQWDNFTpAEGO+bO0FGJpNeJXfImIMpfSRoaFPPQGWe
+ MSvDdxHHfLTGY1rMb8A==
+X-Authority-Analysis: v=2.4 cv=eNceTXp1 c=1 sm=1 tr=0 ts=699f3fba cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=0MXMk1mwkTAisRVsYMEA:9
+ a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: LnQXTQu1zciqhCL8NCZSCXgSM0NrDEL0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-25_02,2026-02-25_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1011 priorityscore=1501 phishscore=0 suspectscore=0 adultscore=0
+ bulkscore=0 lowpriorityscore=0 malwarescore=0 impostorscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602250174
 
 
 
-Le 25/02/2026 à 18:47, Shrikanth Hegde a écrit :
-> Hi Christophe.
-> 
->> I think I'm starting to understand now.
+On 2/25/26 11:33 AM, Christian Borntraeger wrote:
+> Am 24.02.26 um 21:30 schrieb Ilya Leoshkevich:
+>> Finally, what is the worker doing? I looked at __queue_work() kstacks, 
+>> and they all come from irqfd_wakeup().
 >>
->> I think the problem is that acct->starttime has an invalid value the 
->> very first time it is used.
+>> irqfd_wakeup() calls arch-specific kvm_arch_set_irq_inatomic(), which 
+>> is implemented on x86 and not implemented on s390.
 >>
->> We are probably lacking an initial value in paca->accounting.starttime.
->> This should likely be initialised from mftb in head_64.S in 
->> start_here_common for main CPU and __secondary_start for other CPUs or 
->> maybe at higher level in C in setup_arch() and start_secondary()
 >>
->> Christophe
+>> This may explain why we on s390 are the first to see this.
+>>
+>>
+>> Christian, do you think if it would make sense to 
+>> implement kvm_arch_set_irq_inatomic() on s390?
 > 
-> How about below? this works too.
-
-Fine it is works, it means we found the real problem.
-
-What about using the newly added vtime_reset() ? See below (untested)
-
-diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-index 9b3167274653..f4aef85106ac 100644
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -377,7 +377,6 @@ void vtime_task_switch(struct task_struct *prev)
-  	}
-  }
-
--#ifdef CONFIG_NO_HZ_COMMON
-  /**
-   * vtime_reset - Fast forward vtime entry clocks
-   *
-@@ -394,6 +393,7 @@ void vtime_reset(void)
-  #endif
-  }
-
-+#ifdef CONFIG_NO_HZ_COMMON
-  /**
-   * vtime_dyntick_start - Inform vtime about entry to idle-dynticks
-   *
-@@ -931,6 +931,7 @@ static void __init set_decrementer_max(void)
-  static void __init init_decrementer_clockevent(void)
-  {
-  	register_decrementer_clockevent(smp_processor_id());
-+	vtime_reset();
-  }
-
-  void secondary_cpu_time_init(void)
-@@ -946,6 +947,7 @@ void secondary_cpu_time_init(void)
-  	/* FIME: Should make unrelated change to move snapshot_timebase
-  	 * call here ! */
-  	register_decrementer_clockevent(smp_processor_id());
-+	vtime_reset();
-  }
-
-  /*
-
-
+> So in fact Doug is working on that at the moment. There are some corner
+> cases where we had concerns as we have to pin the guest pages holding
+> the interrupt bits. This was secure execution, I need to followup if
+> we have already solved those cases. But we can try if the current patch
+> will help this particular problem.
 > 
-> ---
+> If yes, then we can try to speed up the work on this.
 > 
-> diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-> index 18506740f4a4..af129645b7f7 100644
-> --- a/arch/powerpc/kernel/time.c
-> +++ b/arch/powerpc/kernel/time.c
-> @@ -928,9 +928,24 @@ static void __init set_decrementer_max(void)
->                  bits, decrementer_max);
->   }
-> 
-> +#ifdef CONFIG_VIRT_CPU_ACCOUNTING_NATIVE
-> +/*
-> + * This is done to initialize the starttime correctly. with this
-> + * /proc/stat show correct values similar to 
-> CONFIG_VIRT_CPU_ACCOUNTING_GEN
-> + */
-> +static void init_cpu_accounting_startime(void)
-> +{
-> +       struct cpu_accounting_data *acct = get_accounting(current);
-> +       acct->starttime = mftb();
-> +}
-> +#else
-> +static void init_cpu_accounting_startime(void) { };
-> +#endif
-> +
->   static void __init init_decrementer_clockevent(void)
->   {
->          register_decrementer_clockevent(smp_processor_id());
-> +       init_cpu_accounting_startime();
->   }
-> 
->   void secondary_cpu_time_init(void)
-> @@ -946,6 +961,8 @@ void secondary_cpu_time_init(void)
->          /* FIME: Should make unrelated change to move snapshot_timebase
->           * call here ! */
->          register_decrementer_clockevent(smp_processor_id());
-> +
-> +       init_cpu_accounting_startime();
->   }
-> 
->   /*
-> 
+> Christian
+
+Christian, the patch is very close to ready. The last step, I rebased on 
+Master today to pickup the latest changes to interrupt.c. I am building 
+that now and will test for non-SE and SE environments. I have been 
+testing my solution for SE environments for a few weeks and it seems to 
+cover the use cases I have tested.
 
