@@ -1,221 +1,211 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 925D33D6684;
-	Wed, 25 Feb 2026 16:05:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E28443B961D;
+	Wed, 25 Feb 2026 16:25:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772035516; cv=none; b=Saxo/BB82zRzNI9XVIraNz25fK291aHjzc2LRiCrUEkhhvGHFUQ46nzAfLZwNYI68Vyrrl67rLjsO2qXfPr4fhgq2n9I9QH1L84r21GEiS/YxarzWuYFfKhBUFSITZZYx+aRIc1Rt+7x9NtrNopTD852kvZfMSXcNC53UrOEg9M=
+	t=1772036746; cv=none; b=YynkNkDVHV/naB7Gs1pmDe0jMkB8xgZIyczg3SKik5g6ecs9p/tgxJlIe+QLOE03Wjwrs3kTOu0ub+3K9rDRDwTE7m+JNi2ZX4DtHgaQ/KkDbfmrlh17lCl43pOhnRWcuu6zgOWHfBYegh88jQ4ZOMLHZcixeGjz+g8w3R4n+S4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772035516; c=relaxed/simple;
-	bh=Wb4+OYiHbkjuIn5JLgl6T58HF+0Y864UwNeZyZxUpGs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=shY9NpjHJHKrbXJ8jy+JpQgfSZ+y5b6t8SZdpzYeIskN8z0TA2h6RMgh8y2KgX2oFkPPY3VQSXcAK7wpwP1ewg4MbwaSlFfj8lkziFZzLe+O4QO9xWzV7UGSFg65P4PwrkTda70go7Y0vZ3mfjdeWZTjvmv5AnaeSCWcgBpQ3QY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qF/LIFJ2; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1772036746; c=relaxed/simple;
+	bh=guCbsIDgg8ayG9mMMymVvi9nZm4Jxc5WYXcp2FwHotE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Izqzrc7MnA8MwjhVb6uJm7nNY9g5oRGySLnzXsXWMDKw/tMdL4N1K3Kn4tQrVSDvSF+cXbD75SgkxQqJLvwfydnmzgysr3dvo+S5XEfI8KlluHr+KUQFPW2CLCPY3KMgcLb6CfngFshbyta0UoQfJ/wOXd2jWf79rfDscW5kBpE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cULZ5qEP; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qF/LIFJ2"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61P7S8Jb1314639;
-	Wed, 25 Feb 2026 16:05:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:sender:subject:to; s=pp1; bh=z6BhN75UKL8ucUNVEPHgW0oI2XOhM4MrBI
-	blXGgx4UA=; b=qF/LIFJ20Nd9C95FyyC+fQ6x2e8zDNI9vze4cA8GKUT7H2P8Uw
-	UcTSWQdk5S9N76f7YVZ/e4q8InkchFj8ap5ymGxGFhzcTkV/JNmCo2t1g/R0LB47
-	aJcaO8IAbdAtXY9n2qwmmcTPV6gExsMtiOmw80dF3TD7K6OD/UluDNz9V0H+X7Gb
-	jJ8EfZEs9rjkI3z0t/3f2/ZJ7e1K4gbpu2p3jf6zZYfCCmtqwGcjT+MnnzbpwDZn
-	3zS54n9qX31z/z+oZYDbRb0diO4CO5WA0XiremOjd/oxSAi1j9M/7mqaFrdKkvmg
-	7ivag1SANhiP2mYfLgxPFYT2V2/iyxvMIhdw==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cf47214e8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Feb 2026 16:05:11 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61PG1ltS015962;
-	Wed, 25 Feb 2026 16:05:10 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cfq1sp4fv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Feb 2026 16:05:10 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61PG58lR29688298
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 25 Feb 2026 16:05:08 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 731A820043;
-	Wed, 25 Feb 2026 16:05:08 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 63A0D20040;
-	Wed, 25 Feb 2026 16:05:08 +0000 (GMT)
-Received: from p1gen4-pw042f0m (unknown [9.52.223.163])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 25 Feb 2026 16:05:08 +0000 (GMT)
-Received: from bblock by p1gen4-pw042f0m with local (Exim 4.99.1)
-	(envelope-from <bblock@linux.ibm.com>)
-	id 1vvHNs-00000001L4l-0SGl;
-	Wed, 25 Feb 2026 17:05:08 +0100
-From: Benjamin Block <bblock@linux.ibm.com>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Thomas Gleixner <tglx@kernel.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Benjamin Block <bblock@linux.ibm.com>
-Subject: [PATCH] debugobjects: Allow to configure the amount of pre-allocated objects
-Date: Wed, 25 Feb 2026 17:05:08 +0100
-Message-ID: <70f06193b3c3581802710ebcef74671e50c4c979.1772035270.git.bblock@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cULZ5qEP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3776DC116D0;
+	Wed, 25 Feb 2026 16:25:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772036745;
+	bh=guCbsIDgg8ayG9mMMymVvi9nZm4Jxc5WYXcp2FwHotE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=cULZ5qEPz3eS7I+Fsxr6miX8AP+0kVboSS3w9recg6hIWBQu8d492aJMKFAtePr5C
+	 Yxw6zeIYl0NzkVTqOY+rZ3drD+EwjqMadIeU3+bhyJFoPCMVo0RZaVEqrkGtGCEwa4
+	 bcriv7DhH2j0T9uGVeVdL+y8N8zL0iY2hVFSWAbADuMDI7VU71xE8IuqKkYJ+gZCsQ
+	 xR3OY+ov4QmLACxJ9gpX2X8RBJq46iAC34jhNq6rOPIAXeo23p3YGZbABHQNK9QxkC
+	 B70PkGx9oFgxrBgyJwJJ0C90f4GZTWG9hD7VkXOtmEBOVrFFkcSQg/ezo7Ywq0Uean
+	 YvcAIzi1k5CAg==
+Date: Wed, 25 Feb 2026 18:25:24 +0200
+From: Mike Rapoport <rppt@kernel.org>
+To: Ritesh Harjani <ritesh.list@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Alex Shi <alexs@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	David Hildenbrand <david@kernel.org>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+	Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Klara Modin <klarasmodin@gmail.com>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	Magnus Lindholm <linmag7@gmail.com>,
+	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Michal Hocko <mhocko@suse.com>, Michal Simek <monstr@monstr.eu>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Pratyush Yadav <pratyush@kernel.org>,
+	Richard Weinberger <richard@nod.at>,
+	Russell King <linux@armlinux.org.uk>,
+	Stafford Horne <shorne@gmail.com>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>,
+	Vlastimil Babka <vbabka@suse.cz>, Will Deacon <will@kernel.org>,
+	x86@kernel.org, linux-alpha@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+	linux-cxl@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+	linux-mm@kvack.org, linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+	sparclinux@vger.kernel.org
+Subject: Re: [PATCH v3 24/29] arch, mm: consolidate initialization of SPARSE
+ memory model
+Message-ID: <aZ8idANginXzhf0_@kernel.org>
+References: <20260111082105.290734-1-rppt@kernel.org>
+ <20260111082105.290734-25-rppt@kernel.org>
+ <87tsv5h544.ritesh.list@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Organization: IBM Deutschland Research & Development GmbH, https://www.ibm.com/privacy, Vors. Aufs.-R.: Wolfgang Wendt, Geschäftsführung: David Faller. Sitz der Ges.: Ehningen, Registergericht: AmtsG Stuttgart, HRB 243294
-Content-Transfer-Encoding: 8bit
-Sender: Benjamin Block <bblock@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: -l-nV8_25ywPOq_XM7pumGKaY2-_pr4A
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI1MDE1MCBTYWx0ZWRfX8ZpL6T0TOmaB
- DLal+NB6tLsUBx9BvzTqMHXgmlrBDwnME1CvrCk60HcURq62vGCBn/LtC2aZw13cn9HXW8Jc2Fn
- 2Bm7dpw+YDc14EddLHwMmZMB7LmRJzwHgCvzWrA4ngvyLVgNenMUUX1/wy6o9Aq1cksn/c1a2Cc
- +cB1+oOwYE3LYXpes58uC6tNq9moqqOuuoch4w7stfc61SyuFETY/Ca7jALY9Vs3sajV9goPCDu
- CzAwf0wH6tL4P0Y06hphNf7HVu2iCy+u6nllpxnNzdJZYvPXTfZuQx9EoDSMTawmUoFJ1OX9rsz
- KPp1yF1hCJdxQyAXZ3P5p2Ihh9PlVop60/l6ibkahp5iMJJVWNE7miZ3Jqf3bZAEdIjgRdB9fcU
- YWxxRplLQbfyF0LpTmII6kO4N/q2g+PsrB0K6w0mlhaBIL1pFZNyIuZVmF1RZmr7KO9Ic1J+iMO
- Gyf89pURzJKgKn8ZL8g==
-X-Authority-Analysis: v=2.4 cv=R7wO2NRX c=1 sm=1 tr=0 ts=699f1db7 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=Mpw57Om8IfrbqaoTuvik:22
- a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8 a=zIxLjuM9KegLyq19elwA:9
-X-Proofpoint-GUID: -l-nV8_25ywPOq_XM7pumGKaY2-_pr4A
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-25_02,2026-02-25_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 clxscore=1011 impostorscore=0 phishscore=0 spamscore=0
- suspectscore=0 malwarescore=0 bulkscore=0 adultscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602250150
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87tsv5h544.ritesh.list@gmail.com>
 
-To debug object operations a certain amount of metadata has to be kept
-per object that is tracked. During boot a static amount of pre-
-allocated objects is set aside to be used for this task until such a
-time a dynamic allocator can be used. Once a dynamic allocator can be
-used an initial amount of objects is pre-allocated to be used when
-needed.
+Hello Ritesh,
 
-So far the amount of such initially statically, and later dynamically
-pre-allocated objects is set fixed at `64 * 16 = 1024`. But depending on
-the system this might not be enough during boot, when only the static
-amount of pre-allocated objects is used; and once this happens ODEBUG
-disables itself permanently.
+On Wed, Feb 25, 2026 at 09:00:35AM +0530, Ritesh Harjani wrote:
+> Mike Rapoport <rppt@kernel.org> writes:
+> 
+> > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+> >
+> > Every architecture calls sparse_init() during setup_arch() although the
+> > data structures created by sparse_init() are not used until the
+> > initialization of the core MM.
+> >
+> > Beside the code duplication, calling sparse_init() from architecture
+> > specific code causes ordering differences of vmemmap and HVO initialization
+> > on different architectures.
+> >
+> > Move the call to sparse_init() from architecture specific code to
+> > free_area_init() to ensure that vmemmap and HVO initialization order is
+> > always the same.
+> >
+> 
+> Hello Mike,
+> 
+> [    0.000000][    T0] ------------[ cut here ]------------
+> [    0.000000][    T0] WARNING: arch/powerpc/include/asm/io.h:879 at virt_to_phys+0x44/0x1b8, CPU#0: swapper/0
+> [    0.000000][    T0] Modules linked in:
+> [    0.000000][    T0] CPU: 0 UID: 0 PID: 0 Comm: swapper Not tainted 6.19.0-12139-gc57b1c00145a #31 PREEMPT
+> [    0.000000][    T0] Hardware name: IBM pSeries (emulated by qemu) POWER10 (architected) 0x801200 0xf000006 of:SLOF,git-ee03ae pSeries
+> [    0.000000][    T0] NIP:  c000000000601584 LR: c000000004075de4 CTR: c000000000601548
+> [    0.000000][    T0] REGS: c000000004d1f870 TRAP: 0700   Not tainted  (6.19.0-12139-gc57b1c00145a)
+> [    0.000000][    T0] MSR:  8000000000021033 <SF,ME,IR,DR,RI,LE>  CR: 48022448  XER: 20040000
+> [    0.000000][    T0] CFAR: c0000000006016c4 IRQMASK: 1
+> [    0.000000][    T0] GPR00: c000000004075dd4 c000000004d1fb10 c00000000304bb00 c000000180000000
+> [    0.000000][    T0] GPR04: 0000000000000009 0000000000000009 c000000004ec94a0 0000000000000000
+> [    0.000000][    T0] GPR08: 0000000000018000 0000000000000001 c000000004921280 0000000048022448
+> [    0.000000][    T0] GPR12: c000000000601548 c000000004fe0000 0000000000000004 0000000000000004
+> [    0.000000][    T0] GPR16: 000000000287fb08 0000000000000060 0000000000000002 0000000002831750
+> [    0.000000][    T0] GPR20: 0000000002831778 fffffffffffffffd c000000004d78050 00000000051cbb00
+> [    0.000000][    T0] GPR24: 0000000005a40008 c000000000000000 c000000000400000 0000000000000100
+> [    0.000000][    T0] GPR28: c000000004d78050 0000000000000000 c000000004ecd4a8 0000000000000001
+> [    0.000000][    T0] NIP [c000000000601584] virt_to_phys+0x44/0x1b8
+> [    0.000000][    T0] LR [c000000004075de4] alloc_bootmem+0x144/0x1a8
+> [    0.000000][    T0] Call Trace:
+> [    0.000000][    T0] [c000000004d1fb50] [c000000004075dd4] alloc_bootmem+0x134/0x1a8
+> [    0.000000][    T0] [c000000004d1fba0] [c000000004075fac] __alloc_bootmem_huge_page+0x164/0x230
+> [    0.000000][    T0] [c000000004d1fbe0] [c000000004030bc4] alloc_bootmem_huge_page+0x44/0x138
+> [    0.000000][    T0] [c000000004d1fc10] [c000000004076e48] hugetlb_hstate_alloc_pages+0x350/0x5ac
+> [    0.000000][    T0] [c000000004d1fd30] [c0000000040782f0] hugetlb_bootmem_alloc+0x15c/0x19c
+> [    0.000000][    T0] [c000000004d1fd70] [c00000000406d7b4] mm_core_init_early+0x7c/0xdf4
+> [    0.000000][    T0] [c000000004d1ff30] [c000000004011d84] start_kernel+0xac/0xc58
+> [    0.000000][    T0] [c000000004d1ffe0] [c00000000000e99c] start_here_common+0x1c/0x20
+> [    0.000000][    T0] Code: 6129ffff 792907c6 6529ffff 6129ffff 7c234840 40810018 3d2201e8 3929a7a8 e9290000 7c291840 41810044 3be00001 <0b1f0000> 3d20bfff 6129ffff 792907c6
+> 
+> 
+> I think this is happening because, now in mm_core_early_init(), the
+> order of initialization between hugetlb_bootmem_alloc() and
+> free_area_init() is reversed. Since free_area_init() -> sparse_init()
+> is responsible for setting SECTIONS and vmemmap area. 
+> 
+> Then in alloc_bootmem() (from hugetlb_bootmem_alloc() path), it uses virt_to_phys(m)...
+> 
+> 			/*
+> 			 * For pre-HVO to work correctly, pages need to be on
+> 			 * the list for the node they were actually allocated
+> 			 * from. That node may be different in the case of
+> 			 * fallback by memblock_alloc_try_nid_raw. So,
+> 			 * extract the actual node first.
+> 			 */
+> 			if (m)
+> 				listnode = early_pfn_to_nid(PHYS_PFN(virt_to_phys(m)));
+> 
+> 
+> ... virt_to_phys on powerpc uses:
+> 
+> static inline unsigned long virt_to_phys(const volatile void * address)
+> {
+> 	WARN_ON(IS_ENABLED(CONFIG_DEBUG_VIRTUAL) && !virt_addr_valid(address));
+> 
+> 	return __pa((unsigned long)address);
+> }
+> 
+> #define virt_addr_valid(vaddr)	({					\
+> 	unsigned long _addr = (unsigned long)vaddr;			\
+> 	_addr >= PAGE_OFFSET && _addr < (unsigned long)high_memory &&	\
+> 	pfn_valid(virt_to_pfn((void *)_addr));				\
+> })
+> 
+> 
+> I think the above warning in dmesg gets printed from above WARN_ON, i.e.
+> because pfn_valid() is false, since we haven't done sparse_init() yet.
 
-On s390 it has been observed, that even with 16384 such pre-allocated
-objects ODEBUG would still be disabled during boot.
-
-Similarly to other debug features like KMEMLEAK add a Kconfig option
-CONFIG_DEBUG_OBJECTS_POOL_SIZE_SHIFT that allows to increase the amount
-of pre-allocated objects (in both the static and later dynamic cases).
-Use it as exponential, rather than linear value to allow for head-room
-to grow into once set in a configuration.
-
-The calculation is done as such:
-    N_OBJECTS = 2^DEBUG_OBJECTS_POOL_SIZE_SHIFT * N_BATCH
-
-By default it is set to 6, so the actual amount is unchanged, unless
-the new options is changed:
-    N_OBJECTS = 2^6 * 16
-    N_OBJECTS = 1024
-
-For the previously mentioned observations on s390 it was necessary to
-increase the option to 11 in order to have enough space during boot.
-
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
----
- lib/Kconfig.debug  | 32 ++++++++++++++++++++++++++++++++
- lib/debugobjects.c | 15 +++++++++++++--
- 2 files changed, 45 insertions(+), 2 deletions(-)
-
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 318df4c75454..c6afc5b03572 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -811,6 +811,38 @@ config DEBUG_OBJECTS_PERCPU_COUNTER
- 	  percpu counter routines to track the life time of percpu counter
- 	  objects and validate the percpu counter operations.
+Yes, I agree.
  
-+config DEBUG_OBJECTS_POOL_SIZE_SHIFT
-+	int "Metadata objects pool size"
-+	depends on DEBUG_OBJECTS
-+	range 0 21
-+	default 6
-+	help
-+	  To debug object operations a certain amount of metadata has to be
-+	  kept per object that is tracked. During boot a static amount of pre-
-+	  allocated objects is set aside to be used for this task until such a
-+	  time a dynamic allocator can be used. Once a dynamic allocator can be
-+	  used an initial amount of objects is pre-allocated to be used when
-+	  needed.
-+
-+	  This option sets the amount of both: the amount of initially
-+	  statically allocated objects; and later the amount of dynamically
-+	  pre-allocated objects. It is used as exponent to the power of 2,
-+	  multiplied by the batch size used to set how many objects are move
-+	  between pools at once.
-+
-+	  For example, when left at the default of 6:
-+	      N_OBJECTS = 2^DEBUG_OBJECTS_POOL_SIZE_SHIFT * N_BATCH
-+	      N_OBJECTS = 2^6 * 16
-+	      N_OBJECTS = 1024
-+	  By increasing the option by 1, you double the amount of objects.
-+
-+	  An indication that you need to increase this option is that during
-+	  boot you see messages like this:
-+	      ODEBUG: Out of memory. ODEBUG disabled
-+
-+	  If in doubt, leave the default.
-+
-+
- config DEBUG_OBJECTS_ENABLE_DEFAULT
- 	int "debug_objects bootup default value (0-1)"
- 	range 0 1
-diff --git a/lib/debugobjects.c b/lib/debugobjects.c
-index 89a1d6745dc2..20e93d0074fa 100644
---- a/lib/debugobjects.c
-+++ b/lib/debugobjects.c
-@@ -22,11 +22,18 @@
- #define ODEBUG_HASH_BITS	14
- #define ODEBUG_HASH_SIZE	(1 << ODEBUG_HASH_BITS)
+> So, what I wanted to check was - do you think instead of virt_to_phys(), we
+> could directly use __pa() here() in mm/hugetlb.c, since these are
+> memblock alloc addresses? i.e.: 
+> 
+> // alloc_bootmem():
+> -   listnode = early_pfn_to_nid(PHYS_PFN(virt_to_phys(m)));
+> +   listnode = early_pfn_to_nid(PHYS_PFN(__pa(m)));
+> 
+> // __alloc_bootmem_huge_page():
+> -   memblock_reserved_mark_noinit(virt_to_phys((void *)m + PAGE_SIZE),
+> +   memblock_reserved_mark_noinit(__pa((void *)m + PAGE_SIZE),
+
+It surely will work for powerpc :)
+I checked the definitions of __pa() on other architectures and it seems the
+safest and the easiest way to fix this.
  
--/* Must be power of two */
-+/*
-+ * Must be power of two.
-+ * Please change Kconfig help text of DEBUG_OBJECTS_POOL_SIZE_SHIFT when
-+ * changed.
-+ */
- #define ODEBUG_BATCH_SIZE	16
- 
-+#define ODEBUG_POOL_SHIFT	CONFIG_DEBUG_OBJECTS_POOL_SIZE_SHIFT
-+static_assert(ODEBUG_POOL_SHIFT >= 0);
-+
- /* Initial values. Must all be a multiple of batch size */
--#define ODEBUG_POOL_SIZE	(64 * ODEBUG_BATCH_SIZE)
-+#define ODEBUG_POOL_SIZE	((1 << ODEBUG_POOL_SHIFT) * ODEBUG_BATCH_SIZE)
- #define ODEBUG_POOL_MIN_LEVEL	(ODEBUG_POOL_SIZE / 4)
- 
- #define ODEBUG_POOL_PERCPU_SIZE	(8 * ODEBUG_BATCH_SIZE)
-@@ -569,6 +576,10 @@ static void debug_objects_oom(void)
- 	struct debug_bucket *db = obj_hash;
- 	HLIST_HEAD(freelist);
- 
-+	/*
-+	 * Please change Kconfig help text of DEBUG_OBJECTS_POOL_SIZE_SHIFT
-+	 * when changed.
-+	 */
- 	pr_warn("Out of memory. ODEBUG disabled\n");
- 
- 	for (int i = 0; i < ODEBUG_HASH_SIZE; i++, db++) {
+Would you send a formal patch?
+
+> Thoughts?
+> 
+> -ritesh
+
 -- 
-2.53.0
-
+Sincerely yours,
+Mike.
