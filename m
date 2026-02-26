@@ -1,32 +1,32 @@
-Received: from out-171.mta1.migadu.com (out-171.mta1.migadu.com [95.215.58.171])
+Received: from out-173.mta1.migadu.com (out-173.mta1.migadu.com [95.215.58.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84DB4311960
-	for <linux-s390@vger.kernel.org>; Thu, 26 Feb 2026 11:33:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7885A376473
+	for <linux-s390@vger.kernel.org>; Thu, 26 Feb 2026 11:33:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772105613; cv=none; b=jfIvhhMHZ5Z5nxQ1wJh0BiUnzXuZlKAXms3dORWGMh5+Dx/xRmY0ofmgvi0DB8SASIoLxdgd6CG7I/Md8oMAAbzatwcKSFQ0cISYxrzKedezrH/cIHhBLHsn+rjyjRjKFCo1Ika9V20SnqRsOswrFrt4C3XeyrkeiMcaEu3XZ9E=
+	t=1772105618; cv=none; b=Mw2boUFldt5Lt9W2jeO/z2+8uLZDl0y3HD7Sf4opbRBUFFDVxIeZnDhxh22n0NVxCgLOeVYfZbfcGRb3evVOGjUJVuhUT6HzKscXBC8ULMRvC7ArkQlWXvDcA+Ty0FM0+le1kfhG1ie0DaIEfCBNUE3VyrrTvgppTCQRffOtEMM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772105613; c=relaxed/simple;
-	bh=jWNr9bp7CMcrs4J16sp5L4ZzsKS8zPrT2o2GCqfuflY=;
+	s=arc-20240116; t=1772105618; c=relaxed/simple;
+	bh=/9Lx71nKmkYJb1TTSFmE0R6yAn5hKROXn15gQnra39s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=fNHbPrcbMkztNmzE0A2Ilb2TreOV0lfj7HFd1xqOoHYRVf4NOVtak1U3P+Sc/3ezCdx5XKcQyYMgnYZD+QgV201L05t9Ga0p1H1Hs/ftvvUoOU/C195BX5s0zsF82ULFvanYujXa/lE8X5II333DdEsjoNljH5i7qPm2uR4g73A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=hUNYtyZh; arc=none smtp.client-ip=95.215.58.171
+	 MIME-Version; b=skcMCUA4dPOCK1xtreDjbZyuxjcAe7HwpZk52Ch4TEGxX93EHIcF1UvLUGH4dxTIvoWmbjy13aA6Yy27+iGeeeA51U8Qi+Vnr4LP7tGpzLKv19Fo+kyv99sfSQ1+naqD2gv1oKse311qdXn/Ds3dAWtTbrWGxl+Fx2Tw2jTKpt4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=qqWTnMAd; arc=none smtp.client-ip=95.215.58.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="hUNYtyZh"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="qqWTnMAd"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1772105610;
+	t=1772105615;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=HcjsQV50nDatk8NFhsm3n/z/wAZY5b80YB+EzBptEz0=;
-	b=hUNYtyZhaqlksnd9AfSZRt096lmVApHmXGQuSN2BpnlEr3x8YHG94GOzMTUoa/3r7gWEkq
-	45emp28Vxqc7n2wBQVg1LWyfVHtjlcaJ4w3bF7QR+JjA9SJu1LjAHrKEC+xPZYvhAhbt9r
-	GhTu0cvDNKxZfXQZTdIFSvNtBxE363I=
+	bh=sEWb6ULyOrXRVye+x+KftZvBAQkL33Q0arTZiVRMt8I=;
+	b=qqWTnMAdq5dg5CvpyeLbGUPbMz61dA9xpNIaerVTAxRFPXhdC6tgbMB8GUGdaSb1pEj7AQ
+	+ksDSA5ARHrYo0OCNpPhXKcjyhuY8ZIczmUrM/O9mt6vELpp8Kp9v5Y2Nt8i4eNS5HVweF
+	CbjSJodzFuIWJHz06nT0yacW4sZIjPs=
 From: Usama Arif <usama.arif@linux.dev>
 To: Andrew Morton <akpm@linux-foundation.org>,
 	david@kernel.org,
@@ -58,9 +58,9 @@ Cc: fvdl@google.com,
 	svens@linux.ibm.com,
 	linux-s390@vger.kernel.org,
 	Usama Arif <usama.arif@linux.dev>
-Subject: [RFC v2 05/21] mm: thp: handle split failure in zap_pmd_range()
-Date: Thu, 26 Feb 2026 03:23:34 -0800
-Message-ID: <20260226113233.3987674-6-usama.arif@linux.dev>
+Subject: [RFC v2 06/21] mm: thp: handle split failure in wp_huge_pmd()
+Date: Thu, 26 Feb 2026 03:23:35 -0800
+Message-ID: <20260226113233.3987674-7-usama.arif@linux.dev>
 In-Reply-To: <20260226113233.3987674-1-usama.arif@linux.dev>
 References: <20260226113233.3987674-1-usama.arif@linux.dev>
 Precedence: bulk
@@ -72,61 +72,40 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
-zap_pmd_range() splits a huge PMD when the zap range doesn't cover the
-full PMD (partial unmap).  If the split fails, the PMD stays huge.
-Falling through to zap_pte_range() would dereference the huge PMD entry
-as a PTE page table pointer.
-
-Skip the range covered by the PMD on split failure instead.
-
-The skip is safe across all call paths into zap_pmd_range():
-
-- exit_mmap() and OOM reaper: the zap range covers entire VMAs, so
-  every PMD is fully covered (next - addr == HPAGE_PMD_SIZE).  The
-  zap_huge_pmd() branch handles these without splitting.  The split
-  failure path is unreachable.
-
-- munmap / mmap overlay: vma_adjust_trans_huge() (called from
-  __split_vma) splits any PMD straddling the VMA boundary before the
-  VMA is split.  If that PMD split fails, __split_vma() returns
-  -ENOMEM and the munmap is aborted before reaching zap_pmd_range().
-  The split failure path is unreachable.
-
-- MADV_DONTNEED: advisory hint, the kernel is allowed to ignore it.
-  The pages remain valid and accessible.  A subsequent access returns
-  existing data without faulting.
+wp_huge_pmd() splits the PMD when COW or write-notify must be handled at
+PTE level (e.g., shared/file VMAs, userfaultfd).  It then returns
+VM_FAULT_FALLBACK so the fault handler retries at PTE granularity.
+If the split fails, the PMD is still huge.  The PTE fault path cannot
+handle a huge PMD entry.
+Return VM_FAULT_OOM on split failure, which signals the fault handler to
+invoke the OOM killer or return -ENOMEM to userspace. This is similar to
+what __handle_mm_fault would do if p4d_alloc or pud_alloc fails.
 
 Signed-off-by: Usama Arif <usama.arif@linux.dev>
 ---
- mm/memory.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ mm/memory.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/mm/memory.c b/mm/memory.c
-index 9385842c35034..7ba1221c63792 100644
+index 7ba1221c63792..51d2717e3f1b4 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
-@@ -1983,9 +1983,18 @@ static inline unsigned long zap_pmd_range(struct mmu_gather *tlb,
- 	do {
- 		next = pmd_addr_end(addr, end);
- 		if (pmd_is_huge(*pmd)) {
--			if (next - addr != HPAGE_PMD_SIZE)
--				__split_huge_pmd(vma, pmd, addr, false);
--			else if (zap_huge_pmd(tlb, vma, pmd, addr)) {
-+			if (next - addr != HPAGE_PMD_SIZE) {
-+				/*
-+				 * If split fails, the PMD stays huge.
-+				 * Skip the range to avoid falling through
-+				 * to zap_pte_range, which would treat the
-+				 * huge PMD entry as a page table pointer.
-+				 */
-+				if (__split_huge_pmd(vma, pmd, addr, false)) {
-+					addr = next;
-+					continue;
-+				}
-+			} else if (zap_huge_pmd(tlb, vma, pmd, addr)) {
- 				addr = next;
- 				continue;
- 			}
+@@ -6161,8 +6161,13 @@ static inline vm_fault_t wp_huge_pmd(struct vm_fault *vmf)
+ 	}
+ 
+ split:
+-	/* COW or write-notify handled on pte level: split pmd. */
+-	__split_huge_pmd(vma, vmf->pmd, vmf->address, false);
++	/*
++	 * COW or write-notify handled on pte level: split pmd.
++	 * If split fails, the PMD is still huge so falling back
++	 * to PTE handling would be incorrect.
++	 */
++	if (__split_huge_pmd(vma, vmf->pmd, vmf->address, false))
++		return VM_FAULT_OOM;
+ 
+ 	return VM_FAULT_FALLBACK;
+ }
 -- 
 2.47.3
 
