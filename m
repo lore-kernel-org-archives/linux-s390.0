@@ -1,60 +1,60 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7DB7376BFF;
-	Wed, 25 Feb 2026 23:42:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A97FE389DEF;
+	Thu, 26 Feb 2026 04:07:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772062971; cv=none; b=gh9ntpVlSR7lkqq10rRiy7MH9Dgl607zS9lsjxQ5VsrcXPv+E+ioKuF6DX2Ll1QKXBJu0PmP5qzKd0GGUZz8Ayr2pL8OqQI+YVbN9C3d9gcSfXLhPuxoH6nLcqTg2FSSjUU5fjMSC3oGupQ/bXWawtPEN9YYaMNH3SVYFbRNOok=
+	t=1772078879; cv=none; b=GrtVwEOjJa2BzHGJQ80z3srJf4HkLAGnXNzzbhacah/hLyEero2h34ISiF+rjtHwZvabwpVNhjgeKLKqo/0XPS2KkGQ8S96Cpi4v0+QYmuWNb3EYQiV41Xb1dQIKUUvooyL+OcjEmUYsVNkQvmBm4dr4kTXamHI9HrWISpvjQx0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772062971; c=relaxed/simple;
-	bh=LJlpi5wuKe2Ygqgec+SIKK0p59KvieoD4ReMMDS1aGU=;
+	s=arc-20240116; t=1772078879; c=relaxed/simple;
+	bh=oUBv2D7n1Y+4a0ZpPyxVesgQ34nl+hYfJJ32/Lsvano=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sZcleSPwnMC2Pgo15B5AS+fAIjHY+hQIBpgdYLfBRfOMyzMP3hSYJa7wlMYHJybGHpip8H5wdLxChbVVWmPShIBlWroYnFxoPAAGvUJn7wrRrwBvXpenVv6L5GMkDHI2Mn6KvgjesBXyVGoXnOeLX2Q6R4GPj5kHUCGEv48xggQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Nx61voTY; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=BUpDdFLyJZ5SzjsUhk75FapEWpPvOJXo1KciqabqqQBv80LAz0RfK1cJt7wV9D7CzFdAwUILJY31w7M1yTNMREcY9jQmj2slrj6uZKrE0Yd49JO1Pf2tYjU3CSI8WxuUDRYI4MYt/djzIlWmwk6OMOK3sJ+07g/DfWI0P2IReXQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gTIp8TWN; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Nx61voTY"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61PKla3W2460426;
-	Wed, 25 Feb 2026 23:42:50 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gTIp8TWN"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61PNnIwC1020989;
+	Thu, 26 Feb 2026 04:07:13 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=hmdacT
-	ALJh28DvVcdwZtkaL65/31pNSDaP4wG4Nd1t0=; b=Nx61voTYz+2nyc8256tY6C
-	jsbH5g83YI7wWorMCCUvjt2I0o/ypc0lVAfNtYvkUDY52N7GZUt/YvTBAJV0PwvE
-	UsLagrP5LlqIc5JhT4Zy6QmUTW4dXUTRi96dJjwwhWWF8oF5kfbNoVHaNDfa6B5O
-	jxN+hdkYEh/3Aeacx9u1MVfzNEc3p6Ik0esRvDOUTaF0fiWBVniYQ4+xE//C847e
-	0MH2DFThS5tmrjuyQSKPTELWQiTLlS7AxYlVYDUrdZLY6q/c/KugTCbX8jinUbNK
-	idC6ptlWYeJOs0d6rjCcaz41+cS96ubsdLPQo0EMgoCMHb77HYOIMnRbx1HhUhJQ
+	:message-id:mime-version:references:subject:to; s=pp1; bh=3q0uON
+	EEqqqD0xzui33P+JmFnpHAO/xLG4opiuN6MwM=; b=gTIp8TWNrW6AKL34eDJJtR
+	ZlJgMti+O/Exc41veLdRdQWP/AakuIAS4l8ox58oQHVweLM9XMjixGyAL0Rgv4og
+	/oIdpyPLYDS8x6KgMt/A+nyyWYRE+AcfjCH0Ij/OSX9BXSN67nOtmb1oDaZ4/uOp
+	A/RHe6xuRoa4Gm3NLQrJyET9y+OpNaLEIaqIL9IaiKWcVM7R2nRBStoi5GH5TlpP
+	dbLhCc1z265CJiLbxz9m5RFPKYdsBvM1D2lOshS/HHTQNdmWH5q8mf4iYd3C2OMD
+	+TYpy6Vc9N9wVdCS1XY8GCPJz0OYxqNceV7f4jsZDxfxBmDGBE5U+FO0CV7/a/qA
 	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cf4cr35n9-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cf47247dr-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Feb 2026 23:42:49 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61PMbpAn015962;
-	Wed, 25 Feb 2026 23:42:49 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cfq1sr757-1
+	Thu, 26 Feb 2026 04:07:12 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61Q0YAGE027789;
+	Thu, 26 Feb 2026 04:07:11 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cfsr20vn1-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Feb 2026 23:42:49 +0000
-Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61PNglXd66191660
+	Thu, 26 Feb 2026 04:07:11 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61Q477Ev28115492
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 25 Feb 2026 23:42:47 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 68B9B5805D;
-	Wed, 25 Feb 2026 23:42:47 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AD12D5805A;
-	Wed, 25 Feb 2026 23:42:46 +0000 (GMT)
-Received: from [9.61.38.72] (unknown [9.61.38.72])
-	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 25 Feb 2026 23:42:46 +0000 (GMT)
-Message-ID: <67c8bb91-32ac-4e1e-8b97-9ff8f55a4e61@linux.ibm.com>
-Date: Wed, 25 Feb 2026 18:42:46 -0500
+	Thu, 26 Feb 2026 04:07:07 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8059A20043;
+	Thu, 26 Feb 2026 04:07:07 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9349420040;
+	Thu, 26 Feb 2026 04:07:00 +0000 (GMT)
+Received: from [9.109.215.252] (unknown [9.109.215.252])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 26 Feb 2026 04:07:00 +0000 (GMT)
+Message-ID: <32cf8732-22e6-4350-9d39-67740ef07b13@linux.ibm.com>
+Date: Thu, 26 Feb 2026 09:36:59 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,116 +62,149 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/2] KVM: s390: Limit adapter indicator access to mapped
- page
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        borntraeger@linux.ibm.com, freimuth@linux.ibm.com
-References: <20260217090230.8116-1-frankja@linux.ibm.com>
- <20260217090230.8116-2-frankja@linux.ibm.com>
+Subject: Re: [PATCH 04/15] powerpc/time: Prepare to stop elapsing in
+ dynticks-idle
+To: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Anna-Maria Behnsen <anna-maria@linutronix.de>,
+        Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Joel Fernandes <joelagnelf@nvidia.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Kieran Bingham <kbingham@kernel.org>, Mel Gorman <mgorman@suse.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        "Paul E . McKenney"
+ <paulmck@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Valentin Schneider <vschneid@redhat.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Xin Zhao <jackzxcui1989@163.com>, linux-pm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+References: <20260206142245.58987-1-frederic@kernel.org>
+ <20260206142245.58987-5-frederic@kernel.org>
+ <9413517d-963b-4e6d-b11b-b440acd7cb5a@linux.ibm.com>
+ <9ab1e7d7-57ee-49f9-963c-3a1b96dda684@kernel.org>
+ <120884b0-0b09-43a9-b0f6-7dc2affe1ac0@linux.ibm.com>
+ <55720b5b-f643-4e67-8841-d81a9e712faf@kernel.org>
+ <a20beb34-0e4b-4063-b6b0-6c5886bbb971@linux.ibm.com>
+ <a0c6e65c-3331-402a-94eb-14ba7f4b7ba7@kernel.org>
+ <729a7e7f-a50e-480c-87ce-c45221fbb326@linux.ibm.com>
+ <6c007cf1-46d5-4853-ae2e-90ee5257c6c9@kernel.org>
+ <62f50aad-05ce-42ac-bdf6-dcb4af69c1c2@linux.ibm.com>
+ <cd10be19-e0bc-4e0c-8dac-4f1c05d0de8f@kernel.org>
 Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20260217090230.8116-2-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: Shrikanth Hegde <sshegde@linux.ibm.com>
+In-Reply-To: <cd10be19-e0bc-4e0c-8dac-4f1c05d0de8f@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: GEFaDYcRZuzS82YOs7OZ3M7l4lHQHZeK
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI1MDIyNiBTYWx0ZWRfXzLRXARkGE/6s
- zgGr/9EyyecA3uozxtH/ogtUfhjEwj8WNBmHCER9il+QGJqIlo2kzTv5wuvwL4xMCntiPrPslxP
- 5n5vuUS74fwyDC3bnGvbdZIxXjGBqDfq2n7IwIqTxZN72KAbJL3mKfnglO49V0yGtCQuxN5nx3a
- AxxLRmcmhm4pCKsZ9d0SjSYzU4QfRNgr8COoZWstAOf0naGmhX+hj/a3l8buq/rgPflbtfDMjcX
- UHY6Jbn75gn/9zIfCLco2K08eXdfkjEPWl+jepfZo+/tnULpj/8eonhPOdk9XayY8qSpXvHobTN
- Wh1+edZcnUFNmEDpKwlfiKxZPbCZ/pLp8Rhc8EpS4AvwfPCAq4rquRFUVgAiyFLRwl+TrKpYmAM
- dRWvW9odNxS7ti4LsDzcc8IxmaIGOH23YkGWvEUELD9Gd/8jrk6vQ0H+ysdjnOmw6mZk7D105Os
- 4rQWwAO3SYRFHwXGGCQ==
-X-Proofpoint-GUID: GEFaDYcRZuzS82YOs7OZ3M7l4lHQHZeK
-X-Authority-Analysis: v=2.4 cv=bbBmkePB c=1 sm=1 tr=0 ts=699f88fa cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: f7S2WtsKvlxMvHhq_zwIJuGpP3z4paQL
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI2MDAzMCBTYWx0ZWRfX60s+A34+GB0t
+ Io80hfX9Jv3eGn0B3TakXFL2ROrvdbblneo6y5ODg4Z86GzA9kmCXtJOfUe11j6BSpzZWDNj7qg
+ 7XtmGO441AswLe4NoJNJDnuk75XC6YY9Yv/8TfnXsbXaTd27Uz1IQVDdjI4lxigP4Wsc5wUV3dC
+ 02KdkR5EEdxxBV12vBa55FP3V1vZ2JCx9+uEopP/B4tYCwQqZ9aDXfjff3v0ieKI/RD6BAyClBv
+ fqOK3VCJJbKkRKVcRdDGKDIrvgwEkH6JGR+SFfQn/N4Rp12hfB7P6bR9iRe/qrKyGKAwdBxzxHE
+ 3iyYESt9qF5fzcvFi6EWTMN0HncF7m7/KO+mCSWFxzLzDuqZkROgnWs1a8XqPu1EOjjx9Mnr3WQ
+ qJ0+NTI41XOOV8lZHsXW4npk+FKu0ma02LcpPfZDNwDe1NXK8QqBWmA0IWavlUUlF8wuoby04pY
+ aJh66yaVdBoI1+0zvHA==
+X-Authority-Analysis: v=2.4 cv=R7wO2NRX c=1 sm=1 tr=0 ts=699fc6f1 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8
- a=G87O5jEwh3kmkZiQiTUA:9 a=QEXdDO2ut3YA:10
+ a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=mQacKsI2GBFQlb42hPYA:9
+ a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: mPP8z1pesNQEnkjfaOtnge9F8RPnsGDG
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-02-25_04,2026-02-25_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 bulkscore=0 adultscore=0 impostorscore=0 lowpriorityscore=0
- priorityscore=1501 suspectscore=0 clxscore=1015 phishscore=0 spamscore=0
+ priorityscore=1501 clxscore=1015 impostorscore=0 phishscore=0 spamscore=0
+ suspectscore=0 malwarescore=0 bulkscore=0 adultscore=0 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602250226
+ reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602260030
 
-On 2/17/26 3:54 AM, Janosch Frank wrote:
-> While we check the address for errors, we don't seem to check the bit
-> offsets and since they are 32 and 64 bits a lot of memory can be
-> reached indirectly via those offsets.
+
+
+On 2/25/26 11:29 PM, Christophe Leroy (CS GROUP) wrote:
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> Fixes: 84223598778b ("KVM: s390: irq routing for adapter interrupts.")
-> ---
->  arch/s390/kvm/interrupt.c | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
 > 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 1c2bb5cd7e12..cd4851e33a5b 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -2724,6 +2724,9 @@ static unsigned long get_ind_bit(__u64 addr, unsigned long bit_nr, bool swap)
->  
->  	bit = bit_nr + (addr % PAGE_SIZE) * 8;
->  
-> +	/* kvm_set_routing_entry() should never allow this to happen */
-> +	WARN_ON_ONCE(bit > (PAGE_SIZE * BITS_PER_BYTE - 1));
-> +
->  	return swap ? (bit ^ (BITS_PER_LONG - 1)) : bit;
->  }
->  
-> @@ -2852,6 +2855,7 @@ int kvm_set_routing_entry(struct kvm *kvm,
->  			  struct kvm_kernel_irq_routing_entry *e,
->  			  const struct kvm_irq_routing_entry *ue)
->  {
-> +	const struct kvm_irq_routing_s390_adapter *adapter;
->  	u64 uaddr_s, uaddr_i;
->  	int idx;
->  
-> @@ -2862,6 +2866,14 @@ int kvm_set_routing_entry(struct kvm *kvm,
->  			return -EINVAL;
->  		e->set = set_adapter_int;
->  
-> +		adapter = &ue->u.adapter;
-> +		if (adapter->summary_addr + BITS_TO_BYTES(adapter->summary_offset) >=
-> +		    (adapter->summary_addr & PAGE_MASK) + PAGE_SIZE)
-> +			return -EINVAL;
-> +		if (adapter->ind_addr + BITS_TO_BYTES(adapter->ind_offset) >=
-> +		    (adapter->ind_addr & PAGE_MASK) + PAGE_SIZE)
-> +			return -EINVAL;
-> +
+> Le 25/02/2026 à 18:47, Shrikanth Hegde a écrit :
+>> Hi Christophe.
+>>
+>>> I think I'm starting to understand now.
+>>>
+>>> I think the problem is that acct->starttime has an invalid value the 
+>>> very first time it is used.
+>>>
+>>> We are probably lacking an initial value in paca->accounting.starttime.
+>>> This should likely be initialised from mftb in head_64.S in 
+>>> start_here_common for main CPU and __secondary_start for other CPUs 
+>>> or maybe at higher level in C in setup_arch() and start_secondary()
+>>>
+>>> Christophe
+>>
+>> How about below? this works too.
+> 
+> Fine it is works, it means we found the real problem.
+> 
+> What about using the newly added vtime_reset() ? See below (untested)
+> 
 
+Thanks Christophe for helping.
 
-I think this is slightly off.
+This works too. vtime_reset does the exact same thing.
+Let me write a changelog and a comment on vtime_reset and send it.
 
-The offset should indicate a bit offset from the beginning of the byte, so offsets 0-7 are all within the same byte as the specified address, 8-15 are in the next byte, etc.
-
-I hacked QEMU and tested something like...
-1) addr 8126efff offset 7 -- this would be the very last bit in the page.
-2) addr 8126efff offset 8 -- this would be the very first bit in the next page.  
-3) addr 8126efff offset 9 -- this would be the 2nd bit in the next page.
-
-I expected (1) to pass while (2) and (3) were rejected, but all 3 were rejected by your check.
-
-I think the problem is that BITS_TO_BYTES rounds up.  So:
-BITS_TO_BYTES(0) = 0
-BITS_TO_BYTES(1..8) = 1
-BITS_TO_BYTES(9..16) = 2
-and so on.
-
-But your offset check expects
-0..7 = 0
-8..15 = 1
-and so on.
-
-AFAICT replacing BITS_TO_BYTES(offset) with (offset / 8) would work.
-
-
->  		idx = srcu_read_lock(&kvm->srcu);
->  		uaddr_s = gpa_to_hva(kvm, ue->u.adapter.summary_addr);
->  		uaddr_i = gpa_to_hva(kvm, ue->u.adapter.ind_addr);
-
+> diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+> index 9b3167274653..f4aef85106ac 100644
+> --- a/arch/powerpc/kernel/time.c
+> +++ b/arch/powerpc/kernel/time.c
+> @@ -377,7 +377,6 @@ void vtime_task_switch(struct task_struct *prev)
+>       }
+>   }
+> 
+> -#ifdef CONFIG_NO_HZ_COMMON
+>   /**
+>    * vtime_reset - Fast forward vtime entry clocks
+>    *
+> @@ -394,6 +393,7 @@ void vtime_reset(void)
+>   #endif
+>   }
+> 
+> +#ifdef CONFIG_NO_HZ_COMMON
+>   /**
+>    * vtime_dyntick_start - Inform vtime about entry to idle-dynticks
+>    *
+> @@ -931,6 +931,7 @@ static void __init set_decrementer_max(void)
+>   static void __init init_decrementer_clockevent(void)
+>   {
+>       register_decrementer_clockevent(smp_processor_id());
+> +    vtime_reset();
+>   }
+> 
+>   void secondary_cpu_time_init(void)
+> @@ -946,6 +947,7 @@ void secondary_cpu_time_init(void)
+>       /* FIME: Should make unrelated change to move snapshot_timebase
+>        * call here ! */
+>       register_decrementer_clockevent(smp_processor_id());
+> +    vtime_reset();
+>   }
+> 
+>   /*
+> 
+> 
