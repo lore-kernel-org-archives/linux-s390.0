@@ -1,153 +1,159 @@
-Received: from fhigh-a6-smtp.messagingengine.com (fhigh-a6-smtp.messagingengine.com [103.168.172.157])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5464A40FDA7;
-	Thu, 26 Feb 2026 15:43:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.157
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A77742B72A;
+	Thu, 26 Feb 2026 15:59:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772120635; cv=none; b=Rs6obBVMqY7FBqd+TKzXys2+f1/Lq7iCWSpt4roxR0B5czBzPO/0dylqyvzkakTpK+FHC4FuTj4AY7ANADw9U3MSV6HCno7BWZ4jF1RfY+Wf0nPwORRugErmyMbAV52KkuwZ1kocVQwKxiUwMbcxCOHHX1KZDdhLP+dJP3yccdI=
+	t=1772121560; cv=none; b=sEVTdt8OUg0tS5YP2d6PzXH5QqHNSnK1Q7NejLRmO1Vg5GEL4/vXjvAqeG0gDWJu7zdwNmwfskgB5CTetFQCJmZh/GWfwGfNjBnmtAB3R7WQzYSKTwbCHcsjM+4VLHOXNBei9mN97LuRCBeuOwH7J4895oS4T4AGRW0krYMQwDI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772120635; c=relaxed/simple;
-	bh=zaIt+6c5Z6aF5nOzcYBB7QJkaXuFxNxAQjsZxA8CeFs=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=uw6bfrQXK37FXlZ++VgfKEw5eSdj9CavnQ8wr8tLk/Y1NciJpVBoAVk0GHwqNWXTIj03c9uY7LmTQdQ0v7XmukeyyDJl9Fe/yQKYMrHT3psMbxrO21lkHhzvkEAxo58YSe54HHN/SA2YkEiJRhV2GZWtF/TuCr7zlCBl5tCTRVk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=kE1boI3w; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=Q18deQNd; arc=none smtp.client-ip=103.168.172.157
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1772121560; c=relaxed/simple;
+	bh=BglG78IulTmphOGQTtH1M99mydRcDoZLE4d8gHIxNFU=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=A2ONTwqzn+jQofscoJyjuVFmvruGy0fwLSt+GH37COKeHAE4tV03HNi/MonUyXmJdrKxN+uZJ2nkrKi4fgA/9CnsLgqZYUS4UdzfYcV1LNndYAWxVF2BsQUUsaW+7DdvZ5YyEX1kZbmtO6Zw1E6USDodE5F8szkcvs1h/VN/hf4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lPOKPeBL; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="kE1boI3w";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Q18deQNd"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id 89BD3140002A;
-	Thu, 26 Feb 2026 10:43:52 -0500 (EST)
-Received: from phl-imap-02 ([10.202.2.81])
-  by phl-compute-04.internal (MEProxy); Thu, 26 Feb 2026 10:43:52 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1772120632;
-	 x=1772207032; bh=5NKb8s5uQsJxGoQ2AVBEtObpQ/CvaKcz4OqTIpIkbmc=; b=
-	kE1boI3ws1cfLT14/TVxxEoaTMdXc/I1PNXH7GNWRBTllCBgtrzrTSjit+SUhttr
-	Eb0fucvitI2zRzMuqR6UG0eh4zA2xMizTkFOHXxSup7P7svCEQa4QG6ViLuf5mR5
-	DqhI/u6kRuseZ+jc0FUGUEZY9J442EYkBykyx3ZMQvORYJl/5jeTlWR9Avg3ZFmK
-	1aQ3s5BQMTPicz8U3wzNRCQrtM8Yy8EkZu4vaZFq+t60P/2wWo6CEjfJxmi+Eb9F
-	geLakIK4l4b0gfCpw6OD9M1LtQiO0sLd769xq21hYFRZVOLN1rz1dtHzxVvlG0Nn
-	93wsCzFKgp+Jo1S+xiBqqA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1772120632; x=
-	1772207032; bh=5NKb8s5uQsJxGoQ2AVBEtObpQ/CvaKcz4OqTIpIkbmc=; b=Q
-	18deQNdFeQPk0V2f0XIHZ7Ojp8SWcxzigQIJDZ7UUHsSU60St1ZxQSgXBXP5TlAf
-	Kwy9HxF+WAaPUAxj3/EFIrSAuxG9kk2k195AlqzGpp/dzFQxMa0tAo2RLqTMPHIC
-	vXji4OQ+bS1C1d0xIzXHVXGabHysyEGlA+BTKWDa7wCBxmlOoawgKi83sAMF9a5V
-	kL1ZzZYK4zft7yxqk98KYQcKfB+urZmPATLUA/SbLYc+zliGRNbdea9TnQWqdM0L
-	wNFDFJ2qpGdCNGCo7kFmw1K7rQplgLEsqwcKlxMSRaIRdafFINL1pNCFooIQvSoL
-	quMyMAEOqJLyL+xLNkkwA==
-X-ME-Sender: <xms:N2qgaYw1z9YGtc2jyohlCZgUE41JpfNk-e8L63NjeeaiyzuFe5DnFw>
-    <xme:N2qgaXFo9EDsygeZAIkarS7n9AiIVL3ExBB5UEe90SABj9605l3OZ6AShtJJwrBhD
-    0HJMpU5TqkedRrThxaDo_GeBne0cLk0NamJkUiAg0FgXZzxsXsR2qpV>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvgeeigeefucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddtnecuhfhrohhmpedftehrnhgu
-    uceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrthhtvg
-    hrnhephfdthfdvtdefhedukeetgefggffhjeeggeetfefggfevudegudevledvkefhvdei
-    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprghrnh
-    gusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohepgedpmhhouggvpehsmhhtphhouhht
-    pdhrtghpthhtoheplhhinhhugidqshefledtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpd
-    hrtghpthhtohepshhprghrtghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhr
-    tghpthhtohepkhgvrhhnvghlseigvghntdhnrdhnrghmvgdprhgtphhtthhopehhphgrse
-    iihihtohhrrdgtohhm
-X-ME-Proxy: <xmx:N2qgaa1Hmj23zi2NwnEav_2GuzL1DEGkxmZpmVQBkFQc3buBo3erVw>
-    <xmx:N2qgaScGfXgkQB844dVJs8Kj2JuMZuv7_759dDpv9UsAuqu6oWAovQ>
-    <xmx:N2qgaTGP4znwK0QmX1lR83q243FJ8XazQRHtuLSGlP19PAWPDUDE0w>
-    <xmx:N2qgab2QyDp0HFr8ls8AFP8jbOKZU9JOsZK85-hLopw22NwXActoMg>
-    <xmx:OGqgaSQDW-jqdcPJrzZMqtB1XkHRDRJh1kqJiRl88YaDQ1ONH-ME_m7p>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id A0F9D700065; Thu, 26 Feb 2026 10:43:51 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lPOKPeBL"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61Q7KnMW2713432;
+	Thu, 26 Feb 2026 15:59:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=EH6WtJ
+	3dEUptsGQIh9fbaYV+2C/P3bVvfgfRPFSQRH4=; b=lPOKPeBLkpvLD+4k7HZzXV
+	Un1cRvySRkCG0yZPuVaKD3WTgSV3IWOKiJ/XLnyBCpdiOmQrJwKpY+R397CcfYBX
+	jgoa1kS6WuUUf0baYWTj8FQWPTUF+YI43j0vnGvFIpwkEPCJSACxV3BpguuqE1hF
+	hjXiQsGkNKtd8avjKzshfk7uS2ZxdwndvBxmojONw4ko7sWeC6QwM1v8B1Dlz40h
+	rfh4zOp36xBrNr2/xNItx3AFRa7zscQWPvUn5TyAPyF/yicymAp2bbZW5O5iv427
+	ySmO77RJseboA1++wX8aAhGsQIPGskhQQIaw63Rs1NejeW5QiEeyKd8Nm5DMvSvA
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cf34cekcw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 26 Feb 2026 15:59:07 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61QDPa7L030256;
+	Thu, 26 Feb 2026 15:59:07 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cfrhkmbwx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 26 Feb 2026 15:59:07 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61QFx2Eo56688976
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 26 Feb 2026 15:59:03 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E0B1D20043;
+	Thu, 26 Feb 2026 15:59:02 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BCDE020040;
+	Thu, 26 Feb 2026 15:59:02 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.52.223.175])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Thu, 26 Feb 2026 15:59:02 +0000 (GMT)
+Date: Thu, 26 Feb 2026 16:59:01 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        freimuth@linux.ibm.com, mjrosato@linux.ibm.com
+Subject: Re: [PATCH 1/2] KVM: s390: Limit adapter indicator access to mapped
+ page
+Message-ID: <20260226165901.68438340@p-imbrenda>
+In-Reply-To: <20260217090230.8116-2-frankja@linux.ibm.com>
+References: <20260217090230.8116-1-frankja@linux.ibm.com>
+	<20260217090230.8116-2-frankja@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: AQu7KcbS869J
-Date: Thu, 26 Feb 2026 16:40:21 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Christoph Hellwig" <hch@lst.de>,
- "Andrew Morton" <akpm@linux-foundation.org>
-Cc: "Richard Henderson" <richard.henderson@linaro.org>,
- "Matt Turner" <mattst88@gmail.com>,
- "Magnus Lindholm" <linmag7@gmail.com>,
- "Russell King" <linux@armlinux.org.uk>,
- "Catalin Marinas" <catalin.marinas@arm.com>,
- "Will Deacon" <will@kernel.org>, "Huacai Chen" <chenhuacai@kernel.org>,
- "WANG Xuerui" <kernel@xen0n.name>,
- "Madhavan Srinivasan" <maddy@linux.ibm.com>,
- "Michael Ellerman" <mpe@ellerman.id.au>,
- "Nicholas Piggin" <npiggin@gmail.com>,
- "Christophe Leroy" <chleroy@kernel.org>,
- "Paul Walmsley" <pjw@kernel.org>, "Palmer Dabbelt" <palmer@dabbelt.com>,
- "Albert Ou" <aou@eecs.berkeley.edu>, "Alexandre Ghiti" <alex@ghiti.fr>,
- "Heiko Carstens" <hca@linux.ibm.com>,
- "Vasily Gorbik" <gor@linux.ibm.com>,
- "Alexander Gordeev" <agordeev@linux.ibm.com>,
- "Christian Borntraeger" <borntraeger@linux.ibm.com>,
- "Sven Schnelle" <svens@linux.ibm.com>,
- "David S . Miller" <davem@davemloft.net>,
- "Andreas Larsson" <andreas@gaisler.com>,
- "Richard Weinberger" <richard@nod.at>,
- "Anton Ivanov" <anton.ivanov@cambridgegreys.com>,
- "Johannes Berg" <johannes@sipsolutions.net>,
- "Thomas Gleixner" <tglx@kernel.org>, "Ingo Molnar" <mingo@redhat.com>,
- "Borislav Petkov" <bp@alien8.de>,
- "Dave Hansen" <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>,
- "Herbert Xu" <herbert@gondor.apana.org.au>,
- "Dan Williams" <dan.j.williams@intel.com>, "Chris Mason" <clm@fb.com>,
- "David Sterba" <dsterba@suse.com>, "Song Liu" <song@kernel.org>,
- "Yu Kuai" <yukuai@fnnas.com>, "Li Nan" <linan122@huawei.com>,
- linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-um@lists.infradead.org, linux-crypto@vger.kernel.org,
- linux-btrfs@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>,
- linux-raid@vger.kernel.org
-Message-Id: <29afa24a-f659-481b-b5a8-7b8b9e009755@app.fastmail.com>
-In-Reply-To: <20260226151106.144735-10-hch@lst.de>
-References: <20260226151106.144735-1-hch@lst.de>
- <20260226151106.144735-10-hch@lst.de>
-Subject: Re: [PATCH 09/25] xor: move generic implementations out of asm-generic/xor.h
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI2MDEzNiBTYWx0ZWRfXwolwzqkwN5IK
+ 1GdJCXVe7g5+TWSj1vSCRiljY3RUE2wXB9tpD2y8uooQdpQvUIq6/9RUvEURlnbgFDr/90fBoM7
+ HMpUYD11XIggvfaNsPEvWGbYtmby1B/t9hSL1rrF+kqt+p9XbuiLKE+VWhkwfFh3qNLXKEbCMlZ
+ ULRE8anCCIcwSE05FsWQcEQ09f/P0G/a71wXF2MM3/Jl0vhLTK8tCywBjlz7yCXBeZupUWXPsMP
+ WrdoHO/G8bFtjNoI+oKVuKxpz7RFXNdj9q/BK/6GUd+VZN5Hw6V6xuihq5Nvn4F073R5szHZIzG
+ c7+AP7PKG3vh/sH5bAmnF0SCIDwkE24MqpVHM4HOzpzU9MbC5xcS5vnw4BPbKWeiotqK/uOQCYT
+ 9xLgy3mnTtAY7hcIYD66otQ3kU5NHF+/BJyNzqT2j6Dh4xXV2vsNEyzFcuMcbbdanM7UpFQhtAw
+ F0wfmC2pY+zExQh+JPg==
+X-Proofpoint-ORIG-GUID: XRIAn-_6n7pMuhJl3Xl2ufoiAdlhoyOJ
+X-Authority-Analysis: v=2.4 cv=F9lat6hN c=1 sm=1 tr=0 ts=69a06dcb cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=kj9zAlcOel0A:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8
+ a=G87O5jEwh3kmkZiQiTUA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: XRIAn-_6n7pMuhJl3Xl2ufoiAdlhoyOJ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-26_01,2026-02-26_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 phishscore=0 bulkscore=0 adultscore=0 spamscore=0
+ clxscore=1015 suspectscore=0 malwarescore=0 lowpriorityscore=0
+ priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
+ definitions=main-2602260136
 
-On Thu, Feb 26, 2026, at 16:10, Christoph Hellwig wrote:
-> Move the generic implementations from asm-generic/xor.h to
-> per-implementaion .c files in lib/raid.
->
-> Note that this would cause the second xor_block_8regs instance created by
-> arch/arm/lib/xor-neon.c to be generated instead of discarded as dead
-> code, so add a NO_TEMPLATE symbol to disable it for this case.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+On Tue, 17 Feb 2026 09:54:22 +0100
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-Acked-by: Arnd Bergmann <arnd@arndb.de> # for asm-generic
+> While we check the address for errors, we don't seem to check the bit
+> offsets and since they are 32 and 64 bits a lot of memory can be
+> reached indirectly via those offsets.
 > 
-> -#pragma GCC diagnostic ignored "-Wunused-variable"
-> -#include <asm-generic/xor.h>
-> +#define NO_TEMPLATE
-> +#include "../../../lib/raid/xor/xor-8regs.c"
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Fixes: 84223598778b ("KVM: s390: irq routing for adapter interrupts.")
 
-The #include is slightly ugly, but I see it gets better in a later patch,
-and is clearly worth it either way.
+Suggested-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reported-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-The rest of the series looks good to me as well. I had a brief
-look at each patch, but nothing to complain about.
+:)
 
-     Arnd
+> ---
+>  arch/s390/kvm/interrupt.c | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
+> 
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 1c2bb5cd7e12..cd4851e33a5b 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -2724,6 +2724,9 @@ static unsigned long get_ind_bit(__u64 addr, unsigned long bit_nr, bool swap)
+>  
+>  	bit = bit_nr + (addr % PAGE_SIZE) * 8;
+>  
+> +	/* kvm_set_routing_entry() should never allow this to happen */
+> +	WARN_ON_ONCE(bit > (PAGE_SIZE * BITS_PER_BYTE - 1));
+> +
+>  	return swap ? (bit ^ (BITS_PER_LONG - 1)) : bit;
+>  }
+>  
+> @@ -2852,6 +2855,7 @@ int kvm_set_routing_entry(struct kvm *kvm,
+>  			  struct kvm_kernel_irq_routing_entry *e,
+>  			  const struct kvm_irq_routing_entry *ue)
+>  {
+> +	const struct kvm_irq_routing_s390_adapter *adapter;
+>  	u64 uaddr_s, uaddr_i;
+>  	int idx;
+>  
+> @@ -2862,6 +2866,14 @@ int kvm_set_routing_entry(struct kvm *kvm,
+>  			return -EINVAL;
+>  		e->set = set_adapter_int;
+>  
+> +		adapter = &ue->u.adapter;
+> +		if (adapter->summary_addr + BITS_TO_BYTES(adapter->summary_offset) >=
+> +		    (adapter->summary_addr & PAGE_MASK) + PAGE_SIZE)
+> +			return -EINVAL;
+> +		if (adapter->ind_addr + BITS_TO_BYTES(adapter->ind_offset) >=
+> +		    (adapter->ind_addr & PAGE_MASK) + PAGE_SIZE)
+> +			return -EINVAL;
+> +
+>  		idx = srcu_read_lock(&kvm->srcu);
+>  		uaddr_s = gpa_to_hva(kvm, ue->u.adapter.summary_addr);
+>  		uaddr_i = gpa_to_hva(kvm, ue->u.adapter.ind_addr);
+
