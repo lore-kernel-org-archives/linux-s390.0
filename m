@@ -1,316 +1,416 @@
-Received: from mail-dy1-f201.google.com (mail-dy1-f201.google.com [74.125.82.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9231638E5DF
-	for <linux-s390@vger.kernel.org>; Thu, 26 Feb 2026 07:06:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D985833290F;
+	Thu, 26 Feb 2026 07:32:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772089581; cv=none; b=F3kf/g/JDsfTPYpUtSCffT+4wEMraMD3HSHVTxyjnuabm8aoDPDK2EL5zmdSB8FkNJ7sHJZBnM66d2FcLe4qxL6Wpwk22jTfutxNiy7yNhFRFfiHbae+984hbUUnUaFdutPXlJ1DoKlHwEbaCcrXUs7D6MqpwgY/SYBSNsOUidI=
+	t=1772091170; cv=none; b=bi82XS0pnPkQDYxyVUhlmus/RCUdTpcQfbHyiYoueFWIv/lO9H1nPxIxZne1EXsdS4dawHZsRAhXi9x/2u9SVLJjMFN+lIRPFvgs/x7Qg4kiDVCtjTidzCspoDEDT+3B74t2/wgGmOIvR52fGM2zmWbH5rGWElfdiFdNm/G9rPY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772089581; c=relaxed/simple;
-	bh=d8fYsygIXZ64WgQWnqsTL8l3me4MDRp18/QFSjPvsTE=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=aswaeQwwBRrcHGvonX/4WRfk0IEad19KyQD5Uj9o0yot7sv1uX6hoLIYjladAbF0Z+A8GD0FUiNzrMvTCt43qMG7XBFGHDtPFqcNAbbo4wUZeWzC9065anZ7rv2BDX8nNhsrq7tNeN8Y28fA9wfbzE7cIkLntbUu0ghh05stn2I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--surenb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=DlYyYPU/; arc=none smtp.client-ip=74.125.82.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--surenb.bounces.google.com
+	s=arc-20240116; t=1772091170; c=relaxed/simple;
+	bh=ifqswWyiVHltZ9jFj6fgw2nxsxq2WC8ta0ADE6u9hWI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Wg+evic6EuYDvHK3VurChkm3ElcpbyH0bjDG3UVrHojoqyNSc214N7h7laW8MWC66XX88qBLc7gwDu5XJbysArSl8Nq4csrB5JdtC6hXsrAZGGODhE2pywMsdOJvIHgHh8VDUiLUUgfvEPMvXwrfsqPle/jiV5pZUpTiqWSVMSA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WhvNjpNI; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="DlYyYPU/"
-Received: by mail-dy1-f201.google.com with SMTP id 5a478bee46e88-2bdbf9bb128so8009531eec.0
-        for <linux-s390@vger.kernel.org>; Wed, 25 Feb 2026 23:06:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1772089580; x=1772694380; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=5I1QOj3Vyf2nTpPPlemTkxt7qh7oWHe4YCv7YkUsRic=;
-        b=DlYyYPU/5ve63PQcxAhvOWJY3qhmtQ6HtMfAtBIpjSpjCmjGHAQSeoSBovLlpQtauT
-         gKy2vKyV656EJbcoZoXVg6gjKvU43zD0wzk225gE4bRzvyIW7SmRZPDXuBKzXTj5u4N+
-         3kpTFU3C+0y2rSLwe+5IYtA8BHKqL7VIl7tve70uJfpJEOgcbYYND1WPcia4JGgn4uOM
-         UjCouV+Is4bfJK85gSWuSK15AeRnk8Yu/RFXLq78IhxrpEIVjTHN9bNDSMQLb9gHlByW
-         jGuCDsyHbd8noSMxKXW0Hl++lKKRcht66R5JGjzSu8+pqwsXN4Wza88gqLNlv/j1Brmb
-         x17A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772089580; x=1772694380;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=5I1QOj3Vyf2nTpPPlemTkxt7qh7oWHe4YCv7YkUsRic=;
-        b=iXSQQyxjnQVHip6nodUbyGrZ69m/51/kTfAEvBXE3Wd8liLRgNailvghxEhEN79JWS
-         ZiAE76zwOK5QIiTamlN9iIWCfw9RVcFVTIjYRSH+sCdL3oPwMyMuY7e99qFv0QHMVjJC
-         1HUf4Rsblym91pXvdnj6iMM2A6jo2WtfGcQu38k0LhxKidMASZsKSVbXk/25iCJ3oT65
-         SAZb2h/4DCDWZ63AVo9hi9WvBV2Ap45vPZdHyHwgj1P7puG8+GRUf7krH8bo4QMMWg65
-         zeI7RU863Vn60RkkncL/TLa9P3weqDXOqGA3v9/DPzKTFhrvRvi2fs1bhdUZKhDYDDNx
-         6gMA==
-X-Forwarded-Encrypted: i=1; AJvYcCX+dqXlVolTofjPx16vsmGDI8PfkN06Mafw/uZzKFh6xuAVLlkdXdoX83OP3M11kcM6/tskOLcZfo2O@vger.kernel.org
-X-Gm-Message-State: AOJu0YzxXW/zykk3nB5MALH1S4wiuaeWWH3hkQRNwIeMKYhsovDBJVQ4
-	zJVRk0une7ofRfXFBiVoqhXY6Hf05HeBh1O9JWBoQ6ZRLbaYfQgoTz8r3MdJ604OlBFjfT2HOME
-	alDF5sw==
-X-Received: from dybri2.prod.google.com ([2002:a05:7300:f082:b0:2bd:c0e6:3762])
- (user=surenb job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7300:4348:b0:2b4:5b59:af52
- with SMTP id 5a478bee46e88-2bdd301cbc8mr527999eec.29.1772089579483; Wed, 25
- Feb 2026 23:06:19 -0800 (PST)
-Date: Wed, 25 Feb 2026 23:06:09 -0800
-In-Reply-To: <20260226070609.3072570-1-surenb@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WhvNjpNI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 799CBC19422;
+	Thu, 26 Feb 2026 07:32:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772091170;
+	bh=ifqswWyiVHltZ9jFj6fgw2nxsxq2WC8ta0ADE6u9hWI=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=WhvNjpNILxETP/ReAQHkJifgws79BarPd0lr/3gqQBeIzqk0pha6jraykIWKGQtVy
+	 ZrHsOMJZnMrAm3YHBSPO4y3G750XUvfj7XhfDbyA2TSKY8m4v+v4/javixoBNFY2G2
+	 nYzQr5QIgxxfFqY9lgcQSi+bVPGFXSt6IWRTbIMUcctibqsDZR3h6yrEy/KcHTAq2G
+	 fO014sbo8trvofLQau9qwAz3BpgITpklacs/vDlBbdl4KXTiUXVisDUJ1UbLDppdhb
+	 3B2KYdLlu4vI3vxE/jLVZGsmjAeaHUtqgeSHWi1Vq8hN3ve+qwwK0L7Esrnc2sjwYJ
+	 x8ZwgdYb7lFOw==
+Message-ID: <1c1e5cf6-5b38-476c-ba49-35510312b064@kernel.org>
+Date: Thu, 26 Feb 2026 08:32:36 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260226070609.3072570-1-surenb@google.com>
-X-Mailer: git-send-email 2.53.0.414.gf7e9f6c205-goog
-Message-ID: <20260226070609.3072570-4-surenb@google.com>
-Subject: [PATCH v3 3/3] mm: use vma_start_write_killable() in process_vma_walk_lock()
-From: Suren Baghdasaryan <surenb@google.com>
-To: akpm@linux-foundation.org
-Cc: willy@infradead.org, david@kernel.org, ziy@nvidia.com, 
-	matthew.brost@intel.com, joshua.hahnjy@gmail.com, rakie.kim@sk.com, 
-	byungchul@sk.com, gourry@gourry.net, ying.huang@linux.alibaba.com, 
-	apopple@nvidia.com, lorenzo.stoakes@oracle.com, baolin.wang@linux.alibaba.com, 
-	Liam.Howlett@oracle.com, npache@redhat.com, ryan.roberts@arm.com, 
-	dev.jain@arm.com, baohua@kernel.org, lance.yang@linux.dev, vbabka@suse.cz, 
-	jannh@google.com, rppt@kernel.org, mhocko@suse.com, pfalcato@suse.de, 
-	kees@kernel.org, maddy@linux.ibm.com, npiggin@gmail.com, mpe@ellerman.id.au, 
-	chleroy@kernel.org, borntraeger@linux.ibm.com, frankja@linux.ibm.com, 
-	imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, 
-	agordeev@linux.ibm.com, svens@linux.ibm.com, gerald.schaefer@linux.ibm.com, 
-	linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, surenb@google.com
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 04/15] powerpc/time: Prepare to stop elapsing in
+ dynticks-idle
+To: Shrikanth Hegde <sshegde@linux.ibm.com>,
+ Frederic Weisbecker <frederic@kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Anna-Maria Behnsen <anna-maria@linutronix.de>,
+ Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Dietmar Eggemann <dietmar.eggemann@arm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
+ Jan Kiszka <jan.kiszka@siemens.com>, Joel Fernandes <joelagnelf@nvidia.com>,
+ Juri Lelli <juri.lelli@redhat.com>, Kieran Bingham <kbingham@kernel.org>,
+ Mel Gorman <mgorman@suse.de>, Michael Ellerman <mpe@ellerman.id.au>,
+ Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+ Nicholas Piggin <npiggin@gmail.com>, "Paul E . McKenney"
+ <paulmck@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Steven Rostedt <rostedt@goodmis.org>, Sven Schnelle <svens@linux.ibm.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Uladzislau Rezki <urezki@gmail.com>,
+ Valentin Schneider <vschneid@redhat.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Viresh Kumar <viresh.kumar@linaro.org>, Xin Zhao <jackzxcui1989@163.com>,
+ linux-pm@vger.kernel.org, linux-s390@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org
+References: <20260206142245.58987-1-frederic@kernel.org>
+ <20260206142245.58987-5-frederic@kernel.org>
+ <9413517d-963b-4e6d-b11b-b440acd7cb5a@linux.ibm.com>
+ <9ab1e7d7-57ee-49f9-963c-3a1b96dda684@kernel.org>
+ <120884b0-0b09-43a9-b0f6-7dc2affe1ac0@linux.ibm.com>
+Content-Language: fr-FR
+From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+In-Reply-To: <120884b0-0b09-43a9-b0f6-7dc2affe1ac0@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Replace vma_start_write() with vma_start_write_killable() when
-process_vma_walk_lock() is used with PGWALK_WRLOCK option.
-Adjust its direct and indirect users to check for a possible error
-and handle it. Ensure users handle EINTR correctly and do not ignore
-it.
+Hi Hegde,
 
-Signed-off-by: Suren Baghdasaryan <surenb@google.com>
----
- arch/s390/kvm/kvm-s390.c |  2 +-
- fs/proc/task_mmu.c       |  5 ++++-
- mm/mempolicy.c           | 14 +++++++++++---
- mm/pagewalk.c            | 20 ++++++++++++++------
- mm/vma.c                 | 22 ++++++++++++++--------
- mm/vma.h                 |  6 ++++++
- 6 files changed, 50 insertions(+), 19 deletions(-)
+Le 25/02/2026 à 08:46, Shrikanth Hegde a écrit :
+> Hi Christophe,
+> 
+> On 2/24/26 9:11 PM, Christophe Leroy (CS GROUP) wrote:
+>> Hi Hegde,
+>>
+>> Le 19/02/2026 à 19:30, Shrikanth Hegde a écrit :
+>>>
+>>>
+>>> On 2/6/26 7:52 PM, Frederic Weisbecker wrote:
+>>>> Currently the tick subsystem stores the idle cputime accounting in
+>>>> private fields, allowing cohabitation with architecture idle vtime
+>>>> accounting. The former is fetched on online CPUs, the latter on offline
+>>>> CPUs.
+>>>>
+>>>> For consolidation purpose, architecture vtime accounting will continue
+>>>> to account the cputime but will make a break when the idle tick is
+>>>> stopped. The dyntick cputime accounting will then be relayed by the 
+>>>> tick
+>>>> subsystem so that the idle cputime is still seen advancing coherently
+>>>> even when the tick isn't there to flush the idle vtime.
+>>>>
+>>>> Prepare for that and introduce three new APIs which will be used in
+>>>> subsequent patches:
+>>>>
+>>>> _ vtime_dynticks_start() is deemed to be called when idle enters in
+>>>>    dyntick mode. The idle cputime that elapsed so far is accumulated.
+>>>>
+>>>> - vtime_dynticks_stop() is deemed to be called when idle exits from
+>>>>    dyntick mode. The vtime entry clocks are fast-forward to current 
+>>>> time
+>>>>    so that idle accounting restarts elapsing from now.
+>>>>
+>>>> - vtime_reset() is deemed to be called from dynticks idle IRQ entry to
+>>>>    fast-forward the clock to current time so that the IRQ time is still
+>>>>    accounted by vtime while nohz cputime is paused.
+>>>>
+>>>> Also accumulated vtime won't be flushed from dyntick-idle ticks to 
+>>>> avoid
+>>>> accounting twice the idle cputime, along with nohz accounting.
+>>>>
+>>>> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+>>>
+>>> Reviewed-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+>>>
+>>>> ---
+>>>>   arch/powerpc/kernel/time.c | 41 ++++++++++++++++++++++++++++++++++ 
+>>>> ++++
+>>>>   include/linux/vtime.h      |  6 ++++++
+>>>>   2 files changed, 47 insertions(+)
+>>>>
+>>>> diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+>>>> index 4bbeb8644d3d..18506740f4a4 100644
+>>>> --- a/arch/powerpc/kernel/time.c
+>>>> +++ b/arch/powerpc/kernel/time.c
+>>>> @@ -376,6 +376,47 @@ void vtime_task_switch(struct task_struct *prev)
+>>>>           acct->starttime = acct0->starttime;
+>>>>       }
+>>>>   }
+>>>> +
+>>>> +#ifdef CONFIG_NO_HZ_COMMON
+>>>> +/**
+>>>> + * vtime_reset - Fast forward vtime entry clocks
+>>>> + *
+>>>> + * Called from dynticks idle IRQ entry to fast-forward the clocks 
+>>>> to current time
+>>>> + * so that the IRQ time is still accounted by vtime while nohz 
+>>>> cputime is paused.
+>>>> + */
+>>>> +void vtime_reset(void)
+>>>> +{
+>>>> +    struct cpu_accounting_data *acct = get_accounting(current);
+>>>> +
+>>>> +    acct->starttime = mftb();
+>>>
+>>> I figured out why those huge values happen.
+>>>
+>>> This happens because mftb is from when the system is booted.
+>>> I was doing kexec to start the new kernel and mftb wasn't getting
+>>> reset.
+>>>
+>>> I thought about this. This is concern for pseries too, where LPAR's
+>>> restart but system won't restart and mftb will continue to run 
+>>> instead of
+>>> reset.
+>>>
+>>> I think we should be using sched_clock instead of mftb here.
+>>> Though we need it a few more places and some cosmetic changes around it.
+>>>
+>>> Note: Some values being huge exists without series for few CPUs, with 
+>>> series it
+>>> shows up in most of the CPUs.
+>>>
+>>> So I am planning send out fix below fix separately keeping your
+>>> series as dependency.
+>>>
+>>> ---
+>>>   arch/powerpc/include/asm/accounting.h |  4 ++--
+>>>   arch/powerpc/include/asm/cputime.h    | 14 +++++++-------
+>>>   arch/powerpc/kernel/time.c            | 22 +++++++++++-----------
+>>>   3 files changed, 20 insertions(+), 20 deletions(-)
+>>>
+>>> diff --git a/arch/powerpc/include/asm/accounting.h b/arch/powerpc/ 
+>>> include/asm/accounting.h
+>>> index 6d79c31700e2..50f120646e6d 100644
+>>> --- a/arch/powerpc/include/asm/accounting.h
+>>> +++ b/arch/powerpc/include/asm/accounting.h
+>>> @@ -21,8 +21,8 @@ struct cpu_accounting_data {
+>>>       unsigned long steal_time;
+>>>       unsigned long idle_time;
+>>>       /* Internal counters */
+>>> -    unsigned long starttime;    /* TB value snapshot */
+>>> -    unsigned long starttime_user;    /* TB value on exit to usermode */
+>>> +    unsigned long starttime;    /* Time value snapshot */
+>>> +    unsigned long starttime_user;    /* Time value on exit to 
+>>> usermode */
+>>>   #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
+>>>       unsigned long startspurr;    /* SPURR value snapshot */
+>>>       unsigned long utime_sspurr;    /* ->user_time when ->startspurr 
+>>> set */
+>>> diff --git a/arch/powerpc/include/asm/cputime.h b/arch/powerpc/ 
+>>> include/ asm/cputime.h
+>>> index aff858ca99c0..eb6b629b113f 100644
+>>> --- a/arch/powerpc/include/asm/cputime.h
+>>> +++ b/arch/powerpc/include/asm/cputime.h
+>>> @@ -20,9 +20,9 @@
+>>>   #include <asm/time.h>
+>>>   #include <asm/param.h>
+>>>   #include <asm/firmware.h>
+>>> +#include <linux/sched/clock.h>
+>>>
+>>>   #ifdef __KERNEL__
+>>> -#define cputime_to_nsecs(cputime) tb_to_ns(cputime)
+>>>
+>>>   /*
+>>>    * PPC64 uses PACA which is task independent for storing accounting 
+>>> data while
+>>> @@ -44,20 +44,20 @@
+>>>    */
+>>>   static notrace inline void account_cpu_user_entry(void)
+>>>   {
+>>> -    unsigned long tb = mftb();
+>>> +    unsigned long now = sched_clock();
+>>
+>> Now way !
+>>
+>> By doing that you'll kill performance for no reason. All we need when 
+>> accounting time spent in kernel or in user is the difference between 
+>> time at entry and time at exit, no mater what the time was at boot time.
+>>
+> 
+> No. With this patch there will not be any performance difference.
+> All it does is, instead of using mftb uses sched_clock at those places.
+> 
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 7a175d86cef0..337e4f7db63a 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2948,7 +2948,7 @@ int kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
- 		}
- 		/* must be called without kvm->lock */
- 		r = kvm_s390_handle_pv(kvm, &args);
--		if (copy_to_user(argp, &args, sizeof(args))) {
-+		if (r != -EINTR && copy_to_user(argp, &args, sizeof(args))) {
- 			r = -EFAULT;
- 			break;
- 		}
-diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index e091931d7ca1..1238a2988eb6 100644
---- a/fs/proc/task_mmu.c
-+++ b/fs/proc/task_mmu.c
-@@ -1797,6 +1797,7 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
- 		struct clear_refs_private cp = {
- 			.type = type,
- 		};
-+		int err;
- 
- 		if (mmap_write_lock_killable(mm)) {
- 			count = -EINTR;
-@@ -1824,7 +1825,9 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
- 						0, mm, 0, -1UL);
- 			mmu_notifier_invalidate_range_start(&range);
- 		}
--		walk_page_range(mm, 0, -1, &clear_refs_walk_ops, &cp);
-+		err = walk_page_range(mm, 0, -1, &clear_refs_walk_ops, &cp);
-+		if (err < 0)
-+			count = err;
- 		if (type == CLEAR_REFS_SOFT_DIRTY) {
- 			mmu_notifier_invalidate_range_end(&range);
- 			flush_tlb_mm(mm);
-diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-index 90939f5bde02..3c8b3dfc9c56 100644
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -988,6 +988,8 @@ queue_pages_range(struct mm_struct *mm, unsigned long start, unsigned long end,
- 			&queue_pages_lock_vma_walk_ops : &queue_pages_walk_ops;
- 
- 	err = walk_page_range(mm, start, end, ops, &qp);
-+	if (err == -EINTR)
-+		return err;
- 
- 	if (!qp.first)
- 		/* whole range in hole */
-@@ -1309,9 +1311,14 @@ static long migrate_to_node(struct mm_struct *mm, int source, int dest,
- 				      flags | MPOL_MF_DISCONTIG_OK, &pagelist);
- 	mmap_read_unlock(mm);
- 
-+	if (nr_failed == -EINTR)
-+		err = nr_failed;
-+
- 	if (!list_empty(&pagelist)) {
--		err = migrate_pages(&pagelist, alloc_migration_target, NULL,
--			(unsigned long)&mtc, MIGRATE_SYNC, MR_SYSCALL, NULL);
-+		if (!err)
-+			err = migrate_pages(&pagelist, alloc_migration_target,
-+					    NULL, (unsigned long)&mtc,
-+					    MIGRATE_SYNC, MR_SYSCALL, NULL);
- 		if (err)
- 			putback_movable_pages(&pagelist);
- 	}
-@@ -1611,7 +1618,8 @@ static long do_mbind(unsigned long start, unsigned long len,
- 				MR_MEMPOLICY_MBIND, NULL);
- 	}
- 
--	if (nr_failed && (flags & MPOL_MF_STRICT))
-+	/* Do not mask EINTR */
-+	if ((err != -EINTR) && (nr_failed && (flags & MPOL_MF_STRICT)))
- 		err = -EIO;
- 	if (!list_empty(&pagelist))
- 		putback_movable_pages(&pagelist);
-diff --git a/mm/pagewalk.c b/mm/pagewalk.c
-index a94c401ab2cf..dc9f7a7709c6 100644
---- a/mm/pagewalk.c
-+++ b/mm/pagewalk.c
-@@ -425,14 +425,13 @@ static inline void process_mm_walk_lock(struct mm_struct *mm,
- 		mmap_assert_write_locked(mm);
- }
- 
--static inline void process_vma_walk_lock(struct vm_area_struct *vma,
-+static inline int process_vma_walk_lock(struct vm_area_struct *vma,
- 					 enum page_walk_lock walk_lock)
- {
- #ifdef CONFIG_PER_VMA_LOCK
- 	switch (walk_lock) {
- 	case PGWALK_WRLOCK:
--		vma_start_write(vma);
--		break;
-+		return vma_start_write_killable(vma);
- 	case PGWALK_WRLOCK_VERIFY:
- 		vma_assert_write_locked(vma);
- 		break;
-@@ -444,6 +443,7 @@ static inline void process_vma_walk_lock(struct vm_area_struct *vma,
- 		break;
- 	}
- #endif
-+	return 0;
- }
- 
- /*
-@@ -487,7 +487,9 @@ int walk_page_range_mm_unsafe(struct mm_struct *mm, unsigned long start,
- 			if (ops->pte_hole)
- 				err = ops->pte_hole(start, next, -1, &walk);
- 		} else { /* inside vma */
--			process_vma_walk_lock(vma, ops->walk_lock);
-+			err = process_vma_walk_lock(vma, ops->walk_lock);
-+			if (err)
-+				break;
- 			walk.vma = vma;
- 			next = min(end, vma->vm_end);
- 			vma = find_vma(mm, vma->vm_end);
-@@ -704,6 +706,7 @@ int walk_page_range_vma_unsafe(struct vm_area_struct *vma, unsigned long start,
- 		.vma		= vma,
- 		.private	= private,
- 	};
-+	int err;
- 
- 	if (start >= end || !walk.mm)
- 		return -EINVAL;
-@@ -711,7 +714,9 @@ int walk_page_range_vma_unsafe(struct vm_area_struct *vma, unsigned long start,
- 		return -EINVAL;
- 
- 	process_mm_walk_lock(walk.mm, ops->walk_lock);
--	process_vma_walk_lock(vma, ops->walk_lock);
-+	err = process_vma_walk_lock(vma, ops->walk_lock);
-+	if (err)
-+		return err;
- 	return __walk_page_range(start, end, &walk);
- }
- 
-@@ -734,6 +739,7 @@ int walk_page_vma(struct vm_area_struct *vma, const struct mm_walk_ops *ops,
- 		.vma		= vma,
- 		.private	= private,
- 	};
-+	int err;
- 
- 	if (!walk.mm)
- 		return -EINVAL;
-@@ -741,7 +747,9 @@ int walk_page_vma(struct vm_area_struct *vma, const struct mm_walk_ops *ops,
- 		return -EINVAL;
- 
- 	process_mm_walk_lock(walk.mm, ops->walk_lock);
--	process_vma_walk_lock(vma, ops->walk_lock);
-+	err = process_vma_walk_lock(vma, ops->walk_lock);
-+	if (err)
-+		return err;
- 	return __walk_page_range(vma->vm_start, vma->vm_end, &walk);
- }
- 
-diff --git a/mm/vma.c b/mm/vma.c
-index 9f2664f1d078..46bbad6e64a4 100644
---- a/mm/vma.c
-+++ b/mm/vma.c
-@@ -998,14 +998,18 @@ static __must_check struct vm_area_struct *vma_merge_existing_range(
- 	if (anon_dup)
- 		unlink_anon_vmas(anon_dup);
- 
--	/*
--	 * This means we have failed to clone anon_vma's correctly, but no
--	 * actual changes to VMAs have occurred, so no harm no foul - if the
--	 * user doesn't want this reported and instead just wants to give up on
--	 * the merge, allow it.
--	 */
--	if (!vmg->give_up_on_oom)
--		vmg->state = VMA_MERGE_ERROR_NOMEM;
-+	if (err == -EINTR) {
-+		vmg->state = VMA_MERGE_ERROR_INTR;
-+	} else {
-+		/*
-+		 * This means we have failed to clone anon_vma's correctly,
-+		 * but no actual changes to VMAs have occurred, so no harm no
-+		 * foul - if the user doesn't want this reported and instead
-+		 * just wants to give up on the merge, allow it.
-+		 */
-+		if (!vmg->give_up_on_oom)
-+			vmg->state = VMA_MERGE_ERROR_NOMEM;
-+	}
- 	return NULL;
- }
- 
-@@ -1681,6 +1685,8 @@ static struct vm_area_struct *vma_modify(struct vma_merge_struct *vmg)
- 	merged = vma_merge_existing_range(vmg);
- 	if (merged)
- 		return merged;
-+	if (vmg_intr(vmg))
-+		return ERR_PTR(-EINTR);
- 	if (vmg_nomem(vmg))
- 		return ERR_PTR(-ENOMEM);
- 
-diff --git a/mm/vma.h b/mm/vma.h
-index eba388c61ef4..fe4560f81f4f 100644
---- a/mm/vma.h
-+++ b/mm/vma.h
-@@ -56,6 +56,7 @@ struct vma_munmap_struct {
- enum vma_merge_state {
- 	VMA_MERGE_START,
- 	VMA_MERGE_ERROR_NOMEM,
-+	VMA_MERGE_ERROR_INTR,
- 	VMA_MERGE_NOMERGE,
- 	VMA_MERGE_SUCCESS,
- };
-@@ -226,6 +227,11 @@ static inline bool vmg_nomem(struct vma_merge_struct *vmg)
- 	return vmg->state == VMA_MERGE_ERROR_NOMEM;
- }
- 
-+static inline bool vmg_intr(struct vma_merge_struct *vmg)
-+{
-+	return vmg->state == VMA_MERGE_ERROR_INTR;
-+}
-+
- /* Assumes addr >= vma->vm_start. */
- static inline pgoff_t vma_pgoff_offset(struct vm_area_struct *vma,
- 				       unsigned long addr)
--- 
-2.53.0.414.gf7e9f6c205-goog
+For the record, I did some benchmark test with 
+tools/testing/selftests/powerpc/benchmarks/null_syscall on powerpc 885 
+microcontroller:
+
+Without your proposed patch:
+
+root@vgoip:~# ./null_syscall
+    2729.98 ns     360.36 cycles
+
+With your proposed patch below:
+
+root@vgoip:~# ./null_syscall
+    3370.80 ns     444.95 cycles
+
+So as expected it is a huge regression, almost 25% more time to run the 
+syscall.
+
+Christophe
+
+
+> 
+> In arch/powerpc/kernel/time.c we have sched_clock().
+> notrace unsigned long long sched_clock(void)
+> {
+>          return mulhdu(get_tb() - boot_tb, tb_to_ns_scale) << 
+> tb_to_ns_shift;
+> }
+> 
+> It does the same mftb call, and accounts only the time after boot, which is
+> what /proc/stat should do as well.
+> 
+> "
+> the amount of time, measured in units of USER_HZ
+> (1/100ths of a second on most architectures
+> 
+> user   (1) Time spent in user mode.
+> 
+> idle   (4) Time spent in the idle task.  This value
+>         should be USER_HZ times the second entry in
+>         the /proc/uptime pseudo-file.
+> "
+> /proc/uptime is based on sched_clock, so i infer /proc/stat also should 
+> show
+> values w.r.t to boot of the OS.
+> 
+> 
+>> Also sched_clock() returns nanoseconds which implies calculation from 
+>> timebase. This is pointless CPU consumption. The current 
+>> implementation calculates nanoseconds at task switch when calling 
+>> vtime_flush().Your change will now do it at every kernel entry and 
+>> kernel exit by calling sched_clock().
+> 
+> This change doesn't add any additional paths. Even without patches, mftb 
+> would have
+> been called in every kernel entry/exit.  See mftb usage 
+> account_cpu_user_exit/enter
+> 
+> Now instead of mftb sched_clock is used, that's all. No additional 
+> entry/exit points.
+> And previously when accounting we would have done cputime_to_nsecs, now 
+> that conversion
+> is done automatically in sched_clock. So overall computation-wise it 
+> should be same.
+> 
+> What i am missing to see it here?
+> 
+>>
+>> Another point is that sched_clock() returns a long long not a long.
+> 
+> Thanks for pointing that out.
+> 
+> Ok. Let me change some of those variables into unsigned long long.
+> Compiler didn't warn me, so i didn't see it.
+> 
+>>
+>> And also sched_clock() uses get_tb() which does mftb and mftbu. Which 
+>> is pointless for calculating time deltas unless your application 
+>> spends hours without being re-scheduled.
+>>
+> 
+> I didn't get this. At current also, we use mftb, that functionality 
+> should be the same.
+> Could you please explain how?
+> 
+>>
+>>>       struct cpu_accounting_data *acct = raw_get_accounting(current);
+>>>
+>>> -    acct->utime += (tb - acct->starttime_user);
+>>> -    acct->starttime = tb;
+>>> +    acct->utime += (now - acct->starttime_user);
+>>> +    acct->starttime = now;
+>>>   }
+>>>
+>>>   static notrace inline void account_cpu_user_exit(void)
+>>>   {
+>>> -    unsigned long tb = mftb();
+>>> +    unsigned long now = sched_clock();
+>>>       struct cpu_accounting_data *acct = raw_get_accounting(current);
+>>>
+>>> -    acct->stime += (tb - acct->starttime);
+>>> -    acct->starttime_user = tb;
+>>> +    acct->stime += (now - acct->starttime);
+>>> +    acct->starttime_user = now;
+>>>   }
+>>>
+>>>   static notrace inline void account_stolen_time(void)
+>>> diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+>>> index 18506740f4a4..fb67cdae3bcb 100644
+>>> --- a/arch/powerpc/kernel/time.c
+>>> +++ b/arch/powerpc/kernel/time.c
+>>> @@ -215,7 +215,7 @@ static unsigned long vtime_delta(struct 
+>>> cpu_accounting_data *acct,
+>>>
+>>>       WARN_ON_ONCE(!irqs_disabled());
+>>>
+>>> -    now = mftb();
+>>> +    now = sched_clock();
+>>>       stime = now - acct->starttime;
+>>>       acct->starttime = now;
+>>>
+>>> @@ -299,9 +299,9 @@ static void vtime_flush_scaled(struct task_struct 
+>>> *tsk,
+>>>   {
+>>>   #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
+>>>       if (acct->utime_scaled)
+>>> -        tsk->utimescaled += cputime_to_nsecs(acct->utime_scaled);
+>>> +        tsk->utimescaled += acct->utime_scaled;
+>>>       if (acct->stime_scaled)
+>>> -        tsk->stimescaled += cputime_to_nsecs(acct->stime_scaled);
+>>> +        tsk->stimescaled += acct->stime_scaled;
+>>>
+>>>       acct->utime_scaled = 0;
+>>>       acct->utime_sspurr = 0;
+>>> @@ -321,28 +321,28 @@ void vtime_flush(struct task_struct *tsk)
+>>>       struct cpu_accounting_data *acct = get_accounting(tsk);
+>>>
+>>>       if (acct->utime)
+>>> -        account_user_time(tsk, cputime_to_nsecs(acct->utime));
+>>> +        account_user_time(tsk, acct->utime);
+>>>
+>>>       if (acct->gtime)
+>>> -        account_guest_time(tsk, cputime_to_nsecs(acct->gtime));
+>>> +        account_guest_time(tsk, acct->gtime);
+>>>
+>>>       if (IS_ENABLED(CONFIG_PPC_SPLPAR) && acct->steal_time) {
+>>> -        account_steal_time(cputime_to_nsecs(acct->steal_time));
+>>> +        account_steal_time(acct->steal_time);
+>>>           acct->steal_time = 0;
+>>>       }
+>>>
+>>>       if (acct->idle_time)
+>>> -        account_idle_time(cputime_to_nsecs(acct->idle_time));
+>>> +        account_idle_time(acct->idle_time);
+>>>
+>>>       if (acct->stime)
+>>> -        account_system_index_time(tsk, cputime_to_nsecs(acct->stime),
+>>> +        account_system_index_time(tsk, acct->stime,
+>>>                         CPUTIME_SYSTEM);
+>>>
+>>>       if (acct->hardirq_time)
+>>> -        account_system_index_time(tsk, cputime_to_nsecs(acct- 
+>>>  >hardirq_time),
+>>> +        account_system_index_time(tsk, acct->hardirq_time,
+>>>                         CPUTIME_IRQ);
+>>>       if (acct->softirq_time)
+>>> -        account_system_index_time(tsk, cputime_to_nsecs(acct- 
+>>>  >softirq_time),
+>>> +        account_system_index_time(tsk, acct->softirq_time,
+>>>                         CPUTIME_SOFTIRQ);
+>>>
+>>>       vtime_flush_scaled(tsk, acct);
+>>> @@ -388,7 +388,7 @@ void vtime_reset(void)
+>>>   {
+>>>       struct cpu_accounting_data *acct = get_accounting(current);
+>>>
+>>> -    acct->starttime = mftb();
+>>> +    acct->starttime = sched_clock();
+>>>   #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
+>>>       acct->startspurr = read_spurr(acct->starttime);
+>>>   #endif
+>>
+> 
+> PS: I measured the performance with hackbench. I don't see any degradation.
+> 
 
