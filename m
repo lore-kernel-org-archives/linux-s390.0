@@ -1,416 +1,124 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D985833290F;
-	Thu, 26 Feb 2026 07:32:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2BDB3921C2;
+	Thu, 26 Feb 2026 08:34:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772091170; cv=none; b=bi82XS0pnPkQDYxyVUhlmus/RCUdTpcQfbHyiYoueFWIv/lO9H1nPxIxZne1EXsdS4dawHZsRAhXi9x/2u9SVLJjMFN+lIRPFvgs/x7Qg4kiDVCtjTidzCspoDEDT+3B74t2/wgGmOIvR52fGM2zmWbH5rGWElfdiFdNm/G9rPY=
+	t=1772094873; cv=none; b=NagiuLAu/FVMizaomK3W8GhFVlFyDRcLCFAB8mAAA2VgbpDwaI77LQ7OBlQ+uRbMrO/G9tpJYm0tyOqo6ckac6GrMSjtV/skEAF+/gVwzZDaHvtyqTdCimjOCoQiKbwvLk/s0LBq+IQBhFL27L15rTNa0Un3+H57D6gQmnBMXzE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772091170; c=relaxed/simple;
-	bh=ifqswWyiVHltZ9jFj6fgw2nxsxq2WC8ta0ADE6u9hWI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Wg+evic6EuYDvHK3VurChkm3ElcpbyH0bjDG3UVrHojoqyNSc214N7h7laW8MWC66XX88qBLc7gwDu5XJbysArSl8Nq4csrB5JdtC6hXsrAZGGODhE2pywMsdOJvIHgHh8VDUiLUUgfvEPMvXwrfsqPle/jiV5pZUpTiqWSVMSA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WhvNjpNI; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772094873; c=relaxed/simple;
+	bh=mzOWD7mNshXx7nO5MZ/qJg04qYnAJtMUBh8qbBXsI9Y=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=TETPNpfYVCRbhv6i8ilvFdRm4+K63QOGwEK9/DvIX6de7tjhLMBxbA7hUrRqrwj6ZK3I59JvZg4HH9hHXbFWRf+pffSXzbNDZiL+8aak0UUljWESIAf7OhYd03j9jONdc094Q8jSYa+Hjs0EoWpozVSdNZuauEH7QgezjbU5rw0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T3z6MHfv; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WhvNjpNI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 799CBC19422;
-	Thu, 26 Feb 2026 07:32:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T3z6MHfv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C564CC19422;
+	Thu, 26 Feb 2026 08:34:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772091170;
-	bh=ifqswWyiVHltZ9jFj6fgw2nxsxq2WC8ta0ADE6u9hWI=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=WhvNjpNILxETP/ReAQHkJifgws79BarPd0lr/3gqQBeIzqk0pha6jraykIWKGQtVy
-	 ZrHsOMJZnMrAm3YHBSPO4y3G750XUvfj7XhfDbyA2TSKY8m4v+v4/javixoBNFY2G2
-	 nYzQr5QIgxxfFqY9lgcQSi+bVPGFXSt6IWRTbIMUcctibqsDZR3h6yrEy/KcHTAq2G
-	 fO014sbo8trvofLQau9qwAz3BpgITpklacs/vDlBbdl4KXTiUXVisDUJ1UbLDppdhb
-	 3B2KYdLlu4vI3vxE/jLVZGsmjAeaHUtqgeSHWi1Vq8hN3ve+qwwK0L7Esrnc2sjwYJ
-	 x8ZwgdYb7lFOw==
-Message-ID: <1c1e5cf6-5b38-476c-ba49-35510312b064@kernel.org>
-Date: Thu, 26 Feb 2026 08:32:36 +0100
+	s=k20201202; t=1772094873;
+	bh=mzOWD7mNshXx7nO5MZ/qJg04qYnAJtMUBh8qbBXsI9Y=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=T3z6MHfvpib4/bK4lwRNcneTS9mLJOI5+tcz0bevnlp2s6jA/4VgZYOlp7HLSnjvq
+	 Y4sm91jJXe9lS0YDlI82S+pIhu9eEFlTTdyNwDcYNSTl6/iyccVg9Bji+abwdDnJiV
+	 DXpYBfvS2BmA+MdpJwA1gARIc40PzJZkB9pBfTE4jLSncjL6fjLDR7Jn8zqKX6AaXp
+	 oAwvDCofeJsKub8Lz2NtkHaFxYiuDbzW4rbM5Fj80C5Vp3281i2QCHSEdXSTzrIZFs
+	 ++P/p8c/MuK5FycrMO+7QDI8tZdI9XTjivGUiEPSKs/IjyUEfEvtEu646FdKEfBA1Y
+	 qPyTfLr9e5BOg==
+Date: Thu, 26 Feb 2026 10:34:27 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: Ramesh Errabolu <ramesh@linux.ibm.com>
+Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Gerd Bayer <gbayer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: Re: [PATCH v1] PCI: Add write-only 'uevent' sysfs attribute for PCI
+ slots
+Message-ID: <20260226083427.GF12611@unreal>
+References: <20260225150815.81268-1-ramesh@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 04/15] powerpc/time: Prepare to stop elapsing in
- dynticks-idle
-To: Shrikanth Hegde <sshegde@linux.ibm.com>,
- Frederic Weisbecker <frederic@kernel.org>,
- LKML <linux-kernel@vger.kernel.org>,
- Madhavan Srinivasan <maddy@linux.ibm.com>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Anna-Maria Behnsen <anna-maria@linutronix.de>,
- Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Dietmar Eggemann <dietmar.eggemann@arm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
- Jan Kiszka <jan.kiszka@siemens.com>, Joel Fernandes <joelagnelf@nvidia.com>,
- Juri Lelli <juri.lelli@redhat.com>, Kieran Bingham <kbingham@kernel.org>,
- Mel Gorman <mgorman@suse.de>, Michael Ellerman <mpe@ellerman.id.au>,
- Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
- Nicholas Piggin <npiggin@gmail.com>, "Paul E . McKenney"
- <paulmck@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
- Steven Rostedt <rostedt@goodmis.org>, Sven Schnelle <svens@linux.ibm.com>,
- Thomas Gleixner <tglx@linutronix.de>, Uladzislau Rezki <urezki@gmail.com>,
- Valentin Schneider <vschneid@redhat.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Viresh Kumar <viresh.kumar@linaro.org>, Xin Zhao <jackzxcui1989@163.com>,
- linux-pm@vger.kernel.org, linux-s390@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org
-References: <20260206142245.58987-1-frederic@kernel.org>
- <20260206142245.58987-5-frederic@kernel.org>
- <9413517d-963b-4e6d-b11b-b440acd7cb5a@linux.ibm.com>
- <9ab1e7d7-57ee-49f9-963c-3a1b96dda684@kernel.org>
- <120884b0-0b09-43a9-b0f6-7dc2affe1ac0@linux.ibm.com>
-Content-Language: fr-FR
-From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-In-Reply-To: <120884b0-0b09-43a9-b0f6-7dc2affe1ac0@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260225150815.81268-1-ramesh@linux.ibm.com>
 
-Hi Hegde,
-
-Le 25/02/2026 à 08:46, Shrikanth Hegde a écrit :
-> Hi Christophe,
+On Wed, Feb 25, 2026 at 09:08:15AM -0600, Ramesh Errabolu wrote:
+> Add a new write-only 'uevent' attribute to PCI slot sysfs
+> entries. This provides a mechanism for userspace to explicitly
+> synthesize PCI slot uevents when needed.
 > 
-> On 2/24/26 9:11 PM, Christophe Leroy (CS GROUP) wrote:
->> Hi Hegde,
->>
->> Le 19/02/2026 à 19:30, Shrikanth Hegde a écrit :
->>>
->>>
->>> On 2/6/26 7:52 PM, Frederic Weisbecker wrote:
->>>> Currently the tick subsystem stores the idle cputime accounting in
->>>> private fields, allowing cohabitation with architecture idle vtime
->>>> accounting. The former is fetched on online CPUs, the latter on offline
->>>> CPUs.
->>>>
->>>> For consolidation purpose, architecture vtime accounting will continue
->>>> to account the cputime but will make a break when the idle tick is
->>>> stopped. The dyntick cputime accounting will then be relayed by the 
->>>> tick
->>>> subsystem so that the idle cputime is still seen advancing coherently
->>>> even when the tick isn't there to flush the idle vtime.
->>>>
->>>> Prepare for that and introduce three new APIs which will be used in
->>>> subsequent patches:
->>>>
->>>> _ vtime_dynticks_start() is deemed to be called when idle enters in
->>>>    dyntick mode. The idle cputime that elapsed so far is accumulated.
->>>>
->>>> - vtime_dynticks_stop() is deemed to be called when idle exits from
->>>>    dyntick mode. The vtime entry clocks are fast-forward to current 
->>>> time
->>>>    so that idle accounting restarts elapsing from now.
->>>>
->>>> - vtime_reset() is deemed to be called from dynticks idle IRQ entry to
->>>>    fast-forward the clock to current time so that the IRQ time is still
->>>>    accounted by vtime while nohz cputime is paused.
->>>>
->>>> Also accumulated vtime won't be flushed from dyntick-idle ticks to 
->>>> avoid
->>>> accounting twice the idle cputime, along with nohz accounting.
->>>>
->>>> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
->>>
->>> Reviewed-by: Shrikanth Hegde <sshegde@linux.ibm.com>
->>>
->>>> ---
->>>>   arch/powerpc/kernel/time.c | 41 ++++++++++++++++++++++++++++++++++ 
->>>> ++++
->>>>   include/linux/vtime.h      |  6 ++++++
->>>>   2 files changed, 47 insertions(+)
->>>>
->>>> diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
->>>> index 4bbeb8644d3d..18506740f4a4 100644
->>>> --- a/arch/powerpc/kernel/time.c
->>>> +++ b/arch/powerpc/kernel/time.c
->>>> @@ -376,6 +376,47 @@ void vtime_task_switch(struct task_struct *prev)
->>>>           acct->starttime = acct0->starttime;
->>>>       }
->>>>   }
->>>> +
->>>> +#ifdef CONFIG_NO_HZ_COMMON
->>>> +/**
->>>> + * vtime_reset - Fast forward vtime entry clocks
->>>> + *
->>>> + * Called from dynticks idle IRQ entry to fast-forward the clocks 
->>>> to current time
->>>> + * so that the IRQ time is still accounted by vtime while nohz 
->>>> cputime is paused.
->>>> + */
->>>> +void vtime_reset(void)
->>>> +{
->>>> +    struct cpu_accounting_data *acct = get_accounting(current);
->>>> +
->>>> +    acct->starttime = mftb();
->>>
->>> I figured out why those huge values happen.
->>>
->>> This happens because mftb is from when the system is booted.
->>> I was doing kexec to start the new kernel and mftb wasn't getting
->>> reset.
->>>
->>> I thought about this. This is concern for pseries too, where LPAR's
->>> restart but system won't restart and mftb will continue to run 
->>> instead of
->>> reset.
->>>
->>> I think we should be using sched_clock instead of mftb here.
->>> Though we need it a few more places and some cosmetic changes around it.
->>>
->>> Note: Some values being huge exists without series for few CPUs, with 
->>> series it
->>> shows up in most of the CPUs.
->>>
->>> So I am planning send out fix below fix separately keeping your
->>> series as dependency.
->>>
->>> ---
->>>   arch/powerpc/include/asm/accounting.h |  4 ++--
->>>   arch/powerpc/include/asm/cputime.h    | 14 +++++++-------
->>>   arch/powerpc/kernel/time.c            | 22 +++++++++++-----------
->>>   3 files changed, 20 insertions(+), 20 deletions(-)
->>>
->>> diff --git a/arch/powerpc/include/asm/accounting.h b/arch/powerpc/ 
->>> include/asm/accounting.h
->>> index 6d79c31700e2..50f120646e6d 100644
->>> --- a/arch/powerpc/include/asm/accounting.h
->>> +++ b/arch/powerpc/include/asm/accounting.h
->>> @@ -21,8 +21,8 @@ struct cpu_accounting_data {
->>>       unsigned long steal_time;
->>>       unsigned long idle_time;
->>>       /* Internal counters */
->>> -    unsigned long starttime;    /* TB value snapshot */
->>> -    unsigned long starttime_user;    /* TB value on exit to usermode */
->>> +    unsigned long starttime;    /* Time value snapshot */
->>> +    unsigned long starttime_user;    /* Time value on exit to 
->>> usermode */
->>>   #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
->>>       unsigned long startspurr;    /* SPURR value snapshot */
->>>       unsigned long utime_sspurr;    /* ->user_time when ->startspurr 
->>> set */
->>> diff --git a/arch/powerpc/include/asm/cputime.h b/arch/powerpc/ 
->>> include/ asm/cputime.h
->>> index aff858ca99c0..eb6b629b113f 100644
->>> --- a/arch/powerpc/include/asm/cputime.h
->>> +++ b/arch/powerpc/include/asm/cputime.h
->>> @@ -20,9 +20,9 @@
->>>   #include <asm/time.h>
->>>   #include <asm/param.h>
->>>   #include <asm/firmware.h>
->>> +#include <linux/sched/clock.h>
->>>
->>>   #ifdef __KERNEL__
->>> -#define cputime_to_nsecs(cputime) tb_to_ns(cputime)
->>>
->>>   /*
->>>    * PPC64 uses PACA which is task independent for storing accounting 
->>> data while
->>> @@ -44,20 +44,20 @@
->>>    */
->>>   static notrace inline void account_cpu_user_entry(void)
->>>   {
->>> -    unsigned long tb = mftb();
->>> +    unsigned long now = sched_clock();
->>
->> Now way !
->>
->> By doing that you'll kill performance for no reason. All we need when 
->> accounting time spent in kernel or in user is the difference between 
->> time at entry and time at exit, no mater what the time was at boot time.
->>
-> 
-> No. With this patch there will not be any performance difference.
-> All it does is, instead of using mftb uses sched_clock at those places.
-> 
+> For cold-plugged PCI devices, slots may be created before
+> udev is ready to receive events, causing the initial 'add'
+> uevents to be missed. As a result, slot specific udev
+> rules that define naming, permissions, and related policies,
+> are not applied at boot. Allowing userspace to resynthesize
+> the 'add' uevent ensures these rules are processed correctly.
 
-For the record, I did some benchmark test with 
-tools/testing/selftests/powerpc/benchmarks/null_syscall on powerpc 885 
-microcontroller:
+This patch sounds like a hack to me. AFAIK, "udevadm trigger"
+performs exactly that.
 
-Without your proposed patch:
-
-root@vgoip:~# ./null_syscall
-    2729.98 ns     360.36 cycles
-
-With your proposed patch below:
-
-root@vgoip:~# ./null_syscall
-    3370.80 ns     444.95 cycles
-
-So as expected it is a huge regression, almost 25% more time to run the 
-syscall.
-
-Christophe
-
+Thanks
 
 > 
-> In arch/powerpc/kernel/time.c we have sched_clock().
-> notrace unsigned long long sched_clock(void)
-> {
->          return mulhdu(get_tb() - boot_tb, tb_to_ns_scale) << 
-> tb_to_ns_shift;
-> }
+> The patch was validated by manually triggering PCI slot 'add'
+> uevents through the slot’s 'uevent' sysfs file and confirming
+> that udev received and processed those events. The following
+> command raises an 'add' uevent for a specific PCI slot:
 > 
-> It does the same mftb call, and accounts only the time after boot, which is
-> what /proc/stat should do as well.
+>     $ echo "add $(uuidgen)" | sudo tee   \
+>                 /sys/bus/pci/slots/<slot-id>/uevent
 > 
-> "
-> the amount of time, measured in units of USER_HZ
-> (1/100ths of a second on most architectures
+> Signed-off-by: Ramesh Errabolu <ramesh@linux.ibm.com>
+> ---
+>  drivers/pci/slot.c | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
 > 
-> user   (1) Time spent in user mode.
+> diff --git a/drivers/pci/slot.c b/drivers/pci/slot.c
+> index 787311614e5b..cbc7cf6ab7ad 100644
+> --- a/drivers/pci/slot.c
+> +++ b/drivers/pci/slot.c
+> @@ -63,6 +63,15 @@ static ssize_t cur_speed_read_file(struct pci_slot *slot, char *buf)
+>  	return bus_speed_read(slot->bus->cur_bus_speed, buf);
+>  }
+>  
+> +static ssize_t uevent_write_file(struct pci_slot *slot,
+> +				 const char *buf, size_t len)
+> +{
+> +	int rc;
+> +
+> +	rc = kobject_synth_uevent(&slot->kobj, buf, len);
+> +	return rc ? rc : len;
+> +}
+> +
+>  static void pci_slot_release(struct kobject *kobj)
+>  {
+>  	struct pci_dev *dev;
+> @@ -89,11 +98,14 @@ static struct pci_slot_attribute pci_slot_attr_max_speed =
+>  	__ATTR(max_bus_speed, S_IRUGO, max_speed_read_file, NULL);
+>  static struct pci_slot_attribute pci_slot_attr_cur_speed =
+>  	__ATTR(cur_bus_speed, S_IRUGO, cur_speed_read_file, NULL);
+> +static struct pci_slot_attribute pci_slot_attr_uevent =
+> +	__ATTR(uevent, S_IWUSR, NULL, uevent_write_file);
+>  
+>  static struct attribute *pci_slot_default_attrs[] = {
+>  	&pci_slot_attr_address.attr,
+>  	&pci_slot_attr_max_speed.attr,
+>  	&pci_slot_attr_cur_speed.attr,
+> +	&pci_slot_attr_uevent.attr,
+>  	NULL,
+>  };
+>  ATTRIBUTE_GROUPS(pci_slot_default);
+> -- 
+> 2.43.0
 > 
-> idle   (4) Time spent in the idle task.  This value
->         should be USER_HZ times the second entry in
->         the /proc/uptime pseudo-file.
-> "
-> /proc/uptime is based on sched_clock, so i infer /proc/stat also should 
-> show
-> values w.r.t to boot of the OS.
 > 
-> 
->> Also sched_clock() returns nanoseconds which implies calculation from 
->> timebase. This is pointless CPU consumption. The current 
->> implementation calculates nanoseconds at task switch when calling 
->> vtime_flush().Your change will now do it at every kernel entry and 
->> kernel exit by calling sched_clock().
-> 
-> This change doesn't add any additional paths. Even without patches, mftb 
-> would have
-> been called in every kernel entry/exit.  See mftb usage 
-> account_cpu_user_exit/enter
-> 
-> Now instead of mftb sched_clock is used, that's all. No additional 
-> entry/exit points.
-> And previously when accounting we would have done cputime_to_nsecs, now 
-> that conversion
-> is done automatically in sched_clock. So overall computation-wise it 
-> should be same.
-> 
-> What i am missing to see it here?
-> 
->>
->> Another point is that sched_clock() returns a long long not a long.
-> 
-> Thanks for pointing that out.
-> 
-> Ok. Let me change some of those variables into unsigned long long.
-> Compiler didn't warn me, so i didn't see it.
-> 
->>
->> And also sched_clock() uses get_tb() which does mftb and mftbu. Which 
->> is pointless for calculating time deltas unless your application 
->> spends hours without being re-scheduled.
->>
-> 
-> I didn't get this. At current also, we use mftb, that functionality 
-> should be the same.
-> Could you please explain how?
-> 
->>
->>>       struct cpu_accounting_data *acct = raw_get_accounting(current);
->>>
->>> -    acct->utime += (tb - acct->starttime_user);
->>> -    acct->starttime = tb;
->>> +    acct->utime += (now - acct->starttime_user);
->>> +    acct->starttime = now;
->>>   }
->>>
->>>   static notrace inline void account_cpu_user_exit(void)
->>>   {
->>> -    unsigned long tb = mftb();
->>> +    unsigned long now = sched_clock();
->>>       struct cpu_accounting_data *acct = raw_get_accounting(current);
->>>
->>> -    acct->stime += (tb - acct->starttime);
->>> -    acct->starttime_user = tb;
->>> +    acct->stime += (now - acct->starttime);
->>> +    acct->starttime_user = now;
->>>   }
->>>
->>>   static notrace inline void account_stolen_time(void)
->>> diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
->>> index 18506740f4a4..fb67cdae3bcb 100644
->>> --- a/arch/powerpc/kernel/time.c
->>> +++ b/arch/powerpc/kernel/time.c
->>> @@ -215,7 +215,7 @@ static unsigned long vtime_delta(struct 
->>> cpu_accounting_data *acct,
->>>
->>>       WARN_ON_ONCE(!irqs_disabled());
->>>
->>> -    now = mftb();
->>> +    now = sched_clock();
->>>       stime = now - acct->starttime;
->>>       acct->starttime = now;
->>>
->>> @@ -299,9 +299,9 @@ static void vtime_flush_scaled(struct task_struct 
->>> *tsk,
->>>   {
->>>   #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
->>>       if (acct->utime_scaled)
->>> -        tsk->utimescaled += cputime_to_nsecs(acct->utime_scaled);
->>> +        tsk->utimescaled += acct->utime_scaled;
->>>       if (acct->stime_scaled)
->>> -        tsk->stimescaled += cputime_to_nsecs(acct->stime_scaled);
->>> +        tsk->stimescaled += acct->stime_scaled;
->>>
->>>       acct->utime_scaled = 0;
->>>       acct->utime_sspurr = 0;
->>> @@ -321,28 +321,28 @@ void vtime_flush(struct task_struct *tsk)
->>>       struct cpu_accounting_data *acct = get_accounting(tsk);
->>>
->>>       if (acct->utime)
->>> -        account_user_time(tsk, cputime_to_nsecs(acct->utime));
->>> +        account_user_time(tsk, acct->utime);
->>>
->>>       if (acct->gtime)
->>> -        account_guest_time(tsk, cputime_to_nsecs(acct->gtime));
->>> +        account_guest_time(tsk, acct->gtime);
->>>
->>>       if (IS_ENABLED(CONFIG_PPC_SPLPAR) && acct->steal_time) {
->>> -        account_steal_time(cputime_to_nsecs(acct->steal_time));
->>> +        account_steal_time(acct->steal_time);
->>>           acct->steal_time = 0;
->>>       }
->>>
->>>       if (acct->idle_time)
->>> -        account_idle_time(cputime_to_nsecs(acct->idle_time));
->>> +        account_idle_time(acct->idle_time);
->>>
->>>       if (acct->stime)
->>> -        account_system_index_time(tsk, cputime_to_nsecs(acct->stime),
->>> +        account_system_index_time(tsk, acct->stime,
->>>                         CPUTIME_SYSTEM);
->>>
->>>       if (acct->hardirq_time)
->>> -        account_system_index_time(tsk, cputime_to_nsecs(acct- 
->>>  >hardirq_time),
->>> +        account_system_index_time(tsk, acct->hardirq_time,
->>>                         CPUTIME_IRQ);
->>>       if (acct->softirq_time)
->>> -        account_system_index_time(tsk, cputime_to_nsecs(acct- 
->>>  >softirq_time),
->>> +        account_system_index_time(tsk, acct->softirq_time,
->>>                         CPUTIME_SOFTIRQ);
->>>
->>>       vtime_flush_scaled(tsk, acct);
->>> @@ -388,7 +388,7 @@ void vtime_reset(void)
->>>   {
->>>       struct cpu_accounting_data *acct = get_accounting(current);
->>>
->>> -    acct->starttime = mftb();
->>> +    acct->starttime = sched_clock();
->>>   #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
->>>       acct->startspurr = read_spurr(acct->starttime);
->>>   #endif
->>
-> 
-> PS: I measured the performance with hackbench. I don't see any degradation.
-> 
-
