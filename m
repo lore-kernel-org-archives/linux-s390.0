@@ -1,332 +1,288 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7170279798
-	for <linux-s390@vger.kernel.org>; Thu, 26 Feb 2026 21:01:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.129.124
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772139696; cv=pass; b=Xm40StxbUhzf1BBl+5gpbNgz3MDP6/htlUW5S+wyLcW0Dokfsab6WTHsSZSdTx8grIzQQWyY0O2gIjDvKJ1Lsb7T48ogRMsW1sNGhIp4eDO1PhmohoiGLXD92zzpCO1g6P0lK+OKutsmIGT7NYT5CJwNCddjIcNlwp/wCVJiWn8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772139696; c=relaxed/simple;
-	bh=jhcXe1rca0rv/o92dCP0LQGzjtCONeoBwru4Ji2VJH8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XeqbXJ9Ck6MBkA/vJjYtcQZAMgDOP+SUMNm9BBxGH/HZVP8KssF33JrVo8GwcVNBpncQRUhrVdSXfqlfocAmlDSIYIzTbjyiEGMdjKKmLeJY4/jV59r36DPrBrT0hbOO2wDf0GLGHlDzQ9x1BNNXgsNeiOvtNBTZbQIZLUBKvvU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BWaAsEDZ; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=EuqX4tk5; arc=pass smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DF5826AC3;
+	Thu, 26 Feb 2026 21:03:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772139821; cv=none; b=ajUujVxR4EgSgHgzIuRxCPId58hL82NTyVSxZed5KWV2mw9Pj+ae8Lbcma1QYyWrIf7v2TEamd6RLPLcjNm4eVQTGT/YScBgAeA/KdcMRxyfvpnLwd6/+1b/JaCKqRY3I6g3y2IEboEJHO0i9c+HyPAqEP9+Fa+/KNSIzyTv5V4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772139821; c=relaxed/simple;
+	bh=mVL0taH76zkpOVm5k/iwac0MIl8Bb7Prd6Bsm1BJCd4=;
+	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
+	 Date:MIME-Version; b=iqCfsltnSXj/0RluPo7TmGiQ6DiW4hfBHrBIlfUbPftY3nahMgoSjPyyOBTNUSN71rCi/DwdB00BwbgM+8FUxQgdy5lYx+w9Nji9EmOzVvMMfoz+hBh/CJjxKZCDx35QnIf77Q+OJHl1FswGYn36u5xlQXYvAVh0cZ3efrCv0Ys=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pM04yJT6; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BWaAsEDZ";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="EuqX4tk5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1772139694;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=bmxX/qYJNas+Kj/SszP9KMGgHjwU+T3IF8YxcVK/CRk=;
-	b=BWaAsEDZfsOJHJt3iJ8DHIQtfo3qgePYeVCXhMfp22aLR2y9w0EemW5fTKScMRpyL6Bjd9
-	REbLtyhv78vIi04oOuPhBOpPxIl+BWorZj/hR1erzXj+5yL4rkEx+OUKPMkg4lbzfP0HR/
-	/7HQuoHkfWsRW207ANRUqPN0B8za+74=
-Received: from mail-yx1-f71.google.com (mail-yx1-f71.google.com
- [74.125.224.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-607-Qver8N1iNayyWU4PHBGLFQ-1; Thu, 26 Feb 2026 16:01:32 -0500
-X-MC-Unique: Qver8N1iNayyWU4PHBGLFQ-1
-X-Mimecast-MFC-AGG-ID: Qver8N1iNayyWU4PHBGLFQ_1772139692
-Received: by mail-yx1-f71.google.com with SMTP id 956f58d0204a3-64ca2fce827so3062140d50.0
-        for <linux-s390@vger.kernel.org>; Thu, 26 Feb 2026 13:01:32 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1772139691; cv=none;
-        d=google.com; s=arc-20240605;
-        b=FIeJLmkDJQRn4xK5eHGG7HjP0Gyu362vnjDn7oxVp2S7YOGz9kqqmCfNkbO6/7dPvV
-         NSesvVSW7DhWfGXqf5yUiT5mX2dOZPfJm1M/hob1PCL4iR4FleDIR5hBi4O+bUj9SnW0
-         CcwoFdq63WlQGUA1eu3H7v7ZOzpO3T7+Ie4NlTpcOUVGE6Nnct0nBlO2DXWWKo45K/W1
-         8u5NEkXrCzxHNzn+7XUynL3LlyAl06RY1v0Yp84WgrBIpU5ExhcwkvzWu2pr/UQc7CiY
-         NxgP8aw4Ml8D04VWPd3WNZzPMMXNRWaGTaLXiO54NhVpWVtJpisPL+XI1Bmt6xmGX64o
-         gSXw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=bmxX/qYJNas+Kj/SszP9KMGgHjwU+T3IF8YxcVK/CRk=;
-        fh=1tczrUjF/cLfLTCW6npo/MfZQ3bxwCP/JJ7xHLjB/fI=;
-        b=QQfQDDv3UqEDDecgC9m6+LhxBwgyzPMBV1VSYZML+Ixl0iTs/qwusjseliRmcpnxFp
-         smk3wmf7tmHtYNIKm+Ig3ifwveZXAmEGTcBuWzIdKxgU7qkboL7P0IWCKVgRKfVy/dM2
-         Hl6cd5vFmWctIIYeLog3Rlyoli3ceK72doMFWRgNLhJqyvFxy9pfDJHIMhq6XBjF3VgL
-         IBaSFaUlZB99pLTbaExqNP1DHLaKBhhirycZaC3wO3DQp0IQHYiVc5YK1LxZlETxX0Pj
-         O7NcUKNRHUaYGXBG3mxMs0czBV2BxSPLN74yKDnDvSlHfU4200VPjRAiUL+JMmh+BZh9
-         Utdg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1772139691; x=1772744491; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=bmxX/qYJNas+Kj/SszP9KMGgHjwU+T3IF8YxcVK/CRk=;
-        b=EuqX4tk5br9g1iyxyGWxq/ymYc5gnzEqXhpIy6cZdD/TrJSeM8IEviQesUNCYtZQSD
-         RYoxP+xNX7pMomV9lQOjg1LwudD72d9EWDPdY8U1pY5HzDnEJxEZh+LnhBHCPWIMa0O8
-         abhy8TyeztcA32cyHCieIqk4Fwjmdld/nhuNfvoiyb0ZhAFkQUS8/fPULWZfVrN3Za0K
-         Km0ilAkm262eRRnlhTNokj1EbtGL2iMMKLGrq3bRYSoWfIKfZaJx2IRPRqQdpDPsdAfi
-         wtkD3RihNvcxtA7S9S/estK8TDwpQwZy+IS/dbd52FuFeCq0zpp7x/4NhW+8F+T9TxYN
-         SeZw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772139691; x=1772744491;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=bmxX/qYJNas+Kj/SszP9KMGgHjwU+T3IF8YxcVK/CRk=;
-        b=mhhpxR86NmRoZQZs1e7UIyX5sa1odz6KxPTPprKF57Ts3wyEfQbpmfb2hqKh/JVKqB
-         qIp+SH+BsuP2jA7MJjYHROwYF5wVFqs0mEt8MXDWBLsJHj8UpIhNSPydQZTTeiuGtb9w
-         lRbKeGlJwrwIIZs01biGTvMwrlxNUWsSiq8y0OndkWLkFqE9MOpV2+adams60wpcAz0e
-         7ICOusmFtrhb+TIt1HPTykldCr8CxkyXzXnGrRm8B0OlS5iUNyCyFFsMUq4I9lnRmbpy
-         xb3W6bIA7dCEDfR8MQb9lQmyT6l5v3pb9XW4e4fI6fZlj92hu3WB1Lv1GZIXBz2xF0xc
-         Gv/A==
-X-Forwarded-Encrypted: i=1; AJvYcCU6ARJppv9NBh+eJvsogb1jbBqKazOjvh3D3fUxoCXTUteuPrU8BQTXC/qZDlh6DmGYmUXHJQ4C/5op@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy2uO8U2OJniuJxO+gyzQ/sUO/JaCEgsP4m3eyV7g7giDhNRZMS
-	BX5ofYjQ9b0uFz8gAiNMm/Bnbg+JMqRMKTGLGZSkBVdb2lbXwb3vlZ+4g/QPM9XqlmQE+5EBjvL
-	mytzI1wZXzUOJN0axlcsF7zZUCL8iFATmTtxvA7yOUjAH5fYuEpdPPXDgv+XfiQCQxsm3zHSr9I
-	3xatioA/0mnwsGmnBXjJMfgCacF+LH9YQa5FhRAYhBgJZn/gJb
-X-Gm-Gg: ATEYQzxKKK2yScY8D38Tp4qUnEcmRoqRw4FD5WeNZJH8xg7lcKDMtEXie4MXW9IiOZ9
-	IWYtSO1mVAkMXIyFmQXk0JBUpnzHIU4hBDdRGU+CduieqZpq7+ZWY+GIVWnwSl7jxgOP9Jmj6Jk
-	HjKb5GpALbjI4RwvgnkGR7Sfi41YeKkwnfGSrMV4O/xERsypH0EkrbUtCJM3Z6xIe8brPdaOZyA
-	v8M
-X-Received: by 2002:a05:690e:bc6:b0:649:4f58:5cd2 with SMTP id 956f58d0204a3-64cb6e0c928mr3154532d50.0.1772139691060;
-        Thu, 26 Feb 2026 13:01:31 -0800 (PST)
-X-Received: by 2002:a05:690e:bc6:b0:649:4f58:5cd2 with SMTP id
- 956f58d0204a3-64cb6e0c928mr3154488d50.0.1772139690404; Thu, 26 Feb 2026
- 13:01:30 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pM04yJT6"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61QGetLl567419;
+	Thu, 26 Feb 2026 21:03:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=OU30d1
+	YG6zjTAk+7xHE3MmzoVZ0KRXTuCeJeQSDmTr8=; b=pM04yJT6Du1j7TJzifb19L
+	v5A3Fwbxtc2B3WUxq6hBHFQKBz0yn75nq/qAewdtfCcwQigckgjU1rgLgdWzyyLl
+	5BBFURbX5BnSWNC9r+fYGyFhMnWd863dx/vwJsIAXIXBXVGJ6pIKkf1H2cHKLVoJ
+	HFiznckh7UXFnRk+t2ksikgeIBkoV9V6sIX9cfhx1uGXKdLFiiv5tvxLHKejxcjG
+	wkBVYVk46TuEDQOzYGQ0pzc5G6uShS+7kVWHl0kk73w+W6l7HxaG+zvXn58ErtHu
+	GxnvN4chIobLThaXAGpxMLkLJaeCs7Hh0Ci5h4l1m9jZFL7fCD/IpEz+WDhClhqg
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cf4cr92jm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 26 Feb 2026 21:03:32 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61QJKjOX027812;
+	Thu, 26 Feb 2026 21:03:31 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cfsr25wms-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 26 Feb 2026 21:03:31 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61QL3Utc11403794
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 26 Feb 2026 21:03:30 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 19ED158059;
+	Thu, 26 Feb 2026 21:03:30 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7904C58053;
+	Thu, 26 Feb 2026 21:03:26 +0000 (GMT)
+Received: from [9.87.142.49] (unknown [9.87.142.49])
+	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 26 Feb 2026 21:03:26 +0000 (GMT)
+Message-ID: <17f20481115758d63e0a839fa9ac6af561f70b6b.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 2/3] vfio/ism: Implement vfio_pci driver for ISM
+ devices
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Julian Ruess <julianr@linux.ibm.com>, wintera@linux.ibm.com,
+        ts@linux.ibm.com, oberpar@linux.ibm.com, gbayer@linux.ibm.com,
+        Alex
+ Williamson	 <alex@shazbot.org>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Yishai
+ Hadas	 <yishaih@nvidia.com>,
+        Shameer Kolothum <skolothumtho@nvidia.com>,
+        Kevin Tian	 <kevin.tian@intel.com>
+Cc: mjrosato@linux.ibm.com, alifm@linux.ibm.com, raspl@linux.ibm.com,
+        hca@linux.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
+In-Reply-To: <20260224-vfio_pci_ism-v2-2-f010945373fa@linux.ibm.com>
+References: <20260224-vfio_pci_ism-v2-0-f010945373fa@linux.ibm.com>
+	 <20260224-vfio_pci_ism-v2-2-f010945373fa@linux.ibm.com>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
+ /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
+ 3/1pjpNlSaX/qg3ZM8+/EiSGc7uEPklLYu3gRGxcWV/944HdUyLcnjrZwCn2+gg9ncVJjsimS0ro/
+ 2wU2RPE4ju6NMBn5Go26sAj1owdYQQv9t0d71CmZS9Bh+2+cLjC7HvyTHKFxVGOznUL+j1a45VrVS
+ XQ+nhTVjvgvXR84z10bOvLiwxJZ/00pwNi7uCdSYnZFLQ4S/JGMs4lhOiCGJhJ/9FR7JVw/1t1G9a
+ UlqVp23AXwzbcoV2fxyE/CsVpHcyOWGDahGLcH7QeitN6cjltf9ymw2spBzpRnfFn80nVxgSYVG1d
+ w75ksBAuQ/3e+oTQk4GAa2ShoNVsvR9GYn7rnsDN5pVILDhdPO3J2PGIXa5ipQnvwb3EHvPXyzakY
+ tK50fBUPKk3XnkRwRYEbbPEB7YT+ccF/HioCryqDPWUivXF8qf6Jw5T1mhwukUV1i+QyJzJxGPh19
+ /N2/GK7/yS5wrt0Lwxzevc5g+jX8RyjzywOZGHTVu9KIQiG8Pqx33UxZvykjaqTMjo7kaAdGEkrHZ
+ dVHqoPZwhCsgQARAQABtChOaWtsYXMgU2NobmVsbGUgPHNjaG5lbGxlQGxpbnV4LmlibS5jb20+iQ
+ JXBBMBCABBAhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAhkBFiEEnbAAstJ1IDCl9y3cr+Q/Fej
+ CYJAFAmmAWs8FCQl6sYAACgkQr+Q/FejCYJAn2g//UKzlXOgizdk0wudLooRbGzDo23ktGSPK5Oj9
+ 9o5z6v4Jz5+qOHo5835683cqkMLM9//udA1ZcKV88LVwyfmoHChPW24cWBmOEy7RJOWCR4WeEINaO
+ pZUGF5YOx7oKTkPs511ky2FR0Heg35754pgTuTMEpYzRXr5pNMPS8mHXcXSARFPDPaCF+uBJ9BafO
+ L7XbpSwKRttePsWAlPHbSbloeDApBfHUhcF/pbuM9GNs+c/8V9NK+SwwqNK214t7jaSq9k+19/hfE
+ jvU45nbiYQM4VqGCelxVFRWol93JnwPFp/JaMgxgV1VYFH9Ijtgh+qNVVBqO8bbTjioFKy1bHdprN
+ 9GyPLDxoaI/lBg+5CwKewzazUjFd0xaqZbTXSgNK4ev/IuNI3qZV8tpvZZWwIgZU1K0Bhplt8Sku+
+ O9Yl2H54erq9zuzwXjqBJtoW0+MaKbe+1gZ/v2/AVE2VeQMugPUWDg+2bpJaApRkeA4xQ9XfeW6Bp
+ It7xYrwwbVhQtWRC0sRh+QNlU9HI28wPSnLWn7HFBeWupaIrxSp4IEL3eHUn8xv4aA8lpdNsHXD/X
+ vqOSUwy5jlTPTlemvwaC9mNHagNdVXng8C6+hxiDLhZ6xH2P4qNHTKmjW61NsdF6Y/HfWP+lmbi8/
+ 474UNCltDt/fP01ajqogfWZKFymoH0O0KU5pa2xhcyBTY2huZWxsZSA8bmlrbGFzLnNjaG5lbGxlQ
+ GlibS5jb20+iQJUBBMBCAA+AhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAFiEEnbAAstJ1IDCl9y
+ 3cr+Q/FejCYJAFAmmAWusFCQl6sYAACgkQr+Q/FejCYJAtIw//WmQW/Z+SLdfrlDH5J2bvixzFNnO
+ TOvp8uM8vcNZsxZwPXem4AeCXHayCqipxpa0iXWufEIvdMxkBxWvvM//V+rTUgQnJe6nhDxfLGklx
+ 5Mb2H+K/ndS73ElCuA30MPYq7mHr8i3gEmi2ZFX1W47JecJ8hno/DQxhHRG7bd+GFsiKCbsjLWXNq
+ s/VaAK9uyOTQx7m6/2nR8L+Mvl1BrRXwkj7Qp0qxfQSd4r+IVNBzNFOcrGagBqsyHrN7Is7IICktH
+ 9VFl/G8P+hfviHQLnlxw9ltzpM1Dy6N1+BM3kbqD59gX+L6wqiLJI42eh+SHCiy35FvD3AFlYx4jZ
+ MWE6qIgFnbwcL1kvcA7nnwfr3ZizCYPm8e334xXxslXBoRGsvjXSbAeAyZo2dvJXffNHdcDdUbJSl
+ CfOixNGGKiQvs00X9ekfq9WmmRFvmYHu/m3lg1OXnMjFFIO41O51ZdhbEYJiqZEki7jA8Hd9xuWwQ
+ nFDHhacU3xxivZ4BKQGQc+4XZ3yp/q6+7ux9prepRy/LeRyoaAmE67oxEsAgj+qyA3Tfy5nRTDdRQ
+ E//gpaIt9H1VEx+68dRWHroxBQeozpnFPi25AlX3k4/EtVZjcItPWgE9iru1qT4DH3BBrz7Kd1zUw
+ NnQC77zDJyZD2WUj1E+5bftO0aeE+7HZXj3tM/ea0K05pa2xhcyBTY2huZWxsZSA8bmlrbGFzLnNj
+ aG5lbGxlQGdtYWlsLmNvbT6JAlQEEwEIAD4CGwEFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AWIQSds
+ ACy0nUgMKX3Ldyv5D8V6MJgkAUCaYBa6wUJCXqxgAAKCRCv5D8V6MJgkF/TEACOY2kL4NGFIbWeM5
+ TUhatxqe8c3RT6jvNjq32CkvaK/cSZzBkS0smddyOzxt2WnsvMgkr9cM7P+CevoMwhT3e0lgQbqBD
+ /vXZJjWKddC+iKXeqWkjMVcgCOsWNZ7PWEzRUT5X1AEFq2zzxQAQ/bCWEYNqIbHN4b6G1Wk+2Y598
+ +KypZ3FS0bwiItnPQOWzOOqJCGxDxaEUuXFx4ah8HtVdtIev8jPS/5uzQO9iG2vZQUWeMEYZtfMHW
+ sbFWqo2A3lxB+KPzNIYFhul4Lyx1CwvKUAGSHOx7FZuc2xI5DYt/Wdh2QyKFYr7xVzv3uwJjeS1+3
+ 6gvyB7DJaQuY+PziNPv4GPr5wy0cRkJ6Ps15fgC6y6wNwoNdNXKlwiuclIsBzJKa7A0pZMIfpCpIJ
+ bEHP7oy3drBRAhIrBx7Lx1lyqqodDqc+ok5IQ5WcKG/TOrH732mTmJX6fxYTiCVxcU4WLJSNZbrZ/
+ pjF0AWXs7E+onAkQy6RLg/XU1iiU5QdMvug+fTA6TpPSUMdujWtGWUt3/4nC+69AVc8tXtRQTZ7gP
+ t7uIcQFwPqUuJGS26vl0w/6dIABQAyU9acvE3adCZra+/PBKFZi/yxT1WgV1T2mexKSWwQgLcR57J
+ Yp5oWnQRgi/S6fAoskIWkp9UVcfAQPY0p45NwO5cZR9/g06JZmyrQhTmlrbGFzIFNjaG5lbGxlIDx
+ uaWtzQGtlcm5lbC5vcmc+iQJUBBMBCAA+AhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAFiEEnbAA
+ stJ1IDCl9y3cr+Q/FejCYJAFAmmAWusFCQl6sYAACgkQr+Q/FejCYJAz4A/9F+dMhzu7YonagL4qh
+ WDz5IpRD4vzYKOBZ+qwYp1ugJz1BIUppN9i68HKoS4ARfgP97Sv9GpOy9g7L0lymH2MPF8hRPK0Yn
+ 7DKIkeu/r28YWEoWfoVm5reC+gpxMgmxBz4JScE4f6xfa7+Nw0bbTDl+nxftJD7lf/dTiruNJsXph
+ HQnZ5wPXmxeH6XVJikfpyrGe8iJZALbtHtjlx6Omu7NvRGikenB8trrWS5W0F60ZdbqH1HdmDDcrZ
+ pDq6LtAARHK5tGRm0SK6sZpKe3nULFeeCt7T/edk2FC6KVh4sL1jw1kyceX4DjiMffqYBPrhK5gz5
+ cDIixLBF9C6Wt1ObvuDBrIQf1/3q6EZrUrUuf6qtaXDMuC6cSlShm47qaPEvVYh67O9JZQ7vzvaea
+ UI74DJUb8Pjnz7mTOmMOzsS1gUhCue4n2YSSM6ythioCGb/3bgMGTpuer3JhvZG5s5uKD9yyj8s8x
+ 35qJkCFfjmjVx9s3vSUS48X+cUpYcMispErKzFu7C0YgKoxvJ4XTfXlDBiMFMPYcN67hsb2jeYHVJ
+ wzE+fIZiDx9JLh1oQW2krwjweisE+3glOaKXZKi0fBtkxyH41iemLtLNYZRJopv6ykdl3hiI+Nh+a
+ 3FZJPTo/OpqchMm8XIeDxC4NFFiPMpyLeYzIxO7eZpiGrAjVTE=
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 26 Feb 2026 22:02:25 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260226113233.3987674-1-usama.arif@linux.dev>
-In-Reply-To: <20260226113233.3987674-1-usama.arif@linux.dev>
-From: Nico Pache <npache@redhat.com>
-Date: Thu, 26 Feb 2026 14:01:04 -0700
-X-Gm-Features: AaiRm5209LV06f3Unt5ipFy-rNSZmlqNghFDY0XoCRoPEuuBfLMWoAzmF-tTAXE
-Message-ID: <CAA1CXcAYt3OfW_uBTYZgr-dBhg99x=5pUs5uvqtpg+PNJ1KxGQ@mail.gmail.com>
-Subject: Re: [RFC v2 00/21] mm: thp: lazy PTE page table allocation at PMD split
-To: Usama Arif <usama.arif@linux.dev>
-Cc: Andrew Morton <akpm@linux-foundation.org>, david@kernel.org, lorenzo.stoakes@oracle.com, 
-	willy@infradead.org, linux-mm@kvack.org, fvdl@google.com, hannes@cmpxchg.org, 
-	riel@surriel.com, shakeel.butt@linux.dev, kas@kernel.org, baohua@kernel.org, 
-	dev.jain@arm.com, baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, 
-	ryan.roberts@arm.com, Vlastimil Babka <vbabka@kernel.org>, lance.yang@linux.dev, 
-	linux-kernel@vger.kernel.org, kernel-team@meta.com, maddy@linux.ibm.com, 
-	mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, hca@linux.ibm.com, 
-	gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com, 
-	svens@linux.ibm.com, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: j3lpEhYJgI4szr8SGvSTXZJRkvgM24K0
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI2MDE4NCBTYWx0ZWRfX89UlAW+jWcjf
+ RW9ptCmk+a9QkD6VhZ/GwjUg3EtiHWpFU9X1xkaNR8vF76mMz8l2gdcvaG9JjOJ5hGheF12Kqoe
+ C/o2pnv+5cOM7CHHp/1N3H5is+xvBqEPto04y1ui06tovcztxNjAjUW7wd1W+2uVaavA1hMwVK6
+ 168RcoK6tnRGtnW1ImhyW7+gw9eG1bBPibK31Rb0EMiiAahTaXPID+3d+hQRVtiqcdzGhL+1ed9
+ 5/aRMxxJo3F4AtX9wG1M80Bt8S0tO65F3HIwnfhiizICqB28IP14hCGVOJQq7OvlhUWorYRqYU4
+ MHg7l9cUPrvdu5IxG8Nd3kokJ5M3q+0PaigU1+WKr/PetZp+XCbAqJwYfZq+X1/merN9cpbXzCe
+ LUx7TfipeIYI6oAK8FutJRCYxSL+uDM2DLkAP2g6Cz5YcPN3w3ID3SBTe5GslEZ+qfHWX67smFC
+ 68T4pHKtT87xDr7BZWA==
+X-Proofpoint-GUID: j3lpEhYJgI4szr8SGvSTXZJRkvgM24K0
+X-Authority-Analysis: v=2.4 cv=bbBmkePB c=1 sm=1 tr=0 ts=69a0b524 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8
+ a=iXMz9YD8DWuSEQOWV1UA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-26_02,2026-02-26_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 bulkscore=0 adultscore=0 impostorscore=0 lowpriorityscore=0
+ priorityscore=1501 suspectscore=0 clxscore=1015 phishscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602260184
 
-On Thu, Feb 26, 2026 at 4:33=E2=80=AFAM Usama Arif <usama.arif@linux.dev> w=
-rote:
->
-> When the kernel creates a PMD-level THP mapping for anonymous pages, it
-> pre-allocates a PTE page table via pgtable_trans_huge_deposit(). This
-> page table sits unused in a deposit list for the lifetime of the THP
-> mapping, only to be withdrawn when the PMD is split or zapped. Every
-> anonymous THP therefore wastes 4KB of memory unconditionally. On large
-> servers where hundreds of gigabytes of memory are mapped as THPs, this
-> adds up: roughly 200MB wasted per 100GB of THP memory. This memory
-> could otherwise satisfy other allocations, including the very PTE page
-> table allocations needed when splits eventually occur.
->
-> This series removes the pre-deposit and allocates the PTE page table
-> lazily =E2=80=94 only when a PMD split actually happens. Since a large nu=
-mber
-> of THPs are never split (they are zapped wholesale when processes exit or
-> munmap the full range), the allocation is avoided entirely in the common
-> case.
->
-> The pre-deposit pattern exists because split_huge_pmd was designed as an
-> operation that must never fail: if the kernel decides to split, it needs
-> a PTE page table, so one is deposited in advance. But "must never fail"
-> is an unnecessarily strong requirement. A PMD split is typically triggere=
-d
-> by a partial operation on a sub-PMD range =E2=80=94 partial munmap, parti=
-al
-> mprotect, partial mremap and so on.
-> Most of these operations already have well-defined error handling for
-> allocation failures (e.g., -ENOMEM, VM_FAULT_OOM). Allowing split to
-> fail and propagating the error through these existing paths is the natura=
-l
-> thing to do. Furthermore, split failing requires an order-0 allocation fo=
-r
-> a page table to fail, which is extremely unlikely.
->
-> Designing functions like split_huge_pmd as operations that cannot fail
-> has a subtle but real cost to code quality. It forces a pre-allocation
-> pattern - every THP creation path must deposit a page table, and every
-> split or zap path must withdraw one, creating a hidden coupling between
-> widely separated code paths.
->
-> This also serves as a code cleanup. On every architecture except powerpc
-> with hash MMU, the deposit/withdraw machinery becomes dead code. The
-> series removes the generic implementations in pgtable-generic.c and the
-> s390/sparc overrides, replacing them with no-op stubs guarded by
-> arch_needs_pgtable_deposit(), which evaluates to false at compile time
-> on all non-powerpc architectures.
+On Tue, 2026-02-24 at 13:34 +0100, Julian Ruess wrote:
+> Add a vfio_pci variant driver for the s390-specific Internal Shared
+> Memory (ISM) devices used for inter-VM communication.
+>=20
+> This enables the development of vfio-pci-based user space drivers for
+> ISM devices.
+>=20
+> On s390, kernel primitives such as ioread() and iowrite() are switched
+> over from function handle based PCI load/stores instructions to PCI
+> memory-I/O (MIO) loads/stores when these are available and not
+> explicitly disabled. Since these instructions cannot be used with ISM
+> devices, ensure that classic function handle-based PCI instructions are
+> used instead.
+>=20
+> The driver is still required even when MIO instructions are disabled, as
+> the ISM device relies on the PCI store block (PCISTB) instruction to
+> perform write operations.
+>=20
+> Stores are not fragmented, therefore one ioctl corresponds to exactly
+> one PCISTB instruction. User space must ensure to not write more than
+> 4096 bytes at once to an ISM BAR which is the maximum payload of the
+> PCISTB instruction.
+>=20
+> Signed-off-by: Julian Ruess <julianr@linux.ibm.com>
+> ---
+>  drivers/vfio/pci/Kconfig      |   2 +
+>  drivers/vfio/pci/Makefile     |   2 +
+>  drivers/vfio/pci/ism/Kconfig  |  11 ++
+>  drivers/vfio/pci/ism/Makefile |   3 +
+>  drivers/vfio/pci/ism/main.c   | 297 ++++++++++++++++++++++++++++++++++++=
+++++++
+>  5 files changed, 315 insertions(+)
+>=20
+--- snip ---
+> +
+> +static ssize_t ism_vfio_pci_do_io_r(struct vfio_pci_core_device *vdev,
+> +				    char __user *buf, loff_t off, size_t count,
+> +				    int bar)
+> +{
+> +	struct zpci_dev *zdev =3D to_zpci(vdev->pdev);
+> +	ssize_t ret, done =3D 0;
+> +	u64 req, length, tmp;
+> +
+> +	while (count) {
+> +		if (count >=3D 8 && IS_ALIGNED(off, 8))
+> +			length =3D 8;
+> +		else if (count >=3D 4 && IS_ALIGNED(off, 4))
+> +			length =3D 4;
+> +		else if (count >=3D 2 && IS_ALIGNED(off, 2))
+> +			length =3D 2;
+> +		else
+> +			length =3D 1;
+> +		req =3D ZPCI_CREATE_REQ(READ_ONCE(zdev->fh), bar, length);
+> +		/* use pcilg to prevent using MIO instructions */
 
-Hi Usama,
+I think this comment could be improved but it's not wrong either so no
+strong opinion. Maybe something like:
 
-Thanks for tackling this, it seems like an interesting problem. Im
-trying to get more into reviewing, so bare with me I may have some
-stupid comments or questions. Where I can really help out is with
-testing. I will build this for all RH-supported architectures and run
-some automated test suites and performance metrics. I'll report back
-if I spot anything.
+/*
+ * Use __zpci_load() to bypass automatic use of PCI MIO instructions
+ * which are not supported on ISM devices
+ */
 
-Cheers!
--- Nico
 
->
-> The series is structured as follows:
->
-> Patches 1-2:    Error infrastructure =E2=80=94 make split functions retur=
-n int
->                 and propagate errors from vma_adjust_trans_huge()
->                 through __split_vma, vma_shrink, and commit_merge.
->
-> Patches 3-12:   Handle split failure at every call site =E2=80=94 copy_hu=
-ge_pmd,
->                 do_huge_pmd_wp_page, zap_pmd_range, wp_huge_pmd,
->                 change_pmd_range (mprotect), follow_pmd_mask (GUP),
->                 walk_pmd_range (pagewalk), move_page_tables (mremap),
->                 move_pages (userfaultfd), and device migration.
->                 The code will become affective in Patch 14 when split
->                 functions start returning -ENOMEM.
->
-> Patch 13:       Add __must_check to __split_huge_pmd(), split_huge_pmd()
->                 and split_huge_pmd_address() so the compiler warns on
->                 unchecked return values.
->
-> Patch 14:       The actual change =E2=80=94 allocate PTE page tables lazi=
-ly at
->                 split time instead of pre-depositing at THP creation.
->                 This is when split functions will actually start returnin=
-g
->                 -ENOMEM.
->
-> Patch 15:       Remove the now-dead deposit/withdraw code on
->                 non-powerpc architectures.
->
-> Patch 16:       Add THP_SPLIT_PMD_FAILED vmstat counter for monitoring
->                 split failures.
->
-> Patches 17-21:  Selftests covering partial munmap, mprotect, mlock,
->                 mremap, and MADV_DONTNEED on THPs to exercise the
->                 split paths.
->
-> The error handling patches are placed before the lazy allocation patch so
-> that every call site is already prepared to handle split failures before
-> the failure mode is introduced. This makes each patch independently safe
-> to apply and bisect through.
->
-> The patches were tested with CONFIG_DEBUG_ATOMIC_SLEEP and CONFIG_DEBUG_V=
-M
-> enabled. The test results are below:
->
-> TAP version 13
-> 1..5
-> # Starting 5 tests from 1 test cases.
-> #  RUN           thp_pmd_split.partial_munmap ...
-> # thp_pmd_split_test.c:60:partial_munmap:thp_split_pmd: 0 -> 1
-> # thp_pmd_split_test.c:62:partial_munmap:thp_split_pmd_failed: 0 -> 0
-> #            OK  thp_pmd_split.partial_munmap
-> ok 1 thp_pmd_split.partial_munmap
-> #  RUN           thp_pmd_split.partial_mprotect ...
-> # thp_pmd_split_test.c:60:partial_mprotect:thp_split_pmd: 1 -> 2
-> # thp_pmd_split_test.c:62:partial_mprotect:thp_split_pmd_failed: 0 -> 0
-> #            OK  thp_pmd_split.partial_mprotect
-> ok 2 thp_pmd_split.partial_mprotect
-> #  RUN           thp_pmd_split.partial_mlock ...
-> # thp_pmd_split_test.c:60:partial_mlock:thp_split_pmd: 2 -> 3
-> # thp_pmd_split_test.c:62:partial_mlock:thp_split_pmd_failed: 0 -> 0
-> #            OK  thp_pmd_split.partial_mlock
-> ok 3 thp_pmd_split.partial_mlock
-> #  RUN           thp_pmd_split.partial_mremap ...
-> # thp_pmd_split_test.c:60:partial_mremap:thp_split_pmd: 3 -> 4
-> # thp_pmd_split_test.c:62:partial_mremap:thp_split_pmd_failed: 0 -> 0
-> #            OK  thp_pmd_split.partial_mremap
-> ok 4 thp_pmd_split.partial_mremap
-> #  RUN           thp_pmd_split.partial_madv_dontneed ...
-> # thp_pmd_split_test.c:60:partial_madv_dontneed:thp_split_pmd: 4 -> 5
-> # thp_pmd_split_test.c:62:partial_madv_dontneed:thp_split_pmd_failed: 0 -=
-> 0
-> #            OK  thp_pmd_split.partial_madv_dontneed
-> ok 5 thp_pmd_split.partial_madv_dontneed
-> # PASSED: 5 / 5 tests passed.
-> # Totals: pass:5 fail:0 xfail:0 xpass:0 skip:0 error:0
->
-> The patches are based off of 957a3fab8811b455420128ea5f41c51fd23eb6c7 fro=
-m
-> mm-unstable as of 25 Feb (7.0.0-rc1).
->
->
-> RFC v1 -> v2: https://lore.kernel.org/all/20260211125507.4175026-1-usama.=
-arif@linux.dev/
-> - Change counter name to THP_SPLIT_PMD_FAILED (David)
-> - remove pgtable_trans_huge_{deposit/withdraw} when not needed and
->   make them arch specific (David)
-> - make split functions return error code and have callers handle them
->   (David and Kiryl)
-> - Add test cases for splitting
->
-> Usama Arif (21):
->   mm: thp: make split_huge_pmd functions return int for error
->     propagation
->   mm: thp: propagate split failure from vma_adjust_trans_huge()
->   mm: thp: handle split failure in copy_huge_pmd()
->   mm: thp: handle split failure in do_huge_pmd_wp_page()
->   mm: thp: handle split failure in zap_pmd_range()
->   mm: thp: handle split failure in wp_huge_pmd()
->   mm: thp: retry on split failure in change_pmd_range()
->   mm: thp: handle split failure in follow_pmd_mask()
->   mm: handle walk_page_range() failure from THP split
->   mm: thp: handle split failure in mremap move_page_tables()
->   mm: thp: handle split failure in userfaultfd move_pages()
->   mm: thp: handle split failure in device migration
->   mm: huge_mm: Make sure all split_huge_pmd calls are checked
->   mm: thp: allocate PTE page tables lazily at split time
->   mm: thp: remove pgtable_trans_huge_{deposit/withdraw} when not needed
->   mm: thp: add THP_SPLIT_PMD_FAILED counter
->   selftests/mm: add THP PMD split test infrastructure
->   selftests/mm: add partial_mprotect test for change_pmd_range
->   selftests/mm: add partial_mlock test
->   selftests/mm: add partial_mremap test for move_page_tables
->   selftests/mm: add madv_dontneed_partial test
->
->  arch/powerpc/include/asm/book3s/64/pgtable.h  |  12 +-
->  arch/s390/include/asm/pgtable.h               |   6 -
->  arch/s390/mm/pgtable.c                        |  41 ---
->  arch/sparc/include/asm/pgtable_64.h           |   6 -
->  arch/sparc/mm/tlb.c                           |  36 ---
->  include/linux/huge_mm.h                       |  51 +--
->  include/linux/pgtable.h                       |  16 +-
->  include/linux/vm_event_item.h                 |   1 +
->  mm/debug_vm_pgtable.c                         |   4 +-
->  mm/gup.c                                      |  10 +-
->  mm/huge_memory.c                              | 208 +++++++++----
->  mm/khugepaged.c                               |   7 +-
->  mm/memory.c                                   |  26 +-
->  mm/migrate_device.c                           |  33 +-
->  mm/mprotect.c                                 |  11 +-
->  mm/mremap.c                                   |   8 +-
->  mm/pagewalk.c                                 |   8 +-
->  mm/pgtable-generic.c                          |  32 --
->  mm/rmap.c                                     |  42 ++-
->  mm/userfaultfd.c                              |   8 +-
->  mm/vma.c                                      |  37 ++-
->  mm/vmstat.c                                   |   1 +
->  tools/testing/selftests/mm/Makefile           |   1 +
->  .../testing/selftests/mm/thp_pmd_split_test.c | 290 ++++++++++++++++++
->  tools/testing/vma/include/stubs.h             |   9 +-
->  25 files changed, 645 insertions(+), 259 deletions(-)
->  create mode 100644 tools/testing/selftests/mm/thp_pmd_split_test.c
->
-> --
-> 2.47.3
->
+> +		ret =3D __zpci_load(&tmp, req, off);
+> +		if (ret)
+> +			return ret;
+> +		if (copy_to_user(buf, &tmp, length))
+> +			return -EFAULT;
+> +		count -=3D length;
+> +		done +=3D length;
+> +		off +=3D length;
+> +		buf +=3D length;
+> +	}
+> +	return done;
+> +}
+> +
+> +static ssize_t ism_vfio_pci_do_io_w(struct vfio_pci_core_device *vdev,
+> +				    char __user *buf, loff_t off, size_t count,
+> +				    int bar)
+> +{
+> +	struct zpci_dev *zdev =3D to_zpci(vdev->pdev);
+> +	void *data __free(kfree) =3D NULL;
+> +	ssize_t ret;
+> +	u64 req;
+> +
+> +	if (count > zdev->maxstbl)
+> +		return -EINVAL;
+> +	data =3D kzalloc(count, GFP_KERNEL);
+> +	if (!data)
+> +		return -ENOMEM;
+> +	if (copy_from_user(data, buf, count))
+> +		return -EFAULT;
+> +	req =3D ZPCI_CREATE_REQ(READ_ONCE(zdev->fh), bar, count);
+> +	ret =3D __zpci_store_block(data, req, off);
 
+Note for the interested reader. ISM devices have relaxed alignment
+rules on PCI Store Block so if you compare with other PCI Store Block
+uses e.g. in memcpy_toio() don't be alarmed that this doesn't check the
+alignment in the same way, or at all. Also we do still get error
+returns if the access failed.
+
+> +	if (ret)
+> +		return ret;
+> +	return count;
+> +}
+>=20
+--- snip ---
+> +MODULE_LICENSE("GPL");
+> +MODULE_DESCRIPTION("vfio-pci variant driver for the IBM Internal Shared =
+Memory (ISM) device");
+> +MODULE_AUTHOR("IBM Corporation");
+
+I'm a bit biased here since I've been quite involved in your work and
+the design decisions leading to this variant driver, but this looks
+good to me. And in particular the low level PCI accesses  with ISM's
+quirks in mind look fine to me.
+
+Feel free to add:
+
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+
+Thanks,
+Niklas
