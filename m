@@ -1,32 +1,32 @@
-Received: from out-186.mta1.migadu.com (out-186.mta1.migadu.com [95.215.58.186])
+Received: from out-179.mta0.migadu.com (out-179.mta0.migadu.com [91.218.175.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF0A1374752
-	for <linux-s390@vger.kernel.org>; Thu, 26 Feb 2026 11:34:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.186
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 596613081C2
+	for <linux-s390@vger.kernel.org>; Thu, 26 Feb 2026 11:34:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772105690; cv=none; b=glI6WGV4XU1sMqo/Oj3z+BF/dc9IoZwQgMr6/6V/xcc2ipmxruKQEVNbcZx5HD1AKYOUjADdIvtOa28ryuaiLY0ASiN/vi98gFGK7paTNUZZUxe5vHnjl0b1niXYh6Hvj4iNGhglcxFL9TiHGZKyhBMZsf7lx7utzLOG6PF3z2o=
+	t=1772105697; cv=none; b=grR4R4iJm46fWNjbGfqs/hJigcnn6zL+iwAUkuk9LUkhOeyJ619IT6sZl8+8ATcKuFWc4EwPVnJcwZBKe2tC4ZghSzgG7z3V2hw9gPOi7RIxTceE1/tTF0IbayP5sLn6YCzAEUV0/Qz3GjZwzi4K62POpwbiLLIcPXYBoSWcN78=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772105690; c=relaxed/simple;
-	bh=51esavDNFGG1Wz8hv4vjtdQUxnzcd1SIpqsqnSLT15o=;
+	s=arc-20240116; t=1772105697; c=relaxed/simple;
+	bh=2nCytx2NJ2ocpmGIIqsNM9aak55W5nRi/zp+lwn5m28=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jxOND8wlSK08Oea/3hO4QuhrcmJHPqZfXX/oFQ7TLTkRzaRfzfjs2gyrN7TandgJtY0EYvVDbVIzRH6mFwfsDPtO4ca/zKUh9zorZkmoo6a+eIOcgiInqfJyCN9ZZ0p4muWX1876VFdeghGvxzZDFAzm3/LwXUctD7tvFI7PeFw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Ec17NRLq; arc=none smtp.client-ip=95.215.58.186
+	 MIME-Version; b=m1nJaLxFyVFcX5rGygpbca3ZXN+rX1/IvDbHNzB7n4t55zDxlQhSGvBa1K0szFj278+rdWS3IrWmTOpj6DXUU8NgS+DnJhcXuaGjCEsXXvJU4KBMrLZTNpcMQWTyyX5P68bst5JxzfxcKdu5sK03YNKUQBLIA0i40YazMQIu1bY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=QzYEVMog; arc=none smtp.client-ip=91.218.175.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Ec17NRLq"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="QzYEVMog"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1772105686;
+	t=1772105694;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=3EBMW5df/kqjxALvGCac5LeXwtQNaqEvULHNZHX+1lo=;
-	b=Ec17NRLqZdkNOCfYyhxyJmbLXJ3hDN99fyOVr8S7gzesBylU0G5qLKGmWd2mUsNPo4QbCO
-	0P46bXf4Y7YpPawzBDCHsB8JH5ZskGMhbudmRHaDZgLl4BF2ofVHpfjC5JFLtZFT9+SWee
-	iFTIlNIY6EmRvwy8JGlhh+lWFExdBSw=
+	bh=8OsjUNu05V/Xcz8HI7pnG5Up/ePNSaNnSj1ALtPKgps=;
+	b=QzYEVMogdec0mY0J3RwU6Gr0HY5yw0g0PC/NnZW/DkMBCuL1u6KkUPmfl0LnrwBZt3mQvH
+	6feN36V2Wav1NYWbEYKn+KdkhTLakwltwaJjj6dePky67MgNDAo4NhXA6gniUjonuoiq0T
+	kN0P5eVVcfWnMjq8z+u3t6YjpBzNfhE=
 From: Usama Arif <usama.arif@linux.dev>
 To: Andrew Morton <akpm@linux-foundation.org>,
 	david@kernel.org,
@@ -58,9 +58,9 @@ Cc: fvdl@google.com,
 	svens@linux.ibm.com,
 	linux-s390@vger.kernel.org,
 	Usama Arif <usama.arif@linux.dev>
-Subject: [RFC v2 17/21] selftests/mm: add THP PMD split test infrastructure
-Date: Thu, 26 Feb 2026 03:23:46 -0800
-Message-ID: <20260226113233.3987674-18-usama.arif@linux.dev>
+Subject: [RFC v2 18/21] selftests/mm: add partial_mprotect test for change_pmd_range
+Date: Thu, 26 Feb 2026 03:23:47 -0800
+Message-ID: <20260226113233.3987674-19-usama.arif@linux.dev>
 In-Reply-To: <20260226113233.3987674-1-usama.arif@linux.dev>
 References: <20260226113233.3987674-1-usama.arif@linux.dev>
 Precedence: bulk
@@ -72,192 +72,56 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
-Add test infrastructure for verifying THP PMD split behavior with lazy
-PTE allocation. This includes:
-
-- Test fixture with PMD-aligned memory allocation
-- Helper functions for reading vmstat counters
-- log_and_check_pmd_split() macro for logging counters and checking
-  if thp_split_pmd has incremented and thp_split_pmd_failed hasn't.
-- THP allocation helper with verification
-
-Also add a test to check if partial unmap of a THP splits the PMD.
-This exercises zap_pmd_range part of split.
+Add test for partial mprotect on THP which exercises change_pmd_range().
+This verifies that partial mprotect correctly splits the PMD, applies
+protection only to the requested portion, and leaves the rest of the
+mapping writable.
 
 Signed-off-by: Usama Arif <usama.arif@linux.dev>
 ---
- tools/testing/selftests/mm/Makefile           |   1 +
- .../testing/selftests/mm/thp_pmd_split_test.c | 149 ++++++++++++++++++
- 2 files changed, 150 insertions(+)
- create mode 100644 tools/testing/selftests/mm/thp_pmd_split_test.c
+ .../testing/selftests/mm/thp_pmd_split_test.c | 31 +++++++++++++++++++
+ 1 file changed, 31 insertions(+)
 
-diff --git a/tools/testing/selftests/mm/Makefile b/tools/testing/selftests/mm/Makefile
-index 7a5de4e9bf520..e80551e76013a 100644
---- a/tools/testing/selftests/mm/Makefile
-+++ b/tools/testing/selftests/mm/Makefile
-@@ -95,6 +95,7 @@ TEST_GEN_FILES += uffd-stress
- TEST_GEN_FILES += uffd-unit-tests
- TEST_GEN_FILES += uffd-wp-mremap
- TEST_GEN_FILES += split_huge_page_test
-+TEST_GEN_FILES += thp_pmd_split_test
- TEST_GEN_FILES += ksm_tests
- TEST_GEN_FILES += ksm_functional_tests
- TEST_GEN_FILES += mdwe_test
 diff --git a/tools/testing/selftests/mm/thp_pmd_split_test.c b/tools/testing/selftests/mm/thp_pmd_split_test.c
-new file mode 100644
-index 0000000000000..0f54ac04760d5
---- /dev/null
+index 0f54ac04760d5..4944a5a516da9 100644
+--- a/tools/testing/selftests/mm/thp_pmd_split_test.c
 +++ b/tools/testing/selftests/mm/thp_pmd_split_test.c
-@@ -0,0 +1,149 @@
-+// SPDX-License-Identifier: GPL-2.0
+@@ -146,4 +146,35 @@ TEST_F(thp_pmd_split, partial_munmap)
+ 		self->split_pmd_failed_before);
+ }
+ 
 +/*
-+ * Tests various kernel code paths that handle THP PMD splitting.
++ * Partial mprotect on THP (change_pmd_range)
 + *
-+ * Prerequisites:
-+ * - THP enabled (always or madvise mode):
-+ *   echo always > /sys/kernel/mm/transparent_hugepage/enabled
-+ *   or
-+ *   echo madvise > /sys/kernel/mm/transparent_hugepage/enabled
++ * Tests that partial mprotect of a THP correctly splits the PMD and
++ * applies protection only to the requested portion. This exercises
++ * the mprotect path which now handles split failures.
 + */
-+
-+#define _GNU_SOURCE
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <unistd.h>
-+#include <sys/mman.h>
-+#include <sys/wait.h>
-+#include <fcntl.h>
-+#include <errno.h>
-+#include <stdint.h>
-+
-+#include "kselftest_harness.h"
-+#include "thp_settings.h"
-+#include "vm_util.h"
-+
-+/* Read vmstat counter */
-+static unsigned long read_vmstat(const char *name)
++TEST_F(thp_pmd_split, partial_mprotect)
 +{
-+	FILE *fp;
-+	char line[256];
-+	unsigned long value = 0;
-+
-+	fp = fopen("/proc/vmstat", "r");
-+	if (!fp)
-+		return 0;
-+
-+	while (fgets(line, sizeof(line), fp)) {
-+		if (strncmp(line, name, strlen(name)) == 0 &&
-+		    line[strlen(name)] == ' ') {
-+			sscanf(line + strlen(name), " %lu", &value);
-+			break;
-+		}
-+	}
-+	fclose(fp);
-+	return value;
-+}
-+
-+/*
-+ * Log vmstat counters for split_pmd_after/split_pmd_failed_after,
-+ * check if split_pmd_after is greater than before and split_pmd_failed_after
-+ * hasn't incremented.
-+ */
-+static void log_and_check_pmd_split(struct __test_metadata *const _metadata,
-+	unsigned long split_pmd_before, unsigned long split_pmd_failed_before)
-+{
-+	unsigned long split_pmd_after = read_vmstat("thp_split_pmd");
-+	unsigned long split_pmd_failed_after = read_vmstat("thp_split_pmd_failed");
-+
-+	TH_LOG("thp_split_pmd: %lu -> %lu", \
-+	       split_pmd_before, split_pmd_after);
-+	TH_LOG("thp_split_pmd_failed: %lu -> %lu", \
-+	       split_pmd_failed_before, split_pmd_failed_after);
-+	ASSERT_GT(split_pmd_after, split_pmd_before);
-+	ASSERT_EQ(split_pmd_failed_after, split_pmd_failed_before);
-+}
-+
-+/* Allocate a THP at the given aligned address */
-+static int allocate_thp(void *aligned, size_t pmdsize)
-+{
-+	int ret;
-+
-+	ret = madvise(aligned, pmdsize, MADV_HUGEPAGE);
-+	if (ret)
-+		return -1;
-+
-+	/* Touch all pages to allocate the THP */
-+	memset(aligned, 0xAA, pmdsize);
-+
-+	/* Verify we got a THP */
-+	if (!check_huge_anon(aligned, 1, pmdsize))
-+		return -1;
-+
-+	return 0;
-+}
-+
-+FIXTURE(thp_pmd_split)
-+{
-+	void *mem;		/* Base mmap allocation */
-+	void *aligned;		/* PMD-aligned pointer within mem */
-+	size_t pmdsize;		/* PMD size from sysfs */
-+	size_t pagesize;	/* Base page size */
-+	size_t mmap_size;	/* Total mmap size for alignment */
-+	unsigned long split_pmd_before;
-+	unsigned long split_pmd_failed_before;
-+};
-+
-+FIXTURE_SETUP(thp_pmd_split)
-+{
-+	if (!thp_available())
-+		SKIP(return, "THP not available");
-+
-+	self->pmdsize = read_pmd_pagesize();
-+	if (!self->pmdsize)
-+		SKIP(return, "Unable to read PMD size");
-+
-+	self->pagesize = getpagesize();
-+	self->mmap_size = 4 * self->pmdsize;
-+
-+	self->split_pmd_before = read_vmstat("thp_split_pmd");
-+	self->split_pmd_failed_before = read_vmstat("thp_split_pmd_failed");
-+
-+	self->mem = mmap(NULL, self->mmap_size, PROT_READ | PROT_WRITE,
-+			 MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-+	ASSERT_NE(self->mem, MAP_FAILED);
-+
-+	/* Align to PMD boundary */
-+	self->aligned = (void *)(((unsigned long)self->mem + self->pmdsize - 1) &
-+				 ~(self->pmdsize - 1));
-+}
-+
-+FIXTURE_TEARDOWN(thp_pmd_split)
-+{
-+	if (self->mem && self->mem != MAP_FAILED)
-+		munmap(self->mem, self->mmap_size);
-+}
-+
-+/*
-+ * Partial munmap on THP (zap_pmd_range)
-+ *
-+ * Tests that partial munmap of a THP correctly splits the PMD.
-+ * This exercises zap_pmd_range part of split.
-+ */
-+TEST_F(thp_pmd_split, partial_munmap)
-+{
++	volatile unsigned char *ptr = (volatile unsigned char *)self->aligned;
 +	int ret;
 +
 +	ret = allocate_thp(self->aligned, self->pmdsize);
 +	if (ret)
 +		SKIP(return, "Failed to allocate THP");
 +
-+	ret = munmap((char *)self->aligned + self->pagesize, self->pagesize);
++	/* Partial mprotect - make middle page read-only */
++	ret = mprotect((char *)self->aligned + self->pagesize, self->pagesize, PROT_READ);
 +	ASSERT_EQ(ret, 0);
++
++	/* Verify we can still write to non-protected pages */
++	ptr[0] = 0xDD;
++	ptr[self->pmdsize - 1] = 0xEE;
++
++	ASSERT_EQ(ptr[0], (unsigned char)0xDD);
++	ASSERT_EQ(ptr[self->pmdsize - 1], (unsigned char)0xEE);
 +
 +	log_and_check_pmd_split(_metadata, self->split_pmd_before,
 +		self->split_pmd_failed_before);
 +}
 +
-+TEST_HARNESS_MAIN
+ TEST_HARNESS_MAIN
 -- 
 2.47.3
 
