@@ -1,184 +1,271 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from YQZPR01CU011.outbound.protection.outlook.com (mail-canadaeastazon11020125.outbound.protection.outlook.com [52.101.191.125])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D4BD451046;
-	Thu, 26 Feb 2026 19:38:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772134690; cv=none; b=iWfmpUv+i5sdmzj0oi16+/PBbkGgyORUonM2a/Vc2X6CUmMXuv58Uc8d963+AYKxaW4bCJAr/LWY0misMnBxRCb5H9CvgPcPgX2oCaCoVwFUcG6bMTWF1GPzskcWEb8Lf4B8xKHvuUjI9xSwrQ9UUEaxS35rsZCUxNjP25QouTc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772134690; c=relaxed/simple;
-	bh=L5uS8+ZpzsMk6LhHFdLYFSX3AOgznAVFgmQjjJHeklM=;
-	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
-	 Date:MIME-Version; b=SKdepl2OSBh9AOSKKdZiDQpnNI4dtMip/RVdq63wNJ9xA5MrpOXts6LusrSl7W7m8fPbrPuQX2OEFrQ6ZH1QayqLXMYMoB7LxVJelHcuvpy8YoHwPJyF6q+aMFgt9ze8Iu77r2KiuDo8TDcOe2IwfpnikmRND+o46Vvqp6N0l+g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OOyoU2O2; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56043453489;
+	Thu, 26 Feb 2026 19:38:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.191.125
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772134702; cv=fail; b=OOoaoIHH5Q9sYiKYrp53NqnE4VHRFHFyd3rIxEHC3CrbwloJqIDv0GuF/zov6nrVZVweoC/C83PUskoAFACwvDFRJ9pXhnAUVwUDivXLmq07LfqUtLzxV7nXRYL2ueKq3+Uv1U8vjkzbZ8I+vXxdzRcmtwqicyqArwROOPXSexI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772134702; c=relaxed/simple;
+	bh=ujXkoo0S6N8XxOg9MndyfU24hJRzlZjqLTjzFKY0y9o=;
+	h=Message-ID:Date:Subject:From:To:Cc:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=EHmgRLfa5jwHaVyiSsXs8Ou7Qh9juTv1k2TqvE9B0DWLywwMw6hr+Ciwp/xhIwT2i1Ko2/o/K2VyVJVJ/6ud38PUguPDEdTJBuFBIfHRmInW5FGFhic8VmImEbt6rfyaid3PQvF8+6/lpLxaMB6ik9bLjTEQti8kvEfdMrD4RMg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=efficios.com; spf=pass smtp.mailfrom=efficios.com; dkim=pass (2048-bit key) header.d=efficios.com header.i=@efficios.com header.b=ljq4Zy2H; arc=fail smtp.client-ip=52.101.191.125
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=efficios.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=efficios.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OOyoU2O2"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61QHXZ4K1857545;
-	Thu, 26 Feb 2026 19:38:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=UNfFMe
-	grrcnfWeETHeSzTXoq/p3jmEbHx4i/C0sNJjE=; b=OOyoU2O2RTySjRvCP0WE0m
-	07KEUA6z2JJFlYYadhjF1va0YpwuSXwF1x5FQo44eOZBlO/vblw2w34A/fs2AniG
-	0jevMMUynkql4DWmHmQDRTmuKE5uhtgjguWUVUtCwUYGz3ZUPwhSdWO9qHdvYipl
-	b8v0doYekfs+sHdx9f9w+CDCQ5S+kjb+R7goQ+pAU4VDgKgU9t0nVisrNeATbG3s
-	qJNQjXwY0jmWSRqB5zX6UU1UrBOdWN0fO3q63AIwn8SZjdJtwyWTJr/q7bTut8Hs
-	HqE7/bRL371F/TGoSpYZWUU4xaEgxA0OQIzCh+YDSPcqMx0tU8114P4SUZzA02jg
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cf4cr8n1v-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 26 Feb 2026 19:38:03 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61QIV36I015983;
-	Thu, 26 Feb 2026 19:38:02 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cfq1swtp6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 26 Feb 2026 19:38:02 +0000
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61QJc0Jv49152410
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 26 Feb 2026 19:38:00 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 65BCA58056;
-	Thu, 26 Feb 2026 19:38:00 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 57DDA58052;
-	Thu, 26 Feb 2026 19:37:57 +0000 (GMT)
-Received: from [9.87.142.49] (unknown [9.87.142.49])
-	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 26 Feb 2026 19:37:57 +0000 (GMT)
-Message-ID: <6522ed6b11d6722e87ef4b11fe15ea834bc87a71.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 1/3] vfio/pci: Rename vfio_config_do_rw() to
- vfio_pci_config_rw_single() and export it
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Julian Ruess <julianr@linux.ibm.com>, wintera@linux.ibm.com,
-        ts@linux.ibm.com, oberpar@linux.ibm.com, gbayer@linux.ibm.com,
-        Alex
- Williamson	 <alex@shazbot.org>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Yishai
- Hadas	 <yishaih@nvidia.com>,
-        Shameer Kolothum <skolothumtho@nvidia.com>,
-        Kevin Tian	 <kevin.tian@intel.com>
-Cc: mjrosato@linux.ibm.com, alifm@linux.ibm.com, raspl@linux.ibm.com,
-        hca@linux.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
-In-Reply-To: <20260224-vfio_pci_ism-v2-1-f010945373fa@linux.ibm.com>
-References: <20260224-vfio_pci_ism-v2-0-f010945373fa@linux.ibm.com>
-	 <20260224-vfio_pci_ism-v2-1-f010945373fa@linux.ibm.com>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 26 Feb 2026 20:36:56 +0100
+	dkim=pass (2048-bit key) header.d=efficios.com header.i=@efficios.com header.b="ljq4Zy2H"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=tYFA5QT8/Z2uqyXF9bAJr2QDoaeyVYd9ISbS7hZmSHYyyt+Xlz4DTe4uJGmHrEAsMrZwB2laezCTG4cPQMGCC4g28TXf8Tk609Wl7Zfu0woBqlBnX9dwX+A7FQpVetZoVSO67AS6t77ovHhrCq6pmMte8QFKPWgkTEHZX65tyDWjA3Eoi+qj1B+Y6VgS5h4nqaCjXfCVlm4aU2FApXZzOkXXYyi3C8NAGgSYQ46cbnQpBMrqWI0W8HMGi1+4h7N4iss52C8bQSsafjOVMec+5rDaSK57TX+Wt+huRev1pVKFnM3uvexUIPC28zVP5Lykssa28hDTXqCiDKg+IHzZ8g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=+0/ywz2YpQbgAvJxO8niF9tasupNphZbfoy+mMgWY6s=;
+ b=iH5V86+3vcc9NGBZsAmw6TwI8RUxVUebAvPZwSZzZLGWJx6VEgev9IaOKnKCPkMkCkkSSA829MWsTDl1XuUZq2ICYWsTo7oa3aGlrUQrut+eOOepgLrZNkrE1l7i8u6CWIOSDQPhSO8frDHJwzqNwPr+HdpPFY8lyD8B2FpeBfjsP5K2N/QWrwxbLne5/KDZgpUve84M7ji53NOdLrPD5civnR8PTMJaLhKq6nbnMl4TAkYzk+T0OIv16IApZT3F73ls1iiRj6ZVJfciphW74O/P6qympr/bVIHHyII8sw/2u9VI/8j96GSmlBov362TAdqoqCoblH+sgs3wr9h0Tw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=efficios.com; dmarc=pass action=none header.from=efficios.com;
+ dkim=pass header.d=efficios.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=+0/ywz2YpQbgAvJxO8niF9tasupNphZbfoy+mMgWY6s=;
+ b=ljq4Zy2HKNKeau2C4x5bnQBNQlR7w+MsdYIQog6qQICI1OWh4cskJRFSGYCotPAGjjMwBaKllzd4Vez6E4Ky0p+ligIJFUO68VJO/2VcoK8Qa++LCJjoqeF+6rFbcRhjJOyASpgRR13jQjl3pOa/pOInUS5H5pBQ/K+bLVCUCRn6ns5c3RQL31Rul5kj1szWpcVLCUT/0WevXAw4rETY1XGHGp3AGHbKarSB1r8Ulwit6LdGR29CMrdsSxeO8NLdv1YrtoXge9KYod4GIfSrDxyWz4d+LeA9WpoKYXkgVptyS0zlmzuIWFWvyWifkqofvmQ8h3tn6Mdce+RGIUiefg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=efficios.com;
+Received: from YT2PR01MB9175.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01:be::5)
+ by YQBPR0101MB6364.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:c01:4b::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9654.14; Thu, 26 Feb
+ 2026 19:38:10 +0000
+Received: from YT2PR01MB9175.CANPRD01.PROD.OUTLOOK.COM
+ ([fe80::6004:a862:d45d:90c1]) by YT2PR01MB9175.CANPRD01.PROD.OUTLOOK.COM
+ ([fe80::6004:a862:d45d:90c1%3]) with mapi id 15.20.9654.014; Thu, 26 Feb 2026
+ 19:38:09 +0000
+Message-ID: <73e6fea9-caf2-4404-b511-11646013f8db@efficios.com>
+Date: Thu, 26 Feb 2026 14:38:04 -0500
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v17 0/3] Improve proc RSS accuracy
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org,
+ "Paul E. McKenney" <paulmck@kernel.org>, Steven Rostedt
+ <rostedt@goodmis.org>, Masami Hiramatsu <mhiramat@kernel.org>,
+ Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
+ Christoph Lameter <cl@linux.com>, Martin Liu <liumartin@google.com>,
+ David Rientjes <rientjes@google.com>, christian.koenig@amd.com,
+ Shakeel Butt <shakeel.butt@linux.dev>, SeongJae Park <sj@kernel.org>,
+ Michal Hocko <mhocko@suse.com>, Johannes Weiner <hannes@cmpxchg.org>,
+ Sweet Tea Dorminy <sweettea-kernel@dorminy.me>,
+ Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ "Liam R . Howlett" <liam.howlett@oracle.com>, Mike Rapoport
+ <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Vlastimil Babka <vbabka@suse.cz>, Christian Brauner <brauner@kernel.org>,
+ Wei Yang <richard.weiyang@gmail.com>, David Hildenbrand <david@redhat.com>,
+ Miaohe Lin <linmiaohe@huawei.com>, Al Viro <viro@zeniv.linux.org.uk>,
+ linux-mm@kvack.org, linux-trace-kernel@vger.kernel.org,
+ Yu Zhao <yuzhao@google.com>, Roman Gushchin <roman.gushchin@linux.dev>,
+ Mateusz Guzik <mjguzik@gmail.com>, Matthew Wilcox <willy@infradead.org>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>,
+ Aboorva Devarajan <aboorvad@linux.ibm.com>, Vasily Gorbik
+ <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+References: <20260217161006.1105611-1-mathieu.desnoyers@efficios.com>
+ <20260226120422.8101Cc2-hca@linux.ibm.com>
+ <59b28cb4-4fff-4888-b562-7b7236e29d27@efficios.com>
+ <e0af317a-d6ad-4de4-8bb1-215d5dce7351@efficios.com>
+Content-Language: en-US
+In-Reply-To: <e0af317a-d6ad-4de4-8bb1-215d5dce7351@efficios.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: YQZPR01CA0122.CANPRD01.PROD.OUTLOOK.COM
+ (2603:10b6:c01:87::23) To YT2PR01MB9175.CANPRD01.PROD.OUTLOOK.COM
+ (2603:10b6:b01:be::5)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 3aSjhDaZPEssBHFfo3uHj08r2twlZJiS
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI2MDE3NSBTYWx0ZWRfXw7nkzKIb0ar5
- OaeCknzGLOkyMGY549mFshf/nouyCejJqqGOFwWTXNmBxIFLlW/pKEn6yK8KsA0ptGnCwlrCt4b
- W94uAkDG7yez1DSiGgJyU13HOupnV4R2wGpZ0Wadju2LAdP0D//NxM8gJDcwGZVV787+wYso4I8
- zJe6xC2ENci/JcjE01EMc0LGOSnHXQIT6DFqs8H2GyAnhiiqIAWGlc23QV8aJSC+pIX7qXmPYRU
- b9Zjc2TX1z36DJoW+mW8DgLlvDr9Q2Qd8Bh0a5oKIuc6boapKbuaBtfusBkaYVJ+ZdoXnvET5cD
- 6LXknUEWy+LybtOFnqpKT2XccNRVR0tBnjkohX7cT2iJ28iHuSlHtL4G1+FglS0d3l2whHbgflV
- 1IUI4kA1k754C7sAsIkUtMsBGKEbOg8x2qo6pVcvAhMLEo3FJgXS3oKUzoEO6Bnke3B2QHUQbEC
- VuV8Dc9CabfNX8p1j0Q==
-X-Proofpoint-GUID: 3aSjhDaZPEssBHFfo3uHj08r2twlZJiS
-X-Authority-Analysis: v=2.4 cv=bbBmkePB c=1 sm=1 tr=0 ts=69a0a11b cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8
- a=-669YX55_g_ZUxDQg94A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-26_02,2026-02-26_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 bulkscore=0 adultscore=0 impostorscore=0 lowpriorityscore=0
- priorityscore=1501 suspectscore=0 clxscore=1011 phishscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602260175
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: YT2PR01MB9175:EE_|YQBPR0101MB6364:EE_
+X-MS-Office365-Filtering-Correlation-Id: 05a5d4a0-42a5-4523-1c57-08de756e9248
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|7416014|1800799024|366016|376014;
+X-Microsoft-Antispam-Message-Info:
+	01Cxd3v0Ce/1Wn8lvkPcQRfPtHnOH/O60tNHMvOVKGT3HSW++PIha6Cf90uPPStNkyUaGI/PKtADZHraaoJ/j4ecn7Ge3UEoAqa8wZLvOKCgesCh2AKUnVyudU+WvGz/r0apzEUZxnptsbtnjq0SiSyLvAHoBhB+UzGcR1Ld+pb3aEyUoiRlj73ZY24RScQYhAGQVFWJNgCdyxJLrrEyF9Tml3Q+/LMBo8XGLrv1SSwjERi+qiWfRPAGDgAecfIgKBEriUYz5e0CqhJaj7nyGwl6KBuqcaYYGTk28p8vg/CfdYrkt+1BuXEon2t4HzFGFU7ucYwxjRMEH2q3gwBVDQCKxNzA7Q4JMOvWhWPaIlVOTMw/ZYpklJLv6YxE9dDsy9Qq7sqT34N3MBhKYZUpI51sO8INurYNB+CZFUhmuk+gknfIFeXGMqxRYsYoIS3V5T8A6xyN8xFAAerZo588XOUSIA0S0oA2vlSQbrzn8xIjQMNwyjGQbvwVuHD/CZJ39osMblS+7A6+ghp4zZYfqDj9WqsZ/7ytHlH91V/ssJgKmSUX+AvaJIAUbxXocV4Tjb8puIaBBIgz2VunNwQifzHuoJgrdScw4TbWHUr0DfDk9xX7olsErb9hFJbhOtZcxwhXkPLuioVohHOwkFpwWVWZfJm0w2MmdW8J0yJ7m00=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:YT2PR01MB9175.CANPRD01.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(7416014)(1800799024)(366016)(376014);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?TG5MTWs2dWFndDBtOVdpbEszdmlIWnFQUVJMTGRIZllYNktQWTljUlJzbS9Z?=
+ =?utf-8?B?M0ZLSHpLMlA3NGhLa2RFWStWeWJHUGorbWJyV0JYMHczUkdrMEZFT2ZnZTZj?=
+ =?utf-8?B?THhaZkI0bWtWRThTVWlTbjBlc2pmdFBzaU9scGZNcFdCK0hWQ3JlbW5sQk9L?=
+ =?utf-8?B?ZVZXRjlsRlhlWENNa2kzL2xVWTU1blRmZVVDcWVUV1J2eHZseWpmZ3EvS2Y4?=
+ =?utf-8?B?T2xsV2ZxbnE5S3c5bEx3SDNwbUowY0ZKbGZKYjhkQVZOZEJ5c3o4STVubklT?=
+ =?utf-8?B?Y2JVL2lvS0lNOFlPSlJkcE1DamJSYU1aVEt5WDEydXB2VVhVNm1Db3hISk5V?=
+ =?utf-8?B?cHJKUE1FUkN0Y1VQdm5WZDZsTFRwdXpDV2xmWnJKcWhGanNSb2w2cEZxQ2Q4?=
+ =?utf-8?B?VEFhejZzOEpyZnF1clVOZG1wdzEyeFMzdFdvbnZFQU1QQXVkWjMwUHZGdlBz?=
+ =?utf-8?B?cVU4Wnc3WjNERndxMEIydUFjbzlJd3pXYW1lZDBnQmpLQUZ6bmkzMmtISzh0?=
+ =?utf-8?B?bUlBaGdWbU1sYXZHWUlTZWxyT0E1SnlETlNxd2VlaTZLTWI2WWM0eTA5TFdB?=
+ =?utf-8?B?WnVEWklSWnVnZ3FEYm5VRmUxMGxUY0xydHF1L3dqeUxTcWV3QVB3SlQveU1w?=
+ =?utf-8?B?cUJmM0lOUGhGU3lMaHVVN0t1cytrRGVlRVJPVXFSQnE2ZHZIN1NScTM1RDht?=
+ =?utf-8?B?TTkwYWNJM1FodHN2RTZrTjZ6dmtKTWRtc3YxU3NsaDVrY2p4eXFQanZGTnVl?=
+ =?utf-8?B?cHgyTDJZRjFocGZrMDU0NTV3YWJaTng4SjBWazZaK3orSmlHdzdFZjNJbGdB?=
+ =?utf-8?B?aVRnVUFZdlpMdDRINkxrbk9WODNEWWZvQ2ZkSExDQnl4NEhIRjkzc2MzTDVK?=
+ =?utf-8?B?WGM3OXNMT0JQVUY1WVJBSUF3U0lia1pUaEVFck1PK2QwVURkV0dYd0RUV0t4?=
+ =?utf-8?B?MGN0WEZUQmE0NU5wcUlndjhicEhhK3J1dk1zK0g2Zmx6VFBNbXd3OVpsTjFY?=
+ =?utf-8?B?MFU2Y2wrN05ETjBIM3NYN0dTOVAycEZLOGh1a1YvSUgyL1NGQlFZcDR6V1NB?=
+ =?utf-8?B?UVBIMkpqZ1RRVitEcWFudXhiaG9FcWxIY2MzZDlEaW9TOEZ1TDVoTG1OT0p6?=
+ =?utf-8?B?ekhISGRRdHE2dkNZL2hGU1lYc3FhTEM2MkowSk9aMmNVVlByZ2dXZ2c3KzdE?=
+ =?utf-8?B?TitDQ0R0VE1qUm8xUGo4TlVEWU9tNnJHeFAzTE53Q3lOM3NhZEJ1RW11UW1Q?=
+ =?utf-8?B?SlYxSm1wd21hS0wvSm1ZTHV2bTdXQjB0cWQ1QWxVRC9tbnBwSk40REo3OUZ5?=
+ =?utf-8?B?L0hLTGVKQmFaWHo1K3VKV2xSMDN1bW5US3VSMTYzMU5XbTBBNTlaREdnaEdD?=
+ =?utf-8?B?M2p4N1g5U2tEVjY3TWdsakdtVktwWVBUVlJHVDRpQ3RyVWlpMWpGS1l6MG4x?=
+ =?utf-8?B?WkoyNHBPVmdTclJjMG1mcTQ0WTlkK1QwalVDUGw5UW9CZUwvaGlqdDFYVlVo?=
+ =?utf-8?B?b2hDS1hXV1dYTE92a01DUVNHeXYyWmdPMWdaK2JWZmtscUxDaXhhREdqa2tu?=
+ =?utf-8?B?eFNQUkJUT1FIKy8vY0RBVWZlQ0J6R0ZtdVB5NWczcVlXUUhiZnRPa0JHR2hl?=
+ =?utf-8?B?dE9TYWU1RjFuZmV5bE0yT3JNMXEwVEV5cjJrM05scEZrL0pxTFRpaXhIWVl3?=
+ =?utf-8?B?SE15NUpDNkRHcjlmUTRJd3RQYjBibzcwVDBvbkhmaTFmU0Z1R2NndE1kdWQr?=
+ =?utf-8?B?UFJyaytkVXpTRmsxSXd3WHRPR0VEUFE0K0pVV1N6WStFRzFoZFJUbDlGZHYw?=
+ =?utf-8?B?cGZTTERJdEJaUitDQlIwcFFJUTQvbGErL1lXQkFVdEk4cXZxTUxtTmJYU2sw?=
+ =?utf-8?B?VExSeVlINVFvV0I3WW1NRzVXOE01UlBuWGg0TkYzTDVYRThrRzlTaUJoOG1E?=
+ =?utf-8?B?c3BYQXI2Zy82WnlRMjFnSWVYdVpkNEFFSW1RK0ZtdlhnaCsvSk0zb2sxS2pI?=
+ =?utf-8?B?YTA1WkVHTGV2cStUdTZtOGswYVNTeDN2RVdFMU05b3dET0ZTQ20zNk5ydUlY?=
+ =?utf-8?B?RW05aVMyU1loQUExbnRHempKenRFeWhoVHd2NGZEWmx2MjdPdlAwd0gxWFVM?=
+ =?utf-8?B?SzNyWnZCYkJqN0RlbVdjbDA3TUdqNHc1RE90VFlqWUxsc3FRS3Fnb2U5R3hq?=
+ =?utf-8?B?RFJxTnIyTTc4T2RKVWgyenhMRlpMbGg4RXJkT1BQb0l4ckQ0ajBvZzJWTmRq?=
+ =?utf-8?B?blZpOExpRUxSamNOaUM3UUhCZTBUYlNCUStKYkM3OUthaFFJeE9JcWEzSDhS?=
+ =?utf-8?B?YmRzdG4vN3dHUHRFOUl3L0NGalVySGRhMC8yS2d5dFkrRmF3VXBYVGt2QVRG?=
+ =?utf-8?Q?5s/3lD1ThQ54VER6Kd+yB8KAhrLJGxWfgf1ds?=
+X-OriginatorOrg: efficios.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 05a5d4a0-42a5-4523-1c57-08de756e9248
+X-MS-Exchange-CrossTenant-AuthSource: YT2PR01MB9175.CANPRD01.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Feb 2026 19:38:09.7268
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4f278736-4ab6-415c-957e-1f55336bd31e
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: og9qD8WfYexPNbOj5aCSPmA2KPLJCJRUIqGzpv4o+U5jXOa2Mw/In8NwUZEvPSkoCmkneiICuAoDbBZ6du0Py9KpgORsq70KCjMC692IQvg=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: YQBPR0101MB6364
 
-On Tue, 2026-02-24 at 13:34 +0100, Julian Ruess wrote:
-> A follow-up patch adds a new variant driver for s390 ISM devices. Since
-> this device uses a 256=E2=80=AFTiB BAR 0 that is never mapped, the varian=
-t
-> driver needs its own ISM_VFIO_PCI_OFFSET_MASK. To minimally mirror the
-> functionality of vfio_pci_config_rw() with such a custom mask, export
-> vfio_config_do_rw(). To better distinguish the now exported function
-> from vfio_pci_config_rw(), rename it to vfio_pci_config_rw_single()
-> emphasizing that it does a single config space read or write.
->=20
-> Signed-off-by: Julian Ruess <julianr@linux.ibm.com>
-> ---
->  drivers/vfio/pci/vfio_pci_config.c | 8 +++++---
->  drivers/vfio/pci/vfio_pci_priv.h   | 4 ++++
->  2 files changed, 9 insertions(+), 3 deletions(-)
->=20
+On 2026-02-26 10:42, Mathieu Desnoyers wrote:
+> On 2026-02-26 10:00, Mathieu Desnoyers wrote:
+>> On 2026-02-26 07:04, Heiko Carstens wrote:
+>>> On Tue, Feb 17, 2026 at 11:10:03AM -0500, Mathieu Desnoyers wrote:
+>>>> This series introduces the hierarchical tree counter (hpcc) to increase
+>>>> accuracy of approximated RSS counters exposed through proc interfaces.
+>>>>
+>>>> With a test program hopping across CPUs doing frequent mmap/munmap
+>>>> operations, the upstream implementation approximation reaches a 1GB
+>>>> delta from the precise value after a few minutes, compared to a 80MB
+>>>> delta with the hierarchical counter. The hierarchical counter 
+>>>> provides a
+>>>> guaranteed maximum approximation inaccuracy of 192MB on that hardware
+>>>> topology.
+>>>>
+>>>> This series is based on
+>>>> commit 0f2acd3148e0 Merge tag 'm68knommu-for-v7.0' of git:// 
+>>>> git.kernel.org/pub/scm/linux/kernel/git/gerg/m68knommu
+>>>>
+>>>> The main changes since v16:
+>>>> - Dropped OOM killer 2-pass task selection algorithm.
+>>>> - Introduce Kunit tests.
+>>>> - Only perform atomic increments of intermediate tree nodes when
+>>>>    bits which are significant for carry propagation are being changed.
+>>>
+>>> This seems to cause crashes with linux-next on s390, at least I could 
+>>> bisect
+>>> it to the last patch of this series. Reverting the last one, makes 
+>>> the crashes
+>>> go away:
+>>>
+>>> 0acac6604c1cfd7a1762901f0a4abe87cf3a8619 is the first bad commit
+>>> commit 0acac6604c1cfd7a1762901f0a4abe87cf3a8619 (HEAD)
+>>> Author:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+>>> AuthorDate: Tue Feb 17 11:10:06 2026 -0500
+>>> Commit:     Andrew Morton <akpm@linux-foundation.org>
+>>> CommitDate: Tue Feb 24 11:15:15 2026 -0800
+>>>
+>>>      mm: improve RSS counter approximation accuracy for proc interfaces
+>>>
+>>> Unable to handle kernel pointer dereference in virtual kernel address 
+>>> space
+>>> Failing address: 766d615f72615000 TEID: 766d615f72615803 ESOP-2 FSI
+>>> Fault in home space mode while using kernel ASCE.
+>>> AS:000000025dc04007 R3:0000000000000024
+>>> Oops: 0038 ilc:2 [#1]SMP
+>>> Modules linked in:
+>>> CPU: 0 UID: 0 PID: 1 Comm: swapper/0 Not tainted 
+>>> 7.0.0-20260224.rc1.git266.3ef088b0c577.300.fc43.s390x+next #1 
+>>> PREEMPTLAZY
+>>> Hardware name: IBM 3931 A01 703 (z/VM 7.4.0)
+>>> Krnl PSW : 0704c00180000000 00000216ef164cde 
+>>> (kernfs_name_hash+0x1e/0xb0)
+>>>             R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
+>>> Krnl GPRS: 0000000000000000 0000000000000000 766d615f72615f65 
+>>> 0000000000000000
+>>>             766d615f72615f65 0000000000000000 0000000000000000 
+>>> 0000000000000000
+>>>             766d615f72615f65 0000000081212440 0000000000000000 
+>>> 0000000000000000
+>>>             0000000080a00000 00000216efcb5390 00000216ef16530c 
+>>> 00000196eeb07ae0
+>>> Krnl Code: 00000216ef164cd2: a7190000            lghi    %r1,0
+>>>             00000216ef164cd6: b9040042            lgr     %r4,%r2
+>>>            *00000216ef164cda: a7090000            lghi    %r0,0
+>>>            >00000216ef164cde: b25e0014            srst    %r1,%r4
+>>>             00000216ef164ce2: a714fffe            brc 1,00000216ef164cde
+>>>             00000216ef164ce6: b9e92051            sgrk    %r5,%r1,%r2
+>>>             00000216ef164cea: ec1200208076        crj     %r1, 
+>>> %r2,8,00000216ef164d2a
+>>>             00000216ef164cf0: b9160005            llgfr   %r0,%r5
+>>> Call Trace:
+>>>   [<00000216ef164cde>] kernfs_name_hash+0x1e/0xb0
+>>>   [<00000216ef167d32>] kernfs_remove_by_name_ns+0x72/0x120
+>>>   [<00000216ef16bbfa>] remove_files+0x4a/0x90
+>>>   [<00000216ef16bf96>] create_files+0x276/0x2b0
+>>>   [<00000216ef16c15a>] internal_create_group+0x18a/0x320
+>>>   [<00000216f09b61c6>] swap_init+0x5e/0xa0
+>>>   [<00000216eec7fb00>] do_one_initcall+0x40/0x270
+>>>   [<00000216f0990a40>] kernel_init_freeable+0x2b0/0x330
+>>>   [<00000216efb5160e>] kernel_init+0x2e/0x180
+>>>   [<00000216eec81ffc>] __ret_from_fork+0x3c/0x240
+>>>   [<00000216efb5e052>] ret_from_fork+0xa/0x30
+>>> Last Breaking-Event-Address:
+>>>   [<00000216ef165306>] kernfs_find_ns+0x76/0x140
+>>> Kernel panic - not syncing: Fatal exception: panic_on_oops
+>>
+>> It looks like either an issue with ordering of the bootup sequence, or
+>> an issue with the size of struct mm_struct init_mm. I'll have a look.
+> 
+> I've successfully booted a linux-next 7.0.0-rc1-next-20260226 within a
+> x86-64 vm, with a swap partition.
+> 
+> I wonder if s390x somehow alters the value of nr_cpus_ids late in
+> bootup, after percpu_counter_tree_subsystem_init() ?
+> 
+> Can you share your .config and kernel command line arguments ?
 
-Looks good to me, thanks!
+I've successfully booted a defconfig s390x next-20260226 kernel in qemu
+with 1 and 4 CPUs, and within a nested s390x VM on 2 cpus.
 
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+I guess I'll really need more info about your specific .config and
+command line args to help further.
+
+Thanks,
+
+Mathieu
+
+> 
+> Thanks,
+> 
+> Mathieu
+> 
+
+
+-- 
+Mathieu Desnoyers
+EfficiOS Inc.
+https://www.efficios.com
