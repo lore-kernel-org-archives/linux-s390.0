@@ -1,80 +1,120 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 085653624D3;
-	Thu, 26 Feb 2026 16:51:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0BD3368958;
+	Thu, 26 Feb 2026 17:04:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772124714; cv=none; b=eOULYYjQD6aEkF/JbUeoZP35JzoQ/jkqu0HEsO5sEk+BopVK0o7UcXaH++le17FI3whKTknpcCEzQckQF2ZShL+uOUgcC2YnZIZWE5Fi8sOjfqUr98fs2YRiBEJH5WblLzFxUXo7WxlCYCI78VgZ+IcUW0+qGwChQi+bepkgyJc=
+	t=1772125450; cv=none; b=JYnOkF/EPmsSIcFaZWXLM/nERg61hR9+bp58GMT0SR34mxXHi9q8pt2w4oiXLulqCnOizOS5uJXviZia/6RK4hg9/twtrw9n50zzzxgytUKBhzlT/d+81w8Pc3UKa/O3/4olDgsAaVhtqDr4MGE4rbYX1x27sgEAN92ucC8ONGw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772124714; c=relaxed/simple;
-	bh=IPewdWEuDJPN1wrrJn7zkJ6m649oxY82U1YH4vSWFDY=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=FV2GFaLxmnaJ8aXTg3ZzezmFzzW4RMQ5JnlO/z+5SWNYYQ43qJQH07exThyUn1fW8L8H6mVU25+6qA3d12ctzadGe5sEdB6ditfVyC7DrlQxkMb9urLU2d2KQbaULqWK2Paa+ryLcGUzv01VeFNKcZpoeTjTgSGoSqHOYi9SwqU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=CLOrJ99V; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772125450; c=relaxed/simple;
+	bh=FDgvIDg/FpsyLcXLEbnFl2mr65ZhDFGjem66PFzYFtU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=AzkJQQGYr0TuWIBx98GkSZNxQn5ZnsiNDgqbMY8h4HLW8d9l1MdCIaoOvDfshANgMwRVsLpEkINJF2IuKFFfUZdOeFZWcEtZ+RUGAKUriJxSTWFOnLKeelm7tdfcezIwDEFH9QvqFqUCQ0hzY4jxNDBcZkRyr7jKxhp5g1YYdt8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TWrY/0Yi; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="CLOrJ99V"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68B6CC19423;
-	Thu, 26 Feb 2026 16:51:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-	s=korg; t=1772124713;
-	bh=IPewdWEuDJPN1wrrJn7zkJ6m649oxY82U1YH4vSWFDY=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=CLOrJ99VdWcDT0IbDuGEAeDxxsMm4VIEQzVddev32PfavjRnLGG21VaqAg7wNDcfh
-	 C4KA+DPKtjPjxYTVPZS/jGHoI4PT5N8sClpu7c0rKw1pLceTzXePotMi+uedf/wNKS
-	 cOAmyKQn/HKWcBJZNNIpqHwqTXGu6+wj9UQlGvgo=
-Date: Thu, 26 Feb 2026 08:51:51 -0800
-From: Andrew Morton <akpm@linux-foundation.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
- Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu
- <mhiramat@kernel.org>, Dennis Zhou <dennis@kernel.org>, Tejun Heo
- <tj@kernel.org>, Christoph Lameter <cl@linux.com>, Martin Liu
- <liumartin@google.com>, David Rientjes <rientjes@google.com>,
- christian.koenig@amd.com, Shakeel Butt <shakeel.butt@linux.dev>, SeongJae
- Park <sj@kernel.org>, Michal Hocko <mhocko@suse.com>, Johannes Weiner
- <hannes@cmpxchg.org>, Sweet Tea Dorminy <sweettea-kernel@dorminy.me>,
- Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, "Liam R . Howlett"
- <liam.howlett@oracle.com>, Mike Rapoport <rppt@kernel.org>, Suren
- Baghdasaryan <surenb@google.com>, Vlastimil Babka <vbabka@suse.cz>,
- Christian Brauner <brauner@kernel.org>, Wei Yang
- <richard.weiyang@gmail.com>, David Hildenbrand <david@redhat.com>, Miaohe
- Lin <linmiaohe@huawei.com>, Al Viro <viro@zeniv.linux.org.uk>,
- linux-mm@kvack.org, linux-trace-kernel@vger.kernel.org, Yu Zhao
- <yuzhao@google.com>, Roman Gushchin <roman.gushchin@linux.dev>, Mateusz
- Guzik <mjguzik@gmail.com>, Matthew Wilcox <willy@infradead.org>, Baolin
- Wang <baolin.wang@linux.alibaba.com>, Aboorva Devarajan
- <aboorvad@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- linux-s390@vger.kernel.org
-Subject: Re: [PATCH v17 0/3] Improve proc RSS accuracy
-Message-Id: <20260226085151.d1a7e7048d8f60a173d613ae@linux-foundation.org>
-In-Reply-To: <20260226120422.8101Cc2-hca@linux.ibm.com>
-References: <20260217161006.1105611-1-mathieu.desnoyers@efficios.com>
-	<20260226120422.8101Cc2-hca@linux.ibm.com>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TWrY/0Yi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDDE9C116C6;
+	Thu, 26 Feb 2026 17:04:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772125450;
+	bh=FDgvIDg/FpsyLcXLEbnFl2mr65ZhDFGjem66PFzYFtU=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=TWrY/0Yi1wrIkj+Ia8H5X2wEDClTENL0qfEm1jAFrTuJb+i/k7eUa+cPxl+d3mwRg
+	 kNKQhrLnR3yR1BXYU8IijcyFmwDfqrfWkez3R9/9dJ3ZigDoY+rAk9QmJIxMc3Levb
+	 SHJ/Gxenirvmi0eQZDa4wJSXavgzsw9jFxuy4mvR4lwBJwx9X1FEpiZnzRGAVBZZjA
+	 vZSKhP4/aAbp3PxhPnzodL6LqY4kN4Ft1LcdggEFi7yQWc8sJZoBh2Vbndn47H4niE
+	 nfg+D00kPBF6IbiNqzQa6R/42kW+qQOydZQbd+vkAP0mVco05lVkYnHBD0nVaHTRqY
+	 JRrXTTvBNQ+zg==
+Message-ID: <bfebf3ca-8c2a-4dab-9885-d061c9b79487@kernel.org>
+Date: Thu, 26 Feb 2026 18:04:04 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/4] mm/page_table_check: Pass mm_struct to
+ pxx_user_accessible_page()
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+ Pasha Tatashin <pasha.tatashin@soleen.com>,
+ Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, x86@kernel.org
+References: <cover.1771845678.git.agordeev@linux.ibm.com>
+ <68c2f6df2955033cbf1ccbd2b5c2816e72ac345c.1771845678.git.agordeev@linux.ibm.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <68c2f6df2955033cbf1ccbd2b5c2816e72ac345c.1771845678.git.agordeev@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On Thu, 26 Feb 2026 13:04:22 +0100 Heiko Carstens <hca@linux.ibm.com> wrote:
-
-> This seems to cause crashes with linux-next on s390, at least I could bisect
-> it to the last patch of this series. Reverting the last one, makes the crashes
-> go away:
+On 2/23/26 12:53, Alexander Gordeev wrote:
+> From: Tobias Huschle <huschle@linux.ibm.com>
 > 
-> 0acac6604c1cfd7a1762901f0a4abe87cf3a8619 is the first bad commit
-> commit 0acac6604c1cfd7a1762901f0a4abe87cf3a8619 (HEAD)
-> Author:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-> AuthorDate: Tue Feb 17 11:10:06 2026 -0500
-> Commit:     Andrew Morton <akpm@linux-foundation.org>
-> CommitDate: Tue Feb 24 11:15:15 2026 -0800
+> Unlike other architectures, s390 does not have means to
+> distinguish kernel vs user page table entries - neither
+> an entry itself, nor the address could be used for that.
+> It is only the mm_struct that indicates whether an entry
+> in question is mapped to a user space. So pass mm_struct
+> to pxx_user_accessible_page() callbacks.
 > 
->     mm: improve RSS counter approximation accuracy for proc interfaces
+> [agordeev@linux.ibm.com: rephrased commit message, removed braces]
+> 
+> Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> Signed-off-by: Tobias Huschle <huschle@linux.ibm.com>
+> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> ---
 
-Thanks, I'll remove this series from linux-next for now.
+Acked-by: David Hildenbrand (Arm) <david@kernel.org>
+
+-- 
+Cheers,
+
+David
