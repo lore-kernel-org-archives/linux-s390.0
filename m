@@ -1,233 +1,208 @@
-Received: from YQZPR01CU011.outbound.protection.outlook.com (mail-canadaeastazon11020074.outbound.protection.outlook.com [52.101.191.74])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA20A3E9F73;
-	Thu, 26 Feb 2026 15:01:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.191.74
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772118067; cv=fail; b=pCI2NBZatPO9QJr6uy9q/dNlJXil/M4WZHDdFbsiZWyE2MpdjXHZf1VPGs6z0sc6igq1tVwjOLydMtA5ckFmM9Ziuxey4mBbjpJyGBSbhOQkB1xfC+d5dkCP4TafGwFwsCYdrSdwvQhGyvZTvB3iLGeQov3VeyB+PV5n0t4qz5Y=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772118067; c=relaxed/simple;
-	bh=ljCEeuq2/mNS3TU7ASDvzxDOI2cSXec+jKETxqY0Vjs=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=hWBZKsa5hmSedGxscv3Z2sXhblMruFN3RZH1Fp3d+NxZGl0uwqnM5kHCEcbXY3oTnQKw5poa0qGQO7ywx0xzJwqQEkBK1pHw4AycSC7i8aUB5tR+TK7yN5RwuuL5TEhKsoAayOmOhc9n6h/8uj/vYGVt/+aqMgBrDiFgu1PGKME=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=efficios.com; spf=pass smtp.mailfrom=efficios.com; dkim=pass (2048-bit key) header.d=efficios.com header.i=@efficios.com header.b=Yq2N/QU5; arc=fail smtp.client-ip=52.101.191.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=efficios.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=efficios.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F0D1389E06;
+	Thu, 26 Feb 2026 15:11:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772118700; cv=none; b=qe3jqpA9Ia228fYj4Y1ywe9D/1Se4cUaptYhnSTyxjpyE2Ah7eYDliB24ZEq/CXC2YdpLyIcoBvFhG1ZO4SQYls+f8W56zATYzcW6zBldcYFo0gN5uYBSZRs9DJnkaha4GkKRKjwnndzG9d7Q5qSdqWcab1AFEHXdgXRPkT3RkM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772118700; c=relaxed/simple;
+	bh=TUaqwSYTvclS+sWK53n6TjxnxsuKNTYDMRO6+RyQ5I0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=THeOhadWniRYMByxSKXfbv2VbseEALi5AiKO28v+FaoVyjYoGlqfEvCisZT+2MLqg1gbUlmd4mBV5ZOI9wbC8bres1HO0HLezh5ORNWEb2e45hyTXCU9hQhFXi+ZHuXaWBKHfpZ68el9T/VadPh3/8GY4oU2MQ7dnV1vxMCnDvg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=QR03zetW; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=efficios.com header.i=@efficios.com header.b="Yq2N/QU5"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=somKg2W/B/dItZOdavUSj5UYXwNq/ZFXB+TUcdnDDC/VcY2Zq50Dp9+vAH6O6y9cauQyiQTWQe3sxCn6kIwmOvqA2DiqcEDjlVOji7u6NDVRr4nleSMzB32Hp9Gqszj+BtPO2U9zuccyM8P5uyBJ6B21oI2zJOxBb5SiXQrya/YTERcLR4S1XYJoUfKI0qeC4Kmmkktc5MYud/agwBUZaMTGkcmbCsKTHPo6BBwLfoui87m/17PbArKBM7zoRtaOeGWGJjmkAGCgdoKF6PUmd3uLgF6kwz/qk8rqjmt2LZMlmV8CYnbch3Ol1TjKBumfsr2LErF7d3Rc6kJzXxeJyQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=lrzCSv5MPRKb/EZsql588Z/m6Nk0L3Y6C1zwLDXRoQw=;
- b=k/xY6PCm0xM+3kxHKuAQ96NF6VXWxKbCi6jX3wYgJcNAYvL0qG19krEFoKr7N+ZIZB830MUkJiEZKMWL1HN3qU1W0wqwS42ErvKVK8leWswarY9h7vVLmi7um9gn4k+yLDHFmVvhv+h0MFJifBFmnkHMiLlQSnLP7Q5fN8PjotADzWuyPXWZEDX4KaWHWM1b/Aq3CAutCNlCIvNQL3zBL0WBa58Y4SSXtqj362EsDO6sTBOLlQxlICeGgYZBBMUJqHyAl9EFReTDsYBH1rPc6JHgut6X83hAzlJggAqCKmpseTvA7r3X0jPskAdJyYMW6VpzY80YG5X/fIrdMmchoQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=efficios.com; dmarc=pass action=none header.from=efficios.com;
- dkim=pass header.d=efficios.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=lrzCSv5MPRKb/EZsql588Z/m6Nk0L3Y6C1zwLDXRoQw=;
- b=Yq2N/QU5qSgd3Rd1J9UCCZdrp2KLaJqczD6KX1xEkcjJpTJhTdAJeCeR+frpBu0gJizxA+Fqk7rV4Hq7t9IWIkVRGhB6PK1VyMfEXcJz/BHIvOnzRg7oj353HvpIAirwz8aYxDRqxuSJcq4147GmvMOH1OdHKEq1rT8zHrP6u3YL4ZOZVxTxEMX2ahmcqFTzrcasQtIlqzChPu2WsW7K/6HfvExT9hulkEQzNDFhpauyYMh2/TZuD6w5U2cvm4P3exCtxydzXnCu4IFvIt2UUgIX6OWUlgvGlYIj5Ne86z3GoV/mhFTJVcY2bIqWcvfyJghhKolf/FrnWatevVOuaQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=efficios.com;
-Received: from YT2PR01MB9175.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01:be::5)
- by YQXPR01MB6686.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:c01:4f::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9654.14; Thu, 26 Feb
- 2026 15:00:55 +0000
-Received: from YT2PR01MB9175.CANPRD01.PROD.OUTLOOK.COM
- ([fe80::6004:a862:d45d:90c1]) by YT2PR01MB9175.CANPRD01.PROD.OUTLOOK.COM
- ([fe80::6004:a862:d45d:90c1%3]) with mapi id 15.20.9654.014; Thu, 26 Feb 2026
- 15:00:54 +0000
-Message-ID: <59b28cb4-4fff-4888-b562-7b7236e29d27@efficios.com>
-Date: Thu, 26 Feb 2026 10:00:51 -0500
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v17 0/3] Improve proc RSS accuracy
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org,
- "Paul E. McKenney" <paulmck@kernel.org>, Steven Rostedt
- <rostedt@goodmis.org>, Masami Hiramatsu <mhiramat@kernel.org>,
- Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
- Christoph Lameter <cl@linux.com>, Martin Liu <liumartin@google.com>,
- David Rientjes <rientjes@google.com>, christian.koenig@amd.com,
- Shakeel Butt <shakeel.butt@linux.dev>, SeongJae Park <sj@kernel.org>,
- Michal Hocko <mhocko@suse.com>, Johannes Weiner <hannes@cmpxchg.org>,
- Sweet Tea Dorminy <sweettea-kernel@dorminy.me>,
- Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- "Liam R . Howlett" <liam.howlett@oracle.com>, Mike Rapoport
- <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- Vlastimil Babka <vbabka@suse.cz>, Christian Brauner <brauner@kernel.org>,
- Wei Yang <richard.weiyang@gmail.com>, David Hildenbrand <david@redhat.com>,
- Miaohe Lin <linmiaohe@huawei.com>, Al Viro <viro@zeniv.linux.org.uk>,
- linux-mm@kvack.org, linux-trace-kernel@vger.kernel.org,
- Yu Zhao <yuzhao@google.com>, Roman Gushchin <roman.gushchin@linux.dev>,
- Mateusz Guzik <mjguzik@gmail.com>, Matthew Wilcox <willy@infradead.org>,
- Baolin Wang <baolin.wang@linux.alibaba.com>,
- Aboorva Devarajan <aboorvad@linux.ibm.com>, Vasily Gorbik
- <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-References: <20260217161006.1105611-1-mathieu.desnoyers@efficios.com>
- <20260226120422.8101Cc2-hca@linux.ibm.com>
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Content-Language: en-US
-In-Reply-To: <20260226120422.8101Cc2-hca@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: YT4PR01CA0090.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:b01:ff::16) To YT2PR01MB9175.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:b01:be::5)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="QR03zetW"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	MIME-Version:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+	Content-ID:Content-Description:In-Reply-To:References;
+	bh=qP+8VdwzX18rY5bvgdY1sWuLjPIGZuDXB9vEoLM33a0=; b=QR03zetWTad5XyZ1Gw4pLwB3nJ
+	bBW2z8/AfBzf6ywTsDIo41OiCTtpsjYjgepK9QsrzsI7cElVXtM7rURrehCLHg7n3dJp3pEEuguPs
+	IV28EsbN9NXPibalVzcYNCMt7WUj5amt2cLL/uhfFZSbZasPO8mE2vPJU0F6TCesV+k682eK7OpEb
+	0s0PEhS0Lb4d7H7xxKtb1UPzv/QjIpRm5y7UyO6jsg8yFhe2aE6J9EjqkFmDdqerweEN4NKLgisiM
+	Kabaz6sDQQzQIMT6aHsvYmfsxULpzWH25hK5F1NxFrVLPKvob/3mX0qd2TgoR9ypObigmjPl/bDFb
+	OUEtcJnA==;
+Received: from [4.28.11.157] (helo=localhost)
+	by bombadil.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1vvd1A-00000006Pxh-0z8F;
+	Thu, 26 Feb 2026 15:11:08 +0000
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Richard Henderson <richard.henderson@linaro.org>,
+	Matt Turner <mattst88@gmail.com>,
+	Magnus Lindholm <linmag7@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Paul Walmsley <pjw@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Alexandre Ghiti <alex@ghiti.fr>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Chris Mason <clm@fb.com>,
+	David Sterba <dsterba@suse.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Song Liu <song@kernel.org>,
+	Yu Kuai <yukuai@fnnas.com>,
+	Li Nan <linan122@huawei.com>,
+	linux-alpha@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	loongarch@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	sparclinux@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	linux-crypto@vger.kernel.org,
+	linux-btrfs@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-raid@vger.kernel.org
+Subject: cleanup the RAID5 XOR library
+Date: Thu, 26 Feb 2026 07:10:12 -0800
+Message-ID: <20260226151106.144735-1-hch@lst.de>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: YT2PR01MB9175:EE_|YQXPR01MB6686:EE_
-X-MS-Office365-Filtering-Correlation-Id: d7be4e5f-826c-4eb6-8d44-08de7547d692
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|7416014|376014|366016|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	ioifxo7lMMz6r+SSInI9ZEQCAvo7gcGY4FmubaH8Qc7wt4e2VzoDdevUfGug3f7KmuKm38kBjl/crcZ6hQEvWoPh3+YNN1wrxKEjh7jEocEW0aLo3iCl3rgpCBoEV2ON08Y5/Rtzk6uBJOkfzDiGVzychf7O79E8GJOJy7ybz/wh2q5GeDlPeye3//PQvPeAvQgkYtMkNkjYxuXeyX6nUM1VIEvrb4Da7RSedcnqZUIyJO2I6E5HeZ5Ivq9HW+ajkkZUj4JYUJhLQkVpb5c1xuWcbz+crM1eReNDpZwiZ1lIaQfWHZizG/WXS0jnSxDyTmfwH0wKE/W3b7a/jqVuM1iYFayr2KEN1iZVK3BcIahXeWa4Tbesi+wy/m2AnkiKpNZ87H3Fb1jQh1A7ZS/I5IhkNx5GYSuDe3xa6ponuA0jLLmx4Kcj+LPPUU44qkiWV5/rSEjRm2QWi6Aeha9k4PswU6EFXHe9E+hsaH/A515tnQ6wXZtLB9OXgkCRF96MbEefa/m97CBq/WDyQ7+C8Lx2oRcPHIbQrwTLJ8RytH3kuihHwzUVOgMKa8QWFOvS72FhI/LmAy1VDGGicEf47tfk6Y3puh8PJ73rvQt/gX02K4YaqoqVKb1FqZOL2ERpCvy8kOTP5eA2cKHTwsbNbUt82cnEjUYU7u8GPsH68kI=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:YT2PR01MB9175.CANPRD01.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?MmdhQWNqbXZLRE4wdEZtcEZuTW54cWZoQVkzb0ZyL3VVUDFyamwrbG1OUEF1?=
- =?utf-8?B?TEdlLzBxNFBtY0ZEUFVIVmRGQmM1L0pZWnJQcjBGNUpIUU5WeHFKakpNY2Ja?=
- =?utf-8?B?aVJTdjNoaytzY2dtbFBIUGcwVEI1M2RkdDlSZGdkeGRqMnFaWjk3dFNzRVdI?=
- =?utf-8?B?TW01QVh4blJXTmJBYXpLcWtZQ21acmM5VytoTFJzejYxK2lYQkZYUHNDeTJE?=
- =?utf-8?B?c1JWcXI1aGRBeW9hbHp2TGxJT1JBRENxbkpyZjlqNXRmQXdNcjh0KzVVaGww?=
- =?utf-8?B?NmhYUjJJcWZBdkpmazdZOUlMd09seG5pdnNBUks4RUtRVkNoY1FnNmowenk2?=
- =?utf-8?B?U0RnMEdjVlJJOE5XK3diYThOZDlDVlNnZUQ0NHFmalBWM1RoRUkzTHFzL0Fz?=
- =?utf-8?B?a3EwaDlSWnZITGlFN2dDNVpBRnRjUzBET0h6WWM2K1NZb2xMdGtVVTFnMnZ4?=
- =?utf-8?B?UHRqbE5BdkoyNUNQaFFTSk41UUpVOHJvZWlVeE1OR1A1VDhCMVJtUU9QaEhO?=
- =?utf-8?B?a0R1YUtLS0dLT3Bram9CRHh6VEVnSytyTkhYNjhPRkNJNGZnOTRSYXU2TVJJ?=
- =?utf-8?B?d21aVHVuWjJWRmw2eWJSZzJrNmtPUU1lUEs2c2dwMGRWMXY3MklzMnpvRnlt?=
- =?utf-8?B?V1kxK0dWaHQwRm0wamVCamEzcExtMGpxY1dYVUszWnpkUzJQdDRDUm9HYzZ6?=
- =?utf-8?B?b1NJUDN5OTJHYnlXWnJMK2VTMEEyS1Eyd0lpM2FtZ2N4WXluVklZTk1uNlRq?=
- =?utf-8?B?TWJjTkdGejdKRDNtN3dxSlVhTkQybXNoMFRNS1dzdDNkQ0pxWVpsWmFWRGRn?=
- =?utf-8?B?MEpaanU5OFVJRzI3bUY2bEduVzBYbFE4UHJPQlRyOFJSbDJVUGd1LzBJVkNL?=
- =?utf-8?B?RWxpTGNTeHIyMHYrQ2M0L3Q3cWMvRHBXakl2ZDNXd3h0OVBvdkZQdnJsYVpM?=
- =?utf-8?B?STJCT1Q2UGdNMVJFUzBYZXZlODZPK2pBT0tvTkJpZTV4QmpiamswcDBOZEJy?=
- =?utf-8?B?dHIzdXRCRWFhb0gyL3VXdHhxd3UyZSt6VXo1VnR2dGphL0Nld0duUDgzV1VH?=
- =?utf-8?B?YWNBSEZzSm5BNnNpRDUzQUpxajBHY2kvOGFpaUFmTzFPcVNGSVdrT0FiZ094?=
- =?utf-8?B?RDh1ZXNJNG5BME5wcXgzd1dOMUFQelN3T1pnWmt5ZDZvWDN5dmx0MFFmbm1E?=
- =?utf-8?B?Z3F2bUgvb2FFUVZvR0pXTUVXWkxXYXAwMlpyQXF5SHBzakFBSHNEb1hBN2Vw?=
- =?utf-8?B?VUJFN0VwZkpmZHl3aDFHb3hLUUtMNUQ5UjRPQXZJQThDRGd4azUwL0REUkZm?=
- =?utf-8?B?VFFEOVB1VGZFblVEZ3Q0bU9TUTRJa3hBY3MrRkhGTHpad3l6cHcwR1VWQ280?=
- =?utf-8?B?STZKOStrUlZsMUdqS0JyUXQ1NTBTdUtZUWo4bjFNVnR3Slp0RWhjaEdRN2or?=
- =?utf-8?B?QjdMRHpmZ2hOc3o2U08yNERQT1VUTnlsa2s0SkxFU05pVlNZYnlVcWRKaEtQ?=
- =?utf-8?B?amh0TVEyeTBYT1JhRmFsUnhoakljTkkrUE5Fc09MOUdLQ2VBZm03YXlnOCs5?=
- =?utf-8?B?ejZBdm5LOTlGVVBSc205Nkh6YTNRTFZhdkpLVkdqaWlVUmFVcUwrZ1d6SjZS?=
- =?utf-8?B?NHZtb2lGa3pweUdOaWFRZHYzbVZpNGU1Y1NST043R1lNaGhsTk00UzdsSk5w?=
- =?utf-8?B?REpKR3B0bkdpZjJlSkZHNmo1aVp1RVZTV2N0OWorSGp4cDNUaXluZ3J2QTdV?=
- =?utf-8?B?MXozRmgyOGxYYTNrWk1FZGxVTHBqNnRzRkxwVnBMRlc0TWNtVGE5ZHM3bkJn?=
- =?utf-8?B?N1k5TEpjREFmUjhMMUVjWjFqTWoySVJ1RmNCNk80dTN2c3Y4UUZGYmNHcldQ?=
- =?utf-8?B?aVlsdFpjdFRGTDZxaUdiYjJEZWM5QUNBMHRYb0xxMHNnT2NGRFU3aXQ1UDdV?=
- =?utf-8?B?cHhxOUNtZW9PZFZwaUxhNThHZ2dFU2FGaUtPOXY4VCtqMTFFd3FDZFdmRGJG?=
- =?utf-8?B?UVF6a1pzZVpqeithRzBuVE1KNVN6KzlJbkFaS1lNTzdrVDFvZzdaZ1lnVnNz?=
- =?utf-8?B?RUh3OGNXZGJTUURud0t5dnFwZktRZVVmZFZOT2hETHZpQXdPaWZBOUs5S2Nm?=
- =?utf-8?B?d3lZVjdQSVY4b1Bidkd6WnkzTHJVSHlhOVROcWhHRnFNUW1TelVDbHBkVzMx?=
- =?utf-8?B?VVVnMkNNMUhKeTlZVnQ3MUJ6R3o2c1RuV0ZjM0toeDNsNWF3TGRrTTJhMXZk?=
- =?utf-8?B?anBjUEg4cVJDR1ZMYXpoREdyS09ZWU9Vb1VHYzBQOHpOSkVMNWxQdHRLN250?=
- =?utf-8?B?MmhPcEcvZW5IN1dXbHhlMHQzNEVBVVlaRXFNa24xRzR6YWExd3BzelRBdVNC?=
- =?utf-8?Q?Xl9Fq3J/fYCOqnpm4ZZniQb5VAx8Gdhwx0W38?=
-X-OriginatorOrg: efficios.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d7be4e5f-826c-4eb6-8d44-08de7547d692
-X-MS-Exchange-CrossTenant-AuthSource: YT2PR01MB9175.CANPRD01.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Feb 2026 15:00:54.0131
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4f278736-4ab6-415c-957e-1f55336bd31e
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: h6GCFMWUbCe2KUNpw0r0AV6CQlG4wBscfpBnNDOpIoaQ4snoz2m++/IL9tNfmY4qoyvjUjIamzSgAF3dYW2ta9LSCYMl2KWPDtMtx/gl99s=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: YQXPR01MB6686
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-On 2026-02-26 07:04, Heiko Carstens wrote:
-> On Tue, Feb 17, 2026 at 11:10:03AM -0500, Mathieu Desnoyers wrote:
->> This series introduces the hierarchical tree counter (hpcc) to increase
->> accuracy of approximated RSS counters exposed through proc interfaces.
->>
->> With a test program hopping across CPUs doing frequent mmap/munmap
->> operations, the upstream implementation approximation reaches a 1GB
->> delta from the precise value after a few minutes, compared to a 80MB
->> delta with the hierarchical counter. The hierarchical counter provides a
->> guaranteed maximum approximation inaccuracy of 192MB on that hardware
->> topology.
->>
->> This series is based on
->> commit 0f2acd3148e0 Merge tag 'm68knommu-for-v7.0' of git://git.kernel.org/pub/scm/linux/kernel/git/gerg/m68knommu
->>
->> The main changes since v16:
->> - Dropped OOM killer 2-pass task selection algorithm.
->> - Introduce Kunit tests.
->> - Only perform atomic increments of intermediate tree nodes when
->>    bits which are significant for carry propagation are being changed.
-> 
-> This seems to cause crashes with linux-next on s390, at least I could bisect
-> it to the last patch of this series. Reverting the last one, makes the crashes
-> go away:
-> 
-> 0acac6604c1cfd7a1762901f0a4abe87cf3a8619 is the first bad commit
-> commit 0acac6604c1cfd7a1762901f0a4abe87cf3a8619 (HEAD)
-> Author:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-> AuthorDate: Tue Feb 17 11:10:06 2026 -0500
-> Commit:     Andrew Morton <akpm@linux-foundation.org>
-> CommitDate: Tue Feb 24 11:15:15 2026 -0800
-> 
->      mm: improve RSS counter approximation accuracy for proc interfaces
-> 
-> Unable to handle kernel pointer dereference in virtual kernel address space
-> Failing address: 766d615f72615000 TEID: 766d615f72615803 ESOP-2 FSI
-> Fault in home space mode while using kernel ASCE.
-> AS:000000025dc04007 R3:0000000000000024
-> Oops: 0038 ilc:2 [#1]SMP
-> Modules linked in:
-> CPU: 0 UID: 0 PID: 1 Comm: swapper/0 Not tainted 7.0.0-20260224.rc1.git266.3ef088b0c577.300.fc43.s390x+next #1 PREEMPTLAZY
-> Hardware name: IBM 3931 A01 703 (z/VM 7.4.0)
-> Krnl PSW : 0704c00180000000 00000216ef164cde (kernfs_name_hash+0x1e/0xb0)
->             R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
-> Krnl GPRS: 0000000000000000 0000000000000000 766d615f72615f65 0000000000000000
->             766d615f72615f65 0000000000000000 0000000000000000 0000000000000000
->             766d615f72615f65 0000000081212440 0000000000000000 0000000000000000
->             0000000080a00000 00000216efcb5390 00000216ef16530c 00000196eeb07ae0
-> Krnl Code: 00000216ef164cd2: a7190000            lghi    %r1,0
->             00000216ef164cd6: b9040042            lgr     %r4,%r2
->            *00000216ef164cda: a7090000            lghi    %r0,0
->            >00000216ef164cde: b25e0014            srst    %r1,%r4
->             00000216ef164ce2: a714fffe            brc     1,00000216ef164cde
->             00000216ef164ce6: b9e92051            sgrk    %r5,%r1,%r2
->             00000216ef164cea: ec1200208076        crj     %r1,%r2,8,00000216ef164d2a
->             00000216ef164cf0: b9160005            llgfr   %r0,%r5
-> Call Trace:
->   [<00000216ef164cde>] kernfs_name_hash+0x1e/0xb0
->   [<00000216ef167d32>] kernfs_remove_by_name_ns+0x72/0x120
->   [<00000216ef16bbfa>] remove_files+0x4a/0x90
->   [<00000216ef16bf96>] create_files+0x276/0x2b0
->   [<00000216ef16c15a>] internal_create_group+0x18a/0x320
->   [<00000216f09b61c6>] swap_init+0x5e/0xa0
->   [<00000216eec7fb00>] do_one_initcall+0x40/0x270
->   [<00000216f0990a40>] kernel_init_freeable+0x2b0/0x330
->   [<00000216efb5160e>] kernel_init+0x2e/0x180
->   [<00000216eec81ffc>] __ret_from_fork+0x3c/0x240
->   [<00000216efb5e052>] ret_from_fork+0xa/0x30
-> Last Breaking-Event-Address:
->   [<00000216ef165306>] kernfs_find_ns+0x76/0x140
-> Kernel panic - not syncing: Fatal exception: panic_on_oops
+Hi all,
 
-It looks like either an issue with ordering of the bootup sequence, or
-an issue with the size of struct mm_struct init_mm. I'll have a look.
+the XOR library used for the RAID5 parity is a bit of a mess right now.
+The main file sits in crypto/ despite not being cryptography and not
+using the crypto API, with the generic implementations sitting in
+include/asm-generic and the arch implementations sitting in an asm/
+header in theory.  The latter doesn't work for many cases, so
+architectures often build the code directly into the core kernel, or
+create another module for the architecture code.
 
-Thanks,
+Changes this to a single module in lib/ that also contains the
+architecture optimizations, similar to the library work Eric Biggers
+has done for the CRC and crypto libraries later.  After that it changes
+to better calling conventions that allow for smarter architecture
+implementations (although none is contained here yet), and uses
+static_call to avoid indirection function call overhead.
 
-Mathieu
+A git tree is also available here:
 
--- 
-Mathieu Desnoyers
-EfficiOS Inc.
-https://www.efficios.com
+    git://git.infradead.org/users/hch/misc.git xor-improvements
+
+Gitweb:
+
+    https://git.infradead.org/?p=users/hch/misc.git;a=shortlog;h=refs/heads/xor-improvements
+
+Diffstat:
+ arch/arm64/include/asm/xor.h              |   73 --
+ arch/loongarch/include/asm/xor.h          |   68 --
+ arch/loongarch/include/asm/xor_simd.h     |   34 -
+ arch/loongarch/lib/xor_simd_glue.c        |   72 --
+ arch/powerpc/include/asm/xor.h            |   47 -
+ arch/powerpc/include/asm/xor_altivec.h    |   22 
+ arch/powerpc/lib/xor_vmx.h                |   22 
+ arch/powerpc/lib/xor_vmx_glue.c           |   63 --
+ arch/riscv/include/asm/xor.h              |   68 --
+ arch/s390/include/asm/xor.h               |   21 
+ arch/sparc/include/asm/xor.h              |    9 
+ arch/sparc/include/asm/xor_64.h           |   79 ---
+ arch/um/include/asm/xor.h                 |   24 
+ arch/x86/include/asm/xor_64.h             |   28 -
+ b/arch/alpha/Kconfig                      |    1 
+ b/arch/arm/Kconfig                        |    1 
+ b/arch/arm/lib/Makefile                   |    5 
+ b/arch/arm64/Kconfig                      |    1 
+ b/arch/arm64/lib/Makefile                 |    6 
+ b/arch/loongarch/Kconfig                  |    1 
+ b/arch/loongarch/lib/Makefile             |    2 
+ b/arch/powerpc/Kconfig                    |    1 
+ b/arch/powerpc/lib/Makefile               |    5 
+ b/arch/riscv/Kconfig                      |    1 
+ b/arch/riscv/lib/Makefile                 |    1 
+ b/arch/s390/Kconfig                       |    1 
+ b/arch/s390/lib/Makefile                  |    2 
+ b/arch/sparc/Kconfig                      |    1 
+ b/arch/sparc/include/asm/asm-prototypes.h |    1 
+ b/arch/sparc/lib/Makefile                 |    2 
+ b/arch/um/Kconfig                         |    1 
+ b/arch/x86/Kconfig                        |    1 
+ b/crypto/Kconfig                          |    2 
+ b/crypto/Makefile                         |    1 
+ b/crypto/async_tx/async_xor.c             |   16 
+ b/fs/btrfs/raid56.c                       |   27 -
+ b/include/asm-generic/Kbuild              |    1 
+ b/include/linux/raid/xor.h                |   28 -
+ b/lib/Kconfig                             |    1 
+ b/lib/Makefile                            |    2 
+ b/lib/raid/Kconfig                        |    7 
+ b/lib/raid/Makefile                       |    2 
+ b/lib/raid/xor/Makefile                   |   50 ++
+ b/lib/raid/xor/alpha/xor.c                |   46 -
+ b/lib/raid/xor/alpha/xor_arch.h           |   22 
+ b/lib/raid/xor/arm/xor-neon-glue.c        |   19 
+ b/lib/raid/xor/arm/xor-neon.c             |   22 
+ b/lib/raid/xor/arm/xor.c                  |  105 ----
+ b/lib/raid/xor/arm/xor_arch.h             |   22 
+ b/lib/raid/xor/arm64/xor-neon-glue.c      |   26 +
+ b/lib/raid/xor/arm64/xor-neon.c           |   94 +--
+ b/lib/raid/xor/arm64/xor-neon.h           |    6 
+ b/lib/raid/xor/arm64/xor_arch.h           |   21 
+ b/lib/raid/xor/loongarch/xor_arch.h       |   33 +
+ b/lib/raid/xor/loongarch/xor_simd_glue.c  |   37 +
+ b/lib/raid/xor/powerpc/xor_arch.h         |   22 
+ b/lib/raid/xor/powerpc/xor_vmx.c          |   40 -
+ b/lib/raid/xor/powerpc/xor_vmx.h          |   10 
+ b/lib/raid/xor/powerpc/xor_vmx_glue.c     |   28 +
+ b/lib/raid/xor/riscv/xor-glue.c           |   25 +
+ b/lib/raid/xor/riscv/xor_arch.h           |   17 
+ b/lib/raid/xor/s390/xor.c                 |   15 
+ b/lib/raid/xor/s390/xor_arch.h            |   13 
+ b/lib/raid/xor/sparc/xor-niagara-glue.c   |   33 +
+ b/lib/raid/xor/sparc/xor-niagara.S        |  346 --------------
+ b/lib/raid/xor/sparc/xor-sparc32.c        |   32 -
+ b/lib/raid/xor/sparc/xor-vis-glue.c       |   34 +
+ b/lib/raid/xor/sparc/xor-vis.S            |  348 ++++++++++++++
+ b/lib/raid/xor/sparc/xor_arch.h           |   35 +
+ b/lib/raid/xor/um/xor_arch.h              |    9 
+ b/lib/raid/xor/x86/xor-avx.c              |   52 --
+ b/lib/raid/xor/x86/xor-mmx.c              |  120 +---
+ b/lib/raid/xor/x86/xor-sse.c              |  105 +---
+ b/lib/raid/xor/x86/xor_arch.h             |   36 +
+ b/lib/raid/xor/xor-32regs-prefetch.c      |  267 ++++++++++
+ b/lib/raid/xor/xor-32regs.c               |  217 ++++++++
+ b/lib/raid/xor/xor-8regs-prefetch.c       |  146 +++++
+ b/lib/raid/xor/xor-8regs.c                |  103 ++++
+ b/lib/raid/xor/xor-core.c                 |  187 +++++++
+ b/lib/raid/xor/xor_impl.h                 |   60 ++
+ crypto/xor.c                              |  174 -------
+ include/asm-generic/xor.h                 |  738 ------------------------------
+ 82 files changed, 2033 insertions(+), 2433 deletions(-)
