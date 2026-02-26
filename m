@@ -1,120 +1,165 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0BD3368958;
-	Thu, 26 Feb 2026 17:04:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772125450; cv=none; b=JYnOkF/EPmsSIcFaZWXLM/nERg61hR9+bp58GMT0SR34mxXHi9q8pt2w4oiXLulqCnOizOS5uJXviZia/6RK4hg9/twtrw9n50zzzxgytUKBhzlT/d+81w8Pc3UKa/O3/4olDgsAaVhtqDr4MGE4rbYX1x27sgEAN92ucC8ONGw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772125450; c=relaxed/simple;
-	bh=FDgvIDg/FpsyLcXLEbnFl2mr65ZhDFGjem66PFzYFtU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=AzkJQQGYr0TuWIBx98GkSZNxQn5ZnsiNDgqbMY8h4HLW8d9l1MdCIaoOvDfshANgMwRVsLpEkINJF2IuKFFfUZdOeFZWcEtZ+RUGAKUriJxSTWFOnLKeelm7tdfcezIwDEFH9QvqFqUCQ0hzY4jxNDBcZkRyr7jKxhp5g1YYdt8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TWrY/0Yi; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 232873290DA
+	for <linux-s390@vger.kernel.org>; Thu, 26 Feb 2026 17:23:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.173
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772126615; cv=pass; b=kUzivVNDs1512dvCa6gghuPCxXvtyEtOfLnNVjExadq5a5MAm/lYM4qoC1u3aOuu6bKW8K9mDx3mfhLGkKEv5ejunl1yMniZv+z4Z+4oqrt18DrQLuTYVzJI6cM9LJrfqBSctUNB1cqJIxhfEDuVaVtBARVZMNiPXlejst6eEZk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772126615; c=relaxed/simple;
+	bh=zN1A0NVoCrNndk1h7brwP4PDvP8PmvZiG+Q9N3TyOjI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Content-Type; b=oRt9TPMYcPtiKqP00eGRQMzPOFn2ELnSjHIjul3V1wZVeG157f3WlNw6e94p073+HCLO+iu2akCk7UfZdd84USf/2NJ4jVrl3Anjsqg3iCJGpNoQcORjQkWPKIp5HCpa+stV5DK4HsC8MmFLfOo0+b1eA9ZcOsghqdejaKmpF6A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=fNjhrGYm; arc=pass smtp.client-ip=209.85.160.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TWrY/0Yi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDDE9C116C6;
-	Thu, 26 Feb 2026 17:04:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772125450;
-	bh=FDgvIDg/FpsyLcXLEbnFl2mr65ZhDFGjem66PFzYFtU=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=TWrY/0Yi1wrIkj+Ia8H5X2wEDClTENL0qfEm1jAFrTuJb+i/k7eUa+cPxl+d3mwRg
-	 kNKQhrLnR3yR1BXYU8IijcyFmwDfqrfWkez3R9/9dJ3ZigDoY+rAk9QmJIxMc3Levb
-	 SHJ/Gxenirvmi0eQZDa4wJSXavgzsw9jFxuy4mvR4lwBJwx9X1FEpiZnzRGAVBZZjA
-	 vZSKhP4/aAbp3PxhPnzodL6LqY4kN4Ft1LcdggEFi7yQWc8sJZoBh2Vbndn47H4niE
-	 nfg+D00kPBF6IbiNqzQa6R/42kW+qQOydZQbd+vkAP0mVco05lVkYnHBD0nVaHTRqY
-	 JRrXTTvBNQ+zg==
-Message-ID: <bfebf3ca-8c2a-4dab-9885-d061c9b79487@kernel.org>
-Date: Thu, 26 Feb 2026 18:04:04 +0100
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="fNjhrGYm"
+Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-5033b64256dso734371cf.0
+        for <linux-s390@vger.kernel.org>; Thu, 26 Feb 2026 09:23:33 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1772126613; cv=none;
+        d=google.com; s=arc-20240605;
+        b=GipjFyKsZE6Tu5fdoTY3e4t64lA3llZMSAoZYEOt4eYO1EjeSox6hoqseiB9acfmTc
+         ckTH4zfFnEqh+XSrA34xsha45fWHm0PaI9Y54PePoOtWVooptsDNBhul71ZsDvxh5xkq
+         bO5OQbwj67qHHnSCWJZJGSRgALDIjcW86jZ6DbWrLZxQXs0IwcuWYf5Xuxvg98nS4/z1
+         4SXgnMUB36yM0WxEJGAysXTATpqNYbNJutmC8cRVCn2BspNo992mmVUVk5kHKpdXYKkP
+         9asTTUyGg6NtSmoH/KixjoRqTfNSFbAIrf8taMqDliebGgyLcKTsiar/uYb9AHG2HjTD
+         Qteg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=FynKKhlWalFQKKrs3ZP5yNMAhsIr6fWHYQm9TKDGe4A=;
+        fh=PxZXT93Fh3QAf6oPXly2/vdn//6qynIiMOjh04von9E=;
+        b=V808gKvj8kScaCUPsn5F/QTiF4GOjQ4L0PbRuDu8hdElsSVsqhKjM8kIgrCgp3pJ1Q
+         NlzmGHXoRfakaUZwCPdh37VDNydiGuPM0Q4KepoPjHx2c9J9mZyZL29nmKccq8y7vy1w
+         KS/2PAh4PsyE39wA8fivg9skKePV4YID54Y0Jt2/Sofw1fWo/xybZ1U313sRgOe3cQyX
+         0PaTRls45T6gFXDjBb6eQz6qv9SM6Ob2Kyu6/558FocoqNJdxcuYf1p8C5cyvAmVGy01
+         uHHmEf4UE3aDFKPa8jg7kGFiSzPO0GmC8BklsLtpklhYq8/7Stz4mFbyO0jS5tJpfTCU
+         mrrA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1772126613; x=1772731413; darn=vger.kernel.org;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=FynKKhlWalFQKKrs3ZP5yNMAhsIr6fWHYQm9TKDGe4A=;
+        b=fNjhrGYmxWL/YvzTLQjN5I8tbQIsTwhB5AZcbt+xKgVJv7BpVOMppvdGMgoTSVX7Za
+         Sv/8EL6RNO0WbR8pK9cfM8rRHzbM0poFvzkJ0Q78MWj3x/qRR652mwVmVoL4KAxrc1Z3
+         iSMsurK8ZnETiVfLLcYbgMYtvitEoGN0GZzq6m1PRH0VOm0RwcTq67hhdgRsn1wE6ecF
+         YXY+oijCE6Pp429gC8WJA5oppjEYYyDpEexm0b9zlNA2aytoiGR/ptaHTEMo8zfRbNfh
+         KD+FV9EhJLV+ZaK4PUFFmZLyXEHzQpX1VdJ6JZid0uQjg0KWWp9QhqzY+qINiDENV3o7
+         RjYw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772126613; x=1772731413;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=FynKKhlWalFQKKrs3ZP5yNMAhsIr6fWHYQm9TKDGe4A=;
+        b=emLRVgot5no7MVSCzCQLcwDOHhn/09VKox9kGZ56UrdezZ0vq+TJdrm7L1yKVy+nI/
+         /exsCH8i5NElEpnFW2cRR2ULuzU/2FU0WRRPIvuz6X+pZKV9KKzyeWrCi9HoXMl05LIO
+         cJ7jPlqeZ/xwyC4m66ZdKk9Ha5vYw9SH6Cni+F2wEhlrtFhL5g1j/dk1HNPU6m73hhbU
+         1Q4qu+j2+zkDl4Xdu0wp+wbVHZzlNcu+thJNplA77rwNjYFav7vbke14rPVfmhc6xiyA
+         hPfyJkzEyWcOUUmBviMfareHrSmTsDaLc83R+UKkFRpueB7SOapumL/dmO7zTMwchSvB
+         RDCw==
+X-Forwarded-Encrypted: i=1; AJvYcCWluuFT/2WiD2+3XRdv0K83C9LBkJS8SX1CFJh9xmhgUbE7PdWML8LaHKl1qsikPdZFb7P9mv/Y/Mkw@vger.kernel.org
+X-Gm-Message-State: AOJu0YzsZTmxVtAiuIEGn/KQ86PXh4pWd4K53+kt2dNBeZ38FPKK8JbF
+	A3BeF2rRzS/z6sCeQOKcxF89n3mtSu2nSeGaVByhN2T4A/O5ARmhovZ54uFr4FD62pf+W8jL2fo
+	lH5s0XLg7JZ/AKj12qQ+nfURWyU+JdbNPITZMtBnj
+X-Gm-Gg: ATEYQzwDdLSAez0hyH4753NYlnbi1Jwet5UzT6KyD0/uHovvjvujdFjIBQihHzZny9w
+	G9lzFYeGdlv/DWv2XnYI40sMupBhZtAGadFUKpIXkl56Y4jvEH8HOoMsPwyOtS91oYOcYTnr7Zc
+	Ffig/C5ET85sNmypsZZnmk7qU8Aq3GAeYPQdbwqUZexQ3dpoVwOUJtzEAtEoLDGabztYIvsd03H
+	ii0Ni41FTbVCvPrKalrnMWohBm5YPP5HHYgrvGIyE6DZXTqIIMAsEOeNZ6fowWA74pscY3ZqgWQ
+	hm6c9S7KUIst52Zu1nGsTqtyMogoGZ2QGtwx7GnLBC1l4w78
+X-Received: by 2002:ac8:7fca:0:b0:4f1:a61a:1e8 with SMTP id
+ d75a77b69052e-507441ca8aamr14889431cf.10.1772126612071; Thu, 26 Feb 2026
+ 09:23:32 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/4] mm/page_table_check: Pass mm_struct to
- pxx_user_accessible_page()
-To: Alexander Gordeev <agordeev@linux.ibm.com>,
- Pasha Tatashin <pasha.tatashin@soleen.com>,
- Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org,
- linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-arm-kernel@lists.infradead.org, x86@kernel.org
-References: <cover.1771845678.git.agordeev@linux.ibm.com>
- <68c2f6df2955033cbf1ccbd2b5c2816e72ac345c.1771845678.git.agordeev@linux.ibm.com>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <68c2f6df2955033cbf1ccbd2b5c2816e72ac345c.1771845678.git.agordeev@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20260226070609.3072570-1-surenb@google.com> <20260226070609.3072570-2-surenb@google.com>
+ <pifgesxxxcwcrarg3q7sgiybg6d6laaym2jcj2h44wqoaxopcv@idc7vavsmjsd>
+In-Reply-To: <pifgesxxxcwcrarg3q7sgiybg6d6laaym2jcj2h44wqoaxopcv@idc7vavsmjsd>
+From: Suren Baghdasaryan <surenb@google.com>
+Date: Thu, 26 Feb 2026 09:23:19 -0800
+X-Gm-Features: AaiRm51NlioHOecXqmKgqusOoAstD_F3nrG3Ao8qrpHVfKsEfdkgNePW1BjyYWA
+Message-ID: <CAJuCfpGTNuojCXUQU0o-WrCRAuXPUAtLtSG=c8BL00JvnvNBiw@mail.gmail.com>
+Subject: Re: [PATCH v3 1/3] mm/vma: cleanup error handling path in vma_expand()
+To: "Liam R. Howlett" <Liam.Howlett@oracle.com>, Suren Baghdasaryan <surenb@google.com>, 
+	akpm@linux-foundation.org, willy@infradead.org, david@kernel.org, 
+	ziy@nvidia.com, matthew.brost@intel.com, joshua.hahnjy@gmail.com, 
+	rakie.kim@sk.com, byungchul@sk.com, gourry@gourry.net, 
+	ying.huang@linux.alibaba.com, apopple@nvidia.com, lorenzo.stoakes@oracle.com, 
+	baolin.wang@linux.alibaba.com, npache@redhat.com, ryan.roberts@arm.com, 
+	dev.jain@arm.com, baohua@kernel.org, lance.yang@linux.dev, vbabka@suse.cz, 
+	jannh@google.com, rppt@kernel.org, mhocko@suse.com, pfalcato@suse.de, 
+	kees@kernel.org, maddy@linux.ibm.com, npiggin@gmail.com, mpe@ellerman.id.au, 
+	chleroy@kernel.org, borntraeger@linux.ibm.com, frankja@linux.ibm.com, 
+	imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, 
+	agordeev@linux.ibm.com, svens@linux.ibm.com, gerald.schaefer@linux.ibm.com, 
+	linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 2/23/26 12:53, Alexander Gordeev wrote:
-> From: Tobias Huschle <huschle@linux.ibm.com>
-> 
-> Unlike other architectures, s390 does not have means to
-> distinguish kernel vs user page table entries - neither
-> an entry itself, nor the address could be used for that.
-> It is only the mm_struct that indicates whether an entry
-> in question is mapped to a user space. So pass mm_struct
-> to pxx_user_accessible_page() callbacks.
-> 
-> [agordeev@linux.ibm.com: rephrased commit message, removed braces]
-> 
-> Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-> Signed-off-by: Tobias Huschle <huschle@linux.ibm.com>
-> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-> ---
+On Thu, Feb 26, 2026 at 8:43=E2=80=AFAM Liam R. Howlett <Liam.Howlett@oracl=
+e.com> wrote:
+>
+> * Suren Baghdasaryan <surenb@google.com> [260226 02:06]:
+> > vma_expand() error handling is a bit confusing with "if (ret) return re=
+t;"
+> > mixed with "if (!ret && ...) ret =3D ...;". Simplify the code to check
+> > for errors and return immediately after an operation that might fail.
+> > This also makes later changes to this function more readable.
+> >
+> > No functional change intended.
+> >
+> > Suggested-by: Jann Horn <jannh@google.com>
+> > Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+>
+> This looks the same as v2, so I'll try again ;)
 
-Acked-by: David Hildenbrand (Arm) <david@kernel.org>
+Sorry, missed adding it. So again, thank you very much!
 
--- 
-Cheers,
-
-David
+>
+> Reviewed-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+>
+> > ---
+> >  mm/vma.c | 12 ++++++++----
+> >  1 file changed, 8 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/mm/vma.c b/mm/vma.c
+> > index be64f781a3aa..bb4d0326fecb 100644
+> > --- a/mm/vma.c
+> > +++ b/mm/vma.c
+> > @@ -1186,12 +1186,16 @@ int vma_expand(struct vma_merge_struct *vmg)
+> >        * Note that, by convention, callers ignore OOM for this case, so
+> >        * we don't need to account for vmg->give_up_on_mm here.
+> >        */
+> > -     if (remove_next)
+> > +     if (remove_next) {
+> >               ret =3D dup_anon_vma(target, next, &anon_dup);
+> > -     if (!ret && vmg->copied_from)
+> > +             if (ret)
+> > +                     return ret;
+> > +     }
+> > +     if (vmg->copied_from) {
+> >               ret =3D dup_anon_vma(target, vmg->copied_from, &anon_dup)=
+;
+> > -     if (ret)
+> > -             return ret;
+> > +             if (ret)
+> > +                     return ret;
+> > +     }
+> >
+> >       if (remove_next) {
+> >               vma_start_write(next);
+> > --
+> > 2.53.0.414.gf7e9f6c205-goog
+> >
+> >
+>
