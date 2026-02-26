@@ -1,170 +1,123 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8F4D3A641E;
-	Thu, 26 Feb 2026 10:24:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65410314A9D;
+	Thu, 26 Feb 2026 10:52:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772101450; cv=none; b=A+6eXLo5cIpTSi9jS2e5j0sHOsGNsRYZ9Ltq694LjsYT6wlG9ZfQzXnjMbtEm93F6wqY5hr3ebz4w8AeCUvk3jLGCJZdtKR52syw2YCoe1ZG0xqgCOcnm1WuEa+Kfl4M0fCYq6c1zOQCjX2iRXWvaJ/Nkz/6SW1Ylcj7vk/c/DU=
+	t=1772103147; cv=none; b=rBThRaxMHmldkHTeLPJz1/4hWweOOf4GJM+tqF0h6nRIrHpe6OM1ZjEximwlLUNcFvwJDDzp2MhLCLtPoQ/rCR+xfDWdhg4T+1rjY6TbzV/1YoBttrRLP6JHZHkHdWanhrQzOTP59+cB6eZdj+J97QVzAE0dF6/fz3/XqiwLMaI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772101450; c=relaxed/simple;
-	bh=P8zq4XL1vIHvWaTfBf9OJPokXFV2/Uw/qIckm/L5wQg=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=CH9kMJSuPJi/PULwhlY5FShUk4S/ddVxWVgl9C8C2YbL1RGNxZaZ4//q5hSxuuK1Vz8kbWbJfdc37Mz3tVX1P0X67Aqtv9+frFfTKbW2Y+Tg87bRuKgG5VVX/8jiof5c7RxiM4Fcy4wYjUpg7onaDmMLcdTgtQnFuIhzNuIecf4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CqBSIZl/; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772103147; c=relaxed/simple;
+	bh=mPAWysdOmD7VuvE81fi6zrmtct6dWFS9p5+F7H0xX6Y=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=tgmb4RzuQZrxz5UfZ6XDjPJhtX6h5rdIJI4JLG4wp1KV70lhSLecPcYlhlKwefkcUJJBQf1+DUTrUqDCzhWF/2NtkbgVVKVjrzfUqQHAIymbbiYYxMYBId7Cwy3qoCESeLMwYh7LA3CZFmUlTaPztXY+tBu+VsPwIuwmCx2bvuc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=C56eflG1; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CqBSIZl/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AAECC19422;
-	Thu, 26 Feb 2026 10:24:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772101450;
-	bh=P8zq4XL1vIHvWaTfBf9OJPokXFV2/Uw/qIckm/L5wQg=;
-	h=Date:From:To:Cc:In-Reply-To:References:Subject:From;
-	b=CqBSIZl/P5R11a+PbbwP8EJIEnape46aReEtYeFPGKuQwo6JuYPMOhUf/ivT/NGkB
-	 eXMFnYLPc0Qug2v3GAlm2hfMo3AEhaOEyi3ZyF45CWN+wmg1Ytanhv9lAvK+0xMHh2
-	 fkBzkKxMEF1f73kx0BbvlVzVwD2esgJecthJePIYctOyCgv1N+vOc4FeretrL+9dwl
-	 yPVn11PrBJc5BXMOfxAd+eGXEmJnTZin8RXBEGmytdYJFgR2oDdrICNNK+pUzag+LJ
-	 xPKXbyJ9ovIhvsM3RRZ/6Mf5FMQVv2aEgMpd/+fp7PW1VuyAdwBpXIwS3ii8jK7yQ3
-	 rJt1fkAYF2yIg==
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailfauth.phl.internal (Postfix) with ESMTP id DD5D3F4006A;
-	Thu, 26 Feb 2026 05:24:07 -0500 (EST)
-Received: from phl-imap-02 ([10.202.2.81])
-  by phl-compute-01.internal (MEProxy); Thu, 26 Feb 2026 05:24:07 -0500
-X-ME-Sender: <xms:Rx-gaXkDrx5pnznR-SNMQS1tYTFTDjDVzc2UVuufzpa3L83PXaWj2A>
-    <xme:Rx-gaVoEvkp6raOOwqQWPDa0cH-Ob-gPQix5xIzkuQVQm6h-NQbdzrS1pMcsoN3Ia
-    -kZBU3FrMUKRHOIg7YnLpvy204Tr5tobrq5gruzze2vMtko18K1InM>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvgeehjeekucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddtnecuhfhrohhmpedftehrugcu
-    uehivghshhgvuhhvvghlfdcuoegrrhgusgeskhgvrhhnvghlrdhorhhgqeenucggtffrrg
-    htthgvrhhnpeekvdffkefhgfegveekfedtieffhfelgeetiedvieffhfekfeeikeetueeg
-    teetteenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivg
-    eptdenucfrrghrrghmpehmrghilhhfrhhomheprghrugdomhgvshhmthhprghuthhhphgv
-    rhhsohhnrghlihhthidqudeijedthedttdejledqfeefvdduieegudehqdgrrhgusgeppe
-    hkvghrnhgvlhdrohhrghesfihorhhkohhfrghrugdrtghomhdpnhgspghrtghpthhtohep
-    feeipdhmohguvgepshhmthhpohhuthdprhgtphhtthhopegsphesrghlihgvnhekrdguvg
-    dprhgtphhtthhopegtrghtrghlihhnrdhmrghrihhnrghssegrrhhmrdgtohhmpdhrtghp
-    thhtohepmhhpvgesvghllhgvrhhmrghnrdhiugdrrghupdhrtghpthhtohepughmihhtrh
-    ihrdhkrghsrghtkhhinhesghhmrghilhdrtghomhdprhgtphhtthhopehnphhighhgihhn
-    sehgmhgrihhlrdgtohhmpdhrtghpthhtohepshgvrhhgvgeshhgrlhhlhihnrdgtohhmpd
-    hrtghpthhtoheprhhosggvrhhtohdrshgrshhsuheshhhurgifvghirdgtohhmpdhrtghp
-    thhtoheprhhosggvrhhtohdrshgrshhsuheshhhurgifvghitghlohhuugdrtghomhdprh
-    gtphhtthhopegurghvvgdrhhgrnhhsvghnsehinhhtvghlrdgtohhm
-X-ME-Proxy: <xmx:Rx-gaceSkD7L3hUQ-QIntX5c8SF2UJvuNnlnCMg5x0km8JqIId1NUw>
-    <xmx:Rx-gaXnaIY1-tJR3H2eKYjQqxgSwsae5h1FvMCQzz1XTnwkXn4A87w>
-    <xmx:Rx-gaWo6YeaJZds-Per8yiexkNYiocIFKlSdVrZEta5R-DmtVqRepA>
-    <xmx:Rx-gaU9JdnIBR33acIHa5vRJ_FAVN8423onO6PDBDHqIfNIXMgTbhw>
-    <xmx:Rx-gaS0UmRYHqy-FoG7gumIna3Ay9Z737XOXqgkPGLVVt4wqDB4deV7_>
-Feedback-ID: ice86485a:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id AE587700065; Thu, 26 Feb 2026 05:24:07 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="C56eflG1"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61Q1w8iL2962735;
+	Thu, 26 Feb 2026 10:52:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:sender:subject:to; s=pp1; bh=Z2bEbfTCTOAjDi6vtSP3Ehu
+	55WxkGqq9+GL96kkYwrg=; b=C56eflG1uwKSJRC3jcDPR3nc5EAoSRlljWssfXl
+	Y8tyRwE6Ee2aFZqMD7jEzgZ/zYa4MqAwcBYkmayMXhp+mGZtlhWBmg5bw5I+zYbd
+	Xa5X/ZqZoNWIgM5V85BSy0ZbfWaA74cMe3ViMEQZ7ZZr7OXSXFNvwrGgYEfr7HUV
+	juKkngwJpWDIVwWOi6E9OO0gNEvIqbwkWKLDLpXmnu0kle8gBWuiFw17fPIhutAR
+	cFsTU96vPhmUc+U74y8G5SCpEwZLRuqNia/qnEthqOQtLozFNrMSwHfc9cAl+5dU
+	c5GOxvSDp00Rsyh6m5LA3Tk1NDE+wRQeJEA/5HEtVcWxeWw==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cf24gn6fq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 26 Feb 2026 10:52:25 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61Q7xidI027887;
+	Thu, 26 Feb 2026 10:52:24 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cfsr22hq7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 26 Feb 2026 10:52:24 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61QAqKQr9109824
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 26 Feb 2026 10:52:20 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 713F720043;
+	Thu, 26 Feb 2026 10:52:20 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5A26920040;
+	Thu, 26 Feb 2026 10:52:20 +0000 (GMT)
+Received: from vela (unknown [9.87.150.251])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 26 Feb 2026 10:52:20 +0000 (GMT)
+Received: from brueckner by vela with local (Exim 4.99.1)
+	(envelope-from <brueckner@linux.ibm.com>)
+	id 1vvYyh-00000000HAe-3Saq;
+	Thu, 26 Feb 2026 11:52:19 +0100
+Date: Thu, 26 Feb 2026 11:52:19 +0100
+From: Hendrik Brueckner <brueckner@linux.ibm.com>
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>, kvm@vger.kernel.org
+Subject: Re: [PATCH 2/4] s390/sclp: Detect ASTFLEIE 2 facility
+Message-ID: <aaAl4-KefxaJ3sJu@linux.ibm.com>
+References: <20260212-vsie-alter-stfle-fac-v1-0-d772be74a4da@linux.ibm.com>
+ <20260212-vsie-alter-stfle-fac-v1-2-d772be74a4da@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: A6OHCiXwHjx-
-Date: Thu, 26 Feb 2026 11:23:47 +0100
-From: "Ard Biesheuvel" <ardb@kernel.org>
-To: "Mimi Zohar" <zohar@linux.ibm.com>
-Cc: "Coiby Xu" <coxu@redhat.com>, "Dave Hansen" <dave.hansen@intel.com>,
- linux-integrity@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>,
- "Roberto Sassu" <roberto.sassu@huaweicloud.com>,
- "Catalin Marinas" <catalin.marinas@arm.com>,
- "Will Deacon" <will@kernel.org>,
- "Madhavan Srinivasan" <maddy@linux.ibm.com>,
- "Michael Ellerman" <mpe@ellerman.id.au>,
- "Nicholas Piggin" <npiggin@gmail.com>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
- "Vasily Gorbik" <gor@linux.ibm.com>,
- "Alexander Gordeev" <agordeev@linux.ibm.com>,
- "Christian Borntraeger" <borntraeger@linux.ibm.com>,
- "Sven Schnelle" <svens@linux.ibm.com>,
- "Thomas Gleixner" <tglx@linutronix.de>, "Ingo Molnar" <mingo@redhat.com>,
- "Borislav Petkov" <bp@alien8.de>,
- "Dave Hansen" <dave.hansen@linux.intel.com>,
- "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
- "H . Peter Anvin" <hpa@zytor.com>,
- "Roberto Sassu" <roberto.sassu@huawei.com>,
- "Dmitry Kasatkin" <dmitry.kasatkin@gmail.com>,
- "Eric Snowberg" <eric.snowberg@oracle.com>,
- "Paul Moore" <paul@paul-moore.com>, "James Morris" <jmorris@namei.org>,
- "Serge E. Hallyn" <serge@hallyn.com>,
- "Jarkko Sakkinen" <jarkko@kernel.org>,
- "moderated list:ARM64 PORT (AARCH64 ARCHITECTURE)"
- <linux-arm-kernel@lists.infradead.org>,
- "open list" <linux-kernel@vger.kernel.org>,
- "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)"
- <linuxppc-dev@lists.ozlabs.org>,
- "open list:S390 ARCHITECTURE" <linux-s390@vger.kernel.org>,
- "open list:EXTENSIBLE FIRMWARE INTERFACE (EFI)"
- <linux-efi@vger.kernel.org>,
- "open list:SECURITY SUBSYSTEM" <linux-security-module@vger.kernel.org>,
- "open list:KEYS/KEYRINGS_INTEGRITY" <keyrings@vger.kernel.org>
-Message-Id: <2115ea47-9a9f-4718-8531-4a9c2067899b@app.fastmail.com>
-In-Reply-To: <ad471c33eeb9e21c49ac81032dc64555a2fb816f.camel@linux.ibm.com>
-References: <20260115004328.194142-1-coxu@redhat.com>
- <20260115004328.194142-2-coxu@redhat.com>
- <CAMj1kXFXNo1-pMbo-VZrjQ3TYe1tufebrLr_avL12A0nHMSGnA@mail.gmail.com>
- <8bfa859ed3a4f1cf0db0ab64d8c1c3b24684582a.camel@linux.ibm.com>
- <CAMj1kXHsJNZoUEnbD1y=v4Ftuv9d2c08VckRV7ru4k4P83vZbQ@mail.gmail.com>
- <97b69bc79a5d9246f7a399510908c7b95b2e95e7.camel@linux.ibm.com>
- <CAMj1kXGx4ebaK87W7k0SNUNQnO9+=z1nmYxXC7retmp3OqRRFg@mail.gmail.com>
- <ac5e5e45c12e9b0bda19807e60b06057d74be0b3.camel@linux.ibm.com>
- <aW2i3yacr5TvWU-m@Rk>
- <1a0b6e5601a673a81f8823de0815f92b7afbeb60.camel@linux.ibm.com>
- <CAMj1kXFBMSEdRL8FotASbQO3dcfNG0bpp9Vnm5JPn-yjyDr=GA@mail.gmail.com>
- <ad471c33eeb9e21c49ac81032dc64555a2fb816f.camel@linux.ibm.com>
-Subject: Re: [PATCH 1/3] integrity: Make arch_ima_get_secureboot integrity-wide
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260212-vsie-alter-stfle-fac-v1-2-d772be74a4da@linux.ibm.com>
+Sender: Hendrik Brueckner <brueckner@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=TNRIilla c=1 sm=1 tr=0 ts=69a025e9 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=kj9zAlcOel0A:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8
+ a=I6XbcbOy5jN161PzrF0A:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: eL7MqYGrPwwAv5eXUIvlKjMsGeg9VH1o
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI2MDA5NiBTYWx0ZWRfXzS1P9yFpyxj5
+ JsKTT21sKkwUfVxN8DyZy0AFa85/WsIlEbnOLokrzplayJNx2Ddq+vPl5xiL8Vd4IidGySRHnCU
+ DVNYKOWrRAt1sGeHft7qY6lwCjnRfKfsxi1FED5JhXGi/XCIYP5HZojb+rDEBNh3fcSwVmdfrEp
+ IKxUi5hmVP2a0n4GsAjOC3MCTGwPJ/y3ZBNGO4rrthfvjn0SMzQm5e3GzknKn9vPsLUSz4fYFHc
+ v86ggbXnR1iSQl/xcwyad78qlDrrdqRYNFNTVKM21qmJladfpu9yZ7QrUFQ8VJSe+2aDrCWGYlB
+ wA7itDLmeP//00P0eaXeYjEc5RB5mCG/Jc+IOjoAKC5551KNMy6+ERChNVdNol0noTlzmUuyf6A
+ ksMyvLWZG+R6FocExGetu9UqycNMLAmSIbtSwYpoQ5YllcQO0N7nz5HX5j5sp+GdDBvfxMSDC3C
+ ZQ0pWcrOp9v1dfJnlvA==
+X-Proofpoint-ORIG-GUID: eL7MqYGrPwwAv5eXUIvlKjMsGeg9VH1o
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-25_04,2026-02-25_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 suspectscore=0 adultscore=0 priorityscore=1501 impostorscore=0
+ spamscore=0 clxscore=1015 bulkscore=0 lowpriorityscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602260096
 
+On Thu, Feb 12, 2026 at 10:24:56AM +0100, Christoph Schlameuss wrote:
+> From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+> 
+> Detect alternate STFLE interpretive execution facility 2.
+> 
+> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/sclp.h   | 1 +
+>  drivers/s390/char/sclp_early.c | 4 +++-
+>  2 files changed, 4 insertions(+), 1 deletion(-)
+> 
 
-On Wed, 25 Feb 2026, at 01:03, Mimi Zohar wrote:
-> On Wed, 2026-01-21 at 17:25 +0100, Ard Biesheuvel wrote:
->> On Wed, 21 Jan 2026 at 16:41, Mimi Zohar <zohar@linux.ibm.com> wrote:
->> > 
->> > On Mon, 2026-01-19 at 12:04 +0800, Coiby Xu wrote:
->> > 
->> > > diff --git a/security/integrity/ima/Kconfig b/security/integrity/ima/Kconfig
->> > > index 976e75f9b9ba..5dce572192d6 100644
->> > > --- a/security/integrity/ima/Kconfig
->> > > +++ b/security/integrity/ima/Kconfig
->> > > @@ -311,6 +311,7 @@ config IMA_QUEUE_EARLY_BOOT_KEYS
->> > >   config IMA_SECURE_AND_OR_TRUSTED_BOOT
->> > >          bool
->> > >          depends on IMA_ARCH_POLICY
->> > > +       depends on INTEGRITY_SECURE_BOOT
->> > > 
->> > > 
->> > > Another idea is make a tree-wide arch_get_secureboot i.e. to move
->> > > current arch_ima_get_secureboot code to arch-specific secure boot
->> > > implementation. By this way, there will no need for a new Kconfig option
->> > > INTEGRITY_SECURE_BOOT. But I'm not sure if there is any unforeseen
->> > > concern.
->> > 
->> > Originally basing IMA policy on the secure boot mode was an exception.  As long
->> > as making it public isn't an issue any longer, this sounds to me.  Ard, Dave, do
->> > you have any issues with replacing arch_ima_get_secureboot() with
->> > arch_get_secureboot()?
->> 
->> I don't see an issue with that. If there is a legitimate need to
->> determine this even if IMA is not enabled, then this makes sense.
->
-> Ard, Dave -
->
-> FYI, Coiby posted v3 of this patch set[1], which is queued in the next-
-> integrity-testing branch[2].
->
-> [1]
-> https://lore.kernel.org/linux-integrity/20260213012851.2532722-1-coxu@redhat.com/
->
-> [2] https://git.kernel.org/pub/scm/linux/kernel/git/zohar/linux-integrity.git/
->
-
-Ack. Looks fine to me.
-
+Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
