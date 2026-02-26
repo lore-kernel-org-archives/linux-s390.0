@@ -1,32 +1,32 @@
-Received: from out-173.mta1.migadu.com (out-173.mta1.migadu.com [95.215.58.173])
+Received: from out-180.mta1.migadu.com (out-180.mta1.migadu.com [95.215.58.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45CF2332EC5
-	for <linux-s390@vger.kernel.org>; Thu, 26 Feb 2026 11:33:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E45833126C2
+	for <linux-s390@vger.kernel.org>; Thu, 26 Feb 2026 11:33:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772105635; cv=none; b=grP6OWrTAIuVUJ4jKWUvbm5dH0toL75NGuK5WWyxIIi00Lz2mfPjXuYqRf3jLmFhpf8BAhTI/KbQEjEkR3YgEe9WUtxYg27ruX9FrzL3lTo4i3r4NXynvzGFEe3v+pwL42lx3iXiimikKMjpetZKld75K+8wjLPxdeyK8YVUtp4=
+	t=1772105640; cv=none; b=rTsKNNXrmutLutLbQttbW+fXuR8UlOZsk89Ld5HdQ3+u3BEWcXmUZgQOnWqsUvdsDxo5uRaKrcgdQXLR3HBmwN3EZ9Ai9Cv9pQI1Ron5ks9QDI8wlDBO6bLoro72vflZiOlNk4Vv6XyN/t9lz4l6hxIcIIUXHytyhHC1pxX14Zc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772105635; c=relaxed/simple;
-	bh=pUUXXPmW7bXhtmtKExGJnVno8KAfeEF+vOAxJbtyM4s=;
+	s=arc-20240116; t=1772105640; c=relaxed/simple;
+	bh=ZWG3lmzbNO/V87Q3kSOztnc/R3lYgBCciGKRZ2YiCn8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Og+9ztqtVxX45cNk/qS3t4bSfv45VHNfWTaIZH572MnJF0VnGSYVZEfagfG7qKbJQL5czQZn9eQino4UWwL+EEFlbniC/jSncLocjTYqVr4AT1kBToEYkUoNgxWors1rAzwhvNvfKnFrQriRcRPwj3BklBRa/wtTGXrh/+KLUr0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=urU1JU88; arc=none smtp.client-ip=95.215.58.173
+	 MIME-Version; b=YFqjmklO21culwejAwnW849WEUJVfKfvUay6vHcBzKDfz2twXlUG+AZX3dyK1yG9dwM4sIv8zWXLwz4Lm9admj1szp5njnJP8FBdfe6DQz4qA6UJZuBefcPHAZHKFEgwTFEkKqn+uyPPxFwb0C+uj4sJ6C+BCn5n47DBpwQWV8E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=GNBY0ei9; arc=none smtp.client-ip=95.215.58.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="urU1JU88"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="GNBY0ei9"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1772105632;
+	t=1772105636;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=VYA2+HQ3PTBt5D8sdrhOr6HCB84Kriw+faUOIzAxMpw=;
-	b=urU1JU881GY7kjUvIyBX3z3Lqlmyk50JU6TXPEMfQliw0OxBspGKG47gwOqyYchKYjdhOS
-	4MCdiw06/6qjaNTE/dJI2QINH/BZD+AyBh9OYXNlQ7Q+2vDLHhiRiXwTsCMMVh0aAiWh5C
-	T/IMdVB4xvM/4LGbijfTnkgoLXbW/+E=
+	bh=3aUMkxnHNH9mcF53dL6rFOoKpYMbGORopHm1QOQnqHs=;
+	b=GNBY0ei9szFMPQP/mBgbMCFztPaf5KixVYVsniCIVlDSW7j+DoDleEyGyDQNRUFKeG506m
+	zD1Gi7r+Zhgmqi4g2f201lHrFpqSlyBpA3zLxA945W0jK92rfYWz4T6YR0Uiy0ohgdYeQc
+	JMgf7lbMY23ljMMajF764JDFPOwe/Bs=
 From: Usama Arif <usama.arif@linux.dev>
 To: Andrew Morton <akpm@linux-foundation.org>,
 	david@kernel.org,
@@ -58,9 +58,9 @@ Cc: fvdl@google.com,
 	svens@linux.ibm.com,
 	linux-s390@vger.kernel.org,
 	Usama Arif <usama.arif@linux.dev>
-Subject: [RFC v2 09/21] mm: handle walk_page_range() failure from THP split
-Date: Thu, 26 Feb 2026 03:23:38 -0800
-Message-ID: <20260226113233.3987674-10-usama.arif@linux.dev>
+Subject: [RFC v2 10/21] mm: thp: handle split failure in mremap move_page_tables()
+Date: Thu, 26 Feb 2026 03:23:39 -0800
+Message-ID: <20260226113233.3987674-11-usama.arif@linux.dev>
 In-Reply-To: <20260226113233.3987674-1-usama.arif@linux.dev>
 References: <20260226113233.3987674-1-usama.arif@linux.dev>
 Precedence: bulk
@@ -72,43 +72,41 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
-walk_pmd_range() splits a huge PMD when a page table walker with
-pte_entry or install_pte callbacks needs PTE-level granularity. If
-the split fails due to memory allocation failure in pte_alloc_one(),
-walk_pte_range() would encounter a huge PMD instead of a PTE page
-table.
+move_page_tables() splits a huge PMD when the extent is smaller than
+HPAGE_PMD_SIZE and the PMD can't be moved at PMD granularity.
 
-Break out of the loop on split failure and return -ENOMEM to the
-walker's caller. Callers that reach this path (those with pte_entry
-or install_pte set) such as mincore, hmm_range_fault and
-queue_pages_range already handle negative return values from
-walk_page_range(). Similar approach is taken when __pte_alloc()
-fails in walk_pmd_range().
+If the split fails, the PMD stays huge and move_ptes() can't operate on
+individual PTEs.
+
+Break out of the loop on split failure, which causes mremap() to return
+however much was moved so far (partial move).  This is consistent with
+other allocation failures in the same loop (e.g., alloc_new_pmd(),
+pte_alloc()).
 
 Signed-off-by: Usama Arif <usama.arif@linux.dev>
 ---
- mm/pagewalk.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ mm/mremap.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/mm/pagewalk.c b/mm/pagewalk.c
-index a94c401ab2cfe..1ee9df7a4461d 100644
---- a/mm/pagewalk.c
-+++ b/mm/pagewalk.c
-@@ -147,9 +147,11 @@ static int walk_pmd_range(pud_t *pud, unsigned long addr, unsigned long end,
+diff --git a/mm/mremap.c b/mm/mremap.c
+index 2be876a70cc0d..d067c9fbf140b 100644
+--- a/mm/mremap.c
++++ b/mm/mremap.c
+@@ -855,7 +855,13 @@ unsigned long move_page_tables(struct pagetable_move_control *pmc)
+ 			if (extent == HPAGE_PMD_SIZE &&
+ 			    move_pgt_entry(pmc, HPAGE_PMD, old_pmd, new_pmd))
  				continue;
- 		}
- 
--		if (walk->vma)
--			split_huge_pmd(walk->vma, pmd, addr);
--		else if (pmd_leaf(*pmd) || !pmd_present(*pmd))
-+		if (walk->vma) {
-+			err = split_huge_pmd(walk->vma, pmd, addr);
-+			if (err)
+-			split_huge_pmd(pmc->old, old_pmd, pmc->old_addr);
++			/*
++			 * If split fails, the PMD stays huge and move_ptes
++			 * can't operate on it.  Break out so the caller
++			 * can handle the partial move.
++			 */
++			if (split_huge_pmd(pmc->old, old_pmd, pmc->old_addr))
 +				break;
-+		} else if (pmd_leaf(*pmd) || !pmd_present(*pmd))
- 			continue; /* Nothing to do. */
- 
- 		err = walk_pte_range(pmd, addr, next, walk);
+ 		} else if (IS_ENABLED(CONFIG_HAVE_MOVE_PMD) &&
+ 			   extent == PMD_SIZE) {
+ 			/*
 -- 
 2.47.3
 
