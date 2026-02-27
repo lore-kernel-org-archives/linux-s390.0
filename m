@@ -1,121 +1,164 @@
-Received: from out-189.mta0.migadu.com (out-189.mta0.migadu.com [91.218.175.189])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BF4F3A0E97
-	for <linux-s390@vger.kernel.org>; Fri, 27 Feb 2026 12:11:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.189
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E663331219;
+	Fri, 27 Feb 2026 12:14:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772194314; cv=none; b=kmaFgHp3pFEqnhwY+EkoCKTLfbKc6ePA8gNUpGFXynXPPs4YbaAbuioUmNHRHBDxJJlip5r4xMme6oRbwbvcmDELzQDrhZalJoGK3HPT1mi+dmAebkel3envZJmOYFi/8AEGh39W4KqujHidpJk4CVuH5IhfaHmoQyPGREBF9jM=
+	t=1772194452; cv=none; b=qv/lkNiNo5IrSBSLhTE2V11xZQoTT3nwB4uKjgkcnJZhqVGo+S8iK3Ed4sE8VWxK9OzzkHP+eF8Mu5u5LyooQohZlfnayiCfZVpgm37albZca5r3ZtTOGvW+FCyRzj7ND5lh4QEtYtgzOE7KRDhy27rxCyXpmLxvsaRzFGDDwi0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772194314; c=relaxed/simple;
-	bh=Qox98f5KSPJa6cfmRhkeqK5IHZD+00pWzAvsF6fCTk8=;
+	s=arc-20240116; t=1772194452; c=relaxed/simple;
+	bh=sPxon2hc/nUHTV1XGQtV+rKnomxtR6RwZqBiNLjq7HU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NZnsnijuPjSnNxszihkwIi50DaA2pijlCYWlpWV/P/r11X60FhclbYNxKpdsi6nGF6ovjmlj/Zk+SXJGKQzRU9cy0yO2WLYSypIZuMhxdDd/Yh9o/ptKZJ61PEQazxoAVqGD7gVKXJzBpr3L/w//HGiCPEpvPIf1r7AHC5T/mAQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=G73YvlTI; arc=none smtp.client-ip=91.218.175.189
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	 In-Reply-To:Content-Type; b=ZVwSGN9LHBdki9dFJySQJlYYGXagBafaUmdJh2oSWrMV9nfxX0eHxvm7Leg0Ph4PbaFQ3W2Gv4iV6237ARYtGLWhha69hATAefFmf4TgfvFsYAmht2WhdDX2Yj3LI7hWCE19Pv9uF6/CPsIC2NlV83La5YA7BTjacuW1KQizGkA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MNEnaMGL; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="G73YvlTI"
-Message-ID: <4672053f-c9d9-4694-81ad-9b5fe741013a@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1772194310;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=A9VnUUVWt2OivEInnP/5hnH7A1kF+epUMtvXzdzCsRg=;
-	b=G73YvlTItW/u/rHPyW7CK+7PMpVtGhIzMOv1+2p9NrT7k4zRVoaOf2NzDUgdgP0DB933Kw
-	FryLANPcbvAUfbuhOq0PAoZA9+6fSEp1UeRgwgS84+HZU3nq7i3sqNUZ2hl1aMgf8gchpW
-	Ttxn5+wmgqiIl17kKNPBrc5OfS3bRa0=
-Date: Fri, 27 Feb 2026 12:11:46 +0000
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MNEnaMGL"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61R39S3P3172107;
+	Fri, 27 Feb 2026 12:14:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=oPGC3v
+	wsy6Zwk1bHKUEmmUt9ZCUXLZ4gUHPSC6rou2M=; b=MNEnaMGL7nvnwu4mH7oo6s
+	/FlCnebonFBStt35p7QszN7LYYXIHePhDZ9iqFL91nOHfrvJkWwMOwy3MMUivgde
+	ODUviK4cUiypIxxhqkSR/trEtRdjw3sJ2LdpKD2rN4EDRQwA1e4v4xFhyQ3hgj5E
+	VIn5cmQwXpAOfXxJM0xjaLtwPQ1oMF5/tYkadwxUMkEbYg4Gw6H7JoJL+ohrCyYJ
+	9E9O/YegAK7DmZeDHi63wczqil9B4BoCf0S942lRk8YfHXIQtYoiUtI2Qd5+SOIB
+	/W6inwNH3QWaGToSVCnmdIAdX2BH1hZ9Rq9/JEvFmdmYq1AT6AGkJZabdMBWrlfA
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cf4crckfw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 27 Feb 2026 12:14:10 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61RAnGoH002215;
+	Fri, 27 Feb 2026 12:14:09 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cfr1nj3ay-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 27 Feb 2026 12:14:09 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61RCE5lM35062120
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 27 Feb 2026 12:14:05 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6822C2004E;
+	Fri, 27 Feb 2026 12:14:05 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 189F020043;
+	Fri, 27 Feb 2026 12:14:05 +0000 (GMT)
+Received: from [9.111.56.228] (unknown [9.111.56.228])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 27 Feb 2026 12:14:05 +0000 (GMT)
+Message-ID: <cfe7c01e-0300-4006-894a-6b4890f1de3f@linux.ibm.com>
+Date: Fri, 27 Feb 2026 13:14:04 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [RFC v2 13/21] mm: huge_mm: Make sure all split_huge_pmd calls
- are checked
-Content-Language: en-GB
-To: Andrew Morton <akpm@linux-foundation.org>, david@kernel.org,
- lorenzo.stoakes@oracle.com, willy@infradead.org, linux-mm@kvack.org
-Cc: fvdl@google.com, hannes@cmpxchg.org, riel@surriel.com,
- shakeel.butt@linux.dev, kas@kernel.org, baohua@kernel.org, dev.jain@arm.com,
- baolin.wang@linux.alibaba.com, npache@redhat.com, Liam.Howlett@oracle.com,
- ryan.roberts@arm.com, Vlastimil Babka <vbabka@kernel.org>,
- lance.yang@linux.dev, linux-kernel@vger.kernel.org, kernel-team@meta.com,
- maddy@linux.ibm.com, mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- borntraeger@linux.ibm.com, svens@linux.ibm.com, linux-s390@vger.kernel.org
-References: <20260226113233.3987674-1-usama.arif@linux.dev>
- <20260226113233.3987674-14-usama.arif@linux.dev>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Usama Arif <usama.arif@linux.dev>
-In-Reply-To: <20260226113233.3987674-14-usama.arif@linux.dev>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] KVM: s390: Limit adapter indicator access to mapped
+ page
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        freimuth@linux.ibm.com, mjrosato@linux.ibm.com
+References: <20260217090230.8116-1-frankja@linux.ibm.com>
+ <20260217090230.8116-2-frankja@linux.ibm.com>
+ <20260226165901.68438340@p-imbrenda>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20260226165901.68438340@p-imbrenda>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: lcv3kTMiSsJQyTWQNsp31Y4ck4gVNYbU
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI3MDEwMiBTYWx0ZWRfX432xuPfv+2uJ
+ KrXVame2UbEOzDNKPb3yMOQtVHhQoVxvD4TL7Oa8tLriijNPdORp3WtRII6NGvAynJq3AISnb7p
+ haVjjwvHEVcgjXBT6/ekNlq9hxCFAxXPB1PfdL1+hhIXS3PKYUKgXY9YUfWVYNJDcyFatODpWVm
+ +rAfu9ifktHP2fAApr+kkjj6NH8WHgpOBf7ItA94oyi1RqJ6mm+Zztjjo5Gdad+tlC2V8WXIgcE
+ sBHDPyC5zUslW5ZJ9vFnjyfdxMSEBMqTd7LPJ0HBsEDK496+4O+wAFpD2AYXFsmiEnSIThGafPD
+ tGVh59dXafZtu/QAgoWotJD/NC8q3QN+w8DJw38Z92ELOqO+MaG74YBWTJ55OK6wHR85EqWoUJC
+ IARqHU7/3mYJs0MsADVK+e9tgOsqUnR65sUw2wQPQry7eofKEJFLeC08S8EhBC+AqcNuZMpWJ2X
+ Ant2PtHdfyhPtapiVow==
+X-Proofpoint-GUID: lcv3kTMiSsJQyTWQNsp31Y4ck4gVNYbU
+X-Authority-Analysis: v=2.4 cv=bbBmkePB c=1 sm=1 tr=0 ts=69a18a92 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8
+ a=zupNeltVQiI9-BqO9CwA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-27_01,2026-02-27_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 bulkscore=0 adultscore=0 impostorscore=0 lowpriorityscore=0
+ priorityscore=1501 suspectscore=0 clxscore=1015 phishscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602270102
 
-
-
-On 26/02/2026 11:23, Usama Arif wrote:
-> Mark __split_huge_pmd(), split_huge_pmd() and split_huge_pmd_address()
-> with __must_check so the compiler warns if any caller ignores the return
-> value. Not checking return value and operating on the basis that the pmd
-> is split could result in a kernel bug. The possibility of an order-0
-> allocation failing for page table allocation is very low, but it should
-> be handled correctly.
+On 2/26/26 16:59, Claudio Imbrenda wrote:
+> On Tue, 17 Feb 2026 09:54:22 +0100
+> Janosch Frank <frankja@linux.ibm.com> wrote:
 > 
-> Signed-off-by: Usama Arif <usama.arif@linux.dev>
+>> While we check the address for errors, we don't seem to check the bit
+>> offsets and since they are 32 and 64 bits a lot of memory can be
+>> reached indirectly via those offsets.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> Fixes: 84223598778b ("KVM: s390: irq routing for adapter interrupts.")
+> 
+> Suggested-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Reported-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> 
 
+Just spoke with Claudio, he confused this patch with another one.
 
-Kernel test bot reported that I missed one split_huge_pmd call. I will include
-the below patch in the next revision.
+Since he suggested a fix after I reported the issue to Christian and him 
+I'll keep the suggested-by though.
 
-
-commit 9e1bb250ea8ef0a39c738cd4137ed6c98131ebb0 (HEAD)
-Author: Usama Arif <usama.arif@linux.dev>
-Date:   Thu Feb 26 10:45:35 2026 -0800
-
-    mm: proc: handle split_huge_pmd failure in pagemap_scan
-    
-    pagemap_scan_thp_entry() splits a huge PMD when the PAGEMAP_SCAN ioctl
-    needs to write-protect only a portion of a THP. It then returns -ENOENT
-    so pagemap_scan_pmd_entry() falls through to PTE-level handling.
-    
-    Check the split_huge_pmd() return value and propagate the error on
-    failure. Returning -ENOMEM instead of -ENOENT prevents the fallthrough
-    to PTE handling, and the error propagates through walk_page_range() to
-    do_pagemap_scan() where it becomes the ioctl return value.
-    pagemap_scan_backout_range() already undoes the buffered output, and
-    walk_end is written back to userspace so the caller knows where the
-    scan stopped.
-    
-    If the split fails, the PMD remains huge. An alternative to the approach
-    in the patch is to return -ENOENT, causing the caller to proceed to
-    pte_offset_map_lock(). ___pte_offset_map() detects the trans_huge PMD
-    and returns NULL, which sets ACTION_AGAIN — restarting the walker on the
-    same PMD by which time the system might have enough memory to satisfy
-    the split from succeeding.
-    
-    Signed-off-by: Usama Arif <usama.arif@linux.dev>
-
-diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index e091931d7ca19..f5f459140b5c0 100644
---- a/fs/proc/task_mmu.c
-+++ b/fs/proc/task_mmu.c
-@@ -2714,9 +2714,13 @@ static int pagemap_scan_thp_entry(pmd_t *pmd, unsigned long start,
-         * needs to be performed on a portion of the huge page.
-         */
-        if (end != start + HPAGE_SIZE) {
-+               int err;
-+
-                spin_unlock(ptl);
--               split_huge_pmd(vma, pmd, start);
-+               err = split_huge_pmd(vma, pmd, start);
-                pagemap_scan_backout_range(p, start, end);
-+               if (err)
-+                       return err;
-                /* Report as if there was no THP */
-                return -ENOENT;
-        }
