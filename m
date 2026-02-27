@@ -1,38 +1,38 @@
 Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49549284B29;
-	Fri, 27 Feb 2026 14:30:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 799881D5CFB;
+	Fri, 27 Feb 2026 14:36:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772202620; cv=none; b=MzbX2+ELAYlHdqrYhGaH409lYZfVfMBYg3mg1ryAwUjuxAuRGJh9uN0l8/uZhuPEFiSMv3Greec66emFpOUhMBKWVNY6fTWbynW0LXHbpqrd1/zMDRRaz+ftWsSxsUPlu67K3XGjDuqaTb7vk+1LO4CWCMU1hHcs6MANe02M5Fo=
+	t=1772202971; cv=none; b=nBT23yXu8frVCXd6TJdRLTJDzDDG6l0jSmgZGjUUS86GDb1YmB+kDMuvDEacbrHoYFRHwblWjGEfavzT8GQt00jBJg6nIwQpsHaY1N+y3kCs8Hz8lzMZBHVq7qKiN5fLd8/s8jwNL2alYqiUV4Mxsmvy7efdgrAARf0UBLVLLug=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772202620; c=relaxed/simple;
-	bh=JZEUNXJ+CbYdk4xqxq+Vr7Zsu0RlKX3XpeN9ldDablA=;
+	s=arc-20240116; t=1772202971; c=relaxed/simple;
+	bh=sd4Dk0zWsQwDRJSs7bWqIQywpiYjqUPgxmAIc0fK68w=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QKPpItFXO7opb1loawzSxmwt+rlS2jq1azLO3CwmEwJn7q5iWsjVRUgIe6blYeb6kvxPW681U//+qfaYqjKS/JuFdDk9YsfO3efBOwhfc393HQwTlCp8cTVsmIOEPB4rw/VzpIrgAw1UiSh9+6Y6gDAueI4qtjRh9jSlz7Hfe4M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=Z9TK/udX; arc=none smtp.client-ip=90.155.50.34
+	 Content-Type:Content-Disposition:In-Reply-To; b=gaLg9Jze9ctgbrycZ9vKaFtF/y6THnMTJZfiH4S1sBkzn3KhJwGRcc5Ba/weDsfG65QzP0UI9vqL0JsssAbOCHCvOZwX7EeNIgyWIr+GE+X/2iJp6Bav5kWJnmK15Qsm3aPF9BBkq86Zna455QcSM+tz4gr1CWZSyPQVfFpWCw8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=gT19zSyJ; arc=none smtp.client-ip=90.155.50.34
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Z9TK/udX"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="gT19zSyJ"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
 	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
 	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=lOp11MEHkYYwHRuUi0PZxSk1JN5+nTDJOLnSpDaUbDc=; b=Z9TK/udXiurPXiytUakXbFeev1
-	ri7v9BFFO7R7ZiJvpbTW1JFNZRneKl3isIJyG3zHlkz9s2XQmusrQ/zacC5tOadz4Z7qmOWC49end
-	3fVssHWiU1uZPXJxiiQFriaeu9YgtBdmdglQ2CtYVshTHvu5aWjnfh1f3CqeCm2LMKGKqofhFMRq5
-	2FTQrOlmRLWH57X+/mT4zC19PNT7lNgxKvCQLn4m60NIZInXyfVhYVB3n68h6H+ZGw2r9VS0iGiNq
-	QnT1zFqHAqIdiC0LM2DhVATtSnPcGUsNzzjMV7n5w3njjHXBfMs/S6eMK73CqMCrr/PUyh+1FLh1J
-	kCLUtTiQ==;
-Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
+	bh=sd4Dk0zWsQwDRJSs7bWqIQywpiYjqUPgxmAIc0fK68w=; b=gT19zSyJlZ01h1mPp6S80vBRFH
+	IjVl8R7qdhkl82ZBM7K3RNQpUuVOTEwfhynLod0ekoivTAyc2hIi5NguGcnPGSOm6VQVTDzw/0rOw
+	urM2L/MwCIku3UuvefipMJbZqe5dglNz/hc9BoOT8YeFkRst9vGYMSVL6cZl6ZIImDnD1thTOFeAF
+	ODqvOra+EtsrlT1pLBtYPSmMit/r4pO/rdscvLDG2eKuyFrdjgPlJKvnUAZB30EOfr6DaPhrv4kxm
+	3fwl5hJdlR5agJOWM8H7LgjD4dLSQ8/qkqU0dRCf2e1BShjqjyLfXHHv2BMBj6E4WQl2U6QFU0qi9
+	9XGYd2YA==;
+Received: from 2001-1c00-8d85-5700-266e-96ff-fe07-7dcc.cable.dynamic.v6.ziggo.nl ([2001:1c00:8d85:5700:266e:96ff:fe07:7dcc] helo=noisy.programming.kicks-ass.net)
 	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vvyrB-00000004hgn-0s0N;
-	Fri, 27 Feb 2026 14:30:17 +0000
+	id 1vvywp-00000004i4d-0v3S;
+	Fri, 27 Feb 2026 14:36:07 +0000
 Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id B3685300CDE; Fri, 27 Feb 2026 15:30:16 +0100 (CET)
-Date: Fri, 27 Feb 2026 15:30:16 +0100
+	id AF18E300462; Fri, 27 Feb 2026 15:36:06 +0100 (CET)
+Date: Fri, 27 Feb 2026 15:36:06 +0100
 From: Peter Zijlstra <peterz@infradead.org>
 To: Christoph Hellwig <hch@lst.de>
 Cc: Andrew Morton <akpm@linux-foundation.org>,
@@ -74,10 +74,10 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
 	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
 	linux-crypto@vger.kernel.org, linux-btrfs@vger.kernel.org,
 	linux-arch@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: [PATCH 18/25] x86: move the XOR code to lib/raid/
-Message-ID: <20260227143016.GH1282955@noisy.programming.kicks-ass.net>
+Subject: Re: [PATCH 25/25] xor: use static_call for xor_gen
+Message-ID: <20260227143606.GI1282955@noisy.programming.kicks-ass.net>
 References: <20260226151106.144735-1-hch@lst.de>
- <20260226151106.144735-19-hch@lst.de>
+ <20260226151106.144735-26-hch@lst.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -86,20 +86,9 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260226151106.144735-19-hch@lst.de>
+In-Reply-To: <20260226151106.144735-26-hch@lst.de>
 
-On Thu, Feb 26, 2026 at 07:10:30AM -0800, Christoph Hellwig wrote:
-> Move the optimized XOR code out of line into lib/raid.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  arch/x86/include/asm/xor.h                    | 518 ++----------------
->  arch/x86/include/asm/xor_64.h                 |  32 --
->  lib/raid/xor/Makefile                         |   8 +
->  .../xor_avx.h => lib/raid/xor/x86/xor-avx.c   |  14 +-
->  .../xor_32.h => lib/raid/xor/x86/xor-mmx.c    |  60 +-
->  lib/raid/xor/x86/xor-sse.c                    | 476 ++++++++++++++++
+On Thu, Feb 26, 2026 at 07:10:37AM -0800, Christoph Hellwig wrote:
+> Avoid the indirect call for xor_generation by using a static_call.
 
-I gotta ask, why lib/raid/xor/$arch/ instead of something like
-arch/$arch/lib/xor ?
-
+Nice!
