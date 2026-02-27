@@ -1,172 +1,155 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86B72332606;
-	Fri, 27 Feb 2026 08:58:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BECA93B52E4;
+	Fri, 27 Feb 2026 09:11:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772182701; cv=none; b=feU6anpgEYiYB1hu9sl9mmsWAqrcHJHI3j+K3MBXBR+h626UX/8goo7SFE1aerpiNxNhYAEPaFhFM6stgJujsUUlyn2OTkLm1du2eJ6RKKzKt0aPaiF2a5ilco5LMX2Uo9Kbzql4B9D49DAh6iHfp39lS8XushvtqooBhUriiDo=
+	t=1772183518; cv=none; b=Dya5oVm8fHtF3M/8CZqs5cZ5fnsuQQj1L8siJ+3/cmGhl6wFKq4b9NMoxOWIECszDSLlpQMgY8+PhXEIWDCGv6xEAq7hRJ7L2tZlbr4RqklOSfvaQpBgQ4fMld7uomO8eLw70cUVnfIkow+lwhcRXrhiObR5UY7MYcFWBBNYdJs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772182701; c=relaxed/simple;
-	bh=Wi6J+f5oQlDZKytCaDRy1GNr0FAigVOcgOKl0ZI+3Ik=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=c9AIlmoZlM7PUqOaFlkIEpdwaJdULj0wA3tVjl3WDqFl8apNBDgFGe7j0rEBxGiZYYkaGvxL0se3zgB6sS06ZzFW9tBYYLQ1Trmo3+E8JM5UFt6lp/wwQHHNGYxOg3+cbLAhFZWEj+UTcZ0TvShupsp2BHfu0CuOHhjVlH30HEE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sZDfxp3p; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1772183518; c=relaxed/simple;
+	bh=zHYdbKnsq8dhCXkAKHSWS7m786Mc+pWJxumIZ3n3mhk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bWELCeYAG86rEl/6MVf2eD4ZDp32kTYt12LLvPm9n/u8LYc7yPNJhpWfCusRM5gwioq1vprVSbutRNx2ipTlGUu9hhbJ+THAEynjLKsniAKIwOeAcDw5spO7gMUtZzO84Oz4kJnf7FrYypvLqDpXrOppnAbFN+pOIOTBXVTilaE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WsV8TR6r; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sZDfxp3p"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WsV8TR6r"
 Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61QNfeDg3178876;
-	Fri, 27 Feb 2026 08:57:25 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61R42kun3100088;
+	Fri, 27 Feb 2026 09:10:09 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ohADth
-	LDD9z3XUImOUnNifIKCKACdymEuIsWp6yNCC8=; b=sZDfxp3pYtANr1JiWIkADr
-	lfCfeth2VR2Y2XN+68ftwKl05od9arHJ/ZN3j4BjHGVaXiJSqhqqiTjt3lRe3/Tb
-	NspqofphmW0zV3wzay8doVQJVU5+11+mJNZq13UTw4NcF3FoH9gDBx/1VRqKqEk6
-	TdjBn1hmyUWPKSAZRmFAIMLYQI33iq0PT4s+h1C3a69Q/ka6JaNfaNWDxoiDnK88
-	BWtJ0hyTd5HehP0BaTBtyhpyZEWrTdIkrk1CGRtS9TXHd4A7UZ7shYy6EnhTyqJJ
-	RTOLUPNYlt/XLrTk38tmOy9Z2lHHDeHD95ij6tpl7IM0aA+Uy0d4Ld/cgXzdRuYg
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cf34cjtjk-1
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=9fJNQ8hFc6Hs06NykvFdnbwjP22Qa4
+	Czsab7f5+iT/s=; b=WsV8TR6rk52sfgi0yEDU4EhQlIECmYdEVoCyjTqw7gZ3F3
+	eeHg+aJhMwLYBfRrvCTB+X1E8112JloZG505tr4YoHOHpsA+0VMCmikGSenHxCgI
+	8HXR4cEHiWmwwkzLwBscjDqpDZO3ne2k4EEE07xYvkotrBxJdXJpgPVvwn27muSf
+	xqBav/gaocnH+/b+cmw7rtzjfv7peKnbFuS/n+xyS+NBW6dWAjUvlxf2Z1nhGNyZ
+	JW8mx8qyfv8JeTYDboY2RdD3NfJMbMKBk4Cfsm9yXyMH2NxCMnd5vEs8SgkmIVEz
+	9iyvjXnemPAPNRZVT+C81oevbnLXFbPBfFIhRcFg==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cf34cjvka-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Feb 2026 08:57:24 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61R6ldH4014012;
-	Fri, 27 Feb 2026 08:57:24 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cfqdyhan3-1
+	Fri, 27 Feb 2026 09:10:08 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61R7xVgm027794;
+	Fri, 27 Feb 2026 09:10:07 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cfsr291xx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Feb 2026 08:57:24 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61R8vJo814090732
+	Fri, 27 Feb 2026 09:10:07 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61R9A3w526345784
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 27 Feb 2026 08:57:20 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D71652004B;
-	Fri, 27 Feb 2026 08:57:19 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 49CE620040;
-	Fri, 27 Feb 2026 08:57:16 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.111.69.15])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Fri, 27 Feb 2026 08:57:16 +0000 (GMT)
-Date: Fri, 27 Feb 2026 09:57:14 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Suren Baghdasaryan <surenb@google.com>
-Cc: akpm@linux-foundation.org, willy@infradead.org, david@kernel.org,
-        ziy@nvidia.com, matthew.brost@intel.com, joshua.hahnjy@gmail.com,
-        rakie.kim@sk.com, byungchul@sk.com, gourry@gourry.net,
-        ying.huang@linux.alibaba.com, apopple@nvidia.com,
-        lorenzo.stoakes@oracle.com, baolin.wang@linux.alibaba.com,
-        Liam.Howlett@oracle.com, npache@redhat.com, ryan.roberts@arm.com,
-        dev.jain@arm.com, baohua@kernel.org, lance.yang@linux.dev,
-        vbabka@suse.cz, jannh@google.com, rppt@kernel.org, mhocko@suse.com,
-        pfalcato@suse.de, kees@kernel.org, maddy@linux.ibm.com,
-        npiggin@gmail.com, mpe@ellerman.id.au, chleroy@kernel.org,
-        borntraeger@linux.ibm.com, frankja@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, linux-mm@kvack.org,
-        linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3 3/3] mm: use vma_start_write_killable() in
- process_vma_walk_lock()
-Message-ID: <20260227095714.5e69a0a8@p-imbrenda>
-In-Reply-To: <CAJuCfpEk_VPqwpqtAiCJSR5bkvHuzvC8ooXrB4jKTYnQB2D4YA@mail.gmail.com>
-References: <20260226070609.3072570-1-surenb@google.com>
-	<20260226070609.3072570-4-surenb@google.com>
-	<20260226191007.409a7a21@p-imbrenda>
-	<CAJuCfpEk_VPqwpqtAiCJSR5bkvHuzvC8ooXrB4jKTYnQB2D4YA@mail.gmail.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
+	Fri, 27 Feb 2026 09:10:03 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3E7ED20043;
+	Fri, 27 Feb 2026 09:10:03 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 88C6E20040;
+	Fri, 27 Feb 2026 09:10:00 +0000 (GMT)
+Received: from osiris (unknown [9.87.152.66])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 27 Feb 2026 09:10:00 +0000 (GMT)
+Date: Fri, 27 Feb 2026 10:09:59 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+        Richard Henderson <richard.henderson@linaro.org>,
+        Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+        WANG Xuerui <kernel@xen0n.name>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+        Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Andreas Larsson <andreas@gaisler.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Dan Williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>,
+        David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>,
+        Song Liu <song@kernel.org>, Yu Kuai <yukuai@fnnas.com>,
+        Li Nan <linan122@huawei.com>, linux-alpha@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-crypto@vger.kernel.org, linux-btrfs@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: [PATCH 17/25] s390: move the XOR code to lib/raid/
+Message-ID: <20260227090959.10882Af7-hca@linux.ibm.com>
+References: <20260226151106.144735-1-hch@lst.de>
+ <20260226151106.144735-18-hch@lst.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260226151106.144735-18-hch@lst.de>
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI3MDA3MyBTYWx0ZWRfX9WncEKIsvtkE
- 93BCkSDioR3viSI4k8M8ER0no2D2zADEGoLWX0KPQp0RA8BsPJbCrfq2KNwhRaeVWK9DAn3UOd6
- JAAx02zp+y9sAZSn4DLDrb3m80HWoUwQ3XZbkAc/WY4whBIPdkpq5++S1OS1U/BZL1YM5xtJRtL
- asZKx6fRd45Z4dwVYGheVX0JssABTlQnZcPMUUlLPHlLa2PGtc+gWSwVlWd/LbyzyJTu5/eCRQv
- ZD0ydFAWHEbM9dSGMVwbFmFBk6I11/cjfskqj1vi3sWYi9ExPCWFV8MocD36VLDGxyr7Hgvw95a
- oNSV4Q1Wk5+LBR+205t5wPH9duGWR6eo7a84XSUaM2JtRffZshKV0ovn8RzJA32bUOqSp/TehRx
- vmDqLHCgdsnyiO0l67/DgUsWIDjh+fag6Xuw/2WaA0DTHK1m/3W1tSm4sGSr6C6KPXPZdDprF1U
- j1k9+KMGXV8XsaOEoIg==
-X-Proofpoint-ORIG-GUID: ajegLXIpD6Zt7S3-2yKIDNzKpDYqMOPu
-X-Authority-Analysis: v=2.4 cv=F9lat6hN c=1 sm=1 tr=0 ts=69a15c75 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=1XWaLZrsAAAA:8
- a=VnNF1IyMAAAA:8 a=Ch0MJLqadWv443iAyyUA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: co2lSwi4qVEs7Dzgf2PvZ6JwEnc7YSIK
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI3MDA3OCBTYWx0ZWRfX82U5aVPSCKMj
+ b+0tJb22GfHqv9v4ECkZvrQTVdwe0NpyD3M0iH/J0+Xwr+YNeZjI36wIQPTa9rvjnE1UWrx9YkQ
+ JHFDvWeaZB3m0vLeSHPjQ41gZNyK3P7jz3/RMGU+PQUjTrl/esmjGZf3JQqOP9wpvYUJI8IGwZd
+ /XesnT0Fp6f7P6zmIK4NRyzDQXfXKB/frdS7KrKVpjV7P2YYv2qXUSwm17bcz6D+3OU43mCcNJw
+ VglTApNotpU5nP84m/1BO0OHu/I+7q5gBb6aF778m34dUw2mKpCO0GIw5iCL/18UvCIDVst+Cg2
+ or+7hBFh9lVuTlBEIYrN26hWcqnQmJk+cg6nVuLOR39apbYgayyTTwj8euDUuBGnNDky60OnBzo
+ zdR2VUTZDeHZGzwsBRd/sH8aRuZ3XZmPmK5c8OM2MVccRTGc8Hd/VLBtD8pqPq/pRTFgfAMLrBX
+ 75ZY0FEa+686cu8Lnvw==
+X-Proofpoint-ORIG-GUID: F8S8ZNtQow6uofq1eM08rQyj9jFeslmn
+X-Authority-Analysis: v=2.4 cv=F9lat6hN c=1 sm=1 tr=0 ts=69a15f71 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=kj9zAlcOel0A:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VnNF1IyMAAAA:8
+ a=HpkjO1BTjMN3Ce6vPK4A:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: j1a5E8YeCxBUvXVfRM302zEA8A8N1Tzy
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-02-27_01,2026-02-26_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  impostorscore=0 phishscore=0 bulkscore=0 adultscore=0 spamscore=0
- clxscore=1015 suspectscore=0 malwarescore=0 lowpriorityscore=0
+ clxscore=1011 suspectscore=0 malwarescore=0 lowpriorityscore=0
  priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
- definitions=main-2602270073
+ definitions=main-2602270078
 
-On Thu, 26 Feb 2026 10:24:49 -0800
-Suren Baghdasaryan <surenb@google.com> wrote:
+On Thu, Feb 26, 2026 at 07:10:29AM -0800, Christoph Hellwig wrote:
+> Move the optimized XOR into lib/raid and include it it in xor.ko
+> instead of unconditionally building it into the main kernel image.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  arch/s390/lib/Makefile                     | 2 +-
+>  lib/raid/xor/Makefile                      | 1 +
+>  {arch/s390/lib => lib/raid/xor/s390}/xor.c | 2 --
+>  3 files changed, 2 insertions(+), 3 deletions(-)
+>  rename {arch/s390/lib => lib/raid/xor/s390}/xor.c (98%)
 
-> On Thu, Feb 26, 2026 at 10:10=E2=80=AFAM Claudio Imbrenda
-> <imbrenda@linux.ibm.com> wrote:
-> >
-> > On Wed, 25 Feb 2026 23:06:09 -0800
-> > Suren Baghdasaryan <surenb@google.com> wrote:
-> > =20
-> > > Replace vma_start_write() with vma_start_write_killable() when
-> > > process_vma_walk_lock() is used with PGWALK_WRLOCK option.
-> > > Adjust its direct and indirect users to check for a possible error
-> > > and handle it. Ensure users handle EINTR correctly and do not ignore
-> > > it.
-> > >
-> > > Signed-off-by: Suren Baghdasaryan <surenb@google.com>
-> > > ---
-> > >  arch/s390/kvm/kvm-s390.c |  2 +-
-> > >  fs/proc/task_mmu.c       |  5 ++++-
-> > >  mm/mempolicy.c           | 14 +++++++++++---
-> > >  mm/pagewalk.c            | 20 ++++++++++++++------
-> > >  mm/vma.c                 | 22 ++++++++++++++--------
-> > >  mm/vma.h                 |  6 ++++++
-> > >  6 files changed, 50 insertions(+), 19 deletions(-)
-> > >
-> > > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> > > index 7a175d86cef0..337e4f7db63a 100644
-> > > --- a/arch/s390/kvm/kvm-s390.c
-> > > +++ b/arch/s390/kvm/kvm-s390.c
-> > > @@ -2948,7 +2948,7 @@ int kvm_arch_vm_ioctl(struct file *filp, unsign=
-ed int ioctl, unsigned long arg)
-> > >               }
-> > >               /* must be called without kvm->lock */
-> > >               r =3D kvm_s390_handle_pv(kvm, &args);
-> > > -             if (copy_to_user(argp, &args, sizeof(args))) {
-> > > +             if (r !=3D -EINTR && copy_to_user(argp, &args, sizeof(a=
-rgs))) {
-> > >                       r =3D -EFAULT;
-> > >                       break;
-> > >               } =20
-> >
-> > can you very briefly explain how we can end up with -EINTR here?
-> >
-> > do I understand correctly that -EINTR is possible here only if the
-> > process is being killed? =20
->=20
-> Correct, it would happen if the process has a pending fatal signal
-> (like SIGKILL) in its signal queue.
->=20
-> >
-> > [...] =20
+FWIW:
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
 
-Acked-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
+However, I just had a look at the s390 implementation and just saw that the
+inline assembly constraints for xor_xc_2() are incorrect. "bytes", "p1",
+and "p2" are input operands, while all three of them are modified within
+the inline assembly. Given that the function consists only of this inline
+assembly I doubt that this causes any harm, however I still want to fix
+this now; but your patch should apply fine with or without this fixed.
