@@ -1,187 +1,200 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C25BE280A29;
-	Fri, 27 Feb 2026 01:12:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BA6233A70B;
+	Fri, 27 Feb 2026 03:53:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772154732; cv=none; b=GvdW+RcZ8b+pLTZm6gh0VCsYt4QE6rMO1uV8gdaZin+YQDa9+6X2bAL+nLgwLZIXBSSzPcOhBYnO95jrK7CGnT+qcEJMXx0ePIZ+GjezR1aPXT3KsYU8ptIKv6Le3B47tjh8E3jqSaRj7w0EBLR25Ks180bNyco9dpLsHgAT7VM=
+	t=1772164382; cv=none; b=sSfdHlCOt+VsRz5ZvAux/bKZ8+z/zK8yt0bplRg9rbBipfrUkJtdgCTtef4u+TRy8GgzYZr5fGJ4xYladK77Tkaa1h7u3mGjYFTwmmBe9chHL0mdaG4/IJt+FNTxs2w8kgihhmOVCkbAoB8X2Xvmzh7WRmGx0atB52q+0vtPvYE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772154732; c=relaxed/simple;
-	bh=toaYxiPZ/lCeBM7C8uOMFWILyi4ngU7RTn1w2G8GD5A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hSmJu2unmcknpE33JRSlQ48ya021IQzwO+NNoOJHOIhp5f2uEkQb+4eWFyU+4QoJVPNNH08x2Gg0lu1bUIPTx0Hzbt23Mi0rrw2nAmmYRi8eplId+ZwbcAJviWQ/dFlJzYNX5AKjGQA9jk7bgCgJRL7sZot1614sYFh2RGOhr6Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KoJ8+tCq; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772164382; c=relaxed/simple;
+	bh=85iHLWRx8ynP5HbfuLYmK1cCtUJceJFWMGhV7uqh/Y4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=O6co+/SPyaJgD175NbmWH86O/4GGY0WTAIoY56lzDKOrKFipGS+ObUaH8VdXbhOr2tZtbqWHzaq86g447o4hENBhYVW6iHPCO33skX5Y1TQSyihna2Fl5B4UbyCPvo5IsWVK31sbuhTwx+QnqQ4u4OBbtxCso5V9sLMuy4hPSuY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IsVdHpn0; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KoJ8+tCq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9074EC116C6;
-	Fri, 27 Feb 2026 01:12:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IsVdHpn0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 945F2C116C6;
+	Fri, 27 Feb 2026 03:53:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772154732;
-	bh=toaYxiPZ/lCeBM7C8uOMFWILyi4ngU7RTn1w2G8GD5A=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=KoJ8+tCqPmwPW2nqtGZARcr0hjJVC/K5l9WBoZd+sqMpYELts0SvdJ6gtiDYPzAgz
-	 OQ/CcOVyraLKD0E3KIdka1B8z5QrL8zcn8u2QaGrs8vzS/C8opOdfGi3T3yStQloTv
-	 +ZTXamB6IlPyZo/YDSl6DdvljAwHRWiyTJ+XNX7Xz4qlFUNJBfyV719DCt2RZjJJgW
-	 cKTOhCQCbPzohQxVEb3L+aD56RDxTv6YR2MQMdS9mlx3hS4YQtU3lKLGFHq5hwHpeZ
-	 uO1bb/xOgHTqADagudFMUPAK+NpI74MLlpRy39MCk4aJoo9835DfH0viTRBwtxmNQp
-	 KF2Ze1ivOMkiw==
-Date: Thu, 26 Feb 2026 18:12:01 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
+	s=k20201202; t=1772164382;
+	bh=85iHLWRx8ynP5HbfuLYmK1cCtUJceJFWMGhV7uqh/Y4=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=IsVdHpn0G4PaDJLgkUUJQnMAYpTW/NwSMkIo6MHCCmDgL/nioWn/3Si6cA6NbFqRp
+	 4RJaDBU8jEPtatwM5OsVYMdcqsScIn8noSD6nWmQUaPlR2AZzBjJ/emTHD7YfEfgmv
+	 zYIGWS8yh7oPTgoz2TqnGB72IoB7J1ynDBrwTSJIrU/qBEs9ns1ug8lkrVpTJj/UAI
+	 Z8FGoRNITGI9DGw5/eYIOugB5PcEll4En8hXyuxNGTYipQWr5JGm4mMuTsvXrVjRpV
+	 bhGk/WvWy6+ZEbNYZc7x2R/eeAPAC8uyL8KnKlPh89rUAaZnYjNpKuokbBwBaw1/Cn
+	 HZ9pqU48uBo6g==
+From: Jakub Kicinski <kuba@kernel.org>
+To: alibuda@linux.alibaba.com
+Cc: Jakub Kicinski <kuba@kernel.org>,
+	netdev@vger.kernel.org,
+	pabeni@redhat.com,
+	linux-rdma@vger.kernel.org,
+	sidraya@linux.ibm.com,
+	horms@kernel.org,
+	davem@davemloft.net,
+	linux-s390@vger.kernel.org,
+	mjambigi@linux.ibm.com,
+	oliver.yang@linux.alibaba.com,
+	edumazet@google.com,
+	wenjia@linux.ibm.com,
+	guwen@linux.alibaba.com,
+	tonylu@linux.alibaba.com,
+	dust.li@linux.alibaba.com,
 	linux-kernel@vger.kernel.org,
-	"Paul E. McKenney" <paulmck@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
-	Christoph Lameter <cl@linux.com>, Martin Liu <liumartin@google.com>,
-	David Rientjes <rientjes@google.com>, christian.koenig@amd.com,
-	Shakeel Butt <shakeel.butt@linux.dev>,
-	SeongJae Park <sj@kernel.org>, Michal Hocko <mhocko@suse.com>,
-	Johannes Weiner <hannes@cmpxchg.org>,
-	Sweet Tea Dorminy <sweettea-kernel@dorminy.me>,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	"Liam R . Howlett" <liam.howlett@oracle.com>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Christian Brauner <brauner@kernel.org>,
-	Wei Yang <richard.weiyang@gmail.com>,
-	David Hildenbrand <david@redhat.com>,
-	Miaohe Lin <linmiaohe@huawei.com>,
-	Al Viro <viro@zeniv.linux.org.uk>, linux-mm@kvack.org,
-	linux-trace-kernel@vger.kernel.org, Yu Zhao <yuzhao@google.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Mateusz Guzik <mjguzik@gmail.com>,
-	Matthew Wilcox <willy@infradead.org>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Aboorva Devarajan <aboorvad@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v17 0/3] Improve proc RSS accuracy
-Message-ID: <20260227011201.GA1577380@ax162>
-References: <20260217161006.1105611-1-mathieu.desnoyers@efficios.com>
- <20260226120422.8101Cc2-hca@linux.ibm.com>
- <59b28cb4-4fff-4888-b562-7b7236e29d27@efficios.com>
- <e0af317a-d6ad-4de4-8bb1-215d5dce7351@efficios.com>
- <73e6fea9-caf2-4404-b511-11646013f8db@efficios.com>
+	pasic@linux.ibm.com
+Subject: Re: [net-next] net/smc: transition to RDMA core CQ pooling
+Date: Thu, 26 Feb 2026 19:53:00 -0800
+Message-ID: <20260227035300.2628494-1-kuba@kernel.org>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260225024513.7861-1-alibuda@linux.alibaba.com>
+References: <20260225024513.7861-1-alibuda@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <73e6fea9-caf2-4404-b511-11646013f8db@efficios.com>
+Content-Transfer-Encoding: 8bit
 
-Hi Mathieu,
+This is an AI-generated review of your patch. The human sending this
+email has considered the AI review valid, or at least plausible.
 
-On Thu, Feb 26, 2026 at 02:38:04PM -0500, Mathieu Desnoyers wrote:
-> I've successfully booted a defconfig s390x next-20260226 kernel in qemu
-> with 1 and 4 CPUs, and within a nested s390x VM on 2 cpus.
-> 
-> I guess I'll really need more info about your specific .config and
-> command line args to help further.
+For local reproduction steps see https://netdev-ai.bots.linux.dev/ai-local.html
+---
+net/smc: transition to RDMA core CQ pooling
 
-FWIW, the ClangBuiltLinux CI sees a boot failure with sparc64_defconfig,
-which does not appear to be clang specific. I can reproduce it here
-with:
+This commit refactors SMC-R completion handling to use the ib_cqe API
+and RDMA core CQ pooling, replacing the previous per-device global CQs
+and manual tasklet polling. The refactoring aims to eliminate scalability
+bottlenecks by enabling multi-CQ parallelization and O(1) context retrieval.
 
-  $ make -skj"$(nproc)" ARCH=sparc CROSS_COMPILE=sparc64-linux- mrproper sparc64_defconfig image
+> diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+> index 5feafa98ab1a..4a4924c5cade 100644
+> --- a/net/smc/smc_wr.c
+> +++ b/net/smc/smc_wr.c
 
-  $ curl -LSs https://github.com/ClangBuiltLinux/boot-utils/releases/download/20241120-044434/sparc64-rootfs.cpio.zst | zstd -d >rootfs.cpio
+[ ... ]
 
-  $ qemu-system-sparc64 \
-      -display none \
-      -nodefaults \
-      -M sun4u \
-      -cpu 'TI UltraSparc IIi' \
-      -append console=ttyS0 \
-      -kernel arch/sparc/boot/image \
-      -initrd rootfs.cpio \
-      -m 1G \
-      -serial mon:stdio
-  ...
-  [    0.001502] Linux version 7.0.0-rc1+ (nathan@framework-amd-ryzen-maxplus-395) (sparc64-linux-gcc (GCC) 15.2.0, GNU ld (GNU Binutils) 2.45) #1 SMP Thu Feb 26 18:00:08 MST 2026
-  ...
-  [    1.339282] Run /init as init process
-  [    1.340037] Unable to handle kernel NULL pointer dereference
-  [    1.340515] tsk->{mm,active_mm}->context = 0000000000000000
-  [    1.340684] tsk->{mm,active_mm}->pgd = fffff80000402000
-  [    1.340838]               \|/ ____ \|/
-  [    1.340838]               "@'/ .. \`@"
-  [    1.340838]               /_| \__/ |_\
-  [    1.340838]                  \__U_/
-  [    1.341260] swapper/0(1): Oops [#1]
-  [    1.341575] CPU: 0 UID: 0 PID: 1 Comm: swapper/0 Not tainted 7.0.0-rc1+ #1 VOLUNTARY
-  [    1.341937] TSTATE: 0000004411001606 TPC: 0000000000465674 TNPC: 0000000000465678 Y: 00000021    Not tainted
-  [    1.342199] TPC: <init_new_context+0x14/0xc0>
-  [    1.342584] g0: 0000000000000000 g1: 0000000000000000 g2: 0000000000000000 g3: 0000000000000000
-  [    1.342815] g4: fffff80004170000 g5: fffff8003e1d2000 g6: fffff80004134000 g7: fffff8003f814598
-  [    1.343047] o0: fffff8000479c0a0 o1: 0000000000000000 o2: 0000000000002000 o3: 0000000000000000
-  [    1.343276] o4: fffff80004621200 o5: fffff80004006e00 sp: fffff80004137331 ret_pc: 000000000062a520
-  [    1.343513] RPC: <kmem_cache_alloc_noprof+0x1c0/0x560>
-  [    1.343681] l0: ffffffffffffffff l1: 0000000000000000 l2: 0000000000000001 l3: 0000000000000000
-  [    1.343917] l4: 000000004fd6805e l5: 0000000001503c00 l6: 0000000001423800 l7: 0000000000000012
-  [    1.344144] i0: fffff80004170000 i1: fffff8000479c0a0 i2: 0000000000472030 i3: 000000000180ac00
-  [    1.344371] i4: 0000000000000000 i5: fffff8000400b500 i6: fffff800041373e1 i7: 0000000000472044
-  [    1.344601] I7: <mm_init.isra.0+0x144/0x1e0>
-  [    1.344751] Call Trace:
-  [    1.344871] [<0000000000472044>] mm_init.isra.0+0x144/0x1e0
-  [    1.345054] [<00000000006602ec>] alloc_bprm+0xcc/0x1e0
-  [    1.345195] [<0000000000660e6c>] kernel_execve+0x2c/0x1c0
-  [    1.345345] [<0000000000be4060>] kernel_init+0x70/0x128
-  [    1.345496] [<00000000004060f0>] ret_from_fork+0x24/0x34
-  [    1.345652] [<0000000000000000>] 0x0
-  [    1.345823] Disabling lock debugging due to kernel taint
-  [    1.346046] Caller[0000000000472044]: mm_init.isra.0+0x144/0x1e0
-  [    1.346229] Caller[00000000006602ec]: alloc_bprm+0xcc/0x1e0
-  [    1.346388] Caller[0000000000660e6c]: kernel_execve+0x2c/0x1c0
-  [    1.346553] Caller[0000000000be4060]: kernel_init+0x70/0x128
-  [    1.346707] Caller[00000000004060f0]: ret_from_fork+0x24/0x34
-  [    1.346864] Caller[0000000000000000]: 0x0
-  [    1.346985] Instruction DUMP:
-  [    1.347007]  92102000
-  [    1.347135]  90100019
-  [    1.347204]  f85e6490
-  [    1.347281] <c6588000>
-  [    1.347349]  c25e6388
-  [    1.347416]  fa5e6488
-  [    1.347485]  82004003
-  [    1.347552]  c65e63c0
-  [    1.347619]  83784c00
-  [    1.347689]
-  [    1.348041] Kernel panic - not syncing: Attempted to kill init! exitcode=0x00000009
-  [    1.348649] Press Stop-A (L1-A) from sun keyboard or send break
-  [    1.348649] twice on console to return to the boot prom
-  [    1.348940] ---[ end Kernel panic - not syncing: Attempted to kill init! exitcode=0x00000009 ]---
+> @@ -63,55 +60,52 @@ void smc_wr_tx_wait_no_pending_sends(struct smc_link *link)
+>  	wait_event(link->wr_tx_wait, !smc_wr_is_tx_pend(link));
+>  }
+>
+> -static inline int smc_wr_tx_find_pending_index(struct smc_link *link, u64 wr_id)
+> +static void smc_wr_tx_rdma_process_cqe(struct ib_cq *cq, struct ib_wc *wc)
+>  {
+> -	u32 i;
+> +	struct smc_link *link = wc->qp->qp_context;
+>
+> -	for (i = 0; i < link->wr_tx_cnt; i++) {
+> -		if (link->wr_tx_pends[i].wr_id == wr_id)
+> -			return i;
+> -	}
+> -	return link->wr_tx_cnt;
+> +	/* terminate link */
+> +	if (wc->status)
+> +		smcr_link_down_cond_sched(link);
+> +}
+> +
+> +static void smc_wr_reg_process_cqe(struct ib_cq *cq, struct ib_wc *wc)
+> +{
+> +	struct smc_link *link = wc->qp->qp_context;
+> +
+> +	if (wc->status)
+> +		link->wr_reg_state = FAILED;
+> +	else
+> +		link->wr_reg_state = CONFIRMED;
+> +	smc_wr_wakeup_reg_wait(link);
+>  }
+>
+> -static inline void smc_wr_tx_process_cqe(struct ib_wc *wc)
+> +static void smc_wr_tx_process_cqe(struct ib_cq *cq, struct ib_wc *wc)
+>  {
+> -	struct smc_wr_tx_pend pnd_snd;
+> +	struct smc_wr_tx_pend *tx_pend, pnd_snd;
+> +	struct smc_ib_send_wr *send_wr;
+>  	struct smc_link *link;
+>  	u32 pnd_snd_idx;
+>
+>  	link = wc->qp->qp_context;
+>
+> -	if (wc->opcode == IB_WC_REG_MR) {
+> -		if (wc->status)
+> -			link->wr_reg_state = FAILED;
+> -		else
+> -			link->wr_reg_state = CONFIRMED;
+> -		smc_wr_wakeup_reg_wait(link);
+> -		return;
+> -	}
+> +	send_wr = container_of(wc->wr_cqe, struct smc_ib_send_wr, cqe);
+> +	pnd_snd_idx = send_wr->idx;
+> +
+> +	tx_pend = (pnd_snd_idx == link->wr_tx_cnt) ? link->wr_tx_v2_pend :
+> +		&link->wr_tx_pends[pnd_snd_idx];
+> +
+> +	tx_pend->wc_status = wc->status;
+> +	memcpy(&pnd_snd, tx_pend, sizeof(pnd_snd));
+> +	/* clear the full struct smc_wr_tx_pend including .priv */
+> +	memset(tx_pend, 0, sizeof(*tx_pend));
+>
+> -	pnd_snd_idx = smc_wr_tx_find_pending_index(link, wc->wr_id);
+>  	if (pnd_snd_idx == link->wr_tx_cnt) {
+> -		if (link->lgr->smc_version != SMC_V2 ||
+> -		    link->wr_tx_v2_pend->wr_id != wc->wr_id)
+> -			return;
+> -		link->wr_tx_v2_pend->wc_status = wc->status;
+> -		memcpy(&pnd_snd, link->wr_tx_v2_pend, sizeof(pnd_snd));
+> -		/* clear the full struct smc_wr_tx_pend including .priv */
+> -		memset(link->wr_tx_v2_pend, 0,
+> -		       sizeof(*link->wr_tx_v2_pend));
+>  		memset(link->lgr->wr_tx_buf_v2, 0,
+>  		       sizeof(*link->lgr->wr_tx_buf_v2));
+>  	} else {
+> -		link->wr_tx_pends[pnd_snd_idx].wc_status = wc->status;
+> -		if (link->wr_tx_pends[pnd_snd_idx].compl_requested)
+> +		if (tx_pend->compl_requested)
+                    ^^^^^^
 
-This series is not bisectable to see which specific patch causes this,
-as I get
+Does this read the correct field? The code above memsets tx_pend to zero,
+so compl_requested is always 0 and complete() is never called.
 
-  In file included from mm/init-mm.c:2:
-  include/linux/mm_types.h:1419:57: error: 'PERCPU_COUNTER_TREE_ITEMS_STATIC_SIZE' undeclared here (not in a function)
-   1419 |         [0 ... sizeof(cpumask_t) + MM_CID_STATIC_SIZE + PERCPU_COUNTER_TREE_ITEMS_STATIC_SIZE. - 1] = 0  \
-        |                                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  mm/init-mm.c:50:27: note: in expansion of macro 'MM_STRUCT_FLEXIBLE_ARRAY_INIT'
-     50 |         .flexible_array = MM_STRUCT_FLEXIBLE_ARRAY_INIT,
-        |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  include/linux/mm_types.h:1419:10: error: array index in initializer not of integer type
-   1419 |         [0 ... sizeof(cpumask_t) + MM_CID_STATIC_SIZE + PERCPU_COUNTER_TREE_ITEMS_STATIC_SIZE - 1] = 0  \
-        |          ^
-  mm/init-mm.c:50:27: note: in expansion of macro 'MM_STRUCT_FLEXIBLE_ARRAY_INIT'
-     50 |         .flexible_array = MM_STRUCT_FLEXIBLE_ARRAY_INIT,
-        |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  include/linux/mm_types.h:1419:10: note: (near initialization for 'init_mm.flexible_array')
-   1419 |         [0 ... sizeof(cpumask_t) + MM_CID_STATIC_SIZE + PERCPU_COUNTER_TREE_ITEMS_STATIC_SIZE - 1] = 0  \
-        |          ^
-  mm/init-mm.c:50:27: note: in expansion of macro 'MM_STRUCT_FLEXIBLE_ARRAY_INIT'
-     50 |         .flexible_array = MM_STRUCT_FLEXIBLE_ARRAY_INIT,
-        |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The refactoring created a local copy pnd_snd before the memset:
 
-prior to this change that removes PERCPU_COUNTER_TREE_ITEMS_STATIC_SIZE.
+memcpy(&pnd_snd, tx_pend, sizeof(pnd_snd));
+memset(tx_pend, 0, sizeof(*tx_pend));
 
-Cheers,
-Nathan
+But then it reads from the zeroed tx_pend instead of pnd_snd. Should this be
+pnd_snd.compl_requested instead?
+
+This affects smc_wr_tx_send_wait(), which sets compl_requested and waits for
+the completion that never arrives, causing LLC message timeouts.
+
+>  			complete(&link->wr_tx_compl[pnd_snd_idx]);
+> -		memcpy(&pnd_snd, &link->wr_tx_pends[pnd_snd_idx],
+> -		       sizeof(pnd_snd));
+> -		/* clear the full struct smc_wr_tx_pend including .priv */
+> -		memset(&link->wr_tx_pends[pnd_snd_idx], 0,
+> -		       sizeof(link->wr_tx_pends[pnd_snd_idx]));
+>  		memset(&link->wr_tx_bufs[pnd_snd_idx], 0,
+>  		       sizeof(link->wr_tx_bufs[pnd_snd_idx]));
+>  		if (!test_and_clear_bit(pnd_snd_idx, link->wr_tx_mask))
+
+[ ... ]
+
+> @@ -550,7 +472,7 @@ void smc_wr_remember_qp_attr(struct smc_link *lnk)
+>  	lnk->wr_tx_cnt = min_t(size_t, lnk->max_send_wr,
+>  			       lnk->qp_attr.cap.max_send_wr);
+>  	lnk->wr_rx_cnt = min_t(size_t, lnk->max_recv_wr,
+> -			       lnk->qp_attr.cap.max_recv_wr);
+> +			       lnk->qp_attr.cap.max_recv_wr - 1);	/* -1 for ib_draib_rq() */
+                                                                                        ^^^^^^^^^^^^^^
+This isn't a bug, but there's a typo in the comment: ib_draib_rq() should be
+ib_drain_rq().
+
+>  }
+
+[ ... ]
+-- 
+pw-bot: cr
