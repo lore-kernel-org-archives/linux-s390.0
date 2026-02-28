@@ -1,170 +1,155 @@
-Received: from mail-wm1-f74.google.com (mail-wm1-f74.google.com [209.85.128.74])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AEFB41C2EE
-	for <linux-s390@vger.kernel.org>; Sat, 28 Feb 2026 12:44:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B609B44DB72;
+	Sat, 28 Feb 2026 15:08:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772282671; cv=none; b=Hla5e4bcQGo4lNzk5bbH7h91Z0BlaiCdRuhTr+YkkApv2aNvB/WoGMmlg7bcTJVMKQvdC7qli2dhMRMR/DqRCd2u5VNZ3kpUOSTGaJ7dKacNwGGZALO9VpmqNGWOrosG+8hBoXleFnv2jq2G78OmWDMj1tjKI7Xk6O6TEajvyJw=
+	t=1772291324; cv=none; b=X89Gb0P0bJlLiQ+pIR94sm19DaErqYlaX8uJvXuBk4kTRs7+SEcZgBwJHjRfAI1f4B85QM+gv4O+iF+T4n9Fjww8vNMO+f+ivn1BYaH95fre2+5AmsPqSOKxkYCN+/U0cXLqL730ypm9BCh8gcE2iu3cLS8enfWxTE7LrnplBFs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772282671; c=relaxed/simple;
-	bh=tFmr9Byzvb8HJGLej5py8cdOGPaTsp9oa5qHurqtjoY=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=CeQAyfKVAwZGNn4Csyg3h17SRLwzUB5MR3YmIuRDO7P7UrteI7mdpsunJn2TM66zRFEevXtthzeC/8H61JX3hfBHEE3wFcwREcrSfgeLtYzq2lf4PUTYDcOrULX0zw9xozEhyHxiUMYouJKtljT4a848PwaVJWGUV8fXGbMcJXU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--aliceryhl.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=eiIPwFYL; arc=none smtp.client-ip=209.85.128.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--aliceryhl.bounces.google.com
+	s=arc-20240116; t=1772291324; c=relaxed/simple;
+	bh=XooppfVXskym/51Pk8nyGODgkk6GYIXIATX+0fCKc4Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=tP2nx7N8hlWs437cqPPTMQ/DDDpQ8TpPpYZB8BSTrWnnx/+sLjnZr9+DnPt/bEGiVTrRSr4Ds+Bwo+cGpl/Q+meLLlzGbHEg9Yk7WqEmfKedbCUm0PCNLeS8P7+LiYLuRM2S+OEIiIx+5g73g7kThGUgBWC5GQHrrF357bxXW1c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ANdfwQZc; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="eiIPwFYL"
-Received: by mail-wm1-f74.google.com with SMTP id 5b1f17b1804b1-48071615686so22661395e9.1
-        for <linux-s390@vger.kernel.org>; Sat, 28 Feb 2026 04:44:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1772282669; x=1772887469; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=RH0L9WD4/u9mQiuU+Jc2bLYt2zoxsRLi5sNyM2YzgMo=;
-        b=eiIPwFYLYXBrQHNFhQU4sxt4bdchSZbQ0puZaLAQjjg8A9Odu3TFv1QEgkJEBK/yCk
-         BitlkH+LB4jiAVgOUKCUYU/hCr7WCXGT5fvZI3okDXNtzs17DkiD793+5XSdRTCu2QiZ
-         Xd1BpLe2o/3Fc3Lb1LFNT53cPNBgVkNDDr2VddntcNLiYr+4RJ5kj6GGIOntLiFZIfVM
-         lhlJ/0jeFMh0qmFgv0oWQVJRlexVpR1VV7Rjf2renHY7f7jWAsYvXQMIK2ZzA0iL1XZI
-         flwCa2xK+qbn9PgkWlCnXGh4KzNZq5BPj/c8K9+6Q7zIwAgsQQDJS8mUn+2gWYAmH7CL
-         LzWg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772282669; x=1772887469;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=RH0L9WD4/u9mQiuU+Jc2bLYt2zoxsRLi5sNyM2YzgMo=;
-        b=K1AEHlZC8J9KK2VfHw1sJIBi659dQviJak46xwFmju+fSaz7o9P3TBpcfrXG1nJDbP
-         Tencp4hiMAo2UDX+GbsptE4RmVwQhbbexVgYzSbAArOciSWLm1aX/p5dvMNW4fkcnKLA
-         RaXj+Xv0MMJlqmEzyzzq22jbcY7MA8iqT2DUsv892fY0SztnoxzY2IMcOf1TvNyevyZi
-         m86YBijd+HUFlho7ouTZFdoAJTrb71FhpCHQn32L6lo8vMkhSFOAg4be5OblJ+WCXRWo
-         LBDJMvaqpZ/yPRyl6yY3kZhDlLkjb2ZNdb9ge2sH8CEKJwEeVieitfAgvwQR+CjK4bcR
-         XI9A==
-X-Forwarded-Encrypted: i=1; AJvYcCXY3ElVInhpB71d2mFHXiRvB3/cmqvl7OmGZfdwMhSuyCcxvTx4HM0hXzNxVmK1gTSOIX4JTi8cFBSB@vger.kernel.org
-X-Gm-Message-State: AOJu0YzHCUNAQXcC9J1BD1s2+jqXOezmyZLT/jJbiWeQrJ6nbn8OofQf
-	42EZdUU1HpX2TQeDK2JHsCvp5OQwDSLzyvUd6BMe7PHIRCYAitIQgglPaQBnFTv+J6G0tzog5JJ
-	mzMfeemsnoEbAAa5yvg==
-X-Received: from wmqi19.prod.google.com ([2002:a05:600c:3553:b0:483:6fe1:c054])
- (user=aliceryhl job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:600c:4fc8:b0:47b:e2a9:2bd7 with SMTP id 5b1f17b1804b1-483c9beaca0mr120569145e9.19.1772282668287;
- Sat, 28 Feb 2026 04:44:28 -0800 (PST)
-Date: Sat, 28 Feb 2026 12:44:27 +0000
-In-Reply-To: <20260227200848.114019-15-david@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ANdfwQZc"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61SF07xO2787553;
+	Sat, 28 Feb 2026 15:08:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:message-id:mime-version:subject:to; s=
+	pp1; bh=5DE0vZKpJ8DF8ix/JIfrJO83kXaIYwsLZinTpANtswI=; b=ANdfwQZc
+	tQ7efYAwA7Wj7DhArvVz62pZA6GJBfPAoCLcUqZ65hfaI0s3O8Qn3TJRICU4hL2X
+	Ssdih3VgpuuFv9a0I2C+J5DBya8HXHICsEqpCb6Do0bmGEdcU1vh28L0XS4zJ0pt
+	EUF9MkacrEDN4AaX7MhKcoSXYqt2QT9DdLa5DCkuS/rLLQ/RBy3B/g83nAgoQXws
+	vnsG4gin6b4Y2141gm3wEDyf9ddo6tQSGZPRhLNAGZfOHIMAwIuSmGDhfwtlRz0o
+	j4Nmod0TJ/95kE+CHpSJb3k18BnVFAOplfy0mhJ0Vgp3iq7joccsC/RnmFCczT4Z
+	BZ8xN42CkhhPvw==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cksjd15ft-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 28 Feb 2026 15:08:41 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61SEVOS7013411;
+	Sat, 28 Feb 2026 15:08:40 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cfqdyq43y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 28 Feb 2026 15:08:40 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61SF8a8H40632772
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sat, 28 Feb 2026 15:08:36 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 703A02004B;
+	Sat, 28 Feb 2026 15:08:36 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0D2F220040;
+	Sat, 28 Feb 2026 15:08:36 +0000 (GMT)
+Received: from localhost (unknown [9.111.38.228])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Sat, 28 Feb 2026 15:08:35 +0000 (GMT)
+Date: Sat, 28 Feb 2026 16:08:34 +0100
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 updates for 7.0-rc2
+Message-ID: <your-ad-here.call-01772291314-ext-5802@work.hours>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260227200848.114019-1-david@kernel.org> <20260227200848.114019-15-david@kernel.org>
-Message-ID: <aaLjK2Q2q5ghE-uE@google.com>
-Subject: Re: [PATCH v1 14/16] mm: rename zap_page_range_single() to zap_vma_range()
-From: Alice Ryhl <aliceryhl@google.com>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: linux-kernel@vger.kernel.org, 
-	"linux-mm @ kvack . org" <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, 
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, "Liam R. Howlett" <Liam.Howlett@oracle.com>, 
-	Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
-	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Jann Horn <jannh@google.com>, 
-	Pedro Falcato <pfalcato@suse.de>, David Rientjes <rientjes@google.com>, 
-	Shakeel Butt <shakeel.butt@linux.dev>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Jarkko Sakkinen <jarkko@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	"Arve =?utf-8?B?SGrDuG5uZXbDpWc=?=" <arve@android.com>, Todd Kjos <tkjos@android.com>, 
-	Christian Brauner <brauner@kernel.org>, Carlos Llamas <cmllamas@google.com>, Ian Abbott <abbotti@mev.co.uk>, 
-	H Hartley Sweeten <hsweeten@visionengravers.com>, Jani Nikula <jani.nikula@linux.intel.com>, 
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, 
-	Tvrtko Ursulin <tursulin@ursulin.net>, David Airlie <airlied@gmail.com>, 
-	Simona Vetter <simona@ffwll.ch>, Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
-	Dimitri Sivanich <dimitri.sivanich@hpe.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Andrii Nakryiko <andrii@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
-	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, Andy Lutomirski <luto@kernel.org>, 
-	Vincenzo Frascino <vincenzo.frascino@arm.com>, Eric Dumazet <edumazet@google.com>, 
-	Neal Cardwell <ncardwell@google.com>, "David S. Miller" <davem@davemloft.net>, 
-	David Ahern <dsahern@kernel.org>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Miguel Ojeda <ojeda@kernel.org>, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-sgx@vger.kernel.org, 
-	intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
-	linux-rdma@vger.kernel.org, bpf@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	netdev@vger.kernel.org, rust-for-linux@vger.kernel.org, x86@kernel.org
-Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=M9BA6iws c=1 sm=1 tr=0 ts=69a304f9 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
+ a=T2WKjkLyC72pc3uQUdAA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: uelG8jQKUK5lZS0ODe3AW_sJeSWU0B0S
+X-Proofpoint-GUID: uelG8jQKUK5lZS0ODe3AW_sJeSWU0B0S
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI4MDEzOSBTYWx0ZWRfX3lPX6WBwE0NQ
+ VMbMCtHIXpf9FF4i3MQhH5P/G12dxYr4D1yj4AV5U6OH98EDi+g4gtYPLK39JJArQgqPVeGb9Ma
+ SrDAgcF+MtF2JVvwNex7VGHQBN8wXsQlKG88nKGHQ3YbQhhvKBThkqtiit3RvFk3twmuQNFwudR
+ ODQTEQtvOeDHs2uc4jPCMyN73Dz5dQ++XP2Kp/ND8Ryqrmqrh+FHzdwGalcoqxnXfdPZpdyVnSV
+ 4RAoGn+6Fujx/XpRo/unIWNgj7Sf2ADn6O+qyrElDDTG6xPqaW/pxtYH/VBaPdv7og1yYoZUT3+
+ qzam/mzhJA1rfctnktcS2rayN4dFKCA6/DSsg+PzMrbXqNUj83HNq8UFsD8nNGI00AODBbabf/C
+ /YVRrBz3b4B/9Cbe0KREKiG9TDUfv1h98NV+vnfvC9aXs+nDt3o9OZLVFDS0LgG8U+pMcYsvlj/
+ aOkG4RA5in2KsapjIvQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-28_05,2026-02-27_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1011 priorityscore=1501 spamscore=0 adultscore=0 malwarescore=0
+ bulkscore=0 lowpriorityscore=0 impostorscore=0 phishscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2602280139
 
-On Fri, Feb 27, 2026 at 09:08:45PM +0100, David Hildenbrand (Arm) wrote:
-> diff --git a/drivers/android/binder/page_range.rs b/drivers/android/binder/page_range.rs
-> index fdd97112ef5c..2fddd4ed8d4c 100644
-> --- a/drivers/android/binder/page_range.rs
-> +++ b/drivers/android/binder/page_range.rs
-> @@ -130,7 +130,7 @@ pub(crate) struct ShrinkablePageRange {
->      pid: Pid,
->      /// The mm for the relevant process.
->      mm: ARef<Mm>,
-> -    /// Used to synchronize calls to `vm_insert_page` and `zap_page_range_single`.
-> +    /// Used to synchronize calls to `vm_insert_page` and `zap_vma_range`.
->      #[pin]
->      mm_lock: Mutex<()>,
->      /// Spinlock protecting changes to pages.
-> @@ -719,7 +719,7 @@ fn drop(self: Pin<&mut Self>) {
->  
->      if let Some(vma) = mmap_read.vma_lookup(vma_addr) {
->          let user_page_addr = vma_addr + (page_index << PAGE_SHIFT);
-> -        vma.zap_page_range_single(user_page_addr, PAGE_SIZE);
-> +        vma.zap_vma_range(user_page_addr, PAGE_SIZE);
->      }
+Hello Linus,
 
-LGTM. Be aware that this will have a merge conflict with patches
-currently in char-misc-linus that are scheduled to land in an -rc.
+please pull s390 fixes for 7.0-rc2.
 
-> diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
-> index dd2046bd5cde..e4488ad86a65 100644
-> --- a/drivers/android/binder_alloc.c
-> +++ b/drivers/android/binder_alloc.c
-> @@ -1185,7 +1185,7 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
->  	if (vma) {
->  		trace_binder_unmap_user_start(alloc, index);
->  
-> -		zap_page_range_single(vma, page_addr, PAGE_SIZE);
-> +		zap_vma_range(vma, page_addr, PAGE_SIZE);
->  
->  		trace_binder_unmap_user_end(alloc, index);
+Thank you,
+Vasily
 
-LGTM.
+The following changes since commit 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f:
 
-> diff --git a/rust/kernel/mm/virt.rs b/rust/kernel/mm/virt.rs
-> index b8e59e4420f3..04b3cc925d67 100644
-> --- a/rust/kernel/mm/virt.rs
-> +++ b/rust/kernel/mm/virt.rs
-> @@ -113,7 +113,7 @@ pub fn end(&self) -> usize {
->      /// kernel goes further in freeing unused page tables, but for the purposes of this operation
->      /// we must only assume that the leaf level is cleared.
->      #[inline]
-> -    pub fn zap_page_range_single(&self, address: usize, size: usize) {
-> +    pub fn zap_vma_range(&self, address: usize, size: usize) {
->          let (end, did_overflow) = address.overflowing_add(size);
->          if did_overflow || address < self.start() || self.end() < end {
->              // TODO: call WARN_ONCE once Rust version of it is added
-> @@ -124,7 +124,7 @@ pub fn zap_page_range_single(&self, address: usize, size: usize) {
->          // sufficient for this method call. This method has no requirements on the vma flags. The
->          // address range is checked to be within the vma.
->          unsafe {
-> -            bindings::zap_page_range_single(self.as_ptr(), address, size)
-> +            bindings::zap_vma_range(self.as_ptr(), address, size)
->          };
->      }
+  Linux 7.0-rc1 (2026-02-22 13:18:59 -0800)
 
-Same as previous patch: please run rustfmt. It will format on a single
-line, like this:
+are available in the Git repository at:
 
-        unsafe { bindings::zap_vma_range(self.as_ptr(), address, size) };
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-7.0-3
 
-with the above change applied:
+for you to fetch changes up to d879ac6756b662a085a743e76023c768c3241579:
 
-Acked-by: Alice Ryhl <aliceryhl@google.com> # Rust and Binder
+  s390/pfault: Fix virtual vs physical address confusion (2026-02-25 17:00:25 +0100)
 
-Alice
+----------------------------------------------------------------
+s390 updates for 7.0-rc2
+
+- Fix guest pfault init to pass a physical address to DIAG 0x258,
+  restoring pfault interrupts and avoiding vCPU stalls during host page-in
+
+- Fix kexec/kdump hangs with stack protector by marking
+  s390_reset_system() __no_stack_protector; set_prefix(0) switches
+  lowcore and the canary no longer matches
+
+- Fix idle/vtime cputime accounting (idle-exit ordering, vtimer
+  double-forwarding) and small cleanups
+
+----------------------------------------------------------------
+Alexander Gordeev (1):
+      s390/pfault: Fix virtual vs physical address confusion
+
+Heiko Carstens (9):
+      s390/idle: Fix cpu idle exit cpu time accounting
+      s390/vtime: Fix virtual timer forwarding
+      s390/idle: Add comment for non obvious code
+      s390/idle: Slightly optimize idle time accounting
+      s390/idle: Inline update_timer_idle()
+      s390/irq/idle: Remove psw bits early
+      s390/vtime: Use __this_cpu_read() / get rid of READ_ONCE()
+      s390/vtime: Use lockdep_assert_irqs_disabled() instead of BUG_ON()
+      s390/idle: Remove psw_idle() prototype
+
+Vasily Gorbik (2):
+      Merge branch 'idle-vtime-fixes-cleanups' into fixes
+      s390/kexec: Disable stack protector in s390_reset_system()
+
+ arch/s390/include/asm/idle.h  |  4 ++--
+ arch/s390/include/asm/vtime.h | 34 ++++++++++++++++++++++++++++++++++
+ arch/s390/kernel/entry.h      |  2 --
+ arch/s390/kernel/idle.c       | 25 +++++--------------------
+ arch/s390/kernel/ipl.c        |  2 +-
+ arch/s390/kernel/irq.c        | 20 ++++++++++++--------
+ arch/s390/kernel/vtime.c      | 42 ++++++++++--------------------------------
+ arch/s390/mm/pfault.c         |  4 ++--
+ 8 files changed, 66 insertions(+), 67 deletions(-)
