@@ -1,30 +1,30 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 115192C033C;
-	Sun,  1 Mar 2026 01:32:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD377233134;
+	Sun,  1 Mar 2026 01:42:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772328778; cv=none; b=ixnnCCSRYrFXBwFvEyLw68sXiwoq/nS6KMFkdwg5gefo0sIySMuQAIb+JwQ0qyLvcXPTk8WFciasu6E49PgxUEPCQSQE+EBSNmoexl6tEDdPyV5ibZhd9gGlDE7UL3DxZ7hJSVq+nxCYcscu3NND3jBETIh+LYJK88X/cn9ERA4=
+	t=1772329340; cv=none; b=fd7alLMm2V14boxNCKI6+u0uOKwm5mjS35DPKLOiCkJXPmlf7m8mVl0mz3nqfRHgMiLcwA6fbEgZVQ2DBWwyq1cNlolp1P5OG/g+dqQcgKpNNNYnceuQ9gKm4FGY5nbJ+6ffWR4hbaDTo/Ou/+lOVzzqIQ2kcpk53JS2GohVm/w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772328778; c=relaxed/simple;
-	bh=rsBDyR6oqMh1TOcvkv4T8eagCZz9OMdjCOxdgQCV2k8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tj5hEeWfKEBp0vB7BvnZIPQslv/lt+2eoMm2n7G+Gpj+L/xxmVRyzxiPQKi7rboKfo0+LiKfnq6MOlG9UiMVEavAMDhJgrz8tWuekJ3qjxSLMjVofwHI3/Ab2lQ7ROET7dfEdmWkAZQMfBdajnjOf4wRCm7R/SufxgPn8iiO/MM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g9J/iDCx; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772329340; c=relaxed/simple;
+	bh=ii2FZUREE/8XGqs8JDiAOZEExqmPn472bB3HL2pQ1EA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PKyXM92Rxd7Rc43Tk07j4ViCPf5wYU/M3vF+WhKazQrU4nsPtaUJvr6tDGuaBWqMsUeGu0fRe67+AQNf+FT/USUDXFAJLCV/+XcRnvaakAryD1XwBiMEorcs/SkGRDaxKcUyz4QUMUerfachTaBJ9wkd4hjMhP28ed1w4h9LIuA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZsXR8DU0; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g9J/iDCx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A441C19421;
-	Sun,  1 Mar 2026 01:32:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZsXR8DU0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B93CC19421;
+	Sun,  1 Mar 2026 01:42:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772328777;
-	bh=rsBDyR6oqMh1TOcvkv4T8eagCZz9OMdjCOxdgQCV2k8=;
+	s=k20201202; t=1772329340;
+	bh=ii2FZUREE/8XGqs8JDiAOZEExqmPn472bB3HL2pQ1EA=;
 	h=From:To:Cc:Subject:Date:From;
-	b=g9J/iDCxdXbxAuz74Lw0LoleS84BMeVJwhSV0znmKTtNx9x9oSnNq6XDab6KrrNv/
-	 KNVxH3Zznd60lRMWhOV+4b/1PWr4maP4O5FaQ9cdNHe1yOe9xNEZD2HtSrhQisTvsY
-	 FBn/jl4QkhfYAny6TB5YwrxbElLSsdT/RUdHdjUEkzEQJuTPbXzO2KWqSRnR2Ola1y
-	 gn1jkalpK485VRCkRbzDIaNl4FGdiYNocaQnmw8eV+cxarRl5hayhHXn4mWmD5XjCa
-	 qQwwQhSZUbK9tbDhUBaJZhHAMQI83TRpSbVqA0k99iX1wM3vXBLFD2Y6P/Hs8EjW/8
-	 WsfOk7Lc3HHbQ==
+	b=ZsXR8DU0WY6h0NBUYb10SvJqnqvPva5de76HslJdAQZOnjt57sOyTTF6mQgp1SDo4
+	 HTdDv8qmrpbxliNSA++B7AzBfB/EUE3wkq/15AUvPvTzZTBx9i4cKISnb9sTWiDCs5
+	 dHXv1Bzv1QKchZ5SH6is3Va3C26elmGRSH4tkvzl+sXnHE7exzNPbMio7BUpHSWSwN
+	 j8MTSk0aOOFWzG3L+csv6P3MYV7tOcfgDjjYwAa1NDKDpQgzODXvMfEwWSyAu6Vpq/
+	 RJf52sWd/4ca3cyMM3K6sLa3QgjjTPWEszEY+J152MVR0l3SlYddYOLg5TQWVbOwzw
+	 gislYMMyxZbDQ==
 From: Sasha Levin <sashal@kernel.org>
 To: stable@vger.kernel.org,
 	schnelle@linux.ibm.com
@@ -32,9 +32,9 @@ Cc: Benjamin Block <bblock@linux.ibm.com>,
 	Farhan Ali <alifm@linux.ibm.com>,
 	Heiko Carstens <hca@linux.ibm.com>,
 	linux-s390@vger.kernel.org
-Subject: FAILED: Patch "s390/pci: Handle futile config accesses of disabled devices directly" failed to apply to 6.6-stable tree
-Date: Sat, 28 Feb 2026 20:32:55 -0500
-Message-ID: <20260301013256.1692062-1-sashal@kernel.org>
+Subject: FAILED: Patch "s390/pci: Handle futile config accesses of disabled devices directly" failed to apply to 6.1-stable tree
+Date: Sat, 28 Feb 2026 20:42:18 -0500
+Message-ID: <20260301014218.1704139-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -46,7 +46,7 @@ X-Patchwork-Hint: ignore
 X-stable: review
 Content-Transfer-Encoding: 8bit
 
-The patch below does not apply to the 6.6-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
