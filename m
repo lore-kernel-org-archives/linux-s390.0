@@ -1,126 +1,153 @@
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
+Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F27C312826
-	for <linux-s390@vger.kernel.org>; Sun,  1 Mar 2026 20:09:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF44E21FF30
+	for <linux-s390@vger.kernel.org>; Sun,  1 Mar 2026 21:53:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772395781; cv=none; b=sFUFLcbTItxJrnPo7Ulm9zVAdIq4zOWuYoSvUxjXdCmO/eXfBf22J4lzFUJeU4EYzHLXDy5fctmH9S3e92mecv7rl4FJX2wUZcOE9rEk/bAGLAJLEWZK08X350ragOKQr9h6vEwSGNjgNBNcn4j7Pg3zN13U+/fl2W7FfVGZbNY=
+	t=1772401982; cv=none; b=b/KryfKrDR+dH/l/bcocgUb1f/5qOYV96zBoC4RT99KgUvbEETGCAi2VFxcifo8KGTNIalbO6+kLT5McOxjbwi0qfTUSO/9Gz2Mdc4NxT3/SWz87tJgyEdZ9nAliHMV89PZbjeGmX8uLJNYj07uUgqEKeyo7ag3j0Q+19umHHU4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772395781; c=relaxed/simple;
-	bh=Cx3qgkZ6V+eyMfb2glkDNNNfa4NrrGdL5+nlIhh5YNg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tUiNjJt8ddQ4TY1K6+TWI/RHsxoJrr2JhGiwspOonXpNxh3Ogfuog+ybKXNzP3C9uqPU5B94cRv9AtZg5MdQY+TOptxhE9Fetp0KOojffw0gkk2NMBuf1/VTGBb09LWMC6kZLHc3M4mAiA7d+Xi9u5G/igJSbou+eNmHC0tOk5Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=R/TZ6LGx; arc=none smtp.client-ip=209.85.208.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
+	s=arc-20240116; t=1772401982; c=relaxed/simple;
+	bh=UZuV4vRle4QPExsCoWwOx/8Bt6/Fqaq7WbJVQeadgG4=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=mJdFu0vRa/XHASwBkoOY6PyfapfQG/TBn7d2TeRtCsHEnmvwR1ipOqlgBXReNoLhbFR4kt4jLq6XERzV9dspl9ERTSu4dIch0F2pzKD2yBvf3UUeUGxv3BP6BvwmzjmacYzL9p/5+m5s+f8y9312UBdF/VZWML5EUduhQDTNX5c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZR6TzZVJ; arc=none smtp.client-ip=209.85.221.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="R/TZ6LGx"
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-65b9d8d6b7dso6125572a12.2
-        for <linux-s390@vger.kernel.org>; Sun, 01 Mar 2026 12:09:39 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZR6TzZVJ"
+Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-439aeed8a5bso940838f8f.3
+        for <linux-s390@vger.kernel.org>; Sun, 01 Mar 2026 13:53:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1772395778; x=1773000578; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=9jB/XXPWSS4Vb7E8KI5vsQ0OyjX/VbHAJPkU3Kvm8KQ=;
-        b=R/TZ6LGxkcJaCaom9tLTCACGtRFkxe/NvSUs6PFD8A27jYsY8hBKvD7eDxlf+KkRME
-         AfKXQbrh6BO29hYwHHmv/AjpgpbWa4onPZmCQm1yNXkqX2AqZUmF+KKh3JJQdRmr5TE6
-         as4H3oOhawL/tVRRsUmh3obsesObcRFDJggvg=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772395778; x=1773000578;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1772401979; x=1773006779; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=9jB/XXPWSS4Vb7E8KI5vsQ0OyjX/VbHAJPkU3Kvm8KQ=;
-        b=UebVwesQ0ybymPpQvgCfN1xbAQJkIc9a9ioINpqx4IGf8L0sxHG35F4SO4mLzWjprW
-         zjUylhgMH1haFzykH0l+i1fHms0P47n+4H29SupFtaJZEnUvX4rS7uLRNBloieLyEL2l
-         7FfoNd7rCAs8SFZhSRQ/sSNKjl/kkdrWXQzBdWzwh3rJCFZLuuT5C5/jNAR8S4QgTwBP
-         Bwke4gbP11l6ENXpX2nCua9Rl2PgbpJHIb3SJsX4605ZDWf/YOEybhRnMwg0ZQMIkN6v
-         C+NZnhdxS4btFB41BcNj5UY2WR9FSU5tXCNVSThrgxEm/ANpfzfAy34OG0FJf8royYii
-         PvsQ==
-X-Forwarded-Encrypted: i=1; AJvYcCW5imCPz1XLf9oi3QHr7g578YFYzpkqlA//1Y5+XPte/KKEKtoVnNWNC+HFX78nhL0+qpEH1PIehBtl@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyl4k4P6tLeLrjK4e6VAz41rzoNC0swf1WLJ+bvo2bBKdZzTQuA
-	FgxXndb7NJudKvszlI3LmYt/m8zHmf8zL8prbVOKuyIf8e0EKTFLw6MBcwzJXqYM0NCImHg00ob
-	xlM7t9wMQ6Q==
-X-Gm-Gg: ATEYQzzBCaszUj/AQvfo0pZ0hd4iQxdZaSGmi14NxrTpkQX6ZQt/TVQ6v1Dr2ARs/kz
-	bqlu3NxDa11khWMf7ivGW5C5LoJwIHPMYpIpEiDf5CkykPW4taxFSWzhRrl7805PJTDl50Ct4bl
-	y4kv0hLkkGgxK/lbgLau09CLEnD1o034cFdGB242EnctazKG0jGda1Vw2afNGx7Zk1AdGLl/Cxv
-	ZGgM4b9wGhwZUJtJHF6a7ruSrAk4CBvx3zCB3+Z/eDi4eqbPm65ARivMlxKNHDv7XzGv/XnLf22
-	dY0YIE+gt0i4N1zbGkfl6JekYFORFUIPV1Q/5onEN5b7RHNXXy21kmHDQDmFqoxQNvRhRVphSre
-	6l+KkxkTBRqUvEOE8009gib97hD2/dubtHn22dhXytYQQdCKDXCm9jQnGKgkEYIgrdPRnTlRQQx
-	HWhPgtkzFdcPZyzYQ+gbDWMpdBfI/6skMuv/NJUVVv01Izv1G9hqdI2jNZO1CQofTFcwibZd9Z
-X-Received: by 2002:a17:906:3611:b0:b93:5ef5:9059 with SMTP id a640c23a62f3a-b9376568db7mr429734766b.45.1772395777663;
-        Sun, 01 Mar 2026 12:09:37 -0800 (PST)
-Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com. [209.85.218.47])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b93987b9f73sm180724066b.47.2026.03.01.12.09.37
-        for <linux-s390@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 01 Mar 2026 12:09:37 -0800 (PST)
-Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-b934fdced05so495409766b.3
-        for <linux-s390@vger.kernel.org>; Sun, 01 Mar 2026 12:09:37 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCU57g08R245P0P2BAmL0NzlCoUDGaYMq+OFlchoqGFpMtExVpbBC7N4c+mfAWDsKnfZgQsmaL8xQ14I@vger.kernel.org
-X-Received: by 2002:a17:907:3f1d:b0:b93:5405:9260 with SMTP id
- a640c23a62f3a-b937c64ef77mr572433266b.30.1772395284743; Sun, 01 Mar 2026
- 12:01:24 -0800 (PST)
+        bh=ylRWWUwK5o3MfEB7pGrnKLZH79m/zlgSbzMzkIBZ2EE=;
+        b=ZR6TzZVJr3DP8uFrAQAqaQLDHdUeHQNdUpwsfIueIbLeUGw8smk1/8T2LpCGzgJ82t
+         D8D2zG73T6pUxc8sjxKEOL8aRDgi3L6cp6ZZpopeOjey5McoaxpL+jgKL2rppML3IaFE
+         Y4pD+jIoN3seNEsq0etIGExw0i7twrlIVblsmsNVJ9gVTS9dldsWL1DX0uVES4m/7G19
+         bblXB7d9T0b8HxN6ZmwjUXU5YUmJOhl2Y4bpYMIJrdNb/N4Hs+nbQVCCaQvsOzYgYozU
+         iVISzjeTK9VJkvAn1ylCTASaM7UE0+yhUd/oadVrlgzSOofrE5O5VW/EGxWOv2aSEUow
+         XPMw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772401979; x=1773006779;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=ylRWWUwK5o3MfEB7pGrnKLZH79m/zlgSbzMzkIBZ2EE=;
+        b=IfFqlpNGjs7OYgD0aZqu2xKbkNFqNXnMtk1pj67+l7t0p0ut/R0OGyS346KofpE9+G
+         9XMzw0VNZtldmQ5Bith6Gps4FbwdBl17Xg2hrzNe6nC8n7kFWikVMy/I9MvjvOLua6gi
+         HSIqSwie9T4qGCXoqo1qdjj0RphY/3YHQDMqQaWDMGB62df9GSKCGyon+t5HKc/N4VHx
+         16TE/GCSz5Hj2EONEeWcF1raZCj7qWBCSkk7cKJNr69UKNy0vOMC2UNCasiflpoNlLcL
+         /8vGldUKWFWOIMBkRzAadtgkoyBzkvCIE9D/8+1xr8g924LaG3xCgB+sr1ce1+33b+AX
+         prMA==
+X-Forwarded-Encrypted: i=1; AJvYcCVuEfUUtoDw4PO6FakJw1WsFA91o4gxcmnFlYoL1Y+3Z4rki/iBS1OZuJv06ff22YV6FCLoOtnEQ02u@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy4vjkG97LdB6NzENMpGb/SGVGBfxXS2SsUedve4Scu7C6S8mCs
+	eQZzJrBH6tmDx32CFn3C/OBOV9C9N0WhgE+i/FgzXfyE+K/AG+sBv/B2
+X-Gm-Gg: ATEYQzwIEarvXBNP+uaHlENZUuP0RQ2zWcIv6/aKXNIaB+ldnGD7EQHRWpvag43TKxx
+	W7bvU3h7NTFoyVjZ+x+02B81WkrlxaIy2fiTnK6h1+D3Lz0ei3FFvTrwUavWH275wRYr2VoKwTS
+	tAHQKlCbC+sHkymkbjZi0kaB4KEna+x9IeddMEan6hIkhxnNKmOSK/REWnAs4lKWk2QllKYwCFT
+	oLH60WTZus31Gzud0W4Zm5UDzjqEvm9piFuqg18GZ8ZhwMMvscwkXhBtClydKLzcqPBMfCcqJdE
+	G8lA9RrKWT6cAHOWHn1D9qYUpG2C+2oLwWJJkeeOkjo5TKMMltW59mFSKbY+HpKSKX9xPfDs4xG
+	rpL+aPebyECO8OVxRFb5Szpth8yROjxaMz8gB3Lyo60b786q6+27iJrIn3wvTIAqjNL6Cs/mhNu
+	rz6UCBaPXxpTBHOoy7OOdWHTU9POassUM6omGoIt+G1R5d9yIFhgEj1HdseA+kEsyaE1DxtIXiP
+	2c=
+X-Received: by 2002:a5d:588f:0:b0:439:afd8:6235 with SMTP id ffacd0b85a97d-439afd86565mr5809623f8f.18.1772401979049;
+        Sun, 01 Mar 2026 13:52:59 -0800 (PST)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-439ba2a58dasm61132f8f.27.2026.03.01.13.52.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 01 Mar 2026 13:52:58 -0800 (PST)
+Date: Sun, 1 Mar 2026 21:52:57 +0000
+From: David Laight <david.laight.linux@gmail.com>
+To: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, LKML
+ <linux-kernel@vger.kernel.org>, Christophe Leroy
+ <christophe.leroy@csgroup.eu>, Mathieu Desnoyers
+ <mathieu.desnoyers@efficios.com>, Andrew Cooper
+ <andrew.cooper3@citrix.com>, Linus Torvalds
+ <torvalds@linux-foundation.org>, kernel test robot <lkp@intel.com>, Russell
+ King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org,
+ x86@kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman
+ <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ linuxppc-dev@lists.ozlabs.org, Paul Walmsley <pjw@kernel.org>, Palmer
+ Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, Heiko
+ Carstens <hca@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
+ linux-s390@vger.kernel.org, Julia Lawall <Julia.Lawall@inria.fr>, Nicolas
+ Palix <nicolas.palix@imag.fr>, Peter Zijlstra <peterz@infradead.org>,
+ Darren Hart <dvhart@infradead.org>, Davidlohr Bueso <dave@stgolabs.net>,
+ Andre Almeida <andrealmeid@igalia.com>, Alexander Viro
+ <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara
+ <jack@suse.cz>, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] uaccess: Fix build of scoped user access with const
+ pointer
+Message-ID: <20260301215257.7bdad5f1@pumpkin>
+In-Reply-To: <4e994e13b48420ef36be686458ce3512657ddb41.1772393211.git.chleroy@kernel.org>
+References: <4e994e13b48420ef36be686458ce3512657ddb41.1772393211.git.chleroy@kernel.org>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <4e994e13b48420ef36be686458ce3512657ddb41.1772393211.git.chleroy@kernel.org>
-In-Reply-To: <4e994e13b48420ef36be686458ce3512657ddb41.1772393211.git.chleroy@kernel.org>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Sun, 1 Mar 2026 12:01:08 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wixyP1mzyVcpZqQZd_xbabZQ873KVph3L-EkrNZGv3Ygw@mail.gmail.com>
-X-Gm-Features: AaiRm51s3eNxZj_25SK_rlwxCS0TV1EUyjNISFnudmurbAezRL6om8RwkB99_8Y
-Message-ID: <CAHk-=wixyP1mzyVcpZqQZd_xbabZQ873KVph3L-EkrNZGv3Ygw@mail.gmail.com>
-Subject: Re: [PATCH] uaccess: Fix build of scoped user access with const pointer
-To: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>, 
-	Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Andrew Cooper <andrew.cooper3@citrix.com>, 
-	David Laight <david.laight.linux@gmail.com>, kernel test robot <lkp@intel.com>, 
-	Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, 
-	x86@kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, linuxppc-dev@lists.ozlabs.org, 
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, 
-	Heiko Carstens <hca@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org, 
-	Julia Lawall <Julia.Lawall@inria.fr>, Nicolas Palix <nicolas.palix@imag.fr>, 
-	Peter Zijlstra <peterz@infradead.org>, Darren Hart <dvhart@infradead.org>, 
-	Davidlohr Bueso <dave@stgolabs.net>, Andre Almeida <andrealmeid@igalia.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	linux-fsdevel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Sun, 1 Mar 2026 at 11:34, Christophe Leroy (CS GROUP)
-<chleroy@kernel.org> wrote:
->
-> -       for (void __user *_tmpptr = __scoped_user_access_begin(mode, uptr, size, elbl); \
-> +       for (void __user *_tmpptr = (void __user *)                                     \
-> +                                   __scoped_user_access_begin(mode, uptr, size, elbl); \
+On Sun,  1 Mar 2026 20:33:58 +0100
+"Christophe Leroy (CS GROUP)" <chleroy@kernel.org> wrote:
 
-Why are you casting this return value? Wouldn't it be a lot better to
-just make the types be the CORRECT ones?
+> After converting powerpc checksum wrappers to scoped user access,
+> following build failure happens:
+> 
+> 	  CC      arch/powerpc/lib/checksum_wrappers.o
+> 	In file included from arch/powerpc/lib/checksum_wrappers.c:12:
+> 	arch/powerpc/lib/checksum_wrappers.c: In function 'csum_and_copy_from_user':
+> 	./include/linux/uaccess.h:691:1: error: initialization discards 'const' qualifier from pointer target type [-Werror=discarded-qualifiers]
+> 	  691 | ({                                                                      \
+> 	      | ^
+> 	./include/linux/uaccess.h:755:37: note: in expansion of macro '__scoped_user_access_begin'
+> 	  755 |         for (void __user *_tmpptr = __scoped_user_access_begin(mode, uptr, size, elbl); \
+> 	      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+> 	./include/linux/uaccess.h:770:9: note: in expansion of macro '__scoped_user_access'
+> 	  770 |         __scoped_user_access(read, usrc, size, elbl)
+> 	      |         ^~~~~~~~~~~~~~~~~~~~
+> 	arch/powerpc/lib/checksum_wrappers.c:17:9: note: in expansion of macro 'scoped_user_read_access_size'
+> 	   17 |         scoped_user_read_access_size(src, len, efault)
+> 	      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> 
+> Cast __scoped_user_access_begin() to (void __user *) to fix it.
 
-I didn't test this, so maybe I'm missing something, but why isn't that
-just doing
+I posted a patch to fix this in december, I'll find it and resend it.
 
-        for (auto _tmpptr = __scoped_user_access_begin(mode, uptr,
-size, elbl);         \
+	David
 
-instead? No cast, just a "use the right type automatically".
+> 
+> Fixes: e497310b4ffb ("uaccess: Provide scoped user access regions")
+> Signed-off-by: Christophe Leroy (CS GROUP) <chleroy@kernel.org>
+> ---
+> Thomas, I encountered this problem while preparing some patches to start using
+> scope user access widely on powerpc in order to benefit more from masked user
+> access. Can you make this patch go into 7.0 as a fix in order avoid dependency
+> on this change when we start using scoped user access ?
+> 
+>  include/linux/uaccess.h | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/include/linux/uaccess.h b/include/linux/uaccess.h
+> index 1f3804245c06..5d9f6d45d301 100644
+> --- a/include/linux/uaccess.h
+> +++ b/include/linux/uaccess.h
+> @@ -752,7 +752,8 @@ USER_ACCESS_GUARD(rw)
+>   */
+>  #define __scoped_user_access(mode, uptr, size, elbl)					\
+>  for (bool done = false; !done; done = true)						\
+> -	for (void __user *_tmpptr = __scoped_user_access_begin(mode, uptr, size, elbl); \
+> +	for (void __user *_tmpptr = (void __user *)					\
+> +				    __scoped_user_access_begin(mode, uptr, size, elbl); \
+>  	     !done; done = true)							\
+>  		for (CLASS(user_##mode##_access, scope)(_tmpptr); !done; done = true)	\
+>  			/* Force modified pointer usage within the scope */		\
 
-That macro actually does something similar just a few lines later, in
-that the innermost loop uses
-
-         for (const typeof(uptr) uptr = _tmpptr; !done; done = true)
-
-which picks up the type automatically from the argument (and then it
-uses the argument both for the type and name, which is horrendously
-confusing, but that's a separate thing).
-
-Does that simple "auto" approach break something else?
-
-                   Linus
