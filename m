@@ -1,145 +1,106 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D667282F0D;
-	Mon,  2 Mar 2026 22:07:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 870DE175A8B;
+	Mon,  2 Mar 2026 23:29:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772489234; cv=none; b=RHoZw5HbZG4kab/L2GbYQlTsJEpCKEgt6X3lxK9MWCTAibQ3Q13Y/OpLmXQ7PR6DG2ke8DdtTLYhXavqCR3CIwPmtoqtwNnei9cphh7SiVZWW++unfmulRe1Wlrio7Ih6rx4NS/C34wg6jsMcQJogHArg8So0X3lAoaFBV0ue4g=
+	t=1772494178; cv=none; b=T5sItySvKP35+nTfA0ia3EYtXzWEfvdFzfefTDNCfKvz8smG6JAerDCr+hFxVnRsVhTn8jFu7FsefBHWVwVh6xKPn+oiDHQI5yPzsQUqvckRQBmYLgeDvGs1pgelbdNzx3nwvwslFVGR1AIgyRb+3GlF5leOjsbE32sNh2NLlgE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772489234; c=relaxed/simple;
-	bh=S+774mm1EeK5jbLqwATzSdBMWxYbxOszAJUPkaegO1s=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GhexaewFkJFxWtlZDMKBdkuCwzRcPNDhxm5Jp+Gv2BTnhL4gcsCoEvH/g5G++tvtMyy5Fz0cgPPtwAXKuMNM4LY8vTIXOJyRLs9xqUbQGZ8pc5a0FSxTFSQAZOfJIT8HbUSOvOTgN0ZPUEvwOUq58Hl0rM4H6ZPPy89TeTJ7zXY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lZ/v9LTl; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1772494178; c=relaxed/simple;
+	bh=cGbDhS0SYNM7ywiKo18nxPHughICS0VYorf2j+DgiJI=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=g3hHH+zDDTxkJyHJkey9uTFiwg8Buuc2kdMjBcIzqTb4uwdJKGbZ3baEEkmiTw1MBJy98twra857rLTxrDTGZJmUooBbBjMAGkhymbOHN2w9lR4Xci8UI54puscRomys/MBLyb/QbBMR/mxC0z/bTIeKRQiLV/S2oCG2ym9rR+U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=TSxh7FtX; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lZ/v9LTl"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 622F5Rnb2104912;
-	Mon, 2 Mar 2026 22:07:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=odGQCO
-	pWRy8fJtng74GofJD9co7PEAYxnqmwYGVJICk=; b=lZ/v9LTl0tJ7uv+bQuJMF0
-	QpTtADYB2P/R433Tb9Ifq7m50zBZe4Jrb9Lj7gwaimRBhCB0e/ksVbtRWwU5WCFh
-	UUXLBfMVEmmNJbh+LRFzD8VXhrQbzfIUKqusqTFc/f4UECcTBMO/5zc1IVjqnaD5
-	/CO+8AMlJze+NDr6Ckcde5ycSzKa61b6USBkNNiJgzHMTxwWczO+ukc+z+0oZR/Y
-	j9OsbqB6IVVeLFblz0p0sqmVk+kN2WNM9cRQHQ5Eql3QTKzcaQydkVw/0ERByIpo
-	AT8s7CqxOA0cql1IdYsaQWdwMWceLo8qcVTdB/1b77VWIdPxmEwiRz3riQ6P+5zA
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ckskcrmvx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Mar 2026 22:07:06 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 622HQe1o010305;
-	Mon, 2 Mar 2026 22:07:05 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cmc6jysjx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Mar 2026 22:07:05 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 622M73So24642288
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 2 Mar 2026 22:07:04 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DC4BD58050;
-	Mon,  2 Mar 2026 22:07:03 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E34055805E;
-	Mon,  2 Mar 2026 22:07:01 +0000 (GMT)
-Received: from [9.61.253.18] (unknown [9.61.253.18])
-	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  2 Mar 2026 22:07:01 +0000 (GMT)
-Message-ID: <6df57227-4fe9-4e6c-a169-3e28cb534518@linux.ibm.com>
-Date: Mon, 2 Mar 2026 14:07:01 -0800
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="TSxh7FtX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67948C2BC86;
+	Mon,  2 Mar 2026 23:29:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1772494178;
+	bh=cGbDhS0SYNM7ywiKo18nxPHughICS0VYorf2j+DgiJI=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=TSxh7FtXeAjmq+kHAoxRq7blbJce7OjcAyo5efUABhyEIDg5ECsbidW5Mcj6tsYRQ
+	 DzsG6rRpbWkeoTG5vogARAaO0jUDloWcC8I+5NMkdmsuNVjw9kdp+VtHQVYC7rwOhD
+	 vT8qcareSz2ZYaJdXKgw++Ul/6kRr6+5kG6+y49U=
+Date: Mon, 2 Mar 2026 15:29:34 -0800
+From: Andrew Morton <akpm@linux-foundation.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: linux-kernel@vger.kernel.org, "linux-mm @ kvack . org"
+ <linux-mm@kvack.org>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka
+ <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan
+ <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Jann Horn
+ <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, David Rientjes
+ <rientjes@google.com>, Shakeel Butt <shakeel.butt@linux.dev>,
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>, Alice Ryhl
+ <aliceryhl@google.com>, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael
+ Ellerman <mpe@ellerman.id.au>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio
+ Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Jarkko Sakkinen <jarkko@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Greg
+ Kroah-Hartman <gregkh@linuxfoundation.org>, Arve =?ISO-8859-1?Q?Hj=F8nnev?=
+ =?ISO-8859-1?Q?=E5g?= <arve@android.com>, Todd Kjos <tkjos@android.com>,
+ Christian Brauner <brauner@kernel.org>, Carlos Llamas
+ <cmllamas@google.com>, Ian Abbott <abbotti@mev.co.uk>, H Hartley Sweeten
+ <hsweeten@visionengravers.com>, Jani Nikula <jani.nikula@linux.intel.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi
+ <rodrigo.vivi@intel.com>, Tvrtko Ursulin <tursulin@ursulin.net>, David
+ Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, Jason
+ Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, Dimitri
+ Sivanich <dimitri.sivanich@hpe.com>, Arnd Bergmann <arnd@arndb.de>, Alexei
+ Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Andrii Nakryiko <andrii@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim
+ <namhyung@kernel.org>, Andy Lutomirski <luto@kernel.org>, Vincenzo Frascino
+ <vincenzo.frascino@arm.com>, Eric Dumazet <edumazet@google.com>, Neal
+ Cardwell <ncardwell@google.com>, "David S. Miller" <davem@davemloft.net>,
+ David Ahern <dsahern@kernel.org>, Jakub Kicinski <kuba@kernel.org>, Paolo
+ Abeni <pabeni@redhat.com>, Miguel Ojeda <ojeda@kernel.org>,
+ linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-sgx@vger.kernel.org,
+ intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+ linux-rdma@vger.kernel.org, bpf@vger.kernel.org,
+ linux-perf-users@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ netdev@vger.kernel.org, rust-for-linux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v1 00/16] mm: cleanups around unmapping / zapping
+Message-Id: <20260302152934.eba1cfede1c9b8cebdf45b09@linux-foundation.org>
+In-Reply-To: <20260227200848.114019-1-david@kernel.org>
+References: <20260227200848.114019-1-david@kernel.org>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/3] vfio/ism: Implement vfio_pci driver for ISM
- devices
-To: Julian Ruess <julianr@linux.ibm.com>, schnelle@linux.ibm.com,
-        wintera@linux.ibm.com, ts@linux.ibm.com, oberpar@linux.ibm.com,
-        gbayer@linux.ibm.com, Alex Williamson <alex@shazbot.org>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Yishai Hadas <yishaih@nvidia.com>,
-        Shameer Kolothum <skolothumtho@nvidia.com>,
-        Kevin Tian <kevin.tian@intel.com>
-Cc: mjrosato@linux.ibm.com, raspl@linux.ibm.com, hca@linux.ibm.com,
-        agordeev@linux.ibm.com, gor@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-pci@vger.kernel.org
-References: <20260224-vfio_pci_ism-v2-0-f010945373fa@linux.ibm.com>
- <20260224-vfio_pci_ism-v2-2-f010945373fa@linux.ibm.com>
-Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <20260224-vfio_pci_ism-v2-2-f010945373fa@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: inGojawel2g7ijeoAQY36aFvaqTUiEpm
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzAyMDE2MiBTYWx0ZWRfX94ZfC/2Veu2c
- OZbOh+ZWXKE9bSu2iqaAHtCHiZioIImMe8Ecmb6bU7wDUSB/Cjq/fip7wOHklAsWhBkMo88e5Uz
- rhwEJ4uyHotLselgtc6k3hKYqTJKH6hbiRKIHj/LUYa39AIDv0AW7agj4iMYcM7nlkxDFPzaxC0
- RUNz+HqOuJp5ZxbSJBKI59rXIf/2MUwGuBwibfJplI7OH1B2TOdoeMh8xmUcvVN9ex3hF6uhYq6
- VSgACTzopCj/pdwqn1UcwD0YnqZxVfJEICZxyHRL7Lk4/qm1Qd6zsNA+7Pa+NluZHRknzeNPxoH
- DBn6KSOddE3SGepNkD/gKaVoPMGwHcjUJ+mWM7QpLZaytNgzDxOHek9LqqKTmrTyZt4TEgRK9Ry
- TLEFYjKsLaLBRj8KYtL71+PHq8qVhfioE3+g8ECiSTwL5jI5qftHyQ0snLnbt0C36N/uuFdTpUH
- q612ck+lObgpPJdbTuQ==
-X-Authority-Analysis: v=2.4 cv=H7DWAuYi c=1 sm=1 tr=0 ts=69a60a0a cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=iXc_gk3ecELjrQ0JrgkA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: inGojawel2g7ijeoAQY36aFvaqTUiEpm
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-02_05,2026-03-02_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 suspectscore=0 phishscore=0 clxscore=1011 priorityscore=1501
- adultscore=0 bulkscore=0 spamscore=0 malwarescore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603020162
 
-<..snip..>
+On Fri, 27 Feb 2026 21:08:31 +0100 "David Hildenbrand (Arm)" <david@kernel.org> wrote:
 
-On 2/24/2026 4:34 AM, Julian Ruess wrote:
-> +static const struct pci_device_id ism_device_table[] = {
-> +	{ PCI_DRIVER_OVERRIDE_DEVICE_VFIO(PCI_VENDOR_ID_IBM,
-> +					  PCI_DEVICE_ID_IBM_ISM) },
-> +	{}
-> +};
-> +MODULE_DEVICE_TABLE(pci, ism_device_table);
-> +
-> +static struct pci_driver ism_vfio_pci_driver = {
-> +	.name = KBUILD_MODNAME,
-> +	.id_table = ism_device_table,
-> +	.probe = ism_vfio_pci_probe,
-> +	.remove = ism_vfio_pci_remove,
-> +	.driver_managed_dma = true,
-> +};
+> A bunch of cleanups around unmapping and zapping. Mostly simplifications,
+> code movements, documentation and renaming of zapping functions.
 
-I think we should also define an err_handler callback for the driver? 
-IIUC this driver will also be the default driver for passthrough ISM 
-devices and it wouldn't support the basic error recovery we do with vfio 
-today. I think we can set the err_handler to vfio_pci_core_err_handlers 
-as we don't need anything specific for error recovery for ISM devices.
+Thanks, I added this (and the below) to mm.git
 
-Thanks
+I suppressed the dded-to-mm emails to protect the innocent.
 
-Farhan
+--- a/rust/kernel/mm/virt.rs~mm-memory-remove-zap_details-parameter-from-zap_page_range_single-fix
++++ a/rust/kernel/mm/virt.rs
+@@ -123,9 +123,7 @@ impl VmaRef {
+         // SAFETY: By the type invariants, the caller has read access to this VMA, which is
+         // sufficient for this method call. This method has no requirements on the vma flags. The
+         // address range is checked to be within the vma.
+-        unsafe {
+-            bindings::zap_page_range_single(self.as_ptr(), address, size)
+-        };
++        unsafe { bindings::zap_page_range_single(self.as_ptr(), address, size) };
+     }
+ 
+     /// If the [`VM_MIXEDMAP`] flag is set, returns a [`VmaMixedMap`] to this VMA, otherwise
+_
 
-
-> +
-> +module_pci_driver(ism_vfio_pci_driver);
-> +
-> +MODULE_LICENSE("GPL");
-> +MODULE_DESCRIPTION("vfio-pci variant driver for the IBM Internal Shared Memory (ISM) device");
-> +MODULE_AUTHOR("IBM Corporation");
->
-> -- 
