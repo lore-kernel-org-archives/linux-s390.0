@@ -1,40 +1,42 @@
 Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CBF7383C6B;
-	Mon,  2 Mar 2026 13:28:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE2FA3370E3
+	for <linux-s390@vger.kernel.org>; Mon,  2 Mar 2026 13:28:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772458124; cv=none; b=aI3rFz0QcrJYJ35fxY1hlQf4qLNz4YxuNG0X2yZ0kNW0hSI7Pd52euG7ESyxykydHsIqmFwoMui4gl0D9FDpJKQbS3K+HsWZyFcuWMUyXmbpjf0bl64ogDUV3TqxFhm6bBPW4YNhcfaj7ubBHpnb3RRNU/b1y3iFcI9X9/+ctno=
+	t=1772458124; cv=none; b=E+ozYLY/WEI78S/TGheC5ht8qQl7x1C8e5F8bLwoZ4i9wFCoy5qLB9dNfAV21cJw0JxEqwK8DvSPT37gyHtU9sN9PEL2b6bbxr2+7DzfPJ2jEiN9yt/d0SrahGHmE/eIMtnvPH8X1JKlTpxxwXKu+r5CGfXFNDAZfciOHQvuJfE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1772458124; c=relaxed/simple;
-	bh=XuD5v7vcsXp0J/YdrUJ8HL0Un9orsSbvu2jek84EM1A=;
-	h=From:To:Subject:Date:Message-Id:MIME-Version; b=kzWxVjAqHwT13hmphsddriGoF2xGZ2FJFF0Uuq9hlul5ShxaOaQsltw1+HpCQvLsOjoSbpck33CzC8paIMwJ7tGLcpnlNF5WSnkhMNat403XWKSDUwNfdLvBZhqysNr9GXp5WfcHh+JEkka0gmwiLeKuytZzJ7srzbLWQJJ/Q7M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=runbox.com; dkim=pass (2048-bit key) header.d=runbox.com header.i=@runbox.com header.b=CnVsYB+8; arc=none smtp.client-ip=185.226.149.37
+	bh=FKFw9WDEltFsWTOOSmYNAvvnsX/tHlWIyPea6wX7cZU=;
+	h=From:To:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=RHpNilmi1eCKfYc2mgtMQfvXx4OGy0sOOgkk2vI0jPPax155y0/0CBgjiaTEYOmpNAIqeDycYEwu2kiOuGGZ8u29qGft0BZKG3GUI0gAVG5sQrV2nIcfayf6Vm0pLEeLcwY4rMlOV3pC6g6aLxrm2SEYsn+GDsBb2k5i50cFB+E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=runbox.com; dkim=pass (2048-bit key) header.d=runbox.com header.i=@runbox.com header.b=RaIJo34Y; arc=none smtp.client-ip=185.226.149.37
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=runbox.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=runbox.com header.i=@runbox.com header.b="CnVsYB+8"
-Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	dkim=pass (2048-bit key) header.d=runbox.com header.i=@runbox.com header.b="RaIJo34Y"
+Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
 	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <david.laight.linux_spam@runbox.com>)
-	id 1vx3Jw-003ZDt-84; Mon, 02 Mar 2026 14:28:24 +0100
+	id 1vx3Jx-003ZEJ-9O; Mon, 02 Mar 2026 14:28:25 +0100
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=runbox.com;
-	 s=selector2; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:
-	Subject:To:From; bh=TqCugejn+OGjGM2P4bwUziYu78OGaka0Bim+UNMgjx0=; b=CnVsYB+8+
-	VTkexEkCIXtWxDk0ct8bmk056FpnSkPCeP5i9Yz34bIo3y9sfFFKxB70WZvWoa5uqvPOn8FGr0qGf
-	EbIp0aausm3TBu9LxPZnWweSATT+ezR5WZWL2ZB5A/AohwyvAn5sRz/2VIhze8//praDWx5tUs3Kh
-	uSZ5LHvoL37lkFaTAFRYZPn6z3367lk4BEMixUtiAnxmBvTrEt3Nok0C2xREQl+pFHBZNSGve89hN
-	sVBOcOV0Nc47MyZUOiMqCn7FnHZ5wI0tCUtCptdrGMcotngqvg2PlvnsYF2JihFCbaufaLijoNZFG
-	NDR1Prmpt8MS2YYeGDqIb7kqQ==;
+	 s=selector2; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To
+	:Message-Id:Date:Subject:To:From;
+	bh=o2ClYLRupqDrO68wbhPYoX/KO8vhOPlwFWoOd/NbY3w=; b=RaIJo34Y0Q7j2egm9oaHOlOtOd
+	qIf5fI6+l/d2wpNaqq8G9dXTQ9MMLD3B96RqcrmcIuZWAbHSJrVvAOsCyxNnHmB0ApiOwjvIA/WUq
+	2QHmlroveisu5RbpBCARdjIwFelcSMWSgnuhcGGnezIcVvrdSc/czwp60dIuZ0dJ0UBhYTt3Dir6A
+	kPjMxT6Sx+w5jzEelLAoWpF5WZwr5068t7N9pLbu3BuEHsUXyhRpZNDULOe1NTcLEJsTarSsqPA3q
+	jO3BiP4+6U4spuDiRYWorjNHk7ZXXdxC/8mJTlzMjB17nS6wB8o7mn+sdiXsOXXocQv+tO32ThUWi
+	FRs2OCew==;
 Received: from [10.9.9.73] (helo=submission02.runbox)
-	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <david.laight.linux_spam@runbox.com>)
-	id 1vx3Js-0003sJ-UZ; Mon, 02 Mar 2026 14:28:21 +0100
+	id 1vx3Jw-0001hU-9m; Mon, 02 Mar 2026 14:28:24 +0100
 Received: by submission02.runbox with esmtpsa  [Authenticated ID (1493616)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.93)
-	id 1vx3Jf-008UTR-B9; Mon, 02 Mar 2026 14:28:07 +0100
+	id 1vx3Jj-008UTR-SY; Mon, 02 Mar 2026 14:28:11 +0100
 From: david.laight.linux@gmail.com
 To: Alexander Viro <viro@zeniv.linux.org.uk>,
 	Andre Almeida <andrealmeid@igalia.com>,
@@ -70,10 +72,12 @@ To: Alexander Viro <viro@zeniv.linux.org.uk>,
 	x86@kernel.org,
 	Kees Cook <kees@kernel.org>,
 	akpm@linux-foundation.org
-Subject: [PATCH v2 0/5] uaccess: Updates to scoped_user_access()
-Date: Mon,  2 Mar 2026 13:27:50 +0000
-Message-Id: <20260302132755.1475451-1-david.laight.linux@gmail.com>
+Subject: [PATCH v2 4/5] uaccess: Disable -Wshadow in __scoped_user_access()
+Date: Mon,  2 Mar 2026 13:27:54 +0000
+Message-Id: <20260302132755.1475451-5-david.laight.linux@gmail.com>
 X-Mailer: git-send-email 2.39.5
+In-Reply-To: <20260302132755.1475451-1-david.laight.linux@gmail.com>
+References: <20260302132755.1475451-1-david.laight.linux@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -84,44 +88,30 @@ Content-Transfer-Encoding: 8bit
 
 From: David Laight <david.laight.linux@gmail.com>
 
-Converting kernel/signal.c to use scoped_user_access() had compilation
-warnings because some of the pointers are 'pointer to const'.
-This is fixed in patch 1.
+-Wshadow is enabled by W=2 builds and __scoped_user_access() quite
+deliberately creates a 'const' shadow of the 'user' address that
+references a 'guard page' when the application passes a kernel pointer.
 
-The same problem has been found compiling arch/powerpc/lib/checksum_wrappers.c
+Signed-off-by: David Laight <david.laight.linux@gmail.com>
+---
+ include/linux/uaccess.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-For v2 I've changed the code to use 'auto' and replaced the over-complex
-CLASS definition (and its for loop) with a much simpler __cleanup() function
-on the second loop.
-
-Patches 2 and 3 factor out the 'autoterminating nested for loops'.
-I'm sure there'll be a 'bikeshed' discussion about the names.
-
-Patch 4 stops warnings from -Wshadow (enabled by W=2).
-I did think about making the _diag_xxx conditional on a W=2 build,
-but since the pre-processor just emits #pragma lines and they are
-smaller that the for() loop it doesn't seem worth while.
-
-Patch 5 is the change to signal.c that prompted patch 1.
-The generated code looks fine, but I've not tested it.
-Most of the changes are to 'compat' code - so are probably not
-usually performance critical.
-IIRC the non-compat code uses copy_to/from_user() for the structures
-so is probably slower than the compat code's member by member copy.
-
-David Laight (5):
-  uaccess: Fix scoped_user_read_access() for 'pointer to const'
-  compiler.h: Add generic support for 'autoterminating nested for()
-    loops'
-  uaccess.h: Use with() and and_with() in __scoped_user_access()
-  uaccess: Disable -Wshadow in __scoped_user_access()
-  signal: Use scoped_user_access() instead of __put/get_user()
-
- include/linux/compiler.h | 26 +++++++++++++++
- include/linux/uaccess.h  | 51 ++++++++++------------------
- kernel/signal.c          | 72 +++++++++++++++++++++++-----------------
- 3 files changed, 86 insertions(+), 63 deletions(-)
-
+diff --git a/include/linux/uaccess.h b/include/linux/uaccess.h
+index 64bc2492eb99..445391ec5a6d 100644
+--- a/include/linux/uaccess.h
++++ b/include/linux/uaccess.h
+@@ -739,7 +739,9 @@ static __always_inline void __scoped_user_rw_access_end(const void *p)
+ #define __scoped_user_access(mode, uptr, size, elbl)					\
+ 	with (auto _tmpptr = __scoped_user_access_begin(mode, uptr, size, elbl))	\
+ 		/* Force modified pointer usage within the scope */			\
+-		and_with (const auto uptr __cleanup(__scoped_user_##mode##_access_end) = _tmpptr)
++		__diag_push() __diag_ignore_all("-Wshadow", "uptr is readonly copy")	\
++		and_with (const auto uptr __cleanup(__scoped_user_##mode##_access_end) = _tmpptr) \
++		__diag_pop()
+ 
+ /**
+  * scoped_user_read_access_size - Start a scoped user read access with given size
 -- 
 2.39.5
 
