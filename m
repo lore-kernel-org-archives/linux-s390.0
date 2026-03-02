@@ -1,118 +1,116 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0E55387372;
-	Mon,  2 Mar 2026 16:13:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F04E2877C3
+	for <linux-s390@vger.kernel.org>; Mon,  2 Mar 2026 17:25:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772468023; cv=none; b=E9n2E7XkezOmq5OEA9g490MvkRvnJzqSUfw9oGf2Ci1kXVMl6M8Biuvy3K0vrPwBqgDBhGdkp5aE9DycT2fzKxd23iIzmGGRiN7oA3N7OviEkVuN6qrXbrIOKVhfXvFTbwj4DkItYz9FonIzLf6nqZiYVWQpbroZfAJqv3hfAXQ=
+	t=1772472325; cv=none; b=fUAjqbNJk0sqBF4RYCBKX/2/Sac/B1ewK+LPSMCQrb1sEj5Ph68oeJ2aH+E+9wAznYmweDXp0YpOGmfuhuKqj0QyEgI7tv8DikM39b7lgQrL+YcOl21PlWw34IV8FTviPt6bh880flCROgEmL3sVGjdDKx2mq/XmRBJMm3fcke8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772468023; c=relaxed/simple;
-	bh=LGUdiTMxiDLzWEXNTkWeK2+4HIQctHmM31i/wl4FHrs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CivLzxSvB6CM0QFJDUmg/9TaEmSyq4iNS7xPqdb1rJ/RyS8TwE0g0ujVA2SD/wU56Ym6VbJ8DfNiyGPzNVE7JK2qcrDv7R2UOAHSiogPOQZUp/k0hmY5XEBzVzKmH0Gq6oWHYYtMlAOPfKGZD/hNWBoo5equQxAuQ3qM3eZimrM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=b+8veLUv; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1772472325; c=relaxed/simple;
+	bh=bHDpiT/DMBChb2eg6esWRxtOQQQsukrENMa/lbFayFE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=X4Jfc8s7bcRBVFVvGErCqFRIXgJUjX9Peo/mUXHEssIac66nuecH8e1G8ELwwezGA5y8v1lvWkr6x1zgbsH2nyhfd29Fm92SPmxZK7CSTwz8a9ORo8353rLfVZzZZGgwRnn1TG9l7fOCsC0CKnAwmXn54EAC6L8BeqOlkhkVNsU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=YNEg7GrQ; arc=none smtp.client-ip=209.85.208.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="b+8veLUv"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 622DWiKi2434588;
-	Mon, 2 Mar 2026 16:13:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=cdEYLgd25ZMtAdm7y0UpPD0J/tOArx
-	hYmu3ksLnAsoE=; b=b+8veLUvR3kFfyiZX2OBJzCRUVDyfDpu+Q4az7dwVl7CTK
-	WUHkK9sIUcLJQbMWZADk/QYuPaeMRKHss/XkOESoRcJA2yqpMCaIGYkeL9KPiAOG
-	L03TR4PDUc3qZtNFQT2PpDAIT/8uXOJwzySFBEeYYl6Fs1C7OCob789Ucg6vzbfY
-	qCm8hBMTiMnmor5tWS25l/I6kscLjucOdefUMi5fqpH+LUKns24Y2WhQUaaVkq/y
-	SNmQg0d2H/AcvNFBG9XFKoylp8Mrj+BXIY70hhh06VszOByfbpXiiok3tnAK8RI0
-	7GDvxT35BmjWNnBoLL7Z6Tv+Z+QRvZVUOCzYcUMQ==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cksrhyf27-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Mar 2026 16:13:38 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 622D8SKZ010327;
-	Mon, 2 Mar 2026 16:13:37 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cmc6jxr4n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Mar 2026 16:13:37 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 622GDXuN29885064
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 2 Mar 2026 16:13:33 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8142420043;
-	Mon,  2 Mar 2026 16:13:33 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1350820040;
-	Mon,  2 Mar 2026 16:13:33 +0000 (GMT)
-Received: from localhost (unknown [9.111.42.248])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon,  2 Mar 2026 16:13:32 +0000 (GMT)
-Date: Mon, 2 Mar 2026 17:13:31 +0100
-From: Vasily Gorbik <gor@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH 0/3] s390: Fix and improve inline assembly constraints
-Message-ID: <your-ad-here.call-01772468011-ext-4920@work.hours>
-References: <20260302133500.1560531-1-hca@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="YNEg7GrQ"
+Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-65f73225f45so7516252a12.1
+        for <linux-s390@vger.kernel.org>; Mon, 02 Mar 2026 09:25:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1772472322; x=1773077122; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=TbIkpYLS9gbJFch6OaF8nYKkHDJKdsVHvQjZGTHSn/8=;
+        b=YNEg7GrQkrASmtxOsslb7zAIHX9LtW453CEBLjmHfhLgBhS/wQAH4XPDgnktvzwTUx
+         5iWXrHSURTweNIImn2XODyT1aOb2N+bT1WkMlyi7ztpswbkTRhhyeMqvcQCrA9g4zMDU
+         va3o5NImy++Q4/PqD7Nh/ozcUKopAygphl1ek=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772472322; x=1773077122;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=TbIkpYLS9gbJFch6OaF8nYKkHDJKdsVHvQjZGTHSn/8=;
+        b=dULIXJAaNsENaCVcy2h7NUMOxNX30rI/cRAeJwOtexunJTGY+jRtUbisMS0AUGv57z
+         k6QZP8Eg5tr5Pw3clOHV2xanm98fJgs5HgeBkD7lFNmZjTTA8rEAVOW5X4m8KPAOZqRq
+         WBLb+9G0QHuURDTamQc6gFUT03WLUe3W5rFUG3nzEUe0CJxH5qlLmxDYuCDVzYjxxfEz
+         nXk4vkfecY64VLjiFzhgtYXfGxQvTH57DHpllOjQelUFpmPuUsUmUHZJuz5NJGq99BAR
+         lmECBg5FEfWharpQ5UZXGXWAR/0tUlhabEBM5W+EGyEUGJdBOCdXl8kaGBqXGchZpSc/
+         +6Xg==
+X-Forwarded-Encrypted: i=1; AJvYcCWox6eah5vOi+0WPUF0vKNAiXECgx+LrtZ8gAaNmYPjJYekJ8JYFzLvYUjelfYX77R5hxqPRvwnM7Vx@vger.kernel.org
+X-Gm-Message-State: AOJu0YwQI2uzXUAkCzzLQT7a1VecRu8/2RYhcFWv2GhrjSawskIFnq0W
+	FaukdD41pZYm+OBF0tFMRrnO4sYQTRvZ9EWz214QsRIf8plmO/go/YG1lOB4p3YoD5ZGOghuoIF
+	bSeyi+PGuhw==
+X-Gm-Gg: ATEYQzxGr7A/oLdiWOk1uR2V8bsGWzhGmoIOmJKJjvgBEhXD40tEqoeVKnYAtJysnNP
+	WiyL3QyyrFRJM5xP8+F68aIN8dW7aO5yCM3uPCC0OTQY6O8/lPkZpzU5sxYDqVmYQRbT2YLb9gC
+	h1CsG9DJ7bWgvpgJ5azjt2FThlkrUZ45Qk6Eb+56QrZdZJlFfL1crobQFnQpYHe1EJ+hRIQc72H
+	pTQxG/kTbbqmDZD6Y2LjK/58C72wnHD8UJ+O5LCR8HzSjkBchpMl/qDyzZYurIybps/sZwFl4sN
+	dR+lUoXHKlYF2fbFuOffjWtaxA6lP3skXMu3X954FMpDNLteqqy4vu+PRCscZc57L+9A/Zl975s
+	ZvPoh49DsSzqIJ/jNn8dewFmmzgbf5t/L6biarHJiHcIn6/551XqP4uycXCqrpMhOmpe0liNZb8
+	0hQdEcdnQEC85OiNzbP0nFrzCXJn9tRZMfUQuuB4nkvuJsVAN9yCblPFxG35hjC9+kBJIjyMmX
+X-Received: by 2002:a17:906:9fc5:b0:b93:6559:3148 with SMTP id a640c23a62f3a-b93765defa9mr711027166b.61.1772472321649;
+        Mon, 02 Mar 2026 09:25:21 -0800 (PST)
+Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com. [209.85.208.52])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b935ae613ddsm491271866b.33.2026.03.02.09.25.21
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 02 Mar 2026 09:25:21 -0800 (PST)
+Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-65f73225f45so7516220a12.1
+        for <linux-s390@vger.kernel.org>; Mon, 02 Mar 2026 09:25:21 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCWwtECuH9onWoCR8GBC2roC+p4LU6WuWkRlj/38FMcvoTaMpV4iz0wca7BzBp+wC3U2P0IlgdDL4h3t@vger.kernel.org
+X-Received: by 2002:a17:907:25c2:b0:b8e:7dcb:7f1b with SMTP id
+ a640c23a62f3a-b93763af8f8mr867609766b.21.1772471885098; Mon, 02 Mar 2026
+ 09:18:05 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260302133500.1560531-1-hca@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Rp/I7SmK c=1 sm=1 tr=0 ts=69a5b732 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=HqOCiZ0a8VqM3oG_dVUA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzAyMDEzNSBTYWx0ZWRfX3+Lr4bk/2Cm/
- klE4pqNLJX6LhMqayu6PzdSMJ9HHsxybsR+W6FUYVYppfDF+CSW+Ev+J3375M7ZGkK8llbfO6Ip
- 2W3edPXIp4V4WA5v5BoatfB+XeUQeBSCbN9101mxT9Sz/g50/+wt2i07L+hDuhkO2HyiWkskSGo
- cC+I4L0jZ9UIMMxHiN32uo7VOFwuwyS7W/+GUeGnX71kqJMgoqlNsXxqwoTQbMIy7/AarpAOXaQ
- kVq/4yfL4OIaWmqTzip3G2dZEYFcSYyg8uikSzNuqbf47jQOao6wjWDAJDBMhD4Jzxkr8acuquq
- XRr00r5APl14LXqi4BbbDCg3TzYPYnoZ4GRpQCXLheap8jPzzXtjKJzcCXb9MuU+i9hfr4kIYsM
- pazga6gvhLgDgHD6/6FD+ASFL+aEXODcV4vsHHl+7KUXInB1syCRG7222flfi3O6lJmvJFOSsel
- hOR+Z5YGJ1tIWfq4U6g==
-X-Proofpoint-GUID: FQeRo2OIy6jhghBM_2sfWR9u5JrRoXe6
-X-Proofpoint-ORIG-GUID: FQeRo2OIy6jhghBM_2sfWR9u5JrRoXe6
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-02_03,2026-03-02_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 priorityscore=1501 spamscore=0 phishscore=0 adultscore=0
- bulkscore=0 clxscore=1015 impostorscore=0 malwarescore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603020135
+References: <20260302132755.1475451-1-david.laight.linux@gmail.com> <20260302132755.1475451-5-david.laight.linux@gmail.com>
+In-Reply-To: <20260302132755.1475451-5-david.laight.linux@gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Mon, 2 Mar 2026 09:17:48 -0800
+X-Gmail-Original-Message-ID: <CAHk-=whaR_ujJvWGTe_fZxg_d2YSORZWnXwHLa5Gao+x136pYA@mail.gmail.com>
+X-Gm-Features: AaiRm52ly83FU0bUfVtu2Rv39h3JOZJTzcdxMzg3AYFviKySZcFGK5yhPqg6aWc
+Message-ID: <CAHk-=whaR_ujJvWGTe_fZxg_d2YSORZWnXwHLa5Gao+x136pYA@mail.gmail.com>
+Subject: Re: [PATCH v2 4/5] uaccess: Disable -Wshadow in __scoped_user_access()
+To: david.laight.linux@gmail.com
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>, Andre Almeida <andrealmeid@igalia.com>, 
+	Andrew Cooper <andrew.cooper3@citrix.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Christian Brauner <brauner@kernel.org>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, 
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Darren Hart <dvhart@infradead.org>, 
+	Davidlohr Bueso <dave@stgolabs.net>, Heiko Carstens <hca@linux.ibm.com>, Jan Kara <jack@suse.cz>, 
+	Julia Lawall <Julia.Lawall@inria.fr>, linux-arm-kernel@lists.infradead.org, 
+	linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+	LKML <linux-kernel@vger.kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, Nicolas Palix <nicolas.palix@imag.fr>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley <pjw@kernel.org>, 
+	Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, 
+	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org, 
+	Kees Cook <kees@kernel.org>, akpm@linux-foundation.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Mon, Mar 02, 2026 at 02:34:57PM +0100, Heiko Carstens wrote:
-> While looking at xor_xc_2() I realized that its inline assembly constraints
-> are incorrect. Also the inline assembly constraints for the other xor()
-> function look incorrect, but are not (execute instruction vs register
-> zero). However that revealed another real bug on __stackleak_poison() with
-> another incorrect inline assembly constraint.
-> 
-> Fix and improve all of them.
-> 
-> Heiko Carstens (3):
->   s390/xor: Fix xor_xc_2() inline assembly constraints
->   s390/xor: Improve inline assembly constraints
->   s390/stackleak: Fix __stackleak_poison() inline assembly constraint
-> 
->  arch/s390/include/asm/processor.h |  2 +-
->  arch/s390/lib/xor.c               | 10 +++++-----
->  2 files changed, 6 insertions(+), 6 deletions(-)
+On Mon, 2 Mar 2026 at 05:28, <david.laight.linux@gmail.com> wrote:
+>
+> From: David Laight <david.laight.linux@gmail.com>
+>
+> -Wshadow is enabled by W=2 builds and __scoped_user_access() quite
+> deliberately creates a 'const' shadow of the 'user' address that
+> references a 'guard page' when the application passes a kernel pointer.
 
-Applied, thank you!
+This is too ugly to live.
+
+There is no way that we should make an already unreadable macro even
+worse just because somebody - incorrectly - thinks that W=2 matters.
+
+No - what matters a whole lot more is keeping the kernel sources
+readable (well, at least as readable as is possible).
+
+Because W=2 is one of those "you get what you deserve" things.
+
+             Linus
