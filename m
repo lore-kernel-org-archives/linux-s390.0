@@ -1,131 +1,164 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11ADB3382E8
-	for <linux-s390@vger.kernel.org>; Mon,  2 Mar 2026 18:55:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772477717; cv=none; b=frvtmjQ4xVIZlNqsSJ460RBBmjXAiSWB9cZ0gvk64pSa2egNGEsWztAziWZDWMv0mUmPWifFju2fkHTcsyaxB30/qg7RjOmcGSF5T3rje0Y4+9IBSKlfxMj8E8rNvyoGo0yCrAJxd36MbNEIPjN2Lq1dsC3m3BhfCtgG90WOwy4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772477717; c=relaxed/simple;
-	bh=6CWcjg4sVeYB4RPm3k+7MYd79lL+Kt3ozxhbCjBaI2Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=WP2jSF7Wa+x+uvUsGmtcafxRJqnprCNjqtyZhsPWw+EviFbJtclQsTlqHi0zbBrzszK88aN+M6zEqWSJZTqe2d9ASuBornCiFUauqnM/4b0rXCMz6BVKKvNZo/yvvrVR8KT779+dr4HTgm0e7IlSGLZT6F/A6XPkC7jwLuMEQDc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UvCWi9k+; arc=none smtp.client-ip=209.85.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5084147DD40
+	for <linux-s390@vger.kernel.org>; Mon,  2 Mar 2026 19:44:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.171
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772480676; cv=pass; b=s9Vlmw2Z6yUC8yu0VtjbMlYCwremEc91J98aBVkl0b0iy7+znGehvBTNBG8k7seAwk2KY4r6mSq706mkLKjA1XoYYqCYeR54l5capap/raHlwwJqCyKS0dJ6qomtcKIfpO6/erfhMYvl19qouD1Jx8IOfaVQ1kTtb6GD8rR9/v8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772480676; c=relaxed/simple;
+	bh=NblyPX6n2MFoNyHMvC5PC/8KGB/1sHVY4XCBHJPPHfw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=EKKSvOpgR2tDOagmzXQ6LyHEKQKA3ga5P8guQqE8h0anqqHjOr3dQdhxnxcJfCLTz+2E5jP5M83Pl46UgXp47kYG4jd78LRlDUbaySo4TD+ns+39l7bTagdTAchp0ERHoYacBiHM/ClDVbLot/xNxB8vR5UP5W3OKBy6skx9MYI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=DqEbp8Bg; arc=pass smtp.client-ip=209.85.214.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UvCWi9k+"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-48371bb515eso73842755e9.1
-        for <linux-s390@vger.kernel.org>; Mon, 02 Mar 2026 10:55:15 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="DqEbp8Bg"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2ae49120e97so13825ad.0
+        for <linux-s390@vger.kernel.org>; Mon, 02 Mar 2026 11:44:33 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1772480672; cv=none;
+        d=google.com; s=arc-20240605;
+        b=SvqCfWcSV2c97AtwsbIE74OqFVy/ys3UrQzCEZDcBQdqLrozzHET9zQZcki0MDTpUW
+         E903cVh6Ae5dj3cvCO12yMUYDLIpBZ6GP1xcw8fVjU5wIHLx/CKEMONhvAwyXKwF4ImI
+         T/x81eV0VlRSi3ehnBa4iqQwSYTJMEnfa0vdtmmLZDcuYIvMhISSvrrqFKImKw87biA3
+         pbgVz//jv+mAarf9JEfMZlsqoiVtLqUN6vz1z4Ruy1Feezi+LtI5EOpPclEIQ1G1/ghA
+         dYJzmRZSVZxvK4tQtaKjIMMH8Gwazjjeb5uVNNv+Du7J99M7n+KgfHPSKhAVYD51PFQs
+         mcDg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=LlQjSWWG40FnbFrNMu/cs5V+4LjgLVNlHIV7QUIZ7bk=;
+        fh=NWE2/+vjBrjXFHaRDp7Vkus2HJVVuC+o21o1RLoBHM0=;
+        b=Fc1PA1e6INzw/cokE5aICMiibaUwKe3U4UE/U43SoMKUTyQrXGT2wZQ8TT4WnCeT3p
+         90+SKpNXikI/UGPMUPzUsNITLY8a4xjebMPX7sdx1EwgTQHYUsegCSgR0IQMprJdfjK/
+         lSbQUKwIv3t3DLZ+RR0Jaya5wA51LAxkmnUUZozj3tkC6zj/0LGSHvGNCqrRtjsV755h
+         PKhpDURhybKSQVsoqy9mtOQDqlS90a3oEiu/xLQ50N0mqywY0KTi3lO28Gb+l6PCTTM2
+         27LBbmUsxDJAS7pwZ8dW51EC6TaclsM0e7EE/VaomBj9ZlEyt4x/Keh10XjDoxdQfiye
+         oGXQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772477714; x=1773082514; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+        d=google.com; s=20230601; t=1772480672; x=1773085472; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=hRlJolTcfRvzUSQHPs3dCXFlQx1DAFYYMFjz2DuLSf4=;
-        b=UvCWi9k+QnpLrY5/dA3CMsPNlt7ii5K2NB+3bP7iE3Vh5skznbDG8WWxKzkZYtETx+
-         D26PdOdXT9NI+Zp1pATJDM5V/01+tm9EC7Ts/Sh2kI6B2cFhIF3wHFLRYkpAEYC75ZXB
-         QUgUai8zcJbN+c/sKzmGxemMRYCVECpUCYNnVmqon/MwGgzEUqOQU0CyfulfQdX1zauU
-         YDoZ5EMcuax1AmJi7th9YsNGUSt9OFMj52/2uw17em8ZEzpz4a7w+dIiajfiZYVpgdHy
-         i247OgWwQ2pQ/BPibQVZ7HkXWy2/Xvpob6a7c/kG40NAYIqbdkbnJdr5pWlgSx8TBFgH
-         v2IQ==
+        bh=LlQjSWWG40FnbFrNMu/cs5V+4LjgLVNlHIV7QUIZ7bk=;
+        b=DqEbp8BgU3DfRFRZ2HrAEwzipmyo4U6K+S1eWyE7TryKrDeDiZPODTR4S+4mPvF9wF
+         qwHwrDsgYkO6f2Q1Kw43t1lbi7Lb1G7BKj49DzjSvFSYmI+csnLk/bjBIvfTKIep/cw3
+         Jtu+3vmiF46NSNnlKs8DOes25tg7B+VhCt01ZutRmgybbbUlRotEnDoZIvdrwfBVHdyU
+         56LaJGu9C2UIJr/aIs56XuvpZKD7mJE8R4mrEsqE0bxMxo8f3wnFy0u5BbgJNss4Fg+n
+         P4Riuq6U0j9T6Wj/Ge0kMcqNwWKnG5NYzGzCv3wobUPdYw2+6eMnWmUJvgBft0x+ITyp
+         QyvQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772477714; x=1773082514;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20230601; t=1772480672; x=1773085472;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=hRlJolTcfRvzUSQHPs3dCXFlQx1DAFYYMFjz2DuLSf4=;
-        b=SqwmGwYtsPGPMGL2cLH5iQXDTX3t2nPgGZ8JJbk0oJnLr9liKgLRyStrWBO8endhuG
-         2OH8Xj0blyEE7U3x/14xn0iWBmynxOUf3IBmtMHjufxOEk9Ynbey1kG6Al3ybScAaA6w
-         BEhyFQB/J2Y5AEshGa8kMZZpfy0CAMQBHrX2zuS/QdFTugRrQYTh6LgRrkeud/QdxI1X
-         3SzP+ectNmawqYZr6+rXJ2P1GxbKPuBvizgIJpKY/vxRi6VxKpW/AVfbxlADoWxJiY2+
-         XHxXgmTWTLf+2d7rBjAqkxpfth1B11LPjtvHNZ1UcQ9xQ9eGdIha6qjidUZ8u+62Lr3e
-         w9SQ==
-X-Forwarded-Encrypted: i=1; AJvYcCULVB6P/BsfwhqNLfJETKhNmbsU1byrWLtTOpto+Pq9xEHTIy/0yEGmSF9cnIItLQZzuJupIFeVI9Ci@vger.kernel.org
-X-Gm-Message-State: AOJu0YxgA0LvOocE6Db+Im9rvYtYx6MyluMBnIGhuBFa6C2S+0lLtY8K
-	kjq2DnH278RECfc2iS9Egsm6UTCTRbuRpb79fnLDYue5JAiNul1j9IcM
-X-Gm-Gg: ATEYQzzZ2X0V+B9d2ibbJeBMPLGOKf7IZjjARfOQHtlVIyKqLirv5Zq6aKBJMu0gX0s
-	XJsiJ/dCebI0T7RWzVEkhTMaNV6O5y1eiL8UZoN5zhYPO5Wmlp/TWN/oyiGcSdZBjsSOEuoh/tH
-	+4XPmymDO5PCFo2m5o8g0Znb6lvBVVm7zPpc2YVfm2AZl1MTmj24woahNN95eVYiWjZXC1iGmRa
-	OAOJ4c7OtNwHbTvg0bgqXzMEqHF6vMg4xYH8qqCEiq5DudztPMCdKBSaejSjfU7vcNd5Vq/RqqT
-	FVJHQ6lo1mc9s+wud+Vl2keefsEelMyIWgvLR+2wsrkswWSz6dbsoEaOFjav07/QprrNofizSsJ
-	/vguF4FX2RDJExrqym+f4FdKfX67vrSwYgOjkKD3fTpQtdwbAt0Crwnj9l68okMwOiKcmnWzpSf
-	lW0WBbKTxoVBQfFzZytg==
-X-Received: by 2002:a05:600c:350d:b0:483:a8e9:201b with SMTP id 5b1f17b1804b1-483c9b81265mr267465545e9.0.1772477712531;
-        Mon, 02 Mar 2026 10:55:12 -0800 (PST)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-483c3b89c99sm299471225e9.15.2026.03.02.10.55.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Mar 2026 10:55:12 -0800 (PST)
-Date: Mon, 2 Mar 2026 18:55:10 +0000
-From: David Laight <david.laight.linux@gmail.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Alexander Viro
- <viro@zeniv.linux.org.uk>, Andre Almeida <andrealmeid@igalia.com>, Andrew
- Cooper <andrew.cooper3@citrix.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Christian Brauner <brauner@kernel.org>,
- Christophe Leroy <christophe.leroy@csgroup.eu>, Darren Hart
- <dvhart@infradead.org>, Davidlohr Bueso <dave@stgolabs.net>, Heiko Carstens
- <hca@linux.ibm.com>, Jan Kara <jack@suse.cz>, Julia Lawall
- <Julia.Lawall@inria.fr>, linux-arm-kernel@lists.infradead.org,
- linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, LKML
- <linux-kernel@vger.kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Michael Ellerman
- <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, Nicolas Palix
- <nicolas.palix@imag.fr>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley
- <pjw@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Russell King
- <linux@armlinux.org.uk>, Sven Schnelle <svens@linux.ibm.com>, Thomas
- Gleixner <tglx@linutronix.de>, x86@kernel.org, Kees Cook <kees@kernel.org>,
- akpm@linux-foundation.org
-Subject: Re: [PATCH v2 1/5] uaccess: Fix scoped_user_read_access() for
- 'pointer to const'
-Message-ID: <20260302185510.6b49a025@pumpkin>
-In-Reply-To: <CAHk-=wjKWi=j_xcMBAi2Hkuut6aNeqXTwOFoMGkHfDA+3WXsgg@mail.gmail.com>
-References: <20260302132755.1475451-1-david.laight.linux@gmail.com>
-	<20260302132755.1475451-2-david.laight.linux@gmail.com>
-	<e8a688b3-97e1-4523-9a82-8d9dd16e3d90@kernel.org>
-	<CAHk-=wjKWi=j_xcMBAi2Hkuut6aNeqXTwOFoMGkHfDA+3WXsgg@mail.gmail.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+        bh=LlQjSWWG40FnbFrNMu/cs5V+4LjgLVNlHIV7QUIZ7bk=;
+        b=XjMktfeagZRTjzXWV89sRygio6C/wCouPn2X+yP9W4OUGVHZOfk+CrZWirYC/JEGVv
+         WROFQgtx4o9yjCkj0x6wqq2Aaf7FIEhZrR1HlISfvYAdop0vw5q+qNh0w3yGh5Yt8+Cg
+         yIxVwZmGz8R0BfxlmKrd/B472WCSfX6vNw7ZQ2a4rkz8VmTat/Lt7lLjehV+NoVsKyUv
+         YSsWNfIksB3Dr/AvEcxIYfjq5cbjQZsU2v5RVGAcZJsBW9GHMtPO0GVhG0oMaeA5Md+c
+         lP9be8u/rVMBcU8HQFdS5Aeodu/ErgE23ygCbwUgl8IYQsQLmFifLH57LlSVEwXYw7b4
+         MEuA==
+X-Forwarded-Encrypted: i=1; AJvYcCUhe1slv6mrd13k49ZcUi06ubyTCWpGFVveOQw0KuVyRif2vtVsoufhZQx9Jq2E4H7vLIV4z0r1HF7S@vger.kernel.org
+X-Gm-Message-State: AOJu0YwCla0ZYByol04tZi03V9ngJYxrZO3MUx87P8oJ/PEuppbJGKtj
+	OwCyp95LFftEJY5a7eA+/n9npUtl2nyCIG0QbWRXUmDCvo/xiiOb7p2ioK97oAgh8fBvEInmc18
+	STt6fmCn5hf44sgHH4zyvljgq1xYjGrc+Vdq619nwyxwX7LFzunv2/bwPoZ4=
+X-Gm-Gg: ATEYQzx0prEpWZpf5MnxxQV6ocQvlDVn7MknJIrKxOoO2Laaioo+D3GrC8sRTQlBNt2
+	2ySL1z2w2f3pw8epaNSA7o+SXbskH0u9io7ODYs7nuYWHfJkn5xH+Cwtlt15gJlxxPYwGZ8GAmm
+	u9yUmcDM28afIyHtVh4QWNtHBGnxI7RCaYvdhgtSpJh0Rssxvi0A1ZGEO0zLdEPDSaLenbGGFjp
+	iB1GVEOfAPNVDWHAji9wXrniG81D2qINbllgfhxbgd4wzhYmIw1cPmvXa70ytAGMyKkEDQ2/4GT
+	75GgRv6fY+Csvnm0LdXOc0t+aQdxvwY20Bvr
+X-Received: by 2002:a17:902:f68c:b0:2ae:567a:c5a6 with SMTP id
+ d9443c01a7336-2ae567ac7c9mr2196405ad.15.1772480671854; Mon, 02 Mar 2026
+ 11:44:31 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20260219113850.354271-1-tmricht@linux.ibm.com>
+ <aZzKrRB0__RahFJV@google.com> <aaXaX676sTLCX_LG@x1>
+In-Reply-To: <aaXaX676sTLCX_LG@x1>
+From: Ian Rogers <irogers@google.com>
+Date: Mon, 2 Mar 2026 11:44:19 -0800
+X-Gm-Features: AaiRm50TvWo3R468bpix3BeemkoGP8INcHKdpEntHMODNS40opE6pvZgBur7zak
+Message-ID: <CAP-5=fUjyOUi9J6WfXf0HkbiD6Y=vAfT2gSMo0e-L7LOOtPW=A@mail.gmail.com>
+Subject: Re: [PATCH v2] perf symbol: Remove psw_idle() from list of idle symbols
+To: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>, Thomas Richter <tmricht@linux.ibm.com>, 
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com, 
+	sumanthk@linux.ibm.com, hca@linux.ibm.com, japo@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2 Mar 2026 09:26:31 -0800
-Linus Torvalds <torvalds@linux-foundation.org> wrote:
-
-> On Mon, 2 Mar 2026 at 06:59, Christophe Leroy (CS GROUP)
-> <chleroy@kernel.org> wrote:
+On Mon, Mar 2, 2026 at 10:43=E2=80=AFAM Arnaldo Carvalho de Melo
+<acme@kernel.org> wrote:
+>
+> On Mon, Feb 23, 2026 at 01:46:21PM -0800, Namhyung Kim wrote:
+> > On Thu, Feb 19, 2026 at 12:38:50PM +0100, Thomas Richter wrote:
+> > > Commit fa2ae4a377c0 ("s390/idle: Rewrite psw_idle() in C")
+> > >
+> > > removes symbols psw_idle() and psw_idle_exit() from the linux
+> > > kernel for s390. Remove them in perf tool's list of idle
+> > > functions. They can not be detected anymore.
 > >
-> > Can we get this fix merged in 7.0-rc3 so that we can start building 7.1
-> > on top of it ?  
-> 
-> Applied this first patch. I'm not so convinced about the others in the
-> series, although people can always try to argue for them..
+> > But I think old kernels may still run somewhere.  It seems the above
+> > commit was merged to v6.10.  Maybe we should wait some more time before
+> > removing it in the tool.
+>
+> Agreed, using a new perf tool, say built from the tarballs made
+> available at:
+>
+> https://www.kernel.org/pub/linux/kernel/tools/perf/v7.0.0/perf-7.0.0-rc1.=
+tar.xz
+>
+> (I will not make a rc2 available since there are no changes to the
+> tools/perf codebase in this rc).
+>
+> On older kernels should still ignore those functions.
+>
+> A suggestion for work in this area instead is to get those samples into
+> a special bucket, the "idle" one, and show it at some place in the
+> screen.
 
-Patches 2 and 3 seemed a reasonable idea to me.
-Removes a lot of code that is only there to make the whole thing work.
-The 'with' is a bit of a take on Pascal - but without the 'making the
-code completely unreadable' side effect.
+Would it also be sensible to pass the perf_env:
+https://web.git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools-next.gi=
+t/tree/tools/perf/util/env.h?h=3Dperf-tools-next#n74
+into symbol__is_idle? The contents of the perf_env are shown by `perf
+report --header`:
+```
+# =3D=3D=3D=3D=3D=3D=3D=3D
+# captured on    : Mon Mar  2 11:34:47 2026
+# header version : 1
+# data offset    : 904
+# data size      : 4268216
+# feat offset    : 4269120
+# hostname : google.com
+# os release : 6.17.13-1rodete1-amd64
+# perf version : 7.0.rc1.g982b63f6380b
+# arch : x86_64
+# nrcpus online : 28
+# nrcpus avail : 28
+# cpudesc : Intel(R) Core(TM) i7-14700
+# cpuid : GenuineIntel,6,183,1
+...
+# e_machine : 62
+#   e_flags : 0
+...
+```
+The kernel version is in the release and the e_machine/arch captures
+the CPU type.
 
-I don't do WARN=1 builds, never mind WARN=2 :-)
-Although -Wshadow can find real bugs - so I would turn it on and
-suffer the annoyances. 
+Thanks,
+Ian
 
-Patch 5 was just what I was experimenting with.
-Doing the equivalent change to the non-compat version (IIRC it
-uses the (likely) much slower copy_to/from_user() because the
-structures match) might even be more sensible.
-
-	David
-
-
-> 
->               Linus
-
+> Thanks,
+>
+> - Arnaldo
+>
