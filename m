@@ -1,164 +1,106 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5084147DD40
-	for <linux-s390@vger.kernel.org>; Mon,  2 Mar 2026 19:44:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.171
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772480676; cv=pass; b=s9Vlmw2Z6yUC8yu0VtjbMlYCwremEc91J98aBVkl0b0iy7+znGehvBTNBG8k7seAwk2KY4r6mSq706mkLKjA1XoYYqCYeR54l5capap/raHlwwJqCyKS0dJ6qomtcKIfpO6/erfhMYvl19qouD1Jx8IOfaVQ1kTtb6GD8rR9/v8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772480676; c=relaxed/simple;
-	bh=NblyPX6n2MFoNyHMvC5PC/8KGB/1sHVY4XCBHJPPHfw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=EKKSvOpgR2tDOagmzXQ6LyHEKQKA3ga5P8guQqE8h0anqqHjOr3dQdhxnxcJfCLTz+2E5jP5M83Pl46UgXp47kYG4jd78LRlDUbaySo4TD+ns+39l7bTagdTAchp0ERHoYacBiHM/ClDVbLot/xNxB8vR5UP5W3OKBy6skx9MYI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=DqEbp8Bg; arc=pass smtp.client-ip=209.85.214.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 175D9383C71;
+	Mon,  2 Mar 2026 19:48:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772480928; cv=none; b=NmqiB6MBZSQBDlApGfgBAHn59Dxawn97WJU/kVDl+Ss6yKVhdAukmc45yNzch9SlvzpJDbpwSjcEad8mtlTJvSKFz4BtBi7rHH0qimnEWgwNBl9oEEiVbFcfCJkUiKs/utc1zQuKYv/wAKTwCFNkCf4y3WYNj8dbLgSkUYRgqp0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772480928; c=relaxed/simple;
+	bh=smDOz3UPrxLygeawtBaJ9Hgh/CY9ryDMRmV2CGI8W+Y=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hNoWW+7CkjaCrUDW6YRgn8/G3JWajzSyEKTK6NajVJx6lqwO3WmMGPNe8IKm+kg1EOuQVy+X7yYdJbvTZUvxFWCg4sVzzkop+paIOpJRoWrSnDpIi7MhNZZAo+V1tix0qePd31HBfwoo62rrN0yjzasCQq+wQ37B9iW+jPvFbZo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QkUtxMps; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="DqEbp8Bg"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2ae49120e97so13825ad.0
-        for <linux-s390@vger.kernel.org>; Mon, 02 Mar 2026 11:44:33 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1772480672; cv=none;
-        d=google.com; s=arc-20240605;
-        b=SvqCfWcSV2c97AtwsbIE74OqFVy/ys3UrQzCEZDcBQdqLrozzHET9zQZcki0MDTpUW
-         E903cVh6Ae5dj3cvCO12yMUYDLIpBZ6GP1xcw8fVjU5wIHLx/CKEMONhvAwyXKwF4ImI
-         T/x81eV0VlRSi3ehnBa4iqQwSYTJMEnfa0vdtmmLZDcuYIvMhISSvrrqFKImKw87biA3
-         pbgVz//jv+mAarf9JEfMZlsqoiVtLqUN6vz1z4Ruy1Feezi+LtI5EOpPclEIQ1G1/ghA
-         dYJzmRZSVZxvK4tQtaKjIMMH8Gwazjjeb5uVNNv+Du7J99M7n+KgfHPSKhAVYD51PFQs
-         mcDg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=LlQjSWWG40FnbFrNMu/cs5V+4LjgLVNlHIV7QUIZ7bk=;
-        fh=NWE2/+vjBrjXFHaRDp7Vkus2HJVVuC+o21o1RLoBHM0=;
-        b=Fc1PA1e6INzw/cokE5aICMiibaUwKe3U4UE/U43SoMKUTyQrXGT2wZQ8TT4WnCeT3p
-         90+SKpNXikI/UGPMUPzUsNITLY8a4xjebMPX7sdx1EwgTQHYUsegCSgR0IQMprJdfjK/
-         lSbQUKwIv3t3DLZ+RR0Jaya5wA51LAxkmnUUZozj3tkC6zj/0LGSHvGNCqrRtjsV755h
-         PKhpDURhybKSQVsoqy9mtOQDqlS90a3oEiu/xLQ50N0mqywY0KTi3lO28Gb+l6PCTTM2
-         27LBbmUsxDJAS7pwZ8dW51EC6TaclsM0e7EE/VaomBj9ZlEyt4x/Keh10XjDoxdQfiye
-         oGXQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1772480672; x=1773085472; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LlQjSWWG40FnbFrNMu/cs5V+4LjgLVNlHIV7QUIZ7bk=;
-        b=DqEbp8BgU3DfRFRZ2HrAEwzipmyo4U6K+S1eWyE7TryKrDeDiZPODTR4S+4mPvF9wF
-         qwHwrDsgYkO6f2Q1Kw43t1lbi7Lb1G7BKj49DzjSvFSYmI+csnLk/bjBIvfTKIep/cw3
-         Jtu+3vmiF46NSNnlKs8DOes25tg7B+VhCt01ZutRmgybbbUlRotEnDoZIvdrwfBVHdyU
-         56LaJGu9C2UIJr/aIs56XuvpZKD7mJE8R4mrEsqE0bxMxo8f3wnFy0u5BbgJNss4Fg+n
-         P4Riuq6U0j9T6Wj/Ge0kMcqNwWKnG5NYzGzCv3wobUPdYw2+6eMnWmUJvgBft0x+ITyp
-         QyvQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772480672; x=1773085472;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=LlQjSWWG40FnbFrNMu/cs5V+4LjgLVNlHIV7QUIZ7bk=;
-        b=XjMktfeagZRTjzXWV89sRygio6C/wCouPn2X+yP9W4OUGVHZOfk+CrZWirYC/JEGVv
-         WROFQgtx4o9yjCkj0x6wqq2Aaf7FIEhZrR1HlISfvYAdop0vw5q+qNh0w3yGh5Yt8+Cg
-         yIxVwZmGz8R0BfxlmKrd/B472WCSfX6vNw7ZQ2a4rkz8VmTat/Lt7lLjehV+NoVsKyUv
-         YSsWNfIksB3Dr/AvEcxIYfjq5cbjQZsU2v5RVGAcZJsBW9GHMtPO0GVhG0oMaeA5Md+c
-         lP9be8u/rVMBcU8HQFdS5Aeodu/ErgE23ygCbwUgl8IYQsQLmFifLH57LlSVEwXYw7b4
-         MEuA==
-X-Forwarded-Encrypted: i=1; AJvYcCUhe1slv6mrd13k49ZcUi06ubyTCWpGFVveOQw0KuVyRif2vtVsoufhZQx9Jq2E4H7vLIV4z0r1HF7S@vger.kernel.org
-X-Gm-Message-State: AOJu0YwCla0ZYByol04tZi03V9ngJYxrZO3MUx87P8oJ/PEuppbJGKtj
-	OwCyp95LFftEJY5a7eA+/n9npUtl2nyCIG0QbWRXUmDCvo/xiiOb7p2ioK97oAgh8fBvEInmc18
-	STt6fmCn5hf44sgHH4zyvljgq1xYjGrc+Vdq619nwyxwX7LFzunv2/bwPoZ4=
-X-Gm-Gg: ATEYQzx0prEpWZpf5MnxxQV6ocQvlDVn7MknJIrKxOoO2Laaioo+D3GrC8sRTQlBNt2
-	2ySL1z2w2f3pw8epaNSA7o+SXbskH0u9io7ODYs7nuYWHfJkn5xH+Cwtlt15gJlxxPYwGZ8GAmm
-	u9yUmcDM28afIyHtVh4QWNtHBGnxI7RCaYvdhgtSpJh0Rssxvi0A1ZGEO0zLdEPDSaLenbGGFjp
-	iB1GVEOfAPNVDWHAji9wXrniG81D2qINbllgfhxbgd4wzhYmIw1cPmvXa70ytAGMyKkEDQ2/4GT
-	75GgRv6fY+Csvnm0LdXOc0t+aQdxvwY20Bvr
-X-Received: by 2002:a17:902:f68c:b0:2ae:567a:c5a6 with SMTP id
- d9443c01a7336-2ae567ac7c9mr2196405ad.15.1772480671854; Mon, 02 Mar 2026
- 11:44:31 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QkUtxMps"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CC29C19423;
+	Mon,  2 Mar 2026 19:48:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772480927;
+	bh=smDOz3UPrxLygeawtBaJ9Hgh/CY9ryDMRmV2CGI8W+Y=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=QkUtxMps/seGrND9XN30i6HZlFQNPnNAfpzkXqiq6MC54HmEbX2D9lP6rsmIuD/BM
+	 Az5BWvjqW4y7x4ITGPl1gP8+hfFE9kZfRhLwDvnwSaRvNbJfP+mq+oKX8drImYzLcq
+	 bPvUE98/d9izBOWrStARAXHnAkVIC2iZ1xlkX2PUByaLfoAe7FZioy8vgvSuJjrpZH
+	 GmW8JAIyRm5Q16X+PnbenR415eHdiHChioL79PElok3w4FcjP7QHj4uBxFb6XvQYnL
+	 M4dGWyPl1JUrkJ5cgWzWTr5hj52A7QuWHNb3oQT55Xjl877XClVN/BYnVcybW22Sdf
+	 tIbmSnxol2ZkA==
+Date: Mon, 2 Mar 2026 21:48:44 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc: Ramesh Errabolu <ramesh@linux.ibm.com>, linux-pci@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Gerd Bayer <gbayer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: Re: [PATCH v1] PCI: Add write-only 'uevent' sysfs attribute for PCI
+ slots
+Message-ID: <20260302194844.GU12611@unreal>
+References: <20260225150815.81268-1-ramesh@linux.ibm.com>
+ <20260226083427.GF12611@unreal>
+ <b4d83f50-c3c1-4fdf-bc7c-50a3cc8353b6@linux.ibm.com>
+ <20260226183945.GL12611@unreal>
+ <5d30ad0a-9c16-4802-adfe-e795c38f5990@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260219113850.354271-1-tmricht@linux.ibm.com>
- <aZzKrRB0__RahFJV@google.com> <aaXaX676sTLCX_LG@x1>
-In-Reply-To: <aaXaX676sTLCX_LG@x1>
-From: Ian Rogers <irogers@google.com>
-Date: Mon, 2 Mar 2026 11:44:19 -0800
-X-Gm-Features: AaiRm50TvWo3R468bpix3BeemkoGP8INcHKdpEntHMODNS40opE6pvZgBur7zak
-Message-ID: <CAP-5=fUjyOUi9J6WfXf0HkbiD6Y=vAfT2gSMo0e-L7LOOtPW=A@mail.gmail.com>
-Subject: Re: [PATCH v2] perf symbol: Remove psw_idle() from list of idle symbols
-To: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>, Thomas Richter <tmricht@linux.ibm.com>, 
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com, 
-	sumanthk@linux.ibm.com, hca@linux.ibm.com, japo@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <5d30ad0a-9c16-4802-adfe-e795c38f5990@linux.ibm.com>
 
-On Mon, Mar 2, 2026 at 10:43=E2=80=AFAM Arnaldo Carvalho de Melo
-<acme@kernel.org> wrote:
->
-> On Mon, Feb 23, 2026 at 01:46:21PM -0800, Namhyung Kim wrote:
-> > On Thu, Feb 19, 2026 at 12:38:50PM +0100, Thomas Richter wrote:
-> > > Commit fa2ae4a377c0 ("s390/idle: Rewrite psw_idle() in C")
-> > >
-> > > removes symbols psw_idle() and psw_idle_exit() from the linux
-> > > kernel for s390. Remove them in perf tool's list of idle
-> > > functions. They can not be detected anymore.
-> >
-> > But I think old kernels may still run somewhere.  It seems the above
-> > commit was merged to v6.10.  Maybe we should wait some more time before
-> > removing it in the tool.
->
-> Agreed, using a new perf tool, say built from the tarballs made
-> available at:
->
-> https://www.kernel.org/pub/linux/kernel/tools/perf/v7.0.0/perf-7.0.0-rc1.=
-tar.xz
->
-> (I will not make a rc2 available since there are no changes to the
-> tools/perf codebase in this rc).
->
-> On older kernels should still ignore those functions.
->
-> A suggestion for work in this area instead is to get those samples into
-> a special bucket, the "idle" one, and show it at some place in the
-> screen.
+On Fri, Feb 27, 2026 at 12:23:03PM +0100, Peter Oberparleiter wrote:
+> On 2/26/2026 7:39 PM, Leon Romanovsky wrote:
+> > On Thu, Feb 26, 2026 at 11:53:32AM -0600, Ramesh Errabolu wrote:
+> >> On 2/26/2026 2:34 AM, Leon Romanovsky wrote:
+> >>> On Wed, Feb 25, 2026 at 09:08:15AM -0600, Ramesh Errabolu wrote:
+> >>>> Add a new write-only 'uevent' attribute to PCI slot sysfs
+> >>>> entries. This provides a mechanism for userspace to explicitly
+> >>>> synthesize PCI slot uevents when needed.
+> >>>>
+> >>>> For cold-plugged PCI devices, slots may be created before
+> >>>> udev is ready to receive events, causing the initial 'add'
+> >>>> uevents to be missed. As a result, slot specific udev
+> >>>> rules that define naming, permissions, and related policies,
+> >>>> are not applied at boot. Allowing userspace to resynthesize
+> >>>> the 'add' uevent ensures these rules are processed correctly.
+> >>> This patch sounds like a hack to me. AFAIK, "udevadm trigger"
+> >>> performs exactly that.
+> >>>
+> >>> Thanks
+> >>
+> >> AFAIK, PCI slots do not yet raise a uevent. 
+> 
+> That is only partially true. PCI slots are represented in sysfs by a
+> kobject (pci_slot.kobj) and pci_hotplug_core generates uevents for these
+> kobjects during pci_hp_add() [1].
+> 
+> Here is an example for these uevents:
+> 
+> KERNEL[62021.190266] add      /bus/pci/slots/000018d0 (slots)
+> ACTION=add
+> DEVPATH=/bus/pci/slots/000018d0
+> SUBSYSTEM=slots
+> SEQNUM=1638
+> 
+> KERNEL[62032.304390] remove   /bus/pci/slots/000018d0 (slots)
+> ACTION=remove
+> DEVPATH=/bus/pci/slots/000018d0
+> SUBSYSTEM=slots
+> SEQNUM=1682
+> 
+> On s390 there is a use case for reacting to these events via udev rules,
+> namely to persistently apply a user-specified, per-slot power state.
 
-Would it also be sensible to pass the perf_env:
-https://web.git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools-next.gi=
-t/tree/tools/perf/util/env.h?h=3Dperf-tools-next#n74
-into symbol__is_idle? The contents of the perf_env are shown by `perf
-report --header`:
-```
-# =3D=3D=3D=3D=3D=3D=3D=3D
-# captured on    : Mon Mar  2 11:34:47 2026
-# header version : 1
-# data offset    : 904
-# data size      : 4268216
-# feat offset    : 4269120
-# hostname : google.com
-# os release : 6.17.13-1rodete1-amd64
-# perf version : 7.0.rc1.g982b63f6380b
-# arch : x86_64
-# nrcpus online : 28
-# nrcpus avail : 28
-# cpudesc : Intel(R) Core(TM) i7-14700
-# cpuid : GenuineIntel,6,183,1
-...
-# e_machine : 62
-#   e_flags : 0
-...
-```
-The kernel version is in the release and the e_machine/arch captures
-the CPU type.
+But the component that issues the uevent should create this file.
+In your example, it is the hotplug code that must provide a writable
+file, isn't it?
 
-Thanks,
-Ian
-
-> Thanks,
->
-> - Arnaldo
->
+Thanks
