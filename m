@@ -1,47 +1,44 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E61436C9DA;
-	Mon,  2 Mar 2026 12:25:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D2BD36C5AF;
+	Mon,  2 Mar 2026 12:25:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772454348; cv=none; b=MLlmFRvyxPkmnpp9CLoohhW+0MFGuY1OWPoic8HAKlpTEYi1+rpE8RNDIqLS8Qi1rwHnyl3eiNssA9awtHk5ktAY2mXrI0uvIlmaLxtEfF5Q3C7v7tfr0f0NEAiE2atwuVdAqx71U9q5dRSbUrqDAkXDxuqVZjbnPDMeJjyiVTo=
+	t=1772454348; cv=none; b=rNziUHNU2F1QIcZ0L5nK0Lfhz+OHIhIIupjiu0+XYr9zYlZRNagDiGtVBJRU/9Otg9O92KLzqp3KTbbzs5z9kAiUeCQG1qqsE66iKBkkyGhlwoy4H/pp1OtXkJvFJPtfCGor/KE9L8MsjXMgYBUVwTQybpTw7vuieMwzbVIVNtk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1772454348; c=relaxed/simple;
-	bh=R6dPuK9hTEu2wzxXNEaPtc8TE7i9ikP4nTJiTP9bZT8=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=My7OKZ08AselRg4FtG8TFLT3yMv7JGCBjUQGQUBuGXfoRueKdzs6oYImQLUu+IGSAmZJykPqgWwthnrApamh3nFOgabsI6M4oCwYaK7oX449X0YE/gb794v9wJjnzzw9G/rNC6rnuovKZXmz71N19y4zO2bQWr07nHN+xecZqRA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=ZRJF2/RI; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=0RhC5Fte; arc=none smtp.client-ip=193.142.43.55
+	bh=JDTHLUTBRhLdtWzI+cYwcXmhsRHrVsJSh1vwEnoNL54=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=p0BguTxadWStzSHRJiW1z1PlslEB1GwYpoy5I292zgVad4yQTmLWR0avTWeQqAMSfcJJZ+arEEhlpGRW2DnVEiRcpH6nFhfYoytXZFuNOy5rr9+bg7IPVO49o7EzSCYYKhz5JUViwaA9C29oQmCBGCRBpXVf8no7sVIOoOJPW3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=XTq/Qbds; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=f3MlQqxs; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="ZRJF2/RI";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="0RhC5Fte"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="XTq/Qbds";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="f3MlQqxs"
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1772454345;
+	s=2020; t=1772454344;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=wgXUWuBQc37HPqUBgBljEt4K1lGTSpiCtiKFdFvnpEo=;
-	b=ZRJF2/RIYlZzXdvvP4EyC5ziS1eYTGNaiCpGWGAlhlhh6WP8XJtMwKY10FScMfkRk07Kpn
-	WAm0HrLrPe3V8GufiCyKFmoR+hIoDakEwVJRmOfrOG1vTfDvZthRNy9j1FqSQDBSumosRb
-	lSJyQo7Ek9W6Irxwps/fZr6+32MXQ1g940bY7aUn2wgzoOpTYYGfSmYo1TtUi2eNGBzDXQ
-	HoOKG9XkKlO6Lsynm5IwDc/mDANODBHa3D+7XWmQ4jr8Z4GRPHRxNIFyYedKVrZJWzUsgn
-	Xi/TXpXkeaoOKoyyrYw2RkYIhmbqg4P5rd78zu1pTPRTbMW07FzruR62fY8Dzw==
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=Q8M0BzYT+8nDvDRpeOPQrwaX+SE1r8gh99dGV2h1fFk=;
+	b=XTq/Qbdsmdrjjgi15d+mbxPv7MA1pmSdTxIgk0x+7gQ1SBn3Qk50BPvaiHTGQy/qTkOET0
+	CGc+OMjOeQ/n2dA3JdyCWwjrdxy0uscngADbfRLK8WmqnacdFL6h4HVWXe+3LbMBHdWR9X
+	qZ74nUVL9W2j3VLfwuTKczYIjFgmRo5MMH5f83HQtqnIdi+gp6yskGE9pemAt/5epkD38A
+	sdonFKgtjJGoOsIGmpIH2kKpN+TtX6hvt/oaC/e+zE3Kp4IcFO+phZTmHZCNcZy7Qe9ryj
+	DSBSapJLSRTcmYCf4GVgZP161CF/lM2AnixGVHOK2waHFibtLc9ifGRmcjG1Rw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1772454345;
+	s=2020e; t=1772454344;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=wgXUWuBQc37HPqUBgBljEt4K1lGTSpiCtiKFdFvnpEo=;
-	b=0RhC5Fte5zjulHI4Ol2L/ovJ2Kd9lvvPGCNYvwBDoFq6AG8nEkIzJV8ldugwY4YHFGhnle
-	Y1e4YJBTshKAKTBQ==
-Date: Mon, 02 Mar 2026 13:25:26 +0100
-Subject: [PATCH 02/15] auxvec.h: Move AT_VECTOR_SIZE definitions to
- linux/auxvec.h
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=Q8M0BzYT+8nDvDRpeOPQrwaX+SE1r8gh99dGV2h1fFk=;
+	b=f3MlQqxsNMwSdSaceDHlFwzKoTlTmrVShpKlZNDhQVk9O7AG1ihqK0Tpn92+Xr2oztP91Z
+	NrP6Rmm8D/oDiRBw==
+Subject: [PATCH 00/15] exec: Remove AT_VECTOR_SIZE_ARCH from UAPI
+Date: Mon, 02 Mar 2026 13:25:24 +0100
+Message-Id: <20260302-at-vector-size-arch-v1-0-a11f03ba2ca8@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -50,9 +47,10 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260302-at-vector-size-arch-v1-2-a11f03ba2ca8@linutronix.de>
-References: <20260302-at-vector-size-arch-v1-0-a11f03ba2ca8@linutronix.de>
-In-Reply-To: <20260302-at-vector-size-arch-v1-0-a11f03ba2ca8@linutronix.de>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3MQQ5AMBBG4avIrE1SXTS4ilhU/WU2yFRESO+us
+ fwW772UoIJEffWS4pIk+1bQ1BWF1W8LWOZissY605iO/ckXwrkrJ3nAXsPKDiZadDG2k6NSHoo
+ o938dxpw/BDR+BWUAAAA=
+X-Change-ID: 20260109-at-vector-size-arch-6e0f2e9ff8b6
 To: Kees Cook <kees@kernel.org>, Arnd Bergmann <arnd@arndb.de>
 Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
  linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
@@ -61,56 +59,75 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  linux-mips@vger.kernel.org, sparclinux@vger.kernel.org, 
  linux-sh@vger.kernel.org, linux-alpha@vger.kernel.org, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1772454343; l=1267;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1772454343; l=2953;
  i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=R6dPuK9hTEu2wzxXNEaPtc8TE7i9ikP4nTJiTP9bZT8=;
- b=ZulijLjkAtvEzMGw3cQEKThTnvyrB3XWkn02AB0dxIROztyb5g4HrOCwXizPScG4JZMtRLaOM
- 3hiDIzMjiB4ARdfLbg+OTnHYu6B/6h5UxzpDiSphCOmDSpy2QygkNcG
+ bh=JDTHLUTBRhLdtWzI+cYwcXmhsRHrVsJSh1vwEnoNL54=;
+ b=J6CYW4wsSS52A+nGxs9gwUdPdfHUZDIYWEVVGw/G+GXj/VTqu7W4L6C1R+uvBZbzZsf4FisCc
+ r+YyP25hcjyC3G9P+jLo1JOj2qTAaURruN7qUwKyoqSA+FQdhvM39MD
 X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
  pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-The auxvec.h header is a more fitting place for these definitions.
+There is nothing userspace can do with this value. In the kernel is
+always combined with AT_VECTOR_SIZE_BASE, which is not exposed to
+userspace and also changes from time to time.
+
+Move the symbol to kernel-internal headers.
+
+Meant to be applied through the asm-generic tree.
+The default recipient list was huge. I trimmed it to only the
+architecture lists.
 
 Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 ---
- include/linux/auxvec.h   | 7 +++++++
- include/linux/mm_types.h | 6 ------
- 2 files changed, 7 insertions(+), 6 deletions(-)
+Thomas Weißschuh (15):
+      MAINTAINERS: exec: Add more auxvec.h variants
+      auxvec.h: Move AT_VECTOR_SIZE definitions to linux/auxvec.h
+      asm-generic: add an in-kernel auxvec.h header
+      ARM: drop custom asm/auxvec.h
+      x86: Remove AT_VECTOR_SIZE_ARCH from UAPI
+      arm64: Remove AT_VECTOR_SIZE_ARCH from UAPI
+      RISC-V: Remove AT_VECTOR_SIZE_ARCH from UAPI
+      LoongArch: Remove AT_VECTOR_SIZE_ARCH from UAPI
+      s390: Remove AT_VECTOR_SIZE_ARCH from UAPI
+      powerpc: Remove AT_VECTOR_SIZE_ARCH from UAPI
+      MIPS: Remove AT_VECTOR_SIZE_ARCH from UAPI
+      sparc: Remove AT_VECTOR_SIZE_ARCH from UAPI
+      sh: Remove AT_VECTOR_SIZE_ARCH from UAPI
+      alpha: remove AT_VECTOR_SIZE_ARCH from UAPI
+      auxvec.h: Drop fallback AT_VECTOR_SIZE_ARCH
 
-diff --git a/include/linux/auxvec.h b/include/linux/auxvec.h
-index 407f7005e6d6..943e8b80b41e 100644
---- a/include/linux/auxvec.h
-+++ b/include/linux/auxvec.h
-@@ -6,4 +6,11 @@
- 
- #define AT_VECTOR_SIZE_BASE 22 /* NEW_AUX_ENT entries in auxiliary table */
-   /* number of "#define AT_.*" above, minus {AT_NULL, AT_IGNORE, AT_NOTELF} */
-+
-+#ifndef AT_VECTOR_SIZE_ARCH
-+#define AT_VECTOR_SIZE_ARCH 0
-+#endif
-+
-+#define AT_VECTOR_SIZE (2*(AT_VECTOR_SIZE_ARCH + AT_VECTOR_SIZE_BASE + 1))
-+
- #endif /* _LINUX_AUXVEC_H */
-diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-index 3cc8ae722886..64019dc29f4c 100644
---- a/include/linux/mm_types.h
-+++ b/include/linux/mm_types.h
-@@ -25,12 +25,6 @@
- 
- #include <asm/mmu.h>
- 
--#ifndef AT_VECTOR_SIZE_ARCH
--#define AT_VECTOR_SIZE_ARCH 0
--#endif
--#define AT_VECTOR_SIZE (2*(AT_VECTOR_SIZE_ARCH + AT_VECTOR_SIZE_BASE + 1))
--
--
- struct address_space;
- struct futex_private_hash;
- struct mem_cgroup;
+ MAINTAINERS                              |  5 +++++
+ arch/alpha/include/asm/auxvec.h          |  7 +++++++
+ arch/alpha/include/uapi/asm/auxvec.h     |  8 +++-----
+ arch/arm/include/asm/auxvec.h            |  1 -
+ arch/arm64/include/asm/auxvec.h          |  7 +++++++
+ arch/arm64/include/uapi/asm/auxvec.h     |  6 ++----
+ arch/loongarch/include/asm/auxvec.h      | 14 ++++++++++++++
+ arch/loongarch/include/uapi/asm/auxvec.h |  8 +++-----
+ arch/mips/include/asm/auxvec.h           | 17 +++++++++++++++++
+ arch/mips/include/uapi/asm/auxvec.h      |  8 +++-----
+ arch/powerpc/include/asm/auxvec.h        |  7 +++++++
+ arch/powerpc/include/uapi/asm/auxvec.h   |  6 ++----
+ arch/riscv/include/asm/auxvec.h          | 13 +++++++++++++
+ arch/riscv/include/uapi/asm/auxvec.h     |  2 --
+ arch/s390/include/asm/auxvec.h           |  7 +++++++
+ arch/s390/include/uapi/asm/auxvec.h      |  6 ++----
+ arch/sh/include/asm/auxvec.h             |  7 +++++++
+ arch/sh/include/uapi/asm/auxvec.h        |  8 +++-----
+ arch/sparc/include/asm/auxvec.h          |  6 ++++++
+ arch/sparc/include/uapi/asm/auxvec.h     |  8 +++-----
+ arch/x86/include/asm/auxvec.h            | 12 ++++++++++++
+ arch/x86/include/uapi/asm/auxvec.h       | 13 +++----------
+ include/asm-generic/Kbuild               |  1 +
+ include/asm-generic/auxvec.h             |  7 +++++++
+ include/linux/auxvec.h                   |  5 +++++
+ include/linux/mm_types.h                 |  6 ------
+ 26 files changed, 139 insertions(+), 56 deletions(-)
+---
+base-commit: f6b3b0a4c85882ad75bce3b093173203e3f39f28
+change-id: 20260109-at-vector-size-arch-6e0f2e9ff8b6
 
+Best regards,
 -- 
-2.53.0
+Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 
