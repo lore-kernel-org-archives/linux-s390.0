@@ -1,22 +1,22 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC08836C9C4;
-	Mon,  2 Mar 2026 12:25:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E61436C9DA;
+	Mon,  2 Mar 2026 12:25:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772454347; cv=none; b=kK79YHrv6gRQ0GbKDDwy7PcDSfaB3k2SKUxfd1rMwCwfLrJpmEoPPM77WaN9q2KkVSE1w+7jQiBJgXDHuxHuXkvQ4vfz0o6FSnH9rVm7JNaGpmYEfjNKC/Su7sJ8kOi+2Ota4abzcXbkkquWmDN/yTWs/4aNlSSGTpCkqXo+huw=
+	t=1772454348; cv=none; b=MLlmFRvyxPkmnpp9CLoohhW+0MFGuY1OWPoic8HAKlpTEYi1+rpE8RNDIqLS8Qi1rwHnyl3eiNssA9awtHk5ktAY2mXrI0uvIlmaLxtEfF5Q3C7v7tfr0f0NEAiE2atwuVdAqx71U9q5dRSbUrqDAkXDxuqVZjbnPDMeJjyiVTo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772454347; c=relaxed/simple;
-	bh=BIlr7zgi66zD1ig2kTolm4aENXktO7wosOLcoYFwhtU=;
+	s=arc-20240116; t=1772454348; c=relaxed/simple;
+	bh=R6dPuK9hTEu2wzxXNEaPtc8TE7i9ikP4nTJiTP9bZT8=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ADBD+/eAWoLacUd9nrNbIF5HMDYyB+B7Cl8FM5zyjKmIHE6R/LVHQu9HXTYbMUn8AJGYbMZ4J2m6p8/qbPyDAbriVQbHoOBV7TEeJRn7NXhPJki1mi/1BM6fxJyNmsIlHajWlC+uwE29ZR/+38LKo52fsylgu8uiSETgYxEXSYg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=0ote18nb; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=/aSPglB8; arc=none smtp.client-ip=193.142.43.55
+	 In-Reply-To:To:Cc; b=My7OKZ08AselRg4FtG8TFLT3yMv7JGCBjUQGQUBuGXfoRueKdzs6oYImQLUu+IGSAmZJykPqgWwthnrApamh3nFOgabsI6M4oCwYaK7oX449X0YE/gb794v9wJjnzzw9G/rNC6rnuovKZXmz71N19y4zO2bQWr07nHN+xecZqRA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=ZRJF2/RI; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=0RhC5Fte; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="0ote18nb";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="/aSPglB8"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="ZRJF2/RI";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="0RhC5Fte"
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
 	s=2020; t=1772454345;
@@ -24,23 +24,24 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Y+wSVvr2iY1iH7k3F0iPCSqLzNSvbTbj527LLEkOjHE=;
-	b=0ote18nbZ1t68zJyeexrdJSVHAZPwP9UOAsFgAAFR/fpqYcoez3egBK6lgBnGLIpBoYIKz
-	byNNJflcxX/8kT7PsREcxt3F16BI7KnZB/m2IKc74GZSYeD2m3CHoAuFhIulLiNJ8gNHgT
-	fEGJClPPwBHWhKwqt8bqeoHqX9DFdCRP2bHywf7Ar1A3BuZHm88vpLBma/whU2VfEjPu/N
-	0AVHGyqtCyidsedREaPVbnXHovlkR1DKs3rnrmanu3HagPXtCHNl99JbLfJz39FsFs/Mnq
-	gYBYIP+QlW6OTeMQ6Ptwvq/2BcQ8xXbDDHUKO8JYjy6dMfwBHZRxnLHMpnCOzg==
+	bh=wgXUWuBQc37HPqUBgBljEt4K1lGTSpiCtiKFdFvnpEo=;
+	b=ZRJF2/RIYlZzXdvvP4EyC5ziS1eYTGNaiCpGWGAlhlhh6WP8XJtMwKY10FScMfkRk07Kpn
+	WAm0HrLrPe3V8GufiCyKFmoR+hIoDakEwVJRmOfrOG1vTfDvZthRNy9j1FqSQDBSumosRb
+	lSJyQo7Ek9W6Irxwps/fZr6+32MXQ1g940bY7aUn2wgzoOpTYYGfSmYo1TtUi2eNGBzDXQ
+	HoOKG9XkKlO6Lsynm5IwDc/mDANODBHa3D+7XWmQ4jr8Z4GRPHRxNIFyYedKVrZJWzUsgn
+	Xi/TXpXkeaoOKoyyrYw2RkYIhmbqg4P5rd78zu1pTPRTbMW07FzruR62fY8Dzw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
 	s=2020e; t=1772454345;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Y+wSVvr2iY1iH7k3F0iPCSqLzNSvbTbj527LLEkOjHE=;
-	b=/aSPglB8AXbqg7opAXpO0/jUG+0+n3k3JqmDL/ll0iG0SJf+fha6jNyO8a0dtGc75s+t06
-	2+O3rwMHLHMlBaCw==
-Date: Mon, 02 Mar 2026 13:25:25 +0100
-Subject: [PATCH 01/15] MAINTAINERS: exec: Add more auxvec.h variants
+	bh=wgXUWuBQc37HPqUBgBljEt4K1lGTSpiCtiKFdFvnpEo=;
+	b=0RhC5Fte5zjulHI4Ol2L/ovJ2Kd9lvvPGCNYvwBDoFq6AG8nEkIzJV8ldugwY4YHFGhnle
+	Y1e4YJBTshKAKTBQ==
+Date: Mon, 02 Mar 2026 13:25:26 +0100
+Subject: [PATCH 02/15] auxvec.h: Move AT_VECTOR_SIZE definitions to
+ linux/auxvec.h
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,7 +50,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260302-at-vector-size-arch-v1-1-a11f03ba2ca8@linutronix.de>
+Message-Id: <20260302-at-vector-size-arch-v1-2-a11f03ba2ca8@linutronix.de>
 References: <20260302-at-vector-size-arch-v1-0-a11f03ba2ca8@linutronix.de>
 In-Reply-To: <20260302-at-vector-size-arch-v1-0-a11f03ba2ca8@linutronix.de>
 To: Kees Cook <kees@kernel.org>, Arnd Bergmann <arnd@arndb.de>
@@ -60,43 +61,55 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  linux-mips@vger.kernel.org, sparclinux@vger.kernel.org, 
  linux-sh@vger.kernel.org, linux-alpha@vger.kernel.org, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1772454343; l=935;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1772454343; l=1267;
  i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=BIlr7zgi66zD1ig2kTolm4aENXktO7wosOLcoYFwhtU=;
- b=0OWgCWYeIEIelNOmr0tEyiBwM5q6MuFfywVklpSmD0OLBHIs+3QQGBNYsmCJJqT5R/0oHxk2v
- IVHrY681uTqCvAuwCRegS2QuY8D2kC+ODREUKmQlpZd3Q/msGQ3Pvmv
+ bh=R6dPuK9hTEu2wzxXNEaPtc8TE7i9ikP4nTJiTP9bZT8=;
+ b=ZulijLjkAtvEzMGw3cQEKThTnvyrB3XWkn02AB0dxIROztyb5g4HrOCwXizPScG4JZMtRLaOM
+ 3hiDIzMjiB4ARdfLbg+OTnHYu6B/6h5UxzpDiSphCOmDSpy2QygkNcG
 X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
  pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-There are quite a few auxvec.h headers. Mark all of them maintained
-as part of 'EXEC & BINFMT API, ELF'.
+The auxvec.h header is a more fitting place for these definitions.
 
 Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 ---
- MAINTAINERS | 3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/auxvec.h   | 7 +++++++
+ include/linux/mm_types.h | 6 ------
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 55af015174a5..7a2c952d72bd 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -9573,13 +9573,16 @@ L:	linux-mm@kvack.org
- S:	Supported
- T:	git git://git.kernel.org/pub/scm/linux/kernel/git/kees/linux.git for-next/execve
- F:	Documentation/userspace-api/ELF.rst
-+F:	arch/*/include/uapi/asm/auxvec.h
- F:	fs/*binfmt_*.c
- F:	fs/Kconfig.binfmt
- F:	fs/exec.c
- F:	fs/tests/binfmt_*_kunit.c
- F:	fs/tests/exec_kunit.c
-+F:	include/linux/auxvec.h
- F:	include/linux/binfmts.h
- F:	include/linux/elf.h
-+F:	include/uapi/asm-generic/auxvec.h
- F:	include/uapi/linux/auxvec.h
- F:	include/uapi/linux/binfmts.h
- F:	include/uapi/linux/elf.h
+diff --git a/include/linux/auxvec.h b/include/linux/auxvec.h
+index 407f7005e6d6..943e8b80b41e 100644
+--- a/include/linux/auxvec.h
++++ b/include/linux/auxvec.h
+@@ -6,4 +6,11 @@
+ 
+ #define AT_VECTOR_SIZE_BASE 22 /* NEW_AUX_ENT entries in auxiliary table */
+   /* number of "#define AT_.*" above, minus {AT_NULL, AT_IGNORE, AT_NOTELF} */
++
++#ifndef AT_VECTOR_SIZE_ARCH
++#define AT_VECTOR_SIZE_ARCH 0
++#endif
++
++#define AT_VECTOR_SIZE (2*(AT_VECTOR_SIZE_ARCH + AT_VECTOR_SIZE_BASE + 1))
++
+ #endif /* _LINUX_AUXVEC_H */
+diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+index 3cc8ae722886..64019dc29f4c 100644
+--- a/include/linux/mm_types.h
++++ b/include/linux/mm_types.h
+@@ -25,12 +25,6 @@
+ 
+ #include <asm/mmu.h>
+ 
+-#ifndef AT_VECTOR_SIZE_ARCH
+-#define AT_VECTOR_SIZE_ARCH 0
+-#endif
+-#define AT_VECTOR_SIZE (2*(AT_VECTOR_SIZE_ARCH + AT_VECTOR_SIZE_BASE + 1))
+-
+-
+ struct address_space;
+ struct futex_private_hash;
+ struct mem_cgroup;
 
 -- 
 2.53.0
