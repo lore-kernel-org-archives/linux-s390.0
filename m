@@ -1,108 +1,129 @@
-Received: from sipsolutions.net (s3.sipsolutions.net [168.119.38.16])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4382A248F57;
-	Mon,  2 Mar 2026 07:39:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.38.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46C4D78F39;
+	Mon,  2 Mar 2026 07:58:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772437173; cv=none; b=oh07UElQ6ZzuesZFrjbMFJaCYPExQCZBpqk48FaYX6r/VwFjmxvU5lluUh2ExRYvMjsg315KHZrG5CKsdxsjSgHnthqEr+fkZD5BuU3PNJW7GbJpZfRO/Tym1ssUqhHUcLGgoM4BHogwJJqetT/iM6sb6TuVXoK6iuANjFbYkwg=
+	t=1772438333; cv=none; b=SEo97IB4KvMTfhBRQAlYU7wcYkp+JLbpHpAq+dmWvwm5BfdqB1sDxq0lfWjkpQ1vA/hGl/eYYLLJxJE90LtMmhEvn8CLH4vrReXtjIAq533eLv2rUcvdEmTTi18gGmDqO5Md8/lbDTsC38SvAMIFgx7lS22bbtuWhusc10m6Kec=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772437173; c=relaxed/simple;
-	bh=sRQsR35tocgGOPF+4BbdMojiyXXgifMPxfyFVJVZiCQ=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=JdUZaYf2+x57nP6B7XNbQ4MpqfLf0Kf7AHTOtABQZKmBfTq4MyOencfFX4CgvMdIFcDJKZQ0e6K3ZkqKwH5Q0d0LfvRH2FhyWB3XF8GqtaM2+f55sfycB5Ttzh8ssBcuBCJmxxsgoLb2WzOxjMMsDAMP3tqtYn3GspV59HD58x0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sipsolutions.net; spf=pass smtp.mailfrom=sipsolutions.net; dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b=kua5aNVe; arc=none smtp.client-ip=168.119.38.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sipsolutions.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sipsolutions.net
+	s=arc-20240116; t=1772438333; c=relaxed/simple;
+	bh=o0N8GcMd8Wv1v1vLFraNSKorTTZyIWNgl6SVsYTfGvc=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=n/WNFfY8I67CbBVUp57RCHUXD8ntRV49yPHKoJjc2N+jwnbfMY5QWzAJqnxFVCHLgzZSGMppcgIl3xrJ5CEHEYl3Ik0o7wq+xgcMIhjmKiiFIDa5Z0u/s+0IzTIDNGu9wCYTr1CjaXcFF3RDDygVjDVYy0hcZnJRP6alroykOJA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=v+W0svcx; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=jXG8V5V3; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b="kua5aNVe"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=sipsolutions.net; s=mail; h=MIME-Version:Content-Transfer-Encoding:
-	Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
-	Resent-Cc:Resent-Message-ID; bh=s0B14b5FSBUEgAk+L55J5WroPPngMpauRKzhBytrof4=;
-	t=1772437172; x=1773646772; b=kua5aNVeUbfaBQdD2ly34qoR7qoIxaf+n8cAomfOPVOX7WT
-	8wvudIE1oLoXnebtkx4PUo7+vQKnIva+rUZwsHGVo9grqHvisKFaIWf0vpAXjH1N3bIjc7MkAzQup
-	pjWwtLtQGLKbw2EQB9ELxSiHccM0TYUN8C90vV0q9LjUbEyzqVaD7i/fhAcetfyuCtM1zvD+WrmVH
-	4HIUabu8/ELemD93y14rOhRYHoRXncLsiZzhAiGCh+TAQtZAjTL3+WOrhlfYrUGfBcPkJ7fvgfDnK
-	UgaToZNc0SOaM54itPN2ofW/axjbnxh6RwyLhG7Z8WOSB53E4FcZaKhf8bqAelYQ==;
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.98.2)
-	(envelope-from <johannes@sipsolutions.net>)
-	id 1vwxrd-00000005zul-3cbJ;
-	Mon, 02 Mar 2026 08:38:50 +0100
-Message-ID: <3e3f46aca653cf99799111279fc554b4ca31f6b7.camel@sipsolutions.net>
-Subject: Re: [PATCH 03/25] um/xor: don't override XOR_SELECT_TEMPLATE
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Eric Biggers <ebiggers@kernel.org>, Christoph Hellwig <hch@lst.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Richard Henderson	
- <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, Magnus
- Lindholm <linmag7@gmail.com>, Russell King <linux@armlinux.org.uk>, Catalin
- Marinas	 <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Huacai
- Chen	 <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, Madhavan
- Srinivasan	 <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
- Nicholas Piggin	 <npiggin@gmail.com>, "Christophe Leroy (CS GROUP)"
- <chleroy@kernel.org>,  Paul Walmsley	 <pjw@kernel.org>, Palmer Dabbelt
- <palmer@dabbelt.com>, Albert Ou	 <aou@eecs.berkeley.edu>, Alexandre Ghiti
- <alex@ghiti.fr>, Heiko Carstens	 <hca@linux.ibm.com>, Vasily Gorbik
- <gor@linux.ibm.com>, Alexander Gordeev	 <agordeev@linux.ibm.com>, Christian
- Borntraeger <borntraeger@linux.ibm.com>,  Sven Schnelle
- <svens@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, Andreas
- Larsson	 <andreas@gaisler.com>, Richard Weinberger <richard@nod.at>, Anton
- Ivanov	 <anton.ivanov@cambridgegreys.com>, Thomas Gleixner
- <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
- <bp@alien8.de>, Dave Hansen	 <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>,  Herbert Xu
- <herbert@gondor.apana.org.au>, Dan Williams <dan.j.williams@intel.com>,
- Chris Mason	 <clm@fb.com>, David Sterba <dsterba@suse.com>, Arnd Bergmann
- <arnd@arndb.de>,  Song Liu <song@kernel.org>, Yu Kuai <yukuai@fnnas.com>,
- Li Nan <linan122@huawei.com>, 	linux-alpha@vger.kernel.org,
- linux-kernel@vger.kernel.org, 	linux-arm-kernel@lists.infradead.org,
- loongarch@lists.linux.dev, 	linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, 	linux-s390@vger.kernel.org,
- sparclinux@vger.kernel.org, 	linux-um@lists.infradead.org,
- linux-crypto@vger.kernel.org, 	linux-btrfs@vger.kernel.org,
- linux-arch@vger.kernel.org, 	linux-raid@vger.kernel.org
-Date: Mon, 02 Mar 2026 08:38:47 +0100
-In-Reply-To: <20260228043006.GA65277@quark>
-References: <20260226151106.144735-1-hch@lst.de>
-	 <20260226151106.144735-4-hch@lst.de> <20260228043006.GA65277@quark>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="v+W0svcx";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="jXG8V5V3"
+From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1772438329;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=CppVINWDU69mplj8+k/K366WYv0fGhniEacGlAHg1DU=;
+	b=v+W0svcxWjvODHkF4KURqjcM8wAaw+WlIdEMkq4ngppf4gT/fmy6MtWKqRhhTweq+J3rv8
+	MJcgxRx7mpMjSCCQPGVkoJFl7mRQgcoc9+rGDVZPbI+fihzeJIW/4zF0F2V3IVerR3ZYqp
+	vyU1MOH/cQvROAdZWsdPKd7avf1251DhOhqMAfMErDvAIxlF6nKqV8B1Bbka2UGI+6mWDG
+	/bc70Ggm1t5GwcDxnt/a2R4uqA8ig168AcjV43SaBN/QWGRqqUQO670I7Jn6OCmmhI7hhN
+	duE15ko8bozxDHYcROnHQyf2exgxGqmCLZLJwzn18w/SeSY48ZUv39cYJ7rD5g==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1772438329;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=CppVINWDU69mplj8+k/K366WYv0fGhniEacGlAHg1DU=;
+	b=jXG8V5V3pA2/haiPpMZ9guEgfY1AO2AitAlh9Qt758wRbbUDxScB4f1GL4CtxrJVmU5bBu
+	YeF9Uo5nflKaYECw==
+Subject: [PATCH v2 0/5] vDSO: Use 32-bit CHECKFLAGS for compat vDSO
+Date: Mon, 02 Mar 2026 08:58:36 +0100
+Message-Id: <20260302-vdso-compat-checkflags-v2-0-78e55baa58ba@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-malware-bazaar: not-scanned
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/3XNyw6CMBCF4VchXTumLTfjyvcwLHoZYCK2pMUGQ
+ 3h3C3uX/0nmm41FDISR3YuNBUwUybsc8lIwMyo3IJDNzSSXtRC8hWSjB+Pfs1rAjGhe/aSGCLX
+ Vba1LXWllWD6eA/a0nvCzyz1SXHz4nn+SONaDbLgQzT8yCeBQqVtGe625LR8Tuc8SvKP1apF1+
+ 77/AFK5eUvAAAAA
+X-Change-ID: 20251107-vdso-compat-checkflags-5db75b3b4bac
+To: "David S. Miller" <davem@davemloft.net>, 
+ Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>, 
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+ Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <hca@linux.ibm.com>, 
+ Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, 
+ Madhavan Srinivasan <maddy@linux.ibm.com>, 
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, 
+ David Laight <david.laight.linux@gmail.com>, linuxppc-dev@lists.ozlabs.org, 
+ =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>, 
+ Sun Jian <sun.jian.kdev@gmail.com>, kernel test robot <lkp@intel.com>, 
+ Dan Carpenter <dan.carpenter@linaro.org>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1772438327; l=1844;
+ i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
+ bh=o0N8GcMd8Wv1v1vLFraNSKorTTZyIWNgl6SVsYTfGvc=;
+ b=MZ2OUVAM3Gleol5ZSIQ3VTyufDy8HqTIN3psf4kzTZTtf9sT/PYCXgIptOdpvIFbxqTCLZjnl
+ u+RXqDzMqNSCyLY/Zn0lSlGwSrdXlSVqa7nzpIWjfV2tcfFJB+c7vHz
+X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
+ pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-On Fri, 2026-02-27 at 20:30 -0800, Eric Biggers wrote:
-> On Thu, Feb 26, 2026 at 07:10:15AM -0800, Christoph Hellwig wrote:
-> > XOR_SELECT_TEMPLATE is only ever called with a NULL argument, so all th=
-e
-> > ifdef'ery doesn't do anything.  With our without this, the time travel
-> > mode should work fine on CPUs that support AVX2, as the AVX2
-> > implementation is forced in this case, and won't work otherwise.
->=20
-[snip]
+When building the compat vDSO the CHECKFLAGS from the 64-bit kernel
+are used. These are combined with the 32-bit CFLAGS. This confuses
+sparse, producing false-positive warnings or potentially missing
+real issues.
 
-> I'm not following this change.  Previously, in TT_MODE_INFCPU mode,
-> XOR_SELECT_TEMPLATE(NULL) returned &xor_block_avx, &xor_block_sse_pf64,
-> or &xor_block_8regs, causing the benchmark to be skipped.  After this
-> change, the benchmark starts being done on CPUs that don't support AVX.
+Manually override the CHECKFLAGS for the compat vDSO with the correct
+32-bit configuration.
 
-Yeah the commit message is confusing - the change itself is really
-trading one (potential?) issue (CPUs w/o AVX) against another old issue
-(benchmark never terminates in TT_MODE_INFCPU).
+Not all architectures are supported, as many do not use sparse for their
+(compat) vDSO. These can be enabled later.
 
-However, since commit c055e3eae0f1 ("crypto: xor - use ktime for
-template benchmarking") the latter issue doesn't even exist any more, so
-it now works without it, though it doesn't really benchmark anything.
-But that's fine too, nobody is going to be overly concerned about the
-performance here, I think, and if so there's really no good way to fix
-that other than providing a config option for an individual
-implementation.
+Also add some checks to bitsperlong.h to detect such issues earlier.
 
-johannes
+Based on tip/timers/vdso.
+
+Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+---
+Changes in v2:
+- Simplify __BITS_PER_LONG consistency checks
+- Fix an inconsistency in the powerpc audit code
+- Move check to kernel headers instead of UAPI ones
+- Use KBUILD_CPPFLAGS = -m64 on s390 instead,
+  the previous include trimming turned out to require changes to many more files
+- Rebase on v7.0-rc1
+- Link to v1: https://lore.kernel.org/r/20260116-vdso-compat-checkflags-v1-0-4a83b4fbb0d3@linutronix.de
+
+---
+Thomas Weißschuh (5):
+      x86/vdso: Use 32-bit CHECKFLAGS for compat vDSO
+      sparc64: vdso: Use 32-bit CHECKFLAGS for compat vDSO
+      s390: Add -m64 to KBUILD_CPPFLAGS
+      powerpc/audit: directly include unistd_32.h from compat_audit.c
+      asm-generic/bitsperlong.h: Add sanity checks for __BITS_PER_LONG
+
+ arch/powerpc/kernel/compat_audit.c  | 3 +--
+ arch/s390/Makefile                  | 3 +--
+ arch/sparc/vdso/Makefile            | 3 +++
+ arch/x86/entry/vdso/vdso32/Makefile | 4 ++++
+ include/asm-generic/bitsperlong.h   | 9 +++++++++
+ 5 files changed, 18 insertions(+), 4 deletions(-)
+---
+base-commit: 740f1913cfa0d48222760eaa438c509ca9fc3710
+change-id: 20251107-vdso-compat-checkflags-5db75b3b4bac
+
+Best regards,
+-- 
+Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+
