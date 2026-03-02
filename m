@@ -1,162 +1,152 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 099CD3876AC;
-	Mon,  2 Mar 2026 12:43:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59EF83E7165;
+	Mon,  2 Mar 2026 13:23:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772455384; cv=none; b=AKI5w9fmajRatu8tSl1fpiB1148mdy52R8aebVi46Zteli7HLc4QJZQY/eP2Au2rpqva7vSIjQuhtGxPQkoyTsOUM2jKn097gKAbLregHTja8ClRva/IALJuBIBLAgX57Vuna/B8ied+p94hwDfJgPGn7rs71/0LCjo62lIE5sI=
+	t=1772457830; cv=none; b=SFBvVXWb/kTC/wkJBkL4wvS7mk1K4DPEy2BMyZXrGcBWe0udMb/KiGvlMPC95+Kal5Dj2g1q526t1tSvSusNthm+4XYki7luLOTvijjVknvTIAsZV78O30cEsQAPvE8QfuHxQ4zw/04/qI+KF97+s75wToEY+MRPmRxIIzYrn+s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772455384; c=relaxed/simple;
-	bh=cSyXaR9CC/kzl95o4jDS3lCVCTRqIF6V40mtMwdZY4s=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=em8Hr5ONQL7Fu9vYU52mWlmAWT8W7XEOpGTInIzq06/Lb2+bwc5/YN3ZfGEbdfkGVtWYIUGK8eKSQ94Im2zdWYYabp4GGnFWBQ/oHB2ceMcIjPYNVeRu+sk27kj1wuHaltC5e2khNcHBK4UcHYfAix/nmeszIniS2KL7U+xMwTk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=IoqCtrXo; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=ONAn918A; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1772457830; c=relaxed/simple;
+	bh=N+tnx8WWF8pCSyywrl44J5+kQYdBQLh8rR4igmMR9GQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=C7u4xEQOMw31kdWHj9xHZsA8j5DXi5p8GBCkTMlETSe/Pvg+3ow2TRhGIK4RnXnKwTa5P3YTVYyx4lyfc8S9fgcXJz+YBwRI3RsitpavSPI63TcYOpP78b4iENCR8PxEY+aNKdb6edP7vRgLI4gmVREyjmAS7ezaDg5a9LRSMzs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VhrGVyEp; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="IoqCtrXo";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="ONAn918A"
-From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1772455380;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7zIQjC5c3Xpy63Pp68hHQZNu1F60+I8OSONI8GYykYA=;
-	b=IoqCtrXoaJwzS6N6YTMfyUCj8OoW/1gp3fYpZspd73A5UUdimUnCT3INryfBOp/Uidvt2O
-	fFZBSh625EH/xOiIUs7bliPhEW7eIe4oVRbndQ7JS0HExPt2BnyyJr3BBFi0HANX3JY+U6
-	qFbpYUo/e8e9VwdmLq9ekhd6KfZylVBHlHOHTiuCuUrnCaZLG019mVSHnZ/Lyf+cWBhcsS
-	T2eHYhWbptKMW1dTMPI03AVU7pIPWBhnVBFcsKpQ5KcueStobqAfhhAciAS3S0oxluNuGs
-	3LTkoF7DadXFNeuYl1q9LHB9gjovU0Vq093pmu6Rfx1KcM0E3m55fqPDcKGEIw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1772455380;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7zIQjC5c3Xpy63Pp68hHQZNu1F60+I8OSONI8GYykYA=;
-	b=ONAn918AO3qUbTFSO+cpvPOefdI2PFu7IqaG5s12rfqY+JxpiTHetkmBVDwhXDQ+tZasVd
-	KGa3KguKgsiBfwDw==
-Date: Mon, 02 Mar 2026 13:42:44 +0100
-Subject: [PATCH 8/8] selftests/bpf: verify_pkcs7_sig: Use 'struct
- module_signature' from the UAPI headers
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VhrGVyEp"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 621Nulli2246261;
+	Mon, 2 Mar 2026 13:23:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=m5eZb7
+	dbXw8DApMgFS3qRxehYGTCtVaX4Oq3XuZhuQg=; b=VhrGVyEpiKwW4de2kt2H4t
+	uJq6FLJOI8W0sSy4g/DdZJqn/vl1Ql7/wF3oxzE5FdUCZMDzGN6FGKaNE8YOqoaW
+	0popfeHAGdZG+oF03X4EuGVkd4/sdhnzmF46tYuCcKrml+b2fvpYLCiU63AfBS1W
+	YQNVjAZxc2dInNyjI585PnBF01tQpWFxoTF3pzYgChgGNlkn1HqSmJcFWb7hYYEB
+	TpfFrduu6epwUd8sv6hYvoAU7UnFW0p1MxWtV3By1fANT/+I5JjLYW7az9VjhMxk
+	japgGARNKlCzOIkD5xVRxzw8rpUVhNZQANVXtFlG7Q6qC4B/ckxeoQ4UC9loZeug
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cksk3pk2t-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 02 Mar 2026 13:23:41 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 622D3bGf010305;
+	Mon, 2 Mar 2026 13:23:40 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cmc6jx6jc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 02 Mar 2026 13:23:40 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 622DNaOn45613410
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 2 Mar 2026 13:23:36 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8CF5F20043;
+	Mon,  2 Mar 2026 13:23:36 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3A4E820040;
+	Mon,  2 Mar 2026 13:23:36 +0000 (GMT)
+Received: from [9.52.217.119] (unknown [9.52.217.119])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  2 Mar 2026 13:23:36 +0000 (GMT)
+Message-ID: <253d0c0a-ee6f-4bfc-ad19-4fbd794a6c82@linux.ibm.com>
+Date: Mon, 2 Mar 2026 14:23:36 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20260302-module-signature-uapi-v1-8-207d955e0d69@linutronix.de>
-References: <20260302-module-signature-uapi-v1-0-207d955e0d69@linutronix.de>
-In-Reply-To: <20260302-module-signature-uapi-v1-0-207d955e0d69@linutronix.de>
-To: David Howells <dhowells@redhat.com>, 
- David Woodhouse <dwmw2@infradead.org>, Luis Chamberlain <mcgrof@kernel.org>, 
- Petr Pavlu <petr.pavlu@suse.com>, Daniel Gomez <da.gomez@kernel.org>, 
- Sami Tolvanen <samitolvanen@google.com>, Aaron Tomlin <atomlin@atomlin.com>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, Mimi Zohar <zohar@linux.ibm.com>, 
- Roberto Sassu <roberto.sassu@huawei.com>, 
- Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, 
- Eric Snowberg <eric.snowberg@oracle.com>, Paul Moore <paul@paul-moore.com>, 
- James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
- Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
- Andrii Nakryiko <andrii@kernel.org>, 
- Martin KaFai Lau <martin.lau@linux.dev>, 
- Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
- Yonghong Song <yonghong.song@linux.dev>, 
- John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>, 
- Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, 
- Jiri Olsa <jolsa@kernel.org>, Shuah Khan <shuah@kernel.org>
-Cc: keyrings@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-modules@vger.kernel.org, linux-s390@vger.kernel.org, 
- linux-integrity@vger.kernel.org, linux-security-module@vger.kernel.org, 
- linux-kbuild@vger.kernel.org, bpf@vger.kernel.org, 
- linux-kselftest@vger.kernel.org, 
- =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1772455374; l=2301;
- i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=cSyXaR9CC/kzl95o4jDS3lCVCTRqIF6V40mtMwdZY4s=;
- b=mt33KH6e4U4abWVfxbWix+ZkiYK/4AzVrqC4RxG9vRwCPeDfWtoMAsO7WQhrIzjBQx3/Orhg9
- AizCR+OrzOJDG/jUpSJSipbzlY/d2Yw2F4CzWtoPNcOrPYGTWaVIQux
-X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
- pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 2/3] vfio/ism: Implement vfio_pci driver for ISM
+ devices
+To: Julian Ruess <julianr@linux.ibm.com>, schnelle@linux.ibm.com,
+        ts@linux.ibm.com, oberpar@linux.ibm.com, gbayer@linux.ibm.com,
+        Alex Williamson <alex@shazbot.org>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Shameer Kolothum
+ <skolothumtho@nvidia.com>,
+        Kevin Tian <kevin.tian@intel.com>
+Cc: mjrosato@linux.ibm.com, alifm@linux.ibm.com, raspl@linux.ibm.com,
+        hca@linux.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
+References: <20260224-vfio_pci_ism-v2-0-f010945373fa@linux.ibm.com>
+ <20260224-vfio_pci_ism-v2-2-f010945373fa@linux.ibm.com>
+ <5e10827b-e87e-43a6-8783-2e5d23a186e1@linux.ibm.com>
+ <DGSAHB6FS2D4.1KN7KTIF0EWE5@linux.ibm.com>
+Content-Language: en-US
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <DGSAHB6FS2D4.1KN7KTIF0EWE5@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: P7E2GibNP_-aWJwYOtp1VHjK1-NkjLwE
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzAyMDExMSBTYWx0ZWRfX+kl7S5bpmnwk
+ ObKKjCRhrvwDJTOEhgkyJp9Ww/sfnvHbNm953WJPSsspVveQic5T19Hk7uBeMVVaubeokJ3zoIS
+ dvym3GyMjsBR9OVjJQ2bxnHnB9iLQZH/V2IeNIryAcJ585TgKLu8sunyyWCrrE83B0NucsFBoPg
+ 131EC9u9qx03W07s8RDEv54Pf8RWADYmR/GV6BDtawCiz8R/Bt+9iQroEMqh5VNlX8uts+qRn7W
+ qKPq43Z2s39/qCpJvPxlUzLwT8578QFKXgV4Te4YIh5QLC9nFViW2ztCv67WkrYCkZ/yCxNeRGa
+ LNanV8nbeiAtw7V0WDK/hPpzuupMoD+0Ridd5hJuqX8WY6WI3/JZTecYG3Vg1R251GtsojczHR8
+ uNx3k/Q1JzNSbIw+mxmsx1CbH4YfzDMw1rIjE9bXbq7MhQGlbdWkW95O1YAcTu48g/QCRMqR34Z
+ 84WXTKY+QEq9MFC6oYA==
+X-Authority-Analysis: v=2.4 cv=csCWUl4i c=1 sm=1 tr=0 ts=69a58f5d cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=jeZ6-WCPrn04vPXoU0QA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: P7E2GibNP_-aWJwYOtp1VHjK1-NkjLwE
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-02_03,2026-02-27_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 priorityscore=1501 suspectscore=0 malwarescore=0 adultscore=0
+ clxscore=1015 bulkscore=0 phishscore=0 spamscore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603020111
 
-Now that the UAPI headers provide the required definitions, use those.
-Some symbols have been renamed, adapt to those.
 
-Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
----
- .../selftests/bpf/prog_tests/verify_pkcs7_sig.c    | 28 +++-------------------
- 1 file changed, 3 insertions(+), 25 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/verify_pkcs7_sig.c b/tools/testing/selftests/bpf/prog_tests/verify_pkcs7_sig.c
-index 4d69d9d55e17..f327feb8e38c 100644
---- a/tools/testing/selftests/bpf/prog_tests/verify_pkcs7_sig.c
-+++ b/tools/testing/selftests/bpf/prog_tests/verify_pkcs7_sig.c
-@@ -18,6 +18,7 @@
- #include <linux/keyctl.h>
- #include <sys/xattr.h>
- #include <linux/fsverity.h>
-+#include <linux/module_signature.h>
- #include <test_progs.h>
- 
- #include "test_verify_pkcs7_sig.skel.h"
-@@ -33,29 +34,6 @@
- #define SHA256_DIGEST_SIZE      32
- #endif
- 
--/* In stripped ARM and x86-64 modules, ~ is surprisingly rare. */
--#define MODULE_SIG_STRING "~Module signature appended~\n"
--
--/*
-- * Module signature information block.
-- *
-- * The constituents of the signature section are, in order:
-- *
-- *	- Signer's name
-- *	- Key identifier
-- *	- Signature data
-- *	- Information block
-- */
--struct module_signature {
--	__u8	algo;		/* Public-key crypto algorithm [0] */
--	__u8	hash;		/* Digest algorithm [0] */
--	__u8	id_type;	/* Key identifier type [PKEY_ID_PKCS7] */
--	__u8	signer_len;	/* Length of signer's name [0] */
--	__u8	key_id_len;	/* Length of key identifier [0] */
--	__u8	__pad[3];
--	__be32	sig_len;	/* Length of signature data */
--};
--
- struct data {
- 	__u8 data[MAX_DATA_SIZE];
- 	__u32 data_len;
-@@ -215,7 +193,7 @@ static int populate_data_item_mod(struct data *data_item)
- 		return 0;
- 
- 	modlen = st.st_size;
--	marker_len = sizeof(MODULE_SIG_STRING) - 1;
-+	marker_len = sizeof(MODULE_SIGNATURE_MARKER) - 1;
- 
- 	fd = open(mod_path, O_RDONLY);
- 	if (fd == -1)
-@@ -228,7 +206,7 @@ static int populate_data_item_mod(struct data *data_item)
- 	if (mod == MAP_FAILED)
- 		return -errno;
- 
--	if (strncmp(mod + modlen - marker_len, MODULE_SIG_STRING, marker_len)) {
-+	if (strncmp(mod + modlen - marker_len, MODULE_SIGNATURE_MARKER, marker_len)) {
- 		ret = -EINVAL;
- 		goto out;
- 	}
+On 02.03.26 13:18, Julian Ruess wrote:
+>>> +struct ism_vfio_pci_core_device {
+>>> +	struct vfio_pci_core_device core_device;
+>>> +};
+>>> +
+>>> +static int ism_pci_open_device(struct vfio_device *core_vdev)
+>>> +{
+>>> +	struct ism_vfio_pci_core_device *ivdev;
+>>> +	struct vfio_pci_core_device *vdev;
+>>
+>> Why do you need 'struct ism_vfio_pci_core_device'?
+>> Unlike other vfio_pci variant drivers your struct only has a single member.
+>> I see it is used below as well, but couldn't you directly use 'struct vfio_pci_core_device'
+>> in all places?
+> Theoretically yes, but functions like vfio_alloc_device() expect this parent
+> struct.
 
--- 
-2.53.0
 
+Couldn't you do something like:
+
+static int ism_vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+{
+	struct vfio_pci_core_device *vdev;
+	int ret;
+
+	vdev = vfio_alloc_device(vfio_pci_core_device, vdev, &pdev->dev,
+				 &ism_pci_ops);
+	...
+
+
+But I'm just thinking out loud. No strong feelings.
+If you think it's worth to define an additional struct, so your driver looks more like the others - that's fine with me.
+
+
+
+>> Where do you free 'data' ?
+> void *data __free(kfree) = NULL;
+
+Thank you; I learned something.
