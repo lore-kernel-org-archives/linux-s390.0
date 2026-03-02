@@ -1,147 +1,115 @@
-Received: from mail-wm1-f74.google.com (mail-wm1-f74.google.com [209.85.128.74])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14D5A41161A
-	for <linux-s390@vger.kernel.org>; Mon,  2 Mar 2026 15:41:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12A3241B376;
+	Mon,  2 Mar 2026 15:41:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772466106; cv=none; b=E44FIStC3hKaYBPyaDvfhAPMLKtGnBoNPtwKH0gROGUOxDq/Oqz8/GCh/TAFHFsVPSYl7C7zMi4Wn39k0yc5jsWZbnmWKcVCWLj3CULM4XgwsrA+jd6XxznNfJ00l2tKix/H6qT2R9WP//5dtixhOOHopswtSu2Vnn93MXiy3yE=
+	t=1772466109; cv=none; b=TzJwMWIq8lfTi/4YcVTjHZ1D5U7v/rqqHWDvcXnFuXiwnIUdljX0tC334voQ7pWFVdoAfiY+ulpkZ4oEbA7dc8jU+WBOPmmhgIS0ogtb1s02P7OPe38I/VJlmzL3RkOUUZe/Kjahr0At6sbAGEiJcZQ53RU3LRkfSUPI43h5vwc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772466106; c=relaxed/simple;
-	bh=V5eDYyeSzEe01Qy0X2d3YjmdmOm2DlobDKTfwH81yIk=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=NUsio2EFPgOjY1KiADrTXK43zEWSZELS+uhK9+s/LVdjtEw7KI9iDtap/fCjWfMmAJKQaLUQloL4uADIpejBat9EP4bZphEEnEYVjmnSmXbLVeOy1gnlRy/0/4YZAMyuuIuvvhdAXSEbSPQNmtx5YwDurOh/EE3rPAZKDmc6/ZU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--aliceryhl.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=NpcLcN9z; arc=none smtp.client-ip=209.85.128.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--aliceryhl.bounces.google.com
+	s=arc-20240116; t=1772466109; c=relaxed/simple;
+	bh=Vf33eJvyiCs1rTC777QG0IMhCXghZhqvO77TEb514Ho=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bMHM0/cSbNqC6zBWpZGtMzZuJ4g39+ZxRnfCSAXafUE2udm8as7nS+aW+cwOdgtwMrDfDW88Ohq8pVdYrv9dCR2H+hcnDuKyfSu1/vUddO/USquPOxhnRW70Bv1vVmEONEptxxEDxt5j+AimzIYHjMkNaZ76cMap8q8DQtQe/Ws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oXNQgyJ/; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="NpcLcN9z"
-Received: by mail-wm1-f74.google.com with SMTP id 5b1f17b1804b1-48378c4a79fso38396855e9.0
-        for <linux-s390@vger.kernel.org>; Mon, 02 Mar 2026 07:41:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1772466103; x=1773070903; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=fvJ4Pj0Wo9ryI9xJ6mJ9OBJG9CVcmeBhutvadxQnZZs=;
-        b=NpcLcN9zaHs6viT1xkKDJ6JmpmAjvhKns6ydmfiwCNU5XOvLSWikyNvN/hsLBDVKJz
-         CQQPekhDUK//hEnOaLL8NjKhpzzxiWvoWaI4iDzJQ6VvtfYDpc2SIo7ODSRQiiQb7rqY
-         T9pBkMdn8THxrSV2LAPfXGfKwuuA6tvQsEkDmBikv2i/8u0CaDqNDDwZ4e1s1FsnJO69
-         W3EqubJd3HDoLvp5I9MGEIOo2Qcwmg2YaPYpkcCM/kWWdJ5gcy7yhiwmQqY4q76okx0C
-         xa7i0vCr56hW1eHA53+8TLarCTCI/Ivx3qE0J7nXzkaUQbXbHUIOfhT7j+CJYJPjammY
-         XWeA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772466103; x=1773070903;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=fvJ4Pj0Wo9ryI9xJ6mJ9OBJG9CVcmeBhutvadxQnZZs=;
-        b=aPR51rH83bGIrf/Tfl3cgoY3Ia4qW8GFRvxkmoBQw7NNMP2MxkD2x6MVl88u6GPjxl
-         zi43TBdVqGM4iBz63ktEy0AKeN8/an0p5nDUzMzlfQtEYQhF9LbSmnJ5mvGjZx1qSiwj
-         4tPyvpWrRd1EQvtIwYIPiOcLaqy+614Ry/XbCJgIaNei/AuGPt+Kk91YRnzjQK6+6D3Y
-         Jzm9t5rWEDJa2ThH6twieWWzgjR9zD/Bx6MRrcBY172AUNdNxcw7E+ShqExrgK4JJO3e
-         tcEjJGHjBECzi6f21wSrvREM4W/2Mqb8WcCBg5Djsnqzvny0SUHKtU3YSUhm9Ds7/Yj7
-         MtLw==
-X-Forwarded-Encrypted: i=1; AJvYcCUkk6tQbJQ5jImtSf71ZcWFv/A5bnIm/ARjnabpKTw79pYkfAqZLCTWyazPF2hgxXyX45lPVLZJIknA@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy05ziHMYDy99GYOrOGLUC9XdtNjpDq6iXL1MRNRfemtbd+H3Fb
-	SU0b22w+7uRogvNpjrU42ikzimvLu/3Xzc7aF/06J5XNlZeTHI57lkySYNj4fQ+d0m5TakM0Drr
-	b/ohZXRB0Q7qS3Lr3mw==
-X-Received: from wmby19.prod.google.com ([2002:a05:600c:c053:b0:480:690c:88de])
- (user=aliceryhl job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:600c:3b18:b0:483:7432:a761 with SMTP id 5b1f17b1804b1-483c9bc558bmr213622465e9.24.1772466102970;
- Mon, 02 Mar 2026 07:41:42 -0800 (PST)
-Date: Mon, 2 Mar 2026 15:41:42 +0000
-In-Reply-To: <5f8dcb7f-9e4f-4484-b160-3a9ce541d63c@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oXNQgyJ/"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 622EOuSx1985083;
+	Mon, 2 Mar 2026 15:41:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=1iU3kaTtBgZdjDYqNo47ugvac7n0L4
+	+IaV1PHKjvO+g=; b=oXNQgyJ/JcLzKQY7P64+WsoFoHIXjatS0ElfW0lfBmUZhx
+	xwV+cENg8gcjSsr32mN7arAIO3otzTZ1bPBtFHP0iNw3hpmapKB0w8UdPdTm9r+8
+	aOLNgyv3RxGSuOJKaYBvgy/cggI0kBXWwPbi1b/9X8EQr1fhIxD+9hF3FsCgdscH
+	/zzWmAM04oEtrWy8GHfOIqw/UvN7tDTKNlzBwNyWTjCV7Ow9oZyIhVbKTm1oGl8y
+	S9dP2ecArRnkX9OsLHu3XYeQD/+9GPKZlJ7mqfRUrGJ+JrIcdXVsyYRP4WV8kctF
+	RmdRRTCdaLA4r4GiPkqgt3yGtBKD2M3TkA0VmHoQ==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cksjd7bbf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 02 Mar 2026 15:41:44 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 622EFEv9008782;
+	Mon, 2 Mar 2026 15:41:43 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cmdd16dvv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 02 Mar 2026 15:41:43 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 622Ffdwg53281162
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 2 Mar 2026 15:41:39 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A9F3420040;
+	Mon,  2 Mar 2026 15:41:39 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 317582004B;
+	Mon,  2 Mar 2026 15:41:39 +0000 (GMT)
+Received: from localhost (unknown [9.111.42.248])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon,  2 Mar 2026 15:41:39 +0000 (GMT)
+Date: Mon, 2 Mar 2026 16:41:37 +0100
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH 1/3] s390/xor: Fix xor_xc_2() inline assembly constraints
+Message-ID: <your-ad-here.call-01772466097-ext-7496@work.hours>
+References: <20260302133500.1560531-1-hca@linux.ibm.com>
+ <20260302133500.1560531-2-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260227200848.114019-1-david@kernel.org> <20260227200848.114019-3-david@kernel.org>
- <aaLh2BxSgC9Jl5iS@google.com> <8a27e9ac-2025-4724-a46d-0a7c90894ba7@kernel.org>
- <aaVf5gv4XjV6Ddt-@google.com> <f2f3a8a1-3dbf-4ef9-a89a-a6ec20791d1c@kernel.org>
- <aaVnifbdxKhBddQp@google.com> <5f8dcb7f-9e4f-4484-b160-3a9ce541d63c@kernel.org>
-Message-ID: <aaWvtn48X8UizaaN@google.com>
-Subject: Re: [PATCH v1 02/16] mm/memory: remove "zap_details" parameter from zap_page_range_single()
-From: Alice Ryhl <aliceryhl@google.com>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: linux-kernel@vger.kernel.org, 
-	"linux-mm @ kvack . org" <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, 
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, "Liam R. Howlett" <Liam.Howlett@oracle.com>, 
-	Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
-	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Jann Horn <jannh@google.com>, 
-	Pedro Falcato <pfalcato@suse.de>, David Rientjes <rientjes@google.com>, 
-	Shakeel Butt <shakeel.butt@linux.dev>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Jarkko Sakkinen <jarkko@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	"Arve =?utf-8?B?SGrDuG5uZXbDpWc=?=" <arve@android.com>, Todd Kjos <tkjos@android.com>, 
-	Christian Brauner <brauner@kernel.org>, Carlos Llamas <cmllamas@google.com>, Ian Abbott <abbotti@mev.co.uk>, 
-	H Hartley Sweeten <hsweeten@visionengravers.com>, Jani Nikula <jani.nikula@linux.intel.com>, 
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, 
-	Tvrtko Ursulin <tursulin@ursulin.net>, David Airlie <airlied@gmail.com>, 
-	Simona Vetter <simona@ffwll.ch>, Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
-	Dimitri Sivanich <dimitri.sivanich@hpe.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Andrii Nakryiko <andrii@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
-	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, Andy Lutomirski <luto@kernel.org>, 
-	Vincenzo Frascino <vincenzo.frascino@arm.com>, Eric Dumazet <edumazet@google.com>, 
-	Neal Cardwell <ncardwell@google.com>, "David S. Miller" <davem@davemloft.net>, 
-	David Ahern <dsahern@kernel.org>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Miguel Ojeda <ojeda@kernel.org>, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-sgx@vger.kernel.org, 
-	intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
-	linux-rdma@vger.kernel.org, bpf@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	netdev@vger.kernel.org, rust-for-linux@vger.kernel.org, x86@kernel.org
-Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260302133500.1560531-2-hca@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=M9BA6iws c=1 sm=1 tr=0 ts=69a5afb8 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=I-hCE_8guc2hzVsXgW8A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: -0ZrWxnu7oB1YM9BdLZeM1rjiSR7Tpam
+X-Proofpoint-GUID: -0ZrWxnu7oB1YM9BdLZeM1rjiSR7Tpam
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzAyMDEzMSBTYWx0ZWRfX8ybvMsId9SAw
+ 04mGqFCReWd6Ei8nP42cb58bERD9iJU65TTlPgNQ5YgbLgkqbHC0kPnVs8jjO3PMnE35V1YmQGD
+ okO6J1Da+hvhZA0VzBQTGkS5Ga7vCm0jiY40cbAJGlGavbXFXyQ9orLKExP6NdRDuXRHjwc26Wm
+ ul7HMjDmjh6KXNuQPFmQf3gzc/IjJAWzK3tr8Mz23r9klcFz7LQ3tvsjglnqB2ISCLpAEH98A+J
+ 4gfwDEnlor4h7W+NC1QcXi80uPqz1LcAvQ7zgvVBXyzraNcvPYD5FZpoZ+Xprjif6hWQv4gGjGM
+ AV0/dWIgiq1L3I2OENLEPbNNso6CBA40U2QlJHa362maawEFpxH7FSJqYAMqbO9mDOmy4u5rH3D
+ /rpve0d/ScVadZEuIlEp3Dc6VCtsMCrQuelVzinJeu2KMjLcvoduYBTLk/h2k4n1yaIZ3ug+86d
+ FnPQF0Kzj9GFyFa5JuQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-02_03,2026-03-02_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1011 priorityscore=1501 spamscore=0 adultscore=0 malwarescore=0
+ bulkscore=0 lowpriorityscore=0 impostorscore=0 phishscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603020131
 
-On Mon, Mar 02, 2026 at 04:01:44PM +0100, David Hildenbrand (Arm) wrote:
-> On 3/2/26 11:33, Alice Ryhl wrote:
-> > On Mon, Mar 02, 2026 at 11:27:40AM +0100, David Hildenbrand (Arm) wrote:
-> >> On 3/2/26 11:01, Alice Ryhl wrote:
-> >>>
-> >>> Well, rustfmt comes with the compiler, and it would be ideal to build
-> >>> test changes before sending them :)
-> >>
-> >> At least on Ubuntu on my notebook where I do most of the coding+patch
-> >> submissions it's a separate package?
-> >>
-> >> I do all my builds on a different (more powerful) machine where the
-> >> whole rust machinery's in place. Further, build bots that run on my
-> >> private branches did not report any issues.
-> > 
-> > There are some build bots that check for rustfmt, though not all of
-> > them.
-> > 
-> >>> But no worries, I took care of testing it. Thanks for taking the time to
-> >>> update the Rust code as well.
-> >>
-> >> I just did an allyesconfig and it does not report any warnings.
-> >>
-> >> So apparently, rustfmt problems not result in the compiler complaining?
-> >>
-> >> Or something else is off here that rust/kernel/mm/virt.rs won't get
-> >> compiled on my machine, even with allyesconfig. I can definitely see
-> >> some RUSTC stuff happening in the logs, like
-> >>
-> >> 	RUSTC L rust/kernel.o
-> >>
-> >> Thanks for the review and for pointing out rustfmt!
-> > 
-> > Similar to kerneldoc and other similar targets, formatting isn't checked
-> > in the normal build, but make can be invoked on the rustfmtcheck target
-> > to check it.
+On Mon, Mar 02, 2026 at 02:34:58PM +0100, Heiko Carstens wrote:
+> The inline assembly constraints for xor_xc_2() are incorrect. "bytes",
+> "p1", and "p2" are input operands, while all three of them are modified
+> within the inline assembly. Given that the function consists only of this
+> inline assembly it seems unlikely that this may cause any problems, however
+> fix this in any case.
 > 
-> Thanks adding that to my cross-compile chain.
+> Fixes: 2cfc5f9ce7f5 ("s390/xor: optimized xor routing using the XC instruction")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>  arch/s390/lib/xor.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-Awesome, thanks!
-
-It's not relevant in this patch, but another thing that may be useful is
-to add CLIPPY=1 to the make invocation when building normally. This
-causes additional warnings to be checked using a tool called clippy.
-
-Alice
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
