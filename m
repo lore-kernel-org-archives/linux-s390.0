@@ -1,169 +1,256 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1E0819E96D;
-	Tue,  3 Mar 2026 10:34:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE58F282F17;
+	Tue,  3 Mar 2026 11:12:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772534055; cv=none; b=ZV0/PV6x03nYwSlcVqvNizeypKSZxGiJg++XfTdXpWtlMxQz0+ibl2SOK1eu3obgaEGzsTifQpEYh9EwnjBy8lVpqylUcxFYvmGr0HF9NpHJtbucJ5J9hcQOv7XUOoWsJ1VTyosvBcZ5EJeBAl9F7YVjy807xv6vW1gImEkT0+Q=
+	t=1772536328; cv=none; b=lAgH7iRpfU+DxZu3d7NaZYkLLdbQmx5URUHVuAupHLxAfm2dy123MfBXjPx7baJcBC0xqxN0N3quPTJ48zWuMHJibJi4SOVBNbpVXAHfOON9YAcNWP7ieQ/cwj/FmxDqiNwjZhHuLku+arur++oGDGQJHA2/9guYuKgxu/79mIA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772534055; c=relaxed/simple;
-	bh=oDrNevPkvqqMEpieXOAsHDn6TXgbHwiuvrvEtRtELBY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=P0h1fd2RpNtSdZyOqdXTIUa97+gEk1BbHFvcXGQcnMnuqs1BwS0Gg13RvweBOvzay23+26wMju8C1SiXFnNXyGaKXVmbwCvnv7g2d42ebXrOyXx5gqJtk3hJenEHmPy5Pb7F+qPrmZA3jJSTwdktyLkXTx9mTNjnZRVPmDXBLDQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=T4vDlGhL; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1772536328; c=relaxed/simple;
+	bh=jLZOY6WAwrY9fo3pShlsIhNH58r2Ro+Orz3HeUJxOb4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=NYAah2AosChI96E2pqMrgeGkhmoG8w8g90WWhtV6noRSWCjSsI5pe3Sj3iw4x/Zy6cLJuEh+19TRTlteCNU9xHLZRRqxA+93HDyLJWEq8T4eNs1r8mMsEQwNl8WqAc53GVp9+58qng8RjRTQGQZBPl6SUgW3sP8tqI3GWkUG3ik=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kn9C6wwl; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="T4vDlGhL"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6236iduU2167523;
-	Tue, 3 Mar 2026 10:34:00 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kn9C6wwl"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6237FTXp2104794;
+	Tue, 3 Mar 2026 11:11:31 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pp1; bh=utIdR3GXOhbcnpq912eY1lubpCZo
-	9Ksbpf962jtL08Q=; b=T4vDlGhLdJNME2gJWFz1Lrq7RQapj07jLTXWStnJqb2S
-	4+F5L9MZj7G70pCwqoSxkXdoh2iKa85W0QcQCdZe+1hf1G5+CKHuPkkjPfHy/UE6
-	bOlM18VsimQrR9c0IjG9QQtrQfuyENUAh2frdN8rSL7atIF/9GUOBqQaQiKXmGFB
-	x5SDY98b6KSeFFcPe/o0/X6JzPHSEC5AO+8O03LG+5GP8+bqaGYXKpAbjewmuhTj
-	+It9kCocprAbpL4jlO9vzH5oEvvkSZDkaU42faWudVIGFte31imsZNJf5AkCGCoR
-	UqNB7K0qlnWwfqowb4h5OK5RygdJY2pHo2iS6fLJ+w==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ckskbt82j-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=5R7/8c
+	d7xW9zkt0oSt0vLll879jI88nP5jlzNhGC1Go=; b=kn9C6wwljog+hJvduGFq12
+	v5wuELVOt/KFg6LCcm2DcHkP/eCRu9BJVKlQgBiIWyQr7u4kMkOhl8rIxOyKVC5Q
+	nRvnCjjayux6BzxkwdnXWlSdqxGrPxr7vjx1cLhajMKOiLgGw9LVaNrolj6rzwe5
+	Z4mUYUbxj5NTZlcpFKdGvaeWj3/XKiGFNXSIc7/YTeYS11QLPWzZooAwwJwtdPRb
+	OcfAdpUCBArmB4eK/9GPfUJBcqLzt7Y9JKlASFuDvxEWv0ueygmdBeCt6XHcZ3/S
+	+pP44VC0GCZn2TAPHXLHXoLQgfuUBKu4Cb7hSsQBqmEG3DsBddB2JLxBYQHxpk8A
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cksjdanec-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 03 Mar 2026 10:33:59 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62398VnG029016;
-	Tue, 3 Mar 2026 10:33:58 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cmaps202b-1
+	Tue, 03 Mar 2026 11:11:31 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 6235rGEt008791;
+	Tue, 3 Mar 2026 11:11:30 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cmdd19mrh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 03 Mar 2026 10:33:58 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 623AXtm129360650
+	Tue, 03 Mar 2026 11:11:29 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 623BBQDV30998832
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 3 Mar 2026 10:33:55 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 021F720043;
-	Tue,  3 Mar 2026 10:33:55 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BA15320040;
-	Tue,  3 Mar 2026 10:33:54 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  3 Mar 2026 10:33:54 +0000 (GMT)
-From: Gerd Bayer <gbayer@linux.ibm.com>
-Date: Tue, 03 Mar 2026 11:33:39 +0100
-Subject: [PATCH net-next] net/mlx5: Allow asynchronous probe
+	Tue, 3 Mar 2026 11:11:26 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2B22320043;
+	Tue,  3 Mar 2026 11:11:26 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8BA9B2004B;
+	Tue,  3 Mar 2026 11:11:19 +0000 (GMT)
+Received: from [9.124.210.250] (unknown [9.124.210.250])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  3 Mar 2026 11:11:19 +0000 (GMT)
+Message-ID: <415e925a-e9f0-40ad-9f53-263dd34dd2a9@linux.ibm.com>
+Date: Tue, 3 Mar 2026 16:41:18 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 14/15] sched/cputime: Handle idle irqtime gracefully
+To: Frederic Weisbecker <frederic@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Cc: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Anna-Maria Behnsen <anna-maria@linutronix.de>,
+        Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Joel Fernandes <joelagnelf@nvidia.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Kieran Bingham <kbingham@kernel.org>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Mel Gorman <mgorman@suse.de>, Michael Ellerman <mpe@ellerman.id.au>,
+        Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        "Paul E . McKenney"
+ <paulmck@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Valentin Schneider <vschneid@redhat.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Xin Zhao <jackzxcui1989@163.com>, linux-pm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+References: <20260206142245.58987-1-frederic@kernel.org>
+ <20260206142245.58987-15-frederic@kernel.org>
+From: Shrikanth Hegde <sshegde@linux.ibm.com>
+Content-Language: en-US
+In-Reply-To: <20260206142245.58987-15-frederic@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260303-parprobe_mlx5-v1-1-18194f2a1a3a@linux.ibm.com>
-X-B4-Tracking: v=1; b=H4sIAAK5pmkC/x3MTQqAIBBA4avErBNM+4GuEhGWUw2UySghRHdPW
- n6L9x4IyIQB+uIBxpsCXS6jKgtYduM2FGSzQUnVSi218IY9XzNO55EaYStplenq1moDufGMK6X
- /N4DDKBymCOP7flofUl1pAAAA
-X-Change-ID: 20260303-parprobe_mlx5-d10d2a746d3a
-To: Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
-        Tariq Toukan <tariqt@nvidia.com>, Mark Bloch <mbloch@nvidia.com>,
-        Andrew Lunn <andrew+netdev@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>
-Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, Gerd Bayer <gbayer@linux.ibm.com>
-X-Mailer: b4 0.14.2
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: aWjlHxNs5CFXt-zwwUAnzBxvShN87EDM
-X-Authority-Analysis: v=2.4 cv=b66/I9Gx c=1 sm=1 tr=0 ts=69a6b918 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Authority-Analysis: v=2.4 cv=M9BA6iws c=1 sm=1 tr=0 ts=69a6c1e3 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=ij1ewOFO8_1s4h9LyxsA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzAzMDA3NyBTYWx0ZWRfXyoE4OX3HOLO0
- ZMGW32NAFORv7jfmLO4n+Eh3IsMgf2qxnWFwHNNnlvDfhf+ZETpMXevuGLlFlGQq2bbgue32Sr0
- rvZYeKRSB5KcS7yD2gGk+oZCoVuHNdsJc2I2GUr6s5nyoNq0pRpPDiNsRj634E4pa5B7NSXyCtF
- 30eGM55Hc9GT3U1bL2br/7WR4H7Dg4bZv4XeU2razgFjR9hJW7fvMAObecvwjGVuOfoBPBIIuq/
- xwYdHB5PjxVOv7jNvp1/Wa0xKGShtrPlGThOJKQyHWmMLI8M8LldVpaeLj4PYf90fqzEnzVCkkh
- Ec7Iv2ZFrlMP5c6JcdZAQJqwYfxtkrLYorxDfO1J1RyiwxEi3MqHgIReG/bWIR8TOhqn8uGVw4+
- scka0B651FQJDApW80XmMgAcp3FnIOCcB+lycHFgxcASyxa2la+IrLxP68qaSn4+Wix9e1uYTPh
- xKwdwEA8vWj+rTUfxcA==
-X-Proofpoint-GUID: rBXA3B8Zx2rtH99qfTDovVJzbFOuOMqX
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
+ a=WffY0ah0q7W8p7317v4A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: iOvsbUvpvsRb0o9WyNLZDxuI7eo5f5b8
+X-Proofpoint-GUID: t3Mj4QLPgnhluBsZ6V0TeElOuOBh_39W
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzAzMDA4NiBTYWx0ZWRfX+mA/8CnyaB72
+ J71qrO5vFg7C1rSBMjcWXUpLpNxl0rhLe4+zS7kgyOPQ77xdvSeubvjU8C4WzKR/uEHRYPG0/O0
+ RP/I9EY6x8si7M8fx7LWbzulq6gvqVt1IDBgKy9TgHZaIuG9qRXvU1NcTkVD52NzjAnR4srojvF
+ 0FnRJqZbNrPBSqForkgm16KTgfsnwcpKkr510yohyRmHQ1DzUle80iAIa1yzdXcxfSYcXJPHiH/
+ QHE8CQrHNN26xBG2pXtrhOoO9DHWyOkbAZSr58XjhSHxSn6Oq/LUFlIx7x52l9IZZnbpS9TsmhJ
+ Oe+e21fl7621RgwrAJsPwSmgOp+SkwMQVHyEpsLfwfNgNXYqb4jUuZ+K7MmRwCIfktbjAL8VyHL
+ 5AIwUIYGaOWi0uj5C1FGMiiE6/fcGfJQNBN4mxO/GQ0j60/2+IdHtx7OJWPvGMsoTnl9Cz/e7x+
+ dVZkNLCWzSNvk+wXHJA==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-03-02_05,2026-03-03_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 lowpriorityscore=0 phishscore=0 clxscore=1011 adultscore=0
- bulkscore=0 impostorscore=0 malwarescore=0 spamscore=0 priorityscore=1501
+ clxscore=1015 priorityscore=1501 spamscore=0 adultscore=0 malwarescore=0
+ bulkscore=0 lowpriorityscore=0 impostorscore=0 phishscore=0 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603030077
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603030086
 
-Announce that mlx5_core supports asynchronous probing.
+Hi Frederic,
 
-Tests on s390 - where VFs can show up isolated from their PF in OS
-instances - showed symptoms of "mlx5_core: probe of 00e7:00:00.0 failed
-with error -12" when booting a system with a large number (> 250) of
-Mellanox Technologies ConnectX Family mlx5Gen Virtual Function
-(15b3:101e) PCI functions.
+On 2/6/26 7:52 PM, Frederic Weisbecker wrote:
+> The dyntick-idle cputime accounting always assumes that IRQ time
+> accounting is enabled and consequently stops elapsing the idle time
+> during dyntick-idle IRQs.
+> 
+> This doesn't mix up well with disabled IRQ time accounting because then
+> idle IRQs become a cputime blind-spot. Also this feature is disabled
+> on most configurations and the overhead of pausing dyntick-idle
+> accounting while in idle IRQs could then be avoided.
+> 
+> Fix the situation with conditionally pausing dyntick-idle accounting
+> during idle IRQs only if neither native vtime (which does IRQ time
+> accounting) nor generic IRQ time accounting are enabled.
+> 
+> Also make sure that the accumulated IRQ time is not accidentally
+> substracted from later accounting.
+> 
+> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+> ---
+>   kernel/sched/cputime.c | 24 +++++++++++++++++++++---
+>   kernel/sched/sched.h   |  1 +
+>   2 files changed, 22 insertions(+), 3 deletions(-)
+> 
+> diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c
+> index d588a4a50e57..92fa2f037b6e 100644
+> --- a/kernel/sched/cputime.c
+> +++ b/kernel/sched/cputime.c
+> @@ -46,7 +46,8 @@ static void irqtime_account_delta(struct irqtime *irqtime, u64 delta,
+>   	u64_stats_update_begin(&irqtime->sync);
+>   	cpustat[idx] += delta;
+>   	irqtime->total += delta;
+> -	irqtime->tick_delta += delta;
+> +	if (!irqtime->idle_dyntick)
+> +		irqtime->tick_delta += delta;
 
-Turns out that this is due to systemd-udev's time-out supervision of
-"modprobe" killing the sequential initialization of additional functions
-if probing exceeds a default of 180 seconds.
+Wouldn't kcpustat_idle_dyntick achieve the same thing?
 
-According to [1] device drivers could (slow ones should!) opt-in to have
-their probe step being executed asynchronously - and interleaved. With
-the mlx5_core device driver announcing PROBE_PREFER_ASYNCHRONOUS as
-proposed by this patch, we've measured 275 VFs being probed successfully
-in about 60 seconds.
+>   	u64_stats_update_end(&irqtime->sync);
+>   }
+>   
+> @@ -81,6 +82,16 @@ void irqtime_account_irq(struct task_struct *curr, unsigned int offset)
+>   		irqtime_account_delta(irqtime, delta, CPUTIME_SOFTIRQ);
+>   }
+>   
+> +static inline void irqtime_dyntick_start(void)
+> +{
+> +	__this_cpu_write(cpu_irqtime.idle_dyntick, true);
+> +}
+> +
+> +static inline void irqtime_dyntick_stop(void)
+> +{
+> +	__this_cpu_write(cpu_irqtime.idle_dyntick, false);
+> +}
+> +
+>   static u64 irqtime_tick_accounted(u64 maxtime)
+>   {
+>   	struct irqtime *irqtime = this_cpu_ptr(&cpu_irqtime);
+> @@ -94,6 +105,9 @@ static u64 irqtime_tick_accounted(u64 maxtime)
+>   
+>   #else /* !CONFIG_IRQ_TIME_ACCOUNTING: */
+>   
+> +static inline void irqtime_dyntick_start(void) { }
+> +static inline void irqtime_dyntick_stop(void) { }
+> +
+>   static u64 irqtime_tick_accounted(u64 dummy)
+>   {
+>   	return 0;
+> @@ -444,6 +458,7 @@ void kcpustat_dyntick_stop(u64 now)
+>   		WARN_ON_ONCE(!kc->idle_dyntick);
+>   		kcpustat_idle_stop(kc, now);
+>   		kc->idle_dyntick = false;
+> +		irqtime_dyntick_stop();
+>   		vtime_dyntick_stop();
+>   		steal_account_process_time(ULONG_MAX);
+>   	}
+> @@ -455,6 +470,7 @@ void kcpustat_dyntick_start(u64 now)
+>   
+>   	if (!vtime_generic_enabled_this_cpu()) {
+>   		vtime_dyntick_start();
+> +		irqtime_dyntick_start();
+>   		kc->idle_dyntick = true;
+>   		kcpustat_idle_start(kc, now);
+>   	}
+> @@ -464,7 +480,8 @@ void kcpustat_irq_enter(u64 now)
+>   {
+>   	struct kernel_cpustat *kc = kcpustat_this_cpu;
+>   
+> -	if (!vtime_generic_enabled_this_cpu())
+> +	if (!vtime_generic_enabled_this_cpu() &&
+> +	    (irqtime_enabled() || vtime_accounting_enabled_this_cpu()))
+>   		kcpustat_idle_stop(kc, now);
+>   }
+Scenario: context_tracking is not enabled(since nohz_full or isolcpus not specified) and
+irqtime/native is not enabled. ( config is CONFIG_VIRT_CPU_ACCOUNTING_GEN + IRQ_TIME=n)
 
-[1] https://www.kernel.org/doc/html/latest/driver-api/infrastructure.html
 
-Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
----
-Hi all,
+cpu goes into tickless mode. Gets irqs, but kcpustat_irq_enter/exit is nop.
+Then the time it spent in irq is still accounted for idle time, during kcpustat_dyntick_stop?
 
-this patch helps to speed up boot times when there are a large numbers
-of Mellanox/NVidia VFs in a configuration. Although we've seens real
-issues, I'm hesitating to declare this a fix of commit 9603b61de1ee
-("mlx5: Move pci device handling from mlx5_ib to mlx5_core") primarily
-because the concept of asynchronous probing with commit 765230b5f084
-("driver-core: add asynchronous probing support for drivers") was
-introduced only later.
+Who is going to account the irq time in this case?
 
-Thanks,
-Gerd Bayer
----
- drivers/net/ethernet/mellanox/mlx5/core/main.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index fdc3ba20912e4fbc53c65825c62e868996eff56d..b53fc3f2566acf5a07cb8df649124c4a87f3e043 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -2306,6 +2306,9 @@ static struct pci_driver mlx5_core_driver = {
- 	.sriov_configure   = mlx5_core_sriov_configure,
- 	.sriov_get_vf_total_msix = mlx5_sriov_get_vf_total_msix,
- 	.sriov_set_msix_vec_count = mlx5_core_sriov_set_msix_vec_count,
-+	.driver		= {
-+		.probe_type	= PROBE_PREFER_ASYNCHRONOUS,
-+	}
- };
- 
- /**
-
----
-base-commit: c69855ada28656fdd7e197b6e24cd40a04fe14d3
-change-id: 20260303-parprobe_mlx5-d10d2a746d3a
-
-Best regards,
--- 
-Gerd Bayer <gbayer@linux.ibm.com>
+>   
+> @@ -472,7 +489,8 @@ void kcpustat_irq_exit(u64 now)
+>   {
+>   	struct kernel_cpustat *kc = kcpustat_this_cpu;
+>   
+> -	if (!vtime_generic_enabled_this_cpu())
+> +	if (!vtime_generic_enabled_this_cpu() &&
+> +	    (irqtime_enabled() || vtime_accounting_enabled_this_cpu()))
+>   		kcpustat_idle_start(kc, now);
+>   }
+>   
+> diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+> index d30cca6870f5..cf677ff12b10 100644
+> --- a/kernel/sched/sched.h
+> +++ b/kernel/sched/sched.h
+> @@ -3307,6 +3307,7 @@ static inline void sched_core_tick(struct rq *rq) { }
+>   #ifdef CONFIG_IRQ_TIME_ACCOUNTING
+>   
+>   struct irqtime {
+> +	bool			idle_dyntick;
+>   	u64			total;
+>   	u64			tick_delta;
+>   	u64			irq_start_time;
 
