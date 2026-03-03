@@ -1,138 +1,147 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D78863890E9;
-	Tue,  3 Mar 2026 19:56:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772567776; cv=none; b=UZf84atDxYdzOlZ62ATudKTjWCJLwCGWnz46FpQwU0DV01ji9DLG7HzuSOf145kxA3aqtgpEVpE+MRcLEh3ZTtdmfKGQRQrMP4/G0mcbOUmxsvybm13gCRShPrZ0jAy+D6QL0J9iMJt/d34RX8tO7WrJedTIVRXUNy9Rvbi2hfA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772567776; c=relaxed/simple;
-	bh=9sr6A1ZQ/OAOM0MyaKuNScWB7UA08hne7lVI9ssYSPg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oYoTYjaKU31rDK5RzhF2BbBUGjdBu104ZgDQWBpvi8jBNu2GchXWxU+YCU5vZbWNT8U4yymINOqPxIW6Q8MDM0GrGES+RGEhZ5WqhGnnQqQ9vD39/r5oDJbwHt3xKjnvWIhl7T/UxEwERsyF15UBwl+WplbBdYITXA5fV6wdMxE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mHMra/+s; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EB17386C35
+	for <linux-s390@vger.kernel.org>; Tue,  3 Mar 2026 20:49:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.174
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772570962; cv=pass; b=tIaD8XAIt27tVdXb3nSuCmXzX3xHcOXonyIxed//8nET9GRThOjgeVawf0TcbVyw4GLmnJ976gh1tP13Pw6M2hAGLaJQBf3WEgxAucg99Zza6d3B0Rd3UDbaqmK4/wAC9zQXPryLrQ2gOQ6sCQlHoA+UMEo0V9QQXZjcQVt56/4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772570962; c=relaxed/simple;
+	bh=z5K9TC0MkEO8By22h3GqX8xxcKLeF0UtxgZ/D1gjfh8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=NiIuPw3zUoke6J3Xl7J/AoLZozKk0IyKbnnhBmEPflj0o/2Yv4zbTLguPXYI4oV9qZYcg++17E2Kgr73MjN5ZDlzk/ghQvm4yPIqkeIVfaTTT6exXMKFAQ5fTtNZz9PFsLmVdw3WeB/h+5J3ED9H8G6gSMxn3C2U/nKAFab9uQk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MC/6UvpH; arc=pass smtp.client-ip=74.125.82.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mHMra/+s"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1644C116C6;
-	Tue,  3 Mar 2026 19:56:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772567774;
-	bh=9sr6A1ZQ/OAOM0MyaKuNScWB7UA08hne7lVI9ssYSPg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=mHMra/+se8TmXPAvXWkLhgpf0kETRB4dEaJCtUtlUTftYpe0ReqfitRfwD4MGq4+T
-	 WuzDe+k5qMfwF8Pvg7plbRdHjZuWKh+IB7lEOogeIHeGkKvwd2/EpZagMr99KeT7V+
-	 XN7WYkTp/J6gkuhSVqd3D55QMpvT59XaPLLtFxjhlFBUF5SPdV1HoakLZQKIIo/fdH
-	 BGibgd4432V2o3DyL8VfocxjZKarY5SdEW/Gzxyc6CkyylsV/unCa5mrJJyTo1wkxn
-	 QMVCX29BeW41faad8f8MgUVR1waChaWC40npYyOs3agb3dJecKXchWeHWLYBSYXFrd
-	 nwEHrCxoK1HSw==
-Date: Tue, 3 Mar 2026 11:55:17 -0800
-From: Eric Biggers <ebiggers@kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Peter Zijlstra <peterz@infradead.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Matt Turner <mattst88@gmail.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Dan Williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>,
-	David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>,
-	Song Liu <song@kernel.org>, Yu Kuai <yukuai@fnnas.com>,
-	Li Nan <linan122@huawei.com>, linux-alpha@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-	linux-crypto@vger.kernel.org, linux-btrfs@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: [PATCH 01/25] xor: assert that xor_blocks is not called from
- interrupt context
-Message-ID: <20260303195517.GC2846@sol>
-References: <20260226151106.144735-1-hch@lst.de>
- <20260226151106.144735-2-hch@lst.de>
- <20260227142455.GG1282955@noisy.programming.kicks-ass.net>
- <20260303160050.GB7021@lst.de>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MC/6UvpH"
+Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-2bdff6c15a5so165087eec.3
+        for <linux-s390@vger.kernel.org>; Tue, 03 Mar 2026 12:49:21 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1772570960; cv=none;
+        d=google.com; s=arc-20240605;
+        b=USyme/T37kQAJybRP7XBfORoGmc8UXOfN2toB3yqKCLmFcARXWToC6v6fjNQrz5Utu
+         u2ABfDXn72gDnYFvYTuwlj37TfP3bqc3sGTIr1ysXP/mGzkRBLUMS/e72edjY/zcsgBS
+         re26snd+mQCYU5NwhORTzMtiCY8yrqf76zB0j5Sp21NAwknqM9CydR9CUq11Bqpnv9D4
+         SaSaKaI79J1Y1LrGWj6SwjD9K5ibUnLZodOmINAYblQFygc4F+alQCpZKu0dFAkE4xnH
+         TXZ5KebvBa7Fi9IpUB5p7sZgdSaiHDR8ykzjx7pVtSj0bhdgE2nbdqAqGMC1cnfq/CTP
+         +VfQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=z5K9TC0MkEO8By22h3GqX8xxcKLeF0UtxgZ/D1gjfh8=;
+        fh=1qcvCyPZXAOjVOoJItOQp0qosIsJwVnIzyR6XBFtlI0=;
+        b=Mh1VkTkw2mX/qmECPjXSz3DDy935jgr1Kxa9saxhxYRUeT9yaRR97jC8SxZiI1aFkq
+         qe4JbnwXhCPlBzrtttAutY8ymnQrDYBFImwf/GvER5jfvhF0DOeWla8IcHKZBlwQEawL
+         WlTkXK95IdfIzCGW/7STQU2UPdauLXjmbfYMygp4O0gkU+uMhH4Ui9DXlpBKM84vU38+
+         F77V8CH5nqfNHqFp77QBHWTFk5HOEoaCtixJ6KdA8kVlaGedn+SWWQ+kXu5TkAebBTqb
+         tZ8BegKgcUV0I0E540i51Ad5yPuamDc4Pg8H7nTrAYLUmiMU3C3CHb2Qc/AT2PkgzX4H
+         gkNw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1772570960; x=1773175760; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=z5K9TC0MkEO8By22h3GqX8xxcKLeF0UtxgZ/D1gjfh8=;
+        b=MC/6UvpHT4SEnjb/NMu4nCD7Y/CgFLGhB10BzWPvEDjKvZA2lZ9okaGCUCGB3IbeLy
+         cGgqGyj71FN7/CioLy93vdYXiKOMJe3vR+j+biXyjvWiP1VvwY0SpZuEnET7WI0E0PLq
+         BBf1WqOSwDjAumUHPBfJGMcqZXc4B6Yuz6rp/ed69z6jmhyN3Yhj3DTtzwNIYZQmx/SF
+         jhT5DwBvS3xmxNKPvfei0LpqgbJOmZuKLyUK2wYyCE/Tg1IJjSJ0URjLr+TYYhp768vW
+         OGrdSbrtyYfSf/xo+vB+w4pxsweRRJyYX/6uv1dcXSw8p0Wob8DVrGmxbm0/OVwZigJr
+         6Z+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772570960; x=1773175760;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=z5K9TC0MkEO8By22h3GqX8xxcKLeF0UtxgZ/D1gjfh8=;
+        b=SUkU0KfrrkficMSNqIZ4DMmLN5wjgZdDs32VtM4fzJ4fHPWJCJW0KsOAEDc4V1C3qj
+         zzms0qZ0r2sGSzur+LnkFhVdyigC0Mq6ZmzCHePMNqZMZqAtxmDqYSZ5ZTBMeNhkNmMT
+         agQiT2/847sYDugCzaGKAqTLqrvA+qgvnFLLO3d3MFQoFjLL80rqEE514tPLzyQZUbX+
+         R83BY3N3tRhfRKfSqBUokH6eVn/eQ29Wv3fvQ2m6PuoOWEfsCtAWBjjKukQ3tRRMveQJ
+         kGucTcT+WpJk8+bRn9hRF65N7qz6G9bOD10I4WyANDLgK8g9LXnMHeHYUmtgNGH54S8x
+         w82g==
+X-Forwarded-Encrypted: i=1; AJvYcCUISv5mhZ8Yjh9YIadOYIF+cVcHprSBWmuQHJAEwlGBwgLlqOx6NxdeUN6VGHDzbrKpy8DD7WF7Lse/@vger.kernel.org
+X-Gm-Message-State: AOJu0YyvubMF7PaoPJWfT4Nl2PqrUrJy+6wYsqobcfAvtyVY/hFQBX5w
+	0hgH69ZXnW6RaImZU17jda8GPBD6J3AeGCLQnDHRIq4cUnv1SlfWQVi71HpoAJGDp83gfTdJ9tZ
+	5ajOpJsEP0FmvkUbzNTAghwdss/0K2rM=
+X-Gm-Gg: ATEYQzz81EjU+sEOsc4NDZuUQ+SFAyRORt8sH7uFo4YYQMp9ZJ7SzA5ToBKSWsnurv7
+	+JBV9Bab+K6nX2OyGc0z8k9o4G3gUu3ss75v/x7FdksVXuZWe9edtNnR0X3WLMtJWrLfC013PEZ
+	aEKtHwRiiWDWbrQZmYM3DmFAUT3TcBf7WqZQ2Ndeqy4dYPlLwSWKLghKqTsjp/QCIE6Sz/M+Ra5
+	59pl7eVW4G01iXAiw2aYmWa6CJmjIpyhYleSpcSQToP0nZ5jVyhTKqNbgmmT+20oyBjr/jLn/rL
+	DPu/Z2QY+2QtCuRD0AheNXIG24W9Z5YEiu1CXf+MfEJEJ5Qvh22EBR6DhEJlohO4XvLMa8eFWwh
+	54pKgvh8cr++b7Cmzp+4uY3qR
+X-Received: by 2002:a05:7300:231e:b0:2b7:103a:7697 with SMTP id
+ 5a478bee46e88-2bde1d4bc79mr3350396eec.5.1772570960234; Tue, 03 Mar 2026
+ 12:49:20 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260303160050.GB7021@lst.de>
+References: <20260227200848.114019-1-david@kernel.org> <20260227200848.114019-3-david@kernel.org>
+ <aaLh2BxSgC9Jl5iS@google.com> <8a27e9ac-2025-4724-a46d-0a7c90894ba7@kernel.org>
+ <aaVf5gv4XjV6Ddt-@google.com> <f2f3a8a1-3dbf-4ef9-a89a-a6ec20791d1c@kernel.org>
+ <aaVnifbdxKhBddQp@google.com> <5f8dcb7f-9e4f-4484-b160-3a9ce541d63c@kernel.org>
+ <aaWvtn48X8UizaaN@google.com>
+In-Reply-To: <aaWvtn48X8UizaaN@google.com>
+From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Date: Tue, 3 Mar 2026 21:49:06 +0100
+X-Gm-Features: AaiRm50lUTXkxHRxiLsKpWNGF1HIgeoo2SkrDpQfQSxM22wzlSiellk8rvn7q80
+Message-ID: <CANiq72nK8P1rUYw=y3fMzWZR3f_mW2v0_LSLWR1i0dQTtOqu2w@mail.gmail.com>
+Subject: Re: [PATCH v1 02/16] mm/memory: remove "zap_details" parameter from zap_page_range_single()
+To: Alice Ryhl <aliceryhl@google.com>
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>, linux-kernel@vger.kernel.org, 
+	"linux-mm @ kvack . org" <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, 
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, "Liam R. Howlett" <Liam.Howlett@oracle.com>, 
+	Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
+	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Jann Horn <jannh@google.com>, 
+	Pedro Falcato <pfalcato@suse.de>, David Rientjes <rientjes@google.com>, 
+	Shakeel Butt <shakeel.butt@linux.dev>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Jarkko Sakkinen <jarkko@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, =?UTF-8?B?QXJ2ZSBIasO4bm5ldsOlZw==?= <arve@android.com>, 
+	Todd Kjos <tkjos@android.com>, Christian Brauner <brauner@kernel.org>, 
+	Carlos Llamas <cmllamas@google.com>, Ian Abbott <abbotti@mev.co.uk>, 
+	H Hartley Sweeten <hsweeten@visionengravers.com>, Jani Nikula <jani.nikula@linux.intel.com>, 
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, 
+	Tvrtko Ursulin <tursulin@ursulin.net>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
+	Dimitri Sivanich <dimitri.sivanich@hpe.com>, Arnd Bergmann <arnd@arndb.de>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Andrii Nakryiko <andrii@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
+	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, Andy Lutomirski <luto@kernel.org>, 
+	Vincenzo Frascino <vincenzo.frascino@arm.com>, Eric Dumazet <edumazet@google.com>, 
+	Neal Cardwell <ncardwell@google.com>, "David S. Miller" <davem@davemloft.net>, 
+	David Ahern <dsahern@kernel.org>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Miguel Ojeda <ojeda@kernel.org>, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
+	linux-s390@vger.kernel.org, linux-sgx@vger.kernel.org, 
+	intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
+	linux-rdma@vger.kernel.org, bpf@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	netdev@vger.kernel.org, rust-for-linux@vger.kernel.org, x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 03, 2026 at 05:00:50PM +0100, Christoph Hellwig wrote:
-> On Fri, Feb 27, 2026 at 03:24:55PM +0100, Peter Zijlstra wrote:
-> > >  	unsigned long *p1, *p2, *p3, *p4;
-> > >  
-> > > +	WARN_ON_ONCE(in_interrupt());
-> > 
-> > Your changelog makes it sound like you want:
-> > 
-> > 	WARN_ON_ONCE(!in_task());
-> > 
-> > But perhaps something like so:
-> > 
-> > 	lockdep_assert_preempt_enabled();
-> > 
-> > Would do? That ensures we are in preemptible context, which is much the
-> > same. That also ensures the cost of this assertion is only paid on debug
-> > kernels.
-> 
-> No idea honestly.  The kernel FPU/vector helpers generally don't work
-> from irq context, and I want to assert that.  Happy to do whatever
-> version works best for that.
+On Mon, Mar 2, 2026 at 4:41=E2=80=AFPM Alice Ryhl <aliceryhl@google.com> wr=
+ote:
+>
+> It's not relevant in this patch, but another thing that may be useful is
+> to add CLIPPY=3D1 to the make invocation when building normally. This
+> causes additional warnings to be checked using a tool called clippy.
 
-may_use_simd() is the "generic" way to check "can the FPU/vector/SIMD
-registers be used".  However, what it does varies by architecture, and
-it's kind of a questionable abstraction in the first place.  It's used
-mostly by architecture-specific code.
+Yes, please do use `CLIPPY=3D1` -- the build should be Clippy clean
+modulo exceptional cases that may slip through (and soon linux-next
+will probably start reporting those warnings too).
 
-If you union together the context restrictions from all the
-architectures, I think you get: "For may_use_simd() to be guaranteed not
-to return false due to the context, the caller needs to be running in
-task context without hardirqs or softirqs disabled."
+Thanks!
 
-However, some architectures also incorporate a CPU feature check in
-may_use_simd() as well, which makes it return false if some
-CPU-dependent SIMD feature is not supported.
-
-Because of that CPU feature check, I don't think
-"WARN_ON_ONCE(!may_use_simd())" would actually be correct here.
-
-How about "WARN_ON_ONCE(!preemptible())"?  I think that covers the union
-of the context restrictions correctly.  (Compared to in_task(), it
-handles the cases where hardirqs or softirqs are disabled.)
-
-Yes, it could be lockdep_assert_preemption_enabled(), but I'm not sure
-"ensures the cost of this assertion is only paid on debug kernels" is
-worth the cost of hiding this on production kernels.  The consequences
-of using FPU/vector/SIMD registers when they can't be are very bad: some
-random task's registers get corrupted.
-
-- Eric
+Cheers,
+Miguel
