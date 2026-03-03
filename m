@@ -1,123 +1,134 @@
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA57134F48C
-	for <linux-s390@vger.kernel.org>; Tue,  3 Mar 2026 09:12:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 244B61400C;
+	Tue,  3 Mar 2026 09:16:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772529138; cv=none; b=kQs+pXmaCuRpB8qmKFg9NyrBX/oeQFKzDhleI4boBUCdea+s1oCuaR5cktMQZe+JXb1rlQornovzfIhhjaU078SWCNLm6Gi8gTniioQKog2qIAYbIwfSPV0azOH75tRfhw1M1lUtBkURklqZ17rh2AmVz6NJyDIBcaqWLQ5s694=
+	t=1772529421; cv=none; b=QKKmgYQVhHtohLWJdLJhh1R6PwzjZzSEGfEH4Zsrkl9kDLhyS1JC+X82+txY1y30DG/J4Xu7he2lQsR3M66tsk1nlKF6xi8GU5H5/x1wtzJjCLVKebXo/1fS1DcViM+u2ABXLiN/nW2iIpdnRiMpcn9LNQAg0fRHpEv1c5ll0fo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772529138; c=relaxed/simple;
-	bh=ECc7z7tsidz26oiQwOHWeZRLOlNbNjwxKg4L1JltJrw=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Y7dL3ZOI4KmL15mQVAqR5kG0P/a7I8sdBrmFuXjgVNbcEgh1FoRalfXKXmOp0KzKd3wVUPeXk6Iz558XoIvdgryK3tHd+PCr0M9KnCv1J+FE4UVrN2+8qeA68N9oZsKdiHBvKV2jfWJrwCWGYVFXMzq1WPtGLY9btOFr3xVkzAg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D6gbYfiq; arc=none smtp.client-ip=209.85.128.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1772529421; c=relaxed/simple;
+	bh=8l4hat8ARKCC6ftMbifpfcF3e9yWpKScZDJzU+i6L90=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=RJAQCDl+p657HwKJR+//Wd45sU9XsKVsn41jFrMIMuSfJP3cq5Ey2PYMd2ADg0X9QKpSIaHdinknLgg3wXQ2kYgiDCvJ1CQ57++BSCNbFEgtyTZVct76tHPN29+/0ycOXbI8k2q8xwmdbXH/scIsK4Vq5RjsSRh7MQjT8MhMQx8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=f76jqwvk; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D6gbYfiq"
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4837f27cf2dso48065995e9.2
-        for <linux-s390@vger.kernel.org>; Tue, 03 Mar 2026 01:12:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772529135; x=1773133935; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4hy9xICo1EPoOGuMUjTJL88qGfqc1hJzlCloLKGWnZI=;
-        b=D6gbYfiqZ9Rub9Nna+8CpTbHrvLLEBybstalgCCNYJt05H5XiJLBCCrkaJmEVbnx93
-         0DeEZNj+JuPY305863XQwrg2W5OaLpXpiKDVn7ZgSmmvWJfk5840zZpwrBQoxGsVLr2V
-         941nJYizTDY3i1Xx5kR8DX5eJuPf4xhvBWtjtqF28lloXnh68KfNtDSQSNkBBUKoUg/y
-         75+9TOCLECMjRUoh9+A+fQk3sUCtJbO+hb0c3+hLPph8RtG3OlD/lEc8gK/my+ranH9o
-         rvHNfk2gUF1JF9rJtRS/8mjTju073gBH6L927ZI6BGkoDsfJfUfkFC99zJXs7W7YsGdL
-         7UKg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772529135; x=1773133935;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=4hy9xICo1EPoOGuMUjTJL88qGfqc1hJzlCloLKGWnZI=;
-        b=DoQKTFUYIv/WegGKL9e1JkmR2A0OAmrYibY3dCRnlH/Wvhq8RWxPS7fgaSHD/2hUun
-         x0LRF+5TTcVdLqO8FG1ajlb+3ld5XTQee96DIpe63w2OEjkKiqARy00sCxKamVak4m05
-         SHzLgJuLEpuLqZK8/eJXH2SqyQAkZkJnWGkV1GDSq1dCbBs3vz4XAJZpBsXVYOxJpJQe
-         ZhfosFo+dlAsH8CEXAYBPsqcLEqx9bL/gTb0NswLQxYy53CC+n4it/R58GH4SxL0Gr8h
-         Gy4mqdAEIev2ST7Eaw7sb0e+uryF5rCHe1Dkb6x7SG3LFLEEB7WYvrP4QGM+WpjqIEAj
-         exig==
-X-Forwarded-Encrypted: i=1; AJvYcCXNEmvFf89N8kqorIZy+N3EqRWN+JWqBMSR1IHqdil/XT+2B4Y1ux8iNCIhHmTOOKYjT7UK5EfIGMv1@vger.kernel.org
-X-Gm-Message-State: AOJu0YyIFydXIo/jkA7C7/az2h6nejXDIvYlt+ustiEBukLjUR5bzuRN
-	V9UCIBSiztZ8/SyCZz06H1RKj1q3rpY8U5xtETRLwCOSLKaVsqujU5Dz
-X-Gm-Gg: ATEYQzx7M3ViDzvtn5sZn6npuSAri9p1EyOZcSMA28CdZgogvUIlTFNmHNPeXJNO1xj
-	Alc8MuHoiTGmMRhwEUDlQSqhwT6c5SGTNzs/R0Z/c3sHzrj/yPVhPDjIOLUMmjdz9WZfyq6BDMZ
-	Cx6QHZ2CiV3buma+BAXpxs4tlQls/48gxPjMyQ+5BZmN5B6sYy0Oy6kqRzvAWFHKN3lGgPWlF4H
-	w18zPHu+OtxCuv/EGzwP8Vru8K5ZQZ+nA3b/4SoYOiqsjyrg6sQo/L52SKOY2O2yAnNHRbvPWO+
-	rWhq3TluZD47PVqy5eNXw2Xb36/up0+/ns0Kt6rIjW8FnFApLePL7SoT2S37KE5xtQeSHpa+/hG
-	Ca/7VeTE6bOKb+WA0ShCPII0feVJD3K+iYKaFPpH8DCrpqRID29tGTVNbbjuKqRHF+yb65aMZAk
-	akbI/kiC9L6ERcBR/x2+JfGayqCSHHLOXhlH/8I92YcVWbK2kFn0iIpuHLpaIoD9kT
-X-Received: by 2002:a05:600c:3542:b0:480:1e8f:d15f with SMTP id 5b1f17b1804b1-483c9bc5596mr280473755e9.2.1772529134880;
-        Tue, 03 Mar 2026 01:12:14 -0800 (PST)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48512692c14sm13045615e9.7.2026.03.03.01.12.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Mar 2026 01:12:14 -0800 (PST)
-Date: Tue, 3 Mar 2026 09:12:12 +0000
-From: David Laight <david.laight.linux@gmail.com>
-To: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>, Andre Almeida
- <andrealmeid@igalia.com>, Andrew Cooper <andrew.cooper3@citrix.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>, Christian Brauner
- <brauner@kernel.org>, Darren Hart <dvhart@infradead.org>, Davidlohr Bueso
- <dave@stgolabs.net>, Heiko Carstens <hca@linux.ibm.com>, Jan Kara
- <jack@suse.cz>, Julia Lawall <Julia.Lawall@inria.fr>, Linus Torvalds
- <torvalds@linux-foundation.org>, linux-arm-kernel@lists.infradead.org,
- linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, LKML
- <linux-kernel@vger.kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Michael Ellerman
- <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, Nicolas Palix
- <nicolas.palix@imag.fr>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley
- <pjw@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Russell King
- <linux@armlinux.org.uk>, Sven Schnelle <svens@linux.ibm.com>, Thomas
- Gleixner <tglx@linutronix.de>, x86@kernel.org, Kees Cook <kees@kernel.org>,
- akpm@linux-foundation.org
-Subject: Re: [PATCH v2 4/5] uaccess: Disable -Wshadow in
- __scoped_user_access()
-Message-ID: <20260303091212.620241c8@pumpkin>
-In-Reply-To: <e54368a9-9118-476d-b999-bcd60847f0ce@kernel.org>
-References: <20260302132755.1475451-1-david.laight.linux@gmail.com>
-	<20260302132755.1475451-5-david.laight.linux@gmail.com>
-	<e54368a9-9118-476d-b999-bcd60847f0ce@kernel.org>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="f76jqwvk"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6238EmUG2148025;
+	Tue, 3 Mar 2026 09:16:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=9U2gmJ
+	k04jZtTlBKxJFehVeH/R74LYNRxDr5143c7CM=; b=f76jqwvkJu3e2vyG4lGlGJ
+	K/8aMRi9OSs1qFxy8UX9Pyyi1KqbhP86i6Qr9RxDdVYPlFibxtnN53hQN1metP3K
+	ld0DRkjoG7/8O6S3lgJCVtZLUTUWJKACxSwRBHp45umQ16C9unLmICmACgNKtAwT
+	x077THYM/sHDIczflE8UXqzEBk60APtT1WLTF92cxJmP61OMCbG2h25v58X2h4VE
+	jsLLYgit7Im2H21Skv/8RB6Mu47hFJmmDBZqVIYdfBeKXCrLo7xNL7dKPt075s/e
+	CzvVePpAErsyxtOxEyLZ4ZHNMEYFy2GzGTW40201s1P0VEevQNUC64ixAAoxehdg
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cksjda9x0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 03 Mar 2026 09:16:02 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 6235Eeka010335;
+	Tue, 3 Mar 2026 09:16:01 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cmc6k1geg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 03 Mar 2026 09:16:00 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6239FvL244237198
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 3 Mar 2026 09:15:57 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E861C20043;
+	Tue,  3 Mar 2026 09:15:56 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9074720040;
+	Tue,  3 Mar 2026 09:15:55 +0000 (GMT)
+Received: from [9.111.22.130] (unknown [9.111.22.130])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  3 Mar 2026 09:15:55 +0000 (GMT)
+Message-ID: <a3bbf315-536f-429e-afb2-adcbf508a66f@linux.ibm.com>
+Date: Tue, 3 Mar 2026 09:15:55 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] sched: Further restrict the preemption modes
+To: Douglas Freimuth <freimuth@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>, mingo@kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: juri.lelli@redhat.com, vincent.guittot@linaro.org,
+        dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
+        mgorman@suse.de, vschneid@redhat.com, clrkwllms@kernel.org,
+        linux-kernel@vger.kernel.org, linux-rt-devel@lists.linux.dev,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-s390@vger.kernel.org, Matthew Rosato <mjrosato@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>
+References: <20251219101502.GB1132199@noisy.programming.kicks-ass.net>
+ <182f110b-ac63-4db4-8b01-0e841639bc39@linux.ibm.com>
+ <a7180379-04f5-4f61-b60a-0ff7cf85134d@linux.ibm.com>
+ <ec3987e3-4eb7-4d07-be9e-bd8dc9ad176f@linux.ibm.com>
+ <08307223-88ad-4550-963e-5d1ee315023c@linux.ibm.com>
+Content-Language: en-GB
+From: Ciunas Bennett <ciunas@linux.ibm.com>
+In-Reply-To: <08307223-88ad-4550-963e-5d1ee315023c@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=M9BA6iws c=1 sm=1 tr=0 ts=69a6a6d2 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=rVzeq6iDyh4eWtLyzegA:9
+ a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: yRrZXVTmB9EbNCzREd2bXzeB1Bg7orDv
+X-Proofpoint-GUID: 5uJq-KMg5mrQbXFusCWoZeV0_p4HVrtt
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzAzMDA2OCBTYWx0ZWRfXy+cqwaeV6Lp/
+ qibZkH5GwFdbbN6wmvrU4lgP77c8lhjE+hrIWFe/VqLAayvpE1nop7il4FyKgGkamPSDJzp/KSf
+ CdPvCjNsqOLXg9eYb1KdIQ5sVQc/5ECfgQz/pcw8sAIYEsVa8j2GjDNyCGRvqvps57HXbdit4gL
+ nrIVMZiehI/gIbcZKK7RJBObbNz/MM2IqzshAsHeiQeRf81PbMbjAAHNhgKPBXQmJkyrhKhIjAb
+ nbSemp/0sj4CFeKuh3KQzv56HrdgXdkiBvAeXNPXYSiPj8gDGPcOlBoOjp0Kkew5JWi3SRJ2PGv
+ gqVj37wikKqfzBKO3hJ6vZHkUKJjpMgncZENYnjPOl7bvUT36sT7u/NDsrxrcY55CCOJNf4VP06
+ 0ocqbUpQp3qqZjDKR3Rxsgbz/G8sbrCJSiKSxsqbM3S/IXjdcN5WW1aQrYRYa9FFyVO2z9R+qSO
+ C/RXLNDXWSdgYwxRi6g==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-02_05,2026-03-03_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 priorityscore=1501 spamscore=0 adultscore=0 malwarescore=0
+ bulkscore=0 lowpriorityscore=0 impostorscore=0 phishscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603030068
 
-On Mon, 2 Mar 2026 16:00:26 +0100
-"Christophe Leroy (CS GROUP)" <chleroy@kernel.org> wrote:
+A quick update on the issue.
+Introducing kvm_arch_set_irq_inatomic() appears to make the problem go away on my setup.
+That said, this still begs the question: why does irqfd_wakeup behave differently (or poorly) in this scenario compared to the in-atomic IRQ injection path?
+Is there a known interaction with workqueues, contexts, or locking that would explain the divergence here?
 
-> Le 02/03/2026 =C3=A0 14:27, david.laight.linux@gmail.com a =C3=A9crit=C2=
-=A0:
-> > From: David Laight <david.laight.linux@gmail.com>
-> >=20
-> > -Wshadow is enabled by W=3D2 builds and __scoped_user_access() quite
-> > deliberately creates a 'const' shadow of the 'user' address that
-> > references a 'guard page' when the application passes a kernel pointer.
-> >=20
-> > Signed-off-by: David Laight <david.laight.linux@gmail.com> =20
->=20
-> There is a problem with this patch:
+Observations:
+irqfd_wakeup: triggers the problematic behaviour.
+Forcing in-atomic IRQ injection (kvm_arch_set_irq_inatomic): issue not observed.
 
-(badly line-wrapped errors deleted)
+@Peter Zijlstra — Peter, do you have thoughts on how the workqueue scheduling context here could differ enough to cause this regression?
+Any pointers on what to trace specifically in irqfd_wakeup and the work item path would be appreciated.
+Thanks,
+Ciunas Bennett
 
-It seems to need gcc 12.
-(So Linus is in luck.)
+On 25/02/2026 18:30, Douglas Freimuth wrote:
+> 
+> Christian, the patch is very close to ready. The last step, I rebased on Master today to pickup the latest changes to interrupt.c. I am building that now and will test for non-SE and SE environments. I have been testing my solution for SE environments for a few weeks and it seems to cover the use cases I have tested.
+> 
+> 
 
-Prior to gcc 12 the #pragma generated by _Pragma() act as the
-controlled statement of the for () loop.
-
-Trying to put the _Pragma() inside the for statement doesn't work at all.
-
-	David
