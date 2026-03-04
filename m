@@ -1,110 +1,113 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 938C138BF6E;
-	Wed,  4 Mar 2026 08:07:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36E9F31AF2D;
+	Wed,  4 Mar 2026 08:10:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772611663; cv=none; b=gJU+gEr65Ttmq/V3IS8LxHkSGXd7P67NrmSOB4hyzCclbJFd4O9aZpdh6V7seM/ul4CohLwMXdFfjzVB55/XvHjWPjOukwalFqvKV8rpe5DIlvIyxGxZi7IL0IQJa3wci3xvVomFOHM5ogOHKsm77JMaXJjYH6Wytj3NAwLkNO8=
+	t=1772611841; cv=none; b=lZZ3WDGSUEONNdqOGKik4Epk1ftDy18NL2GrYAu/c+9QzT4otbvBnD60JFbVKMkcJ6rM6fdgGPX9TUjiSnv3/8MPsTCGIZV30026mHiIhJMTqjnrd/Kr5u7zfUbxjpdIjzrcxXnR2GJwoNx+A6YjvV1htRsgmupTrBfQ8MzyMGE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772611663; c=relaxed/simple;
-	bh=rcPHcNXrbzxbqx56lp7IHJ1UvVp3M42PMVkX0ErHECo=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
-	 References:In-Reply-To; b=tE0u0di3KQTXAah0KZ3nQS0lfZv/lVxvBWjlgxG+njcF5U/J+l8/K1Hi/D94EcsILuvn3LpkFb6UcHtbvHwxTGE7cJJ5GP+Anh7+DHRkqYbk5zY8YDLspYpnNaEvtfopSrHG1TqaKrpX0ROaxQ8ZlgkK0yPcs64R2tSIpcjBbQ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lUAsbYyo; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1772611841; c=relaxed/simple;
+	bh=x/cjkUsrdE57qY9IYoGwEYkkvopBW35thxqhqdiJIAY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=qWuhvGSvgt+RqdEXOutsXBPR4IGmtHyDVpLq8+D8Hgtin98j0UK18FBjzNEVfI9ReVC+I3Iu0jQJfERJD6o+WtCYCqi1pAmOfAsSk7Z82oDKQU+9vWLAivLB4uDVfKcPfNbvTZZ0fr0PkBY6OtaUyFdN9OL8aS0Inzkx7RMEMbk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZvsY4JxF; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lUAsbYyo"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6246G5Hg790207;
-	Wed, 4 Mar 2026 08:07:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=rcPHcN
-	Xrbzxbqx56lp7IHJ1UvVp3M42PMVkX0ErHECo=; b=lUAsbYyojdSR3YzMfndLR4
-	aCNrVj8rLQ7hK4wJ5PGPJWsAAOpfbQePKLpHaPSQg0TPryY07wtSphwKIdAhQPlS
-	p4oRt/pRn3LQ/3JZOl/UQXusTqjka3/CrT5Iy0NMI0wXHqbLzYuo1YbSb33ZX2wW
-	9jtYQQfR8uHeg0J1DEfeD1RfwZT0+FUTXZyyNjieIeNrIcYlyW/zQoMUWF3QdGFZ
-	ioY+5J/DqXoLEUth8dAi0zw+CLXQzZ5bc2UEx8s4Q8w/vVm79c5pkOe0CPhlkOli
-	oDMGG8gP3tdRuYbt2qj1X1asmoTDI50qSzdrSvF/rXdaKfSFv6jgWVKAM73E2wjQ
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ckskbx1vf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Mar 2026 08:07:24 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62440Gnb003266;
-	Wed, 4 Mar 2026 08:07:23 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cmb2y5xde-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Mar 2026 08:07:23 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62487Kxv39190944
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 4 Mar 2026 08:07:20 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E53252004E;
-	Wed,  4 Mar 2026 08:07:19 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D082F20043;
-	Wed,  4 Mar 2026 08:07:19 +0000 (GMT)
-Received: from darkmoore (unknown [9.52.198.32])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  4 Mar 2026 08:07:19 +0000 (GMT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZvsY4JxF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B53E8C19423;
+	Wed,  4 Mar 2026 08:10:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772611840;
+	bh=x/cjkUsrdE57qY9IYoGwEYkkvopBW35thxqhqdiJIAY=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=ZvsY4JxFcYf52LCAM8zNIoCTUr/ugS8UrXI8DpnABve0PkoahFeUDVQyAZ2T7w5tc
+	 qvDxXw377nK660zLOZq0b1o4TMaqwXcThhKOlEpjZFL0bkvwxztXrr9ZfUwyJTBKr8
+	 cQxEFx0psqwMRwqmtOZEExTbQ7fXQvjYQp1XY9q5+MJUrg2BO+qa42sUoMUFw/UKDM
+	 FTPPks6SNAe+9AFIQxr/FV9a/NoFSZsQPHrTqKnPcpAk+LPhi9vX+9vtaSsBZMqckd
+	 jCBvfJZ1aYZ2JCuOJ5wjnShT63I1i+NIZT0LHit09LZaUnxSAYz27d1DHaKybPv+SF
+	 oKjTezLFpLZ+A==
+Message-ID: <21ee2f0b-ae8e-40b6-ab13-e46f55c34254@kernel.org>
+Date: Wed, 4 Mar 2026 09:10:31 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 04 Mar 2026 09:07:14 +0100
-Message-Id: <DGTUDR1X33NN.3HIXKRYFGQV77@linux.ibm.com>
-From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        <borntraeger@de.ibm.com>, <frankja@linux.ibm.com>, <nsg@linux.ibm.com>,
-        <nrb@linux.ibm.com>, <seiden@linux.ibm.com>, <gra@linux.ibm.com>,
-        <schlameuss@linux.ibm.com>, <hca@linux.ibm.com>, <david@kernel.org>
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, <kvm@vger.kernel.org>
-Subject: Re: [PATCH v1 1/1] KVM: s390: Fix a deadlock
-X-Mailer: aerc 0.21.0
-References: <20260303175206.72836-1-imbrenda@linux.ibm.com>
-In-Reply-To: <20260303175206.72836-1-imbrenda@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: qvAtrHut1EDav7Q-zPUFpP4Qsbfl3Prr
-X-Authority-Analysis: v=2.4 cv=b66/I9Gx c=1 sm=1 tr=0 ts=69a7e83c cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=nFlhKrqNoRUYweW6QhYA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA0MDA2MSBTYWx0ZWRfX7xhsWYancw0I
- LH1EDiIMvqFuynU+iCLzFUxVMnGTlx8iiln+pOfg7irsoJL/0znD2nWfSdqFcGsYOVnbEG5br8c
- zcUUnuRjG0slPDBWl4iBLpdxavP3MMECuwDJaiFchYntWekDjfH4eJF5VZAs7ZGQ0Q5LGJo/h7Y
- wkRk0MxH3JjdkFGy1rGKgmUG97Hf26YuocBrGZHzrfBXE4bO0upoLIbjwioOf7viWOgqdrE/+Mw
- JKzNr1CFjrM21y8PZ6yIGtlaXxXhook30CBfzqWhgHizqw8HWnAnWlD4Zn9qE74j+L4/KRAmlSi
- hSZ/y2GTau/pmcOvQk4eXjQIkzDhSjjJ6lkQHTuEkqF5vn4aznWerzNkZFUddDHPGpp0C1GXBE1
- VM9StawclopdTRm2hWeaGeagJQFk8Jni0bFGed0/Z9FOPXFOc8d9wpo7f4aYk7TMUDcXgkA4PGr
- hiJbxHVUOY+cOVPZhCg==
-X-Proofpoint-GUID: qvAtrHut1EDav7Q-zPUFpP4Qsbfl3Prr
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-04_02,2026-03-03_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 lowpriorityscore=0 phishscore=0 clxscore=1015 adultscore=0
- bulkscore=0 impostorscore=0 malwarescore=0 spamscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603040061
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 01/14] vdso/datastore: Reduce scope of some variables
+ in vvar_fault()
+To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
+ Andy Lutomirski <luto@kernel.org>,
+ Vincenzo Frascino <vincenzo.frascino@arm.com>, Arnd Bergmann
+ <arnd@arndb.de>, "David S. Miller" <davem@davemloft.net>,
+ Andreas Larsson <andreas@gaisler.com>, Nick Alcock <nick.alcock@oracle.com>,
+ John Stultz <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>,
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ Shuah Khan <shuah@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>,
+ Will Deacon <will@kernel.org>, Theodore Ts'o <tytso@mit.edu>,
+ "Jason A. Donenfeld" <Jason@zx2c4.com>, Russell King
+ <linux@armlinux.org.uk>, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Shannon Nelson <sln@onemain.com>,
+ Thomas Gleixner <tglx@kernel.org>
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-kselftest@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+ linux-mips@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20260304-vdso-sparc64-generic-2-v6-0-d8eb3b0e1410@linutronix.de>
+ <20260304-vdso-sparc64-generic-2-v6-1-d8eb3b0e1410@linutronix.de>
+Content-Language: fr-FR
+From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+In-Reply-To: <20260304-vdso-sparc64-generic-2-v6-1-d8eb3b0e1410@linutronix.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Tue Mar 3, 2026 at 6:52 PM CET, Claudio Imbrenda wrote:
-> In some scenarios, a deadlock can happen, involving _do_shadow_pte().
->
-> Convert all usages of pgste_get_lock() to pgste_get_trylock() in
-> _do_shadow_pte() and return -EAGAIN. All callers can already deal with
-> -EAGAIN being returned.
->
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
-Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+
+
+Le 04/03/2026 à 08:48, Thomas Weißschuh a écrit :
+> These variables are only used inside a single branch.
+> 
+> Move their declarations there.
+> 
+> Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+> Tested-by: Andreas Larsson <andreas@gaisler.com>
+> Reviewed-by: Andreas Larsson <andreas@gaisler.com>
+
+Reviewed-by: Christophe Leroy (CS GROUP) <chleroy@kernel.org>
+
+> ---
+>   lib/vdso/datastore.c | 6 ++++--
+>   1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/lib/vdso/datastore.c b/lib/vdso/datastore.c
+> index a565c30c71a0..2cca4e84e5b5 100644
+> --- a/lib/vdso/datastore.c
+> +++ b/lib/vdso/datastore.c
+> @@ -41,8 +41,7 @@ static vm_fault_t vvar_fault(const struct vm_special_mapping *sm,
+>   			     struct vm_area_struct *vma, struct vm_fault *vmf)
+>   {
+>   	struct page *timens_page = find_timens_vvar_page(vma);
+> -	unsigned long addr, pfn;
+> -	vm_fault_t err;
+> +	unsigned long pfn;
+>   
+>   	switch (vmf->pgoff) {
+>   	case VDSO_TIME_PAGE_OFFSET:
+> @@ -54,6 +53,9 @@ static vm_fault_t vvar_fault(const struct vm_special_mapping *sm,
+>   			 * Fault in VVAR page too, since it will be accessed
+>   			 * to get clock data anyway.
+>   			 */
+> +			unsigned long addr;
+> +			vm_fault_t err;
+> +
+>   			addr = vmf->address + VDSO_TIMENS_PAGE_OFFSET * PAGE_SIZE;
+>   			err = vmf_insert_pfn(vma, addr, pfn);
+>   			if (unlikely(err & VM_FAULT_ERROR))
+> 
+
