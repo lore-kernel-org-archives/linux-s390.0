@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6ECE93B9607;
-	Wed,  4 Mar 2026 14:16:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D24F43A453E;
+	Wed,  4 Mar 2026 14:23:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772633805; cv=none; b=mzeeCI2WAXT/n8pM6GEtakIXmcnGt5LXw4CL6Ab89II3KGOoSetwIg9Khre9ZoCQtwbwN0+dcKmNDc05et5NBwjLxIey2Wsort7y9jL4gfAbS4hWkrOTEsCgQis5lwR1ntQOBUTKf7D1Zt/bMhsAyDRj4ywfeoATuSp7jAwOKMY=
+	t=1772634206; cv=none; b=iWHvHB1DGMJnCUBgyxWKqRh1PYUNd6An4+TwYwoJqVfvUW7ddwwjm64Y/Ad0jy4Vepn9Mz+02Uc3LNjAoB1Kx8GdzkyHb+XcUD7pwdOgOWpuqSiYtwkwHz+ts4O9kpnEf34lhIayFdyH4PMlkXxwpvfLWRFLtc+WfThoJn6LFGg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772633805; c=relaxed/simple;
-	bh=QgRllSl/vhdOKbED3p7Re4eZdGFyPMUkURgTM0169qs=;
+	s=arc-20240116; t=1772634206; c=relaxed/simple;
+	bh=uG3fuB1GwbFZ+UKsfHoEbxhjz5+rI3V5/vSouyWMVRg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=phjO+yLVbh0cqj1UqJSQZs8VdriiTY7hDo5OWFavsvCDSDWPrC7QS33Wj4GPpnPy1YWChSc85Y8qTs5tHhBvulSu5YqS/zzz2oC4kf8ktv2xK5wBPotr4sCjZesas/onwrCSnlpDTEZsctzjcSN3B1fr7VfaCZ6uE08dKNPsaqI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZVfxKShW; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=H+YnLjTCbZMYen0tCmscaD3v15H3iO8BUnFbKkSjblrOllUy5x7qztYV8qK5tVaE0XvBKMqEgImaraWfeHz5Jtt8jTRCY909s4glxdzPUIf3tNW85HcTFuyGj0x7ZrkVo7OX2Fk3xmQoO9kd3pq24q9Plb2E1kGwJF6Yy6+zc4g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UyC5r2c7; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZVfxKShW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C96C7C4CEF7;
-	Wed,  4 Mar 2026 14:16:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UyC5r2c7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31BCAC19423;
+	Wed,  4 Mar 2026 14:23:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772633805;
-	bh=QgRllSl/vhdOKbED3p7Re4eZdGFyPMUkURgTM0169qs=;
+	s=k20201202; t=1772634206;
+	bh=uG3fuB1GwbFZ+UKsfHoEbxhjz5+rI3V5/vSouyWMVRg=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ZVfxKShWjLwhoIX1l9qEPogFHwRgsK3fpMTESkFVb3Wh4NeWVUT9U+eKGYqlxGMfp
-	 8A72kjAeq37tnqN+QlK7R24p7GoNtNbrDwmJ1r/R5fssa4NwNts5wrQ0BULf4JZDA8
-	 vM6zMibnLvitT9VsPUCY0kbMDxl1THGvl+WPRKLM6cNnBv27h5HrO3Iwbt7gy2A1AQ
-	 p/9TGaGmrms7+Cl9o5R8vpXJ1MW+Q+zFRaZH4DVO73W/zBfn7Dc2Ajn4DaBj3wzMyZ
-	 Qh54pwyvGno/9vD/W4wCpXiwzJr50McOV7IyKJYuKkKpqb0JaUazT0OqkioVdSLKsD
-	 4BW60SVXdaCZg==
-Date: Wed, 4 Mar 2026 15:16:42 +0100
+	b=UyC5r2c7eGnP5hVGA6hWVnCyP7LWD8h8YEzGs1p22lnC6DowGMrTiq+h6AT0reXIc
+	 GCyLXKUiasXew0Ysvz0RTDuJk+z1G0eb9EQsnP2Plb/rfPOGb8iv++AAjgr8RUaphX
+	 bkI0WlthliB8DfQu2UTOASt4dcdj+54fVfsAyJOVCsxhYAeKU/45ikgKWWhrkn9ObE
+	 YopVId7PeE8xCcML1931chj+EYaH9Zxh6HPgnNjYycInQG3Yuv0xXbGykoP1fyDUVQ
+	 c7NO4QaU6lLr0ut7k7knEfVy/mThoVUc/ycpvAKjUbaVmeQ4M0u1NeI+4Eg2Kb0Zvu
+	 Dw4lZZ9BRg/qw==
+Date: Wed, 4 Mar 2026 15:23:23 +0100
 From: Frederic Weisbecker <frederic@kernel.org>
 To: Heiko Carstens <hca@linux.ibm.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -34,10 +34,10 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 1/9] s390/idle: Fix cpu idle exit cpu time accounting
-Message-ID: <aag-ypLmdyQk0Zxl@localhost.localdomain>
+Subject: Re: [PATCH 2/9] s390/vtime: Fix virtual timer forwarding
+Message-ID: <aahAWwMByLKmEvTu@localhost.localdomain>
 References: <20260218142012.863464-1-hca@linux.ibm.com>
- <20260218142012.863464-2-hca@linux.ibm.com>
+ <20260218142012.863464-3-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -47,46 +47,20 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260218142012.863464-2-hca@linux.ibm.com>
+In-Reply-To: <20260218142012.863464-3-hca@linux.ibm.com>
 
-Le Wed, Feb 18, 2026 at 03:20:04PM +0100, Heiko Carstens a écrit :
-> With the conversion to generic entry [1] cpu idle exit cpu time accounting
-> was converted from assembly to C. This introduced an reversed order of cpu
-> time accounting.
+Le Wed, Feb 18, 2026 at 03:20:05PM +0100, Heiko Carstens a écrit :
+> Since delayed accounting of system time [1] the virtual timer is
+> forwarded by do_account_vtime() but also vtime_account_kernel(),
+> vtime_account_softirq(), and vtime_account_hardirq(). This leads
+> to double accounting of system, guest, softirq, and hardirq time.
 > 
-> On cpu idle exit the current accounting happens with the following call
-> chain:
+> Remove accounting from the vtime_account*() family to restore old behavior.
 > 
-> -> do_io_irq()/do_ext_irq()
->  -> irq_enter_rcu()
->   -> account_hardirq_enter()
->    -> vtime_account_irq()
->     -> vtime_account_kernel()
+> There is only one user of the vtimer interface, which might explain
+> why nobody noticed this so far.
 > 
-> vtime_account_kernel() accounts the passed cpu time since last_update_timer
-> as system time, and updates last_update_timer to the current cpu timer
-> value.
-> 
-> However the subsequent call of
-> 
->  -> account_idle_time_irq()
-> 
-> will incorrectly subtract passed cpu time from timer_idle_enter to the
-> updated last_update_timer value from system_timer. Then last_update_timer
-> is updated to a sys_enter_timer, which means that last_update_timer goes
-> back in time.
-> 
-> Subsequently account_hardirq_exit() will account too much cpu time as
-> hardirq time. The sum of all accounted cpu times is still correct, however
-> some cpu time which was previously accounted as system time is now
-> accounted as hardirq time, plus there is the oddity that last_update_timer
-> goes back in time.
-> 
-> Restore previous behavior by extracting cpu time accounting code from
-> account_idle_time_irq() into a new update_timer_idle() function and call it
-> before irq_enter_rcu().
-> 
-> Fixes: 56e62a737028 ("s390: convert to generic entry") [1]
+> Fixes: b7394a5f4ce9 ("sched/cputime, s390: Implement delayed accounting of system time") [1]
 > Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 
 Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
