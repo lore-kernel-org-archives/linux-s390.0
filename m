@@ -1,46 +1,46 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D0DC388E56;
-	Wed,  4 Mar 2026 07:49:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 992C638F254;
+	Wed,  4 Mar 2026 07:49:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772610559; cv=none; b=bLywyRup7GevESULugY+HgdoJsFv9hNjUBpVNjyfTBcWFp87xDyncQWcxZaGlNKTme5GQiVAR7BMYn8Vo/5jy4LaOHpyT+VK1HYWv0SQUxqr58dcjQHK41wHBPfoqyv4OEDhQdnTup0P3FGDHCmiXDxo9uAhpead5SeEOqBcUb4=
+	t=1772610564; cv=none; b=WvlhDmb0g1hiXQTcDwlsszX9/AsN8Y64AgHVTo43bIfT0iYi/DWWkR0FC56hgk8oYAx3b3u6p/S+IqO2oYNda6TFpD5aAV/2O0qUXdNZAKrooquLrmJtlVnJzHpY37YTmK92nOGPjomyG2pcFITBQe1Sh4hsN4ZL6mQgqzpaNqw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772610559; c=relaxed/simple;
-	bh=/aUGAE0lOrUJa+MXOBug0Q/ajvSLIPP+DTvucfYYpX4=;
+	s=arc-20240116; t=1772610564; c=relaxed/simple;
+	bh=MNZEUW6M8syIcj66jnZDrROQra2sbKC2bYbyN7iI9dE=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=u2rjuKer/bo9nOEk7pJfdxY0Ekr0uT6JzwExxa+s+gzwYMVTi+pHYkIZzl5QM4eRCK/q+1zx4wHk2hqfW3W5EuChxmgZglyjrf4SdTqR1NeSKXTXyYTzmpqoO4BsXg74+ZIq8vXBfq+t6aC2EDxEiBsHrnjW4OUwYidEA31IhFg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=oZeWtxJH; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=AxuBqqoL; arc=none smtp.client-ip=193.142.43.55
+	 In-Reply-To:To:Cc; b=e934yorbp1C0E0IdWZi909XRuBHHpb9LbL2jY47tzMLK13GpH4kQhPa/7Z/g07r4h1XHCj8Hs6Cb1nmstV/2P2gCCNTSCN3x05z/SppnSBb3J1gnJSglMUs012jnw3Du0+cPv9Y2oDEusNKd0Eg4nOCZaMGb2+utIQztmK4eVNQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=lTOD78Xe; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=g73Ugvgn; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="oZeWtxJH";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="AxuBqqoL"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="lTOD78Xe";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="g73Ugvgn"
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1772610552;
+	s=2020; t=1772610555;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/rWvsehRIXce29TNjJEvdZ8YRusQeoqcAoiBdT6kTl0=;
-	b=oZeWtxJHThpkfwfYGkghkvEnTVdlsM0XCEb/Wym4bJzKupBywzgbUBCZVDKNYBet0cCb2Q
-	2iI0P+Ioy1GijdWbe3D5hzpP/gEseijQBkv3oOvrEl0oOLM4WuCvSGeRc+0ANNn9O2LwV9
-	UhAfJje2YCILTSapL1CH/QXQ1nvOKsnZIJAsLQhVAupvI4V3S0YvSj/rQ4WE+rIXnfHnt3
-	2Q296THcr8DxeBTb1UWL5xXUVXdrIsJCrpLVKj7xr8RmK+03rble3I0Hu9KMDP2mTD54SK
-	Ga8uRjXMjVNoBUiypieRIra7M8a9FNqGilIplR3Gj6YAV0lmgctA7Dgrl/kkzA==
+	bh=Bg7n45l3BhxjQl2mgK6tZyeAOE3I5YycolIzoCC4NDY=;
+	b=lTOD78Xe94uc1KdWphFN02t8RRANHlqTV+ltXDRfp88yRt+1aIhBO4PYUjTCOqo6c+L9bg
+	jmaAbSdKVYJq5zS+tSlawyW9Q+NOflyF6BMQ4E/ARa9Nc/k7aTdv/iIEW+fgsTsjOTBeB+
+	pqNaBN2ZdPOSINd2p+kyW83xKMSq4yJcABWiLSWzTSZQKA5oP2AsNW/jDNnjNEyy0mCPvC
+	ozz8c2va6gxS17ckMi6wgp4b3FgLAVwrmCNzTErnG9r2qlS44+e42Mv0LJe0OFi4dRnWL+
+	dl0ZYar8Z8OgutWi40Vte94dZZIZe/1X6Hrcx3Rc+y2V4+vvLJxCxrseelo7vA==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1772610552;
+	s=2020e; t=1772610555;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/rWvsehRIXce29TNjJEvdZ8YRusQeoqcAoiBdT6kTl0=;
-	b=AxuBqqoLpzq5QYZpWIVef0M3XFzmxsqHVppF2Mb0X4xgxSEFKdKhy7MNKJgUaYzIj+nBxt
-	umlJJH43PIE6jLCw==
-Date: Wed, 04 Mar 2026 08:49:00 +0100
-Subject: [PATCH v6 03/14] vdso/datastore: Allocate data pages dynamically
+	bh=Bg7n45l3BhxjQl2mgK6tZyeAOE3I5YycolIzoCC4NDY=;
+	b=g73UgvgnqZt+77yUZp05qYt8zKLP2434x0orfQ+2QiuTsIJXxk3UcM5PQXd5xMNFuAAiwq
+	dKJG/IABFLN8ScAA==
+Date: Wed, 04 Mar 2026 08:49:06 +0100
+Subject: [PATCH v6 09/14] sparc64: vdso: Introduce vdso/processor.h
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,7 +49,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260304-vdso-sparc64-generic-2-v6-3-d8eb3b0e1410@linutronix.de>
+Message-Id: <20260304-vdso-sparc64-generic-2-v6-9-d8eb3b0e1410@linutronix.de>
 References: <20260304-vdso-sparc64-generic-2-v6-0-d8eb3b0e1410@linutronix.de>
 In-Reply-To: <20260304-vdso-sparc64-generic-2-v6-0-d8eb3b0e1410@linutronix.de>
 To: Andy Lutomirski <luto@kernel.org>, 
@@ -76,244 +76,140 @@ Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
  linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, 
  linux-mips@vger.kernel.org, linux-s390@vger.kernel.org, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1772610551; l=8287;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1772610551; l=4546;
  i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=/aUGAE0lOrUJa+MXOBug0Q/ajvSLIPP+DTvucfYYpX4=;
- b=++/j/b9aseUswi3C0/Jm0BXKf1bh4QB7BYWWTiGutU9uVbCtmQb3CosWeSTyVUjxTjIQBFh+n
- eG4Bl4a9vbsBCAaBj2RP6oXcHjceuh4VXShS9rA5fvNNiRzUvtPpCYz
+ bh=MNZEUW6M8syIcj66jnZDrROQra2sbKC2bYbyN7iI9dE=;
+ b=17XaTEXthlAZd+cHLsVCZsZ7RGr32B6aj0u9EBT6lr2dChc81D5X3sAveJ7v3v/7jDkCGypoW
+ yIIPmzALosvDvosr77dMJ4acqURTb45wGP4zJdwYp90fuxyv6epxy/H
 X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
  pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-Allocating the data pages as part of the kernel image does not work on
-SPARC. The MMU will through a fault when userspace tries to access them.
+The generic vDSO library expects a vdso/processor.h with an definition of
+cpu_relax().
 
-Allocate the data pages through the page allocator instead.
-Unused pages in the vDSO VMA are still allocated to keep the virtual
-addresses aligned. Switch the mapping from PFNs to 'struct page' as that
-is required for dynamically allocated pages.
-This also aligns the allocation of the datapages with the code
-pages and is a prerequisite for mlockall() support.
-
-VM_MIXEDMAP is necessary for the call to vmf_insert_page() in the timens
-prefault path to work.
-
-The data pages need to be order-0, non-compound pages so that the
-mapping to userspace and the different orderings work.
-
-These pages are also used by the timekeeping, random pool and
-architecture initialization code. Some of these are running before the
-page allocator is available. To keep these subsytems working without
-changes, introduce early, statically data storage which will then
-replaced by the real one as soon as that is available.
+Split out cpu_relax() into this dedicated header.
 
 Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+Tested-by: Andreas Larsson <andreas@gaisler.com>
+Reviewed-by: Andreas Larsson <andreas@gaisler.com>
+Acked-by: Andreas Larsson <andreas@gaisler.com>
 ---
- include/linux/vdso_datastore.h |  6 +++
- init/main.c                    |  2 +
- lib/vdso/datastore.c           | 92 +++++++++++++++++++++++++++---------------
- 3 files changed, 68 insertions(+), 32 deletions(-)
+ arch/sparc/include/asm/processor.h      |  3 +++
+ arch/sparc/include/asm/processor_32.h   |  2 --
+ arch/sparc/include/asm/processor_64.h   | 25 --------------------
+ arch/sparc/include/asm/vdso/processor.h | 41 +++++++++++++++++++++++++++++++++
+ 4 files changed, 44 insertions(+), 27 deletions(-)
 
-diff --git a/include/linux/vdso_datastore.h b/include/linux/vdso_datastore.h
-index a91fa24b06e0..0b530428db71 100644
---- a/include/linux/vdso_datastore.h
-+++ b/include/linux/vdso_datastore.h
-@@ -2,9 +2,15 @@
- #ifndef _LINUX_VDSO_DATASTORE_H
- #define _LINUX_VDSO_DATASTORE_H
- 
-+#ifdef CONFIG_HAVE_GENERIC_VDSO
- #include <linux/mm_types.h>
- 
- extern const struct vm_special_mapping vdso_vvar_mapping;
- struct vm_area_struct *vdso_install_vvar_mapping(struct mm_struct *mm, unsigned long addr);
- 
-+void __init vdso_setup_data_pages(void);
-+#else /* !CONFIG_HAVE_GENERIC_VDSO */
-+static inline void vdso_setup_data_pages(void) { }
-+#endif /* CONFIG_HAVE_GENERIC_VDSO */
+diff --git a/arch/sparc/include/asm/processor.h b/arch/sparc/include/asm/processor.h
+index 18295ea625dd..e34de956519a 100644
+--- a/arch/sparc/include/asm/processor.h
++++ b/arch/sparc/include/asm/processor.h
+@@ -1,6 +1,9 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+ #ifndef ___ASM_SPARC_PROCESSOR_H
+ #define ___ASM_SPARC_PROCESSOR_H
 +
- #endif /* _LINUX_VDSO_DATASTORE_H */
-diff --git a/init/main.c b/init/main.c
-index 1cb395dd94e4..de867b2693d2 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -105,6 +105,7 @@
- #include <linux/ptdump.h>
- #include <linux/time_namespace.h>
- #include <linux/unaligned.h>
-+#include <linux/vdso_datastore.h>
- #include <net/net_namespace.h>
++#include <asm/vdso/processor.h>
++
+ #if defined(__sparc__) && defined(__arch64__)
+ #include <asm/processor_64.h>
+ #else
+diff --git a/arch/sparc/include/asm/processor_32.h b/arch/sparc/include/asm/processor_32.h
+index ba8b70ffec08..a074d313f4f8 100644
+--- a/arch/sparc/include/asm/processor_32.h
++++ b/arch/sparc/include/asm/processor_32.h
+@@ -91,8 +91,6 @@ unsigned long __get_wchan(struct task_struct *);
+ extern struct task_struct *last_task_used_math;
+ int do_mathemu(struct pt_regs *regs, struct task_struct *fpt);
  
- #include <asm/io.h>
-@@ -1119,6 +1120,7 @@ void start_kernel(void)
- 	srcu_init();
- 	hrtimers_init();
- 	softirq_init();
-+	vdso_setup_data_pages();
- 	timekeeping_init();
- 	time_init();
+-#define cpu_relax()	barrier()
+-
+ extern void (*sparc_idle)(void);
  
-diff --git a/lib/vdso/datastore.c b/lib/vdso/datastore.c
-index 7377fcb6e1df..faebf5b7cd6e 100644
---- a/lib/vdso/datastore.c
-+++ b/lib/vdso/datastore.c
-@@ -1,52 +1,79 @@
- // SPDX-License-Identifier: GPL-2.0-only
+ #endif
+diff --git a/arch/sparc/include/asm/processor_64.h b/arch/sparc/include/asm/processor_64.h
+index 321859454ca4..485070495263 100644
+--- a/arch/sparc/include/asm/processor_64.h
++++ b/arch/sparc/include/asm/processor_64.h
+@@ -182,31 +182,6 @@ unsigned long __get_wchan(struct task_struct *task);
+ #define KSTK_EIP(tsk)  (task_pt_regs(tsk)->tpc)
+ #define KSTK_ESP(tsk)  (task_pt_regs(tsk)->u_regs[UREG_FP])
  
--#include <linux/linkage.h>
-+#include <linux/gfp.h>
-+#include <linux/init.h>
- #include <linux/mm.h>
- #include <linux/time_namespace.h>
- #include <linux/types.h>
- #include <linux/vdso_datastore.h>
- #include <vdso/datapage.h>
- 
--/*
-- * The vDSO data page.
+-/* Please see the commentary in asm/backoff.h for a description of
+- * what these instructions are doing and how they have been chosen.
+- * To make a long story short, we are trying to yield the current cpu
+- * strand during busy loops.
 - */
-+static u8 vdso_initdata[VDSO_NR_PAGES * PAGE_SIZE] __aligned(PAGE_SIZE) __initdata = {};
+-#ifdef	BUILD_VDSO
+-#define	cpu_relax()	asm volatile("\n99:\n\t"			\
+-				     "rd	%%ccr, %%g0\n\t"	\
+-				     "rd	%%ccr, %%g0\n\t"	\
+-				     "rd	%%ccr, %%g0\n\t"	\
+-				     ::: "memory")
+-#else /* ! BUILD_VDSO */
+-#define cpu_relax()	asm volatile("\n99:\n\t"			\
+-				     "rd	%%ccr, %%g0\n\t"	\
+-				     "rd	%%ccr, %%g0\n\t"	\
+-				     "rd	%%ccr, %%g0\n\t"	\
+-				     ".section	.pause_3insn_patch,\"ax\"\n\t"\
+-				     ".word	99b\n\t"		\
+-				     "wr	%%g0, 128, %%asr27\n\t"	\
+-				     "nop\n\t"				\
+-				     "nop\n\t"				\
+-				     ".previous"			\
+-				     ::: "memory")
+-#endif
+-
+ /* Prefetch support.  This is tuned for UltraSPARC-III and later.
+  * UltraSPARC-I will treat these as nops, and UltraSPARC-II has
+  * a shallower prefetch queue than later chips.
+diff --git a/arch/sparc/include/asm/vdso/processor.h b/arch/sparc/include/asm/vdso/processor.h
+new file mode 100644
+index 000000000000..f7a9adc807f7
+--- /dev/null
++++ b/arch/sparc/include/asm/vdso/processor.h
+@@ -0,0 +1,41 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +
- #ifdef CONFIG_GENERIC_GETTIMEOFDAY
--static union {
--	struct vdso_time_data	data;
--	u8			page[PAGE_SIZE];
--} vdso_time_data_store __page_aligned_data;
--struct vdso_time_data *vdso_k_time_data = &vdso_time_data_store.data;
--static_assert(sizeof(vdso_time_data_store) == PAGE_SIZE);
-+struct vdso_time_data *vdso_k_time_data __refdata =
-+	(void *)&vdso_initdata[VDSO_TIME_PAGE_OFFSET * PAGE_SIZE];
++#ifndef _ASM_SPARC_VDSO_PROCESSOR_H
++#define _ASM_SPARC_VDSO_PROCESSOR_H
 +
-+static_assert(sizeof(struct vdso_time_data) <= PAGE_SIZE);
- #endif /* CONFIG_GENERIC_GETTIMEOFDAY */
- 
- #ifdef CONFIG_VDSO_GETRANDOM
--static union {
--	struct vdso_rng_data	data;
--	u8			page[PAGE_SIZE];
--} vdso_rng_data_store __page_aligned_data;
--struct vdso_rng_data *vdso_k_rng_data = &vdso_rng_data_store.data;
--static_assert(sizeof(vdso_rng_data_store) == PAGE_SIZE);
-+struct vdso_rng_data *vdso_k_rng_data __refdata =
-+	(void *)&vdso_initdata[VDSO_RNG_PAGE_OFFSET * PAGE_SIZE];
++#include <linux/compiler.h>
 +
-+static_assert(sizeof(struct vdso_rng_data) <= PAGE_SIZE);
- #endif /* CONFIG_VDSO_GETRANDOM */
- 
- #ifdef CONFIG_ARCH_HAS_VDSO_ARCH_DATA
--static union {
--	struct vdso_arch_data	data;
--	u8			page[VDSO_ARCH_DATA_SIZE];
--} vdso_arch_data_store __page_aligned_data;
--struct vdso_arch_data *vdso_k_arch_data = &vdso_arch_data_store.data;
-+struct vdso_arch_data *vdso_k_arch_data __refdata =
-+	(void *)&vdso_initdata[VDSO_ARCH_PAGES_START * PAGE_SIZE];
- #endif /* CONFIG_ARCH_HAS_VDSO_ARCH_DATA */
- 
-+void __init vdso_setup_data_pages(void)
-+{
-+	unsigned int order = get_order(VDSO_NR_PAGES * PAGE_SIZE);
-+	struct page *pages;
++#if defined(__arch64__)
 +
-+	/*
-+	 * Allocate the data pages dynamically. SPARC does not support mapping
-+	 * static pages to be mapped into userspace.
-+	 * It is also a requirement for mlockall() support.
-+	 *
-+	 * Do not use folios. In time namespaces the pages are mapped in a different order
-+	 * to userspace, which is not handled by the folio optimizations in finish_fault().
-+	 */
-+	pages = alloc_pages(GFP_KERNEL, order);
-+	if (!pages)
-+		panic("Unable to allocate VDSO storage pages");
++/* Please see the commentary in asm/backoff.h for a description of
++ * what these instructions are doing and how they have been chosen.
++ * To make a long story short, we are trying to yield the current cpu
++ * strand during busy loops.
++ */
++#ifdef	BUILD_VDSO
++#define	cpu_relax()	asm volatile("\n99:\n\t"			\
++				     "rd	%%ccr, %%g0\n\t"	\
++				     "rd	%%ccr, %%g0\n\t"	\
++				     "rd	%%ccr, %%g0\n\t"	\
++				     ::: "memory")
++#else /* ! BUILD_VDSO */
++#define cpu_relax()	asm volatile("\n99:\n\t"			\
++				     "rd	%%ccr, %%g0\n\t"	\
++				     "rd	%%ccr, %%g0\n\t"	\
++				     "rd	%%ccr, %%g0\n\t"	\
++				     ".section	.pause_3insn_patch,\"ax\"\n\t"\
++				     ".word	99b\n\t"		\
++				     "wr	%%g0, 128, %%asr27\n\t"	\
++				     "nop\n\t"				\
++				     "nop\n\t"				\
++				     ".previous"			\
++				     ::: "memory")
++#endif /* BUILD_VDSO */
 +
-+	/* The pages are mapped one-by-one into userspace and each one needs to be refcounted. */
-+	split_page(pages, order);
++#else /* ! __arch64__ */
 +
-+	/* Move the data already written by other subsystems to the new pages */
-+	memcpy(page_address(pages), vdso_initdata, VDSO_NR_PAGES * PAGE_SIZE);
++#define cpu_relax()	barrier()
 +
-+	if (IS_ENABLED(CONFIG_GENERIC_GETTIMEOFDAY))
-+		vdso_k_time_data = page_address(pages + VDSO_TIME_PAGE_OFFSET);
++#endif /* __arch64__ */
 +
-+	if (IS_ENABLED(CONFIG_VDSO_GETRANDOM))
-+		vdso_k_rng_data = page_address(pages + VDSO_RNG_PAGE_OFFSET);
-+
-+	if (IS_ENABLED(CONFIG_ARCH_HAS_VDSO_ARCH_DATA))
-+		vdso_k_arch_data = page_address(pages + VDSO_ARCH_PAGES_START);
-+}
-+
- static vm_fault_t vvar_fault(const struct vm_special_mapping *sm,
- 			     struct vm_area_struct *vma, struct vm_fault *vmf)
- {
--	struct page *timens_page = find_timens_vvar_page(vma);
--	unsigned long pfn;
-+	struct page *page, *timens_page;
-+
-+	timens_page = find_timens_vvar_page(vma);
- 
- 	switch (vmf->pgoff) {
- 	case VDSO_TIME_PAGE_OFFSET:
- 		if (!IS_ENABLED(CONFIG_GENERIC_GETTIMEOFDAY))
- 			return VM_FAULT_SIGBUS;
--		pfn = __phys_to_pfn(__pa_symbol(vdso_k_time_data));
-+		page = virt_to_page(vdso_k_time_data);
- 		if (timens_page) {
- 			/*
- 			 * Fault in VVAR page too, since it will be accessed
-@@ -56,10 +83,10 @@ static vm_fault_t vvar_fault(const struct vm_special_mapping *sm,
- 			vm_fault_t err;
- 
- 			addr = vmf->address + VDSO_TIMENS_PAGE_OFFSET * PAGE_SIZE;
--			err = vmf_insert_pfn(vma, addr, pfn);
-+			err = vmf_insert_page(vma, addr, page);
- 			if (unlikely(err & VM_FAULT_ERROR))
- 				return err;
--			pfn = page_to_pfn(timens_page);
-+			page = timens_page;
- 		}
- 		break;
- 	case VDSO_TIMENS_PAGE_OFFSET:
-@@ -72,24 +99,25 @@ static vm_fault_t vvar_fault(const struct vm_special_mapping *sm,
- 		 */
- 		if (!IS_ENABLED(CONFIG_TIME_NS) || !timens_page)
- 			return VM_FAULT_SIGBUS;
--		pfn = __phys_to_pfn(__pa_symbol(vdso_k_time_data));
-+		page = virt_to_page(vdso_k_time_data);
- 		break;
- 	case VDSO_RNG_PAGE_OFFSET:
- 		if (!IS_ENABLED(CONFIG_VDSO_GETRANDOM))
- 			return VM_FAULT_SIGBUS;
--		pfn = __phys_to_pfn(__pa_symbol(vdso_k_rng_data));
-+		page = virt_to_page(vdso_k_rng_data);
- 		break;
- 	case VDSO_ARCH_PAGES_START ... VDSO_ARCH_PAGES_END:
- 		if (!IS_ENABLED(CONFIG_ARCH_HAS_VDSO_ARCH_DATA))
- 			return VM_FAULT_SIGBUS;
--		pfn = __phys_to_pfn(__pa_symbol(vdso_k_arch_data)) +
--			vmf->pgoff - VDSO_ARCH_PAGES_START;
-+		page = virt_to_page(vdso_k_arch_data) + vmf->pgoff - VDSO_ARCH_PAGES_START;
- 		break;
- 	default:
- 		return VM_FAULT_SIGBUS;
- 	}
- 
--	return vmf_insert_pfn(vma, vmf->address, pfn);
-+	get_page(page);
-+	vmf->page = page;
-+	return 0;
- }
- 
- const struct vm_special_mapping vdso_vvar_mapping = {
-@@ -101,7 +129,7 @@ struct vm_area_struct *vdso_install_vvar_mapping(struct mm_struct *mm, unsigned
- {
- 	return _install_special_mapping(mm, addr, VDSO_NR_PAGES * PAGE_SIZE,
- 					VM_READ | VM_MAYREAD | VM_IO | VM_DONTDUMP |
--					VM_PFNMAP | VM_SEALED_SYSMAP,
-+					VM_MIXEDMAP | VM_SEALED_SYSMAP,
- 					&vdso_vvar_mapping);
- }
- 
++#endif /* _ASM_SPARC_VDSO_PROCESSOR_H */
 
 -- 
 2.53.0
