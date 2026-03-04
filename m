@@ -1,93 +1,62 @@
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3700C26E6FA;
-	Wed,  4 Mar 2026 15:07:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E2C3344DB0;
+	Wed,  4 Mar 2026 15:07:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772636833; cv=none; b=Zizcy9+HZcX+QCSHBGB17arXsIc4jpUwiLVuklir2zbhiuSCS52x0R44BVql0S+WQ8q0dWn6opLpLVf8s9/Pygv83TAJ6VCtTfYCKaBX04NDg2ZbvklICRpU2w2XPrKOw6LyMk7WQt4oeavksoonr8rYAERY57Mn1XPmtuc7Teg=
+	t=1772636861; cv=none; b=g85UAmnEn5WLu+Rtyv+wHHVJeHHug1fcS6Kd8urpH4MBN3IxbQCnoR79gR6uja0cWrfbWYeOprsLph1NyfMrpON5XSLQ2T2DoZMhnQiN8RwKHyXd1AWNonyYhydrQApDNOVkGvfjUOiAvOsVujGdsA23ZXSyN/8o0bT0ZzNuwwY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772636833; c=relaxed/simple;
-	bh=9SXhtW4k3MBZjjq2Mkcj04AbBIFzwpuFY2VgDt3g+5E=;
+	s=arc-20240116; t=1772636861; c=relaxed/simple;
+	bh=ztKTt2d8oyhp7VXVhzxskCg4q6wLBMD7QwJKGcJW+3Q=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jg3O8GpBgjdKoZD94vGXT/o6rsrw7ITakRdWYxmQFLCLkb3s87/3JG+Bh1L+5fEh+ZXgitV8N81XEexJaHNvQtgQPL2LeciylfjKpuBm4wkefMxEC7wQIfIBASWpRr2UzrrLa0P1MypqRJzMaIDXbw0YSjoe8/Mu5jMLpkg9IZw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id 61CD968AFE; Wed,  4 Mar 2026 16:06:59 +0100 (CET)
-Date: Wed, 4 Mar 2026 16:06:59 +0100
-From: Christoph Hellwig <hch@lst.de>
+	 Content-Type:Content-Disposition:In-Reply-To; b=DYdmbgfSjCPzwCRgC0nFmnbxUganes1/eeWhO+FSGb/ASMs6Hg7ho+RgYC6tJxjEmZnQS+LVT6W5n9Bz0wu62wo6E9vu8seQCDn0FjUtW71WbLfB+Lm0+stpDY0Ic//+iGjXQUyC0xEBmshMTgM81Q3rr7uDvgjkOzawfE8oMHM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aACN1Gak; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aACN1Gak"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CC0CC4CEF7;
+	Wed,  4 Mar 2026 15:07:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772636861;
+	bh=ztKTt2d8oyhp7VXVhzxskCg4q6wLBMD7QwJKGcJW+3Q=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=aACN1GakVchRRFJA5sTAs6ySfgdS3D8h+s9LcV48OmIf302pml/+2gppp2chiAqwn
+	 Xh4GqByVVfN22Lrg+KWtimQ63DHPtEVgq9L9EveStdftwsvZqDkseGQ5sSqUX/vYN0
+	 MluMCB/k6C7W4WYlgOHoHgPKfK+MbQIbdQevP5YPiEF9xUzdNwOOXDej8X3zAwpQNM
+	 wb8n3SWnBQgvPc2AlBGg8/31dZLHhAdsQvDJwhiFNPoe4NIXpgMz9Myree7jwPBZry
+	 UeL7LvYlQ2iLlkv2Wjs+wbZLj8rlxVhUgpX+sF7t0N03b9yVzASmi1evxWbqJOneaB
+	 JcpvONyyoP6Dw==
+Date: Wed, 4 Mar 2026 16:07:38 +0100
+From: Frederic Weisbecker <frederic@kernel.org>
 To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Eric Biggers <ebiggers@kernel.org>, Christoph Hellwig <hch@lst.de>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Matt Turner <mattst88@gmail.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Dan Williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>,
-	David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>,
-	Song Liu <song@kernel.org>, Yu Kuai <yukuai@fnnas.com>,
-	Li Nan <linan122@huawei.com>, linux-alpha@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-	linux-crypto@vger.kernel.org, linux-btrfs@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: [PATCH 01/25] xor: assert that xor_blocks is not called from
- interrupt context
-Message-ID: <20260304150659.GA23393@lst.de>
-References: <20260226151106.144735-1-hch@lst.de> <20260226151106.144735-2-hch@lst.de> <20260227142455.GG1282955@noisy.programming.kicks-ass.net> <20260303160050.GB7021@lst.de> <20260303195517.GC2846@sol> <20260304150142.10892A0b-hca@linux.ibm.com>
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 5/9] s390/idle: Inline update_timer_idle()
+Message-ID: <aahKuhrNX4gQRNFC@localhost.localdomain>
+References: <20260218142012.863464-1-hca@linux.ibm.com>
+ <20260218142012.863464-6-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20260304150142.10892A0b-hca@linux.ibm.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260218142012.863464-6-hca@linux.ibm.com>
 
-On Wed, Mar 04, 2026 at 04:01:42PM +0100, Heiko Carstens wrote:
-> > Because of that CPU feature check, I don't think
-> > "WARN_ON_ONCE(!may_use_simd())" would actually be correct here.
-> > 
-> > How about "WARN_ON_ONCE(!preemptible())"?  I think that covers the union
-> > of the context restrictions correctly.  (Compared to in_task(), it
-> > handles the cases where hardirqs or softirqs are disabled.)
+Le Wed, Feb 18, 2026 at 03:20:08PM +0100, Heiko Carstens a écrit :
+> Inline update_timer_idle() again to avoid an extra function call. This
+> way the generated code is close to old assembler version again.
 > 
-> I guess, this is not true, since there is at least one architecture which
-> allows to run simd code in interrupt context (but which missed to implement
-> may_use_simd()).
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 
-I'd rather have a strict upper limit that is generally applicable.
-Currently there is no non-task user of this code, and while maybe doing
-XOR recovery for tiny blocks from irq context would be nice, let's defer
-that until we need it.  There is much bigger fish to fry in terms of
-raid performance at the moment.
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+
+-- 
+Frederic Weisbecker
+SUSE Labs
