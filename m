@@ -1,89 +1,154 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9679D352F87;
-	Wed,  4 Mar 2026 19:01:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22C5A3264F5;
+	Wed,  4 Mar 2026 20:16:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772650873; cv=none; b=tzlC8qGRBOITVsh6EH80vHqHDKDPHMGrWJjwT9mQTn6ynccokTiLxh2RHhgMzuLJqiLxaRg74CsfM/mrrgoT1JNWZ0iXMEZ3jfVbHIWImQYdn/fNT3TlpSs+jro6B6YdxQ0z15emudnmoMyu5JzbLZM/RubqwPzwaMeBPmgI9pI=
+	t=1772655403; cv=none; b=DgxE8T7smqS578xaqr2rPMSrQ/yLYSBEbjwE5hUzQ4yK3IbdBFhww4bVdP8JxtFl/RMRHlw2shwPp7ZzjCaNJr4fe9ZJpPtCfvI0e90FXLw2dHk7P58nVu3J9LA0cXncrHhrf2eAiBXbBxHCpXI35+LXXwKaCAgnZV/mQlbbO0U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772650873; c=relaxed/simple;
-	bh=lwP2L98nHTKfys118P4hGp0JhG7RVkMqDOnarwcsXRE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bunXGACmnn0ZAaI8E+Vtk3mmme2Cz7N4G4TSaXUCt9k30EUz7DdyOuMtTssDFHNYvDqSr5v/Q2lUKt73W5ThqNfzbDv+fzxQ5hVcfR6czsKFoLwb4qYp8sEdlAKpVqL4IZdpJtrDZblu+WRInhtlGa9xs2sM6Cy98YkNX0RSQbs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=Ux/svElR; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1772655403; c=relaxed/simple;
+	bh=+iyspxPjL3O2RRORpAzvAAgl0083szT1PhZ+P5by7fo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=hqQrF8G3ZdoWQxawyaUpISSCMKhkNxelqfWHG6QVAqasf7Ipg6nc1h79i38X883VC2rjofoJhE09+hDPZMM8kV9Wu7seJZp9rSU4zYFfe73HjnOQQH18X/ZAopp3rVwgjw0w2Rop+0gdK5yEbWs/CaW9Fl89cX6QHWKzHrr3mUI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cm/09sD/; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Ux/svElR"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=Wh9qbG+FlyiO8UJnUIqCRxZKnSQBC+n2Ht087H8Gkjc=; b=Ux/svElRXHueLOyBqfF1CjH034
-	pVIaaWu+XZ2IzFCkCimQhpcWBz9HZWxXo3fVhBUVfsKzd83PTHdpBmtxIBz/2mEOeJwJMgHCUTHYY
-	zPBWTxPIV4MAJw9I8nQsZAl2i/EIG2gVB/J7B7ks4SVOi2uD4WQdtxAPSGwNJpKbiEYLofE5P1cNw
-	dG5JNemsOusR9NtxvbnEYiu3NLsng+pstSqqwC//Jq1omGSBxGMvOZNQi1if8OH7Awpt9YFIxf5u8
-	gl/KAQsccjpTpyVG559RaXJAx58uOAdor3zwhjmi1zoJUGXCJCAxO1aPyYGmZS/S754Y4GFoZ8vQz
-	cSkTSC1A==;
-Received: from willy by casper.infradead.org with local (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vxrSh-0000000Dl6K-15gd;
-	Wed, 04 Mar 2026 19:00:47 +0000
-Date: Wed, 4 Mar 2026 19:00:47 +0000
-From: Matthew Wilcox <willy@infradead.org>
-To: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
-Cc: Suren Baghdasaryan <surenb@google.com>,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	akpm@linux-foundation.org, david@kernel.org, ziy@nvidia.com,
-	matthew.brost@intel.com, joshua.hahnjy@gmail.com, rakie.kim@sk.com,
-	byungchul@sk.com, gourry@gourry.net, ying.huang@linux.alibaba.com,
-	apopple@nvidia.com, baolin.wang@linux.alibaba.com,
-	Liam.Howlett@oracle.com, npache@redhat.com, ryan.roberts@arm.com,
-	dev.jain@arm.com, baohua@kernel.org, lance.yang@linux.dev,
-	vbabka@suse.cz, jannh@google.com, rppt@kernel.org, mhocko@suse.com,
-	pfalcato@suse.de, kees@kernel.org, maddy@linux.ibm.com,
-	npiggin@gmail.com, mpe@ellerman.id.au, chleroy@kernel.org,
-	borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-	imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-	agordeev@linux.ibm.com, svens@linux.ibm.com,
-	gerald.schaefer@linux.ibm.com, linux-mm@kvack.org,
-	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-	"Ritesh Harjani (IBM)" <ritesh.list@gmail.com>
-Subject: Re: [PATCH v3 2/3] mm: replace vma_start_write() with
- vma_start_write_killable()
-Message-ID: <aaiBX5Mm36Kg0wq1@casper.infradead.org>
-References: <20260226070609.3072570-1-surenb@google.com>
- <20260226070609.3072570-3-surenb@google.com>
- <74bffc7a-2b8c-40ae-ab02-cd0ced082e18@lucifer.local>
- <CAJuCfpHBfhKFeWAtQo4r-ofVtO=5MvG+OToEgc2DEY+cuZDSGw@mail.gmail.com>
- <aadeHiMqhHF0EQkt@casper.infradead.org>
- <CAJuCfpFB1ON8=rkqu3MkrbD2mVBeHLK4122nm9RH31fH3hT2Hw@mail.gmail.com>
- <aael1XWaOJN134la@casper.infradead.org>
- <76aff8f9-1c08-449a-a034-f3b93440d1a8@lucifer.local>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cm/09sD/"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6249FQBM1517870;
+	Wed, 4 Mar 2026 20:16:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=tIzTUx
+	K24q7XtMWqyR7WYtSMlNBaYETqv7k6Y3GNf1A=; b=cm/09sD/hdK943LsY1Qva9
+	lOOLE41oROKsNZixTorNBAjxRYSFVE9nAuHKVpUN/siX059JKqDHGHLEM9SGYbOB
+	5kukCp1KIWYfoAfv9AfnmGu98An/asi78eLZ1X+r6cuJNv6Ls4n1JESBRFL3NlFb
+	V3yKke4cFBX7DR30bC5HF3gBbwdPw2AokJKZZ2KAXz9a6oM5Dpjrah8L19BC9oIf
+	jpF7tIAck4wg35VDCNI3R+rU2o8SwGqmgyWtr3DFzENg2UN/GX+QzG30/pilvDCl
+	CFv2ODe1q239o5xc7HX12aKTukjsSH2x6NdMmCr8Y4zpNn3PrSK/vsjVgcu+TLvw
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ckskd1247-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 04 Mar 2026 20:16:41 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 624I8RFR003284;
+	Wed, 4 Mar 2026 20:16:40 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cmb2y8d0f-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 04 Mar 2026 20:16:40 +0000
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 624KGGll11272768
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 4 Mar 2026 20:16:16 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 822B158055;
+	Wed,  4 Mar 2026 20:16:38 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C1E2A5804B;
+	Wed,  4 Mar 2026 20:16:37 +0000 (GMT)
+Received: from [9.61.30.112] (unknown [9.61.30.112])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  4 Mar 2026 20:16:37 +0000 (GMT)
+Message-ID: <be334141-01d4-4398-b89f-09f84519f29d@linux.ibm.com>
+Date: Wed, 4 Mar 2026 15:16:37 -0500
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <76aff8f9-1c08-449a-a034-f3b93440d1a8@lucifer.local>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/2] KVM: s390: Limit adapter indicator access to
+ mapped page
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, freimuth@linux.ibm.com, imbrenda@linux.ibm.com,
+        borntraeger@linux.ibm.com
+References: <20260303135250.3665-1-frankja@linux.ibm.com>
+ <20260303135250.3665-2-frankja@linux.ibm.com>
+Content-Language: en-US
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <20260303135250.3665-2-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 1Qgm9wz8vZR2jaVxhkkAtYcdJFx_JbNe
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA0MDE2NSBTYWx0ZWRfX6p4mzDL0eVtE
+ 37PUundSDYGCFtyK/Dai7UYZ++4gDBfVG55pDC9XL4Fdf5s0icpXHY/5heavYWr024dYqTjo4mF
+ Xv9UuC24qxXhwe2lJEDIcrlXNJK8EcvU7b08beSfRiaFmajCYMfZpSG+KLW62N4+jWqPpHzGuFZ
+ ngv3R9ZocQdnxtuOgbIcKNLE+H9WUPvYwLzrlwbAk8SGWhWaGlRcFUGol9HaXaNOVqh5/RRpM2Y
+ MKbA/OJFKtBquAmqC3zs5S636JjFf7/EDaCNNBcvQk5/yNT2zEyAYwVwRGct0Yfq3HdSom34PAk
+ WcKqQkWV8uo6pbKwxHNmtTfDsxAlwZCLGgOmz4mfOcog3eHWrZkNRras9jYQu8K1+s5+oSpviOF
+ 6VJ5d3XkNs2rJjgAX4Ex/nhWg9C61UvP+knBGrDxEiS1giQuydpyEupGU6Hw/akR/9CZFesfY9i
+ 28cU40UKEr4sR3lhRaQ==
+X-Authority-Analysis: v=2.4 cv=H7DWAuYi c=1 sm=1 tr=0 ts=69a89329 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=CMI0G6NvRWwute07TxkA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: 1Qgm9wz8vZR2jaVxhkkAtYcdJFx_JbNe
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-04_07,2026-03-04_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 suspectscore=0 phishscore=0 clxscore=1015 priorityscore=1501
+ adultscore=0 bulkscore=0 spamscore=0 malwarescore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603040165
 
-On Wed, Mar 04, 2026 at 04:53:27PM +0000, Lorenzo Stoakes (Oracle) wrote:
-> On Wed, Mar 04, 2026 at 03:24:05AM +0000, Matthew Wilcox wrote:
-> > We could literally return any error code -- it never makes it to
-> > userspace.  I forget where it is, but if you follow the syscall
-> > return to user path, a dying task never makes it to running a single
-> > instruction.
+On 3/3/26 8:46 AM, Janosch Frank wrote:
+> While we check the address for errors, we don't seem to check the bit
+> offsets and since they are 32 and 64 bits a lot of memory can be
+> reached indirectly via those offsets.
 > 
-> Thanks for that Matthew, that makes life easier then.
-> 
-> We can probably replace some of the more horrid if (err == -EINTR) stuff with
-> fatal_signal_pending(current) to be clearer as a result.
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Fixes: 84223598778b ("KVM: s390: irq routing for adapter interrupts.")
+> Suggested-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-Umm.  Be careful?  fatal_signal_pending() may become true at a later
-point, so you may have acquired the lock _and_ fatal_signal_pending()
-can be true.  I'd need to audit a patch to be sure that it's a
-reasonable replacement.
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+
+> ---
+>  arch/s390/kvm/interrupt.c | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
+> 
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 18932a65ca68..1a702e8ef574 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -2724,6 +2724,9 @@ static unsigned long get_ind_bit(__u64 addr, unsigned long bit_nr, bool swap)
+>  
+>  	bit = bit_nr + (addr % PAGE_SIZE) * 8;
+>  
+> +	/* kvm_set_routing_entry() should never allow this to happen */
+> +	WARN_ON_ONCE(bit > (PAGE_SIZE * BITS_PER_BYTE - 1));
+> +
+>  	return swap ? (bit ^ (BITS_PER_LONG - 1)) : bit;
+>  }
+>  
+> @@ -2852,6 +2855,7 @@ int kvm_set_routing_entry(struct kvm *kvm,
+>  			  struct kvm_kernel_irq_routing_entry *e,
+>  			  const struct kvm_irq_routing_entry *ue)
+>  {
+> +	const struct kvm_irq_routing_s390_adapter *adapter;
+>  	u64 uaddr_s, uaddr_i;
+>  	int idx;
+>  
+> @@ -2862,6 +2866,14 @@ int kvm_set_routing_entry(struct kvm *kvm,
+>  			return -EINVAL;
+>  		e->set = set_adapter_int;
+>  
+> +		adapter = &ue->u.adapter;
+> +		if (adapter->summary_addr + (adapter->summary_offset / 8) >=
+> +		    (adapter->summary_addr & PAGE_MASK) + PAGE_SIZE)
+> +			return -EINVAL;
+> +		if (adapter->ind_addr + (adapter->ind_offset / 8) >=
+> +		    (adapter->ind_addr & PAGE_MASK) + PAGE_SIZE)
+> +			return -EINVAL;
+> +
+>  		idx = srcu_read_lock(&kvm->srcu);
+>  		uaddr_s = gpa_to_hva(kvm, ue->u.adapter.summary_addr);
+>  		uaddr_i = gpa_to_hva(kvm, ue->u.adapter.ind_addr);
+
