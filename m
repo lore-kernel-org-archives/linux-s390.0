@@ -1,130 +1,110 @@
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50BDA38C2AD
-	for <linux-s390@vger.kernel.org>; Wed,  4 Mar 2026 07:52:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 938C138BF6E;
+	Wed,  4 Mar 2026 08:07:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772610754; cv=none; b=L/v44DCHQEHrUwG9QDVBBsFmcK/O6cssUWsXrXoa5Cwy7XLR1uvliJys1QI438p8X84Y4JYbRnHSC0FCyLCC/UxWfUW27FfzD8DOujNzL6pEt6OWQSAQQFHY1wsukMfTSSEhQ4Xni6J2ueeeLukslboJ2E0s+N6098t45GOrlS0=
+	t=1772611663; cv=none; b=gJU+gEr65Ttmq/V3IS8LxHkSGXd7P67NrmSOB4hyzCclbJFd4O9aZpdh6V7seM/ul4CohLwMXdFfjzVB55/XvHjWPjOukwalFqvKV8rpe5DIlvIyxGxZi7IL0IQJa3wci3xvVomFOHM5ogOHKsm77JMaXJjYH6Wytj3NAwLkNO8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772610754; c=relaxed/simple;
-	bh=EcLDMvBjjbTD/cKF5y1BkO7ob6e6OBIu3jcREkFicZE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=a+cXLbap6rZc8eKYPHwlzeekGPx66dlpZ709VAV86Q9yOGfjwZaZVhbtQqE3IA6+a0+gGVGF16BxT6N2AdYDaeSlkCh73RONyk+Cp3RqOvt5VAvKgn1PGmQC5/+s8Kmy2w6aGaWq6999wybryWfkbCq8fL5JkM0kJaasQPcN4Yk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=FNnTPrmD; arc=none smtp.client-ip=209.85.221.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1772611663; c=relaxed/simple;
+	bh=rcPHcNXrbzxbqx56lp7IHJ1UvVp3M42PMVkX0ErHECo=;
+	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
+	 References:In-Reply-To; b=tE0u0di3KQTXAah0KZ3nQS0lfZv/lVxvBWjlgxG+njcF5U/J+l8/K1Hi/D94EcsILuvn3LpkFb6UcHtbvHwxTGE7cJJ5GP+Anh7+DHRkqYbk5zY8YDLspYpnNaEvtfopSrHG1TqaKrpX0ROaxQ8ZlgkK0yPcs64R2tSIpcjBbQ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lUAsbYyo; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="FNnTPrmD"
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-439cb5af25bso8565f8f.1
-        for <linux-s390@vger.kernel.org>; Tue, 03 Mar 2026 23:52:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1772610748; x=1773215548; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=iaji8MiSwOMoEhpHJ9TfGIIdRoqWhERpR7BNI+IYVW8=;
-        b=FNnTPrmDvPeJsl7KgOkZBHjigGbAfeWKOyNkXPj/ux+4SYrQn4MTPSHMrouYmSgqIa
-         YuFUNmIKbBGjpl8HC4GdNNkeY3ChhyRlnRpH4V0ri52oDep3hlSTOoliQedMT0Q80eJ/
-         u74NOjzU2/l3poPflXJgxfZbtt5Jd1H9iW1nzjA/GbFpj7Don+kWtej1SpQqfk5AYi09
-         Eb9dLae/TK4h5q3fJZKI1g95C/udZxLAoLe0Upb2/LygfKo5T5+smDUdi37tfQZDsldY
-         1va/Z7NSVaRop+Elt1Nxco58Kr4VF80cTnrvUk2M/x5YabCEcP0q7FV2F+ubPjbxO5dH
-         6ovw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772610748; x=1773215548;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=iaji8MiSwOMoEhpHJ9TfGIIdRoqWhERpR7BNI+IYVW8=;
-        b=whfz8upj4LC1mJmhVoR7Ow8JqcUCUWWMvAtvsjlnuA96D1RyBeyQoZyl3PJDkd9CEN
-         eX2nf4URkegP0/Uxvdlx1zZmL3Z8mzEwsrdB/fpJn8TgqPDds43+fPS41NiXRgHt5bjp
-         PzALqtB8SztDkWeHbeDxcQO8IrUQxRkDNuz1VtNa8TJ/1iFaEipHPmyBdA9c13RGG9P0
-         TUmc7t2pR6ZYo9wD8fKawBKQmL+tGR+/KptB8mZAgGWB2MifL1GIuaxrfJeFjLE+NeIr
-         gbdIhVo9+7k+viri3t5/ussL2Une14ORjQMiqOOfdxkTJKjz4mopWDsE8Sncyy3ji57A
-         v+Ig==
-X-Forwarded-Encrypted: i=1; AJvYcCWZn22z801BqfhyFeS/0ADZHKXaXwEYmUN1/y/4IE5HOw9dWiC6a+HpULrQ3hNkZ7Q46NNjMpzuVU9+@vger.kernel.org
-X-Gm-Message-State: AOJu0YzxWzigo4v+z8e1qI8wXgfIgHP7/rvKVUbaJDRAkC8eXPqHZwsA
-	jw8qVJNEQksfBp65hxkQgTN0US3K71tpvJvVXkxYrXdGe/Btj0B4xftZkycTMY0Mld0=
-X-Gm-Gg: ATEYQzz7nopoMuAQFfFJ4rmwRtATzGgjTIqWFd4nHIz6QZUyJU6gV91VOjEjr65RpNd
-	IRHQsxCgrYwIm9SKTce+g74D/YkKNHpuSPlAB5q6tDyD0P0K+zGbkirRgmQiLan5dgtNUX9hV3R
-	jkXDtwpTRdxXNL8RBjaGW01CMdKOmsVIH3igXwbcXDsZdNHQQ6Zwf9QUPwirzcNl8Zh6G5B/hoD
-	3jg7C0sgbxK1lj8u+bOaa9Up/duvBTU0YEyrS9oA3liQ0oCTWnnm6+D0RASg/kw/5OAsUvJUyLJ
-	JQUYfbaZ0jBWFmJWJ5Xtw+0LugixC6zTnwvtZtTkXSqmIeI5mgVzVhpnciJuFc571nUYDFsivEQ
-	DW0Znr98jZXuh2D6ho6pPppe+q1ZWfQUdCotflfDr0XsxPydXGOwTEK8gRb+2trUUOaArfuVIsA
-	XKc2w9QATTajtHFoyy01bPS0kQfwSlDebWp9icIT/JTBdGNjeo14iihaUgTJA3ggik7J70s08/j
-	FDkVAhWfZLdp58tU5h5C8zCKwtI62cakduXMZtCA+2x24p6TaAGBDa1I1zYHcnXLjOUBt/U1UuJ
-	rO/e
-X-Received: by 2002:a05:6000:4301:b0:439:b886:20d3 with SMTP id ffacd0b85a97d-439c7f7e5b7mr2101563f8f.15.1772610748337;
-        Tue, 03 Mar 2026 23:52:28 -0800 (PST)
-Received: from ?IPV6:2a00:1028:838d:271e:8e3b:4aff:fe4c:a100? (dynamic-2a00-1028-838d-271e-8e3b-4aff-fe4c-a100.ipv6.o2.cz. [2a00:1028:838d:271e:8e3b:4aff:fe4c:a100])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4399c60f764sm42229774f8f.3.2026.03.03.23.52.26
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Mar 2026 23:52:27 -0800 (PST)
-Message-ID: <97a56169-b71c-4ad0-8992-c6e2d381ff02@suse.com>
-Date: Wed, 4 Mar 2026 08:52:26 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lUAsbYyo"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6246G5Hg790207;
+	Wed, 4 Mar 2026 08:07:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=rcPHcN
+	Xrbzxbqx56lp7IHJ1UvVp3M42PMVkX0ErHECo=; b=lUAsbYyojdSR3YzMfndLR4
+	aCNrVj8rLQ7hK4wJ5PGPJWsAAOpfbQePKLpHaPSQg0TPryY07wtSphwKIdAhQPlS
+	p4oRt/pRn3LQ/3JZOl/UQXusTqjka3/CrT5Iy0NMI0wXHqbLzYuo1YbSb33ZX2wW
+	9jtYQQfR8uHeg0J1DEfeD1RfwZT0+FUTXZyyNjieIeNrIcYlyW/zQoMUWF3QdGFZ
+	ioY+5J/DqXoLEUth8dAi0zw+CLXQzZ5bc2UEx8s4Q8w/vVm79c5pkOe0CPhlkOli
+	oDMGG8gP3tdRuYbt2qj1X1asmoTDI50qSzdrSvF/rXdaKfSFv6jgWVKAM73E2wjQ
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ckskbx1vf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 04 Mar 2026 08:07:24 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62440Gnb003266;
+	Wed, 4 Mar 2026 08:07:23 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cmb2y5xde-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 04 Mar 2026 08:07:23 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62487Kxv39190944
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 4 Mar 2026 08:07:20 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E53252004E;
+	Wed,  4 Mar 2026 08:07:19 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D082F20043;
+	Wed,  4 Mar 2026 08:07:19 +0000 (GMT)
+Received: from darkmoore (unknown [9.52.198.32])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  4 Mar 2026 08:07:19 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/8] modules: Move 'struct module_signature' to UAPI
-To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-Cc: David Howells <dhowells@redhat.com>, David Woodhouse
- <dwmw2@infradead.org>, Luis Chamberlain <mcgrof@kernel.org>,
- Daniel Gomez <da.gomez@kernel.org>, Sami Tolvanen <samitolvanen@google.com>,
- Aaron Tomlin <atomlin@atomlin.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Mimi Zohar <zohar@linux.ibm.com>,
- Roberto Sassu <roberto.sassu@huawei.com>,
- Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
- Eric Snowberg <eric.snowberg@oracle.com>, Paul Moore <paul@paul-moore.com>,
- James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
- Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Andrii Nakryiko <andrii@kernel.org>, Martin KaFai Lau
- <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>,
- Song Liu <song@kernel.org>, Yonghong Song <yonghong.song@linux.dev>,
- John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>,
- Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>,
- Jiri Olsa <jolsa@kernel.org>, Shuah Khan <shuah@kernel.org>,
- keyrings@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-modules@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-integrity@vger.kernel.org, linux-security-module@vger.kernel.org,
- linux-kbuild@vger.kernel.org, bpf@vger.kernel.org,
- linux-kselftest@vger.kernel.org
-References: <20260302-module-signature-uapi-v1-0-207d955e0d69@linutronix.de>
-Content-Language: en-US
-From: Petr Pavlu <petr.pavlu@suse.com>
-In-Reply-To: <20260302-module-signature-uapi-v1-0-207d955e0d69@linutronix.de>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Date: Wed, 04 Mar 2026 09:07:14 +0100
+Message-Id: <DGTUDR1X33NN.3HIXKRYFGQV77@linux.ibm.com>
+From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        <borntraeger@de.ibm.com>, <frankja@linux.ibm.com>, <nsg@linux.ibm.com>,
+        <nrb@linux.ibm.com>, <seiden@linux.ibm.com>, <gra@linux.ibm.com>,
+        <schlameuss@linux.ibm.com>, <hca@linux.ibm.com>, <david@kernel.org>
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, <kvm@vger.kernel.org>
+Subject: Re: [PATCH v1 1/1] KVM: s390: Fix a deadlock
+X-Mailer: aerc 0.21.0
+References: <20260303175206.72836-1-imbrenda@linux.ibm.com>
+In-Reply-To: <20260303175206.72836-1-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: qvAtrHut1EDav7Q-zPUFpP4Qsbfl3Prr
+X-Authority-Analysis: v=2.4 cv=b66/I9Gx c=1 sm=1 tr=0 ts=69a7e83c cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=nFlhKrqNoRUYweW6QhYA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA0MDA2MSBTYWx0ZWRfX7xhsWYancw0I
+ LH1EDiIMvqFuynU+iCLzFUxVMnGTlx8iiln+pOfg7irsoJL/0znD2nWfSdqFcGsYOVnbEG5br8c
+ zcUUnuRjG0slPDBWl4iBLpdxavP3MMECuwDJaiFchYntWekDjfH4eJF5VZAs7ZGQ0Q5LGJo/h7Y
+ wkRk0MxH3JjdkFGy1rGKgmUG97Hf26YuocBrGZHzrfBXE4bO0upoLIbjwioOf7viWOgqdrE/+Mw
+ JKzNr1CFjrM21y8PZ6yIGtlaXxXhook30CBfzqWhgHizqw8HWnAnWlD4Zn9qE74j+L4/KRAmlSi
+ hSZ/y2GTau/pmcOvQk4eXjQIkzDhSjjJ6lkQHTuEkqF5vn4aznWerzNkZFUddDHPGpp0C1GXBE1
+ VM9StawclopdTRm2hWeaGeagJQFk8Jni0bFGed0/Z9FOPXFOc8d9wpo7f4aYk7TMUDcXgkA4PGr
+ hiJbxHVUOY+cOVPZhCg==
+X-Proofpoint-GUID: qvAtrHut1EDav7Q-zPUFpP4Qsbfl3Prr
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-04_02,2026-03-03_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 lowpriorityscore=0 phishscore=0 clxscore=1015 adultscore=0
+ bulkscore=0 impostorscore=0 malwarescore=0 spamscore=0 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603040061
 
-On 3/2/26 1:42 PM, Thomas Weißschuh wrote:
-> This structure definition is used outside the kernel proper.
-> For example in kmod and the kernel build environment.
-> 
-> To allow reuse, move it to a new UAPI header.
-> 
-> While it is not a true UAPI, it is a common practice to have
-> non-UAPI interface definitions in the kernel's UAPI headers.
-> 
-> This came up as part of my CONFIG_MODULE_HASHES series [0].
-> But it is useful on its own and so we get it out of the way.
-> 
-> [0] https://lore.kernel.org/lkml/aZ3OfJJSJgfOb0rJ@levanger/
-> 
-> Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
-
-This looks reasonable from my side and reduces code duplication. With
-the removal of MODULE_SIGNATURE_TYPE_MERKLE in patch 6, as reported by
-the AI, the changes seem ok to me. Feel free to add:
-
-Reviewed-by: Petr Pavlu <petr.pavlu@suse.com>
-
--- 
-Thanks,
-Petr
+On Tue Mar 3, 2026 at 6:52 PM CET, Claudio Imbrenda wrote:
+> In some scenarios, a deadlock can happen, involving _do_shadow_pte().
+>
+> Convert all usages of pgste_get_lock() to pgste_get_trylock() in
+> _do_shadow_pte() and return -EAGAIN. All callers can already deal with
+> -EAGAIN being returned.
+>
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
+Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
