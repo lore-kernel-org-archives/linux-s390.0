@@ -1,67 +1,90 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EE153A874C;
-	Wed,  4 Mar 2026 14:49:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E259625B30D;
+	Wed,  4 Mar 2026 14:51:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772635785; cv=none; b=TvJYtm7SGygh13xKXs1AChxHu0VhOM2FP9qlPNcuYyZJ8rH8GufJbA0G3ooeyofh0Z7BLw+OeS+EElGsU3Qk428HeBXn6I3zNWGFJGv28mIokT804dEq6rG4JAsseChMho22SnFOOqri/JfO+kb7v4WNlEgpdDU7iaREFhZRaCc=
+	t=1772635911; cv=none; b=BRsaSvMfHOJ+MneRCvIAmEczl63TIm5XbrzR+HD7vb+Y5p3raq5tLTf5nM0mWN8hQblqJg42ekm0jGEtPSSGGMzNsor5du6dNwnCUkjK17EY/6gWzzU0zFIaGegBafKocMoyT7OEb840aqSNWQfcHdH7PU9bbrj8Vl12XmoB3Fo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772635785; c=relaxed/simple;
-	bh=HLxaqdF0WBZTKqWlVkCPHzZoSpFDeDKiWnbjxx9FLgI=;
+	s=arc-20240116; t=1772635911; c=relaxed/simple;
+	bh=2E+COVdk95EvvOhcxzJIojbkXopuFHW8IBxu52ORtHY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ud+eoizCTsBefJIR+Rntt7XdlOY7Rj3XgD5PV8+957l+5X2OgRMTlydCKstnSzMr7QUmyihLmjFeYT872FTvIAMAxdamqGVXIbDe0B5Nr7WqjM/Qq/lrl2bUC6MnDFkoZui9+tg5NhI+CNqAnpt0EogM32LSEtgIxoxXIHLam0A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jZ7UXzUP; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jZ7UXzUP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92978C4CEF7;
-	Wed,  4 Mar 2026 14:49:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772635784;
-	bh=HLxaqdF0WBZTKqWlVkCPHzZoSpFDeDKiWnbjxx9FLgI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=jZ7UXzUPhlXeqBwbPlYjJrSVrmnKJk2Ee4847TlMRTSHckk6ZhtXgyrqBL5u2ImZB
-	 zVJ4HWOCVCu+WxZx1xx24bq2l7blExS2yzDn75OA6Phkb9T7/uHwShh5O4f4XBR1wH
-	 AMd1V7xr9RIKA68ksm8hD1Lk/MG+7RVtuDxsBiJHjHF2HsifByihUe6MxKU0U9y/5C
-	 CJcouh2dmWofFSTUZaey9fIGSp/dQUxmedb3aDDfNhjOyeJqkB0UaxDlpCkNAn3WsT
-	 gYEY9zlWA6UxIbA02J65G9lxCU1iqe/6hZJU1zbTNgXzOYdtq0yVBYStJkN/xr/HPC
-	 jyBTbCGSlw3ow==
-Date: Wed, 4 Mar 2026 15:49:42 +0100
-From: Frederic Weisbecker <frederic@kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
+	 Content-Type:Content-Disposition:In-Reply-To; b=SvRvGHA/atn+PlQp6LBs78yCPrbszjKDuHqI9hvAAOW4pD7PImdxo5rkIQ8psi85u8PTNJzWdKcTN9/lOcA62e4X/oob/1m8c77+UzFk/XBtIdtGSCXHrECctX5EVGgg2yAoLF+egZudCVAbT8kPJ2HWuQYwAmaOZjIPptt2N4Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
+Received: by verein.lst.de (Postfix, from userid 2407)
+	id 23B5068AFE; Wed,  4 Mar 2026 15:51:35 +0100 (CET)
+Date: Wed, 4 Mar 2026 15:51:34 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Eric Biggers <ebiggers@kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>, Peter Zijlstra <peterz@infradead.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Matt Turner <mattst88@gmail.com>,
+	Magnus Lindholm <linmag7@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 7/9] s390/vtime: Use __this_cpu_read() / get rid of
- READ_ONCE()
-Message-ID: <aahGhuJcDDJqSX_P@localhost.localdomain>
-References: <20260218142012.863464-1-hca@linux.ibm.com>
- <20260218142012.863464-8-hca@linux.ibm.com>
+	Sven Schnelle <svens@linux.ibm.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Dan Williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>,
+	David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>,
+	Song Liu <song@kernel.org>, Yu Kuai <yukuai@fnnas.com>,
+	Li Nan <linan122@huawei.com>, linux-alpha@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+	linux-crypto@vger.kernel.org, linux-btrfs@vger.kernel.org,
+	linux-arch@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: [PATCH 01/25] xor: assert that xor_blocks is not called from
+ interrupt context
+Message-ID: <20260304145134.GA21983@lst.de>
+References: <20260226151106.144735-1-hch@lst.de> <20260226151106.144735-2-hch@lst.de> <20260227142455.GG1282955@noisy.programming.kicks-ass.net> <20260303160050.GB7021@lst.de> <20260303195517.GC2846@sol>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260218142012.863464-8-hca@linux.ibm.com>
+In-Reply-To: <20260303195517.GC2846@sol>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 
-Le Wed, Feb 18, 2026 at 03:20:10PM +0100, Heiko Carstens a écrit :
-> do_account_vtime() runs always with interrupts disabled, therefore use
-> __this_cpu_read() instead of this_cpu_read() to get rid of a pointless
-> preempt_disable() / preempt_enable() pair.
-> 
-> Also there are no concurrent writers to the cpu time accounting fields
-> in lowcore. Therefore get rid of READ_ONCE() usages.
-> 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+On Tue, Mar 03, 2026 at 11:55:17AM -0800, Eric Biggers wrote:
+> may_use_simd() is the "generic" way to check "can the FPU/vector/SIMD
+> registers be used".  However, what it does varies by architecture, and
+> it's kind of a questionable abstraction in the first place.  It's used
+> mostly by architecture-specific code.
 
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+Yeah, I don't think that is quite right here.
 
--- 
-Frederic Weisbecker
-SUSE Labs
+> How about "WARN_ON_ONCE(!preemptible())"?  I think that covers the union
+> of the context restrictions correctly.  (Compared to in_task(), it
+> handles the cases where hardirqs or softirqs are disabled.)
+
+Good enough I guess.  Peter?
+
