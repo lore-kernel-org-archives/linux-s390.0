@@ -1,164 +1,202 @@
-Received: from mail-ot1-f48.google.com (mail-ot1-f48.google.com [209.85.210.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11FA236655E
-	for <linux-s390@vger.kernel.org>; Wed,  4 Mar 2026 03:35:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48DB6387572;
+	Wed,  4 Mar 2026 07:49:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772595310; cv=none; b=er79mwjDCaiIuKDe5K+6okBcifxuaLqq/m6+pvgPC3bAV27Lz13zOZRU5WFl0E7+XLFybX+XSPNnjpPV6RCf1zVhgJ/IHyNvLN3w8ncG1iOrVktCYIlyhvw5ft0SNpqb+FtkwJ0c9Gfn+ZIoO+8DFpDsfDQhKLnQQ2K/eToDLvg=
+	t=1772610558; cv=none; b=dDeqfDNoFQqJ0tIuKb/IveZ9BGX+v8Bv8H2drf7mwvkpH23uEfeLMlB1M79A/IUQ6vfXS1p45H6ngX+TC+gRBDzTAHXox9fdg5JeQWiAdppuqDMnXHBPeyEI8Cx0EYM8+Hb8SdLbdBm7/uZpeRmHi7hk80PXdg7b5kCWxFUyNwk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772595310; c=relaxed/simple;
-	bh=XLiJ2nD8DJIVsSYbftRzQJ/qqbqmFgul82tptWrTWOA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FLYgtUtzgQw/Cy6q3zLT5Q8xAcePEW+vJ0VwrnJwlqgD+zdGma6Ov6s+6otTpNvAuE9U6XbzTsiCSKSLnsmVPw+sb4OstljY9QZgnxjLWPuOK6SbbO5j86SyRVHfyYR95v0KX23Y3vqaBlyvPNRkGSI7sn2EI4pCbbe9PyhJ79o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=V/RVqeIg; arc=none smtp.client-ip=209.85.210.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1772610558; c=relaxed/simple;
+	bh=coa1rVPXvvfSKVXCp1hWICCYNOIY9jhKAe9k08Z13m4=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=tSDO/lHQtkyQkidUxzsHjKVo6G/8ljck/yRkcbLNrFL5kscwVoYiewMrv5uG6g44z4mav0rlhfMYHyI9Zu+aNx95mmna2U/JgWCLtrVKDk9yBfroby+F25hIld6HM36u6TAKHSGDLILwRauwJAO05Z442hLo6I3mllzhFtPsBEY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=o3VFk9ts; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=CQlRXt4X; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="V/RVqeIg"
-Received: by mail-ot1-f48.google.com with SMTP id 46e09a7af769-7d18a9d2b1aso6111970a34.2
-        for <linux-s390@vger.kernel.org>; Tue, 03 Mar 2026 19:35:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1772595307; x=1773200107; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=NrE0zI+7ilR1NedBJHHio8t27882PDymrHrpls6UPoo=;
-        b=V/RVqeIgbll4o4ue74s/NYWOyn6ZZujuTFopUtqhjail3GEAE5/viHb45qoLBheA0C
-         FjThpB0c+lktkioT8cLcDCupPIwr6ZtFjugZdaWmjPYCZvExg28dp2j5GNZKC+dwFIRT
-         nMYTLvuq7I98ei43l1fO8SZa0kkKx926Q5k3OSaMudvEhiEEeEmS0+UTFtTKWPCx5BtH
-         jppJ7leZ920nl2rr1NSxO3EsCbm7kJQgCQktDg8tjxpMgjzbh601eaHfku+ZFLcNfn/I
-         i2IKtcx8h6KQ7DdzF6qyt1xEaUJ+G7gmzB4DX6DIGKuctT6KVr0ZXVqee2uy5eeWmU1x
-         Tdcw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772595307; x=1773200107;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=NrE0zI+7ilR1NedBJHHio8t27882PDymrHrpls6UPoo=;
-        b=enJaXiVLRhwQaQU0ZHo9qfhh585X+Uq2ulOHuirNIbou5U/YKX4yKz7HhTNCdLuf+B
-         UvAVBXdUNLOWEsRt3EUXW31CVNZKRcm2kptz4cIroH+I55BCGwbE7VHk8fy+JovPZxCL
-         1kjFhCEK4dlqGh9kshYSt6efjS06dHrw83LIFwubXqHUiQ0fiCAt9l1rfoqfppiQju+e
-         YesIsfEV0vklOXUrlC9wg2kna1NlD7ehbjqlQP63Oxssr2iAgCSCHRYHg0jGt2KpSa6A
-         xK/Yfb1uftVvCrxglU57OkA2CYwjZa1crWzSoK1UTbMa8ds90QtTzfq0jKbXkZdKFtEr
-         A4Yg==
-X-Forwarded-Encrypted: i=1; AJvYcCXM1lqeYoUKs3CkXsbFG92O6zXjwEvW0U4OW8sOA8YIWs4pxpI5P86aAfBJedAWmkpZdCNKT9Oyewzw@vger.kernel.org
-X-Gm-Message-State: AOJu0YwVB6zwpaQP8acUZ2krD0my1lUgch1Av6npDLCrhINsnQtaXO5G
-	RmCToSxOFRxENbINo4slR7z2lbw2lIJNnB44rAFfFPiUg7yScrZJrcZYGAUS2/ul5r0=
-X-Gm-Gg: ATEYQzyxxZuWoYrY0JHU3BUE9bR6dzTqpueF058ZpFfrb1K0S0s4hrfuHPKQjUDBcF+
-	oMPUOAyxjngyqSPYFCkpvhg4pr3pfkWvJoXVmUn8QrWX4KZVxf8YRlWLkHlPVSnbwgQX3lK1roB
-	0B7e2F5ZwZNbaSorRMDCmBERYxfQOQuWqkhyih0winT5WLAR4sCX8wmOiT8NdQoG9MGVrebTPR1
-	Ze30BNZ3GKd4v3AFZUNeUGdi2r2h+FIWBUUDJweSm/VkTLCM6p/FdrYBdkqtZIo/tzt+vWn6BaS
-	Vil1w3xDAO0IcMmCEtJuYLrNv+tuqhpokDEV+XwG5GIziIZ/b5MBjsDYa+RpVpEvmSPTtCr8+LL
-	bszYFioqW3+27uk8EWYVPMj467TOaFw0TbnUSfSv2+5HkuuoYFdNyRVCauqrR6/nkDlvuWcdX6W
-	m3uW6Ygap2jFD1tzWL6dIbvAnVFpxb084w3gtNOJpqCkLWZ/isHvluAm73uVdmqQpV3jPPnHtzM
-	4weoAgddg==
-X-Received: by 2002:a05:6830:6185:b0:7c7:6977:17cb with SMTP id 46e09a7af769-7d6d139f788mr450044a34.21.1772595307034;
-        Tue, 03 Mar 2026 19:35:07 -0800 (PST)
-Received: from [192.168.1.150] ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7d586653f6asm15202012a34.19.2026.03.03.19.35.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Mar 2026 19:35:06 -0800 (PST)
-Message-ID: <e96e851a-9050-4d8c-b1e5-bc3b5d91a84c@kernel.dk>
-Date: Tue, 3 Mar 2026 20:35:01 -0700
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="o3VFk9ts";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="CQlRXt4X"
+From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1772610551;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=tExRo9EdJB/0iC9aVc7h/nmkEcGApprYnjO2Gut37XU=;
+	b=o3VFk9tsY0/aMCaIuc4w5j5fckonqI0NeQ2OaPUEVz0wvbxECNWJTR+TvcZsXkl2ziILaC
+	opdicwcpYJwtXvsHtTpwtl10xe1cTgjgWhY3aouzwPCfBcCcQSG9m9/M5bZGxJ0g+FiRBO
+	vvzhiQoENAdN1v2fUx/jBTRx7NVQtmsSSzlUkB4jQTymS+h0mbZldRQa/TwOHh61pveuyw
+	yM6wBLtDIuxr8bIzOHARGazYC5nGirsbll4LCewJ6F1CtkvfjFR45nuY5VScT9XxMXXNpe
+	NKbKIw5xrbkDWOi5m3xZoM91SwOhUmIXRMj7ukrYTKOPDqVTYDWrfkeBxhiiTw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1772610551;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=tExRo9EdJB/0iC9aVc7h/nmkEcGApprYnjO2Gut37XU=;
+	b=CQlRXt4Xe4r+u9aUimg3wpTf8//0PYh/7nJ3eh1e5EH3GDK90hhYh1Wq7szQXn2HMf4Z3y
+	zF1suGnKTfLvjqCA==
+Subject: [PATCH v6 00/14] sparc64: vdso: Switch to the generic vDSO library
+Date: Wed, 04 Mar 2026 08:48:57 +0100
+Message-Id: <20260304-vdso-sparc64-generic-2-v6-0-d8eb3b0e1410@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/8] mm: globalize rest_of_page() macro
-To: Yury Norov <ynorov@nvidia.com>, Sean Christopherson <seanjc@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin"
- <mst@redhat.com>, Theodore Ts'o <tytso@mit.edu>,
- Albert Ou <aou@eecs.berkeley.edu>, Alexander Duyck <alexanderduyck@fb.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Alexandra Winter <wintera@linux.ibm.com>,
- Andreas Dilger <adilger.kernel@dilger.ca>,
- Andrew Lunn <andrew+netdev@lunn.ch>, Anna Schumaker <anna@kernel.org>,
- Anton Yakovlev <anton.yakovlev@opensynergy.com>,
- Arnaldo Carvalho de Melo <acme@kernel.org>,
- Aswin Karuvally <aswin@linux.ibm.com>, Borislav Petkov <bp@alien8.de>,
- Carlos Maiolino <cem@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>,
- Chao Yu <chao@kernel.org>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Christian Brauner <brauner@kernel.org>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, David Airlie <airlied@gmail.com>,
- Dominique Martinet <asmadeus@codewreck.org>,
- Dongsheng Yang <dongsheng.yang@linux.dev>, Eric Dumazet
- <edumazet@google.com>, Eric Van Hensbergen <ericvh@kernel.org>,
- Heiko Carstens <hca@linux.ibm.com>, Herbert Xu
- <herbert@gondor.apana.org.au>, Ingo Molnar <mingo@redhat.com>,
- Jaegeuk Kim <jaegeuk@kernel.org>, Jani Nikula <jani.nikula@linux.intel.com>,
- Janosch Frank <frankja@linux.ibm.com>, Jaroslav Kysela <perex@perex.cz>,
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
- Latchesar Ionkov <lucho@ionkov.net>, Linus Walleij <linusw@kernel.org>,
- Madhavan Srinivasan <maddy@linux.ibm.com>, Mark Brown <broonie@kernel.org>,
- Michael Ellerman <mpe@ellerman.id.au>, Miklos Szeredi <miklos@szeredi.hu>,
- Namhyung Kim <namhyung@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- Paolo Abeni <pabeni@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>,
- Paul Walmsley <pjw@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, Simona Vetter <simona@ffwll.ch>,
- Takashi Iwai <tiwai@suse.com>, Thomas Gleixner <tglx@kernel.org>,
- Trond Myklebust <trondmy@kernel.org>, Tvrtko Ursulin <tursulin@ursulin.net>,
- Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
- Yury Norov <yury.norov@gmail.com>, Zheng Gu <cengku@gmail.com>,
- linux-kernel@vger.kernel.org, x86@kernel.org,
- linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, kvm@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-block@vger.kernel.org,
- intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
- dm-devel@lists.linux.dev, netdev@vger.kernel.org, linux-spi@vger.kernel.org,
- linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
- linux-fsdevel@vger.kernel.org, linux-xfs@vger.kernel.org,
- linux-nfs@vger.kernel.org, linux-crypto@vger.kernel.org, linux-mm@kvack.org,
- linux-perf-users@vger.kernel.org, v9fs@lists.linux.dev,
- virtualization@lists.linux.dev, linux-sound@vger.kernel.org
-References: <20260304012717.201797-1-ynorov@nvidia.com>
- <20260303182845.250bb2de@kernel.org>
- <f8d86743-6231-414d-a5e8-65e867123fea@kernel.dk>
- <aaedwFwXh9QXS3Ju@google.com> <aaen2pGs0UeiJqz1@yury>
-Content-Language: en-US
-From: Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <aaen2pGs0UeiJqz1@yury>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/3XPTW7DIBAF4KtErEsFw6+z6j2iLgwMCVJlR5CiR
+ JHvXhyp9aJm+UZ63+g9ScGcsJDj4Uky1lTSPLWg3w7EX8bpjDSFlgkwUMwA0BrKTMt1zF5Lesa
+ p1T0FCioCMmVxAE9a+ZoxpvsLPn22fEnlNufH60/l6/WXlD2ycsooCqNH4QLIwD++0vR9y/OU7
+ u8BycpW2CjLVZeCRjkVo2XagJBmjxIbNXDTpUSjhDaD485bRLtHyT+KM94fKNeBTDPjohwCjnu
+ U2ijOdJdSjRpMjOC0khD/DVyW5QeQOxuZ7AEAAA==
+X-Change-ID: 20250722-vdso-sparc64-generic-2-25f2e058e92c
+To: Andy Lutomirski <luto@kernel.org>, 
+ Vincenzo Frascino <vincenzo.frascino@arm.com>, 
+ Arnd Bergmann <arnd@arndb.de>, "David S. Miller" <davem@davemloft.net>, 
+ Andreas Larsson <andreas@gaisler.com>, Nick Alcock <nick.alcock@oracle.com>, 
+ John Stultz <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>, 
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+ Shuah Khan <shuah@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
+ Will Deacon <will@kernel.org>, Theodore Ts'o <tytso@mit.edu>, 
+ "Jason A. Donenfeld" <Jason@zx2c4.com>, 
+ Russell King <linux@armlinux.org.uk>, 
+ Madhavan Srinivasan <maddy@linux.ibm.com>, 
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+ Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, Shannon Nelson <sln@onemain.com>, 
+ Thomas Gleixner <tglx@kernel.org>, Christophe Leroy <chleroy@kernel.org>
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, 
+ linux-kselftest@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, 
+ linux-mips@vger.kernel.org, linux-s390@vger.kernel.org, 
+ =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>, 
+ Arnd Bergmann <arnd@kernel.org>, Thomas Gleixner <tglx@kernel.org>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1772610551; l=5091;
+ i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
+ bh=coa1rVPXvvfSKVXCp1hWICCYNOIY9jhKAe9k08Z13m4=;
+ b=1H28xfAD2yOev2Vntn45b+s1SK9oRczk3lLIF8UfBKz5V9GWLALD82hoRyRbTygmoK8fcOwwj
+ u+6aLBOPdaYBTLMN8AdpKgc/jYxHLZZSuJ8YVqDQNA3yoqv/LM3Gquk
+X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
+ pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-On 3/3/26 8:32 PM, Yury Norov wrote:
-> My motivation is that it helps to simplify constructions like this:
-> 
-> -               loff_t cmp_len = min(PAGE_SIZE - offset_in_page(srcoff),
-> -                                    PAGE_SIZE - offset_in_page(dstoff));
-> +               loff_t cmp_len = min(rest_of_page(srcoff), rest_of_page(dstoff));
-> 
-> Or this:
-> 
-> -               if (folio_test_highmem(dst_folio) &&
-> -                   chunk > PAGE_SIZE - offset_in_page(dst_off))
-> -                       chunk = PAGE_SIZE - offset_in_page(dst_off);
-> -               if (folio_test_highmem(src_folio) &&
-> -                   chunk > PAGE_SIZE - offset_in_page(src_off))
-> -                       chunk = PAGE_SIZE - offset_in_page(src_off);
-> +               if (folio_test_highmem(dst_folio) && chunk > rest_of_page(dst_off))
-> +                       chunk = rest_of_page(dst_off);
-> +               if (folio_test_highmem(src_folio) && chunk > rest_of_page(src_off))
-> +                       chunk = rest_of_page(src_off);
-> 
-> To a point where I don't have to use my brains to decode them. I agree
-> it's an easy math. It's just too bulky to my (and 9p guys too) taste.
+The generic vDSO provides a lot common functionality shared between
+different architectures. SPARC is the last architecture not using it,
+preventing some necessary code cleanup.
 
-The thing is, now I have to go lookup what on earth rest_of_page() does,
-whereas PAGE_SIZE - offset_in_page(page) is immediately obvious. It's a
-classic case of "oh let's add this helper to simplify things" which
-really just makes it worse, because now you have to jump to the
-definition of rest_of_page().
+Make use of the generic infrastructure.
 
-IOW, just no.
+Follow-up to and replacement for Arnd's SPARC vDSO removal patches:
+https://lore.kernel.org/lkml/20250707144726.4008707-1-arnd@kernel.org/
 
+SPARC64 can not map .bss into userspace, so the vDSO datapages are
+switched over to be allocated dynamically.
+
+Tested on a Niagara T4 and QEMU.
+
+This has emantic conflicts with
+* "vdso: Reject absolute relocations during build" [0]
+* "vDSO: Respect COMPAT_32BIT_TIME" [1]
+
+But I expect both other serieses to need more discussions.
+
+[0] https://lore.kernel.org/lkml/20250812-vdso-absolute-reloc-v4-0-61a8b615e5ec@linutronix.de/
+[1] https://lore.kernel.org/lkml/20260227-vdso-compat_32bit_time-v1-0-3f0286a7bac3@linutronix.de/
+
+Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+---
+Changes in v6:
+- Provide statically allocated during early boot to avoid canges to the rng core
+- Use non-compound data pages
+- Reword commit messages
+- Rebase on v7.0-rc1
+- Link to v5: https://lore.kernel.org/r/20251106-vdso-sparc64-generic-2-v5-0-97ff2b6542f7@linutronix.de
+
+Changes in v5:
+- Merge the patches for 'struct page' mapping and dynamic allocation
+- Zero out newly-allocated data pages
+- Pick up review tags
+- Link to v4: https://lore.kernel.org/r/20251014-vdso-sparc64-generic-2-v4-0-e0607bf49dea@linutronix.de
+
+Changes in v4:
+- Rebase on v6.18-rc1.
+- Keep inclusion of asm/clocksource.h from linux/clocksource.h
+- Reword description of "s390/time: Set up vDSO datapage later"
+- Link to v3: https://lore.kernel.org/r/20250917-vdso-sparc64-generic-2-v3-0-3679b1bc8ee8@linutronix.de
+
+Changes in v3:
+- Allocate vDSO data pages dynamically (and lots of preparations for that)
+- Drop clock_getres()
+- Fix 32bit clock_gettime() syscall fallback
+- Link to v2: https://lore.kernel.org/r/20250815-vdso-sparc64-generic-2-v2-0-b5ff80672347@linutronix.de
+
+Changes in v2:
+- Rebase on v6.17-rc1
+- Drop RFC state
+- Fix typo in commit message
+- Drop duplicate 'select GENERIC_TIME_VSYSCALL'
+- Merge "sparc64: time: Remove architecture-specific clocksource data" into the
+  main conversion patch. It violated the check in __clocksource_register_scale()
+- Link to v1: https://lore.kernel.org/r/20250724-vdso-sparc64-generic-2-v1-0-e376a3bd24d1@linutronix.de
+
+---
+Arnd Bergmann (1):
+      clocksource: remove ARCH_CLOCKSOURCE_DATA
+
+Thomas Weißschuh (13):
+      vdso/datastore: Reduce scope of some variables in vvar_fault()
+      vdso/datastore: Drop inclusion of linux/mmap_lock.h
+      vdso/datastore: Allocate data pages dynamically
+      sparc64: vdso: Link with -z noexecstack
+      sparc64: vdso: Remove obsolete "fake section table" reservation
+      sparc64: vdso: Replace code patching with runtime conditional
+      sparc64: vdso: Move hardware counter read into header
+      sparc64: vdso: Move syscall fallbacks into header
+      sparc64: vdso: Introduce vdso/processor.h
+      sparc64: vdso: Switch to the generic vDSO library
+      sparc64: vdso2c: Drop sym_vvar_start handling
+      sparc64: vdso2c: Remove symbol handling
+      sparc64: vdso: Implement clock_gettime64()
+
+ arch/sparc/Kconfig                         |   3 +-
+ arch/sparc/include/asm/clocksource.h       |   9 -
+ arch/sparc/include/asm/processor.h         |   3 +
+ arch/sparc/include/asm/processor_32.h      |   2 -
+ arch/sparc/include/asm/processor_64.h      |  25 --
+ arch/sparc/include/asm/vdso.h              |   2 -
+ arch/sparc/include/asm/vdso/clocksource.h  |  10 +
+ arch/sparc/include/asm/vdso/gettimeofday.h | 184 ++++++++++++++
+ arch/sparc/include/asm/vdso/processor.h    |  41 ++++
+ arch/sparc/include/asm/vdso/vsyscall.h     |  10 +
+ arch/sparc/include/asm/vvar.h              |  75 ------
+ arch/sparc/kernel/Makefile                 |   1 -
+ arch/sparc/kernel/time_64.c                |   6 +-
+ arch/sparc/kernel/vdso.c                   |  69 ------
+ arch/sparc/vdso/Makefile                   |   8 +-
+ arch/sparc/vdso/vclock_gettime.c           | 380 ++---------------------------
+ arch/sparc/vdso/vdso-layout.lds.S          |  26 +-
+ arch/sparc/vdso/vdso.lds.S                 |   2 -
+ arch/sparc/vdso/vdso2c.c                   |  24 --
+ arch/sparc/vdso/vdso2c.h                   |  45 +---
+ arch/sparc/vdso/vdso32/vdso32.lds.S        |   4 +-
+ arch/sparc/vdso/vma.c                      | 274 ++-------------------
+ include/linux/clocksource.h                |   6 +-
+ include/linux/vdso_datastore.h             |   6 +
+ init/main.c                                |   2 +
+ kernel/time/Kconfig                        |   4 -
+ lib/vdso/datastore.c                       |  97 +++++---
+ 27 files changed, 375 insertions(+), 943 deletions(-)
+---
+base-commit: f02e02079ac56b44ff89d4c2189cf7185ab794f3
+change-id: 20250722-vdso-sparc64-generic-2-25f2e058e92c
+
+Best regards,
 -- 
-Jens Axboe
+Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+
