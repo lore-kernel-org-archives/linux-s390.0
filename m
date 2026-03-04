@@ -1,123 +1,99 @@
-Received: from mail-pl1-f201.google.com (mail-pl1-f201.google.com [209.85.214.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27290352C54
-	for <linux-s390@vger.kernel.org>; Wed,  4 Mar 2026 02:49:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3CDF364EBE;
+	Wed,  4 Mar 2026 03:24:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772592580; cv=none; b=APJawuJmjaKV4+xcEdbknzV5FCKn4LwYCZZZDOVRREcol/hgkpSf7wGEataPJ/ov6fxSMPAiH3bw6SKTjzSPObkmyjz80lMgXDECgkIpgINXTCP2g3DRYmICfXaUrN3/MJGNs/QAuLyAutwS+Rpe5fMhxOxHgz38g3CL9WARdVM=
+	t=1772594677; cv=none; b=hP8j3Q1k6kLu9Sxtex+CVa8JyBoBtNs25mTCKPuDrn37JPNbyQEXgXyzqLS7ttIIvecnJslCthEdRf9uII5Z6zzxGaFd3IDE9XzvpPjI/ZI5gNxdp9DXBA5Fl9BcX+2MUKeNixAkpC7P3QRCP7Q2ATiQFhOQyew2OcIf9Sbwh2Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772592580; c=relaxed/simple;
-	bh=Yh8dBMe3ibg8tK09EirKlKZM1uMUm94vien5uMRloZQ=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=r7EphHwJNhhlVR892SEEww3fjJHPJqCqRi+EJyt0swe7eFeOKKYMUJJxTGFQNwLFVaKR0jV0g3bc2xc0F/1TJWSUGxGXosEEaDEsc+0+2MFiWwIL5uOv3DYttbtbCCZCqb9X1m4nQXmmdiQOlfE7kGBRkQUo7oCC6Pnkh20f7ao=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=jbJx9YHi; arc=none smtp.client-ip=209.85.214.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1772594677; c=relaxed/simple;
+	bh=+XUB+cPb6apo0xYcEzw+Ryc3ukmRfySainPZItfuUyU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZCFMjiby4GROcixkyvuD4hyIeyBbX/sO2+3BMus8853p6pgVW1XgTPzfHZsPoWkXOHicl6zRI7l/rL/dblumFVvQXt4xJurG+cIhRkDuPJIIRjjfK603foM1piQhJY4CHUVGzOguzUN6Tz0fy5FsUxsg/rTsr24oLMflRoLsqNc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=Y55ilsFI; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="jbJx9YHi"
-Received: by mail-pl1-f201.google.com with SMTP id d9443c01a7336-2ae4a6bb316so32261815ad.1
-        for <linux-s390@vger.kernel.org>; Tue, 03 Mar 2026 18:49:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1772592578; x=1773197378; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=wlfxAiLCYE9X+ss6Nds/jzCWOjzdQvgrRAY6r5Hx7j0=;
-        b=jbJx9YHiJ+WPah7GaRASFMPpnhJpC89X1VEt7t7uOXdxW9ui4S5BV8nEmnFwwucLuy
-         2DP1g+BXTNfahxRQ3c5bNOmsk4VGpCJTV/DeH/KU5FknJBbeV//S2UbbE3LMF1facWh1
-         hHRMG3MaiJ+/3JjlZpYQypG6vavbkLj/WGXr/+JZB9Di0csdOnzeuSYtRrZUuzFXPVlZ
-         V+nHwfQ+OOu93OkF5KrOhH7PDYq8/lNNOH/PhUY+Lq7Lq+C6cphl8HZhs7RqN9Nwr+Gz
-         GGJcSKdbL2CXSVi8oionrs44kO1BzATDhtuqGPXHN7yc2Wtk0yLhrD+fgpgILH7GlC8D
-         CrBA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772592579; x=1773197379;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=wlfxAiLCYE9X+ss6Nds/jzCWOjzdQvgrRAY6r5Hx7j0=;
-        b=Eru+HZ1EG3LA6jYs9LJJQ35q2egh5vwpPhM0QTzoMBwKk6NW5ywGGJPLSO5fg35v6P
-         R3tNf0LlSloDcQ/jLcmZbZoPp+YPl2dePuy94dPGk3epspoODgWNnRvoXX33j30EZETy
-         q0ajk4kol4x1T/Qt9WhWtrzyY3/qEazfpU/Vdy7XFpKsKk5YMt0cev9WeFW6r9HjBnB9
-         LZvdhAyFG9IyA6snT86RC0Ub4jx78OVKQ0if4lmbyn6Faq3lx8m4B9EPPmpHO9CSDxDj
-         qmQdm3ZQiJMeKHUGVRYaWN8MMnIR384ED5mwAXPnVOJsnLhNd20rbvJA/bu1t1WYeM1n
-         Haug==
-X-Forwarded-Encrypted: i=1; AJvYcCWKK4PWljzWPLzCeONOBLif63lJawR1SSrk5BmMChuwaZ1E2ReYt0qDn8WyV/ImHE+RqYevVhsPlU+Q@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx7/KNvU9iAEIiNIlSDU30jRd/EV6aUC6P6HJNiqUvA3iEd4MZd
-	2DYjWIBAPkwwvj3Bk3BVTl3j8HofkIRZLdNAe6bHOu6+J6r34eEzw7kMYrBexDz0KDgG4PpJOwQ
-	WJngw8A==
-X-Received: from plzv9.prod.google.com ([2002:a17:902:b7c9:b0:2ae:6338:73ca])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:2446:b0:2ae:483f:b239
- with SMTP id d9443c01a7336-2ae6aaf9469mr6114485ad.30.1772592577810; Tue, 03
- Mar 2026 18:49:37 -0800 (PST)
-Date: Tue, 3 Mar 2026 18:49:36 -0800
-In-Reply-To: <f8d86743-6231-414d-a5e8-65e867123fea@kernel.dk>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Y55ilsFI"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Transfer-Encoding:
+	Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
+	Sender:Reply-To:Content-ID:Content-Description;
+	bh=uwaew1TASwLFpWF0VG/+hJg8qwclvjQWd4Xpfif75xM=; b=Y55ilsFIY2uEBOFXIvrtEYMcxx
+	V/JrCLDxgjkhM/9AmmOM6p2YDvZEp3at1c81Mie4L08hbvdW5XczTSkOpKUYldRXpbRkzcpST75rE
+	JSYtWs4lPnRkwt7VLpWnZS8EYTQrG9i0BWDSDV+inn6J4BRublQVBcsZz3JeLdeZOhCHNoqKY6jbX
+	slhEqOeUTLTlm9sVqBgehi2kNsWbfS4dhEWJs3o+XtyJnOKyJLFluQ6KxU+iVO6wjIpviTd1Jv27X
+	wgrr6MdnWMKHkAWtXiFA2/xvfrUlXJBSn38A1vOyJKFa1OXMKd+jiad+JQnbO2GJUwecYvLglkRKO
+	MBiTn2xw==;
+Received: from willy by casper.infradead.org with local (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1vxcqD-0000000Cdoe-3gHX;
+	Wed, 04 Mar 2026 03:24:05 +0000
+Date: Wed, 4 Mar 2026 03:24:05 +0000
+From: Matthew Wilcox <willy@infradead.org>
+To: Suren Baghdasaryan <surenb@google.com>
+Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, akpm@linux-foundation.org,
+	david@kernel.org, ziy@nvidia.com, matthew.brost@intel.com,
+	joshua.hahnjy@gmail.com, rakie.kim@sk.com, byungchul@sk.com,
+	gourry@gourry.net, ying.huang@linux.alibaba.com, apopple@nvidia.com,
+	baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com,
+	npache@redhat.com, ryan.roberts@arm.com, dev.jain@arm.com,
+	baohua@kernel.org, lance.yang@linux.dev, vbabka@suse.cz,
+	jannh@google.com, rppt@kernel.org, mhocko@suse.com,
+	pfalcato@suse.de, kees@kernel.org, maddy@linux.ibm.com,
+	npiggin@gmail.com, mpe@ellerman.id.au, chleroy@kernel.org,
+	borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+	imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+	agordeev@linux.ibm.com, svens@linux.ibm.com,
+	gerald.schaefer@linux.ibm.com, linux-mm@kvack.org,
+	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+	"Ritesh Harjani (IBM)" <ritesh.list@gmail.com>
+Subject: Re: [PATCH v3 2/3] mm: replace vma_start_write() with
+ vma_start_write_killable()
+Message-ID: <aael1XWaOJN134la@casper.infradead.org>
+References: <20260226070609.3072570-1-surenb@google.com>
+ <20260226070609.3072570-3-surenb@google.com>
+ <74bffc7a-2b8c-40ae-ab02-cd0ced082e18@lucifer.local>
+ <CAJuCfpHBfhKFeWAtQo4r-ofVtO=5MvG+OToEgc2DEY+cuZDSGw@mail.gmail.com>
+ <aadeHiMqhHF0EQkt@casper.infradead.org>
+ <CAJuCfpFB1ON8=rkqu3MkrbD2mVBeHLK4122nm9RH31fH3hT2Hw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260304012717.201797-1-ynorov@nvidia.com> <20260303182845.250bb2de@kernel.org>
- <f8d86743-6231-414d-a5e8-65e867123fea@kernel.dk>
-Message-ID: <aaedwFwXh9QXS3Ju@google.com>
-Subject: Re: [PATCH 0/8] mm: globalize rest_of_page() macro
-From: Sean Christopherson <seanjc@google.com>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Jakub Kicinski <kuba@kernel.org>, Yury Norov <ynorov@nvidia.com>, 
-	Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, "Theodore Ts'o" <tytso@mit.edu>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Alexander Duyck <alexanderduyck@fb.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Alexandra Winter <wintera@linux.ibm.com>, 
-	Andreas Dilger <adilger.kernel@dilger.ca>, Andrew Lunn <andrew+netdev@lunn.ch>, 
-	Anna Schumaker <anna@kernel.org>, Anton Yakovlev <anton.yakovlev@opensynergy.com>, 
-	Arnaldo Carvalho de Melo <acme@kernel.org>, Aswin Karuvally <aswin@linux.ibm.com>, Borislav Petkov <bp@alien8.de>, 
-	Carlos Maiolino <cem@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Chao Yu <chao@kernel.org>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Christian Brauner <brauner@kernel.org>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	David Airlie <airlied@gmail.com>, Dominique Martinet <asmadeus@codewreck.org>, 
-	Dongsheng Yang <dongsheng.yang@linux.dev>, Eric Dumazet <edumazet@google.com>, 
-	Eric Van Hensbergen <ericvh@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
-	Herbert Xu <herbert@gondor.apana.org.au>, Ingo Molnar <mingo@redhat.com>, 
-	Jaegeuk Kim <jaegeuk@kernel.org>, Jani Nikula <jani.nikula@linux.intel.com>, 
-	Janosch Frank <frankja@linux.ibm.com>, Jaroslav Kysela <perex@perex.cz>, 
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Latchesar Ionkov <lucho@ionkov.net>, 
-	Linus Walleij <linusw@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, Mark Brown <broonie@kernel.org>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Miklos Szeredi <miklos@szeredi.hu>, 
-	Namhyung Kim <namhyung@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Paolo Abeni <pabeni@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Paul Walmsley <pjw@kernel.org>, 
-	Peter Zijlstra <peterz@infradead.org>, Rodrigo Vivi <rodrigo.vivi@intel.com>, 
-	Simona Vetter <simona@ffwll.ch>, Takashi Iwai <tiwai@suse.com>, Thomas Gleixner <tglx@kernel.org>, 
-	Trond Myklebust <trondmy@kernel.org>, Tvrtko Ursulin <tursulin@ursulin.net>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Yury Norov <yury.norov@gmail.com>, 
-	Zheng Gu <cengku@gmail.com>, linux-kernel@vger.kernel.org, x86@kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-riscv@lists.infradead.org, kvm@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-block@vger.kernel.org, 
-	intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
-	dm-devel@lists.linux.dev, netdev@vger.kernel.org, linux-spi@vger.kernel.org, 
-	linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, 
-	linux-fsdevel@vger.kernel.org, linux-xfs@vger.kernel.org, 
-	linux-nfs@vger.kernel.org, linux-crypto@vger.kernel.org, linux-mm@kvack.org, 
-	linux-perf-users@vger.kernel.org, v9fs@lists.linux.dev, 
-	virtualization@lists.linux.dev, linux-sound@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAJuCfpFB1ON8=rkqu3MkrbD2mVBeHLK4122nm9RH31fH3hT2Hw@mail.gmail.com>
 
-On Tue, Mar 03, 2026, Jens Axboe wrote:
-> On 3/3/26 7:28 PM, Jakub Kicinski wrote:
-> > On Tue,  3 Mar 2026 20:27:08 -0500 Yury Norov wrote:
-> >> The net/9p networking driver has a handy macro to calculate the
-> >> amount of bytes from a given pointer to the end of page. Move it
-> >> to core/mm, and apply tree-wide. No functional changes intended.
-> >>
-> >> This series was originally introduced as a single patch #07/12 in:
-> >>
-> >> https://lore.kernel.org/all/20260219181407.290201-1-ynorov@nvidia.com/
-> >>
-> >> Split it for better granularity and submit separately.
-> > 
-> > I don't get what the motivation is here. Another helper developers
-> > and readers of the code will need to know about just to replace 
-> > obvious and easy to comprehend math.
+On Tue, Mar 03, 2026 at 04:02:50PM -0800, Suren Baghdasaryan wrote:
+> On Tue, Mar 3, 2026 at 2:18 PM Matthew Wilcox <willy@infradead.org> wrote:
+> >
+> > On Tue, Mar 03, 2026 at 02:11:31PM -0800, Suren Baghdasaryan wrote:
+> > > On Mon, Mar 2, 2026 at 6:53 AM Lorenzo Stoakes
+> > > <lorenzo.stoakes@oracle.com> wrote:
+> > > > Overall I'm a little concerned about whether callers can handle -EINTR in all
+> > > > cases, have you checked? Might we cause some weirdness in userspace if a syscall
+> > > > suddenly returns -EINTR when before it didn't?
+> > >
+> > > I did check the kernel users and put the patchset through AI reviews.
+> > > I haven't checked if any of the affected syscalls do not advertise
+> > > -EINTR as a possible error. Adding that to my todo list for the next
+> > > respin.
+> >
+> > This only allows interruption by *fatal* signals.  ie there's no way
+> > that userspace will see -EINTR because it's dead before the syscall
+> > returns to userspace.  That was the whole point of killable instead of
+> > interruptible.
 > 
-> I fully agree, I had the same thought reading this.
+> Ah, I see. So, IIUC, that means any syscall can potentially fail with
+> -EINTR and this failure code doesn't need to be documented. Is that
+> right?
 
-+1 from KVM-land.
+We could literally return any error code -- it never makes it to
+userspace.  I forget where it is, but if you follow the syscall
+return to user path, a dying task never makes it to running a single
+instruction.
