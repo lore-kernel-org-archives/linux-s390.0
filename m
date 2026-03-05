@@ -1,127 +1,148 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CE47375ADD;
-	Thu,  5 Mar 2026 08:55:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C63A4377ED7;
+	Thu,  5 Mar 2026 09:31:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772700911; cv=none; b=Zmg8yZbiPyN6XHRowAXF3Dp1QBGZ0/py82ciV6lyUZSJk8AFrNJUZjrLeB8fb7kJTpNojTLqdBWQGwr5+L2KI50JdIsUuQQLlQyyfsfvkFxHtJpUlQc5lTSvty6T4ea9vv9jvZFMnQqSSX4BSTXLR7SicQV8ryc/rNiCgKhum8M=
+	t=1772703102; cv=none; b=pPcRC9IsUCQhBWL5Ej46NpS813rJ8+sZ2nRUPRxNsIADfeNAfCRafDT51FUNyaYJF1rwf8sRe+Due0BYGC4MqJV6FJ5eqKakBdzdWg5Lgc/0IJQfrn1HdfcJ3ZmNsZHiawGZaAkc9pMS3DPPanNQvJ90QqV8Ang+rwV/ewTlKio=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772700911; c=relaxed/simple;
-	bh=DVrsJVOrkw0OnczSWmZinkDGWZhxgL+dU3McgBCjGeU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=O3jxZKNBcpe0p5/gknkgk6NUa1n/k7CX4nJFEXhBP4juRlQD9ncef+x0PRpDE+znXi04mIlrZoDK954f0lKreGmUTAko0570FZfjNqbDUETWX5X8XxVnMpDjKKZvNpLCc/wNaz0uzQbQlfPZyLvFE6JWIbJihE3yJazbdNuq7r0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Zloj5pfv; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772703102; c=relaxed/simple;
+	bh=fgdmdf77b8hQOI441pKYdKFicdhvYLEChYvN03raTtg=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=nBZXxOK+dauwzbTz75j9GcX3em936nUhneuuWzphq0Ecv8wsUEMhRqRp/afxRhNsIBfLu+TBHOwLEwYiHV7ODyvoWa3HngY6OWNgQGt7j4tBbWbQHHFY5lg1IeBQfM0fKdmQpFbYHb8IUao/eGZw7+Z+MHz3Nn5O2Np5T+qu30g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=xytaAf2r; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=r3h3+lgD; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Zloj5pfv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DC22C116C6;
-	Thu,  5 Mar 2026 08:55:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772700911;
-	bh=DVrsJVOrkw0OnczSWmZinkDGWZhxgL+dU3McgBCjGeU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Zloj5pfv3Or46e3MGD3TQPAhhiF3AkIlrclkfMyuNsld0FREbMp9adZhcH1v7iPyv
-	 pqHqwcfZ7QYyHaPxGiV47UCkLIjLIl/hpgQFoZVxSa8FHN7ee3B5Wz4VVP1uqq5NdZ
-	 10Gr9///sH1qjmNwyOGy4DXwuxXqmo1TAsyqivJ4Ipps7TQMI2dc68sRqORXq7vIGc
-	 EFb6s4nekNmK/pEDjFm//5pqTA8+6ziaDnHYAsrXaurdZfi7KLz7wMwJL9Glev29GB
-	 t23HCaZeBGGAnzssYKKzFeEBx2+7a693UCIpbXxroCiAeyQPQ1qSh8vYunugW+sI6E
-	 9LsWPc7EDqE1A==
-Date: Thu, 5 Mar 2026 10:55:05 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>, Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org,
-	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org, oliver.yang@linux.alibaba.com,
-	pasic@linux.ibm.com
-Subject: Re: [PATCH net-next v3] net/smc: transition to RDMA core CQ pooling
-Message-ID: <20260305085505.GL12611@unreal>
-References: <20260305022323.96125-1-alibuda@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="xytaAf2r";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="r3h3+lgD"
+From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1772703099;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=bu8WiQKkNBMwU28xfl3txV1TIzZCzYlrhLm08RAUoXs=;
+	b=xytaAf2rQjEZLTmTvairdv61lxtC7b0QvsvU7QQqMHIAPJd+fAWNG+mAyxuseqCTH983ep
+	G4BMiuylTlFAz6M+kVa+yosMj+cV0mGtJ0/57/5PKoTHbUYaqIjkskjIvskcmZ9PoZwpnW
+	lv2fzACqYjLtFgum+YtXdSCOkQEXvdeR/SW22AuHS6g2KwPYZdRicHw9InDvPchFfTCral
+	wslaTJQrjzQwwfeidMP24ffvF8VnN8IxQrRwgRBekI7lkPOz6RNdHvMivJPe0UAoEl+/37
+	qxDqqfnwLdLh9sMDZVS/k5nIPcz1V8RWFS5bhTds39OJvsT+xDY2g60gigJyOQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1772703099;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=bu8WiQKkNBMwU28xfl3txV1TIzZCzYlrhLm08RAUoXs=;
+	b=r3h3+lgD/zejL3EcYa0zS2NepF6/Bzhk91kBp7FP2T1DWK8OkCe17rhH5Ov7JMzUPM4ui2
+	qh/2XF05iCDzFMDg==
+Subject: [PATCH v3 0/8] module: Move 'struct module_signature' to UAPI
+Date: Thu, 05 Mar 2026 10:31:36 +0100
+Message-Id: <20260305-module-signature-uapi-v3-0-92f45ea6028c@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260305022323.96125-1-alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/4XNQQ6CMBCF4auYrq1pB0Fw5T2Mi0IHmARb0tIGQ
+ 7i7hZUxMS7/l8w3C/PoCD27HhbmMJIna1JkxwNremU65KRTMxBQiEwAf1odBuSeOqOm4JAHNRI
+ vZKtKUUuEumbpdnTY0ry790fqnvxk3Wt/E+W2/hOj5IKDuOgqz1HooroNZMLkrKH5pJFtaoRPK
+ f8lQZJ0c9allFBpxG9pXdc3b+fMCQgBAAA=
+X-Change-ID: 20260302-module-signature-uapi-61fa80b1e2bb
+To: David Howells <dhowells@redhat.com>, 
+ David Woodhouse <dwmw2@infradead.org>, Luis Chamberlain <mcgrof@kernel.org>, 
+ Petr Pavlu <petr.pavlu@suse.com>, Daniel Gomez <da.gomez@kernel.org>, 
+ Sami Tolvanen <samitolvanen@google.com>, Aaron Tomlin <atomlin@atomlin.com>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, Mimi Zohar <zohar@linux.ibm.com>, 
+ Roberto Sassu <roberto.sassu@huawei.com>, 
+ Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, 
+ Eric Snowberg <eric.snowberg@oracle.com>, Paul Moore <paul@paul-moore.com>, 
+ James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+ Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
+ Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+ Andrii Nakryiko <andrii@kernel.org>, 
+ Martin KaFai Lau <martin.lau@linux.dev>, 
+ Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
+ Yonghong Song <yonghong.song@linux.dev>, 
+ John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>, 
+ Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, 
+ Jiri Olsa <jolsa@kernel.org>, Shuah Khan <shuah@kernel.org>
+Cc: keyrings@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-modules@vger.kernel.org, linux-s390@vger.kernel.org, 
+ linux-integrity@vger.kernel.org, linux-security-module@vger.kernel.org, 
+ linux-kbuild@vger.kernel.org, bpf@vger.kernel.org, 
+ linux-kselftest@vger.kernel.org, 
+ =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1772703098; l=2709;
+ i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
+ bh=fgdmdf77b8hQOI441pKYdKFicdhvYLEChYvN03raTtg=;
+ b=s9GwrswTxqAeCrdGrvQfEgfC7LmIbNL8z1iS8wn8NtXjBtkaOvbCkix1V+4OPt3aX7UBqtjHF
+ jyv4woFRhFyD9t2uIYxxJHpnY2YVFC+wfrTccfY88rNB/abo5o3vGLA
+X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
+ pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-On Thu, Mar 05, 2026 at 10:23:23AM +0800, D. Wythe wrote:
-> The current SMC-R implementation relies on global per-device CQs
-> and manual polling within tasklets, which introduces severe
-> scalability bottlenecks due to global lock contention and tasklet
-> scheduling overhead, resulting in poor performance as concurrency
-> increases.
-> 
-> Refactor the completion handling to utilize the ib_cqe API and
-> standard RDMA core CQ pooling. This transition provides several key
-> advantages:
-> 
-> 1. Multi-CQ: Shift from a single shared per-device CQ to multiple
-> link-specific CQs via the CQ pool. This allows completion processing
-> to be parallelized across multiple CPU cores, effectively eliminating
-> the global CQ bottleneck.
-> 
-> 2. Leverage DIM: Utilizing the standard CQ pool with IB_POLL_SOFTIRQ
-> enables Dynamic Interrupt Moderation from the RDMA core, optimizing
-> interrupt frequency and reducing CPU load under high pressure.
-> 
-> 3. O(1) Context Retrieval: Replaces the expensive wr_id based lookup
-> logic (e.g., smc_wr_tx_find_pending_index) with direct context retrieval
-> using container_of() on the embedded ib_cqe.
-> 
-> 4. Code Simplification: This refactoring results in a reduction of
-> ~150 lines of code. It removes redundant sequence tracking, complex lookup
-> helpers, and manual CQ management, significantly improving maintainability.
-> 
-> Performance Test: redis-benchmark with max 32 connections per QP
-> Data format: Requests Per Second (RPS), Percentage in brackets
-> represents the gain/loss compared to TCP.
-> 
-> | Clients | TCP      | SMC (original)      | SMC (cq_pool)       |
-> |---------|----------|---------------------|---------------------|
-> | c = 1   | 24449    | 31172  (+27%)       | 34039  (+39%)       |
-> | c = 2   | 46420    | 53216  (+14%)       | 64391  (+38%)       |
-> | c = 16  | 159673   | 83668  (-48%)  <--  | 216947 (+36%)       |
-> | c = 32  | 164956   | 97631  (-41%)  <--  | 249376 (+51%)       |
-> | c = 64  | 166322   | 118192 (-29%)  <--  | 249488 (+50%)       |
-> | c = 128 | 167700   | 121497 (-27%)  <--  | 249480 (+48%)       |
-> | c = 256 | 175021   | 146109 (-16%)  <--  | 240384 (+37%)       |
-> | c = 512 | 168987   | 101479 (-40%)  <--  | 226634 (+34%)       |
-> 
-> The results demonstrate that this optimization effectively resolves the
-> scalability bottleneck, with RPS increasing by over 110% at c=64
-> compared to the original implementation.
-> 
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> ---
-> v3:
-> - Rebase to latest net-next tree.
-> - Remove a redundant blank line in smc_wr_alloc_link_mem().
-> 
-> v2:
-> - Fix a logic bug in smc_wr_tx_process_cqe() where a zeroed field
->   was checked instead of the saved pnd_snd copy. (Jakub)
-> - Fix typo in comment: s/ib_draib_rq/ib_drain_rq/.
-> - Minor comment alignment fix in struct smc_link.
-> ---
->  net/smc/smc_core.c |   9 +-
->  net/smc/smc_core.h |  28 ++--
->  net/smc/smc_ib.c   | 113 +++++-----------
->  net/smc/smc_ib.h   |   7 -
->  net/smc/smc_tx.c   |   1 -
->  net/smc/smc_wr.c   | 312 +++++++++++++++++++--------------------------
->  net/smc/smc_wr.h   |  40 ++----
->  7 files changed, 193 insertions(+), 317 deletions(-)
+This structure definition is used outside the kernel proper.
+For example in kmod and the kernel build environment.
 
-Thanks a lot for this important conversion, for RDMA API usage:
+To allow reuse, move it to a new UAPI header.
 
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+While it is not a true UAPI, it is a common practice to have
+non-UAPI interface definitions in the kernel's UAPI headers.
+
+This came up as part of my CONFIG_MODULE_HASHES series [0].
+But it is useful on its own and so we get it out of the way.
+
+[0] https://lore.kernel.org/lkml/aZ3OfJJSJgfOb0rJ@levanger/
+
+Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+---
+Changes in v3:
+- Also adapt the include path for the custom sign-file rule in the bpf selftests.
+  (My manual run of BPF CI still fails, due to an BUG() on s390,
+  I don't see how this is due to this patch)
+- Link to v2: https://lore.kernel.org/r/20260305-module-signature-uapi-v2-0-dc4d81129dee@linutronix.de
+
+Changes in v2:
+- Drop spurious definition of MODULE_SIGNATURE_TYPE_MERKLE.
+- s/modules/module/ in two patch subjects.
+- Pick up review tags.
+- Link to v1: https://lore.kernel.org/r/20260302-module-signature-uapi-v1-0-207d955e0d69@linutronix.de
+
+---
+Thomas Weißschuh (8):
+      extract-cert: drop unused definition of PKEY_ID_PKCS7
+      module: Drop unused signature types
+      module: Give 'enum pkey_id_type' a more specific name
+      module: Give MODULE_SIG_STRING a more descriptive name
+      module: Move 'struct module_signature' to UAPI
+      tools uapi headers: add linux/module_signature.h
+      sign-file: use 'struct module_signature' from the UAPI headers
+      selftests/bpf: verify_pkcs7_sig: Use 'struct module_signature' from the UAPI headers
+
+ arch/s390/kernel/machine_kexec_file.c              |  6 ++--
+ certs/extract-cert.c                               |  2 --
+ include/linux/module_signature.h                   | 30 +---------------
+ include/uapi/linux/module_signature.h              | 41 ++++++++++++++++++++++
+ kernel/module/signing.c                            |  4 +--
+ kernel/module_signature.c                          |  2 +-
+ scripts/Makefile                                   |  1 +
+ scripts/sign-file.c                                | 19 +++-------
+ security/integrity/ima/ima_modsig.c                |  6 ++--
+ tools/include/uapi/linux/module_signature.h        | 41 ++++++++++++++++++++++
+ tools/testing/selftests/bpf/Makefile               |  1 +
+ .../selftests/bpf/prog_tests/verify_pkcs7_sig.c    | 28 ++-------------
+ 12 files changed, 101 insertions(+), 80 deletions(-)
+---
+base-commit: 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f
+change-id: 20260302-module-signature-uapi-61fa80b1e2bb
+
+Best regards,
+-- 
+Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+
