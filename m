@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7ACEC25A2C9;
-	Thu,  5 Mar 2026 17:35:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F9203002AB;
+	Thu,  5 Mar 2026 19:07:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772732101; cv=none; b=XURwewBV8SSYRVYkmevXopJGum/RiVxQ/CI1FOJ3aA2jEPOkyjsSV8XMEQW4AWQujGPYaAlhAgt8DpkL3EcnImqhBUMzueR482++/WTvbhJDKRtPK1JTe6BcKdnoUWqPRsWFAWjDVsdyF4orXBNYGnImppb6GrcxqPwpY56ARLg=
+	t=1772737672; cv=none; b=MJzKKSRB1b/QoWwQsiHpJulhwRy9tIbYy98xWOIF2kFpHwE/8uNUyLnkSmLy70y+YgZXUl2iEE6fNZx4uJPmhZAmnu4Im5WBLGKM6o9gCXEfX0mGLRTRcv5Cs+ah5C9ZIXY9YH640PXxdhAAHIOgd9iAcEy7t2s8OtyZ+XyKc8A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772732101; c=relaxed/simple;
-	bh=56aRoAVzPeQ+dwVrdE3T5LIBh/tHK5LhrXeg2GPGARY=;
+	s=arc-20240116; t=1772737672; c=relaxed/simple;
+	bh=5pMLMYsqUq30caMaqSsCRxg/LUKm2ZwH02Nogw/kZgk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=tTf54Mr5kqyr2ta0HrvfFW4GtJjf16YP240JOIIsHd4IZv8A+vMdjepaVbMoOso35PLZWs2Rr9ICTsIFxVNvPOsShjrDcW0ULTYflfHgU7Tj763RZVtzvha1pnf4BjDptx8d2+j4NxdBR6bvoMz7pFhpbvoWFPykRCSnUmt6kl0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SNJUfyAa; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=XRLrFtTAsJ96XaztqsTxRGahVaRYVryGqloISOz8aLpE7bnLcaOAz+i5YfKY2T7ejVIGdFlCQJAYHSSURD52zUZCzcjvY6qKJ9YShvZvHFYnjy4hivEiNtkIvqSQtJt1zVin94yYCykAjsqYNzPhhlJW172a9asiZgLYk1dm7Eg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Dj+S9NqJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SNJUfyAa"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFEACC19425;
-	Thu,  5 Mar 2026 17:34:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Dj+S9NqJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DEB6C116C6;
+	Thu,  5 Mar 2026 19:07:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772732101;
-	bh=56aRoAVzPeQ+dwVrdE3T5LIBh/tHK5LhrXeg2GPGARY=;
+	s=k20201202; t=1772737672;
+	bh=5pMLMYsqUq30caMaqSsCRxg/LUKm2ZwH02Nogw/kZgk=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=SNJUfyAa+pOGSpSVWJhLtY5AZnRO7etbHovFucUT8TXtqWY9985XSqGU8RMWCDSMd
-	 1ZFYbjOd3UTSfkRHwfCNAbUOR8czgn3AP5sdfd3NDuMTwlejtHcBQywUKbAkce4nTe
-	 dEwNcN9AYGiADUff+P0WNpX+woEHoHermioN+npeoYqsCJHEP5pDpw9nhdmbj8i1n9
-	 S8ZG8tpuRHozTfhieeF2eQimOT3Mr+dJeCNLypIAETyKi3durz59wMY2erlZRNGn7t
-	 n1IaS6Ru9j6oE8qY8qN5jctLVXgDfFP9P0eHUpDtsiPtIGlce9evGXASnm9NnTQCF0
-	 DnFXPOqZ3moTA==
-Message-ID: <af2d4dcd-60a8-4a5a-b508-d9600b1f2275@kernel.org>
-Date: Thu, 5 Mar 2026 18:34:35 +0100
+	b=Dj+S9NqJtdWz6RBKFzR5acMgUZFQJ3W9fnbktBvz0MaAXoouPnMmfQ67JZmI9sVaH
+	 XQQn6nGUQIhWbu93psky7lo+eqRxXjl34agykwtcFCvJvewXz2H9sBqggtK338M1DH
+	 xMqK0z98I7O58rU2ZExHxgDfn0muFBjv+va4ZBeTvQF1Iwu5bpIwVn7xVrLxpkhupp
+	 DOdrZ4sFZpJOpYA2rNekO31hBtA1G0t1/f5tBT933AusAvejWixb3X2YXLYp78nijl
+	 5WoPlj74YRUASEEXS5XuY65yzkQQnpYLuAnUfI3m9ww+joTZUYCqAu4oOizyBIoyL/
+	 rUJ6jp5aQodrA==
+Message-ID: <ebb4beec-13dc-4b94-a1f8-756e7a8ef5af@kernel.org>
+Date: Thu, 5 Mar 2026 20:07:19 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,8 +35,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v10 02/15] set_memory: add folio_{zap,restore}_direct_map
- helpers
+Subject: Re: [PATCH v10 04/15] mm/gup: drop local variable in
+ gup_fast_folio_allowed
 To: "Kalyazin, Nikita" <kalyazin@amazon.co.uk>,
  "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
  "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
@@ -128,7 +128,7 @@ Cc: "pbonzini@redhat.com" <pbonzini@redhat.com>,
  "Manwaring, Derek" <derekmn@amazon.com>, "Cali, Marco"
  <xmarcalx@amazon.co.uk>
 References: <20260126164445.11867-1-kalyazin@amazon.com>
- <20260126164445.11867-3-kalyazin@amazon.com>
+ <20260126164445.11867-5-kalyazin@amazon.com>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -175,104 +175,76 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260126164445.11867-3-kalyazin@amazon.com>
+In-Reply-To: <20260126164445.11867-5-kalyazin@amazon.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 1/26/26 17:47, Kalyazin, Nikita wrote:
 > From: Nikita Kalyazin <kalyazin@amazon.com>
 > 
-> These allow guest_memfd to remove its memory from the direct map.
-> Only implement them for architectures that have direct map.
-> In folio_zap_direct_map(), flush TLB on architectures where
-> set_direct_map_valid_noflush() does not flush it internally.
-
-"Let's provide folio_{zap,restore}_direct_map helpers as preparation for
-supporting removal of the direct map for guest_memfd folios. ...
-
+> Move the check for pinning closer to where the result is used.
+> No functional changes.
 > 
-> The new helpers need to be accessible to KVM on architectures that
-> support guest_memfd (x86 and arm64).  Since arm64 does not support
-> building KVM as a module, only export them on x86.
-> 
-> Direct map removal gives guest_memfd the same protection that
-> memfd_secret does, such as hardening against Spectre-like attacks
-> through in-kernel gadgets.
-
-Would it be possible to convert mm/secretmem.c as well?
-
-There, we use
-
-	set_direct_map_invalid_noflush(folio_page(folio, 0));
-
-and
-
-	set_direct_map_default_noflush(folio_page(folio, 0));
-
-Which is a bit different to below code. At least looking at the x86
-variants, I wonder why we don't simply use set_direct_map_valid_noflush().
-
-
-If so, can you add a patch to do the conversion, pleeeeassse ? :)
-
-> 
-> Reviewed-by: Ackerley Tng <ackerleytng@google.com>
 > Signed-off-by: Nikita Kalyazin <kalyazin@amazon.com>
 > ---
->  arch/arm64/include/asm/set_memory.h     |  2 ++
->  arch/arm64/mm/pageattr.c                | 12 ++++++++++++
->  arch/loongarch/include/asm/set_memory.h |  2 ++
->  arch/loongarch/mm/pageattr.c            | 12 ++++++++++++
->  arch/riscv/include/asm/set_memory.h     |  2 ++
->  arch/riscv/mm/pageattr.c                | 12 ++++++++++++
->  arch/s390/include/asm/set_memory.h      |  2 ++
->  arch/s390/mm/pageattr.c                 | 12 ++++++++++++
->  arch/x86/include/asm/set_memory.h       |  2 ++
->  arch/x86/mm/pat/set_memory.c            | 20 ++++++++++++++++++++
->  include/linux/set_memory.h              | 10 ++++++++++
->  11 files changed, 88 insertions(+)
+>  mm/gup.c | 19 ++++++++-----------
+>  1 file changed, 8 insertions(+), 11 deletions(-)
 > 
-> diff --git a/arch/arm64/include/asm/set_memory.h b/arch/arm64/include/asm/set_memory.h
-> index c71a2a6812c4..49fd54f3c265 100644
-> --- a/arch/arm64/include/asm/set_memory.h
-> +++ b/arch/arm64/include/asm/set_memory.h
-> @@ -15,6 +15,8 @@ int set_direct_map_invalid_noflush(const void *addr);
->  int set_direct_map_default_noflush(const void *addr);
->  int set_direct_map_valid_noflush(const void *addr, unsigned long numpages,
->  				 bool valid);
-> +int folio_zap_direct_map(struct folio *folio);
-> +int folio_restore_direct_map(struct folio *folio);
->  bool kernel_page_present(struct page *page);
+> diff --git a/mm/gup.c b/mm/gup.c
+> index 9cad53acbc99..e72dacce3e34 100644
+> --- a/mm/gup.c
+> +++ b/mm/gup.c
+> @@ -2737,18 +2737,9 @@ EXPORT_SYMBOL(get_user_pages_unlocked);
+>   */
+>  static bool gup_fast_folio_allowed(struct folio *folio, unsigned int flags)
+>  {
+> -	bool reject_file_backed = false;
+>  	struct address_space *mapping;
+>  	unsigned long mapping_flags;
 >  
->  int set_memory_encrypted(unsigned long addr, int numpages);
-> diff --git a/arch/arm64/mm/pageattr.c b/arch/arm64/mm/pageattr.c
-> index e2bdc3c1f992..0b88b0344499 100644
-> --- a/arch/arm64/mm/pageattr.c
-> +++ b/arch/arm64/mm/pageattr.c
-> @@ -356,6 +356,18 @@ int set_direct_map_valid_noflush(const void *addr, unsigned long numpages,
->  	return set_memory_valid((unsigned long)addr, numpages, valid);
+> -	/*
+> -	 * If we aren't pinning then no problematic write can occur. A long term
+> -	 * pin is the most egregious case so this is the one we disallow.
+> -	 */
+> -	if ((flags & (FOLL_PIN | FOLL_LONGTERM | FOLL_WRITE)) ==
+> -	    (FOLL_PIN | FOLL_LONGTERM | FOLL_WRITE))
+> -		reject_file_backed = true;
+> -
+>  	/* We hold a folio reference, so we can safely access folio fields. */
+>  	if (WARN_ON_ONCE(folio_test_slab(folio)))
+>  		return false;
+> @@ -2793,8 +2784,14 @@ static bool gup_fast_folio_allowed(struct folio *folio, unsigned int flags)
+>  	 */
+>  	if (secretmem_mapping(mapping))
+>  		return false;
+> -	/* The only remaining allowed file system is shmem. */
+> -	return !reject_file_backed || shmem_mapping(mapping);
+> +
+> +	/*
+> +	 * If we aren't pinning then no problematic write can occur. A long term
+> +	 * pin is the most egregious case so this is the one we disallow.
+> +	 * Also check the only remaining allowed file system - shmem.
+> +	 */
+> +	return (flags & (FOLL_PIN | FOLL_LONGTERM | FOLL_WRITE)) !=
+> +	    (FOLL_PIN | FOLL_LONGTERM | FOLL_WRITE) || shmem_mapping(mapping);
+
+Best to keep this split and a bit more readable.
+
+/*
+ * If we aren't pinning then no problematic write can occur. A writable
+ * long term pin is the most egregious case, so this is the one we
+ * allow only for ...
+ */
+if ((flags & (FOLL_PIN | FOLL_LONGTERM | FOLL_WRITE)) !=
+    (FOLL_PIN | FOLL_LONGTERM | FOLL_WRITE)
+	return true;
+/* ... hugetlb (which we allowed above already) and shared memory. */
+return shmem_mapping(mapping);
+
 >  }
 >  
-> +int folio_zap_direct_map(struct folio *folio)
-> +{
-> +	return set_direct_map_valid_noflush(folio_address(folio),
-> +					    folio_nr_pages(folio), false);
-> +}
-> +
-> +int folio_restore_direct_map(struct folio *folio)
-> +{
-> +	return set_direct_map_valid_noflush(folio_address(folio),
-> +					    folio_nr_pages(folio), true);
-> +}
+>  static void __maybe_unused gup_fast_undo_dev_pagemap(int *nr, int nr_start,
 
-Is there a good reason why we cannot have two generic inline functions
-that simply call set_direct_map_valid_noflush() ?
-
-Is it because of some flushing behavior? (which we could figure out)
-
-
-In particular, a single set of functions could have a beautiful
-centralized kerneldoc, right?! :)
 
 -- 
 Cheers,
