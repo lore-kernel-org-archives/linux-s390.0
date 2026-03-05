@@ -1,152 +1,190 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2D5C3E51E5;
-	Thu,  5 Mar 2026 17:25:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F24931FBCA7;
+	Thu,  5 Mar 2026 17:26:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772731516; cv=none; b=oaOdvNJYBrfLxdpXBdyad+V1f+dIQiEv+iEHYc5AJmmkhgYSNUVd07XdxOoehD14/cxfpYGrNlse2mzUdfMUHJMdFcAsCYrI4Wmkj4GlW8BJVMYlwehev7qpJ78JGd8QhO5xw/nur3/sQhV8Hwo+1+PjRFPPeFsdGAVVr1ox/Uw=
+	t=1772731597; cv=none; b=dVpHcTHtl7sNzMHmv5R4We3lHKKRgdyJCTIUeeH6S/qfIv1/pOhDD6xf20bam8SwjDLWdm4Bp56kDJa1MT8Ao79CgtuDBQa4Agy6u0kjOE5rjWZQ0kcq1SrbouE6bp7THLUDZqAB1gziNrXlutcSt5AUHnBM4W1FpEbgu38ySEQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772731516; c=relaxed/simple;
-	bh=cBMxkXv8SoYpT5t1ny+k5C56RqZts3Wp9Jaetnp+0ww=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=HKybPucJ7219cja2dAJm9bVTzpXnmL4ILBVi3zC3k7yyRtmvv/SbtHsono3wbEGqW9+/fvqiAwAW5hbmVDfbLUlEKUFyG6EMrLSPAH066ay+2Ut2pNlu/+amRFEkJmpgQGW2x/0jc9QR17In5RgXNaYb2kY1sE+7oHud8bTi/6o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XSLTff2j; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1772731597; c=relaxed/simple;
+	bh=+MuY8pawrgi2FwNb6rRlOW9g7zPesgMFXQ7H4DyrZcQ=;
+	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
+	 Date:MIME-Version; b=bMOU+admFMdY47ynBatHaKybIYLOtltslRB0XrWwUJkLTcgEINA9A0JFQP1PHx2uCrUw7wTQ/LVczo0Pmbm11vrDhXd/I2IV/lhmOzDxI9R83sPmz7lMuwNCWOvlVgsgkhUV4swXcSl6cpaBJoYO4WwvBPwbUxnhKPTGmDp8jas=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=f5HhaZL2; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XSLTff2j"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="f5HhaZL2"
 Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6256Xha82358989;
-	Thu, 5 Mar 2026 17:24:54 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6256XhaF2358989;
+	Thu, 5 Mar 2026 17:25:47 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=1/Rf+R
-	Q9iNn2RJqfEb3mYjJSwWt36B8HMUjS+9r4b0Q=; b=XSLTff2jIKaT3XUvNvky8g
-	DQMs95ePNyqgdzD0us05Tnq/1O1AezmL9MHKNNpkc1ZKYpJrDM8fYO1fqfFwfZy8
-	ynV60YiAkODN8irnFiNDWskoPBr5U/JlZFhzcBEb5OnW5gNTAxnX7OADEcRyPgoo
-	4TuUuCw33KmaJ8T/kwiBudaAv84+b0J9/bhfvXPXaTPM8tBVOG4YC3sjpyOHC+8I
-	X1I2+NVB7/qf4s1mVEQg1ZD+to+uFtEUuJ71nn2BkKmnDwLWmH/Xb6JhUOKUXZDW
-	8cHDwpzfQVL5tdswfzN+bVu5c4gVhk54/5R7nmxoLgM12DBlLitBQ9BO6qLSkzLw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=pKEoPg
+	CndWCLrBzB+ANvkugEGsbEG9dKmNVe+ux6b/I=; b=f5HhaZL2YLiPpyCKTkbu9J
+	IGDq/HdnHKBMZigcHjg/Cd8VlwblJsE5+TR6lvbkI5Itkm2FCCPoXMXxxGzkVVvN
+	bkMVpn/KPZJI92/LSPO0lr5t3nk74fy+h6B7QHwtK66PgaHvIhzoBAIVFUVNx7es
+	hquql/vPTH9LvLzyoPvW3uKrBwLMuJiaoyB4zSQFiKMgm+Z214WiMZhbLKDnsQB9
+	U5nt7kT7cFoq0J8dv4iysXNG/Lx8rndllpDctzwLpxo/qsWhw/+udsiCIS98ggBq
+	yb3XfU9eksHCf7WGOG0KxVZb3P+eJYk7eIXLSYGp91e+yU344EWER5UygGXcPBww
 	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cksk44cat-1
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cksk44ce4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 05 Mar 2026 17:24:54 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 625E05fI010317;
-	Thu, 5 Mar 2026 17:24:54 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cmc6kc7ga-1
+	Thu, 05 Mar 2026 17:25:46 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 625FQouo027658;
+	Thu, 5 Mar 2026 17:25:45 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cmcwjm17q-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 05 Mar 2026 17:24:54 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 625HOqRp30999096
+	Thu, 05 Mar 2026 17:25:45 +0000
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 625HPips8979076
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 5 Mar 2026 17:24:52 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A52E458058;
-	Thu,  5 Mar 2026 17:24:52 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7377258057;
-	Thu,  5 Mar 2026 17:24:51 +0000 (GMT)
-Received: from [9.52.221.31] (unknown [9.52.221.31])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  5 Mar 2026 17:24:51 +0000 (GMT)
-Message-ID: <cfd76996-ecae-4ed9-add0-70ca2e59ef11@linux.ibm.com>
-Date: Thu, 5 Mar 2026 18:24:48 +0100
+	Thu, 5 Mar 2026 17:25:44 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5A49858056;
+	Thu,  5 Mar 2026 17:25:44 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6FC9F5805D;
+	Thu,  5 Mar 2026 17:25:42 +0000 (GMT)
+Received: from li-43857255-d5e6-4659-90f1-fc5cee4750ad.ibm.com (unknown [9.61.185.249])
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  5 Mar 2026 17:25:42 +0000 (GMT)
+Message-ID: <b33086b5f20a635a86d935fef3f4c429c723f6ac.camel@linux.ibm.com>
+Subject: Re: [PATCH v3 1/3] integrity: Make arch_ima_get_secureboot
+ integrity-wide
+From: Mimi Zohar <zohar@linux.ibm.com>
+To: Vasily Gorbik <gor@linux.ibm.com>
+Cc: linux-integrity@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Ard Biesheuvel
+ <ardb@kernel.org>, Dave Hansen <dave.hansen@intel.com>,
+        Coiby Xu
+ <coxu@redhat.com>, Roberto Sassu <roberto.sassu@huawei.com>,
+        Madhavan
+ Srinivasan	 <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin	 <npiggin@gmail.com>,
+        "Christophe Leroy (CS GROUP)"
+ <chleroy@kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle	
+ <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@kernel.org>, Ingo Molnar	
+ <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen	
+ <dave.hansen@linux.intel.com>,
+        "maintainer:X86 ARCHITECTURE (32-BIT AND
+ 64-BIT)" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Dmitry
+ Kasatkin	 <dmitry.kasatkin@gmail.com>,
+        Eric Snowberg
+ <eric.snowberg@oracle.com>,
+        Paul Moore <paul@paul-moore.com>, James Morris
+ <jmorris@namei.org>,
+        "Serge E. Hallyn"	 <serge@hallyn.com>,
+        Jarkko Sakkinen
+ <jarkko@kernel.org>,
+        open list	 <linux-kernel@vger.kernel.org>,
+        "open
+ list:LINUX FOR POWERPC (32-BIT AND 64-BIT)"
+ <linuxppc-dev@lists.ozlabs.org>,
+        "open list:S390 ARCHITECTURE"
+ <linux-s390@vger.kernel.org>,
+        "open list:EXTENSIBLE FIRMWARE INTERFACE
+ (EFI)"	 <linux-efi@vger.kernel.org>,
+        "open list:SECURITY SUBSYSTEM"	
+ <linux-security-module@vger.kernel.org>,
+        "open
+ list:KEYS/KEYRINGS_INTEGRITY"	 <keyrings@vger.kernel.org>
+In-Reply-To: <c00-01.ttbfdx5@ub.hpns>
+References: <20260213012851.2532722-2-coxu@redhat.com>
+	 <c00-01.ttbfdx5@ub.hpns>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 05 Mar 2026 12:25:42 -0500
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [linux-next][s390] Boot hang after merge c50f05bd3c4e
- (sched/hrtick)
-To: Heiko Carstens <hca@linux.ibm.com>, Peter Zijlstra <peterz@infradead.org>
-Cc: linux-next@vger.kernel.org, linux-s390@vger.kernel.org,
-        Ingo Molnar <mingo@kernel.org>,
-        Alexander Egorenkov
- <egorenar@linux.ibm.com>,
-        Thomas Gleixner <tglx@kernel.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-References: <af549a19-db99-4b16-8511-bf315177a13e@linux.ibm.com>
- <28add480-4841-4e6a-a8a9-1211280ecc51@linux.ibm.com>
- <20260305074922.7170Ad3-hca@linux.ibm.com>
- <20260305121201.GB596554@noisy.programming.kicks-ass.net>
- <20260305123505.GA1395416@noisy.programming.kicks-ass.net>
- <20260305124501.GB1395416@noisy.programming.kicks-ass.net>
- <20260305130725.GB652779@noisy.programming.kicks-ass.net>
- <20260305150210.7170D10-hca@linux.ibm.com>
-Content-Language: en-US
-From: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-In-Reply-To: <20260305150210.7170D10-hca@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: N2TvqY9IMQqgqq70Y0Q9xGSR3M8mD1yp
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA1MDE0MCBTYWx0ZWRfXxlLuEiY9WvcO
- kyVjn1RtVgzn3VDJRAU+jnQvzBKYyki0HlEXzwuwyevypXYiB4AggnN1sHbYTt1woCNIPXYKXQ0
- BDkI0GIdYZEbk2OGTd5N5TYjN+lpNpJlWf7VdBLdSLduwIqZ5ObgJc+xUnH4iIkrkSB+ODmS6dg
- O3W/hIs+5Wb3yaTon3XxdZBGXs5iO9pllHItNYTpFBs1S3VvcjP2NxwZjnW7vr/S1QOR6Laua1+
- jTofd1outRazoDpkP2VHgFObflv2ICc28yosckyuKXx+oaDtN4JfXYO6VnY0VgUj9v0XMdc69gb
- cM/LAyvSPnCyZfBv/G36h+lvqjr53qULpO+dFuQTi61OVCxGKUFnzAKIJ1ZEcN6JZ/qr09+Lbn1
- bssi9Qwb8SxoqR1P9KkhXvzLAd65yXr4gehS7BLuCCYuwRww70/2qdvxHTZKv5fSPj9pg18Y+id
- S+4BgtH6/svqyZMCqrw==
-X-Authority-Analysis: v=2.4 cv=csCWUl4i c=1 sm=1 tr=0 ts=69a9bc66 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: n5u3KvkqHsHSG1MPOf93GcHhdfPo5Ydn
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA1MDE0MCBTYWx0ZWRfX2GwyKh4RC1hO
+ 8e835PXQ73sAhRTjc5hcUXNuRa16LUmjeYrKhRTH8uumRPD6u6AHpv+R1U4wbUNUKtaVD4BCTwU
+ Gs+8eec+4MXi+5GADfbifXChrow3C7bOocLltn0fEKw6L/ghXKT3D9c7AQEND5Uxazf8QO/as6O
+ J5n+fKJXv/TUTDvqUiyiZIgw51FJfJVs8F857zTKeHXbBMmRDNcvSlDk8Xig0Ffwjxv6t2OSjLR
+ H1mzlFXc6/oBzQqofGITH/P1rzOap9r9zEpCq7G6PvzEKhDJtotff/HlT1iz6uiuttTQhZblak4
+ 7lPagrK2S28ATugKW7HODfQ1dDd7pFes418ioZ7o7ZU73J8mwDENhGclmBn91xk0SlzKfvnVbi7
+ 5YqF7xT68eY0VP3tD7JPON8zHDmEngH2dZZrq5VbC3H+w0alPrWtihSo4X35W0+8XOvAzN7Lv2h
+ Ah50ca8+F56uPHOCZ7w==
+X-Authority-Analysis: v=2.4 cv=csCWUl4i c=1 sm=1 tr=0 ts=69a9bc9a cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=XzDXOgBD491ubj_CJSkA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: N2TvqY9IMQqgqq70Y0Q9xGSR3M8mD1yp
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=i0EeH86SAAAA:8 a=20KFwNOVAAAA:8 a=FlYQV3jgbqAUZRz1eTYA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: 1tcHdgBiVXli_g0ESprzx_tD6GHaaEJp
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-03-05_05,2026-03-04_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  impostorscore=0 priorityscore=1501 suspectscore=0 malwarescore=0 adultscore=0
- clxscore=1011 bulkscore=0 phishscore=0 spamscore=0 lowpriorityscore=0
+ clxscore=1015 bulkscore=0 phishscore=0 spamscore=0 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603050140
 
+On Thu, 2026-03-05 at 13:55 +0100, Vasily Gorbik wrote:
+> On Fri, Feb 13, 2026 at 09:28:46AM +0800, Coiby Xu wrote:
+> > EVM and other LSMs need the ability to query the secure boot status of
+> > the system, without directly calling the IMA arch_ima_get_secureboot
+> > function. Refactor the secure boot status check into a general function
+> > named arch_get_secureboot.
+> >=20
+> > Reported-and-suggested-by: Mimi Zohar <zohar@linux.ibm.com>
+> > Suggested-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > Signed-off-by: Coiby Xu <coxu@redhat.com>
+> > ---
+> >  MAINTAINERS                                   |  1 +
+> >  arch/powerpc/kernel/ima_arch.c                |  5 --
+> >  arch/powerpc/kernel/secure_boot.c             |  6 ++
+> >  arch/s390/kernel/ima_arch.c                   |  6 --
+> >  arch/s390/kernel/ipl.c                        |  5 ++
+> >  arch/x86/include/asm/efi.h                    |  4 +-
+> >  arch/x86/platform/efi/efi.c                   |  2 +-
+> >  include/linux/ima.h                           |  7 +--
+> >  include/linux/secure_boot.h                   | 19 +++++++
+> >  security/integrity/Makefile                   |  3 +-
+> >  security/integrity/efi_secureboot.c           | 56 +++++++++++++++++++
+> >  security/integrity/ima/ima_appraise.c         |  2 +-
+> >  security/integrity/ima/ima_efi.c              | 47 +---------------
+> >  security/integrity/ima/ima_main.c             |  3 +-
+> >  security/integrity/integrity.h                |  1 +
+> >  security/integrity/platform_certs/load_uefi.c |  2 +-
+> >  security/integrity/secure_boot.c              | 16 ++++++
+> >  17 files changed, 115 insertions(+), 70 deletions(-)
+> >  create mode 100644 include/linux/secure_boot.h
+> >  create mode 100644 security/integrity/efi_secureboot.c
+> >  create mode 100644 security/integrity/secure_boot.c
+>=20
+> This triggers a warning on s390:
+>=20
+> arch/s390/kernel/ipl.c:2507:6: warning: no previous prototype for =E2=80=
+=98arch_get_secureboot=E2=80=99 [-Wmissing-prototypes]
+>  2507 | bool arch_get_secureboot(void)
+>       |      ^~~~~~~~~~~~~~~~~~~
+>=20
+> @Mimi: could you please squash this fixup into the offending commit,
+> or pick it up separately?
 
+Thanks, Vasily.  It's now squashed.
 
-On 05-Mar-26 16:02, Heiko Carstens wrote:
-> On Thu, Mar 05, 2026 at 02:07:25PM +0100, Peter Zijlstra wrote:
->>>> Moving that before irq_enter_rcu() means it doesn't see HARDIRQ_OFFSET
->>>> in preempt_count(). As such, it might actually call into schedule() from
->>>> hardirq context.
->>>>
->>>> Or am I missing something?
->>>
->>> N/m, it turns into __this_cpu_add() and that doesn't have
->>> preempt_enable().
->>>
->>> 00d8b035eb71 ("s390/idle: Slightly optimize idle time accounting")
->>>
->>> Is actually a correctness fix afaict.
-> 
-> Yes. Those dependencies become quite subtle when calling early into C code.
-> 
->> Another change is that you clear I and E in the PSW bit before
->> irq_enter_rcu(), which, per:
->>
->>   7e641e52cf5f ("softirq: Prepare for deferred hrtimer rearming")
->>
->> can re-arm the timer.
->>
->> So where previously it would re-arm and still have the I/E bits set, so
->> the timer could fire, they are now disabled.
->>
->> I really don't know if this is a problem; I'm clutching at s390 straws
->> here that I really don't know much about.
-> 
-> That's the old PSW where the interrupt happened, not the one with which the
-> CPU is running with, and shouldn't have any effect.
-> 
-> ...but reverting that commit actually does fix it for me. 
-
-For me it doesn't. But reverting this one helps:
-15dd3a948855 ("hrtimer: Push reprogramming timers into the interrupt return path")
-
-
+Mimi
