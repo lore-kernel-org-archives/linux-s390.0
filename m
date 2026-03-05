@@ -1,212 +1,119 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B714827E049;
-	Wed,  4 Mar 2026 20:19:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12AF81494C3;
+	Thu,  5 Mar 2026 00:36:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772655553; cv=none; b=SrW+/mE8L3kCTdKwmfqqHCU2+C8SedSKPFoJvepgzIBA2w1jmbx81p2Z9SwvwKUANLKDi9+UBmyhlpFwpsBq7bTPMvWzeiO0FE+4SL1ezPgHgMHnUZNGncYkGnnzh/q9fWNrh/Bu4BruYnGl34NtSEVQLy735iHaiaXjJEdGmKo=
+	t=1772671005; cv=none; b=kdXvbGDuaaQjD/NHVqe/mk7Gzp4vuKenXGmkVXZLiFIm0UompskYwsk/yk1Q919syQiQbi2v87Wg06apPFRxe/h488j+QT5u1sarXVM6ODP64I/uNi/2vr/p/Ol2EECPOz28L/cNm5JJPBgEVjUTRi/zEOxxyN19olScvgIkEvI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772655553; c=relaxed/simple;
-	bh=74Jsu255Q/euPKCA7TGkWaEIhAZUiCCjebu+ZFLEpvM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=f+YaTbaD8FbAST6rNsLr2ymhrAr//M61vkuT/dAZIX49H3BsGLjVjks6fkdny5cuyyoLwN42+nqb8VR1L/VWh9dPloEQM4ZScjTPvHNsYpjI9c1N/maZvEXqgwvsnqq1D2KNQxZgeQOXKnOrhrCxsWwh+qKZSzm2sWR/sTIOJGA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ePsaqoVG; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1772671005; c=relaxed/simple;
+	bh=dufxbUIyr7d8ExFT8JscxBc90VyX6BXpvMXaMHirGFY=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=NuB/2colSWq/IScSq18GNiHE9njLfWu1FVHPyCKCfmAb6AmgXUadRwqUf50X1RmW/1rsLk2jtZO5xkdokw2u1nz0C6TxUfd60zK7ai+EisGPgfYxcymmEq5W9xrVF8c5AeTab/97dQitXFTA8IhdeHrMUVAAH0BGU7V1LwlRAZ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KToGiCmv; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ePsaqoVG"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 624GC2fx126572;
-	Wed, 4 Mar 2026 20:19:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ROJ1wb
-	6krvufzOwRxM+wjsf8/DGIK/Eus7rvFKTwMQ0=; b=ePsaqoVGaHiqs4Z350LukY
-	4mhM9wGBuCL/R2L1imFUoveSVZC/4TuszMMjpzn1dwd7w6ATIE6o/kfkZveBvhPs
-	AK7xccR2dbesmLFGYuK9uMjFOmn7X2nlBvL8iSPhCu2maBRMODH3xfigWkvgrsIu
-	a9d/SfczPEWYidj1LLv6+rvs3dIlgPqnk6IR7xTK3BZoJhCQDxN/cbOkTSyKTW61
-	rQQ/g6M6Y3tz850s3cAVKJQYDvZAwKhleXP6bg6hADXP3PEOT3LYFPnWMOmANcJj
-	fmruHJSVt8yufdNcSna7IHGyiF0ZuEtCmx4abgl390lF5sOvh8GO+p3Bp/iApOzg
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ckssmrpau-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Mar 2026 20:19:10 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 624JbY08010309;
-	Wed, 4 Mar 2026 20:19:09 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cmc6k86r9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Mar 2026 20:19:09 +0000
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 624KJ8S76619850
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 4 Mar 2026 20:19:08 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4FA5158055;
-	Wed,  4 Mar 2026 20:19:08 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 896265804B;
-	Wed,  4 Mar 2026 20:19:07 +0000 (GMT)
-Received: from [9.61.30.112] (unknown [9.61.30.112])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  4 Mar 2026 20:19:07 +0000 (GMT)
-Message-ID: <cef95ca6-f55a-43b4-b65c-ee7372530eee@linux.ibm.com>
-Date: Wed, 4 Mar 2026 15:19:07 -0500
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KToGiCmv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70C0CC4CEF7;
+	Thu,  5 Mar 2026 00:36:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772671004;
+	bh=dufxbUIyr7d8ExFT8JscxBc90VyX6BXpvMXaMHirGFY=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+	b=KToGiCmvRjrVNqFH9bmGJHeZ38P88LzG7roLZL+LfIaWcpEiN2r+2cd8LeoKKP35z
+	 U1kZMnp2GF5lnZ/nU+B3HGi0hmJYpifkPnaIttjOzC0p4MJWgdE7whcAtStb71A/hR
+	 PWMEoeZUETbXXgqKLd947UqscZTCqE7PdSGVXWHEJVzdsA5P/GL+TYntigcrzmPu9S
+	 bwFDNJowrmaquHt0GQepYaacF/aqErDIPLaR1+ZJBBxnDoRwltgCLkyg6X/do1S70f
+	 /t3wS/hkSXMAn5Ptc3L2X59NGkKMvuLeUJNxpcdH9xAkM1JdLfqBeN7u7tjz5Udo9K
+	 2yvhogx3J8MSA==
+From: Nathan Chancellor <nathan@kernel.org>
+To: Nicolas Schier <nsc@kernel.org>, Nathan Chancellor <nathan@kernel.org>
+Cc: Richard Henderson <richard.henderson@linaro.org>, 
+ Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>, 
+ Vineet Gupta <vgupta@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
+ Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, 
+ Brian Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, 
+ WANG Xuerui <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>, 
+ Sam Creasey <sammy@sammy.net>, 
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+ Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, 
+ Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, 
+ Stafford Horne <shorne@gmail.com>, 
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
+ Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
+ Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, 
+ Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Andreas Larsson <andreas@gaisler.com>, Richard Weinberger <richard@nod.at>, 
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+ Johannes Berg <johannes@sipsolutions.net>, 
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+ Kees Cook <kees@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
+ Masahiro Yamada <masahiroy@kernel.org>, Alexey Gladkov <legion@kernel.org>, 
+ linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+ linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
+ loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, 
+ linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, 
+ linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+ linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
+ linux-um@lists.infradead.org, linux-kbuild@vger.kernel.org, 
+ stable@vger.kernel.org, Ed W <lists@wildgooses.com>
+In-Reply-To: <20260225-separate-modinfo-from-elf-details-v1-1-387ced6baf4b@kernel.org>
+References: <20260225-separate-modinfo-from-elf-details-v1-1-387ced6baf4b@kernel.org>
+Subject: Re: [PATCH] kbuild: Split .modinfo out from ELF_DETAILS
+Message-Id: <177267099220.1730256.13119170390082704508.b4-ty@kernel.org>
+Date: Wed, 04 Mar 2026 17:36:32 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/2] KVM: s390: selftests: Add IRQ routing address
- offset tests
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, freimuth@linux.ibm.com, imbrenda@linux.ibm.com,
-        borntraeger@linux.ibm.com
-References: <20260303135250.3665-1-frankja@linux.ibm.com>
- <20260303135250.3665-3-frankja@linux.ibm.com>
-Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20260303135250.3665-3-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA0MDE2NSBTYWx0ZWRfX0tVphaYwDiaC
- etPnsd/vRMgSh8weskcIGelvMWsxfZymmnro7sXt7iuDy1cqvYCD9cjD9Nwu6+IlhIZX3Ty8e7f
- //0kDu2igx29KZryAICQtfh9zNwZQq/PjpYkHdIyP9Ue/QX+onk82asEia5aIW/K2OlNxSrf/um
- Ddm5LcXSM5F673wqppY15jsqZDtXOKz+Oc+F2M/jUGylTXG+jxdf05yzF8mF7KGFFiq5qe9FXpg
- wem/PXFfqUujpvama5Du/4To5jmAR5wUQiNfiftnawEaKNHDjT/G/xkhOBFuYG/XtrgFxKyD+cp
- C8ndR2702qAWLL1rPOCFMmPER5oMKr46zciTep9R5n9sYf521s0tjp4vXCypl260qmWiwd/4e/e
- HHurwElseHzZZJ1UR8QSCaRhT8tLx50hemzWz33goQhyZpA8dru0hpnxF7GJtCmgfUGJyFoAtIy
- Ia4Rki//SwvWIUoRAow==
-X-Proofpoint-ORIG-GUID: vRuvqDHo7QiszxEdWFjcnNWYSncQHklz
-X-Proofpoint-GUID: vRuvqDHo7QiszxEdWFjcnNWYSncQHklz
-X-Authority-Analysis: v=2.4 cv=AobjHe9P c=1 sm=1 tr=0 ts=69a893be cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=GmlhtUVhPKtlo-jr32YA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-04_07,2026-03-04_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 lowpriorityscore=0 bulkscore=0 impostorscore=0 malwarescore=0
- spamscore=0 clxscore=1015 suspectscore=0 adultscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603040165
+X-Mailer: b4 0.15-dev
 
-On 3/3/26 8:46 AM, Janosch Frank wrote:
-> This test tries to setup routes which have address + offset
-> combinations which cross a page.
+On Wed, 25 Feb 2026 15:02:51 -0700, Nathan Chancellor wrote:
+> Commit 3e86e4d74c04 ("kbuild: keep .modinfo section in
+> vmlinux.unstripped") added .modinfo to ELF_DETAILS while removing it
+> from DISCARDS, as it was needed in vmlinux.unstripped and ELF_DETAILS
+> was present in all architecture specific vmlinux linker scripts. While
+> this shuffle is fine for vmlinux, ELF_DETAILS and DISCARDS may be used
+> by other linker scripts, such as the s390 and x86 compressed boot
+> images, which may not expect to have a modinfo section. In certain
+> circumstances, this could result in a bootloader failing to load the
+> compressed kernel [1].
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
+> [...]
 
-LGTM, verified half of these tests fail without the first patch from this series; all pass once it is applied.
+Applied to
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+  https://git.kernel.org/pub/scm/linux/kernel/git/kbuild/linux.git kbuild-fixes
 
+Thanks!
 
->  tools/testing/selftests/kvm/Makefile.kvm      |  1 +
->  .../testing/selftests/kvm/s390/irq_routing.c  | 75 +++++++++++++++++++
->  2 files changed, 76 insertions(+)
->  create mode 100644 tools/testing/selftests/kvm/s390/irq_routing.c
-> 
-> diff --git a/tools/testing/selftests/kvm/Makefile.kvm b/tools/testing/selftests/kvm/Makefile.kvm
-> index fdec90e85467..271cbb63af36 100644
-> --- a/tools/testing/selftests/kvm/Makefile.kvm
-> +++ b/tools/testing/selftests/kvm/Makefile.kvm
-> @@ -205,6 +205,7 @@ TEST_GEN_PROGS_s390 += s390/ucontrol_test
->  TEST_GEN_PROGS_s390 += s390/user_operexec
->  TEST_GEN_PROGS_s390 += s390/keyop
->  TEST_GEN_PROGS_s390 += rseq_test
-> +TEST_GEN_PROGS_s390 += s390/irq_routing
->  
->  TEST_GEN_PROGS_riscv = $(TEST_GEN_PROGS_COMMON)
->  TEST_GEN_PROGS_riscv += riscv/sbi_pmu_test
-> diff --git a/tools/testing/selftests/kvm/s390/irq_routing.c b/tools/testing/selftests/kvm/s390/irq_routing.c
-> new file mode 100644
-> index 000000000000..7819a0af19a8
-> --- /dev/null
-> +++ b/tools/testing/selftests/kvm/s390/irq_routing.c
-> @@ -0,0 +1,75 @@
-> +// SPDX-License-Identifier: GPL-2.0-only
-> +/*
-> + * IRQ routing offset tests.
-> + *
-> + * Copyright IBM Corp. 2026
-> + *
-> + * Authors:
-> + *  Janosch Frank <frankja@linux.ibm.com>
-> + */
-> +#include <stdio.h>
-> +#include <stdlib.h>
-> +#include <string.h>
-> +#include <sys/ioctl.h>
-> +
-> +#include "test_util.h"
-> +#include "kvm_util.h"
-> +#include "kselftest.h"
-> +#include "ucall_common.h"
-> +
-> +extern char guest_code[];
-> +asm("guest_code:\n"
-> +    "diag %r0,%r0,0\n"
-> +    "j .\n");
-> +
-> +static void test(void)
-> +{
-> +	struct kvm_irq_routing *routing;
-> +	struct kvm_vcpu *vcpu;
-> +	struct kvm_vm *vm;
-> +	vm_paddr_t mem;
-> +	int ret;
-> +
-> +	struct kvm_irq_routing_entry ue = {
-> +		.type = KVM_IRQ_ROUTING_S390_ADAPTER,
-> +		.gsi = 1,
-> +	};
-> +
-> +	vm = vm_create_with_one_vcpu(&vcpu, guest_code);
-> +	mem = vm_phy_pages_alloc(vm, 2, 4096 * 42, 0);
-> +
-> +	routing = kvm_gsi_routing_create();
-> +	routing->nr = 1;
-> +	routing->entries[0] = ue;
-> +	routing->entries[0].u.adapter.summary_addr = (uintptr_t)mem;
-> +	routing->entries[0].u.adapter.ind_addr = (uintptr_t)mem;
-> +
-> +	routing->entries[0].u.adapter.summary_offset = 4096 * 8;
-> +	ret = __vm_ioctl(vm, KVM_SET_GSI_ROUTING, routing);
-> +	ksft_test_result(ret == -1 && errno == EINVAL, "summary offset outside of page\n");
-> +
-> +	routing->entries[0].u.adapter.summary_offset -= 4;
-> +	ret = __vm_ioctl(vm, KVM_SET_GSI_ROUTING, routing);
-> +	ksft_test_result(ret == 0, "summary offset inside of page\n");
-> +
-> +	routing->entries[0].u.adapter.ind_offset = 4096 * 8;
-> +	ret = __vm_ioctl(vm, KVM_SET_GSI_ROUTING, routing);
-> +	ksft_test_result(ret == -1 && errno == EINVAL, "ind offset outside of page\n");
-> +
-> +	routing->entries[0].u.adapter.ind_offset -= 4;
-> +	ret = __vm_ioctl(vm, KVM_SET_GSI_ROUTING, routing);
-> +	ksft_test_result(ret == 0, "ind offset inside of page\n");
-> +
-> +	kvm_vm_free(vm);
-> +}
-> +
-> +int main(int argc, char *argv[])
-> +{
-> +	TEST_REQUIRE(kvm_has_cap(KVM_CAP_IRQ_ROUTING));
-> +
-> +	ksft_print_header();
-> +	ksft_set_plan(4);
-> +	test();
-> +
-> +	ksft_finished();	/* Print results and exit() accordingly */
-> +}
+[1/1] kbuild: Split .modinfo out from ELF_DETAILS
+      https://git.kernel.org/kbuild/c/8678591b47469
+
+Please look out for regression or issue reports or other follow up
+comments, as they may result in the patch/series getting dropped or
+reverted. Patches applied to an "unstable" branch are accepted pending
+wider testing in -next and any post-commit review; they will generally
+be moved to the main branch in a week if no issues are found.
+
+Best regards,
+-- 
+Nathan Chancellor <nathan@kernel.org>
 
