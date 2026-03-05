@@ -1,70 +1,60 @@
-Received: from arcturus.nroach44.id.au (arcturus.nroach44.id.au [45.32.188.33])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DBE137BE99;
-	Thu,  5 Mar 2026 15:25:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.32.188.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5EEE2BD597;
+	Thu,  5 Mar 2026 15:44:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772724342; cv=none; b=l4+wipB9lVpDJfHdBCXds7Z8s6ZnvLimM8DQXRWmQvkUUv3xLCAlcltVo2+0j+QeDPpw1Yyjh1V64TsTf+1vQFhkf4Xvhac8kFdvJsK3LxwdehClYtUJU4sSwu5eW8Q+ISeOnu1bk7EIZrx3EDl3Yw8J4qAYoHtFNFAMOkJeXC0=
+	t=1772725486; cv=none; b=URz8wT7NycZIBUNdM5+i4EGpyiuUXSJGOGq1MduRMS5MJR5RKeoF/c50fixR558afv3ECZJ0RHl1v3xTsN54kC9Ghhf+1Al18Rnu1q+gwxpOy3GtxKwlEN7K5PnuMc5MtOxBP7GEhP0lMATxc0cjWDQ6qfe50cZj8N0vy0IVkuc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772724342; c=relaxed/simple;
-	bh=YYARtrHKCTb0FOK3T5y+Ihj4HwkDUufhHFrwTteinjk=;
+	s=arc-20240116; t=1772725486; c=relaxed/simple;
+	bh=NqtJ+trbu4iGMt4kIEck36sihnVvTfkaoSyiJqUOlMQ=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=PtCXEyOEcsivj9Wc/3NtWbU4hWCBsZGW7Vfeov0lD8wl54uB9j7BFpuL4UhxJeg+7rmf6SWohvzrRDzzUpCI5RWVB3MahuMi78G1cMtM7cDrORYbPYKR8sRteqMm8wWqwyhnWP0WHvrzS4/cVbjpaNbijTho+VGEOPp/XA3nc2s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=nroach44.id.au; spf=pass smtp.mailfrom=nroach44.id.au; dkim=pass (2048-bit key) header.d=nroach44.id.au header.i=@nroach44.id.au header.b=j93PyeIa; dkim=pass (2048-bit key) header.d=nroach44.id.au header.i=@nroach44.id.au header.b=j93PyeIa; dkim=pass (2048-bit key) header.d=nroach44.id.au header.i=@nroach44.id.au header.b=j6HEjp58; arc=none smtp.client-ip=45.32.188.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=nroach44.id.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nroach44.id.au
+	 In-Reply-To:Content-Type; b=sbcIMONaKJBK1u2FwxpZLrTZ8HF48SOgZqxP1jzfJKiY2d9+CsqJ0QECNbC7dfO5rim2ixieDzAyLgttITB79ygb79xaqpMFS9GKmgE3ZrFSNE+7/BGdKV5BvrC5ywbUEoiL0gow8YdTsklfvVfpNLFbFdIdQO5YcoX6Oos2uF0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com; spf=pass smtp.mailfrom=de.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YcONHcn0; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=de.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nroach44.id.au header.i=@nroach44.id.au header.b="j93PyeIa";
-	dkim=pass (2048-bit key) header.d=nroach44.id.au header.i=@nroach44.id.au header.b="j93PyeIa";
-	dkim=pass (2048-bit key) header.d=nroach44.id.au header.i=@nroach44.id.au header.b="j6HEjp58"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nroach44.id.au;
-	s=dYX2HNEqNNRL; t=1772723874;
-	bh=YYARtrHKCTb0FOK3T5y+Ihj4HwkDUufhHFrwTteinjk=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=j93PyeIa/hxoYbwJlySesQT/hFW0bGnjxUp7PlaU1q9wLYvh5tZuSAvv70c9Xo97V
-	 i0SruMJ0Aqkg6uWPmI7WYOVKXJenYEdOYIWKtc3Spc7eBvxarkFKh8KHnB/tYFYWv/
-	 Ky/buNeoRpU30D5NW43F3c0QCIXrhM61fBeEYHJLtLW+stjkIaV5Bo7a70j6qppEuJ
-	 qVEGMPUNxHVlhOOTVilrGfhIJQxOi6A3uGZ/iNbaeysJGcCvVcpTvdwJm08RifXh5y
-	 DTErYcQmsuHkJKTw5r7BOKvp96+v/VzByzoz0Aj2h0iHWH+P5DdEAvAUFhJKsvWQ91
-	 NX9T1XyUjt9dQ==
-Received: from arcturus.nroach44.id.au (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by arcturus.nroach44.id.au (Postfix) with ESMTPS id 969113115A;
-	Thu,  5 Mar 2026 23:17:54 +0800 (AWST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nroach44.id.au;
-	s=dYX2HNEqNNRL; t=1772723874;
-	bh=YYARtrHKCTb0FOK3T5y+Ihj4HwkDUufhHFrwTteinjk=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=j93PyeIa/hxoYbwJlySesQT/hFW0bGnjxUp7PlaU1q9wLYvh5tZuSAvv70c9Xo97V
-	 i0SruMJ0Aqkg6uWPmI7WYOVKXJenYEdOYIWKtc3Spc7eBvxarkFKh8KHnB/tYFYWv/
-	 Ky/buNeoRpU30D5NW43F3c0QCIXrhM61fBeEYHJLtLW+stjkIaV5Bo7a70j6qppEuJ
-	 qVEGMPUNxHVlhOOTVilrGfhIJQxOi6A3uGZ/iNbaeysJGcCvVcpTvdwJm08RifXh5y
-	 DTErYcQmsuHkJKTw5r7BOKvp96+v/VzByzoz0Aj2h0iHWH+P5DdEAvAUFhJKsvWQ91
-	 NX9T1XyUjt9dQ==
-Received: by arcturus.nroach44.id.au (Postfix, from userid 5555)
-	id 7C45E31155; Thu,  5 Mar 2026 23:17:54 +0800 (AWST)
-X-Spam-Level: 
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nroach44.id.au;
-	s=dYX2HNEqNNRL; t=1772723852;
-	bh=YYARtrHKCTb0FOK3T5y+Ihj4HwkDUufhHFrwTteinjk=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=j6HEjp58CAncqr+uwXPGkZ8lbR369/LG+98D/0XTHkVG3l29sNkU52WgCB9M9dhew
-	 gfYeHT+jf9fW3OfG/GF2ck8167gHXSBgmfi6zT9ikR3LMg0qsPoY8nZSWjrMI8OJMj
-	 kMd1y8ytlCPRepikIB3G0QISj/p2xbEqBa0pK59UYEzty8JgqZBIuj16Yj6eh2Rwin
-	 RqmxUyGdqP+iWTSqkWn4TEleHa5tBEEY1MFUvIEGuDv8GfTrCrGQcMjfyPuSXM+3gd
-	 YedViadoD7BXyM4xh27Cob7Y7tDuZ5rBOkg4Zdw1yQSY4SCVwDPQ2Y427CbPT0C5YX
-	 UV5C2DMMj3FPw==
-Received: from [IPV6:2403:5814:4228:10:6097:a659:11f5:50c] (unknown [IPv6:2403:5814:4228:10:6097:a659:11f5:50c])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by arcturus.nroach44.id.au (Postfix) with ESMTPSA id 3DB73308D6;
-	Thu,  5 Mar 2026 23:17:30 +0800 (AWST)
-Message-ID: <9dfc93b5-8269-4c72-aedc-2a1d5311b4a5@nroach44.id.au>
-Date: Thu, 5 Mar 2026 23:17:28 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YcONHcn0"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 625EqNSg1079188;
+	Thu, 5 Mar 2026 15:44:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=y5RiM5
+	y4h+BeLhlwGRFKjrhFJXZDo+/Y58qpKUHgQCg=; b=YcONHcn0aT3Ul+qBh1mJSB
+	7AYj6Yp9Apbjjcun9DitVBuuvhwM0knF07y35exXPYwcWOwsAcz3OxAZXmoKGJTI
+	KGoWEsywjUYx96nI8iiwdvjOPpOVrLkumg7rZBfoG4k/OqxtE6T/qojsyNJYY0CK
+	+yHL1GaKQhiKnQns/VqbwWhnEpTFTPO7pQmEX7GrdONf2yk21MdSF2INh0mOzfTj
+	HnpqirqtDIIVS2DGPk7Rl0NNar9HiKkDfDGAEcFQsi4VtkWqQldgpaqIjZ3Zh8nw
+	Qqv+gl4756Bto7haOJvQXGQTRvi3wXgs3hdxI+UiFU0jvm7QENSGugDoQDN2FyOg
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ckskc3w7r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 05 Mar 2026 15:44:25 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 625EWOLi010335;
+	Thu, 5 Mar 2026 15:44:25 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cmc6kbtmu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 05 Mar 2026 15:44:25 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 625FiLqc50266414
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 5 Mar 2026 15:44:21 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 59F722004D;
+	Thu,  5 Mar 2026 15:44:21 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CEE5E2004B;
+	Thu,  5 Mar 2026 15:44:20 +0000 (GMT)
+Received: from [9.52.200.39] (unknown [9.52.200.39])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  5 Mar 2026 15:44:20 +0000 (GMT)
+Message-ID: <bb09deb6-41ce-4e27-b6f8-6457a1629d99@de.ibm.com>
+Date: Thu, 5 Mar 2026 16:44:20 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -72,151 +62,83 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 00/14] sparc64: vdso: Switch to the generic vDSO
- library
-To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
- Andy Lutomirski <luto@kernel.org>,
- Vincenzo Frascino <vincenzo.frascino@arm.com>, Arnd Bergmann
- <arnd@arndb.de>, "David S. Miller" <davem@davemloft.net>,
- Andreas Larsson <andreas@gaisler.com>, Nick Alcock <nick.alcock@oracle.com>,
- John Stultz <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Shuah Khan <shuah@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>,
- Will Deacon <will@kernel.org>, Theodore Ts'o <tytso@mit.edu>,
- "Jason A. Donenfeld" <Jason@zx2c4.com>, Russell King
- <linux@armlinux.org.uk>, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Shannon Nelson <sln@onemain.com>,
- Thomas Gleixner <tglx@kernel.org>, Christophe Leroy <chleroy@kernel.org>
-Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-kselftest@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
- linux-mips@vger.kernel.org, linux-s390@vger.kernel.org,
- Arnd Bergmann <arnd@kernel.org>
-References: <20260304-vdso-sparc64-generic-2-v6-0-d8eb3b0e1410@linutronix.de>
+Subject: Re: [PATCH v1 1/1] KVM: s390: Fix a deadlock
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        frankja@linux.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
+        seiden@linux.ibm.com, gra@linux.ibm.com, schlameuss@linux.ibm.com,
+        hca@linux.ibm.com, david@kernel.org
+References: <20260303175206.72836-1-imbrenda@linux.ibm.com>
 Content-Language: en-US
-From: Nathaniel Roach <nroach44@nroach44.id.au>
-In-Reply-To: <20260304-vdso-sparc64-generic-2-v6-0-d8eb3b0e1410@linutronix.de>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+In-Reply-To: <20260303175206.72836-1-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: JL_4XwN-Td9BGXepHpvQ-iygMTDl-Tio
+X-Authority-Analysis: v=2.4 cv=b66/I9Gx c=1 sm=1 tr=0 ts=69a9a4d9 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=7qIwyxNRPOhrtI9IJb8A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA1MDEyNSBTYWx0ZWRfX7IODjhfoIitE
+ S9UYrb8k6oPMXPRqrESseHbXRxEjgjNkjJQoei/wPt47Sv7KuPX+n05MofzjoUpZAYkU6XimA0s
+ +10juapRJfnFwjIXBJnXf1rSLebcRiczHQftVTa/HQN/Lfmv+4wL5UKMvF/McS9kt+oP6yu/0VM
+ xMz1wotmG2zUau1Ag6yTl1rMwTulOWvTtAzm5Zm5/srTvI/xKmNrAVviGNLA1JnOhtdvBtF1sks
+ qWknLJENvQN+RPh1sQwXpHggFIo3DEk1qhS+HjHtwTFHC2iCMB+b+LzZ0HnQRr5H9OY6M217iL8
+ mIj1jc2s55ZgsBbTqwk9Q1+js1M4COYDcsdj2Q3QnjWXPtzO5o+e9jy6VzJVwZ2rxDZd0vcSZPn
+ MmHQrYED1ZqqvEXKw4G4sRdEQSIzN5dy5XiKa+vYjZv5OxjnE+3AI2OFahwJGrj6apPuyyfY3u+
+ a/Xdty5DLi2QMEGJ0lw==
+X-Proofpoint-GUID: JL_4XwN-Td9BGXepHpvQ-iygMTDl-Tio
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-05_04,2026-03-04_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 lowpriorityscore=0 phishscore=0 clxscore=1011 adultscore=0
+ bulkscore=0 impostorscore=0 malwarescore=0 spamscore=0 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603050125
 
-No (new) issues seen on SPARC T5-2.
+Am 03.03.26 um 18:52 schrieb Claudio Imbrenda:
+> In some scenarios, a deadlock can happen, involving _do_shadow_pte().
+> 
+> Convert all usages of pgste_get_lock() to pgste_get_trylock() in
+> _do_shadow_pte() and return -EAGAIN. All callers can already deal with
+> -EAGAIN being returned.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
 
-On 4/3/26 15:48, Thomas Weißschuh wrote:
-> The generic vDSO provides a lot common functionality shared between
-> different architectures. SPARC is the last architecture not using it,
-> preventing some necessary code cleanup.
->
-> Make use of the generic infrastructure.
->
-> Follow-up to and replacement for Arnd's SPARC vDSO removal patches:
-> https://lore.kernel.org/lkml/20250707144726.4008707-1-arnd@kernel.org/
->
-> SPARC64 can not map .bss into userspace, so the vDSO datapages are
-> switched over to be allocated dynamically.
->
-> Tested on a Niagara T4 and QEMU.
->
-> This has emantic conflicts with
-> * "vdso: Reject absolute relocations during build" [0]
-> * "vDSO: Respect COMPAT_32BIT_TIME" [1]
->
-> But I expect both other serieses to need more discussions.
->
-> [0] https://lore.kernel.org/lkml/20250812-vdso-absolute-reloc-v4-0-61a8b615e5ec@linutronix.de/
-> [1] https://lore.kernel.org/lkml/20260227-vdso-compat_32bit_time-v1-0-3f0286a7bac3@linutronix.de/
->
-> Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
-Tested-by: Nathaniel Roach <nroach44@nroach44.id.au> # SPARC T5-2
+Tested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+
+I no longer see the rcu stalls.
+
 > ---
-> Changes in v6:
-> - Provide statically allocated during early boot to avoid canges to the rng core
-> - Use non-compound data pages
-> - Reword commit messages
-> - Rebase on v7.0-rc1
-> - Link to v5: https://lore.kernel.org/r/20251106-vdso-sparc64-generic-2-v5-0-97ff2b6542f7@linutronix.de
->
-> Changes in v5:
-> - Merge the patches for 'struct page' mapping and dynamic allocation
-> - Zero out newly-allocated data pages
-> - Pick up review tags
-> - Link to v4: https://lore.kernel.org/r/20251014-vdso-sparc64-generic-2-v4-0-e0607bf49dea@linutronix.de
->
-> Changes in v4:
-> - Rebase on v6.18-rc1.
-> - Keep inclusion of asm/clocksource.h from linux/clocksource.h
-> - Reword description of "s390/time: Set up vDSO datapage later"
-> - Link to v3: https://lore.kernel.org/r/20250917-vdso-sparc64-generic-2-v3-0-3679b1bc8ee8@linutronix.de
->
-> Changes in v3:
-> - Allocate vDSO data pages dynamically (and lots of preparations for that)
-> - Drop clock_getres()
-> - Fix 32bit clock_gettime() syscall fallback
-> - Link to v2: https://lore.kernel.org/r/20250815-vdso-sparc64-generic-2-v2-0-b5ff80672347@linutronix.de
->
-> Changes in v2:
-> - Rebase on v6.17-rc1
-> - Drop RFC state
-> - Fix typo in commit message
-> - Drop duplicate 'select GENERIC_TIME_VSYSCALL'
-> - Merge "sparc64: time: Remove architecture-specific clocksource data" into the
->    main conversion patch. It violated the check in __clocksource_register_scale()
-> - Link to v1: https://lore.kernel.org/r/20250724-vdso-sparc64-generic-2-v1-0-e376a3bd24d1@linutronix.de
->
-> ---
-> Arnd Bergmann (1):
->        clocksource: remove ARCH_CLOCKSOURCE_DATA
->
-> Thomas Weißschuh (13):
->        vdso/datastore: Reduce scope of some variables in vvar_fault()
->        vdso/datastore: Drop inclusion of linux/mmap_lock.h
->        vdso/datastore: Allocate data pages dynamically
->        sparc64: vdso: Link with -z noexecstack
->        sparc64: vdso: Remove obsolete "fake section table" reservation
->        sparc64: vdso: Replace code patching with runtime conditional
->        sparc64: vdso: Move hardware counter read into header
->        sparc64: vdso: Move syscall fallbacks into header
->        sparc64: vdso: Introduce vdso/processor.h
->        sparc64: vdso: Switch to the generic vDSO library
->        sparc64: vdso2c: Drop sym_vvar_start handling
->        sparc64: vdso2c: Remove symbol handling
->        sparc64: vdso: Implement clock_gettime64()
->
->   arch/sparc/Kconfig                         |   3 +-
->   arch/sparc/include/asm/clocksource.h       |   9 -
->   arch/sparc/include/asm/processor.h         |   3 +
->   arch/sparc/include/asm/processor_32.h      |   2 -
->   arch/sparc/include/asm/processor_64.h      |  25 --
->   arch/sparc/include/asm/vdso.h              |   2 -
->   arch/sparc/include/asm/vdso/clocksource.h  |  10 +
->   arch/sparc/include/asm/vdso/gettimeofday.h | 184 ++++++++++++++
->   arch/sparc/include/asm/vdso/processor.h    |  41 ++++
->   arch/sparc/include/asm/vdso/vsyscall.h     |  10 +
->   arch/sparc/include/asm/vvar.h              |  75 ------
->   arch/sparc/kernel/Makefile                 |   1 -
->   arch/sparc/kernel/time_64.c                |   6 +-
->   arch/sparc/kernel/vdso.c                   |  69 ------
->   arch/sparc/vdso/Makefile                   |   8 +-
->   arch/sparc/vdso/vclock_gettime.c           | 380 ++---------------------------
->   arch/sparc/vdso/vdso-layout.lds.S          |  26 +-
->   arch/sparc/vdso/vdso.lds.S                 |   2 -
->   arch/sparc/vdso/vdso2c.c                   |  24 --
->   arch/sparc/vdso/vdso2c.h                   |  45 +---
->   arch/sparc/vdso/vdso32/vdso32.lds.S        |   4 +-
->   arch/sparc/vdso/vma.c                      | 274 ++-------------------
->   include/linux/clocksource.h                |   6 +-
->   include/linux/vdso_datastore.h             |   6 +
->   init/main.c                                |   2 +
->   kernel/time/Kconfig                        |   4 -
->   lib/vdso/datastore.c                       |  97 +++++---
->   27 files changed, 375 insertions(+), 943 deletions(-)
-> ---
-> base-commit: f02e02079ac56b44ff89d4c2189cf7185ab794f3
-> change-id: 20250722-vdso-sparc64-generic-2-25f2e058e92c
->
-> Best regards,
+>   arch/s390/kvm/gaccess.c | 6 ++++--
+>   1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+> index 4630b2a067ea..a9da9390867d 100644
+> --- a/arch/s390/kvm/gaccess.c
+> +++ b/arch/s390/kvm/gaccess.c
+> @@ -1434,7 +1434,8 @@ static int _do_shadow_pte(struct gmap *sg, gpa_t raddr, union pte *ptep_h, union
+>   	if (rc)
+>   		return rc;
+>   
+> -	pgste = pgste_get_lock(ptep_h);
+> +	if (!pgste_get_trylock(ptep_h, &pgste))
+> +		return -EAGAIN;
+>   	newpte = _pte(f->pfn, f->writable, !p, 0);
+>   	newpte.s.d |= ptep->s.d;
+>   	newpte.s.sd |= ptep->s.sd;
+> @@ -1444,7 +1445,8 @@ static int _do_shadow_pte(struct gmap *sg, gpa_t raddr, union pte *ptep_h, union
+>   	pgste_set_unlock(ptep_h, pgste);
+>   
+>   	newpte = _pte(f->pfn, 0, !p, 0);
+> -	pgste = pgste_get_lock(ptep);
+> +	if (!pgste_get_trylock(ptep, &pgste))
+> +		return -EAGAIN;
+>   	pgste = __dat_ptep_xchg(ptep, pgste, newpte, gpa_to_gfn(raddr), sg->asce, uses_skeys(sg));
+>   	pgste_set_unlock(ptep, pgste);
+>   
+
