@@ -1,176 +1,228 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 812C037AA97;
-	Thu,  5 Mar 2026 09:31:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FD90347FC3;
+	Thu,  5 Mar 2026 10:03:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772703107; cv=none; b=gTYbp0mQ2QTiSnmpGEhCICal6BwmJtoMoF84zgW7oUFZuAa84dPIYWaH3RYOiUYFtGsFaw1HzQoejBb36+xfdxrKL59HnZ2+1WNRe4ElpHmlJhVyQsWhtINhEtncFh0rWQf3qQe7UlpR15kc0ABslHBQLQ+Kip3GraB+3yuV/0k=
+	t=1772705025; cv=none; b=ad3nlXNEB0YxkQWqV2KpXEDn/LuKbSOwbEL1vuMityZZ3CwNskULmfl6pAl/YrfL2/wPtfSYwNlC4qCVJw5iRJmyXAZiUQBFyBQ5CKmTm0ThIxp6F/J9XdZnrK/u48cmS4p/gHoWmsTkKCZIHpwpK5jUka0uu46ed76OduaDn5E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772703107; c=relaxed/simple;
-	bh=zLOR26cLBLYh5Klh+Pn0d+Hj/jKctPEuA5Lkndxr7M8=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ffDQNn6nZ3A+DL6FxaTKRKCsfHA8yY6RTjy+7P+1N+kqe04JzZMQ5arYLD+yTgjh+kDwpxxNt1P+TAs8LmN+QJjlZ/fYStVDp23oCTm8wdN7DJyVSbpk/kkIfADIkzhh6qVqf3RN72aYY5m2MXnnmf7NpHiRrkzMx9U8nnT8jYo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=u4Ey9NAy; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=bEppHdnl; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1772705025; c=relaxed/simple;
+	bh=TWlYUc7mRNr9CBnHv0bzv/zBCU20gFcmj87ErRbQvKg=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=JsHK9B5tKEHGtKt8/OK3AJt4euP6rvo4nwxBv9iXTS8VQHk6aYXKGe/paMi/z0z2ubmvyDAcufM0vRo2wqe6wxeWzdd+3Z9KhDnN8aCp4xaHgITMSxfHWV0Pqex44SL0aM8VO+aJi4oDoaauSYX+lxq0g9eU2d61JUC4IZHe7IQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HAnZVrcP; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="u4Ey9NAy";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="bEppHdnl"
-From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1772703102;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=co01dxvIFWtkmzMGUBe0JJ0whr193iX3Ll+T6RjyBMU=;
-	b=u4Ey9NAyGUWhFzkNvW79whLpHoE678j2ZVNI7l110NkoHqN/cvmf1WNc3en60CY14hUlcd
-	kGiibB4af3kjSPeilIZYEZVe6jXa4M/ZzqJ7K24k+SsbED4eMaTIf7dq3jyeqyptm+uzzo
-	pajMZj8GX8f16XWZsq6rPOlGiLslBquq0Rwar2AumaULhH058WMlwnGrQkKGgFr4qf8Ujd
-	JeyEcLkiWaC/LgpXfmVyPchP4j+ox31IW901B3NWKwjirWkOfrbx00ujQHARucnXbzr39h
-	6qmNSlRU7Ksg/rNroUDh+eKhwj8+sBpNk4i5P/TkWF3Pp4pJLaGRco2c2F7wpA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1772703102;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=co01dxvIFWtkmzMGUBe0JJ0whr193iX3Ll+T6RjyBMU=;
-	b=bEppHdnlxpvy3m7oFR2YBsCtCjTREF5/5uSe5duOhyg3S0XxgXU4LtbYlykc9tTHgO6Ibx
-	csrqBtCXrUrD4UAA==
-Date: Thu, 05 Mar 2026 10:31:43 +0100
-Subject: [PATCH v3 7/8] sign-file: use 'struct module_signature' from the
- UAPI headers
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HAnZVrcP"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6259YAgQ674109;
+	Thu, 5 Mar 2026 10:03:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=RioBjd
+	ZmCiggAVbnBuh806rY5aSJDVeG0sEVQPcCLDs=; b=HAnZVrcPTbkU1RDV0tRsw3
+	Rk5suQyKsbkurrXvLMVLYFueCA9KGMhF9+XQAX7KvWEzZ7xD+RbaIufTRMXVKmYS
+	y7fy9WVl4ndDqkRDXAcOft0Z0Xpf/r5ZCefSmun3iHLPaLFL7XmeQQBseEHGLqOF
+	yA4nkB/Bia/ltQxx753g7U+XdDQCoXeNqq17VYFO9Lq34EbJZGXkJD7dti8YhUHo
+	C7KgDVCuEheS3p/L5ArKTfdbezTThnGOvolD8r8GchKPJfVtaF7x/6Cy+GzmlNvM
+	sL0oOZCQtfJgdwnC6cNYLfrVq0iCgj4oG3FIQsJLTIy+L5zuxHBfCzTrt879fyGg
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cksrjb60h-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 05 Mar 2026 10:03:32 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62592oWZ016408;
+	Thu, 5 Mar 2026 10:03:31 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cmbpnas2u-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 05 Mar 2026 10:03:31 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 625A3RB946399766
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 5 Mar 2026 10:03:27 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4DC1020076;
+	Thu,  5 Mar 2026 10:03:27 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0F40C2005A;
+	Thu,  5 Mar 2026 10:03:27 +0000 (GMT)
+Received: from [9.52.210.163] (unknown [9.52.210.163])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  5 Mar 2026 10:03:27 +0000 (GMT)
+Message-ID: <f679f226162e1f987053cf0c088268398287200a.camel@linux.ibm.com>
+Subject: Re: [PATCH net-next] net/mlx5: Allow asynchronous probe
+From: Gerd Bayer <gbayer@linux.ibm.com>
+To: Tariq Toukan <ttoukan.linux@gmail.com>,
+        Saeed Mahameed
+ <saeedm@nvidia.com>,
+        Leon Romanovsky	 <leon@kernel.org>, Tariq Toukan
+ <tariqt@nvidia.com>,
+        Mark Bloch	 <mbloch@nvidia.com>, Andrew Lunn
+ <andrew+netdev@lunn.ch>,
+        "David S. Miller"	 <davem@davemloft.net>,
+        Eric
+ Dumazet <edumazet@google.com>, Jakub Kicinski	 <kuba@kernel.org>,
+        Paolo
+ Abeni <pabeni@redhat.com>
+Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
+        Peter Oberparleiter	
+ <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Alexandra
+ Winter	 <wintera@linux.ibm.com>, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Date: Thu, 05 Mar 2026 11:03:26 +0100
+In-Reply-To: <d6fcf417-87b1-4bbe-9ec1-cabb2b2ed1a6@gmail.com>
+References: <20260303-parprobe_mlx5-v1-1-18194f2a1a3a@linux.ibm.com>
+	 <d6fcf417-87b1-4bbe-9ec1-cabb2b2ed1a6@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20260305-module-signature-uapi-v3-7-92f45ea6028c@linutronix.de>
-References: <20260305-module-signature-uapi-v3-0-92f45ea6028c@linutronix.de>
-In-Reply-To: <20260305-module-signature-uapi-v3-0-92f45ea6028c@linutronix.de>
-To: David Howells <dhowells@redhat.com>, 
- David Woodhouse <dwmw2@infradead.org>, Luis Chamberlain <mcgrof@kernel.org>, 
- Petr Pavlu <petr.pavlu@suse.com>, Daniel Gomez <da.gomez@kernel.org>, 
- Sami Tolvanen <samitolvanen@google.com>, Aaron Tomlin <atomlin@atomlin.com>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, Mimi Zohar <zohar@linux.ibm.com>, 
- Roberto Sassu <roberto.sassu@huawei.com>, 
- Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, 
- Eric Snowberg <eric.snowberg@oracle.com>, Paul Moore <paul@paul-moore.com>, 
- James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
- Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
- Andrii Nakryiko <andrii@kernel.org>, 
- Martin KaFai Lau <martin.lau@linux.dev>, 
- Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
- Yonghong Song <yonghong.song@linux.dev>, 
- John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>, 
- Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, 
- Jiri Olsa <jolsa@kernel.org>, Shuah Khan <shuah@kernel.org>
-Cc: keyrings@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-modules@vger.kernel.org, linux-s390@vger.kernel.org, 
- linux-integrity@vger.kernel.org, linux-security-module@vger.kernel.org, 
- linux-kbuild@vger.kernel.org, bpf@vger.kernel.org, 
- linux-kselftest@vger.kernel.org, 
- =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1772703098; l=3380;
- i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=zLOR26cLBLYh5Klh+Pn0d+Hj/jKctPEuA5Lkndxr7M8=;
- b=cbKMWPxLR0aa06YPMJMNH+3sP2FeyyExCNDYs8ZhrAmgMGdFUszFLlFGXUBMFrAX7ZUpY1tuP
- TT9qQLgbqBID7uuHWdtKTfOJ/DTI7Hziz33pfmvgOnHWrkQKgvv0/7w
-X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
- pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=Rp/I7SmK c=1 sm=1 tr=0 ts=69a954f5 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=H7XoTaWE-anSZDuJziMA:9 a=QEXdDO2ut3YA:10
+ a=zY0JdQc1-4EAyPf5TuXT:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA1MDA3NyBTYWx0ZWRfXwIN8kTYLiooy
+ 18/J/NWXicqUTPqvueNfxEr1OBC1EVWUp7NmWT778BUm4kffs1xFfysvP3JyvLZaQnXZJ14VBPW
+ I3XR2wO+V70JllWsNKyLLhL6nv8ii5NWJPcBfz/u8C3AvTAbicjWKM2ZxSr8d6mww1PbOcncEuc
+ 8YbHzD2WOo5kHskqoqIZa7B0auC5j9wQ0lMzTdk4IuqMOdlh+Pv8rV4RHl73Msx3jNUe4Wt04FP
+ a3/YhpNwq115WWNCDo04IJFuUhL3dDfg1vZmDZYtmZ1WmD+fBFRJh7U+460OLK4nSnuR5+Vgsko
+ kOaaEnu6iGcY/yHICTMe7YyapY2eFBGHwhhEZdO1SioV0RhOr8GoKjDI36NK2yJx/kzBJRkdSkJ
+ r8aTr+D4P4MuSki0HaPVrG+9v3u8FYqxdXSQgs6yg/scqM+57GDTXHk42qD+PiCc4fDap4Sw54B
+ sWXlDyHfwdG/xQVBr3w==
+X-Proofpoint-GUID: vesfvqm0HlLXEPtlktGrblPjM5KyKIwm
+X-Proofpoint-ORIG-GUID: k0I49wQH8nF47e57fUCv6Tt-riC-HUtu
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-05_02,2026-03-04_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 priorityscore=1501 spamscore=0 phishscore=0 adultscore=0
+ bulkscore=0 clxscore=1015 impostorscore=0 malwarescore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603050077
 
-Now that the UAPI headers provide the required definitions, use those.
-Some symbols have been renamed, adapt to those.
+On Thu, 2026-03-05 at 09:56 +0200, Tariq Toukan wrote:
+>=20
+> On 03/03/2026 12:33, Gerd Bayer wrote:
+> > Announce that mlx5_core supports asynchronous probing.
+> >=20
+>=20
+> Hi Gerd,
+> Interesting patch.
+>=20
+> > Tests on s390 - where VFs can show up isolated from their PF in OS
+> > instances - showed symptoms of "mlx5_core: probe of 00e7:00:00.0 failed
+> > with error -12" when booting a system with a large number (> 250) of
+> > Mellanox Technologies ConnectX Family mlx5Gen Virtual Function
+> > (15b3:101e) PCI functions.
+> >=20
+> > Turns out that this is due to systemd-udev's time-out supervision of
+> > "modprobe" killing the sequential initialization of additional function=
+s
+> > if probing exceeds a default of 180 seconds.
+> >=20
+> > According to [1] device drivers could (slow ones should!) opt-in to hav=
+e
+> > their probe step being executed asynchronously - and interleaved. With
+> > the mlx5_core device driver announcing PROBE_PREFER_ASYNCHRONOUS as
+> > proposed by this patch, we've measured 275 VFs being probed successfull=
+y
+> > in about 60 seconds.
+> >=20
+>=20
+> Nice.
+>=20
+> > [1] https://www.kernel.org/doc/html/latest/driver-api/infrastructure.ht=
+ml
+> >=20
+> > Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
+> > ---
+> > Hi all,
+> >=20
+> > this patch helps to speed up boot times when there are a large numbers
+> > of Mellanox/NVidia VFs in a configuration. Although we've seens real
+> > issues, I'm hesitating to declare this a fix of commit 9603b61de1ee
+> > ("mlx5: Move pci device handling from mlx5_ib to mlx5_core") primarily
+> > because the concept of asynchronous probing with commit 765230b5f084
+> > ("driver-core: add asynchronous probing support for drivers") was
+> > introduced only later.
+> >=20
+> > Thanks,
+> > Gerd Bayer
+> > ---
+>=20
+> This is an interesting problem, and the proposed solution looks=20
+> reasonable. That said, this is a very sensitive area and there may still=
+=20
+> be hidden assumptions or corner cases we haven't considered. This needs=
+=20
+> thorough testing across a wide range of real-world scenarios and=20
+> different system topologies before we can be confident in it.
 
-Also adapt the include path for the custom sign-file rule in the
-bpf selftests.
+I agree that a change like this might expose concurrency issues lurking
+both in the driver instance controlling the VFs and the driver instance
+running the PF. I have to admit, that my testing so far was primarily
+focused on making large configurations work rather than "regression
+tests" with "household configurations" of 1..~10 VFs. I'll discuss in-
+house how we can increase coverage as well.
 
-Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
-Reviewed-by: Petr Pavlu <petr.pavlu@suse.com>
----
- scripts/Makefile                     |  1 +
- scripts/sign-file.c                  | 19 ++++---------------
- tools/testing/selftests/bpf/Makefile |  1 +
- 3 files changed, 6 insertions(+), 15 deletions(-)
+>=20
+> We'll take this for testing and report back once we have results.
 
-diff --git a/scripts/Makefile b/scripts/Makefile
-index 0941e5ce7b57..3434a82a119f 100644
---- a/scripts/Makefile
-+++ b/scripts/Makefile
-@@ -35,6 +35,7 @@ HOSTCFLAGS_sorttable.o = -I$(srctree)/tools/include
- HOSTLDLIBS_sorttable = -lpthread
- HOSTCFLAGS_asn1_compiler.o = -I$(srctree)/include
- HOSTCFLAGS_sign-file.o = $(shell $(HOSTPKG_CONFIG) --cflags libcrypto 2> /dev/null)
-+HOSTCFLAGS_sign-file.o += -I$(srctree)/tools/include/uapi/
- HOSTLDLIBS_sign-file = $(shell $(HOSTPKG_CONFIG) --libs libcrypto 2> /dev/null || echo -lcrypto)
- 
- ifdef CONFIG_UNWINDER_ORC
-diff --git a/scripts/sign-file.c b/scripts/sign-file.c
-index 73fbefd2e540..86b010ac1514 100644
---- a/scripts/sign-file.c
-+++ b/scripts/sign-file.c
-@@ -40,19 +40,7 @@
- #endif
- #include "ssl-common.h"
- 
--struct module_signature {
--	uint8_t		algo;		/* Public-key crypto algorithm [0] */
--	uint8_t		hash;		/* Digest algorithm [0] */
--	uint8_t		id_type;	/* Key identifier type [PKEY_ID_PKCS7] */
--	uint8_t		signer_len;	/* Length of signer's name [0] */
--	uint8_t		key_id_len;	/* Length of key identifier [0] */
--	uint8_t		__pad[3];
--	uint32_t	sig_len;	/* Length of signature data */
--};
--
--#define PKEY_ID_PKCS7 2
--
--static char magic_number[] = "~Module signature appended~\n";
-+#include <linux/module_signature.h>
- 
- static __attribute__((noreturn))
- void format(void)
-@@ -197,7 +185,7 @@ static X509 *read_x509(const char *x509_name)
- 
- int main(int argc, char **argv)
- {
--	struct module_signature sig_info = { .id_type = PKEY_ID_PKCS7 };
-+	struct module_signature sig_info = { .id_type = MODULE_SIGNATURE_TYPE_PKCS7 };
- 	char *hash_algo = NULL;
- 	char *private_key_name = NULL, *raw_sig_name = NULL;
- 	char *x509_name, *module_name, *dest_name;
-@@ -357,7 +345,8 @@ int main(int argc, char **argv)
- 	sig_size = BIO_number_written(bd) - module_size;
- 	sig_info.sig_len = htonl(sig_size);
- 	ERR(BIO_write(bd, &sig_info, sizeof(sig_info)) < 0, "%s", dest_name);
--	ERR(BIO_write(bd, magic_number, sizeof(magic_number) - 1) < 0, "%s", dest_name);
-+	ERR(BIO_write(bd, MODULE_SIGNATURE_MARKER, sizeof(MODULE_SIGNATURE_MARKER) - 1) < 0,
-+	    "%s", dest_name);
- 
- 	ERR(BIO_free(bd) != 1, "%s", dest_name);
- 
-diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
-index 6776158f1f3e..2b1080892208 100644
---- a/tools/testing/selftests/bpf/Makefile
-+++ b/tools/testing/selftests/bpf/Makefile
-@@ -270,6 +270,7 @@ $(OUTPUT)/urandom_read: urandom_read.c urandom_read_aux.c $(OUTPUT)/liburandom_r
- $(OUTPUT)/sign-file: ../../../../scripts/sign-file.c
- 	$(call msg,SIGN-FILE,,$@)
- 	$(Q)$(CC) $(shell $(PKG_CONFIG) --cflags libcrypto 2> /dev/null) \
-+		  -I$(srctree)/tools/include/uapi/ \
- 		  $< -o $@ \
- 		  $(shell $(PKG_CONFIG) --libs libcrypto 2> /dev/null || echo -lcrypto)
- 
+Thank you for your consideration.
 
--- 
-2.53.0
+>=20
+> BTW, as you probably know, a possible workaround is to increase the=20
+> systemd-udev timeout.
+> What timeout is required for it to succeed without this change?
 
+Yes, I did some very limited experiments with that, but I was measuring
+the uninterruptible duration of initializing a single VF instance to be
+close to one second. That would mean that for the 275 VFs I'd have to
+up the time-out value from 180 to ~300 seconds. That would be ~5
+minutes of boot latency (worst case)...=20
+
+>=20
+> >   drivers/net/ethernet/mellanox/mlx5/core/main.c | 3 +++
+> >   1 file changed, 3 insertions(+)
+> >=20
+> > diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/n=
+et/ethernet/mellanox/mlx5/core/main.c
+> > index fdc3ba20912e4fbc53c65825c62e868996eff56d..b53fc3f2566acf5a07cb8df=
+649124c4a87f3e043 100644
+> > --- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
+> > +++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+> > @@ -2306,6 +2306,9 @@ static struct pci_driver mlx5_core_driver =3D {
+> >   	.sriov_configure   =3D mlx5_core_sriov_configure,
+> >   	.sriov_get_vf_total_msix =3D mlx5_sriov_get_vf_total_msix,
+> >   	.sriov_set_msix_vec_count =3D mlx5_core_sriov_set_msix_vec_count,
+> > +	.driver		=3D {
+> > +		.probe_type	=3D PROBE_PREFER_ASYNCHRONOUS,
+> > +	}
+> >   };
+> >  =20
+> >   /**
+> >=20
+> > ---
+> > base-commit: c69855ada28656fdd7e197b6e24cd40a04fe14d3
+> > change-id: 20260303-parprobe_mlx5-d10d2a746d3a
+> >=20
+> > Best regards,
+
+Thank you,
+Gerd
