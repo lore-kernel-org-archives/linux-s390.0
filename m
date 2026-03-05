@@ -1,111 +1,121 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 296D63909B4;
-	Thu,  5 Mar 2026 13:07:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 928EE22258C;
+	Thu,  5 Mar 2026 14:04:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772716051; cv=none; b=NYUGO/00I6auFbdaJyko8nC+0iJf9Ib8FOTOmh8rMWND6chld1ZHyxsb/wWTqpNqAcWoecnInyUwHv/BKukepCF7l3MgdEZX8F5HwhLuFlfwaT/D7HoYBP1Dsqoe1bKhFKOTt4xmvjpda1fJGFm4C3amWMFDGAkK7AeqeC6AITI=
+	t=1772719499; cv=none; b=HF8O2WYQqfsP3tDA2gT8JpN11c07v7LYbiQ/hOXQUIu6vX4NOfLDnbwNUGOMWXmzFcBC5uGl0fjYORJd4sFZMmzbqcfxuiO0np/VPkOFpfCqQU4x8xlOxMTb3qsvy8Q6W8m3DGXK15vTqpFNxYXJpaQ5LN7tSUafUtDqpW015Os=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772716051; c=relaxed/simple;
-	bh=r8tqbKy12I/WyVkqeZ4wboYJQhTagujmoj6loZq1318=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GHjJftfHJ0+JwlfIZsW4kPJJOPqLiC10u8i/IOKFoZSNLXLZnWPZugbIFjTXqEWGaBqmwOlOf1TJIaIrD3/iEG5sFPFT3F7fx4H7mDQz2jBfUpjAzNmmAYieuL4/SMZWWJKa9qQfJuJ0O8as27hqkzjhFSJXjWQ09kh1jukU47M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=qCseaZ/J; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1772719499; c=relaxed/simple;
+	bh=kXAlvYTnWxCa2JtVg7jARp4neeMYO8LpwlXD0aV/0B4=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=qoUOpTdELzYiuDELrK7UlYLa0/UMPdK2KGhcFALbJJQMzldyfif8l6BjlJuxdKM0lhQkJIQx7N14t8Yr6R2UeAloiQzHP8pp3X3DIN/oLMQelMf/70BuoVC0wHnHDU04AnZvmYuWD6jtmmCvphKzmjcauIWA9OH9DH0k675j1qw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IpvAJGq2; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="qCseaZ/J"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=fusjg1dA45UTjdR15R0G/H/d9dukZeIFpl8KH+dV+uU=; b=qCseaZ/JIEeFa7WnzUvPuheik8
-	XSGHoy5ziIngjXwaApW0CfmYr+cCpXz/NgVA/lgp0SfusxzSq17Q7tA2cNC6E9DFW2B7muWYu6UAb
-	XW49kIeQlWBb8Lc4w+jeb1abzDdDkgmbUuzqMPByueDol5ahlHLRtEYn3LMkeIgwAMKKmxAv2KGBH
-	vzJc6oflMKD/U3Z98qFDxUqQmtMGWJ3eKCNdcdVzCh8pjA14fHX2gWUIQv3+DfMzsWMV9pb3mttLd
-	MuG0L9AEwWooDS6RvodXKzFXkziV5AyOw9q1iT/y43LRH2Kp/oSNFtAQ+/fhRl1TMHsino482tTzR
-	60+mScOw==;
-Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
-	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vy8QI-0000000F1i3-3O4q;
-	Thu, 05 Mar 2026 13:07:26 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id C2226300CDE; Thu, 05 Mar 2026 14:07:25 +0100 (CET)
-Date: Thu, 5 Mar 2026 14:07:25 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Mikhail Zaslonko <zaslonko@linux.ibm.com>, linux-next@vger.kernel.org,
-	linux-s390@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-	Alexander Egorenkov <egorenar@linux.ibm.com>,
-	Thomas Gleixner <tglx@kernel.org>,
-	"Paul E. McKenney" <paulmck@kernel.org>
-Subject: Re: [linux-next][s390] Boot hang after merge c50f05bd3c4e
- (sched/hrtick)
-Message-ID: <20260305130725.GB652779@noisy.programming.kicks-ass.net>
-References: <af549a19-db99-4b16-8511-bf315177a13e@linux.ibm.com>
- <28add480-4841-4e6a-a8a9-1211280ecc51@linux.ibm.com>
- <20260305074922.7170Ad3-hca@linux.ibm.com>
- <20260305121201.GB596554@noisy.programming.kicks-ass.net>
- <20260305123505.GA1395416@noisy.programming.kicks-ass.net>
- <20260305124501.GB1395416@noisy.programming.kicks-ass.net>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IpvAJGq2"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 625CFnAW1118733;
+	Thu, 5 Mar 2026 14:04:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=M2iMHy
+	+uU2zWggwyhgY7tSwwmaI0Cj24dPzl8p+zrbI=; b=IpvAJGq2F5FWeXcUdDXl09
+	Im+C0bQLQlW0YaQQg3z61CZMwKgbYyw75DxVhGq2BDw0ARrMO4H42LTN4c1HYG48
+	any16d5+ZKWCktSpxfAmRjIj5GHvHMKdUGL+KBH9OM4mXtbNNwY2Qk7qI0E/MA6T
+	xBcYEsBqPZU7SMbAzy0g4JbzuIqvqBohChwYx/3segvcJx29NuGG8pqY8We4TC93
+	DI1LYiRmQ92pXUSkVkbHrs2U3F4JfX4ui4oCl6ZSAdIQy5lNpWwdVGhcP1/b0y64
+	+bwv1PzioJnq1Ydb0WFi5+xjkmGGN/BelbiAgXs21GNuG5Y0pG9wDCRUosuDqRsw
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cksrjc0nn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 05 Mar 2026 14:04:57 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 625DxeCu003275;
+	Thu, 5 Mar 2026 14:04:56 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cmb2ybnc2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 05 Mar 2026 14:04:56 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 625E4srj30999048
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 5 Mar 2026 14:04:55 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D92EC5805E;
+	Thu,  5 Mar 2026 14:04:54 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 29DFE5805B;
+	Thu,  5 Mar 2026 14:04:54 +0000 (GMT)
+Received: from [9.61.30.112] (unknown [9.61.30.112])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  5 Mar 2026 14:04:54 +0000 (GMT)
+Message-ID: <9eef692a-7d8f-4082-89e0-22210c407395@linux.ibm.com>
+Date: Thu, 5 Mar 2026 09:04:53 -0500
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260305124501.GB1395416@noisy.programming.kicks-ass.net>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/2] KVM: s390: Limit adapter indicator access to
+ mapped page
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, freimuth@linux.ibm.com, imbrenda@linux.ibm.com,
+        borntraeger@linux.ibm.com
+References: <20260303135250.3665-1-frankja@linux.ibm.com>
+ <20260303135250.3665-2-frankja@linux.ibm.com>
+ <be334141-01d4-4398-b89f-09f84519f29d@linux.ibm.com>
+Content-Language: en-US
+In-Reply-To: <be334141-01d4-4398-b89f-09f84519f29d@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=Rp/I7SmK c=1 sm=1 tr=0 ts=69a98d89 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=svPRbppwVNfn8ARwPMIA:9 a=QEXdDO2ut3YA:10 a=ZXulRonScM0A:10
+ a=zZCYzV9kfG8A:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA1MDEwOCBTYWx0ZWRfX/TQQJeOlfHFg
+ Tk9KKTy17l7TrMB0/G51gII37kcz9ftOS2u8zetR7qwNsU4iqGkWRWwxPl2PCce2PyHxIRdS+/2
+ fZnsIGFlddbBikIjmU6SNNzib2bdASzZoifN6ewLP0/Bq/SFTeT0i3MFuPSdsNbCplGKNS4FmCh
+ wXgOXSIVuxNTR13MqdxnyCW78jLc0MiQU0+neiv40BFatASVaP2a3B6VIvNI2KUFvh6jrss2evV
+ V35zv2HD36l9OTWdfj5608BSZZZNtjEUDbxk5vENird++WLvyW2eK+2dCECMZceqnUdYecbZEhG
+ dgvDZ7LkrH5MbqPnWK27UEnR3Lf8yZIn4JUhch0ShZy/Ps6tf1/eLdHIAfcZOZJpn04YEirKM8D
+ mA73hqvEUV/ZAzs5p5TUR2uulCi/dSE5kbG53h7e5J5up3y4UqQy+uG7uJhJkIdvumwVp28FxTa
+ S59arejb+caUbFSXmow==
+X-Proofpoint-GUID: 3bifwhAow5p74o1r3xNGsuwDOsLPw0GQ
+X-Proofpoint-ORIG-GUID: 3bifwhAow5p74o1r3xNGsuwDOsLPw0GQ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-05_04,2026-03-04_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 priorityscore=1501 spamscore=0 phishscore=0 adultscore=0
+ bulkscore=0 clxscore=1015 impostorscore=0 malwarescore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603050108
 
-On Thu, Mar 05, 2026 at 01:45:01PM +0100, Peter Zijlstra wrote:
-> On Thu, Mar 05, 2026 at 01:35:05PM +0100, Peter Zijlstra wrote:
-> > On Thu, Mar 05, 2026 at 01:12:01PM +0100, Peter Zijlstra wrote:
-> > 
-> > > > Any idea?
-> > > 
-> > > Well, that all looks like timers are going missing. Which matches with
-> > > Sven saying that disabling HRTIMER_REARM_DEFERRED makes it go again.
-> > > 
-> > > I'm just not sure I can see why things would break between
-> > > sched/hrtick (GOOD) and 1b8b1bb2a2fa (BAD).
-> > > 
-> > > Looking at the diff (eg git diff d50da4b5915f..c50f05bd3c4e) show some
-> > > idle time changes to s390 and various kernel/ changes, but nothing that
-> > > stands out to me :/
-> > 
-> > That s390 idle time code..
-> > 
-> >   0d785e2c324c ("s390/idle: Fix cpu idle exit cpu time accounting")
-> > 
-> > That moves this_cpu_add() from inside irq_enter_rcu() / irq_exit_rcu()
-> > to outside of it.
-> > 
-> > Your this_cpu_add() as preempt_enable(), which does a preemption check.
-> > 
-> > Moving that before irq_enter_rcu() means it doesn't see HARDIRQ_OFFSET
-> > in preempt_count(). As such, it might actually call into schedule() from
-> > hardirq context.
-> > 
-> > Or am I missing something?
+On 3/4/26 3:16 PM, Matthew Rosato wrote:
+> On 3/3/26 8:46 AM, Janosch Frank wrote:
+>> While we check the address for errors, we don't seem to check the bit
+>> offsets and since they are 32 and 64 bits a lot of memory can be
+>> reached indirectly via those offsets.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> Fixes: 84223598778b ("KVM: s390: irq routing for adapter interrupts.")
+>> Suggested-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 > 
-> N/m, it turns into __this_cpu_add() and that doesn't have
-> preempt_enable().
+> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
 > 
-> 00d8b035eb71 ("s390/idle: Slightly optimize idle time accounting")
-> 
-> Is actually a correctness fix afaict.
 
-Another change is that you clear I and E in the PSW bit before
-irq_enter_rcu(), which, per:
+Like with v1, I used a modified QEMU to attempt various invocations to convince myself this works.  So feel free to also add:
 
-  7e641e52cf5f ("softirq: Prepare for deferred hrtimer rearming")
+Tested-by: Matthew Rosato <mjrosato@linux.ibm.com>
 
-can re-arm the timer.
 
-So where previously it would re-arm and still have the I/E bits set, so
-the timer could fire, they are now disabled.
-
-I really don't know if this is a problem; I'm clutching at s390 straws
-here that I really don't know much about.
