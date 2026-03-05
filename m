@@ -1,62 +1,61 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87E54396D27;
-	Thu,  5 Mar 2026 12:20:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C40EF2D2486;
+	Thu,  5 Mar 2026 12:20:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772713233; cv=none; b=qpH+kdqOSA1WrSPL3LY7x5dl6XbxxxZlK6/S6hdZ8XPr8gI6qjOo2EFwcMoZFEOfWFGgBsIdQSi+ayvro8pkcPc/qq/yWgg0bGkvaDI9kqGaHHeYFBbAA6MEQutfl7GR3s2rSdS01YjP5vIMBDjDDZVUHhNoRbmZeGER7DBpU4c=
+	t=1772713235; cv=none; b=mFenSrJxo4UKCOYItJutKKgFkJ8aOKhES6kVVhTlSTTfzRujUaD1dHV5AXMzv5V32G1KvjNcYD5DOHH8pwgLEJ9yyeM5EBbILgFLk8xQnwbfVAy0cOlFPGlexEsyeJhfSj79N6WvCoHV7cRuFSmDF1ES/kDwMZ/e1r0GBVlDB0I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772713233; c=relaxed/simple;
-	bh=fa+UCbtwReJTJptJMdx/NTEP96lWAeW85C7bH3Iv6iA=;
+	s=arc-20240116; t=1772713235; c=relaxed/simple;
+	bh=iLJjOaBasa5wqp8pJKVLzB3iLIlNJucj2+/WyMGarQQ=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=khgfd4CrksbqUAPtOfJV3CISMDNWjRYoZ72JdQcJOXR6hoDT92vgx+IIoFp0ZegZpYDPhBBrzGWTs5TFj+3ycQlE/LjbJ11E/ceFlREx9CyK0dVyWqhaiDaFkJISUUnW8psjoLyYrBCCP2Uf8VnNkeoYnulJ8O/fcNzIrK9Wnp8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NtOJIhf1; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:To:Cc; b=sE6vth/Fefv52844A2l8RP4WQ0QFO8RuxGOzm4XGZZLMANiTy7oOaRM5hxEoObLnpxgxozDOWUPSnlswg4JDwAYaDGjfh/zrLirCQHkQS14DjAJwdPWnK/ZaqsFHrmtRcnoRL8wtg11Ajj8y0RYhORw04LC9VsTBpbu+ZWLqw0Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ClbecIxi; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NtOJIhf1"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6257qwYG2123727;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ClbecIxi"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 624IJT0a614134;
 	Thu, 5 Mar 2026 12:20:28 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=DLefWu
-	Qx1WI+Y5vD2GhByCm3kkB0v+kz8E76A14iFbs=; b=NtOJIhf10x4RnzKsV+fA6r
-	fPC/EDLIITMOJGOj+2adGQuHRPIEC2h38MoYfutEGNqscNScEithtSDPaIBQI6Es
-	E/PGJTd/VGqaRfoKE2lg7tqg4W1k382VuFr36qyiTa0VHgO3dc/g03fjJR2ehIVC
-	C0Nk5ZRzwfBTzO5aBN3zTJdiyF2UIzsfw2bOoAXVxcy/v1KXnNQqWNhJP2EbowjH
-	stWM/J7NC/chyCtqMr76k+g/aCvpArnZ9q3IrwS5FgG95Cw6IZigSSteOi9IeHy7
-	Y5JOmh28G85j6OyCYDE5JxXLPraWDBhrxIEg3lEsyL5IpDtDPwzyZA69S6j+eC0Q
+	:message-id:mime-version:references:subject:to; s=pp1; bh=YssNr5
+	zdvq4c5Fn1XZLKXxTrO6VR1IwkM3ky8LEG65M=; b=ClbecIxiQaA8D3U3Q5Te3g
+	XO1waVGxfAX4JApXoHV1yVXo4c0+bf6M6B5RbtcEl7Cbvc1RLqY3Q9eL3ZIn4Cv1
+	CkUF/gP4ZGUDgwqXDizCrtsxlwWXPwZdFFI/NZdPkOan7WRVdZFr1xgZ7Pn4yTrl
+	u/hK+uG6q+5Jb7Ke97OHzBdn+aDe2B7V6BttghYHH+kJiQSlNaB8GKLrNFFBuibg
+	Bm0SS7XwclyH7R5LqnPnCBbHrNHO11K5TMU9qNSDVW1e5mtt5FMw4TdUU4YWqMiY
+	8wnO97wQsg9ypzFr8mxhh69Vno+UOU5DbR28IENIB1JCu/TBYnwMXmKP5APhtzGw
 	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ckskd3k4g-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ckssmu6a8-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 05 Mar 2026 12:20:28 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 6259FMto016756;
-	Thu, 5 Mar 2026 12:20:26 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cmbpnb7nq-1
+	Thu, 05 Mar 2026 12:20:27 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 625BNlLY008769;
+	Thu, 5 Mar 2026 12:20:27 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cmdd1jx7c-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 05 Mar 2026 12:20:26 +0000
+	Thu, 05 Mar 2026 12:20:27 +0000
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 625CKMje48824676
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 625CKNc732375182
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 5 Mar 2026 12:20:22 GMT
+	Thu, 5 Mar 2026 12:20:23 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BC72D20040;
-	Thu,  5 Mar 2026 12:20:22 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 7439220040;
+	Thu,  5 Mar 2026 12:20:23 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6C78B2004B;
-	Thu,  5 Mar 2026 12:20:22 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 284DD2004D;
+	Thu,  5 Mar 2026 12:20:23 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  5 Mar 2026 12:20:22 +0000 (GMT)
+	Thu,  5 Mar 2026 12:20:23 +0000 (GMT)
 From: Julian Ruess <julianr@linux.ibm.com>
-Date: Thu, 05 Mar 2026 13:20:13 +0100
-Subject: [PATCH v3 1/3] vfio/pci: Rename vfio_config_do_rw() to
- vfio_pci_config_rw_single() and export it
+Date: Thu, 05 Mar 2026 13:20:15 +0100
+Subject: [PATCH v3 3/3] MAINTAINERS: add VFIO ISM PCI DRIVER section
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -64,8 +63,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20260305-vfio_pci_ism-v3-1-1217076c81d9@linux.ibm.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260305-vfio_pci_ism-v3-3-1217076c81d9@linux.ibm.com>
 References: <20260305-vfio_pci_ism-v3-0-1217076c81d9@linux.ibm.com>
 In-Reply-To: <20260305-vfio_pci_ism-v3-0-1217076c81d9@linux.ibm.com>
 To: schnelle@linux.ibm.com, wintera@linux.ibm.com, ts@linux.ibm.com,
@@ -81,93 +80,57 @@ Cc: mjrosato@linux.ibm.com, alifm@linux.ibm.com, raspl@linux.ibm.com,
         linux-pci@vger.kernel.org
 X-Mailer: b4 0.14.2
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: DKvhiIPjnyuzuhuJe9qEFn7vr22GV-Ac
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA1MDA5OSBTYWx0ZWRfXyFndmPTI87nY
- IVEHFJJR06V43phJHh8tdem/RnjVAIqyzEFZXT146mjjdoU7SNW4VL96OvndgFFdE+iAyvACizb
- 3uP+MC13KpJNa1SUHu/c34Dvgq74ffRc2O/qpQMYqxAn0epf/mVP4upJasdxcx2Mz3UzB/Tm4Bz
- vLuJQ4Pw38yBhUBf+P9ZwIuVwQmGW+nJTMSSio1OkjSulKYnwd8Ps5ltP7MeBAnddoYtfNbrR/I
- oIWi39Hr9U5oOum1zRpr+tlmCTKtHzwk/lSJDtEOvh9jk9Mbm7gU2XRKhSRJBl05drQA+ANkIGO
- gro49jtz8As7LilklIUHshc9htB4O4tzBT3psyGi9ieu84Ivn2DjaoRs7ERcBXeiUVG5my+JfNo
- VWb6WRDV9YEtpTFND51xQpE9EdfNklVk/GcX+gN0HvUWE+b0FZ85KOBYEqkDku3fa0kTeuw69N6
- 5fd5mVKCfoMHlkkNOyw==
-X-Authority-Analysis: v=2.4 cv=H7DWAuYi c=1 sm=1 tr=0 ts=69a9750c cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA1MDA5OSBTYWx0ZWRfXwQ9Cuy97zLS1
+ KD3x4qgwx2g6hpzbsXxI9Gu+AzojLeyRS9sKM/bAM/3QBQ+Nl1n0B8zZ8Li3nb9yKfhmc9w72Vp
+ Vx2egbfKEdkqArntAPKQRyQS7EiBtSHcDKO1RUGOvc+FSi++YtLAI5ujuh68c28GbKi4DT7D8+7
+ +keFixGLQ8fVdySextuUNsR/hLoqxBWYMmAXT3TT5pFK2wXpmE1e1jnaYABLZT5eQgE8pbqrTbZ
+ TMGOXZsDS9iZ1q8jcMjzUrD4hCdiNcy/rF+b7uvX0i5vIdkHo5gYv/cnacoe/pTpY/A3r345KwC
+ 9SAvlOQUH5lpS1F4nyPpjm69H3euyCgrrgy4PFAFR24ESc4QdjCjTG1MvI75HcQ/IlRy+XNAMAV
+ dyEeD04Box1Uw8YYRgsEylpf9qyUX1Iod+/B5Ay+HtuxzfjTY3kKDVCOSaRUFPkJJfQY6gZ7ZQH
+ j8du1dWI8mkdaIpK17A==
+X-Proofpoint-ORIG-GUID: 38UMEjqMNiZF65w7RxC5Yn-0uxngn8TG
+X-Proofpoint-GUID: 38UMEjqMNiZF65w7RxC5Yn-0uxngn8TG
+X-Authority-Analysis: v=2.4 cv=AobjHe9P c=1 sm=1 tr=0 ts=69a9750c cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=mooU_oynDD9EFzHbF-IA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: DKvhiIPjnyuzuhuJe9qEFn7vr22GV-Ac
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=VwQbUJbxAAAA:8 a=Ikd4Dj_1AAAA:8 a=jBZh5NATpTL4zB9YInYA:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-03-05_04,2026-03-04_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 suspectscore=0 phishscore=0 clxscore=1015 priorityscore=1501
- adultscore=0 bulkscore=0 spamscore=0 malwarescore=0 lowpriorityscore=0
+ phishscore=0 lowpriorityscore=0 bulkscore=0 impostorscore=0 malwarescore=0
+ spamscore=0 clxscore=1015 suspectscore=0 adultscore=0 priorityscore=1501
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603050099
 
-A follow-up patch adds a new variant driver for s390 ISM devices. Since
-this device uses a 256 TiB BAR 0 that is never mapped, the variant
-driver needs its own ISM_VFIO_PCI_OFFSET_MASK. To minimally mirror the
-functionality of vfio_pci_config_rw() with such a custom mask, export
-vfio_config_do_rw(). To better distinguish the now exported function
-from vfio_pci_config_rw(), rename it to vfio_pci_config_rw_single()
-emphasizing that it does a single config space read or write.
+ism_vfio_pci is a new kernel component that allows
+to use the ISM device from userspace. Add myself
+as a maintainer.
 
 Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
 Signed-off-by: Julian Ruess <julianr@linux.ibm.com>
 ---
- drivers/vfio/pci/vfio_pci_config.c | 8 +++++---
- drivers/vfio/pci/vfio_pci_priv.h   | 4 ++++
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ MAINTAINERS | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/vfio/pci/vfio_pci_config.c b/drivers/vfio/pci/vfio_pci_config.c
-index b4e39253f98da61a5e2b6dd0089b2f6aef4b85a0..fbb47b4ddb43d42b758b16778e6e701379d7e7db 100644
---- a/drivers/vfio/pci/vfio_pci_config.c
-+++ b/drivers/vfio/pci/vfio_pci_config.c
-@@ -1880,8 +1880,9 @@ static size_t vfio_pci_cap_remaining_dword(struct vfio_pci_core_device *vdev,
- 	return i;
- }
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 61bf550fd37c274843e516e00068bb2ab1e152ac..b2b937890877f227e95872bb808a6b4d99a0ebee 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -27709,6 +27709,12 @@ L:	kvm@vger.kernel.org
+ S:	Maintained
+ F:	drivers/vfio/pci/hisilicon/
  
--static ssize_t vfio_config_do_rw(struct vfio_pci_core_device *vdev, char __user *buf,
--				 size_t count, loff_t *ppos, bool iswrite)
-+ssize_t vfio_pci_config_rw_single(struct vfio_pci_core_device *vdev,
-+			      char __user *buf, size_t count, loff_t *ppos,
-+			      bool iswrite)
- {
- 	struct pci_dev *pdev = vdev->pdev;
- 	struct perm_bits *perm;
-@@ -1970,6 +1971,7 @@ static ssize_t vfio_config_do_rw(struct vfio_pci_core_device *vdev, char __user
- 
- 	return ret;
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_config_rw_single);
- 
- ssize_t vfio_pci_config_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 			   size_t count, loff_t *ppos, bool iswrite)
-@@ -1981,7 +1983,7 @@ ssize_t vfio_pci_config_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 	pos &= VFIO_PCI_OFFSET_MASK;
- 
- 	while (count) {
--		ret = vfio_config_do_rw(vdev, buf, count, &pos, iswrite);
-+		ret = vfio_pci_config_rw_single(vdev, buf, count, &pos, iswrite);
- 		if (ret < 0)
- 			return ret;
- 
-diff --git a/drivers/vfio/pci/vfio_pci_priv.h b/drivers/vfio/pci/vfio_pci_priv.h
-index 27ac280f00b975989f6cbc02c11aaca01f9badf3..28a3edf65aeecfa06cd1856637cd33eec1fa3006 100644
---- a/drivers/vfio/pci/vfio_pci_priv.h
-+++ b/drivers/vfio/pci/vfio_pci_priv.h
-@@ -37,6 +37,10 @@ int vfio_pci_set_irqs_ioctl(struct vfio_pci_core_device *vdev, uint32_t flags,
- ssize_t vfio_pci_config_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 			   size_t count, loff_t *ppos, bool iswrite);
- 
-+ssize_t vfio_pci_config_rw_single(struct vfio_pci_core_device *vdev,
-+			      char __user *buf, size_t count, loff_t *ppos,
-+			      bool iswrite);
++VFIO ISM PCI DRIVER
++M:	Julian Ruess <julianr@linux.ibm.com>
++L:	kvm@vger.kernel.org
++S:	Maintained
++F:	drivers/vfio/pci/ism/
 +
- ssize_t vfio_pci_bar_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 			size_t count, loff_t *ppos, bool iswrite);
- 
+ VFIO MEDIATED DEVICE DRIVERS
+ M:	Kirti Wankhede <kwankhede@nvidia.com>
+ L:	kvm@vger.kernel.org
 
 -- 
 2.51.0
