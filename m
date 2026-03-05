@@ -1,47 +1,46 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81B32313E05;
-	Thu,  5 Mar 2026 07:11:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14614313543;
+	Thu,  5 Mar 2026 07:11:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772694717; cv=none; b=Cwg2uRRUt7jLpRx1jJiBLyX5eunVdrLkbfdbwmpqfk4Z9iKcMVfiL8bk47sFxxkU6gp39seVdnDGhEdaK0kV4Z8g47IV+rgc3ASlz9smL8RGThNHvuTZQRdMPYMZ1tpgKjh+HLxlgncBKF0LIQwpXWfKQgcFLeAvD0YPgLk/YSA=
+	t=1772694718; cv=none; b=MaIlXdC3+uxhp4vVwh3XehR/2sM2D4q9Pq7EcWV7kMUQ1UTgayTL9jD16jUwewmNiCOJkI/zSihJV8UuqHSKidQalaouSZxYKD5vDF8wB1mE2LDG+Klch27inzlNEMmdlkMOqFc2h+N8Cnj1JdU1EdxPDmSHPjKz7KpfJ0aBdUs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772694717; c=relaxed/simple;
-	bh=C5+VU6Rj3AzAAjH6qgyvpICOEokAeHvmCW4pKOiv3Qo=;
+	s=arc-20240116; t=1772694718; c=relaxed/simple;
+	bh=IMnfzkWW/lJ2khnY0abUgZ3GDYlJP3VKRnu8Fk7kfi8=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=GQqH6wWA8RFUKQXtoAbN6mjSggp30g4ItzFXgMUIS3Vn08fxrTjC1rX3htyU2bXjNORiInREaS/uKpISykLaZCMUE5rVN4F3GMo30fXa7WEcJIDqml/pxImy+ZvzKP9k+LBIRn6HjCD+QXzVH+7mDPw935y8nXpkiRu94h+bUTc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=GmWUCy99; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=fDFPY/kF; arc=none smtp.client-ip=193.142.43.55
+	 In-Reply-To:To:Cc; b=R/MQrXf9811OgWdI/mCRuWseMeyTa6MSk0Wt+aAu9LerhlIhj9XDQsplXTf/lDt+/CbpZr7ll+czkVqer16v398HMkL/Rjb2lKzX/D3Ohm6SPSu0MEZ76gztSd2TX43j/TFKj9ItJB/HgPDgZ6/ZQ1sY679oA2SSAHGUxRReyFA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=MsTQK8kg; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=fK3GCUQE; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="GmWUCy99";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="fDFPY/kF"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="MsTQK8kg";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="fK3GCUQE"
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1772694714;
+	s=2020; t=1772694715;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/RkkBJiLBbpdzJTeKxKjRuAgXGRoNTF0V2kg5fwbGXY=;
-	b=GmWUCy99wdqX7hTlOANFHdp1xX5qU5aF0LnzQBCRGuIzFX6jaPfcLtd8KLQTT2GjZuUMlC
-	JeNXGQdOIRRhuSJkDvlXmq5BL3MqDQ8gcP6PlcopaCbriW57Pn1AodDw3MybnVnecqvtSW
-	2XwzIFRp7URb0ZTL5A4i/WrJnfraaF6S9IrUsbDcgOZVzSWG6LwSN6fIVdVjp12viPcGNM
-	o3AWiqfqtUUUApRFwZmjTO7LeBKLDzYv3mTpKTTaa4RGcBhOO2h2uFLGQgJcOw7841X8a1
-	qt6hVNxpAmu0vEe3S2c1YgB26KBVd7HCESLWBnX089IVTyfEGQXo63ghVlu9Zg==
+	bh=Gpj/sYIOmRFElLcGAt+aF/dk/ZrzzTgowa10UT0Mh2U=;
+	b=MsTQK8kghZQ6H+hm1SZl1W9E/qsCKxTp34CwYZF8QLHHLzOJP+BNNgEv8wYYxxjWNepypF
+	+WApmu17bDz3s9E9OZE0J6vDyTLzcuTuI/DV/i0nmHH9hKR6BS6HeM4lOMoXS7cmj0sgnt
+	QefdittF8La3s1CvNlhZFmjx9ype7fC72w6eKj85qMMX7xtA52I0dh/14YnQZ/TEmdILSD
+	8J8eYl8QzexgHsOzDFrYoN3GL21XOd7Phuoz031S66v61uemTyxhse802xMpKuyGU+mvRr
+	mDcZJTIdZSKjqyeU8WY5s36P1IxdZf8xqLPDm1xJFgE9PPwxo7Zgsuz2NeJ2jg==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1772694714;
+	s=2020e; t=1772694715;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/RkkBJiLBbpdzJTeKxKjRuAgXGRoNTF0V2kg5fwbGXY=;
-	b=fDFPY/kF0Aba7eD2E7dCZ7YeGLYjVBF3swd6U91yfUNtsgk+S9Q3PXMWDu5CAVLSAZcsFX
-	nyYVunsq5kUbh2CA==
-Date: Thu, 05 Mar 2026 08:11:51 +0100
-Subject: [PATCH v2 1/8] extract-cert: drop unused definition of
- PKEY_ID_PKCS7
+	bh=Gpj/sYIOmRFElLcGAt+aF/dk/ZrzzTgowa10UT0Mh2U=;
+	b=fK3GCUQE9b+mkcHFBoNBmpeTTBcVIEAZKXAuoOph3+Zh0/WAsEH+tcFs4H+zEIbjPv5a+s
+	Vi+XgPo5CdjcZ4Dw==
+Date: Thu, 05 Mar 2026 08:11:52 +0100
+Subject: [PATCH v2 2/8] module: Drop unused signature types
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -50,7 +49,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260305-module-signature-uapi-v2-1-dc4d81129dee@linutronix.de>
+Message-Id: <20260305-module-signature-uapi-v2-2-dc4d81129dee@linutronix.de>
 References: <20260305-module-signature-uapi-v2-0-dc4d81129dee@linutronix.de>
 In-Reply-To: <20260305-module-signature-uapi-v2-0-dc4d81129dee@linutronix.de>
 To: David Howells <dhowells@redhat.com>, 
@@ -80,38 +79,40 @@ Cc: keyrings@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-kbuild@vger.kernel.org, bpf@vger.kernel.org, 
  linux-kselftest@vger.kernel.org, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1772694712; l=672;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1772694712; l=911;
  i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=C5+VU6Rj3AzAAjH6qgyvpICOEokAeHvmCW4pKOiv3Qo=;
- b=BqTa/nB/ZbjoULXVTnrG4fZ6f/DesQPDBO3szX9KpD1OcnfWk2dSwxR2zUUC7NOArmZJ6g4yj
- jmhXCTFskqbDTHBwaCMqoPrfWfDMYuWPYGykdmuk+jRtWJmc++9HqKV
+ bh=IMnfzkWW/lJ2khnY0abUgZ3GDYlJP3VKRnu8Fk7kfi8=;
+ b=1fhqYsOuRHGlPAGJrQElarGPZg6g1CzFBxfifsRUxlx3JQ8+I2k1mAreCQDoWs43MiGW6Olct
+ 8ydSx0mcGHQDJE44YBzhhGdum3GGEMaDrPV40vEWqWrocNjLO1ckZvf
 X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
  pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-This definition duplicates a definition from an internal kernel header
-which is going to be renamed.
+Only PKCS#7 signatures are used today.
 
-To get rid of an instance of the old name, drop the definition.
+Remove the unused enum values. As this enum is used in on-disk data,
+preserve the numeric value.
 
 Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 Reviewed-by: Petr Pavlu <petr.pavlu@suse.com>
 ---
- certs/extract-cert.c | 2 --
- 1 file changed, 2 deletions(-)
+ include/linux/module_signature.h | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/certs/extract-cert.c b/certs/extract-cert.c
-index 7d6d468ed612..8c762f908443 100644
---- a/certs/extract-cert.c
-+++ b/certs/extract-cert.c
-@@ -33,8 +33,6 @@
- #endif
- #include "ssl-common.h"
+diff --git a/include/linux/module_signature.h b/include/linux/module_signature.h
+index 7eb4b00381ac..820cc1473383 100644
+--- a/include/linux/module_signature.h
++++ b/include/linux/module_signature.h
+@@ -15,9 +15,7 @@
+ #define MODULE_SIG_STRING "~Module signature appended~\n"
  
--#define PKEY_ID_PKCS7 2
--
- static __attribute__((noreturn))
- void format(void)
- {
+ enum pkey_id_type {
+-	PKEY_ID_PGP,		/* OpenPGP generated key ID */
+-	PKEY_ID_X509,		/* X.509 arbitrary subjectKeyIdentifier */
+-	PKEY_ID_PKCS7,		/* Signature in PKCS#7 message */
++	PKEY_ID_PKCS7 = 2,	/* Signature in PKCS#7 message */
+ };
+ 
+ /*
 
 -- 
 2.53.0
