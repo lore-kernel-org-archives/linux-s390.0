@@ -1,22 +1,22 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D085D327C09;
-	Thu,  5 Mar 2026 07:11:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 447DD31E825;
+	Thu,  5 Mar 2026 07:11:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772694720; cv=none; b=QD6XlyoNTk8AdutV7P6vwMF6q4qafnoBOKpVt7V3tNvAwaFuYr4MeiKDiuoZbMboQoaW2lwemYQAesJlVFgbHjOFclMOyCB29/2U6UOR2v/wYGYXEXmbs8afvRtEGzvH2IQWEPqoI9QXLTt3bGr3KT/W7RRx61UKsMwMt71sFzg=
+	t=1772694721; cv=none; b=d3jQ+I66hPlTFsL9DMNPJlHRSnLSLiM8/WLfjoMRro4K3J7LYgn5RQ4fSZWYc+tSZf7GIRCZKbmMJ2pIcec9adG9n8xIh+N5XlXUQ9btzVZnrgiNrhxnLwjL1vgj8U+tMyE6qjh8oAymQeMuZ6I+CE85inmZBFN5/nm5RjK583I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772694720; c=relaxed/simple;
-	bh=82oL3WtgAN64LHuHNcsjPBuF0YKIbNmJsitQ2BVqkYo=;
+	s=arc-20240116; t=1772694721; c=relaxed/simple;
+	bh=M41jEYdsfnsqEnfdtlrISVzlWoWoJRh8+lq5aeoW4ys=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=NJ1ID8qHEGUUY5pG1Jt5IUdZrftjpulqieHu061KvjaVMYDMRveU2oVmmpelBQaQk26AnuYHmFY+agYBorkhBnT/XKSt/+7/B/w2oI+QaOS3tNF54icZWE4VLiWXnFKDNd5B/R/x5FA+5HtIhYQnlmpY24ncntJvsj2ZpjCPwPY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=F4hDsXB5; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=h2BdqXKe; arc=none smtp.client-ip=193.142.43.55
+	 In-Reply-To:To:Cc; b=f8BZPjPk6mPzoi+Hy+C/iuSQ1a6W5WosFWgJsMziIO2H7c2Nt3kGeEWyg8kpQWH8s1BmHuhq7UTu4AjDatbXCuxYWCCbNAyzfjxchzx16i+3NXNuiLIpZoaRmTj/KPltalbZ0d7pgtU/9eOiQpKiwcGRJmhmWWtlMI+BYE/mock=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=mHchs6MW; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=FtvQylcp; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="F4hDsXB5";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="h2BdqXKe"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="mHchs6MW";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="FtvQylcp"
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
 	s=2020; t=1772694717;
@@ -24,23 +24,24 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=J9omS7dgQ8BXV+q++KcFWhKgcxzIXmvC9J+vXgoKmAc=;
-	b=F4hDsXB5o9D/X4ImTQQK9Y6zJ4mb6qO2dolPmENmc3nEiqQyn/dwRJ3IlPxJ8eJG2tTZ8o
-	EKA462ZUav0mxrYhw/M0OgPw6wfbAZDEpa0060+lyqg5QP5IPYnvRpli2Kc0PdiCQqJbOg
-	qi2zZGhRMVC4KwGThq1oxbLrArSz3Ux+3QXLkdjX6BZq5859IQNOXSx0o15O0LG3C1JozZ
-	gDOYsomTf7HSE6sFtGpe5tJdyVwop2rYS66h6C3RLAMEW6zVMihRCx/rL8I6ca0C6lFs8a
-	KcbWYm/PJ+AYK2l0pponBFQmyjdCnkqB0qhRN2NU0wk63rMQa6ZgNiS1vjc14Q==
+	bh=D+tFGStkyju+xTwo19bkVzFuNowP5SRhznp5jZXaJQo=;
+	b=mHchs6MWinCQWCCo59O5LMKKaOtHYCFJng1Tftq0tkUamM1iEBvUOHOMnDN0d0yCh4Qyk7
+	Ko+prvcF69DRXdPvARfyvBgRJHKpuZPXcniJbc3eN+j1r1WxGty4VE6dyZS7jHvHOVq0QO
+	lVC5NNRdnSsLaAWT0UhR/NoV3tn4jBM9d1OrD4vpWk/W3eVlfQxEOH7xEqqi897RH9jLAG
+	2M8FSNvYama1em04j/ViY/ulpRGg9H3rUH9yDVlnn9uu2F0C4TsMaZEQKoOZYDSRy/Dg79
+	vME9eYoGUbnHMUqpL0u3+hEZZdUAfHPZcyLGYo4ahcDHRNjbgvrHGP65Xkrhaw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
 	s=2020e; t=1772694717;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=J9omS7dgQ8BXV+q++KcFWhKgcxzIXmvC9J+vXgoKmAc=;
-	b=h2BdqXKekkXuE9+NwFCgVBGJN90MlamOnZA2NTV2mj3tKCAZp8zy0OY96wabm5lwSvu7Iu
-	BSoUSD4IBesPbBCQ==
-Date: Thu, 05 Mar 2026 08:11:55 +0100
-Subject: [PATCH v2 5/8] module: Move 'struct module_signature' to UAPI
+	bh=D+tFGStkyju+xTwo19bkVzFuNowP5SRhznp5jZXaJQo=;
+	b=FtvQylcpCTPAC6mqvRddJyq//EGoMxXEfp/6aFR56q1Hsp7NmT8WBeWEj9nBoqtDOOUoPR
+	4vI2OFPfU13coYCg==
+Date: Thu, 05 Mar 2026 08:11:57 +0100
+Subject: [PATCH v2 7/8] sign-file: use 'struct module_signature' from the
+ UAPI headers
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,7 +50,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260305-module-signature-uapi-v2-5-dc4d81129dee@linutronix.de>
+Message-Id: <20260305-module-signature-uapi-v2-7-dc4d81129dee@linutronix.de>
 References: <20260305-module-signature-uapi-v2-0-dc4d81129dee@linutronix.de>
 In-Reply-To: <20260305-module-signature-uapi-v2-0-dc4d81129dee@linutronix.de>
 To: David Howells <dhowells@redhat.com>, 
@@ -79,115 +80,80 @@ Cc: keyrings@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-kbuild@vger.kernel.org, bpf@vger.kernel.org, 
  linux-kselftest@vger.kernel.org, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1772694712; l=3350;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1772694712; l=2604;
  i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=82oL3WtgAN64LHuHNcsjPBuF0YKIbNmJsitQ2BVqkYo=;
- b=V3y7YfZKEL022e86uwafHrxG+HeiF9RxejROBwJOEi9XDfPCCWFUbJQ0ovWaQL4xmSa9DtpZj
- CxDnVZ+6RtEDVn0NvcRtd0rvTathAkxA6A8qfYC4NLl1bV0fAK9DAFY
+ bh=M41jEYdsfnsqEnfdtlrISVzlWoWoJRh8+lq5aeoW4ys=;
+ b=onfaK7ADGnAWh9Qc4IH87fGmAxSnXANZE2WnC5cDFLAigmMHJmFTrWdKCLvdjGL0/3icU1FTo
+ LUpYJBNrWwpCge3FAIq4T+mq0mLJyxHHildswy9xFOy2zj9plv2YjCx
 X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
  pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-This structure definition is used outside the kernel proper.
-For example in kmod and the kernel build environment.
-
-To allow reuse, move it to a new UAPI header.
-
-While it is not a true UAPI, it is a common practice to have
-non-UAPI interface definitions in the kernel's UAPI headers.
+Now that the UAPI headers provide the required definitions, use those.
+Some symbols have been renamed, adapt to those.
 
 Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 Reviewed-by: Petr Pavlu <petr.pavlu@suse.com>
 ---
- include/linux/module_signature.h      | 28 +-----------------------
- include/uapi/linux/module_signature.h | 41 +++++++++++++++++++++++++++++++++++
- 2 files changed, 42 insertions(+), 27 deletions(-)
+ scripts/Makefile    |  1 +
+ scripts/sign-file.c | 19 ++++---------------
+ 2 files changed, 5 insertions(+), 15 deletions(-)
 
-diff --git a/include/linux/module_signature.h b/include/linux/module_signature.h
-index 915549c779dc..db335d46787f 100644
---- a/include/linux/module_signature.h
-+++ b/include/linux/module_signature.h
-@@ -10,33 +10,7 @@
- #define _LINUX_MODULE_SIGNATURE_H
+diff --git a/scripts/Makefile b/scripts/Makefile
+index 0941e5ce7b57..3434a82a119f 100644
+--- a/scripts/Makefile
++++ b/scripts/Makefile
+@@ -35,6 +35,7 @@ HOSTCFLAGS_sorttable.o = -I$(srctree)/tools/include
+ HOSTLDLIBS_sorttable = -lpthread
+ HOSTCFLAGS_asn1_compiler.o = -I$(srctree)/include
+ HOSTCFLAGS_sign-file.o = $(shell $(HOSTPKG_CONFIG) --cflags libcrypto 2> /dev/null)
++HOSTCFLAGS_sign-file.o += -I$(srctree)/tools/include/uapi/
+ HOSTLDLIBS_sign-file = $(shell $(HOSTPKG_CONFIG) --libs libcrypto 2> /dev/null || echo -lcrypto)
  
- #include <linux/types.h>
--
--/* In stripped ARM and x86-64 modules, ~ is surprisingly rare. */
--#define MODULE_SIGNATURE_MARKER "~Module signature appended~\n"
--
--enum module_signature_type {
--	MODULE_SIGNATURE_TYPE_PKCS7 = 2,	/* Signature in PKCS#7 message */
--};
--
--/*
-- * Module signature information block.
-- *
-- * The constituents of the signature section are, in order:
-- *
-- *	- Signer's name
-- *	- Key identifier
-- *	- Signature data
-- *	- Information block
-- */
+ ifdef CONFIG_UNWINDER_ORC
+diff --git a/scripts/sign-file.c b/scripts/sign-file.c
+index 73fbefd2e540..86b010ac1514 100644
+--- a/scripts/sign-file.c
++++ b/scripts/sign-file.c
+@@ -40,19 +40,7 @@
+ #endif
+ #include "ssl-common.h"
+ 
 -struct module_signature {
--	u8	algo;		/* Public-key crypto algorithm [0] */
--	u8	hash;		/* Digest algorithm [0] */
--	u8	id_type;	/* Key identifier type [enum module_signature_type] */
--	u8	signer_len;	/* Length of signer's name [0] */
--	u8	key_id_len;	/* Length of key identifier [0] */
--	u8	__pad[3];
--	__be32	sig_len;	/* Length of signature data */
+-	uint8_t		algo;		/* Public-key crypto algorithm [0] */
+-	uint8_t		hash;		/* Digest algorithm [0] */
+-	uint8_t		id_type;	/* Key identifier type [PKEY_ID_PKCS7] */
+-	uint8_t		signer_len;	/* Length of signer's name [0] */
+-	uint8_t		key_id_len;	/* Length of key identifier [0] */
+-	uint8_t		__pad[3];
+-	uint32_t	sig_len;	/* Length of signature data */
 -};
-+#include <uapi/linux/module_signature.h>
+-
+-#define PKEY_ID_PKCS7 2
+-
+-static char magic_number[] = "~Module signature appended~\n";
++#include <linux/module_signature.h>
  
- int mod_check_sig(const struct module_signature *ms, size_t file_len,
- 		  const char *name);
-diff --git a/include/uapi/linux/module_signature.h b/include/uapi/linux/module_signature.h
-new file mode 100644
-index 000000000000..634c9f1c8fc2
---- /dev/null
-+++ b/include/uapi/linux/module_signature.h
-@@ -0,0 +1,41 @@
-+/* SPDX-License-Identifier: GPL-2.0+ WITH Linux-syscall-note */
-+/*
-+ * Module signature handling.
-+ *
-+ * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ */
-+
-+#ifndef _UAPI_LINUX_MODULE_SIGNATURE_H
-+#define _UAPI_LINUX_MODULE_SIGNATURE_H
-+
-+#include <linux/types.h>
-+
-+/* In stripped ARM and x86-64 modules, ~ is surprisingly rare. */
-+#define MODULE_SIGNATURE_MARKER "~Module signature appended~\n"
-+
-+enum module_signature_type {
-+	MODULE_SIGNATURE_TYPE_PKCS7 = 2,	/* Signature in PKCS#7 message */
-+};
-+
-+/*
-+ * Module signature information block.
-+ *
-+ * The constituents of the signature section are, in order:
-+ *
-+ *	- Signer's name
-+ *	- Key identifier
-+ *	- Signature data
-+ *	- Information block
-+ */
-+struct module_signature {
-+	__u8	algo;		/* Public-key crypto algorithm [0] */
-+	__u8	hash;		/* Digest algorithm [0] */
-+	__u8	id_type;	/* Key identifier type [enum module_signature_type] */
-+	__u8	signer_len;	/* Length of signer's name [0] */
-+	__u8	key_id_len;	/* Length of key identifier [0] */
-+	__u8	__pad[3];
-+	__be32	sig_len;	/* Length of signature data */
-+};
-+
-+#endif /* _UAPI_LINUX_MODULE_SIGNATURE_H */
+ static __attribute__((noreturn))
+ void format(void)
+@@ -197,7 +185,7 @@ static X509 *read_x509(const char *x509_name)
+ 
+ int main(int argc, char **argv)
+ {
+-	struct module_signature sig_info = { .id_type = PKEY_ID_PKCS7 };
++	struct module_signature sig_info = { .id_type = MODULE_SIGNATURE_TYPE_PKCS7 };
+ 	char *hash_algo = NULL;
+ 	char *private_key_name = NULL, *raw_sig_name = NULL;
+ 	char *x509_name, *module_name, *dest_name;
+@@ -357,7 +345,8 @@ int main(int argc, char **argv)
+ 	sig_size = BIO_number_written(bd) - module_size;
+ 	sig_info.sig_len = htonl(sig_size);
+ 	ERR(BIO_write(bd, &sig_info, sizeof(sig_info)) < 0, "%s", dest_name);
+-	ERR(BIO_write(bd, magic_number, sizeof(magic_number) - 1) < 0, "%s", dest_name);
++	ERR(BIO_write(bd, MODULE_SIGNATURE_MARKER, sizeof(MODULE_SIGNATURE_MARKER) - 1) < 0,
++	    "%s", dest_name);
+ 
+ 	ERR(BIO_free(bd) != 1, "%s", dest_name);
+ 
 
 -- 
 2.53.0
