@@ -1,195 +1,170 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24B483093C6;
-	Thu,  5 Mar 2026 07:49:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B64133A9CB
+	for <linux-s390@vger.kernel.org>; Thu,  5 Mar 2026 07:57:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772696977; cv=none; b=NpbJhd3/+idIVuO51x1QildFea7M+73b3h1fzphbT4RaX7fdOpFTwCvbmy0QmMwj2/jt4CFvwK1aO5aC8mcSVSfP4rPV2TLtfu7PF/9BhANpHzDz3DypbJmmh4UIJKxjzmM3hCEMXvyjqlDp8qYKstIgLxBpv7LORVyhQ97axfg=
+	t=1772697422; cv=none; b=OE4+bNC+Zx7nCo1OZSy+I/fbkaabbojilDkoL/PRbUA/8inIIRMNVPe6tPMOHC60ZWv79grVPWtjriORe9obzJlglFwbu+/e5OgFNlIKcYQYoN0pjsyrOGPdSmu5xocFwrGS1H3idlKsYRNZY+NlIGz5G/psF1cPF4cT1OApAiw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772696977; c=relaxed/simple;
-	bh=S8Nw8Pk5eoRXwBYtjsQA/CDGhjM2WyURc54R9YhWURI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=F3GkaeI9Udlup7GIZJq7sxCyqIRy3+n6qrK88KyShZ/o5FyumrNXIPH7AQ5hOWgtrBL8xh5sTw9Gc3v3XwMvpQSMBoaw6K08scNae8+nr5+0QERZKSk3iNRHDsf5tmBx4mgNGxVFBKiTDBSyN8T6Pt1NzWnpK3/aG4HLCJlq4g4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZsK3AUKz; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1772697422; c=relaxed/simple;
+	bh=4wIxeVTtUPRh42TWlTdhNgCgomVeyReKlBgjR5dJ2js=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=WJgimIH7n0yeZqzjXD2jojwoLEsWim7KHqYx/t7aZbIPfafho25xfCzXHE5sfpCk5c4svVHTy4K+44sbLXmfvGoxy6ULuII7F+ZJ+HlzhBCoWGPA7cedu3YE8x9VE2ZrsW1+DUIlgaVGCVtwKYaBAJ2/EmqHo5T7VGNFJbzIMVg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bEHco10t; arc=none smtp.client-ip=209.85.128.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZsK3AUKz"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6257KEh72459770;
-	Thu, 5 Mar 2026 07:49:29 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=uxkMVy5228wC3w2bQRSJYU5S6CRCKK
-	Qw8+A7NsBmJtI=; b=ZsK3AUKzRnuGF8lFFtxy/guBw7YNfo/TZca1a3nVn1oxzJ
-	WQeBOWKcKe+Pcls23ObyjpmJeC64Yv11p1XhkYqmJgBEM8XUj0hz2w6MK50WP7k0
-	NioF2Gg7JIGnXf4MB+AJlWNu3j8BuKcR1R4KXIxgVY7KVlq88SKakBCF7Cz9c/gg
-	HCr6tCx2UHMqlyih75wyzcY8F3CQ0yWAuYLydT5TnVI9xBnBL6OslA0r/IFl6zcM
-	fWtfFRCZdIYWnu2wfDjeKaHXpi30FtkkSuBiiNdf2POJNPM8iXB2fZtKTZfF7XBo
-	osxi0wiK0XKdRxxW3hYHI9BmmN5PB9foAzGXnBbg==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ckssmt9rm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 05 Mar 2026 07:49:28 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 6254aMmE003266;
-	Thu, 5 Mar 2026 07:49:28 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cmb2yabw2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 05 Mar 2026 07:49:28 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6257nNuN15663490
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 5 Mar 2026 07:49:23 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 97AFA2004B;
-	Thu,  5 Mar 2026 07:49:23 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6414620049;
-	Thu,  5 Mar 2026 07:49:23 +0000 (GMT)
-Received: from osiris (unknown [9.52.214.206])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  5 Mar 2026 07:49:23 +0000 (GMT)
-Date: Thu, 5 Mar 2026 08:49:22 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-Cc: linux-next@vger.kernel.org, linux-s390@vger.kernel.org,
-        Ingo Molnar <mingo@kernel.org>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@kernel.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: Re: [linux-next][s390] Boot hang after merge c50f05bd3c4e
- (sched/hrtick)
-Message-ID: <20260305074922.7170Ad3-hca@linux.ibm.com>
-References: <af549a19-db99-4b16-8511-bf315177a13e@linux.ibm.com>
- <28add480-4841-4e6a-a8a9-1211280ecc51@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bEHco10t"
+Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-483487335c2so63652005e9.2
+        for <linux-s390@vger.kernel.org>; Wed, 04 Mar 2026 23:57:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1772697419; x=1773302219; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=VLoLFtQnBLuT+MV5dFOmu6NN10b/asgsiLccSm2U4ts=;
+        b=bEHco10taJSnYvPwnxuD+kIz+NYB6VxwovQeBraNNHDnrOVfgA9wI7t8wvQkHHZHua
+         W6jYrIvNdN4B1n3pNfcPVz9GtvzYvvTzfSl0Dgyh0rpzyizBAMe2ZjP5oN328a8I6aei
+         4iU97xIoe4rC/m63EL3WTFyDWEWPd6+jM/6O9GQvdE4DxA45rOtVcjYRHBEC2Ikx0Qel
+         2Zi1ZlVbh/kzKX6//yZHY1w0pTFB4isOPEPwg6v5ocaoKfPabKHMqeeVY/6xSUVSmHyy
+         3aZBtUD6mAbauP3kPhEcugYBEcma4Nl29Eb0m4Hro0TixXExEkWkMN9jH3C+43/I0RcR
+         3Thg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772697419; x=1773302219;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=VLoLFtQnBLuT+MV5dFOmu6NN10b/asgsiLccSm2U4ts=;
+        b=wXOHlYGohcTmC0pdPF9+JhEhpbGeAeFHsblDtmFUwmTtqOS3PamI+DhBI9m9ycklsC
+         OHC2ErR0L9l514FGrPpw8k00C855oS23JoqAPodcIWJ+IpMDMsA+pbjIYjY9KYsma3Uf
+         SvWnq1MBuWjDCiURdIcI2Q163j/fXRB+5m+oelm0jRFFL3JYUGp8mtFZR0dPrw6RyEro
+         wWgprKyinAp0AyCqnR/RN98ropvvQcp/HuLOaZHOZjTQGCkMYj5Jnuu5GSe9NNHXJEYs
+         7G/5wnLxJs1bRz6JuLA373Fk+hggJQrlHtRGKuuR1OpyS6qJyAb76mDyykUaysoGWkFB
+         PdRA==
+X-Forwarded-Encrypted: i=1; AJvYcCVg9ZkIZTvZLq/pG72Ewh8BKc2Rx6Vg25oXWIIGlr2RAqIuxBkcLn371zmwCgI0vwXNlBym4E4BgmhF@vger.kernel.org
+X-Gm-Message-State: AOJu0YzIXiDD+vuvpz7s4PT1TGTTfzyNgfUKGZj7V/zznG0P01q6ISWQ
+	Zhi8hw5JUQ9AhxMq6woejfpqn/cmZyu/Vh8Ki/UpiIOOKElhYN69IPQ4
+X-Gm-Gg: ATEYQzzJedGp3WOttkN15mpIxfzJ3CUVmx5k8BBYi4A+WDOkHJnyidtC8b5MbJH1SNz
+	AxevlimXHCLESw4/DOb/bo4IRBbg18XgcWaW1THddaR3GcJ1tdUNRUgEDdKHH5Lq1JI/93SM8dh
+	afUMM2u8H+7a8v8f9mUYeO6NZ3uu4EYsbxXmeDSWjz5714OIArDwX5X90KiUF4Q5vFQk61DJtAG
+	WW/rlPZm7SjujfHw296mQux/CmKrKwT2kmBLP+K8mb99xWaht979C+24VLFegIZTUigcnKVogK6
+	y/70WqOhAZZVLaccn5gZ4G6+Y1qBUDbEgvOGwUJaBewYNJoyhU6/IeLMfP+sbp6WBBUI3PWbjPS
+	evq9b4pYFOqjrBTnCNcpV0vDcTWTzh41wh79ADwkV3WYXA/BekFDk5NRyYZ3I8vHWYfnk9qREk9
+	GhtiD/t4yeOHhODXlnW0HEBxfDZxSwmH/q8zB7NFD2gDcFRPkVHQ==
+X-Received: by 2002:a05:600c:1d09:b0:483:6f37:1b51 with SMTP id 5b1f17b1804b1-4851988366bmr83224505e9.23.1772697418510;
+        Wed, 04 Mar 2026 23:56:58 -0800 (PST)
+Received: from [10.221.137.160] ([140.209.217.211])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4851fadf67bsm36856295e9.6.2026.03.04.23.56.56
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 04 Mar 2026 23:56:58 -0800 (PST)
+Message-ID: <d6fcf417-87b1-4bbe-9ec1-cabb2b2ed1a6@gmail.com>
+Date: Thu, 5 Mar 2026 09:56:55 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <28add480-4841-4e6a-a8a9-1211280ecc51@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA1MDA2MCBTYWx0ZWRfX1FmiWc81G7LL
- dysuatnKIr8YIGI4Rm58aemqVFPViy4wvtFt251Ms5z/iaNddncuyU1MNY6Z3aIXfuljwk3qjhU
- WC36OF0Ql7nRqc4UFqgQQmSSck4l8dbdMPQ98CC0SK838ywnENVdIpPJYnYeuiPOwvfXr/jBU67
- /B8pOO35oXV4svIIvA6NkijWQNGXf6DtQwMtGKc49Uv2LqZfmCE7CpvClqsAU+slg1W7NF8eEve
- FX2/bE3hZ5VY9PRb6qZ1OgYG8WWFQv6MwLAa0afhz2qKSQDME3lur+grXS5apWLagQr23BjsVcw
- L50ppMAgA5eTXYd3uVuzv66O59stVUxnA/qq6s4/t9aUW8cxKP5ZJa6EV4lrDwWe6zrPm82DX6W
- 5RzkOA03C6tjh2BS3notv6GRl1SpCQI9GF7RhNtPz9jHDi+2plxIDvx7UKdMi32UUGlRDyAQjXl
- us9Q/QikCnzK968k3EA==
-X-Proofpoint-ORIG-GUID: vwTyfjVHV3Lnpql7U492-r8NFWivhNDg
-X-Proofpoint-GUID: vwTyfjVHV3Lnpql7U492-r8NFWivhNDg
-X-Authority-Analysis: v=2.4 cv=AobjHe9P c=1 sm=1 tr=0 ts=69a93588 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=kj9zAlcOel0A:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=RLuo-xB6GI3gNM6DKHAA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-05_01,2026-03-04_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 lowpriorityscore=0 bulkscore=0 impostorscore=0 malwarescore=0
- spamscore=0 clxscore=1011 suspectscore=0 adultscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603050060
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next] net/mlx5: Allow asynchronous probe
+To: Gerd Bayer <gbayer@linux.ibm.com>, Saeed Mahameed <saeedm@nvidia.com>,
+ Leon Romanovsky <leon@kernel.org>, Tariq Toukan <tariqt@nvidia.com>,
+ Mark Bloch <mbloch@nvidia.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
+ Peter Oberparleiter <oberpar@linux.ibm.com>,
+ Halil Pasic <pasic@linux.ibm.com>, Alexandra Winter <wintera@linux.ibm.com>,
+ netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20260303-parprobe_mlx5-v1-1-18194f2a1a3a@linux.ibm.com>
+Content-Language: en-US
+From: Tariq Toukan <ttoukan.linux@gmail.com>
+In-Reply-To: <20260303-parprobe_mlx5-v1-1-18194f2a1a3a@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Wed, Mar 04, 2026 at 05:13:56PM +0100, Mikhail Zaslonko wrote:
-> Sorry, forgot to Cc a few people.
-> Adding scheduler maintainers.
+
+
+On 03/03/2026 12:33, Gerd Bayer wrote:
+> Announce that mlx5_core supports asynchronous probing.
+> 
+
+Hi Gerd,
+Interesting patch.
+
+> Tests on s390 - where VFs can show up isolated from their PF in OS
+> instances - showed symptoms of "mlx5_core: probe of 00e7:00:00.0 failed
+> with error -12" when booting a system with a large number (> 250) of
+> Mellanox Technologies ConnectX Family mlx5Gen Virtual Function
+> (15b3:101e) PCI functions.
+> 
+> Turns out that this is due to systemd-udev's time-out supervision of
+> "modprobe" killing the sequential initialization of additional functions
+> if probing exceeds a default of 180 seconds.
+> 
+> According to [1] device drivers could (slow ones should!) opt-in to have
+> their probe step being executed asynchronously - and interleaved. With
+> the mlx5_core device driver announcing PROBE_PREFER_ASYNCHRONOUS as
+> proposed by this patch, we've measured 275 VFs being probed successfully
+> in about 60 seconds.
+> 
+
+Nice.
+
+> [1] https://www.kernel.org/doc/html/latest/driver-api/infrastructure.html
+> 
+> Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
+> ---
+> Hi all,
+> 
+> this patch helps to speed up boot times when there are a large numbers
+> of Mellanox/NVidia VFs in a configuration. Although we've seens real
+> issues, I'm hesitating to declare this a fix of commit 9603b61de1ee
+> ("mlx5: Move pci device handling from mlx5_ib to mlx5_core") primarily
+> because the concept of asynchronous probing with commit 765230b5f084
+> ("driver-core: add asynchronous probing support for drivers") was
+> introduced only later.
 > 
 > Thanks,
-> Mikhail Zaslonko
+> Gerd Bayer
+> ---
+
+This is an interesting problem, and the proposed solution looks 
+reasonable. That said, this is a very sensitive area and there may still 
+be hidden assumptions or corner cases we haven't considered. This needs 
+thorough testing across a wide range of real-world scenarios and 
+different system topologies before we can be confident in it.
+
+We'll take this for testing and report back once we have results.
+
+BTW, as you probably know, a possible workaround is to increase the 
+systemd-udev timeout.
+What timeout is required for it to succeed without this change?
+
+>   drivers/net/ethernet/mellanox/mlx5/core/main.c | 3 +++
+>   1 file changed, 3 insertions(+)
 > 
-> On 03-Mar-26 19:31, Mikhail Zaslonko wrote:
-> > Hello,
-> > 
-> > we have kernel-next boot hang on s390 starting next-20260302.
-> > 
-> > I bisected it in linux-next to:
-> > 
-> > c50f05bd3c4e ("Merge branch into tip/master: 'sched/hrtick'")
-> > 
-> > Good:
-> >   72a2ab46f045  
-> >   d50da4b5915f  (2nd parent: sched/hrtick branch)
-> > 
-> > Bad:
-> >   c50f05bd3c4e  (merge commit)
-> > 
-> > Environment:
-> >  - s390 under z/VM
-> >  - many CPUs defined (32+)
-> >  - boot hangs early with RCU stall (see boot log excerpt below)
+> diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+> index fdc3ba20912e4fbc53c65825c62e868996eff56d..b53fc3f2566acf5a07cb8df649124c4a87f3e043 100644
+> --- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
+> +++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+> @@ -2306,6 +2306,9 @@ static struct pci_driver mlx5_core_driver = {
+>   	.sriov_configure   = mlx5_core_sriov_configure,
+>   	.sriov_get_vf_total_msix = mlx5_sriov_get_vf_total_msix,
+>   	.sriov_set_msix_vec_count = mlx5_core_sriov_set_msix_vec_count,
+> +	.driver		= {
+> +		.probe_type	= PROBE_PREFER_ASYNCHRONOUS,
+> +	}
+>   };
+>   
+>   /**
+> 
+> ---
+> base-commit: c69855ada28656fdd7e197b6e24cd40a04fe14d3
+> change-id: 20260303-parprobe_mlx5-d10d2a746d3a
+> 
+> Best regards,
 
-linux-next is currently completely broken because of this.
-
-Looking at one of the numerous dumps of linux-next from 20260303 I can
-see that the system hangs early waiting for synchronize_rcu_normal()
-to finish:
-
-crash> ps
-      PID    PPID  CPU       TASK        ST  %MEM      VSZ      RSS  COMM
->       0       0   0     3b7dff6c700    RU   0.0        0        0  [swapper/0]
->       0       0   1      80afc800      RU   0.0        0        0  [swapper/1]
->       0       0   2      80afa400      RU   0.0        0        0  [swapper/2]
->       0       0   3      80b34800      RU   0.0        0        0  [swapper/3]
->       0       0   4      80b32400      RU   0.0        0        0  [swapper/4]
->       0       0   5      80b30000      RU   0.0        0        0  [swapper/5]
->       0       0   6      80b14800      RU   0.0        0        0  [swapper/6]
->       0       0   7      80b50000      RU   0.0        0        0  [swapper/7]
->       0       0   8      80b3c800      RU   0.0        0        0  [swapper/8]
-        1       0   3      80a80000      UN   0.0        0        0  swapper/0
-
-Everything is idle. PID 1 is in uninterruptible sleep:
-
-crash> bt 1
-PID: 1        TASK: 80a80000          CPU: 3    COMMAND: "swapper/0"
- #0 [337de307a50] __schedule at 3b7df34708c
- #1 [337de307ac8] schedule at 3b7df3475ec
- #2 [337de307af8] schedule_timeout at 3b7df34fd78
- #3 [337de307b80] __wait_for_common at 3b7df348482
- #4 [337de307c18] wait_for_completion_state at 3b7df348658
- #5 [337de307c38] __wait_rcu_gp at 3b7de561da8
- #6 [337de307c98] synchronize_rcu_normal at 3b7de56ba12
- #7 [337de307d78] kern_unmount at 3b7de8a8f86
- #8 [337de307da8] do_sysctl_args at 3b7de94f2fa
- #9 [337de307e20] kernel_init at 3b7df3448b0
-#10 [337de307e38] __ret_from_fork at 3b7de46dffc
-#11 [337de307ea0] ret_from_fork at 3b7df3514b2
-
-The corresponding rcu_synchronize structure on the stack:
-
-crash> struct rcu_synchronize 0x337de307d80
-struct rcu_synchronize {
-  head = {
-    next = 0x822a62a8,
-    func = 0x3b7de561a90 <wakeme_after_rcu>
-  },
-  completion = {
-    done = 0,
-    wait = {
-      lock = {
-        raw_lock = {
-          lock = 0
-        }
-      },
-      task_list = {
-        next = 0x337de307c50,
-        prev = 0x337de307c50
-      }
-    }
-  },
-  oldstate = {
-    rgos_norm = 0,
-    rgos_exp = 0
-  }
-}
-
-Any idea?
