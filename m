@@ -1,119 +1,69 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED25634D4D6;
-	Thu,  5 Mar 2026 23:44:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1368B33688C;
+	Fri,  6 Mar 2026 02:41:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772754277; cv=none; b=f8IYx7m66ADuyvXsFmMM1eo4EGZBDzLBTzVglp52UuFrfNhMLkXYJy1n0Vx8Sx3fda5YPCijXSaK2GJA/T0JhqMaIJsqtktChqsqgUlYcWeIWmyV+qIFsCLEw78ovj5Umiu4APe+uusMfZ6DXaAkIkgsRojiIjpY0VbmuMMEdDI=
+	t=1772764873; cv=none; b=s4hz/DBvjrf8gYS02IIOSLKeqfmJLZdAlGIuRQzmfT+Ma6odjLSUPN5k7VqdPm345d+et2nkpBjs3bNdCyxY5iZHzXWrRsik2Bq5AZMjA1KmVHRZ5GM0G9JbmCkx28HBNN4+qAUGaEHfvpFinwM8/mvs0NSXNy8XXcGEFuRIJcY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772754277; c=relaxed/simple;
-	bh=iauzQaGDXiC231/mypgQatCf2nfYRe0nN8HUXliGuCs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=R8FMYjeVtokUXzaGEEW8Q8wleVLIcoea5JSHcp55HjlFjYF4qGcN3hvWs56h1FGYOcUsH26nMcuSLtB6YTgM4dtYFatxZ0TWt/UhoKDBYIEg3SxtId0dF4gOIpC0BSqINiqwOWZSNb2F6A8s+fSzOGgjKDaWkL8DSucRuioG4HY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=NiuHMNof; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1772764873; c=relaxed/simple;
+	bh=GqBefeOg7i4T3RBZfpPYC0R9yFaXJA9/wZ3SV33UALg=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=OwdTSkyHC+jCsQPx1SWAq0GeVg3FDuBOEGqmFVaC7S991GPVJVWS9mceLELOWNRwQyClFHYvru6ADXXRpHx8XHbOxqAmaRZ+9n2i0EbGrBMB8se+f4xUPRDfFpg5vX215f8YjleUqY/J0Xf7xFfmU+LjEcnF9CefnrCO+VmlS64=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fdpTYMc5; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="NiuHMNof"
-Received: from [172.27.2.41] (c-76-133-66-138.hsd1.ca.comcast.net [76.133.66.138])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 625NhY3o4127751
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Thu, 5 Mar 2026 15:43:35 -0800
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 625NhY3o4127751
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2026022301; t=1772754218;
-	bh=W+08PYjDQhAaObzzVmi0H3Jb7j0xETdylBL3/4YZEk8=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=NiuHMNofaKp4X3OTkTE4sx+ETMmwUFwgJjU83eBnK2/BqKkOamVxH8/VjJ6FOT+rj
-	 cX8EORzUxiaeuPL/1KqpN374d4Fv+bjiIc9qbH2fAFX6suJ7cqLLdsFwbLkHnOb4e/
-	 4rbho2As0pJPemgWwc3J3VEGg1b0DHzc5RkY8zixe6iRpSUQIEDHsEBxGqiEhzlUvB
-	 SdoTrvFmB+3vG9ZsjdkJ/n76P3jMN/BwJ0h8M1f7ogLYnkjnS0DdO4PbTJCc0rLtsz
-	 xxrlilrcBpzg9J0XWBj/4aaFK7REjIiRGJ0ywiqx438ZCLfQPfIZNO74P6Ue7O7SPu
-	 4MLF4w7uvkNjQ==
-Message-ID: <01433066-eb9b-4a96-8d7f-794af941d365@zytor.com>
-Date: Thu, 5 Mar 2026 15:43:29 -0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fdpTYMc5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 559C0C116C6;
+	Fri,  6 Mar 2026 02:41:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772764872;
+	bh=GqBefeOg7i4T3RBZfpPYC0R9yFaXJA9/wZ3SV33UALg=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=fdpTYMc5NwRNUbWd0gQzyhspSY8WIBfasZ+FM5jpmEle0Io7zgtUm7WqI6Tk8hpoW
+	 1Uo2MhmCexY1Zbp9vGfW5v/EK8eYiysS8tbfEwHDURFh38ddvDxvXhC9cStSvtLsgU
+	 yHJDt/gOxUk67CbiogXGtVTBImEdqqzVVLpdhopq3Ae02/+gzzhQYvE2PsnXkLr+Xk
+	 jpMrxZc0RELRDX5kPKbhcjmSpptupK/7dmEd0bSzlkb5GAFO4y2Y9ckpi0ySwBhUrO
+	 f3d3IpBpOyS1S567dOCRsJb55HvqRyRT9DJmzOHG7dQjq/AEAqq9k4x3zmuZXz11eM
+	 0GaskYBuE9fDw==
+Date: Thu, 5 Mar 2026 18:41:10 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+To: Wen Gu <guwen@linux.alibaba.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, tglx@kernel.org,
+ tglx@linutronix.de, richardcochran@gmail.com, andrew+netdev@lunn.ch,
+ davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
+ linux-kernel@vger.kernel.org, netdev@vger.kernel.org, mani@kernel.org,
+ imran.shaik@oss.qualcomm.com, vladimir.oltean@nxp.com, wei.fang@nxp.com,
+ xiaoning.wang@nxp.com, jonathan.lemon@gmail.com, vadim.fedorenko@linux.dev,
+ yangbo.lu@nxp.com, svens@linux.ibm.com, nick.shi@broadcom.com,
+ ajay.kaher@broadcom.com, alexey.makhalov@broadcom.com,
+ bcm-kernel-feedback-list@broadcom.com, linux-fpga@vger.kernel.org,
+ imx@lists.linux.dev, linux-s390@vger.kernel.org, dust.li@linux.alibaba.com,
+ xuanzhuo@linux.alibaba.com, taniya.das@oss.qualcomm.com
+Subject: Re: [RFC v2 0/2] ptp: Move non-NIC PHC drivers from netdev to
+ clock/timekeeping maintainership
+Message-ID: <20260305184110.13e79837@kernel.org>
+In-Reply-To: <4a9af4b1-6820-4173-8daf-4201bb1bcca5@linux.alibaba.com>
+References: <20260227081934.96865-1-guwen@linux.alibaba.com>
+	<be4c63a8dc43be15576565b4bd4567b3cf433d58.camel@infradead.org>
+	<4a9af4b1-6820-4173-8daf-4201bb1bcca5@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/2] kbuild: Switch from '-fms-extensions' to
- '-fms-anonymous-structs' when available
-To: Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
-        WANG Xuerui <kernel@xen0n.name>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
-        Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
-        Bill Wendling <morbo@google.com>,
-        Justin Stitt <justinstitt@google.com>, Kees Cook <kees@kernel.org>,
-        linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-efi@vger.kernel.org,
-        llvm@lists.linux.dev
-References: <20260223-fms-anonymous-structs-v1-0-8ee406d3c36c@kernel.org>
-Content-Language: en-US, sv-SE
-From: "H. Peter Anvin" <hpa@zytor.com>
-In-Reply-To: <20260223-fms-anonymous-structs-v1-0-8ee406d3c36c@kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On 2026-02-23 11:10, Nathan Chancellor wrote:
-> Hi all,
-> 
-> The kernel enabled '-fms-extensions' in commit c4781dc3d1cf ("Kbuild:
-> enable -fms-extensions") in 6.19 to gain access to a Microsoft
-> (originally Plan 9) extension around including a tagged structure/union
-> anonymously in an other structure/union. Since then, Clang 23.0.0
-> (current main) has added a flag to enable only that extension, rather
-> than all Microsoft extensions, '-fms-anonymous-structs' [1]. Using this
-> narrower compiler option would have avoided the build error fixed by
-> commit a6773e6932cb ("jfs: Rename _inline to avoid conflict with clang's
-> '-fms-extensions'"). While these errors are not expected to be common,
-> using the narrower option when available has no drawbacks because the
-> kernel only cares about this extension in '-fms-extensions', no others.
-> While this could result in build errors for folks using
-> '-fms-anonymous-structs' if a developer uses another extension in
-> '-fms-extensions' (either intentionally or unintentionally), flagging
-> these uses for further scrutiny seems worthwhile.
-> 
-> This series converts the build system to use that flag when it is
-> available. The first patch consolidates all of the C dialect flags into
-> a single variable to make future updates to the dialect flags less
-> painful, as updating the logic in every place that uses their custom
-> built C flags is getting cumbersome (and C23 is looming). The second
-> patch makes the actual switch.
-> 
-> I would like Nicolas to carry this in the Kbuild tree for 7.1, please
-> provide Acks as necessary.
-> 
-> [1]: https://github.com/llvm/llvm-project/commit/c391efe6fb67329d8e2fd231692cc6b0ea902956
-> 
+On Fri, 27 Feb 2026 20:25:11 +0800 Wen Gu wrote:
+> As mentioned in RFC v1, the use cases for drivers in the emulated PHC category
+> are expected to be quite diverse, and not limited to the virtualization/guest
+> time sync use case. For example, existing drivers such as ptp_ocp [1] and
+> upcoming ones such as mhi_phc [2] are not related to virtualization use cases.
 
-Question: does clang allow this with __extension__, or only if the option is
-on the command line?  It would be desirable in the long run if both clang and
-gcc would allow this with __extension__, as that would be required to use it
-in uapi headers (at least without some doable-but-nontrivial preprocessing,
-which might be worthwhile to do anyway...)
-
-	-hpa
-
+ptp_ocp is a real PCIe device with an atomic clock. mhi_phc is some
+qualcomm fw-defined thing, so more closely mapping what you're doing.
+ptp_ocp should probably stay under netdev, we maintain DPLL drivers,
+too. Main thing we/I don't want to deal with is all the corporate NIH
+virtualization excreta.
