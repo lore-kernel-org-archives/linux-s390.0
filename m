@@ -1,421 +1,133 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 039AF393DC0;
-	Fri,  6 Mar 2026 16:49:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772815767; cv=none; b=UVQQxT/D473WZF/ogggj1MfgR0yMxYpCneA2PKAaG4I29Ejy+YNutuoobEMVtF2T029OVGFV/Au5AHdV4bKrlEcKglifAQWyRZ1QMw+8Gs2gikGCXlorvb7bPIZhIVEFGW+5Lh6X/Yb+V2D9FHX0HCn1nMZSgmVSftFNs1NJvi0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772815767; c=relaxed/simple;
-	bh=w7SLMaatAEk9YpzuVMJZPVrAEzQEViQeGyKMdSb/T2o=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=VVZ5Z3UT88Xv9YN43W98tKInvZi3UtjUMaDwgrswX9KaHNBVgqYInzSO9ye4EuGdxMWR9xORuJbyQhCv/NdVxjx32LMsa0cJe9F/CckWJyajj+nH2ClrWNGishdb+3w1nMtGmBLFDe9aQ8DDsZzExKZufQ45UH30Hxq0wizJO8M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=R+O3QE6/; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 504EE3A9DB6
+	for <linux-s390@vger.kernel.org>; Fri,  6 Mar 2026 16:53:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.180
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772816009; cv=pass; b=HSVwDq2t55ih/jEA48rGPX5y1mj8YcEmhGSJzfWAhRjcrjMeBzVictRLkoovdFJp1YlaXblYNfCAQZgKQj3m2LeJZc6Ta7I1T19tZbXmQBTk1iHb+LzOSBGvx+TNINX8f7a6PsqLhs/p9RSX+WboqWzm+PIK9gsn5qwgHvBIbSs=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772816009; c=relaxed/simple;
+	bh=uvJAJqJ+OUG+8Qc6KivjDGtBu8adoepmT7qHr235oD4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=P1TyySIQPrv6RA2EtbLiYQPgSZBpcHal7ox5uqUEzD6EVvsy1C078Ifje37HCYJSmIXN2yo2tKMHtNxyzzeqjF5W7FlsLcU7WXxSRPlANS+BqAOmLV6KY6ECH8zoDjHZ8QVWKKMMlBPJS4XP13+8nabH+rgkGi823/y7Y+qI2Wc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=b+8xlYrT; arc=pass smtp.client-ip=209.85.214.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="R+O3QE6/"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6264bK0Q1183853;
-	Fri, 6 Mar 2026 16:49:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:sender:subject:to; s=pp1;
-	 bh=d8KN0yuscVe1KZMQZLFdiNGnRrFWyZU0bZQuWYxrDls=; b=R+O3QE6/jJmf
-	ZbzsTd+iw50Fr0hlFkJmHxhHNVndc4hol6FiEywlL7/ps1rdZVSB8kFOOsjvafPN
-	6J9zTJnuc5dSSW6vaj5xLtI1G7D9HD06/oOgiOkp3zitLTITxX9PmAmx9uluLRHQ
-	snlKfnpVNLA2RbDp6/THjSt1EJPlP5YUluaAhJhazIjUGP6vV7zqeLaK8YorvMW1
-	8VzyI0ViMBPnJOb4eqSDhfU6l+BiBJi+cDAASqNfC5erTnw4yRjd8ncvSvAIAu42
-	n2f7tmtSjl1FrpqPNpWGim0eSosSlv0wR8k4fJZbGsx7TSy+srQNFdoF7iG8185u
-	MGziKQMxxQ==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ckskc8wk0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 06 Mar 2026 16:49:22 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 626Cg7Ui003200;
-	Fri, 6 Mar 2026 16:49:21 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cmb2ygsm5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 06 Mar 2026 16:49:21 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 626GnHXV52298036
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 6 Mar 2026 16:49:17 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 68C0D2004E;
-	Fri,  6 Mar 2026 16:49:17 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 49EBD20043;
-	Fri,  6 Mar 2026 16:49:17 +0000 (GMT)
-Received: from p1gen4-pw042f0m (unknown [9.52.223.163])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri,  6 Mar 2026 16:49:17 +0000 (GMT)
-Received: from bblock by p1gen4-pw042f0m with local (Exim 4.99.1)
-	(envelope-from <bblock@linux.ibm.com>)
-	id 1vyYMX-00000005i38-09Bx;
-	Fri, 06 Mar 2026 17:49:17 +0100
-From: Benjamin Block <bblock@linux.ibm.com>
-To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, Bjorn Helgaas <bhelgaas@google.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Andreas Krebbel <krebbel@linux.ibm.com>,
-        Julian Ruess <julianr@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
-        linux-pci <linux-pci@vger.kernel.org>,
-        Tobias Schumacher <ts@linux.ibm.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Ionut Nechita <ionut.nechita@windriver.com>,
-        Ionut Nechita <ionut_n2001@yahoo.com>,
-        Benjamin Block <bblock@linux.ibm.com>
-Subject: [PATCH 2/4] s390/pci: Fix circular/recursive deadlocks in PCI-bus and -device release
-Date: Fri,  6 Mar 2026 17:49:14 +0100
-Message-ID: <a2740ba8e0a0c4d0035a2d320170d2f3a245ed46.1772815642.git.bblock@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <cover.1772815642.git.bblock@linux.ibm.com>
-References: <cover.1772815642.git.bblock@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="b+8xlYrT"
+Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2ae523d54d2so88975ad.1
+        for <linux-s390@vger.kernel.org>; Fri, 06 Mar 2026 08:53:28 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1772816008; cv=none;
+        d=google.com; s=arc-20240605;
+        b=ad1tZuZ0AKLmyq22PwxyDGj61iTKfgM1f+PGRZK1XkKDudtbcK4OXAQnHjDWzbP8Mb
+         KHktKP1ZfZluPb7n+M6roDwN1PkUbYLbim33G1auKcPPS7ikvs1STdZCLZKSRNCiO13Z
+         EnqPFXEmIzZrS20V8rf1dTr4pHHRLivlt831+GEYqB9kt/PEHW+LpWQPFOnzhcPIYy9q
+         V2evwVDcJWavvzH4mJllkMVN2sZa2hZrFT1/rTZVxXWRnaiHfZ9sb8qlm1NEGEIig2mL
+         pQ6bPWBgbDSPq/atHxFOZVE/2gKOPBdkMBb2i/FvsLqJu4wmjOCR9x5pyU3aBv/jJF1j
+         6Q6Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=933sEyemrbKBxApG2XPD0d2uPjKeHtvt7oVBd4xEr8I=;
+        fh=xY96yqLxBeQY1hjBnVpUa2D1bbO2b6K6uDERzw0j/ZA=;
+        b=VaoDqBAH4f0zbJ9fFYW1G5io4uAtZrK+aJJLZNtV7/u9dSJ4548QIAwKhDAxDJWJTn
+         fRehfvRx04CjNPgdaCjfhZzPs2n7HfwzDnylZ20OBFXVlwkW2vR/DeUMIZpbsaxmeajZ
+         B+Pp+aZNO6SmzopwxNySc8NgM+P74xd/zd42X52bGxPiQSYVZyGVBZYbuR5vpVm5LELM
+         Withbxe4+ZgSPV+7n7ORcPZFqb3coibOVOBgtU4b+QUbdzInqyH1/Dpt8ZBs+SqliEmp
+         0ELyCSSr9JIgSjR/4kTM+f/zdO15W+yUNZ4gaYbYo8RxTz70IDIpt8EPqh5ScboSCOEC
+         4/+g==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1772816008; x=1773420808; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=933sEyemrbKBxApG2XPD0d2uPjKeHtvt7oVBd4xEr8I=;
+        b=b+8xlYrTITiYbj80vcLrufR5Z/yneu9x9IgtJPoEjTUVRs+B3dhuMoEIE6XJ3HH9QM
+         CIPpgLGAObu5xZ1/CcciTrhiFi/VbjC+xMPFktDbgntRlVI3B8qvk80D4vpzV+GXdklh
+         TeYjczm0nvRz1pG6rhYo3F3+5nNJDsK17hM+OJnNc0GYUaAzxTJ6wNQ7aE/D+c18vxCe
+         XiTcJsMYJF9Kd0ZrLH89Y6+bkOo2cDSIYvA6vjTY0LXDmi5KrZ4j5NRtPFDCyvNOe8+y
+         WqIj/gkPnGoHbi97KQ0s9fo1B2b6SwIECLEiGKNBTNM/u07v8xdLHsPbHL/RE6kp9YSZ
+         p8zg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772816008; x=1773420808;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=933sEyemrbKBxApG2XPD0d2uPjKeHtvt7oVBd4xEr8I=;
+        b=mNTh9FJX9dOYwpBbqq55t6RdiMt9aIx8dZJBhqas3grOXfs7CyGXNk2B76VNJDevts
+         CBFY5EL83TuouIWJldyO5VFViED0uuvu03NP5+ye+kbLae+MJ6CTPUNuyik94yMv8pw2
+         lwJdQd+ykuFcn/LMXa74twO6Dwl+lXMybueI2rbBPzNGhORqaulP5xDIlXSrFMIu2AMi
+         jKFEn6m5aREPMWaUyrZxgc5WJLPaPTr5B2g2KSmMEOy0zxF19n6l+Nff2QPjPy+4nXy1
+         K3QV9ECPCBKqaQKZnmEeJvOTLNan5BefJF0J//sIEcAoXV2PXtr+UothJXdmffjUPNLV
+         6Wsg==
+X-Forwarded-Encrypted: i=1; AJvYcCWicOisdkh3DVc+AEfbkMwu23KuJovizXq5llvrklHR9CtybbNcztVqdQJTxk2X0L2g55d4wwCV6h6r@vger.kernel.org
+X-Gm-Message-State: AOJu0YxBsJzqhS2FovwYaFq2gcESoKNFsEBEW7onPR+E3ACItCuMFDT4
+	bAOSeMrZZfD0i4wb3/MfO1lJErRoLBu+6eOSA2LOn/BJClv70rl6OFznKzEe+CwoRib4QqE9lcN
+	gq2uqdzQwafw2iuy3ZXPSRRcC9WM6ppgLFgrrnAXX
+X-Gm-Gg: ATEYQzwS8tppfMQ+rEeZQwm4rwxCvF1n1uBguNZKhM6s6zo56im2jK1qIBVm5BqDEAg
+	Y+M/QAeGSKfaFMgqenVHPVW2dTWP7XUzLlBBusST7s/OVMXDcb9xxpbE0yMFdpxKadNYWK53phN
+	ZErxTgik6z/CtHkOJ0LjNqldquoO4jekiyR8RENJ2Ja7sFZo/CsOMVuwF7GFaB133oFcxkrccaI
+	mX+L29LdHhVP5+LURSmd2W+I6UIimMb8zkfWuSeJnVnJDyxklhMxOnENwwwxVuWagXSi0/zm4Gs
+	pCs5GGAM
+X-Received: by 2002:a17:902:e54d:b0:2ad:ab68:f2c3 with SMTP id
+ d9443c01a7336-2ae81e624cemr2487815ad.13.1772816007246; Fri, 06 Mar 2026
+ 08:53:27 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Organization: IBM Deutschland Research & Development GmbH, https://www.ibm.com/privacy, Vors. Aufs.-R.: Wolfgang Wendt, Geschäftsführung: David Faller. Sitz der Ges.: Ehningen, Registergericht: AmtsG Stuttgart, HRB 243294
-Content-Transfer-Encoding: 8bit
-Sender: Benjamin Block <bblock@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: qQZ3BJ1tc9CowTmf4VKUC3SoCPWWa6qQ
-X-Authority-Analysis: v=2.4 cv=b66/I9Gx c=1 sm=1 tr=0 ts=69ab0592 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=MfPiQNo1A4lVxNDC-NsA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA2MDE1OCBTYWx0ZWRfX/KfIegx7q+Py
- gRBOBCy6DZdXjPX324ZZiUMXC9X5Mb5IaL6LuNzjOR2TWjpmYc7wts1+H7TRPIIamSSGvIGYysQ
- l+odJ/0ZCWKZMhgMuK2HvKhJNZnZMhn7BuOgUGYixVFf0uvBSeG9uV6j/Cs9/8AtaboJZztNPUQ
- t7Ju4+LlD0KRaTvPMUTfWXFVClQahS8/AXc3BjNfLS2+Y8KUnYCsJ3Y/sS23drLXTNh8CHsUVNV
- krRVBpbJaO2WHH9D2W8a7SbJiREBRdmeyc2CSFjIrpDnYZhbWZI0KiU6VC4MwWTGj+d9pu3lO0S
- 9c05/5v93gPb5rBTi0/vBLDd0xIbRalIAUymsQuBkhqO/J/lr60l0LLgISbeAQ4PvxhS2tgum6l
- 5WV2julTEasxZ0A91tdvhlrxit7oFjXRt34IYl+La6xFN32Y8faj/HNSsXjhBXwg0q9ScxrURLr
- kvKCeyeWur0rTCLYqog==
-X-Proofpoint-GUID: ZefXUe_WsheFHvVgpxWyXZfn1FVtrHt7
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-06_05,2026-03-06_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 lowpriorityscore=0 phishscore=0 clxscore=1015 adultscore=0
- bulkscore=0 impostorscore=0 malwarescore=0 spamscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603060158
+References: <20260306071002.2526085-1-tmricht@linux.ibm.com> <aar4GKP1c66egZnn@li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com>
+In-Reply-To: <aar4GKP1c66egZnn@li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com>
+From: Ian Rogers <irogers@google.com>
+Date: Fri, 6 Mar 2026 08:53:15 -0800
+X-Gm-Features: AaiRm52ymk7n_TnJgTnMzHWevukVygoazKQGzkWbtsoNC-MRSTc2_F6Kq8bl054
+Message-ID: <CAP-5=fXs0UrMVhwU-_=iunCYa_ye18FHj0W1V8sE5T9nOkeZWg@mail.gmail.com>
+Subject: Re: [PATCH] perf test: Fix test case 120 and 121 for s390
+To: Jan Polensky <japo@linux.ibm.com>
+Cc: Thomas Richter <tmricht@linux.ibm.com>, linux-kernel@vger.kernel.org, 
+	linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org, acme@kernel.org, 
+	namhyung@kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com, 
+	sumanthk@linux.ibm.com, hca@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-When removing PCI device or PCI bus objects there are a couple of
-call-chains where it is possible that the kernel runs into a circular or
-recursive deadlock involving taking the central `pci_rescan_remove_lock`.
+On Fri, Mar 6, 2026 at 7:52=E2=80=AFAM Jan Polensky <japo@linux.ibm.com> wr=
+ote:
+>
+> On Fri, Mar 06, 2026 at 08:10:02AM +0100, Thomas Richter wrote:
+> > Perf tests
+> > 120: 'perf data convert --to-ctf' command test
+> > 121: 'perf data convert --to-json' command test
+> > fail on s390. It is caused by selecting the default event cycles
+> > which does not exist on s390 z/VM. Use software event cpu-clock
+> > and specify it explicitly on the command line.
+> >
+> > Output before:
+> > =E2=9D=AF perf test 120 121
+> > 120: 'perf data convert --to-ctf' command test       : FAILED!
+> > 121: 'perf data convert --to-json' command test      : FAILED!
+> >
+> > Output after:
+> > =E2=9D=AF perf test 120 121
+> > 120: 'perf data convert --to-ctf' command test       : Ok
+> > 121: 'perf data convert --to-json' command test      : Ok
+> >
+> > Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+> [snip]
+> Thanks for providing this, Thomas!
+> Tested-by: Jan Polensky <japo@linux.ibm.com>
+> Reviewed-by: Jan Polensky <japo@linux.ibm.com>
 
-For example:
+Should we not fallback for the cycles as a default event?
+https://web.git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools-next.gi=
+t/tree/tools/perf/builtin-record.c#n1374
+https://web.git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools-next.gi=
+t/tree/tools/perf/util/evsel.c#n3792
 
-(A) Thread α receives a CRW event notifying the kernel that a PCI
-virtual function has been moved into Reserved state, and so the PCI
-subsystem will try to remove that PCI function. The call-chain for that
-looks like this:
-  __zpci_event_availability()
-    -> zpci_zdev_put()              # will   lock(zpci_add_remove_lock),
-                                    # and    lock(zpci_list_lock)
-    -> zpci_release_device()        # will unlock(zpci_list_lock)
-    -> zpci_cleanup_bus_resources() # will   lock(pci_rescan_remove_lock)
-
-Thread β is triggered by userspace writing 0 into the SysFS attribute
-`sriov_numvfs` of the parent PCI physical function of the same function
-we just try to remove. This will also try to release the PCI virtual
-function; but this time the call-chain looks like this:
-  sriov_numvfs_store()              # will   lock(pci_rescan_remove_lock)
-    -> ... (deep chain)
-    -> pci_release_dev()
-    -> pcibios_release_device()
-    -> zpci_zdev_put()              # will   lock(zpci_add_remove_lock)
-
-If thread α and β coincide, this will result in a cyclic deadlock.
-
-(B) Consider thread β from above; if the thread was to follow the same
-outlined call-chain for thread α, and not fall into the cyclic deadlock,
-it would recursive deadlock:
-  sriov_numvfs_store()              # will   lock(pci_rescan_remove_lock)
-    -> ... (deep chain)
-    -> pci_release_dev()
-    -> pcibios_release_device()
-    -> zpci_zdev_put()              # will   lock(zpci_add_remove_lock),
-                                    # and    lock(zpci_list_lock)
-    -> zpci_release_device()        # will unlock(zpci_list_lock)
-    -> zpci_cleanup_bus_resources() # will   lock(pci_rescan_remove_lock)
-
-(C) And even in case `pci_rescan_remove_lock` was removed from
-zpci_cleanup_bus_resources(), the resulting call-chain would recursive
-deadlock when it tries to release the associated PCI bus:
-  sriov_numvfs_store()              # will   lock(pci_rescan_remove_lock)
-    -> ... (deep chain)
-    -> pci_release_dev()
-    -> pcibios_release_device()
-    -> zpci_zdev_put()              # will   lock(zpci_add_remove_lock),
-                                    # and    lock(zpci_list_lock)
-    -> zpci_release_device()        # will unlock(zpci_list_lock)
-    -> zpci_bus_device_unregister()
-    -> zpci_bus_put()               # will   lock(zbus_list_lock)
-    -> zpci_bus_release()           # will unlock(zbus_list_lock),
-                                    # will   lock(pci_rescan_remove_lock)
-
-It can also easily be seen that scenario (C) offers the same risk as (A)
-for a cyclic deadlock in cases where `pci_rescan_remove_lock` is first
-locked, and the PCI bus released under its protection.
-
-`pci_rescan_remove_lock` has to be and is taken at a "high level" in
-most call-chains since it is intended to protect/mutual exclude all
-rescan and/or removal actions taken in the PCI subsystem. So to prevent
-the outlined deadlock scenarios above remove it instead from the "low
-level" release function for both the PCI device and PCI bus objects.
-
-Instead, lock `pci_rescan_remove_lock` in all call-chains leading to
-those release functions:
-  * initialization of the PCI subsystem;
-  * processing of availability events (CRWs) for PCI functions;
-  * processing of error events (CRWs) for PCI functions;
-  * architecture specific release PCI device implementation.
-
-Additionally, remove `pci_rescan_remove_lock` from zpci_bus_scan_bus()
-since it is now always already taken when called.
-
-Lastly, document the new locking expectations after these changes. Add
-sparse and lockdep annotations to functions that previously locked
-`pci_rescan_remove_lock` explicitly, making sure the lock is now
-already held when called. Additionally also add the annotations to
-zpci_zdev_put() and zpci_bus_put() to make sure that every function that
-potentially drops the last reference already holds the lock to prevent
-surprises.
-
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
----
- arch/s390/pci/pci.c       | 11 +++++++++--
- arch/s390/pci/pci_bus.c   | 12 +++++++-----
- arch/s390/pci/pci_event.c | 21 +++++++++++++++++++--
- 3 files changed, 35 insertions(+), 9 deletions(-)
-
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 2a430722cbe4..fd16e6ad21c1 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -71,9 +71,11 @@ struct airq_iv *zpci_aif_sbv;
- EXPORT_SYMBOL_GPL(zpci_aif_sbv);
- 
- void zpci_zdev_put(struct zpci_dev *zdev)
-+	__must_hold(&pci_rescan_remove_lock)
- {
- 	if (!zdev)
- 		return;
-+	lockdep_assert_held(&pci_rescan_remove_lock);
- 	mutex_lock(&zpci_add_remove_lock);
- 	kref_put_lock(&zdev->kref, zpci_release_device, &zpci_list_lock);
- 	mutex_unlock(&zpci_add_remove_lock);
-@@ -582,11 +584,13 @@ int zpci_setup_bus_resources(struct zpci_dev *zdev)
- }
- 
- static void zpci_cleanup_bus_resources(struct zpci_dev *zdev)
-+	__must_hold(&pci_rescan_remove_lock)
- {
- 	struct resource *res;
- 	int i;
- 
--	pci_lock_rescan_remove();
-+	lockdep_assert_held(&pci_rescan_remove_lock);
-+
- 	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
- 		res = zdev->bars[i].res;
- 		if (!res)
-@@ -599,7 +603,6 @@ static void zpci_cleanup_bus_resources(struct zpci_dev *zdev)
- 		kfree(res);
- 	}
- 	zdev->has_resources = 0;
--	pci_unlock_rescan_remove();
- }
- 
- int pcibios_device_add(struct pci_dev *pdev)
-@@ -629,8 +632,10 @@ void pcibios_release_device(struct pci_dev *pdev)
- {
- 	struct zpci_dev *zdev = to_zpci(pdev);
- 
-+	pci_lock_rescan_remove();
- 	zpci_unmap_resources(pdev);
- 	zpci_zdev_put(zdev);
-+	pci_unlock_rescan_remove();
- }
- 
- int pcibios_enable_device(struct pci_dev *pdev, int mask)
-@@ -1208,7 +1213,9 @@ static int __init pci_base_init(void)
- 	if (rc)
- 		goto out_irq;
- 
-+	pci_lock_rescan_remove();
- 	rc = zpci_scan_devices();
-+	pci_unlock_rescan_remove();
- 	if (rc)
- 		goto out_find;
- 
-diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
-index 36a4807285fa..2b598222c621 100644
---- a/arch/s390/pci/pci_bus.c
-+++ b/arch/s390/pci/pci_bus.c
-@@ -132,10 +132,13 @@ void zpci_bus_remove_device(struct zpci_dev *zdev, bool set_error)
-  * Return: 0 on success, an error value otherwise
-  */
- int zpci_bus_scan_bus(struct zpci_bus *zbus)
-+	__must_hold(&pci_rescan_remove_lock)
- {
- 	struct zpci_dev *zdev;
- 	int devfn, rc, ret = 0;
- 
-+	lockdep_assert_held(&pci_rescan_remove_lock);
-+
- 	for (devfn = 0; devfn < ZPCI_FUNCTIONS_PER_BUS; devfn++) {
- 		zdev = zbus->function[devfn];
- 		if (zdev && zdev->state == ZPCI_FN_STATE_CONFIGURED) {
-@@ -145,10 +148,8 @@ int zpci_bus_scan_bus(struct zpci_bus *zbus)
- 		}
- 	}
- 
--	pci_lock_rescan_remove();
- 	pci_scan_child_bus(zbus->bus);
- 	pci_bus_add_devices(zbus->bus);
--	pci_unlock_rescan_remove();
- 
- 	return ret;
- }
-@@ -214,11 +215,12 @@ static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_dev *fr, s
-  * run of the function.
-  */
- static inline void zpci_bus_release(struct kref *kref)
--	__releases(&zbus_list_lock)
-+	__releases(&zbus_list_lock) __must_hold(&pci_rescan_remove_lock)
- {
- 	struct zpci_bus *zbus = container_of(kref, struct zpci_bus, kref);
- 
- 	lockdep_assert_held(&zbus_list_lock);
-+	lockdep_assert_held(&pci_rescan_remove_lock);
- 
- 	list_del(&zbus->bus_next);
- 	mutex_unlock(&zbus_list_lock);
-@@ -229,14 +231,12 @@ static inline void zpci_bus_release(struct kref *kref)
- 	 */
- 
- 	if (zbus->bus) {
--		pci_lock_rescan_remove();
- 		pci_stop_root_bus(zbus->bus);
- 
- 		zpci_free_domain(zbus->domain_nr);
- 		pci_free_resource_list(&zbus->resources);
- 
- 		pci_remove_root_bus(zbus->bus);
--		pci_unlock_rescan_remove();
- 	}
- 
- 	zpci_remove_parent_msi_domain(zbus);
-@@ -250,7 +250,9 @@ static inline void __zpci_bus_get(struct zpci_bus *zbus)
- }
- 
- static inline void zpci_bus_put(struct zpci_bus *zbus)
-+	__must_hold(&pci_rescan_remove_lock)
- {
-+	lockdep_assert_held(&pci_rescan_remove_lock);
- 	kref_put_mutex(&zbus->kref, zpci_bus_release, &zbus_list_lock);
- }
- 
-diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
-index 839bd91c056e..edfaeed737ac 100644
---- a/arch/s390/pci/pci_event.c
-+++ b/arch/s390/pci/pci_event.c
-@@ -342,7 +342,9 @@ static void __zpci_event_error(struct zpci_ccdf_err *ccdf)
- no_pdev:
- 	if (zdev)
- 		mutex_unlock(&zdev->state_lock);
-+	pci_lock_rescan_remove();
- 	zpci_zdev_put(zdev);
-+	pci_unlock_rescan_remove();
- }
- 
- void zpci_event_error(void *data)
-@@ -387,6 +389,7 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
- 	struct zpci_dev *zdev = get_zdev_by_fid(ccdf->fid);
- 	bool existing_zdev = !!zdev;
- 	enum zpci_state state;
-+	int rc;
- 
- 	zpci_dbg(3, "avl fid:%x, fh:%x, pec:%x\n",
- 		 ccdf->fid, ccdf->fh, ccdf->pec);
-@@ -400,7 +403,10 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
- 			zdev = zpci_create_device(ccdf->fid, ccdf->fh, ZPCI_FN_STATE_CONFIGURED);
- 			if (IS_ERR(zdev))
- 				break;
--			if (zpci_add_device(zdev)) {
-+			pci_lock_rescan_remove();
-+			rc = zpci_add_device(zdev);
-+			pci_unlock_rescan_remove();
-+			if (rc) {
- 				kfree(zdev);
- 				break;
- 			}
-@@ -419,7 +425,10 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
- 			zdev = zpci_create_device(ccdf->fid, ccdf->fh, ZPCI_FN_STATE_STANDBY);
- 			if (IS_ERR(zdev))
- 				break;
--			if (zpci_add_device(zdev)) {
-+			pci_lock_rescan_remove();
-+			rc = zpci_add_device(zdev);
-+			pci_unlock_rescan_remove();
-+			if (rc) {
- 				kfree(zdev);
- 				break;
- 			}
-@@ -450,25 +459,33 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
- 			/* The 0x0304 event may immediately reserve the device */
- 			if (!clp_get_state(zdev->fid, &state) &&
- 			    state == ZPCI_FN_STATE_RESERVED) {
-+				pci_lock_rescan_remove();
- 				zpci_device_reserved(zdev);
-+				pci_unlock_rescan_remove();
- 			}
- 		}
- 		break;
- 	case 0x0306: /* 0x308 or 0x302 for multiple devices */
-+		pci_lock_rescan_remove();
- 		zpci_remove_reserved_devices();
- 		zpci_scan_devices();
-+		pci_unlock_rescan_remove();
- 		break;
- 	case 0x0308: /* Standby -> Reserved */
- 		if (!zdev)
- 			break;
-+		pci_lock_rescan_remove();
- 		zpci_device_reserved(zdev);
-+		pci_unlock_rescan_remove();
- 		break;
- 	default:
- 		break;
- 	}
- 	if (existing_zdev) {
- 		mutex_unlock(&zdev->state_lock);
-+		pci_lock_rescan_remove();
- 		zpci_zdev_put(zdev);
-+		pci_unlock_rescan_remove();
- 	}
- }
- 
--- 
-2.53.0
-
+Thanks,
+Ian
