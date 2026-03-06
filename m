@@ -1,236 +1,148 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1C84302146;
-	Fri,  6 Mar 2026 20:06:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FD231F4615;
+	Fri,  6 Mar 2026 21:17:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772827613; cv=none; b=j5A8P88PnHnG+ppXGIxiujzJMeRMcdzvrtA/XZJuJT2G9NXtgJ08/RACiGUtHGJGqv3KJMuk2zoI9XpQYn7zC12FcgOIqxcWflPC5P463bOce5KhGkdv+5qF1obmc5K4WMjaBYOs3PHw7F/HZJjDh9bJUhvcOZf3WL1/8sdnRDI=
+	t=1772831825; cv=none; b=AY1pgUuxnVYRHccYo3BohpukNZ4MojvQxiHVP/T4zzaJYi1ERxhzkrVX/ASf9Sl6Uue+gYXOmBAZVixDkVr6VIRr5lFatp8D7lU2x28b5gw0rMBHseZ9njBd9xtVqdyxentvMYNS4ZfUxUQyVBOEDgIS+563HA/DaFPDXIIWD+Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772827613; c=relaxed/simple;
-	bh=lcDXN6R21X2uCOK7uiaLL18UXsiIHBRj1spT/gMxVfk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=M+8DmWTIQU1V5nYqQO2WxIacWC/gUrwnwews9XbmHfMe+BuvtMCMfIhT5MSw+/I9L+XUSDlrJTtoR9zhw+L6/YnT191hCYDZPr6B6hxyXeQdHqWVlU8Z0a7bqqYsjh84qoFzit0wNChzgLQgYi8uou1wehBiYVsZ1VyWZLgtYnM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R2mk+9E4; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772831825; c=relaxed/simple;
+	bh=uZuCakPLyV0YhkoEiRG1KRnO5yknVI+iOX2e2p0KbCI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lgMf+eokxlC8lEW42Egj3K1GHgjJvzr6FuUMN7RhfmZYLgg87ut+coDV7arals2Krb0wM7Qm2ffZ/bSyudlC++8jbaVYCeZ7Rg0sJrOmiC3bAjAtwMFzg1DIUJo/HAiY4cUsMJjSDyI2m2jaS8tVbbOOVMXxqkYHQC42ZsxMEIU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nA6CgNUj; arc=none smtp.client-ip=192.198.163.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R2mk+9E4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC53FC4CEF7;
-	Fri,  6 Mar 2026 20:06:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772827612;
-	bh=lcDXN6R21X2uCOK7uiaLL18UXsiIHBRj1spT/gMxVfk=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=R2mk+9E44A2EFvK0xK2jJT1OvwtacnYo93YeFCRVWzRYkDIxnSpy7OOavzsLLEA6w
-	 Me1zMjmLO1OdfmZVcDCyAWo6f4IdCrOaG495OZ1gMNZBidhbVudI8sQS/6fxDcBV1X
-	 1rdPbBicT3edr4r+AqB7wAFlka+l6GpipVY4vpZO2tZBVpmXlufaXt6DyLimsh7vxM
-	 LynZIGBSgJSqHS6/H1/kT3yqPiZomKF2oDGemN+plrNaz9+HWm0TsEfpDSzw4DOo8o
-	 QUNjs0SdR5wjM63xK41HWotBwOJ4UBuh5+4T6NTXr21s664CzFEO1RJRWOcZrbs7I5
-	 BsQ0LBzjRGiYw==
-Message-ID: <659c7113-988b-4493-8866-82b55b49a626@kernel.org>
-Date: Fri, 6 Mar 2026 21:06:26 +0100
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nA6CgNUj"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1772831823; x=1804367823;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=uZuCakPLyV0YhkoEiRG1KRnO5yknVI+iOX2e2p0KbCI=;
+  b=nA6CgNUjXPKOsOdpaQjz0H3kCxHeHYmlL/kzsxSn6HZHO6Iz7jaZdR7Y
+   WThBAKu2VxKjLEmyinmcbzFDJdhmtv8Otx6oCzxLRtKgzy4g/HKTaJoeV
+   OcbhOI3gU6HjKhm/liH8rSbBU0nZw0Ic6W/H3bJ+bTpohOMDAv+7b0u62
+   SEERAFpvYMzJECnNfDTnggi/E35CSJogU1McW3v6MVyIYLvzG5hLIdmS9
+   VbQMKzAIRv5ikM6hDS0WZDuFrBcwDqVP1DNA0FohV4tCZA+b1qQadZtKV
+   igd6RWCA/iVkfln1zDWGBA63XCR80ypEpDgXcLAB6XT9XBJitw0mzhgI0
+   g==;
+X-CSE-ConnectionGUID: SaFrKbosT6eHdz21T6S6Tg==
+X-CSE-MsgGUID: XcGpk8IpTNGdX/bG+7ov1g==
+X-IronPort-AV: E=McAfee;i="6800,10657,11721"; a="73864516"
+X-IronPort-AV: E=Sophos;i="6.23,105,1770624000"; 
+   d="scan'208";a="73864516"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Mar 2026 13:17:03 -0800
+X-CSE-ConnectionGUID: sLCBQ4W5SDmWOS6uvkx/UQ==
+X-CSE-MsgGUID: udzCn7C5Rlef9WYbwV9VVA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,105,1770624000"; 
+   d="scan'208";a="219065605"
+Received: from lkp-server01.sh.intel.com (HELO 058beb05654c) ([10.239.97.150])
+  by orviesa009.jf.intel.com with ESMTP; 06 Mar 2026 13:16:55 -0800
+Received: from kbuild by 058beb05654c with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1vycXT-000000001Nx-1b5J;
+	Fri, 06 Mar 2026 21:16:51 +0000
+Date: Sat, 7 Mar 2026 05:16:00 +0800
+From: kernel test robot <lkp@intel.com>
+To: Vasily Gorbik <gor@linux.ibm.com>, Mimi Zohar <zohar@linux.ibm.com>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	linux-integrity@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+	Alexander Egorenkov <egorenar@linux.ibm.com>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Dave Hansen <dave.hansen@intel.com>, Coiby Xu <coxu@redhat.com>,
+	Roberto Sassu <roberto.sassu@huawei.com>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	"maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+	Eric Snowberg <eric.snowberg@oracle.com>,
+	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
+	"Serge E. Hallyn" <serge@hallyn.com>,
+	Jarkko Sakkinen <jarkko@kernel.org>,
+	open list <linux-kernel@vger.kernel.org>,
+	"open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" <linuxppc-dev@lists.ozlabs.org>,
+	"open list:S390 ARCHITECTURE" <linux-s390@vger.kernel.org>,
+	"open list:EXTENSIBLE FIRMWARE INTERFACE (EFI)" <linux-efi@vger.kernel.org>
+Subject: Re: [PATCH 1/1] s390/ipl: Fix missing arch_get_secureboot()
+ prototype warning
+Message-ID: <202603070500.3pafeTNF-lkp@intel.com>
+References: <p01-01.g9ec0a81d34d1.ttbfdx5@ub.hpns>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v10 02/15] set_memory: add folio_{zap, restore}_direct_map
- helpers
-To: kalyazin@amazon.com, "Kalyazin, Nikita" <kalyazin@amazon.co.uk>,
- "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "linux-arm-kernel@lists.infradead.org"
- <linux-arm-kernel@lists.infradead.org>,
- "kvmarm@lists.linux.dev" <kvmarm@lists.linux.dev>,
- "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
- "linux-mm@kvack.org" <linux-mm@kvack.org>,
- "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
- "linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>,
- "kernel@xen0n.name" <kernel@xen0n.name>,
- "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
- "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
- "loongarch@lists.linux.dev" <loongarch@lists.linux.dev>
-Cc: "pbonzini@redhat.com" <pbonzini@redhat.com>,
- "corbet@lwn.net" <corbet@lwn.net>, "maz@kernel.org" <maz@kernel.org>,
- "oupton@kernel.org" <oupton@kernel.org>,
- "joey.gouly@arm.com" <joey.gouly@arm.com>,
- "suzuki.poulose@arm.com" <suzuki.poulose@arm.com>,
- "yuzenghui@huawei.com" <yuzenghui@huawei.com>,
- "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
- "will@kernel.org" <will@kernel.org>, "seanjc@google.com"
- <seanjc@google.com>, "tglx@kernel.org" <tglx@kernel.org>,
- "mingo@redhat.com" <mingo@redhat.com>, "bp@alien8.de" <bp@alien8.de>,
- "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
- "x86@kernel.org" <x86@kernel.org>, "hpa@zytor.com" <hpa@zytor.com>,
- "luto@kernel.org" <luto@kernel.org>,
- "peterz@infradead.org" <peterz@infradead.org>,
- "willy@infradead.org" <willy@infradead.org>,
- "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
- "lorenzo.stoakes@oracle.com" <lorenzo.stoakes@oracle.com>,
- "vbabka@suse.cz" <vbabka@suse.cz>, "rppt@kernel.org" <rppt@kernel.org>,
- "surenb@google.com" <surenb@google.com>, "mhocko@suse.com"
- <mhocko@suse.com>, "ast@kernel.org" <ast@kernel.org>,
- "daniel@iogearbox.net" <daniel@iogearbox.net>,
- "andrii@kernel.org" <andrii@kernel.org>,
- "martin.lau@linux.dev" <martin.lau@linux.dev>,
- "eddyz87@gmail.com" <eddyz87@gmail.com>, "song@kernel.org"
- <song@kernel.org>, "yonghong.song@linux.dev" <yonghong.song@linux.dev>,
- "john.fastabend@gmail.com" <john.fastabend@gmail.com>,
- "kpsingh@kernel.org" <kpsingh@kernel.org>, "sdf@fomichev.me"
- <sdf@fomichev.me>, "haoluo@google.com" <haoluo@google.com>,
- "jolsa@kernel.org" <jolsa@kernel.org>, "jgg@ziepe.ca" <jgg@ziepe.ca>,
- "jhubbard@nvidia.com" <jhubbard@nvidia.com>,
- "peterx@redhat.com" <peterx@redhat.com>, "jannh@google.com"
- <jannh@google.com>, "pfalcato@suse.de" <pfalcato@suse.de>,
- "shuah@kernel.org" <shuah@kernel.org>, "riel@surriel.com"
- <riel@surriel.com>, "ryan.roberts@arm.com" <ryan.roberts@arm.com>,
- "jgross@suse.com" <jgross@suse.com>,
- "yu-cheng.yu@intel.com" <yu-cheng.yu@intel.com>,
- "kas@kernel.org" <kas@kernel.org>, "coxu@redhat.com" <coxu@redhat.com>,
- "kevin.brodsky@arm.com" <kevin.brodsky@arm.com>,
- "ackerleytng@google.com" <ackerleytng@google.com>,
- "maobibo@loongson.cn" <maobibo@loongson.cn>,
- "prsampat@amd.com" <prsampat@amd.com>,
- "mlevitsk@redhat.com" <mlevitsk@redhat.com>,
- "jmattson@google.com" <jmattson@google.com>,
- "jthoughton@google.com" <jthoughton@google.com>,
- "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
- "alex@ghiti.fr" <alex@ghiti.fr>,
- "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>,
- "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
- "chenhuacai@kernel.org" <chenhuacai@kernel.org>,
- "dev.jain@arm.com" <dev.jain@arm.com>, "gor@linux.ibm.com"
- <gor@linux.ibm.com>, "hca@linux.ibm.com" <hca@linux.ibm.com>,
- "palmer@dabbelt.com" <palmer@dabbelt.com>, "pjw@kernel.org"
- <pjw@kernel.org>,
- "shijie@os.amperecomputing.com" <shijie@os.amperecomputing.com>,
- "svens@linux.ibm.com" <svens@linux.ibm.com>,
- "thuth@redhat.com" <thuth@redhat.com>, "wyihan@google.com"
- <wyihan@google.com>,
- "yang@os.amperecomputing.com" <yang@os.amperecomputing.com>,
- "Jonathan.Cameron@huawei.com" <Jonathan.Cameron@huawei.com>,
- "Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>,
- "urezki@gmail.com" <urezki@gmail.com>,
- "zhengqi.arch@bytedance.com" <zhengqi.arch@bytedance.com>,
- "gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>,
- "jiayuan.chen@shopee.com" <jiayuan.chen@shopee.com>,
- "lenb@kernel.org" <lenb@kernel.org>, "osalvador@suse.de"
- <osalvador@suse.de>, "pavel@kernel.org" <pavel@kernel.org>,
- "rafael@kernel.org" <rafael@kernel.org>,
- "vannapurve@google.com" <vannapurve@google.com>,
- "jackmanb@google.com" <jackmanb@google.com>,
- "aneesh.kumar@kernel.org" <aneesh.kumar@kernel.org>,
- "patrick.roy@linux.dev" <patrick.roy@linux.dev>,
- "Thomson, Jack" <jackabt@amazon.co.uk>,
- "Itazuri, Takahiro" <itazur@amazon.co.uk>,
- "Manwaring, Derek" <derekmn@amazon.com>, "Cali, Marco"
- <xmarcalx@amazon.co.uk>
-References: <20260126164445.11867-1-kalyazin@amazon.com>
- <20260126164445.11867-3-kalyazin@amazon.com>
- <af2d4dcd-60a8-4a5a-b508-d9600b1f2275@kernel.org>
- <e2834fd9-e4ec-473c-90cd-6c3a5049747f@amazon.com>
- <40bd6f9b-d5c0-4844-81bc-d221cd9b058f@kernel.org>
- <38deb26a-918c-4743-b35f-92a1330dbf40@amazon.com>
- <efc1c39c-7eb5-488f-819c-0ca2149898c3@kernel.org>
- <5c322be7-ea81-4e6a-9689-978c35e93af6@amazon.com>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <5c322be7-ea81-4e6a-9689-978c35e93af6@amazon.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p01-01.g9ec0a81d34d1.ttbfdx5@ub.hpns>
 
-On 3/6/26 16:41, Nikita Kalyazin wrote:
-> 
-> 
-> On 06/03/2026 15:17, David Hildenbrand (Arm) wrote:
->> On 3/6/26 15:48, Nikita Kalyazin wrote:
->>>
->>>
->>>
->>> Yeah, that's unfortunately the status quo as pointed by Aneesh [1]
->>>
->>> [1] https://lore.kernel.org/kvm/yq5ajz07czvz.fsf@kernel.org/
->>>
->>>
->>> Yes, looks like that.  I'll remove the explicit flush and rely on
->>> folio_zap_direct_map().
->>>
->>>
->>> I believe Dave meant to address that with folio_{zap,restore}
->>> _direct_map() [2].
->>>
->>> [2] https://lore.kernel.org/kvm/9409531b-589b-4a54-
->>> b122-06a3cf0846f3@intel.com/
->>>
->>>
->>> I'd be inclined to know what arch maintainers think because I don't have
->>> a strong opinion on that.
->>
->> You could also just perform a double flush, and let people that
->> implemented a _noflush() to perform a flush optimize that later.
-> 
-> Do you propose to just universalise the one from x86?
-> 
-> int folio_zap_direct_map(struct folio *folio)
-> {
->     const void *addr = folio_address(folio);
->     int ret;
-> 
->     ret = set_direct_map_valid_noflush(addr, folio_nr_pages(folio), false);
->     flush_tlb_kernel_range((unsigned long)addr,
->                    (unsigned long)addr + folio_size(folio));
-> 
->     return ret;
-> }
+Hi Vasily,
 
-Yes, exactly something along those lines!
+kernel test robot noticed the following build errors:
+
+[auto build test ERROR on v7.0-rc2]
+[also build test ERROR on linus/master]
+[cannot apply to next-20260306]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Vasily-Gorbik/s390-ipl-Fix-missing-arch_get_secureboot-prototype-warning/20260305-230453
+base:   v7.0-rc2
+patch link:    https://lore.kernel.org/r/p01-01.g9ec0a81d34d1.ttbfdx5%40ub.hpns
+patch subject: [PATCH 1/1] s390/ipl: Fix missing arch_get_secureboot() prototype warning
+config: s390-allmodconfig (https://download.01.org/0day-ci/archive/20260307/202603070500.3pafeTNF-lkp@intel.com/config)
+compiler: clang version 18.1.8 (https://github.com/llvm/llvm-project 3b5b5c1ec4a3095ab096dd780e84d7ab81f3d7ff)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260307/202603070500.3pafeTNF-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202603070500.3pafeTNF-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+>> arch/s390/kernel/ipl.c:24:10: fatal error: 'linux/secure_boot.h' file not found
+      24 | #include <linux/secure_boot.h>
+         |          ^~~~~~~~~~~~~~~~~~~~~
+   1 error generated.
+
+
+vim +24 arch/s390/kernel/ipl.c
+
+  > 24	#include <linux/secure_boot.h>
+    25	#include <asm/asm-extable.h>
+    26	#include <asm/machine.h>
+    27	#include <asm/diag.h>
+    28	#include <asm/ipl.h>
+    29	#include <asm/smp.h>
+    30	#include <asm/setup.h>
+    31	#include <asm/cpcmd.h>
+    32	#include <asm/ebcdic.h>
+    33	#include <asm/sclp.h>
+    34	#include <asm/checksum.h>
+    35	#include <asm/debug.h>
+    36	#include <asm/abs_lowcore.h>
+    37	#include <asm/os_info.h>
+    38	#include <asm/sections.h>
+    39	#include <asm/boot_data.h>
+    40	#include "entry.h"
+    41	
+
 -- 
-Cheers,
-
-David
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
