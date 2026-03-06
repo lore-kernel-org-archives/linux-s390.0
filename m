@@ -1,133 +1,165 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 504EE3A9DB6
-	for <linux-s390@vger.kernel.org>; Fri,  6 Mar 2026 16:53:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.180
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772816009; cv=pass; b=HSVwDq2t55ih/jEA48rGPX5y1mj8YcEmhGSJzfWAhRjcrjMeBzVictRLkoovdFJp1YlaXblYNfCAQZgKQj3m2LeJZc6Ta7I1T19tZbXmQBTk1iHb+LzOSBGvx+TNINX8f7a6PsqLhs/p9RSX+WboqWzm+PIK9gsn5qwgHvBIbSs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772816009; c=relaxed/simple;
-	bh=uvJAJqJ+OUG+8Qc6KivjDGtBu8adoepmT7qHr235oD4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=P1TyySIQPrv6RA2EtbLiYQPgSZBpcHal7ox5uqUEzD6EVvsy1C078Ifje37HCYJSmIXN2yo2tKMHtNxyzzeqjF5W7FlsLcU7WXxSRPlANS+BqAOmLV6KY6ECH8zoDjHZ8QVWKKMMlBPJS4XP13+8nabH+rgkGi823/y7Y+qI2Wc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=b+8xlYrT; arc=pass smtp.client-ip=209.85.214.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E21F301016;
+	Fri,  6 Mar 2026 17:14:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772817255; cv=none; b=BauRc3VQU+Ls/1BuOsD+B6v4jjx95F8n1PqfyczmcECjE4kpwnUCmuHfqx0dqspQEUKWy9qAIlVlyhxBpB2jscdPjmui8X4vqVSmxFxG0YlVx81xy/Ou1BCZnZPku116xXfB7OVcmb3wPdtp1JnOzNK+sDaVQ/zHXb7PkKZFHL0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772817255; c=relaxed/simple;
+	bh=sC0UA3HGh+vvY+glSh0Z1KBEsW7LssAg4KQrcg3e2HM=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=S4zucfdPxCFoI4zlV/69v52tfoGhHYxtYp+rDEmCJ5Di68I8vGsFcr30GmckQh1wbqsrBPrbReKMvc1WIj5IUgwyLmitWzGM7n7NwGSjfusVmf6I8e7NJXtVjR9wHpjoQEPsp8Z6A9Mk5wTEZMirBWNMr8iPeyMoVhymgIdsZlw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rT+ENp9n; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="b+8xlYrT"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2ae523d54d2so88975ad.1
-        for <linux-s390@vger.kernel.org>; Fri, 06 Mar 2026 08:53:28 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1772816008; cv=none;
-        d=google.com; s=arc-20240605;
-        b=ad1tZuZ0AKLmyq22PwxyDGj61iTKfgM1f+PGRZK1XkKDudtbcK4OXAQnHjDWzbP8Mb
-         KHktKP1ZfZluPb7n+M6roDwN1PkUbYLbim33G1auKcPPS7ikvs1STdZCLZKSRNCiO13Z
-         EnqPFXEmIzZrS20V8rf1dTr4pHHRLivlt831+GEYqB9kt/PEHW+LpWQPFOnzhcPIYy9q
-         V2evwVDcJWavvzH4mJllkMVN2sZa2hZrFT1/rTZVxXWRnaiHfZ9sb8qlm1NEGEIig2mL
-         pQ6bPWBgbDSPq/atHxFOZVE/2gKOPBdkMBb2i/FvsLqJu4wmjOCR9x5pyU3aBv/jJF1j
-         6Q6Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=933sEyemrbKBxApG2XPD0d2uPjKeHtvt7oVBd4xEr8I=;
-        fh=xY96yqLxBeQY1hjBnVpUa2D1bbO2b6K6uDERzw0j/ZA=;
-        b=VaoDqBAH4f0zbJ9fFYW1G5io4uAtZrK+aJJLZNtV7/u9dSJ4548QIAwKhDAxDJWJTn
-         fRehfvRx04CjNPgdaCjfhZzPs2n7HfwzDnylZ20OBFXVlwkW2vR/DeUMIZpbsaxmeajZ
-         B+Pp+aZNO6SmzopwxNySc8NgM+P74xd/zd42X52bGxPiQSYVZyGVBZYbuR5vpVm5LELM
-         Withbxe4+ZgSPV+7n7ORcPZFqb3coibOVOBgtU4b+QUbdzInqyH1/Dpt8ZBs+SqliEmp
-         0ELyCSSr9JIgSjR/4kTM+f/zdO15W+yUNZ4gaYbYo8RxTz70IDIpt8EPqh5ScboSCOEC
-         4/+g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1772816008; x=1773420808; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=933sEyemrbKBxApG2XPD0d2uPjKeHtvt7oVBd4xEr8I=;
-        b=b+8xlYrTITiYbj80vcLrufR5Z/yneu9x9IgtJPoEjTUVRs+B3dhuMoEIE6XJ3HH9QM
-         CIPpgLGAObu5xZ1/CcciTrhiFi/VbjC+xMPFktDbgntRlVI3B8qvk80D4vpzV+GXdklh
-         TeYjczm0nvRz1pG6rhYo3F3+5nNJDsK17hM+OJnNc0GYUaAzxTJ6wNQ7aE/D+c18vxCe
-         XiTcJsMYJF9Kd0ZrLH89Y6+bkOo2cDSIYvA6vjTY0LXDmi5KrZ4j5NRtPFDCyvNOe8+y
-         WqIj/gkPnGoHbi97KQ0s9fo1B2b6SwIECLEiGKNBTNM/u07v8xdLHsPbHL/RE6kp9YSZ
-         p8zg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772816008; x=1773420808;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=933sEyemrbKBxApG2XPD0d2uPjKeHtvt7oVBd4xEr8I=;
-        b=mNTh9FJX9dOYwpBbqq55t6RdiMt9aIx8dZJBhqas3grOXfs7CyGXNk2B76VNJDevts
-         CBFY5EL83TuouIWJldyO5VFViED0uuvu03NP5+ye+kbLae+MJ6CTPUNuyik94yMv8pw2
-         lwJdQd+ykuFcn/LMXa74twO6Dwl+lXMybueI2rbBPzNGhORqaulP5xDIlXSrFMIu2AMi
-         jKFEn6m5aREPMWaUyrZxgc5WJLPaPTr5B2g2KSmMEOy0zxF19n6l+Nff2QPjPy+4nXy1
-         K3QV9ECPCBKqaQKZnmEeJvOTLNan5BefJF0J//sIEcAoXV2PXtr+UothJXdmffjUPNLV
-         6Wsg==
-X-Forwarded-Encrypted: i=1; AJvYcCWicOisdkh3DVc+AEfbkMwu23KuJovizXq5llvrklHR9CtybbNcztVqdQJTxk2X0L2g55d4wwCV6h6r@vger.kernel.org
-X-Gm-Message-State: AOJu0YxBsJzqhS2FovwYaFq2gcESoKNFsEBEW7onPR+E3ACItCuMFDT4
-	bAOSeMrZZfD0i4wb3/MfO1lJErRoLBu+6eOSA2LOn/BJClv70rl6OFznKzEe+CwoRib4QqE9lcN
-	gq2uqdzQwafw2iuy3ZXPSRRcC9WM6ppgLFgrrnAXX
-X-Gm-Gg: ATEYQzwS8tppfMQ+rEeZQwm4rwxCvF1n1uBguNZKhM6s6zo56im2jK1qIBVm5BqDEAg
-	Y+M/QAeGSKfaFMgqenVHPVW2dTWP7XUzLlBBusST7s/OVMXDcb9xxpbE0yMFdpxKadNYWK53phN
-	ZErxTgik6z/CtHkOJ0LjNqldquoO4jekiyR8RENJ2Ja7sFZo/CsOMVuwF7GFaB133oFcxkrccaI
-	mX+L29LdHhVP5+LURSmd2W+I6UIimMb8zkfWuSeJnVnJDyxklhMxOnENwwwxVuWagXSi0/zm4Gs
-	pCs5GGAM
-X-Received: by 2002:a17:902:e54d:b0:2ad:ab68:f2c3 with SMTP id
- d9443c01a7336-2ae81e624cemr2487815ad.13.1772816007246; Fri, 06 Mar 2026
- 08:53:27 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rT+ENp9n"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6265G3jX2966823;
+	Fri, 6 Mar 2026 17:14:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=zqF2tgZOu4+g9WSY2jpKPjaKdyyB
+	itdYIpnUb0kkSb8=; b=rT+ENp9npbs9xC1Yq5iL4ucDCmHUpZhXExy4fkTiwxeD
+	Nuicpbx7u8DiiNHopqlphWbGCwJsh1hIwqro+MUOvxmFbksdNtsLl14T4hgy6jBi
+	eL1TuP53hZMHgO9+msdiDWyAgm/CiWF1EUsyWMJsys+RaOneFJxK2AaipmDLHxgl
+	P7jwixcZHlk+X9bx9yQOAEQjgAKG36M5OWOTnzxtZmgjaYio3XoPM76CbMPY5qj8
+	udLbJxl1it1Ar/QpXgGnBHhdhD2V7v9H7fg72KMJdFd5YjjXb79LLlCUd3UGbd7n
+	Y3LQsQ4Nbt8g1C/WtaG5Mx3I5bX533aLvBrNwbitFw==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ckskd9mje-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 06 Mar 2026 17:14:10 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 626DFfFu003201;
+	Fri, 6 Mar 2026 17:14:08 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cmb2ygvm9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 06 Mar 2026 17:14:08 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 626HE4k027918700
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 6 Mar 2026 17:14:05 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D51332004E;
+	Fri,  6 Mar 2026 17:14:04 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A42182004D;
+	Fri,  6 Mar 2026 17:14:04 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  6 Mar 2026 17:14:04 +0000 (GMT)
+From: Gerd Bayer <gbayer@linux.ibm.com>
+Subject: [PATCH v3 0/2] PCI: AtomicOps: Fix pci_enable_atomic_ops_to_root()
+Date: Fri, 06 Mar 2026 18:13:57 +0100
+Message-Id: <20260306-fix_pciatops-v3-0-99d12bcafb19@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260306071002.2526085-1-tmricht@linux.ibm.com> <aar4GKP1c66egZnn@li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com>
-In-Reply-To: <aar4GKP1c66egZnn@li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com>
-From: Ian Rogers <irogers@google.com>
-Date: Fri, 6 Mar 2026 08:53:15 -0800
-X-Gm-Features: AaiRm52ymk7n_TnJgTnMzHWevukVygoazKQGzkWbtsoNC-MRSTc2_F6Kq8bl054
-Message-ID: <CAP-5=fXs0UrMVhwU-_=iunCYa_ye18FHj0W1V8sE5T9nOkeZWg@mail.gmail.com>
-Subject: Re: [PATCH] perf test: Fix test case 120 and 121 for s390
-To: Jan Polensky <japo@linux.ibm.com>
-Cc: Thomas Richter <tmricht@linux.ibm.com>, linux-kernel@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org, acme@kernel.org, 
-	namhyung@kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com, 
-	sumanthk@linux.ibm.com, hca@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAFULq2kC/2XO2wrCMAyA4VcZubYj7dhBr3wPEVm76AJuHe0sk
+ 7F3txuCqJd/Qj4ygyfH5OGQzOAosGfbx8h2CZi27m8kuIkNClUuJRbiytNlMFyPdvCipKrAioz
+ RmEE8GRzF/cadzrFb9qN1z00Pcp2+IYnfUJACBTUmr+q81IWi4537x5Sy7lJjO1ixoD6Akj+fB
+ BWBBmVGe12Soj9gWZYXnNw6he0AAAA=
+X-Change-ID: 20251106-fix_pciatops-7e8608eccb03
+To: Bjorn Helgaas <bhelgaas@google.com>, Jay Cornwall <Jay.Cornwall@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>
+Cc: Leon Romanovsky <leon@kernel.org>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Alexander Schmidt <alexs@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
+        Gerd Bayer <gbayer@linux.ibm.com>, stable@vger.kernel.org
+X-Mailer: b4 0.14.2
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-GUID: tSUQ0VflUwKyYu-21dE9ye7pIvfZXIQ6
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA2MDE2MiBTYWx0ZWRfX9AWxr+yUj8zN
+ PSXhdYfOHWIGXToEllsf1uJ8DB4OOBN/Dl8fNTSVqeNX3GIunNwyo/bkBzMOQw9IcsplpHNVC0H
+ jJJZEBSfz4BjVxfzVJaUy49LeasL8SAlAvBWCE+/URaF2cSjWLvEvCcmrY/+hG/er0tH7mustpX
+ 8O//M+J2FlgDAwr17vhEmiiq+atrYidEjzyht+rPoSGhSSYnnyL75cpSWuUKV1w5Vw+ziY61D8c
+ XwG6I+gUzR71r9Lh/UMLogbsRVhWByZ1TwagiCbMlpLsAXP2roDpIZSk/5QZ7NlTZqd8CDSq/rU
+ rBG7+UKj+nsF1InuOBcShfGpr9o0wbtxCJIED+yD9sSI0WBp8+KrfYw/jCjODUzCRpkSV2viNs8
+ Gjn+LQvSqPZdxo2XrV5CUyJGZQgwZfDSNnxD34XukCgtAtZPe8Y8Rko43tdYQhBZBK8aHfk73/p
+ Zxc766MKqnBop4I3Ggw==
+X-Authority-Analysis: v=2.4 cv=H7DWAuYi c=1 sm=1 tr=0 ts=69ab0b62 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=AXBlPMOSM4AmvKD3g9wA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: T7KQx6Fzn0zi_m8NhBWvjPqEaQu8ZwtY
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-06_05,2026-03-06_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 suspectscore=0 phishscore=0 clxscore=1015 priorityscore=1501
+ adultscore=0 bulkscore=0 spamscore=0 malwarescore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603060162
 
-On Fri, Mar 6, 2026 at 7:52=E2=80=AFAM Jan Polensky <japo@linux.ibm.com> wr=
-ote:
->
-> On Fri, Mar 06, 2026 at 08:10:02AM +0100, Thomas Richter wrote:
-> > Perf tests
-> > 120: 'perf data convert --to-ctf' command test
-> > 121: 'perf data convert --to-json' command test
-> > fail on s390. It is caused by selecting the default event cycles
-> > which does not exist on s390 z/VM. Use software event cpu-clock
-> > and specify it explicitly on the command line.
-> >
-> > Output before:
-> > =E2=9D=AF perf test 120 121
-> > 120: 'perf data convert --to-ctf' command test       : FAILED!
-> > 121: 'perf data convert --to-json' command test      : FAILED!
-> >
-> > Output after:
-> > =E2=9D=AF perf test 120 121
-> > 120: 'perf data convert --to-ctf' command test       : Ok
-> > 121: 'perf data convert --to-json' command test      : Ok
-> >
-> > Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> [snip]
-> Thanks for providing this, Thomas!
-> Tested-by: Jan Polensky <japo@linux.ibm.com>
-> Reviewed-by: Jan Polensky <japo@linux.ibm.com>
+Hi Bjorn et al.
 
-Should we not fallback for the cycles as a default event?
-https://web.git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools-next.gi=
-t/tree/tools/perf/builtin-record.c#n1374
-https://web.git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools-next.gi=
-t/tree/tools/perf/util/evsel.c#n3792
+this series addresses a few issues that have come up with the helper
+function that enables Atomic Op Requests to be initiated by PCI
+enpoints:
 
-Thanks,
-Ian
+A. Most in-tree users of this helper use it incorrectly [0].
+B. On s390, Atomic Op Requests are enabled, although the helper
+   cannot know whether the root port is really supporting them.
+C. Loop control in the helper function does not guarantee that a root
+   port's capabilities are ever checked against those requested by the
+   caller.
+
+Address these issue with the following patches:
+Patch 1: Make it harder to mis-use the enablement function,
+Patch 2: Addresses issues B. and C.
+
+I did test that issue B is fixed with these patches. Also, I verified
+that Atomic Ops enablement on a Mellanox/Nvidia ConnectX-6 adapter
+plugged straight into the root port of a x86 system still gets AtomicOp
+Requests enabled. However, I did not test this with any PCIe switches
+between root port and endpoint.
+
+Ideally, both patches would be incorporated immediately, so we could
+start correcting the mis-uses in the device drivers. I don't know of any
+complaints when using Atomic Ops on devices where the driver is
+mis-using the helper. Patch 2 however, is fixing an obseved issue.
+
+[0]: https://lore.kernel.org/all/fbe34de16f5c0bf25a16f9819a57fdd81e5bb08c.camel@linux.ibm.com/
+[1]: https://lore.kernel.org/all/20251105-mlxatomics-v1-0-10c71649e08d@linux.ibm.com/
+
+Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
+---
+Changes in v3:
+- rebase to 7.0-rc2
+- gentle ping
+- add netdev and rdma lists for awareness
+- Link to v2: https://lore.kernel.org/r/20251216-fix_pciatops-v2-0-d013e9b7e2ee@linux.ibm.com
+
+Changes in v2:
+- rebase to 6.19-rc1
+- otherwise unchanged to v1
+- Link to v1: https://lore.kernel.org/r/20251110-fix_pciatops-v1-0-edc58a57b62e@linux.ibm.com
+
+---
+Gerd Bayer (2):
+      PCI: AtomicOps: Define valid root port capabilities
+      PCI: AtomicOps: Fix logic in enable function
+
+ drivers/pci/pci.c             | 43 +++++++++++++++++++++----------------------
+ include/uapi/linux/pci_regs.h |  8 ++++++++
+ 2 files changed, 29 insertions(+), 22 deletions(-)
+---
+base-commit: 5ee8dbf54602dc340d6235b1d6aa17c0f283f48c
+change-id: 20251106-fix_pciatops-7e8608eccb03
+
+Best regards,
+-- 
+Gerd Bayer <gbayer@linux.ibm.com>
+
