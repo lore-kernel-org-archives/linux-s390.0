@@ -1,79 +1,97 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 258891E531;
-	Fri,  6 Mar 2026 08:48:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F07330F92D;
+	Fri,  6 Mar 2026 10:43:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772786929; cv=none; b=iOOuHhYidDkPDfw4Mfhcxo+LPNg6/wifskhLrof0ceAMtrbAko9Df8bs1aCAFowdF+KNygFTw9ZcrsO4BIrH2veElo1uSygYT6Vv+lCq+QlslTtuzjLgNFFqxRNvRcb64YqlMuGT3zxaNQEswV0xNGhoOEfckhGMgd5XTpk8/eY=
+	t=1772793813; cv=none; b=kwrzW4J8xeqXomLD7+0bupozdsz/mpgRReXd0roTRbWuyCCzOra4uy6c8re/zfPdg7+KQfrhFdMlermmlr81o2WUIPRaUj7vt9+7mARYRLDZa8DqZni3GFcTO+pXs++B7R6pW2Q9al72aUYDzFmYhlhZd/sNwTQqOR1foiQ67Lc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772786929; c=relaxed/simple;
-	bh=9xc2rd67zygfGvWAuXJWDaeN1yezR102MpqvN+cRWiQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KeStYDIrqCTWfR5bL9g2B3f8ZNW1N/EaTSAbPyBm1FXqKclgeZf5fPXBb0xUp1AMRdAMjBpwk94tVrASJ+f14ihr9OvC0TXInMbL+P7ouZZahYy3/oW58IH8B/oFIFbXHIxJtOTyNuy3VaTBPPugktPPFUuVfRZsn8G8o+eb87M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=F3XfS5v7; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1772793813; c=relaxed/simple;
+	bh=jKZEF3IUSt1J91757T2vSUpKudKOAuc0I9XBO5Sn7ko=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=lWXbULrEz675pUkByuBiqSL/59iu5XL2IUlTTO6VnHV3t0Kktfwr0+gkze8r+Zr8dL/1Y6C+K2JijANKkdj7W0fyZzvFaJmR/mA2B6+dbrVsIsQfF+ymjO8usNBxbpf1m600q4rZN4Iiq8lAvU4F9MR0WVsyz2S7fQ5FhDT+XBA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BzVtHObI; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="F3XfS5v7"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=jUcog0pcNQnpMag/9mzHrQkTisayE/+eo7fVLOiHJG4=; b=F3XfS5v7gg+LLEYfVOP/YOGXgI
-	iX1FEZne2zGA6mujKybrGTZl70Nn+57MW6qPR5+0BL3n/v52umGA5kR9cgh3ckkRR/hkjxUgCShb/
-	Wh516fLci3vnwQo2zXsmEr0p5vs/tWWJx9KW1/caWXgkdB99ivEq9228wnn0TZ0GIgOHnAbAyg7Ra
-	8cUmLDKuKUTwoxY1J/iVD5lSavhMAZiDf+NwOrefOuTjOgX4LBAuXBwWljQ+iuppBLKMqEQnjLoZ7
-	KWRuNwDtbhCkwDLad3yHbw2O2kcxWMvDHbJnARyQBZgScEVgyst5XQASqoa6BYWWBJLOhgVqp+JIf
-	JygEY6cg==;
-Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
-	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vyQrW-0000000GQ4K-1Lbh;
-	Fri, 06 Mar 2026 08:48:46 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id 1C2BF300B40; Fri, 06 Mar 2026 09:41:38 +0100 (CET)
-Date: Fri, 6 Mar 2026 09:41:38 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Mikhail Zaslonko <zaslonko@linux.ibm.com>, linux-next@vger.kernel.org,
-	linux-s390@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-	Alexander Egorenkov <egorenar@linux.ibm.com>,
-	Thomas Gleixner <tglx@kernel.org>,
-	"Paul E. McKenney" <paulmck@kernel.org>
-Subject: Re: [linux-next][s390] Boot hang after merge c50f05bd3c4e
- (sched/hrtick)
-Message-ID: <20260306084138.GR1282955@noisy.programming.kicks-ass.net>
-References: <af549a19-db99-4b16-8511-bf315177a13e@linux.ibm.com>
- <28add480-4841-4e6a-a8a9-1211280ecc51@linux.ibm.com>
- <20260305074922.7170Ad3-hca@linux.ibm.com>
- <20260305121201.GB596554@noisy.programming.kicks-ass.net>
- <20260305123505.GA1395416@noisy.programming.kicks-ass.net>
- <20260305124501.GB1395416@noisy.programming.kicks-ass.net>
- <20260305130725.GB652779@noisy.programming.kicks-ass.net>
- <20260305150210.7170D10-hca@linux.ibm.com>
- <cfd76996-ecae-4ed9-add0-70ca2e59ef11@linux.ibm.com>
- <20260305194821.8663A9e-hca@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BzVtHObI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B76D3C4CEF7;
+	Fri,  6 Mar 2026 10:43:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772793812;
+	bh=jKZEF3IUSt1J91757T2vSUpKudKOAuc0I9XBO5Sn7ko=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=BzVtHObIL82/q9O+sOb2/+FweppM29b9mnTSAfc69usZmapfE8B7l+05Z7ufxsOTk
+	 CRb055OLrA9Fy0yEzPfSTSO3b4HQdk2eAUXkpLJI5GsUQVNu5xWwHe/INBvaNDqBZg
+	 g48NgVDztPTNO6Bd1g9Q+EQL2umvqAmLBE0LYiE6WC7dKN/L9rELZLCDr3TfV/KUNo
+	 0vqW/J+Wr4G4E1dUk3ZG5r6MLRBygEtiuFa87etC+eXlXVJtK5o7NcTKq8hG2Vvqvj
+	 DK52IoDgQ/NqyZ4P0Mzc/8FITgp1u7NKxRK8gEjFAVqYwr+lNx6ZLS/spi4VZXOb/Q
+	 8lsBXIqpub5Vg==
+Message-ID: <96cdd223-5139-4535-b82d-831dac472cc3@kernel.org>
+Date: Fri, 6 Mar 2026 11:43:24 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260305194821.8663A9e-hca@linux.ibm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 0/5] vDSO: Use 32-bit CHECKFLAGS for compat vDSO
+To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
+ "David S. Miller" <davem@davemloft.net>,
+ Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>,
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+ Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>
+Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-s390@vger.kernel.org,
+ David Laight <david.laight.linux@gmail.com>, linuxppc-dev@lists.ozlabs.org,
+ Sun Jian <sun.jian.kdev@gmail.com>, kernel test robot <lkp@intel.com>,
+ Dan Carpenter <dan.carpenter@linaro.org>
+References: <20260302-vdso-compat-checkflags-v2-0-78e55baa58ba@linutronix.de>
+Content-Language: fr-FR
+From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+In-Reply-To: <20260302-vdso-compat-checkflags-v2-0-78e55baa58ba@linutronix.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Thu, Mar 05, 2026 at 08:48:21PM +0100, Heiko Carstens wrote:
 
-> Mikhail, which commit did you revert? The above discussion is about commit
-> d8b5cf9c6314 ("s390/irq/idle: Remove psw bits early"), which is not
-> explicitly mentioned.
+
+Le 02/03/2026 à 08:58, Thomas Weißschuh a écrit :
+> When building the compat vDSO the CHECKFLAGS from the 64-bit kernel
+> are used. These are combined with the 32-bit CFLAGS. This confuses
+> sparse, producing false-positive warnings or potentially missing
+> real issues.
 > 
-> But it is indeed broken: irqentry_exit() has a regs_irqs_disabled() check,
-> which I broke with this commit - but "only" for idle exit.
-> Result: no hrtimer_rearm_deferred() being called on idle exit.
+> Manually override the CHECKFLAGS for the compat vDSO with the correct
+> 32-bit configuration.
 > 
-> Oh well. Peter, thanks for pointing to this broken commit. Will be reverted.
+> Not all architectures are supported, as many do not use sparse for their
+> (compat) vDSO. These can be enabled later.
+> 
+> Also add some checks to bitsperlong.h to detect such issues earlier.
+> 
+> Based on tip/timers/vdso.
+> 
+> Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+> ---
+> Changes in v2:
+> - Simplify __BITS_PER_LONG consistency checks
+> - Fix an inconsistency in the powerpc audit code
 
-No problem; digging through unknown arch code is what keeps you sharp
-;-)
+The powerpc audit code should be replaced by generic 
+AUDIT_ARCH_COMPAT_GENERIC, as there is no difference between them 
+apparently.
+
+A tentative was made in the past but was declined by audit maintainers 
+because we were not able to test it allthought the failure was the same 
+before and after the patch, see 
+https://github.com/linuxppc/issues/issues/412
+
+Christophe
+
