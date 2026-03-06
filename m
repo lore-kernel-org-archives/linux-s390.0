@@ -1,187 +1,284 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB6FC3382FC;
-	Fri,  6 Mar 2026 14:49:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD8F33AE1A5;
+	Fri,  6 Mar 2026 15:04:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772808598; cv=none; b=QNEteHG4I+k5zgYCgDw+W2/y+MN8r6g6bUkoCEM3qEai7NjQs7zzv/1UQfyDTNxEloDbjWnvyOGvjCLtg1SMLeTFcCVZbeQxjLseymb3QmtPZSni/EHCcyE4dFTN6YG6834utbjxBq6+efsq6zcublAvERdzxywsMNo+pSAQFEw=
+	t=1772809471; cv=none; b=Op0oCCLsF8Z8ctny1vV0/kqo+fHO74t4T08x3eq1YQ8RTzJTOt255/FkmPzr/qTKnogMaKWF8s/B4P4qFelqMY/6JdzqSZuMbuVj4MU0W1ucvxb3rN36WybN29cKmSjAiJ5qcQZC+gpBBACnaloC+upZhmOODf9HrnShcXMf5zg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772808598; c=relaxed/simple;
-	bh=rkixwexP5kUJiSbCHTqYNIyLJZPjx46H+0DQXY3+t4M=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=VUKFGc8YvdOZ1hEF9oka4EFYenpYrddVoRemRstnCqjQ52esg75/pUL9c23Fyi0RnPfXwsstGm11u5o1XLP7NEhEPV2vjoyWOgWdOozt11jwfUQ8iZe7ZYPdo0KCzQMEE7u2PDhg/5eFMAVuivkxdSo8PrBBMd1oPOJdz5v+IFQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=loSxt5sm; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1772809471; c=relaxed/simple;
+	bh=25CPe4EGSUbqlSDNHofrLGG8PR/WzU7sNEADToXqfos=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=QbkRlYC9YA5e/aZwWrJSIW3Enogz5yBcpzz5yTIgtq4bKxafm9YwK9akO0pZcVBUs5oioZEdwZlnvcxmyY0nVQF16QLlDQwjxPqHo5cZTr9pHxwo45K1xgLvkfFnOhq3K4lR5I7VXoy6B4d2Nv2WnUxwgomEE+emADQN0LfVuOA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l00mYyAe; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="loSxt5sm"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6266KAcc2063768;
-	Fri, 6 Mar 2026 14:49:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=6Vi6xX
-	gvhleqRrUETwW3v6Hy+5QskzOeK91st7CY5sY=; b=loSxt5smuk2eO3YH2oV5SU
-	OoHz4SX69AevziSNAzRjPr4s3lZyWAsdLmpgpLrEaPz6iDb8D+44Md3qa86Z/IQ+
-	+jXhMBGZOjQ2ZUHMoEXhR5l+fV5jhhiO5eNHMFO+z3/SKNSZinKbQ8oFPPLHiiOe
-	p88SIZ4wulIRflymEX7+zWIoKPq/XIPx7yjV+rytDx4WjlE00mOdriUhq7FNDkki
-	EZ3V32BCQR5X82skQNG4SKrihbGEz9uzYDmX2qsDAu60W/YZoO5+SwmaONlXTFjA
-	5aKYpKs70UnlZrt8y+oXD24P45tnv/IZ5aDxokSSErUV3lto/yxm4Kil+vHMQMZQ
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ckskc8dnk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 06 Mar 2026 14:49:51 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 626Cg44r011200;
-	Fri, 6 Mar 2026 14:49:50 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cqau2vtpu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 06 Mar 2026 14:49:50 +0000
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 626EnnPE13632054
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 6 Mar 2026 14:49:49 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1663158063;
-	Fri,  6 Mar 2026 14:49:49 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BFB4258060;
-	Fri,  6 Mar 2026 14:49:47 +0000 (GMT)
-Received: from [9.111.152.90] (unknown [9.111.152.90])
-	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri,  6 Mar 2026 14:49:47 +0000 (GMT)
-Message-ID: <4df383a6-2046-425d-9405-86889187644a@linux.ibm.com>
-Date: Fri, 6 Mar 2026 15:49:46 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l00mYyAe"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF2D7C4CEF7;
+	Fri,  6 Mar 2026 15:04:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772809471;
+	bh=25CPe4EGSUbqlSDNHofrLGG8PR/WzU7sNEADToXqfos=;
+	h=From:To:Cc:Subject:Date:From;
+	b=l00mYyAeVzZNhOkHGoBqNdxgrGLiNdHhVl3kHwWYeL1Y9cFWXVlXooc68wEuF7L0Q
+	 OF2NVmz98U+4tMbNLueBvXb1fQq7cXDImpDKIGf4tKnWW++vZxu/EY+wexkETnxwFD
+	 MWqyCam4Ic8JyGq5WqejMJe9U3A1XlNrnepTU7jea0jQaiV8DaUy+MCEWae68Risxu
+	 qkBXP3twWnqgmthNNhGJ5AZYReddCWjdC3dgnUrpIrec7ooGju9tx+THX/KeuImLH8
+	 yhx06aMwr48pfMFdKNoEE3NgYZYj6wC+11wNOWM+t5CSAxsd0lxY8gLOiIilbMEZIm
+	 dZ/eso6rn5L2w==
+From: Arnd Bergmann <arnd@kernel.org>
+To: Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Mimi Zohar <zohar@linux.ibm.com>,
+	Roberto Sassu <roberto.sassu@huawei.com>,
+	Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+	Paul Moore <paul@paul-moore.com>,
+	James Morris <jmorris@namei.org>,
+	"Serge E. Hallyn" <serge@hallyn.com>,
+	Jarkko Sakkinen <jarkko@kernel.org>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Coiby Xu <coxu@redhat.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Eric Snowberg <eric.snowberg@oracle.com>,
+	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
+	Bill Wendling <morbo@google.com>,
+	Justin Stitt <justinstitt@google.com>,
+	Andrew Donnellan <ajd@linux.ibm.com>,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-integrity@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	keyrings@vger.kernel.org,
+	llvm@lists.linux.dev
+Subject: [PATCH] integrity: avoid using __weak functions
+Date: Fri,  6 Mar 2026 16:03:24 +0100
+Message-Id: <20260306150421.270124-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] s390: Revert "s390/irq/idle: Remove psw bits early"
-To: Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20260306111919.362559-1-hca@linux.ibm.com>
-Content-Language: en-US
-From: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-In-Reply-To: <20260306111919.362559-1-hca@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ua_189ymX7QSuYLlFPynUJWjhHTBAK3t
-X-Authority-Analysis: v=2.4 cv=b66/I9Gx c=1 sm=1 tr=0 ts=69aae98f cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=JfrnYn6hAAAA:8 a=gC04ymZ0DmD80M8TATsA:9 a=QEXdDO2ut3YA:10
- a=1CNFftbPRP8L7MoqJWF3:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA2MDE0MCBTYWx0ZWRfXzJ1gZ6BlNI2Q
- pY4OlPcUERcjMgQIM5sDE9ZsVjgcFztlSUCbp87eA4ja0zmf5TZ4h2OBBM3MfRuJaKMDWeEd+Ko
- 8yMICPx60f5XjCfN1sdNbyb7hBOK8yp58mjxpI9LBTKqaSMM4y3aYyJTE55LxkyyU8wQQCFI8jd
- t7w2dcS+1jn832zccO4DGmIo+Ji0e+kMnoMkhTzrOBoJH0s6i37ZMpyb6Jt0dwVq5RN5FiXIN+X
- nwd+UFUp2acg9h/AhXq558Q6oeBYKLG+ggUGNtVXuZx2f8P70xK+mt62Iqa3IITBcB2+FORGdAe
- p/uU0qBSqP73+T6+gn4DzPzLbW8OI07xCNCk+9v/9D5Xslt/cGGL8FFlruqWjVqHuaFhz/RPUGO
- u9uli7pfJyF1ZCqg2zExpp8Yv1LRVcJ5/vmTtZZ6w+cN+yaKWV7toztb7Qh1lyflj6TY4FDZqiB
- No6b++ZEhQhryvzAOxg==
-X-Proofpoint-GUID: ua_189ymX7QSuYLlFPynUJWjhHTBAK3t
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-06_04,2026-03-06_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 lowpriorityscore=0 phishscore=0 clxscore=1011 adultscore=0
- bulkscore=0 impostorscore=0 malwarescore=0 spamscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603060140
+Content-Transfer-Encoding: 8bit
 
+From: Arnd Bergmann <arnd@arndb.de>
 
+The security/integrity/secure_boot.c file containing only a __weak function
+leads to a build failure with clang:
 
-On 06-Mar-26 12:19, Heiko Carstens wrote:
-> This reverts commit d8b5cf9c63143fae54a734c41e3bb55cf3f365c7.
-> 
-> Mikhail Zaslonko reported that linux-next doesn't boot anymore [2]. Reason
-> for this is recent change [2] was supposed to slightly optimize the irq
-> entry/exit path by removing some psw bits early in case of an idle exit.
-> 
-> This however is incorrect since irqentry_exit() requires the correct old
-> psw state at irq entry. Otherwise the embedded regs_irqs_disabled() will
-> not provide the correct result.
-> 
-> With linux-next and HRTIMER_REARM_DEFERRED this leads to the observed boot
-> problems, however the commit is broken in any case.
-> 
-> Revert the commit which introduced this.
-> 
-> Thanks to Peter Zijlstra for pointing out that this is a bug in the s390
-> entry code.
-> 
-> Fixes: d8b5cf9c6314 ("s390/irq/idle: Remove psw bits early") [1]
-> Reported-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-> Reported-by: Peter Zijlstra <peterz@infradead.org>
-> Closes: https://lore.kernel.org/r/af549a19-db99-4b16-8511-bf315177a13e@linux.ibm.com/ [2]
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> ---
->  arch/s390/kernel/irq.c | 14 ++++++++------
->  1 file changed, 8 insertions(+), 6 deletions(-)
-> 
-> diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
-> index 7fdf960191d3..d10a17e6531d 100644
-> --- a/arch/s390/kernel/irq.c
-> +++ b/arch/s390/kernel/irq.c
-> @@ -147,10 +147,8 @@ void noinstr do_io_irq(struct pt_regs *regs)
->  	bool from_idle;
->  
->  	from_idle = test_and_clear_cpu_flag(CIF_ENABLED_WAIT);
-> -	if (from_idle) {
-> +	if (from_idle)
->  		update_timer_idle();
-> -		regs->psw.mask &= ~(PSW_MASK_EXT | PSW_MASK_IO | PSW_MASK_WAIT);
-> -	}
->  
->  	irq_enter_rcu();
->  
-> @@ -176,6 +174,9 @@ void noinstr do_io_irq(struct pt_regs *regs)
->  
->  	set_irq_regs(old_regs);
->  	irqentry_exit(regs, state);
-> +
-> +	if (from_idle)
-> +		regs->psw.mask &= ~(PSW_MASK_EXT | PSW_MASK_IO | PSW_MASK_WAIT);
->  }
->  
->  void noinstr do_ext_irq(struct pt_regs *regs)
-> @@ -185,10 +186,8 @@ void noinstr do_ext_irq(struct pt_regs *regs)
->  	bool from_idle;
->  
->  	from_idle = test_and_clear_cpu_flag(CIF_ENABLED_WAIT);
-> -	if (from_idle) {
-> +	if (from_idle)
->  		update_timer_idle();
-> -		regs->psw.mask &= ~(PSW_MASK_EXT | PSW_MASK_IO | PSW_MASK_WAIT);
-> -	}
->  
->  	irq_enter_rcu();
->  
-> @@ -210,6 +209,9 @@ void noinstr do_ext_irq(struct pt_regs *regs)
->  	irq_exit_rcu();
->  	set_irq_regs(old_regs);
->  	irqentry_exit(regs, state);
-> +
-> +	if (from_idle)
-> +		regs->psw.mask &= ~(PSW_MASK_EXT | PSW_MASK_IO | PSW_MASK_WAIT);
->  }
->  
->  static void show_msi_interrupt(struct seq_file *p, int irq)
+Cannot find symbol for section 2: .text.
+security/integrity/secure_boot.o: failed
 
-Indeed, with this revert no more kernel-next boot problems observed.
+Moving the function into another file that has at least one non-__weak
+symbol would solve this, but this is always fragile.
 
-Acked-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-Tested-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
+Avoid __weak definitions entirely and instead move the stub helper into
+an asm-generic header that gets used by default on architectures that
+do not provide their own version. This is consistent with how a lot
+of other architecture specific functionality works, and is more reliable.
+
+Fixes: a0f87ede3bf4 ("integrity: Make arch_ima_get_secureboot integrity-wide")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+This is a larger change than I had hoped for.
+
+If you prefer a different way to address the build failure, please
+treat this as a Reported-by when you apply your own fix
+---
+ arch/powerpc/include/asm/secure_boot.h        |  6 +++
+ arch/powerpc/kernel/secure_boot.c             |  1 -
+ arch/s390/include/asm/secure_boot.h           |  9 +++++
+ include/asm-generic/Kbuild                    |  1 +
+ include/asm-generic/secure_boot.h             | 37 +++++++++++++++++++
+ include/linux/secure_boot.h                   |  8 +---
+ security/integrity/Makefile                   |  2 +-
+ .../integrity/platform_certs/load_powerpc.c   |  2 +-
+ security/integrity/secure_boot.c              | 16 --------
+ 9 files changed, 56 insertions(+), 26 deletions(-)
+ create mode 100644 arch/s390/include/asm/secure_boot.h
+ create mode 100644 include/asm-generic/secure_boot.h
+ delete mode 100644 security/integrity/secure_boot.c
+
+diff --git a/arch/powerpc/include/asm/secure_boot.h b/arch/powerpc/include/asm/secure_boot.h
+index a2ff556916c6..db72dcdf5bb3 100644
+--- a/arch/powerpc/include/asm/secure_boot.h
++++ b/arch/powerpc/include/asm/secure_boot.h
+@@ -10,11 +10,17 @@
+ 
+ #ifdef CONFIG_PPC_SECURE_BOOT
+ 
++bool arch_get_secureboot(void);
+ bool is_ppc_secureboot_enabled(void);
+ bool is_ppc_trustedboot_enabled(void);
+ 
+ #else
+ 
++static inline bool arch_get_secureboot(void)
++{
++	return false;
++}
++
+ static inline bool is_ppc_secureboot_enabled(void)
+ {
+ 	return false;
+diff --git a/arch/powerpc/kernel/secure_boot.c b/arch/powerpc/kernel/secure_boot.c
+index 28436c1599e0..e3ea46124180 100644
+--- a/arch/powerpc/kernel/secure_boot.c
++++ b/arch/powerpc/kernel/secure_boot.c
+@@ -7,7 +7,6 @@
+ #include <linux/of.h>
+ #include <linux/secure_boot.h>
+ #include <linux/string_choices.h>
+-#include <asm/secure_boot.h>
+ 
+ static struct device_node *get_ppc_fw_sb_node(void)
+ {
+diff --git a/arch/s390/include/asm/secure_boot.h b/arch/s390/include/asm/secure_boot.h
+new file mode 100644
+index 000000000000..4086fdfb9e5c
+--- /dev/null
++++ b/arch/s390/include/asm/secure_boot.h
+@@ -0,0 +1,9 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _ASM_S390_SECURE_BOOT_H
++#define _ASM_S390_SECURE_BOOT_H
++
++#include <linux/types.h
++
++bool arch_get_secureboot(void);
++
++#endif
+diff --git a/include/asm-generic/Kbuild b/include/asm-generic/Kbuild
+index 0f97f7b594c3..8c0a499141fb 100644
+--- a/include/asm-generic/Kbuild
++++ b/include/asm-generic/Kbuild
+@@ -51,6 +51,7 @@ mandatory-y += rqspinlock.h
+ mandatory-y += runtime-const.h
+ mandatory-y += rwonce.h
+ mandatory-y += sections.h
++mandatory-y += secure_boot.h
+ mandatory-y += serial.h
+ mandatory-y += shmparam.h
+ mandatory-y += simd.h
+diff --git a/include/asm-generic/secure_boot.h b/include/asm-generic/secure_boot.h
+new file mode 100644
+index 000000000000..08d8e294576c
+--- /dev/null
++++ b/include/asm-generic/secure_boot.h
+@@ -0,0 +1,37 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Copyright (C) 2026 Red Hat, Inc. All Rights Reserved.
++ *
++ * Author: Coiby Xu <coxu@redhat.com>
++ */
++#ifndef _ASM_SECURE_BOOT_H
++#define _ASM_SECURE_BOOT_H
++
++
++#include <linux/types.h>
++
++#ifdef CONFIG_EFI
++
++/*
++ * Default implementation.
++ * Architectures that support secure boot must override this.
++ *
++ * Returns true if the platform secure boot is enabled.
++ * Returns false if disabled or not supported.
++ */
++bool arch_get_secureboot(void);
++
++#else
++
++/*
++ * Default implementation.
++ * Architectures that support secure boot must override this.
++ */
++static inline bool arch_get_secureboot(void)
++{
++	return false;
++}
++
++#endif
++
++#endif
+diff --git a/include/linux/secure_boot.h b/include/linux/secure_boot.h
+index 3ded3f03655c..9ddfbe109b1d 100644
+--- a/include/linux/secure_boot.h
++++ b/include/linux/secure_boot.h
+@@ -8,12 +8,6 @@
+ #ifndef _LINUX_SECURE_BOOT_H
+ #define _LINUX_SECURE_BOOT_H
+ 
+-#include <linux/types.h>
+-
+-/*
+- * Returns true if the platform secure boot is enabled.
+- * Returns false if disabled or not supported.
+- */
+-bool arch_get_secureboot(void);
++#include <asm/secure_boot.h>
+ 
+ #endif /* _LINUX_SECURE_BOOT_H */
+diff --git a/security/integrity/Makefile b/security/integrity/Makefile
+index 548665e2b702..45dfdedbdad4 100644
+--- a/security/integrity/Makefile
++++ b/security/integrity/Makefile
+@@ -5,7 +5,7 @@
+ 
+ obj-$(CONFIG_INTEGRITY) += integrity.o
+ 
+-integrity-y := iint.o secure_boot.o
++integrity-y := iint.o
+ integrity-$(CONFIG_INTEGRITY_AUDIT) += integrity_audit.o
+ integrity-$(CONFIG_INTEGRITY_SIGNATURE) += digsig.o
+ integrity-$(CONFIG_INTEGRITY_ASYMMETRIC_KEYS) += digsig_asymmetric.o
+diff --git a/security/integrity/platform_certs/load_powerpc.c b/security/integrity/platform_certs/load_powerpc.c
+index 714c961a00f5..ab74e947a8bc 100644
+--- a/security/integrity/platform_certs/load_powerpc.c
++++ b/security/integrity/platform_certs/load_powerpc.c
+@@ -10,7 +10,7 @@
+ #include <linux/cred.h>
+ #include <linux/err.h>
+ #include <linux/slab.h>
+-#include <asm/secure_boot.h>
++#include <linux/secure_boot.h>
+ #include <asm/secvar.h>
+ #include "keyring_handler.h"
+ #include "../integrity.h"
+diff --git a/security/integrity/secure_boot.c b/security/integrity/secure_boot.c
+deleted file mode 100644
+index fc2693c286f8..000000000000
+--- a/security/integrity/secure_boot.c
++++ /dev/null
+@@ -1,16 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-only
+-/*
+- * Copyright (C) 2026 Red Hat, Inc. All Rights Reserved.
+- *
+- * Author: Coiby Xu <coxu@redhat.com>
+- */
+-#include <linux/secure_boot.h>
+-
+-/*
+- * Default weak implementation.
+- * Architectures that support secure boot must override this.
+- */
+-__weak bool arch_get_secureboot(void)
+-{
+-	return false;
+-}
+-- 
+2.39.5
 
