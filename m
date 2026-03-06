@@ -1,410 +1,185 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79C463F23B7;
-	Fri,  6 Mar 2026 16:17:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9572B41160F;
+	Fri,  6 Mar 2026 16:49:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772813836; cv=none; b=nxLbZPlX+PXpxV8VnXfIFUPM2coymaliihiPQSJSxnFbAQbPSi8Zh3pyHZO4doiveTq7NJp4Ox5HKhug/eyug/tFHUXUsVJsx0U2+gWvX6PbczC0rwX28nbxOAeRmPW09HI5TNdIBHj9kreVlSSHWKFLvStztzU2nYVHcEu4A8I=
+	t=1772815764; cv=none; b=DDqBoIOL9Tv28W58Tr1NYSxrsoi+Fsy7rzqgJhs9wuw8SWk6Fnmr0p2xHTgPdkBPU6nDnqjhuAQjF3iDUvwo8liYBsJpFotJwkI0wuPu7YLTmbMiFGuqlXXJEXGJmSxjgtv4FXhDREtgEFYOaRtqj/ANKRBLrrQNIzhhJwIvWNU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772813836; c=relaxed/simple;
-	bh=1IZrCZtCL4fdHuxWEbeQiU8TZk6h3TRhFi1pqkh5YjY=;
+	s=arc-20240116; t=1772815764; c=relaxed/simple;
+	bh=zuvw6mRGe7krq7I+UAVTpV4J/VpduGA4dfhxnOz3sn4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=MGzZey6Zn98Ebl7XqD7m5kFyhhOkTu1mr9hjFhEYIkiv2MzCOOw/09XXRBwvzwH21cgpbxg2XDTRdX8zml7bPR6wGmjdwYZNWR2S2a9YX4GCRYSZZpXDjfXIMad92iod/+Vyo4ZiH8o5wawyfAcn28jExnr5zRCyhXCvxVdjHro=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=akviHM64; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=Oy5uWXgNk7dIH4NR5eWxeA+7u3emI3PYUREEmLIpF8moxOH+q8YSfQZM1GVCMCBV5X/xoyFHayQemK9aCM6wapUQwG75YiPFXkXAnEnK94FJ4wNrxvlxNTzqPg7joP9TI0qIb5tKIt3zdKF+XzW8Yx1il4FnnvJquzNCik7hqvw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=n2KONrtW; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="akviHM64"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 626FFW44969840;
-	Fri, 6 Mar 2026 16:16:38 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="n2KONrtW"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6267QKmo2397074;
+	Fri, 6 Mar 2026 16:49:23 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=dvPuYr+wx2QMO9pA8
-	MviOujpF5rIdngV8V2fQYNN3do=; b=akviHM64wlvtIFBB7e/2kpXh17aszxoRK
-	0cozfpXqfqJNSVcQaM+nu8FM9eWvAvEMrqxGM5czzP+EIbCrNbAt5hoL8uqe8UX9
-	msB85pTHWQqY2v/vYS3srMMQa/2EwgLF0RMQF4dKAhc10+kM6CIEnJk+hdHBq+M2
-	V5dG9s+MK+lG1F1vQxnUlMvpPTiTJMoo7aTNZNDtHIP04BwV9fQW+6Tnh8eP1uTC
-	0QWoqTGYd+qyXhvDDnq1YMj83NShemnWFkTTflcc1nk9ivcdSgMl5lemA1coKeiV
-	pReDYVxpKfBBuSAo/UIOJk+4PgJIcMmzcdy7Z5hePBOAPXBni2xcQ==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ckskc8se2-1
+	:mime-version:references:sender:subject:to; s=pp1; bh=hxg/zKnG74
+	bP8hf1Ays7K4HHwTT+TiZojKef0W3ZuFk=; b=n2KONrtWJIgkCqtTu9MpTpX3PU
+	uUBGzM6D2coyr4RffBqHKAl6ZvEt8nMuppiEv+0rDn9zcF+lbAS06xciMbiiosbj
+	3Igq3fsCzGCHAMKGI5JPwo09uZhCzjk7NnpQnGwB3q+r9+lI3gLeL9eFStv1PbOF
+	8U6B32KP/4Mvv6hG6R1A6uKOrIeEL7cONNjQf8/Dr8Pn3hGz81COR0oYJQ7kUe9l
+	r5y01qtXEioFTVRl8LQ2bUjm52PC27Itt1/06mhBiYEQeT9VIeLg9CU2/LhnH1LP
+	h01qkUXHv/Rv+PO/QOOTmqZ69wYeC8DADBBc2sKMKidiD530RNPRSToZ5I1w==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cksrjhmgn-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 06 Mar 2026 16:16:38 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 626CmEvi011312;
-	Fri, 6 Mar 2026 16:16:37 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cqau2w48b-1
+	Fri, 06 Mar 2026 16:49:22 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 626Ctr7Q029112;
+	Fri, 6 Mar 2026 16:49:21 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cmapsguew-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 06 Mar 2026 16:16:37 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 626GGX7p56164638
+	Fri, 06 Mar 2026 16:49:21 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 626GnHn550987308
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 6 Mar 2026 16:16:33 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 72E152004D;
-	Fri,  6 Mar 2026 16:16:33 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 31E6420040;
-	Fri,  6 Mar 2026 16:16:33 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Fri,  6 Mar 2026 16:16:33 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
-	id 16A52E0782; Fri, 06 Mar 2026 17:16:33 +0100 (CET)
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-        x86@kernel.org
-Subject: [PATCH v2 1/4] mm/page_table_check: Pass mm_struct to pxx_user_accessible_page()
-Date: Fri,  6 Mar 2026 17:16:30 +0100
-Message-ID: <ca77f3489453c2fe01b25e50e53b778929e0dfc5.1772812343.git.agordeev@linux.ibm.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <cover.1772812343.git.agordeev@linux.ibm.com>
-References: <cover.1772812343.git.agordeev@linux.ibm.com>
+	Fri, 6 Mar 2026 16:49:17 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5F2E52004B;
+	Fri,  6 Mar 2026 16:49:17 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 49CDB20040;
+	Fri,  6 Mar 2026 16:49:17 +0000 (GMT)
+Received: from p1gen4-pw042f0m (unknown [9.52.223.163])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri,  6 Mar 2026 16:49:17 +0000 (GMT)
+Received: from bblock by p1gen4-pw042f0m with local (Exim 4.99.1)
+	(envelope-from <bblock@linux.ibm.com>)
+	id 1vyYMX-00000005i36-02WT;
+	Fri, 06 Mar 2026 17:49:17 +0100
+From: Benjamin Block <bblock@linux.ibm.com>
+To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, Bjorn Helgaas <bhelgaas@google.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Farhan Ali <alifm@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Andreas Krebbel <krebbel@linux.ibm.com>,
+        Julian Ruess <julianr@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>,
+        linux-pci <linux-pci@vger.kernel.org>,
+        Tobias Schumacher <ts@linux.ibm.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Ionut Nechita <ionut.nechita@windriver.com>,
+        Ionut Nechita <ionut_n2001@yahoo.com>,
+        Benjamin Block <bblock@linux.ibm.com>
+Subject: [PATCH 1/4] PCI: Move declaration of pci_rescan_remove_lock into public pci.h
+Date: Fri,  6 Mar 2026 17:49:13 +0100
+Message-ID: <9afaf022cb8e37241c4d2e5356cb262266b0bf3d.1772815642.git.bblock@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <cover.1772815642.git.bblock@linux.ibm.com>
+References: <cover.1772815642.git.bblock@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Organization: IBM Deutschland Research & Development GmbH, https://www.ibm.com/privacy, Vors. Aufs.-R.: Wolfgang Wendt, Geschäftsführung: David Faller. Sitz der Ges.: Ehningen, Registergericht: AmtsG Stuttgart, HRB 243294
+Content-Transfer-Encoding: 8bit
+Sender: Benjamin Block <bblock@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: r_JJATWQBFsDHEsEyPI0oU--uaf6lVcd
-X-Authority-Analysis: v=2.4 cv=b66/I9Gx c=1 sm=1 tr=0 ts=69aafde6 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=Rp/I7SmK c=1 sm=1 tr=0 ts=69ab0592 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=Z4Rwk6OoAAAA:8
- a=asBC7hBXzHMpFcoxCN0A:9 a=O8hF6Hzn-FEA:10 a=HkZW87K1Qel5hWWM3VKY:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA2MDE1MyBTYWx0ZWRfX1HpUb4J1aFqu
- y6Mdi43ielkZWDJq6nCbK41319XElOsluMXFF10oInHkH/E/R3Dbe8dxItguMzp9Z/bMEhTEXOE
- vr3PwcgjrITFmANL1uRc5DJHiSSObHmmpwcBqskcFDroERwyESMdj2Xx66j01FElS/Ovgsju5So
- BFxH3jnkIgqsHjM7AalQR2xC2WlWlrP7TBypY4xIlghvMAmxVOnov6TDFkQ2/YhtTs/a1ljYdjr
- ShFDCFvJxxAQGc1T5ZyEXx3c4I/HDMLJvrnIxbWldoUTwxaurvhEOLINggXFKBBg4Pkc84+qPx1
- L2XzQYQ58sCiBLHAXQb4aMvCN8lXhcA3URuWRHOwGgXEhwSN5vAqPVizSlrpsh/8Ou7nJsL4yUv
- GcQcTmKbkhf9bzbk03t0aDz59kJ1ypqFq6ZedBhENg9DTZ4V3VIoxqfsi/iQuWV0jlwadad1zpa
- cy5ERl7+xt5fY9kLMRw==
-X-Proofpoint-GUID: r_JJATWQBFsDHEsEyPI0oU--uaf6lVcd
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=acfJzRXfimrUt77ygewA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA2MDE1OCBTYWx0ZWRfX6fykfw3A7Fcv
+ CqwR7zhrd0znJlMFEuP4P0vPpeUe0Bx9LhiaR6Ds8yTLFqQR1i1dCbNTX14F6/hadNvEzPboTWR
+ 0R4E/vGcJ818O8B3nM+a2EpqNr/qJZEKm0O4/F8+5bRA6oUGRSnoMo/95R1mXi0d0R6HAyDmrSi
+ x+RqlW78CouhaDuW/RF2tXxKPwuzlas/SodaSl9syCAb7HAREY/AH5C9rbl+P1OYQZfagF8Ue3y
+ ESJhzjkCyQcuOquOvzdSNFn/Ps8MM8uL/HjAKyDNu+gGUfaQj+63JK6uhrDMSEIbAlZwvEXvgG7
+ qLfeqlysQngiETaJhBlwytJHNhfJlyyY6a2pBZKqHLVtmDXnIcHug7ISzZDDSRPa4BqKJOpP8Zp
+ nAKB0YaHdQfFPhIyrbReBnvZ7vRdI7riZgazo+p8thQTnIA/YDKzEmirCt+GPEmTqYKN9oYqLLu
+ hQntCUp3rsw5lnHr96Q==
+X-Proofpoint-GUID: mhiJwRwOZFQH8oBXHzq35xZ8nc06BUGQ
+X-Proofpoint-ORIG-GUID: OwQaR1Wtsl0oJtlwrIj-Zw2Wdj04hYac
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-03-06_05,2026-03-06_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 lowpriorityscore=0 phishscore=0 clxscore=1015 adultscore=0
- bulkscore=0 impostorscore=0 malwarescore=0 spamscore=0 priorityscore=1501
+ suspectscore=0 priorityscore=1501 spamscore=0 phishscore=0 adultscore=0
+ bulkscore=0 clxscore=1015 impostorscore=0 malwarescore=0 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603060153
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603060158
 
-From: Tobias Huschle <huschle@linux.ibm.com>
+So far it is possible to use and call the functions
+pci_lock_rescan_remove() and pci_unlock_rescan_remove() from any PCI
+code, including modules and architecture code; but the lock
+`pci_rescan_remove_lock` itself is private to objects residing in
+`drivers/pci/` via the header `drivers/pci/pci.h`.
 
-Unlike other architectures, s390 does not have means to
-distinguish kernel vs user page table entries - neither
-an entry itself, nor the address could be used for that.
-It is only the mm_struct that indicates whether an entry
-in question is mapped to a user space. So pass mm_struct
-to pxx_user_accessible_page() callbacks.
+With that setup it is not possible to use lockdep annotations such as
+lockdep_assert_held(), or sparse annotations such as __must_hold() in
+modules or architecture code for PCI.
 
-[agordeev@linux.ibm.com: rephrased commit message, removed braces]
+Since it is useful for `pci_rescan_remove_lock` to have such
+annotations, move the variable declaration into `include/linux/pci.h`.
 
-Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Tobias Huschle <huschle@linux.ibm.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
 ---
- arch/arm64/include/asm/pgtable.h             |  6 +++---
- arch/powerpc/include/asm/book3s/32/pgtable.h |  2 +-
- arch/powerpc/include/asm/book3s/64/pgtable.h | 10 +++++-----
- arch/powerpc/include/asm/nohash/pgtable.h    |  2 +-
- arch/powerpc/include/asm/pgtable.h           |  4 ++--
- arch/riscv/include/asm/pgtable.h             |  6 +++---
- arch/x86/include/asm/pgtable.h               |  6 +++---
- mm/page_table_check.c                        | 15 ++++++---------
- 8 files changed, 24 insertions(+), 27 deletions(-)
+ drivers/pci/pci.h   | 2 --
+ drivers/pci/probe.c | 1 +
+ include/linux/pci.h | 2 ++
+ 3 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pg=
-table.h
-index b3e58735c49b..ccf0e0638767 100644
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -1263,17 +1263,17 @@ static inline int pmdp_set_access_flags(struct vm=
-_area_struct *vma,
- #endif
-=20
- #ifdef CONFIG_PAGE_TABLE_CHECK
--static inline bool pte_user_accessible_page(pte_t pte, unsigned long add=
-r)
-+static inline bool pte_user_accessible_page(struct mm_struct *mm, unsign=
-ed long addr, pte_t pte)
+diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
+index 13d998fbacce..6d611523420f 100644
+--- a/drivers/pci/pci.h
++++ b/drivers/pci/pci.h
+@@ -110,8 +110,6 @@ struct pcie_tlp_log;
+ extern const unsigned char pcie_link_speed[];
+ extern bool pci_early_dump;
+ 
+-extern struct mutex pci_rescan_remove_lock;
+-
+ bool pcie_cap_has_lnkctl(const struct pci_dev *dev);
+ bool pcie_cap_has_lnkctl2(const struct pci_dev *dev);
+ bool pcie_cap_has_rtctl(const struct pci_dev *dev);
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+index bccc7a4bdd79..e5b12878e972 100644
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -3509,6 +3509,7 @@ EXPORT_SYMBOL_GPL(pci_rescan_bus);
+  * routines should always be executed under this mutex.
+  */
+ DEFINE_MUTEX(pci_rescan_remove_lock);
++EXPORT_SYMBOL_GPL(pci_rescan_remove_lock);
+ 
+ void pci_lock_rescan_remove(void)
  {
- 	return pte_valid(pte) && (pte_user(pte) || pte_user_exec(pte));
- }
-=20
--static inline bool pmd_user_accessible_page(pmd_t pmd, unsigned long add=
-r)
-+static inline bool pmd_user_accessible_page(struct mm_struct *mm, unsign=
-ed long addr, pmd_t pmd)
- {
- 	return pmd_valid(pmd) && !pmd_table(pmd) && (pmd_user(pmd) || pmd_user_=
-exec(pmd));
- }
-=20
--static inline bool pud_user_accessible_page(pud_t pud, unsigned long add=
-r)
-+static inline bool pud_user_accessible_page(struct mm_struct *mm, unsign=
-ed long addr, pud_t pud)
- {
- 	return pud_valid(pud) && !pud_table(pud) && (pud_user(pud) || pud_user_=
-exec(pud));
- }
-diff --git a/arch/powerpc/include/asm/book3s/32/pgtable.h b/arch/powerpc/=
-include/asm/book3s/32/pgtable.h
-index 001e28f9eabc..75195bb44d06 100644
---- a/arch/powerpc/include/asm/book3s/32/pgtable.h
-+++ b/arch/powerpc/include/asm/book3s/32/pgtable.h
-@@ -438,7 +438,7 @@ static inline bool pte_access_permitted(pte_t pte, bo=
-ol write)
- 	return true;
- }
-=20
--static inline bool pte_user_accessible_page(pte_t pte, unsigned long add=
-r)
-+static inline bool pte_user_accessible_page(struct mm_struct *mm, unsign=
-ed long addr, pte_t pte)
- {
- 	return pte_present(pte) && !is_kernel_addr(addr);
- }
-diff --git a/arch/powerpc/include/asm/book3s/64/pgtable.h b/arch/powerpc/=
-include/asm/book3s/64/pgtable.h
-index 1a91762b455d..a56df313b585 100644
---- a/arch/powerpc/include/asm/book3s/64/pgtable.h
-+++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
-@@ -549,7 +549,7 @@ static inline bool pte_access_permitted(pte_t pte, bo=
-ol write)
- 	return arch_pte_access_permitted(pte_val(pte), write, 0);
- }
-=20
--static inline bool pte_user_accessible_page(pte_t pte, unsigned long add=
-r)
-+static inline bool pte_user_accessible_page(struct mm_struct *mm, unsign=
-ed long addr, pte_t pte)
- {
- 	return pte_present(pte) && pte_user(pte);
- }
-@@ -925,9 +925,9 @@ static inline bool pud_access_permitted(pud_t pud, bo=
-ol write)
- }
-=20
- #define pud_user_accessible_page pud_user_accessible_page
--static inline bool pud_user_accessible_page(pud_t pud, unsigned long add=
-r)
-+static inline bool pud_user_accessible_page(struct mm_struct *mm, unsign=
-ed long addr, pud_t pud)
- {
--	return pud_leaf(pud) && pte_user_accessible_page(pud_pte(pud), addr);
-+	return pud_leaf(pud) && pte_user_accessible_page(mm, addr, pud_pte(pud)=
-);
- }
-=20
- #define __p4d_raw(x)	((p4d_t) { __pgd_raw(x) })
-@@ -1096,9 +1096,9 @@ static inline bool pmd_access_permitted(pmd_t pmd, =
-bool write)
- }
-=20
- #define pmd_user_accessible_page pmd_user_accessible_page
--static inline bool pmd_user_accessible_page(pmd_t pmd, unsigned long add=
-r)
-+static inline bool pmd_user_accessible_page(struct mm_struct *mm, unsign=
-ed long addr, pmd_t pmd)
- {
--	return pmd_leaf(pmd) && pte_user_accessible_page(pmd_pte(pmd), addr);
-+	return pmd_leaf(pmd) && pte_user_accessible_page(mm, addr, pmd_pte(pmd)=
-);
- }
-=20
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
-diff --git a/arch/powerpc/include/asm/nohash/pgtable.h b/arch/powerpc/inc=
-lude/asm/nohash/pgtable.h
-index e6da5eaccff6..0665d0abe89f 100644
---- a/arch/powerpc/include/asm/nohash/pgtable.h
-+++ b/arch/powerpc/include/asm/nohash/pgtable.h
-@@ -249,7 +249,7 @@ static inline bool pte_access_permitted(pte_t pte, bo=
-ol write)
- 	return true;
- }
-=20
--static inline bool pte_user_accessible_page(pte_t pte, unsigned long add=
-r)
-+static inline bool pte_user_accessible_page(struct mm_struct *mm, unsign=
-ed long addr, pte_t pte)
- {
- 	return pte_present(pte) && !is_kernel_addr(addr);
- }
-diff --git a/arch/powerpc/include/asm/pgtable.h b/arch/powerpc/include/as=
-m/pgtable.h
-index dcd3a88caaf6..29ed509cd235 100644
---- a/arch/powerpc/include/asm/pgtable.h
-+++ b/arch/powerpc/include/asm/pgtable.h
-@@ -205,11 +205,11 @@ static inline bool arch_supports_memmap_on_memory(u=
-nsigned long vmemmap_size)
- #endif /* CONFIG_PPC64 */
-=20
- #ifndef pmd_user_accessible_page
--#define pmd_user_accessible_page(pmd, addr)	false
-+#define pmd_user_accessible_page(mm, addr, pmd)	false
- #endif
-=20
- #ifndef pud_user_accessible_page
--#define pud_user_accessible_page(pud, addr)	false
-+#define pud_user_accessible_page(mm, addr, pud)	false
- #endif
-=20
- #endif /* __ASSEMBLER__ */
-diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pg=
-table.h
-index 08d1ca047104..affe46cf3bc5 100644
---- a/arch/riscv/include/asm/pgtable.h
-+++ b/arch/riscv/include/asm/pgtable.h
-@@ -984,17 +984,17 @@ static inline void set_pud_at(struct mm_struct *mm,=
- unsigned long addr,
- }
-=20
- #ifdef CONFIG_PAGE_TABLE_CHECK
--static inline bool pte_user_accessible_page(pte_t pte, unsigned long add=
-r)
-+static inline bool pte_user_accessible_page(struct mm_struct *mm, unsign=
-ed long addr, pte_t pte)
- {
- 	return pte_present(pte) && pte_user(pte);
- }
-=20
--static inline bool pmd_user_accessible_page(pmd_t pmd, unsigned long add=
-r)
-+static inline bool pmd_user_accessible_page(struct mm_struct *mm, unsign=
-ed long addr, pmd_t pmd)
- {
- 	return pmd_leaf(pmd) && pmd_user(pmd);
- }
-=20
--static inline bool pud_user_accessible_page(pud_t pud, unsigned long add=
-r)
-+static inline bool pud_user_accessible_page(struct mm_struct *mm, unsign=
-ed long addr, pud_t pud)
- {
- 	return pud_leaf(pud) && pud_user(pud);
- }
-diff --git a/arch/x86/include/asm/pgtable.h b/arch/x86/include/asm/pgtabl=
-e.h
-index 1662c5a8f445..f9353d5c7464 100644
---- a/arch/x86/include/asm/pgtable.h
-+++ b/arch/x86/include/asm/pgtable.h
-@@ -1680,17 +1680,17 @@ static inline bool arch_has_hw_nonleaf_pmd_young(=
-void)
- #endif
-=20
- #ifdef CONFIG_PAGE_TABLE_CHECK
--static inline bool pte_user_accessible_page(pte_t pte, unsigned long add=
-r)
-+static inline bool pte_user_accessible_page(struct mm_struct *mm, unsign=
-ed long addr, pte_t pte)
- {
- 	return (pte_val(pte) & _PAGE_PRESENT) && (pte_val(pte) & _PAGE_USER);
- }
-=20
--static inline bool pmd_user_accessible_page(pmd_t pmd, unsigned long add=
-r)
-+static inline bool pmd_user_accessible_page(struct mm_struct *mm, unsign=
-ed long addr, pmd_t pmd)
- {
- 	return pmd_leaf(pmd) && (pmd_val(pmd) & _PAGE_PRESENT) && (pmd_val(pmd)=
- & _PAGE_USER);
- }
-=20
--static inline bool pud_user_accessible_page(pud_t pud, unsigned long add=
-r)
-+static inline bool pud_user_accessible_page(struct mm_struct *mm, unsign=
-ed long addr, pud_t pud)
- {
- 	return pud_leaf(pud) && (pud_val(pud) & _PAGE_PRESENT) && (pud_val(pud)=
- & _PAGE_USER);
- }
-diff --git a/mm/page_table_check.c b/mm/page_table_check.c
-index 2708c2b3ac1f..53a8997ec043 100644
---- a/mm/page_table_check.c
-+++ b/mm/page_table_check.c
-@@ -151,9 +151,8 @@ void __page_table_check_pte_clear(struct mm_struct *m=
-m, unsigned long addr,
- 	if (&init_mm =3D=3D mm)
- 		return;
-=20
--	if (pte_user_accessible_page(pte, addr)) {
-+	if (pte_user_accessible_page(mm, addr, pte))
- 		page_table_check_clear(pte_pfn(pte), PAGE_SIZE >> PAGE_SHIFT);
--	}
- }
- EXPORT_SYMBOL(__page_table_check_pte_clear);
-=20
-@@ -163,9 +162,8 @@ void __page_table_check_pmd_clear(struct mm_struct *m=
-m, unsigned long addr,
- 	if (&init_mm =3D=3D mm)
- 		return;
-=20
--	if (pmd_user_accessible_page(pmd, addr)) {
-+	if (pmd_user_accessible_page(mm, addr, pmd))
- 		page_table_check_clear(pmd_pfn(pmd), PMD_SIZE >> PAGE_SHIFT);
--	}
- }
- EXPORT_SYMBOL(__page_table_check_pmd_clear);
-=20
-@@ -175,9 +173,8 @@ void __page_table_check_pud_clear(struct mm_struct *m=
-m, unsigned long addr,
- 	if (&init_mm =3D=3D mm)
- 		return;
-=20
--	if (pud_user_accessible_page(pud, addr)) {
-+	if (pud_user_accessible_page(mm, addr, pud))
- 		page_table_check_clear(pud_pfn(pud), PUD_SIZE >> PAGE_SHIFT);
--	}
- }
- EXPORT_SYMBOL(__page_table_check_pud_clear);
-=20
-@@ -211,7 +208,7 @@ void __page_table_check_ptes_set(struct mm_struct *mm=
-, unsigned long addr,
-=20
- 	for (i =3D 0; i < nr; i++)
- 		__page_table_check_pte_clear(mm, addr + PAGE_SIZE * i, ptep_get(ptep +=
- i));
--	if (pte_user_accessible_page(pte, addr))
-+	if (pte_user_accessible_page(mm, addr, pte))
- 		page_table_check_set(pte_pfn(pte), nr, pte_write(pte));
- }
- EXPORT_SYMBOL(__page_table_check_ptes_set);
-@@ -241,7 +238,7 @@ void __page_table_check_pmds_set(struct mm_struct *mm=
-, unsigned long addr,
-=20
- 	for (i =3D 0; i < nr; i++)
- 		__page_table_check_pmd_clear(mm, addr + PMD_SIZE * i, *(pmdp + i));
--	if (pmd_user_accessible_page(pmd, addr))
-+	if (pmd_user_accessible_page(mm, addr, pmd))
- 		page_table_check_set(pmd_pfn(pmd), stride * nr, pmd_write(pmd));
- }
- EXPORT_SYMBOL(__page_table_check_pmds_set);
-@@ -257,7 +254,7 @@ void __page_table_check_puds_set(struct mm_struct *mm=
-, unsigned long addr,
-=20
- 	for (i =3D 0; i < nr; i++)
- 		__page_table_check_pud_clear(mm, addr + PUD_SIZE * i, *(pudp + i));
--	if (pud_user_accessible_page(pud, addr))
-+	if (pud_user_accessible_page(mm, addr, pud))
- 		page_table_check_set(pud_pfn(pud), stride * nr, pud_write(pud));
- }
- EXPORT_SYMBOL(__page_table_check_puds_set);
---=20
-2.51.0
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 1c270f1d5123..fd7a962a64ef 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -39,6 +39,7 @@
+ #include <linux/io.h>
+ #include <linux/resource_ext.h>
+ #include <linux/msi_api.h>
++#include <linux/mutex.h>
+ #include <uapi/linux/pci.h>
+ 
+ #include <linux/pci_ids.h>
+@@ -1533,6 +1534,7 @@ void set_pcie_hotplug_bridge(struct pci_dev *pdev);
+ 
+ /* Functions for PCI Hotplug drivers to use */
+ unsigned int pci_rescan_bus(struct pci_bus *bus);
++extern struct mutex pci_rescan_remove_lock;
+ void pci_lock_rescan_remove(void);
+ void pci_unlock_rescan_remove(void);
+ 
+-- 
+2.53.0
 
