@@ -1,204 +1,124 @@
-Received: from fra-out-003.esa.eu-central-1.outbound.mail-perimeter.amazon.com (fra-out-003.esa.eu-central-1.outbound.mail-perimeter.amazon.com [3.72.182.33])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC61A29B76F;
-	Fri,  6 Mar 2026 15:42:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=3.72.182.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6ACBE39E6D6;
+	Fri,  6 Mar 2026 15:52:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772811735; cv=none; b=LKsC9d3Tfsm2+jVNtv0mxIdtlztHPmy9Cb1+c04BaoUE+oYdo2e2rHZRJ3PbPHKuEJ5hjw7DGjPNutzuHmbqvG7ife2PA9BwAzZjEHLe14HVR8eHqAoP4ecCgkSsaSt3r7dZ8v3Uig2YyvSd2Yqo+BfJ0uv/tae1kSjjF+c+iDw=
+	t=1772812323; cv=none; b=KROlzIbD+wY2njzBYO+m3bT4WJ+RkWyBNkrpTJjaFOagKoTRFdfh6OBnDj3P1RHwgCOQwJabQ0TvdvHWDDgZfwWSYG07nr3fPV1PRoPR1pmHbnVcWqmsOrCLNNEc4cs1F0AExMk89MVryRleJ8G217e/gjmw3SIRXUp7IK9WASc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772811735; c=relaxed/simple;
-	bh=fHxvicr/4x2KROO8aKJnuupOmRnTt0JEjdAoxNKC7a0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=NK+EewW1MP2nY5PFdq5Ox+57pLhpQtEIBllSlR03ISN6CyaDAL81wOwMdoPKCAwcQa8pPQ6tuqEC80MMXB4A72JLM3I89EGkcSpWP4Aj2NsMT3oulRNsK1wq1itSmcnBNNJSL7LYn3sEO9bhtBHJugH2mJA7zUJ2+kVMU5i7AVk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=HjUgjvU3; arc=none smtp.client-ip=3.72.182.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.uk
+	s=arc-20240116; t=1772812323; c=relaxed/simple;
+	bh=JdK9g2gfSR6Myd7ctFUZkA3zICCqh+RjOP3mPo3MMEg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=XDj0K0+unR8c/WPqbUEkbjAVlKuRED8HTYAwn1hGn2vCFQG6JsazXrnkO860SRtLGlBAb8QuFWwOVUzNgJWYBJTv85F4jyA1Toy8RPbxzvHZCeGqYCoi32sdkT8XSjxmUcQy/lQ093oXxOxZlYkqslLg8UlakFb1HQLbo4sJB04=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=F8uavd9s; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="HjUgjvU3"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1772811734; x=1804347734;
-  h=message-id:date:mime-version:reply-to:subject:to:cc:
-   references:from:in-reply-to:content-transfer-encoding;
-  bh=zlv5A21skW2cpWW+wfG6AmLOagqEDkrIsCoF7K54pBc=;
-  b=HjUgjvU3l8JCmKgYUMw4Ygy9Aim7IUwMscTQgjIYKFQOxN1QCQi3LM9K
-   ZpvWbKNZzIlzvT0SdXoAxPhz2h3U5its1gk5MKhPEVO4j73IR3gwDdtjg
-   1uZxF5FQ+pFTnSOHUSDJN3ygVO+NjEGkVOix0IHzWSti39+6hNK1dMHNj
-   F3ut/ITRAQ+fP58I3H1ZLkMGiesjuWqoQ4KQAqDxH8CL6S5U03xBYX5iH
-   W8FB3OMlqyDjhNo0KEmoVJgZTMVnRYBZxP8vjqcU2KZHyLbA0KKtx0H74
-   xDYhnx+0vn7TqhzNYwbV5V80J6xqT09R+yok7M0sTV820BeTY8XCFor66
-   A==;
-X-CSE-ConnectionGUID: /M9OfjBRTeKqpDhCE8ldMA==
-X-CSE-MsgGUID: 0Bb6xkULS3yW60j2eb25+A==
-X-IronPort-AV: E=Sophos;i="6.23,105,1770595200"; 
-   d="scan'208";a="10435125"
-Received: from ip-10-6-6-97.eu-central-1.compute.internal (HELO smtpout.naws.eu-central-1.prod.farcaster.email.amazon.dev) ([10.6.6.97])
-  by internal-fra-out-003.esa.eu-central-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Mar 2026 15:42:09 +0000
-Received: from EX19MTAEUB001.ant.amazon.com [54.240.197.226:28153]
- by smtpin.naws.eu-central-1.prod.farcaster.email.amazon.dev [10.0.5.165:2525] with esmtp (Farcaster)
- id 8290e714-6a53-45c7-af32-ec04f3406384; Fri, 6 Mar 2026 15:42:09 +0000 (UTC)
-X-Farcaster-Flow-ID: 8290e714-6a53-45c7-af32-ec04f3406384
-Received: from EX19D005EUB003.ant.amazon.com (10.252.51.31) by
- EX19MTAEUB001.ant.amazon.com (10.252.51.26) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
- Fri, 6 Mar 2026 15:42:07 +0000
-Received: from [192.168.2.180] (10.106.83.26) by EX19D005EUB003.ant.amazon.com
- (10.252.51.31) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37; Fri, 6 Mar 2026
- 15:42:02 +0000
-Message-ID: <6dcbcdcb-bfdd-43a3-b724-599a717c1054@amazon.com>
-Date: Fri, 6 Mar 2026 15:42:01 +0000
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="F8uavd9s"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6268xMwH1994861;
+	Fri, 6 Mar 2026 15:52:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=tQAB4V
+	rPDQZra+9rDwtppxER8w6/J0FKsDBrDkfZpvc=; b=F8uavd9sFZdIRWw63cIKGF
+	4I7QZCyXrpT6X8ayeM4pAf8ajlrA/OeOZ7ZJkRJXTint5SJu1NQ0lQL55lROSPo5
+	4HZqmpSbGoAEFjGZouj4J8nqPwPsHvBVUcrDThYk13kFJyBLSpQ6B5ozFOlOqHZx
+	A63ijChYiaHtybqGgmM39EoU1mIx5+CodKT2xkgVa1g82708lli0ruRrAqAItenz
+	R/rjaM1QQGISEveuEfhk+AV30l1De+uOXdw8wZv5GmXnu7DaHOquDPTVEQWkOr9Q
+	vjY+KX261Pfud4BHzegjeIrFIdPJkACu3XBk3UhtxJaNLKNI9A4+VprdUIP/Pv8w
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ckskd99fw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 06 Mar 2026 15:51:59 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 626DYfWV010335;
+	Fri, 6 Mar 2026 15:51:58 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cmc6kgcy4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 06 Mar 2026 15:51:58 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 626Fpswb45613404
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 6 Mar 2026 15:51:54 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9EB8920043;
+	Fri,  6 Mar 2026 15:51:54 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EEC1420040;
+	Fri,  6 Mar 2026 15:51:53 +0000 (GMT)
+Received: from li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com (unknown [9.87.149.120])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri,  6 Mar 2026 15:51:53 +0000 (GMT)
+Date: Fri, 6 Mar 2026 16:51:52 +0100
+From: Jan Polensky <japo@linux.ibm.com>
+To: Thomas Richter <tmricht@linux.ibm.com>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
+        acme@kernel.org, namhyung@kernel.org, irogers@google.com
+Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+        hca@linux.ibm.com
+Subject: Re: [PATCH] perf test: Fix test case 120 and 121 for s390
+Message-ID: <aar4GKP1c66egZnn@li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com>
+References: <20260306071002.2526085-1-tmricht@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Reply-To: <kalyazin@amazon.com>
-Subject: Re: [PATCH v10 09/15] KVM: guest_memfd: Add flag to remove from
- direct map
-To: "David Hildenbrand (Arm)" <david@kernel.org>, "Kalyazin, Nikita"
-	<kalyazin@amazon.co.uk>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "kvmarm@lists.linux.dev"
-	<kvmarm@lists.linux.dev>, "linux-fsdevel@vger.kernel.org"
-	<linux-fsdevel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>,
-	"bpf@vger.kernel.org" <bpf@vger.kernel.org>,
-	"linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>,
-	"kernel@xen0n.name" <kernel@xen0n.name>, "linux-riscv@lists.infradead.org"
-	<linux-riscv@lists.infradead.org>, "linux-s390@vger.kernel.org"
-	<linux-s390@vger.kernel.org>, "loongarch@lists.linux.dev"
-	<loongarch@lists.linux.dev>
-CC: "pbonzini@redhat.com" <pbonzini@redhat.com>, "corbet@lwn.net"
-	<corbet@lwn.net>, "maz@kernel.org" <maz@kernel.org>, "oupton@kernel.org"
-	<oupton@kernel.org>, "joey.gouly@arm.com" <joey.gouly@arm.com>,
-	"suzuki.poulose@arm.com" <suzuki.poulose@arm.com>, "yuzenghui@huawei.com"
-	<yuzenghui@huawei.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-	"will@kernel.org" <will@kernel.org>, "seanjc@google.com" <seanjc@google.com>,
-	"tglx@kernel.org" <tglx@kernel.org>, "mingo@redhat.com" <mingo@redhat.com>,
-	"bp@alien8.de" <bp@alien8.de>, "dave.hansen@linux.intel.com"
-	<dave.hansen@linux.intel.com>, "x86@kernel.org" <x86@kernel.org>,
-	"hpa@zytor.com" <hpa@zytor.com>, "luto@kernel.org" <luto@kernel.org>,
-	"peterz@infradead.org" <peterz@infradead.org>, "willy@infradead.org"
-	<willy@infradead.org>, "akpm@linux-foundation.org"
-	<akpm@linux-foundation.org>, "lorenzo.stoakes@oracle.com"
-	<lorenzo.stoakes@oracle.com>, "vbabka@suse.cz" <vbabka@suse.cz>,
-	"rppt@kernel.org" <rppt@kernel.org>, "surenb@google.com" <surenb@google.com>,
-	"mhocko@suse.com" <mhocko@suse.com>, "ast@kernel.org" <ast@kernel.org>,
-	"daniel@iogearbox.net" <daniel@iogearbox.net>, "andrii@kernel.org"
-	<andrii@kernel.org>, "martin.lau@linux.dev" <martin.lau@linux.dev>,
-	"eddyz87@gmail.com" <eddyz87@gmail.com>, "song@kernel.org" <song@kernel.org>,
-	"yonghong.song@linux.dev" <yonghong.song@linux.dev>,
-	"john.fastabend@gmail.com" <john.fastabend@gmail.com>, "kpsingh@kernel.org"
-	<kpsingh@kernel.org>, "sdf@fomichev.me" <sdf@fomichev.me>,
-	"haoluo@google.com" <haoluo@google.com>, "jolsa@kernel.org"
-	<jolsa@kernel.org>, "jgg@ziepe.ca" <jgg@ziepe.ca>, "jhubbard@nvidia.com"
-	<jhubbard@nvidia.com>, "peterx@redhat.com" <peterx@redhat.com>,
-	"jannh@google.com" <jannh@google.com>, "pfalcato@suse.de" <pfalcato@suse.de>,
-	"shuah@kernel.org" <shuah@kernel.org>, "riel@surriel.com" <riel@surriel.com>,
-	"ryan.roberts@arm.com" <ryan.roberts@arm.com>, "jgross@suse.com"
-	<jgross@suse.com>, "yu-cheng.yu@intel.com" <yu-cheng.yu@intel.com>,
-	"kas@kernel.org" <kas@kernel.org>, "coxu@redhat.com" <coxu@redhat.com>,
-	"kevin.brodsky@arm.com" <kevin.brodsky@arm.com>, "ackerleytng@google.com"
-	<ackerleytng@google.com>, "maobibo@loongson.cn" <maobibo@loongson.cn>,
-	"prsampat@amd.com" <prsampat@amd.com>, "mlevitsk@redhat.com"
-	<mlevitsk@redhat.com>, "jmattson@google.com" <jmattson@google.com>,
-	"jthoughton@google.com" <jthoughton@google.com>, "agordeev@linux.ibm.com"
-	<agordeev@linux.ibm.com>, "alex@ghiti.fr" <alex@ghiti.fr>,
-	"aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>, "borntraeger@linux.ibm.com"
-	<borntraeger@linux.ibm.com>, "chenhuacai@kernel.org" <chenhuacai@kernel.org>,
-	"dev.jain@arm.com" <dev.jain@arm.com>, "gor@linux.ibm.com"
-	<gor@linux.ibm.com>, "hca@linux.ibm.com" <hca@linux.ibm.com>,
-	"palmer@dabbelt.com" <palmer@dabbelt.com>, "pjw@kernel.org" <pjw@kernel.org>,
-	"shijie@os.amperecomputing.com" <shijie@os.amperecomputing.com>,
-	"svens@linux.ibm.com" <svens@linux.ibm.com>, "thuth@redhat.com"
-	<thuth@redhat.com>, "wyihan@google.com" <wyihan@google.com>,
-	"yang@os.amperecomputing.com" <yang@os.amperecomputing.com>,
-	"Jonathan.Cameron@huawei.com" <Jonathan.Cameron@huawei.com>,
-	"Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>, "urezki@gmail.com"
-	<urezki@gmail.com>, "zhengqi.arch@bytedance.com"
-	<zhengqi.arch@bytedance.com>, "gerald.schaefer@linux.ibm.com"
-	<gerald.schaefer@linux.ibm.com>, "jiayuan.chen@shopee.com"
-	<jiayuan.chen@shopee.com>, "lenb@kernel.org" <lenb@kernel.org>,
-	"osalvador@suse.de" <osalvador@suse.de>, "pavel@kernel.org"
-	<pavel@kernel.org>, "rafael@kernel.org" <rafael@kernel.org>,
-	"vannapurve@google.com" <vannapurve@google.com>, "jackmanb@google.com"
-	<jackmanb@google.com>, "aneesh.kumar@kernel.org" <aneesh.kumar@kernel.org>,
-	"patrick.roy@linux.dev" <patrick.roy@linux.dev>, "Thomson, Jack"
-	<jackabt@amazon.co.uk>, "Itazuri, Takahiro" <itazur@amazon.co.uk>,
-	"Manwaring, Derek" <derekmn@amazon.com>, "Cali, Marco"
-	<xmarcalx@amazon.co.uk>
-References: <20260126164445.11867-1-kalyazin@amazon.com>
- <20260126164445.11867-10-kalyazin@amazon.com>
- <13ed00e1-f0db-4326-a800-2ba306833921@kernel.org>
- <690c22f9-b71a-4f14-9857-008c7c858373@amazon.com>
- <0c0b911c-cda2-44a4-897e-361e02be7da5@kernel.org>
- <936fa782-d937-4b14-b92d-cc8707336e5e@amazon.com>
- <9b4b9f48-595d-46c9-8f77-fc021ac2619c@kernel.org>
-Content-Language: en-US
-From: Nikita Kalyazin <kalyazin@amazon.com>
-In-Reply-To: <9b4b9f48-595d-46c9-8f77-fc021ac2619c@kernel.org>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: EX19D011EUA003.ant.amazon.com (10.252.50.178) To
- EX19D005EUB003.ant.amazon.com (10.252.51.31)
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260306071002.2526085-1-tmricht@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-GUID: ST7yekmkW4Pq_8AA1H9G74uvSMzLm5Ay
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA2MDE0OCBTYWx0ZWRfX27akgMdQ/4DT
+ SCrEf8SpU5vTD2TCic5cQGpTLuS2h9gN+qkNsetx3LcVxtzne4ZVQfaOHB+0OdzRPGNC1oPvig/
+ 1Pp/L9/qmp2HsymkqRDhCHhtjaCH6SFuQirFStirr5zOlyavSh0XdcgWMGy5tG1K8ymKp1Eyp/C
+ y8RNVPRGd7MC5QhuDELUyFbb7BLsS2j+cjDLe4CmXWVZn7ROngsIEvN07gGDqi3xJXSlxQgaumE
+ J7o1nVaUi7fRGrC/NCNO3Pv/MaypvUjpsa3DU6KchAbE71MVm5dTqEjUs+haQKGyeo38DJPgo+e
+ AD0YM9FOZP0P9eBbgKpc4QYUnZm82Cu0vtuCA+1pqCw3owzRpJ0TlYk0/HmPNiP2NAp4lRYbKTY
+ Pc8EZ4ECB/GrIWp18xqMXHymT5Vq7/4Uw1KW/8sFIZHAXRTP8D6OBwk2ZFhUbTQ8pkQHxJkalrC
+ 7l4J/O6vhA9i7/QMHiw==
+X-Authority-Analysis: v=2.4 cv=H7DWAuYi c=1 sm=1 tr=0 ts=69aaf820 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=yCyTqNsD1iSaV6jbGAQA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: HiYCNUaOOIYMQtqCkO3TEUUWCZCiyMqN
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-06_05,2026-03-06_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 suspectscore=0 phishscore=0 clxscore=1015 priorityscore=1501
+ adultscore=0 bulkscore=0 spamscore=0 malwarescore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603060148
 
-
-
-On 06/03/2026 15:16, David Hildenbrand (Arm) wrote:
-> On 3/6/26 15:49, Nikita Kalyazin wrote:
->>
->>
->> On 06/03/2026 14:22, David Hildenbrand (Arm) wrote:
->>> [...]
->>>
->>>>
->>>> Dave pointed earlier that the failures were possible [1].  Do you think
->>>> we can document it better?
->>>
->>> I'm fine with checking that somewhere (to catch any future problems).
->>>
->>> Why not do the WARN_ON_ONCE() in folio_restore_direct_map()?
->>>
->>> Then, carefully document (in the new kerneldoc for
->>> folio_restore_direct_map() etc) that folio_restore_direct_map() is only
->>> allowed after a prior successful folio_zap_direct_map(), and add a
->>> helpful comment above the WARN_ON_ONCE() in folio_restore_direct_map()
->>> that we don't expect errors etc.
->>
->> My only concern about that is the assumptions we make in KVM may not
->> apply to the general case and the WARN_ON_ONCE may become too
->> restrictive compared to proper error handling in some (rare) cases.  For
->> example, is it possible for the folio to migrate in between?
+On Fri, Mar 06, 2026 at 08:10:02AM +0100, Thomas Richter wrote:
+> Perf tests
+> 120: 'perf data convert --to-ctf' command test
+> 121: 'perf data convert --to-json' command test
+> fail on s390. It is caused by selecting the default event cycles
+> which does not exist on s390 z/VM. Use software event cpu-clock
+> and specify it explicitly on the command line.
 > 
-> Not without migration support. But then, migration would have to make
-> sure that the destination folio has the direct map removed. So I
-> wouldn't worry about that.
+> Output before:
+> ❯ perf test 120 121
+> 120: 'perf data convert --to-ctf' command test       : FAILED!
+> 121: 'perf data convert --to-json' command test      : FAILED!
 > 
-> Once you return an error from folio_restore_direct_map(), you better
-> document when/why it happens and how the caller should handle it.
+> Output after:
+> ❯ perf test 120 121
+> 120: 'perf data convert --to-ctf' command test       : Ok
+> 121: 'perf data convert --to-json' command test      : Ok
 > 
-> There is nothing existing callers could really do, so it's an
-> implementation detail of the
-> folio_zap_direct_map()/folio_restore_direct_map() functions to make sure
-> it keeps working.
-> 
-> If it ever fails, we'll have to figure out how to keep the interface
-> working.
-> 
-> You can document any restrictions regarding when
-> folio_zap_direct_map()/folio_restore_direct_map() is allowed to be used
-> in the kerneldoc.
-
-Ok, makes sense to me.
-
-> 
-> --
-> Cheers,
-> 
-> David
-
+> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+[snip]
+Thanks for providing this, Thomas!
+Tested-by: Jan Polensky <japo@linux.ibm.com>
+Reviewed-by: Jan Polensky <japo@linux.ibm.com>
