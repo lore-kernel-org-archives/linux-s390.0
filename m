@@ -1,63 +1,103 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out-180.mta1.migadu.com (out-180.mta1.migadu.com [95.215.58.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D67051E7660;
-	Sat,  7 Mar 2026 04:33:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC9A230595B;
+	Sat,  7 Mar 2026 04:36:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772858031; cv=none; b=gHCmhlI5scj7Qr2fcGU5tXTZmHTbemL8P1/54jdvkTAVittv9bQv9yEP7ZuqV6QgYVmcUxNHDXZN+bmWWZqN8rSCAeCAcHSA08mk03bHwPtoutV1Z+BxEbU62SMs6RmbNv5Xg+illlErgRoibuY0DbCtdTtqgprwp147X1iM0tc=
+	t=1772858218; cv=none; b=Uywgz8hTRqKonw7pD0m8H+MpdSQHDg56Q3AD72fwBZnY/2Lufki2qPmi1nlaIFk5bphxPzHVg/G/o1NOGTtGsRTUOsOQfeXDhGlhIwm36wLKlPJa8FmnMNnFBWOORsjwrZB8PxdjC6ys0FbUT4zRQz0iMQ/InLYNd1ZOi+cZCG8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772858031; c=relaxed/simple;
-	bh=lBWYaLJmFquQT23fELgcOygCeoDVBzWCUplTNyRKFvo=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=KRERvNu/X117gL0iN0a9ThAi0LKM8F67NtVRic08E27zIjmoAj2JI76HBZScDSqWN10+/Gbv1+sl0hgZNHiJThCs/GFyfJ8jXUbOZYZxjAQGsJ+EBXsclqpkRbYAoYF62zpkv/o/I45rcpwaBAjp43Lndg1sp8C++U/Utjr0z5k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g72bgmxu; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772858218; c=relaxed/simple;
+	bh=uuDHxErMeCKwdYdeJW+GoC4H/Sitq8KG8hvdqVi3/+U=;
+	h=MIME-Version:Date:Content-Type:From:Message-ID:Subject:To:Cc:
+	 In-Reply-To:References; b=saZYJ+YQFMB0r5iUdLqZ7Gy0xLa00J6h89bNjIoyVk1CASNxFqBXa7VvegDzp1QPDfuPDOzAIyil0udYTd+uUEl6d2oUCNntMjQ7Woa2nAXl+b5vTyNU3LjPyvFlIFduAeCirwTD5vFF1zcRqCYbYGetJQBuFKHUHqN49YqQZBU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=YLWggLHQ; arc=none smtp.client-ip=95.215.58.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g72bgmxu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA11BC19422;
-	Sat,  7 Mar 2026 04:33:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772858031;
-	bh=lBWYaLJmFquQT23fELgcOygCeoDVBzWCUplTNyRKFvo=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=g72bgmxux7ozfrDGUsWdOzippxr6trJNkCrS0oifxxspnwiw/0K/cWeJ4QFJOXckU
-	 PRHkHdNJp4Hb1z7pb5PPbYp9YNyxmFZrx6jT+koIASJu38z6gdQ4UOFYlbPN5GbzpC
-	 o8hT1gzTnLfhFbBdsHse+kBxnDhsV6OVT8PSPFW4yEDthF99/xe/xwM2v3r4yRhNyn
-	 xOOOMQr2Rj38LUQCxu6jBWX2N/OtTvm8xerXSvt6a2gbSc+vIeQxzdW8/xU3+LHIOH
-	 nYSzNkTnAihQhV2GYqNSGxolMWdmezyPqCdiv5T/86wPvPgc0faJSRBbegayzk8IGF
-	 76K4Kq/k27jcg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 02DB33808200;
-	Sat,  7 Mar 2026 04:33:52 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 updates for 7.0-rc3
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <ttbi5la@ub.hpns>
-References: <ttbi5la@ub.hpns>
-X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
-X-PR-Tracked-Message-Id: <ttbi5la@ub.hpns>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-7.0-4
-X-PR-Tracked-Commit-Id: 674c5ff0f440a051ebf299d29a4c013133d81a65
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 591d8796b26ff707e35aad00f1274049126feba5
-Message-Id: <177285803042.165831.12680354609582419963.pr-tracker-bot@kernel.org>
-Date: Sat, 07 Mar 2026 04:33:50 +0000
-To: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Heiko Carstens <hca@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="YLWggLHQ"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1772858214;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Ft4IWUebvg0aCr/ykUgTkpQu0ujjA41RQl8tOtocRMI=;
+	b=YLWggLHQTBmSROfmUBS2t1Xavf8tbd5M4bGrxEpZrZUEQjY+CN+CfSAenlVmOwBLTIuprT
+	0MpNgMwN6TxMHQuiC8phvDkU42RyVqLjnZcEqd8fuI3ChHqI6I0IaUxnQ6KRy0x0yOdPVx
+	u/FVGcDgs+ZS1RY4IDjHgy1TJSuujFY=
+Date: Sat, 07 Mar 2026 04:36:51 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: "Jiayuan Chen" <jiayuan.chen@linux.dev>
+Message-ID: <8f8b43cb3b8d5b855ffd51f74340214a0b780124@linux.dev>
+TLS-Required: No
+Subject: Re: [PATCH net v1] net/smc: fix NULL dereference and UAF in
+ smc_tcp_syn_recv_sock()
+To: "Eric Dumazet" <edumazet@google.com>
+Cc: netdev@vger.kernel.org,
+ syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com, "D. Wythe"
+ <alibuda@linux.alibaba.com>, "Dust Li" <dust.li@linux.alibaba.com>,
+ "Sidraya Jayagond" <sidraya@linux.ibm.com>, "Wenjia Zhang"
+ <wenjia@linux.ibm.com>, "Mahanta Jambigi" <mjambigi@linux.ibm.com>, "Tony
+ Lu" <tonylu@linux.alibaba.com>, "Wen Gu" <guwen@linux.alibaba.com>,
+ "David S. Miller" <davem@davemloft.net>, "Jakub Kicinski"
+ <kuba@kernel.org>, "Paolo Abeni" <pabeni@redhat.com>, "Simon Horman"
+ <horms@kernel.org>, linux-rdma@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <CANn89iJ0V6un1un7zjG-J9d4EJQOjTO37s3EQUKTodwPWsXhFQ@mail.gmail.com>
+References: <20260307032158.372165-1-jiayuan.chen@linux.dev>
+ <CANn89iJ0V6un1un7zjG-J9d4EJQOjTO37s3EQUKTodwPWsXhFQ@mail.gmail.com>
+X-Migadu-Flow: FLOW_OUT
 
-The pull request you sent on Sat, 7 Mar 2026 01:05:34 +0100:
+March 7, 2026 at 11:56, "Eric Dumazet" <edumazet@google.com mailto:edumaz=
+et@google.com?to=3D%22Eric%20Dumazet%22%20%3Cedumazet%40google.com%3E > w=
+rote:
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-7.0-4
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/591d8796b26ff707e35aad00f1274049126feba5
+>=20
+>=20On Sat, Mar 7, 2026 at 4:22 AM Jiayuan Chen <jiayuan.chen@linux.dev> =
+wrote:
+>=20
+[...]
+>=20>  diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> >  index d0119afcc6a1..21218b9b0f9a 100644
+> >  --- a/net/smc/af_smc.c
+> >  +++ b/net/smc/af_smc.c
+> >  @@ -131,7 +131,14 @@ static struct sock *smc_tcp_syn_recv_sock(const=
+ struct sock *sk,
+> >  struct smc_sock *smc;
+> >  struct sock *child;
+> >=20
+>=20>  + read_lock_bh(&((struct sock *)sk)->sk_callback_lock);
+> >=20
+>=20This will not survive a SYN flood attack.
+>=20
+>=20Please use RCU instead.
+>=20
+>=20>=20
+>=20> smc =3D smc_clcsock_user_data(sk);
+> >  + if (!smc) {
+> >  + read_unlock_bh(&((struct sock *)sk)->sk_callback_lock);
+> >  + return NULL;
+> >  + }
+> >  + sock_hold(&smc->sk);
+> >=20
+>=20If you must take a refcount, use
+>=20
+>=20if (!refcount_inc_not_zero(&smc->sk->sk_refcnt)) {
+>  rcu_read_unlock();
+>  return NULL;
+> }
 
-Thank you!
+Thanks for the review.
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+Will try rcu_read_lock() + refcount_inc_not_zero()
+and set SOCK_RCU_FREE on the listen socket.
