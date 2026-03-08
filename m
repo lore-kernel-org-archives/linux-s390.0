@@ -1,132 +1,227 @@
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 252E130CD80;
-	Sat,  7 Mar 2026 10:08:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34AB328150F;
+	Sun,  8 Mar 2026 03:04:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772878094; cv=none; b=OidDXgd5mRK4cpqvQNa+4qzMIJv/28yyL5WfCC7Urc85UnYO8Xw0ZvN4/OgIsV8j4nq4rSXGYH7hTG9l0qEYA0qXLmymdZTXthArkjdBzd9m6/4zWNppuI13nTHAm4rgxzL8pt0Y02UU+Bx9nuG1wbadtvpMEH0Qy5YdQ7aA7uU=
+	t=1772939090; cv=none; b=eQnLiziEHhYgAxbO4B2gzbDL2r9/sWSBr0+GCdF+23n7tIjnHTot5ddVzqkSL1VuLZoMRix/GnLkdLi2k3608cd8w4e0XqpJOjFs2IFLhl/phiXv0OtkxGEH8FS05Z4cW9cR8OD+y4yGtYm0QbfjV18uXBeKFc3sl2DS9Pzn7cc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772878094; c=relaxed/simple;
-	bh=egZ1+M1uc0jkAv5m17k+C3GcHFY6xwEHcD81x2VjVTk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LGQBoJMAE6y827c6/eXNCzwPLqEnuos83JMP9w2oZVLmEeh4cKiWXbN+1UrHb4DaBSYdsWPfby7P5sj8WMgOkMan+pcgjp4cfhDRowEbVDTuxUF18Bvnli9ccXsmHh7hV3Rvv2LZ1MU4NJLqScSQ32r4/ltRSlwOUlqaUNkigms=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ljfv9Qev; arc=none smtp.client-ip=115.124.30.113
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1772939090; c=relaxed/simple;
+	bh=X2Hx5h5OhgYSaF8Pj5faad2dNA/MMYHUK3JDDbRxai8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Blefjdiht3aYWKlb5FNpUgGC2QoxyqFz2KCS7/OEyFKgi1bQW7KI0ta2+mNvZstdkHOyweeZyQlwBtoGqNVyRu8kdaECgrPP99nOi+Y1wYyhab1NBtTDzmHrltWfxcCGN8nXn/qGCWl1+JGl3CJ2ngL00uHTlc4yZXBgwIjxtfU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Eyy75mf/; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ljfv9Qev"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1772878080; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=Ee8lmlga3uDFZLOnTMgosbonAxDSBeCsgWYca7ZXZNI=;
-	b=ljfv9Qevd3P7u3pCsTQAPgHDIiMcJ7a4u1XzMjuwd8hED3O1/HHh3RkSE6yCYXvvMpXgzlf/lal/sjdALS74ifVnGybZOUes8q1DdbyeiuKY2Wg2eEOTVl0nZh7PBF1l/899zeWjeW1dYS6USFseYMAMHd39DlaS5+2NWQObBrk=
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0X-PTgJf_1772878079 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Sat, 07 Mar 2026 18:08:00 +0800
-Date: Sat, 7 Mar 2026 18:07:59 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com    >
-To: Mahanta Jambigi <mjambigi@linux.ibm.com>
-Cc: "D. Wythe" <alibuda@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>, Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org,
-	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org, oliver.yang@linux.alibaba.com,
-	pasic@linux.ibm.com
-Subject: Re: [PATCH net-next v3] net/smc: transition to RDMA core CQ pooling
-Message-ID: <20260307100759.GA71792@j66a10360.sqa.eu95>
-References: <20260305022323.96125-1-alibuda@linux.alibaba.com>
- <bdcd2405-93d1-4b4c-91ae-174b577e5734@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Eyy75mf/"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6280U6SD3358408;
+	Sun, 8 Mar 2026 03:04:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=/ZfZ+9e70WuiTmypy
+	LwkrkJ1arXuxkss6L0U2LrOEXE=; b=Eyy75mf/qsAj7SDxYspIizMRl7Py4pfGa
+	r8UCdHMI5y8s041NjSio4Fx01GJdrhaiomIA8a5ubTeXuT0dqE5vzVO7oQcrjrpX
+	J7LkT/g2zLVC6vvGd7s/81izJc+Ht8iGNnooiXkpnl3X83rgB+nPRPOxjp+cZMfp
+	8o+Uu/pXfAJA+LLjBRlpMj/O+6u27Hqy9gDLoCwJIJusSBbCweJzW7/jmoV8lHF6
+	3EShlkBydwPbczvyyckb7u/WbfOc9M2q8tIOftPD8oj7e4tiWHq35PMzLSk2sDKJ
+	DkS0hsjvgkQ/BI8re35qEg8YgS8gbOQhZHDeaRNQV5iBmNS/7E75Q==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4crcvr2ftb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sun, 08 Mar 2026 03:04:45 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 6282gNw8024657;
+	Sun, 8 Mar 2026 03:04:45 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cs0jjr1u1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sun, 08 Mar 2026 03:04:45 +0000
+Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62834iHV18678316
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sun, 8 Mar 2026 03:04:44 GMT
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 36ED758058;
+	Sun,  8 Mar 2026 03:04:44 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6F4CB58057;
+	Sun,  8 Mar 2026 03:04:43 +0000 (GMT)
+Received: from 9.60.13.83 (unknown [9.60.13.83])
+	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Sun,  8 Mar 2026 03:04:43 +0000 (GMT)
+From: Douglas Freimuth <freimuth@linux.ibm.com>
+To: borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, frankja@linux.ibm.com,
+        david@kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, svens@linux.ibm.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: mjrosato@linux.ibm.com, freimuth@linux.ibm.com
+Subject: [PATCH v1 2/3] Enable adapter_indicators_set to use mapped pages
+Date: Sun,  8 Mar 2026 04:04:37 +0100
+Message-ID: <20260308030438.88580-3-freimuth@linux.ibm.com>
+X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20260308030438.88580-1-freimuth@linux.ibm.com>
+References: <20260308030438.88580-1-freimuth@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bdcd2405-93d1-4b4c-91ae-174b577e5734@linux.ibm.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA4MDAyNiBTYWx0ZWRfXwUZu/2rsmROF
+ 6YApjIzQqdDPS9yV1KOjYXC34H321IGDc0kGIELlt4rmKWtey8Ltt4hkETLKP7kW1Ln39mnySBc
+ nmQOanGcSkpI+0WvBGln74W+VlrpjAX4NHc08zfHET+DXozUGLR7nsog7j4rwGl65lSA7Z3WXvm
+ 0VmZck6DOoLZS7l3wv8OauctFo2hGKKtaIswHi9uQeFb3t0fFJbnz4HFn3Q396XbSiSZkozi5of
+ RsEFnt/vowgLaz1BKt3MwQkkE4Slwdx2WP9TTsfwYanNPs/q//DiJ4FfgQPIVmk3Dvw61TaEiVd
+ 62wu+F64hBt6xP2MnKyVxAtp9kvzt1faki+7EE5KUQK6d9chcfJgOlE0jNhdtf8lWjaTyi6CBQZ
+ sa6gThHfzSkaKOFHP/+H88cvzkvLQ+VTRPtKkdUUSnwvnuX9KvXdrSzWaGFpFo44fAsoKeARvhy
+ Dz8d2o/MOd00Z6KUltQ==
+X-Proofpoint-GUID: jbkGIAihYMSJUWtpPi6VOo4dys9QTMkQ
+X-Proofpoint-ORIG-GUID: jbkGIAihYMSJUWtpPi6VOo4dys9QTMkQ
+X-Authority-Analysis: v=2.4 cv=QoFTHFyd c=1 sm=1 tr=0 ts=69ace74d cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=D0cRkWJsx0RdNmUHjycA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-08_01,2026-03-06_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 spamscore=0 priorityscore=1501 phishscore=0
+ lowpriorityscore=0 adultscore=0 clxscore=1011 malwarescore=0 suspectscore=0
+ bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2602130000
+ definitions=main-2603080026
 
-On Fri, Mar 06, 2026 at 05:37:49PM +0530, Mahanta Jambigi wrote:
-> 
-> 
-> On 05/03/26 7:53 am, D. Wythe wrote:
-> > The current SMC-R implementation relies on global per-device CQs
-> > and manual polling within tasklets, which introduces severe
-> > scalability bottlenecks due to global lock contention and tasklet
-> > scheduling overhead, resulting in poor performance as concurrency
-> > increases.
-> > 
-> > Refactor the completion handling to utilize the ib_cqe API and
-> > standard RDMA core CQ pooling. This transition provides several key
-> > advantages:
-> > 
-> > 1. Multi-CQ: Shift from a single shared per-device CQ to multiple
-> > link-specific CQs via the CQ pool. This allows completion processing
-> > to be parallelized across multiple CPU cores, effectively eliminating
-> > the global CQ bottleneck.
-> > 
-> > 2. Leverage DIM: Utilizing the standard CQ pool with IB_POLL_SOFTIRQ
-> > enables Dynamic Interrupt Moderation from the RDMA core, optimizing
-> > interrupt frequency and reducing CPU load under high pressure.
-> > 
-> > 3. O(1) Context Retrieval: Replaces the expensive wr_id based lookup
-> > logic (e.g., smc_wr_tx_find_pending_index) with direct context retrieval
-> > using container_of() on the embedded ib_cqe.
-> > 
-> > 4. Code Simplification: This refactoring results in a reduction of
-> > ~150 lines of code. It removes redundant sequence tracking, complex lookup
-> > helpers, and manual CQ management, significantly improving maintainability.
-> > 
-> > Performance Test: redis-benchmark with max 32 connections per QP
-> > Data format: Requests Per Second (RPS), Percentage in brackets
-> > represents the gain/loss compared to TCP.
-> > 
-> > | Clients | TCP      | SMC (original)      | SMC (cq_pool)       |
-> > |---------|----------|---------------------|---------------------|
-> > | c = 1   | 24449    | 31172  (+27%)       | 34039  (+39%)       |
-> > | c = 2   | 46420    | 53216  (+14%)       | 64391  (+38%)       |
-> > | c = 16  | 159673   | 83668  (-48%)  <--  | 216947 (+36%)       |
-> > | c = 32  | 164956   | 97631  (-41%)  <--  | 249376 (+51%)       |
-> > | c = 64  | 166322   | 118192 (-29%)  <--  | 249488 (+50%)       |
-> > | c = 128 | 167700   | 121497 (-27%)  <--  | 249480 (+48%)       |
-> > | c = 256 | 175021   | 146109 (-16%)  <--  | 240384 (+37%)       |
-> > | c = 512 | 168987   | 101479 (-40%)  <--  | 226634 (+34%)       |
-> > 
-> > The results demonstrate that this optimization effectively resolves the
-> > scalability bottleneck, with RPS increasing by over 110% at c=64
-> > compared to the original implementation.
-> 
-> Since your performance results look really-really nice on x86 but ours
-> show severe degradations on s390x, one way forward could be adding the
-> cq_poll mechanism but also keeping the existing mechanism for now
-> (because the things are right now it works better on s390x) and making
-> it either runtime or compile time configurable which of the both is
-> going to be used.
-> 
-> Alternatively, we could work together making the cq_poll mechanism does
-> not introduce a regression to s390x (ideally improve performance for
-> s390x as well). But it that case we would like to have this change
-> deferred until we find a way to make the regression disappear.
-> 
-> I am aware that the first option, co-existence, would kill the
-> simplification aspect of this and instead introduce added complexity.
-> But we are talking about a major regression here on one end, and major
-> improvements on the other end, so it might be still worth it. In any
-> case, we are very motivated to eventually get rid of the old mechanism,
-> provided significant performance regressions can be avoided.
+Patch 2: This patch enables adapter_indicators_set to use mapped pages.
+If adapter indicator pages are not mapped then local mapping is done as
+it is prior to this patch. For example, Secure Execution environments
+will take the local mapping path as it does prior to this patch.
 
-I'm in no rush to push this, since a significant performance degradation
-was observed on s390x, I'll withdraw this patch until the issue is
-resolved, and it would be great if you could investigate what specifically
-happened on s390x.
+Signed-off-by: Douglas Freimuth <freimuth@linux.ibm.com>
+---
+ arch/s390/kvm/interrupt.c | 89 +++++++++++++++++++++++++++------------
+ 1 file changed, 62 insertions(+), 27 deletions(-)
 
-D. Wythe
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index cafc03e20f8f..350106f84763 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -2836,41 +2836,74 @@ static unsigned long get_ind_bit(__u64 addr, unsigned long bit_nr, bool swap)
+ 	return swap ? (bit ^ (BITS_PER_LONG - 1)) : bit;
+ }
+ 
++static struct s390_map_info *get_map_info(struct s390_io_adapter *adapter,
++					  u64 addr)
++{
++	struct s390_map_info *map;
++
++	if (!adapter)
++		return NULL;
++
++	list_for_each_entry(map, &adapter->maps, list) {
++		if (map->guest_addr == addr)
++			return map;
++	}
++	return NULL;
++}
++
+ static int adapter_indicators_set(struct kvm *kvm,
+-				  struct s390_io_adapter *adapter,
+-				  struct kvm_s390_adapter_int *adapter_int)
++				struct s390_io_adapter *adapter,
++				struct kvm_s390_adapter_int *adapter_int)
+ {
+ 	unsigned long bit;
+ 	int summary_set, idx;
+-	struct page *ind_page, *summary_page;
++	struct s390_map_info *ind_info, *summary_info;
+ 	void *map;
++	struct page *ind_page, *summary_page;
+ 
+-	ind_page = get_map_page(kvm, adapter_int->ind_addr);
+-	if (!ind_page)
+-		return -1;
+-	summary_page = get_map_page(kvm, adapter_int->summary_addr);
+-	if (!summary_page) {
+-		put_page(ind_page);
+-		return -1;
++	ind_info = get_map_info(adapter, adapter_int->ind_addr);
++	if (!ind_info) {
++		ind_page = get_map_page(kvm, adapter_int->ind_addr);
++		if (!ind_page)
++			return -1;
++		idx = srcu_read_lock(&kvm->srcu);
++		map = page_address(ind_page);
++		bit = get_ind_bit(adapter_int->ind_addr,
++				  adapter_int->ind_offset, adapter->swap);
++		set_bit(bit, map);
++		mark_page_dirty(kvm, adapter_int->ind_gaddr >> PAGE_SHIFT);
++		set_page_dirty_lock(ind_page);
++		srcu_read_unlock(&kvm->srcu, idx);
++	} else {
++		map = page_address(ind_info->page);
++		bit = get_ind_bit(ind_info->addr, adapter_int->ind_offset, adapter->swap);
++		set_bit(bit, map);
+ 	}
+ 
+-	idx = srcu_read_lock(&kvm->srcu);
+-	map = page_address(ind_page);
+-	bit = get_ind_bit(adapter_int->ind_addr,
+-			  adapter_int->ind_offset, adapter->swap);
+-	set_bit(bit, map);
+-	mark_page_dirty(kvm, adapter_int->ind_gaddr >> PAGE_SHIFT);
+-	set_page_dirty_lock(ind_page);
+-	map = page_address(summary_page);
+-	bit = get_ind_bit(adapter_int->summary_addr,
+-			  adapter_int->summary_offset, adapter->swap);
+-	summary_set = test_and_set_bit(bit, map);
+-	mark_page_dirty(kvm, adapter_int->summary_gaddr >> PAGE_SHIFT);
+-	set_page_dirty_lock(summary_page);
+-	srcu_read_unlock(&kvm->srcu, idx);
+-
+-	put_page(ind_page);
+-	put_page(summary_page);
++		summary_page = get_map_page(kvm, adapter_int->summary_addr);
++		if (!summary_page) {
++			put_page(ind_page);
++			return -1;
++		}
++		idx = srcu_read_lock(&kvm->srcu);
++		map = page_address(summary_page);
++		bit = get_ind_bit(adapter_int->summary_addr,
++				  adapter_int->summary_offset, adapter->swap);
++		summary_set = test_and_set_bit(bit, map);
++		mark_page_dirty(kvm, adapter_int->summary_gaddr >> PAGE_SHIFT);
++		set_page_dirty_lock(summary_page);
++		srcu_read_unlock(&kvm->srcu, idx);
++	} else {
++		map = page_address(summary_info->page);
++		bit = get_ind_bit(summary_info->addr, adapter_int->summary_offset,
++				  adapter->swap);
++		summary_set = test_and_set_bit(bit, map);
++}
++
++	if (!ind_info)
++		put_page(ind_page);
++	if (!summary_info)
++		put_page(summary_page);
+ 	return summary_set ? 0 : 1;
+ }
+ 
+@@ -2892,7 +2925,9 @@ static int set_adapter_int(struct kvm_kernel_irq_routing_entry *e,
+ 	adapter = get_io_adapter(kvm, e->adapter.adapter_id);
+ 	if (!adapter)
+ 		return -1;
++	down_read(&adapter->maps_lock);
+ 	ret = adapter_indicators_set(kvm, adapter, &e->adapter);
++	up_read(&adapter->maps_lock);
+ 	if ((ret > 0) && !adapter->masked) {
+ 		ret = kvm_s390_inject_airq(kvm, adapter);
+ 		if (ret == 0)
+-- 
+2.52.0
 
