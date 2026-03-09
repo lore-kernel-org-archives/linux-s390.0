@@ -1,187 +1,133 @@
-Received: from out-180.mta1.migadu.com (out-180.mta1.migadu.com [95.215.58.180])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AC64236A73
-	for <linux-s390@vger.kernel.org>; Mon,  9 Mar 2026 07:49:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAC91378800;
+	Mon,  9 Mar 2026 09:27:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773042552; cv=none; b=ieUHiZ4ud93tp6XIHY3JmfUOlW8zjy93ncTpFkKxml7WY++g7VCRSA1RutvksXZdrjABWeOPIuTNERvJIBWTwMyi95+4Bpl+LlZzoOg3omZ+EZ4qk6+Sohp+2L43f8PqXIXDbBTkpw6a3/Rl7U7D3JY5wSs7ceRHrqDDzhYFhuA=
+	t=1773048453; cv=none; b=dOsGJEQZ7SB1xMwHAS8Fam8pSfWGn7IgE4p6LR/jLqrYMlUtIP6mKTYRgHa9qRZW/mr8Z3Uin9OKY/3nhLUu4JcEdhRTodQ1cOJGOLvEmy1Jww3j+4eUhw2gV6PhVR+DtBRVMCkdmlQHdBm+aCqasBRDCOgO8EWaHV4IbNgE6u0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773042552; c=relaxed/simple;
-	bh=BK4w5zW2pmkFpleQWkhZHxMFzScEqMW5tGEXIvdyQDw=;
-	h=MIME-Version:Date:Content-Type:From:Message-ID:Subject:To:Cc:
-	 In-Reply-To:References; b=LOzLljAVeWbtw2mRKzxbX2/p3OAp7m+zx91kBohdJde7QZvWf82tFeCyZvDv+HPwIVQdtqbb9JxvtdlloHXNcMegPxBYqdiiNik4ffudI3TYFkq/FbS1otOMbpxPFn1pyJ/6CM6WC8/DV0Jy77pIRSEB+uvsJRwsxgb+gDpnxb0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=DIY1YApT; arc=none smtp.client-ip=95.215.58.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1773048453; c=relaxed/simple;
+	bh=z6KjXdQAWcfCE1S74Oo4FfWIEzQOdxioqqMMS9/NxiY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=GsbCqxrk7W0yeTz39KdP1EmQGzg70GFs/wKMEjw96xx+TkG+cqlLAWxKPjLfezhDkoHggbtLzNIWrsWKX+SmKKG2Di+NZbfdWQel9HLslMLXYLgK4Q8uqzXIv9Gz6A1hPBkEfXRG3FK5/vJfJONNhCOO/PsZOowDBkWNkumGw3A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eraczvU4; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="DIY1YApT"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eraczvU4"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 628MknfX1601192;
+	Mon, 9 Mar 2026 09:27:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=cRcVMw
+	V5pt1zVlDD5PHIjSrJMb5sl82uanKbhUeAdkI=; b=eraczvU4tR148NqNAPnUHR
+	Ndd3SN92OBqWlDAw3Zznr0j7bwwbjQ9Tu/JbYv8PFxdzGJL0Q+3Cbjcn0qAOIGf/
+	z77EarLluRbe5QjkmMt+7Ti5Sxy/UuBu38MukxkvcHgQFGeMitWdxRI5hntk+XtV
+	np4foxYwnbScOFLqadpQ7sVFBBF1LiVxZ+1KE+HPQZ5nxjGE2QXmzriGsro6Ricy
+	I3nVftM9BtKscSsy+lPICyp7dFGw2+lF/+DcLGqxXHQIJZekE2GdbTmbHg1QEfeJ
+	uZUbMOB6CDeuvsq/N7et4VtBgs5kacykto0rGCCu0itP/WCiC5wzhhdEVNDqok9w
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4crcvr5py2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 09 Mar 2026 09:27:28 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 6298e4tT009467;
+	Mon, 9 Mar 2026 09:27:27 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4crxqy4f7v-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 09 Mar 2026 09:27:27 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6299RNJm24772942
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 9 Mar 2026 09:27:23 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CEFB620043;
+	Mon,  9 Mar 2026 09:27:23 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6B71320040;
+	Mon,  9 Mar 2026 09:27:23 +0000 (GMT)
+Received: from [9.52.200.39] (unknown [9.52.200.39])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  9 Mar 2026 09:27:23 +0000 (GMT)
+Message-ID: <1a56eea9-b339-460f-8007-985a432d944c@linux.ibm.com>
+Date: Mon, 9 Mar 2026 10:27:23 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1773042538;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=OCSi7v9xxHe6xaQA7QoLIUaLr3gtY2UScb9IicHrzKY=;
-	b=DIY1YApTPAmh2yqbiET3733BiWelpy9U/WwuQtXrce/3cvcg2c8zS0buSnCk62q3MvR1n6
-	fapihjKpNeRvKoLWA52fRkX/W15XUINzyrnRjGaXo05xcYnVDhFkFfFA+sghZz+puu/vjE
-	S+e/k2RssYQ2w4g9/oinrEIGjEhp8KM=
-Date: Mon, 09 Mar 2026 07:48:54 +0000
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: "Jiayuan Chen" <jiayuan.chen@linux.dev>
-Message-ID: <ade7f1a6d89525cb0545ac12603edb8e448f9493@linux.dev>
-TLS-Required: No
-Subject: Re: [PATCH net v2] net/smc: fix NULL dereference and UAF in
- smc_tcp_syn_recv_sock()
-To: "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: netdev@vger.kernel.org,
- syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com, "Eric Dumazet"
- <edumazet@google.com>, "D. Wythe" <alibuda@linux.alibaba.com>, "Dust Li"
- <dust.li@linux.alibaba.com>, "Sidraya Jayagond" <sidraya@linux.ibm.com>,
- "Wenjia Zhang" <wenjia@linux.ibm.com>, "Mahanta Jambigi"
- <mjambigi@linux.ibm.com>, "Tony Lu" <tonylu@linux.alibaba.com>, "Wen Gu"
- <guwen@linux.alibaba.com>, "David S. Miller" <davem@davemloft.net>,
- "Jakub Kicinski" <kuba@kernel.org>, "Paolo Abeni" <pabeni@redhat.com>,
- "Simon Horman" <horms@kernel.org>, linux-rdma@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20260309060611.GA130186@j66a10360.sqa.eu95>
-References: <20260309023846.18516-1-jiayuan.chen@linux.dev>
- <20260309060611.GA130186@j66a10360.sqa.eu95>
-X-Migadu-Flow: FLOW_OUT
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 1/3] Add map/unmap ioctl and clean mappings post-guest
+To: Douglas Freimuth <freimuth@linux.ibm.com>, imbrenda@linux.ibm.com,
+        frankja@linux.ibm.com, david@kernel.org, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc: mjrosato@linux.ibm.com
+References: <20260308030438.88580-1-freimuth@linux.ibm.com>
+ <20260308030438.88580-2-freimuth@linux.ibm.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20260308030438.88580-2-freimuth@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA5MDA4MyBTYWx0ZWRfX+QOtr36oeh04
+ v961F88DKc0f1R+H0BUJ/F/egAqFKNnvKxm+rGC2FhrlAhWCSa2gnTIeIs541IBkP6QdleUlb+o
+ 6lIUOvJ+xVkgo5DM1pShGURu2dVyq7tpFiOm6OO8lfr9RDO3quBRIg0RTZIpLwiW0YLdkIIGo9q
+ 0qU0O1OlZMa/JUaWPOINx6w5eawoiWBPJw9BWBvdWWlAZhAzGNZsT0A5N+8DMNxhnJMKYWMyqGq
+ ghoUgmsVzUCepHmVuwSmf34g6ELAmZplKK2q+Y9ehWSeFaDlZz6XwaNVEKNN+gYREKJFdSqzGED
+ AfCzEXHHWYZ/YAf4tKn6nLVIPxVN7eW5PG6P07xe2Zy4kFsgxbHsZox2ond+qXMWfZqW4fWhOPB
+ LGixgNQ7csfFopxADV9WUX0M0BclkGh6u0faREJMgDqZi9SiBIhu+ZYXEjSHFSqucr1IhBL1c1/
+ LIfbPuCWol1fkuLi2YA==
+X-Proofpoint-GUID: eDlid3UkSl1MSbacCBloDnZQ53StUZTm
+X-Proofpoint-ORIG-GUID: eDlid3UkSl1MSbacCBloDnZQ53StUZTm
+X-Authority-Analysis: v=2.4 cv=QoFTHFyd c=1 sm=1 tr=0 ts=69ae9280 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=lFrdhxbFXSv4YG0I5mYA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-09_03,2026-03-06_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 spamscore=0 priorityscore=1501 phishscore=0
+ lowpriorityscore=0 adultscore=0 clxscore=1015 malwarescore=0 suspectscore=0
+ bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2602130000
+ definitions=main-2603090083
 
-March 9, 2026 at 14:06, "D. Wythe" <alibuda@linux.alibaba.com mailto:alib=
-uda@linux.alibaba.com?to=3D%22D.%20Wythe%22%20%3Calibuda%40linux.alibaba.=
-com%3E > wrote:
-
-
+Am 08.03.26 um 04:04 schrieb Douglas Freimuth:
+> Fencing of Fast Inject in Secure Execution environments is enabled in
+> this patch by not mapping adapter indicator pages. In Secure Execution
 [...]
-> >  Reproducer was verified with mdelay injection and smc_run,
-> >  the issue no longer occurs with this patch applied.
-> >=20=20
->=20>  [1] https://syzkaller.appspot.com/bug?extid=3D827ae2bfb3a3529333e9
-> >=20=20
->=20>  Fixes: 8270d9c21041 ("net/smc: Limit backlog connections")
-> >  Reported-by: syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com
-> >  Closes: https://lore.kernel.org/all/67eaf9b8.050a0220.3c3d88.004a.GA=
-E@google.com/T/
-> >  Suggested-by: Eric Dumazet <edumazet@google.com>
-> >  Signed-off-by: Jiayuan Chen <jiayuan.chen@linux.dev>
-> >  ---
-> >  v2:
-> >  - Use rcu_read_lock() + refcount_inc_not_zero() instead of
-> >  read_lock_bh(sk_callback_lock) + sock_hold(), since this
-> >  is the TCP handshake hot path and read_lock_bh is too
-> >  expensive under SYN flood.
-> >  - Set SOCK_RCU_FREE on SMC listen socket to ensure
-> >  RCU-deferred freeing.
-> >=20=20
->=20>  v1: https://lore.kernel.org/netdev/20260307032158.372165-1-jiayuan=
-.chen@linux.dev/
-> >  ---
-> >  net/smc/af_smc.c | 9 +++++++++
-> >  1 file changed, 9 insertions(+)
-> >=20=20
->=20>  diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> >  index d0119afcc6a1..72ac1d8c62d4 100644
-> >  --- a/net/smc/af_smc.c
-> >  +++ b/net/smc/af_smc.c
-> >  @@ -131,7 +131,13 @@ static struct sock *smc_tcp_syn_recv_sock(const=
- struct sock *sk,
-> >  struct smc_sock *smc;
-> >  struct sock *child;
-> >=20=20
->=20>  + rcu_read_lock();
-> >  smc =3D smc_clcsock_user_data(sk);
-> >  + if (!smc || !refcount_inc_not_zero(&smc->sk.sk_refcnt)) {
-> >  + rcu_read_unlock();
-> >  + return NULL;
-> >  + }
-> >  + rcu_read_unlock();
-> >=20=20
->=20>  if (READ_ONCE(sk->sk_ack_backlog) + atomic_read(&smc->queued_smc_h=
-s) >
-> >  sk->sk_max_ack_backlog)
-> >  @@ -153,11 +159,13 @@ static struct sock *smc_tcp_syn_recv_sock(cons=
-t struct sock *sk,
-> >  if (inet_csk(child)->icsk_af_ops =3D=3D inet_csk(sk)->icsk_af_ops)
-> >  inet_csk(child)->icsk_af_ops =3D smc->ori_af_ops;
-> >  }
-> >  + sock_put(&smc->sk);
-> >  return child;
-> >=20=20
->=20>  drop:
-> >  dst_release(dst);
-> >  tcp_listendrop(sk);
-> >  + sock_put(&smc->sk);
-> >  return NULL;
-> >  }
-> >=20=20
->=20>  @@ -2691,6 +2699,7 @@ int smc_listen(struct socket *sock, int back=
-log)
-> >  write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
-> >  goto out;
-> >  }
-> >  + sock_set_flag(sk, SOCK_RCU_FREE);
-> >=20
->=20This RCU approach looks good to me. Since SOCK_RCU_FREE is now enable=
-d,
-> other callers of smc_clcsock_user_data() should also follow this
-> RCU-based pattern. It will eventually allow us to completely remove the
-> annoying sk_callback_lock.
->=20
->=20D. Wythe
->=20
+
+> @@ -2477,14 +2572,28 @@ static int modify_io_adapter(struct kvm_device *dev,
+>   		if (ret > 0)
+>   			ret = 0;
+>   		break;
+> -	/*
+> -	 * The following operations are no longer needed and therefore no-ops.
+> -	 * The gpa to hva translation is done when an IRQ route is set up. The
+> -	 * set_irq code uses get_user_pages_remote() to do the actual write.
+> -	 */
+>   	case KVM_S390_IO_ADAPTER_MAP:
+>   	case KVM_S390_IO_ADAPTER_UNMAP:
+> -		ret = 0;
+> +		mutex_lock(&dev->kvm->lock);
+> +		if (kvm_s390_pv_is_protected(dev->kvm)) {
+> +			mutex_unlock(&dev->kvm->lock);
+> +			break;
+> +		}
 
 
-Hi=20D. Wythe,
+I guess this works for a well behaving userspaces, but a bad QEMU could in theory
+not do the unmap on switch to secure.
+Shall we maybe do -EINVAL on KVM_PV_ENABLE if there are still mapping left, or
+to make it easier for userspace remove the old ADAPTER maps?
 
-Thanks for the suggestion. I agree that converting all smc_clcsock_user_d=
-ata()
-callers to RCU is a reasonable direction, and it would allow us to eventu=
-ally
-remove the sk_callback_lock dependency for sk_user_data access.
-
-However, I'd prefer to keep this patch focused on fixing the specific bug=
- in
-smc_tcp_syn_recv_sock(), since it needs to be backported to stable trees.
-Mixing a bug fix with broader refactoring makes backporting harder and in=
-creases
-the risk of regressions.
-
-Also, converting the other callers is not entirely trivial. For example:
-
-- smc_fback_state_change/data_ready/write_space/error_report():
-  the sk_callback_lock there protects not only sk_user_data but also the
-  consistency of the saved callback pointers (e.g.,smc->clcsk_state_chang=
-e).
-  Switching to RCU requires careful ordering analysis against the write s=
-ide
-  in smc_fback_restore_callbacks(). Additionally, fallback sockets would =
-also
-  need SOCK_RCU_FREE.
-
-- smc_clcsock_data_ready():
-  the sock_hold() would need to become refcount_inc_not_zero() to handle =
-the
-  case where the refcount has already reached zero.
-
-I'd like to address these conversions in a follow-up patch series.
-
-What do you think?
-
-> >=20
->=20> sk->sk_max_ack_backlog =3D backlog;
-> >  sk->sk_ack_backlog =3D 0;
-> >  sk->sk_state =3D SMC_LISTEN;
-> >  --=20
->=20>  2.43.0
-> >
->
