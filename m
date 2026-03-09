@@ -1,82 +1,132 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out-189.mta0.migadu.com (out-189.mta0.migadu.com [91.218.175.189])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0987E349AF5;
-	Mon,  9 Mar 2026 21:29:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C1911386C9
+	for <linux-s390@vger.kernel.org>; Mon,  9 Mar 2026 21:35:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.189
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773091796; cv=none; b=kMTzCLSS1YERiKKiEqrwSHTMV5zWoLk/wWCIxXIDgIGf1zDTO/fE5bl70TvrhR2ZYiZhtxF1AIqgM4Kfrtye+eR6l6VvyLjthc0NWhnmAdcu/W+jKfko2wd9C/KCAWpp7sAJG24HqqhJbYUlSwUHahZSavTP91WrnH2caR241lI=
+	t=1773092104; cv=none; b=GU9cCllqrYIxWtDAUmI2/Q1cAIHLpArN0u2BTLBx0klXiftIIY2/lceTw7QFK7gOBWfY7MMDZ/QXaR8d4uOe7T3B18W/xTHjKunrsvYVFbMc08RT0XXV8S3Wp2HfNLtTIq2z3rTua77L1ujrBzLyIicdeTPaUCW4SamH4Wh/CIk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773091796; c=relaxed/simple;
-	bh=dlZ+cYzjAVo9R0VWTOYYhJLvWL2hlTOrad+GmSBnVSA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mvXSACyh/DZgG4trOa12WobSyRtkwz8WeOprMW4UCYQkzQSC9IT+74IMFXByhsRrNjuyK++OUzw5hqr1WjX02ebZsQsjpov7f4mxV7ZSUCC0KWOyFdH4q9s+g36+QXV8mf3zqsJs6eLg/obwBFf5/ovJDPjWFK37jcTXIp+IxIA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f3/uicOT; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773092104; c=relaxed/simple;
+	bh=uYcQXQANvQYncDdLBKUkt285zxtjr+wSPpd5cv6Jknc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ROFRyWxpthCfFuzyDk9u7agOtyh8bX+6jtZTgizo5NtqT+gPPq2zTQlocoSqK6NyXQ6yllRqadLj9kP5bluLIUNor/H4PFUCd5Zn8XTqsVjhCkWXVcNw6wb3kEMgQqZj5IsWm7B4t6mBAa2vc5OSCWgGVAVthwkdTrJCIlzvuuQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=UfIiuqUj; arc=none smtp.client-ip=91.218.175.189
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f3/uicOT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6059C4CEF7;
-	Mon,  9 Mar 2026 21:29:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773091795;
-	bh=dlZ+cYzjAVo9R0VWTOYYhJLvWL2hlTOrad+GmSBnVSA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=f3/uicOTsDKsMaKy7R9/QUtYshUxWJBEDQwtzxfFYZSOYp7emjBBTyp8sACuA41ZA
-	 uFsGingtwi4ZiWmLejlxSqNUNkNjw0whzlDh+lCbwMs55wI53/YT1Ff55j5rftp6o8
-	 oOrwNy0ee74jJWtZQbwM9TrIfiZrkgU3VAO6WCMPwrogviRRnIDsz2jXaiwdXTArip
-	 BUHMPgdDsJNuVgfrO91jO0Ue3qKjSl2/hysZ/hpLXypw3NvAf6W0ThbXJWgjEE6KbB
-	 fi8jmiRwgeznkfplbkcSANyKgAHU4JnbCic2pM968DnfoezBirmtWFcFwsvpUbx59O
-	 XpdOdy9PYrhUw==
-Date: Mon, 9 Mar 2026 14:29:47 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Mimi Zohar <zohar@linux.ibm.com>
-Cc: Arnd Bergmann <arnd@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Roberto Sassu <roberto.sassu@huawei.com>,
-	Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
-	"Serge E. Hallyn" <serge@hallyn.com>,
-	Jarkko Sakkinen <jarkko@kernel.org>,
-	Ard Biesheuvel <ardb@kernel.org>, Coiby Xu <coxu@redhat.com>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Eric Snowberg <eric.snowberg@oracle.com>,
-	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>,
-	Andrew Donnellan <ajd@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-integrity@vger.kernel.org,
-	linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
-	llvm@lists.linux.dev
-Subject: Re: [PATCH] integrity: avoid using __weak functions
-Message-ID: <20260309212947.GA4150408@ax162>
-References: <20260306150421.270124-1-arnd@kernel.org>
- <20260306225648.GC2746259@ax162>
- <abb4d186d1ca76c080d5e15bcd9e0019cce3af39.camel@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="UfIiuqUj"
+Message-ID: <de0dc7ec-7a8d-4b1a-a419-1d97d2e4d510@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1773092101;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=9Z89Z0CbGlfYyK9enL1aU6uEk1uYUJc2hi9of77FKCc=;
+	b=UfIiuqUj5RN4OnUp4DNTD94bNDfHXU/WZAsxKKJI+0HRS89NtQj96WZrCoQLc2+MRaJK9s
+	E3IB3pqneljaxU6hi6H97Os7emjBXks+52uiFFqGOY8CELSXzuwd1DUHfPtD1cG6LsElAj
+	bpL91EN1nFg/AuG8ETeRKDtWEndcmAs=
+Date: Tue, 10 Mar 2026 00:34:39 +0300
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <abb4d186d1ca76c080d5e15bcd9e0019cce3af39.camel@linux.ibm.com>
+Subject: Re: [RFC v2 12/21] mm: thp: handle split failure in device migration
+Content-Language: en-GB
+To: Nico Pache <npache@redhat.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, david@kernel.org,
+ lorenzo.stoakes@oracle.com, willy@infradead.org, linux-mm@kvack.org,
+ fvdl@google.com, hannes@cmpxchg.org, riel@surriel.com,
+ shakeel.butt@linux.dev, kas@kernel.org, baohua@kernel.org, dev.jain@arm.com,
+ baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com,
+ ryan.roberts@arm.com, Vlastimil Babka <vbabka@kernel.org>,
+ lance.yang@linux.dev, linux-kernel@vger.kernel.org, kernel-team@meta.com,
+ maddy@linux.ibm.com, mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org,
+ hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+ borntraeger@linux.ibm.com, svens@linux.ibm.com, linux-s390@vger.kernel.org
+References: <20260226113233.3987674-1-usama.arif@linux.dev>
+ <20260226113233.3987674-13-usama.arif@linux.dev>
+ <CAA1CXcDyqPPwf_-W7B+PFQtL8HdoJGCEqVsVxq7DhOUB=L4PQA@mail.gmail.com>
+ <6982e9fc-cc17-4d4f-b26e-83997c4bf070@linux.dev>
+ <CAA1CXcCb6aZnjgtunEuwL380S-2re9N-AEjZUB+XO9G6gkrHQw@mail.gmail.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Usama Arif <usama.arif@linux.dev>
+In-Reply-To: <CAA1CXcCb6aZnjgtunEuwL380S-2re9N-AEjZUB+XO9G6gkrHQw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On Sun, Mar 08, 2026 at 09:01:58PM -0400, Mimi Zohar wrote:
-> Thanks Arnd, Nathan. LGTM.  Nathan, could you send a patch with a proper patch
-> description.
 
-Done, thanks for the input!
 
-  https://lore.kernel.org/20260309-integrity-drop-weak-arch-get-secureboot-v1-1-6460d5c4bb89@kernel.org/
+On 09/03/2026 18:09, Nico Pache wrote:
+> On Thu, Mar 5, 2026 at 9:55 AM Usama Arif <usama.arif@linux.dev> wrote:
+>>
+>>
+>>
+>> On 02/03/2026 21:20, Nico Pache wrote:
+>>> On Thu, Feb 26, 2026 at 4:34 AM Usama Arif <usama.arif@linux.dev> wrote:
+>>>>
+>>>> Device memory migration has two call sites that split huge PMDs:
+>>>>
+>>>> migrate_vma_split_unmapped_folio():
+>>>>   Called from migrate_vma_pages() when migrating a PMD-mapped THP to a
+>>>>   destination that doesn't support compound pages.  It splits the PMD
+>>>>   then splits the folio via folio_split_unmapped().
+>>>>
+>>>>   If the PMD split fails, folio_split_unmapped() would operate on an
+>>>>   unsplit folio with inconsistent page table state.  Propagate -ENOMEM
+>>>>   to skip this page's migration. This is safe as folio_split_unmapped
+>>>>   failure would be propagated in a similar way.
+>>>>
+>>>> migrate_vma_insert_page():
+>>>>   Called from migrate_vma_pages() when inserting a page into a VMA
+>>>>   during migration back from device memory.  If a huge zero PMD exists
+>>>>   at the target address, it must be split before PTE insertion.
+>>>>
+>>>>   If the split fails, the subsequent pte_alloc() and set_pte_at() would
+>>>>   operate on a PMD slot still occupied by the huge zero entry.  Use
+>>>>   goto abort, consistent with other allocation failures in this function.
+>>>>
+>>>> Signed-off-by: Usama Arif <usama.arif@linux.dev>
+>>>> ---
+>>>>  mm/migrate_device.c | 16 ++++++++++++++--
+>>>>  1 file changed, 14 insertions(+), 2 deletions(-)
+>>>>
+>>>> diff --git a/mm/migrate_device.c b/mm/migrate_device.c
+>>>> index 78c7acf024615..bc53e06fd9735 100644
+>>>> --- a/mm/migrate_device.c
+>>>> +++ b/mm/migrate_device.c
+>>>> @@ -909,7 +909,13 @@ static int migrate_vma_split_unmapped_folio(struct migrate_vma *migrate,
+>>>>         int ret = 0;
+>>>>
+>>>>         folio_get(folio);
+>>>
+>>> Should we be concerned about this folio_get? Are we incrementing a
+>>> reference that was already held if we back out of the split?
+>>>
+>>> -- Nico
+>>
+>>
+>>
+>> Hi Nico,
+>>
+>> Thanks for pointing this out. It spun out to an entire investigation for me [1].
+> 
+> Hey Usama,
+> 
+> I'm sorry my question lead you down a rabbit hole but I'm glad you did
+> the proper investigation and found the correct answer :) Thanks for
+> looking into it and for clearing that up via a comment!
+> 
+> Cheers,
+> -- Nico
+>
 
-Cheers,
-Nathan
+Thanks for the review! There is a need for folio_put in this patch
+specifically for split_huge_pmd_address which I wouldnt have figured out
+without your comment, so really appreciate it!
+
+Usama
