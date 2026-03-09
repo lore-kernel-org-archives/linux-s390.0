@@ -1,74 +1,192 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Received: from out-184.mta0.migadu.com (out-184.mta0.migadu.com [91.218.175.184])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52B5322D7B5;
-	Mon,  9 Mar 2026 02:28:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BC39244692
+	for <linux-s390@vger.kernel.org>; Mon,  9 Mar 2026 02:39:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.184
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773023316; cv=none; b=q/6p4E9jEpChqj8O4UDut13nTpej+Q3GVGU28tJpHEaMYG9YEFXDqK5abzDlxPAmLkdnilvQ6ptX15TKyO8/b8unR9dcSyuP4vBokwW5Ssn41d2hiNOcXcoZZRmtkS91/2nEQ9aKqfAmzpp2yyZoMe9sfUsgyVoW5H8PLsLdDKY=
+	t=1773023941; cv=none; b=IYz9/+D5jsUdDk7gUnTpYquHu6Pid3de7s/hiYsuCgOsDuKRG2wWgUON3Nh+RWB2TIh0gJKTui9mfW9EArZCLLbGMsny/MM2TBdche73qzKLSJEvY47bhLnnA0Qq/olAXgq53TNFuBJZ/u1lCK3DHSH42XnZ4QjFm0M2jUgS7Ng=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773023316; c=relaxed/simple;
-	bh=9+7Gl9tuAZ1Q0VSNcuAVDQMPoA6ngxLTTu1pfkwf7ig=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WQvoPgj0cvsTRqEh9b6Hp2+ElfVIxGwogrGTUoScm1r2gdbXfthV6KVgLrOdBxiUvP0yaoBfcJ4DsfzAX6E7JeLPXXev6Ug45eBzX/MKtNCA3C2/9bAk1Q9cP5dYLfBHLgLCSghTCjnDHkpppoJuCBiikLLmlqV20mmPgP4tSKg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=NlYjlLJF; arc=none smtp.client-ip=115.124.30.111
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1773023941; c=relaxed/simple;
+	bh=R0H4l0OMlNt9Wqb5hw2JLkc44oTi8bqWgi1LpA+2eDs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Z7StO8OBwWnooREYynz2AZPeA9zLqvcY0WBGcBjTtN5/84No7Y6OQD8kx5QvBv2NDirg86DNs+kmFNFxug32fPBizRKkfChPeIAxqIrPuLrAN/7LRZx1/IAla1VaArCfW5Z6gPnuBWu+To/kJHokr11AMJNauIzVLN5gieR3PJc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=QXmFAL62; arc=none smtp.client-ip=91.218.175.184
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="NlYjlLJF"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1773023305; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=qmhKuTU3gUKJMAVU5dtpO7oqXqxZXnfftl1UL5iMYm0=;
-	b=NlYjlLJF0JPS2GiOOG6nAIb9XEeGmj3Pugsd95TgqKbjWsnwPKJh6jZrzSoMJVujyUcHEMg1mwb8CF6LsUyWmzI+imktExapM6byzCFlNfMcAsxHsrHXaQ3HUqnXTYcCdC7B0+mqAkbhIFuk57RcjXpAF3I95g0d05wqHHcF9EI=
-Received: from 30.221.130.175(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0X-TA9qB_1773023302 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 09 Mar 2026 10:28:23 +0800
-Message-ID: <6397594f-eb3f-4207-9c20-b0f7e409054c@linux.alibaba.com>
-Date: Mon, 9 Mar 2026 10:28:21 +0800
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="QXmFAL62"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1773023937;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=8gg9IZVa6miFgcHKiCXdTEoQFBVABLtKoIAlpWTSHRw=;
+	b=QXmFAL62fOnI4PpkKzO2aVQsyInz5lwCndRU3ORHtiIXmmXRCIhongHsqj0Vz17TiZ8Rrh
+	jbXFFaF3/FuSJqo5ZNBRj2JZvyjqxdvDkUGalxEUUMAVUdDefdo0DtcjZr0p2SGXedmxi2
+	dWunQ4yM79aW41mFtGsFqPFExB542WE=
+From: Jiayuan Chen <jiayuan.chen@linux.dev>
+To: netdev@vger.kernel.org
+Cc: Jiayuan Chen <jiayuan.chen@linux.dev>,
+	syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com,
+	Eric Dumazet <edumazet@google.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net v2] net/smc: fix NULL dereference and UAF in smc_tcp_syn_recv_sock()
+Date: Mon,  9 Mar 2026 10:38:45 +0800
+Message-ID: <20260309023846.18516-1-jiayuan.chen@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC v2 0/2] ptp: Move non-NIC PHC drivers from netdev to
- clock/timekeeping maintainership
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: David Woodhouse <dwmw2@infradead.org>, tglx@kernel.org,
- tglx@linutronix.de, richardcochran@gmail.com, andrew+netdev@lunn.ch,
- davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
- linux-kernel@vger.kernel.org, netdev@vger.kernel.org, mani@kernel.org,
- imran.shaik@oss.qualcomm.com, vladimir.oltean@nxp.com, wei.fang@nxp.com,
- xiaoning.wang@nxp.com, jonathan.lemon@gmail.com, vadim.fedorenko@linux.dev,
- yangbo.lu@nxp.com, svens@linux.ibm.com, nick.shi@broadcom.com,
- ajay.kaher@broadcom.com, alexey.makhalov@broadcom.com,
- bcm-kernel-feedback-list@broadcom.com, linux-fpga@vger.kernel.org,
- imx@lists.linux.dev, linux-s390@vger.kernel.org, dust.li@linux.alibaba.com,
- xuanzhuo@linux.alibaba.com, taniya.das@oss.qualcomm.com
-References: <20260227081934.96865-1-guwen@linux.alibaba.com>
- <be4c63a8dc43be15576565b4bd4567b3cf433d58.camel@infradead.org>
- <4a9af4b1-6820-4173-8daf-4201bb1bcca5@linux.alibaba.com>
- <20260305184110.13e79837@kernel.org>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <20260305184110.13e79837@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
+Syzkaller reported a panic in smc_tcp_syn_recv_sock() [1].
 
+smc_tcp_syn_recv_sock() is called in the TCP receive path
+(softirq) via icsk_af_ops->syn_recv_sock on the clcsock (TCP
+listening socket). It reads sk_user_data to get the smc_sock
+pointer. However, when the SMC listen socket is being closed
+concurrently, smc_close_active() sets clcsock->sk_user_data
+to NULL under sk_callback_lock, and then the smc_sock itself
+can be freed via sock_put() in smc_release().
 
-On 2026/3/6 10:41, Jakub Kicinski wrote:
-> On Fri, 27 Feb 2026 20:25:11 +0800 Wen Gu wrote:
->> As mentioned in RFC v1, the use cases for drivers in the emulated PHC category
->> are expected to be quite diverse, and not limited to the virtualization/guest
->> time sync use case. For example, existing drivers such as ptp_ocp [1] and
->> upcoming ones such as mhi_phc [2] are not related to virtualization use cases.
-> 
-> ptp_ocp is a real PCIe device with an atomic clock. mhi_phc is some
-> qualcomm fw-defined thing, so more closely mapping what you're doing.
-> ptp_ocp should probably stay under netdev, we maintain DPLL drivers,
-> too. Main thing we/I don't want to deal with is all the corporate NIH
-> virtualization excreta.
+This leads to two issues:
 
-OK. ptp_ocp will be kept under netdev in the next version.
+1) NULL pointer dereference: sk_user_data is NULL when
+   accessed.
+2) Use-after-free: sk_user_data is read as non-NULL, but the
+   smc_sock is freed before its fields (e.g., queued_smc_hs,
+   ori_af_ops) are accessed.
+
+The race window looks like this:
+
+  CPU A (softirq)              CPU B (process ctx)
+
+  tcp_v4_rcv()
+    TCP_NEW_SYN_RECV:
+    sk = req->rsk_listener
+    sock_hold(sk)
+    /* No lock on listener */
+                               smc_close_active():
+                                 write_lock_bh(cb_lock)
+                                 sk_user_data = NULL
+                                 write_unlock_bh(cb_lock)
+                                 ...
+                                 smc_clcsock_release()
+                                 sock_put(smc->sk) x2
+                                   -> smc_sock freed!
+    tcp_check_req()
+      smc_tcp_syn_recv_sock():
+        smc = user_data(sk)
+          -> NULL or dangling
+        smc->queued_smc_hs
+          -> crash!
+
+Note that the clcsock and smc_sock are two independent objects
+with separate refcounts. TCP stack holds a reference on the
+clcsock, which keeps it alive, but this does NOT prevent the
+smc_sock from being freed.
+
+Fix this by using RCU and refcount_inc_not_zero() to safely
+access smc_sock. Since smc_tcp_syn_recv_sock() is called in
+the TCP three-way handshake path, taking read_lock_bh on
+sk_callback_lock is too heavy and would not survive a SYN
+flood attack. Using rcu_read_lock() is much more lightweight.
+
+- Set SOCK_RCU_FREE on the SMC listen socket so that
+  smc_sock freeing is deferred until after the RCU grace
+  period. This guarantees the memory is still valid when
+  accessed inside rcu_read_lock().
+- Use rcu_read_lock() to protect reading sk_user_data.
+- Use refcount_inc_not_zero(&smc->sk.sk_refcnt) to pin the
+  smc_sock. If the refcount has already reached zero (close
+  path completed), it returns false and we bail out safely.
+
+Note: smc_hs_congested() has a similar lockless read of
+sk_user_data without rcu_read_lock(), but it only checks for
+NULL and accesses the global smc_hs_wq, never dereferencing
+any smc_sock field, so it is not affected.
+
+Reproducer was verified with mdelay injection and smc_run,
+the issue no longer occurs with this patch applied.
+
+[1] https://syzkaller.appspot.com/bug?extid=827ae2bfb3a3529333e9
+
+Fixes: 8270d9c21041 ("net/smc: Limit backlog connections")
+Reported-by: syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com
+Closes: https://lore.kernel.org/all/67eaf9b8.050a0220.3c3d88.004a.GAE@google.com/T/
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Jiayuan Chen <jiayuan.chen@linux.dev>
+---
+v2:
+- Use rcu_read_lock() + refcount_inc_not_zero() instead of
+  read_lock_bh(sk_callback_lock) + sock_hold(), since this
+  is the TCP handshake hot path and read_lock_bh is too
+  expensive under SYN flood.
+- Set SOCK_RCU_FREE on SMC listen socket to ensure
+  RCU-deferred freeing.
+
+v1: https://lore.kernel.org/netdev/20260307032158.372165-1-jiayuan.chen@linux.dev/
+---
+ net/smc/af_smc.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index d0119afcc6a1..72ac1d8c62d4 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -131,7 +131,13 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
+ 	struct smc_sock *smc;
+ 	struct sock *child;
+ 
++	rcu_read_lock();
+ 	smc = smc_clcsock_user_data(sk);
++	if (!smc || !refcount_inc_not_zero(&smc->sk.sk_refcnt)) {
++		rcu_read_unlock();
++		return NULL;
++	}
++	rcu_read_unlock();
+ 
+ 	if (READ_ONCE(sk->sk_ack_backlog) + atomic_read(&smc->queued_smc_hs) >
+ 				sk->sk_max_ack_backlog)
+@@ -153,11 +159,13 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
+ 		if (inet_csk(child)->icsk_af_ops == inet_csk(sk)->icsk_af_ops)
+ 			inet_csk(child)->icsk_af_ops = smc->ori_af_ops;
+ 	}
++	sock_put(&smc->sk);
+ 	return child;
+ 
+ drop:
+ 	dst_release(dst);
+ 	tcp_listendrop(sk);
++	sock_put(&smc->sk);
+ 	return NULL;
+ }
+ 
+@@ -2691,6 +2699,7 @@ int smc_listen(struct socket *sock, int backlog)
+ 		write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
+ 		goto out;
+ 	}
++	sock_set_flag(sk, SOCK_RCU_FREE);
+ 	sk->sk_max_ack_backlog = backlog;
+ 	sk->sk_ack_backlog = 0;
+ 	sk->sk_state = SMC_LISTEN;
+-- 
+2.43.0
+
