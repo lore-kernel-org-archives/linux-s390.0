@@ -1,303 +1,187 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
+Received: from out-180.mta1.migadu.com (out-180.mta1.migadu.com [95.215.58.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 597642D7BF;
-	Mon,  9 Mar 2026 07:38:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AC64236A73
+	for <linux-s390@vger.kernel.org>; Mon,  9 Mar 2026 07:49:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773041938; cv=none; b=A/vGIFBtaGLf//Pqw6mHvM6jdGyxSsybPMnMkzKCOYN+vk2Abi0lD/Wl9P1ZvJOY3yyUhXt6srt/zUPDRw66bcVwUJ/KkR3RZXnB94H+TamM8CCoI0Iet/y/ZGu1GPjQ506udUS+nmdlhV69slVH61Zy7u6PONmuqTkGnsLWQ1g=
+	t=1773042552; cv=none; b=ieUHiZ4ud93tp6XIHY3JmfUOlW8zjy93ncTpFkKxml7WY++g7VCRSA1RutvksXZdrjABWeOPIuTNERvJIBWTwMyi95+4Bpl+LlZzoOg3omZ+EZ4qk6+Sohp+2L43f8PqXIXDbBTkpw6a3/Rl7U7D3JY5wSs7ceRHrqDDzhYFhuA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773041938; c=relaxed/simple;
-	bh=KxEdllr3ONVpssJ4VlezksLnFM6tHr56Ckj8WFIfRlc=;
-	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=K4IhQPxrz4mQZLwiXH4CpHz+gn70X43FXFyF9p/tWFVgD1zO5YoWwOZQHvJ3FWyR/tlHNgF5p74rq1Qb/vSJP/0rfoGu7c+OJdylVDwI50RDdXHkXo2Px8oA0WAwlH7+qxlJSa7QBuIjG0vbB7QKKx4IMDJrNETK0BYXvTkIewc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mFsAe5do; arc=none smtp.client-ip=192.198.163.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1773042552; c=relaxed/simple;
+	bh=BK4w5zW2pmkFpleQWkhZHxMFzScEqMW5tGEXIvdyQDw=;
+	h=MIME-Version:Date:Content-Type:From:Message-ID:Subject:To:Cc:
+	 In-Reply-To:References; b=LOzLljAVeWbtw2mRKzxbX2/p3OAp7m+zx91kBohdJde7QZvWf82tFeCyZvDv+HPwIVQdtqbb9JxvtdlloHXNcMegPxBYqdiiNik4ffudI3TYFkq/FbS1otOMbpxPFn1pyJ/6CM6WC8/DV0Jy77pIRSEB+uvsJRwsxgb+gDpnxb0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=DIY1YApT; arc=none smtp.client-ip=95.215.58.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mFsAe5do"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1773041937; x=1804577937;
-  h=from:date:to:cc:subject:in-reply-to:message-id:
-   references:mime-version;
-  bh=KxEdllr3ONVpssJ4VlezksLnFM6tHr56Ckj8WFIfRlc=;
-  b=mFsAe5dogqFpSPuw3XJa/hP3JKiB1o5rmMZBajKCst+YVtzYtUycWgn2
-   EVRZ1Q7Geo+U2ig9lvtCfCWQuLjMUxjMfbCadxwdC0uF70Bmh1uXU107x
-   cQRG3QBNKVmSRlrQJhMyS1ZvPpUjSivys2jevnFI8KPlCOYqQx5XNeaHC
-   SD3YZDzSars0UlrzsDcOaB/+IeaDlP5Z1mubnfTbbRGkmIv69gXI8GgvC
-   34UsCv0GaYbLP1dsVoj3haxv7oFL/yswd56EzwoZmYZ7ZBwQ0eMsXlOJk
-   0Ns9li4gnaJxOsJ5b1HdEM2CuW3hS4kujEyFtn+MclN9Tt66bLHVlr30q
-   w==;
-X-CSE-ConnectionGUID: HjhlJQFlQ+yi/O7dCyzBnQ==
-X-CSE-MsgGUID: OC+SUNRpRyaOprc3c0LNVw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11723"; a="76661594"
-X-IronPort-AV: E=Sophos;i="6.23,109,1770624000"; 
-   d="scan'208";a="76661594"
-Received: from orviesa002.jf.intel.com ([10.64.159.142])
-  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Mar 2026 00:38:56 -0700
-X-CSE-ConnectionGUID: Sp8+O0lBQgSm+gCxbQs6AA==
-X-CSE-MsgGUID: 7VJxtpdxSHixGJa4GYv3rw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,109,1770624000"; 
-   d="scan'208";a="250145681"
-Received: from dalessan-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.245.153])
-  by orviesa002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Mar 2026 00:38:48 -0700
-From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Date: Mon, 9 Mar 2026 09:38:45 +0200 (EET)
-To: Benjamin Block <bblock@linux.ibm.com>
-cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
-    Vasily Gorbik <gor@linux.ibm.com>, Bjorn Helgaas <bhelgaas@google.com>, 
-    Alexander Gordeev <agordeev@linux.ibm.com>, 
-    Heiko Carstens <hca@linux.ibm.com>, 
-    Niklas Schnelle <schnelle@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, 
-    Sven Schnelle <svens@linux.ibm.com>, 
-    linux-s390 <linux-s390@vger.kernel.org>, 
-    Andreas Krebbel <krebbel@linux.ibm.com>, 
-    Julian Ruess <julianr@linux.ibm.com>, 
-    Matthew Rosato <mjrosato@linux.ibm.com>, 
-    Christian Borntraeger <borntraeger@linux.ibm.com>, 
-    Gerd Bayer <gbayer@linux.ibm.com>, linux-pci <linux-pci@vger.kernel.org>, 
-    Tobias Schumacher <ts@linux.ibm.com>, 
-    linux-kernel <linux-kernel@vger.kernel.org>, 
-    Ionut Nechita <ionut.nechita@windriver.com>, 
-    Ionut Nechita <ionut_n2001@yahoo.com>
-Subject: Re: [PATCH 4/4] s390/pci: Use lock guard for
- pci_rescan_remove_lock
-In-Reply-To: <7be9c8ad56f5ef9366316c3621dece9a10f3eb8b.1772815642.git.bblock@linux.ibm.com>
-Message-ID: <4ad9163b-8ab6-841d-4a58-d10c7f4cdd07@linux.intel.com>
-References: <cover.1772815642.git.bblock@linux.ibm.com> <7be9c8ad56f5ef9366316c3621dece9a10f3eb8b.1772815642.git.bblock@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="DIY1YApT"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1773042538;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=OCSi7v9xxHe6xaQA7QoLIUaLr3gtY2UScb9IicHrzKY=;
+	b=DIY1YApTPAmh2yqbiET3733BiWelpy9U/WwuQtXrce/3cvcg2c8zS0buSnCk62q3MvR1n6
+	fapihjKpNeRvKoLWA52fRkX/W15XUINzyrnRjGaXo05xcYnVDhFkFfFA+sghZz+puu/vjE
+	S+e/k2RssYQ2w4g9/oinrEIGjEhp8KM=
+Date: Mon, 09 Mar 2026 07:48:54 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: "Jiayuan Chen" <jiayuan.chen@linux.dev>
+Message-ID: <ade7f1a6d89525cb0545ac12603edb8e448f9493@linux.dev>
+TLS-Required: No
+Subject: Re: [PATCH net v2] net/smc: fix NULL dereference and UAF in
+ smc_tcp_syn_recv_sock()
+To: "D. Wythe" <alibuda@linux.alibaba.com>
+Cc: netdev@vger.kernel.org,
+ syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com, "Eric Dumazet"
+ <edumazet@google.com>, "D. Wythe" <alibuda@linux.alibaba.com>, "Dust Li"
+ <dust.li@linux.alibaba.com>, "Sidraya Jayagond" <sidraya@linux.ibm.com>,
+ "Wenjia Zhang" <wenjia@linux.ibm.com>, "Mahanta Jambigi"
+ <mjambigi@linux.ibm.com>, "Tony Lu" <tonylu@linux.alibaba.com>, "Wen Gu"
+ <guwen@linux.alibaba.com>, "David S. Miller" <davem@davemloft.net>,
+ "Jakub Kicinski" <kuba@kernel.org>, "Paolo Abeni" <pabeni@redhat.com>,
+ "Simon Horman" <horms@kernel.org>, linux-rdma@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20260309060611.GA130186@j66a10360.sqa.eu95>
+References: <20260309023846.18516-1-jiayuan.chen@linux.dev>
+ <20260309060611.GA130186@j66a10360.sqa.eu95>
+X-Migadu-Flow: FLOW_OUT
 
-On Fri, 6 Mar 2026, Benjamin Block wrote:
+March 9, 2026 at 14:06, "D. Wythe" <alibuda@linux.alibaba.com mailto:alib=
+uda@linux.alibaba.com?to=3D%22D.%20Wythe%22%20%3Calibuda%40linux.alibaba.=
+com%3E > wrote:
 
-> There are quite a few places in the s390 architecture code for the PCI
-> subsystem where the kernel needs to lock `pci_rescan_remove_lock` now;
-> which is done by calling pci_lock_rescan_remove() to lock, and
-> pci_unlock_rescan_remove() to unlock the mutex.
-> 
-> Instead of always manually calling both functions, which induces a
-> certain amount of visual clutter, and in some cases of errors, cleanup,
-> and jumplabels more complexity, use either guard() or scoped_guard()
-> depending on the context.
-> 
-> Convert all users in the s390 architecture code for PCI.
-> 
-> Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
-> ---
->  arch/s390/pci/pci.c       |  8 +++----
->  arch/s390/pci/pci_bus.c   |  3 +--
->  arch/s390/pci/pci_event.c | 45 +++++++++++++++++----------------------
->  arch/s390/pci/pci_iov.c   |  3 +--
->  arch/s390/pci/pci_sysfs.c |  9 +++-----
->  5 files changed, 27 insertions(+), 41 deletions(-)
-> 
-> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-> index fd16e6ad21c1..86ef1e516857 100644
-> --- a/arch/s390/pci/pci.c
-> +++ b/arch/s390/pci/pci.c
-> @@ -632,10 +632,9 @@ void pcibios_release_device(struct pci_dev *pdev)
->  {
->  	struct zpci_dev *zdev = to_zpci(pdev);
->  
-> -	pci_lock_rescan_remove();
-> +	guard(pci_rescan_remove)();
->  	zpci_unmap_resources(pdev);
->  	zpci_zdev_put(zdev);
-> -	pci_unlock_rescan_remove();
->  }
->  
->  int pcibios_enable_device(struct pci_dev *pdev, int mask)
-> @@ -1213,9 +1212,8 @@ static int __init pci_base_init(void)
->  	if (rc)
->  		goto out_irq;
->  
-> -	pci_lock_rescan_remove();
-> -	rc = zpci_scan_devices();
-> -	pci_unlock_rescan_remove();
-> +	scoped_guard(pci_rescan_remove)
-> +		rc = zpci_scan_devices();
->  	if (rc)
->  		goto out_find;
->  
-> diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
-> index 2b598222c621..c1b48b572e86 100644
-> --- a/arch/s390/pci/pci_bus.c
-> +++ b/arch/s390/pci/pci_bus.c
-> @@ -82,9 +82,8 @@ int zpci_bus_scan_device(struct zpci_dev *zdev)
->  	if (!pdev)
->  		return -ENODEV;
->  
-> -	pci_lock_rescan_remove();
-> +	guard(pci_rescan_remove)();
->  	pci_bus_add_device(pdev);
-> -	pci_unlock_rescan_remove();
->  
->  	return 0;
->  }
-> diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
-> index edfaeed737ac..98253706b591 100644
-> --- a/arch/s390/pci/pci_event.c
-> +++ b/arch/s390/pci/pci_event.c
-> @@ -342,9 +342,8 @@ static void __zpci_event_error(struct zpci_ccdf_err *ccdf)
->  no_pdev:
->  	if (zdev)
->  		mutex_unlock(&zdev->state_lock);
-> -	pci_lock_rescan_remove();
-> +	guard(pci_rescan_remove)();
->  	zpci_zdev_put(zdev);
-> -	pci_unlock_rescan_remove();
->  }
->  
->  void zpci_event_error(void *data)
-> @@ -389,7 +388,6 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
->  	struct zpci_dev *zdev = get_zdev_by_fid(ccdf->fid);
->  	bool existing_zdev = !!zdev;
->  	enum zpci_state state;
-> -	int rc;
->  
->  	zpci_dbg(3, "avl fid:%x, fh:%x, pec:%x\n",
->  		 ccdf->fid, ccdf->fh, ccdf->pec);
-> @@ -403,12 +401,11 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
->  			zdev = zpci_create_device(ccdf->fid, ccdf->fh, ZPCI_FN_STATE_CONFIGURED);
->  			if (IS_ERR(zdev))
->  				break;
-> -			pci_lock_rescan_remove();
-> -			rc = zpci_add_device(zdev);
-> -			pci_unlock_rescan_remove();
-> -			if (rc) {
-> -				kfree(zdev);
-> -				break;
-> +			scoped_guard(pci_rescan_remove) {
-> +				if (zpci_add_device(zdev)) {
-> +					kfree(zdev);
-> +					break;
-> +				}
->  			}
->  		} else {
->  			if (zdev->state == ZPCI_FN_STATE_RESERVED)
-> @@ -425,12 +422,11 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
->  			zdev = zpci_create_device(ccdf->fid, ccdf->fh, ZPCI_FN_STATE_STANDBY);
->  			if (IS_ERR(zdev))
->  				break;
-> -			pci_lock_rescan_remove();
-> -			rc = zpci_add_device(zdev);
-> -			pci_unlock_rescan_remove();
-> -			if (rc) {
-> -				kfree(zdev);
-> -				break;
-> +			scoped_guard(pci_rescan_remove) {
-> +				if (zpci_add_device(zdev)) {
-> +					kfree(zdev);
-> +					break;
-> +				}
->  			}
->  		} else {
->  			if (zdev->state == ZPCI_FN_STATE_RESERVED)
-> @@ -459,33 +455,30 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
->  			/* The 0x0304 event may immediately reserve the device */
->  			if (!clp_get_state(zdev->fid, &state) &&
->  			    state == ZPCI_FN_STATE_RESERVED) {
-> -				pci_lock_rescan_remove();
-> +				guard(pci_rescan_remove)();
->  				zpci_device_reserved(zdev);
-> -				pci_unlock_rescan_remove();
->  			}
->  		}
->  		break;
->  	case 0x0306: /* 0x308 or 0x302 for multiple devices */
-> -		pci_lock_rescan_remove();
-> -		zpci_remove_reserved_devices();
-> -		zpci_scan_devices();
-> -		pci_unlock_rescan_remove();
-> +		scoped_guard(pci_rescan_remove) {
-> +			zpci_remove_reserved_devices();
-> +			zpci_scan_devices();
-> +		}
->  		break;
->  	case 0x0308: /* Standby -> Reserved */
->  		if (!zdev)
->  			break;
-> -		pci_lock_rescan_remove();
-> -		zpci_device_reserved(zdev);
-> -		pci_unlock_rescan_remove();
-> +		scoped_guard(pci_rescan_remove)
-> +			zpci_device_reserved(zdev);
 
-Order in this series is weird. Why not introduce *guard() support before 
-the fix (reorder patches 2 and 3) and then use guard direct here so you 
-don't have to immediately change the code again to "convert" it to use 
-*guard() in patch 4?
+[...]
+> >  Reproducer was verified with mdelay injection and smc_run,
+> >  the issue no longer occurs with this patch applied.
+> >=20=20
+>=20>  [1] https://syzkaller.appspot.com/bug?extid=3D827ae2bfb3a3529333e9
+> >=20=20
+>=20>  Fixes: 8270d9c21041 ("net/smc: Limit backlog connections")
+> >  Reported-by: syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com
+> >  Closes: https://lore.kernel.org/all/67eaf9b8.050a0220.3c3d88.004a.GA=
+E@google.com/T/
+> >  Suggested-by: Eric Dumazet <edumazet@google.com>
+> >  Signed-off-by: Jiayuan Chen <jiayuan.chen@linux.dev>
+> >  ---
+> >  v2:
+> >  - Use rcu_read_lock() + refcount_inc_not_zero() instead of
+> >  read_lock_bh(sk_callback_lock) + sock_hold(), since this
+> >  is the TCP handshake hot path and read_lock_bh is too
+> >  expensive under SYN flood.
+> >  - Set SOCK_RCU_FREE on SMC listen socket to ensure
+> >  RCU-deferred freeing.
+> >=20=20
+>=20>  v1: https://lore.kernel.org/netdev/20260307032158.372165-1-jiayuan=
+.chen@linux.dev/
+> >  ---
+> >  net/smc/af_smc.c | 9 +++++++++
+> >  1 file changed, 9 insertions(+)
+> >=20=20
+>=20>  diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> >  index d0119afcc6a1..72ac1d8c62d4 100644
+> >  --- a/net/smc/af_smc.c
+> >  +++ b/net/smc/af_smc.c
+> >  @@ -131,7 +131,13 @@ static struct sock *smc_tcp_syn_recv_sock(const=
+ struct sock *sk,
+> >  struct smc_sock *smc;
+> >  struct sock *child;
+> >=20=20
+>=20>  + rcu_read_lock();
+> >  smc =3D smc_clcsock_user_data(sk);
+> >  + if (!smc || !refcount_inc_not_zero(&smc->sk.sk_refcnt)) {
+> >  + rcu_read_unlock();
+> >  + return NULL;
+> >  + }
+> >  + rcu_read_unlock();
+> >=20=20
+>=20>  if (READ_ONCE(sk->sk_ack_backlog) + atomic_read(&smc->queued_smc_h=
+s) >
+> >  sk->sk_max_ack_backlog)
+> >  @@ -153,11 +159,13 @@ static struct sock *smc_tcp_syn_recv_sock(cons=
+t struct sock *sk,
+> >  if (inet_csk(child)->icsk_af_ops =3D=3D inet_csk(sk)->icsk_af_ops)
+> >  inet_csk(child)->icsk_af_ops =3D smc->ori_af_ops;
+> >  }
+> >  + sock_put(&smc->sk);
+> >  return child;
+> >=20=20
+>=20>  drop:
+> >  dst_release(dst);
+> >  tcp_listendrop(sk);
+> >  + sock_put(&smc->sk);
+> >  return NULL;
+> >  }
+> >=20=20
+>=20>  @@ -2691,6 +2699,7 @@ int smc_listen(struct socket *sock, int back=
+log)
+> >  write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
+> >  goto out;
+> >  }
+> >  + sock_set_flag(sk, SOCK_RCU_FREE);
+> >=20
+>=20This RCU approach looks good to me. Since SOCK_RCU_FREE is now enable=
+d,
+> other callers of smc_clcsock_user_data() should also follow this
+> RCU-based pattern. It will eventually allow us to completely remove the
+> annoying sk_callback_lock.
+>=20
+>=20D. Wythe
+>=20
 
--- 
- i.
 
->  		break;
->  	default:
->  		break;
->  	}
->  	if (existing_zdev) {
->  		mutex_unlock(&zdev->state_lock);
-> -		pci_lock_rescan_remove();
-> +		guard(pci_rescan_remove)();
->  		zpci_zdev_put(zdev);
-> -		pci_unlock_rescan_remove();
->  	}
->  }
->  
-> diff --git a/arch/s390/pci/pci_iov.c b/arch/s390/pci/pci_iov.c
-> index 13050ce5c3e9..1f7e4dd018e7 100644
-> --- a/arch/s390/pci/pci_iov.c
-> +++ b/arch/s390/pci/pci_iov.c
-> @@ -38,10 +38,9 @@ void zpci_iov_map_resources(struct pci_dev *pdev)
->  
->  void zpci_iov_remove_virtfn(struct pci_dev *pdev, int vfn)
->  {
-> -	pci_lock_rescan_remove();
-> +	guard(pci_rescan_remove)();
->  	/* Linux' vfid's start at 0 vfn at 1 */
->  	pci_iov_remove_virtfn(pdev->physfn, vfn - 1);
-> -	pci_unlock_rescan_remove();
->  }
->  
->  static int zpci_iov_link_virtfn(struct pci_dev *pdev, struct pci_dev *virtfn, int vfid)
-> diff --git a/arch/s390/pci/pci_sysfs.c b/arch/s390/pci/pci_sysfs.c
-> index c2444a23e26c..f5027aa95928 100644
-> --- a/arch/s390/pci/pci_sysfs.c
-> +++ b/arch/s390/pci/pci_sysfs.c
-> @@ -98,9 +98,9 @@ static ssize_t recover_store(struct device *dev, struct device_attribute *attr,
->  	WARN_ON_ONCE(!kn);
->  
->  	/* Device needs to be configured and state must not change */
-> -	mutex_lock(&zdev->state_lock);
-> +	guard(mutex)(&zdev->state_lock);
->  	if (zdev->state != ZPCI_FN_STATE_CONFIGURED)
-> -		goto out;
-> +		return count;
->  
->  	/* device_remove_file() serializes concurrent calls ignoring all but
->  	 * the first
-> @@ -112,15 +112,12 @@ static ssize_t recover_store(struct device *dev, struct device_attribute *attr,
->  	 * Once it unblocks from pci_lock_rescan_remove() the original pdev
->  	 * will already be removed.
->  	 */
-> -	pci_lock_rescan_remove();
-> +	guard(pci_rescan_remove)();
->  	if (pci_dev_is_added(pdev)) {
->  		ret = _do_recover(pdev, zdev);
->  	}
->  	pci_rescan_bus(zdev->zbus->bus);
-> -	pci_unlock_rescan_remove();
->  
-> -out:
-> -	mutex_unlock(&zdev->state_lock);
->  	if (kn)
->  		sysfs_unbreak_active_protection(kn);
->  	return ret ? ret : count;
-> 
+Hi=20D. Wythe,
+
+Thanks for the suggestion. I agree that converting all smc_clcsock_user_d=
+ata()
+callers to RCU is a reasonable direction, and it would allow us to eventu=
+ally
+remove the sk_callback_lock dependency for sk_user_data access.
+
+However, I'd prefer to keep this patch focused on fixing the specific bug=
+ in
+smc_tcp_syn_recv_sock(), since it needs to be backported to stable trees.
+Mixing a bug fix with broader refactoring makes backporting harder and in=
+creases
+the risk of regressions.
+
+Also, converting the other callers is not entirely trivial. For example:
+
+- smc_fback_state_change/data_ready/write_space/error_report():
+  the sk_callback_lock there protects not only sk_user_data but also the
+  consistency of the saved callback pointers (e.g.,smc->clcsk_state_chang=
+e).
+  Switching to RCU requires careful ordering analysis against the write s=
+ide
+  in smc_fback_restore_callbacks(). Additionally, fallback sockets would =
+also
+  need SOCK_RCU_FREE.
+
+- smc_clcsock_data_ready():
+  the sock_hold() would need to become refcount_inc_not_zero() to handle =
+the
+  case where the refcount has already reached zero.
+
+I'd like to address these conversions in a follow-up patch series.
+
+What do you think?
+
+> >=20
+>=20> sk->sk_max_ack_backlog =3D backlog;
+> >  sk->sk_ack_backlog =3D 0;
+> >  sk->sk_state =3D SMC_LISTEN;
+> >  --=20
+>=20>  2.43.0
+> >
+>
