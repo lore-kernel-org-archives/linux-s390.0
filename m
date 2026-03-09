@@ -1,184 +1,225 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67A742D0610
-	for <linux-s390@vger.kernel.org>; Mon,  9 Mar 2026 18:18:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.179
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773080324; cv=pass; b=DNSQS0UorJ0HOmTsu4TMkrF6TYkTLLWR3LGm3P/wvyrZb7jXXQWK4mtp+ywus5KZDVXrC4Eo5cLeNtRQoOq1nwrf9jHAHyn5P7g5C9TWvpQiWI3g8UmdW7FJ9yguHnYQDQ8Bp13a6r8deNsh2yWWffLT7FKyoujIH/Mb6ZMIgYM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773080324; c=relaxed/simple;
-	bh=VjCK9O9mWN+S+Owop3XPnvrdHjcUqFjZT/JVHGCIYYs=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KPpeUNSZUpvWo6/92pX7K5uu86B14IMFRO93yoqwDFWL2/V4RAnnv7ONUszPqLFYUkDh1s0hKIa0CDUHySraeLkTIDu89Cj96zT2txuo8ThrWk4vBLsP2oZ0dbm5sfrdvYeV6RtZrvPuXBoFBgJ5YgbGtwOex5zCJWElPmq90Bw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=QjYRfoHO; arc=pass smtp.client-ip=209.85.214.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EDFE36B07D;
+	Mon,  9 Mar 2026 20:37:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773088632; cv=none; b=pYB6fn8aWDls5IEM1c1oib3y05qMyycDP7A6WY23grtnPTmdOuIwHR3JsWh4BS/9ANAF97l2uH2ffo6DJb+JpsUkBEFgRCkTdWQfPmtGF5CEAX9nv0JnzJ0FoVzrwyLMYDkHeQFWWcNpI5SZs0K0pXggzcKFADOD/nC4BTBTFes=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773088632; c=relaxed/simple;
+	bh=y6yHZjzRHz8qgrcVZjbW20G4/s3LnaHOsPnyYMHI7zw=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=IvM+I9XVFE7pZxw5l0f1QGI8Rx4jRDWnJyL4cK1l1bMEhS5TLSEtxKemNjVP4pgH8Rv8MHOLtzhsijCXPYCF+LPBTX2WIUDfRA9HnQGZ6t40DVCSZN7z5ce+PmOItikmMNyI2xaBWTg8jqimnJF8GQygyEszf37gshvUmSsZNcg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MAPPmBl1; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="QjYRfoHO"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2ae4b40999bso19455ad.1
-        for <linux-s390@vger.kernel.org>; Mon, 09 Mar 2026 11:18:41 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773080320; cv=none;
-        d=google.com; s=arc-20240605;
-        b=fa2uHPXsu+S94rbziGG92PS9P9R0p8emgFJmE8nUunj7dLOqYRiXrA/PMhAH9yTJcI
-         Qa/wvhKzgCNJTLKbMqJyjUbeRaL2twX6fO/eTb6IxOvcZDNPihazhZEbEaVk/XsuUKfu
-         neHjnmqB+R6uZZKFUqa+8f+eYJla8N/wpJUmvBDb6YxB3N8KMMwa/vHMjlr40EY7qJjv
-         STqscoFEg9jWQNAWh2mA/ruyqA4xVVPKpEBlyXrnXuTAFKu9rOG8737V9ku1QvBCRn0m
-         Jhnz7vcACWvygXdA4AISxrZqieUGPS/lynssBu53JteOrUCgGpV9VadQ2Alo4oQtlJfL
-         eVLw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=mNFhEsxk7RBeGZyKEG7ERKLw/wU59C/RzDtV/jvgQtI=;
-        fh=HohoiW53O26JKnG6eJ1kMKCt+3Vvb0TUEj8ZEQyZidg=;
-        b=SZ9lOzl5o0rXeEPlMjcwbmTzDkYbV/40gbKBqZB9xeEMiXvQpkclJyoHqGk3YK1+t4
-         g4U2bc1HOh7fe2/mkKcrrrYexHJRFJgQkFzmHPQZinZtZxbKc+Dsa/MiMF1dscx44YPN
-         9Z1aop2ECOya50ppN289l5CKahiKjB2WCCi/1F0b1tnzL/ctcH1DJ0Gp4FbLiRtALd1y
-         kwXoeE4sUPLTtCt4tt6l+2vKl94mkKyT5M7v6vRqO39sk7JByX+/nVGv5NoRKd4RBaFM
-         t2Y1cz97htzjB8pwolA9/8b8XZchMmI0ysgnkMw+Pg2NPcJwAAKFJpTeXT29ctZrxzaT
-         QP8Q==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1773080320; x=1773685120; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=mNFhEsxk7RBeGZyKEG7ERKLw/wU59C/RzDtV/jvgQtI=;
-        b=QjYRfoHOuF+CorLAMzY3+zlv3ZDDwWpP7V9fVALAxmLYX25J3dbAP+yVqwkMQBdrbT
-         /Fbgt7iUB8bRi/ijLAaOvjLmTSpU5ROiHfhP1wM/TxC4HXUaPUtQJiwaQ7z/X3JNKlQv
-         wwGOJtbsIW09xKlffd6a7urvktoDMh4hXDEn/on5Kxc3RJ4aS4KUdCW+wTEjjSxk139F
-         FzLPlneLjOqUJtUNbdcrFzCM3Dkiamp+bR1FlSqN+H8FOoHLza/UZgMmcPbH4WkwNAUv
-         mzGOfTK0KFOG3hf+eihbQj9tCLowOs1E1sADouuLblLgmN6RdRnsv5jKrHT4V6jHGzob
-         bBww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773080320; x=1773685120;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=mNFhEsxk7RBeGZyKEG7ERKLw/wU59C/RzDtV/jvgQtI=;
-        b=k782N1z4OEfu3RD4ITVh46u/90iUrzjSZeJZEmrrRZLQ7feI/hGuUfbtJGgVpLkuGf
-         GInRIzkYfcBr+BASZp538ma1lTChdTmiwzBpRFDPAdROM2ZEdoTPd+lbk3HbqRUmMO4p
-         pPhv5wlO3UnxeiBOK6SZjYNajffeW1AMMjymmu30oXe55DE6zalIMP1ux1QNW1w8CgmL
-         s0e9OSXCWzo/R8BrQ0f2mjov75HXEtw+gKhEz2hC85NXLm9oo0D8EVGkuw9MC5pd8aE1
-         PbZOx15wsPDDIyXaE5IBe0smYMaKGOV8r4Xs4grdOtJif720nHs2fZCrNLQboTzFQtnX
-         4ZQg==
-X-Forwarded-Encrypted: i=1; AJvYcCU5Ym5Sy2Hl2DggkShdlYAR1KmHyqc/gBev9DtI8axFa7HlwNsl3IqGyz+R/FOO+DO5PU7Pw4JkcLWd@vger.kernel.org
-X-Gm-Message-State: AOJu0YxZ26/8pkeqRVQUWP12vS9vc/TB6vJRoA73EWO72rGms09FVr/R
-	q80/ZhKMau/9GVR4NOCPA4oXsAL4Z0+JJ1lNiLeEbq810GupuRilvIAuD7bCyVEj1rd0o5WaGgt
-	11+IrWIsq+3F0esWDBWEyKMvqxIac9V0oSZ5siJq6
-X-Gm-Gg: ATEYQzxh0aWXro9uibAI+93euOExl2J3zEvTHKXDO1FaMiGRTukJg38iro8bB0ncDnp
-	E8jCwL+TzszrHwmf3MScO/kkC4jLPNVN06l+0wZGzT7H77TvKNrsLZqpox2ozEMTlwIHJi29+Wz
-	96S6yN7E1ByxIoKlWRX+SdD+kMFRV6HtAH4v4O2DSNBEPpzr6/j52oOAbCLPGuLkn6N/6uQTq7A
-	vx4V6NLuaCC89IFwUV3H9ikMlfVqyzR/HtQ2IDHPD2L53ppSGYibguLGa6XEGb3B/s+v3GhaQPz
-	woUfH3in8z9Bqgvrm0FQpfAjB6+Oz4mdQAXXgS50iHdPfg==
-X-Received: by 2002:a17:902:f601:b0:2ad:6f9b:7818 with SMTP id
- d9443c01a7336-2aea32a5a08mr210975ad.23.1773080320080; Mon, 09 Mar 2026
- 11:18:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MAPPmBl1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4013C4CEF7;
+	Mon,  9 Mar 2026 20:37:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773088632;
+	bh=y6yHZjzRHz8qgrcVZjbW20G4/s3LnaHOsPnyYMHI7zw=;
+	h=From:Date:Subject:To:Cc:From;
+	b=MAPPmBl1JEkdt+MdYLrh8LOhqW7t70Ogyy64+Fv/8uJQ0nJQZCId999gytuCojVTO
+	 xKrS8qpflGUOaOIsEQ1CVym33M3fPKps7eMPxWXZAeLCQWWhTsK8SJKe5FMY5NWE0x
+	 UhXmq+G3q82WjBvg4aQgLnjs8CsxvAHot7g733S068lD14JuAuzFarpGIna2oZcYmE
+	 SnP9f3VuwiW0YMyjKWrhl7jfyRbLrtklYlUlLZv922BWBa97cikr3f8gqpylWsK6eo
+	 RIFsDbM0kGqeTL4jVBPmin+DdHcEvqUP/516KFaZvMj+Kwy1mvWH9lEWHeZRZX12ef
+	 vcXF9qExdSBQQ==
+From: Nathan Chancellor <nathan@kernel.org>
+Date: Mon, 09 Mar 2026 13:37:02 -0700
+Subject: [PATCH] integrity: Eliminate weak definition of
+ arch_get_secureboot()
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260306071002.2526085-1-tmricht@linux.ibm.com>
- <aar4GKP1c66egZnn@li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com>
- <CAP-5=fXs0UrMVhwU-_=iunCYa_ye18FHj0W1V8sE5T9nOkeZWg@mail.gmail.com> <a3b8bf7e-ec5c-460b-9ffc-ca1d2cd9e223@linux.ibm.com>
-In-Reply-To: <a3b8bf7e-ec5c-460b-9ffc-ca1d2cd9e223@linux.ibm.com>
-From: Ian Rogers <irogers@google.com>
-Date: Mon, 9 Mar 2026 11:18:28 -0700
-X-Gm-Features: AaiRm53NpshLl2TAryEIsM_KO_pJOOQiJbOuKf-KMqb7PS5CdD3Srr6i6S6j9u8
-Message-ID: <CAP-5=fVziHx2B8QPWafPo0T_JWm06zD4vwtR4DmcFyePV04U0Q@mail.gmail.com>
-Subject: Re: [PATCH] perf test: Fix test case 120 and 121 for s390
-To: Thomas Richter <tmricht@linux.ibm.com>
-Cc: Jan Polensky <japo@linux.ibm.com>, linux-kernel@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org, acme@kernel.org, 
-	namhyung@kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com, 
-	sumanthk@linux.ibm.com, hca@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260309-integrity-drop-weak-arch-get-secureboot-v1-1-6460d5c4bb89@kernel.org>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXNyw6CMBBG4Vchs3aSWoyxvopxUdqfMppQMi1eQ
+ nh3UZff5pyFClRQ6NwspHhIkTxu2O8aCoMfE1jiZrLGHk1rHMtYkVTqm6PmiZ/wd/YaBk6oXBB
+ mRZdz5QAfrTvFg2t72mqTopfX73S5/l3m7oZQv3la1w8uN0CXiwAAAA==
+X-Change-ID: 20260309-integrity-drop-weak-arch-get-secureboot-cead298d493f
+To: Mimi Zohar <zohar@linux.ibm.com>, 
+ Roberto Sassu <roberto.sassu@huawei.com>, 
+ Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, 
+ Eric Snowberg <eric.snowberg@oracle.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, 
+ Madhavan Srinivasan <maddy@linux.ibm.com>, 
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, Paul Moore <paul@paul-moore.com>, 
+ James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+ Coiby Xu <coxu@redhat.com>, linux-kernel@vger.kernel.org, 
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+ linux-integrity@vger.kernel.org, linux-security-module@vger.kernel.org, 
+ llvm@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>
+X-Mailer: b4 0.15-dev
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5057; i=nathan@kernel.org;
+ h=from:subject:message-id; bh=y6yHZjzRHz8qgrcVZjbW20G4/s3LnaHOsPnyYMHI7zw=;
+ b=owGbwMvMwCUmm602sfCA1DTG02pJDJnr9Yv5y4oyL1hnRjjflo6Pt/JVilJ7sKTBr+rB3goL6
+ dqpXxM6SlkYxLgYZMUUWaofqx43NJxzlvHGqUkwc1iZQIYwcHEKwESOLWH4w2+zVHOSfUm70YJP
+ opIlZQlJvywEF+b/yrafbVA+vaPiFsP/9LOPU3ii9T5fzLevWvhn0Wmbt03zdj4/wejyZXHLdZ7
+ J/AA=
+X-Developer-Key: i=nathan@kernel.org; a=openpgp;
+ fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
 
-On Mon, Mar 9, 2026 at 5:59=E2=80=AFAM Thomas Richter <tmricht@linux.ibm.co=
-m> wrote:
->
-> On 3/6/26 17:53, Ian Rogers wrote:
-> > On Fri, Mar 6, 2026 at 7:52=E2=80=AFAM Jan Polensky <japo@linux.ibm.com=
-> wrote:
-> >>
-> >> On Fri, Mar 06, 2026 at 08:10:02AM +0100, Thomas Richter wrote:
-> >>> Perf tests
-> >>> 120: 'perf data convert --to-ctf' command test
-> >>> 121: 'perf data convert --to-json' command test
-> >>> fail on s390. It is caused by selecting the default event cycles
-> >>> which does not exist on s390 z/VM. Use software event cpu-clock
-> >>> and specify it explicitly on the command line.
-> >>>
-> >>> Output before:
-> >>> =E2=9D=AF perf test 120 121
-> >>> 120: 'perf data convert --to-ctf' command test       : FAILED!
-> >>> 121: 'perf data convert --to-json' command test      : FAILED!
-> >>>
-> >>> Output after:
-> >>> =E2=9D=AF perf test 120 121
-> >>> 120: 'perf data convert --to-ctf' command test       : Ok
-> >>> 121: 'perf data convert --to-json' command test      : Ok
-> >>>
-> >>> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> >> [snip]
-> >> Thanks for providing this, Thomas!
-> >> Tested-by: Jan Polensky <japo@linux.ibm.com>
-> >> Reviewed-by: Jan Polensky <japo@linux.ibm.com>
-> >
-> > Should we not fallback for the cycles as a default event?
-> > https://web.git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools-nex=
-t.git/tree/tools/perf/builtin-record.c#n1374
-> > https://web.git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools-nex=
-t.git/tree/tools/perf/util/evsel.c#n3792
-> >
-> > Thanks,
-> > Ian
-> >
->
-> The fallback should be cpu-clock in case hardware event cycles (or CPU_CY=
-CLES on s390) does not exist.
+security/integrity/secure_boot.c contains a single __weak function,
+which breaks recordmcount when building with clang:
 
-Thanks Thomas, so the change is doing:
-```
--       if ! perf record -o "$perfdata" -F 99 -g -- perf test -w noploop
-+       if ! perf record -o "$perfdata" -e cpu-clock -F 99 -g -- perf
-test -w noploop
-```
-where the default event is cycles:
-https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree=
-/tools/perf/util/evlist.c#n116
-Given that cycles will fail but then fallback to cpu-clock:
-https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree=
-/tools/perf/util/evsel.c#n3792
-I wonder if the issue is that the fallback is broken. Specifically:
-```
-   evsel->core.attr.type   =3D=3D PERF_TYPE_HARDWARE &&
-   evsel->core.attr.config =3D=3D PERF_COUNT_HW_CPU_CYCLES) {
-```
-It isn't going to work well on hybrid machines or those whose PMU's
-sysfs events or JSON include a cycles event. I wonder if using
-`evsel__match(evsel, HARDWARE, CYCLES)` would be better, as the
-evsel__match code is more robust to these kind of variances. I don't
-know if that will address the fallback problem for you.
+  $ make -skj"$(nproc)" ARCH=powerpc LLVM=1 ppc64_defconfig security/integrity/secure_boot.o
+  Cannot find symbol for section 2: .text.
+  security/integrity/secure_boot.o: failed
 
-Thanks,
-Ian
+Introduce a Kconfig symbol, CONFIG_HAVE_ARCH_GET_SECUREBOOT, to indicate
+that an architecture provides a definition of arch_get_secureboot().
+Provide a static inline stub when this symbol is not defined to achieve
+the same effect as the __weak function, allowing secure_boot.c to be
+removed altogether. Move the s390 definition of arch_get_secureboot()
+out of the CONFIG_KEXEC_FILE block to ensure it is always available, as
+it does not actually depend on KEXEC_FILE.
 
+Fixes: 31a6a07eefeb ("integrity: Make arch_ima_get_secureboot integrity-wide")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+ arch/Kconfig                     |  3 +++
+ arch/powerpc/Kconfig             |  1 +
+ arch/s390/Kconfig                |  1 +
+ arch/s390/kernel/ipl.c           | 10 +++++-----
+ include/linux/secure_boot.h      |  4 ++++
+ security/integrity/Makefile      |  2 +-
+ security/integrity/secure_boot.c | 16 ----------------
+ 7 files changed, 15 insertions(+), 22 deletions(-)
 
-> Thanks Thomas
-> --
-> Thomas Richter, Dept 3303, IBM s390 Linux Development, Boeblingen, German=
-y
-> --
-> IBM Deutschland Research & Development GmbH
->
-> Vorsitzender des Aufsichtsrats: Wolfgang Wendt
->
-> Gesch=C3=A4ftsf=C3=BChrung: David Faller
->
-> Sitz der Gesellschaft: B=C3=B6blingen / Registergericht: Amtsgericht Stut=
-tgart, HRB 243294
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 102ddbd4298e..a6d1c8cc1d64 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -1841,4 +1841,7 @@ config ARCH_WANTS_PRE_LINK_VMLINUX
+ config ARCH_HAS_CPU_ATTACK_VECTORS
+ 	bool
+ 
++config HAVE_ARCH_GET_SECUREBOOT
++	def_bool EFI
++
+ endmenu
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index ad7a2fe63a2a..da1eafb64354 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -1061,6 +1061,7 @@ config PPC_SECURE_BOOT
+ 	depends on IMA_ARCH_POLICY
+ 	imply IMA_SECURE_AND_OR_TRUSTED_BOOT
+ 	select PSERIES_PLPKS if PPC_PSERIES
++	select HAVE_ARCH_GET_SECUREBOOT
+ 	help
+ 	  Systems with firmware secure boot enabled need to define security
+ 	  policies to extend secure boot to the OS. This config allows a user
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 2101cc738b5e..4197c20d34b4 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -181,6 +181,7 @@ config S390
+ 	select GENERIC_IOREMAP if PCI
+ 	select HAVE_ALIGNED_STRUCT_PAGE
+ 	select HAVE_ARCH_AUDITSYSCALL
++	select HAVE_ARCH_GET_SECUREBOOT
+ 	select HAVE_ARCH_JUMP_LABEL
+ 	select HAVE_ARCH_JUMP_LABEL_RELATIVE
+ 	select HAVE_ARCH_KASAN
+diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
+index 2d01a1713938..3c346b02ceb9 100644
+--- a/arch/s390/kernel/ipl.c
++++ b/arch/s390/kernel/ipl.c
+@@ -2388,6 +2388,11 @@ void __no_stack_protector s390_reset_system(void)
+ 	diag_amode31_ops.diag308_reset();
+ }
+ 
++bool arch_get_secureboot(void)
++{
++	return ipl_secure_flag;
++}
++
+ #ifdef CONFIG_KEXEC_FILE
+ 
+ int ipl_report_add_component(struct ipl_report *report, struct kexec_buf *kbuf,
+@@ -2505,11 +2510,6 @@ void *ipl_report_finish(struct ipl_report *report)
+ 	return buf;
+ }
+ 
+-bool arch_get_secureboot(void)
+-{
+-	return ipl_secure_flag;
+-}
+-
+ int ipl_report_free(struct ipl_report *report)
+ {
+ 	struct ipl_report_component *comp, *ncomp;
+diff --git a/include/linux/secure_boot.h b/include/linux/secure_boot.h
+index 3ded3f03655c..d17e92351567 100644
+--- a/include/linux/secure_boot.h
++++ b/include/linux/secure_boot.h
+@@ -10,10 +10,14 @@
+ 
+ #include <linux/types.h>
+ 
++#ifdef CONFIG_HAVE_ARCH_GET_SECUREBOOT
+ /*
+  * Returns true if the platform secure boot is enabled.
+  * Returns false if disabled or not supported.
+  */
+ bool arch_get_secureboot(void);
++#else
++static inline bool arch_get_secureboot(void) { return false; }
++#endif
+ 
+ #endif /* _LINUX_SECURE_BOOT_H */
+diff --git a/security/integrity/Makefile b/security/integrity/Makefile
+index 548665e2b702..45dfdedbdad4 100644
+--- a/security/integrity/Makefile
++++ b/security/integrity/Makefile
+@@ -5,7 +5,7 @@
+ 
+ obj-$(CONFIG_INTEGRITY) += integrity.o
+ 
+-integrity-y := iint.o secure_boot.o
++integrity-y := iint.o
+ integrity-$(CONFIG_INTEGRITY_AUDIT) += integrity_audit.o
+ integrity-$(CONFIG_INTEGRITY_SIGNATURE) += digsig.o
+ integrity-$(CONFIG_INTEGRITY_ASYMMETRIC_KEYS) += digsig_asymmetric.o
+diff --git a/security/integrity/secure_boot.c b/security/integrity/secure_boot.c
+deleted file mode 100644
+index fc2693c286f8..000000000000
+--- a/security/integrity/secure_boot.c
++++ /dev/null
+@@ -1,16 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-only
+-/*
+- * Copyright (C) 2026 Red Hat, Inc. All Rights Reserved.
+- *
+- * Author: Coiby Xu <coxu@redhat.com>
+- */
+-#include <linux/secure_boot.h>
+-
+-/*
+- * Default weak implementation.
+- * Architectures that support secure boot must override this.
+- */
+-__weak bool arch_get_secureboot(void)
+-{
+-	return false;
+-}
+
+---
+base-commit: 870819434c8dfcc3158033b66e7851b81bb17e21
+change-id: 20260309-integrity-drop-weak-arch-get-secureboot-cead298d493f
+
+Best regards,
+--  
+Nathan Chancellor <nathan@kernel.org>
+
