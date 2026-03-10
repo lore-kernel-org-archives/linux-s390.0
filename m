@@ -1,134 +1,95 @@
-Received: from out-181.mta1.migadu.com (out-181.mta1.migadu.com [95.215.58.181])
+Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D3333DC4A1
-	for <linux-s390@vger.kernel.org>; Tue, 10 Mar 2026 12:38:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D34383E1D18
+	for <linux-s390@vger.kernel.org>; Tue, 10 Mar 2026 12:44:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773146313; cv=none; b=t7QXHlnqcUgUnBqR8SS22ELccRj7PaxBe2VjfH1aVk0Kasvlyk4uS2GVNOF/RhbaNh/5VBbRXgq+LwbmKHI/8MyZJ68YFbNczlm53aqwnLwlJOVLlcLV/loDNPbTk2oQDv7rkjwxCXAZ3sG+2MqU/yb4mTHT1wQ1NSlRJY5Y3EM=
+	t=1773146674; cv=none; b=sD1/udwr37Whc4kp6U5Ljh/IOx8CJJYYbWzbHbm/IKaH4+0VJOQZ96UC4IWMNmsUrKPJZgmTfRnhAehn2Zk6owar4QGEfVR7iG6+03xaW4TyvoFB+FHWlAdMy1MslJa3dStt4JdT9ki7xQ7Rd/GLLryFSYwlvzD7nmG47ggc90o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773146313; c=relaxed/simple;
-	bh=CTpIvISwHm/A71DqOvdlv0hatiRYcvynfbWDp7A7wDw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jEE+aKquzBEwoLymrsnPFTwW2yFN3di3X4ag7nPfj88nOLGKtyOjvdyiDV0up4iPaUO1wV1chi1spl1LMYF/FUq7ieGBVXAOPb6tMKdZBIt8YXYpesY/MRxsNRjZmlhZ1D68pu7ziJU4Ug/Hw2Mx3DgLVhiJdLXRTJkaV91XJew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=mE96N4l2; arc=none smtp.client-ip=95.215.58.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="mE96N4l2"
-Message-ID: <270e708d-cb52-413c-860e-16945ae98012@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1773146309;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=jDizjKfKLjRprs2izCP8nlt9BhCmmNO1wOtyhYNrASw=;
-	b=mE96N4l2+SLN8WLkJ+TFSdj/gGYT0r4bavqiVkrIaKOFpw6fh3BqVgYNCOGLaHLdA46nhW
-	zO9fO0g0ZztDJp9QtBKNmLzJhvSKECRVukAcO5jqRWZHGsaPkeVUMqo1wpMn5sQamnSdW9
-	JX/MXfIuVvfYRSyvTOkguCBW+rgyetE=
-Date: Tue, 10 Mar 2026 20:38:10 +0800
+	s=arc-20240116; t=1773146674; c=relaxed/simple;
+	bh=9nwSoyBFb/J+scDlmZ8YZ+1mFs6NH+0TsiNWJNlzMqA=;
+	h=Message-ID:Subject:From:To:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=bLfhJ+EDQN7bqqJFTzey6PgnxuQgpf3DnDJqUFKIYh/WxgrkN9Zwyzyu2Coro/qBxfmyeX8tGiDRa2NHYCm8HHhHe3h7H3HqpXZU0egRyCCmdID63rMSleiPj7i74uGDCI3YwtSr/G0hQRUS6GxvmAdwagnpFwrKh7N0QGU1lAA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <p.zabel@pengutronix.de>)
+	id 1vzwQv-0006Oq-0m; Tue, 10 Mar 2026 13:43:33 +0100
+Received: from lupine.office.stw.pengutronix.de ([2a0a:edc0:0:900:1d::4e] helo=lupine)
+	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <p.zabel@pengutronix.de>)
+	id 1vzwQr-004hMj-0z;
+	Tue, 10 Mar 2026 13:43:30 +0100
+Received: from pza by lupine with local (Exim 4.98.2)
+	(envelope-from <p.zabel@pengutronix.de>)
+	id 1vzwQs-0000000081v-2556;
+	Tue, 10 Mar 2026 13:43:30 +0100
+Message-ID: <ddaacda48df23fb2c009a8727518300ed2b82cb2.camel@pengutronix.de>
+Subject: Re: [PATCH 57/61] reset: Prefer IS_ERR_OR_NULL over manual NULL
+ check
+From: Philipp Zabel <p.zabel@pengutronix.de>
+To: Philipp Hahn <phahn-oss@avm.de>, amd-gfx@lists.freedesktop.org, 
+	apparmor@lists.ubuntu.com, bpf@vger.kernel.org, ceph-devel@vger.kernel.org,
+ 	cocci@inria.fr, dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
+ 	gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org, 
+	intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev,
+ kvm@vger.kernel.org, 	linux-arm-kernel@lists.infradead.org,
+ linux-block@vger.kernel.org, 	linux-bluetooth@vger.kernel.org,
+ linux-btrfs@vger.kernel.org, 	linux-cifs@vger.kernel.org,
+ linux-clk@vger.kernel.org, 	linux-erofs@lists.ozlabs.org,
+ linux-ext4@vger.kernel.org, 	linux-fsdevel@vger.kernel.org,
+ linux-gpio@vger.kernel.org, 	linux-hyperv@vger.kernel.org,
+ linux-input@vger.kernel.org, 	linux-kernel@vger.kernel.org,
+ linux-leds@vger.kernel.org, 	linux-media@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-mm@kvack.org, 
+	linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org, 
+	linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org, 
+	linux-phy@lists.infradead.org, linux-pm@vger.kernel.org, 
+	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, 
+	linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org, 
+	linux-sound@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
+	linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org, 
+	linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+ ntfs3@lists.linux.dev, 	samba-technical@lists.samba.org,
+ sched-ext@lists.linux.dev, 	target-devel@vger.kernel.org,
+ tipc-discussion@lists.sourceforge.net, 	v9fs@lists.linux.dev
+Date: Tue, 10 Mar 2026 13:43:30 +0100
+In-Reply-To: <20260310-b4-is_err_or_null-v1-57-bd63b656022d@avm.de>
+References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
+	 <20260310-b4-is_err_or_null-v1-57-bd63b656022d@avm.de>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.2-0+deb13u1 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH net v3] net/smc: fix NULL dereference and UAF in
- smc_tcp_syn_recv_sock()
-To: Eric Dumazet <edumazet@google.com>
-Cc: netdev@vger.kernel.org, Jiayuan Chen <jiayuan.chen@shopee.com>,
- syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com,
- "D. Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>,
- Sidraya Jayagond <sidraya@linux.ibm.com>, Wenjia Zhang
- <wenjia@linux.ibm.com>, Mahanta Jambigi <mjambigi@linux.ibm.com>,
- Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
- "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260310120053.136594-1-jiayuan.chen@linux.dev>
- <CANn89iK-Kj7Gthff+Q8vSUDTYs9t6YZepm5uAv_2ZZJ4AkyxOw@mail.gmail.com>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Jiayuan Chen <jiayuan.chen@linux.dev>
-In-Reply-To: <CANn89iK-Kj7Gthff+Q8vSUDTYs9t6YZepm5uAv_2ZZJ4AkyxOw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: p.zabel@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-s390@vger.kernel.org
+
+Hi Philipp,
+
+On Di, 2026-03-10 at 12:49 +0100, Philipp Hahn wrote:
+> Prefer using IS_ERR_OR_NULL() over using IS_ERR() and a manual NULL
+> check.
+>
+> Semantich change: Previously the code only printed the warning on error,
+> but not when the pointer was NULL. Now the warning is printed in both
+> cases!
+
+No, rstc =3D=3D NULL is valid (for optional reset controls) and must not
+throw a warning.
 
 
-On 3/10/26 8:13 PM, Eric Dumazet wrote:
-> On Tue, Mar 10, 2026 at 1:01 PM Jiayuan Chen <jiayuan.chen@linux.dev> wrote:
->> From: Jiayuan Chen <jiayuan.chen@shopee.com>
->>
->> Syzkaller reported a panic in smc_tcp_syn_recv_sock() [1].
->>
->> smc_tcp_syn_recv_sock() is called in the TCP receive path
->> (softirq) via icsk_af_ops->syn_recv_sock on the clcsock (TCP
->> listening socket). It reads sk_user_data to get the smc_sock
->> pointer. However, when the SMC listen socket is being closed
->> concurrently, smc_close_active() sets clcsock->sk_user_data
->> to NULL under sk_callback_lock, and then the smc_sock itself
->> can be freed via sock_put() in smc_release().
->>
->> This leads to two issues:
->>
->> 1) NULL pointer dereference: sk_user_data is NULL when
->>     accessed.
->> 2) Use-after-free: sk_user_data is read as non-NULL, but the
->>     smc_sock is freed before its fields (e.g., queued_smc_hs,
->>     ori_af_ops) are accessed.
->>
->> The race window looks like this:
->>
->>    CPU A (softirq)              CPU B (process ctx)
->>
->>    tcp_v4_rcv()
->>      TCP_NEW_SYN_RECV:
->>      sk = req->rsk_listener
->>      sock_hold(sk)
->>      /* No lock on listener */
->>                                 smc_close_active():
->>                                   write_lock_bh(cb_lock)
->>                                   sk_user_data = NULL
->>                                   write_unlock_bh(cb_lock)
->>                                   ...
->>                                   smc_clcsock_release()
->>                                   sock_put(smc->sk) x2
->>                                     -> smc_sock freed!
->>      tcp_check_req()
->>        smc_tcp_syn_recv_sock():
->>          smc = user_data(sk)
->>            -> NULL or dangling
->>          smc->queued_smc_hs
->>            -> crash!
->>
->
->
->> diff --git a/net/smc/smc.h b/net/smc/smc.h
->> index 9e6af72784ba..8b3eabcdb542 100644
->> --- a/net/smc/smc.h
->> +++ b/net/smc/smc.h
->> @@ -342,8 +342,7 @@ static inline void smc_init_saved_callbacks(struct smc_sock *smc)
->>
->>   static inline struct smc_sock *smc_clcsock_user_data(const struct sock *clcsk)
->>   {
->> -       return (struct smc_sock *)
->> -              ((uintptr_t)clcsk->sk_user_data & ~SK_USER_DATA_NOCOPY);
->> +       return (struct smc_sock *)rcu_dereference_sk_user_data(clcsk);
->>   }
-> Are you sure all smc_clcsock_user_data() callers  hold rcu_read_lock() ?
-> In order to avoid surprises, I would have added a new helper.
->
->   static inline struct smc_sock *smc_clcsock_user_data_rcu(const struct
-> sock *clcsk)
-> ...
->
-> to allow gradual conversion ?
->
-> Thanks !
-
-Sorry I missed that.
-
-pw-bot: cr
-
+regards
+Philipp
