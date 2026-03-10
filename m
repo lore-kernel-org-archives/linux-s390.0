@@ -1,75 +1,119 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE41A3BAD92;
-	Tue, 10 Mar 2026 13:06:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08E723B0AE1
+	for <linux-s390@vger.kernel.org>; Tue, 10 Mar 2026 13:22:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773147963; cv=none; b=YjMh83Sr5oT7hlPVmX1FxaRHajorpGaneYzWrCWaFfwEMcL8shuhunMyjyxllEwNOBSF/gaf1xwIbpB3OahU5Pyj3bUIYP9iRZE346K/96C+NA8LpEWJSEwnmQvzR7qAUYK1s1M5KTKZhDz1riKtZF4cuZP0q7nkswhPswZurZ8=
+	t=1773148932; cv=none; b=s6m0KoEDgI+lwS7k5miblk1NcSMyrmacdwrhDE8LYyUVB3UyTFD3tEdaq7H1+7nKyKoqU5AgQhQl0AzKoJGP9/wWrfNSRNNvoqS83sCGUvuI/7oMfPa/CLKBmChMjC+Y+cdnSVyH2tsOIYcbJ36CCYY2NHrnn11s2Tb6602hANI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773147963; c=relaxed/simple;
-	bh=Q70wPJHkxhNxMnxPUjwXORM/54hpNZtyyZoRSvtD2XE=;
+	s=arc-20240116; t=1773148932; c=relaxed/simple;
+	bh=7C48eJwQxF2SZSyojjO4eehKdtPdDBqSboD/LkVXOwA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JImR8Ru36nIHHigiLFnbhHxgpz1/kTGrth+A5ivQFalA//PhJy1o9FOHcNWLnK9M6yp6S2IE2V1zr6nvyeoqahEga4iUEocPheO0MXS3pNVCUSTp1X8lI6Cqbv4mytWM56wUMCsZlzXqVKah0IlmEqY3PgAIWFtH4bGeQ9nohlo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nWeXwdgG; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=TrfGPWZ4vt+pehsXSyeT6hv9iLuvUkrzAHelV93QNbdblLT02tfzcDcW1dJJp5DJZ4wS2JRR2f6eM/CVy1da3iHdCgLnpvNhhIkjBQee44DunehxcRHyYvwa4HjV+b848EOIKAPqYeygc7R/RcysgiloUzgbFriRIgbN0OJhfz8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=E51kNjIN; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=DLhvlaPb; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nWeXwdgG"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62A7FN481027783;
-	Tue, 10 Mar 2026 13:05:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:sender:subject:to; s=pp1; bh=YzxURxAn+aP1foMUIRRSzMl
-	t63Y7SSS6GSwZB1tY89E=; b=nWeXwdgGw2Mr6WSxXIRgOOS1xlMtwYJEWpdx3F9
-	jjpVI9ZMBdkMNyhJLSze4iwuYu9NkgRA7FI3bYeb7lrPy/JeRh26brV1cy95FeKr
-	xkHtBekdouTr1bYsYxZZhy/Y2H+Jmszt+mQd00hZeJjDg1j/2pIVKNMN5g0gXdyH
-	wZjQ3x0BpmM8fe+W43cxmz1B9bYwkTQ7yP6iL3bUfB40a4JfNvLi7sRwiI598lDm
-	wssfcBBWo/kQ3374Cv9L8IYNNTqXWxPA6AXEBPiY+1sSPWaxYve1p86s2gHvuFWR
-	HH4zR1c/vJveB+7ZGw0x4xxjxQbHmm44GoL6XtMU1ss+dfQ==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4crcunakka-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Mar 2026 13:05:47 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62ACJbOm025041;
-	Tue, 10 Mar 2026 13:05:46 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cs0jk0yu7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Mar 2026 13:05:46 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62AD5hru43909608
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 10 Mar 2026 13:05:43 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EE99A2004B;
-	Tue, 10 Mar 2026 13:05:42 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DD1A320043;
-	Tue, 10 Mar 2026 13:05:42 +0000 (GMT)
-Received: from vela (unknown [9.52.206.38])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 10 Mar 2026 13:05:42 +0000 (GMT)
-Received: from brueckner by vela with local (Exim 4.99.1)
-	(envelope-from <brueckner@linux.ibm.com>)
-	id 1vzwmM-00000000KKL-2ScP;
-	Tue, 10 Mar 2026 14:05:42 +0100
-Date: Tue, 10 Mar 2026 14:05:42 +0100
-From: Hendrik Brueckner <brueckner@linux.ibm.com>
-To: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Subject: Re: [PATCH] KVM: s390: log machine checks more aggressively
-Message-ID: <abAXJhjxah6NQZQl@linux.ibm.com>
-References: <20260309115904.7280-1-borntraeger@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E51kNjIN";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="DLhvlaPb"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1773148927;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=5/adDEbR57gUpYJcJq84OoDVxrrM3xMPFmZCRo0jKXM=;
+	b=E51kNjIN4UKbGW9DyZ5aBLaeo/X1fN08TYjWYCgYq8Q8qw25+tZQtb5W5ajU6MN7BBBW11
+	0YDBivfD6ObYrVaZ07AfmguXniohVg3EyJDviAgsAuscNKdssFGgICyGTgh1yznjOgNpE3
+	ekU6IHdwiHFWZVShb4nqu/2AD28lhx4=
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
+ [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-643-lZsCtYt7Pe6z37rbDyE8PA-1; Tue, 10 Mar 2026 09:22:05 -0400
+X-MC-Unique: lZsCtYt7Pe6z37rbDyE8PA-1
+X-Mimecast-MFC-AGG-ID: lZsCtYt7Pe6z37rbDyE8PA_1773148925
+Received: by mail-qk1-f200.google.com with SMTP id af79cd13be357-8cd773dd39bso2180670285a.2
+        for <linux-s390@vger.kernel.org>; Tue, 10 Mar 2026 06:22:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1773148925; x=1773753725; darn=vger.kernel.org;
+        h=user-agent:in-reply-to:content-disposition:mime-version:references
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5/adDEbR57gUpYJcJq84OoDVxrrM3xMPFmZCRo0jKXM=;
+        b=DLhvlaPbwaSFQKg/FmxemLJJZifDd7cIIhpxvIrZaWROKjgqKnQK81zS2r/WSu9mvZ
+         1x4TVLhhO06glvOYJXTBYTQHe1C/lCEECiyKmpprEGkSpnbhT/+Xy+wfN5x6paEUKxsd
+         eleVUcWebznHZRscghpqRSurxi7A6fJyr8+SC/oFm4tth2mVEOc19JKZit9S00HY03E/
+         XNzQnAGkguTRFL3rrkTJWt1Ev4Xq7DVoDTHr6r9kNjeVPxV8v11X5FGr4E58NddnvLYv
+         QUA4HTbgZjVMx4thX/P6FGMyY+HUc/G2+EnczacjtLqtmfpojjqt59bZxWNPmXy2pn5x
+         ulpQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773148925; x=1773753725;
+        h=user-agent:in-reply-to:content-disposition:mime-version:references
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=5/adDEbR57gUpYJcJq84OoDVxrrM3xMPFmZCRo0jKXM=;
+        b=NnCvKXFS+UKGdMI1hirf5Xmdpfx2mIAhFe5gm5o9vh5fvd+95cjlnY0wDuALYUNN5k
+         Za1mwP53d3XjqUgQ27fdytO0po/H6NTWxW5gbcQ6Mj4uLFf3+QFpq1rw6btv1PihSN5J
+         xVat6zFxntDwk+JxMxuaHV+5w7Tc1KUuVLhaFkbnUZVHPqDklYwRLYLQQIN/bSqbxPKI
+         QvRfybNr5QzRKNgcEihFNjx3UnG21qrysPtB9DZKl2fQTaQlGPp0r7CHepvXU1s82Cx1
+         toqY6aIn/49Rw83/rR44ksF+2lMoJihI2BwKxiJAaIBhcBFWjKrZNtMzsegViACCRmvy
+         Vidw==
+X-Forwarded-Encrypted: i=1; AJvYcCUJGutiddf4qY+E7hygfV/k1xNgRt9GP3rHKUy440J2IBGV879+kFpjb6lMAQ5NHnl9TkMq7Ji1bOZD@vger.kernel.org
+X-Gm-Message-State: AOJu0YyHY9lSknfl2bzKf2AaCN3KOLNHN0uum7rx5m03igPKd0BQOKnp
+	Ikt5x3qEyE9lNSF35l2nRDB3VrYKtfbMd8DP//OxHP4YjkgE+7HAC0vL+uZGmA6ioM9udx7zgdi
+	0VQD+p1nX3pbQ4y7NjsF5xr4orzskRER8ef7XdqexFbXRPJYY452wyN9keOInPQs=
+X-Gm-Gg: ATEYQzz4uBdIPK+dRCWNq2Yr/ORnFVngnKE5kXeM5XMIS+wMGRCVXTIBCSNB+QNKcrF
+	3IAAr1kBriojrvRqWo36GxnNgneXfMcLAKHaIM9fA9wgeZb2hWB38+r+ghmSODSVAecfCYxTtJt
+	RzOGLT7X8VjkWcy7E7ZnUcb+W9enADtiuiZn0oB5IqFgLX/eF7joRVKxYxdsxcw95EwMg6wh+Uf
+	yGXKIYLQVbBplgRTHYxBDXgogf56xgkNBnR1BZAClhskyQ0Bbm/iQlZBU3Zk1lAMMaDyg8twt4X
+	qxOhQFNnHJBrLu4X30ZS2fvk1RGInyfpFS/zKLUtrgrqZzSDG7cPGejUsMctFMXTlZunfjArzn2
+	JUZjyJZUZF6XStbtPyiNB7MUdEW0E1G/6U9CRWu9+yx6NGtmiCjJ69tqq
+X-Received: by 2002:a05:620a:3713:b0:8ca:1240:4991 with SMTP id af79cd13be357-8cd6d4f9469mr1830788385a.45.1773148924747;
+        Tue, 10 Mar 2026 06:22:04 -0700 (PDT)
+X-Received: by 2002:a05:620a:3713:b0:8ca:1240:4991 with SMTP id af79cd13be357-8cd6d4f9469mr1830766185a.45.1773148922638;
+        Tue, 10 Mar 2026 06:22:02 -0700 (PDT)
+Received: from redhat.com (c-73-183-52-120.hsd1.pa.comcast.net. [73.183.52.120])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8cd8576db0esm474754485a.47.2026.03.10.06.21.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Mar 2026 06:22:01 -0700 (PDT)
+Date: Tue, 10 Mar 2026 09:21:58 -0400
+From: Brian Masney <bmasney@redhat.com>
+To: Philipp Hahn <phahn-oss@avm.de>
+Cc: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
+	bpf@vger.kernel.org, ceph-devel@vger.kernel.org, cocci@inria.fr,
+	dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
+	gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org,
+	intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev,
+	kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
+	linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org,
+	linux-clk@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+	linux-ext4@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
+	linux-mips@vger.kernel.org, linux-mm@kvack.org,
+	linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org,
+	linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org,
+	linux-phy@lists.infradead.org, linux-pm@vger.kernel.org,
+	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org,
+	linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org,
+	linux-sound@vger.kernel.org,
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+	linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+	ntfs3@lists.linux.dev, samba-technical@lists.samba.org,
+	sched-ext@lists.linux.dev, target-devel@vger.kernel.org,
+	tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@kernel.org>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>,
+	Thomas Gleixner <tglx@kernel.org>
+Subject: Re: [PATCH 56/61] clk: Prefer IS_ERR_OR_NULL over manual NULL check
+Message-ID: <abAa9vQg4BSxl1BJ@redhat.com>
+References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
+ <20260310-b4-is_err_or_null-v1-56-bd63b656022d@avm.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -78,43 +122,31 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260309115904.7280-1-borntraeger@linux.ibm.com>
-Sender: Hendrik Brueckner <brueckner@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: hff_WyBihgypk4W5al3-WPgiHarDf9v5
-X-Authority-Analysis: v=2.4 cv=Hp172kTS c=1 sm=1 tr=0 ts=69b0172b cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=kj9zAlcOel0A:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=08poYBf3Jgh6VJZOBr0A:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzEwMDExNCBTYWx0ZWRfX3sE9FVsUWP6c
- Mz86ZnkCgYhQ3KNx+9o9XLW2VWTpyUg9x5q3UWqGMQIKTgLaPkxO3hT0tox0wmklNCkRcWe4AT9
- kyEDlBBZD5ZnCq7rxhSgAO1q5XsQ2/2M/ga6wEI4/NWGi6SzKYHJxCukT3aaWj9hTojP4XSWC+f
- 5u1yVMK0kHEPzuw+g+GYaNEtYnn4doceFPx3+ls/gzozbBNhXhSTguD3qKURNsmb0nVuunP/dCM
- hCtNECNm4R4oCooR8j0KFw5n+sOiLhgsdiVFZt4YenTaTbSAH9O6I7+VuZNQtcQSqFxzAcermqp
- RBThrBLIr1mb9HPs8SkqZqu7O1G31fbeCn2yRqGQ6g2OADRCLaXdXAyyOWBaI/ZCcyp2opaYsBb
- QIh3dm8Wzorv6z5OpLJi/3ByJpi1wlikmQbNVXG8tCkxadRSyGL693vpq3i9ZHkOLdLOxn8RJz9
- 0eyJgSBRyAJGUyjBsiw==
-X-Proofpoint-ORIG-GUID: hff_WyBihgypk4W5al3-WPgiHarDf9v5
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-10_02,2026-03-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 adultscore=0 malwarescore=0 impostorscore=0 suspectscore=0
- spamscore=0 phishscore=0 clxscore=1015 priorityscore=1501 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603100114
+In-Reply-To: <20260310-b4-is_err_or_null-v1-56-bd63b656022d@avm.de>
+User-Agent: Mutt/2.2.14 (2025-02-20)
 
-On Mon, Mar 09, 2026 at 12:59:04PM +0100, Christian Borntraeger wrote:
-> KVM will reinject machine checks that happen during guest activity.
-> From a host perspective this machine check is no longer visible
-> and even for the guest, the guest might decide to only kill a
-> userspace program or even ignore the machine check.
-> As this can be a disruptive event nevertheless, we should log this
-> not only in the VM debug event (that gets lost after guest shutdown)
-> but also on the global KVM event as well as syslog.
-> Consolidate the logging and log with loglevel 2 and higher.
+On Tue, Mar 10, 2026 at 12:49:22PM +0100, Philipp Hahn wrote:
+> Prefer using IS_ERR_OR_NULL() over using IS_ERR() and a manual NULL
+> check.
 > 
-> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Semantich change: Previously the code only printed the warning on error,
 
-Acked-by: Hendrik Brueckner <brueckner@linux.ibm.com>
+Semantic ...
+
+> but not when the pointer was NULL. Now the warning is printed in both
+> cases!
+> 
+> Change found with coccinelle.
+> 
+> To: Michael Turquette <mturquette@baylibre.com>
+> To: Stephen Boyd <sboyd@kernel.org>
+> To: Daniel Lezcano <daniel.lezcano@kernel.org>
+> To: Thomas Gleixner <tglx@kernel.org>
+> Cc: linux-clk@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
+
+With the minor typo addressed:
+
+Reviewed-by: Brian Masney <bmasney@redhat.com>
+
