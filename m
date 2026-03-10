@@ -1,40 +1,60 @@
-Received: from mout.web.de (mout.web.de [212.227.17.12])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5A743A7855;
-	Tue, 10 Mar 2026 15:47:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 021EB39936E;
+	Tue, 10 Mar 2026 16:36:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773157673; cv=none; b=DlxFjJ4y2tA3BLQQzXRINZ7hR9advuDjTcK2YuZY1s21SghLya3PSHkzW5B1rcEIrcOJvM8M43OwswZSVZXO/h2sTPO5/tP3bacCWDRkf6fTZt1xivbhU+r+mWN/fv8mZDRmKf1zFQu3fBwOlYR6hiEr9FAwcQXj3/3M5q2RbPo=
+	t=1773160621; cv=none; b=MGC9EMXeyoQSnpJBcW3dRZ9Ja4PDJA56ap7DCrTcbptnSuXbdgjFNk0jCYRDrbDIfwm01pqVAs7Hi6zEzOMRUQjQkACwAyQ71f9KOfRu7Q8nWxYSmsT5vPJzlKUKOWqf0w/dI4/kABGQ58d5bJj6uaCp1vqXWT2ZUY9nEAjgKdk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773157673; c=relaxed/simple;
-	bh=nIfgenJGac4O6CqM8mWCtdayOts9dS1D2FhHmYYRcn4=;
-	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
-	 In-Reply-To:Content-Type; b=VmRzxWdtuxNUzcu8Umc2r6Uugq/ZVDmaj8JBIGmk+Ej5oBT4gwyYtVSXybj5bv6fzSXl/iURGHDousF5kwWAWMv22/4RhcZgP3/P0Se+dYOZB+irCRKbMCUUAZ3mSTZDCGaGKu4PXV9su4KRCFQgGnUXPTOkw9vBdv/J1M6yD6I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=h7K0qFC8; arc=none smtp.client-ip=212.227.17.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
+	s=arc-20240116; t=1773160621; c=relaxed/simple;
+	bh=uYCP9UbvcLVkUv9JwAMUSdxhKGPnYkOdQe4zSvQZ3f4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=i3+YZ6hy6kHVU4rEWkxojmTmnTkmZZU3SJVp/fleslB4DRBC5DkulBPb4fdsvhYtrkdHlXCTpfuRMqDZLv9GxE3H6CyVsAnKXUrABuO1MIhqTziTcenV24FMVgwBPfkotmuMZwkPtJKfFAc05zBvLH4u8Bs6/MQ9Z0YshC5pyMg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pUBtn6ov; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="h7K0qFC8"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
-	s=s29768273; t=1773157662; x=1773762462; i=markus.elfring@web.de;
-	bh=ViIdeWt5br4rBsrGxHUMEkJDkD/ERSvSv/UV5SzvttY=;
-	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:To:Cc:References:
-	 Subject:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
-	 cc:content-transfer-encoding:content-type:date:from:message-id:
-	 mime-version:reply-to:subject:to;
-	b=h7K0qFC8lui0M3aEG2yhHOptmzLeK24S79cZCRktla9iVPsdh7MMZY9IQ+0fNsjy
-	 1Jmj8tPDjUYGV0N31jChpPIbrmEGAAiLmOFKWubyE3NTttjDE8UYZYzPrHWHwqRbT
-	 ZmJLoNHR6+mwIgea1XMDsroKD1VkpdbtDpYP5RQOlLeXbFM1sGNyCjcqO4VGv6oH0
-	 or7WNvOJCD7wct+ITkk6hEn2pz09hvl0HnH1IXkz/NhmxM4+GPG6PRDdXRWJwhNqD
-	 E/CyuUCmqvUAopwe+bMtAzI3unk/5Tnu7dsxuDhsN1+B/BFgi6IvYkOUfIHgIX1fz
-	 IDA+/KUXvW7fGiboiQ==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from client.hidden.invalid by smtp.web.de (mrweb106
- [213.165.67.124]) with ESMTPSA (Nemesis) id 1N5lj7-1vYM6w3zfn-012TrV; Tue, 10
- Mar 2026 16:41:18 +0100
-Message-ID: <924acf71-45df-4ea2-9bbd-b6f5ff262b2b@web.de>
-Date: Tue, 10 Mar 2026 16:41:12 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pUBtn6ov"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62A9gu3B1596414;
+	Tue, 10 Mar 2026 16:36:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=sMPMqx
+	1teufVbcGCcAmWkX1e4ZNd9cyxX4UkiDIc6wE=; b=pUBtn6ovKzCPLQ44RJwwKu
+	n9GuNuARTge+vrnvvpKETZJzWUk2GrzoC+IkpaMbgAhustqH+GKipE2P3RxORtsF
+	lLtDehf3BiFNVvYYtzrFPzfGA2lBeEXgt6C/GEB3ExdfUGOpK734QSigJhCy2VYu
+	3HY/b2ViWl/gkYcW1xjwXRolWUJ7EtIlFW0wMkpCyVssrUHWWMx9w5alPYvICFlo
+	4Wa9RGzJsMRjs2GbfsI+gfeAyPqCxV1DsP52F4bUver1SVM1xYmbGdkHD+nheh+M
+	6S5WY8j0qWDg7rQKyD9yxTgB7IsAGk/IgFO9Q8U1a+ZA5DLI6UngH9U1oEz6v1Lg
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4crcvrbhhk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 10 Mar 2026 16:36:58 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62ACwn8g015750;
+	Tue, 10 Mar 2026 16:36:57 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cs1221mft-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 10 Mar 2026 16:36:57 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62AGartk37749140
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 10 Mar 2026 16:36:53 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BB6E12004D;
+	Tue, 10 Mar 2026 16:36:53 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 680FB20043;
+	Tue, 10 Mar 2026 16:36:53 +0000 (GMT)
+Received: from [9.111.22.201] (unknown [9.111.22.201])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 10 Mar 2026 16:36:53 +0000 (GMT)
+Message-ID: <a366bb70-6ee1-4b62-82eb-df8178b92170@linux.ibm.com>
+Date: Tue, 10 Mar 2026 17:36:53 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -42,204 +62,65 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-To: Philipp Hahn <phahn-oss@avm.de>, cocci@inria.fr,
- Julia Lawall <Julia.Lawall@inria.fr>
-Cc: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
- bpf@vger.kernel.org, ceph-devel@vger.kernel.org, dm-devel@lists.linux.dev,
- dri-devel@lists.freedesktop.org, gfs2@lists.linux.dev,
- intel-gfx@lists.freedesktop.org, intel-wired-lan@lists.osuosl.org,
- iommu@lists.linux.dev, kvm@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org,
- linux-bluetooth@vger.kernel.org, linux-btrfs@vger.kernel.org,
- linux-cifs@vger.kernel.org, linux-clk@vger.kernel.org,
- linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-gpio@vger.kernel.org,
- linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
- linux-media@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org,
- linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org,
- linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org,
- linux-phy@lists.infradead.org, linux-pm@vger.kernel.org,
- linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org,
- linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-sound@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
- linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
- linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
- nicolas.palix@imag.fr, ntfs3@lists.linux.dev,
- samba-technical@lists.samba.org, sched-ext@lists.linux.dev,
- target-devel@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
- v9fs@lists.linux.dev
-References: <20260310-b4-is_err_or_null-v1-1-bd63b656022d@avm.de>
-Subject: Re: [PATCH 01/61] Coccinelle: Prefer IS_ERR_OR_NULL over manual NULL
- check
-Content-Language: en-GB, de-DE
-From: Markus Elfring <Markus.Elfring@web.de>
-In-Reply-To: <20260310-b4-is_err_or_null-v1-1-bd63b656022d@avm.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:I49ufsxpBKiFBze+2Qm04f+elx94DZSymOaZcQTAnyd9Dy18WSZ
- l5PlqGBdCeQJnqXYHB7LM8JEThQzWaqt46DhF3JOnbIEKCtwYJeZnzJMAXhMu3h78zedo+b
- 2MDr9yfDF5xiOPbOsnoVg9HvEpZouoV7eAA1AasOX+/8mAaWp7eICgl3FZXuUGMMgTPEUmo
- 9zEXJmftCILFnPJ5epBUQ==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:04WXpfHKV24=;XM8484Tl0Gel7LmfPFVAhD+GUiz
- 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
- WH56U++o=
-
-> Find and convert uses of IS_ERR() plus NULL check to IS_ERR_OR_NULL().
-=E2=80=A6
-
-Can this information trigger any more consequences on corresponding summar=
-y phrases?
+Subject: Re: [PATCH v2] s390/mm: add missing secure storage access fixups for
+ donated memory
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, hca@linux.ibm.com, imbrenda@linux.ibm.com,
+        linux-kernel@vger.kernel.org
+References: <20260310150408.160722-1-frankja@linux.ibm.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20260310150408.160722-1-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzEwMDE0MyBTYWx0ZWRfX0asGVgFrqD2I
+ iNWjce9vKHAUlrbh9VhgXQQzCQP7nDPCkYS2Ac1b4H83F+XPgrSgEQdvk4AVkHp4MgS61feTNGz
+ bWuReOArRhfxjIesxi3JlVebJ8vNa4WRlvP7ECarruUZ54IOUuB6bCmDu7t09EbNHWLSHs1QkuB
+ 88yD2S5rRTsAoUTTraZYdD8qAf6bqIe7d2twU9NBD/OyyjlxxARzLfVAdMI9koPy3EQgTe+jJf7
+ AFvHoX12fyr5YrOpysltN8mWP7/B++2M2GO+Hs2krz19yclK1oT7f7O1WVJZaoyU6XX2LOWN6YV
+ 9o34tj+7UDhZ2sV17PnLhDnD4ZH21+kT/d6ytzH0nU/S1mB44oLdQv0tuuMac/n6AoJOzc/mPrd
+ AFil9J8rQ6y+8Uwlhpq3fKWWzs+NxfJMZiPVIGsc4EbyLpZ/lQ3o628+XNgy1b2aCv4bEzh3+Ve
+ KYTgdVAilTId3y+werw==
+X-Proofpoint-GUID: 0vSgnFpVk7gXx3wCxpo2VC8Hh4O2un4o
+X-Proofpoint-ORIG-GUID: 0vSgnFpVk7gXx3wCxpo2VC8Hh4O2un4o
+X-Authority-Analysis: v=2.4 cv=QoFTHFyd c=1 sm=1 tr=0 ts=69b048aa cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=TrE2I5bt53qSS1KpehMA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-10_03,2026-03-09_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 spamscore=0 priorityscore=1501 phishscore=0
+ lowpriorityscore=0 adultscore=0 clxscore=1015 malwarescore=0 suspectscore=0
+ bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2602130000
+ definitions=main-2603100143
 
 
-=E2=80=A6
-> +++ b/scripts/coccinelle/api/is_err_or_null.cocci
-> @@ -0,0 +1,125 @@
-=E2=80=A6
-> +virtual patch
-> +virtual report
-> +virtual org
 
-How will interests evolve further for the support of the operation mode =
-=E2=80=9Ccontext=E2=80=9D?
+Am 10.03.26 um 16:02 schrieb Janosch Frank:
+> There are special cases where secure storage access exceptions happen
+> in a kernel context for pages that don't have the PG_arch_1 bit
+> set. That bit is set for non-exported guest secure storage (memory)
+> but is absent on storage donated to the Ultravisor since the kernel
+> isn't allowed to export donated pages.
+> 
+> Prior to this patch we would try to export the page by calling
+> arch_make_folio_accessible() which would instantly return since the
+> arch bit is absent signifying that the page was already exported and
+> no further action is necessary. This leads to secure storage access
+> exception loops which can never be resolved.
+> 
+> With this patch we unconditionally try to export and if that fails we
+> fixup.
+> 
+> Fixes: 084ea4d611a3 ("s390/mm: add (non)secure page access exceptions handlers")
+> Reported-by: Heiko Carstens <hca@linux.ibm.com>
+> Suggested-by: Heiko Carstens <hca@linux.ibm.com>
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 
+Tested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 
-> +@p1 depends on patch@
-> +expression E;
-> +@@
-> +(
-> +-	E !=3D NULL && !IS_ERR(E)
-> ++	!IS_ERR_OR_NULL(E)
-> +|
-> +-	E =3D=3D NULL || IS_ERR(E)
-> ++	IS_ERR_OR_NULL(E)
-> +|
-> +-	!IS_ERR(E) && E !=3D NULL
-> ++	!IS_ERR_OR_NULL(E)
-> +|
-> +-	IS_ERR(E) || E =3D=3D NULL
-> ++	IS_ERR_OR_NULL(E)
-> +)
-
-Did you eventually check probabilities for the occurrence of mentioned cas=
-e distinctions?
-
-
-> +@p2 depends on patch@
-=E2=80=A6
-
-I suggest to reconsider =E2=80=9Cside effects=E2=80=9D according to the sp=
-litting of these SmPL rules
-once more.
-
-
-=E2=80=A6
-> +@r2 depends on report || org@
-> +identifier I;
-> +expression E;
-> +position p;
-> +@@
-> +(
-> +*	(I =3D E) !=3D NULL && ... && !IS_ERR@p(I)
-> +|
-> +*	(I =3D E) =3D=3D NULL || ... || IS_ERR@p(I)
-> +)
-
-I doubt that the usage of SmPL asterisks fits to these two operation modes=
-.
-
-
-=E2=80=A6
-> +@p5 depends on patch disable unlikely @
-> +expression E;
-> +@@
-> +-\( likely \| unlikely \)(
-> +(
-> + IS_ERR_OR_NULL(E)
-> +|
-> + !IS_ERR_OR_NULL(E)
-> +)
-> +-)
-
-* Would it be nicer to move such SmPL code to the end of the patch rule li=
-sting?
-
-* Can this source code search pattern matter also for further operation mo=
-des?
-
-
-Regards,
-Markus
