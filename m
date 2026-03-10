@@ -1,51 +1,67 @@
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DD0A2BD02A;
-	Tue, 10 Mar 2026 05:51:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E46953D6689;
+	Tue, 10 Mar 2026 06:58:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773121886; cv=none; b=IWhUf1QxRw5us6pPYH6vWM/oHwk+YuruMQ6HVr2Tv2zKwp2aEKfB2J+P8h5161siLQ/bq8iuqYjqwT1GE/DQj41JLXu3VbUNNjMokBSKkymxcb90T4BxrO46HZw8greLCItEID1EK2NxeDrsU2E0dGROgyPizbErmWlyq1qJDdI=
+	t=1773125936; cv=none; b=W5D04D/I/17SOGRKMWDqqB+kse9d2gGSXABrspb5tNtau9Xdnu9wQxOVfIxfbDmnSVvwX+5+/7STnRRisjRV8bb/5RHOajylmpEf836BX5YZeNe+6uZShZtH273pp6qOPWIH6Jl6l8o8W7ahaOU0zXAdRjZ7K6k59YHGLPvkh2w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773121886; c=relaxed/simple;
-	bh=X8GlQBtv2iRJp4SsZ7G2UVyw+BbphQ1aA83k4nF9d6c=;
+	s=arc-20240116; t=1773125936; c=relaxed/simple;
+	bh=TWEzqV1T6nOJN1sLUnuVvgCbRiWOhKncO+7Ywdr8dcg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XKqyne5bNixO4MzhO12lGTxvKzLdlMnkD5lzrwzPOcQFewJs0GUwu9xA2V2F2uW8OHB5y84X9HaFcSQ5vkWqJ3rOx7Ik3/+65YVTcH1sYVZkBvfivsb1yeR5XSAL/SpOOmmPOzbegvFCyNjNyLEGhjGj48iTNiMpefT6i4Rpzg0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=WB6SmFvI; arc=none smtp.client-ip=115.124.30.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="WB6SmFvI"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1773121872; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=RmK1Nc9lCr9lQbUEEr8YJz/ZJtYUzCfVYaSHJv4uhls=;
-	b=WB6SmFvIJeafk29YQHGaysSZvN6NpuoLIvqMIH7p+ZXqDbpO88yzpP+rB1HKYHNka5aF/iHsx1LI/TL1+c6aZ9Z2DQaSwSLgKGXV6Ka75eHfhe31JDe36fvyL4OSX1qcHxN6K1YF3saUUhWTp75hYZC7FBZp0bIs8ZOfvxXU//k=
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0X-f-NWz_1773121871 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 10 Mar 2026 13:51:11 +0800
-Date: Tue, 10 Mar 2026 13:51:11 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com    >
-To: Jiayuan Chen <jiayuan.chen@linux.dev>
-Cc: "D. Wythe" <alibuda@linux.alibaba.com>, netdev@vger.kernel.org,
-	syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com,
-	Eric Dumazet <edumazet@google.com>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
+	 Content-Type:Content-Disposition:In-Reply-To; b=uFiCDo2FgRGG98yt4wiLph8pvzLSJk5gg4xRjhFoBC2itq+PaxDL4LblSrolnkUNr3MAcO+6HtpNhmObpvD9o6YH3GNS3T47tWNqPtKsVOQ6fBZ4lXotrDyWNpl9TvaTXBpj3+Jh8DUbjoKke8yGc7PMjWs7nqqhEC/5cuK5bfA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
+Received: by verein.lst.de (Postfix, from userid 2407)
+	id 7056668AFE; Tue, 10 Mar 2026 07:58:40 +0100 (CET)
+Date: Tue, 10 Mar 2026 07:58:40 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Eric Biggers <ebiggers@kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Matt Turner <mattst88@gmail.com>,
+	Magnus Lindholm <linmag7@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
 	"David S. Miller" <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>, linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net v2] net/smc: fix NULL dereference and UAF in
- smc_tcp_syn_recv_sock()
-Message-ID: <20260310055111.GB40558@j66a10360.sqa.eu95>
-References: <20260309023846.18516-1-jiayuan.chen@linux.dev>
- <20260309060611.GA130186@j66a10360.sqa.eu95>
- <ade7f1a6d89525cb0545ac12603edb8e448f9493@linux.dev>
+	Andreas Larsson <andreas@gaisler.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Dan Williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>,
+	David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>,
+	Song Liu <song@kernel.org>, Yu Kuai <yukuai@fnnas.com>,
+	Li Nan <linan122@huawei.com>, linux-alpha@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+	linux-crypto@vger.kernel.org, linux-btrfs@vger.kernel.org,
+	linux-arch@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: [PATCH 21/25] xor: add a better public API
+Message-ID: <20260310065840.GA10296@lst.de>
+References: <20260226151106.144735-1-hch@lst.de> <20260226151106.144735-22-hch@lst.de> <20260228065038.GH65277@quark>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -54,122 +70,19 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ade7f1a6d89525cb0545ac12603edb8e448f9493@linux.dev>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+In-Reply-To: <20260228065038.GH65277@quark>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 
-On Mon, Mar 09, 2026 at 07:48:54AM +0000, Jiayuan Chen wrote:
-> March 9, 2026 at 14:06, "D. Wythe" <alibuda@linux.alibaba.com mailto:alibuda@linux.alibaba.com?to=%22D.%20Wythe%22%20%3Calibuda%40linux.alibaba.com%3E > wrote:
+On Fri, Feb 27, 2026 at 10:50:38PM -0800, Eric Biggers wrote:
+> > +void xor_gen(void *dest, void **srcss, unsigned int src_cnt,
+> > +		unsigned int bytes);
 > 
+> srcss => srcs
 > 
-> [...]
-> > >  Reproducer was verified with mdelay injection and smc_run,
-> > >  the issue no longer occurs with this patch applied.
-> > >  
-> > >  [1] https://syzkaller.appspot.com/bug?extid=827ae2bfb3a3529333e9
-> > >  
-> > >  Fixes: 8270d9c21041 ("net/smc: Limit backlog connections")
-> > >  Reported-by: syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com
-> > >  Closes: https://lore.kernel.org/all/67eaf9b8.050a0220.3c3d88.004a.GAE@google.com/T/
-> > >  Suggested-by: Eric Dumazet <edumazet@google.com>
-> > >  Signed-off-by: Jiayuan Chen <jiayuan.chen@linux.dev>
-> > >  ---
-> > >  v2:
-> > >  - Use rcu_read_lock() + refcount_inc_not_zero() instead of
-> > >  read_lock_bh(sk_callback_lock) + sock_hold(), since this
-> > >  is the TCP handshake hot path and read_lock_bh is too
-> > >  expensive under SYN flood.
-> > >  - Set SOCK_RCU_FREE on SMC listen socket to ensure
-> > >  RCU-deferred freeing.
-> > >  
-> > >  v1: https://lore.kernel.org/netdev/20260307032158.372165-1-jiayuan.chen@linux.dev/
-> > >  ---
-> > >  net/smc/af_smc.c | 9 +++++++++
-> > >  1 file changed, 9 insertions(+)
-> > >  
-> > >  diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> > >  index d0119afcc6a1..72ac1d8c62d4 100644
-> > >  --- a/net/smc/af_smc.c
-> > >  +++ b/net/smc/af_smc.c
-> > >  @@ -131,7 +131,13 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
-> > >  struct smc_sock *smc;
-> > >  struct sock *child;
-> > >  
-> > >  + rcu_read_lock();
-> > >  smc = smc_clcsock_user_data(sk);
-> > >  + if (!smc || !refcount_inc_not_zero(&smc->sk.sk_refcnt)) {
-> > >  + rcu_read_unlock();
-> > >  + return NULL;
-> > >  + }
-> > >  + rcu_read_unlock();
-> > >  
-> > >  if (READ_ONCE(sk->sk_ack_backlog) + atomic_read(&smc->queued_smc_hs) >
-> > >  sk->sk_max_ack_backlog)
-> > >  @@ -153,11 +159,13 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
-> > >  if (inet_csk(child)->icsk_af_ops == inet_csk(sk)->icsk_af_ops)
-> > >  inet_csk(child)->icsk_af_ops = smc->ori_af_ops;
-> > >  }
-> > >  + sock_put(&smc->sk);
-> > >  return child;
-> > >  
-> > >  drop:
-> > >  dst_release(dst);
-> > >  tcp_listendrop(sk);
-> > >  + sock_put(&smc->sk);
-> > >  return NULL;
-> > >  }
-> > >  
-> > >  @@ -2691,6 +2699,7 @@ int smc_listen(struct socket *sock, int backlog)
-> > >  write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
-> > >  goto out;
-> > >  }
-> > >  + sock_set_flag(sk, SOCK_RCU_FREE);
-> > > 
-> > This RCU approach looks good to me. Since SOCK_RCU_FREE is now enabled,
-> > other callers of smc_clcsock_user_data() should also follow this
-> > RCU-based pattern. It will eventually allow us to completely remove the
-> > annoying sk_callback_lock.
-> > 
-> > D. Wythe
-> > 
-> 
-> 
-> Hi D. Wythe,
-> 
-> Thanks for the suggestion. I agree that converting all smc_clcsock_user_data()
-> callers to RCU is a reasonable direction, and it would allow us to eventually
-> remove the sk_callback_lock dependency for sk_user_data access.
-> 
-> However, I'd prefer to keep this patch focused on fixing the specific bug in
-> smc_tcp_syn_recv_sock(), since it needs to be backported to stable trees.
-> Mixing a bug fix with broader refactoring makes backporting harder and increases
-> the risk of regressions.
-> 
-> Also, converting the other callers is not entirely trivial. For example:
-> 
-> - smc_fback_state_change/data_ready/write_space/error_report():
->   the sk_callback_lock there protects not only sk_user_data but also the
->   consistency of the saved callback pointers (e.g.,smc->clcsk_state_change).
->   Switching to RCU requires careful ordering analysis against the write side
->   in smc_fback_restore_callbacks(). Additionally, fallback sockets would also
->   need SOCK_RCU_FREE.
-> 
-> - smc_clcsock_data_ready():
->   the sock_hold() would need to become refcount_inc_not_zero() to handle the
->   case where the refcount has already reached zero.
-> 
-> I'd like to address these conversions in a follow-up patch series.
-> 
-> What do you think?
+> Ideally the source vectors would be 'const' as well.
 
-Thanks for the detailed explanation. I agree with your plan, it's
-better to keep the bug fix and the optimization separate.
+I looked at the constification, and it's a bit painful because the
+same source arrays are also passed to the raid6 code by the callers.
+I'll clean up the raid6 API first, and then will give it another
+spin.
 
-> 
-> > > 
-> > > sk->sk_max_ack_backlog = backlog;
-> > >  sk->sk_ack_backlog = 0;
-> > >  sk->sk_state = SMC_LISTEN;
-> > >  -- 
-> > >  2.43.0
-> > >
-> >
