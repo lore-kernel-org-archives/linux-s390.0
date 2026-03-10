@@ -1,132 +1,175 @@
-Received: from out-189.mta0.migadu.com (out-189.mta0.migadu.com [91.218.175.189])
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C1911386C9
-	for <linux-s390@vger.kernel.org>; Mon,  9 Mar 2026 21:35:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.189
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DD0A2BD02A;
+	Tue, 10 Mar 2026 05:51:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773092104; cv=none; b=GU9cCllqrYIxWtDAUmI2/Q1cAIHLpArN0u2BTLBx0klXiftIIY2/lceTw7QFK7gOBWfY7MMDZ/QXaR8d4uOe7T3B18W/xTHjKunrsvYVFbMc08RT0XXV8S3Wp2HfNLtTIq2z3rTua77L1ujrBzLyIicdeTPaUCW4SamH4Wh/CIk=
+	t=1773121886; cv=none; b=IWhUf1QxRw5us6pPYH6vWM/oHwk+YuruMQ6HVr2Tv2zKwp2aEKfB2J+P8h5161siLQ/bq8iuqYjqwT1GE/DQj41JLXu3VbUNNjMokBSKkymxcb90T4BxrO46HZw8greLCItEID1EK2NxeDrsU2E0dGROgyPizbErmWlyq1qJDdI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773092104; c=relaxed/simple;
-	bh=uYcQXQANvQYncDdLBKUkt285zxtjr+wSPpd5cv6Jknc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ROFRyWxpthCfFuzyDk9u7agOtyh8bX+6jtZTgizo5NtqT+gPPq2zTQlocoSqK6NyXQ6yllRqadLj9kP5bluLIUNor/H4PFUCd5Zn8XTqsVjhCkWXVcNw6wb3kEMgQqZj5IsWm7B4t6mBAa2vc5OSCWgGVAVthwkdTrJCIlzvuuQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=UfIiuqUj; arc=none smtp.client-ip=91.218.175.189
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1773121886; c=relaxed/simple;
+	bh=X8GlQBtv2iRJp4SsZ7G2UVyw+BbphQ1aA83k4nF9d6c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=XKqyne5bNixO4MzhO12lGTxvKzLdlMnkD5lzrwzPOcQFewJs0GUwu9xA2V2F2uW8OHB5y84X9HaFcSQ5vkWqJ3rOx7Ik3/+65YVTcH1sYVZkBvfivsb1yeR5XSAL/SpOOmmPOzbegvFCyNjNyLEGhjGj48iTNiMpefT6i4Rpzg0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=WB6SmFvI; arc=none smtp.client-ip=115.124.30.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="UfIiuqUj"
-Message-ID: <de0dc7ec-7a8d-4b1a-a419-1d97d2e4d510@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1773092101;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=9Z89Z0CbGlfYyK9enL1aU6uEk1uYUJc2hi9of77FKCc=;
-	b=UfIiuqUj5RN4OnUp4DNTD94bNDfHXU/WZAsxKKJI+0HRS89NtQj96WZrCoQLc2+MRaJK9s
-	E3IB3pqneljaxU6hi6H97Os7emjBXks+52uiFFqGOY8CELSXzuwd1DUHfPtD1cG6LsElAj
-	bpL91EN1nFg/AuG8ETeRKDtWEndcmAs=
-Date: Tue, 10 Mar 2026 00:34:39 +0300
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="WB6SmFvI"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1773121872; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=RmK1Nc9lCr9lQbUEEr8YJz/ZJtYUzCfVYaSHJv4uhls=;
+	b=WB6SmFvIJeafk29YQHGaysSZvN6NpuoLIvqMIH7p+ZXqDbpO88yzpP+rB1HKYHNka5aF/iHsx1LI/TL1+c6aZ9Z2DQaSwSLgKGXV6Ka75eHfhe31JDe36fvyL4OSX1qcHxN6K1YF3saUUhWTp75hYZC7FBZp0bIs8ZOfvxXU//k=
+Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0X-f-NWz_1773121871 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 10 Mar 2026 13:51:11 +0800
+Date: Tue, 10 Mar 2026 13:51:11 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com    >
+To: Jiayuan Chen <jiayuan.chen@linux.dev>
+Cc: "D. Wythe" <alibuda@linux.alibaba.com>, netdev@vger.kernel.org,
+	syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com,
+	Eric Dumazet <edumazet@google.com>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net v2] net/smc: fix NULL dereference and UAF in
+ smc_tcp_syn_recv_sock()
+Message-ID: <20260310055111.GB40558@j66a10360.sqa.eu95>
+References: <20260309023846.18516-1-jiayuan.chen@linux.dev>
+ <20260309060611.GA130186@j66a10360.sqa.eu95>
+ <ade7f1a6d89525cb0545ac12603edb8e448f9493@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [RFC v2 12/21] mm: thp: handle split failure in device migration
-Content-Language: en-GB
-To: Nico Pache <npache@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, david@kernel.org,
- lorenzo.stoakes@oracle.com, willy@infradead.org, linux-mm@kvack.org,
- fvdl@google.com, hannes@cmpxchg.org, riel@surriel.com,
- shakeel.butt@linux.dev, kas@kernel.org, baohua@kernel.org, dev.jain@arm.com,
- baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com,
- ryan.roberts@arm.com, Vlastimil Babka <vbabka@kernel.org>,
- lance.yang@linux.dev, linux-kernel@vger.kernel.org, kernel-team@meta.com,
- maddy@linux.ibm.com, mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- borntraeger@linux.ibm.com, svens@linux.ibm.com, linux-s390@vger.kernel.org
-References: <20260226113233.3987674-1-usama.arif@linux.dev>
- <20260226113233.3987674-13-usama.arif@linux.dev>
- <CAA1CXcDyqPPwf_-W7B+PFQtL8HdoJGCEqVsVxq7DhOUB=L4PQA@mail.gmail.com>
- <6982e9fc-cc17-4d4f-b26e-83997c4bf070@linux.dev>
- <CAA1CXcCb6aZnjgtunEuwL380S-2re9N-AEjZUB+XO9G6gkrHQw@mail.gmail.com>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Usama Arif <usama.arif@linux.dev>
-In-Reply-To: <CAA1CXcCb6aZnjgtunEuwL380S-2re9N-AEjZUB+XO9G6gkrHQw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ade7f1a6d89525cb0545ac12603edb8e448f9493@linux.dev>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 
-
-
-On 09/03/2026 18:09, Nico Pache wrote:
-> On Thu, Mar 5, 2026 at 9:55 AM Usama Arif <usama.arif@linux.dev> wrote:
->>
->>
->>
->> On 02/03/2026 21:20, Nico Pache wrote:
->>> On Thu, Feb 26, 2026 at 4:34 AM Usama Arif <usama.arif@linux.dev> wrote:
->>>>
->>>> Device memory migration has two call sites that split huge PMDs:
->>>>
->>>> migrate_vma_split_unmapped_folio():
->>>>   Called from migrate_vma_pages() when migrating a PMD-mapped THP to a
->>>>   destination that doesn't support compound pages.  It splits the PMD
->>>>   then splits the folio via folio_split_unmapped().
->>>>
->>>>   If the PMD split fails, folio_split_unmapped() would operate on an
->>>>   unsplit folio with inconsistent page table state.  Propagate -ENOMEM
->>>>   to skip this page's migration. This is safe as folio_split_unmapped
->>>>   failure would be propagated in a similar way.
->>>>
->>>> migrate_vma_insert_page():
->>>>   Called from migrate_vma_pages() when inserting a page into a VMA
->>>>   during migration back from device memory.  If a huge zero PMD exists
->>>>   at the target address, it must be split before PTE insertion.
->>>>
->>>>   If the split fails, the subsequent pte_alloc() and set_pte_at() would
->>>>   operate on a PMD slot still occupied by the huge zero entry.  Use
->>>>   goto abort, consistent with other allocation failures in this function.
->>>>
->>>> Signed-off-by: Usama Arif <usama.arif@linux.dev>
->>>> ---
->>>>  mm/migrate_device.c | 16 ++++++++++++++--
->>>>  1 file changed, 14 insertions(+), 2 deletions(-)
->>>>
->>>> diff --git a/mm/migrate_device.c b/mm/migrate_device.c
->>>> index 78c7acf024615..bc53e06fd9735 100644
->>>> --- a/mm/migrate_device.c
->>>> +++ b/mm/migrate_device.c
->>>> @@ -909,7 +909,13 @@ static int migrate_vma_split_unmapped_folio(struct migrate_vma *migrate,
->>>>         int ret = 0;
->>>>
->>>>         folio_get(folio);
->>>
->>> Should we be concerned about this folio_get? Are we incrementing a
->>> reference that was already held if we back out of the split?
->>>
->>> -- Nico
->>
->>
->>
->> Hi Nico,
->>
->> Thanks for pointing this out. It spun out to an entire investigation for me [1].
+On Mon, Mar 09, 2026 at 07:48:54AM +0000, Jiayuan Chen wrote:
+> March 9, 2026 at 14:06, "D. Wythe" <alibuda@linux.alibaba.com mailto:alibuda@linux.alibaba.com?to=%22D.%20Wythe%22%20%3Calibuda%40linux.alibaba.com%3E > wrote:
 > 
-> Hey Usama,
 > 
-> I'm sorry my question lead you down a rabbit hole but I'm glad you did
-> the proper investigation and found the correct answer :) Thanks for
-> looking into it and for clearing that up via a comment!
+> [...]
+> > >  Reproducer was verified with mdelay injection and smc_run,
+> > >  the issue no longer occurs with this patch applied.
+> > >  
+> > >  [1] https://syzkaller.appspot.com/bug?extid=827ae2bfb3a3529333e9
+> > >  
+> > >  Fixes: 8270d9c21041 ("net/smc: Limit backlog connections")
+> > >  Reported-by: syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com
+> > >  Closes: https://lore.kernel.org/all/67eaf9b8.050a0220.3c3d88.004a.GAE@google.com/T/
+> > >  Suggested-by: Eric Dumazet <edumazet@google.com>
+> > >  Signed-off-by: Jiayuan Chen <jiayuan.chen@linux.dev>
+> > >  ---
+> > >  v2:
+> > >  - Use rcu_read_lock() + refcount_inc_not_zero() instead of
+> > >  read_lock_bh(sk_callback_lock) + sock_hold(), since this
+> > >  is the TCP handshake hot path and read_lock_bh is too
+> > >  expensive under SYN flood.
+> > >  - Set SOCK_RCU_FREE on SMC listen socket to ensure
+> > >  RCU-deferred freeing.
+> > >  
+> > >  v1: https://lore.kernel.org/netdev/20260307032158.372165-1-jiayuan.chen@linux.dev/
+> > >  ---
+> > >  net/smc/af_smc.c | 9 +++++++++
+> > >  1 file changed, 9 insertions(+)
+> > >  
+> > >  diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> > >  index d0119afcc6a1..72ac1d8c62d4 100644
+> > >  --- a/net/smc/af_smc.c
+> > >  +++ b/net/smc/af_smc.c
+> > >  @@ -131,7 +131,13 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
+> > >  struct smc_sock *smc;
+> > >  struct sock *child;
+> > >  
+> > >  + rcu_read_lock();
+> > >  smc = smc_clcsock_user_data(sk);
+> > >  + if (!smc || !refcount_inc_not_zero(&smc->sk.sk_refcnt)) {
+> > >  + rcu_read_unlock();
+> > >  + return NULL;
+> > >  + }
+> > >  + rcu_read_unlock();
+> > >  
+> > >  if (READ_ONCE(sk->sk_ack_backlog) + atomic_read(&smc->queued_smc_hs) >
+> > >  sk->sk_max_ack_backlog)
+> > >  @@ -153,11 +159,13 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
+> > >  if (inet_csk(child)->icsk_af_ops == inet_csk(sk)->icsk_af_ops)
+> > >  inet_csk(child)->icsk_af_ops = smc->ori_af_ops;
+> > >  }
+> > >  + sock_put(&smc->sk);
+> > >  return child;
+> > >  
+> > >  drop:
+> > >  dst_release(dst);
+> > >  tcp_listendrop(sk);
+> > >  + sock_put(&smc->sk);
+> > >  return NULL;
+> > >  }
+> > >  
+> > >  @@ -2691,6 +2699,7 @@ int smc_listen(struct socket *sock, int backlog)
+> > >  write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
+> > >  goto out;
+> > >  }
+> > >  + sock_set_flag(sk, SOCK_RCU_FREE);
+> > > 
+> > This RCU approach looks good to me. Since SOCK_RCU_FREE is now enabled,
+> > other callers of smc_clcsock_user_data() should also follow this
+> > RCU-based pattern. It will eventually allow us to completely remove the
+> > annoying sk_callback_lock.
+> > 
+> > D. Wythe
+> > 
 > 
-> Cheers,
-> -- Nico
->
+> 
+> Hi D. Wythe,
+> 
+> Thanks for the suggestion. I agree that converting all smc_clcsock_user_data()
+> callers to RCU is a reasonable direction, and it would allow us to eventually
+> remove the sk_callback_lock dependency for sk_user_data access.
+> 
+> However, I'd prefer to keep this patch focused on fixing the specific bug in
+> smc_tcp_syn_recv_sock(), since it needs to be backported to stable trees.
+> Mixing a bug fix with broader refactoring makes backporting harder and increases
+> the risk of regressions.
+> 
+> Also, converting the other callers is not entirely trivial. For example:
+> 
+> - smc_fback_state_change/data_ready/write_space/error_report():
+>   the sk_callback_lock there protects not only sk_user_data but also the
+>   consistency of the saved callback pointers (e.g.,smc->clcsk_state_change).
+>   Switching to RCU requires careful ordering analysis against the write side
+>   in smc_fback_restore_callbacks(). Additionally, fallback sockets would also
+>   need SOCK_RCU_FREE.
+> 
+> - smc_clcsock_data_ready():
+>   the sock_hold() would need to become refcount_inc_not_zero() to handle the
+>   case where the refcount has already reached zero.
+> 
+> I'd like to address these conversions in a follow-up patch series.
+> 
+> What do you think?
 
-Thanks for the review! There is a need for folio_put in this patch
-specifically for split_huge_pmd_address which I wouldnt have figured out
-without your comment, so really appreciate it!
+Thanks for the detailed explanation. I agree with your plan, it's
+better to keep the bug fix and the optimization separate.
 
-Usama
+> 
+> > > 
+> > > sk->sk_max_ack_backlog = backlog;
+> > >  sk->sk_ack_backlog = 0;
+> > >  sk->sk_state = SMC_LISTEN;
+> > >  -- 
+> > >  2.43.0
+> > >
+> >
