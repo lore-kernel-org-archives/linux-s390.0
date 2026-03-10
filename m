@@ -1,113 +1,134 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out-181.mta1.migadu.com (out-181.mta1.migadu.com [95.215.58.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39F763B6378;
-	Tue, 10 Mar 2026 12:28:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D3333DC4A1
+	for <linux-s390@vger.kernel.org>; Tue, 10 Mar 2026 12:38:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773145714; cv=none; b=YYkKrWTpvV1BCdEut7Nd0y3OeNd7lSOp9yLpWsbYu6r0umZce68M0AXdf+dwRFIuWgpcJ7UJVy7578BFMevBflxExLa4A/BQpsXBmcqMChEz3XkAN5p5wnWSQ9F3X14KDqkBjhR5I76Na0qns2N+W7/z/cYqrBunb4ho+bNsLgs=
+	t=1773146313; cv=none; b=t7QXHlnqcUgUnBqR8SS22ELccRj7PaxBe2VjfH1aVk0Kasvlyk4uS2GVNOF/RhbaNh/5VBbRXgq+LwbmKHI/8MyZJ68YFbNczlm53aqwnLwlJOVLlcLV/loDNPbTk2oQDv7rkjwxCXAZ3sG+2MqU/yb4mTHT1wQ1NSlRJY5Y3EM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773145714; c=relaxed/simple;
-	bh=NZ5oTCN6VGzePwnu776uK+3unhTqb8pwokxv1IJtK7c=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=noHGQmxEL7IiXdiF1hNqEE9uS+fhYYF0hIJyU1chSxO/FtpJTW1bVVyqWOi1E4WPjAeBdzHrOL8ney+Biqjn3eN1PjYWD4Pfho2p9Fnl+y9Lm4V6kLLlMke34xalTNHMyPdq1PxQR9TH4x3t7rnw8iZk8l+7BH0gHYbtJACoJmo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FOutLnoL; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773146313; c=relaxed/simple;
+	bh=CTpIvISwHm/A71DqOvdlv0hatiRYcvynfbWDp7A7wDw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=jEE+aKquzBEwoLymrsnPFTwW2yFN3di3X4ag7nPfj88nOLGKtyOjvdyiDV0up4iPaUO1wV1chi1spl1LMYF/FUq7ieGBVXAOPb6tMKdZBIt8YXYpesY/MRxsNRjZmlhZ1D68pu7ziJU4Ug/Hw2Mx3DgLVhiJdLXRTJkaV91XJew=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=mE96N4l2; arc=none smtp.client-ip=95.215.58.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FOutLnoL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8179C19423;
-	Tue, 10 Mar 2026 12:28:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773145714;
-	bh=NZ5oTCN6VGzePwnu776uK+3unhTqb8pwokxv1IJtK7c=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=FOutLnoL/seeB/icY17T5kE23weT+c8OWPxsN1CuLtbqZf1qO8twCXpCHPEW4zEb5
-	 uM5pcZxBh8XK3wQOjz6gQLnb8DbNMsJ6SwgjqzPaDdyeQRMdzDiadj+7d8CVSVSbbp
-	 WbSnGZkMbwo0cpPlViR1A0oh5e53oFE0sYAJxulW9oCNKaXKAhhACMzXx6XsRo3Hlx
-	 /XgKdmLcz/EtWl6VZEOUGY5PBqGn3Xb4X+aqLL+l2HoSL3wZMd6NhcSGeVt+ZFpBkn
-	 8s7ZymgPrZjLjSz7/xRlCoCIsHrVCduE0eaA6Z9IamuK4ZW4bnyThB9ZhLWcSUucoJ
-	 BJsDSXl6ZXWkQ==
-Date: Tue, 10 Mar 2026 12:28:20 +0000
-From: Mark Brown <broonie@kernel.org>
-To: Philipp Hahn <phahn-oss@avm.de>
-Cc: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
-	bpf@vger.kernel.org, ceph-devel@vger.kernel.org, cocci@inria.fr,
-	dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
-	gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org,
-	intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev,
-	kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
-	linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org,
-	linux-clk@vger.kernel.org, linux-erofs@lists.ozlabs.org,
-	linux-ext4@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-hyperv@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
-	linux-mips@vger.kernel.org, linux-mm@kvack.org,
-	linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org,
-	linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org,
-	linux-phy@lists.infradead.org, linux-pm@vger.kernel.org,
-	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org,
-	linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org,
-	linux-sound@vger.kernel.org,
-	linux-stm32@st-md-mailman.stormreply.com,
-	linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-	ntfs3@lists.linux.dev, samba-technical@lists.samba.org,
-	sched-ext@lists.linux.dev, target-devel@vger.kernel.org,
-	tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev,
-	Sylwester Nawrocki <s.nawrocki@samsung.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
-	Max Filippov <jcmvbkbc@gmail.com>
-Subject: Re: [PATCH 18/61] sound: Prefer IS_ERR_OR_NULL over manual NULL check
-Message-ID: <19aa26fc-8570-492e-8e17-23d6950676f0@sirena.org.uk>
-References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
- <20260310-b4-is_err_or_null-v1-18-bd63b656022d@avm.de>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="mE96N4l2"
+Message-ID: <270e708d-cb52-413c-860e-16945ae98012@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1773146309;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jDizjKfKLjRprs2izCP8nlt9BhCmmNO1wOtyhYNrASw=;
+	b=mE96N4l2+SLN8WLkJ+TFSdj/gGYT0r4bavqiVkrIaKOFpw6fh3BqVgYNCOGLaHLdA46nhW
+	zO9fO0g0ZztDJp9QtBKNmLzJhvSKECRVukAcO5jqRWZHGsaPkeVUMqo1wpMn5sQamnSdW9
+	JX/MXfIuVvfYRSyvTOkguCBW+rgyetE=
+Date: Tue, 10 Mar 2026 20:38:10 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="7JjDB+7CEHk89uTh"
-Content-Disposition: inline
-In-Reply-To: <20260310-b4-is_err_or_null-v1-18-bd63b656022d@avm.de>
-X-Cookie: A fool and his honey are soon parted.
+Subject: Re: [PATCH net v3] net/smc: fix NULL dereference and UAF in
+ smc_tcp_syn_recv_sock()
+To: Eric Dumazet <edumazet@google.com>
+Cc: netdev@vger.kernel.org, Jiayuan Chen <jiayuan.chen@shopee.com>,
+ syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com,
+ "D. Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>,
+ Sidraya Jayagond <sidraya@linux.ibm.com>, Wenjia Zhang
+ <wenjia@linux.ibm.com>, Mahanta Jambigi <mjambigi@linux.ibm.com>,
+ Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+ "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260310120053.136594-1-jiayuan.chen@linux.dev>
+ <CANn89iK-Kj7Gthff+Q8vSUDTYs9t6YZepm5uAv_2ZZJ4AkyxOw@mail.gmail.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Jiayuan Chen <jiayuan.chen@linux.dev>
+In-Reply-To: <CANn89iK-Kj7Gthff+Q8vSUDTYs9t6YZepm5uAv_2ZZJ4AkyxOw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
 
---7JjDB+7CEHk89uTh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On 3/10/26 8:13 PM, Eric Dumazet wrote:
+> On Tue, Mar 10, 2026 at 1:01 PM Jiayuan Chen <jiayuan.chen@linux.dev> wrote:
+>> From: Jiayuan Chen <jiayuan.chen@shopee.com>
+>>
+>> Syzkaller reported a panic in smc_tcp_syn_recv_sock() [1].
+>>
+>> smc_tcp_syn_recv_sock() is called in the TCP receive path
+>> (softirq) via icsk_af_ops->syn_recv_sock on the clcsock (TCP
+>> listening socket). It reads sk_user_data to get the smc_sock
+>> pointer. However, when the SMC listen socket is being closed
+>> concurrently, smc_close_active() sets clcsock->sk_user_data
+>> to NULL under sk_callback_lock, and then the smc_sock itself
+>> can be freed via sock_put() in smc_release().
+>>
+>> This leads to two issues:
+>>
+>> 1) NULL pointer dereference: sk_user_data is NULL when
+>>     accessed.
+>> 2) Use-after-free: sk_user_data is read as non-NULL, but the
+>>     smc_sock is freed before its fields (e.g., queued_smc_hs,
+>>     ori_af_ops) are accessed.
+>>
+>> The race window looks like this:
+>>
+>>    CPU A (softirq)              CPU B (process ctx)
+>>
+>>    tcp_v4_rcv()
+>>      TCP_NEW_SYN_RECV:
+>>      sk = req->rsk_listener
+>>      sock_hold(sk)
+>>      /* No lock on listener */
+>>                                 smc_close_active():
+>>                                   write_lock_bh(cb_lock)
+>>                                   sk_user_data = NULL
+>>                                   write_unlock_bh(cb_lock)
+>>                                   ...
+>>                                   smc_clcsock_release()
+>>                                   sock_put(smc->sk) x2
+>>                                     -> smc_sock freed!
+>>      tcp_check_req()
+>>        smc_tcp_syn_recv_sock():
+>>          smc = user_data(sk)
+>>            -> NULL or dangling
+>>          smc->queued_smc_hs
+>>            -> crash!
+>>
+>
+>
+>> diff --git a/net/smc/smc.h b/net/smc/smc.h
+>> index 9e6af72784ba..8b3eabcdb542 100644
+>> --- a/net/smc/smc.h
+>> +++ b/net/smc/smc.h
+>> @@ -342,8 +342,7 @@ static inline void smc_init_saved_callbacks(struct smc_sock *smc)
+>>
+>>   static inline struct smc_sock *smc_clcsock_user_data(const struct sock *clcsk)
+>>   {
+>> -       return (struct smc_sock *)
+>> -              ((uintptr_t)clcsk->sk_user_data & ~SK_USER_DATA_NOCOPY);
+>> +       return (struct smc_sock *)rcu_dereference_sk_user_data(clcsk);
+>>   }
+> Are you sure all smc_clcsock_user_data() callers  hold rcu_read_lock() ?
+> In order to avoid surprises, I would have added a new helper.
+>
+>   static inline struct smc_sock *smc_clcsock_user_data_rcu(const struct
+> sock *clcsk)
+> ...
+>
+> to allow gradual conversion ?
+>
+> Thanks !
 
-On Tue, Mar 10, 2026 at 12:48:44PM +0100, Philipp Hahn wrote:
-> Prefer using IS_ERR_OR_NULL() over using IS_ERR() and a manual NULL
-> check.
+Sorry I missed that.
 
-I can't tell what the dependency story is here, it looks like there's
-none?  If that's the case you shouldn't send things as a single series,
-send separate patches to the various subsystems.
+pw-bot: cr
 
-Please submit patches using subject lines reflecting the style for the
-subsystem, this makes it easier for people to identify relevant patches.
-Look at what existing commits in the area you're changing are doing and
-make sure your subject lines visually resemble what they're doing.
-There's no need to resubmit to fix this alone.
-
---7JjDB+7CEHk89uTh
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmmwDmMACgkQJNaLcl1U
-h9D4VAf/VCpoXjivQsq8mL1i6sHdID6byBqwG7egrwiRCrsZav80JlvY/F+1fWQl
-Fe3Ct+yRv1pWeNy67wSCZD3mtHtNH0JpwRTNxS1XQrnXc7CLjzKunCldDfzTbfom
-+QmXWHQB3Qo9ie1ugoAGet9gx/vkV0z+cv9sVHg1o1R7/AKqfgov7xnuP9Hlv9Uk
-p1pkMya/NhbXBsrh+BFbktLgp+7sAOMjWgtGZ3NfHzwju9n4Jdbl1JcPxgDl0SHp
-6z8kP2+oskOspesqLWw62mZF+bN32Ycjt1N7/EFjtPBdJKIcQJLICoACzxyQBZYg
-+i50s/oSRL1HiP4US2lxoy8BqxaqrQ==
-=U6jW
------END PGP SIGNATURE-----
-
---7JjDB+7CEHk89uTh--
