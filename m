@@ -1,176 +1,272 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f69.google.com (mail-oo1-f69.google.com [209.85.161.69])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAE543EE1EA;
-	Tue, 10 Mar 2026 21:52:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0370C286D5C
+	for <linux-s390@vger.kernel.org>; Tue, 10 Mar 2026 23:15:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.69
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773179560; cv=none; b=ojgy+P5zbGeMsRW7dHaaG63VdWt49ih6xJTcZeLgC7R/U3q4cVF1eqSWXa9h5Q8dbJIgbUGgKvt1xIu4CPot6LKLXBW5IkEnWrKJZceUuLzf5GoGUsIk3qopPQcmqhikFNgO/AKDSBmjRqf2u3g8tuIiBqHXJSLmcHZCjF9ZMdg=
+	t=1773184528; cv=none; b=JzHQM5uXCmhV6edQLRYCWf/eNW6vq0NEUC7SCX4lFLCiarR4dqmzX5L9tLRE+apCS/S+cm+tzGd7NP/k89QuuiCqbjLCIoMhlqT+2iYsmAPHSz7TXYVXu0Af+PK4fzc7IswqVYNC9DdP6HlWSzz/pt+RzO8ioa/S6PUZZFyiYps=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773179560; c=relaxed/simple;
-	bh=9DspE8ZzxPIkgad3kbhVNSegbVmg7d6ttJzOySzgDE4=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To; b=B458eZM6DLYMIhVcYvJ3iTpJHSdkP2a1aW19MwptkymzZ55B/luE9wSCoo0YsKer2Rn7aub+2M+ukTSU8dfHwUFwQOn/X4o5wkp+YSiAgDhCep5RjcNY3r9bR/aRpqfWqd4eDzI7CDe24V0kBZ+PHoebQw0+tYUhoblZ2JH95nA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V9XDLVkP; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V9XDLVkP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52C5BC2BCAF;
-	Tue, 10 Mar 2026 21:52:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773179560;
-	bh=9DspE8ZzxPIkgad3kbhVNSegbVmg7d6ttJzOySzgDE4=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:From;
-	b=V9XDLVkPIUguhDuLOIiUIpyMSxaGPliXRd7O6lqvaXBBvEXDJAKzrSK6ZeN/F1Xfh
-	 jUA8CdDYMJjHcHrse0iQOy7CsVP5oqh1gKttZym7Wk6Onv3Ncjth8aMn072v+4820p
-	 JKejxWFMoZQqjf88JQ0li2hVFTd+DM1a3rq34A1UjO2tDsqlw9JTVfizZAx8/rtcvY
-	 /abfz1lpZSCUDNmBxqi74Xk88jjcSfHCeT71YpX9s6YQW1oPiEFKLHojqNVzUfWTPP
-	 PFrtaONJFG1J9ZAyPMHvLg3W/QCkoN4xHt+XbVT6HcRyS6HZSJUvfdC6TETrMiH74y
-	 aFgnA4khDntVQ==
-Date: Tue, 10 Mar 2026 16:52:39 -0500
-From: Bjorn Helgaas <helgaas@kernel.org>
-To: Gerd Bayer <gbayer@linux.ibm.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>,
-	Jay Cornwall <Jay.Cornwall@amd.com>,
-	Felix Kuehling <Felix.Kuehling@amd.com>,
-	Leon Romanovsky <leon@kernel.org>,
-	Niklas Schnelle <schnelle@linux.ibm.com>,
-	Alexander Schmidt <alexs@linux.ibm.com>, linux-s390@vger.kernel.org,
-	linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: Re: [PATCH v3 2/2] PCI: AtomicOps: Fix logic in enable function
-Message-ID: <20260310215239.GA299126@bhelgaas>
+	s=arc-20240116; t=1773184528; c=relaxed/simple;
+	bh=jDPt2+axzf6QmW4X7Bq1ogLhr/VgUZUOuwu6w/7LA3Y=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:Cc:
+	 Content-Type; b=PDOwqngo+mxa5CpwNMhNQdCK0PHpPdnXFI0ZXk4MyikQWxbNCXnxHZk7/5EnZI4dTbzJSjD5YUEkJ5Cpnja0+O+gsiQwexONRNfJGJxBaU5PMN5pPDCDyejiyeZ5pzjcrJ7PloWjte8CrmbvUK08duoUuEGYiQgRu009N4V5Pzw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.69
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oo1-f69.google.com with SMTP id 006d021491bc7-672c40f3873so226383131eaf.2
+        for <linux-s390@vger.kernel.org>; Tue, 10 Mar 2026 16:15:26 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773184525; x=1773789325;
+        h=cc:to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=P2m7J15Rmijkxj/rodQsj2WND6I6uBKnU+578P4HG1Q=;
+        b=Gw18pWCQf5MezEcmB2NO74k/mS1dY1vKZtopKo+4aZsNNNsPdStrEEa5/DCEOVfceA
+         YcmZdWqWSW+v/UcvSimXJ+O2shiDjVSe5oOILw9hvnix7kKaSVC+RNTP48tClYXZXMhZ
+         h3fMjdgqB0XcqWuLGaEpsUim1+ZPpjR8d1bX5H5Vw7Szgkdq1kjVSZmbfZTcZ04oAhJs
+         47TZXqPhDdC4GycMzaYsIxuWy7/iPPf4ttKKirUvRbFUMfniuAIsY1PBQ9aFJMSUc0Eh
+         mpwYlUchFC2EoBUAbbdESOiZkfAsqEsHwuaR+NLB2BFP19nS8ledR/XO2fs/2Nw626nj
+         sLUA==
+X-Forwarded-Encrypted: i=1; AJvYcCUr7Sp7FIV6qeH3036wCu2QRjxXdv7/LMQDH9vRefWZ0c6VHnSN2rKpzHj4EjhPhSWkuQjo6elBtLdP@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywr4jTg15gaMOo60yyBwOxuSnotWcR609pxzwC4cnA8MFlHVkNZ
+	s6KPlhPomgtoc6ozFmjD/di1D1nG3J8cU/w4e70fIu+5qFzCe9L63AGjNYZD0XqHujQQuw3FBgx
+	xeiho0w8Kt4ObRMw3Zwxaa7aQtZFfF63JyedySFttuWi+QcslJPG3zpFy+/0=
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260306-fix_pciatops-v3-2-99d12bcafb19@linux.ibm.com>
+X-Received: by 2002:a05:6820:460c:b0:67b:b7ff:e3b5 with SMTP id
+ 006d021491bc7-67bc89918f2mr338388eaf.42.1773184525685; Tue, 10 Mar 2026
+ 16:15:25 -0700 (PDT)
+Date: Tue, 10 Mar 2026 16:15:25 -0700
+In-Reply-To: <20260310120053.136594-1-jiayuan.chen@linux.dev>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <69b0a60d.a00a0220.3a1cd4.0002.GAE@google.com>
+Subject: [syzbot ci] Re: net/smc: fix NULL dereference and UAF in smc_tcp_syn_recv_sock()
+From: syzbot ci <syzbot+ci146b0afba6158e88@syzkaller.appspotmail.com>
+To: alibuda@linux.alibaba.com, davem@davemloft.net, dust.li@linux.alibaba.com, 
+	edumazet@google.com, guwen@linux.alibaba.com, horms@kernel.org, 
+	jiayuan.chen@linux.dev, jiayuan.chen@shopee.com, kuba@kernel.org, 
+	linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org, 
+	linux-s390@vger.kernel.org, mjambigi@linux.ibm.com, netdev@vger.kernel.org, 
+	pabeni@redhat.com, sidraya@linux.ibm.com, syzbot@syzkaller.appspotmail.com, 
+	tonylu@linux.alibaba.com, wenjia@linux.ibm.com
+Cc: syzbot@lists.linux.dev, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Fri, Mar 06, 2026 at 06:13:59PM +0100, Gerd Bayer wrote:
-> Move the check for root port requirements past the loop within
-> pci_enable_atomic_ops_to_root() that checks on potential switch
-> (up- and downstream) ports.
-> 
-> Inside the loop traversing the PCI tree upwards, prepend the switch case
-> to validate the routing capability on any port with a fallthrough-case
-> that does the additional check for Atomic Ops not being blocked on
-> upstream ports.
+syzbot ci has tested the following series
 
-Thanks for looking at this.  I think this makes good sense, and I'd
-like to:
+[v3] net/smc: fix NULL dereference and UAF in smc_tcp_syn_recv_sock()
+https://lore.kernel.org/all/20260310120053.136594-1-jiayuan.chen@linux.dev
+* [PATCH net v3] net/smc: fix NULL dereference and UAF in smc_tcp_syn_recv_sock()
 
-  - Hoist the problem description up here.  IIUC we enable AtomicOps on
-    s390 when we shouldn't, which presumably leads to some problem.  I
-    think the same could happen anywhere we don't have a Root Port,
-    e.g., jailhouse, loongarch, maybe some VMM guests?
+and found the following issues:
+* WARNING: suspicious RCU usage in smc_fback_error_report
+* WARNING: suspicious RCU usage in smc_fback_state_change
+* WARNING: suspicious RCU usage in smc_fback_write_space
 
-  - Reduce or remove the text above, which is basically C code
-    translated to English, and move it down after the problem
-    description, so we can state the problem and symptom, followed by
-    the solution.
+Full report is available here:
+https://ci.syzbot.org/series/b6883213-02f6-437e-bb3b-09fc59b0534c
 
-I think the core is (as you say below) that if there's no Root Port,
-we previously allowed endpoints to use AtomicOps even in cases where
-we don't know if the recipient supports them.
+***
 
-That *sounds* bad, and if you actually saw some kind of corruption as
-a result, that would make this very compelling.
+WARNING: suspicious RCU usage in smc_fback_error_report
 
-> Do not enable Atomic Op Requests if nothing can be learned about how the
-> device is attached - e.g. if it is on an "isolated" bus, as in s390.
-> 
-> Reported-by: Alexander Schmidt <alexs@linux.ibm.com>
+tree:      net
+URL:       https://kernel.googlesource.com/pub/scm/linux/kernel/git/netdev/net.git
+base:      73aefba4e2eb713cf7bc4ad83cfc9b5d4f966f6d
+arch:      amd64
+compiler:  Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
+config:    https://ci.syzbot.org/builds/0ecfc74c-85c7-4a7b-8b09-d322ac9ea108/config
+C repro:   https://ci.syzbot.org/findings/f8c698ca-41b9-4ced-953c-f6c3ee405ebc/c_repro
+syz repro: https://ci.syzbot.org/findings/f8c698ca-41b9-4ced-953c-f6c3ee405ebc/syz_repro
 
-If there's any public report of the problem, include the URL here.
+=============================
+WARNING: suspicious RCU usage
+syzkaller #0 Not tainted
+-----------------------------
+./include/net/sock.h:682 suspicious rcu_dereference_check() usage!
 
-> Cc: stable@vger.kernel.org
-> Fixes: 430a23689dea ("PCI: Add pci_enable_atomic_ops_to_root()")
-> Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
-> ---
->  drivers/pci/pci.c | 30 ++++++++++++++----------------
->  1 file changed, 14 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-> index cc8abe6b1d07661488895876dbbcf8aaeadf4a17..23db6ad5f310ed009a9b2ca4933c7498e0d22b85 100644
-> --- a/drivers/pci/pci.c
-> +++ b/drivers/pci/pci.c
-> @@ -3677,7 +3677,7 @@ void pci_acs_init(struct pci_dev *dev)
->  int pci_enable_atomic_ops_to_root(struct pci_dev *dev, u32 cap_mask)
->  {
->  	struct pci_bus *bus = dev->bus;
-> -	struct pci_dev *bridge;
-> +	struct pci_dev *bridge = NULL;
->  	u32 cap, ctl2;
->  
->  	/*
-> @@ -3715,29 +3715,27 @@ int pci_enable_atomic_ops_to_root(struct pci_dev *dev, u32 cap_mask)
+other info that might help us debug this:
 
-Since we're looking at this, I think we should update the spec
-references in this function (in a separate patch).  
 
-  * Per PCIe r5.0, sec 9.3.5.10, the AtomicOp Requester Enable bit
-  * in Device Control 2 is reserved in VFs and the PF value applies
-  * to all associated VFs.
+rcu_scheduler_active = 2, debug_locks = 1
+2 locks held by syz.0.17/5970:
+ #0: ffff88811a1d1d60 (k-sk_lock-AF_INET6){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1709 [inline]
+ #0: ffff88811a1d1d60 (k-sk_lock-AF_INET6){+.+.}-{0:0}, at: inet_stream_connect+0x51/0xa0 net/ipv4/af_inet.c:749
+ #1: ffff88811a1d1f08 (k-clock-AF_INET6){++..}-{3:3}, at: smc_fback_error_report+0x2d/0x140 net/smc/af_smc.c:900
 
-It looks like the AtomicOp Requester Enable part of PCIe r5.0, sec
-9.3.5.10, was incorporated into the Device Control 2 Register
-description in PCIe r7.0, sec 7.5.3.16.
+stack backtrace:
+CPU: 0 UID: 0 PID: 5970 Comm: syz.0.17 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.2-debian-1.16.2-1 04/01/2014
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120
+ lockdep_rcu_suspicious+0x13f/0x1d0 kernel/locking/lockdep.c:6876
+ __rcu_dereference_sk_user_data_with_flags include/net/sock.h:682 [inline]
+ smc_clcsock_user_data net/smc/smc.h:345 [inline]
+ smc_fback_error_report+0x135/0x140 net/smc/af_smc.c:901
+ sk_error_report+0x48/0x2b0 net/core/sock.c:348
+ tcp_disconnect+0x132c/0x1fa0 net/ipv4/tcp.c:3543
+ __inet_stream_connect+0x32b/0xdd0 net/ipv4/af_inet.c:648
+ inet_stream_connect+0x66/0xa0 net/ipv4/af_inet.c:750
+ __sys_connect_file net/socket.c:2089 [inline]
+ __sys_connect+0x312/0x450 net/socket.c:2108
+ __do_sys_connect net/socket.c:2114 [inline]
+ __se_sys_connect net/socket.c:2111 [inline]
+ __x64_sys_connect+0x7a/0x90 net/socket.c:2111
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0x14d/0xf80 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7effcfd9c799
+Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007ffe9219fa18 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+RAX: ffffffffffffffda RBX: 00007effd0015fa0 RCX: 00007effcfd9c799
+RDX: 000000000000000c RSI: 00002000000001c0 RDI: 0000000000000003
+RBP: 00007effcfe32bd9 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007effd0015fac R14: 00007effd0015fa0 R15: 00007effd0015fa0
+ </TASK>
 
-  * Per PCIe r4.0, sec 6.15, endpoints and root ports may be
-  * AtomicOp requesters.  For now, we only support endpoints as
-  * requesters and root ports as completers.  No endpoints as
-  * completers, and no peer-to-peer.
 
-This looks like PCIe r7.0, sec 6.15.  Same section as r4.0, but we
-should at least make both of these refer to the same spec revision.
+***
 
->  		switch (pci_pcie_type(bridge)) {
->  		/* Ensure switch ports support AtomicOp routing */
->  		case PCI_EXP_TYPE_UPSTREAM:
-> -		case PCI_EXP_TYPE_DOWNSTREAM:
-> -			if (!(cap & PCI_EXP_DEVCAP2_ATOMIC_ROUTE))
-> -				return -EINVAL;
-> -			break;
-> -
-> -		/* Ensure root port supports all the sizes we care about */
-> -		case PCI_EXP_TYPE_ROOT_PORT:
-> -			if ((cap & cap_mask) != cap_mask)
-> -				return -EINVAL;
-> -			break;
-> -		}
-> -
-> -		/* Ensure upstream ports don't block AtomicOps on egress */
-> -		if (pci_pcie_type(bridge) == PCI_EXP_TYPE_UPSTREAM) {
-> +			/* Upstream ports must not block AtomicOps on egress */
->  			pcie_capability_read_dword(bridge, PCI_EXP_DEVCTL2,
->  						   &ctl2);
->  			if (ctl2 & PCI_EXP_DEVCTL2_ATOMIC_EGRESS_BLOCK)
->  				return -EINVAL;
-> +			fallthrough;
-> +		/* All switch ports need to route AtomicOps */
-> +		case PCI_EXP_TYPE_DOWNSTREAM:
-> +			if (!(cap & PCI_EXP_DEVCAP2_ATOMIC_ROUTE))
-> +				return -EINVAL;
-> +			break;
->  		}
-> -
->  		bus = bus->parent;
->  	}
->  
-> +	/* Finally, last bridge must be root port and support requested sizes */
-> +	if ((!bridge) ||
-> +	    (pci_pcie_type(bridge) != PCI_EXP_TYPE_ROOT_PORT) ||
-> +	    ((cap & cap_mask) != cap_mask))
-> +		return -EINVAL;
-> +
->  	pcie_capability_set_word(dev, PCI_EXP_DEVCTL2,
->  				 PCI_EXP_DEVCTL2_ATOMIC_REQ);
->  	return 0;
-> 
-> -- 
-> 2.51.0
-> 
+WARNING: suspicious RCU usage in smc_fback_state_change
+
+tree:      net
+URL:       https://kernel.googlesource.com/pub/scm/linux/kernel/git/netdev/net.git
+base:      73aefba4e2eb713cf7bc4ad83cfc9b5d4f966f6d
+arch:      amd64
+compiler:  Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
+config:    https://ci.syzbot.org/builds/0ecfc74c-85c7-4a7b-8b09-d322ac9ea108/config
+C repro:   https://ci.syzbot.org/findings/fb044c1b-44f5-483a-bb87-1aad71a75a03/c_repro
+syz repro: https://ci.syzbot.org/findings/fb044c1b-44f5-483a-bb87-1aad71a75a03/syz_repro
+
+=============================
+WARNING: suspicious RCU usage
+syzkaller #0 Not tainted
+-----------------------------
+./include/net/sock.h:682 suspicious rcu_dereference_check() usage!
+
+other info that might help us debug this:
+
+
+rcu_scheduler_active = 2, debug_locks = 1
+3 locks held by syz.0.17/5945:
+ #0: ffff8881be8b0ee0 (sk_lock-AF_SMC){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1709 [inline]
+ #0: ffff8881be8b0ee0 (sk_lock-AF_SMC){+.+.}-{0:0}, at: smc_sendmsg+0x52/0x4d0 net/smc/af_smc.c:2802
+ #1: ffff8881b9f04360 (k-sk_lock-AF_INET){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1709 [inline]
+ #1: ffff8881b9f04360 (k-sk_lock-AF_INET){+.+.}-{0:0}, at: tcp_sendmsg+0x21/0x50 net/ipv4/tcp.c:1464
+ #2: ffff8881b9f04508 (k-clock-AF_INET){++..}-{3:3}, at: smc_fback_state_change+0x2d/0x140 net/smc/af_smc.c:864
+
+stack backtrace:
+CPU: 1 UID: 0 PID: 5945 Comm: syz.0.17 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.2-debian-1.16.2-1 04/01/2014
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120
+ lockdep_rcu_suspicious+0x13f/0x1d0 kernel/locking/lockdep.c:6876
+ __rcu_dereference_sk_user_data_with_flags include/net/sock.h:682 [inline]
+ smc_clcsock_user_data net/smc/smc.h:345 [inline]
+ smc_fback_state_change+0x135/0x140 net/smc/af_smc.c:865
+ tcp_rcv_synsent_state_process net/ipv4/tcp_input.c:7000 [inline]
+ tcp_rcv_state_process+0x2b23/0x4810 net/ipv4/tcp_input.c:7215
+ tcp_v4_do_rcv+0x6bb/0x1430 net/ipv4/tcp_ipv4.c:1907
+ sk_backlog_rcv include/net/sock.h:1185 [inline]
+ __release_sock+0x265/0x3a0 net/core/sock.c:3213
+ release_sock+0x5f/0x1f0 net/core/sock.c:3795
+ tcp_sendmsg+0x39/0x50 net/ipv4/tcp.c:1466
+ smc_sendmsg+0x250/0x4d0 net/smc/af_smc.c:2823
+ sock_sendmsg_nosec net/socket.c:727 [inline]
+ __sock_sendmsg net/socket.c:742 [inline]
+ ____sys_sendmsg+0x972/0x9f0 net/socket.c:2592
+ ___sys_sendmsg+0x2a5/0x360 net/socket.c:2646
+ __sys_sendmsg net/socket.c:2678 [inline]
+ __do_sys_sendmsg net/socket.c:2683 [inline]
+ __se_sys_sendmsg net/socket.c:2681 [inline]
+ __x64_sys_sendmsg+0x1bd/0x2a0 net/socket.c:2681
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0x14d/0xf80 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f9b66d9c799
+Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007ffe630639c8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 00007f9b67015fa0 RCX: 00007f9b66d9c799
+RDX: 00000000200048cc RSI: 0000200000000240 RDI: 0000000000000003
+RBP: 00007f9b66e32bd9 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007f9b67015fac R14: 00007f9b67015fa0 R15: 00007f9b67015fa0
+ </TASK>
+
+
+***
+
+WARNING: suspicious RCU usage in smc_fback_write_space
+
+tree:      net
+URL:       https://kernel.googlesource.com/pub/scm/linux/kernel/git/netdev/net.git
+base:      73aefba4e2eb713cf7bc4ad83cfc9b5d4f966f6d
+arch:      amd64
+compiler:  Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
+config:    https://ci.syzbot.org/builds/0ecfc74c-85c7-4a7b-8b09-d322ac9ea108/config
+C repro:   https://ci.syzbot.org/findings/a3f8aa1e-ebea-41f3-b6e4-97d45bc19aaf/c_repro
+syz repro: https://ci.syzbot.org/findings/a3f8aa1e-ebea-41f3-b6e4-97d45bc19aaf/syz_repro
+
+=============================
+WARNING: suspicious RCU usage
+syzkaller #0 Not tainted
+-----------------------------
+./include/net/sock.h:682 suspicious rcu_dereference_check() usage!
+
+other info that might help us debug this:
+
+
+rcu_scheduler_active = 2, debug_locks = 1
+2 locks held by syz.0.17/5953:
+ #0: ffff8881b9ed1c60 (k-sk_lock-AF_INET){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1709 [inline]
+ #0: ffff8881b9ed1c60 (k-sk_lock-AF_INET){+.+.}-{0:0}, at: sockopt_lock_sock net/core/sock.c:1152 [inline]
+ #0: ffff8881b9ed1c60 (k-sk_lock-AF_INET){+.+.}-{0:0}, at: sk_setsockopt+0xe62/0x2e80 net/core/sock.c:1310
+ #1: ffff8881b9ed1e08 (k-clock-AF_INET){++..}-{3:3}, at: smc_fback_write_space+0x2d/0x140 net/smc/af_smc.c:888
+
+stack backtrace:
+CPU: 1 UID: 0 PID: 5953 Comm: syz.0.17 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.2-debian-1.16.2-1 04/01/2014
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120
+ lockdep_rcu_suspicious+0x13f/0x1d0 kernel/locking/lockdep.c:6876
+ __rcu_dereference_sk_user_data_with_flags include/net/sock.h:682 [inline]
+ smc_clcsock_user_data net/smc/smc.h:345 [inline]
+ smc_fback_write_space+0x135/0x140 net/smc/af_smc.c:889
+ sk_setsockopt+0x221f/0x2e80 net/core/sock.c:1351
+ do_sock_setsockopt+0x11b/0x1b0 net/socket.c:2318
+ __sys_setsockopt net/socket.c:2347 [inline]
+ __do_sys_setsockopt net/socket.c:2353 [inline]
+ __se_sys_setsockopt net/socket.c:2350 [inline]
+ __x64_sys_setsockopt+0x13d/0x1b0 net/socket.c:2350
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0x14d/0xf80 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f0c5f39c799
+Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007ffd35759278 EFLAGS: 00000246 ORIG_RAX: 0000000000000036
+RAX: ffffffffffffffda RBX: 00007f0c5f615fa0 RCX: 00007f0c5f39c799
+RDX: 0000000000000020 RSI: 0000000000000001 RDI: 0000000000000003
+RBP: 00007f0c5f432bd9 R08: 0000000000000004 R09: 0000000000000000
+R10: 0000200000000100 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007f0c5f615fac R14: 00007f0c5f615fa0 R15: 00007f0c5f615fa0
+ </TASK>
+
+
+***
+
+If these findings have caused you to resend the series or submit a
+separate fix, please add the following tag to your commit message:
+  Tested-by: syzbot@syzkaller.appspotmail.com
+
+---
+This report is generated by a bot. It may contain errors.
+syzbot ci engineers can be reached at syzkaller@googlegroups.com.
