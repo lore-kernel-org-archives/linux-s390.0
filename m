@@ -1,126 +1,143 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com [209.85.128.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 021EB39936E;
-	Tue, 10 Mar 2026 16:36:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 178B93D8128
+	for <linux-s390@vger.kernel.org>; Tue, 10 Mar 2026 17:54:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773160621; cv=none; b=MGC9EMXeyoQSnpJBcW3dRZ9Ja4PDJA56ap7DCrTcbptnSuXbdgjFNk0jCYRDrbDIfwm01pqVAs7Hi6zEzOMRUQjQkACwAyQ71f9KOfRu7Q8nWxYSmsT5vPJzlKUKOWqf0w/dI4/kABGQ58d5bJj6uaCp1vqXWT2ZUY9nEAjgKdk=
+	t=1773165282; cv=none; b=HaNoBUk/OB+IuC9Wtqh6IZM6ezXsiaOwmDTgQzbKL9vqJhq7OcCMs0unwEPFL2PARomNNArjfem8jRz0kSx8YjEH2lKoH8SDPpmk6hTzWbSXT6HulxBkkE6vmWmZajsxojTGyTuFCu79Vol7c0jN8vV+YdAasjls5UfpIONd9AE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773160621; c=relaxed/simple;
-	bh=uYCP9UbvcLVkUv9JwAMUSdxhKGPnYkOdQe4zSvQZ3f4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=i3+YZ6hy6kHVU4rEWkxojmTmnTkmZZU3SJVp/fleslB4DRBC5DkulBPb4fdsvhYtrkdHlXCTpfuRMqDZLv9GxE3H6CyVsAnKXUrABuO1MIhqTziTcenV24FMVgwBPfkotmuMZwkPtJKfFAc05zBvLH4u8Bs6/MQ9Z0YshC5pyMg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pUBtn6ov; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1773165282; c=relaxed/simple;
+	bh=tpIcoWuPSsflrFdJ37N7ykid+E9spThfaWn0fNKRhgI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jfkEPOMU/6C4o1V9Chn6/1aVWijLA85VUX3mI+hN7/Qv6Qg0auUGiXkzKEw/MEH84RZGjSzFoQpb0AhmQj5MboakMBYfrN7gS2jBaMWGLPz5z4AG4HDnvbkGqudVvcw7tmlL3vmh4NaFKPq700QD3uwWXLdBmKsBzlYhXEIZoAs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iI+Ftvvo; arc=none smtp.client-ip=209.85.128.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pUBtn6ov"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62A9gu3B1596414;
-	Tue, 10 Mar 2026 16:36:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=sMPMqx
-	1teufVbcGCcAmWkX1e4ZNd9cyxX4UkiDIc6wE=; b=pUBtn6ovKzCPLQ44RJwwKu
-	n9GuNuARTge+vrnvvpKETZJzWUk2GrzoC+IkpaMbgAhustqH+GKipE2P3RxORtsF
-	lLtDehf3BiFNVvYYtzrFPzfGA2lBeEXgt6C/GEB3ExdfUGOpK734QSigJhCy2VYu
-	3HY/b2ViWl/gkYcW1xjwXRolWUJ7EtIlFW0wMkpCyVssrUHWWMx9w5alPYvICFlo
-	4Wa9RGzJsMRjs2GbfsI+gfeAyPqCxV1DsP52F4bUver1SVM1xYmbGdkHD+nheh+M
-	6S5WY8j0qWDg7rQKyD9yxTgB7IsAGk/IgFO9Q8U1a+ZA5DLI6UngH9U1oEz6v1Lg
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4crcvrbhhk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Mar 2026 16:36:58 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62ACwn8g015750;
-	Tue, 10 Mar 2026 16:36:57 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cs1221mft-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 10 Mar 2026 16:36:57 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62AGartk37749140
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 10 Mar 2026 16:36:53 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BB6E12004D;
-	Tue, 10 Mar 2026 16:36:53 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 680FB20043;
-	Tue, 10 Mar 2026 16:36:53 +0000 (GMT)
-Received: from [9.111.22.201] (unknown [9.111.22.201])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 10 Mar 2026 16:36:53 +0000 (GMT)
-Message-ID: <a366bb70-6ee1-4b62-82eb-df8178b92170@linux.ibm.com>
-Date: Tue, 10 Mar 2026 17:36:53 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iI+Ftvvo"
+Received: by mail-yw1-f180.google.com with SMTP id 00721157ae682-79800183233so2403847b3.1
+        for <linux-s390@vger.kernel.org>; Tue, 10 Mar 2026 10:54:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773165280; x=1773770080; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=5DX7YX3olkxxd54BvAn1gDzrrUOGFvO/gswDwkhEoMI=;
+        b=iI+Ftvvo1Vq6vn0KL8HprpuN7cBPPNq25MlSL3nsmTaoYutg/YmHGkeQK17yZm1iZZ
+         OKwTEeSuOg8fQxnDgIFLvci8O67ASlmQ/+dYJdHgoVZElUSIxy1o7AzSgoU/ns1atoeY
+         N/OGLdbG/YbE7Lxz5uABfC+1Somo4m4lGpgwjuFVRBCPsiqcc11O8oj7N5B3SHvvDYem
+         4z8laTLMITpbYgS9GQ6W7L7JJgCswGHYWioWbk1hrwN7yDmAiclYCHpAXL8eVyvayPuI
+         ZEiyHhVIYEFfhOP2UpZ3WJkbIv2JzoO0RHvlRLaCANNXYvghdDt/F9BXtn/ZQLDSmMyT
+         E0dw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773165280; x=1773770080;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5DX7YX3olkxxd54BvAn1gDzrrUOGFvO/gswDwkhEoMI=;
+        b=hVZnkEit5uprtz5wMxpF+7nzX3xZfp8GS5Rm87ffZ3qoR6BOQxA7y+UYnB/CSg5/Np
+         kHGFYFddNm+jtt9idP+tRi8j1C9hI9nJW4A+4+pkGPhLdxunjOcIwse5BKsYNcRT3pZ8
+         p2cD6jNrF8wgePTmNxtT9KumFJcVt1IamVRA1r2P59KObsraxJpm2lQNfiVtopJvemMC
+         hA6yGucwrL6LuNVLiZCqRyD+E+/pzve3PwG2oS6FQFUEHXMc50PZdnQJRknFUuR801G+
+         lvxlj/vhXqW/1FTTaQnmrSjFyBrC0o0Dmf3jRllsQaHfx61wAMCdNH8DbvvZvcJeZQZf
+         pgNg==
+X-Forwarded-Encrypted: i=1; AJvYcCXlpjDQRjLFgpTHA7iU7GmaSH3mQGG3MxMEulyOz+5Ky0sX9h3hmBnJGPwshiC89CcLx0WBZvbdp4lA@vger.kernel.org
+X-Gm-Message-State: AOJu0YysQ+kOglQ5M5O+ge6Ts2fs1RZWPFI4ojRhLbuvzOef1k0wWy89
+	f03M4BFcWB6J/IUgj1+E6iTQi0pgyMhePoWNQMF62xSYK1sKV0xxrlHp
+X-Gm-Gg: ATEYQzxsltlr8ThnvqsIaaYl7Q4SzLv69Mxj1U2q1PmpYaawAdIAS0wawBOGsu1CoXj
+	7UWpwgBGqXCJbIg4ZQD01tZOwT48MTu5X+VPHBIalyNGJQ9fLHJjLZKoCIBn63B9i0GZctVryB+
+	lfhr/qqYdD60tru/TzAO866CHpi2I/0OIgfEh21MPjLGuCpYFqUz7FhMgHZhsG7S1G4CgG8g0Jp
+	70q0NxNWbxbitgB56Y0JoN7wdyYN3EX/ykuAR/RxPVy0DBoN8ZpOlCAsSBXCCOphpQYpprMchQX
+	86A+q8qX6OJvmF3GjG/7bGTjkOOMHicOBkNjlCfo3TYVuwV5SNKjv+FF80H/6ADfRcEXObxQJm1
+	K1new2hOz7XbROKr4FvueiMaYbekoBEg+j/sHRvkSzSIHfrMYBKsgZP8K2CaMuxhjZzDipDhVpI
+	/ss7PIvB+BTIYsFYbQwt7SWVdTCvWT6zsEktlmnnEwA0vkvWN17AoxdNdS
+X-Received: by 2002:a05:690c:6913:b0:798:5bb7:4982 with SMTP id 00721157ae682-7990a86998emr40492057b3.16.1773165280041;
+        Tue, 10 Mar 2026 10:54:40 -0700 (PDT)
+Received: from desktop-linux.python-stargazer.ts.net ([50.168.180.218])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-7990a676fedsm19799977b3.42.2026.03.10.10.54.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Mar 2026 10:54:39 -0700 (PDT)
+From: Mehul Rao <mehulrao@gmail.com>
+To: alibuda@linux.alibaba.com,
+	dust.li@linux.alibaba.com,
+	sidraya@linux.ibm.com,
+	wenjia@linux.ibm.com
+Cc: mjambigi@linux.ibm.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org,
+	linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	stable@vger.kernel.org,
+	Mehul Rao <mehulrao@gmail.com>
+Subject: [PATCH net] net/smc: fix NULL pointer dereference in smc_tcp_syn_recv_sock
+Date: Tue, 10 Mar 2026 13:54:26 -0400
+Message-ID: <20260310175426.110496-1-mehulrao@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] s390/mm: add missing secure storage access fixups for
- donated memory
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, hca@linux.ibm.com, imbrenda@linux.ibm.com,
-        linux-kernel@vger.kernel.org
-References: <20260310150408.160722-1-frankja@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20260310150408.160722-1-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzEwMDE0MyBTYWx0ZWRfX0asGVgFrqD2I
- iNWjce9vKHAUlrbh9VhgXQQzCQP7nDPCkYS2Ac1b4H83F+XPgrSgEQdvk4AVkHp4MgS61feTNGz
- bWuReOArRhfxjIesxi3JlVebJ8vNa4WRlvP7ECarruUZ54IOUuB6bCmDu7t09EbNHWLSHs1QkuB
- 88yD2S5rRTsAoUTTraZYdD8qAf6bqIe7d2twU9NBD/OyyjlxxARzLfVAdMI9koPy3EQgTe+jJf7
- AFvHoX12fyr5YrOpysltN8mWP7/B++2M2GO+Hs2krz19yclK1oT7f7O1WVJZaoyU6XX2LOWN6YV
- 9o34tj+7UDhZ2sV17PnLhDnD4ZH21+kT/d6ytzH0nU/S1mB44oLdQv0tuuMac/n6AoJOzc/mPrd
- AFil9J8rQ6y+8Uwlhpq3fKWWzs+NxfJMZiPVIGsc4EbyLpZ/lQ3o628+XNgy1b2aCv4bEzh3+Ve
- KYTgdVAilTId3y+werw==
-X-Proofpoint-GUID: 0vSgnFpVk7gXx3wCxpo2VC8Hh4O2un4o
-X-Proofpoint-ORIG-GUID: 0vSgnFpVk7gXx3wCxpo2VC8Hh4O2un4o
-X-Authority-Analysis: v=2.4 cv=QoFTHFyd c=1 sm=1 tr=0 ts=69b048aa cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=TrE2I5bt53qSS1KpehMA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-10_03,2026-03-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 spamscore=0 priorityscore=1501 phishscore=0
- lowpriorityscore=0 adultscore=0 clxscore=1015 malwarescore=0 suspectscore=0
- bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2602130000
- definitions=main-2603100143
+Content-Transfer-Encoding: 8bit
 
+smc_clcsock_user_data() can return NULL when the listening SMC socket is
+being torn down concurrently. During close, smc_close_active() sets
+sk_user_data to NULL on the underlying CLC socket before shutting it
+down. If a TCP SYN completion arrives in this window,
+smc_tcp_syn_recv_sock() is called from softirq and dereferences the NULL
+pointer when accessing smc->queued_smc_hs.
 
+The sibling function smc_hs_congested() already handles this case by
+checking for NULL and returning early. Add the same NULL check to
+smc_tcp_syn_recv_sock().
 
-Am 10.03.26 um 16:02 schrieb Janosch Frank:
-> There are special cases where secure storage access exceptions happen
-> in a kernel context for pages that don't have the PG_arch_1 bit
-> set. That bit is set for non-exported guest secure storage (memory)
-> but is absent on storage donated to the Ultravisor since the kernel
-> isn't allowed to export donated pages.
-> 
-> Prior to this patch we would try to export the page by calling
-> arch_make_folio_accessible() which would instantly return since the
-> arch bit is absent signifying that the page was already exported and
-> no further action is necessary. This leads to secure storage access
-> exception loops which can never be resolved.
-> 
-> With this patch we unconditionally try to export and if that fails we
-> fixup.
-> 
-> Fixes: 084ea4d611a3 ("s390/mm: add (non)secure page access exceptions handlers")
-> Reported-by: Heiko Carstens <hca@linux.ibm.com>
-> Suggested-by: Heiko Carstens <hca@linux.ibm.com>
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+ BUG: KASAN: null-ptr-deref in smc_tcp_syn_recv_sock (arch/x86/include/asm/atomic.h:23 include/linux/atomic/atomic-arch-fallback.h:457 include/linux/atomic/atomic-instrumented.h:33 net/smc/af_smc.c:136)
+ Read of size 4 at addr 00000000000006b0 by task poc-F362/154
 
-Tested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+ CPU: 2 UID: 0 PID: 154 Comm: poc-F362 Not tainted 7.0.0-rc3 #1 PREEMPT(lazy)
+ Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
+ Call Trace:
+  <IRQ>
+  dump_stack_lvl (lib/dump_stack.c:122)
+  kasan_report (mm/kasan/report.c:597)
+  ? smc_tcp_syn_recv_sock (arch/x86/include/asm/atomic.h:23 include/linux/atomic/atomic-arch-fallback.h:457 include/linux/atomic/atomic-instrumented.h:33 net/smc/af_smc.c:136)
+  ? smc_tcp_syn_recv_sock (arch/x86/include/asm/atomic.h:23 include/linux/atomic/atomic-arch-fallback.h:457 include/linux/atomic/atomic-instrumented.h:33 net/smc/af_smc.c:136)
+  kasan_check_range (mm/kasan/generic.c:186 (discriminator 1) mm/kasan/generic.c:200 (discriminator 1))
+  smc_tcp_syn_recv_sock (arch/x86/include/asm/atomic.h:23 include/linux/atomic/atomic-arch-fallback.h:457 include/linux/atomic/atomic-instrumented.h:33 net/smc/af_smc.c:136)
+  tcp_check_req (net/ipv4/tcp_minisocks.c:927)
+  tcp_v4_rcv (net/ipv4/tcp_ipv4.c:2245)
+  ip_protocol_deliver_rcu (net/ipv4/ip_input.c:209)
+  ip_local_deliver_finish (include/linux/rcupdate.h:883 net/ipv4/ip_input.c:242)
+  ip_local_deliver (net/ipv4/ip_input.c:259)
+  ip_rcv (net/ipv4/ip_input.c:573)
+  __netif_receive_skb_one_core (net/core/dev.c:6164)
+
+Fixes: 8270d9c21041 ("net/smc: Limit backlog connections")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mehul Rao <mehulrao@gmail.com>
+---
+ net/smc/af_smc.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index d0119afcc6a1..bb8966eeb332 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -132,6 +132,8 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
+ 	struct sock *child;
+ 
+ 	smc = smc_clcsock_user_data(sk);
++	if (!smc)
++		goto drop;
+ 
+ 	if (READ_ONCE(sk->sk_ack_backlog) + atomic_read(&smc->queued_smc_hs) >
+ 				sk->sk_max_ack_backlog)
+-- 
+2.53.0
 
