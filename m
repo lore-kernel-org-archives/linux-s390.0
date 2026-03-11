@@ -1,121 +1,157 @@
-Received: from mail-vk1-f175.google.com (mail-vk1-f175.google.com [209.85.221.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76714282F29
-	for <linux-s390@vger.kernel.org>; Wed, 11 Mar 2026 13:22:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B89923D7F0;
+	Wed, 11 Mar 2026 13:27:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773235330; cv=none; b=gEdDs9UvZIT+WXPIYyDXV43pAuJF6nKJufrM6xBFTmyE2edmGX/r9cWd0fW07BMn3CfGUyOJsbhIGpt2Tjx42XpBGfH5vqTMp6z2oki40uIypLEepaJmuwrP/BcG045X1FPLPT4lATRwZUqVIHQipDR6tHfXKkxq5aZMWxuxyi0=
+	t=1773235678; cv=none; b=oEiuHm+HdR19lXg4RXngLJ+Mv9BWt6cJZnLsJlbSMlaELgnazzfGr9ozkgDqDKAMqF59p1nI9Sq8sicLHNaB0VIkLjpv7TyoMogcdJKU0Z5Y3c6RjRzrshjS455G6lAWGFc9xYIi0Cj/Er7u5mFc8fhRkuAt3wR1y34HV6iSCdU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773235330; c=relaxed/simple;
-	bh=bQRlE5OR+3/41N9B/xBGXfMeOTv3hgeQ2WrY6jcTpBY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=cwGD5X6wLTv2mG8aklRGICq3sVCgM2G+aNIU/cdDbExx0vJqC1/NuRvXAvta4Twws0+Lzd1xb9CuXEYMK4avU9JKIZNcaLjfCDOlfMSr3bc25e+f+oHT1KwtSpIaniR265t0nz1D9ulVlnPe27yGcMq1c17qs2WETnA/H3rYd2M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.221.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vk1-f175.google.com with SMTP id 71dfb90a1353d-56b18f05f49so2423153e0c.1
-        for <linux-s390@vger.kernel.org>; Wed, 11 Mar 2026 06:22:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773235328; x=1773840128;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=34DR94e/1PAvLLEaib58vFA4GW0m5SGe6jvxchEhMek=;
-        b=PWx3fDURZUCeOnWpqrm6uql0Pexr0Oi9GZUTc8fEhpf/J8zTfpBd8Be16G+z6IPAyX
-         QGM+rjwSH+WMmCx7kN2RycZZvoy292UArIaYQnRnUDB8g/KI9jcs0b56+ZLSYpy+cUvQ
-         wWbF0dzi15BnQxGyXjXjlx65SQDf0ayab3PH4YNtSXgpOGE1jfH6MbxGML/OSyJbAcvz
-         +PIEwjadhVXAN9KlQIrrXfzZUj4KTrSJblPeBRvMMyOEs9D8HRqCiK5RtclAqmYVSRUZ
-         EidBlGbxFyQ5EsvPPaegrjEJgYV2irdU2GASBucZgFpskokTdkEY+PooHvZDK2zNlPe4
-         RvUA==
-X-Forwarded-Encrypted: i=1; AJvYcCVwmaNXO+8CWtr+6mRyvoea6TFXOU5P+NAfZ+kuP/urjCEEyLHeu6L2WL5tWTbGMplxvBU/iDdhYcUo@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzo4UdKOOdge3OtiKJjwWUPIBLrT2o0o+1tqPwJmAtSPZJNSCOp
-	aNWZfDnU9zVp1kbW3v3wvPv+fN2HchsB6uPx4dwQavlhwaRE8UJYVX1/EAVJtgVj8CM=
-X-Gm-Gg: ATEYQzy6owYmuHZMOekHJ7CTJRXADRiOpM2qcCqCKeBCA0V1/ckKJ9zqAsPj+NmWeph
-	nyjHSZsTJlxaSZxW50hpaO+SCjLn8MpKWgZ1dozL+qNI831swmrUzVSJcE/fuv8IXFtirkumtdK
-	x0hPyOd2TACtwqTJBtzDaMkRMCidfCYv2SR3jPHnHDd5CJz57pmrZOtzQO4sjDWjF9i6aTOu7VP
-	1H1EWDpaLZWGgV60dQZNgKB6+bClSmO6Z25T1MFNcnVub2ij6vm+45OzFoK1uPAh6dWGomp/82g
-	bJgrxHG6WhVQr0cxCmXILl36ZwvjfzMzKpo14NQo/xdvWOQ8K/7CKpxEEURn+kmnCjuiMJcTEDo
-	68q/gIUm+sW1uyKd1T9yBBCsYLIVmX54wejgOR15QHeYpRiH09I06q1Mdaig5U4PcJXKxWZzeOV
-	woYD/PspyY2lB9eA9dICpPtmorW6kiy5es5JaF4TZ+K84us5Gg7beA4W/0R3oTa5Ut
-X-Received: by 2002:a05:6122:62f1:b0:56b:1ec:d923 with SMTP id 71dfb90a1353d-56b472c7c03mr989537e0c.0.1773235328415;
-        Wed, 11 Mar 2026 06:22:08 -0700 (PDT)
-Received: from mail-vk1-f174.google.com (mail-vk1-f174.google.com. [209.85.221.174])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-56b46336442sm970647e0c.5.2026.03.11.06.22.08
-        for <linux-s390@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 11 Mar 2026 06:22:08 -0700 (PDT)
-Received: by mail-vk1-f174.google.com with SMTP id 71dfb90a1353d-56ae58f3fc6so6635614e0c.3
-        for <linux-s390@vger.kernel.org>; Wed, 11 Mar 2026 06:22:08 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCWGXcB279U5i/rivccxnd7dPveESK0L9+vRcXJfsDmDYyYmAPgrL7AxYjV3wYgYprOkbPP5994SMrva@vger.kernel.org
-X-Received: by 2002:a05:6122:1d05:b0:55b:7494:177b with SMTP id
- 71dfb90a1353d-56b4752d806mr922396e0c.10.1773234967338; Wed, 11 Mar 2026
- 06:16:07 -0700 (PDT)
+	s=arc-20240116; t=1773235678; c=relaxed/simple;
+	bh=pgVfp++xnaWG3o5SBaf3zcDumRCcFiH3KiRg4ok919g=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=LsXkDw9ii0iTpOSnPXGPlR4aWcWR83CDwfcCYSc3nNCOTICFdncfpTHGP/6+wQuwSFTJFBZHZ8PwO75alILZCRCyAWB7UjUBClCvs9DfdPOaDbAj0RGm78+wFLRTIw5RC3yNBJP0Y+ZmHARKuQlDgnKSTLmJGjjHHEo8fmLSW1g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ODLQod8E; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ODLQod8E"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62B8u4bn056775;
+	Wed, 11 Mar 2026 13:27:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:sender:subject:to; s=pp1; bh=dMPhgHcSt3
+	QLfSzVOvCxD77HfbBQXLqvXvAivL6lOh8=; b=ODLQod8Eya7x0x06kVHMM4aHBt
+	MkEozzSv+Onpuw3X40a6OUUqL0gqAp6jif/ejsx2h052jKv/y+6wDr9Au3Y179F0
+	ybPObnzDdeyXalzsN2Vu4Zb4FZTQptr+bVnTA3dSs6AFLdy9ytL3Q4abAareitQ5
+	7fkVvKWPDmTP8d39H0v8nmVo8RI3GSsbRUtKqoXKIdugSXs+tTheoldYOYKq2CB6
+	dA8Vmfs8oJDaEVdSdkgT7pMOwI4vAX9MPG5sB14GZKqBLtglfNC/aQPUtlg634qa
+	9TVOw9cVwuX4eWZtHDsF2vML+KXkryKYMOUbXgyYKxLVnu0JZNkqZYxpN30A==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4crcvrfjvb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 11 Mar 2026 13:27:55 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62BC1RQK023007;
+	Wed, 11 Mar 2026 13:27:55 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ct8ng6hry-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 11 Mar 2026 13:27:55 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62BDRpBi39322056
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 11 Mar 2026 13:27:51 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 087D82004D;
+	Wed, 11 Mar 2026 13:27:51 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E9B132004B;
+	Wed, 11 Mar 2026 13:27:50 +0000 (GMT)
+Received: from p1gen4-pw042f0m (unknown [9.52.223.163])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 11 Mar 2026 13:27:50 +0000 (GMT)
+Received: from bblock by p1gen4-pw042f0m with local (Exim 4.99.1)
+	(envelope-from <bblock@linux.ibm.com>)
+	id 1w0JbK-00000008V4T-2sp7;
+	Wed, 11 Mar 2026 14:27:50 +0100
+From: Benjamin Block <bblock@linux.ibm.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>, Bjorn Helgaas <bhelgaas@google.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Andreas Krebbel <krebbel@linux.ibm.com>,
+        linux-pci <linux-pci@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Ionut Nechita <ionut_n2001@yahoo.com>,
+        Tobias Schumacher <ts@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Julian Ruess <julianr@linux.ibm.com>,
+        Ionut Nechita <ionut.nechita@windriver.com>,
+        Farhan Ali <alifm@linux.ibm.com>,
+        Benjamin Block <bblock@linux.ibm.com>
+Subject: [PATCH v2 2/3] PCI: Provide lock guard for pci_rescan_remove_lock
+Date: Wed, 11 Mar 2026 14:27:49 +0100
+Message-ID: <c55e954604dcf728dfc93ed0adff102f2a2469e9.1773235561.git.bblock@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <cover.1773235561.git.bblock@linux.ibm.com>
+References: <cover.1773235561.git.bblock@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de> <20260310-b4-is_err_or_null-v1-36-bd63b656022d@avm.de>
-In-Reply-To: <20260310-b4-is_err_or_null-v1-36-bd63b656022d@avm.de>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 11 Mar 2026 14:15:56 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdXQ8Q4jvkgFRJYhghz2BZRDC-9Mk6DbXxuaOc6C9DFHZQ@mail.gmail.com>
-X-Gm-Features: AaiRm52J84H77ROK64ZWWtJfaiCpnFeKyoSRmPbi-NC8CN6Ju1TJEFxJU9gZQQ8
-Message-ID: <CAMuHMdXQ8Q4jvkgFRJYhghz2BZRDC-9Mk6DbXxuaOc6C9DFHZQ@mail.gmail.com>
-Subject: Re: [PATCH 36/61] arch/sh: Prefer IS_ERR_OR_NULL over manual NULL check
-To: Philipp Hahn <phahn-oss@avm.de>
-Cc: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com, 
-	bpf@vger.kernel.org, ceph-devel@vger.kernel.org, cocci@inria.fr, 
-	dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org, 
-	gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org, 
-	intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev, kvm@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org, 
-	linux-bluetooth@vger.kernel.org, linux-btrfs@vger.kernel.org, 
-	linux-cifs@vger.kernel.org, linux-clk@vger.kernel.org, 
-	linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, 
-	linux-media@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, 
-	linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org, 
-	linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org, 
-	linux-phy@lists.infradead.org, linux-pm@vger.kernel.org, 
-	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org, 
-	linux-sound@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
-	linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org, 
-	linux-wireless@vger.kernel.org, netdev@vger.kernel.org, ntfs3@lists.linux.dev, 
-	samba-technical@lists.samba.org, sched-ext@lists.linux.dev, 
-	target-devel@vger.kernel.org, tipc-discussion@lists.sourceforge.net, 
-	v9fs@lists.linux.dev, Yoshinori Sato <ysato@users.sourceforge.jp>, 
-	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Content-Type: text/plain; charset="UTF-8"
+Organization: IBM Deutschland Research & Development GmbH, https://www.ibm.com/privacy, Vors. Aufs.-R.: Wolfgang Wendt, Geschäftsführung: David Faller. Sitz der Ges.: Ehningen, Registergericht: AmtsG Stuttgart, HRB 243294
+Content-Transfer-Encoding: 8bit
+Sender: Benjamin Block <bblock@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzExMDExMCBTYWx0ZWRfXwq/yzkw8sw02
+ pODyLK6G2C8joPdj1Yoq+HwTay59zBdV2EZpG9P1ujeX47v666tCCtSWvz+s23PDkpaccS42wcu
+ rFzPuIfO+cgxhdG+7mH/jwxgDdx2eruZJ4TYJGqOntNozAJumETfeK/bwmpyjTf1KlO/SWM+vvC
+ dwxxdHyo7xV1ZICwh/0bejXIi1xLhtwksIX+9F8xLh0Gc6hBHF7XVebtltU+VY40OqvvGm0IzQx
+ QZn9Wau532Au607Y8gyte9z/GBaH1D1HAWG/45qqo+Sgu5C/l4vsb0SYNYTjYjNboluOJ/rpokd
+ OdNuw9MliDqMWi4YkOX/kvqMGUP3/sVIS6x+7JDRmVBeEuq5y61Bsla2TZYV340RyHtf6yyVMSL
+ AJBiuBMghEC9rDJl3jb6ZmFA46HN8pe4F4kUCfATH4CMfdlaELHmgRRd2rE43xekK9NEPgT03XI
+ oQsG5Z58oxKH1CnoQtg==
+X-Proofpoint-GUID: mFzvpGUggbl7ooKcmekISc9utmEaT-Lq
+X-Proofpoint-ORIG-GUID: gyGfgt7S7_DLNGek_P5w5M9Y4gfSA0yc
+X-Authority-Analysis: v=2.4 cv=QoFTHFyd c=1 sm=1 tr=0 ts=69b16ddc cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=qAR2Z3AMSIpdRBh0OscA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-11_01,2026-03-09_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 spamscore=0 priorityscore=1501 phishscore=0
+ lowpriorityscore=0 adultscore=0 clxscore=1015 malwarescore=0 suspectscore=0
+ bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2602130000
+ definitions=main-2603110110
 
-On Tue, 10 Mar 2026 at 12:56, Philipp Hahn <phahn-oss@avm.de> wrote:
-> Prefer using IS_ERR_OR_NULL() over using IS_ERR() and a manual NULL
-> check.
->
-> Change generated with coccinelle.
->
-> To: Yoshinori Sato <ysato@users.sourceforge.jp>
-> To: Rich Felker <dalias@libc.org>
-> To: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-> Cc: linux-sh@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
+Make it possible to use guard() or scoped_guard() to lock, and
+automatically unlock `pci_rescan_remove_lock`.
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Since the actual mutex `pci_rescan_remove_lock` is always supposed to be
+taken and released using the functions pci_lock_rescan_remove() and
+pci_unlock_rescan_remove() it is not possible to simply use the already
+existing guards for `struct mutex`. Instead define a new guard
+`pci_rescan_remove` that will also call the functions in question, but
+is usable via guard() or scoped_guard().
 
-Gr{oetje,eeting}s,
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+---
+ include/linux/pci.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-                        Geert
-
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index fd7a962a64ef..4c41b5a2c90a 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -41,6 +41,7 @@
+ #include <linux/msi_api.h>
+ #include <linux/mutex.h>
+ #include <uapi/linux/pci.h>
++#include <linux/cleanup.h>
+ 
+ #include <linux/pci_ids.h>
+ 
+@@ -1537,6 +1538,8 @@ unsigned int pci_rescan_bus(struct pci_bus *bus);
+ extern struct mutex pci_rescan_remove_lock;
+ void pci_lock_rescan_remove(void);
+ void pci_unlock_rescan_remove(void);
++DEFINE_LOCK_GUARD_0(pci_rescan_remove, pci_lock_rescan_remove(),
++		    pci_unlock_rescan_remove());
+ 
+ /* Vital Product Data routines */
+ ssize_t pci_read_vpd(struct pci_dev *dev, loff_t pos, size_t count, void *buf);
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+2.53.0
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
