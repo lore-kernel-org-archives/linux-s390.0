@@ -1,347 +1,216 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1AF438D009;
-	Wed, 11 Mar 2026 07:10:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EB273AC0F9;
+	Wed, 11 Mar 2026 07:21:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773213058; cv=none; b=iPTH+vSYZ2/raaFQdTKTBQagmeXRv6suoRvjAl3SbYHQNR8xyCyVZebfWJjlK41fYWcduOU9+nb0I214eXrhK3wMJcO+DTnhRtBNh4KoXeKqmv5uLJyTxOq5p/HSi+c6lj7Ngrf0GpDavZug5rUw+cVTFuCWumhoPeeWS5725mo=
+	t=1773213730; cv=none; b=P8tfGkFX02s6I+se+5rzvYZVp/g1WEJhGPAbc9961syVpCCzfNljtO9//tCZgVjzujftV2NKdHuE/R6D9VkGEI/jbADsXCznZ4ncIERwoSyth5f7iXHxC0L6iYGkZS9gZCRX05wFHrAL2C4z2TGFcSCmk5K8VlkGG2tLB5t6bdg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773213058; c=relaxed/simple;
-	bh=sGk76CeZpoKPreOT5EWTa4E9C84P+XdmuvM0iQtGhoU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dCpTnD+io2hAEBKgytsiI70aF6hB/CGdN2sDy1eFCuInl19RAonNcviBvTreHD24Gx1LEb3CZRA7Va5swNGJ56XiPD36WBgrPvUQJJgZ540nce1u6/tGpOFxnFzikp0uBfOVOqytqaz7NfTUBF1UPR/vUKXo7IKM47MzOQVpugo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=065nLeJ0; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	s=arc-20240116; t=1773213730; c=relaxed/simple;
+	bh=PlV/dWcDAQfYGcXu3pGg7KfoPZ7tAnN1AyM0bnblzF8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=gWb9SoWpfNunEIKHEQShLSEKi1YvwZPC9iuoqYYZ/Q+jqbe1qI38YR/U86fGajexkAzn0/yYLpwc/Khpgfb/vdCCzd/hfAluHfh/UoFwyoQ8aGEFmgISHcrpkZdwENGTCbjI2/F59wvfIKmRYgRANsrofyQzzyjGibdNETJQwLU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kCPONETO; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="065nLeJ0"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
-	:Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=OxvPKWkX9VjDag7MFdgWgdG+tO7vBe/CAbpQgUGKXQM=; b=065nLeJ0zQCMndvmvoHgyHTI87
-	pU1WoVrco/zLqAWBX+Or72yeujeZAtEmUmCLbZWVvvZG4m1X9aqEK6YNImN0inkNSNceVr9GRelOd
-	zZ9XPQoBfAJPFYmAGotdO0uASnNGoBRF4Q8mdmEW7DpVbqxCRsp9PB9TIdgy2eIdo9U9pyS161iTD
-	1GQKOi+Tlw5f5/JCV8iydm2fbcE/fuYA1SLwGx0IM8MVC3pPAOMaYLGOjLv+6oNBHCj8GUnPZUicg
-	BizPJAPh5Z/bZE48qSi9P91/Qx80Ui/5dms5B1zodj4VLUrS8+4OT0XZXeuwu4//PbNj6Doz/8+DL
-	yZ/kIe0A==;
-Received: from [212.243.42.10] (helo=localhost)
-	by bombadil.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1w0DiM-0000000B1m6-3zsl;
-	Wed, 11 Mar 2026 07:10:43 +0000
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Richard Henderson <richard.henderson@linaro.org>,
-	Matt Turner <mattst88@gmail.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Alexandre Ghiti <alex@ghiti.fr>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Chris Mason <clm@fb.com>,
-	David Sterba <dsterba@suse.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Song Liu <song@kernel.org>,
-	Yu Kuai <yukuai@fnnas.com>,
-	Li Nan <linan122@huawei.com>,
-	"Theodore Ts'o" <tytso@mit.edu>,
-	"Jason A. Donenfeld" <Jason@zx2c4.com>,
-	linux-alpha@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	loongarch@lists.linux.dev,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org,
-	linux-um@lists.infradead.org,
-	linux-crypto@vger.kernel.org,
-	linux-btrfs@vger.kernel.org,
-	linux-arch@vger.kernel.org,
-	linux-raid@vger.kernel.org
-Subject: [PATCH 27/27] xor: add a kunit test case
-Date: Wed, 11 Mar 2026 08:03:59 +0100
-Message-ID: <20260311070416.972667-28-hch@lst.de>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20260311070416.972667-1-hch@lst.de>
-References: <20260311070416.972667-1-hch@lst.de>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kCPONETO"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62AFtoqh299992;
+	Wed, 11 Mar 2026 07:21:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=uJ9jyO
+	6vNu3OyDhgcDZZh5mZR2IaONZUW4RUmAN6Qhc=; b=kCPONETOjZip0U/EVB0T7K
+	j4ApUcl1FS5t0Acy9RcciYsWVy+BQz1JEcvqJA1jmGcsFRWIOu9ZUHSfG+I6iCIg
+	psABo2NqpIQwfUuVHtm7JnLLVdQIDvrtolSmAOSYBnwaxUxab5q3wlqr48pqUPLq
+	rmw5TPgctsZ434Ch93h3L2oaXQS/CQsQxilNRD7FRMUrHTSAF/M7SHJKbYH6ijOI
+	uXaCN6OpW2ktlGvpdyN4uyyBy3sLxHmH454d5u7Pq1xqQkteEnDLjsacO1IIwBWe
+	JMK/BO5TKCvxV+rsub4zoajwiw8nDzbsPOxQc7bWeAkJ3Dt/mxqdR0Zi/VToG7dA
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4crcywenss-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 11 Mar 2026 07:21:56 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62B34Ccg015771;
+	Wed, 11 Mar 2026 07:21:55 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cs12247ca-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 11 Mar 2026 07:21:55 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62B7Lpen10486234
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 11 Mar 2026 07:21:51 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C86912004F;
+	Wed, 11 Mar 2026 07:21:51 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 89F4E2004B;
+	Wed, 11 Mar 2026 07:21:51 +0000 (GMT)
+Received: from [9.52.199.37] (unknown [9.52.199.37])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 11 Mar 2026 07:21:51 +0000 (GMT)
+Message-ID: <131d7e1e-701e-4f5b-961f-c85af74f1d96@linux.ibm.com>
+Date: Wed, 11 Mar 2026 08:21:51 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] perf test: Fix test case 120 and 121 for s390
+To: Namhyung Kim <namhyung@kernel.org>, Ian Rogers <irogers@google.com>
+Cc: Jan Polensky <japo@linux.ibm.com>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
+        acme@kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com,
+        sumanthk@linux.ibm.com, hca@linux.ibm.com
+References: <20260306071002.2526085-1-tmricht@linux.ibm.com>
+ <aar4GKP1c66egZnn@li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com>
+ <CAP-5=fXs0UrMVhwU-_=iunCYa_ye18FHj0W1V8sE5T9nOkeZWg@mail.gmail.com>
+ <a3b8bf7e-ec5c-460b-9ffc-ca1d2cd9e223@linux.ibm.com>
+ <CAP-5=fVziHx2B8QPWafPo0T_JWm06zD4vwtR4DmcFyePV04U0Q@mail.gmail.com>
+ <abEG_lty-tgMXJYx@z2>
+Content-Language: en-US
+From: Thomas Richter <tmricht@linux.ibm.com>
+Organization: IBM
+In-Reply-To: <abEG_lty-tgMXJYx@z2>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzExMDA1OCBTYWx0ZWRfX23XfQwMHs3OR
+ B/fPEL88ao6d5x6Da+9B0AwC/LaCDI1tRnTfQU2DM+WGrabODOeAHtD3EygSRZ5ESDyMUnqGED5
+ IhPNMbMq48I5oeWGCoY1VLvWUdnP7Kn+lSVeX1//OADLkKKp1U6ut/yWgBh881nNXMMraBd2Wl+
+ c6UUdbe882HxAVVYpRLwux4zQQ9bAv6hGxXzY0gEmMkq1Tecz43+YZmPehYBUC/VGXMfiq2BS00
+ Fl51ozSuQnUuW714O0ishuiwXOiDHIOHE8PO6rOacBwP+ywJ/hM313nllh/nH1dpi4+YMw8eq0B
+ 83j3BNOzIBuYZLuVwrADZIQAmqwnMDCXlsTi2xvij27YwXSJ7wghWXoviKlwMY4tg8C4A1rOlZv
+ bJPSEFHPMuBAW9Z4uZnFmM2hKfyqQMx3jjQs+orv/H3ZfB/IC53vblZEAD6/Xw6GdDV4NvNpcX2
+ SldRl6slj7fOtB97ICg==
+X-Authority-Analysis: v=2.4 cv=QaVrf8bv c=1 sm=1 tr=0 ts=69b11814 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=cuj6kmj_aNiUJrLrNf4A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: CucyPc9reZlF-nBX_aZ2FSyHDz54Uqa3
+X-Proofpoint-ORIG-GUID: BisuSJe-YCM8awrOIMI4VA0EI64j1xeq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-10_05,2026-03-09_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 spamscore=0 impostorscore=0 clxscore=1015 adultscore=0
+ bulkscore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603110058
 
-Add a test case for the XOR routines loosely based on the CRC kunit
-test.
+On 3/11/26 07:09, Namhyung Kim wrote:
+> On Mon, Mar 09, 2026 at 11:18:28AM -0700, Ian Rogers wrote:
+>> On Mon, Mar 9, 2026 at 5:59 AM Thomas Richter <tmricht@linux.ibm.com> wrote:
+>>>
+>>> On 3/6/26 17:53, Ian Rogers wrote:
+>>>> On Fri, Mar 6, 2026 at 7:52 AM Jan Polensky <japo@linux.ibm.com> wrote:
+>>>>>
+>>>>> On Fri, Mar 06, 2026 at 08:10:02AM +0100, Thomas Richter wrote:
+>>>>>> Perf tests
+>>>>>> 120: 'perf data convert --to-ctf' command test
+>>>>>> 121: 'perf data convert --to-json' command test
+>>>>>> fail on s390. It is caused by selecting the default event cycles
+>>>>>> which does not exist on s390 z/VM. Use software event cpu-clock
+>>>>>> and specify it explicitly on the command line.
+>>>>>>
+>>>>>> Output before:
+>>>>>> ❯ perf test 120 121
+>>>>>> 120: 'perf data convert --to-ctf' command test       : FAILED!
+>>>>>> 121: 'perf data convert --to-json' command test      : FAILED!
+>>>>>>
+>>>>>> Output after:
+>>>>>> ❯ perf test 120 121
+>>>>>> 120: 'perf data convert --to-ctf' command test       : Ok
+>>>>>> 121: 'perf data convert --to-json' command test      : Ok
+>>>>>>
+>>>>>> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+>>>>> [snip]
+>>>>> Thanks for providing this, Thomas!
+>>>>> Tested-by: Jan Polensky <japo@linux.ibm.com>
+>>>>> Reviewed-by: Jan Polensky <japo@linux.ibm.com>
+>>>>
+>>>> Should we not fallback for the cycles as a default event?
+>>>> https://web.git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools-next.git/tree/tools/perf/builtin-record.c#n1374
+>>>> https://web.git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools-next.git/tree/tools/perf/util/evsel.c#n3792
+>>>>
+>>>> Thanks,
+>>>> Ian
+>>>>
+>>>
+>>> The fallback should be cpu-clock in case hardware event cycles (or CPU_CYCLES on s390) does not exist.
+>>
+>> Thanks Thomas, so the change is doing:
+>> ```
+>> -       if ! perf record -o "$perfdata" -F 99 -g -- perf test -w noploop
+>> +       if ! perf record -o "$perfdata" -e cpu-clock -F 99 -g -- perf
+>> test -w noploop
+>> ```
+>> where the default event is cycles:
+>> https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/tools/perf/util/evlist.c#n116
+>> Given that cycles will fail but then fallback to cpu-clock:
+>> https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/tools/perf/util/evsel.c#n3792
+>> I wonder if the issue is that the fallback is broken. Specifically:
+>> ```
+>>    evsel->core.attr.type   == PERF_TYPE_HARDWARE &&
+>>    evsel->core.attr.config == PERF_COUNT_HW_CPU_CYCLES) {
+>> ```
+>> It isn't going to work well on hybrid machines or those whose PMU's
+>> sysfs events or JSON include a cycles event. I wonder if using
+>> `evsel__match(evsel, HARDWARE, CYCLES)` would be better, as the
+>> evsel__match code is more robust to these kind of variances. I don't
+>> know if that will address the fallback problem for you.
+> 
+> I suspect it may return a different error code on s390.
+> 
+> Thanks,
+> Namhyung
+> 
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- lib/raid/Kconfig               |  11 ++
- lib/raid/xor/Makefile          |   2 +-
- lib/raid/xor/tests/Makefile    |   3 +
- lib/raid/xor/tests/xor_kunit.c | 180 +++++++++++++++++++++++++++++++++
- 4 files changed, 195 insertions(+), 1 deletion(-)
- create mode 100644 lib/raid/xor/tests/Makefile
- create mode 100644 lib/raid/xor/tests/xor_kunit.c
+This is interesting, further debugging revealed this:
+ # ./perf record -F 99 --call-graph dwarf  -F99 -- perf test -w noploop
+Error:
+Failure to open event 'cpum_cf/cycles/PH' on PMU 'cpum_cf' which will be removed.
+cpum_cf/cycles/PH: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
+Error:
+Failure to open any events for recording.
+ # ./perf record -F 99 -g -- perf test -w noploop
+Error:
+Failure to open event 'cpum_cf/cycles/PH' on PMU 'cpum_cf' which will be removed.
+cpum_cf/cycles/PH: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
+Error:
+Failure to open any events for recording.
+ # ./perf record -F 99  -- perf test -w noploop
+[ perf record: Woken up 1 times to write data ]
+Failed to open /proc/schedstat
+[ perf record: Captured and wrote 0.012 MB perf.data (95 samples) ]
+ # 
 
-diff --git a/lib/raid/Kconfig b/lib/raid/Kconfig
-index 4359971ebd04..97c123806466 100644
---- a/lib/raid/Kconfig
-+++ b/lib/raid/Kconfig
-@@ -6,3 +6,14 @@ config XOR_BLOCKS
- # selected by architectures that provide an optimized XOR implementation
- config XOR_BLOCKS_ARCH
- 	bool
-+
-+config XOR_KUNIT_TEST
-+	tristate "KUnit tests for xor_gen" if !KUNIT_ALL_TESTS
-+	depends on KUNIT
-+	default KUNIT_ALL_TESTS
-+	select XOR_BLOCKS
-+	help
-+	  Unit tests for the XOR library functions.
-+
-+	  This is intended to help people writing architecture-specific
-+	  optimized versions.  If unsure, say N.
-diff --git a/lib/raid/xor/Makefile b/lib/raid/xor/Makefile
-index 7b748ddda9d4..74185bdc3dd8 100644
---- a/lib/raid/xor/Makefile
-+++ b/lib/raid/xor/Makefile
-@@ -30,7 +30,7 @@ xor-$(CONFIG_SPARC64)		+= sparc/xor-sparc64.o sparc/xor-sparc64-glue.o
- xor-$(CONFIG_S390)		+= s390/xor.o
- xor-$(CONFIG_X86_32)		+= x86/xor-avx.o x86/xor-sse.o x86/xor-mmx.o 
- xor-$(CONFIG_X86_64)		+= x86/xor-avx.o x86/xor-sse.o
--
-+obj-y				+= tests/
- 
- CFLAGS_arm/xor-neon.o		+= $(CC_FLAGS_FPU)
- CFLAGS_REMOVE_arm/xor-neon.o	+= $(CC_FLAGS_NO_FPU)
-diff --git a/lib/raid/xor/tests/Makefile b/lib/raid/xor/tests/Makefile
-new file mode 100644
-index 000000000000..661e8f6ffd1f
---- /dev/null
-+++ b/lib/raid/xor/tests/Makefile
-@@ -0,0 +1,3 @@
-+# SPDX-License-Identifier: GPL-2.0-only
-+
-+obj-$(CONFIG_XOR_KUNIT_TEST) += xor_kunit.o
-diff --git a/lib/raid/xor/tests/xor_kunit.c b/lib/raid/xor/tests/xor_kunit.c
-new file mode 100644
-index 000000000000..23ee415e914c
---- /dev/null
-+++ b/lib/raid/xor/tests/xor_kunit.c
-@@ -0,0 +1,180 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Unit test the XOR library functions.
-+ *
-+ * Copyright 2024 Google LLC
-+ * Copyright 2026 Christoph Hellwig
-+ *
-+ * Based on the CRC tests by Eric Biggers <ebiggers@google.com>.
-+ */
-+#include <kunit/test.h>
-+#include <linux/prandom.h>
-+#include <linux/string_choices.h>
-+#include <linux/vmalloc.h>
-+#include <linux/raid/xor.h>
-+
-+#define XOR_KUNIT_SEED			42
-+#define XOR_KUNIT_MAX_BYTES		16384
-+#define XOR_KUNIT_MAX_BUFFERS		64
-+#define XOR_KUNIT_NUM_TEST_ITERS	1000
-+
-+static struct rnd_state rng;
-+static void *test_buffers[XOR_KUNIT_MAX_BUFFERS];
-+static void *test_dest;
-+static void *test_ref;
-+static size_t test_buflen;
-+
-+static u32 rand32(void)
-+{
-+	return prandom_u32_state(&rng);
-+}
-+
-+static u32 rand32_below(u32 ceil)
-+{
-+	return __limit_random_u32_below(ceil, prandom_u32_state(&rng));
-+}
-+
-+/* Reference implementation using dumb byte-wise XOR */
-+static void xor_ref(void *dest, void **srcs, unsigned int src_cnt,
-+		unsigned int bytes)
-+{
-+	unsigned int off, idx;
-+	u8 *d = dest;
-+
-+	for (off = 0; off < bytes; off++) {
-+		for (idx = 0; idx < src_cnt; idx++) {
-+			u8 *src = srcs[idx];
-+
-+			d[off] ^= src[off];
-+		}
-+	}
-+}
-+
-+/* Generate a random length that is a multiple of 512. */
-+static unsigned int generate_random_length(unsigned int max_length)
-+{
-+	return (rand32_below(max_length / 512) + 1) * 512;
-+}
-+
-+/* Generate a random alignment that is a multiple of 32. */
-+static unsigned int generate_random_alignment(unsigned int max_alignment)
-+{
-+	return (rand32_below((max_alignment + 1) / 32)) * 32;
-+}
-+
-+static void xor_generate_random_data(void)
-+{
-+	int i;
-+
-+	prandom_bytes_state(&rng, test_dest, test_buflen);
-+	memcpy(test_ref, test_dest, test_buflen);
-+	for (i = 0; i < XOR_KUNIT_MAX_BUFFERS; i++)
-+		prandom_bytes_state(&rng, test_buffers[i], test_buflen);
-+}
-+
-+/* Test that xor_gen gives the same result as a reference implementation. */
-+static void xor_test(struct kunit *test)
-+{
-+	void *aligned_buffers[XOR_KUNIT_MAX_BUFFERS];
-+	size_t i;
-+
-+	for (i = 0; i < XOR_KUNIT_NUM_TEST_ITERS; i++) {
-+		unsigned int nr_buffers =
-+			rand32_below(XOR_KUNIT_MAX_BUFFERS) + 1;
-+		unsigned int len = generate_random_length(XOR_KUNIT_MAX_BYTES);
-+		unsigned int max_alignment, align = 0;
-+		void *buffers;
-+
-+		if (rand32() % 8 == 0)
-+			/* Refresh the data occasionally. */
-+			xor_generate_random_data();
-+
-+		/*
-+		 * If we're not using the entire buffer size, inject randomize
-+		 * alignment into the buffer.
-+		 */
-+		max_alignment = XOR_KUNIT_MAX_BYTES - len;
-+		if (max_alignment) {
-+			int j;
-+
-+			align = generate_random_alignment(max_alignment);
-+			for (j = 0; j < nr_buffers; j++)
-+				aligned_buffers[j] = test_buffers[j] +
-+					generate_random_alignment(max_alignment);
-+			buffers = aligned_buffers;
-+		} else {
-+			buffers = test_buffers;
-+		}
-+
-+		/*
-+		 * Compute the XOR, and verify that it equals the XOR computed
-+		 * by a simple byte-at-a-time reference implementation.
-+		 */
-+		xor_ref(test_ref + align, buffers, nr_buffers, len);
-+		xor_gen(test_dest + align, buffers, nr_buffers, len);
-+		KUNIT_EXPECT_MEMEQ_MSG(test, test_ref, test_dest, len,
-+				"Wrong result with buffers=%u, len=%u, align=%s",
-+				nr_buffers, len, str_yes_no(max_alignment));
-+	}
-+}
-+
-+static struct kunit_case xor_test_cases[] = {
-+	KUNIT_CASE(xor_test),
-+	{},
-+};
-+
-+static int xor_suite_init(struct kunit_suite *suite)
-+{
-+	int i;
-+
-+	/*
-+	 * Allocate the test buffer using vmalloc() with a page-aligned length
-+	 * so that it is immediately followed by a guard page.  This allows
-+	 * buffer overreads to be detected, even in assembly code.
-+	 */
-+	test_buflen = round_up(XOR_KUNIT_MAX_BYTES, PAGE_SIZE);
-+	test_ref = vmalloc(test_buflen);
-+	if (!test_ref)
-+		return -ENOMEM;
-+	test_dest = vmalloc(test_buflen);
-+	if (!test_dest)
-+		goto out_free_ref;
-+	for (i = 0; i < XOR_KUNIT_MAX_BUFFERS; i++) {
-+		test_buffers[i] = vmalloc(test_buflen);
-+		if (!test_buffers[i])
-+			goto out_free_buffers;
-+	}
-+
-+	prandom_seed_state(&rng, XOR_KUNIT_SEED);
-+	xor_generate_random_data();
-+	return 0;
-+
-+out_free_buffers:
-+	while (--i >= 0)
-+		vfree(test_buffers[i]);
-+	vfree(test_dest);
-+out_free_ref:
-+	vfree(test_ref);
-+	return -ENOMEM;
-+}
-+
-+static void xor_suite_exit(struct kunit_suite *suite)
-+{
-+	int i;
-+
-+	vfree(test_ref);
-+	vfree(test_dest);
-+	for (i = 0; i < XOR_KUNIT_MAX_BUFFERS; i++)
-+		vfree(test_buffers[i]);
-+}
-+
-+static struct kunit_suite xor_test_suite = {
-+	.name		= "xor",
-+	.test_cases	= xor_test_cases,
-+	.suite_init	= xor_suite_init,
-+	.suite_exit	= xor_suite_exit,
-+};
-+kunit_test_suite(xor_test_suite);
-+
-+MODULE_DESCRIPTION("Unit tests and benchmarks for the XOR library functions");
-+MODULE_LICENSE("GPL");
+So the real issue is the -g / --call-graph dwarf option. s390 supports only dwarf.
+But with --call-graph event 'cpum_cf/cycles/PH' is used, that is modifier H is added.
+ # ./perf evlist
+ cpum_cf/cycles/P
+ #
+
+Without that option modifier H is not added and all is well.
+
+I suggest to drop the call-graph option. If that option is needed for the test
+than we need a s390 change anyway.
+
 -- 
-2.47.3
+Thomas Richter, Dept 3303, IBM s390 Linux Development, Boeblingen, Germany
+--
+IBM Deutschland Research & Development GmbH
 
+Vorsitzender des Aufsichtsrats: Wolfgang Wendt
+
+Geschäftsführung: David Faller
+
+Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
