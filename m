@@ -1,272 +1,267 @@
-Received: from mail-oo1-f69.google.com (mail-oo1-f69.google.com [209.85.161.69])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [78.32.30.218])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0370C286D5C
-	for <linux-s390@vger.kernel.org>; Tue, 10 Mar 2026 23:15:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.69
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38A9C4400;
+	Wed, 11 Mar 2026 00:11:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.32.30.218
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773184528; cv=none; b=JzHQM5uXCmhV6edQLRYCWf/eNW6vq0NEUC7SCX4lFLCiarR4dqmzX5L9tLRE+apCS/S+cm+tzGd7NP/k89QuuiCqbjLCIoMhlqT+2iYsmAPHSz7TXYVXu0Af+PK4fzc7IswqVYNC9DdP6HlWSzz/pt+RzO8ioa/S6PUZZFyiYps=
+	t=1773187883; cv=none; b=qI6hO86AElmdCjmkDn6KhM5nibnJbBhfYrJsZ159om5en3tK40lWSwcCdLao+1FG2I2eLRjJrDQj++0RdciH6R9xITjgKYM/Q4O74eSQva3o9YN9IuHkSSaMTKpv0qkPr4ZVhrb35ienObItNGXA5/iy8jn785DwARpwt9ei9jg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773184528; c=relaxed/simple;
-	bh=jDPt2+axzf6QmW4X7Bq1ogLhr/VgUZUOuwu6w/7LA3Y=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:Cc:
-	 Content-Type; b=PDOwqngo+mxa5CpwNMhNQdCK0PHpPdnXFI0ZXk4MyikQWxbNCXnxHZk7/5EnZI4dTbzJSjD5YUEkJ5Cpnja0+O+gsiQwexONRNfJGJxBaU5PMN5pPDCDyejiyeZ5pzjcrJ7PloWjte8CrmbvUK08duoUuEGYiQgRu009N4V5Pzw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.69
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oo1-f69.google.com with SMTP id 006d021491bc7-672c40f3873so226383131eaf.2
-        for <linux-s390@vger.kernel.org>; Tue, 10 Mar 2026 16:15:26 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773184525; x=1773789325;
-        h=cc:to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=P2m7J15Rmijkxj/rodQsj2WND6I6uBKnU+578P4HG1Q=;
-        b=Gw18pWCQf5MezEcmB2NO74k/mS1dY1vKZtopKo+4aZsNNNsPdStrEEa5/DCEOVfceA
-         YcmZdWqWSW+v/UcvSimXJ+O2shiDjVSe5oOILw9hvnix7kKaSVC+RNTP48tClYXZXMhZ
-         h3fMjdgqB0XcqWuLGaEpsUim1+ZPpjR8d1bX5H5Vw7Szgkdq1kjVSZmbfZTcZ04oAhJs
-         47TZXqPhDdC4GycMzaYsIxuWy7/iPPf4ttKKirUvRbFUMfniuAIsY1PBQ9aFJMSUc0Eh
-         mpwYlUchFC2EoBUAbbdESOiZkfAsqEsHwuaR+NLB2BFP19nS8ledR/XO2fs/2Nw626nj
-         sLUA==
-X-Forwarded-Encrypted: i=1; AJvYcCUr7Sp7FIV6qeH3036wCu2QRjxXdv7/LMQDH9vRefWZ0c6VHnSN2rKpzHj4EjhPhSWkuQjo6elBtLdP@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywr4jTg15gaMOo60yyBwOxuSnotWcR609pxzwC4cnA8MFlHVkNZ
-	s6KPlhPomgtoc6ozFmjD/di1D1nG3J8cU/w4e70fIu+5qFzCe9L63AGjNYZD0XqHujQQuw3FBgx
-	xeiho0w8Kt4ObRMw3Zwxaa7aQtZFfF63JyedySFttuWi+QcslJPG3zpFy+/0=
+	s=arc-20240116; t=1773187883; c=relaxed/simple;
+	bh=XpDMGeR0ckXhnjZNV3rQSz9hEyE7UO3BupLy8x1A3Rg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Q2POjgaCc+AcpHOvtoSW0BrwfDR6QSIaRWYrlhmIi5YchnMnzJGxBQBrDm4HCFsYxnlXMA5Sng+MQRaNhqgV1L5AnhxRPsjW+YMQMMg6/jdRE4JtYt2gHHQNmGeWidYA+j00BOPNr6N6a+sZ1JmnCJvtRYYXuShKFRjBCekoAlM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=armlinux.org.uk; spf=none smtp.mailfrom=armlinux.org.uk; dkim=pass (2048-bit key) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.b=rsZWNNzp; arc=none smtp.client-ip=78.32.30.218
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=armlinux.org.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=armlinux.org.uk
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.b="rsZWNNzp"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=7hV5LSkoaULvfWpcA92IONFe2jiU8FtnTFTGMKYHxiU=; b=rsZWNNzpN6nJksHTEkajq/n1Fi
+	36oPDej5oPfE2xw7j/8liweJ40O8Y0rBYAawwkQr0/sJRg1ts8hN1ZWdPPuu/S+9wTI5BZjFWFDn/
+	6VM0HaPK6l/WG/KwNwIc0bS6+oKrv1v0dTQCkIL4TyM4C1voCXZuHAyDW2/Bgql9xoNiDgpnuxFbm
+	Bc71fMVSzRm+pq3372pS1Xq8Ouufm8Njzwja33Sc4G+rmZ9dNuCAJtMq0TJedL4OAoV/4ImwmK35b
+	TUHQq3VDfaWDfmQ6l7uWAqtoP6Cr7hJRMUWJfb9Rs80koZ5DcRmLK8FvDMNhR9mVwMAz/6MWBcbRm
+	dCGRuMnQ==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:57602)
+	by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.2)
+	(envelope-from <linux@armlinux.org.uk>)
+	id 1w079p-000000005ZQ-1adR;
+	Wed, 11 Mar 2026 00:10:37 +0000
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.98.2)
+	(envelope-from <linux@shell.armlinux.org.uk>)
+	id 1w079B-000000005hV-0rNO;
+	Wed, 11 Mar 2026 00:09:57 +0000
+Date: Wed, 11 Mar 2026 00:09:57 +0000
+From: "Russell King (Oracle)" <linux@armlinux.org.uk>
+To: Philipp Hahn <phahn-oss@avm.de>
+Cc: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
+	bpf@vger.kernel.org, ceph-devel@vger.kernel.org, cocci@inria.fr,
+	dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
+	gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org,
+	intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev,
+	kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
+	linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org,
+	linux-clk@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+	linux-ext4@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
+	linux-mips@vger.kernel.org, linux-mm@kvack.org,
+	linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org,
+	linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org,
+	linux-phy@lists.infradead.org, linux-pm@vger.kernel.org,
+	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org,
+	linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org,
+	linux-sound@vger.kernel.org,
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+	linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+	ntfs3@lists.linux.dev, samba-technical@lists.samba.org,
+	sched-ext@lists.linux.dev, target-devel@vger.kernel.org,
+	tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev,
+	Julia Lawall <Julia.Lawall@inria.fr>,
+	Nicolas Palix <nicolas.palix@imag.fr>, Chris Mason <clm@fb.com>,
+	David Sterba <dsterba@suse.com>, Ilya Dryomov <idryomov@gmail.com>,
+	Alex Markuze <amarkuze@redhat.com>,
+	Viacheslav Dubeyko <slava@dubeyko.com>,
+	Theodore Ts'o <tytso@mit.edu>,
+	Andreas Dilger <adilger.kernel@dilger.ca>,
+	Steve French <sfrench@samba.org>,
+	Paulo Alcantara <pc@manguebit.org>,
+	Ronnie Sahlberg <ronniesahlberg@gmail.com>,
+	Shyam Prasad N <sprasad@microsoft.com>, Tom Talpey <tom@talpey.com>,
+	Bharath SM <bharathsm@microsoft.com>,
+	Eric Van Hensbergen <ericvh@kernel.org>,
+	Latchesar Ionkov <lucho@ionkov.net>,
+	Dominique Martinet <asmadeus@codewreck.org>,
+	Christian Schoenebeck <linux_oss@crudebyte.com>,
+	Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
+	Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>,
+	Sandeep Dhavale <dhavale@google.com>,
+	Hongbo Li <lihongbo22@huawei.com>,
+	Chunhai Guo <guochunhai@vivo.com>,
+	Miklos Szeredi <miklos@szeredi.hu>,
+	Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+	Andreas Gruenbacher <agruenba@redhat.com>,
+	Kees Cook <kees@kernel.org>, Tony Luck <tony.luck@intel.com>,
+	"Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+	Jan Kara <jack@suse.com>, Phillip Lougher <phillip@squashfs.org.uk>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Tejun Heo <tj@kernel.org>, David Vernet <void@manifault.com>,
+	Andrea Righi <arighi@nvidia.com>,
+	Changwoo Min <changwoo@igalia.com>, Ingo Molnar <mingo@redhat.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+	Valentin Schneider <vschneid@redhat.com>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Petr Pavlu <petr.pavlu@suse.com>,
+	Daniel Gomez <da.gomez@kernel.org>,
+	Sami Tolvanen <samitolvanen@google.com>,
+	Aaron Tomlin <atomlin@atomlin.com>,
+	Sylwester Nawrocki <s.nawrocki@samsung.com>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>, Jaroslav Kysela <perex@perex.cz>,
+	Takashi Iwai <tiwai@suse.com>, Max Filippov <jcmvbkbc@gmail.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	John Johansen <john.johansen@canonical.com>,
+	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
+	"Serge E. Hallyn" <serge@hallyn.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
+	Mikulas Patocka <mpatocka@redhat.com>,
+	Benjamin Marzinski <bmarzins@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	David Ahern <dsahern@kernel.org>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Marcel Holtmann <marcel@holtmann.org>,
+	Johan Hedberg <johan.hedberg@gmail.com>,
+	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	Jamal Hadi Salim <jhs@mojatatu.com>, Jiri Pirko <jiri@resnulli.us>,
+	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+	Xin Long <lucien.xin@gmail.com>,
+	Trond Myklebust <trondmy@kernel.org>,
+	Anna Schumaker <anna@kernel.org>,
+	Chuck Lever <chuck.lever@oracle.com>,
+	Jeff Layton <jlayton@kernel.org>, NeilBrown <neil@brown.name>,
+	Olga Kornievskaia <okorniev@redhat.com>,
+	Dai Ngo <Dai.Ngo@oracle.com>, Jon Maloy <jmaloy@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	John Crispin <john@phrozen.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Andrzej Hajda <andrzej.hajda@intel.com>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Robert Foss <rfoss@kernel.org>,
+	Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+	Jonas Karlman <jonas@kwiboo.se>,
+	Jernej Skrabec <jernej.skrabec@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Zhenyu Wang <zhenyuw.linux@gmail.com>,
+	Zhi Wang <zhi.wang.linux@gmail.com>,
+	Jani Nikula <jani.nikula@linux.intel.com>,
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Tvrtko Ursulin <tursulin@ursulin.net>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+	Sandy Huang <hjc@rock-chips.com>,
+	Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>,
+	Andy Yan <andy.yan@rock-chips.com>,
+	Igor Russkikh <irusskikh@marvell.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Pavan Chebbi <pavan.chebbi@broadcom.com>,
+	Michael Chan <mchan@broadcom.com>,
+	Potnuri Bharat Teja <bharat@chelsio.com>,
+	Tony Nguyen <anthony.l.nguyen@intel.com>,
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+	Taras Chornyi <taras.chornyi@plvision.eu>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+	Iyappan Subramanian <iyappan@os.amperecomputing.com>,
+	Keyur Chudgar <keyur@os.amperecomputing.com>,
+	Quan Nguyen <quan@os.amperecomputing.com>,
+	Heiner Kallweit <hkallweit1@gmail.com>,
+	Marc Zyngier <maz@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Gregory Clement <gregory.clement@bootlin.com>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Vinod Koul <vkoul@kernel.org>, Linus Walleij <linusw@kernel.org>,
+	Ulf Hansson <ulf.hansson@linaro.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Eduardo Valentin <edubezval@gmail.com>, Keerthy <j-keerthy@ti.com>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>,
+	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
+	Alex Williamson <alex@shazbot.org>,
+	Mark Greer <mgreer@animalcreek.com>,
+	Miquel Raynal <miquel.raynal@bootlin.com>,
+	Richard Weinberger <richard@nod.at>,
+	Vignesh Raghavendra <vigneshr@ti.com>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Kieran Bingham <kieran.bingham@ideasonboard.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>, Lee Jones <lee@kernel.org>,
+	Pavel Machek <pavel@kernel.org>, Dave Penkler <dpenkler@gmail.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Long Li <longli@microsoft.com>, Justin Sanders <justin@coraid.com>,
+	Jens Axboe <axboe@kernel.dk>, Georgi Djakov <djakov@kernel.org>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@kernel.org>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 00/61] treewide: Use IS_ERR_OR_NULL over manual NULL
+ check - refactor
+Message-ID: <abCy1Xs9yQx0Sjbn@shell.armlinux.org.uk>
+References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:460c:b0:67b:b7ff:e3b5 with SMTP id
- 006d021491bc7-67bc89918f2mr338388eaf.42.1773184525685; Tue, 10 Mar 2026
- 16:15:25 -0700 (PDT)
-Date: Tue, 10 Mar 2026 16:15:25 -0700
-In-Reply-To: <20260310120053.136594-1-jiayuan.chen@linux.dev>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <69b0a60d.a00a0220.3a1cd4.0002.GAE@google.com>
-Subject: [syzbot ci] Re: net/smc: fix NULL dereference and UAF in smc_tcp_syn_recv_sock()
-From: syzbot ci <syzbot+ci146b0afba6158e88@syzkaller.appspotmail.com>
-To: alibuda@linux.alibaba.com, davem@davemloft.net, dust.li@linux.alibaba.com, 
-	edumazet@google.com, guwen@linux.alibaba.com, horms@kernel.org, 
-	jiayuan.chen@linux.dev, jiayuan.chen@shopee.com, kuba@kernel.org, 
-	linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org, 
-	linux-s390@vger.kernel.org, mjambigi@linux.ibm.com, netdev@vger.kernel.org, 
-	pabeni@redhat.com, sidraya@linux.ibm.com, syzbot@syzkaller.appspotmail.com, 
-	tonylu@linux.alibaba.com, wenjia@linux.ibm.com
-Cc: syzbot@lists.linux.dev, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
+Sender: Russell King (Oracle) <linux@armlinux.org.uk>
 
-syzbot ci has tested the following series
+On Tue, Mar 10, 2026 at 12:48:26PM +0100, Philipp Hahn wrote:
+> While doing some static code analysis I stumbled over a common pattern,
+> where IS_ERR() is combined with a NULL check. For that there is
+> IS_ERR_OR_NULL().
 
-[v3] net/smc: fix NULL dereference and UAF in smc_tcp_syn_recv_sock()
-https://lore.kernel.org/all/20260310120053.136594-1-jiayuan.chen@linux.dev
-* [PATCH net v3] net/smc: fix NULL dereference and UAF in smc_tcp_syn_recv_sock()
+One thing you need to check for each of these cases is whether the tests
+are actually correct.
 
-and found the following issues:
-* WARNING: suspicious RCU usage in smc_fback_error_report
-* WARNING: suspicious RCU usage in smc_fback_state_change
-* WARNING: suspicious RCU usage in smc_fback_write_space
+There are certainly cases amongst those that you have identified where
+the check for NULL is redundant.
 
-Full report is available here:
-https://ci.syzbot.org/series/b6883213-02f6-437e-bb3b-09fc59b0534c
+For example, get_phy_device() never returns NULL, yet in your netdev
+patch, you have at least one instance where the return value of
+get_phy_device() is checked for NULL and IS_ERR() which you then
+turn into IS_ERR_OR_NULL(). Instead, the NULL check should be dropped
+(as a separate patch.)
 
-***
-
-WARNING: suspicious RCU usage in smc_fback_error_report
-
-tree:      net
-URL:       https://kernel.googlesource.com/pub/scm/linux/kernel/git/netdev/net.git
-base:      73aefba4e2eb713cf7bc4ad83cfc9b5d4f966f6d
-arch:      amd64
-compiler:  Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
-config:    https://ci.syzbot.org/builds/0ecfc74c-85c7-4a7b-8b09-d322ac9ea108/config
-C repro:   https://ci.syzbot.org/findings/f8c698ca-41b9-4ced-953c-f6c3ee405ebc/c_repro
-syz repro: https://ci.syzbot.org/findings/f8c698ca-41b9-4ced-953c-f6c3ee405ebc/syz_repro
-
-=============================
-WARNING: suspicious RCU usage
-syzkaller #0 Not tainted
------------------------------
-./include/net/sock.h:682 suspicious rcu_dereference_check() usage!
-
-other info that might help us debug this:
-
-
-rcu_scheduler_active = 2, debug_locks = 1
-2 locks held by syz.0.17/5970:
- #0: ffff88811a1d1d60 (k-sk_lock-AF_INET6){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1709 [inline]
- #0: ffff88811a1d1d60 (k-sk_lock-AF_INET6){+.+.}-{0:0}, at: inet_stream_connect+0x51/0xa0 net/ipv4/af_inet.c:749
- #1: ffff88811a1d1f08 (k-clock-AF_INET6){++..}-{3:3}, at: smc_fback_error_report+0x2d/0x140 net/smc/af_smc.c:900
-
-stack backtrace:
-CPU: 0 UID: 0 PID: 5970 Comm: syz.0.17 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.2-debian-1.16.2-1 04/01/2014
-Call Trace:
- <TASK>
- dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120
- lockdep_rcu_suspicious+0x13f/0x1d0 kernel/locking/lockdep.c:6876
- __rcu_dereference_sk_user_data_with_flags include/net/sock.h:682 [inline]
- smc_clcsock_user_data net/smc/smc.h:345 [inline]
- smc_fback_error_report+0x135/0x140 net/smc/af_smc.c:901
- sk_error_report+0x48/0x2b0 net/core/sock.c:348
- tcp_disconnect+0x132c/0x1fa0 net/ipv4/tcp.c:3543
- __inet_stream_connect+0x32b/0xdd0 net/ipv4/af_inet.c:648
- inet_stream_connect+0x66/0xa0 net/ipv4/af_inet.c:750
- __sys_connect_file net/socket.c:2089 [inline]
- __sys_connect+0x312/0x450 net/socket.c:2108
- __do_sys_connect net/socket.c:2114 [inline]
- __se_sys_connect net/socket.c:2111 [inline]
- __x64_sys_connect+0x7a/0x90 net/socket.c:2111
- do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
- do_syscall_64+0x14d/0xf80 arch/x86/entry/syscall_64.c:94
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7effcfd9c799
-Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffe9219fa18 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
-RAX: ffffffffffffffda RBX: 00007effd0015fa0 RCX: 00007effcfd9c799
-RDX: 000000000000000c RSI: 00002000000001c0 RDI: 0000000000000003
-RBP: 00007effcfe32bd9 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007effd0015fac R14: 00007effd0015fa0 R15: 00007effd0015fa0
- </TASK>
-
-
-***
-
-WARNING: suspicious RCU usage in smc_fback_state_change
-
-tree:      net
-URL:       https://kernel.googlesource.com/pub/scm/linux/kernel/git/netdev/net.git
-base:      73aefba4e2eb713cf7bc4ad83cfc9b5d4f966f6d
-arch:      amd64
-compiler:  Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
-config:    https://ci.syzbot.org/builds/0ecfc74c-85c7-4a7b-8b09-d322ac9ea108/config
-C repro:   https://ci.syzbot.org/findings/fb044c1b-44f5-483a-bb87-1aad71a75a03/c_repro
-syz repro: https://ci.syzbot.org/findings/fb044c1b-44f5-483a-bb87-1aad71a75a03/syz_repro
-
-=============================
-WARNING: suspicious RCU usage
-syzkaller #0 Not tainted
------------------------------
-./include/net/sock.h:682 suspicious rcu_dereference_check() usage!
-
-other info that might help us debug this:
-
-
-rcu_scheduler_active = 2, debug_locks = 1
-3 locks held by syz.0.17/5945:
- #0: ffff8881be8b0ee0 (sk_lock-AF_SMC){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1709 [inline]
- #0: ffff8881be8b0ee0 (sk_lock-AF_SMC){+.+.}-{0:0}, at: smc_sendmsg+0x52/0x4d0 net/smc/af_smc.c:2802
- #1: ffff8881b9f04360 (k-sk_lock-AF_INET){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1709 [inline]
- #1: ffff8881b9f04360 (k-sk_lock-AF_INET){+.+.}-{0:0}, at: tcp_sendmsg+0x21/0x50 net/ipv4/tcp.c:1464
- #2: ffff8881b9f04508 (k-clock-AF_INET){++..}-{3:3}, at: smc_fback_state_change+0x2d/0x140 net/smc/af_smc.c:864
-
-stack backtrace:
-CPU: 1 UID: 0 PID: 5945 Comm: syz.0.17 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.2-debian-1.16.2-1 04/01/2014
-Call Trace:
- <TASK>
- dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120
- lockdep_rcu_suspicious+0x13f/0x1d0 kernel/locking/lockdep.c:6876
- __rcu_dereference_sk_user_data_with_flags include/net/sock.h:682 [inline]
- smc_clcsock_user_data net/smc/smc.h:345 [inline]
- smc_fback_state_change+0x135/0x140 net/smc/af_smc.c:865
- tcp_rcv_synsent_state_process net/ipv4/tcp_input.c:7000 [inline]
- tcp_rcv_state_process+0x2b23/0x4810 net/ipv4/tcp_input.c:7215
- tcp_v4_do_rcv+0x6bb/0x1430 net/ipv4/tcp_ipv4.c:1907
- sk_backlog_rcv include/net/sock.h:1185 [inline]
- __release_sock+0x265/0x3a0 net/core/sock.c:3213
- release_sock+0x5f/0x1f0 net/core/sock.c:3795
- tcp_sendmsg+0x39/0x50 net/ipv4/tcp.c:1466
- smc_sendmsg+0x250/0x4d0 net/smc/af_smc.c:2823
- sock_sendmsg_nosec net/socket.c:727 [inline]
- __sock_sendmsg net/socket.c:742 [inline]
- ____sys_sendmsg+0x972/0x9f0 net/socket.c:2592
- ___sys_sendmsg+0x2a5/0x360 net/socket.c:2646
- __sys_sendmsg net/socket.c:2678 [inline]
- __do_sys_sendmsg net/socket.c:2683 [inline]
- __se_sys_sendmsg net/socket.c:2681 [inline]
- __x64_sys_sendmsg+0x1bd/0x2a0 net/socket.c:2681
- do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
- do_syscall_64+0x14d/0xf80 arch/x86/entry/syscall_64.c:94
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7f9b66d9c799
-Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffe630639c8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 00007f9b67015fa0 RCX: 00007f9b66d9c799
-RDX: 00000000200048cc RSI: 0000200000000240 RDI: 0000000000000003
-RBP: 00007f9b66e32bd9 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007f9b67015fac R14: 00007f9b67015fa0 R15: 00007f9b67015fa0
- </TASK>
-
-
-***
-
-WARNING: suspicious RCU usage in smc_fback_write_space
-
-tree:      net
-URL:       https://kernel.googlesource.com/pub/scm/linux/kernel/git/netdev/net.git
-base:      73aefba4e2eb713cf7bc4ad83cfc9b5d4f966f6d
-arch:      amd64
-compiler:  Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
-config:    https://ci.syzbot.org/builds/0ecfc74c-85c7-4a7b-8b09-d322ac9ea108/config
-C repro:   https://ci.syzbot.org/findings/a3f8aa1e-ebea-41f3-b6e4-97d45bc19aaf/c_repro
-syz repro: https://ci.syzbot.org/findings/a3f8aa1e-ebea-41f3-b6e4-97d45bc19aaf/syz_repro
-
-=============================
-WARNING: suspicious RCU usage
-syzkaller #0 Not tainted
------------------------------
-./include/net/sock.h:682 suspicious rcu_dereference_check() usage!
-
-other info that might help us debug this:
-
-
-rcu_scheduler_active = 2, debug_locks = 1
-2 locks held by syz.0.17/5953:
- #0: ffff8881b9ed1c60 (k-sk_lock-AF_INET){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1709 [inline]
- #0: ffff8881b9ed1c60 (k-sk_lock-AF_INET){+.+.}-{0:0}, at: sockopt_lock_sock net/core/sock.c:1152 [inline]
- #0: ffff8881b9ed1c60 (k-sk_lock-AF_INET){+.+.}-{0:0}, at: sk_setsockopt+0xe62/0x2e80 net/core/sock.c:1310
- #1: ffff8881b9ed1e08 (k-clock-AF_INET){++..}-{3:3}, at: smc_fback_write_space+0x2d/0x140 net/smc/af_smc.c:888
-
-stack backtrace:
-CPU: 1 UID: 0 PID: 5953 Comm: syz.0.17 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.2-debian-1.16.2-1 04/01/2014
-Call Trace:
- <TASK>
- dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120
- lockdep_rcu_suspicious+0x13f/0x1d0 kernel/locking/lockdep.c:6876
- __rcu_dereference_sk_user_data_with_flags include/net/sock.h:682 [inline]
- smc_clcsock_user_data net/smc/smc.h:345 [inline]
- smc_fback_write_space+0x135/0x140 net/smc/af_smc.c:889
- sk_setsockopt+0x221f/0x2e80 net/core/sock.c:1351
- do_sock_setsockopt+0x11b/0x1b0 net/socket.c:2318
- __sys_setsockopt net/socket.c:2347 [inline]
- __do_sys_setsockopt net/socket.c:2353 [inline]
- __se_sys_setsockopt net/socket.c:2350 [inline]
- __x64_sys_setsockopt+0x13d/0x1b0 net/socket.c:2350
- do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
- do_syscall_64+0x14d/0xf80 arch/x86/entry/syscall_64.c:94
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7f0c5f39c799
-Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffd35759278 EFLAGS: 00000246 ORIG_RAX: 0000000000000036
-RAX: ffffffffffffffda RBX: 00007f0c5f615fa0 RCX: 00007f0c5f39c799
-RDX: 0000000000000020 RSI: 0000000000000001 RDI: 0000000000000003
-RBP: 00007f0c5f432bd9 R08: 0000000000000004 R09: 0000000000000000
-R10: 0000200000000100 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007f0c5f615fac R14: 00007f0c5f615fa0 R15: 00007f0c5f615fa0
- </TASK>
-
-
-***
-
-If these findings have caused you to resend the series or submit a
-separate fix, please add the following tag to your commit message:
-  Tested-by: syzbot@syzkaller.appspotmail.com
-
----
-This report is generated by a bot. It may contain errors.
-syzbot ci engineers can be reached at syzkaller@googlegroups.com.
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 80Mbps down 10Mbps up. Decent connectivity at last!
