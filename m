@@ -1,213 +1,112 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id A92563C343A;
-	Wed, 11 Mar 2026 08:32:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from lithops.sigma-star.at (mailout.nod.at [116.203.167.152])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29A053BC681;
+	Wed, 11 Mar 2026 08:45:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=116.203.167.152
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773217932; cv=none; b=WOaqeuNyVj6VDYRNvuNGyk8R3c+Qm5tiIbdMAWxuhleF5BS0wpPUbhSUwZwdIiNDahYXBG289gWBbv58p7Dy5RSSwe/NT2Y/SuCcbG1FSD+r6JQs2kUO3pH/GK+ajJTlxrLVy69nic7FOAoIUouha2p59aSvsIMH86Eo+EAJ3RY=
+	t=1773218751; cv=none; b=H3wJSkeYf/yB+rIemZ7L581b9Vzdi0uhv4L54XuomRwGNElpQMJfrUIQEIsDuEBDJI0niK/YpFXrraazR0ss+yuOz2LJj1oQ0l8DJWw2zEbuV28YWFFFLjxoitFOv2bautWl6QrehZ/Fk7Bb9FUXmdFF7wBJ4GtpNB9vsiNdn0M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773217932; c=relaxed/simple;
-	bh=wRHgbk75gdKjuBa/S1QaCXa4CP6gzCI8B52jOie/cHs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=C04hror8d7Kv14KFRUQe8IuuqIOpYps9zyzwo5HJe4stFfzdiKXMcyv+YEjLHFwqcGQyHktJGDo5jyfquZpTIeflQGKsgmTzBEoxC/pgPoOv5RA4k7Y3dAyw7RgxmzR+War5ETo4c+ehdb4WYMY9KDOfcawbQg//npXKrttFu9Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 25D5B20E3;
-	Wed, 11 Mar 2026 01:32:04 -0700 (PDT)
-Received: from [10.57.83.155] (unknown [10.57.83.155])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id D80843F836;
-	Wed, 11 Mar 2026 01:32:05 -0700 (PDT)
-Message-ID: <7687ded7-ecb1-45fe-bfa6-37d1a04355c8@arm.com>
-Date: Wed, 11 Mar 2026 08:32:04 +0000
+	s=arc-20240116; t=1773218751; c=relaxed/simple;
+	bh=Tmt46hJ14n5mJT8WpkY0LC2/s3w1NMyJdvLKZ2I0GjA=;
+	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 MIME-Version:Content-Type; b=TDNIQe5w1+RIe1CB4UW5AfOqSpfrm+ZB/QBux/cN9+p+XRP43UXXCgxDOzCnXPd6U9pk4eZ37ohKSmAdcUEZ/gMA+ilLXNyT08hgujZpgVmk/5NzF5zeEi1VOvdgWmCnJOW2+U6p2fkRJsgzb0PtyHlVoahIQJtGtZrkLvD/8i0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=nod.at; spf=fail smtp.mailfrom=nod.at; arc=none smtp.client-ip=116.203.167.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=nod.at
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nod.at
+Received: from localhost (localhost [127.0.0.1])
+	by lithops.sigma-star.at (Postfix) with ESMTP id B2DA52ABFDE;
+	Wed, 11 Mar 2026 09:45:35 +0100 (CET)
+Received: from lithops.sigma-star.at ([127.0.0.1])
+	by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10032)
+	with ESMTP id WEWZ2Vf5OE-e; Wed, 11 Mar 2026 09:45:34 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+	by lithops.sigma-star.at (Postfix) with ESMTP id B927A2A8813;
+	Wed, 11 Mar 2026 09:45:34 +0100 (CET)
+Received: from lithops.sigma-star.at ([127.0.0.1])
+	by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10026)
+	with ESMTP id XcOBs61suAQS; Wed, 11 Mar 2026 09:45:34 +0100 (CET)
+Received: from lithops.sigma-star.at (lithops.sigma-star.at [195.201.40.130])
+	by lithops.sigma-star.at (Postfix) with ESMTP id 297CD2A87F7;
+	Wed, 11 Mar 2026 09:45:34 +0100 (CET)
+Date: Wed, 11 Mar 2026 09:45:33 +0100 (CET)
+From: Richard Weinberger <richard@nod.at>
+To: hch <hch@lst.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>, 
+	Richard Henderson <richard.henderson@linaro.org>, 
+	Matt Turner <mattst88@gmail.com>, 
+	Magnus Lindholm <linmag7@gmail.com>, 
+	Russell King <linux@armlinux.org.uk>, 
+	Catalin Marinas <catalin.marinas@arm.com>, will <will@kernel.org>, 
+	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, 
+	"Christophe Leroy, CS GROUP" <chleroy@kernel.org>, 
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
+	Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, davem <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, 
+	anton ivanov <anton.ivanov@cambridgegreys.com>, 
+	Johannes Berg <johannes@sipsolutions.net>, 
+	Thomas Gleixner <tglx@kernel.org>, mingo <mingo@redhat.com>, 
+	bp <bp@alien8.de>, dave hansen <dave.hansen@linux.intel.com>, 
+	x86 <x86@kernel.org>, hpa <hpa@zytor.com>, 
+	Herbert Xu <herbert@gondor.apana.org.au>, 
+	dan j williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>, 
+	David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>, 
+	Song Liu <song@kernel.org>, Yu Kuai <yukuai@fnnas.com>, 
+	Li Nan <linan122@huawei.com>, tytso <tytso@mit.edu>, 
+	"Jason A. Donenfeld" <Jason@zx2c4.com>, 
+	linux-alpha <linux-alpha@vger.kernel.org>, 
+	linux-kernel <linux-kernel@vger.kernel.org>, 
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, 
+	loongarch <loongarch@lists.linux.dev>, 
+	linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, 
+	linux-riscv <linux-riscv@lists.infradead.org>, 
+	linux-s390 <linux-s390@vger.kernel.org>, 
+	sparclinux <sparclinux@vger.kernel.org>, 
+	linux-um <linux-um@lists.infradead.org>, 
+	Linux Crypto Mailing List <linux-crypto@vger.kernel.org>, 
+	linux-btrfs <linux-btrfs@vger.kernel.org>, 
+	linux-arch <linux-arch@vger.kernel.org>, 
+	linux-raid <linux-raid@vger.kernel.org>
+Message-ID: <942530005.19163.1773218733711.JavaMail.zimbra@nod.at>
+In-Reply-To: <20260311070416.972667-4-hch@lst.de>
+References: <20260311070416.972667-1-hch@lst.de> <20260311070416.972667-4-hch@lst.de>
+Subject: Re: [PATCH 03/27] um/xor: cleanup xor.h
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 0/2] Fix bugs and performance of kstack offset
- randomisation
-Content-Language: en-GB
-To: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Huacai Chen <chenhuacai@kernel.org>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <pjw@kernel.org>,
- Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- Kees Cook <kees@kernel.org>, "Gustavo A. R. Silva" <gustavoars@kernel.org>,
- Arnd Bergmann <arnd@arndb.de>, Mark Rutland <mark.rutland@arm.com>,
- "Jason A. Donenfeld" <Jason@zx2c4.com>, Ard Biesheuvel <ardb@kernel.org>,
- Jeremy Linton <jeremy.linton@arm.com>,
- David Laight <david.laight.linux@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-hardening@vger.kernel.org
-References: <20260303150840.3789438-1-ryan.roberts@arm.com>
-From: Ryan Roberts <ryan.roberts@arm.com>
-In-Reply-To: <20260303150840.3789438-1-ryan.roberts@arm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Mailer: Zimbra 8.8.12_GA_3807 (ZimbraWebClient - FF147 (Linux)/8.8.12_GA_3809)
+Thread-Topic: um/xor: cleanup xor.h
+Thread-Index: ROrz3iTmErkYXUli/cm3A2WDQMn1kg==
 
-Hi Kees,
+----- Urspr=C3=BCngliche Mail -----
+> Since commit c055e3eae0f1 ("crypto: xor - use ktime for template
+> benchmarking") the benchmarking works just fine even for TT_MODE_INFCPU,
+> so drop the workarounds.  Note that for CPUs supporting AVX2, which
+> includes almost everything built in the last 10 years, the AVX2
+> implementation is forced anyway.
+>=20
+> CONFIG_X86_32 is always correctly set for UM in arch/x86/um/Kconfig,
+> so don't override it either.
+>=20
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+> arch/um/include/asm/xor.h | 16 ----------------
+> 1 file changed, 16 deletions(-)
 
-I'm keen to get some testing in linux-next and hopefully get this upstream for
-v7.1 as we previously discussed. Are you willing/able to take this via your tree?
+Acked-by: Richard Weinberger <richard@nod.at>
 
 Thanks,
-Ryan
-
-
-
-On 03/03/2026 15:08, Ryan Roberts wrote:
-> [Kees; I'm hoping this is now good-to-go via your hardening tree? It would be
-> good to get some linux-next testing.]
-> 
-> Hi All,
-> 
-> As I reported at [1], kstack offset randomisation suffers from a couple of bugs
-> and, on arm64 at least, the performance is poor. This series attempts to fix
-> both; patch 1 provides back-portable fixes for the functional bugs. Patch 2
-> proposes a performance improvement approach.
-> 
-> I've looked at a few different options but ultimately decided that Jeremy's
-> original prng approach is the fastest. I made the argument that this approach is
-> secure "enough" in the RFC [2] and the responses indicated agreement.
-> 
-> More details in the commit logs.
-> 
-> 
-> Performance
-> ===========
-> 
-> Mean and tail performance of 3 "small" syscalls was measured. syscall was made
-> 10 million times and each individually measured and binned. These results have
-> low noise so I'm confident that they are trustworthy.
-> 
-> The baseline is v6.18-rc5 with stack randomization turned *off*. So I'm showing
-> performance cost of turning it on without any changes to the implementation,
-> then the reduced performance cost of turning it on with my changes applied.
-> 
-> **NOTE**: The below results were generated using the RFC patches but there is no
-> meaningful change, so the numbers are still valid. I've also rerun the tests
-> with this version on top of v7.0-rc2 on arm64 and confirmed simialr results.
-> 
-> arm64 (AWS Graviton3):
-> +-----------------+--------------+-------------+---------------+
-> | Benchmark       | Result Class |   v6.18-rc5 |  per-cpu-prng |
-> |                 |              | rndstack-on |               |
-> |                 |              |             |               |
-> +=================+==============+=============+===============+
-> | syscall/getpid  | mean (ns)    |  (R) 15.62% |     (R) 3.43% |
-> |                 | p99 (ns)     | (R) 155.01% |     (R) 3.20% |
-> |                 | p99.9 (ns)   | (R) 156.71% |     (R) 2.93% |
-> +-----------------+--------------+-------------+---------------+
-> | syscall/getppid | mean (ns)    |  (R) 14.09% |     (R) 2.12% |
-> |                 | p99 (ns)     | (R) 152.81% |         1.55% |
-> |                 | p99.9 (ns)   | (R) 153.67% |         1.77% |
-> +-----------------+--------------+-------------+---------------+
-> | syscall/invalid | mean (ns)    |  (R) 13.89% |     (R) 3.32% |
-> |                 | p99 (ns)     | (R) 165.82% |     (R) 3.51% |
-> |                 | p99.9 (ns)   | (R) 168.83% |     (R) 3.77% |
-> +-----------------+--------------+-------------+---------------+
-> 
-> Because arm64 was previously using get_random_u16(), it was expensive when it
-> didn't have any buffered bits and had to call into the crng. That's what caused
-> the enormous tail latency.
-> 
-> 
-> x86 (AWS Sapphire Rapids):
-> +-----------------+--------------+-------------+---------------+
-> | Benchmark       | Result Class |   v6.18-rc5 |  per-cpu-prng |
-> |                 |              | rndstack-on |               |
-> |                 |              |             |               |
-> +=================+==============+=============+===============+
-> | syscall/getpid  | mean (ns)    |  (R) 13.32% |     (R) 4.60% |
-> |                 | p99 (ns)     |  (R) 13.38% |    (R) 18.08% |
-> |                 | p99.9 (ns)   |      16.26% |    (R) 19.38% |
-> +-----------------+--------------+-------------+---------------+
-> | syscall/getppid | mean (ns)    |  (R) 11.96% |     (R) 5.26% |
-> |                 | p99 (ns)     |  (R) 11.83% |     (R) 8.35% |
-> |                 | p99.9 (ns)   |  (R) 11.42% |    (R) 22.37% |
-> +-----------------+--------------+-------------+---------------+
-> | syscall/invalid | mean (ns)    |  (R) 10.58% |     (R) 2.91% |
-> |                 | p99 (ns)     |  (R) 10.51% |     (R) 4.36% |
-> |                 | p99.9 (ns)   |  (R) 10.35% |    (R) 21.97% |
-> +-----------------+--------------+-------------+---------------+
-> 
-> I was surprised to see that the baseline cost on x86 is 10-12% since it is just
-> using rdtsc. But as I say, I believe the results are accurate.
-> 
-> 
-> Changes since v4 [5]
-> ====================
-> 
-> - Moved add_random_kstack_offset() later in syscall entry code for powerpc, s390
->   and x86. On these platforms it was previously within noinstr sections but for
->   some exotic Kconfigs, [get|put]_cpu_var() was calling out to instrumentable
->   code. (reported by kernel test robot)
-> - Removed what was previously patch 2 (inline version of prandom_u32_state()).
->   With the above change, there is no longer an issue with calling the
->   out-of-line version.
-> 
-> Changes since v3 [4]
-> ====================
-> 
-> - Patch 1: Fixed typo in commit log (per David L)
-> - Patch 2: Reinstated prandom_u32_state() as out-of-line function, which
->   forwards to inline version (per David L)
-> - Patch 3: Added supplementary info about benefits of removing
->   choose_random_kstack_offset() (per Mark R)
-> 
-> Changes since v2 [3]
-> ====================
-> 
-> - Moved late_initcall() to initialize kstack_rnd_state out of
->   randomize_kstack.h and into main.c. (issue noticed by kernel test robot)
-> 
-> Changes since v1 (RFC) [2]
-> ==========================
-> 
-> - Introduced patch 2 to make prandom_u32_state() __always_inline (needed since
->   its called from noinstr code)
-> - In patch 3, prng is now per-cpu instead of per-task (per Ard)
-> 
-> 
-> [1] https://lore.kernel.org/all/dd8c37bc-795f-4c7a-9086-69e584d8ab24@arm.com/
-> [2] https://lore.kernel.org/all/20251127105958.2427758-1-ryan.roberts@arm.com/
-> [3] https://lore.kernel.org/all/20251215163520.1144179-1-ryan.roberts@arm.com/
-> [4] https://lore.kernel.org/all/20260102131156.3265118-1-ryan.roberts@arm.com/
-> [5] https://lore.kernel.org/all/20260119130122.1283821-1-ryan.roberts@arm.com
-> 
-> Thanks,
-> Ryan
-> 
-> 
-> Ryan Roberts (2):
->   randomize_kstack: Maintain kstack_offset per task
->   randomize_kstack: Unify random source across arches
-> 
->  arch/Kconfig                         |  5 ++-
->  arch/arm64/kernel/syscall.c          | 11 ------
->  arch/loongarch/kernel/syscall.c      | 11 ------
->  arch/powerpc/kernel/syscall.c        | 16 ++-------
->  arch/riscv/kernel/traps.c            | 12 -------
->  arch/s390/include/asm/entry-common.h |  8 -----
->  arch/s390/kernel/syscall.c           |  2 +-
->  arch/x86/entry/syscall_32.c          |  4 +--
->  arch/x86/entry/syscall_64.c          |  2 +-
->  arch/x86/include/asm/entry-common.h  | 12 -------
->  include/linux/randomize_kstack.h     | 54 +++++++++++-----------------
->  init/main.c                          |  9 ++++-
->  kernel/fork.c                        |  1 +
->  13 files changed, 37 insertions(+), 110 deletions(-)
-> 
-> --
-> 2.43.0
-> 
-
+//richard
