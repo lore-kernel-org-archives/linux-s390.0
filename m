@@ -1,123 +1,125 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f74.google.com (mail-ej1-f74.google.com [209.85.218.74])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14DEA3DEAEB;
-	Wed, 11 Mar 2026 15:24:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FE31389472
+	for <linux-s390@vger.kernel.org>; Wed, 11 Mar 2026 16:01:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773242661; cv=none; b=j5jQ7VS77B8qIIVtZiNxhxhoDZzElJAXfFWoOBc/j9+/CwGc83klp2nIe0oh40gV0hgY36zxOfmCJtDlGBrjS+WlrJF1zprJ5+8gMsHYo9S8Ko+aaATp9rLjJMv7JmLggcFfj16BvQASC60n2eg41JnYGFRxrQWJZsvTwYx3PFU=
+	t=1773244901; cv=none; b=TiKZIrAieCSSRJjhMW1bAHJXB3/zBjhNQ2MyzZhmApHG44tG3lwZpV4D77AyUyCTaIBEKC7yoCiaMXnueubkGmNGEnw+VCt5iG8B5+F8xrvMNFkz65XAc6FuR0G2hrbWUF0F4teBmC5Smv5GN6C5YeHcfEDIwUU7JPi1O++fGOE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773242661; c=relaxed/simple;
-	bh=FPmTLEHSg6HFm+CSBC1lB0B6KYvFAqiaJB1bE8pLaeA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JOCDVFYF+iavdXrH0VKJ9YazWOHOr7yq60rIJiwmgUdPEW4t2/7yxyJFSSMO2Ud9517RtbO+aW/hah7nOYe+7Yud9XHe7TsG4R+CBjUHbV3UliiT5Ul7/Uo67FxiBemadIyeiiPAsyjmIHiQ1kGzqlb+b1SfxL9vyJuRu4Y8djI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XPIsE5Vv; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1773244901; c=relaxed/simple;
+	bh=alZSKgg1lU1wQh0A0HBF21ufoC8erK4cgoNEO+IVhhg=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=Cerz5r7SaaPSsudYg+mQl5ltVhjraWL2EqGOpqxe+MlV3Cu/3PbYxOI4LwdA9epVWfbIdHGXcyo8dcFkjq4/eOGqWsRg79KddicgPja6XokhbpKcWkNvHD5djoc2kbboE8gx9ZfSPGsno0A8xSFVbbfClXmRH9IFF2/ohkT+mBM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--aliceryhl.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=rgP3KJaq; arc=none smtp.client-ip=209.85.218.74
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--aliceryhl.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XPIsE5Vv"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62BFC3fp1709369;
-	Wed, 11 Mar 2026 15:24:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:sender:subject:to; s=pp1;
-	 bh=j2udp80ekD+T28tQFM8ggP76OclqH4SbsPiT4+9AnGU=; b=XPIsE5VvrGNP
-	pQQebnP73Hls/kif79mxTu/KQgJRfvJNJ1SliMQh1sHtdCZ7EqDT2oEDbl5P9L8R
-	WLgmcvGKG+tz/qh/nU0n5H6oZR01vT4cCmFwEKGKx6wH01iVvy3VFNPFVBcRrqAl
-	fxOVGVKfj7sr5/TvG40n3wLbaOLAIPtFNe6QPtF5L4ME0HaX/7Dvqjn0DWIJulWX
-	IHdtlhCzbtSkOFoxaA1rwJ6V4a4Snq6psSPjuyZlL2x04bBBQDizJD43pQVgPO1V
-	iru4tQiWVw24DgpZKX6axMDxSHns+3HC+bJ2yIRzADQ055zr/W7sgA2FIeeAyeck
-	KyZUdX/jPQ==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4crd1mr0rb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 11 Mar 2026 15:24:12 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62BDLqer015750;
-	Wed, 11 Mar 2026 15:24:12 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cs1225qqt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 11 Mar 2026 15:24:11 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62BFO8iK43057470
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 11 Mar 2026 15:24:08 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 33A8D20043;
-	Wed, 11 Mar 2026 15:24:08 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 21BCE20040;
-	Wed, 11 Mar 2026 15:24:08 +0000 (GMT)
-Received: from p1gen4-pw042f0m (unknown [9.52.223.163])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 11 Mar 2026 15:24:08 +0000 (GMT)
-Received: from bblock by p1gen4-pw042f0m with local (Exim 4.99.1)
-	(envelope-from <bblock@linux.ibm.com>)
-	id 1w0LPr-00000009dbV-3cFl;
-	Wed, 11 Mar 2026 16:24:07 +0100
-Date: Wed, 11 Mar 2026 16:24:07 +0100
-From: Benjamin Block <bblock@linux.ibm.com>
-To: Farhan Ali <alifm@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org, helgaas@kernel.org, lukas@wunner.de,
-        alex@shazbot.org, clg@redhat.com, stable@vger.kernel.org,
-        kbusch@kernel.org, schnelle@linux.ibm.com, mjrosato@linux.ibm.com
-Subject: Re: [PATCH v10 4/9] PCI: Add additional checks for flr reset
-Message-ID: <20260311152407.GB2161595@p1gen4-pw042f0m>
-References: <20260302203325.3826-1-alifm@linux.ibm.com>
- <20260302203325.3826-5-alifm@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="rgP3KJaq"
+Received: by mail-ej1-f74.google.com with SMTP id a640c23a62f3a-b96edb0feeaso329531566b.1
+        for <linux-s390@vger.kernel.org>; Wed, 11 Mar 2026 09:01:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1773244899; x=1773849699; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=FZ9wJHN98p2eqW+aluFwwdS4VIjV0bOaQ4w+79zBhNs=;
+        b=rgP3KJaqF2BlecOpPvT5kKAcfsza44TQB2S2rx00vuamlvPC3PCFQtN7iBBVErQ0kT
+         4WdJtxceJIxgfEoqrKiMSBM220p/tm52QxQ+p/Vm9qhMEQGFaHmneuWDzyXc37rR6IvX
+         j5BlJPNzE5lVxK7VrA572ygi0hpBk5fcEnP2yH7V3Q+z+BLO1dy4fVpi0jRKEMeOTip2
+         HIDkQduGaTUGLYmL2Eky5xA41gFzkVV4qEEUwksw40H4w8eZCk0GeALUIDP+Gr7DNvF1
+         2+wUJnKujEB5WM6EYBJBnq343bDJzOoB3ZqK8V5pehsfNWev2da3jY31l4UTLmX5NLQo
+         YIPg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773244899; x=1773849699;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=FZ9wJHN98p2eqW+aluFwwdS4VIjV0bOaQ4w+79zBhNs=;
+        b=A8Lnupi4aJoSMDstPQkrmfiRTSHTWLLSDgvqLEZ1WqH8VnfrRuGLTDohiGu31Aeqke
+         EI0xmUhGPlfIqlpci4jHTi/0QQ5IKabCQxjfczLskXzsLjguyP2QUQ1QF0RE/M7RXjWG
+         U0hIQ527JzxbM3g5rpDzUp98K4b8FW4X/ns6QxQp/XeJjnUAe/1ASJPK/1tOeRYEH3Dp
+         Ln/9h/ZC79H7WI0uehnMHLLXryb6R3ZWNENP3DB3+DrAEKucivICMP7pgR4XYt71FdoE
+         Qj7HI1aXA7GoY+bIp9OmorhXAlo6pivPOPaeYCZQ8vu+TLpRp01IwLDSn6pY/6Yg7XbC
+         rtrg==
+X-Forwarded-Encrypted: i=1; AJvYcCUDQAPIrQA2XnZ3POlRImaScyM6/XlZpgxrWJbEnGbS6e3FLcCTOjbympK5nLTJRjPZdPofrpQufWET@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx6CnN2C5r1yIr7qSw3mRkv9GmSKxnGtY2y6fXAV8GVUG2SwYLr
+	2BsEOEZ6kJTDPwHLkw0sg1Bcb6Li554eIWEtg5Mjfoxw2juFei3tXmFJgmzy64dZ/aFMHXev7UT
+	28YF1EqoJGFbb+efTxQ==
+X-Received: from wrbgw30.prod.google.com ([2002:a05:6000:40de:b0:439:ac29:98cb])
+ (user=aliceryhl job=prod-delivery.src-stubby-dispatcher) by
+ 2002:a17:907:6d22:b0:b93:3792:4b03 with SMTP id a640c23a62f3a-b972e4f775amr187595066b.32.1773244898034;
+ Wed, 11 Mar 2026 09:01:38 -0700 (PDT)
+Date: Wed, 11 Mar 2026 16:01:36 +0000
+In-Reply-To: <20260311120418.GU1687929@ziepe.ca>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260302203325.3826-5-alifm@linux.ibm.com>
-Sender: Benjamin Block <bblock@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=ds3Wylg4 c=1 sm=1 tr=0 ts=69b1891c cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=8nJEP1OIZ-IA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=zd3bCVhvPp9dttV5fycA:9 a=3ZKOabzyN94A:10 a=wPNLvfGTeEIA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzExMDEyNyBTYWx0ZWRfX831PlmGPv7RK
- oxHpe0raDfNJBbwTGgkDdNpFYl8FqfA1j3II+7ulvDnD4fv4bOmYEQJKCOdT/2H9YfAJqypFwPM
- C5Usg2kxnwwF3nJLKz6XxUmtZXTfDvy4rK9qlf0UFn0Ei38bR4+3JoToXNX8NYWrBcz+KSGxxjZ
- 7th/Eu6rtKULJPHCDDBRGtjfvZIkamVsU1qddNoKaqIMaA5CFHeBKI72h8VIMXH6ZKr4WyygAm1
- f7Rc3OMFpcxpUUuMCNT2LxDDlB420jdcrUMg8sRk9dojA+ZKQoovLRsDHevLIucV1U648bqV+Zt
- m/lkIzjNFD/7Rjr7crvgZz1D9faIwR7d9zLJqzaSUbUuRav+aYcoiFWAGdMJVMIdxcbM2LrE5AS
- sOF3Q7Ou0tmMNOEs3197+WwhmfDv5cTHNtXOqQqA/FDfD62H8aCgmqFbVPDhZvCuMWDTX0CB8fO
- nL91/HEHFRQxb40ezbg==
-X-Proofpoint-GUID: moVAB9ob6kDdxoQL9HIlX4h3l2pjkTym
-X-Proofpoint-ORIG-GUID: moVAB9ob6kDdxoQL9HIlX4h3l2pjkTym
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-11_02,2026-03-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 phishscore=0 clxscore=1011 impostorscore=0 suspectscore=0
- priorityscore=1501 lowpriorityscore=0 malwarescore=0 adultscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603110127
+Mime-Version: 1.0
+References: <20260227200848.114019-1-david@kernel.org> <20260227200848.114019-17-david@kernel.org>
+ <20260309142954.GM1687929@ziepe.ca> <61df6369-333c-430a-bd18-c5b1acae68ea@kernel.org>
+ <abE4JYo223OxWCBQ@google.com> <20260311120418.GU1687929@ziepe.ca>
+Message-ID: <abGR4GWMXC2tJyr8@google.com>
+Subject: Re: [PATCH v1 16/16] mm/memory: support VM_MIXEDMAP in zap_special_vma_range()
+From: Alice Ryhl <aliceryhl@google.com>
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>, linux-kernel@vger.kernel.org, 
+	"linux-mm @ kvack . org" <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, 
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, "Liam R. Howlett" <Liam.Howlett@oracle.com>, 
+	Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
+	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Jann Horn <jannh@google.com>, 
+	Pedro Falcato <pfalcato@suse.de>, David Rientjes <rientjes@google.com>, 
+	Shakeel Butt <shakeel.butt@linux.dev>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Jarkko Sakkinen <jarkko@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	"Arve =?utf-8?B?SGrDuG5uZXbDpWc=?=" <arve@android.com>, Todd Kjos <tkjos@android.com>, 
+	Christian Brauner <brauner@kernel.org>, Carlos Llamas <cmllamas@google.com>, Ian Abbott <abbotti@mev.co.uk>, 
+	H Hartley Sweeten <hsweeten@visionengravers.com>, Jani Nikula <jani.nikula@linux.intel.com>, 
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, 
+	Tvrtko Ursulin <tursulin@ursulin.net>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Leon Romanovsky <leon@kernel.org>, 
+	Dimitri Sivanich <dimitri.sivanich@hpe.com>, Arnd Bergmann <arnd@arndb.de>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Andrii Nakryiko <andrii@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
+	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, Andy Lutomirski <luto@kernel.org>, 
+	Vincenzo Frascino <vincenzo.frascino@arm.com>, Eric Dumazet <edumazet@google.com>, 
+	Neal Cardwell <ncardwell@google.com>, "David S. Miller" <davem@davemloft.net>, 
+	David Ahern <dsahern@kernel.org>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Miguel Ojeda <ojeda@kernel.org>, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
+	linux-s390@vger.kernel.org, linux-sgx@vger.kernel.org, 
+	intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
+	linux-rdma@vger.kernel.org, bpf@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	netdev@vger.kernel.org, rust-for-linux@vger.kernel.org, x86@kernel.org
+Content-Type: text/plain; charset="utf-8"
 
-Hey Farhan,
+On Wed, Mar 11, 2026 at 09:04:18AM -0300, Jason Gunthorpe wrote:
+> On Wed, Mar 11, 2026 at 09:38:45AM +0000, Alice Ryhl wrote:
+> > It doesn't really make sense to have multiple binder VMAs. What happens
+> > with Rust Binder is that process A is receiving transactions and has the
+> > VMA mapped once.
+> 
+> IIRC the problem is the kernel doesn't guarentee singleton VMAs,
+> userspace can always clone them with fork or something. Did binder
+> solve this somehow?
 
-just noticed a small nitpick:
+The Binder VMA is DONTCOPY, so it will not be present after fork.
 
-On Mon, Mar 02, 2026 at 12:33:19PM -0800, Farhan Ali wrote:
-> If a device is in an error state, then any reads of device registers can
-> return error value. Add addtional checks to validate if a device is in an
-                          ^^^^^^^^^
-                          additional?
+> Since you can't assume there is only one VMA the locking becomes a
+> mess to cover all the cases where userspace can trigger a VMA clone.
+> 
+> address space deals with this internally.
+> 
+> Thus, zap_special_vma_range() is extremely hard to use.
 
-In case you do an other version roll.
+I mean, the hard part about the locking is keeping them in sync. Binder
+just doesn't do that. Only the original VMA gets pages inserted or
+zapped. If you create a second VMA, you just get a useless read-only VMA
+that you can't do anything with.
 
--- 
-Best Regards, Benjamin Block        /        Linux on IBM Z Kernel Development
-IBM Deutschland Research & Development GmbH    /   https://www.ibm.com/privacy
-Vors. Aufs.-R.: Wolfgang Wendt         /        Geschäftsführung: David Faller
-Sitz der Ges.: Ehningen     /     Registergericht: AmtsG Stuttgart, HRB 243294
+Alice
