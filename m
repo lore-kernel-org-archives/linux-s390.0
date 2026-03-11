@@ -1,60 +1,33 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EB273AC0F9;
-	Wed, 11 Mar 2026 07:21:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 154561A6838;
+	Wed, 11 Mar 2026 08:09:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773213730; cv=none; b=P8tfGkFX02s6I+se+5rzvYZVp/g1WEJhGPAbc9961syVpCCzfNljtO9//tCZgVjzujftV2NKdHuE/R6D9VkGEI/jbADsXCznZ4ncIERwoSyth5f7iXHxC0L6iYGkZS9gZCRX05wFHrAL2C4z2TGFcSCmk5K8VlkGG2tLB5t6bdg=
+	t=1773216594; cv=none; b=LP/vdf1UT6vBauU6NVKiKU0jSiRL/L8AcUx69XoOHg2QckIBHtpWagE4oYdD6diFYFlsbXxP/2BQrCh7QrOlqlqf4uFUm6h/nVTHCgwkOythv3d7xsn/aWy8rZfFNQVj1byfMX2kYJj+YiKKz4489Kfw0fTSUJARXAdoxAU/STg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773213730; c=relaxed/simple;
-	bh=PlV/dWcDAQfYGcXu3pGg7KfoPZ7tAnN1AyM0bnblzF8=;
+	s=arc-20240116; t=1773216594; c=relaxed/simple;
+	bh=Ev+RupPFx3vFthuT0C4F0wFHzLiDXKrbll1RNkDERZo=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gWb9SoWpfNunEIKHEQShLSEKi1YvwZPC9iuoqYYZ/Q+jqbe1qI38YR/U86fGajexkAzn0/yYLpwc/Khpgfb/vdCCzd/hfAluHfh/UoFwyoQ8aGEFmgISHcrpkZdwENGTCbjI2/F59wvfIKmRYgRANsrofyQzzyjGibdNETJQwLU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kCPONETO; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=mDZ1Qx7UzQ9vR+mQlt9/UE2S85Eyx9r+0+1bgIRrZJ87BMfKctWl5Z8r7Mr374qngzz1rK4FedQLQArKQrpvUrtQTloUgAgh4q9TMYrknfPNfMSAECk6xxGaPWmosGnhZQ/UG50GWOWD7XCP/eOiQhNW+my/rN2+IVrD0/ITL8Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YLFscuv2; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kCPONETO"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62AFtoqh299992;
-	Wed, 11 Mar 2026 07:21:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=uJ9jyO
-	6vNu3OyDhgcDZZh5mZR2IaONZUW4RUmAN6Qhc=; b=kCPONETOjZip0U/EVB0T7K
-	j4ApUcl1FS5t0Acy9RcciYsWVy+BQz1JEcvqJA1jmGcsFRWIOu9ZUHSfG+I6iCIg
-	psABo2NqpIQwfUuVHtm7JnLLVdQIDvrtolSmAOSYBnwaxUxab5q3wlqr48pqUPLq
-	rmw5TPgctsZ434Ch93h3L2oaXQS/CQsQxilNRD7FRMUrHTSAF/M7SHJKbYH6ijOI
-	uXaCN6OpW2ktlGvpdyN4uyyBy3sLxHmH454d5u7Pq1xqQkteEnDLjsacO1IIwBWe
-	JMK/BO5TKCvxV+rsub4zoajwiw8nDzbsPOxQc7bWeAkJ3Dt/mxqdR0Zi/VToG7dA
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4crcywenss-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 11 Mar 2026 07:21:56 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62B34Ccg015771;
-	Wed, 11 Mar 2026 07:21:55 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cs12247ca-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 11 Mar 2026 07:21:55 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62B7Lpen10486234
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 11 Mar 2026 07:21:51 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C86912004F;
-	Wed, 11 Mar 2026 07:21:51 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 89F4E2004B;
-	Wed, 11 Mar 2026 07:21:51 +0000 (GMT)
-Received: from [9.52.199.37] (unknown [9.52.199.37])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 11 Mar 2026 07:21:51 +0000 (GMT)
-Message-ID: <131d7e1e-701e-4f5b-961f-c85af74f1d96@linux.ibm.com>
-Date: Wed, 11 Mar 2026 08:21:51 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YLFscuv2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EF97C2BC9E;
+	Wed, 11 Mar 2026 08:09:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773216593;
+	bh=Ev+RupPFx3vFthuT0C4F0wFHzLiDXKrbll1RNkDERZo=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=YLFscuv28t6jNAc42r7OavZhQeZvSUNStqr4Q7RFSOURjF6F4a+qrM3dZ18dhGWkF
+	 X3Q4wgVwkGzwZkdxpQkPksaXlYEI8vwMn3WBd/AVKeZc7kSwFZpu8HDj2NZbjH1jbC
+	 WKOonDy7O7ApDlcBH0pscWiPe+jDN7F4/VFe/CzIqaHf99gDDkESZx8I6jSIUfK7mB
+	 vG88BGnoCznJZICI1miWkoS/rI+HFCZyFlD9hIRhLm8jzSqpvneI9JCyoGKq0Purxu
+	 R+xWoOWF3J7Vf2YLrhnt5/4zPBse4v00ORNEvkDANUHfMoFc/3iG9OcAInOkA21TE0
+	 J0V3p3DYTNXtg==
+Message-ID: <ffc64d94-d3c8-4a51-b6f5-9da9ff633856@kernel.org>
+Date: Wed, 11 Mar 2026 09:09:38 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,155 +35,123 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] perf test: Fix test case 120 and 121 for s390
-To: Namhyung Kim <namhyung@kernel.org>, Ian Rogers <irogers@google.com>
-Cc: Jan Polensky <japo@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
-        acme@kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com,
-        sumanthk@linux.ibm.com, hca@linux.ibm.com
-References: <20260306071002.2526085-1-tmricht@linux.ibm.com>
- <aar4GKP1c66egZnn@li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com>
- <CAP-5=fXs0UrMVhwU-_=iunCYa_ye18FHj0W1V8sE5T9nOkeZWg@mail.gmail.com>
- <a3b8bf7e-ec5c-460b-9ffc-ca1d2cd9e223@linux.ibm.com>
- <CAP-5=fVziHx2B8QPWafPo0T_JWm06zD4vwtR4DmcFyePV04U0Q@mail.gmail.com>
- <abEG_lty-tgMXJYx@z2>
+Subject: Re: [PATCH v1 04/16] mm/memory: simplify calculation in
+ unmap_mapping_range_tree()
+To: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
+Cc: linux-kernel@vger.kernel.org, "linux-mm @ kvack . org"
+ <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>,
+ Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+ Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>,
+ David Rientjes <rientjes@google.com>, Shakeel Butt <shakeel.butt@linux.dev>,
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+ Alice Ryhl <aliceryhl@google.com>, Madhavan Srinivasan
+ <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Jarkko Sakkinen <jarkko@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ =?UTF-8?Q?Arve_Hj=C3=B8nnev=C3=A5g?= <arve@android.com>,
+ Todd Kjos <tkjos@android.com>, Christian Brauner <brauner@kernel.org>,
+ Carlos Llamas <cmllamas@google.com>, Ian Abbott <abbotti@mev.co.uk>,
+ H Hartley Sweeten <hsweeten@visionengravers.com>,
+ Jani Nikula <jani.nikula@linux.intel.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, Tvrtko Ursulin
+ <tursulin@ursulin.net>, David Airlie <airlied@gmail.com>,
+ Simona Vetter <simona@ffwll.ch>, Jason Gunthorpe <jgg@ziepe.ca>,
+ Leon Romanovsky <leon@kernel.org>,
+ Dimitri Sivanich <dimitri.sivanich@hpe.com>, Arnd Bergmann <arnd@arndb.de>,
+ Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Andrii Nakryiko <andrii@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Namhyung Kim <namhyung@kernel.org>, Andy Lutomirski <luto@kernel.org>,
+ Vincenzo Frascino <vincenzo.frascino@arm.com>,
+ Eric Dumazet <edumazet@google.com>, Neal Cardwell <ncardwell@google.com>,
+ "David S. Miller" <davem@davemloft.net>, David Ahern <dsahern@kernel.org>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Miguel Ojeda <ojeda@kernel.org>, linuxppc-dev@lists.ozlabs.org,
+ kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-sgx@vger.kernel.org,
+ intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+ linux-rdma@vger.kernel.org, bpf@vger.kernel.org,
+ linux-perf-users@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ netdev@vger.kernel.org, rust-for-linux@vger.kernel.org, x86@kernel.org
+References: <20260227200848.114019-1-david@kernel.org>
+ <20260227200848.114019-5-david@kernel.org>
+ <6c6bf2d6-bc0f-4721-a57d-6b9c5f2a5c66@lucifer.local>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
-From: Thomas Richter <tmricht@linux.ibm.com>
-Organization: IBM
-In-Reply-To: <abEG_lty-tgMXJYx@z2>
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <6c6bf2d6-bc0f-4721-a57d-6b9c5f2a5c66@lucifer.local>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzExMDA1OCBTYWx0ZWRfX23XfQwMHs3OR
- B/fPEL88ao6d5x6Da+9B0AwC/LaCDI1tRnTfQU2DM+WGrabODOeAHtD3EygSRZ5ESDyMUnqGED5
- IhPNMbMq48I5oeWGCoY1VLvWUdnP7Kn+lSVeX1//OADLkKKp1U6ut/yWgBh881nNXMMraBd2Wl+
- c6UUdbe882HxAVVYpRLwux4zQQ9bAv6hGxXzY0gEmMkq1Tecz43+YZmPehYBUC/VGXMfiq2BS00
- Fl51ozSuQnUuW714O0ishuiwXOiDHIOHE8PO6rOacBwP+ywJ/hM313nllh/nH1dpi4+YMw8eq0B
- 83j3BNOzIBuYZLuVwrADZIQAmqwnMDCXlsTi2xvij27YwXSJ7wghWXoviKlwMY4tg8C4A1rOlZv
- bJPSEFHPMuBAW9Z4uZnFmM2hKfyqQMx3jjQs+orv/H3ZfB/IC53vblZEAD6/Xw6GdDV4NvNpcX2
- SldRl6slj7fOtB97ICg==
-X-Authority-Analysis: v=2.4 cv=QaVrf8bv c=1 sm=1 tr=0 ts=69b11814 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=cuj6kmj_aNiUJrLrNf4A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: CucyPc9reZlF-nBX_aZ2FSyHDz54Uqa3
-X-Proofpoint-ORIG-GUID: BisuSJe-YCM8awrOIMI4VA0EI64j1xeq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-10_05,2026-03-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 spamscore=0 impostorscore=0 clxscore=1015 adultscore=0
- bulkscore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603110058
+Content-Transfer-Encoding: 7bit
 
-On 3/11/26 07:09, Namhyung Kim wrote:
-> On Mon, Mar 09, 2026 at 11:18:28AM -0700, Ian Rogers wrote:
->> On Mon, Mar 9, 2026 at 5:59 AM Thomas Richter <tmricht@linux.ibm.com> wrote:
->>>
->>> On 3/6/26 17:53, Ian Rogers wrote:
->>>> On Fri, Mar 6, 2026 at 7:52 AM Jan Polensky <japo@linux.ibm.com> wrote:
->>>>>
->>>>> On Fri, Mar 06, 2026 at 08:10:02AM +0100, Thomas Richter wrote:
->>>>>> Perf tests
->>>>>> 120: 'perf data convert --to-ctf' command test
->>>>>> 121: 'perf data convert --to-json' command test
->>>>>> fail on s390. It is caused by selecting the default event cycles
->>>>>> which does not exist on s390 z/VM. Use software event cpu-clock
->>>>>> and specify it explicitly on the command line.
->>>>>>
->>>>>> Output before:
->>>>>> ❯ perf test 120 121
->>>>>> 120: 'perf data convert --to-ctf' command test       : FAILED!
->>>>>> 121: 'perf data convert --to-json' command test      : FAILED!
->>>>>>
->>>>>> Output after:
->>>>>> ❯ perf test 120 121
->>>>>> 120: 'perf data convert --to-ctf' command test       : Ok
->>>>>> 121: 'perf data convert --to-json' command test      : Ok
->>>>>>
->>>>>> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
->>>>> [snip]
->>>>> Thanks for providing this, Thomas!
->>>>> Tested-by: Jan Polensky <japo@linux.ibm.com>
->>>>> Reviewed-by: Jan Polensky <japo@linux.ibm.com>
->>>>
->>>> Should we not fallback for the cycles as a default event?
->>>> https://web.git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools-next.git/tree/tools/perf/builtin-record.c#n1374
->>>> https://web.git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools-next.git/tree/tools/perf/util/evsel.c#n3792
->>>>
->>>> Thanks,
->>>> Ian
->>>>
->>>
->>> The fallback should be cpu-clock in case hardware event cycles (or CPU_CYCLES on s390) does not exist.
->>
->> Thanks Thomas, so the change is doing:
->> ```
->> -       if ! perf record -o "$perfdata" -F 99 -g -- perf test -w noploop
->> +       if ! perf record -o "$perfdata" -e cpu-clock -F 99 -g -- perf
->> test -w noploop
->> ```
->> where the default event is cycles:
->> https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/tools/perf/util/evlist.c#n116
->> Given that cycles will fail but then fallback to cpu-clock:
->> https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/tools/perf/util/evsel.c#n3792
->> I wonder if the issue is that the fallback is broken. Specifically:
->> ```
->>    evsel->core.attr.type   == PERF_TYPE_HARDWARE &&
->>    evsel->core.attr.config == PERF_COUNT_HW_CPU_CYCLES) {
->> ```
->> It isn't going to work well on hybrid machines or those whose PMU's
->> sysfs events or JSON include a cycles event. I wonder if using
->> `evsel__match(evsel, HARDWARE, CYCLES)` would be better, as the
->> evsel__match code is more robust to these kind of variances. I don't
->> know if that will address the fallback problem for you.
+
 > 
-> I suspect it may return a different error code on s390.
+>> -		start = ((zba - vba) << PAGE_SHIFT) + vma->vm_start;
+>> -		size = (zea - zba + 1) << PAGE_SHIFT;
+>> +		const pgoff_t start_idx = max(first_index, vma->vm_pgoff);
+>> +		const pgoff_t end_idx = min(last_index, vma_last_pgoff(vma)) + 1;
 > 
-> Thanks,
-> Namhyung
-> 
+> I guess since 'end' is by-convention the +1 of last this is fine
 
-This is interesting, further debugging revealed this:
- # ./perf record -F 99 --call-graph dwarf  -F99 -- perf test -w noploop
-Error:
-Failure to open event 'cpum_cf/cycles/PH' on PMU 'cpum_cf' which will be removed.
-cpum_cf/cycles/PH: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
-Error:
-Failure to open any events for recording.
- # ./perf record -F 99 -g -- perf test -w noploop
-Error:
-Failure to open event 'cpum_cf/cycles/PH' on PMU 'cpum_cf' which will be removed.
-cpum_cf/cycles/PH: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
-Error:
-Failure to open any events for recording.
- # ./perf record -F 99  -- perf test -w noploop
-[ perf record: Woken up 1 times to write data ]
-Failed to open /proc/schedstat
-[ perf record: Captured and wrote 0.012 MB perf.data (95 samples) ]
- # 
+Exactly, the calculation itself is not changed.
 
-So the real issue is the -g / --call-graph dwarf option. s390 supports only dwarf.
-But with --call-graph event 'cpum_cf/cycles/PH' is used, that is modifier H is added.
- # ./perf evlist
- cpum_cf/cycles/P
- #
+The +1 was previously hiding inside the "(zea - zba + 1)"
 
-Without that option modifier H is not added and all is well.
-
-I suggest to drop the call-graph option. If that option is needed for the test
-than we need a s390 change anyway.
+Thanks!
 
 -- 
-Thomas Richter, Dept 3303, IBM s390 Linux Development, Boeblingen, Germany
---
-IBM Deutschland Research & Development GmbH
+Cheers,
 
-Vorsitzender des Aufsichtsrats: Wolfgang Wendt
-
-Geschäftsführung: David Faller
-
-Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
+David
