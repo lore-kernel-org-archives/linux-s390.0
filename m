@@ -1,120 +1,150 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A56D2F4A05;
-	Wed, 11 Mar 2026 06:09:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC2EC30B525;
+	Wed, 11 Mar 2026 07:01:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773209345; cv=none; b=KC9N4fkGtFQJ3HY2maa5J/aKguHVymQYrRxG/QXExPiBtZvPEqeLntfi4Mv4CFv5Ju9eOzTFqeVRrU6bLKHKeYAanNHxl0m5JYbElgDl23z2WGAhLQ2iGjqr5hwa+/y401N03BfZ2dt7O7EfU1f52x7CG/K+/zsC1FFSVs8qBZ8=
+	t=1773212462; cv=none; b=OL3qOxumSQLrIaCDi66KERtQPSFLCXBtzL2eQlI5hJkgQsmI2OrNSeGHPMXHNUA3OHqUxUGcmpcnJu0wioudi3vG1fxQ0KPBQ6I2VVfe12MmzUNzqcdxph0ou3LGeRFZdkZwPC3Q7CcgKNXRHosuVN55fPwGJ7rbsa/dlxdTwIY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773209345; c=relaxed/simple;
-	bh=DmYQ6vpGcOowWzmg/xavd+uS24m5fO1EdRRYKPjbV7A=;
+	s=arc-20240116; t=1773212462; c=relaxed/simple;
+	bh=3kzDNsvsskXlmXknyXOD4f0+YuitqQYcx5cDpi55bFE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=c1XGXVME+OwZbjzXukllFyxANHsrY5W1b+L6HUlZYeOZB1KaMmeCotaGxSwglbiOdG2NzxdBRUZwXx25aqljCohG9dfHrWrUwBOM4O+Wv8peXqEX6dCnLNei4/e6aFRsCLxSEjNaxJFQ7I76zgkiFoO+Y8oC9afSHc3rBAOzOgk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n4ne5Ft0; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=NRWpgePARIQQf0gocCegP9YkMsDJQs7qO9vd15lG6B/QVBdTH7ewTJpGFDDW50hZ+U9lDALOoQsOHXfzaTRw3nDLnEzra7n8VppMCL1dMP81hvHI3KPaikvzdbmiK6VYhMP+urUGbHSjzFPLlBius9EoBdhlfsnFjazFFd5VF1M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kg6uhTZG; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n4ne5Ft0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B49DC4CEF7;
-	Wed, 11 Mar 2026 06:09:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773209345;
-	bh=DmYQ6vpGcOowWzmg/xavd+uS24m5fO1EdRRYKPjbV7A=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=n4ne5Ft03RZcvgJEAvSwefW52x3F15TJHPJtYkviir3A2oFRkAWdBC76cVR0e4YRw
-	 Qia5XKZ8BNM/8+NJ8BleIJ6tIZlE9+BaYfGDH91lMFMurY08kQVZR7V7h0/9DDplN2
-	 EwVyLhhqegqpRXd2qp2VqsYmM2flNvnrHJjS9xITH1q2bIPgIfCwa/PoetSp2OU+px
-	 OuzRg8aIVfCYIY5Osm1BN5NmOSMIgZ4ORfcf7bSOYb9wFiOfkBayT7tQll9q3iJgK+
-	 8AoJ/B2tBvhpmd3AT3XuZKNL9dDu6BEjXY1gn1aG1v081sK66FhhE1HMpnTeZPaaYh
-	 ue/fmMr1ipthw==
-Date: Tue, 10 Mar 2026 23:09:02 -0700
-From: Namhyung Kim <namhyung@kernel.org>
-To: Ian Rogers <irogers@google.com>
-Cc: Thomas Richter <tmricht@linux.ibm.com>,
-	Jan Polensky <japo@linux.ibm.com>, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
-	acme@kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com,
-	sumanthk@linux.ibm.com, hca@linux.ibm.com
-Subject: Re: [PATCH] perf test: Fix test case 120 and 121 for s390
-Message-ID: <abEG_lty-tgMXJYx@z2>
-References: <20260306071002.2526085-1-tmricht@linux.ibm.com>
- <aar4GKP1c66egZnn@li-276bd24c-2dcc-11b2-a85c-945b6f05615c.ibm.com>
- <CAP-5=fXs0UrMVhwU-_=iunCYa_ye18FHj0W1V8sE5T9nOkeZWg@mail.gmail.com>
- <a3b8bf7e-ec5c-460b-9ffc-ca1d2cd9e223@linux.ibm.com>
- <CAP-5=fVziHx2B8QPWafPo0T_JWm06zD4vwtR4DmcFyePV04U0Q@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kg6uhTZG"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62B1vVnA049228;
+	Wed, 11 Mar 2026 07:01:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=YBSn5OSKIG/z4ZPSPJ1xzUrMehIrh7
+	R0GYyEGxD7vA8=; b=kg6uhTZGMtSN3TMxnYBo8JqCeWu21dUwzNQ6Iwu4UM7eBP
+	7baoMHl6XQeFgSWjGn4auh+lWBnTz6SOVS2yF+Ihkrb2Rewx6dmVXyl5HuQo8XWR
+	XMXzF8pvgStr3kUHXf4mQ1RKzKl1RmM6B9iWSf9GjujHR7FhIZYtebCFfg1UcLXI
+	ylXYUzBZXLJzzAkikyaOdUjtDsopPx2c8OeGEvE7EKm34rp2M9NM0E3rGL3U/Roe
+	zP+nsrVFp9pSWSc8yPdsaonaIjkkTXrw0Lft50S846FPK6NloSfjtYJNCj+1YGJB
+	F+fnozwkftxoOsVAyhFK4Bz+Sm7KC5veX4Va27XA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4crcvmenxu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 11 Mar 2026 07:00:59 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62B25jJJ015608;
+	Wed, 11 Mar 2026 07:00:58 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4crybncdq2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 11 Mar 2026 07:00:58 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62B70sZV46989820
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 11 Mar 2026 07:00:54 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9C9112006A;
+	Wed, 11 Mar 2026 07:00:54 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 79EB020063;
+	Wed, 11 Mar 2026 07:00:54 +0000 (GMT)
+Received: from osiris (unknown [9.52.214.206])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 11 Mar 2026 07:00:54 +0000 (GMT)
+Date: Wed, 11 Mar 2026 08:00:53 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        borntraeger@linux.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] s390/mm: add missing secure storage access fixups for
+ donated memory
+Message-ID: <20260311070053.9469A4e-hca@linux.ibm.com>
+References: <20260310150408.160722-1-frankja@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAP-5=fVziHx2B8QPWafPo0T_JWm06zD4vwtR4DmcFyePV04U0Q@mail.gmail.com>
+In-Reply-To: <20260310150408.160722-1-frankja@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: HDAtHDHrkuJXEr8he60jxutAqdsk9TUi
+X-Proofpoint-ORIG-GUID: HDAtHDHrkuJXEr8he60jxutAqdsk9TUi
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzExMDA1MyBTYWx0ZWRfXz4/9Q7QVjhjr
+ fnWYIAgyfo+YXv8CpLl+kNIpxIZJKjsc8FF6FA/zDRAYEbMNMwJ/JUQEOvGhpBK7LtFGUxeN8kz
+ VPVv6rYdfSf2NaFkESJvNcBVmwuzQaSH8CY1LADL+xglqq9EvlUWUnZXbBKORkkMIAPRir238hv
+ kLyJ3ZmVur2ReON76bg28JPdrhgs+yNcpih4k+Hhz6V5jbZuq7kCcE7pJnxxU6cGAr5Wk4hfq1v
+ 27tbXPPKVA9d/nUAN5XsOnDoor0bZvn/+DD8fIC6Phs+vDFUnWnSe654jbtpKhCorK6DKCZ75KS
+ jc8IQicrHyKY3nOGmewuC9Bl88lqE+SLlCY6x8pD3+0IeKT2bviguxvcbejNU/qQu2PSM7naxyF
+ l3i33T55MeAXHhJxW3JvVgT1H0/V2MVyhSBrey/jveOvJ9yfl8Amdncnpapuf97efcYBmmFLJHG
+ fv2BBliCQdVK/L/FyBQ==
+X-Authority-Analysis: v=2.4 cv=B5q0EetM c=1 sm=1 tr=0 ts=69b1132b cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=absFpL8vnmusHIZpY_EA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-10_05,2026-03-09_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 phishscore=0 adultscore=0 lowpriorityscore=0 bulkscore=0
+ priorityscore=1501 spamscore=0 clxscore=1015 impostorscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603110053
 
-On Mon, Mar 09, 2026 at 11:18:28AM -0700, Ian Rogers wrote:
-> On Mon, Mar 9, 2026 at 5:59 AM Thomas Richter <tmricht@linux.ibm.com> wrote:
-> >
-> > On 3/6/26 17:53, Ian Rogers wrote:
-> > > On Fri, Mar 6, 2026 at 7:52 AM Jan Polensky <japo@linux.ibm.com> wrote:
-> > >>
-> > >> On Fri, Mar 06, 2026 at 08:10:02AM +0100, Thomas Richter wrote:
-> > >>> Perf tests
-> > >>> 120: 'perf data convert --to-ctf' command test
-> > >>> 121: 'perf data convert --to-json' command test
-> > >>> fail on s390. It is caused by selecting the default event cycles
-> > >>> which does not exist on s390 z/VM. Use software event cpu-clock
-> > >>> and specify it explicitly on the command line.
-> > >>>
-> > >>> Output before:
-> > >>> ❯ perf test 120 121
-> > >>> 120: 'perf data convert --to-ctf' command test       : FAILED!
-> > >>> 121: 'perf data convert --to-json' command test      : FAILED!
-> > >>>
-> > >>> Output after:
-> > >>> ❯ perf test 120 121
-> > >>> 120: 'perf data convert --to-ctf' command test       : Ok
-> > >>> 121: 'perf data convert --to-json' command test      : Ok
-> > >>>
-> > >>> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> > >> [snip]
-> > >> Thanks for providing this, Thomas!
-> > >> Tested-by: Jan Polensky <japo@linux.ibm.com>
-> > >> Reviewed-by: Jan Polensky <japo@linux.ibm.com>
-> > >
-> > > Should we not fallback for the cycles as a default event?
-> > > https://web.git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools-next.git/tree/tools/perf/builtin-record.c#n1374
-> > > https://web.git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools-next.git/tree/tools/perf/util/evsel.c#n3792
-> > >
-> > > Thanks,
-> > > Ian
-> > >
-> >
-> > The fallback should be cpu-clock in case hardware event cycles (or CPU_CYCLES on s390) does not exist.
+On Tue, Mar 10, 2026 at 03:02:42PM +0000, Janosch Frank wrote:
+> There are special cases where secure storage access exceptions happen
+> in a kernel context for pages that don't have the PG_arch_1 bit
+> set. That bit is set for non-exported guest secure storage (memory)
+> but is absent on storage donated to the Ultravisor since the kernel
+> isn't allowed to export donated pages.
 > 
-> Thanks Thomas, so the change is doing:
-> ```
-> -       if ! perf record -o "$perfdata" -F 99 -g -- perf test -w noploop
-> +       if ! perf record -o "$perfdata" -e cpu-clock -F 99 -g -- perf
-> test -w noploop
-> ```
-> where the default event is cycles:
-> https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/tools/perf/util/evlist.c#n116
-> Given that cycles will fail but then fallback to cpu-clock:
-> https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/tools/perf/util/evsel.c#n3792
-> I wonder if the issue is that the fallback is broken. Specifically:
-> ```
->    evsel->core.attr.type   == PERF_TYPE_HARDWARE &&
->    evsel->core.attr.config == PERF_COUNT_HW_CPU_CYCLES) {
-> ```
-> It isn't going to work well on hybrid machines or those whose PMU's
-> sysfs events or JSON include a cycles event. I wonder if using
-> `evsel__match(evsel, HARDWARE, CYCLES)` would be better, as the
-> evsel__match code is more robust to these kind of variances. I don't
-> know if that will address the fallback problem for you.
+> Prior to this patch we would try to export the page by calling
+> arch_make_folio_accessible() which would instantly return since the
+> arch bit is absent signifying that the page was already exported and
+> no further action is necessary. This leads to secure storage access
+> exception loops which can never be resolved.
+> 
+> With this patch we unconditionally try to export and if that fails we
+> fixup.
+> 
+> Fixes: 084ea4d611a3 ("s390/mm: add (non)secure page access exceptions handlers")
+> Reported-by: Heiko Carstens <hca@linux.ibm.com>
+> Suggested-by: Heiko Carstens <hca@linux.ibm.com>
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+> 
+> Changed fault error handling to nolock. (Heiko)
+> Added PG_arch_1 cleanup requested off-list. (Claudio)
+> 
+> ---
+>  arch/s390/mm/fault.c | 11 +++++++++--
+>  1 file changed, 9 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+> index a52aa7a99b6b..191cc53caead 100644
+> --- a/arch/s390/mm/fault.c
+> +++ b/arch/s390/mm/fault.c
+> @@ -441,10 +441,17 @@ void do_secure_storage_access(struct pt_regs *regs)
+>  		folio = phys_to_folio(addr);
+>  		if (unlikely(!folio_try_get(folio)))
+>  			return;
+> -		rc = arch_make_folio_accessible(folio);
+> +		rc = uv_convert_from_secure(folio_to_phys(folio));
+> +		if (!rc)
+> +			clear_bit(PG_arch_1, &folio->flags.f);
+>  		folio_put(folio);
 
-I suspect it may return a different error code on s390.
+Isn't the clear_bit() racy? That is: another CPU could make the page secure
+again, set (the still set) PG_arch_1, and then clear_bit() removes the bit,
+and we end up with a secure page where PG_arch_1 is not set?
+Which in turn would arch_make_folio_accessible() al
 
-Thanks,
-Namhyung
+Or is that not possible?
 
+Just wondering, since __make_folio_secure() requires the folio to be locked
+when setting PG_arch_1, while clearing happens unlocked. But chances are high
+that I don't understand the code.
