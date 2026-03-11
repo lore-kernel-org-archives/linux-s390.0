@@ -1,67 +1,64 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6618236F439;
-	Wed, 11 Mar 2026 16:14:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4A3B3446C0;
+	Wed, 11 Mar 2026 17:47:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773245691; cv=none; b=pohCisolfOaALGSZLJ1rNWwDEfHX2ypg2XyUjM6m8KSgzOjAEgKIViMrD2LzIRn8le2ht/5qt4LZh4cvqoHzASKefBIdW6CfMFelKSdcj06dTpCHKwtJliqwzWNiz5OrIBzMdC44EVaFiX/I746ylswUotsxVx15ZbP4XQiKNJ0=
+	t=1773251248; cv=none; b=luQr15xZOh8nCYVzgCnzhP3JOTaJAB4DgW0cRNh21QupwCXhgSX8v86UoqMCOwIjtCRp+sm1UTua7HovRJ3ttE+GJAi5UL2A16B4BHVt3arT+Nz+QYveARHkwvlC5Y7lZf48bQOQ7CntESHsIpg0Eu1WsvZLFdmtX+KXR+cr6B4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773245691; c=relaxed/simple;
-	bh=Vj1cq+iuqwG7KXNc1ZX/JifTm+pnU+rOj2V/GKfY+fk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qlHs0d+Ba3/avKa7zSrsVByWeYm3M4+SAzdG/JyoubSbPSyrOF7EDvE/FLeFX/M647bYWRujltKWoa4FJNdmSNwqS61xQ3L3qyNU7U3GQAnHdHBHaEMnVI01MSG7px556jy3sMH/RjMWXcQCzJhJGbwa5H4JSOpxJObRYnUmcpA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NHRYZRfP; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773251248; c=relaxed/simple;
+	bh=/ybzuH8CZwmWEqF4r8/RSN0H5TAVeamfd+1lEpsIwak=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=P3JlsU4xprbIhd5Bw0B3eWnX/JoJPD299MbccLJnbDO0XbYdpn5NQHwp8GxPDk2KxKi+9EEEXEvvXnSSbIv79OB9MlWIwSNmXMhT6iFSydPhtrAQuo0gMFAU2aRlCl0vFwytbLgf2lT4fBJrT3Zm+E32ZK1T20b1+n6wdgDLwJ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=DS23xBxG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NHRYZRfP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAF88C4CEF7;
-	Wed, 11 Mar 2026 16:14:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773245691;
-	bh=Vj1cq+iuqwG7KXNc1ZX/JifTm+pnU+rOj2V/GKfY+fk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=NHRYZRfPFB8/E/DPdqw4qRYpFNeFMnNq9gPPY06xhTBzPJX4thhJv7VxWAwd6q+X2
-	 Le/8noiFhOK7J3DWxxz3c8v4VwY5i9MT7Agb1xWQYuI92kskJZ4JWs0TlpA9lir0N0
-	 G0skV2EzFGuXjNJasZX9k0/0SfBQoKj+8/shL4riUnGQFXrn/VWWuVSv1p/ZfQHZLN
-	 b0QStdHhw5GuCSeKZzPFG1EOQA1fDDYS7KL1w3wd2n8YehHQLSWNUQv1uWu3U7dq4B
-	 dOm9Sd1VqRUk0ADGsXb3jwh/0BnGx1t/449KIVUKdWhdugrjtiGlhXjg+z5PM9h1NQ
-	 tUZLQoBjyymiw==
-Date: Wed, 11 Mar 2026 17:14:48 +0100
-From: Frederic Weisbecker <frederic@kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [RFC PATCH 3/3] s390/idle: Remove idle time and count sysfs files
-Message-ID: <abGU-Bt6C-tbgjYQ@localhost.localdomain>
-References: <20260225145146.1031705-1-hca@linux.ibm.com>
- <20260225145146.1031705-4-hca@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="DS23xBxG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F53EC4CEF7;
+	Wed, 11 Mar 2026 17:47:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1773251248;
+	bh=/ybzuH8CZwmWEqF4r8/RSN0H5TAVeamfd+1lEpsIwak=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=DS23xBxGGcvx8kZjIFD0mykrxquogeFa35HnOlnXp/eVFwtVuIM1i/qq7KctqP6yl
+	 Raika8JLEK307TbSeO09Qo5o8eZOxB+aXEFNaZlED1YF4Z/WWi05sR36nKMdaLBji1
+	 6BOzCv6zZH2UNV6gR1j1/4G+sG8zCP3wtPS8qHMg=
+Date: Wed, 11 Mar 2026 10:47:27 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Benjamin Block <bblock@linux.ibm.com>
+Cc: Thomas Gleixner <tglx@kernel.org>, linux-kernel
+ <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+Subject: Re: [PATCH] debugobjects: Allow to configure the amount of
+ pre-allocated objects
+Message-Id: <20260311104727.8f7b1492141b6d61fc1b2791@linux-foundation.org>
+In-Reply-To: <20260311100431.GC46248@p1gen4-pw042f0m.fritz.box>
+References: <70f06193b3c3581802710ebcef74671e50c4c979.1772035270.git.bblock@linux.ibm.com>
+	<20260311100431.GC46248@p1gen4-pw042f0m.fritz.box>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260225145146.1031705-4-hca@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Le Wed, Feb 25, 2026 at 03:51:46PM +0100, Heiko Carstens a écrit :
-> Remove the s390 specific idle_time_us and idle_count per-cpu sysfs
-> files. They do not provide an additional value. The risk that there are
-> existing applications which rely on these architecture specific files
-> should be very low.
+On Wed, 11 Mar 2026 11:04:31 +0100 Benjamin Block <bblock@linux.ibm.com> wrote:
+
+> > ---
+> >  lib/Kconfig.debug  | 32 ++++++++++++++++++++++++++++++++
+> >  lib/debugobjects.c | 15 +++++++++++++--
+> >  2 files changed, 45 insertions(+), 2 deletions(-)
 > 
-> However if it turns out such applications exist, this can be easily
-> reverted.
-> 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> Gentle ping, any comments at all for tis?
 
-Acked-by: Frederic Weisbecker <frederic@kernel.org>
+Normally tglx stuff, but lgtm so I'll add it to mm.git and linux-next
+for some test.
 
--- 
-Frederic Weisbecker
-SUSE Labs
+obj_static_pool[] is __initdata, so the consequences of making it large
+are very slight.  So do we really need
+CONFIG_DEBUG_OBJECTS_POOL_SIZE_SHIFT?  Requiring a rebuild is a huge
+hassle.  How about simply making the static pool much larger and leave
+it at that?  Some statement (or, better, comment) which reveals the
+number of bytes which are (temporarily) consumed would be useful.
