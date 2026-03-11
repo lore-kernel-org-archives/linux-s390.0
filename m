@@ -1,125 +1,79 @@
-Received: from mail-ej1-f74.google.com (mail-ej1-f74.google.com [209.85.218.74])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FE31389472
-	for <linux-s390@vger.kernel.org>; Wed, 11 Mar 2026 16:01:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 719D8231A3B;
+	Wed, 11 Mar 2026 16:14:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773244901; cv=none; b=TiKZIrAieCSSRJjhMW1bAHJXB3/zBjhNQ2MyzZhmApHG44tG3lwZpV4D77AyUyCTaIBEKC7yoCiaMXnueubkGmNGEnw+VCt5iG8B5+F8xrvMNFkz65XAc6FuR0G2hrbWUF0F4teBmC5Smv5GN6C5YeHcfEDIwUU7JPi1O++fGOE=
+	t=1773245642; cv=none; b=TNaXxflF1sCG/8ix3bDB/t2sF3l7AdD4DiFp6C9WdZcnoSVfLtfItN6oXTWQLm/ZzdgPT8LF76do1YedhdBnF6N5vkY6/VnH7gilp6OtdEkdhlxvKob7SfPSm14OjYQCgZu/Jaf8/aHlvSMTfKvfBQ9+ufl7oehCuiZEcHck5UM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773244901; c=relaxed/simple;
-	bh=alZSKgg1lU1wQh0A0HBF21ufoC8erK4cgoNEO+IVhhg=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=Cerz5r7SaaPSsudYg+mQl5ltVhjraWL2EqGOpqxe+MlV3Cu/3PbYxOI4LwdA9epVWfbIdHGXcyo8dcFkjq4/eOGqWsRg79KddicgPja6XokhbpKcWkNvHD5djoc2kbboE8gx9ZfSPGsno0A8xSFVbbfClXmRH9IFF2/ohkT+mBM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--aliceryhl.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=rgP3KJaq; arc=none smtp.client-ip=209.85.218.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--aliceryhl.bounces.google.com
+	s=arc-20240116; t=1773245642; c=relaxed/simple;
+	bh=EWd4ZsmWD6TfSvkaA4M0KPy7jTIjbz23bQQ6WrdVXTE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=MyDb4llXapnfXeGV+k3fwjRDX12ot6FWRH19Tm7Un8oc3YQdp0GaLuNIvTX9tFISzfDdGDW3HJwKQgR1QGqIn2dABb9mANpSlcxjkcT0q6xGNMe2jAYV2VwXvCfEuZPvOiDeDqg8dZj3ujpyVNhgge0CofQf/GMsxYRtWsN2A78=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ix9N1L9J; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="rgP3KJaq"
-Received: by mail-ej1-f74.google.com with SMTP id a640c23a62f3a-b96edb0feeaso329531566b.1
-        for <linux-s390@vger.kernel.org>; Wed, 11 Mar 2026 09:01:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1773244899; x=1773849699; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=FZ9wJHN98p2eqW+aluFwwdS4VIjV0bOaQ4w+79zBhNs=;
-        b=rgP3KJaqF2BlecOpPvT5kKAcfsza44TQB2S2rx00vuamlvPC3PCFQtN7iBBVErQ0kT
-         4WdJtxceJIxgfEoqrKiMSBM220p/tm52QxQ+p/Vm9qhMEQGFaHmneuWDzyXc37rR6IvX
-         j5BlJPNzE5lVxK7VrA572ygi0hpBk5fcEnP2yH7V3Q+z+BLO1dy4fVpi0jRKEMeOTip2
-         HIDkQduGaTUGLYmL2Eky5xA41gFzkVV4qEEUwksw40H4w8eZCk0GeALUIDP+Gr7DNvF1
-         2+wUJnKujEB5WM6EYBJBnq343bDJzOoB3ZqK8V5pehsfNWev2da3jY31l4UTLmX5NLQo
-         YIPg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773244899; x=1773849699;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=FZ9wJHN98p2eqW+aluFwwdS4VIjV0bOaQ4w+79zBhNs=;
-        b=A8Lnupi4aJoSMDstPQkrmfiRTSHTWLLSDgvqLEZ1WqH8VnfrRuGLTDohiGu31Aeqke
-         EI0xmUhGPlfIqlpci4jHTi/0QQ5IKabCQxjfczLskXzsLjguyP2QUQ1QF0RE/M7RXjWG
-         U0hIQ527JzxbM3g5rpDzUp98K4b8FW4X/ns6QxQp/XeJjnUAe/1ASJPK/1tOeRYEH3Dp
-         Ln/9h/ZC79H7WI0uehnMHLLXryb6R3ZWNENP3DB3+DrAEKucivICMP7pgR4XYt71FdoE
-         Qj7HI1aXA7GoY+bIp9OmorhXAlo6pivPOPaeYCZQ8vu+TLpRp01IwLDSn6pY/6Yg7XbC
-         rtrg==
-X-Forwarded-Encrypted: i=1; AJvYcCUDQAPIrQA2XnZ3POlRImaScyM6/XlZpgxrWJbEnGbS6e3FLcCTOjbympK5nLTJRjPZdPofrpQufWET@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx6CnN2C5r1yIr7qSw3mRkv9GmSKxnGtY2y6fXAV8GVUG2SwYLr
-	2BsEOEZ6kJTDPwHLkw0sg1Bcb6Li554eIWEtg5Mjfoxw2juFei3tXmFJgmzy64dZ/aFMHXev7UT
-	28YF1EqoJGFbb+efTxQ==
-X-Received: from wrbgw30.prod.google.com ([2002:a05:6000:40de:b0:439:ac29:98cb])
- (user=aliceryhl job=prod-delivery.src-stubby-dispatcher) by
- 2002:a17:907:6d22:b0:b93:3792:4b03 with SMTP id a640c23a62f3a-b972e4f775amr187595066b.32.1773244898034;
- Wed, 11 Mar 2026 09:01:38 -0700 (PDT)
-Date: Wed, 11 Mar 2026 16:01:36 +0000
-In-Reply-To: <20260311120418.GU1687929@ziepe.ca>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ix9N1L9J"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2EB3C19424;
+	Wed, 11 Mar 2026 16:14:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773245642;
+	bh=EWd4ZsmWD6TfSvkaA4M0KPy7jTIjbz23bQQ6WrdVXTE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Ix9N1L9JowfKXqQWX1hK64r60rXDu9pK7wA7+XPOGU71nGSVBTZeSbzPi0Bha+wep
+	 RDAwQ6JdKvtXp60NYh22EWCd5vzfzdjjU33a1dYvyNQPaw6h8a8miweYN41Dod3Z5R
+	 UbYoGj/6+Dz4tINq1SOwcv0oo5b2EYkDfBq7cq+l7yLkHH+/1HXTpt4aoBvaqKxVAz
+	 ZMe4fosBJOivAJd/PUN0qa76Qj246c6+wiwY7vNGclUqZqcq+qKqUhwo5JW7Sy4HG3
+	 GXnG4RxhRun/EVgquilz6ksDgbY/ZXYnjBYAC8frMCxU89jnq7s21WaOyhZjNG6fcG
+	 E93PbzJVblVLA==
+Date: Wed, 11 Mar 2026 17:13:59 +0100
+From: Frederic Weisbecker <frederic@kernel.org>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [RFC PATCH 2/3] s390/idle: Provide arch specific
+ kcpustat_field_idle()/kcpustat_field_iowait()
+Message-ID: <abGUxzhVmz2YOaEj@localhost.localdomain>
+References: <20260225145146.1031705-1-hca@linux.ibm.com>
+ <20260225145146.1031705-3-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260227200848.114019-1-david@kernel.org> <20260227200848.114019-17-david@kernel.org>
- <20260309142954.GM1687929@ziepe.ca> <61df6369-333c-430a-bd18-c5b1acae68ea@kernel.org>
- <abE4JYo223OxWCBQ@google.com> <20260311120418.GU1687929@ziepe.ca>
-Message-ID: <abGR4GWMXC2tJyr8@google.com>
-Subject: Re: [PATCH v1 16/16] mm/memory: support VM_MIXEDMAP in zap_special_vma_range()
-From: Alice Ryhl <aliceryhl@google.com>
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: "David Hildenbrand (Arm)" <david@kernel.org>, linux-kernel@vger.kernel.org, 
-	"linux-mm @ kvack . org" <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, 
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, "Liam R. Howlett" <Liam.Howlett@oracle.com>, 
-	Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
-	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Jann Horn <jannh@google.com>, 
-	Pedro Falcato <pfalcato@suse.de>, David Rientjes <rientjes@google.com>, 
-	Shakeel Butt <shakeel.butt@linux.dev>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Jarkko Sakkinen <jarkko@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	"Arve =?utf-8?B?SGrDuG5uZXbDpWc=?=" <arve@android.com>, Todd Kjos <tkjos@android.com>, 
-	Christian Brauner <brauner@kernel.org>, Carlos Llamas <cmllamas@google.com>, Ian Abbott <abbotti@mev.co.uk>, 
-	H Hartley Sweeten <hsweeten@visionengravers.com>, Jani Nikula <jani.nikula@linux.intel.com>, 
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, 
-	Tvrtko Ursulin <tursulin@ursulin.net>, David Airlie <airlied@gmail.com>, 
-	Simona Vetter <simona@ffwll.ch>, Leon Romanovsky <leon@kernel.org>, 
-	Dimitri Sivanich <dimitri.sivanich@hpe.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Andrii Nakryiko <andrii@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
-	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, Andy Lutomirski <luto@kernel.org>, 
-	Vincenzo Frascino <vincenzo.frascino@arm.com>, Eric Dumazet <edumazet@google.com>, 
-	Neal Cardwell <ncardwell@google.com>, "David S. Miller" <davem@davemloft.net>, 
-	David Ahern <dsahern@kernel.org>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Miguel Ojeda <ojeda@kernel.org>, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-sgx@vger.kernel.org, 
-	intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
-	linux-rdma@vger.kernel.org, bpf@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	netdev@vger.kernel.org, rust-for-linux@vger.kernel.org, x86@kernel.org
-Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260225145146.1031705-3-hca@linux.ibm.com>
 
-On Wed, Mar 11, 2026 at 09:04:18AM -0300, Jason Gunthorpe wrote:
-> On Wed, Mar 11, 2026 at 09:38:45AM +0000, Alice Ryhl wrote:
-> > It doesn't really make sense to have multiple binder VMAs. What happens
-> > with Rust Binder is that process A is receiving transactions and has the
-> > VMA mapped once.
-> 
-> IIRC the problem is the kernel doesn't guarentee singleton VMAs,
-> userspace can always clone them with fork or something. Did binder
-> solve this somehow?
+Le Wed, Feb 25, 2026 at 03:51:45PM +0100, Heiko Carstens a écrit :
+> diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
+> index 4873fe9d891b..19fd1541a0f3 100644
+> --- a/arch/s390/kernel/entry.S
+> +++ b/arch/s390/kernel/entry.S
+> @@ -378,8 +378,13 @@ SYM_CODE_END(pgm_check_handler)
+>  SYM_CODE_START(\name)
+>  	STMG_LC	%r8,%r15,__LC_SAVE_AREA
+>  	GET_LC	%r13
+> -	stckf	__LC_INT_CLOCK(%r13)
+> +	lg	%r12,__LC_IDLE_DATA(%r13)
+> +	asi	__IDLE_SEQUENCE(%r12),1
+> +	stcke	__LC_INT_CLOCK(%r13)
+>  	stpt	__LC_SYS_ENTER_TIMER(%r13)
+> +	mvc	__IDLE_CLOCK_EXIT(16,%r12),__LC_INT_CLOCK(%r13)
+> +	ALTERNATIVE "bcr 15,0", "bcr 14,0", ALT_FACILITY(45)
+> +	asi	__IDLE_SEQUENCE(%r12),1
 
-The Binder VMA is DONTCOPY, so it will not be present after fork.
+Would it be possible to instead do that with &kc->idle_sleeptime_seq ?
+This should sum up to a simple increment as well. This way you don't need
+those nested seqcounts.
 
-> Since you can't assume there is only one VMA the locking becomes a
-> mess to cover all the cases where userspace can trigger a VMA clone.
-> 
-> address space deals with this internally.
-> 
-> Thus, zap_special_vma_range() is extremely hard to use.
+Thanks.
 
-I mean, the hard part about the locking is keeping them in sync. Binder
-just doesn't do that. Only the original VMA gets pages inserted or
-zapped. If you create a second VMA, you just get a useless read-only VMA
-that you can't do anything with.
-
-Alice
+-- 
+Frederic Weisbecker
+SUSE Labs
