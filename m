@@ -1,237 +1,210 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A05A2DF68;
-	Thu, 12 Mar 2026 00:54:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94C1C41A8F;
+	Thu, 12 Mar 2026 03:05:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773276888; cv=none; b=B6jxifE9OT/lpJuzjggEKKmz6lh2Yw9GLVdFjbFeAzqW6rOB1LmgZH/jwaUMDtaCpnJ3jBnTreHSnKXtFjg3hcf2n/x9s655WWBOjicwgeu9Srwpyc3HnLg/r3UOpCPP7yZzrcqqGAFCmvCVEinYPLPIJHyE7nrGLEzlJU4jDrk=
+	t=1773284723; cv=none; b=G6nT3MSWDgBfD2faTDjvWlkkOwMMJBXKpG4rsmggE040yAXkHcikTR1CxrfavTsDk4KmkvhrEcMzLMdhg4qcH2aaQw/y71DKukDmUrLbtL6N3iw/wEo1mzqZk1BPpRyiNUuYBnfcy1M8qH10FfD+B11jWOXAPkZ0ccvAMEsDX0g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773276888; c=relaxed/simple;
-	bh=SuqAhThH82+S6Gh7IKidJqQh0WkKbmHEI0mLdj41Lhs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hVsycNPGQTb5GFlgnskZ301zgZmiCCdMQoU1cRYsmznIWRQcoqo+PsFqtbxmipfMknp73kAa13yibEX8O8r6q7UdmMNyJvq/9Yoo0RMx5iQcIDQS8OZRGZMqYUQGsWHo1MVngVAkKuDYZULCANthMq+hGiKnp7myUj6pTDTf1U8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QYtQvxRU; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773284723; c=relaxed/simple;
+	bh=GASPTmnpoUnzS8gsHiVcHdbchQoQtvTwDaFKlQx8S3Y=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=CxRhzlnCoSBPLjPrFDtOw4Gi5AAt39C+qKNV0D5U+8cwwjEwYLrlOUWtTypzYiHg3Djk4+BOus4D/nQABztXZS+8BpFuJEtJiOZUqx9BhEJAbiMksHqF1z1eIfEXm+ijlm3Hp8O0vWLMcurh8ZfPOVZB/hYuNPX+U1uNQWQPpfg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=quDFMvMt; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QYtQvxRU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC1C9C4CEF7;
-	Thu, 12 Mar 2026 00:54:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="quDFMvMt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3078C4CEF7;
+	Thu, 12 Mar 2026 03:05:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773276888;
-	bh=SuqAhThH82+S6Gh7IKidJqQh0WkKbmHEI0mLdj41Lhs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=QYtQvxRUl11pl5l03BQKBUEhgz56QONgnc2kaGayekmZntDuW/DKkgurHrtCHVzzs
-	 jpzzJjdAShhodIdN30vG9BPjCGnog9HpZIv3Ee0j42lQ55g9wf0ey8DeyUwaZkDcUo
-	 4IvGmBikopdR5eDiCqVY5kEdfVy5EMQqlCxr0Rm08gOIgv6qvhtdqONByqr1wqOCXa
-	 ZSAEynUTw1U5vN3Lh/xfYRtxUECIxa4mzvwmHHsLJDVTH87rKEV1Ydpjtj8g8OkqPM
-	 cpwxJ3lGXlQMEM5y7yL+b70SoAEJHFaitkwrhg6zFleNIqac+qEk2ZzSAvW9Vp85Y9
-	 y03Osm7E2M0kw==
-Date: Wed, 11 Mar 2026 17:54:44 -0700
-From: Eric Biggers <ebiggers@kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Matt Turner <mattst88@gmail.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Dan Williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>,
-	David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>,
-	Song Liu <song@kernel.org>, Yu Kuai <yukuai@fnnas.com>,
-	Li Nan <linan122@huawei.com>, Theodore Ts'o <tytso@mit.edu>,
-	"Jason A. Donenfeld" <Jason@zx2c4.com>, linux-alpha@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-	linux-crypto@vger.kernel.org, linux-btrfs@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: [PATCH 27/27] xor: add a kunit test case
-Message-ID: <20260312005444.GA31906@quark>
-References: <20260311070416.972667-1-hch@lst.de>
- <20260311070416.972667-28-hch@lst.de>
+	s=k20201202; t=1773284723;
+	bh=GASPTmnpoUnzS8gsHiVcHdbchQoQtvTwDaFKlQx8S3Y=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=quDFMvMteEZ0URno19WX0w1AETBg2BinT4vxTH4+xL0mS2WY5eKqkv1O1VZyMPbBM
+	 /lbjTErc/6hJ95PJ9+n8hNteXjZCU5NaG2Gy1aDxbDrfLbWPhTHdt9QE0N+F04jBEf
+	 23AKf3PxVWCwxErvE1qi3yXaci7kq0hJ6g/WWcLTUBASqVlEjGX88LsFKXjcP11dWb
+	 u50K2vF62JnNIbzNjokRo+7BDKdZTso4Kn3mFbWx7pmr6bYOCNSGmgALQHWO8cVsSu
+	 N+1vjApoo9/6AL2UqyUwl6hFWEF+fImLgcLV1ns1ae2ZxGPvqg+zUUVgZX/nzMdFTc
+	 GVZ2UEogOck8g==
+From: Jakub Kicinski <kuba@kernel.org>
+To: jiayuan.chen@linux.dev
+Cc: Jakub Kicinski <kuba@kernel.org>,
+	jiayuan.chen@shopee.com,
+	mjambigi@linux.ibm.com,
+	wenjia@linux.ibm.com,
+	horms@kernel.org,
+	sidraya@linux.ibm.com,
+	guwen@linux.alibaba.com,
+	davem@davemloft.net,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	dust.li@linux.alibaba.com,
+	syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com,
+	pabeni@redhat.com,
+	tonylu@linux.alibaba.com,
+	linux-kernel@vger.kernel.org,
+	edumazet@google.com,
+	alibuda@linux.alibaba.com
+Subject: Re: [net,v4] net/smc: fix NULL dereference and UAF in smc_tcp_syn_recv_sock()
+Date: Wed, 11 Mar 2026 20:05:20 -0700
+Message-ID: <20260312030520.626362-1-kuba@kernel.org>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260311022451.395802-1-jiayuan.chen@linux.dev>
+References: <20260311022451.395802-1-jiayuan.chen@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260311070416.972667-28-hch@lst.de>
+Content-Transfer-Encoding: 8bit
 
-On Wed, Mar 11, 2026 at 08:03:59AM +0100, Christoph Hellwig wrote:
-> diff --git a/lib/raid/Kconfig b/lib/raid/Kconfig
-> index 4359971ebd04..97c123806466 100644
-> --- a/lib/raid/Kconfig
-> +++ b/lib/raid/Kconfig
-> @@ -6,3 +6,14 @@ config XOR_BLOCKS
->  # selected by architectures that provide an optimized XOR implementation
->  config XOR_BLOCKS_ARCH
->  	bool
-> +
-> +config XOR_KUNIT_TEST
-> +	tristate "KUnit tests for xor_gen" if !KUNIT_ALL_TESTS
-> +	depends on KUNIT
-> +	default KUNIT_ALL_TESTS
-> +	select XOR_BLOCKS
-> +	help
-> +	  Unit tests for the XOR library functions.
-> +
-> +	  This is intended to help people writing architecture-specific
-> +	  optimized versions.  If unsure, say N.
+This is an AI-generated review of your patch. The human sending this
+email has considered the AI review valid, or at least plausible.
 
-The convention for KUnit tests is actually to depend on the code they
-test, not select it, so that it's easy to enable only the tests that are
-relevant to a particular kernel build.  So instead of
-"select XOR_BLOCKS", this should use "depends on KUNIT && XOR_BLOCKS".
+For local reproduction steps see https://netdev-ai.bots.linux.dev/ai-local.html
+---
+net/smc: fix NULL dereference and UAF in smc_tcp_syn_recv_sock()
 
-(Yes, I got this wrong in the crypto and CRC tests.  I recently fixed it
-in the crypto tests, and I have pending patches that fix the CRC test.)
+This patch fixes a race condition in smc_tcp_syn_recv_sock() where
+sk_user_data can be nullified or the smc_sock can be freed during
+concurrent socket closure, using RCU and refcount_inc_not_zero() for
+safe access.
 
-There should also be a lib/raid/.kunitconfig file containing something
-like:
+Closes: https://lore.kernel.org/all/67eaf9b8.050a0220.3c3d88.004a.GAE@google.com/T/
 
-    CONFIG_KUNIT=y
-    CONFIG_BTRFS_FS=y
-    CONFIG_XOR_KUNIT_TEST=y
+> The race window looks like this:
+>
+>   CPU A (softirq)              CPU B (process ctx)
+>
+>   tcp_v4_rcv()
+>     TCP_NEW_SYN_RECV:
+>     sk = req->rsk_listener
+>     sock_hold(sk)
+>     /* No lock on listener */
+>                                smc_close_active():
+>                                  write_lock_bh(cb_lock)
+>                                  sk_user_data = NULL
+>                                  write_unlock_bh(cb_lock)
+>                                  ...
+>                                  smc_clcsock_release()
+>                                  sock_put(smc->sk) x2
+>                                    -> smc_sock freed!
+>     tcp_check_req()
+>       smc_tcp_syn_recv_sock():
+>         smc = user_data(sk)
+>           -> NULL or dangling
+>         smc->queued_smc_hs
+>           -> crash!
 
-(CONFIG_BTRFS_FS is there because it's one of the visible symbols that
-select the hidden symbol XOR_BLOCKS.)
+The race diagram describes the tcp_check_req() path (TCP_NEW_SYN_RECV
+handling), but the actual syzbot crash occurred through a different path.
+Looking at the syzbot stacktrace, the crash shows:
 
-> +static u32 rand32(void)
-> +{
-> +	return prandom_u32_state(&rng);
-> +}
-> +
-> +static u32 rand32_below(u32 ceil)
-> +{
-> +	return __limit_random_u32_below(ceil, prandom_u32_state(&rng));
-> +}
-> +
-[...]
-> +
-> +/* Generate a random length that is a multiple of 512. */
-> +static unsigned int generate_random_length(unsigned int max_length)
-> +{
-> +	return (rand32_below(max_length / 512) + 1) * 512;
-> +}
-> +
-> +/* Generate a random alignment that is a multiple of 32. */
-> +static unsigned int generate_random_alignment(unsigned int max_alignment)
-> +{
-> +	return (rand32_below((max_alignment + 1) / 32)) * 32;
-> +}
+smc_tcp_syn_recv_sock+0xa7/0x4b0 called from tcp_get_cookie_sock+0xd5/0x790
 
-As per my comment on patch 26, these should just use a simple mod
-operations so that the new random.c helper function (which conflates
-cryptographic and non-cryptographic random numbers) isn't needed.
+This is the SYN cookie path:
 
-Maybe:
+tcp_v4_rcv() -> tcp_v4_do_rcv() -> tcp_v4_cookie_check() ->
+cookie_v4_check() -> tcp_get_cookie_sock() -> smc_tcp_syn_recv_sock()
 
-        return (rand32() % (max_length + 1)) & ~511;
+The syzbot log even shows 'Possible SYN flooding on port [::]:20002.
+Sending cookies.' confirming syncookies were active. Both paths are
+vulnerable to the race, but the race diagram doesn't match the actual
+crash path that the fuzzer triggered.
 
-and
+Would it be more accurate to note that both paths (tcp_check_req for
+normal SYN handling and tcp_get_cookie_sock for SYN cookies) can trigger
+the race?
 
-        return (rand32() % (max_alignment + 1)) & ~63;
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -131,7 +131,13 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
+>  	struct smc_sock *smc;
+>  	struct sock *child;
+>
+> -	smc = smc_clcsock_user_data(sk);
+> +	rcu_read_lock();
+> +	smc = smc_clcsock_user_data_rcu(sk);
+> +	if (!smc || !refcount_inc_not_zero(&smc->sk.sk_refcnt)) {
+> +		rcu_read_unlock();
+> +		return NULL;
 
-> +/* Test that xor_gen gives the same result as a reference implementation. */
-> +static void xor_test(struct kunit *test)
-> +{
-> +	void *aligned_buffers[XOR_KUNIT_MAX_BUFFERS];
-> +	size_t i;
-> +
-> +	for (i = 0; i < XOR_KUNIT_NUM_TEST_ITERS; i++) {
-> +		unsigned int nr_buffers =
-> +			rand32_below(XOR_KUNIT_MAX_BUFFERS) + 1;
-> +		unsigned int len = generate_random_length(XOR_KUNIT_MAX_BYTES);
-> +		unsigned int max_alignment, align = 0;
-> +		void *buffers;
-> +
-> +		if (rand32() % 8 == 0)
-> +			/* Refresh the data occasionally. */
-> +			xor_generate_random_data();
-> +
-> +		/*
-> +		 * If we're not using the entire buffer size, inject randomize
-> +		 * alignment into the buffer.
-> +		 */
-> +		max_alignment = XOR_KUNIT_MAX_BYTES - len;
-> +		if (max_alignment) {
-> +			int j;
-> +
-> +			align = generate_random_alignment(max_alignment);
-> +			for (j = 0; j < nr_buffers; j++)
-> +				aligned_buffers[j] = test_buffers[j] +
-> +					generate_random_alignment(max_alignment);
-> +			buffers = aligned_buffers;
-> +		} else {
-> +			buffers = test_buffers;
-> +		}
+When smc_tcp_syn_recv_sock() is called from the SYN cookie path
+(tcp_get_cookie_sock() in net/ipv4/syncookies.c:205 and
+net/ipv6/syncookies.c:275), the dst parameter is non-NULL.
 
-This isn't taking advantage of the guard pages properly, since it rarely
-selects buffers that go all the way up to the guard page.
+The new early return here returns NULL without calling dst_release(dst).
+The syn_recv_sock contract requires the callee to either consume dst
+(attach to child socket on success) or release it (call dst_release on
+failure).
 
-If the guard page testing is going to be included (which is a good idea;
-the crypto and CRC tests have it and they already caught a bug using
-it), then the data should be placed at the very end of the buffers more
-often, like what the CRC test does.
+Looking at tcp_get_cookie_sock() in net/ipv4/syncookies.c:
 
-> +		/*
-> +		 * Compute the XOR, and verify that it equals the XOR computed
-> +		 * by a simple byte-at-a-time reference implementation.
-> +		 */
-> +		xor_ref(test_ref + align, buffers, nr_buffers, len);
-> +		xor_gen(test_dest + align, buffers, nr_buffers, len);
-> +		KUNIT_EXPECT_MEMEQ_MSG(test, test_ref, test_dest, len,
-> +				"Wrong result with buffers=%u, len=%u, align=%s",
-> +				nr_buffers, len, str_yes_no(max_alignment));
+    child = af_ops->syn_recv_sock(..., &dst, ...)
+    if (!child) {
+        reqsk_free(req);
+        return NULL;
+    }
 
-When align != 0, this does the comparison at the wrong offset.
+When syn_recv_sock returns NULL, tcp_get_cookie_sock immediately returns
+NULL without releasing dst, expecting the syn_recv_sock callee to have
+already handled it.
 
-The message also shows "align=no" if fully aligned buffers were used and
-"align=yes" if they were not, which is a bit confusing.  Maybe replace
-align=%s with randalign=%s.
+The existing 'drop:' label at line 165 correctly calls dst_release(dst),
+but the new early return at line 138 bypasses it. This causes a dst_entry
+reference count leak under SYN flood conditions on an SMC listener.
 
-> +MODULE_DESCRIPTION("Unit tests and benchmarks for the XOR library functions");
+Should this be: goto drop instead of return NULL, or should dst_release(dst)
+be added before the return NULL?
 
-There's no benchmark included (yet), so that should be left out of the
-description.
+> +	}
+> +	rcu_read_unlock();
+>
+>  	if (READ_ONCE(sk->sk_ack_backlog) + atomic_read(&smc->queued_smc_hs) >
+>  				sk->sk_max_ack_backlog)
+> @@ -153,11 +159,13 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
+>  		if (inet_csk(child)->icsk_af_ops == inet_csk(sk)->icsk_af_ops)
+>  			inet_csk(child)->icsk_af_ops = smc->ori_af_ops;
+>  	}
+> +	sock_put(&smc->sk);
+>  	return child;
+>
+>  drop:
+>  	dst_release(dst);
+>  	tcp_listendrop(sk);
+> +	sock_put(&smc->sk);
+>  	return NULL;
+>  }
+>
+> @@ -254,7 +262,7 @@ static void smc_fback_restore_callbacks(struct smc_sock *smc)
+>  	struct sock *clcsk = smc->clcsock->sk;
+>
+>  	write_lock_bh(&clcsk->sk_callback_lock);
+> -	clcsk->sk_user_data = NULL;
+> +	rcu_assign_sk_user_data(clcsk, NULL);
+>
+>  	smc_clcsock_restore_cb(&clcsk->sk_state_change, &smc->clcsk_state_change);
+>  	smc_clcsock_restore_cb(&clcsk->sk_data_ready, &smc->clcsk_data_ready);
 
-Also, I tried running this test on different architectures, and in
-qemu-system-sparc64 it crashes with an alignment fault in xor_vis_5().
+[ ... ]
 
-It goes away if the minimum tested alignment is increased from 32 bytes
-to 64 bytes.  lib/raid/xor/sparc/xor-sparc64.S has a comment that
-documents a requirement of "!(((long)dest | (long)sourceN) & (64 - 1))",
-i.e. 64-byte alignment.
+> @@ -2687,10 +2695,11 @@ int smc_listen(struct socket *sock, int backlog)
+>  		write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
+>  		smc_clcsock_restore_cb(&smc->clcsock->sk->sk_data_ready,
+>  				       &smc->clcsk_data_ready);
+> -		smc->clcsock->sk->sk_user_data = NULL;
+> +		rcu_assign_sk_user_data(smc->clcsock->sk, NULL);
+>  		write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
+>  		goto out;
+>  	}
+> +	sock_set_flag(sk, SOCK_RCU_FREE);
+>  	sk->sk_max_ack_backlog = backlog;
+>  	sk->sk_ack_backlog = 0;
+>  	sk->sk_state = SMC_LISTEN;
 
-So, it seems the assumption that 32 bytes is the maximum required
-alignment over all architectures is not correct.  The tested alignment
-will need to be increased to 64 bytes, and the kerneldoc for xor_gen()
-will need to be updated as well.
-
-- Eric
+[ ... ]
+-- 
+pw-bot: cr
