@@ -1,87 +1,89 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2AB629D27D;
-	Thu, 12 Mar 2026 20:55:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56767317173;
+	Thu, 12 Mar 2026 20:57:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773348941; cv=none; b=W8DclWVnDjyStJsIohUPH+pEmQ8S+q+m+U0Z2cDLQ5SFSZaYoFkGT839c9V5ahHcOVA4Pup3tZ/oGpX33dYfwI2XT1ib4q4S1cAC9fP7weQipneYAzuPtrndtfC90r04pvshwm3dQ8qf4PnL0FJ6X//hLo+mv4vpYAIk0pUZQZ4=
+	t=1773349079; cv=none; b=WgCjvHViKC2dvzAAth7uQDgueYISmNGxdvvij6cIWxSNw1f8Py1UGSpSVBekiQlytj/1qBGHjK3pjzZXn5q3i0E1cNsUJuRRsStGPSgf7RFmicHSbxvFfmlVLi3r2y3/4zHZqtlKvSAnsZq3CaQRX1WKxHi0zuTEkAJSiDat/MU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773348941; c=relaxed/simple;
-	bh=v7Mp7oQuSeeAnOPIaJpcQ06wzPNoyTHncHKVCUFHvZ4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=aDxpe2GxiB/lHri1Be4vQG/ZYMiavrhR8Yq62LteKmNU0hP6P0wZgY9EZfnrheWuXrBBp9Xg4We9yLtru811Le/Af1AJFgsB7ir2KNgQ59xScWho8qsRHpzenma1jGn3z/ITQw+EHqWJ2NcwjKXs1DAkT1JiUdiURivkDSrRHJM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jPrZEGSB; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773349079; c=relaxed/simple;
+	bh=K9BkTSEP4DAO1oqXkTRgIUsMciXJXXN0g3ET3zAlngE=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=qvVJCMh7ZE7gYkhgLeg5o4wzGtd/6nAQY8blRA2XBh5zna1YLJSLThtzQRhCUt1B4X7PUOBjBCcKqMyEiVFvAsMhARyI8PnxPT/+r97UOiOA68iUOsYM0+fmRxs3IGqjqcbrq6YwYZmjnE6dogGDCIzSPFnfRFFv/gZZJogsLCY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=FLiV1etm; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jPrZEGSB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB758C4CEF7;
-	Thu, 12 Mar 2026 20:55:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773348940;
-	bh=v7Mp7oQuSeeAnOPIaJpcQ06wzPNoyTHncHKVCUFHvZ4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=jPrZEGSBi1TQR0t3km00WpEMYTejgQIVQOjE077ht7cWB1pkJRLriLLy7Jjd5Kerz
-	 zF+VvIJYLQbTm0nSWzEM/kqqohL3jJQs/qv6MCXKVMRHXi9DKgZYofma5Hzt2KrtFr
-	 LR9+Pe0bGHixbeU3D8vgl8LYkd1EypoBTAR1U/yFO6oI+U84EE2D4fltW4APa3K1+5
-	 cze6ejEVN8VlLmzwMZySmLHlYPwt3/KtqDYQ10Ylk1r+aGFvg9mPnJPPWWmdDM5mF1
-	 B4m5h+JdU/9liZubVMb3aVD+i3ThdUcK6dvL4WIylaTenx7wGKZs4CmHTvYNCoZU1f
-	 VBSPEbfslo2XA==
-Date: Thu, 12 Mar 2026 13:55:33 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Mimi Zohar <zohar@linux.ibm.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Roberto Sassu <roberto.sassu@huawei.com>,
-	Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-	Eric Snowberg <eric.snowberg@oracle.com>,
-	Alexander Egorenkov <egorenar@linux.ibm.com>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <chleroy@kernel.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
-	"Serge E. Hallyn" <serge@hallyn.com>, Coiby Xu <coxu@redhat.com>,
-	linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org, linux-integrity@vger.kernel.org,
-	linux-security-module@vger.kernel.org, llvm@lists.linux.dev
-Subject: Re: [PATCH] integrity: Eliminate weak definition of
- arch_get_secureboot()
-Message-ID: <20260312205533.GC2747807@ax162>
-References: <20260309-integrity-drop-weak-arch-get-secureboot-v1-1-6460d5c4bb89@kernel.org>
- <d2089740-16d8-4ca4-a61c-8c381f8e30a0@app.fastmail.com>
- <a985c90d9df8ba0fc63f65117cc8e884f70e6035.camel@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="FLiV1etm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D739C4CEF7;
+	Thu, 12 Mar 2026 20:57:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1773349079;
+	bh=K9BkTSEP4DAO1oqXkTRgIUsMciXJXXN0g3ET3zAlngE=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=FLiV1etmYVcSGbbdm/XWzQaxQrtcu+DjcXjI6bdWYsu841NM3z6Xw64cXI54+iaIn
+	 L2BrHY9lnVUqIJ6938urwDNEtRFz9ffekCMe3lr4UZIlR45/w5t14m5ix5+hCEMOxM
+	 z/hIOPZIY6kgBHdLKvnC8iu8NrktiaWhHWtId3+Y=
+Date: Thu, 12 Mar 2026 13:57:57 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Vasily Gorbik <gor@linux.ibm.com>
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>, Madhavan Srinivasan
+ <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Pasha
+ Tatashin <pasha.tatashin@soleen.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+ linux-s390@vger.kernel.org, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+ x86@kernel.org
+Subject: Re: [PATCH v2 1/4] mm/page_table_check: Pass mm_struct to
+ pxx_user_accessible_page()
+Message-Id: <20260312135757.d65e8145d9d39e1ca5bc9666@linux-foundation.org>
+In-Reply-To: <ttbskgg@ub.hpns>
+References: <cover.1772812343.git.agordeev@linux.ibm.com>
+	<ca77f3489453c2fe01b25e50e53b778929e0dfc5.1772812343.git.agordeev@linux.ibm.com>
+	<ttbskgg@ub.hpns>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <a985c90d9df8ba0fc63f65117cc8e884f70e6035.camel@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Thu, Mar 12, 2026 at 12:07:41PM -0400, Mimi Zohar wrote:
-> I pushed out the patch to next-integrity, but am a bit concerned about the
-> definition:
+On Thu, 12 Mar 2026 16:02:40 +0100 Vasily Gorbik <gor@linux.ibm.com> wrote:
+
+> On Fri, Mar 06, 2026 at 05:16:30PM +0100, Alexander Gordeev wrote:
+> > From: Tobias Huschle <huschle@linux.ibm.com>
+> > 
+> > Unlike other architectures, s390 does not have means to
+> > distinguish kernel vs user page table entries - neither
+> > an entry itself, nor the address could be used for that.
+> > It is only the mm_struct that indicates whether an entry
+> > in question is mapped to a user space. So pass mm_struct
+> > to pxx_user_accessible_page() callbacks.
+> > 
+> > [agordeev@linux.ibm.com: rephrased commit message, removed braces]
+> > 
+> > Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> > Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+> > Signed-off-by: Tobias Huschle <huschle@linux.ibm.com>
+> > Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> > ---
+> >  arch/arm64/include/asm/pgtable.h             |  6 +++---
+> >  arch/powerpc/include/asm/book3s/32/pgtable.h |  2 +-
+> >  arch/powerpc/include/asm/book3s/64/pgtable.h | 10 +++++-----
+> >  arch/powerpc/include/asm/nohash/pgtable.h    |  2 +-
+> >  arch/powerpc/include/asm/pgtable.h           |  4 ++--
+> >  arch/riscv/include/asm/pgtable.h             |  6 +++---
+> >  arch/x86/include/asm/pgtable.h               |  6 +++---
+> >  mm/page_table_check.c                        | 15 ++++++---------
+> >  8 files changed, 24 insertions(+), 27 deletions(-)
 > 
-> +config HAVE_ARCH_GET_SECUREBOOT
-> +       def_bool EFI
-> +
+> Andrew, may I get your Reviewed-by or Ack-by for v2 so I can take it
+> via the s390 tree as well?
 
-What is concerning about the definition with regards to s390?
+	Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
 
-> Has anyone actually tested this patch on s390, not just compiled it?  If so, I'd
-> appreciate a tested-by tag.
+It doesn't look like [1/4] changed significanty since v1?
 
-It would be good to test (if it is possible to test in QEMU, I am happy
-to attempt to do so). As far as I can tell, 31a6a07eefeb placed
-arch_get_secureboot() in such a way that the __weak definition would be
-used when CONFIG_KEXEC_FILE was disabled, even though ipl_secure_flag
-should always be available, which this patch avoids.
-
-Cheers,
-Nathan
