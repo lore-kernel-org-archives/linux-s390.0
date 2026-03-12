@@ -1,158 +1,293 @@
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out-176.mta1.migadu.com (out-176.mta1.migadu.com [95.215.58.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEBBE38643A
-	for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2026 08:38:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 098E23B8928
+	for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2026 09:29:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773304745; cv=none; b=TSierQe1OviE5kVT+GyDEc3SLmuPZXlxsYxvPz8Mj7fHusVS9btIVDKzHWF/phdtd1Jh15jHBgPNvvkuqWAu0WOxf5tuAHRCmULysUZCPcgUlb/fFhso9iNA5IQhoXhoUlAxSNERTZVlT7Gqcc3wOHnr24WqgvEafxLo3k95lwY=
+	t=1773307791; cv=none; b=AerP42CGZ3bXe32a4fD4fzw2FEu8cAJKlG71FNAEfxyLEz+KjP3/RYMAnYpgWQBDX190TO704pHJN0QnRiVo9hwJUUxiBf1jfkGXLY5K9UNE/SV0i47WsJ2hScuTHiEzcqYDy1ptu0thSzAOjBV4xRqND0RiqR3ZtB/5t1wnSig=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773304745; c=relaxed/simple;
-	bh=2rASbAMEw5ZRlubXhkcWPIGmcIGEBmzjA5ymOU3qhqE=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=jII+XQg0gGQU6XLI2QXgiQZwsIa7FZjczccBduyV4iVvAJ+fAd5jspzE0gtsqltoGIIP9mSSK2teWhXwMM8lQAjbR4KJrSVDBjIZJkG2SyPXudC2FLjRxbphSTCChzFybTUIh07P+4bwakwz95s2sQaKZH2oJbw0AUohfZi7e/E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Wj+rWY6m; arc=none smtp.client-ip=209.85.128.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1773307791; c=relaxed/simple;
+	bh=Rj/4sFG1pif+Eq/S+Jj3++hKlOosTFCHyZI86FVlPic=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OKhN7CHclULTnE8mvFMmbwh/XiFtfOCxw1oNj8UTFRBOOzvOv7nx7f83kTmcKPfjYHkAUbXdRRrDmuTUuPA2OLSSTkd68c3IcRLlPx/fuoiKtT3raemMn24MI4zcv3o9MWLwwqKVrGzZR4BNkHKGjD1hhZ0aoyTvxCWEp/sLQ2s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=E59FA3GS; arc=none smtp.client-ip=95.215.58.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Wj+rWY6m"
-Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-4852c9b4158so5961045e9.0
-        for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2026 01:38:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773304736; x=1773909536; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=tXrAFYR5bIhSumOFjuc1G0swOeqj6K0Pq1d0oWdhjWU=;
-        b=Wj+rWY6m6+UCfo2x6AIjTqdw9g4ImHxiulaT1RQNuBOH7Wi+or6HuP175SMxDPofb/
-         0376Rddavr2FkBzhUM+dzwRfAtr2UHVpIHWK9TPE6PQsJVgW4HCASac/7ZOSZ9Ou5ano
-         16E3zcEXnQ0/A2y27KVdOIADss3J/fB3GsjHarBVmVx9BCxOh1aWg5dMH5Enxd/Nb46W
-         9AglMk8NL68i2W2cAncjuexUGaJ3jPDvt4O4XdErAcXqflOZ16c6cxTL3c3uCUoxDSXb
-         971dm2O+mnDzK7t4q2fa1HFxJZ+rEQUnpR9uFoZKu5H1hiA6V6UPe1KtLFSnN3N5tGah
-         XJZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773304736; x=1773909536;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=tXrAFYR5bIhSumOFjuc1G0swOeqj6K0Pq1d0oWdhjWU=;
-        b=UaHZ+0HyosuRBOBJlFWdy/A3Yf2uUyWBhQyxSEQwnovjjXBT6H4JKuTSSExVgyfHpv
-         LR2fdqdj4YDPtsfXDkvnaVKuuQPaOx0Gkuzuq1N3xoHvNOCjgiDDzvu7Jtv35OxpMR8y
-         SClJZ5khlDbVfOea0mgTPmz6z71OdTd54+6rlMuF9T8rKgW4K569ZdBLULcUNQtZlfNy
-         veQGA/PCRIKdMxisn4D8ugWRz+532RiKMIcWcUh3tZknXHCbj3MbsD1pi4rHiSXeL8AQ
-         si/MZiTzPu2RAibuc9xEK4Jsy0bfCEi+tU2vV+NWgdb4c/W9+9PqEEI38PA23Iqhk807
-         GVWg==
-X-Forwarded-Encrypted: i=1; AJvYcCUvmlaf8DBU2kSRrEWe3t3eSkliQQDIEWO5g+doUcu1mqXgJxS1ZBh8RswYQy5cMHXLSzfELiCHjMyp@vger.kernel.org
-X-Gm-Message-State: AOJu0YyoAffH4HLVxksHnkPDUF4/KYQ/0H7/FDV9e+taXYmxBm+ZIXT7
-	D3vJjLY0Kh+KRsRzxOK7FJpFINwq7BnIYGi3PhdbiSaYw87D9kZ6N6LH
-X-Gm-Gg: ATEYQzwwtvAKF7MelBbJVWP7Ssmez6GKxvH6ofHc0e0s6CoqmITo/VXofLj1sGLP5jV
-	B7xtzShJ+NHvtDDkyXP/598Wsg4raz7D2pbcCJ0MdceviQnfoCIUnW2BhE7PT/gB2nc03394f88
-	Uz+5V9PgXy+5VEb5UWyuCTaleY2ZOEZuK1YdIsNVn3AVwXVsLixSC2bpnzjDr/9kgx2Qc3FcQye
-	BVvNLtGlEP+aC1dr1F/sSuax3hXAriq1bHuEibQgxyKkSp0sGau8HlzH26jKbEC3b+md9iLKKEN
-	sOcQjMC7eM+z8M5Ihl6hQuPamDSrtRjtcsD1jz9qOVAODr8Uxg+RpT63GR8fPJG+Nh3teGGS99e
-	CrHdKrQhwMc4MVkrRHPBjqU00VGZcjfVaaRMZCNfXsa0fQ4tQ0AdU6/XWinWIEHGB5UYuZZ7EM+
-	YYlWr5umg7kzcwTQv0zhSZbRk58WLW25EANrNYpjE8nxmmiK/KYM1ug+1yimdXbdhH
-X-Received: by 2002:a05:600c:3551:b0:477:7b16:5fb1 with SMTP id 5b1f17b1804b1-4854b0cbe81mr96719315e9.7.1773304735965;
-        Thu, 12 Mar 2026 01:38:55 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4854b5f6bb4sm111774365e9.4.2026.03.12.01.38.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Mar 2026 01:38:55 -0700 (PDT)
-Date: Thu, 12 Mar 2026 08:38:53 +0000
-From: David Laight <david.laight.linux@gmail.com>
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: Christoph Hellwig <hch@lst.de>, Andrew Morton
- <akpm@linux-foundation.org>, Richard Henderson
- <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, Magnus
- Lindholm <linmag7@gmail.com>, Russell King <linux@armlinux.org.uk>, Catalin
- Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Huacai
- Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, Madhavan
- Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
- Nicholas Piggin <npiggin@gmail.com>, "Christophe Leroy (CS GROUP)"
- <chleroy@kernel.org>, Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt
- <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti
- <alex@ghiti.fr>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
- <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, Christian
- Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
- <svens@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, Andreas
- Larsson <andreas@gaisler.com>, Richard Weinberger <richard@nod.at>, Anton
- Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg
- <johannes@sipsolutions.net>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar
- <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
- <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin"
- <hpa@zytor.com>, Herbert Xu <herbert@gondor.apana.org.au>, Dan Williams
- <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>, David Sterba
- <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>, Song Liu
- <song@kernel.org>, Yu Kuai <yukuai@fnnas.com>, Li Nan
- <linan122@huawei.com>, Theodore Ts'o <tytso@mit.edu>, "Jason A. Donenfeld"
- <Jason@zx2c4.com>, linux-alpha@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
- linux-crypto@vger.kernel.org, linux-btrfs@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: [PATCH 26/27] random: factor out a __limit_random_u32_below
- helper
-Message-ID: <20260312083853.01dc18d3@pumpkin>
-In-Reply-To: <20260311222935.GA3161@quark>
-References: <20260311070416.972667-1-hch@lst.de>
-	<20260311070416.972667-27-hch@lst.de>
-	<20260311222935.GA3161@quark>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="E59FA3GS"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1773307778;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=uBRqbG57c0gxktkhNnrZHJgUKtWTivbvPUXrbPI8WKk=;
+	b=E59FA3GSVEPk2DHWwPxq7xyFM4b53nHHJtRynpKdgV0m9PdiijivEg1kjCIYF4HiqmNtBz
+	nYf4SV5YfryRZiGB3pqE2WUigjq2gev5jJ+TRgeQkQA3e0RkRSziCnA8Ek/ehKPHXAv+nc
+	znEe7Kx9Gr7Rl2y9bC7qFgndnDle8NQ=
+From: Jiayuan Chen <jiayuan.chen@linux.dev>
+To: netdev@vger.kernel.org
+Cc: Jiayuan Chen <jiayuan.chen@shopee.com>,
+	syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com,
+	Eric Dumazet <edumazet@google.com>,
+	Jiayuan Chen <jiayuan.chen@linux.dev>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net v5] net/smc: fix NULL dereference and UAF in smc_tcp_syn_recv_sock()
+Date: Thu, 12 Mar 2026 17:29:07 +0800
+Message-ID: <20260312092909.48325-1-jiayuan.chen@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On Wed, 11 Mar 2026 15:29:35 -0700
-Eric Biggers <ebiggers@kernel.org> wrote:
+From: Jiayuan Chen <jiayuan.chen@shopee.com>
 
-> On Wed, Mar 11, 2026 at 08:03:58AM +0100, Christoph Hellwig wrote:
-> > Factor out the guts of __get_random_u32_below into a new helper,
-> > so that callers with their own prng state can reuse this code.
-> > 
-> > Signed-off-by: Christoph Hellwig <hch@lst.de>  
-> 
-> I think I'd prefer that the test just uses the mod operation instead,
-> like many of the existing tests do:
-> 
->     prandom_u32_state(&rng) % ceil
+Syzkaller reported a panic in smc_tcp_syn_recv_sock() [1].
 
-Or possibly what the old code used:
-	(prandom_u32_state(&rnd) * (u64)ceil) >> 32
+smc_tcp_syn_recv_sock() is called in the TCP receive path
+(softirq) via icsk_af_ops->syn_recv_sock on the clcsock (TCP
+listening socket). It reads sk_user_data to get the smc_sock
+pointer. However, when the SMC listen socket is being closed
+concurrently, smc_close_active() sets clcsock->sk_user_data
+to NULL under sk_callback_lock, and then the smc_sock itself
+can be freed via sock_put() in smc_release().
 
-Which distributes the values evenly across the range although
-some values happen 1 more time than others.
-I suspect that is good enough for a lot of the users of the cryptographic
-random number generator as well.
+This leads to two issues:
 
-	David
+1) NULL pointer dereference: sk_user_data is NULL when
+   accessed.
+2) Use-after-free: sk_user_data is read as non-NULL, but the
+   smc_sock is freed before its fields (e.g., queued_smc_hs,
+   ori_af_ops) are accessed.
 
-> 
-> Yes, when ceil isn't a power of 2 the result isn't uniformly
-> distributed.  But that's perfectly fine for these tests, especially with
-> the values of ceil being used being far smaller than U32_MAX.
-> 
-> There's been an effort to keep the cryptographic random number generator
-> (drivers/char/random.c and include/linux/random.h) separate from the
-> non-cryptographic random number generator (lib/random32.c and
-> include/linux/prandom.h).  This patch feels like it's going in a
-> slightly wrong direction, where random.c gains a function that's used
-> with both cryptographic and non-cryptographic random numbers.
-> 
-> And if someone actually needs a fully unform distribution, then they'd
-> probably want cryptographic random numbers as well.
-> 
-> So I'm not sure the proposed combination of "fully uniform
-> non-cryptographic random numbers" makes much sense.
-> 
-> Plus the '% ceil' implementation is much easier to understand.
-> 
-> - Eric
-> 
+The race window looks like this (the syzkaller crash [1]
+triggers via the SYN cookie path: tcp_get_cookie_sock() ->
+smc_tcp_syn_recv_sock(), but the normal tcp_check_req() path
+has the same race):
+
+  CPU A (softirq)              CPU B (process ctx)
+
+  tcp_v4_rcv()
+    TCP_NEW_SYN_RECV:
+    sk = req->rsk_listener
+    sock_hold(sk)
+    /* No lock on listener */
+                               smc_close_active():
+                                 write_lock_bh(cb_lock)
+                                 sk_user_data = NULL
+                                 write_unlock_bh(cb_lock)
+                                 ...
+                                 smc_clcsock_release()
+                                 sock_put(smc->sk) x2
+                                   -> smc_sock freed!
+    tcp_check_req()
+      smc_tcp_syn_recv_sock():
+        smc = user_data(sk)
+          -> NULL or dangling
+        smc->queued_smc_hs
+          -> crash!
+
+Note that the clcsock and smc_sock are two independent objects
+with separate refcounts. TCP stack holds a reference on the
+clcsock, which keeps it alive, but this does NOT prevent the
+smc_sock from being freed.
+
+Fix this by using RCU and refcount_inc_not_zero() to safely
+access smc_sock. Since smc_tcp_syn_recv_sock() is called in
+the TCP three-way handshake path, taking read_lock_bh on
+sk_callback_lock is too heavy and would not survive a SYN
+flood attack. Using rcu_read_lock() is much more lightweight.
+
+- Set SOCK_RCU_FREE on the SMC listen socket so that
+  smc_sock freeing is deferred until after the RCU grace
+  period. This guarantees the memory is still valid when
+  accessed inside rcu_read_lock().
+- Use rcu_read_lock() to protect reading sk_user_data.
+- Use refcount_inc_not_zero(&smc->sk.sk_refcnt) to pin the
+  smc_sock. If the refcount has already reached zero (close
+  path completed), it returns false and we bail out safely.
+
+Note: smc_hs_congested() has a similar lockless read of
+sk_user_data without rcu_read_lock(), but it only checks for
+NULL and accesses the global smc_hs_wq, never dereferencing
+any smc_sock field, so it is not affected.
+
+Reproducer was verified with mdelay injection and smc_run,
+the issue no longer occurs with this patch applied.
+
+[1] https://syzkaller.appspot.com/bug?extid=827ae2bfb3a3529333e9
+
+Fixes: 8270d9c21041 ("net/smc: Limit backlog connections")
+Reported-by: syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com
+Closes: https://lore.kernel.org/all/67eaf9b8.050a0220.3c3d88.004a.GAE@google.com/T/
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Cc: Jiayuan Chen <jiayuan.chen@linux.dev>
+Signed-off-by: Jiayuan Chen <jiayuan.chen@shopee.com>
+---
+v5:
+- Fix dst_entry leak and missing tcp_listendrop() on
+  early return when smc is NULL or refcount has reached
+  zero. This affects the SYN cookie path where dst is
+  non-NULL.
+
+v4: https://lore.kernel.org/netdev/20260311022451.395802-1-jiayuan.chen@linux.dev/T/#t
+
+v4:
+- Add a new smc_clcsock_user_data_rcu() helper instead of
+  modifying the existing smc_clcsock_user_data(), to allow
+  gradual conversion of callers. Only smc_tcp_syn_recv_sock()
+  uses the RCU variant; other callers under sk_callback_lock
+  remain unchanged, avoiding lockdep warnings.
+- Use rcu_dereference_sk_user_data() for reading and
+  rcu_assign_sk_user_data() for writing sk_user_data to
+  prevent load/store tearing.
+
+v3: https://lore.kernel.org/netdev/20260310120053.136594-1-jiayuan.chen@linux.dev/
+
+v3:
+- Write sk_user_data with RCU to prevent store tearing.
+
+v2: https://lore.kernel.org/netdev/20260309023846.18516-1-jiayuan.chen@linux.dev/
+
+v2:
+- Use rcu_read_lock() + refcount_inc_not_zero() instead of
+  read_lock_bh(sk_callback_lock) + sock_hold(), since this
+  is the TCP handshake hot path and read_lock_bh is too
+  expensive under SYN flood.
+- Set SOCK_RCU_FREE on SMC listen socket to ensure
+  RCU-deferred freeing.
+
+v1: https://lore.kernel.org/netdev/20260307032158.372165-1-jiayuan.chen@linux.dev/
+---
+ net/smc/af_smc.c    | 23 +++++++++++++++++------
+ net/smc/smc.h       |  5 +++++
+ net/smc/smc_close.c |  2 +-
+ 3 files changed, 23 insertions(+), 7 deletions(-)
+
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index d0119afcc6a1..1a565095376a 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -131,7 +131,14 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
+ 	struct smc_sock *smc;
+ 	struct sock *child;
+ 
+-	smc = smc_clcsock_user_data(sk);
++	rcu_read_lock();
++	smc = smc_clcsock_user_data_rcu(sk);
++	if (!smc || !refcount_inc_not_zero(&smc->sk.sk_refcnt)) {
++		rcu_read_unlock();
++		smc = NULL;
++		goto drop;
++	}
++	rcu_read_unlock();
+ 
+ 	if (READ_ONCE(sk->sk_ack_backlog) + atomic_read(&smc->queued_smc_hs) >
+ 				sk->sk_max_ack_backlog)
+@@ -153,11 +160,14 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
+ 		if (inet_csk(child)->icsk_af_ops == inet_csk(sk)->icsk_af_ops)
+ 			inet_csk(child)->icsk_af_ops = smc->ori_af_ops;
+ 	}
++	sock_put(&smc->sk);
+ 	return child;
+ 
+ drop:
+ 	dst_release(dst);
+ 	tcp_listendrop(sk);
++	if (smc)
++		sock_put(&smc->sk);
+ 	return NULL;
+ }
+ 
+@@ -254,7 +264,7 @@ static void smc_fback_restore_callbacks(struct smc_sock *smc)
+ 	struct sock *clcsk = smc->clcsock->sk;
+ 
+ 	write_lock_bh(&clcsk->sk_callback_lock);
+-	clcsk->sk_user_data = NULL;
++	rcu_assign_sk_user_data(clcsk, NULL);
+ 
+ 	smc_clcsock_restore_cb(&clcsk->sk_state_change, &smc->clcsk_state_change);
+ 	smc_clcsock_restore_cb(&clcsk->sk_data_ready, &smc->clcsk_data_ready);
+@@ -902,7 +912,7 @@ static void smc_fback_replace_callbacks(struct smc_sock *smc)
+ 	struct sock *clcsk = smc->clcsock->sk;
+ 
+ 	write_lock_bh(&clcsk->sk_callback_lock);
+-	clcsk->sk_user_data = (void *)((uintptr_t)smc | SK_USER_DATA_NOCOPY);
++	__rcu_assign_sk_user_data_with_flags(clcsk, smc, SK_USER_DATA_NOCOPY);
+ 
+ 	smc_clcsock_replace_cb(&clcsk->sk_state_change, smc_fback_state_change,
+ 			       &smc->clcsk_state_change);
+@@ -2665,8 +2675,8 @@ int smc_listen(struct socket *sock, int backlog)
+ 	 * smc-specific sk_data_ready function
+ 	 */
+ 	write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
+-	smc->clcsock->sk->sk_user_data =
+-		(void *)((uintptr_t)smc | SK_USER_DATA_NOCOPY);
++	__rcu_assign_sk_user_data_with_flags(smc->clcsock->sk, smc,
++					     SK_USER_DATA_NOCOPY);
+ 	smc_clcsock_replace_cb(&smc->clcsock->sk->sk_data_ready,
+ 			       smc_clcsock_data_ready, &smc->clcsk_data_ready);
+ 	write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
+@@ -2687,10 +2697,11 @@ int smc_listen(struct socket *sock, int backlog)
+ 		write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
+ 		smc_clcsock_restore_cb(&smc->clcsock->sk->sk_data_ready,
+ 				       &smc->clcsk_data_ready);
+-		smc->clcsock->sk->sk_user_data = NULL;
++		rcu_assign_sk_user_data(smc->clcsock->sk, NULL);
+ 		write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
+ 		goto out;
+ 	}
++	sock_set_flag(sk, SOCK_RCU_FREE);
+ 	sk->sk_max_ack_backlog = backlog;
+ 	sk->sk_ack_backlog = 0;
+ 	sk->sk_state = SMC_LISTEN;
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index 9e6af72784ba..52145df83f6e 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -346,6 +346,11 @@ static inline struct smc_sock *smc_clcsock_user_data(const struct sock *clcsk)
+ 	       ((uintptr_t)clcsk->sk_user_data & ~SK_USER_DATA_NOCOPY);
+ }
+ 
++static inline struct smc_sock *smc_clcsock_user_data_rcu(const struct sock *clcsk)
++{
++	return (struct smc_sock *)rcu_dereference_sk_user_data(clcsk);
++}
++
+ /* save target_cb in saved_cb, and replace target_cb with new_cb */
+ static inline void smc_clcsock_replace_cb(void (**target_cb)(struct sock *),
+ 					  void (*new_cb)(struct sock *),
+diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
+index 10219f55aad1..bb0313ef5f7c 100644
+--- a/net/smc/smc_close.c
++++ b/net/smc/smc_close.c
+@@ -218,7 +218,7 @@ int smc_close_active(struct smc_sock *smc)
+ 			write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
+ 			smc_clcsock_restore_cb(&smc->clcsock->sk->sk_data_ready,
+ 					       &smc->clcsk_data_ready);
+-			smc->clcsock->sk->sk_user_data = NULL;
++			rcu_assign_sk_user_data(smc->clcsock->sk, NULL);
+ 			write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
+ 			rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
+ 		}
+-- 
+2.43.0
 
