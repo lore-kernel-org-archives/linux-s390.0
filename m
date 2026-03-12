@@ -1,167 +1,95 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-dy1-f202.google.com (mail-dy1-f202.google.com [74.125.82.202])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A05B31AF1F
-	for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2026 06:14:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66DAA238D54
+	for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2026 06:16:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773296046; cv=none; b=a1jsqLE+Y/2kVxtOsN3AMuLBEy5U4FrlrjYjsyWekKQdHuPXtlar9S/0b/oAndhX8wsCmBMFu2N7Q1J/T7ieO6Uu4WAnwi2tvcF5fTTG9ieT2cj9wp7dNjDJftv104oIHzJXW+mSlYctHkNz+QVzVHbNv0K5pzgbTQ2RQGo0xW4=
+	t=1773296194; cv=none; b=hLBnSNFIH/Vt3gUgSyCWx3GBXKQyoKdjr29HRc864uXTopnnVcBzsGEKcahd6qNRVmaCLbjg7VeTQtsGkeT4CtsBOL8c93l4UVgrHPqlTGkMR+ZU6Qj53HPkiOYOOVP1C4ADLUKI7ZlrRg2LL9wmJ1imdTA1g4tA/PaJspVboNg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773296046; c=relaxed/simple;
-	bh=jzGHso5K3r2R3vYKB+f4MvfQOG/Mgg2LUyfLm3OiSBE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=X6WyFXxYZyRc+/6nTw8RlgUf4n74XVL4/BVYZJjHseTUJqfRujc6aWXth7nd8JGYN+3a5F2AJAWQSHYR0n38EADsvNRfHFVQf2DoNrHrvoPGcVFZMimeljdRBbvyCUZUJjQzwo/ycL54jJgOfbNq7+TuiNF7rGEC7EQCU4VprOY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=L6L00UJL; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=L6x7Lg3O; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=L6L00UJL; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=L6x7Lg3O; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1773296194; c=relaxed/simple;
+	bh=ESo8adYL6QabyJApQ4LPsfXjKpfgqwShaS5GxF/euyA=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=LRNgPWt3aEwyF2gbd9+SHPPvfFAZUL9MkMvyqx+2ycduWVnke+g/AljEDsLUQD6jPs9uMRhZjfP19pLbFSycuBGlwMINR90FhecX5s+vuypID1fjUeMKpDW8PzwCGOzt6ycurFWRFqoDQb5zJrmEurJvZ/tpoepo3k58Y5cy8sg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Tyukg6GC; arc=none smtp.client-ip=74.125.82.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="L6L00UJL";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="L6x7Lg3O";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="L6L00UJL";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="L6x7Lg3O"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 506BD5C0AB;
-	Thu, 12 Mar 2026 06:14:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1773296043;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=fTMk2W3stj8+PWnN98r8nUX6IrcWOaSqaGU5Q2vEZzo=;
-	b=L6L00UJL1VQ6IEp2O5xa2lEsD0gVDNhh1KSA9k22B3AHJTezID+Dj3OxnBK0Ob7Ja3/cc+
-	FoNKQ2oLlWIi7mruL9dJhikXx/B5hbXJQ0fYtgSArLVPWcr1RjAhojHuu493p2im/SwbMf
-	u3LqEuCjY14qQ6o/v/9Dv4+xFtPYBg0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1773296043;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=fTMk2W3stj8+PWnN98r8nUX6IrcWOaSqaGU5Q2vEZzo=;
-	b=L6x7Lg3OeWIL6ALQIVkElvYX8trulqusN6FrtbYfTfixUGs7gjqDdkJnsWLXscU1dnEyWh
-	HJGthSgH431PfKAQ==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1773296043;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=fTMk2W3stj8+PWnN98r8nUX6IrcWOaSqaGU5Q2vEZzo=;
-	b=L6L00UJL1VQ6IEp2O5xa2lEsD0gVDNhh1KSA9k22B3AHJTezID+Dj3OxnBK0Ob7Ja3/cc+
-	FoNKQ2oLlWIi7mruL9dJhikXx/B5hbXJQ0fYtgSArLVPWcr1RjAhojHuu493p2im/SwbMf
-	u3LqEuCjY14qQ6o/v/9Dv4+xFtPYBg0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1773296043;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=fTMk2W3stj8+PWnN98r8nUX6IrcWOaSqaGU5Q2vEZzo=;
-	b=L6x7Lg3OeWIL6ALQIVkElvYX8trulqusN6FrtbYfTfixUGs7gjqDdkJnsWLXscU1dnEyWh
-	HJGthSgH431PfKAQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 0C3EF3FE12;
-	Thu, 12 Mar 2026 06:14:03 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 9PbNAqtZsmmBXAAAD6G6ig
-	(envelope-from <dsterba@suse.cz>); Thu, 12 Mar 2026 06:14:03 +0000
-Date: Thu, 12 Mar 2026 07:14:01 +0100
-From: David Sterba <dsterba@suse.cz>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Matt Turner <mattst88@gmail.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Dan Williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>,
-	David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>,
-	Song Liu <song@kernel.org>, Yu Kuai <yukuai@fnnas.com>,
-	Li Nan <linan122@huawei.com>, Theodore Ts'o <tytso@mit.edu>,
-	"Jason A. Donenfeld" <Jason@zx2c4.com>, linux-alpha@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-	linux-crypto@vger.kernel.org, linux-btrfs@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: [PATCH 23/27] btrfs: use xor_gen
-Message-ID: <20260312061401.GE5735@suse.cz>
-Reply-To: dsterba@suse.cz
-References: <20260311070416.972667-1-hch@lst.de>
- <20260311070416.972667-24-hch@lst.de>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Tyukg6GC"
+Received: by mail-dy1-f202.google.com with SMTP id 5a478bee46e88-2be21146933so977519eec.1
+        for <linux-s390@vger.kernel.org>; Wed, 11 Mar 2026 23:16:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1773296192; x=1773900992; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=ER74iEy8gUVJnZ6jeSlc8bWwSBKIum0sBcnkXAXKwV4=;
+        b=Tyukg6GC85AfO5gvLo7oatYgHryFBWK4F9SldL4OgJk9veS5TdZGOgIdAoegSipM2U
+         MsU27XilwdN2xtBmWqc3i9kFgWnI8Y98inG4a3Wz5zpek723D5kO+GEHrPBCCpfofuex
+         L5dCXDcpUxcgI9UvDa3tTPMGjdcpvoXGwQkbPZ0QGVSAnPtJC1pvGZCn19ZcEpeXkyyS
+         AuQdN7RGGfFvorAVqaF/eHg6fmNqK11hkflysPVgtYfBMnyCO84dNMPNwQ4ubRpBQ1Wv
+         z/022vtBFyHp/HQWceIuelUZD7Ai2bb0/yrK8jd7MJTyDlC7BHxY1z0gDso/9293n+ju
+         1aFw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773296192; x=1773900992;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ER74iEy8gUVJnZ6jeSlc8bWwSBKIum0sBcnkXAXKwV4=;
+        b=nHq08WnvFhJYDvPJ9MbV3oRLMFwA/pKj9d8mTpXg34T9LhxnHS4b3eYwFh0owklS4s
+         Z/MzbNZgG3/kIvmHj2xXl9sObaogpqJ8o+HYC2pwniYDj4PXlKQrTmV8YrdHFrAx2frH
+         rDLit3tlAjlu6wY60Mrkn0G6ADjnSoMt8t5CzFQ+zUR56XYjGjARfN37N9JrLSCTNmlF
+         jkAhA1XW9Wv8gjc62RGSU58k7flIRe/niFR+VsE9/aXFFvZajJ1+Ssqek5+gvX1JK8mD
+         XAxoEgOnJh6YdYc1zgwzNAlWxaIZlL/bKuuUNJ9QeZfV9tzpUqxTS1QqFG/UVaWbL42e
+         +sLQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXweE08xLmJyoDaClOsDCLR0BEn25ebPXDXGZoomaP2CQxyhO4fZWuPUEjGE44jN/cVrZczk1J18PGl@vger.kernel.org
+X-Gm-Message-State: AOJu0YwWnfHPs4XLnzLW7i+Uc+yAtWJsJN6dECLH82pcPo8sFp6VTtRD
+	XXcrQr750FLW8R+KpsGgCLmhXJlXZFZ/Oto7QBpUYuOFF61LQGcedwQDsM5t9SX3qe/DK2kirpQ
+	mBpDiDtOxQQ==
+X-Received: from dycnr22-n1.prod.google.com ([2002:a05:7300:e9d6:10b0:2be:73ec:b506])
+ (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7301:5784:b0:2ba:6fbb:5e7f
+ with SMTP id 5a478bee46e88-2be8a52f0bcmr2052812eec.35.1773296191280; Wed, 11
+ Mar 2026 23:16:31 -0700 (PDT)
+Date: Wed, 11 Mar 2026 23:16:26 -0700
+In-Reply-To: <20260312031928.1494864-1-irogers@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260311070416.972667-24-hch@lst.de>
-User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
-X-Spam-Score: -8.00
-X-Spam-Level: 
-X-Spamd-Result: default: False [-8.00 / 50.00];
-	REPLY(-4.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	HAS_REPLYTO(0.30)[dsterba@suse.cz];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	TO_DN_SOME(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	ARC_NA(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email,imap1.dmz-prg2.suse.org:helo];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[linux-foundation.org,linaro.org,gmail.com,armlinux.org.uk,arm.com,kernel.org,xen0n.name,linux.ibm.com,ellerman.id.au,dabbelt.com,eecs.berkeley.edu,ghiti.fr,davemloft.net,gaisler.com,nod.at,cambridgegreys.com,sipsolutions.net,redhat.com,alien8.de,linux.intel.com,zytor.com,gondor.apana.org.au,intel.com,fb.com,suse.com,arndb.de,fnnas.com,huawei.com,mit.edu,zx2c4.com,vger.kernel.org,lists.infradead.org,lists.linux.dev,lists.ozlabs.org];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	REPLYTO_ADDR_EQ_FROM(0.00)[];
-	RCPT_COUNT_GT_50(0.00)[57];
-	REPLYTO_DOM_NEQ_TO_DOM(0.00)[]
-X-Spam-Flag: NO
+Mime-Version: 1.0
+References: <20260312031928.1494864-1-irogers@google.com>
+X-Mailer: git-send-email 2.53.0.851.ga537e3e6e9-goog
+Message-ID: <20260312061628.1593105-1-irogers@google.com>
+Subject: [PATCH v2 0/2] perf evsel fallback changes
+From: Ian Rogers <irogers@google.com>
+To: tmricht@linux.ibm.com
+Cc: irogers@google.com, acme@kernel.org, agordeev@linux.ibm.com, 
+	gor@linux.ibm.com, hca@linux.ibm.com, japo@linux.ibm.com, 
+	linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
+	linux-s390@vger.kernel.org, namhyung@kernel.org, sumanthk@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Wed, Mar 11, 2026 at 08:03:55AM +0100, Christoph Hellwig wrote:
-> Use the new xor_gen helper instead of open coding the loop around
-> xor_blocks.  This helper is very similar to the existing run_xor helper
-> in btrfs, except that the destination buffer is passed explicitly.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+Discussion with Thomas Richter in:
+https://lore.kernel.org/lkml/20260306071002.2526085-1-tmricht@linux.ibm.com/
+showed that the evsel__fallback wasn't working for s390. These patches
+avoid the problematic frame pointer callchain on s390 and fix
+evsel__fallback from a range of problems when falling back to a
+software event. I simulated failures when developing the patches but
+they are untested other than that.
 
-Acked-by: David Sterba <dsterba@suse.com>
+v2: try exclude_callchain_user for s390 rather than fully disabling
+    the callchain. Fix a missed clearing of is_pmu_core if the
+    software event fallback.
+
+v1: https://lore.kernel.org/lkml/20260312031928.1494864-1-irogers@google.com/
+
+Ian Rogers (2):
+  perf evsel: Improve falling back from cycles
+  perf evsel: Don't configure framepointer callchains on s390
+
+ tools/perf/util/evsel.c | 51 ++++++++++++++++++++++++++++++-----------
+ tools/perf/util/evsel.h |  2 ++
+ 2 files changed, 39 insertions(+), 14 deletions(-)
+
+-- 
+2.53.0.851.ga537e3e6e9-goog
+
