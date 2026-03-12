@@ -1,54 +1,54 @@
-Received: from mail-pf1-f201.google.com (mail-pf1-f201.google.com [209.85.210.201])
+Received: from mail-dy1-f202.google.com (mail-dy1-f202.google.com [74.125.82.202])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEA1B1C3BFC
-	for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2026 06:16:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50A2634752B
+	for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2026 06:16:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773296195; cv=none; b=Rgk/XiGMZIEik6CzKFUkkfMa8taYlLlzBnLrXlc6F66MOcMxqI/ikCVza4CwtX15yZQ/dRR+nEKvxWvgthTCnlmuKAOx1aJZamwowGxNopy/CR8vJhZE7Kq1U3ufvsKx1bF8lHwMkfKmsG90BLqerNsOPG4GL9heTQFk+d0Wo6g=
+	t=1773296197; cv=none; b=S0FnlT7Cn4rlHZ4ZtfXQVrO+Cwa2qqtA5UKmkw+Vh+7HZKXlVhzEjN86VMRHcqUPTeJWH12PjDo+ctCeP3X9tRsSNJ3N1GkFfLOpAIMtl6vuV4NsJV0sVD6aqjEdgUz4r14PT/btUKwZKU8sa57Kp0WUzs5dzc9pma2xfdZkBjo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773296195; c=relaxed/simple;
-	bh=Z5QaxiCHj5K0GmoIJrY5Xe88uPpAGGMKJgSWdAQAxy0=;
+	s=arc-20240116; t=1773296197; c=relaxed/simple;
+	bh=AHPgpQXNpmocpftwSDROOrgKtU/VXiRe/PzkSgRw7+E=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=jL3VRCikVKdHsrID9WGCF7zVmWvdhV6MNXdQvwDSISk65DGGWTM5YJ9CuZaZLX3BgZ/iWzKDOZz003oRdD1twHRrKdaQcKQC9wBnr8FCQu42x19tQ6kOf/aPClBqXDIx4/60RK2LZbVygIv2mCz8ZPdqsRUcm2jzfzptR7DaPyY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=IuDg33Or; arc=none smtp.client-ip=209.85.210.201
+	 To:Cc:Content-Type; b=i5h/hXIfLnkfrgP2xaCSdFJz+0h6rJW1UIb0ZGX8NWp3wRuogMKrewS95+U84CM6yDGqwGLSS9zwIANcbQlubS91G75eRVpodcow0mhFAVgWULZmvvGI6K7N2iDFaPoWIt7Vd2ufyMJH6gsFbnM+0GwBFn7DyqbsWxdUGTYii4A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=u7ZhM/0x; arc=none smtp.client-ip=74.125.82.202
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="IuDg33Or"
-Received: by mail-pf1-f201.google.com with SMTP id d2e1a72fcca58-829b8bb5173so425133b3a.3
-        for <linux-s390@vger.kernel.org>; Wed, 11 Mar 2026 23:16:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="u7ZhM/0x"
+Received: by mail-dy1-f202.google.com with SMTP id 5a478bee46e88-2bdff07d8f4so1039012eec.1
+        for <linux-s390@vger.kernel.org>; Wed, 11 Mar 2026 23:16:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1773296193; x=1773900993; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1773296195; x=1773900995; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=wbBdPFRzOAuAtLIlVyUjb3PSrQgEZIOE4FDHqZdQ/kI=;
-        b=IuDg33OrkDkYRekw7MOYMKco/wcKahVc2WNKK27YN4c2OLNF6QfKtxRiHtp+GfgHX9
-         OOoqGNPrVs4uOAGBB7eCbDz4T1D8qV95CzUG4QHVuZfemtIQoArqAmm5sSOBzkc6Z0tN
-         /aYmYZAlYIJNKbbJ0rraXDoMixNufVe6C62mj+92qSCarY/3cCMGvTBeUPIol2ZMZqcx
-         JLwSU27cCU7Xon/CAWis5yofCkYfeg2aJtgfeAoktkFajt3G9Fha7C6lG3OHK5GbJbfi
-         5ru5v0pWjKnl2s0X/m34LBn9/Rm1azm4YOJ9v83HjVwi1hxrKSJ9sxl20s8GxEWTCMTE
-         rOkA==
+        bh=SBDz1m5N4ziATwBlDRma/nMU8Fwj8JUl1F3v6VB29uA=;
+        b=u7ZhM/0x9mh0q2lDmDYJR9wNFf9Kfoh1XpDvDBlKS3w2Wuxr+OpcA+1eDcXiv38icC
+         SS741s2ot0ZPyIixW/QCJeeRYnPCAttSVd4PD5axDEbQDkNmZSomWbydC1o6du8S/BYC
+         dCe2fwz03dcNTCokFcJ0Lt/V00cAJDB7j+U/a2p26HsVFYjvEcbjUOHliFzxpueQ1utV
+         9mLU0cJAzqctZmbUkiVMyTExnhlJLP0qzd5qKOWG3tP3f/6eIzxHq7QMvA5mNL5BLCJY
+         MjdjKwe1H0QwN0UgGNstbg2x2/5gOsOkOUPYdlIFOddx065g3tv+v5yuDsknHiVFpbYU
+         ey6w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773296193; x=1773900993;
+        d=1e100.net; s=20230601; t=1773296195; x=1773900995;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=wbBdPFRzOAuAtLIlVyUjb3PSrQgEZIOE4FDHqZdQ/kI=;
-        b=aiz9xq3wZlEHHu77IopqLSkzGpRCDax9dQfXoQVsfHycW7CkVMa8KWb9sMIkt9gy1e
-         Xq1/H9YZhly29CWS8lZYf87s7F8oYuiUwxK4McM4cZySOllPyorAxPuYVxLSb4fhu3EZ
-         Kj6JaO9jMmb+R0fDO7GKAPGMHKuOZXYBmUEEzYtSRTLFCnB6VGDcctHe6ePM27KH4CFy
-         d4lrInPNGd2KF0WctigyXmF5kcWN5+ZyQ8OAccMMco1Bw9ERwDXD5e39BsjsPobKG71E
-         /6S7UP1NE1PtqIgk/EJtE7DggbrGBb+BLjxPTzce2d2TnAUUgJv2FHrkEWoJhYHDCJP4
-         oIMA==
-X-Forwarded-Encrypted: i=1; AJvYcCWYFLAI7EHmm8+gh4eEUTubYui20/ucj5qU9TirvXkKscprK8ZrqXLDorVzsnLJkDpw+ndpwh5Cy+24@vger.kernel.org
-X-Gm-Message-State: AOJu0YxQvm+10zERTDFUryHwVFyYzxLwzDHeYtR3WzdYshks2fry+Y6D
-	ekfB0XdVdKoqLO9awDZ9lccZVacg9rCZAmhheq0X6sUHPE1fxVPAiNYN2Hflgxk0b7Nffhxcwj4
-	K+tAtzo/3GA==
-X-Received: from pfiu15.prod.google.com ([2002:a05:6a00:124f:b0:829:813e:c970])
- (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:aa7:88c3:0:b0:81e:8e66:38e0
- with SMTP id d2e1a72fcca58-829f70d1156mr4528769b3a.20.1773296193179; Wed, 11
- Mar 2026 23:16:33 -0700 (PDT)
-Date: Wed, 11 Mar 2026 23:16:27 -0700
+        bh=SBDz1m5N4ziATwBlDRma/nMU8Fwj8JUl1F3v6VB29uA=;
+        b=BCkupygKkfJ75R2Ad7thMRt1QVg4NrBrVmclQzGb1r/mwUmfCzPOzw8LDIWIw8k+IH
+         NmdFcQ1cNUS0oK712P4n2VnHrIji7av3IiqvXJ/azzTGDjZ+4X4AaP7dmvtqBp04PYQf
+         IYDFErazrj4o9xDa073GUiVzfgsL24v8h/s+yELqr7+qt3QVz1kuOwOXvXFRMt7N9sUe
+         c2shGCxAk8dHIiIhVWXUc3P5dr9qHsDADTgCs67huwqjhnJdmXtaUegCo46AwWhrPEGa
+         cULzxDkN/GXT3X2HhGYqRitbhyirymlewD/0yDtp2X773TVkMRtiY7f5RZG27k3jfZLV
+         78cA==
+X-Forwarded-Encrypted: i=1; AJvYcCWMGF0WQxWHkiA125U951AytMXnk6xJiCeYFpxRdUPHgSM5X1sCAJ14PgvCbqDGXYHFCkmqKJKZFEnL@vger.kernel.org
+X-Gm-Message-State: AOJu0YxeLmemIIIeT+iMWIl6BEbC0kEuZC/72SrccZ/V8VvFPsAxwW2s
+	UVGZrrF6eO39ATQ8aiSy/npt1uTF1G0SIU8FUJ0WHJqswiOMAm719AEwdmt8FTFEISCKHZAXdUS
+	7ChG1Jtn0tw==
+X-Received: from dys13.prod.google.com ([2002:a05:693c:800d:b0:2be:798b:cb2f])
+ (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:693c:310b:b0:2b7:da62:a5f9
+ with SMTP id 5a478bee46e88-2be8a57b407mr2086093eec.18.1773296195273; Wed, 11
+ Mar 2026 23:16:35 -0700 (PDT)
+Date: Wed, 11 Mar 2026 23:16:28 -0700
 In-Reply-To: <20260312061628.1593105-1-irogers@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -58,8 +58,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20260312031928.1494864-1-irogers@google.com> <20260312061628.1593105-1-irogers@google.com>
 X-Mailer: git-send-email 2.53.0.851.ga537e3e6e9-goog
-Message-ID: <20260312061628.1593105-2-irogers@google.com>
-Subject: [PATCH v2 1/2] perf evsel: Improve falling back from cycles
+Message-ID: <20260312061628.1593105-3-irogers@google.com>
+Subject: [PATCH v2 2/2] perf evsel: Don't configure framepointer callchains on s390
 From: Ian Rogers <irogers@google.com>
 To: tmricht@linux.ibm.com
 Cc: irogers@google.com, acme@kernel.org, agordeev@linux.ibm.com, 
@@ -68,111 +68,34 @@ Cc: irogers@google.com, acme@kernel.org, agordeev@linux.ibm.com,
 	linux-s390@vger.kernel.org, namhyung@kernel.org, sumanthk@linux.ibm.com
 Content-Type: text/plain; charset="UTF-8"
 
-Switch to using evsel__match rather than comparing perf_event_attr
-values, this is robust on hybrid architectures.
-Ensure evsel->pmu matches the evsel->core.attr.
-Remove exclude bits that get set in other fallback attempts when
-switching the event.
-Log the event name with modifiers when switching the event on fallback.
+Frame pointer callchains are not supported on s390. Ignore the option
+and print a warning.
 
 Signed-off-by: Ian Rogers <irogers@google.com>
 ---
-v2: Also update evsel->core.is_pmu_core when switchingto a software event.
+v2: Only disable user callchains as AI is telling me native "kernel"
+    callchains are supported on s390.
 ---
- tools/perf/util/evsel.c | 45 ++++++++++++++++++++++++++++-------------
- tools/perf/util/evsel.h |  2 ++
- 2 files changed, 33 insertions(+), 14 deletions(-)
+ tools/perf/util/evsel.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
-index f59228c1a39e..bd14d9bbc91f 100644
+index bd14d9bbc91f..fa21b48cba86 100644
 --- a/tools/perf/util/evsel.c
 +++ b/tools/perf/util/evsel.c
-@@ -3785,25 +3785,42 @@ bool evsel__fallback(struct evsel *evsel, struct target *target, int err,
- {
- 	int paranoid;
- 
--	if ((err == ENOENT || err == ENXIO || err == ENODEV) &&
--	    evsel->core.attr.type   == PERF_TYPE_HARDWARE &&
--	    evsel->core.attr.config == PERF_COUNT_HW_CPU_CYCLES) {
-+	if ((err == ENODEV || err == ENOENT || err == ENXIO) &&
-+	    evsel__match(evsel, HARDWARE, HW_CPU_CYCLES)) {
- 		/*
--		 * If it's cycles then fall back to hrtimer based cpu-clock sw
--		 * counter, which is always available even if no PMU support.
--		 *
--		 * PPC returns ENXIO until 2.6.37 (behavior changed with commit
--		 * b0a873e).
-+		 * If it's the legacy hardware cycles event fails then fall back
-+		 * to hrtimer based cpu-clock sw counter, which is always
-+		 * available even if no PMU support. PPC returned ENXIO rather
-+		 * than ENODEV or ENOENT until 2.6.37.
- 		 */
--		evsel->core.attr.type   = PERF_TYPE_SOFTWARE;
-+		evsel->pmu = perf_pmus__find_by_type(PERF_TYPE_SOFTWARE);
-+		assert(evsel->pmu); /* software is a "well-known" and can't fail PMU type. */
-+
-+		/* Configure the event. */
-+		evsel->core.attr.type = PERF_TYPE_SOFTWARE;
- 		evsel->core.attr.config = target__has_cpu(target)
- 			? PERF_COUNT_SW_CPU_CLOCK
- 			: PERF_COUNT_SW_TASK_CLOCK;
--		scnprintf(msg, msgsize,
--			"The cycles event is not supported, trying to fall back to %s",
--			target__has_cpu(target) ? "cpu-clock" : "task-clock");
-+		evsel->core.is_pmu_core = false;
-+
-+		/* Remove excludes for new event. */
-+		if (evsel->fallenback_eacces) {
-+			evsel->core.attr.exclude_kernel = 0;
-+			evsel->core.attr.exclude_hv     = 0;
-+			evsel->fallenback_eacces = false;
-+		}
-+		if (evsel->fallenback_eopnotsupp) {
-+			evsel->core.attr.exclude_guest = 0;
-+			evsel->fallenback_eopnotsupp = false;
-+		}
- 
-+		/* Name is recomputed by evsel__name. */
- 		zfree(&evsel->name);
-+
-+		/* Log message. */
-+		scnprintf(msg, msgsize,
-+			  "The cycles event is not supported, trying to fall back to %s",
-+			  evsel__name(evsel));
- 		return true;
- 	} else if (err == EACCES && !evsel->core.attr.exclude_kernel &&
- 		   (paranoid = perf_event_paranoid()) > 1) {
-@@ -3830,7 +3847,7 @@ bool evsel__fallback(struct evsel *evsel, struct target *target, int err,
- 			  " samples", paranoid);
- 		evsel->core.attr.exclude_kernel = 1;
- 		evsel->core.attr.exclude_hv     = 1;
--
-+		evsel->fallenback_eacces = true;
- 		return true;
- 	} else if (err == EOPNOTSUPP && !evsel->core.attr.exclude_guest &&
- 		   !evsel->exclude_GH) {
-@@ -3851,7 +3868,7 @@ bool evsel__fallback(struct evsel *evsel, struct target *target, int err,
- 		/* Apple M1 requires exclude_guest */
- 		scnprintf(msg, msgsize, "Trying to fall back to excluding guest samples");
- 		evsel->core.attr.exclude_guest = 1;
--
-+		evsel->fallenback_eopnotsupp = true;
- 		return true;
+@@ -1076,6 +1076,12 @@ static void __evsel__config_callchain(struct evsel *evsel, struct record_opts *o
+ 		attr->exclude_callchain_user = 1;
  	}
- no_fallback:
-diff --git a/tools/perf/util/evsel.h b/tools/perf/util/evsel.h
-index a3d754c029a0..97f57fab28ce 100644
---- a/tools/perf/util/evsel.h
-+++ b/tools/perf/util/evsel.h
-@@ -124,6 +124,8 @@ struct evsel {
- 	bool			default_metricgroup; /* A member of the Default metricgroup */
- 	bool			default_show_events; /* If a default group member, show the event */
- 	bool			needs_uniquify;
-+	bool			fallenback_eacces;
-+	bool			fallenback_eopnotsupp;
- 	struct hashmap		*per_pkg_mask;
- 	int			err;
- 	int			script_output_type;
+ 
++	if (EM_HOST == EM_S390 && (evsel->core.attr.sample_type & PERF_SAMPLE_CALLCHAIN) &&
++	    !evsel->core.attr.exclude_callchain_user) {
++		pr_warning("Excluding user callchains that are not supported on s390. Try '--call-graph dwarf'\n");
++		evsel->core.attr.exclude_callchain_user = 1;
++	}
++
+ 	if (param->defer && !attr->exclude_callchain_user)
+ 		attr->defer_callchain = 1;
+ }
 -- 
 2.53.0.851.ga537e3e6e9-goog
 
