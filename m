@@ -1,97 +1,171 @@
-Received: from mail-dy1-f202.google.com (mail-dy1-f202.google.com [74.125.82.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out-171.mta0.migadu.com (out-171.mta0.migadu.com [91.218.175.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6869388E4A
-	for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2026 03:19:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8CC632B98A
+	for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2026 03:28:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773285577; cv=none; b=jX5zHUw4+/RETj4qHjNrdS0SEiBIJ1a/yfYATGfomyBDwBfjabO/sR0E8vVrfmmg9ZH0ZjLiQLYMEjurD1p4J73ZsaMM4RJeutx96DAKvOb/xdB/Cj09EroQRVmmJSQuFdAdyaiFCGn4q30B9V22MnAROEXFTeiVtd0YB8k+n2w=
+	t=1773286094; cv=none; b=AqGn2F2KVfndYir+dVOC8C9poGBPAfTv2pziTbrug3C9UWnOCOGYavtSDhpyT1WkpGGrHCxJYAftSFkqUqOG1PdxY513A9Lk74kDlbXx3+Ca/MXpuPojOBFcetBMBaTv+SAC0FTaMXjUXL5fomahGvpe6jTqnVE70gjlaXVmMHs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773285577; c=relaxed/simple;
-	bh=eMdrmPvDMm+52SqbNbea/beENK4MxOLUj+Cxk3vRRPw=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=S8IO9VejKQBPxPMCIMOKNlbzHLUn+daWMReo1W4mpC419qpL0IgMwsIH/aJShZ+BqEZGKTB4nwu51mZvfC4su+grH+ZRkC6PYYcYiperkchzs6MzTQYFWdB8GqHYf198lqBnvFgYm7Y/90jsKzvtbl1Qz+sg/+NiBNDgs1RhGl4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=WlHraXiD; arc=none smtp.client-ip=74.125.82.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
+	s=arc-20240116; t=1773286094; c=relaxed/simple;
+	bh=8go2IFq4rIEAN9M5SBSAkfUlbNjCnuvntdlcINAZArY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Rl1EqH5JftH8ojFyCx8VbrvTko5cGilL0x6S5FvDYAdch+dgfx7zjhuMklxSElW+Ndx7zkcrBybA3ms99RSOaOiKZFVSVkz/6WTGiR+y2oexixNJUeliFB5sjC3SVOyjxOwHY0aMsUuZSeLIvNRaPW/sJeKP+0lB9auRpX6+5RA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=MJHaDuDZ; arc=none smtp.client-ip=91.218.175.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="WlHraXiD"
-Received: by mail-dy1-f202.google.com with SMTP id 5a478bee46e88-2be191ce356so760875eec.1
-        for <linux-s390@vger.kernel.org>; Wed, 11 Mar 2026 20:19:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1773285576; x=1773890376; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=gwq8xyklWlpYEF6mLaWonmc6y+ATBgchvwlt4VuDkuE=;
-        b=WlHraXiDBUPQIDQOWS2rwp39b5MYDdhcIehZYPnfanttMkzbcIjKMeOxk8GkmAbyYv
-         ijG8LezsXzB3Tsiyxv+pgTEOZGqrMhyDcV5/4XnbnPMk0L6Oaz811f9IC0gBrOJu4gZl
-         CGvrVSRlwNYC8i9CLJHzHSVnTTM3qJ2QoYREMoq1Nl2O4y4drygXSkYDVcjG+Csh+CAU
-         AvktfURUs+47QWdQG1D1XoyUw3xCnNrjatfhACQc09gtzO28eFNnt0uy9UgXIUjZrnNd
-         1ERVrd6dycqtqkGQ9XKR0Oz+jTW3GFqSYsENHwuyTNLGtB3ufeF9g2Or8S1gAanYh2Ak
-         L3mQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773285576; x=1773890376;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=gwq8xyklWlpYEF6mLaWonmc6y+ATBgchvwlt4VuDkuE=;
-        b=Mcdko6o94N3+fX+EWsoEIWna09mtWbnACC92XCmMLCT/dS2+JlI8hW3OA1kp7jX61K
-         Eic4CftYx5C5sENvMs1/jotAPQKZEIe4b3xkjBSGsdY+I8lByKaTUCWB+/f8OG//Jxwe
-         J6xFhQ7N9OrMbFG2b8ibllbfhLHnKiRBkuYujpVLwIyA90eeGjeXYBDUzkYF4xgAVn1M
-         wOthdCJHdiDmEyrKSZzldj1LLdLoSeEaUElqEsJsz3Q4FefLHqbrybl+q1N4kdcxlmbh
-         RdmvJQvOCXzYk0ruksXkQMEw00ylrHaEOx+T+RxRQo9A0z8KgWtl6yHFQoIXkF7LjT3f
-         d5RA==
-X-Forwarded-Encrypted: i=1; AJvYcCWN4mXcsVk1XpBXFo4+fOOw7rRsPypjQR6aI7FaLqkkREB2XZrbKc2VcTLA1UOP+ddR3BHKZHLJE5Km@vger.kernel.org
-X-Gm-Message-State: AOJu0Yypgc4OJ4agHx9taLuxRf+hRqRdbUgU8WuLLuZKp1wZOIDVjF69
-	qBDg7cIMNrIR064bekJ2wvSHm11182+ZMD+BC8CCzYPsEgBHIjJvORfMBWS7kDjjtTaDX4zMsh/
-	9UDH5zoxx1w==
-X-Received: from dyb14.prod.google.com ([2002:a05:693c:630e:b0:2be:2a85:dd95])
- (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7300:72d0:b0:2b8:26b8:3446
- with SMTP id 5a478bee46e88-2be8a24ec51mr2056552eec.2.1773285575686; Wed, 11
- Mar 2026 20:19:35 -0700 (PDT)
-Date: Wed, 11 Mar 2026 20:19:28 -0700
-In-Reply-To: <20260312031928.1494864-1-irogers@google.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="MJHaDuDZ"
+Message-ID: <7762c04a-e28c-4b29-af24-18550391f699@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1773286080;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=G2SyG3QplUVb9nRJgkTAarwyWE9+/9zbBg+z/sU96iE=;
+	b=MJHaDuDZya55VDVFeNiZKEBGCspS3uviutCSigEAMTp79Vagsd4pLHTM8CH/z5VZcH7tgO
+	mqnU/FXe/9IrZGWXbG8+4fqgw3DQFMbPdWYBhqp0tDLxBKuUbRi1iiyen2gmGE1bg/WvX/
+	0Lof6tmjNFz6+zfipqo5qZt5ac5lQXw=
+Date: Thu, 12 Mar 2026 11:27:46 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <131d7e1e-701e-4f5b-961f-c85af74f1d96@linux.ibm.com> <20260312031928.1494864-1-irogers@google.com>
-X-Mailer: git-send-email 2.53.0.851.ga537e3e6e9-goog
-Message-ID: <20260312031928.1494864-3-irogers@google.com>
-Subject: [PATCH v1 2/2] perf evsel: Don't configure framepointer callchains on s390
-From: Ian Rogers <irogers@google.com>
-To: tmricht@linux.ibm.com
-Cc: acme@kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com, 
-	hca@linux.ibm.com, irogers@google.com, japo@linux.ibm.com, 
-	linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
-	linux-s390@vger.kernel.org, namhyung@kernel.org, sumanthk@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Subject: Re: [net,v4] net/smc: fix NULL dereference and UAF in
+ smc_tcp_syn_recv_sock()
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: jiayuan.chen@shopee.com, mjambigi@linux.ibm.com, wenjia@linux.ibm.com,
+ horms@kernel.org, sidraya@linux.ibm.com, guwen@linux.alibaba.com,
+ davem@davemloft.net, linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-rdma@vger.kernel.org, dust.li@linux.alibaba.com,
+ syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com, pabeni@redhat.com,
+ tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org, edumazet@google.com,
+ alibuda@linux.alibaba.com
+References: <20260311022451.395802-1-jiayuan.chen@linux.dev>
+ <20260312030520.626362-1-kuba@kernel.org>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Jiayuan Chen <jiayuan.chen@linux.dev>
+In-Reply-To: <20260312030520.626362-1-kuba@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 
-Frame pointer callchains are not supported on s390. Ignore the option
-and print a warning.
+Thanks for the review.
 
-Signed-off-by: Ian Rogers <irogers@google.com>
----
- tools/perf/util/evsel.c | 5 +++++
- 1 file changed, 5 insertions(+)
 
-diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
-index 2258fea2ef5b..a54ef52e01d2 100644
---- a/tools/perf/util/evsel.c
-+++ b/tools/perf/util/evsel.c
-@@ -1021,6 +1021,11 @@ static void __evsel__config_callchain(struct evsel *evsel, struct record_opts *o
- 	bool function = evsel__is_function_event(evsel);
- 	struct perf_event_attr *attr = &evsel->core.attr;
- 
-+	if (EM_HOST == EM_S390 && param->record_mode == CALLCHAIN_FP) {
-+		pr_warning("Framepointer unwinding not supported on s390, option ignored. Try '--call-graph dwarf'\n");
-+		return;
-+	}
-+
- 	evsel__set_sample_bit(evsel, CALLCHAIN);
- 
- 	attr->sample_max_stack = param->max_stack;
--- 
-2.53.0.851.ga537e3e6e9-goog
+On 3/12/26 11:05 AM, Jakub Kicinski wrote:
+> This is an AI-generated review of your patch. The human sending this
+> email has considered the AI review valid, or at least plausible.
+>
+> For local reproduction steps see https://netdev-ai.bots.linux.dev/ai-local.html
+> ---
+> net/smc: fix NULL dereference and UAF in smc_tcp_syn_recv_sock()
+>
+> This patch fixes a race condition in smc_tcp_syn_recv_sock() where
+> sk_user_data can be nullified or the smc_sock can be freed during
+> concurrent socket closure, using RCU and refcount_inc_not_zero() for
+> safe access.
+>
+> Closes: https://lore.kernel.org/all/67eaf9b8.050a0220.3c3d88.004a.GAE@google.com/T/
+>
+>> The race window looks like this:
+>>
+>>    CPU A (softirq)              CPU B (process ctx)
+>>
+>>    tcp_v4_rcv()
+>>      TCP_NEW_SYN_RECV:
+>>      sk = req->rsk_listener
+>>      sock_hold(sk)
+>>      /* No lock on listener */
+>>                                 smc_close_active():
+>>                                   write_lock_bh(cb_lock)
+>>                                   sk_user_data = NULL
+>>                                   write_unlock_bh(cb_lock)
+>>                                   ...
+>>                                   smc_clcsock_release()
+>>                                   sock_put(smc->sk) x2
+>>                                     -> smc_sock freed!
+>>      tcp_check_req()
+>>        smc_tcp_syn_recv_sock():
+>>          smc = user_data(sk)
+>>            -> NULL or dangling
+>>          smc->queued_smc_hs
+>>            -> crash!
+> The race diagram describes the tcp_check_req() path (TCP_NEW_SYN_RECV
+> handling), but the actual syzbot crash occurred through a different path.
+> Looking at the syzbot stacktrace, the crash shows:
+>
+> smc_tcp_syn_recv_sock+0xa7/0x4b0 called from tcp_get_cookie_sock+0xd5/0x790
+>
+> This is the SYN cookie path:
+>
+> tcp_v4_rcv() -> tcp_v4_do_rcv() -> tcp_v4_cookie_check() ->
+> cookie_v4_check() -> tcp_get_cookie_sock() -> smc_tcp_syn_recv_sock()
+>
+> The syzbot log even shows 'Possible SYN flooding on port [::]:20002.
+> Sending cookies.' confirming syncookies were active. Both paths are
+> vulnerable to the race, but the race diagram doesn't match the actual
+> crash path that the fuzzer triggered.
+>
+> Would it be more accurate to note that both paths (tcp_check_req for
+> normal SYN handling and tcp_get_cookie_sock for SYN cookies) can trigger
+> the race?
+
+
+For the first point about the call stack: both the tcp_check_req() path 
+(normal SYN handling)
+and the tcp_get_cookie_sock() path (SYN cookies) call syn_recv_sock() 
+without holding the
+listener lock, so the race condition is the same. The diagram uses 
+tcp_check_req() as an
+example because I have reproduced it under my env, but the fix covers 
+both paths.
+
+>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>> --- a/net/smc/af_smc.c
+>> +++ b/net/smc/af_smc.c
+>> @@ -131,7 +131,13 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
+>>   	struct smc_sock *smc;
+>>   	struct sock *child;
+>>
+>> -	smc = smc_clcsock_user_data(sk);
+>> +	rcu_read_lock();
+>> +	smc = smc_clcsock_user_data_rcu(sk);
+>> +	if (!smc || !refcount_inc_not_zero(&smc->sk.sk_refcnt)) {
+>> +		rcu_read_unlock();
+>> +		return NULL;
+> When smc_tcp_syn_recv_sock() is called from the SYN cookie path
+> (tcp_get_cookie_sock() in net/ipv4/syncookies.c:205 and
+> net/ipv6/syncookies.c:275), the dst parameter is non-NULL.
+>
+> The new early return here returns NULL without calling dst_release(dst).
+> The syn_recv_sock contract requires the callee to either consume dst
+> (attach to child socket on success) or release it (call dst_release on
+> failure).
+>
+> Looking at tcp_get_cookie_sock() in net/ipv4/syncookies.c:
+>
+>      child = af_ops->syn_recv_sock(..., &dst, ...)
+>      if (!child) {
+>          reqsk_free(req);
+>          return NULL;
+>      }
+>
+> When syn_recv_sock returns NULL, tcp_get_cookie_sock immediately returns
+> NULL without releasing dst, expecting the syn_recv_sock callee to have
+> already handled it.
+>
+> The existing 'drop:' label at line 165 correctly calls dst_release(dst),
+> but the new early return at line 138 bypasses it. This causes a dst_entry
+> reference count leak under SYN flood conditions on an SMC listener.
+>
+> Should this be: goto drop instead of return NULL, or should dst_release(dst)
+> be added before the return NULL?
+
+
+
+The second point about the dst leak is valid. Will fix in v3.
 
