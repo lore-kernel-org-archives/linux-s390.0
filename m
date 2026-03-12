@@ -1,116 +1,217 @@
-Received: from lamorak.hansenpartnership.com (lamorak.hansenpartnership.com [198.37.111.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5489238552A;
-	Thu, 12 Mar 2026 15:32:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.37.111.173
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773329562; cv=none; b=mqHb/DJurcag11SRnS5v0eXKw/B9KYnMFAy3k0LtOleIzyizQQIZGPykWB/Fmk1pYX0+BCwlxnWPlyFL0p4IAqK1AyjV+lTgP5B2vSizwLKg+5GL0Sd0YH7qCbTM9rqMlMY4753DXbwz9x4BcwiR/xWXOdqGvIlauCtTKbZdkZU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773329562; c=relaxed/simple;
-	bh=zTDNMMg/o0AbpOakTawLJV8HRHueJx9lUWpbuHSD3BU=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=R5LzA8Ou2FAlfTxruBbGM6k/z0Mz4c/yMKAdYnzLlIPQhgSJuhcbKkZvN1DS4RRkPHUDvwVX2kkuu25gzXZl/1tiNKIgamJTw7JCYSn//2RRSauf0uGJeCv2B6mWEI1AOeDpowYKobPwyLnOI9ONcClsULIU0+ZMOVB4W4VRrAQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=HansenPartnership.com; spf=pass smtp.mailfrom=HansenPartnership.com; dkim=pass (1024-bit key) header.d=hansenpartnership.com header.i=@hansenpartnership.com header.b=pcvJZxMl; arc=none smtp.client-ip=198.37.111.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=HansenPartnership.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=HansenPartnership.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A1923909BE
+	for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2026 15:54:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.180
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773330897; cv=pass; b=MOKnVne8mnvxGmCtIyeqZM/JhHLXUhVaydAU1Cpk9wX3Zhl8HdDs0CCWH2QyrCUAUlHCCjGh7iuz0HaM/IDG95sd50LHZ6H/oa0fcPDR0DDx1plCcgjtPfq3fSgBYNblsMa6KpIVVAVhIOz0lCg6GtFgo3AjUNq+wZChx54yaPk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773330897; c=relaxed/simple;
+	bh=ZS+/ItMjmQy14ENZqWve/PidZqa0ImY+HlFy6RCiPB0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=XV9RjJylIPCrLDNKRR2irrgLNd8GjxBVzQ0Niqe03PVeIUF72v2WWe1rl6uQ8lYomwNfm7vfskUEVc5BbJCsKc1mCYdhjfg/TtpmakOX9wAsedAHs+ahLW6BIYxwBCvn4OcJRZLRkrxnHR+8y2PyoM+6cqc1/ndgMGW48faters=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=UY5Yaoes; arc=pass smtp.client-ip=209.85.214.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=hansenpartnership.com header.i=@hansenpartnership.com header.b="pcvJZxMl"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-	d=hansenpartnership.com; s=20151216; t=1773329560;
-	bh=zTDNMMg/o0AbpOakTawLJV8HRHueJx9lUWpbuHSD3BU=;
-	h=Message-ID:Subject:From:To:Date:In-Reply-To:References:From;
-	b=pcvJZxMlUnyDHCQWdoy7oBw4t3ApqjoLShbfu4EGfeRRF/0XvwrUC3nRWEDXXVQdM
-	 hMwbriKe/NL1VZ4m3mEc/Q/oxiEwEcX/NNUV+xlSHstrQ2AykR2/lPVz8ssLEFKVvD
-	 cNP4AXmMocQMY4pE83K1rY1dx5NyhQ9bJbZtUZWw=
-Received: from [IPv6:2601:5c4:4300:d341::a774] (unknown [IPv6:2601:5c4:4300:d341::a774])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by lamorak.hansenpartnership.com (Postfix) with ESMTPSA id 599341C02A4;
-	Thu, 12 Mar 2026 11:32:38 -0400 (EDT)
-Message-ID: <f5688b895eaebabae6545a0d9baf8f1404e8454e.camel@HansenPartnership.com>
-Subject: Re: [PATCH 00/61] treewide: Use IS_ERR_OR_NULL over manual NULL
- check - refactor
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-To: Jason Gunthorpe <jgg@ziepe.ca>, Kuan-Wei Chiu <visitorckw@gmail.com>
-Cc: Philipp Hahn <phahn-oss@avm.de>, amd-gfx@lists.freedesktop.org, 
- apparmor@lists.ubuntu.com, bpf@vger.kernel.org, ceph-devel@vger.kernel.org,
-  cocci@inria.fr, dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
-  gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org, 
- intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev,
- kvm@vger.kernel.org,  linux-arm-kernel@lists.infradead.org,
- linux-block@vger.kernel.org,  linux-bluetooth@vger.kernel.org,
- linux-btrfs@vger.kernel.org,  linux-cifs@vger.kernel.org,
- linux-clk@vger.kernel.org,  linux-erofs@lists.ozlabs.org,
- linux-ext4@vger.kernel.org,  linux-fsdevel@vger.kernel.org,
- linux-gpio@vger.kernel.org,  linux-hyperv@vger.kernel.org,
- linux-input@vger.kernel.org,  linux-kernel@vger.kernel.org,
- linux-leds@vger.kernel.org,  linux-media@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-mm@kvack.org, 
- linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org, 
- linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org, 
- linux-phy@lists.infradead.org, linux-pm@vger.kernel.org, 
- linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, 
- linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org, 
- linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org, 
- linux-sound@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
- linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org, 
- linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
- ntfs3@lists.linux.dev,  samba-technical@lists.samba.org,
- sched-ext@lists.linux.dev,  target-devel@vger.kernel.org,
- tipc-discussion@lists.sourceforge.net,  v9fs@lists.linux.dev
-Date: Thu, 12 Mar 2026 11:32:37 -0400
-In-Reply-To: <20260312125730.GI1469476@ziepe.ca>
-References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
-	 <abBlpGKO842B3yl9@google.com> <20260312125730.GI1469476@ziepe.ca>
-Autocrypt: addr=James.Bottomley@HansenPartnership.com;
- prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.3 
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="UY5Yaoes"
+Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2ae49120e97so98765ad.0
+        for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2026 08:54:55 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1773330895; cv=none;
+        d=google.com; s=arc-20240605;
+        b=WBfoAipt8mF3iEgxG+FKMZegT/1C5HaGXp+YsiXElzUW/osQse/0/FPA3PQfRqniSN
+         IZnJ1CI8RdaLhKuXbJag7gubIShR39ma66AHSS/6kNspOe/Qcmpr7MAlHhAm5+4GhVcp
+         CdQKE41JVb5JLnpdCifW2zmOmxXWseVZkMZnW+isoYMlhZ3zeP5emTGLupSoqnb8rjcf
+         vTVM6m9G/KWbZ8Lcm3k0NgViKYlfS/d0HN/Snv0nfCgQm1HiI5HI8mdutPDQ3oq6TxqW
+         3P2AQjBUXxDB/VFAS6Np0rsvh9NrsB7DsD6yTyxQeRBnh9hE6RsOc9RvF1+eeWaQ7O/C
+         N4rA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=BE3iXs2Z05/7FfoFDbanKcpxzLhlbH+XfqAIeLpZL/0=;
+        fh=0+Fi323n62owMtNz4eZhk4uyEAx0zBceiRqAod/yn1Q=;
+        b=DKvzCee6YsYfX/s3l+NGUB0IB4cTa46cdnZVkIiYsGsFiURxfg9bRgln2cqNdEoreQ
+         TLwKmL6BV4spyCVxGNf0+vQSTxfUvMsfSnPvDKZVaSzLf3LhGHy0vmd+QnTGwjEIEsQ4
+         o9TDNxRPk1/un8uORUwAvsi3f9UAGzY/EHzyfmSkjNGl/sAgGjT3xYIAvSRUj7hwtLvU
+         iWMY+31nqTxl/4ij3U7JH2Fs3Y7Wv+CAlXXIz/gt/V25ynRHi05+wAB6XVup/y8x9TMr
+         5qaBvEjxYyxiiyLzWRqvvYxRAoz0+8QhQkEdbpdAZCmnUz3tph+uzox2l5Nf4ddleQTI
+         CIyw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1773330895; x=1773935695; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BE3iXs2Z05/7FfoFDbanKcpxzLhlbH+XfqAIeLpZL/0=;
+        b=UY5YaoesNhP8sgvAkKYeEyR+97Apbz1rEQU5vAf+Oh6ngu8q1ojSJB/CXOhl2nYJRB
+         IIT7hcEqsDkPOBhdWr1fcAPlG7HRBRiRSaS8LjOSajLkSFaVTvTta6YNs+foy6VFm7we
+         cc5lPX+8nXVmqUI7JPNLCm51eQ1PI7ineVYRoc//XCUwPaLytfBDQognu9COQSLXbgKz
+         9m+0aV3myWVFpS7hiYHdoxgkLC3/aoj84VqeLbIxu0mfJACB9WJqZ161i5goZ8kFf4E4
+         6UoZ3pUm5uCOJT0T44k6VF15JuCahmnmxu9vSt0D6A6D7/lEqjlcaiWprIUC0LuDn7en
+         e6Mg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773330895; x=1773935695;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=BE3iXs2Z05/7FfoFDbanKcpxzLhlbH+XfqAIeLpZL/0=;
+        b=vmJN0+JhcxEFoUx/a7SkXVDPsjuZrS0AXLjFDg7CgsThMz+pRfjC87iRGwjLr8W2Oq
+         Q/5Mefre9MCgcyhbSjV8jTRkwpB01hf6ItcCcuWBLguM472Irkmn3T9NWEh0VEYYGXDN
+         xT2CImeNTd9Crl+yWW7BoZsOFBxZ5rK03/8yO1Tz1O6REXsSmau3Mgp52oRE/McHenxc
+         Q2z2DkxGiLUi123I9yKKGfWbeaULD2nCZn0L4feIg1WT6p/+sEsO7ozuAXdgox6UZBPo
+         T1JAcmYq2JjQktkrmDEjGQCwc/5ol7GcLlHy1q7X7LMwp7dwavgl9dB0YhGFHcp6XJEb
+         Mokw==
+X-Forwarded-Encrypted: i=1; AJvYcCVy+7061sc8bSwaHi12sRvLnSvdonEfCFwSnY0RH8YRdxs9aIH0lJFdvBX+MFt07fbAU2s3aqigkV9n@vger.kernel.org
+X-Gm-Message-State: AOJu0YzuC8egxVqJOcoWE/qJl3Aui9yR5h9409AUa4EtkpfI9XuzDB3H
+	rOHklK7ezP6TGTg7Na4xoNehDmMnQx/71He9nt9OnT7vJOun10qZwDtyf0RX+gAzP6eJZLasFsl
+	ZaJdKqfieUY6N2P1nPUTIh1/WuYL+n7Af7WpjOVKj
+X-Gm-Gg: ATEYQzyeG2Kl0j8Z0h5zT3n6cmYDa+D96VXgPMzwdia/8uSxXLa8WBm4fpLup4Gn+NM
+	a7n6cau8InO4P5vjMC04xeK094cbtQdZwzlU+lfoJjXcWfo0S4f0wDYXdunl+lzVPMOeCxXuoUd
+	hpt+wiGDrHjvDnwT2vh6IRJ1P7zMi3oVtDa2+CN2bQsTR6Pg8lnBtdK/6UeI3NvHaFAKh34Pbfl
+	Bivlahkg+UBF32hyufWQOIM1JGKm9FzHknlxzC9x6N2GDbHyh1x/9ZSYbaUKC8xKpq5ycMj6Fyj
+	3hDDqpBxjjQrpe7vPYibaxjcvYfaXKunSV4V
+X-Received: by 2002:a17:902:bf08:b0:2ae:c566:bd99 with SMTP id
+ d9443c01a7336-2aec566cbf7mr758665ad.22.1773330894106; Thu, 12 Mar 2026
+ 08:54:54 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+References: <20260312031928.1494864-1-irogers@google.com> <20260312061628.1593105-1-irogers@google.com>
+ <20260312061628.1593105-3-irogers@google.com> <05b884dc-d0bf-4767-8413-40ddb7c0f8fb@linux.ibm.com>
+In-Reply-To: <05b884dc-d0bf-4767-8413-40ddb7c0f8fb@linux.ibm.com>
+From: Ian Rogers <irogers@google.com>
+Date: Thu, 12 Mar 2026 08:54:43 -0700
+X-Gm-Features: AaiRm52XnLLGRVsSOtUv5kOWGcQRyED6TdG_wWyxIGXeGQjR4wuDdkjk1jeva2M
+Message-ID: <CAP-5=fXoAZ2fheQZ-kZe+JKoV=SbH=vS4mpFcVtS7OKsL5PTXQ@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] perf evsel: Don't configure framepointer
+ callchains on s390
+To: Thomas Richter <tmricht@linux.ibm.com>
+Cc: acme@kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com, 
+	hca@linux.ibm.com, japo@linux.ibm.com, linux-kernel@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, 
+	namhyung@kernel.org, sumanthk@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2026-03-12 at 09:57 -0300, Jason Gunthorpe wrote:
-> On Wed, Mar 11, 2026 at 02:40:36AM +0800, Kuan-Wei Chiu wrote:
->=20
-> > IMHO, the necessity of IS_ERR_OR_NULL() often highlights a
-> > confusing or flawed API design. It usually implies that the caller
-> > is unsure whether a failure results in an error pointer or a NULL
-> > pointer.=20
->=20
-> +1
->=20
-> IS_ERR_OR_NULL() should always be looked on with suspicion. Very
-> little should be returning some tri-state 'ERR' 'NULL' 'SUCCESS'
-> pointer. What does the middle condition even mean? IS_ERR_OR_NULL()
-> implies ERR and NULL are semanticly the same, so fix the things to
-> always use ERR.
+On Thu, Mar 12, 2026 at 5:45=E2=80=AFAM Thomas Richter <tmricht@linux.ibm.c=
+om> wrote:
+>
+> On 3/12/26 07:16, Ian Rogers wrote:
+> > Frame pointer callchains are not supported on s390. Ignore the option
+> > and print a warning.
+> >
+> > Signed-off-by: Ian Rogers <irogers@google.com>
+> > ---
+> > v2: Only disable user callchains as AI is telling me native "kernel"
+> >     callchains are supported on s390.
+> > ---
+> >  tools/perf/util/evsel.c | 6 ++++++
+> >  1 file changed, 6 insertions(+)
+> >
+> > diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
+> > index bd14d9bbc91f..fa21b48cba86 100644
+> > --- a/tools/perf/util/evsel.c
+> > +++ b/tools/perf/util/evsel.c
+> > @@ -1076,6 +1076,12 @@ static void __evsel__config_callchain(struct evs=
+el *evsel, struct record_opts *o
+> >               attr->exclude_callchain_user =3D 1;
+> >       }
+> >
+> > +     if (EM_HOST =3D=3D EM_S390 && (evsel->core.attr.sample_type & PER=
+F_SAMPLE_CALLCHAIN) &&
+> > +         !evsel->core.attr.exclude_callchain_user) {
+> > +             pr_warning("Excluding user callchains that are not suppor=
+ted on s390. Try '--call-graph dwarf'\n");
+> > +             evsel->core.attr.exclude_callchain_user =3D 1;
+> > +     }
+> > +
+> >       if (param->defer && !attr->exclude_callchain_user)
+> >               attr->defer_callchain =3D 1;
+> >  }
+>
+> Ian, thanks very much.
+> Your patch set helps a lot. However there is a small nit (which is mandat=
+ory). Please add these lines
+>
+>   evsel->core.attr.sample_type &=3D ~PERF_SAMPLE_CALLCHAIN;
+>   evsel->core.attr.sample_type &=3D ~PERF_SAMPLE_REGS_USER;
+>   evsel->core.attr.sample_type &=3D ~PERF_SAMPLE_STACK_USER;
 
-Not in any way supporting the original patch.  However, the pattern
-ERR, NULL, PTR is used extensively in the dentry code of filesystems.=20
-See the try_lookup..() set of functions in fs/namei.c
+So these lines are dropping callchain from the sample_type which means
+the kernel stack won't be sampled. AI was telling me this worked, but
+I'm guess it was wrong. I think rather than this it is just cleaner
+never to set the bits in the perf_event_attr, more like what v1 of the
+patch did:
+https://lore.kernel.org/lkml/20260312031928.1494864-3-irogers@google.com/
 
-The meaning is
+> to the new if(EM_HOST =3D=3D ...) above.
+> The s390 CPU Measurement sampling device driver does not check on the att=
+r.core.exclude_callchain_user
+> member, but on the sample_type bit mask. It returns -EOPNOTSUPP when this=
+ bit PERF_SAMPLE_CALLCHAIN
+> is set. This solves the invocation with command line flag -g as in
+>  # ./perf record -v -e cycles  -g  -- perf test -w noploop
+>  ...
+>  perf record: Captured and wrote 0.183 MB perf.data ]
 
-PTR - I found it
-NULL - It definitely doesn't exist
-ERR - something went wrong during the lookup.
+Right because the callchain was removed from all the samples. We can't
+fix old kernels (other than by using fix tags); is there a possibility
+of adding the exclude_callchain_user to the s390 perf driver for the
+sake of kernel callchains? It seems better than providing no
+callchain.
 
-So I don't think you can blanket say this pattern is wrong.
+> Also I discovered that the fallback when using --call-graph dwarf command=
+ line flag still fails:
+>  # ./perf record -v -e cycles  --call-graph dwarf -- perf test -w noploop
+>  ...
+>  Warning:
+>  Trying to fall back to excluding guest samples
+>  Error:
+>  Failure to open event 'cycles:H' on PMU 'cpum_cf' which will be removed.
+>  cycles:H: PMU Hardware doesn't support sampling overflow-interrupts. Try=
+ 'perf stat'
+>  Error:
+>  Failure to open any events for recording.
+>
+> The reason is in __evsel__config_callchain() which calls evsel__set_sampl=
+e_bit(evsel, CALLCHAIN)
+> and sets the PERF_SAMPLE_CALLCHAIN bit in evsel->core.attr.sample_type. I=
+t also sets the
+> member attr->exclude_callchain_user =3D 1 and sets bits REGS_USER and _ST=
+ACK_USER.
+> All three bits are not supported by s390.
 
-Regards,
+I'm confused by this and your previous testing that showed the
+`--call-graph dwarf` worked. You need the sampled registers for dwarf
+unwinding to provide initial register values for the unwinder.
 
-James
+> I have modified your 2nd patch and appended it.
+>
+> I find all these bits in sample_type and the attr.exclude_XXX stuff very =
+confusing. If there
+> is a more consistant way of checking these feature, please let me know.
 
+Ok, let me check it out.
+
+> Thanks again for looking into this.
+
+Thanks,
+Ian
+
+> --
+> Thomas Richter, Dept 3303, IBM s390 Linux Development, Boeblingen, German=
+y
+> --
+> IBM Deutschland Research & Development GmbH
+>
+> Vorsitzender des Aufsichtsrats: Wolfgang Wendt
+>
+> Gesch=C3=A4ftsf=C3=BChrung: David Faller
+>
+> Sitz der Gesellschaft: B=C3=B6blingen / Registergericht: Amtsgericht Stut=
+tgart, HRB 243294
