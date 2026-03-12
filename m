@@ -1,166 +1,352 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 473343CCFC4;
-	Thu, 12 Mar 2026 16:08:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773331741; cv=none; b=tHuOToOAq9lLw2dxg0GJe//gs3auAYby7Ee2UWABFav7xXMmKxk5rDb6d4/W5YrDUz6fWRGy/+smaMDiTuAeUjUy2BElRIUWWczF57jqloxYWvW4hTfZl6HGfDDjiTWKklivC15E2+wql001aGDYwsZwh7ktfR0WOjh4VsgiHjc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773331741; c=relaxed/simple;
-	bh=NLE0tXe03+smplfMBeazWwX+GyXQOTbA7CnQJP8EfPc=;
-	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
-	 Date:MIME-Version; b=d9vJ7TKaAov+UIdB17HmdTYcVt775HaHah8GwZ0sDGKHciX/1KhCfpvTxA2cYzpVNWw0tHFFlC1Ud4lRj/Y+WUU19/ZYvBuhKaf2mlipe2u5zgjg6ggBq++lJB95wQrusC9awQROCcjCMM6v0IF8vxiZwdVRLLBMGyJD1BAqSDg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cbhRaBmG; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69A523F7A80;
+	Thu, 12 Mar 2026 16:12:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.12
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773331971; cv=fail; b=J4BpzCiWRZeY07235PGEBYkaPdfSsqjzJ8NGAyyPOBTTBwRoMjuzkEuXGOo0vb67PB6bK1wq5CVsGf3Cu7cp/EXoVfslQwAPbhZHLzzjdcX0YjHxU0UN7QkyT40dnrlwH92A1yermkoYQ/3liYid8EB+UeLSTkFV6GG0zZEcT6M=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773331971; c=relaxed/simple;
+	bh=5bFRno/x5CuND9g6xv0lanCw5CYbDU9w0cEWHBHlDpc=;
+	h=Message-ID:Date:Subject:To:CC:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=Zgc14FN1TDrDk8KftinL7xjxOkeZMM7JFOJwgCtCISari/GIFUfXg69mt56R3JXAN8oFFVxDHLCJVKabGvXCCAX9K+EVEUw+ke3eoU8CuBvNF9PjrEaQdqlG8VNgT+nTJCJz0u1k2HRqPHAksRXeWG5FNGya9MX0+pdn154nMsI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=QKxuje0U; arc=fail smtp.client-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cbhRaBmG"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62CF7R1j2308232;
-	Thu, 12 Mar 2026 16:07:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=bpARq/
-	22MlkdkIcDYt3KaU2yN2WmyKPIBxyZS1yDLSM=; b=cbhRaBmG7CfCW+OmsuYhkY
-	YCLEmeZVQQFXXQfhTbVdmUGBJTi4zAs2pFlmGsc6naTXMyzthVFVscq6lny3zcv8
-	4L5zngnOkUAT6zBhEb7JNPPgdcENjB/U9oRf4GGM0OBLUUdGht72CkEFWGAAIY/v
-	1q8caOOLYMmok6/g+GP1gjduNx6ISLAvgyzELj2QoTI98lnFJLd5jtaRztLUjA0S
-	1Flkq3ESiMgFzvi90gg3vB0M/BlhRPIFxOusayplXUNuDr248CcHVY0rLLgiMyJQ
-	g029VNB0RXRVo9yB9JnwfuIPNXwCUfhQaUo2TKMUK5XbIAvrYrF0kelc7i28TrzQ
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cuh96bg7g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 12 Mar 2026 16:07:45 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62CEVxS3006091;
-	Thu, 12 Mar 2026 16:07:44 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cuha9k0ug-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 12 Mar 2026 16:07:44 +0000
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62CG7hJc25100956
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 12 Mar 2026 16:07:43 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2312658056;
-	Thu, 12 Mar 2026 16:07:43 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7C05B58052;
-	Thu, 12 Mar 2026 16:07:41 +0000 (GMT)
-Received: from li-43857255-d5e6-4659-90f1-fc5cee4750ad.ibm.com (unknown [9.61.148.157])
-	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 12 Mar 2026 16:07:41 +0000 (GMT)
-Message-ID: <a985c90d9df8ba0fc63f65117cc8e884f70e6035.camel@linux.ibm.com>
-Subject: Re: [PATCH] integrity: Eliminate weak definition of
- arch_get_secureboot()
-From: Mimi Zohar <zohar@linux.ibm.com>
-To: Arnd Bergmann <arnd@arndb.de>, Nathan Chancellor <nathan@kernel.org>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Dmitry Kasatkin
- <dmitry.kasatkin@gmail.com>,
-        Eric Snowberg	 <eric.snowberg@oracle.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>
-Cc: Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman	
- <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy
-	 <chleroy@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik	
- <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian
- Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle
- <svens@linux.ibm.com>,
-        Paul Moore	 <paul@paul-moore.com>, James Morris
- <jmorris@namei.org>,
-        "Serge E. Hallyn"	 <serge@hallyn.com>, Coiby Xu
- <coxu@redhat.com>,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, llvm@lists.linux.dev
-In-Reply-To: <d2089740-16d8-4ca4-a61c-8c381f8e30a0@app.fastmail.com>
-References: 
-	<20260309-integrity-drop-weak-arch-get-secureboot-v1-1-6460d5c4bb89@kernel.org>
-	 <d2089740-16d8-4ca4-a61c-8c381f8e30a0@app.fastmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 12 Mar 2026 12:07:41 -0400
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="QKxuje0U"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1773331970; x=1804867970;
+  h=message-id:date:subject:to:cc:references:from:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=5bFRno/x5CuND9g6xv0lanCw5CYbDU9w0cEWHBHlDpc=;
+  b=QKxuje0UbuSKkxxULV7CO2cMxnqGSWJ7Fntx6Tq6FErGTcc7RglSN0de
+   JhISvRlMqVMv5V80ay72cIzVfbaoo/NE1c6sUheNll2MtDkhVXGyKgVOH
+   UUcm2CTOvMculuFAFgnkyhHxHjXxT+3l4K0XDA6nkg7YrfADTbE6wxaOH
+   9qgy+w84MDYsDPcHNnCnGW0LTMJEWiyFTDBa4uv6DTR+5jw3sb+Rirc/c
+   YpzeFSuX/SKgLErtic6ySzH4VqxUEu5Q0TOIk8EndrhGUFB+AgB2wvHAH
+   dQF6ix+2sr8qdwEvoAXTsNpBzOgkeZtdvTSKRQ48IqZOKs1vrGxzNO4Si
+   Q==;
+X-CSE-ConnectionGUID: sJsO/9TMTGWT6BqT3SckcQ==
+X-CSE-MsgGUID: XZRbuLVzRTKxt0TCfMR5aA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11727"; a="85910029"
+X-IronPort-AV: E=Sophos;i="6.23,116,1770624000"; 
+   d="scan'208";a="85910029"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Mar 2026 09:12:42 -0700
+X-CSE-ConnectionGUID: wo9a9boLQ3W77nLAysyVeA==
+X-CSE-MsgGUID: UCZc7QZASc6MQg3o49dwnQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,116,1770624000"; 
+   d="scan'208";a="221051544"
+Received: from fmsmsx903.amr.corp.intel.com ([10.18.126.92])
+  by orviesa007.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Mar 2026 09:12:26 -0700
+Received: from FMSMSX901.amr.corp.intel.com (10.18.126.90) by
+ fmsmsx903.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.37; Thu, 12 Mar 2026 09:12:16 -0700
+Received: from fmsedg901.ED.cps.intel.com (10.1.192.143) by
+ FMSMSX901.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.37 via Frontend Transport; Thu, 12 Mar 2026 09:12:16 -0700
+Received: from MW6PR02CU001.outbound.protection.outlook.com (52.101.48.16) by
+ edgegateway.intel.com (192.55.55.81) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.37; Thu, 12 Mar 2026 09:12:16 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=aQffyITYkzTS7flG4mkV7DfqRy6p0yvoelsD1vPvzqmebccUjnkt1BqsOASVKXX4x3BQJ0/fhMjJjYTbKnlf3lvYGmjtJVizJ69cNSh5jhuSL2AQ01AGkoVtcw3unypqT9dvuaTwpqb+jjgJ7vlCBtf1HWVN6s4fqOYqq9QZwsk1A9WzGZGdEs/5dSSqLdPPfixlVnwkDluMZyAhItvv5kGdMIcI6g35NEL5jpCBIoBM372SFwDMdrPpAdQ5KcYZcdMKZRMeyPvTlVgDa8AjH2VNO5QGAihTlm5OehOlbQf/y69qehIByv+JbnNkYOFrLMG4EmrTpDQKs37UJp4uYg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=S2r3mEx4jaS69b6pg4TeplPYQyNYaMq5f3Q1pXlTbJ4=;
+ b=BztW+Cme5OBlZFfQyBCT3cw5ysoYvV9bvxO9E6neEsl0PT5FFXC3+hYCwymttBgqy/O1ZLFwr0kDKiWbQkgNkrKS4GIU57Keqr5x34a5354EeTMbgD3X8v5XNkdeHaxX/rr3vxJFgx2JDRU8FQbxz4nMP5ci3XJHEh43dAgT8+mP0ZXNwXUvKgg+BXL7/+njvxLtEkUIMgxIflWkKsSVdgeYD4aMFtVpIeABrP99SEHA1GvIK5GAlGmSYhMUpM5kPkTPOM6wrwVlwR5CjOhT6Qgc7hMTjtxIa8k1CJOgDbe0WZCQKoI2qggdWbyMknWbNKzpzgNtgx2i25vyrDOpjg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from MN6PR11MB8102.namprd11.prod.outlook.com (2603:10b6:208:46d::9)
+ by DS4PPFDA9EFDFDB.namprd11.prod.outlook.com (2603:10b6:f:fc02::55) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9700.12; Thu, 12 Mar
+ 2026 16:12:12 +0000
+Received: from MN6PR11MB8102.namprd11.prod.outlook.com
+ ([fe80::8d98:e538:8d7:6311]) by MN6PR11MB8102.namprd11.prod.outlook.com
+ ([fe80::8d98:e538:8d7:6311%5]) with mapi id 15.20.9723.000; Thu, 12 Mar 2026
+ 16:12:12 +0000
+Message-ID: <0da51c50-3afd-464a-aad8-99e475a31339@intel.com>
+Date: Thu, 12 Mar 2026 17:11:56 +0100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 38/61] net: Prefer IS_ERR_OR_NULL over manual NULL check
+To: Philipp Hahn <phahn-oss@avm.de>
+CC: <amd-gfx@lists.freedesktop.org>, <apparmor@lists.ubuntu.com>,
+	<bpf@vger.kernel.org>, <ceph-devel@vger.kernel.org>, <cocci@inria.fr>,
+	<dm-devel@lists.linux.dev>, <dri-devel@lists.freedesktop.org>,
+	<gfs2@lists.linux.dev>, <intel-gfx@lists.freedesktop.org>,
+	<intel-wired-lan@lists.osuosl.org>, <iommu@lists.linux.dev>,
+	<kvm@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-block@vger.kernel.org>, <linux-bluetooth@vger.kernel.org>,
+	<linux-btrfs@vger.kernel.org>, <linux-cifs@vger.kernel.org>,
+	<linux-clk@vger.kernel.org>, <linux-erofs@lists.ozlabs.org>,
+	<linux-ext4@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
+	<linux-gpio@vger.kernel.org>, <linux-hyperv@vger.kernel.org>,
+	<linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-leds@vger.kernel.org>, <linux-media@vger.kernel.org>,
+	<linux-mips@vger.kernel.org>, <linux-mm@kvack.org>,
+	<linux-modules@vger.kernel.org>, <linux-mtd@lists.infradead.org>,
+	<linux-nfs@vger.kernel.org>, <linux-omap@vger.kernel.org>,
+	<linux-phy@lists.infradead.org>, <linux-pm@vger.kernel.org>,
+	<linux-rockchip@lists.infradead.org>, <linux-s390@vger.kernel.org>,
+	<linux-scsi@vger.kernel.org>, <linux-sctp@vger.kernel.org>,
+	<linux-security-module@vger.kernel.org>, <linux-sh@vger.kernel.org>,
+	<linux-sound@vger.kernel.org>, <linux-stm32@st-md-mailman.stormreply.com>,
+	<linux-trace-kernel@vger.kernel.org>, <linux-usb@vger.kernel.org>,
+	<linux-wireless@vger.kernel.org>, <netdev@vger.kernel.org>,
+	<ntfs3@lists.linux.dev>, <samba-technical@lists.samba.org>,
+	<sched-ext@lists.linux.dev>, <target-devel@vger.kernel.org>,
+	<tipc-discussion@lists.sourceforge.net>, <v9fs@lists.linux.dev>, "Igor
+ Russkikh" <irusskikh@marvell.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+	"Jakub Kicinski" <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Pavan
+ Chebbi <pavan.chebbi@broadcom.com>, Michael Chan <mchan@broadcom.com>,
+	"Potnuri Bharat Teja" <bharat@chelsio.com>, Tony Nguyen
+	<anthony.l.nguyen@intel.com>, Taras Chornyi <taras.chornyi@plvision.eu>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue
+	<alexandre.torgue@foss.st.com>, Iyappan Subramanian
+	<iyappan@os.amperecomputing.com>, Keyur Chudgar
+	<keyur@os.amperecomputing.com>, Quan Nguyen <quan@os.amperecomputing.com>,
+	Heiner Kallweit <hkallweit1@gmail.com>, Russell King <linux@armlinux.org.uk>
+References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
+ <20260310-b4-is_err_or_null-v1-38-bd63b656022d@avm.de>
+From: Przemek Kitszel <przemyslaw.kitszel@intel.com>
+Content-Language: en-US
+In-Reply-To: <20260310-b4-is_err_or_null-v1-38-bd63b656022d@avm.de>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: DB9PR05CA0028.eurprd05.prod.outlook.com
+ (2603:10a6:10:1da::33) To MN6PR11MB8102.namprd11.prod.outlook.com
+ (2603:10b6:208:46d::9)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzEyMDEyMSBTYWx0ZWRfX6UYp50rgI7wC
- LaHgcaw2Q4XsqduGci08N/mmOkAcwyd88LS27/zQo0/FEc02AxD1omQE3M89xwgC6RjNi415jns
- AX68w12J6/N1n28xLuTJQE+z7uPWuUxu+qdcd8nG+95r7XjiIPwsFa8o/ha+rEX+wKgbQ66SQQ2
- +GJiZVL5H+kAiKF9Bbc1KABQivndGOYBy0cqGS6jMfGPKbnP3j5GlnOpIMDls7R8UBgbFsEa+51
- 2kcR6LjnDSHHWHn+zfCyO11vPDJoE6Mb6a9rUEBZMRAUMVNJrx9Z+TB5q3PwuPTS9vSk94Uhxif
- tBWallf8Pl0UObKLXM2Zvnwno50mYWgu+bT0N0bLxU5g/Ooh0TersgoW2otvLQ0zrg8ZX4bUBpl
- +DcbtwoZuctBfKpU+rLLkJfPARE5pnTb/RnvOiNNXVX2kKoFpCM9md6DYnEcGXibZARx1TKgtUq
- 2XhBEvszNA5u8dDJtTg==
-X-Proofpoint-ORIG-GUID: hgxryyvWqyznJw2FLc1GUC70EGzpkxFi
-X-Authority-Analysis: v=2.4 cv=RLO+3oi+ c=1 sm=1 tr=0 ts=69b2e4d1 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
- a=mHT-XC4fkXfe5xHyWCkA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: mzVZk3RoAFTvORT2kumWTYvu4FMdCjI7
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-12_01,2026-03-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 lowpriorityscore=0 priorityscore=1501 phishscore=0 suspectscore=0
- clxscore=1015 impostorscore=0 bulkscore=0 adultscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603120121
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MN6PR11MB8102:EE_|DS4PPFDA9EFDFDB:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6f0f9ecc-edd7-4e03-1a3f-08de80521e93
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|376014|7416014|22082099003|7053199007|56012099003|18002099003;
+X-Microsoft-Antispam-Message-Info: 0JzyEtz+ZbY+UJfay1MMx6cC7k0VDpTAisQfHr8ee8fhRS9oZ/3EkK0SYa4H9xO+17cqN8E+INuWd0bDOhg6KyMSzQi4RLCB8yuN8addTN8WfkoDEXNJd3uynlJwQMFvJpVc5/6mTD+E8XvzGrnqrFo3mdW0yJLnV+UL+VFlNvaI7d3JY+amn8fmczN5NWzLWPhGBAt2EMHTRLTc8v8nGb0g73JENOqONAlmDCfKE0GXQx238nSbuoRBzBGsrkpYLX0pGkMHDk5HsKqQySnqWHSIGAs9FIfiQ40DdaWm8mwqbOfnJpoxF8PSYWVX02H6lUXF2NuGRZVoW0O6iEmJTBTtk47r/Uob+aS0SdHobYpGy2JhDE1CFbFyiD8Rhr9YqFpB6I7pUC5CO376reeOmS1ggrEUisVWCJ8UCW/cm7uZVmRS7KJnFOPnJ0H1rbHeXczxrtg13GUOjBpAoeHkI6e72lLPv5Xj5OOdYD8GCbWA6bNGCfVjbZXkKtYzNhOp9gtoZ1NNYTLIklJDjukLNoia6KYo5rUKZkX3sMViba6m8oY1T/8y6T83Q7cSeVNXpdvgJ+D3rUuF66Bn29BhUp50Gss35pc8jsAIvV92tpazJssg2Yfv3zGruCBTbGG6uKoA/+Lyct3jhQyr2suol6i7dMGHlSURpaY/Y65Ye+icJJRzr306I9/r63LzJ5Kl
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN6PR11MB8102.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(7416014)(22082099003)(7053199007)(56012099003)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?UTh0emRrTjRWY2xrdUwrdmFCeDU4bmVmeGtUQTI5MnZ2MnQ5UmJtWFllN3Nv?=
+ =?utf-8?B?WVZpMHFMNGREY2IxMllKYnY1UGxWanZTNlFHTGk1QjdyS0lvTVh4eU9BUkhk?=
+ =?utf-8?B?L2tJRUJEN1RQdmlqUUtvY2hhOGgrSis2Y00wTC9uU0U4WXZuOUZWL25kWXNX?=
+ =?utf-8?B?eXBRZkprWlpkUFU4M2RPckgxNlFBM0lCZnIxZzJpeWV0UmczVkMweGRHUFM3?=
+ =?utf-8?B?Sjh6TWE3WVNJd21XM1RQODMzT1J3c2ZTa1NyUEs4dTdmMlNtQXlzZU5nVzND?=
+ =?utf-8?B?K29aRHA4ZDllcmNWRFNZeDBRUTNheWd2dWNWdHY4RjJIVnhuRGNvRG93NVZv?=
+ =?utf-8?B?dGhPVkUvYlJSbmhxZDJFMEF5TU5Bb3RkbjlvVktNQWVqWWlRSWMyNlFYei8v?=
+ =?utf-8?B?ZFdzUFpFR0xseWs3ZDNRbW5qenowWXM3MEpjTldRc0J6eVdBT0prNTNqQUF2?=
+ =?utf-8?B?SjloL0Jzd0lnSC8yTkFvMzJtemJzckxHeEVKU1FmcU5lcXcrT29BWGsvNmFB?=
+ =?utf-8?B?SEE0ZlFaTlkvOUNHZDdjRDN2Vzg4Y1lEOFlRRitsOC9IOVJrSi93YnFyRnB0?=
+ =?utf-8?B?d1ZjTm1TUWl4TnBQSytnektHR1hzWk1mT1BuTi9ZVlJyaFlWTVJjSnZ1WUo3?=
+ =?utf-8?B?MEUyYkUraHNhcTRtMmNMa3VIS1ovVFlVbTYyc2NVMDlYN2svaDRHYmlpa0lz?=
+ =?utf-8?B?RjhZaEF0eVZTUDJBREtqZTdaMkNobkkwTURGTmFHOFlnNGUwSTFSRmEvSmFF?=
+ =?utf-8?B?TnE5RXp4MmZOeEFzZ0xUZTBZSlh0VWVnams3eWlpWTNOL1JmN3RleEExRVo4?=
+ =?utf-8?B?R0JyVUg1ZkxnV21LSUtocHMzSDJ4bTdYTFpBK1VPWjVoTnBEU1NKaHRLUW1z?=
+ =?utf-8?B?ODFUYTdUZm9ZUysrUm9pbEd5ZXZXd1J5ZGRsMjV6eXRmWVIvVUkva2FSYjVC?=
+ =?utf-8?B?OUFyTVhNQ2xCWkJEdnNjUm1VM0VLM2lEYkVnazRSalVzQUl3cFk3UDhMcHBJ?=
+ =?utf-8?B?U2pMWC93eUIzZy9QVGJGQkp6d21rRTR1R1gyWUdScVdkRVo5R1FTcDlvOGI4?=
+ =?utf-8?B?cmNLeWdZKzJnaDlYa0xMSXNRamg3YWE5eWhsTldaS21jaUNDVHBKZGdOcEZT?=
+ =?utf-8?B?V2wrZWNhOTBCVEdkMnpIdTNWdGt6MlJXTXlRdDIzanYreUEydGsrTU92SVFu?=
+ =?utf-8?B?OHluS3JyS0RiR2N0UVU0V01Ub1l0K2hZVjNjeTJiVEFhTklBWm52eHRWQjI3?=
+ =?utf-8?B?THByM21VZ3V2QVV2ZWJEWG5SbFNRZzdoR0lnM0F6aDBxSFU3aU1RbEZYa0VL?=
+ =?utf-8?B?SUc5ZDRkWXRhWkRvamZxMlh6eDBGSVJJeHZnanBRU0FUaE5lcUZXMzB4WSt2?=
+ =?utf-8?B?cFBNRC91b0FlaSthVXpjK1VnZXMrakl2enVYdFMrU09UZHNQbnY1dk15V243?=
+ =?utf-8?B?UEdGL05LczgzTHMrUlRVNk9IallyLzFyb0xwbkxYZ0wrZm9PeUx2MXVwbzEx?=
+ =?utf-8?B?NTA4Wk9GUlpFRElnUEpNNDZqODAxQ0F0ejdQS1JZaGtmd1V3MG5QYnZ5K1Rs?=
+ =?utf-8?B?MGFTK3VsblR1M3dQaDB6NHhkV3pUaUFERTd4UUxQQjlSK2JsZjRQNForNENm?=
+ =?utf-8?B?MFpKYjVWc21qOXBKSmR4T1F3TW9uaFpxY0EzWVZZZFRoMW5RWk5HdWNTMmJr?=
+ =?utf-8?B?OWtBbG9XODhZNEphWURHbjdwYnNEUlNPcGRQNmtvNHhuSHZQN2VBQ21MWUxD?=
+ =?utf-8?B?L04zYzQvRTBzc25HSGtLMHNBWlgzZTFud1VOUGdTVkhRU0lydExMZ1hiRUVk?=
+ =?utf-8?B?OEo3SGtYelUxRW1QT05oNG1FVlB6WDIxc05TVU5EMVpQb0w0WjJIdVFVTnNG?=
+ =?utf-8?B?eUhPZm5hZU1JeG5tbTRMbUNKR0h6R2xEaEdyWFRSWksrWnE4UkY5NkZlM2ZX?=
+ =?utf-8?B?N0h6WSszYVZhQUVOREhCNDdlZmlXV3UvUFMwbG5sbWFjS3pPWEdnMlBqRGxG?=
+ =?utf-8?B?ZWpmb1NNUWN6UDg3NVVwTlhKZGZ4RThBdUI5cFJjazZKWUhyTmZyRm9VZ0Nx?=
+ =?utf-8?B?VmVXMXg0T0dtODErRndFcndkWG5EeGY5NGNsSDdoYTZRZFpLbDAwU0pDSnRD?=
+ =?utf-8?B?NVRYS3RZNkZvRVEwVjNlajFJVTRVZlM0ek9JbnozeFBQY1U0c25BaFkzMGl5?=
+ =?utf-8?B?bG1FZlBZdGxZTGdmSnFHdXdjR240OGZGR3JiQ2w4UE1YSHNaVVMydG9CZHo2?=
+ =?utf-8?B?OVRkd0hTaENFTEhscWluWVN2N3RCOWUrTnRuTEs5NHRtWVoxK21LSDQvWnpD?=
+ =?utf-8?B?WkhKZkp4U3dVVzE2VG9Fc0hERXRBdUFWRHlSWjdGMDNmUEZzYW1VY1lDNEtF?=
+ =?utf-8?Q?lEcw5NvkT6Xp+YVo=3D?=
+X-Exchange-RoutingPolicyChecked: k+VKSPAM7KWe+eF9eQg7nB4SNgLOqJ5F7bFdYbbZTeKXANRkNzvGEEYyC8gBkAnYBQbBnLETSuGZzhg7V4slfrEEpJGCeVVYiKSNWO4OGl7pZi68LFMzCHTPrtuvVgpFVD4uDxqt1/HNubsnanmP1G8FAl6IOpxVKnaoPEg/NVcU52Q0KSEBFFkAPBogHPZy7e9fZJLJe3ETdjYg9N6IwBd9le+DB9VqnLVHfYvwevLcu2RqYd8Pnb86MrH17SC1qPrVolB8jsGaZJmKP6DFKbBWzt6ba1ADz8SHmFKvpVy8K5W1mh+EmY5zJIOQfUYIOwbE9LGf9+WF/pWC99LnEQ==
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6f0f9ecc-edd7-4e03-1a3f-08de80521e93
+X-MS-Exchange-CrossTenant-AuthSource: MN6PR11MB8102.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Mar 2026 16:12:12.3882
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: NEdWwkLUzCzbtdV4esOcW+KF0h2yXcJdE4EMktG7LaB1JizSgLunmzY78asDDAwWKzmb3uxKUCQCT5c3xwKLv6ET/L3+njS36DMvqibeYL4=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS4PPFDA9EFDFDB
+X-OriginatorOrg: intel.com
 
-On Thu, 2026-03-12 at 16:03 +0100, Arnd Bergmann wrote:
-> On Mon, Mar 9, 2026, at 21:37, Nathan Chancellor wrote:
-> > security/integrity/secure_boot.c contains a single __weak function,
-> > which breaks recordmcount when building with clang:
-> >=20
-> >   $ make -skj"$(nproc)" ARCH=3Dpowerpc LLVM=3D1 ppc64_defconfig=20
-> > security/integrity/secure_boot.o
-> >   Cannot find symbol for section 2: .text.
-> >   security/integrity/secure_boot.o: failed
-> >=20
-> > Introduce a Kconfig symbol, CONFIG_HAVE_ARCH_GET_SECUREBOOT, to indicat=
-e
-> > that an architecture provides a definition of arch_get_secureboot().
-> > Provide a static inline stub when this symbol is not defined to achieve
-> > the same effect as the __weak function, allowing secure_boot.c to be
-> > removed altogether. Move the s390 definition of arch_get_secureboot()
-> > out of the CONFIG_KEXEC_FILE block to ensure it is always available, as
-> > it does not actually depend on KEXEC_FILE.
-> >=20
-> > Fixes: 31a6a07eefeb ("integrity: Make arch_ima_get_secureboot integrity=
--wide")
-> > Signed-off-by: Nathan Chancellor <nathan@kernel.org>
->=20
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
+On 3/10/26 12:49, Philipp Hahn wrote:
+> Prefer using IS_ERR_OR_NULL() over using IS_ERR() and a manual NULL
+> check.
+> 
+> Change generated with coccinelle.
+> 
+> To: Igor Russkikh <irusskikh@marvell.com>
+> To: Andrew Lunn <andrew+netdev@lunn.ch>
+> To: "David S. Miller" <davem@davemloft.net>
+> To: Eric Dumazet <edumazet@google.com>
+> To: Jakub Kicinski <kuba@kernel.org>
+> To: Paolo Abeni <pabeni@redhat.com>
+> To: Pavan Chebbi <pavan.chebbi@broadcom.com>
+> To: Michael Chan <mchan@broadcom.com>
+> To: Potnuri Bharat Teja <bharat@chelsio.com>
+> To: Tony Nguyen <anthony.l.nguyen@intel.com>
+> To: Przemek Kitszel <przemyslaw.kitszel@intel.com>
+> To: Taras Chornyi <taras.chornyi@plvision.eu>
+> To: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+> To: Alexandre Torgue <alexandre.torgue@foss.st.com>
+> To: Iyappan Subramanian <iyappan@os.amperecomputing.com>
+> To: Keyur Chudgar <keyur@os.amperecomputing.com>
+> To: Quan Nguyen <quan@os.amperecomputing.com>
+> To: Heiner Kallweit <hkallweit1@gmail.com>
+> To: Russell King <linux@armlinux.org.uk>
+> Cc: netdev@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: intel-wired-lan@lists.osuosl.org
+> Cc: linux-stm32@st-md-mailman.stormreply.com
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-usb@vger.kernel.org
+> Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
 
-I pushed out the patch to next-integrity, but am a bit concerned about=C2=
-=A0the
-definition:
+this is too trivial change, especially when combined like that
+https://docs.kernel.org/process/maintainer-netdev.html#clean-up-patches
 
-+config HAVE_ARCH_GET_SECUREBOOT
-+       def_bool EFI
-+
+> ---
+>   drivers/net/ethernet/aquantia/atlantic/aq_ring.c        | 2 +-
+>   drivers/net/ethernet/broadcom/tg3.c                     | 2 +-
+>   drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c    | 3 +--
+>   drivers/net/ethernet/intel/ice/devlink/devlink.c        | 2 +-
+>   drivers/net/ethernet/marvell/prestera/prestera_router.c | 2 +-
+>   drivers/net/ethernet/stmicro/stmmac/stmmac_main.c       | 2 +-
+>   drivers/net/mdio/mdio-xgene.c                           | 2 +-
+>   drivers/net/usb/r8152.c                                 | 2 +-
+>   8 files changed, 8 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
+> index e270327e47fd804cc8ee5cfd53ed1b993c955c41..43edef35c4b1ff606b2f1519a07fad4c9a990ad4 100644
+> --- a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
+> +++ b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
+> @@ -810,7 +810,7 @@ static int __aq_ring_xdp_clean(struct aq_ring_s *rx_ring,
+>   		}
+>   
+>   		skb = aq_xdp_run_prog(aq_nic, &xdp, rx_ring, buff);
+> -		if (IS_ERR(skb) || !skb)
+> +		if (IS_ERR_OR_NULL(skb))
+>   			continue;
+>   
+>   		if (ptp_hwtstamp_len > 0)
+> diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
+> index 2328fce336447eb4a796f9300ccc0ab536ff0a35..8ed79f34f03d81184dcc12e6eaff009cb8f7756e 100644
+> --- a/drivers/net/ethernet/broadcom/tg3.c
+> +++ b/drivers/net/ethernet/broadcom/tg3.c
+> @@ -7943,7 +7943,7 @@ static int tg3_tso_bug(struct tg3 *tp, struct tg3_napi *tnapi,
+>   
+>   	segs = skb_gso_segment(skb, tp->dev->features &
+>   				    ~(NETIF_F_TSO | NETIF_F_TSO6));
+> -	if (IS_ERR(segs) || !segs) {
+> +	if (IS_ERR_OR_NULL(segs)) {
+>   		tnapi->tx_dropped++;
+>   		goto tg3_tso_bug_end;
+>   	}
+> diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
+> index 3307e50426819087ad985178c4a5383f16b8e7b4..1c8a6445d4b2e3535d8f1b7908dd02d8dd2f23fa 100644
+> --- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
+> +++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
+> @@ -1032,8 +1032,7 @@ static void ch_flower_stats_handler(struct work_struct *work)
+>   	do {
+>   		rhashtable_walk_start(&iter);
+>   
+> -		while ((flower_entry = rhashtable_walk_next(&iter)) &&
+> -		       !IS_ERR(flower_entry)) {
+> +		while (!IS_ERR_OR_NULL((flower_entry = rhashtable_walk_next(&iter)))) {
+>   			ret = cxgb4_get_filter_counters(adap->port[0],
+>   							flower_entry->filter_id,
+>   							&packets, &bytes,
+> diff --git a/drivers/net/ethernet/intel/ice/devlink/devlink.c b/drivers/net/ethernet/intel/ice/devlink/devlink.c
+> index 6c72bd15db6d75a1d4fa04ef8fefbd26fb6e84bd..3d08b9187fd76ca3198af28111b6f1c1765ea01e 100644
+> --- a/drivers/net/ethernet/intel/ice/devlink/devlink.c
+> +++ b/drivers/net/ethernet/intel/ice/devlink/devlink.c
+> @@ -791,7 +791,7 @@ static void ice_traverse_tx_tree(struct devlink *devlink, struct ice_sched_node
+>   						  node->parent->rate_node);
+>   	}
+>   
+> -	if (rate_node && !IS_ERR(rate_node))
+> +	if (!IS_ERR_OR_NULL(rate_node))
+>   		node->rate_node = rate_node;
+>   
+>   traverse_children:
+> diff --git a/drivers/net/ethernet/marvell/prestera/prestera_router.c b/drivers/net/ethernet/marvell/prestera/prestera_router.c
+> index b036b173a308b5f994ad8538eb010fa27196988c..4492938e8a3da91d32efe8d45ccbe2eb437c0e49 100644
+> --- a/drivers/net/ethernet/marvell/prestera/prestera_router.c
+> +++ b/drivers/net/ethernet/marvell/prestera/prestera_router.c
+> @@ -1061,7 +1061,7 @@ static void __prestera_k_arb_hw_state_upd(struct prestera_switch *sw,
+>   		n = NULL;
+>   	}
+>   
+> -	if (!IS_ERR(n) && n) {
+> +	if (!IS_ERR_OR_NULL(n)) {
+>   		neigh_event_send(n, NULL);
+>   		neigh_release(n);
+>   	} else {
+> diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+> index 6827c99bde8c22db42b363d2d36ad6f26075ed50..356a4e9ce04b1fcf8786d7274d31ace404be2cf6 100644
+> --- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+> +++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+> @@ -1275,7 +1275,7 @@ static int stmmac_init_phy(struct net_device *dev)
+>   	/* Some DT bindings do not set-up the PHY handle. Let's try to
+>   	 * manually parse it
+>   	 */
+> -	if (!phy_fwnode || IS_ERR(phy_fwnode)) {
+> +	if (IS_ERR_OR_NULL(phy_fwnode)) {
+>   		int addr = priv->plat->phy_addr;
+>   		struct phy_device *phydev;
+>   
+> diff --git a/drivers/net/mdio/mdio-xgene.c b/drivers/net/mdio/mdio-xgene.c
+> index a8f91a4b7fed0927ee14e408000cd3a2bfb9b09a..09b30b563295c6085dc1358ac361301e5cf6b2a8 100644
+> --- a/drivers/net/mdio/mdio-xgene.c
+> +++ b/drivers/net/mdio/mdio-xgene.c
+> @@ -265,7 +265,7 @@ struct phy_device *xgene_enet_phy_register(struct mii_bus *bus, int phy_addr)
+>   	struct phy_device *phy_dev;
+>   
+>   	phy_dev = get_phy_device(bus, phy_addr, false);
+> -	if (!phy_dev || IS_ERR(phy_dev))
+> +	if (IS_ERR_OR_NULL(phy_dev))
+>   		return NULL;
+>   
+>   	if (phy_device_register(phy_dev))
+> diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+> index 0c83bbbea2e7c322ee6339893e281237663bd3ae..73f17ebd7d40007eec5004f887a46249defd28ab 100644
+> --- a/drivers/net/usb/r8152.c
+> +++ b/drivers/net/usb/r8152.c
+> @@ -2218,7 +2218,7 @@ static void r8152_csum_workaround(struct r8152 *tp, struct sk_buff *skb,
+>   
+>   		features &= ~(NETIF_F_SG | NETIF_F_IPV6_CSUM | NETIF_F_TSO6);
+>   		segs = skb_gso_segment(skb, features);
+> -		if (IS_ERR(segs) || !segs)
+> +		if (IS_ERR_OR_NULL(segs))
+>   			goto drop;
+>   
+>   		__skb_queue_head_init(&seg_list);
+> 
 
-Has anyone actually tested this patch on s390, not just compiled it?  If so=
-, I'd
-appreciate a tested-by tag.
-
-thanks,
-
-Mimi
