@@ -1,254 +1,135 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD348366DBB;
-	Fri, 13 Mar 2026 09:04:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E65DC387356
+	for <linux-s390@vger.kernel.org>; Fri, 13 Mar 2026 09:06:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773392656; cv=none; b=YBG0fppC/Pvv3kMQwlELhwFl1/n9cqXgJZBJWnukaeOEL9ua8k7sA58jpc99GAsNlL1EloDAqHWzG061Wvy6Lur+hJCdOtJIeTr45CEK1K3yvD8tzf3RfGzK6p8yKdPGKd6QcNxD3x2qFUuqmDYsD2KHIjSZnuHlFK+i4Yv3CZU=
+	t=1773392811; cv=none; b=EFfoMY8RK/HYTT+uyTXjEk6K3M+VzkQyfbx5cAiqOcraE9uEHZzxQgxVT9OzxKEbG2qvfeRJH6f5L0GInUUgQcEAHh3UsuTavxW8RU+z+/7LnoGnY944o5vVz+vWIcBsO6MPMNTz2KossoMRuVaJkb+VgG44i7M6TItHKNaExUA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773392656; c=relaxed/simple;
-	bh=xGKIRsyhcPH5RFVZ63ec5pba9QGK35wzS2N/WdjVeHY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PrImKu8h/wRw3i3grya4MOl2EebBFmOb0jmg+fV8yqf/0mSPHk68jibHi4/TnhwFnqmS8CspAFh8DLzVrzyPEUJsra7r1pTl8y+cgJ7iKG/zsgwGvcFG3K+I4r6/GYPa6kmsIaz6we2PBrxdA7DbXBcUGFMqH1jrjw5AqX58x7g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hRY+ZDkx; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1773392811; c=relaxed/simple;
+	bh=ta6eHrArHO3GJYCrKSKCHHlu19z8tz1u2DSy6DpPOLE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=neTIECHxU71Q3l0nEIB92tdrf8yDsAuoex8VunCjylwmFzMJ72KL43Z1Fib97+K6VIJy6I6hJNSFLhUKqeWgtZa13XuvTgaCzqlJOqNnowD61eONB05t9WflFXn+gNBR4Vqb9zwomK2AZTlBZhz1rpQ3Um3i40u2tE22qX8pi8c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=taKggpPl; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hRY+ZDkx"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62D1jCfj1323615;
-	Fri, 13 Mar 2026 09:04:10 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="taKggpPl"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62D27PLG2258820;
+	Fri, 13 Mar 2026 09:06:48 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=gVd8k01aJx9z4vEo0nr1D5Yyzn8KCRhKk9h+o8FZF
-	+A=; b=hRY+ZDkx05xWrXp79szdHBDkyFOuznX1b2NZlfmEuqMvxqENGQJQbRcft
-	neX7cC33vmjTHK+EsE3tTBFktwlYoQn1KTbsgk7xTwEj+i7Qy6nDg01mu+t5uFja
-	9OM9BGZoMatpiTFE2aNGJehpjSFhsFZ3PnT8vmBbW8EloxJvN07RCetmYGosQVon
-	sPCFfWVRoOYihWYuNYrGF0IF8HXzDOAmYasxtwWik8gT1vWl0ceplI71oU+wVAzY
-	Zdlx3hXjKpWqcxsfV5NWdsW+IG2GRlp6UXx1+8FbsN7WcqdvvrnjVAVFYAle7sL/
-	eXfA/4aNwMm0aWabZXB7Q73r4cYPQ==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cuh98epbd-1
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=UDfFy0445DGwzRuiG+n45+4dV8ne2z
+	7StYgEZHpX7r8=; b=taKggpPlQjpJW8JcNjtsytoWR2u7/FWUC3xut9szfs/pJF
+	r0w9Z2SDcX7EEYX4Ms8lfchAntS3HNKnxkXGkNFcisP3NFAiRKw7dIcqdA1OrycK
+	wipfM9XOgljgD2Jp6jGYpYedxD0tKwmLc0rpRCfBhbIbnGV2rKtXHTWxX+fhI4Ss
+	RHgvDXLYTQ//BQrA/4OBxxxPBeToNOI1ZMKS3ANWXPomnGxrYgIN1P+qoSY+qU0X
+	eODS/epqEdc993TdUu9Z6xsIEOjZ1ODLQDM7nAuj5757HvKenM0GxZOF79HjrCdL
+	4sizZDxIECkmCbo0VlXINSZGnCjpooFNi0VF4APQ==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cuh92ey82-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Mar 2026 09:04:09 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62D5NuBH018371;
-	Fri, 13 Mar 2026 09:04:09 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cuha85yu8-1
+	Fri, 13 Mar 2026 09:06:48 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62D53AK4014667;
+	Fri, 13 Mar 2026 09:06:47 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cuha8e013-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Mar 2026 09:04:08 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62D945aq42205528
+	Fri, 13 Mar 2026 09:06:47 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62D96hwe58458506
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 13 Mar 2026 09:04:05 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2D5DB2004E;
-	Fri, 13 Mar 2026 09:04:05 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EB24A2004B;
-	Fri, 13 Mar 2026 09:04:04 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 13 Mar 2026 09:04:04 +0000 (GMT)
-From: Thomas Richter <tmricht@linux.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org,
-        dapeng1.mi@linux.intel.com
-Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
-        hca@linux.ibm.com, japo@linux.ibm.com,
-        Thomas Richter <tmricht@linux.ibm.com>
-Subject: [PATCH] perf record: Add support for arch_sdt_arg_parse_op() on s390
-Date: Fri, 13 Mar 2026 10:03:56 +0100
-Message-ID: <20260313090356.2580190-1-tmricht@linux.ibm.com>
-X-Mailer: git-send-email 2.51.0
+	Fri, 13 Mar 2026 09:06:43 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4C4622005A;
+	Fri, 13 Mar 2026 09:06:43 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C09FF2004E;
+	Fri, 13 Mar 2026 09:06:42 +0000 (GMT)
+Received: from osiris (unknown [9.111.5.66])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 13 Mar 2026 09:06:42 +0000 (GMT)
+Date: Fri, 13 Mar 2026 10:06:41 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: lirongqing <lirongqing@baidu.com>, Holger Dengler <dengler@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH] s390/pkey: Remove synchronize_rcu from
+ pkey_handler_register
+Message-ID: <20260313090641.13729Aae-hca@linux.ibm.com>
+References: <20260313052312.2389-1-lirongqing@baidu.com>
+ <058c161c4e82d2d78ddb9c52cfc8ee50@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <058c161c4e82d2d78ddb9c52cfc8ee50@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=M+pA6iws c=1 sm=1 tr=0 ts=69b3d309 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=QyXUC8HyAAAA:8
- a=9_JGaw_69MBna2B2lCEA:9 a=O8hF6Hzn-FEA:10
-X-Proofpoint-GUID: 0Mq-4TaRBQKfy6yomGStWGPBUOpQJXAv
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzEzMDA2OSBTYWx0ZWRfX4O4txIE2nM+2
- 9rHkMfH6m3fWhd2DKACEaIT6vBwajsS52Cwm/F/FYP5Nj4a4ORw5PG85p1ctm4AMObkqEQLjVl5
- 0+HmxrOZVcLuOZH2oAYvhjhSdq93HbUbg5hZCR0LzmzYZfppyKkigwkol2loOyl7rkeNtk3WQvF
- 9xvT++Hb8zjnOwnysKOJzMduptFZfoOZ5lJH2EgbHL5vs4IdXZZ7CXJ6OqQj38zv+UJ1UIPcvxc
- bSxNG+NyaFZPc3vbUeUjdWLF2xNhRzc02DqJv/8JeTBgq4zKEKL1G5JorzOdiw2MMjAkMAUrQFV
- Ykl8RNRvcedlXEkGtuJ1F5etIXZzvve1nfanoUyH2+ns4SftMbuGZPvLD93iFa7Xsz8jPbj6fSv
- XxS1Ut6hOzErFC+JvuMwhugYYYCsZ/QhPx4jSfTBW4uDItPq/QT0yeSAGJXheY5do97E4M/woNN
- jy0syDv5TCmRK7Vroiw==
-X-Proofpoint-ORIG-GUID: 0Mq-4TaRBQKfy6yomGStWGPBUOpQJXAv
+X-Proofpoint-ORIG-GUID: RccSYkCGrQqFYCFugMZzYZbhqU_ginuk
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzEzMDA2OSBTYWx0ZWRfX1BGLLMmzRXzm
+ R9xg5BU6LdA3zf5WdbRoqDATxZ54LoZsrLZZQCh6MiEQNS4r34DYT3e/5xSgNHVx+dvD//+m34L
+ Mdfent01wWmzYK4/0Tuem0C6MB/pvUoYv/pAGofpEc80lURwi5cjV0+ZPeHId6epEBOQBbOzBOY
+ 3VFPfpZZAK+NOrsreAxn7M+Lw/oLMP/AakmDiH1FYKZedFiQjpZTe7DiATZUWZdTNB9JLbfzfE3
+ 02cD5OENdE5fUPxV7aegeN9OLSW49vdN6tU1TL+viBXVAuPy87PrMMJWYbi0gudVHqWYyYBu+xZ
+ VEN5r05kQpPbgmRjec5uyIRlWAVHGK4rBGzUmGkwuha2iCFw4Q2sf0s6NuaDwGVv/Ci0v8IHY+u
+ scGdxuNg7XiykUKOD6Yxc9Ee9rGyXwc7ObKlOLFjrMRPtFPGO+KBbKN8Jo46zitF14abkxp2Ehm
+ lg+eziRHnrMFAmeDwEg==
+X-Proofpoint-GUID: RccSYkCGrQqFYCFugMZzYZbhqU_ginuk
+X-Authority-Analysis: v=2.4 cv=XNk9iAhE c=1 sm=1 tr=0 ts=69b3d3a8 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=kj9zAlcOel0A:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=zuLzuavZAAAA:8
+ a=VnNF1IyMAAAA:8 a=k6490w7z2KT0A4n5li8A:9 a=CjuIK1q_8ugA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-03-13_01,2026-03-12_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 spamscore=0 suspectscore=0 priorityscore=1501
- impostorscore=0 phishscore=0 clxscore=1015 bulkscore=0 adultscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
- definitions=main-2603130069
+ suspectscore=0 spamscore=0 clxscore=1011 lowpriorityscore=0 adultscore=0
+ bulkscore=0 phishscore=0 priorityscore=1501 impostorscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603130069
 
-commit e5e66adfe45a6 ("perf regs: Remove __weak attributive arch_sdt_arg_parse_op() function")
-removes arch_sdt_arg_parse_op() functions and s390 support is lost.
-The following warning is printed:
+On Fri, Mar 13, 2026 at 09:32:39AM +0100, Harald Freudenberger wrote:
+> On 2026-03-13 06:23, lirongqing wrote:
+> > From: Li RongQing <lirongqing@baidu.com>
+> > 
+> > The synchronize_rcu() call after adding a handler to the handler_list
+> > is redundant because RCU readers will either see the old list or the
+> > new list. Removing this synchronization point reduces the blocking
+> > time during handler registration.
+> > 
+> > Signed-off-by: Li RongQing <lirongqing@baidu.com>
+> > ---
+> >  drivers/s390/crypto/pkey_base.c | 1 -
+> >  1 file changed, 1 deletion(-)
+> > 
+> > diff --git a/drivers/s390/crypto/pkey_base.c
+> > b/drivers/s390/crypto/pkey_base.c
+> > index d60cd98..c2e29d6 100644
+> > --- a/drivers/s390/crypto/pkey_base.c
+> > +++ b/drivers/s390/crypto/pkey_base.c
+> > @@ -60,7 +60,6 @@ int pkey_handler_register(struct pkey_handler
+> > *handler)
+> > 
+> >  	list_add_rcu(&handler->list, &handler_list);
+> >  	spin_unlock(&handler_list_write_lock);
+> > -	synchronize_rcu();
+> > 
+> >  	module_put(handler->module);
+> 
+> Thanks Li RongQing
+> 
+> Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
 
-  Unknown ELF machine 22, standard arguments parse will be skipped.
-
-ELF machine 22 is the EM_S390 host. This happens with command
-  # ./perf record -v -- stress-ng -t 1s --matrix 0
-on a z/VM system when the event is not specified.
-
-Add s390 specific __perf_sdt_arg_parse_op_s390() function to support
--architecture calls to arch_sdt_arg_parse_op() for s390.
-The warning disappears.
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Cc: Dapeng Mi <dapeng1.mi@linux.intel.com>
-Tested-by: Jan Polensky <japo@linux.ibm.com>
----
- .../perf/util/perf-regs-arch/perf_regs_s390.c | 89 +++++++++++++++++++
- tools/perf/util/perf_regs.c                   |  3 +
- tools/perf/util/perf_regs.h                   |  1 +
- 3 files changed, 93 insertions(+)
-
-diff --git a/tools/perf/util/perf-regs-arch/perf_regs_s390.c b/tools/perf/util/perf-regs-arch/perf_regs_s390.c
-index c61df24edf0f..5804aaad8bbc 100644
---- a/tools/perf/util/perf-regs-arch/perf_regs_s390.c
-+++ b/tools/perf/util/perf-regs-arch/perf_regs_s390.c
-@@ -1,7 +1,13 @@
- // SPDX-License-Identifier: GPL-2.0
- 
-+#include <errno.h>
-+#include <regex.h>
- #include "../perf_regs.h"
- #include "../../arch/s390/include/perf_regs.h"
-+#include "debug.h"
-+
-+#include <linux/zalloc.h>
-+#include <linux/kernel.h>
- 
- uint64_t __perf_reg_mask_s390(bool intr __maybe_unused)
- {
-@@ -95,3 +101,86 @@ uint64_t __perf_reg_sp_s390(void)
- {
- 	return PERF_REG_S390_R15;
- }
-+
-+/* %rXX */
-+#define SDT_OP_REGEX1  "^%r([0-9]|1[0-5])$"
-+/* -###(%rXX) */
-+#define SDT_OP_REGEX2  "^(-?[0-9]+)\\(%r([0-9]|1[0-5])\\)$"
-+static regex_t sdt_op_regex1, sdt_op_regex2;
-+
-+static int sdt_init_op_regex(void)
-+{
-+	static int initialized;
-+	int ret = 0;
-+
-+	if (initialized)
-+		return 0;
-+
-+	ret = regcomp(&sdt_op_regex1, SDT_OP_REGEX1, REG_EXTENDED);
-+	if (ret)
-+		goto error;
-+	initialized = 1;
-+
-+	ret = regcomp(&sdt_op_regex2, SDT_OP_REGEX2, REG_EXTENDED);
-+	if (ret)
-+		goto free_regex1;
-+	initialized = 2;
-+
-+	return 0;
-+
-+free_regex1:
-+	regfree(&sdt_op_regex1);
-+error:
-+	pr_debug4("Regex compilation error, initialized %d\n", initialized);
-+	return ret;
-+}
-+
-+/*
-+ * Parse OP and convert it into uprobe format, which is, +/-NUM(%gprREG).
-+ * Possible variants of OP are:
-+ *	Format		Example
-+ *	-------------------------
-+ *	NUM(%rREG)	48(%r1)
-+ *	-NUM(%rREG)	-48(%r1)
-+ *	%rREG		%r1
-+ */
-+int __perf_sdt_arg_parse_op_s390(char *old_op, char **new_op)
-+{
-+	int ret, new_len;
-+	regmatch_t rm[6];
-+	unsigned long i;
-+
-+	*new_op = NULL;
-+	ret = sdt_init_op_regex();
-+	if (ret < 0)
-+		return ret;
-+
-+	if (!regexec(&sdt_op_regex1, old_op, 3, rm, 0)) {
-+		/* Extract %rX */
-+		new_len = 2;    /* % NULL */
-+		new_len += (int)(rm[1].rm_eo - rm[1].rm_so);
-+		*new_op = zalloc(new_len);
-+		if (!*new_op)
-+			return -ENOMEM;
-+
-+		scnprintf(*new_op, new_len, "%%%.*s",
-+			  (int)(rm[1].rm_eo - rm[1].rm_so), old_op + rm[1].rm_so);
-+	} else if (!regexec(&sdt_op_regex2, old_op, ARRAY_SIZE(rm), rm, 0)) {
-+		/* Extract #(%rX) */
-+		new_len = 4;    /* (%)NULL */
-+		for (i = 1; i < ARRAY_SIZE(rm) && rm[i].rm_so != -1; ++i)
-+			new_len += (int)(rm[i].rm_eo - rm[i].rm_so);
-+		*new_op = zalloc(new_len);
-+		if (!*new_op)
-+			return -ENOMEM;
-+
-+		scnprintf(*new_op, new_len, "%.*s(%%%.*s)",
-+			  (int)(rm[1].rm_eo - rm[1].rm_so), old_op + rm[1].rm_so,
-+			  (int)(rm[2].rm_eo - rm[2].rm_so), old_op + rm[2].rm_so);
-+	} else {
-+		pr_debug4("Skipping unsupported SDT argument: %s\n", old_op);
-+		return SDT_ARG_SKIP;
-+	}
-+
-+	return SDT_ARG_VALID;
-+}
-diff --git a/tools/perf/util/perf_regs.c b/tools/perf/util/perf_regs.c
-index 5b8f34beb24e..f52b0e1f7fc7 100644
---- a/tools/perf/util/perf_regs.c
-+++ b/tools/perf/util/perf_regs.c
-@@ -23,6 +23,9 @@ int perf_sdt_arg_parse_op(uint16_t e_machine, char *old_op, char **new_op)
- 	case EM_X86_64:
- 		ret = __perf_sdt_arg_parse_op_x86(old_op, new_op);
- 		break;
-+	case EM_S390:
-+		ret = __perf_sdt_arg_parse_op_s390(old_op, new_op);
-+		break;
- 	default:
- 		pr_debug("Unknown ELF machine %d, standard arguments parse will be skipped.\n",
- 			 e_machine);
-diff --git a/tools/perf/util/perf_regs.h b/tools/perf/util/perf_regs.h
-index 7c04700bf837..573f0d1dfe04 100644
---- a/tools/perf/util/perf_regs.h
-+++ b/tools/perf/util/perf_regs.h
-@@ -62,6 +62,7 @@ uint64_t __perf_reg_mask_s390(bool intr);
- const char *__perf_reg_name_s390(int id);
- uint64_t __perf_reg_ip_s390(void);
- uint64_t __perf_reg_sp_s390(void);
-+int __perf_sdt_arg_parse_op_s390(char *old_op, char **new_op);
- 
- int __perf_sdt_arg_parse_op_x86(char *old_op, char **new_op);
- uint64_t __perf_reg_mask_x86(bool intr);
--- 
-2.53.0
-
+With synchronize_rcu() you do know that other CPUs will see the new
+list after this function returned, without not. Is that ok?
