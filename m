@@ -1,152 +1,148 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from fout-b2-smtp.messagingengine.com (fout-b2-smtp.messagingengine.com [202.12.124.145])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC71F3C4545;
-	Fri, 13 Mar 2026 15:41:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDA9A3A962D;
+	Fri, 13 Mar 2026 15:41:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.145
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773416465; cv=none; b=LVgKfmlQiIv9FD/R3u3qsHu5hjWS2v+TGevWK2J47zz7lgnclC6q/k/Pbo5PyEKqsGEoq1YpVI8P16iAlQ7aZNU38Q/pfNjroOT5tgbZDhq9BvZVFx/wYiSbSjrTywgYzIy6QIVJGXANwP1pKfjJhlwiT8zez0fTP6uKNYVQHWY=
+	t=1773416496; cv=none; b=NWL29dO+GRcDZoWdmNVfYUTZots76OFjNzy8nO2+r7NSxpa9qfYFmm3RuQRPoqTV37m+LWUw91ChUwdwJpe4co5R+tVwrPohDX4nn2nn+2kx+QoTIOSgDMarwPuU7jqvU2kI3pV4iPvHJo6UpkF3ZcMufLpUKPZK/2fIgBMYWTo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773416465; c=relaxed/simple;
-	bh=zpAHRTBuanYesHqnPYGrRHED3Yl3Hnq6t9k74xeYPpg=;
-	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
-	 Date:MIME-Version; b=TEM79/ezgmprvDuPQ50LB5vBzV4wZCGsE3dQ2Ok3vHaKj+9MJG8z+8W0jmBg6WPIHzSUCl0LbW6BWkkGuPb8E0lG69lU2+MhSnLhY+QQ9rGwcyz1begkhLVk7J5lXnt8hraIz73IiyUKexQBFIH4RhLAIUfI6aTflPPdUSm0BNY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qnbCYwOC; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1773416496; c=relaxed/simple;
+	bh=BhJpLRvTrRnHI360Y3G/8aswiGHh9HpiQX2cB4S8o9Y=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=NKovZEx+2T7K4DZpEKR7iA+XLvd1wuV650Xrr8Def0g2tIWX0R7Zh035dzWDNRCxSYhVy2hyjcIh8Xg8VtRWRUCK5jnAP5eNPUyrd5V8Xegdq+i7r3PnBEsdxrMoAv8P5HqMlUJoiK7nWwYXjJSV+Nc1LpQRneaPM9vGWlXa9Uo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=CLgutLG4; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=R9FBcQNs; arc=none smtp.client-ip=202.12.124.145
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qnbCYwOC"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62D5B2Bg2259422;
-	Fri, 13 Mar 2026 15:35:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=4blGWL
-	TNwciZlJ1JGFf57y21cB/j+hd6OhQxrPFKUBM=; b=qnbCYwOCwfMxxAbYOdsIol
-	3FM9CO78egN45nCqMcJmAirimvvKyfQyvzNxFTT+G9mqjEblQLQHSxCCZfwfiX8V
-	3t7KbVlQH5kF1CIolbNS/ORb2NhsqcNIAH8TSza+Jc2neJZKialtMUD+hbB2ldOS
-	P799UzbEXhC1Y6R1eaisrqqlz/Af93wLYvPzjn1uELA0IuPhijF+lY+HO8I+SfOS
-	jmYxj3CzJ1zrSpWdz5LCDuxucMQ4Xn9SoPRGdGPH3lOEtG5ulO2AEIX8dYtC7QXC
-	FmifkMWW3ZqA22uNAmtTepbbqcJmNN+s4eaAW59tqeYa8hr7LN040JOVEeUyHq0g
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cuh92gg48-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Mar 2026 15:35:17 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62DFSJH6006130;
-	Fri, 13 Mar 2026 15:35:16 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cuha9q6m8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Mar 2026 15:35:16 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62DFZE5V34734722
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 13 Mar 2026 15:35:14 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8CD4058058;
-	Fri, 13 Mar 2026 15:35:14 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E58E058057;
-	Fri, 13 Mar 2026 15:35:12 +0000 (GMT)
-Received: from li-43857255-d5e6-4659-90f1-fc5cee4750ad.ibm.com (unknown [9.61.190.35])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 13 Mar 2026 15:35:12 +0000 (GMT)
-Message-ID: <0dec7e06d61eb8775d70e4d8bf1be98fff7a2af3.camel@linux.ibm.com>
-Subject: Re: [PATCH] integrity: Eliminate weak definition of
- arch_get_secureboot()
-From: Mimi Zohar <zohar@linux.ibm.com>
-To: Nathan Chancellor <nathan@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Roberto Sassu
- <roberto.sassu@huawei.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Eric Snowberg <eric.snowberg@oracle.com>,
-        Alexander Egorenkov	
- <egorenar@linux.ibm.com>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy	 <chleroy@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik	 <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Paul
- Moore	 <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
-        "Serge E.
- Hallyn"	 <serge@hallyn.com>, Coiby Xu <coxu@redhat.com>,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, llvm@lists.linux.dev
-In-Reply-To: <20260312205533.GC2747807@ax162>
-References: 
-	<20260309-integrity-drop-weak-arch-get-secureboot-v1-1-6460d5c4bb89@kernel.org>
-	 <d2089740-16d8-4ca4-a61c-8c381f8e30a0@app.fastmail.com>
-	 <a985c90d9df8ba0fc63f65117cc8e884f70e6035.camel@linux.ibm.com>
-	 <20260312205533.GC2747807@ax162>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 13 Mar 2026 11:35:12 -0400
+	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="CLgutLG4";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="R9FBcQNs"
+Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
+	by mailfout.stl.internal (Postfix) with ESMTP id 6196B1D001CC;
+	Fri, 13 Mar 2026 11:41:32 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-06.internal (MEProxy); Fri, 13 Mar 2026 11:41:33 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm3; t=1773416492;
+	 x=1773502892; bh=kgj526aKwZrzrcQEKfOTYeHG2iUgfK1oZFrmdyv2yl0=; b=
+	CLgutLG4ntcLyFOAbBQ1AWQisumepy/Mvyl4h6KkyQgjUNg4q2L2aNSZ5iWp4F3M
+	/xz/dVV41l4kZcBIwqKaalvZ+BrFJBZcpWOua5Ri2zNXGisX1+6eBg/VF2fUIZZU
+	fIO8Bn0WIBHa82ccA7iXRB01E09TGLp+U0SNYRSa96Sdfoy16cGn5oM72iSZ73PO
+	dyPqJncSHyxxfoKtJfWvL0PRjEmc49f5uHYN0gz38tVguveWrw0vSyz51oRSQhiV
+	KqmYTuwHqZPH7jLkouEQeRO6zPINA8ci4jAhwiZYQP9CyTRb71rDMTcdicomPsds
+	HMES9jhoBDRb/4d7/+3h6Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1773416492; x=
+	1773502892; bh=kgj526aKwZrzrcQEKfOTYeHG2iUgfK1oZFrmdyv2yl0=; b=R
+	9FBcQNsKEocG/Osc/VTMTI+gftCa+DWHzey6JCB5AHjQAHxqa0VnzXD0WFQpk0PL
+	fvvfUwN0T/i4nZfnfst9prEtfmxBdyIm2X5FV3rI9Ty6uTn3fKab3R19jpmIDsrS
+	/azQ4vm3NfCKs/E6Qhz02xss6cOWixE2gIV9t/MD5OwcpmlR1kfxCkbOqM7KDW16
+	1aIWazdrKok8ilYrnE3RjVj1CE+HQZPQHY/HpBXjiZz4Cz/mQ5vjt5dbp9Sd4DXv
+	3ru0OfIXBdDoifYRSpVVyhlxOpwbvC/9sE3zDucE0YRCjicSWJUmVvFYRXNwo5LK
+	IGqB1n/21/3vuZC5jef2A==
+X-ME-Sender: <xms:KzC0adLdWLZrY32WZWLIH5jHdyTODgig88I69GhC3ed5x3ncWgldDQ>
+    <xme:KzC0aVRNW21Z2zpp2CcLR1Szn1x8VyXz-abkReePqUu5zbgYfieNlR-BSpAViAqr2
+    si_i-epWQCtaaDofQ43tmEEv1gblkWq59NPdTk28havlRfb-gPVpAs>
+X-ME-Received: <xmr:KzC0aRixE-EvSDPlmwhfJZOYSWsy5JcU8tf8uOB3e2FynXr-GPlQx406_WE>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvledttdehucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepfffhvfevuffkjghfofggtgfgsehtqhertdertdejnecuhfhrohhmpeetlhgvgicu
+    hghilhhlihgrmhhsohhnuceorghlvgigsehshhgriigsohhtrdhorhhgqeenucggtffrrg
+    htthgvrhhnpeegudevhfejueefveduieeuueeifeettdekveekhffgvdetfeelueehgfdt
+    heffhfenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    grlhgvgiesshhhrgiisghothdrohhrghdpnhgspghrtghpthhtohepvddupdhmohguvgep
+    shhmthhpohhuthdprhgtphhtthhopehjuhhlihgrnhhrsehlihhnuhigrdhisghmrdgtoh
+    hmpdhrtghpthhtohepshgthhhnvghllhgvsehlihhnuhigrdhisghmrdgtohhmpdhrtghp
+    thhtohepfihinhhtvghrrgeslhhinhhugidrihgsmhdrtghomhdprhgtphhtthhopehtsh
+    eslhhinhhugidrihgsmhdrtghomhdprhgtphhtthhopehosggvrhhprghrsehlihhnuhig
+    rdhisghmrdgtohhmpdhrtghpthhtohepghgsrgihvghrsehlihhnuhigrdhisghmrdgtoh
+    hmpdhrtghpthhtohepjhhgghesiihivghpvgdrtggrpdhrtghpthhtohephihishhhrghi
+    hhesnhhvihguihgrrdgtohhmpdhrtghpthhtohepshhkohhlohhthhhumhhthhhosehnvh
+    hiughirgdrtghomh
+X-ME-Proxy: <xmx:KzC0aXuS-iukiHn-AxQw_9X-DZUaOAwcuTybc9gRRRtGVX7qOSyi7Q>
+    <xmx:KzC0aUiRrYkZNKkz4yatMt1gJXTsNvkCgjX2iRx2bf82GU-wE8dapg>
+    <xmx:KzC0aWGBPEfNuwc3Z_Gn0AJVBLb2y0KoxH37GL68yyqWHCCQRIjawQ>
+    <xmx:KzC0aVKZ2BjEzTdI4-GQzMalOpRMTT-NKq0QEowIDDiIs_b9SpFmug>
+    <xmx:LDC0aaWflAQVC9FrhtiTHu9vVclibp9shvsS-2SdoGbvwPREorOuODBM>
+Feedback-ID: i03f14258:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 13 Mar 2026 11:41:29 -0400 (EDT)
+Date: Fri, 13 Mar 2026 09:41:27 -0600
+From: Alex Williamson <alex@shazbot.org>
+To: Julian Ruess <julianr@linux.ibm.com>
+Cc: schnelle@linux.ibm.com, wintera@linux.ibm.com, ts@linux.ibm.com,
+ oberpar@linux.ibm.com, gbayer@linux.ibm.com, Jason Gunthorpe
+ <jgg@ziepe.ca>, Yishai Hadas <yishaih@nvidia.com>, Shameer Kolothum
+ <skolothumtho@nvidia.com>, Kevin Tian <kevin.tian@intel.com>,
+ mjrosato@linux.ibm.com, alifm@linux.ibm.com, raspl@linux.ibm.com,
+ hca@linux.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
+ kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-pci@vger.kernel.org, alex@shazbot.org
+Subject: Re: [PATCH v4 0/3] vfio/pci: Introduce vfio_pci driver for ISM
+ devices
+Message-ID: <20260313094127.74aa0767@shazbot.org>
+In-Reply-To: <20260313-vfio_pci_ism-v4-0-4765ae056f71@linux.ibm.com>
+References: <20260313-vfio_pci_ism-v4-0-4765ae056f71@linux.ibm.com>
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: 59AJO5q2NmJeb8Rolla9nJmSuuxhw6YQ
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzEzMDEyNCBTYWx0ZWRfX9aSEbAynOTD2
- UeJLB+Dd5ETgybJ8X78OLdjbas70sNl4JkiLY2bQgWpqeaA9Bq9rz7HejSSEaj4T0A5FsF28woD
- r0l51GZUhKSYl7jlb/t7A4klpYtKU/gkZNh0HLwC0eZr7N8tvSI2xFbdL3dM5Ft4hBrdmeRl12D
- yN1mi8hd1UFyQ4NJcE5ulUzUuNhrdkchk2nkNzUIKkNFmznEW/dBToaqXOJRXTUbZGEZDWuJTJX
- lIVXqQUI8ikcOEJDFppzCs7DpCJM9/tRjWO43FDUDzFeIg/AWHsViTtEQM9uJvr6LWzuKDUXTp4
- dpeimsnm7vZfjmHKdJBnKYohGLm9SRyAa8bHnNuuQJNcuDP/FFc1ws3/3w9XAy2KFIrQoAT9TXt
- y2AdsOvmkT13f1Htb4+PxPM2BmwyVMOw0jnflDfTJTJNxhiZxg7kK7vmn6f/XEcj7/CdH1zUo5z
- 6f68HNPiTwzy7KqoXcA==
-X-Proofpoint-GUID: Kc_uVUzOyW2576MqDxMLZmh21g7_PRH-
-X-Authority-Analysis: v=2.4 cv=XNk9iAhE c=1 sm=1 tr=0 ts=69b42eb6 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=Jgx6WarZ80nwb2z7rPIA:9
- a=QEXdDO2ut3YA:10 a=ZXulRonScM0A:10 a=zZCYzV9kfG8A:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-13_02,2026-03-13_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 spamscore=0 clxscore=1015 lowpriorityscore=0 adultscore=0
- bulkscore=0 phishscore=0 priorityscore=1501 impostorscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603130124
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2026-03-12 at 13:55 -0700, Nathan Chancellor wrote:
-> On Thu, Mar 12, 2026 at 12:07:41PM -0400, Mimi Zohar wrote:
-> > I pushed out the patch to next-integrity, but am a bit concerned about=
-=C2=A0the
-> > definition:
-> >=20
-> > +config HAVE_ARCH_GET_SECUREBOOT
-> > +       def_bool EFI
-> > +
->=20
-> What is concerning about the definition with regards to s390?
->=20
-> > Has anyone actually tested this patch on s390, not just compiled it?  I=
-f so, I'd
-> > appreciate a tested-by tag.
->=20
-> It would be good to test (if it is possible to test in QEMU, I am happy
-> to attempt to do so). As far as I can tell, 31a6a07eefeb placed
-> arch_get_secureboot() in such a way that the __weak definition would be
-> used when CONFIG_KEXEC_FILE was disabled, even though ipl_secure_flag
-> should always be available, which this patch avoids.
+On Fri, 13 Mar 2026 15:40:27 +0100
+Julian Ruess <julianr@linux.ibm.com> wrote:
 
-Thanks, Nathan.  Fortunately I got access to an s390 and was able to test. =
- It
-seems to be working.
+> Hi all,
+>=20
+> This series adds a vfio_pci variant driver for the s390-specific
+> Internal Shared Memory (ISM) devices used for inter-VM communication
+> including SMC-D.
+>=20
+> This is a prerequisite for an in-development open-source user space
+> driver stack that will allow to use ISM devices to provide remote
+> console and block device functionality. This stack will be part of
+> s390-tools.
+>=20
+> This driver would also allow QEMU to mediate access to an ISM device,
+> enabling a form of PCI pass-through even for guests whose hardware
+> cannot directly execute PCI accesses, such as nested guests.
+>=20
+> On s390, kernel primitives such as ioread() and iowrite() are switched
+> over from function handle based PCI load/stores instructions to PCI
+> memory-I/O (MIO) loads/stores when these are available and not
+> explicitly disabled. Since these instructions cannot be used with ISM
+> devices, ensure that classic function handle-based PCI instructions are
+> used instead.
+>=20
+> The driver is still required even when MIO instructions are disabled, as
+> the ISM device relies on the PCI store=E2=80=91block (PCISTB) instruction=
+ to
+> perform write operations.
+>=20
+> Thank you,
+> Julian
+>=20
+> Signed-off-by: Julian Ruess <julianr@linux.ibm.com>
+> ---
+> Changes in v4:
+> - Fix bug with < 8 byte reads. For code simplicity, only support 8 byte r=
+eads.
 
-Mimi
+Does the ISM device define sub-8-byte accesses as valid?  It looks like
+if pread() doesn't return the desired size QEMU will fill the return
+with -1.  Unless such accesses are classified as undefined by ISM,
+doesn't that suggest a potential data corruption issue to the guest
+driver?  Thanks,
+
+Alex
