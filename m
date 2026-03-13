@@ -1,138 +1,220 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f195.google.com (mail-pf1-f195.google.com [209.85.210.195])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE0BE3A6B79;
-	Fri, 13 Mar 2026 14:40:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B62D228BA95
+	for <linux-s390@vger.kernel.org>; Fri, 13 Mar 2026 15:16:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773412852; cv=none; b=XoRE+wFW1i2DT6qrqzUoL6qDc9TUINytQsWN2M3hp89OjSVnJPeSJAmstnady+bvIZ8ir6jcDyuZXPYTblqLXvd5dQJL+aiDMuXMMlcXZUwZayLIKVEHJ3mQh5NbbCi1WZnc6901CB0/O/YnAS1TdSr2ZIo85NPZJmzhLrKACWM=
+	t=1773414985; cv=none; b=k28X1yCymZgPgw272HXOmMKOgzCQdc0X3kAK8ANzhRz7ck0Z/xNX+VmlFUXRTuWG0UiWZWDM4AzPDncDGc+Y7Q+hcwnyKM0rkkmANhK66sC5RHsBk8+DTXOgDR0Fm9tQU02SgZejI84SfkOjppvlOLbk00x1xar5/N4q8D5NpYc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773412852; c=relaxed/simple;
-	bh=5cizI4RnQ0+sYKvc9ts3bTzV0kKuXbFeKHHv9Tr/FW8=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=lQweLyarpHTamvfZOfn1HkmrLnuFCiWUlnkqbc9DB4Tdl//bia9amYh8AaVKc4+qKGc2Ljjk5Y54bp10otoBSRDR0cbfuHMuLz03hzAMTlOX8FeSMBwEFylwQnTUJDqttO+JWaw1u6Y3LkDNRw7Rf9ttr5aTxhsbK1k0bQXOqRI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kEX9QF8q; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1773414985; c=relaxed/simple;
+	bh=nKIqkng7goYaJhNn9KFhUZs+O67N0oBmdb6gcW64wxA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OeBRK6g5p+wArH/6yPgwe5WpseTmaGPWGndqi7QJSwzK61GW0otii8Pp6ry576C8mFhWJjVtxg5ESZQGTHH6chq6ixfPqe8xoHgkR0HNyKWAuc/OaNdAElJJlzKn/3bAKCxKJuN6nJ4Ral4fYQhov0DNWSsNexCiyMTCE6mdpeg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lHbwIfsz; arc=none smtp.client-ip=209.85.210.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kEX9QF8q"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62D4bdh92302591;
-	Fri, 13 Mar 2026 14:40:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=g8eH4A
-	UCHFQrNsfFrG8n2p5dtYByJuzeHJBKD1ogaUw=; b=kEX9QF8q6YAuHlG7t7Ngi9
-	Uhk0c1CnohsB1IFGObs2aIUUIoAh4bDXzOUHfGtIUZxUGUEQ1nsIgE0PBPs8TI7L
-	zVErKO+XsmHjmsEK7UxzW/T7lSQW4UMwYQbSVm0V8c439RIodf7CKGm0IWjUrkDs
-	4vtIkNRuHhtf5oTmSQhrjDh8EV5OIC+W3aySaxbaF9EEYHm2C+RYgagxIHaMqDfK
-	D2dA0WmjmTGzT846j6OdvOPx/ryMG0oXuSDfN+hIo0dXHTSrRwAfuWzFAHcgWka+
-	aBIWA2WvkF0//loZbeOH6+YMRrtR1cjlxjP54XsjOWpjf6jtd/4cf5kGo3Powl2g
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cuh95yyd8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Mar 2026 14:40:45 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62DALNgT006031;
-	Fri, 13 Mar 2026 14:40:44 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cuha9q101-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Mar 2026 14:40:44 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62DEee1m53608786
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 13 Mar 2026 14:40:40 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3DA132004D;
-	Fri, 13 Mar 2026 14:40:40 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 065532005A;
-	Fri, 13 Mar 2026 14:40:40 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 13 Mar 2026 14:40:39 +0000 (GMT)
-From: Julian Ruess <julianr@linux.ibm.com>
-Date: Fri, 13 Mar 2026 15:40:30 +0100
-Subject: [PATCH v4 3/3] MAINTAINERS: add VFIO ISM PCI DRIVER section
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lHbwIfsz"
+Received: by mail-pf1-f195.google.com with SMTP id d2e1a72fcca58-827270d50d4so2169702b3a.3
+        for <linux-s390@vger.kernel.org>; Fri, 13 Mar 2026 08:16:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773414982; x=1774019782; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Jm35vwsoB80q41RZr87kmohLp5VQSUbi+sVWXCJgW/s=;
+        b=lHbwIfszfujz5hp3r8V6WLion15a/0kNlUzEDPJwA2I0eCs74ajlv3oD6nKMfF52xA
+         gYtoOrXSb5TjVATCVI/2uAgaMiydFntMaTVT51dcyGhysRFMrhOVW3sdbpYrFdw/8fAw
+         m9iIYw/7DKxJuiV+75K/F2MmhqHgE0tPNWbsyt95FSVQE30Ncir49olzMQnaYiPPhwZh
+         vpp2wkprnzCpbYdaSlUFoNKj6TR7EYiV/qSBGkolqssXM7Gx8MbtKkO282teEG22Yhtg
+         Fk5rae1YQLWgR4HVgGijhcw5E4ZMoHTuk7O0464A4dR3gQhkCXui+Sj+E20YOwhOocvc
+         U4ZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1773414982; x=1774019782;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Jm35vwsoB80q41RZr87kmohLp5VQSUbi+sVWXCJgW/s=;
+        b=GH27Uh5EhmCnzgE5+q5Ue9H1xwmI/epLJZUsNz+QQKu87o9wTPXLcBDoKUB3q4ZRPe
+         MUyqfTSFjkRqM3W9BFH1aRT/ITUdxCY2f2Yeu532/Li/6QTALlHxie3L6HXBtX5dhJwa
+         SBbQM07SoERVU5ETezO0gPdFzYgreMKNQhSdHwfvYk09D3Az9JmNht8Wv9fqlAzuWyv2
+         SU/id4LL/S5TbWu+Rk+6gZXztoWN0znR+PKsbXItzMEIymA3uZ814wh34m683ljxwFbR
+         OhWezVkvMD20YIGAGMzlthFW2S3Vhv3rPMAHuLn4KqoUjkXgyszvDkX0HOHwjdLNEgPD
+         u7FQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXCnMV99ybP+4Y2I6dUZFaV7DYXoX8CBuhPl2n0SpgosOGqhnWPd1TYkPC+ZaZf6jLv9Q9uSM+I8dLW@vger.kernel.org
+X-Gm-Message-State: AOJu0YxW2WkPRh1TGNickul3xAxpzgSq8s/1bsDrCcJzUEKH1GEEH07w
+	n/G4nSPIn7XJtguXHpvLAuJ4vi8uDKpJqsSwxJ7WmI1TrMkVmhulHgXs
+X-Gm-Gg: ATEYQzzBjFTb4UMx2rLLKR7I/SAES8NnnMnhb1ZqdrODbWmakuTm9Th4ZCMCBOSKHVn
+	C+vUf5zmCfjXbbfSiq3sArllvVyH6AqOlGedO3xH23B5PstqC7pdEVJ6ur7cw8suxosc6S5smlC
+	asIre3bXpzvoh5OQnPZYwmNgMsAWGNs+KyMHfNg9Yne9hDNQXR0u9KtyeXLNWfyCV/V7SwT6Zvy
+	00aFTMW2ha/KmPtdxqdqbevV2GFrzlhXXfmv62ClsXEqp1Uue9tH0jRf4of4Y1gX83H1KAs8tTx
+	g/wOegy7P4QhtYUm011x9qoft1KpnLVYjdEbHvraU/QMPvqALXGuLoLlywCsv89VYxGDe3B8xXL
+	rR1p4YoPRyI1hYU/CH68bMDZW/ZzwTy61CuYAYfAj/kQCL73RWQ83g2htKoaiV8QDB/Pc37LfW6
+	vAZC2aBk1c25FlvDdD1YlzzSnDuR8wwpL/dBghw0FGE8uZc+owERDz7nhgfzD/wIokc81y
+X-Received: by 2002:a05:6a00:7596:b0:827:2ec9:e1bc with SMTP id d2e1a72fcca58-82a199432a1mr2901988b3a.61.1773414981906;
+        Fri, 13 Mar 2026 08:16:21 -0700 (PDT)
+Received: from henry-machine.taileee5f2.ts.net ([2408:8606:18c1:c673:73c4:970f:3c7:437b])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82a07366123sm6453981b3a.47.2026.03.13.08.16.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Mar 2026 08:16:21 -0700 (PDT)
+From: bsdhenrymartin@gmail.com
+To: netdev@vger.kernel.org,
+	davem@davemloft.net,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	edumazet@google.com
+Cc: alibuda@linux.alibaba.com,
+	dust.li@linux.alibaba.com,
+	sidraya@linux.ibm.com,
+	wenjia@linux.ibm.com,
+	mjambigi@linux.ibm.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	horms@kernel.org,
+	linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Henry Martin <bsdhenrymartin@gmail.com>
+Subject: [PATCH] net/smc: fix NULL pointer dereference in smc_tcp_syn_recv_sock
+Date: Fri, 13 Mar 2026 23:16:09 +0800
+Message-ID: <20260313151609.83026-1-bsdhenrymartin@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260313-vfio_pci_ism-v4-3-4765ae056f71@linux.ibm.com>
-References: <20260313-vfio_pci_ism-v4-0-4765ae056f71@linux.ibm.com>
-In-Reply-To: <20260313-vfio_pci_ism-v4-0-4765ae056f71@linux.ibm.com>
-To: schnelle@linux.ibm.com, wintera@linux.ibm.com, ts@linux.ibm.com,
-        oberpar@linux.ibm.com, gbayer@linux.ibm.com,
-        Alex Williamson <alex@shazbot.org>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Shameer Kolothum <skolothumtho@nvidia.com>,
-        Kevin Tian <kevin.tian@intel.com>
-Cc: mjrosato@linux.ibm.com, alifm@linux.ibm.com, raspl@linux.ibm.com,
-        hca@linux.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
-        julianr@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-pci@vger.kernel.org
-X-Mailer: b4 0.14.2
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzEzMDExNiBTYWx0ZWRfXz4s+sgYSwP/G
- dnhd6WEBJ52Ll+AKtRey+DZ1b6aA1rWs15/bZXzteREoAkjzgm2BhL871JGocQe0qklXrQwBOP3
- t3xCokO7T+2QxBeYzXFtf0Hz66V8xu5SwPsEI4F9vo/+ssChzNUZ4ZH5eEn3UhlhU15Twy9DAOB
- dO/qEVmOAL3If0HhMCzNff+tTMJU3QvyAjJCAAW8kZv+yvFO0hlKroRX4RD2jWe/3tUR3tLfTPM
- 8qhMa++UocpBqMLmJ8TXYZwBoahj0kgkJ66kJQpIiQ65riUcpzzPX79hW7Kxuc7LUg+fUFj6/+D
- QuQUDemwNeH1CjR+bo4yoP9okynkZjvAtSCgm7kZMILQRITG5CTSEfBplzltiedF6xiQY7QknCo
- WVsoGkZe/mEn5Auu7DC8Z0AQIioCRyA2C+cFnseIbtIk3iEonAedszmXOxZPHzhP4ZT5rtsFYMZ
- +DbRDhuT9ArVXQiXj4Q==
-X-Authority-Analysis: v=2.4 cv=FowIPmrq c=1 sm=1 tr=0 ts=69b421ed cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=VwQbUJbxAAAA:8 a=Ikd4Dj_1AAAA:8 a=jBZh5NATpTL4zB9YInYA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: D_crtwemmBm8RXVxefYg9AtCrk9rIT9s
-X-Proofpoint-ORIG-GUID: D_crtwemmBm8RXVxefYg9AtCrk9rIT9s
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-13_02,2026-03-13_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 clxscore=1015 suspectscore=0 bulkscore=0 impostorscore=0
- lowpriorityscore=0 adultscore=0 phishscore=0 malwarescore=0
- priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
- definitions=main-2603130116
+Content-Transfer-Encoding: 8bit
 
-ism_vfio_pci is a new kernel component that allows
-to use the ISM device from userspace. Add myself
-as a maintainer.
+From: Henry Martin <bsdhenrymartin@gmail.com>
 
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Julian Ruess <julianr@linux.ibm.com>
+smc_tcp_syn_recv_sock() gets the SMC listener through
+smc_clcsock_user_data(sk), but then dereferences it unconditionally.
+
+During concurrent teardown, sk_user_data can already be cleared while the
+hooked syn_recv_sock path is still reached, leaving smc as NULL. This
+causes a NULL pointer dereference at atomic_read(&smc->queued_smc_hs).
+
+==================================================================
+BUG: KASAN: null-ptr-deref in instrument_atomic_read include/linux/instrumented.h:82 [inline]
+BUG: KASAN: null-ptr-deref in atomic_read include/linux/atomic/atomic-instrumented.h:32 [inline]
+BUG: KASAN: null-ptr-deref in smc_tcp_syn_recv_sock+0xae/0x485 net/smc/af_smc.c:136
+Read of size 4 at addr 00000000000006c0 by task syz.0.22477/59456
+
+CPU: 0 UID: 0 PID: 59456 Comm: syz.0.22477 Not tainted 7.0.0-rc3 #1 PREEMPT(lazy) 
+Hardware name: QEMU Ubuntu 24.04 PC (i440FX + PIIX, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0xad/0xf9 lib/dump_stack.c:120
+ print_report+0x4c3/0x4d6 mm/kasan/report.c:485
+ kasan_report+0xb3/0xe2 mm/kasan/report.c:595
+ check_region_inline mm/kasan/generic.c:186 [inline]
+ kasan_check_range+0x36/0x169 mm/kasan/generic.c:200
+ __kasan_check_read+0x15/0x1b mm/kasan/shadow.c:31
+ instrument_atomic_read include/linux/instrumented.h:82 [inline]
+ atomic_read include/linux/atomic/atomic-instrumented.h:32 [inline]
+ smc_tcp_syn_recv_sock+0xae/0x485 net/smc/af_smc.c:136
+ tcp_check_req+0x1713/0x1c6a net/ipv4/tcp_minisocks.c:927
+ tcp_v6_rcv+0x11ca/0x22f7 net/ipv6/tcp_ipv6.c:1786
+ ip6_protocol_deliver_rcu+0x380/0xd23 net/ipv6/ip6_input.c:438
+ ip6_input_finish+0x32f/0x343 net/ipv6/ip6_input.c:489
+ NF_HOOK include/linux/netfilter.h:318 [inline]
+ NF_HOOK.constprop.0+0x160/0x1aa include/linux/netfilter.h:312
+ ip6_input+0x83/0x98 net/ipv6/ip6_input.c:500
+ dst_input+0x72/0xb4 include/net/dst.h:480
+ ip6_rcv_finish net/ipv6/ip6_input.c:79 [inline]
+ ip6_rcv_finish+0x3b/0x50 net/ipv6/ip6_input.c:69
+ NF_HOOK include/linux/netfilter.h:318 [inline]
+ NF_HOOK.constprop.0+0x160/0x1aa include/linux/netfilter.h:312
+ ipv6_rcv+0xa5/0xbe net/ipv6/ip6_input.c:311
+ __netif_receive_skb_one_core+0x146/0x1d9 net/core/dev.c:6164
+ __netif_receive_skb+0xee/0x102 net/core/dev.c:6277
+ process_backlog+0xf9/0x37f net/core/dev.c:6628
+ __napi_poll.constprop.0+0xbc/0x361 net/core/dev.c:7692
+ napi_poll net/core/dev.c:7755 [inline]
+ net_rx_action+0x47f/0x974 net/core/dev.c:7912
+ handle_softirqs+0x21c/0x488 kernel/softirq.c:622
+ __do_softirq+0x14/0x1a kernel/softirq.c:656
+ do_softirq kernel/softirq.c:523 [inline]
+ do_softirq+0x50/0x71 kernel/softirq.c:510
+ </IRQ>
+ <TASK>
+ __local_bh_enable_ip+0x46/0x62 kernel/softirq.c:450
+ local_bh_enable+0x1a/0x20 include/linux/bottom_half.h:33
+ rcu_read_unlock_bh include/linux/rcupdate.h:924 [inline]
+ __dev_queue_xmit+0x1c6a/0x1cca net/core/dev.c:4873
+ dev_queue_xmit include/linux/netdevice.h:3384 [inline]
+ neigh_hh_output include/net/neighbour.h:540 [inline]
+ neigh_output include/net/neighbour.h:554 [inline]
+ ip6_finish_output2+0x1189/0x11e2 net/ipv6/ip6_output.c:136
+ __ip6_finish_output+0x3f6/0x430 net/ipv6/ip6_output.c:208
+ ip6_finish_output net/ipv6/ip6_output.c:219 [inline]
+ NF_HOOK_COND include/linux/netfilter.h:307 [inline]
+ ip6_output+0x25f/0x2c9 net/ipv6/ip6_output.c:246
+ dst_output+0x84/0xd6 include/net/dst.h:470
+ NF_HOOK include/linux/netfilter.h:318 [inline]
+ NF_HOOK.constprop.0+0x76/0x94 include/linux/netfilter.h:312
+ ip6_xmit+0xc0b/0xd41 net/ipv6/ip6_output.c:358
+ inet6_csk_xmit+0x326/0x34c net/ipv6/inet6_connection_sock.c:115
+ __tcp_transmit_skb+0x2e73/0x326b net/ipv4/tcp_output.c:1693
+ __tcp_send_ack net/ipv4/tcp_output.c:4503 [inline]
+ __tcp_send_ack+0x3a3/0x3b8 net/ipv4/tcp_output.c:4464
+ tcp_send_ack_reflect_ect+0x122/0x12d net/ipv4/tcp_input.c:4038
+ tcp_rcv_synsent_state_process net/ipv4/tcp_input.c:7021 [inline]
+ tcp_rcv_state_process+0x19e9/0x390d net/ipv4/tcp_input.c:7215
+ tcp_v6_do_rcv+0x7b8/0xdca net/ipv6/tcp_ipv6.c:1616
+ sk_backlog_rcv+0xba/0x104 include/net/sock.h:1185
+ __release_sock+0xea/0x181 net/core/sock.c:3213
+ release_sock+0x62/0x188 net/core/sock.c:3795
+ inet_wait_for_connect net/ipv4/af_inet.c:611 [inline]
+ __inet_stream_connect+0x791/0xae8 net/ipv4/af_inet.c:705
+ inet_stream_connect+0x66/0xa2 net/ipv4/af_inet.c:750
+ kernel_connect+0x102/0x13e net/socket.c:3634
+ smc_connect+0x3b3/0x54c net/smc/af_smc.c:1699
+ __sys_connect_file+0x15e/0x177 net/socket.c:2089
+ __sys_connect+0xf5/0x14a net/socket.c:2108
+ __do_sys_connect net/socket.c:2114 [inline]
+ __se_sys_connect net/socket.c:2111 [inline]
+ __x64_sys_connect+0x8d/0x9a net/socket.c:2111
+ x64_sys_call+0x27d/0x2105 arch/x86/include/generated/asm/syscalls_64.h:43
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0x1b3/0x420 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7fc7601a576d
+Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b0 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007fc761151018 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+RAX: ffffffffffffffda RBX: 00007fc760425fa0 RCX: 00007fc7601a576d
+RDX: 000000000000001c RSI: 0000200000000000 RDI: 0000000000000004
+RBP: 00007fc76024c5fe R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007fc760426038 R14: 00007fc760425fa0 R15: 00007fc76054f900
+ </TASK>
+==================================================================
+
+Fix it by checking smc before accessing queued_smc_hs and dropping the
+request when the SMC context is gone.
+
+This issue was co-discovered by Wu Yangyang.
+
+Fixes: 8270d9c21041 ("net/smc: Limit backlog connections")
+Signed-off-by: Henry Martin <bsdhenrymartin@gmail.com>
 ---
- MAINTAINERS | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/smc/af_smc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index bc3bcc641663343e9e49281a1b409c84d383583f..1ea2aab4a9bf1294b0f6a1a8c4cdb74188813816 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -27703,6 +27703,12 @@ L:	kvm@vger.kernel.org
- S:	Maintained
- F:	drivers/vfio/pci/hisilicon/
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index d0119afcc6a1..bb8966eeb332 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -132,6 +132,8 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
+ 	struct sock *child;
  
-+VFIO ISM PCI DRIVER
-+M:	Julian Ruess <julianr@linux.ibm.com>
-+L:	kvm@vger.kernel.org
-+S:	Maintained
-+F:	drivers/vfio/pci/ism/
-+
- VFIO MEDIATED DEVICE DRIVERS
- M:	Kirti Wankhede <kwankhede@nvidia.com>
- L:	kvm@vger.kernel.org
-
+ 	smc = smc_clcsock_user_data(sk);
++	if (!smc)
++		goto drop;
+ 
+ 	if (READ_ONCE(sk->sk_ack_backlog) + atomic_read(&smc->queued_smc_hs) >
+ 				sk->sk_max_ack_backlog)
 -- 
-2.51.0
-
+2.43.0
