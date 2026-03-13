@@ -1,253 +1,180 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85E0C39FCB0;
-	Fri, 13 Mar 2026 13:23:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91B4E31987D;
+	Fri, 13 Mar 2026 13:32:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773408234; cv=none; b=pQVyZ3xNkpmtRDhmqw/5PAVQ+Nhxybkc2k2wCCyiSL0wanTEEeC8Bai6iJWCXnU04V3T5ekrL0SfVWlwoBX8ozPXx58BZj2zni+E5dOhPA1qB7mGVmUH/teW1OfnGP3l0dPlqWkp3L/B/kh5DHgpv/MRUTqKgrcg1zrTBCDU1no=
+	t=1773408752; cv=none; b=UTYuqERdbXZSBWBW5faMdIMCVcqbbuEiyWuOj3OKbrDixehE9OGpUsAtSffDX1qXl3W51Q+8PL+VMoKO6SREyiXKoWrTXr1MEU8g6FMuzfQLss9dJNfKn1tJU6VrIhwRwKXO2Y6znAwHj5LmzZ1CIGUtexokkIvPt20boUZp3sU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773408234; c=relaxed/simple;
-	bh=g1l/gC9Jg/qSgxGy9+UNzCLMYXMjCgOFN5+wuwKvZmk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YcEJLlbC5EvsadGqgIYvDRNHtMVaqjJt7NwVDZb40Fq6oSvWs7iPKsfnAmxVKoJF6+Xf2hgok+QegHMu2s2xyidTMeccck/ue8Ju1ZUGSGkn0tY61T26MS/a36852EZHoAtTgaioiM1UoZNEOINWviaGW1DZTIWAxLuhuu73+m8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bXkmsPLG; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1773408752; c=relaxed/simple;
+	bh=7ILJNIKoclyo/TnN31WhuPp/9WK1OvpJ43GNXbGEw+w=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=g7Kg20spe20k8FDEOnw6TqlDmyh/AIm/bUitR8at0AoaIvdQJJnL6V32zlFbR5gI7ZFC3McvebYjLvdZbap9zcuolXLIhAe00Nw/WA4euh88zj0ZcU7gAiU8ELnl/2MyKo3OlrzLfyDFWTPJ8cziU/RN5BtUKcwy+0m1dNJGKEU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CvgTnbtD; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bXkmsPLG"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62D6rdoY2258969;
-	Fri, 13 Mar 2026 13:23:48 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CvgTnbtD"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62D5Iv5A2581579;
+	Fri, 13 Mar 2026 13:32:30 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=up1GCE6uagjN/bNWOuDsxlDLiHdxt+aIIylWpGxrv
-	hk=; b=bXkmsPLGQbuFnw2+i9A3tFAyX401RnC+WtQrM5zLwV7p6wRUpJ26wvQS2
-	TW+wRutCDFtz9XVTkb8J0HLSk57QBhcGLb1QphkO6cPlAEGwzjiOSGZof3kD8KyG
-	ngjrO9IGC8Od0IZ+2IRmEXP9PpChLbgRrGeVD1fSJvRMymx3e2IiZyTG/5a578xo
-	h3XGepxsBQrSbGdwHgwA3PGrcRpOjs0FNJnSWzQ1wPn21bcgEj/Q6IZGOgIQyd6x
-	CkQJGbm9Kmoq7B5uUh6VIuPI7vQNzUP6ofY6J5mmVIzwjpzNmYryddXQDbWpfVZv
-	p8+OFON7bxFrKbwPGStNRA1cGs9Mg==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cuh92fxwc-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:sender:subject:to; s=pp1;
+	 bh=knBAe5Mz9iL/gkqQCgS//1NzZK4swdv8s0rEPfyiN3I=; b=CvgTnbtDA3dO
+	BGv423Uq05e5Dekjz36Nb+pRNY9XqoBsCfT+PCAxbkMMOsxWXgzaVqUsNuNJer65
+	xjFj5QkPq2ReWxj8X6LErfKO3V727aI0mXj567dC0UNflbB5RQN/kr3pMtaHtBwZ
+	R7Iexp9+ebqOJaOsau0bJb3uyi6iwABIwfUNYUMV7QVnamrHbubcxQooTNdAVb/+
+	M3dOE/qbjJflobgpApM12BoAnNeJF43nWgbNw37MY3yUXyE3putryiFpfy6vp4VP
+	ujpxHlz1AJC7172BFpS64EmBwRbiTerMI+u/E9LCe6+teT/6jAvz56m5SDrR4fLE
+	B+LOXwxV6g==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cuh9501wp-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Mar 2026 13:23:48 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62DAHkfQ018361;
-	Fri, 13 Mar 2026 13:23:47 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cuha86suj-1
+	Fri, 13 Mar 2026 13:32:30 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62DAOBwr020823;
+	Fri, 13 Mar 2026 13:32:29 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cuha9pt6a-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Mar 2026 13:23:47 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62DDNi1Y61866254
+	Fri, 13 Mar 2026 13:32:28 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62DDWPJU51052880
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 13 Mar 2026 13:23:44 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id ED3762004B;
-	Fri, 13 Mar 2026 13:23:43 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BD38A20043;
-	Fri, 13 Mar 2026 13:23:43 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 13 Mar 2026 13:23:43 +0000 (GMT)
-From: Thomas Richter <tmricht@linux.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org,
-        dapeng1.mi@linux.intel.com
-Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
-        hca@linux.ibm.com, japo@linux.ibm.com,
-        Thomas Richter <tmricht@linux.ibm.com>
-Subject: [PATCH v2] perf record: Add support for arch_sdt_arg_parse_op() on s390
-Date: Fri, 13 Mar 2026 14:23:02 +0100
-Message-ID: <20260313132302.3347751-1-tmricht@linux.ibm.com>
-X-Mailer: git-send-email 2.51.0
+	Fri, 13 Mar 2026 13:32:25 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1C3A620043;
+	Fri, 13 Mar 2026 13:32:25 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0893E20040;
+	Fri, 13 Mar 2026 13:32:25 +0000 (GMT)
+Received: from p1gen4-pw042f0m (unknown [9.52.223.163])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 13 Mar 2026 13:32:24 +0000 (GMT)
+Received: from bblock by p1gen4-pw042f0m with local (Exim 4.99.1)
+	(envelope-from <bblock@linux.ibm.com>)
+	id 1w12cq-0000000EvrQ-382Z;
+	Fri, 13 Mar 2026 14:32:24 +0100
+Date: Fri, 13 Mar 2026 14:32:24 +0100
+From: Benjamin Block <bblock@linux.ibm.com>
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>, Bjorn Helgaas <bhelgaas@google.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        "Ionut Nechita (Wind River)" <ionut.nechita@windriver.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Andreas Krebbel <krebbel@linux.ibm.com>,
+        linux-pci <linux-pci@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Ionut Nechita <ionut_n2001@yahoo.com>,
+        Tobias Schumacher <ts@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Julian Ruess <julianr@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>
+Subject: Re: [PATCH v2 1/3] PCI: Move declaration of pci_rescan_remove_lock
+ into public pci.h
+Message-ID: <20260313133224.GD2161595@p1gen4-pw042f0m>
+References: <cover.1773235561.git.bblock@linux.ibm.com>
+ <e9f46b25e5b47ec1d8fdca33b10346bc6de23445.1773235561.git.bblock@linux.ibm.com>
+ <0536daedd01b7ad6f88719c9dc799a9de8a3bead.camel@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <0536daedd01b7ad6f88719c9dc799a9de8a3bead.camel@linux.ibm.com>
+Sender: Benjamin Block <bblock@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: AZNKSgM3c99kNkDWF3qUQM58poVXKXku
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzEzMDEwMyBTYWx0ZWRfX6XqHK6kfI6FK
- daNZAggF+HLwztnsQj/xgb7JyoEvR6V/Y8Rbv3aGDZq/u53e0yHxL8yKFdL8KVizfJE/75HtESY
- 7ReosTNsC7MnA7Wrh8nEhOHK/Rz5HuBH8lHzTPlp599KBKOyJDS1RgtnL04wEp+OGgFNPvk6e00
- R8+y1dUcyZBwu7sYjQgnpSDEJ+Q4LdMTIjJmQRz8RBUf7Bgfyz2zYXDYojflRFA4XkkQlFTX8w5
- jRmp828b2ehVHxNC9SlMPfW3YSfvkGMACcYLhWvnexrMSRJtHLSxBRBs9/Z0B5ZlJmRsjkgsqpX
- tPn15fRqOnHmuXK1+Wpt+nnGYN7y2S/D7estPHWt07DHknCMT+97pC46awjo6FqwtJ+q1QgYTj+
- 90qpbyrqGY48fmMlbiVyTAJtzQ4POal5WV9AfdtmWCLNNWAMQGWB1IUncSD7AdU7HoWjigoHN1Y
- De5hBcXiw1WWs7/19Xw==
-X-Proofpoint-GUID: AZNKSgM3c99kNkDWF3qUQM58poVXKXku
-X-Authority-Analysis: v=2.4 cv=XNk9iAhE c=1 sm=1 tr=0 ts=69b40fe4 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=QyXUC8HyAAAA:8
- a=9_JGaw_69MBna2B2lCEA:9 a=O8hF6Hzn-FEA:10
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=QKtlhwLL c=1 sm=1 tr=0 ts=69b411ee cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=8nJEP1OIZ-IA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=oaMjjLmQ_YMjUI20znAA:9 a=3ZKOabzyN94A:10 a=wPNLvfGTeEIA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzEzMDEwNyBTYWx0ZWRfX2CLOJmc3poNo
+ CKHAwepoW61+Z/zSE0kCJvr005y2bUCcN2jrIwmNDv+kmm+v+Z+0tauSP0VUuyCjpbQv/8Ru+8d
+ 9StOT8Sl4HsMan9YDm0CABPFRrE+EQsr6h/NvV6AQiO94EuNfoiBn16Mrn155UJT5ILiUzcy/md
+ VbxfQYPeGMBcvV4u6GNYCQipv+h7BggOC9aR+u3czfRRf45IlYBvdraDF4GczmmoMk4hMcHFchF
+ rJsEEv3tbiLVoE8CSw2Jkjco1MpHairmG1gZ6nJrbtfXZi8yjl/ZUEv+2Bz3kmEQVzf5UlpcZyu
+ O1phxoC2BqoJ+dsAmdjmjfWOBq/3Vg7pH9kbcIvn++fgEryKe6NdYYxuzgVi5xAzXAHmsydgW+W
+ vVX7S3G5ujKkS2bhqaV4V9B7vcufD/lzrjT9IIOErR14dlfEWY/EWuGeSYuuQNWc0GrN83wSipb
+ +fln71xrwEs7xgfc24g==
+X-Proofpoint-ORIG-GUID: TAuMCTvdsBcT0d2dx5oAWshO8xhFDVMR
+X-Proofpoint-GUID: Uw__DgqH15Dz6RgQ9SGvWMVEgZcJhcNn
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-03-13_02,2026-03-13_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 spamscore=0 clxscore=1015 lowpriorityscore=0 adultscore=0
- bulkscore=0 phishscore=0 priorityscore=1501 impostorscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603130103
+ malwarescore=0 suspectscore=0 impostorscore=0 clxscore=1015
+ priorityscore=1501 bulkscore=0 adultscore=0 phishscore=0 spamscore=0
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
+ definitions=main-2603130107
 
-commit e5e66adfe45a6 ("perf regs: Remove __weak attributive arch_sdt_arg_parse_op() function")
-removes arch_sdt_arg_parse_op() functions. s390 support is missing.
-The following warning is printed:
+On Thu, Mar 12, 2026 at 08:41:26PM +0100, Niklas Schnelle wrote:
+> On Wed, 2026-03-11 at 14:27 +0100, Benjamin Block wrote:
+> > diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+> > index bccc7a4bdd79..e5b12878e972 100644
+> > --- a/drivers/pci/probe.c
+> > +++ b/drivers/pci/probe.c
+> > @@ -3509,6 +3509,7 @@ EXPORT_SYMBOL_GPL(pci_rescan_bus);
+> >   * routines should always be executed under this mutex.
+> >   */
+> >  DEFINE_MUTEX(pci_rescan_remove_lock);
+> > +EXPORT_SYMBOL_GPL(pci_rescan_remove_lock);
+> 
+> This has a (rather trivial) merge conflict with Ionut's patch which at
+> the same time is a prerequisite for this series. Sadly since that isn't
+> in linux-next yet I'm not sure how to best handle this. Maybe it would
+> make sense to just include it in this series? @Ionut would that be ok
+> for you?
 
-  Unknown ELF machine 22, standard arguments parse will be skipped.
+Well, I don't mind either way tbf. I can also resend a new version, once other
+other patch gets into next/master. That's shouldn't be an issue.
 
-ELF machine 22 is the EM_S390 host. This happens with command
-  # ./perf record -v -- stress-ng -t 1s --matrix 0
-on a z/VM system when the event is not specified.
+> > diff --git a/include/linux/pci.h b/include/linux/pci.h
+> > index 1c270f1d5123..fd7a962a64ef 100644
+> > --- a/include/linux/pci.h
+> > +++ b/include/linux/pci.h
+> > @@ -39,6 +39,7 @@
+> >  #include <linux/io.h>
+> >  #include <linux/resource_ext.h>
+> >  #include <linux/msi_api.h>
+> > +#include <linux/mutex.h>
+> >  #include <uapi/linux/pci.h>
+> >  
+> >  #include <linux/pci_ids.h>
+> > @@ -1533,6 +1534,7 @@ void set_pcie_hotplug_bridge(struct pci_dev *pdev);
+> >  
+> >  /* Functions for PCI Hotplug drivers to use */
+> >  unsigned int pci_rescan_bus(struct pci_bus *bus);
+> > +extern struct mutex pci_rescan_remove_lock;
+> >  void pci_lock_rescan_remove(void);
+> >  void pci_unlock_rescan_remove(void);
+> >  
+> 
+> I do see Keith's argument that proliferation of the rescan/remove lock
+> is to be minimized. That said, since user's of this header can already
+> lock/unlock I don't think this patch makes matters worse. In fact we
+> want this patch to be able to add better lockdep asserts so it will
+> help against misuse.
+> 
+> With that feel free to add:
+> 
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
 
-Add s390 specific __perf_sdt_arg_parse_op_s390() function to support
--architecture calls to arch_sdt_arg_parse_op() for s390.
-The warning disappears.
+Thanks.
 
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Cc: Dapeng Mi <dapeng1.mi@linux.intel.com>
-Tested-by: Jan Polensky <japo@linux.ibm.com>
----
- .../perf/util/perf-regs-arch/perf_regs_s390.c | 89 +++++++++++++++++++
- tools/perf/util/perf_regs.c                   |  3 +
- tools/perf/util/perf_regs.h                   |  1 +
- 3 files changed, 93 insertions(+)
-
-diff --git a/tools/perf/util/perf-regs-arch/perf_regs_s390.c b/tools/perf/util/perf-regs-arch/perf_regs_s390.c
-index c61df24edf0f..c830aeae606e 100644
---- a/tools/perf/util/perf-regs-arch/perf_regs_s390.c
-+++ b/tools/perf/util/perf-regs-arch/perf_regs_s390.c
-@@ -1,7 +1,13 @@
- // SPDX-License-Identifier: GPL-2.0
- 
-+#include <errno.h>
-+#include <regex.h>
- #include "../perf_regs.h"
- #include "../../arch/s390/include/perf_regs.h"
-+#include "debug.h"
-+
-+#include <linux/zalloc.h>
-+#include <linux/kernel.h>
- 
- uint64_t __perf_reg_mask_s390(bool intr __maybe_unused)
- {
-@@ -95,3 +101,86 @@ uint64_t __perf_reg_sp_s390(void)
- {
- 	return PERF_REG_S390_R15;
- }
-+
-+/* %rXX */
-+#define SDT_OP_REGEX1  "^%r([0-9]|1[0-5])$"
-+/* -###(%rXX) */
-+#define SDT_OP_REGEX2  "^(-?[0-9]+)\\(%r([0-9]|1[0-5])\\)$"
-+static regex_t sdt_op_regex1, sdt_op_regex2;
-+
-+static int sdt_init_op_regex(void)
-+{
-+	static int initialized;
-+	int ret = 0;
-+
-+	if (initialized)
-+		return 0;
-+
-+	ret = regcomp(&sdt_op_regex1, SDT_OP_REGEX1, REG_EXTENDED);
-+	if (ret)
-+		goto error;
-+	initialized = 1;
-+
-+	ret = regcomp(&sdt_op_regex2, SDT_OP_REGEX2, REG_EXTENDED);
-+	if (ret)
-+		goto free_regex1;
-+	initialized = 2;
-+
-+	return 0;
-+
-+free_regex1:
-+	regfree(&sdt_op_regex1);
-+error:
-+	pr_debug4("Regex compilation error, initialized %d\n", initialized);
-+	initialized = 0;
-+	return ret;
-+}
-+
-+/*
-+ * Parse OP and convert it into uprobe format, which is, +/-NUM(%gprREG).
-+ * Possible variants of OP are:
-+ *	Format		Example
-+ *	-------------------------
-+ *	NUM(%rREG)	48(%r1)
-+ *	-NUM(%rREG)	-48(%r1)
-+ *	%rREG		%r1
-+ */
-+int __perf_sdt_arg_parse_op_s390(char *old_op, char **new_op)
-+{
-+	int ret, new_len;
-+	regmatch_t rm[6];
-+	unsigned long i;
-+
-+	*new_op = NULL;
-+	ret = sdt_init_op_regex();
-+	if (ret < 0)
-+		return ret;
-+
-+	if (!regexec(&sdt_op_regex1, old_op, 3, rm, 0)) {
-+		/* Extract %rX */
-+		new_len = 2;    /* % NULL */
-+		new_len += (int)(rm[1].rm_eo - rm[1].rm_so);
-+		*new_op = zalloc(new_len);
-+		if (!*new_op)
-+			return -ENOMEM;
-+
-+		scnprintf(*new_op, new_len, "%%%.*s",
-+			  (int)(rm[1].rm_eo - rm[1].rm_so), old_op + rm[1].rm_so);
-+	} else if (!regexec(&sdt_op_regex2, old_op, ARRAY_SIZE(rm), rm, 0)) {
-+		/* Extract #(%rX) */
-+		new_len = 4;    /* (%)NULL */
-+		for (i = 1; i < ARRAY_SIZE(rm) && rm[i].rm_so != -1; ++i)
-+			new_len += (int)(rm[i].rm_eo - rm[i].rm_so);
-+		*new_op = zalloc(new_len);
-+		if (!*new_op)
-+			return -ENOMEM;
-+
-+		scnprintf(*new_op, new_len, "%.*s(%%%.*s)",
-+			  (int)(rm[1].rm_eo - rm[1].rm_so), old_op + rm[1].rm_so,
-+			  (int)(rm[2].rm_eo - rm[2].rm_so), old_op + rm[2].rm_so);
-+	} else {
-+		pr_debug4("Skipping unsupported SDT argument: %s\n", old_op);
-+		return SDT_ARG_SKIP;
-+	}
-+
-+	return SDT_ARG_VALID;
-diff --git a/tools/perf/util/perf_regs.c b/tools/perf/util/perf_regs.c
-index 5b8f34beb24e..f52b0e1f7fc7 100644
---- a/tools/perf/util/perf_regs.c
-+++ b/tools/perf/util/perf_regs.c
-@@ -23,6 +23,9 @@ int perf_sdt_arg_parse_op(uint16_t e_machine, char *old_op, char **new_op)
- 	case EM_X86_64:
- 		ret = __perf_sdt_arg_parse_op_x86(old_op, new_op);
- 		break;
-+	case EM_S390:
-+		ret = __perf_sdt_arg_parse_op_s390(old_op, new_op);
-+		break;
- 	default:
- 		pr_debug("Unknown ELF machine %d, standard arguments parse will be skipped.\n",
- 			 e_machine);
-diff --git a/tools/perf/util/perf_regs.h b/tools/perf/util/perf_regs.h
-index 7c04700bf837..573f0d1dfe04 100644
---- a/tools/perf/util/perf_regs.h
-+++ b/tools/perf/util/perf_regs.h
-@@ -62,6 +62,7 @@ uint64_t __perf_reg_mask_s390(bool intr);
- const char *__perf_reg_name_s390(int id);
- uint64_t __perf_reg_ip_s390(void);
- uint64_t __perf_reg_sp_s390(void);
-+int __perf_sdt_arg_parse_op_s390(char *old_op, char **new_op);
- 
- int __perf_sdt_arg_parse_op_x86(char *old_op, char **new_op);
- uint64_t __perf_reg_mask_x86(bool intr);
 -- 
-2.53.0
-
+Best Regards, Benjamin Block        /        Linux on IBM Z Kernel Development
+IBM Deutschland Research & Development GmbH    /   https://www.ibm.com/privacy
+Vors. Aufs.-R.: Wolfgang Wendt         /        Geschäftsführung: David Faller
+Sitz der Ges.: Ehningen     /     Registergericht: AmtsG Stuttgart, HRB 243294
