@@ -1,313 +1,271 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A263137CD4C
-	for <linux-s390@vger.kernel.org>; Fri, 13 Mar 2026 20:50:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.177
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773435036; cv=pass; b=XHO4lCQ2Ycen8YIzWVEn9sSSHuDTWXKT6xxulGeUIyLevh+4mvqU/YtXrHRj7YoutrDzlRh5ZBNdMSNVM0+VuBVvlLzQW8vxE0W4fiTYXTVrg7/SdS8HTrVcfCQiNm0q1pa0lvwNjhzVqbFP/kcLpT3O2xaqKT/gbWbuMIjZVwM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773435036; c=relaxed/simple;
-	bh=CRTB0rvLPUWbgmQPVFGsG9fKu133Dx4BOGCkPJ1QcLg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=NpfwoN/PC4lGSDEx6e8sTor/CdONfDSOmr/MUvlA4ujpmmrBowJRwAvUD73CD91OJpZw1UjKQMFkFPilktqTK1MNbqPvH2CxqeURbBJExxwHThNmhvg+kobWHAWjvDeTtgWV/ei3Lg48CRQo8w2JTGZBGfD15z0i5KcPGYS5r9k=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Sqdxx6Wc; arc=pass smtp.client-ip=209.85.214.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35C7023D281;
+	Fri, 13 Mar 2026 21:01:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773435715; cv=none; b=rc+yTaVsjS9ZtY3LjLe3tDPy5kZgEYbcnwzIlyqHTwDyrR4035j683UhdloDOPl+bKjdsyw5t++GfRSZbibhtTPkcoNOZpYRQjKYjqtCyjVJK45tJStveSGAEblI8y5sM7KqeeuszVpbUSw436pvryqSzQunwN/bz3wj3hUTnRo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773435715; c=relaxed/simple;
+	bh=6wByqVucn1HppWOOQjPplLzjC9lUHR9GrWWXOkgckGM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=F4QEyhr9XCyA3Zko6R0xC0fejb24xczveN7rH9B4wkCPtfYLGFXb4du6RsmrPRuTApeaEIO4r6NFVZucmUcAUuE85aDKM0X1zfrSQiMljNNXoQB3Al353I6TYVUrMvBINYc9AwUXjp4W1IqwEQwOAIuBlE2kkrUhdnzfeGhaNa4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pvsGM6ur; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Sqdxx6Wc"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2aeab6ff148so7265ad.1
-        for <linux-s390@vger.kernel.org>; Fri, 13 Mar 2026 13:50:33 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773435033; cv=none;
-        d=google.com; s=arc-20240605;
-        b=LM3lJz5det6W271wvu8fI8mKYFNIf1PIH9aNnN8fKrLgpoBM8D73S4W49o0qtVLA3B
-         58SeFRPMq4n55vQPugLBNNpaRsTDOUrJxublO/i3IyHWxz/58ErjvBgy0JGK3rmn5dU5
-         t6aECHTsYxcqIva75W5oBut83C2jLzTNz/RSeIu0YWUu7lVyIzLpPXhRPuPY7dUfzafI
-         IeMzJGFavLYHcHzGm8kfKa+s463Vuof7vzAe5z91ndX29qSKIfl/2dAAhwy26EygaG9e
-         Qk42AFV9m/zqE+Zqae3dkg+jvuY9qHQpK04n1zYKvQKhoB1iFO8WtFFZNGOyZlaTFLxS
-         BeIw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=uiD4tYD5kTcoUckTF0mt3ib4Qawq7lU5JzHwtKX4SDI=;
-        fh=oMeJWAJZxOTFwvYqOVGwgb7/C2lj3ki/+T4AWrtCZZI=;
-        b=bZH4+uwceQSCXL0fu4NerE6vN/WFMjE63ygrW2cC3+jXbuOOtoFYhDGPqRSBKoAAVV
-         jghg76L0h8RHrRPH58fLKvYaQzYpHETuSEwhXgihM3RqfGVnUddzqPXUUPoPKK7Ga4XR
-         nWHwfFaM/zTt9qqsIngOubS7daGlUopneypCsqnvVEx/WbUwwIhrz3LXqJrfADEsWyih
-         H4UFx4VrK3I+wu3V6Q7NJVuSIRIo12pwAPY8GRLFpIjIbvz/eawxNqL89hD7nqSgONEe
-         PuAnd8O7MCmj26JzIuh6debiWfvbJPlPAUbQxDzRp1f7VuxMku8BzpJVtgrvaFZ5Kd+d
-         RBFg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1773435033; x=1774039833; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=uiD4tYD5kTcoUckTF0mt3ib4Qawq7lU5JzHwtKX4SDI=;
-        b=Sqdxx6WcWmRw4mAloAkvBLmLLX6A69lenTWcZ8W25wrFWpl1TMCdnR4yAycOg9QChV
-         IAClo82m5a67y06tUME11dbEkLQjlA/B1ZlzURkHiQ1CbPrd9RN561svuZNxrXyURuX8
-         WIbNDmsoyZxsLfCsng346rsDQCVMVyosjazJQyEP3ZFLMArRq/aYA43YbRlRVccDJRJI
-         WBmYK3HqJFA4KdzgHDuegrjm86Te6pFHRRIxemqZCAZQDN2TbOaJRfrIY1W15FscJg1p
-         fX8rG3cDjhf5WVtyycrPng1kopTE5bcI3g/B3o9CQ4u0AzHATbyQ8+BVZrnf19365F1N
-         e2Qw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773435033; x=1774039833;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=uiD4tYD5kTcoUckTF0mt3ib4Qawq7lU5JzHwtKX4SDI=;
-        b=ET+n2z9PDqgTNn+LvMtnyayclRwUwIyEZx/DJ7vnnoX7zCzBL+gxKi4gnkP+hVc0ZF
-         VwGQoQselpI514i9BKUpuyPRlc9lphuTlLrq8etkJchZuMtG92KLRvs8+WH5zL0n0dgu
-         dG9M9qRKirFIh/ao/kliCbxyFK0yzSiNHagxfxdnEGR7QMNTwFFhNombEG2iBVVK6yEu
-         UYC+b19C2J8btdDbOCD2LMD3X61H2GlUf2ya69ZT3ogAwNaO066rlNIMHXM9HnIeKvMH
-         TI1rKUKmmFHafKHvYwqA+JnG9z7b0Q7tmuU8nRWOqyoFiznm8pHEVZr3xZjg+bny3fiH
-         zwrQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXgHXzpaLCuOWZ5IOCY0uyJ6A0+h7HYrzR8GYxUdLKpVMH/P1fbHcf/arwfw0IoMjlAuIBb6TnM9xGq@vger.kernel.org
-X-Gm-Message-State: AOJu0YyjbHFpOOsCU0MIvVnQjD/sY5vmsABksxyUfMmjRNFKIJrCbMnt
-	lCmZVLxhJLgEcUP+rvoNVUsGy4HaH/w42OPdWGJK/gcr0j7XPODihv2zltRXX55qCqM0E+rn0yx
-	9QlOLhaQjzhiezmoPctbQBnWjrQwOpIMcypSOkqW0
-X-Gm-Gg: ATEYQzyRxrmnrgxr+DlC8UFf6imeK0/kRzOuBgBXAkTa6tmKxUEcM8u6rEwMY5PYjot
-	HqFhoqeX5dQ9ZTxkQACEjdSQz/sPwygf/BJd8r6syxbIUwiMDThuXBxRnMBZCZoq/AP0w3PiODp
-	zFxF/TrPAkII4kpbqWZSqT6APWNHdIe7DjbWl2QhkyrJ9RQdwQd3fs6MJpZ0NqVeIXUBBnELHf7
-	bReEQJSkAPqXlgxX2XEXxHfsJuYFtI2VFNmQkuopgM9AMBbDAd/XC8exnGW2tcvkMZ+uIj7mOhn
-	d9WvswZbBI1jsMRGq29ABcpSnHVuncZVbkVu
-X-Received: by 2002:a17:903:44cb:b0:2ae:c358:bb9f with SMTP id
- d9443c01a7336-2b0420883bamr619905ad.10.1773435032491; Fri, 13 Mar 2026
- 13:50:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pvsGM6ur"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92944C19421;
+	Fri, 13 Mar 2026 21:01:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773435715;
+	bh=6wByqVucn1HppWOOQjPplLzjC9lUHR9GrWWXOkgckGM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=pvsGM6urlplIpyHI2gd1kSO0pBDHJVbqtH8BG+11C3TuH57UBTWy8drvMGnv1XkBd
+	 42/Equ3SvPBtJfrT9gmbQ//3ayyPH3GmY+MMPwU0VIp3jqG4ZOtppm8sLebXt3bpoO
+	 sOthEJ3p3mgEV9ojWhNgjxIxUtshhOAOBau2hhNsTRdYq+UsEKUhT03n+P0Ai91zt4
+	 as2Ac1f+dTpvyxKKuvxiFPaT48W4BdpjmuGYinhUhIKECOCyXnz2ad/SwvaPUwfzx/
+	 Z9gIUMiDxayDGrunsyLvGkGHdrgu5977xwjSHsDBAwfZ0rme4Dvbjmz/TnfrfjQAKH
+	 s0fXWfi1rB7zg==
+Date: Fri, 13 Mar 2026 14:01:53 -0700
+From: Namhyung Kim <namhyung@kernel.org>
+To: Thomas Richter <tmricht@linux.ibm.com>
+Cc: Ian Rogers <irogers@google.com>, acme@kernel.org,
+	agordeev@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com,
+	japo@linux.ibm.com, linux-kernel@vger.kernel.org,
+	linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org,
+	sumanthk@linux.ibm.com
+Subject: Re: [PATCH v2 2/2] perf evsel: Don't configure framepointer
+ callchains on s390
+Message-ID: <abR7QU_bDGref9II@google.com>
+References: <20260312031928.1494864-1-irogers@google.com>
+ <20260312061628.1593105-1-irogers@google.com>
+ <20260312061628.1593105-3-irogers@google.com>
+ <05b884dc-d0bf-4767-8413-40ddb7c0f8fb@linux.ibm.com>
+ <CAP-5=fXoAZ2fheQZ-kZe+JKoV=SbH=vS4mpFcVtS7OKsL5PTXQ@mail.gmail.com>
+ <CAP-5=fWeicz7iFMM8vw32OCQXkBcCeWS4qA7k-iNJ6r7izpBbw@mail.gmail.com>
+ <0f693db5-89d4-4346-be6f-d740b4493ad9@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260313132302.3347751-1-tmricht@linux.ibm.com>
-In-Reply-To: <20260313132302.3347751-1-tmricht@linux.ibm.com>
-From: Ian Rogers <irogers@google.com>
-Date: Fri, 13 Mar 2026 13:50:19 -0700
-X-Gm-Features: AaiRm52m-wjV1pXoGxPYImJlolftypsHZ9mGQCdsloyTkZ7E8iNB4Fb0ptX2Vis
-Message-ID: <CAP-5=fU1Spg+rxTkjqECZZbRjkLASPu14Q=ZyONFWHe4rwy9+g@mail.gmail.com>
-Subject: Re: [PATCH v2] perf record: Add support for arch_sdt_arg_parse_op()
- on s390
-To: Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org, 
-	dapeng1.mi@linux.intel.com, agordeev@linux.ibm.com, gor@linux.ibm.com, 
-	sumanthk@linux.ibm.com, hca@linux.ibm.com, japo@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <0f693db5-89d4-4346-be6f-d740b4493ad9@linux.ibm.com>
 
-On Fri, Mar 13, 2026 at 6:33=E2=80=AFAM Thomas Richter <tmricht@linux.ibm.c=
-om> wrote:
->
-> commit e5e66adfe45a6 ("perf regs: Remove __weak attributive arch_sdt_arg_=
-parse_op() function")
-> removes arch_sdt_arg_parse_op() functions. s390 support is missing.
-> The following warning is printed:
->
->   Unknown ELF machine 22, standard arguments parse will be skipped.
->
-> ELF machine 22 is the EM_S390 host. This happens with command
->   # ./perf record -v -- stress-ng -t 1s --matrix 0
-> on a z/VM system when the event is not specified.
->
-> Add s390 specific __perf_sdt_arg_parse_op_s390() function to support
-> -architecture calls to arch_sdt_arg_parse_op() for s390.
-> The warning disappears.
->
-> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> Cc: Dapeng Mi <dapeng1.mi@linux.intel.com>
-> Tested-by: Jan Polensky <japo@linux.ibm.com>
-> ---
->  .../perf/util/perf-regs-arch/perf_regs_s390.c | 89 +++++++++++++++++++
->  tools/perf/util/perf_regs.c                   |  3 +
->  tools/perf/util/perf_regs.h                   |  1 +
->  3 files changed, 93 insertions(+)
->
-> diff --git a/tools/perf/util/perf-regs-arch/perf_regs_s390.c b/tools/perf=
-/util/perf-regs-arch/perf_regs_s390.c
-> index c61df24edf0f..c830aeae606e 100644
-> --- a/tools/perf/util/perf-regs-arch/perf_regs_s390.c
-> +++ b/tools/perf/util/perf-regs-arch/perf_regs_s390.c
-> @@ -1,7 +1,13 @@
->  // SPDX-License-Identifier: GPL-2.0
->
-> +#include <errno.h>
-> +#include <regex.h>
->  #include "../perf_regs.h"
->  #include "../../arch/s390/include/perf_regs.h"
-> +#include "debug.h"
-> +
-> +#include <linux/zalloc.h>
-> +#include <linux/kernel.h>
->
->  uint64_t __perf_reg_mask_s390(bool intr __maybe_unused)
->  {
-> @@ -95,3 +101,86 @@ uint64_t __perf_reg_sp_s390(void)
->  {
->         return PERF_REG_S390_R15;
->  }
-> +
-> +/* %rXX */
-> +#define SDT_OP_REGEX1  "^%r([0-9]|1[0-5])$"
-> +/* -###(%rXX) */
-> +#define SDT_OP_REGEX2  "^(-?[0-9]+)\\(%r([0-9]|1[0-5])\\)$"
-> +static regex_t sdt_op_regex1, sdt_op_regex2;
-> +
-> +static int sdt_init_op_regex(void)
-> +{
-> +       static int initialized;
-> +       int ret =3D 0;
-> +
-> +       if (initialized)
-> +               return 0;
-> +
-> +       ret =3D regcomp(&sdt_op_regex1, SDT_OP_REGEX1, REG_EXTENDED);
-> +       if (ret)
-> +               goto error;
-> +       initialized =3D 1;
-> +
-> +       ret =3D regcomp(&sdt_op_regex2, SDT_OP_REGEX2, REG_EXTENDED);
-> +       if (ret)
-> +               goto free_regex1;
-> +       initialized =3D 2;
-> +
-> +       return 0;
-> +
-> +free_regex1:
-> +       regfree(&sdt_op_regex1);
-> +error:
-> +       pr_debug4("Regex compilation error, initialized %d\n", initialize=
-d);
-> +       initialized =3D 0;
-> +       return ret;
-> +}
-> +
-> +/*
-> + * Parse OP and convert it into uprobe format, which is, +/-NUM(%gprREG)=
-.
-> + * Possible variants of OP are:
-> + *     Format          Example
-> + *     -------------------------
-> + *     NUM(%rREG)      48(%r1)
-> + *     -NUM(%rREG)     -48(%r1)
-> + *     %rREG           %r1
-> + */
-> +int __perf_sdt_arg_parse_op_s390(char *old_op, char **new_op)
-> +{
-> +       int ret, new_len;
-> +       regmatch_t rm[6];
-> +       unsigned long i;
-> +
-> +       *new_op =3D NULL;
-> +       ret =3D sdt_init_op_regex();
-> +       if (ret < 0)
-> +               return ret;
+On Fri, Mar 13, 2026 at 10:46:49AM +0100, Thomas Richter wrote:
+> On 3/12/26 17:46, Ian Rogers wrote:
+> > On Thu, Mar 12, 2026 at 8:54 AM Ian Rogers <irogers@google.com> wrote:
+> >>
+> >> On Thu, Mar 12, 2026 at 5:45 AM Thomas Richter <tmricht@linux.ibm.com> wrote:
+> >>>
+> >>> On 3/12/26 07:16, Ian Rogers wrote:
+> >>>> Frame pointer callchains are not supported on s390. Ignore the option
+> >>>> and print a warning.
+> >>>>
+> >>>> Signed-off-by: Ian Rogers <irogers@google.com>
+> >>>> ---
+> >>>> v2: Only disable user callchains as AI is telling me native "kernel"
+> >>>>     callchains are supported on s390.
+> >>>> ---
+> >>>>  tools/perf/util/evsel.c | 6 ++++++
+> >>>>  1 file changed, 6 insertions(+)
+> >>>>
+> >>>> diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
+> >>>> index bd14d9bbc91f..fa21b48cba86 100644
+> >>>> --- a/tools/perf/util/evsel.c
+> >>>> +++ b/tools/perf/util/evsel.c
+> >>>> @@ -1076,6 +1076,12 @@ static void __evsel__config_callchain(struct evsel *evsel, struct record_opts *o
+> >>>>               attr->exclude_callchain_user = 1;
+> >>>>       }
+> >>>>
+> >>>> +     if (EM_HOST == EM_S390 && (evsel->core.attr.sample_type & PERF_SAMPLE_CALLCHAIN) &&
+> >>>> +         !evsel->core.attr.exclude_callchain_user) {
+> >>>> +             pr_warning("Excluding user callchains that are not supported on s390. Try '--call-graph dwarf'\n");
+> >>>> +             evsel->core.attr.exclude_callchain_user = 1;
+> >>>> +     }
+> >>>> +
+> >>>>       if (param->defer && !attr->exclude_callchain_user)
+> >>>>               attr->defer_callchain = 1;
+> >>>>  }
+> >>>
+> >>> Ian, thanks very much.
+> >>> Your patch set helps a lot. However there is a small nit (which is mandatory). Please add these lines
+> >>>
+> >>>   evsel->core.attr.sample_type &= ~PERF_SAMPLE_CALLCHAIN;
+> >>>   evsel->core.attr.sample_type &= ~PERF_SAMPLE_REGS_USER;
+> >>>   evsel->core.attr.sample_type &= ~PERF_SAMPLE_STACK_USER;
+> >>
+> >> So these lines are dropping callchain from the sample_type which means
+> >> the kernel stack won't be sampled. AI was telling me this worked, but
+> >> I'm guess it was wrong. I think rather than this it is just cleaner
+> >> never to set the bits in the perf_event_attr, more like what v1 of the
+> >> patch did:
+> >> https://lore.kernel.org/lkml/20260312031928.1494864-3-irogers@google.com/
+> >>
+> 
+> Let me try to answer your and Namhyung questions in one reply.
+> s390 has many PMUs, there is one for counting (cpum_cf) and one for sampling (cpum_sf),
+> which are totally different hardware components.
+> Hardware sampling 
+> 1. writes into a large buffer, data is timestamp and IP (instruction pointer), no registers, no PID.
+> 2. when buffer gets full an interrupt occurs and the interrupt handler scans the
+>    hardware samples and converts valid samples to perf format and saves them in perf ring buffer.
+> This means we can not reconstruct register values for an individual sample. Current Pid is saved by
+> other means somewhere and added to perf data during perf ring buffer write.
 
-Some AI feedback:
+Thanks for the explanation!
 
-POSIX regcomp() returns 0 on success and a positive error code on failure
-(like REG_ESPACE). Since sdt_init_op_regex() returns this positive code,
-will ret < 0 evaluate to false on compilation failure?
+Sounds like ARM SPE.  Off-topic but I just wonder if it's possible to
+adjust the buffer size so that it can fire for each sample.
 
-If so, this would allow execution to proceed to regexec() using uninitializ=
-ed
-or freed regex structs, which could crash the tool.
+> 
+> For s390 when we need callchains, we always use event cpu-clock, never hardware event cycles.
 
-> +
-> +       if (!regexec(&sdt_op_regex1, old_op, 3, rm, 0)) {
-> +               /* Extract %rX */
-> +               new_len =3D 2;    /* % NULL */
-> +               new_len +=3D (int)(rm[1].rm_eo - rm[1].rm_so);
-> +               *new_op =3D zalloc(new_len);
-> +               if (!*new_op)
-> +                       return -ENOMEM;
-> +
-> +               scnprintf(*new_op, new_len, "%%%.*s",
-> +                         (int)(rm[1].rm_eo - rm[1].rm_so), old_op + rm[1=
-].rm_so);
+I see.
 
-Does this formatting correctly preserve the 'r' prefix for s390 registers?
-The regex SDT_OP_REGEX1 is defined as ^%r([0-9]|1[0-5])$, meaning rm[1]
-captures the numeric digits, not the 'r'. So an input like %r15 will be
-formatted as %15.
+> 
+> 
+> >>> to the new if(EM_HOST == ...) above.
+> >>> The s390 CPU Measurement sampling device driver does not check on the attr.core.exclude_callchain_user
+> >>> member, but on the sample_type bit mask. It returns -EOPNOTSUPP when this bit PERF_SAMPLE_CALLCHAIN
+> >>> is set. This solves the invocation with command line flag -g as in
+> >>>  # ./perf record -v -e cycles  -g  -- perf test -w noploop
+> >>>  ...
+> >>>  perf record: Captured and wrote 0.183 MB perf.data ]
+> >>
+> >> Right because the callchain was removed from all the samples. We can't
+> >> fix old kernels (other than by using fix tags); is there a possibility
+> >> of adding the exclude_callchain_user to the s390 perf driver for the
+> >> sake of kernel callchains? It seems better than providing no
+> >> callchain.
+> >>
+> >>> Also I discovered that the fallback when using --call-graph dwarf command line flag still fails:
+> >>>  # ./perf record -v -e cycles  --call-graph dwarf -- perf test -w noploop
+> >>>  ...
+> >>>  Warning:
+> >>>  Trying to fall back to excluding guest samples
+> >>>  Error:
+> >>>  Failure to open event 'cycles:H' on PMU 'cpum_cf' which will be removed.
+> >>>  cycles:H: PMU Hardware doesn't support sampling overflow-interrupts. Try 'perf stat'
+> >>>  Error:
+> >>>  Failure to open any events for recording.
+> >>>
+> >>> The reason is in __evsel__config_callchain() which calls evsel__set_sample_bit(evsel, CALLCHAIN)
+> >>> and sets the PERF_SAMPLE_CALLCHAIN bit in evsel->core.attr.sample_type. It also sets the
+> >>> member attr->exclude_callchain_user = 1 and sets bits REGS_USER and _STACK_USER.
+> >>> All three bits are not supported by s390.
+> >>
+> >> I'm confused by this and your previous testing that showed the
+> >> `--call-graph dwarf` worked. You need the sampled registers for dwarf
+> >> unwinding to provide initial register values for the unwinder.
+> >>
+> 
+> Right, as explained shortly above, we have to use '-e cpu-clock --call-graph dwarf'
+> to get valid call chain data.
+> 
+> >>> I have modified your 2nd patch and appended it.
+> >>>
+> >>> I find all these bits in sample_type and the attr.exclude_XXX stuff very confusing. If there
+> >>> is a more consistant way of checking these feature, please let me know.
+> > 
+> > I forgot to mention, yeah the exclude thing is maddening. It takes
+> > about 100 lines to convert the command line modifiers to those in the
+> > perf_event_attr, there's a priority to them, and so on:
+> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/tools/perf/util/parse-events.c#n1759
+> > Fwiw, I was thinking for patch 1 of holding onto the parsed modifiers
+> > so that we could reset the excludes based on them when switching to
+> > the software event.
+> > 
+> >> Ok, let me check it out.
+> > 
+> > So looking at the cpum_cf driver it fails events for having sampling enabled:
+> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/s390/kernel/perf_cpum_cf.c#n859
+> > ```
+> > if (is_sampling_event(event)) /* No sampling support */
+> > ```
+> > and the cpum_sf driver fails for any kind of callchain:
+> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/s390/kernel/perf_cpum_sf.c#n839
+> > ```
+> > static bool is_callchain_event(struct perf_event *event)
+> > {
+> > u64 sample_type = event->attr.sample_type;
+> > 
+> > return sample_type & (PERF_SAMPLE_CALLCHAIN | PERF_SAMPLE_REGS_USER |
+> >      PERF_SAMPLE_REGS_INTR | PERF_SAMPLE_STACK_USER);
+> > }
+> > 
+> > static int cpumsf_pmu_event_init(struct perf_event *event)
+> > {
+> > int err;
+> > 
+> > /* No support for taken branch sampling */
+> > /* No support for callchain, stacks and registers */
+> > if (has_branch_stack(event) || is_callchain_event(event))
+> > return -EOPNOTSUPP;
+> > ```
+> > Perhaps there is an oversight in the cpum_cf driver wrt branch stacks
+> > (LBR on x86). The PERF_SAMPLE_CALLCHAIN bit is set for perf call-graph
+> > options currently:
+> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/tools/perf/util/evsel.c#n1024
+> > 
+> > I think cpum_sf is the PMU we care about for the default cycles event?
+> 
+> Right this PMU does sampling on s390
+> 
+> > Since callchains of any flavor don't work with cpum_sf we can do a few
+> > things:
+> > 1) Disable the callchain and allow hardware sampling to continue,
+> > 2) Switch to a software event like cpu-clock,
+> > 3) Fail for the callchain option with this PMU, which is currently
+> > happening anyway.
+> 
+> @Namhyung:
+> It fails to open event cycles for PMU cpum_sf.
 
-However, the s390 kernel's regs_query_register_offset() strictly requires
-the register name to start with 'r', otherwise it returns -EINVAL. Will
-the kernel's parse_probe_arg() reject the uprobe definition without the
-'r' prefix?
+Ok, I assume it'd reject events with PERF_SAMPLE_CALLCHAIN.
 
-> +       } else if (!regexec(&sdt_op_regex2, old_op, ARRAY_SIZE(rm), rm, 0=
-)) {
-> +               /* Extract #(%rX) */
-> +               new_len =3D 4;    /* (%)NULL */
-> +               for (i =3D 1; i < ARRAY_SIZE(rm) && rm[i].rm_so !=3D -1; =
-++i)
-> +                       new_len +=3D (int)(rm[i].rm_eo - rm[i].rm_so);
-> +               *new_op =3D zalloc(new_len);
-> +               if (!*new_op)
-> +                       return -ENOMEM;
-> +
-> +               scnprintf(*new_op, new_len, "%.*s(%%%.*s)",
-> +                         (int)(rm[1].rm_eo - rm[1].rm_so), old_op + rm[1=
-].rm_so,
-> +                         (int)(rm[2].rm_eo - rm[2].rm_so), old_op + rm[2=
-].rm_so);
+> 
+> > 
+> > I dislike option 3 because it requires special s390 logic for many
+> > tests, and we lose testing coverage of hardware events. Option 1 is a
+> > smaller patch, an early return in __evsel__config_callchain if on
+> > s390. Option 2 feels most like what the user would want given they
+> > asked for a callchain. We could change evlist__new_default to take a
+> > "with callchain" boolean and on s390 that could switch the event to a
+> > software one. Only two non-test callers use evlist__new__default
+> > (record and top), so it isn't a huge change.
+> > 
+> > Wdyt Thomas, option 1 or 2?
+> > 
+> > Thanks,
+> > Ian
+> 
+> I actually prefer option 2. when call chains are requested by the user
+> switch to cpu-clock event.
 
-Similar to the above, rm[2] isolates the digits without the 'r' prefix,
-creating an argument like 48(%15).
+I think the current code will do the job already.  But we missed to
+remove some exclude_* bits before that.  And moving callchain setting
+from FP to DWARF is a separate issue.
 
-Additionally, does this string translation handle positive memory
-displacements correctly?
+> 
+> Thanks a lot for your patience.
 
-The kernel's parse_probe_arg() in kernel/trace/trace_probe.c parses memory
-dereferences by matching the case '+': or case '-': prefix switch cases.
-If an argument starts with a digit rather than a + or -, it falls through
-to the default case and is rejected with -EINVAL.
-
-Should positive memory offsets be translated to explicitly include the +
-prefix (e.g., +48(%r15)) so they are accepted by the uprobe parser?
+The same goes to you. :)
 
 Thanks,
-Ian
+Namhyung
 
-
-> +       } else {
-> +               pr_debug4("Skipping unsupported SDT argument: %s\n", old_=
-op);
-> +               return SDT_ARG_SKIP;
-> +       }
-> +
-> +       return SDT_ARG_VALID;
-> diff --git a/tools/perf/util/perf_regs.c b/tools/perf/util/perf_regs.c
-> index 5b8f34beb24e..f52b0e1f7fc7 100644
-> --- a/tools/perf/util/perf_regs.c
-> +++ b/tools/perf/util/perf_regs.c
-> @@ -23,6 +23,9 @@ int perf_sdt_arg_parse_op(uint16_t e_machine, char *old=
-_op, char **new_op)
->         case EM_X86_64:
->                 ret =3D __perf_sdt_arg_parse_op_x86(old_op, new_op);
->                 break;
-> +       case EM_S390:
-> +               ret =3D __perf_sdt_arg_parse_op_s390(old_op, new_op);
-> +               break;
->         default:
->                 pr_debug("Unknown ELF machine %d, standard arguments pars=
-e will be skipped.\n",
->                          e_machine);
-> diff --git a/tools/perf/util/perf_regs.h b/tools/perf/util/perf_regs.h
-> index 7c04700bf837..573f0d1dfe04 100644
-> --- a/tools/perf/util/perf_regs.h
-> +++ b/tools/perf/util/perf_regs.h
-> @@ -62,6 +62,7 @@ uint64_t __perf_reg_mask_s390(bool intr);
->  const char *__perf_reg_name_s390(int id);
->  uint64_t __perf_reg_ip_s390(void);
->  uint64_t __perf_reg_sp_s390(void);
-> +int __perf_sdt_arg_parse_op_s390(char *old_op, char **new_op);
->
->  int __perf_sdt_arg_parse_op_x86(char *old_op, char **new_op);
->  uint64_t __perf_reg_mask_x86(bool intr);
+> 
+> -- 
+> Thomas Richter, Dept 3303, IBM s390 Linux Development, Boeblingen, Germany
 > --
-> 2.53.0
->
->
+> IBM Deutschland Research & Development GmbH
+> 
+> Vorsitzender des Aufsichtsrats: Wolfgang Wendt
+> 
+> Geschäftsführung: David Faller
+> 
+> Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
