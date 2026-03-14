@@ -1,63 +1,71 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3214736EAAB;
-	Fri, 13 Mar 2026 22:15:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56E5640DFA1;
+	Sat, 14 Mar 2026 22:06:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773440117; cv=none; b=iz3rfIT65dfmyH9JtKKdx1HYlpQhXx6yYzPMWZ2Vg6Ay7nxfK0tLoyRFpJIfZ4VFPUW1zgSoiYz1TxxVHrfVzi1M/8v6V7PWUf+/uPNzw5qX2bYuk6MAVQIpOsMo7Mt9pqHl0u45oU7O0P8fo7B3hFqlsKIPHiLDc0D4osCtSl0=
+	t=1773526010; cv=none; b=gL+qsximTkaFn71AHzlkB+wK1/gx8+pF+7PETWLN7vO9/iLO0U2oHJ5bNDsm8UBtz3XPPwyWwUNyEFfqguPqmvdGmxnFht1cETTWBoXR6/3myEx1tJIXFcbJlC9pS/4SJ2SlXi4Thyr8MGwAdve1XaP3SzCyz9xJVVarRYNlM8k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773440117; c=relaxed/simple;
-	bh=S2XCmLsC8lUaB4aTGu13ng8JJGinTFRzgR0O/NT4WkQ=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=CBLJ2BxxCSKlgDe+WBQc6dK8QMKSXkf0uzmSMhRlL/Ri2riKxDGi3Hom1eGD9QEhWikjD2dLgBkQ/3Tg3vuqLXGWtNxCvasQut4Sni80sysAbB2/bHfy0xNGBZK0C7x8O2v7iN5ikPbpLceh4BozpIQDtEievuHZA00BfYqZitc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BQ/3aGUH; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773526010; c=relaxed/simple;
+	bh=qFxp43Mm4v3Jwrh3SFQJoMvzIOQudIZXdLxg7F2u1so=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=JE7Qocllrwr1BYcSKQ78nMjPu7jgCa4xhQvlUdZNTMCahE83Q3dpoQb8SO60YTLqeG7Yw2SRimTosoTI4HLPhTZ98GBxbfJQgRiNL+huFhGOMUMrJYtGSGQJBnhpH8s320Gpv9P9Xd6tXqDtqoGoZ4f6qDJxe7TqhtLw9TG2as4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=l4gL+N6n; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BQ/3aGUH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17108C19421;
-	Fri, 13 Mar 2026 22:15:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773440117;
-	bh=S2XCmLsC8lUaB4aTGu13ng8JJGinTFRzgR0O/NT4WkQ=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=BQ/3aGUHaTxBqnmLAvy8zvknxW6q+Nh3q67CPxItaLDEuxXGwOIbQG/0fln3qJhp9
-	 bDkMRYA+nhXeFn+fuWQiygHxmqNGyqEDH+vZA3rKxEI0ANVoOkjRJrMb526Zo9WQ4Z
-	 MPosoL1Kj8Kdp6eXCT5et/TEHPlNfJ3D6eqNtfU+ymcfnkoxMeEq4mGrvng3heARjo
-	 Uxq+zkONRyBiGtEB2X22FBHLhqq2pTZuF76k5E76dK4g9rS1n8G/SK34YDSnvfb+dY
-	 4d0PoC8bTByYXDUjyhjbzpLsVYrhC986e5phldB793A620kNcXwP+rfcpL1k1o0qke
-	 HJRlEOeosVfEg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 02DB83808200;
-	Fri, 13 Mar 2026 22:15:13 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 updates for 7.0-rc4
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <ttbuo5c@ub.hpns>
-References: <ttbuo5c@ub.hpns>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <ttbuo5c@ub.hpns>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-7.0-5
-X-PR-Tracked-Commit-Id: 598bbefa8032cc58b564a81d1ad68bd815c8dc0f
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 8d9968859cf4efabf39b4c22eacdb990e5f7178e
-Message-Id: <177344011149.1522840.1488634847146587061.pr-tracker-bot@kernel.org>
-Date: Fri, 13 Mar 2026 22:15:11 +0000
-To: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Heiko Carstens <hca@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="l4gL+N6n"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89D9BC116C6;
+	Sat, 14 Mar 2026 22:06:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1773526009;
+	bh=qFxp43Mm4v3Jwrh3SFQJoMvzIOQudIZXdLxg7F2u1so=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=l4gL+N6nnqHyaoEQiL7IxfxGqTBigZvjoFyxvfgdugUwNmpsFDLp+eExHsH8GXC1w
+	 qMUYGKxbg7K1B6cNlBk3VnyceL/pat1Cw3zhR+Hqp1zPP13eoRcSgEafdKqZZoWn+w
+	 FfK32JPY+HB6NU+yDwYaEhnsBO3tWRP1ViV4FLlQ=
+Date: Sat, 14 Mar 2026 15:06:49 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Benjamin Block <bblock@linux.ibm.com>
+Cc: Thomas Gleixner <tglx@kernel.org>, linux-kernel
+ <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>,
+ Qian Cai <quic_qiancai@quicinc.com>
+Subject: Re: [PATCH] debugobjects: Allow to configure the amount of
+ pre-allocated objects
+Message-Id: <20260314150649.9a7c4bf4554b1288eb471edc@linux-foundation.org>
+In-Reply-To: <20260313142620.GG2161595@p1gen4-pw042f0m>
+References: <70f06193b3c3581802710ebcef74671e50c4c979.1772035270.git.bblock@linux.ibm.com>
+	<20260311100431.GC46248@p1gen4-pw042f0m.fritz.box>
+	<20260311104727.8f7b1492141b6d61fc1b2791@linux-foundation.org>
+	<20260313142620.GG2161595@p1gen4-pw042f0m>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-The pull request you sent on Fri, 13 Mar 2026 19:17:36 +0100:
+On Fri, 13 Mar 2026 15:26:20 +0100 Benjamin Block <bblock@linux.ibm.com> wrote:
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-7.0-5
+> > obj_static_pool[] is __initdata, so the consequences of making it large
+> > are very slight.  So do we really need
+> > CONFIG_DEBUG_OBJECTS_POOL_SIZE_SHIFT?  Requiring a rebuild is a huge
+> > hassle.  How about simply making the static pool much larger and leave
+> > it at that?
+> 
+> I was thinking about that but then couldn't decide what would be "big enough"
+> as constant value for "everyone". My test systems wasn't even that "big", and
+> I'm already at 1280 KiB reservation to make ODEBUG "survive" the boot. Not
+> sure I want to make this say 2 MiB without config option for everyone.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/8d9968859cf4efabf39b4c22eacdb990e5f7178e
+2MB of initmem probably just doesn't matter.  Annoying.
 
-Thank you!
+Do you understand *why* s390 is using so many objects?  Presumably the
+current much smaller default is OK for most systems - my googling for
+"Out of memory.  ODEBUG disabled" turned up very little.
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+Oh, look what I found. 
+https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1807440.html
+What happened to that?
