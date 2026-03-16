@@ -1,53 +1,53 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A9BA33E379;
-	Mon, 16 Mar 2026 18:04:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A47733E346;
+	Mon, 16 Mar 2026 18:04:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773684270; cv=none; b=T8RMNhbqdMRC1MI0SAGt4lgpgRDNQ/Uyoiw8cqb/CK02m3+AYtuy3HJh4SgrptcBi/uNJmWACocCpHiwCgCzUM/Qhdz6JOxGIQFGr+cIyFBQBRg7jqEF4xA35Dyev0F86UQezZGR2eQEZulhDalD6wOIyVJ1Bi7N2dSV0Yyh6dw=
+	t=1773684271; cv=none; b=Etjaj7Nw/gI1IgJDF/MOmNadJCpjnbXus7pkcjVfddpyGmREZkUht2/Pi4boCuSs23jErb2d93WR9y0GH7lNA35WcpWnLJQFdYois+KsvLov6R6P1ZIAtfnPcfX2cnu1FRHu0IZhVUTxqdLbT9bifi4tAFn9r5yXFmDtFTKuArY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773684270; c=relaxed/simple;
-	bh=96nnvuqMXUa4dBToyjoYOI6pQJnGlJbosromeRQtODM=;
+	s=arc-20240116; t=1773684271; c=relaxed/simple;
+	bh=P4BtXoCwYSGe4FPYAKwTlj2ViOidJvwe2ipFtG6nKxE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ggoRKRa19PJiaobNM1f/8QO2y7LDfnFOT58cicZtnKD6Lp0tHj/n9Ec5H0sV5cjr3j3nRUJwcAWfBmoaJohktz0As0le1+smJ9YNm194lmRN10fsgLa/S5pPiu4I3c7Yx2Mo+fe3fyGTDIcMz6S1u7lTek90tChpYAHFrPC5Dbw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LOPaMN7I; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=hgCBOmD0cMjy/snHdxQgiacaTdqwJF2faK4cF5+5nVyTC4MoNdIGGo1NwOPLYecnoqSZa2Ttu+RuqK4AQRZevlupwtejZ6MTry7azmref09WVwygqW/8O6Uq2pQ3dmd32qspIjwknbP4RrPfiO4OZ8ld2MEuSNBYS+Gs7YPi55k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NK3pdSPx; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LOPaMN7I"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62GGwuQe1290637;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NK3pdSPx"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62GEdoGc596541;
 	Mon, 16 Mar 2026 18:04:26 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=+GagIJWS08fdvP4FO
-	bFTOhHw/N35xyExW7gmaXKopb0=; b=LOPaMN7I836Y8Lc1WBjB8SwLnF7dMAu+u
-	Xe8FqWFsSvgzfHUOPzzcxbr13jKZKQVn77XoAJg0i9h6rO6Mc0A2iIltQtGvY2HJ
-	SVxv3wro0Z+GDDSTDqVqs43ZboD/wn1IE7T5s77Jm7hkeOmUxI5UtTN9IaFJwmMs
-	oeEc08Ese5JCEU0WHNFXLzqwW2j/eFwz3kzx8NjewG7bO1A/sIApHP24i0gGkDh8
-	FDG6+gRsK4hRGdeKfIQNMDwACAb7J5iXI8M7DPB9uZr5FqPFjwZtQSk/N+xV7hV5
-	T4XvMBzepk+B3XKzJ2h+5kGgM2694UZBBJU8kQ7NDTvCwBgrYtM4Q==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvyau8r3h-1
+	:mime-version:references:subject:to; s=pp1; bh=s3y4dMVjn1A0xKDrH
+	U6gwu0uIljLq6rJg5OHNFQH+P0=; b=NK3pdSPxXSbhhitout2CLw2gh7FVtManc
+	LTTyieOPc9xMO0UGa0eXMnRmfrm3s3qaVpICIUL43sIekilv6UnZymlTBzC+kBmE
+	X7bm+3HrHO7/4oyd2HYd6+MqcfcO2zv/OTFozJGp1k1mc4mXCQJOBYM931h3cBA6
+	CA2H40dZHkUncYNwRQA65Ex5qALdS1bm+uenXk/P7JcmsZbV+5ireF5PclTciNYP
+	TwSoCg3LPXogw2LVazVlzbfEVZ8PZ0ynihCwEpI66fS6x3QqlHByM8H52JY6F1Kp
+	jA7S0Oc7AbX12eqZQ/ywUBn7A1bBBvzBo68wRohJsmVw38B31vCLA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvx3cru56-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 16 Mar 2026 18:04:25 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62GEjFtZ004581;
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62GFL9un015644;
 	Mon, 16 Mar 2026 18:04:25 GMT
 Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cwj0s5xx6-1
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cwk0n5tsq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 16 Mar 2026 18:04:25 +0000
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62GI4Lpq28705218
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62GI4Lbb49414610
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Mon, 16 Mar 2026 18:04:21 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6E9192004B;
+	by IMSVA (Postfix) with ESMTP id 48F4720043;
 	Mon, 16 Mar 2026 18:04:21 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4F12C2004D;
+	by IMSVA (Postfix) with ESMTP id 29CE02004B;
 	Mon, 16 Mar 2026 18:04:21 +0000 (GMT)
 Received: from b46lp25.lnxne.boe (unknown [9.87.84.240])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -56,9 +56,9 @@ From: Janosch Frank <frankja@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         borntraeger@linux.ibm.com, akrowiak@linux.ibm.com
-Subject: [RFC 07/10] KVM: s390: Use gpa_t and gva_t in gaccess files
-Date: Mon, 16 Mar 2026 16:23:54 +0000
-Message-ID: <20260316180310.17765-8-frankja@linux.ibm.com>
+Subject: [RFC 06/10] KVM: s390: Rework lowcore access functions
+Date: Mon, 16 Mar 2026 16:23:53 +0000
+Message-ID: <20260316180310.17765-7-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260316180310.17765-1-frankja@linux.ibm.com>
 References: <20260316180310.17765-1-frankja@linux.ibm.com>
@@ -70,139 +70,125 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE2MDEzOSBTYWx0ZWRfX89823DvhCQ0t
- FLcD8b4MADAjHTxg6El27I0UQiWNh1yI0XPVnEGCJl7SeVs+xX2gOBPjRfdk7tlJ27bggZAaiwd
- rR1c10Yo7eU256FwaCIy+Y0trqRLUNUruNMOPR+mTwVlPzNmdJvAomnjHf72nuJLmxHZCKU9QbB
- LEIv+OqOLUb4m1eE9EpRg2M1g85uTrm1mkslYR3Qu31G6PD08tjuuOsAFUoL/yuJJ8RmpassQnW
- r5ESlW/A6tqxDGX13W+AHe/yYVFYZYoY1/I6mSHSewQox51hVpfLGbmCHT8tKxPwDd9IBvM8dGz
- AVRDZnGfX5DEoiSey5ZawZgX2G4UDQBjgU8oV0GRiUJ0uppQA5pH/oOHR9zjyUS1zK/G+4Z5zkT
- KNRnFq89dYbyIMq5jMiEmBojQso7FNwl9mpm78JybX6tKcTUx74UgxJMy3BG6W2KI4eQudFAD/H
- +rA+Kh7Tm+OSi980e7w==
-X-Authority-Analysis: v=2.4 cv=GIQF0+NK c=1 sm=1 tr=0 ts=69b8462a cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Authority-Analysis: v=2.4 cv=arO/yCZV c=1 sm=1 tr=0 ts=69b84629 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=UUohbZ3EcX_Z-pxAeXsA:9
-X-Proofpoint-ORIG-GUID: 9fu4Pg4axj591FqpKktnNl0r2bEl06fc
-X-Proofpoint-GUID: 9fu4Pg4axj591FqpKktnNl0r2bEl06fc
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=HkVQy8GD3fLFj98UWZwA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE2MDEzOSBTYWx0ZWRfX3RTmbL34E/fN
+ 7wUf6yrw6QoTPBI/30k9VHl5QUyu04sb0qWo7nBt1BbGgd0YxxWvNpmXJMDr852fk3mu6Wre7lU
+ u+iwjB57Yg7BEzlQQRkjb7MXAWLMZMUQg2uRG9immHan93Ol0s0Fk46vHFY3fw+eR0UpF3aiOXU
+ ApHOPxBl9UDcIjWPjnXsRsp1lWaxKg4tB3WE89FmdmiGo2wefQe3V4SoarTIFzvzzc8xpg+TMXL
+ nhLBBPJW19xt2MoDxV2x8bqTJGa/KrrvTHIlR5QcLbsTN2qKJN+9gjBL3uKuS3ECd6V5pKj+2cj
+ XYrAEeNB8Asa3TpQ72jlFjB/nrLqBWVxRGSd+oa0qi8KP7Qzs7fFIT0FVNFnif/NuNjAIQJP9oU
+ a64S7B/Ubbq566xQ+217Gi/HRnF4qP8xERDaaNLJ+p5hSBiGhG1Pg/EnGarHrfRecyLGKme/9HQ
+ ENc52ZxG3IIlHtMryig==
+X-Proofpoint-GUID: JCwouGBSi9Fye6v-Kv9nJX_xWOsNrvIV
+X-Proofpoint-ORIG-GUID: JCwouGBSi9Fye6v-Kv9nJX_xWOsNrvIV
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-03-16_04,2026-03-16_05,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 priorityscore=1501 bulkscore=0 lowpriorityscore=0 malwarescore=0
- phishscore=0 impostorscore=0 suspectscore=0 adultscore=0 clxscore=1015
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603160139
+ priorityscore=1501 spamscore=0 lowpriorityscore=0 impostorscore=0
+ adultscore=0 bulkscore=0 suspectscore=0 malwarescore=0 clxscore=1015
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
+ definitions=main-2603160139
 
-A lot of addresses are being passed around as u64 or unsigned long
-instead of gpa_t and gva_t. Some of the variables are already called
-gva or gpa anyway.
+These functions effectively always use offset constants and no
+addresses at all. Therefore make it clear that we're accessing offsets
+and sprinkle in compile and runtime warnings for more safety.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/kvm/gaccess.c | 20 ++++++++++----------
- arch/s390/kvm/gaccess.h |  3 +--
- 2 files changed, 11 insertions(+), 12 deletions(-)
+ arch/s390/kvm/gaccess.h | 32 ++++++++++++++++++++++----------
+ 1 file changed, 22 insertions(+), 10 deletions(-)
 
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index 7275854ee68e..b2e83f6e16ab 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -441,7 +441,7 @@ static int get_vcpu_asce(struct kvm_vcpu *vcpu, union asce *asce,
- 	return 0;
- }
- 
--static int deref_table(struct kvm *kvm, unsigned long gpa, unsigned long *val)
-+static int deref_table(struct kvm *kvm, gpa_t gpa, unsigned long *val)
- {
- 	return kvm_read_guest(kvm, gpa, val, sizeof(*val));
- }
-@@ -467,8 +467,8 @@ static int deref_table(struct kvm *kvm, unsigned long gpa, unsigned long *val)
-  *	      the returned value is the program interruption code as defined
-  *	      by the architecture
-  */
--static unsigned long guest_translate_gva(struct kvm_vcpu *vcpu, unsigned long gva,
--					 unsigned long *gpa, const union asce asce,
-+static unsigned long guest_translate_gva(struct kvm_vcpu *vcpu, gva_t gva,
-+					 gpa_t *gpa, const union asce asce,
- 					 enum gacc_mode mode, enum prot_type *prot)
- {
- 	union vaddress vaddr = {.addr = gva};
-@@ -477,8 +477,8 @@ static unsigned long guest_translate_gva(struct kvm_vcpu *vcpu, unsigned long gv
- 	int dat_protection = 0;
- 	int iep_protection = 0;
- 	union ctlreg0 ctlreg0;
--	unsigned long ptr;
- 	int edat1, edat2, iep;
-+	gpa_t ptr;
- 
- 	ctlreg0.val = vcpu->arch.sie_block->gcr[0];
- 	edat1 = ctlreg0.edat && test_kvm_facility(vcpu->kvm, 8);
-@@ -772,7 +772,7 @@ static int vcpu_check_access_key_gpa(struct kvm_vcpu *vcpu, u8 access_key,
-  *		  be used to inject an exception into the guest.
-  */
- static int guest_range_to_gpas(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
--			       unsigned long *gpas, unsigned long len,
-+			       gpa_t *gpas, unsigned long len,
- 			       const union asce asce, enum gacc_mode mode,
- 			       u8 access_key)
- {
-@@ -781,7 +781,7 @@ static int guest_range_to_gpas(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
- 	unsigned int fragment_len;
- 	int lap_enabled, rc = 0;
- 	enum prot_type prot;
--	unsigned long gpa;
-+	gpa_t gpa;
- 
- 	lap_enabled = low_address_protection_enabled(vcpu, asce);
- 	while (min(PAGE_SIZE - offset, len) > 0) {
-@@ -932,11 +932,11 @@ int access_guest_with_key(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
- {
- 	psw_t *psw = &vcpu->arch.sie_block->gpsw;
- 	unsigned long nr_pages, idx;
--	unsigned long gpa_array[2];
- 	unsigned int fragment_len;
--	unsigned long *gpas;
- 	enum prot_type prot;
-+	gpa_t gpa_array[2];
- 	int need_ipte_lock;
-+	gpa_t *gpas;
- 	union asce asce;
- 	bool try_storage_prot_override;
- 	bool try_fetch_prot_override;
-@@ -1182,7 +1182,7 @@ int cmpxchg_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, int len, union kvm_s3
-  * has to take care of this.
-  */
- int guest_translate_address_with_key(struct kvm_vcpu *vcpu, unsigned long gva, u8 ar,
--				     unsigned long *gpa, enum gacc_mode mode,
-+				     gpa_t *gpa, enum gacc_mode mode,
- 				     u8 access_key)
- {
- 	union asce asce;
-@@ -1282,9 +1282,9 @@ static int walk_guest_tables(struct gmap *sg, unsigned long saddr, struct pgtwal
- 	struct guest_fault *entries;
- 	union dat_table_entry table;
- 	union vaddress vaddr;
--	unsigned long ptr;
- 	struct kvm *kvm;
- 	union asce asce;
-+	gpa_t ptr;
- 	int rc;
- 
- 	if (!parent)
 diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
-index 086da7b040b5..f23dc0729649 100644
+index ee346b607a07..086da7b040b5 100644
 --- a/arch/s390/kvm/gaccess.h
 +++ b/arch/s390/kvm/gaccess.h
-@@ -199,8 +199,7 @@ enum gacc_mode {
- };
+@@ -89,6 +89,13 @@ static inline unsigned long kvm_s390_logical_to_effective(struct kvm_vcpu *vcpu,
+ 	return _kvm_s390_logical_to_effective(&vcpu->arch.sie_block->gpsw, ga);
+ }
  
- int guest_translate_address_with_key(struct kvm_vcpu *vcpu, unsigned long gva, u8 ar,
--				     unsigned long *gpa, enum gacc_mode mode,
--				     u8 access_key);
-+				     gpa_t *gpa, enum gacc_mode mode, u8 access_key);
++static inline gpa_t lc_addr_from_offset(struct kvm_vcpu *vcpu, unsigned int off)
++{
++	gpa_t addr = kvm_s390_get_prefix(vcpu);
++
++	return addr + off;
++}
++
+ /*
+  * put_guest_lc, read_guest_lc and write_guest_lc are guest access functions
+  * which shall only be used to access the lowcore of a vcpu.
+@@ -117,13 +124,14 @@ static inline unsigned long kvm_s390_logical_to_effective(struct kvm_vcpu *vcpu,
+  *	 would be to terminate the guest.
+  *	 It is wrong to inject a guest exception.
+  */
+-#define put_guest_lc(vcpu, x, gra)				\
++#define put_guest_lc(vcpu, x, off)				\
+ ({								\
+ 	struct kvm_vcpu *__vcpu = (vcpu);			\
+-	__typeof__(*(gra)) __x = (x);				\
+-	unsigned long __gpa;					\
++	__typeof__(*(off)) __x = (x);				\
++	gpa_t __gpa;						\
+ 								\
+-	__gpa = (unsigned long)(gra);				\
++	BUILD_BUG_ON(!__builtin_constant_p(off));		\
++	__gpa = (unsigned long)(off);				\
+ 	__gpa += kvm_s390_get_prefix(__vcpu);			\
+ 	kvm_write_guest(__vcpu->kvm, __gpa, &__x, sizeof(__x));	\
+ })
+@@ -131,7 +139,7 @@ static inline unsigned long kvm_s390_logical_to_effective(struct kvm_vcpu *vcpu,
+ /**
+  * write_guest_lc - copy data from kernel space to guest vcpu's lowcore
+  * @vcpu: virtual cpu
+- * @gra: vcpu's source guest real address
++ * @off: offset into the lowcore
+  * @data: source address in kernel space
+  * @len: number of bytes to copy
+  *
+@@ -146,18 +154,20 @@ static inline unsigned long kvm_s390_logical_to_effective(struct kvm_vcpu *vcpu,
+  *	 It is wrong to inject a guest exception.
+  */
+ static inline __must_check
+-int write_guest_lc(struct kvm_vcpu *vcpu, unsigned long gra, void *data,
++int write_guest_lc(struct kvm_vcpu *vcpu, unsigned int off, void *data,
+ 		   unsigned long len)
+ {
+-	unsigned long gpa = gra + kvm_s390_get_prefix(vcpu);
++	gpa_t gpa = lc_addr_from_offset(vcpu, off);
  
- int check_gva_range(struct kvm_vcpu *vcpu, unsigned long gva, u8 ar,
- 		    unsigned long length, enum gacc_mode mode, u8 access_key);
++	BUILD_BUG_ON(!__builtin_constant_p(off) || !__builtin_constant_p(len));
++	BUILD_BUG_ON(off + len >= 2 * PAGE_SIZE);
+ 	return kvm_write_guest(vcpu->kvm, gpa, data, len);
+ }
+ 
+ /**
+  * read_guest_lc - copy data from guest vcpu's lowcore to kernel space
+  * @vcpu: virtual cpu
+- * @gra: vcpu's source guest real address
++ * @off: offset into the lowcore
+  * @data: destination address in kernel space
+  * @len: number of bytes to copy
+  *
+@@ -172,11 +182,13 @@ int write_guest_lc(struct kvm_vcpu *vcpu, unsigned long gra, void *data,
+  *	 It is wrong to inject a guest exception.
+  */
+ static inline __must_check
+-int read_guest_lc(struct kvm_vcpu *vcpu, unsigned long gra, void *data,
++int read_guest_lc(struct kvm_vcpu *vcpu, unsigned int off, void *data,
+ 		  unsigned long len)
+ {
+-	unsigned long gpa = gra + kvm_s390_get_prefix(vcpu);
++	gpa_t gpa = lc_addr_from_offset(vcpu, off);
+ 
++	BUILD_BUG_ON(!__builtin_constant_p(off) || !__builtin_constant_p(len));
++	BUILD_BUG_ON(off + len >= 2 * PAGE_SIZE);
+ 	return kvm_read_guest(vcpu->kvm, gpa, data, len);
+ }
+ 
 -- 
 2.51.0
 
