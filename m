@@ -1,64 +1,64 @@
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4204039182D
-	for <linux-s390@vger.kernel.org>; Mon, 16 Mar 2026 11:50:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F1FC28C2BF
+	for <linux-s390@vger.kernel.org>; Mon, 16 Mar 2026 11:52:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773661837; cv=none; b=rtGPiN/KvVk22dUm1pUWzvvxmWk8K3+k7zfyWD+Q7N0Ni1LpC7NCNflIB357e8oAQPYNXSXApPQiiuG5gIRO8Ms8VDaizJU0QmYjfjCC9hBrBRR6H/L9g3FXTLYWUbFF9QlOay+xcdWSfuCFzmqDSeSYhwpoy6Z+8TdUm5JsZCw=
+	t=1773661949; cv=none; b=R4UMmojRyR/SmSQ6ETjKZYcUGAZNdv/ivO9Iuo4JR8dJ+GoWpy40ZrpieNAG5G178EyQavSsn0JXDzai2cKDZSKORDR9MoTNJUg+4NfWoXKxDZmaWyfcqY9RCN7HVIFYB4j3zixjuIF/6TPzPgRsZTztURITmM1bHGIclto2iMg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773661837; c=relaxed/simple;
-	bh=uPHgjUUn8VsVJXlffrTlOt7/AdJOHet4wTx4z9k4RXE=;
+	s=arc-20240116; t=1773661949; c=relaxed/simple;
+	bh=71IExVGtWUCM2N3COEM/mV1OmBFUH7sMjuEBU+ua+FM=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=pqGky5JW47O9IrM9sZIvmRqG7IMKNBfbHvodwdxIG2m0xFlXW+QI1G8zjBH7snSefwFSVvN46yCUQo4G86T1/tjjwhJ83itbbaSm+vAKw90jkF0U3oS1vtZjaSAFXUQrljD3mFJOBVaPc4YRpYWZsv/gZCcBSmbWFCFiYVioZRY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZwiqZVr7; arc=none smtp.client-ip=209.85.128.41
+	 MIME-Version:Content-Type; b=sSVApNuFJ3be1SrPDpy5yLE9eRhI0C6PU2s2BR1ALCpW/rq+riDkghDdY03dC1PBVcQe58YLIJXOfowMZEp7QKVEw01L1dQjAm7d05nfrNa6aQdptA1BdzmCucNo7M3QYQBtHC9fQA+syjA2dFG4Wa6KjAY5l/K+ADXhDeHYxK8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=US4mxDzj; arc=none smtp.client-ip=209.85.128.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZwiqZVr7"
-Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-4853c1ca73aso37224345e9.2
-        for <linux-s390@vger.kernel.org>; Mon, 16 Mar 2026 04:50:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="US4mxDzj"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4852afd42ceso39305455e9.2
+        for <linux-s390@vger.kernel.org>; Mon, 16 Mar 2026 04:52:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773661832; x=1774266632; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1773661947; x=1774266747; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:subject:cc:to:from:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5kQhGtTK/Lt5/UNF5mERVigZml+1Hw4HwS17dAwaToA=;
-        b=ZwiqZVr7kcG9m9YwtSy2CrLxZrMtxdPcTH/eDgk7vFYWMzcW9j5M+p9jUjxoIFNL2K
-         E4AtTAMQLyMWS/UDG5nc5iODFtuFsBIy9eq6/4EXgM5yAk3MBGnMuPRKdxDkFn1LNTBJ
-         fSbTkRQgemYKibMW9rLX/S2/QN5sTR/1mzTHM4bSUJIWL1nM6dRQumo4TCPiwcQjSp+i
-         PaJEDR8kCf3ahkytXox4yN/gKCdiQWIvLrDohBXOPm3zelLy4lLcu4/pjlocwnkvvwxd
-         7/OU0z3UtS1p1uocTIK6IJwRrUqf1l+ApOTUxk/dWHg9UUhEgYKqY4yOqpOunAsLNO9/
-         L3AQ==
+        bh=G1FINDvU0UxUqjZlFZpZ58KZuPwMyU/XPMlyrs5R8Wo=;
+        b=US4mxDzj1u8+TAMALm1jZ448UnUuwWyAVE3wFja/RD1q1QzX+/se20WkWNcfOWzG+t
+         B1mrDo4Bw/bj8+nUpbAD9rs1PrxI73TEH87/lKaGX+uR+aMBxC3VaqdfXYoAzEPPFXc5
+         ynXXBu23fz0QHeB1CPeeFLPSZZTkz8x+i6Iw6ybmQdS5LkMsD+GQNFdEw+Sp5sRVokeW
+         P4e8FWFyPvZVcmsqr4FlC3Li/UcHaZjxrOmHVnB4mkxCbOFOIb5ydZAaPwSL9cEx1Vnc
+         7ZdIsU7fSQiSZj2a0f/QFLMdbiIQAiG4r6sjLxgFxUCN2Cq88glz0RgP0DL9exaClzT8
+         2zoA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773661832; x=1774266632;
+        d=1e100.net; s=20251104; t=1773661947; x=1774266747;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=5kQhGtTK/Lt5/UNF5mERVigZml+1Hw4HwS17dAwaToA=;
-        b=IAjVu3PBgXhFDlmq1D7QMVjuMzAWKJgO6kJneCj4RgNtUAQ4V8jGkHmQfOpCFhSxd+
-         9Jo5Icz5iLC8Je6T8nsQE2PstjEQLzoAgAGtAIep0M48YWdKFeyhqcErVmFbPAjbJSE3
-         FXrq7J58GENyQtVt4icgpFK36V8m9vknWV6qbYeZyNd0srpyeFAUA2+1MVe88Ikk1I8u
-         qM7dntrtTQP1sL5HlkL/Ocrvqqozy1gtC2jcTxyCaLfeb1NK28lI7pfncjTsEUotitzf
-         gpo6m4M+Zy6Z5A7NiXx3rfWQs2FzkhS6Lo+ibjyoS4yAqCcIfr4sNi0cp4q99myYpPGr
-         +ZOw==
-X-Forwarded-Encrypted: i=1; AJvYcCUYCrTSjYPRbx39+niDHTuC13JoRoAXqIHU/1y3IPRf7ybABFG165Zu1Izaowf7rbRdZQeGdmnHBgOC@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy1BtmJAcIjiXa/VGkNOcWjwkPWEXZT5AUYGOQQ8qTmw7xH/EDN
-	F7aB6i+k8GY4V2HhIwjuYNXcmjTd1p9i8kUw4u5q4+RATFybzbXXZTY/
-X-Gm-Gg: ATEYQzyMkoo/xhmievV6F6XWPorGy/NGGi9xTDxYnwsPEPllm9ihS2gpK8f+7Sv+Mur
-	3WKYBFrbzdL9j6hvsMruFN3klt5SMaA+cqhtiPcmn0FN1czDZZ/txajwHnBLkg2QnddFlUEewIy
-	O6McyR80neuf9FD3/Mc451oV90Le/NqJblYbTOsfwaBUjn4c3NDYEe5mAbtmMsV+82n0FfXtkJv
-	yClLkYryyXoU7LTpFHSoTMDifHGAS7s6En3vhivoCLx79RvnzfSm3U+upPA/NNhXnE1V/PmdjNw
-	lkkhFiWIHf8vbhREBNhpKcBL363apUuWIcr/tYNCutdJiFFVpckAnsdKPqTJH663+4CrTwSJ2X4
-	5w6ySpoJG72IAxARYh3T/U1TJoBfvMVljVyNgMg7+kUJ8+aRDXZoxILDC48gL0VoASZfAYuuPLx
-	9cJx+kU+66t6pRvwu3FiH0Jiz4hvo7g8XmUdEdVXDj431QKRt8Kdrg6XF66EO+f2mJ
-X-Received: by 2002:a05:600c:1e8b:b0:483:b505:9db7 with SMTP id 5b1f17b1804b1-4855672ada8mr206704535e9.32.1773661832366;
-        Mon, 16 Mar 2026 04:50:32 -0700 (PDT)
+        bh=G1FINDvU0UxUqjZlFZpZ58KZuPwMyU/XPMlyrs5R8Wo=;
+        b=qDEgHQvdigVcl3GI2CeWDMDTqzbP0NGxpqASpHhZGo0UHPTbAnRD86ak2NugaPyIIG
+         OpAl6F2tnxgSesDqUSv0OPyikk8mgTXOCtKRHw5jFboe1AuQ25Qq9r+ooHopgOygIGGd
+         DrNmXVkjuxp4nJirGwjsn/0/VerCfbWgCV6ogyClG+BlmIjESB117iEDpeHAH2YsvxND
+         fAvbF9hjqHAyspj/fBX0RLUkfnhSuyV/wQI6xPgK3BGZmnToNCMP2/qmgrFVNOYUPS63
+         224O6c9jMKdTrPWnKGH3tKmJXUHHvUOozy8hps1WnwAUx80b1gmsorUqLqVqIcK2oIGw
+         Sozg==
+X-Forwarded-Encrypted: i=1; AJvYcCUrQ/QkKaXVJaYMewXrRinvs5IAkcimZkHdFYY8MDEkzPdRjSIwrYb7Z8K3ugZLk75fGp/MbHcno2Db@vger.kernel.org
+X-Gm-Message-State: AOJu0YzB/mCrVSpA1C5uKOsQS4nzV9iCxx1uvhq7vcNiONZBu8ct4jLs
+	KKjJIl9zWg39aAg/YZA3isU7Dlnl75gHIFGMNyDHpybkI3ydeCOpNq/AHGq5Ol3x
+X-Gm-Gg: ATEYQzygbzM+nBJEUhO6jQWKI8ne6f5Oi6IOqab95HmCnXa6+fBsVrjdUCS9zupHcwr
+	4w4p8fs5aUqlhOyJcZJi+/9gPa6djU6AIe4S8fFGiCmBQTthlvMW3xTcwpnisXVZkAJca5TYsHM
+	RsIB1iJ0VA5vG0esJn6K78AuxZlv0uvlpKGPGFGzvYENBVPuXcZxcsP98pJg2E2DCgmwIIuXfif
+	LwpPNXy09e3h05un3AAg/6ZnDojUjJVRAmwhoVkGvpIdfvwBo9p2Wb+N3p2izpY1/JpmCKN+vGr
+	RDeH4PnSE2QGMP6iEXbbCrPvlGKXTdFKWmN5cRLbDRM+wl14gGRsXKcW3VBN6yMdTCCY3sgMeLb
+	kTtst3Ntz4VZmPcVrTnWnTfAvd7Rj8KdkIyskqQF/CBiwNhY7rtVwl0yHEE0RZBPFWIZzxivVLO
+	wMJgoh2QMtu8/fBtBsMplcmqXzSID3FapCaPJk7AzBTV9dFGQ4rKqmuAEkB9g4lnJ9
+X-Received: by 2002:a05:600d:844f:10b0:485:40fd:8390 with SMTP id 5b1f17b1804b1-485567029cdmr158924705e9.26.1773661946379;
+        Mon, 16 Mar 2026 04:52:26 -0700 (PDT)
 Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4854b47145dsm421847035e9.0.2026.03.16.04.50.31
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48541b7f255sm525678625e9.12.2026.03.16.04.52.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Mar 2026 04:50:32 -0700 (PDT)
-Date: Mon, 16 Mar 2026 11:50:30 +0000
+        Mon, 16 Mar 2026 04:52:26 -0700 (PDT)
+Date: Mon, 16 Mar 2026 11:52:24 +0000
 From: David Laight <david.laight.linux@gmail.com>
 To: K Prateek Nayak <kprateek.nayak@amd.com>
 Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
@@ -70,12 +70,12 @@ Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
  <linux-kernel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
  <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>, Jisheng
  Zhang <jszhang@kernel.org>
-Subject: Re: [RFC PATCH v2 2/7] arm64/runtime-const: Introduce
- runtime_const_mask_32()
-Message-ID: <20260316115030.6988ad62@pumpkin>
-In-Reply-To: <20260316052401.18910-3-kprateek.nayak@amd.com>
+Subject: Re: [RFC PATCH v2 3/7] arm64/runtime-const: Use
+ aarch64_insn_patch_text_nosync() for patching
+Message-ID: <20260316115224.036e0351@pumpkin>
+In-Reply-To: <20260316052401.18910-4-kprateek.nayak@amd.com>
 References: <20260316052401.18910-1-kprateek.nayak@amd.com>
-	<20260316052401.18910-3-kprateek.nayak@amd.com>
+	<20260316052401.18910-4-kprateek.nayak@amd.com>
 X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -86,78 +86,139 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Mon, 16 Mar 2026 05:23:56 +0000
+On Mon, 16 Mar 2026 05:23:57 +0000
 K Prateek Nayak <kprateek.nayak@amd.com> wrote:
 
-> Futex hash computation requires a mask operation with read-only after
-> init data that will be converted to a runtime constant in the subsequent
-> commit.
-> 
-> Introduce runtime_const_mask_32 to further optimize the mask operation
-> in the futex hash computation hot path. GCC generates a:
-> 
->   movz  w1, #lo16, lsl #0     // w1 = bits [15:0]
->   movk  w1, #hi16, lsl #16    // w1 = full 32-bit value
->   and   w0, w0, w1	      // w0 = w0 & w1
+> The current scheme to directly patch the kernel text for runtime
+> constants runs into the following issue with futex adapted to using
+> runtime constants on arm64:
 
-I don't thing the '&' needs to be part of the asm block.
-Just generate the 32bit constant and do the mask in C.
-That will let the compiler schedule the instructions.
-It also make the code patching more generally useful.
+Doesn't this need to come before the previous patch?
 
 	David
 
-
 > 
-> pattern to tackle arbitrary 32-bit masks and the same was also suggested
-> by Claude which is implemented here. __runtime_fixup_ptr() already
-> patches a "movz, + movk lsl #16" sequence which has been reused to patch
-> the same sequence for __runtime_fixup_mask().
+>   Unable to handle kernel write to read-only memory at virtual address fff0000000378fc8
+>   Mem abort info:
+>     ESR = 0x000000009600004e
+>     EC = 0x25: DABT (current EL), IL = 32 bits
+>     SET = 0, FnV = 0
+>     EA = 0, S1PTW = 0
+>     FSC = 0x0e: level 2 permission fault
+>   Data abort info:
+>     ISV = 0, ISS = 0x0000004e, ISS2 = 0x00000000
+>     CM = 0, WnR = 1, TnD = 0, TagAccess = 0
+>     GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
+>   swapper pgtable: 4k pages, 52-bit VAs, pgdp=00000000420a7000
+>   [fff0000000378fc8] pgd=18000000bffff403, p4d=18000000bfffe403, pud=18000000bfffd403, pmd=0060000040200481
+>   Internal error: Oops: 000000009600004e [#1]  SMP
+>   Modules linked in:
+>   CPU: 1 UID: 0 PID: 1 Comm: swapper/0 Not tainted 6.19.0-rc6-00004-g7e6457d29e6a-dirty #291 PREEMPT
+>   Hardware name: linux,dummy-virt (DT)
+>   pstate: 81400009 (Nzcv daif +PAN -UAO -TCO +DIT -SSBS BTYPE=--)
+>   pc : futex_init+0x13c/0x348
+>   lr : futex_init+0xc8/0x348
+>   sp : ffff80008002bd40
+>   x29: ffff80008002bd40 x28: ffffa4b73ba0a160 x27: ffffa4b73bd10d74
+>   x26: ffffa4b73cb68b28 x25: ffffa4b73ba0b000 x24: ffffa4b73c66b000
+>   x23: 0000000000003fe0 x22: 0000000000000000 x21: ffffa4b73bd10d74
+>   x20: 0000000000008000 x19: 0000000000000000 x18: 00000000ffffffff
+>   x17: 000000007014db06 x16: ffffa4b73ca3ec08 x15: ffff80010002b937
+>   x14: 0000000000000006 x13: fff0000077200000 x12: 00000000000002b2
+>   x11: 00000000000000e6 x10: fff0000079e00000 x9 : fff0000077200000
+>   x8 : fff00000034df9e0 x7 : 0000000000000200 x6 : ffffa4b73ba0b000
+>   x5 : fff0000003510000 x4 : 0000000052803fe0 x3 : 0000000072a00000
+>   x2 : fff0000000378fc8 x1 : ffffa4b739d78fd0 x0 : ffffa4b739d78fc8
+>   Call trace:
+>    futex_init+0x13c/0x348 (P)
+>    do_one_initcall+0x6c/0x1b0
+>    kernel_init_freeable+0x204/0x2e0
+>    kernel_init+0x20/0x1d8
+>    ret_from_fork+0x10/0x20
+>   Code: 120b3c84 120b3c63 2a170084 2a130063 (29000c44)
+>   ---[ end trace 0000000000000000 ]---
 > 
-> Assisted-by: Claude:claude-sonnet-4-5
+> The pc at "futex_init+0x13c/0x348" points to:
+> 
+>   futex_init()
+>     runtime_const_init(shift, __futex_shift)
+>       __runtime_fixup_shift()
+>         *p = cpu_to_le32(insn); /* <--- Here --- */
+> 
+> ... which points to core_initcall() being too late to patch the kernel
+> text directly unlike the "d_hash_shift", "__names_cache" which are
+> initialized during start_kernel() before the protections are in place.
+> 
+> Use aarch64_insn_patch_text_nosync() to patch the runtime constants
+> instead of doing it directly to allow for running runtime_const_init()
+> slightly later into the boot.
+> 
+> Since aarch64_insn_patch_text_nosync() calls caches_clean_inval_pou()
+> internally, __runtime_fixup_caches() ends up being redundant.
+> runtime_const_init() are rare and the overheads of multiple calls to
+> caches_clean_inval_pou() instead of batching them together should be
+> negligible in practice.
+> 
+> At least one usage in kprobes.c suggests cpu_to_le32() conversion is not
+> necessary for aarch64_insn_patch_text_nosync() unlike in the current
+> scheme of patching *p directly.
+> 
 > Signed-off-by: K Prateek Nayak <kprateek.nayak@amd.com>
 > ---
->  arch/arm64/include/asm/runtime-const.h | 22 ++++++++++++++++++++++
->  1 file changed, 22 insertions(+)
+>  arch/arm64/include/asm/runtime-const.h | 14 +++-----------
+>  1 file changed, 3 insertions(+), 11 deletions(-)
 > 
 > diff --git a/arch/arm64/include/asm/runtime-const.h b/arch/arm64/include/asm/runtime-const.h
-> index c3dbd3ae68f6..4c3f0b9aad98 100644
+> index 4c3f0b9aad98..764e244f06a4 100644
 > --- a/arch/arm64/include/asm/runtime-const.h
 > +++ b/arch/arm64/include/asm/runtime-const.h
-> @@ -35,6 +35,19 @@
->  		:"r" (0u+(val)));				\
->  	__ret; })
+> @@ -7,6 +7,7 @@
+>  #endif
 >  
-> +#define runtime_const_mask_32(val, sym) ({			\
-> +	unsigned long __ret;					\
-> +	asm_inline("1:\t"					\
-> +		"movz %w0, #0xcdef\n\t"				\
-> +		"movk %w0, #0x89ab, lsl #16\n\t"			\
-> +		"and %w0,%w0,%w1\n\t"				\
-> +		".pushsection runtime_mask_" #sym ",\"a\"\n\t"	\
-> +		".long 1b - .\n\t"				\
-> +		".popsection"					\
-> +		:"=r" (__ret)					\
-> +		:"r" (0u+(val)));				\
-> +	__ret; })
-> +
->  #define runtime_const_init(type, sym) do {		\
->  	extern s32 __start_runtime_##type##_##sym[];	\
->  	extern s32 __stop_runtime_##type##_##sym[];	\
-> @@ -80,6 +93,15 @@ static inline void __runtime_fixup_shift(void *where, unsigned long val)
->  	__runtime_fixup_caches(where, 1);
+>  #include <asm/cacheflush.h>
+> +#include <asm/text-patching.h>
+>  
+>  /* Sigh. You can still run arm64 in BE mode */
+>  #include <asm/byteorder.h>
+> @@ -63,13 +64,7 @@ static inline void __runtime_fixup_16(__le32 *p, unsigned int val)
+>  	u32 insn = le32_to_cpu(*p);
+>  	insn &= 0xffe0001f;
+>  	insn |= (val & 0xffff) << 5;
+> -	*p = cpu_to_le32(insn);
+> -}
+> -
+> -static inline void __runtime_fixup_caches(void *where, unsigned int insns)
+> -{
+> -	unsigned long va = (unsigned long)where;
+> -	caches_clean_inval_pou(va, va + 4*insns);
+> +	aarch64_insn_patch_text_nosync(p, insn);
 >  }
 >  
-> +/* Immediate value is 6 bits starting at bit #16 */
-> +static inline void __runtime_fixup_mask(void *where, unsigned long val)
-> +{
-> +	__le32 *p = lm_alias(where);
-> +	__runtime_fixup_16(p, val);
-> +	__runtime_fixup_16(p+1, val >> 16);
-> +	__runtime_fixup_caches(where, 2);
-> +}
-> +
+>  static inline void __runtime_fixup_ptr(void *where, unsigned long val)
+> @@ -79,7 +74,6 @@ static inline void __runtime_fixup_ptr(void *where, unsigned long val)
+>  	__runtime_fixup_16(p+1, val >> 16);
+>  	__runtime_fixup_16(p+2, val >> 32);
+>  	__runtime_fixup_16(p+3, val >> 48);
+> -	__runtime_fixup_caches(where, 4);
+>  }
+>  
+>  /* Immediate value is 6 bits starting at bit #16 */
+> @@ -89,8 +83,7 @@ static inline void __runtime_fixup_shift(void *where, unsigned long val)
+>  	u32 insn = le32_to_cpu(*p);
+>  	insn &= 0xffc0ffff;
+>  	insn |= (val & 63) << 16;
+> -	*p = cpu_to_le32(insn);
+> -	__runtime_fixup_caches(where, 1);
+> +	aarch64_insn_patch_text_nosync(p, insn);
+>  }
+>  
+>  /* Immediate value is 6 bits starting at bit #16 */
+> @@ -99,7 +92,6 @@ static inline void __runtime_fixup_mask(void *where, unsigned long val)
+>  	__le32 *p = lm_alias(where);
+>  	__runtime_fixup_16(p, val);
+>  	__runtime_fixup_16(p+1, val >> 16);
+> -	__runtime_fixup_caches(where, 2);
+>  }
+>  
 >  static inline void runtime_const_fixup(void (*fn)(void *, unsigned long),
->  	unsigned long val, s32 *start, s32 *end)
->  {
 
