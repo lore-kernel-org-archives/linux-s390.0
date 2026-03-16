@@ -1,104 +1,110 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from canpmsgout10.his.huawei.com (canpmsgout10.his.huawei.com [113.46.200.225])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A432327C0D;
-	Mon, 16 Mar 2026 08:14:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1826D378812;
+	Mon, 16 Mar 2026 08:30:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.225
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773648874; cv=none; b=R7j4gVY+xyza6MxPsUQl4sFtjwKaIZlsYSvpljiOnGyN7q9jubCPurb4BwCoColjsB6ELi0TXA13V4tnEIr0awlJaSQED+kI6+IRxgT3EWpSp26hJmRFHztBFdDFhc98FgRKRttxxCErEhjo6GLWnhXBYyueZ4x5rFDJjBjEApc=
+	t=1773649831; cv=none; b=khpOehCFCYHt20I2ESXu7AKBzSzzY4MKKw6d7tncLA2Ba/kkju82/Bd2uRdLICw9kuCZJ83FBBG7aTpRY/CXE+50NPhkIdPWJXacd2x3drOaCrthhOYEhNkJZ/REj4W1gGGlGkrIVHQkoGrreJyRHE9v7OAsZPH976eJMCzklW4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773648874; c=relaxed/simple;
-	bh=jf701U+Q2FqpfqOqvYcNF9sitTRZjVy9pp4tzXpXTUw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Fu0ZXblKVWOge9IeVdciPY/t9Sb4HicrRQD0lLo/vzNmIQljGadgDbxrlemZ2TCoEeqEpvDkgJSunKzpF2GXNkKoO4XVsWSwy6wN3Hp12qMjCS0MiDR2KNzHz5DB4DLWC9Vr98Vn+ozVu3t2pDSXfuXEuIJ5uEYX0trzrFr4UrQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=CVK/Gctd; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=j04c+glp; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1773649831; c=relaxed/simple;
+	bh=qqFWtgtU0qGaIRVG0qMMCPejYzDY8YT6jaOvKCehBws=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=eEiIiCCgOLha2Q0D5XijQt2DXm3DHomO4ITh8OF95GrqAnr8BwOJOLoFcc8pIhQASR2BVwqnubSZ7PPPofgQECt6JTK9rajn+L+i4FyefuAgwbAC3yF/tYCHe3e6Nes1t9X3WG42hqhgRwq1W+C6hBNnaXfMv9VQA1zzZHsbNwk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=kdN/AfpZ; arc=none smtp.client-ip=113.46.200.225
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="CVK/Gctd";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="j04c+glp"
-Date: Mon, 16 Mar 2026 09:14:29 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1773648871;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=WSOPBOtCZR55Ppkhd+kncZ0Q+IGD3weYA3vhslBMT/Y=;
-	b=CVK/GctdHbhsaGBNaVTaF50Q5G6KNGhhw7ZYsF6Tg60uwAtwluqyIUnt5sfiX3FQPdNp++
-	9ftUjLk73zaDoY/GFGBVlmgKa8sDFpBPMElWy0Y1hBtf29KoUxuYpjIIfhHoi/hp5hWWdU
-	DoARQ9l95JmKBa9DuH9ufdwFrMD0p+YmGNZUj69kR43tykpqr+tM30nGe6qypYCxW/3URc
-	ccBL46oJ5Ejv42YiL/WpO4WBZvGSSZ1IoCx6hPbjrqCJToZApjeSbDFKAPz4w6f9tNWP1y
-	2VH4i7sS/kPKFbnUlqEaqERt7Gb4XxdVQzOefyMEzBa70l54wj54qFfhAExx8g==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1773648871;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=WSOPBOtCZR55Ppkhd+kncZ0Q+IGD3weYA3vhslBMT/Y=;
-	b=j04c+glpv7gTiC/XCliL9gSVLB2FiG0kUaIanPNt8Ydr4fgPeTFUKO7d+YS9SSq9HJm7FY
-	A/Gakj70E7toT3Ag==
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-To: K Prateek Nayak <kprateek.nayak@amd.com>
-Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Arnd Bergmann <arnd@arndb.de>, Darren Hart <dvhart@infradead.org>,
-	Davidlohr Bueso <dave@stgolabs.net>,
-	=?utf-8?B?QW5kcsOp?= Almeida <andrealmeid@igalia.com>,
-	linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	Alexandre Ghiti <alex@ghiti.fr>, "H. Peter Anvin" <hpa@zytor.com>,
-	Kiryl Shutsemau <kas@kernel.org>,
-	Sean Christopherson <seanjc@google.com>,
-	Charlie Jenkins <charlie@rivosinc.com>,
-	Charles Mirabile <cmirabil@redhat.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
-	Jisheng Zhang <jszhang@kernel.org>
-Subject: Re: [RFC PATCH v2 7/7] futex: Use runtime constants for
- __futex_hash() hot path
-Message-ID: <20260316081429.FJx4fnNl@linutronix.de>
-References: <20260316052401.18910-1-kprateek.nayak@amd.com>
- <20260316052401.18910-8-kprateek.nayak@amd.com>
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="kdN/AfpZ"
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=KKbPsDAO7LVmJHxlSzEBfeRUi2Nm7cblhvtLj41WeSc=;
+	b=kdN/AfpZHzSBWHHnCUnfqcNeRn1Y/Ti1cCp31akA99MbW27C46+M+yFh4UoVlwWbikcPlzB3/
+	fttUjkdYCbO7/xktrNNsfIedMKs84ZayJMRR1X8n8u/Y8ESNA4PLnEpzLQoidyveVf9eBSUiI/5
+	McuUwxrVB59tOXLe1Ip8wWg=
+Received: from mail.maildlp.com (unknown [172.19.163.200])
+	by canpmsgout10.his.huawei.com (SkyGuard) with ESMTPS id 4fZ7Sl43qDz1K96p;
+	Mon, 16 Mar 2026 16:25:27 +0800 (CST)
+Received: from dggpemf500011.china.huawei.com (unknown [7.185.36.131])
+	by mail.maildlp.com (Postfix) with ESMTPS id 9389940563;
+	Mon, 16 Mar 2026 16:30:23 +0800 (CST)
+Received: from [10.67.109.254] (10.67.109.254) by
+ dggpemf500011.china.huawei.com (7.185.36.131) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Mon, 16 Mar 2026 16:30:20 +0800
+Message-ID: <b541bd3a-7407-d743-70de-f9665479dec2@huawei.com>
+Date: Mon, 16 Mar 2026 16:30:19 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260316052401.18910-8-kprateek.nayak@amd.com>
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.0
+Subject: Re: [PATCH v13 11/12] arm64: Use generic TIF bits for common thread
+ flags
+To: Heiko Carstens <hca@linux.ibm.com>
+CC: <catalin.marinas@arm.com>, <will@kernel.org>, <oleg@redhat.com>,
+	<gor@linux.ibm.com>, <agordeev@linux.ibm.com>, <borntraeger@linux.ibm.com>,
+	<svens@linux.ibm.com>, <tglx@kernel.org>, <mingo@redhat.com>, <bp@alien8.de>,
+	<dave.hansen@linux.intel.com>, <hpa@zytor.com>, <arnd@arndb.de>,
+	<shuah@kernel.org>, <kees@kernel.org>, <luto@amacapital.net>,
+	<wad@chromium.org>, <kevin.brodsky@arm.com>, <charlie@rivosinc.com>,
+	<macro@orcam.me.uk>, <deller@gmx.de>, <ldv@strace.io>,
+	<anshuman.khandual@arm.com>, <song@kernel.org>, <ryan.roberts@arm.com>,
+	<mark.rutland@arm.com>, <ada.coupriediaz@arm.com>, <broonie@kernel.org>,
+	<pengcan@kylinos.cn>, <liqiang01@kylinos.cn>, <thuth@redhat.com>,
+	<andreas@gaisler.com>, <schuster.simon@siemens-energy.com>,
+	<jremus@linux.ibm.com>, <jgross@suse.com>, <mathieu.desnoyers@efficios.com>,
+	<yeoreum.yun@arm.com>, <kmal@cock.li>, <dvyukov@google.com>,
+	<akpm@linux-foundation.org>, <reddybalavignesh9979@gmail.com>,
+	<richard.weiyang@gmail.com>, <x86@kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+	<linux-s390@vger.kernel.org>, <linux-arch@vger.kernel.org>,
+	<linux-kselftest@vger.kernel.org>
+References: <20260313094738.3985794-1-ruanjinjie@huawei.com>
+ <20260313094738.3985794-12-ruanjinjie@huawei.com>
+ <20260313101022.13729C56-hca@linux.ibm.com>
+Content-Language: en-US
+From: Jinjie Ruan <ruanjinjie@huawei.com>
+In-Reply-To: <20260313101022.13729C56-hca@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: kwepems200002.china.huawei.com (7.221.188.68) To
+ dggpemf500011.china.huawei.com (7.185.36.131)
 
-On 2026-03-16 05:24:01 [+0000], K Prateek Nayak wrote:
-> From: Peter Zijlstra <peterz@infradead.org>
-> 
-> Runtime constify the read-only after init data  __futex_shift(shift_32),
-> __futex_mask(mask_32), and __futex_queues(ptr) used in __futex_hash()
-> hot path to avoid referencing global variable.
-> 
-> This also allows __futex_queues to be allocated dynamically to
-> "nr_node_ids" slots instead of reserving config dependent MAX_NUMNODES
-> (1 << CONFIG_NODES_SHIFT) worth of slots upfront.
-> 
-> No functional chages intended.
-> 
->   [ prateek: Dynamically allocate __futex_queues, mark the global data
->     __ro_after_init since they are constified after futex_init(). ]
-> 
-> Link: https://patch.msgid.link/20260227161841.GH606826@noisy.programming.kicks-ass.net
-> Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de> # MAX_NUMNODES bloat
-> Not-yet-signed-off-by: Peter Zijlstra <peterz@infradead.org>
-> Signed-off-by: K Prateek Nayak <kprateek.nayak@amd.com>
 
-This all looks nice. Let me look later at the resulting code. Thank you
-so far ;)
 
-Sebastian
+On 2026/3/13 18:10, Heiko Carstens wrote:
+> On Fri, Mar 13, 2026 at 05:47:37PM +0800, Jinjie Ruan wrote:
+>> Use the generic TIF bits defined in <asm-generic/thread_info_tif.h> for
+>> standard thread flags (TIF_SIGPENDING, TIF_NEED_RESCHED, TIF_NOTIFY_RESUME,
+>> TIF_RESTORE_SIGMASK, TIF_SINGLESTEP, etc.) instead of defining
+>> them locally.
+>>
+>> Arm64-specific bits (TIF_FOREIGN_FPSTATE, TIF_MTE_ASYNC_FAULT, TIF_SVE,
+>> TIF_SSBD, etc.) are renumbered to start at bit 16 to avoid conflicts.
+>>
+>> This enables RSEQ optimizations which require CONFIG_HAVE_GENERIC_TIF_BITS
+>> combined with the generic entry infrastructure (already used by arm64).
+>>
+>> Signed-off-by: Jinjie Ruan <ruanjinjie@huawei.com>
+>> ---
+>>  arch/arm64/Kconfig                    |  1 +
+>>  arch/arm64/include/asm/thread_info.h  | 62 ++++++++++++---------------
+>>  arch/s390/include/asm/thread_info.h   |  7 ++-
+> 
+> Acked-by: Heiko Carstens <hca@linux.ibm.com> # s390
+> 
+>>  arch/x86/include/asm/thread_info.h    |  6 +--
+>>  include/asm-generic/thread_info_tif.h |  5 +++
+>>  5 files changed, 38 insertions(+), 43 deletions(-)
+> 
+> FWIW, I guess you want to do the same for loongarch was well?
+
+Good point. I will include the LoongArch changes in the next version of
+this patchset.
+
+Thanks!
