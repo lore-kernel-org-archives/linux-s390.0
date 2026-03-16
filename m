@@ -1,100 +1,70 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5692639A060;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20F8639D6E0;
 	Mon, 16 Mar 2026 13:09:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773666597; cv=none; b=ep2JrH4+DX1AWQwuebSsH+NdWymQxWQ6+SIcJmtoDkANRjlZ3TYIsLIYq2Bf7LbixNHNpcX+G/idZOTCVuuCgHsCsKN+d0XJ6VxDYTiZh6zAv27isRInBlMUaNnXVIojgwPAvzgRrkKaLPL8l5Awnlb16XtEye6u5Kwkhtio62E=
+	t=1773666599; cv=none; b=tjFmsrrcu3ra8ftxVW5wogzXyVS/xBd0mwfrDnkNR94fQWbCZ/vubJj9fmKLQyWakAeJWQRmu1UAf4MpZIbUP5wZO0ju1W91ltqhH8UgGErNX9WZvHpSNcZYPNqGeuXor/GcoO5CkLTr4oooGxbGIN7V0KpdfDe+rSo2IRqzn8U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773666597; c=relaxed/simple;
-	bh=ZfseWqRX8Yx8edZ7CGc34zafbzETmc7olmc931lf7fE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=EEqshbNZ+BXr8RZlQgyxbohMoWuKY66insQoCG19OFPoJr8ibIFYpB0w8xihZDBavo+8zlVIDUikhZ31j6QXvh0Dy3XmwLq+9GReqGjMYNUp9utz9BZCvJ7sewBH3SD4ZplT2ckXpTiUMU6AvLvLXpBlb8PwrteJ4TcInIrwyNU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=owVvgHdQ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773666599; c=relaxed/simple;
+	bh=8t8iloW8doX9Rkw1XPEp+8SfpHh9NnTu0Lvzk5Kucbo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Rdif4e0XICUZaMbMZTtl2Hmts/oUSD5VwEQFwqq3yGysdWIHqSrUYA4E8aD61fsCxTqpqwbuWVHJu43U8swjrqbjhHxbLzxjGz2Jok91+ruEbKJg1cKWOeQp5c1MyKmHhVoyxyardy68+MYZFUU39Ta9cRtN0+mQzcNKUEt7OmE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=N4wyPYEQ; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="owVvgHdQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96089C2BCB0;
-	Mon, 16 Mar 2026 13:09:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773666597;
-	bh=ZfseWqRX8Yx8edZ7CGc34zafbzETmc7olmc931lf7fE=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=owVvgHdQ3wFpRGJQepgqx/wRcH31KkpN5fXewjuldA3jvkwmBTE8PsoB/VsczA3lJ
-	 vFtYRYCqOENUYc56owMDmWHlzj9cB3aYgB/t/h4wHLt290Uf1huSF+DRqcPBvdfO6s
-	 Q74Nsa6miupzJ6w0Ot73dIrWb5kGDoK+fJbEKSU15DiOQ89ab3HztjYXdXsquoFjJi
-	 jeFdPiw08NNFjq7DTqtmjF+8cW9SXSx6z/G9sP/N/mehrfJqEvK4YvgnaKDqFUwcDS
-	 YD495CVEsqIuZZAB/BoljuxWOITj4i+zMb5jDkjm+WmYTfhRZhxLkGY965MZRv/DUi
-	 H9Izz/ThFT+6w==
-From: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: David Hildenbrand <david@kernel.org>,
-	"Liam R . Howlett" <Liam.Howlett@oracle.com>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Jann Horn <jannh@google.com>,
-	Pedro Falcato <pfalcato@suse.de>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Kees Cook <kees@kernel.org>,
-	linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org,
-	Vineet Gupta <vgupta@kernel.org>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Brian Cain <bcain@kernel.org>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <chleroy@kernel.org>,
-	Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Alexandre Ghiti <alex@ghiti.fr>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	x86@kernel.org,
-	"H . Peter Anvin" <hpa@zytor.com>,
-	Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Christian Brauner <brauner@kernel.org>,
-	Jan Kara <jack@suse.cz>,
-	Xu Xin <xu.xin16@zte.com.cn>,
-	Chengming Zhou <chengming.zhou@linux.dev>,
-	Michal Hocko <mhocko@suse.com>,
-	Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>,
-	linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-hexagon@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	linux-mips@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	linux-um@lists.infradead.org,
-	linux-fsdevel@vger.kernel.org,
-	selinux@vger.kernel.org
-Subject: [PATCH v2 22/23] mm/vma: convert vma_modify_flags[_uffd]() to use vma_flags_t
-Date: Mon, 16 Mar 2026 13:08:11 +0000
-Message-ID: <0737c1b5e3b3688ec3839058b95203c9e7622de9.1773665966.git.ljs@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="N4wyPYEQ"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62FMGPER921100;
+	Mon, 16 Mar 2026 13:09:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=+WAun2uAtOmU59ADmFPO1r/Y6F4vAupRrgomWqZNh
+	5o=; b=N4wyPYEQuL0GuD9GP1gLaywu776u1e2Bx/KJrQGuAIbnORSI6OlB4h9vj
+	cDVU63YcqeHD2afL6teQdCm105o9Hg3MzuoSzvylVmq6rJYrA0DdMJyOZpTZ0x8L
+	DHRmGxW50B1NHOPwV/1J6W1WOv8ew4HqVM0DsT12FcoUVdP8VJYI5IL7EGJkO5yX
+	cA5cW1qFEaeI0lWtSZ2/sGI8JE62h5cHbbMuPyKpcKEYg91h9lEm/IdHfigKceVN
+	DJ6OffRAYQ8pbUlXgqNabYIwZP6liJ/R7Y0W/WmjdMAiWozf3cQsYjH3YlM2G8c0
+	K6GdI0cEO6eyjkiBDNg1qV0eMCblg==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvyau7jkq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 16 Mar 2026 13:09:53 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62G9mk7X014024;
+	Mon, 16 Mar 2026 13:09:52 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cwjcxw07g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 16 Mar 2026 13:09:52 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62GD9pHn61014416
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 16 Mar 2026 13:09:51 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7F67C58054;
+	Mon, 16 Mar 2026 13:09:51 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9946C58064;
+	Mon, 16 Mar 2026 13:09:49 +0000 (GMT)
+Received: from b35lp69.lnxne.boe (unknown [9.87.84.240])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 16 Mar 2026 13:09:49 +0000 (GMT)
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+To: KVM <kvm@vger.kernel.org>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: [PATCH v3] KVM: s390: vsie: Avoid injecting machine check on signal
+Date: Mon, 16 Mar 2026 14:09:47 +0100
+Message-ID: <20260316130947.40466-1-borntraeger@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
-In-Reply-To: <cover.1773665966.git.ljs@kernel.org>
-References: <cover.1773665966.git.ljs@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -102,436 +72,230 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE2MDA5NyBTYWx0ZWRfX7Q2QQY5BoSMw
+ 9i2HSf3uO6yKtkZQmGX4yuoCjHjL444PiJsVKZ4HOseC1UtMTScYaO0t4WHFicaGh9iIXdrZvt1
+ ulmcKgWpBwHQ15vrsZvMZu9PyeFIOmnJLO4eYty37mB/c8ZMMXc5u3wWHVy1mfeWlH+Su/Pfcpd
+ cr+tzeX0363Wwgj8ChxhCIkghDaT/iiFrk48L4tWWRtI5T4zTCa3mCu7NGPzYwkqotWSSaKOIrg
+ k0DMuk6IL5k7w2lTa1kLOwuJRw6s+m0OSPnQ5mKvvC5F4f7fQTs1bQ3c+c8/0SrK4l9YQzzEXkA
+ KPM9mKhPFzApmoc63akAx1nMNUXS3ljPWagOIwLeLtFJZ6bQ60mJaPhwODdAGd/OPmTKXv1nWNo
+ mxPyym8uqU7l9/Ei2OgCDXLWu9IHStZkKtVrw47g8kfDINzi99I8QOkl0fij7sQWw1mkkx1rUsl
+ J58bQHynqwlLWsHDgRw==
+X-Authority-Analysis: v=2.4 cv=GIQF0+NK c=1 sm=1 tr=0 ts=69b80121 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=q4CM764U_AQYIoPu550A:9
+X-Proofpoint-ORIG-GUID: A_P1oOksFmSRs9E0OlPOGrzeV7La9sqy
+X-Proofpoint-GUID: A_P1oOksFmSRs9E0OlPOGrzeV7La9sqy
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-16_04,2026-03-16_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 priorityscore=1501 bulkscore=0 lowpriorityscore=0 malwarescore=0
+ phishscore=0 impostorscore=0 suspectscore=0 adultscore=0 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603160097
 
-Update the vma_modify_flags() and vma_modify_flags_uffd() functions to
-accept a vma_flags_t parameter rather than a vm_flags_t one, and propagate
-the changes as needed to implement this change.
+The recent XFER_TO_GUEST_WORK change resulted in a situation, where the
+vsie code would interpret a signal during work as a machine check during
+SIE as both use the EINTR return code.
+The exit_reason of the sie64a function has nothing to do with the
+kvm_run exit_reason. Rename it and define a specific code for machine
+checks instead of abusing -EINTR.
+rename exit_reason into sie_return to avoid the naming conflict
+and change the code flow in vsie.c to have a separate variable for rc
+and sie_return.
 
-Finally, update the VMA tests to reflect this.
-
-Signed-off-by: Lorenzo Stoakes (Oracle) <ljs@kernel.org>
+Fixes: 2bd1337a1295e ("KVM: s390: Use generic VIRT_XFER_TO_GUEST_WORK functions")
+Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 ---
- include/linux/userfaultfd_k.h   |  3 +++
- mm/madvise.c                    | 10 +++++----
- mm/mlock.c                      | 38 ++++++++++++++++++---------------
- mm/mprotect.c                   |  7 +++---
- mm/mseal.c                      | 10 +++++----
- mm/userfaultfd.c                | 21 ++++++++++++------
- mm/vma.c                        | 15 +++++++------
- mm/vma.h                        | 15 ++++++-------
- tools/testing/vma/tests/merge.c |  3 +--
- 9 files changed, 69 insertions(+), 53 deletions(-)
+v1->v2:
+instead of a band-aid, make the machine check more direct
+v2->v3:
+avoid overloading the rc variable in vsie.c
 
-diff --git a/include/linux/userfaultfd_k.h b/include/linux/userfaultfd_k.h
-index bf4e595ac914..3bd2003328dc 100644
---- a/include/linux/userfaultfd_k.h
-+++ b/include/linux/userfaultfd_k.h
-@@ -23,6 +23,9 @@
- /* The set of all possible UFFD-related VM flags. */
- #define __VM_UFFD_FLAGS (VM_UFFD_MISSING | VM_UFFD_WP | VM_UFFD_MINOR)
+ arch/s390/include/asm/kvm_host.h   |  3 +++
+ arch/s390/include/asm/stacktrace.h |  2 +-
+ arch/s390/kernel/asm-offsets.c     |  2 +-
+ arch/s390/kernel/entry.S           |  4 ++--
+ arch/s390/kernel/nmi.c             |  4 ++--
+ arch/s390/kvm/kvm-s390.c           | 15 ++++++++-------
+ arch/s390/kvm/vsie.c               |  7 +++++--
+ 7 files changed, 22 insertions(+), 15 deletions(-)
+
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 64a50f0862aa..3039c88daa63 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -710,6 +710,9 @@ void kvm_arch_crypto_clear_masks(struct kvm *kvm);
+ void kvm_arch_crypto_set_masks(struct kvm *kvm, unsigned long *apm,
+ 			       unsigned long *aqm, unsigned long *adm);
  
-+#define __VMA_UFFD_FLAGS mk_vma_flags(VMA_UFFD_MISSING_BIT, VMA_UFFD_WP_BIT, \
-+				      VMA_UFFD_MINOR_BIT)
++#define SIE64_RETURN_NORMAL	0
++#define SIE64_RETURN_MCCK	1
 +
- /*
-  * CAREFUL: Check include/uapi/asm-generic/fcntl.h when defining
-  * new flags, since they might collide with O_* ones. We want
-diff --git a/mm/madvise.c b/mm/madvise.c
-index afe0f01765c4..69708e953cf5 100644
---- a/mm/madvise.c
-+++ b/mm/madvise.c
-@@ -151,13 +151,15 @@ static int madvise_update_vma(vm_flags_t new_flags,
- 		struct madvise_behavior *madv_behavior)
- {
- 	struct vm_area_struct *vma = madv_behavior->vma;
-+	vma_flags_t new_vma_flags = legacy_to_vma_flags(new_flags);
- 	struct madvise_behavior_range *range = &madv_behavior->range;
- 	struct anon_vma_name *anon_name = madv_behavior->anon_name;
- 	bool set_new_anon_name = madv_behavior->behavior == __MADV_SET_ANON_VMA_NAME;
- 	VMA_ITERATOR(vmi, madv_behavior->mm, range->start);
+ int __sie64a(phys_addr_t sie_block_phys, struct kvm_s390_sie_block *sie_block, u64 *rsa,
+ 	     unsigned long gasce);
  
--	if (new_flags == vma->vm_flags && (!set_new_anon_name ||
--			anon_vma_name_eq(anon_vma_name(vma), anon_name)))
-+	if (vma_flags_same_mask(&vma->flags, new_vma_flags) &&
-+	    (!set_new_anon_name ||
-+	     anon_vma_name_eq(anon_vma_name(vma), anon_name)))
- 		return 0;
- 
- 	if (set_new_anon_name)
-@@ -165,7 +167,7 @@ static int madvise_update_vma(vm_flags_t new_flags,
- 			range->start, range->end, anon_name);
- 	else
- 		vma = vma_modify_flags(&vmi, madv_behavior->prev, vma,
--			range->start, range->end, &new_flags);
-+			range->start, range->end, &new_vma_flags);
- 
- 	if (IS_ERR(vma))
- 		return PTR_ERR(vma);
-@@ -174,7 +176,7 @@ static int madvise_update_vma(vm_flags_t new_flags,
- 
- 	/* vm_flags is protected by the mmap_lock held in write mode. */
- 	vma_start_write(vma);
--	vm_flags_reset(vma, new_flags);
-+	vma->flags = new_vma_flags;
- 	if (set_new_anon_name)
- 		return replace_anon_vma_name(vma, anon_name);
- 
-diff --git a/mm/mlock.c b/mm/mlock.c
-index 311bb3e814b7..6d12ffed1f41 100644
---- a/mm/mlock.c
-+++ b/mm/mlock.c
-@@ -415,13 +415,14 @@ static int mlock_pte_range(pmd_t *pmd, unsigned long addr,
-  * @vma - vma containing range to be mlock()ed or munlock()ed
-  * @start - start address in @vma of the range
-  * @end - end of range in @vma
-- * @newflags - the new set of flags for @vma.
-+ * @new_vma_flags - the new set of flags for @vma.
-  *
-  * Called for mlock(), mlock2() and mlockall(), to set @vma VM_LOCKED;
-  * called for munlock() and munlockall(), to clear VM_LOCKED from @vma.
-  */
- static void mlock_vma_pages_range(struct vm_area_struct *vma,
--	unsigned long start, unsigned long end, vm_flags_t newflags)
-+	unsigned long start, unsigned long end,
-+	vma_flags_t *new_vma_flags)
- {
- 	static const struct mm_walk_ops mlock_walk_ops = {
- 		.pmd_entry = mlock_pte_range,
-@@ -439,18 +440,18 @@ static void mlock_vma_pages_range(struct vm_area_struct *vma,
- 	 * combination should not be visible to other mmap_lock users;
- 	 * but WRITE_ONCE so rmap walkers must see VM_IO if VM_LOCKED.
- 	 */
--	if (newflags & VM_LOCKED)
--		newflags |= VM_IO;
-+	if (vma_flags_test(new_vma_flags, VMA_LOCKED_BIT))
-+		vma_flags_set(new_vma_flags, VMA_IO_BIT);
- 	vma_start_write(vma);
--	vm_flags_reset_once(vma, newflags);
-+	WRITE_ONCE(vma->flags, *new_vma_flags);
- 
- 	lru_add_drain();
- 	walk_page_range(vma->vm_mm, start, end, &mlock_walk_ops, NULL);
- 	lru_add_drain();
- 
--	if (newflags & VM_IO) {
--		newflags &= ~VM_IO;
--		vm_flags_reset_once(vma, newflags);
-+	if (vma_flags_test(new_vma_flags, VMA_IO_BIT)) {
-+		vma_flags_clear(new_vma_flags, VMA_IO_BIT);
-+		WRITE_ONCE(vma->flags, *new_vma_flags);
+diff --git a/arch/s390/include/asm/stacktrace.h b/arch/s390/include/asm/stacktrace.h
+index c9ae680a28af..ac3606c3babe 100644
+--- a/arch/s390/include/asm/stacktrace.h
++++ b/arch/s390/include/asm/stacktrace.h
+@@ -62,7 +62,7 @@ struct stack_frame {
+ 		struct {
+ 			unsigned long sie_control_block;
+ 			unsigned long sie_savearea;
+-			unsigned long sie_reason;
++			unsigned long sie_return;
+ 			unsigned long sie_flags;
+ 			unsigned long sie_control_block_phys;
+ 			unsigned long sie_guest_asce;
+diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
+index e1a5b5b54e4f..fbd26f3e9f96 100644
+--- a/arch/s390/kernel/asm-offsets.c
++++ b/arch/s390/kernel/asm-offsets.c
+@@ -63,7 +63,7 @@ int main(void)
+ 	OFFSET(__SF_EMPTY, stack_frame, empty[0]);
+ 	OFFSET(__SF_SIE_CONTROL, stack_frame, sie_control_block);
+ 	OFFSET(__SF_SIE_SAVEAREA, stack_frame, sie_savearea);
+-	OFFSET(__SF_SIE_REASON, stack_frame, sie_reason);
++	OFFSET(__SF_SIE_RETURN, stack_frame, sie_return);
+ 	OFFSET(__SF_SIE_FLAGS, stack_frame, sie_flags);
+ 	OFFSET(__SF_SIE_CONTROL_PHYS, stack_frame, sie_control_block_phys);
+ 	OFFSET(__SF_SIE_GUEST_ASCE, stack_frame, sie_guest_asce);
+diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
+index 4873fe9d891b..5817cb47b2d0 100644
+--- a/arch/s390/kernel/entry.S
++++ b/arch/s390/kernel/entry.S
+@@ -200,7 +200,7 @@ SYM_FUNC_START(__sie64a)
+ 	stg	%r3,__SF_SIE_CONTROL(%r15)	# ...and virtual addresses
+ 	stg	%r4,__SF_SIE_SAVEAREA(%r15)	# save guest register save area
+ 	stg	%r5,__SF_SIE_GUEST_ASCE(%r15)	# save guest asce
+-	xc	__SF_SIE_REASON(8,%r15),__SF_SIE_REASON(%r15) # reason code = 0
++	xc	__SF_SIE_RETURN(8,%r15),__SF_SIE_RETURN(%r15) # return code = 0
+ 	mvc	__SF_SIE_FLAGS(8,%r15),__TI_flags(%r14) # copy thread flags
+ 	lmg	%r0,%r13,0(%r4)			# load guest gprs 0-13
+ 	mvi	__TI_sie(%r14),1
+@@ -237,7 +237,7 @@ SYM_INNER_LABEL(sie_exit, SYM_L_GLOBAL)
+ 	xgr	%r4,%r4
+ 	xgr	%r5,%r5
+ 	lmg	%r6,%r14,__SF_GPRS(%r15)	# restore kernel registers
+-	lg	%r2,__SF_SIE_REASON(%r15)	# return exit reason code
++	lg	%r2,__SF_SIE_RETURN(%r15)	# return sie return code
+ 	BR_EX	%r14
+ SYM_FUNC_END(__sie64a)
+ EXPORT_SYMBOL(__sie64a)
+diff --git a/arch/s390/kernel/nmi.c b/arch/s390/kernel/nmi.c
+index a55abbf65333..fc1f775e4517 100644
+--- a/arch/s390/kernel/nmi.c
++++ b/arch/s390/kernel/nmi.c
+@@ -487,8 +487,8 @@ void notrace s390_do_machine_check(struct pt_regs *regs)
+ 	mcck_dam_code = (mci.val & MCIC_SUBCLASS_MASK);
+ 	if (test_cpu_flag(CIF_MCCK_GUEST) &&
+ 	(mcck_dam_code & MCCK_CODE_NO_GUEST) != mcck_dam_code) {
+-		/* Set exit reason code for host's later handling */
+-		*((long *)(regs->gprs[15] + __SF_SIE_REASON)) = -EINTR;
++		/* Set sie return code for host's later handling */
++		*((long *)(regs->gprs[15] + __SF_SIE_RETURN)) = SIE64_RETURN_MCCK;
  	}
- }
+ 	clear_cpu_flag(CIF_MCCK_GUEST);
  
-@@ -467,20 +468,22 @@ static int mlock_fixup(struct vma_iterator *vmi, struct vm_area_struct *vma,
- 	       struct vm_area_struct **prev, unsigned long start,
- 	       unsigned long end, vm_flags_t newflags)
- {
-+	vma_flags_t new_vma_flags = legacy_to_vma_flags(newflags);
-+	const vma_flags_t old_vma_flags = vma->flags;
- 	struct mm_struct *mm = vma->vm_mm;
- 	int nr_pages;
- 	int ret = 0;
--	vm_flags_t oldflags = vma->vm_flags;
- 
--	if (newflags == oldflags || vma_is_secretmem(vma) ||
--	    !vma_supports_mlock(vma))
-+	if (vma_flags_same_pair(&old_vma_flags, &new_vma_flags) ||
-+	    vma_is_secretmem(vma) || !vma_supports_mlock(vma)) {
- 		/*
- 		 * Don't set VM_LOCKED or VM_LOCKONFAULT and don't count.
- 		 * For secretmem, don't allow the memory to be unlocked.
- 		 */
- 		goto out;
-+	}
- 
--	vma = vma_modify_flags(vmi, *prev, vma, start, end, &newflags);
-+	vma = vma_modify_flags(vmi, *prev, vma, start, end, &new_vma_flags);
- 	if (IS_ERR(vma)) {
- 		ret = PTR_ERR(vma);
- 		goto out;
-@@ -490,9 +493,9 @@ static int mlock_fixup(struct vma_iterator *vmi, struct vm_area_struct *vma,
- 	 * Keep track of amount of locked VM.
- 	 */
- 	nr_pages = (end - start) >> PAGE_SHIFT;
--	if (!(newflags & VM_LOCKED))
-+	if (!vma_flags_test(&new_vma_flags, VMA_LOCKED_BIT))
- 		nr_pages = -nr_pages;
--	else if (oldflags & VM_LOCKED)
-+	else if (vma_flags_test(&old_vma_flags, VMA_LOCKED_BIT))
- 		nr_pages = 0;
- 	mm->locked_vm += nr_pages;
- 
-@@ -501,12 +504,13 @@ static int mlock_fixup(struct vma_iterator *vmi, struct vm_area_struct *vma,
- 	 * It's okay if try_to_unmap_one unmaps a page just after we
- 	 * set VM_LOCKED, populate_vma_page_range will bring it back.
- 	 */
--	if ((newflags & VM_LOCKED) && (oldflags & VM_LOCKED)) {
-+	if (vma_flags_test(&new_vma_flags, VMA_LOCKED_BIT) &&
-+	    vma_flags_test(&old_vma_flags, VMA_LOCKED_BIT)) {
- 		/* No work to do, and mlocking twice would be wrong */
- 		vma_start_write(vma);
--		vm_flags_reset(vma, newflags);
-+		vma->flags = new_vma_flags;
- 	} else {
--		mlock_vma_pages_range(vma, start, end, newflags);
-+		mlock_vma_pages_range(vma, start, end, &new_vma_flags);
- 	}
- out:
- 	*prev = vma;
-diff --git a/mm/mprotect.c b/mm/mprotect.c
-index eaa724b99908..2b8a85689ab7 100644
---- a/mm/mprotect.c
-+++ b/mm/mprotect.c
-@@ -756,13 +756,11 @@ mprotect_fixup(struct vma_iterator *vmi, struct mmu_gather *tlb,
- 		vma_flags_clear(&new_vma_flags, VMA_ACCOUNT_BIT);
- 	}
- 
--	newflags = vma_flags_to_legacy(new_vma_flags);
--	vma = vma_modify_flags(vmi, *pprev, vma, start, end, &newflags);
-+	vma = vma_modify_flags(vmi, *pprev, vma, start, end, &new_vma_flags);
- 	if (IS_ERR(vma)) {
- 		error = PTR_ERR(vma);
- 		goto fail;
- 	}
--	new_vma_flags = legacy_to_vma_flags(newflags);
- 
- 	*pprev = vma;
- 
-@@ -771,7 +769,7 @@ mprotect_fixup(struct vma_iterator *vmi, struct mmu_gather *tlb,
- 	 * held in write mode.
- 	 */
- 	vma_start_write(vma);
--	vm_flags_reset_once(vma, newflags);
-+	WRITE_ONCE(vma->flags, new_vma_flags);
- 	if (vma_wants_manual_pte_write_upgrade(vma))
- 		mm_cp_flags |= MM_CP_TRY_CHANGE_WRITABLE;
- 	vma_set_page_prot(vma);
-@@ -796,6 +794,7 @@ mprotect_fixup(struct vma_iterator *vmi, struct mmu_gather *tlb,
- 	}
- 
- 	vm_stat_account(mm, vma_flags_to_legacy(old_vma_flags), -nrpages);
-+	newflags = vma_flags_to_legacy(new_vma_flags);
- 	vm_stat_account(mm, newflags, nrpages);
- 	perf_event_mmap(vma);
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 1668580008c6..b93722b57d1c 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4617,7 +4617,7 @@ static int vcpu_post_run_handle_fault(struct kvm_vcpu *vcpu)
  	return 0;
-diff --git a/mm/mseal.c b/mm/mseal.c
-index 316b5e1dec78..fd299d60ad17 100644
---- a/mm/mseal.c
-+++ b/mm/mseal.c
-@@ -68,14 +68,16 @@ static int mseal_apply(struct mm_struct *mm,
- 	for_each_vma_range(vmi, vma, end) {
- 		const unsigned long curr_end = MIN(vma->vm_end, end);
- 
--		if (!(vma->vm_flags & VM_SEALED)) {
--			vm_flags_t vm_flags = vma->vm_flags | VM_SEALED;
-+		if (!vma_test(vma, VMA_SEALED_BIT)) {
-+			vma_flags_t vma_flags = vma->flags;
-+
-+			vma_flags_set(&vma_flags, VMA_SEALED_BIT);
- 
- 			vma = vma_modify_flags(&vmi, prev, vma, curr_start,
--					       curr_end, &vm_flags);
-+					       curr_end, &vma_flags);
- 			if (IS_ERR(vma))
- 				return PTR_ERR(vma);
--			vm_flags_set(vma, VM_SEALED);
-+			vma_set_flags(vma, VMA_SEALED_BIT);
- 		}
- 
- 		prev = vma;
-diff --git a/mm/userfaultfd.c b/mm/userfaultfd.c
-index 510c6dcb9824..9aea5822e78e 100644
---- a/mm/userfaultfd.c
-+++ b/mm/userfaultfd.c
-@@ -2094,6 +2094,9 @@ struct vm_area_struct *userfaultfd_clear_vma(struct vma_iterator *vmi,
- {
- 	struct vm_area_struct *ret;
- 	bool give_up_on_oom = false;
-+	vma_flags_t new_vma_flags = vma->flags;
-+
-+	vma_flags_clear_mask(&new_vma_flags, __VMA_UFFD_FLAGS);
- 
- 	/*
- 	 * If we are modifying only and not splitting, just give up on the merge
-@@ -2107,8 +2110,8 @@ struct vm_area_struct *userfaultfd_clear_vma(struct vma_iterator *vmi,
- 		uffd_wp_range(vma, start, end - start, false);
- 
- 	ret = vma_modify_flags_uffd(vmi, prev, vma, start, end,
--				    vma->vm_flags & ~__VM_UFFD_FLAGS,
--				    NULL_VM_UFFD_CTX, give_up_on_oom);
-+				    &new_vma_flags, NULL_VM_UFFD_CTX,
-+				    give_up_on_oom);
- 
- 	/*
- 	 * In the vma_merge() successful mprotect-like case 8:
-@@ -2128,10 +2131,11 @@ int userfaultfd_register_range(struct userfaultfd_ctx *ctx,
- 			       unsigned long start, unsigned long end,
- 			       bool wp_async)
- {
-+	vma_flags_t vma_flags = legacy_to_vma_flags(vm_flags);
- 	VMA_ITERATOR(vmi, ctx->mm, start);
- 	struct vm_area_struct *prev = vma_prev(&vmi);
- 	unsigned long vma_end;
--	vm_flags_t new_flags;
-+	vma_flags_t new_vma_flags;
- 
- 	if (vma->vm_start < start)
- 		prev = vma;
-@@ -2142,23 +2146,26 @@ int userfaultfd_register_range(struct userfaultfd_ctx *ctx,
- 		VM_WARN_ON_ONCE(!vma_can_userfault(vma, vm_flags, wp_async));
- 		VM_WARN_ON_ONCE(vma->vm_userfaultfd_ctx.ctx &&
- 				vma->vm_userfaultfd_ctx.ctx != ctx);
--		VM_WARN_ON_ONCE(!(vma->vm_flags & VM_MAYWRITE));
-+		VM_WARN_ON_ONCE(!vma_test(vma, VMA_MAYWRITE_BIT));
- 
- 		/*
- 		 * Nothing to do: this vma is already registered into this
- 		 * userfaultfd and with the right tracking mode too.
- 		 */
- 		if (vma->vm_userfaultfd_ctx.ctx == ctx &&
--		    (vma->vm_flags & vm_flags) == vm_flags)
-+		    vma_test_all_mask(vma, vma_flags))
- 			goto skip;
- 
- 		if (vma->vm_start > start)
- 			start = vma->vm_start;
- 		vma_end = min(end, vma->vm_end);
- 
--		new_flags = (vma->vm_flags & ~__VM_UFFD_FLAGS) | vm_flags;
-+		new_vma_flags = vma->flags;
-+		vma_flags_clear_mask(&new_vma_flags, __VMA_UFFD_FLAGS);
-+		vma_flags_set_mask(&new_vma_flags, vma_flags);
-+
- 		vma = vma_modify_flags_uffd(&vmi, prev, vma, start, vma_end,
--					    new_flags,
-+					    &new_vma_flags,
- 					    (struct vm_userfaultfd_ctx){ctx},
- 					    /* give_up_on_oom = */false);
- 		if (IS_ERR(vma))
-diff --git a/mm/vma.c b/mm/vma.c
-index 456c8e2cc5bc..f52fe7f9bae4 100644
---- a/mm/vma.c
-+++ b/mm/vma.c
-@@ -1709,13 +1709,13 @@ static struct vm_area_struct *vma_modify(struct vma_merge_struct *vmg)
- struct vm_area_struct *vma_modify_flags(struct vma_iterator *vmi,
- 		struct vm_area_struct *prev, struct vm_area_struct *vma,
- 		unsigned long start, unsigned long end,
--		vm_flags_t *vm_flags_ptr)
-+		vma_flags_t *vma_flags_ptr)
- {
- 	VMG_VMA_STATE(vmg, vmi, prev, vma, start, end);
--	const vm_flags_t vm_flags = *vm_flags_ptr;
-+	const vma_flags_t vma_flags = *vma_flags_ptr;
- 	struct vm_area_struct *ret;
- 
--	vmg.vm_flags = vm_flags;
-+	vmg.vma_flags = vma_flags;
- 
- 	ret = vma_modify(&vmg);
- 	if (IS_ERR(ret))
-@@ -1727,7 +1727,7 @@ struct vm_area_struct *vma_modify_flags(struct vma_iterator *vmi,
- 	 * them to the caller.
- 	 */
- 	if (vmg.state == VMA_MERGE_SUCCESS)
--		*vm_flags_ptr = ret->vm_flags;
-+		*vma_flags_ptr = ret->flags;
- 	return ret;
  }
  
-@@ -1757,12 +1757,13 @@ struct vm_area_struct *vma_modify_policy(struct vma_iterator *vmi,
- 
- struct vm_area_struct *vma_modify_flags_uffd(struct vma_iterator *vmi,
- 		struct vm_area_struct *prev, struct vm_area_struct *vma,
--		unsigned long start, unsigned long end, vm_flags_t vm_flags,
--		struct vm_userfaultfd_ctx new_ctx, bool give_up_on_oom)
-+		unsigned long start, unsigned long end,
-+		const vma_flags_t *vma_flags, struct vm_userfaultfd_ctx new_ctx,
-+		bool give_up_on_oom)
+-static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
++static int vcpu_post_run(struct kvm_vcpu *vcpu, int sie_return)
  {
- 	VMG_VMA_STATE(vmg, vmi, prev, vma, start, end);
+ 	struct mcck_volatile_info *mcck_info;
+ 	struct sie_page *sie_page;
+@@ -4633,13 +4633,14 @@ static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
+ 	vcpu->run->s.regs.gprs[14] = vcpu->arch.sie_block->gg14;
+ 	vcpu->run->s.regs.gprs[15] = vcpu->arch.sie_block->gg15;
  
--	vmg.vm_flags = vm_flags;
-+	vmg.vma_flags = *vma_flags;
- 	vmg.uffd_ctx = new_ctx;
- 	if (give_up_on_oom)
- 		vmg.give_up_on_oom = true;
-diff --git a/mm/vma.h b/mm/vma.h
-index 1f2de6cb3b97..270008e5babc 100644
---- a/mm/vma.h
-+++ b/mm/vma.h
-@@ -342,24 +342,23 @@ void unmap_region(struct unmap_desc *unmap);
-  * @vma: The VMA containing the range @start to @end to be updated.
-  * @start: The start of the range to update. May be offset within @vma.
-  * @end: The exclusive end of the range to update, may be offset within @vma.
-- * @vm_flags_ptr: A pointer to the VMA flags that the @start to @end range is
-+ * @vma_flags_ptr: A pointer to the VMA flags that the @start to @end range is
-  * about to be set to. On merge, this will be updated to include sticky flags.
-  *
-  * IMPORTANT: The actual modification being requested here is NOT applied,
-  * rather the VMA is perhaps split, perhaps merged to accommodate the change,
-  * and the caller is expected to perform the actual modification.
-  *
-- * In order to account for sticky VMA flags, the @vm_flags_ptr parameter points
-+ * In order to account for sticky VMA flags, the @vma_flags_ptr parameter points
-  * to the requested flags which are then updated so the caller, should they
-  * overwrite any existing flags, correctly retains these.
-  *
-  * Returns: A VMA which contains the range @start to @end ready to have its
-- * flags altered to *@vm_flags.
-+ * flags altered to *@vma_flags.
-  */
- __must_check struct vm_area_struct *vma_modify_flags(struct vma_iterator *vmi,
- 		struct vm_area_struct *prev, struct vm_area_struct *vma,
--		unsigned long start, unsigned long end,
--		vm_flags_t *vm_flags_ptr);
-+		unsigned long start, unsigned long end, vma_flags_t *vma_flags_ptr);
+-	if (exit_reason == -EINTR) {
++	if (sie_return == SIE64_RETURN_MCCK) {
+ 		sie_page = container_of(vcpu->arch.sie_block,
+ 					struct sie_page, sie_block);
+ 		mcck_info = &sie_page->mcck_info;
+ 		kvm_s390_reinject_machine_check(vcpu, mcck_info);
+ 		return 0;
+ 	}
++	WARN_ON(sie_return != SIE64_RETURN_NORMAL);
  
- /**
-  * vma_modify_name() - Perform any necessary split/merge in preparation for
-@@ -418,7 +417,7 @@ __must_check struct vm_area_struct *vma_modify_policy(struct vma_iterator *vmi,
-  * @vma: The VMA containing the range @start to @end to be updated.
-  * @start: The start of the range to update. May be offset within @vma.
-  * @end: The exclusive end of the range to update, may be offset within @vma.
-- * @vm_flags: The VMA flags that the @start to @end range is about to be set to.
-+ * @vma_flags: The VMA flags that the @start to @end range is about to be set to.
-  * @new_ctx: The userfaultfd context that the @start to @end range is about to
-  * be set to.
-  * @give_up_on_oom: If an out of memory condition occurs on merge, simply give
-@@ -429,11 +428,11 @@ __must_check struct vm_area_struct *vma_modify_policy(struct vma_iterator *vmi,
-  * and the caller is expected to perform the actual modification.
-  *
-  * Returns: A VMA which contains the range @start to @end ready to have its VMA
-- * flags changed to @vm_flags and its userfaultfd context changed to @new_ctx.
-+ * flags changed to @vma_flags and its userfaultfd context changed to @new_ctx.
-  */
- __must_check struct vm_area_struct *vma_modify_flags_uffd(struct vma_iterator *vmi,
- 		struct vm_area_struct *prev, struct vm_area_struct *vma,
--		unsigned long start, unsigned long end, vm_flags_t vm_flags,
-+		unsigned long start, unsigned long end, const vma_flags_t *vma_flags,
- 		struct vm_userfaultfd_ctx new_ctx, bool give_up_on_oom);
+ 	if (vcpu->arch.sie_block->icptcode > 0) {
+ 		rc = kvm_handle_sie_intercept(vcpu);
+@@ -4678,7 +4679,7 @@ int noinstr kvm_s390_enter_exit_sie(struct kvm_s390_sie_block *scb,
+ #define PSW_INT_MASK (PSW_MASK_EXT | PSW_MASK_IO | PSW_MASK_MCHECK)
+ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ {
+-	int rc, exit_reason;
++	int rc, sie_return;
+ 	struct sie_page *sie_page = (struct sie_page *)vcpu->arch.sie_block;
  
- __must_check struct vm_area_struct *vma_merge_new_range(struct vma_merge_struct *vmg);
-diff --git a/tools/testing/vma/tests/merge.c b/tools/testing/vma/tests/merge.c
-index 44e3977e3fc0..03b6f9820e0a 100644
---- a/tools/testing/vma/tests/merge.c
-+++ b/tools/testing/vma/tests/merge.c
-@@ -132,7 +132,6 @@ static bool test_simple_modify(void)
- 	struct vm_area_struct *vma;
- 	vma_flags_t vma_flags = mk_vma_flags(VMA_READ_BIT, VMA_WRITE_BIT, VMA_MAYREAD_BIT,
- 					     VMA_MAYWRITE_BIT);
--	vm_flags_t legacy_flags = VM_READ | VM_WRITE;
- 	struct mm_struct mm = {};
- 	struct vm_area_struct *init_vma = alloc_vma(&mm, 0, 0x3000, 0, vma_flags);
- 	VMA_ITERATOR(vmi, &mm, 0x1000);
-@@ -144,7 +143,7 @@ static bool test_simple_modify(void)
- 	 * performs the merge/split only.
- 	 */
- 	vma = vma_modify_flags(&vmi, init_vma, init_vma,
--			       0x1000, 0x2000, &legacy_flags);
-+			       0x1000, 0x2000, &vma_flags);
- 	ASSERT_NE(vma, NULL);
- 	/* We modify the provided VMA, and on split allocate new VMAs. */
- 	ASSERT_EQ(vma, init_vma);
+ 	/*
+@@ -4718,9 +4719,9 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ 		guest_timing_enter_irqoff();
+ 		__disable_cpu_timer_accounting(vcpu);
+ 
+-		exit_reason = kvm_s390_enter_exit_sie(vcpu->arch.sie_block,
+-						      vcpu->run->s.regs.gprs,
+-						      vcpu->arch.gmap->asce.val);
++		sie_return = kvm_s390_enter_exit_sie(vcpu->arch.sie_block,
++						     vcpu->run->s.regs.gprs,
++						     vcpu->arch.gmap->asce.val);
+ 
+ 		__enable_cpu_timer_accounting(vcpu);
+ 		guest_timing_exit_irqoff();
+@@ -4743,7 +4744,7 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ 		}
+ 		kvm_vcpu_srcu_read_lock(vcpu);
+ 
+-		rc = vcpu_post_run(vcpu, exit_reason);
++		rc = vcpu_post_run(vcpu, sie_return);
+ 		if (rc || guestdbg_exit_pending(vcpu)) {
+ 			kvm_vcpu_srcu_read_unlock(vcpu);
+ 			break;
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index c0d36afd4023..42c53134e0b8 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -1123,6 +1123,7 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page, struc
+ 	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
+ 	struct kvm_s390_sie_block *scb_o = vsie_page->scb_o;
+ 	int guest_bp_isolation;
++	int sie_return = SIE64_RETURN_NORMAL;
+ 	int rc = 0;
+ 
+ 	handle_last_fault(vcpu, vsie_page, sg);
+@@ -1163,7 +1164,7 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page, struc
+ 			goto xfer_to_guest_mode_check;
+ 		}
+ 		guest_timing_enter_irqoff();
+-		rc = kvm_s390_enter_exit_sie(scb_s, vcpu->run->s.regs.gprs, sg->asce.val);
++		sie_return = kvm_s390_enter_exit_sie(scb_s, vcpu->run->s.regs.gprs, sg->asce.val);
+ 		guest_timing_exit_irqoff();
+ 		local_irq_enable();
+ 	}
+@@ -1178,11 +1179,13 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page, struc
+ 
+ 	kvm_vcpu_srcu_read_lock(vcpu);
+ 
+-	if (rc == -EINTR) {
++	if (sie_return == SIE64_RETURN_MCCK) {
+ 		kvm_s390_reinject_machine_check(vcpu, &vsie_page->mcck_info);
+ 		return 0;
+ 	}
+ 
++	WARN_ON(sie_return != SIE64_RETURN_NORMAL);
++
+ 	if (rc > 0)
+ 		rc = 0; /* we could still have an icpt */
+ 	else if (current->thread.gmap_int_code)
 -- 
 2.53.0
 
