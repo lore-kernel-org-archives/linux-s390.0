@@ -1,143 +1,120 @@
-Received: from BN1PR04CU002.outbound.protection.outlook.com (mail-eastus2azon11010071.outbound.protection.outlook.com [52.101.56.71])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C4833242CF;
-	Mon, 16 Mar 2026 17:16:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.56.71
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773681374; cv=fail; b=o8x8lH5QKki+XZixLkXkdulAI68+pmT2Tr6ZW7LisYZwqj9w/z+VFtbE9yCiXWTd3ez3HArDBtkM6dg5kDRwJW1oxpT4cD9D3UI9WrllPLtLPGSLRgQRD/ouUtzsLudH/hcMH5pnGMZJ3lZ7hUrzwWiJ/pXB8FL7oo9IsLn3H/4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773681374; c=relaxed/simple;
-	bh=sjM6wTGrVlx0bakTLeUy7+MQ2PB5M/tegTjwy642imc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=E0cEDZ/JLmIEe0uzO43BsQgwFOGlW221u1ku7t9aGryCyDK+Thim87fcmE1hms2jT9Um1zDwRXmm/0l7j/CvkNC90XHu30zpfg6kcar/nwgAAldSlhZuZ+/8MN2OObS5+myTmdDygksSPPUEQJ6H7Z3bEd3AJpdCTpOEU+GYblM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=tpDhTZjp; arc=fail smtp.client-ip=52.101.56.71
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5111277C96;
+	Mon, 16 Mar 2026 18:04:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773684266; cv=none; b=PY+RsyGQnv+0SGY34j+n+VH7FSn3m3Tt7BSIlMezh8uF8mAFM/bIt3zBaqTHO+QyDL1TzDPY4KPNje+cFSVnMJsqzWmQDJRTxJwXaKjaE7ckS1OhUQIfq3YzS8OYjfQNQdiod+GZGfavVdGiUbq41xwvBCDJk90khm0dl/6UpuY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773684266; c=relaxed/simple;
+	bh=paFM6m/hdp8cVIXvIU2fEELdEihCo+X19ehDGSfw/0o=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=laTbf7XgeopGG6NBQyNHIrYs3ZThninVqMhE+umhu+3gheTdhEaAsRarFSwpQQWvPz8yCg2VUJcWIvFWsF4wN3mM48FrkzUjr9hStm7C5XndLUc14634U/9Ij518SGvbamWInwmOnert19OR+epDADCVBisX8R5wTheMoTykCKo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kzP+Cd6N; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="tpDhTZjp"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=VPeQjtS9l+RfeZB6KXK+8dXJ2PosPSe17xClxjhabHk2Q8VUBWhNBP05vrpcx2d+y4Hyt80XEiQZHgVIa7afjK3IUbsjTx/uXBv5Kb0JE1KfhFll96e6Cm6KFC9Q/swJpImfCGj8vLaT0fY0YbzIOuvVFgZGKuj4eHaoCdfxYx88mfO1HdIdvrbpRsK316bYzUuKj0fYAm49YGyHHmj5ZLWp/ZujdX3q3Twy/Vr0zoIM8508XNKQEb+b5F9Lz4JiJkTBLnnuVJOVNXIMQa4KGLWzPMXx95Zce4pM98yEwilkVHrzjWG1ZET+C/do805aNBHDYJ/IVjnQa1YucVvK9w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=PSg+Oo9bKmxjcK/RACzBZ6TJ0H0VpiWej7UYa/J7534=;
- b=V9th9+gZLay+oPs6HTFohJvsxTYtDCj12Bjs55CD9ND7xZWz5YVY2ANZJ8Rrlfsh5zqYyHkd10AlipR6BFGsyiqzn8jciDYLABQXYpdt2dOfZa7cJUfx4WS+0OHBeIMAmIwySn34N8HB5W2JgSXUS6tIS6tDc2P9HVylHvxtUGnaHjokv+aElBOHSwRfUsVKpmQ77kZIOyCisAevQn4gQ02Z5KOiE3C4a+8ypud+QcTUsC/fzQUnueL6IWJ/XUCyoZczw/q8mxogJM87dpEP+4i10TvUgFXiDeaRq5uZ1mEcuHZKcKEjkf8gGt/l+0iX2b3VHxfPgEmV1SZXTNMJdw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=linutronix.de smtp.mailfrom=amd.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=amd.com; dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=PSg+Oo9bKmxjcK/RACzBZ6TJ0H0VpiWej7UYa/J7534=;
- b=tpDhTZjpta9VAXocFnlQ7AFp4qrS9Y9Pw4vD8WwwvApeESE99rI7bugeIQxoj1clBoC1JrBPZ/CPPH0jNDBStKsgm/4Ls/zwX36PMDHaxB9kmpB4FxZ+1K+QCC8vNEygKJM6XNvD4p5Ptd4XvgQA2prUoCycvBPg69zK2wEQPdM=
-Received: from SA0PR11CA0102.namprd11.prod.outlook.com (2603:10b6:806:d1::17)
- by SJ2PR12MB9162.namprd12.prod.outlook.com (2603:10b6:a03:555::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9723.16; Mon, 16 Mar
- 2026 17:16:08 +0000
-Received: from SA2PEPF00003AEB.namprd02.prod.outlook.com
- (2603:10b6:806:d1:cafe::33) by SA0PR11CA0102.outlook.office365.com
- (2603:10b6:806:d1::17) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9700.24 via Frontend Transport; Mon,
- 16 Mar 2026 17:16:08 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=satlexmb08.amd.com; pr=C
-Received: from satlexmb08.amd.com (165.204.84.17) by
- SA2PEPF00003AEB.mail.protection.outlook.com (10.167.248.11) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9700.17 via Frontend Transport; Mon, 16 Mar 2026 17:16:08 +0000
-Received: from satlexmb10.amd.com (10.181.42.219) by satlexmb08.amd.com
- (10.181.42.217) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Mon, 16 Mar
- 2026 12:16:06 -0500
-Received: from satlexmb08.amd.com (10.181.42.217) by satlexmb10.amd.com
- (10.181.42.219) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Mon, 16 Mar
- 2026 12:16:06 -0500
-Received: from [172.31.184.125] (10.180.168.240) by satlexmb08.amd.com
- (10.181.42.217) with Microsoft SMTP Server id 15.2.2562.17 via Frontend
- Transport; Mon, 16 Mar 2026 12:15:56 -0500
-Message-ID: <9e84f85b-a86e-4a93-81bf-5c0951b8d81c@amd.com>
-Date: Mon, 16 Mar 2026 22:45:50 +0530
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kzP+Cd6N"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62GEx58K935245;
+	Mon, 16 Mar 2026 18:04:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=E6r7xERgNUNXQRkPo
+	K9aTVS8jPqeQmpQyj1f4BOVhS0=; b=kzP+Cd6N+TjhDLLSUeHNdqBscyT1yPAyY
+	q7FewKs4JpL9wwvQara0jpEybs8DjwzdxGylFsRZlQvTqDL035VbKJWmf6eLC++s
+	p0XMIqkw+pb5QJqSYAxaE5nQCjr1keA3sn2VAfC5cz2lwn43lUemIIF9lUFNFwf0
+	HgZ5VGgXIcftFI8LE2fJgy4mOv308L0voilvsiW9AwRSrovcVRG2C7aYx6cbITBI
+	esUpjooRw6AH+mp7NtwrFnmsoHN4jzZ9QMcfpKoYPY2xp2zgStBkEeqfbP4roO7j
+	q5006JEe273A4a3jF9OKMUv3HsGGV7wV3L6t3+LpQnCPATkaoMH9A==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvy64h7gc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 16 Mar 2026 18:04:24 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62GGEghW032397;
+	Mon, 16 Mar 2026 18:04:24 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cwm7jnp11-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 16 Mar 2026 18:04:23 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62GI4KKS22085910
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 16 Mar 2026 18:04:20 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7A3D820040;
+	Mon, 16 Mar 2026 18:04:20 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 50D422004B;
+	Mon, 16 Mar 2026 18:04:20 +0000 (GMT)
+Received: from b46lp25.lnxne.boe (unknown [9.87.84.240])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 16 Mar 2026 18:04:20 +0000 (GMT)
+From: Janosch Frank <frankja@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        borntraeger@linux.ibm.com, akrowiak@linux.ibm.com
+Subject: [RFC 01/10] KVM: s390: diag258: Pass absolute address to kvm_is_gpa_in_memslot()
+Date: Mon, 16 Mar 2026 16:23:48 +0000
+Message-ID: <20260316180310.17765-2-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <20260316180310.17765-1-frankja@linux.ibm.com>
+References: <20260316180310.17765-1-frankja@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v2 7/7] futex: Use runtime constants for
- __futex_hash() hot path
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-CC: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, "Peter
- Zijlstra" <peterz@infradead.org>, Paul Walmsley <pjw@kernel.org>, "Palmer
- Dabbelt" <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, "Borislav
- Petkov" <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
-	<x86@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon
-	<will@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
-	<gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, "Arnd
- Bergmann" <arnd@arndb.de>, Darren Hart <dvhart@infradead.org>, Davidlohr
- Bueso <dave@stgolabs.net>, =?UTF-8?Q?Andr=C3=A9_Almeida?=
-	<andrealmeid@igalia.com>, <linux-arch@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>, Alexandre
- Ghiti <alex@ghiti.fr>, "H. Peter Anvin" <hpa@zytor.com>, Kiryl Shutsemau
-	<kas@kernel.org>, Sean Christopherson <seanjc@google.com>, Charlie Jenkins
-	<charlie@rivosinc.com>, Charles Mirabile <cmirabil@redhat.com>, Christian
- Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Huth <thuth@redhat.com>, "Jisheng Zhang" <jszhang@kernel.org>
-References: <20260316052401.18910-1-kprateek.nayak@amd.com>
- <20260316052401.18910-8-kprateek.nayak@amd.com>
- <20260316081429.FJx4fnNl@linutronix.de>
-Content-Language: en-US
-From: K Prateek Nayak <kprateek.nayak@amd.com>
-In-Reply-To: <20260316081429.FJx4fnNl@linutronix.de>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA2PEPF00003AEB:EE_|SJ2PR12MB9162:EE_
-X-MS-Office365-Filtering-Correlation-Id: 521baaca-6f8c-417a-2289-08de837fb6e1
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|7416014|1800799024|376014|36860700016|82310400026|18002099003|22082099003|56012099003;
-X-Microsoft-Antispam-Message-Info:
-	Bj2UrZRAJjyE1feOpD1Pu5fBIcZBHYnUz3rO6HxdqIexW6Q0nd10LTk0J+bobi6e/IBwe0p45LcEF5dS6WLJovQYRUqlZkzv/27GK7GCEiY1Ba5O5uTFA7Q/9P4yyqzzv1i2Dp5Fwo+G4dIXpklc2i792PlsZGhAQlFXaPSNEzWK58qjfb0aQCkBg6KovNqv7VJRBMxLmuHbo4bqpIvJ0kFPLTd11j2NqvF8vsWDb0mnIFmSXGHGZ1WVnDySRv7WIaxX9bhHpEFubkiQDxctRQx5pZe37ui8gdSYYo1CR99N7pAVKxIxV8I47xpFTLlVd1VGvx++yD1BGxsDgpks2/IgcIhc7v6PI5Q+einEMmZicMEelncx08K7QDcMVJ71qK8qpp0tckEzacIYyEiErzIZdZ+IWjPfWbUEfx7vvxsstrxJV0qUE/itZQKY+7rvevFrEkBKJ3IuRILjRRA+UtFoj+O6RlSWt5yZOktq/So82VXYT12tWAqotmxH5uXaWbD9LT1mW5uenkoaYkuP0jF9nppYrasPQ2kVttXCngmMBkmBIbFOUoOS/rl1MjcyXPsjs4/J5iut1f9HQ04YLzID7X2CvObbex+JLnR55rgiSeJIL+fGkN6u2lEnF/oqyB5zmDyUDrOL1UdBX6NMZ+AXIFmEZ7kF+orK7kR8fNTxHTkQ3Xl+G0C+ZiMtefSiN+Lo3flcqW9xosOS+rhSMZ/pBG+/aWSc84TrUoL949qN9d78vjiXOqeTFptVkNSJD1HjJfHlhqf6bsyP+qFnDA==
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb08.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(7416014)(1800799024)(376014)(36860700016)(82310400026)(18002099003)(22082099003)(56012099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	SbBX0fdv3hUdFhnyMqYxjYU3KnTxPWvwU/2crPFOICS2fYEJjH5G8HYA9fa350Ak1e+7+PUFYFofovlfFURH4Rcwdn/0yGkXuWnxrzKk+NxtrlOXHKCerLi8lew9/Tt6kpt2m/sJ5xcTbo722zXR2T3bA6qhG4VCknl7CSaPHVxjhLEEPTutM4a2tdB6Z3tbh0tVVSss0Gboe7S7HXbv77pqyTsk/rWOlxOfv7YWccRlFkuNVYL5XTnYtyA94Ulo0pvIdXDRyHlk+3WGelS2syNeywvHUjqlg1bQXN2nI33zqKt7zhxapQ/HXxMpDP1SHgMPAgPWFP4nlO09G4uYfk4F9D5vdh/IAfmsLQ3sUgeZiWtL8AZeK91H3yGiYXvZls/bDR32aAcu6IDpRsEOE2/IOXXFprAr5OjB8OeOYmi8FqcOTSGb+MBSafp5OJ8v
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Mar 2026 17:16:08.4867
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 521baaca-6f8c-417a-2289-08de837fb6e1
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb08.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	SA2PEPF00003AEB.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB9162
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: P5QM0TNeadGEoCjxOlgYV91tiS6-yPEP
+X-Proofpoint-GUID: P5QM0TNeadGEoCjxOlgYV91tiS6-yPEP
+X-Authority-Analysis: v=2.4 cv=KYnfcAYD c=1 sm=1 tr=0 ts=69b84628 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=aYs9lplfhmajBf97zl8A:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE2MDEzOSBTYWx0ZWRfX/rA5qn4G+XLe
+ 2KjAQ/HddgPpHaLcPjjU0qJp0IGaEN64pK0EGmhp0mFqMIarAzKyGfU8bk1dR/f4P9HSTEwg/CA
+ jxPwlQ1PdgJMlSzUviZG4uMZGkXF7OEcTFt499EzfKDuFBhqnvdjbf4edTuPQFa2XfICuJvJzkk
+ E11dydRpMHrvR9S/QK+zgVDZ++3zxM48Ka0Q0IT2WNeQLXHZRV/j6NO7/BdzmDMuvI7lUqAGdiQ
+ aXoq32lpPiou9m7dCMcXj092okE4nVRmeAzKpoEdFr8mvVJ//yV5gmEvngkvm6oaKGB7qrrZLUk
+ Ss91c0u0u46AbCR7IKYqwZyxEHEotXLTJq4QfmY0VOpL75MjV8xYhCel8aA4UmJi8AqHp2twUB1
+ bB2a5De/KNob6br7sfDIIuHKF8Kh2Fbcuogb4xl9sv0IPATFeS0SJHUbjpZ/f2YhqBJCYFxM8Rs
+ JzyDEyc/NLKRelAN+/Q==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-16_04,2026-03-16_05,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0 bulkscore=0
+ spamscore=0 impostorscore=0 malwarescore=0 adultscore=0 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603160139
 
-Hello Sebastian,
+The token address is a real address and as such we need to translate
+it before it's a true gpa.
 
-On 3/16/2026 1:44 PM, Sebastian Andrzej Siewior wrote:
-> This all looks nice. Let me look later at the resulting code. Thank you
-> so far ;)
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Fixes: 3c038e6be0e29 ("KVM: async_pf: Async page fault support on s390")
+---
+ arch/s390/kvm/diag.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Let me know if you find anything nasty and we can see how to best
-address those bits in the next version :-)
-
-Thank you for taking a look at the series.
-
+diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
+index d89d1c381522..51ba4dcc3905 100644
+--- a/arch/s390/kvm/diag.c
++++ b/arch/s390/kvm/diag.c
+@@ -122,7 +122,7 @@ static int __diag_page_ref_service(struct kvm_vcpu *vcpu)
+ 		    parm.token_addr & 7 || parm.zarch != 0x8000000000000000ULL)
+ 			return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+ 
+-		if (!kvm_is_gpa_in_memslot(vcpu->kvm, parm.token_addr))
++		if (!kvm_is_gpa_in_memslot(vcpu->kvm, kvm_s390_real_to_abs(vcpu, parm.token_addr)))
+ 			return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
+ 
+ 		vcpu->arch.pfault_token = parm.token_addr;
 -- 
-Thanks and Regards,
-Prateek
+2.51.0
 
