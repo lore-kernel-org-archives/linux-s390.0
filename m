@@ -1,60 +1,60 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DF692D877C;
-	Mon, 16 Mar 2026 15:11:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B754230594E;
+	Mon, 16 Mar 2026 15:41:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773673908; cv=none; b=m5153tfa8BQrgG9Z+2AQRn3vKpL9EPJCf0fyGaGpcYbeWIyNu72dIJcK5kcf9+1vUoZmfI3kvXhffJwLTAqNggRfOLnuQBoAJwAKeXjhjdeeO9YYdoAhRcFZWdrur8KMDyZdH0BwK6C2NI7jwJJMIhOG+6EvFAkpvwBXDjJ3r7I=
+	t=1773675713; cv=none; b=V0NTNKSz8dZTGpfgBwSX1xusNQ7JqwcvcO0WpFf+hJMc78EI38GZwqNzf7PmlbuHt8H6wTk7WR3smWPbAMpYrY71t54/d0E74uYIbpc4W1k5tQwou2nkgHJVNwuVVpfDyIV8vMOPt3/+t4TFXioQVcY4o83DAz6r/SMz67JO0mw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773673908; c=relaxed/simple;
-	bh=b9dOCbdnVPTACPsk+GCGZDNc989igR9fd2biMKleNT4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=A7Q8J8HtRXGZv1z7Ho/Xi21eIwkIFxPJqyxGL8G0bwRUQwUFucq05xVX19kORPrryxFh2Qmn3zrwtpyXBD67XRD34LBnU/sDjk+5aTGSs04+B06WL4JG22c7KWXOlxzdmidOrC0zeY32nD1sCB5JaorOZkJVpaL3GIEN8uOOwjk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QCn5z+IT; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1773675713; c=relaxed/simple;
+	bh=3nksQSMM8K/IdNN24XkSyMWYvHzMfjnm/A4Rsq9cweE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=SaAulVTThRmoYZw/mA4WbryaqfFu/ukuMMh682oYz2TDsEYY7nnZHXTlQy4P/4fL5WzvxCcquzTD+d+kPgjFkiGbGEVogp1qmtATiU+/SdKtGHtXC7/RxRm7L/v7nsvY1SvJSBBePrz4WH8NKnXrSvNyknaKoRY44RwqcGlR1f8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UBfx6G52; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QCn5z+IT"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62GCHhsK077903;
-	Mon, 16 Mar 2026 15:11:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=b9dOCb
-	dnVPTACPsk+GCGZDNc989igR9fd2biMKleNT4=; b=QCn5z+ITnKyAK/Q2nRYiEC
-	r12o+BAuwPrOHkzQSNTnvH/wcGrbNjVKH06Ve7LEjQ9gRcwFnLom11RmAPqf6FAZ
-	kQUqY7Sg7XUt/Wl9xJLEKFRvyVV8pkJAw0HLN6rgR7QQbzwtgZHhCVjkubat8xZk
-	u9O4LObrsOEufZkWFqgzrIyr+ePszuy1Lw/Z/hKYz6mGhTqkxf7iWEIoD66qIAZ1
-	xGeH69i7oaeDUbSSIgdb5OvHv4ntDij1eMwQLSrzgdh7QNtgJiOSzyYVu1f2m7fi
-	wNgWVMdlDsSlz9MLDJZiuexF2tAgzinvqJz20Ff2fxUsw+FVtx98SXlVhejOF4SQ
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UBfx6G52"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62G14pU61189728;
+	Mon, 16 Mar 2026 15:41:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=qlSPyh
+	iNeci9JwRa8X16ZPwEmj9uPiM6PQhRbrWjnKw=; b=UBfx6G52SJYqh9qGxrsgII
+	Sj+Y1obCVNlATmwN4t+XN4vbmKOQcGMVJcAWSxwVVHXXUJePPvqj7kt25r+uSJii
+	64/WIvMV5Z6uxKMyIqrFlY0CdIP4uPaipS1y4S1FrbDtTIV+p8V0HbMbi2F4w4zP
+	HR8XnOJswmwNNy9fBcc5+Ct5GhMFq6BqDfCkLoHoUmly0CoqHe2qpZ+Y5WNa27kI
+	Ss77DOil9bYQ31vMY31+dhdJzXO/leGzzwhrxUd4ZtqwoVNxV07Yj9L9Bebt+Gqa
+	T1uJ4LGffzILk6oOVkrXBktuzhULHW1zaZOZt/lyF9XTLoLpt050/jgBYXuK+k6A
 	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvx3cr5kg-1
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cx7vfav77-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 16 Mar 2026 15:11:43 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62GF0FKE014011;
-	Mon, 16 Mar 2026 15:11:42 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cwjcxwc9k-1
+	Mon, 16 Mar 2026 15:41:49 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62GFCRGA028765;
+	Mon, 16 Mar 2026 15:41:48 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cwkgk5ap9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 16 Mar 2026 15:11:42 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62GFBckw26345774
+	Mon, 16 Mar 2026 15:41:48 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62GFflJE29623006
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 16 Mar 2026 15:11:38 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 534EB2004B;
-	Mon, 16 Mar 2026 15:11:38 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F186D20043;
-	Mon, 16 Mar 2026 15:11:37 +0000 (GMT)
-Received: from [9.87.137.218] (unknown [9.87.137.218])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 16 Mar 2026 15:11:37 +0000 (GMT)
-Message-ID: <0e1e5e6d-5085-438e-82f0-de585e0dd64a@linux.ibm.com>
-Date: Mon, 16 Mar 2026 16:11:37 +0100
+	Mon, 16 Mar 2026 15:41:47 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 95A6958056;
+	Mon, 16 Mar 2026 15:41:47 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C20E958052;
+	Mon, 16 Mar 2026 15:41:46 +0000 (GMT)
+Received: from [9.61.145.197] (unknown [9.61.145.197])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 16 Mar 2026 15:41:46 +0000 (GMT)
+Message-ID: <c32d602b-e1c9-4e95-958f-243dea236a3c@linux.ibm.com>
+Date: Mon, 16 Mar 2026 11:41:46 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,212 +62,120 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] KVM: s390: vsie: Avoid injecting machine check on
- signal
-To: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        KVM <kvm@vger.kernel.org>
-Cc: David Hildenbrand <david@kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-References: <20260316130947.40466-1-borntraeger@linux.ibm.com>
- <cf8b6d86-0919-4644-aaa3-de3241df2684@linux.ibm.com>
- <46e5720f-bd08-4076-bc10-e6834d58af73@linux.ibm.com>
+Subject: Re: [PATCH v1 3/3] Introducing kvm_arch_set_irq_inatomic fast inject
+To: Douglas Freimuth <freimuth@linux.ibm.com>, borntraeger@linux.ibm.com,
+        imbrenda@linux.ibm.com, frankja@linux.ibm.com, david@kernel.org,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20260308030438.88580-1-freimuth@linux.ibm.com>
+ <20260308030438.88580-4-freimuth@linux.ibm.com>
+ <e0f9d530-c691-4d1f-ab82-33b5456fca9f@linux.ibm.com>
+ <2116b7d0-0cbf-4337-823d-986d0521982b@linux.ibm.com>
 Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <46e5720f-bd08-4076-bc10-e6834d58af73@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <2116b7d0-0cbf-4337-823d-986d0521982b@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=arO/yCZV c=1 sm=1 tr=0 ts=69b81daf cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Proofpoint-ORIG-GUID: gD-w9fTyGu7vzMSL-IHtokGJ05KXRIT0
+X-Authority-Analysis: v=2.4 cv=KajfcAYD c=1 sm=1 tr=0 ts=69b824be cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=TSFc8spD-zj_ciGoqVIA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE2MDExMSBTYWx0ZWRfX5W5cz4V5w0OB
- s/oe8TsDTglSBf0dhil93/XM+cJF3dPCD45ytETWFJQbcodd8FPyt/CymjQq3mBrw1PoWD/SME4
- tMLmpfvBkmBGakE7mRENZMuq/IXVjSE8/pEIAVb2KF9HUEwfkqMBhyzAcCDyt22kQAAVML3udJ2
- HBnKfd9H7YjOsU/zo8C/gy7aQ5tUnvvbjPQ4Ye7f5phWsEs3DuVofwxKnjyWgmWlxMi2eOZjsYv
- 5OdE8SnwAtc2j9jHgHOBmY051ll3p3nKB44qQXhNPmmSQF9pIz+lfmb9/jViwHSneu3/K34R01g
- 2qHiB9NG+0JtptJDOzBQtv7bCRSK2fKKfPEVpAaMecxumyqMsvS9suOpR7vQ0s/7GHGnn/EMA/d
- beTo477zPLIFbZ2n3KMX/7Fblapym+cWHAU6shJvINFCpl+c5cOLYB9rmr/hYPepjZxo4icisYF
- o6LNalxGkGH4yqTGd5Q==
-X-Proofpoint-GUID: ySr4K1aUlCqtQrG6NSEEq_d8vP7q7dsO
-X-Proofpoint-ORIG-GUID: ySr4K1aUlCqtQrG6NSEEq_d8vP7q7dsO
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=LoBUVOB9bWH3AYvLrq8A:9
+ a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE2MDExNCBTYWx0ZWRfX8xlA/21ztg4p
+ 9y9XrNG6MKdwicvBXfqnme765D5+wuKzZZ4Bn8EGHh/t5VhWxuo8XAl3aVReEnEPdQm7CcCpLAO
+ hhuJ3O8tqS/28JJzSXVZQ6+HIpS3KSU6MnoD1DYjWfTiQeSA2bvEiyDdZQ8Vb6mr25stGK4IFHH
+ o82jnLswOdM8cl53v5qQC8xVMVzgdlXxT5Z+1WSpAHcCtEv50WqhHGvv2RogKkc5ejKk3voSOmX
+ kG6JkJuVZL56Xt+riTsdXi7yC0gsLV9WIoLvi5g/OYnr+UBp28hJDgXo+COOq8bhmkLrMhCi4kk
+ Cek3VMDv9WZKW7XH6WgdhfwSyIO4rIYTXDnRNFZ627d8QqkvK1PzfPqSr4n1TwDKrXxyQ71+DLq
+ uLpILKZ+pClJNRcTepkx91ghWucNXJauSaVO3x/YTgWtk+rw4l0in5FricaPM0Mc8co5zi7PdR6
+ xdiTU5jzh6E4HcqYBig==
+X-Proofpoint-GUID: gD-w9fTyGu7vzMSL-IHtokGJ05KXRIT0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-03-16_04,2026-03-16_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 lowpriorityscore=0 impostorscore=0
- adultscore=0 bulkscore=0 suspectscore=0 malwarescore=0 clxscore=1015
+ suspectscore=0 adultscore=0 spamscore=0 malwarescore=0 clxscore=1015
+ impostorscore=0 bulkscore=0 lowpriorityscore=0 priorityscore=1501
  phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
- definitions=main-2603160111
+ definitions=main-2603160114
 
-T24gMy8xNi8yNiAxNTo0NywgQ2hyaXN0aWFuIEJvcm50cmFlZ2VyIHdyb3RlOg0KPiANCj4g
-DQo+IEFtIDE2LjAzLjI2IHVtIDE0OjU3IHNjaHJpZWIgSmFub3NjaCBGcmFuazoNCj4+IE9u
-IDMvMTYvMjYgMTQ6MDksIENocmlzdGlhbiBCb3JudHJhZWdlciB3cm90ZToNCj4+PiBUaGUg
-cmVjZW50IFhGRVJfVE9fR1VFU1RfV09SSyBjaGFuZ2UgcmVzdWx0ZWQgaW4gYSBzaXR1YXRp
-b24sIHdoZXJlIHRoZQ0KPj4+IHZzaWUgY29kZSB3b3VsZCBpbnRlcnByZXQgYSBzaWduYWwg
-ZHVyaW5nIHdvcmsgYXMgYSBtYWNoaW5lIGNoZWNrIGR1cmluZw0KPj4+IFNJRSBhcyBib3Ro
-IHVzZSB0aGUgRUlOVFIgcmV0dXJuIGNvZGUuDQo+Pj4gVGhlIGV4aXRfcmVhc29uIG9mIHRo
-ZSBzaWU2NGEgZnVuY3Rpb24gaGFzIG5vdGhpbmcgdG8gZG8gd2l0aCB0aGUNCj4+PiBrdm1f
-cnVuIGV4aXRfcmVhc29uLiBSZW5hbWUgaXQgYW5kIGRlZmluZSBhIHNwZWNpZmljIGNvZGUg
-Zm9yIG1hY2hpbmUNCj4+PiBjaGVja3MgaW5zdGVhZCBvZiBhYnVzaW5nIC1FSU5UUi4NCj4+
-PiByZW5hbWUgZXhpdF9yZWFzb24gaW50byBzaWVfcmV0dXJuIHRvIGF2b2lkIHRoZSBuYW1p
-bmcgY29uZmxpY3QNCj4+PiBhbmQgY2hhbmdlIHRoZSBjb2RlIGZsb3cgaW4gdnNpZS5jIHRv
-IGhhdmUgYSBzZXBhcmF0ZSB2YXJpYWJsZSBmb3IgcmMNCj4+PiBhbmQgc2llX3JldHVybi4N
-Cj4+Pg0KPj4+IEZpeGVzOiAyYmQxMzM3YTEyOTVlICgiS1ZNOiBzMzkwOiBVc2UgZ2VuZXJp
-YyBWSVJUX1hGRVJfVE9fR1VFU1RfV09SSyBmdW5jdGlvbnMiKQ0KPj4+IFNpZ25lZC1vZmYt
-Ynk6IENocmlzdGlhbiBCb3JudHJhZWdlciA8Ym9ybnRyYWVnZXJAbGludXguaWJtLmNvbT4N
-Cj4+PiAtLS0NCj4+PiB2MS0+djI6DQo+Pj4gaW5zdGVhZCBvZiBhIGJhbmQtYWlkLCBtYWtl
-IHRoZSBtYWNoaW5lIGNoZWNrIG1vcmUgZGlyZWN0DQo+Pj4gdjItPnYzOg0KPj4+IGF2b2lk
-IG92ZXJsb2FkaW5nIHRoZSByYyB2YXJpYWJsZSBpbiB2c2llLmMNCj4+Pg0KPj4+ICDCoCBh
-cmNoL3MzOTAvaW5jbHVkZS9hc20va3ZtX2hvc3QuaMKgwqAgfMKgIDMgKysrDQo+Pj4gIMKg
-IGFyY2gvczM5MC9pbmNsdWRlL2FzbS9zdGFja3RyYWNlLmggfMKgIDIgKy0NCj4+PiAgwqAg
-YXJjaC9zMzkwL2tlcm5lbC9hc20tb2Zmc2V0cy5jwqDCoMKgwqAgfMKgIDIgKy0NCj4+PiAg
-wqAgYXJjaC9zMzkwL2tlcm5lbC9lbnRyeS5TwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDQg
-KystLQ0KPj4+ICDCoCBhcmNoL3MzOTAva2VybmVsL25taS5jwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgIHzCoCA0ICsrLS0NCj4+PiAgwqAgYXJjaC9zMzkwL2t2bS9rdm0tczM5MC5jwqDC
-oMKgwqDCoMKgwqDCoMKgwqAgfCAxNSArKysrKysrKy0tLS0tLS0NCj4+PiAgwqAgYXJjaC9z
-MzkwL2t2bS92c2llLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCA3ICsrKysr
-LS0NCj4+PiAgwqAgNyBmaWxlcyBjaGFuZ2VkLCAyMiBpbnNlcnRpb25zKCspLCAxNSBkZWxl
-dGlvbnMoLSkNCj4+Pg0KPj4+IGRpZmYgLS1naXQgYS9hcmNoL3MzOTAvaW5jbHVkZS9hc20v
-a3ZtX2hvc3QuaCBiL2FyY2gvczM5MC9pbmNsdWRlL2FzbS9rdm1faG9zdC5oDQo+Pj4gaW5k
-ZXggNjRhNTBmMDg2MmFhLi4zMDM5Yzg4ZGFhNjMgMTAwNjQ0DQo+Pj4gLS0tIGEvYXJjaC9z
-MzkwL2luY2x1ZGUvYXNtL2t2bV9ob3N0LmgNCj4+PiArKysgYi9hcmNoL3MzOTAvaW5jbHVk
-ZS9hc20va3ZtX2hvc3QuaA0KPj4+IEBAIC03MTAsNiArNzEwLDkgQEAgdm9pZCBrdm1fYXJj
-aF9jcnlwdG9fY2xlYXJfbWFza3Moc3RydWN0IGt2bSAqa3ZtKTsNCj4+PiAgwqAgdm9pZCBr
-dm1fYXJjaF9jcnlwdG9fc2V0X21hc2tzKHN0cnVjdCBrdm0gKmt2bSwgdW5zaWduZWQgbG9u
-ZyAqYXBtLA0KPj4+ICDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-IHVuc2lnbmVkIGxvbmcgKmFxbSwgdW5zaWduZWQgbG9uZyAqYWRtKTsNCj4+PiArI2RlZmlu
-ZSBTSUU2NF9SRVRVUk5fTk9STUFMwqDCoMKgIDANCj4+PiArI2RlZmluZSBTSUU2NF9SRVRV
-Uk5fTUNDS8KgwqDCoCAxDQo+Pj4gKw0KPj4+ICDCoCBpbnQgX19zaWU2NGEocGh5c19hZGRy
-X3Qgc2llX2Jsb2NrX3BoeXMsIHN0cnVjdCBrdm1fczM5MF9zaWVfYmxvY2sgKnNpZV9ibG9j
-aywgdTY0ICpyc2EsDQo+Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoMKgIHVuc2lnbmVkIGxvbmcg
-Z2FzY2UpOw0KPj4+IGRpZmYgLS1naXQgYS9hcmNoL3MzOTAvaW5jbHVkZS9hc20vc3RhY2t0
-cmFjZS5oIGIvYXJjaC9zMzkwL2luY2x1ZGUvYXNtL3N0YWNrdHJhY2UuaA0KPj4+IGluZGV4
-IGM5YWU2ODBhMjhhZi4uYWMzNjA2YzNiYWJlIDEwMDY0NA0KPj4+IC0tLSBhL2FyY2gvczM5
-MC9pbmNsdWRlL2FzbS9zdGFja3RyYWNlLmgNCj4+PiArKysgYi9hcmNoL3MzOTAvaW5jbHVk
-ZS9hc20vc3RhY2t0cmFjZS5oDQo+Pj4gQEAgLTYyLDcgKzYyLDcgQEAgc3RydWN0IHN0YWNr
-X2ZyYW1lIHsNCj4+PiAgwqDCoMKgwqDCoMKgwqDCoMKgIHN0cnVjdCB7DQo+Pj4gIMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgIHVuc2lnbmVkIGxvbmcgc2llX2NvbnRyb2xfYmxvY2s7
-DQo+Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHVuc2lnbmVkIGxvbmcgc2llX3Nh
-dmVhcmVhOw0KPj4+IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHVuc2lnbmVkIGxvbmcgc2ll
-X3JlYXNvbjsNCj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB1bnNpZ25lZCBsb25nIHNp
-ZV9yZXR1cm47DQo+Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHVuc2lnbmVkIGxv
-bmcgc2llX2ZsYWdzOw0KPj4+ICDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB1bnNpZ25l
-ZCBsb25nIHNpZV9jb250cm9sX2Jsb2NrX3BoeXM7DQo+Pj4gIMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgIHVuc2lnbmVkIGxvbmcgc2llX2d1ZXN0X2FzY2U7DQo+Pj4gZGlmZiAtLWdp
-dCBhL2FyY2gvczM5MC9rZXJuZWwvYXNtLW9mZnNldHMuYyBiL2FyY2gvczM5MC9rZXJuZWwv
-YXNtLW9mZnNldHMuYw0KPj4+IGluZGV4IGUxYTViNWI1NGU0Zi4uZmJkMjZmM2U5Zjk2IDEw
-MDY0NA0KPj4+IC0tLSBhL2FyY2gvczM5MC9rZXJuZWwvYXNtLW9mZnNldHMuYw0KPj4+ICsr
-KyBiL2FyY2gvczM5MC9rZXJuZWwvYXNtLW9mZnNldHMuYw0KPj4+IEBAIC02Myw3ICs2Myw3
-IEBAIGludCBtYWluKHZvaWQpDQo+Pj4gIMKgwqDCoMKgwqAgT0ZGU0VUKF9fU0ZfRU1QVFks
-IHN0YWNrX2ZyYW1lLCBlbXB0eVswXSk7DQo+Pj4gIMKgwqDCoMKgwqAgT0ZGU0VUKF9fU0Zf
-U0lFX0NPTlRST0wsIHN0YWNrX2ZyYW1lLCBzaWVfY29udHJvbF9ibG9jayk7DQo+Pj4gIMKg
-wqDCoMKgwqAgT0ZGU0VUKF9fU0ZfU0lFX1NBVkVBUkVBLCBzdGFja19mcmFtZSwgc2llX3Nh
-dmVhcmVhKTsNCj4+PiAtwqDCoMKgIE9GRlNFVChfX1NGX1NJRV9SRUFTT04sIHN0YWNrX2Zy
-YW1lLCBzaWVfcmVhc29uKTsNCj4+PiArwqDCoMKgIE9GRlNFVChfX1NGX1NJRV9SRVRVUk4s
-IHN0YWNrX2ZyYW1lLCBzaWVfcmV0dXJuKTsNCj4+PiAgwqDCoMKgwqDCoCBPRkZTRVQoX19T
-Rl9TSUVfRkxBR1MsIHN0YWNrX2ZyYW1lLCBzaWVfZmxhZ3MpOw0KPj4+ICDCoMKgwqDCoMKg
-IE9GRlNFVChfX1NGX1NJRV9DT05UUk9MX1BIWVMsIHN0YWNrX2ZyYW1lLCBzaWVfY29udHJv
-bF9ibG9ja19waHlzKTsNCj4+PiAgwqDCoMKgwqDCoCBPRkZTRVQoX19TRl9TSUVfR1VFU1Rf
-QVNDRSwgc3RhY2tfZnJhbWUsIHNpZV9ndWVzdF9hc2NlKTsNCj4+PiBkaWZmIC0tZ2l0IGEv
-YXJjaC9zMzkwL2tlcm5lbC9lbnRyeS5TIGIvYXJjaC9zMzkwL2tlcm5lbC9lbnRyeS5TDQo+
-Pj4gaW5kZXggNDg3M2ZlOWQ4OTFiLi41ODE3Y2I0N2IyZDAgMTAwNjQ0DQo+Pj4gLS0tIGEv
-YXJjaC9zMzkwL2tlcm5lbC9lbnRyeS5TDQo+Pj4gKysrIGIvYXJjaC9zMzkwL2tlcm5lbC9l
-bnRyeS5TDQo+Pj4gQEAgLTIwMCw3ICsyMDAsNyBAQCBTWU1fRlVOQ19TVEFSVChfX3NpZTY0
-YSkNCj4+PiAgwqDCoMKgwqDCoCBzdGfCoMKgwqAgJXIzLF9fU0ZfU0lFX0NPTlRST0woJXIx
-NSnCoMKgwqAgIyAuLi5hbmQgdmlydHVhbCBhZGRyZXNzZXMNCj4+PiAgwqDCoMKgwqDCoCBz
-dGfCoMKgwqAgJXI0LF9fU0ZfU0lFX1NBVkVBUkVBKCVyMTUpwqDCoMKgICMgc2F2ZSBndWVz
-dCByZWdpc3RlciBzYXZlIGFyZWENCj4+PiAgwqDCoMKgwqDCoCBzdGfCoMKgwqAgJXI1LF9f
-U0ZfU0lFX0dVRVNUX0FTQ0UoJXIxNSnCoMKgwqAgIyBzYXZlIGd1ZXN0IGFzY2UNCj4+PiAt
-wqDCoMKgIHhjwqDCoMKgIF9fU0ZfU0lFX1JFQVNPTig4LCVyMTUpLF9fU0ZfU0lFX1JFQVNP
-TiglcjE1KSAjIHJlYXNvbiBjb2RlID0gMA0KPj4+ICvCoMKgwqAgeGPCoMKgwqAgX19TRl9T
-SUVfUkVUVVJOKDgsJXIxNSksX19TRl9TSUVfUkVUVVJOKCVyMTUpICMgcmV0dXJuIGNvZGUg
-PSAwDQo+Pj4gIMKgwqDCoMKgwqAgbXZjwqDCoMKgIF9fU0ZfU0lFX0ZMQUdTKDgsJXIxNSks
-X19USV9mbGFncyglcjE0KSAjIGNvcHkgdGhyZWFkIGZsYWdzDQo+Pj4gIMKgwqDCoMKgwqAg
-bG1nwqDCoMKgICVyMCwlcjEzLDAoJXI0KcKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgIyBsb2Fk
-IGd1ZXN0IGdwcnMgMC0xMw0KPj4+ICDCoMKgwqDCoMKgIG12acKgwqDCoCBfX1RJX3NpZSgl
-cjE0KSwxDQo+Pj4gQEAgLTIzNyw3ICsyMzcsNyBAQCBTWU1fSU5ORVJfTEFCRUwoc2llX2V4
-aXQsIFNZTV9MX0dMT0JBTCkNCj4+PiAgwqDCoMKgwqDCoCB4Z3LCoMKgwqAgJXI0LCVyNA0K
-Pj4+ICDCoMKgwqDCoMKgIHhncsKgwqDCoCAlcjUsJXI1DQo+Pj4gIMKgwqDCoMKgwqAgbG1n
-wqDCoMKgICVyNiwlcjE0LF9fU0ZfR1BSUyglcjE1KcKgwqDCoCAjIHJlc3RvcmUga2VybmVs
-IHJlZ2lzdGVycw0KPj4+IC3CoMKgwqAgbGfCoMKgwqAgJXIyLF9fU0ZfU0lFX1JFQVNPTigl
-cjE1KcKgwqDCoCAjIHJldHVybiBleGl0IHJlYXNvbiBjb2RlDQo+Pj4gK8KgwqDCoCBsZ8Kg
-wqDCoCAlcjIsX19TRl9TSUVfUkVUVVJOKCVyMTUpwqDCoMKgICMgcmV0dXJuIHNpZSByZXR1
-cm4gY29kZQ0KPj4+ICDCoMKgwqDCoMKgIEJSX0VYwqDCoMKgICVyMTQNCj4+PiAgwqAgU1lN
-X0ZVTkNfRU5EKF9fc2llNjRhKQ0KPj4+ICDCoCBFWFBPUlRfU1lNQk9MKF9fc2llNjRhKQ0K
-Pj4+IGRpZmYgLS1naXQgYS9hcmNoL3MzOTAva2VybmVsL25taS5jIGIvYXJjaC9zMzkwL2tl
-cm5lbC9ubWkuYw0KPj4+IGluZGV4IGE1NWFiYmY2NTMzMy4uZmMxZjc3NWU0NTE3IDEwMDY0
-NA0KPj4+IC0tLSBhL2FyY2gvczM5MC9rZXJuZWwvbm1pLmMNCj4+PiArKysgYi9hcmNoL3Mz
-OTAva2VybmVsL25taS5jDQo+Pj4gQEAgLTQ4Nyw4ICs0ODcsOCBAQCB2b2lkIG5vdHJhY2Ug
-czM5MF9kb19tYWNoaW5lX2NoZWNrKHN0cnVjdCBwdF9yZWdzICpyZWdzKQ0KPj4+ICDCoMKg
-wqDCoMKgIG1jY2tfZGFtX2NvZGUgPSAobWNpLnZhbCAmIE1DSUNfU1VCQ0xBU1NfTUFTSyk7
-DQo+Pj4gIMKgwqDCoMKgwqAgaWYgKHRlc3RfY3B1X2ZsYWcoQ0lGX01DQ0tfR1VFU1QpICYm
-DQo+Pj4gIMKgwqDCoMKgwqAgKG1jY2tfZGFtX2NvZGUgJiBNQ0NLX0NPREVfTk9fR1VFU1Qp
-ICE9IG1jY2tfZGFtX2NvZGUpIHsNCj4+PiAtwqDCoMKgwqDCoMKgwqAgLyogU2V0IGV4aXQg
-cmVhc29uIGNvZGUgZm9yIGhvc3QncyBsYXRlciBoYW5kbGluZyAqLw0KPj4+IC3CoMKgwqDC
-oMKgwqDCoCAqKChsb25nICopKHJlZ3MtPmdwcnNbMTVdICsgX19TRl9TSUVfUkVBU09OKSkg
-PSAtRUlOVFI7DQo+Pj4gK8KgwqDCoMKgwqDCoMKgIC8qIFNldCBzaWUgcmV0dXJuIGNvZGUg
-Zm9yIGhvc3QncyBsYXRlciBoYW5kbGluZyAqLw0KPj4+ICvCoMKgwqDCoMKgwqDCoCAqKChs
-b25nICopKHJlZ3MtPmdwcnNbMTVdICsgX19TRl9TSUVfUkVUVVJOKSkgPSBTSUU2NF9SRVRV
-Uk5fTUNDSzsNCj4+DQo+PiBXZSBkb24ndCBuZWVkIHRvIGNhc3QgdGhpcyB0byBsb25nIGFu
-eW1vcmUsIGRvIHdlPw0KPj4gU2luY2Ugc2llX3JldHVybiBpcyB1bG9uZywgYW5kIHdlIGlm
-IHdlIHN0YXkgd2l0aCBwb3NpdGl2ZSBudW1iZXJzIHVsb25nIHdvdWxkIG1ha2UgdGhlIG1v
-c3Qgc2Vuc2UuDQo+Pg0KPj4gQWx0aG91Z2ggSSdkIHByZWZlciBhIGNhc3QgdG8gc3RhY2tf
-ZnJhbWUgYnV0IEknbSB1bnN1cmUgaWYgdGhhdCB3b3VsZCBtYWtlIGl0IG1vcmUgcmVhZGFi
-bGUgaWYgd2Ugc3RheSB3aXRoIGEgb25lIGxpbmUgY2hhbmdlLg0KPiBzb21ldGhpbmcgbGlr
-ZQ0KPiAtICAgICAgICAgICAgICAgKigobG9uZyAqKShyZWdzLT5ncHJzWzE1XSArIF9fU0Zf
-U0lFX1JFVFVSTikpID0gU0lFNjRfUkVUVVJOX01DQ0s7DQo+ICsgICAgICAgICAgICAgICAo
-KHN0cnVjdCBzdGFja19mcmFtZSAqKSByZWdzLT5ncHJzWzE1XSktPnNpZV9yZXR1cm4gPSBT
-SUU2NF9SRVRVUk5fTUNDSzs+DQo+IFdoYXQgZG8geW91IHRoaW5rPw0KDQpZZXANCg0KPiAN
-Cj4gVGhpcyByZW1pbmRzIG1lIHRoYXQgSSBzaG91bGQgcHJvYmFibHkgYWxzbyBtYWtlIHRo
-ZSBsb2NhbCB2YXJpYWJsZSBpbiB2c2llLmMgdW5zaWduZWQgbG9uZyBpbnN0ZWFkIG9mIGlu
-dC4NCj4gDQo+IA0KDQo=
+On 3/13/26 10:01 AM, Douglas Freimuth wrote:
+
+>>> @@ -450,6 +450,10 @@ struct kvm_vm_stat {
+>>>       u64 inject_io;
+>>>       u64 io_390_adapter_map;
+>>>       u64 io_390_adapter_unmap;
+>>> +    u64 io_390_inatomic;
+>>> +    u64 io_flic_inject_airq;
+>>> +    u64 io_set_adapter_int;
+>>> +    u64 io_390_inatomic_adapter_masked;
+>>>       u64 inject_float_mchk;
+>>>       u64 inject_pfault_done;
+>>>       u64 inject_service_signal;
+>>> @@ -481,7 +485,7 @@ struct s390_io_adapter {
+>>>       bool masked;
+>>>       bool swap;
+>>>       bool suppressible;
+>>> -    struct rw_semaphore maps_lock;
+>>> +    spinlock_t maps_lock;
+>>
+>> Patch 1 (re-)introduced the maps_lock, now you are converting it to a spinlock 2 patches later.
+>>
+>> I realize that you were bringing back code that was previously removed by
+>>
+>> f65470661f36 KVM: s390/interrupt: do not pin adapter interrupt pages
+>>
+>> but for this series wouldn't it make sense to just start by introducing maps_lock as a spinlock from patch 1 vs re-introducing the semaphore for the span of 2 commits?
+>>
+> 
+> Matt, thank you for your input. The policy of individual patches not only compiling but having individual utility and standing on their own applies here. In patches 1 and 2 the maps_lock is more flexible as a semaphore providing utility for the patch. While in patch 3 the maps_lock has to be a spin_lock so inatomic can use it with interrupts disabled.
+
+I would agree completely if these were 2 separate series, with some period of time in between when the semaphore is implemented and a subsequent switch to a spinlock. 
+
+But here you are introducing a semaphore and immediately replacing it with a spinlock _all within a single series_, such that the semaphore implementation will never be used in practice.  
+
+In the end, that just creates a bunch of extra insertions and subsequent deletions of those insertions all within this series.
+
+Yes, the semaphore would be the preferred implementation if allowed to sleep but since the goal of the series is it implement kvm_arch_set_irq_inatomic then you can just indicate in patch 1 why you are already switching to a spinlock when you re-introduce these ioctl functions (e.g. in preparation for kvm_arch_set_irq_inatomic support which requires a thread of execution that will not sleep). 
+
+>>> +
+>>> +    /* We're only interested in the 0->1 transition. */
+>>> +    if (!level)
+>>> +        return -EWOULDBLOCK;
+>>> +    if (e->type != KVM_IRQ_ROUTING_S390_ADAPTER)
+>>> +        return -EWOULDBLOCK;
+>>> +
+>>> +    adapter = get_io_adapter(kvm, e->adapter.adapter_id);
+>>> +    if (!adapter)
+>>> +        return -EWOULDBLOCK;
+>>> +
+>>> +    s390int.parm64 = isc_to_int_word(adapter->isc);
+>>> +    ret = adapter_indicators_set_fast(kvm, adapter, &e->adapter);
+>>> +    if (ret < 0)
+>>> +        return -EWOULDBLOCK;
+>>
+>> We know for sure that a guest that is running in SE will always hit this because no mappings will be available.
+>> Did you test if it would be more efficient to check the kvm for SE at the start of kvm_arch_set_irq_inatomic() and immediately return -EWOULDBLOCK there?
+>>
+> 
+> It might be slightly more efficient in SE environments to immediately return -EWOULDBLOCK at the start of kvm_arch_set_irq_inatomic. But the change would be fairly broad since it would require changing the mutex for kvm->lock to a spin_lock to allow checking if pv is present with interrupts disabled. I would recommend this for a follow-on if behavior in the field requires it.
+
+Right, I forgot about the mutex.
+
+OK, then I agree let's leave this for follow-on after this series lands.
+
+I suspect that you could get away with peeking the value without the mutex held as a heuristic.  If we get it wrong it would be during a transition into/out of SE and either...
+
+1) we -EWOULDBLOCK and fallback to irqfd_inject when we could have continued down the inatomic path -- irqfd_inject should always work.
+
+or
+
+2) we would proceed into the inatomic path and then get kicked out as we do with this current implementation: when we attempt to find the pre-pinned mapping (which is protected by a spinlock).
+
+The questions to answer would be whether it's permissible to peek the value and whether it buys us enough to be worth it.
+
+
