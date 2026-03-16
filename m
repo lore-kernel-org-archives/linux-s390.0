@@ -1,224 +1,138 @@
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F1FC28C2BF
-	for <linux-s390@vger.kernel.org>; Mon, 16 Mar 2026 11:52:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A96B239282F;
+	Mon, 16 Mar 2026 11:56:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773661949; cv=none; b=R4UMmojRyR/SmSQ6ETjKZYcUGAZNdv/ivO9Iuo4JR8dJ+GoWpy40ZrpieNAG5G178EyQavSsn0JXDzai2cKDZSKORDR9MoTNJUg+4NfWoXKxDZmaWyfcqY9RCN7HVIFYB4j3zixjuIF/6TPzPgRsZTztURITmM1bHGIclto2iMg=
+	t=1773662191; cv=none; b=GKeFm3CPKGkA9nz0MVvHPhTj4YNCeooeWcA/ANu1HTTj7s7imzKHHkVvYnwcFzfipW2BKGU5rx4SGe4+CgJKMbqGNwdr5/AzXHOIzBnQMlcCtaQq/kLo9MuGfkA88/nrcrpL+t7h0MhXNMTRPOB/wRHHkJQA75IjC3+r4d/1t2c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773661949; c=relaxed/simple;
-	bh=71IExVGtWUCM2N3COEM/mV1OmBFUH7sMjuEBU+ua+FM=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=sSVApNuFJ3be1SrPDpy5yLE9eRhI0C6PU2s2BR1ALCpW/rq+riDkghDdY03dC1PBVcQe58YLIJXOfowMZEp7QKVEw01L1dQjAm7d05nfrNa6aQdptA1BdzmCucNo7M3QYQBtHC9fQA+syjA2dFG4Wa6KjAY5l/K+ADXhDeHYxK8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=US4mxDzj; arc=none smtp.client-ip=209.85.128.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1773662191; c=relaxed/simple;
+	bh=v+FGNGnOXfL/yITFl97Q2NXUmtPRWDiqgeNkakkFsvs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=pIYgJEHT8vdGsMqId++VwtYOwHsMa1cxGoE8XWAKPL2++yVF/Wtvhp6b2JXjMlLcYeebHrmErYIk3U2MO3zpN50MbWTEXqgmOl+sILmWxSsTqghzaiLga/ePDQWJd+aKVpixrtvYXJg2E26+zLNDsYjHKBCkLxKfCLowqsL+nro=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Gy/qGID+; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="US4mxDzj"
-Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4852afd42ceso39305455e9.2
-        for <linux-s390@vger.kernel.org>; Mon, 16 Mar 2026 04:52:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773661947; x=1774266747; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=G1FINDvU0UxUqjZlFZpZ58KZuPwMyU/XPMlyrs5R8Wo=;
-        b=US4mxDzj1u8+TAMALm1jZ448UnUuwWyAVE3wFja/RD1q1QzX+/se20WkWNcfOWzG+t
-         B1mrDo4Bw/bj8+nUpbAD9rs1PrxI73TEH87/lKaGX+uR+aMBxC3VaqdfXYoAzEPPFXc5
-         ynXXBu23fz0QHeB1CPeeFLPSZZTkz8x+i6Iw6ybmQdS5LkMsD+GQNFdEw+Sp5sRVokeW
-         P4e8FWFyPvZVcmsqr4FlC3Li/UcHaZjxrOmHVnB4mkxCbOFOIb5ydZAaPwSL9cEx1Vnc
-         7ZdIsU7fSQiSZj2a0f/QFLMdbiIQAiG4r6sjLxgFxUCN2Cq88glz0RgP0DL9exaClzT8
-         2zoA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773661947; x=1774266747;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=G1FINDvU0UxUqjZlFZpZ58KZuPwMyU/XPMlyrs5R8Wo=;
-        b=qDEgHQvdigVcl3GI2CeWDMDTqzbP0NGxpqASpHhZGo0UHPTbAnRD86ak2NugaPyIIG
-         OpAl6F2tnxgSesDqUSv0OPyikk8mgTXOCtKRHw5jFboe1AuQ25Qq9r+ooHopgOygIGGd
-         DrNmXVkjuxp4nJirGwjsn/0/VerCfbWgCV6ogyClG+BlmIjESB117iEDpeHAH2YsvxND
-         fAvbF9hjqHAyspj/fBX0RLUkfnhSuyV/wQI6xPgK3BGZmnToNCMP2/qmgrFVNOYUPS63
-         224O6c9jMKdTrPWnKGH3tKmJXUHHvUOozy8hps1WnwAUx80b1gmsorUqLqVqIcK2oIGw
-         Sozg==
-X-Forwarded-Encrypted: i=1; AJvYcCUrQ/QkKaXVJaYMewXrRinvs5IAkcimZkHdFYY8MDEkzPdRjSIwrYb7Z8K3ugZLk75fGp/MbHcno2Db@vger.kernel.org
-X-Gm-Message-State: AOJu0YzB/mCrVSpA1C5uKOsQS4nzV9iCxx1uvhq7vcNiONZBu8ct4jLs
-	KKjJIl9zWg39aAg/YZA3isU7Dlnl75gHIFGMNyDHpybkI3ydeCOpNq/AHGq5Ol3x
-X-Gm-Gg: ATEYQzygbzM+nBJEUhO6jQWKI8ne6f5Oi6IOqab95HmCnXa6+fBsVrjdUCS9zupHcwr
-	4w4p8fs5aUqlhOyJcZJi+/9gPa6djU6AIe4S8fFGiCmBQTthlvMW3xTcwpnisXVZkAJca5TYsHM
-	RsIB1iJ0VA5vG0esJn6K78AuxZlv0uvlpKGPGFGzvYENBVPuXcZxcsP98pJg2E2DCgmwIIuXfif
-	LwpPNXy09e3h05un3AAg/6ZnDojUjJVRAmwhoVkGvpIdfvwBo9p2Wb+N3p2izpY1/JpmCKN+vGr
-	RDeH4PnSE2QGMP6iEXbbCrPvlGKXTdFKWmN5cRLbDRM+wl14gGRsXKcW3VBN6yMdTCCY3sgMeLb
-	kTtst3Ntz4VZmPcVrTnWnTfAvd7Rj8KdkIyskqQF/CBiwNhY7rtVwl0yHEE0RZBPFWIZzxivVLO
-	wMJgoh2QMtu8/fBtBsMplcmqXzSID3FapCaPJk7AzBTV9dFGQ4rKqmuAEkB9g4lnJ9
-X-Received: by 2002:a05:600d:844f:10b0:485:40fd:8390 with SMTP id 5b1f17b1804b1-485567029cdmr158924705e9.26.1773661946379;
-        Mon, 16 Mar 2026 04:52:26 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48541b7f255sm525678625e9.12.2026.03.16.04.52.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Mar 2026 04:52:26 -0700 (PDT)
-Date: Mon, 16 Mar 2026 11:52:24 +0000
-From: David Laight <david.laight.linux@gmail.com>
-To: K Prateek Nayak <kprateek.nayak@amd.com>
-Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- "Peter Zijlstra" <peterz@infradead.org>, Sebastian Andrzej Siewior
- <bigeasy@linutronix.de>, Catalin Marinas <catalin.marinas@arm.com>, "Will
- Deacon" <will@kernel.org>, Darren Hart <dvhart@infradead.org>, Davidlohr
- Bueso <dave@stgolabs.net>, =?UTF-8?B?QW5kcsOp?= Almeida
- <andrealmeid@igalia.com>, <linux-arch@vger.kernel.org>,
- <linux-kernel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
- <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>, Jisheng
- Zhang <jszhang@kernel.org>
-Subject: Re: [RFC PATCH v2 3/7] arm64/runtime-const: Use
- aarch64_insn_patch_text_nosync() for patching
-Message-ID: <20260316115224.036e0351@pumpkin>
-In-Reply-To: <20260316052401.18910-4-kprateek.nayak@amd.com>
-References: <20260316052401.18910-1-kprateek.nayak@amd.com>
-	<20260316052401.18910-4-kprateek.nayak@amd.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Gy/qGID+"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62GABFwT3402882;
+	Mon, 16 Mar 2026 11:56:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=J3afw7jbhCThzn3i/LjsCSqTnEVwDB
+	sC8JbjGT1lEts=; b=Gy/qGID+oPk45U63InJma0V5LFH8rXZjIJLeylz9TVnQlT
+	gh6WREHvNm1v5evHIs3V04q/oo7PXXEJ+vVKGOs4C3MvNU3QAxb5d8Uht3rVYJb5
+	8vABVNKEanFjIA84WnQJK5FoJHU/7Vvfpa6XhTbA1YIzYpdtzxDtImUHh5NDRX1L
+	y8YOeVBxcdKkwNXLFckRuHKd894o9RG/Bjg1FgeGgcThBkbZPzYrFbSleIev7m/i
+	JH1YvfS4beH0Kt1EOsS1nRXY5VF5u1Z72+KsFON9yjtNBgmraZn3H0AOjQ4o2178
+	myN9Aclh38fyok6seNF15PSf3waEtukArU2/AYTA==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvyau7986-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 16 Mar 2026 11:56:24 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62GBO9nA032404;
+	Mon, 16 Mar 2026 11:56:24 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cwm7jmh44-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 16 Mar 2026 11:56:24 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62GBuKxD30212538
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 16 Mar 2026 11:56:20 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5D90C2004D;
+	Mon, 16 Mar 2026 11:56:20 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C77C720049;
+	Mon, 16 Mar 2026 11:56:19 +0000 (GMT)
+Received: from osiris (unknown [9.87.141.39])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 16 Mar 2026 11:56:19 +0000 (GMT)
+Date: Mon, 16 Mar 2026 12:56:18 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: Re: [PATCH/RFC] KVM: s390: vsie: Avoid injecting machine check on
+ signal
+Message-ID: <20260316115618.17080B45-hca@linux.ibm.com>
+References: <20260316103934.13368-1-borntraeger@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260316103934.13368-1-borntraeger@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE2MDA4OSBTYWx0ZWRfX1M1Xw+wlKZww
+ 1CniPRBXLds4GYmwAxyCLiegN1f7XiKiXFpSVMMAoMZ6z5IUELVlnu53no/GIida1cFkWf1vQxB
+ Sl4NWc0MIu4vwJJTYwz3a03aiOiXR0ikghaKvA+4KCrQdzGLo0s8dVTSfN91DLc/jveKgaUu4oH
+ SLiv43vgrDTJoN6kP+BR+MniuuO2ek4A21LvuVoeXX0fjaJyRblpDZT7GcvPArM8xjkUCTeScak
+ qC7WSCICGOC34v06beDo1FTTnpb6n+OZABxdrT05v9qzzvqDKwEX9KZIOQ3Ax/pbwf3hTRSPruh
+ NV5tb+W6VKXdih0iKx3obYASlVcW8m3hoKnTZGO1qff0fF+fwXLH6iz3Slpi9zYxvXgCirYSt4G
+ hgPk99XDC5a8Oma9lS76OVJxV/c8wZh89CqE5Js/SWeD5xFuVif4XwZNHSOeZeYryM6WKPoBKwM
+ ZKNv/H+lUOx0PPdZOKA==
+X-Authority-Analysis: v=2.4 cv=GIQF0+NK c=1 sm=1 tr=0 ts=69b7efe9 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=kj9zAlcOel0A:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=v_eQMfJJpqUdI5PqWLMA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: UxzKBkraGr6uDmCj981DFaQ8RI0g8PwR
+X-Proofpoint-GUID: UxzKBkraGr6uDmCj981DFaQ8RI0g8PwR
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-16_04,2026-03-16_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 priorityscore=1501 bulkscore=0 lowpriorityscore=0 malwarescore=0
+ phishscore=0 impostorscore=0 suspectscore=0 adultscore=0 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603160089
 
-On Mon, 16 Mar 2026 05:23:57 +0000
-K Prateek Nayak <kprateek.nayak@amd.com> wrote:
-
-> The current scheme to directly patch the kernel text for runtime
-> constants runs into the following issue with futex adapted to using
-> runtime constants on arm64:
-
-Doesn't this need to come before the previous patch?
-
-	David
-
+On Mon, Mar 16, 2026 at 11:39:34AM +0100, Christian Borntraeger wrote:
+> The recent XFER_TO_GUEST_WORK change resulted in a situation, where the
+> vsie code would interpret a signal during work as a machine check during
+> SIE as both use the EINTR return code.
 > 
->   Unable to handle kernel write to read-only memory at virtual address fff0000000378fc8
->   Mem abort info:
->     ESR = 0x000000009600004e
->     EC = 0x25: DABT (current EL), IL = 32 bits
->     SET = 0, FnV = 0
->     EA = 0, S1PTW = 0
->     FSC = 0x0e: level 2 permission fault
->   Data abort info:
->     ISV = 0, ISS = 0x0000004e, ISS2 = 0x00000000
->     CM = 0, WnR = 1, TnD = 0, TagAccess = 0
->     GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
->   swapper pgtable: 4k pages, 52-bit VAs, pgdp=00000000420a7000
->   [fff0000000378fc8] pgd=18000000bffff403, p4d=18000000bfffe403, pud=18000000bfffd403, pmd=0060000040200481
->   Internal error: Oops: 000000009600004e [#1]  SMP
->   Modules linked in:
->   CPU: 1 UID: 0 PID: 1 Comm: swapper/0 Not tainted 6.19.0-rc6-00004-g7e6457d29e6a-dirty #291 PREEMPT
->   Hardware name: linux,dummy-virt (DT)
->   pstate: 81400009 (Nzcv daif +PAN -UAO -TCO +DIT -SSBS BTYPE=--)
->   pc : futex_init+0x13c/0x348
->   lr : futex_init+0xc8/0x348
->   sp : ffff80008002bd40
->   x29: ffff80008002bd40 x28: ffffa4b73ba0a160 x27: ffffa4b73bd10d74
->   x26: ffffa4b73cb68b28 x25: ffffa4b73ba0b000 x24: ffffa4b73c66b000
->   x23: 0000000000003fe0 x22: 0000000000000000 x21: ffffa4b73bd10d74
->   x20: 0000000000008000 x19: 0000000000000000 x18: 00000000ffffffff
->   x17: 000000007014db06 x16: ffffa4b73ca3ec08 x15: ffff80010002b937
->   x14: 0000000000000006 x13: fff0000077200000 x12: 00000000000002b2
->   x11: 00000000000000e6 x10: fff0000079e00000 x9 : fff0000077200000
->   x8 : fff00000034df9e0 x7 : 0000000000000200 x6 : ffffa4b73ba0b000
->   x5 : fff0000003510000 x4 : 0000000052803fe0 x3 : 0000000072a00000
->   x2 : fff0000000378fc8 x1 : ffffa4b739d78fd0 x0 : ffffa4b739d78fc8
->   Call trace:
->    futex_init+0x13c/0x348 (P)
->    do_one_initcall+0x6c/0x1b0
->    kernel_init_freeable+0x204/0x2e0
->    kernel_init+0x20/0x1d8
->    ret_from_fork+0x10/0x20
->   Code: 120b3c84 120b3c63 2a170084 2a130063 (29000c44)
->   ---[ end trace 0000000000000000 ]---
-> 
-> The pc at "futex_init+0x13c/0x348" points to:
-> 
->   futex_init()
->     runtime_const_init(shift, __futex_shift)
->       __runtime_fixup_shift()
->         *p = cpu_to_le32(insn); /* <--- Here --- */
-> 
-> ... which points to core_initcall() being too late to patch the kernel
-> text directly unlike the "d_hash_shift", "__names_cache" which are
-> initialized during start_kernel() before the protections are in place.
-> 
-> Use aarch64_insn_patch_text_nosync() to patch the runtime constants
-> instead of doing it directly to allow for running runtime_const_init()
-> slightly later into the boot.
-> 
-> Since aarch64_insn_patch_text_nosync() calls caches_clean_inval_pou()
-> internally, __runtime_fixup_caches() ends up being redundant.
-> runtime_const_init() are rare and the overheads of multiple calls to
-> caches_clean_inval_pou() instead of batching them together should be
-> negligible in practice.
-> 
-> At least one usage in kprobes.c suggests cpu_to_le32() conversion is not
-> necessary for aarch64_insn_patch_text_nosync() unlike in the current
-> scheme of patching *p directly.
-> 
-> Signed-off-by: K Prateek Nayak <kprateek.nayak@amd.com>
+> Fixes: 2bd1337a1295e ("KVM: s390: Use generic VIRT_XFER_TO_GUEST_WORK functions")
+> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 > ---
->  arch/arm64/include/asm/runtime-const.h | 14 +++-----------
->  1 file changed, 3 insertions(+), 11 deletions(-)
-> 
-> diff --git a/arch/arm64/include/asm/runtime-const.h b/arch/arm64/include/asm/runtime-const.h
-> index 4c3f0b9aad98..764e244f06a4 100644
-> --- a/arch/arm64/include/asm/runtime-const.h
-> +++ b/arch/arm64/include/asm/runtime-const.h
-> @@ -7,6 +7,7 @@
->  #endif
->  
->  #include <asm/cacheflush.h>
-> +#include <asm/text-patching.h>
->  
->  /* Sigh. You can still run arm64 in BE mode */
->  #include <asm/byteorder.h>
-> @@ -63,13 +64,7 @@ static inline void __runtime_fixup_16(__le32 *p, unsigned int val)
->  	u32 insn = le32_to_cpu(*p);
->  	insn &= 0xffe0001f;
->  	insn |= (val & 0xffff) << 5;
-> -	*p = cpu_to_le32(insn);
-> -}
-> -
-> -static inline void __runtime_fixup_caches(void *where, unsigned int insns)
-> -{
-> -	unsigned long va = (unsigned long)where;
-> -	caches_clean_inval_pou(va, va + 4*insns);
-> +	aarch64_insn_patch_text_nosync(p, insn);
->  }
->  
->  static inline void __runtime_fixup_ptr(void *where, unsigned long val)
-> @@ -79,7 +74,6 @@ static inline void __runtime_fixup_ptr(void *where, unsigned long val)
->  	__runtime_fixup_16(p+1, val >> 16);
->  	__runtime_fixup_16(p+2, val >> 32);
->  	__runtime_fixup_16(p+3, val >> 48);
-> -	__runtime_fixup_caches(where, 4);
->  }
->  
->  /* Immediate value is 6 bits starting at bit #16 */
-> @@ -89,8 +83,7 @@ static inline void __runtime_fixup_shift(void *where, unsigned long val)
->  	u32 insn = le32_to_cpu(*p);
->  	insn &= 0xffc0ffff;
->  	insn |= (val & 63) << 16;
-> -	*p = cpu_to_le32(insn);
-> -	__runtime_fixup_caches(where, 1);
-> +	aarch64_insn_patch_text_nosync(p, insn);
->  }
->  
->  /* Immediate value is 6 bits starting at bit #16 */
-> @@ -99,7 +92,6 @@ static inline void __runtime_fixup_mask(void *where, unsigned long val)
->  	__le32 *p = lm_alias(where);
->  	__runtime_fixup_16(p, val);
->  	__runtime_fixup_16(p+1, val >> 16);
-> -	__runtime_fixup_caches(where, 2);
->  }
->  
->  static inline void runtime_const_fixup(void (*fn)(void *, unsigned long),
+>  arch/s390/kvm/vsie.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 
+...
+
+> -	if (rc == -EINTR) {
+> +	if (!skipped && rc == -EINTR) {
+>  		kvm_s390_reinject_machine_check(vcpu, &vsie_page->mcck_info);
+>  		return 0;
+
+As far as I can tell __SF_SIE_REASON is only used for passing -EINTR in case
+of a machine check, otherwise it is unused (== zero)?
+
+So the KVM_EXIT* codes don't work instead of -EINTR, since those are uapi, and
+there is nothing that would match a machine check anyway. However I would
+still propose to pass some unique positive number back via the stackframe
+instead of some random negative error number which means nothing.
+
+That is: change the machine check handler to pass e.g.
+
+#define KVM_S390_SIE_EXIT_MCCK 1
+
+		*((long *)(regs->gprs[15] + __SF_SIE_REASON)) = KVM_S390_SIE_EXIT_MCCK;
+
+Which would make it much more obvious what happens, and which would also avoid
+such strange bugs.
+
+Just my 0.02.
