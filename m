@@ -1,177 +1,147 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D8DC34A3A2;
-	Tue, 17 Mar 2026 11:36:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2E8534DCD1;
+	Tue, 17 Mar 2026 11:42:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773747374; cv=none; b=sTkY30e/jVxTJB3P9xkRNktgr9GNdjHqZ5z1A9So+4tzeVrjqSkm7noCOWtGv8+dNLvwGyyrzfeFg66XhODeCdl8JA2q3yRfA4qlpSFgJjvtm18OdODcyhlEYhLrplzI1wbJP+p9W9D6gpBqcsAkrRzyGQ3CbX5boqebwMKCr3c=
+	t=1773747739; cv=none; b=cfuV6Y2/9umw9loXuIjwfgrRmnye4NV5bOUnnkuLIC3hiLG1JOsNKE/y5/YrxrqSpxeY+MEogXLdWT6hz6sgLlWoHmAUQLCRBkGipVtO1jIjnugFSBZ9kVSvODUT5AKY8OWWJVKvaMk+ntcj2ekMkTVQYKViYQqFSxHo5m4bQ0g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773747374; c=relaxed/simple;
-	bh=ndd3y2M1FJ5lkjT9Ky5c6ddZPhEl/7pYxCez3yb4Htk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=swGsQK4kve6s0upe8sqeTKqBd3Um1C1JuGXhzryiUn/gX4QgmDhDi0HbyDQuGncsuyP6iG8X6KzxGdpls8fCCSUZD3dp/uAZGF3eLtWawRD3cktNh168OKM+9RBYppvmsuFfAbG2tSHxNHZZ62WHmYygVsRjSFTW5hf/9O4srQ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZOFBaEL1; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773747739; c=relaxed/simple;
+	bh=0VahozmPjvOGvKm6LYH9TvuYbVuo0ivrVT+LLsJ8p8g=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hET4IpEXpw7fJ/w+AkUDKvf5RDECb3pnEiD6g1UBcPiSpYOjnHLVTzuyxmoV3KeCPLcnBxVRIKjIv8SGel5z/UODrLLUnqpItjdNFlww5Zo/ggJvZoBGjGedteEyAvALpnDNjLJfqRTtLB3C0GhL7XLFUEGK0IfUKVuJWFS7LbE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=H3c69P+c; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZOFBaEL1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFA05C19425;
-	Tue, 17 Mar 2026 11:35:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773747373;
-	bh=ndd3y2M1FJ5lkjT9Ky5c6ddZPhEl/7pYxCez3yb4Htk=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=ZOFBaEL1peJFlZlM/IFUqQ9l81xhjfdKqgAosLx4awK4bfo0fKDor9WJNzMMBDocn
-	 bCJUqsONa+XxRSW/VG675tJtnjpLzIvjl8U5xcSP5dq4l0+F4wfMzSs3SvnkmISV3T
-	 /dpfjAFCqHeo5MJoPnwc2YNJ0R56WPE57Ycplr2CYd8v62sY03T21QQRfKAfIfJEge
-	 4FckdoLUJ9O7GHicLm1Va6ZOW0ITUFmBoS6mowFktaS+rKBmnkAR+8kkCjDpUk7rKi
-	 FMuwJzVU6K+RXnM+0Z0FPJgY9r8KepkwpGoqLUOAQO094ErkIZ1U93e07AWeqqq7Iv
-	 06jBxVQOIF/NQ==
-Message-ID: <9545b66c-f223-48a3-96fe-c906d2307654@kernel.org>
-Date: Tue, 17 Mar 2026 12:35:53 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="H3c69P+c"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62H8014O853168;
+	Tue, 17 Mar 2026 11:42:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:sender:subject:to; s=pp1;
+	 bh=o+INkhhiricWTdX4Z4bsVrL31b3fM/QC7fkRyiDwdiU=; b=H3c69P+cnPjZ
+	CHa+OkPyATcgyXuaq4HbhSQ7tKbPF3rVsUuFmFD/TdrrOzbxwfK7YeIYTX6ocHYk
+	dtggmGH1zQ2Tx84opo45owtbzwfvWlh15fErzQRZ5tvZD7gAPy874Pijqlz4kJ+T
+	LpBsTF9lUmQwS63j+h5hYu4JrvHjgd6mFhjNG5jAAdY7KDvuWpvRH9bDa481mWNW
+	9jn+GioGsgpfxHv27ECFfqt8CtBLdf/MJja3pL7XrR1PhwL8oDnZ0weugT1Ie53G
+	f9nex2MS7S2UcrKEswM35FkdrDIIOukTP8Do1QQuLMEtpOWtQqAPUQNx/nZUGbaO
+	3ISaufiLwQ==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvyaubwts-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 17 Mar 2026 11:42:13 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62HBU4vV028713;
+	Tue, 17 Mar 2026 11:42:12 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cwkgk8vy7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 17 Mar 2026 11:42:12 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62HBgAkD33292700
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 17 Mar 2026 11:42:10 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 996942004B;
+	Tue, 17 Mar 2026 11:42:10 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 82DB620049;
+	Tue, 17 Mar 2026 11:42:10 +0000 (GMT)
+Received: from p1gen4-pw042f0m (unknown [9.87.130.152])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 17 Mar 2026 11:42:10 +0000 (GMT)
+Received: from bblock by p1gen4-pw042f0m with local (Exim 4.99.1)
+	(envelope-from <bblock@linux.ibm.com>)
+	id 1w2SoM-00000006aTd-02AY;
+	Tue, 17 Mar 2026 12:42:10 +0100
+Date: Tue, 17 Mar 2026 12:42:09 +0100
+From: Benjamin Block <bblock@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Thomas Gleixner <tglx@kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Qian Cai <quic_qiancai@quicinc.com>
+Subject: Re: [PATCH] debugobjects: Allow to configure the amount of
+ pre-allocated objects
+Message-ID: <20260317114209.GK2161595@p1gen4-pw042f0m>
+References: <70f06193b3c3581802710ebcef74671e50c4c979.1772035270.git.bblock@linux.ibm.com>
+ <20260311100431.GC46248@p1gen4-pw042f0m.fritz.box>
+ <20260311104727.8f7b1492141b6d61fc1b2791@linux-foundation.org>
+ <20260313142620.GG2161595@p1gen4-pw042f0m>
+ <20260314150649.9a7c4bf4554b1288eb471edc@linux-foundation.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 9/9] arm64: defconfig: remove obsolete assignment to
- SLIM_QCOM_CTRL
-To: "Vincent Mailhol (Arm)" <mailhol@kernel.org>,
- Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>,
- Mikko Rapeli <mikko.rapeli@linaro.org>,
- Richard Henderson <richard.henderson@linaro.org>,
- Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>,
- Russell King <linux@armlinux.org.uk>, Aaro Koskinen <aaro.koskinen@iki.fi>,
- Andreas Kemnade <andreas@kemnade.info>, Kevin Hilman <khilman@baylibre.com>,
- Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
- Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
- Clark Williams <clrkwllms@kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
- Pablo Neira Ayuso <pablo@netfilter.org>,
- Alim Akhtar <alim.akhtar@samsung.com>, Frank Li <Frank.Li@nxp.com>,
- Sascha Hauer <s.hauer@pengutronix.de>,
- Pengutronix Kernel Team <kernel@pengutronix.de>,
- Fabio Estevam <festevam@gmail.com>, Vladimir Zapolskiy <vz@mleia.com>,
- Piotr Wojtaszczyk <piotr.wojtaszczyk@timesys.com>,
- Liviu Dudau <liviu.dudau@arm.com>, Sudeep Holla <sudeep.holla@kernel.org>,
- Lorenzo Pieralisi <lpieralisi@kernel.org>,
- Geert Uytterhoeven <geert+renesas@glider.be>,
- Magnus Damm <magnus.damm@gmail.com>,
- Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>,
- Gregory CLEMENT <gregory.clement@bootlin.com>,
- =?UTF-8?Q?Th=C3=A9o_Lebrun?= <theo.lebrun@bootlin.com>,
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
- Helge Deller <deller@gmx.de>, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
- =?UTF-8?Q?Jonathan_Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
- Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
- Thomas Zimmermann <tzimmermann@suse.de>, Arnd Bergmann <arnd@arndb.de>,
- Heiko Stuebner <heiko@sntech.de>,
- Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
- Mark Brown <broonie@kernel.org>, Eric Biggers <ebiggers@kernel.org>,
- Ard Biesheuvel <ardb@kernel.org>,
- Sricharan Ramabadhran <quic_srichara@quicinc.com>,
- Bjorn Andersson <andersson@kernel.org>, Michael Walle <mwalle@kernel.org>,
- Guenter Roeck <linux@roeck-us.net>,
- Srinivas Kandagatla <srinivas.kandagatla@oss.qualcomm.com>,
- "Rob Herring (Arm)" <robh@kernel.org>,
- Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Anna Schumaker <anna.schumaker@oracle.com>
-Cc: Alexandre Gonzalo <alexandre.gonzalo@arm.com>,
- linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-omap@vger.kernel.org, loongarch@lists.linux.dev,
- linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org, linux-rt-devel@lists.linux.dev,
- linux-samsung-soc@vger.kernel.org, imx@lists.linux.dev,
- linux-renesas-soc@vger.kernel.org, linux-parisc@vger.kernel.org,
- openbmc@lists.ozlabs.org
-References: <20260317-arm_defconf_cleanup-v1-0-8eecb7fdd24d@kernel.org>
- <20260317-arm_defconf_cleanup-v1-9-8eecb7fdd24d@kernel.org>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <20260317-arm_defconf_cleanup-v1-9-8eecb7fdd24d@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260314150649.9a7c4bf4554b1288eb471edc@linux-foundation.org>
+Sender: Benjamin Block <bblock@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE3MDEwNCBTYWx0ZWRfX6MBh5la28dvn
+ 5O8qzfcBqNY6jwPnEAvFLYVATdguloORjvGQ9kklIADq+yI6dLhAi+xdHIDUrtdz4qub7g5tJdX
+ tStbRUx9Zg4y4mWxR4Aq2eb6MNdALGEnw+kM1AmmwRA2ZYl+THkqYbvxMadzAKDRlQ8MUD4c5JV
+ Q+JgzyZlBqLsqhax6M7faohtOA9qXSuXTOn0ps941EnCaWqdT3nEBPpIKo3Z4h9Ir7PLUnMIN23
+ XEk4pWAYQiCcjsdXaHfsgLK0fgfkqOBWMd60dzf2jeMaUF0CXKdxyIovFhkqLDXbkl0tcxxeQd3
+ pUEzeKSp+b2AReqd1PBKfA7nGTWeX0hOqJr55stiWuuE9GtqNjakUw4C9z+ftZdE8zdr1/zjcnF
+ VryJ+3LoNigKaOAjpkqg2KM3v36GIHnklQ5bdabTMeqVk2PLBG3EHMX2oXgJy3ggcSI0Ma84Uf2
+ GHzEAknFX5RMdCzZKYg==
+X-Authority-Analysis: v=2.4 cv=GIQF0+NK c=1 sm=1 tr=0 ts=69b93e15 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=8nJEP1OIZ-IA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=Vt2AcnKqAAAA:8
+ a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=sFc_lIpcBJkQizF9-a8A:9 a=3ZKOabzyN94A:10
+ a=wPNLvfGTeEIA:10 a=v10HlyRyNeVhbzM4Lqgd:22
+X-Proofpoint-ORIG-GUID: tnynZe1ulNqDZgxldC2rtLFvjPhmEY5X
+X-Proofpoint-GUID: tnynZe1ulNqDZgxldC2rtLFvjPhmEY5X
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-17_01,2026-03-16_06,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 priorityscore=1501 bulkscore=0 lowpriorityscore=0 malwarescore=0
+ phishscore=0 impostorscore=0 suspectscore=0 adultscore=0 clxscore=1011
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603170104
 
-On 17/03/2026 10:13, Vincent Mailhol (Arm) wrote:
-> The Qcom Slimbus controller driver is not in the kernel tree
-> anymore. Clean-up the leftover reference to CONFIG_SLIM_QCOM_CTRL
-> which was left in the defconfig.
+On Sat, Mar 14, 2026 at 03:06:49PM -0700, Andrew Morton wrote:
+> On Fri, 13 Mar 2026 15:26:20 +0100 Benjamin Block <bblock@linux.ibm.com> wrote:
 > 
-> Fixes: 7cbba32a2d62 ("slimbus: qcom: remove unused qcom controller driver")
-> Signed-off-by: Vincent Mailhol (Arm) <mailhol@kernel.org>
-> ---
->  arch/arm64/configs/defconfig | 1 -
->  1 file changed, 1 deletion(-)
+> > > obj_static_pool[] is __initdata, so the consequences of making it large
+> > > are very slight.  So do we really need
+> > > CONFIG_DEBUG_OBJECTS_POOL_SIZE_SHIFT?  Requiring a rebuild is a huge
+> > > hassle.  How about simply making the static pool much larger and leave
+> > > it at that?
+> > 
+> > I was thinking about that but then couldn't decide what would be "big enough"
+> > as constant value for "everyone". My test systems wasn't even that "big", and
+> > I'm already at 1280 KiB reservation to make ODEBUG "survive" the boot. Not
+> > sure I want to make this say 2 MiB without config option for everyone.
+> 
+> 2MB of initmem probably just doesn't matter.  Annoying.
+> 
+> Do you understand *why* s390 is using so many objects?  Presumably the
+> current much smaller default is OK for most systems - my googling for
+> "Out of memory.  ODEBUG disabled" turned up very little.
 
-https://lore.kernel.org/all/20251223140645.3545658-1-mikko.rapeli@linaro.org/
+Frankly, I don't know where all the objects come from on s390. I'll do some
+digging, and try to trace the sources.. let's see what I can manage; but I'll
+be on a trip for a couple of days.
 
-I even asked there to send it to qcom maintainers :/
+> Oh, look what I found. 
+> https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1807440.html
+> What happened to that?
 
-Exactly that case also encouraged me to document this, since we do not
-know how to fix get_maintainers. See commit
-6efe5322f060099c8bc51aaee83b857394e42dd5
+Interesting, indeed. Nr. of CPUs and Memory. Well, I had 32 processors and 64
+GiB memory, which all things considered isn't particularly huge these days.
 
-Best regards,
-Krzysztof
+-- 
+Best Regards, Benjamin Block        /        Linux on IBM Z Kernel Development
+IBM Deutschland Research & Development GmbH    /   https://www.ibm.com/privacy
+Vors. Aufs.-R.: Wolfgang Wendt         /        Geschäftsführung: David Faller
+Sitz der Ges.: Ehningen     /     Registergericht: AmtsG Stuttgart, HRB 243294
