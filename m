@@ -1,54 +1,54 @@
 Received: from mail-dy1-f201.google.com (mail-dy1-f201.google.com [74.125.82.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6393137BE96
-	for <linux-s390@vger.kernel.org>; Tue, 17 Mar 2026 17:56:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11B8537EFEE
+	for <linux-s390@vger.kernel.org>; Tue, 17 Mar 2026 17:56:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773770210; cv=none; b=Cww+FY2dGNVRvjKCEvnKRdsh0ISSRny9ExV+S9IT/2ny8PG4s0YUOumdT2b5XIIKgVky+5FkJzLVLhKDeYm25QIGkUoUBxd+Cx/g6gKpJfBBfXiuw6pQZ24dBeZX48pJRGOHj3YKXSAZuSjoHty6yZv4xBaJ+YpRW+2khvIP45I=
+	t=1773770215; cv=none; b=Skr7RmOCDdWsVGBKmEUYIkAZH8eboYb8ccNa7IV+GsVCOhdERhZHpL54muTsLLdMMqvRiXEQwQRHXvgO9TQh9eFOgtqznII8uJuMH+E2XbF2g2CqLEeMMaW3RaszwkHsOYz09TZTGWSGRpKnrJKl1fOZO/8MQjTC/PjxI+mFE4c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773770210; c=relaxed/simple;
-	bh=wVIk574MaJ1ryn6M1d5QWZAOYLPanqIo/c++6wESi+o=;
+	s=arc-20240116; t=1773770215; c=relaxed/simple;
+	bh=YnHls8NIVjy5Ei7a4hKc1qV28zK+UaZo7VK2CAN8c3w=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=E9wMkwLU5YJfaJi5g2nbZr65pw8IVCEBsfuup5yhDq8omyCBCs64EbeQwIw3wrHmP+eSyUP04EXpHu+aDOFaYXuiZNELJ8Qxj1G7kxrjHoBQ88I02i3IebmfaLCeJ/nXiFGvETxeMndlC4oDPV7TqFQsPs27YeOvNtzLfHcEkQA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Cphu19cC; arc=none smtp.client-ip=74.125.82.201
+	 To:Cc:Content-Type; b=LuFxnzjv0uRd4yRExxsHl4bTVzeInFwYcvv/xsE+Sa9OenIyQYXfL3smcYIj/OfJbznFTUF1AaHQfE8CPoW+2OT8NbXpbsmKJKTIXbwB2u4TKjaGZ6s5HffFI3qKnZZF6RpMB/PEku0HZ+8Lvr1jpQFUUbJ7k4+AqYisKwHfwWA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ougIvL7E; arc=none smtp.client-ip=74.125.82.201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Cphu19cC"
-Received: by mail-dy1-f201.google.com with SMTP id 5a478bee46e88-2bea61591fdso104912542eec.0
-        for <linux-s390@vger.kernel.org>; Tue, 17 Mar 2026 10:56:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ougIvL7E"
+Received: by mail-dy1-f201.google.com with SMTP id 5a478bee46e88-2bead0a9123so2072863eec.1
+        for <linux-s390@vger.kernel.org>; Tue, 17 Mar 2026 10:56:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1773770209; x=1774375009; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1773770213; x=1774375013; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=BC7DFlkd9xaG2royXDyXDCwOCftcIJRM1qoiGuRC8ho=;
-        b=Cphu19cCRMHzHSBEJMnmYw/pT3cZXgHiJFL+jIOalZiimrS+0aD6arzArc3IGmyWgE
-         kFufh7F2AL6X0Qc/QwuWxrapRj2kjN88feeTqK2YXkqA+yZclVbpz8p6kq3iIiZyAuW+
-         NOugaJXH/599aiJjVn/z6ri1Iwa1E91/46VsffK3ds2W6ruEuI+TGW17rWi0Yq55RAjV
-         LTIco/RmfSO07y2c5W+d81GysnRfAtwrwQane3dfXNokwy9aBh9qrTTRFrZk9WFeYYW2
-         Ry0JlC/4SqY5hIIydTmYqpV/W37tLe5Yic/dBvg9qVjpWCWqGFUkbTuIZM9+qjrO+aRS
-         +g/w==
+        bh=4sR/GkKKCK4vlTKAx1HdQnSDfMDIglmN+8LdctHHquI=;
+        b=ougIvL7E76jUUfEYd6e7fJILp0+C/OSnnajGRqFkDULtrsMdv9Ye9fa+d3tFzPax6k
+         rDSSFnkeL3ENi42CMnc63O/unAJkXTl7yOODBg32tgWWqDmYxm/RUt2GCVR52NPFEs6E
+         7BDRCoku1sj+PS2QzqWHRl+IGOR8/gQebwRrRDHyPkPnllfPGwZVio9D/MWCVXsVqSSa
+         w00Bo/2fdBiVx+7qJrAxL9+Wo1n5Vd/zWN83fZzig5mtMHPqTeJK4T+fU4RVFFSV7crQ
+         yObJg3n/HIPZFUaVnBNQAJoW6xIGaMxasU/L8Ib70KlVI3W9y7ulo5QsHHC5whqF0AbA
+         OswA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773770209; x=1774375009;
+        d=1e100.net; s=20251104; t=1773770213; x=1774375013;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=BC7DFlkd9xaG2royXDyXDCwOCftcIJRM1qoiGuRC8ho=;
-        b=dQB0GPnmSHvWyTZIOw7k2tk6I1ohcujyXDmAOrG4iOJCu7UT6kzQIBy9N8qkYcPa5B
-         wHqZYMXy4gyfWazcEMzf0PmWfXgdFRtvMDR7/se5K9/55HCENMQNoCFbnd4vZyuUCpNs
-         73VH1ng5WUgMyP6bJ3vU8YGvh/NQH2sJ3Uj0j8VaoeepxfbfS4IHmNCSe0d7SGag4z55
-         vcqQ14lPob5oVVTyPhL67Q/OaST8elyHSuVMvyFCJuNydk4hXidn/IsQECoq5vfMUhPX
-         e1PMuCFme017mIHyW6GtIaoBslLeX4L/wPL1o7Pc8O4jZChOhSy87hmjRC5DEU41Aya9
-         oGJg==
-X-Forwarded-Encrypted: i=1; AJvYcCW0xA8UyMbxxYlkaHlC7oxSEucbFew0w3tvm7pFQovsKhH4tTXEodrD4tUbYYvlKy+lwT+VX6zOw2Ae@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzzgg6cKzG476O33sq6+HblYnw5Rr8koZjpnC4xhcFXUNAcpsCA
-	iP69M88FFsCtc9Mi2qS655j08W4SmoNbBWB23MhFYTivAhFseBLU76ziM0yc75g9DggdNggqV0+
-	NYeOS8dbVDQ==
+        bh=4sR/GkKKCK4vlTKAx1HdQnSDfMDIglmN+8LdctHHquI=;
+        b=DjzjGzSATnUCjsgDPONn5B+LAS4jc4GntUFEVmlEsU/i2Lo2WYrYukpPez9R63hHfA
+         tQQ1+pai8O0zewJ1DO1Mcv0iOqYrQqRfEDrKoG7IrYZ8JBuNxVbHzk97YgntFE3UUvkY
+         UboqpX02nz/0Hw1UyEI+FL4H1kDiinCLIMyf3wZZpuIdcAPsftkOkMY7WUQIqfKlxZ4n
+         so0CrDcyEvBReUQhMSm7ot56ARKG7EcR+YTdamMA6YaaoMdKX/10qcBO9lbvvpizLrrC
+         Ea8SlfR3mO8F3EoGgrrHNplzOfLlnu/YLigUJmV680ix5RrPts069XHgQ8Uf8uaqP3Af
+         ilGA==
+X-Forwarded-Encrypted: i=1; AJvYcCXR2uh0Jknv86IHU9CPL0Z92tlLO0h1/TqoqSWzx8zMj+Fmh+Ka4AXwH3dJAFVLOiMoOh2x4vSJo9Oe@vger.kernel.org
+X-Gm-Message-State: AOJu0Yze6dfOBG9R0QucNTWQVBktMC6uePh/q1z1Z+Cdh1hylgryePcC
+	s8rZM6Q+lhaZ5xEdJ2mbGOmqQSrdMvZI7LRuQaLzDRCZ4AUaHMH+YcqsVZ2dyql5dILCt32vqVh
+	gsBNgbHUaOg==
 X-Received: from dycmh3.prod.google.com ([2002:a05:693c:2583:b0:2be:2e48:5d13])
- (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7301:6790:b0:2c0:ad52:e657
- with SMTP id 5a478bee46e88-2c0e50cb1bcmr159118eec.21.1773770208351; Tue, 17
- Mar 2026 10:56:48 -0700 (PDT)
-Date: Tue, 17 Mar 2026 10:56:38 -0700
+ (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7300:dc87:b0:2bd:dd33:7996
+ with SMTP id 5a478bee46e88-2c0e503eb8amr177097eec.19.1773770213078; Tue, 17
+ Mar 2026 10:56:53 -0700 (PDT)
+Date: Tue, 17 Mar 2026 10:56:40 -0700
 In-Reply-To: <20260317175642.161647-1-irogers@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -59,8 +59,8 @@ Mime-Version: 1.0
 References: <CAP-5=fUO8azimnOV2Ogb93nZ3eXnaLdGo6b+3wPVf0tMz29JqQ@mail.gmail.com>
  <20260317175642.161647-1-irogers@google.com>
 X-Mailer: git-send-email 2.53.0.851.ga537e3e6e9-goog
-Message-ID: <20260317175642.161647-2-irogers@google.com>
-Subject: [PATCH v6 1/5] perf evsel: Improve falling back from cycles
+Message-ID: <20260317175642.161647-4-irogers@google.com>
+Subject: [PATCH v6 3/5] perf evsel: Constify option arguments to config functions
 From: Ian Rogers <irogers@google.com>
 To: tmricht@linux.ibm.com
 Cc: irogers@google.com, acme@kernel.org, agordeev@linux.ibm.com, 
@@ -69,109 +69,105 @@ Cc: irogers@google.com, acme@kernel.org, agordeev@linux.ibm.com,
 	linux-s390@vger.kernel.org, namhyung@kernel.org, sumanthk@linux.ibm.com
 Content-Type: text/plain; charset="UTF-8"
 
-Switch to using evsel__match rather than comparing perf_event_attr
-values, this is robust on hybrid architectures.
-Ensure evsel->pmu matches the evsel->core.attr.
-Remove exclude bits that get set in other fallback attempts when
-switching the event.
-Log the event name with modifiers when switching the event on fallback.
+The options are used to configure the evsel but are not themselves
+configured. Make the arguments const to better capture this.
 
 Signed-off-by: Ian Rogers <irogers@google.com>
 ---
- tools/perf/util/evsel.c | 45 ++++++++++++++++++++++++++++-------------
- tools/perf/util/evsel.h |  2 ++
- 2 files changed, 33 insertions(+), 14 deletions(-)
+ tools/perf/util/evsel.c | 20 ++++++++++----------
+ tools/perf/util/evsel.h |  8 ++++----
+ 2 files changed, 14 insertions(+), 14 deletions(-)
 
 diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
-index f59228c1a39e..bd14d9bbc91f 100644
+index bd14d9bbc91f..54c8922a8e47 100644
 --- a/tools/perf/util/evsel.c
 +++ b/tools/perf/util/evsel.c
-@@ -3785,25 +3785,42 @@ bool evsel__fallback(struct evsel *evsel, struct target *target, int err,
+@@ -1015,8 +1015,8 @@ uint16_t evsel__e_machine(struct evsel *evsel, uint32_t *e_flags)
+ 	return perf_session__e_machine(session, e_flags);
+ }
+ 
+-static void __evsel__config_callchain(struct evsel *evsel, struct record_opts *opts,
+-				      struct callchain_param *param)
++static void __evsel__config_callchain(struct evsel *evsel, const struct record_opts *opts,
++				      const struct callchain_param *param)
  {
- 	int paranoid;
+ 	bool function = evsel__is_function_event(evsel);
+ 	struct perf_event_attr *attr = &evsel->core.attr;
+@@ -1080,14 +1080,14 @@ static void __evsel__config_callchain(struct evsel *evsel, struct record_opts *o
+ 		attr->defer_callchain = 1;
+ }
  
--	if ((err == ENOENT || err == ENXIO || err == ENODEV) &&
--	    evsel->core.attr.type   == PERF_TYPE_HARDWARE &&
--	    evsel->core.attr.config == PERF_COUNT_HW_CPU_CYCLES) {
-+	if ((err == ENODEV || err == ENOENT || err == ENXIO) &&
-+	    evsel__match(evsel, HARDWARE, HW_CPU_CYCLES)) {
- 		/*
--		 * If it's cycles then fall back to hrtimer based cpu-clock sw
--		 * counter, which is always available even if no PMU support.
--		 *
--		 * PPC returns ENXIO until 2.6.37 (behavior changed with commit
--		 * b0a873e).
-+		 * If it's the legacy hardware cycles event fails then fall back
-+		 * to hrtimer based cpu-clock sw counter, which is always
-+		 * available even if no PMU support. PPC returned ENXIO rather
-+		 * than ENODEV or ENOENT until 2.6.37.
- 		 */
--		evsel->core.attr.type   = PERF_TYPE_SOFTWARE;
-+		evsel->pmu = perf_pmus__find_by_type(PERF_TYPE_SOFTWARE);
-+		assert(evsel->pmu); /* software is a "well-known" and can't fail PMU type. */
-+
-+		/* Configure the event. */
-+		evsel->core.attr.type = PERF_TYPE_SOFTWARE;
- 		evsel->core.attr.config = target__has_cpu(target)
- 			? PERF_COUNT_SW_CPU_CLOCK
- 			: PERF_COUNT_SW_TASK_CLOCK;
--		scnprintf(msg, msgsize,
--			"The cycles event is not supported, trying to fall back to %s",
--			target__has_cpu(target) ? "cpu-clock" : "task-clock");
-+		evsel->core.is_pmu_core = false;
-+
-+		/* Remove excludes for new event. */
-+		if (evsel->fallenback_eacces) {
-+			evsel->core.attr.exclude_kernel = 0;
-+			evsel->core.attr.exclude_hv     = 0;
-+			evsel->fallenback_eacces = false;
-+		}
-+		if (evsel->fallenback_eopnotsupp) {
-+			evsel->core.attr.exclude_guest = 0;
-+			evsel->fallenback_eopnotsupp = false;
-+		}
+-void evsel__config_callchain(struct evsel *evsel, struct record_opts *opts,
+-			     struct callchain_param *param)
++void evsel__config_callchain(struct evsel *evsel, const struct record_opts *opts,
++			     const struct callchain_param *param)
+ {
+ 	if (param->enabled)
+ 		return __evsel__config_callchain(evsel, opts, param);
+ }
  
-+		/* Name is recomputed by evsel__name. */
- 		zfree(&evsel->name);
-+
-+		/* Log message. */
-+		scnprintf(msg, msgsize,
-+			  "The cycles event is not supported, trying to fall back to %s",
-+			  evsel__name(evsel));
- 		return true;
- 	} else if (err == EACCES && !evsel->core.attr.exclude_kernel &&
- 		   (paranoid = perf_event_paranoid()) > 1) {
-@@ -3830,7 +3847,7 @@ bool evsel__fallback(struct evsel *evsel, struct target *target, int err,
- 			  " samples", paranoid);
- 		evsel->core.attr.exclude_kernel = 1;
- 		evsel->core.attr.exclude_hv     = 1;
--
-+		evsel->fallenback_eacces = true;
- 		return true;
- 	} else if (err == EOPNOTSUPP && !evsel->core.attr.exclude_guest &&
- 		   !evsel->exclude_GH) {
-@@ -3851,7 +3868,7 @@ bool evsel__fallback(struct evsel *evsel, struct target *target, int err,
- 		/* Apple M1 requires exclude_guest */
- 		scnprintf(msg, msgsize, "Trying to fall back to excluding guest samples");
- 		evsel->core.attr.exclude_guest = 1;
--
-+		evsel->fallenback_eopnotsupp = true;
- 		return true;
- 	}
- no_fallback:
+-static void evsel__reset_callgraph(struct evsel *evsel, struct callchain_param *param)
++static void evsel__reset_callgraph(struct evsel *evsel, const struct callchain_param *param)
+ {
+ 	struct perf_event_attr *attr = &evsel->core.attr;
+ 
+@@ -1106,7 +1106,7 @@ static void evsel__reset_callgraph(struct evsel *evsel, struct callchain_param *
+ 
+ static void evsel__apply_ratio_to_prev(struct evsel *evsel,
+ 				       struct perf_event_attr *attr,
+-				       struct record_opts *opts,
++				       const struct record_opts *opts,
+ 				       const char *buf)
+ {
+ 	struct perf_event_attr *prev_attr = NULL;
+@@ -1170,7 +1170,7 @@ static void evsel__apply_ratio_to_prev(struct evsel *evsel,
+ }
+ 
+ static void evsel__apply_config_terms(struct evsel *evsel,
+-				      struct record_opts *opts, bool track)
++				      const struct record_opts *opts, bool track)
+ {
+ 	struct evsel_config_term *term;
+ 	struct list_head *config_terms = &evsel->config_terms;
+@@ -1445,7 +1445,7 @@ void __weak arch_evsel__apply_ratio_to_prev(struct evsel *evsel __maybe_unused,
+ {
+ }
+ 
+-static void evsel__set_default_freq_period(struct record_opts *opts,
++static void evsel__set_default_freq_period(const struct record_opts *opts,
+ 					   struct perf_event_attr *attr)
+ {
+ 	if (opts->freq) {
+@@ -1490,8 +1490,8 @@ bool evsel__is_offcpu_event(struct evsel *evsel)
+  *     enable/disable events specifically, as there's no
+  *     initial traced exec call.
+  */
+-void evsel__config(struct evsel *evsel, struct record_opts *opts,
+-		   struct callchain_param *callchain)
++void evsel__config(struct evsel *evsel, const struct record_opts *opts,
++		   const struct callchain_param *callchain)
+ {
+ 	struct evsel *leader = evsel__leader(evsel);
+ 	struct perf_event_attr *attr = &evsel->core.attr;
 diff --git a/tools/perf/util/evsel.h b/tools/perf/util/evsel.h
-index a3d754c029a0..97f57fab28ce 100644
+index 97f57fab28ce..339b5c08a33d 100644
 --- a/tools/perf/util/evsel.h
 +++ b/tools/perf/util/evsel.h
-@@ -124,6 +124,8 @@ struct evsel {
- 	bool			default_metricgroup; /* A member of the Default metricgroup */
- 	bool			default_show_events; /* If a default group member, show the event */
- 	bool			needs_uniquify;
-+	bool			fallenback_eacces;
-+	bool			fallenback_eopnotsupp;
- 	struct hashmap		*per_pkg_mask;
- 	int			err;
- 	int			script_output_type;
+@@ -287,10 +287,10 @@ void evsel__set_priv_destructor(void (*destructor)(void *priv));
+ 
+ struct callchain_param;
+ 
+-void evsel__config(struct evsel *evsel, struct record_opts *opts,
+-		   struct callchain_param *callchain);
+-void evsel__config_callchain(struct evsel *evsel, struct record_opts *opts,
+-			     struct callchain_param *callchain);
++void evsel__config(struct evsel *evsel, const struct record_opts *opts,
++		   const struct callchain_param *callchain);
++void evsel__config_callchain(struct evsel *evsel, const struct record_opts *opts,
++			     const  struct callchain_param *callchain);
+ 
+ int __evsel__sample_size(u64 sample_type);
+ void evsel__calc_id_pos(struct evsel *evsel);
 -- 
 2.53.0.851.ga537e3e6e9-goog
 
