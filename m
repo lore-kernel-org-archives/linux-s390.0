@@ -1,111 +1,250 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7906388E65;
-	Tue, 17 Mar 2026 10:38:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id BB3F63659FA;
+	Tue, 17 Mar 2026 10:57:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773743893; cv=none; b=D5BmGgimLiv8Qh5uI2PzYgZuJLWWnjQ+NNTWqMuYlRePIUL/2XTy2RaPZQpz8gh6n/NlFiRhivtB67LFRNRM6SLCT7JSH9ir7V5tdbBS1Ur3uvRzaaGFSBNwgHNTVQjansjX4D+biK6Wvn2wU1E7vYszFDYvxu7NBBlrPB1d89E=
+	t=1773745034; cv=none; b=NEj/NtXUcF5eh8xQZ9wet3hFTuTlfAjD8gZGWhEnwZOnmwIregZbSOp24MsuiHiHasHDGbsCx5eoWjzobm7FRMPYgKxzh0sHxcQ8hxsAMWvHoQexAGjMO7wWzC/kRmcu8Z2/H5ATikEatImka5VT/xC4n5woEYxvlUc1NY5Iqso=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773743893; c=relaxed/simple;
-	bh=9RQ0Tvco2BwCrno5HAySN/PgXfW3wX22o+3PPwc2mmU=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
-	 References:In-Reply-To; b=a3ZlMFsCoBmxldvQgEz38xE2ulsPaBqiOnYbtoB6kOe2bM4IW2pjlJZMu7cai4epcFKU8G+Q3U5xgM46iKNhke34DusJHxiMGEs5G9i/xJN1mhfmN1N4h8VLWRT2js/GRZ6gp0eoVN9qOimxCaTbxqiZW0zsUhOKDJATLw0Wj90=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PwhV24xI; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PwhV24xI"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62H8NjR61093922;
-	Tue, 17 Mar 2026 10:38:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=6n4QT0
-	OrpXydZ1M1Xoqb1LF4gLQ/ZCRinRqoY1RW+fA=; b=PwhV24xITjQ4mQ7ximH2N1
-	D1kYv1kPpluEhTH9U01M1dxw3Dz1iVqACibnHFXb7eW0c2Q3NnbyBQ75KPDNta90
-	zbx+T+3W3chKXL5Ry5PbzkjGTzB0Vtictr2g6nz1vu4d/nmF8kGBBkFfxz6PFg6j
-	V2oQz2mewjyezmsipfKPe9IMofTa0k7c0IbpIjOy63HQc11SEqZ/NFM6FWGPpmwr
-	0lAJqyFx8Bfj30BJIWj/6eO9bbNYaVHJtIm7+Cr6syPm5hMov3ety5Df9QwJVEXU
-	olrQylM0+sLzo0MW+Mq2A0bpPHONsWezOqvfS95xGG4OxJIAw/GvmykYGsfXE6xQ
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvy64m8x2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Mar 2026 10:38:11 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62H8F5UT028496;
-	Tue, 17 Mar 2026 10:38:11 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cwmq18f7y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Mar 2026 10:38:11 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62HAc7pU49283498
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 17 Mar 2026 10:38:07 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2C12D2004D;
-	Tue, 17 Mar 2026 10:38:07 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 05FDD2004B;
-	Tue, 17 Mar 2026 10:38:07 +0000 (GMT)
-Received: from darkmoore (unknown [9.87.132.213])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 17 Mar 2026 10:38:06 +0000 (GMT)
+	s=arc-20240116; t=1773745034; c=relaxed/simple;
+	bh=l6cEIrSwaUSKW9ZZZ60N6/1onMQZSNnrbK/gQBiYoXY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=YSBAlcYF3nkq99iutAk++XjZgZld28nddS+Ce06TTDTbWgw1HKkxazkVo/Eo6xGngiDrVnL5FN5gteUQlZaCJQMCEoYE4Dbndn57X2pGe20SUW7eTwmBDT/KXnN1raGRRDchmD6tDwIYrzfGuYg5QtE4xaDi/+bBfQ5QjCyFc14=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2BFE41477;
+	Tue, 17 Mar 2026 03:57:06 -0700 (PDT)
+Received: from e129823.arm.com (e129823.arm.com [10.1.197.6])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 457E83F7BD;
+	Tue, 17 Mar 2026 03:57:06 -0700 (PDT)
+Date: Tue, 17 Mar 2026 10:57:04 +0000
+From: Yeoreum Yun <yeoreum.yun@arm.com>
+To: Jinjie Ruan <ruanjinjie@huawei.com>
+Cc: catalin.marinas@arm.com, will@kernel.org, oleg@redhat.com,
+	chenhuacai@kernel.org, kernel@xen0n.name, hca@linux.ibm.com,
+	gor@linux.ibm.com, agordeev@linux.ibm.com,
+	borntraeger@linux.ibm.com, svens@linux.ibm.com, tglx@kernel.org,
+	mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+	hpa@zytor.com, arnd@arndb.de, peterz@infradead.org, luto@kernel.org,
+	shuah@kernel.org, kees@kernel.org, wad@chromium.org,
+	kevin.brodsky@arm.com, deller@gmx.de, macro@orcam.me.uk,
+	akpm@linux-foundation.org, ldv@strace.io, anshuman.khandual@arm.com,
+	ryan.roberts@arm.com, mark.rutland@arm.com, thuth@redhat.com,
+	song@kernel.org, ada.coupriediaz@arm.com, linusw@kernel.org,
+	broonie@kernel.org, pengcan@kylinos.cn, liqiang01@kylinos.cn,
+	ziyao@disroot.org, guanwentao@uniontech.com, guoren@kernel.org,
+	schuster.simon@siemens-energy.com, jremus@linux.ibm.com,
+	david@kernel.org, mathieu.desnoyers@efficios.com,
+	edumazet@google.com, kmal@cock.li, dvyukov@google.com,
+	reddybalavignesh9979@gmail.com, x86@kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	loongarch@lists.linux.dev, linux-s390@vger.kernel.org,
+	linux-arch@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH v13 RESEND 00/14] arm64: entry: Convert to Generic Entry
+Message-ID: <abkzgKwMTOtGqSRb@e129823.arm.com>
+References: <20260317082020.737779-1-ruanjinjie@huawei.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Tue, 17 Mar 2026 11:38:01 +0100
-Message-Id: <DH4ZQA5VYDE0.1SW16U6AQ6HCX@linux.ibm.com>
-From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: <linux-s390@vger.kernel.org>, <imbrenda@linux.ibm.com>,
-        <borntraeger@linux.ibm.com>, <akrowiak@linux.ibm.com>
-To: "Janosch Frank" <frankja@linux.ibm.com>, <kvm@vger.kernel.org>
-Subject: Re: [RFC 03/10] KVM: s390: Convert shifts to gpa_to_gfn()
-X-Mailer: aerc 0.21.0
-References: <20260316180310.17765-1-frankja@linux.ibm.com>
- <20260316180310.17765-4-frankja@linux.ibm.com>
-In-Reply-To: <20260316180310.17765-4-frankja@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: zTTNjaKhjZcHcUFJo8qE8ARgClkaSsFu
-X-Proofpoint-GUID: zTTNjaKhjZcHcUFJo8qE8ARgClkaSsFu
-X-Authority-Analysis: v=2.4 cv=KYnfcAYD c=1 sm=1 tr=0 ts=69b92f14 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=-yrtnzFoinabFxpHE94A:9 a=QEXdDO2ut3YA:10 a=zgiPjhLxNE0A:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE3MDA5MCBTYWx0ZWRfXwPmF990i2iCP
- i3aDng4YX07QnKc5G0lGNjc/bTc6OmAWg+uYvIxqrgsA3gZ2dIapJ0KDWrAYcMZca6uoGUo6o0F
- gG5lf47k4D9FQvk11NHb7w/qLS/VK1yDb0GwfTk0x30M+t0+kMXUPWt36eYXzP+8OuopoJawZfe
- 67sYuh7gf2s4zafA5oUxbCfurnqLU+BPoFXb7RvUVopzRtv4NW4c81zmaMjqa8ABaHAwtE2Bd+5
- i4meYC4OcnaQ7wwOUZzBH68mG+l0RdKVD/GUNs4I6TKj9sCfYMwklX3qG16yb5i1bMi2myF1Vc9
- og83th5NJ9jRfbpsc6heVvunYc2UlvNKpD2NwJyBIOLtaOPgdqRw75TH/IpFq5c0pgqTTQNPaUG
- TzLigyBbmnA3hl8ORQ+ySba7yryq5Wd76BcqAVejime56OtRJxHNhMjTHWd70GBVZn8NJAFuci0
- N3PCHzABzDEeMy05zxg==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-17_01,2026-03-16_06,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0 bulkscore=0
- spamscore=0 impostorscore=0 malwarescore=0 adultscore=0 clxscore=1015
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603170090
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260317082020.737779-1-ruanjinjie@huawei.com>
 
-On Mon Mar 16, 2026 at 5:23 PM CET, Janosch Frank wrote:
-> Not only do we get rid of the ugly shift but we have more chances to
-> do static analysis type checking since gpa_to_gfn() returns gfn_t.
+This series looks good to me.
+
+Reviewed-by: Yeoreum Yun <yeoreum.yun@arm.com>
+
+> Currently, x86, Riscv, Loongarch use the Generic Entry which makes
+> maintainers' work easier and codes more elegant. arm64 has already
+> successfully switched to the Generic IRQ Entry in commit
+> b3cf07851b6c ("arm64: entry: Switch to generic IRQ entry"), it is
+> time to completely convert arm64 to Generic Entry.
 >
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> The goal is to bring arm64 in line with other architectures that already
+> use the generic entry infrastructure, reducing duplicated code and
+> making it easier to share future changes in entry/exit paths, such as
+> "Syscall User Dispatch" and RSEQ optimizations.
+>
+> This patch set is rebased on v7.0-rc3. And the performance
+> benchmarks results on qemu-kvm are below:
+>
+> perf bench syscall usec/op (-ve is improvement)
+>
+> | Syscall | Base        | Generic Entry | change % |
+> | ------- | ----------- | ------------- | -------- |
+> | basic   | 0.123997    | 0.120872      | -2.57    |
+> | execve  | 512.1173    | 504.9966      | -1.52    |
+> | fork    | 114.1144    | 113.2301      | -1.06    |
+> | getpgid | 0.120182    | 0.121245      | +0.9     |
+>
+> perf bench syscall ops/sec (+ve is improvement)
+>
+> | Syscall | Base     | Generic Entry| change % |
+> | ------- | -------- | ------------ | -------- |
+> | basic   | 8064712  | 8273212      | +2.48    |
+> | execve  | 1952     | 1980         | +1.52    |
+> | fork    | 8763     | 8832         | +1.06    |
+> | getpgid | 8320704  | 8247810      | -0.9     |
+>
+> Therefore, the syscall performance variation ranges from a 1% regression
+> to a 2.5% improvement.
+>
+> It was tested ok with following test cases on QEMU virt platform:
+>  - Stress-ng CPU stress test.
+>  - Hackbench stress test.
+>  - "sud" selftest testcase.
+>  - get_set_sud, get_syscall_info, set_syscall_info, peeksiginfo
+>    in tools/testing/selftests/ptrace.
+>  - breakpoint_test_arm64 in selftests/breakpoints.
+>  - syscall-abi and ptrace in tools/testing/selftests/arm64/abi
+>  - fp-ptrace, sve-ptrace, za-ptrace in selftests/arm64/fp.
+>  - vdso_test_getrandom in tools/testing/selftests/vDSO
+>  - Strace tests.
+>  - slice_test for rseq optimizations.
+>
+> The test QEMU configuration is as follows:
+>
+> 	qemu-system-aarch64 \
+> 		-M virt \
+> 		-enable-kvm \
+> 		-cpu host \
+> 		-kernel Image \
+> 		-smp 8 \
+> 		-m 512m \
+> 		-nographic \
+> 		-no-reboot \
+> 		-device virtio-rng-pci \
+> 		-append "root=/dev/vda rw console=ttyAMA0 kgdboc=ttyAMA0,115200 \
+> 			earlycon preempt=voluntary irqchip.gicv3_pseudo_nmi=1 audit=1" \
+> 		-drive if=none,file=images/rootfs.ext4,format=raw,id=hd0 \
+> 		-device virtio-blk-device,drive=hd0 \
+>
+> Changes in v13 resend:
+> - Fix exit_to_user_mode_prepare_legacy() issues.
+> - Also move TIF_SINGLESTEP to generic TIF infrastructure for loongarch.
+> - Use generic TIF bits for arm64 and moving TIF_SINGLESTEP to
+>   generic TIF for related architectures separately.
+> - Refactor syscall_trace_enter/exit() to accept flags and Use syscall_get_nr()
+>   helper separately.
+> - Tested with slice_test for rseq optimizations.
+> - Add acked-by.
+> - Link to v13: https://lore.kernel.org/all/20260313094738.3985794-1-ruanjinjie@huawei.com/
+>
+> Changes in v13:
+> - Rebased on v7.0-rc3, so drop the firt applied arm64 patch.
+> - Use generic TIF bits to enables RSEQ optimization.
+> - Update most of the commit message to make it more clear.
+> - Link to v12: https://lore.kernel.org/all/20260203133728.848283-1-ruanjinjie@huawei.com/
+>
+> Changes in v12:
+> - Rebased on "sched/core", so remove the four generic entry patches.
+> - Move "Expand secure_computing() in place" and
+>   "Use syscall_get_arguments() helper" patch forward, which will group all
+>   non-functional cleanups at the front.
+> - Adjust the explanation for moving rseq_syscall() before
+>   audit_syscall_exit().
+> - Link to v11: https://lore.kernel.org/all/20260128031934.3906955-1-ruanjinjie@huawei.com/
+>
+> Changes in v11:
+> - Remove unused syscall in syscall_trace_enter().
+> - Update and provide a detailed explanation of the differences after
+>   moving rseq_syscall() before audit_syscall_exit().
+> - Rebased on arm64 (for-next/entry), and remove the first applied 3 patchs.
+> - syscall_exit_to_user_mode_work() for arch reuse instead of adding
+>   new syscall_exit_to_user_mode_work_prepare() helper.
+> - Link to v10: https://lore.kernel.org/all/20251222114737.1334364-1-ruanjinjie@huawei.com/
+>
+> Changes in v10:
+> - Rebased on v6.19-rc1, rename syscall_exit_to_user_mode_prepare() to
+>   syscall_exit_to_user_mode_work_prepare() to avoid conflict.
+> - Also inline syscall_trace_enter().
+> - Support aarch64 for sud_benchmark.
+> - Update and correct the commit message.
+> - Add Reviewed-by.
+> - Link to v9: https://lore.kernel.org/all/20251204082123.2792067-1-ruanjinjie@huawei.com/
+>
+> Changes in v9:
+> - Move "Return early for ptrace_report_syscall_entry() error" patch ahead
+>   to make it not introduce a regression.
+> - Not check _TIF_SECCOMP/SYSCALL_EMU for syscall_exit_work() in
+>   a separate patch.
+> - Do not report_syscall_exit() for PTRACE_SYSEMU_SINGLESTEP in a separate
+>   patch.
+> - Add two performance patch to improve the arm64 performance.
+> - Add Reviewed-by.
+> - Link to v8: https://lore.kernel.org/all/20251126071446.3234218-1-ruanjinjie@huawei.com/
+>
+> Changes in v8:
+> - Rename "report_syscall_enter()" to "report_syscall_entry()".
+> - Add ptrace_save_reg() to avoid duplication.
+> - Remove unused _TIF_WORK_MASK in a standalone patch.
+> - Align syscall_trace_enter() return value with the generic version.
+> - Use "scno" instead of regs->syscallno in el0_svc_common().
+> - Move rseq_syscall() ahead in a standalone patch to clarify it clearly.
+> - Rename "syscall_trace_exit()" to "syscall_exit_work()".
+> - Keep the goto in el0_svc_common().
+> - No argument was passed to __secure_computing() and check -1 not -1L.
+> - Remove "Add has_syscall_work() helper" patch.
+> - Move "Add syscall_exit_to_user_mode_prepare() helper" patch later.
+> - Add miss header for asm/entry-common.h.
+> - Update the implementation of arch_syscall_is_vdso_sigreturn().
+> - Add "ARCH_SYSCALL_WORK_EXIT" to be defined as "SECCOMP | SYSCALL_EMU"
+>   to keep the behaviour unchanged.
+> - Add more testcases test.
+> - Add Reviewed-by.
+> - Update the commit message.
+> - Link to v7: https://lore.kernel.org/all/20251117133048.53182-1-ruanjinjie@huawei.com/
+>
+> Jinjie Ruan (13):
+>   arm64/ptrace: Refactor syscall_trace_enter/exit() to accept flags
+>     parameter
+>   arm64/ptrace: Use syscall_get_nr() helper for syscall_trace_enter()
+>   arm64/ptrace: Expand secure_computing() in place
+>   arm64/ptrace: Use syscall_get_arguments() helper for audit
+>   arm64: ptrace: Move rseq_syscall() before audit_syscall_exit()
+>   arm64: syscall: Introduce syscall_exit_to_user_mode_work()
+>   arm64/ptrace: Define and use _TIF_SYSCALL_EXIT_WORK
+>   arm64/ptrace: Skip syscall exit reporting for PTRACE_SYSEMU_SINGLESTEP
+>   arm64: entry: Convert to generic entry
+>   arm64: Inline el0_svc_common()
+>   s390: Rename TIF_SINGLE_STEP to TIF_SINGLESTEP
+>   asm-generic: Move TIF_SINGLESTEP to generic TIF bits
+>   arm64: Use generic TIF bits for common thread flags
+>
+> kemal (1):
+>   selftests: sud_test: Support aarch64
+>
+>  arch/arm64/Kconfig                            |   3 +-
+>  arch/arm64/include/asm/entry-common.h         |  76 ++++++++++++
+>  arch/arm64/include/asm/syscall.h              |  19 ++-
+>  arch/arm64/include/asm/thread_info.h          |  76 ++++--------
+>  arch/arm64/kernel/debug-monitors.c            |   7 ++
+>  arch/arm64/kernel/entry-common.c              |  25 +++-
+>  arch/arm64/kernel/ptrace.c                    | 115 ------------------
+>  arch/arm64/kernel/signal.c                    |   2 +-
+>  arch/arm64/kernel/syscall.c                   |  29 ++---
+>  arch/loongarch/include/asm/thread_info.h      |  11 +-
+>  arch/s390/include/asm/thread_info.h           |   7 +-
+>  arch/s390/kernel/process.c                    |   2 +-
+>  arch/s390/kernel/ptrace.c                     |  20 +--
+>  arch/s390/kernel/signal.c                     |   6 +-
+>  arch/x86/include/asm/thread_info.h            |   6 +-
+>  include/asm-generic/thread_info_tif.h         |   5 +
+>  include/linux/irq-entry-common.h              |   8 --
+>  include/linux/rseq_entry.h                    |  18 ---
+>  .../syscall_user_dispatch/sud_benchmark.c     |   2 +-
+>  .../syscall_user_dispatch/sud_test.c          |   4 +
+>  20 files changed, 191 insertions(+), 250 deletions(-)
+>
+> --
+> 2.34.1
+>
+>
 
-Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-
-> ---
->  arch/s390/kvm/interrupt.c | 4 ++--
->  arch/s390/kvm/priv.c      | 2 +-
->  2 files changed, 3 insertions(+), 3 deletions(-)
+--
+Sincerely,
+Yeoreum Yun
