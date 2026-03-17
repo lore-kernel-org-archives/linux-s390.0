@@ -1,158 +1,174 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from canpmsgout06.his.huawei.com (canpmsgout06.his.huawei.com [113.46.200.221])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C68A39446D;
-	Tue, 17 Mar 2026 08:13:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BECF37FF5B;
+	Tue, 17 Mar 2026 08:20:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.221
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773735231; cv=none; b=QSPqtloaD7lcv5KEPwd+Ko+wLnciYjU+4JYoqa8q+WqzZq8aOqsAOkiQihOdePjquY54PyLGvX4HJtgLWfJIyzPqrt+4NJrkQ/BkN1fIN50PasRP9Q+toCSq/zbmYNMNcE14fQqSt3wge0MlFiJ1bGSQiXW4cH9jem5uNhjStrg=
+	t=1773735609; cv=none; b=jp7pnEB2TX40UCdzFOCyO3FhhyuGO/t+HwZbW3aQetqKVI0yXZR2yFcAWu8GlwJWNMAMQPwlytcEyj8cfoXSvysjqsvhSgqAjHDcqmwRcGhygK2m0V8a2D2yq5xX+Ez8rV1eK9wrJcmYDpIc5nws6MZoVB9azAciamd6cBc/HWE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773735231; c=relaxed/simple;
-	bh=tPAXOlysi9fY3rE2mwGJOy6pwWFi1dNgs1btvJeEDgQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=uVWQCwJwN2FDV+teo/JrQ5LgKz9VvOlTI6nhAAV/WxoT+vB3LzmGbOPE22WsJWvccyk231sDBYFBAmWNrhSr/NDXsbx5ruBNOPyJ9SX3TNEmHWkdecspRq9pon24HAFrL+QqwiNcoYACAm/ZX2VrKeeRmIZGnN6WFgVWmlkrhKs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mFl/UM/u; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1773735609; c=relaxed/simple;
+	bh=serGm1rUs+m82eoFVjhBlpo3u6+JxH3Uai4mDd1TxTo=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=fKrhoerZDWEX2/vEuTJgt8bQil1OEgzwoA9/4aEzrYRFm2t+q+tKZ7YnoLY1CBJXPW5WihlypwnPXoRw71aQtn4M3ySEAK3/W9szKQ/WiUInIs5RIFpFyuUbVhU+75mA7DBLjism8xJ/NowRdhVYoOn67xoRNhpzYD+D/Qm32a4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=I9kIsBq0; arc=none smtp.client-ip=113.46.200.221
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mFl/UM/u"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62H1TTSi3905720;
-	Tue, 17 Mar 2026 08:13:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=sEugI9
-	ZwB/dJsMWBTtuScK1ROnJ5NaYy94+nF2ALNVE=; b=mFl/UM/u48Mb0hRaW6vxJi
-	Uh9d0sH8BT7YcQUbZBVCkSuufNcoCxS6DgJbCvcmVpdJaf8KsPIchpGoB/iJ1DIc
-	safNLeYMNiR01yxj0TSrwRTy3rpc1ocVf1r8eDMLH7xUecX/67w/aVz9LUJx4Cer
-	5P8AfcwAiIO5F0KVLn4W/5aIc30O3xj95Sv4+QWqD8eyZgyqn4nZPri2d7LU0acN
-	1D1n2nGJBd1bE4QoG3sLD3hoCCYu6xVgKukizWqWsNqiC4aQJf5sfPyj1uMR89yU
-	GViXOPY3PTDvpXalvIAOZ9zIz9lz71ja4O8bCm0luR6bQYLalZAVf0I67Jv7K+OQ
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvybs3p47-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Mar 2026 08:13:49 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62H5jJaB004563;
-	Tue, 17 Mar 2026 08:13:48 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cwj0s8bgx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Mar 2026 08:13:48 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62H8Dio534800114
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 17 Mar 2026 08:13:45 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E1C592004B;
-	Tue, 17 Mar 2026 08:13:44 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A429B20043;
-	Tue, 17 Mar 2026 08:13:44 +0000 (GMT)
-Received: from [9.111.66.161] (unknown [9.111.66.161])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 17 Mar 2026 08:13:44 +0000 (GMT)
-Message-ID: <2026346f-b04d-4d3c-8f8c-7f91fc02f3a5@linux.ibm.com>
-Date: Tue, 17 Mar 2026 09:13:44 +0100
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="I9kIsBq0"
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=GLJ5XubJBfDJfUuOM58o11k78XnXZ7Y2DNp2dl1D/fs=;
+	b=I9kIsBq0rEldvH1pV/t2PPj5ksmYCRu9Ea0cHuZ6xohcPJTXps0Xy1ioEe9+cguZFqBqCcZug
+	/PUbYSXX6nPI5l0nOX2zkFQQp1bUPwyT0L88FmN9VqtA48YtrpX8FQ/aYX9VabX89Mq77ZNH/a8
+	m7m3LydRbGb6fEV+Uy/WVgg=
+Received: from mail.maildlp.com (unknown [172.19.162.144])
+	by canpmsgout06.his.huawei.com (SkyGuard) with ESMTPS id 4fZlBK5cMrzRhR0;
+	Tue, 17 Mar 2026 16:15:05 +0800 (CST)
+Received: from dggpemf500011.china.huawei.com (unknown [7.185.36.131])
+	by mail.maildlp.com (Postfix) with ESMTPS id DC93F40567;
+	Tue, 17 Mar 2026 16:20:03 +0800 (CST)
+Received: from huawei.com (10.90.53.73) by dggpemf500011.china.huawei.com
+ (7.185.36.131) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Tue, 17 Mar
+ 2026 16:20:01 +0800
+From: Jinjie Ruan <ruanjinjie@huawei.com>
+To: <catalin.marinas@arm.com>, <will@kernel.org>, <oleg@redhat.com>,
+	<chenhuacai@kernel.org>, <kernel@xen0n.name>, <hca@linux.ibm.com>,
+	<gor@linux.ibm.com>, <agordeev@linux.ibm.com>, <borntraeger@linux.ibm.com>,
+	<svens@linux.ibm.com>, <tglx@kernel.org>, <mingo@redhat.com>, <bp@alien8.de>,
+	<dave.hansen@linux.intel.com>, <hpa@zytor.com>, <arnd@arndb.de>,
+	<peterz@infradead.org>, <luto@kernel.org>, <shuah@kernel.org>,
+	<kees@kernel.org>, <wad@chromium.org>, <kevin.brodsky@arm.com>,
+	<deller@gmx.de>, <macro@orcam.me.uk>, <akpm@linux-foundation.org>,
+	<ldv@strace.io>, <anshuman.khandual@arm.com>, <ryan.roberts@arm.com>,
+	<mark.rutland@arm.com>, <thuth@redhat.com>, <song@kernel.org>,
+	<ada.coupriediaz@arm.com>, <linusw@kernel.org>, <broonie@kernel.org>,
+	<pengcan@kylinos.cn>, <liqiang01@kylinos.cn>, <ziyao@disroot.org>,
+	<guanwentao@uniontech.com>, <guoren@kernel.org>,
+	<schuster.simon@siemens-energy.com>, <jremus@linux.ibm.com>,
+	<david@kernel.org>, <mathieu.desnoyers@efficios.com>, <edumazet@google.com>,
+	<kmal@cock.li>, <dvyukov@google.com>, <reddybalavignesh9979@gmail.com>,
+	<x86@kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-kernel@vger.kernel.org>, <loongarch@lists.linux.dev>,
+	<linux-s390@vger.kernel.org>, <linux-arch@vger.kernel.org>,
+	<linux-kselftest@vger.kernel.org>
+CC: <ruanjinjie@huawei.com>
+Subject: [PATCH v13 RESEND 01/14] arm64/ptrace: Refactor syscall_trace_enter/exit() to accept flags parameter
+Date: Tue, 17 Mar 2026 16:20:07 +0800
+Message-ID: <20260317082020.737779-2-ruanjinjie@huawei.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260317082020.737779-1-ruanjinjie@huawei.com>
+References: <20260317082020.737779-1-ruanjinjie@huawei.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC 02/10] KVM: s390: Consolidate lpswe variants
-To: Christian Borntraeger <borntraeger@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, akrowiak@linux.ibm.com
-References: <20260316180310.17765-1-frankja@linux.ibm.com>
- <20260316180310.17765-3-frankja@linux.ibm.com>
- <bc995033-1850-43f8-b04d-66f78ede157d@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <bc995033-1850-43f8-b04d-66f78ede157d@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=MMttWcZl c=1 sm=1 tr=0 ts=69b90d3d cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=j3P8sYcwygIa9r38gJMA:9
- a=QEXdDO2ut3YA:10 a=zgiPjhLxNE0A:10
-X-Proofpoint-ORIG-GUID: aWKVxsNNFUekXEt_kEbEbyHO-Wk_wR4v
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE3MDA3MSBTYWx0ZWRfXzRK0eLjJ9Itx
- 30KG16DNvUQ2ua+u9p0tz5X4aKUJJbrBhspmhZb4KfnB845scGGnUtAZDsgh4YiDuzWnNeLfSOQ
- mus32DZAjgQbXjI/7pGMNMxglxrBfgFCsBoIRZisX9IHMLE5W4EaV4nmsjzZP6pZhlx5q7SMbFb
- thoqrCXkNeskcEWnXP5juQRn+TrLOqV9HBS/fYZF/D7Ra4SUTryw0hV0bE6UtJji3HqcOruqAsQ
- 2HRLOf9KL1qrQkBwoRAOok1yzoSr8we5W4NSU7vTuQgQVZE5m9QrmBIMHiWOZ3tV8amyY8+oX7P
- kXzYRWxYL382d3eNgoxgcYv70610HZUEHaZjZmr8++c8VIC8PTbZtmJ2lZ5FhYS58OsHX/efPAw
- OEcvXwxOuwPGcXBo9Rocoh4ZsZPSIjFsGJXm1Pe1VTTrt4F0/Mi6HY1HkL+R1//ctnZ7TW9r0tP
- rooLiDrrwnuebgplK/A==
-X-Proofpoint-GUID: aWKVxsNNFUekXEt_kEbEbyHO-Wk_wR4v
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-17_01,2026-03-16_06,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 lowpriorityscore=0 malwarescore=0 spamscore=0
- priorityscore=1501 impostorscore=0 adultscore=0 phishscore=0 clxscore=1015
- bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
- definitions=main-2603170071
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: kwepems200001.china.huawei.com (7.221.188.67) To
+ dggpemf500011.china.huawei.com (7.185.36.131)
 
-On 3/16/26 19:47, Christian Borntraeger wrote:
-> 
-> Am 16.03.26 um 17:23 schrieb Janosch Frank:
->> LPSWE and LPSWEY currently only differ in instruction format but not
->> in functionality.
-> 
-> I think this is actually a bug in KVM. LPSWEY does not set the breaking
-> event address register, LPSWE does. Maybe that would be the better fix
-> to actually set gbea when emulating LPSWE. This must happen after all
-> checks, so I guess combining both would make this harder, so better
-> not do this.
-> 
+Refactor syscall_trace_enter() and syscall_trace_exit() to move thread
+flag reading to the caller. This aligns arm64's syscall trace enter/exit
+function signature with generic entry framework.
 
-Interesting, seems like I glanced over that when checking the 
-architecture. I'll have a look.
+[Changes]
+1. Function signature changes:
+   - syscall_trace_enter(regs) → syscall_trace_enter(regs, flags)
+   - syscall_trace_exit(regs) → syscall_trace_exit(regs, flags)
+
+2. Move flags reading to caller:
+   - Previously: read_thread_flags() called inside each function.
+   - Now: caller (like el0_svc_common) passes flags as parameter.
+
+3. Update syscall.c:
+   - el0_svc_common() now passes flags to tracing functions and
+     re-fetches flags before exit to handle potential TIF updates.
+
+[Why this matters]
+- Aligns arm64 with the generic entry interface.
+- Makes future migration to generic entry framework.
+
+No functional changes intended.
+
+Cc: Will Deacon <will@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Reviewed-by: Kevin Brodsky <kevin.brodsky@arm.com>
+Signed-off-by: Jinjie Ruan <ruanjinjie@huawei.com>
+---
+ arch/arm64/include/asm/syscall.h | 4 ++--
+ arch/arm64/kernel/ptrace.c       | 7 ++-----
+ arch/arm64/kernel/syscall.c      | 5 +++--
+ 3 files changed, 7 insertions(+), 9 deletions(-)
+
+diff --git a/arch/arm64/include/asm/syscall.h b/arch/arm64/include/asm/syscall.h
+index 5e4c7fc44f73..30b203ef156b 100644
+--- a/arch/arm64/include/asm/syscall.h
++++ b/arch/arm64/include/asm/syscall.h
+@@ -120,7 +120,7 @@ static inline int syscall_get_arch(struct task_struct *task)
+ 	return AUDIT_ARCH_AARCH64;
+ }
+ 
+-int syscall_trace_enter(struct pt_regs *regs);
+-void syscall_trace_exit(struct pt_regs *regs);
++int syscall_trace_enter(struct pt_regs *regs, unsigned long flags);
++void syscall_trace_exit(struct pt_regs *regs, unsigned long flags);
+ 
+ #endif	/* __ASM_SYSCALL_H */
+diff --git a/arch/arm64/kernel/ptrace.c b/arch/arm64/kernel/ptrace.c
+index ba5eab23fd90..e4d524ccbc7b 100644
+--- a/arch/arm64/kernel/ptrace.c
++++ b/arch/arm64/kernel/ptrace.c
+@@ -2408,9 +2408,8 @@ static void report_syscall_exit(struct pt_regs *regs)
+ 	}
+ }
+ 
+-int syscall_trace_enter(struct pt_regs *regs)
++int syscall_trace_enter(struct pt_regs *regs, unsigned long flags)
+ {
+-	unsigned long flags = read_thread_flags();
+ 	int ret;
+ 
+ 	if (flags & (_TIF_SYSCALL_EMU | _TIF_SYSCALL_TRACE)) {
+@@ -2432,10 +2431,8 @@ int syscall_trace_enter(struct pt_regs *regs)
+ 	return regs->syscallno;
+ }
+ 
+-void syscall_trace_exit(struct pt_regs *regs)
++void syscall_trace_exit(struct pt_regs *regs, unsigned long flags)
+ {
+-	unsigned long flags = read_thread_flags();
+-
+ 	audit_syscall_exit(regs);
+ 
+ 	if (flags & _TIF_SYSCALL_TRACEPOINT)
+diff --git a/arch/arm64/kernel/syscall.c b/arch/arm64/kernel/syscall.c
+index c062badd1a56..e8fd0d60ab09 100644
+--- a/arch/arm64/kernel/syscall.c
++++ b/arch/arm64/kernel/syscall.c
+@@ -124,7 +124,7 @@ static void el0_svc_common(struct pt_regs *regs, int scno, int sc_nr,
+ 		 */
+ 		if (scno == NO_SYSCALL)
+ 			syscall_set_return_value(current, regs, -ENOSYS, 0);
+-		scno = syscall_trace_enter(regs);
++		scno = syscall_trace_enter(regs, flags);
+ 		if (scno == NO_SYSCALL)
+ 			goto trace_exit;
+ 	}
+@@ -143,7 +143,8 @@ static void el0_svc_common(struct pt_regs *regs, int scno, int sc_nr,
+ 	}
+ 
+ trace_exit:
+-	syscall_trace_exit(regs);
++	flags = read_thread_flags();
++	syscall_trace_exit(regs, flags);
+ }
+ 
+ void do_el0_svc(struct pt_regs *regs)
+-- 
+2.34.1
+
