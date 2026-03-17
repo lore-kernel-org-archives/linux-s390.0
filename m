@@ -1,207 +1,160 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from SA9PR02CU001.outbound.protection.outlook.com (mail-southcentralusazon11013017.outbound.protection.outlook.com [40.93.196.17])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DF4B379980
-	for <linux-s390@vger.kernel.org>; Mon, 16 Mar 2026 23:23:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A99A3101B6;
+	Tue, 17 Mar 2026 01:55:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.196.17
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773703398; cv=pass; b=tepHXEND92o5yCNXNBCFFHXDTWUMiYiO2W6T36KYFaGcjDI0iplUXbxWo8LO1hxuw/Tnz1ctvbazeiKBQ3CWG8aGTD6DFBxBs+97w6y2a3QiQ4KaIO5SEKBnbM7+2lmJs48elBjLueLmseus2xw5j/X9riUTmSSwPO0siqZLuDI=
+	t=1773712540; cv=fail; b=FzMPmnJQM/YJVUZygPVP7qMk1MfawfuS20L9rDK5JQa46+SezMjbJcENPMgJSbLCmbu71oCxJLwLv50eKC/J9D99chHy1Xbz5OJr3FmHK7vWy7SX07aOzbfRGI9rfdvprX7cPieRxJ+OD3sFlQN3/aUM8N2bb40YNw0V2JpTD2g=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773703398; c=relaxed/simple;
-	bh=XTOZYOCHUctLkYMS5qNPCkNocPEUYtAP2iODWNe7Wt4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=U/QX0kU12U++MGM/3kr+kpy07J/+hshOOVmtEkOc7t7+yDfr8ZtQ3av7jOx50t717oyyKEJbJGJCCxdZA9Dhuy4yi7rrPT1I1iB0gEtytcGIrrQoDGxUOF4fwHR9PNpIxiByDM7lf0tTvXCkou/MuDapTaQ+STIXHp/rCrxzNBQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=PguLoTG2; arc=pass smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1773712540; c=relaxed/simple;
+	bh=AvP7DhuMS9xiWOTX8lgMfI6/i2qan63c0rM/JnHyjaM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=Sti+hVM7wnwfBwfzMHmh3S2x8EEvKV4eMERE7hLI4QA5AXU9OkpmXzjB00hI8Nv0lnceUR1raDfDZpbk34bMQmrHomMNk/kl7IUHEKhgidQGMWVoxGkVoJxcdQTQj1FjmfjiOO9QV5YBhFG3TUZ75wVH6AYIH6zEi56DbB1vATc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=1uBJdr3n; arc=fail smtp.client-ip=40.93.196.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="PguLoTG2"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2b062069f80so5537125ad.0
-        for <linux-s390@vger.kernel.org>; Mon, 16 Mar 2026 16:23:17 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773703397; cv=none;
-        d=google.com; s=arc-20240605;
-        b=PYYneIRrsELDDq6yw0LECUyu/Aa8vySxBOMn68hd96j5P8wlktlUxBl/fhO1fXDGZG
-         w0OLv5etOuNvicffWnkToCS3xtceedDBS02y49XKNRkUx/qdM0rtJtRDo+cRCBtOZP7t
-         0L97rM2aLg8QXNDEJKLREZxZwIwW5TX2D2kds0tAG1MnsCe6rlQgBWb27j1PwqWfYo/T
-         Gy+n2uij9mLHyYv8Bd146hv1oq35Vz/8qyCq2cFjIGKK1woxTHiiTXYuDu6lBZX2A8Fh
-         K7hYJqwmyen+JF5wksFdcGdQm+abV98kggF5AJ5uNfgflsw+v3Qk9M6BgOPTgAteT0r0
-         ZgCA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=OjoL/xI+JfK24mJlLYQ/qQdhvwGI+GcsV2kW/9vszrY=;
-        fh=utwyQyvwjRd/UZ9uuO3BGQs7veAFuYtitO9U5OvX4AE=;
-        b=ksENgtOz7lxDHnS6pi+tg4kP3bTXhNAVqDSeZQ1EdPpgC99pbAPh5Xt1A53rDM1E6P
-         fL/xCnxs+Epxaun+tBzteXza5cKtKbm4VnsjlSiHSWUlhU65ma5iw7dmDcDew4UBKkhF
-         3VN3bSzOt+AzvhWoq5AROHW2ydWgDHWHRiv0bZArKkuWqsHBtFBm8y43RLlrHjbKasYo
-         2w7xhSkCDN0aUjLTiXyu04ycGXgVPrDbSCwBv2hCZC/1vYwkRinecuu+vvOgOciyjMwO
-         SpBNoIphrBlrTCrnuq8W6KVYe/6cWMPUtBYzkTi4GAxwrb1IF1wxicf82E76ohst8+iX
-         JEbg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1773703397; x=1774308197; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OjoL/xI+JfK24mJlLYQ/qQdhvwGI+GcsV2kW/9vszrY=;
-        b=PguLoTG2rzoFxPDy2B9fNc/JVXJBCJoAfwul58C8koNNJJYBHNyFhFxdzboDCFA4Kz
-         VA96JNScMxjLJ+cHP0szREeNekZUUGFEMxEV4wo5eKZV0XPrUpdIh1CrX+VqKNYpC5t9
-         fQgQCuH51tk7OkTAIqYgCnRRnRg6HxcTli84fkzq1V8+2TutvpmKYXZ7OWJ4BKxXmNMA
-         fqMyhVhFZfVsS5+oz1/IvFcpDSq/8egl+xRR+8d/IwGDS0hO+JgcnrWBAvd9YUM7uZJQ
-         ab6ffdErH0xihoZKyoVfUs7hcDl2dM7nZ4o87PwTTmnMosU7eCofVMKosiiT6zrGSOtH
-         Wudg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773703397; x=1774308197;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=OjoL/xI+JfK24mJlLYQ/qQdhvwGI+GcsV2kW/9vszrY=;
-        b=W0fmx7xVIjfrk45Yh4+HI17U1jazoGupfONK4QoFw0527IG5KIcMzgohSJUJO/7ldY
-         CgBxJT/Z4+BJUARrxIOpc4XjYAKU5b4gkLP3UTek7RVUThqejaqmBY8FYynOqlReOjPJ
-         AcN06KcNjvESarEsxp4E3urE+QUeEJGGVS2YpYQ4em5DPCWrpF2V2+FWVE9LmGSAUU1h
-         PVJCC3lKR4OQPlPQSm9pjaAALePvUH0Sod/zeesMNY5rn1JEq70Hm+GWH/jl3GDBrAV0
-         jWMDacqy+jrfGOepEmShPfeUFLKd2yBdNBbQM8QQ8/3maXk//B1/PBpruWG2qWg6iryg
-         MPaQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU+1bjDRN30VFBY6hPvnUrUIxjyYUMwsAKAMZrAOR0YrKmGCFJe3UebPu0ik1Cat49/wcnB50DVn9Hu@vger.kernel.org
-X-Gm-Message-State: AOJu0YzfF7eaAbYjtjQq+F6dQDWtGiE/ULk+PHnTI4R/MWFhzIVFb1UE
-	kUA/k2gab2Q8uTHMYNpYiP1/KCfjM7xqfYwguKWnzaFUIRJoszi0cMyow4DyHrbsQutraSDwzVA
-	w3G9m84koTHU0RgN6I7T5EtNe+7g028H2meYrXvjh
-X-Gm-Gg: ATEYQzx8R++PYyDOkz4CzXZr65wMSSbFe4TuGPsj2pnGH2dlhnB/abagcq0/m5TvRt5
-	ZDietgvaRijM+NFspRCQkNU7IAIU9MfFU65SE7XHXjGmLk3SHPfSQrYon2bNYNyMg0HuohWCBHr
-	dNCsFCSyE8n4spy5j73cng+nNQ0XbBSfEym+jt+9pb9eA5mBzEmmK1E0rWZV7T48FSnIUQj0ZVb
-	qFouyodwtosK5C+piUL5xZe5WoAhZ16YIarZ7j0BoIWURkYvipBRYfTr3QVCrFBNSYHM7XbNqlp
-	g1mWm4fD6JGd/BFhEg==
-X-Received: by 2002:a17:902:ea06:b0:2b0:5c3f:c0d8 with SMTP id
- d9443c01a7336-2b05c3fc4damr40223235ad.47.1773703396327; Mon, 16 Mar 2026
- 16:23:16 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="1uBJdr3n"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=O+Vu/eOpfTzF2KQoXKeSj2SgiKCxMMy5GR7wQUChUc8IS3lunaqCk/KSo+McvAVUnLsy80Ty4mLHrnQ7NosfA1bQyVfU7G6XsBcGPn/885V2012iUMG+7qY++UFEeZK3+5bpNoh+XiEKf8ylKI6G/wMwtHhhdfATgx8DP6BazaCMr3bbvDkTeUotU/grn1LOOJPZJylWBOWrcsnyjHquS3CX4eBMH/NmTAiicT0aiUDDQz83Zu/0PuFRvmP6EwUPsLMUVTG9zUAq8ePG1SHZDNzq7IbNShPt6hZ8Dy5icTS7Ct6Gjk/raohDgGj2ACYWRrtXQiNX8KeTC/02ZE5//g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=iI/C0gsSslPlD4GdE2LcT43hHmTcYJQf9I5E3xpOyYE=;
+ b=Dm/KzE0cuQU/EfgQEythgkhjyxOFQATErHqKlYzdcPPPAgsma9ws/Nk/z1Z76L2xa9X9UHaCWJN3AUy5mTqB2BuDhdr/t+QoeGK9noTf8MRSDCUmWXdGcRSI3VOFtWT8s8TRgae0jfsurcHo6ERTxiuZ0CSn42lOaAmODcU6bd18tPub5iWmcqJyuuEeuBC8rjUJKGfEKMMafFQNXxNm4XaTi86YIAURPYGFmwe/qxEXcETbo+zjPhIVu4JEbswrkZHo2zYJjzUI2pggn1+aHW0AHt0JiXS7/6IUgKm6uBdYn90KQ3IFaJXqTYcJny9nKFJxeuAolXxPj6opL0OTbw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=linux.ibm.com smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=iI/C0gsSslPlD4GdE2LcT43hHmTcYJQf9I5E3xpOyYE=;
+ b=1uBJdr3niw3JeVF0OkwQlbiozUzz1lCHosDKdR4S/cWJEc5i9iNKp+XrHK4zQ/oA7fyUJ6+7970NkMC0TZJu8eZLJSv3TcNxaMehov7RUc0HzE22paGeIXDAIy7LzKsJxhy3F0sGMIi2IYXxbeB8nH0Z9xzF42Ujht0Wo7EWQBQ=
+Received: from BLAPR05CA0033.namprd05.prod.outlook.com (2603:10b6:208:335::14)
+ by CHXPR12MB999246.namprd12.prod.outlook.com (2603:10b6:610:2fc::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9723.16; Tue, 17 Mar
+ 2026 01:55:36 +0000
+Received: from BL02EPF0001A100.namprd03.prod.outlook.com
+ (2603:10b6:208:335:cafe::be) by BLAPR05CA0033.outlook.office365.com
+ (2603:10b6:208:335::14) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9700.27 via Frontend Transport; Tue,
+ 17 Mar 2026 01:55:40 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
+Received: from satlexmb07.amd.com (165.204.84.17) by
+ BL02EPF0001A100.mail.protection.outlook.com (10.167.242.107) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9700.17 via Frontend Transport; Tue, 17 Mar 2026 01:55:36 +0000
+Received: from SATLEXMB04.amd.com (10.181.40.145) by satlexmb07.amd.com
+ (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.17; Mon, 16 Mar
+ 2026 20:55:35 -0500
+Received: from satlexmb07.amd.com (10.181.42.216) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Mon, 16 Mar
+ 2026 20:55:35 -0500
+Received: from [10.136.37.230] (10.180.168.240) by satlexmb07.amd.com
+ (10.181.42.216) with Microsoft SMTP Server id 15.2.2562.17 via Frontend
+ Transport; Mon, 16 Mar 2026 20:55:31 -0500
+Message-ID: <94239f7e-49f6-409b-9c87-25fefd52b2cd@amd.com>
+Date: Tue, 17 Mar 2026 07:25:25 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <cover.1773665966.git.ljs@kernel.org> <063af0422d99bee0195589aa63f8f44edaf409fa.1773665966.git.ljs@kernel.org>
-In-Reply-To: <063af0422d99bee0195589aa63f8f44edaf409fa.1773665966.git.ljs@kernel.org>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 16 Mar 2026 19:23:04 -0400
-X-Gm-Features: AaiRm50DdYFqfixz3H6HRwMmLfdf5osoLUZfr0b1blDqz3IzGNPvd_xOI_ajOas
-Message-ID: <CAHC9VhR2T8ujtfvz-HgkgSFByptTLmhbCYS+scY53aYg=sgfqw@mail.gmail.com>
-Subject: Re: [PATCH v2 17/23] mm: convert do_brk_flags() to use vma_flags_t
-To: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@kernel.org>, 
-	"Liam R . Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@kernel.org>, 
-	Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, Mike Rapoport <rppt@kernel.org>, 
-	Suren Baghdasaryan <surenb@google.com>, Kees Cook <kees@kernel.org>, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, Vineet Gupta <vgupta@kernel.org>, 
-	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, 
-	WANG Xuerui <kernel@xen0n.name>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Dinh Nguyen <dinguyen@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	Christophe Leroy <chleroy@kernel.org>, Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
-	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	"H . Peter Anvin" <hpa@zytor.com>, Richard Weinberger <richard@nod.at>, 
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>, 
-	Michal Hocko <mhocko@suse.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, linux-snps-arc@lists.infradead.org, 
-	linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, 
-	loongarch@lists.linux.dev, linux-mips@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-um@lists.infradead.org, 
-	linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH v2 5/7] s390/runtime-const: Introduce
+ runtime_const_mask_32()
+To: Heiko Carstens <hca@linux.ibm.com>
+CC: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, "Peter
+ Zijlstra" <peterz@infradead.org>, Sebastian Andrzej Siewior
+	<bigeasy@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+	<agordeev@linux.ibm.com>, Darren Hart <dvhart@infradead.org>, Davidlohr Bueso
+	<dave@stgolabs.net>, =?UTF-8?Q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>,
+	<linux-arch@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-riscv@lists.infradead.org>,
+	<linux-s390@vger.kernel.org>, Christian Borntraeger
+	<borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>
+References: <20260316052401.18910-1-kprateek.nayak@amd.com>
+ <20260316052401.18910-6-kprateek.nayak@amd.com>
+ <20260316191958.13160A9f-hca@linux.ibm.com>
+Content-Language: en-US
+From: K Prateek Nayak <kprateek.nayak@amd.com>
+In-Reply-To: <20260316191958.13160A9f-hca@linux.ibm.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
+Received-SPF: None (SATLEXMB04.amd.com: kprateek.nayak@amd.com does not
+ designate permitted sender hosts)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BL02EPF0001A100:EE_|CHXPR12MB999246:EE_
+X-MS-Office365-Filtering-Correlation-Id: 72c1f9dd-97f1-4b31-c51c-08de83c8483f
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|82310400026|7416014|1800799024|376014|36860700016|18002099003|56012099003|22082099003|7053199007;
+X-Microsoft-Antispam-Message-Info:
+	yQ68oX4hReP3ygDCldcZdhKqe8BQ4M1GUPHDfZqh0gp8yGhZqbq/jCsrbgroDbz7mENje0YAHwj0xpoSpQ4dPDcDJqqKy9comVzjrr40fKupYYnM9c0Z48TuG5TSQl84sPkZX2Q7r6uXbKF2S17mFr2zTlWQHMcgYwpF0ocrMLfMv0BEapxCPGwNSmmbaqy9/JBm6Z24o+fAlSmJI9d2tAODJaUGoN9dXXbv0bdzSbbwdngmYZq29RriUagTHrIbW/syrNIIw2inRAXOoNVD0B5XqeLKOGxwBpMBeEj04oSaO1V9HjOAR+xy6IKS1m3GaIuoE/KnPr1FCvHldlIhsvHuDeJNqIOJASkv7JdRC5Qqd5Ysa5VY5DKN0LA01820Wy7kKeAS0nzQS77keaz0iunBO7fWmkFaFy7P7wlIiGuy/SvrN815dbkH+oHd2KGHXXZiD8KkLfXfmBIdkK7w2J0a8+hh1GkdDWx23ihXuWTTfB0AZWx1ICj6V43Pb4RelVsk6hXGkeS5EIyMgey36OGsaqJ/J/dZLxqMIFsmcDiP4+kw9T3XZ6tW6b4zdQdIdOOuk8/+nx/51iLXT8uLDoy+Vbg2POX51t1GRyUoP3oCOnK7Fi92SfRQTIRx4blscF5gm2+M6llYIie4BTwIFOTqWrUOmsmqGxnlzahBWW5Ldfv9OL/BoTN7quunLvhiX2yl5UHHGxfXFqvJm+Xl7SCU64LH47Bds/G43KKv3butX1Tulpb5iW+WaqPWByPdzice9wNbZm+TrXX+GSW07w==
+X-Forefront-Antispam-Report:
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(7416014)(1800799024)(376014)(36860700016)(18002099003)(56012099003)(22082099003)(7053199007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	OPW6o8O7R0KWwvWrG36EKa6KWP7hX6BDRZ+SEDAMEytZDnC8wMoD0uYID6tgz+pTqPRXQ1m9kv+nkaYWhLRPqP+Rr5sQy8E0azW2JHI/BrmPYTXG8ZUjXDU83DaRof0yUFh+1osiCkI0dGTMu5W3PFJujM/Io4eyqhpCPj9GaSO42UyR5Yufr5q2Y1GbkV7R/hF/YCX4PSc4ngX8VILVBV7Of34n1dNOSoAwLkq+07H5dsM35UB/6VvuGXGap3GvMysBRDbIq4zLkFgRHssHKWDRfrkltka1d54QWB4pzqE40OSTYuX3liU3luF0zZ4jrHzGt+aCwSs7Y30PQincee8scaFqHlyYk2GL00/TqxyLWH7C92uBQql4M28XUGNLpmn9i4cmimGeXuYxdiIaploXSkxkPvBjVZ79TL80OozSKUQUQPfYvgdcZNGl6OU1
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Mar 2026 01:55:36.1586
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 72c1f9dd-97f1-4b31-c51c-08de83c8483f
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BL02EPF0001A100.namprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CHXPR12MB999246
 
-On Mon, Mar 16, 2026 at 9:09=E2=80=AFAM Lorenzo Stoakes (Oracle) <ljs@kerne=
-l.org> wrote:
->
-> In order to be able to do this, we need to change VM_DATA_DEFAULT_FLAGS a=
-nd
-> friends and update the architecture-specific definitions also.
->
-> We then have to update some KSM logic to handle VMA flags, and introduce
-> VMA_STACK_FLAGS to define the vma_flags_t equivalent of VM_STACK_FLAGS.
->
-> We also introduce two helper functions for use during the time we are
-> converting legacy flags to vma_flags_t values - vma_flags_to_legacy() and
-> legacy_to_vma_flags().
->
-> This enables us to iteratively make changes to break these changes up int=
-o
-> separate parts.
->
-> We use these explicitly here to keep VM_STACK_FLAGS around for certain
-> users which need to maintain the legacy vm_flags_t values for the time
-> being.
->
-> We are no longer able to rely on the simple VM_xxx being set to zero if t=
-he
-> feature is not enabled, so in the case of VM_DROPPABLE we introduce
-> VMA_DROPPABLE as the vma_flags_t equivalent, which is set to
-> EMPTY_VMA_FLAGS if the droppable flag is not available.
->
-> While we're here, we make the description of do_brk_flags() into a kdoc
-> comment, as it almost was already.
->
-> We use vma_flags_to_legacy() to not need to update the vm_get_page_prot()
-> logic as this time.
->
-> Note that in create_init_stack_vma() we have to replace the BUILD_BUG_ON(=
-)
-> with a VM_WARN_ON_ONCE() as the tested values are no longer build time
-> available.
->
-> We also update mprotect_fixup() to use VMA flags where possible, though w=
-e
-> have to live with a little duplication between vm_flags_t and vma_flags_t
-> values for the time being until further conversions are made.
->
-> Finally, we update the VMA tests to reflect these changes.
->
-> Signed-off-by: Lorenzo Stoakes (Oracle) <ljs@kernel.org>
-> ---
->  arch/arc/include/asm/page.h        |  2 +-
->  arch/arm/include/asm/page.h        |  2 +-
->  arch/arm64/include/asm/page.h      |  3 +-
->  arch/hexagon/include/asm/page.h    |  2 +-
->  arch/loongarch/include/asm/page.h  |  2 +-
->  arch/mips/include/asm/page.h       |  2 +-
->  arch/nios2/include/asm/page.h      |  2 +-
->  arch/powerpc/include/asm/page.h    |  4 +--
->  arch/powerpc/include/asm/page_32.h |  2 +-
->  arch/powerpc/include/asm/page_64.h | 12 ++++----
->  arch/riscv/include/asm/page.h      |  2 +-
->  arch/s390/include/asm/page.h       |  2 +-
->  arch/x86/include/asm/page_types.h  |  2 +-
->  arch/x86/um/asm/vm-flags.h         |  4 +--
->  include/linux/ksm.h                | 10 +++----
->  include/linux/mm.h                 | 47 ++++++++++++++++++------------
->  mm/internal.h                      |  3 ++
->  mm/ksm.c                           | 43 ++++++++++++++-------------
->  mm/mmap.c                          | 13 +++++----
->  mm/mprotect.c                      | 46 +++++++++++++++++------------
->  mm/mremap.c                        |  6 ++--
->  mm/vma.c                           | 34 +++++++++++----------
->  mm/vma.h                           | 14 +++++++--
->  mm/vma_exec.c                      |  5 ++--
->  security/selinux/hooks.c           |  4 ++-
->  tools/testing/vma/include/custom.h |  3 --
->  tools/testing/vma/include/dup.h    | 42 ++++++++++++++------------
->  tools/testing/vma/include/stubs.h  |  9 +++---
->  tools/testing/vma/tests/merge.c    |  3 +-
->  29 files changed, 186 insertions(+), 139 deletions(-)
+Hello Heiko,
 
-Not that the SELinux changes are really all that significant, but they
-look fine to me.
+On 3/17/2026 12:49 AM, Heiko Carstens wrote:
+>> +#define runtime_const_mask_32(val, sym)				\
+>> +({								\
+>> +	unsigned int __ret = (val);				\
+>> +								\
+>> +	asm_inline(						\
+>> +		"0:	nilf	%[__ret],12\n"			\
+>> +		".pushsection runtime_mask_" #sym ",\"a\"\n"	\
+>> +		".long 0b - .\n"				\
+>> +		".popsection"					\
+>> +		: [__ret] "+d" (__ret));			\
+>> +	__ret;							\
+>> +})
+> 
+> The nilf instruction changes the condition code and this must be reflected in
+> the clobber list.
 
-Acked-by: Paul Moore <paul@paul-moore.com> (SELinux)
+Thanks a ton for catching that!
 
---=20
-paul-moore.com
+> Besides that I would also appreciate if you would move the
+> existing comment above __runtime_fixup_32().
+> 
+> Or in other words, if you merge the patch below into this one feel free to
+> add:
+
+I'll fold in the suggested diff when spinning up the next version.
+
+> 
+> Acked-by: Heiko Carstens <hca@linux.ibm.com>
+
+Thanks a ton for taking a look at the series!
+
+-- 
+Thanks and Regards,
+Prateek
+
