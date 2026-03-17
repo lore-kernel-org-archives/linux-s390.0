@@ -1,202 +1,130 @@
-Received: from mail-lf1-f53.google.com (mail-lf1-f53.google.com [209.85.167.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFE63361DA4
-	for <linux-s390@vger.kernel.org>; Tue, 17 Mar 2026 09:30:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 417CB3A5450;
+	Tue, 17 Mar 2026 10:01:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773739822; cv=none; b=jVl+2fRpTTVB9FS6ynqzuJ7uwi999KKFxYpvPMrRTq+sEj5OEdZi5yFfrPm9gy429WUcz7OwSNgO5lrKGk5Ly0qujx8BOHw81RJxSnxD4CXFiH61K8KgTXhmBtYdVzZEXJEnvqTG5NODLp5Z3GOGJZEa4DVG88L6a+xxrGjLeXg=
+	t=1773741704; cv=none; b=HhDbVHc37cpwLt3nKsDhTJWG6pRuHv7bTCldAB/C5QjBgQrYDmTg3w04hUHD7VU9Rxwk9+QEJe1oao++irecv4V5BCMWiq31v205sG1MwIB0bMZy70tU7WulCD43wVZV8IDIqpDOLgfFjNAQ7mdImFgYAHgTyLacO+SbbpDy+CM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773739822; c=relaxed/simple;
-	bh=n9yV0EKW0ePeyskDVcCg/LnzxUaGeegIs/HWjeZnKec=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZF4wG6rTHZQCPgdmXgF4Mbw4jRRSC+J9QJOnEKKs8D2DSQlA4ctkXDoejCPdee3ERzmqTXQONrkhFFvjSJh/4aFCGoEXWV8G/Z+P5I0de3egfB9RdvGE2ThptNKQwJhZQCCdLE3fmS5rl8PjffJy7FmydyKZpqdPtg8dV/XFB6U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=IW4rO2Pk; arc=none smtp.client-ip=209.85.167.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1773741704; c=relaxed/simple;
+	bh=hm8Ln8Nc4yaWiI1OnzDKfFx6vYsqc+wqhWJsnRjOTt0=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:To:Subject:From:
+	 References:In-Reply-To; b=kdK+W0SZ+3Q2WGngNbdjwaMQCr2TfqK1xJvaXOx9BDL0bLWTZgFWqGneO2e+N9NHQxQI5w105ntKY5QRH8xAslIi0IsmTHC75DGLYRquCEvKbx5/ZCMtt8V0R/23gYnHBNtBdKpElpoTimT4Fj4W5jZueqNYW4jO+MG3dl163b0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ckSkf+qG; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="IW4rO2Pk"
-Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-5a12c310e8aso5763734e87.3
-        for <linux-s390@vger.kernel.org>; Tue, 17 Mar 2026 02:30:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1773739818; x=1774344618; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=x1Y0fq+nOdX5B9Zlv9rWb/FlWGr7tCSJEoVxQK36Zz4=;
-        b=IW4rO2PkNtgphTIcWlL8DIP6D3aL7IKTyxWbQas2ydbJrfk0aiB9VU9w++L0i5DDex
-         pZkOdYH9HpAHjOWiy6me+EDVYIJynnXCOyx9DvcWvJtOArvI2w1oOopeGlqCKbX5M1WV
-         9Ehn/DfClD19/xyAgS4xTUPxULD4czvm3eGsDorAejH4P0McO9tElTn7ezp2MFkhcMal
-         AruVwCkrGQTuSbyKgP5Z3qmlONEDVqCaHUYN6VVPNJmhmN0gAObTB9HhxeqdZfkZhpIF
-         dnj3Y8oOXYsx5+vzjczOQYDWImffQqL4155OkwsR7mDDOpJIoS40b4gEUPQHZp+atrUm
-         +6Qg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773739818; x=1774344618;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=x1Y0fq+nOdX5B9Zlv9rWb/FlWGr7tCSJEoVxQK36Zz4=;
-        b=gmfgRr9HXGIty355dwM293KX3XkyFPt5Qk49oVbDWz993SFi+xCgfvuDjjpOzNwLti
-         SEnzxSbYl1X/ZT4ZlpJhuP/JVJE8LXAg8kfD3JVOSbMghd+R3UjYDSzYumlPGgQR3p4G
-         xeXbuDUGyIoPkdb/XP2rbqMykPwWsDRLfwFBiiuxrv4j1erptl4WmcXzpcJE6aoU438z
-         1utt81o/ESu4CocBKZL0Tl/iwB/4HTgI/8obrBAW4DX1Np2WcD0Ep6xkKz+KMa1PRNqf
-         xYRKwUjTWPZlcZjWFuM3SOWUVxj8IRQf+Joub9KJVLm4LKJQczG8pDnuEygu5nNPQltX
-         /YVA==
-X-Forwarded-Encrypted: i=1; AJvYcCUu0I+kuQIETzY1Z+d9JvTIbEyNW5h6PSi3VhmYuElgbY5GSoIcFpgJE66sbn3Q1lagCSxhh4UKZFoh@vger.kernel.org
-X-Gm-Message-State: AOJu0YxH3+oTzRTFgSb4REDW/fG28+6aNJ+kW/Cbzm98oSjCnu2qt3y+
-	3I4tuwMW2e4hhPgFw9diap3iZxAK794b/oCsBnaji/n0D84nSGeFoI9622vBReJo1s8=
-X-Gm-Gg: ATEYQzxevSQ7hOCTv8ellIjg0Z20+mVVdmer26w8Fx3LtSFluQqAZ0fLbYunk2JTi6e
-	DrkDB3udFhBfcUjVyK6q/QWh8r0v2ToUD3yvdvfwYdQbrKirs7D9svH7Cuw0Vu1xUB6ehtqe757
-	UdreuLLn0psFFEPW7D3DB+/mfrFCzljpN1G+0jiyj/mm6aqHZOsMkpIShAxh/YAOP/DDvF7/TVw
-	rk2RKT/xwxVl9JBtKvFhozckKs7oiIM4EAXrVm0pPPc+4cvC6XnYk/ow9KIcVjcoVjzB0/VY4sY
-	DSB4umqM7iCw74i4JWaWOoQw8Cz9SdKOIMc2W+kzN2FyZqcqz1JiHvqCtk10g8tpldMEldWfB0i
-	uyZ+/P+Ssy0eKsNIkI9c3jYCiuprZiSsc/XfPkwKC0P7Y4L7jLEKJ9qDTzcsAYpvne5YUQe9Hmk
-	8XY3IegS8R1RqcCmFZHyqQ9Y1wG/OAWSRNUyeg/mDPASfxlRjAhnXuA4Lm
-X-Received: by 2002:a05:6512:31d6:b0:5a1:3e11:2963 with SMTP id 2adb3069b0e04-5a162b13fe6mr5199056e87.39.1773739817876;
-        Tue, 17 Mar 2026 02:30:17 -0700 (PDT)
-Received: from nuoska (87-100-249-247.bb.dnainternet.fi. [87.100.249.247])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5a15602e713sm3977671e87.32.2026.03.17.02.30.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Mar 2026 02:30:17 -0700 (PDT)
-Date: Tue, 17 Mar 2026 11:30:14 +0200
-From: Mikko Rapeli <mikko.rapeli@linaro.org>
-To: "Vincent Mailhol (Arm)" <mailhol@kernel.org>
-Cc: Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Matt Turner <mattst88@gmail.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Aaro Koskinen <aaro.koskinen@iki.fi>,
-	Andreas Kemnade <andreas@kemnade.info>,
-	Kevin Hilman <khilman@baylibre.com>,
-	Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Clark Williams <clrkwllms@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Pablo Neira Ayuso <pablo@netfilter.org>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	Alim Akhtar <alim.akhtar@samsung.com>, Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Piotr Wojtaszczyk <piotr.wojtaszczyk@timesys.com>,
-	Liviu Dudau <liviu.dudau@arm.com>,
-	Sudeep Holla <sudeep.holla@kernel.org>,
-	Lorenzo Pieralisi <lpieralisi@kernel.org>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Magnus Damm <magnus.damm@gmail.com>,
-	Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>,
-	Gregory CLEMENT <gregory.clement@bootlin.com>,
-	=?iso-8859-1?Q?Th=E9o?= Lebrun <theo.lebrun@bootlin.com>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Helge Deller <deller@gmx.de>,
-	Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-	Jonathan =?iso-8859-1?Q?Neusch=E4fer?= <j.neuschaefer@gmx.net>,
-	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Arnd Bergmann <arnd@arndb.de>, Heiko Stuebner <heiko@sntech.de>,
-	Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-	Mark Brown <broonie@kernel.org>, Eric Biggers <ebiggers@kernel.org>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	Sricharan Ramabadhran <quic_srichara@quicinc.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Michael Walle <mwalle@kernel.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Srinivas Kandagatla <srinivas.kandagatla@oss.qualcomm.com>,
-	"Rob Herring (Arm)" <robh@kernel.org>,
-	Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Anna Schumaker <anna.schumaker@oracle.com>,
-	Alexandre Gonzalo <alexandre.gonzalo@arm.com>,
-	linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-omap@vger.kernel.org, loongarch@lists.linux.dev,
-	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-sh@vger.kernel.org, linux-rt-devel@lists.linux.dev,
-	linux-samsung-soc@vger.kernel.org, imx@lists.linux.dev,
-	linux-renesas-soc@vger.kernel.org, linux-parisc@vger.kernel.org,
-	openbmc@lists.ozlabs.org
-Subject: Re: [PATCH 1/9] scripts: kconfig: merge_config.sh: use POSIX '=' in
- test
-Message-ID: <abkfJsyQSbW-VjxD@nuoska>
-References: <20260317-arm_defconf_cleanup-v1-0-8eecb7fdd24d@kernel.org>
- <20260317-arm_defconf_cleanup-v1-1-8eecb7fdd24d@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ckSkf+qG"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62H6cAdn651426;
+	Tue, 17 Mar 2026 10:01:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ih/EPn
+	QuPMH6GBpvqz4s2EQyqs6EAj1y4pOizniWkoY=; b=ckSkf+qGhyxBrozF2mCryR
+	bPcOblmkyYSyy6trK4z7r+UlZ1r6MRktEItB09g1AIXG7ZTkSmWWV6k+kb4eFyD5
+	KgXjmb2lgh6djVYSB/4D7CmVceJySF6r1V/K78OUuu6jHu2Ddxh/PfWc0GXBg9Jz
+	bTxOticfOBXbV8R18aRznsjo9bobWe9LlqZDgf7ULwq21oHx611ZQ8IroPweepL2
+	VfiIl4MyGS0QWrn7c1ACUUe6CsPStiR0n6oC970+0cw2Q+RJUz9bXbnkjD9R/37C
+	GK2UZfDHvgkXUtzMnjLIk84AYw69jxNRZ8F9eE2kI+rHP1u0nAXrb2hgGktA6ZrA
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvx3cun78-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 17 Mar 2026 10:01:38 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62H8CeE7028455;
+	Tue, 17 Mar 2026 10:01:37 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cwmq18bp6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 17 Mar 2026 10:01:37 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62HA1XnV52691328
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 17 Mar 2026 10:01:33 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A1B4F20067;
+	Tue, 17 Mar 2026 10:01:33 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7807A20065;
+	Tue, 17 Mar 2026 10:01:33 +0000 (GMT)
+Received: from darkmoore (unknown [9.87.132.213])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 17 Mar 2026 10:01:33 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260317-arm_defconf_cleanup-v1-1-8eecb7fdd24d@kernel.org>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 17 Mar 2026 11:01:28 +0100
+Message-Id: <DH4YYAGNRJWN.31F7DA634KSPA@linux.ibm.com>
+Cc: <linux-s390@vger.kernel.org>, <imbrenda@linux.ibm.com>,
+        <borntraeger@linux.ibm.com>, <akrowiak@linux.ibm.com>
+To: "Janosch Frank" <frankja@linux.ibm.com>, <kvm@vger.kernel.org>
+Subject: Re: [RFC 01/10] KVM: s390: diag258: Pass absolute address to
+ kvm_is_gpa_in_memslot()
+From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+X-Mailer: aerc 0.21.0
+References: <20260316180310.17765-1-frankja@linux.ibm.com>
+ <20260316180310.17765-2-frankja@linux.ibm.com>
+In-Reply-To: <20260316180310.17765-2-frankja@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=arO/yCZV c=1 sm=1 tr=0 ts=69b92682 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=hmbiDVwH1lKaQpimJPgA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE3MDA4NSBTYWx0ZWRfX8aWf0crwaKQ3
+ xY+lokRdIQ/GDUbjiLem8qwXwwDFbSdDRgwm28TTd0g1NkLvZAFrenRy+u9eUOZOqF9Zt40qRrD
+ FVTYr9IMc/g1bQxR/lQQ/cSD9x8146F3JsYUj39lxNIxGobHIO/ISqyjQVz4+MC4avzDN9a/r1B
+ 4e3AxlWCOvD2OQ0LnFYx8R6dMdCNhouFXtj97UdduJty6rjbiR1op4/8Z9LHNCBC0xet6bWKlHW
+ kqjKu4gyil59W0LLo7lfHmuUnEN40Ln7GBlxIrvZpMBAGQvDD0WeM++ovd7GCI/+/3c5DK8wiiW
+ M438kRdTTAA4IraOUA8zAwOgGarxq/CzkKHfOBW8VybjzDuiNlc36WjI3N0catNxgQJV2+OTVz2
+ +l2DOTOFVmZaK8VZmI+vVkCv8cHp59HG5sIC+pHG701oX1vLP7QmAR6zx+Yo3GOrhcAp9f+W0IA
+ sXvTeM2HjaOOOJRjnRA==
+X-Proofpoint-GUID: MskDmt1F45ODaLWeN3m1uzEiYvTCBYdk
+X-Proofpoint-ORIG-GUID: MskDmt1F45ODaLWeN3m1uzEiYvTCBYdk
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-17_01,2026-03-16_06,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 spamscore=0 lowpriorityscore=0 impostorscore=0
+ adultscore=0 bulkscore=0 suspectscore=0 malwarescore=0 clxscore=1015
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
+ definitions=main-2603170085
 
-Hi,
+On Mon Mar 16, 2026 at 5:23 PM CET, Janosch Frank wrote:
+> The token address is a real address and as such we need to translate
+> it before it's a true gpa.
+>
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Fixes: 3c038e6be0e29 ("KVM: async_pf: Async page fault support on s390")
 
-On Tue, Mar 17, 2026 at 10:13:37AM +0100, Vincent Mailhol (Arm) wrote:
-> merge_config.sh yields this warning:
-> 
->   ./scripts/kconfig/merge_config.sh: 384: [: false: unexpected operator
-> 
-> This happens because the script runs under /bin/sh but compares
-> strings using the '==' operator, which is a bash extension. The POSIX
-> test command only specifies '=' for string equality.
-> 
-> Replace '==' with the POSIX-compatible '=' so the script works when
-> run with /bin/sh as intended.
-> 
-> Fixes: dfc97e1c5da5 ("scripts: kconfig: merge_config.sh: use awk in checks too")
-> Signed-off-by: Vincent Mailhol (Arm) <mailhol@kernel.org>
-
-This fix is already merged in kbuild trees:
-
-https://lore.kernel.org/linux-kbuild/20260309121505.40454-1-o451686892@gmail.com/
-https://git.kernel.org/pub/scm/linux/kernel/git/kbuild/linux.git/log/?h=kbuild-fixes-for-next
-
-Cheers,
-
--Mikko
+Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
 > ---
->  scripts/kconfig/merge_config.sh | 2 +-
+>  arch/s390/kvm/diag.c | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/scripts/kconfig/merge_config.sh b/scripts/kconfig/merge_config.sh
-> index 735e1de450c6..073c6bec5245 100755
-> --- a/scripts/kconfig/merge_config.sh
-> +++ b/scripts/kconfig/merge_config.sh
-> @@ -381,7 +381,7 @@ END {
->  	STRICT_MODE_VIOLATED=true
->  fi
->  
-> -if [ "$STRICT" == "true" ] && [ "$STRICT_MODE_VIOLATED" == "true" ]; then
-> +if [ "$STRICT" = "true" ] && [ "$STRICT_MODE_VIOLATED" = "true" ]; then
->  	echo "Requested and effective config differ"
->  	exit 1
->  fi
-> 
-> -- 
-> 2.43.0
-> 
+>
+> diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
+> index d89d1c381522..51ba4dcc3905 100644
+> --- a/arch/s390/kvm/diag.c
+> +++ b/arch/s390/kvm/diag.c
+> @@ -122,7 +122,7 @@ static int __diag_page_ref_service(struct kvm_vcpu *v=
+cpu)
+>  		    parm.token_addr & 7 || parm.zarch !=3D 0x8000000000000000ULL)
+>  			return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+> =20
+> -		if (!kvm_is_gpa_in_memslot(vcpu->kvm, parm.token_addr))
+> +		if (!kvm_is_gpa_in_memslot(vcpu->kvm, kvm_s390_real_to_abs(vcpu, parm.=
+token_addr)))
+>  			return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
+> =20
+>  		vcpu->arch.pfault_token =3D parm.token_addr;
+
