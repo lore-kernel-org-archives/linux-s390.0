@@ -1,38 +1,38 @@
-Received: from canpmsgout05.his.huawei.com (canpmsgout05.his.huawei.com [113.46.200.220])
+Received: from canpmsgout02.his.huawei.com (canpmsgout02.his.huawei.com [113.46.200.217])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65DE339C65D;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28AB539C64E;
 	Tue, 17 Mar 2026 08:20:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.220
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.217
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773735623; cv=none; b=IlLJBVZxzwpNRbqiCtl+JgMquiByihhXX3aiW5EZYPryyyJhCTgj7qRT2cizphI7EAZUCqS1nbxOmrFiftn3sEw2chkum2f0jgvbCAN5EZdQQs6c1VRpfeWL7lJLsM7affKHHVHgjQPesqDOOcbZqmOMLoJySaXLy/AK9728C0c=
+	t=1773735624; cv=none; b=WsnPc+QpwTluw9J5UGQtUG7m1m7AeBicIgSIFDV2woVtSZfZY3zdIsGTPAwc1HtGYKURMCuy2PhH/MDDc9xCHd5wAV0BEbFVCmfePTNPWhGWgxsDOgMFfy+LJI758GA37s/Za5UY+ESH+BcWJckPlrZ8gSrTkqce+0Xp0y1mpGU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773735623; c=relaxed/simple;
-	bh=6z1/3WCDlleINA85Y6p70z60dKZed+IqwEEdTcCl3PI=;
+	s=arc-20240116; t=1773735624; c=relaxed/simple;
+	bh=uFVdStJqmRo7KB97x+mpX0spYL1NBEeBhooV7DPVnsA=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=fkoRtF4ZEfZ0MjmkBFPSQusLGiIhWe44HiZYbmmBUqLsZoq+aSok6AHkJ2BTGQW9ABU3vJCPsOYWGB73O16uitpfYdFTeg8kdmze+1o04uYI5yEIO2cXZLEl+ZPhJlINnshIxVmfaai0Bz1+RMiyLvO6cRNUUyK/4bRj156aJuM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=yBqIZEW9; arc=none smtp.client-ip=113.46.200.220
+	 MIME-Version:Content-Type; b=NaDf1huJqMl+HLpFBsdYNyiUxxfHZH2ybnRynPnbhKc5tvAfyMKh/iJ7moDPbpPX270EFwRkeMZ48PYYtRX9ARxiV4pZymxBIAQm5EfvpJfTsMenwMnBjKss7CNpXPvxyf/idypuqw3mTFmW7Qh+nei2np1eC8D+yXHhS/mH4EU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=HjFxAALP; arc=none smtp.client-ip=113.46.200.217
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="yBqIZEW9"
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="HjFxAALP"
 dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
 	c=relaxed/relaxed; q=dns/txt;
 	h=From;
-	bh=WEzP5z/SdtokaYujOa6eZX4XKze4duwTwqEgtATO8ak=;
-	b=yBqIZEW9LgAAaW8S+Vos0a1k5NpqTpDEAQB6i+ZPVNj/jEQkmigBZVCWwZ5VND1sPFCfCrdtO
-	MNTO6IQTPbIRh5/tWcn+5dfs4YzcUb+3vmx4bpS0rCEGcUY/VykMs2MJzZj0GP1TkQKC9sG6pw6
-	P/83Iiu9uA2t/p340yyARKE=
-Received: from mail.maildlp.com (unknown [172.19.163.0])
-	by canpmsgout05.his.huawei.com (SkyGuard) with ESMTPS id 4fZl9z0w7Jz12LJv;
-	Tue, 17 Mar 2026 16:14:47 +0800 (CST)
+	bh=sBX9yVD1XwVBO8/P5Xrrvv9cm0iqe1Ko3v6FFuPSOFQ=;
+	b=HjFxAALPHxYUpjdG8BniAoY8E6KltAJYcQ6OfO9o1z6CuBN91Is6Oi3zT0k6mS8JZiJpohCqO
+	Du8KKijUHzOPyNGzp/WiQ+OB5+rF4PAs3D5SXBorpf4u5RL/oMkYd41cmVj6P3dgYPzN1149sA8
+	0zwGhWkLslJz29IiPSja+Hs=
+Received: from mail.maildlp.com (unknown [172.19.162.140])
+	by canpmsgout02.his.huawei.com (SkyGuard) with ESMTPS id 4fZl9l38d5zcbN6;
+	Tue, 17 Mar 2026 16:14:35 +0800 (CST)
 Received: from dggpemf500011.china.huawei.com (unknown [7.185.36.131])
-	by mail.maildlp.com (Postfix) with ESMTPS id 1BE9340561;
-	Tue, 17 Mar 2026 16:20:19 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id 994022025E;
+	Tue, 17 Mar 2026 16:20:12 +0800 (CST)
 Received: from huawei.com (10.90.53.73) by dggpemf500011.china.huawei.com
  (7.185.36.131) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Tue, 17 Mar
- 2026 16:20:16 +0800
+ 2026 16:20:10 +0800
 From: Jinjie Ruan <ruanjinjie@huawei.com>
 To: <catalin.marinas@arm.com>, <will@kernel.org>, <oleg@redhat.com>,
 	<chenhuacai@kernel.org>, <kernel@xen0n.name>, <hca@linux.ibm.com>,
@@ -55,9 +55,9 @@ To: <catalin.marinas@arm.com>, <will@kernel.org>, <oleg@redhat.com>,
 	<linux-s390@vger.kernel.org>, <linux-arch@vger.kernel.org>,
 	<linux-kselftest@vger.kernel.org>
 CC: <ruanjinjie@huawei.com>
-Subject: [PATCH v13 RESEND 08/14] arm64/ptrace: Skip syscall exit reporting for PTRACE_SYSEMU_SINGLESTEP
-Date: Tue, 17 Mar 2026 16:20:14 +0800
-Message-ID: <20260317082020.737779-9-ruanjinjie@huawei.com>
+Subject: [PATCH v13 RESEND 05/14] arm64: ptrace: Move rseq_syscall() before audit_syscall_exit()
+Date: Tue, 17 Mar 2026 16:20:11 +0800
+Message-ID: <20260317082020.737779-6-ruanjinjie@huawei.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20260317082020.737779-1-ruanjinjie@huawei.com>
 References: <20260317082020.737779-1-ruanjinjie@huawei.com>
@@ -72,82 +72,68 @@ Content-Type: text/plain
 X-ClientProxiedBy: kwepems200001.china.huawei.com (7.221.188.67) To
  dggpemf500011.china.huawei.com (7.185.36.131)
 
-Align the syscall exit reporting logic with the generic entry
-framework by skipping the exit stop when PTRACE_SYSEMU_SINGLESTEP is
-in effect.
+Move the rseq_syscall() check earlier in the syscall exit path to ensure
+it operates on the original instruction pointer (regs->pc) before any
+potential modification by a tracer.
 
-[Rationale]
-When a tracer uses PTRACE_SYSEMU_SINGLESTEP, both _TIF_SYSCALL_EMU
-and _TIF_SINGLESTEP flags are set. Currently, arm64 reports a syscall
-exit stop whenever _TIF_SINGLESTEP is set, regardless of the
-emulation state.
+[Background]
+When CONFIG_DEBUG_RSEQ is enabled, rseq_syscall() verifies that a system
+call was not executed within an rseq critical section by examining
+regs->pc. If a violation is detected, it triggers a SIGSEGV.
 
-However, as per the generic entry implementation (see
-include/linux/entry-common.h):
-"If SYSCALL_EMU is set, then the only reason to report is when SINGLESTEP
-is set (i.e. PTRACE_SYSEMU_SINGLESTEP). This syscall instruction has been
-already reported in syscall_trace_enter()."
+[Problem]
+Currently, arm64 invokes rseq_syscall() after report_syscall_exit().
+However, during report_syscall_exit(), a ptrace tracer can modify the
+task's instruction pointer via PTRACE_SETREGS. This leads to an
+inconsistency where rseq may analyze a post-trace PC instead of the
+actual PC at the time of syscall exit.
 
-Since PTRACE_SYSEMU intercepts and skips the actual syscall
-execution, reporting a subsequent exit stop is redundant and
-inconsistent with the expected behavior of emulated system calls.
+[Why this matters]
+The rseq check is intended to validate the execution context of the
+syscall itself. Analyzing a tracer-modified PC can lead to incorrect
+detection or missed violations. Moving the check earlier ensures rseq
+sees the authentic state of the task.
 
-[Changes]
-- Introduce report_single_step(): Add a helper to encapsulate the
-  logic for deciding whether to report a single-step stop at syscall
-  exit. It returns false if _TIF_SYSCALL_EMU is set, ensuring the
-  emulated syscall does not trigger a duplicate report.
-
-- Update syscall_exit_work(): Use the new helper to determine
-  the stepping state instead of directly checking _TIF_SINGLESTEP.
+[Alignment]
+This change aligns arm64 with:
+- Generic entry, which calls rseq_syscall() first.
+- arm32 implementation, which also performs the check before audit.
 
 [Impact]
-- PTRACE_SINGLESTEP: Continues to report exit stops for actual
-  instructions.
+There is no functional change to signal delivery; SIGSEGV will still be
+processed in arm64_exit_to_user_mode() at the end of the exit path.
 
-- PTRACE_SYSEMU: Continues to skip exit stops.
-
-- PTRACE_SYSEMU_SINGLESTEP: Now correctly skips the redundant exit
-  stop, aligning arm64 with the generic entry infrastructure.
-
+Cc: Thomas Gleixner <tglx@kernel.org>
 Cc: Will Deacon <will@kernel.org>
 Cc: Catalin Marinas <catalin.marinas@arm.com>
+Reviewed-by: Kevin Brodsky <kevin.brodsky@arm.com>
 Signed-off-by: Jinjie Ruan <ruanjinjie@huawei.com>
 ---
- arch/arm64/kernel/ptrace.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/ptrace.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm64/kernel/ptrace.c b/arch/arm64/kernel/ptrace.c
-index 3cac9668aaa8..766de3584cff 100644
+index 3cb497b2bd22..f3d3dec85828 100644
 --- a/arch/arm64/kernel/ptrace.c
 +++ b/arch/arm64/kernel/ptrace.c
-@@ -2454,14 +2454,25 @@ int syscall_trace_enter(struct pt_regs *regs, unsigned long flags)
- 	return ret ? : syscall;
- }
+@@ -2456,6 +2456,8 @@ int syscall_trace_enter(struct pt_regs *regs, unsigned long flags)
  
-+static inline bool report_single_step(unsigned long flags)
-+{
-+	if (flags & _TIF_SYSCALL_EMU)
-+		return false;
-+
-+	return flags & _TIF_SINGLESTEP;
-+}
-+
- static void syscall_exit_work(struct pt_regs *regs, unsigned long flags)
+ void syscall_trace_exit(struct pt_regs *regs, unsigned long flags)
  {
-+	bool step;
++	rseq_syscall(regs);
 +
  	audit_syscall_exit(regs);
  
  	if (flags & _TIF_SYSCALL_TRACEPOINT)
- 		trace_sys_exit(regs, syscall_get_return_value(current, regs));
+@@ -2463,8 +2465,6 @@ void syscall_trace_exit(struct pt_regs *regs, unsigned long flags)
  
--	if (flags & (_TIF_SYSCALL_TRACE | _TIF_SINGLESTEP))
-+	step = report_single_step(flags);
-+	if (step || flags & _TIF_SYSCALL_TRACE)
+ 	if (flags & (_TIF_SYSCALL_TRACE | _TIF_SINGLESTEP))
  		report_syscall_exit(regs);
+-
+-	rseq_syscall(regs);
  }
  
+ /*
 -- 
 2.34.1
 
