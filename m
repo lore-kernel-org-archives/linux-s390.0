@@ -1,160 +1,171 @@
-Received: from SA9PR02CU001.outbound.protection.outlook.com (mail-southcentralusazon11013017.outbound.protection.outlook.com [40.93.196.17])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A99A3101B6;
-	Tue, 17 Mar 2026 01:55:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.196.17
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773712540; cv=fail; b=FzMPmnJQM/YJVUZygPVP7qMk1MfawfuS20L9rDK5JQa46+SezMjbJcENPMgJSbLCmbu71oCxJLwLv50eKC/J9D99chHy1Xbz5OJr3FmHK7vWy7SX07aOzbfRGI9rfdvprX7cPieRxJ+OD3sFlQN3/aUM8N2bb40YNw0V2JpTD2g=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773712540; c=relaxed/simple;
-	bh=AvP7DhuMS9xiWOTX8lgMfI6/i2qan63c0rM/JnHyjaM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=Sti+hVM7wnwfBwfzMHmh3S2x8EEvKV4eMERE7hLI4QA5AXU9OkpmXzjB00hI8Nv0lnceUR1raDfDZpbk34bMQmrHomMNk/kl7IUHEKhgidQGMWVoxGkVoJxcdQTQj1FjmfjiOO9QV5YBhFG3TUZ75wVH6AYIH6zEi56DbB1vATc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=1uBJdr3n; arc=fail smtp.client-ip=40.93.196.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21A943446C3
+	for <linux-s390@vger.kernel.org>; Tue, 17 Mar 2026 02:10:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773713453; cv=none; b=ULbHjwSLOd4a/e2VLpbSStoUPVPJR/tpR4XpzeVzoakiW+9OlpNVsNt2asDouf+4aLlLVGgDTKA4KTchr5E6vqsumzCpNJotqRp+t9Hytoj9yh9o1SXg3eVwvyMSmbbtKSOfv2amcEXNfrs/cE/gUhUct5taNiR12JHLrDvvpxs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773713453; c=relaxed/simple;
+	bh=6APpjZWVDoYhnyrU2ukjEox3NsHiAR54Lg0paX9dEzg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SK/LvkgiKSWOM8/5/3WIWLy96UKNSyhT1gD8/jx7ObaFs8sL42IIWmVHimMNj3hOMQehwrmb8es4+8z97sEtw4kQA+hwCk789IvtTtP7XjtmxLt5uNgAlnbC5CXCT7v9Ml9W8yKN+ENpPJwdUjKt7eGItztYyhbl3yXd2i3Pf6M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UE5RPQJo; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="1uBJdr3n"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=O+Vu/eOpfTzF2KQoXKeSj2SgiKCxMMy5GR7wQUChUc8IS3lunaqCk/KSo+McvAVUnLsy80Ty4mLHrnQ7NosfA1bQyVfU7G6XsBcGPn/885V2012iUMG+7qY++UFEeZK3+5bpNoh+XiEKf8ylKI6G/wMwtHhhdfATgx8DP6BazaCMr3bbvDkTeUotU/grn1LOOJPZJylWBOWrcsnyjHquS3CX4eBMH/NmTAiicT0aiUDDQz83Zu/0PuFRvmP6EwUPsLMUVTG9zUAq8ePG1SHZDNzq7IbNShPt6hZ8Dy5icTS7Ct6Gjk/raohDgGj2ACYWRrtXQiNX8KeTC/02ZE5//g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=iI/C0gsSslPlD4GdE2LcT43hHmTcYJQf9I5E3xpOyYE=;
- b=Dm/KzE0cuQU/EfgQEythgkhjyxOFQATErHqKlYzdcPPPAgsma9ws/Nk/z1Z76L2xa9X9UHaCWJN3AUy5mTqB2BuDhdr/t+QoeGK9noTf8MRSDCUmWXdGcRSI3VOFtWT8s8TRgae0jfsurcHo6ERTxiuZ0CSn42lOaAmODcU6bd18tPub5iWmcqJyuuEeuBC8rjUJKGfEKMMafFQNXxNm4XaTi86YIAURPYGFmwe/qxEXcETbo+zjPhIVu4JEbswrkZHo2zYJjzUI2pggn1+aHW0AHt0JiXS7/6IUgKm6uBdYn90KQ3IFaJXqTYcJny9nKFJxeuAolXxPj6opL0OTbw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=linux.ibm.com smtp.mailfrom=amd.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=amd.com; dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=iI/C0gsSslPlD4GdE2LcT43hHmTcYJQf9I5E3xpOyYE=;
- b=1uBJdr3niw3JeVF0OkwQlbiozUzz1lCHosDKdR4S/cWJEc5i9iNKp+XrHK4zQ/oA7fyUJ6+7970NkMC0TZJu8eZLJSv3TcNxaMehov7RUc0HzE22paGeIXDAIy7LzKsJxhy3F0sGMIi2IYXxbeB8nH0Z9xzF42Ujht0Wo7EWQBQ=
-Received: from BLAPR05CA0033.namprd05.prod.outlook.com (2603:10b6:208:335::14)
- by CHXPR12MB999246.namprd12.prod.outlook.com (2603:10b6:610:2fc::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9723.16; Tue, 17 Mar
- 2026 01:55:36 +0000
-Received: from BL02EPF0001A100.namprd03.prod.outlook.com
- (2603:10b6:208:335:cafe::be) by BLAPR05CA0033.outlook.office365.com
- (2603:10b6:208:335::14) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9700.27 via Frontend Transport; Tue,
- 17 Mar 2026 01:55:40 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
-Received: from satlexmb07.amd.com (165.204.84.17) by
- BL02EPF0001A100.mail.protection.outlook.com (10.167.242.107) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9700.17 via Frontend Transport; Tue, 17 Mar 2026 01:55:36 +0000
-Received: from SATLEXMB04.amd.com (10.181.40.145) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.17; Mon, 16 Mar
- 2026 20:55:35 -0500
-Received: from satlexmb07.amd.com (10.181.42.216) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Mon, 16 Mar
- 2026 20:55:35 -0500
-Received: from [10.136.37.230] (10.180.168.240) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server id 15.2.2562.17 via Frontend
- Transport; Mon, 16 Mar 2026 20:55:31 -0500
-Message-ID: <94239f7e-49f6-409b-9c87-25fefd52b2cd@amd.com>
-Date: Tue, 17 Mar 2026 07:25:25 +0530
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UE5RPQJo"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1773713450;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=j4sbtWDw4DJ2JBJ+y1C7vQWjeEXxcelaEAyT7ptHthE=;
+	b=UE5RPQJomup9qv/o0ixPU1NJEEYu2ANfhkR7nG17960EWYiYFNYWFSGULqJ3kUVZKdMG5F
+	HirS7tG/bliMT0vtcM0R/gR31PvIdoJKwbheauiDQuAYxwDz3QliHEfI9RAiSxjkgJBSpD
+	KIhwBUNKQbwddIKTWdemd081/7Wo7pQ=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-338-3Bd5hukVNg6_8EEIPcheoQ-1; Mon,
+ 16 Mar 2026 22:10:46 -0400
+X-MC-Unique: 3Bd5hukVNg6_8EEIPcheoQ-1
+X-Mimecast-MFC-AGG-ID: 3Bd5hukVNg6_8EEIPcheoQ_1773713443
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id AF4D218005B6;
+	Tue, 17 Mar 2026 02:10:41 +0000 (UTC)
+Received: from localhost (unknown [10.72.112.155])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B823C1955F19;
+	Tue, 17 Mar 2026 02:10:38 +0000 (UTC)
+Date: Tue, 17 Mar 2026 10:10:34 +0800
+From: Baoquan He <bhe@redhat.com>
+To: Sourabh Jain <sourabhjain@linux.ibm.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+Cc: kasan-dev@googlegroups.com, linux-mm@kvack.org, andreyknvl@gmail.com,
+	ryabinin.a.a@gmail.com, glider@google.com, dvyukov@google.com,
+	linux-kernel@vger.kernel.org, linux-um@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	x86@kernel.org, chris@zankel.net, jcmvbkbc@gmail.com,
+	linux-s390@vger.kernel.org, hca@linux.ibm.com
+Subject: Re: [PATCH v5 09/15] arch/powerpc: don't initialize kasan if it's
+ disabled
+Message-ID: <abi4Gumt0Qr_h-3W@fedora>
+References: <20260225081412.76502-1-bhe@redhat.com>
+ <20260225081412.76502-10-bhe@redhat.com>
+ <71921cca-b890-41c4-93e9-957d3f647ffa@linux.ibm.com>
+ <0bc30137-3f1d-4a4a-8573-8f26866fcc26@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v2 5/7] s390/runtime-const: Introduce
- runtime_const_mask_32()
-To: Heiko Carstens <hca@linux.ibm.com>
-CC: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, "Peter
- Zijlstra" <peterz@infradead.org>, Sebastian Andrzej Siewior
-	<bigeasy@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
-	<agordeev@linux.ibm.com>, Darren Hart <dvhart@infradead.org>, Davidlohr Bueso
-	<dave@stgolabs.net>, =?UTF-8?Q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>,
-	<linux-arch@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-riscv@lists.infradead.org>,
-	<linux-s390@vger.kernel.org>, Christian Borntraeger
-	<borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>
-References: <20260316052401.18910-1-kprateek.nayak@amd.com>
- <20260316052401.18910-6-kprateek.nayak@amd.com>
- <20260316191958.13160A9f-hca@linux.ibm.com>
-Content-Language: en-US
-From: K Prateek Nayak <kprateek.nayak@amd.com>
-In-Reply-To: <20260316191958.13160A9f-hca@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Received-SPF: None (SATLEXMB04.amd.com: kprateek.nayak@amd.com does not
- designate permitted sender hosts)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL02EPF0001A100:EE_|CHXPR12MB999246:EE_
-X-MS-Office365-Filtering-Correlation-Id: 72c1f9dd-97f1-4b31-c51c-08de83c8483f
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|7416014|1800799024|376014|36860700016|18002099003|56012099003|22082099003|7053199007;
-X-Microsoft-Antispam-Message-Info:
-	yQ68oX4hReP3ygDCldcZdhKqe8BQ4M1GUPHDfZqh0gp8yGhZqbq/jCsrbgroDbz7mENje0YAHwj0xpoSpQ4dPDcDJqqKy9comVzjrr40fKupYYnM9c0Z48TuG5TSQl84sPkZX2Q7r6uXbKF2S17mFr2zTlWQHMcgYwpF0ocrMLfMv0BEapxCPGwNSmmbaqy9/JBm6Z24o+fAlSmJI9d2tAODJaUGoN9dXXbv0bdzSbbwdngmYZq29RriUagTHrIbW/syrNIIw2inRAXOoNVD0B5XqeLKOGxwBpMBeEj04oSaO1V9HjOAR+xy6IKS1m3GaIuoE/KnPr1FCvHldlIhsvHuDeJNqIOJASkv7JdRC5Qqd5Ysa5VY5DKN0LA01820Wy7kKeAS0nzQS77keaz0iunBO7fWmkFaFy7P7wlIiGuy/SvrN815dbkH+oHd2KGHXXZiD8KkLfXfmBIdkK7w2J0a8+hh1GkdDWx23ihXuWTTfB0AZWx1ICj6V43Pb4RelVsk6hXGkeS5EIyMgey36OGsaqJ/J/dZLxqMIFsmcDiP4+kw9T3XZ6tW6b4zdQdIdOOuk8/+nx/51iLXT8uLDoy+Vbg2POX51t1GRyUoP3oCOnK7Fi92SfRQTIRx4blscF5gm2+M6llYIie4BTwIFOTqWrUOmsmqGxnlzahBWW5Ldfv9OL/BoTN7quunLvhiX2yl5UHHGxfXFqvJm+Xl7SCU64LH47Bds/G43KKv3butX1Tulpb5iW+WaqPWByPdzice9wNbZm+TrXX+GSW07w==
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(7416014)(1800799024)(376014)(36860700016)(18002099003)(56012099003)(22082099003)(7053199007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	OPW6o8O7R0KWwvWrG36EKa6KWP7hX6BDRZ+SEDAMEytZDnC8wMoD0uYID6tgz+pTqPRXQ1m9kv+nkaYWhLRPqP+Rr5sQy8E0azW2JHI/BrmPYTXG8ZUjXDU83DaRof0yUFh+1osiCkI0dGTMu5W3PFJujM/Io4eyqhpCPj9GaSO42UyR5Yufr5q2Y1GbkV7R/hF/YCX4PSc4ngX8VILVBV7Of34n1dNOSoAwLkq+07H5dsM35UB/6VvuGXGap3GvMysBRDbIq4zLkFgRHssHKWDRfrkltka1d54QWB4pzqE40OSTYuX3liU3luF0zZ4jrHzGt+aCwSs7Y30PQincee8scaFqHlyYk2GL00/TqxyLWH7C92uBQql4M28XUGNLpmn9i4cmimGeXuYxdiIaploXSkxkPvBjVZ79TL80OozSKUQUQPfYvgdcZNGl6OU1
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Mar 2026 01:55:36.1586
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 72c1f9dd-97f1-4b31-c51c-08de83c8483f
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	BL02EPF0001A100.namprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CHXPR12MB999246
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <0bc30137-3f1d-4a4a-8573-8f26866fcc26@kernel.org>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-Hello Heiko,
-
-On 3/17/2026 12:49 AM, Heiko Carstens wrote:
->> +#define runtime_const_mask_32(val, sym)				\
->> +({								\
->> +	unsigned int __ret = (val);				\
->> +								\
->> +	asm_inline(						\
->> +		"0:	nilf	%[__ret],12\n"			\
->> +		".pushsection runtime_mask_" #sym ",\"a\"\n"	\
->> +		".long 0b - .\n"				\
->> +		".popsection"					\
->> +		: [__ret] "+d" (__ret));			\
->> +	__ret;							\
->> +})
+On 03/12/26 at 12:23pm, Christophe Leroy (CS GROUP) wrote:
 > 
-> The nilf instruction changes the condition code and this must be reflected in
-> the clobber list.
-
-Thanks a ton for catching that!
-
-> Besides that I would also appreciate if you would move the
-> existing comment above __runtime_fixup_32().
 > 
-> Or in other words, if you merge the patch below into this one feel free to
-> add:
+> Le 12/03/2026 à 12:12, Sourabh Jain a écrit :
+> > 
+> > 
+> > On 25/02/26 13:44, Baoquan He wrote:
+> > > Here, kasan is disabled if specified 'kasan=off' in kernel cmdline.
+> > > 
+> > > This includes 32bit, book3s/64 and book3e/64.
+> > > 
+> > > Signed-off-by: Baoquan He <bhe@redhat.com>
+> > > Cc: linuxppc-dev@lists.ozlabs.org
+> > > ---
+> > >   arch/powerpc/mm/kasan/init_32.c        | 6 +++++-
+> > >   arch/powerpc/mm/kasan/init_book3e_64.c | 4 ++++
+> > >   arch/powerpc/mm/kasan/init_book3s_64.c | 4 ++++
+> > >   3 files changed, 13 insertions(+), 1 deletion(-)
+> > > 
+> > > diff --git a/arch/powerpc/mm/kasan/init_32.c
+> > > b/arch/powerpc/mm/kasan/ init_32.c
+> > > index 1d083597464f..0ea2a636c992 100644
+> > > --- a/arch/powerpc/mm/kasan/init_32.c
+> > > +++ b/arch/powerpc/mm/kasan/init_32.c
+> > > @@ -141,6 +141,10 @@ void __init kasan_init(void)
+> > >       u64 i;
+> > >       int ret;
+> > > +    /* If KASAN is disabled via command line, don't initialize it. */
+> > > +    if (kasan_arg_disabled)
+> > > +        return;
+> > > +
+> > >       for_each_mem_range(i, &base, &end) {
+> > >           phys_addr_t top = min(end, total_lowmem);
+> > > @@ -170,7 +174,7 @@ void __init kasan_init(void)
+> > >   void __init kasan_late_init(void)
+> > >   {
+> > > -    if (IS_ENABLED(CONFIG_KASAN_VMALLOC))
+> > > +    if (IS_ENABLED(CONFIG_KASAN_VMALLOC) && kasan_enabled())
+> > >           kasan_unmap_early_shadow_vmalloc();
+> > >   }
+> > > diff --git a/arch/powerpc/mm/kasan/init_book3e_64.c
+> > > b/arch/powerpc/mm/ kasan/init_book3e_64.c
+> > > index 0d3a73d6d4b0..fbe4c9a7e460 100644
+> > > --- a/arch/powerpc/mm/kasan/init_book3e_64.c
+> > > +++ b/arch/powerpc/mm/kasan/init_book3e_64.c
+> > > @@ -111,6 +111,10 @@ void __init kasan_init(void)
+> > >       u64 i;
+> > >       pte_t zero_pte = pfn_pte(virt_to_pfn(kasan_early_shadow_page),
+> > > PAGE_KERNEL_RO);
+> > > +    /* If KASAN is disabled via command line, don't initialize it. */
+> > > +    if (kasan_arg_disabled)
+> > > +        return;
+> > > +
+> > >       for_each_mem_range(i, &start, &end)
+> > >           kasan_init_phys_region(phys_to_virt(start), phys_to_virt(end));
+> > > diff --git a/arch/powerpc/mm/kasan/init_book3s_64.c
+> > > b/arch/powerpc/mm/ kasan/init_book3s_64.c
+> > > index dcafa641804c..f7906f9ef9be 100644
+> > > --- a/arch/powerpc/mm/kasan/init_book3s_64.c
+> > > +++ b/arch/powerpc/mm/kasan/init_book3s_64.c
+> > > @@ -54,6 +54,10 @@ void __init kasan_init(void)
+> > >       u64 i;
+> > >       pte_t zero_pte = pfn_pte(virt_to_pfn(kasan_early_shadow_page),
+> > > PAGE_KERNEL);
+> > > +    /* If KASAN is disabled via command line, don't initialize it. */
+> > > +    if (kasan_arg_disabled)
+> > > +        return;
+> > > +
+> > >       if (!early_radix_enabled()) {
+> > >           pr_warn("KASAN not enabled as it requires radix!");
+> > >           return;
+> > 
+> > Should we log in the kernel log buffer that KASAN is disabled?
+> > 
+> > Right now, I don't see the kernel advertising the same.
+> 
+> When KASAN is enabled it is advertised with:
+> 
+> 	pr_info("KernelAddressSanitizer initialized (generic)\n");
+> 
+> Isn't the absence of that message enough to understand KASAN is not there ?
 
-I'll fold in the suggested diff when spinning up the next version.
+Right, that's the way I took when I tested it.
 
 > 
-> Acked-by: Heiko Carstens <hca@linux.ibm.com>
+> > 
+> > $ dmesg | grep -i kasan
+> > [    0.000000] Kernel command line: BOOT_IMAGE=(ieee1275//vdevice/v-
+> > scsi@30000070/disk@8100000000000000,msdos2)/vmlinuz-7.0.0-rc3+
+> > crashkernel=2G kasan=off
+> > 
+> > Tested this series on powerpc Pseries platform.
+> > So feel free to add:
+> > Tested-by: Sourabh Jain <sourabhjain@linux.ibm.com>
 
-Thanks a ton for taking a look at the series!
-
--- 
-Thanks and Regards,
-Prateek
+Thanks for testing.
 
