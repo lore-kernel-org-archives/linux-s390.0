@@ -1,57 +1,57 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D3D834402B;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D4D6344057;
 	Tue, 17 Mar 2026 19:54:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773777295; cv=none; b=jd2qsR+WsyGRnYAueMD7l9Gi/ZzFEWVFbtS2K/0kJSaIKAwhZjpbiGzjvFxA5GXyqBm5ZG9KoUURKnY0oe61zdQ6EHYSPzmrkxNaZe2N7mrmYJNTaBpjCVa5ourRbzqLJ7yoCPFIDJi6dI44SO5FFa8Yu5Q2JCn0xNZg51zA9Yg=
+	t=1773777295; cv=none; b=NARXPIOK6HwyW7QKA3D9HSIPTgzwECywu3b2Pup/d9Dgq/DTkJZjEdDbfqBt6DeBYxRsMI/0gmcckyiczixswj5HYCYX8K6YD0T/iVz4c1yFSFsVIvqPgdX/YZSNkUi/PQ83shh3r9QoV435y25Wyp691ZHjAcXH+JWJDGy1L/k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1773777295; c=relaxed/simple;
-	bh=MstLwo7au7DeAAy/jRAj3qMTD68l96MMOZHv2HBF3nM=;
+	bh=YBxhvxEpN/HTLz4ZjGnc5Y57lSjeh1Jdhu+6fKkajQk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Nyqsb27tbS2TJKuVavGb3JIRl6CB6Ewu8u3bCPSHwiixYWIwCFE6IhzrhYo7FMCwbgQ8e49nV5S0n1v1GSVlycA5OxkEMmYcbo3WrJAO4JNl8N1ce5uzwqmDkoqTiE3R0EzqA/Hi0IxaEnKCxS2DCkmumsNOrHeYoyUxn0PpuFA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nTOUdtRn; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=i51ZyioAljlrTDJYW4AUobkQIua962u7ZmsSNOBj4+vaUQbhST/mAnhtMt9d+MGuvMrVxFCYPYsXn39/qbVwBhXs01ctuGPTNc/kXjIBE06cCmz5UOp/viETdfxQagR2T9rkupMM7zj5mC4mRG78OJEhMEQpfk0W9zcqMy5GjTw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oKvKwIS/; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nTOUdtRn"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62HIBtAl1363601;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oKvKwIS/"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62HIKcNR617441;
 	Tue, 17 Mar 2026 19:54:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=a3yY+ErE8l6wYLZxv
-	pVWDNV0yK3nY/2aI0msESMHjxs=; b=nTOUdtRn273Lw/qI+LaQinZFsYMBTdUZA
-	Sy1nu/LPlIV/yN6JbPG6ye17iQ7KBvyLC+I1F6/eV0rU+rkQ8qRUC5GXiQEsJHSV
-	xIW3JdHxkH4tclshjnx49NvJ9XTh2fgrYxlo5OocDlp1bSov0fAOPxJ96LgI8I32
-	cGkaE+q1wK6Z27wVUohc6pgMKocOKpR50aXY+95XKaOrmkz3ztTc5dgZPQMuh1fq
-	6Aehe2C8YyHuMfRAm3LPQIwsfv+COKb4Rrq4kGx2CankaRTEnSjH80E/KdwqEuxV
-	aAHqWyAxu6DsKCsb+z8Ie0w7xood+zUaklrdbEQ7ZaPujQULm4UWw==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvy64ppud-1
+	:mime-version:references:subject:to; s=pp1; bh=xG2Ad3gUwaVAO7PyV
+	lzDgxDYYf5LcnXNGAKdUk6zeYA=; b=oKvKwIS/MxDbhVk0x3BHdw+R9pl8I24QZ
+	wYgdKtYML1pYXwDF0eFpFKhk0UdQzfdoZEWdGMRL3fu0quiLxrCfXvH3N5Z7n/HL
+	iNnkaoN2GIHxFOWKGBI/eqACVEOvnduU7egKDMoGbenQR+G7GqPPICNGyaYMqFag
+	H3SF34Q+zEirk+polukHa4LPOUtcTSReNlXXXNmLB9OP2RWcStT7/J1hLLxK6tQg
+	vPGM8wuFltt78vTFlIijwViJKFyorwkQXCfw54XvvQhTU/cELrh2PdG394aGnmUK
+	8aL+NdKswBLVO9MYJNEWdrUYjgBjYbiuOUMOsUaxXR1bO9WCrcv6Q==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvybs6m86-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 17 Mar 2026 19:54:43 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62HJZ2gE028785;
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62HIeQQE004563;
 	Tue, 17 Mar 2026 19:54:42 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cwkgkas7s-1
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cwj0sawx3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 17 Mar 2026 19:54:42 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62HJsbFX48169370
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62HJscsH50987496
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 17 Mar 2026 19:54:37 GMT
+	Tue, 17 Mar 2026 19:54:38 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9DC352004F;
-	Tue, 17 Mar 2026 19:54:37 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 68FF920040;
+	Tue, 17 Mar 2026 19:54:38 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 75BF72004D;
-	Tue, 17 Mar 2026 19:54:37 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 414C52004D;
+	Tue, 17 Mar 2026 19:54:38 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 17 Mar 2026 19:54:37 +0000 (GMT)
+	Tue, 17 Mar 2026 19:54:38 +0000 (GMT)
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Peter Zijlstra <peterz@infradead.org>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -59,9 +59,9 @@ To: Peter Zijlstra <peterz@infradead.org>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Juergen Christ <jchrist@linux.ibm.com>
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH 2/9] s390/alternatives: Add new ALT_TYPE_PERCPU type
-Date: Tue, 17 Mar 2026 20:54:29 +0100
-Message-ID: <20260317195436.2276810-3-hca@linux.ibm.com>
+Subject: [PATCH 6/9] s390/percpu: Use new percpu code section for arch_this_cpu_[and|or]()
+Date: Tue, 17 Mar 2026 20:54:33 +0100
+Message-ID: <20260317195436.2276810-7-hca@linux.ibm.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260317195436.2276810-1-hca@linux.ibm.com>
 References: <20260317195436.2276810-1-hca@linux.ibm.com>
@@ -73,178 +73,83 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: MP7j4Fn6VoNAqntZqX7u17sPsrNwNPMU
-X-Proofpoint-GUID: MP7j4Fn6VoNAqntZqX7u17sPsrNwNPMU
-X-Authority-Analysis: v=2.4 cv=KYnfcAYD c=1 sm=1 tr=0 ts=69b9b183 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Authority-Analysis: v=2.4 cv=MMttWcZl c=1 sm=1 tr=0 ts=69b9b183 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=XZhbzCa44lJJqUdH0vgA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE3MDE3NCBTYWx0ZWRfXwSGdIZMQowSI
- 3cCKLrtsVFbMHdpZ7yOYHbIVeYXcwORdNkBAu0KeLsqC0p/F+sqoeaYQOQJlgN2NuKDD9ncxgMg
- euLnTEAc+F10V7370LNnqCghY6+RNDeu/IIHVYNyinQ19Ud57uhO6IuVr4Dy0Hg/p93bdO5AMON
- qEVInaUJeHJKcr2pbU87k0eWZB9r9aIrjed0PXO65C/RU3188GRFivUz5fX1yP5mR4LLcQ6tOdr
- +EldQrCYWJGFxh6ZU0ip1gA1MfofajlrvcGcHBE5WbeeFXoik2YTXYTNf+RdQmpAFis4yWRu3lq
- GgCyG55RapRyomXTFvvUHGpWDRTPD3yUESGjZ1/Gl3KhILHFRfxKsAYgJ/2IZOAXZiIdE6NEeRb
- 7udNWaqMrOaUxJyAX1gLibFb16Nu6gMbsClyQTR7p4VF5otGTvslJZhGx8L29RoKLGkoCSfcijx
- KCHh8KDM2u2+v+IUyUQ==
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=4dLYTkTKlH5g-JvQF6AA:9
+X-Proofpoint-ORIG-GUID: GO7A18wmWyi6hnPV3aYCTGmB12z1yBh6
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE3MDE3NCBTYWx0ZWRfX7/za8DarR/E3
+ 2K/X9RtEOn5hBl32zCEYFDAvSNVGE4vztVZk1Qns2SKAqk+ZFcp6JhfoGZukaOkyETtYmZAEnXV
+ UX0PGimrxru1l1LlspW37CjxGnX9T0n6WOl94CFGHP72FrFDwzK7sf2/ONo/8qkWQkkuLArWVbs
+ CZf4fOYbX2fhwcHp1YTmrdCPOoqxAZjd8b0Njpit/cG6KkLq79Ie3sIWACY11u+mpfxtZHP2bP1
+ Lj9QMXB3qMqyQR6bDlDX2YKth4HCH1C8E0VJMemIJ6e38NuB4CZQfNugtIeWQ9t1BqWVpX+b0Bb
+ LCWCFr64f/EEQ+yV4+P7chWqNHGZ+EMGdx260rC8hVsmpO45/Jp3tTJH0zdSQvVlxW7KAUpN0e1
+ A2gYDfKRBiTfqOUA9NUZYyNuVTX+r7/Lw9MzJ0vP1JbravdjPBIwJfwUlhtiyN83dv4J+oO8VCp
+ Bqd7T9syifHEmwVwG0Q==
+X-Proofpoint-GUID: GO7A18wmWyi6hnPV3aYCTGmB12z1yBh6
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-03-17_04,2026-03-17_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0 bulkscore=0
- spamscore=0 impostorscore=0 malwarescore=0 adultscore=0 clxscore=1015
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603170174
+ suspectscore=0 lowpriorityscore=0 malwarescore=0 spamscore=0
+ priorityscore=1501 impostorscore=0 adultscore=0 phishscore=0 clxscore=1015
+ bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
+ definitions=main-2603170174
 
-The upcoming percpu section code uses two mviy instructions to guard the
-beginning and end of a percpu code section.
+Convert arch_this_cpu_[and|or]() to make use of the new percpu code
+section infrastructure.
 
-The first mviy instruction writes the register number, which contains the
-percpu address to lowcore. This indicates both the beginning of a percpu
-code section and which register contains the percpu address.
-
-During compile time the mvyi instruction is generated in a way that its
-base register contains the percpu register, and the immediate field is
-zero. This needs to be patched so that the base register is zero, and the
-immediate field contains the register number. For example
-
-  101424:       eb 00 23 c0 00 52       mviy    960(%r2),0
-
-needs to be patched to
-
-  101424:       eb 20 03 c0 00 52       mviy    960(%r0),2
-
-Provide a new ALT_TYPE_PERCPU alternative type which handles this specific
-instruction patching. In addition it also handles the relocated lowcore
-case, where the displacement of the mviy instruction has a different value.
+There is no user of this_cpu_and() and only one user of this_cpu_or()
+within the kernel. Therefore this conversion has hardly any effect,
+and also removes only preempt_schedule_notrace() function call.
 
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/s390/boot/alternative.c        |  7 +++++++
- arch/s390/include/asm/alternative.h |  5 +++++
- arch/s390/kernel/alternative.c      | 25 +++++++++++++++++++++++--
- 3 files changed, 35 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/percpu.h | 26 +++++++++++++++++++-------
+ 1 file changed, 19 insertions(+), 7 deletions(-)
 
-diff --git a/arch/s390/boot/alternative.c b/arch/s390/boot/alternative.c
-index 19ea7934b918..ad078a2b1192 100644
---- a/arch/s390/boot/alternative.c
-+++ b/arch/s390/boot/alternative.c
-@@ -22,6 +22,9 @@ static void alt_debug_all(int type)
- 	case ALT_TYPE_SPEC:
- 		alt_debug.spec = 1;
- 		break;
-+	case ALT_TYPE_PERCPU:
-+		alt_debug.percpu = 1;
-+		break;
- 	}
+diff --git a/arch/s390/include/asm/percpu.h b/arch/s390/include/asm/percpu.h
+index 6e932f45f128..f26f03b0889c 100644
+--- a/arch/s390/include/asm/percpu.h
++++ b/arch/s390/include/asm/percpu.h
+@@ -208,17 +208,29 @@
+ 
+ #define arch_this_cpu_to_op(pcp, val, op)				\
+ {									\
++	unsigned long lc_pcpr, lc_pcpo;					\
+ 	typedef typeof(pcp) pcp_op_T__; 				\
+ 	pcp_op_T__ val__ = (val);					\
+ 	pcp_op_T__ old__, *ptr__;					\
+-	preempt_disable_notrace();					\
+-	ptr__ = raw_cpu_ptr(&(pcp));	 				\
+-	asm volatile(							\
+-		op "    %[old__],%[val__],%[ptr__]"			\
+-		: [old__] "=d" (old__), [ptr__] "+Q" (*ptr__)		\
+-		: [val__] "d" (val__)					\
++									\
++	lc_pcpr = offsetof(struct lowcore, percpu_register);		\
++	lc_pcpo = offsetof(struct lowcore, percpu_offset);		\
++	ptr__ = &(pcp);							\
++	asm_inline volatile(						\
++		MVIY_PERCPU("%[disppcpr]", "%[dispaltpcpr]", "%[ptr__]")\
++		AG_ALT("%[disppcpo]", "%[dispaltpcpo]", "%[ptr__]")	\
++		op "    %[old__],%[val__],0(%[ptr__])\n"		\
++		MVIY_ALT("%[disppcpr]", "%[dispaltpcpr]", "%%r0")	\
++		: [old__] "=&d" (old__),				\
++		  [ptr__] "+&a" (ptr__), "+m" (*ptr__),			\
++		  "=m" (((struct lowcore *)0)->percpu_register)		\
++		: [val__] "d" (val__),					\
++		  [disppcpr] "i" (lc_pcpr),				\
++		  [disppcpo] "i" (lc_pcpo),				\
++		  [dispaltpcpr] "i" (lc_pcpr + LOWCORE_ALT_ADDRESS),	\
++		  [dispaltpcpo] "i" (lc_pcpo + LOWCORE_ALT_ADDRESS),	\
++		  "m" (((struct lowcore *)0)->percpu_offset)		\
+ 		: "cc");						\
+-	preempt_enable_notrace();					\
  }
  
-@@ -115,6 +118,7 @@ void alt_debug_setup(char *str)
- 		alt_debug_all(ALT_TYPE_FACILITY);
- 		alt_debug_all(ALT_TYPE_FEATURE);
- 		alt_debug_all(ALT_TYPE_SPEC);
-+		alt_debug_all(ALT_TYPE_PERCPU);
- 		return;
- 	}
- 	while (*str) {
-@@ -130,6 +134,9 @@ void alt_debug_setup(char *str)
- 		case ALT_TYPE_SPEC:
- 			alt_debug_all(ALT_TYPE_SPEC);
- 			break;
-+		case ALT_TYPE_PERCPU:
-+			alt_debug_all(ALT_TYPE_PERCPU);
-+			break;
- 		}
- 		if (*str != ';')
- 			break;
-diff --git a/arch/s390/include/asm/alternative.h b/arch/s390/include/asm/alternative.h
-index 1c56480def9e..9ca2e49338a2 100644
---- a/arch/s390/include/asm/alternative.h
-+++ b/arch/s390/include/asm/alternative.h
-@@ -34,6 +34,7 @@
- #define ALT_TYPE_FACILITY	0
- #define ALT_TYPE_FEATURE	1
- #define ALT_TYPE_SPEC		2
-+#define ALT_TYPE_PERCPU		3
- 
- #define ALT_DATA_SHIFT		0
- #define ALT_TYPE_SHIFT		20
-@@ -51,6 +52,10 @@
- 					 ALT_TYPE_SPEC << ALT_TYPE_SHIFT	| \
- 					 (facility) << ALT_DATA_SHIFT)
- 
-+#define ALT_PERCPU(num)			(ALT_CTX_EARLY << ALT_CTX_SHIFT		| \
-+					 ALT_TYPE_PERCPU << ALT_TYPE_SHIFT	| \
-+					 (num) << ALT_DATA_SHIFT)
-+
- #ifndef __ASSEMBLER__
- 
- #include <linux/types.h>
-diff --git a/arch/s390/kernel/alternative.c b/arch/s390/kernel/alternative.c
-index 02d04ae621ba..e32eb489b899 100644
---- a/arch/s390/kernel/alternative.c
-+++ b/arch/s390/kernel/alternative.c
-@@ -28,6 +28,7 @@ struct alt_debug {
- 	unsigned long facilities[MAX_FACILITY_BIT / BITS_PER_LONG];
- 	unsigned long mfeatures[MAX_MFEATURE_BIT / BITS_PER_LONG];
- 	int spec;
-+	int percpu;
- };
- 
- static struct alt_debug __bootdata_preserved(alt_debug);
-@@ -48,8 +49,18 @@ static void alternative_dump(u8 *old, u8 *new, unsigned int len, unsigned int ty
- 	a_debug("[%d/%3d] %016lx: %s -> %s\n", type, data, kptr, oinsn, ninsn);
- }
- 
-+struct insn_siy {
-+	u64	opc1 : 8;
-+	u64	i2   : 8;
-+	u64	b1   : 4;
-+	u64	dl1  : 12;
-+	u64	dh1  : 8;
-+	u64	opc2 : 8;
-+};
-+
- void __apply_alternatives(struct alt_instr *start, struct alt_instr *end, unsigned int ctx)
- {
-+	struct insn_siy insn_siy;
- 	struct alt_debug *d;
- 	struct alt_instr *a;
- 	bool debug, replace;
-@@ -63,6 +74,8 @@ void __apply_alternatives(struct alt_instr *start, struct alt_instr *end, unsign
- 	for (a = start; a < end; a++) {
- 		if (!(a->ctx & ctx))
- 			continue;
-+		old = (u8 *)&a->instr_offset + a->instr_offset;
-+		new = (u8 *)&a->repl_offset + a->repl_offset;
- 		switch (a->type) {
- 		case ALT_TYPE_FACILITY:
- 			replace = test_facility(a->data);
-@@ -76,14 +89,22 @@ void __apply_alternatives(struct alt_instr *start, struct alt_instr *end, unsign
- 			replace = nobp_enabled();
- 			debug = d->spec;
- 			break;
-+		case ALT_TYPE_PERCPU:
-+			replace = true;
-+			insn_siy = *(struct insn_siy *)old;
-+			if (test_machine_feature(MFEATURE_LOWCORE))
-+				insn_siy = *(struct insn_siy *)new;
-+			insn_siy.i2 = insn_siy.b1;
-+			insn_siy.b1 = 0;
-+			new = (u8 *)&insn_siy;
-+			debug = d->percpu;
-+			break;
- 		default:
- 			replace = false;
- 			debug = false;
- 		}
- 		if (!replace)
- 			continue;
--		old = (u8 *)&a->instr_offset + a->instr_offset;
--		new = (u8 *)&a->repl_offset + a->repl_offset;
- 		if (debug)
- 			alternative_dump(old, new, a->instrlen, a->type, a->data);
- 		s390_kernel_write(old, new, a->instrlen);
+ #define this_cpu_and_4(pcp, val)	arch_this_cpu_to_op(pcp, val, "lan")
 -- 
 2.51.0
 
