@@ -1,54 +1,54 @@
-Received: from mail-dl1-f73.google.com (mail-dl1-f73.google.com [74.125.82.73])
+Received: from mail-dy1-f202.google.com (mail-dy1-f202.google.com [74.125.82.202])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EFA136165F
-	for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2026 17:58:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 699433603FF
+	for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2026 17:58:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773856705; cv=none; b=sUv5M+KKPmsB1+ImtajPS8crw9g7fjjIlN9amfX7Ab3ByG+oe7/XOzX1EEWSXQcqsxbE3HDdv5B71rF+1MBNqI3DxxP5rTiFmRGy+T0l0p31kdtMfeHoqrIykIGP8mJAKqjKg3swPQURTH4itx13Eo7fXJ8WKQ8GZFt58F8MyFk=
+	t=1773856707; cv=none; b=XCzd5iFXTh0C1bbxbITbe7NUbryZNQJjnCTWiwVuRlrjd8UMp5Cy5pBtq1/fMKFiMZ2XAO/vtMqiCyF7Bu+qmd0ybqg8Gon7gM5M6ihLrM6kIVIk1WoQBz23IwKPp2OE8AkH9MmMIwbFGuojVbJnUXZu9MTlcW6W+EWZQPDUiRM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773856705; c=relaxed/simple;
-	bh=U8LqxsgGl8pPzMoHQSm3GXUaosjRDy/a3rvRqghM3i4=;
+	s=arc-20240116; t=1773856707; c=relaxed/simple;
+	bh=AT0BGB6UrGLZA1M+tVNdNXzlDjYmvZvAEkPOTSTH+IM=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=KKDLHW+U1SkfBIivk66d9+1TGynwEBraWgvdEJlTFsYbOQYkLzypWi5YX5uVlfhQwBJdYOldocJBD2VLetHKYOZxaFt6YYuzFGt6KUbMYXV/LxOTAnl99SOJ8XyzuhbmLyfNGMl/Bkz1gbDMBzlP9uJE8EiAuAAuQjQ0vJnvDtg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=JA0k50oH; arc=none smtp.client-ip=74.125.82.73
+	 To:Cc:Content-Type; b=DyDMnSKybprId3MTmUdkSDdDcgyuDOrmIl97MbUFMKTOZYwC5eZsUL3d6ysFnXNAwTXeOfW3Yu8chHLg/rJM4i7zNhO3we7YRamQhYkJenohD2Frzf1qdt1V8EvI4Lx7cl5SXw/vmnuXrzyQRB438AJKq0VQS9qhRdh36yXRCy4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=jwCV4fkN; arc=none smtp.client-ip=74.125.82.202
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="JA0k50oH"
-Received: by mail-dl1-f73.google.com with SMTP id a92af1059eb24-1275c6fc58aso166412c88.0
-        for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2026 10:58:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="jwCV4fkN"
+Received: by mail-dy1-f202.google.com with SMTP id 5a478bee46e88-2bdf75bc88fso242498eec.0
+        for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2026 10:58:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1773856702; x=1774461502; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1773856705; x=1774461505; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=FHgnOqAqVJ/nZ21E+abJVIPEw9OV5mDZ+DHTpPzA2N8=;
-        b=JA0k50oH5poHg4/kXNAnc4gPF9T3Dwnqk37EXF1oL8KJoqlKEtJaK0lXZBKQec2TJZ
-         Mfk1oVCT1dfBHwSCowONqy13YU+dVTsxHj+yk2x69QYggWhs+2KD5P67zcaRCNnULo8+
-         vSa195qe/2yRz3M65wgLo0mPH+mZsA9hd89WeAC7yN1DPLLL4PJSIeASnVerduXKJ3NT
-         WkE+62lYA1fy+OJEEo7F7JCJCztnvdzQQ+ne23dopJ/vocTPytvsrC6EPbYI9v/iPy6E
-         6gPQh2QxK/MrWibtLaAE3Bh6lmf2oLra8N/+g97Tp4sZRfmMTTOPgDoMz+Ve7RxMWVeH
-         U2/g==
+        bh=tQVp2xNbIouZw2DsKLWRE3G9FMoorezshWZvQPd6XX0=;
+        b=jwCV4fkNEnk+dEFsEY+7zrPvvWdEtLNbQ70Ei/pMghHmkixqbc5UUEicHoB1WfMSqu
+         XeX1a4/02FKBsjbnVEvuefAxjaxI7oC19jD+An8QtIJgVT1X6JnQSPh32YyQLXHQ0NEG
+         AUV/nM21B7mKlhiqc91CQuLH6r5JT3CJqaTGGsRUjerrXoUPYBbxiP7YS22iWyAsjpxU
+         Ir3AXUBYVN61mP4zFGZm/27gcPKuk9kHJ2+beC8hoqpH4mTMh4KYvyK1c+wML3Z1k5Yr
+         7mXecclzNTdmBLy2v4NJiGSu55LgEki7f26mU3Xb4EIcuvheIL2GkOGYiRIlLKZ5pF0H
+         /MgA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773856702; x=1774461502;
+        d=1e100.net; s=20251104; t=1773856705; x=1774461505;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=FHgnOqAqVJ/nZ21E+abJVIPEw9OV5mDZ+DHTpPzA2N8=;
-        b=U6Lax8x/tPdV4PBFK7Uu1DYqH1gZ5FiKD3sYHxVYeQcW/5ZfPCsS1t1EVVia1J4b0Z
-         +vqvkeTZW/5ANs2HyBX5t77YFnriXAHi4xAoLeWvCSsyQU+hgS52Z14NQ/JkDI/8R1lp
-         lQJdku7R1At/yggjZyZ5DR4GtKCY8XfYgvf/WmV7ROAklFWTSf0zDqU/eqTLo16Z5Iuh
-         mxO+/qfoa17KOzfcbtbaEMtcGRuhR4JqH5yHqyMnLLUVywFeFZtCBqQmELNXC6FnGFeS
-         wl5dtEt26quPhjBzwX7bXHRMuvIjWMb12AKPQj70EDRrzWgb83WN8dImjV4bDw9/cSGZ
-         K7YA==
-X-Forwarded-Encrypted: i=1; AJvYcCW7A50cbBVxSPN1VAEa7QYOQVmJ+V1ta86pBNkV57JQ6aAv1r96w5UhRB/W/8PfzsDAojhf/za3LM+5@vger.kernel.org
-X-Gm-Message-State: AOJu0YyAO55soo0l7knLfdqyMBP7gBWT+65yUdYTP4bIlpkj1yghVwlP
-	GGHPn6qa44JD4IRIAVO6J9Kj2Wrj1S++0n9mAmG9mOw3rs/rvR8y4hUT+Csjd8SAKPX0SxYt2QQ
-	1mOFCxm4ceg==
-X-Received: from dlam9-n1.prod.google.com ([2002:a05:701b:2089:10b0:128:d017:6507])
- (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7022:60f:b0:128:df3d:cd97
- with SMTP id a92af1059eb24-129a7177e06mr1946352c88.35.1773856701973; Wed, 18
- Mar 2026 10:58:21 -0700 (PDT)
-Date: Wed, 18 Mar 2026 10:58:04 -0700
+        bh=tQVp2xNbIouZw2DsKLWRE3G9FMoorezshWZvQPd6XX0=;
+        b=Vo1Lf6YaGOaOc/Il7Zq8uRxHu6cfMQoTSLUVbDBxGAYsra9N5Dv3OOTj+a5X4jmR3l
+         C+DtTPnpsIzb1j8675H+nKwXt/VXq3ZifzsTq2CPk/+5nizYbt8V21J6uPv06f2h7lJh
+         B3ESXXIxkjgjxqbxj0ZDhf5UaSv9feUzGOLQl7PXWkT7elMF2RZaNbUB3BJDHmFoKmse
+         XudxMzFJ3+W0FmZVVq7Ok8yyp4O/q7xbKMF7hbEC+0JICDFIq3F2O/X1v/eDAJZ2Qva7
+         D6iRZOHNM9FpxNyUeREsiZ3VQUw93hsA9etpkV6iUAW7Cj8Ctn7t/tqQULYRrxJp36vG
+         BPlQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV3J47W2b73uEZPWrlVu9YixIZ2wys5SMIvWAsDaSgG6rqKFbpmpz91wlgU1Rd/crZ2cjJebWR/Q+Oj@vger.kernel.org
+X-Gm-Message-State: AOJu0YzBkuTVR7XJ2XfuNKvwyQgmvLTS4XxHLKzwEfTFJsw7usdEanT1
+	LqkAfyVreF/1PkdjOiHktxrItoutt9AvA0QODuf2hWS1buZ9KpYyzbKp7tX+8k1JHoIyKOK1Roo
+	nBX8E5YGl3Q==
+X-Received: from dycrm13.prod.google.com ([2002:a05:693c:2a0d:b0:2c0:d104:830b])
+ (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7300:dc91:b0:2b7:fdb6:ccf6
+ with SMTP id 5a478bee46e88-2c0e4fb8e1dmr2171218eec.14.1773856704365; Wed, 18
+ Mar 2026 10:58:24 -0700 (PDT)
+Date: Wed, 18 Mar 2026 10:58:05 -0700
 In-Reply-To: <20260318175808.582009-1-irogers@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -59,8 +59,8 @@ Mime-Version: 1.0
 References: <CAP-5=fWCf1TFMW8epW8moOcUbMuzRjrG1r38SWFevH35mqR0+w@mail.gmail.com>
  <20260318175808.582009-1-irogers@google.com>
 X-Mailer: git-send-email 2.53.0.851.ga537e3e6e9-goog
-Message-ID: <20260318175808.582009-2-irogers@google.com>
-Subject: [PATCH v7 1/5] perf evsel: Improve falling back from cycles
+Message-ID: <20260318175808.582009-3-irogers@google.com>
+Subject: [PATCH v7 2/5] perf target: Constify simple check functions
 From: Ian Rogers <irogers@google.com>
 To: tmricht@linux.ibm.com
 Cc: irogers@google.com, acme@kernel.org, agordeev@linux.ibm.com, 
@@ -69,110 +69,60 @@ Cc: irogers@google.com, acme@kernel.org, agordeev@linux.ibm.com,
 	linux-s390@vger.kernel.org, namhyung@kernel.org, sumanthk@linux.ibm.com
 Content-Type: text/plain; charset="UTF-8"
 
-Switch to using evsel__match rather than comparing perf_event_attr
-values, this is robust on hybrid architectures.
-Ensure evsel->pmu matches the evsel->core.attr.
-Remove exclude bits that get set in other fallback attempts when
-switching the event.
-Log the event name with modifiers when switching the event on fallback.
+Allow the target to be const in callers.
 
 Signed-off-by: Ian Rogers <irogers@google.com>
 Tested-by: Thomas Richter <tmricht@linux.ibm.com>
 ---
- tools/perf/util/evsel.c | 45 ++++++++++++++++++++++++++++-------------
- tools/perf/util/evsel.h |  2 ++
- 2 files changed, 33 insertions(+), 14 deletions(-)
+ tools/perf/util/target.h | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
-index f59228c1a39e..bd14d9bbc91f 100644
---- a/tools/perf/util/evsel.c
-+++ b/tools/perf/util/evsel.c
-@@ -3785,25 +3785,42 @@ bool evsel__fallback(struct evsel *evsel, struct target *target, int err,
+diff --git a/tools/perf/util/target.h b/tools/perf/util/target.h
+index 84ebb9c940c6..bc2bff9c6842 100644
+--- a/tools/perf/util/target.h
++++ b/tools/perf/util/target.h
+@@ -49,22 +49,22 @@ uid_t parse_uid(const char *str);
+ 
+ int target__strerror(struct target *target, int errnum, char *buf, size_t buflen);
+ 
+-static inline bool target__has_task(struct target *target)
++static inline bool target__has_task(const struct target *target)
  {
- 	int paranoid;
+ 	return target->tid || target->pid;
+ }
  
--	if ((err == ENOENT || err == ENXIO || err == ENODEV) &&
--	    evsel->core.attr.type   == PERF_TYPE_HARDWARE &&
--	    evsel->core.attr.config == PERF_COUNT_HW_CPU_CYCLES) {
-+	if ((err == ENODEV || err == ENOENT || err == ENXIO) &&
-+	    evsel__match(evsel, HARDWARE, HW_CPU_CYCLES)) {
- 		/*
--		 * If it's cycles then fall back to hrtimer based cpu-clock sw
--		 * counter, which is always available even if no PMU support.
--		 *
--		 * PPC returns ENXIO until 2.6.37 (behavior changed with commit
--		 * b0a873e).
-+		 * If it's the legacy hardware cycles event fails then fall back
-+		 * to hrtimer based cpu-clock sw counter, which is always
-+		 * available even if no PMU support. PPC returned ENXIO rather
-+		 * than ENODEV or ENOENT until 2.6.37.
- 		 */
--		evsel->core.attr.type   = PERF_TYPE_SOFTWARE;
-+		evsel->pmu = perf_pmus__find_by_type(PERF_TYPE_SOFTWARE);
-+		assert(evsel->pmu); /* software is a "well-known" and can't fail PMU type. */
-+
-+		/* Configure the event. */
-+		evsel->core.attr.type = PERF_TYPE_SOFTWARE;
- 		evsel->core.attr.config = target__has_cpu(target)
- 			? PERF_COUNT_SW_CPU_CLOCK
- 			: PERF_COUNT_SW_TASK_CLOCK;
--		scnprintf(msg, msgsize,
--			"The cycles event is not supported, trying to fall back to %s",
--			target__has_cpu(target) ? "cpu-clock" : "task-clock");
-+		evsel->core.is_pmu_core = false;
-+
-+		/* Remove excludes for new event. */
-+		if (evsel->fallenback_eacces) {
-+			evsel->core.attr.exclude_kernel = 0;
-+			evsel->core.attr.exclude_hv     = 0;
-+			evsel->fallenback_eacces = false;
-+		}
-+		if (evsel->fallenback_eopnotsupp) {
-+			evsel->core.attr.exclude_guest = 0;
-+			evsel->fallenback_eopnotsupp = false;
-+		}
+-static inline bool target__has_cpu(struct target *target)
++static inline bool target__has_cpu(const struct target *target)
+ {
+ 	return target->system_wide || target->cpu_list;
+ }
  
-+		/* Name is recomputed by evsel__name. */
- 		zfree(&evsel->name);
-+
-+		/* Log message. */
-+		scnprintf(msg, msgsize,
-+			  "The cycles event is not supported, trying to fall back to %s",
-+			  evsel__name(evsel));
- 		return true;
- 	} else if (err == EACCES && !evsel->core.attr.exclude_kernel &&
- 		   (paranoid = perf_event_paranoid()) > 1) {
-@@ -3830,7 +3847,7 @@ bool evsel__fallback(struct evsel *evsel, struct target *target, int err,
- 			  " samples", paranoid);
- 		evsel->core.attr.exclude_kernel = 1;
- 		evsel->core.attr.exclude_hv     = 1;
--
-+		evsel->fallenback_eacces = true;
- 		return true;
- 	} else if (err == EOPNOTSUPP && !evsel->core.attr.exclude_guest &&
- 		   !evsel->exclude_GH) {
-@@ -3851,7 +3868,7 @@ bool evsel__fallback(struct evsel *evsel, struct target *target, int err,
- 		/* Apple M1 requires exclude_guest */
- 		scnprintf(msg, msgsize, "Trying to fall back to excluding guest samples");
- 		evsel->core.attr.exclude_guest = 1;
--
-+		evsel->fallenback_eopnotsupp = true;
- 		return true;
- 	}
- no_fallback:
-diff --git a/tools/perf/util/evsel.h b/tools/perf/util/evsel.h
-index a3d754c029a0..97f57fab28ce 100644
---- a/tools/perf/util/evsel.h
-+++ b/tools/perf/util/evsel.h
-@@ -124,6 +124,8 @@ struct evsel {
- 	bool			default_metricgroup; /* A member of the Default metricgroup */
- 	bool			default_show_events; /* If a default group member, show the event */
- 	bool			needs_uniquify;
-+	bool			fallenback_eacces;
-+	bool			fallenback_eopnotsupp;
- 	struct hashmap		*per_pkg_mask;
- 	int			err;
- 	int			script_output_type;
+-static inline bool target__none(struct target *target)
++static inline bool target__none(const struct target *target)
+ {
+ 	return !target__has_task(target) && !target__has_cpu(target);
+ }
+ 
+-static inline bool target__enable_on_exec(struct target *target)
++static inline bool target__enable_on_exec(const struct target *target)
+ {
+ 	/*
+ 	 * Normally enable_on_exec should be set if:
+@@ -75,12 +75,12 @@ static inline bool target__enable_on_exec(struct target *target)
+ 	return target__none(target) && !target->initial_delay;
+ }
+ 
+-static inline bool target__has_per_thread(struct target *target)
++static inline bool target__has_per_thread(const struct target *target)
+ {
+ 	return target->system_wide && target->per_thread;
+ }
+ 
+-static inline bool target__uses_dummy_map(struct target *target)
++static inline bool target__uses_dummy_map(const struct target *target)
+ {
+ 	bool use_dummy = false;
+ 
 -- 
 2.53.0.851.ga537e3e6e9-goog
 
