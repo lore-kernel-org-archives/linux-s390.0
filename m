@@ -1,56 +1,57 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77FAB363C73;
-	Wed, 18 Mar 2026 08:06:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BC8735C1B7;
+	Wed, 18 Mar 2026 08:06:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773821177; cv=none; b=D0S96GILU91Fmti3bukSVAMT65qBPyZRO4R5xxOhvEw4DbOadbRivaBPNgcNkAxd7lxcr1Hhf4rmx/eUDZMGck3Ov1tAIINrEK7VmDw2NiLi6IyVghAnG6uLdgBINlmMTqSsrGxDBuU/l5NtnTv0pJud/BWeYyHPLzGoDPu3ZMY=
+	t=1773821182; cv=none; b=cqkH6je4B+qRgPIXJrmWJGCJM04nnV/6corE+I45L7Les6Y+YvOMuwHhDS7aKa18ebbBSTctuIcU3jgJ+mVfcwLMO/Rya3b+0I00PO07ZNQMVl1SpThSXs5IfeKSAN/TGlFTT5AiqEvFp/BpQYHe+Ig+Cr0zwp+JG0+z7wIdfks=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773821177; c=relaxed/simple;
-	bh=PV/TBstO0wNsJNSuksdDnOmm8n6LY3KuTcp5tRvkMt8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=R6rxO8bc85qvVfpggtqCjaTC3+b7zcFTMgPKn5hmtWR/JbBSN/7hfEoIDmVLjO0mk4F3UHUTHSpyVE8YwtvegrmDtkiLegy08fEwMNKfhIKAPz0agrCr+PbLq2wrDxp5wQ2ICmCX5YVKQ5xOwBwV2kAiIajw4iiOaotMVpC27Ag=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tZUfMJXW; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1773821182; c=relaxed/simple;
+	bh=GfKSh/H35VPyhHXDKYT+xONf8KxW+VGuOpwlhVIlQJQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=EseNIpWDNTO28zOmUdneIwQBq4d6TIWm+NiO8Ib0djW76+AMjYKhS53GyescgivpkBo7tGVL/KN6lA0QziBzCANtYVS8sIiDXCCfANbJOrCnnHXUpW3HFoEA4TJtNdxuKvRScI0fJ+1Zbr9b0cWgaVh+D5vWTUvO6ktiXZVIhe8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BRR22ED0; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tZUfMJXW"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62HKEnO31466854;
-	Wed, 18 Mar 2026 08:06:12 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BRR22ED0"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62HJAkPX967663;
+	Wed, 18 Mar 2026 08:06:17 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=vr60p70BipR+G7lwRSHUso98AQBcebpTsNC+VwbKK
-	TI=; b=tZUfMJXWeZqUYdXE6qpCHe7gbPPNpkVSt4HdoYT/mn9BJC6BwNFxIVHn8
-	FhjStByf0eNNmnJOUxOv3WP0uYJmAX50shZ8nDknJAFh3/8irJFxoaI0Kn4Su8hS
-	tEqJkYhxzoHdd5VuiUVu7HhWcb58J5JckbEvw3ErVaZCgLax7IcTDiO+rkYcY356
-	1GbB1ixCYjErE0r/+e6kI45es8379jjQgedDyr2FAmEWjFpMll84cMrlUbZMoXxI
-	fOCfSHyl4hR9S4eSvIb+YTs89pA5q9xBKAfeL641PQACf3xgurAa+5CYCOsPAAtc
-	BYO1b1fxRRsXl1rK/sTDgH03wbhRw==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cx7vfk4d7-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=/N/wUX6qQf8u92BAG
+	ZvPpM7jC/6f4SkVuemvQDRaVpc=; b=BRR22ED0nzXtxKVxLIHozIMPctgihcy7J
+	0LkAKGRl2wI1Z3Yg7lpuoB0p3C+fd5Xf/pZqnjhY3w7LGNifiSeAIV03VEMLbGDA
+	t3wrUtU9+SCORFZbi9Ccl7deaah8GYxyGp37W8Rcegtg+uU8BXgNgOVEzL/QtdlN
+	tFL9/X0Ho7aKw/AnbExkQpPV83Dh7FJZVVyRQvCexvJJ87+zc8CpcJTJ9htlZ9yI
+	QYC0re7hhrsT4q7+Jo1tzjOBGdY5Ok9bTh4FBj+VWPd9rGuBcrEhJcHTIorBLnGU
+	y5+NMAlZvoIgOpHtjBF8PuFywFjcx8P1oqsJzgtl2ccvKcrBDTGCg==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvx3d08ya-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Mar 2026 08:06:12 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62I4cmFT013997;
-	Wed, 18 Mar 2026 08:06:11 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cwjcy5400-1
+	Wed, 18 Mar 2026 08:06:17 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62I630Ch032448;
+	Wed, 18 Mar 2026 08:06:16 GMT
+Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cwm7jvvfu-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Mar 2026 08:06:11 +0000
+	Wed, 18 Mar 2026 08:06:16 +0000
 Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62I869Kh4784906
+	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62I86EoO27919008
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 18 Mar 2026 08:06:09 GMT
+	Wed, 18 Mar 2026 08:06:14 GMT
 Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7550458064;
-	Wed, 18 Mar 2026 08:06:09 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 92A7558064;
+	Wed, 18 Mar 2026 08:06:14 +0000 (GMT)
 Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3F09C58061;
-	Wed, 18 Mar 2026 08:06:07 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 6CD3458063;
+	Wed, 18 Mar 2026 08:06:12 +0000 (GMT)
 Received: from li-d98989cc-2c66-11b2-a85c-93ab83b7dd53.ibm.com.com (unknown [9.111.93.190])
 	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 18 Mar 2026 08:06:06 +0000 (GMT)
+	Wed, 18 Mar 2026 08:06:12 +0000 (GMT)
 From: Christian Borntraeger <borntraeger@de.ibm.com>
 To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>,
@@ -60,10 +61,12 @@ Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [GIT PULL 0/6] KVM: s390: Fixes for 7.0
-Date: Wed, 18 Mar 2026 09:06:00 +0100
-Message-ID: <20260318080606.2450514-1-borntraeger@de.ibm.com>
+Subject: [GIT PULL 2/6] s390/mm: Add missing secure storage access fixups for donated memory
+Date: Wed, 18 Mar 2026 09:06:02 +0100
+Message-ID: <20260318080606.2450514-3-borntraeger@de.ibm.com>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260318080606.2450514-1-borntraeger@de.ibm.com>
+References: <20260318080606.2450514-1-borntraeger@de.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -72,83 +75,82 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: zL11FZ9VXFmuxtBZEMkLs6svMftpDjrs
-X-Authority-Analysis: v=2.4 cv=KajfcAYD c=1 sm=1 tr=0 ts=69ba5cf4 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Authority-Analysis: v=2.4 cv=arO/yCZV c=1 sm=1 tr=0 ts=69ba5cf9 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
- a=iiqISpq-karmuahrZ-0A:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE4MDA2NCBTYWx0ZWRfX0HZqSO6rmx34
- u7FzByyLy45SxkrvsjIvuVT+MFS1sSmqBJ7TRpsHPTrTIcekGrDmuaQGuWUGicjcE+pJzAorjWg
- FPPypPXe378PeatodXH1ND4CnTlOqiu1vfseqS9+O5IrVrPmqS3LYDFWIXQ5tJWl2eDOz4trQOM
- gptWhpm8jHg0zOC2eUa9F59kr8fSA5NU7adkzJDxf7Nu3u0Bxkb/UrwI+w+7Fo7zK4ZVyW8++Fo
- dTHVubil0K4l0VM49YJqVA/9U8rGtYXGvx0nNwb0xVd6CkBp8pIocTsn3AZ+X7L+sJOOXR7zMSZ
- DXahe/IRJgNhkuIXE6vFS1PQJq0Thl2rPkZ/jQYZ4nwfhtmEXq/MMOat/xUnQXIn6aRfRqWEQJu
- xsgP/WKnK8TIAlKWcGStHWlHa10BR9q/x9jAyRIS3P50r9ITPIozfwaj9vCH0DCb6VX0IIOK0dy
- mu873MJc2KBdl705PWA==
-X-Proofpoint-GUID: zL11FZ9VXFmuxtBZEMkLs6svMftpDjrs
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=LBl2HirfCwePz792YYsA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE4MDA2NCBTYWx0ZWRfX4f9EZZf7qONj
+ U2UlV4JVZEoZSKjst3DZtDbJ28uQkWka6uXRw8JUWfgwJzgmnv4lTVHgSdD9lYjlL7JgjyX1Yn3
+ Co8dS4bVo5twmdX7DC7tYGFb/UUfjcunnpHUgrkbwiCcR/nX/0f2x+l5upI00kBX7Tj8tiPRfVY
+ 2N2PJm1vtWD4M1fIxIjM86QUhaKzMoPmHgK4shLne7PjR+Hp3nvppm0dlbDCB7THH2UICRHVjXt
+ BJwaAS15ezp4bNmUcRjbjZlNBh3KVvWvH9Fb6fpSYDITYnah/iFqb9inVW3TMhHZZ/vCjpxPqL3
+ BqaKUcrO8o7rXnCvmGOseK5Y1iGrX/fkPdxBXi1BLabZaeUJU4OmtCxIdHgH6jQsH9PTjVLT4OD
+ nvBBfch6DLHklxtbZlCO+vQsHKtZqNd/0rnqinfjfbKpaDx5QhnxWeOYh+QZLhTlP+uB8W4w0vK
+ vELUoJegyPiZyaK6uRQ==
+X-Proofpoint-GUID: aUDSTRGtXdUhnfh5wLPnoCA0Ko0bJ6S3
+X-Proofpoint-ORIG-GUID: aUDSTRGtXdUhnfh5wLPnoCA0Ko0bJ6S3
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-03-17_05,2026-03-17_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 spamscore=0 malwarescore=0 clxscore=1015
- impostorscore=0 bulkscore=0 lowpriorityscore=0 priorityscore=1501
+ priorityscore=1501 spamscore=0 lowpriorityscore=0 impostorscore=0
+ adultscore=0 bulkscore=0 suspectscore=0 malwarescore=0 clxscore=1011
  phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
  definitions=main-2603180064
 
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
 
-Paolo,
+There are special cases where secure storage access exceptions happen
+in a kernel context for pages that don't have the PG_arch_1 bit
+set. That bit is set for non-exported guest secure storage (memory)
+but is absent on storage donated to the Ultravisor since the kernel
+isn't allowed to export donated pages.
 
-here are some fixes for kvm/master. Also with a first fix for the memory
-rework, but we know there will be some more before the 7.0 release. Stay
-tuned.
+Prior to this patch we would try to export the page by calling
+arch_make_folio_accessible() which would instantly return since the
+arch bit is absent signifying that the page was already exported and
+no further action is necessary. This leads to secure storage access
+exception loops which can never be resolved.
 
-The following changes since commit 5ee8dbf54602dc340d6235b1d6aa17c0f283f48c:
+With this patch we unconditionally try to export and if that fails we
+fixup.
 
-  Merge tag 'fsverity-for-linus' of git://git.kernel.org/pub/scm/fs/fsverity/linux (2026-03-05 11:52:03 -0800)
+Fixes: 084ea4d611a3 ("s390/mm: add (non)secure page access exceptions handlers")
+Reported-by: Heiko Carstens <hca@linux.ibm.com>
+Suggested-by: Heiko Carstens <hca@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Tested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+---
+ arch/s390/mm/fault.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-are available in the Git repository at:
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index a52aa7a99b6bf..191cc53caead3 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -441,10 +441,17 @@ void do_secure_storage_access(struct pt_regs *regs)
+ 		folio = phys_to_folio(addr);
+ 		if (unlikely(!folio_try_get(folio)))
+ 			return;
+-		rc = arch_make_folio_accessible(folio);
++		rc = uv_convert_from_secure(folio_to_phys(folio));
++		if (!rc)
++			clear_bit(PG_arch_1, &folio->flags.f);
+ 		folio_put(folio);
++		/*
++		 * There are some valid fixup types for kernel
++		 * accesses to donated secure memory. zeropad is one
++		 * of them.
++		 */
+ 		if (rc)
+-			BUG();
++			return handle_fault_error_nolock(regs, 0);
+ 	} else {
+ 		if (faulthandler_disabled())
+ 			return handle_fault_error_nolock(regs, 0);
+-- 
+2.53.0
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-7.0-1
-
-for you to fetch changes up to ab5119735e984f6b724ef1b699c01479949ed1de:
-
-  KVM: s390: vsie: Avoid injecting machine check on signal (2026-03-16 16:56:39 +0100)
-
-----------------------------------------------------------------
-KVM: s390: Fixes for 7.0
-
-- fix deadlock in new memory management
-- handle kernel faults on donated memory properly
-- fix bounds checking for irq routing + selftest
-- fix invalid machine checks + logging
-
-----------------------------------------------------------------
-Christian Borntraeger (2):
-      KVM: s390: log machine checks more aggressively
-      KVM: s390: vsie: Avoid injecting machine check on signal
-
-Claudio Imbrenda (1):
-      KVM: s390: Fix a deadlock
-
-Janosch Frank (3):
-      s390/mm: Add missing secure storage access fixups for donated memory
-      KVM: s390: Limit adapter indicator access to mapped page
-      KVM: s390: selftests: Add IRQ routing address offset tests
-
- arch/s390/include/asm/kvm_host.h               |  3 ++
- arch/s390/include/asm/stacktrace.h             |  2 +-
- arch/s390/kernel/asm-offsets.c                 |  2 +-
- arch/s390/kernel/entry.S                       |  4 +-
- arch/s390/kernel/nmi.c                         |  4 +-
- arch/s390/kvm/gaccess.c                        |  6 ++-
- arch/s390/kvm/interrupt.c                      | 18 +++++++
- arch/s390/kvm/kvm-s390.c                       | 16 +++---
- arch/s390/kvm/vsie.c                           |  8 +--
- arch/s390/mm/fault.c                           | 11 +++-
- tools/testing/selftests/kvm/Makefile.kvm       |  1 +
- tools/testing/selftests/kvm/s390/irq_routing.c | 75 ++++++++++++++++++++++++++
- 12 files changed, 129 insertions(+), 21 deletions(-)
- create mode 100644 tools/testing/selftests/kvm/s390/irq_routing.c
