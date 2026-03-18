@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1B533DB62A;
-	Wed, 18 Mar 2026 14:40:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75E6E3DC4C7;
+	Wed, 18 Mar 2026 14:42:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773844858; cv=none; b=nZQ/jopyEzpbiq7tWWaVe5u66VSHC51rB+VQUWofsxotJGz+fbcVXN+XkNXz9akVuHWMMKoOzdR9/MI526Y6vc3zYqcrO1GDNhfg4j2YbX71tIqPft24Hclk5bLIARfbWavKKdAsKZMBQm3kweYxLHbr7mQ/OyeiHXLkqtoxON8=
+	t=1773844958; cv=none; b=IMmnywadryJzNBoRBy72YEpuKNh9cPCjGIZCv73hYUelbsKAscUKNAeHLB6zDiHIEVPokpYn65OjhLUJ0W5WC+SV94vwqYskjwZpbIKWdm6hE2/dqelmR8SyQWMpfj+0u5ymS0U7uhUa1RkPsDo4Dd7s3ng3uaLAy4PpIuulvF4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773844858; c=relaxed/simple;
-	bh=QPe6wXvdAXZ1WsVrzW/I1Ea8rZgbDN6tCubJm34Z2So=;
+	s=arc-20240116; t=1773844958; c=relaxed/simple;
+	bh=o3Vqfegoze9voxgxHT8hNS1xVKI7tWzSZbrQEQde8dg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OmUOdMzDTBbdp2/SUG8PDRUWe80WdGY6WTrYrIJ55kGncC3z/sULkLzF4fmv0BxO+5S2oGpE/aB2YPaqBURGD4I2ALVrGCHfJpQdvPxPbLFPuK5q71z9DhunGb9CSCWKp3ZPuGHTDDiD6xZmnPoVwGjwKuntxsSUi+byJ8gcVIA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ngbdPPAx; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=WV3SWjLh8hj3fqw6Rog5l3UqmN/Dar+cHyQ32yPajsZl0m9zJ3wNm/bE0SPFqQwIEAH2WZ5R+BpQ9hOLsboLOCm0Mj40nn8q20vXrLsDYO3BW1Of7b1kmZ0/JfMDIPH1h9jgN65QigKQXoiRefFwYDoSRJ7J6Z2UPnaWHRzSDF8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Brfo6kwq; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ngbdPPAx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00F29C2BC87;
-	Wed, 18 Mar 2026 14:40:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Brfo6kwq"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84C9AC19421;
+	Wed, 18 Mar 2026 14:42:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773844858;
-	bh=QPe6wXvdAXZ1WsVrzW/I1Ea8rZgbDN6tCubJm34Z2So=;
+	s=k20201202; t=1773844958;
+	bh=o3Vqfegoze9voxgxHT8hNS1xVKI7tWzSZbrQEQde8dg=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=ngbdPPAxWjFSAiZvMouaeaCI+yNsZe/5Ks8XfwK23bbuJ+JwMl7yKx8wLk1AN3mNT
-	 TMgJMbhcekeQl6cZDmfGyt8APhVYsofGCMvUz7w5d4VSUqCEDHmA0FWwHmr908obc6
-	 Ca6I5aFuRQUI1yi4z3tpGvtErfL8rr5nKPdU3xQY3LcDhPRgWknRM3aO06irdxNWBm
-	 2TlgtJ0ipwGbJWHORKvyo/BwbM/qZgR2EjBk9w3ApuIqc+XrUbVpU21pCoE11NYSNq
-	 L1oljmENCVJ0s9YwPt8FVfCFDTEwjEsGgigo721LFalxDK0WN06IRwXdh82jFvxUSk
-	 UiZTvvvmHDYJQ==
-Message-ID: <4620167c-bcfe-414b-85f6-a5d28563b9af@kernel.org>
-Date: Wed, 18 Mar 2026 15:40:45 +0100
+	b=Brfo6kwquW7beM2eQzf+4i3bKNLjG6pitESp5wXj5j3/u4EMe+7TKVtW2kDQi189b
+	 ksXjz2HFO5CzN39JGKjLjl5Cz6xte8b16X4vUnfN0qyNtCbUwrFXww9J7LQMWeH4tV
+	 XxLcTaXa36dEp3pR9f5ACT1A0MF31tlrAm2w9z71HsxNJA+lhDEy4wTslHSjno+Jr+
+	 oUiTxttBYh7Xfz9WqNET76CHoWG5D2z7or5j/VSvQHP6oD/BMerKadPNSlJmAi/h8i
+	 4hOfDPVsWi8QZQJI/KS7nt3ccmQBTwTGOCza7YTyeCo9Fsju2QNwapLG0bKt1L3tAC
+	 KTJlXh0jWxX4A==
+Message-ID: <b706a64f-c142-419d-a151-931847cf8444@kernel.org>
+Date: Wed, 18 Mar 2026 15:42:24 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,8 +35,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 01/23] mm/vma: add vma_flags_empty(), vma_flags_and(),
- vma_flags_diff_pair()
+Subject: Re: [PATCH v2 03/23] mm/vma: add further vma_flags_t unions
 Content-Language: en-US
 To: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>,
  Andrew Morton <akpm@linux-foundation.org>
@@ -76,38 +75,24 @@ Cc: David Hildenbrand <david@kernel.org>,
  linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
  linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
 References: <cover.1773665966.git.ljs@kernel.org>
- <ede9b0f8a2e2dc72e7fbc1a0ddbeb513364c28a2.1773665966.git.ljs@kernel.org>
+ <a37030f2eefc90147e84f9273e325cc289cb9e1d.1773665966.git.ljs@kernel.org>
 From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
-In-Reply-To: <ede9b0f8a2e2dc72e7fbc1a0ddbeb513364c28a2.1773665966.git.ljs@kernel.org>
+In-Reply-To: <a37030f2eefc90147e84f9273e325cc289cb9e1d.1773665966.git.ljs@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 3/16/26 14:07, Lorenzo Stoakes (Oracle) wrote:
-> Firstly, add the ability to determine if VMA flags are empty, that is no
-> flags are set in a vma_flags_t value.
+> In order to utilise the new vma_flags_t type, we currently place it in
+> union with legacy vm_flags fields of type vm_flags_t to make the transition
+> smoother.
 > 
-> Next, add the ability to obtain the equivalent of the bitwise and of two
-> vma_flags_t values, via vma_flags_and().
-
-Nit: "two values" is vma_flags_and_mask(), while vma_flags_and() takes one
-value and list of flags, no?
-
-> Next, add the ability to obtain the difference between two sets of VMA
-> flags, that is the equivalent to the exclusive bitwise OR of the two sets
-> of flags, via vma_flags_diff_pair().
+> Add vma_flags_t union entries for mm->def_flags and vmg->vm_flags -
+> mm->def_vma_flags and vmg->vma_flags respectively.
 > 
-> vma_flags_xxx_mask() typically operates on a pointer to a vma_flags_t
-> value, which is assumed to be an lvalue of some kind (such as a field in a
-> struct or a stack variable) and an rvalue of some kind (typically a
-> constant set of VMA flags obtained e.g. via mk_vma_flags() or equivalent).
+> Once the conversion is complete, these will be replaced with vma_flags_t
+> entries alone.
 > 
-> However vma_flags_diff_pair() is intended to operate on two lvalues, so use
-> the _pair() suffix to make this clear.
-> 
-> Finally, update VMA userland tests to add these helpers.
-> 
-> We also port bitmap_xor() and __bitmap_xor() to the tools/ headers and
-> source to allow the tests to work with vma_flags_diff_pair().
+> Also update the VMA tests to reflect the change.
 > 
 > Signed-off-by: Lorenzo Stoakes (Oracle) <ljs@kernel.org>
 
