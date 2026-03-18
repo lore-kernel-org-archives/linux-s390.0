@@ -1,54 +1,54 @@
-Received: from mail-dl1-f74.google.com (mail-dl1-f74.google.com [74.125.82.74])
+Received: from mail-dl1-f73.google.com (mail-dl1-f73.google.com [74.125.82.73])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF4EE39280D
-	for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2026 23:46:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B20FA393DEB
+	for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2026 23:46:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773877574; cv=none; b=LJ5UI53mvZKfvHfoSiyZGQwVpb6sIBO5a9P3P/72YOw980NzGqsQZMufzM7hxeXPMmrrbT89lVtPd7ZiGhNfYEMiZ/YS9bwTPsrk5k83n5vOYDE0PyroFWlkhBUCwOBWbEEyA8OSzWzbVwenyOJ+sTAth94M0NspEHhAzI7lc8E=
+	t=1773877576; cv=none; b=h9pZvRtHM6oFGVeeOTbjSFB71zqdkP5x+ERGdrcaKzgaQcOf4EAAA4S0BD+j3B2BGFZxPQijC+uuxMtQMk/1LSGOjfQSKtyiUPnt+XcdDcTq13cRIQ/6RUc0q+CspqoluwhD9unI6HxFLgwlK8q+40r3qcJg1Ajc3D/Sp/tf8Jw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773877574; c=relaxed/simple;
-	bh=kXBUwxcNAtcUv23zqcN/GI6JSLZG7/N7o+6cy4C0vDw=;
+	s=arc-20240116; t=1773877576; c=relaxed/simple;
+	bh=hWlHUlY1KBEUso+82QhexCptJkL/cgS7z0Uij0nS5pg=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=ZhTwYDZAEZVQIN8jQmQsAk9r2n4Rj/Vp9wRCI7LqZiR7qmoKOxzkZRv36ZcWAztyTd9WGUVPVXNV5weJogMgq7R88NyzfAyS4E0OnA1A6+FjVwRS4y8LWz04G/Z6jjC5R7lJ81RtHf/8Kmq79hj2rIl5nx+btqTvlPcNOCceamc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=nlQirk1I; arc=none smtp.client-ip=74.125.82.74
+	 To:Cc:Content-Type; b=RLuRY6wwMRvAmgA/wGR5dW8QRFeVby1j1GklcXb/5Rwk4fnVI+IP8bZssj7qlKZLXmeI8lS7HNcdp5y67VFhCdf4Bv12Dq+BeaxJb8ESi3EzCSmO+W+9klbjpTISC1ZFEjODWIksRyrs2XRdgswM93LIhnwDMQU8s1k7ce6dIFc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=CrPe8RqG; arc=none smtp.client-ip=74.125.82.73
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="nlQirk1I"
-Received: by mail-dl1-f74.google.com with SMTP id a92af1059eb24-12776bebeb3so11974161c88.1
-        for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2026 16:46:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="CrPe8RqG"
+Received: by mail-dl1-f73.google.com with SMTP id a92af1059eb24-128d285d6c3so410813c88.1
+        for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2026 16:46:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1773877572; x=1774482372; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1773877574; x=1774482374; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=EJuo9PIukgRXPN5KtnhW8Qv30Kc+cVHS/OAPU6GYygI=;
-        b=nlQirk1In8q8faomGffNal0H0qOkxH7EGlG+qnVmxuW7tYm2EH86Ib/EtwMH3BT840
-         DpT4ZQLQ3OgNr9nkIc4Q9GpEGGgm5JhFjCARvlDYvQb4HfI1lBVaHgbX7334yRCaGXuj
-         eG9MnS2wKOc0Vbg8N9exQ2SLx6cAgxqZZIMAGCaOVq0mZ5iYCebgdyuV3KavRBsxPgyE
-         IB6sXWLh8bZxcDmOuZNONnG/LsDJnKjjWEZTfQM5AxPcKqtMEhE021AeEZIvwmpRobMA
-         o5xJ92y843euTQVKjmD1u3NczKTq7GY6IaGn+5ip6iSJr7S5LFbPel/PkF3vS+krMgGD
-         8pbg==
+        bh=nMY8e2nXchz3cJrJ3A0a9fKJa//sBNfOk9+ZFibdgVs=;
+        b=CrPe8RqGQjz0fHvMyzBYex/mYXEl5TtIbiTc8BrrR/OavjP850DLgDTeKc/Cneeq2L
+         3zfKOY36UVRC0cCJEznWLiiPcuG3N93+nUcMnCv8SofbVw1UGLckO+uvpUEiS12szoVn
+         D6cywXOcG52W/2T2aOIsrU5iDYnGcoig1zRBiTxnrg54m8tLyHEQCIQ3y9RDt3/lk4vM
+         4OpwyuGSlgLTE23OZ2kc0hzPH/sfSb3ycy46F0GzZGGWn4Aix8loXPLPDAusdiLCEuW1
+         MEw7FWBsti7o+fMpY1rE3q8P6LcW0PbiTvz25Vv1StpizWMfb3XLNb7d4MkivQsvvii7
+         n8Tw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773877572; x=1774482372;
+        d=1e100.net; s=20251104; t=1773877574; x=1774482374;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=EJuo9PIukgRXPN5KtnhW8Qv30Kc+cVHS/OAPU6GYygI=;
-        b=ZVYnNm3+jkL0r+90ER3kVlQDRx+fvkFjs1lpuX/xx1hWADW97hTpLidF1yZFVcS/6H
-         vGJpChE1NMKhNkDiyAgTXsuOSdyRWa/omuDiCYZjUFBHooKb8xAhQJCQVHjjW6KD7tpd
-         DhZLdNp4uBaraCsV8nDaulDuDXM7m2aQBL2MbB6U1ouakroqQvEE+RsdpdyEwaK3HHQr
-         R+AuvmyrJ7z3busiZJFzOIsdIPULNWkZHQK/2tPmsesa7IhlEdcJa8qEHHFkOU5bPGSq
-         5iB8rtByRFt1imacuGXOuBmjjpp3jP99E66Md77BPF8bL+GHZ+DNmkq97gwHSGwBF8Zq
-         Lo8A==
-X-Forwarded-Encrypted: i=1; AJvYcCX33IumBHNSjh37O6z9nz+bWbx4KgCDF4Zz8s051LaRpZr6ZMJVnIzRaYTtL2KdyqndRAPIm8HgydcO@vger.kernel.org
-X-Gm-Message-State: AOJu0YzKLI1/jEZNOKHtSOq7AVw1rUNkE3EqmOvO6jcM4rngoeqjTltK
-	nB0rbb9rdgUozwvWM6PwR9jKbUK7zETUDs2ybbowg7V7gkRkSi8rN/U75hZVEbF1op28GspS8Jl
-	M+hKFhHEfQQ==
-X-Received: from dlbsn8.prod.google.com ([2002:a05:7022:b908:b0:128:d8ae:727f])
- (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7022:90e:b0:127:9b6b:2b08
- with SMTP id a92af1059eb24-129a07e66dfmr2829811c88.6.1773877571789; Wed, 18
- Mar 2026 16:46:11 -0700 (PDT)
-Date: Wed, 18 Mar 2026 16:45:59 -0700
+        bh=nMY8e2nXchz3cJrJ3A0a9fKJa//sBNfOk9+ZFibdgVs=;
+        b=CrKcHpd9PCmRVk6bKrIdRgmPSMUS6th7ccsGxdfEJzRXPbKHIeX70kuQQyZEd210/m
+         pyF4gSKJNGtjWUcyzNepkX1dyygeGiN18sbZQfgpD0hKsQ1Of9rq5cIAVj5RTz/o/2sP
+         bMIRPKr7U46xqYfcQ7qHJamwWhubePsjsMApX89RqmM1W8liwXgOWsvH3c7NPmYYYnc/
+         sqlzqhY5uecJMdTxAnAigSzJD09olRk0cL73E7AjaUHxqrFYNeHNRqnVBcO1qRrlSATo
+         GZqZJzZ6SWQTONZ7OEGvocsaPGr8A7xFcOtovockbIHAly6OOtr1m4BZZ1EnzXGpj3Mv
+         C8Hw==
+X-Forwarded-Encrypted: i=1; AJvYcCU4kuV4oxMTM5UwZ2hi99bOe7aBHhi871rudO8YUhMBioxRjZ0iyn8/WC5virtL68d9QIC7Ay4W0u9f@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw7eMG7S7bKIjPx4ijMlhpMHE5SwU5VMCHPcXZEB0ZFMZoARqJw
+	73B6yuhEfxcNlP7NwGVsZoryxXite4LNDT7tZVNHa6qDQO5argmb3NKn1vNaIakmpuDIs/zAcCz
+	BWWY+GB7hzg==
+X-Received: from dlbur23.prod.google.com ([2002:a05:7022:ea57:b0:128:cd31:49b])
+ (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:701b:420a:20b0:12a:6a64:81f1
+ with SMTP id a92af1059eb24-12a6a648484mr155494c88.5.1773877573748; Wed, 18
+ Mar 2026 16:46:13 -0700 (PDT)
+Date: Wed, 18 Mar 2026 16:46:00 -0700
 In-Reply-To: <20260318234600.730340-1-irogers@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -58,8 +58,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20260318175808.582009-1-irogers@google.com> <20260318234600.730340-1-irogers@google.com>
 X-Mailer: git-send-email 2.53.0.851.ga537e3e6e9-goog
-Message-ID: <20260318234600.730340-5-irogers@google.com>
-Subject: [PATCH v8 4/5] perf callchain: Refactor callchain option parsing
+Message-ID: <20260318234600.730340-6-irogers@google.com>
+Subject: [PATCH v8 5/5] perf evlist: Improve default event for s390
 From: Ian Rogers <irogers@google.com>
 To: acme@kernel.org, namhyung@kernel.org, tmricht@linux.ibm.com
 Cc: irogers@google.com, agordeev@linux.ibm.com, gor@linux.ibm.com, 
@@ -68,371 +68,340 @@ Cc: irogers@google.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
 	sumanthk@linux.ibm.com
 Content-Type: text/plain; charset="UTF-8"
 
-record_opts__parse_callchain is shared by builtin-record and
-builtin-trace, it is declared in callchain.h. Move the declaration to
-callchain.c for consistency with the header. In other cases make the
-option callback a small static stub that then calls into callchain.c.
+Frame pointer callchains are not supported on s390 and dwarf
+callchains are only supported on software events.
 
-Make the no argument '-g' callchain option just a short-cut for
-'--call-graph fp' so that there is consistency in how the arguments
-are handled. This requires the const char* string to be strdup-ed in
-__parse_callchain_report_opt. For consistency also make
-parse_callchain_record use strdup and remove some unnecessary
-casts. Also, be more explicit about the '-g' behavior if there is a
-.perfconfig file setting.
+Switch the default event from the hardware 'cycles' event to the
+software 'cpu-clock' or 'task-clock' on s390 if callchains are
+enabled. Move some of the target initialization earlier in builtin-top
+and builtin-record, so it is ready for use by evlist__new_default.
+
+If frame pointer callchains are requested on s390 show a
+warning. Modify the '-g' option of `perf top` and `perf record` to
+default to dwarf callchains on s390.
 
 Signed-off-by: Ian Rogers <irogers@google.com>
 Tested-by: Thomas Richter <tmricht@linux.ibm.com>
 ---
- tools/perf/builtin-record.c | 65 ++++++++-------------------------
- tools/perf/builtin-top.c    | 25 +++++++++----
- tools/perf/builtin-trace.c  |  9 ++++-
- tools/perf/util/callchain.c | 73 ++++++++++++++++++++++++++++++-------
- tools/perf/util/callchain.h | 12 ++----
- 5 files changed, 104 insertions(+), 80 deletions(-)
+ tools/perf/builtin-record.c      | 18 +++++++++++-------
+ tools/perf/builtin-top.c         | 23 ++++++++++++-----------
+ tools/perf/tests/event_update.c  |  4 +++-
+ tools/perf/tests/expand-cgroup.c |  4 +++-
+ tools/perf/tests/perf-record.c   |  7 +++++--
+ tools/perf/tests/topology.c      |  4 +++-
+ tools/perf/util/evlist.c         | 32 +++++++++++++++++++++-----------
+ tools/perf/util/evlist.h         |  2 +-
+ tools/perf/util/evsel.c          |  5 +++++
+ 9 files changed, 64 insertions(+), 35 deletions(-)
 
 diff --git a/tools/perf/builtin-record.c b/tools/perf/builtin-record.c
-index 40917a0be238..59b8125d1b13 100644
+index 59b8125d1b13..3276ffdc3141 100644
 --- a/tools/perf/builtin-record.c
 +++ b/tools/perf/builtin-record.c
-@@ -2975,65 +2975,30 @@ static int __cmd_record(struct record *rec, int argc, const char **argv)
- 	return status;
+@@ -55,6 +55,7 @@
+ #include "asm/bug.h"
+ #include "perf.h"
+ #include "cputopo.h"
++#include "dwarf-regs.h"
+ 
+ #include <errno.h>
+ #include <inttypes.h>
+@@ -2995,7 +2996,9 @@ static int record_callchain_opt(const struct option *opt,
+ 		return 0;
+ 	}
+ 
+-	return record_opts__parse_callchain(opt->value, &callchain_param, "fp", unset);
++	return record_opts__parse_callchain(opt->value, &callchain_param,
++					    EM_HOST != EM_S390 ? "fp" : "dwarf",
++					    unset);
  }
  
--static void callchain_debug(struct callchain_param *callchain)
--{
--	static const char *str[CALLCHAIN_MAX] = { "NONE", "FP", "DWARF", "LBR" };
--
--	pr_debug("callchain: type %s\n", str[callchain->record_mode]);
--
--	if (callchain->record_mode == CALLCHAIN_DWARF)
--		pr_debug("callchain: stack dump size %d\n",
--			 callchain->dump_size);
--}
--
--int record_opts__parse_callchain(struct record_opts *record,
--				 struct callchain_param *callchain,
--				 const char *arg, bool unset)
--{
--	int ret;
--	callchain->enabled = !unset;
--
--	/* --no-call-graph */
--	if (unset) {
--		callchain->record_mode = CALLCHAIN_NONE;
--		pr_debug("callchain: disabled\n");
--		return 0;
--	}
--
--	ret = parse_callchain_record_opt(arg, callchain);
--	if (!ret) {
--		/* Enable data address sampling for DWARF unwind. */
--		if (callchain->record_mode == CALLCHAIN_DWARF &&
--		    !record->record_data_mmap_set)
--			record->record_data_mmap = true;
--		callchain_debug(callchain);
--	}
--
--	return ret;
--}
--
--int record_parse_callchain_opt(const struct option *opt,
-+static int record_parse_callchain_opt(const struct option *opt,
- 			       const char *arg,
- 			       int unset)
- {
- 	return record_opts__parse_callchain(opt->value, &callchain_param, arg, unset);
- }
  
--int record_callchain_opt(const struct option *opt,
--			 const char *arg __maybe_unused,
--			 int unset __maybe_unused)
-+static int record_callchain_opt(const struct option *opt,
-+				const char *arg __maybe_unused,
-+				int unset)
- {
--	struct callchain_param *callchain = opt->value;
--
--	callchain->enabled = true;
--
--	if (callchain->record_mode == CALLCHAIN_NONE)
--		callchain->record_mode = CALLCHAIN_FP;
+@@ -4095,8 +4098,11 @@ int cmd_record(int argc, const char **argv)
+ 
+ 	perf_debuginfod_setup(&record.debuginfod);
+ 
+-	/* Make system wide (-a) the default target. */
+-	if (!argc && target__none(&rec->opts.target))
 +	/*
-+	 * The -g option only sets the callchain if not already configured by
-+	 * .perfconfig. It does, however, enable it.
++	 * Use system wide (-a) for the default target (ie. when no
++	 * workload). User ID filtering also implies system-wide.
 +	 */
-+	if (callchain_param.record_mode != CALLCHAIN_NONE) {
-+		callchain_param.enabled = true;
-+		return 0;
-+	}
++	if ((!argc && target__none(&rec->opts.target)) || rec->uid_str)
+ 		rec->opts.target.system_wide = true;
  
--	callchain_debug(callchain);
--	return 0;
-+	return record_opts__parse_callchain(opt->value, &callchain_param, "fp", unset);
- }
+ 	if (nr_cgroups && !rec->opts.target.system_wide) {
+@@ -4274,7 +4280,8 @@ int cmd_record(int argc, const char **argv)
+ 		record.opts.tail_synthesize = true;
  
-+
- static int perf_record_config(const char *var, const char *value, void *cb)
- {
- 	struct record *rec = cb;
-@@ -3525,7 +3490,7 @@ static struct option __record_options[] = {
- 	OPT_CALLBACK(0, "mmap-flush", &record.opts, "number",
- 		     "Minimal number of bytes that is extracted from mmap data pages (default: 1)",
- 		     record__mmap_flush_parse),
--	OPT_CALLBACK_NOOPT('g', NULL, &callchain_param,
-+	OPT_CALLBACK_NOOPT('g', NULL, &record.opts,
- 			   NULL, "enables call-graph recording" ,
- 			   &record_callchain_opt),
- 	OPT_CALLBACK(0, "call-graph", &record.opts,
+ 	if (rec->evlist->core.nr_entries == 0) {
+-		struct evlist *def_evlist = evlist__new_default();
++		struct evlist *def_evlist = evlist__new_default(&rec->opts.target,
++								callchain_param.enabled);
+ 
+ 		if (!def_evlist)
+ 			goto out;
+@@ -4303,9 +4310,6 @@ int cmd_record(int argc, const char **argv)
+ 		err = parse_uid_filter(rec->evlist, uid);
+ 		if (err)
+ 			goto out;
+-
+-		/* User ID filtering implies system wide. */
+-		rec->opts.target.system_wide = true;
+ 	}
+ 
+ 	/* Enable ignoring missing threads when -p option is defined. */
 diff --git a/tools/perf/builtin-top.c b/tools/perf/builtin-top.c
-index 710604c4f6f6..b6726f4dffb3 100644
+index b6726f4dffb3..37950efb28ac 100644
 --- a/tools/perf/builtin-top.c
 +++ b/tools/perf/builtin-top.c
-@@ -1386,13 +1386,6 @@ static int __cmd_top(struct perf_top *top)
- 	return ret;
- }
+@@ -56,6 +56,7 @@
+ #include "util/debug.h"
+ #include "util/ordered-events.h"
+ #include "util/pfm.h"
++#include "dwarf-regs.h"
  
--static int
--callchain_opt(const struct option *opt, const char *arg, int unset)
--{
--	symbol_conf.use_callchain = true;
--	return record_callchain_opt(opt, arg, unset);
--}
--
- static int
- parse_callchain_opt(const struct option *opt, const char *arg, int unset)
- {
-@@ -1413,6 +1406,24 @@ parse_callchain_opt(const struct option *opt, const char *arg, int unset)
- 	return parse_callchain_top_opt(arg);
- }
- 
-+static int
-+callchain_opt(const struct option *opt, const char *arg __maybe_unused, int unset)
-+{
-+	struct callchain_param *callchain = opt->value;
-+
-+	/*
-+	 * The -g option only sets the callchain if not already configured by
-+	 * .perfconfig. It does, however, enable it.
-+	 */
-+	if (callchain->record_mode != CALLCHAIN_NONE) {
-+		callchain->enabled = true;
-+		return 0;
-+	}
-+
-+	return parse_callchain_opt(opt, "fp", unset);
-+}
-+
-+
- static int perf_top_config(const char *var, const char *value, void *cb __maybe_unused)
- {
- 	if (!strcmp(var, "top.call-graph")) {
-diff --git a/tools/perf/builtin-trace.c b/tools/perf/builtin-trace.c
-index 1c38f3d16a31..f487fbaa0ad6 100644
---- a/tools/perf/builtin-trace.c
-+++ b/tools/perf/builtin-trace.c
-@@ -5300,6 +5300,13 @@ static int trace__parse_summary_mode(const struct option *opt, const char *str,
- 	return 0;
- }
- 
-+static int trace_parse_callchain_opt(const struct option *opt,
-+				     const char *arg,
-+				     int unset)
-+{
-+	return record_opts__parse_callchain(opt->value, &callchain_param, arg, unset);
-+}
-+
- static int trace__config(const char *var, const char *value, void *arg)
- {
- 	struct trace *trace = arg;
-@@ -5447,7 +5454,7 @@ int cmd_trace(int argc, const char **argv)
- 	OPT_BOOLEAN('f', "force", &trace.force, "don't complain, do it"),
- 	OPT_CALLBACK(0, "call-graph", &trace.opts,
- 		     "record_mode[,record_size]", record_callchain_help,
--		     &record_parse_callchain_opt),
-+		     &trace_parse_callchain_opt),
- 	OPT_BOOLEAN(0, "libtraceevent_print", &trace.libtraceevent_print,
- 		    "Use libtraceevent to print the tracepoint arguments."),
- 	OPT_BOOLEAN(0, "kernel-syscall-graph", &trace.kernel_syscallchains,
-diff --git a/tools/perf/util/callchain.c b/tools/perf/util/callchain.c
-index 8ff0898799ee..f879b84f8ff9 100644
---- a/tools/perf/util/callchain.c
-+++ b/tools/perf/util/callchain.c
-@@ -30,6 +30,7 @@
- #include "map.h"
- #include "callchain.h"
- #include "branch.h"
-+#include "record.h"
- #include "symbol.h"
- #include "thread.h"
- #include "util.h"
-@@ -170,7 +171,7 @@ static int get_stack_size(const char *str, unsigned long *_size)
- static int
- __parse_callchain_report_opt(const char *arg, bool allow_record_opt)
- {
--	char *tok;
-+	char *tok, *arg_copy;
- 	char *endptr, *saveptr = NULL;
- 	bool minpcnt_set = false;
- 	bool record_opt_set = false;
-@@ -182,12 +183,17 @@ __parse_callchain_report_opt(const char *arg, bool allow_record_opt)
- 	if (!arg)
+ #include <assert.h>
+ #include <elf.h>
+@@ -1420,7 +1421,7 @@ callchain_opt(const struct option *opt, const char *arg __maybe_unused, int unse
  		return 0;
- 
--	while ((tok = strtok_r((char *)arg, ",", &saveptr)) != NULL) {
-+	arg_copy = strdup(arg);
-+	if (!arg_copy)
-+		return -ENOMEM;
-+
-+	tok = strtok_r(arg_copy, ",", &saveptr);
-+	while (tok) {
- 		if (!strncmp(tok, "none", strlen(tok))) {
- 			callchain_param.mode = CHAIN_NONE;
- 			callchain_param.enabled = false;
- 			symbol_conf.use_callchain = false;
--			return 0;
-+			goto out;
- 		}
- 
- 		if (!parse_callchain_mode(tok) ||
-@@ -214,30 +220,35 @@ __parse_callchain_report_opt(const char *arg, bool allow_record_opt)
- 			unsigned long size = 0;
- 
- 			if (get_stack_size(tok, &size) < 0)
--				return -1;
-+				goto err_out;
- 			callchain_param.dump_size = size;
- 			try_stack_size = false;
- 		} else if (!minpcnt_set) {
- 			/* try to get the min percent */
- 			callchain_param.min_percent = strtod(tok, &endptr);
- 			if (tok == endptr)
--				return -1;
-+				goto err_out;
- 			minpcnt_set = true;
- 		} else {
- 			/* try print limit at last */
- 			callchain_param.print_limit = strtoul(tok, &endptr, 0);
- 			if (tok == endptr)
--				return -1;
-+				goto err_out;
- 		}
- next:
--		arg = NULL;
-+		tok = strtok_r(NULL, ",", &saveptr);
  	}
  
- 	if (callchain_register_param(&callchain_param) < 0) {
- 		pr_err("Can't register callchain params\n");
--		return -1;
-+		goto err_out;
- 	}
-+out:
-+	free(arg_copy);
- 	return 0;
-+err_out:
-+	free(arg_copy);
-+	return -1;
+-	return parse_callchain_opt(opt, "fp", unset);
++	return parse_callchain_opt(opt, EM_HOST != EM_S390 ? "fp" : "dwarf", unset);
  }
  
- int parse_callchain_report_opt(const char *arg)
-@@ -257,14 +268,12 @@ int parse_callchain_record(const char *arg, struct callchain_param *param)
- 	int ret = -1;
  
- 	/* We need buffer that we know we can write to. */
--	buf = malloc(strlen(arg) + 1);
-+	buf = strdup(arg);
- 	if (!buf)
- 		return -ENOMEM;
+@@ -1705,8 +1706,17 @@ int cmd_top(int argc, const char **argv)
+ 	if (annotate_check_args() < 0)
+ 		goto out_delete_evlist;
  
--	strcpy(buf, arg);
++	status = target__validate(target);
++	if (status) {
++		target__strerror(target, status, errbuf, BUFSIZ);
++		ui__warning("%s\n", errbuf);
++	}
++
++	if (target__none(target))
++		target->system_wide = true;
++
+ 	if (!top.evlist->core.nr_entries) {
+-		struct evlist *def_evlist = evlist__new_default();
++		struct evlist *def_evlist = evlist__new_default(target, callchain_param.enabled);
+ 
+ 		if (!def_evlist)
+ 			goto out_delete_evlist;
+@@ -1799,12 +1809,6 @@ int cmd_top(int argc, const char **argv)
+ 		goto out_delete_evlist;
+ 	}
+ 
+-	status = target__validate(target);
+-	if (status) {
+-		target__strerror(target, status, errbuf, BUFSIZ);
+-		ui__warning("%s\n", errbuf);
+-	}
 -
--	tok = strtok_r((char *)buf, ",", &saveptr);
--	name = tok ? : (char *)buf;
-+	tok = strtok_r(buf, ",", &saveptr);
-+	name = tok ? : buf;
+ 	if (top.uid_str) {
+ 		uid_t uid = parse_uid(top.uid_str);
  
- 	do {
- 		/* Framepointer style */
-@@ -328,6 +337,44 @@ int parse_callchain_record(const char *arg, struct callchain_param *param)
- 	return ret;
- }
+@@ -1818,9 +1822,6 @@ int cmd_top(int argc, const char **argv)
+ 			goto out_delete_evlist;
+ 	}
  
-+static void callchain_debug(const struct callchain_param *callchain)
-+{
-+	static const char *str[CALLCHAIN_MAX] = { "NONE", "FP", "DWARF", "LBR" };
-+
-+	pr_debug("callchain: type %s\n", str[callchain->record_mode]);
-+
-+	if (callchain->record_mode == CALLCHAIN_DWARF)
-+		pr_debug("callchain: stack dump size %d\n",
-+			 callchain->dump_size);
-+}
-+
-+int record_opts__parse_callchain(struct record_opts *record,
-+				 struct callchain_param *callchain,
-+				 const char *arg, bool unset)
-+{
-+	int ret;
-+
-+	callchain->enabled = !unset;
-+
-+	/* --no-call-graph */
-+	if (unset) {
-+		callchain->record_mode = CALLCHAIN_NONE;
-+		pr_debug("callchain: disabled\n");
-+		return 0;
-+	}
-+
-+	ret = parse_callchain_record_opt(arg, callchain);
-+	if (!ret) {
-+		/* Enable data address sampling for DWARF unwind. */
-+		if (callchain->record_mode == CALLCHAIN_DWARF &&
-+		    !record->record_data_mmap_set)
-+			record->record_data_mmap = true;
-+		callchain_debug(callchain);
-+	}
-+
-+	return ret;
-+}
-+
- int perf_callchain_config(const char *var, const char *value)
+-	if (target__none(target))
+-		target->system_wide = true;
+-
+ 	if (evlist__create_maps(top.evlist, target) < 0) {
+ 		ui__error("Couldn't create thread/CPU maps: %s\n",
+ 			  errno == ENOENT ? "No such process" : str_error_r(errno, errbuf, sizeof(errbuf)));
+diff --git a/tools/perf/tests/event_update.c b/tools/perf/tests/event_update.c
+index cb9e6de2e033..facc65e29f20 100644
+--- a/tools/perf/tests/event_update.c
++++ b/tools/perf/tests/event_update.c
+@@ -8,6 +8,7 @@
+ #include "header.h"
+ #include "machine.h"
+ #include "util/synthetic-events.h"
++#include "target.h"
+ #include "tool.h"
+ #include "tests.h"
+ #include "debug.h"
+@@ -81,7 +82,8 @@ static int test__event_update(struct test_suite *test __maybe_unused, int subtes
  {
- 	char *endptr;
-diff --git a/tools/perf/util/callchain.h b/tools/perf/util/callchain.h
-index df54ddb8c0cb..06d463ccc7a0 100644
---- a/tools/perf/util/callchain.h
-+++ b/tools/perf/util/callchain.h
-@@ -9,11 +9,13 @@
+ 	struct evsel *evsel;
+ 	struct event_name tmp;
+-	struct evlist *evlist = evlist__new_default();
++	struct target target = {};
++	struct evlist *evlist = evlist__new_default(&target, /*sample_callchains=*/false);
  
- struct addr_location;
- struct evsel;
-+struct hist_entry;
-+struct hists;
- struct ip_callchain;
- struct map;
- struct perf_sample;
-+struct record_opts;
- struct thread;
--struct hists;
+ 	TEST_ASSERT_VAL("failed to get evlist", evlist);
  
- #define HELP_PAD "\t\t\t\t"
+diff --git a/tools/perf/tests/expand-cgroup.c b/tools/perf/tests/expand-cgroup.c
+index c7b32a220ca1..dd547f2f77cc 100644
+--- a/tools/perf/tests/expand-cgroup.c
++++ b/tools/perf/tests/expand-cgroup.c
+@@ -8,6 +8,7 @@
+ #include "parse-events.h"
+ #include "pmu-events/pmu-events.h"
+ #include "pfm.h"
++#include "target.h"
+ #include <subcmd/parse-options.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+@@ -99,7 +100,8 @@ out:	for (i = 0; i < nr_events; i++)
+ static int expand_default_events(void)
+ {
+ 	int ret;
+-	struct evlist *evlist = evlist__new_default();
++	struct target target = {};
++	struct evlist *evlist = evlist__new_default(&target, /*sample_callchains=*/false);
  
-@@ -237,14 +239,6 @@ struct callchain_cursor *get_tls_callchain_cursor(void);
- int callchain_cursor__copy(struct callchain_cursor *dst,
- 			   struct callchain_cursor *src);
+ 	TEST_ASSERT_VAL("failed to get evlist", evlist);
  
--struct option;
--struct hist_entry;
+diff --git a/tools/perf/tests/perf-record.c b/tools/perf/tests/perf-record.c
+index efbd9cd60c63..c6e31ab8a6b8 100644
+--- a/tools/perf/tests/perf-record.c
++++ b/tools/perf/tests/perf-record.c
+@@ -84,8 +84,11 @@ static int test__PERF_RECORD(struct test_suite *test __maybe_unused, int subtest
+ 	CPU_ZERO_S(cpu_mask_size, cpu_mask);
+ 
+ 	perf_sample__init(&sample, /*all=*/false);
+-	if (evlist == NULL) /* Fallback for kernels lacking PERF_COUNT_SW_DUMMY */
+-		evlist = evlist__new_default();
++	if (evlist == NULL) { /* Fallback for kernels lacking PERF_COUNT_SW_DUMMY */
++		struct target target = {};
++
++		evlist = evlist__new_default(&target, /*sample_callchains=*/false);
++	}
+ 
+ 	if (evlist == NULL) {
+ 		pr_debug("Not enough memory to create evlist\n");
+diff --git a/tools/perf/tests/topology.c b/tools/perf/tests/topology.c
+index ec01150d208d..a34a7ab19a80 100644
+--- a/tools/perf/tests/topology.c
++++ b/tools/perf/tests/topology.c
+@@ -9,6 +9,7 @@
+ #include "evlist.h"
+ #include "debug.h"
+ #include "pmus.h"
++#include "target.h"
+ #include <linux/err.h>
+ 
+ #define TEMPL "/tmp/perf-test-XXXXXX"
+@@ -37,11 +38,12 @@ static int session_write_header(char *path)
+ 		.path = path,
+ 		.mode = PERF_DATA_MODE_WRITE,
+ 	};
++	struct target target = {};
+ 
+ 	session = perf_session__new(&data, NULL);
+ 	TEST_ASSERT_VAL("can't get session", !IS_ERR(session));
+ 
+-	session->evlist = evlist__new_default();
++	session->evlist = evlist__new_default(&target, /*sample_callchains=*/false);
+ 	TEST_ASSERT_VAL("can't get evlist", session->evlist);
+ 	session->evlist->session = session;
+ 
+diff --git a/tools/perf/util/evlist.c b/tools/perf/util/evlist.c
+index 591bdf0b3e2a..c702741a9173 100644
+--- a/tools/perf/util/evlist.c
++++ b/tools/perf/util/evlist.c
+@@ -13,6 +13,7 @@
+ #include "util/mmap.h"
+ #include "thread_map.h"
+ #include "target.h"
++#include "dwarf-regs.h"
+ #include "evlist.h"
+ #include "evsel.h"
+ #include "record.h"
+@@ -98,38 +99,47 @@ struct evlist *evlist__new(void)
+ 	return evlist;
+ }
+ 
+-struct evlist *evlist__new_default(void)
++struct evlist *evlist__new_default(const struct target *target, bool sample_callchains)
+ {
+ 	struct evlist *evlist = evlist__new();
+ 	bool can_profile_kernel;
+ 	struct perf_pmu *pmu = NULL;
++	struct evsel *evsel;
++	char buf[256];
++	int err;
+ 
+ 	if (!evlist)
+ 		return NULL;
+ 
+ 	can_profile_kernel = perf_event_paranoid_check(1);
+ 
+-	while ((pmu = perf_pmus__scan_core(pmu)) != NULL) {
+-		char buf[256];
+-		int err;
 -
--int record_parse_callchain_opt(const struct option *opt, const char *arg, int unset);
--int record_callchain_opt(const struct option *opt, const char *arg, int unset);
+-		snprintf(buf, sizeof(buf), "%s/cycles/%s", pmu->name,
++	if (EM_HOST == EM_S390 && sample_callchains) {
++		snprintf(buf, sizeof(buf), "software/%s/%s",
++			 target__has_cpu(target) ? "cpu-clock" : "task-clock",
+ 			 can_profile_kernel ? "P" : "Pu");
+ 		err = parse_event(evlist, buf);
+-		if (err) {
+-			evlist__delete(evlist);
+-			return NULL;
++		if (err)
++			goto out_err;
++	} else {
++		while ((pmu = perf_pmus__scan_core(pmu)) != NULL) {
++			snprintf(buf, sizeof(buf), "%s/cycles/%s", pmu->name,
++				can_profile_kernel ? "P" : "Pu");
++			err = parse_event(evlist, buf);
++			if (err)
++				goto out_err;
+ 		}
+ 	}
+ 
++	/* If there is only 1 event a sample identifier isn't necessary. */
+ 	if (evlist->core.nr_entries > 1) {
+-		struct evsel *evsel;
 -
--struct record_opts;
--
- int record_opts__parse_callchain(struct record_opts *record,
- 				 struct callchain_param *callchain,
- 				 const char *arg, bool unset);
+ 		evlist__for_each_entry(evlist, evsel)
+ 			evsel__set_sample_id(evsel, /*can_sample_identifier=*/false);
+ 	}
+ 
+ 	return evlist;
++out_err:
++	evlist__delete(evlist);
++	return NULL;
+ }
+ 
+ struct evlist *evlist__new_dummy(void)
+diff --git a/tools/perf/util/evlist.h b/tools/perf/util/evlist.h
+index d17c3b57a409..e507f5f20ef6 100644
+--- a/tools/perf/util/evlist.h
++++ b/tools/perf/util/evlist.h
+@@ -104,7 +104,7 @@ struct evsel_str_handler {
+ };
+ 
+ struct evlist *evlist__new(void);
+-struct evlist *evlist__new_default(void);
++struct evlist *evlist__new_default(const struct target *target, bool sample_callchains);
+ struct evlist *evlist__new_dummy(void);
+ void evlist__init(struct evlist *evlist, struct perf_cpu_map *cpus,
+ 		  struct perf_thread_map *threads);
+diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
+index 54c8922a8e47..5a294595a677 100644
+--- a/tools/perf/util/evsel.c
++++ b/tools/perf/util/evsel.c
+@@ -1021,6 +1021,11 @@ static void __evsel__config_callchain(struct evsel *evsel, const struct record_o
+ 	bool function = evsel__is_function_event(evsel);
+ 	struct perf_event_attr *attr = &evsel->core.attr;
+ 
++	if (EM_HOST == EM_S390 && param->record_mode == CALLCHAIN_FP) {
++		pr_warning_once(
++			"Framepointer unwinding lacks kernel support. Use '--call-graph dwarf'\n");
++	}
++
+ 	evsel__set_sample_bit(evsel, CALLCHAIN);
+ 
+ 	attr->sample_max_stack = param->max_stack;
 -- 
 2.53.0.851.ga537e3e6e9-goog
 
