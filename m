@@ -1,135 +1,168 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BFEB2C375A;
-	Wed, 18 Mar 2026 06:27:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D6262FF160
+	for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2026 06:48:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773815268; cv=none; b=VbpEGbMPjfL+G8QvB0LcsEJkvNfLH8RjRvYHO+NWWW3DzooZUyEM0zriBMIJhcI6cSEJerhen81YP9oZKghg3nFr/yJQN45w2g9hkbYicFAuOOLGSYBW5Z/SriMXI/I2/76hKpBWPjArICpex7YCdsgBbIIoLdB5s1e4QYU4IVM=
+	t=1773816539; cv=none; b=Y3EFbkncKak/c9PUXVGnWaPXAJoI9Ig6ptqGCEsov0akogtx2DKo0AzcNBoBalKmYNBQS49IWpe3eW/Xec593fN8x8rnxCp5jGlzsVAys+5xKmdEa1IK9GEv0uEnUI+tD7/NwwbFNxE+xgjsLd+uFIZ4gcTX28VJm2Gq9dNEBLo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773815268; c=relaxed/simple;
-	bh=7bgER+2HXLBBaGBvT8Sv/EmUeSlZYaDNvSVCwbN7xEU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Rd+4lwD4xBVMP4cSQ7zizhEs+rp0G45YXnxXfQ7NKAr6K3wCsHIk+gPhEpTPt4/Ll23sr/0uUVAKBs1ael5eHny75uMCigSm2Km/hIlVxdQBWU1vwUNFT4BzTN/yGcIEbKhFnY3U1ddVU5UYk9KAbzAsMxBG+/pZevK5ifVXQxk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OcmtagQK; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1773816539; c=relaxed/simple;
+	bh=Qj1QkGketFTLM6FhMiga1uXkk9E+QIhjnrMOjTAq2ZY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PazMCrC2L4/AtJlynEV1jx1eWbG9p6PEFioOSita6ZaiWDpYRLBsmruLOX5hwx++9PCSzaE63Ba9WV9b/4ctRGQ1vFr5dHr5Y0ISRpwRMgTrFSJ9P/5OP5nculu/C7JZzICrrIsjHygEo2MLN9iLMOzDjO4FuS43ZsNFPOynw/k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YbT3p7Iw; arc=none smtp.client-ip=209.85.214.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OcmtagQK"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62I5XwGQ3291959;
-	Wed, 18 Mar 2026 06:27:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=vhZw8N
-	xDlM2IPs7Di6yVltP3+MTSiOO59m1ac2csSRE=; b=OcmtagQKWd8snAR/SFDRZc
-	PabyFOOmAzE/NQd/PFKDygfkPNRevkQxBukx9Zz4kns/P0l7StJW2yBZ6lLGy97G
-	nJGgHMVqzjpXe9I+UtSdll4igikTYr9VGSDmkETrebsjf6vpA5f9+/tQZ08cKdZH
-	baVNXptSyO65rv1tfj+pfvBsNlW4yCeo4SP58hNgHICHcgYukiDCWW0Se52M6u6Y
-	tgiVcLt2GYUt69yFebdHDqXCoJY85M1p7PxAN6hBd6dKYQQDL7PzGwYelQtPjagX
-	yqzKSNcuejYPzz0Zx5qVCOpkZgBr9cc2tx8rUM+uptwfZcWMoa6u8FOw20LRckMg
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvx3cyx8j-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Mar 2026 06:27:36 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62I4KTYm004563;
-	Wed, 18 Mar 2026 06:27:35 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cwj0scuak-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Mar 2026 06:27:35 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62I6RVeL53608746
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 18 Mar 2026 06:27:31 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4A15920043;
-	Wed, 18 Mar 2026 06:27:31 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0E2F120040;
-	Wed, 18 Mar 2026 06:27:31 +0000 (GMT)
-Received: from [9.52.199.37] (unknown [9.52.199.37])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 18 Mar 2026 06:27:30 +0000 (GMT)
-Message-ID: <6dac1f79-ff68-4583-a108-e9d291422438@linux.ibm.com>
-Date: Wed, 18 Mar 2026 07:27:30 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YbT3p7Iw"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2ab46931cf1so5342035ad.0
+        for <linux-s390@vger.kernel.org>; Tue, 17 Mar 2026 23:48:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773816537; x=1774421337; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=cwVGV5+seuNEQDXpmjKxLE/WMiIEl6PzK6G5vJJXXZA=;
+        b=YbT3p7IwofRR4B71gvIvW4EYvPkkHFAZKnxd325boEmEBFUL/kF+aumEjLzU6wTeVi
+         J4wJ1MlBDsN9y0A5iwvtdSJ6WmSy1fgLfWvB1FcCA0c8hEajcFDp+KLme9ciDi1sDa9W
+         wnj86JwfQquO42V7nWuafBoYJRLPlLE19MJG+CpRN+HqUHcmgB/T5sXbp7udQ4DobENp
+         Xa/wkzsznNFEVBZm/0k3L+K7vwji1nj4hG6WTj/rGJcx2MP6k5mzBQJ72ADF+v+qddPj
+         LNIAfnrimodMiZ9rkFX+rnCICM9/mmWOs4sgDi4BOs8m1Dd4IA6kPtUJd0AnV3ZN6DcP
+         1olQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1773816537; x=1774421337;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=cwVGV5+seuNEQDXpmjKxLE/WMiIEl6PzK6G5vJJXXZA=;
+        b=SF8IkfdIiO2iOPx5AJ4lrUbTfyXervaikZH+u6/yYgtDAUCegHM81gUJAKtRwBksvZ
+         /0Y7P8ou/as6NC0x7hJcaZtFtF62/m2QtZacF2MoHscTKZAGB4X07hA+fLBm0Cn8Xc9T
+         FnJnVuULEp0gBvYHH8co10w62MPVAGQAm4Mtc/L0eYz0IZxxVX9h/lr1C86SjppC2pIA
+         h0Qm+TPOGAgHrUbdLdehXlj6fGHgmWQJK3YwyZ0riwiWv7jEtYuLdML/aEG35W4cs0lZ
+         AKMWSvDmksYSWpNos3Qwph34HWQ/u0TLs68JkZl71hhzKafanEa2cXqzMD6xP2/IV6x0
+         ibig==
+X-Forwarded-Encrypted: i=1; AJvYcCU1rOEi8Oa9zABxJ9I179y/0umpUYdfpAeEFlPcLK9QuEX1sNciZFBT3mJhUqfexJ1log1IbjQ83u6C@vger.kernel.org
+X-Gm-Message-State: AOJu0YyN1pzZVRyn1kFj0JXa38wV2rS7hKbr4IuPDRs7JJO86EJ0Y6Af
+	T2PhjO7Jfwx6Hjl06aZiYsg8IdallhTgbO1cLu0JK90GY/rb/zxLpH7h
+X-Gm-Gg: ATEYQzxqdMkgx3WiCpiIKwBZ8j1ccZ579jmLH8t5IBmmQx9pQFNr2mrYaNaUy7omGsx
+	iL264aMBD7ClUkK+hMD9njLy3WMZxadiRacYPYsvrZBMPlKvjrC6eieyke4g9ySDTUTHiac+f52
+	fMgeo8XxyQJdkhqCLOZ5Q7s/GcbVopAHvEg5aZiHH/y3BCpmGMWHqT3d5ZnXQXdwLYonG/H57W6
+	xyr7CViByKS1qeFBRes9V5VZRmR4RdwRPemXB1aAAEhvCkJPNvZY8jJaEvfiBKZBXlq1RSniC+2
+	TwSGBy9/RE8T69BeI2lo3/MTZphgVqCphPLn52VivfRkmMSR5s9ztm8Wo+aXyO/QzfMKbueL549
+	2S3PUduXQhoGy6RUmhVFGMP4FXXLRM038jzdzvHX+xdDqMVcKE6gfkRSK3uPJ9SKmL4bpTS1z31
+	F6MeRgzvPTxKrhjo5ZhKUSp+BFA58MOkw9
+X-Received: by 2002:a17:903:94b:b0:2ae:5a38:96bb with SMTP id d9443c01a7336-2b06357efd3mr61873795ad.2.1773816536783;
+        Tue, 17 Mar 2026 23:48:56 -0700 (PDT)
+Received: from localhost.localdomain ([101.5.20.107])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b06e6315dcsm19262845ad.80.2026.03.17.23.48.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 17 Mar 2026 23:48:55 -0700 (PDT)
+From: Qi Tang <tpluszz77@gmail.com>
+To: alibuda@linux.alibaba.com,
+	dust.li@linux.alibaba.com,
+	sidraya@linux.ibm.com,
+	wenjia@linux.ibm.com
+Cc: netdev@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Qi Tang <tpluszz77@gmail.com>
+Subject: [PATCH net] net/smc: fix double-free of smc_spd_priv when tee() duplicates splice pipe buffer
+Date: Wed, 18 Mar 2026 14:48:47 +0800
+Message-ID: <20260318064847.23341-1-tpluszz77@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] perf record: Add support for arch_sdt_arg_parse_op()
- on s390
-To: "Mi, Dapeng" <dapeng1.mi@linux.intel.com>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
-        acme@kernel.org, namhyung@kernel.org, irogers@google.com
-Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
-        hca@linux.ibm.com, japo@linux.ibm.com
-References: <20260317110641.39975-1-tmricht@linux.ibm.com>
- <53039fb5-4785-48ac-8e9a-7b561a3242c6@linux.intel.com>
-Content-Language: en-US
-From: Thomas Richter <tmricht@linux.ibm.com>
-Organization: IBM
-In-Reply-To: <53039fb5-4785-48ac-8e9a-7b561a3242c6@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=arO/yCZV c=1 sm=1 tr=0 ts=69ba45d8 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=aUDzc13T6hfFQuJ2b8gA:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE4MDA1MSBTYWx0ZWRfX6A2uICfy/Q0Z
- N2Y0Q7QKKZ5XcCJ8ewXRo8fTstwN9BHIwgy7bjH/npxyecNWZ7S2t4p6ePVXbYTth8AEFH8tdl8
- LENkfZLo3oGuXCKnETeHCcL1zHZcCPs6ugc8k4pkVltaxwJkDqx43DX5InIf68A73pk9hQgXVk7
- K1hJ5MfNjJGFDpY4tbE7SDGkJvaJMSEbiW93yZXLIUQGidHW3ws8k+wOIYHGpz7kEw427Vv1N18
- UAIAEk9E+zK5qVByImJ+FujYFjQ80yllDfs7cSwBk40hKqGnOtg4HihrvwBJAZ5+ojc38Q1gSB2
- YMSZ/r7epUJjFs1VZNnKXJnRZuzGeC5WsBk1glbSgdPZONnBY1ef7gGzyXtrbZ2xnNTjltQNg3M
- Hf3mIOsaM1TdW9J/UFAKPSSn029/osiEasxT19uJ73PGn/3Bv39nurq6itRy/RuV8uFx8y2Uw5B
- FBuztCLVCNaG40AER9g==
-X-Proofpoint-GUID: GYMRQXyn8CFEMKpp_Ht4F20F9uXo-WKP
-X-Proofpoint-ORIG-GUID: mTsSjCs5UHMb86vnPDwaeZGmdjD0r8ag
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-17_05,2026-03-17_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 lowpriorityscore=0 impostorscore=0
- adultscore=0 bulkscore=0 suspectscore=0 malwarescore=0 clxscore=1015
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
- definitions=main-2603180051
 
-On 3/18/26 02:52, Mi, Dapeng wrote:
-> 
-> On 3/17/2026 7:06 PM, Thomas Richter wrote:
->> commit e5e66adfe45a6 ("perf regs: Remove __weak attributive arch_sdt_arg_parse_op() function")
->> removes arch_sdt_arg_parse_op() functions and s390 support is lost.
->> The following warning is printed:
-> 
-> Not sure if I miss something, but it looks there was also no s390 specific
-> support for arch_sdt_arg_parse_op() before the commit e5e66adfe45a6 ("perf
-> regs: Remove __weak attributive arch_sdt_arg_parse_op() function") and we
-> would see same warning even without the commit e5e66adfe45a6, right?
-> 
-> 
-Absolutely Correct, but in my opinion it does not matter if it was your patch or if
-you just remove the __weak attribute. Your patch revealed the missing s390 support, which triggered
-this patch.
-If you do not like the wording, what do  you suggest?
+smc_rx_splice() allocates one smc_spd_priv per pipe_buffer and stores
+the pointer in pipe_buffer.private.  The pipe_buf_operations for these
+buffers used .get = generic_pipe_buf_get, which only increments the page
+reference count when tee(2) duplicates a pipe buffer.  The smc_spd_priv
+pointer itself was not handled, so after tee() both the original and the
+cloned pipe_buffer share the same smc_spd_priv *.
 
-Thanks Thomas
+When both pipes are subsequently released, smc_rx_pipe_buf_release() is
+called twice against the same object:
+
+  1st call: kfree(priv)  sock_put(sk)  smc_rx_update_cons()  [correct]
+  2nd call: kfree(priv)  sock_put(sk)  smc_rx_update_cons()  [UAF]
+
+KASAN reports a slab-use-after-free in smc_rx_pipe_buf_release(), which
+then escalates to a NULL-pointer dereference and kernel panic via
+smc_rx_update_consumer() when it chases the freed priv->smc pointer:
+
+  BUG: KASAN: slab-use-after-free in smc_rx_pipe_buf_release+0x78/0x2a0
+  Read of size 8 at addr ffff888004a45740 by task smc_splice_tee_/74
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x53/0x70
+   print_report+0xce/0x650
+   kasan_report+0xc6/0x100
+   smc_rx_pipe_buf_release+0x78/0x2a0
+   free_pipe_info+0xd4/0x130
+   pipe_release+0x142/0x160
+   __fput+0x1c6/0x490
+   __x64_sys_close+0x4f/0x90
+   do_syscall_64+0xa6/0x1a0
+   entry_SYSCALL_64_after_hwframe+0x77/0x7f
+   </TASK>
+
+  BUG: kernel NULL pointer dereference, address: 0000000000000020
+  RIP: 0010:smc_rx_update_consumer+0x8d/0x350
+  Call Trace:
+   <TASK>
+   smc_rx_pipe_buf_release+0x121/0x2a0
+   free_pipe_info+0xd4/0x130
+   pipe_release+0x142/0x160
+   __fput+0x1c6/0x490
+   __x64_sys_close+0x4f/0x90
+   do_syscall_64+0xa6/0x1a0
+   entry_SYSCALL_64_after_hwframe+0x77/0x7f
+   </TASK>
+  Kernel panic - not syncing: Fatal exception
+
+Beyond the memory-safety problem, duplicating an SMC splice buffer is
+semantically questionable: smc_rx_update_cons() would advance the
+consumer cursor twice for the same data, corrupting receive-window
+accounting.  A refcount on smc_spd_priv could fix the double-free, but
+the cursor-accounting issue would still need to be addressed separately.
+
+The .get callback is invoked by both tee(2) and splice_pipe_to_pipe()
+for partial transfers; both will now return -EFAULT.  Users who need
+to duplicate SMC socket data must use a copy-based read path.
+
+Fixes: 9014db202cb7 ("smc: add support for splice()")
+Signed-off-by: Qi Tang <tpluszz77@gmail.com>
+---
+ net/smc/smc_rx.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
+index d833e36f7fd4..c1d9b923938d 100644
+--- a/net/smc/smc_rx.c
++++ b/net/smc/smc_rx.c
+@@ -135,9 +135,16 @@ static void smc_rx_pipe_buf_release(struct pipe_inode_info *pipe,
+ 	sock_put(sk);
+ }
+ 
++static bool smc_rx_pipe_buf_get(struct pipe_inode_info *pipe,
++				struct pipe_buffer *buf)
++{
++	/* smc_spd_priv in buf->private is not shareable; disallow cloning. */
++	return false;
++}
++
+ static const struct pipe_buf_operations smc_pipe_ops = {
+ 	.release = smc_rx_pipe_buf_release,
+-	.get = generic_pipe_buf_get
++	.get	 = smc_rx_pipe_buf_get,
+ };
+ 
+ static void smc_rx_spd_release(struct splice_pipe_desc *spd,
 -- 
-Thomas Richter, Dept 3303, IBM s390 Linux Development, Boeblingen, Germany
---
-IBM Deutschland Research & Development GmbH
+2.43.0
 
-Vorsitzender des Aufsichtsrats: Wolfgang Wendt
-
-Geschäftsführung: David Faller
-
-Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
