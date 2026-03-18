@@ -1,232 +1,190 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B7831B4F09;
-	Wed, 18 Mar 2026 01:52:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDA2B8462;
+	Wed, 18 Mar 2026 06:16:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773798758; cv=none; b=Qtt873142T1vK6+XsNCOgOiW4Gy1vkoJ8W94Riy9+/gIRM0hwCKhGr85YCwoQ+XGFT8mwJZKRsiI+/aBqpWQY+4Y7Y/VcE0PFWzEMTd9/fi5pQByzxvo3r0KtkzKAyHzGAigYXOm79kTi2xHI5LAhWA22XnmDnfnW1zpRsO9Ev8=
+	t=1773814591; cv=none; b=IcwP1cQPlU6Fr2JeXdfrmpfV1QNOqxglz7L8E0QNycHvoMG3wXZKqqYu2IROQeozgds8o02KAIIPEUgrdtjt2HraJfMBCUXHtLGp7KbNSO9Q4axgUbAG3ABYhU52g49yDzSse+4lrUIpA89flIN1mT8sDaTNKkS4lIvdY36pDqA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773798758; c=relaxed/simple;
-	bh=qNmcaRf1or87FJtpGhBUNODnaoOwhhxyGrn3R71WJGk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=m0HlDbG+Hyu2FL6jJTFSkEI3FEAu6X/SgsiO4F7Pml8U1LnTNBr/HzCV8h9yOyRytTvygyujZzxUATcLltjobaQsp+xBQ0mpKBFLwE3QhYYd2+ckciWherDBwakaR/246EB+wG1APQ9oO1gS/0EHvkNQrDtaYxdyORRMaVxqrZ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=YOY7SKZb; arc=none smtp.client-ip=192.198.163.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1773814591; c=relaxed/simple;
+	bh=oDnlMW+yrl3kxEDV1Uxuwpsrw8lOvDpiu3LAZZ2bpIg=;
+	h=Mime-Version:Content-Type:Date:Message-Id:From:To:Cc:Subject:
+	 References:In-Reply-To; b=i7H2eSQGZPLPk/VFgLN0W67viuvlwjgU7vLJy//fJBJpZrZckXAhc2hxUJMc0N+ThXV0/Ap524yGJr5k3WxLayl4ARZvAo28tHBqFdU1y9RZUi/E3FdW3GveEukXtjxQ1ATI0eRieECYxLmd7XRJUGHSSj4CXUUmW971z3IgA4I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=iS1zN2AE; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="YOY7SKZb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1773798756; x=1805334756;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=qNmcaRf1or87FJtpGhBUNODnaoOwhhxyGrn3R71WJGk=;
-  b=YOY7SKZbITS/HGFj0H10X8b47thkrXuFdn8fthsqnRhGh3yBmJr5hegS
-   zspBLdozknKPLidhek1/L8x/rofPlA7W5XI3pMKY7AsOibi9Ak8aZGZ8/
-   0LT5FI9irOcNaE91qjK4ttqBA8fH2UeAak6yZNxA3076sGXd556jmc0SE
-   yPTnRj2JnwtQIri3b+7Iyt3TXG2R3CVAdFO3T/K3na+8sOjZY39LUCUo0
-   RZBOFiwcQJ7cjA0FJaGwTzCHXGr2zHH6nR0xwK8CxbOj/nUHmUXBFYJPn
-   BPDPHUj7GHXjlruG3x26u45afcGPhvNAgerxtZ949NiRJ7+7WrvNRUQbL
-   w==;
-X-CSE-ConnectionGUID: HbEwPmyzTtmA4wtrd33NUg==
-X-CSE-MsgGUID: NRtLGty0TICOSHok09KBKQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11732"; a="100307293"
-X-IronPort-AV: E=Sophos;i="6.23,126,1770624000"; 
-   d="scan'208";a="100307293"
-Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Mar 2026 18:52:35 -0700
-X-CSE-ConnectionGUID: j3uJvxpCQh2mPviTNuknxQ==
-X-CSE-MsgGUID: DecEX2TzRhGwxJ9QKqYipQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,126,1770624000"; 
-   d="scan'208";a="245479958"
-Received: from dapengmi-mobl1.ccr.corp.intel.com (HELO [10.124.241.147]) ([10.124.241.147])
-  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Mar 2026 18:52:33 -0700
-Message-ID: <53039fb5-4785-48ac-8e9a-7b561a3242c6@linux.intel.com>
-Date: Wed, 18 Mar 2026 09:52:30 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="iS1zN2AE"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62I601hr3176840;
+	Wed, 18 Mar 2026 06:16:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=DifgUe
+	WpE4npuUkNsLjMpFr/mxGVgkbz/vAv+BrXPtg=; b=iS1zN2AE2pgOS9fEDNhy03
+	MhmglpDq6czo7tzl6o+xaoyqJfkk3EXeG/+jfnfHt1qMx1N5nswNWv2rxzKGoHNs
+	bC94db4scXeHUX63WB6pxxyfvQMe/oeaF4QSF865CELrGVMoQKzrnejYuBjORiMw
+	JoYf+W1kR4TJ3T5SqF5AZes5maI5la8nqpKJ+YB89KCuf0JDuexCE4/6+eV57QWe
+	1wVaCq8+qUGL3S5T2yr6lq6yEOaSnLTw4B81yBzPnX9CBXm0nAU3wNouNWMxoNmb
+	w9e3+TUKr7kSstQcxmGe7RCG0RomX6/iFHJnSjOow/Lk+CMPexGHhiD612pAoBTA
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvx3cyw3y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 18 Mar 2026 06:16:18 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62I5jBUb032327;
+	Wed, 18 Mar 2026 06:16:17 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cwm7jvgw4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 18 Mar 2026 06:16:17 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62I6GDLZ39059714
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 18 Mar 2026 06:16:13 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 61BC72004B;
+	Wed, 18 Mar 2026 06:16:13 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2963B20043;
+	Wed, 18 Mar 2026 06:16:12 +0000 (GMT)
+Received: from localhost (unknown [9.111.43.66])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 18 Mar 2026 06:16:12 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] perf record: Add support for arch_sdt_arg_parse_op()
- on s390
-To: Thomas Richter <tmricht@linux.ibm.com>, linux-kernel@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
- acme@kernel.org, namhyung@kernel.org, irogers@google.com
-Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
- hca@linux.ibm.com, japo@linux.ibm.com
-References: <20260317110641.39975-1-tmricht@linux.ibm.com>
-Content-Language: en-US
-From: "Mi, Dapeng" <dapeng1.mi@linux.intel.com>
-In-Reply-To: <20260317110641.39975-1-tmricht@linux.ibm.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Date: Wed, 18 Mar 2026 07:16:11 +0100
+Message-Id: <DH5OSCR30K6L.3SIBYOZ6166AC@linux.ibm.com>
+From: "Julian Ruess" <julianr@linux.ibm.com>
+To: "Niklas Schnelle" <schnelle@linux.ibm.com>,
+        "Farhan Ali"
+ <alifm@linux.ibm.com>,
+        "Julian Ruess" <julianr@linux.ibm.com>, <wintera@linux.ibm.com>,
+        <ts@linux.ibm.com>, <oberpar@linux.ibm.com>, <gbayer@linux.ibm.com>,
+        "Alex Williamson" <alex@shazbot.org>,
+        "Jason
+ Gunthorpe" <jgg@ziepe.ca>, "Yishai Hadas" <yishaih@nvidia.com>,
+        "Shameer
+ Kolothum" <skolothumtho@nvidia.com>,
+        "Kevin Tian" <kevin.tian@intel.com>
+Cc: <mjrosato@linux.ibm.com>, <raspl@linux.ibm.com>, <hca@linux.ibm.com>,
+        <agordeev@linux.ibm.com>, <gor@linux.ibm.com>, <kvm@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        <linux-pci@vger.kernel.org>
+Subject: Re: [PATCH v5 2/3] vfio/ism: Implement vfio_pci driver for ISM
+ devices
+X-Mailer: aerc 0.21.0-0-g5549850facc2
+References: <20260317-vfio_pci_ism-v5-0-b73248b4e576@linux.ibm.com>
+ <20260317-vfio_pci_ism-v5-2-b73248b4e576@linux.ibm.com>
+ <de08911a-8bcc-4983-9ad2-b20467ebbb7f@linux.ibm.com>
+ <ef044e7fa28e33cf865882e374957c0cd10124d1.camel@linux.ibm.com>
+In-Reply-To: <ef044e7fa28e33cf865882e374957c0cd10124d1.camel@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=arO/yCZV c=1 sm=1 tr=0 ts=69ba4332 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=yDXdNYyLDAtsUWoxkjsA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE4MDA1MSBTYWx0ZWRfX0KT5g6jHbLCN
+ JS79k+9K0j2YW2GmxHMyXw6jPBJR9dGI3D+4PbIxS+N1q6PpY/JQeSzEyAFCBl27K7kCtBzwJIS
+ 4tVxIf97jF+JVqysFpV6qIhkYgEIoA4ni/qiWqAenxElysjTqMMkITzGDKkc+jpBDkVz3wEsIH+
+ n9wYhbj5U8IE1YZrUoa3TsKEqCQJihe2kDZVw7Aux0dkPS+Q33aWHAw42iwcWBAUuYbgpUVTJT6
+ Yb6F9WxsJ/8XfgedfrqP23FHXNbnfrBIsfYqYNu1kJHrKW13yQmtPHrRdG4Duw+Mp9zkUypo7pg
+ N3rEev0/p/BNbpy7JYrVi+C6QS1GPbqWTdpNr8UBC1+kIwCZPyd35nALrLtY+PQ1TbKey31p1hK
+ Wsfsxadrv3vg53Pq0ZmYQ11Qd/gcE8FzdosMLxbYlJ/EL94jd4kel/fMFHDzefr5hOde6U5qPcF
+ y0nMy21Viw8IvdPe9ag==
+X-Proofpoint-GUID: U5dQJsKgC-FeaBSVolbyzLf-1CQIDqbz
+X-Proofpoint-ORIG-GUID: U5dQJsKgC-FeaBSVolbyzLf-1CQIDqbz
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-17_05,2026-03-17_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 spamscore=0 lowpriorityscore=0 impostorscore=0
+ adultscore=0 bulkscore=0 suspectscore=0 malwarescore=0 clxscore=1015
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
+ definitions=main-2603180051
 
+On Tue Mar 17, 2026 at 10:16 PM CET, Niklas Schnelle wrote:
+> On Tue, 2026-03-17 at 11:43 -0700, Farhan Ali wrote:
+>> <..snip..>
+>>=20
+>> On 3/17/2026 5:58 AM, Julian Ruess wrote:
+>> > static int ism_vfio_pci_probe(struct pci_dev *pdev,
+>> > +			      const struct pci_device_id *id)
+>> > +{
+>> > +	struct ism_vfio_pci_core_device *ivpcd;
+>> > +	struct zpci_dev *zdev =3D to_zpci(pdev);
+>> > +	char cache_name[20];
+>> > +	int ret;
+>> > +
+>> > +	ivpcd =3D vfio_alloc_device(ism_vfio_pci_core_device, core_device.vd=
+ev,
+>> > +				  &pdev->dev, &ism_pci_ops);
+>> > +	if (IS_ERR(ivpcd))
+>> > +		return PTR_ERR(ivpcd);
+>> > +
+>> > +	snprintf(cache_name, sizeof(cache_name), "ism_sb_fid_%08x", zdev->fi=
+d);
+>> > +	ivpcd->store_block_cache =3D
+>> > +		kmem_cache_create(cache_name, zdev->maxstbl, 0, 0, NULL);
+>> > +	if (!ivpcd->store_block_cache) {
+>> > +		vfio_put_device(&ivpcd->core_device.vdev);
+>> > +		return -ENOMEM;
+>> > +	}
+>> > +
+>> > +	dev_set_drvdata(&pdev->dev, &ivpcd->core_device);
+>> > +	ret =3D vfio_pci_core_register_device(&ivpcd->core_device);
+>> > +	if (ret) {
+>> > +		kmem_cache_destroy(ivpcd->store_block_cache);
+>> > +		vfio_put_device(&ivpcd->core_device.vdev);
+>> > +	}
+>> > +
+>> > +	return ret;
+>> > +}
+>> > +
+>> > +static void ism_vfio_pci_remove(struct pci_dev *pdev)
+>> > +{
+>> > +	struct vfio_pci_core_device *core_device;
+>> > +	struct ism_vfio_pci_core_device *ivpcd;
+>> > +
+>> > +	core_device =3D dev_get_drvdata(&pdev->dev);
+>> > +	ivpcd =3D container_of(core_device, struct ism_vfio_pci_core_device,
+>> > +			     core_device);
+>> > +
+>> > +	vfio_pci_core_unregister_device(&ivpcd->core_device);
+>> > +	vfio_put_device(&ivpcd->core_device.vdev);
+>> > +
+>> > +	kmem_cache_destroy(ivpcd->store_block_cache);
+>>=20
+>> I think the kmem_cache_destroy() should be done before we do=20
+>> vfio_put_device() (or maybe even before=20
+>> vfio_pci_core_unregister_device()) to avoid use after free similar to=20
+>> ism_vfio_pci_probe(). Sorry I missed this earlier.
+>>=20
+>> Thanks
+>>=20
+>> Farhan
+>>=20
+>
+> Good find! Wouldn't it be even cleaner to provide vfio/ism specific
+> .init and .release functions in ism_pci_ops that do the
+> kmem_cache_create() / kmem_cache_destroy() as part of init / release?
+> It seems this is done for e.g. Xe with xe_vfio_pci_init_dev()
+> and xe_vfio_pci_release_dev(). In fact wouldn't that be even necessary
+> to correctly handle the case where the above vfio_put_device() isn't
+> the last reference?
+>
+> Thanks,
+> Niklas
 
-On 3/17/2026 7:06 PM, Thomas Richter wrote:
-> commit e5e66adfe45a6 ("perf regs: Remove __weak attributive arch_sdt_arg_parse_op() function")
-> removes arch_sdt_arg_parse_op() functions and s390 support is lost.
-> The following warning is printed:
-
-Not sure if I miss something, but it looks there was also no s390 specific
-support for arch_sdt_arg_parse_op() before the commit e5e66adfe45a6 ("perf
-regs: Remove __weak attributive arch_sdt_arg_parse_op() function") and we
-would see same warning even without the commit e5e66adfe45a6, right?
-
-
->
->   Unknown ELF machine 22, standard arguments parse will be skipped.
->
-> ELF machine 22 is the EM_S390 host. This happens with command
->   # ./perf record -v -- stress-ng -t 1s --matrix 0
-> on a z/VM system when the event is not specified.
->
-> Add s390 specific __perf_sdt_arg_parse_op_s390() function to support
-> -architecture calls to arch_sdt_arg_parse_op() for s390.
-> The warning disappears.
->
-> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> Cc: Dapeng Mi <dapeng1.mi@linux.intel.com>
-> Cc: Ian Rogers <irogers@google.com>
-> Tested-by: Jan Polensky <japo@linux.ibm.com>
-> ---
->  .../perf/util/perf-regs-arch/perf_regs_s390.c | 89 +++++++++++++++++++
->  tools/perf/util/perf_regs.c                   |  3 +
->  tools/perf/util/perf_regs.h                   |  1 +
->  3 files changed, 93 insertions(+)
->
-> diff --git a/tools/perf/util/perf-regs-arch/perf_regs_s390.c b/tools/perf/util/perf-regs-arch/perf_regs_s390.c
-> index c61df24edf0f..2aa70eb23311 100644
-> --- a/tools/perf/util/perf-regs-arch/perf_regs_s390.c
-> +++ b/tools/perf/util/perf-regs-arch/perf_regs_s390.c
-> @@ -1,7 +1,13 @@
->  // SPDX-License-Identifier: GPL-2.0
->  
-> +#include <errno.h>
-> +#include <regex.h>
->  #include "../perf_regs.h"
->  #include "../../arch/s390/include/perf_regs.h"
-> +#include "debug.h"
-> +
-> +#include <linux/zalloc.h>
-> +#include <linux/kernel.h>
->  
->  uint64_t __perf_reg_mask_s390(bool intr __maybe_unused)
->  {
-> @@ -95,3 +101,86 @@ uint64_t __perf_reg_sp_s390(void)
->  {
->  	return PERF_REG_S390_R15;
->  }
-> +
-> +/* %rXX */
-> +#define SDT_OP_REGEX1  "^%(r([0-9]|1[0-5]))$"
-> +/* -###(%rXX) */
-> +#define SDT_OP_REGEX2  "^([+-]?[0-9]+)\\(%(r[0-9]|r1[0-5])\\)$"
-> +static regex_t sdt_op_regex1, sdt_op_regex2;
-> +
-> +static int sdt_init_op_regex(void)
-> +{
-> +	static int initialized;
-> +	int ret = 0;
-> +
-> +	if (initialized)
-> +		return 0;
-> +
-> +	ret = regcomp(&sdt_op_regex1, SDT_OP_REGEX1, REG_EXTENDED);
-> +	if (ret)
-> +		goto error;
-> +	initialized = 1;
-> +
-> +	ret = regcomp(&sdt_op_regex2, SDT_OP_REGEX2, REG_EXTENDED);
-> +	if (ret)
-> +		goto free_regex1;
-> +	initialized = 2;
-> +
-> +	return 0;
-> +
-> +free_regex1:
-> +	regfree(&sdt_op_regex1);
-> +error:
-> +	pr_debug4("Regex compilation error, initialized %d\n", initialized);
-> +	return ret;
-> +}
-> +
-> +/*
-> + * Parse OP and convert it into uprobe format, which is, +/-NUM(%gprREG).
-> + * Possible variants of OP are:
-> + *	Format		Example
-> + *	-------------------------
-> + *	NUM(%rREG)	48(%r1)
-> + *	-NUM(%rREG)	-48(%r1)
-> + *	%rREG		%r1
-> + */
-> +int __perf_sdt_arg_parse_op_s390(char *old_op, char **new_op)
-> +{
-> +	int ret, new_len;
-> +	regmatch_t rm[6];
-> +	unsigned long i;
-> +
-> +	*new_op = NULL;
-> +	ret = sdt_init_op_regex();
-> +	if (ret)
-> +		return -EINVAL;
-> +
-> +	if (!regexec(&sdt_op_regex1, old_op, 3, rm, 0)) {
-> +		/* Extract %rX */
-> +		new_len = 2;    /* % NULL */
-> +		new_len += (int)(rm[1].rm_eo - rm[1].rm_so);
-> +		*new_op = zalloc(new_len);
-> +		if (!*new_op)
-> +			return -ENOMEM;
-> +
-> +		scnprintf(*new_op, new_len, "%.*s",
-> +			  (int)(rm[1].rm_eo - rm[1].rm_so), old_op + rm[1].rm_so);
-> +	} else if (!regexec(&sdt_op_regex2, old_op, ARRAY_SIZE(rm), rm, 0)) {
-> +		/* Extract #(%rX) */
-> +		new_len = 4;    /* (%)NULL */
-> +		for (i = 1; i < ARRAY_SIZE(rm) && rm[i].rm_so != -1; ++i)
-> +			new_len += (int)(rm[i].rm_eo - rm[i].rm_so);
-> +		*new_op = zalloc(new_len);
-> +		if (!*new_op)
-> +			return -ENOMEM;
-> +
-> +		scnprintf(*new_op, new_len, "%.*s(%.*s)",
-> +			  (int)(rm[1].rm_eo - rm[1].rm_so), old_op + rm[1].rm_so,
-> +			  (int)(rm[2].rm_eo - rm[2].rm_so), old_op + rm[2].rm_so);
-> +	} else {
-> +		pr_debug4("Skipping unsupported SDT argument: %s\n", old_op);
-> +		return SDT_ARG_SKIP;
-> +	}
-> +
-> +	return SDT_ARG_VALID;
-> +}
-> diff --git a/tools/perf/util/perf_regs.c b/tools/perf/util/perf_regs.c
-> index 5b8f34beb24e..f52b0e1f7fc7 100644
-> --- a/tools/perf/util/perf_regs.c
-> +++ b/tools/perf/util/perf_regs.c
-> @@ -23,6 +23,9 @@ int perf_sdt_arg_parse_op(uint16_t e_machine, char *old_op, char **new_op)
->  	case EM_X86_64:
->  		ret = __perf_sdt_arg_parse_op_x86(old_op, new_op);
->  		break;
-> +	case EM_S390:
-> +		ret = __perf_sdt_arg_parse_op_s390(old_op, new_op);
-> +		break;
->  	default:
->  		pr_debug("Unknown ELF machine %d, standard arguments parse will be skipped.\n",
->  			 e_machine);
-> diff --git a/tools/perf/util/perf_regs.h b/tools/perf/util/perf_regs.h
-> index 7c04700bf837..573f0d1dfe04 100644
-> --- a/tools/perf/util/perf_regs.h
-> +++ b/tools/perf/util/perf_regs.h
-> @@ -62,6 +62,7 @@ uint64_t __perf_reg_mask_s390(bool intr);
->  const char *__perf_reg_name_s390(int id);
->  uint64_t __perf_reg_ip_s390(void);
->  uint64_t __perf_reg_sp_s390(void);
-> +int __perf_sdt_arg_parse_op_s390(char *old_op, char **new_op);
->  
->  int __perf_sdt_arg_parse_op_x86(char *old_op, char **new_op);
->  uint64_t __perf_reg_mask_x86(bool intr);
+Thanks guys! Yes, I think we should introduce custom .init and .release fun=
+ctions. Will change that in the next version.
