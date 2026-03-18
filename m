@@ -1,141 +1,115 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7B5B3CE494;
-	Wed, 18 Mar 2026 14:29:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1B533DB62A;
+	Wed, 18 Mar 2026 14:40:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773844168; cv=none; b=NboYCwG0Pr2S+yKRqlYeCX79Fd+ZC5T0JfHkRgcoW3i+NtDFBbbc0w4r1Gu01ORQtcyYJdFbAJTt38ickhFXG5mEMM31+7709RslNGUErAwpW63e7tBonsMuEuCEzNEU1CqNhXWfCIjanZvukSF1Gesk9S2Vl7coYikJp31vfZs=
+	t=1773844858; cv=none; b=nZQ/jopyEzpbiq7tWWaVe5u66VSHC51rB+VQUWofsxotJGz+fbcVXN+XkNXz9akVuHWMMKoOzdR9/MI526Y6vc3zYqcrO1GDNhfg4j2YbX71tIqPft24Hclk5bLIARfbWavKKdAsKZMBQm3kweYxLHbr7mQ/OyeiHXLkqtoxON8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773844168; c=relaxed/simple;
-	bh=pkOWRcIRtEOpYUTb8nMg66OkPFOLlPmOV6W1TLeQTRs=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=CAkyXMCdnDF3fNe1q6rn3se742abT1mTo81Pdref35pyzOfCO/APvEf62PGIBa4p3dNPAbmMG4NjorDTWjGv/DHE3u44J/yid6Ypfa/vnS4WvqKjvvjJ5nDoqjCPgKnwPWLVvWINdxgxrM+aOLGsTYJK0uo+O8zPL5mPDwbQA0Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=L+sKwSW+; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1773844858; c=relaxed/simple;
+	bh=QPe6wXvdAXZ1WsVrzW/I1Ea8rZgbDN6tCubJm34Z2So=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=OmUOdMzDTBbdp2/SUG8PDRUWe80WdGY6WTrYrIJ55kGncC3z/sULkLzF4fmv0BxO+5S2oGpE/aB2YPaqBURGD4I2ALVrGCHfJpQdvPxPbLFPuK5q71z9DhunGb9CSCWKp3ZPuGHTDDiD6xZmnPoVwGjwKuntxsSUi+byJ8gcVIA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ngbdPPAx; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="L+sKwSW+"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62IC2FQd924584;
-	Wed, 18 Mar 2026 14:29:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=qZtOl5
-	qa1PVqu9S9AwPIbLQEBN1u92LHtlnKxRb8Y1M=; b=L+sKwSW+gEqWeQ7iEKeYFA
-	G+QWEKmh4sdWwQFCNKdRF/BvFx5Ir3htU+jIRsr+RDMabDeLnSOfzauV5FPNs8PS
-	mrLHCcpi+6NZCVwEUtLlw4uY5xgvVzeVwjZQda29Z0J0jxa2keXSjRmmaw8doVJQ
-	7/1RW+HZ+6VT7o6HdT8FTKhNWlh6tGyNTYSFwgxsciQtd4ORbdwSiKN35Ykc3vZe
-	mYhHdGDrQVg1AppZE0/P2DM3CMstRbJ9+sbB/4HHrx+w31hpN2DZbwxQzJioSNT4
-	g+J5zTVvZyk9tKeL0tF1GVOnY8y5GPSC75Qnte9gn+Wki+yuteqbvM4LeRU72s3A
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvw3j1x2q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Mar 2026 14:29:25 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62IDQ9hD014024;
-	Wed, 18 Mar 2026 14:29:25 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cwjcy6e8d-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Mar 2026 14:29:25 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62IETK1M25821618
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 18 Mar 2026 14:29:20 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8D30A2004D;
-	Wed, 18 Mar 2026 14:29:20 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 65AE02004B;
-	Wed, 18 Mar 2026 14:29:20 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.52.223.175])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Wed, 18 Mar 2026 14:29:20 +0000 (GMT)
-Date: Wed, 18 Mar 2026 15:29:18 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        akrowiak@linux.ibm.com
-Subject: Re: [RFC 04/10] KVM: s390: kvm_s390_real_to_abs() should return
- gpa_t
-Message-ID: <20260318152918.5231a61c@p-imbrenda>
-In-Reply-To: <20260316180310.17765-5-frankja@linux.ibm.com>
-References: <20260316180310.17765-1-frankja@linux.ibm.com>
-	<20260316180310.17765-5-frankja@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ngbdPPAx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00F29C2BC87;
+	Wed, 18 Mar 2026 14:40:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773844858;
+	bh=QPe6wXvdAXZ1WsVrzW/I1Ea8rZgbDN6tCubJm34Z2So=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=ngbdPPAxWjFSAiZvMouaeaCI+yNsZe/5Ks8XfwK23bbuJ+JwMl7yKx8wLk1AN3mNT
+	 TMgJMbhcekeQl6cZDmfGyt8APhVYsofGCMvUz7w5d4VSUqCEDHmA0FWwHmr908obc6
+	 Ca6I5aFuRQUI1yi4z3tpGvtErfL8rr5nKPdU3xQY3LcDhPRgWknRM3aO06irdxNWBm
+	 2TlgtJ0ipwGbJWHORKvyo/BwbM/qZgR2EjBk9w3ApuIqc+XrUbVpU21pCoE11NYSNq
+	 L1oljmENCVJ0s9YwPt8FVfCFDTEwjEsGgigo721LFalxDK0WN06IRwXdh82jFvxUSk
+	 UiZTvvvmHDYJQ==
+Message-ID: <4620167c-bcfe-414b-85f6-a5d28563b9af@kernel.org>
+Date: Wed, 18 Mar 2026 15:40:45 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 01/23] mm/vma: add vma_flags_empty(), vma_flags_and(),
+ vma_flags_diff_pair()
+Content-Language: en-US
+To: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>
+Cc: David Hildenbrand <david@kernel.org>,
+ "Liam R . Howlett" <Liam.Howlett@oracle.com>, Jann Horn <jannh@google.com>,
+ Pedro Falcato <pfalcato@suse.de>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Kees Cook <kees@kernel.org>,
+ linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Brian Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+ WANG Xuerui <kernel@xen0n.name>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Dinh Nguyen <dinguyen@kernel.org>, Madhavan Srinivasan
+ <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
+ Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <chleroy@kernel.org>,
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H . Peter Anvin" <hpa@zytor.com>, Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>,
+ Michal Hocko <mhocko@suse.com>, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Ondrej Mosnacek <omosnace@redhat.com>, linux-snps-arc@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
+ linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
+References: <cover.1773665966.git.ljs@kernel.org>
+ <ede9b0f8a2e2dc72e7fbc1a0ddbeb513364c28a2.1773665966.git.ljs@kernel.org>
+From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
+In-Reply-To: <ede9b0f8a2e2dc72e7fbc1a0ddbeb513364c28a2.1773665966.git.ljs@kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rQJGjdnIy-uX-JEJlDt0gP2gLM9zTJKL
-X-Proofpoint-ORIG-GUID: rQJGjdnIy-uX-JEJlDt0gP2gLM9zTJKL
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE4MDEyMSBTYWx0ZWRfX9Hg0CY3k/bhE
- VI25Cg57J27eVYdkrMonGY3yxcYnT8+efVVJIZzwF+7E2y+4uwrzuPGceZe2+w/3vl77frETtb1
- u6yXZBwgX+Pv+GP49NCK4iuCld3E16CgaYQ4VU27kzWz3wnFYFQquYx4CK1To9XF5bSKf/Q23YD
- WMv4w53vrDJwJrdVFkIAbAfUPcwNTdnWmpb6kvT+jq7j5HvnDNpB2GsXl7SILFk6p7QGGPmYG5h
- 3YdVarUxGe4Yz0WOQRUrj/Jg/OW7hsvWoLxkket4dut2h8/6ytJWg6UtV0Qlg3jqM/GfttAInAl
- TuHvhs0/qxypt4dUNKi5KZi4bRorbGYBBGAcv1rW+fm1gB1j4eREuQ6OIBnBIy5ly2JcRdDDTz/
- dujYmTIouzIqRMKEhwOwo9AIFWaRNvwowtVSLyfou/Xg3xVixtyGS0t0MvNItBrbGP+waX21GrU
- 0dOjrneTe/ktMNxdO/g==
-X-Authority-Analysis: v=2.4 cv=Hf8ZjyE8 c=1 sm=1 tr=0 ts=69bab6c5 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=kj9zAlcOel0A:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=5VlVqv3a4dB1-NjogH0A:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-18_01,2026-03-17_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 malwarescore=0 lowpriorityscore=0 impostorscore=0 bulkscore=0
- suspectscore=0 priorityscore=1501 spamscore=0 adultscore=0 clxscore=1015
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603180121
 
-On Mon, 16 Mar 2026 16:23:51 +0000
-Janosch Frank <frankja@linux.ibm.com> wrote:
-
-> An absolute address is definitely guest physical.
+On 3/16/26 14:07, Lorenzo Stoakes (Oracle) wrote:
+> Firstly, add the ability to determine if VMA flags are empty, that is no
+> flags are set in a vma_flags_t value.
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->  arch/s390/kvm/gaccess.h | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+> Next, add the ability to obtain the equivalent of the bitwise and of two
+> vma_flags_t values, via vma_flags_and().
+
+Nit: "two values" is vma_flags_and_mask(), while vma_flags_and() takes one
+value and list of flags, no?
+
+> Next, add the ability to obtain the difference between two sets of VMA
+> flags, that is the equivalent to the exclusive bitwise OR of the two sets
+> of flags, via vma_flags_diff_pair().
 > 
-> diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
-> index b5385cec60f4..ee346b607a07 100644
-> --- a/arch/s390/kvm/gaccess.h
-> +++ b/arch/s390/kvm/gaccess.h
-> @@ -24,7 +24,7 @@
->   * Returns the guest absolute address that corresponds to the passed guest real
->   * address @gra of by applying the given prefix.
->   */
-> -static inline unsigned long _kvm_s390_real_to_abs(u32 prefix, unsigned long gra)
-> +static inline gpa_t _kvm_s390_real_to_abs(u32 prefix, unsigned long gra)
->  {
->  	if (gra < 2 * PAGE_SIZE)
->  		gra += prefix;
-> @@ -41,8 +41,8 @@ static inline unsigned long _kvm_s390_real_to_abs(u32 prefix, unsigned long gra)
->   * Returns the guest absolute address that corresponds to the passed guest real
->   * address @gra of a virtual guest cpu by applying its prefix.
->   */
-> -static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
-> -						 unsigned long gra)
-> +static inline gpa_t kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
-> +					 unsigned long gra)
+> vma_flags_xxx_mask() typically operates on a pointer to a vma_flags_t
+> value, which is assumed to be an lvalue of some kind (such as a field in a
+> struct or a stack variable) and an rvalue of some kind (typically a
+> constant set of VMA flags obtained e.g. via mk_vma_flags() or equivalent).
+> 
+> However vma_flags_diff_pair() is intended to operate on two lvalues, so use
+> the _pair() suffix to make this clear.
+> 
+> Finally, update VMA userland tests to add these helpers.
+> 
+> We also port bitmap_xor() and __bitmap_xor() to the tools/ headers and
+> source to allow the tests to work with vma_flags_diff_pair().
+> 
+> Signed-off-by: Lorenzo Stoakes (Oracle) <ljs@kernel.org>
 
-as Christoph suggested, please put it on one line; with that fixed:
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
->  {
->  	return _kvm_s390_real_to_abs(kvm_s390_get_prefix(vcpu), gra);
->  }
+Acked-by: Vlastimil Babka (SUSE) <vbabka@kernel.org>
 
