@@ -1,185 +1,250 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B74E737AA7D;
-	Wed, 18 Mar 2026 08:20:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40084377553;
+	Wed, 18 Mar 2026 11:34:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773822055; cv=none; b=Q3k7zdc3fCv5FxxKm/ij3osly3l8IV3BOrj187D6d1Le0lQeQjHV+VQ3hkvcdkYqJFD+/6PBbY/H50dyMjnORyzBjGKZ7VP3XzH8ucxVYnkKOsHXy4rVInd0xAHnNpllX2aZvo7RfqMMLSjbErGiWQHW7avU6TKgMVG6ARoCgUQ=
+	t=1773833680; cv=none; b=h/e710LmP2CBlfo/16asP7Iv505K8MPd3rFM65k7G/coHlNlQItgqVM/xLlW8hEAYSCHbtxsQh9Io2SFtWT2QXORYLB/DCIcgBKO0gyKc6tvBrzc/8RP0xLUCE8E5QucX7Z6ZQeHIJA+jK1Y+IJBVBd3F63tK/65lUktW1kaT/Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773822055; c=relaxed/simple;
-	bh=4iDXfO4piBeUTI+J6XtSG33I+Bok33vhWjPBczwJ/oI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hgiG7YBSTaQ6+OegxqxSVqtdhW9xGo1ICXOo/tm3aHw27tsDuTMfV7JBaktoWCNCnmQejZ280VnReRrnbrNZHEuWRmsAML+YReueZ1fKhWpi+trh+tyyqzkrUpmpNHN7gNPP287vBVno5/N5X8/BDATiLWekH4n5hLqVOkv07sI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VrwoUdnz; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1773833680; c=relaxed/simple;
+	bh=QhJpKRfjPIh6QkF0VEG5UuB6VPtX5UPYQjMK0FZ8z1E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=FOig1DkPH4k6XU6L5xO352anIFadOAu334KizctMoeaPQNtNSmho3HvzEoyCbtmtVafmCQq/XEd3Xz+yl8Dmp0p6evanhAdmCoFCQAirn6aEKhhT3RomfU89yfkwwINd++7elOPjDQl3Bw7O8Iy2gRaIuvwd8Sfi/DWlEASF3z4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VH4mwz0C; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VrwoUdnz"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62HIcguW622825;
-	Wed, 18 Mar 2026 08:20:50 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VH4mwz0C"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62I5JdmG972322;
+	Wed, 18 Mar 2026 11:34:35 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=JZxBCj
-	ositLH+55spngCp/YOKn6U3KMCEd8mZo2qlx0=; b=VrwoUdnz5GVvceiqnaxfu/
-	zdgxJhwQMXFty7BaWfpMiR3mn+uTZ1n+Kt95FM16lBWi62Uk2McdPrcEPw9hEPfv
-	T20mDPAXlclSXdgaM24/bSUKiEZS0X5BxPtEgjNXf2xSmFj+Erh4LG/wysZJtwhu
-	Wfm7oNceMgCx/NzIeJzffTyZi7cx7JKtRvMg9QOojcK7afiRBotAojyQ+8aWHBdw
-	4AIrwxgZPeWaItFAJhDwuNQQ0K5Pls4CNFp/b9GHHa2Azdkwu3PvSv+K3NCciXi9
-	kkbuk+IMdEqP3HBEKlDx2s/8tNz14E2l066+EVTskAsErM0RukLXYCcnnVlJtacw
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvx3d0abq-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=c5NAkJOel0CQz9GiraukIpr7jN8BLihcBSWIDAPAt
+	18=; b=VH4mwz0CHhrsqdF2dXZiPti5BmOx565AgaSW/bElajFIiR1jlTrfny+rD
+	j47oxOnDa3DFvPVdLGpVRHr/Dc58LgLK2zhbdu3LYjNRdbnvG1QyuYE5Wy9zOgDJ
+	8kqQYmCJ1IReGvrzxDg6/QevVrcp6KCmd6pDcIGLcT73hsuADGK0kl0BjJ7vN67M
+	qEI795sn/g1teTmFPEa3B4xAaLt4SrCJfUG7wb3d9YSJoiNWV4V5LDBLJAY6wIf2
+	XiLA9p+68gK6TvrpD7IPBQNAFcd2dLKvGNXEDzjuTyOhOb7kWhQzJSF1PQj+TDBC
+	P1QZXpOMG+zG6JPpS/OMtKJ57sTfg==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvy64sqvy-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Mar 2026 08:20:49 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62I4Su74004581;
-	Wed, 18 Mar 2026 08:20:49 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cwj0sd7np-1
+	Wed, 18 Mar 2026 11:34:35 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62IAsHUO028501;
+	Wed, 18 Mar 2026 11:34:34 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cwmq1dh2m-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Mar 2026 08:20:49 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62I8Kj6d46268886
+	Wed, 18 Mar 2026 11:34:34 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62IBYUZk48234928
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 18 Mar 2026 08:20:45 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1A9512004E;
-	Wed, 18 Mar 2026 08:20:45 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D71AE2004B;
-	Wed, 18 Mar 2026 08:20:44 +0000 (GMT)
-Received: from [9.52.199.37] (unknown [9.52.199.37])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 18 Mar 2026 08:20:44 +0000 (GMT)
-Message-ID: <d2396ba9-1859-49d2-b8de-94e87241a6f2@linux.ibm.com>
-Date: Wed, 18 Mar 2026 09:20:44 +0100
+	Wed, 18 Mar 2026 11:34:30 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AE6CA20043;
+	Wed, 18 Mar 2026 11:34:30 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7457D20040;
+	Wed, 18 Mar 2026 11:34:30 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 18 Mar 2026 11:34:30 +0000 (GMT)
+From: Thomas Richter <tmricht@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org,
+        irogers@google.com, dapeng1.mi@linux.intel.com
+Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+        hca@linux.ibm.com, japo@linux.ibm.com,
+        Thomas Richter <tmricht@linux.ibm.com>
+Subject: [PATCH v4] perf record: Add support for arch_sdt_arg_parse_op() on s390
+Date: Wed, 18 Mar 2026 12:34:16 +0100
+Message-ID: <20260318113416.2287472-1-tmricht@linux.ibm.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 0/5] perf evsel fallback changes, better s390 defaults
-To: Ian Rogers <irogers@google.com>
-Cc: acme@kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com,
-        hca@linux.ibm.com, japo@linux.ibm.com, linux-kernel@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org,
-        namhyung@kernel.org, sumanthk@linux.ibm.com
-References: <CAP-5=fUO8azimnOV2Ogb93nZ3eXnaLdGo6b+3wPVf0tMz29JqQ@mail.gmail.com>
- <20260317175642.161647-1-irogers@google.com>
-Content-Language: en-US
-From: Thomas Richter <tmricht@linux.ibm.com>
-Organization: IBM
-In-Reply-To: <20260317175642.161647-1-irogers@google.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=arO/yCZV c=1 sm=1 tr=0 ts=69ba6062 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=c92rfblmAAAA:8 a=1XWaLZrsAAAA:8 a=ObKG83E-m0-uxJZurrIA:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10 a=GvGzcOZaWPEFPQC_NcjD:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE4MDA2OSBTYWx0ZWRfXwN8kO/h0CWXa
- zBn7sRUmgzMhdSAVk2x4izMiNugUiSnYdVB5vQ29ojm0WI999lO29ARK0d/bkUp0EtQ57WE84T9
- GwtDOoCihNJRC1r+q3lTVC+9o7/+pqmMc8dhzlNomrZageViZoI8q+TROfApKdpRlO+lk5MohpZ
- J2ux4pfMM0UgBKWJwjMh402g8d3az/EsYh0ZDncPr/817fLXeKfm85yfG/lBuH+Nc+we2BEinSV
- WmqE+pzGZit3nJPVTVpd8xFpTBK8xWIO8sw7K9YKKSB6EfFCqJysdeGeEiwHuDT6z/NdFVH6BDo
- TEwnqhv9pGPWEWCnz/CWUL4ilyrIWMtNtT59xY+ExvfYfL1Rd3ife4M22aioT6u4KMcm0UUTl5s
- 9lMVf/froe4fudgKe4vUSM7VAgpDm95gsHYjbmdP7ZDE+L31zobU+zsFYguUjKaztyGenHVSFtE
- TAMYfczYLGxJ1Ic/o6w==
-X-Proofpoint-GUID: uBenSS1Ap3oKWbOg24k-aYS5xVrhgNRF
-X-Proofpoint-ORIG-GUID: MAcF-LjZdIk7Pr4n58gBb4lzUPUk50mW
+X-Proofpoint-ORIG-GUID: vW3ukWvlYZxzYC-ithtPRGLMS_iXzBB9
+X-Proofpoint-GUID: D6L3IAGeUo5dP8b46if4ETcDj0WAATG2
+X-Authority-Analysis: v=2.4 cv=KYnfcAYD c=1 sm=1 tr=0 ts=69ba8dcb cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=QyXUC8HyAAAA:8 a=1XWaLZrsAAAA:8
+ a=3tPfgpBZzwENxpOU27sA:9 a=O8hF6Hzn-FEA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE4MDA5NSBTYWx0ZWRfX8jxrfrkf8OAT
+ yky0BL5UoBjm7rG8B7Jtw3Pj/Eezn3VgIDk0YDFkGEz1Hxrhg8tuvTMU6aOhbrkRA1NMoRUlMM2
+ sKr24N2d029LLTTv1XKI+wlVoGechAyYZPTKldLE8wWlO01an1hq6pxDytP0sNsqvauC//LaLv2
+ YFLSqzUQWxm8Zm1j+hYY+JqZp4s0RQtwkUFtEb8wfwEGe0sI+TJYW/yzJnDSWbnvpqRacsUaXre
+ 7eIG+c2VeVFWM05i/PMJ02YVwfPNOS64AjyhzHMomaix6M2ytp1xzSOl83qIcOMV4O0MlaMJZez
+ Ewo7LP1YBcUZtsNh1gLahkxIi2xB+LjqXy0Ni2Kesu21pk32pfJmmKFAZSIZ5tSZXig1X16g2i2
+ PnSiaCi+zbNWvAN2whQwkQNzchtfFITA4DwNdGwox9/wdSglWPEfwe+oY27Mml71YpenHFzRyS6
+ 1c7cjLTxtOTyg4Bb7EQ==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-17_05,2026-03-17_02,2025-10-01_01
+ definitions=2026-03-18_01,2026-03-17_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 lowpriorityscore=0 impostorscore=0
- adultscore=0 bulkscore=0 suspectscore=0 malwarescore=0 clxscore=1015
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
- definitions=main-2603180069
+ phishscore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0 bulkscore=0
+ spamscore=0 impostorscore=0 malwarescore=0 adultscore=0 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603180095
 
-On 3/17/26 18:56, Ian Rogers wrote:
-> Discussion with Thomas Richter in:
-> https://lore.kernel.org/lkml/20260306071002.2526085-1-tmricht@linux.ibm.com/
-> showed that the evsel__fallback wasn't working for s390. These patches
-> avoid the problematic frame pointer callchain on s390 and fix
-> evsel__fallback from a range of problems when falling back to a
-> software event. I simulated failures when developing the patches but
-> they are untested other than that.
-> 
-> v6: Sashiko noted that target wasn't fully set up when creating the
->     default evlist in `perf top`, so move it earlier. Fix const char*
->     casting issues in __parse_callchain_report_opt. Make '-g' not
->     override the .perfconfig setting again.
-> https://sashiko.dev/#/patchset/20260317055334.760347-1-irogers%40google.com
-> 
-> v5: Fix the value for the top option to match that of record. Tidy the
->     callchain parsing option callbacks. Based on AI review feedback:
-> https://sashiko.dev/#/patchset/20260317030601.567422-1-irogers%40google.com
-> https://lore.kernel.org/lkml/20260317055334.760347-1-irogers@google.com/
-> 
-> v4: Changing the callchain parameter at configuration time means other
->     options aren't set the same as they would for `--call-graph
->     dwarf`, for example the stack size. Switch to setting the
->     callchain option on s390 to parameter parse time. For '-g' use
->     '--call-graph dwarf' for s390. Other --call-graph options are
->     parsed as normal, but a warning is generated when setting
->     `--call-graph fp` for s390. Also fix that sample IDs aren't wanted
->     when there is only 1 event in the evlist.
-> https://lore.kernel.org/lkml/20260317030601.567422-1-irogers@google.com/
-> 
-> v3: Incorporate feedback about event and callchain behavior for s390:
-> https://lore.kernel.org/lkml/20260312061628.1593105-1-irogers@google.com/
-> https://lore.kernel.org/lkml/20260313202811.2599195-1-irogers@google.com/
-> 
-> v2: try exclude_callchain_user for s390 rather than fully disabling
->     the callchain. Fix a missed clearing of is_pmu_core if the
->     software event fallback.
-> https://lore.kernel.org/lkml/20260312061628.1593105-1-irogers@google.com/
-> 
-> v1: https://lore.kernel.org/lkml/20260312031928.1494864-1-irogers@google.com/
-> 
-> Ian Rogers (5):
->   perf evsel: Improve falling back from cycles
->   perf target: Constify simple check functions
->   perf evsel: Constify option arguments to config functions
->   perf callchain: Refactor callchain option parsing
->   perf evlist: Improve default event for s390
-> 
->  tools/perf/builtin-record.c      | 66 +++++++----------------------
->  tools/perf/builtin-top.c         | 67 ++++++++++++++++-------------
->  tools/perf/builtin-trace.c       |  9 +++-
->  tools/perf/tests/event_update.c  |  4 +-
->  tools/perf/tests/expand-cgroup.c |  4 +-
->  tools/perf/tests/perf-record.c   |  7 ++-
->  tools/perf/tests/topology.c      |  4 +-
->  tools/perf/util/callchain.c      | 73 ++++++++++++++++++++++++++------
->  tools/perf/util/callchain.h      | 12 ++----
->  tools/perf/util/evlist.c         | 32 +++++++++-----
->  tools/perf/util/evlist.h         |  2 +-
->  tools/perf/util/evsel.c          | 70 +++++++++++++++++++-----------
->  tools/perf/util/evsel.h          | 10 +++--
->  tools/perf/util/target.h         | 12 +++---
->  14 files changed, 217 insertions(+), 155 deletions(-)
-> 
+V4: Add comments from Ian and Sashiko:
+    Reset variable initialized to zero on error
+    Rework regular expression and reduce to one case.
+V3: Add comments from Ian
+    Print register expression without leading 'r' (wrong).
+V2: Add comments from Sumanth Koirkkar
 
-Ian, thanks a lot. I tested it using the same sequences as for v5.
+commit e5e66adfe45a6 ("perf regs: Remove __weak attributive arch_sdt_arg_parse_op() function")
+removes arch_sdt_arg_parse_op() functions and reveals missing s390 support.
+The following warning is printed:
 
-Tested-by: Thomas Richter <tmricht@linux.ibm.com>
+  Unknown ELF machine 22, standard arguments parse will be skipped.
 
+ELF machine 22 is the EM_S390 host. This happens with command
+  # ./perf record -v -- stress-ng -t 1s --matrix 0
+on a z/VM system when the event is not specified.
+
+Add s390 specific __perf_sdt_arg_parse_op_s390() function to support
+-architecture calls to arch_sdt_arg_parse_op() for s390.
+The warning disappears.
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Cc: Dapeng Mi <dapeng1.mi@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Tested-by: Jan Polensky <japo@linux.ibm.com>
+---
+ .../perf/util/perf-regs-arch/perf_regs_s390.c | 77 +++++++++++++++++++
+ tools/perf/util/perf_regs.c                   |  3 +
+ tools/perf/util/perf_regs.h                   |  1 +
+ 3 files changed, 81 insertions(+)
+
+diff --git a/tools/perf/util/perf-regs-arch/perf_regs_s390.c b/tools/perf/util/perf-regs-arch/perf_regs_s390.c
+index c61df24edf0f..9d34549be477 100644
+--- a/tools/perf/util/perf-regs-arch/perf_regs_s390.c
++++ b/tools/perf/util/perf-regs-arch/perf_regs_s390.c
+@@ -1,7 +1,13 @@
+ // SPDX-License-Identifier: GPL-2.0
+ 
++#include <errno.h>
++#include <regex.h>
+ #include "../perf_regs.h"
+ #include "../../arch/s390/include/perf_regs.h"
++#include "debug.h"
++
++#include <linux/zalloc.h>
++#include <linux/kernel.h>
+ 
+ uint64_t __perf_reg_mask_s390(bool intr __maybe_unused)
+ {
+@@ -95,3 +101,74 @@ uint64_t __perf_reg_sp_s390(void)
+ {
+ 	return PERF_REG_S390_R15;
+ }
++
++/* %rXX */
++#define SDT_OP_REGEX1  "^(%r([0-9]|1[0-5]))$"
++/* +-###(%rXX) */
++#define SDT_OP_REGEX2  "^([+-]?[0-9]+\\(%r([0-9]|1[0-5])\\))$"
++static regex_t sdt_op_regex1, sdt_op_regex2;
++
++static int sdt_init_op_regex(void)
++{
++	static int initialized;
++	int ret = 0;
++
++	if (initialized)
++		return 0;
++
++	ret = regcomp(&sdt_op_regex1, SDT_OP_REGEX1, REG_EXTENDED);
++	if (ret)
++		goto error;
++	initialized = 1;
++
++	ret = regcomp(&sdt_op_regex2, SDT_OP_REGEX2, REG_EXTENDED);
++	if (ret)
++		goto free_regex1;
++	initialized = 2;
++
++	return 0;
++
++free_regex1:
++	regfree(&sdt_op_regex1);
++error:
++	pr_debug4("Regex compilation error, initialized %d\n", initialized);
++	initialized = 0;
++	return ret;
++}
++
++/*
++ * Parse OP and convert it into uprobe format, which is, +/-NUM(%gprREG).
++ * Possible variants of OP are:
++ *	Format		Example
++ *	-------------------------
++ *	NUM(%rREG)	48(%r1)
++ *	-NUM(%rREG)	-48(%r1)
++ *	%rREG		%r1
++ */
++int __perf_sdt_arg_parse_op_s390(char *old_op, char **new_op)
++{
++	int ret, new_len;
++	regmatch_t rm[6];
++
++	*new_op = NULL;
++	ret = sdt_init_op_regex();
++	if (ret)
++		return -EINVAL;
++
++	if (!regexec(&sdt_op_regex1, old_op, ARRAY_SIZE(rm), rm, 0) ||
++	    !regexec(&sdt_op_regex2, old_op, ARRAY_SIZE(rm), rm, 0)) {
++		new_len = 1;    /* NULL byte */
++		new_len += (int)(rm[1].rm_eo - rm[1].rm_so);
++		*new_op = zalloc(new_len);
++		if (!*new_op)
++			return -ENOMEM;
++
++		scnprintf(*new_op, new_len, "%.*s",
++			  (int)(rm[1].rm_eo - rm[1].rm_so), old_op + rm[1].rm_so);
++	} else {
++		pr_debug4("Skipping unsupported SDT argument: %s\n", old_op);
++		return SDT_ARG_SKIP;
++	}
++
++	return SDT_ARG_VALID;
++}
+diff --git a/tools/perf/util/perf_regs.c b/tools/perf/util/perf_regs.c
+index 5b8f34beb24e..f52b0e1f7fc7 100644
+--- a/tools/perf/util/perf_regs.c
++++ b/tools/perf/util/perf_regs.c
+@@ -23,6 +23,9 @@ int perf_sdt_arg_parse_op(uint16_t e_machine, char *old_op, char **new_op)
+ 	case EM_X86_64:
+ 		ret = __perf_sdt_arg_parse_op_x86(old_op, new_op);
+ 		break;
++	case EM_S390:
++		ret = __perf_sdt_arg_parse_op_s390(old_op, new_op);
++		break;
+ 	default:
+ 		pr_debug("Unknown ELF machine %d, standard arguments parse will be skipped.\n",
+ 			 e_machine);
+diff --git a/tools/perf/util/perf_regs.h b/tools/perf/util/perf_regs.h
+index 7c04700bf837..573f0d1dfe04 100644
+--- a/tools/perf/util/perf_regs.h
++++ b/tools/perf/util/perf_regs.h
+@@ -62,6 +62,7 @@ uint64_t __perf_reg_mask_s390(bool intr);
+ const char *__perf_reg_name_s390(int id);
+ uint64_t __perf_reg_ip_s390(void);
+ uint64_t __perf_reg_sp_s390(void);
++int __perf_sdt_arg_parse_op_s390(char *old_op, char **new_op);
+ 
+ int __perf_sdt_arg_parse_op_x86(char *old_op, char **new_op);
+ uint64_t __perf_reg_mask_x86(bool intr);
 -- 
-Thomas Richter, Dept 3303, IBM s390 Linux Development, Boeblingen, Germany
---
-IBM Deutschland Research & Development GmbH
+2.53.0
 
-Vorsitzender des Aufsichtsrats: Wolfgang Wendt
-
-Geschäftsführung: David Faller
-
-Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
