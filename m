@@ -1,190 +1,120 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDA2B8462;
-	Wed, 18 Mar 2026 06:16:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773814591; cv=none; b=IcwP1cQPlU6Fr2JeXdfrmpfV1QNOqxglz7L8E0QNycHvoMG3wXZKqqYu2IROQeozgds8o02KAIIPEUgrdtjt2HraJfMBCUXHtLGp7KbNSO9Q4axgUbAG3ABYhU52g49yDzSse+4lrUIpA89flIN1mT8sDaTNKkS4lIvdY36pDqA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773814591; c=relaxed/simple;
-	bh=oDnlMW+yrl3kxEDV1Uxuwpsrw8lOvDpiu3LAZZ2bpIg=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:To:Cc:Subject:
-	 References:In-Reply-To; b=i7H2eSQGZPLPk/VFgLN0W67viuvlwjgU7vLJy//fJBJpZrZckXAhc2hxUJMc0N+ThXV0/Ap524yGJr5k3WxLayl4ARZvAo28tHBqFdU1y9RZUi/E3FdW3GveEukXtjxQ1ATI0eRieECYxLmd7XRJUGHSSj4CXUUmW971z3IgA4I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=iS1zN2AE; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB22F364938
+	for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2026 06:16:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.44
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773814601; cv=pass; b=liRTmYxA1X/vaLn76xPhXIg+UzDofuKlnBJLR6PXF3ZjIa7y2R524HxRpjAhYbvetKKRtQT6rhYo7mi04F+H0HRCi8vDbP8HsZlN5La3O4+ZCvynuwtLu+hoqWTAa6JlAtptkPrmC4XKFjcn3sFBzJGo0BUAnmsjaxAG+0ofQgA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773814601; c=relaxed/simple;
+	bh=LyvuvQqufknbMfPTy2o7n/T+OqohBBDpzWX+jX0Ni6Q=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=iYQlt6B3tQVCTEjGziBmH/WelTxG+Mj0Qv8LvyHY4DlYahr1r3ewkKY90ZNpKBbInuzNBn5AQlXXvM5SygxS95BqgW7UGVcItheTphgprs44P8ViblKujQyPUVwNz+LVkIwHdA6zavj0YP9DXseDz4Zc4ImDK2pYoBa3bP6+Mk4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=czA+VIq9; arc=pass smtp.client-ip=209.85.218.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="iS1zN2AE"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62I601hr3176840;
-	Wed, 18 Mar 2026 06:16:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=DifgUe
-	WpE4npuUkNsLjMpFr/mxGVgkbz/vAv+BrXPtg=; b=iS1zN2AE2pgOS9fEDNhy03
-	MhmglpDq6czo7tzl6o+xaoyqJfkk3EXeG/+jfnfHt1qMx1N5nswNWv2rxzKGoHNs
-	bC94db4scXeHUX63WB6pxxyfvQMe/oeaF4QSF865CELrGVMoQKzrnejYuBjORiMw
-	JoYf+W1kR4TJ3T5SqF5AZes5maI5la8nqpKJ+YB89KCuf0JDuexCE4/6+eV57QWe
-	1wVaCq8+qUGL3S5T2yr6lq6yEOaSnLTw4B81yBzPnX9CBXm0nAU3wNouNWMxoNmb
-	w9e3+TUKr7kSstQcxmGe7RCG0RomX6/iFHJnSjOow/Lk+CMPexGHhiD612pAoBTA
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvx3cyw3y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Mar 2026 06:16:18 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62I5jBUb032327;
-	Wed, 18 Mar 2026 06:16:17 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cwm7jvgw4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Mar 2026 06:16:17 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62I6GDLZ39059714
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 18 Mar 2026 06:16:13 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 61BC72004B;
-	Wed, 18 Mar 2026 06:16:13 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2963B20043;
-	Wed, 18 Mar 2026 06:16:12 +0000 (GMT)
-Received: from localhost (unknown [9.111.43.66])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 18 Mar 2026 06:16:12 +0000 (GMT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="czA+VIq9"
+Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-b97a06d7629so541523966b.0
+        for <linux-s390@vger.kernel.org>; Tue, 17 Mar 2026 23:16:39 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1773814598; cv=none;
+        d=google.com; s=arc-20240605;
+        b=XNK9df/U6SmbBoJxsNXGUzAp3gpImkamacCEBG3lfim59noayKexZHTfCm37FUlKMi
+         xUZT7+qvIJ/zEU1s3pLZbb+wpR1LqCOxPi58zSZmHrjAUd9EoHb1US5uN7HN0Zv7/xkV
+         /mGc6P2iSM52ausN6mZFcijBKZL35p77/XNLjuf1/dkPz7yD1/uAQ70BMTzEFoP7Pl08
+         n+cEDuj7S447c/qHzYFMbctJ1OplBxFk1oT2o3J4fx0AhOetF2GIhkRaBGY7NbGchzki
+         2i4RBjvjmP/DekbLBG20bmjR8+LyyKywtimlXiK1S4TQA6jKZr8Wi14cMrtT9K90kBJP
+         rfPA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=hNXx5fLw5itcSqfItrsW3d6my1DlKfO6NqzxE5+AiMo=;
+        fh=WUYv2oP8E7OvSfVrGaISLzmqi7fnz7+cm9pFl2MGUhc=;
+        b=Acb6b+RnjH5L8FAx14sq5jVkPB8EbF2iquKtPVaS/ZVw67RbH9uFM7pOMBJXrGhdlj
+         Ub5egCvs1J7OmLD/bYHhVL6MTUGzhX19vCmaZs4JzCxJPi81/v0KrB+07PIEm5UKCpCr
+         iE18gWmolnhd4MkwR6KnALi43KfdVcDMufGTvIjEiA/k+kPSujZiLee3BVktVLdAivVA
+         KmNid3Yuz+VGNtLOGFmIHjsqiH4vIFnX9Hgl4VW3b7cvC8CK9BW9Oe3b5YJ/RFKORurB
+         K3kyaKA4Ra0xxCBIRWxz+eEaOgTX4wfkoGWqzqsX+SmWgvAucEjMikQezLoljDXx/jsa
+         hHjA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773814598; x=1774419398; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=hNXx5fLw5itcSqfItrsW3d6my1DlKfO6NqzxE5+AiMo=;
+        b=czA+VIq9QGWQxIWviOuOrte+AkszdW/h15AxwnnBl8PgQdCUSJeFt/rkA58JF8bw1z
+         MYdnPYGFr5y46Y9Ze6hH0uQbYgBxWhk4ISCFrpb1oCRqUKW8TesUGp2nfyk/tjdH6ZzI
+         DwOCFfQmjthVedmcIE7z/9904oV0s5pfRk6WMlT+ADyKZllzFK45VHyMvAMFKoo37U/j
+         J1nqKAueMk09QeZKqRnb2BbN9+d1iclFRFK4eWers79RzlXUT6c5NL6yIGsvvdDwBLkL
+         mIaXTaJyIolZxl+55rCZtIapNWvPnqXYQeH5Kjuv+rgtZgAO2r5C3jf4lHbFErXbdAiD
+         Zyfg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1773814598; x=1774419398;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=hNXx5fLw5itcSqfItrsW3d6my1DlKfO6NqzxE5+AiMo=;
+        b=PwVF8pN+7DLeINf2eY3ns8vrvnqcaPrbKiHYzO6kgBTkNSly5qPulPw+/XCUvV3r9Y
+         gNStrV+QNu4srgCjVB2wDQaS8NioEGzHYlGWK0HRbVTNKn9SKL/h/yO8hec4Exq2TGK/
+         LqjbQawosF/IdN2Qbi5luaQbSKArgchXWw/t0XJAz8tNwOVRBbf0YcxVJcCZYYXihB4P
+         0icTGF4y/DhUOK4pBL6cvPOky8fvqLSadWUb7RhuBRsK2O1WltMWb/9A4ki11PUMCmRC
+         XMzB5HmYs8dYlifkZlGHItQC2ILitSlcMk/XQ81ZLWTHC5CorjtMCRU4HM2bQL+2scL7
+         T/XA==
+X-Forwarded-Encrypted: i=1; AJvYcCUfBeCyVIJDm3geod+8vYSFUjRVVPpzWyFe+spTDe8dgwVQCEmXE4oPRrI0bC8GEIa2igU16CloVyex@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw8TjuOE/Td/RVpTUPmvSur+4H3a6wvYdBTMB8/sm792IAoFeNd
+	RTYG+IYujdBqMyyzST/jAn5hpczY5/hSYRg1VaUmtDz+xQk7WsRJOJTvqWm7SyB65tY1TqiQA6T
+	YHNaCLMXUB91AZvOvvp57HpHazVIwslU=
+X-Gm-Gg: ATEYQzxFbmm9yr4O2M9LCizJcC/V9TnR+VfktJUevoWe0jxN/DlOZLHkl+y9koIEKyW
+	7MY32qKRAElXbCAb5/XgwNrBE0+o/J3U9TXYm9QPSAC24wWj9kRswccf2f+L7nrZ/Lo/hYO9JnY
+	7WbFc6F3j6vGvQQC4JYkR7T4HizF+XhkY+O5sjOnLuc5yNnbqXQ+/G1BaVajoTWgn4NRcPooMGa
+	U4FC7sIFCDdfwM7+sMZ08SSPruUOZD+okB5k/dQyZ8zf7Yycy6VUYe8/BoESo+l6QuJN2bxHLKO
+	86XIutzpXYFfDpt3P0k3CwfZF/YaTdHa1pYLfvh0odh1FoLyiLY=
+X-Received: by 2002:a17:907:7b93:b0:b97:cc05:61b9 with SMTP id
+ a640c23a62f3a-b97f4801ab5mr133040366b.15.1773814597747; Tue, 17 Mar 2026
+ 23:16:37 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
+References: <20260302-at-vector-size-arch-v1-0-a11f03ba2ca8@linutronix.de> <20260302-at-vector-size-arch-v1-14-a11f03ba2ca8@linutronix.de>
+In-Reply-To: <20260302-at-vector-size-arch-v1-14-a11f03ba2ca8@linutronix.de>
+From: Magnus Lindholm <linmag7@gmail.com>
+Date: Wed, 18 Mar 2026 07:16:26 +0100
+X-Gm-Features: AaiRm51Xx89jeaivgNYAhMk2LxpIu3kD6j5N4SuQDZ84WCnP1EAzJIW2dMNKGiE
+Message-ID: <CA+=Fv5RLtUPp9BhXfFEUk3roE3Gah0iUamDEZ-MXCNM_xKm3PA@mail.gmail.com>
+Subject: Re: [PATCH 14/15] alpha: remove AT_VECTOR_SIZE_ARCH from UAPI
+To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+Cc: Kees Cook <kees@kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-riscv@lists.infradead.org, 
+	loongarch@lists.linux.dev, linux-s390@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-mips@vger.kernel.org, 
+	sparclinux@vger.kernel.org, linux-sh@vger.kernel.org, 
+	linux-alpha@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 18 Mar 2026 07:16:11 +0100
-Message-Id: <DH5OSCR30K6L.3SIBYOZ6166AC@linux.ibm.com>
-From: "Julian Ruess" <julianr@linux.ibm.com>
-To: "Niklas Schnelle" <schnelle@linux.ibm.com>,
-        "Farhan Ali"
- <alifm@linux.ibm.com>,
-        "Julian Ruess" <julianr@linux.ibm.com>, <wintera@linux.ibm.com>,
-        <ts@linux.ibm.com>, <oberpar@linux.ibm.com>, <gbayer@linux.ibm.com>,
-        "Alex Williamson" <alex@shazbot.org>,
-        "Jason
- Gunthorpe" <jgg@ziepe.ca>, "Yishai Hadas" <yishaih@nvidia.com>,
-        "Shameer
- Kolothum" <skolothumtho@nvidia.com>,
-        "Kevin Tian" <kevin.tian@intel.com>
-Cc: <mjrosato@linux.ibm.com>, <raspl@linux.ibm.com>, <hca@linux.ibm.com>,
-        <agordeev@linux.ibm.com>, <gor@linux.ibm.com>, <kvm@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        <linux-pci@vger.kernel.org>
-Subject: Re: [PATCH v5 2/3] vfio/ism: Implement vfio_pci driver for ISM
- devices
-X-Mailer: aerc 0.21.0-0-g5549850facc2
-References: <20260317-vfio_pci_ism-v5-0-b73248b4e576@linux.ibm.com>
- <20260317-vfio_pci_ism-v5-2-b73248b4e576@linux.ibm.com>
- <de08911a-8bcc-4983-9ad2-b20467ebbb7f@linux.ibm.com>
- <ef044e7fa28e33cf865882e374957c0cd10124d1.camel@linux.ibm.com>
-In-Reply-To: <ef044e7fa28e33cf865882e374957c0cd10124d1.camel@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=arO/yCZV c=1 sm=1 tr=0 ts=69ba4332 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=yDXdNYyLDAtsUWoxkjsA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE4MDA1MSBTYWx0ZWRfX0KT5g6jHbLCN
- JS79k+9K0j2YW2GmxHMyXw6jPBJR9dGI3D+4PbIxS+N1q6PpY/JQeSzEyAFCBl27K7kCtBzwJIS
- 4tVxIf97jF+JVqysFpV6qIhkYgEIoA4ni/qiWqAenxElysjTqMMkITzGDKkc+jpBDkVz3wEsIH+
- n9wYhbj5U8IE1YZrUoa3TsKEqCQJihe2kDZVw7Aux0dkPS+Q33aWHAw42iwcWBAUuYbgpUVTJT6
- Yb6F9WxsJ/8XfgedfrqP23FHXNbnfrBIsfYqYNu1kJHrKW13yQmtPHrRdG4Duw+Mp9zkUypo7pg
- N3rEev0/p/BNbpy7JYrVi+C6QS1GPbqWTdpNr8UBC1+kIwCZPyd35nALrLtY+PQ1TbKey31p1hK
- Wsfsxadrv3vg53Pq0ZmYQ11Qd/gcE8FzdosMLxbYlJ/EL94jd4kel/fMFHDzefr5hOde6U5qPcF
- y0nMy21Viw8IvdPe9ag==
-X-Proofpoint-GUID: U5dQJsKgC-FeaBSVolbyzLf-1CQIDqbz
-X-Proofpoint-ORIG-GUID: U5dQJsKgC-FeaBSVolbyzLf-1CQIDqbz
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-17_05,2026-03-17_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 lowpriorityscore=0 impostorscore=0
- adultscore=0 bulkscore=0 suspectscore=0 malwarescore=0 clxscore=1015
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
- definitions=main-2603180051
 
-On Tue Mar 17, 2026 at 10:16 PM CET, Niklas Schnelle wrote:
-> On Tue, 2026-03-17 at 11:43 -0700, Farhan Ali wrote:
->> <..snip..>
->>=20
->> On 3/17/2026 5:58 AM, Julian Ruess wrote:
->> > static int ism_vfio_pci_probe(struct pci_dev *pdev,
->> > +			      const struct pci_device_id *id)
->> > +{
->> > +	struct ism_vfio_pci_core_device *ivpcd;
->> > +	struct zpci_dev *zdev =3D to_zpci(pdev);
->> > +	char cache_name[20];
->> > +	int ret;
->> > +
->> > +	ivpcd =3D vfio_alloc_device(ism_vfio_pci_core_device, core_device.vd=
-ev,
->> > +				  &pdev->dev, &ism_pci_ops);
->> > +	if (IS_ERR(ivpcd))
->> > +		return PTR_ERR(ivpcd);
->> > +
->> > +	snprintf(cache_name, sizeof(cache_name), "ism_sb_fid_%08x", zdev->fi=
-d);
->> > +	ivpcd->store_block_cache =3D
->> > +		kmem_cache_create(cache_name, zdev->maxstbl, 0, 0, NULL);
->> > +	if (!ivpcd->store_block_cache) {
->> > +		vfio_put_device(&ivpcd->core_device.vdev);
->> > +		return -ENOMEM;
->> > +	}
->> > +
->> > +	dev_set_drvdata(&pdev->dev, &ivpcd->core_device);
->> > +	ret =3D vfio_pci_core_register_device(&ivpcd->core_device);
->> > +	if (ret) {
->> > +		kmem_cache_destroy(ivpcd->store_block_cache);
->> > +		vfio_put_device(&ivpcd->core_device.vdev);
->> > +	}
->> > +
->> > +	return ret;
->> > +}
->> > +
->> > +static void ism_vfio_pci_remove(struct pci_dev *pdev)
->> > +{
->> > +	struct vfio_pci_core_device *core_device;
->> > +	struct ism_vfio_pci_core_device *ivpcd;
->> > +
->> > +	core_device =3D dev_get_drvdata(&pdev->dev);
->> > +	ivpcd =3D container_of(core_device, struct ism_vfio_pci_core_device,
->> > +			     core_device);
->> > +
->> > +	vfio_pci_core_unregister_device(&ivpcd->core_device);
->> > +	vfio_put_device(&ivpcd->core_device.vdev);
->> > +
->> > +	kmem_cache_destroy(ivpcd->store_block_cache);
->>=20
->> I think the kmem_cache_destroy() should be done before we do=20
->> vfio_put_device() (or maybe even before=20
->> vfio_pci_core_unregister_device()) to avoid use after free similar to=20
->> ism_vfio_pci_probe(). Sorry I missed this earlier.
->>=20
->> Thanks
->>=20
->> Farhan
->>=20
+On Mon, Mar 2, 2026 at 1:32=E2=80=AFPM Thomas Wei=C3=9Fschuh
+<thomas.weissschuh@linutronix.de> wrote:
 >
-> Good find! Wouldn't it be even cleaner to provide vfio/ism specific
-> .init and .release functions in ism_pci_ops that do the
-> kmem_cache_create() / kmem_cache_destroy() as part of init / release?
-> It seems this is done for e.g. Xe with xe_vfio_pci_init_dev()
-> and xe_vfio_pci_release_dev(). In fact wouldn't that be even necessary
-> to correctly handle the case where the above vfio_put_device() isn't
-> the last reference?
+> There is nothing userspace can do with this value. In the kernel is
+> always combined with AT_VECTOR_SIZE_BASE, which is not exposed to
+> userspace and also changes from time to time.
 >
-> Thanks,
-> Niklas
+> Move the symbol to a kernel-internal header.
+>
+> Signed-off-by: Thomas Wei=C3=9Fschuh <thomas.weissschuh@linutronix.de>
+> ---
+>  arch/alpha/include/asm/auxvec.h      | 7 +++++++
+>  arch/alpha/include/uapi/asm/auxvec.h | 8 +++-----
+>  2 files changed, 10 insertions(+), 5 deletions(-)
+>
 
-Thanks guys! Yes, I think we should introduce custom .init and .release fun=
-ctions. Will change that in the next version.
+Build-tested on alpha, no issues here.
+
+Acked-by: Magnus Lindholm <linmag7@gmail.com>
