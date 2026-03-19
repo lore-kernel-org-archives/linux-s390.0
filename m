@@ -1,54 +1,54 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28F82356A3E
-	for <linux-s390@vger.kernel.org>; Thu, 19 Mar 2026 14:21:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E34CD317174
+	for <linux-s390@vger.kernel.org>; Thu, 19 Mar 2026 14:22:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773930099; cv=none; b=bTIUQnYDBeTZZ6uDp2bV2BBg2ptNGn79ZWhkLiz+RefZZFrKc1AA2S94NrO3EA84xfZMH5cyyFykhzUl8Ug3HOTUwft1UO0LFsr/S79lmPCHCFDhoYz2qLZx7g3yIbkkYh/BYoPsmyCAjyYRwypdHZXzuEBviZZ1lXg76B8d6pE=
+	t=1773930162; cv=none; b=PPS+Ox13qGu4yAzT5KJghoR/lR9qWe8t3y5d2Qb9hMgmz7U8YWQtOLUDQjgtx5SwwZXfj1Gi8DvpudYMSD03Z/kYORuaSkRlo4ZqJs5D0Q5K0Ny0Ozzxj2k7xSo9ejdx33h21D9xB+thpD0fRUK/J++TgXrOS2oCpgmt22JQ/HA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773930099; c=relaxed/simple;
-	bh=fosI3YoOXqBAqX1ZoDA9gABty1blUjmS5M1S48wnuG4=;
+	s=arc-20240116; t=1773930162; c=relaxed/simple;
+	bh=Evs56mbBGrc90rf5Avs+YgxUnnNU/75HgapY7N2z4x8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=RlLL4umoaRoLcqAs2KCaJ2ij9YRy1orvvv3rztl6RbT0+Nu+rMcMeqW4A2/Dyg64aJRZM0YwzovSNmwd6IAat8xqiZSQREdg6OfhRjPkDAdR1qUiiJZaf226wI7Y5tl7InFd/40h7jhODTO7+Acs50sJNWmVCYUo+BnMj3J1EaI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G6usaKwm; arc=none smtp.client-ip=10.30.226.201
+	 To:Cc:Content-Type; b=L+PRku0Fxe1wF3xOp5CX+QRIVXSQ2jjhENggLqJAdVFBEyBbu0ktg054gFPl1///gFdLseKgLVcSTx44+9OK7gT3pTUYS0jxbHjEnqNuPn68sPjiIFQgddjc4XcrKsfE4PDoPL561YkXu9sqeN3IPoKoCpDHAhq+5Rcg6Gb9fDI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=haTzoqg1; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G6usaKwm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E505BC2BCB3
-	for <linux-s390@vger.kernel.org>; Thu, 19 Mar 2026 14:21:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="haTzoqg1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8CAFC4AF15
+	for <linux-s390@vger.kernel.org>; Thu, 19 Mar 2026 14:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773930098;
-	bh=fosI3YoOXqBAqX1ZoDA9gABty1blUjmS5M1S48wnuG4=;
+	s=k20201202; t=1773930161;
+	bh=Evs56mbBGrc90rf5Avs+YgxUnnNU/75HgapY7N2z4x8=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=G6usaKwmcGYkRNdXro0Ui6/r1Qc/nYgtT5qsmjHWeKBR0L3AKOq2M9ZguMXGpY4DS
-	 fW4j0vsRki634YSpMQsUNqEXjtMSaFoXocn+FJMlGxaT7HTz92+Zx3QTsUNn85cA4H
-	 WSdAeh9x5NbgbPHllJb6WTpeIq9mLS+jErPF3n9pFUpB5sxBSFdnbjr/9YIpJSzfd0
-	 ll5MgaQrJVT+pkcMuwaHaHfxLluGiigBQph2YCGo/zCtkSDvJx7ckB5zcvKGwTrWVp
-	 bOWL3CjVdWSn8LCR/eO6FTplZ8KtWU8DrMRt+70DdzUIlqOFzqIEIGyHzjjvSw0VHv
-	 XpkVv3ZcWtHLQ==
-Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-7986fb839f5so11024977b3.0
-        for <linux-s390@vger.kernel.org>; Thu, 19 Mar 2026 07:21:38 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCVbQ7pOavkQUTNOZ1us0j/aP+uk0r/VGTdNUt9RfafCeSzVG/E7pySRMe7oOmcGufudUIi+7cyfJ3Sn@vger.kernel.org
-X-Gm-Message-State: AOJu0YwKUbimTTRJ4XqoTLjxVpAWoCGumVTLLLAZ6p/c1/0noe1cQj7L
-	hQKtQ5WSIctwMHcJ9JjyzWa/kCg45Fck2EKa2rW/9BqCxbLhNQ0/a8NfSyOTA23XedBl4dgXdUc
-	+12F5NGWzymENQPTHmWYugqOgoLY5VZg=
-X-Received: by 2002:a05:690c:e3e8:b0:79a:40fb:9360 with SMTP id
- 00721157ae682-79a718c84dbmr73964587b3.22.1773930097887; Thu, 19 Mar 2026
- 07:21:37 -0700 (PDT)
+	b=haTzoqg1fIEoYnEGEjvXoaACSbY2oJrM2Sfi7dudE+ONTCmQC4SRafT0BZCFQMoHO
+	 CVJ8MwRnjnqwqTiDGCbee009RJuU8pGpimK42yc9Gj2JIqovXpxqxvil3YF6ilcjYR
+	 jW2xRg2Ir1Obzt9eFdKWVGwa2ROi5c1NwJavZtkRrdsoMoOvB0X5E1xn5qohX2SvxK
+	 jE0vC6ILCMJsoX0Gm5gtiT38gslw+xLqiiIiwCEZElgxO1SS8wdc+Fa2oQ2lnTnKLF
+	 dwZzxuHnQctKf/u/py0SR5vVUuV4RSF8K0oqFLjqaM/ARQbY0sFi+h9mGVhCYszBtx
+	 aNjbyb11P59jA==
+Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-79a7109f568so11472207b3.1
+        for <linux-s390@vger.kernel.org>; Thu, 19 Mar 2026 07:22:41 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCW40czTroqzd4cC7PDnv+XK01hHwdS2LC65Cmv6P5QSSpxeU4D1ht75wD5xewewkIvS1Kf+3JfRmqg1@vger.kernel.org
+X-Gm-Message-State: AOJu0YyasixGdwYgpiuVI2EH7GS1R6msg16ICDlMWh+V6JlP/mGDdTZO
+	BJknaLXDPxO9YaxyWKqyR+FoUhoP9uyFCD6zzjyqF+kUXwnQ133iT5cbonQ1j5siHvwKGZKFCDn
+	Pf7R36F9kdygVBFZxVCwZd+psXBEXU6U=
+X-Received: by 2002:a05:690c:4510:b0:798:50ee:5b02 with SMTP id
+ 00721157ae682-79a71c5796fmr79996147b3.42.1773930161009; Thu, 19 Mar 2026
+ 07:22:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260317082020.737779-1-ruanjinjie@huawei.com> <20260317082020.737779-10-ruanjinjie@huawei.com>
-In-Reply-To: <20260317082020.737779-10-ruanjinjie@huawei.com>
+References: <20260317082020.737779-1-ruanjinjie@huawei.com> <20260317082020.737779-11-ruanjinjie@huawei.com>
+In-Reply-To: <20260317082020.737779-11-ruanjinjie@huawei.com>
 From: Linus Walleij <linusw@kernel.org>
-Date: Thu, 19 Mar 2026 15:21:26 +0100
-X-Gmail-Original-Message-ID: <CAD++jLnrirhyYL53sqtaz4yFde0Hj20D_Zfxhga6Xeb+b=Aogw@mail.gmail.com>
-X-Gm-Features: AaiRm51t9aCq8PsQDeNoeLd6T2lxcXs6sGRh_TP0xmsVwXgmplkaeHFKo5tX3d8
-Message-ID: <CAD++jLnrirhyYL53sqtaz4yFde0Hj20D_Zfxhga6Xeb+b=Aogw@mail.gmail.com>
-Subject: Re: [PATCH v13 RESEND 09/14] arm64: entry: Convert to generic entry
+Date: Thu, 19 Mar 2026 15:22:30 +0100
+X-Gmail-Original-Message-ID: <CAD++jL=7pfMzFWuARfRVUBXRc4ezvQC5TCZD_X4qw5Yad4fchg@mail.gmail.com>
+X-Gm-Features: AaiRm53EffMsAfPr3uekOiLcpbY4S2zx2ontAzqaUIvPI77DCokZR1JuXIQnFzc
+Message-ID: <CAD++jL=7pfMzFWuARfRVUBXRc4ezvQC5TCZD_X4qw5Yad4fchg@mail.gmail.com>
+Subject: Re: [PATCH v13 RESEND 10/14] arm64: Inline el0_svc_common()
 To: Jinjie Ruan <ruanjinjie@huawei.com>
 Cc: catalin.marinas@arm.com, will@kernel.org, oleg@redhat.com, 
 	chenhuacai@kernel.org, kernel@xen0n.name, hca@linux.ibm.com, 
@@ -74,85 +74,28 @@ Content-Transfer-Encoding: quoted-printable
 On Tue, Mar 17, 2026 at 9:20=E2=80=AFAM Jinjie Ruan <ruanjinjie@huawei.com>=
  wrote:
 
-> Implement the generic entry framework for arm64 to handle system call
-> entry and exit. This follows the migration of x86, RISC-V, and LoongArch,
-> consolidating architecture-specific syscall tracing and auditing into
-> the common kernel entry infrastructure.
+> After converting arm64 to Generic Entry framework, the compiler no longer
+> inlines el0_svc_common() into its caller do_el0_svc(). This introduces
+> a small but measurable overhead in the critical system call path.
 >
-> [Background]
-> Arm64 has already adopted generic IRQ entry. Completing the conversion
-> to the generic syscall entry framework reduces architectural divergence,
-> simplifies maintenance, and allows arm64 to automatically benefit from
-> improvements in the common entry code.
+> Manually forcing el0_svc_common() to be inlined restores the
+> performance. Benchmarking with perf bench syscall basic on a
+> Kunpeng 920 platform (based on v6.19-rc1) shows a ~1% performance
+> uplift.
 >
-> [Changes]
+> Inlining this function reduces function prologue/epilogue overhead
+> and allows for better compiler optimization in the hot system call
+> dispatch path.
 >
-> 1. Kconfig and Infrastructure:
-> - Select GENERIC_ENTRY and remove GENERIC_IRQ_ENTRY (now implied).
+> | Metric     | W/O this patch | With this patch | Change    |
+> | ---------- | -------------- | --------------- | --------- |
+> | Total time | 2.195 [sec]    | 2.171 [sec]     |  =E2=86=931.1%   |
+> | usecs/op   | 0.219575       | 0.217192        |  =E2=86=931.1%   |
+> | ops/sec    | 4,554,260      | 4,604,225       |  =E2=86=911.1%    |
 >
-> - Migrate struct thread_info to use the syscall_work field instead
->   of TIF flags for syscall-related tasks.
->
-> 2. Thread Info and Flags:
-> - Remove definitions for TIF_SYSCALL_TRACE, TIF_SYSCALL_AUDIT,
->   TIF_SYSCALL_TRACEPOINT, TIF_SECCOMP, and TIF_SYSCALL_EMU.
->
-> - Replace _TIF_SYSCALL_WORK and _TIF_SYSCALL_EXIT_WORK with the
->   generic SYSCALL_WORK bitmask.
->
-> - Map single-step state to SYSCALL_EXIT_TRAP in debug-monitors.c.
->
-> 3. Architecture-Specific Hooks (asm/entry-common.h):
-> - Implement arch_ptrace_report_syscall_entry() and _exit() by
->   porting the existing arm64 logic to the generic interface.
->
-> - Add arch_syscall_is_vdso_sigreturn() to asm/syscall.h to
->   support Syscall User Dispatch (SUD).
->
-> 4. Differentiate between syscall and interrupt entry/exit paths to handle
->    RSEQ slice extensions correctly.
-> - For irq/exception entry/exit: use irqentry_enter_from_user_mode() and
->   irqentry_exit_to_user_mode_prepare().
-> - For syscall entry/exit: use enter_from_user_mode() and
->   syscall_exit_to_user_mode_prepare().
-> - Remove exit_to_user_mode_prepare_legacy() which is no longer necessary.
->
-> 5. rseq_syscall() will be replaced with the static key version, that is
->    "rseq_debug_syscall_return()"
->
-> 6. Cleanup and Refactoring:
-> - Remove redundant arm64-specific syscall tracing functions from
->   ptrace.c, including syscall_trace_enter(), syscall_exit_work(),
->   and related audit/step helpers.
->
-> - Update el0_svc_common() in syscall.c to use the generic
->   syscall_work checks and entry/exit call sites.
->
-> [Why this matters]
-> - Unified Interface: Aligns arm64 with the modern kernel entry standard.
->
-> - Improved Maintainability: Bug fixes in kernel/entry/common.c now
->   apply to arm64 automatically.
->
-> - Feature Readiness: Simplifies the implementation of future
->   cross-architecture syscall features.
->
-> [Compatibility]
-> This conversion maintains full ABI compatibility with existing
-> userspace. The ptrace register-saving behavior, seccomp filtering, and
-> syscall tracing semantics remain identical to the previous implementation=
-.
->
-> Cc: Will Deacon <will@kernel.org>
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Thomas Gleixner <tglx@kernel.org>
-> Cc: Peter Zijlstra <peterz@infradead.org>
 > Reviewed-by: Kevin Brodsky <kevin.brodsky@arm.com>
-> Suggested-by: Kevin Brodsky <kevin.brodsky@arm.com>
-> Suggested-by: Mark Rutland <mark.rutland@arm.com>
 > Signed-off-by: Jinjie Ruan <ruanjinjie@huawei.com>
 
-This looks really neat.
 Reviewed-by: Linus Walleij <linusw@kernel.org>
 
 Yours,
