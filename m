@@ -1,55 +1,55 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA3EB2DB799
-	for <linux-s390@vger.kernel.org>; Thu, 19 Mar 2026 13:48:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CBEC2C3259
+	for <linux-s390@vger.kernel.org>; Thu, 19 Mar 2026 13:50:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773928085; cv=none; b=Y6kwIo8KsqHW1Pk5+E0rhIGscaPu+QznQX2ZCDVeX6H5wfrMa3SPjLMvylS0I32ImiuODWd3JFWrTr/onn1kH9re4ecpfHOo63SjlSVNRxXjQPlIWgL4LUo3z9ifqkV4asbgHEcyFekVAOu8VA8/ohU1/TVbiuYvbgfLU5SPIP4=
+	t=1773928227; cv=none; b=KMQmsFmCrkA1mspH7d0M/IZOWF06ScNXS1f7lK9hPiD3TZZWz6JbcG4bpxyFXyKMcmwyYaB5k8g5hPagtzgrdrXypT4FUMiSLhdTmKIkLK6KAU1JQQ+DXBHESwspj2DVNKcV6Lt4xFlZigy8yPTyDNVPvGNA9whHWk9+am+gEtc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773928085; c=relaxed/simple;
-	bh=QOJle0HAErcuAk1B1GgrI2OCaaOFq04voQ/vijiMH9Q=;
+	s=arc-20240116; t=1773928227; c=relaxed/simple;
+	bh=j89Gvis/qGEGvr15cAgXc/XjTDM6TIyQH5z20F0XvZw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=AUeWODHNVLT1kfdO1c7rms+2pF0LK7fO3aj5tp7SwWxYPURZJYsfolp+aFF2o5uiCjJ7QRpOyWpNRZlCcNiRuI9Ci5YBSwDiCTut9ZfT2Y3Nsj+dygArfltCMYUI43/kMLIew6QlVFUiKR+qF72EyRNrezSxK+K0peQnRlBWGNY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KJfBrRJ8; arc=none smtp.client-ip=10.30.226.201
+	 To:Cc:Content-Type; b=djm/PaE+YcuitW817CGaN7aGnKFI59OsgLhokhZZWQeIJRuD1HCDB30Hk7w5f65ClrSa8/MRoxMZTaDNfplIQnYh2Ts8N7i/0dAPmOhX10mUxk58MYHKuctVP1I0d+4rCHkeQfNKQ7XC4krouPIyZSJH6iEpOBMBQa/k57Id88U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BKeTgbU9; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KJfBrRJ8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 840CEC2BCFA
-	for <linux-s390@vger.kernel.org>; Thu, 19 Mar 2026 13:48:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BKeTgbU9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22810C2BCB7
+	for <linux-s390@vger.kernel.org>; Thu, 19 Mar 2026 13:50:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773928085;
-	bh=QOJle0HAErcuAk1B1GgrI2OCaaOFq04voQ/vijiMH9Q=;
+	s=k20201202; t=1773928227;
+	bh=j89Gvis/qGEGvr15cAgXc/XjTDM6TIyQH5z20F0XvZw=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=KJfBrRJ8sbFD3zMucjkhepLRMBdph3OktdEDcyFOVTXeM4G8ZT2NnK0Q3aOvuVzYa
-	 EohsHAGYO61CRJXeh1yVgHA3aLrHZBs0Bcixk+IUqO+mwrT+1iyxQqZ2z66egbbLMU
-	 P8hKWXA2iSqbRAZBe1hXdAI5cQ1yMZQ4cgP4Pt4rcrtg77ugCe4yyeo3/UKC1JfeF/
-	 cxxndBaoFJoKXbaD5srTgfCVfzvhMSDeJkBzgC56sLuDx+fBr8yNVn4SdEtBQCIcaU
-	 tEj+w/85QKFFNswve+Wp5aDVg+k0RGA1pcNxcNVfv3TBe5XZnC1hNcdaGiebRDFCmI
-	 TUF3sXcB1e9ZQ==
-Received: by mail-yw1-f177.google.com with SMTP id 00721157ae682-797ab169454so11269847b3.3
-        for <linux-s390@vger.kernel.org>; Thu, 19 Mar 2026 06:48:05 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCX+969qPMQXldhv8QcTmfAxDweYnhKFWNg9JGgrSOQQYoYXZZx4jWM0Sy6AHje6QtXRrHzJ9SQQXf/F@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy3MlyPUqPO/02HbKNHWBDf43m/dRdIs5H/Ml/ADQYB81a6fCb7
-	4kWzuMbx2lhyRqBLr07+Hg/PZRipMdn9PFpmRSluydKF5okN/2+xUKBFPWJyKTr5BdRxmho9Doc
-	nn5yR/1pamkJJvbptIgM4XZeGiuvbHQM=
-X-Received: by 2002:a05:690c:ed6:b0:79a:47b4:397b with SMTP id
- 00721157ae682-79a71c9679dmr78182707b3.57.1773928084138; Thu, 19 Mar 2026
- 06:48:04 -0700 (PDT)
+	b=BKeTgbU9/vwudKLzWjBLPA5UmvcQi0asWK0Wzm/583hhO7ifMDq6Tdc9tEsmv6ade
+	 FO9Z4e2P78HtTkWWEx6xG7Kpdu1zcD1MlT0yco+5Uy08vz1MAvTwdosAsCd/60Q3CV
+	 xVU4gSSD47/xcEQCVZvi7R6aXFYB3Bj0JvuF18aBA4nh0T5j6UjT+Kq81pKUQsFE3n
+	 Z0B5Mulk4kFtg9eeplcyovfhdA4yYYzk4ngnZP0adoT2MElATR2zrUffEentqM3lUy
+	 pZXgseNEy7xhp0Ld4c2bnh/p5r99nLBGMsBSwaaKsgPJYVJJWnJLLzgF7BweVWA1YC
+	 VoGf4eE3oTeEg==
+Received: by mail-yw1-f176.google.com with SMTP id 00721157ae682-7982c3b7dfcso6351527b3.0
+        for <linux-s390@vger.kernel.org>; Thu, 19 Mar 2026 06:50:27 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCVKpG92GOt7FXO92tcX2Nf13/1tJcqzPN8QyX0QkTeZonrZ9A+z7nAfl5BFlgwC9ZcFw21EfgxfbnC9@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw51PpLW0N8+8y0zpaQwguGXHuA6mhsykXZDNbnqR1SYj8QoxYX
+	5EKn7Hc2d0d555jDjsJ85GNofBcbQ+mrBYW/tr3OE8cGZ3lmUXsdIz6bBiJzM3hIKXi8yfoBMXr
+	q2ehbaz7IsDLLHlXkmoBiXflbjN3FNpk=
+X-Received: by 2002:a05:690c:e4f0:b0:799:266:83d3 with SMTP id
+ 00721157ae682-79a71c2b7bfmr64114747b3.47.1773928225862; Thu, 19 Mar 2026
+ 06:50:25 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260317082020.737779-1-ruanjinjie@huawei.com> <20260317082020.737779-2-ruanjinjie@huawei.com>
-In-Reply-To: <20260317082020.737779-2-ruanjinjie@huawei.com>
+References: <20260317082020.737779-1-ruanjinjie@huawei.com> <20260317082020.737779-3-ruanjinjie@huawei.com>
+In-Reply-To: <20260317082020.737779-3-ruanjinjie@huawei.com>
 From: Linus Walleij <linusw@kernel.org>
-Date: Thu, 19 Mar 2026 14:47:53 +0100
-X-Gmail-Original-Message-ID: <CAD++jLnBpKm7Q0hjgkRMmivpYdzY8r1-FuQS=H3Km1G=mE1fTg@mail.gmail.com>
-X-Gm-Features: AaiRm50KZNLEM2TEBH0s8s1elOG_LwkGWTvhDRRNnuvJQ3BSSvTT7GXQ8nkJRwA
-Message-ID: <CAD++jLnBpKm7Q0hjgkRMmivpYdzY8r1-FuQS=H3Km1G=mE1fTg@mail.gmail.com>
-Subject: Re: [PATCH v13 RESEND 01/14] arm64/ptrace: Refactor
- syscall_trace_enter/exit() to accept flags parameter
+Date: Thu, 19 Mar 2026 14:50:15 +0100
+X-Gmail-Original-Message-ID: <CAD++jLmAxER7pR-eoJ4xs2EbGopsS4SWd+wo88xZbzkmPJp-Bw@mail.gmail.com>
+X-Gm-Features: AaiRm50Qfp2UBllmGvff8saK2JFshZ6hIP4M5NvuPk-ZtFFI7-7AoZeXZeE62BY
+Message-ID: <CAD++jLmAxER7pR-eoJ4xs2EbGopsS4SWd+wo88xZbzkmPJp-Bw@mail.gmail.com>
+Subject: Re: [PATCH v13 RESEND 02/14] arm64/ptrace: Use syscall_get_nr()
+ helper for syscall_trace_enter()
 To: Jinjie Ruan <ruanjinjie@huawei.com>
 Cc: catalin.marinas@arm.com, will@kernel.org, oleg@redhat.com, 
 	chenhuacai@kernel.org, kernel@xen0n.name, hca@linux.ibm.com, 
@@ -75,26 +75,26 @@ Content-Transfer-Encoding: quoted-printable
 On Tue, Mar 17, 2026 at 9:20=E2=80=AFAM Jinjie Ruan <ruanjinjie@huawei.com>=
  wrote:
 
-> Refactor syscall_trace_enter() and syscall_trace_exit() to move thread
-> flag reading to the caller. This aligns arm64's syscall trace enter/exit
-> function signature with generic entry framework.
+> Use syscall_get_nr() to get syscall number for syscall_trace_enter().
+> This aligns arm64's internal tracing logic with the generic
+> entry framework.
 >
 > [Changes]
-> 1. Function signature changes:
->    - syscall_trace_enter(regs) =E2=86=92 syscall_trace_enter(regs, flags)
->    - syscall_trace_exit(regs) =E2=86=92 syscall_trace_exit(regs, flags)
+> 1. Use syscall_get_nr() helper:
+>    - Replace direct regs->syscallno access with
+>      syscall_get_nr(current, regs).
+>    - This helper is functionally equivalent to direct access on arm64.
 >
-> 2. Move flags reading to caller:
->    - Previously: read_thread_flags() called inside each function.
->    - Now: caller (like el0_svc_common) passes flags as parameter.
->
-> 3. Update syscall.c:
->    - el0_svc_common() now passes flags to tracing functions and
->      re-fetches flags before exit to handle potential TIF updates.
+> 2. Re-read syscall number after tracepoint:
+>   - Re-fetch the syscall number after trace_sys_enter() as it may have
+>     been modified by BPF or ftrace probes, matching generic entry behavio=
+r.
 >
 > [Why this matters]
 > - Aligns arm64 with the generic entry interface.
 > - Makes future migration to generic entry framework.
+> - Properly handles syscall number modifications by tracers.
+> - Uses standard architecture-independent helpers.
 >
 > No functional changes intended.
 >
