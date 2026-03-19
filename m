@@ -1,174 +1,126 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24F713E714D;
-	Thu, 19 Mar 2026 15:43:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24B8D3E92BF;
+	Thu, 19 Mar 2026 16:18:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773935002; cv=none; b=cTm4jkLjSUKCN48sKNrJxaISjeiOvxlPSri3VhI99j20bgufOWIOnW72ckamkNRAikkMYJ1RtR06auMlL5yfSM89DnwSPvXSXkAQnZ648ozq6eV8NUrHpjXyo6YrnMh0iplacQReeur94F8loQeTO4/CqY+CYA4TZRSMe5K8urw=
+	t=1773937122; cv=none; b=jk3OVnBhwgAXeQ2/QbQy+G7XvomTD7+mNLl3XVxurBkeydAoUDpEa1vU977ZrUF4LS/Ps/2d030e/t50fRRgJ1RKySzkN+Meb005qF6b1Wtk2+xYP43i88sveIo05uMPkD1Cu5ifJ212TDHQSBXiSiRRdcteZ53UKxIzzFY0EnU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773935002; c=relaxed/simple;
-	bh=fa+UCbtwReJTJptJMdx/NTEP96lWAeW85C7bH3Iv6iA=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=MN8CQOqCKrkYGRnO9bDAnjgzIHLuDUr5uTFQacgvkkaPIz/xMDzpb1iB3O19Eq3tlTnlg4An45sn677qJ+ToLsl4sDqcy7Ji2mLCMjLY2Y2Ql6TwqX1cvZTyoTyg1neIVb5p9GUCVcm8zYBj1jJZW/pUmo/QTZgjGq+xmEu1hZU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Vv5nsZuk; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1773937122; c=relaxed/simple;
+	bh=+rJxXvh9jbY/cYu63rGxCHb0s8bdU5IuTtrr+qf/8ms=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=L//53MzZwIws7mJFByd1GiZ2KQthHwntPOgW9OJD4adBtUN4ntwMKwtYDxRyPbH5aqBPw3UzzXNiiwxRmT3uTag/LRkg0sS75KnLEOkKBEej4IJ3ISvixM6uhgObtxPoKYEU1GldVChrRhbjB/ff+e8vASdkrpgYGm+MJh5T+cE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SAhj5GuC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Vv5nsZuk"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62JDi0LO706946;
-	Thu, 19 Mar 2026 15:43:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=DLefWu
-	Qx1WI+Y5vD2GhByCm3kkB0v+kz8E76A14iFbs=; b=Vv5nsZukw/uK0rDND0GRf4
-	X89tuEZwstx2EOqqgMO2m0zsGZBOrIwuSJq/iy/UnCzj1eWjvyfF2sZYfOLTug0d
-	go1U2pH5p0ypYX/vDVPwOif7sC1VGXKTURnJCU0cgzZ57G7bikKt3W+4CzUmSbH9
-	ykv9w0YpD+rL9NJrriVJTiThDV6cjMa5DpZ+9exQuRQ9zBLo7PH9UJW+do/HLJPA
-	ekpQzjqDvwYODsac6KdWoISPeMDVr5ThjRMBuN54CrilayCxBPTWZrNvZgExrx+F
-	Nm6ySVjRwwSqnjtljo0zntQsRcYSKdow7LH95EGMeHY7p7KLTL+oNVuehsq5omTw
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvw3j724k-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 19 Mar 2026 15:43:15 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62JDU4Qi029194;
-	Thu, 19 Mar 2026 15:43:15 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cwkgkk1fw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 19 Mar 2026 15:43:14 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62JFhAQM35782934
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 19 Mar 2026 15:43:10 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A8ABE20040;
-	Thu, 19 Mar 2026 15:43:10 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5F7F72004D;
-	Thu, 19 Mar 2026 15:43:10 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 19 Mar 2026 15:43:10 +0000 (GMT)
-From: Julian Ruess <julianr@linux.ibm.com>
-Date: Thu, 19 Mar 2026 16:42:54 +0100
-Subject: [PATCH v6 1/3] vfio/pci: Rename vfio_config_do_rw() to
- vfio_pci_config_rw_single() and export it
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SAhj5GuC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F5EDC19424;
+	Thu, 19 Mar 2026 16:18:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773937121;
+	bh=+rJxXvh9jbY/cYu63rGxCHb0s8bdU5IuTtrr+qf/8ms=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=SAhj5GuC0PfaoylzOpmZEg5wivkofnQ+GtRsdaeJOUJ4uAmHeX9yWUjJtJAn3it/L
+	 DtIYhs/uZLj/VchTSC0AmON6+W7EzTrZwPGqVuCyAhjCjaHPnhkABYQUeqprmOj1i/
+	 R/FWq7IVvWU1IGMy9FTlbHxdCNuIq9kR2X6GzLnLDJQbozNo/mkx2YeXRGXNiMY0o7
+	 vQpts1+55w++E8C9ighzin4xwksBwu0yd2u4NfBf4vlh8psPZ69uaMIHcyWDj4a0OE
+	 UwiaTPNnXiiVy+7V9ISLDkx2gH43hmidRMy6gz3GsbPkAVEku6PbjeRjw4rot/k9lf
+	 Rn92JSY6yNwyg==
+Date: Thu, 19 Mar 2026 18:18:22 +0200
+From: Mike Rapoport <rppt@kernel.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>, Zi Yan <ziy@nvidia.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+	Byungchul Park <byungchul@sk.com>,
+	Gregory Price <gourry@gourry.net>,
+	Ying Huang <ying.huang@linux.alibaba.com>,
+	Alistair Popple <apopple@nvidia.com>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	Clark Williams <clrkwllms@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-mm@kvack.org,
+	linux-rt-devel@lists.linux.dev
+Subject: Re: [PATCH 1/2] mm: remove CONFIG_ARCH_ENABLE_MEMORY_HOTREMOVE
+Message-ID: <abwhzkhM9Bk9xPIf@kernel.org>
+References: <20260319-config_migration-v1-0-42270124966f@kernel.org>
+ <20260319-config_migration-v1-1-42270124966f@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20260319-vfio_pci_ism-v6-1-c6bab675bc0a@linux.ibm.com>
-References: <20260319-vfio_pci_ism-v6-0-c6bab675bc0a@linux.ibm.com>
-In-Reply-To: <20260319-vfio_pci_ism-v6-0-c6bab675bc0a@linux.ibm.com>
-To: schnelle@linux.ibm.com, wintera@linux.ibm.com, ts@linux.ibm.com,
-        oberpar@linux.ibm.com, gbayer@linux.ibm.com,
-        Alex Williamson <alex@shazbot.org>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Shameer Kolothum <skolothumtho@nvidia.com>,
-        Kevin Tian <kevin.tian@intel.com>
-Cc: mjrosato@linux.ibm.com, alifm@linux.ibm.com, raspl@linux.ibm.com,
-        hca@linux.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
-        julianr@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-pci@vger.kernel.org
-X-Mailer: b4 0.14.2
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: IvAXZLSk41RnF7kwj5_cWVnrJk00twxL
-X-Proofpoint-ORIG-GUID: IvAXZLSk41RnF7kwj5_cWVnrJk00twxL
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE5MDEyMCBTYWx0ZWRfX2JP7XGvHxnt9
- +xITo+KPgj3jEgS4M6UEmzLiW9jLHO/ElhX6K4erkqt3HdX513IMcVZHSo/0ZyD6Sza/kcGAWNu
- 6VEQ0uPjPUfNhYGStaR9cpghsJyTR/xrtA9P/wfT+0kdMY7Bj5JSZHgbyYq/FEY/Kc90IdTWmAL
- u/pv1B6A1hjIf2mwQjJH1vvBWclkNo4A5Mse1VjKwjJdSzL9noQ5cYaexkK/Ygs06YskjhVZo9k
- yLQoMWjJ7xWU0MoEDHPuaQFtlxCscq05INMv4odmvSvmhb0aTo4JV60RxAgEr6xh6O/NUPdSq4k
- H++H++Xx0DqbhQzqwFhd7D1XOrLJASBtH8WCvPLH1b61g2tQAXi6Qx1/BI57Py4j3NdwsYRTOsd
- kcljdaetbg3SAlP/q0NVSBJJCSHFWL3f9OOHOe4V364n1b9hGfnPaznQn6rXB/Ct9fyOJnM/mfd
- 9rKu0flalbC5/R+o9VQ==
-X-Authority-Analysis: v=2.4 cv=Hf8ZjyE8 c=1 sm=1 tr=0 ts=69bc1993 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=mooU_oynDD9EFzHbF-IA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-19_01,2026-03-19_05,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 malwarescore=0 lowpriorityscore=0 impostorscore=0 bulkscore=0
- suspectscore=0 priorityscore=1501 spamscore=0 adultscore=0 clxscore=1015
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603190120
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260319-config_migration-v1-1-42270124966f@kernel.org>
 
-A follow-up patch adds a new variant driver for s390 ISM devices. Since
-this device uses a 256 TiB BAR 0 that is never mapped, the variant
-driver needs its own ISM_VFIO_PCI_OFFSET_MASK. To minimally mirror the
-functionality of vfio_pci_config_rw() with such a custom mask, export
-vfio_config_do_rw(). To better distinguish the now exported function
-from vfio_pci_config_rw(), rename it to vfio_pci_config_rw_single()
-emphasizing that it does a single config space read or write.
+On Thu, Mar 19, 2026 at 09:19:40AM +0100, David Hildenbrand (Arm) wrote:
+> All architectures that select CONFIG_ARCH_ENABLE_MEMORY_HOTREMOVE also
+> select CONFIG_ARCH_ENABLE_MEMORY_HOTPLUG. So we can just remove
+> CONFIG_ARCH_ENABLE_MEMORY_HOTREMOVE.
+> 
+> For CONFIG_MIGRATION, make it depend on CONFIG_MEMORY_HOTREMOVE instead,
+> and make CONFIG_MEMORY_HOTREMOVE select CONFIG_MIGRATION (just like
+> CONFIG_CMA and CONFIG_COMPACTION already do).
+> 
+> We'll clean up CONFIG_MIGRATION next.
+> 
+> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Julian Ruess <julianr@linux.ibm.com>
----
- drivers/vfio/pci/vfio_pci_config.c | 8 +++++---
- drivers/vfio/pci/vfio_pci_priv.h   | 4 ++++
- 2 files changed, 9 insertions(+), 3 deletions(-)
+Reviewed-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 
-diff --git a/drivers/vfio/pci/vfio_pci_config.c b/drivers/vfio/pci/vfio_pci_config.c
-index b4e39253f98da61a5e2b6dd0089b2f6aef4b85a0..fbb47b4ddb43d42b758b16778e6e701379d7e7db 100644
---- a/drivers/vfio/pci/vfio_pci_config.c
-+++ b/drivers/vfio/pci/vfio_pci_config.c
-@@ -1880,8 +1880,9 @@ static size_t vfio_pci_cap_remaining_dword(struct vfio_pci_core_device *vdev,
- 	return i;
- }
- 
--static ssize_t vfio_config_do_rw(struct vfio_pci_core_device *vdev, char __user *buf,
--				 size_t count, loff_t *ppos, bool iswrite)
-+ssize_t vfio_pci_config_rw_single(struct vfio_pci_core_device *vdev,
-+			      char __user *buf, size_t count, loff_t *ppos,
-+			      bool iswrite)
- {
- 	struct pci_dev *pdev = vdev->pdev;
- 	struct perm_bits *perm;
-@@ -1970,6 +1971,7 @@ static ssize_t vfio_config_do_rw(struct vfio_pci_core_device *vdev, char __user
- 
- 	return ret;
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_config_rw_single);
- 
- ssize_t vfio_pci_config_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 			   size_t count, loff_t *ppos, bool iswrite)
-@@ -1981,7 +1983,7 @@ ssize_t vfio_pci_config_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 	pos &= VFIO_PCI_OFFSET_MASK;
- 
- 	while (count) {
--		ret = vfio_config_do_rw(vdev, buf, count, &pos, iswrite);
-+		ret = vfio_pci_config_rw_single(vdev, buf, count, &pos, iswrite);
- 		if (ret < 0)
- 			return ret;
- 
-diff --git a/drivers/vfio/pci/vfio_pci_priv.h b/drivers/vfio/pci/vfio_pci_priv.h
-index 27ac280f00b975989f6cbc02c11aaca01f9badf3..28a3edf65aeecfa06cd1856637cd33eec1fa3006 100644
---- a/drivers/vfio/pci/vfio_pci_priv.h
-+++ b/drivers/vfio/pci/vfio_pci_priv.h
-@@ -37,6 +37,10 @@ int vfio_pci_set_irqs_ioctl(struct vfio_pci_core_device *vdev, uint32_t flags,
- ssize_t vfio_pci_config_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 			   size_t count, loff_t *ppos, bool iswrite);
- 
-+ssize_t vfio_pci_config_rw_single(struct vfio_pci_core_device *vdev,
-+			      char __user *buf, size_t count, loff_t *ppos,
-+			      bool iswrite);
-+
- ssize_t vfio_pci_bar_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 			size_t count, loff_t *ppos, bool iswrite);
- 
+> ---
+>  arch/arm64/Kconfig     | 1 -
+>  arch/loongarch/Kconfig | 1 -
+>  arch/powerpc/Kconfig   | 1 -
+>  arch/riscv/Kconfig     | 1 -
+>  arch/s390/Kconfig      | 1 -
+>  arch/x86/Kconfig       | 1 -
+>  mm/Kconfig             | 9 +++------
+>  7 files changed, 3 insertions(+), 12 deletions(-)
+> 
+> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> index edc927d9e85a..d01800962d84 100644
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -85,7 +85,6 @@ config S390
+>  	select ARCH_32BIT_USTAT_F_TINODE
+>  	select ARCH_CORRECT_STACKTRACE_ON_KRETPROBE
+>  	select ARCH_ENABLE_MEMORY_HOTPLUG if SPARSEMEM
+
+Not really related, but s390 does not have anything but SPARSEMEM_VMEMMAP.
+
+> -	select ARCH_ENABLE_MEMORY_HOTREMOVE
+>  	select ARCH_ENABLE_SPLIT_PMD_PTLOCK if PGTABLE_LEVELS > 2
+>  	select ARCH_ENABLE_THP_MIGRATION if TRANSPARENT_HUGEPAGE
+>  	select ARCH_HAS_CC_CAN_LINK
 
 -- 
-2.51.0
-
+Sincerely yours,
+Mike.
