@@ -1,87 +1,162 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07CAC36F410
-	for <linux-s390@vger.kernel.org>; Thu, 19 Mar 2026 14:26:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773930377; cv=none; b=u7/H6XpK2hWVwoPgsOK4u2b1TYaCUOCkxRr56TigxrSOmI0l/ByY+2ieF+OSBXH7YZIAqqNLHoapMITg8gDW+/jOPbqP0BAhJzufsgQprxlEibFTUnXV6Xi0cHqmVG0Lvga83thltT5fCMBYEo1SeTFvZeHykzJN/TvJxl8OUr8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773930377; c=relaxed/simple;
-	bh=EfYzODYTn0NTm+Mvi25JjdLYLxLuMewomF3tXPZzqjU=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 155D6374183
+	for <linux-s390@vger.kernel.org>; Thu, 19 Mar 2026 14:28:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.52
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773930484; cv=pass; b=D4GPJthKSXbqeRRtUZE08VXwIoGRh0A32GOdiQh6DSynw349gTG3HjIYUzeza5m/iVg0nuSGFzoy5ucuEp376rIvqMa5ydWw8o2dvJ2ozP5L8mM2fRcJzPB98A6ANOxY3OxYC4h/M0iXCHEq9r1/6QvaNQdsflFEdItT1RQYoAQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773930484; c=relaxed/simple;
+	bh=x6wZk7AvpBRTPYt5th9R3ycT2p5XdAgtnR98fAb1EOE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jAer3UfpvGBWKbwhemGoqQ0y2LOJKnVA1a9OVIaVjGmAr6IzU5r0+w5pc5Pe3uWLBzst76lvc2ahf0p0mcQnUR0jwtDcpu9T26+tY2zaKHHjb2KaMzUuSRkDiyRczYUhQjW3UGnrTWOljAAfNIatwpogMP+Z22gjb8F2NHZSFv0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Dff3BK9q; arc=none smtp.client-ip=10.30.226.201
+	 To:Cc:Content-Type; b=EXna/wBdy4eBxFf1JLy4UFyJtgEtLV6abAxXicPEixGUZBavhqcd6R9jMhNXFvoB5uW9sxYrdAQGpcI2avEbuQyPooz/cWHZtu9MRz69+ICzSzGUCCPWCO2dirVkTof2I0JKhg1u1ZdeyvGaUABCdvkZTuFSDc1wEITD8RgB4sc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kcCKrhoY; arc=pass smtp.client-ip=209.85.218.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Dff3BK9q"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B67DDC2BD00
-	for <linux-s390@vger.kernel.org>; Thu, 19 Mar 2026 14:26:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773930376;
-	bh=EfYzODYTn0NTm+Mvi25JjdLYLxLuMewomF3tXPZzqjU=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=Dff3BK9qblMvdaGnMX1CDzOnH6xEGROfjGr6QMMmkKcKL7jiomhG+5Fw/BDFAmJPK
-	 xPUHtJhc+niI4/UoqiRzv/ppoiVu/XuEgVOyG7dWHdPmCWKBv0Y26L7XwSt6b5xHtg
-	 glEa3utWOkxMiEE+QRQ0BL7aPsv0RSEHYxPF4p4afgzyfbVFiZhX/uzWC17WvEj2PW
-	 ZbM++Dc1n9vxjq33XSgVnKNZ01bWq3a8hLRdoCFAW5nhn6I3ruLe+zr3y9KhQHP2CR
-	 w1u8XKrFTRayqvzqdMQ1syFj4zKaT/mfb92PN/rSEKQZAtVbOFq2Aq7XXwVugOW3Cq
-	 IaXoUwGxaV1cg==
-Received: by mail-yw1-f179.google.com with SMTP id 00721157ae682-79a75818937so10573307b3.2
-        for <linux-s390@vger.kernel.org>; Thu, 19 Mar 2026 07:26:16 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCWLHVFF6F4yishhnaVDKlfzv9/e7f7amCTjrma2gQNSV200KyaVYtPCMSyFzDuB5LwfsUT3ACgP/Bcx@vger.kernel.org
-X-Gm-Message-State: AOJu0YwblEww6AbrLSXfc0Vi5fJtc1+6ASOwKd3RodH4MK3BRM/p+6zp
-	bMqROH7D5H97IrMqlYI5Tk1EIFy7mn8PHMYsurfVY3hABsFheDuW+jFXGEqkOEryb+Hrp9cvtAY
-	1H1s7DI+yyaATMvF/NPCK0kcdySZRHME=
-X-Received: by 2002:a05:690c:660e:b0:79a:37c5:5d29 with SMTP id
- 00721157ae682-79a71db8246mr80698987b3.57.1773930375929; Thu, 19 Mar 2026
- 07:26:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kcCKrhoY"
+Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-b97b30fa5e5so160173866b.3
+        for <linux-s390@vger.kernel.org>; Thu, 19 Mar 2026 07:28:00 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1773930479; cv=none;
+        d=google.com; s=arc-20240605;
+        b=c6lBMIj+RWeaWPEjZcok96DS7TShn3Vp32QFyeBraaOW7f7+MWoc71PRh5VtCm5FPc
+         IhELneuttsNccJvimyOMGFmGEfTsJU9c4+vfNt+q+eAX6DV695t3DtVtjXrwdlsWWoQb
+         Q1A3+tbsYLaFKjiXyRbpjhRkT6xbfnbxGTuVNwm5uKv5KflCiEfCLwlyw+GEjpg4Nj7Y
+         oVm4pk4oBGD2ey1jCX1DscJk34bme7GZ4qvDSXtgwAfz8brRqizuHmy0vXKtNZ1Pkuoc
+         IEAlCpDVDmq/ICh7UMFwpE2AsU+ZNxFENIZUs9cRV+NYphlQNRzcG4iZQ1JdVuRcweRt
+         AxRQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=wEYdsi/UQnV1ulkUEVFM3uerucLpRLXH0M0xgNStZdI=;
+        fh=CNBAfnu5CIZZ2Ev6vKjjW4I7TYrbt6eo2Z1gEoj2tb4=;
+        b=R5f5S9R16B6SgzEh1bL6dikNOd14EXdVDxPBvTV8qXhMDP7nr3f1cWKeuhgRfmyTNx
+         fDGj7PUERsAnOysC5sC1j8wDZJFtm6eBVyKr9bHQfDH7u2we/G+43yLr+qfDt1onbSji
+         WlLDGy+CrSCoXcYNZLipqGbbJYhUAob+vTBrH5UmR8jjBYjyl9FfHzzb9P1K2QHtPe4i
+         boGKhZYphHgWBeq+StsdkqBrKljB28tBd3KPSO2rJr6x4LAIuuvur0Yw1cB9VGx4kWKz
+         7fE9/Xst/vZBNdjiEU1m7DFbKXXN/Jxa4OsnejhiGSDN6fQYNLKzGvHXUGU3SdlWdFt+
+         anlQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773930479; x=1774535279; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wEYdsi/UQnV1ulkUEVFM3uerucLpRLXH0M0xgNStZdI=;
+        b=kcCKrhoYX+8CZszcDQbuZD6T4DnxTVx1KFlZ0Jph2pEsT7DV9Mnj1YT1bYrXCuAa+S
+         hpDAfQ1xXxUjFpI++GUXCzaWS1y6BSStTwjGD+OnOBciNoZ7Xp1VqamSGoaSAqSZ1u5R
+         945g+zKdeorBhg1AKG/Bb90H6R2LtDirpwrPvj5Oh9WzuAiCQSN2EnknkZHTKsbab/zB
+         fnD79VSfUGwENxCYTTrjL7dnOT3K9jltAF8JDxfu2vpVHutMN4ta0fP0qdP80PoqOA/o
+         HPeL/1Ukubwi4cdQoCwu31uFJ5Bte1R3lZPg/JzllRmeny1zCPKEmeQumCaUrIAZcRJw
+         +4tw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1773930479; x=1774535279;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=wEYdsi/UQnV1ulkUEVFM3uerucLpRLXH0M0xgNStZdI=;
+        b=ibUphMx/WuJD/ozmzSApgdP+JbLFKdjfyrTqCs9gOGAoFNenUlAMuacBipc7560ykU
+         x9va3vK2u73bEM+ovORhftiowT5ngYYbZG4rn2tqkip3KURXZrWIk5zh/vBatkwsofOP
+         hnDkRhmribW6zgtn3nFyldDxfbAmozZnAACEMFQ2RsM6bbKS1zP9Z2CtJKid6WYyqOg7
+         1Ryh79Kxbinkpum1dxyuVdpyjVjik8je0GTKhgUu6ooRBhh9rUCLy0YdmUFLMDEqjyTM
+         ZcpBzQ+VL1n6Z00pDV0T/xmbW38VYzs5NGfw+6kDDccALWy5tUdhs3qryNh6k/vyl3ew
+         Je3w==
+X-Forwarded-Encrypted: i=1; AJvYcCVDxB7bo98kVrwjRYPgwgf9jNSCz9A8Jjtv07BpHNlWijKhFTNykPEx2FKhnu6aDj4tyhV4uwMc02/I@vger.kernel.org
+X-Gm-Message-State: AOJu0YxXosUYkXY5KDIPhhQMBre8ilA8zrWAH4JIJGesCtiXtw55gP8Z
+	Nj5j89LJ4reJ2IhEbfRYW/2k0S88JgDuMXqLQ+Zn05qfG9gbY0DC80nRQw762wnGpBXkoceBTyw
+	L4o3NNFHL3ZDBvpPelftkW4bCn0R1ooE=
+X-Gm-Gg: ATEYQzyaTk5vFLo+7MM7CrGtFE/k/tKKxieomVIhNONphJzct/vshsXdEL/mG6/pwHu
+	K0mIU3TMDaT6Otm4qiDzrJ9Xgg1yoHx8i0/ImCVSMYZfLUtspYIYnFpEah6YMRQOyMpwXk6Drdx
+	oTM1vVFFbyiwckItcleEb0vQNGTfpdEeo75mIMoxEW58Hz5Ll2Kj52nbJ60u1eN08udrPuEwYdx
+	MdNLcg30s3PLOgj9/fwnfKCSPVFrCQKSmVZp/OFuUc/z+Si3p65er1PG0fcl9vDU1uhbshcmZ2B
+	85GOeau5iw==
+X-Received: by 2002:a17:906:ee83:b0:b96:db93:5d0e with SMTP id
+ a640c23a62f3a-b97f4ab7799mr545864466b.41.1773930478856; Thu, 19 Mar 2026
+ 07:27:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260317082020.737779-1-ruanjinjie@huawei.com> <20260317082020.737779-15-ruanjinjie@huawei.com>
-In-Reply-To: <20260317082020.737779-15-ruanjinjie@huawei.com>
-From: Linus Walleij <linusw@kernel.org>
-Date: Thu, 19 Mar 2026 15:26:04 +0100
-X-Gmail-Original-Message-ID: <CAD++jLkpHbZ5rf=D+Az=XiWmDFOdD6MPjEVPBLCf820q1Jef4A@mail.gmail.com>
-X-Gm-Features: AaiRm514Fbz_01wtqZJwa0U5dvzrhpy5vnegDsf7QhH81-s0mjNJm5JdcFU2cz0
-Message-ID: <CAD++jLkpHbZ5rf=D+Az=XiWmDFOdD6MPjEVPBLCf820q1Jef4A@mail.gmail.com>
-Subject: Re: [PATCH v13 RESEND 14/14] selftests: sud_test: Support aarch64
-To: Jinjie Ruan <ruanjinjie@huawei.com>
-Cc: catalin.marinas@arm.com, will@kernel.org, oleg@redhat.com, 
-	chenhuacai@kernel.org, kernel@xen0n.name, hca@linux.ibm.com, 
-	gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com, 
-	svens@linux.ibm.com, tglx@kernel.org, mingo@redhat.com, bp@alien8.de, 
-	dave.hansen@linux.intel.com, hpa@zytor.com, arnd@arndb.de, 
-	peterz@infradead.org, luto@kernel.org, shuah@kernel.org, kees@kernel.org, 
-	wad@chromium.org, kevin.brodsky@arm.com, deller@gmx.de, macro@orcam.me.uk, 
-	akpm@linux-foundation.org, ldv@strace.io, anshuman.khandual@arm.com, 
-	ryan.roberts@arm.com, mark.rutland@arm.com, thuth@redhat.com, song@kernel.org, 
-	ada.coupriediaz@arm.com, broonie@kernel.org, pengcan@kylinos.cn, 
-	liqiang01@kylinos.cn, ziyao@disroot.org, guanwentao@uniontech.com, 
-	guoren@kernel.org, schuster.simon@siemens-energy.com, jremus@linux.ibm.com, 
-	david@kernel.org, mathieu.desnoyers@efficios.com, edumazet@google.com, 
-	kmal@cock.li, dvyukov@google.com, reddybalavignesh9979@gmail.com, 
-	x86@kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-kernel@vger.kernel.org, loongarch@lists.linux.dev, 
-	linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org
+References: <20260302-at-vector-size-arch-v1-0-a11f03ba2ca8@linutronix.de> <20260302-at-vector-size-arch-v1-7-a11f03ba2ca8@linutronix.de>
+In-Reply-To: <20260302-at-vector-size-arch-v1-7-a11f03ba2ca8@linutronix.de>
+From: Andy Chiu <andybnac@gmail.com>
+Date: Thu, 19 Mar 2026 09:27:47 -0500
+X-Gm-Features: AaiRm52wQD6uRKulnt1Y_ioaRFL-b1bqEKDLHZMA0LYwV13CAWHAV79Bf5laR-o
+Message-ID: <CAFTtA3O74BTJz8d87CJFQpa8Sub_ouKyyAB8cTXUxd=BnUzS7Q@mail.gmail.com>
+Subject: Re: [PATCH 07/15] RISC-V: Remove AT_VECTOR_SIZE_ARCH from UAPI
+To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+Cc: Kees Cook <kees@kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-riscv@lists.infradead.org, 
+	loongarch@lists.linux.dev, linux-s390@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-mips@vger.kernel.org, 
+	sparclinux@vger.kernel.org, linux-sh@vger.kernel.org, 
+	linux-alpha@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 17, 2026 at 9:20=E2=80=AFAM Jinjie Ruan <ruanjinjie@huawei.com>=
- wrote:
-
-> From: kemal <kmal@cock.li>
+On Mon, Mar 2, 2026 at 6:27=E2=80=AFAM Thomas Wei=C3=9Fschuh
+<thomas.weissschuh@linutronix.de> wrote:
 >
-> Support aarch64 to test "Syscall User Dispatch" with sud_test
-> selftest testcase.
+> There is nothing userspace can do with this value. In the kernel is
+> always combined with AT_VECTOR_SIZE_BASE, which is not exposed to
+> userspace and also changes from time to time.
 >
-> Signed-off-by: kemal <kmal@cock.li>
+> Move the symbol to a kernel-internal header.
+>
+> Signed-off-by: Thomas Wei=C3=9Fschuh <thomas.weissschuh@linutronix.de>
 
-You need to sign this off since you are on the delivery path.
+Reviewed-by: Andy Chiu <andybnac@gmail.com>
 
-Yours,
-Linus Walleij
+> ---
+>  arch/riscv/include/asm/auxvec.h      | 13 +++++++++++++
+>  arch/riscv/include/uapi/asm/auxvec.h |  2 --
+>  2 files changed, 13 insertions(+), 2 deletions(-)
+>
+> diff --git a/arch/riscv/include/asm/auxvec.h b/arch/riscv/include/asm/aux=
+vec.h
+> new file mode 100644
+> index 000000000000..fb4233445276
+> --- /dev/null
+> +++ b/arch/riscv/include/asm/auxvec.h
+> @@ -0,0 +1,13 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * Copyright (C) 2012 ARM Ltd.
+> + * Copyright (C) 2015 Regents of the University of California
+> + */
+> +
+> +#ifndef _ASM_RISCV_AUXVEC_H
+> +#define _ASM_RISCV_AUXVEC_H
+> +
+> +/* entries in ARCH_DLINFO */
+> +#define AT_VECTOR_SIZE_ARCH    10
+> +
+> +#endif /* _UAPI_ASM_RISCV_AUXVEC_H */
+> diff --git a/arch/riscv/include/uapi/asm/auxvec.h b/arch/riscv/include/ua=
+pi/asm/auxvec.h
+> index 95050ebe9ad0..0a725f2aa2e7 100644
+> --- a/arch/riscv/include/uapi/asm/auxvec.h
+> +++ b/arch/riscv/include/uapi/asm/auxvec.h
+> @@ -33,8 +33,6 @@
+>  #define AT_L3_CACHESIZE                46
+>  #define AT_L3_CACHEGEOMETRY    47
+>
+> -/* entries in ARCH_DLINFO */
+> -#define AT_VECTOR_SIZE_ARCH    10
+>  #define AT_MINSIGSTKSZ         51
+>
+>  #endif /* _UAPI_ASM_RISCV_AUXVEC_H */
+>
+> --
+> 2.53.0
+>
+>
+> _______________________________________________
+> linux-riscv mailing list
+> linux-riscv@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-riscv
