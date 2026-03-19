@@ -1,25 +1,25 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id DE6A33EF0A6;
-	Thu, 19 Mar 2026 17:05:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 28AA53EF0AC;
+	Thu, 19 Mar 2026 17:05:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773939929; cv=none; b=PxfgGnbnN6pKsVr8XHdMb+R/lHXw0EmlIbTUJdcsa11TGDIEDq0s9kqMSb2Z63e990ivs7dOueNrsPY1soZLySxMX5efevEV0qmQzMQo862+IIDfmUlxswPSWK2coBZJh9pDPu1f6Uc5DgiiM6whPVTXeRGMXqgn8uUw/A83xWY=
+	t=1773939961; cv=none; b=C+Q6gLcFaJIscUzsDxlDFxNAqez5ty6J9yG1tGYtPIK+5CMQYWrpAuTujVMG+J91DopWh3sgAusLvJK5qSh65HMBKeZ7dknLzv3fjBdTUhAcunxY/ooyl/XrpYnezD1zrCL+/TupEX9rjQl2xt8ErjogiAC2ft9FIkKGMiWOXfE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773939929; c=relaxed/simple;
-	bh=Gf5XBFJJvDKd0hS1w0/LnzSIYLjFJzLH0x+kzjR0qA4=;
+	s=arc-20240116; t=1773939961; c=relaxed/simple;
+	bh=Ls+mlgIowV8QKL/4RoOexl9oFDqYAejYbw2aCMinSWc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=Fj5DrnJ8oSqpkwtJf1Uqjj1m1m4v3keg9gj4GSpEpnkgFCNSsmsgXLyBJTUuOYA9mQS1smEn6SoXifjJ+LW+J9/vx38hoGogUbT3R/dkcyYoCoNy9ASPeLl4WAt3BDvuSjR/H2DEfQquzyJRa8fmPStkY7Ed1AHcFIuY1rFNP0I=
+	 In-Reply-To:Content-Type; b=Rtu0X48HMhb2uSxezppFsTHDM+yxbA72C9zkwYnuMJH3VTAvk7LzN5cOGOCZEFYSS38TVIfw/u8CcRkUaRAumkp6TR+eWvvDF4L7sorkWqTs/0H/tmxhEBR6+I0NkQZ093JvJVOSeiFLiuljw7DNrO3/K2FCwhsFtY8md6GJkcs=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4D2AF1A25;
-	Thu, 19 Mar 2026 10:05:20 -0700 (PDT)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 97E051758;
+	Thu, 19 Mar 2026 10:05:52 -0700 (PDT)
 Received: from [10.57.60.82] (unknown [10.57.60.82])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1BB053F778;
-	Thu, 19 Mar 2026 10:05:16 -0700 (PDT)
-Message-ID: <64da7780-3176-461f-b61d-7a5828ce55a4@arm.com>
-Date: Thu, 19 Mar 2026 18:05:14 +0100
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3D40B3F778;
+	Thu, 19 Mar 2026 10:05:50 -0700 (PDT)
+Message-ID: <ad0096a6-91b2-465e-bda2-3fecbdd73570@arm.com>
+Date: Thu, 19 Mar 2026 18:05:48 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -27,8 +27,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v13 RESEND 11/14] s390: Rename TIF_SINGLE_STEP to
- TIF_SINGLESTEP
+Subject: Re: [PATCH v13 RESEND 12/14] asm-generic: Move TIF_SINGLESTEP to
+ generic TIF bits
 To: Jinjie Ruan <ruanjinjie@huawei.com>, catalin.marinas@arm.com,
  will@kernel.org, oleg@redhat.com, chenhuacai@kernel.org, kernel@xen0n.name,
  hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
@@ -48,168 +48,139 @@ To: Jinjie Ruan <ruanjinjie@huawei.com>, catalin.marinas@arm.com,
  loongarch@lists.linux.dev, linux-s390@vger.kernel.org,
  linux-arch@vger.kernel.org, linux-kselftest@vger.kernel.org
 References: <20260317082020.737779-1-ruanjinjie@huawei.com>
- <20260317082020.737779-12-ruanjinjie@huawei.com>
+ <20260317082020.737779-13-ruanjinjie@huawei.com>
 From: Kevin Brodsky <kevin.brodsky@arm.com>
 Content-Language: en-GB
-In-Reply-To: <20260317082020.737779-12-ruanjinjie@huawei.com>
+In-Reply-To: <20260317082020.737779-13-ruanjinjie@huawei.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 17/03/2026 09:20, Jinjie Ruan wrote:
-> Rename TIF_SINGLE_STEP to TIF_SINGLESTEP to align with the naming
-> convention used by arm64, x86, and other architectures.
+> Currently, x86, ARM64, s390, and LoongArch all define and use
+> TIF_SINGLESTEP to track single-stepping state.
 >
-> By aligning the name, TIF_SINGLESTEP can be consolidated into the generic
-> TIF bits definitions, reducing architectural divergence and simplifying
-> cross-architecture entry/exit logic.
+> Since this flag is shared across multiple major architectures and serves
+> a common purpose in the generic entry/exit paths, move TIF_SINGLESTEP
+> into the generic Thread Information Flags (TIF) infrastructure.
 >
-> No functional changes intended.
+> This consolidation reduces architecture-specific boilerplate code and
+> ensures consistency for generic features that rely on single-step
+> state tracking.
 >
-> Acked-by: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Thomas Gleixner <tglx@kernel.org>
+> Acked-by: Heiko Carstens <hca@linux.ibm.com> # s390
 > Signed-off-by: Jinjie Ruan <ruanjinjie@huawei.com>
 
 Reviewed-by: Kevin Brodsky <kevin.brodsky@arm.com>
 
 > ---
->  arch/s390/include/asm/thread_info.h |  4 ++--
->  arch/s390/kernel/process.c          |  2 +-
->  arch/s390/kernel/ptrace.c           | 20 ++++++++++----------
->  arch/s390/kernel/signal.c           |  6 +++---
->  4 files changed, 16 insertions(+), 16 deletions(-)
+>  arch/loongarch/include/asm/thread_info.h | 11 +++++------
+>  arch/s390/include/asm/thread_info.h      |  7 +++----
+>  arch/x86/include/asm/thread_info.h       |  6 ++----
+>  include/asm-generic/thread_info_tif.h    |  5 +++++
+>  4 files changed, 15 insertions(+), 14 deletions(-)
 >
+> diff --git a/arch/loongarch/include/asm/thread_info.h b/arch/loongarch/include/asm/thread_info.h
+> index 4d7117fcdc78..a2ec87f18e1d 100644
+> --- a/arch/loongarch/include/asm/thread_info.h
+> +++ b/arch/loongarch/include/asm/thread_info.h
+> @@ -70,6 +70,7 @@ register unsigned long current_stack_pointer __asm__("$sp");
+>   */
+>  #define HAVE_TIF_NEED_RESCHED_LAZY
+>  #define HAVE_TIF_RESTORE_SIGMASK
+> +#define HAVE_TIF_SINGLESTEP
+>  
+>  #include <asm-generic/thread_info_tif.h>
+>  
+> @@ -82,11 +83,10 @@ register unsigned long current_stack_pointer __asm__("$sp");
+>  #define TIF_32BIT_REGS		21	/* 32-bit general purpose registers */
+>  #define TIF_32BIT_ADDR		22	/* 32-bit address space */
+>  #define TIF_LOAD_WATCH		23	/* If set, load watch registers */
+> -#define TIF_SINGLESTEP		24	/* Single Step */
+> -#define TIF_LSX_CTX_LIVE	25	/* LSX context must be preserved */
+> -#define TIF_LASX_CTX_LIVE	26	/* LASX context must be preserved */
+> -#define TIF_USEDLBT		27	/* LBT was used by this task this quantum (SMP) */
+> -#define TIF_LBT_CTX_LIVE	28	/* LBT context must be preserved */
+> +#define TIF_LSX_CTX_LIVE	24	/* LSX context must be preserved */
+> +#define TIF_LASX_CTX_LIVE	25	/* LASX context must be preserved */
+> +#define TIF_USEDLBT		26	/* LBT was used by this task this quantum (SMP) */
+> +#define TIF_LBT_CTX_LIVE	27	/* LBT context must be preserved */
+>  
+>  #define _TIF_NOHZ		BIT(TIF_NOHZ)
+>  #define _TIF_USEDFPU		BIT(TIF_USEDFPU)
+> @@ -96,7 +96,6 @@ register unsigned long current_stack_pointer __asm__("$sp");
+>  #define _TIF_32BIT_REGS		BIT(TIF_32BIT_REGS)
+>  #define _TIF_32BIT_ADDR		BIT(TIF_32BIT_ADDR)
+>  #define _TIF_LOAD_WATCH		BIT(TIF_LOAD_WATCH)
+> -#define _TIF_SINGLESTEP		BIT(TIF_SINGLESTEP)
+>  #define _TIF_LSX_CTX_LIVE	BIT(TIF_LSX_CTX_LIVE)
+>  #define _TIF_LASX_CTX_LIVE	BIT(TIF_LASX_CTX_LIVE)
+>  #define _TIF_USEDLBT		BIT(TIF_USEDLBT)
 > diff --git a/arch/s390/include/asm/thread_info.h b/arch/s390/include/asm/thread_info.h
-> index 6a548a819400..1bcd42614e41 100644
+> index 1bcd42614e41..95be5258a422 100644
 > --- a/arch/s390/include/asm/thread_info.h
 > +++ b/arch/s390/include/asm/thread_info.h
-> @@ -69,7 +69,7 @@ void arch_setup_new_exec(void);
+> @@ -61,6 +61,7 @@ void arch_setup_new_exec(void);
+>   */
+>  #define HAVE_TIF_NEED_RESCHED_LAZY
+>  #define HAVE_TIF_RESTORE_SIGMASK
+> +#define HAVE_TIF_SINGLESTEP
+>  
+>  #include <asm-generic/thread_info_tif.h>
+>  
+> @@ -69,15 +70,13 @@ void arch_setup_new_exec(void);
 >  #define TIF_GUARDED_STORAGE	17	/* load guarded storage control block */
 >  #define TIF_ISOLATE_BP_GUEST	18	/* Run KVM guests with isolated BP */
 >  #define TIF_PER_TRAP		19	/* Need to handle PER trap on exit to usermode */
-> -#define TIF_SINGLE_STEP		21	/* This task is single stepped */
-> +#define TIF_SINGLESTEP		21	/* This task is single stepped */
->  #define TIF_BLOCK_STEP		22	/* This task is block stepped */
->  #define TIF_UPROBE_SINGLESTEP	23	/* This task is uprobe single stepped */
+> -#define TIF_SINGLESTEP		21	/* This task is single stepped */
+> -#define TIF_BLOCK_STEP		22	/* This task is block stepped */
+> -#define TIF_UPROBE_SINGLESTEP	23	/* This task is uprobe single stepped */
+> +#define TIF_BLOCK_STEP		20	/* This task is block stepped */
+> +#define TIF_UPROBE_SINGLESTEP	21	/* This task is uprobe single stepped */
 >  
-> @@ -77,7 +77,7 @@ void arch_setup_new_exec(void);
+>  #define _TIF_ASCE_PRIMARY	BIT(TIF_ASCE_PRIMARY)
 >  #define _TIF_GUARDED_STORAGE	BIT(TIF_GUARDED_STORAGE)
 >  #define _TIF_ISOLATE_BP_GUEST	BIT(TIF_ISOLATE_BP_GUEST)
 >  #define _TIF_PER_TRAP		BIT(TIF_PER_TRAP)
-> -#define _TIF_SINGLE_STEP	BIT(TIF_SINGLE_STEP)
-> +#define _TIF_SINGLESTEP	BIT(TIF_SINGLESTEP)
+> -#define _TIF_SINGLESTEP	BIT(TIF_SINGLESTEP)
 >  #define _TIF_BLOCK_STEP		BIT(TIF_BLOCK_STEP)
 >  #define _TIF_UPROBE_SINGLESTEP	BIT(TIF_UPROBE_SINGLESTEP)
 >  
-> diff --git a/arch/s390/kernel/process.c b/arch/s390/kernel/process.c
-> index 0df95dcb2101..3accc0c064a0 100644
-> --- a/arch/s390/kernel/process.c
-> +++ b/arch/s390/kernel/process.c
-> @@ -122,7 +122,7 @@ int copy_thread(struct task_struct *p, const struct kernel_clone_args *args)
->  	/* Don't copy debug registers */
->  	memset(&p->thread.per_user, 0, sizeof(p->thread.per_user));
->  	memset(&p->thread.per_event, 0, sizeof(p->thread.per_event));
-> -	clear_tsk_thread_flag(p, TIF_SINGLE_STEP);
-> +	clear_tsk_thread_flag(p, TIF_SINGLESTEP);
->  	p->thread.per_flags = 0;
->  	/* Initialize per thread user and system timer values */
->  	p->thread.user_timer = 0;
-> diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
-> index 125ca4c4e30c..d2cf91f4ac3f 100644
-> --- a/arch/s390/kernel/ptrace.c
-> +++ b/arch/s390/kernel/ptrace.c
-> @@ -90,8 +90,8 @@ void update_cr_regs(struct task_struct *task)
->  	new.start.val = thread->per_user.start;
->  	new.end.val = thread->per_user.end;
+> diff --git a/arch/x86/include/asm/thread_info.h b/arch/x86/include/asm/thread_info.h
+> index 0067684afb5b..f59072ba1473 100644
+> --- a/arch/x86/include/asm/thread_info.h
+> +++ b/arch/x86/include/asm/thread_info.h
+> @@ -98,9 +98,8 @@ struct thread_info {
+>  #define TIF_IO_BITMAP		22	/* uses I/O bitmap */
+>  #define TIF_SPEC_FORCE_UPDATE	23	/* Force speculation MSR update in context switch */
+>  #define TIF_FORCED_TF		24	/* true if TF in eflags artificially */
+> -#define TIF_SINGLESTEP		25	/* reenable singlestep on user return*/
+> -#define TIF_BLOCKSTEP		26	/* set when we want DEBUGCTLMSR_BTF */
+> -#define TIF_ADDR32		27	/* 32-bit address space on 64 bits */
+> +#define TIF_BLOCKSTEP		25	/* set when we want DEBUGCTLMSR_BTF */
+> +#define TIF_ADDR32		26	/* 32-bit address space on 64 bits */
 >  
-> -	/* merge TIF_SINGLE_STEP into user specified PER registers. */
-> -	if (test_tsk_thread_flag(task, TIF_SINGLE_STEP) ||
-> +	/* merge TIF_SINGLESTEP into user specified PER registers. */
-> +	if (test_tsk_thread_flag(task, TIF_SINGLESTEP) ||
->  	    test_tsk_thread_flag(task, TIF_UPROBE_SINGLESTEP)) {
->  		if (test_tsk_thread_flag(task, TIF_BLOCK_STEP))
->  			new.control.val |= PER_EVENT_BRANCH;
-> @@ -119,18 +119,18 @@ void update_cr_regs(struct task_struct *task)
->  void user_enable_single_step(struct task_struct *task)
->  {
->  	clear_tsk_thread_flag(task, TIF_BLOCK_STEP);
-> -	set_tsk_thread_flag(task, TIF_SINGLE_STEP);
-> +	set_tsk_thread_flag(task, TIF_SINGLESTEP);
->  }
+>  #define _TIF_SSBD		BIT(TIF_SSBD)
+>  #define _TIF_SPEC_IB		BIT(TIF_SPEC_IB)
+> @@ -112,7 +111,6 @@ struct thread_info {
+>  #define _TIF_SPEC_FORCE_UPDATE	BIT(TIF_SPEC_FORCE_UPDATE)
+>  #define _TIF_FORCED_TF		BIT(TIF_FORCED_TF)
+>  #define _TIF_BLOCKSTEP		BIT(TIF_BLOCKSTEP)
+> -#define _TIF_SINGLESTEP		BIT(TIF_SINGLESTEP)
+>  #define _TIF_ADDR32		BIT(TIF_ADDR32)
 >  
->  void user_disable_single_step(struct task_struct *task)
->  {
->  	clear_tsk_thread_flag(task, TIF_BLOCK_STEP);
-> -	clear_tsk_thread_flag(task, TIF_SINGLE_STEP);
-> +	clear_tsk_thread_flag(task, TIF_SINGLESTEP);
->  }
+>  /* flags to check in __switch_to() */
+> diff --git a/include/asm-generic/thread_info_tif.h b/include/asm-generic/thread_info_tif.h
+> index da1610a78f92..b277fe06aee3 100644
+> --- a/include/asm-generic/thread_info_tif.h
+> +++ b/include/asm-generic/thread_info_tif.h
+> @@ -48,4 +48,9 @@
+>  #define TIF_RSEQ		11	// Run RSEQ fast path
+>  #define _TIF_RSEQ		BIT(TIF_RSEQ)
 >  
->  void user_enable_block_step(struct task_struct *task)
->  {
-> -	set_tsk_thread_flag(task, TIF_SINGLE_STEP);
-> +	set_tsk_thread_flag(task, TIF_SINGLESTEP);
->  	set_tsk_thread_flag(task, TIF_BLOCK_STEP);
->  }
->  
-> @@ -143,7 +143,7 @@ void ptrace_disable(struct task_struct *task)
->  {
->  	memset(&task->thread.per_user, 0, sizeof(task->thread.per_user));
->  	memset(&task->thread.per_event, 0, sizeof(task->thread.per_event));
-> -	clear_tsk_thread_flag(task, TIF_SINGLE_STEP);
-> +	clear_tsk_thread_flag(task, TIF_SINGLESTEP);
->  	clear_tsk_thread_flag(task, TIF_PER_TRAP);
->  	task->thread.per_flags = 0;
->  }
-> @@ -155,19 +155,19 @@ static inline unsigned long __peek_user_per(struct task_struct *child,
->  {
->  	if (addr == offsetof(struct per_struct_kernel, cr9))
->  		/* Control bits of the active per set. */
-> -		return test_thread_flag(TIF_SINGLE_STEP) ?
-> +		return test_thread_flag(TIF_SINGLESTEP) ?
->  			PER_EVENT_IFETCH : child->thread.per_user.control;
->  	else if (addr == offsetof(struct per_struct_kernel, cr10))
->  		/* Start address of the active per set. */
-> -		return test_thread_flag(TIF_SINGLE_STEP) ?
-> +		return test_thread_flag(TIF_SINGLESTEP) ?
->  			0 : child->thread.per_user.start;
->  	else if (addr == offsetof(struct per_struct_kernel, cr11))
->  		/* End address of the active per set. */
-> -		return test_thread_flag(TIF_SINGLE_STEP) ?
-> +		return test_thread_flag(TIF_SINGLESTEP) ?
->  			-1UL : child->thread.per_user.end;
->  	else if (addr == offsetof(struct per_struct_kernel, bits))
->  		/* Single-step bit. */
-> -		return test_thread_flag(TIF_SINGLE_STEP) ?
-> +		return test_thread_flag(TIF_SINGLESTEP) ?
->  			(1UL << (BITS_PER_LONG - 1)) : 0;
->  	else if (addr == offsetof(struct per_struct_kernel, starting_addr))
->  		/* Start address of the user specified per set. */
-> diff --git a/arch/s390/kernel/signal.c b/arch/s390/kernel/signal.c
-> index 4874de5edea0..83f7650f2032 100644
-> --- a/arch/s390/kernel/signal.c
-> +++ b/arch/s390/kernel/signal.c
-> @@ -423,7 +423,7 @@ static void handle_signal(struct ksignal *ksig, sigset_t *oldset,
->  	else
->  		ret = setup_frame(ksig->sig, &ksig->ka, oldset, regs);
->  
-> -	signal_setup_done(ret, ksig, test_thread_flag(TIF_SINGLE_STEP));
-> +	signal_setup_done(ret, ksig, test_thread_flag(TIF_SINGLESTEP));
->  }
->  
->  /*
-> @@ -491,7 +491,7 @@ void arch_do_signal_or_restart(struct pt_regs *regs)
->  			regs->gprs[2] = regs->orig_gpr2;
->  			current->restart_block.arch_data = regs->psw.addr;
->  			regs->psw.addr = VDSO_SYMBOL(current, restart_syscall);
-> -			if (test_thread_flag(TIF_SINGLE_STEP))
-> +			if (test_thread_flag(TIF_SINGLESTEP))
->  				clear_thread_flag(TIF_PER_TRAP);
->  			break;
->  		case -ERESTARTNOHAND:
-> @@ -499,7 +499,7 @@ void arch_do_signal_or_restart(struct pt_regs *regs)
->  		case -ERESTARTNOINTR:
->  			regs->gprs[2] = regs->orig_gpr2;
->  			regs->psw.addr = __rewind_psw(regs->psw, regs->int_code >> 16);
-> -			if (test_thread_flag(TIF_SINGLE_STEP))
-> +			if (test_thread_flag(TIF_SINGLESTEP))
->  				clear_thread_flag(TIF_PER_TRAP);
->  			break;
->  		}
+> +#ifdef HAVE_TIF_SINGLESTEP
+> +#define TIF_SINGLESTEP		12	/* reenable singlestep on user return*/
+> +#define _TIF_SINGLESTEP		BIT(TIF_SINGLESTEP)
+> +#endif
+> +
+>  #endif /* _ASM_GENERIC_THREAD_INFO_TIF_H_ */
