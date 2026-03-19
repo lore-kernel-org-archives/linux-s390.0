@@ -1,300 +1,248 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D20703290D5;
-	Thu, 19 Mar 2026 08:20:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FA5D25C6EE;
+	Thu, 19 Mar 2026 08:48:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773908440; cv=none; b=Scwryqva8a0jN5YazGNpboCSlSCay0O0Gnr7IRoOQxRtIWKvhTiZSZOOGwx4Ljst6H7kBKesqAyIGU+vxZ55SpiNMYXYf4rzQeTF1+lU6DIAJRuofRtvil7k4RHe4Zhi88rmCpMQh/8teFSf86Mxg0JzNDl4z8xYZBCTAU6e7Ns=
+	t=1773910092; cv=none; b=XFU9VajaTr8uFgeIbcUl4zA0EXjdEDoRTXuxlX1cSjaAZgd0BVuKAJ1nGoCTKrAfqNPmSDc1QkSozFANOrsrlY1Z0ZQxYTKKIwixeeaTSu+5ejvaps0hhPoLKgrf/u3jWOAgMgQK7luKOrCG2gvSEDv4+/BBeW2asXyXuA9IeM8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773908440; c=relaxed/simple;
-	bh=XZSmlU5qQZSk3ikAK6msWkB0C1hCUr2T8dbTi52alcU=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=sMCQqnwnPS5/8Q5aWfndLuyZNUOhVmTFiEM+nA999MyftWi7tLdcLrdJFVCjFDJv7buu0lKkMILbAtg853CBRZA3PYqC1JybxjljZN/wrqJULUPd80P88vSUluKQujJZPpcEga4ABx2nsx6YRgQQxEXIEI8IYZpKrkMh0LpMwyA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=siMioE97; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773910092; c=relaxed/simple;
+	bh=d83p2eC0dEELKtBbyfcBS5oNXm9rWu3uzQiKRgsyH9M=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=MwBaFCK0zjcpqED/1sn9mhTtt2L7wLrS+AArYxm3YVI/EEzphWLvGIKMbl9btlCoBj+qCz7DZJFJJP1J+2q3h3K5GHi8W9wQqw+2tpRU9Rw9QDgdKiALvnhNBIvGBK1yz2Q/IijfTEVA4EbKNv6tXekkeCMTzrxjN9oTaq9nf40=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LKirBB0a; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="siMioE97"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1B22C19425;
-	Thu, 19 Mar 2026 08:20:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773908440;
-	bh=XZSmlU5qQZSk3ikAK6msWkB0C1hCUr2T8dbTi52alcU=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=siMioE97YWmWg3dsdee3PkKgH+n8pqPcHCbnc6EAggNIaenWaU7afq+6ydhGwa1BV
-	 A1iG9LJmU8Lw5Tyz4SQpmVDsf+kP8nwdPtOu2fYoKB7hmSN+p6wqjYPSjuRjkpCvAu
-	 yuoo5OzG1ERSTgAj2PzV7QqiSHxS6taM56a0Cg+9bqTj6qeXnvjSmxGHAZ4tkb/Wtw
-	 X265+BTIO1cRd7v9TnTwUz5dk9/alFXI0lrS9w9uSVwU17/ghw21lOa64OHs+SuJQc
-	 0lM+E29w+qg+o9jxGyY/qD2fpzZewxKBhdYf2j2PJ3cWdle21nX3QEdot45buM5NqD
-	 +/zAc5cFalR8A==
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Date: Thu, 19 Mar 2026 09:19:41 +0100
-Subject: [PATCH 2/2] mm: introduce CONFIG_NUMA_MIGRATION and simplify
- CONFIG_MIGRATION
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LKirBB0a"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62ILEOOd853168;
+	Thu, 19 Mar 2026 08:48:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=2NA6/C4jUxmh8I0zZ
+	auDpPW5H/ht5lqffyM3ID9scYY=; b=LKirBB0aV72FnZH7M7/jGPrmKDe838cx0
+	76ARqkz8xsmBYBni9ObnNvPaUqECabAMV4erUvB9+lySFdURwwtRWNCNwe2uxQfz
+	1VUCwK0bmC5dnqvXWgdI0Ko/ZFqcw13jj8mAluc/mBhD4x9lZbXUMUICMFCoP9/s
+	SCrJ6Nspl5APadpTsnUUOpSBO7ttpPPIS3NdwBLXNhZgTxad4FFTDhG3cG7ayfnE
+	ud0Q7Opv6zCkMouXIjgMxBBkiAxuAQJ7LTJx464xFtmflEZ1eycYI4HOw+gn8UVm
+	1YwxpZ9R/F+ZCnLahoJNFkJy2bqvZAzD61odMrnPBcYlftJ5K4jqg==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cvyauna1b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 19 Mar 2026 08:48:07 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62J4JBLv028739;
+	Thu, 19 Mar 2026 08:48:07 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cwkgkhppx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 19 Mar 2026 08:48:07 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62J8m3gf27132214
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 19 Mar 2026 08:48:03 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E2C4A2005A;
+	Thu, 19 Mar 2026 08:48:02 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B4D0B2004D;
+	Thu, 19 Mar 2026 08:48:02 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 19 Mar 2026 08:48:02 +0000 (GMT)
+From: Thomas Richter <tmricht@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org,
+        irogers@google.com
+Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+        hca@linux.ibm.com, japo@linux.ibm.com,
+        Thomas Richter <tmricht@linux.ibm.com>
+Subject: [PATCH v5 1/1] perf record: Add support for arch_sdt_arg_parse_op() on s390
+Date: Thu, 19 Mar 2026 09:47:54 +0100
+Message-ID: <20260319084754.3838828-2-tmricht@linux.ibm.com>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <20260319084754.3838828-1-tmricht@linux.ibm.com>
+References: <20260319084754.3838828-1-tmricht@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260319-config_migration-v1-2-42270124966f@kernel.org>
-References: <20260319-config_migration-v1-0-42270124966f@kernel.org>
-In-Reply-To: <20260319-config_migration-v1-0-42270124966f@kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Catalin Marinas <catalin.marinas@arm.com>, 
- Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, 
- WANG Xuerui <kernel@xen0n.name>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
- Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>, 
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
- Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
- "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>, 
- Lorenzo Stoakes <ljs@kernel.org>, 
- "Liam R. Howlett" <Liam.Howlett@oracle.com>, 
- Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
- Zi Yan <ziy@nvidia.com>, Matthew Brost <matthew.brost@intel.com>, 
- Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, 
- Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>, 
- Ying Huang <ying.huang@linux.alibaba.com>, 
- Alistair Popple <apopple@nvidia.com>, 
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>, 
- Clark Williams <clrkwllms@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, 
- linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev, 
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
- linux-s390@vger.kernel.org, linux-mm@kvack.org, 
- linux-rt-devel@lists.linux.dev, 
- "David Hildenbrand (Arm)" <david@kernel.org>
-X-Mailer: b4 0.13.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzE5MDA2OCBTYWx0ZWRfXyAgZNzbl346h
+ I36OLA53OOZsUFty80CNltUB8g/JRp5V/91uufyKCTYjzMyLJUXXFQoJVNoIXye0TyOzXEXstTC
+ vM2qE/78g0d+X2qjmv+zTkSrRuQnzON2I9yjN/8Vd4MwuNtQUzBw7SYIlsJ78Q+YTD6iwwS+mx9
+ yOEQY1dSIe/KIFgz0Zskc4KB4QpQeNUpm8NNDC64mki/oInN0m3/MfmV4BGJBjhu/MNVwLmB4na
+ zL3a1mtidxUqbgJ6ddqPc5hyXwyZ2rLtF0fNNaVoYtKChu6TyiiUXaGc3V63hGe90PLjQESz5aM
+ 4MaU/eoLQxX5iHgVwMjMz9E3Yf8MXS7H5x/cOQbexl/B7KrV5xkHYUA1p/1QOsICWXGtaPCzKSd
+ vrLU846ITn9JCSwyqFdPyxCegowruVC78m5ADKmQxp/LyeyF9CNJZPG6Czx7TiY5bd+X33rCYWF
+ sWyHfzQwxFCSQNnfQVQ==
+X-Authority-Analysis: v=2.4 cv=GIQF0+NK c=1 sm=1 tr=0 ts=69bbb848 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=QyXUC8HyAAAA:8 a=1XWaLZrsAAAA:8
+ a=3tPfgpBZzwENxpOU27sA:9 a=O8hF6Hzn-FEA:10
+X-Proofpoint-ORIG-GUID: cLzydVJnlCBp_jPyMgk4Vgy-OXJWXfQs
+X-Proofpoint-GUID: EvlS4g3WrxFpMgv2ZhQGamChPnfwRQ5T
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-19_01,2026-03-17_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 priorityscore=1501 bulkscore=0 lowpriorityscore=0 malwarescore=0
+ phishscore=0 impostorscore=0 suspectscore=0 adultscore=0 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603190068
 
-CONFIG_MEMORY_HOTREMOVE, CONFIG_COMPACTION and CONFIG_CMA all select
-CONFIG_MIGRATION, because they require it to work (users).
+commit e5e66adfe45a6 ("perf regs: Remove __weak attributive arch_sdt_arg_parse_op() function")
+removes arch_sdt_arg_parse_op() functions and reveals missing s390 support.
+The following warning is printed:
 
-Only CONFIG_NUMA_BALANCING and CONFIG_BALLOON_MIGRATION depend on
-CONFIG_MIGRATION. CONFIG_BALLOON_MIGRATION is not an actual user, but
-an implementation of migration support, so the dependency is correct
-(CONFIG_BALLOON_MIGRATION does not make any sense without
-CONFIG_MIGRATION).
+  Unknown ELF machine 22, standard arguments parse will be skipped.
 
-However, kconfig-language.rst  clearly states "In general use select only
-for non-visible symbols". So far CONFIG_MIGRATION is user-visible ...
-and the dependencies rather confusing.
+ELF machine 22 is the EM_S390 host. This happens with command
+  # ./perf record -v -- stress-ng -t 1s --matrix 0
+when the event is not specified.
 
-The whole reason why CONFIG_MIGRATION is user-visible is because of
-CONFIG_NUMA: some users might want CONFIG_NUMA but not page migration
-support.
+Add s390 specific __perf_sdt_arg_parse_op_s390() function to support
+-architecture calls to arch_sdt_arg_parse_op() for s390.
+The warning disappears.
 
-Let's clean all that up by introducing a dedicated CONFIG_NUMA_MIGRATION
-config option for that purpose only. Make CONFIG_NUMA_BALANCING that so
-far depended on CONFIG_NUMA && CONFIG_MIGRATION to depend on
-CONFIG_MIGRATION instead. CONFIG_NUMA_MIGRATION will depend on
-CONFIG_NUMA && CONFIG_MMU.
-
-CONFIG_NUMA_MIGRATION is user-visible and will default to "y". We
-use that default so new configs will automatically enable it, just
-like it was the case with CONFIG_MIGRATION. The downside is that
-some configs that used to have CONFIG_MIGRATION=n might get it
-re-enabled by CONFIG_NUMA_MIGRATION=y, which shouldn't be a problem.
-
-CONFIG_MIGRATION is now a non-visible config option. Any code that
-select CONFIG_MIGRATION (as before) must depend directly or indirectly
-on CONFIG_MMU.
-
-CONFIG_NUMA_MIGRATION is responsible for any NUMA migration code, which is
-mempolicy migration code, memory-tiering code, and move_pages() code in
-migrate.c. CONFIG_NUMA_BALANCING uses its functionality.
-
-Note that this implies that with CONFIG_NUMA_MIGRATION=n, move_pages() will
-not be available even though CONFIG_MIGRATION=y, which is an expected
-change.
-
-In migrate.c, we can remove the CONFIG_NUMA check as both
-CONFIG_NUMA_MIGRATION and CONFIG_NUMA_BALANCING depend on it.
-
-With this change, CONFIG_MIGRATION is an internal config, all users of
-migration selects CONFIG_MIGRATION, and only CONFIG_BALLOON_MIGRATION
-depends on it.
-
-Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Cc: Dapeng Mi <dapeng1.mi@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Tested-by: Jan Polensky <japo@linux.ibm.com>
+Reviewed-by: Ian Rogers <irogers@google.com>
 ---
- include/linux/memory-tiers.h |  2 +-
- init/Kconfig                 |  2 +-
- mm/Kconfig                   | 26 +++++++++++++-------------
- mm/memory-tiers.c            | 12 ++++++------
- mm/mempolicy.c               |  2 +-
- mm/migrate.c                 |  5 ++---
- 6 files changed, 24 insertions(+), 25 deletions(-)
+ .../perf/util/perf-regs-arch/perf_regs_s390.c | 78 +++++++++++++++++++
+ tools/perf/util/perf_regs.c                   |  3 +
+ tools/perf/util/perf_regs.h                   |  1 +
+ 3 files changed, 82 insertions(+)
 
-diff --git a/include/linux/memory-tiers.h b/include/linux/memory-tiers.h
-index 96987d9d95a8..7999c58629ee 100644
---- a/include/linux/memory-tiers.h
-+++ b/include/linux/memory-tiers.h
-@@ -52,7 +52,7 @@ int mt_perf_to_adistance(struct access_coordinate *perf, int *adist);
- struct memory_dev_type *mt_find_alloc_memory_type(int adist,
- 						  struct list_head *memory_types);
- void mt_put_memory_types(struct list_head *memory_types);
--#ifdef CONFIG_MIGRATION
-+#ifdef CONFIG_NUMA_MIGRATION
- int next_demotion_node(int node, const nodemask_t *allowed_mask);
- void node_get_allowed_targets(pg_data_t *pgdat, nodemask_t *targets);
- bool node_is_toptier(int node);
-diff --git a/init/Kconfig b/init/Kconfig
-index 444ce811ea67..3648e401b78b 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -997,7 +997,7 @@ config NUMA_BALANCING
- 	bool "Memory placement aware NUMA scheduler"
- 	depends on ARCH_SUPPORTS_NUMA_BALANCING
- 	depends on !ARCH_WANT_NUMA_VARIABLE_LOCALITY
--	depends on SMP && NUMA && MIGRATION && !PREEMPT_RT
-+	depends on SMP && NUMA_MIGRATION && !PREEMPT_RT
- 	help
- 	  This option adds support for automatic NUMA aware memory/task placement.
- 	  The mechanism is quite primitive and is based on migrating memory when
-diff --git a/mm/Kconfig b/mm/Kconfig
-index b2e21d873d3f..bd283958d675 100644
---- a/mm/Kconfig
-+++ b/mm/Kconfig
-@@ -627,20 +627,20 @@ config PAGE_REPORTING
- 	  those pages to another entity, such as a hypervisor, so that the
- 	  memory can be freed within the host for other uses.
+diff --git a/tools/perf/util/perf-regs-arch/perf_regs_s390.c b/tools/perf/util/perf-regs-arch/perf_regs_s390.c
+index c61df24edf0f..19f219225183 100644
+--- a/tools/perf/util/perf-regs-arch/perf_regs_s390.c
++++ b/tools/perf/util/perf-regs-arch/perf_regs_s390.c
+@@ -1,7 +1,13 @@
+ // SPDX-License-Identifier: GPL-2.0
  
--#
--# support for page migration
--#
--config MIGRATION
--	bool "Page migration"
-+config NUMA_MIGRATION
-+	bool "NUMA page migration"
- 	default y
--	depends on (NUMA || MEMORY_HOTREMOVE || COMPACTION || CMA) && MMU
--	help
--	  Allows the migration of the physical location of pages of processes
--	  while the virtual addresses are not changed. This is useful in
--	  two situations. The first is on NUMA systems to put pages nearer
--	  to the processors accessing. The second is when allocating huge
--	  pages as migration can relocate pages to satisfy a huge page
--	  allocation instead of reclaiming.
-+	depends on NUMA && MMU
-+	select MIGRATION
-+	help
-+	  Support the migration of pages to other NUMA nodes, available to
-+	  user space through interfaces like migrate_pages(), move_pages(),
-+	  and mbind(). Selecting this option also enables support for page
-+	  demotion for memory tiering.
++#include <errno.h>
++#include <regex.h>
+ #include "../perf_regs.h"
+ #include "../../arch/s390/include/perf_regs.h"
++#include "debug.h"
 +
-+config MIGRATION
-+	bool
-+	depends on MMU
++#include <linux/zalloc.h>
++#include <linux/kernel.h>
  
- config DEVICE_MIGRATION
- 	def_bool MIGRATION && ZONE_DEVICE
-diff --git a/mm/memory-tiers.c b/mm/memory-tiers.c
-index 986f809376eb..54851d8a195b 100644
---- a/mm/memory-tiers.c
-+++ b/mm/memory-tiers.c
-@@ -69,7 +69,7 @@ bool folio_use_access_time(struct folio *folio)
- }
- #endif
- 
--#ifdef CONFIG_MIGRATION
-+#ifdef CONFIG_NUMA_MIGRATION
- static int top_tier_adistance;
- /*
-  * node_demotion[] examples:
-@@ -129,7 +129,7 @@ static int top_tier_adistance;
-  *
-  */
- static struct demotion_nodes *node_demotion __read_mostly;
--#endif /* CONFIG_MIGRATION */
-+#endif /* CONFIG_NUMA_MIGRATION */
- 
- static BLOCKING_NOTIFIER_HEAD(mt_adistance_algorithms);
- 
-@@ -273,7 +273,7 @@ static struct memory_tier *__node_get_memory_tier(int node)
- 				     lockdep_is_held(&memory_tier_lock));
- }
- 
--#ifdef CONFIG_MIGRATION
-+#ifdef CONFIG_NUMA_MIGRATION
- bool node_is_toptier(int node)
+ uint64_t __perf_reg_mask_s390(bool intr __maybe_unused)
  {
- 	bool toptier;
-@@ -519,7 +519,7 @@ static void establish_demotion_targets(void)
- 
- #else
- static inline void establish_demotion_targets(void) {}
--#endif /* CONFIG_MIGRATION */
-+#endif /* CONFIG_NUMA_MIGRATION */
- 
- static inline void __init_node_memory_type(int node, struct memory_dev_type *memtype)
+@@ -95,3 +101,75 @@ uint64_t __perf_reg_sp_s390(void)
  {
-@@ -911,7 +911,7 @@ static int __init memory_tier_init(void)
- 	if (ret)
- 		panic("%s() failed to register memory tier subsystem\n", __func__);
- 
--#ifdef CONFIG_MIGRATION
-+#ifdef CONFIG_NUMA_MIGRATION
- 	node_demotion = kzalloc_objs(struct demotion_nodes, nr_node_ids);
- 	WARN_ON(!node_demotion);
- #endif
-@@ -938,7 +938,7 @@ subsys_initcall(memory_tier_init);
- 
- bool numa_demotion_enabled = false;
- 
--#ifdef CONFIG_MIGRATION
-+#ifdef CONFIG_NUMA_MIGRATION
- #ifdef CONFIG_SYSFS
- static ssize_t demotion_enabled_show(struct kobject *kobj,
- 				     struct kobj_attribute *attr, char *buf)
-diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-index e5528c35bbb8..fd08771e2057 100644
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -1239,7 +1239,7 @@ static long do_get_mempolicy(int *policy, nodemask_t *nmask,
- 	return err;
+ 	return PERF_REG_S390_R15;
  }
++
++/* %rXX */
++#define SDT_OP_REGEX1  "^(%r([0-9]|1[0-5]))$"
++/* +-###(%rXX) */
++#define SDT_OP_REGEX2  "^([+-]?[0-9]+\\(%r([0-9]|1[0-5])\\))$"
++static regex_t sdt_op_regex1, sdt_op_regex2;
++
++static int sdt_init_op_regex(void)
++{
++	static int initialized;
++	int ret = 0;
++
++	if (initialized)
++		return 0;
++
++	ret = regcomp(&sdt_op_regex1, SDT_OP_REGEX1, REG_EXTENDED);
++	if (ret)
++		goto error;
++	initialized = 1;
++
++	ret = regcomp(&sdt_op_regex2, SDT_OP_REGEX2, REG_EXTENDED);
++	if (ret)
++		goto free_regex1;
++	initialized = 2;
++
++	return 0;
++
++free_regex1:
++	regfree(&sdt_op_regex1);
++error:
++	pr_debug4("Regex compilation error, initialized %d\n", initialized);
++	initialized = 0;
++	return ret;
++}
++
++/*
++ * Parse OP and convert it into uprobe format, which is, +/-NUM(%gprREG).
++ * Possible variants of OP are:
++ *	Format		Example
++ *	-------------------------
++ *	NUM(%rREG)	48(%r1)
++ *	-NUM(%rREG)	-48(%r1)
++ *	+NUM(%rREG)	+48(%r1)
++ *	%rREG		%r1
++ */
++int __perf_sdt_arg_parse_op_s390(char *old_op, char **new_op)
++{
++	int ret, new_len;
++	regmatch_t rm[6];
++
++	*new_op = NULL;
++	ret = sdt_init_op_regex();
++	if (ret)
++		return -EINVAL;
++
++	if (!regexec(&sdt_op_regex1, old_op, ARRAY_SIZE(rm), rm, 0) ||
++	    !regexec(&sdt_op_regex2, old_op, ARRAY_SIZE(rm), rm, 0)) {
++		new_len = 1;    /* NULL byte */
++		new_len += (int)(rm[1].rm_eo - rm[1].rm_so);
++		*new_op = zalloc(new_len);
++		if (!*new_op)
++			return -ENOMEM;
++
++		scnprintf(*new_op, new_len, "%.*s",
++			  (int)(rm[1].rm_eo - rm[1].rm_so), old_op + rm[1].rm_so);
++	} else {
++		pr_debug4("Skipping unsupported SDT argument: %s\n", old_op);
++		return SDT_ARG_SKIP;
++	}
++
++	return SDT_ARG_VALID;
++}
+diff --git a/tools/perf/util/perf_regs.c b/tools/perf/util/perf_regs.c
+index 5b8f34beb24e..f52b0e1f7fc7 100644
+--- a/tools/perf/util/perf_regs.c
++++ b/tools/perf/util/perf_regs.c
+@@ -23,6 +23,9 @@ int perf_sdt_arg_parse_op(uint16_t e_machine, char *old_op, char **new_op)
+ 	case EM_X86_64:
+ 		ret = __perf_sdt_arg_parse_op_x86(old_op, new_op);
+ 		break;
++	case EM_S390:
++		ret = __perf_sdt_arg_parse_op_s390(old_op, new_op);
++		break;
+ 	default:
+ 		pr_debug("Unknown ELF machine %d, standard arguments parse will be skipped.\n",
+ 			 e_machine);
+diff --git a/tools/perf/util/perf_regs.h b/tools/perf/util/perf_regs.h
+index 7c04700bf837..573f0d1dfe04 100644
+--- a/tools/perf/util/perf_regs.h
++++ b/tools/perf/util/perf_regs.h
+@@ -62,6 +62,7 @@ uint64_t __perf_reg_mask_s390(bool intr);
+ const char *__perf_reg_name_s390(int id);
+ uint64_t __perf_reg_ip_s390(void);
+ uint64_t __perf_reg_sp_s390(void);
++int __perf_sdt_arg_parse_op_s390(char *old_op, char **new_op);
  
--#ifdef CONFIG_MIGRATION
-+#ifdef CONFIG_NUMA_MIGRATION
- static bool migrate_folio_add(struct folio *folio, struct list_head *foliolist,
- 				unsigned long flags)
- {
-diff --git a/mm/migrate.c b/mm/migrate.c
-index fdbb20163f66..05cb408846f2 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -2224,8 +2224,7 @@ struct folio *alloc_migration_target(struct folio *src, unsigned long private)
- 	return __folio_alloc(gfp_mask, order, nid, mtc->nmask);
- }
- 
--#ifdef CONFIG_NUMA
--
-+#ifdef CONFIG_NUMA_MIGRATION
- static int store_status(int __user *status, int start, int value, int nr)
- {
- 	while (nr-- > 0) {
-@@ -2624,6 +2623,7 @@ SYSCALL_DEFINE6(move_pages, pid_t, pid, unsigned long, nr_pages,
- {
- 	return kernel_move_pages(pid, nr_pages, pages, nodes, status, flags);
- }
-+#endif /* CONFIG_NUMA_MIGRATION */
- 
- #ifdef CONFIG_NUMA_BALANCING
- /*
-@@ -2766,4 +2766,3 @@ int migrate_misplaced_folio(struct folio *folio, int node)
- 	return nr_remaining ? -EAGAIN : 0;
- }
- #endif /* CONFIG_NUMA_BALANCING */
--#endif /* CONFIG_NUMA */
-
+ int __perf_sdt_arg_parse_op_x86(char *old_op, char **new_op);
+ uint64_t __perf_reg_mask_x86(bool intr);
 -- 
-2.43.0
+2.53.0
 
