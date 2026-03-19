@@ -1,25 +1,25 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 28AA53EF0AC;
-	Thu, 19 Mar 2026 17:05:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id D8AE534405C;
+	Thu, 19 Mar 2026 17:08:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773939961; cv=none; b=C+Q6gLcFaJIscUzsDxlDFxNAqez5ty6J9yG1tGYtPIK+5CMQYWrpAuTujVMG+J91DopWh3sgAusLvJK5qSh65HMBKeZ7dknLzv3fjBdTUhAcunxY/ooyl/XrpYnezD1zrCL+/TupEX9rjQl2xt8ErjogiAC2ft9FIkKGMiWOXfE=
+	t=1773940094; cv=none; b=edWrBBdEx/jNO0p0WkNjdMFh9ZCSPzQi7QrGZpHvw+UoRVAxRnRqbUpWtQeIFAKfXiEnSR3Wxzln+WO9TRnfBCqcHlxZxxWjJdGIXpTD2OUs77Qgg4Ee9RWU6Q/748NEAUMWD89JNnTsEVD/7BW9kOYJlgVOXk1wu1BVc4f+HBU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773939961; c=relaxed/simple;
-	bh=Ls+mlgIowV8QKL/4RoOexl9oFDqYAejYbw2aCMinSWc=;
+	s=arc-20240116; t=1773940094; c=relaxed/simple;
+	bh=T43xfGTyy+CkhFtBZ/lvhJq/l+Hy1fuTD/+fXPUaTG0=;
 	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=Rtu0X48HMhb2uSxezppFsTHDM+yxbA72C9zkwYnuMJH3VTAvk7LzN5cOGOCZEFYSS38TVIfw/u8CcRkUaRAumkp6TR+eWvvDF4L7sorkWqTs/0H/tmxhEBR6+I0NkQZ093JvJVOSeiFLiuljw7DNrO3/K2FCwhsFtY8md6GJkcs=
+	 In-Reply-To:Content-Type; b=JDVTAewFAwBULLFEpp5oz/PXuvlndGsfPFW5MqwyoRzsIGOLGm1IEJ8TAC+AefiaCUuun/wlhg3qwDc3OkzLUjOST+Q6VycDEaVUH0V0tt8sj+3TnnUopXA8tEoIvo2qWngJ9GTk4IGO9um2XVcDct3vFKDidBnOQEDbfhgivgw=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 97E051758;
-	Thu, 19 Mar 2026 10:05:52 -0700 (PDT)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 556462247;
+	Thu, 19 Mar 2026 10:08:05 -0700 (PDT)
 Received: from [10.57.60.82] (unknown [10.57.60.82])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3D40B3F778;
-	Thu, 19 Mar 2026 10:05:50 -0700 (PDT)
-Message-ID: <ad0096a6-91b2-465e-bda2-3fecbdd73570@arm.com>
-Date: Thu, 19 Mar 2026 18:05:48 +0100
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 99D683F778;
+	Thu, 19 Mar 2026 10:08:01 -0700 (PDT)
+Message-ID: <16598f59-df24-488b-af74-e3f2a2732755@arm.com>
+Date: Thu, 19 Mar 2026 18:07:59 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -27,8 +27,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v13 RESEND 12/14] asm-generic: Move TIF_SINGLESTEP to
- generic TIF bits
+Subject: Re: [PATCH v13 RESEND 13/14] arm64: Use generic TIF bits for common
+ thread flags
 To: Jinjie Ruan <ruanjinjie@huawei.com>, catalin.marinas@arm.com,
  will@kernel.org, oleg@redhat.com, chenhuacai@kernel.org, kernel@xen0n.name,
  hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
@@ -48,139 +48,126 @@ To: Jinjie Ruan <ruanjinjie@huawei.com>, catalin.marinas@arm.com,
  loongarch@lists.linux.dev, linux-s390@vger.kernel.org,
  linux-arch@vger.kernel.org, linux-kselftest@vger.kernel.org
 References: <20260317082020.737779-1-ruanjinjie@huawei.com>
- <20260317082020.737779-13-ruanjinjie@huawei.com>
+ <20260317082020.737779-14-ruanjinjie@huawei.com>
 From: Kevin Brodsky <kevin.brodsky@arm.com>
 Content-Language: en-GB
-In-Reply-To: <20260317082020.737779-13-ruanjinjie@huawei.com>
+In-Reply-To: <20260317082020.737779-14-ruanjinjie@huawei.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 17/03/2026 09:20, Jinjie Ruan wrote:
-> Currently, x86, ARM64, s390, and LoongArch all define and use
-> TIF_SINGLESTEP to track single-stepping state.
+> Use the generic TIF bits defined in <asm-generic/thread_info_tif.h> for
+> standard thread flags (TIF_SIGPENDING, TIF_NEED_RESCHED, TIF_NOTIFY_RESUME,
+> TIF_RESTORE_SIGMASK, TIF_SINGLESTEP, etc.) instead of defining
+> them locally.
 >
-> Since this flag is shared across multiple major architectures and serves
-> a common purpose in the generic entry/exit paths, move TIF_SINGLESTEP
-> into the generic Thread Information Flags (TIF) infrastructure.
+> Arm64-specific bits (TIF_FOREIGN_FPSTATE, TIF_MTE_ASYNC_FAULT, TIF_SVE,
+> TIF_SSBD, etc.) are renumbered to start at bit 16 to avoid conflicts.
 >
-> This consolidation reduces architecture-specific boilerplate code and
-> ensures consistency for generic features that rely on single-step
-> state tracking.
+> This enables RSEQ optimizations which require CONFIG_HAVE_GENERIC_TIF_BITS
+> combined with the generic entry infrastructure (already used by arm64).
 >
 > Cc: Thomas Gleixner <tglx@kernel.org>
-> Acked-by: Heiko Carstens <hca@linux.ibm.com> # s390
 > Signed-off-by: Jinjie Ruan <ruanjinjie@huawei.com>
+> ---
+>  arch/arm64/Kconfig                   |  1 +
+>  arch/arm64/include/asm/thread_info.h | 62 ++++++++++++----------------
+>  2 files changed, 28 insertions(+), 35 deletions(-)
+>
+> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+> index 96fef01598be..33cf901fb1a0 100644
+> --- a/arch/arm64/Kconfig
+> +++ b/arch/arm64/Kconfig
+> @@ -224,6 +224,7 @@ config ARM64
+>  	select HAVE_SAMPLE_FTRACE_DIRECT_MULTI
+>  	select HAVE_BUILDTIME_MCOUNT_SORT
+>  	select HAVE_EFFICIENT_UNALIGNED_ACCESS
+> +	select HAVE_GENERIC_TIF_BITS
+>  	select HAVE_GUP_FAST
+>  	select HAVE_FTRACE_GRAPH_FUNC
+>  	select HAVE_FUNCTION_TRACER
+> diff --git a/arch/arm64/include/asm/thread_info.h b/arch/arm64/include/asm/thread_info.h
+> index f89a15dc6ad5..be1a0651cfe2 100644
+> --- a/arch/arm64/include/asm/thread_info.h
+> +++ b/arch/arm64/include/asm/thread_info.h
+> @@ -58,42 +58,34 @@ void arch_setup_new_exec(void);
+>  
+>  #endif
+>  
+> -#define TIF_SIGPENDING		0	/* signal pending */
+> -#define TIF_NEED_RESCHED	1	/* rescheduling necessary */
+> -#define TIF_NEED_RESCHED_LAZY	2	/* Lazy rescheduling needed */
+> -#define TIF_NOTIFY_RESUME	3	/* callback before returning to user */
+> -#define TIF_FOREIGN_FPSTATE	4	/* CPU's FP state is not current's */
+> -#define TIF_UPROBE		5	/* uprobe breakpoint or singlestep */
+> -#define TIF_MTE_ASYNC_FAULT	6	/* MTE Asynchronous Tag Check Fault */
+> -#define TIF_NOTIFY_SIGNAL	7	/* signal notifications exist */
+> -#define TIF_PATCH_PENDING	13	/* pending live patching update */
+> -#define TIF_MEMDIE		18	/* is terminating due to OOM killer */
+> -#define TIF_FREEZE		19
+> -#define TIF_RESTORE_SIGMASK	20
+> -#define TIF_SINGLESTEP		21
+> -#define TIF_32BIT		22	/* 32bit process */
+> -#define TIF_SVE			23	/* Scalable Vector Extension in use */
+> -#define TIF_SVE_VL_INHERIT	24	/* Inherit SVE vl_onexec across exec */
+> -#define TIF_SSBD		25	/* Wants SSB mitigation */
+> -#define TIF_TAGGED_ADDR		26	/* Allow tagged user addresses */
+> -#define TIF_SME			27	/* SME in use */
+> -#define TIF_SME_VL_INHERIT	28	/* Inherit SME vl_onexec across exec */
+> -#define TIF_KERNEL_FPSTATE	29	/* Task is in a kernel mode FPSIMD section */
+> -#define TIF_TSC_SIGSEGV		30	/* SIGSEGV on counter-timer access */
+> -#define TIF_LAZY_MMU_PENDING	31	/* Ops pending for lazy mmu mode exit */
+> +/*
+> + * Tell the generic TIF infrastructure which bits arm64 supports
+> + */
+> +#define HAVE_TIF_NEED_RESCHED_LAZY
+> +#define HAVE_TIF_RESTORE_SIGMASK
+> +#define HAVE_TIF_SINGLESTEP
+> +
+> +#include <asm-generic/thread_info_tif.h>
+> +
+> +#define TIF_FOREIGN_FPSTATE	16	/* CPU's FP state is not current's */
+> +#define TIF_MTE_ASYNC_FAULT	17	/* MTE Asynchronous Tag Check Fault */
+> +#define TIF_FREEZE		18
+
+Turns out this flag became unused a long time ago, see commit
+d88e4cb67197 ("freezer: remove now unused TIF_FREEZE"), and it was
+probably reintroduced by mistake in the original arm64 implementation,
+commit b3901d54dc4f ("arm64: Process management"). Good opportunity to
+remove it I think.
+
+Otherwise:
 
 Reviewed-by: Kevin Brodsky <kevin.brodsky@arm.com>
 
-> ---
->  arch/loongarch/include/asm/thread_info.h | 11 +++++------
->  arch/s390/include/asm/thread_info.h      |  7 +++----
->  arch/x86/include/asm/thread_info.h       |  6 ++----
->  include/asm-generic/thread_info_tif.h    |  5 +++++
->  4 files changed, 15 insertions(+), 14 deletions(-)
->
-> diff --git a/arch/loongarch/include/asm/thread_info.h b/arch/loongarch/include/asm/thread_info.h
-> index 4d7117fcdc78..a2ec87f18e1d 100644
-> --- a/arch/loongarch/include/asm/thread_info.h
-> +++ b/arch/loongarch/include/asm/thread_info.h
-> @@ -70,6 +70,7 @@ register unsigned long current_stack_pointer __asm__("$sp");
->   */
->  #define HAVE_TIF_NEED_RESCHED_LAZY
->  #define HAVE_TIF_RESTORE_SIGMASK
-> +#define HAVE_TIF_SINGLESTEP
+> +#define TIF_32BIT		19      /* 32bit process */
+> +#define TIF_SVE			20	/* Scalable Vector Extension in use */
+> +#define TIF_SVE_VL_INHERIT	21	/* Inherit SVE vl_onexec across exec */
+> +#define TIF_SSBD		22	/* Wants SSB mitigation */
+> +#define TIF_TAGGED_ADDR		23	/* Allow tagged user addresses */
+> +#define TIF_SME			24	/* SME in use */
+> +#define TIF_SME_VL_INHERIT	25	/* Inherit SME vl_onexec across exec */
+> +#define TIF_KERNEL_FPSTATE	26	/* Task is in a kernel mode FPSIMD section */
+> +#define TIF_TSC_SIGSEGV		27	/* SIGSEGV on counter-timer access */
+> +#define TIF_LAZY_MMU_PENDING	28	/* Ops pending for lazy mmu mode exit */
 >  
->  #include <asm-generic/thread_info_tif.h>
+> -#define _TIF_SIGPENDING		(1 << TIF_SIGPENDING)
+> -#define _TIF_NEED_RESCHED	(1 << TIF_NEED_RESCHED)
+> -#define _TIF_NEED_RESCHED_LAZY	(1 << TIF_NEED_RESCHED_LAZY)
+> -#define _TIF_NOTIFY_RESUME	(1 << TIF_NOTIFY_RESUME)
+> -#define _TIF_FOREIGN_FPSTATE	(1 << TIF_FOREIGN_FPSTATE)
+> -#define _TIF_PATCH_PENDING	(1 << TIF_PATCH_PENDING)
+> -#define _TIF_UPROBE		(1 << TIF_UPROBE)
+> -#define _TIF_32BIT		(1 << TIF_32BIT)
+> -#define _TIF_SVE		(1 << TIF_SVE)
+> -#define _TIF_MTE_ASYNC_FAULT	(1 << TIF_MTE_ASYNC_FAULT)
+> -#define _TIF_NOTIFY_SIGNAL	(1 << TIF_NOTIFY_SIGNAL)
+> -#define _TIF_TSC_SIGSEGV	(1 << TIF_TSC_SIGSEGV)
+> +#define _TIF_FOREIGN_FPSTATE	BIT(TIF_FOREIGN_FPSTATE)
+> +#define _TIF_32BIT		BIT(TIF_32BIT)
+> +#define _TIF_SVE		BIT(TIF_SVE)
+> +#define _TIF_MTE_ASYNC_FAULT	BIT(TIF_MTE_ASYNC_FAULT)
+> +#define _TIF_TSC_SIGSEGV	BIT(TIF_TSC_SIGSEGV)
 >  
-> @@ -82,11 +83,10 @@ register unsigned long current_stack_pointer __asm__("$sp");
->  #define TIF_32BIT_REGS		21	/* 32-bit general purpose registers */
->  #define TIF_32BIT_ADDR		22	/* 32-bit address space */
->  #define TIF_LOAD_WATCH		23	/* If set, load watch registers */
-> -#define TIF_SINGLESTEP		24	/* Single Step */
-> -#define TIF_LSX_CTX_LIVE	25	/* LSX context must be preserved */
-> -#define TIF_LASX_CTX_LIVE	26	/* LASX context must be preserved */
-> -#define TIF_USEDLBT		27	/* LBT was used by this task this quantum (SMP) */
-> -#define TIF_LBT_CTX_LIVE	28	/* LBT context must be preserved */
-> +#define TIF_LSX_CTX_LIVE	24	/* LSX context must be preserved */
-> +#define TIF_LASX_CTX_LIVE	25	/* LASX context must be preserved */
-> +#define TIF_USEDLBT		26	/* LBT was used by this task this quantum (SMP) */
-> +#define TIF_LBT_CTX_LIVE	27	/* LBT context must be preserved */
->  
->  #define _TIF_NOHZ		BIT(TIF_NOHZ)
->  #define _TIF_USEDFPU		BIT(TIF_USEDFPU)
-> @@ -96,7 +96,6 @@ register unsigned long current_stack_pointer __asm__("$sp");
->  #define _TIF_32BIT_REGS		BIT(TIF_32BIT_REGS)
->  #define _TIF_32BIT_ADDR		BIT(TIF_32BIT_ADDR)
->  #define _TIF_LOAD_WATCH		BIT(TIF_LOAD_WATCH)
-> -#define _TIF_SINGLESTEP		BIT(TIF_SINGLESTEP)
->  #define _TIF_LSX_CTX_LIVE	BIT(TIF_LSX_CTX_LIVE)
->  #define _TIF_LASX_CTX_LIVE	BIT(TIF_LASX_CTX_LIVE)
->  #define _TIF_USEDLBT		BIT(TIF_USEDLBT)
-> diff --git a/arch/s390/include/asm/thread_info.h b/arch/s390/include/asm/thread_info.h
-> index 1bcd42614e41..95be5258a422 100644
-> --- a/arch/s390/include/asm/thread_info.h
-> +++ b/arch/s390/include/asm/thread_info.h
-> @@ -61,6 +61,7 @@ void arch_setup_new_exec(void);
->   */
->  #define HAVE_TIF_NEED_RESCHED_LAZY
->  #define HAVE_TIF_RESTORE_SIGMASK
-> +#define HAVE_TIF_SINGLESTEP
->  
->  #include <asm-generic/thread_info_tif.h>
->  
-> @@ -69,15 +70,13 @@ void arch_setup_new_exec(void);
->  #define TIF_GUARDED_STORAGE	17	/* load guarded storage control block */
->  #define TIF_ISOLATE_BP_GUEST	18	/* Run KVM guests with isolated BP */
->  #define TIF_PER_TRAP		19	/* Need to handle PER trap on exit to usermode */
-> -#define TIF_SINGLESTEP		21	/* This task is single stepped */
-> -#define TIF_BLOCK_STEP		22	/* This task is block stepped */
-> -#define TIF_UPROBE_SINGLESTEP	23	/* This task is uprobe single stepped */
-> +#define TIF_BLOCK_STEP		20	/* This task is block stepped */
-> +#define TIF_UPROBE_SINGLESTEP	21	/* This task is uprobe single stepped */
->  
->  #define _TIF_ASCE_PRIMARY	BIT(TIF_ASCE_PRIMARY)
->  #define _TIF_GUARDED_STORAGE	BIT(TIF_GUARDED_STORAGE)
->  #define _TIF_ISOLATE_BP_GUEST	BIT(TIF_ISOLATE_BP_GUEST)
->  #define _TIF_PER_TRAP		BIT(TIF_PER_TRAP)
-> -#define _TIF_SINGLESTEP	BIT(TIF_SINGLESTEP)
->  #define _TIF_BLOCK_STEP		BIT(TIF_BLOCK_STEP)
->  #define _TIF_UPROBE_SINGLESTEP	BIT(TIF_UPROBE_SINGLESTEP)
->  
-> diff --git a/arch/x86/include/asm/thread_info.h b/arch/x86/include/asm/thread_info.h
-> index 0067684afb5b..f59072ba1473 100644
-> --- a/arch/x86/include/asm/thread_info.h
-> +++ b/arch/x86/include/asm/thread_info.h
-> @@ -98,9 +98,8 @@ struct thread_info {
->  #define TIF_IO_BITMAP		22	/* uses I/O bitmap */
->  #define TIF_SPEC_FORCE_UPDATE	23	/* Force speculation MSR update in context switch */
->  #define TIF_FORCED_TF		24	/* true if TF in eflags artificially */
-> -#define TIF_SINGLESTEP		25	/* reenable singlestep on user return*/
-> -#define TIF_BLOCKSTEP		26	/* set when we want DEBUGCTLMSR_BTF */
-> -#define TIF_ADDR32		27	/* 32-bit address space on 64 bits */
-> +#define TIF_BLOCKSTEP		25	/* set when we want DEBUGCTLMSR_BTF */
-> +#define TIF_ADDR32		26	/* 32-bit address space on 64 bits */
->  
->  #define _TIF_SSBD		BIT(TIF_SSBD)
->  #define _TIF_SPEC_IB		BIT(TIF_SPEC_IB)
-> @@ -112,7 +111,6 @@ struct thread_info {
->  #define _TIF_SPEC_FORCE_UPDATE	BIT(TIF_SPEC_FORCE_UPDATE)
->  #define _TIF_FORCED_TF		BIT(TIF_FORCED_TF)
->  #define _TIF_BLOCKSTEP		BIT(TIF_BLOCKSTEP)
-> -#define _TIF_SINGLESTEP		BIT(TIF_SINGLESTEP)
->  #define _TIF_ADDR32		BIT(TIF_ADDR32)
->  
->  /* flags to check in __switch_to() */
-> diff --git a/include/asm-generic/thread_info_tif.h b/include/asm-generic/thread_info_tif.h
-> index da1610a78f92..b277fe06aee3 100644
-> --- a/include/asm-generic/thread_info_tif.h
-> +++ b/include/asm-generic/thread_info_tif.h
-> @@ -48,4 +48,9 @@
->  #define TIF_RSEQ		11	// Run RSEQ fast path
->  #define _TIF_RSEQ		BIT(TIF_RSEQ)
->  
-> +#ifdef HAVE_TIF_SINGLESTEP
-> +#define TIF_SINGLESTEP		12	/* reenable singlestep on user return*/
-> +#define _TIF_SINGLESTEP		BIT(TIF_SINGLESTEP)
-> +#endif
-> +
->  #endif /* _ASM_GENERIC_THREAD_INFO_TIF_H_ */
+>  #ifdef CONFIG_SHADOW_CALL_STACK
+>  #define INIT_SCS							\
