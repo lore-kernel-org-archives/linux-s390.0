@@ -1,246 +1,182 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from canpmsgout07.his.huawei.com (canpmsgout07.his.huawei.com [113.46.200.222])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC374396B82;
-	Fri, 20 Mar 2026 10:40:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A56B2391E4E;
+	Fri, 20 Mar 2026 10:41:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.222
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774003211; cv=none; b=cCTxD0/Lixln8PREieIeOmy/Ems/VSA+b8+ABnVYLQMdJ8b0Z0UELetGx1VBnjjab//2sDsQ6OaetTX0EBLC3ZNyyrbu3249wk9+HY5dTU/G3UifY/RpbLCo2HZ2aIHqEKcPBNp3Y0h0Nh55KdgYuIAV5GcBBD3M53u59uJ8apw=
+	t=1774003275; cv=none; b=s4j7Lj984MktWsnEs7h+u6gxFIV/jjmh5mH0MP1i/JF3G9CyEirB6vsqAea6TxIPY2oSxzml8hSeGWGI1+Tl5U54XLigc1X8buE5oYDfu7AT8VmgvlY2Nt8chTeJzkR9XMxUlGTJRif7shJ/VfYQDI1Z+iyVTG1LRi/ZKHsIBck=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774003211; c=relaxed/simple;
-	bh=jhOSmCqYQaS2DI24Bg78xyfLr/K/fkiEgn/15MWAEuU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fEbgivAIuRhfHrNNO8gfbuS7DFbxOqwBiQkbpdEDmAG5haP05qt94vOUsDsUg9gnCBTu2h3o/+zlv8y5ZJ7WnsAjp3Ei9Hry971m5+m6E7sKIOL6UlIUAfw6Y4v6hEvj3Vb+obzSlYDWGy0KsMyVfl3wZWor+QpaqzatUV5dx14=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XTP04ZGk; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774003275; c=relaxed/simple;
+	bh=vpVQRC72hsKlKsly8+/GTjJniVRmFHuzXm2q5+hvNRE=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=rZMoNWHPbcyYDixPe6xnnjjrPInQ0i7iHmcwd+YzvRkUgLPS/A1zIxZBWpCFSavScn4A+yEscMwFOtmGUW3CEBZw5i0N3yuPvThx0GXfWhp8Fo06MfsKdE9r+93+Lg0zQsreHMkYOroLepc979NFz9EjVfN5KmkGrXUNbOuvH0g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=e0Dh+Jkq; arc=none smtp.client-ip=113.46.200.222
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XTP04ZGk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E70CEC2BCB2;
-	Fri, 20 Mar 2026 10:39:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774003211;
-	bh=jhOSmCqYQaS2DI24Bg78xyfLr/K/fkiEgn/15MWAEuU=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=XTP04ZGkahcK9b1vYtWAII4egDMA7ViD6CPQuR08AnZlAxqqDuWpTLYDeuf1s9y+k
-	 Bxe58tvv79PZpwFR1av496x4mE1lFIfGlMo1oVPWYxT8onJGrzM3kx9c5WcUASJsmP
-	 5YKkxHuKdg5bXFJVZSHEFiH6Je5WrKdzJWr7a+uZSmO+h0/PWe7ZWifgkhg8kdKA0W
-	 HQiDuDTxMGwA5o653RD4zCyEiOrtcgbj2fpj4wT71RjRawJrksbcfbGlWV16ZoQ/nq
-	 xvXQvJZUOroGzfa4zos8aCgqbt2QQNKiCH2GECGuUPpBb873LL6PXowpwclzgaXqEI
-	 1k6U5dVdH9LyA==
-Message-ID: <0b5765da-67e9-4e2e-99d8-08501730bf76@kernel.org>
-Date: Fri, 20 Mar 2026 11:39:58 +0100
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="e0Dh+Jkq"
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=hJSEOOAhj/r6zguq6KmRPCSMSABE64v2gT/NO93bRjA=;
+	b=e0Dh+JkqNoMciVayHgin+0LjX4MpNFT6ER7rvoJu8i5SDzMhl/mWV/OtIMBdH/Nphhbfv/77p
+	yVR4oRwD8pdUgqzsTDx1bv44cl23ZK1qW5wxLNk/xtNYX3d1Bw3uHxmgCgX7ILsrASKvrRFlQJK
+	P5z3C70+WVwiTHfY8wJuhn0=
+Received: from mail.maildlp.com (unknown [172.19.162.92])
+	by canpmsgout07.his.huawei.com (SkyGuard) with ESMTPS id 4fcf8X1bpKzLlTD;
+	Fri, 20 Mar 2026 18:35:08 +0800 (CST)
+Received: from dggpemf500011.china.huawei.com (unknown [7.185.36.131])
+	by mail.maildlp.com (Postfix) with ESMTPS id F356840565;
+	Fri, 20 Mar 2026 18:41:09 +0800 (CST)
+Received: from huawei.com (10.90.53.73) by dggpemf500011.china.huawei.com
+ (7.185.36.131) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Fri, 20 Mar
+ 2026 18:41:07 +0800
+From: Jinjie Ruan <ruanjinjie@huawei.com>
+To: <catalin.marinas@arm.com>, <will@kernel.org>, <chenhuacai@kernel.org>,
+	<kernel@xen0n.name>, <hca@linux.ibm.com>, <gor@linux.ibm.com>,
+	<agordeev@linux.ibm.com>, <borntraeger@linux.ibm.com>, <svens@linux.ibm.com>,
+	<oleg@redhat.com>, <tglx@kernel.org>, <mingo@redhat.com>, <bp@alien8.de>,
+	<dave.hansen@linux.intel.com>, <hpa@zytor.com>, <arnd@arndb.de>,
+	<shuah@kernel.org>, <kevin.brodsky@arm.com>, <ruanjinjie@huawei.com>,
+	<yeoreum.yun@arm.com>, <anshuman.khandual@arm.com>, <thuth@redhat.com>,
+	<ryan.roberts@arm.com>, <mark.rutland@arm.com>, <song@kernel.org>,
+	<ziyao@disroot.org>, <linusw@kernel.org>,
+	<schuster.simon@siemens-energy.com>, <jremus@linux.ibm.com>,
+	<akpm@linux-foundation.org>, <mathieu.desnoyers@efficios.com>,
+	<kmal@cock.li>, <dvyukov@google.com>, <reddybalavignesh9979@gmail.com>,
+	<x86@kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-kernel@vger.kernel.org>, <loongarch@lists.linux.dev>,
+	<linux-s390@vger.kernel.org>, <linux-arch@vger.kernel.org>,
+	<linux-kselftest@vger.kernel.org>
+Subject: [PATCH v14 0/4] arm64: Use generic TIF bits for common thread flags
+Date: Fri, 20 Mar 2026 18:42:18 +0800
+Message-ID: <20260320104222.1381274-1-ruanjinjie@huawei.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 22/23] mm/vma: convert vma_modify_flags[_uffd]() to use
- vma_flags_t
-Content-Language: en-US
-To: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>
-Cc: David Hildenbrand <david@kernel.org>,
- "Liam R . Howlett" <Liam.Howlett@oracle.com>, Jann Horn <jannh@google.com>,
- Pedro Falcato <pfalcato@suse.de>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Kees Cook <kees@kernel.org>,
- linux-mm@kvack.org, linux-kernel@vger.kernel.org,
- Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Brian Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
- WANG Xuerui <kernel@xen0n.name>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Dinh Nguyen <dinguyen@kernel.org>, Madhavan Srinivasan
- <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
- Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <chleroy@kernel.org>,
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H . Peter Anvin" <hpa@zytor.com>, Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
- Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>,
- Michal Hocko <mhocko@suse.com>, Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <stephen.smalley.work@gmail.com>,
- Ondrej Mosnacek <omosnace@redhat.com>, linux-snps-arc@lists.infradead.org,
- linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org,
- loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
- linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
-References: <cover.1773846935.git.ljs@kernel.org>
- <98a004bf89227ea9abaef5fef06ea7e584f77bcf.1773846935.git.ljs@kernel.org>
-From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
-In-Reply-To: <98a004bf89227ea9abaef5fef06ea7e584f77bcf.1773846935.git.ljs@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: kwepems100002.china.huawei.com (7.221.188.206) To
+ dggpemf500011.china.huawei.com (7.185.36.131)
 
-On 3/18/26 16:50, Lorenzo Stoakes (Oracle) wrote:
-> Update the vma_modify_flags() and vma_modify_flags_uffd() functions to
-> accept a vma_flags_t parameter rather than a vm_flags_t one, and propagate
-> the changes as needed to implement this change.
-> 
-> Finally, update the VMA tests to reflect this.
-> 
-> Signed-off-by: Lorenzo Stoakes (Oracle) <ljs@kernel.org>
+This series use generic TIF bits for common thread flags and add
+Syscall User Dispatch (SUD) testcase support for AArch64. So we can
+enables RSEQ optimizations for arm64.
 
-> --- a/mm/mlock.c
-> +++ b/mm/mlock.c
-> @@ -415,13 +415,14 @@ static int mlock_pte_range(pmd_t *pmd, unsigned long addr,
->   * @vma - vma containing range to be mlock()ed or munlock()ed
->   * @start - start address in @vma of the range
->   * @end - end of range in @vma
-> - * @newflags - the new set of flags for @vma.
-> + * @new_vma_flags - the new set of flags for @vma.
->   *
->   * Called for mlock(), mlock2() and mlockall(), to set @vma VM_LOCKED;
->   * called for munlock() and munlockall(), to clear VM_LOCKED from @vma.
->   */
->  static void mlock_vma_pages_range(struct vm_area_struct *vma,
-> -	unsigned long start, unsigned long end, vm_flags_t newflags)
-> +	unsigned long start, unsigned long end,
-> +	vma_flags_t *new_vma_flags)
->  {
->  	static const struct mm_walk_ops mlock_walk_ops = {
->  		.pmd_entry = mlock_pte_range,
-> @@ -439,18 +440,18 @@ static void mlock_vma_pages_range(struct vm_area_struct *vma,
->  	 * combination should not be visible to other mmap_lock users;
->  	 * but WRITE_ONCE so rmap walkers must see VM_IO if VM_LOCKED.
->  	 */
-> -	if (newflags & VM_LOCKED)
-> -		newflags |= VM_IO;
-> +	if (vma_flags_test(new_vma_flags, VMA_LOCKED_BIT))
-> +		vma_flags_set(new_vma_flags, VMA_IO_BIT);
->  	vma_start_write(vma);
-> -	vm_flags_reset_once(vma, newflags);
-> +	WRITE_ONCE(vma->flags, *new_vma_flags);
+These patches follow the foundational series (v13 resend 1-10, "arm64:
+entry: Convert to Generic Entry") and are intended for the next cycle or
+an immutable branch based on v7.0-rc1.
 
-It's not clear to me, how is switching from vm_flags_t to vma_flags_t
-allowing us to simply do WRITE_ONCE() instead of the full logic of
-vm_flags_reset_once()? Won't it fail to compile once once flags are more
-than single word? Or worse, will compile but silently allow tearing?
+Changes in v14:
+- Split into two patch sets as Linus Walleij suggested, this is the second
+  patch set.
+- Remove TIF_FREEZE for arm64.
+- Add Signed-off-by and test results for sud_benchmark.
+- Collect Reviewed-by and Acked-by.
+- Link to v13 resend: https://lore.kernel.org/all/20260317082020.737779-15-ruanjinjie@huawei.com/
 
->  
->  	lru_add_drain();
->  	walk_page_range(vma->vm_mm, start, end, &mlock_walk_ops, NULL);
->  	lru_add_drain();
->  
-> -	if (newflags & VM_IO) {
-> -		newflags &= ~VM_IO;
-> -		vm_flags_reset_once(vma, newflags);
-> +	if (vma_flags_test(new_vma_flags, VMA_IO_BIT)) {
-> +		vma_flags_clear(new_vma_flags, VMA_IO_BIT);
-> +		WRITE_ONCE(vma->flags, *new_vma_flags);
+Changes in v13 resend:
+- Fix exit_to_user_mode_prepare_legacy() issues.
+- Also move TIF_SINGLESTEP to generic TIF infrastructure for loongarch.
+- Use generic TIF bits for arm64 and moving TIF_SINGLESTEP to
+  generic TIF for related architectures separately.
+- Refactor syscall_trace_enter/exit() to accept flags and Use
+  syscall_get_nr() helper separately.
+- Tested with slice_test for rseq optimizations.
+- Add acked-by.
+- Link to v13: https://lore.kernel.org/all/20260313094738.3985794-1-ruanjinjie@huawei.com/
 
-Ditto.
+Changes in v13:
+- Rebased on v7.0-rc3, so drop the firt applied arm64 patch.
+- Use generic TIF bits to enables RSEQ optimization.
+- Update most of the commit message to make it more clear.
+- Link to v12: https://lore.kernel.org/all/20260203133728.848283-1-ruanjinjie@huawei.com/
 
->  	}
->  }
->  
-> @@ -467,20 +468,22 @@ static int mlock_fixup(struct vma_iterator *vmi, struct vm_area_struct *vma,
->  	       struct vm_area_struct **prev, unsigned long start,
->  	       unsigned long end, vm_flags_t newflags)
->  {
-> +	vma_flags_t new_vma_flags = legacy_to_vma_flags(newflags);
-> +	const vma_flags_t old_vma_flags = vma->flags;
->  	struct mm_struct *mm = vma->vm_mm;
->  	int nr_pages;
->  	int ret = 0;
-> -	vm_flags_t oldflags = vma->vm_flags;
->  
-> -	if (newflags == oldflags || vma_is_secretmem(vma) ||
-> -	    !vma_supports_mlock(vma))
-> +	if (vma_flags_same_pair(&old_vma_flags, &new_vma_flags) ||
-> +	    vma_is_secretmem(vma) || !vma_supports_mlock(vma)) {
->  		/*
->  		 * Don't set VM_LOCKED or VM_LOCKONFAULT and don't count.
->  		 * For secretmem, don't allow the memory to be unlocked.
->  		 */
->  		goto out;
-> +	}
->  
-> -	vma = vma_modify_flags(vmi, *prev, vma, start, end, &newflags);
-> +	vma = vma_modify_flags(vmi, *prev, vma, start, end, &new_vma_flags);
->  	if (IS_ERR(vma)) {
->  		ret = PTR_ERR(vma);
->  		goto out;
-> @@ -490,9 +493,9 @@ static int mlock_fixup(struct vma_iterator *vmi, struct vm_area_struct *vma,
->  	 * Keep track of amount of locked VM.
->  	 */
->  	nr_pages = (end - start) >> PAGE_SHIFT;
-> -	if (!(newflags & VM_LOCKED))
-> +	if (!vma_flags_test(&new_vma_flags, VMA_LOCKED_BIT))
->  		nr_pages = -nr_pages;
-> -	else if (oldflags & VM_LOCKED)
-> +	else if (vma_flags_test(&old_vma_flags, VMA_LOCKED_BIT))
->  		nr_pages = 0;
->  	mm->locked_vm += nr_pages;
->  
-> @@ -501,12 +504,13 @@ static int mlock_fixup(struct vma_iterator *vmi, struct vm_area_struct *vma,
->  	 * It's okay if try_to_unmap_one unmaps a page just after we
->  	 * set VM_LOCKED, populate_vma_page_range will bring it back.
->  	 */
-> -	if ((newflags & VM_LOCKED) && (oldflags & VM_LOCKED)) {
-> +	if (vma_flags_test(&new_vma_flags, VMA_LOCKED_BIT) &&
-> +	    vma_flags_test(&old_vma_flags, VMA_LOCKED_BIT)) {
->  		/* No work to do, and mlocking twice would be wrong */
->  		vma_start_write(vma);
-> -		vm_flags_reset(vma, newflags);
-> +		vma->flags = new_vma_flags;
+Changes in v12:
+- Rebased on "sched/core", so remove the four generic entry patches.
+- Move "Expand secure_computing() in place" and
+  "Use syscall_get_arguments() helper" patch forward, which will group all
+  non-functional cleanups at the front.
+- Adjust the explanation for moving rseq_syscall() before
+  audit_syscall_exit().
+- Link to v11: https://lore.kernel.org/all/20260128031934.3906955-1-ruanjinjie@huawei.com/
 
-This also does lot less than vm_flags_reset()?
+Changes in v11:
+- Remove unused syscall in syscall_trace_enter().
+- Update and provide a detailed explanation of the differences after
+  moving rseq_syscall() before audit_syscall_exit().
+- Rebased on arm64 (for-next/entry), and remove the first applied 3 patchs.
+- syscall_exit_to_user_mode_work() for arch reuse instead of adding
+  new syscall_exit_to_user_mode_work_prepare() helper.
+- Link to v10: https://lore.kernel.org/all/20251222114737.1334364-1-ruanjinjie@huawei.com/
 
->  	} else {
-> -		mlock_vma_pages_range(vma, start, end, newflags);
-> +		mlock_vma_pages_range(vma, start, end, &new_vma_flags);
->  	}
->  out:
->  	*prev = vma;
-> diff --git a/mm/mprotect.c b/mm/mprotect.c
-> index eaa724b99908..2b8a85689ab7 100644
-> --- a/mm/mprotect.c
-> +++ b/mm/mprotect.c
-> @@ -756,13 +756,11 @@ mprotect_fixup(struct vma_iterator *vmi, struct mmu_gather *tlb,
->  		vma_flags_clear(&new_vma_flags, VMA_ACCOUNT_BIT);
->  	}
->  
-> -	newflags = vma_flags_to_legacy(new_vma_flags);
-> -	vma = vma_modify_flags(vmi, *pprev, vma, start, end, &newflags);
-> +	vma = vma_modify_flags(vmi, *pprev, vma, start, end, &new_vma_flags);
->  	if (IS_ERR(vma)) {
->  		error = PTR_ERR(vma);
->  		goto fail;
->  	}
-> -	new_vma_flags = legacy_to_vma_flags(newflags);
->  
->  	*pprev = vma;
->  
-> @@ -771,7 +769,7 @@ mprotect_fixup(struct vma_iterator *vmi, struct mmu_gather *tlb,
->  	 * held in write mode.
->  	 */
->  	vma_start_write(vma);
-> -	vm_flags_reset_once(vma, newflags);
-> +	WRITE_ONCE(vma->flags, new_vma_flags);
+Changes in v10:
+- Rebased on v6.19-rc1, rename syscall_exit_to_user_mode_prepare() to
+  syscall_exit_to_user_mode_work_prepare() to avoid conflict.
+- Also inline syscall_trace_enter().
+- Support aarch64 for sud_benchmark.
+- Update and correct the commit message.
+- Add Reviewed-by.
+- Link to v9: https://lore.kernel.org/all/20251204082123.2792067-1-ruanjinjie@huawei.com/
 
-Ditto.
+Changes in v9:
+- Move "Return early for ptrace_report_syscall_entry() error" patch ahead
+  to make it not introduce a regression.
+- Not check _TIF_SECCOMP/SYSCALL_EMU for syscall_exit_work() in
+  a separate patch.
+- Do not report_syscall_exit() for PTRACE_SYSEMU_SINGLESTEP in a separate
+  patch.
+- Add two performance patch to improve the arm64 performance.
+- Add Reviewed-by.
+- Link to v8: https://lore.kernel.org/all/20251126071446.3234218-1-ruanjinjie@huawei.com/
 
->  	if (vma_wants_manual_pte_write_upgrade(vma))
->  		mm_cp_flags |= MM_CP_TRY_CHANGE_WRITABLE;
->  	vma_set_page_prot(vma);
-> @@ -796,6 +794,7 @@ mprotect_fixup(struct vma_iterator *vmi, struct mmu_gather *tlb,
->  	}
->  
->  	vm_stat_account(mm, vma_flags_to_legacy(old_vma_flags), -nrpages);
-> +	newflags = vma_flags_to_legacy(new_vma_flags);
->  	vm_stat_account(mm, newflags, nrpages);
->  	perf_event_mmap(vma);
->  	return 0;
-> diff --git a/mm/mseal.c b/mm/mseal.c
-> index 316b5e1dec78..603df53ad267 100644
+Changes in v8:
+- Rename "report_syscall_enter()" to "report_syscall_entry()".
+- Add ptrace_save_reg() to avoid duplication.
+- Remove unused _TIF_WORK_MASK in a standalone patch.
+- Align syscall_trace_enter() return value with the generic version.
+- Use "scno" instead of regs->syscallno in el0_svc_common().
+- Move rseq_syscall() ahead in a standalone patch to clarify it clearly.
+- Rename "syscall_trace_exit()" to "syscall_exit_work()".
+- Keep the goto in el0_svc_common().
+- No argument was passed to __secure_computing() and check -1 not -1L.
+- Remove "Add has_syscall_work() helper" patch.
+- Move "Add syscall_exit_to_user_mode_prepare() helper" patch later.
+- Add miss header for asm/entry-common.h.
+- Update the implementation of arch_syscall_is_vdso_sigreturn().
+- Add "ARCH_SYSCALL_WORK_EXIT" to be defined as "SECCOMP | SYSCALL_EMU"
+  to keep the behaviour unchanged.
+- Add more testcases test.
+- Add Reviewed-by.
+- Update the commit message.
+- Link to v7: https://lore.kernel.org/all/20251117133048.53182-1-ruanjinjie@huawei.com/
+
+Jinjie Ruan (3):
+  s390: Rename TIF_SINGLE_STEP to TIF_SINGLESTEP
+  asm-generic: Move TIF_SINGLESTEP to generic TIF bits
+  arm64: Use generic TIF bits for common thread flags
+
+kemal (1):
+  selftests: sud_test: Support aarch64
+
+ arch/arm64/Kconfig                            |  1 +
+ arch/arm64/include/asm/thread_info.h          | 61 ++++++++-----------
+ arch/loongarch/include/asm/thread_info.h      | 11 ++--
+ arch/s390/include/asm/thread_info.h           |  7 +--
+ arch/s390/kernel/process.c                    |  2 +-
+ arch/s390/kernel/ptrace.c                     | 20 +++---
+ arch/s390/kernel/signal.c                     |  6 +-
+ arch/x86/include/asm/thread_info.h            |  6 +-
+ include/asm-generic/thread_info_tif.h         |  5 ++
+ .../syscall_user_dispatch/sud_benchmark.c     |  2 +-
+ .../syscall_user_dispatch/sud_test.c          |  4 ++
+ 11 files changed, 61 insertions(+), 64 deletions(-)
+
+-- 
+2.34.1
+
