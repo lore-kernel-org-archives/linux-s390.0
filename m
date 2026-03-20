@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F07E5EED8;
-	Fri, 20 Mar 2026 08:48:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41461372B4D;
+	Fri, 20 Mar 2026 08:59:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773996534; cv=none; b=qADCKfc2+fPIjmW0GWRi/NFkeAhBMFAD6CfB/2YfFZP3DQ5SXMysU+wjgSyxdtMwhRy3vhY/EoJN/fpH+YaBBIralBjbW2YXpKAchXMkpSlrfoTXjuf744oOOzz8ieF9nek1llBOdXmNj3L8SqLy9rGkq+Mr7K96S8SeDtnC8Bo=
+	t=1773997169; cv=none; b=XUUzUjyHQCBhICuDhertsp5JK4EluiZ4Np2uTUHcsfNUxlhUtMCO2a+I6eSWe5HmunLDK2Nc97BqFrD49CwbSm8FleL2c4x5xgKyOldAKvVVFB17P1yuMW3kC9w5WfK3zf+OG+EU0M6UUzmpa/1kJqVvBMFSJ49QXqPq88hRaXo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773996534; c=relaxed/simple;
-	bh=AVThdTFHSI3D63/uFwXEr2OGdo0OiWz7degFLaawtVQ=;
+	s=arc-20240116; t=1773997169; c=relaxed/simple;
+	bh=gZ7mo8VD+NAhXZQb0GYWny9AT9mHJxVOkGXSXRSlXkU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fKQKs9p60A5yWf0Fw24+j1F7HOZD7692Tc7G05hwbKm7BwVz7v9IjFW7IBwbTRyZgWmr7FhKcLqNAjczJh0DoskxAlmxB9C5ZsJARxXqE7SBnP2z3ioSCDmWYwzet6Yw7Jp2jcUBedoBPSiz0zUIMNaFA7a7sxn8Imov91VC9Tk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aVDuHUfd; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=A6ZIkh7nwpqF8VVKkDI6lFDA1xEDn4yv3VtuIK5FFhRh5xL2C4TdSTHKRs/169d0y/FAXOy2shvNaBIhi5lBvqgcGKY1Eb6lacA0J8cT5tCyUsGcgSU9IWJzaXLGlkseix+GHxkELxS9XFhbqb3RQJhuLHwCPctHZBfuiDemWzY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Vnv5g+fa; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aVDuHUfd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69C6FC4CEF7;
-	Fri, 20 Mar 2026 08:48:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Vnv5g+fa"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99035C4CEF7;
+	Fri, 20 Mar 2026 08:59:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773996533;
-	bh=AVThdTFHSI3D63/uFwXEr2OGdo0OiWz7degFLaawtVQ=;
+	s=k20201202; t=1773997168;
+	bh=gZ7mo8VD+NAhXZQb0GYWny9AT9mHJxVOkGXSXRSlXkU=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=aVDuHUfdDD8S+qMhhcb+8iyq+IuTk2K0qpRAv1mnSPjQTT7GWau5uX1CNTdDtfR/0
-	 LFp++8Dnz2QwIE1kWsO/Av6uPpJORJ9xnJDFjFTcwzcgktO9VxcKv+wSUvrzz529wf
-	 Jleh6q8+Izcw8eTwQjx9H+19qhhqrrp8JH/iFcDfQPCQTH5ptvLmvsD0tj3RuwnSdm
-	 11tBmRkm8T9VJyB6mHacHEUYXp0QrFVfjmR41FNwWWw2f9UTt8GR5oY9fomV0MX3gt
-	 Xge1GZpeSPAeqwc5HQZYEgN6ad+xpQ+XJTcqZodE/t9TJgLMJDqXmC2Sy8iqPyspGC
-	 oOpqQ4TUqrEMQ==
-Message-ID: <7bd728dc-f370-4e64-a120-bd8fdcd3207a@kernel.org>
-Date: Fri, 20 Mar 2026 09:48:40 +0100
+	b=Vnv5g+fajJemAepqRKZRz47c22+umNsA8K+bcibnuhBXHBu1d5YmKqWsG7qOfUFHJ
+	 CztV2PyO5tXV2ndgWUvx38ZhYgi/lqkSfU/R+xvcHnxYaqLoT/e6BRXTA0NdY6badP
+	 onDLOW/x64CNFEUrBONrSFSXSn2B8FQntJuy/TT5vt3gBjuLsep153gxDZT/dirYhC
+	 CVXFpifY9igf7fwFZwHhAhTf6uDN0JdiB+PEafeRbGrcMqNb+21IkikxadesfcAOxw
+	 W1QaWfzU+BhIh3qR/LFIA31TyjFUkVqrJLl/fZ5m//RUqAkbCbCMSFvmboEAlRrHUw
+	 pulfK6egziujA==
+Message-ID: <c45932ed-844c-48ab-9481-9973bd0193c3@kernel.org>
+Date: Fri, 20 Mar 2026 09:59:15 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,8 +35,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 13/23] mm/vma: introduce vma_test[_any[_mask]](), and
- make inlining consistent
+Subject: Re: [PATCH v3 15/23] mm: introduce vma_flags_count() and
+ vma[_flags]_test_single_mask()
 Content-Language: en-US
 To: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>,
  Andrew Morton <akpm@linux-foundation.org>
@@ -76,25 +76,37 @@ Cc: David Hildenbrand <david@kernel.org>,
  linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
  linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
 References: <cover.1773846935.git.ljs@kernel.org>
- <7ea63af87bd35f20b204a14ad4912592e02b15a6.1773846935.git.ljs@kernel.org>
+ <02a6b26542ab70d60175e0125cff5fd00073c7ae.1773846935.git.ljs@kernel.org>
 From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
-In-Reply-To: <7ea63af87bd35f20b204a14ad4912592e02b15a6.1773846935.git.ljs@kernel.org>
+In-Reply-To: <02a6b26542ab70d60175e0125cff5fd00073c7ae.1773846935.git.ljs@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 3/18/26 16:50, Lorenzo Stoakes (Oracle) wrote:
-> Introduce helper functions and macros to make it convenient to test flags
-> and flag masks for VMAs, specifically:
+> vma_flags_count() determines how many bits are set in VMA flags, using
+> bitmap_weight().
 > 
-> * vma_test() - determine if a single VMA flag is set in a VMA.
-> * vma_test_any_mask() - determine if any flags in a vma_flags_t value are
-> 			set in a VMA.
-> * vma_test_any() - Helper macro to test if any of specific flags are set.
+> vma_flags_test_single_mask() determines if a vma_flags_t set of flags
+> contains a single flag specified as another vma_flags_t value, or if the
+> sought flag mask is empty, it is defined to return false.
 > 
-> Also, there are a mix of 'inline's and '__always_inline's in VMA helper
-> function declarations, update to consistently use __always_inline.
+> This is useful when we want to declare a VMA flag as optionally a single
+> flag in a mask or empty depending on kernel configuration.
 > 
-> Finally, update the VMA tests to reflect the changes.
+> This allows us to have VM_NONE-like semantics when checking whether the
+> flag is set.
+> 
+> In a subsequent patch, we introduce the use of VMA_DROPPABLE of type
+> vma_flags_t using precisely these semantics.
+> 
+> It would be actively confusing to use vma_flags_test_any_single_mask() for
+> this (and vma_flags_test_all_mask() is not correct to use here, as it
+> trivially returns true when tested against an empty vma flags mask).
+> 
+> We introduce vma_flags_count() to be able to assert that the compared flag
+> mask is singular or empty, checked when CONFIG_DEBUG_VM is enabled.
+> 
+> Also update the VMA tests as part of this change.
 > 
 > Signed-off-by: Lorenzo Stoakes (Oracle) <ljs@kernel.org>
 
