@@ -1,323 +1,177 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA17A282F33;
-	Fri, 20 Mar 2026 19:56:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A300F34CFAC;
+	Fri, 20 Mar 2026 20:08:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774036609; cv=none; b=dGTCSG0Bt2FIu7z4p9XIuPXZeHdK2DASzjfp3IfcrvKqANfnGA6yMXSiZgfTrRzCQJU5hJZ7j3YNVxPlx0woLmQlyW4/VH5H2Wn/W/jemnwIEiFvvmOZhJr2es08mBO8nFh7pdYWlBJ2Sp6ADFGL6J8L0llG5fOI/FiyGtu2Xcc=
+	t=1774037308; cv=none; b=Av1i+baBPjwkaa8gRdcu9CD0vacKNAocQmZSurX849c7fVpfCDk6pVQ9aijVGPTdiHRFZdSmE0xlmWbi4BjQWfWHhEe1qrmp7VM6HW+4AuiBElQbBHPITT/WbrF6Z30xWOHsXVb6EOHM1jLjWB42NtaEw54fbBOywuHt6AtCC6M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774036609; c=relaxed/simple;
-	bh=LKrgpfKwmWI5Hg0tjL/sG/ayUWE0EjUljcbdrX6qjaA=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=DLSve8y5DFZVD31wbfeewB++h0wgr/1w8l18hL6APN0VxT+fZKVk/w/WXcZCBpIIRPZSLEwlx9WYJEDT5T5eqUEUOFb76vQsuRw5wRYz9J6nFyNVEMpBO6rPo/Q1S+4URRT2zFGchatb2qrbtERef8OS0syodYeXhYwXsk5ls1E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=oHu1iIaD; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774037308; c=relaxed/simple;
+	bh=vx3bx2hdX+DWgaO/OJedYdtXCDdFIOissz/oOsXsnDE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=P5Ega9n8kTkhwQkLP4iKkKyIMmRUbZZs3sf5FkKhhQuqbznjd1JdQRSgoSTSakapbS3II4Ef2OhxyyTiYIXta2lnqLNCmxV+GNCGr1VKTDenfCxTjvcokoAjin8RDpiNmvYdAfMeTzX/vF29Y+OXpibMvJ8x0YK9VWlxrpD5mFw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LodkSHxI; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="oHu1iIaD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C5EEC4CEF7;
-	Fri, 20 Mar 2026 19:56:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-	s=korg; t=1774036609;
-	bh=LKrgpfKwmWI5Hg0tjL/sG/ayUWE0EjUljcbdrX6qjaA=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=oHu1iIaD1c8+N5EEXiAifxJInrM70H4yjmiFgxSXgLi+71ohYV12gifq8+a2nU2px
-	 p48V9CZfD1mp4jyrfUp9eEy3Ga3ofXBh3zTM64zIa4xHEgSIzKpQTILlbDP/adsioC
-	 0Q1vxPdJ7/9HXC2iUZCdf9e1QCnOUsvW7RLc5H7o=
-Date: Fri, 20 Mar 2026 12:56:47 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-To: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
-Cc: David Hildenbrand <david@kernel.org>, "Liam R . Howlett"
- <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@kernel.org>, Jann Horn
- <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, Mike Rapoport
- <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, Kees Cook
- <kees@kernel.org>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, Vineet
- Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Catalin
- Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Brian
- Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui
- <kernel@xen0n.name>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh
- Nguyen <dinguyen@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <chleroy@kernel.org>, Paul Walmsley <pjw@kernel.org>,
- Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Alexandre Ghiti <alex@ghiti.fr>, Heiko Carstens <hca@linux.ibm.com>, Vasily
- Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
- <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar
- <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
- <dave.hansen@linux.intel.com>, x86@kernel.org, "H . Peter Anvin"
- <hpa@zytor.com>, Richard Weinberger <richard@nod.at>, Anton Ivanov
- <anton.ivanov@cambridgegreys.com>, Johannes Berg
- <johannes@sipsolutions.net>, Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Xu Xin
- <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>, Michal
- Hocko <mhocko@suse.com>, Paul Moore <paul@paul-moore.com>, Stephen Smalley
- <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>,
- linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
- linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
- linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-um@lists.infradead.org, linux-fsdevel@vger.kernel.org,
- selinux@vger.kernel.org
-Subject: Re: [PATCH v4 00/25] mm/vma: convert vm_flags_t to vma_flags_t in
- vma code
-Message-Id: <20260320125647.f6be89a9f40b37b71e511423@linux-foundation.org>
-In-Reply-To: <cover.1774034900.git.ljs@kernel.org>
-References: <cover.1774034900.git.ljs@kernel.org>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LodkSHxI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9029DC4CEF7;
+	Fri, 20 Mar 2026 20:08:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774037308;
+	bh=vx3bx2hdX+DWgaO/OJedYdtXCDdFIOissz/oOsXsnDE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=LodkSHxIvJNRjJ0QlVSnqUTNKoqzLyjXZ+54g67kcbIxbHi60e6zwY7sNAClqP5I8
+	 Q8LvyL15y9l4BrWYAyfVyIIV5Ae2PUhuSvF8Tp2iBHEWwRvbRAAerY9UGvJQbo1jgO
+	 X+e7I546E6wrP2trtDpWAItyrn1Eq+NL/30BDr8aQ86kT9t8+AjMy+h54FWzzg6mP5
+	 HWiSzZ9TLocC75m0qhCvQOW++S5+Eu/6Wu4GOw2T8CvWhJotr/QVSMlhk+nwwAuixm
+	 PCdCV1b6N27TqbyXHcS5Ok0Rm4d52ULLI/Z30UhtoRYyx/PEvmHYPxWduAIUaDc2GJ
+	 DvhLcsnwXbPYg==
+Date: Fri, 20 Mar 2026 21:06:13 +0100
+From: Nicolas Schier <nsc@kernel.org>
+To: Thomas =?iso-8859-1?Q?Wei=DFschuh?= <thomas.weissschuh@linutronix.de>
+Cc: David Howells <dhowells@redhat.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Petr Pavlu <petr.pavlu@suse.com>,
+	Daniel Gomez <da.gomez@kernel.org>,
+	Sami Tolvanen <samitolvanen@google.com>,
+	Aaron Tomlin <atomlin@atomlin.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Mimi Zohar <zohar@linux.ibm.com>,
+	Roberto Sassu <roberto.sassu@huawei.com>,
+	Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+	Eric Snowberg <eric.snowberg@oracle.com>,
+	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
+	"Serge E. Hallyn" <serge@hallyn.com>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
+	Yonghong Song <yonghong.song@linux.dev>,
+	John Fastabend <john.fastabend@gmail.com>,
+	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>,
+	Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+	Shuah Khan <shuah@kernel.org>, keyrings@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-modules@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-integrity@vger.kernel.org,
+	linux-security-module@vger.kernel.org, linux-kbuild@vger.kernel.org,
+	bpf@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH v3 0/8] module: Move 'struct module_signature' to UAPI
+Message-ID: <ab2otbZrni1GKn0U@derry.ads.avm.de>
+References: <20260305-module-signature-uapi-v3-0-92f45ea6028c@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-
-On Fri, 20 Mar 2026 19:38:17 +0000 "Lorenzo Stoakes (Oracle)" <ljs@kernel.org> wrote:
-
-> This series converts a lot of the existing use of the legacy vm_flags_t
-> data type to the new vma_flags_t type which replaces it.
-
-Thanks, I updated mm.git's mm-unstable branch to this version.
-
-> v4:
-> * Propagated tags, thanks Vlasta!
-> * Removed superfluous parens around vma_test_any_mask() as per Vlasta.
-> * Converted masked functions into more understandable equivalent form as
->   per Vlasta in 24/25.
-> * Redefined VM_SPECIAL using vma_flags_to_legacy() as per Vlasta.
-> * Fixed whitespace as per Vlasta.
-> * Added vma_flags_reset_once() as per Vlasta.
-> * Expanded 22/23 commit message to describe why I'm replacing things as
->   per Vlasta.
-> * Added bitmap_copy() to test headers in order to implement
->   vma_flags_reset_once().
-
-Here's how v4 altered mm.git:
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="yJawVUAGknQ6l3sb"
+Content-Disposition: inline
+In-Reply-To: <20260305-module-signature-uapi-v3-0-92f45ea6028c@linutronix.de>
 
 
- include/linux/mm.h              |   26 ++++++++++++--------------
- mm/mlock.c                      |    4 ++--
- mm/mprotect.c                   |   14 +++++---------
- mm/vma.c                        |   11 +++++------
- mm/vma.h                        |    6 ++----
- tools/include/linux/bitmap.h    |   11 +++++++++++
- tools/testing/vma/include/dup.h |   22 +++++++++++++---------
- 7 files changed, 50 insertions(+), 44 deletions(-)
+--yJawVUAGknQ6l3sb
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
---- a/include/linux/mm.h~b
-+++ a/include/linux/mm.h
-@@ -554,10 +554,10 @@ enum {
- /*
-  * Special vmas that are non-mergable, non-mlock()able.
-  */
--#define VM_SPECIAL (VM_IO | VM_DONTEXPAND | VM_PFNMAP | VM_MIXEDMAP)
- 
- #define VMA_SPECIAL_FLAGS mk_vma_flags(VMA_IO_BIT, VMA_DONTEXPAND_BIT, \
- 				       VMA_PFNMAP_BIT, VMA_MIXEDMAP_BIT)
-+#define VM_SPECIAL vma_flags_to_legacy(VMA_SPECIAL_FLAGS)
- 
- /*
-  * Physically remapped pages are special. Tell the
-@@ -959,22 +959,20 @@ static inline void vm_flags_reset(struct
- 	vm_flags_init(vma, flags);
- }
- 
--static inline void vm_flags_reset_once(struct vm_area_struct *vma,
--				       vm_flags_t flags)
-+static inline void vma_flags_reset_once(struct vm_area_struct *vma,
-+					vma_flags_t *flags)
- {
--	vma_assert_write_locked(vma);
--	/*
--	 * If VMA flags exist beyond the first system word, also clear these. It
--	 * is assumed the write once behaviour is required only for the first
--	 * system word.
--	 */
-+	const unsigned long word = flags->__vma_flags[0];
-+
-+	/* It is assumed only the first system word must be written once. */
-+	vma_flags_overwrite_word_once(&vma->flags, word);
-+	/* The remainder can be copied normally. */
- 	if (NUM_VMA_FLAG_BITS > BITS_PER_LONG) {
--		unsigned long *bitmap = vma->flags.__vma_flags;
-+		unsigned long *dst = &vma->flags.__vma_flags[1];
-+		const unsigned long *src = &flags->__vma_flags[1];
- 
--		bitmap_zero(&bitmap[1], NUM_VMA_FLAG_BITS - BITS_PER_LONG);
-+		bitmap_copy(dst, src, NUM_VMA_FLAG_BITS - BITS_PER_LONG);
- 	}
--
--	vma_flags_overwrite_word_once(&vma->flags, flags);
- }
- 
- static inline void vm_flags_set(struct vm_area_struct *vma,
-@@ -1442,7 +1440,7 @@ static __always_inline void vma_desc_set
-  * vm_area_desc object describing a proposed VMA, e.g.:
-  *
-  * vma_desc_set_flags(desc, VMA_IO_BIT, VMA_PFNMAP_BIT, VMA_DONTEXPAND_BIT,
-- *              VMA_DONTDUMP_BIT);
-+ * 		VMA_DONTDUMP_BIT);
-  */
- #define vma_desc_set_flags(desc, ...) \
- 	vma_desc_set_flags_mask(desc, mk_vma_flags(__VA_ARGS__))
---- a/mm/mlock.c~b
-+++ a/mm/mlock.c
-@@ -443,7 +443,7 @@ static void mlock_vma_pages_range(struct
- 	if (vma_flags_test(new_vma_flags, VMA_LOCKED_BIT))
- 		vma_flags_set(new_vma_flags, VMA_IO_BIT);
- 	vma_start_write(vma);
--	WRITE_ONCE(vma->flags, *new_vma_flags);
-+	vma_flags_reset_once(vma, new_vma_flags);
- 
- 	lru_add_drain();
- 	walk_page_range(vma->vm_mm, start, end, &mlock_walk_ops, NULL);
-@@ -451,7 +451,7 @@ static void mlock_vma_pages_range(struct
- 
- 	if (vma_flags_test(new_vma_flags, VMA_IO_BIT)) {
- 		vma_flags_clear(new_vma_flags, VMA_IO_BIT);
--		WRITE_ONCE(vma->flags, *new_vma_flags);
-+		vma_flags_reset_once(vma, new_vma_flags);
- 	}
- }
- 
---- a/mm/mprotect.c~b
-+++ a/mm/mprotect.c
-@@ -769,7 +769,7 @@ mprotect_fixup(struct vma_iterator *vmi,
- 	 * held in write mode.
- 	 */
- 	vma_start_write(vma);
--	WRITE_ONCE(vma->flags, new_vma_flags);
-+	vma_flags_reset_once(vma, &new_vma_flags);
- 	if (vma_wants_manual_pte_write_upgrade(vma))
- 		mm_cp_flags |= MM_CP_TRY_CHANGE_WRITABLE;
- 	vma_set_page_prot(vma);
-@@ -784,14 +784,10 @@ mprotect_fixup(struct vma_iterator *vmi,
- 	 * Private VM_LOCKED VMA becoming writable: trigger COW to avoid major
- 	 * fault on access.
- 	 */
--	if (vma_flags_test(&new_vma_flags, VMA_WRITE_BIT)) {
--		const vma_flags_t mask =
--			vma_flags_and(&old_vma_flags, VMA_WRITE_BIT,
--				      VMA_SHARED_BIT, VMA_LOCKED_BIT);
--
--		if (vma_flags_same(&mask, VMA_LOCKED_BIT))
--			populate_vma_page_range(vma, start, end, NULL);
--	}
-+	if (vma_flags_test(&new_vma_flags, VMA_WRITE_BIT) &&
-+	    vma_flags_test(&old_vma_flags, VMA_LOCKED_BIT) &&
-+	    !vma_flags_test_any(&old_vma_flags, VMA_WRITE_BIT, VMA_SHARED_BIT))
-+		populate_vma_page_range(vma, start, end, NULL);
- 
- 	vm_stat_account(mm, vma_flags_to_legacy(old_vma_flags), -nrpages);
- 	newflags = vma_flags_to_legacy(new_vma_flags);
---- a/mm/vma.c~b
-+++ a/mm/vma.c
-@@ -2343,7 +2343,6 @@ void mm_drop_all_locks(struct mm_struct
- static bool accountable_mapping(struct mmap_state *map)
- {
- 	const struct file *file = map->file;
--	vma_flags_t mask;
- 
- 	/*
- 	 * hugetlb has its own accounting separate from the core VM
-@@ -2352,9 +2351,9 @@ static bool accountable_mapping(struct m
- 	if (file && is_file_hugepages(file))
- 		return false;
- 
--	mask = vma_flags_and(&map->vma_flags, VMA_NORESERVE_BIT, VMA_SHARED_BIT,
--			     VMA_WRITE_BIT);
--	return vma_flags_same(&mask, VMA_WRITE_BIT);
-+	return vma_flags_test(&map->vma_flags, VMA_WRITE_BIT) &&
-+		!vma_flags_test_any(&map->vma_flags, VMA_NORESERVE_BIT,
-+				    VMA_SHARED_BIT);
- }
- 
- /*
-@@ -3001,7 +3000,7 @@ retry:
- 	gap += (info->align_offset - gap) & info->align_mask;
- 	tmp = vma_next(&vmi);
- 	/* Avoid prev check if possible */
--	if (tmp && (vma_test_any_mask(tmp, VMA_STARTGAP_FLAGS))) {
-+	if (tmp && vma_test_any_mask(tmp, VMA_STARTGAP_FLAGS)) {
- 		if (vm_start_gap(tmp) < gap + length - 1) {
- 			low_limit = tmp->vm_end;
- 			vma_iter_reset(&vmi);
-@@ -3054,7 +3053,7 @@ retry:
- 	gap_end = vma_iter_end(&vmi);
- 	tmp = vma_next(&vmi);
- 	 /* Avoid prev check if possible */
--	if (tmp && (vma_test_any_mask(tmp, VMA_STARTGAP_FLAGS))) {
-+	if (tmp && vma_test_any_mask(tmp, VMA_STARTGAP_FLAGS)) {
- 		if (vm_start_gap(tmp) < gap_end) {
- 			high_limit = vm_start_gap(tmp);
- 			vma_iter_reset(&vmi);
---- a/mm/vma.h~b
-+++ a/mm/vma.h
-@@ -529,10 +529,8 @@ static inline bool is_data_mapping(vm_fl
- 
- static inline bool is_data_mapping_vma_flags(const vma_flags_t *vma_flags)
- {
--	const vma_flags_t mask = vma_flags_and(vma_flags,
--			VMA_WRITE_BIT, VMA_SHARED_BIT, VMA_STACK_BIT);
--
--	return vma_flags_same(&mask, VMA_WRITE_BIT);
-+	return vma_flags_test(vma_flags, VMA_WRITE_BIT) &&
-+		!vma_flags_test_any(vma_flags, VMA_SHARED_BIT, VMA_STACK_BIT);
- }
- 
- static inline void vma_iter_config(struct vma_iterator *vmi,
---- a/tools/include/linux/bitmap.h~b
-+++ a/tools/include/linux/bitmap.h
-@@ -55,6 +55,17 @@ static inline void bitmap_fill(unsigned
- 	dst[nlongs - 1] = BITMAP_LAST_WORD_MASK(nbits);
- }
- 
-+static __always_inline
-+void bitmap_copy(unsigned long *dst, const unsigned long *src, unsigned int nbits)
-+{
-+	unsigned int len = bitmap_size(nbits);
-+
-+	if (small_const_nbits(nbits))
-+		*dst = *src;
-+	else
-+		memcpy(dst, src, len);
-+}
-+
- static inline bool bitmap_empty(const unsigned long *src, unsigned int nbits)
- {
- 	if (small_const_nbits(nbits))
---- a/tools/testing/vma/include/dup.h~b
-+++ a/tools/testing/vma/include/dup.h
-@@ -871,16 +871,20 @@ static inline void vm_flags_reset(struct
- 	vm_flags_init(vma, flags);
- }
- 
--static inline void vm_flags_reset_once(struct vm_area_struct *vma,
--				       vm_flags_t flags)
-+static inline void vma_flags_reset_once(struct vm_area_struct *vma,
-+					vma_flags_t *flags)
- {
--	vma_assert_write_locked(vma);
--	/*
--	 * The user should only be interested in avoiding reordering of
--	 * assignment to the first word.
--	 */
--	vma_flags_clear_all(&vma->flags);
--	vma_flags_overwrite_word_once(&vma->flags, flags);
-+	const unsigned long word = flags->__vma_flags[0];
-+
-+	/* It is assumed only the first system word must be written once. */
-+	vma_flags_overwrite_word_once(&vma->flags, word);
-+	/* The remainder can be copied normally. */
-+	if (NUM_VMA_FLAG_BITS > BITS_PER_LONG) {
-+		unsigned long *dst = &vma->flags.__vma_flags[1];
-+		const unsigned long *src = &flags->__vma_flags[1];
-+
-+		bitmap_copy(dst, src, NUM_VMA_FLAG_BITS - BITS_PER_LONG);
-+	}
- }
- 
- static inline void vm_flags_set(struct vm_area_struct *vma,
-_
+On Thu, Mar 05, 2026 at 10:31:36AM +0100, Thomas Wei=DFschuh wrote:
+> This structure definition is used outside the kernel proper.
+> For example in kmod and the kernel build environment.
+>=20
+> To allow reuse, move it to a new UAPI header.
+>=20
+> While it is not a true UAPI, it is a common practice to have
+> non-UAPI interface definitions in the kernel's UAPI headers.
+>=20
+> This came up as part of my CONFIG_MODULE_HASHES series [0].
+> But it is useful on its own and so we get it out of the way.
+>=20
+> [0] https://lore.kernel.org/lkml/aZ3OfJJSJgfOb0rJ@levanger/
+>=20
+> Signed-off-by: Thomas Wei=DFschuh <thomas.weissschuh@linutronix.de>
+> ---
+> Changes in v3:
+> - Also adapt the include path for the custom sign-file rule in the bpf se=
+lftests.
+>   (My manual run of BPF CI still fails, due to an BUG() on s390,
+>   I don't see how this is due to this patch)
+> - Link to v2: https://lore.kernel.org/r/20260305-module-signature-uapi-v2=
+-0-dc4d81129dee@linutronix.de
+>=20
+> Changes in v2:
+> - Drop spurious definition of MODULE_SIGNATURE_TYPE_MERKLE.
+> - s/modules/module/ in two patch subjects.
+> - Pick up review tags.
+> - Link to v1: https://lore.kernel.org/r/20260302-module-signature-uapi-v1=
+-0-207d955e0d69@linutronix.de
+>=20
+> ---
+> Thomas Wei=DFschuh (8):
+>       extract-cert: drop unused definition of PKEY_ID_PKCS7
+>       module: Drop unused signature types
+>       module: Give 'enum pkey_id_type' a more specific name
+>       module: Give MODULE_SIG_STRING a more descriptive name
+>       module: Move 'struct module_signature' to UAPI
+>       tools uapi headers: add linux/module_signature.h
+>       sign-file: use 'struct module_signature' from the UAPI headers
+>       selftests/bpf: verify_pkcs7_sig: Use 'struct module_signature' from=
+ the UAPI headers
+>=20
+>  arch/s390/kernel/machine_kexec_file.c              |  6 ++--
+>  certs/extract-cert.c                               |  2 --
+>  include/linux/module_signature.h                   | 30 +---------------
+>  include/uapi/linux/module_signature.h              | 41 ++++++++++++++++=
+++++++
+>  kernel/module/signing.c                            |  4 +--
+>  kernel/module_signature.c                          |  2 +-
+>  scripts/Makefile                                   |  1 +
+>  scripts/sign-file.c                                | 19 +++-------
+>  security/integrity/ima/ima_modsig.c                |  6 ++--
+>  tools/include/uapi/linux/module_signature.h        | 41 ++++++++++++++++=
+++++++
+>  tools/testing/selftests/bpf/Makefile               |  1 +
+>  .../selftests/bpf/prog_tests/verify_pkcs7_sig.c    | 28 ++-------------
+>  12 files changed, 101 insertions(+), 80 deletions(-)
+> ---
+> base-commit: 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f
+> change-id: 20260302-module-signature-uapi-61fa80b1e2bb
+>=20
 
+Thanks for these patches!
+
+For the whole series:
+
+Reviewed-by: Nicolas Schier <nsc@kernel.org>
+
+--=20
+Nicolas
+
+--yJawVUAGknQ6l3sb
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEh0E3p4c3JKeBvsLGB1IKcBYmEmkFAmm9qLUACgkQB1IKcBYm
+Emm24hAAtnE71JBVW9GLy5SvZjxPMmvU7d7e2U0M4eVgP9+ddzbw7tF/ZjE42raS
+w1jpL29qt7ESYnCXSkuH7/ABfeH0ALjPsm0Wsz9wl3l9dqqPAnYcRNxc2VzH6BNA
+rrVYspjDhrArD6fzZHXi9t7gaN2md/qr8GQVl2tzYXq+ORadVve64niJ5HXVEGtk
+igmI03sH5OaQXvg78v/Ui51AdL+8HbHNZUxG3G5n1VN8Qag0/aH6hfcwlSmayNvn
+W0iAghaJHI4qfPufwYl+FPCKVGE10+rIKQx4AUQcm0fysHAn+4LSOnFqI2mCwL6y
+oqbZdOAOdCh6YezgtK/WdwVdrZNVYNuukHmm1FPuGXIU/bIA1me5oC1NmEsWtqQB
+QgI3yvKBO7UrtNYmElLOMDt2FnlSB6l5XX7FqWBHGlfhHymzo8vVNkWuRw6/z63P
+ezdeAR0qwkxesxRSgwJdcICz2r7G2MAmWBJgSBRzdTIyGF3GHwb8uOQLNEXag6Dm
+9SjsnyS5mkq4CWHKanGqUrfUFvw04DPM5o/7D6l5Uj41kJ0scVixHT36NtJkg4hG
+k2rFFfEp/qmTcb3V8fVVBzHFKuasNWAzkHLRviOxugoFXjC7ctxU7+YcmAB3yez1
+ZRZTrXsVpAtC1xI+L4J/vIFW4jZlXgte8nOZK3/TWAlAYMGp7pk=
+=Qr2Y
+-----END PGP SIGNATURE-----
+
+--yJawVUAGknQ6l3sb--
