@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E35A344030;
-	Fri, 20 Mar 2026 10:04:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CED91361DA1;
+	Fri, 20 Mar 2026 10:04:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774001048; cv=none; b=gD26X8aO8cyTHNFoqSAjgNYD0gl9B2Yvt6bK75dsvRAmcAlZlzlMTLzQqQBMZqb0q2X+hPHX2oHiFEIlnQxCf+rgB5DigIZRwZJiI5FRxAn64cQoviUNJA37ak9g2Z75dnTv+oV7cti2YzP9wE+EeQBy2+Lm88qkTGtcIeVw+ro=
+	t=1774001091; cv=none; b=ep/HJMXbvLfHmIECuHgHH3807+2/9h2yr77zx2Gq0AoIxcpViJIh2J2PMvUHTO+L4tRzItQcGTOXqIUY2mKfLIhPlqj+2hqufEycx3IaPc+V5XP0PmXTihRaHfDbCFXXn4VU5o2nH6Mw3wjZivGsqO18HIYz8dnUsJN8CXAT+MA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774001048; c=relaxed/simple;
-	bh=NQpsBeY5EaadXVFBxdOq2KBH0GUNgPBbX8h8P+4LcqI=;
+	s=arc-20240116; t=1774001091; c=relaxed/simple;
+	bh=SlqXACEW1bvWaBbKKIpFc5l9X0bOJT5QGbTI1CG7U9Y=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JKTjoxR8fT8qiZ8FsCCCBQnDFD6xUEE77mCA8bmvpfMV6iN5BSlUivuDY4IHoDDLLJSL+r4ywf1fWE4TvQ2h9Bt4jzg+qiOGpx3eo4F3jI1T+hNLuCns11J1EyFA8KlMrhHceMLNaseD5D++eyoBzR0o+t3ANOb+9o8ker184do=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=vAzNcrs8; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=APZtzN+Y2LuX1We3ramPQ40QCJNRnvJrTbvupUIPfVMKisoauBhQTDamjSE4VnhHLL/OEqIVaf6pfSI9xrnECeQAboM1wKqd1FTQv1n4MzciBeNmLWGG0U0vDhGTBLVUmGXWUR7PRv/voXiVupzBRXLqtdtDLMaK14YtNWIaS7c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D+ceYj6Q; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="vAzNcrs8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22ADDC4CEF7;
-	Fri, 20 Mar 2026 10:03:55 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D+ceYj6Q"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5136FC2BCB1;
+	Fri, 20 Mar 2026 10:04:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774001048;
-	bh=NQpsBeY5EaadXVFBxdOq2KBH0GUNgPBbX8h8P+4LcqI=;
+	s=k20201202; t=1774001091;
+	bh=SlqXACEW1bvWaBbKKIpFc5l9X0bOJT5QGbTI1CG7U9Y=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=vAzNcrs8BNxVujqkG0WrRcxfbGidYf6UY2B9j2wpPS73gPa9CErzvvHuXkHT5s3MR
-	 5mWouqCj4ulvQYSX2gQ0oeuYWbQhMr3B0IR/nJS4TcF+OEjR+zmBU/sIjqSVVSsL0W
-	 C/IK4z4Z23+U0QSh28UkwodQL+Mr6P7XEcQVKXPrnIIRz+UunLW9iJ2nh7O8NTsA3L
-	 MG3EwvZtxvk5AOmzYxXXkBtommmTKLw070xlnQs0ejRB5W/N+Ch44k1T2oEWB2N2GH
-	 SJc6rzEWEiFmEyb28TIZla0WZ1PJY1+D/NNbiLn70ecSKmqZcRVkafJSgmy4rT5CHS
-	 kIduEphstAAdA==
-Message-ID: <1105e346-e850-45c2-92be-6c255a110658@kernel.org>
-Date: Fri, 20 Mar 2026 11:03:54 +0100
+	b=D+ceYj6QItOJroZYLEyyE2MBeFVEH6IM75Vi5G/PN8ZodL7Zj2nolMyC/N6rcOzkO
+	 gTCj46ngQl60VkkqPpRigcsp0XQiO42A067h6OTJgyefrwGzF90ZZtEs132xst3EGv
+	 ke8Hl2sGVHG/IkTdRc9G/zU6xxL8fF4oFp0Ar2N9JRwlsGuLC+7u/6vxBxw09AWcEj
+	 wZJweQNUPpvxCo1otppn/Rx/k/XQG4Ouo5iXXkmaQrjxicqq3obmIZPMt/6B5YVhLa
+	 1Sl2cxlTleUBCVRG3Iv6gjwGNTfScFbagjQpLmpHaNteEB95xldtKJALrkvf9Y3A4/
+	 y7TCZZbtJpalA==
+Message-ID: <17a34a6d-8fb0-4010-8318-faca575823e1@kernel.org>
+Date: Fri, 20 Mar 2026 11:04:38 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,8 +35,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 18/23] mm: update vma_supports_mlock() to use new VMA
- flags
+Subject: Re: [PATCH v3 19/23] mm/vma: introduce vma_clear_flags[_mask]()
 Content-Language: en-US
 To: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>,
  Andrew Morton <akpm@linux-foundation.org>
@@ -76,38 +75,25 @@ Cc: David Hildenbrand <david@kernel.org>,
  linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
  linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
 References: <cover.1773846935.git.ljs@kernel.org>
- <8bd076169508ea4640f66f91c4b84b433a3476f1.1773846935.git.ljs@kernel.org>
+ <b2edda6f00c10ef63013257f282cf155fb371b06.1773846935.git.ljs@kernel.org>
 From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
-In-Reply-To: <8bd076169508ea4640f66f91c4b84b433a3476f1.1773846935.git.ljs@kernel.org>
+In-Reply-To: <b2edda6f00c10ef63013257f282cf155fb371b06.1773846935.git.ljs@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 3/18/26 16:50, Lorenzo Stoakes (Oracle) wrote:
-> We now have the ability to test all of this using the new vma_flags_t
-> approach, so let's do so.
+> Introduce a helper function and helper macro to easily clear a VMA's flags
+> using the new vma_flags_t vma->flags field:
+> 
+> * vma_clear_flags_mask() - Clears all of the flags in a specified mask in
+> 			   the VMA's flags field.
+> * vma_clear_flags() - Clears all of the specified individual VMA flag bits
+> 		      in a VMA's flags field.
+> 
+> Also update the VMA tests to reflect the change.
 > 
 > Signed-off-by: Lorenzo Stoakes (Oracle) <ljs@kernel.org>
 
 Acked-by: Vlastimil Babka (SUSE) <vbabka@kernel.org>
 
-
-> ---
->  mm/internal.h | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/mm/internal.h b/mm/internal.h
-> index 80d8651441a7..708d240b4198 100644
-> --- a/mm/internal.h
-> +++ b/mm/internal.h
-> @@ -1252,7 +1252,9 @@ static inline struct file *maybe_unlock_mmap_for_io(struct vm_fault *vmf,
->  
->  static inline bool vma_supports_mlock(const struct vm_area_struct *vma)
->  {
-> -	if (vma->vm_flags & (VM_SPECIAL | VM_DROPPABLE))
-> +	if (vma_test_any_mask(vma, VMA_SPECIAL_FLAGS))
-> +		return false;
-> +	if (vma_test_single_mask(vma, VMA_DROPPABLE))
->  		return false;
->  	if (vma_is_dax(vma) || is_vm_hugetlb_page(vma))
->  		return false;
 
