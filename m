@@ -1,78 +1,97 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD7ED29E10F;
-	Sat, 21 Mar 2026 02:10:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF0382D592D
+	for <linux-s390@vger.kernel.org>; Sat, 21 Mar 2026 05:11:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774059020; cv=none; b=c9L1OepHYiHe5wfJhB6Obho+08JoCYf4k6tFa6XL5Wv8cvpMnfAFvxHOk6elrVJuPgXVHoPZbhlvofhGi/h26rx5OuFGXMBmhNnG5OO8vrixvVHuHrE5iZQpIwqFRkN+CKgJKOubdTxRmOge0s+hZosLo6O3oAqOkYCesH4O5LU=
+	t=1774069875; cv=none; b=aq4sJXzrhSgid/BWgzPuPTRZ6E3cFuo5GWKvcOs1vr4+vmotEQMf3FWZercdUo9iXOP0IA2rZEAzcO3Pz8m21dYJmGzrqQUnXUgZ43ufsZDCtXFX7PzdKLZ3chIOPJ94JjiuyXdmKOYUVvmgjQt8cZ477y5/ZoZQj2aRIrd6Xk8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774059020; c=relaxed/simple;
-	bh=FHN+jy/v6exz64De+HYRkHdLnswJzjjJLQOUpXLtf1U=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=kpTd8Zh1DMyzzXkTRLohjvNN2efl3VHjQt6ZyL5IEDSfdrIZR0IA90kYikXguVmGMqxaByMWjHiGzPZUN+jYfQ/F977ROyeyJCu0ZrGsxDDirhSUGlHgXfmeeF9dRP+TSvWLb0BOKxLuqJeaAMqLQyi6flJvaO9EgbCd5Fl2EGE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hhqvlaY7; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774069875; c=relaxed/simple;
+	bh=qVwlCu1WIXntn26q1kvsy4ns7XCLQh3LUnFd91zRr48=;
+	h=From:To:Cc:Subject:In-Reply-To:Date:Message-ID:References; b=N+1cvW0vrAstbfbWH+/6sFGXOWVzarsuR/OBHrJGFzLIWGl3X33fGWdV0dyiVYpvpa7VpFRA6AFDylttRjgc6sDh9MbR2LWc6r8qn10iuDA5NlUJrexkjwpyYW3yxEcI9FNoL1/dE0u+68YWf4yhcmPL6jjezXiFOn+K9BnmxsM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OLe7OxhB; arc=none smtp.client-ip=209.85.215.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hhqvlaY7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8513EC2BCAF;
-	Sat, 21 Mar 2026 02:10:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774059020;
-	bh=FHN+jy/v6exz64De+HYRkHdLnswJzjjJLQOUpXLtf1U=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=hhqvlaY7jnLRPEf2C+F0LRzML0sz6+YDjY2w785+lroH99zDG3RkXsqtZL5uv1XwJ
-	 K/IffWrZSewdOv31QS5ioEmOSdDdcZJ35JaGn8umSlmR9ubJbp8nbRPv4r6fO/250w
-	 H7AgJLXwXC5RH/htWeWelyPJf258XYaQLvisTxT6mEszNlIxEXdOm1/hhEPyrEW4+F
-	 J0Y9UKyr+BZV/F7JixE7dKyCro08wECOol1x0BrAHHpEDuY0iVKrgwpp3F2dmgq4JA
-	 1aE41gZsN5Uzxmk8AQ1+Emq4TfWfSrWz6mkhiHaEt49/F0l79x8rgsWPLrVwQbn9gb
-	 BuUybNOnc8vMw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id B9F393808200;
-	Sat, 21 Mar 2026 02:10:11 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OLe7OxhB"
+Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-c7412b07f22so1590105a12.0
+        for <linux-s390@vger.kernel.org>; Fri, 20 Mar 2026 22:11:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1774069873; x=1774674673; darn=vger.kernel.org;
+        h=references:message-id:date:in-reply-to:subject:cc:to:from:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=7QxDv7wA5vy2wx/iALi99txiEfbwQ3ENlpnWZYhHz0A=;
+        b=OLe7OxhBzFwMPIltVknpGrXU9DN7TZFVr3dJDvog+FEKXYmG+fHE2bFbgoZCuFCuw2
+         0eJIPaT+MwpkQBDn5zFbJSu9h2HQa0J7qzB1ZsadIyJ8Bau/FOCcW7WsotI/JazwbOwC
+         Liacvp0OhfIMtoPN1/bsxA1AetNrt12rxXcHel3gly35cWWZocy2wqHD4vswnXxER4SK
+         TKXch+jKp5VDm59qDJg8ua+0OqFS8JstiSXF1Pwy5A8Zcue6JB5wdTTc5OSZOMyh9cCw
+         BYWG4YhdCWoTZ4G1qzRqr0iGs0BgB00W7fAJFkySqVoTIt3dNWFPgkagFcG568A1/AfF
+         xj/g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774069873; x=1774674673;
+        h=references:message-id:date:in-reply-to:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=7QxDv7wA5vy2wx/iALi99txiEfbwQ3ENlpnWZYhHz0A=;
+        b=aqFY2uDc0W9W9a2AsqYO1lLoaUcigeV6aOIhgaBFQxoq3JUypRFmWs/W1ehowRmb+Q
+         XoqZjPwIw5ZKl6X8nQdbQM1ceYcJYKsD4xKbQRI77Vyh1Djmwj4j3ltacoJZMA9iDs94
+         8rKcUKvFRxQjvIGptGKNi0mWcmK3y5d2rPvWs3IbkdrCWeZDRXL/5kKCx07QRLVrVOjn
+         DX3DbenMPPHHRNqzZ18Djgu15Jcq+ug7ndJfwV+DgT/Fh6vNbTeLc6hBLLtgdbBQkikT
+         dFPHfJiK9S5mTtms237sj00lr1cxFR80KO2NVAA10kI9zpYDI3hXQ1TkTRA8Zj/4k7bT
+         g9Uw==
+X-Forwarded-Encrypted: i=1; AJvYcCVauZk0ZvO8uLsD5s1fAnYh5+SDACP1GRdkPWBCYBINs0krel7ZRDw8N7Nvx6xwdE2+YN0OI59NFshg@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz5AYsyhJQqbpvApAENaoDWTF6uQwvyPPQIOzHs9uK9oScIdQa7
+	/zPvcAMh1YDOd/k1wLHzH2BPsFs8Bw9mT5h7exzeK0CnA33+kqW+kGo2
+X-Gm-Gg: ATEYQzwrCjLAo+LM1nyAM/tIjkrEyw5pChBt8h6MrnLiIldBkU3rSrXAHZ6JtEIChRQ
+	tZThYK6g2rdrckbkGHiGec44iMEhOjsGkC8L5Pc12b73uTk7bvdiYVmSkIn09dJcuTqXpWxivU2
+	gFRXzzol1kRwYXBrS/grFLgUpdIxGUR+L5helC9Sjyy77XUnhfYj5v3om+KAygc3Fi5dfgcBJs9
+	Vb8bd9DoHDksYZm0ozyIrIiGsjYyAi0LGvhrid0G3FUNx3F7E/hQVJ47n4yskYV69IUHauLwm3a
+	0krOdQ5XxBTzltdR2cgcmTVgavA//zCjoR2KvvIyHK189VQKtt/Yiw0yN6V+hGfhbl3WXhf5Ct6
+	3lvwgFHstHMELvuVCZsOpuRaSmvxyisrREJiqRDDY/7z6zNAuVmqyWnRn4MNULWlG+0RADiKvvX
+	nXGySAuFunjbVZlKuiDzdCvw==
+X-Received: by 2002:a05:6a21:4cca:b0:39b:9c3a:f54f with SMTP id adf61e73a8af0-39bb25e7511mr8216718637.32.1774069873215;
+        Fri, 20 Mar 2026 22:11:13 -0700 (PDT)
+Received: from pve-server ([49.205.216.49])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c743a939af0sm2729778a12.16.2026.03.20.22.11.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Mar 2026 22:11:12 -0700 (PDT)
+From: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
+To: Baolin Wang <baolin.wang@linux.alibaba.com>, akpm@linux-foundation.org, david@kernel.org
+Cc: ljs@kernel.org, Liam.Howlett@oracle.com, vbabka@kernel.org, rppt@kernel.org, surenb@google.com, mhocko@suse.com, baolin.wang@linux.alibaba.com, linux-arm-kernel@lists.infradead.org, x86@kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, open <linux-mm@kvack.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/6] mm: change to return bool for ptep_test_and_clear_young()
+In-Reply-To: <3fa94c3c89fd93fe22c8cb59967f064787d686aa.1773890510.git.baolin.wang@linux.alibaba.com>
+Date: Fri, 20 Mar 2026 11:27:48 +0530
+Message-ID: <ikarxctf.ritesh.list@gmail.com>
+References: <cover.1773890510.git.baolin.wang@linux.alibaba.com> <3fa94c3c89fd93fe22c8cb59967f064787d686aa.1773890510.git.baolin.wang@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] net/smc: fix double-free of smc_spd_priv when tee()
- duplicates splice pipe buffer
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <177405901028.2723214.8587147008267182174.git-patchwork-notify@kernel.org>
-Date: Sat, 21 Mar 2026 02:10:10 +0000
-References: <20260318064847.23341-1-tpluszz77@gmail.com>
-In-Reply-To: <20260318064847.23341-1-tpluszz77@gmail.com>
-To: Qi Tang <tpluszz77@gmail.com>
-Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com,
- sidraya@linux.ibm.com, wenjia@linux.ibm.com, netdev@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-kernel@vger.kernel.org
 
-Hello:
+Baolin Wang <baolin.wang@linux.alibaba.com> writes:
 
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+> Callers use ptep_test_and_clear_young() to clear the young flag and check
+> whether it was set. Change the return type to bool to make the intention
+> clearer.
+>
 
-On Wed, 18 Mar 2026 14:48:47 +0800 you wrote:
-> smc_rx_splice() allocates one smc_spd_priv per pipe_buffer and stores
-> the pointer in pipe_buffer.private.  The pipe_buf_operations for these
-> buffers used .get = generic_pipe_buf_get, which only increments the page
-> reference count when tee(2) duplicates a pipe buffer.  The smc_spd_priv
-> pointer itself was not handled, so after tee() both the original and the
-> cloned pipe_buffer share the same smc_spd_priv *.
-> 
-> [...]
+Right I checked all callers of ptep_test_and_clear_young(). I agree, we
+only need bool here. 
 
-Here is the summary with links:
-  - [net] net/smc: fix double-free of smc_spd_priv when tee() duplicates splice pipe buffer
-    https://git.kernel.org/netdev/net/c/24dd586bb4cb
+> Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
+> ---
+>  arch/arm64/include/asm/pgtable.h             |  8 ++++----
+>  arch/arm64/mm/contpte.c                      |  4 ++--
+>  arch/microblaze/include/asm/pgtable.h        |  2 +-
+>  arch/parisc/include/asm/pgtable.h            |  6 +++---
+>  arch/powerpc/include/asm/book3s/32/pgtable.h |  4 ++--
+>  arch/powerpc/include/asm/book3s/64/pgtable.h |  6 +++---
+>  arch/powerpc/include/asm/nohash/pgtable.h    |  4 ++--
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+I looked at it because of powerpc changes, but ended up looking into all
+call sites anyways. So overall it LGTM (and I agree that we can remove
+the unnecessary externs from function declarations)
 
-
+With that please feel free to add:
+Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
