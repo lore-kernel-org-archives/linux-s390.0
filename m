@@ -1,113 +1,98 @@
-Received: from mail-oi1-f172.google.com (mail-oi1-f172.google.com [209.85.167.172])
+Received: from mail-oi1-f181.google.com (mail-oi1-f181.google.com [209.85.167.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E780738C2C7
-	for <linux-s390@vger.kernel.org>; Sat, 21 Mar 2026 14:27:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5162138C2C7
+	for <linux-s390@vger.kernel.org>; Sat, 21 Mar 2026 14:28:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774103267; cv=none; b=kBwC6JmEy1CGcwH7D/q0dCW5nlB2h2wnnTlIYiPCZ6Zh+jeSugHu3gXChfihYwyt5d+ck8DlwYOpwTDDYk7QhhB4eL5I3K0JF/3kgEvqSSL8Jb4h/0L4iqF8L/sm4jViIxzYSuGZ6INp8IoaQk3NBoSSGcjydF6XKTLQhYRr9/c=
+	t=1774103308; cv=none; b=fSWRtO5eVIn5hgEz7IC0UdAQ2wZpbqj6Yowy4D/nWaNkT4E/WRg9+Ww0SPjQCPI82EzkIgewW4Jx+rJJ+wL+ZNZCh14X+MWPyt5MyupEngtoEN5GkerMCs8zvpEwZs8EGhhKsVi6wewq7fj84zJfUcyYUQ871SwHqagCvzWmHKg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774103267; c=relaxed/simple;
-	bh=XbJvTOd1ukwPGu2B9QSbSkII0ybcEyvvDNPe4pFXwFw=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=F32zrugBVKxTuMY2DDFYTH9zDfO7C2tZFooo7U/V5PJ0O0HO1/jZ5PLDm23t/+AJx2kdtIcDqm/wMUdprO4ljDzLm5Epc5MlE2dw0AJ3JDjlc4pMQTOtwZ7P2+NvYowvvla8lp/wu2K/VYAoNMGlgk4tDCEaHyZ7ZPEnDdhbS2Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=mGBersy6; arc=none smtp.client-ip=209.85.167.172
+	s=arc-20240116; t=1774103308; c=relaxed/simple;
+	bh=Ljm9lHSWHJuvEOaPyKMhOHXf0fTCsJ/D9lwyKKoju7M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=RqBf0FN1FD/VzkMujtYYZvWL4Nun62HooE6+QjB+viZ5NAAzbNvwTK/KEblN+NNwVDcURdWI2QVSAADCfwOQlzBG1rC6oO/2bs7vQIzWkR4O5u/kU6e/5fAmqaqAuuVQeCAg3L69iWd/92sjOH1qXh7msSxmvNMfXffZLpvKh/E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=D/3B61aJ; arc=none smtp.client-ip=209.85.167.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="mGBersy6"
-Received: by mail-oi1-f172.google.com with SMTP id 5614622812f47-4670676ba03so951858b6e.1
-        for <linux-s390@vger.kernel.org>; Sat, 21 Mar 2026 07:27:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="D/3B61aJ"
+Received: by mail-oi1-f181.google.com with SMTP id 5614622812f47-464ba2bb3aeso1791449b6e.1
+        for <linux-s390@vger.kernel.org>; Sat, 21 Mar 2026 07:28:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1774103265; x=1774708065; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=By+r1Fe/YcOBcCg/TUP/Rfl3T3jnspwWgDUfbTqj4k4=;
-        b=mGBersy6NNuVGCzzex1I7u3IC6ckORW3S5x3pPRjUsQgq2WNIPS1fUUxi7klBu309v
-         LuFeUd4PEbb0fnTBDEoPwTB4pacYiXus2ZdD4Lr1lh2EhRqfHkwi/CqYnDTRxAkt1YvO
-         +fHEGoE07oTYSeZxZxxqZD62Lgz5PbJb6NSQN4R0OOkZWLNuP8IgpBx2VHjO+Uppy6fp
-         Np2aLa/9fUgEhHQ69KbRK0TabRl2oeu5QnBYQ57RgKQRd0/pnDuzDaKwDqDkVTrMgSiV
-         GpNZzXpxFwgkD7gkifWSSKFVUkDKDkC4zh08w6uerFTjhdjdklJnKU6CI+eTl0ua1ln/
-         wu9Q==
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1774103304; x=1774708104; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=aGeFtEcePrRuGM6CVPtSo2iuVcZXXricGsZQ7tQ5chQ=;
+        b=D/3B61aJ8a8WPzCw5ztDzz0FSJUiv/Qr9mA2lG235GydGFjAmzb1xZQeGuOxmxFYxx
+         9g/O2OMTTMLLOaKS+Kkl7Mxi4zlKIngC2tIdx3fTsn56oaaaUMAFWhVEse+CmNAoWJWE
+         n7rDD3EUYIA0GnTI+duQdSCQ06hHgD4Fdy+ptJC7B6EXwcDPmeS16DnBsXzBiewmKmkq
+         RXCcD9a9Z1fvapboemM+kMRBzjQ3uikJbGtTP1jVe+LvytJSy9Z4QxfJ2DBOYzmkyUP4
+         vcOYFMkkxoA5qQhsKyiK/HutQhxhEhM1LFAEqTtQCY3/6mJb4T+wRZNryQ/Yg/A6ytIL
+         yjCQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774103265; x=1774708065;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=By+r1Fe/YcOBcCg/TUP/Rfl3T3jnspwWgDUfbTqj4k4=;
-        b=TGyZTok7o8c/+tYJoIpuPQdMNhzhSPU3rXDZtPmi0Lf1VZE7XoVgPCZ5J/dcpxxEfj
-         KUZ9NVu8qmZXuPRVLCsh9lklsA63T34n9Z9o4Bgn3zPd9VBx2YnkfzQjc3cUHAoqLw2Q
-         2H50JJnKli1dpZ9IK0N1S0nTrQ0dVn/JhdjgQGbxFAF3JWqC4cz0WDH2bt04adJlDnoF
-         UctkslZoZ5qOlBHQIWw6Md3ufWYmdTgI3ipA4DEJOstqnyn7rhy9Yn3l+fTTb8Gi4jkl
-         BydXktUVOhbeGI33v/plO3g2vgykL0DvnrKESl56md5QkxjBlVmcqXj6hBIiKhxA3ob3
-         8YsA==
-X-Forwarded-Encrypted: i=1; AJvYcCX4uGMicsG7298LzisWg/QlXKe2V2tb9p2FysQlKvf2/3PlAegCrrrAj8JeFwiSJzG5lJVnb252VtNE@vger.kernel.org
-X-Gm-Message-State: AOJu0YyLciF4NQD385XK2GrsOsMlohQ9EpRMjSmj6T6ph7MCvO+o7/sn
-	sPZMfH8UtdlnnEVQP2uj7JDiwmANSacfRW73VqcBcM61GToaF0jOrVrUgVfIn2ImLes=
-X-Gm-Gg: ATEYQzwhtffF/xZr0HDJ1++UOrDswo/6ApJVFsMQfWmpi7ywfNRZoOct9Un7+u+TbXL
-	Vo0qyFM86zqiDZiOGCtysJVzW0rxMHppvgJqkZGLiYhcve5oEilKw8PnBrU7nOOwB9Yykr1/xIk
-	dFO/EmtzIUreft25n9imTOa7oTh3vNxAHgvBAkZRB/mOoDgODZLBLcuUWCl/j9Ktcnt+Hdeh7ho
-	45tNerMRW+/YHBLf9yDU0a7vaY+Ookt0XOh4mVYXkqFjQG8LG8uF6tZsejGVv+jOFAAl1ZNtjLr
-	rmLS1ybezxsO0egxx0q0Jt7KDfAX9Pn+KZQAZO+26ahJPPEdMDdJS6w/InAoVow9muy4sshMXRc
-	ORDazzU+hQ+Sz25jKDqst6sA/a3VtR7A9x6qZlDX93Pmp4+uUdzCHrXdFqKsX0L7O5KWtQ48Qcw
-	e2dtur9FzGPsPthR2qVKvn4mxt18hXe0HM1rPVr1DBU6HmLjVKHpOlm6lp1/S5WyX35S0iCN0og
-	eMe
-X-Received: by 2002:a05:6808:1392:b0:467:255a:7453 with SMTP id 5614622812f47-467e5d9638fmr3487371b6e.14.1774103264871;
-        Sat, 21 Mar 2026 07:27:44 -0700 (PDT)
-Received: from [127.0.0.1] ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id 5614622812f47-467e7f131b2sm3215075b6e.15.2026.03.21.07.27.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 21 Mar 2026 07:27:44 -0700 (PDT)
-From: Jens Axboe <axboe@kernel.dk>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
- Kees Cook <kees@kernel.org>
-Cc: Josh Law <objecting@objecting.org>, Davidlohr Bueso <dave@stgolabs.net>, 
- Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, 
- "Richard Russon (FlatCap)" <ldm@flatcap.org>, 
- Thorsten Blum <thorsten.blum@linux.dev>, linux-kernel@vger.kernel.org, 
- linux-block@vger.kernel.org, linux-efi@vger.kernel.org, 
- linux-s390@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net, 
- linux-hardening@vger.kernel.org
-In-Reply-To: <20260321004840.work.670-kees@kernel.org>
-References: <20260321004840.work.670-kees@kernel.org>
-Subject: Re: [PATCH] block: partitions: Replace pp_buf with struct seq_buf
-Message-Id: <177410326319.185838.7918397412644396915.b4-ty@b4>
-Date: Sat, 21 Mar 2026 08:27:43 -0600
+        d=1e100.net; s=20251104; t=1774103304; x=1774708104;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=aGeFtEcePrRuGM6CVPtSo2iuVcZXXricGsZQ7tQ5chQ=;
+        b=eGhzO+iSaK7D1K2EYWZzu0QPEMwCPEMVuoZ/wjJovjlVkJ5uRWmzbWji9zKSMEmiXI
+         TFUlgD31grClnUpNTaoqMWtu+O78UEu/CHEONVm1xE7Oaf+oVVSIq2W5Xdx/4hqXv2BQ
+         uENMqlaetDUDjmlSJwYtqe+pCL7wlpP5vz0S6IOje4eemXiNKk/lic9xJdn3l+8fbyLW
+         lGlwd0Hn299Ri1BwdfnSD9ebe0KGjlzODvupn5Z25vcxPmHUID9AAGAvU85E/GFhNnkb
+         hPyVkzLvtDORSnwh5wtvIUW6H2uQ0tOU8S1LSnjYfIoUPFEUeBAKi0kXcl8pF4dXG8N7
+         Vy0g==
+X-Forwarded-Encrypted: i=1; AJvYcCUnPsHIelbm1pDmD3SGGRX+33drbRMeQ/atbO5mZ8c40sQppWnPQhwlRIjh0+87MWBdE/YUcG2JmKW4@vger.kernel.org
+X-Gm-Message-State: AOJu0YwukOuZhoku50gQ8x8MVACz2tTvZ4hnp+tZls2UKsxgoXLw6b+I
+	L4V2F2mAuiUlvWtwA/nnZ1GfVWQkZ/tG0oDe4lXHbcvHCepIG2wUbeSlytw39EnQVHE=
+X-Gm-Gg: ATEYQzyYs6dRM9elZJdJe5ET1eCIK/bCEOJEX8hTyUA7iXeWL5BtDULu2b/U1Dat6MT
+	9DFr3bMEnI1A/DAKndAnkxEZh4oWcmB2hKn0eXgU/3VmYGxxQg6HCorhDiLgDleXMKPte8dIvfI
+	KscJ2UMY4S5WOJ+s83lga8Eoo7Oju9spGXdH3LQ/Mh80u5tSn+DgLvh+vD21wRd+mLKwCmLx4X5
+	fnXBFHBs24nk5O8Fs61nAxdau51VPMLNaVSCtPrHL1dmiX1mf4bM+72wKd06sa6A6qpyuLNhwxl
+	vvHp1wB2HKm8Y9OUi+n6lY25E0NEPb7krbvtwEcRdsBSuT5igyerACW2eXmXc/MrJ8Xu9TQQXlj
+	SrkPi/dWJc7hcQMl389pu+S6RIYZLzoJZkcfZj8+H2CMCs4rbs8DnjnDjl81lGl2rawBWgwfnzy
+	jfS4+a+VC/LKri1SYFBOLcq0cxTyO3jxNvOBBj/UvA2hFuW6/ejrar1/+DfUc9+cn2dGffhPpUm
+	oahoORVgA==
+X-Received: by 2002:a05:6808:a607:10b0:467:f56b:5267 with SMTP id 5614622812f47-467f56b6c30mr1978974b6e.10.1774103304390;
+        Sat, 21 Mar 2026 07:28:24 -0700 (PDT)
+Received: from [192.168.1.150] ([198.8.77.157])
+        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-41c14ddf9d4sm4797944fac.16.2026.03.21.07.28.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 21 Mar 2026 07:28:23 -0700 (PDT)
+Message-ID: <12bb0db8-e8a3-4e08-89e9-db9a1348bea3@kernel.dk>
+Date: Sat, 21 Mar 2026 08:28:21 -0600
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] block: partitions: Replace pp_buf with struct seq_buf
+To: Josh Law <objecting@objecting.org>, Kees Cook <kees@kernel.org>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>, Stefan Haberland
+ <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>,
+ "Richard Russon (FlatCap)" <ldm@flatcap.org>,
+ Thorsten Blum <thorsten.blum@linux.dev>, linux-kernel@vger.kernel.org,
+ linux-block@vger.kernel.org, linux-efi@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
+ linux-hardening@vger.kernel.org
+References: <20260321004840.work.670-kees@kernel.org>
+ <D47F8215-FD08-45ED-AB01-0A5C48CD41DD@objecting.org>
+Content-Language: en-US
+From: Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <D47F8215-FD08-45ED-AB01-0A5C48CD41DD@objecting.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.15.0
 
+On 3/21/26 6:08 AM, Josh Law wrote:
+> Reviewed-by: Josh Law <objecting@objecting.org>
 
-On Fri, 20 Mar 2026 17:48:44 -0700, Kees Cook wrote:
-> In preparation for removing the strlcat API[1], replace the char *pp_buf
-> with a struct seq_buf, which tracks the current write position and
-> remaining space internally. This allows for:
-> 
-> - Direct use of seq_buf_printf() in place of snprintf()+strlcat()
->   pairs, eliminating local tmp buffers throughout.
-> - Adjacent strlcat() calls that build strings piece-by-piece
->   (e.g., strlcat("["); strlcat(name); strlcat("]")) to be collapsed
->   into single seq_buf_printf() calls.
-> - Simpler call sites: seq_buf_puts() takes only the buffer and string,
->   with no need to pass PAGE_SIZE at every call.
-> 
-> [...]
+Please don't quote 1000 lines just to add that, that's somewhat annoying
+in terms of scrolling to find wtf was said, and it's hugely wasteful.
+Prune your replies.
 
-Applied, thanks!
-
-[1/1] block: partitions: Replace pp_buf with struct seq_buf
-      commit: c2d466b9fe1913f8dbe2701156c38719c94188f7
-
-Best regards,
 -- 
 Jens Axboe
-
-
-
