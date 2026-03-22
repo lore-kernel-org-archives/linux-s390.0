@@ -1,54 +1,54 @@
-Received: from mail-dl1-f74.google.com (mail-dl1-f74.google.com [74.125.82.74])
+Received: from mail-dy1-f201.google.com (mail-dy1-f201.google.com [74.125.82.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 672603382F7
-	for <linux-s390@vger.kernel.org>; Sun, 22 Mar 2026 05:43:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A86933F59F
+	for <linux-s390@vger.kernel.org>; Sun, 22 Mar 2026 05:43:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774158201; cv=none; b=AluWhd2fUt7aGUHiO5niPe4/P5BwKZ8pAgBQlH/UfGsalTX8k2sZwTjIcWsihkhfZn6X9l5Ol3Vi1tKw3XHFns5xhRKiqzG+MooZXMXtvjmRLDCpI67P0QbFflcdQ6pMzwcXBS9ymSwZN128zHbWf9ZgKv0w9yNuVqAYibC2lqE=
+	t=1774158207; cv=none; b=ZKk7cGjU7aIsx0Xsw5GaTxU+ruHkL6tK0NNZZ7sCtNZS4IiZ5qwf35NQqiNsReLECde8SydYrEwA8xpADRVlnolukrIV0kI/Gj/2ruLHVV8GpL0gqMR7yGmgtrbATdpGZQ4bh2o1u7yqD80LcqQFN8J+kojACqRj0xXKrKzDjK0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774158201; c=relaxed/simple;
-	bh=pUtFLNM8bIVhn1C4HEgCXPw2t6WuvF6D4DtWrOoUcZE=;
+	s=arc-20240116; t=1774158207; c=relaxed/simple;
+	bh=e3gWeXeUqlHXWzHbzz4ImGosonpJ2v75QKooiU11Mi0=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=mYfSa8MtLSL9A8+dlISbitCe4gtvCnzvXw/XOryUIOqt4ntw/+zPAKjBY9fIk7t5nCZDVmNes0T3NfbDXhRK3I/r3zhoFoVSMxdyN86AP8YHwfzBkJn5blVPktghnde+7Le4qa346XkVwz7YtzyPYT0mny1h7qfmoFqPueF6+fs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--surenb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=hbcSaLCR; arc=none smtp.client-ip=74.125.82.74
+	 To:Cc:Content-Type; b=eIYqF0EticGgd/xnx+6PrQFXxUgu/wzI59hTkr4oNbE+qTzIoyhP2NVCPEEWwhjm4oyx98FoSwlBp/x46kSCrS2/Hj3c7TQaedVVi++Mf2cuz8YidY7uSS/3A1kl3tXvN1x8gYY4z3i1EjIR8YTwpBwrY7bc30t00qAABFqdX+4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--surenb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=WLOLW2/A; arc=none smtp.client-ip=74.125.82.201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--surenb.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="hbcSaLCR"
-Received: by mail-dl1-f74.google.com with SMTP id a92af1059eb24-127337c8e52so16082521c88.1
-        for <linux-s390@vger.kernel.org>; Sat, 21 Mar 2026 22:43:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="WLOLW2/A"
+Received: by mail-dy1-f201.google.com with SMTP id 5a478bee46e88-2bdf6fe90a9so3196656eec.1
+        for <linux-s390@vger.kernel.org>; Sat, 21 Mar 2026 22:43:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1774158200; x=1774763000; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1774158202; x=1774763002; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=GvTHfHDaEeYEd5IaJalf0yvJB887/iPHMmYQM447rIU=;
-        b=hbcSaLCRFIUMUS246631VYrBowPulSUwmCcJGVx6RNwMKGXUc+Ulx9y/3TeNPQ7xfF
-         lHRt5kWXts+FenIcxKtKGRaGHK9ELVsYscvTK0SBKvkZVp9Mh1J9t3uTV/JHqfIiIjDb
-         wz7aGG5NZpZDPBJSKJ82YzuKTfrTQ0r+Wd4zM7f28eidDcj4LHd5HrTlRpHVFbbCyHgZ
-         R7KqlqRG9/0DVV+a7zEYaCcYwyl0FWQC8xN9eq/FHyrM2SZGEbWoKvQesrFbTXOO/Phz
-         xUZvxugQh9IS9tZn9f5HP/jgRHAUuty2Nu71eCbf0ZJ1VUjLUlFdoQ1Q8dC8zYaiGn0I
-         4w9A==
+        bh=pyZbVSMoPQsW5Fww5l9TjItBhtVQ4rSW6pB2FXRdwC8=;
+        b=WLOLW2/AyaZEOkBGbNYcql4O4fVEXA+nfjD6oSIQtq/bAj4eotghev7zRVGu1yJ8xP
+         5qkbj0Z/fGzHRjNQ/Ep71dLFC6nSaQqx+jYRUDepojhxpRIbQtU5ceT3RBA+YYndwqOQ
+         ++McDa6zTJ2y5I+sW+mOQpOZUKl0oyZdM3LCAvSbCLd5BOwDinyyo7RBAILToDgU48a9
+         gHciXI895qOfpleuJIxg5HEp7XXs1AVtaVa4Lx6qBH/SSJDmwfOXmguJbw9/pDua1zKX
+         TgEfjS/PY55GtLPTm3sorywiZXQzkvJzAZRnfmskE5IDKmgqRCebaCnZ0VbOKGuBVWoJ
+         ZzBA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774158200; x=1774763000;
+        d=1e100.net; s=20251104; t=1774158202; x=1774763002;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=GvTHfHDaEeYEd5IaJalf0yvJB887/iPHMmYQM447rIU=;
-        b=LDRaKhUQvNESmKMjUtC2wPV605IHrRh/ghQTbcW6zbsKUFnQYPccGDBr5fW+gCotrC
-         GRwJzdZbpByg5GJRoJ5O0mfQAXX23wr4Mtl9MXuhX2dbbxdv3x9zp+7MwLNLmnIGq+09
-         JFNC+xRABIMUH79+zBGerSgIEkONxTIMqFvqE9Aiqme0FsG92h4ahURH61oqRLAjxNaJ
-         bvM3XLx9J2KaglZqM+ymu8yJKETHWiwSTIA0VlRbLINyXH5GhU27nJmlJnGgvHWIouNW
-         6ENyqM+6HD/F765YblSd9obX0pWlhBMI2W3zapEApwjb3iLuvNoEPPeTpvU0EBMrFxfo
-         vDwA==
-X-Forwarded-Encrypted: i=1; AJvYcCUBdFFSIyUkdlYud8v0Kq7DKtRBrxEQGEHQbRV5E8XcW6XP7CiTrC09V66c1gFh61Vr7QDH6ZYGzV4U@vger.kernel.org
-X-Gm-Message-State: AOJu0YxUtVTUt7vzjvLQkaPxTWYJSrJkU5M+TkeGF4qlCbAh8MpbfXw0
-	B948IpKolv6KLXzFyvbK7fUlSIJHHX0msUHRSFxo0XeQx1HAzYqrTt13l5Kao1GlLxaKsuk0dZP
-	Z6QMnQg==
-X-Received: from dlbvg27.prod.google.com ([2002:a05:7022:7f1b:b0:128:d754:39d])
- (user=surenb job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7022:41a8:b0:127:33e0:ea33
- with SMTP id a92af1059eb24-12a726b3177mr4054533c88.22.1774158199330; Sat, 21
- Mar 2026 22:43:19 -0700 (PDT)
-Date: Sat, 21 Mar 2026 22:43:07 -0700
+        bh=pyZbVSMoPQsW5Fww5l9TjItBhtVQ4rSW6pB2FXRdwC8=;
+        b=sV4t5aq0ACJyT2r/kSFK3gCJNkqiYt0Zo8eZuCAOg9B1EYnXLprlthfrsFAYagfNGB
+         7WFYTfsc/GnlhsUfTCdRUf33uDfXqXeWTuxQYVLNOxkt2X1MqM5rsEc0QXrAye4t7pNq
+         HKiaqXQ9zrppGUZwNPatYrFfMNBmQOoYBAOLd2XmS3beJELnNmJQ+7yEMMyIilWCihVg
+         LNDxqS63aGNPMKEyvkpX7Y1xK47JG7T03F5ejqwjHmBTIh223MRyv1FRn2dxD8+8mpX/
+         /7HqNMogdgUaymMNFfVJl0mDHqoJPCqkpitze+tjSEKH8aXEADT3RUiIrE8EMpJEh7P6
+         OtPw==
+X-Forwarded-Encrypted: i=1; AJvYcCX63jHbLIybWMeFl/fwHDwF6ML9Rqpj5Bak5aSLhmPpn6YKxyDq9miPq+dMxBgrWm2gWqlUfKBm06/F@vger.kernel.org
+X-Gm-Message-State: AOJu0YxmyrlrLrINc+v13JOkjVz7HOe6m3BL5G7mCsKcBXAo3Kw9HxlO
+	ckCWYR3nrTlPbLFaoEwNO9YRXvP9s0/+xMKRzZ+vSOd92jAf2JRO6IpfMhGzCDd58I2he5P6G4o
+	Tapw4VA==
+X-Received: from dyx25.prod.google.com ([2002:a05:693c:8219:b0:2c0:c743:7f67])
+ (user=surenb job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7022:220f:b0:119:e56b:98b9
+ with SMTP id a92af1059eb24-12a726bb993mr3455319c88.32.1774158201439; Sat, 21
+ Mar 2026 22:43:21 -0700 (PDT)
+Date: Sat, 21 Mar 2026 22:43:08 -0700
 In-Reply-To: <20260322054309.898214-1-surenb@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -58,8 +58,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20260322054309.898214-1-surenb@google.com>
 X-Mailer: git-send-email 2.53.0.1018.g2bb0e51243-goog
-Message-ID: <20260322054309.898214-4-surenb@google.com>
-Subject: [PATCH v4 3/4] KVM: s390: avoid kvm_s390_handle_pv() error overwrite
+Message-ID: <20260322054309.898214-5-surenb@google.com>
+Subject: [PATCH v4 4/4] mm: use vma_start_write_killable() in process_vma_walk_lock()
 From: Suren Baghdasaryan <surenb@google.com>
 To: akpm@linux-foundation.org
 Cc: willy@infradead.org, david@kernel.org, ziy@nvidia.com, 
@@ -77,36 +77,132 @@ Cc: willy@infradead.org, david@kernel.org, ziy@nvidia.com,
 	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, surenb@google.com
 Content-Type: text/plain; charset="UTF-8"
 
-If kvm_s390_handle_pv() call fails its error code gets recorded but
-execution proceeds as if the call was successful. If the next call to
-copy_to_user() fails then the original error is overwritten.
-The follow-up patch adds fatal signal checks during VMA walk, which
-makes it possible for kvm_s390_handle_pv() to return EINTR error.
-Without this fix any error including EINTR can be overwritten and
-original error will be lost.
-
-Change error handling for kvm_s390_handle_pv() to alter normal flow
-once failure happens. This is consistent with how kvm_arch_vm_ioctl
-handles errors for other ioctl commands.
+Replace vma_start_write() with vma_start_write_killable() when
+process_vma_walk_lock() is used with PGWALK_WRLOCK option.
+Adjust its direct and indirect users to check for a possible error
+and handle it. Ensure users handle EINTR correctly and do not ignore
+it.
 
 Signed-off-by: Suren Baghdasaryan <surenb@google.com>
 ---
- arch/s390/kvm/kvm-s390.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/proc/task_mmu.c |  5 ++++-
+ mm/mempolicy.c     |  1 +
+ mm/pagewalk.c      | 20 ++++++++++++++------
+ 3 files changed, 19 insertions(+), 7 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 3eb60aa932ec..ddad08c0926f 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2947,6 +2947,8 @@ int kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
+diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
+index e091931d7ca1..2fe3d11aad03 100644
+--- a/fs/proc/task_mmu.c
++++ b/fs/proc/task_mmu.c
+@@ -1797,6 +1797,7 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
+ 		struct clear_refs_private cp = {
+ 			.type = type,
+ 		};
++		int err;
+ 
+ 		if (mmap_write_lock_killable(mm)) {
+ 			count = -EINTR;
+@@ -1824,7 +1825,9 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
+ 						0, mm, 0, -1UL);
+ 			mmu_notifier_invalidate_range_start(&range);
  		}
- 		/* must be called without kvm->lock */
- 		r = kvm_s390_handle_pv(kvm, &args);
-+		if (r)
-+			break;
- 		if (copy_to_user(argp, &args, sizeof(args))) {
- 			r = -EFAULT;
- 			break;
+-		walk_page_range(mm, 0, -1, &clear_refs_walk_ops, &cp);
++		err = walk_page_range(mm, 0, -1, &clear_refs_walk_ops, &cp);
++		if (err)
++			count = err;
+ 		if (type == CLEAR_REFS_SOFT_DIRTY) {
+ 			mmu_notifier_invalidate_range_end(&range);
+ 			flush_tlb_mm(mm);
+diff --git a/mm/mempolicy.c b/mm/mempolicy.c
+index 929e843543cf..bb5b0e83ce0f 100644
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -969,6 +969,7 @@ static const struct mm_walk_ops queue_pages_lock_vma_walk_ops = {
+  *      (a hugetlbfs page or a transparent huge page being counted as 1).
+  * -EIO - a misplaced page found, when MPOL_MF_STRICT specified without MOVEs.
+  * -EFAULT - a hole in the memory range, when MPOL_MF_DISCONTIG_OK unspecified.
++ * -EINTR - walk got terminated due to pending fatal signal.
+  */
+ static long
+ queue_pages_range(struct mm_struct *mm, unsigned long start, unsigned long end,
+diff --git a/mm/pagewalk.c b/mm/pagewalk.c
+index eda74273c8ec..a42cd6a6d812 100644
+--- a/mm/pagewalk.c
++++ b/mm/pagewalk.c
+@@ -438,14 +438,13 @@ static inline void process_mm_walk_lock(struct mm_struct *mm,
+ 		mmap_assert_write_locked(mm);
+ }
+ 
+-static inline void process_vma_walk_lock(struct vm_area_struct *vma,
++static inline int process_vma_walk_lock(struct vm_area_struct *vma,
+ 					 enum page_walk_lock walk_lock)
+ {
+ #ifdef CONFIG_PER_VMA_LOCK
+ 	switch (walk_lock) {
+ 	case PGWALK_WRLOCK:
+-		vma_start_write(vma);
+-		break;
++		return vma_start_write_killable(vma);
+ 	case PGWALK_WRLOCK_VERIFY:
+ 		vma_assert_write_locked(vma);
+ 		break;
+@@ -457,6 +456,7 @@ static inline void process_vma_walk_lock(struct vm_area_struct *vma,
+ 		break;
+ 	}
+ #endif
++	return 0;
+ }
+ 
+ /*
+@@ -500,7 +500,9 @@ int walk_page_range_mm_unsafe(struct mm_struct *mm, unsigned long start,
+ 			if (ops->pte_hole)
+ 				err = ops->pte_hole(start, next, -1, &walk);
+ 		} else { /* inside vma */
+-			process_vma_walk_lock(vma, ops->walk_lock);
++			err = process_vma_walk_lock(vma, ops->walk_lock);
++			if (err)
++				break;
+ 			walk.vma = vma;
+ 			next = min(end, vma->vm_end);
+ 			vma = find_vma(mm, vma->vm_end);
+@@ -717,6 +719,7 @@ int walk_page_range_vma_unsafe(struct vm_area_struct *vma, unsigned long start,
+ 		.vma		= vma,
+ 		.private	= private,
+ 	};
++	int err;
+ 
+ 	if (start >= end || !walk.mm)
+ 		return -EINVAL;
+@@ -724,7 +727,9 @@ int walk_page_range_vma_unsafe(struct vm_area_struct *vma, unsigned long start,
+ 		return -EINVAL;
+ 
+ 	process_mm_walk_lock(walk.mm, ops->walk_lock);
+-	process_vma_walk_lock(vma, ops->walk_lock);
++	err = process_vma_walk_lock(vma, ops->walk_lock);
++	if (err)
++		return err;
+ 	return __walk_page_range(start, end, &walk);
+ }
+ 
+@@ -747,6 +752,7 @@ int walk_page_vma(struct vm_area_struct *vma, const struct mm_walk_ops *ops,
+ 		.vma		= vma,
+ 		.private	= private,
+ 	};
++	int err;
+ 
+ 	if (!walk.mm)
+ 		return -EINVAL;
+@@ -754,7 +760,9 @@ int walk_page_vma(struct vm_area_struct *vma, const struct mm_walk_ops *ops,
+ 		return -EINVAL;
+ 
+ 	process_mm_walk_lock(walk.mm, ops->walk_lock);
+-	process_vma_walk_lock(vma, ops->walk_lock);
++	err = process_vma_walk_lock(vma, ops->walk_lock);
++	if (err)
++		return err;
+ 	return __walk_page_range(vma->vm_start, vma->vm_end, &walk);
+ }
+ 
 -- 
 2.53.0.1018.g2bb0e51243-goog
 
