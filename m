@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 073253C5DA5;
-	Mon, 23 Mar 2026 17:53:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FD573C944E;
+	Mon, 23 Mar 2026 17:55:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774288428; cv=none; b=aQq3/HsNnpPwgOBQWnNTdHubW/LPHZThqMQuOtJN1X+NCB7kPAnIyTHtnof/milSDi321g/OlukU47Nc7Qju+00o35ljkx5u2qs6WFWfQfaPrKcuO3q1FTxu3JbkhUIn08l6tcPNMsqDCpzVFa04k4MMOOXY17MhAN2JJ9GZxBo=
+	t=1774288551; cv=none; b=L/krdoC2nN6lreCb/8JjHfg3BuqgkGKalSmwMd/MndkbJeRhc5hm5Z3hcAgb4Or+8+A55K3IacbtJA+N6alsPyZLMHSXixvyGDnzEgYX9G66WQx86kcd7yfnATPy5Yhc5Y9w3gAhFnXOSmCCWyJ+A4Ik+3hkHINrqOXq2hGma+I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774288428; c=relaxed/simple;
-	bh=pvvqGoKPtjeuRDaGRHik7rDxrxHUcSCqlT3NKZ5Bw0c=;
+	s=arc-20240116; t=1774288551; c=relaxed/simple;
+	bh=VbCHYIuEB3QD6Shd9lNFnvrZhPFSCzFNxS26OEzV4YQ=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bXUQ95GqNAE+JZv6fVQqqJfvHmOyA22QiU5Z7uZIBffyt6ME1VhbU4acGVdB0w1M6RbI1WtRTUOnZLbSB2tYlBfL4iGjPpTdhBDTa7/9WlPVY5Y14WmgLYehLXhrn21RtCvv6ga1Wqzg6Pt+o7rxvzWc2USCXMjEf4ICb2SRSj4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dtAleL+C; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=oznOye7h+5a9jBDQgjU72W8CcxFzPd/I2GHl7PKp6k4kyYSiQnepp4byjmwC1Ik+ZAgCsUVQxFORUi/9Ng+e9ZC6KzF8mGLZe0mLbh3m+ojWjj4ZdoL/CIe1eCB7KvLQP+y83fs14cuDO1IUrYugLzfoXfEJ3dJrLDN7dAWEPhk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EH+kk9F4; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dtAleL+C"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0868C4CEF7;
-	Mon, 23 Mar 2026 17:53:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EH+kk9F4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A54FC2BCB0;
+	Mon, 23 Mar 2026 17:55:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774288427;
-	bh=pvvqGoKPtjeuRDaGRHik7rDxrxHUcSCqlT3NKZ5Bw0c=;
+	s=k20201202; t=1774288551;
+	bh=VbCHYIuEB3QD6Shd9lNFnvrZhPFSCzFNxS26OEzV4YQ=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=dtAleL+CGdeMNPe8yd5PVQT9KTYb3tEETMX/HImnFVrroFBEyH2/UTI+eZ++LbWik
-	 zzNWKrk6q/UbAslBj4vJbDhj8byf9W/0I71wcX9EyAOlscPRt//TB8JBY0q/KhwdMO
-	 XEigCcVjhOjvODDhf8zGuno5p6eaNue1isuOAk3sT8Wh1M8x5ZWa/4Naqax9n6EIi1
-	 meH6xqHWafcLF8RC1MsnOTSSgKTa1f19OGJ4Un8NLv8NagVQLmaJ5IQm3+XJl2ygPr
-	 aDFKamP52ArwOR80tXn9DadwZlCTeIFLzjY8NOS2f0O0QN/0bHaWpgrMinwhVu26U6
-	 ByYqqUWVeL57g==
-Message-ID: <187fa189-b6d7-4ba0-98a4-7a525cbaf4f9@kernel.org>
-Date: Mon, 23 Mar 2026 18:53:17 +0100
+	b=EH+kk9F4cET+6hBw+hfgT1O7mgwe2YVYpi8ON4Hlqv3UBhAP+D7aSImBMsunnA01j
+	 yXqborcZqNAgukb+/+AAioUQf9oJZXLqF5hly5DXoOzydpkwkZSqQ85B+tSp1xo7JT
+	 HYDKHEL95p8nIWwf6mEuq0/D+KciFk1I8OcDuoXSk4lC7gqvvYxeHgML63sAromxSY
+	 f2JqjC5lFuuzOgwPnO6R5Y8bHVGb/8KMbvUuq0JuIhtm6NDya0gZmeuFVD4dYBTF9y
+	 NmC57B/yOKTlM/7Rkzld0yyndRA4qk40CIOpFo0H+rpWeYk3SULQMJmL6A9sQ+jZjm
+	 bmQVJInFNb7FA==
+Message-ID: <0a14c10d-0dab-4b9c-85ec-e0ee25cd0db8@kernel.org>
+Date: Mon, 23 Mar 2026 18:55:22 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,8 +35,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v11 03/16] mm/secretmem: make use of
- folio_{zap,restore}_direct_map
+Subject: Re: [PATCH v11 05/16] mm/gup: drop local variable in
+ gup_fast_folio_allowed
 To: "Kalyazin, Nikita" <kalyazin@amazon.co.uk>,
  "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
  "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
@@ -132,7 +132,7 @@ Cc: "pbonzini@redhat.com" <pbonzini@redhat.com>,
  "Itazuri, Takahiro" <itazur@amazon.co.uk>,
  "Manwaring, Derek" <derekmn@amazon.com>
 References: <20260317141031.514-1-kalyazin@amazon.com>
- <20260317141031.514-4-kalyazin@amazon.com>
+ <20260317141031.514-6-kalyazin@amazon.com>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -179,22 +179,69 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260317141031.514-4-kalyazin@amazon.com>
+In-Reply-To: <20260317141031.514-6-kalyazin@amazon.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 3/17/26 15:11, Kalyazin, Nikita wrote:
 > From: Nikita Kalyazin <kalyazin@amazon.com>
 > 
-
-Describe your change :)
-
-Ans also worth mentioning that we now flush the TLB even though
-filemap_add_folio() failed -- which shouldn't matter in practice I guess.
-
-With that
+> Move the check for pinning closer to where the result is used.
+> No functional changes.
+> 
+> Signed-off-by: Nikita Kalyazin <kalyazin@amazon.com>
+> ---
+>  mm/gup.c | 23 ++++++++++++-----------
+>  1 file changed, 12 insertions(+), 11 deletions(-)
+> 
+> diff --git a/mm/gup.c b/mm/gup.c
+> index 5856d35be385..869d79c8daa4 100644
+> --- a/mm/gup.c
+> +++ b/mm/gup.c
+> @@ -2737,18 +2737,9 @@ EXPORT_SYMBOL(get_user_pages_unlocked);
+>   */
+>  static bool gup_fast_folio_allowed(struct folio *folio, unsigned int flags)
+>  {
+> -	bool reject_file_backed = false;
+>  	struct address_space *mapping;
+>  	unsigned long mapping_flags;
+>  
+> -	/*
+> -	 * If we aren't pinning then no problematic write can occur. A long term
+> -	 * pin is the most egregious case so this is the one we disallow.
+> -	 */
+> -	if ((flags & (FOLL_PIN | FOLL_LONGTERM | FOLL_WRITE)) ==
+> -	    (FOLL_PIN | FOLL_LONGTERM | FOLL_WRITE))
+> -		reject_file_backed = true;
+> -
+>  	/* We hold a folio reference, so we can safely access folio fields. */
+>  	if (WARN_ON_ONCE(folio_test_slab(folio)))
+>  		return false;
+> @@ -2793,8 +2784,18 @@ static bool gup_fast_folio_allowed(struct folio *folio, unsigned int flags)
+>  	 */
+>  	if (secretmem_mapping(mapping))
+>  		return false;
+> -	/* The only remaining allowed file system is shmem. */
+> -	return !reject_file_backed || shmem_mapping(mapping);
+> +
+> +	/*
+> +	 * If we aren't pinning then no problematic write can occur. A writable
+> +	 * long term pin is the most egregious case, so this is the one we
+> +	 * allow only for ...
+> +	 */
+> +	if ((flags & (FOLL_PIN | FOLL_LONGTERM | FOLL_WRITE)) !=
+> +	    (FOLL_PIN | FOLL_LONGTERM | FOLL_WRITE))
+> +		return true;
+> +
+> +	/* ... hugetlb (which we allowed above already) and shared memory. */
+> +	return shmem_mapping(mapping);
 
 Acked-by: David Hildenbrand (Arm) <david@kernel.org>
+
+I'm wondering if it would be a good idea to check for a hugetlb mapping
+here instead of having the folio_test_hugetlb() check above.
+
+Something to ponder about :)
 
 -- 
 Cheers,
