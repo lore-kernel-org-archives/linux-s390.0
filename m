@@ -1,174 +1,238 @@
-Received: from mail-qt1-f176.google.com (mail-qt1-f176.google.com [209.85.160.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC5BE1514F8
-	for <linux-s390@vger.kernel.org>; Mon, 23 Mar 2026 04:41:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.176
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774240899; cv=pass; b=YM6fQBixPv9dlOCENqej081DCP9ULBXP3z6Gn0RXTG8Z294AsOE9qpeInkQahMPJ8eWslkxiNnmSYbJL56HJaua37hFAN47tmGcMpAqdq3jt4e6cne0/z/RfnbHBf3QWaswKi81YwONYH3UrmeT/9C6ZJEYlifOyzRrHVX0bkQk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774240899; c=relaxed/simple;
-	bh=5xNAgkWcLVlf2KUnTnCnuh9StTvb2xpehaXlQsqjq+g=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=smwNo0EW2DqMH2KG/Dr76sjBOP0z1y+E1324V5whZkkq9MlAGsdtv8uPdgiOzfMaWVcZH+v7vpospyLm/N3FtR/0G7/S5m6BUeE74+5eyBn6z/YDPSle7KcccrAAMPzVc/M1kk6XA6/yMzOi7eIVAvL8yxnEXjCplV+8AqX9lgU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=OIF4QNMQ; arc=pass smtp.client-ip=209.85.160.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 864573603FC;
+	Mon, 23 Mar 2026 08:51:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774255911; cv=none; b=XLEf6Hv408AYrCPI3JiF4qYh3kktj6qN594g0DjjlPVGdVlB/8L06VHHE1zXrx3axApv37wmd9WjYl1lFarmoLswj1y2MHrd1EjHdWTwmgBF53vaWmNb8J6xypNeSpWHp0M2zgEQVZktKC/kKz71fWVWQeOK0OOhsPb99VmMS6Q=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774255911; c=relaxed/simple;
+	bh=dmgQeU3RW0ZvG5Al9Vg1ngqjadpe9kAbYXZbA7yKC/o=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=iWq1o58dUn4M/Fq9IINUpCx6i2sPo2Kb9gMpIDfuyy9hVSG3xaVoucEzHVgfk1p2ipdoEVAV5oQNZUmpcBUBvTdHsxWCJePBDrQQ68LlrAsQqFvYqz/+bzSc4hghn9KTr2qPBlfD9u4+2jt007sdGGOiFXtoIBNDsyOoyD8tU3g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=lBCwxNgK; arc=none smtp.client-ip=192.198.163.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="OIF4QNMQ"
-Received: by mail-qt1-f176.google.com with SMTP id d75a77b69052e-509062d829dso1025251cf.1
-        for <linux-s390@vger.kernel.org>; Sun, 22 Mar 2026 21:41:37 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1774240897; cv=none;
-        d=google.com; s=arc-20240605;
-        b=ZM8TO9/GaA9+/LIFqAQ5HzXrpfKeCmOthLB5LJzo3UyYz3ELuiLIenUepDA2bk4nq4
-         SQO/bdNjBGVICXhWQ2Srrmmr9l+sxgedtwrj/dOvDDucg4lU2a6FyLxAXZpfAkONMgC9
-         /CkuH0fS6vNFhKaOnhvnvmaBqRYcKVEl2SptDgvzPZR3lSkf4EyCmafKMe67zqWVnCnK
-         jPEplbjqwU+IRIOsuc2igTTbf2NByn90tminphqemKrqJrll/KZsPXCTdjfxQKBopsgC
-         dvNEZKwtpyM2jFy0t6o8GtHqW4NHLsL7KGwOWfqiPKKdDR/hhYnHjQ4Mh06WshETHJiw
-         6b8w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=uAOJ0UtmqAYIg8tHB0P+xEtvsI4x8Llq84MC09xgdsw=;
-        fh=O9kbVJNzxlzDPcnDapfv08jZm0njGeLB6ll8rpQxqjo=;
-        b=F7vFpxHLWmjXc58Mvr2W+c87/M/dwmWhMdhmuaISeOx+VLnlEfwk5v7IkwmQeCyTRY
-         2qDwaleP1jq/NN3ffYP4C0sX5sowN6bcqR1l7od4jdEx6p55ge9NGFCxB71PiWU+wbDf
-         AwW9ZY+PsWzk0R8WhVlocU9RxEXsngpWOa2q+bxNTtVylmAS+q4WqpM372Y2wFb+8bUA
-         w5JXSUhzREs6vwdGOiUGhk8lIDBu1lcNmOMrqgOx2zxDZR+F5b1xYgBwp91XBQ7Yq6Mi
-         ScYnD5ER+144WzgMjG5etkA+/Glo9V/iPjlkIZKBVnN9SM62l7ZAZjo9kfiKSKk44bV6
-         803w==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1774240897; x=1774845697; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=uAOJ0UtmqAYIg8tHB0P+xEtvsI4x8Llq84MC09xgdsw=;
-        b=OIF4QNMQptsDb2cFl6qgPUdviw6bMg/8DzsLDgGAduBdYGux/rVjVZwOuBouvEcAyD
-         efBVrmLekPCkPedMA3yrcv+tQIWNFR74MOfUBHjRNsObDSBNy/lfdo+BsU+U9EJpix6v
-         p18T2LIiWfHRtskC2jrHeoavI11bKgEEZJ1h/JyTdSXGzvCk+q/nzLZwLKmnwTbkMLsu
-         jboVEE0OnCohKij20fnHQBIhoTM2qd2cX4jofqEHzqC/XQD40kI/pPFTcmIAr4ThWQYH
-         D7UkEYaY8X9xWUksR/gOzirhH9fOIzhRSc0a03i49ykkCj9jMoltEJltYD7orLpCdpl0
-         7/Rw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774240897; x=1774845697;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=uAOJ0UtmqAYIg8tHB0P+xEtvsI4x8Llq84MC09xgdsw=;
-        b=MbpUEFSRV83lEtudFCnjrbPlVwDfoGreEPtBP104Q9aZXiJILPDvtjMN1BG5uqeKKf
-         3B79lijXPgkPhvcP8fdqIoXYf2unLiUeYH1I3qkq041llZPC4x9V2Pdq+IuZUsN7qU7i
-         Jr6ro5zQJouj7I5rKflEV8fg5XyKqAVmNDrLeNEk3fC8m5jz6S1F7+3jK2IUkNZKI95L
-         4ngO+SdxukK1CxTq4Vnpo7vmbH8bQcBkTD+kkxeFcFSqKSCgik9PFwQ3eR6gvLrnAxuS
-         rVgfzqvDrUUYf4rtFFMbroS3er3wn/vSERsIKLHpzTA4UsWgzlJylZxOJ5BF9w3kr9z4
-         T/SA==
-X-Forwarded-Encrypted: i=1; AJvYcCWeQcqevSjFSfOYQwE/x/RUx1GBWq2N6hrL7v7791HAswY3cUl+XGMCtVARERuCK0wA94p36Sy7eflh@vger.kernel.org
-X-Gm-Message-State: AOJu0YxWlcEUgWKveW2FeqzIGtEi30FCjcXPKw1e7dc6BavmTXnO6AXo
-	WQA8MPhXVrpUhDORmOikkq1vsbEYjG0nNVC7aybYnc3Fj2Gvb/2yP0JsKQHvf5xe3z7s7TseD8x
-	OaxLMIXLWwG7R3POyfQXxwYEku15zeEwknI/IIoKT
-X-Gm-Gg: ATEYQzyp5vWsez2u3H1FuJms95FswPvN4jvtiPxxgQfm8UNoP76Dw559D5iyHkIdq0C
-	S1yu7Fp23LBdhKInzrg1GJpzRtl3weeu+BR62x9LjNZhFYqr2oarzRPW2bCJYSopuz0K2DrfwPF
-	lRN5n38VYDQf4qSOHBc/WqCt4iQzvwsSsNPinUCiHKPoF1WEqisiMx6ll73iIbVGZj9BdSfG29P
-	42ZIQcEGWWz5zz1CCIIm9do/fY4YWUE3epyF3MYeOuJZE7eiWtncN42ixMePxhiDmt6hUWgSWSY
-	XBGicg==
-X-Received: by 2002:ac8:5c8b:0:b0:507:35b2:6b9 with SMTP id
- d75a77b69052e-50b48107de0mr21777311cf.7.1774240896259; Sun, 22 Mar 2026
- 21:41:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lBCwxNgK"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1774255911; x=1805791911;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=dmgQeU3RW0ZvG5Al9Vg1ngqjadpe9kAbYXZbA7yKC/o=;
+  b=lBCwxNgKcecwvuVqHTY8XuWxg+ZvN7vTfOdmwscnFhTN1VpD8/ysmAwL
+   UVcYKpH3fWMGFvRpBbim6nusqR9HMKPPuRXEPYmo/8tOhCq6srIIU1Q85
+   bDjiI+Y1kydw9kNBm/6KyTO7ZtQD+ltZ/graT9sKnCDfFUykgTPrx8MIV
+   JVPuXLdhEt7FaD4csZ/NRF3tyvtDbKAleCKu/Z9FXJJvloPS2e8ZX788d
+   b9pULmi+SeSIS6Ag2bSroCVcEcJvGgE9IGXeVvey2f4/ssthHSPh8twWi
+   W6cm1BXez+99ieSPqsYMOZvHtMxbJTn7E92rujDj9NEyLyU49kTTLe5ad
+   g==;
+X-CSE-ConnectionGUID: 8iRTGY8GTzG8mf/USL/7FA==
+X-CSE-MsgGUID: Y0rQz1TNTHKTuRqsN6y1lg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11737"; a="74427215"
+X-IronPort-AV: E=Sophos;i="6.23,136,1770624000"; 
+   d="scan'208";a="74427215"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Mar 2026 01:51:50 -0700
+X-CSE-ConnectionGUID: ock8Tlp0TquOEKkUY4ALRA==
+X-CSE-MsgGUID: kxhnSGJ+Sq+epLMtPDxTVw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,136,1770624000"; 
+   d="scan'208";a="254438657"
+Received: from vpanait-mobl.ger.corp.intel.com (HELO localhost) ([10.245.244.22])
+  by orviesa002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Mar 2026 01:51:46 -0700
+Date: Mon, 23 Mar 2026 10:51:44 +0200
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Kees Cook <kees@kernel.org>
+Cc: Josh Law <objecting@objecting.org>, Jens Axboe <axboe@kernel.dk>,
+	Davidlohr Bueso <dave@stgolabs.net>,
+	Stefan Haberland <sth@linux.ibm.com>,
+	Jan Hoeppner <hoeppner@linux.ibm.com>,
+	"Richard Russon (FlatCap)" <ldm@flatcap.org>,
+	Thorsten Blum <thorsten.blum@linux.dev>,
+	linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
+	linux-efi@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-ntfs-dev@lists.sourceforge.net,
+	linux-hardening@vger.kernel.org
+Subject: Re: [PATCH] block: partitions: Replace pp_buf with struct seq_buf
+Message-ID: <acD_IIEXmhnVlO0C@ashevche-desk.local>
+References: <20260321004840.work.670-kees@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260322054309.898214-1-surenb@google.com> <20260322054309.898214-4-surenb@google.com>
-In-Reply-To: <20260322054309.898214-4-surenb@google.com>
-From: Suren Baghdasaryan <surenb@google.com>
-Date: Sun, 22 Mar 2026 21:41:25 -0700
-X-Gm-Features: AQROBzB-kgyO_oEQY20cC0lvKSqR0xCjsdgKi5Q7Yl3nGZ7l0Zr3zEDlsBs17n0
-Message-ID: <CAJuCfpHOy7QR1Bk4tA_JNzeS1M2OYEJuuxuZeWjnZoY3u62B5A@mail.gmail.com>
-Subject: Re: [PATCH v4 3/4] KVM: s390: avoid kvm_s390_handle_pv() error overwrite
-To: akpm@linux-foundation.org
-Cc: willy@infradead.org, david@kernel.org, ziy@nvidia.com, 
-	matthew.brost@intel.com, joshua.hahnjy@gmail.com, rakie.kim@sk.com, 
-	byungchul@sk.com, gourry@gourry.net, ying.huang@linux.alibaba.com, 
-	apopple@nvidia.com, lorenzo.stoakes@oracle.com, baolin.wang@linux.alibaba.com, 
-	Liam.Howlett@oracle.com, npache@redhat.com, ryan.roberts@arm.com, 
-	dev.jain@arm.com, baohua@kernel.org, lance.yang@linux.dev, vbabka@suse.cz, 
-	jannh@google.com, rppt@kernel.org, mhocko@suse.com, pfalcato@suse.de, 
-	kees@kernel.org, maddy@linux.ibm.com, npiggin@gmail.com, mpe@ellerman.id.au, 
-	chleroy@kernel.org, borntraeger@linux.ibm.com, frankja@linux.ibm.com, 
-	imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, 
-	agordeev@linux.ibm.com, svens@linux.ibm.com, gerald.schaefer@linux.ibm.com, 
-	linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260321004840.work.670-kees@kernel.org>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Sat, Mar 21, 2026 at 10:43=E2=80=AFPM Suren Baghdasaryan <surenb@google.=
-com> wrote:
->
-> If kvm_s390_handle_pv() call fails its error code gets recorded but
-> execution proceeds as if the call was successful. If the next call to
-> copy_to_user() fails then the original error is overwritten.
-> The follow-up patch adds fatal signal checks during VMA walk, which
-> makes it possible for kvm_s390_handle_pv() to return EINTR error.
-> Without this fix any error including EINTR can be overwritten and
-> original error will be lost.
->
-> Change error handling for kvm_s390_handle_pv() to alter normal flow
-> once failure happens. This is consistent with how kvm_arch_vm_ioctl
-> handles errors for other ioctl commands.
->
-> Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+On Fri, Mar 20, 2026 at 05:48:44PM -0700, Kees Cook wrote:
+> In preparation for removing the strlcat API[1], replace the char *pp_buf
+> with a struct seq_buf, which tracks the current write position and
+> remaining space internally. This allows for:
+> 
+> - Direct use of seq_buf_printf() in place of snprintf()+strlcat()
+>   pairs, eliminating local tmp buffers throughout.
+> - Adjacent strlcat() calls that build strings piece-by-piece
+>   (e.g., strlcat("["); strlcat(name); strlcat("]")) to be collapsed
+>   into single seq_buf_printf() calls.
+> - Simpler call sites: seq_buf_puts() takes only the buffer and string,
+>   with no need to pass PAGE_SIZE at every call.
+> 
+> The backing buffer allocation is unchanged (__get_free_page), and the
+> output path uses seq_buf_str() to NUL-terminate before passing to
+> printk().
+
+Thanks a lot! A few comments below.
+Personally I'm in favour of this patch as it also removes a lot of ugly code
+(which is scoped string manipulations), FWIW,
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
+> Link: https://github.com/KSPP/linux/issues/370 [1]
+
+> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Cc: Josh Law <objecting@objecting.org>
+
+While not long, this still can be placed...
+
+> Signed-off-by: Kees Cook <kees@kernel.org>
 > ---
->  arch/s390/kvm/kvm-s390.c | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 3eb60aa932ec..ddad08c0926f 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -2947,6 +2947,8 @@ int kvm_arch_vm_ioctl(struct file *filp, unsigned i=
-nt ioctl, unsigned long arg)
->                 }
->                 /* must be called without kvm->lock */
->                 r =3D kvm_s390_handle_pv(kvm, &args);
-> +               if (r)
-> +                       break;
 
-At [1] Sashiko says:
+...somewhere here to reduce unneeded noise in the commit message.
 
-"Does skipping the copy_to_user() call here prevent returning Ultravisor
-error codes (rc and rrc) to userspace when kvm_s390_handle_pv() fails?
-When an Ultravisor command fails inside kvm_s390_handle_pv(), it populates
-args.rc and args.rrc with hardware failure codes and returns a negative
-error code (e.g. -EINVAL).
-Before this patch, execution unconditionally continued to copy_to_user(),
-allowing these diagnostic codes to reach userspace even if the ioctl
-ultimately returned an error.
-By breaking early on error, this skips copy_to_user() entirely and silently
-drops the updated rc and rrc values, which might break userspace's ability
-to handle and diagnose hardware Secure Execution failures.
-If the goal is to prevent overwriting the original error with -EFAULT,
-could we perform the copy unconditionally and only update 'r' if it was
-previously 0?"
+> I couldn't help myself. Here's the full patch, as I suggested in
+> https://lore.kernel.org/lkml/202603201230.74BBFFABAD@keescook/
+> There are plenty more like this to do...
 
-[1] https://sashiko.dev/#/patchset/20260322054309.898214-1-surenb@google.co=
-m
+Indeed, but thanks for the example on how to do that!
 
-This might be the reason why copy_to_user() in the original code is
-called even when kvm_s390_handle_pv() fails. Then I guess it would not
-be a problem if copy_to_user() later fails and overrides EINTR with
-EFAULT. We could avoid that override by checking if r is already
-holding an error code but that would change current behavior and
-possibly the userspace expectations. I'm more inclined to simply drop
-this patch and let errors including EINTR to be handled as they are
-today. If anyone has objections please let me know.
+...
 
->                 if (copy_to_user(argp, &args, sizeof(args))) {
->                         r =3D -EFAULT;
->                         break;
-> --
-> 2.53.0.1018.g2bb0e51243-goog
->
+> @@ -78,14 +76,14 @@ static int riscix_partition(struct parsed_partitions *state,
+>  	if (!rr)
+>  		return -1;
+>  
+> -	strlcat(state->pp_buf, " [RISCiX]", PAGE_SIZE);
+> +	seq_buf_puts(&state->pp_buf, " [RISCiX]");
+>  
+>  
+
+While at it, you can also drop a second blank line.
+
+>  	if (rr->magic == RISCIX_MAGIC) {
+>  		unsigned long size = nr_sects > 2 ? 2 : nr_sects;
+>  		int part;
+>  
+> -		strlcat(state->pp_buf, " <", PAGE_SIZE);
+> +		seq_buf_puts(&state->pp_buf, " <");
+>  
+>  		put_partition(state, slot++, first_sect, size);
+>  		for (part = 0; part < 8; part++) {
+
+...
+
+> @@ -173,24 +173,22 @@ int aix_partition(struct parsed_partitions *state)
+>  	if (d) {
+>  		struct lvm_rec *p = (struct lvm_rec *)d;
+>  		u16 lvm_version = be16_to_cpu(p->version);
+> -		char tmp[64];
+>  
+>  		if (lvm_version == 1) {
+>  			int pp_size_log2 = be16_to_cpu(p->pp_size);
+>  
+>  			pp_bytes_size = 1 << pp_size_log2;
+>  			pp_blocks_size = pp_bytes_size / 512;
+> -			snprintf(tmp, sizeof(tmp),
+> -				" AIX LVM header version %u found\n",
+> -				lvm_version);
+> +			seq_buf_printf(&state->pp_buf,
+> +				       " AIX LVM header version %u found\n",
+> +				       lvm_version);
+
+Hmm... here it's %u...
+
+>  			vgda_len = be32_to_cpu(p->vgda_len);
+>  			vgda_sector = be32_to_cpu(p->vgda_psn[0]);
+>  		} else {
+> -			snprintf(tmp, sizeof(tmp),
+> -				" unsupported AIX LVM version %d found\n",
+> -				lvm_version);
+> +			seq_buf_printf(&state->pp_buf,
+> +				       " unsupported AIX LVM version %d found\n",
+> +				       lvm_version);
+
+...and here it's %d. Perhaps also fix specifiers to be aligned with the actual
+data type?
+
+>  		}
+> -		strlcat(state->pp_buf, tmp, PAGE_SIZE);
+>  		put_dev_sector(sect);
+>  	}
+>  	if (vgda_sector && (d = read_part_sector(state, vgda_sector, &sect))) {
+
+...
+
+> -			char tmp[42];
+>  
+>  			__be32 *dt = (__be32 *)dostype;
+>  			*dt = pb->pb_Environment[16];
+>  			if (dostype[3] < ' ')
+> -				snprintf(tmp, sizeof(tmp), " (%c%c%c^%c)",
+> -					dostype[0], dostype[1],
+> -					dostype[2], dostype[3] + '@' );
+> +				seq_buf_printf(&state->pp_buf,
+> +					       " (%c%c%c^%c)",
+> +					       dostype[0], dostype[1],
+> +					       dostype[2],
+> +					       dostype[3] + '@');
+>  			else
+> -				snprintf(tmp, sizeof(tmp), " (%c%c%c%c)",
+> -					dostype[0], dostype[1],
+> -					dostype[2], dostype[3]);
+> -			strlcat(state->pp_buf, tmp, PAGE_SIZE);
+> -			snprintf(tmp, sizeof(tmp), "(res %d spb %d)",
+> -				be32_to_cpu(pb->pb_Environment[6]),
+> -				be32_to_cpu(pb->pb_Environment[4]));
+> -			strlcat(state->pp_buf, tmp, PAGE_SIZE);
+> +				seq_buf_printf(&state->pp_buf,
+> +					       " (%c%c%c%c)",
+> +					       dostype[0], dostype[1],
+> +					       dostype[2], dostype[3]);
+
+Wouldn't
+				seq_buf_printf(&state->pp_buf, " (%.4s)", dostype);
+
+work?
+
+But probably okay as in the previous branch it needs more work to follow,
+something like
+
+			char dostype[8];
+			...
+			if (dostype[3] < ' ') {
+				/* Escape control character */
+				dostype[4] = dostype[3] + '@';
+				dostype[3] = '^';
+				seq_buf_printf(&state->pp_buf, " (%.5s)", dostype);
+			} else {
+				seq_buf_printf(&state->pp_buf, " (%.4s)", dostype);
+			}
+
+Taking how invasive is this, it might be better to done separately.
+
+> +			seq_buf_printf(&state->pp_buf, "(res %d spb %d)",
+> +				       be32_to_cpu(pb->pb_Environment[6]),
+> +				       be32_to_cpu(pb->pb_Environment[4]));
+>  		}
+>  		res = 1;
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+
