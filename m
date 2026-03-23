@@ -1,100 +1,98 @@
-Received: from mail-vs1-f51.google.com (mail-vs1-f51.google.com [209.85.217.51])
+Received: from mail-ua1-f42.google.com (mail-ua1-f42.google.com [209.85.222.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20F9A3E1D0D
-	for <linux-s390@vger.kernel.org>; Mon, 23 Mar 2026 20:47:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.217.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67DF837C0FD
+	for <linux-s390@vger.kernel.org>; Mon, 23 Mar 2026 21:15:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.222.42
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774298840; cv=pass; b=FPfzZKt/INRL1HOaygykPWO/h3o6vMg8Ox9kv/IO9gkuQMLjz0ekFhPBDhDrh8iV1dOsSet+eBtoJ+3zLBKsGVEG+xfpoTO9tdFceAajTfWAWYHwEuuTZzl06H1kbHvDsrCVp4nfq92oc9eSHUfptSOzwNXi+SSZF5BsnP7vj9Q=
+	t=1774300529; cv=pass; b=Khzo7i4GNdbgHO50CveNUUBzoIQHnaAbfHH1QxsCY6IxNnid/vo31wDKlY3BelKEhnOwq4JXPt8qalB478i3fQeC0d7GKU6OSksI0cL4ioyUrbW9evpIoHzcPPgKQ961qAw2oUBwjQBJvzVQF6VyarMCvaRznQmwuORJ5RXYyUo=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774298840; c=relaxed/simple;
-	bh=ng8E7qGgSHJkqBGRw/Py1ZjqtkBoNDU8zfEyX/fQOz4=;
+	s=arc-20240116; t=1774300529; c=relaxed/simple;
+	bh=SND86V77+KDMJcamkZKPvEg9WAFvOkbzniGBXqw9BCs=;
 	h=From:In-Reply-To:References:MIME-Version:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rezbojhmSv81BLI1FmeEbvt0T7DAazv2Y1YIuQuuu9U4kw88Y6V3wWo963UTFbEzbaMVKMALH8So0eHTq1cBWV7X8J/EJ3Tf40NOKMpzlIAbbjbHgVr/D6pTDUH9WRY6M/2sySLB4Xdf8uUitph1JPidsrzw9nmTRJT81JziHw0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=E1Qx3iXY; arc=pass smtp.client-ip=209.85.217.51
+	 To:Cc:Content-Type; b=LKGXdUw6JDj+V/AEWDqVz+20LulTb1KFTIWkYH7ydlKvz4LXhGoFmRb0GEv4wwI54iVMefUxh59dgMXNkLpOJv6R4nolUrTwExHQ/6xKHApnGVgz7cndDwUoY9jeffVByzXdxnMda7RYvI4jRsd3Xjlybc6nAbIUOLLqIRmYr+Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=e5BleEw1; arc=pass smtp.client-ip=209.85.222.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="E1Qx3iXY"
-Received: by mail-vs1-f51.google.com with SMTP id ada2fe7eead31-602a0648aa3so379447137.2
-        for <linux-s390@vger.kernel.org>; Mon, 23 Mar 2026 13:47:18 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1774298837; cv=none;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="e5BleEw1"
+Received: by mail-ua1-f42.google.com with SMTP id a1e0cc1a2514c-94ac8cbf3feso301876241.0
+        for <linux-s390@vger.kernel.org>; Mon, 23 Mar 2026 14:15:27 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1774300526; cv=none;
         d=google.com; s=arc-20240605;
-        b=hZTOin0W/ljNBoFRYXH81TaBq7B5HHgxUvSXJTe8yapxC5nVCp8c5tDIcJUo35bVSC
-         a4wYu/k/WGqGqGJmrMEngg437fDJAKl35Hwrb3V2T9cxg4ip15vCekYFe7vVSbBZZEqT
-         +gqQoJe89KM5DseMFIyXHylb8FvGKYnf9TF5zCYvj2N1gnyvfi0C0oXNlWrWf0GfX5TA
-         RqJNMDal807N3JV0myEhyMptjnVd19QdUvSxfC2zBGF+xpfi2ehxtzLinwpts02FuitA
-         t9eTThAP6tVJpeyRJpOB7IyVJoe9rkOsn7IoEWjOQsHadvvaJRSgMeSKZpa5J3z9DQHK
-         ITyQ==
+        b=GxqJiU/mwQSzfpwBsxKFmTTmU58eYfXxP+gitiBWANg7eFpelPI0q4ijayDUnHVTkO
+         nEEdM/0+HparL/G6zgksDUlycpV+OO1BUpGWTDbyI7ARQX9YS7aF2BILtEr2dVrmRCvj
+         oJn0bJ2wdttZzrGOw3M5tjGbJsWiY6qHMwrei8AkaCv2RU7BxOni32FbZE5N6u4atYF3
+         4cf/aEFiOeXn1KibJJKKEeO6rESyz8Qtw4SEwAdpMCOakdXSr15m3sR7OE0iG+/r7atj
+         gHdpAFfKz8Fs5pXXgek08nP4MXEez1CRs0ddwBdgZmaFRmBXrTLtlC21Oy7rTMZ2sEo2
+         O2dQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
          :from:dkim-signature;
-        bh=yac1rrBqJSF3O+e4IwcngZ2ptSQxNGOfPE9KG9sOce8=;
-        fh=N/+PWHjMYn8DBJsyzfhliCXN89suZBVzz1NZE1lTBjk=;
-        b=HnPuM4PQ4+hl8JqiEtVvgxO3br73ArvGoKblKxAuLF2UKpqrMM0s7z8he+LWS0U+Rt
-         v2pl+HJwlI8qjW5C3rO4K0mO1EXka+dLJlhCVOecGqULbIfJMe7bCey5Fno7ct0uGonq
-         A+Fk+ygTOc1AQLj6IT1r7kdvVmVzrl52xhO0/Xc4lBogN/tBMUy+GRo+OPKGAeKw536A
-         1GpEJKwJNhQg8vh8YI0c0gLA5Ps74dH9AQXgCPoU1qHcjZfHqGJ69adpfEK3LwWFLT5S
-         ufFUElmD1vahIoz1TOYFIZvXK5i4urqAniMX25zgjYaOMECLLH9Y/aX7o0UUPWroHqmW
-         znhg==;
+        bh=eOYudi6RRVXGeHCIabojBlAXxTWtuPC09s4XfPfEePE=;
+        fh=QNTK93TjCEnjO7qzze/HrIUlXqNJUlkulJ+tCdGDyfw=;
+        b=Xg3qoDYgfRqzRRhSAyKmJuQC51IZAn2jjYcEc/wholsrJDbfsYkdUASDVN9K+XJu4H
+         /lPa5qvNMctoHpei6R5Ph1wUAYsnwqR6u4xHUBSQ23tpP1Hhc4FtBQowWgk2W0JwNEfM
+         i700MPKiq2ucufm87r7ukobniOMyKvxOAFy0g97nxcDzBpLc1Kzou9eBWDD2wb5QJGAo
+         r63mLxm4lFYy7ItfZuL2JEAxR8QJO9YouZeEtSB4iW/Y8UVbMqyG+JOEMILMLKJsmn1D
+         5KGHft2lm01c5tExQ5ZPegjlhPQlns4No4SqrDNBOO2ysbVkVj2Fjn2kIiK+fFrdfAJR
+         eTfw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1774298837; x=1774903637; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1774300526; x=1774905326; darn=vger.kernel.org;
         h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
          :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=yac1rrBqJSF3O+e4IwcngZ2ptSQxNGOfPE9KG9sOce8=;
-        b=E1Qx3iXYbuupJnhq0qmrXOl7xt+HGwZNfjstgxkLHfdyrCo56F2W1QOU+bkULeFtnS
-         mZauXctACK+epA2LTP0W/PJM5VIH0WgdMtO5ECotn7uX8U9322NLx89gBnpVxEtqTPkT
-         gNORVJmcQgMN7jMlaRWbTr5b2UutJroR2HV64bR2inaJgq4H4ZOOFRsAsV1zO9tX0N9T
-         ryaOxYjm8R4VaU87SJuclOeIz9mU75ow6GpAn4wrEG81ftM6GfQNsn0JrX7tSYEvvF3l
-         UZWkVEwCPpk26oroiFl1EZbcHqw2YV8uEVKl+PSDW2bHEEJNL7fvUL/LGywspaPKJb6t
-         k5KA==
+        bh=eOYudi6RRVXGeHCIabojBlAXxTWtuPC09s4XfPfEePE=;
+        b=e5BleEw1glLMBlDV2mvho8od6v7OE1TjBT7o7AcHJnucjQrQWcUYXIdXiPs2ytNyEc
+         XG1vRRvI/IsGhJsmEcWSE+GO0sHOq3Mo9ISsD2XiWpQsYKBdEzG2HBv04x1LqbftNuNC
+         B+/mmBGPP4fJ2rSUFr6QFtBDSuY6kC8pOlVTU/qay6AxjoYIuXPhs8hPFgE9sUEj4Jmw
+         goya+iq/Ov9bBOgINMsbxo53m4vaJ41fFTGsgblNYf+BnVNC6l4EBVFo3cDqpVHiYGsP
+         NxvgITmNr8giRkhx6NNHj6OxvwI0watCuxzo79rMpSbmKYZHwNg+n8GplWuw0P+bZy2O
+         MdOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774298837; x=1774903637;
+        d=1e100.net; s=20251104; t=1774300526; x=1774905326;
         h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
          :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=yac1rrBqJSF3O+e4IwcngZ2ptSQxNGOfPE9KG9sOce8=;
-        b=EyQ6BPf4hdVuCJD5f7cePVEwZLruH4MF772mC3LgsLboqfAD7xfNuHgLVTwIDoL2VI
-         0YgLv+qES5qxyct/aa7LI2sM4SGtpULn2Lb2QUn0nFU96C+66xp/CKPv04EiYRHFHVXL
-         2vnTWoXA2Iyd1RTYTwpV17JrLvAqXg1IvlEzShMMLMiG6jL/1nrrbHdkqu3vr16n9feY
-         35PLhcQTk0osCjt9wgp27oCUb7fxtUre1lWyYmJlRq1dc7BZN5RM6ADO6/lFRViROcb1
-         Ejif1649QtXiVdkgunZQgiSpaEoEesEH0a5i8utPJrTe9CvAOu3e3563/sl/splTVPuN
-         Akqw==
-X-Forwarded-Encrypted: i=1; AJvYcCU/TXNprlc603uuLuIOtPQDzlZnVSnAeQvHyzVcU13d6q5uLvG0ZNw9P06WPhMOZiWimsD3SmRGIZr6@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy9O7TcpIys72MfWDMR9hQbMY9P3uoOT/pj10ryLQ26V1dz6+P8
-	huyLDEI2qswKE0kuqjKs/vm1Oz0Jy0vF60PaKxTmyVw0/6h3fBqqp3wbwOFPMZu6B+LKx0W0F2N
-	+cOUiSey51HSyZAPaqiDE+ZY0qctFXuD4FSPbMDDMLgT1WZ7S/BPdAGZnN8E=
-X-Gm-Gg: ATEYQzwDjOoiOQyQmvIIkeUm8zMcZUf72o0K04tY7ajZ4ntsYcs0EYhpn8l+5pt5lxW
-	Ld7csgKqpi48+KIjyTkAd+fFsJ9xyvICCHjG19TYSALJsWt2IMw8h00Rvp7uAP3lVRaAAysy7Kf
-	wSYiitikBl1h20LIyRYRKHKDm/pxYygQB0m5z8FiTOhvRnn5BBUlXu9CsCLT69vS1+pR7je+WBD
-	oy6AZOlM3T2mFJ9wRQQmhUCArpRDiWxGqKmGiPrKztSbOXsGt+1X+kPrqF2zP5Fe2Nc+djcstHB
-	e9TD9ebzZKJDZHeEMTCLJ9S6ew5TW/Q4uZFhv2ootsw55M25KQw8dkvoeiU4Wp8blbxyfw==
-X-Received: by 2002:a05:6102:4a86:b0:5ef:ac78:3c77 with SMTP id
- ada2fe7eead31-602aecd2a05mr6404753137.18.1774298836454; Mon, 23 Mar 2026
- 13:47:16 -0700 (PDT)
+        bh=eOYudi6RRVXGeHCIabojBlAXxTWtuPC09s4XfPfEePE=;
+        b=DwhXrcUHR7g/aNSjWxGw75hNmAZ7kIYF2WyzFbVu33o5fY3yn+Ro+XH3tYdi24yTCW
+         oYU71U48JA51VcAYf1YQJAw8PBSayd1ZZdj8/UuB0c4OMPYolrqEvERdm3mNkKt+KNtq
+         dTVPWqrFSTsTg4Ul/zyc4KP6DNFM0yDUIwmW+PUAZb7zcIgwmYtlboCK3HLnA6+2V27o
+         FcXcu4hL2JZHcFWnCZ2xB+m3d9bMDd11okbZJ/cNuo3ZyJV5hD/SCHGHkkzkxSjZq4AW
+         U2ebR+1XHldzp3J0ipETpkI/s0LwzDlEiQgvSZWCIVlBdAmsuFTqB2SQcCHXEYTgKLqm
+         XTJA==
+X-Forwarded-Encrypted: i=1; AJvYcCXbdIGRy7oq0HUWRzbF4Atv1OOtVmBCLPdflUF80wnQg7HTHG9NPuFHMmR44HUtjIEhimXfb5JU7qXg@vger.kernel.org
+X-Gm-Message-State: AOJu0YzyFRNBAFRp/fcHHvqQK3hI+6V7qjD3LA1nTKIB4BrJH8NUfCAB
+	TxULL76xdUbW3CjP564KO7c3gq1FhXESoYjhnl61QQ+trKfHUuEdvaWatuElAFMRqeruQoHsOPE
+	3WuCSaDpWIB0FXL/hz5TnEeg/tpsdGbYzZzi7qpSb
+X-Gm-Gg: ATEYQzwWI+XZ4C+8IkdDTXWE72qAWrWeN3Sdt38aRMWc6kxCGmpEgODZZQkCOUKYVnd
+	TyW0Dz6aH676PwDy7GuuqxMiSwBOAmvBtGf01BP6H7ZHJ9mDYYJCzxeIrKHt/CvjiwlkOb9SCJT
+	S7Khz/uuNVtT906pNzY1YtgytZet+KnUfay7eDEWsmZA0xoWTr8jMUb3AlHPFt8BE3tet7cPLkZ
+	QOjvopeRMJpi3JDkNL0MdAGFCHmFBVLRE821wO+vCyjYNskeBpD5B9dOB5iShFBO8Wnc1XWmX/z
+	TWkKnrYigQy952lXOzEMpJ79CT27zDj5M32TF90Vq+YTaaLZSOnBcW611ncR9LXv/ruWEA==
+X-Received: by 2002:a05:6102:c86:b0:602:8894:b770 with SMTP id
+ ada2fe7eead31-602aead01admr6510052137.4.1774300525553; Mon, 23 Mar 2026
+ 14:15:25 -0700 (PDT)
 Received: from 176938342045 named unknown by gmailapi.google.com with
- HTTPREST; Mon, 23 Mar 2026 13:47:15 -0700
+ HTTPREST; Mon, 23 Mar 2026 14:15:24 -0700
 Received: from 176938342045 named unknown by gmailapi.google.com with
- HTTPREST; Mon, 23 Mar 2026 13:47:15 -0700
+ HTTPREST; Mon, 23 Mar 2026 14:15:24 -0700
 From: Ackerley Tng <ackerleytng@google.com>
-In-Reply-To: <50bfaeb5-551e-403f-bd00-a7d8b6bbf6e2@kernel.org>
+In-Reply-To: <20260317141031.514-11-kalyazin@amazon.com>
 References: <20260317141031.514-1-kalyazin@amazon.com> <20260317141031.514-11-kalyazin@amazon.com>
- <50bfaeb5-551e-403f-bd00-a7d8b6bbf6e2@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Mon, 23 Mar 2026 13:47:15 -0700
-X-Gm-Features: AQROBzB7NM0e-Hubu0XRJL2ihJNatUocmuhRQlqLx8a7dgTL41taW0scozymRvQ
-Message-ID: <CAEvNRgEXp6busURR20cazeG2DQWdU5=ZaJv21OcSq+mhVKwJ4g@mail.gmail.com>
+Date: Mon, 23 Mar 2026 14:15:24 -0700
+X-Gm-Features: AQROBzCF2PwLv08LGPIvZtVRv2cQA-zzDMITL8yo-SXZFcfoxiXCsTVqhJQCkhk
+Message-ID: <CAEvNRgGb95C3uRxPy2_Uj7SmTW45hNNdJxi5RR209s5KYcHgBw@mail.gmail.com>
 Subject: Re: [PATCH v11 10/16] KVM: guest_memfd: Add flag to remove from
  direct map
-To: "David Hildenbrand (Arm)" <david@kernel.org>, "Kalyazin, Nikita" <kalyazin@amazon.co.uk>, 
-	"kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
+To: "Kalyazin, Nikita" <kalyazin@amazon.co.uk>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
 	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, 
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
 	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, 
@@ -115,7 +113,7 @@ Cc: "pbonzini@redhat.com" <pbonzini@redhat.com>, "corbet@lwn.net" <corbet@lwn.ne
 	"dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, "x86@kernel.org" <x86@kernel.org>, 
 	"hpa@zytor.com" <hpa@zytor.com>, "luto@kernel.org" <luto@kernel.org>, 
 	"peterz@infradead.org" <peterz@infradead.org>, "willy@infradead.org" <willy@infradead.org>, 
-	"akpm@linux-foundation.org" <akpm@linux-foundation.org>, 
+	"akpm@linux-foundation.org" <akpm@linux-foundation.org>, "david@kernel.org" <david@kernel.org>, 
 	"lorenzo.stoakes@oracle.com" <lorenzo.stoakes@oracle.com>, "vbabka@kernel.org" <vbabka@kernel.org>, 
 	"rppt@kernel.org" <rppt@kernel.org>, "surenb@google.com" <surenb@google.com>, "mhocko@suse.com" <mhocko@suse.com>, 
 	"ast@kernel.org" <ast@kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>, 
@@ -156,67 +154,97 @@ Cc: "pbonzini@redhat.com" <pbonzini@redhat.com>, "corbet@lwn.net" <corbet@lwn.ne
 	"Itazuri, Takahiro" <itazur@amazon.co.uk>, "Manwaring, Derek" <derekmn@amazon.com>
 Content-Type: text/plain; charset="UTF-8"
 
-"David Hildenbrand (Arm)" <david@kernel.org> writes:
+"Kalyazin, Nikita" <kalyazin@amazon.co.uk> writes:
 
 >
 > [...snip...]
 >
->> +static int kvm_gmem_folio_zap_direct_map(struct folio *folio)
->> +{
->> +	u64 gmem_flags = GMEM_I(folio_inode(folio))->flags;
->> +	int r = 0;
->> +
->> +	if (kvm_gmem_folio_no_direct_map(folio) || !(gmem_flags & GUEST_MEMFD_FLAG_NO_DIRECT_MAP))
+>  static vm_fault_t kvm_gmem_fault_user_mapping(struct vm_fault *vmf)
+>  {
+>  	struct inode *inode = file_inode(vmf->vma->vm_file);
+>  	struct folio *folio;
+>  	vm_fault_t ret = VM_FAULT_LOCKED;
+> +	int err;
 >
-> The function is only called when
+>  	if (((loff_t)vmf->pgoff << PAGE_SHIFT) >= i_size_read(inode))
+>  		return VM_FAULT_SIGBUS;
+> @@ -418,6 +454,14 @@ static vm_fault_t kvm_gmem_fault_user_mapping(struct vm_fault *vmf)
+>  		folio_mark_uptodate(folio);
+>  	}
 >
-> 	kvm_gmem_no_direct_map(folio_inode(folio))
->
-> Does it really make sense to check for GUEST_MEMFD_FLAG_NO_DIRECT_MAP again?
->
-
-Good point that GUEST_MEMFD_FLAG_NO_DIRECT_MAP was already checked in
-the caller. I think we can drop this second check.
-
-> If, at all, it should be a warning if GUEST_MEMFD_FLAG_NO_DIRECT_MAP is
-> not set?
->
-> Further, kvm_gmem_folio_zap_direct_map() uses the folio lock to
-> synchronize, right? Might be worth pointing that out somehow (e.g.,
-> lockdep check if possible).
->
->> +		goto out;
->> +
->> +	r = folio_zap_direct_map(folio);
->> +	if (!r)
->> +		folio->private = (void *)((u64)folio->private | KVM_GMEM_FOLIO_NO_DIRECT_MAP);
->> +
->> +out:
->> +	return r;
->> +}
->> +
->> +static void kvm_gmem_folio_restore_direct_map(struct folio *folio)
->> +{
->
-> kvm_gmem_folio_zap_direct_map() is allowed to be called on folios that
-> already have the directmap remove, kvm_gmem_folio_restore_direct_map()
-> cannot be called if the directmap was already restored.
+> +	if (kvm_gmem_no_direct_map(folio_inode(folio))) {
+> +		err = kvm_gmem_folio_zap_direct_map(folio);
+> +		if (err) {
+> +			ret = vmf_error(err);
+> +			goto out_folio;
+> +		}
+> +	}
+> +
+>  	vmf->page = folio_file_page(folio, vmf->pgoff);
 >
 
-This inconsistency was probably introduced by my comments [1] (sorry!)
+Sashiko pointed out that kvm_gmem_populate() might try and write to
+direct-map-removed folios, but I think that's handled because populate
+will first try and GUP folios, which is already blocked for
+direct-map-removed folios.
 
-I think the inconsistency here is mostly because
-kvm_gmem_folio_zap_direct_map() is called from two places but restore is
-only called from one place :P
+>  out_folio:
+> @@ -528,6 +572,9 @@ static void kvm_gmem_free_folio(struct folio *folio)
+>  	kvm_pfn_t pfn = page_to_pfn(page);
+>  	int order = folio_order(folio);
+>
+> +	if (kvm_gmem_folio_no_direct_map(folio))
+> +		kvm_gmem_folio_restore_direct_map(folio);
+> +
+>  	kvm_arch_gmem_invalidate(pfn, pfn + (1ul << order));
+>  }
+>
 
-[1] https://lore.kernel.org/all/CAEvNRgEzVhEzr-3GWTsE7GSBsPdvVLq7WFEeLHzcmMe=R9S51w@mail.gmail.com/
+Sashiko says to invalidate then restore direct map, I think in this case
+it doesn't matter since if the folio needed invalidation, it must be
+private, and the host shouldn't be writing to the private pages anyway.
 
-> Should we make that more consistent?
+One benefit of retaining this order (restore, invalidate) is that it
+opens the invalidate hook to possibly do something regarding memory
+contents?
+
+Or perhaps we should just take the suggestion (invalidate, restore) and
+align that invalidate should not touch memory contents.
+
+> @@ -591,6 +638,9 @@ static int __kvm_gmem_create(struct kvm *kvm, loff_t size, u64 flags)
+>  	/* Unmovable mappings are supposed to be marked unevictable as well. */
+>  	WARN_ON_ONCE(!mapping_unevictable(inode->i_mapping));
 >
+> +	if (flags & GUEST_MEMFD_FLAG_NO_DIRECT_MAP)
+> +		mapping_set_no_direct_map(inode->i_mapping);
+> +
+>  	GMEM_I(inode)->flags = flags;
 >
-> Hoping Sean can find some time to review
+>  	file = alloc_file_pseudo(inode, kvm_gmem_mnt, name, O_RDWR, &kvm_gmem_fops);
+> @@ -803,13 +853,22 @@ int kvm_gmem_get_pfn(struct kvm *kvm, struct kvm_memory_slot *slot,
+>  	}
 >
-> --
-> Cheers,
+>  	r = kvm_gmem_prepare_folio(kvm, slot, gfn, folio);
+> +	if (r)
+> +		goto out_unlock;
 >
-> David
+> +	if (kvm_gmem_no_direct_map(folio_inode(folio))) {
+> +		r = kvm_gmem_folio_zap_direct_map(folio);
+> +		if (r)
+> +			goto out_unlock;
+> +	}
+> +
+>
+> [...snip...]
+>
+
+Preparing a folio used to involve zeroing, but that has since been
+refactored out, so I believe zapping can come before preparing.
+
+Similar to the above point on invalidation: perhaps we should take the
+suggestion to zap then prepare
+
++ And align that preparation should not touch memory contents
++ Avoid needing to undo the preparation on zapping failure (.free_folio
+  is not called on folio_put(), it is only called folio on removal from
+  filemap).
