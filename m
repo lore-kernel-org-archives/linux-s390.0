@@ -1,326 +1,235 @@
-Received: from mail-ua1-f48.google.com (mail-ua1-f48.google.com [209.85.222.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09D123C6616
-	for <linux-s390@vger.kernel.org>; Mon, 23 Mar 2026 18:00:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.222.48
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774288851; cv=pass; b=JkRjJlAGw7mJjpEtrYUKlw29qktq09DnxaLoW2jAncQiNtNQ65Ssrs3j1uMClabVIiKgq0StnlT7JioHekWGfHRJwv29xHvTg/lHxLFZX1yntsh6SI+7dNOG0U0e0diPrdBwoFDKkcHng9f8PJVEpsOVGUjfBF/PHsU21f82cCg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774288851; c=relaxed/simple;
-	bh=Av/Hzs9eLTjG4ms8BX5BJrPk9H3e7lGVAMhv9gUaz4g=;
-	h=From:In-Reply-To:References:MIME-Version:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=M9rlCWpuAr689dIZ/d8ujQ5H6zIK57qJfzjt4kwcvoIeCCb8oIcQK9xVx9IPD0O7+72yRvhePBKni8MP7hgJEnQhjXlZuLbQ46prqIKeN0YtLPjvOol/PkcFxuXXT0x5kYPAvekX4CzIlVpaaDvvf/fCr9Wse9xEEVBHqoO16jU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=eUQNE4P7; arc=pass smtp.client-ip=209.85.222.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCD6A35F193;
+	Mon, 23 Mar 2026 18:04:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774289092; cv=none; b=Tkn3kEFX2K2yZDvHgcDCFBsHkOCSyktkXPd0uxPlESc9v7OHHwa/jHijNEDvjVA5AFdFVYppaUq02Rd/56cm+eVH+wEHBdDTflWVs5nrF6yQ/Kb4CD9YIQWwsYCXhKY0gq2QRGpedo7jQ9l6RCdvnrVJfuV9vP07f0mlbYUnws0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774289092; c=relaxed/simple;
+	bh=CruYFImaZ7t8b4ollGRPZPQSf1fkTcITWStkRCYIOgg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ocjS7VOd3AcXgRV0BUcxszFFe2lH8fDHfkDCoMI+PM7ASzv0YLI5RCGr2KVKhdLCq4qw+UJF+ZEs/1XBlr+zUnPm2WkJpIifusWz4Wu6lM+nMiHncW7HLoKoe/aba8RxQ9hr7/5put5nRDgMm3PIV33Xw8zVu+1oKc6O9/6UIBE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rDtWPwoe; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="eUQNE4P7"
-Received: by mail-ua1-f48.google.com with SMTP id a1e0cc1a2514c-9516296b730so172614241.2
-        for <linux-s390@vger.kernel.org>; Mon, 23 Mar 2026 11:00:47 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1774288847; cv=none;
-        d=google.com; s=arc-20240605;
-        b=L4rab9z1eoBRT/QANb/+ms40YBHISxCSQPBGkGnkO9jro/+HUrqWWYNH7YcXwsn3uf
-         sA+1FDbDkLbDcpCvpP7wZY7Ol4aLDv7ImczKfsySqFEzgI4MxxGgYNrrmzsh7F1U/SZO
-         86imuFRAhrRmq5mr7Iq/NwJhSTI10obR6urr+YACmoxjNKkBg57b5WNVuD8M+9CWueW1
-         2kw/TCjw5LlmiX2QR8uy9nyu1cvaiJvfXGo0Gj1Pdnq41jrAvy9wBVy31FHh4vgu+PGN
-         wCjSMe2K0YVqvhrpCN9W+ILFqEHzuiE1EkwiyWCkcOQSpBfISZQSUP3HqZJSEmi0z2ja
-         fImg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
-         :from:dkim-signature;
-        bh=dhS8A80UKHVBBONMyyB3JNJOZLsQWUQ/neWlg69pPXo=;
-        fh=3fImy+Qv+B8SbFogboJUldVz0fZjsJj6ZYTo3Wh8I3E=;
-        b=MZ3jmwqvKrNOiXy2OhYU5DRr3574oFUhQ3Bx8LHgmoBTPabJ5Y4cUKQXx63v0rVlMT
-         rhbmP0jvL6Hz7hor1U+abl+tT4+e8oV42d08SMpT3fJGUD2gSaPUJRWwxrtTI0kjYqoh
-         NH/pfL/FwRtPd2361L1Xr6SBBRqSFS3mjDFSIZ8myAUo+0+RYMZLzgsh6msGUf3duSmD
-         DRRggYPe8kVH4inZg+NX4IZercL3F9aXD/b+y5nOqQxtzEn3dM7ejY7uFjHD7Eiq208t
-         eULGPTwj1p29Z6HOeiGRQ9CZUtoz2WjPxtHo3FU5c5xXZcH6yMUPs7QrtEqumc3zisOA
-         +3dQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1774288847; x=1774893647; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=dhS8A80UKHVBBONMyyB3JNJOZLsQWUQ/neWlg69pPXo=;
-        b=eUQNE4P7biLt2eAONOmtEe79HVwC2/1agWlcB+A2LGm0M6NYO0zNZvFY7lOrkcsjSA
-         Kl07m16nc1636QHs9WpGhX+EhvKM7m/6IvsaqQxnXOa1nhtvSI10HgQiKc//7yjDJTsp
-         zXj7jc/N/MwY4g1OX4kk3zpaovAwflE0YsaArUkb/oF8+2WZPQ+dlWy4jxleCmB37/xB
-         2vbxBlAiMCFohUqxyl8/xAUp1HlZOOb933jj9mS6Wvky1yayspMhMydJSnUiii1a6Jdv
-         BYBf43cBY2u/Qsa0SI8VCERJon7BgqAcen5lI3IsE6PVhs/H6dU3ibc2RAkjlvUNGtSt
-         pkzQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774288847; x=1774893647;
-        h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
-         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=dhS8A80UKHVBBONMyyB3JNJOZLsQWUQ/neWlg69pPXo=;
-        b=YMNtIiedGVhPIulnzM8Dz+/P7rot7ZMkQgfhQQKguTYX/gHaQ4kTQAepgx7LaWfc5u
-         55TcDHlw0yiE0t1cZLjlgPvJmJqKyRzl7tCF8bFWZGKFkZDEbgexvL/dluX6AccG7UYp
-         D7N3+Ddp0OpHQTErJ5PazPtCEYyYE64DOmt0oQR3yfFFOr+HuZbZ6kUhpJaxqCTcEGFG
-         5xla3mzY88keq11cufX2avvLV2L71lrD3ZgS7/1ooecXPe01pGpCqD6ehE/wrSvf5exG
-         h/YFvDHaQZCScYaFCG5hsUY3CWl1XDOGJ/HVNVfZfQlHPgpD+HpQp04m7FKLdK+ZBdrb
-         +xZw==
-X-Forwarded-Encrypted: i=1; AJvYcCX/xAJ5GJf7Qp6ztJtlE2y7bbuBuC34xJEE38ah7HbiErhtKVo0SLwCP3/TQ3LZgQkOaDOGVUgad580@vger.kernel.org
-X-Gm-Message-State: AOJu0YzxLaMncW+gQ0yYEgMP7ef0LQwvn9RjhiBFubtZC0J7TG6a6NEZ
-	K+LMizwG7beA7XRgVl6Oo3RQuQErgroNy7DOJiJOt7aRaxHI5iAcA50qWf326G+sEXIU3Zqe2mh
-	tAFWet7baezvoQowxmua71+2Melg25Tw1JYFi1YXD
-X-Gm-Gg: ATEYQzy1CS4BYLI9u7nTxbZL7EwbplTx0Tq6AhV6OaDqMpufISrZyzhnnShFNSMf3Ts
-	MISgf/5A+uUoqZVFKhSG6N+eTiRL0a/A++fk+C0kcyw5In+0Et3N73VLNW32QvlPFYeiFF+ChXX
-	u6EYKOauln0iPNlXbRF/OD0zlmV8nC/ucmUis4aaHT17KTEnHyVHpgKyBzqhBu4q4l90OOKpNi3
-	Q7V8gQqCc3tJs4hhAnVNRqIcJCA1JX3Wh7Nnd4wRJLqa65jvvPfhYtKwZoqif9Thx8w3ZDkWsYP
-	cwPwAP9l0gtMNpjmsHWuQZCkFxgUWNPaQedItZqksyLCO0xUcjt83XxmUV7XIIq332w0lw==
-X-Received: by 2002:a05:6102:26d1:b0:5ff:ea89:44b5 with SMTP id
- ada2fe7eead31-602aed5357cmr6709465137.32.1774288846075; Mon, 23 Mar 2026
- 11:00:46 -0700 (PDT)
-Received: from 176938342045 named unknown by gmailapi.google.com with
- HTTPREST; Mon, 23 Mar 2026 11:00:45 -0700
-Received: from 176938342045 named unknown by gmailapi.google.com with
- HTTPREST; Mon, 23 Mar 2026 11:00:44 -0700
-From: Ackerley Tng <ackerleytng@google.com>
-In-Reply-To: <20260317141031.514-2-kalyazin@amazon.com>
-References: <20260317141031.514-1-kalyazin@amazon.com> <20260317141031.514-2-kalyazin@amazon.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rDtWPwoe"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1A87C4CEF7;
+	Mon, 23 Mar 2026 18:04:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774289092;
+	bh=CruYFImaZ7t8b4ollGRPZPQSf1fkTcITWStkRCYIOgg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=rDtWPwoezlO5BESYMPPqNQNwXC0kehS0cJIQC+FBhxL0H17ihZQutq/GjuIR+DiUV
+	 i5zcw3qJQtZnj4+CaQx149G/nnT/DghiOJlYmmca5qOVzujJ7sZqPhZoNHex4d7Ymz
+	 0QWrWDuBbSKZeJugD02i12xJTXyWNNloLToP1B2CMdIsj2fcFpU777iXF6TxHnhD/C
+	 b1uqjKnStXEeadUHqq7Z/EQgEA+bu2gnCs8U5l9UDPAKcTiXdyFwJLS9Kqx5z2/G9x
+	 c7RVwWhnMcASmLbIKUyAIrkAzS38Uzs+m/ZjuaSeFkufx7xxPFVlo3qJSFoBHXhaM1
+	 mVemqyvThdMNA==
+Date: Mon, 23 Mar 2026 18:04:50 +0000
+From: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
+To: Suren Baghdasaryan <surenb@google.com>
+Cc: akpm@linux-foundation.org, willy@infradead.org, david@kernel.org, 
+	ziy@nvidia.com, matthew.brost@intel.com, joshua.hahnjy@gmail.com, 
+	rakie.kim@sk.com, byungchul@sk.com, gourry@gourry.net, 
+	ying.huang@linux.alibaba.com, apopple@nvidia.com, lorenzo.stoakes@oracle.com, 
+	baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, npache@redhat.com, ryan.roberts@arm.com, 
+	dev.jain@arm.com, baohua@kernel.org, lance.yang@linux.dev, vbabka@suse.cz, 
+	jannh@google.com, rppt@kernel.org, mhocko@suse.com, pfalcato@suse.de, 
+	kees@kernel.org, maddy@linux.ibm.com, npiggin@gmail.com, mpe@ellerman.id.au, 
+	chleroy@kernel.org, borntraeger@linux.ibm.com, frankja@linux.ibm.com, 
+	imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com, 
+	svens@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-mm@kvack.org, 
+	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-s390@vger.kernel.org
+Subject: Re: [PATCH v4 4/4] mm: use vma_start_write_killable() in
+ process_vma_walk_lock()
+Message-ID: <1c44dd0b-4f5a-4fc1-983f-f728b31c9e4d@lucifer.local>
+References: <20260322054309.898214-1-surenb@google.com>
+ <20260322054309.898214-5-surenb@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Mon, 23 Mar 2026 11:00:44 -0700
-X-Gm-Features: AQROBzCftGX5aQ7J_uujSzbFVwlRhmdq4pmEC-kWuwHc-7ThhwmICNIjXxt4gxA
-Message-ID: <CAEvNRgFUXsO4HLVvyjfU=UX9cO6UrRppyTu1X0_+6SXLhDEN=w@mail.gmail.com>
-Subject: Re: [PATCH v11 01/16] set_memory: set_direct_map_* to take address
-To: "Kalyazin, Nikita" <kalyazin@amazon.co.uk>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, 
-	"kvmarm@lists.linux.dev" <kvmarm@lists.linux.dev>, 
-	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, 
-	"bpf@vger.kernel.org" <bpf@vger.kernel.org>, 
-	"linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>, "kernel@xen0n.name" <kernel@xen0n.name>, 
-	"linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, 
-	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, 
-	"loongarch@lists.linux.dev" <loongarch@lists.linux.dev>, 
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
-Cc: "pbonzini@redhat.com" <pbonzini@redhat.com>, "corbet@lwn.net" <corbet@lwn.net>, 
-	"maz@kernel.org" <maz@kernel.org>, "oupton@kernel.org" <oupton@kernel.org>, 
-	"joey.gouly@arm.com" <joey.gouly@arm.com>, "suzuki.poulose@arm.com" <suzuki.poulose@arm.com>, 
-	"yuzenghui@huawei.com" <yuzenghui@huawei.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, 
-	"will@kernel.org" <will@kernel.org>, "seanjc@google.com" <seanjc@google.com>, "tglx@kernel.org" <tglx@kernel.org>, 
-	"mingo@redhat.com" <mingo@redhat.com>, "bp@alien8.de" <bp@alien8.de>, 
-	"dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, "x86@kernel.org" <x86@kernel.org>, 
-	"hpa@zytor.com" <hpa@zytor.com>, "luto@kernel.org" <luto@kernel.org>, 
-	"peterz@infradead.org" <peterz@infradead.org>, "willy@infradead.org" <willy@infradead.org>, 
-	"akpm@linux-foundation.org" <akpm@linux-foundation.org>, "david@kernel.org" <david@kernel.org>, 
-	"lorenzo.stoakes@oracle.com" <lorenzo.stoakes@oracle.com>, "vbabka@kernel.org" <vbabka@kernel.org>, 
-	"rppt@kernel.org" <rppt@kernel.org>, "surenb@google.com" <surenb@google.com>, "mhocko@suse.com" <mhocko@suse.com>, 
-	"ast@kernel.org" <ast@kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>, 
-	"andrii@kernel.org" <andrii@kernel.org>, "martin.lau@linux.dev" <martin.lau@linux.dev>, 
-	"eddyz87@gmail.com" <eddyz87@gmail.com>, "song@kernel.org" <song@kernel.org>, 
-	"yonghong.song@linux.dev" <yonghong.song@linux.dev>, 
-	"john.fastabend@gmail.com" <john.fastabend@gmail.com>, "kpsingh@kernel.org" <kpsingh@kernel.org>, 
-	"sdf@fomichev.me" <sdf@fomichev.me>, "haoluo@google.com" <haoluo@google.com>, 
-	"jolsa@kernel.org" <jolsa@kernel.org>, "jgg@ziepe.ca" <jgg@ziepe.ca>, 
-	"jhubbard@nvidia.com" <jhubbard@nvidia.com>, "peterx@redhat.com" <peterx@redhat.com>, 
-	"jannh@google.com" <jannh@google.com>, "pfalcato@suse.de" <pfalcato@suse.de>, 
-	"skhan@linuxfoundation.org" <skhan@linuxfoundation.org>, "riel@surriel.com" <riel@surriel.com>, 
-	"ryan.roberts@arm.com" <ryan.roberts@arm.com>, "jgross@suse.com" <jgross@suse.com>, 
-	"yu-cheng.yu@intel.com" <yu-cheng.yu@intel.com>, "kas@kernel.org" <kas@kernel.org>, 
-	"coxu@redhat.com" <coxu@redhat.com>, "kevin.brodsky@arm.com" <kevin.brodsky@arm.com>, 
-	"yosry@kernel.org" <yosry@kernel.org>, "ajones@ventanamicro.com" <ajones@ventanamicro.com>, 
-	"maobibo@loongson.cn" <maobibo@loongson.cn>, "tabba@google.com" <tabba@google.com>, 
-	"prsampat@amd.com" <prsampat@amd.com>, "wu.fei9@sanechips.com.cn" <wu.fei9@sanechips.com.cn>, 
-	"mlevitsk@redhat.com" <mlevitsk@redhat.com>, "jmattson@google.com" <jmattson@google.com>, 
-	"jthoughton@google.com" <jthoughton@google.com>, "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>, 
-	"alex@ghiti.fr" <alex@ghiti.fr>, "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>, 
-	"borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>, "chenhuacai@kernel.org" <chenhuacai@kernel.org>, 
-	"dev.jain@arm.com" <dev.jain@arm.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>, 
-	"hca@linux.ibm.com" <hca@linux.ibm.com>, "palmer@dabbelt.com" <palmer@dabbelt.com>, 
-	"pjw@kernel.org" <pjw@kernel.org>, 
-	"shijie@os.amperecomputing.com" <shijie@os.amperecomputing.com>, "svens@linux.ibm.com" <svens@linux.ibm.com>, 
-	"thuth@redhat.com" <thuth@redhat.com>, "wyihan@google.com" <wyihan@google.com>, 
-	"yang@os.amperecomputing.com" <yang@os.amperecomputing.com>, 
-	"Jonathan.Cameron@huawei.com" <Jonathan.Cameron@huawei.com>, 
-	"Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>, "urezki@gmail.com" <urezki@gmail.com>, 
-	"zhengqi.arch@bytedance.com" <zhengqi.arch@bytedance.com>, 
-	"gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>, 
-	"jiayuan.chen@shopee.com" <jiayuan.chen@shopee.com>, "lenb@kernel.org" <lenb@kernel.org>, 
-	"osalvador@suse.de" <osalvador@suse.de>, "pavel@kernel.org" <pavel@kernel.org>, 
-	"rafael@kernel.org" <rafael@kernel.org>, "vannapurve@google.com" <vannapurve@google.com>, 
-	"jackmanb@google.com" <jackmanb@google.com>, "aneesh.kumar@kernel.org" <aneesh.kumar@kernel.org>, 
-	"patrick.roy@linux.dev" <patrick.roy@linux.dev>, "Thomson, Jack" <jackabt@amazon.co.uk>, 
-	"Itazuri, Takahiro" <itazur@amazon.co.uk>, "Manwaring, Derek" <derekmn@amazon.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260322054309.898214-5-surenb@google.com>
 
-"Kalyazin, Nikita" <kalyazin@amazon.co.uk> writes:
-
-> From: Nikita Kalyazin <kalyazin@amazon.com>
+On Sat, Mar 21, 2026 at 10:43:08PM -0700, Suren Baghdasaryan wrote:
+> Replace vma_start_write() with vma_start_write_killable() when
+> process_vma_walk_lock() is used with PGWALK_WRLOCK option.
+> Adjust its direct and indirect users to check for a possible error
+> and handle it. Ensure users handle EINTR correctly and do not ignore
+> it.
 >
-> This is to avoid excessive conversions folio->page->address when adding
-> helpers on top of set_direct_map_valid_noflush() in the next patch.
->
-
-I can't take credit for what Sashiko [1] spotted.
-
-> Acked-by: David Hildenbrand (Arm) <david@kernel.org>
-> Signed-off-by: Nikita Kalyazin <kalyazin@amazon.com>
+> Signed-off-by: Suren Baghdasaryan <surenb@google.com>
 > ---
->  arch/arm64/include/asm/set_memory.h     |  7 ++++---
->  arch/arm64/mm/pageattr.c                | 19 +++++++++----------
->  arch/loongarch/include/asm/set_memory.h |  7 ++++---
->  arch/loongarch/mm/pageattr.c            | 25 +++++++++++--------------
->  arch/riscv/include/asm/set_memory.h     |  7 ++++---
->  arch/riscv/mm/pageattr.c                | 17 +++++++++--------
->  arch/s390/include/asm/set_memory.h      |  7 ++++---
->  arch/s390/mm/pageattr.c                 | 13 +++++++------
->  arch/x86/include/asm/set_memory.h       |  7 ++++---
->  arch/x86/mm/pat/set_memory.c            | 23 ++++++++++++-----------
->  include/linux/set_memory.h              |  9 +++++----
->  kernel/power/snapshot.c                 |  4 ++--
->  mm/execmem.c                            |  6 ++++--
->  mm/secretmem.c                          |  6 +++---
->  mm/vmalloc.c                            | 11 +++++++----
->  15 files changed, 89 insertions(+), 79 deletions(-)
+>  fs/proc/task_mmu.c |  5 ++++-
+>  mm/mempolicy.c     |  1 +
+>  mm/pagewalk.c      | 20 ++++++++++++++------
+>  3 files changed, 19 insertions(+), 7 deletions(-)
 >
+> diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
+> index e091931d7ca1..2fe3d11aad03 100644
+> --- a/fs/proc/task_mmu.c
+> +++ b/fs/proc/task_mmu.c
+> @@ -1797,6 +1797,7 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
+>  		struct clear_refs_private cp = {
+>  			.type = type,
+>  		};
+> +		int err;
+
+Maybe better to make it a ssize_t given return type of function?
+
 >
-> [...snip...]
->
-> diff --git a/arch/loongarch/mm/pageattr.c b/arch/loongarch/mm/pageattr.c
-> index f5e910b68229..9e08905d3624 100644
-> --- a/arch/loongarch/mm/pageattr.c
-> +++ b/arch/loongarch/mm/pageattr.c
-> @@ -198,32 +198,29 @@ bool kernel_page_present(struct page *page)
->  	return pte_present(ptep_get(pte));
+>  		if (mmap_write_lock_killable(mm)) {
+>  			count = -EINTR;
+> @@ -1824,7 +1825,9 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
+>  						0, mm, 0, -1UL);
+>  			mmu_notifier_invalidate_range_start(&range);
+>  		}
+> -		walk_page_range(mm, 0, -1, &clear_refs_walk_ops, &cp);
+> +		err = walk_page_range(mm, 0, -1, &clear_refs_walk_ops, &cp);
+> +		if (err)
+> +			count = err;
+
+Hmm this is gross, but it's an established pattern here, ugh.
+
+Now we have an err though, could we update:
+
+		if (mmap_write_lock_killable(mm)) {
+-			count = -EINTR;
++			err = -EINTR;
+			goto out_mm;
+		}
+
+Then we can just do:
+
++		err = walk_page_range(mm, 0, -1, &clear_refs_walk_ops, &cp);
+
+And at the end do:
+
+	return err ?: count;
+
+Which possibly _necessitates_ err being a ssize_t.
+
+>  		if (type == CLEAR_REFS_SOFT_DIRTY) {
+>  			mmu_notifier_invalidate_range_end(&range);
+>  			flush_tlb_mm(mm);
+> diff --git a/mm/mempolicy.c b/mm/mempolicy.c
+> index 929e843543cf..bb5b0e83ce0f 100644
+> --- a/mm/mempolicy.c
+> +++ b/mm/mempolicy.c
+> @@ -969,6 +969,7 @@ static const struct mm_walk_ops queue_pages_lock_vma_walk_ops = {
+>   *      (a hugetlbfs page or a transparent huge page being counted as 1).
+>   * -EIO - a misplaced page found, when MPOL_MF_STRICT specified without MOVEs.
+>   * -EFAULT - a hole in the memory range, when MPOL_MF_DISCONTIG_OK unspecified.
+> + * -EINTR - walk got terminated due to pending fatal signal.
+
+Thanks!
+
+>   */
+>  static long
+>  queue_pages_range(struct mm_struct *mm, unsigned long start, unsigned long end,
+> diff --git a/mm/pagewalk.c b/mm/pagewalk.c
+> index eda74273c8ec..a42cd6a6d812 100644
+> --- a/mm/pagewalk.c
+> +++ b/mm/pagewalk.c
+> @@ -438,14 +438,13 @@ static inline void process_mm_walk_lock(struct mm_struct *mm,
+>  		mmap_assert_write_locked(mm);
 >  }
 >
-> -int set_direct_map_default_noflush(struct page *page)
-> +int set_direct_map_default_noflush(const void *addr)
+> -static inline void process_vma_walk_lock(struct vm_area_struct *vma,
+> +static inline int process_vma_walk_lock(struct vm_area_struct *vma,
+
+NIT: Don't need this to be an inline any longer. May as well fix up while we're
+here.
+
+>  					 enum page_walk_lock walk_lock)
 >  {
-> -	unsigned long addr = (unsigned long)page_address(page);
-> -
-> -	if (addr < vm_map_base)
-> +	if ((unsigned long)addr < vm_map_base)
->  		return 0;
->
-> -	return __set_memory(addr, 1, PAGE_KERNEL, __pgprot(0));
-> +	return __set_memory((unsigned long)addr, 1, PAGE_KERNEL, __pgprot(0));
->  }
->
-> -int set_direct_map_invalid_noflush(struct page *page)
-> +int set_direct_map_invalid_noflush(const void *addr)
->  {
-> -	unsigned long addr = (unsigned long)page_address(page);
-> -
-> -	if (addr < vm_map_base)
-> +	if ((unsigned long)addr < vm_map_base)
->  		return 0;
->
-> -	return __set_memory(addr, 1, __pgprot(0), __pgprot(_PAGE_PRESENT | _PAGE_VALID));
-> +	return __set_memory((unsigned long)addr, 1, __pgprot(0),
-> +			    __pgprot(_PAGE_PRESENT | _PAGE_VALID));
->  }
->
-> -int set_direct_map_valid_noflush(struct page *page, unsigned nr, bool valid)
-> +int set_direct_map_valid_noflush(const void *addr, unsigned long numpages,
-> +				 bool valid)
->  {
-> -	unsigned long addr = (unsigned long)page_address(page);
->  	pgprot_t set, clear;
->
-> -	if (addr < vm_map_base)
-> +	if ((unsigned long)addr < vm_map_base)
->  		return 0;
->
->  	if (valid) {
-> @@ -234,5 +231,5 @@ int set_direct_map_valid_noflush(struct page *page, unsigned nr, bool valid)
->  		clear = __pgprot(_PAGE_PRESENT | _PAGE_VALID);
+>  #ifdef CONFIG_PER_VMA_LOCK
+>  	switch (walk_lock) {
+>  	case PGWALK_WRLOCK:
+> -		vma_start_write(vma);
+> -		break;
+> +		return vma_start_write_killable(vma);
+
+LGTM
+
+>  	case PGWALK_WRLOCK_VERIFY:
+>  		vma_assert_write_locked(vma);
+>  		break;
+> @@ -457,6 +456,7 @@ static inline void process_vma_walk_lock(struct vm_area_struct *vma,
+>  		break;
 >  	}
->
-> -	return __set_memory(addr, 1, set, clear);
-> +	return __set_memory((unsigned long)addr, 1, set, clear);
-
-Sashiko also spotted that there is a hard-coded 1 here. Before this
-change, it was already hard-coded to 1. Not sure if this is a
-bug.
-
-Could this be addressed in a separate patch series?
-
+>  #endif
+> +	return 0;
 >  }
 >
-> [...snip...]
+>  /*
+> @@ -500,7 +500,9 @@ int walk_page_range_mm_unsafe(struct mm_struct *mm, unsigned long start,
+>  			if (ops->pte_hole)
+>  				err = ops->pte_hole(start, next, -1, &walk);
+>  		} else { /* inside vma */
+> -			process_vma_walk_lock(vma, ops->walk_lock);
+> +			err = process_vma_walk_lock(vma, ops->walk_lock);
+> +			if (err)
+> +				break;
+
+In every other case we set walk.vma = vma or NULL. Is it a problem not setting
+it at all in this code path?
+
+>  			walk.vma = vma;
+>  			next = min(end, vma->vm_end);
+>  			vma = find_vma(mm, vma->vm_end);
+> @@ -717,6 +719,7 @@ int walk_page_range_vma_unsafe(struct vm_area_struct *vma, unsigned long start,
+>  		.vma		= vma,
+>  		.private	= private,
+>  	};
+> +	int err;
 >
-> diff --git a/arch/x86/mm/pat/set_memory.c b/arch/x86/mm/pat/set_memory.c
-> index 40581a720fe8..6aea1f470fd5 100644
-> --- a/arch/x86/mm/pat/set_memory.c
-> +++ b/arch/x86/mm/pat/set_memory.c
-> @@ -2587,9 +2587,9 @@ int set_pages_rw(struct page *page, int numpages)
->  	return set_memory_rw(addr, numpages);
+>  	if (start >= end || !walk.mm)
+>  		return -EINVAL;
+> @@ -724,7 +727,9 @@ int walk_page_range_vma_unsafe(struct vm_area_struct *vma, unsigned long start,
+>  		return -EINVAL;
+>
+>  	process_mm_walk_lock(walk.mm, ops->walk_lock);
+> -	process_vma_walk_lock(vma, ops->walk_lock);
+> +	err = process_vma_walk_lock(vma, ops->walk_lock);
+> +	if (err)
+> +		return err;
+
+LGTM
+
+>  	return __walk_page_range(start, end, &walk);
 >  }
 >
-> -static int __set_pages_p(struct page *page, int numpages)
-> +static int __set_pages_p(const void *addr, int numpages)
->  {
-> -	unsigned long tempaddr = (unsigned long) page_address(page);
-> +	unsigned long tempaddr = (unsigned long)addr;
->  	struct cpa_data cpa = { .vaddr = &tempaddr,
->  				.pgd = NULL,
->  				.numpages = numpages,
-> @@ -2606,9 +2606,9 @@ static int __set_pages_p(struct page *page, int numpages)
->  	return __change_page_attr_set_clr(&cpa, 1);
+> @@ -747,6 +752,7 @@ int walk_page_vma(struct vm_area_struct *vma, const struct mm_walk_ops *ops,
+>  		.vma		= vma,
+>  		.private	= private,
+>  	};
+> +	int err;
+>
+>  	if (!walk.mm)
+>  		return -EINVAL;
+> @@ -754,7 +760,9 @@ int walk_page_vma(struct vm_area_struct *vma, const struct mm_walk_ops *ops,
+>  		return -EINVAL;
+>
+>  	process_mm_walk_lock(walk.mm, ops->walk_lock);
+> -	process_vma_walk_lock(vma, ops->walk_lock);
+> +	err = process_vma_walk_lock(vma, ops->walk_lock);
+> +	if (err)
+> +		return err;
+
+LGTM
+
+>  	return __walk_page_range(vma->vm_start, vma->vm_end, &walk);
 >  }
 >
-> -static int __set_pages_np(struct page *page, int numpages)
-> +static int __set_pages_np(const void *addr, int numpages)
->  {
-> -	unsigned long tempaddr = (unsigned long) page_address(page);
-> +	unsigned long tempaddr = (unsigned long)addr;
->  	struct cpa_data cpa = { .vaddr = &tempaddr,
->  				.pgd = NULL,
->  				.numpages = numpages,
-> @@ -2625,22 +2625,23 @@ static int __set_pages_np(struct page *page, int numpages)
->  	return __change_page_attr_set_clr(&cpa, 1);
->  }
+> --
+> 2.53.0.1018.g2bb0e51243-goog
 >
 
-I agree that in arch/x86/mm/pat/set_memory.c, __kernel_map_pages(), has
-calls to __set_pages_p() and __set_pages_np() that seems to have been
-missed out in this patch. Those calls still pass struct page *. Maybe
-that's because __kernel_map_pages() was guarded by
-CONFIG_DEBUG_PAGEALLOC, so if you were using an lsp-guided refactoring
-that call was missed.
-
-Should probably try a grep to see what else needs replacing :)
-
-[1] https://sashiko.dev/#/patchset/20260317141031.514-1-kalyazin%40amazon.com
-
-> -int set_direct_map_invalid_noflush(struct page *page)
-> +int set_direct_map_invalid_noflush(const void *addr)
->  {
-> -	return __set_pages_np(page, 1);
-> +	return __set_pages_np(addr, 1);
->  }
->
-> -int set_direct_map_default_noflush(struct page *page)
-> +int set_direct_map_default_noflush(const void *addr)
->  {
-> -	return __set_pages_p(page, 1);
-> +	return __set_pages_p(addr, 1);
->  }
->
-> -int set_direct_map_valid_noflush(struct page *page, unsigned nr, bool valid)
-> +int set_direct_map_valid_noflush(const void *addr, unsigned long numpages,
-> +				 bool valid)
->  {
->  	if (valid)
-> -		return __set_pages_p(page, nr);
-> +		return __set_pages_p(addr, numpages);
->
-> -	return __set_pages_np(page, nr);
-> +	return __set_pages_np(addr, numpages);
->  }
->
->  #ifdef CONFIG_DEBUG_PAGEALLOC
->
-> [...snip...]
->
+Thanks, Lorenzo
