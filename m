@@ -1,159 +1,228 @@
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
+Received: from mail-vs1-f46.google.com (mail-vs1-f46.google.com [209.85.217.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46F093E1206
-	for <linux-s390@vger.kernel.org>; Mon, 23 Mar 2026 20:08:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774296495; cv=none; b=rCLF2bftE0Pp91bLZIow0YC9ZPCQPqWGZdKE/SbJnBLa2iUKdImv40Ky9d9NP9pMyIJ+wGbSHFsftitTSWjmDqI0MXnulLYLe1xzzSbX3IQvCcdAus0+F7fLbF3NrqA10wKB2n8c2Du/yPlONV4Vv+ogQ791k1xbj1TTxOdfwgg=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774296495; c=relaxed/simple;
-	bh=3x9O81VmyvkAmOknPTE67IsbDONvsM0u8u+OLmZWLFo=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=rftzDHY+wvCyeqckq3YHFCdIkdcgqldxzTiZtPT9ZrjIkOS2r8uinCT+0kaxwacdjoKyDmNDK7ryczxOBvdC8/WF05PQIcD3e+OPhvklX73zmQiLwnQK6uqiZuZjDBNmGuKuo+UK283r12h1RnnimthMU0mgk0FFPt1SXR0r5rk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kQZvEFBX; arc=none smtp.client-ip=209.85.221.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16B4D3DC4C2
+	for <linux-s390@vger.kernel.org>; Mon, 23 Mar 2026 20:22:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.217.46
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774297368; cv=pass; b=qM5YmBUZtG08QgdWxMDrZ5wb4vHnysUQxpyv9sgnxxQeKckc1HOzBjajfNHKOl/J1pouItFlDBwT7CgiH/6V+7tz4xsO/QN4PnF+iuvjfSVjNPOUOWdzYosmqZf5exz/sL4zuDBEhzlUUX44BdoPor3yiTUDcUsXQD6OdWiotNs=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774297368; c=relaxed/simple;
+	bh=+Ww3YVEwz3akOCPkGfwPOz5g/SjxY63PNjUlqwWXbGQ=;
+	h=From:In-Reply-To:References:MIME-Version:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=iOCnpz3qWXhd/uqmWk3nCmkvZOEWQFWpRLEUMnW6IKEgmbPHSCYl+1SNSv3SaX23jePu/kV2OipJ3U431PyzfYGX/UOJzpa51cls/3OSXjQXmTSjWoEUwNIYKnODX9+dkWVfEmd/E8AMLHKNwdu669GyXmWDxSRKr+WtLCjZIgw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Ibwuzlau; arc=pass smtp.client-ip=209.85.217.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kQZvEFBX"
-Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-439b9b1900bso2266212f8f.1
-        for <linux-s390@vger.kernel.org>; Mon, 23 Mar 2026 13:08:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Ibwuzlau"
+Received: by mail-vs1-f46.google.com with SMTP id ada2fe7eead31-5ffd797184fso2813823137.0
+        for <linux-s390@vger.kernel.org>; Mon, 23 Mar 2026 13:22:45 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1774297365; cv=none;
+        d=google.com; s=arc-20240605;
+        b=OzC1LPaCQysXMdcECRP1QFK/dUZvYLxQYA6Er2y8VdvLcThJ9BPQkHw4G6hJorCII2
+         kztRVhqJnZA8TZx6hKZpFtOSHor31OvXwkyeuLA2Rzn4EysAeswLhkDIpcApi6FmGlS2
+         u0HrFx5nSqnZlk3hbd/HUskZ730LJ1i9rXb1BzNmljvt/csGtLqeblVREhuz8plhsdcE
+         r2QNcydwE4wrbf9eicRajNcYu9NstXSDZ3TpFXDTYO346UvIFe3hk+OVSTlGSwEXIcEN
+         uv+Bu/8YsS38aHReymq4+jz23oraviQUh/fcPbA4Vy71cJFeWasb8cjPebd6ApMVlueK
+         JaQA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
+         :from:dkim-signature;
+        bh=DfIEo8yQ3CK3TKTvqaXVb6LUrtHQE6Lxe6QzmQiMk8w=;
+        fh=NDaM7d8tprGpFKHDTF/VHuHQQsTiQBTRKdzdSa126e0=;
+        b=j0yAu1BCPjEb4mUY7WB4oIHlwFLBza9QfvHwgZCxf7j1cFzCsUoisdnWKj1105DBVw
+         u9RjlL5tPRHGizcxM0ZRnJ8lbWUDiHIgXu96PHY74F+BWiWu3cWHqhKy0qe3r7I8BHW8
+         fncwjE0fu8iMBgBrsRROtQd9IubHD64rV9z4qDT0R+3AZC7DIW07U1y3sGlJH7aY5Lab
+         aiNv6ztaDmwTGKChzy5LiyhKgyR5AbI9ie65MWo/7cr8rfENLk9pHHxzK4zxGSfLZlG0
+         K//9sVv3Pu84YVJ3rjzDz/485bs15RyIAyfPuDv2DYZ0YCluSQ0tqErtuKILcTJV99Y0
+         YWaw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774296490; x=1774901290; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WTyDjzylHqeRX+dhDvxKEc8/YaDA7xCjfQl8LdFPYqo=;
-        b=kQZvEFBXHi1VeuSU3kN9Q0VRzCCEMMrceNwxYPuLo0STZYyyGZoTpwLN8hEGpCf/SR
-         gmA+LnNxU6WIwFmIGwh+tR97tpHJNELljqtzGplAg9NPrkA3ade3EIqXFmhUL53PaoBP
-         kQR6LUBziXFYcmNKLziG1nkEh3OATsUJ7lPoPFgW/9P1GPAWOo+GaeQ7iWKzvz0fHHmI
-         nKnBxaX0wUdoudzYywGoh0Ga2Jp/69UpUwZwq/kWImqdHfHue75fw8Ug6Y0O3/mBo2nf
-         +Vci3vmuyPFxVV9GNziI9VOmJt920nbg7ski0bV4nh2tpGtUsh7EShkZEWJ4mcGpO1kp
-         ABhw==
+        d=google.com; s=20251104; t=1774297365; x=1774902165; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=DfIEo8yQ3CK3TKTvqaXVb6LUrtHQE6Lxe6QzmQiMk8w=;
+        b=Ibwuzlauj5c8iKXxG1nK0hN4JyHV1Mv3KfKVQuiM0E+dlMSGVRwp8PfoYFyP1KyuxP
+         TV8eM6VPHDio+E5Cn8SvvUl81aCB1scyZpRBpQDqfaLDZ/2fcpxRSgfNro+mQ6DrusbP
+         Z/a96ziy/AhJVi5KNvSFNb0PJC3qVLwpHNJIPJ+i2XhBM9b547uqZ6kBX5VfuKRPpGll
+         zvvg4ItxeGu1cu1UCqpMsS5/wsgfWhO4cfLEXuCTkRTZm/O8BRjqXxrk7D84ejUoBBku
+         ZfHITQWeg4EzxLmcIyXpuaZa2R++4mxy+6mdQVDjSpf0LTRgOhE1fJU0yDfXDeikC89Y
+         vkow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774296490; x=1774901290;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=WTyDjzylHqeRX+dhDvxKEc8/YaDA7xCjfQl8LdFPYqo=;
-        b=AP2EkrK7vLAFTJhYVrleXHu1HbhdbLbijPqGnOYIZnDxauxtwotI3ly9Ea9/8wVdsU
-         fx2ny68Y9msM2dmMsXMv2hCuNO2WzHwCcr8MpIDPEfHdZTEF90locXJNDmoNdNCrusXh
-         3R4RIt6eHsgcBmXQk2hzA3QBq4N1UxUILBfPjDSXOO+EumTmqK4030XUU5z7GoKvsy0I
-         CNv4vz6xfZle83TO6xTGUzGNUioTqDoCsSykbs10m6LQw2lITPLHsddB0DVFeS2FZY2M
-         nGCsku7lgZef9FNatDn9+apiCa0ujuyNzks+bvLxS3IzxBMGWMYtZbSTPct/W24PxC7g
-         xC+w==
-X-Forwarded-Encrypted: i=1; AJvYcCXsw0YHV67pXpU0pvCffaR4dv6GfFrRsevRRywXQ44WPExwhA0GKMakIQepPrrb0CIWeiqf5eiRkAt1@vger.kernel.org
-X-Gm-Message-State: AOJu0YxHH23u1VW8wosnHJou4rrLEoMwOPW8cdjJy1la1RtJbIhxTDvi
-	yWgxK6h6QYHbK+RFk5PScAg2Y2T9bf9yJ3/LZ/3Am/aaA3RyKpEAmwmBwjwKN7OO
-X-Gm-Gg: ATEYQzwVWHibNmFYt6C3ZG41cL5bKXWYtndtqnI138zHWeqlaBdbCAO3+ZGaj4VE84W
-	NxgzsC3RCf8ecMYXztLMRaHmVMzw4Eyb2wvmxnvdEYzHPmzB5VMJ4FjcSioI4htjMpEgVfSQ7iv
-	wY+KBELBGGu/H3HuiKp5npi/0XLAYKxbIJ7J4KTY3PxXxhOQ5qC9Qusgt63Ix2bWDoP+BYWqtHS
-	q9ZGO5FP64uapnTWMNTETL4Wq1LzGRl9Pfv5QKktD87DQi9Egx046B12PAKGJ7RSR5pXA29QX+c
-	PlCHN6JZBxs/eR8kiub3GefMV59PMGlifhWhpGZ2WtPClghiHhgYokyhfmxG0OIYWnbB3dCH5m+
-	bixaRQ/YIg8Xs08NHAPXgSW1DgzbFlYYtYOQ6D+3k3RWHc7xCnW5g1aBL1ZpDvRBZnBMiKCW/mO
-	M/JCJsaBbNTsVl9mjq2ln//FyKYZTPeuCs5PGSVKRB8+SQrenH9H3iJFvpHXAY6j75
-X-Received: by 2002:a05:6000:2203:b0:43b:46b6:87aa with SMTP id ffacd0b85a97d-43b64277e1amr20809765f8f.27.1774296490087;
-        Mon, 23 Mar 2026 13:08:10 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43b644ae37dsm32309509f8f.2.2026.03.23.13.08.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Mar 2026 13:08:09 -0700 (PDT)
-Date: Mon, 23 Mar 2026 20:08:07 +0000
-From: David Laight <david.laight.linux@gmail.com>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Kees Cook <kees@kernel.org>, Josh Law <objecting@objecting.org>, Jens
- Axboe <axboe@kernel.dk>, Davidlohr Bueso <dave@stgolabs.net>, Stefan
- Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>,
- "Richard Russon (FlatCap)" <ldm@flatcap.org>, Thorsten Blum
- <thorsten.blum@linux.dev>, linux-kernel@vger.kernel.org,
- linux-block@vger.kernel.org, linux-efi@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
- linux-hardening@vger.kernel.org
-Subject: Re: [PATCH] block: partitions: Replace pp_buf with struct seq_buf
-Message-ID: <20260323200807.71535b6c@pumpkin>
-In-Reply-To: <acD_IIEXmhnVlO0C@ashevche-desk.local>
-References: <20260321004840.work.670-kees@kernel.org>
-	<acD_IIEXmhnVlO0C@ashevche-desk.local>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+        d=1e100.net; s=20251104; t=1774297365; x=1774902165;
+        h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
+         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=DfIEo8yQ3CK3TKTvqaXVb6LUrtHQE6Lxe6QzmQiMk8w=;
+        b=ZlUy/ozKbSvW0XcDtATLdiCLgx044HeR2AEiH/xTXC76DCco30xQetGcKBTkFBKNZD
+         yYWAjVect4dtmvgSqpxgmhJy6pQS6UcQAVMYn8uArJdh/ZS21HQh0cA/ZRWhiH6hdgAd
+         7JTriizVLk4joFTOopMFS+kSzCRDsbOVdGJuP2465Gr9FExYajX6eQ2gmA2yvgNgBL5U
+         ykchJQJUw074EZS3xHjWh5BOO1ti5aRhA4bCSKPst39Hzq6AOugjPk2Y8ieSSwfaVuDD
+         k0floA/EChZJZvAtexZ4p7nEg1oes2fhCeirowUl+gv0hSNvkc1QlG63Nh16sBzP93Er
+         rBTQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXclSmTugTpQDvkLZclfR5yl5F+ziqExH9lg1AhG5OHlMZ8Lbw8LVd47+nr/4svIWp1WlBlwLJQSon0@vger.kernel.org
+X-Gm-Message-State: AOJu0YxkGyumtB8S9HuS6MLPqLUxG1szQYNZV5ivhpHpIJIaT0ZPGPcl
+	nuc4n6OkgEJBNX7cctlABSVUOZ8N6rA+k7OOme4nPOsoK6IhsfU09FMD9N4phagva/8QLnrfkab
+	/ELguDIkKwQT+dBDXQ9Hsx6eIirvnSVH5b7u4woi/
+X-Gm-Gg: ATEYQzwVEkVvRlAbI/tuFPI8St304IRZO4GB8wAFvQRDAdsuv544s5nR72mB9SmHxL8
+	jcA9AkMs2PtPugeZOF2sGCltjoKeKOy7/VBiUZSeZyoWlOgdSDD+Dh1+82L6ofSpPG0lYy9XfdW
+	e6j9+3wOFBRFL//nWfvqapU2lsy3IAfcHLHDpFygWs1iOlAHnC5HjuKV1Q0osl3hZ2v6WMdNW1V
+	TFQ51VO/WTgWepFlVLTnKHIr941Tx9QMmKLF5dFsrfqlAxHI6kYWtwRuPr/AXIVmZzQ//P3n+aN
+	AFsOnhivJ+mSyInoK9y2nT8h6mg6h6j3PtmZG5SQYNewlFX+FJci0nNwnMp69nV/hOVkvg==
+X-Received: by 2002:a05:6102:3a06:b0:602:8742:1fa with SMTP id
+ ada2fe7eead31-60316013f44mr514571137.9.1774297364023; Mon, 23 Mar 2026
+ 13:22:44 -0700 (PDT)
+Received: from 176938342045 named unknown by gmailapi.google.com with
+ HTTPREST; Mon, 23 Mar 2026 13:22:43 -0700
+Received: from 176938342045 named unknown by gmailapi.google.com with
+ HTTPREST; Mon, 23 Mar 2026 13:22:43 -0700
+From: Ackerley Tng <ackerleytng@google.com>
+In-Reply-To: <0a14c10d-0dab-4b9c-85ec-e0ee25cd0db8@kernel.org>
+References: <20260317141031.514-1-kalyazin@amazon.com> <20260317141031.514-6-kalyazin@amazon.com>
+ <0a14c10d-0dab-4b9c-85ec-e0ee25cd0db8@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Date: Mon, 23 Mar 2026 13:22:43 -0700
+X-Gm-Features: AQROBzAJTtmZ8_CHcmYDgt7IaYmvr2Pi4WE03drdmWTq3AGR3rA_vEwuIGtsbTw
+Message-ID: <CAEvNRgHqJGwmAfS8TuGBbUoQehpqY9GdtjUS=+Hc1ViK79RL4w@mail.gmail.com>
+Subject: Re: [PATCH v11 05/16] mm/gup: drop local variable in gup_fast_folio_allowed
+To: "David Hildenbrand (Arm)" <david@kernel.org>, "Kalyazin, Nikita" <kalyazin@amazon.co.uk>, 
+	"kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, 
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, 
+	"kvmarm@lists.linux.dev" <kvmarm@lists.linux.dev>, 
+	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, 
+	"bpf@vger.kernel.org" <bpf@vger.kernel.org>, 
+	"linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>, "kernel@xen0n.name" <kernel@xen0n.name>, 
+	"linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, 
+	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, 
+	"loongarch@lists.linux.dev" <loongarch@lists.linux.dev>, 
+	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
+Cc: "pbonzini@redhat.com" <pbonzini@redhat.com>, "corbet@lwn.net" <corbet@lwn.net>, 
+	"maz@kernel.org" <maz@kernel.org>, "oupton@kernel.org" <oupton@kernel.org>, 
+	"joey.gouly@arm.com" <joey.gouly@arm.com>, "suzuki.poulose@arm.com" <suzuki.poulose@arm.com>, 
+	"yuzenghui@huawei.com" <yuzenghui@huawei.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, 
+	"will@kernel.org" <will@kernel.org>, "seanjc@google.com" <seanjc@google.com>, "tglx@kernel.org" <tglx@kernel.org>, 
+	"mingo@redhat.com" <mingo@redhat.com>, "bp@alien8.de" <bp@alien8.de>, 
+	"dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, "x86@kernel.org" <x86@kernel.org>, 
+	"hpa@zytor.com" <hpa@zytor.com>, "luto@kernel.org" <luto@kernel.org>, 
+	"peterz@infradead.org" <peterz@infradead.org>, "willy@infradead.org" <willy@infradead.org>, 
+	"akpm@linux-foundation.org" <akpm@linux-foundation.org>, 
+	"lorenzo.stoakes@oracle.com" <lorenzo.stoakes@oracle.com>, "vbabka@kernel.org" <vbabka@kernel.org>, 
+	"rppt@kernel.org" <rppt@kernel.org>, "surenb@google.com" <surenb@google.com>, "mhocko@suse.com" <mhocko@suse.com>, 
+	"ast@kernel.org" <ast@kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>, 
+	"andrii@kernel.org" <andrii@kernel.org>, "martin.lau@linux.dev" <martin.lau@linux.dev>, 
+	"eddyz87@gmail.com" <eddyz87@gmail.com>, "song@kernel.org" <song@kernel.org>, 
+	"yonghong.song@linux.dev" <yonghong.song@linux.dev>, 
+	"john.fastabend@gmail.com" <john.fastabend@gmail.com>, "kpsingh@kernel.org" <kpsingh@kernel.org>, 
+	"sdf@fomichev.me" <sdf@fomichev.me>, "haoluo@google.com" <haoluo@google.com>, 
+	"jolsa@kernel.org" <jolsa@kernel.org>, "jgg@ziepe.ca" <jgg@ziepe.ca>, 
+	"jhubbard@nvidia.com" <jhubbard@nvidia.com>, "peterx@redhat.com" <peterx@redhat.com>, 
+	"jannh@google.com" <jannh@google.com>, "pfalcato@suse.de" <pfalcato@suse.de>, 
+	"skhan@linuxfoundation.org" <skhan@linuxfoundation.org>, "riel@surriel.com" <riel@surriel.com>, 
+	"ryan.roberts@arm.com" <ryan.roberts@arm.com>, "jgross@suse.com" <jgross@suse.com>, 
+	"yu-cheng.yu@intel.com" <yu-cheng.yu@intel.com>, "kas@kernel.org" <kas@kernel.org>, 
+	"coxu@redhat.com" <coxu@redhat.com>, "kevin.brodsky@arm.com" <kevin.brodsky@arm.com>, 
+	"yosry@kernel.org" <yosry@kernel.org>, "ajones@ventanamicro.com" <ajones@ventanamicro.com>, 
+	"maobibo@loongson.cn" <maobibo@loongson.cn>, "tabba@google.com" <tabba@google.com>, 
+	"prsampat@amd.com" <prsampat@amd.com>, "wu.fei9@sanechips.com.cn" <wu.fei9@sanechips.com.cn>, 
+	"mlevitsk@redhat.com" <mlevitsk@redhat.com>, "jmattson@google.com" <jmattson@google.com>, 
+	"jthoughton@google.com" <jthoughton@google.com>, "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>, 
+	"alex@ghiti.fr" <alex@ghiti.fr>, "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>, 
+	"borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>, "chenhuacai@kernel.org" <chenhuacai@kernel.org>, 
+	"dev.jain@arm.com" <dev.jain@arm.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>, 
+	"hca@linux.ibm.com" <hca@linux.ibm.com>, "palmer@dabbelt.com" <palmer@dabbelt.com>, 
+	"pjw@kernel.org" <pjw@kernel.org>, 
+	"shijie@os.amperecomputing.com" <shijie@os.amperecomputing.com>, "svens@linux.ibm.com" <svens@linux.ibm.com>, 
+	"thuth@redhat.com" <thuth@redhat.com>, "wyihan@google.com" <wyihan@google.com>, 
+	"yang@os.amperecomputing.com" <yang@os.amperecomputing.com>, 
+	"Jonathan.Cameron@huawei.com" <Jonathan.Cameron@huawei.com>, 
+	"Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>, "urezki@gmail.com" <urezki@gmail.com>, 
+	"zhengqi.arch@bytedance.com" <zhengqi.arch@bytedance.com>, 
+	"gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>, 
+	"jiayuan.chen@shopee.com" <jiayuan.chen@shopee.com>, "lenb@kernel.org" <lenb@kernel.org>, 
+	"osalvador@suse.de" <osalvador@suse.de>, "pavel@kernel.org" <pavel@kernel.org>, 
+	"rafael@kernel.org" <rafael@kernel.org>, "vannapurve@google.com" <vannapurve@google.com>, 
+	"jackmanb@google.com" <jackmanb@google.com>, "aneesh.kumar@kernel.org" <aneesh.kumar@kernel.org>, 
+	"patrick.roy@linux.dev" <patrick.roy@linux.dev>, "Thomson, Jack" <jackabt@amazon.co.uk>, 
+	"Itazuri, Takahiro" <itazur@amazon.co.uk>, "Manwaring, Derek" <derekmn@amazon.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On Mon, 23 Mar 2026 10:51:44 +0200
-Andy Shevchenko <andriy.shevchenko@linux.intel.com> wrote:
+"David Hildenbrand (Arm)" <david@kernel.org> writes:
 
-> On Fri, Mar 20, 2026 at 05:48:44PM -0700, Kees Cook wrote:
-> > In preparation for removing the strlcat API[1], replace the char *pp_buf
-> > with a struct seq_buf, which tracks the current write position and
-> > remaining space internally. This allows for:
-> > 
-> > - Direct use of seq_buf_printf() in place of snprintf()+strlcat()
-> >   pairs, eliminating local tmp buffers throughout.
-> > - Adjacent strlcat() calls that build strings piece-by-piece
-> >   (e.g., strlcat("["); strlcat(name); strlcat("]")) to be collapsed
-> >   into single seq_buf_printf() calls.
-> > - Simpler call sites: seq_buf_puts() takes only the buffer and string,
-> >   with no need to pass PAGE_SIZE at every call.
-> > 
-> > The backing buffer allocation is unchanged (__get_free_page), and the
-> > output path uses seq_buf_str() to NUL-terminate before passing to
-> > printk().  
-> 
-> Thanks a lot! A few comments below.
-> Personally I'm in favour of this patch as it also removes a lot of ugly code
-> (which is scoped string manipulations), FWIW,
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> 
-> > Link: https://github.com/KSPP/linux/issues/370 [1]  
-> 
-> > Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > Cc: Josh Law <objecting@objecting.org>  
-> 
-> While not long, this still can be placed...
-> 
-> > Signed-off-by: Kees Cook <kees@kernel.org>
-> > ---  
-> 
-> ...somewhere here to reduce unneeded noise in the commit message.
-> 
-> > I couldn't help myself. Here's the full patch, as I suggested in
-> > https://lore.kernel.org/lkml/202603201230.74BBFFABAD@keescook/
-> > There are plenty more like this to do...  
-> 
-> Indeed, but thanks for the example on how to do that!
-> 
-...
-> But probably okay as in the previous branch it needs more work to follow,
-> something like
-> 
-> 			char dostype[8];
-> 			...
-> 			if (dostype[3] < ' ') {
-> 				/* Escape control character */
-> 				dostype[4] = dostype[3] + '@';
-> 				dostype[3] = '^';
-> 				seq_buf_printf(&state->pp_buf, " (%.5s)", dostype);
+> On 3/17/26 15:11, Kalyazin, Nikita wrote:
+>> From: Nikita Kalyazin <kalyazin@amazon.com>
+>>
+>> Move the check for pinning closer to where the result is used.
+>> No functional changes.
+>>
+>> Signed-off-by: Nikita Kalyazin <kalyazin@amazon.com>
+>> ---
+>>  mm/gup.c | 23 ++++++++++++-----------
+>>  1 file changed, 12 insertions(+), 11 deletions(-)
+>>
+>> diff --git a/mm/gup.c b/mm/gup.c
+>> index 5856d35be385..869d79c8daa4 100644
+>> --- a/mm/gup.c
+>> +++ b/mm/gup.c
+>> @@ -2737,18 +2737,9 @@ EXPORT_SYMBOL(get_user_pages_unlocked);
+>>   */
+>>  static bool gup_fast_folio_allowed(struct folio *folio, unsigned int flags)
+>>  {
+>> -	bool reject_file_backed = false;
+>>  	struct address_space *mapping;
+>>  	unsigned long mapping_flags;
+>>
+>> -	/*
+>> -	 * If we aren't pinning then no problematic write can occur. A long term
+>> -	 * pin is the most egregious case so this is the one we disallow.
+>> -	 */
+>> -	if ((flags & (FOLL_PIN | FOLL_LONGTERM | FOLL_WRITE)) ==
+>> -	    (FOLL_PIN | FOLL_LONGTERM | FOLL_WRITE))
+>> -		reject_file_backed = true;
+>> -
+>>  	/* We hold a folio reference, so we can safely access folio fields. */
+>>  	if (WARN_ON_ONCE(folio_test_slab(folio)))
+>>  		return false;
+>> @@ -2793,8 +2784,18 @@ static bool gup_fast_folio_allowed(struct folio *folio, unsigned int flags)
+>>  	 */
+>>  	if (secretmem_mapping(mapping))
+>>  		return false;
+>> -	/* The only remaining allowed file system is shmem. */
+>> -	return !reject_file_backed || shmem_mapping(mapping);
+>> +
+>> +	/*
+>> +	 * If we aren't pinning then no problematic write can occur. A writable
+>> +	 * long term pin is the most egregious case, so this is the one we
+>> +	 * allow only for ...
+>> +	 */
+>> +	if ((flags & (FOLL_PIN | FOLL_LONGTERM | FOLL_WRITE)) !=
+>> +	    (FOLL_PIN | FOLL_LONGTERM | FOLL_WRITE))
+>> +		return true;
+>> +
+>> +	/* ... hugetlb (which we allowed above already) and shared memory. */
+>> +	return shmem_mapping(mapping);
+>
+> Acked-by: David Hildenbrand (Arm) <david@kernel.org>
+>
+> I'm wondering if it would be a good idea to check for a hugetlb mapping
+> here instead of having the folio_test_hugetlb() check above.
+>
 
-Or just:
-				seq_buf_printf(&state->pp_buf, " (%.3s^%c)", dostype, dostype[3] + '@');
+I think it's nice that hugetlb folios are determined immediately to be
+eligible for GUP-fast regardless of whether the folio is file-backed or
+not.
 
-	David
-
-> 			} else {
-> 				seq_buf_printf(&state->pp_buf, " (%.4s)", dostype);
-> 			}
-> 
-> Taking how invasive is this, it might be better to done separately.
-> 
-> > +			seq_buf_printf(&state->pp_buf, "(res %d spb %d)",
-> > +				       be32_to_cpu(pb->pb_Environment[6]),
-> > +				       be32_to_cpu(pb->pb_Environment[4]));
-> >  		}
-> >  		res = 1;  
-> 
-
+> Something to ponder about :)
+>
+> --
+> Cheers,
+>
+> David
