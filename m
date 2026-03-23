@@ -1,208 +1,163 @@
-Received: from mail-vs1-f41.google.com (mail-vs1-f41.google.com [209.85.217.41])
+Received: from mail-qt1-f174.google.com (mail-qt1-f174.google.com [209.85.160.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4148B31B823
-	for <linux-s390@vger.kernel.org>; Mon, 23 Mar 2026 18:46:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.217.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D80C31F9AA
+	for <linux-s390@vger.kernel.org>; Mon, 23 Mar 2026 18:48:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.174
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774291567; cv=pass; b=NjC3QtFW2n6jvsaw/Zb+H1rlnNU2VRbD+YI+ZRviKSg9T1a7cp0Pz8ZcnoXL406pYzbr3r2OS5Mm1JUts9LjRv2igsqyn4KQQFVTq8Ln6CL+WSIUhOQDvcpA8FYx6EkeI61m6TKt0E/feZR/FpoCcT0ENTUuaS3HB98j4CwbqVI=
+	t=1774291700; cv=pass; b=a+VpJTi17PePSOienXttEy/f+F91hptuYBbwEPQ7INadKGlTFpEQIABOKIbbfBGm9Rlb+uDuKU+xDox1Rxov1npLfRh0YaNQRwMWlTQxqpaTc3txOeKEDjVzMXn06pCCdPJqg0BBmk1fuZCaudeDqNjsDY4fHh0IMgdPoPXTFkg=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774291567; c=relaxed/simple;
-	bh=s+RmDqI+TsxZ+2VgJOew5FS3wS8MDadFq7MLa6vXhF0=;
-	h=From:In-Reply-To:References:MIME-Version:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WnwPtJ3cQyc7XQOwYtNnx5jWBzioJl55v1AjJJuskEdhRTWn7Dcyr5ZKZ2eDG8lFNfOmEMns/zhtesr11InyPmLjKicc5i/PhF7ofcsRM2ATOZaT/Y6iE8rqpdyCeuDt280V9TNOfxqyh+eGzeP59ye4CSu9EI6076fYyGZ+oK0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=vPOleV2z; arc=pass smtp.client-ip=209.85.217.41
+	s=arc-20240116; t=1774291700; c=relaxed/simple;
+	bh=wtd4dR/oVa1duupPZRE6M4yMtMAB5U3Lxud0Yc5yhbQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=EHVE0x2yt5aoPgZI5CZ813gBDtjMdY2G+hmDXSFCbML0U9/xEx5oqPtCCnMPwsB0+ijtvXVVq3MkM8HqRxoeaAwMksVrVvME8znGGj7ShNqug/s75UNg8lpLZxHaRwFA2LwIsW1jtd4lnLgQn7bep5ZJSALBJvf+VKSTKyNSHrw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=uvZ+PVxj; arc=pass smtp.client-ip=209.85.160.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="vPOleV2z"
-Received: by mail-vs1-f41.google.com with SMTP id ada2fe7eead31-602947681e2so270890137.0
-        for <linux-s390@vger.kernel.org>; Mon, 23 Mar 2026 11:46:05 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1774291564; cv=none;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="uvZ+PVxj"
+Received: by mail-qt1-f174.google.com with SMTP id d75a77b69052e-50b6c45781aso145251cf.0
+        for <linux-s390@vger.kernel.org>; Mon, 23 Mar 2026 11:48:19 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1774291698; cv=none;
         d=google.com; s=arc-20240605;
-        b=Y56+Be3AtiutKSHLrHFG8DCcR2gQUFSsOOXMDAvrmtK9BlX/MkUec2O6GU7/kpCKHf
-         bs+M4Qds1LxercxkBA6uXBNuCaTwf2HNyE18X6EB+qG6Ri34eQqqtrLyC8jI/dmdQKtT
-         byU0+fsfxFavV04a4RtbU/XryKMCM5z16w3wSf3A0h/9BO3gIhNpB5eQLPninaT/7qwn
-         WSkty9JXfNj9AQsPF0ochkchL/KpFloejicnG0m+FR0r0ETqBPMvxy8ijExzULzKXV/K
-         5NLvvtR7PZFN8iKKR8i7eMYfqtaC+VSSnt6fLTO/5jh5guUNofT12l8kAmw70qkaPmIS
-         vpFw==
+        b=T3tsiGbTT8h/4HielOMFJFL7ypGFGeUKuMcoHMHOyO8I5GKQH2j3HGAH1JUlQk3NGK
+         EPJwW455tHtm/cykxTYcPQeAgwq2TWpaTQwzZpsQT7AvQhUMDABxK+Gf7MPkMjAiYj8y
+         tXio8WSrjOl3l78VHkQHOdXd7DMUFyOmY7q5kwaLiNwKtPeCiZkmbDpaH+zhJpSxDAJG
+         SiB1SrHfVlVfbaVAzdyjN4lQlj9xK3gtscf9NHOd/qyq+MxIOGtV/4892S6zyxYFFc6h
+         zlGawl22vBZzcpRAcjbUqoYf9L/LlFtTN1WkytmLSdMMk51exlfWnmtWm/K/jc+zEgst
+         v2Xg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
-         :from:dkim-signature;
-        bh=xr0QXHWwKEApSlK6QljqZmiVGPlsHc0lfppFGa1RJnk=;
-        fh=n+zY6YBWATPRI6zMY0cvb2/ags6rp6u9LMMyQfnxrxk=;
-        b=FSiAGPjtSnhRnexDw5qukZeC2mdFdAy24zXW5AtZxhu0zG8/zZlOiBkeb0Td6A/Ajw
-         VvebmrFVWDyfxDgeeEgs/0j/bKN4VV6NAsXoruJeLc2Wdwdy5WB4xtpkVd2/ahWJHOwi
-         Cf69J2Sn+zXP+cjjV7ucmtZnzqrmX7gG8Cpu9L5IryQ6O5O3qpqnWRtZoXxGo1F+NSce
-         5YpHMtLos1TRM9wyzZWPN87W32vna6vLLqRpz2udQ8j4FSpPruQzNm3PR7Zv1AJjuv1n
-         AFQRGV53pWEw3Z6qFK/puZ9khlcoKUdodHW2FtaqPk9C9gyq/PMmYxEyYwU1UdnIJlTS
-         AD1w==;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=vcYV5qmYcsnRNOVKxHhuAn3tOig0z+BjjlFLGSFtEKI=;
+        fh=D3uvid7RI32FHJh2XSqNO9z0FN2kN2cVwExilJcZ7+4=;
+        b=TVPdFyA9jYhue+bxFUPIrLOUtBAEsy6ci/PbZHE6PK9hKoAoICwiuqKggtxK6SBCOs
+         rJ/6y7+23pUB7eTHf7676afzNjYqcxMWH8wi9/dRqHF0adVefea4en+bJ3fYsQF2r0KP
+         KDgKpFcN0RQJdDIDkouUohnfSUziC4N/RQ6aRFKTBGoWssCjADjJK7YcT2XHxpoXQ28N
+         d7VR/e56sTqNHscI9EGMZ9wRQgvrKo5inOUcbifIfby6A+Kpduvdiz2q62rS+8X9hzz3
+         Gp6rPCsQERAkndb89mEyK8cLCnGDGqbiCm67flpAIbIj01PmWWNvcsgS0tZvu6tXMLhB
+         QDYQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1774291564; x=1774896364; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=xr0QXHWwKEApSlK6QljqZmiVGPlsHc0lfppFGa1RJnk=;
-        b=vPOleV2zGY8OBGxA3efRkv8jcLPxrM4fnjs9NKftkybWve4Vj9ubgZfSzf0yIMxjsH
-         q0EbVlrkdVCyqQrJRXNHpSxBYvTFJ/XQaNlYVkOEdeOo1kif9egbkhAnPHIeGiT9jS7O
-         6V10B5R4TSHVae04PNPQUiBhB99us/JmvvLnlPZUkf5cHVMCmh8wSdtoMPjYGr/SQsp/
-         MDUPEJbGdDimb+Jw6capZeBDBldbucXV84h8vRjUUkMRYry8AS8RaweT+Tz/Z0LqIjYb
-         M1Ke+BtIl4404To6EledIl8n42DqmEDSLyxjRdrWckKT/i+UskywAJfK7IfaQrN+9Lp+
-         QNgg==
+        d=google.com; s=20251104; t=1774291698; x=1774896498; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=vcYV5qmYcsnRNOVKxHhuAn3tOig0z+BjjlFLGSFtEKI=;
+        b=uvZ+PVxj96HK+k4Ve4xvJGHxvyizwbjetJuPp1Dc5KTENfgbnAy1/ClCeaM8jZcndO
+         4cJzXh/nb8ayOv5YnjXV7SOGTbbCCfkodig3g4JtI2T0X5tlshvoQemfdt/bfTKLYvOl
+         haipNw7BOfRLtOTf7f9Fp7+vyvZM1n68ubNJgj2w7AKMIP+K5VOlo0182eGJhnWzuJph
+         e0R8VdslH85Zpf9XueAMVrGE7lEPQB/ag6byVMkzrW4vlisx7LVcaHY6f2gAhDo+D0yC
+         NMKQkEBL3awkqe0VZV/Y0ouEo8D7n1TPpjJJhMv9gVwrqIW7ylW9/tvv0BckT7fOts1E
+         OEHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774291564; x=1774896364;
-        h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
-         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=xr0QXHWwKEApSlK6QljqZmiVGPlsHc0lfppFGa1RJnk=;
-        b=e9nBHKrx/V+HoY5q3J5kXjUUKtjwFrsm9laOy+5gaYv08ltx99gpmdYqbx+UmedY/p
-         jQTlUlMyQ4YORwl3JV5OV8KKbgI5zfE1KJKxJXXoMGret3FhzxPicaFqYKd7r+uKu1sh
-         VLkraMfQ5T2BtMYHqRa2fY5odKswy9tQO9XIVheYZv59WzVS6Syf9AT0vDJGMy08FzZB
-         f7a6ZC9OchthVL3VIxGpR2azpHscAyPhXuJgDhhMeQzukf+bcTvsugxmhQ5cgulgGbqz
-         kyREcZgPC/mZIeEC9/OY7jakgWrHK2FnT1cSzkCD+SxzZt1nnRP0xNTc7AGICv3oyUTh
-         lb9Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUPgELHVdoOKYNxx+D0Q6N1Dw4kOli5tYGRxBsRKTkIZ0BzF4NRyO6ImpmT7f32TY/lqF80DoGz/00/@vger.kernel.org
-X-Gm-Message-State: AOJu0YzRkBLdVkNLA7m6nA6KlDF7+2RqX4AEG72wHcetCR335f167XWH
-	oI7pqjGYBSjlGeKfUh07/Ey7WKbpn9X+WsFcZ3Wn8KXwz1XGs8Bsf5YRxS3Ck+prhUQUa1wA1+w
-	gfMLDOYCkXVxOdgYVoQIJ/DazHFy0b1VK7ckL/dBf
-X-Gm-Gg: ATEYQzyqWJ2oqMAVD+WQ885bDzSFTs5cS5IlRIi8knJHQuZT8JgoGOkStugmv6fn8tn
-	Ptq3H3kirxuFA1/aI6ttj3dmjx3iJFZvI1PmvMSX4xDfTYUlkIwCh2bt7quLnxc2girPLINFAhM
-	nk/5YQbk05LZv6Y5RwMXaa5L4s4pnfJLn5hi3bVZ+NbveiXLwRy0qAFXVRIlF40ewthnuSjEmyr
-	EgAKk4zJLTXhoOTLo0i6Ht+UvaW6XlkD0y2imlOPM9I0NqCg7MSs0q1TUkcAU/0b5npljXQB2fN
-	2Zc+A7TzPV1gfZfHQuNREDbrjIXR8GePrcVT+5z8NLKxL4UijyTpoKf4yyjdUGvfyYAzDg==
-X-Received: by 2002:a05:6102:1610:b0:5ef:8ae:85a5 with SMTP id
- ada2fe7eead31-602aeb231f5mr7205779137.16.1774291563158; Mon, 23 Mar 2026
- 11:46:03 -0700 (PDT)
-Received: from 176938342045 named unknown by gmailapi.google.com with
- HTTPREST; Mon, 23 Mar 2026 11:46:02 -0700
-Received: from 176938342045 named unknown by gmailapi.google.com with
- HTTPREST; Mon, 23 Mar 2026 11:46:02 -0700
-From: Ackerley Tng <ackerleytng@google.com>
-In-Reply-To: <20260317141031.514-4-kalyazin@amazon.com>
-References: <20260317141031.514-1-kalyazin@amazon.com> <20260317141031.514-4-kalyazin@amazon.com>
+        d=1e100.net; s=20251104; t=1774291698; x=1774896498;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=vcYV5qmYcsnRNOVKxHhuAn3tOig0z+BjjlFLGSFtEKI=;
+        b=KHCuBQVAzXeE8ro+taELBk8OBPybF0EvXLTVk9ospMx9CeCmcE+YlJBFU+EBVXtFzA
+         shQALcZiE/C8F6vPB4YTZ+SqtcmkBNYJVaQdZdaQLy3WqSEqKQ6LqtRa88u1n4LseFEv
+         j6KSZSBV1RK2nZ4ADO6KQsEl4W2sk4ktiEBAozesy9Nuz+H4fMN1q+dJLE31dGSlsLBs
+         eauRPASfAA5wi+/FPVAl3cgv8pbYxNOK/hnJ1Kp2EK2BmasZ3tpld5ecxC1H6s36J5gR
+         BbOzuNErylHjjCZ4/fMR9UMzOdET8DFCjvhet7kLb3oy90rvEUF14tPLLjDB+XWlPRv9
+         1acw==
+X-Forwarded-Encrypted: i=1; AJvYcCXgTXwmoCqZQcwSvt5XvB0R4efUujtRaNm96QzwWSd57GREPPLi93LAsc4xM3op//pOMc0yIswlxLWr@vger.kernel.org
+X-Gm-Message-State: AOJu0YxeV5vjN6VK69RqRp8srZmM3n3lU3VCIrfIfnHrG6lNUPSaUqQY
+	j5ZDmnfeuR1wvzqh8jOYo51NnbGWenQKNlPLLrD7l5JyBOFputaHpJXKegGUINRr1L415Sl2Ws0
+	mmfa3PPMvqeSLsj3crRrpAC8gDL0ucUuvQnqKBc9L
+X-Gm-Gg: ATEYQzzgaIjnTAMPMgwPb/wXqehb2p9pgKzOUZsZSoqlgu0C+/cbgvM7Ej5W7p1XquU
+	TDgLwuufKN1z4T4iLR479dj79Vq0BlBb6tVSTyf8SJZE3natmbDNibAXEo/kFpPpYNUvG3zyXaI
+	QjrqDm/fAh0tX75vDDQPnhk1r/gevk9UPrNbCbtpx8KxYvsZOi3UvunMsPexDMv3j1qkIp0qYFN
+	0LjHy6D5mHfhDwVkPyVYibCcfMs2C7DeeVx1lB/y8MSCPGQRUfNkD09lzgRm8ZGev1o9wWbng2m
+	2GziQqohLnEOmfJd
+X-Received: by 2002:a05:622a:1f85:b0:506:a3c8:d44d with SMTP id
+ d75a77b69052e-50b6fd357cbmr1787911cf.9.1774291697776; Mon, 23 Mar 2026
+ 11:48:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Mon, 23 Mar 2026 11:46:02 -0700
-X-Gm-Features: AQROBzCRQmL2CFh0hL8G9T_h4E5mqLNycY6Q5fv3k8u-7tLVQqZDWt6l_fOQ864
-Message-ID: <CAEvNRgEBdi49ZkfGo0xmM+J1yzKOzfT2ThAXEN=S0j7vC7Fu3w@mail.gmail.com>
-Subject: Re: [PATCH v11 03/16] mm/secretmem: make use of folio_{zap,restore}_direct_map
-To: "Kalyazin, Nikita" <kalyazin@amazon.co.uk>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, 
-	"kvmarm@lists.linux.dev" <kvmarm@lists.linux.dev>, 
-	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, 
-	"bpf@vger.kernel.org" <bpf@vger.kernel.org>, 
-	"linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>, "kernel@xen0n.name" <kernel@xen0n.name>, 
-	"linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, 
-	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, 
-	"loongarch@lists.linux.dev" <loongarch@lists.linux.dev>, 
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
-Cc: "pbonzini@redhat.com" <pbonzini@redhat.com>, "corbet@lwn.net" <corbet@lwn.net>, 
-	"maz@kernel.org" <maz@kernel.org>, "oupton@kernel.org" <oupton@kernel.org>, 
-	"joey.gouly@arm.com" <joey.gouly@arm.com>, "suzuki.poulose@arm.com" <suzuki.poulose@arm.com>, 
-	"yuzenghui@huawei.com" <yuzenghui@huawei.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, 
-	"will@kernel.org" <will@kernel.org>, "seanjc@google.com" <seanjc@google.com>, "tglx@kernel.org" <tglx@kernel.org>, 
-	"mingo@redhat.com" <mingo@redhat.com>, "bp@alien8.de" <bp@alien8.de>, 
-	"dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, "x86@kernel.org" <x86@kernel.org>, 
-	"hpa@zytor.com" <hpa@zytor.com>, "luto@kernel.org" <luto@kernel.org>, 
-	"peterz@infradead.org" <peterz@infradead.org>, "willy@infradead.org" <willy@infradead.org>, 
-	"akpm@linux-foundation.org" <akpm@linux-foundation.org>, "david@kernel.org" <david@kernel.org>, 
-	"lorenzo.stoakes@oracle.com" <lorenzo.stoakes@oracle.com>, "vbabka@kernel.org" <vbabka@kernel.org>, 
-	"rppt@kernel.org" <rppt@kernel.org>, "surenb@google.com" <surenb@google.com>, "mhocko@suse.com" <mhocko@suse.com>, 
-	"ast@kernel.org" <ast@kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>, 
-	"andrii@kernel.org" <andrii@kernel.org>, "martin.lau@linux.dev" <martin.lau@linux.dev>, 
-	"eddyz87@gmail.com" <eddyz87@gmail.com>, "song@kernel.org" <song@kernel.org>, 
-	"yonghong.song@linux.dev" <yonghong.song@linux.dev>, 
-	"john.fastabend@gmail.com" <john.fastabend@gmail.com>, "kpsingh@kernel.org" <kpsingh@kernel.org>, 
-	"sdf@fomichev.me" <sdf@fomichev.me>, "haoluo@google.com" <haoluo@google.com>, 
-	"jolsa@kernel.org" <jolsa@kernel.org>, "jgg@ziepe.ca" <jgg@ziepe.ca>, 
-	"jhubbard@nvidia.com" <jhubbard@nvidia.com>, "peterx@redhat.com" <peterx@redhat.com>, 
-	"jannh@google.com" <jannh@google.com>, "pfalcato@suse.de" <pfalcato@suse.de>, 
-	"skhan@linuxfoundation.org" <skhan@linuxfoundation.org>, "riel@surriel.com" <riel@surriel.com>, 
-	"ryan.roberts@arm.com" <ryan.roberts@arm.com>, "jgross@suse.com" <jgross@suse.com>, 
-	"yu-cheng.yu@intel.com" <yu-cheng.yu@intel.com>, "kas@kernel.org" <kas@kernel.org>, 
-	"coxu@redhat.com" <coxu@redhat.com>, "kevin.brodsky@arm.com" <kevin.brodsky@arm.com>, 
-	"yosry@kernel.org" <yosry@kernel.org>, "ajones@ventanamicro.com" <ajones@ventanamicro.com>, 
-	"maobibo@loongson.cn" <maobibo@loongson.cn>, "tabba@google.com" <tabba@google.com>, 
-	"prsampat@amd.com" <prsampat@amd.com>, "wu.fei9@sanechips.com.cn" <wu.fei9@sanechips.com.cn>, 
-	"mlevitsk@redhat.com" <mlevitsk@redhat.com>, "jmattson@google.com" <jmattson@google.com>, 
-	"jthoughton@google.com" <jthoughton@google.com>, "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>, 
-	"alex@ghiti.fr" <alex@ghiti.fr>, "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>, 
-	"borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>, "chenhuacai@kernel.org" <chenhuacai@kernel.org>, 
-	"dev.jain@arm.com" <dev.jain@arm.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>, 
-	"hca@linux.ibm.com" <hca@linux.ibm.com>, "palmer@dabbelt.com" <palmer@dabbelt.com>, 
-	"pjw@kernel.org" <pjw@kernel.org>, 
-	"shijie@os.amperecomputing.com" <shijie@os.amperecomputing.com>, "svens@linux.ibm.com" <svens@linux.ibm.com>, 
-	"thuth@redhat.com" <thuth@redhat.com>, "wyihan@google.com" <wyihan@google.com>, 
-	"yang@os.amperecomputing.com" <yang@os.amperecomputing.com>, 
-	"Jonathan.Cameron@huawei.com" <Jonathan.Cameron@huawei.com>, 
-	"Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>, "urezki@gmail.com" <urezki@gmail.com>, 
-	"zhengqi.arch@bytedance.com" <zhengqi.arch@bytedance.com>, 
-	"gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>, 
-	"jiayuan.chen@shopee.com" <jiayuan.chen@shopee.com>, "lenb@kernel.org" <lenb@kernel.org>, 
-	"osalvador@suse.de" <osalvador@suse.de>, "pavel@kernel.org" <pavel@kernel.org>, 
-	"rafael@kernel.org" <rafael@kernel.org>, "vannapurve@google.com" <vannapurve@google.com>, 
-	"jackmanb@google.com" <jackmanb@google.com>, "aneesh.kumar@kernel.org" <aneesh.kumar@kernel.org>, 
-	"patrick.roy@linux.dev" <patrick.roy@linux.dev>, "Thomson, Jack" <jackabt@amazon.co.uk>, 
-	"Itazuri, Takahiro" <itazur@amazon.co.uk>, "Manwaring, Derek" <derekmn@amazon.com>
+References: <20260322054309.898214-1-surenb@google.com> <20260322054309.898214-4-surenb@google.com>
+ <fb38ecc9-36f8-49a1-bf20-a2c03244e574@lucifer.local>
+In-Reply-To: <fb38ecc9-36f8-49a1-bf20-a2c03244e574@lucifer.local>
+From: Suren Baghdasaryan <surenb@google.com>
+Date: Mon, 23 Mar 2026 11:48:05 -0700
+X-Gm-Features: AQROBzAcISvCKuZDTq5gxGva_UwU6WnzRjvi5ru0PTUHh42qSaWhag7QAbSow20
+Message-ID: <CAJuCfpFDv1JC-wXR2d_KyrisnJTXxZbPSCY6Bpo4vLxj+FNw5Q@mail.gmail.com>
+Subject: Re: [PATCH v4 3/4] KVM: s390: avoid kvm_s390_handle_pv() error overwrite
+To: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
+Cc: akpm@linux-foundation.org, willy@infradead.org, david@kernel.org, 
+	ziy@nvidia.com, matthew.brost@intel.com, joshua.hahnjy@gmail.com, 
+	rakie.kim@sk.com, byungchul@sk.com, gourry@gourry.net, 
+	ying.huang@linux.alibaba.com, apopple@nvidia.com, lorenzo.stoakes@oracle.com, 
+	baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, npache@redhat.com, 
+	ryan.roberts@arm.com, dev.jain@arm.com, baohua@kernel.org, 
+	lance.yang@linux.dev, vbabka@suse.cz, jannh@google.com, rppt@kernel.org, 
+	mhocko@suse.com, pfalcato@suse.de, kees@kernel.org, maddy@linux.ibm.com, 
+	npiggin@gmail.com, mpe@ellerman.id.au, chleroy@kernel.org, 
+	borntraeger@linux.ibm.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com, 
+	hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com, 
+	svens@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-mm@kvack.org, 
+	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-"Kalyazin, Nikita" <kalyazin@amazon.co.uk> writes:
+On Mon, Mar 23, 2026 at 10:53=E2=80=AFAM Lorenzo Stoakes (Oracle)
+<ljs@kernel.org> wrote:
+>
+> On Sat, Mar 21, 2026 at 10:43:07PM -0700, Suren Baghdasaryan wrote:
+> > If kvm_s390_handle_pv() call fails its error code gets recorded but
+> > execution proceeds as if the call was successful. If the next call to
+> > copy_to_user() fails then the original error is overwritten.
+>
+> Is that really a big deal though, as you're returning an error in either =
+case?
+>
+> > The follow-up patch adds fatal signal checks during VMA walk, which
+> > makes it possible for kvm_s390_handle_pv() to return EINTR error.
+> > Without this fix any error including EINTR can be overwritten and
+> > original error will be lost.
+> >
+> > Change error handling for kvm_s390_handle_pv() to alter normal flow
+> > once failure happens. This is consistent with how kvm_arch_vm_ioctl
+> > handles errors for other ioctl commands.
+> >
+> > Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+> > ---
+> >  arch/s390/kvm/kvm-s390.c | 2 ++
+> >  1 file changed, 2 insertions(+)
+> >
+> > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> > index 3eb60aa932ec..ddad08c0926f 100644
+> > --- a/arch/s390/kvm/kvm-s390.c
+> > +++ b/arch/s390/kvm/kvm-s390.c
+> > @@ -2947,6 +2947,8 @@ int kvm_arch_vm_ioctl(struct file *filp, unsigned=
+ int ioctl, unsigned long arg)
+> >               }
+> >               /* must be called without kvm->lock */
+> >               r =3D kvm_s390_handle_pv(kvm, &args);
+> > +             if (r)
+> > +                     break;
+> >               if (copy_to_user(argp, &args, sizeof(args))) {
+>
+> Yeah as per Sashiko we probably need to copy_to_user() still.
+>
+> But in that case, do we even need a change at all? I'm not sure it really
+> matters which error code terminates things does it?
 
-> From: Nikita Kalyazin <kalyazin@amazon.com>
->
-> Signed-off-by: Nikita Kalyazin <kalyazin@amazon.com>
-> ---
->  mm/secretmem.c | 8 ++------
->  1 file changed, 2 insertions(+), 6 deletions(-)
->
-> diff --git a/mm/secretmem.c b/mm/secretmem.c
-> index fd29b33c6764..27b176af8fc4 100644
-> --- a/mm/secretmem.c
-> +++ b/mm/secretmem.c
-> @@ -53,7 +53,6 @@ static vm_fault_t secretmem_fault(struct vm_fault *vmf)
->  	struct inode *inode = file_inode(vmf->vma->vm_file);
->  	pgoff_t offset = vmf->pgoff;
->  	gfp_t gfp = vmf->gfp_mask;
-> -	unsigned long addr;
->  	struct folio *folio;
->  	vm_fault_t ret;
->  	int err;
-> @@ -72,7 +71,7 @@ static vm_fault_t secretmem_fault(struct vm_fault *vmf)
->  			goto out;
->  		}
->
-> -		err = set_direct_map_invalid_noflush(folio_address(folio));
-> +		err = folio_zap_direct_map(folio);
->  		if (err) {
->  			folio_put(folio);
->  			ret = vmf_error(err);
-> @@ -87,7 +86,7 @@ static vm_fault_t secretmem_fault(struct vm_fault *vmf)
->  			 * already happened when we marked the page invalid
->  			 * which guarantees that this call won't fail
->  			 */
-> -			set_direct_map_default_noflush(folio_address(folio));
-> +			folio_restore_direct_map(folio);
->  			folio_put(folio);
->  			if (err == -EEXIST)
->  				goto retry;
-> @@ -95,9 +94,6 @@ static vm_fault_t secretmem_fault(struct vm_fault *vmf)
->  			ret = vmf_error(err);
->  			goto out;
->  		}
-> -
-> -		addr = (unsigned long)folio_address(folio);
-> -		flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
->  	}
->
->  	vmf->page = folio_file_page(folio, vmf->pgoff);
-> --
-> 2.50.1
+I agree. I plan to drop this patch from the series (see my former
+reply) unless someone tells me otherwise.
 
-Reviewed-by: Ackerley Tng <ackerleytng@google.com>
+>
+> >                       r =3D -EFAULT;
+> >                       break;
+> > --
+> > 2.53.0.1018.g2bb0e51243-goog
+> >
+>
+> Thanks, Lorenzo
