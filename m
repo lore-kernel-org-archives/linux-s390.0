@@ -1,599 +1,213 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98D2438758D;
-	Mon, 23 Mar 2026 09:33:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A80B38552F;
+	Mon, 23 Mar 2026 09:41:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774258387; cv=none; b=AE2iUUOIpiQwJ2zDp7KT6xjHtkZmB8gtnPvrTIm5ef6qTbRjtbFGZQ/or1+lmSwo9o3FLWZO+07HEfmvsYWzCXt8yy5KdxKBh9mqOCzSESA2614qc+Jpq9q51VrLyxjWaoFCXJzLZ+vTsF4+DiLP+RTaTY1qGP5UIfyBBzxgrTA=
+	t=1774258918; cv=none; b=WmgGqGZX+z1alC89HqNsN0jOSDapWjTvWFuuyCMmnkOWJLcDFtCds6Idd/TQYfdPSz2+AZHyQY9YHrIaJ/rbR2g9dQvswfJOZZA9j9ACIXKWtk/KmewhkXEE8bOgiRk87pv1YpDfKOKyBrt4+pqyf87Zt1WJMBFOKgeuqWbvTOI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774258387; c=relaxed/simple;
-	bh=ojkbBhjcU2+B11afiFloFXKbw+yrXjKkv+MwwLvcIIs=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=oJToL8D3nMsOcElXMJE/ElWqQfdeFda4uTByNa3SM+qBDILOtg21QgORxkf7bO7gteK9s9GbtIv644fMmpwECObmCXDO2/k4D7chZ3wi1qtV+9xZ0Sf2BImp2ftUZ0h723VJ9cR3uedSipVxM1z2kGNpK05mgiuW7TxThxBVtzQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=E+HU9cqB; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1774258918; c=relaxed/simple;
+	bh=VOSK6AaCxQSTQFajzAiT0euTggc2yquqJNHeBBOjtiw=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:To:Subject:From:
+	 References:In-Reply-To; b=sMUU3hzGVcDpgLeFosgkdWLWP2922KeLB2q4qi+/JjY4QFl5OZqKYx9VLOtHLEtlAV6B97Y17O64511nqMy53Q7Pg2d8OOzTAOMuIiSaT1xpof80ONEmQv+MbR2py7NXmJa3ZFCMyo0C2RUH+RbMnOUpiVgFWcndjv1dsy3Funs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OKPJpDUU; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="E+HU9cqB"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62MJOLa8202544;
-	Mon, 23 Mar 2026 09:32:59 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OKPJpDUU"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62MFHsvh3826166;
+	Mon, 23 Mar 2026 09:41:56 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=NXaILv
-	dj40ieELVq3kiRBRs008PPm3QqTUnNsNWhO78=; b=E+HU9cqBDkd/MR9Qso/Zms
-	9uBymUZWGOKiIepB/B4UPngHhUL1K+/uJgnFjPEwSxB48JKXpHnJz10WIr4gEX5X
-	9ssMoD6rIasnV10vSLzyTa+CRfT8BtnMd90auMd8DKsNxVdmTniLpLHXd6udl3o2
-	aleWB2RZzw/Y7G1OkjMavqBdpMBYSFGXPD/uiJnYc/zhmMAKxyEMvbEmM1rbYTFL
-	66lZ3E/pZJItIcwwUdo+OJBjgXOq9kdfYdF4xiRoKEbyKy0qrbnDoWPaJmi9PCE3
-	qiuUBGCDuOjQkK7mGDcYdJ9ZKMAYrHFdUOfIb3bNJOtSQ2jLCZJkQTo4c/Etn/PA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=boeD76
+	3bC4E/gTbIGlfkP9tTn0/24w48tJhxst2DVNc=; b=OKPJpDUUcHAOJKFODEfVWh
+	qdTmQ/IT4tRqHkIF6xfiFnVChwwpflT/KViH09ee0gLg8tSZy71plDySJJ6cEGGA
+	t6bqcXWh8cb/7SF30QNOrKCyPGq4OUDXIHlyoQfCjxAuOYIWYPIdGQ4dxaYccvoN
+	g3pWmPUzeAFf8vMqOeBtKig++3TfNPZA6/DbQ3oM3IXYeP21vLjlFJT0rQ4UcUSm
+	4R0UhyM66f5grnOC4K9mC4kjfHr2A/SU1V7BMIvBTFovQscK5Etj0WHQhSoRXvIg
+	nAATE06hfNjboRjvfOtQr+0sWdpD4qIW7DDnxdH7NOT8POa+lRXcr3j7hUbwNDNQ
 	==
 Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1ktunxha-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kxywwx1-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 23 Mar 2026 09:32:59 +0000 (GMT)
+	Mon, 23 Mar 2026 09:41:55 +0000 (GMT)
 Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62N8gATK004375;
-	Mon, 23 Mar 2026 09:32:58 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d28c1vhea-1
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62N919k2004399;
+	Mon, 23 Mar 2026 09:41:55 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d28c1vj81-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 23 Mar 2026 09:32:58 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62N9WsiA59703644
+	Mon, 23 Mar 2026 09:41:54 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62N9fpCj22020386
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 23 Mar 2026 09:32:54 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 936A520043;
-	Mon, 23 Mar 2026 09:32:54 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 459292004E;
-	Mon, 23 Mar 2026 09:32:54 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 23 Mar 2026 09:32:54 +0000 (GMT)
-From: Julian Ruess <julianr@linux.ibm.com>
-Date: Mon, 23 Mar 2026 10:32:46 +0100
-Subject: [PATCH v7 2/3] vfio/ism: Implement vfio_pci driver for ISM devices
+	Mon, 23 Mar 2026 09:41:51 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4D08B20040;
+	Mon, 23 Mar 2026 09:41:51 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 38EFF20043;
+	Mon, 23 Mar 2026 09:41:51 +0000 (GMT)
+Received: from darkmoore (unknown [9.52.198.32])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 23 Mar 2026 09:41:51 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260323-vfio_pci_ism-v7-2-abf537150408@linux.ibm.com>
-References: <20260323-vfio_pci_ism-v7-0-abf537150408@linux.ibm.com>
-In-Reply-To: <20260323-vfio_pci_ism-v7-0-abf537150408@linux.ibm.com>
-To: schnelle@linux.ibm.com, wintera@linux.ibm.com, ts@linux.ibm.com,
-        oberpar@linux.ibm.com, gbayer@linux.ibm.com,
-        Alex Williamson <alex@shazbot.org>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Shameer Kolothum <skolothumtho@nvidia.com>,
-        Kevin Tian <kevin.tian@intel.com>
-Cc: mjrosato@linux.ibm.com, alifm@linux.ibm.com, raspl@linux.ibm.com,
-        hca@linux.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
-        julianr@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-pci@vger.kernel.org
-X-Mailer: b4 0.14.2
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 23 Mar 2026 10:41:45 +0100
+Message-Id: <DHA2AH0CSLVL.2RED4W0M6RLNE@linux.ibm.com>
+Cc: <linux-s390@vger.kernel.org>, <imbrenda@linux.ibm.com>,
+        <borntraeger@linux.ibm.com>, <akrowiak@linux.ibm.com>
+To: "Janosch Frank" <frankja@linux.ibm.com>, <kvm@vger.kernel.org>
+Subject: Re: [RFC 09/10] KVM: s390: Use gpa_t in pv.c
+From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+X-Mailer: aerc 0.21.0
+References: <20260316180310.17765-1-frankja@linux.ibm.com>
+ <20260316180310.17765-10-frankja@linux.ibm.com>
+In-Reply-To: <20260316180310.17765-10-frankja@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: OZybi3DN9XSRBu4NKwV0gi5APUu7YNcF
-X-Authority-Analysis: v=2.4 cv=aMr9aL9m c=1 sm=1 tr=0 ts=69c108cb cx=c_pps
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzIzMDA3MSBTYWx0ZWRfXytLCM7dvAMOV
+ 2HntCToGY6za6HPbIbu0SE04yxt0uxQeTyu5iT53WiBZlwB7gzQvx6RQ8bA3jBlnRLYpVVDeHTY
+ CaBPVxqc2+5mYiRpE273qHc2EhwGMbOfktYqSL0zGo/hF4jMuGUBYvfhMmVHuNu3iSdbtIaMJEP
+ 9YI2Tq75AaICywii3S6jz2mJNVOmcoBNn7ezYU4jfUbor6I4ltNLaTQhJyRekNCDUw48JQxc7Jx
+ +ew/UOSsZmT+y02vRLeABBOTIQhy9mMOZRgzZcUOr5aTsgrWPPcv9X1s5BmlJZO2Rz4ghzArgSQ
+ +Gr0fB3hJyt5Vg9LTMYkkNYIb9uoWQaXsfQM6tRvM6r17jUIg5dVJxS6kgCUAMvgHVcMeeRe94Z
+ 7UX4xJ7TR2U2hmYtLJETabRAC1w52iTN2Pmo8f3o/gdQe3mqR/cwaSXnTXGdofmfOxAaGU7DlNZ
+ 4lIdss2j0oiGxllFkiA==
+X-Authority-Analysis: v=2.4 cv=JK42csKb c=1 sm=1 tr=0 ts=69c10ae3 cx=c_pps
  a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=qDoQYVglVPIJUuxkhcQA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzIzMDA3MSBTYWx0ZWRfXzhamaFck0hmm
- udEk+iSui4vRwOq0VWohPOBUnhwgLzxwVAZ9y1vkOisrbsvgHE3cAguN5iruzti/MYmj0Pgdc3W
- bNY6E+y1uUueNgPR6hJvg2HbkpWWK+rI1YLpRsXoXQ65y/coJz8Ol6opYe7sQtrXrIXrF0VVjqQ
- OmVWFfLfHvLQgELMrFB3QOQKAmYefW4KpDWKiE9RoOiuT/PFDg53O5Z/Mj2569o1+F2qw5G6/Iu
- 6FqMj/66MjPchZ57IlV56aueVybmaPRqqoVcn+jEuETGuP02o4h68otFQ4pBlR7DTzJ2TNIZWda
- YxH2EaHOop7CN6w5R20oOWOF8Mzz4BIOPJERJ2jZ7GhAey0PZQfVGAgFyQ2IQnl4KO98HbDPrdn
- Wz+YjabFaENu8I45o+3ZHQJUuFyDSpgUjLIXwfzADB5xjYA2NBYjKA1cnk6PTap+F+JXmnn3sbS
- M4M1Vz/oKXHcskL3d9A==
-X-Proofpoint-GUID: OZybi3DN9XSRBu4NKwV0gi5APUu7YNcF
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=L-qVmOLguht6ssTEgqgA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: 7DwJzjc9F1QQ5FXSNlj68YCVvuY10b7p
+X-Proofpoint-GUID: 7DwJzjc9F1QQ5FXSNlj68YCVvuY10b7p
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-03-23_02,2026-03-20_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 lowpriorityscore=0 adultscore=0 impostorscore=0 malwarescore=0
- suspectscore=0 phishscore=0 priorityscore=1501 bulkscore=0 clxscore=1015
+ impostorscore=0 clxscore=1015 priorityscore=1501 malwarescore=0 adultscore=0
+ spamscore=0 suspectscore=0 phishscore=0 lowpriorityscore=0 bulkscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603230071
 
-Add a vfio_pci variant driver for the s390-specific Internal Shared
-Memory (ISM) devices used for inter-VM communication.
+It would be nicer to also rename the variables here from the mix of "gaddr"=
+ and
+"addr" to "gpa". Or at least conistently to "gaddr" as they are in most cas=
+es
+then assigned to the ".gaddr" fields in the uv structs.
 
-This enables the development of vfio-pci-based user space drivers for
-ISM devices.
-
-On s390, kernel primitives such as ioread() and iowrite() are switched
-over from function handle based PCI load/stores instructions to PCI
-memory-I/O (MIO) loads/stores when these are available and not
-explicitly disabled. Since these instructions cannot be used with ISM
-devices, ensure that classic function handle-based PCI instructions are
-used instead.
-
-The driver is still required even when MIO instructions are disabled, as
-the ISM device relies on the PCI store block (PCISTB) instruction to
-perform write operations.
-
-Stores are not fragmented, therefore one ioctl corresponds to exactly
-one PCISTB instruction. User space must ensure to not write more than
-4096 bytes at once to an ISM BAR which is the maximum payload of the
-PCISTB instruction.
-
-Signed-off-by: Julian Ruess <julianr@linux.ibm.com>
----
- drivers/vfio/pci/Kconfig      |   2 +
- drivers/vfio/pci/Makefile     |   2 +
- drivers/vfio/pci/ism/Kconfig  |  10 ++
- drivers/vfio/pci/ism/Makefile |   3 +
- drivers/vfio/pci/ism/main.c   | 401 ++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 418 insertions(+)
-
-diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
-index 1e82b44bda1a0a544e1add7f4b06edecf35aaf81..296bf01e185ecacc388ebc69e92706c99e47c814 100644
---- a/drivers/vfio/pci/Kconfig
-+++ b/drivers/vfio/pci/Kconfig
-@@ -60,6 +60,8 @@ config VFIO_PCI_DMABUF
- 
- source "drivers/vfio/pci/mlx5/Kconfig"
- 
-+source "drivers/vfio/pci/ism/Kconfig"
-+
- source "drivers/vfio/pci/hisilicon/Kconfig"
- 
- source "drivers/vfio/pci/pds/Kconfig"
-diff --git a/drivers/vfio/pci/Makefile b/drivers/vfio/pci/Makefile
-index e0a0757dd1d2b0bc69b7e4d79441d5cacf4e1cd8..6138f1bf241df04e7419f196b404abdf9b194050 100644
---- a/drivers/vfio/pci/Makefile
-+++ b/drivers/vfio/pci/Makefile
-@@ -11,6 +11,8 @@ obj-$(CONFIG_VFIO_PCI) += vfio-pci.o
- 
- obj-$(CONFIG_MLX5_VFIO_PCI)           += mlx5/
- 
-+obj-$(CONFIG_ISM_VFIO_PCI)           += ism/
-+
- obj-$(CONFIG_HISI_ACC_VFIO_PCI) += hisilicon/
- 
- obj-$(CONFIG_PDS_VFIO_PCI) += pds/
-diff --git a/drivers/vfio/pci/ism/Kconfig b/drivers/vfio/pci/ism/Kconfig
-new file mode 100644
-index 0000000000000000000000000000000000000000..02f47d25fed2d34c732b67b3a3655b64a7625467
---- /dev/null
-+++ b/drivers/vfio/pci/ism/Kconfig
-@@ -0,0 +1,10 @@
-+# SPDX-License-Identifier: GPL-2.0
-+config ISM_VFIO_PCI
-+	tristate "VFIO support for ISM devices"
-+	depends on S390
-+	select VFIO_PCI_CORE
-+	help
-+	  This provides user space support for IBM Internal Shared Memory (ISM)
-+	  Adapter devices using the VFIO framework.
-+
-+	  If you don't know what to do here, say N.
-diff --git a/drivers/vfio/pci/ism/Makefile b/drivers/vfio/pci/ism/Makefile
-new file mode 100644
-index 0000000000000000000000000000000000000000..32cc3c66dd11395da85a2b6f05b3d97036ed8a35
---- /dev/null
-+++ b/drivers/vfio/pci/ism/Makefile
-@@ -0,0 +1,3 @@
-+# SPDX-License-Identifier: GPL-2.0
-+obj-$(CONFIG_ISM_VFIO_PCI) += ism-vfio-pci.o
-+ism-vfio-pci-y := main.o
-diff --git a/drivers/vfio/pci/ism/main.c b/drivers/vfio/pci/ism/main.c
-new file mode 100644
-index 0000000000000000000000000000000000000000..02bd137974306a1191a6b62d885d82cce75d58a9
---- /dev/null
-+++ b/drivers/vfio/pci/ism/main.c
-@@ -0,0 +1,401 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * vfio-ISM driver for s390
-+ *
-+ * Copyright IBM Corp.
-+ */
-+
-+#include "../vfio_pci_priv.h"
-+#include "linux/slab.h"
-+
-+#define ISM_VFIO_PCI_OFFSET_SHIFT   48
-+#define ISM_VFIO_PCI_OFFSET_TO_INDEX(off) (off >> ISM_VFIO_PCI_OFFSET_SHIFT)
-+#define ISM_VFIO_PCI_INDEX_TO_OFFSET(index) ((u64)(index) << ISM_VFIO_PCI_OFFSET_SHIFT)
-+#define ISM_VFIO_PCI_OFFSET_MASK (((u64)(1) << ISM_VFIO_PCI_OFFSET_SHIFT) - 1)
-+
-+/*
-+ * Use __zpci_load() to bypass automatic use of
-+ * PCI MIO instructions which are not supported on ISM devices
-+ */
-+#define ISM_READ(size)                                                        \
-+	static int ism_read##size(struct zpci_dev *zdev, int bar,             \
-+				  ssize_t *filled, char __user *buf,          \
-+				  loff_t off)                                 \
-+	{                                                                     \
-+		u64 req, tmp;                                                 \
-+		u##size val;                                                  \
-+		int ret;                                                      \
-+									      \
-+		req = ZPCI_CREATE_REQ(READ_ONCE(zdev->fh), bar, sizeof(val)); \
-+		ret = __zpci_load(&tmp, req, off);                            \
-+		if (ret)                                                      \
-+			return ret;                                           \
-+		val = (u##size)tmp;                                           \
-+		if (copy_to_user(buf, &val, sizeof(val)))                     \
-+			return -EFAULT;                                       \
-+		*filled = sizeof(val);                                        \
-+		return 0;						      \
-+	}
-+
-+ISM_READ(64);
-+ISM_READ(32);
-+ISM_READ(16);
-+ISM_READ(8);
-+
-+struct ism_vfio_pci_core_device {
-+	struct vfio_pci_core_device core_device;
-+	struct kmem_cache *store_block_cache;
-+};
-+
-+static int ism_vfio_pci_open_device(struct vfio_device *core_vdev)
-+{
-+	struct ism_vfio_pci_core_device *ivpcd;
-+	struct vfio_pci_core_device *vdev;
-+	int ret;
-+
-+	ivpcd = container_of(core_vdev, struct ism_vfio_pci_core_device,
-+			     core_device.vdev);
-+	vdev = &ivpcd->core_device;
-+
-+	ret = vfio_pci_core_enable(vdev);
-+	if (ret)
-+		return ret;
-+
-+	vfio_pci_core_finish_enable(vdev);
-+	return 0;
-+}
-+
-+/*
-+ * ism_vfio_pci_do_io_r()
-+ *
-+ * On s390, kernel primitives such as ioread() and iowrite() are switched over
-+ * from function handle based PCI load/stores instructions to PCI memory-I/O (MIO)
-+ * loads/stores when these are available and not explicitly disabled. Since these
-+ * instructions cannot be used with ISM devices, ensure that classic function
-+ * handle-based PCI instructions are used instead.
-+ */
-+static ssize_t ism_vfio_pci_do_io_r(struct vfio_pci_core_device *vdev,
-+				    char __user *buf, loff_t off, size_t count,
-+				    int bar)
-+{
-+	struct zpci_dev *zdev = to_zpci(vdev->pdev);
-+	ssize_t done = 0;
-+	int ret;
-+
-+	while (count) {
-+		size_t filled;
-+
-+		if (count >= 8 && IS_ALIGNED(off, 8)) {
-+			ret = ism_read64(zdev, bar, &filled, buf, off);
-+			if (ret)
-+				return ret;
-+		} else if (count >= 4 && IS_ALIGNED(off, 4)) {
-+			ret = ism_read32(zdev, bar, &filled, buf, off);
-+			if (ret)
-+				return ret;
-+		} else if (count >= 2 && IS_ALIGNED(off, 2)) {
-+			ret = ism_read16(zdev, bar, &filled, buf, off);
-+			if (ret)
-+				return ret;
-+		} else {
-+			ret = ism_read8(zdev, bar, &filled, buf, off);
-+			if (ret)
-+				return ret;
-+		}
-+
-+		count -= filled;
-+		done += filled;
-+		off += filled;
-+		buf += filled;
-+	}
-+
-+	return done;
-+}
-+
-+/*
-+ * ism_vfio_pci_do_io_w()
-+ *
-+ * Ensure that the PCI store block (PCISTB) instruction is used as required by the
-+ * ISM device. The ISM device also uses a 256 TiB BAR 0 for write operations,
-+ * which requires a 48bit region address space (ISM_VFIO_PCI_OFFSET_SHIFT).
-+ */
-+static ssize_t ism_vfio_pci_do_io_w(struct vfio_pci_core_device *vdev,
-+				    char __user *buf, loff_t off, size_t count,
-+				    int bar)
-+{
-+	struct zpci_dev *zdev = to_zpci(vdev->pdev);
-+	struct ism_vfio_pci_core_device *ivpcd;
-+	ssize_t ret;
-+	void *data;
-+	u64 req;
-+
-+	if (count > zdev->maxstbl)
-+		return -EINVAL;
-+	if (((off % PAGE_SIZE) + count) > PAGE_SIZE)
-+		return -EINVAL;
-+
-+	ivpcd = container_of(vdev, struct ism_vfio_pci_core_device,
-+			     core_device);
-+	data = kmem_cache_alloc(ivpcd->store_block_cache, GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	if (copy_from_user(data, buf, count)) {
-+		ret = -EFAULT;
-+		goto out_free;
-+	}
-+
-+	req = ZPCI_CREATE_REQ(READ_ONCE(zdev->fh), bar, count);
-+	ret = __zpci_store_block(data, req, off);
-+	if (ret)
-+		goto out_free;
-+
-+	ret = count;
-+
-+out_free:
-+	kmem_cache_free(ivpcd->store_block_cache, data);
-+	return ret;
-+}
-+
-+static ssize_t ism_vfio_pci_bar_rw(struct vfio_pci_core_device *vdev,
-+				   char __user *buf, size_t count, loff_t *ppos,
-+				   bool iswrite)
-+{
-+	int bar = ISM_VFIO_PCI_OFFSET_TO_INDEX(*ppos);
-+	loff_t pos = *ppos & ISM_VFIO_PCI_OFFSET_MASK;
-+	resource_size_t end;
-+	ssize_t done = 0;
-+
-+	if (pci_resource_start(vdev->pdev, bar))
-+		end = pci_resource_len(vdev->pdev, bar);
-+	else
-+		return -EINVAL;
-+
-+	if (pos >= end)
-+		return -EINVAL;
-+
-+	count = min(count, (size_t)(end - pos));
-+
-+	if (iswrite)
-+		done = ism_vfio_pci_do_io_w(vdev, buf, pos, count, bar);
-+	else
-+		done = ism_vfio_pci_do_io_r(vdev, buf, pos, count, bar);
-+
-+	if (done >= 0)
-+		*ppos += done;
-+
-+	return done;
-+}
-+
-+static ssize_t ism_vfio_pci_config_rw(struct vfio_pci_core_device *vdev,
-+				      char __user *buf, size_t count,
-+				      loff_t *ppos, bool iswrite)
-+{
-+	loff_t pos = *ppos;
-+	size_t done = 0;
-+	int ret = 0;
-+
-+	pos &= ISM_VFIO_PCI_OFFSET_MASK;
-+
-+	while (count) {
-+		/*
-+		 * zPCI must not use MIO instructions for config space access,
-+		 * so we can use common code path here.
-+		 */
-+		ret = vfio_pci_config_rw_single(vdev, buf, count, &pos, iswrite);
-+		if (ret < 0)
-+			return ret;
-+
-+		count -= ret;
-+		done += ret;
-+		buf += ret;
-+		pos += ret;
-+	}
-+
-+	*ppos += done;
-+
-+	return done;
-+}
-+
-+static ssize_t ism_vfio_pci_rw(struct vfio_device *core_vdev, char __user *buf,
-+			       size_t count, loff_t *ppos, bool iswrite)
-+{
-+	unsigned int index = ISM_VFIO_PCI_OFFSET_TO_INDEX(*ppos);
-+	struct vfio_pci_core_device *vdev;
-+	int ret;
-+
-+	vdev = container_of(core_vdev, struct vfio_pci_core_device, vdev);
-+
-+	if (!count)
-+		return 0;
-+
-+	switch (index) {
-+	case VFIO_PCI_CONFIG_REGION_INDEX:
-+		ret = ism_vfio_pci_config_rw(vdev, buf, count, ppos, iswrite);
-+		break;
-+
-+	case VFIO_PCI_BAR0_REGION_INDEX ... VFIO_PCI_BAR5_REGION_INDEX:
-+		ret = ism_vfio_pci_bar_rw(vdev, buf, count, ppos, iswrite);
-+		break;
-+
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	return ret;
-+}
-+
-+static ssize_t ism_vfio_pci_read(struct vfio_device *core_vdev,
-+				 char __user *buf, size_t count, loff_t *ppos)
-+{
-+	return ism_vfio_pci_rw(core_vdev, buf, count, ppos, false);
-+}
-+
-+static ssize_t ism_vfio_pci_write(struct vfio_device *core_vdev,
-+				  const char __user *buf, size_t count,
-+				  loff_t *ppos)
-+{
-+	return ism_vfio_pci_rw(core_vdev, (char __user *)buf, count, ppos,
-+			       true);
-+}
-+
-+static int ism_vfio_pci_ioctl_get_region_info(struct vfio_device *core_vdev,
-+					      struct vfio_region_info *info,
-+					      struct vfio_info_cap *caps)
-+{
-+	struct vfio_pci_core_device *vdev =
-+		container_of(core_vdev, struct vfio_pci_core_device, vdev);
-+	struct pci_dev *pdev = vdev->pdev;
-+
-+	switch (info->index) {
-+	case VFIO_PCI_CONFIG_REGION_INDEX:
-+		info->offset = ISM_VFIO_PCI_INDEX_TO_OFFSET(info->index);
-+		info->size = pdev->cfg_size;
-+		info->flags = VFIO_REGION_INFO_FLAG_READ |
-+			      VFIO_REGION_INFO_FLAG_WRITE;
-+		break;
-+	case VFIO_PCI_BAR0_REGION_INDEX ... VFIO_PCI_BAR5_REGION_INDEX:
-+		info->offset = ISM_VFIO_PCI_INDEX_TO_OFFSET(info->index);
-+		info->size = pci_resource_len(pdev, info->index);
-+		if (!info->size) {
-+			info->flags = 0;
-+			break;
-+		}
-+		info->flags = VFIO_REGION_INFO_FLAG_READ |
-+			      VFIO_REGION_INFO_FLAG_WRITE;
-+		break;
-+	default:
-+		info->offset = 0;
-+		info->size = 0;
-+		info->flags = 0;
-+	}
-+	return 0;
-+}
-+
-+static int ism_vfio_pci_init_dev(struct vfio_device *core_vdev)
-+{
-+	struct zpci_dev *zdev = to_zpci(to_pci_dev(core_vdev->dev));
-+	struct ism_vfio_pci_core_device *ivpcd;
-+	char cache_name[20];
-+	int ret;
-+
-+	ivpcd = container_of(core_vdev, struct ism_vfio_pci_core_device,
-+			     core_device.vdev);
-+
-+	snprintf(cache_name, sizeof(cache_name), "ism_sb_fid_%08x", zdev->fid);
-+	ivpcd->store_block_cache =
-+		kmem_cache_create(cache_name, zdev->maxstbl, PAGE_SIZE,
-+				  (SLAB_RECLAIM_ACCOUNT | SLAB_ACCOUNT), NULL);
-+	if (!ivpcd->store_block_cache)
-+		return -ENOMEM;
-+
-+	ret = vfio_pci_core_init_dev(core_vdev);
-+	if (ret)
-+		kmem_cache_destroy(ivpcd->store_block_cache);
-+
-+	return ret;
-+}
-+
-+static void ism_vfio_pci_release_dev(struct vfio_device *core_vdev)
-+{
-+	struct ism_vfio_pci_core_device *ivpcd = container_of(
-+		core_vdev, struct ism_vfio_pci_core_device, core_device.vdev);
-+
-+	kmem_cache_destroy(ivpcd->store_block_cache);
-+	vfio_pci_core_release_dev(core_vdev);
-+}
-+
-+static const struct vfio_device_ops ism_pci_ops = {
-+	.name = "ism-vfio-pci",
-+	.init = ism_vfio_pci_init_dev,
-+	.release = ism_vfio_pci_release_dev,
-+	.open_device = ism_vfio_pci_open_device,
-+	.close_device = vfio_pci_core_close_device,
-+	.ioctl = vfio_pci_core_ioctl,
-+	.get_region_info_caps = ism_vfio_pci_ioctl_get_region_info,
-+	.device_feature = vfio_pci_core_ioctl_feature,
-+	.read = ism_vfio_pci_read,
-+	.write = ism_vfio_pci_write,
-+	.request = vfio_pci_core_request,
-+	.match = vfio_pci_core_match,
-+	.match_token_uuid = vfio_pci_core_match_token_uuid,
-+	.bind_iommufd = vfio_iommufd_physical_bind,
-+	.unbind_iommufd = vfio_iommufd_physical_unbind,
-+	.attach_ioas = vfio_iommufd_physical_attach_ioas,
-+	.detach_ioas = vfio_iommufd_physical_detach_ioas,
-+};
-+
-+static int ism_vfio_pci_probe(struct pci_dev *pdev,
-+			      const struct pci_device_id *id)
-+{
-+	struct ism_vfio_pci_core_device *ivpcd;
-+	int ret;
-+
-+	ivpcd = vfio_alloc_device(ism_vfio_pci_core_device, core_device.vdev,
-+				  &pdev->dev, &ism_pci_ops);
-+	if (IS_ERR(ivpcd))
-+		return PTR_ERR(ivpcd);
-+
-+	dev_set_drvdata(&pdev->dev, &ivpcd->core_device);
-+
-+	ret = vfio_pci_core_register_device(&ivpcd->core_device);
-+	if (ret)
-+		vfio_put_device(&ivpcd->core_device.vdev);
-+
-+	return ret;
-+}
-+
-+static void ism_vfio_pci_remove(struct pci_dev *pdev)
-+{
-+	struct vfio_pci_core_device *core_device;
-+	struct ism_vfio_pci_core_device *ivpcd;
-+
-+	core_device = dev_get_drvdata(&pdev->dev);
-+	ivpcd = container_of(core_device, struct ism_vfio_pci_core_device,
-+			     core_device);
-+
-+	vfio_pci_core_unregister_device(&ivpcd->core_device);
-+	vfio_put_device(&ivpcd->core_device.vdev);
-+}
-+
-+static const struct pci_device_id ism_device_table[] = {
-+	{ PCI_DRIVER_OVERRIDE_DEVICE_VFIO(PCI_VENDOR_ID_IBM,
-+					  PCI_DEVICE_ID_IBM_ISM) },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(pci, ism_device_table);
-+
-+static struct pci_driver ism_vfio_pci_driver = {
-+	.name = KBUILD_MODNAME,
-+	.id_table = ism_device_table,
-+	.probe = ism_vfio_pci_probe,
-+	.remove = ism_vfio_pci_remove,
-+	.err_handler = &vfio_pci_core_err_handlers,
-+	.driver_managed_dma = true,
-+};
-+
-+module_pci_driver(ism_vfio_pci_driver);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("vfio-pci variant driver for the IBM Internal Shared Memory (ISM) device");
-+MODULE_AUTHOR("IBM Corporation");
-
--- 
-2.51.0
+On Mon Mar 16, 2026 at 5:23 PM CET, Janosch Frank wrote:
+> Lot's of locations where we could've used gpa_t but used u64/unsigned
+> long.
+>
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  arch/s390/kvm/kvm-s390.h |  8 ++++----
+>  arch/s390/kvm/pv.c       | 12 ++++++------
+>  2 files changed, 10 insertions(+), 10 deletions(-)
+>
+> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+> index bf1d7798c1af..1ffaec723a30 100644
+> --- a/arch/s390/kvm/kvm-s390.h
+> +++ b/arch/s390/kvm/kvm-s390.h
+> @@ -308,17 +308,17 @@ int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc,=
+ u16 *rrc);
+>  int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc);
+>  int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *hdr, u64 length, u1=
+6 *rc,
+>  			      u16 *rrc);
+> -int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned lon=
+g size,
+> +int kvm_s390_pv_unpack(struct kvm *kvm, gpa_t addr, unsigned long size,
+>  		       unsigned long tweak, u16 *rc, u16 *rrc);
+>  int kvm_s390_pv_set_cpu_state(struct kvm_vcpu *vcpu, u8 state);
+>  int kvm_s390_pv_dump_cpu(struct kvm_vcpu *vcpu, void *buff, u16 *rc, u16=
+ *rrc);
+>  int kvm_s390_pv_dump_stor_state(struct kvm *kvm, void __user *buff_user,
+> -				u64 *gaddr, u64 buff_user_len, u16 *rc, u16 *rrc);
+> +				gpa_t *gaddr, u64 buff_user_len, u16 *rc, u16 *rrc);
+>  int kvm_s390_pv_dump_complete(struct kvm *kvm, void __user *buff_user,
+>  			      u16 *rc, u16 *rrc);
+>  int kvm_s390_pv_destroy_page(struct kvm *kvm, unsigned long gaddr);
+> -int kvm_s390_pv_convert_to_secure(struct kvm *kvm, unsigned long gaddr);
+> -int kvm_s390_pv_make_secure(struct kvm *kvm, unsigned long gaddr, void *=
+uvcb);
+> +int kvm_s390_pv_convert_to_secure(struct kvm *kvm, gpa_t gaddr);
+> +int kvm_s390_pv_make_secure(struct kvm *kvm, gpa_t gaddr, void *uvcb);
+> =20
+>  static inline u64 kvm_s390_pv_get_handle(struct kvm *kvm)
+>  {
+> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> index c2dafd812a3b..a86469507309 100644
+> --- a/arch/s390/kvm/pv.c
+> +++ b/arch/s390/kvm/pv.c
+> @@ -125,7 +125,7 @@ static void _kvm_s390_pv_make_secure(struct guest_fau=
+lt *f)
+>   * Context: needs to be called with kvm->srcu held.
+>   * Return: 0 on success, < 0 in case of error.
+>   */
+> -int kvm_s390_pv_make_secure(struct kvm *kvm, unsigned long gaddr, void *=
+uvcb)
+> +int kvm_s390_pv_make_secure(struct kvm *kvm, gpa_t gaddr, void *uvcb)
+>  {
+>  	struct pv_make_secure priv =3D { .uvcb =3D uvcb };
+>  	struct guest_fault f =3D {
+> @@ -157,7 +157,7 @@ int kvm_s390_pv_make_secure(struct kvm *kvm, unsigned=
+ long gaddr, void *uvcb)
+>  	return rc;
+>  }
+> =20
+> -int kvm_s390_pv_convert_to_secure(struct kvm *kvm, unsigned long gaddr)
+> +int kvm_s390_pv_convert_to_secure(struct kvm *kvm, gpa_t gaddr)
+>  {
+>  	struct uv_cb_cts uvcb =3D {
+>  		.header.cmd =3D UVC_CMD_CONV_TO_SEC_STOR,
+> @@ -765,7 +765,7 @@ int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *=
+hdr, u64 length, u16 *rc,
+>  	return cc ? -EINVAL : 0;
+>  }
+> =20
+> -static int unpack_one(struct kvm *kvm, unsigned long addr, u64 tweak,
+> +static int unpack_one(struct kvm *kvm, gpa_t addr, u64 tweak,
+>  		      u64 offset, u16 *rc, u16 *rrc)
+>  {
+>  	struct uv_cb_unp uvcb =3D {
+> @@ -793,7 +793,7 @@ static int unpack_one(struct kvm *kvm, unsigned long =
+addr, u64 tweak,
+>  	return ret;
+>  }
+> =20
+> -int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned lon=
+g size,
+> +int kvm_s390_pv_unpack(struct kvm *kvm, gpa_t addr, unsigned long size,
+>  		       unsigned long tweak, u16 *rc, u16 *rrc)
+>  {
+>  	u64 offset =3D 0;
+> @@ -802,7 +802,7 @@ int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long=
+ addr, unsigned long size,
+>  	if (addr & ~PAGE_MASK || !size || size & ~PAGE_MASK)
+>  		return -EINVAL;
+> =20
+> -	KVM_UV_EVENT(kvm, 3, "PROTVIRT VM UNPACK: start addr %lx size %lx",
+> +	KVM_UV_EVENT(kvm, 3, "PROTVIRT VM UNPACK: start addr %llx size %lx",
+>  		     addr, size);
+> =20
+>  	guard(srcu)(&kvm->srcu);
+> @@ -891,7 +891,7 @@ int kvm_s390_pv_dump_cpu(struct kvm_vcpu *vcpu, void =
+*buff, u16 *rc, u16 *rrc)
+>   *  -EFAULT if copying the result to buff_user failed
+>   */
+>  int kvm_s390_pv_dump_stor_state(struct kvm *kvm, void __user *buff_user,
+> -				u64 *gaddr, u64 buff_user_len, u16 *rc, u16 *rrc)
+> +				gpa_t *gaddr, u64 buff_user_len, u16 *rc, u16 *rrc)
+>  {
+>  	struct uv_cb_dump_stor_state uvcb =3D {
+>  		.header.cmd =3D UVC_CMD_DUMP_CONF_STOR_STATE,
 
