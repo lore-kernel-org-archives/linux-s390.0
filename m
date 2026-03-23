@@ -1,105 +1,133 @@
-Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1547529AB02
-	for <linux-s390@vger.kernel.org>; Mon, 23 Mar 2026 12:51:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2713A3AE1B8;
+	Mon, 23 Mar 2026 13:44:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774270292; cv=none; b=vApzf6U3c7EPB9OPjzta+J2a8ZSBh9trgwV3ZnZp6ELO80ODpMv2Bep9UVaatpPLcTpkMHYQSXcb8Q8u0yWIaui1umO1KiSEfhpX+Mx6StPgZqR9KF8chGz+l3ssl+7wzwByH4l9IVlbSBLme/Sk/U0g2E40wMDvyHvc9jla+TM=
+	t=1774273448; cv=none; b=geVKa6LIj8ClK6to7Qpyh3Is3rMa1zLnWdcg3ipGRTiA5omulWUBTiogzYv5nsK60xi4U58uvSehW0A8Rf1odgupxRBiykGNISsmUJU8FAqH062XkACdDVVKLA+PUWrLGYMW3Ua5vNp8e0PV809ANiYXObAq8MQAymx+Jl3QAbA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774270292; c=relaxed/simple;
-	bh=uFyKlLtSyw1/cdP0q3mRvXw58X0n37TGgixa4z1zU48=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DrVh+Jtb206MYsTiNrbWQYdQmpdh6PVwou5aaIh/uHHtIj0d8u1jBEHPShwYDG5aLxi/YR2+Nbx9o/h85rcskf5jNEtQHHCESg7pvs765W2ce+uCOxASvSRppdLuX787N3UW1UOK5THDpBUnkoPq0YIihoIsdzlwOjCDsf2WihE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YNqTxZPs; arc=none smtp.client-ip=209.85.128.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1774273448; c=relaxed/simple;
+	bh=AKu1YaPhPPZaOaFw+r4TZS3TahnM2+GdXaXeiNaCJA8=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:Cc:To:
+	 References:In-Reply-To; b=Mep/dsu/ryDz+TV5Oo/S5xto+ZvrxzBTq3pHKH731rDeCBOe8ScW677uhSm2ZwKC0wyN/mZhZpx4rXu58CGF4k6CtYeG1EvDfo+NBF3OxlhWXlv0nFN7kgRbMtQ4jkdL2fOdSR2ufFsvxh69JeosL+YJcE96UyKkuO0X0QetUF4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EFtTJj/m; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YNqTxZPs"
-Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-486b9675d36so33764245e9.0
-        for <linux-s390@vger.kernel.org>; Mon, 23 Mar 2026 05:51:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1774270289; x=1774875089; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=kCPY0y7tsCy9xAZvG6iAVGJ0rvdXUfNtyW9vqE0ZmgE=;
-        b=YNqTxZPsoGroQ/eMFQTCuuMOl5mC0oEbwnZJrPpue7A9ydKmR36LygyZlN0KhOexf3
-         utkcJ3pmaVf1eMNfek5Sqxv8NnTZ7kOye/Fezds1/Tzi7sC2FiHd1n0eEfEV472+Jo1w
-         llAP++xTH5fKV+9o4qLqvR4y2mHrWcaKru32kBVQOU5i8z/bi6aQpuLVSLv8glP/cjQ0
-         aDISDXgsSpB+AH03nTWTiS6L4CGnn72JrWFeLaTc9v1V1db7iPdzsGnDkyO2mHlnZtZy
-         EoRpELVpLGS4yYkombogJpOEL4NeOUsPVbXeW39ZxshsdW1iBUBV3S0BG2HmzEX9BLGA
-         PUFQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774270289; x=1774875089;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:sender:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kCPY0y7tsCy9xAZvG6iAVGJ0rvdXUfNtyW9vqE0ZmgE=;
-        b=Lo9hWVHzLFoema1UyGnNy2+qOLnAX1IIfXnyfDV7hXiCLs8VvpXUp95tLHoA5Zx+rZ
-         znr3AUPRzy5hc2G4yXtmJqgp0NaQ4GbhlDEChZSaKWi26SmdMAjfNvaJmj5SOPzCwed5
-         KCy7YWx4CGXSlS0yRubv+IrQrQG5PIfubkNhr4gOhtOHvpKjqR1temb4CELGHsWUuyxv
-         lJ3GpT5Ba74Yzt/GMyBUU0ivyBu1N3u2oSxqV0zKQWqEooL5Iw9bWRrzi4qYYu3390Fk
-         SNvlr1VBm+XPZ7B/YYk4uHXci65+zMObZqTcU8V9dt12eyiqwVO0OLAiMnP5vrqRz1GX
-         sgmA==
-X-Forwarded-Encrypted: i=1; AJvYcCUD2bBaOuWMRKcJtqy6Ew8vIQScPTChj++qH/LHmqxAMBW1T10csaKNfsoC3pCXnGz2NK+lekkQfTB5@vger.kernel.org
-X-Gm-Message-State: AOJu0YxLDJDbS35BObYuqTprIAlmkb09QRf4jXNN/n8z/OJr6VpGhI9r
-	MIYGP2MS/IYDqsqVaCCsfLT27ZbVDpbyhE3p+expvr7SDBF7NKMGPdS9
-X-Gm-Gg: ATEYQzwrkwOOWuOtBELW5Vl5pXCQE39xlcbkczsy5jgMyh5PZ+vKlYxk+gSAVcZMrB3
-	r6JngmaZSuv7amBTA4gDfI4mZXnJaiSounmy2iWaWxGv1fYYrWJ7RMgc+B886vlPMNjT2XvxSiN
-	NPMAymapUHp1cal8xS9k6DmloLM0aseJ/m+oSWKv+mQI1kKQ97r6qk8lvN1AGre0Umdzvh2+0Ua
-	4Z+RHyd7gXogD2u1q1IHpqx3r3j+TCd0Us8ZLVVBD+Gc88+gAYKs7YiGfBF6ks28V4sQ1dqh7yP
-	FyQH09rDK1RHEeGhOQuicxjIbZpSBoDZg0GFVnYU7Pabrh1lselaFllyc6uJp3EJH17TjkY2xHK
-	y8X1SnKEGlJJahIiYyx4ml/JXq5cE93f/CqGGjtfYN7uevqSgeZ9UZGox0UE1gZfzRPkxdpWcst
-	u0DMHjdp610Hkf2GXRjkqZ+c5m4A==
-X-Received: by 2002:a05:600c:524e:b0:485:3dfc:57a with SMTP id 5b1f17b1804b1-486ff020bc4mr161858675e9.32.1774270289169;
-        Mon, 23 Mar 2026 05:51:29 -0700 (PDT)
-Received: from nixos-office ([92.250.99.190])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-486fe82a030sm301539135e9.10.2026.03.23.05.51.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Mar 2026 05:51:28 -0700 (PDT)
-Sender: Julian Braha <julian.braha@gmail.com>
-From: Julian Braha <julianbraha@gmail.com>
-To: gor@linux.ibm.com,
-	hca@linux.ibm.com
-Cc: agordeev@linux.ibm.com,
-	borntraeger@linux.ibm.com,
-	svens@linux.ibm.com,
-	linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Julian Braha <julianbraha@gmail.com>
-Subject: [PATCH] "s390: include S390_KPROBES_SANITY_TEST with KUNIT_ALL_TESTS"
-Date: Mon, 23 Mar 2026 12:51:18 +0000
-Message-ID: <20260323125118.1417455-1-julianbraha@gmail.com>
-X-Mailer: git-send-email 2.51.2
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EFtTJj/m"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62MLt6hu488451;
+	Mon, 23 Mar 2026 13:44:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=E9UIHq
+	w4xgdh6LZZONwad+M5bnFdSEcA68tjkCouitc=; b=EFtTJj/mdUHwoKg6/BPiFz
+	xJY1b4zG8x12xCXfcu/w3JeMJMEt4MUjsJ4l3CmJjadkFdlaGSf2mm86cymTZWiL
+	DVhtPTaoGnVNBGIEyteB+hBm6YQijvLQWdgjCeKhXwDKckncGX4uPDpBrFbth01N
+	pLQ0eynxPkNxPkjD7/eo2wOHs8akTZNOwFEssTum8ymmHUcO7IyHe0rtRQIyDDjf
+	quSNx1ZRVhxWPjl79kFp6+31ysdsg8NtD2l8aPxHyCSkR3AWX9SSFHuESqLZGuE0
+	if0or2A5qjH4mFjozWZLUI70rrujWSTflUnovSY8WAkZKiSl9AKDTF0aNdgmwgMg
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kumet08-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 23 Mar 2026 13:44:03 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62NC0PAX005976;
+	Mon, 23 Mar 2026 13:44:03 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d261ydnj5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 23 Mar 2026 13:44:03 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62NDhxfK29885000
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 23 Mar 2026 13:43:59 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E4A5920040;
+	Mon, 23 Mar 2026 13:43:58 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CE0F92004B;
+	Mon, 23 Mar 2026 13:43:58 +0000 (GMT)
+Received: from darkmoore (unknown [9.52.198.32])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 23 Mar 2026 13:43:58 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 23 Mar 2026 14:43:53 +0100
+Message-Id: <DHA7FUZXVHSE.2CFXV16WE8PDA@linux.ibm.com>
+Subject: Re: [PATCH v2 1/8] KVM: s390: vsie: Fix dat_split_ste()
+From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        <borntraeger@de.ibm.com>, <frankja@linux.ibm.com>, <nrb@linux.ibm.com>,
+        <seiden@linux.ibm.com>, <gra@linux.ibm.com>,
+        <schlameuss@linux.ibm.com>, <hca@linux.ibm.com>, <david@kernel.org>
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, <kvm@vger.kernel.org>
+X-Mailer: aerc 0.21.0
+References: <20260320161542.202913-1-imbrenda@linux.ibm.com>
+ <20260320161542.202913-2-imbrenda@linux.ibm.com>
+In-Reply-To: <20260320161542.202913-2-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 0e-Su-VIdUAIXevdtnsTfrklmrCjZ8HJ
+X-Proofpoint-ORIG-GUID: 0e-Su-VIdUAIXevdtnsTfrklmrCjZ8HJ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzIzMDEwMyBTYWx0ZWRfXxJeAOu/QUS5R
+ HAUzMQLsehdnIaXMXV673v0BxjMcQv/4TPZ3nQ9SguRJHREVD/KFquQsOOhBwD6ZZQ8vYqJAFLG
+ Fuy1JN81iTHgFaGcsLj85bSzrCPnP2mXVBMzflL+h5emjAorLrmIQvKt1iCVj+emRV9bXMKqPJi
+ jgEjis/JjOHSPs+QQwpyJ1Kb+HzPocYBLbXtkYee4MFGCeSml7cscuCb9GIpoJomZV2EUEfIz7d
+ 9qa/WQ37OOVCcfoNnRw5Y+D9PQgO8otlnxQZax06LLN5em4PdEXqPpNP/eL/Uz6kYscmJYl42x3
+ D/jFimfz0Pp0biMGv0U8Md+iONEmmw9nbFui/Cum744dS91amaIaqZ1xbJPkACwPTp98cAf88O0
+ FZDKIjRkawWRydjZyGvBa6uC/IIo0IhF20c6CeqmfMnMQCIz2+BIM9gKYez1tHtDo7q0CKkvLPp
+ 0vAZ3snPx/qypVibXMA==
+X-Authority-Analysis: v=2.4 cv=KbXfcAYD c=1 sm=1 tr=0 ts=69c143a3 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=buXqh26OFB9ADXD7E0MA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-23_04,2026-03-20_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 impostorscore=0 malwarescore=0 adultscore=0 clxscore=1015
+ priorityscore=1501 bulkscore=0 lowpriorityscore=0 phishscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603230103
 
-Based on similar config options (S390_MODULES_SANITY_TEST and
-S390_UNWIND_SELFTEST), I think S390_KPROBES_SANITY_TEST should be included
-with KUNIT_ALL_TESTS.
+On Fri Mar 20, 2026 at 5:15 PM CET, Claudio Imbrenda wrote:
+> If the guest misbehaves and puts the page tables for its nested guest
+> inside the memory of the nested guest itself, the shadow mapping will
+> lose synchronization with the actual mapping.
+>
+> Propagate the vsie_notif bit from shadowed large pages to smaller pages
+> when splitting a large page.
+>
+> Fixes: 2db149a0a6c5 ("KVM: s390: KVM page table management functions: wal=
+ks")
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-Signed-off-by: Julian Braha <julianbraha@gmail.com>
----
- arch/s390/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 1b3afe89cb00..0d456d0c50e8 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -1010,7 +1010,7 @@ config S390_UNWIND_SELFTEST
- 	  Say N if you are unsure.
- 
- config S390_KPROBES_SANITY_TEST
--	def_tristate n
-+	def_tristate KUNIT_ALL_TESTS
- 	prompt "Enable s390 specific kprobes tests"
- 	depends on KPROBES
- 	depends on KUNIT
--- 
-2.51.2
+> ---
+>  arch/s390/kvm/dat.c | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
+> index 670404d4fa44..48b5f2bcf172 100644
+> --- a/arch/s390/kvm/dat.c
+> +++ b/arch/s390/kvm/dat.c
+> @@ -292,6 +292,7 @@ static int dat_split_ste(struct kvm_s390_mmu_cache *m=
+c, union pmd *pmdp, gfn_t g
+>  				pt->ptes[i].val =3D init.val | i * PAGE_SIZE;
+>  			/* No need to take locks as the page table is not installed yet. */
+>  			pgste_init.prefix_notif =3D old.s.fc1.prefix_notif;
+> +			pgste_init.vsie_notif =3D old.s.fc1.vsie_notif;
+>  			pgste_init.pcl =3D uses_skeys && init.h.i;
+>  			dat_init_pgstes(pt, pgste_init.val);
+>  		} else {
 
