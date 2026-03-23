@@ -1,140 +1,142 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB7D1397E84;
-	Mon, 23 Mar 2026 14:14:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D0583B9613;
+	Mon, 23 Mar 2026 15:05:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774275288; cv=none; b=sWKZjSmeAu0UqMw07iT5BegqOtlirTxH35esJ+6yY9em4St2rpiqCRdGTJe6+zpEDgqWjds+wXsTNdIelLUA+7zdZdaF2DkDLE5E8gbjy8FnYHbi1HjYOR68Y4pynLjMluz+4OIHoiYLERLaz6VOTdPDLFsBjuJMeKKO+PqUhck=
+	t=1774278356; cv=none; b=Len1ftKF9EuizZgDFJ0aLUFSAxhYDp9NS+8PRbl+PAl5y2heLfv7CAzZqkXBQoEcl8l3wnkzIFTrBP7mKWm+KCjfs/mb10lPVAeftpWDKhsCiTjfhZPKjhtTs6eCbC86T9iQeTgCDG4G6SOQicVfGyH5n0TnhHTwb2st25RbCAE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774275288; c=relaxed/simple;
-	bh=zGq00IgPWGqL77FNM/dQDXciY/ZegFndCC/oogZLb50=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=f3c4va+IIslf13UhjX9M+Ku+nhGcm0RcL511ROnJju62iwWV1DYZ+aPrQFGcELLNNdVeiU3nABcHkv1a1fHsNGqUWm+B3qVPdYlLiAhZBpgzF+rAwXSgtnE11j/uzn43iRNSAor61dhfUdryyeutKbxcuDvRkQqB8ZaAhmIcgpA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VD+7uq5U; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774278356; c=relaxed/simple;
+	bh=38fmMNiWvDfyXTwBdfTFl0XJCwc8gv/bEC9L+BzNIxw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Kqzw+Psz0sLEE3L3ShVBL6W0IueP3uzeNKGRymKxho3LhysNlV5MbG4v6jBtDo8m3X8OgNYUd/5J7SS4C92WEhyDYJNsPxOA4Daz/joh4dQVms/jFRzImrfqYP3vEcgeIHcfVVwygIIKnjdS3uC0AfmpSe0RVRrVBCAGJFe7yao=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=PqlWyf5o; arc=none smtp.client-ip=192.198.163.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VD+7uq5U"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2726FC4CEF7;
-	Mon, 23 Mar 2026 14:14:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774275288;
-	bh=zGq00IgPWGqL77FNM/dQDXciY/ZegFndCC/oogZLb50=;
-	h=Date:From:To:Cc:In-Reply-To:References:Subject:From;
-	b=VD+7uq5UXsEy8tNVFYT36WoWcxC5JMBFOnJ+L9HEkEnM0z6S/HfXSoZQVD//wu9Ie
-	 f9sJ4gTawj6Ah/1+hUkmtsWF9R2zkXz3eJ71prGWrSzKGd1O/NT7QjgujxXCWPKCqh
-	 zVKBmyBrtUvIU9Ln6txHl9rDaFI1p5ToCPN5eYpgXaRNiLW8n4bfYqXdKZbuHzE5O2
-	 14dZcjAHUXQ+gJdclGr+UcXsTvOk42J5nCljFdQlPIvi44WozTrh8BUE1OZdWLPvSq
-	 27WrtBpqSzgdOGnPbIoWyIdItrUaOZpje09PI14YTFKuHK09i7qPuueeqaDogRoeJb
-	 A1hQ40hS6LSbQ==
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailfauth.phl.internal (Postfix) with ESMTP id 3F978F40072;
-	Mon, 23 Mar 2026 10:14:47 -0400 (EDT)
-Received: from phl-imap-02 ([10.202.2.81])
-  by phl-compute-01.internal (MEProxy); Mon, 23 Mar 2026 10:14:47 -0400
-X-ME-Sender: <xms:10rBaTv_Pd_A-6ULzONqAVkXr_4MPD196GJQz7buHXkZltg2elmcnA>
-    <xme:10rBafSBpxD0TQpOy3v6fz6LszqG4ATc9EgRBSwWtvJFKnnfSZzivlf_y50klwR7H
-    3oxwI_6gxh5kL4_IKY0-9ba_-MkCP2UlYjMfD_Qupk4et9tdTn7pIA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdefudekledvucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddtnecuhfhrohhmpedftehrugcu
-    uehivghshhgvuhhvvghlfdcuoegrrhgusgeskhgvrhhnvghlrdhorhhgqeenucggtffrrg
-    htthgvrhhnpeekvdffkefhgfegveekfedtieffhfelgeetiedvieffhfekfeeikeetueeg
-    teetteenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivg
-    epudenucfrrghrrghmpehmrghilhhfrhhomheprghrugdomhgvshhmthhprghuthhhphgv
-    rhhsohhnrghlihhthidqudeijedthedttdejledqfeefvdduieegudehqdgrrhgusgeppe
-    hkvghrnhgvlhdrohhrghesfihorhhkohhfrghrugdrtghomhdpnhgspghrtghpthhtohep
-    uddtpdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehhvghrsggvrhhtsehgohhnug
-    horhdrrghprghnrgdrohhrghdrrghupdhrtghpthhtohepvggsihhgghgvrhhssehkvghr
-    nhgvlhdrohhrghdprhgtphhtthhopeigkeeisehkvghrnhgvlhdrohhrghdprhgtphhtth
-    hopehlihhnuhigqdgrrhhmqdhkvghrnhgvlheslhhishhtshdrihhnfhhrrgguvggrugdr
-    ohhrghdprhgtphhtthhopehlihhnuhigqdhrihhstghvsehlihhsthhsrdhinhhfrhgrug
-    gvrggurdhorhhgpdhrtghpthhtoheplhhinhhugihpphgtqdguvghvsehlihhsthhsrdho
-    iihlrggsshdrohhrghdprhgtphhtthhopehlihhnuhigqdgtrhihphhtohesvhhgvghrrd
-    hkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghr
-    rdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhsfeeltdesvhhgvghrrd
-    hkvghrnhgvlhdrohhrgh
-X-ME-Proxy: <xmx:10rBaaGFLpYPkAFfUe8s0LClJL3yg-uQETj-BtW8AqxvXx6wa2LZzg>
-    <xmx:10rBaTddSLdwcMNXVRXjM4NOTdJ0Yp4OCdaOBzuRMvdTf4x8LPKDhQ>
-    <xmx:10rBaToo3Hfc96ZpYYeSgQ4Ytoz773zh1Qah3jH8yRPdejjOuCDUjw>
-    <xmx:10rBaUC7w4iSDgVcJNhWvQ5nPUUZu2cGhbIyUbKyYqGgX6UzBq8tRg>
-    <xmx:10rBacdbgrEXFbvY5AtS0DCzs3ou6S5NjToMUix-kf4qn8fY0dEhuwF7>
-Feedback-ID: ice86485a:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 1A234700069; Mon, 23 Mar 2026 10:14:47 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="PqlWyf5o"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1774278356; x=1805814356;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=38fmMNiWvDfyXTwBdfTFl0XJCwc8gv/bEC9L+BzNIxw=;
+  b=PqlWyf5oG9XXqNQGIo0Z2wvaJJTc7Y7gvZlekgS6LjxaXkzyjgbyxdS8
+   qScWaz9/FKFfS+ctqLNWVNiGgGEaEc7eEr/BSRGTylM32KlAefrUsFZap
+   X3gUJs9JpmL2+H5ecJ9TEnX0FF6jGheDoA/KlaTK4AaV5hv9+OgEVWrvc
+   q9JTb4+OG8C9wFNkm4nD40QZ60XbTaWh4cgQkw8wjx7RdF/UgFFRnN7kR
+   a3zrxHy206fdjqc6g89zHX4GmDYISWc0HJdLhzYbV7Y6e3fe0xvOkeKSE
+   /dVoYR0Ua55efnCplsWY57yonBH9GY14f90Z3dNmoZwZE/cV8eWiANRPQ
+   A==;
+X-CSE-ConnectionGUID: hUpeyiliQSyofMs1lqrrtg==
+X-CSE-MsgGUID: YgExWvhITCWCXbRIjAN8hQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11738"; a="75345863"
+X-IronPort-AV: E=Sophos;i="6.23,137,1770624000"; 
+   d="scan'208";a="75345863"
+Received: from fmviesa002.fm.intel.com ([10.60.135.142])
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Mar 2026 08:05:55 -0700
+X-CSE-ConnectionGUID: E4WzUs5wSn6ltlycGc4Wxw==
+X-CSE-MsgGUID: pIOZugwYSHKF9UKaG+q9FQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,137,1770624000"; 
+   d="scan'208";a="247084583"
+Received: from vpanait-mobl.ger.corp.intel.com (HELO localhost) ([10.245.244.22])
+  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Mar 2026 08:05:52 -0700
+Date: Mon, 23 Mar 2026 17:05:49 +0200
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Kees Cook <kees@kernel.org>
+Cc: Josh Law <objecting@objecting.org>, Jens Axboe <axboe@kernel.dk>,
+	Davidlohr Bueso <dave@stgolabs.net>,
+	Stefan Haberland <sth@linux.ibm.com>,
+	Jan Hoeppner <hoeppner@linux.ibm.com>,
+	"Richard Russon (FlatCap)" <ldm@flatcap.org>,
+	Thorsten Blum <thorsten.blum@linux.dev>,
+	linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
+	linux-efi@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-ntfs-dev@lists.sourceforge.net,
+	linux-hardening@vger.kernel.org
+Subject: Re: [PATCH] block: partitions: Replace pp_buf with struct seq_buf
+Message-ID: <acFWzUYlNE2k2aca@ashevche-desk.local>
+References: <20260321004840.work.670-kees@kernel.org>
+ <acD_IIEXmhnVlO0C@ashevche-desk.local>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: Aux1nparIO0F
-Date: Mon, 23 Mar 2026 15:14:25 +0100
-From: "Ard Biesheuvel" <ardb@kernel.org>
-To: "Eric Biggers" <ebiggers@kernel.org>, linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, "Jason A . Donenfeld" <Jason@zx2c4.com>,
- "Herbert Xu" <herbert@gondor.apana.org.au>,
- linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, x86@kernel.org
-Message-Id: <2e95891e-442f-4360-a6b0-7715151a2658@app.fastmail.com>
-In-Reply-To: <20260319061723.1140720-1-ebiggers@kernel.org>
-References: <20260319061723.1140720-1-ebiggers@kernel.org>
-Subject: Re: [PATCH 00/19] GHASH library
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <acD_IIEXmhnVlO0C@ashevche-desk.local>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
+
+On Mon, Mar 23, 2026 at 10:51:49AM +0200, Andy Shevchenko wrote:
+> On Fri, Mar 20, 2026 at 05:48:44PM -0700, Kees Cook wrote:
+
+...
+
+> > -			char tmp[42];
+> >  
+> >  			__be32 *dt = (__be32 *)dostype;
+> >  			*dt = pb->pb_Environment[16];
+> >  			if (dostype[3] < ' ')
+> > -				snprintf(tmp, sizeof(tmp), " (%c%c%c^%c)",
+> > -					dostype[0], dostype[1],
+> > -					dostype[2], dostype[3] + '@' );
+> > +				seq_buf_printf(&state->pp_buf,
+> > +					       " (%c%c%c^%c)",
+> > +					       dostype[0], dostype[1],
+> > +					       dostype[2],
+> > +					       dostype[3] + '@');
+> >  			else
+> > -				snprintf(tmp, sizeof(tmp), " (%c%c%c%c)",
+> > -					dostype[0], dostype[1],
+> > -					dostype[2], dostype[3]);
+> > -			strlcat(state->pp_buf, tmp, PAGE_SIZE);
+> > -			snprintf(tmp, sizeof(tmp), "(res %d spb %d)",
+> > -				be32_to_cpu(pb->pb_Environment[6]),
+> > -				be32_to_cpu(pb->pb_Environment[4]));
+> > -			strlcat(state->pp_buf, tmp, PAGE_SIZE);
+> > +				seq_buf_printf(&state->pp_buf,
+> > +					       " (%c%c%c%c)",
+> > +					       dostype[0], dostype[1],
+> > +					       dostype[2], dostype[3]);
+> 
+> Wouldn't
+> 				seq_buf_printf(&state->pp_buf, " (%.4s)", dostype);
+> 
+> work?
+> 
+> But probably okay as in the previous branch it needs more work to follow,
+> something like
+> 
+> 			char dostype[8];
+> 			...
+> 			if (dostype[3] < ' ') {
+> 				/* Escape control character */
+> 				dostype[4] = dostype[3] + '@';
+> 				dostype[3] = '^';
+> 				seq_buf_printf(&state->pp_buf, " (%.5s)", dostype);
+> 			} else {
+> 				seq_buf_printf(&state->pp_buf, " (%.4s)", dostype);
+> 			}
+
+Or maybe even replace the whole conditional with
+
+			seq_buf_printf(&state->pp_buf, " (%4pE)", dostype);
+
+What do you think?
+
+> Taking how invasive is this, it might be better to done separately.
+> 
+> > +			seq_buf_printf(&state->pp_buf, "(res %d spb %d)",
+> > +				       be32_to_cpu(pb->pb_Environment[6]),
+> > +				       be32_to_cpu(pb->pb_Environment[4]));
+
+-- 
+With Best Regards,
+Andy Shevchenko
 
 
-
-On Thu, 19 Mar 2026, at 07:17, Eric Biggers wrote:
-> This series is targeting libcrypto-next.  It can also be retrieved from:
->
->     git fetch 
-> https://git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git 
-> ghash-lib-v1
->
-> This series migrates the standalone GHASH code to lib/crypto/, then
-> converts the "gcm" template and AES-GCM library code to use it.  (GHASH
-> is the universal hash function used by GCM mode.)  As was the case with
-> POLYVAL and Poly1305 as well, the library is a much better fit for it.
->
-> Since GHASH and POLYVAL are closely related and it often makes sense to
-> implement one in terms of the other, the existing "polyval" library
-> module is renamed to "gf128hash" and the GHASH support is added to it.
->
-> The generic implementation of GHASH is also replaced with a better one
-> utilizing the existing polyval_mul_generic().
->
-> Note that some GHASH implementations, often faster ones using more
-> recent CPU features, still exist in arch/*/crypto/ as internal
-> components of AES-GCM implementations.  Those are left as-is for now.
-> The goal with this GHASH library is just to provide parity with the
-> existing standalone GHASH support, which is used when a full
-> implementation of AES-GCM (or ${someothercipher}-GCM, if another block
-> cipher is being used) is unavailable.  Migrating the
-> architecture-optimized AES-GCM code to lib/crypto/ will be a next step.
->
-> Eric Biggers (19):
->   lib/crypto: gf128hash: Rename polyval module to gf128hash
->   lib/crypto: gf128hash: Support GF128HASH_ARCH without all POLYVAL
->     functions
->   lib/crypto: gf128hash: Add GHASH support
->   lib/crypto: tests: Add KUnit tests for GHASH
->   crypto: arm/ghash - Make the "ghash" crypto_shash NEON-only
->   crypto: arm/ghash - Move NEON GHASH assembly into its own file
->   lib/crypto: arm/ghash: Migrate optimized code into library
->   crypto: arm64/ghash - Move NEON GHASH assembly into its own file
->   lib/crypto: arm64/ghash: Migrate optimized code into library
->   crypto: arm64/aes-gcm - Rename struct ghash_key and make fixed-sized
->   lib/crypto: powerpc/ghash: Migrate optimized code into library
->   lib/crypto: riscv/ghash: Migrate optimized code into library
->   lib/crypto: s390/ghash: Migrate optimized code into library
->   lib/crypto: x86/ghash: Migrate optimized code into library
->   crypto: gcm - Use GHASH library instead of crypto_ahash
->   crypto: ghash - Remove ghash from crypto_shash API
->   lib/crypto: gf128mul: Remove unused 4k_lle functions
->   lib/crypto: gf128hash: Remove unused content from ghash.h
->   lib/crypto: aesgcm: Use GHASH library API
->
-
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
