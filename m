@@ -1,141 +1,131 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB41440825A;
-	Tue, 24 Mar 2026 17:43:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47D913A1683;
+	Tue, 24 Mar 2026 17:56:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774374213; cv=none; b=b3SgKcB95tTSg7d23LGiMJ2UPzTQTdxPyx+dxz9KtLcuuVYJE2pCKT7gOtjq/Zpp8MqX1UZfdmLMA4VV0tQD76mvIuOR9XYnVhkngdpNzPLrJ1pIRdrtyrZrf03BX5ib6dgfVPJ6FPBj54ro5ow1+jvXnHQUTwXH6Wo1ccoXhTE=
+	t=1774374976; cv=none; b=c7cbHsgfeIhhovVejV0H7b47h1FaIAUQkhyVhXN14YTNu28cmHb3rRYd1zwsLRwNV1bqEdlL7kmcewkZnrLfCPhulomfJVPUbtJNW9+kINdIXpdJ7RigDCqREwalHBHh1UFkBcHdlyKibfmF+ByK6FaXqiB+pHC614btocmshLE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774374213; c=relaxed/simple;
-	bh=2FFG5PWZUjng06lfMkc3vXvKO3PiSocEQu21vSTpMVE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kR8Q6hVVR2jtv5doXuMdDhmOTqKBdaNDsIIpCLxFO+SiswzUtIPKzbNv9LyaDc2sNNSRT87qMq18GEl5+NJ6bvacp4Ps7gK80XFmytPt0Gg+r50Ytc7XE6UUIFIXn9A7u1oFSNeMuCBNOvUtI/5fTxkfe7uaS+q+BipmFT8oT8Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cpAlMXFx; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1774374976; c=relaxed/simple;
+	bh=NL1mcB9ozeqOSsqCkkguLMRCIYPAgFUo0JaJzh10URc=;
+	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=eQK8uDYYOOG+oNgjW6JjFZrVr+qAOM+SK5GtZuIQFD/TZNeYzf37y8lXBcfRvFHA97OzyJqzN3roEFo23/mv154w/qCqiBLrCdDVaqesFZCG4Ns6QKE3BYDrFqWM5LCCVdxX1sT+7DLjoEaTjlnE7jcDbvt9iWSBaldH1fCYwY0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=YCQ9WpJE; arc=none smtp.client-ip=192.198.163.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cpAlMXFx"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62OFnHwA4115693;
-	Tue, 24 Mar 2026 17:43:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=eQDWFxksAgzoKtvrt
-	eYUE92VENhC3nHdFpzzuFnPjMA=; b=cpAlMXFxGyu/oH0OnqalvF3sw/olq6BYo
-	ySm2zRu+5jMSFgmTj2PtJrFlmJwtv9lDmd2muyWSdbWsF4ikkkXSAjthUmdHB60x
-	Y9/t1sXtRfLI45+7hkVL5CNTEQt9XDV4Qcm9nviEMTrAWp+Fu4+CWdHnKfKQXNa6
-	OvdCYETuQQPH1hXoKKd2v1nvEJH/D3KLoBmhcTNbtl6uo9eIGO2wL0NmE7VBLS1l
-	kIAPqSuvQ3HU+5d65DQVDR2+vrkjDRkRqNaX0hxRdXoAyXp5LD5jxtxz32bcHMAH
-	RLEyMuVi2+7k5sqR/IzFtHF/GoHaxlAs4CevsLOFXkyiBEhy54Jgg==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1ktuv9sw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Mar 2026 17:43:13 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62OGHYYQ011824;
-	Tue, 24 Mar 2026 17:43:12 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d27vk2w89-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Mar 2026 17:43:12 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62OHh9qD46465404
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 24 Mar 2026 17:43:09 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F33C520043;
-	Tue, 24 Mar 2026 17:43:08 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D6F7E20040;
-	Tue, 24 Mar 2026 17:43:07 +0000 (GMT)
-Received: from p-imbrenda.ibmuc.com (unknown [9.111.26.26])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 24 Mar 2026 17:43:07 +0000 (GMT)
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: kvm@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        borntraeger@de.ibm.com, frankja@linux.ibm.com, nrb@linux.ibm.com,
-        seiden@linux.ibm.com, gra@linux.ibm.com, schlameuss@linux.ibm.com,
-        hca@linux.ibm.com, david@kernel.org
-Subject: [PATCH v3 4/9] KVM: s390: vsie: Fix nested guest memory shadowing
-Date: Tue, 24 Mar 2026 18:42:56 +0100
-Message-ID: <20260324174301.232921-5-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260324174301.232921-1-imbrenda@linux.ibm.com>
-References: <20260324174301.232921-1-imbrenda@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="YCQ9WpJE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1774374974; x=1805910974;
+  h=from:date:to:cc:subject:in-reply-to:message-id:
+   references:mime-version;
+  bh=NL1mcB9ozeqOSsqCkkguLMRCIYPAgFUo0JaJzh10URc=;
+  b=YCQ9WpJEIuOh2fMNmwvSVP2FFRjdMjXdvqGUCZ4i9oGUX2X24Hg53oIp
+   tdJ1rfQL8ZL8i9zKmj8XTH0M6Nroy7qZodrP32gmIEfBmtNeOmiLfP3r9
+   Ex1OvzFyEaYV0uh+DUYUzWcMEihhQn69o3EwL8L2mX9TpMoFoDUlQ5WSa
+   qoMbmuULpnZ4UqSxubwCj63JyW1lWPyyvmR9z+feNe2oBum+FJBMlUkRB
+   Rf5uhizGwKpgoo4/E4Xwn35ysDE7t3y4dm/DTp8Zqk/i84b0UrbhU1n+b
+   9koqJ1UVFZ+YVrpgGVHrvd0m5dDssLbHw95kDzTnSWJAWWj0MRhIBcVib
+   g==;
+X-CSE-ConnectionGUID: km9n6O3dReWAAI7LluP7OQ==
+X-CSE-MsgGUID: cO/M3LExSC2grBUM/0Soxw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11739"; a="75307419"
+X-IronPort-AV: E=Sophos;i="6.23,138,1770624000"; 
+   d="scan'208";a="75307419"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2026 10:55:45 -0700
+X-CSE-ConnectionGUID: mUXuAQFLRnadhyMeGmty4g==
+X-CSE-MsgGUID: bujbx+8xS52CYl9LobjFjg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,138,1770624000"; 
+   d="scan'208";a="220002724"
+Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.244.217])
+  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2026 10:55:35 -0700
+From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Date: Tue, 24 Mar 2026 19:55:32 +0200 (EET)
+To: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+cc: linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, 
+    Guenter Roeck <linux@roeck-us.net>, linux-alpha@vger.kernel.org, 
+    linux-arm-kernel@lists.infradead.org, linux-m68k@lists.linux-m68k.org, 
+    linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
+    linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+    linux-sh@vger.kernel.org, Russell King <linux@armlinux.org.uk>, 
+    Geert Uytterhoeven <geert@linux-m68k.org>, 
+    Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+    "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
+    Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, 
+    Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+    Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
+    "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>, 
+    Max Filippov <jcmvbkbc@gmail.com>, 
+    Madhavan Srinivasan <maddy@linux.ibm.com>, 
+    Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
+    LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 05/10] am68k/PCI: Remove unnecessary second application
+ of align
+In-Reply-To: <5de97ed9556bfcc3b1f26bd71e09fa4016ae3ff8.camel@physik.fu-berlin.de>
+Message-ID: <1c08efcd-25e8-6436-52ab-ac3d50dcf58f@linux.intel.com>
+References: <20260324165633.4583-1-ilpo.jarvinen@linux.intel.com>  <20260324165633.4583-6-ilpo.jarvinen@linux.intel.com> <5de97ed9556bfcc3b1f26bd71e09fa4016ae3ff8.camel@physik.fu-berlin.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: G83uT9_G-yK4hfY_x1x7tVvm7Bz6PgpQ
-X-Authority-Analysis: v=2.4 cv=aMr9aL9m c=1 sm=1 tr=0 ts=69c2cd31 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=KVoM4faz5-s9vnlyq5YA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI0MDEzNCBTYWx0ZWRfX8kfoYCdkTtQb
- HD4yyuYp/R4Xbds5FBhA4cOmqe1VR066lKTEkBdP4wzma8fDFwiw4T5kYMcVkkzvBu8aeIC+FDZ
- 4o9sP1RjDLkAFyDh2lVDA54zLwDhsbhyQ2876enW6q0GeO+AUCcpQPMNxkYDWeYjuBVeJZSQ3Fe
- f/1+hIbg9ymr79J4K+lESK3+DGecL/WJqcBxo1WOMgoRrmc9DFXIBwMiqNj+kcbQ1n4EDebVIxo
- 9T3wo0DCsmrcLJbv4USwWF4zcv5RKH4d5WNvML/X1EbFA4v2opFb57Wr93f/q1rbY2ns9SliMVb
- isZvgWxxJVzoZTsARzXm6CyKfUn54G6zjebrVkFffHOfdYEPut+b1b6MZ4q2CROWvpZCs9IYz+I
- MVwzj0wrO3rZpGJwWvsncAn61EsjDQGmQCB0H5k+ViapAjr3WRuHcyRtSKFwoljQKQkhbtW+zrC
- x5v30N3HVnU8P8zHu+w==
-X-Proofpoint-GUID: G83uT9_G-yK4hfY_x1x7tVvm7Bz6PgpQ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-24_03,2026-03-24_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 lowpriorityscore=0 adultscore=0 impostorscore=0 malwarescore=0
- suspectscore=0 phishscore=0 priorityscore=1501 bulkscore=0 clxscore=1015
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603240134
+Content-Type: multipart/mixed; boundary="8323328-641337346-1774374932=:1055"
 
-Fix _do_shadow_pte() and _do_shadow_crste() to properly mark the guest
-page as dirty if the shadow mapping is writeable but the guest mapping
-was write-protected and becomes writeable.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Fix _do_shadow_pte() to use the correct pointer (guest pte instead of
-nested guest) to set up the new pte.
+--8323328-641337346-1774374932=:1055
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
----
- arch/s390/kvm/gaccess.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+On Tue, 24 Mar 2026, John Paul Adrian Glaubitz wrote:
 
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index 8fd690255e1b..70703bf866db 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -1437,9 +1437,11 @@ static int _do_shadow_pte(struct gmap *sg, gpa_t raddr, union pte *ptep_h, union
- 	if (!pgste_get_trylock(ptep_h, &pgste))
- 		return -EAGAIN;
- 	newpte = _pte(f->pfn, f->writable, !p, 0);
--	newpte.s.d |= ptep->s.d;
--	newpte.s.sd |= ptep->s.sd;
--	newpte.h.p &= ptep->h.p;
-+	newpte.s.d |= ptep_h->s.d;
-+	newpte.s.sd |= ptep_h->s.sd;
-+	newpte.h.p &= ptep_h->h.p;
-+	if (!ptep_h->s.d && newpte.s.d)
-+		SetPageDirty(pfn_to_page(newpte.h.pfra));
- 	pgste = _gmap_ptep_xchg(sg->parent, ptep_h, newpte, pgste, f->gfn, false);
- 	pgste.vsie_notif = 1;
- 	pgste_set_unlock(ptep_h, pgste);
-@@ -1477,6 +1479,8 @@ static int _do_shadow_crste(struct gmap *sg, gpa_t raddr, union crste *host, uni
- 		newcrste.h.p &= oldcrste.h.p;
- 		newcrste.s.fc1.vsie_notif = 1;
- 		newcrste.s.fc1.prefix_notif = oldcrste.s.fc1.prefix_notif;
-+		if (!oldcrste.s.fc1.d && newcrste.s.fc1.d)
-+			SetPageDirty(phys_to_page(crste_origin_large(newcrste)));
- 	} while (!_gmap_crstep_xchg_atomic(sg->parent, host, oldcrste, newcrste, f->gfn, false));
- 
- 	newcrste = _crste_fc1(f->pfn, oldcrste.h.tt, 0, !p);
--- 
-2.53.0
+> Hi Ilpo,
+>=20
+> On Tue, 2026-03-24 at 18:56 +0200, Ilpo J=C3=A4rvinen wrote:
+> > Aligning res->start by align inside pcibios_align_resource() is
+> > unnecessary because caller of pcibios_align_resource() is
+> > __find_resource_space() that aligns res->start with align before
+> > calling pcibios_align_resource().
+> >=20
+> > Aligning by align in case of IORESOURCE_IO && start & 0x300 cannot ever
+> > result in changing start either because 0x300 bits would have not
+> > survived the earlier alignment if align was large enough to have an
+> > impact.
+> >=20
+> > Thus, remove the duplicated aligning from pcibios_align_resource().
+> >=20
+> > Signed-off-by: Ilpo J=C3=A4rvinen <ilpo.jarvinen@linux.intel.com>
+> > ---
+> >  arch/m68k/kernel/pcibios.c | 2 --
+> >  1 file changed, 2 deletions(-)
+> >=20
+> > diff --git a/arch/m68k/kernel/pcibios.c b/arch/m68k/kernel/pcibios.c
+> > index 1415f6e4e5ce..7e286ee1976b 100644
+> > --- a/arch/m68k/kernel/pcibios.c
+> > +++ b/arch/m68k/kernel/pcibios.c
+> > @@ -36,8 +36,6 @@ resource_size_t pcibios_align_resource(void *data, co=
+nst struct resource *res,
+> >  =09if ((res->flags & IORESOURCE_IO) && (start & 0x300))
+> >  =09=09start =3D (start + 0x3ff) & ~0x3ff;
+> > =20
+> > -=09start =3D (start + align - 1) & ~(align - 1);
+> > -
+> >  =09return start;
+> >  }
+> >=20
+>=20
+> Sorry if it's a stupid question, but what does "am68k" in the subject ref=
+er to?
 
+The extra "a" is a typo. I'm sorry about that.
+
+--=20
+ i.
+
+--8323328-641337346-1774374932=:1055--
