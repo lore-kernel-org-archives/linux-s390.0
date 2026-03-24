@@ -1,123 +1,134 @@
-Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9927F408243;
-	Tue, 24 Mar 2026 17:43:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=130.133.4.66
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E60A40FD92;
+	Tue, 24 Mar 2026 17:43:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774374204; cv=none; b=jvc3kQMi+DcKo78HBIgJPeV8kMl0HvMisgDl2pJNZSoKy/r9BeekzGpMOf36AMqXSF4Y+hrMfvw6+HwCYHEJSir9tOyPGwkfQPu+NFaHLB45tlyHQyNGtu+LdcCP9YokvJ5UnJLYBCQ9HLNUIfaDIF7RVUgn4RhfRMOqTJUYlHw=
+	t=1774374206; cv=none; b=SxadN1kCOY3IgDcvzsPerRXSiAychfONJXOM/5FM+SOl5JUH/UdjsQtPJRYQ+KNRdQvavo7be3a6p5XLsALH4o6eVvqfx0+ccIUvF4zK/xOLFCMmkcTqLZqOZZJUIp3AKcA/TVQfASA2SJytB/+QLM/IIzKCXEwMrjeqab/3m+s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774374204; c=relaxed/simple;
-	bh=CNmUFp8JkVWBujLfh61agf5vcNlLITuFzj372hFmm5c=;
-	h=Message-ID:Subject:From:To:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=j/NyNrylFfNeSsuy3KucAf7nBhnDcTmiOifndbTk43/T6KSsa+FWs98aP7oviSstKkNMgDNJ/JcyNIHj5sjpeIw/BWBc87FECZJUVKx8nsTsU9y78pbC7i246pR08u2to5xPehUiFARUnJzR+BmSxz9N2pH0b/gs04ImO6DHuUs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=physik.fu-berlin.de; spf=pass smtp.mailfrom=zedat.fu-berlin.de; dkim=pass (2048-bit key) header.d=fu-berlin.de header.i=@fu-berlin.de header.b=D8SNo1uQ; arc=none smtp.client-ip=130.133.4.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=physik.fu-berlin.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zedat.fu-berlin.de
+	s=arc-20240116; t=1774374206; c=relaxed/simple;
+	bh=MHdHLXyH7iuszd98LWnqBxEDGf2GEpHU/fgdAeQvjjg=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Pb+D/u2+77bd8Oki20sX2w1kWCQN6lZAIIxKe0N+hJ0kFBXMu5vVMz8dAN4AoHa9/7DGwb0sneGHRyHg19tKBbDqqdYEt5KDye8fq4qwy8sHxBYEHr0dMQR+9u4FRioOhcKJ1IZ+uz9L74lkmDfzPle4QlZE+AMBUbsOF70WSPQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lEtEaAUW; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fu-berlin.de header.i=@fu-berlin.de header.b="D8SNo1uQ"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=fu-berlin.de; s=fub01; h=MIME-Version:Content-Transfer-Encoding:
-	Content-Type:References:In-Reply-To:Date:To:From:Subject:Message-ID:From:
-	Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:Content-Type:
-	Content-Transfer-Encoding:Content-ID:Content-Description:In-Reply-To:
-	References; bh=AP49Wml/Qr/wzH3y6BxqbwOt7JtkHcoMn8XiWeebrkI=; t=1774374200;
-	x=1774979000; b=D8SNo1uQMsOa3NR3jAQLPTo8B8nkT3YKcrSYvXuGfS3r3fvdqP2LOT5nkSiDC
-	RzqVvPjJOKl+BYKoUDufQQoqA5Qnu2N0y5kx19WrEa8rBbb0PBTwVLpXI/TGjJW0d+4tnhA8Tlxib
-	yBfyKnQlv1OvjakwFcCONIH/j/EDAa5h2ya0KBEGgdM8RUyCktIIlBT5ygRozB6k5tkZp/BG3BKXx
-	SJdaOfD37ZDNl35T8600JNJUabXBbMrqblYmjQNOmEv8jud4hUk+AOUuzdX+F81aaaEmjVm1IGxBN
-	uxrpqJSnTJk0Dc+iLPRjbJ4UBcYn0VTSOma287OhRbs868datg==;
-Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
-          by outpost.zedat.fu-berlin.de (Exim 4.99)
-          with esmtps (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@zedat.fu-berlin.de>)
-          id 1w55mW-000000048aG-0PwD; Tue, 24 Mar 2026 18:43:08 +0100
-Received: from p5dc55f29.dip0.t-ipconnect.de ([93.197.95.41] helo=suse-laptop.fritz.box)
-          by inpost2.zedat.fu-berlin.de (Exim 4.99)
-          with esmtpsa (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@physik.fu-berlin.de>)
-          id 1w55mV-00000001qau-3Gph; Tue, 24 Mar 2026 18:43:07 +0100
-Message-ID: <5de97ed9556bfcc3b1f26bd71e09fa4016ae3ff8.camel@physik.fu-berlin.de>
-Subject: Re: [PATCH 05/10] am68k/PCI: Remove unnecessary second application
- of align
-From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-To: Ilpo =?ISO-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
-	linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, Guenter
- Roeck	 <linux@roeck-us.net>, linux-alpha@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-m68k@lists.linux-m68k.org, 
-	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, Russell King <linux@armlinux.org.uk>, Geert
- Uytterhoeven <geert@linux-m68k.org>, Thomas Bogendoerfer
- <tsbogend@alpha.franken.de>, "James E.J. Bottomley"
- <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>,
- Michael Ellerman	 <mpe@ellerman.id.au>, Thomas Gleixner <tglx@kernel.org>,
- Ingo Molnar	 <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave
- Hansen	 <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
- Chris Zankel	 <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
- Madhavan Srinivasan	 <maddy@linux.ibm.com>, Yoshinori Sato
- <ysato@users.sourceforge.jp>, Rich Felker	 <dalias@libc.org>,
- linux-kernel@vger.kernel.org
-Date: Tue, 24 Mar 2026 18:43:06 +0100
-In-Reply-To: <20260324165633.4583-6-ilpo.jarvinen@linux.intel.com>
-References: <20260324165633.4583-1-ilpo.jarvinen@linux.intel.com>
-	 <20260324165633.4583-6-ilpo.jarvinen@linux.intel.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.58.3 
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lEtEaAUW"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62ODWmR13255707;
+	Tue, 24 Mar 2026 17:43:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=vT3yYaXEv73JcuJ65
+	PY4vf5XD+MWDZsakgN4+t2qViA=; b=lEtEaAUW46DsMEMIxqaLlJl2LJsS1pB9L
+	vCqMaZvJsXc4OSYhNyTzIqPteJPe9vFb9NJlJGwdz26ci9/zRlCR2BXufRtrS2Si
+	Utb5qXnh4olOc5UHxV28EdfVqYQrGLVrZrThbezDPMPAR2T/4isHWv4RllbIsSOx
+	PyFtd5xTX6UBZmmzl2k5T+rvbFHP7M+EfUE6Rssk93LqYaBRfyq8i8zXoibwrFi5
+	V8Cc9XUuNFUAESWex4s/nXp/ERVbhrt84egRCAo5SXpyB+eWCXE/knUADNgWfubJ
+	vdqOon2gOz56BB2UylTQC/pKuATwTXamXhPmveMD+iBwMAdtFDpnQ==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kummb38-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 24 Mar 2026 17:43:16 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62OFVmjC005996;
+	Tue, 24 Mar 2026 17:43:15 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d261yk6yy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 24 Mar 2026 17:43:15 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62OHhBdc61866418
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 24 Mar 2026 17:43:11 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 91CF120043;
+	Tue, 24 Mar 2026 17:43:11 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5F1AB20040;
+	Tue, 24 Mar 2026 17:43:10 +0000 (GMT)
+Received: from p-imbrenda.ibmuc.com (unknown [9.111.26.26])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 24 Mar 2026 17:43:10 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, nrb@linux.ibm.com,
+        seiden@linux.ibm.com, gra@linux.ibm.com, schlameuss@linux.ibm.com,
+        hca@linux.ibm.com, david@kernel.org
+Subject: [PATCH v3 6/9] KVM: s390: vsie: Fix refcount overflow for shadow gmaps
+Date: Tue, 24 Mar 2026 18:42:58 +0100
+Message-ID: <20260324174301.232921-7-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260324174301.232921-1-imbrenda@linux.ibm.com>
+References: <20260324174301.232921-1-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Original-Sender: glaubitz@physik.fu-berlin.de
-X-ZEDAT-Hint: PO
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 5APyQLQE2ZWC_LEL3f5YnGqVOMscAHEB
+X-Proofpoint-ORIG-GUID: 5APyQLQE2ZWC_LEL3f5YnGqVOMscAHEB
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI0MDEzNCBTYWx0ZWRfXwvqmtl5qBFyN
+ SJjHaB4PUzpodQ23DlJMVD3cSrMbZWxACHv8nbz1lorMLsZuT1s0cdNCKWH08KuCKcxLPqeKPu2
+ 5ujCjlbEaHKZFTtmwAxkkStGY65+9Jgg0uhZqQPCcOzIwJdDP+iKfKTLjMtwWNp7spmJFv5qohK
+ mDNERRSqNTuArnCigZs7VOxvArpWtvJwOceNXkPLcnEr+5YhcxcpQ7cv2ekpqqkAbVGHuvHLnI5
+ yZerrTSeiavtYgVta2Mu/1lTQPJ0nJ0f6uvS2Cm/uQDDW2XrSwRW9fiRZAWpVzPoQNFv0zygumU
+ /ek9fB/u+dZ6zB1HZqbGnZp3VjWzTaOnEg6SLdpWYzDMpwfHtibrNKKUhS7B0I9XGUHs1KPXqrx
+ GCHEtH58bj4CgY3q75wAVa1WiJG+h7/9fH0w2CYnVJDerE0SRrU3pVqmNuyQrekDP8MB2EH5yBp
+ 5XkapuES4qYDEFl5YXQ==
+X-Authority-Analysis: v=2.4 cv=KbXfcAYD c=1 sm=1 tr=0 ts=69c2cd34 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=h1h-QmE6hYAJ3QnyM7YA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-24_03,2026-03-24_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 impostorscore=0 malwarescore=0 adultscore=0 clxscore=1015
+ priorityscore=1501 bulkscore=0 lowpriorityscore=0 phishscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603240134
 
-Hi Ilpo,
+In most cases gmap_put() was not called when it should have.
 
-On Tue, 2026-03-24 at 18:56 +0200, Ilpo J=C3=A4rvinen wrote:
-> Aligning res->start by align inside pcibios_align_resource() is
-> unnecessary because caller of pcibios_align_resource() is
-> __find_resource_space() that aligns res->start with align before
-> calling pcibios_align_resource().
->=20
-> Aligning by align in case of IORESOURCE_IO && start & 0x300 cannot ever
-> result in changing start either because 0x300 bits would have not
-> survived the earlier alignment if align was large enough to have an
-> impact.
->=20
-> Thus, remove the duplicated aligning from pcibios_align_resource().
->=20
-> Signed-off-by: Ilpo J=C3=A4rvinen <ilpo.jarvinen@linux.intel.com>
-> ---
->  arch/m68k/kernel/pcibios.c | 2 --
->  1 file changed, 2 deletions(-)
->=20
-> diff --git a/arch/m68k/kernel/pcibios.c b/arch/m68k/kernel/pcibios.c
-> index 1415f6e4e5ce..7e286ee1976b 100644
-> --- a/arch/m68k/kernel/pcibios.c
-> +++ b/arch/m68k/kernel/pcibios.c
-> @@ -36,8 +36,6 @@ resource_size_t pcibios_align_resource(void *data, cons=
-t struct resource *res,
->  	if ((res->flags & IORESOURCE_IO) && (start & 0x300))
->  		start =3D (start + 0x3ff) & ~0x3ff;
-> =20
-> -	start =3D (start + align - 1) & ~(align - 1);
-> -
->  	return start;
->  }
->=20
+Add the missing gmap_put() in vsie_run().
 
-Sorry if it's a stupid question, but what does "am68k" in the subject refer=
- to?
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
+Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ arch/s390/kvm/vsie.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Adrian
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index 0330829b4046..72895dddc39a 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -1328,7 +1328,7 @@ static void unregister_shadow_scb(struct kvm_vcpu *vcpu)
+ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ {
+ 	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
+-	struct gmap *sg;
++	struct gmap *sg = NULL;
+ 	int rc = 0;
+ 
+ 	while (1) {
+@@ -1368,6 +1368,8 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 			sg = gmap_put(sg);
+ 		cond_resched();
+ 	}
++	if (sg)
++		sg = gmap_put(sg);
+ 
+ 	if (rc == -EFAULT) {
+ 		/*
+-- 
+2.53.0
 
---=20
- .''`.  John Paul Adrian Glaubitz
-: :' :  Debian Developer
-`. `'   Physicist
-  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
