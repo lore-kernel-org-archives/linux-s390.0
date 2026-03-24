@@ -1,123 +1,140 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f171.google.com (mail-qt1-f171.google.com [209.85.160.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31D9E405ACF;
-	Tue, 24 Mar 2026 15:29:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774366151; cv=none; b=nQ7PNAO4fhanM03oVRvA1ol89PhpuSMpVBtj7C8kb6C5kx81UimNSdkpeqPBJ93n1sUjFclvfOno7OgZIqqYKXtflOOh3Gw/7zJqmycZaBKuemsONG2H0+ruc5Nh7oDZx3ma2nSV4QAHV3+Vve1skzpXQkiD9wuP1OrMKIk8kEI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774366151; c=relaxed/simple;
-	bh=KN+tBha+izJRni7kFgn01Duc0mFvOx9vlPJxnHhjHWo=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=OacWGuck7OPSLtSQPH4OxJfhQ0hMbrWuwlqeEiIuhvGCa3qvew0UDDcF77K/3Xe4h6Oj3jjSqB6Pkg2uKhlGC3ReeNK/hFRCgh65VnV8bcPhuD3/J6Efnk7jCDlDSMs+k9tzUHUbPiSnJxrfqbpEp3+pHOA8dbqijDG/Az4/aGU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=AK8Mp7ze; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E5FD38AC76
+	for <linux-s390@vger.kernel.org>; Tue, 24 Mar 2026 15:59:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.171
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774368001; cv=pass; b=az8PP8tceSA95wcwfYFRSMwOeCiIx0XPqRW2hB4IhFEAa2eRgSifuB/B+ancaw+lVb2x/fFKbAMfyQp061PWxkWhoStH6+3eRTEEOd+3GwxLSuG7KjENg4x26ei8vwPNchPs7mXSGrWqYpSv5EzDZB+MFw6Ztwa/bU/MlEFYhbg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774368001; c=relaxed/simple;
+	bh=rpMp3hiozZmCIXMf9wbrKA0CspmZNmRPkIjUDgHwedg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ew+MuxB5krUVCCgJlwaYft/iH0g9V/hHjmYLYPrQz5jsw4oeTxnb7egV8wYboZB646ts/qM60yUD9urjLbBc6YOGlNu89rCHHgH2cBgHFYNP0ibXpak3rZC8py5Omtm0pIkKQN2C+9HR56T+0oW1gLWk44FB3p7kzeBu2/Syk6Y=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Ek/38mM+; arc=pass smtp.client-ip=209.85.160.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="AK8Mp7ze"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62O8gD9e662269;
-	Tue, 24 Mar 2026 15:29:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=HO7a1K
-	90yVqC3KKHNQfLC9z2MA7WKfSY0hFhlfsJsPA=; b=AK8Mp7ze8UPv9IT+eigW90
-	bLR159smvYxtkZc+8jWs2of9n4JkgR4PfeARNseCx6MdVxxPPTQbk+1N/LNKyANO
-	9tBvnTwygEyDkBwAk7q4N30Sr0oTl2UIJPiusU+5k6l1QEjWF5YsMHUrhKVwKZ9H
-	7yq60f3rZsk1FwXj83DNGN+aIFAkwPwBktDPaIHqGZPiJ8gj+ggaWXtzzTzVt8vP
-	iU9HDnGhWUOys1x1ZwtfTze4os7oiaTLzseSIqBylDZjR3CdnicFJw6r86Fgbg68
-	fx2TtF4k4apiL/lASyuBInRx3nTsmbS+WaQDIAIKa7PCD+ELFWyf4XKMg0ZLnLgQ
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1ktuun9w-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Mar 2026 15:29:07 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62ODCnBa004387;
-	Tue, 24 Mar 2026 15:29:06 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d28c228kx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Mar 2026 15:29:06 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62OFT33H15204778
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 24 Mar 2026 15:29:03 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1473C2004B;
-	Tue, 24 Mar 2026 15:29:03 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9952B20043;
-	Tue, 24 Mar 2026 15:29:01 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.111.26.26])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Tue, 24 Mar 2026 15:29:01 +0000 (GMT)
-Date: Tue, 24 Mar 2026 16:28:58 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, borntraeger@de.ibm.com, nrb@linux.ibm.com,
-        seiden@linux.ibm.com, gra@linux.ibm.com, schlameuss@linux.ibm.com,
-        hca@linux.ibm.com, david@kernel.org
-Subject: Re: [PATCH v2 6/8] KVM: s390: vsie: Fix unshadowing while shadowing
-Message-ID: <20260324162858.0e305fc6@p-imbrenda>
-In-Reply-To: <67810b81-a3d0-4517-96d2-e99b90a216cd@linux.ibm.com>
-References: <20260320161542.202913-1-imbrenda@linux.ibm.com>
-	<20260320161542.202913-7-imbrenda@linux.ibm.com>
-	<67810b81-a3d0-4517-96d2-e99b90a216cd@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Ek/38mM+"
+Received: by mail-qt1-f171.google.com with SMTP id d75a77b69052e-5091ed02c54so494991cf.1
+        for <linux-s390@vger.kernel.org>; Tue, 24 Mar 2026 08:59:59 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1774367999; cv=none;
+        d=google.com; s=arc-20240605;
+        b=PXrmRyDNY1RlAp9LLKZAUTF8/WFDsDFUe4s1GLH+axWwGnPSByBOCr+WO1NoD5RHAx
+         JTsXAGZoLyQhczVqgTmzpADkKLJFgGDIDuwWnIWA+XHdIGUPRYLKS2I7J3CPRKErhH1p
+         RQhqzxpwi++pAPBal64OVpmANbUQwsrlNJsJ8gt0xGnCY0HtCbcWIkLQZeNcPV8ItrJa
+         Ww+NSTQXrYWQ6jYUoCRKfqTivaBuIHr0P+zrkS/GT4z5Xe92Fa8JMYVmnlfmcT5wCula
+         z0lhQzqWhx/RmgvMxdDzTDI7qMxwwsW2BeOOL1yTRDvn5wCrhrrwQ5gaQ26deTcMQwPx
+         TB8Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=XLrSVgO5Jwz0u6hqz5pvyqn1EORmtlk3PJkOIiSuuek=;
+        fh=iV9Tv3UWvI5kUcK4GDL4iZUhk6UGepS9YeZWplOgJXE=;
+        b=GVW87BBW6G3zhBGYEiQx9Vi+ieTVpcIffvRQNv4UGN//pV9F5nMcT+pMgh74m4gBS+
+         0avpu2+OJImD0XlXc+r/+n0xWYF69Q1WQ2cQ2EkHu43u9839SfKyjCTq/eSuWVRERzOy
+         ifNfDf4IBaQ7cyR2eKljPjqOYJ/8xu5z7VQgfD7qArx9+F8Cvv2Xc1pCZfEZxnom5C/K
+         kRfYPtd5uOs3jHB5IwSD3Opo8p/ODRSVWd+9FpqgkQUS4EnyiTR5OIFIEP8+cRjSvXe5
+         OyqAAj/sZAQmI3fSouxvZ8iqDV+dzuQMMKN8CBgdulXBQrFAbKrxODs90kVqLgCH7vDn
+         +Eyg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1774367999; x=1774972799; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=XLrSVgO5Jwz0u6hqz5pvyqn1EORmtlk3PJkOIiSuuek=;
+        b=Ek/38mM+cJ0KdU/nk2xFYU80ACjSZSamxiefjc/vE+0kySoYd3/CuA1lY+3hR4dXMc
+         kTCMLSo4CwMDc9UchmC/vB+Ii08w68Vcu16LIsle3qfMArrLE+N1LBrFSkiZjRBjSSZ9
+         IzJXc46UMc+Vu/rtknxxQHzbFgxbZ6PCgEoypXf+u/yYGMJJs48Ux/UcENlopKI6D84v
+         bm7qmRKbwUCM3drLlifA967WhfU/uHGfu91kuoEubTjVS8Vk5eXBuVwvNrwGu1tSxR9l
+         veXNHcsBRJhA5Z43mfuUU2CTQj1asP1nERjNR/gY1igzoyqv4VRKmKKFSTDw+DANsK6k
+         ACKg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774367999; x=1774972799;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=XLrSVgO5Jwz0u6hqz5pvyqn1EORmtlk3PJkOIiSuuek=;
+        b=WqIrAKLuBOsIEMiWSJqqABsjq5lR4bexxH2Dx6+cOExfAc/6Mqxt1UzHCpZrky45Kd
+         7xxlfF6N+s+RMCE7bTnKnsOceGkFSC4rp7h5dhzQpObur1oDfSco7yeKcqjXqHrwKWr4
+         Rc0deulArqnVWOYW3vIE9m/3OkHEbYIYHIBO0pYGvSmr5Sbr3UnLNC8PH5cdpcI3m9O+
+         I82i4Ix0wVRkHcMcG+twspgdf3qGxM/lWSVyMSpbLbHuhw/uMPfJmS8Tv7Idb68wYaDA
+         mC7+51QUMqOxWqgVDf7n2hbzpTApRWjc0RXl0OWxvDTx5K3UYoLKP6+ObgXWJC7jQFcF
+         BvFg==
+X-Forwarded-Encrypted: i=1; AJvYcCVSfI4cA1R3xgwWtpGXQPhkgY2P73jV5sgxLumszpSyqcgHTl11BSitHOIxGJqMgmmtyoYuzfOo7UCb@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx4hbUawc0JoaX71hzV0VIAAr3CZLPyNvaXDfQQo8Iwg0LbIPG9
+	phuNPmhumH5dBhyM9DWsOhKFDuAaFL/INbt+HFCuHrBmhZdfZfPp1m9jmxKAw15WFznlgo/SIh5
+	kUIZEGl36Kc5xBJ7fECuMDM+3Et+fm3xGOmCtgpQ1
+X-Gm-Gg: ATEYQzxWnVWx8CPg7guPPLkjfkBh5LkwDWX7gMSnC3GKxv5vemA40D2+ZWoTWtsoZ8Z
+	h9b0mLDApsu0g9NP7VeOoQZr272sJsJemiXUcUllmf/fVBl/Q6g0VhZxzm5m+6z31Nlkku12qwv
+	9iILWkqb8j/ihC0Usw09VJNsts1lzTrn6HZnMxk+FQ4/5Z5srX0Gj8XLTGlVhLf2VmZo7a2s0uA
+	EnU4Jy19vTFi+tfQCl9HMJkW2IvJXSr4HmHGkOv8XoCVZZaYpd+3dt7Zje99fLmszohzwP61IJw
+	HTZCVmFganLJRNGBbce1LJLG3hbsyLzZltan1w==
+X-Received: by 2002:a05:622a:8d15:b0:509:1eca:6d24 with SMTP id
+ d75a77b69052e-50b6fab570emr14738871cf.2.1774367998125; Tue, 24 Mar 2026
+ 08:59:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: MLzhcKOzz0SzUIwCmYoGHwrty6FcQ-8L
-X-Authority-Analysis: v=2.4 cv=aMr9aL9m c=1 sm=1 tr=0 ts=69c2adc3 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=kj9zAlcOel0A:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=rh5d3bxwEoKsl6cgku0A:9 a=CjuIK1q_8ugA:10 a=ZXulRonScM0A:10
- a=zZCYzV9kfG8A:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI0MDExOSBTYWx0ZWRfX6F8d61Io7YZB
- jZm/BM7OCQoW5WZ2YYiFgG9SHgmsgbdP9YsZky29bt2AK9hByR9opQThcO0WUxoFdwB9TZyLQYb
- J/dqTjgefTx8+U+DTC2ylLrvLUKGKA1/RygQ8inGirv8O41GVPE9Ww8Hs0C3EXVGVMxpAC8CIBD
- MfBac9S6utul/qE7dP1S2xZQ4SbhqkmoenKKkF6l9YFyBL7Xfosm3ex4a0acHe7F6JFuQFh7Oyl
- Qo3EBkKfASO4U8mfMOe1HLylNq/gd3l5PKpRPv/WZ/Tb9E6dp2O/Pdnfji2IcOLMrDaBhJMKXNP
- 10+xEWWdaC93+riF16KcmbMqiKASju0O+2hdMD8qXB4TQeQEHyC6dUXclHLNTZEtnyQaY/pNr7/
- 0rHLiOjJ9T3MPo9fo7m4ZWyRK6ZIrJRPQ0mkQI/C2pclT/VJBcm9tNfBVJG/3P11eySTqwSNiCU
- YW39Tr+sDJKL3bNujNw==
-X-Proofpoint-GUID: MLzhcKOzz0SzUIwCmYoGHwrty6FcQ-8L
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-24_03,2026-03-23_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 lowpriorityscore=0 adultscore=0 impostorscore=0 malwarescore=0
- suspectscore=0 phishscore=0 priorityscore=1501 bulkscore=0 clxscore=1015
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603240119
+References: <20260322054309.898214-1-surenb@google.com> <20260322091723.dbc1a8e45f4412fca43ba510@linux-foundation.org>
+ <CAJuCfpGEA17hB4BMdr5a7=NxfeF1RUt0q=_w2WieVv0XoN24Gg@mail.gmail.com>
+In-Reply-To: <CAJuCfpGEA17hB4BMdr5a7=NxfeF1RUt0q=_w2WieVv0XoN24Gg@mail.gmail.com>
+From: Suren Baghdasaryan <surenb@google.com>
+Date: Tue, 24 Mar 2026 08:59:47 -0700
+X-Gm-Features: AQROBzAMqgNkN_nl_EndICe5F5XJG6Br11eHuUlOIjfDgcmYOvJ6ZgT0J1pHfxM
+Message-ID: <CAJuCfpHQ6ru79hjnRnz6vpb2-Rjff8QsM9d_4g9jd+_jb9-qvw@mail.gmail.com>
+Subject: Re: [PATCH v4 0/4] Use killable vma write locking in most places
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: willy@infradead.org, david@kernel.org, ziy@nvidia.com, 
+	matthew.brost@intel.com, joshua.hahnjy@gmail.com, rakie.kim@sk.com, 
+	byungchul@sk.com, gourry@gourry.net, ying.huang@linux.alibaba.com, 
+	apopple@nvidia.com, lorenzo.stoakes@oracle.com, baolin.wang@linux.alibaba.com, 
+	Liam.Howlett@oracle.com, npache@redhat.com, ryan.roberts@arm.com, 
+	dev.jain@arm.com, baohua@kernel.org, lance.yang@linux.dev, vbabka@suse.cz, 
+	jannh@google.com, rppt@kernel.org, mhocko@suse.com, pfalcato@suse.de, 
+	kees@kernel.org, maddy@linux.ibm.com, npiggin@gmail.com, mpe@ellerman.id.au, 
+	chleroy@kernel.org, borntraeger@linux.ibm.com, frankja@linux.ibm.com, 
+	imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, 
+	agordeev@linux.ibm.com, svens@linux.ibm.com, gerald.schaefer@linux.ibm.com, 
+	linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+	Roman Gushchin <kfree@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 24 Mar 2026 15:52:02 +0100
-Janosch Frank <frankja@linux.ibm.com> wrote:
+On Sun, Mar 22, 2026 at 9:29=E2=80=AFPM Suren Baghdasaryan <surenb@google.c=
+om> wrote:
+>
+> On Sun, Mar 22, 2026 at 9:17=E2=80=AFAM Andrew Morton <akpm@linux-foundat=
+ion.org> wrote:
+> >
+> > On Sat, 21 Mar 2026 22:43:04 -0700 Suren Baghdasaryan <surenb@google.co=
+m> wrote:
+> >
+> > > Now that we have vma_start_write_killable() we can replace most of th=
+e
+> > > vma_start_write() calls with it, improving reaction time to the kill
+> > > signal.
+> >
+> > Thanks.  Sashiko review raised a few possible issues:
+> >         https://sashiko.dev/#/patchset/20260322054309.898214-1-surenb@g=
+oogle.com
+>
+> Thanks! This Sashiko dude is good :)
 
-> On 3/20/26 17:15, Claudio Imbrenda wrote:
-> > If shadowing causes the shadow gmap to get unshadowed, exit early to  
-> 
-> How can this happen?
+Interestingly Sashiko had one false flag: "Does this code leave
+mm->locked_vm permanently corrupted if vma_start_write_killable()
+fails?"
 
-one possibility is if g2 maps g3 memory pages over the top-level table
-of the g2 -> g3 asce
+In mlock_fixup() the path that we call vma_start_write_killable()
+happens only if both new_vma_flags and old_vma_flags have their
+VMA_LOCKED_BIT set. In such case nr_pages is 0, so "mm->locked_vm +=3D
+nr_pages;" does not change the value of mm->locked_vm and we are fine.
+Perhaps this can be used to improve the model?
 
-there are probably other cases I can't think of
-
-> 
-> > prevent an attempt to dereference the parent pointer, which at this
-> > point is NULL.
-> > 
-> > Opportunistically add some more checks to prevent NULL parents.  
-
+CC'ing Roman.
