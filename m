@@ -1,60 +1,41 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8D842E11D2;
-	Tue, 24 Mar 2026 19:34:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A425E3043DC;
+	Tue, 24 Mar 2026 19:42:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774380866; cv=none; b=ZjfSv9EIpC8YBupz8J60VH0vaqT5NXbScIQ+esweZM6dPd5nt8b64fDVmVVbFoxs5mybi+TfM4W2Tg0ahz/vZSr/pxLXSl3ypb7kpvwv+Q2NNW/qfHFDJ6nUxe3/uVG7H9PAGYfASb+hGZ+oVyGqApqVCDUj9JCP8VFdijScLl8=
+	t=1774381336; cv=none; b=Tt9bCBK+LTpfXSN9cGd7OFKwU64TPHqZD0lANIAdIvzq+coZrzJ88/q8ehn/UAPz1RSYq116h/5NKzGb20GPgEE+6/n68W/ew28KjbxVQap4BanyJNsWWlkn8nxV1RihU70aOYWng+YUB/pPaMKSjqdlAf0s4ZPKNlCienNqVRY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774380866; c=relaxed/simple;
-	bh=Bc5l4pIBeiiPgT/7rux76ObCIYFem7KpEcL8vce6haw=;
+	s=arc-20240116; t=1774381336; c=relaxed/simple;
+	bh=CP9KQznymj/57SvemGWPkQ/5+YO2JcQjnpOOJiKqnYw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=KUy8j/Gf9UxjaZPNIoYnMKY9FjTpdwZQw9qXrSHIiGJ8uLDOMOqlB+/5jFtf1xCXR8e1cnf1rTvnZvAFNsG04TVANvBT5N+Wo5hoN+WWzylZLlQslB69zdQku+tijSF80s+3OMGWhymK6SS+R+FVei6GspWHRRuHinRwP4r7oPY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dLo7lh2F; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=AQs8E6t8UOd74GNHRtoe26daCV/ASXCnLqnVlOBZXVk/5KgspTtRQItQA+fHLtkTJcmpbyPP+njQyfEbXsJyF9EczJd2MSg9B68/sFjx5Hytt7tNRVQesiHi50asGIpNXawfd325ygCWOmVRNAuiV4B4rw+WomBCot2ON2N/VLA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de; spf=pass smtp.mailfrom=gmx.de; dkim=pass (2048-bit key) header.d=gmx.de header.i=w_armin@gmx.de header.b=ifvPJxvA; arc=none smtp.client-ip=212.227.15.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dLo7lh2F"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62OHqFbh552077;
-	Tue, 24 Mar 2026 19:34:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=wa034R
-	kjRmkHyMwVHyN9YR1qpLJT9Dt37rUSQmpCTzw=; b=dLo7lh2FYN7STYJtHybIjS
-	Q5zR1qPu0cJSuo6Idr/jnLy4KEjYynAs8dwTn5rlUnOcj0+/ZrrZIxyJvpOc65zZ
-	Jim2c7BRZpr6C1dZ96jvzqmykM0QF/tF/tv8g2IZaYR2aaclTPY6fRb0LHgUrdfw
-	uFnYzCFEo3jF5eFckvR38InNQ8MM8AjBMGKK9apxTtP5odoLDHZ7farkalYtoUI/
-	2xpbw2YaXRvUDa3h8oZv1/l2OqwPPo6WxeACe1K0U7V9DuBGO/2sn6zeQIEcM1GY
-	pKwpK33abpl+i6jLaH8W6AUrwZLVD3DjPfRm0C5lERwLErdzzuxSCsUroHs5xttA
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1ky04pmu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Mar 2026 19:34:18 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62OIxPUI009118;
-	Tue, 24 Mar 2026 19:34:17 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d26nnkk0s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Mar 2026 19:34:17 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62OJYGb727460110
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 24 Mar 2026 19:34:16 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3112E58059;
-	Tue, 24 Mar 2026 19:34:16 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 664CD58055;
-	Tue, 24 Mar 2026 19:34:15 +0000 (GMT)
-Received: from [9.61.253.153] (unknown [9.61.253.153])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 24 Mar 2026 19:34:15 +0000 (GMT)
-Message-ID: <f171af52-87f5-4b1e-9caf-6d7b4e161534@linux.ibm.com>
-Date: Tue, 24 Mar 2026 12:34:13 -0700
+	dkim=pass (2048-bit key) header.d=gmx.de header.i=w_armin@gmx.de header.b="ifvPJxvA"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.de;
+	s=s31663417; t=1774381324; x=1774986124; i=w_armin@gmx.de;
+	bh=GGWlvb2n3V4HaO8XQjVf9hW7XhuAzhwdcuVxgB5Di8o=;
+	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:Subject:To:Cc:
+	 References:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:cc:content-transfer-encoding:
+	 content-type:date:from:message-id:mime-version:reply-to:subject:
+	 to;
+	b=ifvPJxvAhtek8q+pCeeyITFinHZKIJzqVHZWD0oNtpjBH1VESRkcZtiJ0sFNIVvR
+	 +0tHnwJ18q+Z71ZrayUhU0vh5SiV1GPGwunmQmajPwVX4HXy1AnJ3jVQfcgYl/q0G
+	 7GpW93BfuY2TpH5ZIbrRDM1vyhuFD6vaYRPfQPHs2isrsWWvKb6H9asjxTkbrpRtL
+	 3vWhE/L/BP8v1cfiKyUpLIqIJ9UK3RIuIZtPTLzS2X0sC5ZIUWvYq6SpqamMfPhIB
+	 3LW6jjBPxIdqM4s0+mkdYOjqtI6GXvkruP0E13jFM3HajUwIRo0KgB5dciwbWvO8R
+	 RuMZmDRORvSKwwSOYw==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from client.hidden.invalid by mail.gmx.net (mrgmx004
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MJE6L-1vpN8Z0wQN-00N053; Tue, 24
+ Mar 2026 20:42:04 +0100
+Message-ID: <50ed0e80-c1f3-48da-81f6-9edd2b1c35e1@gmx.de>
+Date: Tue, 24 Mar 2026 20:41:59 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,235 +43,252 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v11 0/9] Error recovery for vfio-pci devices on s390x
-To: Bjorn Helgaas <helgaas@kernel.org>
-Cc: lukas@wunner.de, alex@shazbot.org, kbusch@kernel.org, clg@redhat.com,
-        stable@vger.kernel.org, schnelle@linux.ibm.com, mjrosato@linux.ibm.com,
-        linux-s390@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-        Linux PCI <linux-pci@vger.kernel.org>
-References: <20260316191544.2279-1-alifm@linux.ibm.com>
+Subject: Re: [PATCH 06/12] platform/wmi: use generic driver_override
+ infrastructure
+To: Danilo Krummrich <dakr@kernel.org>, Russell King <linux@armlinux.org.uk>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "Rafael J. Wysocki" <rafael@kernel.org>,
+ Ioana Ciornei <ioana.ciornei@nxp.com>, Nipun Gupta <nipun.gupta@amd.com>,
+ Nikhil Agarwal <nikhil.agarwal@amd.com>, "K. Y. Srinivasan"
+ <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>,
+ Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+ Long Li <longli@microsoft.com>, Bjorn Helgaas <bhelgaas@google.com>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ Vineeth Vijayan <vneethv@linux.ibm.com>,
+ Peter Oberparleiter <oberpar@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Harald Freudenberger <freude@linux.ibm.com>,
+ Holger Dengler <dengler@linux.ibm.com>, Mark Brown <broonie@kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Alex Williamson <alex@shazbot.org>,
+ Juergen Gross <jgross@suse.com>, Stefano Stabellini
+ <sstabellini@kernel.org>,
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+Cc: linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org,
+ linux-pci@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-spi@vger.kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ xen-devel@lists.xenproject.org, linux-arm-kernel@lists.infradead.org,
+ Gui-Dong Han <hanguidong02@gmail.com>
+References: <20260324005919.2408620-1-dakr@kernel.org>
+ <20260324005919.2408620-7-dakr@kernel.org>
 Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <20260316191544.2279-1-alifm@linux.ibm.com>
+From: Armin Wolf <W_Armin@gmx.de>
+In-Reply-To: <20260324005919.2408620-7-dakr@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI0MDE0OSBTYWx0ZWRfX8V7bYqJMvxC9
- iITahyh+MEIkR58YKLn4RoSTUSY+t6HwaxZ9XIe0PaLF70ysIdmFJumKmYRni4gCqwi/IE0ydhI
- 0P0RY97qX8+zyApXMPP9qDrn8GIeMG3j4v0kFJlymHx9yWA3XbdDIYagT+FsVp1hXFXNm4uj6Gv
- uGIi+V5xazWawYdwURhvJAZI0CBdVoTmI+TdRNUN2VX7EAIZ9JrQrpIIyWm2jhv5wvtHg8LLW8A
- 0NA1vDg8l7PuZpnfm6tc0DcaDpbo0W1+UWGIcWsQnT10JS0NMRb/qpzGISeyV4ZItj4fNqGdSxw
- I7QsojsBOvIho39eK0WCq3RZ80nK/L9Ds31ZOXbM28Z9qaFY5VmZTy9ZG2r/y22DfY/rLzJfagX
- zYnlOdKvJp7G63Fogh+A4SHerDM93OQqIN8J47N/BR3+3DuXzHVmqYKf/VVhaCYLHNv8c6pBAyt
- JkOSddqZgIuWSxKQNOQ==
-X-Authority-Analysis: v=2.4 cv=JK42csKb c=1 sm=1 tr=0 ts=69c2e73a cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=VYs1Kb8SrcD_bOuB75gA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: 3BHBDvEwVUs_s58Vkjact9JfNmqaTstB
-X-Proofpoint-GUID: 3BHBDvEwVUs_s58Vkjact9JfNmqaTstB
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-24_03,2026-03-24_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 clxscore=1015 priorityscore=1501 malwarescore=0 adultscore=0
- spamscore=0 suspectscore=0 phishscore=0 lowpriorityscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603240149
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:KKKjGPofriNO2Y7ny8bzLW+ogpO7D8lGPS1ezTtV32qPriElMBO
+ jvtg2QtMPBSSFpK+K9f9/W3IHaIUxxM1SjbuL+eF3f/6Z6WRzj/HQbWdJ/0smqYXW/iekvq
+ A+6iz88zZSNd21TB/fuLIMalZH7T5q5DuSXS3//CqYIoGgOXkyuC7c9IHxbPHBnE7ZSgdkY
+ FFp1rdFLmEZzrK9+h1giQ==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:kIvBWcj/zXQ=;/niOuXlWvI8Na8RihCaK5ylBNR/
+ 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
 
-Hi Bjorn,
+Am 24.03.26 um 01:59 schrieb Danilo Krummrich:
 
-Polite ping for the PCI patches in the series. I would appreciate any 
-feedback for these patches :) .
+> When a driver is probed through __driver_attach(), the bus' match()
+> callback is called without the device lock held, thus accessing the
+> driver_override field without a lock, which can cause a UAF.
+>
+> Fix this by using the driver-core driver_override infrastructure taking
+> care of proper locking internally.
+>
+> Note that calling match() from __driver_attach() without the device lock
+> held is intentional. [1]
 
-Thanks
+Reviewed-by: Armin Wolf <W_Armin@gmx.de>
 
-Farhan
-
-On 3/16/2026 12:15 PM, Farhan Ali wrote:
-> Hi,
+> Link: https://lore.kernel.org/driver-core/DGRGTIRHA62X.3RY09D9SOK77P@ker=
+nel.org/ [1]
+> Reported-by: Gui-Dong Han <hanguidong02@gmail.com>
+> Closes: https://bugzilla.kernel.org/show_bug.cgi?id=3D220789
+> Fixes: 12046f8c77e0 ("platform/x86: wmi: Add driver_override support")
+> Signed-off-by: Danilo Krummrich <dakr@kernel.org>
+> ---
+>   drivers/platform/wmi/core.c | 36 +++++-------------------------------
+>   include/linux/wmi.h         |  4 ----
+>   2 files changed, 5 insertions(+), 35 deletions(-)
 >
-> This Linux kernel patch series introduces support for error recovery for
-> passthrough PCI devices on System Z (s390x).
->
-> Background
-> ----------
-> For PCI devices on s390x an operating system receives platform specific
-> error events from firmware rather than through AER.Today for
-> passthrough/userspace devices, we don't attempt any error recovery and
-> ignore any error events for the devices. The passthrough/userspace devices
-> are managed by the vfio-pci driver. The driver does register error handling
-> callbacks (error_detected), and on an error trigger an eventfd to
-> userspace.  But we need a mechanism to notify userspace
-> (QEMU/guest/userspace drivers) about the error event.
->
-> Proposal
-> --------
-> We can expose this error information (currently only the PCI Error Code)
-> via a device feature. Userspace can then obtain the error information
-> via VFIO_DEVICE_FEATURE ioctl and take appropriate actions such as driving
-> a device reset.
->
-> This is how a typical flow for passthrough devices to a VM would work:
-> For passthrough devices to a VM, the driver bound to the device on the host
-> is vfio-pci. vfio-pci driver does support the error_detected() callback
-> (vfio_pci_core_aer_err_detected()), and on an PCI error s390x recovery
-> code on the host will call the vfio-pci error_detected() callback. The
-> vfio-pci error_detected() callback will notify userspace/QEMU via an
-> eventfd, and return PCI_ERS_RESULT_CAN_RECOVER. At this point the s390x
-> error recovery on the host will skip any further action(see patch 6) and
-> let userspace drive the error recovery.
->
-> Once userspace/QEMU is notified, it then injects this error into the VM
-> so device drivers in the VM can take recovery actions. For example for a
-> passthrough NVMe device, the VM's OS NVMe driver will access the device.
-> At this point the VM's NVMe driver's error_detected() will drive the
-> recovery by returning PCI_ERS_RESULT_NEED_RESET, and the s390x error
-> recovery in the VM's OS will try to do a reset. Resets are privileged
-> operations and so the VM will need intervention from QEMU to perform the
-> reset. QEMU will invoke the VFIO_DEVICE_RESET ioctl to now notify the
-> host that the VM is requesting a reset of the device. The vfio-pci driver
-> on the host will then perform the reset on the device to recover it.
->
->
-> Thanks
-> Farhan
->
-> ChangeLog
-> ---------
-> v10 series https://lore.kernel.org/all/20260302203325.3826-1-alifm@linux.ibm.com/
-> v10 -> v11
->      - Rebase on pci/next to handle merge conflicts with patch 1.
->
->      - Typo fixup in commit message (patch 4) and use guard() for mutex
->      (patch 6).
->
-> v9 series https://lore.kernel.org/all/20260217182257.1582-1-alifm@linux.ibm.com/
-> v9 -> v10
->     - Change pci_slot number to u16 (patch 1).
->
->     - Avoid saving invalid config space state if config space is
->     inaccessible in the device reset path. It uses the same patch as in v8
->     with R-b from Niklas.
->
->     - Rebase on 7.0.0-rc2
->
->
-> v8 series https://lore.kernel.org/all/20260122194437.1903-1-alifm@linux.ibm.com/
-> v8 -> v9
->     - Avoid saving PCI config space state in reset path (patch 3) (suggested by Bjorn)
->     
->     - Add explicit version to struct vfio_device_feature_zpci_err (patch 7).
->
->     - Rebase on 6.19
->
->
-> v7 series https://lore.kernel.org/all/20260107183217.1365-1-alifm@linux.ibm.com/
-> v7 -> v8
->     - Rebase on 6.19-rc4
->
->     - Address feedback from Niklas and Julien.
->
->
-> v6 series https://lore.kernel.org/all/2c609e61-1861-4bf3-b019-a11c137d26a5@linux.ibm.com/
-> v6 -> v7
->      - Rebase on 6.19-rc4
->
->      - Update commit message based on Niklas's suggestion (patch 3).
->
-> v5 series https://lore.kernel.org/all/20251113183502.2388-1-alifm@linux.ibm.com/
-> v5 -> v6
->     - Rebase on 6.18 + Lukas's PCI: Universal error recoverability of
->     devices series (https://lore.kernel.org/all/cover.1763483367.git.lukas@wunner.de/)
->
->     - Re-work config space accessibility check to pci_dev_save_and_disable() (patch 3).
->     This avoids saving the config space, in the reset path, if the device's config space is
->     corrupted or inaccessible.
->
-> v4 series https://lore.kernel.org/all/20250924171628.826-1-alifm@linux.ibm.com/
-> v4 -> v5
->      - Rebase on 6.18-rc5
->
->      - Move bug fixes to the beginning of the series (patch 1 and 2). These patches
->      were posted as a separate fixes series
-> https://lore.kernel.org/all/a14936ac-47d6-461b-816f-0fd66f869b0f@linux.ibm.com/
->
->      - Add matching pci_put_dev() for pci_get_slot() (patch 6).
->
-> v3 series https://lore.kernel.org/all/20250911183307.1910-1-alifm@linux.ibm.com/
-> v3 -> v4
->      - Remove warn messages for each PCI capability not restored (patch 1)
->
->      - Check PCI_COMMAND and PCI_STATUS register for error value instead of device id
->      (patch 1)
->
->      - Fix kernel crash in patch 3
->
->      - Added reviewed by tags
->
->      - Address comments from Niklas's (patches 4, 5, 7)
->
->      - Fix compilation error non s390x system (patch 8)
->
->      - Explicitly align struct vfio_device_feature_zpci_err (patch 8)
->
->
-> v2 series https://lore.kernel.org/all/20250825171226.1602-1-alifm@linux.ibm.com/
-> v2 -> v3
->     - Patch 1 avoids saving any config space state if the device is in error
->     (suggested by Alex)
->
->     - Patch 2 adds additional check only for FLR reset to try other function
->       reset method (suggested by Alex).
->
->     - Patch 3 fixes a bug in s390 for resetting PCI devices with multiple
->       functions. Creates a new flag pci_slot to allow per function slot.
->
->     - Patch 4 fixes a bug in s390 for resource to bus address translation.
->
->     - Rebase on 6.17-rc5
->
->
-> v1 series https://lore.kernel.org/all/20250813170821.1115-1-alifm@linux.ibm.com/
-> v1 - > v2
->     - Patches 1 and 2 adds some additional checks for FLR/PM reset to
->       try other function reset method (suggested by Alex).
->
->     - Patch 3 fixes a bug in s390 for resetting PCI devices with multiple
->       functions.
->
->     - Patch 7 adds a new device feature for zPCI devices for the VFIO_DEVICE_FEATURE
->       ioctl. The ioctl is used by userspace to retriece any PCI error
->       information for the device (suggested by Alex).
->
->     - Patch 8 adds a reset_done() callback for the vfio-pci driver, to
->       restore the state of the device after a reset.
->
->     - Patch 9 removes the pcie check for triggering VFIO_PCI_ERR_IRQ_INDEX.
->
-> Farhan Ali (9):
->    PCI: Allow per function PCI slots
->    s390/pci: Add architecture specific resource/bus address translation
->    PCI: Avoid saving config space state if inaccessible
->    PCI: Add additional checks for flr reset
->    s390/pci: Update the logic for detecting passthrough device
->    s390/pci: Store PCI error information for passthrough devices
->    vfio-pci/zdev: Add a device feature for error information
->    vfio: Add a reset_done callback for vfio-pci driver
->    vfio: Remove the pcie check for VFIO_PCI_ERR_IRQ_INDEX
->
->   arch/s390/include/asm/pci.h       |  29 ++++++++
->   arch/s390/pci/pci.c               |  75 +++++++++++++++++++++
->   arch/s390/pci/pci_event.c         | 106 +++++++++++++++++-------------
->   drivers/pci/host-bridge.c         |   8 +--
->   drivers/pci/pci.c                 |  26 +++++++-
->   drivers/pci/slot.c                |  31 +++++++--
->   drivers/vfio/pci/vfio_pci_core.c  |  22 +++++--
->   drivers/vfio/pci/vfio_pci_intrs.c |   3 +-
->   drivers/vfio/pci/vfio_pci_priv.h  |   9 +++
->   drivers/vfio/pci/vfio_pci_zdev.c  |  47 ++++++++++++-
->   include/linux/pci.h               |   5 +-
->   include/uapi/linux/vfio.h         |  17 +++++
->   12 files changed, 307 insertions(+), 71 deletions(-)
->
+> diff --git a/drivers/platform/wmi/core.c b/drivers/platform/wmi/core.c
+> index b8e6b9a421c6..750e3619724e 100644
+> --- a/drivers/platform/wmi/core.c
+> +++ b/drivers/platform/wmi/core.c
+> @@ -842,39 +842,11 @@ static ssize_t expensive_show(struct device *dev,
+>   }
+>   static DEVICE_ATTR_RO(expensive);
+>  =20
+> -static ssize_t driver_override_show(struct device *dev, struct device_a=
+ttribute *attr,
+> -				    char *buf)
+> -{
+> -	struct wmi_device *wdev =3D to_wmi_device(dev);
+> -	ssize_t ret;
+> -
+> -	device_lock(dev);
+> -	ret =3D sysfs_emit(buf, "%s\n", wdev->driver_override);
+> -	device_unlock(dev);
+> -
+> -	return ret;
+> -}
+> -
+> -static ssize_t driver_override_store(struct device *dev, struct device_=
+attribute *attr,
+> -				     const char *buf, size_t count)
+> -{
+> -	struct wmi_device *wdev =3D to_wmi_device(dev);
+> -	int ret;
+> -
+> -	ret =3D driver_set_override(dev, &wdev->driver_override, buf, count);
+> -	if (ret < 0)
+> -		return ret;
+> -
+> -	return count;
+> -}
+> -static DEVICE_ATTR_RW(driver_override);
+> -
+>   static struct attribute *wmi_attrs[] =3D {
+>   	&dev_attr_modalias.attr,
+>   	&dev_attr_guid.attr,
+>   	&dev_attr_instance_count.attr,
+>   	&dev_attr_expensive.attr,
+> -	&dev_attr_driver_override.attr,
+>   	NULL
+>   };
+>   ATTRIBUTE_GROUPS(wmi);
+> @@ -943,7 +915,6 @@ static void wmi_dev_release(struct device *dev)
+>   {
+>   	struct wmi_block *wblock =3D dev_to_wblock(dev);
+>  =20
+> -	kfree(wblock->dev.driver_override);
+>   	kfree(wblock);
+>   }
+>  =20
+> @@ -952,10 +923,12 @@ static int wmi_dev_match(struct device *dev, const=
+ struct device_driver *driver)
+>   	const struct wmi_driver *wmi_driver =3D to_wmi_driver(driver);
+>   	struct wmi_block *wblock =3D dev_to_wblock(dev);
+>   	const struct wmi_device_id *id =3D wmi_driver->id_table;
+> +	int ret;
+>  =20
+>   	/* When driver_override is set, only bind to the matching driver */
+> -	if (wblock->dev.driver_override)
+> -		return !strcmp(wblock->dev.driver_override, driver->name);
+> +	ret =3D device_match_driver_override(dev, driver);
+> +	if (ret >=3D 0)
+> +		return ret;
+>  =20
+>   	if (id =3D=3D NULL)
+>   		return 0;
+> @@ -1076,6 +1049,7 @@ static struct class wmi_bus_class =3D {
+>   static const struct bus_type wmi_bus_type =3D {
+>   	.name =3D "wmi",
+>   	.dev_groups =3D wmi_groups,
+> +	.driver_override =3D true,
+>   	.match =3D wmi_dev_match,
+>   	.uevent =3D wmi_dev_uevent,
+>   	.probe =3D wmi_dev_probe,
+> diff --git a/include/linux/wmi.h b/include/linux/wmi.h
+> index 75cb0c7cfe57..14fb644e1701 100644
+> --- a/include/linux/wmi.h
+> +++ b/include/linux/wmi.h
+> @@ -18,16 +18,12 @@
+>    * struct wmi_device - WMI device structure
+>    * @dev: Device associated with this WMI device
+>    * @setable: True for devices implementing the Set Control Method
+> - * @driver_override: Driver name to force a match; do not set directly,
+> - *		     because core frees it; use driver_set_override() to
+> - *		     set or clear it.
+>    *
+>    * This represents WMI devices discovered by the WMI driver core.
+>    */
+>   struct wmi_device {
+>   	struct device dev;
+>   	bool setable;
+> -	const char *driver_override;
+>   };
+>  =20
+>   /**
