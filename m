@@ -1,42 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4546339FD4;
-	Tue, 24 Mar 2026 21:26:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC6B920E702;
+	Tue, 24 Mar 2026 21:40:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774387564; cv=none; b=rI2jAKE4o0+Dhb4qwQsLBtIbmSYGE2Bahx3ENvgXnUjPclwM/iQPl4sd6HQ0Hdm6GYukymag+kYdS+EWlWVAgvYo0QA4Vq6BLuK5PyIgvti7P1cRiKxTl9Aj2LJyqE5UnVvLBTb4hU1bSGwWxU6iF67+RYWezGTwc+k3APYdum0=
+	t=1774388452; cv=none; b=iBnvxTQuQKNVeeqIACGEsTF7md6v0B/mcdCCp9TOCFOtOlCye6M8b7ph0UHyH6nJksc4zDaTy3wCCfDYIAMrDT1QEUWzLy9Hk/T8r6iqC/cdszans8Uw5sAJc2MNTuZ+aQyQ/E/8wXvaacwKuT8tyT6KB8tBv+HrUv5hLgzMXTs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774387564; c=relaxed/simple;
-	bh=9F+HdKYAmTDumYmQWst3n/3M3OnO4i+ge3gPYW8ub58=;
+	s=arc-20240116; t=1774388452; c=relaxed/simple;
+	bh=BE5Ka5em6EIlNmLMSknEhfQ/6K4e1oYW9hJDpjKrhbc=;
 	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To; b=SDKbgAx1KRb4jASutUj8nU0akkH9j+KaVdXpNWMcriQakZHG5Quvj9UA7vHMWTPSEp2fndF+ezUBqkunwN27IAaB6d9ax10ZXDAbQpKfXYSz4FooXpFGNbnJ/nDofuozQK9Ci/6Maw7Vr9s+EjQ8tUIf7zG8GJ/uPlpEGR25kd4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aiZ/LQp8; arc=none smtp.client-ip=10.30.226.201
+	 Content-Disposition:In-Reply-To; b=Nupudw98f+wfyf7Hzr2r5Dr/QzfA2WCny3Vo+HSXPuRyEi5utHqOUiSLJ2xpPGywDREZRoHREjA82+SmOaMeWlhBw77z4uj4vNIGzH1OLqfAsMthZeVBXJHE/NtvxzPFx8XxT/NJgfkMUAIbXxHFBaZEV6QnHKd5lwJwWPVr4D0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=anDeqvEr; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aiZ/LQp8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5EE1C19424;
-	Tue, 24 Mar 2026 21:26:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="anDeqvEr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A347C19424;
+	Tue, 24 Mar 2026 21:40:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774387563;
-	bh=9F+HdKYAmTDumYmQWst3n/3M3OnO4i+ge3gPYW8ub58=;
+	s=k20201202; t=1774388452;
+	bh=BE5Ka5em6EIlNmLMSknEhfQ/6K4e1oYW9hJDpjKrhbc=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:From;
-	b=aiZ/LQp8twTvdUbwFmpyCVpJzLud7P2PBK/14kNYXL2Nya6CEKMSlEjXUBq/VIaWo
-	 AEw9lf7Ovhha2nOt6I54hOM9WkeHdImSH26mnQsQXXLX9SjHDNp7R1IBl09mCpIdat
-	 xNv7IRE5Bql6iVIueF0Wc9DV8eQ1dorR4NVh3Ab2rRRhnBQmwa3240swwe3FbueISo
-	 ldxn4UU5uKPdLbvv46q2Kig/1gMEzZ1mGaDlIN/pbOd6jut+ZmrUJwoYPN7bLaJqZS
-	 wGPz3PRtPzQHbIuAH9D/GRqEHjhYruD1JzJMAHAwdF1yNnSM1EjX9ljmOywoEMvqj6
-	 ydWp08aJtPafg==
-Date: Tue, 24 Mar 2026 16:26:02 -0500
+	b=anDeqvEr6fHcykAnibRONIDcReQH7ozd1lDFtwLX0qkAvI7UPbvRYqIvor/5YgNWl
+	 oylQ4ELnjDuzkBVRI4Dc9i4O4mqrV0qkxu17fjumfoTtsU50sMb5TANftjPmiZ1QOk
+	 FBPxV7Gqu8qJp2IdYNpx6+G3Y6IkL/Txq177yWlGhdjfOfA9AeYp5F8llMhoIiebv6
+	 iW4c5/hwbg77ro3Sbh29U58C5cM2blVDmChZ5uLnWHUyQpqm7y0nMxaeqhExJjNcot
+	 Q/TjrB6QDdskRoFJtbVo/oEhnoH3NGhT5zxsfp1MAhuLMZ+gauaFGQVJccHhoq0GaA
+	 v3R1kmSzROcSA==
+Date: Tue, 24 Mar 2026 16:40:51 -0500
 From: Bjorn Helgaas <helgaas@kernel.org>
 To: Farhan Ali <alifm@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
 	linux-pci@vger.kernel.org, lukas@wunner.de, alex@shazbot.org,
 	kbusch@kernel.org, clg@redhat.com, stable@vger.kernel.org,
-	schnelle@linux.ibm.com, mjrosato@linux.ibm.com,
-	Julian Ruess <julianr@linux.ibm.com>
-Subject: Re: [PATCH v11 9/9] vfio: Remove the pcie check for
- VFIO_PCI_ERR_IRQ_INDEX
-Message-ID: <20260324212602.GA1151826@bhelgaas>
+	schnelle@linux.ibm.com, mjrosato@linux.ibm.com
+Subject: Re: [PATCH v11 3/9] PCI: Avoid saving config space state if
+ inaccessible
+Message-ID: <20260324214051.GA1156527@bhelgaas>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -45,104 +44,91 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260316191544.2279-10-alifm@linux.ibm.com>
+In-Reply-To: <20260316191544.2279-4-alifm@linux.ibm.com>
 
-On Mon, Mar 16, 2026 at 12:15:44PM -0700, Farhan Ali wrote:
-> We are configuring the error signaling on the vast majority of devices and
+On Mon, Mar 16, 2026 at 12:15:38PM -0700, Farhan Ali wrote:
+> The current reset process saves the device's config space state before
+> reset and restores it afterward. However errors may occur unexpectedly and
+> it may then be impossible to save config space because the device may be
+> inaccessible (e.g. DPC) or config space may be corrupted. This results in
+> saving corrupted values that get written back to the device during state
+> restoration.
 
-Who is "we"?  If a function configures error signaling, can you
-mention the name?
+This patch only addresses the "inaccessible" part, so I'd drop the
+"config space may be corrupted" because we aren't checking for that.
 
-> it's extremely rare that it fires anyway. This allows userspace to
-> be notified on errors for legacy PCI devices. The Internal Shared
-> Memory (ISM) device on s390 is one such device. 
-
-This commit log talks about things that could be done, but doesn't
-actually say what the patch does or what makes it safe and effective,
-and I'm not VFIO-literate enough for it to be clear.
-
-These pci_is_pcie() tests were added by dad9f8972e04 ("VFIO-AER:
-Vfio-pci driver changes for supporting AER"), so I suppose the
-dad9f8972e04 assumption was that AER was the only error reporting
-mechanism, and AER only exists on PCIe devices?
-
-But s390 can report errors for conventional PCI devices, and you want
-VFIO to support that as well?
-
-Obviously this change needs to be safe for all arches, not just s390.
-I suppose it's safe to report the VFIO_PCI_ERR_IRQ_INDEX info
-everywhere; it's just that it will never be used except on s390?  And
-I guess powerpc, which can get to vfio_pci_core_aer_err_detected() via
-eeh_report_failure().
-
-It looks like vfio_pci_driver provides vfio_pci_core_err_handlers
-whether the device is conventional PCI or PCIe, and s390 can already
-call vfio_pci_core_aer_err_detected() (the .error_detected() hook) via
-zpci_event_notify_error_detected(), so this patch makes it possible
-for the guest (QEMU, etc) to learn about it?
-
-> For PCI devices on IBM s390 error
-> recovery involves platform firmware and notification to operating system
-> is done by architecture specific way. So the ISM device can still be
-> recovered when notified of an error.
-
-I guess this error recovery part would be done by the guest ISM
-driver, triggered when when something like QEMU receives the eventfd
-signal from vfio_pci_core_aer_err_detected()?
-
-> Reviewed-by: Julian Ruess <julianr@linux.ibm.com>
-> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> With a reset we want to recover/restore the device into a functional state.
+> So avoid saving the state of the config space when the device config space
+> is inaccessible.
+> 
 > Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
 
-I don't maintain VFIO, so I'm just kibbitzing here.  Hopefully Alex
-will chime in.
+Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
 
 > ---
->  drivers/vfio/pci/vfio_pci_core.c  | 8 ++------
->  drivers/vfio/pci/vfio_pci_intrs.c | 3 +--
->  2 files changed, 3 insertions(+), 8 deletions(-)
+>  drivers/pci/pci.c | 14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
 > 
-> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-> index f1bd1266b88f..cfd9a51cd194 100644
-> --- a/drivers/vfio/pci/vfio_pci_core.c
-> +++ b/drivers/vfio/pci/vfio_pci_core.c
-> @@ -786,8 +786,7 @@ static int vfio_pci_get_irq_count(struct vfio_pci_core_device *vdev, int irq_typ
->  			return (flags & PCI_MSIX_FLAGS_QSIZE) + 1;
->  		}
->  	} else if (irq_type == VFIO_PCI_ERR_IRQ_INDEX) {
-> -		if (pci_is_pcie(vdev->pdev))
-> -			return 1;
-> +		return 1;
->  	} else if (irq_type == VFIO_PCI_REQ_IRQ_INDEX) {
->  		return 1;
->  	}
-> @@ -1163,11 +1162,8 @@ static int vfio_pci_ioctl_get_irq_info(struct vfio_pci_core_device *vdev,
->  	switch (info.index) {
->  	case VFIO_PCI_INTX_IRQ_INDEX ... VFIO_PCI_MSIX_IRQ_INDEX:
->  	case VFIO_PCI_REQ_IRQ_INDEX:
-> -		break;
->  	case VFIO_PCI_ERR_IRQ_INDEX:
-> -		if (pci_is_pcie(vdev->pdev))
-> -			break;
-> -		fallthrough;
-> +		break;
->  	default:
->  		return -EINVAL;
->  	}
-> diff --git a/drivers/vfio/pci/vfio_pci_intrs.c b/drivers/vfio/pci/vfio_pci_intrs.c
-> index 33944d4d9dc4..64f80f64ff57 100644
-> --- a/drivers/vfio/pci/vfio_pci_intrs.c
-> +++ b/drivers/vfio/pci/vfio_pci_intrs.c
-> @@ -859,8 +859,7 @@ int vfio_pci_set_irqs_ioctl(struct vfio_pci_core_device *vdev, uint32_t flags,
->  	case VFIO_PCI_ERR_IRQ_INDEX:
->  		switch (flags & VFIO_IRQ_SET_ACTION_TYPE_MASK) {
->  		case VFIO_IRQ_SET_ACTION_TRIGGER:
-> -			if (pci_is_pcie(vdev->pdev))
-> -				func = vfio_pci_set_err_trigger;
-> +			func = vfio_pci_set_err_trigger;
->  			break;
->  		}
->  		break;
+> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+> index a93084053537..373421f4b9d8 100644
+> --- a/drivers/pci/pci.c
+> +++ b/drivers/pci/pci.c
+> @@ -5014,6 +5014,7 @@ static void pci_dev_save_and_disable(struct pci_dev *dev)
+>  {
+>  	const struct pci_error_handlers *err_handler =
+>  			dev->driver ? dev->driver->err_handler : NULL;
+> +	u32 val;
+>  
+>  	/*
+>  	 * dev->driver->err_handler->reset_prepare() is protected against
+> @@ -5033,6 +5034,19 @@ static void pci_dev_save_and_disable(struct pci_dev *dev)
+>  	 */
+>  	pci_set_power_state(dev, PCI_D0);
+>  
+> +	/*
+> +	 * If device's config space is inaccessible it can return ~0 for
+> +	 * any reads. Since VFs can also return ~0 for Device and Vendor ID
+> +	 * check Command and Status registers. At the very least we should
+> +	 * avoid restoring config space for device with error bits set in
+> +	 * Status register.
+> +	 */
+> +	pci_read_config_dword(dev, PCI_COMMAND, &val);
+> +	if (PCI_POSSIBLE_ERROR(val)) {
+
+Obviously this is still racy because the device may become
+inaccessible partway through saving the state, and it might be worth
+acknowledging that in the comment.  But I think this is an improvement
+over what we do now.
+
+Sashiko complains about this, but I think it's mainly because of that
+last sentence of the comment that says "error bits set in Status
+register".  This patch has to do with *saving*, not restoring, so I'd
+just drop that last sentence.  FWIW, Sashiko said:
+
+  The comment indicates that we should avoid restoring config space
+  for a device with error bits set in the Status register, but the
+  code only uses PCI_POSSIBLE_ERROR(val).
+
+  Since PCI_POSSIBLE_ERROR() only evaluates whether the entire 32-bit
+  value is exactly 0xFFFFFFFF (indicating complete device
+  inaccessibility), does this actually check for individual error
+  flags in the Status register?
+
+  If a device logs an error but is still accessible, val will reflect
+  those bits but will not equal 0xFFFFFFFF, causing the check to
+  evaluate to false. Should this code also check specific bits in the
+  upper 16 bits of val (such as PCI_STATUS_SIG_SYSTEM_ERROR or
+  PCI_STATUS_DETECTED_PARITY) to match the stated intention in the
+  comment?
+
+> +		pci_warn(dev, "Device config space inaccessible\n");
+> +		return;
+> +	}
+> +
+>  	pci_save_state(dev);
+>  	/*
+>  	 * Disable the device by clearing the Command register, except for
 > -- 
 > 2.43.0
 > 
