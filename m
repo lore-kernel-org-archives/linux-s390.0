@@ -1,233 +1,332 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AFE338BF91;
-	Tue, 24 Mar 2026 09:40:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A91D3F54BD;
+	Tue, 24 Mar 2026 12:42:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774345259; cv=none; b=XsfZ129RPF/n/FdfyseaxEQcWwymHIUFqSw25wOP2mZ6Ljiq4SQOlA51FA/1SO1MUupRRBeJ2t8yupZ8gUqdRSbEWnO7U5Yrz5QWKL9uizePrPpsdEXVoB5z4PVo1weXg6x/wkCZcRp0RKqZSaSaPdluQbitjHUXMZg26dsW9ew=
+	t=1774356141; cv=none; b=XZctvoahhBals+jVaKwZquEEr+K/QtUVRNnfXrMev77fOvNVfLFYx/C0dtaaynh7C1UQLd2GERMZ0L421yafi7Bu+CmIhF4CVKYgxEqnOkdBj9PPPfRxC56VTpcKZJWVbxVz/GtS0XFCVhsQSX8DzNkoH/yvpEFv7RDryeqRzJU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774345259; c=relaxed/simple;
-	bh=RMxVm7Zo5XWBccYH6IoXmxOwybfFui0IIwUbhA+EJ9Y=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=rylJopz64DxREBPUzJS4r5aTeXF5qgzQMEuCHfgpyBz5HtDT0sm5FuFDiroBvSEEpxRWcgALOr1/9fx85MiSBF5v202mFetDV61Et8/FhJFnoHAgAoGMrgmUpYhZVN2neFPetqzj2b4j+nxEuH7sWnDqFxXoSQpSxzdJmwqVy80=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=desiato.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=OJ+MtAl5; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=desiato.srs.infradead.org
+	s=arc-20240116; t=1774356141; c=relaxed/simple;
+	bh=qoquiz1TfLoJSq0TulMqWFGIEKMZcggZYXoiuuXxM5I=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=MpOlsNKSh8GKMYPKdzJvtDcD3UEww40e97lF11R14DHSp75TsSWht5LQ+Aa0cGJQGlvf6GSnQMhfw/m6/UpGzfOlzht/hKKpppJfnZ/QW0tBViDQRQgY9hxbHCXtgQiVo+3IDstH42wkWf7TGlRkEA7bqMu17pseK83tLXBVk/4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nqs3h6Sk; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="OJ+MtAl5"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=MIME-Version:Content-Type:References:
-	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=PIEqeZQtnor87BiNReyNnJCs1E214P6g2jwjej+SP2I=; b=OJ+MtAl5+7vCazSdemAt2Cb1Kj
-	cLRq4tcOzjbzDBnxK3iM3OWMW4YsiAkjUR7/I022VKZEIbqkoWWZGtv68mfiKhfFgL9QlNP7pXg+b
-	A8DvdRrTFeOMUhXthfXbtM4d1ytmjo5TOeuFU7fxPRbk64gOtAiJ/d8YuMHv87q+azyDLJIx34trY
-	XdX2AWMEvjCQ/9fGQu0bwGQsPy0rnHYR1MP60c9os3vXkRtus3VC6aRqObIEAQXiG0zXUnATZaE8r
-	Mwh/C/ZT61mTgCsS+RIpwXjZEIBXUoUKjPvhPiRI6MMXcNf1QuvrI6YhiJmFD0CjFQoG8ThND0sc/
-	XjInDSZQ==;
-Received: from [172.31.31.148] (helo=u09cd745991455d.lumleys.internal)
-	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1w4yFe-00000003ffk-0tSF;
-	Tue, 24 Mar 2026 09:40:42 +0000
-Message-ID: <74a6bc560ba40a540b050f505049917c040a3327.camel@infradead.org>
-Subject: Re: [PATCH 2/2] MAINTAINERS: update PTP maintainer entries after
- directory split
-From: David Woodhouse <dwmw2@infradead.org>
-To: Wen Gu <guwen@linux.alibaba.com>, Jakub Kicinski <kuba@kernel.org>, 
- "Luu, Ryan" <rluu@amazon.com>
-Cc: tglx@kernel.org, tglx@linutronix.de, richardcochran@gmail.com, 
- andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
- pabeni@redhat.com,  linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
- jstultz@google.com,  anna-maria@linutronix.de, frederic@kernel.org,
- daniel.lezcano@kernel.org,  sboyd@kernel.org, vladimir.oltean@nxp.com,
- wei.fang@nxp.com, xiaoning.wang@nxp.com,  jonathan.lemon@gmail.com,
- vadim.fedorenko@linux.dev, yangbo.lu@nxp.com,  svens@linux.ibm.com,
- nick.shi@broadcom.com, ajay.kaher@broadcom.com, 
- alexey.makhalov@broadcom.com, bcm-kernel-feedback-list@broadcom.com, 
- linux-fpga@vger.kernel.org, imx@lists.linux.dev,
- linux-s390@vger.kernel.org,  dust.li@linux.alibaba.com,
- xuanzhuo@linux.alibaba.com, mani@kernel.org,  imran.shaik@oss.qualcomm.com,
- taniya.das@oss.qualcomm.com
-Date: Tue, 24 Mar 2026 09:40:42 +0000
-In-Reply-To: <025b7816-ca8e-4cea-bb84-bf324c8c3b22@linux.alibaba.com>
-References: <20260318073330.115808-1-guwen@linux.alibaba.com>
-	 <20260318073330.115808-3-guwen@linux.alibaba.com>
-	 <20260323192232.3a5205dc@kernel.org>
-	 <025b7816-ca8e-4cea-bb84-bf324c8c3b22@linux.alibaba.com>
-Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
-	boundary="=-OeR6bRPux76fm7jBAgkh"
-User-Agent: Evolution 3.52.3-0ubuntu1.1 
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nqs3h6Sk"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62O7DT6Q481575;
+	Tue, 24 Mar 2026 12:41:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
+	 bh=Shk48Guqth0dMGtPHiYWn3blJ70CgjGVRZHzaVpvLPY=; b=nqs3h6SkcQWZ
+	+OwoltQeMxOO6RblQPqe55tAVjsackvCM4KkhWNpCQq04FPsFlS93zfiGSC7Di4+
+	S9HKMl0Sjn5QTzbM3NfhhnAIAYBvkUkrdxOKSw7d0UM43AXyYRkeT8yYGAz8hak7
+	ZGJjdVwyS8NI2NFgL8wvwtd0s6FHAxSN4ucTbH9O2vRt2+dg7MkFcwB5Thprjrjc
+	U/howCgydGuthvICdFGdQd3XIc0EaU0k/lS6es2878jUgr/pm+7/onljXHYAZGv+
+	d2SOZp5c+3ZgwIjW+EEdkE2KjadPhRrKOtZM1Zuf8LiFRmTbl3wfp/kpxlXGAEqB
+	O8U48KsXUA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1ktxudx6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 24 Mar 2026 12:41:31 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62OC7Gcu008722;
+	Tue, 24 Mar 2026 12:41:30 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d26nnhuw0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 24 Mar 2026 12:41:30 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62OCf5V326608298
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 24 Mar 2026 12:41:05 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 201225803F;
+	Tue, 24 Mar 2026 12:41:29 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 946D658055;
+	Tue, 24 Mar 2026 12:41:25 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 24 Mar 2026 12:41:25 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by desiato.infradead.org. See http://www.infradead.org/rpr.html
+Date: Tue, 24 Mar 2026 13:41:25 +0100
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: Danilo Krummrich <dakr@kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>,
+        Greg Kroah-Hartman
+ <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Ioana
+ Ciornei <ioana.ciornei@nxp.com>,
+        Nipun Gupta <nipun.gupta@amd.com>,
+        Nikhil
+ Agarwal <nikhil.agarwal@amd.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
+        Dexuan
+ Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>,
+        Bjorn Helgaas
+ <bhelgaas@google.com>, Armin Wolf <W_Armin@gmx.de>,
+        Bjorn Andersson
+ <andersson@kernel.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter
+ <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
+ <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian
+ Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle
+ <svens@linux.ibm.com>,
+        Holger Dengler <dengler@linux.ibm.com>,
+        Mark Brown
+ <broonie@kernel.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang
+ <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+        Alex Williamson
+ <alex@shazbot.org>, Juergen Gross <jgross@suse.com>,
+        Stefano Stabellini
+ <sstabellini@kernel.org>,
+        Oleksandr Tyshchenko
+ <oleksandr_tyshchenko@epam.com>,
+        "Christophe Leroy (CS GROUP)"
+ <chleroy@kernel.org>,
+        linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
+        linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org,
+        linux-pci@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-spi@vger.kernel.org,
+        virtualization@lists.linux.dev, kvm@vger.kernel.org,
+        xen-devel@lists.xenproject.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 10/12] s390/ap: use generic driver_override infrastructure
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <20260324005919.2408620-11-dakr@kernel.org>
+References: <20260324005919.2408620-1-dakr@kernel.org>
+ <20260324005919.2408620-11-dakr@kernel.org>
+Message-ID: <b5a80e06aa0240348dfa6826c20f3aec@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=IqITsb/g c=1 sm=1 tr=0 ts=69c2867c cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=V8-k01nbhAtxNRQPXScA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI0MDA5OCBTYWx0ZWRfX5BtF+dGcqKne
+ ud3qOj4gTSLR9zLNfAq3JG6g/oOlaoDuAoL5ugYqpH9s9vpJjplhqsv+C5Fn13wLfcNuqTFjG2K
+ 8B20fOIVvCqa5XvNqyGQnMAHAZ9m7lornaYpmzRxy2uj+A1xP4iQsysQ7y+S7A488UAEKXq5qZ6
+ LBbN3vhPXZJ/bEjV349pY7YewQW80X8aJiv4wUe79X39dz6GUwBnh+wAamLPOldfeVWA3ylebkO
+ fpE77uN6WRT54jS8FnW/ZhUlXkVn14gcYRIyrgSPpzwxEiZ3nS5fgK7DV0UKCoQQHx0EyIcKLvI
+ sxcDzd1vSEY19GMOKPv1ZW+MN86TCAn4dq3ojgq1Xg0hwRVL0L3YGoz9QETDntcaSlj/0kKtlA6
+ UfD/yUxgwr0WFEGPDCZ3E/gq/ajxwH4hTrddRdALUSslhqrcmAjUB1i/qil1QJJkf8vWuRKoJjs
+ AJigNCQkv9LzvxCAnUQ==
+X-Proofpoint-GUID: YK3KYDPHgye9e3NvrRpemo-oOEIjjzeD
+X-Proofpoint-ORIG-GUID: IG7OyOmEsbO9ZGMbJn71CzQus0Ee1qWf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-24_02,2026-03-23_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 clxscore=1011 spamscore=0 impostorscore=0 suspectscore=0
+ phishscore=0 bulkscore=0 adultscore=0 priorityscore=1501 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603240098
 
+On 2026-03-24 01:59, Danilo Krummrich wrote:
+> When the AP masks are updated via apmask_store() or aqmask_store(),
+> ap_bus_revise_bindings() is called after ap_attr_mutex has been
+> released.
+> 
+> This calls __ap_revise_reserved(), which accesses the driver_override
+> field without holding any lock, racing against a concurrent
+> driver_override_store() that may free the old string, resulting in a
+> potential UAF.
+> 
+> Fix this by using the driver-core driver_override infrastructure, which
+> protects all accesses with an internal spinlock.
+> 
+> Note that unlike most other buses, the AP bus does not check
+> driver_override in its match() callback; the override is checked in
+> ap_device_probe() and __ap_revise_reserved() instead.
+> 
+> Also note that we do not enable the driver_override feature of struct
+> bus_type, as AP - in contrast to most other buses - passes "" to
+> sysfs_emit() when the driver_override pointer is NULL. Thus, printing
+> "\n" instead of "(null)\n".
+> 
+> Additionally, AP has a custom counter that is modified in the
+> corresponding custom driver_override_store().
+> 
+> Fixes: d38a87d7c064 ("s390/ap: Support driver_override for AP queue 
+> devices")
+> Signed-off-by: Danilo Krummrich <dakr@kernel.org>
+> ---
+>  drivers/s390/crypto/ap_bus.c   | 34 +++++++++++++++++-----------------
+>  drivers/s390/crypto/ap_bus.h   |  1 -
+>  drivers/s390/crypto/ap_queue.c | 24 ++++++------------------
+>  3 files changed, 23 insertions(+), 36 deletions(-)
+> 
+> diff --git a/drivers/s390/crypto/ap_bus.c 
+> b/drivers/s390/crypto/ap_bus.c
+> index d652df96a507..f24e27add721 100644
+> --- a/drivers/s390/crypto/ap_bus.c
+> +++ b/drivers/s390/crypto/ap_bus.c
+> @@ -859,25 +859,24 @@ static int
+> __ap_queue_devices_with_id_unregister(struct device *dev, void *data)
+> 
+>  static int __ap_revise_reserved(struct device *dev, void *dummy)
+>  {
+> -	int rc, card, queue, devres, drvres;
+> +	int rc, card, queue, devres, drvres, ovrd;
+> 
+>  	if (is_queue_dev(dev)) {
+>  		struct ap_driver *ap_drv = to_ap_drv(dev->driver);
+>  		struct ap_queue *aq = to_ap_queue(dev);
+> -		struct ap_device *ap_dev = &aq->ap_dev;
+> 
+>  		card = AP_QID_CARD(aq->qid);
+>  		queue = AP_QID_QUEUE(aq->qid);
+> 
+> -		if (ap_dev->driver_override) {
+> -			if (strcmp(ap_dev->driver_override,
+> -				   ap_drv->driver.name)) {
+> -				pr_debug("reprobing queue=%02x.%04x\n", card, queue);
+> -				rc = device_reprobe(dev);
+> -				if (rc) {
+> -					AP_DBF_WARN("%s reprobing queue=%02x.%04x failed\n",
+> -						    __func__, card, queue);
+> -				}
+> +		ovrd = device_match_driver_override(dev, &ap_drv->driver);
+> +		if (ovrd > 0) {
+> +			/* override set and matches, nothing to do */
+> +		} else if (ovrd == 0) {
+> +			pr_debug("reprobing queue=%02x.%04x\n", card, queue);
+> +			rc = device_reprobe(dev);
+> +			if (rc) {
+> +				AP_DBF_WARN("%s reprobing queue=%02x.%04x failed\n",
+> +					    __func__, card, queue);
+>  			}
+>  		} else {
+>  			mutex_lock(&ap_attr_mutex);
+> @@ -928,7 +927,7 @@ int ap_owned_by_def_drv(int card, int queue)
+>  	if (aq) {
+>  		const struct device_driver *drv = aq->ap_dev.device.driver;
+>  		const struct ap_driver *ap_drv = to_ap_drv(drv);
+> -		bool override = !!aq->ap_dev.driver_override;
+> +		bool override = device_has_driver_override(&aq->ap_dev.device);
+> 
+>  		if (override && drv && ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
+>  			rc = 1;
+> @@ -977,7 +976,7 @@ static int ap_device_probe(struct device *dev)
+>  {
+>  	struct ap_device *ap_dev = to_ap_dev(dev);
+>  	struct ap_driver *ap_drv = to_ap_drv(dev->driver);
+> -	int card, queue, devres, drvres, rc = -ENODEV;
+> +	int card, queue, devres, drvres, rc = -ENODEV, ovrd;
+> 
+>  	if (!get_device(dev))
+>  		return rc;
+> @@ -991,10 +990,11 @@ static int ap_device_probe(struct device *dev)
+>  		 */
+>  		card = AP_QID_CARD(to_ap_queue(dev)->qid);
+>  		queue = AP_QID_QUEUE(to_ap_queue(dev)->qid);
+> -		if (ap_dev->driver_override) {
+> -			if (strcmp(ap_dev->driver_override,
+> -				   ap_drv->driver.name))
+> -				goto out;
+> +		ovrd = device_match_driver_override(dev, &ap_drv->driver);
+> +		if (ovrd > 0) {
+> +			/* override set and matches, nothing to do */
+> +		} else if (ovrd == 0) {
+> +			goto out;
+>  		} else {
+>  			mutex_lock(&ap_attr_mutex);
+>  			devres = test_bit_inv(card, ap_perms.apm) &&
+> diff --git a/drivers/s390/crypto/ap_bus.h 
+> b/drivers/s390/crypto/ap_bus.h
+> index 51e08f27bd75..04ea256ecf91 100644
+> --- a/drivers/s390/crypto/ap_bus.h
+> +++ b/drivers/s390/crypto/ap_bus.h
+> @@ -166,7 +166,6 @@ void ap_driver_unregister(struct ap_driver *);
+>  struct ap_device {
+>  	struct device device;
+>  	int device_type;		/* AP device type. */
+> -	const char *driver_override;
+>  };
+> 
+>  #define to_ap_dev(x) container_of((x), struct ap_device, device)
+> diff --git a/drivers/s390/crypto/ap_queue.c 
+> b/drivers/s390/crypto/ap_queue.c
+> index 3fe2e41c5c6b..ca9819e6f7e7 100644
+> --- a/drivers/s390/crypto/ap_queue.c
+> +++ b/drivers/s390/crypto/ap_queue.c
+> @@ -734,26 +734,14 @@ static ssize_t driver_override_show(struct device 
+> *dev,
+>  				    struct device_attribute *attr,
+>  				    char *buf)
+>  {
+> -	struct ap_queue *aq = to_ap_queue(dev);
+> -	struct ap_device *ap_dev = &aq->ap_dev;
+> -	int rc;
+> -
+> -	device_lock(dev);
+> -	if (ap_dev->driver_override)
+> -		rc = sysfs_emit(buf, "%s\n", ap_dev->driver_override);
+> -	else
+> -		rc = sysfs_emit(buf, "\n");
+> -	device_unlock(dev);
+> -
+> -	return rc;
+> +	guard(spinlock)(&dev->driver_override.lock);
+> +	return sysfs_emit(buf, "%s\n", dev->driver_override.name ?: "");
+>  }
+> 
+>  static ssize_t driver_override_store(struct device *dev,
+>  				     struct device_attribute *attr,
+>  				     const char *buf, size_t count)
+>  {
+> -	struct ap_queue *aq = to_ap_queue(dev);
+> -	struct ap_device *ap_dev = &aq->ap_dev;
+>  	int rc = -EINVAL;
+>  	bool old_value;
+> 
+> @@ -764,13 +752,13 @@ static ssize_t driver_override_store(struct 
+> device *dev,
+>  	if (ap_apmask_aqmask_in_use)
+>  		goto out;
+> 
+> -	old_value = ap_dev->driver_override ? true : false;
+> -	rc = driver_set_override(dev, &ap_dev->driver_override, buf, count);
+> +	old_value = device_has_driver_override(dev);
+> +	rc = __device_set_driver_override(dev, buf, count);
+>  	if (rc)
+>  		goto out;
+> -	if (old_value && !ap_dev->driver_override)
+> +	if (old_value && !device_has_driver_override(dev))
+>  		--ap_driver_override_ctr;
+> -	else if (!old_value && ap_dev->driver_override)
+> +	else if (!old_value && device_has_driver_override(dev))
+>  		++ap_driver_override_ctr;
+> 
+>  	rc = count;
 
---=-OeR6bRPux76fm7jBAgkh
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, 2026-03-24 at 11:46 +0800, Wen Gu wrote:
->=20
->=20
-> On 2026/3/24 10:22, Jakub Kicinski wrote:
-> > On Wed, 18 Mar 2026 15:33:30 +0800 Wen Gu wrote:
-> > > +PTP EMULATED CLOCK SUPPORT
-> > > +M:	Wen Gu <guwen@linux.alibaba.com>
-> > > +M:	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > +L:	linux-kernel@vger.kernel.org
-> > > +S:	Maintained
-> >=20
-> > I thought David W was supposed to be the main maintainer?
-> > Two moderately known developers from a single vendor/company
-> > is not enough to delegate this IMO.
->=20
->=20
-> Thanks for pointing this out.
->=20
-> We would also very much prefer for this area to be maintained
-> by people with deeper expertise in the clock/timekeeping domain
-> (such as David). The reason David was not listed in this version
-> is that an earlier attempt to ask about maintainership did not
-> receive a reply[1]. So we avoided adding without confirmation.
->=20
-> If David has no objections to being listed here, that would
-> definitely be preferable from our perspective. Other suggested
-> clock/timekeeping experts would also be very welcome.
->=20
-> [1]
-> https://lore.kernel.org/all/78489ff1-c2fa-47dc-beb4-54e9410f7d5c@linux.al=
-ibaba.com/
-
-Apologies for missing that; yes I'm perfectly happy to be listed as a
-maintainer. Thanks for checking.
-
-Still mildly uncomfortable with 'emulated' as the word we chose for the
-non-ieee1588 clocks, although there's only so much bikeshedding we can
-do and it's ultimately cosmetic.
-
-I see it more as precision RTCs which provide accurate CLOCK_REALTIME
-(ideally including UTC not just TAI) =E2=80=94 largely to virtual guests bu=
-t
-also on bare metal.
-
-But as long as that's just a nitpick about what the directory is
-called, and not an ongoing disagreement about which drivers land where,
-I guess it doesn't matter much?
-
-I don't actually want to see many new drivers added here. Going back to
-what someone (Jakub?) said in a thread a while back about a pile of
-cloud vendors' NIH cruft... I built the vmclock specification
-deliberately to be vendor-agnostic and (I think) even implementable in
-hardware with PCIe PTM, and I hope that we can consolidate on that and
-stop inventing new crap.
-
-https://uapi-group.org/specifications/specs/vmclock/
-
-The next thing I want to do is make the kernel's timekeeping sync from
-that as a proper feed-forward clock based on counter readings, instead
-of the feedback adjustment that the current NTP hooks permit. And make
-it possible to *export* the host's CLOCK_REALTIME to guests in vmclock
-form.
-
---=-OeR6bRPux76fm7jBAgkh
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCD9Aw
-ggSOMIIDdqADAgECAhAOmiw0ECVD4cWj5DqVrT9PMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYT
-AlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAi
-BgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBDQTAeFw0yNDAxMzAwMDAwMDBaFw0zMTEx
-MDkyMzU5NTlaMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYDVQQDExdWZXJv
-a2V5IFNlY3VyZSBFbWFpbCBHMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMjvgLKj
-jfhCFqxYyRiW8g3cNFAvltDbK5AzcOaR7yVzVGadr4YcCVxjKrEJOgi7WEOH8rUgCNB5cTD8N/Et
-GfZI+LGqSv0YtNa54T9D1AWJy08ZKkWvfGGIXN9UFAPMJ6OLLH/UUEgFa+7KlrEvMUupDFGnnR06
-aDJAwtycb8yXtILj+TvfhLFhafxroXrflspavejQkEiHjNjtHnwbZ+o43g0/yxjwnarGI3kgcak7
-nnI9/8Lqpq79tLHYwLajotwLiGTB71AGN5xK+tzB+D4eN9lXayrjcszgbOv2ZCgzExQUAIt98mre
-8EggKs9mwtEuKAhYBIP/0K6WsoMnQCcCAwEAAaOCAVwwggFYMBIGA1UdEwEB/wQIMAYBAf8CAQAw
-HQYDVR0OBBYEFIlICOogTndrhuWByNfhjWSEf/xwMB8GA1UdIwQYMBaAFEXroq/0ksuCMS1Ri6en
-IZ3zbcgPMA4GA1UdDwEB/wQEAwIBhjAdBgNVHSUEFjAUBggrBgEFBQcDBAYIKwYBBQUHAwIweQYI
-KwYBBQUHAQEEbTBrMCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wQwYIKwYB
-BQUHMAKGN2h0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RD
-QS5jcnQwRQYDVR0fBD4wPDA6oDigNoY0aHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0
-QXNzdXJlZElEUm9vdENBLmNybDARBgNVHSAECjAIMAYGBFUdIAAwDQYJKoZIhvcNAQELBQADggEB
-ACiagCqvNVxOfSd0uYfJMiZsOEBXAKIR/kpqRp2YCfrP4Tz7fJogYN4fxNAw7iy/bPZcvpVCfe/H
-/CCcp3alXL0I8M/rnEnRlv8ItY4MEF+2T/MkdXI3u1vHy3ua8SxBM8eT9LBQokHZxGUX51cE0kwa
-uEOZ+PonVIOnMjuLp29kcNOVnzf8DGKiek+cT51FvGRjV6LbaxXOm2P47/aiaXrDD5O0RF5SiPo6
-xD1/ClkCETyyEAE5LRJlXtx288R598koyFcwCSXijeVcRvBB1cNOLEbg7RMSw1AGq14fNe2cH1HG
-W7xyduY/ydQt6gv5r21mDOQ5SaZSWC/ZRfLDuEYwggWbMIIEg6ADAgECAhAH5JEPagNRXYDiRPdl
-c1vgMA0GCSqGSIb3DQEBCwUAMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYD
-VQQDExdWZXJva2V5IFNlY3VyZSBFbWFpbCBHMjAeFw0yNDEyMzAwMDAwMDBaFw0yODAxMDQyMzU5
-NTlaMB4xHDAaBgNVBAMME2R3bXcyQGluZnJhZGVhZC5vcmcwggIiMA0GCSqGSIb3DQEBAQUAA4IC
-DwAwggIKAoICAQDali7HveR1thexYXx/W7oMk/3Wpyppl62zJ8+RmTQH4yZeYAS/SRV6zmfXlXaZ
-sNOE6emg8WXLRS6BA70liot+u0O0oPnIvnx+CsMH0PD4tCKSCsdp+XphIJ2zkC9S7/yHDYnqegqt
-w4smkqUqf0WX/ggH1Dckh0vHlpoS1OoxqUg+ocU6WCsnuz5q5rzFsHxhD1qGpgFdZEk2/c//ZvUN
-i12vPWipk8TcJwHw9zoZ/ZrVNybpMCC0THsJ/UEVyuyszPtNYeYZAhOJ41vav1RhZJzYan4a1gU0
-kKBPQklcpQEhq48woEu15isvwWh9/+5jjh0L+YNaN0I//nHSp6U9COUG9Z0cvnO8FM6PTqsnSbcc
-0j+GchwOHRC7aP2t5v2stVx3KbptaYEzi4MQHxm/0+HQpMEVLLUiizJqS4PWPU6zfQTOMZ9uLQRR
-ci+c5xhtMEBszlQDOvEQcyEG+hc++fH47K+MmZz21bFNfoBxLP6bjR6xtPXtREF5lLXxp+CJ6KKS
-blPKeVRg/UtyJHeFKAZXO8Zeco7TZUMVHmK0ZZ1EpnZbnAhKE19Z+FJrQPQrlR0gO3lBzuyPPArV
-hvWxjlO7S4DmaEhLzarWi/ze7EGwWSuI2eEa/8zU0INUsGI4ywe7vepQz7IqaAovAX0d+f1YjbmC
-VsAwjhLmveFjNwIDAQABo4IBsDCCAawwHwYDVR0jBBgwFoAUiUgI6iBOd2uG5YHI1+GNZIR//HAw
-HQYDVR0OBBYEFFxiGptwbOfWOtMk5loHw7uqWUOnMDAGA1UdEQQpMCeBE2R3bXcyQGluZnJhZGVh
-ZC5vcmeBEGRhdmlkQHdvb2Rob3Uuc2UwFAYDVR0gBA0wCzAJBgdngQwBBQEBMA4GA1UdDwEB/wQE
-AwIF4DAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwewYDVR0fBHQwcjA3oDWgM4YxaHR0
-cDovL2NybDMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDA3oDWgM4YxaHR0
-cDovL2NybDQuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDB2BggrBgEFBQcB
-AQRqMGgwJAYIKwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBABggrBgEFBQcwAoY0
-aHR0cDovL2NhY2VydHMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNydDANBgkq
-hkiG9w0BAQsFAAOCAQEAQXc4FPiPLRnTDvmOABEzkIumojfZAe5SlnuQoeFUfi+LsWCKiB8Uextv
-iBAvboKhLuN6eG/NC6WOzOCppn4mkQxRkOdLNThwMHW0d19jrZFEKtEG/epZ/hw/DdScTuZ2m7im
-8ppItAT6GXD3aPhXkXnJpC/zTs85uNSQR64cEcBFjjoQDuSsTeJ5DAWf8EMyhMuD8pcbqx5kRvyt
-JPsWBQzv1Dsdv2LDPLNd/JUKhHSgr7nbUr4+aAP2PHTXGcEBh8lTeYea9p4d5k969pe0OHYMV5aL
-xERqTagmSetuIwolkAuBCzA9vulg8Y49Nz2zrpUGfKGOD0FMqenYxdJHgDCCBZswggSDoAMCAQIC
-EAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQELBQAwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoT
-B1Zlcm9rZXkxIDAeBgNVBAMTF1Zlcm9rZXkgU2VjdXJlIEVtYWlsIEcyMB4XDTI0MTIzMDAwMDAw
-MFoXDTI4MDEwNDIzNTk1OVowHjEcMBoGA1UEAwwTZHdtdzJAaW5mcmFkZWFkLm9yZzCCAiIwDQYJ
-KoZIhvcNAQEBBQADggIPADCCAgoCggIBANqWLse95HW2F7FhfH9bugyT/danKmmXrbMnz5GZNAfj
-Jl5gBL9JFXrOZ9eVdpmw04Tp6aDxZctFLoEDvSWKi367Q7Sg+ci+fH4KwwfQ8Pi0IpIKx2n5emEg
-nbOQL1Lv/IcNiep6Cq3DiyaSpSp/RZf+CAfUNySHS8eWmhLU6jGpSD6hxTpYKye7PmrmvMWwfGEP
-WoamAV1kSTb9z/9m9Q2LXa89aKmTxNwnAfD3Ohn9mtU3JukwILRMewn9QRXK7KzM+01h5hkCE4nj
-W9q/VGFknNhqfhrWBTSQoE9CSVylASGrjzCgS7XmKy/BaH3/7mOOHQv5g1o3Qj/+cdKnpT0I5Qb1
-nRy+c7wUzo9OqydJtxzSP4ZyHA4dELto/a3m/ay1XHcpum1pgTOLgxAfGb/T4dCkwRUstSKLMmpL
-g9Y9TrN9BM4xn24tBFFyL5znGG0wQGzOVAM68RBzIQb6Fz758fjsr4yZnPbVsU1+gHEs/puNHrG0
-9e1EQXmUtfGn4InoopJuU8p5VGD9S3Ikd4UoBlc7xl5yjtNlQxUeYrRlnUSmdlucCEoTX1n4UmtA
-9CuVHSA7eUHO7I88CtWG9bGOU7tLgOZoSEvNqtaL/N7sQbBZK4jZ4Rr/zNTQg1SwYjjLB7u96lDP
-sipoCi8BfR35/ViNuYJWwDCOEua94WM3AgMBAAGjggGwMIIBrDAfBgNVHSMEGDAWgBSJSAjqIE53
-a4blgcjX4Y1khH/8cDAdBgNVHQ4EFgQUXGIam3Bs59Y60yTmWgfDu6pZQ6cwMAYDVR0RBCkwJ4ET
-ZHdtdzJAaW5mcmFkZWFkLm9yZ4EQZGF2aWRAd29vZGhvdS5zZTAUBgNVHSAEDTALMAkGB2eBDAEF
-AQEwDgYDVR0PAQH/BAQDAgXgMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDB7BgNVHR8E
-dDByMDegNaAzhjFodHRwOi8vY3JsMy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
-Y3JsMDegNaAzhjFodHRwOi8vY3JsNC5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
-Y3JsMHYGCCsGAQUFBwEBBGowaDAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29t
-MEAGCCsGAQUFBzAChjRodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVt
-YWlsRzIuY3J0MA0GCSqGSIb3DQEBCwUAA4IBAQBBdzgU+I8tGdMO+Y4AETOQi6aiN9kB7lKWe5Ch
-4VR+L4uxYIqIHxR7G2+IEC9ugqEu43p4b80LpY7M4KmmfiaRDFGQ50s1OHAwdbR3X2OtkUQq0Qb9
-6ln+HD8N1JxO5nabuKbymki0BPoZcPdo+FeRecmkL/NOzzm41JBHrhwRwEWOOhAO5KxN4nkMBZ/w
-QzKEy4PylxurHmRG/K0k+xYFDO/UOx2/YsM8s138lQqEdKCvudtSvj5oA/Y8dNcZwQGHyVN5h5r2
-nh3mT3r2l7Q4dgxXlovERGpNqCZJ624jCiWQC4ELMD2+6WDxjj03PbOulQZ8oY4PQUyp6djF0keA
-MYIDuzCCA7cCAQEwVTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMX
-VmVyb2tleSBTZWN1cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJYIZIAWUDBAIBBQCg
-ggE3MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTI2MDMyNDA5NDA0
-MlowLwYJKoZIhvcNAQkEMSIEIH9AgyXj1TkdQmobZwi3meVlmBm4J9wuV4bWqskWYJ9uMGQGCSsG
-AQQBgjcQBDFXMFUwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoTB1Zlcm9rZXkxIDAeBgNVBAMTF1Zl
-cm9rZXkgU2VjdXJlIEVtYWlsIEcyAhAH5JEPagNRXYDiRPdlc1vgMGYGCyqGSIb3DQEJEAILMVeg
-VTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMXVmVyb2tleSBTZWN1
-cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQEBBQAEggIAkq5L57xsgFOc
-CsBniwIK1ik5yk3ocipPC/NStcyVcymM8cXZEb5o2zLlmHdtJ8fXRStawTEk+H1c2dAn4HK2Cm1H
-vxcN2vf+5P89I+9cjBR67c8QjSKXxoA/nDvWJ0QBz90nXf4teiU0nj4AeIJ8LagbL/PbQ//K4b+o
-Ew3T3pHXDvJiuPn2w7iCG14miKTzyvutL26ScnK+bv+Kqzbbq+NwukJa7cBFuaWSXJ3YPA8smABy
-MEki6VwZQvgH0teeufNgsbXZ9mn0ZSbe7c/+Oofv3H+BMQmaUuQli+FckgL1w/Q237lVqvgKXTkV
-uX07VIz5QHhsbllWnq51zpWAmXGbBqPUqV77H7Tf2Qyl66c9IP82aHl5sY82lm1m0dwEDumJqal8
-5/EXnA9TmziO/TwXpjkSbugqFOwTT3a5QnrCTQgh4S5GtEnIcmqFNfvToB/0j9dwxdSDR3P2uMbz
-5dxlCuvuScUEcBJ9JUisbXkQYuSbp7rJWFqls5ZCzAKlUU0jGFdP3/Qgvdvybul2nV31csxQhuxu
-jWqc9+XI152g7UtEV9GZdh/05MZR4HZSpX4CQZoZu2xPtYkWBQwal4gobCO8xOCIQMXICo8/TORe
-Pb4SzCpOb8Tb2iDfK2h7gqsMxiyQPjbkAFSvCd9NWQRyJxE6+jpJF/7MEOqBf3YAAAAAAAA=
-
-
---=-OeR6bRPux76fm7jBAgkh--
+Thanks Danilo
+Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
