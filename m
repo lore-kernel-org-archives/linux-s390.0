@@ -1,202 +1,181 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9660581AA8;
-	Tue, 24 Mar 2026 00:50:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66AAB1DF26E;
+	Tue, 24 Mar 2026 00:59:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774313410; cv=none; b=k48wtb7iwatWCpUM1NItK7Ecea3FvhNX1YwlBIFfWqFi0MSHOh48UyauSE/0ewcp61NiPiTQBqgPTQKxwShKpE6ZxymmWdA9CYnsZHzRDdkCf5PvcfkJqSNYsAZ943yJBVKuShD+8/ZRU24uV3tXQxYYUQ5F/S/5e04q6CXVX0I=
+	t=1774313972; cv=none; b=e0uMYgmfNy/rshUduBxdi0B9wUWtN3hz9m2ktjZ0O5aujPlDQyc94Q4G/4ouusribSVtlB9LDDndU6aSsebn4IeVrZp5Hg+8pQGSsDHlPXEMCBR0F/3cPvm7s/BvZH+eqdJMpOo3ouYM2NvsiTP+APg/F6EXolP+wxaukMAYkUc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774313410; c=relaxed/simple;
-	bh=DP5RvThrmwwduBuiuEP/nEGN+iF6viTzjV4BJyGugH8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EFn6+m3r087audEpG+LpwC6kxRKTTjlkQCkJKJ7A5rL9+0V8RkkxjwUAhgh7iNjpLBvHybBXYNFQmjviFpXROyryQq4O1r5xAefjBtMjydVfvBXCnbWvh7VPLJMOsUX/3sZkoH+qJUIASWsE9gPIwTaq3L9jDfx8l0BeAxjKzSk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mVUvJehR; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774313972; c=relaxed/simple;
+	bh=g9n6egUYTuF5ke2JJ6m74go1iA9dbs1LNBwQX9Kfxdo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KAB09zD+vGfQS/hpeTaOSW2W5R7Oj+LilVeml7NfvtNEMgPfwcX4Pqo0AA6CR+BsdlJ1sCGIAyO+RLXiyU3xMxMJzz0fl1j+1hyDOYTUnt6GorWD1gzPfxLmMDO0rgY9fqOo4JbrvHyl9Rzr2vKoPGA+/U1A5w/L/WbSnhW8lU8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=r79tvbMT; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mVUvJehR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA925C4CEF7;
-	Tue, 24 Mar 2026 00:50:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="r79tvbMT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF2ECC4CEF7;
+	Tue, 24 Mar 2026 00:59:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774313410;
-	bh=DP5RvThrmwwduBuiuEP/nEGN+iF6viTzjV4BJyGugH8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=mVUvJehR5AUXtELkMkllJyiKebZxIhNmZ4/nR7tNivljvmNUK+Gr+qeKt9Xqd5x5j
-	 W1Csj6TDL+5/kw21+fZ5hvfQogofACPndgaN/us19ikMXxy5h3PlbMa+6QPhbRojiW
-	 EyGsbnTgyVyQN4ym8TCN83arfrUXWDqp2+00cK3UA8unudbTZZWdRPjvXNdtxqDFTK
-	 v6KLy8t0Cal/AuIKun5oxq+fI9oUp+iKLPS6sSZQaVWx4KPk92BppcUbR64S7ABivL
-	 tS8urKJZM9cFNEmumEwfBZCj4AdAgc2whQSprO8YMntDSeIZ/Cp4XF+tQHCe7ocSWG
-	 uZo43DtLFvRCA==
-Date: Mon, 23 Mar 2026 17:50:08 -0700
-From: Eric Biggers <ebiggers@kernel.org>
-To: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-	"Jason A . Donenfeld" <Jason@zx2c4.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	x86@kernel.org
-Subject: Re: [PATCH 00/19] GHASH library
-Message-ID: <20260324005008.GA230053@quark>
-References: <20260319061723.1140720-1-ebiggers@kernel.org>
+	s=k20201202; t=1774313972;
+	bh=g9n6egUYTuF5ke2JJ6m74go1iA9dbs1LNBwQX9Kfxdo=;
+	h=From:To:Cc:Subject:Date:From;
+	b=r79tvbMTbzL0ftvYwrYFxtc47UR6uhBnmMbW/y7VVV1iRybB+2M4JpIoiYURI0KHc
+	 xbQi6Hae6AoFoJmbmbDJaHU6H4twMWZBNd3LQspzN5XukCR8uOrEpuyEmdRt0aOb0U
+	 mOwgSJ8cLDV9T8BHYl+ocS0L8OVgW58qmKn8ydBwrFxSGxlpZWrzAsZEqo1gSY7MVu
+	 kkOnSl/PVHu6HAiahaLq+b8nbHuZsE8hCdipD5o7lr0426ClKDJ0QYolowXlhy4fkV
+	 i8IvftFPJDTfcclR/4ZCSmDk8L1PXC7Ak76kNlhT/lIjYoVE7r0UGtOBo25YTrAjXS
+	 EFJsJ4/WWZ6pw==
+From: Danilo Krummrich <dakr@kernel.org>
+To: Russell King <linux@armlinux.org.uk>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Ioana Ciornei <ioana.ciornei@nxp.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>,
+	Dexuan Cui <decui@microsoft.com>,
+	Long Li <longli@microsoft.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Armin Wolf <W_Armin@gmx.de>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Harald Freudenberger <freude@linux.ibm.com>,
+	Holger Dengler <dengler@linux.ibm.com>,
+	Mark Brown <broonie@kernel.org>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Alex Williamson <alex@shazbot.org>,
+	Juergen Gross <jgross@suse.com>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+Cc: linux-kernel@vger.kernel.org,
+	driver-core@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-hyperv@vger.kernel.org,
+	linux-pci@vger.kernel.org,
+	platform-driver-x86@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-remoteproc@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-spi@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	xen-devel@lists.xenproject.org,
+	linux-arm-kernel@lists.infradead.org,
+	Danilo Krummrich <dakr@kernel.org>
+Subject: [PATCH 00/12] treewide: Convert buses to use generic driver_override
+Date: Tue, 24 Mar 2026 01:59:04 +0100
+Message-ID: <20260324005919.2408620-1-dakr@kernel.org>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260319061723.1140720-1-ebiggers@kernel.org>
+Content-Transfer-Encoding: 8bit
 
-On Wed, Mar 18, 2026 at 11:17:01PM -0700, Eric Biggers wrote:
-> This series is targeting libcrypto-next.  It can also be retrieved from:
-> 
->     git fetch https://git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git ghash-lib-v1
-> 
-> This series migrates the standalone GHASH code to lib/crypto/, then
-> converts the "gcm" template and AES-GCM library code to use it.  (GHASH
-> is the universal hash function used by GCM mode.)  As was the case with
-> POLYVAL and Poly1305 as well, the library is a much better fit for it.
-> 
-> Since GHASH and POLYVAL are closely related and it often makes sense to
-> implement one in terms of the other, the existing "polyval" library
-> module is renamed to "gf128hash" and the GHASH support is added to it.
-> 
-> The generic implementation of GHASH is also replaced with a better one
-> utilizing the existing polyval_mul_generic().
-> 
-> Note that some GHASH implementations, often faster ones using more
-> recent CPU features, still exist in arch/*/crypto/ as internal
-> components of AES-GCM implementations.  Those are left as-is for now.
-> The goal with this GHASH library is just to provide parity with the
-> existing standalone GHASH support, which is used when a full
-> implementation of AES-GCM (or ${someothercipher}-GCM, if another block
-> cipher is being used) is unavailable.  Migrating the
-> architecture-optimized AES-GCM code to lib/crypto/ will be a next step.
-> 
+This is the follow-up of the driver_override generalization in [1], converting
+the remaining 11 busses and removing the now-unused driver_set_override()
+helper.
 
-Applied to https://git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git/log/?h=libcrypto-next
+All of them (except AP, which has a different race condition) are prone to the
+potential UAF described in [2], caused by accessing the driver_override field
+from their corresponding match() callback.
 
-As usual, the s390 code will need to be tested by someone who has the
-privilege of access to a z/Architecture mainframe.  That is the only way
-to test that code, given that the s390 community has not yet updated
-QEMU to support the CPACF_KIMD_GHASH instruction.
+In order to address this, the generalized driver_override field in struct device
+is protected with a spinlock. The driver-core provides accessors, such as
+device_match_driver_override(), device_has_driver_override() and
+device_set_driver_override(), which all ensure proper locking internally.
 
-From another review pass I also folded in some trivial cleanups that
-don't seem worth sending a v2 for unless something else comes up.
-Removed a definition I forgot to remove, dropped unnecessary rename of
-'h' to 'k', improved consistency in a couple places, etc.
+Additionally, the driver-core provides a driver_override flag in struct
+bus_type, which, once enabled, automatically registers generic sysfs callbacks,
+allowing userspace to modify the driver_override field.
 
-diff --git a/arch/arm64/crypto/ghash-ce-glue.c b/arch/arm64/crypto/ghash-ce-glue.c
-index c74066d430fa..eaf2932ceaf5 100644
---- a/arch/arm64/crypto/ghash-ce-glue.c
-+++ b/arch/arm64/crypto/ghash-ce-glue.c
-@@ -35,10 +35,6 @@ struct arm_ghash_key {
- 	u64			h[4][2];
- };
- 
--struct arm_ghash_desc_ctx {
--	u64 digest[GHASH_DIGEST_SIZE/sizeof(u64)];
--};
--
- struct gcm_aes_ctx {
- 	struct aes_enckey	aes_key;
- 	u8			nonce[RFC4106_NONCE_SIZE];
-diff --git a/lib/crypto/arm/gf128hash.h b/lib/crypto/arm/gf128hash.h
-index cb929bed29d5..c33c8cbe51fe 100644
---- a/lib/crypto/arm/gf128hash.h
-+++ b/lib/crypto/arm/gf128hash.h
-@@ -12,7 +12,7 @@
- static __ro_after_init DEFINE_STATIC_KEY_FALSE(have_neon);
- 
- void pmull_ghash_update_p8(size_t blocks, struct polyval_elem *dg,
--			   const u8 *src, const struct polyval_elem *k);
-+			   const u8 *src, const struct polyval_elem *h);
- 
- #define ghash_blocks_arch ghash_blocks_arch
- static void ghash_blocks_arch(struct polyval_elem *acc,
-diff --git a/lib/crypto/arm/ghash-neon-core.S b/lib/crypto/arm/ghash-neon-core.S
-index bf423fb06a75..eeffd12504a9 100644
---- a/lib/crypto/arm/ghash-neon-core.S
-+++ b/lib/crypto/arm/ghash-neon-core.S
-@@ -181,7 +181,7 @@
- 	/*
- 	 * void pmull_ghash_update_p8(size_t blocks, struct polyval_elem *dg,
- 	 *			      const u8 *src,
--	 *			      const struct polyval_elem *k)
-+	 *			      const struct polyval_elem *h)
- 	 */
- ENTRY(pmull_ghash_update_p8)
- 	vld1.64		{SHASH}, [r3]
-diff --git a/lib/crypto/arm64/gf128hash.h b/lib/crypto/arm64/gf128hash.h
-index d5ef1b1b77e1..b2c85585b758 100644
---- a/lib/crypto/arm64/gf128hash.h
-+++ b/lib/crypto/arm64/gf128hash.h
-@@ -12,14 +12,14 @@
- static __ro_after_init DEFINE_STATIC_KEY_FALSE(have_asimd);
- static __ro_after_init DEFINE_STATIC_KEY_FALSE(have_pmull);
- 
-+asmlinkage void pmull_ghash_update_p8(size_t blocks, struct polyval_elem *dg,
-+				      const u8 *src,
-+				      const struct polyval_elem *h);
- asmlinkage void polyval_mul_pmull(struct polyval_elem *a,
- 				  const struct polyval_elem *b);
- asmlinkage void polyval_blocks_pmull(struct polyval_elem *acc,
- 				     const struct polyval_key *key,
- 				     const u8 *data, size_t nblocks);
--asmlinkage void pmull_ghash_update_p8(size_t blocks, struct polyval_elem *dg,
--				      const u8 *src,
--				      const struct polyval_elem *k);
- 
- #define polyval_preparekey_arch polyval_preparekey_arch
- static void polyval_preparekey_arch(struct polyval_key *key,
-@@ -91,8 +91,8 @@ static void ghash_blocks_arch(struct polyval_elem *acc,
- 	if (static_branch_likely(&have_asimd) && may_use_simd()) {
- 		do {
- 			/* Allow rescheduling every 4 KiB. */
--			size_t n =
--				min_t(size_t, nblocks, 4096 / GHASH_BLOCK_SIZE);
-+			size_t n = min_t(size_t, nblocks,
-+					 4096 / GHASH_BLOCK_SIZE);
- 
- 			scoped_ksimd()
- 				pmull_ghash_update_p8(n, acc, data, &key->h);
-diff --git a/lib/crypto/arm64/ghash-neon-core.S b/lib/crypto/arm64/ghash-neon-core.S
-index eadd6da47247..85b20fcd98fe 100644
---- a/lib/crypto/arm64/ghash-neon-core.S
-+++ b/lib/crypto/arm64/ghash-neon-core.S
-@@ -180,7 +180,7 @@
- 	/*
- 	 * void pmull_ghash_update_p8(size_t blocks, struct polyval_elem *dg,
- 	 *			      const u8 *src,
--	 *			      const struct polyval_elem *k)
-+	 *			      const struct polyval_elem *h)
- 	 */
- SYM_FUNC_START(pmull_ghash_update_p8)
- 	ld1		{SHASH.2d}, [x3]
-diff --git a/lib/crypto/riscv/ghash-riscv64-zvkg.S b/lib/crypto/riscv/ghash-riscv64-zvkg.S
-index 2839ff1a990c..6a2a2f2bc7c8 100644
---- a/lib/crypto/riscv/ghash-riscv64-zvkg.S
-+++ b/lib/crypto/riscv/ghash-riscv64-zvkg.S
-@@ -55,6 +55,8 @@
- // void ghash_zvkg(u8 accumulator[GHASH_BLOCK_SIZE],
- //		   const u8 key[GHASH_BLOCK_SIZE],
- //		   const u8 *data, size_t nblocks);
-+//
-+// |nblocks| must be nonzero.
- SYM_FUNC_START(ghash_zvkg)
- 	vsetivli	zero, 4, e32, m1, ta, ma
- 	vle32.v		v1, (ACCUMULATOR)
-diff --git a/lib/crypto/tests/Kconfig b/lib/crypto/tests/Kconfig
-index 279ff1a339be..5b60d5c3644b 100644
---- a/lib/crypto/tests/Kconfig
-+++ b/lib/crypto/tests/Kconfig
-@@ -41,7 +41,7 @@ config CRYPTO_LIB_GHASH_KUNIT_TEST
- 	default KUNIT_ALL_TESTS
- 	select CRYPTO_LIB_BENCHMARK_VISIBLE
- 	help
--	  KUnit tests for GHASH library functions.
-+	  KUnit tests for the GHASH library functions.
- 
- config CRYPTO_LIB_MD5_KUNIT_TEST
- 	tristate "KUnit tests for MD5" if !KUNIT_ALL_TESTS
+SPI and AP are a bit special; both print "\n" when driver_override is not set,
+whereas all other buses (and thus the driver-core) produce "(null)\n" in this
+case.
+
+Hence, SPI and AP do not take advantage of the driver_override flag in struct
+bus_type; AP additionally maintains a counter in its custom sysfs store().
+
+Technically, we could support a custom fallback string when driver_override is
+unset in struct bus_type, but only SPI would benefit from this, since AP has
+additional custom logic in store() anyways.
+
+(I'm not sure if there are userspace programs that strictly rely on this;
+driverctl seems to check for both, but I rather not break some userspace tool
+I'm not aware of. :)
+
+This series is based on v7.0-rc5 with no additional dependencies, hence those
+patches can be picked up by subsystems individually.
+
+[1] https://lore.kernel.org/driver-core/20260303115720.48783-1-dakr@kernel.org/
+[2] https://bugzilla.kernel.org/show_bug.cgi?id=220789
+[3] https://gitlab.com/driverctl/driverctl/-/blob/0.121/driverctl?ref_type=tags#L99
+
+Danilo Krummrich (12):
+  amba: use generic driver_override infrastructure
+  bus: fsl-mc: use generic driver_override infrastructure
+  cdx: use generic driver_override infrastructure
+  hv: vmbus: use generic driver_override infrastructure
+  PCI: use generic driver_override infrastructure
+  platform/wmi: use generic driver_override infrastructure
+  rpmsg: use generic driver_override infrastructure
+  vdpa: use generic driver_override infrastructure
+  s390/cio: use generic driver_override infrastructure
+  s390/ap: use generic driver_override infrastructure
+  spi: use generic driver_override infrastructure
+  driver core: remove driver_set_override()
+
+ drivers/amba/bus.c                 | 37 +++------------
+ drivers/base/driver.c              | 75 ------------------------------
+ drivers/bus/fsl-mc/fsl-mc-bus.c    | 43 +++--------------
+ drivers/cdx/cdx.c                  | 40 ++--------------
+ drivers/hv/vmbus_drv.c             | 36 ++------------
+ drivers/pci/pci-driver.c           | 11 +++--
+ drivers/pci/pci-sysfs.c            | 28 -----------
+ drivers/pci/probe.c                |  1 -
+ drivers/platform/wmi/core.c        | 36 ++------------
+ drivers/rpmsg/qcom_glink_native.c  |  2 -
+ drivers/rpmsg/rpmsg_core.c         | 43 +++--------------
+ drivers/rpmsg/virtio_rpmsg_bus.c   |  1 -
+ drivers/s390/cio/cio.h             |  5 --
+ drivers/s390/cio/css.c             | 34 ++------------
+ drivers/s390/crypto/ap_bus.c       | 34 +++++++-------
+ drivers/s390/crypto/ap_bus.h       |  1 -
+ drivers/s390/crypto/ap_queue.c     | 24 +++-------
+ drivers/spi/spi.c                  | 19 +++-----
+ drivers/vdpa/vdpa.c                | 48 ++-----------------
+ drivers/vfio/fsl-mc/vfio_fsl_mc.c  |  4 +-
+ drivers/vfio/pci/vfio_pci_core.c   |  5 +-
+ drivers/xen/xen-pciback/pci_stub.c |  6 ++-
+ include/linux/amba/bus.h           |  5 --
+ include/linux/cdx/cdx_bus.h        |  4 --
+ include/linux/device/driver.h      |  2 -
+ include/linux/fsl/mc.h             |  4 --
+ include/linux/hyperv.h             |  5 --
+ include/linux/pci.h                |  6 ---
+ include/linux/rpmsg.h              |  4 --
+ include/linux/spi/spi.h            |  5 --
+ include/linux/vdpa.h               |  4 --
+ include/linux/wmi.h                |  4 --
+ 32 files changed, 88 insertions(+), 488 deletions(-)
+
+
+base-commit: c369299895a591d96745d6492d4888259b004a9e
+-- 
+2.53.0
+
