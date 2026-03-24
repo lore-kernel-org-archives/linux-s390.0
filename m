@@ -1,32 +1,32 @@
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 291DE849C;
-	Tue, 24 Mar 2026 02:59:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5CCD39F16E;
+	Tue, 24 Mar 2026 03:46:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774321197; cv=none; b=gHIiOrj9XXZ66u9H/Kn8aKMtgUzofdns2Wd8IBIWVD+sUnpW9cwknb5ANcP+7gerFrAuJ0UDROEn8jDz0W4XQmKBEHgI86rFot3uAYSNV7FRORCvKvc0Yk1iKLWaL9LKSHZBxUoFid3hbWmO95IaMhTzWK9hKtar8bXMn9F3DAc=
+	t=1774324003; cv=none; b=M/4ocim4/5PVw79XmXm8xsTnLfQGKrGUaGUEib+ejkHJ96oD1CYwjiwJWBtRwiUuzPa45Q7BiG1F3Jer8mm0A8P5rac8r+jt+8i44O6tVzTYlDdqonth+6chMQNsKIrqzz7tx8lP9zObEVUT1SoFTYRV+yj0UtfkKMJaIraQhlg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774321197; c=relaxed/simple;
-	bh=E5Oy3ZYpo3+Ps5TNqA1cUlIdTyftlK0p+7R4zW8Vt7Y=;
+	s=arc-20240116; t=1774324003; c=relaxed/simple;
+	bh=0PeVMEi1xnjHxw1FfnRAZZSarRt0/Dtbi/3bueBnvaY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bWzVPS3hwdjez17YxKrR5OYNpF9SAkvQiOzk3qyy22boafAqBboghYT//WERcdyQ15l999SCf5McikeTM/VNGstzZNnqY0CFGvldoLUmTTo0dUWDtA4N/8jKEq/JWkXoYUkPw4Ym4b6lwjeJnr9Bngf2Ldq3SO7CAb3up67jsHY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=vj3Xv7BZ; arc=none smtp.client-ip=115.124.30.131
+	 In-Reply-To:Content-Type; b=NWb119oBtrFidFxbbmaEJwyC/lQyQRaVbpnyahJGUBlZITNFBZfyNvfGIJIS5XMWw+ojF3bxnT04thMXBohGZTD1Ic9vriMDPExzJB6KWnOSGJRfY/fnihHq8DJn41pIpkxLydkehfmXmcj8RzFfQmGTX19snu9kGSUYyFcd4E8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=W8dBdgZZ; arc=none smtp.client-ip=115.124.30.119
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="vj3Xv7BZ"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="W8dBdgZZ"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1774321192; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=B5wXALRpLgA30wVgjjEUsYNnGSqmUm7zNIHZ9rwo58Y=;
-	b=vj3Xv7BZJuogcydkfiH4V/ouBdiWwVK9dFVzdCzozhjIeCUox3zQeIaDqRruxbNxMUYXP4dB3khtY7ciOeF8i8ggS0iqVt50GodvDixLJcUscbwx4YXOP8mvnjBeMqDsdEEMeeHPziM04PVgVvWf1HIfQ6ukZ7p7ZWXNxTYPVVU=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037026112;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=35;SR=0;TI=SMTPD_---0X.d.Lzd_1774321188;
-Received: from 30.221.131.145(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0X.d.Lzd_1774321188 cluster:ay36)
+	t=1774323997; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=gfj9pH9HdFGubioadCjBnLlcB4bnm19iAov+QtWe4RQ=;
+	b=W8dBdgZZiD7sit7t3UzflEUwM7kzolxg35RLo84TqrIlkiZseML80/1dP1YdYcRjjoNKsbE4oXCw8pJAec33VGZ60HCJ+4J0CDmB9F/HTiOt7cYA3UKyhv4cIKBZjZgj1LSrIgXaaO/d53kIrXmQJy624hyWPzsbzDrJnWIF7w8=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037026112;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=35;SR=0;TI=SMTPD_---0X.d9ZI5_1774323994;
+Received: from 30.221.131.145(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0X.d9ZI5_1774323994 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Tue, 24 Mar 2026 10:59:50 +0800
-Message-ID: <9855724f-4543-48b5-bf60-780b5215c103@linux.alibaba.com>
-Date: Tue, 24 Mar 2026 10:59:47 +0800
+          Tue, 24 Mar 2026 11:46:35 +0800
+Message-ID: <025b7816-ca8e-4cea-bb84-bf324c8c3b22@linux.alibaba.com>
+Date: Tue, 24 Mar 2026 11:46:34 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -34,7 +34,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/2] ptp: split clock drivers into two subdirectories
+Subject: Re: [PATCH 2/2] MAINTAINERS: update PTP maintainer entries after
+ directory split
 To: Jakub Kicinski <kuba@kernel.org>
 Cc: tglx@kernel.org, tglx@linutronix.de, richardcochran@gmail.com,
  andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
@@ -49,50 +50,38 @@ Cc: tglx@kernel.org, tglx@linutronix.de, richardcochran@gmail.com,
  dust.li@linux.alibaba.com, xuanzhuo@linux.alibaba.com, mani@kernel.org,
  imran.shaik@oss.qualcomm.com, taniya.das@oss.qualcomm.com
 References: <20260318073330.115808-1-guwen@linux.alibaba.com>
- <20260318073330.115808-2-guwen@linux.alibaba.com>
- <20260323191645.46569808@kernel.org>
+ <20260318073330.115808-3-guwen@linux.alibaba.com>
+ <20260323192232.3a5205dc@kernel.org>
 From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <20260323191645.46569808@kernel.org>
+In-Reply-To: <20260323192232.3a5205dc@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
-On 2026/3/24 10:16, Jakub Kicinski wrote:
-> On Wed, 18 Mar 2026 15:33:29 +0800 Wen Gu wrote:
->>   drivers/ptp/emulated/Kconfig                 |  61 +++++
->>   drivers/ptp/emulated/Makefile                |  11 +
->>   drivers/ptp/{ => emulated}/ptp_kvm_arm.c     |   0
->>   drivers/ptp/{ => emulated}/ptp_kvm_common.c  |   0
->>   drivers/ptp/{ => emulated}/ptp_kvm_x86.c     |   0
->>   drivers/ptp/{ => emulated}/ptp_s390.c        |   0
->>   drivers/ptp/{ => emulated}/ptp_vmclock.c     |   0
->>   drivers/ptp/{ => emulated}/ptp_vmw.c         |   0
->>   drivers/ptp/ieee1588/Kconfig                 | 179 +++++++++++++
->>   drivers/ptp/ieee1588/Makefile                |  16 ++
->>   drivers/ptp/{ => ieee1588}/ptp_clockmatrix.c |   0
->>   drivers/ptp/{ => ieee1588}/ptp_clockmatrix.h |   0
->>   drivers/ptp/{ => ieee1588}/ptp_dfl_tod.c     |   0
->>   drivers/ptp/{ => ieee1588}/ptp_dte.c         |   0
->>   drivers/ptp/{ => ieee1588}/ptp_fc3.c         |   0
->>   drivers/ptp/{ => ieee1588}/ptp_fc3.h         |   0
->>   drivers/ptp/{ => ieee1588}/ptp_idt82p33.c    |   0
->>   drivers/ptp/{ => ieee1588}/ptp_idt82p33.h    |   0
->>   drivers/ptp/{ => ieee1588}/ptp_ines.c        |   0
->>   drivers/ptp/{ => ieee1588}/ptp_mock.c        |   0
->>   drivers/ptp/{ => ieee1588}/ptp_netc.c        |   0
->>   drivers/ptp/{ => ieee1588}/ptp_ocp.c         |   0
->>   drivers/ptp/{ => ieee1588}/ptp_pch.c         |   0
->>   drivers/ptp/{ => ieee1588}/ptp_qoriq.c       |   0
->>   26 files changed, 296 insertions(+), 253 deletions(-)
+On 2026/3/24 10:22, Jakub Kicinski wrote:
+> On Wed, 18 Mar 2026 15:33:30 +0800 Wen Gu wrote:
+>> +PTP EMULATED CLOCK SUPPORT
+>> +M:	Wen Gu <guwen@linux.alibaba.com>
+>> +M:	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+>> +L:	linux-kernel@vger.kernel.org
+>> +S:	Maintained
 > 
-> emulated sounds good but the ieee1588 doesn't sit well with me.
-> IEEE1588 doesn't describe tickers and external signals.
-> Let's leave them in the main directory? Or call it hw even if
-> it's not 100% accurate? In MAINTAINERS you can exclude subdir
-> with X:
+> I thought David W was supposed to be the main maintainer?
+> Two moderately known developers from a single vendor/company
+> is not enough to delegate this IMO.
 
-Thanks for the suggestion. Leaving the network-oriented drivers
-in the main directory and using X: in MAINTAINERS to exclude the
-emulated ones makes sense to me. The layout will be adjusted in
-the next version.
+
+Thanks for pointing this out.
+
+We would also very much prefer for this area to be maintained
+by people with deeper expertise in the clock/timekeeping domain
+(such as David). The reason David was not listed in this version
+is that an earlier attempt to ask about maintainership did not
+receive a reply[1]. So we avoided adding without confirmation.
+
+If David has no objections to being listed here, that would
+definitely be preferable from our perspective. Other suggested
+clock/timekeeping experts would also be very welcome.
+
+[1] https://lore.kernel.org/all/78489ff1-c2fa-47dc-beb4-54e9410f7d5c@linux.alibaba.com/
