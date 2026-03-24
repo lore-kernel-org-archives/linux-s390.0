@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6FA8385526;
-	Tue, 24 Mar 2026 02:16:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D1D1386C14;
+	Tue, 24 Mar 2026 02:22:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774318607; cv=none; b=IPzenRylaWPUVaoy2xHZcyo8FIIkm+vWEJm6dtyaoKtXdGbKQxZnlmvHUWHOmybUDvfWB69Oj36Bv8zkyCK0pJC8XiMXuYlDjLKJAigWwvW6/s56W9yTxv8BfTiASHEF5T1SO4YPmm6seIRhIaqBpTByEN9f2hjVcQ+hwey5088=
+	t=1774318955; cv=none; b=N4PMpi8ayckPYtqRHWIV3vDTKDocnxQuPUldE2atNa4NbI4N/q73AX2zToK8Q78ETt7oOD18ILWzIgkQpVW0N9xu6qrD2m12fOSL1ZinlprF/7DKZ/G2KtR/r7qwlhPRy9prG8mJ6LmlpoPifYoASVddcJltDUg2oWBPjTwgcJc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774318607; c=relaxed/simple;
-	bh=yYsQflZATy05bGBsphe7H+1eD4A09u2Qeu0WqdFMi7w=;
+	s=arc-20240116; t=1774318955; c=relaxed/simple;
+	bh=dhcqtiZ1+Z6bHtcY+FeNQglwKzvJjFxeELs9lZgVjGE=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=n0zohD25y0lyKOro510W7JETJmfK+Uc3dE7D4Nn8a29Dv7ZHiGXjdOYidm2Ht4CO/ZgKYF49rLZhuc4TZ6YHIoSz2dBhymz04DLEU7BjzeMZTfILT9JojJ9fdW1AUXyZMz+FnpvhQa3EYbrM1hckaER7poI6z6Hg/I8sNNvaUqk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cOfueOYY; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=pmct4wgYGgyXwWar+Lxji5E8AzHyDcMKBSJUkweZA0DBfeQ1K/fWjjltBfG7SPTWgz3SRDuBNGxntzhjT3bUvyN6CdXIDiKrabP56Fn734Af4PbBxZ1ARVBlHwGMkr804TI5PAWte9qJoo9F8CpmFTyzxUU39981YuCG8Wm+tV8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=APvBhOZx; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cOfueOYY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDED4C4CEF7;
-	Tue, 24 Mar 2026 02:16:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="APvBhOZx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EB29C4CEF7;
+	Tue, 24 Mar 2026 02:22:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774318607;
-	bh=yYsQflZATy05bGBsphe7H+1eD4A09u2Qeu0WqdFMi7w=;
+	s=k20201202; t=1774318954;
+	bh=dhcqtiZ1+Z6bHtcY+FeNQglwKzvJjFxeELs9lZgVjGE=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=cOfueOYYK/9KslsmHqB7N5xHU7BYrHrZfBUcDdVJ4b9n2vdjCilU2icnACBJDz+Qk
-	 AZAe5p9YjCJ29egUguPsPBzltBhQ4T7BW8Dhi0LolqPvFo8rd94zKWRzh70hpX33KF
-	 MgmA1JKKjcq77zGZGtjncFl8Isov+CrCzFv/Em3cTT+bAoP/DMmhKQ8cXA/X5FGPzB
-	 5orVMA0NKmbGDWK/gybckHwVL+0ct09FQ2O0H/wU0mPNK1OW6QQEWCA3Qe3uLB7Ghh
-	 +My4Z4Zd3veJkjkSOyBY9SmyLI2Zt5H9miPc3tKENDecpwlZx4V7IWecggngmuykVp
-	 2cUmsnLw9rGhw==
-Date: Mon, 23 Mar 2026 19:16:45 -0700
+	b=APvBhOZxUUobsb7TolEGT+eOmL04buwmjJTsphGqTs5unlMLCcuwIOAXd5krZuHXm
+	 ZO62XznK5PKfUVE45KEi5wz+fSvDzAxl3mVlqzDivqctOCmpwWoaiJF8TFNVkCJnxY
+	 QFN5jaDM41njuipFNhcSIgGX5bSHvT4bNSLtir8ac0Ikfk/S/jc57seC3NGB24xjip
+	 Uri0WFgavXckiig/FvWvrj6SqAOiD12F/Mvs/Pfl7XWQHjGshBRBCIpdzgWZo/Ox2L
+	 KiY1INBId7N6erlT0pP3f6zyGQA37ntmmQf9wDbVvvuTwIKKJA0lQCI2VEaqsNSLjJ
+	 ul2h3c0FRoW9g==
+Date: Mon, 23 Mar 2026 19:22:32 -0700
 From: Jakub Kicinski <kuba@kernel.org>
 To: Wen Gu <guwen@linux.alibaba.com>
 Cc: tglx@kernel.org, tglx@linutronix.de, richardcochran@gmail.com,
@@ -42,11 +42,12 @@ Cc: tglx@kernel.org, tglx@linutronix.de, richardcochran@gmail.com,
  linux-s390@vger.kernel.org, dust.li@linux.alibaba.com,
  xuanzhuo@linux.alibaba.com, mani@kernel.org, imran.shaik@oss.qualcomm.com,
  taniya.das@oss.qualcomm.com
-Subject: Re: [PATCH 1/2] ptp: split clock drivers into two subdirectories
-Message-ID: <20260323191645.46569808@kernel.org>
-In-Reply-To: <20260318073330.115808-2-guwen@linux.alibaba.com>
+Subject: Re: [PATCH 2/2] MAINTAINERS: update PTP maintainer entries after
+ directory split
+Message-ID: <20260323192232.3a5205dc@kernel.org>
+In-Reply-To: <20260318073330.115808-3-guwen@linux.alibaba.com>
 References: <20260318073330.115808-1-guwen@linux.alibaba.com>
-	<20260318073330.115808-2-guwen@linux.alibaba.com>
+	<20260318073330.115808-3-guwen@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -56,35 +57,13 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Wed, 18 Mar 2026 15:33:29 +0800 Wen Gu wrote:
->  drivers/ptp/emulated/Kconfig                 |  61 +++++
->  drivers/ptp/emulated/Makefile                |  11 +
->  drivers/ptp/{ => emulated}/ptp_kvm_arm.c     |   0
->  drivers/ptp/{ => emulated}/ptp_kvm_common.c  |   0
->  drivers/ptp/{ => emulated}/ptp_kvm_x86.c     |   0
->  drivers/ptp/{ => emulated}/ptp_s390.c        |   0
->  drivers/ptp/{ => emulated}/ptp_vmclock.c     |   0
->  drivers/ptp/{ => emulated}/ptp_vmw.c         |   0
->  drivers/ptp/ieee1588/Kconfig                 | 179 +++++++++++++
->  drivers/ptp/ieee1588/Makefile                |  16 ++
->  drivers/ptp/{ => ieee1588}/ptp_clockmatrix.c |   0
->  drivers/ptp/{ => ieee1588}/ptp_clockmatrix.h |   0
->  drivers/ptp/{ => ieee1588}/ptp_dfl_tod.c     |   0
->  drivers/ptp/{ => ieee1588}/ptp_dte.c         |   0
->  drivers/ptp/{ => ieee1588}/ptp_fc3.c         |   0
->  drivers/ptp/{ => ieee1588}/ptp_fc3.h         |   0
->  drivers/ptp/{ => ieee1588}/ptp_idt82p33.c    |   0
->  drivers/ptp/{ => ieee1588}/ptp_idt82p33.h    |   0
->  drivers/ptp/{ => ieee1588}/ptp_ines.c        |   0
->  drivers/ptp/{ => ieee1588}/ptp_mock.c        |   0
->  drivers/ptp/{ => ieee1588}/ptp_netc.c        |   0
->  drivers/ptp/{ => ieee1588}/ptp_ocp.c         |   0
->  drivers/ptp/{ => ieee1588}/ptp_pch.c         |   0
->  drivers/ptp/{ => ieee1588}/ptp_qoriq.c       |   0
->  26 files changed, 296 insertions(+), 253 deletions(-)
+On Wed, 18 Mar 2026 15:33:30 +0800 Wen Gu wrote:
+> +PTP EMULATED CLOCK SUPPORT
+> +M:	Wen Gu <guwen@linux.alibaba.com>
+> +M:	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> +L:	linux-kernel@vger.kernel.org
+> +S:	Maintained
 
-emulated sounds good but the ieee1588 doesn't sit well with me.
-IEEE1588 doesn't describe tickers and external signals.
-Let's leave them in the main directory? Or call it hw even if 
-it's not 100% accurate? In MAINTAINERS you can exclude subdir
-with X:
+I thought David W was supposed to be the main maintainer?
+Two moderately known developers from a single vendor/company
+is not enough to delegate this IMO.
