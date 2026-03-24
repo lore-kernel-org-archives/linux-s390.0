@@ -1,98 +1,93 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DFA01DE8AF;
-	Tue, 24 Mar 2026 16:34:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0455639B498;
+	Tue, 24 Mar 2026 16:42:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774370072; cv=none; b=XSzonSRB+TxLoCqPjExyKFoqj+m0yDSz//9YQXz9FmRQH0cIeFcJ6GQQTT/hjZ1+2c8Knw3KCAJNbyUKW7Eh3n7ocDf57WSJfgtFQzqAIrJO24AFyRUZKUVSYn4a1K+5yOdUl3n3n/+NPunni10AAYriDmCteKY3bmq6ZPtxB+U=
+	t=1774370543; cv=none; b=Nuh0JhSSlQCpAlPltz42D5WtRAPm50gmR/VrNv/Z0AwwI+HREHARp/mYbp31UDojx+3rAj3BjnclYd/sv5AxOmMjP36Fa1YsC3BVvYN5ZpS0B9EAjVtvX2AFB/0HC+K13YwIi8S/5LntMf/VrNrBDEfseIH9hE9mW2GFuxNXxjs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774370072; c=relaxed/simple;
-	bh=jK2cqe9zEERt7XTSL+IOAhVG8tvgAjujNDCKQTLklwU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tpWuNOGLWzBRWmwhVenxZB6lcTLrDH9OjDzJ+of9KlLW0cyy5zHxxonGx4nulY6jnCXs1CVQHgxS6JkWQsuyzf0JuZVwOdikVhWLj5f1o/k+OIwzlKujiiixFxosSisg0gtceY3UH4B00ca3MWvpSnEa0qv3yGkwMHfDMZu0Jdg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=ac5ITu1U; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774370543; c=relaxed/simple;
+	bh=TDgLcRhij5JQVZa60QmaxqOx203j51xbjV/q4WkoTac=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=XCHgQHGrHJAvm7GGtO77OFoXFntIc6XnX5lYMs/laTYSpgSLcAjccCpizO6dDhkIKBb224kzVCezwJH9t4RtXBnLGRWDAEKQYhTRntwXlQEtiVe0nA5OkyVuaoyupVS1WqDgBnjDOsHuzC9OcJBXYZt/+41EO5OCllAFLqHT+V4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=DQOwZZrw; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="ac5ITu1U"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C5E0C19424;
-	Tue, 24 Mar 2026 16:34:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1774370072;
-	bh=jK2cqe9zEERt7XTSL+IOAhVG8tvgAjujNDCKQTLklwU=;
-	h=From:To:Cc:Subject:Date:From;
-	b=ac5ITu1UCTMLoDOgd2pZOthuTCP5N8hE49EptZbmlm+ePTABD4xe3/7DFyEl4ZuhK
-	 XEx4ExZ3HJVMNrR4qdvtIHbU/2N7nCW5e7YLRHiDfJ3QDsYPNXE3F3E1oCobICQFwQ
-	 ewtzM8mL9CS0C9oRtmSVsHTdsWHYNlHumql9mFPU=
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	stable <stable@kernel.org>
-Subject: [PATCH] s390/syscalls: add spectre boundry for syscall dispatch table
-Date: Tue, 24 Mar 2026 17:34:05 +0100
-Message-ID: <2026032404-sterling-swoosh-43e6@gregkh>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="DQOwZZrw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E44B6C19424;
+	Tue, 24 Mar 2026 16:42:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1774370542;
+	bh=TDgLcRhij5JQVZa60QmaxqOx203j51xbjV/q4WkoTac=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=DQOwZZrwl+GxIARWYI809PrjYZgIC0xfeubUvTNhKKAudWXflkBkHkOQxqHhcKfI5
+	 YEd8AoepFJifaDz0cIKUFkW85RTTMclmIhV4gfAqh3VY34KIx4Pm4UqjUG6y+A3vml
+	 FWjY7pXOdRDrlwOVcmMMkatFHeB/Fbf82T5tVjrs=
+Date: Tue, 24 Mar 2026 09:42:20 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Richard Henderson <richard.henderson@linaro.org>, Matt Turner
+ <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>, Russell King
+ <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will
+ Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Huacai Chen
+ <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, Madhavan
+ Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
+ Nicholas Piggin <npiggin@gmail.com>, "Christophe Leroy (CS GROUP)"
+ <chleroy@kernel.org>, Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt
+ <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti
+ <alex@ghiti.fr>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
+ <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, Christian
+ Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
+ <svens@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, Andreas
+ Larsson <andreas@gaisler.com>, Richard Weinberger <richard@nod.at>, Anton
+ Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg
+ <johannes@sipsolutions.net>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar
+ <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
+ <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin"
+ <hpa@zytor.com>, Herbert Xu <herbert@gondor.apana.org.au>, Dan Williams
+ <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>, David Sterba
+ <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>, Song Liu
+ <song@kernel.org>, Yu Kuai <yukuai@fnnas.com>, Li Nan
+ <linan122@huawei.com>, "Theodore Ts'o" <tytso@mit.edu>,
+ "Jason A. Donenfeld" <Jason@zx2c4.com>, linux-alpha@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+ linux-crypto@vger.kernel.org, linux-btrfs@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: cleanup the RAID5 XOR library v3
+Message-Id: <20260324094220.09e6eb90afc7f55937847f22@linux-foundation.org>
+In-Reply-To: <20260324062211.3216301-1-hch@lst.de>
+References: <20260324062211.3216301-1-hch@lst.de>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1644; i=gregkh@linuxfoundation.org; h=from:subject:message-id; bh=jK2cqe9zEERt7XTSL+IOAhVG8tvgAjujNDCKQTLklwU=; b=owGbwMvMwCRo6H6F97bub03G02pJDJmH9vzNyWoO3BRzSHtd1aP1Tm31faudz7ocd1t76tsLg XmGbw/EdcSyMAgyMciKKbJ82cZzdH/FIUUvQ9vTMHNYmUCGMHBxCsBEzFUY5vu6Csh/PMhS9ra6 NETl3rLI/oNbFRnmVyc9itQ+ubVzfm3XbeNlr/muNj65DgA=
-X-Developer-Key: i=gregkh@linuxfoundation.org; a=openpgp; fpr=F4B60CC5BF78C2214A313DCB3147D40DDB2DFB29
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-The s390 syscall number is directly controlled by userspace, but does
-not have a array_index_nospec() boundry to prevent access past the
-syscall function pointer tables.
+On Tue, 24 Mar 2026 07:21:36 +0100 Christoph Hellwig <hch@lst.de> wrote:
 
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: stable <stable@kernel.org>
-Assisted-by: gkh_clanker_2000
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
-My scripts caught this as I think s390 is vulnerable to the old-style
-Spectre 1 issues, but I couldn't find where it was addressed in the
-syscall path.  Did I just miss it somewhere, or is this patch still
-needed?
+> the XOR library used for the RAID5 parity is a bit of a mess right now.
+> The main file sits in crypto/ despite not being cryptography and not
+> using the crypto API, with the generic implementations sitting in
+> include/asm-generic and the arch implementations sitting in an asm/
+> header in theory.  The latter doesn't work for many cases, so
+> architectures often build the code directly into the core kernel, or
+> create another module for the architecture code.
+> 
+> Changes this to a single module in lib/ that also contains the
+> architecture optimizations, similar to the library work Eric Biggers
+> has done for the CRC and crypto libraries later.  After that it changes
+> to better calling conventions that allow for smarter architecture
+> implementations (although none is contained here yet), and uses
+> static_call to avoid indirection function call overhead.
 
- arch/s390/kernel/syscall.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+Thanks, I've updated mm.git's mm-nonmm-unstable branch to this version
+of the patchset.
 
-diff --git a/arch/s390/kernel/syscall.c b/arch/s390/kernel/syscall.c
-index 795b6cca74c9..d103c853e120 100644
---- a/arch/s390/kernel/syscall.c
-+++ b/arch/s390/kernel/syscall.c
-@@ -13,6 +13,7 @@
-  */
- 
- #include <linux/cpufeature.h>
-+#include <linux/nospec.h>
- #include <linux/errno.h>
- #include <linux/sched.h>
- #include <linux/mm.h>
-@@ -131,8 +132,10 @@ void noinstr __do_syscall(struct pt_regs *regs, int per_trap)
- 	if (unlikely(test_and_clear_pt_regs_flag(regs, PIF_SYSCALL_RET_SET)))
- 		goto out;
- 	regs->gprs[2] = -ENOSYS;
--	if (likely(nr < NR_syscalls))
-+	if (likely(nr < NR_syscalls)) {
-+		nr = array_index_nospec(nr, NR_syscalls);
- 		regs->gprs[2] = sys_call_table[nr](regs);
-+	}
- out:
- 	syscall_exit_to_user_mode(regs);
- }
--- 
-2.53.0
 
