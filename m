@@ -1,131 +1,148 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2F8830FC0F;
-	Tue, 24 Mar 2026 19:44:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4546339FD4;
+	Tue, 24 Mar 2026 21:26:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774381491; cv=none; b=mtXEhXnWVSMZX2PGYgfHIdmbFOgRvn86vPDkldoUYeV1fwLZ/VvcPxqyimSYSdC9j/Uev8GqoO+huslebf6SWhYYXxSn7P8nZEizcYG/xApApkogRfrJZdgYZRj2h5s1IuhqgqmC+cSEbppaXgubDOEagcCXAhEsyREM5yls2nk=
+	t=1774387564; cv=none; b=rI2jAKE4o0+Dhb4qwQsLBtIbmSYGE2Bahx3ENvgXnUjPclwM/iQPl4sd6HQ0Hdm6GYukymag+kYdS+EWlWVAgvYo0QA4Vq6BLuK5PyIgvti7P1cRiKxTl9Aj2LJyqE5UnVvLBTb4hU1bSGwWxU6iF67+RYWezGTwc+k3APYdum0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774381491; c=relaxed/simple;
-	bh=WRF/0A79XI/IfrPujL8sWiRG4jtPsIHG8/HKlYhxfwg=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=NGqVbPo8WKAGLL+OqD+s4OvjyUPaAE/OAUYZQ7T+tRf1S/uSvIuIjKCNBcFQcVSz6V08EFN6FakTUSo4VHhdiUPQXFVRFcK3zsuDRumc5D7eU1JpCkGI4G08/E73XLuWdIMeoLP1JrHw0htY8AsFlg7v5fCje9ISWg2Z9T730Kk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BI/PyKSY; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774387564; c=relaxed/simple;
+	bh=9F+HdKYAmTDumYmQWst3n/3M3OnO4i+ge3gPYW8ub58=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=SDKbgAx1KRb4jASutUj8nU0akkH9j+KaVdXpNWMcriQakZHG5Quvj9UA7vHMWTPSEp2fndF+ezUBqkunwN27IAaB6d9ax10ZXDAbQpKfXYSz4FooXpFGNbnJ/nDofuozQK9Ci/6Maw7Vr9s+EjQ8tUIf7zG8GJ/uPlpEGR25kd4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aiZ/LQp8; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BI/PyKSY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF553C19424;
-	Tue, 24 Mar 2026 19:44:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aiZ/LQp8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5EE1C19424;
+	Tue, 24 Mar 2026 21:26:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774381490;
-	bh=WRF/0A79XI/IfrPujL8sWiRG4jtPsIHG8/HKlYhxfwg=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
-	b=BI/PyKSYvjLJXWbEpQrc+czH+55hhTQfVKT55Uu1wKsITHQaRklHZhshTVjzHQFZN
-	 XI99w4CrCK+yRfm2877TM5yV4pPdvKaG1DWbUoq9X2UMljaiVAeNppp3zNtFe6VQcR
-	 Nbxio4BzKuKvbSdbHpiqyp9b0V4Wi4iBFmRLBu0AraFrnoul9PN3a4ntDRFnw+1WBV
-	 6VOLh/84HoNWnxFvJA4p13awciT/KZz8A8WdIkArI2aCUbV0ZkSk5h4r/JYUTPRIIT
-	 T8Jt8zQSnSc69wMDv4JXXRT2onYDSQlxz5UqGBDTvOp1c1OxGFbD7+EZxoeS8MPSTJ
-	 8n38/skizDzlQ==
-From: Mark Brown <broonie@kernel.org>
-To: Russell King <linux@armlinux.org.uk>, 
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
- "Rafael J. Wysocki" <rafael@kernel.org>, 
- Ioana Ciornei <ioana.ciornei@nxp.com>, Nipun Gupta <nipun.gupta@amd.com>, 
- Nikhil Agarwal <nikhil.agarwal@amd.com>, 
- "K. Y. Srinivasan" <kys@microsoft.com>, 
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
- Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
- Bjorn Helgaas <bhelgaas@google.com>, Armin Wolf <W_Armin@gmx.de>, 
- Bjorn Andersson <andersson@kernel.org>, 
- Mathieu Poirier <mathieu.poirier@linaro.org>, 
- Vineeth Vijayan <vneethv@linux.ibm.com>, 
- Peter Oberparleiter <oberpar@linux.ibm.com>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, 
- Harald Freudenberger <freude@linux.ibm.com>, 
- Holger Dengler <dengler@linux.ibm.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Alex Williamson <alex@shazbot.org>, Juergen Gross <jgross@suse.com>, 
- Stefano Stabellini <sstabellini@kernel.org>, 
- Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>, 
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
- Danilo Krummrich <dakr@kernel.org>
-Cc: linux-kernel@vger.kernel.org, driver-core@lists.linux.dev, 
- linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, 
- linux-pci@vger.kernel.org, platform-driver-x86@vger.kernel.org, 
- linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org, 
- linux-s390@vger.kernel.org, linux-spi@vger.kernel.org, 
- virtualization@lists.linux.dev, kvm@vger.kernel.org, 
- xen-devel@lists.xenproject.org, linux-arm-kernel@lists.infradead.org
-In-Reply-To: <20260324005919.2408620-1-dakr@kernel.org>
-References: <20260324005919.2408620-1-dakr@kernel.org>
-Subject: Re: (subset) [PATCH 00/12] treewide: Convert buses to use generic
- driver_override
-Message-Id: <177436441990.98682.12977271865531185229.b4-ty@b4>
-Date: Tue, 24 Mar 2026 15:00:19 +0000
+	s=k20201202; t=1774387563;
+	bh=9F+HdKYAmTDumYmQWst3n/3M3OnO4i+ge3gPYW8ub58=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:From;
+	b=aiZ/LQp8twTvdUbwFmpyCVpJzLud7P2PBK/14kNYXL2Nya6CEKMSlEjXUBq/VIaWo
+	 AEw9lf7Ovhha2nOt6I54hOM9WkeHdImSH26mnQsQXXLX9SjHDNp7R1IBl09mCpIdat
+	 xNv7IRE5Bql6iVIueF0Wc9DV8eQ1dorR4NVh3Ab2rRRhnBQmwa3240swwe3FbueISo
+	 ldxn4UU5uKPdLbvv46q2Kig/1gMEzZ1mGaDlIN/pbOd6jut+ZmrUJwoYPN7bLaJqZS
+	 wGPz3PRtPzQHbIuAH9D/GRqEHjhYruD1JzJMAHAwdF1yNnSM1EjX9ljmOywoEMvqj6
+	 ydWp08aJtPafg==
+Date: Tue, 24 Mar 2026 16:26:02 -0500
+From: Bjorn Helgaas <helgaas@kernel.org>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-pci@vger.kernel.org, lukas@wunner.de, alex@shazbot.org,
+	kbusch@kernel.org, clg@redhat.com, stable@vger.kernel.org,
+	schnelle@linux.ibm.com, mjrosato@linux.ibm.com,
+	Julian Ruess <julianr@linux.ibm.com>
+Subject: Re: [PATCH v11 9/9] vfio: Remove the pcie check for
+ VFIO_PCI_ERR_IRQ_INDEX
+Message-ID: <20260324212602.GA1151826@bhelgaas>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.16-dev-6cc06
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1523; i=broonie@kernel.org;
- h=from:subject:message-id; bh=WRF/0A79XI/IfrPujL8sWiRG4jtPsIHG8/HKlYhxfwg=;
- b=kA0DAAoBJNaLcl1Uh9AByyZiAGnC6amgudhaUXvPlk+pDm3GoyUp8H0DzJj7P23jodGH3vgaM
- YkBMwQAAQoAHRYhBK3maKpnVxi1n+Kf6iTWi3JdVIfQBQJpwumpAAoJECTWi3JdVIfQ7W4H/0HK
- bnLD6QxQOBC+fzyIxZ6G6kEKZPO4GVW3Pfn4yfAzX5qrdKQRkDgps7IYWut/u33hS3f+Z04EmOJ
- lYrLIJIM422nR6nge6hF8EhqNBiTq/w9q7cGC48hH540F15d0sLd2//XCIGupIA1RXpBqVdzq5x
- OT6qjdHSfs8FyZ+oeQmp08Rcg1XfVc+MneH1PzidJufZ+tJUtayZw29OlGfNk6vGZ389vkRi+Ec
- XFn5qSzIYh78B0Z0zXzPv2/IjG8frEcheWdi3dJbD2bUS4h2S1US62r3HG8U3Au0lRz8ggXRMML
- 03vuVW3IP0egShhpeZHJhBzFqhYb6LFlY+k9hXc=
-X-Developer-Key: i=broonie@kernel.org; a=openpgp;
- fpr=3F2568AAC26998F9E813A1C5C3F436CA30F5D8EB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260316191544.2279-10-alifm@linux.ibm.com>
 
-On Tue, 24 Mar 2026 01:59:04 +0100, Danilo Krummrich wrote:
-> treewide: Convert buses to use generic driver_override
+On Mon, Mar 16, 2026 at 12:15:44PM -0700, Farhan Ali wrote:
+> We are configuring the error signaling on the vast majority of devices and
+
+Who is "we"?  If a function configures error signaling, can you
+mention the name?
+
+> it's extremely rare that it fires anyway. This allows userspace to
+> be notified on errors for legacy PCI devices. The Internal Shared
+> Memory (ISM) device on s390 is one such device. 
+
+This commit log talks about things that could be done, but doesn't
+actually say what the patch does or what makes it safe and effective,
+and I'm not VFIO-literate enough for it to be clear.
+
+These pci_is_pcie() tests were added by dad9f8972e04 ("VFIO-AER:
+Vfio-pci driver changes for supporting AER"), so I suppose the
+dad9f8972e04 assumption was that AER was the only error reporting
+mechanism, and AER only exists on PCIe devices?
+
+But s390 can report errors for conventional PCI devices, and you want
+VFIO to support that as well?
+
+Obviously this change needs to be safe for all arches, not just s390.
+I suppose it's safe to report the VFIO_PCI_ERR_IRQ_INDEX info
+everywhere; it's just that it will never be used except on s390?  And
+I guess powerpc, which can get to vfio_pci_core_aer_err_detected() via
+eeh_report_failure().
+
+It looks like vfio_pci_driver provides vfio_pci_core_err_handlers
+whether the device is conventional PCI or PCIe, and s390 can already
+call vfio_pci_core_aer_err_detected() (the .error_detected() hook) via
+zpci_event_notify_error_detected(), so this patch makes it possible
+for the guest (QEMU, etc) to learn about it?
+
+> For PCI devices on IBM s390 error
+> recovery involves platform firmware and notification to operating system
+> is done by architecture specific way. So the ISM device can still be
+> recovered when notified of an error.
+
+I guess this error recovery part would be done by the guest ISM
+driver, triggered when when something like QEMU receives the eventfd
+signal from vfio_pci_core_aer_err_detected()?
+
+> Reviewed-by: Julian Ruess <julianr@linux.ibm.com>
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+
+I don't maintain VFIO, so I'm just kibbitzing here.  Hopefully Alex
+will chime in.
+
+> ---
+>  drivers/vfio/pci/vfio_pci_core.c  | 8 ++------
+>  drivers/vfio/pci/vfio_pci_intrs.c | 3 +--
+>  2 files changed, 3 insertions(+), 8 deletions(-)
 > 
-> This is the follow-up of the driver_override generalization in [1], converting
-> the remaining 11 busses and removing the now-unused driver_set_override()
-> helper.
+> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+> index f1bd1266b88f..cfd9a51cd194 100644
+> --- a/drivers/vfio/pci/vfio_pci_core.c
+> +++ b/drivers/vfio/pci/vfio_pci_core.c
+> @@ -786,8 +786,7 @@ static int vfio_pci_get_irq_count(struct vfio_pci_core_device *vdev, int irq_typ
+>  			return (flags & PCI_MSIX_FLAGS_QSIZE) + 1;
+>  		}
+>  	} else if (irq_type == VFIO_PCI_ERR_IRQ_INDEX) {
+> -		if (pci_is_pcie(vdev->pdev))
+> -			return 1;
+> +		return 1;
+>  	} else if (irq_type == VFIO_PCI_REQ_IRQ_INDEX) {
+>  		return 1;
+>  	}
+> @@ -1163,11 +1162,8 @@ static int vfio_pci_ioctl_get_irq_info(struct vfio_pci_core_device *vdev,
+>  	switch (info.index) {
+>  	case VFIO_PCI_INTX_IRQ_INDEX ... VFIO_PCI_MSIX_IRQ_INDEX:
+>  	case VFIO_PCI_REQ_IRQ_INDEX:
+> -		break;
+>  	case VFIO_PCI_ERR_IRQ_INDEX:
+> -		if (pci_is_pcie(vdev->pdev))
+> -			break;
+> -		fallthrough;
+> +		break;
+>  	default:
+>  		return -EINVAL;
+>  	}
+> diff --git a/drivers/vfio/pci/vfio_pci_intrs.c b/drivers/vfio/pci/vfio_pci_intrs.c
+> index 33944d4d9dc4..64f80f64ff57 100644
+> --- a/drivers/vfio/pci/vfio_pci_intrs.c
+> +++ b/drivers/vfio/pci/vfio_pci_intrs.c
+> @@ -859,8 +859,7 @@ int vfio_pci_set_irqs_ioctl(struct vfio_pci_core_device *vdev, uint32_t flags,
+>  	case VFIO_PCI_ERR_IRQ_INDEX:
+>  		switch (flags & VFIO_IRQ_SET_ACTION_TYPE_MASK) {
+>  		case VFIO_IRQ_SET_ACTION_TRIGGER:
+> -			if (pci_is_pcie(vdev->pdev))
+> -				func = vfio_pci_set_err_trigger;
+> +			func = vfio_pci_set_err_trigger;
+>  			break;
+>  		}
+>  		break;
+> -- 
+> 2.43.0
 > 
-> All of them (except AP, which has a different race condition) are prone to the
-> potential UAF described in [2], caused by accessing the driver_override field
-> from their corresponding match() callback.
-> 
-> [...]
-
-Applied to
-
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git for-7.0
-
-Thanks!
-
-[11/12] spi: use generic driver_override infrastructure
-        https://git.kernel.org/broonie/spi/c/cc34d77dd487
-
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.
-
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
-
-Thanks,
-Mark
-
