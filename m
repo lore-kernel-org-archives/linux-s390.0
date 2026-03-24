@@ -1,153 +1,167 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED1873FFAC6;
-	Tue, 24 Mar 2026 14:52:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9349040DFBC;
+	Tue, 24 Mar 2026 14:53:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774363936; cv=none; b=R65X+LVOTMv61xs9B+Ba59TTIT2U/KP0MmuVoPG0nz4UWLNiv3SFCzzmlNlbdnahuDQ+OUriQXsH7YNg86Vfg3iu7DzOoq3OXQgqFWzqshHL2ofHmLhYMIgYo+CyLrgl2L0HpWIXY05YBlT88FXpf8Q1Razm1o66gRje5XXzvHA=
+	t=1774363984; cv=none; b=XR8RQi1hzwyX7zkgxb0GX133G8FiF0QibXIplCGQ7QMdVRuQIrI2E/PfW1mAjOtI5v5eEi/7LjcK7M98macH3jYdG6MUwyKk2LmA+lvoe4skdp9lRKpqoqOCgrs9wiXegMpKu6xYwHq0G/YXMrxmRwmeMT8MvJMBBWyRtgjhAsg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774363936; c=relaxed/simple;
-	bh=/fpTOOkrngpXVeqeP/VJno5l/BQSG+nY/EpLAmd2sBM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ECJ01RG/rPN2ImQZfNzTHAzn6LbQTxPLukn5ny3yr8J1xhVEpRfxaw/BoQrB9fZF4YVxhAPS8snrwjuWMnpHZExqDgro3MTtPv2tkwj4E8O4YKZ/n7m6AEVP/53MgHL7BKXzeKSebD0ogAtry41xVz4RbYznmltuGtrV6q349ps=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PgUYIOvt; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1774363984; c=relaxed/simple;
+	bh=5PsP7SJiyg6c43hMnhXO1J/nNC4IiO59ALlt88PNREE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=J08QshwfDqc2UPSOcj6uo0FqeSR8LuNOgfU8hXBkavG5daRH+nRbjlUSeZTD5UYBbcG5xiTI/6vePLWrZZXeo475TCIQ9xDT3qOEURmhVAxNyiQryuV1tQtKSNLFtOMhbZE+W/Fvgm1IRcg/BuQmMVPl0fvMi6gbPorQN4AStQ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=vM6QVJSx; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PgUYIOvt"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62O2jLtA3835878;
-	Tue, 24 Mar 2026 14:52:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=F0pePj
-	Ajup2lsiB5Q61KclVdmiYrft/NMeZgDpn35u4=; b=PgUYIOvtmotM6BYOrkvqKP
-	XndtRC/yuJlzQIh4pfNTU6Adk0O4nOH0JTE1z4It2vkael6L92Qy+RMG9PjzkVsL
-	fZy0FH2pxD37+UzacnWmp76iGRJWX8UKYDW/q5N/JPE8fbz0uxA3kl+aDvv4/xn7
-	zTv4HHhiC6aVuMq6EWSF+fDtiR7EVxkPNUtSuyHTYOyPOQT6Dd33uZwA8qj9xpFz
-	YxgmIQidANEkYjgRV3yxjzgkPugBkUFnPZxQ/ylEsbozE//K9sOXV/fBrpwYUA1O
-	F4xc/ZVlifTbuCsFS7DJbXltc9s8uULP3HvCpqHEIy4HwWvQiGvK9za1jIpMMFKA
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1ky03e23-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Mar 2026 14:52:08 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62OCwRQi026771;
-	Tue, 24 Mar 2026 14:52:07 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d275kt9bg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Mar 2026 14:52:07 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62OEq3Ze14156230
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 24 Mar 2026 14:52:03 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6E8CC2004B;
-	Tue, 24 Mar 2026 14:52:03 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F1C3320040;
-	Tue, 24 Mar 2026 14:52:02 +0000 (GMT)
-Received: from [9.111.77.246] (unknown [9.111.77.246])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 24 Mar 2026 14:52:02 +0000 (GMT)
-Message-ID: <67810b81-a3d0-4517-96d2-e99b90a216cd@linux.ibm.com>
-Date: Tue, 24 Mar 2026 15:52:02 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="vM6QVJSx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ECC8C19424;
+	Tue, 24 Mar 2026 14:53:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774363983;
+	bh=5PsP7SJiyg6c43hMnhXO1J/nNC4IiO59ALlt88PNREE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=vM6QVJSxgx96Yi3fdbsB8ETxK9h5VZ8zZV42xFiAKj4E7VeW8F3aHlbtIXjlWVx5m
+	 9MvUIiFq7dLq85ZKui4M+h2uhxY/4j0kMtJn+npADLp35mR317Q51pVYGyhhf6ucJH
+	 BFt7NDLckBbS8fpsfTZg/aAnGstXVSIyCtHatX1MYLrHav4PMlUTjJjgaQa98ypH6Q
+	 00d8W2DzEFpXevZH4N4B6h6ymHlLO6o2GyvH7TENhZ58gvEy0ucrpBU5JhnABy8nxB
+	 U96CPZWqkSd0iD24e01QU5qiJlpu2r1SDDxxBJCl1XyXTJqv+KQe3zSvXbv0j/OaRk
+	 DNpKNXyQaYRBw==
+Date: Tue, 24 Mar 2026 15:53:01 +0100
+From: Frederic Weisbecker <frederic@kernel.org>
+To: Shrikanth Hegde <sshegde@linux.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Anna-Maria Behnsen <anna-maria@linutronix.de>,
+	Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
+	Jan Kiszka <jan.kiszka@siemens.com>,
+	Joel Fernandes <joelagnelf@nvidia.com>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Kieran Bingham <kbingham@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Mel Gorman <mgorman@suse.de>, Michael Ellerman <mpe@ellerman.id.au>,
+	Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Paul E . McKenney" <paulmck@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Valentin Schneider <vschneid@redhat.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Viresh Kumar <viresh.kumar@linaro.org>,
+	Xin Zhao <jackzxcui1989@163.com>, linux-pm@vger.kernel.org,
+	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Subject: Re: [PATCH 15/15] sched/cputime: Handle dyntick-idle steal time
+ correctly
+Message-ID: <acKlTdXRUMTXBk1X@localhost.localdomain>
+References: <20260206142245.58987-1-frederic@kernel.org>
+ <20260206142245.58987-16-frederic@kernel.org>
+ <be30e259-a690-4530-996c-0c092833bb66@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 6/8] KVM: s390: vsie: Fix unshadowing while shadowing
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        borntraeger@de.ibm.com, nrb@linux.ibm.com, seiden@linux.ibm.com,
-        gra@linux.ibm.com, schlameuss@linux.ibm.com, hca@linux.ibm.com,
-        david@kernel.org
-References: <20260320161542.202913-1-imbrenda@linux.ibm.com>
- <20260320161542.202913-7-imbrenda@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20260320161542.202913-7-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI0MDExNyBTYWx0ZWRfX0R2Ehsi0A3VR
- 3FK5VC5zQAGDoRqbjbfcx7HsR3yiVtP/id02JaKwQNf7iYxI4Cbuz0cANOtYAchWUJYQMifImoT
- nRUEM4ZjxTHyl5Nz20i1jS6qySjP7ctiNTGOH4/Ndz2EIQASymFxZLrAkH7N2ZZUbXIL33fRGSN
- i8Tw32u0UPwnxBCsuBvCHqzdXRxEg2GqJL7UKNNucDzuy3tqjfo1pBe7ASqAaBVlgQvSXe1xQrz
- V1LJDqt/8wrblIUc0yIV8Z/GlGYNiSmFCaZV+4pvbyyuLyEnTZuVE4ECkHU1pG7CJDycthgfPz4
- KaPT1XYV8zPl1WsyvRzu8KH3qg/p5GIhlU50Ht/yKE7srJkKk+bR/1I/Cct5iuGR+ivJpb5qlS7
- APd8jcswYVKVkCKK9f2iaS4LwXe5Ae4EZJXWadnVuNOtP05FY9XPXiEXlJIrZGrzWeXSCU9Rud0
- PTceo1ofpeNPN+diEiA==
-X-Authority-Analysis: v=2.4 cv=JK42csKb c=1 sm=1 tr=0 ts=69c2a518 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=7xXb2gtW9L4Y6A714kYA:9
- a=QEXdDO2ut3YA:10 a=ZXulRonScM0A:10 a=zZCYzV9kfG8A:10
-X-Proofpoint-ORIG-GUID: 2EyVh3yoxkdExJwbKe53ojFvaN7X1of0
-X-Proofpoint-GUID: 2EyVh3yoxkdExJwbKe53ojFvaN7X1of0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-24_03,2026-03-23_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 clxscore=1015 priorityscore=1501 malwarescore=0 adultscore=0
- spamscore=0 suspectscore=0 phishscore=0 lowpriorityscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603240117
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <be30e259-a690-4530-996c-0c092833bb66@linux.ibm.com>
 
-On 3/20/26 17:15, Claudio Imbrenda wrote:
-> If shadowing causes the shadow gmap to get unshadowed, exit early to
-
-How can this happen?
-
-> prevent an attempt to dereference the parent pointer, which at this
-> point is NULL.
+Le Tue, Mar 03, 2026 at 04:47:45PM +0530, Shrikanth Hegde a écrit :
 > 
-> Opportunistically add some more checks to prevent NULL parents.
+> 
+> On 2/6/26 7:52 PM, Frederic Weisbecker wrote:
+> > The dyntick-idle steal time is currently accounted when the tick
+> > restarts but the stolen idle time is not substracted from the idle time
+> > that was already accounted. This is to avoid observing the idle time
+> > going backward as the dyntick-idle cputime accessors can't reliably know
+> > in advance the stolen idle time.
+> > 
+> > In order to maintain a forward progressing idle cputime while
+> > substracting idle steal time from it, keep track of the previously
+> > accounted idle stolen time and substract it from _later_ idle cputime
+> > accounting.
+> > 
+> 
+> s/substract/subtract ?
+
+Right.
+
+> 
+> > Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+> > ---
+> >   include/linux/kernel_stat.h |  1 +
+> >   kernel/sched/cputime.c      | 21 +++++++++++++++------
+> >   2 files changed, 16 insertions(+), 6 deletions(-)
+> > 
+> > diff --git a/include/linux/kernel_stat.h b/include/linux/kernel_stat.h
+> > index 512104b0ff49..24a54a6151ba 100644
+> > --- a/include/linux/kernel_stat.h
+> > +++ b/include/linux/kernel_stat.h
+> > @@ -39,6 +39,7 @@ struct kernel_cpustat {
+> >   	bool		idle_elapse;
+> >   	seqcount_t	idle_sleeptime_seq;
+> >   	u64		idle_entrytime;
+> > +	u64		idle_stealtime;
+> >   #endif
+> >   	u64		cpustat[NR_STATS];
+> >   };
+> > diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c
+> > index 92fa2f037b6e..7e79288eb327 100644
+> > --- a/kernel/sched/cputime.c
+> > +++ b/kernel/sched/cputime.c
+> > @@ -424,19 +424,25 @@ static inline void irqtime_account_process_tick(struct task_struct *p, int user_
+> >   static void kcpustat_idle_stop(struct kernel_cpustat *kc, u64 now)
+> >   {
+> >   	u64 *cpustat = kc->cpustat;
+> > -	u64 delta;
+> > +	u64 delta, steal, steal_delta;
+> >   	if (!kc->idle_elapse)
+> >   		return;
+> >   	delta = now - kc->idle_entrytime;
+> > +	steal = steal_account_process_time(delta);
+> >   	write_seqcount_begin(&kc->idle_sleeptime_seq);
+> > +	steal_delta = min_t(u64, kc->idle_stealtime, delta);
+> > +	delta -= steal_delta;
+> 
+> I didn;t get this logic. Why do we need idle_stealtime?
+> 
+> Lets say 10ms was steal time and 50ms was delta. but idle_stealtime is
+> sum of past accumulated steal time. we only need to subtract steal time there no?
+> 
+> Shouldn't this be delta -= steal ?
+
+That would be a risk to observe backward idle accounting:
+
+Time        CPU 0                                  CPU 1
+----        -----                                  -----
+0 sec       kcpustat_idle_start()
+            <#VMEXIT>
+            ...
+1 sec       </#VMEXIT>                             
+            arch_cpu_idle()                        // returns 2
+2 sec       kcpustat_idle_stop()                   kcpustat_field(CPUTIME_IDLE, 0)
+               cpustat[CPUTIME_IDLE] = 2 - 1
+                                                   // returns 1
+                                                   kcpustat_field(CPUTIME_IDLE, 0)
+
+We could instead read remotely the paravirt clock, but then
+steal_account_process_time() would need to always hold the ->idle_sleeptime_seq,
+though it should happen to work without given the ordering.
+
+Anyway to avoid any surprise I accumulate the steal time of an idle cycle to be
+substracted on the next idle cycle.
+
+Thanks.
+
+-- 
+Frederic Weisbecker
+SUSE Labs
