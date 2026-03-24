@@ -1,66 +1,66 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFEFA40B6D6;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6944740B6CB;
 	Tue, 24 Mar 2026 17:43:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774374195; cv=none; b=XNdshLInCVxv9HNVyW/BPkG3Sc0SPApkACpVTZ0MSTFawz+Vqs/GietMqVVqq8BeU/4F90SZUTsLa1PqWyva/eF8sxgLi+gT7LomzDTg7fiiEzGhnGcver8oW7e6u/aUK8cZ90XSlrAiEQjjrXK0e0N/w8rUuTXRftmsiW8tzfk=
+	t=1774374196; cv=none; b=POHTjf/Z04caYMDlK+umQA4HkIrSIfzWd6d7AaJjSAHDzSN4yb9UTCHDS4qRa83BKWr8y2ZrsO7059VjPFYlxHlIXnhsBzho8cQwkub2eVSm+bwryImhB+iWKesicrsrp/5IyWyrebPfDCe3E5TX80Gk+rtL9rsT0sFLYS9jJ0Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774374195; c=relaxed/simple;
-	bh=AD1Wo2ci/5DqF4gGSVesfq5rSxmCnlBmXMXYiJZ+rMg=;
+	s=arc-20240116; t=1774374196; c=relaxed/simple;
+	bh=RP19vbwPQykxAhEcwCrCpOeRXkFJmItbVEB4OXCBRs4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=tjJ3jhyRoxf5S/bBNSdjlzHX1VdZNILHMWANZMt71wrtojIPBTdVFw+tiH3mRsmTLILvb+ZMs036Bm4+/YeRO5FuqjyUsDyYtwWoC/EOWSyCaVGVrNRRiT0c0rF6I9UsMkA6XBlRxctPeZWDjJ53kT0MsePrfDchVTaLJH94HTU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tC79Mmkk; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=e/VRUukkhxPWb0lDXiWR8m/5yp2augWVDEM7m0V3m8JxJztC92hTBoc/3vbkTnJsN7yDKzR+zbr4ZtZIUYl69SRg3ehq0WryievptyFnPXremCIPJqHeGV1yvOMnb3DHpySFyoeRS/rVtMmoQcHVNly6+AsSY1lXkB5Vlkq8ImE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hLAEpis6; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tC79Mmkk"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62OEp8q33448655;
-	Tue, 24 Mar 2026 17:43:13 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hLAEpis6"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62OFOYfk3819926;
+	Tue, 24 Mar 2026 17:43:11 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=lTiUuR+K7zie45gtF
-	ik5T0EO3v+6hZxFUJ+mJC7sVzA=; b=tC79MmkkIfa/FcAqGV7yL4FTJkLIW8XTY
-	jJevYnoyagRYjWdVewrJvg0ucfQkdL2G27qHTHoLdrTj+plarV4TCpn8Zt22fUqE
-	iY5/O60uM9fRy5hot4JG/TBPwS6x6F3fVojh/ZplfEOuBRnVtPZIKMDOGJ6Ncn+p
-	/IijYtWDaJU8VZ7NocE8kYqTvqV/EIsIUVBX0IJMwQZ74FUHEPbh0R0MY97RfXrv
-	xA+HB/lLprVD2Cs8T6MdZKVp1BraUo8M++ACETfn9/RHVwPjeN8Cos+5Twp15zgx
-	NHs3vKkyJ55Ks9T/KdRCWZDC3jVOuF35/3CI2opmRa+3IkWJQPwQQ==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kw9vwks-1
+	:mime-version:references:subject:to; s=pp1; bh=lu+whjh2SksQpJIHI
+	uICy4doZ5n0zpLQfOfvfgY5A9c=; b=hLAEpis6HLTHgn3NSPQT4YMrUiGnXDBFs
+	3ICutzWqzB/3NFqaoUDIFkijsMsc0eKujljILmoqXTXi2AL/8jJzvQdSzbvRV4b9
+	7yd/2bpRYP24+0Q7R5vXnSLDki8ukPrWXlDFMCWIxqVvg8XC/SWP4iVDp+18P03+
+	6xkORNFdD0hGGXf3BWk45Dgw83sNe3HZiA0y1sKcY3a53ConTntcAKK/symt+PIv
+	uxTm9H+C+p75w6QDcChbK6VJhvQ/+a30TNkohqult7RKAfTznEkdAcLFNGguwhVL
+	OLY0FF1kaz5ZiWowsQkaOT9xjk8SldNlEnSy8EnTnjX6ew1D+9inA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1ktxvwck-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Mar 2026 17:43:12 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62OGIHeY026797;
-	Tue, 24 Mar 2026 17:43:11 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d275ku11h-1
+	Tue, 24 Mar 2026 17:43:11 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62OG02Sr008732;
+	Tue, 24 Mar 2026 17:43:10 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d26nnk48k-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Mar 2026 17:43:11 +0000
+	Tue, 24 Mar 2026 17:43:10 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62OHh7mV31195486
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62OHh6pT46268806
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 24 Mar 2026 17:43:07 GMT
+	Tue, 24 Mar 2026 17:43:06 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id ABA7F20040;
-	Tue, 24 Mar 2026 17:43:07 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AFE8320043;
+	by IMSVA (Postfix) with ESMTP id 8B30F20040;
 	Tue, 24 Mar 2026 17:43:06 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D03852004D;
+	Tue, 24 Mar 2026 17:43:04 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.111.26.26])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 24 Mar 2026 17:43:06 +0000 (GMT)
+	Tue, 24 Mar 2026 17:43:04 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         borntraeger@de.ibm.com, frankja@linux.ibm.com, nrb@linux.ibm.com,
         seiden@linux.ibm.com, gra@linux.ibm.com, schlameuss@linux.ibm.com,
         hca@linux.ibm.com, david@kernel.org
-Subject: [PATCH v3 3/9] KVM: s390: vsie: Fix check for pre-existing shadow mapping
-Date: Tue, 24 Mar 2026 18:42:55 +0100
-Message-ID: <20260324174301.232921-4-imbrenda@linux.ibm.com>
+Subject: [PATCH v3 2/9] KVM: s390: Remove non-atomic dat_crstep_xchg()
+Date: Tue, 24 Mar 2026 18:42:54 +0100
+Message-ID: <20260324174301.232921-3-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260324174301.232921-1-imbrenda@linux.ibm.com>
 References: <20260324174301.232921-1-imbrenda@linux.ibm.com>
@@ -72,60 +72,404 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: oz2qMi1cPC74z_6ZkBpdOD8DY2HohzGc
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI0MDEzNCBTYWx0ZWRfX+tmurLHFGu2y
- dE/mUlBMSP5kBbTnZkkXPfkq9E8kDhsZZQBId5VMPEZPgXvPwMVZLmjMaXDafJhipK8KFRkhOet
- oYEkBwclGur7kjz1GTfXxwVXplQyRTaOrvWRfSzDkm/863pMwpViZ6TjPJenVO0Q+xsYRJIkWQh
- Efdwmlyp5ZIrHQ52XXzraK1qPhPT7yN7AXiyiu1fYuwJUHPKVxOaXwS69pDgjptcR1RrbmxvVGG
- oTJHxBQZ67hs7PTEeYgVApcad/Srl5+TSiyLilPDDmSf4RDee00rTINOiMFXVZsZ4C0gVQwWjsa
- 7tCRk1FwYgfPT7LEOdG5fPY+F4aKSABd5zZp+amXyXtFh1Y2vjbPmQM1nkdaoHr4AvLO0q3vDqk
- Ru+h0WMxLeTRwIJkdIZG5WDuU39rEOhaibBRhkUM/JVm7j7PR4UR/i0jHXtBb54APlSxFtX/iBq
- gcF2gJvzX8nf+QkD5jQ==
-X-Proofpoint-GUID: oz2qMi1cPC74z_6ZkBpdOD8DY2HohzGc
-X-Authority-Analysis: v=2.4 cv=OsZCCi/t c=1 sm=1 tr=0 ts=69c2cd30 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Authority-Analysis: v=2.4 cv=IqITsb/g c=1 sm=1 tr=0 ts=69c2cd2f cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=IDpXgTtpuR7I2MJaEF4A:9
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=UWa3PdyAdGT8wWmJkKEA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI0MDEzNCBTYWx0ZWRfXwO1XM/Ryb1Ai
+ AbRR08FSftwuO64E+m7w2I2ABjrjCJPPokeHmPU5l6EpoqmW3jW8dqKixSphKCoy0rHCz0ndfAd
+ NTndfYKMfnXvXhxa0iW9/vdkksSTFp34uFUjIMOUC4JwnWEjmJVATjENmCndlsovRuT2a2gm7/f
+ zCJi+MY3vFjjTFcXjxiI8F6yjCxKoXBYGYz+Tx+AKezYb2GVRQ/K0G3U/k4lkVGBOmtAlki/r9m
+ w5gVPpz0Pn0mr8kbnEle/OcE1ok2xArOqwbXoPJ+6CzB+hO/GBsSBqeFO1mZSsL71eKta6jfopV
+ jhP09LDfR66SIzbTSfBzl+IoOGosyVAhzTpBdb2rATIckrWs/vp6+J/uMTXOpe5RCv6yf33Oyc3
+ pHcn32lrIlPwjes1lE2Rtfr08Qvlc8Q+WOX2rvdSDH/cWiMBIiaFSZ1PBsDuWUvZh8926PauOMi
+ EjPQOfrqMpHGsaylhRA==
+X-Proofpoint-GUID: hXYgKR3zgcAZdRt2i2OAuT1cQGm5BA-3
+X-Proofpoint-ORIG-GUID: hXYgKR3zgcAZdRt2i2OAuT1cQGm5BA-3
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-03-24_03,2026-03-24_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 adultscore=0 clxscore=1015 phishscore=0 suspectscore=0
- lowpriorityscore=0 priorityscore=1501 bulkscore=0 spamscore=0 malwarescore=0
+ malwarescore=0 clxscore=1015 spamscore=0 impostorscore=0 suspectscore=0
+ phishscore=0 bulkscore=0 adultscore=0 priorityscore=1501 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603240134
 
-When shadowing a nested guest, a check is performed and no shadowing is
-attempted if the nested guest is already shadowed.
+In practice dat_crstep_xchg() is racy and hard to use correctly. Simply
+remove it and replace its uses with dat_crstep_xchg_atomic().
 
-The existing check was incomplete; fix it by also checking whether the
-leaf DAT table entry in the existing shadow gmap has the same protection
-as the one specified in the guest DAT entry.
+This solves some actual races that lead to system hangs / crashes.
+
+Opportunistically fix an alignment issue in _gmap_crstep_xchg_atomic().
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
+Fixes: 589071eaaa8f ("KVM: s390: KVM page table management functions: clear and replace")
+Fixes: 94fd9b16cc67 ("KVM: s390: KVM page table management functions: lifecycle management")
 Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/kvm/gaccess.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/s390/kvm/dat.c     | 53 ++++++++------------------
+ arch/s390/kvm/dat.h     |  9 +++--
+ arch/s390/kvm/gaccess.c | 26 +++++++------
+ arch/s390/kvm/gmap.c    | 82 ++++++++++++++++++++++++-----------------
+ arch/s390/kvm/gmap.h    | 26 +++++++------
+ 5 files changed, 98 insertions(+), 98 deletions(-)
 
+diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
+index 48b5f2bcf172..8ba80b0b4698 100644
+--- a/arch/s390/kvm/dat.c
++++ b/arch/s390/kvm/dat.c
+@@ -134,32 +134,6 @@ int dat_set_asce_limit(struct kvm_s390_mmu_cache *mc, union asce *asce, int newt
+ 	return 0;
+ }
+ 
+-/**
+- * dat_crstep_xchg() - Exchange a gmap CRSTE with another.
+- * @crstep: Pointer to the CRST entry
+- * @new: Replacement entry.
+- * @gfn: The affected guest address.
+- * @asce: The ASCE of the address space.
+- *
+- * Context: This function is assumed to be called with kvm->mmu_lock held.
+- */
+-void dat_crstep_xchg(union crste *crstep, union crste new, gfn_t gfn, union asce asce)
+-{
+-	if (crstep->h.i) {
+-		WRITE_ONCE(*crstep, new);
+-		return;
+-	} else if (cpu_has_edat2()) {
+-		crdte_crste(crstep, *crstep, new, gfn, asce);
+-		return;
+-	}
+-
+-	if (machine_has_tlb_guest())
+-		idte_crste(crstep, gfn, IDTE_GUEST_ASCE, asce, IDTE_GLOBAL);
+-	else
+-		idte_crste(crstep, gfn, 0, NULL_ASCE, IDTE_GLOBAL);
+-	WRITE_ONCE(*crstep, new);
+-}
+-
+ /**
+  * dat_crstep_xchg_atomic() - Atomically exchange a gmap CRSTE with another.
+  * @crstep: Pointer to the CRST entry.
+@@ -175,8 +149,8 @@ void dat_crstep_xchg(union crste *crstep, union crste new, gfn_t gfn, union asce
+  *
+  * Return: %true if the exchange was successful.
+  */
+-bool dat_crstep_xchg_atomic(union crste *crstep, union crste old, union crste new, gfn_t gfn,
+-			    union asce asce)
++bool __must_check dat_crstep_xchg_atomic(union crste *crstep, union crste old, union crste new,
++					 gfn_t gfn, union asce asce)
+ {
+ 	if (old.h.i)
+ 		return arch_try_cmpxchg((long *)crstep, &old.val, new.val);
+@@ -894,7 +868,8 @@ static long _dat_slot_crste(union crste *crstep, gfn_t gfn, gfn_t next, struct d
+ 
+ 	/* This table entry needs to be updated. */
+ 	if (walk->start <= gfn && walk->end >= next) {
+-		dat_crstep_xchg_atomic(crstep, crste, new_crste, gfn, walk->asce);
++		if (!dat_crstep_xchg_atomic(crstep, crste, new_crste, gfn, walk->asce))
++			return -EINVAL;
+ 		/* A lower level table was present, needs to be freed. */
+ 		if (!crste.h.fc && !crste.h.i) {
+ 			if (is_pmd(crste))
+@@ -1072,17 +1047,19 @@ int dat_link(struct kvm_s390_mmu_cache *mc, union asce asce, int level,
+ 
+ static long dat_set_pn_crste(union crste *crstep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
+ {
+-	union crste crste = READ_ONCE(*crstep);
++	union crste newcrste, oldcrste;
+ 	int *n = walk->priv;
+ 
+-	if (!crste.h.fc || crste.h.i || crste.h.p)
+-		return 0;
+-
+-	*n = 2;
+-	if (crste.s.fc1.prefix_notif)
+-		return 0;
+-	crste.s.fc1.prefix_notif = 1;
+-	dat_crstep_xchg(crstep, crste, gfn, walk->asce);
++	do {
++		oldcrste = READ_ONCE(*crstep);
++		if (!oldcrste.h.fc || oldcrste.h.i || oldcrste.h.p)
++			return 0;
++		*n = 2;
++		if (oldcrste.s.fc1.prefix_notif)
++			return 0;
++		newcrste = oldcrste;
++		newcrste.s.fc1.prefix_notif = 1;
++	} while (!dat_crstep_xchg_atomic(crstep, oldcrste, newcrste, gfn, walk->asce));
+ 	return 0;
+ }
+ 
+diff --git a/arch/s390/kvm/dat.h b/arch/s390/kvm/dat.h
+index 123e11dcd70d..22dafc775335 100644
+--- a/arch/s390/kvm/dat.h
++++ b/arch/s390/kvm/dat.h
+@@ -938,11 +938,14 @@ static inline bool dat_pudp_xchg_atomic(union pud *pudp, union pud old, union pu
+ 	return dat_crstep_xchg_atomic(_CRSTEP(pudp), _CRSTE(old), _CRSTE(new), gfn, asce);
+ }
+ 
+-static inline void dat_crstep_clear(union crste *crstep, gfn_t gfn, union asce asce)
++static inline union crste dat_crstep_clear_atomic(union crste *crstep, gfn_t gfn, union asce asce)
+ {
+-	union crste newcrste = _CRSTE_EMPTY(crstep->h.tt);
++	union crste oldcrste, empty = _CRSTE_EMPTY(crstep->h.tt);
+ 
+-	dat_crstep_xchg(crstep, newcrste, gfn, asce);
++	do {
++		oldcrste = READ_ONCE(*crstep);
++	} while (!dat_crstep_xchg_atomic(crstep, oldcrste, empty, gfn, asce));
++	return oldcrste;
+ }
+ 
+ static inline int get_level(union crste *crstep, union pte *ptep)
 diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index 4ee862424ca0..8fd690255e1b 100644
+index a9da9390867d..4ee862424ca0 100644
 --- a/arch/s390/kvm/gaccess.c
 +++ b/arch/s390/kvm/gaccess.c
-@@ -1506,8 +1506,9 @@ static int _gaccess_do_shadow(struct kvm_s390_mmu_cache *mc, struct gmap *sg,
+@@ -1456,7 +1456,7 @@ static int _do_shadow_pte(struct gmap *sg, gpa_t raddr, union pte *ptep_h, union
+ static int _do_shadow_crste(struct gmap *sg, gpa_t raddr, union crste *host, union crste *table,
+ 			    struct guest_fault *f, bool p)
+ {
+-	union crste newcrste;
++	union crste newcrste, oldcrste;
+ 	gfn_t gfn;
+ 	int rc;
+ 
+@@ -1469,16 +1469,20 @@ static int _do_shadow_crste(struct gmap *sg, gpa_t raddr, union crste *host, uni
  	if (rc)
  		return rc;
  
--	/* A race occourred. The shadow mapping is already valid, nothing to do */
--	if ((ptep && !ptep->h.i) || (!ptep && crste_leaf(*table)))
-+	/* A race occurred. The shadow mapping is already valid, nothing to do */
-+	if ((ptep && !ptep->h.i && ptep->h.p == w->p) ||
-+	    (!ptep && crste_leaf(*table) && !table->h.i && table->h.p == w->p))
- 		return 0;
+-	newcrste = _crste_fc1(f->pfn, host->h.tt, f->writable, !p);
+-	newcrste.s.fc1.d |= host->s.fc1.d;
+-	newcrste.s.fc1.sd |= host->s.fc1.sd;
+-	newcrste.h.p &= host->h.p;
+-	newcrste.s.fc1.vsie_notif = 1;
+-	newcrste.s.fc1.prefix_notif = host->s.fc1.prefix_notif;
+-	_gmap_crstep_xchg(sg->parent, host, newcrste, f->gfn, false);
+-
+-	newcrste = _crste_fc1(f->pfn, host->h.tt, 0, !p);
+-	dat_crstep_xchg(table, newcrste, gpa_to_gfn(raddr), sg->asce);
++	do {
++		oldcrste = READ_ONCE(*host);
++		newcrste = _crste_fc1(f->pfn, oldcrste.h.tt, f->writable, !p);
++		newcrste.s.fc1.d |= oldcrste.s.fc1.d;
++		newcrste.s.fc1.sd |= oldcrste.s.fc1.sd;
++		newcrste.h.p &= oldcrste.h.p;
++		newcrste.s.fc1.vsie_notif = 1;
++		newcrste.s.fc1.prefix_notif = oldcrste.s.fc1.prefix_notif;
++	} while (!_gmap_crstep_xchg_atomic(sg->parent, host, oldcrste, newcrste, f->gfn, false));
++
++	newcrste = _crste_fc1(f->pfn, oldcrste.h.tt, 0, !p);
++	gfn = gpa_to_gfn(raddr);
++	while (!dat_crstep_xchg_atomic(table, READ_ONCE(*table), newcrste, gfn, sg->asce))
++		;
+ 	return 0;
+ }
  
- 	gl = get_level(table, ptep);
+diff --git a/arch/s390/kvm/gmap.c b/arch/s390/kvm/gmap.c
+index ef0c6ebfdde2..956be4c01797 100644
+--- a/arch/s390/kvm/gmap.c
++++ b/arch/s390/kvm/gmap.c
+@@ -313,13 +313,16 @@ static long gmap_clear_young_crste(union crste *crstep, gfn_t gfn, gfn_t end, st
+ 	struct clear_young_pte_priv *priv = walk->priv;
+ 	union crste crste, new;
+ 
+-	crste = READ_ONCE(*crstep);
++	do {
++		crste = READ_ONCE(*crstep);
++
++		if (!crste.h.fc)
++			return 0;
++		if (!crste.s.fc1.y && crste.h.i)
++			return 0;
++		if (crste_prefix(crste) && !gmap_mkold_prefix(priv->gmap, gfn, end))
++			break;
+ 
+-	if (!crste.h.fc)
+-		return 0;
+-	if (!crste.s.fc1.y && crste.h.i)
+-		return 0;
+-	if (!crste_prefix(crste) || gmap_mkold_prefix(priv->gmap, gfn, end)) {
+ 		new = crste;
+ 		new.h.i = 1;
+ 		new.s.fc1.y = 0;
+@@ -328,8 +331,8 @@ static long gmap_clear_young_crste(union crste *crstep, gfn_t gfn, gfn_t end, st
+ 			folio_set_dirty(phys_to_folio(crste_origin_large(crste)));
+ 		new.s.fc1.d = 0;
+ 		new.h.p = 1;
+-		dat_crstep_xchg(crstep, new, gfn, walk->asce);
+-	}
++	} while (!dat_crstep_xchg_atomic(crstep, crste, new, gfn, walk->asce));
++
+ 	priv->young = 1;
+ 	return 0;
+ }
+@@ -391,14 +394,18 @@ static long _gmap_unmap_crste(union crste *crstep, gfn_t gfn, gfn_t next, struct
+ {
+ 	struct gmap_unmap_priv *priv = walk->priv;
+ 	struct folio *folio = NULL;
++	union crste old = *crstep;
+ 
+-	if (crstep->h.fc) {
+-		if (crstep->s.fc1.pr && test_bit(GMAP_FLAG_EXPORT_ON_UNMAP, &priv->gmap->flags))
+-			folio = phys_to_folio(crste_origin_large(*crstep));
+-		gmap_crstep_xchg(priv->gmap, crstep, _CRSTE_EMPTY(crstep->h.tt), gfn);
+-		if (folio)
+-			uv_convert_from_secure_folio(folio);
+-	}
++	if (!old.h.fc)
++		return 0;
++
++	if (old.s.fc1.pr && test_bit(GMAP_FLAG_EXPORT_ON_UNMAP, &priv->gmap->flags))
++		folio = phys_to_folio(crste_origin_large(old));
++	/* No races should happen because kvm->mmu_lock is held in write mode */
++	KVM_BUG_ON(!gmap_crstep_xchg_atomic(priv->gmap, crstep, old, _CRSTE_EMPTY(old.h.tt), gfn),
++		   priv->gmap->kvm);
++	if (folio)
++		uv_convert_from_secure_folio(folio);
+ 
+ 	return 0;
+ }
+@@ -474,23 +481,24 @@ static long _crste_test_and_clear_softdirty(union crste *table, gfn_t gfn, gfn_t
+ 
+ 	if (fatal_signal_pending(current))
+ 		return 1;
+-	crste = READ_ONCE(*table);
+-	if (!crste.h.fc)
+-		return 0;
+-	if (crste.h.p && !crste.s.fc1.sd)
+-		return 0;
++	do {
++		crste = READ_ONCE(*table);
++		if (!crste.h.fc)
++			return 0;
++		if (crste.h.p && !crste.s.fc1.sd)
++			return 0;
+ 
+-	/*
+-	 * If this large page contains one or more prefixes of vCPUs that are
+-	 * currently running, do not reset the protection, leave it marked as
+-	 * dirty.
+-	 */
+-	if (!crste.s.fc1.prefix_notif || gmap_mkold_prefix(gmap, gfn, end)) {
++		/*
++		 * If this large page contains one or more prefixes of vCPUs that are
++		 * currently running, do not reset the protection, leave it marked as
++		 * dirty.
++		 */
++		if (crste.s.fc1.prefix_notif && !gmap_mkold_prefix(gmap, gfn, end))
++			break;
+ 		new = crste;
+ 		new.h.p = 1;
+ 		new.s.fc1.sd = 0;
+-		gmap_crstep_xchg(gmap, table, new, gfn);
+-	}
++	} while (!gmap_crstep_xchg_atomic(gmap, table, crste, new, gfn));
+ 
+ 	for ( ; gfn < end; gfn++)
+ 		mark_page_dirty(gmap->kvm, gfn);
+@@ -646,8 +654,8 @@ int gmap_link(struct kvm_s390_mmu_cache *mc, struct gmap *gmap, struct guest_fau
+ static int gmap_ucas_map_one(struct kvm_s390_mmu_cache *mc, struct gmap *gmap,
+ 			     gfn_t p_gfn, gfn_t c_gfn, bool force_alloc)
+ {
++	union crste newcrste, oldcrste;
+ 	struct page_table *pt;
+-	union crste newcrste;
+ 	union crste *crstep;
+ 	union pte *ptep;
+ 	int rc;
+@@ -673,7 +681,11 @@ static int gmap_ucas_map_one(struct kvm_s390_mmu_cache *mc, struct gmap *gmap,
+ 			    &crstep, &ptep);
+ 	if (rc)
+ 		return rc;
+-	dat_crstep_xchg(crstep, newcrste, c_gfn, gmap->asce);
++	do {
++		oldcrste = READ_ONCE(*crstep);
++		if (oldcrste.val == newcrste.val)
++			break;
++	} while (!dat_crstep_xchg_atomic(crstep, oldcrste, newcrste, c_gfn, gmap->asce));
+ 	return 0;
+ }
+ 
+@@ -777,8 +789,10 @@ static void gmap_ucas_unmap_one(struct gmap *gmap, gfn_t c_gfn)
+ 	int rc;
+ 
+ 	rc = dat_entry_walk(NULL, c_gfn, gmap->asce, 0, TABLE_TYPE_SEGMENT, &crstep, &ptep);
+-	if (!rc)
+-		dat_crstep_xchg(crstep, _PMD_EMPTY, c_gfn, gmap->asce);
++	if (rc)
++		return;
++	while (!dat_crstep_xchg_atomic(crstep, READ_ONCE(*crstep), _PMD_EMPTY, c_gfn, gmap->asce))
++		;
+ }
+ 
+ void gmap_ucas_unmap(struct gmap *gmap, gfn_t c_gfn, unsigned long count)
+@@ -1017,8 +1031,8 @@ static void gmap_unshadow_level(struct gmap *sg, gfn_t r_gfn, int level)
+ 			dat_ptep_xchg(ptep, _PTE_EMPTY, r_gfn, sg->asce, uses_skeys(sg));
+ 		return;
+ 	}
+-	crste = READ_ONCE(*crstep);
+-	dat_crstep_clear(crstep, r_gfn, sg->asce);
++
++	crste = dat_crstep_clear_atomic(crstep, r_gfn, sg->asce);
+ 	if (crste_leaf(crste) || crste.h.i)
+ 		return;
+ 	if (is_pmd(crste))
+diff --git a/arch/s390/kvm/gmap.h b/arch/s390/kvm/gmap.h
+index ccb5cd751e31..19379d162777 100644
+--- a/arch/s390/kvm/gmap.h
++++ b/arch/s390/kvm/gmap.h
+@@ -194,35 +194,37 @@ static inline union pgste gmap_ptep_xchg(struct gmap *gmap, union pte *ptep, uni
+ 	return _gmap_ptep_xchg(gmap, ptep, newpte, pgste, gfn, true);
+ }
+ 
+-static inline void _gmap_crstep_xchg(struct gmap *gmap, union crste *crstep, union crste ne,
+-				     gfn_t gfn, bool needs_lock)
++static inline bool __must_check _gmap_crstep_xchg_atomic(struct gmap *gmap, union crste *crstep,
++							 union crste oldcrste, union crste newcrste,
++							 gfn_t gfn, bool needs_lock)
+ {
+-	unsigned long align = 8 + (is_pmd(*crstep) ? 0 : 11);
++	unsigned long align = is_pmd(*crstep) ? _PAGE_ENTRIES : _PAGE_ENTRIES * _CRST_ENTRIES;
+ 
+ 	lockdep_assert_held(&gmap->kvm->mmu_lock);
+ 	if (!needs_lock)
+ 		lockdep_assert_held(&gmap->children_lock);
+ 
+ 	gfn = ALIGN_DOWN(gfn, align);
+-	if (crste_prefix(*crstep) && (ne.h.p || ne.h.i || !crste_prefix(ne))) {
+-		ne.s.fc1.prefix_notif = 0;
++	if (crste_prefix(oldcrste) && (newcrste.h.p || newcrste.h.i || !crste_prefix(newcrste))) {
++		newcrste.s.fc1.prefix_notif = 0;
+ 		gmap_unmap_prefix(gmap, gfn, gfn + align);
+ 	}
+-	if (crste_leaf(*crstep) && crstep->s.fc1.vsie_notif &&
+-	    (ne.h.p || ne.h.i || !ne.s.fc1.vsie_notif)) {
+-		ne.s.fc1.vsie_notif = 0;
++	if (crste_leaf(oldcrste) && oldcrste.s.fc1.vsie_notif &&
++	    (newcrste.h.p || newcrste.h.i || !newcrste.s.fc1.vsie_notif)) {
++		newcrste.s.fc1.vsie_notif = 0;
+ 		if (needs_lock)
+ 			gmap_handle_vsie_unshadow_event(gmap, gfn);
+ 		else
+ 			_gmap_handle_vsie_unshadow_event(gmap, gfn);
+ 	}
+-	dat_crstep_xchg(crstep, ne, gfn, gmap->asce);
++	return dat_crstep_xchg_atomic(crstep, oldcrste, newcrste, gfn, gmap->asce);
+ }
+ 
+-static inline void gmap_crstep_xchg(struct gmap *gmap, union crste *crstep, union crste ne,
+-				    gfn_t gfn)
++static inline bool __must_check gmap_crstep_xchg_atomic(struct gmap *gmap, union crste *crstep,
++							union crste oldcrste, union crste newcrste,
++							gfn_t gfn)
+ {
+-	return _gmap_crstep_xchg(gmap, crstep, ne, gfn, true);
++	return _gmap_crstep_xchg_atomic(gmap, crstep, oldcrste, newcrste, gfn, true);
+ }
+ 
+ /**
 -- 
 2.53.0
 
