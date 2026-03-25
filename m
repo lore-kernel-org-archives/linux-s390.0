@@ -1,56 +1,67 @@
-Received: from canpmsgout04.his.huawei.com (canpmsgout04.his.huawei.com [113.46.200.219])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DD953BE648;
-	Wed, 25 Mar 2026 10:41:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.219
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 394983C9EC8;
+	Wed, 25 Mar 2026 11:06:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774435266; cv=none; b=M+D2SreMPdzHZl6jK6wLb8nWMPN+rgFk9UVTEnEcCBLUGuO1HIzgeQKcbwjgKb0B0CLJBJbIrB95u3hkIm1n+y8dVMjnoVSeIagajv9CLvg+COgrrGDtBAGd/mZXRingmDsKHPkJVVGl06X610sGWk7gN+M24/gHG4Aeb40nvsA=
+	t=1774436818; cv=none; b=VnuyYQhI1gNOetod2c8xLNxJy0W48kg/YGLQLX+fmkYMFFOQQ8O/dFifCjGBCQnh/6bumhWJkAkQuMPbI63Yue0RZ0yKV/WpnX28h3MNt6RRl8RY28NEqmLluoKtUJqVQBamnwWsvNaS4CE2EQh/PUiXvN08no4I8OHqPyLrcr0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774435266; c=relaxed/simple;
-	bh=+dYSH5LNbLrtuQR/hiaQV7eLv638QDZcF+DngRslZgQ=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=dnXyANfniSxmAPTx/UlOOZC/HFX2CXwrEXIYJUpfsd9vJZjwZB5QLYYkN0kH6UKOIEP9LaUwL+r8ifBFb1tmQpe1rTg3QFy+fDbnuzIj1o8I7P8S6C38+VLk/gJ3mQeHGfGluL52St3yUW0RWfUlo/S11y+ZUJkbUN9jkDLsu4Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=rteyyJqC; arc=none smtp.client-ip=113.46.200.219
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+	s=arc-20240116; t=1774436818; c=relaxed/simple;
+	bh=44GyIPsEkGwKMrRkE6c00DnTwWVvlVcESpOgkkclIqw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=EReyLWcVHSqZtSuaqAKKEnOXtSc5ARXRCGQwaO478c2Kgc1BlAUvIuUjEfkWVxqoZ9vE3pJKtm5FMhcqbeJVwx8DDdMvKWrKggQmmFNGjLq/lTygfearJkRFn1Bb4QTRLvuC/s6YE0RxVJYZADM/QohEgEzPE/K1ODhJMausx6Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ju6cdwa4; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="rteyyJqC"
-dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
-	c=relaxed/relaxed; q=dns/txt;
-	h=From;
-	bh=vBi36DUPKhHftc09L76w66t0B5jFNMkK0AVfFTuKFBo=;
-	b=rteyyJqCkBWM9xwD2Ir4jhQFGHjKE7oNPuy0s14foXOxAs2XfKDPi8aoVxP+5iOrRY5MH+QYe
-	YgJdCBMyAFlWyz6EpbmAIWMlqoBmeDmdP9gJens6r1L5SpCaEf4AQags3EfKsHEYYe/6SorDuB0
-	X+BTIB0VA3nULMOWLfYBKU4=
-Received: from mail.maildlp.com (unknown [172.19.162.140])
-	by canpmsgout04.his.huawei.com (SkyGuard) with ESMTPS id 4fgjvq6HBMz1prLY;
-	Wed, 25 Mar 2026 18:34:47 +0800 (CST)
-Received: from kwepemj500018.china.huawei.com (unknown [7.202.194.48])
-	by mail.maildlp.com (Postfix) with ESMTPS id 459332012A;
-	Wed, 25 Mar 2026 18:40:56 +0800 (CST)
-Received: from huawei.com (10.50.85.128) by kwepemj500018.china.huawei.com
- (7.202.194.48) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Wed, 25 Mar
- 2026 18:40:55 +0800
-From: Li Xiasong <lixiasong1@huawei.com>
-To: "D. Wythe" <alibuda@linux.alibaba.com>, Dust Li
-	<dust.li@linux.alibaba.com>, Sidraya Jayagond <sidraya@linux.ibm.com>, Wenjia
- Zhang <wenjia@linux.ibm.com>, Mahanta Jambigi <mjambigi@linux.ibm.com>, Tony
- Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, "David S.
- Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub
- Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman
-	<horms@kernel.org>
-CC: <linux-rdma@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<yuehaibing@huawei.com>, <zhangchangzhong@huawei.com>,
-	<weiyongjun1@huawei.com>
-Subject: [PATCH net 1/2] net/smc: fix potential UAF in smc_pnet_add_ib for ib device
-Date: Wed, 25 Mar 2026 19:03:51 +0800
-Message-ID: <20260325110352.3833570-2-lixiasong1@huawei.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260325110352.3833570-1-lixiasong1@huawei.com>
-References: <20260325110352.3833570-1-lixiasong1@huawei.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ju6cdwa4"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62OK5XO5618716;
+	Wed, 25 Mar 2026 11:06:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=xX2Qsd5rRFCs/Zg7swAf9a/nqEaL8SvIRLGBNd8Bj
+	Ks=; b=Ju6cdwa4s/LgRp2Tr1VZJVEK3Bri3NH73+n8NQhTWX1jG7Gy2f1Od9pAo
+	J/VBndLsJaj8jOH6PY37mXAKxUEQMcXlViNk/3F9WXeSYMiU+msHsoQqGe6QaXeN
+	k+Bjz8qMEiY2kz7RUcU2cwmHxRuaXHZXneHPKY+FazOa14LyhoydFjvFtfStTN+1
+	rfvHIbqpxB/w7bSAK+402DNW+CU/cwKrAgaBmXh/jxhde/vS/xeot8W7srUOKSfn
+	ZCNFQ7XUPVZvC3WbtJHJyPViybOgumE14v6weMDHfG08tuktaI3YrMlgvm9gGtNN
+	I1S+p2l1ge1t7i+G0Ls0gOaeiMz9A==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kty01j5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Mar 2026 11:06:54 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62P7acS8012185;
+	Wed, 25 Mar 2026 11:06:53 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d27vk60w7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Mar 2026 11:06:53 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62PB6nAT52756790
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 25 Mar 2026 11:06:49 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BA2B220043;
+	Wed, 25 Mar 2026 11:06:49 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8358B20040;
+	Wed, 25 Mar 2026 11:06:49 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 25 Mar 2026 11:06:49 +0000 (GMT)
+From: Thomas Richter <tmricht@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org
+Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+        hca@linux.ibm.com, japo@linux.ibm.com,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Ian Rogers <irogers@google.com>
+Subject: [Ping PATCH] perf record: Add support for arch_sdt_arg_parse_op() on s390
+Date: Wed, 25 Mar 2026 12:06:42 +0100
+Message-ID: <20260325110642.3966720-1-tmricht@linux.ibm.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -58,154 +69,175 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: kwepems100001.china.huawei.com (7.221.188.238) To
- kwepemj500018.china.huawei.com (7.202.194.48)
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=IqITsb/g c=1 sm=1 tr=0 ts=69c3c1ce cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=1XWaLZrsAAAA:8
+ a=btEuCDXQusnx66azG7kA:9 a=O8hF6Hzn-FEA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI1MDA3NiBTYWx0ZWRfXwM7QdiTmPxZE
+ Lnsjmv6Bl7cPvi/Xai3LO7oycrPfWc7g1KgqHuBhDR5dG4IbvWkPPS4V13jNt/xmrXd/5VljtGo
+ W42tzuqnV8o1JKiIqhg9qH9Ne/8O8Eyf9EY9cGzupIEBTtpP9N4bNOXNK/O23zZwulqsgkwhwEw
+ f30zCTpVX4iJxEJqG4SrjLLbhGZ8+t1RkcphZeH8TDsCjF1e6+AqiuG3hEtvbk1O4F6OazyBRvr
+ +J06FmYZp+FV+SNvPzysA71x3F2l5Er78LjPOzfBcxBFDAihRf7JJ4Rz/SNf15QM+6vqACVVupc
+ dlokXvFdjPj3IKGB1Lz5q4qJC8RQNdB4jYD/3aoo1gIGPHLeba0/W2Zxb8oFgk+j29lgjlxRDUZ
+ a9PwavSn484xxS1TlvBKX2vfCkbMW/xX3nMw9yd5OLern8ryYDON4iH9UnSKL4AU6emtbQy4nfy
+ g2NSh8qSH0ZIFOczW5w==
+X-Proofpoint-GUID: CQEegfuEOvrdr6HqCZllX_VCamFoE1zS
+X-Proofpoint-ORIG-GUID: iUP2Lw2ZCekTKtmutjI7s7amcrj9ffuy
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-25_03,2026-03-24_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 clxscore=1015 spamscore=0 impostorscore=0 suspectscore=0
+ phishscore=0 bulkscore=0 adultscore=0 priorityscore=1501 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603250076
 
-smc_pnet_find_ib() returns an ib device pointer and releases the lock,
-then smc_pnet_apply_ib() is called to use this pointer. The device could
-be removed between these two calls, leading to a potential use-after-free
-when accessing the freed ib_dev pointer.
+commit e5e66adfe45a6 ("perf regs: Remove __weak attributive arch_sdt_arg_parse_op() function")
+removes arch_sdt_arg_parse_op() function and reveals missing s390 support.
+The following warning is printed:
 
-    CPU 0                           CPU 1
-    ----                            ----
-    smc_pnet_add_ib()
-      ib_dev = smc_pnet_find_ib()
-        mutex_lock(&smc_ib_devices.mutex)
-        list_for_each_entry() ...
-        mutex_unlock(&smc_ib_devices.mutex)
-                                    smc_ib_remove_dev()
-                                      mutex_lock(&smc_ib_devices.mutex)
-                                      list_del_init(&smcibdev->list)
-                                      mutex_unlock(&smc_ib_devices.mutex)
-                                      kfree(smcibdev)
-      smc_pnet_apply_ib(ib_dev)
-        ib_dev->pnetid[ib_port - 1]   <- UAF (ib_dev already freed)
+  Unknown ELF machine 22, standard arguments parse will be skipped.
 
-Fix this by introducing smc_pnet_find_ib_apply() which performs both
-find and apply under the same lock, preventing the device from being
-removed in between.
+ELF machine 22 is the EM_S390 host. This happens with command
+  # ./perf record -v -- stress-ng -t 1s --matrix 0
+when the event is not specified.
 
-Also refactor smc_pnet_apply_ib() into __smc_pnet_apply_ib() (without
-lock) and smc_pnet_apply_ib() (with lock) for reuse.
+Add s390 specific __perf_sdt_arg_parse_op_s390() function to support
+-architecture calls to arch_sdt_arg_parse_op() for s390.
+The warning disappears.
 
-Fixes: 890a2cb4a966 ("net/smc: rework pnet table")
-Signed-off-by: Li Xiasong <lixiasong1@huawei.com>
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Tested-by: Jan Polensky <japo@linux.ibm.com>
+Reviewed-by: Ian Rogers <irogers@google.com>
 ---
- net/smc/smc_pnet.c | 63 ++++++++++++++++++++++++++++------------------
- 1 file changed, 39 insertions(+), 24 deletions(-)
+ .../perf/util/perf-regs-arch/perf_regs_s390.c | 78 +++++++++++++++++++
+ tools/perf/util/perf_regs.c                   |  3 +
+ tools/perf/util/perf_regs.h                   |  1 +
+ 3 files changed, 82 insertions(+)
 
-diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-index 63e286e2dfaa..91c0b1c473b2 100644
---- a/net/smc/smc_pnet.c
-+++ b/net/smc/smc_pnet.c
-@@ -245,18 +245,25 @@ static int smc_pnet_remove_by_ndev(struct net_device *ndev)
+diff --git a/tools/perf/util/perf-regs-arch/perf_regs_s390.c b/tools/perf/util/perf-regs-arch/perf_regs_s390.c
+index c61df24edf0f..19f219225183 100644
+--- a/tools/perf/util/perf-regs-arch/perf_regs_s390.c
++++ b/tools/perf/util/perf-regs-arch/perf_regs_s390.c
+@@ -1,7 +1,13 @@
+ // SPDX-License-Identifier: GPL-2.0
  
- /* Apply pnetid to ib device when no pnetid is set.
-  */
--static bool smc_pnet_apply_ib(struct smc_ib_device *ib_dev, u8 ib_port,
--			      char *pnet_name)
-+static bool __smc_pnet_apply_ib(struct smc_ib_device *ib_dev, u8 ib_port,
-+				char *pnet_name)
++#include <errno.h>
++#include <regex.h>
+ #include "../perf_regs.h"
+ #include "../../arch/s390/include/perf_regs.h"
++#include "debug.h"
++
++#include <linux/zalloc.h>
++#include <linux/kernel.h>
+ 
+ uint64_t __perf_reg_mask_s390(bool intr __maybe_unused)
  {
--	bool applied = false;
--
--	mutex_lock(&smc_ib_devices.mutex);
- 	if (!smc_pnet_is_pnetid_set(ib_dev->pnetid[ib_port - 1])) {
- 		memcpy(ib_dev->pnetid[ib_port - 1], pnet_name,
- 		       SMC_MAX_PNETID_LEN);
- 		ib_dev->pnetid_by_user[ib_port - 1] = true;
--		applied = true;
-+		return true;
- 	}
-+	return false;
+@@ -95,3 +101,75 @@ uint64_t __perf_reg_sp_s390(void)
+ {
+ 	return PERF_REG_S390_R15;
+ }
++
++/* %rXX */
++#define SDT_OP_REGEX1  "^(%r([0-9]|1[0-5]))$"
++/* +-###(%rXX) */
++#define SDT_OP_REGEX2  "^([+-]?[0-9]+\\(%r([0-9]|1[0-5])\\))$"
++static regex_t sdt_op_regex1, sdt_op_regex2;
++
++static int sdt_init_op_regex(void)
++{
++	static int initialized;
++	int ret = 0;
++
++	if (initialized)
++		return 0;
++
++	ret = regcomp(&sdt_op_regex1, SDT_OP_REGEX1, REG_EXTENDED);
++	if (ret)
++		goto error;
++	initialized = 1;
++
++	ret = regcomp(&sdt_op_regex2, SDT_OP_REGEX2, REG_EXTENDED);
++	if (ret)
++		goto free_regex1;
++	initialized = 2;
++
++	return 0;
++
++free_regex1:
++	regfree(&sdt_op_regex1);
++error:
++	pr_debug4("Regex compilation error, initialized %d\n", initialized);
++	initialized = 0;
++	return ret;
 +}
 +
-+static bool smc_pnet_apply_ib(struct smc_ib_device *ib_dev, u8 ib_port,
-+			      char *pnet_name)
++/*
++ * Parse OP and convert it into uprobe format, which is, +/-NUM(%gprREG).
++ * Possible variants of OP are:
++ *	Format		Example
++ *	-------------------------
++ *	NUM(%rREG)	48(%r1)
++ *	-NUM(%rREG)	-48(%r1)
++ *	+NUM(%rREG)	+48(%r1)
++ *	%rREG		%r1
++ */
++int __perf_sdt_arg_parse_op_s390(char *old_op, char **new_op)
 +{
-+	bool applied;
++	int ret, new_len;
++	regmatch_t rm[6];
 +
-+	mutex_lock(&smc_ib_devices.mutex);
-+	applied = __smc_pnet_apply_ib(ib_dev, ib_port, pnet_name);
- 	mutex_unlock(&smc_ib_devices.mutex);
- 	return applied;
- }
-@@ -305,24 +312,42 @@ static bool smc_pnetid_valid(const char *pnet_name, char *pnetid)
- }
- 
- /* Find an infiniband device by a given name. The device might not exist. */
--static struct smc_ib_device *smc_pnet_find_ib(char *ib_name)
-+static struct smc_ib_device *__smc_pnet_find_ib(char *ib_name)
- {
- 	struct smc_ib_device *ibdev;
- 
--	mutex_lock(&smc_ib_devices.mutex);
- 	list_for_each_entry(ibdev, &smc_ib_devices.list, list) {
- 		if (!strncmp(ibdev->ibdev->name, ib_name,
- 			     sizeof(ibdev->ibdev->name)) ||
- 		    (ibdev->ibdev->dev.parent &&
- 		     !strncmp(dev_name(ibdev->ibdev->dev.parent), ib_name,
- 			     IB_DEVICE_NAME_MAX - 1))) {
--			goto out;
-+			return ibdev;
- 		}
- 	}
--	ibdev = NULL;
--out:
-+	return NULL;
-+}
++	*new_op = NULL;
++	ret = sdt_init_op_regex();
++	if (ret)
++		return -EINVAL;
 +
-+/* Find an ib device by name and apply pnetid under lock. */
-+static bool smc_pnet_find_ib_apply(char *ib_name, u8 ib_port, char *pnet_name)
-+{
-+	struct smc_ib_device *ibdev;
-+	bool rc = true;
++	if (!regexec(&sdt_op_regex1, old_op, ARRAY_SIZE(rm), rm, 0) ||
++	    !regexec(&sdt_op_regex2, old_op, ARRAY_SIZE(rm), rm, 0)) {
++		new_len = 1;    /* NULL byte */
++		new_len += (int)(rm[1].rm_eo - rm[1].rm_so);
++		*new_op = zalloc(new_len);
++		if (!*new_op)
++			return -ENOMEM;
 +
-+	mutex_lock(&smc_ib_devices.mutex);
-+	ibdev = __smc_pnet_find_ib(ib_name);
-+	if (ibdev) {
-+		if (!__smc_pnet_apply_ib(ibdev, ib_port, pnet_name))
-+			rc = false;
-+		else
-+			pr_warn_ratelimited("smc: ib device %s ibport %d "
-+					    "applied user defined pnetid "
-+					    "%.16s\n", ibdev->ibdev->name,
-+					    ib_port,
-+					    ibdev->pnetid[ib_port - 1]);
++		scnprintf(*new_op, new_len, "%.*s",
++			  (int)(rm[1].rm_eo - rm[1].rm_so), old_op + rm[1].rm_so);
++	} else {
++		pr_debug4("Skipping unsupported SDT argument: %s\n", old_op);
++		return SDT_ARG_SKIP;
 +	}
- 	mutex_unlock(&smc_ib_devices.mutex);
--	return ibdev;
-+	return rc;
- }
++
++	return SDT_ARG_VALID;
++}
+diff --git a/tools/perf/util/perf_regs.c b/tools/perf/util/perf_regs.c
+index 5b8f34beb24e..f52b0e1f7fc7 100644
+--- a/tools/perf/util/perf_regs.c
++++ b/tools/perf/util/perf_regs.c
+@@ -23,6 +23,9 @@ int perf_sdt_arg_parse_op(uint16_t e_machine, char *old_op, char **new_op)
+ 	case EM_X86_64:
+ 		ret = __perf_sdt_arg_parse_op_x86(old_op, new_op);
+ 		break;
++	case EM_S390:
++		ret = __perf_sdt_arg_parse_op_s390(old_op, new_op);
++		break;
+ 	default:
+ 		pr_debug("Unknown ELF machine %d, standard arguments parse will be skipped.\n",
+ 			 e_machine);
+diff --git a/tools/perf/util/perf_regs.h b/tools/perf/util/perf_regs.h
+index 7c04700bf837..573f0d1dfe04 100644
+--- a/tools/perf/util/perf_regs.h
++++ b/tools/perf/util/perf_regs.h
+@@ -62,6 +62,7 @@ uint64_t __perf_reg_mask_s390(bool intr);
+ const char *__perf_reg_name_s390(int id);
+ uint64_t __perf_reg_ip_s390(void);
+ uint64_t __perf_reg_sp_s390(void);
++int __perf_sdt_arg_parse_op_s390(char *old_op, char **new_op);
  
- /* Find an smcd device by a given name. The device might not exist. */
-@@ -412,23 +437,13 @@ static int smc_pnet_add_ib(struct smc_pnettable *pnettable, char *ib_name,
- 			   u8 ib_port, char *pnet_name)
- {
- 	struct smc_pnetentry *tmp_pe, *new_pe;
--	struct smc_ib_device *ib_dev;
- 	bool smcddev_applied = true;
--	bool ibdev_applied = true;
-+	bool ibdev_applied;
- 	struct smcd_dev *smcd;
- 	bool new_ibdev;
- 
- 	/* try to apply the pnetid to active devices */
--	ib_dev = smc_pnet_find_ib(ib_name);
--	if (ib_dev) {
--		ibdev_applied = smc_pnet_apply_ib(ib_dev, ib_port, pnet_name);
--		if (ibdev_applied)
--			pr_warn_ratelimited("smc: ib device %s ibport %d "
--					    "applied user defined pnetid "
--					    "%.16s\n", ib_dev->ibdev->name,
--					    ib_port,
--					    ib_dev->pnetid[ib_port - 1]);
--	}
-+	ibdev_applied = smc_pnet_find_ib_apply(ib_name, ib_port, pnet_name);
- 	smcd = smc_pnet_find_smcd(ib_name);
- 	if (smcd) {
- 		smcddev_applied = smc_pnet_apply_smcd(smcd, pnet_name);
+ int __perf_sdt_arg_parse_op_x86(char *old_op, char **new_op);
+ uint64_t __perf_reg_mask_x86(bool intr);
 -- 
-2.34.1
+2.53.0
 
