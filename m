@@ -1,177 +1,133 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB718334C28;
-	Wed, 25 Mar 2026 18:40:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE0E9330D3B;
+	Wed, 25 Mar 2026 19:39:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774464032; cv=none; b=SJvovSfzLKOmBDFlF5kFxmVwulObRtkNRgDju9JPCVNXF1impLnKG8N4Y+amJfIw0HlpYY3V9G0icEvSdhuMnm8EcH1J3imvTv14ketNyVQ3CsWLNFOlOabCycXGXRlBNxI0njpNn/dXlMsJnMGNRB4m0NumFQsbjYzRwh+JEJw=
+	t=1774467600; cv=none; b=Ql9n7VrixanBSyguemPkD+b61sFZ0AugFAH9QAsRAN6L1xowOhUXgyWEsYJqclw3Tp4rkS6DGdGpyvGMNSSyf5uXDUxVq0hNVPTsuzlwGrCMYLroIdRGMePHjzrxPPLhoBy8/ukZ11cG62PvwseXw96BK42MdgEc8RSEjoO7qUU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774464032; c=relaxed/simple;
-	bh=uZU/sq3kwemAB6OlVPIuUswJ9ao28UtYmsERBug7Pko=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DNSTTQIWq+pru00IBMjdf86m5j3edFovR0uP/kYMoGZqszZ3+Zaz0Dfs6ALtGyfiLsWpmpvHvJG2DJdPN+YjmeTeq2Lkwnlsnsrd9HzDyNTE/g79xrx0vGHlDVlY1wwbMVoJNig4s+9Db70PPoH4EdDwyKdpT0IsNqpgqAACOqY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YzO5xJyI; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1774467600; c=relaxed/simple;
+	bh=vgzmS++XGgEKBkb/yAjVP8Sp4H+rVjAZlzJWbYtNQ5k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gw4kHJnU96JqfovIwNY5nBaNPBRAPi1QhLJ3S2iCoNwLbj8wSnjeaQtPpGR1ZQNVcS1TzQ2g79UVWSY+lQA5+GzwQ07o6iTrSDSV+YCpyyyFcUSW8nbxb+FWsh1ih9trQGSPWPe3ehWP/G9ODkd5n4EjRCtPLPUJbHV632K6H3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DygY0E8w; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YzO5xJyI"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62P76j2J3556089;
-	Wed, 25 Mar 2026 18:40:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=50R0Y3
-	aQnOi7rXaM2ZMgBycF1kOCzVB9lOicETk5WAw=; b=YzO5xJyIPGWmoDHugsY7/9
-	49ylLlhTZr3iq13DvK9l7N1RX2eG8MDwAhPhpiGlnh2/tZSwY8eD4irTVdNOSYbv
-	J+DQp+dp3Pi3eGzGnmTxCQrqpD+9ZIyen6njWNBBI4rHGGLtk2leqTSjPSboGQSe
-	LS2o14qOwtRciEt07HnbNMw5Tj1ihsr5t2fUJl8mTtZJDRjpqbW0A5gZ/HdnhnMo
-	qURNZzbWYRUDTi3GCukoK9m7LW/pxpVTeV/WejNl/heIV62pOCQPcUb/fFlyE72/
-	/Nz7nbve3kJz5bDE8qRk8X0VNMqcZMELaRJDZf7kkcG21IMdPhzC+8cWaFORHM7Q
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kums4jt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Mar 2026 18:40:23 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62PFjew5008745;
-	Wed, 25 Mar 2026 18:40:23 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d26nnqtq9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Mar 2026 18:40:23 +0000
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62PIeMBZ60162352
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 25 Mar 2026 18:40:22 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 010745805C;
-	Wed, 25 Mar 2026 18:40:22 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C49CC5805B;
-	Wed, 25 Mar 2026 18:40:20 +0000 (GMT)
-Received: from [9.61.243.197] (unknown [9.61.243.197])
-	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 25 Mar 2026 18:40:20 +0000 (GMT)
-Message-ID: <2c6e8399-73df-4552-9603-218b9b42c4bc@linux.ibm.com>
-Date: Wed, 25 Mar 2026 11:40:20 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DygY0E8w"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86172C4CEF7;
+	Wed, 25 Mar 2026 19:39:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774467599;
+	bh=vgzmS++XGgEKBkb/yAjVP8Sp4H+rVjAZlzJWbYtNQ5k=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=DygY0E8wyP/P9Q9kZFKoknR4RxtR6GMi9PjYKJh3Sbc2gqAytguh48eGOTnsx3c56
+	 Q2YVatKuDK+N4nU8v6AxKOfcBzhChhEI3Df1zCL0wcOyAKNQgEB7oAOxflILmausqP
+	 WOCeoLY2lmAchg2c7NGHGU4qpdmOxFI+jpbH1K0Ei46HKczGrbgGRBm1sI8nru20Vm
+	 WRYSdUfozTetH29mYvuSFOROlG1SXAHZGao0e1tIcm/PcakbXOz5jtLmbmhcaQDLw8
+	 UHpO2j30RaryLjmXyqJNpFRWy5VPKjdg008B9pxWETSOv3xeW2U6bVqeyivRW/5e7y
+	 efVryfxsae7fQ==
+Date: Wed, 25 Mar 2026 12:39:54 -0700
+From: Eric Biggers <ebiggers@kernel.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Matt Turner <mattst88@gmail.com>,
+	Magnus Lindholm <linmag7@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Dan Williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>,
+	David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>,
+	Song Liu <song@kernel.org>, Yu Kuai <yukuai@fnnas.com>,
+	Li Nan <linan122@huawei.com>, Theodore Ts'o <tytso@mit.edu>,
+	"Jason A. Donenfeld" <Jason@zx2c4.com>, linux-alpha@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+	linux-crypto@vger.kernel.org, linux-btrfs@vger.kernel.org,
+	linux-arch@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: cleanup the RAID5 XOR library v3
+Message-ID: <20260325193954.GC2305@quark>
+References: <20260324062211.3216301-1-hch@lst.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v11 4/9] PCI: Add additional checks for flr reset
-To: Alex Williamson <alex@shazbot.org>, Bjorn Helgaas <helgaas@kernel.org>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org, lukas@wunner.de, kbusch@kernel.org,
-        clg@redhat.com, stable@vger.kernel.org, schnelle@linux.ibm.com,
-        mjrosato@linux.ibm.com, Benjamin Block <bblock@linux.ibm.com>
-References: <20260316191544.2279-5-alifm@linux.ibm.com>
- <20260324224936.GA1157694@bhelgaas> <20260325102504.56140878@shazbot.org>
-Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <20260325102504.56140878@shazbot.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: PhwFkBj36F4v8uM00_tb2YPUYYejpGLK
-X-Proofpoint-ORIG-GUID: PhwFkBj36F4v8uM00_tb2YPUYYejpGLK
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI1MDEzMyBTYWx0ZWRfX5TjbkQkMclNQ
- H2nQ98cuo8WEchIdqKtjhC6Fq4n598u3bH+LgEHs6+sn9PVTXXcWRcsvP2PA4S7NCiUoFCIds3T
- NRzVbp5nMwEUKOt9w4JQlNc6P5+5wDiahq3kDH/aPQdoHOSMHU3dWvwrNKlWqtPj76g833c12oj
- nCcD/+Z658xfzMxxlS22jl+T/fyW5JEESxM+SXmyXDSrZugA7OT3WC/+AlDlUGqGqqslTIxrVtN
- 2iAYXQLhdaj6Q5hYne8d8oL/niNIuBRSG2cwIwp37gSqIVD/Xp1O6/UxsRG+Txc6+/3QjIkmVZb
- oa5Aq8HGB7Aqj7TF3bLyEht2h6O83HILk72ea255zuXqMRERFEAq5AR+fW/iC2j9AHyLwGCadln
- MfQXDrCUyisFs13qD4UOqUS+BBkA8ockaNJ8mAXeQcFoLc/0BKbWi5ybkOYzAucRNWN9xr8y715
- mtwp83d63F3QF3PWFuA==
-X-Authority-Analysis: v=2.4 cv=KbXfcAYD c=1 sm=1 tr=0 ts=69c42c17 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=yOeL3KzSd5q1tlI96GIA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-25_05,2026-03-24_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 impostorscore=0 malwarescore=0 adultscore=0 clxscore=1015
- priorityscore=1501 bulkscore=0 lowpriorityscore=0 phishscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603250133
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260324062211.3216301-1-hch@lst.de>
 
+On Tue, Mar 24, 2026 at 07:21:36AM +0100, Christoph Hellwig wrote:
+> Hi all,
+> 
+> the XOR library used for the RAID5 parity is a bit of a mess right now.
+> The main file sits in crypto/ despite not being cryptography and not
+> using the crypto API, with the generic implementations sitting in
+> include/asm-generic and the arch implementations sitting in an asm/
+> header in theory.  The latter doesn't work for many cases, so
+> architectures often build the code directly into the core kernel, or
+> create another module for the architecture code.
+> 
+> Changes this to a single module in lib/ that also contains the
+> architecture optimizations, similar to the library work Eric Biggers
+> has done for the CRC and crypto libraries later.  After that it changes
+> to better calling conventions that allow for smarter architecture
+> implementations (although none is contained here yet), and uses
+> static_call to avoid indirection function call overhead.
+> 
+> A git tree is also available here:
+> 
+>     git://git.infradead.org/users/hch/misc.git xor-improvements
+> 
+> Gitweb:
+> 
+>     https://git.infradead.org/?p=users/hch/misc.git;a=shortlog;h=refs/heads/xor-improvements
 
-On 3/25/2026 9:25 AM, Alex Williamson wrote:
-> On Tue, 24 Mar 2026 17:49:36 -0500
-> Bjorn Helgaas <helgaas@kernel.org> wrote:
->
->> On Mon, Mar 16, 2026 at 12:15:39PM -0700, Farhan Ali wrote:
->>> If a device is in an error state, then any reads of device registers can
->>> return error value. Add additional checks to validate if a device is in an
->>> error state before doing an flr reset.
->> s/flr/FLR/ (also in subject)
->>
->> Also please extend the subject to say something specific about the
->> "additional checks".  E.g.,
->>
->>    PCI: Fail FLR when config space inaccessible
->>
->>> Cc: stable@vger.kernel.org
->>> Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
->>> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
->>> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
->>> ---
->>>   drivers/pci/pci.c | 7 +++++++
->>>   1 file changed, 7 insertions(+)
->>>
->>> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
->>> index 373421f4b9d8..8e4d924f4e88 100644
->>> --- a/drivers/pci/pci.c
->>> +++ b/drivers/pci/pci.c
->>> @@ -4371,12 +4371,19 @@ EXPORT_SYMBOL_GPL(pcie_flr);
->>>    */
->>>   int pcie_reset_flr(struct pci_dev *dev, bool probe)
->>>   {
->>> +	u32 reg;
->>> +
->>>   	if (dev->dev_flags & PCI_DEV_FLAGS_NO_FLR_RESET)
->>>   		return -ENOTTY;
->>>   
->>>   	if (!(dev->devcap & PCI_EXP_DEVCAP_FLR))
->>>   		return -ENOTTY;
->>>   
->>> +	if (pcie_capability_read_dword(dev, PCI_EXP_DEVCAP, &reg)) {
->>> +		pci_warn(dev, "Device unable to do an FLR\n");
->>> +		return -ENOTTY;
->>> +	}
->> I guess the point of this is to detect devices that are inaccessible?
->> The same sort of thing as in pci_dev_save_and_disable() from patch
->> 3/9?  But we use "dev->error_state == pci_channel_io_perm_failure"
->> instead?
->>
->> No matter what we do, this has the same race as in patch 3/9.  And I
->> think using dev->error_state also depends on AER being enabled, which
->> cuts out many PCIe devices.
->>
->> I think using the same exact code as in pci_dev_save_and_disable()
->> would be more straightforward.  And also the same sort of wording in
->> the message, e.g., "Device config space inaccessible; unable to FLR"
->> or similar.  I foresee many of these messages in my future, and it
->> will be helpful to have a specific clue about why FLR failed :)
-> I think pci_af_flr() and pci_pm_reset() are all subject to this as
-> well, some of the device specific resets too.  Maybe we need a common
-> helper with a string provided so we can differentiate the callers, even
-> if we don't make all the conversions in this series.  Thanks,
->
-> Alex
+This generally looks good, but yes, please check the comments from
+https://sashiko.dev/#/patchset/20260324062211.3216301-1-hch@lst.de, as
+Andrew mentioned.
 
-Yeah I was planning on implementing a common function in the next 
-revision. Will include a string parameter to differentiate the callers. 
-And yeah I prefer not to update pci_af_flr() or pci_pm_reset() as part 
-of this series since I don't have the devices to test those paths.
+The bug where the test generates length 0 is definitely real.  I
+verified it causes the test to crash on some platforms.
 
-Thanks
+raid_run_ops() calling xor_gen() (indirectly) with preemption disabled
+looks real as well, though I haven't tested it.  If preemption is indeed
+not the right thing to check, then I guess (following up from
+https://lore.kernel.org/linux-crypto/20260303195517.GC2846@sol/) it
+would need to be something like:
 
-Farhan
+    WARN_ON_ONCE(!in_task() || irqs_disabled() || softirq_count() != 0);
 
+Ugly, but we're running out of options.
 
+(This sort of thing is why the functions in lib/crypto/ and lib/crc/ are
+just supported in all contexts instead.  If FPU/vector/SIMD registers
+cannot be used in the current context, then a scalar fallback is used.)
+
+- Eric
