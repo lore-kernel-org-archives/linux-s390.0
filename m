@@ -1,293 +1,352 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f48.google.com (mail-oo1-f48.google.com [209.85.161.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4346743147;
-	Tue, 24 Mar 2026 23:47:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774396074; cv=none; b=NNtYaLJhKTSPUWSANg6BiygbIVwTrfoRNqN0csdOTNkT8xODbd2iYdBUbap42H/Kjt2E89GsNp38xth9X0oUHYXAuWfw7h0UJCKOCKdVv9KiN/N6Q1hhZEMrsIXCULFd8/GQ/jz2Z4HQkBNU6+nNqo1UWQ00jLSWpNio01WRtFY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774396074; c=relaxed/simple;
-	bh=pu0ogHri2cS8AUI1zpfJ+5/gLIBIptegvKXfdKWlRV0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=KzsDW3kOYdZki09oKZcYBlFNe63PIF5arsJlGChcUyyz2TrStklXiMKZJDPP8YUpzACm37kLads0XZZIpkRJJcm2KH9JOPV5j/02wGH+Bv705kbnZgM8bXTIcjF2O4DHN7ev8hl5PzRntxO1n8UmWcYoQ+1k+riq+tFn65wXm0c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kPPS398b; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5F1029E0F7
+	for <linux-s390@vger.kernel.org>; Wed, 25 Mar 2026 03:08:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774408104; cv=pass; b=dF9BQwM4O90agObR7fEIICfGA5rRyHz1QU0XEpsO61G7z5ttXcaDlUF1msyHhFF0iGPgko4jGIDkJccFyGryoYYhmMDdPPkjP16/4JlvQz80HB5oJe8ZEDwpSF3Nx94ttyIij89jS7CiGZ1zfybm048XXYa/+AxSwMjYBjALKus=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774408104; c=relaxed/simple;
+	bh=hJdcGCQ3mHxI4qcvqZp/CCaqOJ76l13MZ1DRKNMUyZA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=WQMI/qsl9Kl+4iQIr9yOoBswi5q2jmCZVWhFZVOTNmdGrWvxveciPbTarwSabYJbK3fl6er1IZGPDaPqyTN03u7foLnv3JRYXS4wido09tMRj98ontOgxxqm4zIZenRU9B9aY7NCwpV9GxmYVrSrdYHvbXbKJXWERb8Mt/0i9uk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QsG2jCun; arc=pass smtp.client-ip=209.85.161.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kPPS398b"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62OIoFl7538370;
-	Tue, 24 Mar 2026 23:47:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=JLoHlw
-	Svy4QDlEzuZ1PSx80JAkSbMgYSCAtOZu6Tnec=; b=kPPS398b4VDU/Q4j8hcFui
-	y/bycQmeYw6l2+JjQ7JixrTs71E7pSc5oXGVHRzNEFb1Djjt/0kY/sfsnHwtt8GC
-	Pv948NSpfGybgTLOEKrXXuf0v9E418EE74oEzbVeVbxsqg9dMjP9+Zf7tucGB06k
-	/8OrVceoYCYksZfuA1w6dI9HfZzvwr1mKK97ZFfwTf5i/5edSs5TDlBviXuCp/4w
-	O6TbmozGfIBEGJmGd84GAreyYG4sGb5T5tURtSYlL1lopD2sf52djOsZTIJNu4+Y
-	f1WKuTak6323t/CyStUpqcVO4bJS7ulqx38PpFRlCBp1SAhsGy016H+Bv0gN/r0g
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1ktxx4kt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Mar 2026 23:47:46 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62OJSPoP008732;
-	Tue, 24 Mar 2026 23:47:45 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d26nnmb35-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Mar 2026 23:47:45 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62ONlhsk45351232
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 24 Mar 2026 23:47:43 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8EAAD5805D;
-	Tue, 24 Mar 2026 23:47:43 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B3AED58043;
-	Tue, 24 Mar 2026 23:47:42 +0000 (GMT)
-Received: from [9.61.253.153] (unknown [9.61.253.153])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 24 Mar 2026 23:47:42 +0000 (GMT)
-Message-ID: <2676f787-4373-4f5f-8be8-b84815903ef2@linux.ibm.com>
-Date: Tue, 24 Mar 2026 16:47:40 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QsG2jCun"
+Received: by mail-oo1-f48.google.com with SMTP id 006d021491bc7-67df51b26ddso1079240eaf.2
+        for <linux-s390@vger.kernel.org>; Tue, 24 Mar 2026 20:08:22 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1774408102; cv=none;
+        d=google.com; s=arc-20240605;
+        b=AirzIhfJD3JAKFiMPcozZa84aQT9pAecMNskOC7rA9CzEd5pxQtBBo0IWCIsAeD57/
+         oR2o9gIyDCHLPmeGkKhIjQwxhgtNGBsf4krNo1GmDm7ReDkzJR8IBxveaOOOLLF4+wTg
+         o3L7H1t43eO13/oDS/PZLHmTPMjY2FhazmwKy9i/f6pWQaLs6sPiW0jvsGAwSRlaV1o6
+         xdkMqpjYT2rK4f+3vKYFgsx2/asbnCS6w9QvolrvP0Cl/EPMd01xXgRkt+FAbzkMNYoa
+         Kizrbl62e1qvV+eiIWNnxyE4U582ehg6dLmYT2/H7kGFe7yBjPRTIUWVA5UWFYyeclGt
+         qAFA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=L1agqMYRVyCUyftxunjR/Gctujg8X1gDCx6TflvnIV4=;
+        fh=1P169TpeTq7Ocy1aEBPbxjRNLcbxr2lorUoC8//2f6M=;
+        b=HaxEgnhaS0C6JwStTSM0WQCDmCWrlQ1gE1M4IHcxI/JrzxpwXtk+EZChrSvtWK8T95
+         Jl/8/BU4hO6uR04YX8XtQmjS4NEikC+KNoBYCw6+ltNhKmQZeYeaHFr1DhvaSNFTSPaw
+         i64zTDZwVu99osdvLLn9gyclfbGsWhV7xypmVJdmwYNHBowK+5YXzLk6kcIeNSjeOQP6
+         PisWyx+ytu+tGL51V2nD4JV8l3a6if6d/UdFg2HBf+ho/9yvD8fcrgUPTMcOXUxX4gCT
+         pCn4G8RNVGVdLvpV/K3sG0mI8BaCGck6WLCJNtG8BIUDeUy8XWnIQ4XdkR/w3ObuklQt
+         lEHw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1774408102; x=1775012902; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=L1agqMYRVyCUyftxunjR/Gctujg8X1gDCx6TflvnIV4=;
+        b=QsG2jCunF6U9HFdPFtYk1Fvt12375/QhCCqZnpk7qBrUJDtwoPwbZG00Jxz3BLNAhH
+         6yC6bntNmHyq7x7cP0+N6/uwrnu4b91f6kk14zUUgBqddni3wPt6K7GfK3VBO9vnm3J1
+         z+WYSyue1n99gDpMq448CDF5siFzxJf5yHSUwcyJx6VhvxvHBUVIoZCA8J8lRlFVzyE+
+         VVj1VO6NGN1ab9PiGjH0rUmDjcUZDFcwiB5b34LaaumYSy57XOpRmbzP5Qhozw3636yE
+         ih5IVdoV+6OvYilULBnmHxgj0HuKO1k2K64kakQdkM8JMyQ6HNVTAAeXTM51wOpVMwzo
+         g5Mw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774408102; x=1775012902;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=L1agqMYRVyCUyftxunjR/Gctujg8X1gDCx6TflvnIV4=;
+        b=N9M4m3lCpQp0N7h9+RI3C4cE93UB25h5wEAtuQltjZsX24BNQ2TlP2jXmwDagVNlTP
+         ze4NJJtO2qH5QQbvxjAMtwUbrul0HjRv9hJBVKzNhZYfUSj2DwlCF7JJ2aHTayraahij
+         n6V8+nUPcMlD35J3maNlsSpbKxdQVSYdRfeCv4mbcFCmiNag9lTYOdXJO+yoX6NM/rWJ
+         s+hzua2WcvYWBgRzSzAGYlpa6s6jhtXlWIDZJ/QKYhaK8pBMYDRw9re+XJZDejVBks7U
+         sbg/LnyEg7EY56RU/RJHA+0JoCRDbPXZaA9C2UAHxIg7HQuJS92vtsVndaY03i1+vIjC
+         e65w==
+X-Forwarded-Encrypted: i=1; AJvYcCUIS0eG3HmhYKLuzDcYU8r3cadVq3El+iIFDgw/9Ce2Bro4N8d2sODQyVSmpxX6hcAvhxCeVlynkbXF@vger.kernel.org
+X-Gm-Message-State: AOJu0YwxYBBoGQrsutJ6sW4sxY6hTfuvIOSAdaFiqhz44MzZ/oyhvsa1
+	KvO+b3hYa2YZx6ptCtiAqjeFvBMWMxaqlri5jn1I5eQpD41ALI012Jo5+1+nMy9q52xpCiyn83X
+	mUXIV9tS1Ce4i3IWsFKY0IX6/TABq8Cw=
+X-Gm-Gg: ATEYQzwU+aLCI1XqYL0OnAYdjzFfF+fta+D5uyp65f3vr/u0yB1TmQiBeTSElTajiLu
+	iUazTQIwLk6cqkJChz2pTqxcMApYSkpPx22zK+nCaIaivyxz0tj7QSW3ZD5tQH2Vc9BlbmDVtQC
+	SPUXmFadvtJ5XUY4kdlLd9Dd7p6fQeQ12UMZwIhEVGT1bBi6Z/sJy9oLFsAT8OLO+t7iFvfGJpG
+	9ONlDlLYAz85VVh8Ub6ajSxb9VixbDntwy4Y/294KSxMiv1cpJCwua2dU+jQCbS4VoBV+BjRvlt
+	ycoP+YmQdVXIt/KEHYDgeJR1MmFPhePWutvzfqy/u5V2Jm4cnGPSFYjrOeMW++iUtLwFsGbEuK7
+	2ALKNP+I=
+X-Received: by 2002:a05:6820:1787:b0:67b:e203:6c8d with SMTP id
+ 006d021491bc7-67dff53efc8mr1216692eaf.52.1774408101668; Tue, 24 Mar 2026
+ 20:08:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v11 2/9] s390/pci: Add architecture specific resource/bus
- address translation
-To: Bjorn Helgaas <helgaas@kernel.org>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org, lukas@wunner.de, alex@shazbot.org,
-        kbusch@kernel.org, clg@redhat.com, stable@vger.kernel.org,
-        schnelle@linux.ibm.com, mjrosato@linux.ibm.com,
-        =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-References: <20260324230641.GA1162880@bhelgaas>
-Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <20260324230641.GA1162880@bhelgaas>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=IqITsb/g c=1 sm=1 tr=0 ts=69c322a2 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
- a=QyXUC8HyAAAA:8 a=VnNF1IyMAAAA:8 a=dv-Jof5jEPWRgN2qFloA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI0MDE4NCBTYWx0ZWRfXy8Xijl+Ln6+1
- /wLF3j2JyIehdwD3+LFvUVYOwHv8mu6ev66f+ruJKe325FP8nQWGADAcc80tgDNSv8lH1mR4/kW
- 9D3hFb+0q0wEaV/rKMwih5YJpQ2a6lZC85H0uDYowQ8OJ6HuOACvZvpRPMBn6q80Oj7ddjJz1Wq
- XneTWlR997zGfYNkcTBz9MKzilpKYqHzTo+8e0DxjRPfObxnyv7kYAe8JXiBbLjrTq63WwiUEIp
- E5RuxW2eqJDWp9NP9+hz0aYKMmSYhJAxgk6vilhtLgoMeuIPG28wNLk4oPiMmEmCosi7NJXhO0y
- M7RS/5xMzizreoMnTghI38kO+6k3OKzfcvfIDFDo8NGfhTXcxFAx9wHmXFfpDMninQo/0yY5ais
- p6qY3tDhtG0OLMmu30iFXj+6DcPMFZyokPnWb174xzqbEXK+ECCIguJZK249pNTGlMFKdW1RvfZ
- 9idYVH2t6RYl5j5bzbw==
-X-Proofpoint-GUID: RkZCQLgPRdSyNqVorahqrw2X1boE8r2X
-X-Proofpoint-ORIG-GUID: RkZCQLgPRdSyNqVorahqrw2X1boE8r2X
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-24_04,2026-03-24_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 clxscore=1011 spamscore=0 impostorscore=0 suspectscore=0
- phishscore=0 bulkscore=0 adultscore=0 priorityscore=1501 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603240184
+References: <20260324005919.2408620-1-dakr@kernel.org> <20260324005919.2408620-6-dakr@kernel.org>
+In-Reply-To: <20260324005919.2408620-6-dakr@kernel.org>
+From: Gui-Dong Han <hanguidong02@gmail.com>
+Date: Wed, 25 Mar 2026 11:08:11 +0800
+X-Gm-Features: AQROBzD64p8E8k4KuR51RUiYotZVMtC9NAESBq-7RvJsmuQyKbQ4KJC_uWmm37s
+Message-ID: <CALbr=La3gV5VmoXauF-fkmXveoJGtTvef1d1nrLtUZNHx2eF+w@mail.gmail.com>
+Subject: Re: [PATCH 05/12] PCI: use generic driver_override infrastructure
+To: Danilo Krummrich <dakr@kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	"Rafael J. Wysocki" <rafael@kernel.org>, Ioana Ciornei <ioana.ciornei@nxp.com>, 
+	Nipun Gupta <nipun.gupta@amd.com>, Nikhil Agarwal <nikhil.agarwal@amd.com>, 
+	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
+	Bjorn Helgaas <bhelgaas@google.com>, Armin Wolf <W_Armin@gmx.de>, 
+	Bjorn Andersson <andersson@kernel.org>, Mathieu Poirier <mathieu.poirier@linaro.org>, 
+	Vineeth Vijayan <vneethv@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Harald Freudenberger <freude@linux.ibm.com>, 
+	Holger Dengler <dengler@linux.ibm.com>, Mark Brown <broonie@kernel.org>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Alex Williamson <alex@shazbot.org>, Juergen Gross <jgross@suse.com>, 
+	Stefano Stabellini <sstabellini@kernel.org>, 
+	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>, 
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, linux-kernel@vger.kernel.org, 
+	driver-core@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	linux-hyperv@vger.kernel.org, linux-pci@vger.kernel.org, 
+	platform-driver-x86@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
+	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-spi@vger.kernel.org, virtualization@lists.linux.dev, 
+	kvm@vger.kernel.org, xen-devel@lists.xenproject.org, 
+	linux-arm-kernel@lists.infradead.org, Wang Jiayue <akaieurus@gmail.com>, 
+	Yao Zi <me@ziyao.cc>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-
-On 3/24/2026 4:06 PM, Bjorn Helgaas wrote:
-> [+cc Ilpo just for awareness; I assume there's nothing Linux can
-> actually *do* with s390 PCI resources?]
+On Tue, Mar 24, 2026 at 9:00=E2=80=AFAM Danilo Krummrich <dakr@kernel.org> =
+wrote:
 >
-> On Mon, Mar 16, 2026 at 12:15:37PM -0700, Farhan Ali wrote:
->> On s390 today we overwrite the PCI BAR resource address to either an
->> artificial cookie address or MIO address. However this address is different
->> from the bus address of the BARs programmed by firmware. The artificial
->> cookie address was created to index into an array of function handles
->> (zpci_iomap_start). The MIO (mapped I/O) addresses are provided by firmware
->> but maybe different from the bus addresses. This creates an issue when
->> trying to convert the BAR resource address to bus address using the generic
->> pcibios_resource_to_bus().
->>
->> Implement an architecture specific pcibios_resource_to_bus() function to
->> correctly translate PCI BAR resource addresses to bus addresses for s390.
->> Similarly add architecture specific pcibios_bus_to_resource function to do
->> the reverse translation.
-> 1) It's not clear to me *why* we need these arch-specific versions.
-> We went to a lot of trouble to make these interfaces generic, and I'll
-> be really sad if they have to be arch-specific again.  I don't see any
-> direct uses of these in the series.  In any case, some reference to
-> the user and the actual problem this solves would help.
-
-I came across this issue when in one of the previous version of this 
-series I was using pci_restore_bars() which calls pci_resource_to_bus() 
-to get the bus address. Given how we were updating the resource address 
-in s390, we were programming the BARs with invalid addresses. I also 
-think a patch from Ilpo, which was later reverted, also exposed this 
-issue [1]
-
-[1] 
-https://lore.kernel.org/all/62669f67-d53e-2b56-af8c-e02cdff480a8@linux.intel.com/ 
-
-
-
-
+> When a driver is probed through __driver_attach(), the bus' match()
+> callback is called without the device lock held, thus accessing the
+> driver_override field without a lock, which can cause a UAF.
 >
-> 2) I'm kind of concerned that the "unusual" s390 PCI resources will be
-> unintelligible to people who are used to reading lspci or dmesg logs
-> from non-s390 systems, and they might confuse the PCI core resource
-> assignment code.  I guess there's not really a concept of a PCI host
-> bridge on s390, there's no bus hierarchy, and no visible PCI-to-PCI
-> bridges, so no windows?  Can you use PCIe switches at all?
-
-On the host kernel we don't expose any of the information such as bus 
-hierarchy, topology etc. This is all handled by firmware including the 
-use PCIe switches. Host kernel interfaces with firmware through a set of 
-instructions. As somewhat alluded to in patch 1, firmware exposes 
-individual PCI functions to the host. So the host kernel has no idea 
-about actual topology.
-
-
+> Fix this by using the driver-core driver_override infrastructure taking
+> care of proper locking internally.
 >
-> 3) Maybe this patch should be reordered to be closer to the patch that
-> needs these?  I don't think it's related to the "PCI: Avoid saving
-> config space state if inaccessible" and PCI: Add additional checks for
-> flr reset" patches.
-
-Currently this patch is not needed by this series. It just fixes a gap 
-on s390 on how we handle the resources, I could remove this patch from 
-the series and have it as a separate patch.
-
-Thanks
-
-Farhan
-
+> Note that calling match() from __driver_attach() without the device lock
+> held is intentional. [1]
 >
->> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
->> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
->> ---
->>   arch/s390/pci/pci.c       | 74 +++++++++++++++++++++++++++++++++++++++
->>   drivers/pci/host-bridge.c |  8 ++---
->>   2 files changed, 78 insertions(+), 4 deletions(-)
->>
->> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
->> index 2a430722cbe4..87077e510266 100644
->> --- a/arch/s390/pci/pci.c
->> +++ b/arch/s390/pci/pci.c
->> @@ -272,6 +272,80 @@ resource_size_t pcibios_align_resource(void *data, const struct resource *res,
->>   	return 0;
->>   }
->>   
->> +void pcibios_resource_to_bus(struct pci_bus *bus, struct pci_bus_region *region,
->> +			     struct resource *res)
->> +{
->> +	struct zpci_bus *zbus = bus->sysdata;
->> +	struct zpci_bar_struct *zbar;
->> +	struct zpci_dev *zdev;
->> +
->> +	region->start = res->start;
->> +	region->end = res->end;
->> +
->> +	for (int i = 0; i < ZPCI_FUNCTIONS_PER_BUS; i++) {
->> +		int j = 0;
->> +
->> +		zbar = NULL;
->> +		zdev = zbus->function[i];
->> +		if (!zdev)
->> +			continue;
->> +
->> +		for (j = 0; j < PCI_STD_NUM_BARS; j++) {
->> +			if (zdev->bars[j].res->start == res->start &&
->> +			    zdev->bars[j].res->end == res->end &&
->> +			    res->flags & IORESOURCE_MEM) {
->> +				zbar = &zdev->bars[j];
->> +				break;
->> +			}
->> +		}
->> +
->> +		if (zbar) {
->> +			/* only MMIO is supported */
->> +			region->start = zbar->val & PCI_BASE_ADDRESS_MEM_MASK;
->> +			if (zbar->val & PCI_BASE_ADDRESS_MEM_TYPE_64)
->> +				region->start |= (u64)zdev->bars[j + 1].val << 32;
->> +
->> +			region->end = region->start + (1UL << zbar->size) - 1;
->> +			return;
->> +		}
->> +	}
->> +}
->> +
->> +void pcibios_bus_to_resource(struct pci_bus *bus, struct resource *res,
->> +			     struct pci_bus_region *region)
->> +{
->> +	struct zpci_bus *zbus = bus->sysdata;
->> +	struct zpci_dev *zdev;
->> +	resource_size_t start, end;
->> +
->> +	res->start = region->start;
->> +	res->end = region->end;
->> +
->> +	for (int i = 0; i < ZPCI_FUNCTIONS_PER_BUS; i++) {
->> +		zdev = zbus->function[i];
->> +		if (!zdev || !zdev->has_resources)
->> +			continue;
->> +
->> +		for (int j = 0; j < PCI_STD_NUM_BARS; j++) {
->> +			if (!zdev->bars[j].size)
->> +				continue;
->> +
->> +			/* only MMIO is supported */
->> +			start = zdev->bars[j].val & PCI_BASE_ADDRESS_MEM_MASK;
->> +			if (zdev->bars[j].val & PCI_BASE_ADDRESS_MEM_TYPE_64)
->> +				start |= (u64)zdev->bars[j + 1].val << 32;
->> +
->> +			end = start + (1UL << zdev->bars[j].size) - 1;
->> +
->> +			if (start == region->start && end == region->end) {
->> +				res->start = zdev->bars[j].res->start;
->> +				res->end = zdev->bars[j].res->end;
->> +				return;
->> +			}
->> +		}
->> +	}
->> +}
->> +
->>   void __iomem *ioremap_prot(phys_addr_t phys_addr, size_t size,
->>   			   pgprot_t prot)
->>   {
->> diff --git a/drivers/pci/host-bridge.c b/drivers/pci/host-bridge.c
->> index be5ef6516cff..aed031b8a9f3 100644
->> --- a/drivers/pci/host-bridge.c
->> +++ b/drivers/pci/host-bridge.c
->> @@ -49,8 +49,8 @@ void pci_set_host_bridge_release(struct pci_host_bridge *bridge,
->>   }
->>   EXPORT_SYMBOL_GPL(pci_set_host_bridge_release);
->>   
->> -void pcibios_resource_to_bus(struct pci_bus *bus, struct pci_bus_region *region,
->> -			     struct resource *res)
->> +void __weak pcibios_resource_to_bus(struct pci_bus *bus, struct pci_bus_region *region,
->> +				    struct resource *res)
->>   {
->>   	struct pci_host_bridge *bridge = pci_find_host_bridge(bus);
->>   	struct resource_entry *window;
->> @@ -74,8 +74,8 @@ static bool region_contains(struct pci_bus_region *region1,
->>   	return region1->start <= region2->start && region1->end >= region2->end;
->>   }
->>   
->> -void pcibios_bus_to_resource(struct pci_bus *bus, struct resource *res,
->> -			     struct pci_bus_region *region)
->> +void __weak pcibios_bus_to_resource(struct pci_bus *bus, struct resource *res,
->> +				    struct pci_bus_region *region)
->>   {
->>   	struct pci_host_bridge *bridge = pci_find_host_bridge(bus);
->>   	struct resource_entry *window;
->> -- 
->> 2.43.0
->>
+> Link: https://lore.kernel.org/driver-core/DGRGTIRHA62X.3RY09D9SOK77P@kern=
+el.org/ [1]
+> Reported-by: Gui-Dong Han <hanguidong02@gmail.com>
+> Closes: https://bugzilla.kernel.org/show_bug.cgi?id=3D220789
+> Fixes: 782a985d7af2 ("PCI: Introduce new device binding path using pci_de=
+v.driver_override")
+> Signed-off-by: Danilo Krummrich <dakr@kernel.org>
+
+Tested on QEMU PCI with multiple debug configs enabled. The original
+PoCs run cleanly without triggering the issue.
+
+Thanks Danilo.
+
+Tested-by: Gui-Dong Han <hanguidong02@gmail.com>
+Reviewed-by: Gui-Dong Han <hanguidong02@gmail.com>
+
+> ---
+>  drivers/pci/pci-driver.c           | 11 +++++++----
+>  drivers/pci/pci-sysfs.c            | 28 ----------------------------
+>  drivers/pci/probe.c                |  1 -
+>  drivers/vfio/pci/vfio_pci_core.c   |  5 ++---
+>  drivers/xen/xen-pciback/pci_stub.c |  6 ++++--
+>  include/linux/pci.h                |  6 ------
+>  6 files changed, 13 insertions(+), 44 deletions(-)
+>
+> diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
+> index dd9075403987..d10ece0889f0 100644
+> --- a/drivers/pci/pci-driver.c
+> +++ b/drivers/pci/pci-driver.c
+> @@ -138,9 +138,11 @@ static const struct pci_device_id *pci_match_device(=
+struct pci_driver *drv,
+>  {
+>         struct pci_dynid *dynid;
+>         const struct pci_device_id *found_id =3D NULL, *ids;
+> +       int ret;
+>
+>         /* When driver_override is set, only bind to the matching driver =
+*/
+> -       if (dev->driver_override && strcmp(dev->driver_override, drv->nam=
+e))
+> +       ret =3D device_match_driver_override(&dev->dev, &drv->driver);
+> +       if (ret =3D=3D 0)
+>                 return NULL;
+>
+>         /* Look at the dynamic ids first, before the static ones */
+> @@ -164,7 +166,7 @@ static const struct pci_device_id *pci_match_device(s=
+truct pci_driver *drv,
+>                  * matching.
+>                  */
+>                 if (found_id->override_only) {
+> -                       if (dev->driver_override)
+> +                       if (ret > 0)
+>                                 return found_id;
+>                 } else {
+>                         return found_id;
+> @@ -172,7 +174,7 @@ static const struct pci_device_id *pci_match_device(s=
+truct pci_driver *drv,
+>         }
+>
+>         /* driver_override will always match, send a dummy id */
+> -       if (dev->driver_override)
+> +       if (ret > 0)
+>                 return &pci_device_id_any;
+>         return NULL;
+>  }
+> @@ -452,7 +454,7 @@ static int __pci_device_probe(struct pci_driver *drv,=
+ struct pci_dev *pci_dev)
+>  static inline bool pci_device_can_probe(struct pci_dev *pdev)
+>  {
+>         return (!pdev->is_virtfn || pdev->physfn->sriov->drivers_autoprob=
+e ||
+> -               pdev->driver_override);
+> +               device_has_driver_override(&pdev->dev));
+>  }
+>  #else
+>  static inline bool pci_device_can_probe(struct pci_dev *pdev)
+> @@ -1722,6 +1724,7 @@ static const struct cpumask *pci_device_irq_get_aff=
+inity(struct device *dev,
+>
+>  const struct bus_type pci_bus_type =3D {
+>         .name           =3D "pci",
+> +       .driver_override =3D true,
+>         .match          =3D pci_bus_match,
+>         .uevent         =3D pci_uevent,
+>         .probe          =3D pci_device_probe,
+> diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
+> index 16eaaf749ba9..a9006cf4e9c8 100644
+> --- a/drivers/pci/pci-sysfs.c
+> +++ b/drivers/pci/pci-sysfs.c
+> @@ -615,33 +615,6 @@ static ssize_t devspec_show(struct device *dev,
+>  static DEVICE_ATTR_RO(devspec);
+>  #endif
+>
+> -static ssize_t driver_override_store(struct device *dev,
+> -                                    struct device_attribute *attr,
+> -                                    const char *buf, size_t count)
+> -{
+> -       struct pci_dev *pdev =3D to_pci_dev(dev);
+> -       int ret;
+> -
+> -       ret =3D driver_set_override(dev, &pdev->driver_override, buf, cou=
+nt);
+> -       if (ret)
+> -               return ret;
+> -
+> -       return count;
+> -}
+> -
+> -static ssize_t driver_override_show(struct device *dev,
+> -                                   struct device_attribute *attr, char *=
+buf)
+> -{
+> -       struct pci_dev *pdev =3D to_pci_dev(dev);
+> -       ssize_t len;
+> -
+> -       device_lock(dev);
+> -       len =3D sysfs_emit(buf, "%s\n", pdev->driver_override);
+> -       device_unlock(dev);
+> -       return len;
+> -}
+> -static DEVICE_ATTR_RW(driver_override);
+> -
+>  static struct attribute *pci_dev_attrs[] =3D {
+>         &dev_attr_power_state.attr,
+>         &dev_attr_resource.attr,
+> @@ -669,7 +642,6 @@ static struct attribute *pci_dev_attrs[] =3D {
+>  #ifdef CONFIG_OF
+>         &dev_attr_devspec.attr,
+>  #endif
+> -       &dev_attr_driver_override.attr,
+>         &dev_attr_ari_enabled.attr,
+>         NULL,
+>  };
+> diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+> index bccc7a4bdd79..b4707640e102 100644
+> --- a/drivers/pci/probe.c
+> +++ b/drivers/pci/probe.c
+> @@ -2488,7 +2488,6 @@ static void pci_release_dev(struct device *dev)
+>         pci_release_of_node(pci_dev);
+>         pcibios_release_device(pci_dev);
+>         pci_bus_put(pci_dev->bus);
+> -       kfree(pci_dev->driver_override);
+>         bitmap_free(pci_dev->dma_alias_mask);
+>         dev_dbg(dev, "device released\n");
+>         kfree(pci_dev);
+> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci=
+_core.c
+> index d43745fe4c84..460852f79f29 100644
+> --- a/drivers/vfio/pci/vfio_pci_core.c
+> +++ b/drivers/vfio/pci/vfio_pci_core.c
+> @@ -1987,9 +1987,8 @@ static int vfio_pci_bus_notifier(struct notifier_bl=
+ock *nb,
+>             pdev->is_virtfn && physfn =3D=3D vdev->pdev) {
+>                 pci_info(vdev->pdev, "Captured SR-IOV VF %s driver_overri=
+de\n",
+>                          pci_name(pdev));
+> -               pdev->driver_override =3D kasprintf(GFP_KERNEL, "%s",
+> -                                                 vdev->vdev.ops->name);
+> -               WARN_ON(!pdev->driver_override);
+> +               WARN_ON(device_set_driver_override(&pdev->dev,
+> +                                                  vdev->vdev.ops->name))=
+;
+>         } else if (action =3D=3D BUS_NOTIFY_BOUND_DRIVER &&
+>                    pdev->is_virtfn && physfn =3D=3D vdev->pdev) {
+>                 struct pci_driver *drv =3D pci_dev_driver(pdev);
+> diff --git a/drivers/xen/xen-pciback/pci_stub.c b/drivers/xen/xen-pciback=
+/pci_stub.c
+> index e4b27aecbf05..79a2b5dfd694 100644
+> --- a/drivers/xen/xen-pciback/pci_stub.c
+> +++ b/drivers/xen/xen-pciback/pci_stub.c
+> @@ -598,6 +598,8 @@ static int pcistub_seize(struct pci_dev *dev,
+>         return err;
+>  }
+>
+> +static struct pci_driver xen_pcibk_pci_driver;
+> +
+>  /* Called when 'bind'. This means we must _NOT_ call pci_reset_function =
+or
+>   * other functions that take the sysfs lock. */
+>  static int pcistub_probe(struct pci_dev *dev, const struct pci_device_id=
+ *id)
+> @@ -609,8 +611,8 @@ static int pcistub_probe(struct pci_dev *dev, const s=
+truct pci_device_id *id)
+>
+>         match =3D pcistub_match(dev);
+>
+> -       if ((dev->driver_override &&
+> -            !strcmp(dev->driver_override, PCISTUB_DRIVER_NAME)) ||
+> +       if (device_match_driver_override(&dev->dev,
+> +                                        &xen_pcibk_pci_driver.driver) > =
+0 ||
+>             match) {
+>
+>                 if (dev->hdr_type !=3D PCI_HEADER_TYPE_NORMAL
+> diff --git a/include/linux/pci.h b/include/linux/pci.h
+> index 1c270f1d5123..57e9463e4347 100644
+> --- a/include/linux/pci.h
+> +++ b/include/linux/pci.h
+> @@ -575,12 +575,6 @@ struct pci_dev {
+>         u8              supported_speeds; /* Supported Link Speeds Vector=
+ */
+>         phys_addr_t     rom;            /* Physical address if not from B=
+AR */
+>         size_t          romlen;         /* Length if not from BAR */
+> -       /*
+> -        * Driver name to force a match.  Do not set directly, because co=
+re
+> -        * frees it.  Use driver_set_override() to set or clear it.
+> -        */
+> -       const char      *driver_override;
+> -
+>         unsigned long   priv_flags;     /* Private flags for the PCI driv=
+er */
+>
+>         /* These methods index pci_reset_fn_methods[] */
+> --
+> 2.53.0
+>
