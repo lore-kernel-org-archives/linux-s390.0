@@ -1,229 +1,210 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3672232AAA3
-	for <linux-s390@vger.kernel.org>; Wed, 25 Mar 2026 09:29:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A891F3890FF;
+	Wed, 25 Mar 2026 09:55:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774430999; cv=none; b=KNhzHvEBneqAVVDCocJ3IZs3O44nd3Ak6g8a9PBr8Q4IH+w0aI1QFohyuNUuC6IQJrVHDy7ONM9h8Lnnnj76K5UGVps38UmE6R+RC+2aajwJGEhdWGyt+LtREjK56fJOlwWQvhbvhUGXUHlxSs6strnPhve3p4Ow7EirC3yTDC8=
+	t=1774432530; cv=none; b=KfZlSzIrBs64B7lhqfnY7ekaTq5kfT4uu2lu4/Wl+tVRswo5wg796dx+Hh0ODicdRVx3UYDOZVpWz5JSj19Rhc+krDD06VtWUtZ0Kxt3GVAKJ4nucOo9rcFiuhNeYQ6Ty5ekfFN8sGA4Sosl1ghWyFATgD4BzFpbuCwS/62TMnI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774430999; c=relaxed/simple;
-	bh=hzAY3ZoPFk3ktxoVDsUh6drVK7glBEle7ZgqK1lKcjk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UMge4MKAsz/dN8Q5qhfJ0vatC8w7c5FKnv74rxzGR+0jCC707DVaRtBMiWuNiK2vNgGjwsw0bybheAnd5ZANBhUkWj0t0T+dgV8XGdtPlg19l0KW5Y6/X3NJriw82lCBgEG+CPkRNBPcXQMAAQs9eOOL3+BRpnQLVnN/t4+hhYg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UIIwNU+n; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=JhpeRjpQ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1774432530; c=relaxed/simple;
+	bh=9SU+G1pzNfkJYWyyJavSVZlDryVqXa7NO/5Yp1+Hwuw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Wj/m+n9UCqgLx6bfGfz0aO5j/WHpIy+XGxbEnqRO09hQonk3dGpJGRYBnrLqO0CCEIHBUzv1uDDaH27hVAEeYnOiZg7KUw/9x/QcbVNE1MZkRwXrr4Qir5JIA1T58+2FhTlNYskA03cvOgALNZF/aSfH6Dw2+vK4SNwTz15pAQ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=imBvzxX9; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UIIwNU+n";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="JhpeRjpQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1774430996;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/X6OQFIMMVlzQpHVcxvz5zk00vazKEddYu1a8TXBALA=;
-	b=UIIwNU+nPUJJvHBBie22wcCjzDVg3JpRuHuXBHiy0rjpN6rDxNAzNlOeQY2QG9m8DWuxEm
-	iaNmUUXhpXPFoYwUfpFYc/GchGtfpCQlnmZs/FYSLP7O1jEI3zV30Rr3AOr8Y9H0wsXSVL
-	jcPPi+BUVu4IYinrziQaqTXzZ8OPLkY=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-365-gkL_AO-RPru6pF91pHef5Q-1; Wed, 25 Mar 2026 05:29:54 -0400
-X-MC-Unique: gkL_AO-RPru6pF91pHef5Q-1
-X-Mimecast-MFC-AGG-ID: gkL_AO-RPru6pF91pHef5Q_1774430994
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-43b3e0a73f8so2562128f8f.3
-        for <linux-s390@vger.kernel.org>; Wed, 25 Mar 2026 02:29:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1774430994; x=1775035794; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=/X6OQFIMMVlzQpHVcxvz5zk00vazKEddYu1a8TXBALA=;
-        b=JhpeRjpQEerF7GJ3cEBXJfXL4JOri2U0d5RqtfvHTpgkh71sO3rKFhA//EvtsgVwti
-         rfnOwsNQ4rTslJ40Fzk9I0TbeYYUZ5Xv+zq7TaUjVgRwEsyfKg8s9Pq15BcpYJETUtzy
-         GjGQegUGrxeQbyDwEtvCmuJ/etjn2Bc4A2bLwFUIE5xQiMyNNgnAbKrvUtZPa+3AgtlT
-         YSrq90f+jFYACy0hlMqgRYq76+qOcsEKLNZTY0NUghWrYxq5yY9PNJVoNX0sjXNzPxo2
-         M/ehcd6FIcjjB2W43nFQqKbujTW9hL8QGwdrnKMudE6yCBqYGN/Cv3ygswIH8iM7CfKC
-         7oDA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774430994; x=1775035794;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/X6OQFIMMVlzQpHVcxvz5zk00vazKEddYu1a8TXBALA=;
-        b=fTA/FvnTtEyiHX69+nYJMkFAeZ0d2Dy5iX35bIHg15Q6Gdz/Udn2ETvTR2jlqEu8+W
-         Cb174INSI0L2/JW+YZZVsE6f2u36BXhjOPjlp6yM5Mo5OoLQhnHCUE55Hvl/q7dpBXIH
-         f7wS0pqAh85G3QErLC5SQ1yloExrhUlEGmJS1M3hOMsJ2CmFQ8Gs9ZugpH5CZkcVDwkY
-         kquIIqcmct+ATb+R53pz4MTyd9GmpGFSmk/P7rJ+4FKU20opd6ixKoPrc3gg5FdHOM1T
-         0z+5Nl1nkjsTazxUXAe+VPtrHcsyQemvpULdJDVcS1OnPIE6dTft1LWaV3qvHSW6gRn8
-         nUmw==
-X-Forwarded-Encrypted: i=1; AJvYcCV3SDw/3Y4uLsbZsKUizZKPOr/+fe33cryH9xpeM4tGEqhZBsFJavVGgYxNrTfIflVEpmYm1ZWkjZvk@vger.kernel.org
-X-Gm-Message-State: AOJu0YxIVbva2K4hSAqmr19ZmQdhmMR6g0iZjgYK05PY9S8Ebx+DvmXO
-	wfWY61wZcZxlLNgrZACh4t73AmuezRD/f6uCEmLGutIKvndcBFA7xqko0J4090KeVeaA7/Ayy0X
-	umng78mawbEyp96r8DfJ6YyIrXFW++rAEbtzsGbQHNCsCGpLjc76M2RXzggZKerY=
-X-Gm-Gg: ATEYQzyxcge1jQRbeeCcwp5xBgBHNfaw8YMrUmgohRTwjVo0L1ao5N3qbiu+nwtoAfF
-	n41WuLVDozGa7IDOKTPAaNb9arkH01gtjMqNoIyC+uRHVJaYVeoazEcqilZ3TbLQMH385KRx37b
-	25icsQsIoTzSItoQ0ckiZitdDwWa7jmOnU5DgO2GS4E//gDsTagsQ2palSwQoS++UCoIcB2EQqG
-	1Q556c7vcCWfUDQd1boyuZVFEztZY5BBIdfGh3M5nmqHuWGxRuVDdgQXZQ5mQbroKpAbH+0KRcn
-	Skhwo92tZ0OV4kKm7Prw2jene9loetP2WBBD2a57nfQDBHTkOyYsdO5iAUFwcBsgin1aWTCMAl8
-	5PZBnSspuEnZRLlLR
-X-Received: by 2002:a05:6000:400c:b0:439:be78:e1e9 with SMTP id ffacd0b85a97d-43b88a3d3cdmr3692782f8f.14.1774430993536;
-        Wed, 25 Mar 2026 02:29:53 -0700 (PDT)
-X-Received: by 2002:a05:6000:400c:b0:439:be78:e1e9 with SMTP id ffacd0b85a97d-43b88a3d3cdmr3692727f8f.14.1774430992928;
-        Wed, 25 Mar 2026 02:29:52 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1525:da00:3ac2:1a22:72ff:4256])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43b6470380asm44280922f8f.24.2026.03.25.02.29.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Mar 2026 02:29:52 -0700 (PDT)
-Date: Wed, 25 Mar 2026 05:29:45 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Danilo Krummrich <dakr@kernel.org>
-Cc: Russell King <linux@armlinux.org.uk>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Ioana Ciornei <ioana.ciornei@nxp.com>,
-	Nipun Gupta <nipun.gupta@amd.com>,
-	Nikhil Agarwal <nikhil.agarwal@amd.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Long Li <longli@microsoft.com>, Bjorn Helgaas <bhelgaas@google.com>,
-	Armin Wolf <W_Armin@gmx.de>, Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>,
-	Mark Brown <broonie@kernel.org>, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Alex Williamson <alex@shazbot.org>, Juergen Gross <jgross@suse.com>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
-	linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org,
-	linux-pci@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-spi@vger.kernel.org,
-	virtualization@lists.linux.dev, kvm@vger.kernel.org,
-	xen-devel@lists.xenproject.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 00/12] treewide: Convert buses to use generic
- driver_override
-Message-ID: <20260325052919-mutt-send-email-mst@kernel.org>
-References: <20260324005919.2408620-1-dakr@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="imBvzxX9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09D20C4CEF7;
+	Wed, 25 Mar 2026 09:55:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774432530;
+	bh=9SU+G1pzNfkJYWyyJavSVZlDryVqXa7NO/5Yp1+Hwuw=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=imBvzxX9+0+DnwBNDpet8fwln6JuraH8UeljdObUd/dreDGMpuVgki8GeZzzgA0ZH
+	 UEEHqQjM5U224ArxpDQG887GBml3c6f2iUD/NMT3IGXrr0NyWJ/HKXxSjaONu1/BY6
+	 MpNC+qIVdA6Cpxm18N8FeJe8hHeJL+S0Mhr/+C94T//PXLsSQruYgfnb/qUwKPZFs5
+	 nAOdvVFm4risE9RhLWvnNsAblgkSRqz+4Ag+TeUglGR/y/J1hLhB+6+StjGhdpE47F
+	 SB5PEOKIc7sLFnTTVUf/+K1+x8sbYVgZjGuwCK2Gs/KxDlcSjel2O5nE2ef+qpPWT8
+	 shCfc/A8KpMow==
+Message-ID: <44dd86c0-1845-4dd9-b4b4-2cef6d1c6357@kernel.org>
+Date: Wed, 25 Mar 2026 10:55:23 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260324005919.2408620-1-dakr@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 1/2] mm: make lazy MMU mode context-aware
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+ Kevin Brodsky <kevin.brodsky@arm.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org
+References: <cover.1774420056.git.agordeev@linux.ibm.com>
+ <de89fd353a8dcd5e3bef4d91e9b6682d132ed9a0.1774420057.git.agordeev@linux.ibm.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
+ dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
+ QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
+ XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
+ Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
+ PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
+ WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
+ UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
+ jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
+ B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzS5EYXZpZCBIaWxk
+ ZW5icmFuZCAoQ3VycmVudCkgPGRhdmlkQGtlcm5lbC5vcmc+wsGQBBMBCAA6AhsDBQkmWAik
+ AgsJBBUKCQgCFgICHgUCF4AWIQQb2cqtc1xMOkYN/MpN3hD3AP+DWgUCaYJt/AIZAQAKCRBN
+ 3hD3AP+DWriiD/9BLGEKG+N8L2AXhikJg6YmXom9ytRwPqDgpHpVg2xdhopoWdMRXjzOrIKD
+ g4LSnFaKneQD0hZhoArEeamG5tyo32xoRsPwkbpIzL0OKSZ8G6mVbFGpjmyDLQCAxteXCLXz
+ ZI0VbsuJKelYnKcXWOIndOrNRvE5eoOfTt2XfBnAapxMYY2IsV+qaUXlO63GgfIOg8RBaj7x
+ 3NxkI3rV0SHhI4GU9K6jCvGghxeS1QX6L/XI9mfAYaIwGy5B68kF26piAVYv/QZDEVIpo3t7
+ /fjSpxKT8plJH6rhhR0epy8dWRHk3qT5tk2P85twasdloWtkMZ7FsCJRKWscm1BLpsDn6EQ4
+ jeMHECiY9kGKKi8dQpv3FRyo2QApZ49NNDbwcR0ZndK0XFo15iH708H5Qja/8TuXCwnPWAcJ
+ DQoNIDFyaxe26Rx3ZwUkRALa3iPcVjE0//TrQ4KnFf+lMBSrS33xDDBfevW9+Dk6IISmDH1R
+ HFq2jpkN+FX/PE8eVhV68B2DsAPZ5rUwyCKUXPTJ/irrCCmAAb5Jpv11S7hUSpqtM/6oVESC
+ 3z/7CzrVtRODzLtNgV4r5EI+wAv/3PgJLlMwgJM90Fb3CB2IgbxhjvmB1WNdvXACVydx55V7
+ LPPKodSTF29rlnQAf9HLgCphuuSrrPn5VQDaYZl4N/7zc2wcWM7BTQRVy5+RARAA59fefSDR
+ 9nMGCb9LbMX+TFAoIQo/wgP5XPyzLYakO+94GrgfZjfhdaxPXMsl2+o8jhp/hlIzG56taNdt
+ VZtPp3ih1AgbR8rHgXw1xwOpuAd5lE1qNd54ndHuADO9a9A0vPimIes78Hi1/yy+ZEEvRkHk
+ /kDa6F3AtTc1m4rbbOk2fiKzzsE9YXweFjQvl9p+AMw6qd/iC4lUk9g0+FQXNdRs+o4o6Qvy
+ iOQJfGQ4UcBuOy1IrkJrd8qq5jet1fcM2j4QvsW8CLDWZS1L7kZ5gT5EycMKxUWb8LuRjxzZ
+ 3QY1aQH2kkzn6acigU3HLtgFyV1gBNV44ehjgvJpRY2cC8VhanTx0dZ9mj1YKIky5N+C0f21
+ zvntBqcxV0+3p8MrxRRcgEtDZNav+xAoT3G0W4SahAaUTWXpsZoOecwtxi74CyneQNPTDjNg
+ azHmvpdBVEfj7k3p4dmJp5i0U66Onmf6mMFpArvBRSMOKU9DlAzMi4IvhiNWjKVaIE2Se9BY
+ FdKVAJaZq85P2y20ZBd08ILnKcj7XKZkLU5FkoA0udEBvQ0f9QLNyyy3DZMCQWcwRuj1m73D
+ sq8DEFBdZ5eEkj1dCyx+t/ga6x2rHyc8Sl86oK1tvAkwBNsfKou3v+jP/l14a7DGBvrmlYjO
+ 59o3t6inu6H7pt7OL6u6BQj7DoMAEQEAAcLBfAQYAQgAJgIbDBYhBBvZyq1zXEw6Rg38yk3e
+ EPcA/4NaBQJonNqrBQkmWAihAAoJEE3eEPcA/4NaKtMQALAJ8PzprBEXbXcEXwDKQu+P/vts
+ IfUb1UNMfMV76BicGa5NCZnJNQASDP/+bFg6O3gx5NbhHHPeaWz/VxlOmYHokHodOvtL0WCC
+ 8A5PEP8tOk6029Z+J+xUcMrJClNVFpzVvOpb1lCbhjwAV465Hy+NUSbbUiRxdzNQtLtgZzOV
+ Zw7jxUCs4UUZLQTCuBpFgb15bBxYZ/BL9MbzxPxvfUQIPbnzQMcqtpUs21CMK2PdfCh5c4gS
+ sDci6D5/ZIBw94UQWmGpM/O1ilGXde2ZzzGYl64glmccD8e87OnEgKnH3FbnJnT4iJchtSvx
+ yJNi1+t0+qDti4m88+/9IuPqCKb6Stl+s2dnLtJNrjXBGJtsQG/sRpqsJz5x1/2nPJSRMsx9
+ 5YfqbdrJSOFXDzZ8/r82HgQEtUvlSXNaXCa95ez0UkOG7+bDm2b3s0XahBQeLVCH0mw3RAQg
+ r7xDAYKIrAwfHHmMTnBQDPJwVqxJjVNr7yBic4yfzVWGCGNE4DnOW0vcIeoyhy9vnIa3w1uZ
+ 3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
+ CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
+ qIws/H2t
+In-Reply-To: <de89fd353a8dcd5e3bef4d91e9b6682d132ed9a0.1774420057.git.agordeev@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Mar 24, 2026 at 01:59:04AM +0100, Danilo Krummrich wrote:
-> This is the follow-up of the driver_override generalization in [1], converting
-> the remaining 11 busses and removing the now-unused driver_set_override()
-> helper.
+On 3/25/26 08:41, Alexander Gordeev wrote:
+> Lazy MMU mode is assumed to be context-independent, in the sense
+> that it does not need any additional information while operating.
+> However, the s390 architecture benefits from knowing the exact
+> page table entries being modified.
 > 
-> All of them (except AP, which has a different race condition) are prone to the
-> potential UAF described in [2], caused by accessing the driver_override field
-> from their corresponding match() callback.
+> Introduce lazy_mmu_mode_enable_pte(), which is provided with the
+> process address space and the page table being operated on. This
+> information is required to enable s390-specific optimizations.
 > 
-> In order to address this, the generalized driver_override field in struct device
-> is protected with a spinlock. The driver-core provides accessors, such as
-> device_match_driver_override(), device_has_driver_override() and
-> device_set_driver_override(), which all ensure proper locking internally.
+> The function takes parameters that are typically passed to page-
+> table level walkers, which implies that the span of PTE entries
+> never crosses a page table boundary.
 > 
-> Additionally, the driver-core provides a driver_override flag in struct
-> bus_type, which, once enabled, automatically registers generic sysfs callbacks,
-> allowing userspace to modify the driver_override field.
+> Architectures that do not require such information simply do not
+> need to define the arch_enter_lazy_mmu_mode_pte() callback.
 > 
-> SPI and AP are a bit special; both print "\n" when driver_override is not set,
-> whereas all other buses (and thus the driver-core) produce "(null)\n" in this
-> case.
+> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> ---
+>  fs/proc/task_mmu.c      |  2 +-
+>  include/linux/pgtable.h | 42 +++++++++++++++++++++++++++++++++++++++++
+>  mm/madvise.c            |  8 ++++----
+>  mm/memory.c             |  8 ++++----
+>  mm/mprotect.c           |  2 +-
+>  mm/mremap.c             |  2 +-
+>  mm/vmalloc.c            |  6 +++---
+>  7 files changed, 56 insertions(+), 14 deletions(-)
 > 
-> Hence, SPI and AP do not take advantage of the driver_override flag in struct
-> bus_type; AP additionally maintains a counter in its custom sysfs store().
-> 
-> Technically, we could support a custom fallback string when driver_override is
-> unset in struct bus_type, but only SPI would benefit from this, since AP has
-> additional custom logic in store() anyways.
-> 
-> (I'm not sure if there are userspace programs that strictly rely on this;
-> driverctl seems to check for both, but I rather not break some userspace tool
-> I'm not aware of. :)
-> 
-> This series is based on v7.0-rc5 with no additional dependencies, hence those
-> patches can be picked up by subsystems individually.
-> 
-> [1] https://lore.kernel.org/driver-core/20260303115720.48783-1-dakr@kernel.org/
-> [2] https://bugzilla.kernel.org/show_bug.cgi?id=220789
-> [3] https://gitlab.com/driverctl/driverctl/-/blob/0.121/driverctl?ref_type=tags#L99
+> diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
+> index e091931d7ca1..4e3b1987874a 100644
+> --- a/fs/proc/task_mmu.c
+> +++ b/fs/proc/task_mmu.c
+> @@ -2752,7 +2752,7 @@ static int pagemap_scan_pmd_entry(pmd_t *pmd, unsigned long start,
+>  		return 0;
+>  	}
+>  
+> -	lazy_mmu_mode_enable();
+> +	lazy_mmu_mode_enable_pte(vma->vm_mm, start, end, start_pte);
+>  
+>  	if ((p->arg.flags & PM_SCAN_WP_MATCHING) && !p->vec_out) {
+>  		/* Fast path for performing exclusive WP */
+> diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
+> index a50df42a893f..481b45954800 100644
+> --- a/include/linux/pgtable.h
+> +++ b/include/linux/pgtable.h
+> @@ -271,6 +271,44 @@ static inline void lazy_mmu_mode_enable(void)
+>  		arch_enter_lazy_mmu_mode();
+>  }
+>  
+> +#ifndef arch_enter_lazy_mmu_mode_pte
+> +static inline void arch_enter_lazy_mmu_mode_pte(struct mm_struct *mm,
+> +						unsigned long addr,
+> +						unsigned long end,
+> +						pte_t *ptep)
 
-vdpa bits:
+Two tab alignment please. (applies to other things hwere as well)
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> +{
+> +	arch_enter_lazy_mmu_mode();
+> +}
+> +#endif
+> +
+> +/**
+> + * lazy_mmu_mode_enable_pte() - Enable the lazy MMU mode with parameters
 
-I assume it'll all be merged together?
+You have to be a lot clearer about implications. For example, what
+happens if we would bail out and not process all ptes? What are the
+exact semantics.
 
-> Danilo Krummrich (12):
->   amba: use generic driver_override infrastructure
->   bus: fsl-mc: use generic driver_override infrastructure
->   cdx: use generic driver_override infrastructure
->   hv: vmbus: use generic driver_override infrastructure
->   PCI: use generic driver_override infrastructure
->   platform/wmi: use generic driver_override infrastructure
->   rpmsg: use generic driver_override infrastructure
->   vdpa: use generic driver_override infrastructure
->   s390/cio: use generic driver_override infrastructure
->   s390/ap: use generic driver_override infrastructure
->   spi: use generic driver_override infrastructure
->   driver core: remove driver_set_override()
-> 
->  drivers/amba/bus.c                 | 37 +++------------
->  drivers/base/driver.c              | 75 ------------------------------
->  drivers/bus/fsl-mc/fsl-mc-bus.c    | 43 +++--------------
->  drivers/cdx/cdx.c                  | 40 ++--------------
->  drivers/hv/vmbus_drv.c             | 36 ++------------
->  drivers/pci/pci-driver.c           | 11 +++--
->  drivers/pci/pci-sysfs.c            | 28 -----------
->  drivers/pci/probe.c                |  1 -
->  drivers/platform/wmi/core.c        | 36 ++------------
->  drivers/rpmsg/qcom_glink_native.c  |  2 -
->  drivers/rpmsg/rpmsg_core.c         | 43 +++--------------
->  drivers/rpmsg/virtio_rpmsg_bus.c   |  1 -
->  drivers/s390/cio/cio.h             |  5 --
->  drivers/s390/cio/css.c             | 34 ++------------
->  drivers/s390/crypto/ap_bus.c       | 34 +++++++-------
->  drivers/s390/crypto/ap_bus.h       |  1 -
->  drivers/s390/crypto/ap_queue.c     | 24 +++-------
->  drivers/spi/spi.c                  | 19 +++-----
->  drivers/vdpa/vdpa.c                | 48 ++-----------------
->  drivers/vfio/fsl-mc/vfio_fsl_mc.c  |  4 +-
->  drivers/vfio/pci/vfio_pci_core.c   |  5 +-
->  drivers/xen/xen-pciback/pci_stub.c |  6 ++-
->  include/linux/amba/bus.h           |  5 --
->  include/linux/cdx/cdx_bus.h        |  4 --
->  include/linux/device/driver.h      |  2 -
->  include/linux/fsl/mc.h             |  4 --
->  include/linux/hyperv.h             |  5 --
->  include/linux/pci.h                |  6 ---
->  include/linux/rpmsg.h              |  4 --
->  include/linux/spi/spi.h            |  5 --
->  include/linux/vdpa.h               |  4 --
->  include/linux/wmi.h                |  4 --
->  32 files changed, 88 insertions(+), 488 deletions(-)
-> 
-> 
-> base-commit: c369299895a591d96745d6492d4888259b004a9e
-> -- 
-> 2.53.0
+> + *
+> + * Enters a new lazy MMU mode section; if the mode was not already enabled,
+> + * enables it and calls arch_enter_lazy_mmu_mode_pte().
+> + *
+> + * Must be paired with a call to lazy_mmu_mode_disable().
+> + *
+> + * Has no effect if called:
+> + * - While paused - see lazy_mmu_mode_pause()
+> + * - In interrupt context
+> + */
+> +static inline void lazy_mmu_mode_enable_pte(struct mm_struct *mm,
+> +					    unsigned long addr,
+> +					    unsigned long end,
+> +					    pte_t *ptep)
 
+It can be multiple ptes, so should this be some kind of "pte_range"/
+
+lazy_mmu_mode_enable_for_pte_range()
+
+A bit mouthful but clearer.
+
+> +{
+> +	struct lazy_mmu_state *state = &current->lazy_mmu_state;
+> +
+> +	if (in_interrupt() || state->pause_count > 0)
+> +		return;
+> +
+> +	VM_WARN_ON_ONCE(state->enable_count == U8_MAX);
+> +
+> +	if (state->enable_count++ == 0)
+> +		arch_enter_lazy_mmu_mode_pte(mm, addr, end, ptep);
+> +}
+
+I'm wondering whether that could instead be some optional interface that
+we trigger after the lazy_mmu_mode_enable. But looking at
+lazy_mmu_mode_enable() users, there don't seem to be cases where we
+would process multiple different ranges under a single enable() call, right?
+
+-- 
+Cheers,
+
+David
