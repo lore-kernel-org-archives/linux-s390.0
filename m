@@ -1,101 +1,108 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BA2C3F880D;
-	Wed, 25 Mar 2026 16:30:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B61041428F4;
+	Wed, 25 Mar 2026 16:38:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774456254; cv=none; b=f0AgBNUiEpmxXbZIcYak92bxoKPVlBQOCd2FM46PjqQnIcu6//eFfHxWGW6qSWSL+sN6v0ka1ZpgOp9QyxFGti9o4hDMvmGaRbgutpuD76QfGahvUH/cKDYCNkMjpiihXvkLQR3ljqTaAHR2cFdl5scnbFne6aCspqw8QWSJkDs=
+	t=1774456684; cv=none; b=XiSX67VW8CDWx41e/RUOZWMEUyRdGxtByqVVoHRoxW86yWld5FQOGBfRYPXQLx8i6RzwRO5DJvNODpG8gTb3X6k001RJUtZMgEqFq4q2hCODmO6FZQsTuTpLc4kH4nuRGbJOO54Y/WhT8KcuEdzw1lB9DnjMqAW7zPCHshd5gtA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774456254; c=relaxed/simple;
-	bh=+AmS+tOzD2cSA2LrII2fvtTfr6fN6xggErI+us8oNsU=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=LJsu54Hl9HwsWmnks0SA600+IghioZhBaylQZ7O86RicIwNyxA2Gmy6SRaJYJVB2gqY49GtJSyhsVCCidVTv5z8WDz6hGx6eVzBhDkFhpXL6SNP8pj02Cyzn039NNiiBRkBZMJPLT5u5lvvw6+kIXk0XeVZzKSjW9yUlwXP6qXk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=J5ymzmT6; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1774456684; c=relaxed/simple;
+	bh=BDnBoW1A+LwxKIJClHFiKJuP/8drhptpeDwotkaKgXo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HJBKMhsDnLhw8BFR+D+2EZ5xUQRdvPz/4ruu1/X9jJAHFzGT3vVtVzVTscxzeC0bnuwPYpu1mIJVOWBTs4Q4N+7NlRXQBiBeblSlhhFnQ4uFfAtq5llpdNZaSH8iK4cn4/G2BOOlDN1mnR4yX1uStXExWp7pol+xih2GbbiAhzQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PVCwoTM1; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="J5ymzmT6"
-Received: from [IPV6:2601:646:8081:9481:619:3ffd:957c:6748] ([IPv6:2601:646:8081:9481:619:3ffd:957c:6748])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 62PGDMNL3153560
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Wed, 25 Mar 2026 09:13:22 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 62PGDMNL3153560
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2026022301; t=1774455208;
-	bh=v2u7ExN5eifBevZeC2xb3xyOceea1RmqMBZtOrcYzMg=;
-	h=Date:Subject:From:To:Cc:References:In-Reply-To:From;
-	b=J5ymzmT6BQR65DUAALhhSYjcHADheoqS/Y1TB20cnYBvtYJoCBoHEmdHJLu/Si20r
-	 6rz3J3dMJE/DEAiYOO3Fx6vfsrD2MnYD1ixgvwprxcGhIEVWzMLmCHreu1sLIn5SNP
-	 6VBBW2+SCSgr4uOYIIcCe+9jSspVTz7NsGduU1IHGnQyH3sgnggWaXIAuTY0sSScDJ
-	 hy7fCQlaHvFN3juiyk0mVo/l0cAc4F3B4clshklYM45be69gwY6re6ju8/GDKmI3HX
-	 ln5NoZUdBqzuxxOWGyGyQysV8OXGXSO4zB7ByDmwCtm51dOIhtQh0z8KO6LEy/vgUL
-	 bF7T6QJ+oA0WA==
-Message-ID: <fa11e4d3-1c70-4fa7-9f03-8772c002be6a@zytor.com>
-Date: Wed, 25 Mar 2026 09:13:16 -0700
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PVCwoTM1"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62P9vdu0962883;
+	Wed, 25 Mar 2026 16:37:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=FQtkmDxmslIExkFjEKNG8vtTuvQMZ1
+	PB/p38zRImO1c=; b=PVCwoTM1GUxlYZzeY5gTWFwZkiK/Oq+MiK1gjafgzC/qkw
+	8WIp39LSbjdNIMDwK5EXOLlC/qWbtQfSDxR2FHuXU8XVavmTFcndPaf2aOzUr9TK
+	gktdUo1O1HbV998Zav8vZsuvFcmzCZv2LKBmG1IQrJLhVDVaaiHiXKmmCoB1sjfo
+	TzNrLz2jQ/esbRLASo76DYtXsMJGjTRJRh99ELSVSTpTn7wcAQa+g+TwcWZ4pN18
+	2MFDJ+ASPj4AcEIAa0eQ7xGXKcNrvgYoFGZ7ROarqJafbBWjiOicdfTPfXY5U7Ye
+	o4MuuUruBFmmo62RhJR80Yo52g9tFniEU7321l0w==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kxqhehh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Mar 2026 16:37:50 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62PFNnix026681;
+	Wed, 25 Mar 2026 16:37:49 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d275ky85a-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Mar 2026 16:37:49 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62PGbjRG47448432
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 25 Mar 2026 16:37:45 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6997A2004B;
+	Wed, 25 Mar 2026 16:37:45 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 369E720043;
+	Wed, 25 Mar 2026 16:37:45 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.52.215.75])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 25 Mar 2026 16:37:45 +0000 (GMT)
+Date: Wed, 25 Mar 2026 17:37:43 +0100
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Kevin Brodsky <kevin.brodsky@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH 1/2] mm: make lazy MMU mode context-aware
+Message-ID: <939c4ed1-3335-47ef-a25b-6ccdbd48d464-agordeev@linux.ibm.com>
+References: <cover.1774420056.git.agordeev@linux.ibm.com>
+ <de89fd353a8dcd5e3bef4d91e9b6682d132ed9a0.1774420057.git.agordeev@linux.ibm.com>
+ <44dd86c0-1845-4dd9-b4b4-2cef6d1c6357@kernel.org>
+ <e096e88b-f1fe-44a1-bfa6-451eef028203-agordeev@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 02/17] raid6: remove __KERNEL__ ifdefs
-From: "H. Peter Anvin" <hpa@zytor.com>
-To: Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
-        WANG Xuerui <kernel@xen0n.name>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-        Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Dan Williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>,
-        David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>,
-        Song Liu <song@kernel.org>,
-        Yu Kuai <yukuai@alb-78bjiv52429oh8qptp.cn-shenzhen.alb.aliyuncs.com>,
-        Li Nan <linan122@huawei.com>, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
-        linux-btrfs@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-raid@vger.kernel.org
-References: <20260324064115.3217136-1-hch@lst.de>
- <20260324064115.3217136-3-hch@lst.de>
- <59d1d178-c141-4229-81e9-a6c23fa81f2f@zytor.com>
-Content-Language: en-US, sv-SE
-In-Reply-To: <59d1d178-c141-4229-81e9-a6c23fa81f2f@zytor.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e096e88b-f1fe-44a1-bfa6-451eef028203-agordeev@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ep-i31MGON5OlTVgHzD44qA7jGtcSV4f
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI1MDExNyBTYWx0ZWRfX69MY7zL9dYkK
+ OOwrsP2i3IO+E8dzEkot+WcOQZ9DXy4PWqnzre6V8fRHZ+NgcsDWCcKjWhulxWSQssOcczL/I8H
+ m+kQ05AI5VajjO/mI+dww3OQfJP91uYmIvEDivusZ7/WA8Vu19MwNQeSxvzIBK2D8A1/OkUbifa
+ h8OUXnMJRySj8732fani84Er4jcyo48Htb2YCBmNgdPPwIcUYG+VR2nh5hzr1euMb3SwSNuWMfM
+ fYHlDiKmwXjTFVBUtSQkIf7AzXSZVwXJMuGUK9d+eUaAFIasW9smzVTPuCrd79vS2HPin+rC0xH
+ gfjG/4/Fr+EPjDhjzdfBoZ1lvRhQrW+nzHYMKt+P/2N04uhZw8UVuoa7zdrV0aEp6hMpYica32c
+ o9qpa0NT4SRYusS7Vx8766TyOXnLv+TsPB+IiHpeVdcAwrx+7xmR7urMUcXJVHpYIo2VMqUME7S
+ BwNKTrAg4EWvTEd9VyQ==
+X-Authority-Analysis: v=2.4 cv=bLEb4f+Z c=1 sm=1 tr=0 ts=69c40f5e cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=kj9zAlcOel0A:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VJWC2A9Rxtiui5an8dEA:9
+ a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: ep-i31MGON5OlTVgHzD44qA7jGtcSV4f
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-25_05,2026-03-24_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 adultscore=0 clxscore=1015 phishscore=0 impostorscore=0
+ malwarescore=0 lowpriorityscore=0 suspectscore=0 bulkscore=0
+ priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
+ definitions=main-2603250117
 
-On 2026-03-25 08:13, H. Peter Anvin wrote:
-> On 2026-03-23 23:40, Christoph Hellwig wrote:
->> With the test code ported to kernel space, none of this is required.
-> 
-> I really *really* don't like this.
-> 
-> The ability of running in user space is really useful when it comes to
-> developing new code for new platforms, which happens often enough for this code.
-> 
-
-That being said -- and I do say this as the original author of this code --
-this should be reduced to the maximum extent possible to a (minimal) set of
-#ifndef __KERNEL__, which should be localized as much as possible. The actual
-user space components, even such a thing as a simple #include, should be moved
-to a separate user space header.
-
-But pretty please do leave the ability to debug the algorithms in user space.
-This is hard code to write and debug; it is not just about regression testing.
-
-	-hpa
-
+> Multiple different ranges still could be processed, but then one should
+> continue using arch_enter_lazy_mmu_mode().
+                 lazy_mmu_mode_enable()
