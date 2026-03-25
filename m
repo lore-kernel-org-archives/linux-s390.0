@@ -1,156 +1,125 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C41FA3D1CC5;
-	Wed, 25 Mar 2026 12:04:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D78C330B0E;
+	Wed, 25 Mar 2026 12:06:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774440258; cv=none; b=P2v1fyuvHYZEgeEF45LZM8trlPVOlnCrNUogC1rZR+1eJxH0WfTmpD6QIsG9kB9ra2utXZFv9aueys4pav7LpjR4Tm/JTToldnAWj4JnF6XAzA9AMbEFlu7waJ5Dxt/oeBpZE7i6g4d7Mjiex+ymRGJ1KsASSrNB3i/9c74GDl0=
+	t=1774440409; cv=none; b=eJyHt48wG4SAQnKCmBo+PuplOzMiFszQvJzwIGevJtUx0j6pEwBz5BMP4Edf3rGnRFNTQi+rKQSDfQ8xDnp7lnOq4COtQA2FY20jQf+YgMRs3xUYkFxvQK+5SQx6XgCZNkLc2G6AfHjmjsseh+38Ig7/kBEUzVVPijYzPEC2IYA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774440258; c=relaxed/simple;
-	bh=pthnvpb4bRgKrgjRM/7gqeUF0giUw3hMBAx3mtd0Tfk=;
-	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=FG/JBs0B+p2xp2vzHKLH5azwwM13MkXQQNND2K7ovQQiD4P8F2jYoHTByHSg9y20vt07ha5eTrHldBCv738CnXdVnzz1NOD+NJ12y7W5FbKHdW46Uhw0TjQaNbbNuizIXaymwXOQXw6u0Ju3/Hohxg0+KwBRFJ3mRhE9jHYBaYk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=J7tmz/ea; arc=none smtp.client-ip=192.198.163.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1774440409; c=relaxed/simple;
+	bh=Phojv8xa88+dfb7WbhdA2HRQTRwjKmMaMbD/DrbmijU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=n0ibP4C4IR39s16dntkVVQEI5BaP4zlkwdliri7ooeaQQn/JVZ2JsuxDKRDwItRzNCkkN1IXFCBIK0D3XjfqfhUOo/45wFQf2W0eWGl9Zu2kxUbflYJyscKaZr9ps7pGJDZVg/JfgIuvVOEdMpPDMyK+MpU0uMn1ms9UqntH3kU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MFP39t5s; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="J7tmz/ea"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1774440257; x=1805976257;
-  h=from:date:to:cc:subject:in-reply-to:message-id:
-   references:mime-version;
-  bh=pthnvpb4bRgKrgjRM/7gqeUF0giUw3hMBAx3mtd0Tfk=;
-  b=J7tmz/eaTd05OL5Uk7c6f1Kz8pD8vJdRkgQWOqDIGV0pFDBcdRBCkn5L
-   CHF0T6xDxbbPlkkMcFQ5srdSF3zl6wg/kncaLmsQAOzReECtzOOSn9tHA
-   inEXGYEhqWoW7sxM7rBars5x1z7pJHS9y2ujTi3YG6RW47526m7HdSFNK
-   uc0J5+6qPA05S8bFz5l0rUjFhsYQD3Q+EHHd1TdX9Z5/Rrb4XBiLBqEu/
-   u5yJRH0WjjoSCRThOZjnWjA2bPXqdVGwbajeUIsS5WETRkPM/TElJxRS3
-   1xKJJYjeyEjD9TvZy6SnkpcjaF94s7DRIOuUW23s462znQhMdhy7V+6hw
-   g==;
-X-CSE-ConnectionGUID: +a+RKR8dQuelGRD2RspvTQ==
-X-CSE-MsgGUID: x8N4ddhjS82VENnpV3ctWw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11739"; a="79381329"
-X-IronPort-AV: E=Sophos;i="6.23,140,1770624000"; 
-   d="scan'208";a="79381329"
-Received: from orviesa002.jf.intel.com ([10.64.159.142])
-  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Mar 2026 05:04:15 -0700
-X-CSE-ConnectionGUID: GDVCGG5yQPG4XMQBFBjvAw==
-X-CSE-MsgGUID: 2mzDZ70tTHGJhYkLqZAkRA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,140,1770624000"; 
-   d="scan'208";a="255160046"
-Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.125])
-  by orviesa002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Mar 2026 05:04:07 -0700
-From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Date: Wed, 25 Mar 2026 14:04:03 +0200 (EET)
-To: linux-pci@vger.kernel.org
-cc: Bjorn Helgaas <bhelgaas@google.com>, Guenter Roeck <linux@roeck-us.net>, 
-    linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-    linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-    linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-    linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
-    Russell King <linux@armlinux.org.uk>, 
-    Geert Uytterhoeven <geert@linux-m68k.org>, 
-    Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-    "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
-    Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, 
-    Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
-    Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
-    "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>, 
-    Max Filippov <jcmvbkbc@gmail.com>, 
-    Madhavan Srinivasan <maddy@linux.ibm.com>, 
-    Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
-    John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
-    Nicholas Piggin <npiggin@gmail.com>, 
-    "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, x86@kernel.org, 
-    LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 09/10] PCI: Align head space better
-In-Reply-To: <20260324165633.4583-10-ilpo.jarvinen@linux.intel.com>
-Message-ID: <3a51ad39-558f-860d-4920-9f757b7d5131@linux.intel.com>
-References: <20260324165633.4583-1-ilpo.jarvinen@linux.intel.com> <20260324165633.4583-10-ilpo.jarvinen@linux.intel.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MFP39t5s"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62ONqHit2777768;
+	Wed, 25 Mar 2026 12:06:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=biSVFnSqK6ZzQ5nO5D0FUnG1jS2nF84gDgSaFfCYL
+	9Y=; b=MFP39t5sBawq7DkwUHf5ZJSlp61K6HKzTiWI3WS2L7yHAILQlA24KtGdJ
+	rRumw6cNnHe4UMPa+K2oUNz5nuKVdxQdxFFj+AiF/giG01LbrIcEa7BfAU4htfdx
+	CN0RgCkl8yE9AySkwKx0DhXT8x4WTan4rDA6J4iMI2LZyyoz6avv8RFFnDKiQBPK
+	yxYzwG45av6CrHQ0SwUZ88rbFuTNLx2bgIfPtkonFVDZmffXCTIBxjfzFXyQQfec
+	UEQ4Jl6wVRqrct2I4+AzDJrzVDQiN1OmU2zr1W/+pd/n1+7KUlx5lorw74WJTz/g
+	qBgoZ4GmVodCMjiYzaUWuwtRM69pg==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kwa08tc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Mar 2026 12:06:45 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62PATmDE005991;
+	Wed, 25 Mar 2026 12:06:44 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d261ypgwv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Mar 2026 12:06:44 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62PC6enK28377454
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 25 Mar 2026 12:06:40 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 258422004E;
+	Wed, 25 Mar 2026 12:06:40 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E3C572004B;
+	Wed, 25 Mar 2026 12:06:39 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 25 Mar 2026 12:06:39 +0000 (GMT)
+From: Thomas Richter <tmricht@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org,
+        irogers@google.com
+Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+        hca@linux.ibm.com, japo@linux.ibm.com
+Subject: [PATCH 0/3] perf addr2line: Rework disable_add2line_warn
+Date: Wed, 25 Mar 2026 13:06:23 +0100
+Message-ID: <20260325120627.1841175-1-tmricht@linux.ibm.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="8323328-1062646629-1774440243=:976"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: FcZ29mXjYcqB3mGbuenG4eIEee2qYtFo
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI1MDA4NCBTYWx0ZWRfX2zVUoaWvh1e+
+ IimTSg2HCC+CKFKHx8E2pZrKZ1zr/m4o+Fwf7j2uzvuH5VaQvMZH6FvrcVUv/4QmkXR4pnMZZEo
+ uRhaUCcamtyj3sm3ceUZxBeoRSX+l2lUdmH7s4Kd8On91YXBwBILxTBXMZSl/B5yvPZ4A8wZtxY
+ fgzrG9WOKT6jwAusFLabJ2vpszR79UnlXtAV2a0GjZ63tHf8bw66l5kDrLorPzNwl85APQ+xzRZ
+ hplORQEG20G3EtBIMgJ/zqvCIFjyE7ynYrh/rI+gB0krorGTIHKVgA9R2o9VkkpA0BkP8CWqYdS
+ fPd5L8cObE40YoG9/1omdvZv7cjuHVMNgEdo8Ik8D7obSS48SfwmdK9mZyHuVBwy8qElyhdS/8p
+ LCk8+IVDlDJ9sMY0/mhyl95z3pJmLj3kYAMW0+B6NCid+bjC6lFAN6QpXTQ9CWQ/pcxL0CjXkr6
+ g6i7P1dAV3zBank/Iqg==
+X-Proofpoint-GUID: u8lPum-mGpggvSJHMvPYyhqlDxwjavUA
+X-Authority-Analysis: v=2.4 cv=OsZCCi/t c=1 sm=1 tr=0 ts=69c3cfd5 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=U7nrCbtTmkRpXpFmAIza:22 a=1fk0JtzURXIa7KAGPxYA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-25_04,2026-03-24_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 adultscore=0 clxscore=1015 phishscore=0 suspectscore=0
+ lowpriorityscore=0 priorityscore=1501 bulkscore=0 spamscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603250084
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Introduce configurable addr2line_disable_warn entry in the .perfconfig
+file. Clean up addr2line configuration.
 
---8323328-1062646629-1774440243=:976
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Patch 1:
+   Rename disable_add2line_warn to addr2line_disable_warn (with 'r')
+   and start name with prefix addr2line_ to make it consistent with
+   other addr2line_xxx configuration parameters.
+Patch 2:
+   Enable symbol_conf::addr2line_disable_warn set via config file.
+Patch 3:
+   Remove global variable addr2line_timeout_ms and make it a member
+   of struct::symbol_conf.
 
-On Tue, 24 Mar 2026, Ilpo J=C3=A4rvinen wrote:
+Thomas Richter (3):
+  perf config: Rename symbol_conf::disable_add2line_warn
+  perf config: Make symbol_conf::addr2line_disable_warn configurable
+  perf addr2line: Remove global variable addr2line_timeout_ms
 
-> When a bridge window contains big and small resource(s), the small
-> resource(s) may not amount to the half of the size of the big resource
-> which would allow calculate_head_align() to shrink the head alignment.
-> This results in always placing the small resource(s) after the big
-> resource.
->=20
-> In general, it would be good to be able to place the small resource(s)
-> before the big resource to achieve better utilization of the address
-> space. In the cases where the large resource can only fit at the end
-> of the window, it is even required.
->=20
-> However, carrying the information over from pbus_size_mem() and
-> calculate_head_align() to __pci_assign_resource() and
-> pcibios_align_resource() is not easy with the current data structures.
->=20
-> A somewhat hacky way to move the non-aligning tail part to the head is
-> possible within pcibios_align_resource(). The free space between the
-> start of the free space span and the aligned start address can be
-> compared with the non-aligning remainder of the size. If the free space
-> is larger than the remainder, placing the remainder before the start
-> address is possible. This relocation should generally work, because PCI
-> resources consist only power-of-2 atoms.
->=20
-> Various arch requirements may still need to override the relocation, so
-> the relocation is only applied selectively in such cases.
->=20
-> Closes: https://bugzilla.kernel.org/show_bug.cgi?id=3D221205
-> Signed-off-by: Ilpo J=C3=A4rvinen <ilpo.jarvinen@linux.intel.com>
-> ---
->  arch/arm/kernel/bios32.c         |  3 +++
->  arch/m68k/kernel/pcibios.c       |  4 ++++
->  arch/mips/pci/pci-generic.c      |  3 +++
->  arch/mips/pci/pci-legacy.c       |  2 ++
->  arch/parisc/kernel/pci.c         |  3 +++
->  arch/powerpc/kernel/pci-common.c |  2 ++
->  arch/sh/drivers/pci/pci.c        |  2 ++
->  arch/x86/pci/i386.c              |  2 ++
->  arch/xtensa/kernel/pci.c         |  2 ++
->  drivers/pci/setup-res.c          | 39 +++++++++++++++++++++++++++++++-
->  include/linux/pci.h              |  5 ++++
->  kernel/resource.c                |  2 +-
->  12 files changed, 67 insertions(+), 2 deletions(-)
+ tools/perf/builtin-diff.c     |  4 ++--
+ tools/perf/util/addr2line.c   | 20 ++++++++++----------
+ tools/perf/util/addr2line.h   |  2 --
+ tools/perf/util/block-info.c  |  2 +-
+ tools/perf/util/config.c      |  6 ++++--
+ tools/perf/util/libbfd.c      |  2 +-
+ tools/perf/util/symbol_conf.h |  3 ++-
+ 7 files changed, 20 insertions(+), 19 deletions(-)
 
-> diff --git a/arch/sh/drivers/pci/pci.c b/arch/sh/drivers/pci/pci.c
-> index 7a0522316ee3..994c3bd36ef2 100644
-> --- a/arch/sh/drivers/pci/pci.c
-> +++ b/arch/sh/drivers/pci/pci.c
-> @@ -185,6 +185,8 @@ resource_size_t pcibios_align_resource(void *data, co=
-nst struct resource *res,
->  =09=09 */
->  =09=09if (start & 0x300)
->  =09=09=09start =3D (start + 0x3ff) & ~0x3ff;
-> +=09} else (res->flags & IORESOURCE_MEM) {
+-- 
+2.53.0
 
-I'll be adding the missing if into this in v2 (found by sashiko). It seems=
-=20
-lkp didn't test this so it was not caught earlier.
-
-> +=09=09start =3D pci_align_resource(dev, res, empty_res, size, align);
->  =09}
-> =20
->  =09return start;
-
---=20
- i.
-
---8323328-1062646629-1774440243=:976--
