@@ -1,220 +1,260 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5494E23EAAF;
-	Wed, 25 Mar 2026 13:31:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774445514; cv=none; b=u8gnFK5r7EpCnooSON0gW9AyzMJBfbvXhvsVg/jd8oTwqcQU6RdJv9gUPCG8hGq6wN5nYrdVp7pLaJ9Z2zKoRRNbWLjbz3j/A0mE9y5oQJ3DW8X/lQsQ2njG+XT9ssRcBNosM8yqJ9QOVMPDOG9bzj1iydggOJBWFR68bJbGkBI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774445514; c=relaxed/simple;
-	bh=l/ThwHA7jmh8hAWnUiyNu0+SkkTGpVEwAXYQkHY1qJg=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=qRCcnx1tg1yWIRQYCkj+Hc3xulIYNiy1e0gVgCt/sVsZNp0x5j7z8TrzBEplYD5g+0m0IwLSzrWu5eTXmaNMKmM+87UYkwDEXzlbBhJjwYsEYe/q5+JwYRH/CZEEePJ2jITrDA3+B0CnFbHdHf+D4LuzPaUg/XpmQdO0++b72VQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FDOa9F7b; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D49BC3F8E1A
+	for <linux-s390@vger.kernel.org>; Wed, 25 Mar 2026 15:03:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.174
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774450989; cv=pass; b=sp+XbQh9HtNbZhJFQEGh3LMPfto7r6ROGH9u6xqqlUZniwSt1Bh2O5CkdR/vTmLyqlnSCip/nE/fHKIJP4rtMK4OYRU7wKbkyZ2FY+FU4tBpM0kwbyV4zN+fanAxg0tyKeriJHZxFL/AsyrrgE7/eMoZVMq7YG86zjo2jKFc10o=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774450989; c=relaxed/simple;
+	bh=EqNRQCc2ugxrOPUp7Ovatotqy8vCfTRyWxRiEnNz9TU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=KN/NQLZVqrZvrriBzvCiUEyO28okdptJMC1sWSYnxeK2Zzai7CaR0DzDEvoYkq121RxhtM8OjvN2xOMQPloMTMSBuBR00LwgpgfTFvg0ej1QlLEOsZb1HF8Mc3QMKMrr/OE3fXFlGFHIHWSVVGso61r0joEE/GcjiN7Zf4f5NxM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=GdGCvNuF; arc=pass smtp.client-ip=209.85.214.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FDOa9F7b"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62P9IRMQ406889;
-	Wed, 25 Mar 2026 13:31:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pp1; bh=AX4NGUAiA6LuFkInZ2FGwECGSS3f
-	mHNNp2JM0udvmYU=; b=FDOa9F7bRiSgDo5aXpZ0l4Yk9kiqGRxTlHH8KUvFcfxC
-	FqjioQ7iffAYnMY1mePmTx8dFh4Pt7eNfqV/K5J+PFjWiG1QX0RONhdaqFnDSezL
-	QAAq8Ug8J7240GDUYguZo/22rqY62+ykOnFxEN+xF7SFvfpyD6FNOrwthSv/00+y
-	0NjzSfi5d9K/c08HtuY6NgGof2f3PmR+l+fbsmyyP1K6dOhCYAnXCTGrZsuvql25
-	0d0mH0Ox7eeyXKtGWPxIot6JUK5uwaaXPhPLRuta91xQmKIheEV8rZXuswHt4yhU
-	BZBP+4iKD8q/oEqaZ/Yo+ITnf/cG7t6WYJ/ZHWu1BQ==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kxqgmvh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Mar 2026 13:31:46 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62PAeJdL005983;
-	Wed, 25 Mar 2026 13:31:45 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d261ypste-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Mar 2026 13:31:45 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62PDVfu636045290
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 25 Mar 2026 13:31:41 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3DD5620043;
-	Wed, 25 Mar 2026 13:31:41 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DE0B02004B;
-	Wed, 25 Mar 2026 13:31:40 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 25 Mar 2026 13:31:40 +0000 (GMT)
-From: Julian Ruess <julianr@linux.ibm.com>
-Subject: [PATCH v8 0/3] vfio/pci: Introduce vfio_pci driver for ISM devices
-Date: Wed, 25 Mar 2026 14:31:22 +0100
-Message-Id: <20260325-vfio_pci_ism-v8-0-ddc504cde914@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="GdGCvNuF"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2aeab6ff148so82035ad.1
+        for <linux-s390@vger.kernel.org>; Wed, 25 Mar 2026 08:03:07 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1774450987; cv=none;
+        d=google.com; s=arc-20240605;
+        b=MjFIpl2Dgdv5x9V3LYl9dKYZaqOTODEQoDRilLjwaoJHKmlCns2tBFuwuGpQE34ZPF
+         e6TXi1QrQw3bDtbB0ZGPFZ9g3ZsjzZtnd3VDMFoGe3fkQH9TYUuzYK55lFf/WGMEkgfz
+         +ey+9jmVBNM16JgfjMF0DgkcZLgtGQrSm6QebjfoQMWUzNzA4OwnXSWxMDl02fbINNbE
+         GFXgI9hVk0Zb1v/X1mtoHh2j+CHRfgODQMg1fGV31imdVlhtPP14du/mA324Ck/ULkmX
+         nIDd/F0WFBBau8a6nFM1lFBILkBOj2EablSNTn6rL1RO+T5+qIApcnjqUpPQqUSiQIOP
+         sYug==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=TEh1E2VhLIiH/OttMlumW/dAxmwoiue8mzYaXEmRKFs=;
+        fh=r70j9X/SfkKlS4jLm9v5wGu6DlO9ouaw2dzoxwvRPNY=;
+        b=LIi946n8TX6UQBBS5/QaFUx/aMexyXktUj0TNk6M5+UegcWYnWYBhO9pNtHHobcUgd
+         L+3io00NFmmAP3TmxZBZ2XffxXafIZ+W7QMU72wBA0UmKZEn9+a95K0cS/fLVhNgPiAq
+         to79k+Sal+cmfHBSS/Qs7v4HO7hwZJNGuuEOgsb2iDWW1Np73QXbH6Y1XN6DHcsJJeUR
+         +xZMa6Xpm+yFNbFLDemdxq05PRCqfOwekIKbo/DU7Op17jSDgOLm8VN3LYB4/hsYib83
+         kLHGGkkpo9maXTPDeGhOQlLk12vb0iTYbXL8rtPrZvbqKoqAp+v+5AnJM3SSujeFG1Cn
+         leFg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1774450987; x=1775055787; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=TEh1E2VhLIiH/OttMlumW/dAxmwoiue8mzYaXEmRKFs=;
+        b=GdGCvNuFaEclE6A/6ZgbqASG+szqSjxdQ2sXOAhposeaQIly1jQF3fvRI3mVnyzj2H
+         Z0EmqVG3QpaoQ1cOspRl0bAiw+kpL8Sfan1FXSeBn1CxCsftNKqXTTkQj4t9AJBKelZQ
+         pGDtF0eEHh16n+J3hPb3Ru5k3sd3VnXlzcFbkf++LzCV42J2wRVBUyRLWl/whkc1ukVC
+         AS7l4a0x+6dPoPOUcR42jruxkDUTZ2+CXS77T2u335Kfhv/ffyB10zBCCvg3EMV9f18Q
+         JUyWSoAOO2nzAoiM4kQmOHxAjVQKyecPtN/1UbJMsppNphN6EWeV9pR2CAXzQVNtsSti
+         N2Bg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774450987; x=1775055787;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=TEh1E2VhLIiH/OttMlumW/dAxmwoiue8mzYaXEmRKFs=;
+        b=Ptg1FpLmuyLCndkLHmHo9c2iVB6l2TIyfYzzhzbNYM7Gas+jG+zBMktwyQ7NM9CtFr
+         cx33VDDLoeyaDUr1HAOtcxN6jrTIfIUo4SEZr9wdJ2KNTup63tt0fpIoutHePl43p56M
+         kHjPMlceooHmUa2LUvn7RNvD/EdHvSBTIMFavQIM/zyo/Ao+r7LFsVKP+/KxjGIYLtMg
+         hY97YGAnrQdKNVquC0PEuGWn2j+dspFEW8oVlbvkNi3WCskjcpCCDcf5neH9WXi5qZyS
+         FfNbQ6bsGyjjRGAu105V2B2MgIR934pj7nwsFplnv3K1LdaeRIFeBgmN7iKtj8kE6Ky7
+         YgFQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV8ETrP5vBoVSdaVMCT3uU0PRwnLUZ1FlM/jbPbldGc5iH3QDLxd4A67OnOuhZvtouDF64TqhuNLx1g@vger.kernel.org
+X-Gm-Message-State: AOJu0YxccqyrIXK1c852QH664GRzMy7Pdevlv5Qj+fiICl8AvpZKcI5d
+	te0DdzYdK2yrnfjHLTFKQeuDc7ey/nCtGHnlRQR10B1LV999/+VOvefdsPMbiI96GSsJaXZzvl4
+	ussqlVyPQHj7zabTmnccAL80+UYP2XxmWg3PeB6y7HLP+ED+zRSPtmUu4
+X-Gm-Gg: ATEYQzy+Qwdja2BqqSKZpLjcTGEc10ZuRWwGCSwIWk8O+YwJDC95hZaMxwy6PbaDmCO
+	kW81q31Y4eKQm/ElPX0rzoClI6mZEr5iOC7HYBHS4WPLvuwuX84L6VUQMBTbiOXUXcRXG1umOkd
+	qTHEPc71bXioUxNq5SHWHFiShxKD2T4hDO7KaOprRE2f1UiaCFkTUamNHeUTf5OB43EAVVg2qKx
+	Tfr+4Mq5i10WlnDCOR5jCYnM0Qnm6pJ6/XC+15FzouHWIJ3yd9abSYnuJp1TfGiFMz6LAU825s5
+	Kt1JEKKzKktzLsxOxw01YzQxT5daFIS8giLAkQ==
+X-Received: by 2002:a17:902:ef4d:b0:2b0:b0c9:96e2 with SMTP id
+ d9443c01a7336-2b0b2a7f9eamr246935ad.21.1774450985756; Wed, 25 Mar 2026
+ 08:03:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-B4-Tracking: v=1; b=H4sIAKrjw2kC/32Sy27bMBAAfyXQuQp2l+QumVP+owgMPhMCtR1Yj
- ZDC8L+X8qWqQuW4AmaGFPc6TPlS8zQ8PVyHS57rVM+nNtgfD0N886fXPNbU5oGADBDJOJd6Prz
- HeqjTcYQYI2UtRFqGhrxfcqmfd93Plza/1en3+fLnbp9p+bqIGBDN/6KZRhgje1XYsEmonn/V0
- 8fnYw3Hx3g+Lu472EIdsACC00aJKn4DLqeY1brsNgLVBBgTYvIZBNJOWYHpgYQCwtFicr2yXpV
- JbQR6uXOwRYknR8HulbEHamHTDmy4CPbKZl3e3tk0gRR24pUO2uNuWTpgEEXaBp2NcK/M/8oEv
- BFwE6TkRGlwnMXtll0HjBx8YDEhQved5buyLD+Ng9WpeHaY98pfnmkBfShtvdCABtsr21UZcSO
- wTWCMBh9dIPtlw+4CXAtoI8AmUEoRk09tR/VWcLvd/gJ/V0IUyQMAAA==
-X-Change-ID: 20250227-vfio_pci_ism-0ccc2e472247
-To: schnelle@linux.ibm.com, wintera@linux.ibm.com, ts@linux.ibm.com,
-        oberpar@linux.ibm.com, gbayer@linux.ibm.com,
-        Alex Williamson <alex@shazbot.org>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Shameer Kolothum <skolothumtho@nvidia.com>,
-        Kevin Tian <kevin.tian@intel.com>
-Cc: mjrosato@linux.ibm.com, alifm@linux.ibm.com, raspl@linux.ibm.com,
-        hca@linux.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
-        julianr@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-pci@vger.kernel.org
-X-Mailer: b4 0.14.2
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 5myxCgrO0ytfx_W2wgjp7fWPh22yLOni
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI1MDA5NSBTYWx0ZWRfXxvf05h+A/+Z2
- CpviZTRVOHSn4JTLqAekHOjQYNKuhhntwLE4w/f0FLu55KGuCPwDtRoo+Jyje7zEbBeeI4nGuQI
- LBgqSl7dLHf9jrrvqLQt2n9qIWKSbzBRkMK2I+MmW9V2gkcELeQ2gs+JDy8bCxtEm4XGQbz9VcO
- 7WzShwVsF0cwIyZO7q5QU1bi8WfebPOJVpIqNmrn2QtDAVGBLtYmXP1quy2cTwVoVIEaBe6U2+J
- 4l9HFiHHXlCWWp67OFuMPpx4Z1i98DArXhD+CCrtbIGyvq49GwmDmJ8Sv6vyjznw9QQz8qJjdQN
- vinhVW6c6MhbcJKJvf9GVA/gz7Odin5jvcnIt7IqTYrE2TuEj0Rl/jb8xv+blYQgg54ypRYiar2
- MEXj2eePNsF4mrGw3pqYcEBTr5R5JdY+DzWkQBN99ThT8FkA/zKnlYymIQ+crH6CTXI358WEtF7
- Cn1R5kj6i1ZU8b2EO1g==
-X-Authority-Analysis: v=2.4 cv=bLEb4f+Z c=1 sm=1 tr=0 ts=69c3e3c2 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=3XGxXiOqMMHeIvAuhUYA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: 5myxCgrO0ytfx_W2wgjp7fWPh22yLOni
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-25_04,2026-03-24_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 adultscore=0 clxscore=1015 phishscore=0 impostorscore=0
- malwarescore=0 lowpriorityscore=0 suspectscore=0 bulkscore=0
- priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
- definitions=main-2603250095
+References: <20260325120627.1841175-1-tmricht@linux.ibm.com> <20260325120627.1841175-2-tmricht@linux.ibm.com>
+In-Reply-To: <20260325120627.1841175-2-tmricht@linux.ibm.com>
+From: Ian Rogers <irogers@google.com>
+Date: Wed, 25 Mar 2026 08:02:53 -0700
+X-Gm-Features: AaiRm50lZIlNjnCB5rKHqTebxoxD2qMsZ2sUdhqBdRfwcHc3PS-44RLQmndEO10
+Message-ID: <CAP-5=fXBoKMp1COEHVtSiu_kRvELqBpFDZ7_m05y=MFqDhk0yA@mail.gmail.com>
+Subject: Re: [PATCH 1/3] perf config: Rename symbol_conf::disable_add2line_warn
+To: Thomas Richter <tmricht@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org, 
+	agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com, 
+	hca@linux.ibm.com, japo@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi all,
+On Wed, Mar 25, 2026 at 5:06=E2=80=AFAM Thomas Richter <tmricht@linux.ibm.c=
+om> wrote:
+>
+> Rename member symbol_conf::disable_add2line_warn to
+> symbol_conf::addr2line_disable_warn to make it consistent with other
+> addr2line_xxx constants.
+> No functional change.
+>
+> Fixes: 257046a36750a ("perf srcline: Fallback between addr2line implement=
+ations")
+> Cc: Ian Rogers <irogers@google.com>
+> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
 
-This series adds a vfio_pci variant driver for the s390-specific
-Internal Shared Memory (ISM) devices used for inter-VM communication
-including SMC-D.
+Reviewed-by: Ian Rogers <irogers@google.com>
 
-This is a prerequisite for an in-development open-source user space
-driver stack that will allow to use ISM devices to provide remote
-console and block device functionality. This stack will be part of
-s390-tools.
+Thanks,
+Ian
 
-This driver would also allow QEMU to mediate access to an ISM device,
-enabling a form of PCI pass-through even for guests whose hardware
-cannot directly execute PCI accesses, such as nested guests.
-
-On s390, kernel primitives such as ioread() and iowrite() are switched
-over from function-handle-based PCI load/stores instructions to PCI
-memory-I/O (MIO) loads/stores when these are available and not
-explicitly disabled. Since these instructions cannot be used with ISM
-devices, ensure that classic function-handle-based PCI instructions are
-used instead.
-
-The driver is still required even when MIO instructions are disabled, as
-the ISM device relies on the PCI store‑block (PCISTB) instruction to
-perform write operations.
-
-Thank you,
-Julian
-
-Signed-off-by: Julian Ruess <julianr@linux.ibm.com>
----
-Changes in v8:
-- Format vfio_pci_config_rw_single().
-- Add () around the off macro argument in ISM_VFIO_PCI_OFFSET_TO_INDEX.
-- Use function-handle-based wording consistently.
-- Return -EINVAL in default case in ism_vfio_pci_ioctl_get_region_info().
-- Change ssize_t to size_t in ISM_READ macro.
-- Use kmem_cache_args with with kmem_cache_create() to prevent kernel
-  panic when using HARDENED_USERCOPY.
-- Link to v7: https://lore.kernel.org/r/20260323-vfio_pci_ism-v7-0-abf537150408@linux.ibm.com
-
-Changes in v7:
-- Add 4k alignment and to kmem_cache_create() to do not cross the integral
-  boundary.
-- Add SLAB_RECLAIM_ACCOUNT ans SLAB_ACCOUNT to kmem_cache_create() for memcg accounting.
-- Link to v6: https://lore.kernel.org/r/20260319-vfio_pci_ism-v6-0-c6bab675bc0a@linux.ibm.com
-
-Changes in v6:
-- Introduce ism_vfio_pci_init_dev() and ism_vfio_pci_release_dev().
-- Add early return for __zpci_load().
-- Use kmem_cache_alloc() instead of kmem_cache_zalloc().
-- Rename ivdev to ivpcd for consistency.
-- Rename ism_pci_open_device() to ism_vfio_pci_open_device().
-- Link to v5: https://lore.kernel.org/r/20260317-vfio_pci_ism-v5-0-b73248b4e576@linux.ibm.com
-
-Changes in v5:
-- Support reads < 8 bytes.
-- Link to v4: https://lore.kernel.org/r/20260313-vfio_pci_ism-v4-0-4765ae056f71@linux.ibm.com
-
-Changes in v4:
-- Fix bug with < 8 byte reads. For code simplicity, only support 8 byte reads.
-- Fix leak of ivpcd.
-- Fix cache replacement by implementing a per-device kmem_cache.
-- Link to v3: https://lore.kernel.org/r/20260305-vfio_pci_ism-v3-0-1217076c81d9@linux.ibm.com
-
-Changes in v3:
-- Add comments to ism_vfio_pci_do_io_r() and ism_vfio_pci_do_io_w().
-- Format Kconfig.
-- Add 4k boundary check to ism_vfio_pci_do_io_w().
-- Use kmem_cache instead of kzalloc in ism_vfio_pci_do_io_w().
-- Add error handler to struct ism_vfio_pci_driver.
-- Link to v2: https://lore.kernel.org/r/20260224-vfio_pci_ism-v2-0-f010945373fa@linux.ibm.com
-
-Changes in v2:
-- Remove common code patch that sets VFIO_PCI_OFFSET_SHIFT to 48.
-- Implement ism_vfio_pci_ioctl_get_region_info() to have own region
-  offsets.
-- For config space accesses, rename vfio_config_do_rw() to
-  vfio_pci_config_rw_single() and export it.
-- Use zdev->maxstbl instead of ZPCI_BOUNDARY_SIZE.
-- Add comment that zPCI must not use MIO instructions for config space
-  access.
-- Rework patch descriptions.
-- Update license info.
-- Link to v1: https://lore.kernel.org/r/20260212-vfio_pci_ism-v1-0-333262ade074@linux.ibm.com
-
----
-Julian Ruess (3):
-      vfio/pci: Rename vfio_config_do_rw() to vfio_pci_config_rw_single() and export it
-      vfio/ism: Implement vfio_pci driver for ISM devices
-      MAINTAINERS: add VFIO ISM PCI DRIVER section
-
- MAINTAINERS                        |   6 +
- drivers/vfio/pci/Kconfig           |   2 +
- drivers/vfio/pci/Makefile          |   2 +
- drivers/vfio/pci/ism/Kconfig       |  10 +
- drivers/vfio/pci/ism/Makefile      |   3 +
- drivers/vfio/pci/ism/main.c        | 408 +++++++++++++++++++++++++++++++++++++
- drivers/vfio/pci/vfio_pci_config.c |   8 +-
- drivers/vfio/pci/vfio_pci_priv.h   |   4 +
- 8 files changed, 440 insertions(+), 3 deletions(-)
----
-base-commit: c369299895a591d96745d6492d4888259b004a9e
-change-id: 20250227-vfio_pci_ism-0ccc2e472247
-
-Best regards,
--- 
-Julian Ruess <julianr@linux.ibm.com>
-
+> ---
+>  tools/perf/builtin-diff.c     |  4 ++--
+>  tools/perf/util/addr2line.c   | 12 ++++++------
+>  tools/perf/util/block-info.c  |  2 +-
+>  tools/perf/util/libbfd.c      |  2 +-
+>  tools/perf/util/symbol_conf.h |  2 +-
+>  5 files changed, 11 insertions(+), 11 deletions(-)
+>
+> diff --git a/tools/perf/builtin-diff.c b/tools/perf/builtin-diff.c
+> index 59bf1f72d12e..8a93e56f4a7e 100644
+> --- a/tools/perf/builtin-diff.c
+> +++ b/tools/perf/builtin-diff.c
+> @@ -1353,7 +1353,7 @@ static int cycles_printf(struct hist_entry *he, str=
+uct hist_entry *pair,
+>         /*
+>          * Avoid printing the warning "addr2line_init failed for ..."
+>          */
+> -       symbol_conf.disable_add2line_warn =3D true;
+> +       symbol_conf.addr2line_disable_warn =3D true;
+>
+>         bi =3D block_he->block_info;
+>
+> @@ -1987,7 +1987,7 @@ int cmd_diff(int argc, const char **argv)
+>
+>         if (compute =3D=3D COMPUTE_STREAM) {
+>                 symbol_conf.show_branchflag_count =3D true;
+> -               symbol_conf.disable_add2line_warn =3D true;
+> +               symbol_conf.addr2line_disable_warn =3D true;
+>                 callchain_param.mode =3D CHAIN_FLAT;
+>                 callchain_param.key =3D CCKEY_SRCLINE;
+>                 callchain_param.branch_callstack =3D 1;
+> diff --git a/tools/perf/util/addr2line.c b/tools/perf/util/addr2line.c
+> index 31c0391fffa3..e9f084db0802 100644
+> --- a/tools/perf/util/addr2line.c
+> +++ b/tools/perf/util/addr2line.c
+> @@ -123,7 +123,7 @@ static enum cmd_a2l_style cmd_addr2line_configure(str=
+uct child_process *a2l, con
+>                         lines =3D 3;
+>                         pr_debug3("Detected binutils addr2line style\n");
+>                 } else {
+> -                       if (!symbol_conf.disable_add2line_warn) {
+> +                       if (!symbol_conf.addr2line_disable_warn) {
+>                                 char *output =3D NULL;
+>                                 size_t output_len;
+>
+> @@ -310,7 +310,7 @@ int cmd__addr2line(const char *dso_name, u64 addr,
+>         }
+>
+>         if (a2l =3D=3D NULL) {
+> -               if (!symbol_conf.disable_add2line_warn)
+> +               if (!symbol_conf.addr2line_disable_warn)
+>                         pr_warning("%s %s: addr2line_subprocess_init fail=
+ed\n", __func__, dso_name);
+>                 goto out;
+>         }
+> @@ -330,7 +330,7 @@ int cmd__addr2line(const char *dso_name, u64 addr,
+>         len =3D snprintf(buf, sizeof(buf), "%016"PRIx64"\n,\n", addr);
+>         written =3D len > 0 ? write(a2l->in, buf, len) : -1;
+>         if (written !=3D len) {
+> -               if (!symbol_conf.disable_add2line_warn)
+> +               if (!symbol_conf.addr2line_disable_warn)
+>                         pr_warning("%s %s: could not send request\n", __f=
+unc__, dso_name);
+>                 goto out;
+>         }
+> @@ -339,7 +339,7 @@ int cmd__addr2line(const char *dso_name, u64 addr,
+>         switch (read_addr2line_record(&io, cmd_a2l_style, dso_name, addr,=
+ /*first=3D*/true,
+>                                       &record_function, &record_filename,=
+ &record_line_nr)) {
+>         case -1:
+> -               if (!symbol_conf.disable_add2line_warn)
+> +               if (!symbol_conf.addr2line_disable_warn)
+>                         pr_warning("%s %s: could not read first record\n"=
+, __func__, dso_name);
+>                 goto out;
+>         case 0:
+> @@ -355,7 +355,7 @@ int cmd__addr2line(const char *dso_name, u64 addr,
+>                                               /*addr=3D*/1, /*first=3D*/t=
+rue,
+>                                               NULL, NULL, NULL)) {
+>                 case -1:
+> -                       if (!symbol_conf.disable_add2line_warn)
+> +                       if (!symbol_conf.addr2line_disable_warn)
+>                                 pr_warning("%s %s: could not read sentine=
+l record\n",
+>                                            __func__, dso_name);
+>                         break;
+> @@ -363,7 +363,7 @@ int cmd__addr2line(const char *dso_name, u64 addr,
+>                         /* The sentinel as expected. */
+>                         break;
+>                 default:
+> -                       if (!symbol_conf.disable_add2line_warn)
+> +                       if (!symbol_conf.addr2line_disable_warn)
+>                                 pr_warning("%s %s: unexpected record inst=
+ead of sentinel",
+>                                            __func__, dso_name);
+>                         break;
+> diff --git a/tools/perf/util/block-info.c b/tools/perf/util/block-info.c
+> index 649392bee7ed..8d3a9a661f26 100644
+> --- a/tools/perf/util/block-info.c
+> +++ b/tools/perf/util/block-info.c
+> @@ -303,7 +303,7 @@ static int block_range_entry(struct perf_hpp_fmt *fmt=
+, struct perf_hpp *hpp,
+>         char buf[128];
+>         char *start_line, *end_line;
+>
+> -       symbol_conf.disable_add2line_warn =3D true;
+> +       symbol_conf.addr2line_disable_warn =3D true;
+>
+>         start_line =3D map__srcline(he->ms.map, bi->sym->start + bi->star=
+t,
+>                                   he->ms.sym);
+> diff --git a/tools/perf/util/libbfd.c b/tools/perf/util/libbfd.c
+> index 63ea3fb53e77..c1c12308cc12 100644
+> --- a/tools/perf/util/libbfd.c
+> +++ b/tools/perf/util/libbfd.c
+> @@ -233,7 +233,7 @@ int libbfd__addr2line(const char *dso_name, u64 addr,
+>         }
+>
+>         if (a2l =3D=3D NULL) {
+> -               if (!symbol_conf.disable_add2line_warn)
+> +               if (!symbol_conf.addr2line_disable_warn)
+>                         pr_warning("addr2line_init failed for %s\n", dso_=
+name);
+>                 return 0;
+>         }
+> diff --git a/tools/perf/util/symbol_conf.h b/tools/perf/util/symbol_conf.=
+h
+> index 71bb17372a6c..ff229942fbb1 100644
+> --- a/tools/perf/util/symbol_conf.h
+> +++ b/tools/perf/util/symbol_conf.h
+> @@ -51,7 +51,7 @@ struct symbol_conf {
+>                         report_block,
+>                         report_individual_block,
+>                         inline_name,
+> -                       disable_add2line_warn,
+> +                       addr2line_disable_warn,
+>                         no_buildid_mmap2,
+>                         guest_code,
+>                         lazy_load_kernel_maps,
+> --
+> 2.53.0
+>
