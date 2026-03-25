@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B5933AE1BC;
-	Wed, 25 Mar 2026 11:31:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BE253CCFD1;
+	Wed, 25 Mar 2026 11:32:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774438297; cv=none; b=KlVufjwrs3h3zDrfjTKqCcd6HJ4NDEVT9vih7k7a74Csi4UHy+cOE+43UPEpNNfBVpOEqCAdgvpjr1uRZXG82FD0ncoVrP9PuLLoX+jRC2895sMj3kY2Cdip2noGPi1Lar8MPc1j5AEA4R8k8oW6lWqvLGh7K6SN9p8mzwkCYew=
+	t=1774438335; cv=none; b=Tk4iWPaY3VOyLg7IJYq/0Lz81+jTwh18EwSHwsEoJ+1UkCd/Uw64d/31xiiToW7oJEOUF08Ju8aSzLFN7AgEuq7tp27ODhIr+9b6a1oki897s1zMX1nMPRQ4ncWBJug4/Db3a9qQUkaJr8kHt9Gprl6f1ViFqmyiOfglfJyOfpw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774438297; c=relaxed/simple;
-	bh=ylRm2gYh1SSNTms1TdIe/v1LeEn6b9whQkZPd++l0EY=;
+	s=arc-20240116; t=1774438335; c=relaxed/simple;
+	bh=UHl6aIxvtuzZoFfPKn0m6HqE+Ix+jQLwOiO6mcxm7gc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Ep9puEl+xQAzyh6dI6RKI+GeDho3s5RodkREaeEqdIeyw/GHK8QLQTk68lRl/jHRG02mzKQF2q/M2hlgehVEMaJYGK3QG3upKcMv5/WtVYnUFRadQ/z+NwnMda7y8Z2/U7uAP8gWQdOwzPM4ClY3IJ8eUCek48iJ16wssJjw5Wc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=q7AMjbL5; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=r/MHjWRkdtB3HlJsVGzTjCsQ2nTkPwdbSRzxdz+/6YRgx4EsoL9qM2Gjm1sloHJbFjAN2dwVxjHrmFln+SOv4o37S8fILinUaiO0t6qSZb4/Y1+fGPRk440hgLd+MEs23SeXxLkcIg+OUsWsJWTLnzHy7cBnd7i8fDbVzWqen5o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=p9xj+yQr; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="q7AMjbL5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89274C4CEF7;
-	Wed, 25 Mar 2026 11:31:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="p9xj+yQr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35258C2BC9E;
+	Wed, 25 Mar 2026 11:31:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774438296;
-	bh=ylRm2gYh1SSNTms1TdIe/v1LeEn6b9whQkZPd++l0EY=;
+	s=k20201202; t=1774438335;
+	bh=UHl6aIxvtuzZoFfPKn0m6HqE+Ix+jQLwOiO6mcxm7gc=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=q7AMjbL5W0jOhmMe9L0gOLKFEqzai/JPUxmdE2mOpoQ36iaMfFZZLITyNzxhZlevK
-	 rA0SbrRURTtaztJltjjMS5YPxpAJmm/omGpFo3nDqFaJ37FJP4x4MIc5TH6RDrtCZ6
-	 +nUxPxPDn0Uc4uffmUPwMTzhwm8enjtoGEKl4XHmKc0Zq0dwCdpLgIqp7d6DrOZ7NL
-	 VvSnhuHBd0UkpP4vcl2ZxbmbBm0pA8yz1q/sjOs91mTiMNwSVhPHygkMwdAX3hVzTE
-	 a6rHjx1MiPC03K9uIW/rbqvMgTfTHiljj5xIVSJAw2Sm/y0jE0atJzrh4/qaZiCMEw
-	 TCsVxjvF/0UXQ==
-Message-ID: <efec4a41-3889-44f9-adbb-c74fddd63ae8@kernel.org>
-Date: Wed, 25 Mar 2026 12:31:15 +0100
+	b=p9xj+yQrGXkpoAF0fY9H5IaPcoHqI+j6qFDwyvc4yO1C747biO/reuY8t3d94mmup
+	 yQMdUZgPvj2v9edGgjvwa44Pe6FwmdZ43t/G8cYYldfmo7YsAt7eQsYUOQchWN8tEp
+	 lxT4aSMwTa3Lg9zV/TmzInC2IVkU8yAXXMuWflmPLvFoKuR5BI2SX5CUo5rJVYT1a9
+	 QJSXMoguTPIulqY0xz7WbsLHtpKTLSiyneymYrRj8U6WWUrJxGfwFv6fjWC6LeaTQu
+	 meTzpjdQXm6htU8OLApZ7jlovVUK4NVBzdOcUYZm4Uly3jpcZL4fYc0zooZuxOTQqt
+	 7cnUszMPYt6sQ==
+Message-ID: <d7ba53bd-e484-4ea1-b90b-e44321eef4c3@kernel.org>
+Date: Wed, 25 Mar 2026 12:31:51 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,8 +35,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 8/9] arm64: defconfig: remove obsolete assignment to
- SENSORS_SA67MCU
+Subject: Re: [PATCH 9/9] arm64: defconfig: remove obsolete assignment to
+ SLIM_QCOM_CTRL
 To: Krzysztof Kozlowski <krzk@kernel.org>
 Cc: Alexandre Gonzalo <alexandre.gonzalo@arm.com>,
  linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -103,33 +103,41 @@ Cc: Alexandre Gonzalo <alexandre.gonzalo@arm.com>,
  Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
  Anna Schumaker <anna.schumaker@oracle.com>
 References: <20260317-arm_defconf_cleanup-v1-0-8eecb7fdd24d@kernel.org>
- <20260317-arm_defconf_cleanup-v1-8-8eecb7fdd24d@kernel.org>
- <fa1e4d72-50e2-49d4-a458-1e3d300cce4f@kernel.org>
+ <20260317-arm_defconf_cleanup-v1-9-8eecb7fdd24d@kernel.org>
+ <9545b66c-f223-48a3-96fe-c906d2307654@kernel.org>
 From: "Vincent Mailhol (Arm)" <mailhol@kernel.org>
 Content-Language: en-US
-In-Reply-To: <fa1e4d72-50e2-49d4-a458-1e3d300cce4f@kernel.org>
+In-Reply-To: <9545b66c-f223-48a3-96fe-c906d2307654@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 3/17/26 12:33, Krzysztof Kozlowski wrote:
+On 3/17/26 12:35, Krzysztof Kozlowski wrote:
 > On 17/03/2026 10:13, Vincent Mailhol (Arm) wrote:
->> The Kontron SMARC-sAM67 board management controller is not in the
->> kernel tree anymore. Clean-up the leftover reference to
->> CONFIG_SENSORS_SA67MCU which was left in the defconfig.
+>> The Qcom Slimbus controller driver is not in the kernel tree
+>> anymore. Clean-up the leftover reference to CONFIG_SLIM_QCOM_CTRL
+>> which was left in the defconfig.
 >>
->> Fixes: e710b2283725 ("Revert "hwmon: add SMARC-sAM67 support"")
+>> Fixes: 7cbba32a2d62 ("slimbus: qcom: remove unused qcom controller driver")
 >> Signed-off-by: Vincent Mailhol (Arm) <mailhol@kernel.org>
 >> ---
 >>  arch/arm64/configs/defconfig | 1 -
 >>  1 file changed, 1 deletion(-)
 > 
-> https://lore.kernel.org/all/20260302122540.1377444-3-mwalle@kernel.org/
+> https://lore.kernel.org/all/20251223140645.3545658-1-mikko.rapeli@linaro.org/
 
-Meanwhile, that patch was picked. It has already landed in linux-next.
-So I will remove it from my series.
+I will add that this was initially reported by Mikko.
 
-> It is said to see that multiple people did the same work twice and did
-> work which was not sent to right addresses. :(
+> I even asked there to send it to qcom maintainers :/
+> 
+> Exactly that case also encouraged me to document this, since we do not
+> know how to fix get_maintainers. See commit
+> 6efe5322f060099c8bc51aaee83b857394e42dd5
+I read the thread in which you posted that patch. Thanks for updating
+the documentation, but as people anticipated, as long as the tool
+doesn't do the right thing, there will be people like me who will mess
+up the recipient list.
+
+Anyway, sorry for that.
 
 
 Yours sincerely,
