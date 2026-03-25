@@ -1,143 +1,83 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from canpmsgout10.his.huawei.com (canpmsgout10.his.huawei.com [113.46.200.225])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A76BC3B893B;
-	Wed, 25 Mar 2026 10:33:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD0813A3808;
+	Wed, 25 Mar 2026 10:40:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.225
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774434826; cv=none; b=sC4+V3eUgRALXWRsT/Mg7W3pJr9LRE4jQU9enfr0dhSRP9QaOoPvoXhCRA3iMvNQdpiDi4R4ONFmAAJT5Ax+EDoNOD0OhtNwehUcnEQLxeulFcLbqKl9hZNebk6X7x+/O4uqV6tyBsM2CS4IS5aYqz6bWepuyL1gEXzJFLSAYpg=
+	t=1774435261; cv=none; b=CrrEsqyGXHtCx/Wo50BdadmIBAmhpo0moNNid+fOxBoSG606b7TwH3D7j7WsYMcBHP63Z6oc4hHkit0iNMiOuGLDGNTBDZuIEthXC3zUSwuugbMJbmsEkMoClGf9J6IrJKaIZ0ovi/fsDbaE1/OSf9q3tISK1gdvEiG6dGI3hDQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774434826; c=relaxed/simple;
-	bh=aJiJufwALZTrMErym90lg9xadYFrtwTh9zLM612wdfU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=izvZ5uGt/141mDroqVgEWmmo3ckrTrrhH9zQMgYWQwNPkp5xP+r1Yu6Tbv/AKVQ/UKLalP0N2K3bY3vNQY04Uo/S/x0J7isRmTdtEpkfm3nQ2MgVW0aHH+bK04y1AZBSG5YdPfbL+KcUpProsDO0jcTL/qoq/lWVfAu5h9/zRMY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IQ7wamBu; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774435261; c=relaxed/simple;
+	bh=BcDi6nzVlQg2U3KmKSOB/wadPQ2QPbC8tRKQEuEiMYM=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=bBidy2QLy5S8z+pJ2qLjGpxunxAShbJEE0npO7eLIM2u0JzTngQ+AGgLShhG1IM9xLyypeX3H3jHn5+CwBDIE6j3HU/5P905ywif0brhsvUcS1Zokm0wHVtXa6FMCS/drKs7NM38gchfX3gIk7bCjy2x2rKaS0T9yWjYb62AV0I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=6icw1ztY; arc=none smtp.client-ip=113.46.200.225
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IQ7wamBu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45D04C4CEF7;
-	Wed, 25 Mar 2026 10:33:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774434826;
-	bh=aJiJufwALZTrMErym90lg9xadYFrtwTh9zLM612wdfU=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=IQ7wamBuBswIV06YMQ512/86FaeSJDO1hVJmHF15aa7lwqSBhYRoh2/xQs7mCuMVn
-	 jIZx2QfPrLjG8x4HGTqwuohoFEss2YApWTN6VCPS6cZhs/Cz8meOXIe/nuz3nW3OfQ
-	 sW0aKsRm2pkCRj3Tz0xlGVf6Gag2qK2q2BHc6gd5m/lWaXyDpvlRC/a6o2Y0gsRKbw
-	 RfK3wED0pdnN0Lx0xk8dNqAWio6aPnfaaxOQ/5BjXGXYBkYeT67KblOmgVEwNZOcNA
-	 F7WJV99ADDvaoAhrnEG8aPpXAxBYDzixJeHIYfU0n1hRsq0hJGFAKTXaXIvu5adZgH
-	 fldf6DCQY3dFg==
-Message-ID: <965fe446-8f91-48bf-9453-878fef4eb1d0@kernel.org>
-Date: Wed, 25 Mar 2026 11:33:20 +0100
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="6icw1ztY"
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=M1G5PSptWXXzPLH9d87A5P5m9OW3Nt2u+CyKoMXaMeo=;
+	b=6icw1ztYu295iNl9URcLYFKLnLJkQ37jl0EUZsh07i+gqmYgw5UxctCRRDBTVi1t/RC4+t1lA
+	b13Aad1xfLWYs+AODVUzko+D3rTO3KY7eH8InFZ/kqM+p8/ENsiK2c7xcaSk4xlJpGF7lLF5g4R
+	/A90cNHQSF0PpezVksdyjxA=
+Received: from mail.maildlp.com (unknown [172.19.163.200])
+	by canpmsgout10.his.huawei.com (SkyGuard) with ESMTPS id 4fgjvw1ZZPz1K96l;
+	Wed, 25 Mar 2026 18:34:52 +0800 (CST)
+Received: from kwepemj500018.china.huawei.com (unknown [7.202.194.48])
+	by mail.maildlp.com (Postfix) with ESMTPS id 8278F4055B;
+	Wed, 25 Mar 2026 18:40:55 +0800 (CST)
+Received: from huawei.com (10.50.85.128) by kwepemj500018.china.huawei.com
+ (7.202.194.48) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Wed, 25 Mar
+ 2026 18:40:54 +0800
+From: Li Xiasong <lixiasong1@huawei.com>
+To: "D. Wythe" <alibuda@linux.alibaba.com>, Dust Li
+	<dust.li@linux.alibaba.com>, Sidraya Jayagond <sidraya@linux.ibm.com>, Wenjia
+ Zhang <wenjia@linux.ibm.com>, Mahanta Jambigi <mjambigi@linux.ibm.com>, Tony
+ Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, "David S.
+ Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub
+ Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman
+	<horms@kernel.org>
+CC: <linux-rdma@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<yuehaibing@huawei.com>, <zhangchangzhong@huawei.com>,
+	<weiyongjun1@huawei.com>
+Subject: [PATCH net 0/2] net/smc: fix potential UAF in smc_pnet_add_ib
+Date: Wed, 25 Mar 2026 19:03:50 +0800
+Message-ID: <20260325110352.3833570-1-lixiasong1@huawei.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/9] scripts: kconfig: merge_config.sh: use POSIX '=' in
- test
-To: Mikko Rapeli <mikko.rapeli@linaro.org>
-Cc: Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>,
- Richard Henderson <richard.henderson@linaro.org>,
- Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>,
- Russell King <linux@armlinux.org.uk>, Aaro Koskinen <aaro.koskinen@iki.fi>,
- Andreas Kemnade <andreas@kemnade.info>, Kevin Hilman <khilman@baylibre.com>,
- Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
- Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
- Clark Williams <clrkwllms@kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
- Pablo Neira Ayuso <pablo@netfilter.org>,
- Krzysztof Kozlowski <krzk@kernel.org>, Alim Akhtar
- <alim.akhtar@samsung.com>, Frank Li <Frank.Li@nxp.com>,
- Sascha Hauer <s.hauer@pengutronix.de>,
- Pengutronix Kernel Team <kernel@pengutronix.de>,
- Fabio Estevam <festevam@gmail.com>, Vladimir Zapolskiy <vz@mleia.com>,
- Piotr Wojtaszczyk <piotr.wojtaszczyk@timesys.com>,
- Liviu Dudau <liviu.dudau@arm.com>, Sudeep Holla <sudeep.holla@kernel.org>,
- Lorenzo Pieralisi <lpieralisi@kernel.org>,
- Geert Uytterhoeven <geert+renesas@glider.be>,
- Magnus Damm <magnus.damm@gmail.com>,
- Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>,
- Gregory CLEMENT <gregory.clement@bootlin.com>,
- =?UTF-8?Q?Th=C3=A9o_Lebrun?= <theo.lebrun@bootlin.com>,
- "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
- Helge Deller <deller@gmx.de>, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
- =?UTF-8?Q?Jonathan_Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
- Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
- Thomas Zimmermann <tzimmermann@suse.de>, Arnd Bergmann <arnd@arndb.de>,
- Heiko Stuebner <heiko@sntech.de>,
- Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
- Mark Brown <broonie@kernel.org>, Eric Biggers <ebiggers@kernel.org>,
- Ard Biesheuvel <ardb@kernel.org>,
- Sricharan Ramabadhran <quic_srichara@quicinc.com>,
- Bjorn Andersson <andersson@kernel.org>, Michael Walle <mwalle@kernel.org>,
- Guenter Roeck <linux@roeck-us.net>,
- Srinivas Kandagatla <srinivas.kandagatla@oss.qualcomm.com>,
- "Rob Herring (Arm)" <robh@kernel.org>,
- Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Anna Schumaker <anna.schumaker@oracle.com>,
- Alexandre Gonzalo <alexandre.gonzalo@arm.com>, linux-kbuild@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org,
- loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-rt-devel@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
- imx@lists.linux.dev, linux-renesas-soc@vger.kernel.org,
- linux-parisc@vger.kernel.org, openbmc@lists.ozlabs.org
-References: <20260317-arm_defconf_cleanup-v1-0-8eecb7fdd24d@kernel.org>
- <20260317-arm_defconf_cleanup-v1-1-8eecb7fdd24d@kernel.org>
- <abkfJsyQSbW-VjxD@nuoska>
-From: "Vincent Mailhol (Arm)" <mailhol@kernel.org>
-Content-Language: en-US
-In-Reply-To: <abkfJsyQSbW-VjxD@nuoska>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: kwepems100001.china.huawei.com (7.221.188.238) To
+ kwepemj500018.china.huawei.com (7.202.194.48)
 
-On 3/17/26 10:30, Mikko Rapeli wrote:
-> Hi,
-> 
-> On Tue, Mar 17, 2026 at 10:13:37AM +0100, Vincent Mailhol (Arm) wrote:
->> merge_config.sh yields this warning:
->>
->>   ./scripts/kconfig/merge_config.sh: 384: [: false: unexpected operator
->>
->> This happens because the script runs under /bin/sh but compares
->> strings using the '==' operator, which is a bash extension. The POSIX
->> test command only specifies '=' for string equality.
->>
->> Replace '==' with the POSIX-compatible '=' so the script works when
->> run with /bin/sh as intended.
->>
->> Fixes: dfc97e1c5da5 ("scripts: kconfig: merge_config.sh: use awk in checks too")
->> Signed-off-by: Vincent Mailhol (Arm) <mailhol@kernel.org>
-> 
-> This fix is already merged in kbuild trees:
-> 
-> https://lore.kernel.org/linux-kbuild/20260309121505.40454-1-o451686892@gmail.com/
-> https://git.kernel.org/pub/scm/linux/kernel/git/kbuild/linux.git/log/?h=kbuild-fixes-for-next
+This series fixes potential use-after-free issues in smc_pnet_add_ib()
+where the device pointer could be freed between find and apply operations.
 
-Noted! I actually started to write this before the other solution was
-posted, but, anyway, this will be removed in v2.
+The race occurs because smc_pnet_find_ib() and smc_pnet_find_smcd()
+release the mutex before returning the device pointer. If the device is
+removed (e.g., via smc_ib_remove_dev() or smcd_unregister_dev()) before
+smc_pnet_apply_ib() or smc_pnet_apply_smcd() is called, the freed
+pointer will be accessed.
 
+Patch 1 fixes the issue for ib device, and patch 2 fixes the same issue
+for smcd device.
 
-Yours sincerely,
-Vincent Mailhol
+Li Xiasong (2):
+  net/smc: fix potential UAF in smc_pnet_add_ib for ib device
+  net/smc: fix potential UAF in smc_pnet_add_ib for smcd device
+
+ net/smc/smc_pnet.c | 121 ++++++++++++++++++++++++++++-----------------
+ 1 file changed, 75 insertions(+), 46 deletions(-)
+
+-- 
+2.34.1
 
