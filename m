@@ -1,61 +1,69 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BCB830DED1;
-	Wed, 25 Mar 2026 11:58:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C34B39B972;
+	Wed, 25 Mar 2026 12:00:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774439920; cv=none; b=UAPTgjCET4YPLhq/UEDZw1EHDqQDrZdYxqw2vWqiDLRlnmqMvg2QaDvYSvKaWnxUfmceMNvU51nODzIRJh3hEAxU/4vtomPd0rf3gPQ2xAdPRi1DDu0GMy6nWo6DuyHGAnjH3uJptcj6ceeoeTPR1NWSzAHry5C2TL1GzkfHYZk=
+	t=1774440049; cv=none; b=FxVsvEdtd34UBR0A9/KMxs96Yy7SfjqqPV0UuVcChFVdjpB7iMzdVqIRj2iVf0db/Nf5Rf3wLmup7m0pWa3Ik/kGPCD6mKo3avnvK3v7IJraF15eYVJ38FtUWPyW+EA9o5fMYy8hT6z7pvYe6U3F27WgQu5gjAm0jsROQRgiczk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774439920; c=relaxed/simple;
-	bh=UAUxvHk33ET8fFMVzE0Lu0h6czNMoJdojwa93qgED3w=;
-	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=oQBeFPn66sbpGpE8SV/kIUcpTB4cOGzjz5S/VlmKMN2TaZDgHjFk5/iD+5YikgJYj9kri6/D7R3FZdOxVcQ52LD7FtQsxUpZJIoBASbKSOgih43wSEzuLqnVNkMfACxyvcxw4csVIugyD7dsTIm0SVSD8Fsb1cLuKpCGGBXSBhY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=kOSpeSGE; arc=none smtp.client-ip=198.175.65.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1774440049; c=relaxed/simple;
+	bh=GAhXGYzukz50piDgwNLiC9kZneR24GT0XwsFt7jwZT8=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=asZss2QOcmPRg8IQXgjLIrM8uPWVWjUdRKy6PPyfBu+83Q0hTc1HaQTnvxGw8Is2pn0E0B962UJ4m4PebM9bzK4JMH3FoVid57sWe9I+d4rVjmKPRw5A0m41j8fVNVyFImYDBxYHPm5braJyeLgC3/DzJImKutc2S3OAAt+Xc3g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HDbcbZ0T; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="kOSpeSGE"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1774439919; x=1805975919;
-  h=from:date:to:cc:subject:in-reply-to:message-id:
-   references:mime-version;
-  bh=UAUxvHk33ET8fFMVzE0Lu0h6czNMoJdojwa93qgED3w=;
-  b=kOSpeSGE3t4jLqOOJobMp1nKEJFRLQ8pGOnuKApO2xMsQxwFwUjGv+Ih
-   Y/nEJrsPcQ9X4x2LQuZsQyTPESzgwwzxDJOmFxKDrBWfIV/bTXbNoPSby
-   h3lk+kYyfCKgtKaEG5rVZZN3BdVQVjp/I4oGmMASMdd5+zveH5SkE91Um
-   HIV3Zfcn5At28+4KHNFQbz2en3J9Xod3zXmRvCA2UYYcKwOKpN6fEr9/Y
-   hcHCDPXT3lIlvrpks//3LPbkb+e5GjcdSHIV0jztCYPL11VK+AzmTsfgv
-   wmXP8iAVo8IF78c8m+0tFo43O5ukYcpkJLa0zWq4NzBgm1xgSgcP9bSRf
-   A==;
-X-CSE-ConnectionGUID: iuU+Wu3uQbCiUbFcOA2TdQ==
-X-CSE-MsgGUID: eizVfLNpT+aO9Ktz66hB+Q==
-X-IronPort-AV: E=McAfee;i="6800,10657,11739"; a="85783692"
-X-IronPort-AV: E=Sophos;i="6.23,140,1770624000"; 
-   d="scan'208";a="85783692"
-Received: from orviesa010.jf.intel.com ([10.64.159.150])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Mar 2026 04:58:38 -0700
-X-CSE-ConnectionGUID: e9x9KLkLRCGMb+/0WVwbRA==
-X-CSE-MsgGUID: Fvf5VaN5To+tsiDq3wlImA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,140,1770624000"; 
-   d="scan'208";a="223866279"
-Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.125])
-  by orviesa010-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Mar 2026 04:58:29 -0700
-From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Date: Wed, 25 Mar 2026 13:58:26 +0200 (EET)
-To: Bjorn Helgaas <helgaas@kernel.org>
-cc: Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org, 
-    LKML <linux-kernel@vger.kernel.org>, linux-pci@vger.kernel.org, 
-    Lukas Wunner <lukas@wunner.de>, alex@shazbot.org, kbusch@kernel.org, 
-    clg@redhat.com, stable@vger.kernel.org, schnelle@linux.ibm.com, 
-    mjrosato@linux.ibm.com
-Subject: Re: [PATCH v11 2/9] s390/pci: Add architecture specific resource/bus
- address translation
-In-Reply-To: <20260324230641.GA1162880@bhelgaas>
-Message-ID: <328a79ef-7b73-582f-f36b-5139ff04e24d@linux.intel.com>
-References: <20260324230641.GA1162880@bhelgaas>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HDbcbZ0T"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62P6BXOR3548859;
+	Wed, 25 Mar 2026 12:00:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=2hmgYn
+	YDvAV11K3/MvOjFR3/Yc9Ls2jwVrI6RUr2P+Y=; b=HDbcbZ0TqfkrujM2XWpLkJ
+	kMAHYP3S5xYU7ZHZViH0X74BtVCJS+yzYPQQUmGSCzj8oDUhmcL3zaiSfQWlIa/i
+	XYWvZxA3EHkKHVDkihxcfNh9Uq2J8pzrBSLY1VtsexeGgsdm2uRFrwdL7yC8jtrv
+	6p9ZFht9CA2EZ8PcGXJUMLZI3wQxcjuR0qMlRXmyose3iC0tY5VIDCatZURRQW6T
+	bIEoTm+eREiE+azGoGESSeJCV4ZDciIUoh8Q1Mh9fYAJogPpKQSFyJs+EtMjw0zp
+	MKTI5lKxQm8qTSG9+8wF4wC1XeSIzenp1fhHtCR1rOVyJumArEqMc4Ajp73/M91w
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kxqg8r5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Mar 2026 12:00:47 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62PBlfvL026771;
+	Wed, 25 Mar 2026 12:00:46 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d275kxa5w-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Mar 2026 12:00:46 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62PC0g7g46203182
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 25 Mar 2026 12:00:42 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5293220040;
+	Wed, 25 Mar 2026 12:00:42 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 351F02004B;
+	Wed, 25 Mar 2026 12:00:42 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.52.223.175])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Wed, 25 Mar 2026 12:00:42 +0000 (GMT)
+Date: Wed, 25 Mar 2026 13:00:40 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@linux.ibm.com
+Subject: Re: [PATCH 1/2] KVM: s390: Fix lpsw/e breaking event handling
+Message-ID: <20260325130040.5cde190c@p-imbrenda>
+In-Reply-To: <20260323153637.3683-2-frankja@linux.ibm.com>
+References: <20260323153637.3683-1-frankja@linux.ibm.com>
+	<20260323153637.3683-2-frankja@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -63,177 +71,98 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: mWR6Sl7Cj96F25cmCTrHrNROnyVPNdlg
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI1MDA4NCBTYWx0ZWRfX0Z9LHIqRZZq8
+ qtf6agmzK+rYKn5LZhJ34gsFrvsfSsV2TZazKzN/MvBm0qg+lFWPVoZieaYoxTIbJCqZQeFDROl
+ +aGKshFJ2UYJa4A5wsjeAzdKRcsgXwmnJrO8oaqBnY5Yb0YKip8A+9NLLAX6EcLINFZ0W2Y9aje
+ w2wQHHbMiHFQAePZgJokDTUMO0G1fHDidN9x7BHqfL78l2XWhw3P2SuqHnwGZb0i0s6clPll/9c
+ uNXxRH5c9bKBOzb1v69lsZH02pJI/YuRHmGByIp0zAZAIP51aORbKEED1j8a04v/E719un43KGY
+ pNxANJ9mskZQCqUcCIzy1efzcPTPbAvXSTxqrTK/S0q1/Vxm9pYb8aXA5Ceq3CHNCdGUhWnsrFY
+ UtVZZtATqibYusOV8QtPHM8yJrVFQeCAThJBixxo1kV8nxHhy7jZz7g5q8aE1vin1K7bniXedIq
+ 9/7DQq8oO33qZhuh/eA==
+X-Authority-Analysis: v=2.4 cv=bLEb4f+Z c=1 sm=1 tr=0 ts=69c3ce6f cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=kj9zAlcOel0A:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=VLN7PFTZkrhM44o7lRsA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: mWR6Sl7Cj96F25cmCTrHrNROnyVPNdlg
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-25_04,2026-03-24_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 adultscore=0 clxscore=1015 phishscore=0 impostorscore=0
+ malwarescore=0 lowpriorityscore=0 suspectscore=0 bulkscore=0
+ priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
+ definitions=main-2603250084
 
-On Tue, 24 Mar 2026, Bjorn Helgaas wrote:
+On Mon, 23 Mar 2026 15:35:22 +0000
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-> [+cc Ilpo just for awareness; I assume there's nothing Linux can
-> actually *do* with s390 PCI resources?]
-
-I'm somewhat aware they've this speciality (and besides that, I'm 
-waiting for this change in order to proceed with the series to detect 
-which resources are properly setup when we enumerate them which got 
-reverted earlier).
-
-An additional thought related to this, there's IORESOURCE_PCI_FIXED 
-results in skipping most of the resource fitting and assignment code, so 
-if nothing really should touch these resources, perhaps that flag might be 
-of some help.
-
--- 
- i.
-
-> On Mon, Mar 16, 2026 at 12:15:37PM -0700, Farhan Ali wrote:
-> > On s390 today we overwrite the PCI BAR resource address to either an
-> > artificial cookie address or MIO address. However this address is different
-> > from the bus address of the BARs programmed by firmware. The artificial
-> > cookie address was created to index into an array of function handles
-> > (zpci_iomap_start). The MIO (mapped I/O) addresses are provided by firmware
-> > but maybe different from the bus addresses. This creates an issue when
-> > trying to convert the BAR resource address to bus address using the generic
-> > pcibios_resource_to_bus().
-> > 
-> > Implement an architecture specific pcibios_resource_to_bus() function to
-> > correctly translate PCI BAR resource addresses to bus addresses for s390.
-> > Similarly add architecture specific pcibios_bus_to_resource function to do
-> > the reverse translation.
+> LPSW and LPSWE need to set the gbea on completion but currently don't.
+> Time to fix this up.
 > 
-> 1) It's not clear to me *why* we need these arch-specific versions.
-> We went to a lot of trouble to make these interfaces generic, and I'll
-> be really sad if they have to be arch-specific again.  I don't see any
-> direct uses of these in the series.  In any case, some reference to
-> the user and the actual problem this solves would help.
+> LPSWEY was designed to not set the bear.
 > 
-> 2) I'm kind of concerned that the "unusual" s390 PCI resources will be
-> unintelligible to people who are used to reading lspci or dmesg logs
-> from non-s390 systems, and they might confuse the PCI core resource
-> assignment code.  I guess there's not really a concept of a PCI host
-> bridge on s390, there's no bus hierarchy, and no visible PCI-to-PCI
-> bridges, so no windows?  Can you use PCIe switches at all?
->
-> 3) Maybe this patch should be reordered to be closer to the patch that
-> needs these?  I don't think it's related to the "PCI: Avoid saving
-> config space state if inaccessible" and PCI: Add additional checks for
-> flr reset" patches.
+> Fixes: 48a3e950f4cee ("KVM: s390: Add support for machine checks.")
+> Reported-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
+> ---
+>  arch/s390/kvm/priv.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
 > 
-> > Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> > Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-> > ---
-> >  arch/s390/pci/pci.c       | 74 +++++++++++++++++++++++++++++++++++++++
-> >  drivers/pci/host-bridge.c |  8 ++---
-> >  2 files changed, 78 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-> > index 2a430722cbe4..87077e510266 100644
-> > --- a/arch/s390/pci/pci.c
-> > +++ b/arch/s390/pci/pci.c
-> > @@ -272,6 +272,80 @@ resource_size_t pcibios_align_resource(void *data, const struct resource *res,
-> >  	return 0;
-> >  }
-> >  
-> > +void pcibios_resource_to_bus(struct pci_bus *bus, struct pci_bus_region *region,
-> > +			     struct resource *res)
-> > +{
-> > +	struct zpci_bus *zbus = bus->sysdata;
-> > +	struct zpci_bar_struct *zbar;
-> > +	struct zpci_dev *zdev;
-> > +
-> > +	region->start = res->start;
-> > +	region->end = res->end;
-> > +
-> > +	for (int i = 0; i < ZPCI_FUNCTIONS_PER_BUS; i++) {
-> > +		int j = 0;
-> > +
-> > +		zbar = NULL;
-> > +		zdev = zbus->function[i];
-> > +		if (!zdev)
-> > +			continue;
-> > +
-> > +		for (j = 0; j < PCI_STD_NUM_BARS; j++) {
-> > +			if (zdev->bars[j].res->start == res->start &&
-> > +			    zdev->bars[j].res->end == res->end &&
-> > +			    res->flags & IORESOURCE_MEM) {
-> > +				zbar = &zdev->bars[j];
-> > +				break;
-> > +			}
-> > +		}
-> > +
-> > +		if (zbar) {
-> > +			/* only MMIO is supported */
-> > +			region->start = zbar->val & PCI_BASE_ADDRESS_MEM_MASK;
-> > +			if (zbar->val & PCI_BASE_ADDRESS_MEM_TYPE_64)
-> > +				region->start |= (u64)zdev->bars[j + 1].val << 32;
-> > +
-> > +			region->end = region->start + (1UL << zbar->size) - 1;
-> > +			return;
-> > +		}
-> > +	}
-> > +}
-> > +
-> > +void pcibios_bus_to_resource(struct pci_bus *bus, struct resource *res,
-> > +			     struct pci_bus_region *region)
-> > +{
-> > +	struct zpci_bus *zbus = bus->sysdata;
-> > +	struct zpci_dev *zdev;
-> > +	resource_size_t start, end;
-> > +
-> > +	res->start = region->start;
-> > +	res->end = region->end;
-> > +
-> > +	for (int i = 0; i < ZPCI_FUNCTIONS_PER_BUS; i++) {
-> > +		zdev = zbus->function[i];
-> > +		if (!zdev || !zdev->has_resources)
-> > +			continue;
-> > +
-> > +		for (int j = 0; j < PCI_STD_NUM_BARS; j++) {
-> > +			if (!zdev->bars[j].size)
-> > +				continue;
-> > +
-> > +			/* only MMIO is supported */
-> > +			start = zdev->bars[j].val & PCI_BASE_ADDRESS_MEM_MASK;
-> > +			if (zdev->bars[j].val & PCI_BASE_ADDRESS_MEM_TYPE_64)
-> > +				start |= (u64)zdev->bars[j + 1].val << 32;
-> > +
-> > +			end = start + (1UL << zdev->bars[j].size) - 1;
-> > +
-> > +			if (start == region->start && end == region->end) {
-> > +				res->start = zdev->bars[j].res->start;
-> > +				res->end = zdev->bars[j].res->end;
-> > +				return;
-> > +			}
-> > +		}
-> > +	}
-> > +}
-> > +
-> >  void __iomem *ioremap_prot(phys_addr_t phys_addr, size_t size,
-> >  			   pgprot_t prot)
-> >  {
-> > diff --git a/drivers/pci/host-bridge.c b/drivers/pci/host-bridge.c
-> > index be5ef6516cff..aed031b8a9f3 100644
-> > --- a/drivers/pci/host-bridge.c
-> > +++ b/drivers/pci/host-bridge.c
-> > @@ -49,8 +49,8 @@ void pci_set_host_bridge_release(struct pci_host_bridge *bridge,
-> >  }
-> >  EXPORT_SYMBOL_GPL(pci_set_host_bridge_release);
-> >  
-> > -void pcibios_resource_to_bus(struct pci_bus *bus, struct pci_bus_region *region,
-> > -			     struct resource *res)
-> > +void __weak pcibios_resource_to_bus(struct pci_bus *bus, struct pci_bus_region *region,
-> > +				    struct resource *res)
-> >  {
-> >  	struct pci_host_bridge *bridge = pci_find_host_bridge(bus);
-> >  	struct resource_entry *window;
-> > @@ -74,8 +74,8 @@ static bool region_contains(struct pci_bus_region *region1,
-> >  	return region1->start <= region2->start && region1->end >= region2->end;
-> >  }
-> >  
-> > -void pcibios_bus_to_resource(struct pci_bus *bus, struct resource *res,
-> > -			     struct pci_bus_region *region)
-> > +void __weak pcibios_bus_to_resource(struct pci_bus *bus, struct resource *res,
-> > +				    struct pci_bus_region *region)
-> >  {
-> >  	struct pci_host_bridge *bridge = pci_find_host_bridge(bus);
-> >  	struct resource_entry *window;
-> > -- 
-> > 2.43.0
-> > 
-> 
+> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+> index a3250ad83a8e..cc0553da14cb 100644
+> --- a/arch/s390/kvm/priv.c
+> +++ b/arch/s390/kvm/priv.c
+> @@ -714,12 +714,13 @@ int kvm_s390_handle_lpsw(struct kvm_vcpu *vcpu)
+>  {
+>  	psw_t *gpsw = &vcpu->arch.sie_block->gpsw;
+>  	psw32_t new_psw;
+> -	u64 addr;
+> +	u64 addr, iaddr;
+>  	int rc;
+>  	u8 ar;
+>  
+>  	vcpu->stat.instruction_lpsw++;
+>  
+> +	iaddr = gpsw->addr - kvm_s390_get_ilen(vcpu);
+>  	if (gpsw->mask & PSW_MASK_PSTATE)
+>  		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+>  
+> @@ -737,18 +738,20 @@ int kvm_s390_handle_lpsw(struct kvm_vcpu *vcpu)
+>  	gpsw->addr = new_psw.addr & ~PSW32_ADDR_AMODE;
+>  	if (!is_valid_psw(gpsw))
+>  		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+> +	vcpu->arch.sie_block->gbea = iaddr;
+>  	return 0;
+>  }
+>  
+>  static int handle_lpswe(struct kvm_vcpu *vcpu)
+>  {
+>  	psw_t new_psw;
+> -	u64 addr;
+> +	u64 addr, iaddr;
+>  	int rc;
+>  	u8 ar;
+>  
+>  	vcpu->stat.instruction_lpswe++;
+>  
+> +	iaddr = vcpu->arch.sie_block->gpsw.addr - kvm_s390_get_ilen(vcpu);
+>  	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+>  		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+>  
+> @@ -761,6 +764,7 @@ static int handle_lpswe(struct kvm_vcpu *vcpu)
+>  	vcpu->arch.sie_block->gpsw = new_psw;
+>  	if (!is_valid_psw(&vcpu->arch.sie_block->gpsw))
+>  		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+> +	vcpu->arch.sie_block->gbea = iaddr;
+>  	return 0;
+>  }
+>  
+
