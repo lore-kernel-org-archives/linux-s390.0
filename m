@@ -1,145 +1,239 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BE253CCFD1;
-	Wed, 25 Mar 2026 11:32:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BCB830DED1;
+	Wed, 25 Mar 2026 11:58:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774438335; cv=none; b=Tk4iWPaY3VOyLg7IJYq/0Lz81+jTwh18EwSHwsEoJ+1UkCd/Uw64d/31xiiToW7oJEOUF08Ju8aSzLFN7AgEuq7tp27ODhIr+9b6a1oki897s1zMX1nMPRQ4ncWBJug4/Db3a9qQUkaJr8kHt9Gprl6f1ViFqmyiOfglfJyOfpw=
+	t=1774439920; cv=none; b=UAPTgjCET4YPLhq/UEDZw1EHDqQDrZdYxqw2vWqiDLRlnmqMvg2QaDvYSvKaWnxUfmceMNvU51nODzIRJh3hEAxU/4vtomPd0rf3gPQ2xAdPRi1DDu0GMy6nWo6DuyHGAnjH3uJptcj6ceeoeTPR1NWSzAHry5C2TL1GzkfHYZk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774438335; c=relaxed/simple;
-	bh=UHl6aIxvtuzZoFfPKn0m6HqE+Ix+jQLwOiO6mcxm7gc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=r/MHjWRkdtB3HlJsVGzTjCsQ2nTkPwdbSRzxdz+/6YRgx4EsoL9qM2Gjm1sloHJbFjAN2dwVxjHrmFln+SOv4o37S8fILinUaiO0t6qSZb4/Y1+fGPRk440hgLd+MEs23SeXxLkcIg+OUsWsJWTLnzHy7cBnd7i8fDbVzWqen5o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=p9xj+yQr; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774439920; c=relaxed/simple;
+	bh=UAUxvHk33ET8fFMVzE0Lu0h6czNMoJdojwa93qgED3w=;
+	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=oQBeFPn66sbpGpE8SV/kIUcpTB4cOGzjz5S/VlmKMN2TaZDgHjFk5/iD+5YikgJYj9kri6/D7R3FZdOxVcQ52LD7FtQsxUpZJIoBASbKSOgih43wSEzuLqnVNkMfACxyvcxw4csVIugyD7dsTIm0SVSD8Fsb1cLuKpCGGBXSBhY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=kOSpeSGE; arc=none smtp.client-ip=198.175.65.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="p9xj+yQr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35258C2BC9E;
-	Wed, 25 Mar 2026 11:31:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774438335;
-	bh=UHl6aIxvtuzZoFfPKn0m6HqE+Ix+jQLwOiO6mcxm7gc=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=p9xj+yQrGXkpoAF0fY9H5IaPcoHqI+j6qFDwyvc4yO1C747biO/reuY8t3d94mmup
-	 yQMdUZgPvj2v9edGgjvwa44Pe6FwmdZ43t/G8cYYldfmo7YsAt7eQsYUOQchWN8tEp
-	 lxT4aSMwTa3Lg9zV/TmzInC2IVkU8yAXXMuWflmPLvFoKuR5BI2SX5CUo5rJVYT1a9
-	 QJSXMoguTPIulqY0xz7WbsLHtpKTLSiyneymYrRj8U6WWUrJxGfwFv6fjWC6LeaTQu
-	 meTzpjdQXm6htU8OLApZ7jlovVUK4NVBzdOcUYZm4Uly3jpcZL4fYc0zooZuxOTQqt
-	 7cnUszMPYt6sQ==
-Message-ID: <d7ba53bd-e484-4ea1-b90b-e44321eef4c3@kernel.org>
-Date: Wed, 25 Mar 2026 12:31:51 +0100
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="kOSpeSGE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1774439919; x=1805975919;
+  h=from:date:to:cc:subject:in-reply-to:message-id:
+   references:mime-version;
+  bh=UAUxvHk33ET8fFMVzE0Lu0h6czNMoJdojwa93qgED3w=;
+  b=kOSpeSGE3t4jLqOOJobMp1nKEJFRLQ8pGOnuKApO2xMsQxwFwUjGv+Ih
+   Y/nEJrsPcQ9X4x2LQuZsQyTPESzgwwzxDJOmFxKDrBWfIV/bTXbNoPSby
+   h3lk+kYyfCKgtKaEG5rVZZN3BdVQVjp/I4oGmMASMdd5+zveH5SkE91Um
+   HIV3Zfcn5At28+4KHNFQbz2en3J9Xod3zXmRvCA2UYYcKwOKpN6fEr9/Y
+   hcHCDPXT3lIlvrpks//3LPbkb+e5GjcdSHIV0jztCYPL11VK+AzmTsfgv
+   wmXP8iAVo8IF78c8m+0tFo43O5ukYcpkJLa0zWq4NzBgm1xgSgcP9bSRf
+   A==;
+X-CSE-ConnectionGUID: iuU+Wu3uQbCiUbFcOA2TdQ==
+X-CSE-MsgGUID: eizVfLNpT+aO9Ktz66hB+Q==
+X-IronPort-AV: E=McAfee;i="6800,10657,11739"; a="85783692"
+X-IronPort-AV: E=Sophos;i="6.23,140,1770624000"; 
+   d="scan'208";a="85783692"
+Received: from orviesa010.jf.intel.com ([10.64.159.150])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Mar 2026 04:58:38 -0700
+X-CSE-ConnectionGUID: e9x9KLkLRCGMb+/0WVwbRA==
+X-CSE-MsgGUID: Fvf5VaN5To+tsiDq3wlImA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,140,1770624000"; 
+   d="scan'208";a="223866279"
+Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.125])
+  by orviesa010-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Mar 2026 04:58:29 -0700
+From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Date: Wed, 25 Mar 2026 13:58:26 +0200 (EET)
+To: Bjorn Helgaas <helgaas@kernel.org>
+cc: Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org, 
+    LKML <linux-kernel@vger.kernel.org>, linux-pci@vger.kernel.org, 
+    Lukas Wunner <lukas@wunner.de>, alex@shazbot.org, kbusch@kernel.org, 
+    clg@redhat.com, stable@vger.kernel.org, schnelle@linux.ibm.com, 
+    mjrosato@linux.ibm.com
+Subject: Re: [PATCH v11 2/9] s390/pci: Add architecture specific resource/bus
+ address translation
+In-Reply-To: <20260324230641.GA1162880@bhelgaas>
+Message-ID: <328a79ef-7b73-582f-f36b-5139ff04e24d@linux.intel.com>
+References: <20260324230641.GA1162880@bhelgaas>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 9/9] arm64: defconfig: remove obsolete assignment to
- SLIM_QCOM_CTRL
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Alexandre Gonzalo <alexandre.gonzalo@arm.com>,
- linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-omap@vger.kernel.org, loongarch@lists.linux.dev,
- linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org, linux-rt-devel@lists.linux.dev,
- linux-samsung-soc@vger.kernel.org, imx@lists.linux.dev,
- linux-renesas-soc@vger.kernel.org, linux-parisc@vger.kernel.org,
- openbmc@lists.ozlabs.org, Nathan Chancellor <nathan@kernel.org>,
- Nicolas Schier <nsc@kernel.org>, Mikko Rapeli <mikko.rapeli@linaro.org>,
- Richard Henderson <richard.henderson@linaro.org>,
- Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>,
- Russell King <linux@armlinux.org.uk>, Aaro Koskinen <aaro.koskinen@iki.fi>,
- Andreas Kemnade <andreas@kemnade.info>, Kevin Hilman <khilman@baylibre.com>,
- Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
- Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
- Clark Williams <clrkwllms@kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
- Pablo Neira Ayuso <pablo@netfilter.org>,
- Alim Akhtar <alim.akhtar@samsung.com>, Frank Li <Frank.Li@nxp.com>,
- Sascha Hauer <s.hauer@pengutronix.de>,
- Pengutronix Kernel Team <kernel@pengutronix.de>,
- Fabio Estevam <festevam@gmail.com>, Vladimir Zapolskiy <vz@mleia.com>,
- Piotr Wojtaszczyk <piotr.wojtaszczyk@timesys.com>,
- Liviu Dudau <liviu.dudau@arm.com>, Sudeep Holla <sudeep.holla@kernel.org>,
- Lorenzo Pieralisi <lpieralisi@kernel.org>,
- Geert Uytterhoeven <geert+renesas@glider.be>,
- Magnus Damm <magnus.damm@gmail.com>,
- Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>,
- Gregory CLEMENT <gregory.clement@bootlin.com>,
- =?UTF-8?Q?Th=C3=A9o_Lebrun?= <theo.lebrun@bootlin.com>,
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
- Helge Deller <deller@gmx.de>, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
- =?UTF-8?Q?Jonathan_Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
- Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
- Thomas Zimmermann <tzimmermann@suse.de>, Arnd Bergmann <arnd@arndb.de>,
- Heiko Stuebner <heiko@sntech.de>,
- Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
- Mark Brown <broonie@kernel.org>, Eric Biggers <ebiggers@kernel.org>,
- Ard Biesheuvel <ardb@kernel.org>,
- Sricharan Ramabadhran <quic_srichara@quicinc.com>,
- Bjorn Andersson <andersson@kernel.org>, Michael Walle <mwalle@kernel.org>,
- Guenter Roeck <linux@roeck-us.net>,
- Srinivas Kandagatla <srinivas.kandagatla@oss.qualcomm.com>,
- "Rob Herring (Arm)" <robh@kernel.org>,
- Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Anna Schumaker <anna.schumaker@oracle.com>
-References: <20260317-arm_defconf_cleanup-v1-0-8eecb7fdd24d@kernel.org>
- <20260317-arm_defconf_cleanup-v1-9-8eecb7fdd24d@kernel.org>
- <9545b66c-f223-48a3-96fe-c906d2307654@kernel.org>
-From: "Vincent Mailhol (Arm)" <mailhol@kernel.org>
-Content-Language: en-US
-In-Reply-To: <9545b66c-f223-48a3-96fe-c906d2307654@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 
-On 3/17/26 12:35, Krzysztof Kozlowski wrote:
-> On 17/03/2026 10:13, Vincent Mailhol (Arm) wrote:
->> The Qcom Slimbus controller driver is not in the kernel tree
->> anymore. Clean-up the leftover reference to CONFIG_SLIM_QCOM_CTRL
->> which was left in the defconfig.
->>
->> Fixes: 7cbba32a2d62 ("slimbus: qcom: remove unused qcom controller driver")
->> Signed-off-by: Vincent Mailhol (Arm) <mailhol@kernel.org>
->> ---
->>  arch/arm64/configs/defconfig | 1 -
->>  1 file changed, 1 deletion(-)
+On Tue, 24 Mar 2026, Bjorn Helgaas wrote:
+
+> [+cc Ilpo just for awareness; I assume there's nothing Linux can
+> actually *do* with s390 PCI resources?]
+
+I'm somewhat aware they've this speciality (and besides that, I'm 
+waiting for this change in order to proceed with the series to detect 
+which resources are properly setup when we enumerate them which got 
+reverted earlier).
+
+An additional thought related to this, there's IORESOURCE_PCI_FIXED 
+results in skipping most of the resource fitting and assignment code, so 
+if nothing really should touch these resources, perhaps that flag might be 
+of some help.
+
+-- 
+ i.
+
+> On Mon, Mar 16, 2026 at 12:15:37PM -0700, Farhan Ali wrote:
+> > On s390 today we overwrite the PCI BAR resource address to either an
+> > artificial cookie address or MIO address. However this address is different
+> > from the bus address of the BARs programmed by firmware. The artificial
+> > cookie address was created to index into an array of function handles
+> > (zpci_iomap_start). The MIO (mapped I/O) addresses are provided by firmware
+> > but maybe different from the bus addresses. This creates an issue when
+> > trying to convert the BAR resource address to bus address using the generic
+> > pcibios_resource_to_bus().
+> > 
+> > Implement an architecture specific pcibios_resource_to_bus() function to
+> > correctly translate PCI BAR resource addresses to bus addresses for s390.
+> > Similarly add architecture specific pcibios_bus_to_resource function to do
+> > the reverse translation.
 > 
-> https://lore.kernel.org/all/20251223140645.3545658-1-mikko.rapeli@linaro.org/
-
-I will add that this was initially reported by Mikko.
-
-> I even asked there to send it to qcom maintainers :/
+> 1) It's not clear to me *why* we need these arch-specific versions.
+> We went to a lot of trouble to make these interfaces generic, and I'll
+> be really sad if they have to be arch-specific again.  I don't see any
+> direct uses of these in the series.  In any case, some reference to
+> the user and the actual problem this solves would help.
 > 
-> Exactly that case also encouraged me to document this, since we do not
-> know how to fix get_maintainers. See commit
-> 6efe5322f060099c8bc51aaee83b857394e42dd5
-I read the thread in which you posted that patch. Thanks for updating
-the documentation, but as people anticipated, as long as the tool
-doesn't do the right thing, there will be people like me who will mess
-up the recipient list.
-
-Anyway, sorry for that.
-
-
-Yours sincerely,
-Vincent Mailhol
-
+> 2) I'm kind of concerned that the "unusual" s390 PCI resources will be
+> unintelligible to people who are used to reading lspci or dmesg logs
+> from non-s390 systems, and they might confuse the PCI core resource
+> assignment code.  I guess there's not really a concept of a PCI host
+> bridge on s390, there's no bus hierarchy, and no visible PCI-to-PCI
+> bridges, so no windows?  Can you use PCIe switches at all?
+>
+> 3) Maybe this patch should be reordered to be closer to the patch that
+> needs these?  I don't think it's related to the "PCI: Avoid saving
+> config space state if inaccessible" and PCI: Add additional checks for
+> flr reset" patches.
+> 
+> > Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> > ---
+> >  arch/s390/pci/pci.c       | 74 +++++++++++++++++++++++++++++++++++++++
+> >  drivers/pci/host-bridge.c |  8 ++---
+> >  2 files changed, 78 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+> > index 2a430722cbe4..87077e510266 100644
+> > --- a/arch/s390/pci/pci.c
+> > +++ b/arch/s390/pci/pci.c
+> > @@ -272,6 +272,80 @@ resource_size_t pcibios_align_resource(void *data, const struct resource *res,
+> >  	return 0;
+> >  }
+> >  
+> > +void pcibios_resource_to_bus(struct pci_bus *bus, struct pci_bus_region *region,
+> > +			     struct resource *res)
+> > +{
+> > +	struct zpci_bus *zbus = bus->sysdata;
+> > +	struct zpci_bar_struct *zbar;
+> > +	struct zpci_dev *zdev;
+> > +
+> > +	region->start = res->start;
+> > +	region->end = res->end;
+> > +
+> > +	for (int i = 0; i < ZPCI_FUNCTIONS_PER_BUS; i++) {
+> > +		int j = 0;
+> > +
+> > +		zbar = NULL;
+> > +		zdev = zbus->function[i];
+> > +		if (!zdev)
+> > +			continue;
+> > +
+> > +		for (j = 0; j < PCI_STD_NUM_BARS; j++) {
+> > +			if (zdev->bars[j].res->start == res->start &&
+> > +			    zdev->bars[j].res->end == res->end &&
+> > +			    res->flags & IORESOURCE_MEM) {
+> > +				zbar = &zdev->bars[j];
+> > +				break;
+> > +			}
+> > +		}
+> > +
+> > +		if (zbar) {
+> > +			/* only MMIO is supported */
+> > +			region->start = zbar->val & PCI_BASE_ADDRESS_MEM_MASK;
+> > +			if (zbar->val & PCI_BASE_ADDRESS_MEM_TYPE_64)
+> > +				region->start |= (u64)zdev->bars[j + 1].val << 32;
+> > +
+> > +			region->end = region->start + (1UL << zbar->size) - 1;
+> > +			return;
+> > +		}
+> > +	}
+> > +}
+> > +
+> > +void pcibios_bus_to_resource(struct pci_bus *bus, struct resource *res,
+> > +			     struct pci_bus_region *region)
+> > +{
+> > +	struct zpci_bus *zbus = bus->sysdata;
+> > +	struct zpci_dev *zdev;
+> > +	resource_size_t start, end;
+> > +
+> > +	res->start = region->start;
+> > +	res->end = region->end;
+> > +
+> > +	for (int i = 0; i < ZPCI_FUNCTIONS_PER_BUS; i++) {
+> > +		zdev = zbus->function[i];
+> > +		if (!zdev || !zdev->has_resources)
+> > +			continue;
+> > +
+> > +		for (int j = 0; j < PCI_STD_NUM_BARS; j++) {
+> > +			if (!zdev->bars[j].size)
+> > +				continue;
+> > +
+> > +			/* only MMIO is supported */
+> > +			start = zdev->bars[j].val & PCI_BASE_ADDRESS_MEM_MASK;
+> > +			if (zdev->bars[j].val & PCI_BASE_ADDRESS_MEM_TYPE_64)
+> > +				start |= (u64)zdev->bars[j + 1].val << 32;
+> > +
+> > +			end = start + (1UL << zdev->bars[j].size) - 1;
+> > +
+> > +			if (start == region->start && end == region->end) {
+> > +				res->start = zdev->bars[j].res->start;
+> > +				res->end = zdev->bars[j].res->end;
+> > +				return;
+> > +			}
+> > +		}
+> > +	}
+> > +}
+> > +
+> >  void __iomem *ioremap_prot(phys_addr_t phys_addr, size_t size,
+> >  			   pgprot_t prot)
+> >  {
+> > diff --git a/drivers/pci/host-bridge.c b/drivers/pci/host-bridge.c
+> > index be5ef6516cff..aed031b8a9f3 100644
+> > --- a/drivers/pci/host-bridge.c
+> > +++ b/drivers/pci/host-bridge.c
+> > @@ -49,8 +49,8 @@ void pci_set_host_bridge_release(struct pci_host_bridge *bridge,
+> >  }
+> >  EXPORT_SYMBOL_GPL(pci_set_host_bridge_release);
+> >  
+> > -void pcibios_resource_to_bus(struct pci_bus *bus, struct pci_bus_region *region,
+> > -			     struct resource *res)
+> > +void __weak pcibios_resource_to_bus(struct pci_bus *bus, struct pci_bus_region *region,
+> > +				    struct resource *res)
+> >  {
+> >  	struct pci_host_bridge *bridge = pci_find_host_bridge(bus);
+> >  	struct resource_entry *window;
+> > @@ -74,8 +74,8 @@ static bool region_contains(struct pci_bus_region *region1,
+> >  	return region1->start <= region2->start && region1->end >= region2->end;
+> >  }
+> >  
+> > -void pcibios_bus_to_resource(struct pci_bus *bus, struct resource *res,
+> > -			     struct pci_bus_region *region)
+> > +void __weak pcibios_bus_to_resource(struct pci_bus *bus, struct resource *res,
+> > +				    struct pci_bus_region *region)
+> >  {
+> >  	struct pci_host_bridge *bridge = pci_find_host_bridge(bus);
+> >  	struct resource_entry *window;
+> > -- 
+> > 2.43.0
+> > 
+> 
