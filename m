@@ -1,62 +1,61 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 617A323C512;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8402123D297;
 	Wed, 25 Mar 2026 13:31:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774445512; cv=none; b=DiztGS4tZgBUqtOhte5VlLASw3A8w7vxqejfblVa2lrWAZi2hjAn1yXRMYjNX07tHciGDQ5H0aYUyTzwWNXQqQ3X20pwAdYFyvcYB/940djcMl2puCSfGWk9AqtYtzDhR74GGmDCySRTupAfwnNE2niU39DjyAq6671A+lambbc=
+	t=1774445512; cv=none; b=eOOLyVWweLwl/fIoMONnVu0CFbqSiHZMnWmciGh9wvXl49d5EEu/In1knPe9sBYQlyBtGrBYeHmlrAtQEtqjsqsoMM966y8PPcohMFe8sIxh6hOQMTAqFQDGySaeJ1yxGlZkm+aAKeHzYoKPvBv6CmzwRM2cyUnhBK6Cuptf4sU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1774445512; c=relaxed/simple;
-	bh=Xp06g/JyrGjiIf6S/4KzRoPbggPcb32EOw0bMnd70mg=;
+	bh=tVXzc3TZ4XXEho6yf6ZcstI8WffvhcP9cbTZPPwmM0U=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=fodmscwkS7V9l6JUgu8y9DcQM77Pu+/snSzvDnFWRMrsv/V4AIxON208PPJWcUQrqPUBmG+44qQCZ7SJxihioNbJsEXZn2BH618h2F98pyre4SKPUKr7Wer8UHCfpUhuLMetX1nrPiewKmfntfzZ9eKH0sfhkWQQOcMZhMMJLVk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=P3KKqkrR; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:To:Cc; b=u2ADjX8aVcJd/fMwqgrq8s585zfwCNUJvTtNXETD6cUZrC2Ejs+ZvFWKA4QvLVpAQWl+jV5Q8XLPlsr986oQH0PzlcPw1ZjdZ9dTL4QgA7PqUHuYAdN8tkSrAGofvnqB9bLRVpzU06KsbWq2H0O11+u8hP8YRRN1Ye2pNkVp82o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XQvz8qns; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="P3KKqkrR"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XQvz8qns"
 Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62P7Dgba3395859;
-	Wed, 25 Mar 2026 13:31:46 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62P0lWIn2808047;
+	Wed, 25 Mar 2026 13:31:47 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ws98jf
-	qp8fT8UnB+vgUnR2tXV+A3dsfVNfiI/qBkFX0=; b=P3KKqkrRWmoXkplxF9yQR4
-	Ol89mEE2aLLQDsOMOiPdyZueaEsH0fnG1FpHr1ZfqINAR7xv2mQYCIsMgYY6H0zr
-	3Fe7jKQmCzfdmoJRWV65M6rtUsMH69Wh9yp0709Cq+5ugCjCFp9ozIayf/qIn9O4
-	9KRpsZRZS3x+XqAXObW6lVRabK2PS9o6KHbM2O4p8F765BXPY0/BN5RqG0YNbzBe
-	+YpwVA/4saE9LZlxWeN/vWcxxyFcTKbptxGlQuNsvcJuF4P7tmRcRWkKaKPNcfek
-	ftI7bnXa8A/HXNK+Ki61u0TcbBFQOJgsn2G0hCMpUJ3o6BTNrDZY89dm7xYcxFdg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=768lj2
+	UP4Q5lJI10ZC9GKEZTGjBOEkuSn54mj3bw9aA=; b=XQvz8qnsMXCQ4vIvy6LrOF
+	lV/1zo3o+APKuSCUwYNNdFlkTkvx3nBl/oQG7ywT42R2IMAxho7GSmlb50GnN4hy
+	WBPGXPL1NqrOht2eM+2PRaNFsJHm50iz/4dA8CO26M59miAekrZ9uJOtMsAVd4ri
+	p6jULJA0nvAtxeJjZPsVsFtH4aR+uq9kKft05KNnQLLbPf28Lj/dNlA+iU9EiYYJ
+	6uOt1zNkmcB2GtoQauu2v77g1NOMd50YpMs9opji2ZUtDUfxKSx5U6+F2THIBBq2
+	pPDnIrCQ6TMUyO4+ecDZ7qxu3ubI9Od3yH+9lC5/3p0GGLS4xi4+XuUyJ7+Zo60g
 	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1ky07r73-1
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1ky07r77-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 25 Mar 2026 13:31:46 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62PBSWZr011824;
-	Wed, 25 Mar 2026 13:31:45 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d27vk6g1w-1
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62PA5Ct4031598;
+	Wed, 25 Mar 2026 13:31:46 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d25nsxtr3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Mar 2026 13:31:45 +0000
+	Wed, 25 Mar 2026 13:31:46 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62PDVfCO36045292
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62PDVgjf51904896
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 25 Mar 2026 13:31:41 GMT
+	Wed, 25 Mar 2026 13:31:42 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9628420043;
-	Wed, 25 Mar 2026 13:31:41 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 5CCC32005A;
+	Wed, 25 Mar 2026 13:31:42 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 43B982004D;
-	Wed, 25 Mar 2026 13:31:41 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 11F7B2004F;
+	Wed, 25 Mar 2026 13:31:42 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 25 Mar 2026 13:31:41 +0000 (GMT)
+	Wed, 25 Mar 2026 13:31:42 +0000 (GMT)
 From: Julian Ruess <julianr@linux.ibm.com>
-Date: Wed, 25 Mar 2026 14:31:23 +0100
-Subject: [PATCH v8 1/3] vfio/pci: Rename vfio_config_do_rw() to
- vfio_pci_config_rw_single() and export it
+Date: Wed, 25 Mar 2026 14:31:25 +0100
+Subject: [PATCH v8 3/3] MAINTAINERS: add VFIO ISM PCI DRIVER section
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -64,8 +63,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20260325-vfio_pci_ism-v8-1-ddc504cde914@linux.ibm.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260325-vfio_pci_ism-v8-3-ddc504cde914@linux.ibm.com>
 References: <20260325-vfio_pci_ism-v8-0-ddc504cde914@linux.ibm.com>
 In-Reply-To: <20260325-vfio_pci_ism-v8-0-ddc504cde914@linux.ibm.com>
 To: schnelle@linux.ibm.com, wintera@linux.ibm.com, ts@linux.ibm.com,
@@ -81,21 +80,21 @@ Cc: mjrosato@linux.ibm.com, alifm@linux.ibm.com, raspl@linux.ibm.com,
         linux-pci@vger.kernel.org
 X-Mailer: b4 0.14.2
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI1MDA5NSBTYWx0ZWRfX3Ylqq9b3qI4o
- ipuWaza0ugWrvCG30qtA+I/5Mf7Q741czyy1Yi/1UJp0hLz3JISJQbQwhOlZTpSZfHE9H1EmOuG
- vO1Z6oAHIQu2Sa/ge+t1F+Wp53SNQ4LvIA3DfJaqeH0g6790VsKgseQFeSKza4jEhFEOFHGP8DJ
- x0wc3c95WO0tq5W8yLQBBDIjGnrCuIOZ5UyqXlIr+Gx9Fob7t5VZBl0+ZKdLL4wB2bIRkJwFAlK
- qQJonYDh/CM0Qjv4M9nqFp5fjdHZrNaQnbtHbW7gmJ0Is0J5WauqrOO+juQVpuHYPM7J09DklIH
- GOojMpDe9eS2jG8VGxaC5gOuXuvTvE0+be7BN05J+J4+TFJERVLSs4nA7apjnMsjHe+G2jj4aaW
- 1MvjL5kUP0yhaoPJf9bFrDCW4E6g8DXYJPUL6uJdMofP37kZf6MgN3a7ME6gFt7ebLOxcAZdAn1
- cp2gS3OsT9X1hRSNsVA==
-X-Authority-Analysis: v=2.4 cv=JK42csKb c=1 sm=1 tr=0 ts=69c3e3c2 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI1MDA5NSBTYWx0ZWRfX4ONqm67yLW0U
+ NDIW/dPVD6FLes+nox9xwGIO3XhkCGKTicLL5mCp+gR0m4bJH8HEOyzDc0i6JlwvBdH7sIJ2n3T
+ gp5RErYb8+Cf1QdmAkSsg48KCuzQxBzVJ0Zza/LzgMaVTEmkicBDfaxvUxVLibbn/rxoj7NS0Tk
+ uiJaAbOPsFJ/DzxYaZzppVnOnCzG+pW80JosQbOAICcmKKXmJQJmnaWrfFbK2U5DcSaOAG1ze8f
+ cDIcrFt7yLcmtflOQDXhLCFyYJSj/bbWqGm+vHpqo7m1A9nfu+y6yGUqb7pCVAYSZEDIpd3/h5B
+ jlJZzLoej/73N0xcok7WlUNmuzFsKYPa7BEo1DUdTWhMxvmPHgJ+oHHVINPbigEm2mN58ei3wI2
+ 4WogUBycNU8hcLJ6vMetgZsdfoDhxTIQWvzx3JmNORUDjKn0DpTUttzBsRUJr47+Z271XTSUxFn
+ ZlQj4QPQKxo3GWYfYCw==
+X-Authority-Analysis: v=2.4 cv=JK42csKb c=1 sm=1 tr=0 ts=69c3e3c3 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
  a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=mooU_oynDD9EFzHbF-IA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: rjunKXmwxRwQiY9T4-exEQ1rJLhAMUOZ
-X-Proofpoint-GUID: rjunKXmwxRwQiY9T4-exEQ1rJLhAMUOZ
+ a=VwQbUJbxAAAA:8 a=Ikd4Dj_1AAAA:8 a=jBZh5NATpTL4zB9YInYA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: 14imqRo-gxUuki3BF-AriP5GTNrFmurV
+X-Proofpoint-GUID: 14imqRo-gxUuki3BF-AriP5GTNrFmurV
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-03-25_04,2026-03-24_01,2025-10-01_01
@@ -105,69 +104,33 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603250095
 
-A follow-up patch adds a new variant driver for s390 ISM devices. Since
-this device uses a 256 TiB BAR 0 that is never mapped, the variant
-driver needs its own ISM_VFIO_PCI_OFFSET_MASK. To minimally mirror the
-functionality of vfio_pci_config_rw() with such a custom mask, export
-vfio_config_do_rw(). To better distinguish the now exported function
-from vfio_pci_config_rw(), rename it to vfio_pci_config_rw_single()
-emphasizing that it does a single config space read or write.
+ism_vfio_pci is a new kernel component that allows
+to use the ISM device from userspace. Add myself
+as a maintainer.
 
 Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
 Signed-off-by: Julian Ruess <julianr@linux.ibm.com>
 ---
- drivers/vfio/pci/vfio_pci_config.c | 8 +++++---
- drivers/vfio/pci/vfio_pci_priv.h   | 4 ++++
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ MAINTAINERS | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/vfio/pci/vfio_pci_config.c b/drivers/vfio/pci/vfio_pci_config.c
-index b4e39253f98da61a5e2b6dd0089b2f6aef4b85a0..a10ed733f0e3af89c185f8b93192ba6b004f05ed 100644
---- a/drivers/vfio/pci/vfio_pci_config.c
-+++ b/drivers/vfio/pci/vfio_pci_config.c
-@@ -1880,8 +1880,9 @@ static size_t vfio_pci_cap_remaining_dword(struct vfio_pci_core_device *vdev,
- 	return i;
- }
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 7d10988cbc62b77515aa1a1fee1c7d3e594869fa..4784a2514c0e057fded12364c680c928bde5876c 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -27704,6 +27704,12 @@ L:	kvm@vger.kernel.org
+ S:	Maintained
+ F:	drivers/vfio/pci/hisilicon/
  
--static ssize_t vfio_config_do_rw(struct vfio_pci_core_device *vdev, char __user *buf,
--				 size_t count, loff_t *ppos, bool iswrite)
-+ssize_t vfio_pci_config_rw_single(struct vfio_pci_core_device *vdev,
-+				  char __user *buf, size_t count, loff_t *ppos,
-+				  bool iswrite)
- {
- 	struct pci_dev *pdev = vdev->pdev;
- 	struct perm_bits *perm;
-@@ -1970,6 +1971,7 @@ static ssize_t vfio_config_do_rw(struct vfio_pci_core_device *vdev, char __user
- 
- 	return ret;
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_config_rw_single);
- 
- ssize_t vfio_pci_config_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 			   size_t count, loff_t *ppos, bool iswrite)
-@@ -1981,7 +1983,7 @@ ssize_t vfio_pci_config_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 	pos &= VFIO_PCI_OFFSET_MASK;
- 
- 	while (count) {
--		ret = vfio_config_do_rw(vdev, buf, count, &pos, iswrite);
-+		ret = vfio_pci_config_rw_single(vdev, buf, count, &pos, iswrite);
- 		if (ret < 0)
- 			return ret;
- 
-diff --git a/drivers/vfio/pci/vfio_pci_priv.h b/drivers/vfio/pci/vfio_pci_priv.h
-index 27ac280f00b975989f6cbc02c11aaca01f9badf3..fca9d0dfac90f8eaaf2d281dd2213111c46d76a1 100644
---- a/drivers/vfio/pci/vfio_pci_priv.h
-+++ b/drivers/vfio/pci/vfio_pci_priv.h
-@@ -37,6 +37,10 @@ int vfio_pci_set_irqs_ioctl(struct vfio_pci_core_device *vdev, uint32_t flags,
- ssize_t vfio_pci_config_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 			   size_t count, loff_t *ppos, bool iswrite);
- 
-+ssize_t vfio_pci_config_rw_single(struct vfio_pci_core_device *vdev,
-+				  char __user *buf, size_t count, loff_t *ppos,
-+				  bool iswrite);
++VFIO ISM PCI DRIVER
++M:	Julian Ruess <julianr@linux.ibm.com>
++L:	kvm@vger.kernel.org
++S:	Maintained
++F:	drivers/vfio/pci/ism/
 +
- ssize_t vfio_pci_bar_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 			size_t count, loff_t *ppos, bool iswrite);
- 
+ VFIO MEDIATED DEVICE DRIVERS
+ M:	Kirti Wankhede <kwankhede@nvidia.com>
+ L:	kvm@vger.kernel.org
 
 -- 
 2.51.0
