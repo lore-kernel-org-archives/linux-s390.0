@@ -1,60 +1,33 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E80893AD513;
-	Wed, 25 Mar 2026 10:30:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A76BC3B893B;
+	Wed, 25 Mar 2026 10:33:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774434607; cv=none; b=L0o1S5kqIQmAYnKAtTWamjPIiS7YiPAXv6wBGq4MLP/ka00r3gRqk7Yu2Yr7ijAvuRHWEN1tlEN/A5N7dt+y8s1y471FX0hLQ70pZpkBUgBRLt2gqLQYOIbD3nATLLakDnWRRtOEofzFhm66OxQ4OwwtSx3hQ+s2dwjLqcQr8n8=
+	t=1774434826; cv=none; b=sC4+V3eUgRALXWRsT/Mg7W3pJr9LRE4jQU9enfr0dhSRP9QaOoPvoXhCRA3iMvNQdpiDi4R4ONFmAAJT5Ax+EDoNOD0OhtNwehUcnEQLxeulFcLbqKl9hZNebk6X7x+/O4uqV6tyBsM2CS4IS5aYqz6bWepuyL1gEXzJFLSAYpg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774434607; c=relaxed/simple;
-	bh=9L6ADxI/B0I17pY4sQH8l+lnahMJHjSzsh0H03DnCtY=;
+	s=arc-20240116; t=1774434826; c=relaxed/simple;
+	bh=aJiJufwALZTrMErym90lg9xadYFrtwTh9zLM612wdfU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=awYSxBlE6BP37dt22IgskKaQwcUSolbuGU9Y4ZH9NUyb4BDjePgcIlhYVzUh0B4yGG3cpYFZavSQVKYkfdD+2F3Exi8zINe95m51XfnYvIm7tWN78BRSE6ZGYqlx2oky4dPru7MLECbqBOXXd0yDgItM9wqCuJNmlBo0xrFKMyg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rt4llHH9; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=izvZ5uGt/141mDroqVgEWmmo3ckrTrrhH9zQMgYWQwNPkp5xP+r1Yu6Tbv/AKVQ/UKLalP0N2K3bY3vNQY04Uo/S/x0J7isRmTdtEpkfm3nQ2MgVW0aHH+bK04y1AZBSG5YdPfbL+KcUpProsDO0jcTL/qoq/lWVfAu5h9/zRMY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IQ7wamBu; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rt4llHH9"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62P6EnrV3729349;
-	Wed, 25 Mar 2026 10:30:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=zX4xpI
-	nXZsfOxe0QXtXrF2p2Qo6Jm/dwW9vWKyGoJdc=; b=rt4llHH90N5mNVm5O7w1Rb
-	iNSTWaAWOkn+3d1Ah6c5rwVH2+Mrtqjpl5X89IsV3sNny0LEbWF9YU/xbcUHBNyl
-	p+e5n5/CMpX+wGJ5VJB8C+I3xpa2rD4y6GAL/xzYzzaDciBov8hK2Tab3Px5u+3H
-	x46ureyZ7LGevIxvaDUAxCnc05KCaX/NnygMboMuYUIahF+dWqZBWf03THwk8u+/
-	CaqQOUUoTHyG/iJ9w4uAjKLYe8PWW2sWC8JEBJxSl3+4hNFAA10DkvolDyCKeQn5
-	UYQAD193G3s8Y6a2LDAWU4zwJZuafWriBESMbDqLMs9mSFJpwd9zz05Sso0oSJkg
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kw9yxf5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Mar 2026 10:30:03 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62P72cc8026771;
-	Wed, 25 Mar 2026 10:30:02 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d275kx12m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Mar 2026 10:30:01 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62PATvQF18809220
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 25 Mar 2026 10:29:57 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A6E792004B;
-	Wed, 25 Mar 2026 10:29:57 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1D39520043;
-	Wed, 25 Mar 2026 10:29:57 +0000 (GMT)
-Received: from [9.52.200.39] (unknown [9.52.200.39])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 25 Mar 2026 10:29:57 +0000 (GMT)
-Message-ID: <77fb3826-08a2-4bf7-b9d5-2679072d0f7a@linux.ibm.com>
-Date: Wed, 25 Mar 2026 11:29:56 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IQ7wamBu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45D04C4CEF7;
+	Wed, 25 Mar 2026 10:33:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774434826;
+	bh=aJiJufwALZTrMErym90lg9xadYFrtwTh9zLM612wdfU=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=IQ7wamBuBswIV06YMQ512/86FaeSJDO1hVJmHF15aa7lwqSBhYRoh2/xQs7mCuMVn
+	 jIZx2QfPrLjG8x4HGTqwuohoFEss2YApWTN6VCPS6cZhs/Cz8meOXIe/nuz3nW3OfQ
+	 sW0aKsRm2pkCRj3Tz0xlGVf6Gag2qK2q2BHc6gd5m/lWaXyDpvlRC/a6o2Y0gsRKbw
+	 RfK3wED0pdnN0Lx0xk8dNqAWio6aPnfaaxOQ/5BjXGXYBkYeT67KblOmgVEwNZOcNA
+	 F7WJV99ADDvaoAhrnEG8aPpXAxBYDzixJeHIYfU0n1hRsq0hJGFAKTXaXIvu5adZgH
+	 fldf6DCQY3dFg==
+Message-ID: <965fe446-8f91-48bf-9453-878fef4eb1d0@kernel.org>
+Date: Wed, 25 Mar 2026 11:33:20 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,95 +35,109 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] KVM: s390: selftests: Add load psw bear test
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
-References: <20260323153637.3683-1-frankja@linux.ibm.com>
- <20260323153637.3683-3-frankja@linux.ibm.com>
+Subject: Re: [PATCH 1/9] scripts: kconfig: merge_config.sh: use POSIX '=' in
+ test
+To: Mikko Rapeli <mikko.rapeli@linaro.org>
+Cc: Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>,
+ Richard Henderson <richard.henderson@linaro.org>,
+ Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>,
+ Russell King <linux@armlinux.org.uk>, Aaro Koskinen <aaro.koskinen@iki.fi>,
+ Andreas Kemnade <andreas@kemnade.info>, Kevin Hilman <khilman@baylibre.com>,
+ Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
+ Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>,
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+ Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+ Clark Williams <clrkwllms@kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
+ Pablo Neira Ayuso <pablo@netfilter.org>,
+ Krzysztof Kozlowski <krzk@kernel.org>, Alim Akhtar
+ <alim.akhtar@samsung.com>, Frank Li <Frank.Li@nxp.com>,
+ Sascha Hauer <s.hauer@pengutronix.de>,
+ Pengutronix Kernel Team <kernel@pengutronix.de>,
+ Fabio Estevam <festevam@gmail.com>, Vladimir Zapolskiy <vz@mleia.com>,
+ Piotr Wojtaszczyk <piotr.wojtaszczyk@timesys.com>,
+ Liviu Dudau <liviu.dudau@arm.com>, Sudeep Holla <sudeep.holla@kernel.org>,
+ Lorenzo Pieralisi <lpieralisi@kernel.org>,
+ Geert Uytterhoeven <geert+renesas@glider.be>,
+ Magnus Damm <magnus.damm@gmail.com>,
+ Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>,
+ Gregory CLEMENT <gregory.clement@bootlin.com>,
+ =?UTF-8?Q?Th=C3=A9o_Lebrun?= <theo.lebrun@bootlin.com>,
+ "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+ Helge Deller <deller@gmx.de>, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+ =?UTF-8?Q?Jonathan_Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+ Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
+ Thomas Zimmermann <tzimmermann@suse.de>, Arnd Bergmann <arnd@arndb.de>,
+ Heiko Stuebner <heiko@sntech.de>,
+ Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+ Mark Brown <broonie@kernel.org>, Eric Biggers <ebiggers@kernel.org>,
+ Ard Biesheuvel <ardb@kernel.org>,
+ Sricharan Ramabadhran <quic_srichara@quicinc.com>,
+ Bjorn Andersson <andersson@kernel.org>, Michael Walle <mwalle@kernel.org>,
+ Guenter Roeck <linux@roeck-us.net>,
+ Srinivas Kandagatla <srinivas.kandagatla@oss.qualcomm.com>,
+ "Rob Herring (Arm)" <robh@kernel.org>,
+ Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Anna Schumaker <anna.schumaker@oracle.com>,
+ Alexandre Gonzalo <alexandre.gonzalo@arm.com>, linux-kbuild@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-rt-devel@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
+ imx@lists.linux.dev, linux-renesas-soc@vger.kernel.org,
+ linux-parisc@vger.kernel.org, openbmc@lists.ozlabs.org
+References: <20260317-arm_defconf_cleanup-v1-0-8eecb7fdd24d@kernel.org>
+ <20260317-arm_defconf_cleanup-v1-1-8eecb7fdd24d@kernel.org>
+ <abkfJsyQSbW-VjxD@nuoska>
+From: "Vincent Mailhol (Arm)" <mailhol@kernel.org>
 Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20260323153637.3683-3-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <abkfJsyQSbW-VjxD@nuoska>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 3XS_8W6GPNwKByfUe-YhiOOhYcbyRz8v
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI1MDA3MyBTYWx0ZWRfX3/1qz/jeBMcE
- JmEFKqv32f3Ys9aksTJ7kXAvOycadP/+KZ0IWQA37sNJ3cnY8hSGtGvyv88GO9dloYS+vtR5OKK
- 66Eb8ihvoI4WAJU16PNXWIG4u+bUoDzgXme55hI/4RfSFkuzir1UPZu0Cnx+0oo/v6m2OXJjsAs
- dwJnWWRhLQ+eHHKEPkOuglNfF6EI6IOUeDapMZt3E+LziKZSiWneucfIRgO6/VZqVqv7sRqkp7l
- o7vQ/wxN3SngAX9PYT0o31MSKJqU9OWqKK2U4esqS2NmeaenRKGUXmfO1ymEqkTME9vLX66qrJx
- 8ovK/ewSFQMiDfJCxcfMSB5CvVxiAw1r+NWZyZDob0w1N+sWOdj46rXeX83AYvXXXByDyQ+k2D0
- LQoI/C87MqQbBbE4ijGDcGeVTt6Xo1J7JhNex65j3K7wB/7VwImYLGx1YnLEEDjiixxH210Rs47
- cbBPb/GUj6llv6P9dgA==
-X-Proofpoint-GUID: 3XS_8W6GPNwKByfUe-YhiOOhYcbyRz8v
-X-Authority-Analysis: v=2.4 cv=OsZCCi/t c=1 sm=1 tr=0 ts=69c3b92b cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=n7dhi3OI2ghMCBVPbA4A:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-25_03,2026-03-24_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 adultscore=0 clxscore=1015 phishscore=0 suspectscore=0
- lowpriorityscore=0 priorityscore=1501 bulkscore=0 spamscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603250073
 
-Had a 2nd look.
-Just wanted to test that lpswe does indeed leaves the BEAR unchanged and then I
-realized that lpswey does not work in our guest due to missing cpu model.
-So either remove the lpswey test for now or fix it.
-Something like this on top
+On 3/17/26 10:30, Mikko Rapeli wrote:
+> Hi,
+> 
+> On Tue, Mar 17, 2026 at 10:13:37AM +0100, Vincent Mailhol (Arm) wrote:
+>> merge_config.sh yields this warning:
+>>
+>>   ./scripts/kconfig/merge_config.sh: 384: [: false: unexpected operator
+>>
+>> This happens because the script runs under /bin/sh but compares
+>> strings using the '==' operator, which is a bash extension. The POSIX
+>> test command only specifies '=' for string equality.
+>>
+>> Replace '==' with the POSIX-compatible '=' so the script works when
+>> run with /bin/sh as intended.
+>>
+>> Fixes: dfc97e1c5da5 ("scripts: kconfig: merge_config.sh: use awk in checks too")
+>> Signed-off-by: Vincent Mailhol (Arm) <mailhol@kernel.org>
+> 
+> This fix is already merged in kbuild trees:
+> 
+> https://lore.kernel.org/linux-kbuild/20260309121505.40454-1-o451686892@gmail.com/
+> https://git.kernel.org/pub/scm/linux/kernel/git/kbuild/linux.git/log/?h=kbuild-fixes-for-next
 
---- a/tools/testing/selftests/kvm/s390/bear.c
-+++ b/tools/testing/selftests/kvm/s390/bear.c
-@@ -22,7 +22,10 @@ static void guest_lpswey(void)
-         u64 bear;
-  
-         asm volatile (
--               "       larl    %%r3,lpswey_addr\n"
-+               "       larl    %%r3,jump_addr\n"
-+               "jump_addr:\n"
-+               "       j lpswey_addr\n"
-+               "       nop\n"
-                 "lpswey_addr:\n"
-                 "       .insn   siy,0xeb0000000071,%[psw],0\n"
-                 "       nop\n"
-@@ -107,21 +110,30 @@ static void test_lpswey(void)
-         struct kvm_vcpu *vcpu;
-         struct kvm_run *run;
-         struct kvm_vm *vm;
-+       struct kvm_s390_vm_cpu_processor proc;
-+       int r;
-+
-+       vm = vm_create(1);
-+       __kvm_device_attr_get(vm->fd, KVM_S390_VM_CPU_MODEL,
-+                                 KVM_S390_VM_CPU_PROCESSOR, &proc);
-+       proc.fac_list[3] |= 0x4000000000000000UL;
-+       r = __kvm_device_attr_set(vm->fd, KVM_S390_VM_CPU_MODEL,
-+                                 KVM_S390_VM_CPU_PROCESSOR, &proc);
-+       vcpu = vm_vcpu_add(vm, 0, guest_lpswey);
-  
--       vm = vm_create_with_one_vcpu(&vcpu, guest_lpswey);
-         inject_mcheck(vcpu);
-         run = vcpu->run;
-         vcpu_run(vcpu);
--       ksft_test_result(run->s.regs.gprs[3] != run->s.regs.gprs[4],
--                        "emulation: lpswey bear does not match\n");
-+       ksft_test_result(run->s.regs.gprs[3] == run->s.regs.gprs[4],
-+                        "emulation: lpswey bear does match previous\n");
-         kvm_vm_free(vm);
-  
-         vm = vm_create_with_one_vcpu(&vcpu, guest_lpswey);
-         run = vcpu->run;
-         vcpu_run(vcpu);
-         ksft_test_result(run->s.regs.gprs[3] &&
--                        run->s.regs.gprs[3] != run->s.regs.gprs[4],
--                        "interpretation: lpswey bear does not match\n");
-+                        run->s.regs.gprs[3] == run->s.regs.gprs[4],
-+                        "interpretation: lpswey bear does match previous\n");
-         kvm_vm_free(vm);
-  }
-  
+Noted! I actually started to write this before the other solution was
+posted, but, anyway, this will be removed in v2.
+
+
+Yours sincerely,
+Vincent Mailhol
 
