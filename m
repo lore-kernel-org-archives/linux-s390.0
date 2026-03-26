@@ -1,373 +1,150 @@
-Received: from m16.mail.126.com (m16.mail.126.com [117.135.210.6])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f74.google.com (mail-dl1-f74.google.com [74.125.82.74])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A5BA2DF12F;
-	Thu, 26 Mar 2026 07:20:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.6
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81614198E91
+	for <linux-s390@vger.kernel.org>; Thu, 26 Mar 2026 08:08:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774509644; cv=none; b=gO0WPvydaon+I6xRD7oqemnzDorJV2hSjQ6qjI9uHi1hQCJNwXtFj3xXdFuEXfoI3Z4ko+FOdkZaQEii5pg8nsmx6+RbM5yBxFDELXHPMaf9BTmK/A3wlPhci83aWuHuR1Gx9EblrlUn0Oyt7D4IWPJIIaote8zy8cjoF+4edYs=
+	t=1774512523; cv=none; b=Bm3QwZxNOkMQExowmlE9or8E5l5W1zABuWsDJKpDAk/yCcWPGJvuHM/RPNntqvO5odkGsv5BhwNDM3wAPDvZDAO+EfCmyGQBuKc5JNL2I4Ne1waPgbfiV/YYLDPZdbZXScRhLm7h2ygkK/FIhnfu77IXzGtrUkeIP3HjAJwvvcc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774509644; c=relaxed/simple;
-	bh=pSlQKT/b1HCPvWFIQb+8xqExFbpC07qWgZu3ngrk98I=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DCtHey1g6WPw0W3XDN3qtEe33wgSRXeel/qGtNrZFUX6HxEBKhzGiBgl44bqvMSGE6f7Qdc6LBT7dXksZ/XLqkbUUgDmqQDWTzIbzdNxX+4W+JsrRFc6SzKGJqvu+lrQSF+oNJUp54eLV12jxOh3G+tz0FFUAWWiXbp0aIbZWHY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=126.com; spf=pass smtp.mailfrom=126.com; dkim=pass (1024-bit key) header.d=126.com header.i=@126.com header.b=G1wa8LS5; arc=none smtp.client-ip=117.135.210.6
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=126.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=126.com
+	s=arc-20240116; t=1774512523; c=relaxed/simple;
+	bh=SQd+VZ4O0rynu6+m7mKKooZvOWskGbg2FcoyS/3PQF4=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=c/glz2rpADFk0RBfFQWqY61cv0DoYby7NwXryV+E0GPPU/5I0ohMkS9grxWMYNOZWHYvO4OI3btK55GZBMB6VJu3MAHt2S1Wf71tA5Wt6fZ5kbrGH9mhi1OUyOJ1+a4QbNN9lrxUMZOs7ggDdR6+r/PHDUFtI8aLkfvRv/cmkQo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--surenb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=dopI5plG; arc=none smtp.client-ip=74.125.82.74
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--surenb.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=126.com header.i=@126.com header.b="G1wa8LS5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=126.com;
-	s=s110527; h=Message-ID:Date:MIME-Version:Subject:To:From:
-	Content-Type; bh=lscYA8WasBHC0985AOl1Uc+DlR92krmpHLmMCBJENuU=;
-	b=G1wa8LS5QQmSraxZLhAf150xJlw06iTDowYTgKjhJdA4fEPuGW45iZHMuYEWlZ
-	+vD1f5cwA2VlUIRV8torep0CtT4o/mRHqF0xvE3Q40UVfm0V+p4QDTN6UQrVQlel
-	mFnC0ROJQqIkBD16zdvUgT7YG6e4I/gLHUDUSYo80gUe0=
-Received: from [172.24.149.146] (unknown [])
-	by gzga-smtp-mtada-g1-4 (Coremail) with SMTP id _____wD3Zxwh3sRp3DTSAg--.48128S2;
-	Thu, 26 Mar 2026 15:20:02 +0800 (CST)
-Message-ID: <c9b522c0-09ce-47c4-a377-1a46ae84e609@126.com>
-Date: Thu, 26 Mar 2026 15:20:01 +0800
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="dopI5plG"
+Received: by mail-dl1-f74.google.com with SMTP id a92af1059eb24-1279caef718so663657c88.1
+        for <linux-s390@vger.kernel.org>; Thu, 26 Mar 2026 01:08:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1774512522; x=1775117322; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=DpXsG0Sw3JfIN9g3oAH6M8VS1bS1PNOXhE36FO51Iqg=;
+        b=dopI5plGcQ8Qp5CnnfOCorbuBwu4UYlMRaGr7zwI2yiBqVEV72CBa56RIBGjwbbVjr
+         abw6KGEnbaKAdvA7AxiH3y1rbav0EHZCp1VQ+T7MTaW1HeyeQJxjje/BQ9Np/GmMKOlO
+         2tRpgibyyi3I1D0T6IBOu/f0Mil3A0rNziTwEcZVLm9F+ZoFC64C9egBkGt3CfTQWqNy
+         MQaZURAEcuA/IhGW6fA4Kw2CK53/JvZ9Ux4Tsepp33XMSJwdcZ+5CyW5JzUiKEKT/9gv
+         lVeZDJxWePqgxrHXJAfr8ukWFfq6FLYD1aR6r/dEnriHkfHaUMjsJeX8yxfD+kEla5Dh
+         Dwzg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774512522; x=1775117322;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=DpXsG0Sw3JfIN9g3oAH6M8VS1bS1PNOXhE36FO51Iqg=;
+        b=FeSX6hjgvC+/F//hVUODHB1k30/BGsQeFcODnTnMxSDnpYs+EJ23DlEM2x3JaGn8tK
+         27wTDb3KL9ea9lN2jPtHslxvjXhpJBxNga8mo03LVcK8WmpgwLwvEFkjPrUfsRQm9oC2
+         BePlsqKa6WFC7C/RNr6w10LERyml0slLqoFYIiWqE1qn41QaQ6/2D6M5ZNN6UW7sgBiF
+         jNx7RG0h4+U6OwoEprccMn1vAlUnR6bZBdFjcVrHiUKEwOe1c7gBoBp3dK5KVcpz8TIi
+         Uxq1JJTFO+wSqO3tDBPljwzmC3VH3YVBd8/DyoWwau5B8Rr8Fm6v9BQogx6Y/cthE7ME
+         5vmw==
+X-Forwarded-Encrypted: i=1; AJvYcCUoad2dtPln7B0Mr/Wu11DtrhoXcwHAM0EkcmKiwz2jRaKXQZZdOwTFVKPTHOwl3WvgHQxZI1/iDa1g@vger.kernel.org
+X-Gm-Message-State: AOJu0YwmhgSsjquHydfCguV6DRm5yFtQrLtaQKp7Ps8X9G3AgoLMp9DE
+	b0P5PNK3oIXRn3F3R4oWKgiZNNvS9hZblqOzubyb0jBbCu1I/N56w4EWTHUMownh+KxNF3IWYE0
+	WYC1mEw==
+X-Received: from dlbuy10.prod.google.com ([2002:a05:7022:1e0a:b0:12a:6d14:dfd9])
+ (user=surenb job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7022:eac3:b0:11b:b622:cad9
+ with SMTP id a92af1059eb24-12a96eceb8emr2826837c88.21.1774512521385; Thu, 26
+ Mar 2026 01:08:41 -0700 (PDT)
+Date: Thu, 26 Mar 2026 01:08:30 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] perf symbol: Lazily compute idle and use the perf_env
-To: Ian Rogers <irogers@google.com>, acme@kernel.org, namhyung@kernel.org,
- tmricht@linux.ibm.com
-Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com,
- japo@linux.ibm.com, linux-kernel@vger.kernel.org,
- linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org,
- sumanthk@linux.ibm.com
-References: <20260302234343.564937-1-irogers@google.com>
- <20260325161836.1029457-1-irogers@google.com>
-Content-Language: en-US
-From: Honglei Wang <jameshongleiwang@126.com>
-In-Reply-To: <20260325161836.1029457-1-irogers@google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID:_____wD3Zxwh3sRp3DTSAg--.48128S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWfJr4rtr4DAFyrtF1rKrWfXwb_yoWDZw13pF
-	WDCr47Zr48Jr45W34fJF4UuFy5uwnavw4rCr4UJ3yrAFsIkr1UKFZ7GF1Y9w4rXrn3G3Wr
-	ArsFkFyfWa18JrJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07UtKsbUUUUU=
-X-CM-SenderInfo: 5mdpv2pkrqwzphlzt0bj6rjloofrz/xtbBrwNL+GnE3iPPewAA37
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.53.0.1018.g2bb0e51243-goog
+Message-ID: <20260326080836.695207-1-surenb@google.com>
+Subject: [PATCH v5 0/6] Use killable vma write locking in most places
+From: Suren Baghdasaryan <surenb@google.com>
+To: akpm@linux-foundation.org
+Cc: willy@infradead.org, david@kernel.org, ziy@nvidia.com, 
+	matthew.brost@intel.com, joshua.hahnjy@gmail.com, rakie.kim@sk.com, 
+	byungchul@sk.com, gourry@gourry.net, ying.huang@linux.alibaba.com, 
+	apopple@nvidia.com, lorenzo.stoakes@oracle.com, baolin.wang@linux.alibaba.com, 
+	Liam.Howlett@oracle.com, npache@redhat.com, ryan.roberts@arm.com, 
+	dev.jain@arm.com, baohua@kernel.org, lance.yang@linux.dev, vbabka@suse.cz, 
+	jannh@google.com, rppt@kernel.org, mhocko@suse.com, pfalcato@suse.de, 
+	kees@kernel.org, maddy@linux.ibm.com, npiggin@gmail.com, mpe@ellerman.id.au, 
+	chleroy@kernel.org, borntraeger@linux.ibm.com, frankja@linux.ibm.com, 
+	imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, 
+	agordeev@linux.ibm.com, svens@linux.ibm.com, gerald.schaefer@linux.ibm.com, 
+	linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, surenb@google.com
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Ian,
+Now that we have vma_start_write_killable() we can replace most of the
+vma_start_write() calls with it, improving reaction time to the kill
+signal.
 
-On 3/26/26 12:18 AM, Ian Rogers wrote:
-> Move the idle boolean to a helper symbol__is_idle function. In the
-> function lazily compute whether a symbol is an idle function taking
-> into consideration the kernel version and architecture of the
-> machine. As symbols__insert no longer needs to know if a symbol is for
-> the kernel, remove the argument.
-> 
-> This change is inspired by mailing list discussion, particularly from
-> Thomas Richter <tmricht@linux.ibm.com> and Heiko Carstens
-> <hca@linux.ibm.com>:
-> https://lore.kernel.org/lkml/20260219113850.354271-1-tmricht@linux.ibm.com/
-> 
-> The change switches x86 matches to use strstarts which means
-> intel_idle_irq is matched as part of strstarts(name, "intel_idle"), a
-> change suggested by Honglei Wang <jameshongleiwang@126.com> in:
-> https://lore.kernel.org/lkml/20260323085255.98173-1-jameshongleiwang@126.com/
-> 
-> Signed-off-by: Ian Rogers <irogers@google.com>
-> ---
-> v1: https://lore.kernel.org/lkml/20260302234343.564937-1-irogers@google.com/
-> ---
->  tools/perf/builtin-top.c     |   6 +-
->  tools/perf/util/symbol-elf.c |   2 +-
->  tools/perf/util/symbol.c     | 105 ++++++++++++++++++++++-------------
->  tools/perf/util/symbol.h     |  15 +++--
->  4 files changed, 84 insertions(+), 44 deletions(-)
-> 
-> diff --git a/tools/perf/builtin-top.c b/tools/perf/builtin-top.c
-> index 37950efb28ac..bdc1c761cd61 100644
-> --- a/tools/perf/builtin-top.c
-> +++ b/tools/perf/builtin-top.c
-> @@ -751,6 +751,7 @@ static void perf_event__process_sample(const struct perf_tool *tool,
->  {
->  	struct perf_top *top = container_of(tool, struct perf_top, tool);
->  	struct addr_location al;
-> +	struct dso *dso = NULL;
->  
->  	if (!machine && perf_guest) {
->  		static struct intlist *seen;
-> @@ -830,7 +831,10 @@ static void perf_event__process_sample(const struct perf_tool *tool,
->  		}
->  	}
->  
-> -	if (al.sym == NULL || !al.sym->idle) {
-> +	if (al.map)
-> +		dso = map__dso(al.map);
-> +
-> +	if (al.sym == NULL || !symbol__is_idle(al.sym, dso, machine->env)) {
->  		struct hists *hists = evsel__hists(evsel);
->  		struct hist_entry_iter iter = {
->  			.evsel		= evsel,
-> diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
-> index 3cd4e5a03cc5..9fabf5146d89 100644
-> --- a/tools/perf/util/symbol-elf.c
-> +++ b/tools/perf/util/symbol-elf.c
-> @@ -1723,7 +1723,7 @@ dso__load_sym_internal(struct dso *dso, struct map *map, struct symsrc *syms_ss,
->  
->  		arch__sym_update(f, &sym);
->  
-> -		__symbols__insert(dso__symbols(curr_dso), f, dso__kernel(dso));
-> +		__symbols__insert(dso__symbols(curr_dso), f);
->  		nr++;
->  	}
->  	dso__put(curr_dso);
-> diff --git a/tools/perf/util/symbol.c b/tools/perf/util/symbol.c
-> index ce9195717f44..1a357af93a0a 100644
-> --- a/tools/perf/util/symbol.c
-> +++ b/tools/perf/util/symbol.c
-> @@ -25,6 +25,8 @@
->  #include "demangle-ocaml.h"
->  #include "demangle-rust-v0.h"
->  #include "dso.h"
-> +#include "dwarf-regs.h"
-> +#include "env.h"
->  #include "util.h" // lsdir()
->  #include "event.h"
->  #include "machine.h"
-> @@ -50,7 +52,6 @@
->  
->  static int dso__load_kernel_sym(struct dso *dso, struct map *map);
->  static int dso__load_guest_kernel_sym(struct dso *dso, struct map *map);
-> -static bool symbol__is_idle(const char *name);
->  
->  int vmlinux_path__nr_entries;
->  char **vmlinux_path;
-> @@ -357,8 +358,7 @@ void symbols__delete(struct rb_root_cached *symbols)
->  	}
->  }
->  
-> -void __symbols__insert(struct rb_root_cached *symbols,
-> -		       struct symbol *sym, bool kernel)
-> +void __symbols__insert(struct rb_root_cached *symbols, struct symbol *sym)
->  {
->  	struct rb_node **p = &symbols->rb_root.rb_node;
->  	struct rb_node *parent = NULL;
-> @@ -366,17 +366,6 @@ void __symbols__insert(struct rb_root_cached *symbols,
->  	struct symbol *s;
->  	bool leftmost = true;
->  
-> -	if (kernel) {
-> -		const char *name = sym->name;
-> -		/*
-> -		 * ppc64 uses function descriptors and appends a '.' to the
-> -		 * start of every instruction address. Remove it.
-> -		 */
-> -		if (name[0] == '.')
-> -			name++;
-> -		sym->idle = symbol__is_idle(name);
-> -	}
-> -
->  	while (*p != NULL) {
->  		parent = *p;
->  		s = rb_entry(parent, struct symbol, rb_node);
-> @@ -393,7 +382,7 @@ void __symbols__insert(struct rb_root_cached *symbols,
->  
->  void symbols__insert(struct rb_root_cached *symbols, struct symbol *sym)
->  {
-> -	__symbols__insert(symbols, sym, false);
-> +	__symbols__insert(symbols, sym);
->  }
->  
->  static struct symbol *symbols__find(struct rb_root_cached *symbols, u64 ip)
-> @@ -554,7 +543,7 @@ void dso__reset_find_symbol_cache(struct dso *dso)
->  
->  void dso__insert_symbol(struct dso *dso, struct symbol *sym)
->  {
-> -	__symbols__insert(dso__symbols(dso), sym, dso__kernel(dso));
-> +	__symbols__insert(dso__symbols(dso), sym);
->  
->  	/* update the symbol cache if necessary */
->  	if (dso__last_find_result_addr(dso) >= sym->start &&
-> @@ -716,47 +705,87 @@ int modules__parse(const char *filename, void *arg,
->  	return err;
->  }
->  
-> +static int sym_name_cmp(const void *a, const void *b)
-> +{
-> +	const char *name = a;
-> +	const char *const *sym = b;
-> +
-> +	return strcmp(name, *sym);
-> +}
-> +
->  /*
->   * These are symbols in the kernel image, so make sure that
->   * sym is from a kernel DSO.
->   */
-> -static bool symbol__is_idle(const char *name)
-> +bool symbol__is_idle(struct symbol *sym, const struct dso *dso, const struct perf_env *env)
->  {
-> -	const char * const idle_symbols[] = {
-> +	static const char * const idle_symbols[] = {
->  		"acpi_idle_do_entry",
->  		"acpi_processor_ffh_cstate_enter",
->  		"arch_cpu_idle",
->  		"cpu_idle",
->  		"cpu_startup_entry",
-> -		"idle_cpu",
-> -		"intel_idle",
-> -		"intel_idle_ibrs",
->  		"default_idle",
-> -		"native_safe_halt",
->  		"enter_idle",
->  		"exit_idle",
-> -		"mwait_idle",
-> -		"mwait_idle_with_hints",
-> -		"mwait_idle_with_hints.constprop.0",
-> +		"idle_cpu",
-> +		"native_safe_halt",
->  		"poll_idle",
-> -		"ppc64_runlatch_off",
->  		"pseries_dedicated_idle_sleep",
-> -		"psw_idle",
-> -		"psw_idle_exit",
-> -		NULL
->  	};
-> -	int i;
-> -	static struct strlist *idle_symbols_list;
-> +	const char *name = sym->name;
-> +	uint16_t e_machine = env ? env->e_machine : EM_HOST;
->  
-> -	if (idle_symbols_list)
-> -		return strlist__has_entry(idle_symbols_list, name);
-> +	if (sym->idle)
-> +		return sym->idle == SYMBOL_IDLE__IDLE;
->  
-> -	idle_symbols_list = strlist__new(NULL, NULL);
-> +	if (!dso || dso__kernel(dso) == DSO_SPACE__USER) {
-> +		sym->idle = SYMBOL_IDLE__NOT_IDLE;
-> +		return false;
-> +	}
->  
-> -	for (i = 0; idle_symbols[i]; i++)
-> -		strlist__add(idle_symbols_list, idle_symbols[i]);
-> +	/*
-> +	 * ppc64 uses function descriptors and appends a '.' to the
-> +	 * start of every instruction address. Remove it.
-> +	 */
-> +	if (name[0] == '.')
-> +		name++;
->  
-> -	return strlist__has_entry(idle_symbols_list, name);
-> +	if (bsearch(name, idle_symbols, ARRAY_SIZE(idle_symbols),
-> +		    sizeof(idle_symbols[0]), sym_name_cmp)) {
-> +		sym->idle = SYMBOL_IDLE__IDLE;
-> +		return true;
-> +	}
-> +
-> +	if (e_machine == EM_386 || e_machine == EM_X86_64) {
+There are several places which are left untouched by this patchset:
 
-As said in anther thread, intel_idle_irq was still there on my test
-machine. I did a bit debug and found e_machine == 0 so it couldn't run
-into this branch. After dig more, it should be
-deliver_event()->perf_session__find_machine() return a struct machine
-whose env->e_machine is 0. I'm still busy today to do more, wish this
-clue can help.
+1. free_pgtables() because function should free page tables even if a
+fatal signal is pending.
 
-Thanks,
-Honglei
+2. userfaultd code, where some paths calling vma_start_write() can
+handle EINTR and some can't without a deeper code refactoring.
 
-> +		if (strstarts(name, "mwait_idle") ||
-> +		    strstarts(name, "intel_idle")) {
-> +			sym->idle = SYMBOL_IDLE__IDLE;
-> +			return true;
-> +		}
-> +	}
-> +
-> +	if (e_machine == EM_PPC64 && !strcmp(name, "ppc64_runlatch_off")) {
-> +		sym->idle = SYMBOL_IDLE__IDLE;
-> +		return true;
-> +	}
-> +
-> +	if (e_machine == EM_S390) {
-> +		int major = 0, minor = 0;
-> +		const char *release = env && env->os_release
-> +			? env->os_release : perf_version_string;
-> +
-> +		sscanf(release, "%d.%d", &major, &minor);
-> +
-> +		/* Before v6.10, s390 used psw_idle. */
-> +		if ((major < 6 || (major == 6 && minor < 10)) && strstarts(name, "psw_idle")) {
-> +			sym->idle = SYMBOL_IDLE__IDLE;
-> +			return true;
-> +		}
-> +	}
-> +
-> +	sym->idle = SYMBOL_IDLE__NOT_IDLE;
-> +	return false;
->  }
->  
->  static int map__process_kallsym_symbol(void *arg, const char *name,
-> @@ -785,7 +814,7 @@ static int map__process_kallsym_symbol(void *arg, const char *name,
->  	 * We will pass the symbols to the filter later, in
->  	 * map__split_kallsyms, when we have split the maps per module
->  	 */
-> -	__symbols__insert(root, sym, !strchr(name, '['));
-> +	__symbols__insert(root, sym);
->  
->  	return 0;
->  }
-> diff --git a/tools/perf/util/symbol.h b/tools/perf/util/symbol.h
-> index c67814d6d6d6..f26f67bd7982 100644
-> --- a/tools/perf/util/symbol.h
-> +++ b/tools/perf/util/symbol.h
-> @@ -25,6 +25,7 @@ struct dso;
->  struct map;
->  struct maps;
->  struct option;
-> +struct perf_env;
->  struct build_id;
->  
->  /*
-> @@ -42,6 +43,12 @@ Elf_Scn *elf_section_by_name(Elf *elf, GElf_Ehdr *ep,
->  			     GElf_Shdr *shp, const char *name, size_t *idx);
->  #endif
->  
-> +enum symbol_idle_kind {
-> +	SYMBOL_IDLE__UNKNOWN = 0,
-> +	SYMBOL_IDLE__NOT_IDLE = 1,
-> +	SYMBOL_IDLE__IDLE = 2,
-> +};
-> +
->  /**
->   * A symtab entry. When allocated this may be preceded by an annotation (see
->   * symbol__annotation) and/or a browser_index (see symbol__browser_index).
-> @@ -57,8 +64,8 @@ struct symbol {
->  	u8		type:4;
->  	/** ELF binding type as defined for st_info. E.g. STB_WEAK or STB_GLOBAL. */
->  	u8		binding:4;
-> -	/** Set true for kernel symbols of idle routines. */
-> -	u8		idle:1;
-> +	/** Cache for symbol__is_idle. */
-> +	enum symbol_idle_kind idle:2;
->  	/** Resolvable but tools ignore it (e.g. idle routines). */
->  	u8		ignore:1;
->  	/** Symbol for an inlined function. */
-> @@ -202,8 +209,7 @@ int dso__synthesize_plt_symbols(struct dso *dso, struct symsrc *ss);
->  
->  char *dso__demangle_sym(struct dso *dso, int kmodule, const char *elf_name);
->  
-> -void __symbols__insert(struct rb_root_cached *symbols, struct symbol *sym,
-> -		       bool kernel);
-> +void __symbols__insert(struct rb_root_cached *symbols, struct symbol *sym);
->  void symbols__insert(struct rb_root_cached *symbols, struct symbol *sym);
->  void symbols__fixup_duplicate(struct rb_root_cached *symbols);
->  void symbols__fixup_end(struct rb_root_cached *symbols, bool is_kallsyms);
-> @@ -286,5 +292,6 @@ enum {
->  };
->  
->  int symbol__validate_sym_arguments(void);
-> +bool symbol__is_idle(struct symbol *sym, const struct dso *dso, const struct perf_env *env);
->  
->  #endif /* __PERF_SYMBOL */
+3. mpol_rebind_mm() which is used by cpusset controller for migrations
+and operates on a remote mm. Incomplete operations here would result
+in an inconsistent cgroup state.
+
+4. vm_flags_{set|mod|clear} require refactoring that involves moving
+vma_start_write() out of these functions and replacing it with
+vma_assert_write_locked(), then callers of these functions should
+lock the vma themselves using vma_start_write_killable() whenever
+possible.
+
+Changes since v4 [1]:
+- added Reviewed-by, per Barry Song and Lorenzo Stoakes (wherever the code
+stayed the same)
+- split patch 2 into 3 parts, per Lorenzo Stoakes
+- converted vma_start_write() in mseal_apply(), per Sashiko
+- changed vma_start_write_killable() error handling in
+set_mempolicy_home_node(), per Lorenzo Stoakes
+- added comment why mm->locked_vm is fine even when we exit early,
+per Sashiko
+- moved vma locking before vrm_calc_charge() in move_vma(), per Sashiko
+and Lorenzo Stoakes
+- set give_up_on_oom on error in vma_merge_existing_range() to propagate
+the error, per Lorenzo Stoakes
+- moved validate_mm() out of the error path in expand_upwards(),
+per Lorenzo Stoakes
+- dropped the patch changing S390 error handling, per Sashiko and
+Lorenzo Stoakes
+- reworked error handling in clear_refs_write(), per Lorenzo Stoakes
+- uninlined process_vma_walk_lock() while changing its return type,
+per Lorenzo Stoakes
+
+[1] https://lore.kernel.org/all/20260322054309.898214-1-surenb@google.com/
+
+Suren Baghdasaryan (6):
+  mm/vma: cleanup error handling path in vma_expand()
+  mm: use vma_start_write_killable() in mm syscalls
+  mm/khugepaged: use vma_start_write_killable() in collapse_huge_page()
+  mm/vma: use vma_start_write_killable() in vma operations
+  mm: use vma_start_write_killable() in process_vma_walk_lock()
+  KVM: PPC: use vma_start_write_killable() in
+    kvmppc_memslot_page_merge()
+
+ arch/powerpc/kvm/book3s_hv_uvmem.c |   5 +-
+ fs/proc/task_mmu.c                 |  12 +--
+ mm/khugepaged.c                    |   5 +-
+ mm/madvise.c                       |   4 +-
+ mm/memory.c                        |   2 +
+ mm/mempolicy.c                     |  12 ++-
+ mm/mlock.c                         |  28 ++++--
+ mm/mprotect.c                      |   5 +-
+ mm/mremap.c                        |   8 +-
+ mm/mseal.c                         |   5 +-
+ mm/pagewalk.c                      |  22 +++--
+ mm/vma.c                           | 146 +++++++++++++++++++++--------
+ mm/vma_exec.c                      |   6 +-
+ 13 files changed, 190 insertions(+), 70 deletions(-)
+
+
+base-commit: e53c9040ab1b738dd2c83b57558f141902caaf4f
+-- 
+2.53.0.1018.g2bb0e51243-goog
 
