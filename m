@@ -1,204 +1,137 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17B2933A9FC;
-	Thu, 26 Mar 2026 19:05:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6196134FF40;
+	Thu, 26 Mar 2026 19:25:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774551938; cv=none; b=BEJE5aAYbaXoDnbuacPoOGCStm66R7vMGa+hfzqJxNffaeDsCR/swapgjHiml0VmarXU4ZlNugZTbh1lySkpCFtwdfbJwwXpyq2NJepvLR5jPCHbrvnXfwVhs5SrEI0bYoeu1UfmVmGXWRCeDHi68Pd2XOk4H6EoF6FE2eK8fp8=
+	t=1774553122; cv=none; b=Bd/Sv5ym515xbZiIMF8BR2K6Q7fLP47OMDqquCAVC+RYYh4aKivv+TpodZf0wbslE2Lw5lyw7A55A0yLCgj5ACfg8OSJqu0HoLcPtZTB/w4DDW9yPskhGZ6UlT+7Vu6kIHFw/thYNhqEfEb8ItytN69R/ANY9d/KUI6+S+ViCX0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774551938; c=relaxed/simple;
-	bh=dwdYpT7gHFwLIVM/vV2jTq1BZSxOXfyEuivKQvtyja8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=oi7g3tRHizAhRO4IHm+w47ULpMAsL40w1pCqUGST/FHdKhbwdHsURiIDhq7KlIsjaXDfiPA60PGi73FXRszdLh4MCld7yQi8XondvbqJiYCEthrQ+9ZhxtXPOSQfEllG9o30qxGfOU6bszuTwIwLFauWCK0iFep/X5tLe40hQSo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Zv6Xlvpf; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1774553122; c=relaxed/simple;
+	bh=A++szeKtnjRSEovDyZxLISgC62LFBBAIhs/d9OMRhfE=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=AUPrHkOfFLbUFbqTxoCtdjkJP+GQBAgusjfSwSWFu5fpV2rIQacPopX7ps8T6PfyA2Epn+TKlMjMxD/p4e3s7/ylB87IwoTbkDDFcw0vkhZZhTfEclftPL7L3y8RG3WW/g4vHnnljqfdKf3jFiwFqPgFjak1G6H6y8yIJUNvD+0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NfJ/oEz0; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Zv6Xlvpf"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62Q89MDS3011996;
-	Thu, 26 Mar 2026 19:05:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=RegP/k
-	Y2TA8NJMDdQN28ncPjNidJcrgVawfmnm71jZU=; b=Zv6Xlvpfg/Tu4plMqfbnpC
-	++rpcOEK/pc2V/A9J6Cf8QaaKr5lZFmYIacouUquLJkOXhuL/6Wst/ceeVJXGeSp
-	6GtY58QPhttJL7NetqB/fICoLT7uUBX5eNBn8zTeOKxvaFrPv/OpKQDG+xApv+Gm
-	wGYRtWMDByu2F3YTiWo20Z6heMDsjFAvWqRAZyqmxlgQSZj3PdP7KHjLrTJLjjtB
-	sVT1Bn4h6ER8sRZO96WfLu6k0V4yTaB6JkdchYrI1InPgng0KSez9SYqYXr1/7gW
-	zXhgjNevIQQq1sDrUCgb2466hGwYpQzPZzMHGCRXXlyHwABjZ4FaWG0AQjdZ5PFA
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kxqpujh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 26 Mar 2026 19:05:32 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62QFtHua011824;
-	Thu, 26 Mar 2026 19:05:31 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d27vkc4wp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 26 Mar 2026 19:05:31 +0000
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62QJ550C5046990
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 26 Mar 2026 19:05:05 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5DA3F58055;
-	Thu, 26 Mar 2026 19:05:29 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7E5C958059;
-	Thu, 26 Mar 2026 19:05:27 +0000 (GMT)
-Received: from [9.61.247.58] (unknown [9.61.247.58])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 26 Mar 2026 19:05:27 +0000 (GMT)
-Message-ID: <3d6457b9-715a-4cbb-9c69-d8a7e7473c89@linux.ibm.com>
-Date: Thu, 26 Mar 2026 12:05:27 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NfJ/oEz0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AA1EC116C6;
+	Thu, 26 Mar 2026 19:25:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774553122;
+	bh=A++szeKtnjRSEovDyZxLISgC62LFBBAIhs/d9OMRhfE=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:From;
+	b=NfJ/oEz0LRYInVcrSbNN88ZD+MdyZe+E5wpkqpNyM7Ggrd+87xrTGdb2eRZTy87DI
+	 3AEY3FowNt2dLBx5bUv4EG4eu546MewpNXZGCLDHkBfe8g3LZwJ102n7t7khlBaszz
+	 Lx4TnfZYWvuNCDHMwl+tUFBLw2zV1Ngq0Csg3zwt51tFeRwFrtv1uYON4+pXGzeX8B
+	 iMHKIRiCjG9dp3POhWU/XzfbitypWNW1N1GDKkwoAv/NyKcEekZl9lBiRmYoXapScF
+	 rKV+yPTbfY8C2bHC3ckb0AISfTndYlJ7pwkpyfMvmqNf9+9J1OGvYPuntH/jG+z1Hp
+	 YXvuT6LOCwG0g==
+Date: Thu, 26 Mar 2026 14:25:20 -0500
+From: Bjorn Helgaas <helgaas@kernel.org>
+To: Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>
+Cc: linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+	Guenter Roeck <linux@roeck-us.net>, linux-alpha@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	Russell King <linux@armlinux.org.uk>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
+	Max Filippov <jcmvbkbc@gmail.com>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	linux-kernel@vger.kernel.org, Xifer <xiferdev@gmail.com>
+Subject: Re: [PATCH 00/10] PCI: Improve head free space usage
+Message-ID: <20260326192520.GA1337681@bhelgaas>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v8 2/3] vfio/ism: Implement vfio_pci driver for ISM
- devices
-To: Niklas Schnelle <schnelle@linux.ibm.com>,
-        Julian Ruess <julianr@linux.ibm.com>, wintera@linux.ibm.com,
-        ts@linux.ibm.com, oberpar@linux.ibm.com, gbayer@linux.ibm.com,
-        Alex Williamson <alex@shazbot.org>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Shameer Kolothum
- <skolothumtho@nvidia.com>,
-        Kevin Tian <kevin.tian@intel.com>
-Cc: mjrosato@linux.ibm.com, raspl@linux.ibm.com, hca@linux.ibm.com,
-        agordeev@linux.ibm.com, gor@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-pci@vger.kernel.org
-References: <20260325-vfio_pci_ism-v8-0-ddc504cde914@linux.ibm.com>
- <20260325-vfio_pci_ism-v8-2-ddc504cde914@linux.ibm.com>
- <4096cb9d402b1aabc9667d450221cb0922e78d90.camel@linux.ibm.com>
-Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <4096cb9d402b1aabc9667d450221cb0922e78d90.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: iofcWBWmC3FuwplsueNdk_00KF2trhKr
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI2MDEzNSBTYWx0ZWRfX5LTuzM/ZXY4X
- EMGzXi5f7nmgqxCJ7TH8cXKx37peozQHxaD3eGvDD+Nd6fe70w5S2no1MONLmQvRolWyREHg+yv
- KcfRpKD7/9NCtiV4OtQUJCD0KRjIlS8An3j409/BR0aVxiTrX0w7yWvUmHQfRmZ+wZins5wyThX
- VOobPuHybaWjjJSI8u+1CdhIAN6dBGVnst2SCvQF/p5NdT2JEMswXBaTRvhVLXfH9gInYhAK8+m
- JXpa/MC5I+EWQgHbDFuTyqaoG9Fjp4ZTxqOZMgt6aT3cE6vOAGNWdlo74Ki5JZ2O8CxDJv2CaCw
- XH6l0M4VHU+0+EyGtzs0ekbYl1cgs8Y1cMgI0DpkMLUL9nV+hIgo95oMVYz5e06v4R5f0U3Lii4
- ac238bQaLVq4zKlGGDK4ciB0mKNu1OyZoc7qnglc0R6D2pSZFKFX1GYVtJbsYMmJ2HXchYh7mcy
- WxM53sZR8y8y2H0ZP+A==
-X-Authority-Analysis: v=2.4 cv=bLEb4f+Z c=1 sm=1 tr=0 ts=69c5837c cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=8knF3OVK0f20Sk4uvPEA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: iofcWBWmC3FuwplsueNdk_00KF2trhKr
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-26_03,2026-03-26_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 adultscore=0 clxscore=1015 phishscore=0 impostorscore=0
- malwarescore=0 lowpriorityscore=0 suspectscore=0 bulkscore=0
- priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
- definitions=main-2603260135
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260324165633.4583-1-ilpo.jarvinen@linux.intel.com>
 
+[+cc Xifer; thanks very much for reporting and testing!]
 
-On 3/26/2026 6:03 AM, Niklas Schnelle wrote:
-> On Wed, 2026-03-25 at 14:31 +0100, Julian Ruess wrote:
->> Add a vfio_pci variant driver for the s390-specific Internal Shared
->> Memory (ISM) devices used for inter-VM communication.
->>
->> This enables the development of vfio-pci-based user space drivers for
->> ISM devices.
->>
->> On s390, kernel primitives such as ioread() and iowrite() are switched
->> over from function-handle-based PCI load/stores instructions to PCI
->> memory-I/O (MIO) loads/stores when these are available and not
->> explicitly disabled. Since these instructions cannot be used with ISM
->> devices, ensure that classic function-handle-based PCI instructions are
->> used instead.
->>
->> The driver is still required even when MIO instructions are disabled, as
->> the ISM device relies on the PCI store block (PCISTB) instruction to
->> perform write operations.
->>
->> Stores are not fragmented, therefore one ioctl corresponds to exactly
->> one PCISTB instruction. User space must ensure to not write more than
->> 4096 bytes at once to an ISM BAR which is the maximum payload of the
->> PCISTB instruction.
->>
->> Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
->> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
->> Signed-off-by: Julian Ruess <julianr@linux.ibm.com>
->> ---
->>   drivers/vfio/pci/Kconfig      |   2 +
->>   drivers/vfio/pci/Makefile     |   2 +
->>   drivers/vfio/pci/ism/Kconfig  |  10 ++
->>   drivers/vfio/pci/ism/Makefile |   3 +
->>   drivers/vfio/pci/ism/main.c   | 408 ++++++++++++++++++++++++++++++++++++++++++
->>   5 files changed, 425 insertions(+)
->>
-> --- snip ---
->> +
->> +static int ism_vfio_pci_ioctl_get_region_info(struct vfio_device *core_vdev,
->> +					      struct vfio_region_info *info,
->> +					      struct vfio_info_cap *caps)
->> +{
->> +	struct vfio_pci_core_device *vdev =
->> +		container_of(core_vdev, struct vfio_pci_core_device, vdev);
->> +	struct pci_dev *pdev = vdev->pdev;
->> +
->> +	switch (info->index) {
->> +	case VFIO_PCI_CONFIG_REGION_INDEX:
->> +		info->offset = ISM_VFIO_PCI_INDEX_TO_OFFSET(info->index);
->> +		info->size = pdev->cfg_size;
->> +		info->flags = VFIO_REGION_INFO_FLAG_READ |
->> +			      VFIO_REGION_INFO_FLAG_WRITE;
->> +		break;
->> +	case VFIO_PCI_BAR0_REGION_INDEX ... VFIO_PCI_BAR5_REGION_INDEX:
->> +		info->offset = ISM_VFIO_PCI_INDEX_TO_OFFSET(info->index);
->> +		info->size = pci_resource_len(pdev, info->index);
->> +		if (!info->size) {
->> +			info->flags = 0;
->> +			break;
->> +		}
->> +		info->flags = VFIO_REGION_INFO_FLAG_READ |
->> +			      VFIO_REGION_INFO_FLAG_WRITE;
->> +		break;
->> +	default:
->> +		info->offset = 0;
->> +		info->size = 0;
->> +		info->flags = 0;
->> +		return -EINVAL;
-> Thinking more about this, the above default handling actually breaks
-> additional regions such as the one added by Farhan for the error
-> events. I think this needs to instead call the generic
-> vfio_pci_ioctl_get_region_info() for other regions.
+On Tue, Mar 24, 2026 at 06:56:23PM +0200, Ilpo Järvinen wrote:
+> Hi all,
+> 
+> This series attempts to take advantage of free head space (the free
+> space before the aligned start address) in order to generally produce a
+> tighter packing of the resources/bridge windows.
+> 
+> The recent changes to the resource fitting algorithm caused resource
+> allocation failures in some cases where a bridge window that is sized
+> to be gapless could no longer be assigned. The previous algorithm left
+> a huge gaps which allowed it to place the remainder (non-aligning part
+> of the size) before the start address of used for the gapless fit,
+> whereas the new gapless approach always had to place the remainder
+> after the aligning part of the resources. There is not always space
+> for the remainder triggering those failures (e.g., when the aligning
+> part must be placed at the top of the window).
+> 
+> This series attempts to allow placing the remainder once again before
+> the aligning part, but now without leaving huge gaps to retain the
+> benefits of the gapless bridge windows. The approach is somewhat hacky
+> but should work thanks to PCI resources fundamentally consisting only
+> power-of-two atoms.
+> 
+> There maybe cases where architecture would not want to do such
+> relocation. This series adds the relocation to arch
+> pcibios_align_resource() functions to allow all of them taking
+> advantage of the better resource packing but if somebody objects doing
+> this relocation for a particular arch, I can remove it, please just let
+> me know (this relocation doesn't seem critical unless there are
+> regressions).
+> 
+> Ilpo Järvinen (10):
+>   resource: Add __resource_contains_unbound() for internal contains
+>     checks
+>   resource: Pass full extent of empty space to resource_alignf CB
+>   resource: Rename 'tmp' variable to 'full_avail'
+>   ARM/PCI: Remove unnecessary second application of align
+>   am68k/PCI: Remove unnecessary second application of align
+>   MIPS: PCI: Remove unnecessary second application of align
+>   parisc/PCI: Cleanup align handling
+>   PCI: Rename window_alignment() to pci_min_window_alignment()
+>   PCI: Align head space better
+>   PCI: Fix alignment calculation for resource size larger than align
+> 
+>  arch/alpha/kernel/pci.c          |  1 +
+>  arch/arm/kernel/bios32.c         |  9 ++++---
+>  arch/m68k/kernel/pcibios.c       |  8 +++++--
+>  arch/mips/pci/pci-generic.c      |  8 ++++---
+>  arch/mips/pci/pci-legacy.c       |  3 +++
+>  arch/parisc/kernel/pci.c         | 17 ++++++++------
+>  arch/powerpc/kernel/pci-common.c |  6 ++++-
+>  arch/s390/pci/pci.c              |  1 +
+>  arch/sh/drivers/pci/pci.c        |  6 ++++-
+>  arch/x86/pci/i386.c              |  5 +++-
+>  arch/xtensa/kernel/pci.c         |  3 +++
+>  drivers/pci/pci.h                |  3 +++
+>  drivers/pci/setup-bus.c          | 15 ++++++++----
+>  drivers/pci/setup-res.c          | 40 +++++++++++++++++++++++++++++++-
+>  drivers/pcmcia/rsrc_nonstatic.c  |  3 ++-
+>  include/linux/ioport.h           | 22 +++++++++++++++---
+>  include/linux/pci.h              | 12 +++++++---
+>  kernel/resource.c                | 33 +++++++++++++-------------
+>  18 files changed, 149 insertions(+), 46 deletions(-)
 
-Note for error events we are using a VFIO device feature and not a 
-region. At this point we actually don't have additional regions. I do 
-agree that if we were to add a zpci specific region we would need to 
-update here and ism_vfio_pci_rw() to allow region read/write ops. This 
-ISM driver would also need to support all the possible callbacks in 
-struct vfio_pci_regops.
+I added Xifer's tested-by, fixed the "am68k" and missing "if"
+typos, and applied these to pci/resource for v7.1.
 
-Given that we don't have any additional regions yet, I am conflicted if 
-it makes sense to add all the code to support additional regions without 
-a good way to test it. Maybe its something we can defer when if we add 
-additional regions? Thanks
-
-Farhan
-
-
->> +	}
->> +	return 0;
->> +}
-> --- snip ---
+Ilpo, if you post a v2 with more changes, I'll update to it.  I
+applied the series now to get a head start on 0-day building and into
+next.
