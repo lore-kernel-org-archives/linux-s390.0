@@ -1,138 +1,161 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EED5E2E091E;
-	Thu, 26 Mar 2026 09:18:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3836C377ED2;
+	Thu, 26 Mar 2026 09:44:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774516736; cv=none; b=JDu4/QQV4IAcouVOSWJBXXipP7tTXfqVYjG3p7kazSKoS2uK/KsG3MC6IEvFi3dT2Tl9V/yfl7cytitZif/KF9TCQG1/8xSwmpknD4l3I13oPqAXuRlObByNgy3wkhORAqZ59a1FnZowD75eG0cXfEI99AflcEVUsF/GLBVSeSM=
+	t=1774518253; cv=none; b=u46vxLKb/9BSwp1TIQrLEF3R0OLgqBIRUYJQSCq6vlEQXHj+ouVsd++Lo4EAcdyfwVUS26aPQ1vdltPqa8u/ANaIhfPX4HYhsdgnwBVuzdOPUw1VYrlyvmhMOAbhMvLUAHNzELw4BE3SkwIjGE9GNoP1VRQMaOTC/hl/epr4OU0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774516736; c=relaxed/simple;
-	bh=yUWBxeEHyviOPKRneK6j/gfx/J/uc8pAHvShiPb46kA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=j635BmuadtZcx+4XD/msfSUWMxg1hHAg2uYt4GT4+psosQNJmoBjz5Qs9/LN8PvBuQgZOfmfScZQcle4OF/E41QpIwLE4aKQNoRm+ahxr+LuUVwsk2ip3qY3qfOBYa1ZikYVOmWYeMf9XUA0+QDCJm7lRszxrc1TojXRsqWynQU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EGEvX/Tz; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774518253; c=relaxed/simple;
+	bh=G7X3A1FjDM7WiH77ZcPoedDF8U0V8w19yjC2Pc1U5kk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=JIFS2fP4+c5QdroQ5sy1RgzUYcZNgUn79uYekNBhzVi86iY3HqPDGqgZ+/PQEqe/0t3jOp94PhVrilWemoIqM2YCPMWqnoFO2E7FWwH0NAD6AYkWsdBMta0ibCMj6esKS2OQWVX54Zkxe+kviifuiAJkvW86ikhUP1zVpu7i25U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=avrMFIfO; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EGEvX/Tz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12FB6C116C6;
-	Thu, 26 Mar 2026 09:18:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774516735;
-	bh=yUWBxeEHyviOPKRneK6j/gfx/J/uc8pAHvShiPb46kA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=EGEvX/Tza/tjOvP+jwHZtAfsQ9i3c7zrE71IAVXMEBQFuXXBY8J8Q7ke9WuRoZPaA
-	 Y+chvo99aGdYyVr/Ej6q7FyBK8u7WGGWRA7w0fOlldEtOkdpL64+VWh9BMNsNv3AvP
-	 C24e0feiTo3fMQgLeEi0DEnVobzVj0a1HCmGQBIDe89k5m+My6w495OfsTJWLoTXTk
-	 rW1jm4hUGy40vO8TEOhFBYjcPcB74lkZHpC2O6WO0jV8h/eZB2c+l21RdUfU2k8Ah1
-	 Rs4/PMwca7YEl/l752V++FgB8s2oggoqcfw9t8psB+h6tVJgd7Iz5Q8Myq1/LinSjR
-	 TSfqa9opHxHVg==
-Date: Thu, 26 Mar 2026 09:18:53 +0000
-From: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
-To: Suren Baghdasaryan <surenb@google.com>
-Cc: akpm@linux-foundation.org, willy@infradead.org, david@kernel.org, 
-	ziy@nvidia.com, matthew.brost@intel.com, joshua.hahnjy@gmail.com, 
-	rakie.kim@sk.com, byungchul@sk.com, gourry@gourry.net, 
-	ying.huang@linux.alibaba.com, apopple@nvidia.com, baolin.wang@linux.alibaba.com, 
-	Liam.Howlett@oracle.com, npache@redhat.com, ryan.roberts@arm.com, dev.jain@arm.com, 
-	baohua@kernel.org, lance.yang@linux.dev, vbabka@suse.cz, jannh@google.com, 
-	rppt@kernel.org, mhocko@suse.com, pfalcato@suse.de, kees@kernel.org, 
-	maddy@linux.ibm.com, npiggin@gmail.com, mpe@ellerman.id.au, chleroy@kernel.org, 
-	borntraeger@linux.ibm.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, 
-	gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com, 
-	gerald.schaefer@linux.ibm.com, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, 
-	kvm@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v5 0/6] Use killable vma write locking in most places
-Message-ID: <44216135-ce6e-4c06-acf9-af09e224ddd8@lucifer.local>
-References: <20260326080836.695207-1-surenb@google.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="avrMFIfO"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62Q59Wqg1479684;
+	Thu, 26 Mar 2026 09:43:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=GQ61ku
+	hdrfqFul0L2FFBXSHRCVEg6otwfwoaX1TK3/E=; b=avrMFIfOdugi4S/4hndTN+
+	CLl/8HIMGz5Y/Oum5eOm3OxGCkgJK5eRyIT5itUmQlmpPCJa5rd7cEhD70kd89Vx
+	sIkj70/bP26p1m99XZIqnezWszE2fOzkNLz1UKG/M+ZIpYxEchD1eZtuvPGMylcs
+	oeHmw2eVFKJjsgFq0pWIzHhgjEoKzXSvm+Q3IfGfuYz/X6Rtw3ddqbg74qyboisW
+	7VhJFSlPA/npMVSA1RxAqkj0qgcs/ITsZmLD/UBiIHDv6wpIicKFko9HHa1mxW7e
+	FX0uQjKv616F5kTpsv6tLKCb9nFCwCPKBw3DJM+rLF0pILZ/li0SeQnt8POSnByw
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kxqmkhe-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 26 Mar 2026 09:43:18 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62Q70AQB026695;
+	Thu, 26 Mar 2026 09:43:16 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d275m292g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 26 Mar 2026 09:43:16 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62Q9hCts51970526
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 26 Mar 2026 09:43:12 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 59BB320049;
+	Thu, 26 Mar 2026 09:43:12 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B3A6C20040;
+	Thu, 26 Mar 2026 09:43:11 +0000 (GMT)
+Received: from [9.52.196.90] (unknown [9.52.196.90])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 26 Mar 2026 09:43:11 +0000 (GMT)
+Message-ID: <e232e227-b022-40b7-ae9b-085398172aaa@linux.ibm.com>
+Date: Thu, 26 Mar 2026 10:43:11 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260326080836.695207-1-surenb@google.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 09/12] s390/cio: use generic driver_override
+ infrastructure
+To: Danilo Krummrich <dakr@kernel.org>, Russell King <linux@armlinux.org.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Ioana Ciornei <ioana.ciornei@nxp.com>,
+        Nipun Gupta <nipun.gupta@amd.com>,
+        Nikhil Agarwal <nikhil.agarwal@amd.com>,
+        "K. Y. Srinivasan"
+ <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
+        Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>,
+        Bjorn Helgaas <bhelgaas@google.com>, Armin Wolf <W_Armin@gmx.de>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Holger Dengler <dengler@linux.ibm.com>,
+        Mark Brown <broonie@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>,
+        Alex Williamson <alex@shazbot.org>, Juergen Gross <jgross@suse.com>,
+        Stefano Stabellini
+ <sstabellini@kernel.org>,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+Cc: linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
+        linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org,
+        linux-pci@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-spi@vger.kernel.org,
+        virtualization@lists.linux.dev, kvm@vger.kernel.org,
+        xen-devel@lists.xenproject.org, linux-arm-kernel@lists.infradead.org,
+        Gui-Dong Han <hanguidong02@gmail.com>
+References: <20260324005919.2408620-1-dakr@kernel.org>
+ <20260324005919.2408620-10-dakr@kernel.org>
+Content-Language: en-US
+From: Vineeth Vijayan <vneethv@linux.ibm.com>
+In-Reply-To: <20260324005919.2408620-10-dakr@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: lM9ihgFyzDaKKK4hT6xbAWnBu4HPvbko
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI2MDA2NyBTYWx0ZWRfX2in2v/sm6fVn
+ 1EOEfnIWW9XHJhqTtN1dackcJvrGoIn6RYtzj2jaFpMYQNlaN3XxkuZ6dzpRGfvaZaU5moxAo8x
+ trr+PwJfEqlepekJSKPo1fy9d5o6sgA5m683HkjOswpiKaLB0x2ZC2oGeSCAtUXbWtftJWxMU93
+ r9db17SA3IR04n61jqkqo5Bm6YDmBdYR4V4J415d1oOQfmhBzzcsrs5XSBy2lSc6eI3Yyn+zNJA
+ fVQxRgkOI9yEBwUOLE+1Bp0urJ3SQpsL6Mxqh1jqv0YqiavIDSQ9i78PTJ+7C/RudgHS8T2aNad
+ w9soTfL5Lep9UESaYSAmOjYsSO5EEkxvuZXANkgGYCQiRzjVScD+Gyn69Rf+vvAYsxJQFXrQuWu
+ UQoghhH9HNEe1gD65ozDrx3Bl3HFNi5z9FxZxdctIbC0r4+GoaXzUaZ2fC0g/Uri9kPCKMvcMLh
+ 7P5IIMyCHlQF+nN31cA==
+X-Authority-Analysis: v=2.4 cv=bLEb4f+Z c=1 sm=1 tr=0 ts=69c4ffb7 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
+ a=pGLkceISAAAA:8 a=VnNF1IyMAAAA:8 a=rH2cy8X4UbemT2jZliAA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: sWD6kkjX1ahK5tMWR5AN0EWZ8NVBfHg-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-26_02,2026-03-24_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 adultscore=0 clxscore=1011 phishscore=0 impostorscore=0
+ malwarescore=0 lowpriorityscore=0 suspectscore=0 bulkscore=0
+ priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
+ definitions=main-2603260067
 
--cc old email
-
-(Gentle reminder to please send all new stuff to ljs@kernel.org - at some
-point I'm going to set a rule to ignore kernel mail sent to the old address
-so, if you need a response you should send to the new :)
 
 
-On Thu, Mar 26, 2026 at 01:08:30AM -0700, Suren Baghdasaryan wrote:
-> Now that we have vma_start_write_killable() we can replace most of the
-> vma_start_write() calls with it, improving reaction time to the kill
-> signal.
->
-> There are several places which are left untouched by this patchset:
->
-> 1. free_pgtables() because function should free page tables even if a
-> fatal signal is pending.
->
-> 2. userfaultd code, where some paths calling vma_start_write() can
-> handle EINTR and some can't without a deeper code refactoring.
->
-> 3. mpol_rebind_mm() which is used by cpusset controller for migrations
-> and operates on a remote mm. Incomplete operations here would result
-> in an inconsistent cgroup state.
->
-> 4. vm_flags_{set|mod|clear} require refactoring that involves moving
-> vma_start_write() out of these functions and replacing it with
-> vma_assert_write_locked(), then callers of these functions should
-> lock the vma themselves using vma_start_write_killable() whenever
-> possible.
->
-> Changes since v4 [1]:
-> - added Reviewed-by, per Barry Song and Lorenzo Stoakes (wherever the code
-> stayed the same)
-> - split patch 2 into 3 parts, per Lorenzo Stoakes
-> - converted vma_start_write() in mseal_apply(), per Sashiko
-> - changed vma_start_write_killable() error handling in
-> set_mempolicy_home_node(), per Lorenzo Stoakes
-> - added comment why mm->locked_vm is fine even when we exit early,
-> per Sashiko
-> - moved vma locking before vrm_calc_charge() in move_vma(), per Sashiko
-> and Lorenzo Stoakes
-> - set give_up_on_oom on error in vma_merge_existing_range() to propagate
-> the error, per Lorenzo Stoakes
-> - moved validate_mm() out of the error path in expand_upwards(),
-> per Lorenzo Stoakes
-> - dropped the patch changing S390 error handling, per Sashiko and
-> Lorenzo Stoakes
-> - reworked error handling in clear_refs_write(), per Lorenzo Stoakes
-> - uninlined process_vma_walk_lock() while changing its return type,
-> per Lorenzo Stoakes
->
-> [1] https://lore.kernel.org/all/20260322054309.898214-1-surenb@google.com/
->
-> Suren Baghdasaryan (6):
->   mm/vma: cleanup error handling path in vma_expand()
->   mm: use vma_start_write_killable() in mm syscalls
->   mm/khugepaged: use vma_start_write_killable() in collapse_huge_page()
->   mm/vma: use vma_start_write_killable() in vma operations
->   mm: use vma_start_write_killable() in process_vma_walk_lock()
->   KVM: PPC: use vma_start_write_killable() in
->     kvmppc_memslot_page_merge()
->
->  arch/powerpc/kvm/book3s_hv_uvmem.c |   5 +-
->  fs/proc/task_mmu.c                 |  12 +--
->  mm/khugepaged.c                    |   5 +-
->  mm/madvise.c                       |   4 +-
->  mm/memory.c                        |   2 +
->  mm/mempolicy.c                     |  12 ++-
->  mm/mlock.c                         |  28 ++++--
->  mm/mprotect.c                      |   5 +-
->  mm/mremap.c                        |   8 +-
->  mm/mseal.c                         |   5 +-
->  mm/pagewalk.c                      |  22 +++--
->  mm/vma.c                           | 146 +++++++++++++++++++++--------
->  mm/vma_exec.c                      |   6 +-
->  13 files changed, 190 insertions(+), 70 deletions(-)
->
->
-> base-commit: e53c9040ab1b738dd2c83b57558f141902caaf4f
-> --
-> 2.53.0.1018.g2bb0e51243-goog
->
+On 3/24/26 01:59, Danilo Krummrich wrote:
+> When a driver is probed through __driver_attach(), the bus' match()
+> callback is called without the device lock held, thus accessing the
+> driver_override field without a lock, which can cause a UAF.
+> 
+> Fix this by using the driver-core driver_override infrastructure taking
+> care of proper locking internally.
+> 
+> Note that calling match() from __driver_attach() without the device lock
+> held is intentional. [1]
+> 
+> Link:https://lore.kernel.org/driver-core/DGRGTIRHA62X.3RY09D9SOK77P@kernel.org/ [1]
+> Reported-by: Gui-Dong Han<hanguidong02@gmail.com>
+> Closes:https://bugzilla.kernel.org/show_bug.cgi?id=220789
+> Fixes: ebc3d1791503 ("s390/cio: introduce driver_override on the css bus")
+> Signed-off-by: Danilo Krummrich<dakr@kernel.org>
+> ---
+
+Thank you Danilo.
+
+Reviewed-by: Vineeth Vijayan <vneethv@linux.ibm.com>
