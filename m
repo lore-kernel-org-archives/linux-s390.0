@@ -1,137 +1,125 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f74.google.com (mail-dl1-f74.google.com [74.125.82.74])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6196134FF40;
-	Thu, 26 Mar 2026 19:25:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8810A33EAE6
+	for <linux-s390@vger.kernel.org>; Thu, 26 Mar 2026 20:06:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774553122; cv=none; b=Bd/Sv5ym515xbZiIMF8BR2K6Q7fLP47OMDqquCAVC+RYYh4aKivv+TpodZf0wbslE2Lw5lyw7A55A0yLCgj5ACfg8OSJqu0HoLcPtZTB/w4DDW9yPskhGZ6UlT+7Vu6kIHFw/thYNhqEfEb8ItytN69R/ANY9d/KUI6+S+ViCX0=
+	t=1774555615; cv=none; b=CZwfRSSMg2Y8JGxIQbDB0l9Ze/TPvWc+TIc/nom1+TfRCi7DuGkNuFo9HE2vSaeGrxX3YZdDIOJDOKjyaDMuEBHrTbCA876msh6HXTvoe8ZP4L7tCNu1g0JVrq2vQgMj8u15/Pd7j6/DNeiAexrmgo0HCWQ9dTnHSv2I4ia3Gnk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774553122; c=relaxed/simple;
-	bh=A++szeKtnjRSEovDyZxLISgC62LFBBAIhs/d9OMRhfE=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To; b=AUPrHkOfFLbUFbqTxoCtdjkJP+GQBAgusjfSwSWFu5fpV2rIQacPopX7ps8T6PfyA2Epn+TKlMjMxD/p4e3s7/ylB87IwoTbkDDFcw0vkhZZhTfEclftPL7L3y8RG3WW/g4vHnnljqfdKf3jFiwFqPgFjak1G6H6y8yIJUNvD+0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NfJ/oEz0; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774555615; c=relaxed/simple;
+	bh=jj+yorpeEBxwk+7nym3Vu8xagBVeQ+tug3rKRqZFhbU=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=io/GzTA2TGRfUMQDJ6RawJpdYbJnGz0JVfd29FGd5M0i2d2RIJelVtV9M2oZXZi5dOrnAEjHGQUzWiqItN8t8BokzrWQT1q38frSZ2XbHDmJk5CkExcnuUugPmuuxeN72oob49/SqxhZQCNkwcVy3Racz1HMTeMIDp6IBGtXWGk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--samitolvanen.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=lZiTYQ6K; arc=none smtp.client-ip=74.125.82.74
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--samitolvanen.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NfJ/oEz0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AA1EC116C6;
-	Thu, 26 Mar 2026 19:25:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774553122;
-	bh=A++szeKtnjRSEovDyZxLISgC62LFBBAIhs/d9OMRhfE=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:From;
-	b=NfJ/oEz0LRYInVcrSbNN88ZD+MdyZe+E5wpkqpNyM7Ggrd+87xrTGdb2eRZTy87DI
-	 3AEY3FowNt2dLBx5bUv4EG4eu546MewpNXZGCLDHkBfe8g3LZwJ102n7t7khlBaszz
-	 Lx4TnfZYWvuNCDHMwl+tUFBLw2zV1Ngq0Csg3zwt51tFeRwFrtv1uYON4+pXGzeX8B
-	 iMHKIRiCjG9dp3POhWU/XzfbitypWNW1N1GDKkwoAv/NyKcEekZl9lBiRmYoXapScF
-	 rKV+yPTbfY8C2bHC3ckb0AISfTndYlJ7pwkpyfMvmqNf9+9J1OGvYPuntH/jG+z1Hp
-	 YXvuT6LOCwG0g==
-Date: Thu, 26 Mar 2026 14:25:20 -0500
-From: Bjorn Helgaas <helgaas@kernel.org>
-To: Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>
-Cc: linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-	Guenter Roeck <linux@roeck-us.net>, linux-alpha@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	Russell King <linux@armlinux.org.uk>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
-	Max Filippov <jcmvbkbc@gmail.com>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	linux-kernel@vger.kernel.org, Xifer <xiferdev@gmail.com>
-Subject: Re: [PATCH 00/10] PCI: Improve head free space usage
-Message-ID: <20260326192520.GA1337681@bhelgaas>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="lZiTYQ6K"
+Received: by mail-dl1-f74.google.com with SMTP id a92af1059eb24-127337c8e52so1019884c88.1
+        for <linux-s390@vger.kernel.org>; Thu, 26 Mar 2026 13:06:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1774555613; x=1775160413; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:from:subject:message-id:references
+         :mime-version:in-reply-to:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Q39vkXCHwVXHxLZOMIlHqDW4HE8OruDbuf0XK+bdxP4=;
+        b=lZiTYQ6Kyz0T/yPpRU+2Ues0ncOW+GZ8GrSdz9B5oe/4TO36d9Ev8LUF8ozT8UsAHd
+         2bjYRDZ3tiFtL7tXngPxVo8KHGLnfj9Aj3pVdD/+Xcc8IQ95oRsE7B8xRrgyQowML9dw
+         qHSTkk5cAotTvdMS4d7EOVfKI1ZcKPyReHPbSanRuWfrxB/Dedsb7i+hStuMvIV3BEE1
+         uE1LfztRPH3kETgM/+rYr2JyHnGu+ig1uWp2hjgJ3tYF4HUnE5XV5xlClzEO+7B3nJEA
+         UlfD7isuxSZXtc6vWE7NEVDt6oCIbop+EGUh/HTcGHPuVP15IcqVfi33sCVcfIqtjh/R
+         uSXg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774555613; x=1775160413;
+        h=content-transfer-encoding:cc:to:from:subject:message-id:references
+         :mime-version:in-reply-to:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=Q39vkXCHwVXHxLZOMIlHqDW4HE8OruDbuf0XK+bdxP4=;
+        b=Y4czFVxEzgPQDL8ZAKj+C3gCYBUPAYOz2+6+52mCzn0TheBStbQuv6IsFNXzetLgNx
+         GVL0qFt7VXbqSZGHtUvfwPGrj7R6Y3d0ouhPUVeHc+mX/0bOE0jDM+buq1+Mcvdy6hH6
+         TSct7diHnZ9SrWaaEKGfelojLzhhPWoDPDWIC2Lgtg2fGePc2+M5IGfwqvAJBrMYHObL
+         iSS3vIfduKEC93DE8yrhzqcRmjjlyCzHKesHCZ745RCyrPD3ioojHciAxglz3qMDBS8r
+         e9um/OzG3sMALfWcfSpauT5a3jE1+H75SAH8hEm5ENfSusOq4JDomq47t1B+/d79vmq6
+         +Fzw==
+X-Forwarded-Encrypted: i=1; AJvYcCXUvya7qT9PHgJhpibX9PoXy88QHSOhuVc9qtwpy7tnFExWuhTBdJSBLfHG7MV5jX3xdLcZwDKQfi79@vger.kernel.org
+X-Gm-Message-State: AOJu0YyHDQLyqoAoFR5kNbpBwKzG99e4EKHhKzE5tlXD1pyJabMPYHdz
+	qhaKupUafHW7mGlu63fJ/o2v16b3ymFsSmlL56nTcPqx+UBLuBdnDbZHvFvPEHDF+zfSBVNM485
+	J31w01jZSXM+6QfgzDa4Rsun+oB1u7A==
+X-Received: from dleb3-n1.prod.google.com ([2002:a05:701b:4243:10b0:12a:86e5:44de])
+ (user=samitolvanen job=prod-delivery.src-stubby-dispatcher) by
+ 2002:a05:7022:125:b0:128:cf5c:5362 with SMTP id a92af1059eb24-12a96e5cde5mr5257574c88.12.1774555612457;
+ Thu, 26 Mar 2026 13:06:52 -0700 (PDT)
+Date: Thu, 26 Mar 2026 20:06:51 +0000
+In-Reply-To: <20260305-module-signature-uapi-v3-0-92f45ea6028c@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260324165633.4583-1-ilpo.jarvinen@linux.intel.com>
+Mime-Version: 1.0
+References: <20260305-module-signature-uapi-v3-0-92f45ea6028c@linutronix.de>
+X-Mailer: b4 0.14.3
+Message-ID: <177455561121.2009594.1781899946157697823.b4-ty@google.com>
+Subject: Re: [PATCH v3 0/8] module: Move 'struct module_signature' to UAPI
+From: Sami Tolvanen <samitolvanen@google.com>
+To: David Howells <dhowells@redhat.com>, David Woodhouse <dwmw2@infradead.org>, 
+	Luis Chamberlain <mcgrof@kernel.org>, Petr Pavlu <petr.pavlu@suse.com>, 
+	Daniel Gomez <da.gomez@kernel.org>, Aaron Tomlin <atomlin@atomlin.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Mimi Zohar <zohar@linux.ibm.com>, 
+	Roberto Sassu <roberto.sassu@huawei.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, 
+	Eric Snowberg <eric.snowberg@oracle.com>, Paul Moore <paul@paul-moore.com>, 
+	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, Alexei Starovoitov <ast@kernel.org>, 
+	Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>, 
+	Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
+	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
+	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, 
+	Jiri Olsa <jolsa@kernel.org>, Shuah Khan <shuah@kernel.org>, 
+	"=?utf-8?q?Thomas_Wei=C3=9Fschuh?=" <thomas.weissschuh@linutronix.de>
+Cc: keyrings@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-modules@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-integrity@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	linux-kbuild@vger.kernel.org, bpf@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-[+cc Xifer; thanks very much for reporting and testing!]
+On Thu, 05 Mar 2026 10:31:36 +0100, Thomas Wei=C3=9Fschuh wrote:
+> This structure definition is used outside the kernel proper.
+> For example in kmod and the kernel build environment.
+>=20
+> To allow reuse, move it to a new UAPI header.
+>=20
+> While it is not a true UAPI, it is a common practice to have
+> non-UAPI interface definitions in the kernel's UAPI headers.
+>=20
+> [...]
 
-On Tue, Mar 24, 2026 at 06:56:23PM +0200, Ilpo Järvinen wrote:
-> Hi all,
-> 
-> This series attempts to take advantage of free head space (the free
-> space before the aligned start address) in order to generally produce a
-> tighter packing of the resources/bridge windows.
-> 
-> The recent changes to the resource fitting algorithm caused resource
-> allocation failures in some cases where a bridge window that is sized
-> to be gapless could no longer be assigned. The previous algorithm left
-> a huge gaps which allowed it to place the remainder (non-aligning part
-> of the size) before the start address of used for the gapless fit,
-> whereas the new gapless approach always had to place the remainder
-> after the aligning part of the resources. There is not always space
-> for the remainder triggering those failures (e.g., when the aligning
-> part must be placed at the top of the window).
-> 
-> This series attempts to allow placing the remainder once again before
-> the aligning part, but now without leaving huge gaps to retain the
-> benefits of the gapless bridge windows. The approach is somewhat hacky
-> but should work thanks to PCI resources fundamentally consisting only
-> power-of-two atoms.
-> 
-> There maybe cases where architecture would not want to do such
-> relocation. This series adds the relocation to arch
-> pcibios_align_resource() functions to allow all of them taking
-> advantage of the better resource packing but if somebody objects doing
-> this relocation for a particular arch, I can remove it, please just let
-> me know (this relocation doesn't seem critical unless there are
-> regressions).
-> 
-> Ilpo Järvinen (10):
->   resource: Add __resource_contains_unbound() for internal contains
->     checks
->   resource: Pass full extent of empty space to resource_alignf CB
->   resource: Rename 'tmp' variable to 'full_avail'
->   ARM/PCI: Remove unnecessary second application of align
->   am68k/PCI: Remove unnecessary second application of align
->   MIPS: PCI: Remove unnecessary second application of align
->   parisc/PCI: Cleanup align handling
->   PCI: Rename window_alignment() to pci_min_window_alignment()
->   PCI: Align head space better
->   PCI: Fix alignment calculation for resource size larger than align
-> 
->  arch/alpha/kernel/pci.c          |  1 +
->  arch/arm/kernel/bios32.c         |  9 ++++---
->  arch/m68k/kernel/pcibios.c       |  8 +++++--
->  arch/mips/pci/pci-generic.c      |  8 ++++---
->  arch/mips/pci/pci-legacy.c       |  3 +++
->  arch/parisc/kernel/pci.c         | 17 ++++++++------
->  arch/powerpc/kernel/pci-common.c |  6 ++++-
->  arch/s390/pci/pci.c              |  1 +
->  arch/sh/drivers/pci/pci.c        |  6 ++++-
->  arch/x86/pci/i386.c              |  5 +++-
->  arch/xtensa/kernel/pci.c         |  3 +++
->  drivers/pci/pci.h                |  3 +++
->  drivers/pci/setup-bus.c          | 15 ++++++++----
->  drivers/pci/setup-res.c          | 40 +++++++++++++++++++++++++++++++-
->  drivers/pcmcia/rsrc_nonstatic.c  |  3 ++-
->  include/linux/ioport.h           | 22 +++++++++++++++---
->  include/linux/pci.h              | 12 +++++++---
->  kernel/resource.c                | 33 +++++++++++++-------------
->  18 files changed, 149 insertions(+), 46 deletions(-)
+Applied to modules-next, thanks!
 
-I added Xifer's tested-by, fixed the "am68k" and missing "if"
-typos, and applied these to pci/resource for v7.1.
+[1/8] extract-cert: drop unused definition of PKEY_ID_PKCS7
+      commit: 137676d4482d8b8d755890b4ed29fe8223661d20
+[2/8] module: Drop unused signature types
+      commit: 8988913aacee82e5401bf3b96839731982dcbde7
+[3/8] module: Give 'enum pkey_id_type' a more specific name
+      commit: acd87264af525dba6e9355310e8acdf066a5f6b5
+[4/8] module: Give MODULE_SIG_STRING a more descriptive name
+      commit: 2ae4ea2d9aaf25cb74fbc23450b1b8f0a5b7aa89
+[5/8] module: Move 'struct module_signature' to UAPI
+      commit: f9909cf0a2dcc9e99377f3fcc965ccd93e518e34
+[6/8] tools uapi headers: add linux/module_signature.h
+      commit: d2d7561dc656748f592cc34d34bf5db8d5c67f7b
+[7/8] sign-file: use 'struct module_signature' from the UAPI headers
+      commit: e340db306c3bb85877490f33a78eb80549ac43a7
+[8/8] selftests/bpf: verify_pkcs7_sig: Use 'struct module_signature' from t=
+he UAPI headers
+      commit: 55722b3f80377103bac6ac748554129108c75651
 
-Ilpo, if you post a v2 with more changes, I'll update to it.  I
-applied the series now to get a head start on 0-day building and into
-next.
+Best regards,
+
+	Sami
+
+
