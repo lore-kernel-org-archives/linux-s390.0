@@ -1,272 +1,124 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FE4B391515;
-	Thu, 26 Mar 2026 13:17:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F87737E2FD;
+	Thu, 26 Mar 2026 14:49:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774531069; cv=none; b=lzwUTi9Xm3Sn8C2wUwCnG+HI7RD6uzPmC1iJIhDazZugMntUzzTfI6kmDjnhIoYBCRbYLZVbBzfETnbkQm+9/HrWLtGXycvG3eX70tW9OExmdLWU8CfA68QT6A4C07YDUj7mQfWCNUdSfo/fDV6ODSZ8fNVgKZBZNTlEMtWoXTs=
+	t=1774536552; cv=none; b=G7HVMdDBaK/9FKFfLhtaRbwdi7Cbm4bQ5CLZ+wPNvy+ba309trrPT4I9Ghea4aw3Q0Rsvcttp5krgP7HX/floCBPm08e16sWxHDUkzBunagBUcyt77QiJkB0XQfiGk2ypd0lE1uzozcaUTnYmZKpRMVCxJDHG24P5Qq7PwTERzk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774531069; c=relaxed/simple;
-	bh=UQtUEHaQsqRmHnv53TrlrarbtmDWCkbdmo7byFNh86I=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=qQmTCRzRUJeDg2POK6+s1CcUlN5BoMQslt00A3GWYMpldDt4osrRfpc2DIXUabK/xx/iggdIWn+P2XKj3dbaGLc9PA2+wBv9LX3XmX4bmlHls8UUNbEqeSkD/01QOzV/ztg2A+Ef7CRKklQTUUkT7siYp25LsP7Zy8qnWtbyy7I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nXr2I9Bn; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1774536552; c=relaxed/simple;
+	bh=r1H9W7VPNRX8e0ooNXQUZ2CxbJTTzUwVCl1kj5blLlU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=q8i/yoQD9chm9UPJahZh96sLYSYs6LjC4MdgNp0jAfpfOQclzjYjrxwP4jRbkB8Kql86qVc3OGwiA22cl5DMbSwHzU9iZbOg4hqlEZU35d6W0b2OoiKBYs1MNxuaiRGkImKT+/RCPdyJ/WY4ma8+MyoJj0tV9GwNkCOACUibNio=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com; spf=pass smtp.mailfrom=de.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=jsWkEHlo; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=de.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nXr2I9Bn"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62QD33oO028990;
-	Thu, 26 Mar 2026 13:17:31 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jsWkEHlo"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62QC0Gm93819926;
+	Thu, 26 Mar 2026 14:49:05 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=8c26P9cAngHTk0pkx
-	z5TB+Mqm0wiAwcu3yunCC1wMDY=; b=nXr2I9BnmEWMCqcMXwxvnyA+XEv7W/mqL
-	w9yzKMK/vLxtMCG2CW13L9/GrKC8OJhCXSLYsk+BLPwvvoDG+SY8RRyyHZRCRVWg
-	T6SQAHpzTXZDULUXYL6Qk+MB/ASkHAUWIU7O4xYpirQIBdakbsF+e5K3pEfI8ROu
-	lD7OH40RVIxkZGyKpjpQ817V2+sLUIdThOG7Cm1vRkilkkqTahJQcVrW2qmMWSH6
-	NN19/9nxDtcparhYniVvb/xIqV2DtMXstq/52EGmV11XWYc0fxLcX9sOY8R+frtQ
-	VsWpsj8TQHcrZEFG5auTAj3HuG6CEmZ8SzF5VcV/7jLHLJBFencVg==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kxqnd1r-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Qd3OxW
+	CJ+JuGavIWWTTESE5Y6IqoXtMz+GPv9NvAJvE=; b=jsWkEHloVw4924W1d2JNBg
+	/ITkl5CBA+CtRBlNgl+jzEf+GYL2NgMrLGBAeNWy8Mc4bSjUDccRYvbvXoZ88X4U
+	sJ7VjeG+GvThkSYRmDbAXmjmkM800INJeb4+Kk9QHQg02TwJ3U7mF+cAxEDMoGa5
+	RojXci8mVXQx9WFKLJNMC/Lxb3TOXj5S3UQIcmJeCKTwDmFqNCwRhgTfMgbJTyf7
+	wuSiT2rIAvaNUr/IHldsWpC5ZV3mp4eC3TUmTzNVB/QG9E3zOQt2cPYi/k1jLIzF
+	BsuXF4w+S+G8JOb8JAoiM6Y7bosZY6ksot4llmMHwVdYWLpjlCQOkOV04Vs/eYuA
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kty5pby-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 26 Mar 2026 13:17:31 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62QCA6pK004387;
-	Thu, 26 Mar 2026 13:17:30 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d28c2atxq-1
+	Thu, 26 Mar 2026 14:49:05 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62QEh3B0031598;
+	Thu, 26 Mar 2026 14:49:04 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d25nt3grk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 26 Mar 2026 13:17:30 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62QDHQH729885044
+	Thu, 26 Mar 2026 14:49:04 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62QEn0U329294962
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 26 Mar 2026 13:17:27 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C663E20040;
-	Thu, 26 Mar 2026 13:17:26 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A358520043;
-	Thu, 26 Mar 2026 13:17:25 +0000 (GMT)
-Received: from p-imbrenda.ibmuc.com (unknown [9.111.23.142])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 26 Mar 2026 13:17:25 +0000 (GMT)
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: kvm@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        borntraeger@de.ibm.com, frankja@linux.ibm.com, nrb@linux.ibm.com,
-        seiden@linux.ibm.com, gra@linux.ibm.com, schlameuss@linux.ibm.com,
-        hca@linux.ibm.com, david@kernel.org
-Subject: [PATCH v5 04/10] KVM: s390: Fix gmap_link()
-Date: Thu, 26 Mar 2026 14:17:13 +0100
-Message-ID: <20260326131719.98229-5-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260326131719.98229-1-imbrenda@linux.ibm.com>
-References: <20260326131719.98229-1-imbrenda@linux.ibm.com>
+	Thu, 26 Mar 2026 14:49:00 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6546120043;
+	Thu, 26 Mar 2026 14:49:00 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BAC7D20040;
+	Thu, 26 Mar 2026 14:48:59 +0000 (GMT)
+Received: from [9.52.200.39] (unknown [9.52.200.39])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 26 Mar 2026 14:48:59 +0000 (GMT)
+Message-ID: <f894d3f7-01a2-46c7-b2b0-5933919dfe98@de.ibm.com>
+Date: Thu, 26 Mar 2026 15:48:59 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 00/10] KVM: s390: More memory management fixes
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        frankja@linux.ibm.com, nrb@linux.ibm.com, seiden@linux.ibm.com,
+        gra@linux.ibm.com, schlameuss@linux.ibm.com, hca@linux.ibm.com,
+        david@kernel.org
+References: <20260326131719.98229-1-imbrenda@linux.ibm.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+In-Reply-To: <20260326131719.98229-1-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: RYfWOBV0NQ2a_FLXKXoj1Dg4CIZgVeom
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI2MDA5MyBTYWx0ZWRfX1o8pAZ0VnflV
- kb38zPgV8Sei7lc3NejZjhKKD3QRV8+Vbg3XVH5g+lC0izo7rlooEcKjev7prCeCJdrh6Iznw25
- m5XtkiB6XF/KVujp5dvQuPRwmU2Gd1FvK4XGAu+LSS1jMDXVGB7S5FPexHOxDMUh+3NI+y0WZwU
- NjluyP/o/NEJZ+ozDw9GxOiWnNhlxgcGgiKrNJascWMde+LiQeAHDp1eA3M33mjkm/Yo040M/6S
- /+KYUxcgfbE+iX8YdgTk3g31n1ugv5+lNbTcFeB+Ma++MijydF06F2XeYVJrcbI03gm+U3vFkSy
- o47vhRjOzvh1iRtLg+jUsASaLqrWWpZeNlJF3iXTM258N8BSgXnTkV1nHXmsjg9RCA4InuLl11o
- 2/Y0SNaHlXkUbR0iDkR2JH/yWOKDNuelSSV6MnVBiJbl+uOD63A+sC7yp4EMsuIAiodANDpg+te
- tiiMQmhrrD4P1yB9ahg==
-X-Authority-Analysis: v=2.4 cv=bLEb4f+Z c=1 sm=1 tr=0 ts=69c531eb cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=jDauOpCy_z-6rDg_B6MA:9
-X-Proofpoint-GUID: RYfWOBV0NQ2a_FLXKXoj1Dg4CIZgVeom
+X-Authority-Analysis: v=2.4 cv=IqITsb/g c=1 sm=1 tr=0 ts=69c54761 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=H4Np5_ecnopd_ErY5ncA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI2MDEwNCBTYWx0ZWRfX9Ll8vG8NatPm
+ sT12pSsg8MePVbxRoEdHnM72/d73fGjp3pcUJgRSokAY6SbyjrYLm9CZHzGy/MIO4BrOdQl4sBF
+ oJDiAYuxg8Y04bEe57Kq4vrPNwADXgliVMjFhuVIu80lKhPefzCrw/fd4j+iGyjXVLd2AcBi0tt
+ v+W0Hwnb1DRNFXuVyvZdDkY3LP2CDUaG2YaKF7GWXhQjfPr3J9jtQEa7G2Z4Ck8hmZiwC25ulzD
+ k9m3+FraqOdA6jKr7Vn4LmvmwC4SPDrTUBrXCoEaIADzF0eNOVoWhFlzofT1ZhYbMNERbuYuccO
+ bdi2kVjPGoLQ7R9YDskO69/JYSxdyeTcd+TmavuSnLC4NFkp/yGNtjnDpIk6a3h0Ri7qtqeUADK
+ 5cyNItZd4w4xVsoTZTaXMzjneIr1KlZE410lt7RGkvcuFD0OFNpjlCzjd219jGFfZ7jUstxJuSc
+ uSnLW9NRSh/jtflZDUA==
+X-Proofpoint-GUID: x09bbc0zZmstP82Y2GPM8aVcAmt562cx
+X-Proofpoint-ORIG-GUID: x09bbc0zZmstP82Y2GPM8aVcAmt562cx
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-26_02,2026-03-24_01,2025-10-01_01
+ definitions=2026-03-26_03,2026-03-26_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 adultscore=0 clxscore=1015 phishscore=0 impostorscore=0
- malwarescore=0 lowpriorityscore=0 suspectscore=0 bulkscore=0
- priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
- definitions=main-2603260093
+ malwarescore=0 clxscore=1015 spamscore=0 impostorscore=0 suspectscore=0
+ phishscore=0 bulkscore=0 adultscore=0 priorityscore=1501 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603260104
 
-The slow path of the fault handler ultimately called gmap_link(), which
-assumed the fault was a major fault, and blindly called dat_link().
+Am 26.03.26 um 14:17 schrieb Claudio Imbrenda:
+> This series fixes some bugs that have been recently introduced with the
+> big gmap rewrite.
+> 
+> Most of the fixes are related to vSIE (nested guests), although some
+> are more general. The last patch fixes an issue introduced last year.
+> 
+> v4->v5
+> * Use gmap_crstep_xchg_atomic() in gmap_handle_minor_crste_fault()
+>    instead of dat_crstep_xchg_atomic()
+> * Check the special bit in the new pte and crste, instead of the old
+>    one in _gmap_crstep_xchg_atomic() and in _gmap_ptep_xchg()
+> * Fix handling of pgste spinlock
+> * Handle more unshadowing events in _do_shadow_pte() and in
+>    _do_shadow_crste()
 
-In case of minor faults, things were not always handled properly; in
-particular the prefix and vsie marker bits were ignored.
+Lets add this version to kvms390/master. This already is much much better
+than the current 7.0-rc state. It is hard to review the differences and
+we want to get these fixes queued asap. kvms390/master is picked up by
+next so we will have CI coverage inside (and outside) of IBM.
 
-Move dat_link() into gmap.c, renaming it accordingly. Once moved, the
-new _gmap_link() function will be able to correctly honour the prefix
-and vsie markers.
-
-This will cause spurious unshadows in some uncommon cases.
-
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Fixes: 94fd9b16cc67 ("KVM: s390: KVM page table management functions: lifecycle management")
-Fixes: a2c17f9270cc ("KVM: s390: New gmap code")
-Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
----
- arch/s390/kvm/dat.c  | 48 -------------------------------------
- arch/s390/kvm/dat.h  |  2 --
- arch/s390/kvm/gmap.c | 56 ++++++++++++++++++++++++++++++++++++++++----
- 3 files changed, 52 insertions(+), 54 deletions(-)
-
-diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
-index 4d44c0f9ad45..7b8d70fe406d 100644
---- a/arch/s390/kvm/dat.c
-+++ b/arch/s390/kvm/dat.c
-@@ -997,54 +997,6 @@ bool dat_test_age_gfn(union asce asce, gfn_t start, gfn_t end)
- 	return _dat_walk_gfn_range(start, end, asce, &test_age_ops, 0, NULL) > 0;
- }
- 
--int dat_link(struct kvm_s390_mmu_cache *mc, union asce asce, int level,
--	     bool uses_skeys, struct guest_fault *f)
--{
--	union crste oldval, newval;
--	union pte newpte, oldpte;
--	union pgste pgste;
--	int rc = 0;
--
--	rc = dat_entry_walk(mc, f->gfn, asce, DAT_WALK_ALLOC_CONTINUE, level, &f->crstep, &f->ptep);
--	if (rc == -EINVAL || rc == -ENOMEM)
--		return rc;
--	if (rc)
--		return -EAGAIN;
--
--	if (WARN_ON_ONCE(unlikely(get_level(f->crstep, f->ptep) > level)))
--		return -EINVAL;
--
--	if (f->ptep) {
--		pgste = pgste_get_lock(f->ptep);
--		oldpte = *f->ptep;
--		newpte = _pte(f->pfn, f->writable, f->write_attempt | oldpte.s.d, !f->page);
--		newpte.s.sd = oldpte.s.sd;
--		oldpte.s.sd = 0;
--		if (oldpte.val == _PTE_EMPTY.val || oldpte.h.pfra == f->pfn) {
--			pgste = __dat_ptep_xchg(f->ptep, pgste, newpte, f->gfn, asce, uses_skeys);
--			if (f->callback)
--				f->callback(f);
--		} else {
--			rc = -EAGAIN;
--		}
--		pgste_set_unlock(f->ptep, pgste);
--	} else {
--		oldval = READ_ONCE(*f->crstep);
--		newval = _crste_fc1(f->pfn, oldval.h.tt, f->writable,
--				    f->write_attempt | oldval.s.fc1.d);
--		newval.s.fc1.sd = oldval.s.fc1.sd;
--		if (oldval.val != _CRSTE_EMPTY(oldval.h.tt).val &&
--		    crste_origin_large(oldval) != crste_origin_large(newval))
--			return -EAGAIN;
--		if (!dat_crstep_xchg_atomic(f->crstep, oldval, newval, f->gfn, asce))
--			return -EAGAIN;
--		if (f->callback)
--			f->callback(f);
--	}
--
--	return rc;
--}
--
- static long dat_set_pn_crste(union crste *crstep, gfn_t gfn, gfn_t next, struct dat_walk *walk)
- {
- 	union crste newcrste, oldcrste;
-diff --git a/arch/s390/kvm/dat.h b/arch/s390/kvm/dat.h
-index 22dafc775335..efedcf96110c 100644
---- a/arch/s390/kvm/dat.h
-+++ b/arch/s390/kvm/dat.h
-@@ -540,8 +540,6 @@ int dat_set_slot(struct kvm_s390_mmu_cache *mc, union asce asce, gfn_t start, gf
- 		 u16 type, u16 param);
- int dat_set_prefix_notif_bit(union asce asce, gfn_t gfn);
- bool dat_test_age_gfn(union asce asce, gfn_t start, gfn_t end);
--int dat_link(struct kvm_s390_mmu_cache *mc, union asce asce, int level,
--	     bool uses_skeys, struct guest_fault *f);
- 
- int dat_perform_essa(union asce asce, gfn_t gfn, int orc, union essa_state *state, bool *dirty);
- long dat_reset_cmma(union asce asce, gfn_t start_gfn);
-diff --git a/arch/s390/kvm/gmap.c b/arch/s390/kvm/gmap.c
-index 956be4c01797..03e15b5e0b9a 100644
---- a/arch/s390/kvm/gmap.c
-+++ b/arch/s390/kvm/gmap.c
-@@ -631,10 +631,60 @@ static inline bool gmap_1m_allowed(struct gmap *gmap, gfn_t gfn)
- 	return test_bit(GMAP_FLAG_ALLOW_HPAGE_1M, &gmap->flags);
- }
- 
-+static int _gmap_link(struct kvm_s390_mmu_cache *mc, struct gmap *gmap, int level,
-+		      struct guest_fault *f)
-+{
-+	union crste oldval, newval;
-+	union pte newpte, oldpte;
-+	union pgste pgste;
-+	int rc = 0;
-+
-+	rc = dat_entry_walk(mc, f->gfn, gmap->asce, DAT_WALK_ALLOC_CONTINUE, level,
-+			    &f->crstep, &f->ptep);
-+	if (rc == -ENOMEM)
-+		return rc;
-+	if (KVM_BUG_ON(rc == -EINVAL, gmap->kvm))
-+		return rc;
-+	if (rc)
-+		return -EAGAIN;
-+	if (KVM_BUG_ON(get_level(f->crstep, f->ptep) > level, gmap->kvm))
-+		return -EINVAL;
-+
-+	if (f->ptep) {
-+		pgste = pgste_get_lock(f->ptep);
-+		oldpte = *f->ptep;
-+		newpte = _pte(f->pfn, f->writable, f->write_attempt | oldpte.s.d, !f->page);
-+		newpte.s.sd = oldpte.s.sd;
-+		oldpte.s.sd = 0;
-+		if (oldpte.val == _PTE_EMPTY.val || oldpte.h.pfra == f->pfn) {
-+			pgste = gmap_ptep_xchg(gmap, f->ptep, newpte, pgste, f->gfn);
-+			if (f->callback)
-+				f->callback(f);
-+		} else {
-+			rc = -EAGAIN;
-+		}
-+		pgste_set_unlock(f->ptep, pgste);
-+	} else {
-+		do {
-+			oldval = READ_ONCE(*f->crstep);
-+			newval = _crste_fc1(f->pfn, oldval.h.tt, f->writable,
-+					    f->write_attempt | oldval.s.fc1.d);
-+			newval.s.fc1.sd = oldval.s.fc1.sd;
-+			if (oldval.val != _CRSTE_EMPTY(oldval.h.tt).val &&
-+			    crste_origin_large(oldval) != crste_origin_large(newval))
-+				return -EAGAIN;
-+		} while (!gmap_crstep_xchg_atomic(gmap, f->crstep, oldval, newval, f->gfn));
-+		if (f->callback)
-+			f->callback(f);
-+	}
-+
-+	return rc;
-+}
-+
- int gmap_link(struct kvm_s390_mmu_cache *mc, struct gmap *gmap, struct guest_fault *f)
- {
- 	unsigned int order;
--	int rc, level;
-+	int level;
- 
- 	lockdep_assert_held(&gmap->kvm->mmu_lock);
- 
-@@ -646,9 +696,7 @@ int gmap_link(struct kvm_s390_mmu_cache *mc, struct gmap *gmap, struct guest_fau
- 		else if (order >= get_order(_SEGMENT_SIZE) && gmap_1m_allowed(gmap, f->gfn))
- 			level = TABLE_TYPE_SEGMENT;
- 	}
--	rc = dat_link(mc, gmap->asce, level, uses_skeys(gmap), f);
--	KVM_BUG_ON(rc == -EINVAL, gmap->kvm);
--	return rc;
-+	return _gmap_link(mc, gmap, level, f);
- }
- 
- static int gmap_ucas_map_one(struct kvm_s390_mmu_cache *mc, struct gmap *gmap,
--- 
-2.53.0
-
+If something is really broken we can refresh kvms390/master, otherwise
+we can still do followup patches.
