@@ -1,86 +1,155 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f202.google.com (mail-dy1-f202.google.com [74.125.82.202])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F4A73FE368;
-	Fri, 27 Mar 2026 17:51:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF69938A73B
+	for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2026 20:55:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774633889; cv=none; b=qUl0lhQYiZNPf4q9V0a28Ai4zVAa9NhgutYTk+RV6fNyxGsAb6C8k+tp1FjefCvtn3d+Tx+49GrkMA+4Y5C3CMJ47WInoHobZ6GhoGFtQ8xRmzfyn0hffP5e5aLdr0qotHWpc6akhikA5es/D8cvuWhMvwz0KslzICLa8LGTeBk=
+	t=1774644904; cv=none; b=q+LtPdDePNVUFNEWeCtzZM39RFizMb9CVERp1CUzXhQQX9beByk+C4DRSB+rUZx0gzKcLO0NeYngejhkziZZxvpnPSM/urTd+HnT3xhfbABP/U2Magjw5uLi0SWc5uo5iXYrByBq90wiJ6maqmZoQhHFC/u0flsGLYJhNoh1mOA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774633889; c=relaxed/simple;
-	bh=ut3C5Oibhu02lZBarl5gtLhPMmjWlwAPsAficDpw9oU=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=L/ypn8uEVlhBbYyTZCWBaskHKV25xUD6CYFd5TOk11oR/L2ElQC3Y3Sm0wn9iFwjl+tynTZgenBF409FCzx8K+sGZSnXcJZIO1fPCm5IhJ7sONKbA5a8f5+a14whZ+pgaUN+boCxHNRvt4BpX4Zrpzifbte1cbmgNV39wWdn3J8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=tDB0MgLH; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774644904; c=relaxed/simple;
+	bh=bLDW7ocpivdedUtMlS9+zeEC0kBNj+LNYBRecq2aDkk=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=inlK1GpYcnI8UjYGSkfAko3t3CqCa1KoUypjLKru04sKQ2sQ9sNAmzHFEwPmb7qGYheFX1WO/Nvp9/cAeIJkKnUlL7VEJgZsMCoOjZCqUU4Sw2HPVai3YBg+Frpg6AvI/BUQ+GOO/UjORQqgscKMJLYxJLfZ7eGY2ycn0TBfolg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--surenb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=tIgeL0+3; arc=none smtp.client-ip=74.125.82.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--surenb.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="tDB0MgLH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF370C19423;
-	Fri, 27 Mar 2026 17:51:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-	s=korg; t=1774633889;
-	bh=ut3C5Oibhu02lZBarl5gtLhPMmjWlwAPsAficDpw9oU=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=tDB0MgLHz5uhVLWEaFReNs99y5u/YY74Iml33dpseoOBD0A8VJRFFQYeU9FvqxCuP
-	 nyqAUmYCNk1T74zARlT1dAb3bA7OmvIjh9mNwh7l1JQENaDWThwxkEsSuzSKK+Qc4+
-	 obJODpvlMAd7z/q0AZNLNKGt9R6dV77UeQmuFqzk=
-Date: Fri, 27 Mar 2026 10:51:27 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Richard Henderson <richard.henderson@linaro.org>, Matt Turner
- <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>, Russell King
- <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will
- Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Huacai Chen
- <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, Madhavan
- Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
- Nicholas Piggin <npiggin@gmail.com>, "Christophe Leroy (CS GROUP)"
- <chleroy@kernel.org>, Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt
- <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti
- <alex@ghiti.fr>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
- <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, Christian
- Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
- <svens@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, Andreas
- Larsson <andreas@gaisler.com>, Richard Weinberger <richard@nod.at>, Anton
- Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg
- <johannes@sipsolutions.net>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar
- <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
- <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin"
- <hpa@zytor.com>, Herbert Xu <herbert@gondor.apana.org.au>, Dan Williams
- <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>, David Sterba
- <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>, Song Liu
- <song@kernel.org>, Yu Kuai <yukuai@fnnas.com>, Li Nan
- <linan122@huawei.com>, "Theodore Ts'o" <tytso@mit.edu>,
- "Jason A. Donenfeld" <Jason@zx2c4.com>, linux-alpha@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
- linux-crypto@vger.kernel.org, linux-btrfs@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: [PATCH 23/28] xor: add a better public API
-Message-Id: <20260327105127.1a1f3895adb14681141a0a30@linux-foundation.org>
-In-Reply-To: <20260327061704.3707577-24-hch@lst.de>
-References: <20260327061704.3707577-1-hch@lst.de>
-	<20260327061704.3707577-24-hch@lst.de>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="tIgeL0+3"
+Received: by mail-dy1-f202.google.com with SMTP id 5a478bee46e88-2bdc1b30ac8so5482212eec.1
+        for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2026 13:55:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1774644902; x=1775249702; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=xdmn94fDq5EabxgUHdZFE1PchWB5l0Hn00gGljt6mxc=;
+        b=tIgeL0+3usm0cBbuJlPEDE1DR5GtwuekkqKyZFz6t64WPMm4kmKq77RNOI0HPZI7n1
+         yLypwOV+Or4awm7rubp2H2kfDjaTcn1w/7XBzwknyj7u1RAzbTqUNim6pmFb8EA2Yj2G
+         v1k9x3pGEy+8s6Qlj5yocVfombWrFpit7xxBpcSSbjSMTmDBw/BQjbRBC2vaAfcvbrax
+         Z+T7aLOMNBQB4pbQyR8g0Ki1mQ+WiaI26G69yfM6vMR6ZY8hOXK+CU7HNZrjm+ZY2tGn
+         Oz8Nie+28q8aybrBtOTM3QjreU+wAsb32Di8wzypLMT2AouThNOnBos5GtFoIy06i+hr
+         8CBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774644902; x=1775249702;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=xdmn94fDq5EabxgUHdZFE1PchWB5l0Hn00gGljt6mxc=;
+        b=o/zxDqP8lvZds/xrKIN9qbtdVC7TGEyHFRx12Zp2FsagdPml1sd/XUHuZK/EH0D4Zx
+         M3BtCJ7MoxynvRD0E3tb9RG8c+BRMtUfTj7bUj3OWK435gM2H9ZZxmhueHbmmHPZhoSR
+         xCHGb5vXOfob1iLbFiN/Z5SEs22t7yXqhxeHXuHCjrCYytxHxdYpNRjtVpNxUVOCrPzJ
+         RMAzPaY33TIBvRuZQIAsKF+z1a7mrsQJ3XZ/zUHUsTG9Vk1WgoUsNRPmr6YyebQ16ZK4
+         qRJYu0t8pXIDNvEkqHD8IyXnyi8BcDZ77BMEj9wDkEgJ54g+O87ZqwXET95nOk8Huio+
+         RV8A==
+X-Forwarded-Encrypted: i=1; AJvYcCV1HXvCEmzF+qD4E6WyNjUzFHZwJCsm2JwYsAVnWpzkNtSwW/7yJsQszrD0F5xkaCjKZ+kRGuualUWC@vger.kernel.org
+X-Gm-Message-State: AOJu0YxQLzUFJHbQ49oGQKQtQTsUGN7zLWZ//qv/HQTyomyNUd8z2Z/C
+	r25jeZmQ7IzX0N9FJntMsAa7+5iKePEvCe3MBeV/I58eEsl5/b30vUB2OdPwXFjoVulctcUma36
+	/dN/EIQ==
+X-Received: from dybse8.prod.google.com ([2002:a05:7301:4908:b0:2be:77bc:5c34])
+ (user=surenb job=prod-delivery.src-stubby-dispatcher) by 2002:a05:693c:3113:b0:2c0:cff4:b456
+ with SMTP id 5a478bee46e88-2c185e5a4e2mr2359718eec.29.1774644901334; Fri, 27
+ Mar 2026 13:55:01 -0700 (PDT)
+Date: Fri, 27 Mar 2026 13:54:51 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: git-send-email 2.53.0.1018.g2bb0e51243-goog
+Message-ID: <20260327205457.604224-1-surenb@google.com>
+Subject: [PATCH v6 0/6] Use killable vma write locking in most places
+From: Suren Baghdasaryan <surenb@google.com>
+To: akpm@linux-foundation.org
+Cc: willy@infradead.org, david@kernel.org, ziy@nvidia.com, 
+	matthew.brost@intel.com, joshua.hahnjy@gmail.com, rakie.kim@sk.com, 
+	byungchul@sk.com, gourry@gourry.net, ying.huang@linux.alibaba.com, 
+	apopple@nvidia.com, ljs@kernel.org, baolin.wang@linux.alibaba.com, 
+	Liam.Howlett@oracle.com, npache@redhat.com, ryan.roberts@arm.com, 
+	dev.jain@arm.com, baohua@kernel.org, lance.yang@linux.dev, vbabka@suse.cz, 
+	jannh@google.com, rppt@kernel.org, mhocko@suse.com, pfalcato@suse.de, 
+	kees@kernel.org, maddy@linux.ibm.com, npiggin@gmail.com, mpe@ellerman.id.au, 
+	chleroy@kernel.org, borntraeger@linux.ibm.com, frankja@linux.ibm.com, 
+	imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, 
+	agordeev@linux.ibm.com, svens@linux.ibm.com, gerald.schaefer@linux.ibm.com, 
+	linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, surenb@google.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Fri, 27 Mar 2026 07:16:55 +0100 Christoph Hellwig <hch@lst.de> wrote:
+Now that we have vma_start_write_killable() we can replace most of the
+vma_start_write() calls with it, improving reaction time to the kill
+signal.
 
-> xor_blocks is very annoying to use, because it is limited to 4 + 1
-> sources / destinations, has an odd argument order and is completely
-> undocumented.
-> 
-> Lift the code that loops around it from btrfs and async_tx/async_xor into
-> common code under the name xor_gen and properly document it.
+There are several places which are left untouched by this patchset:
 
-Something funny here - two different patches with the same title and
-changelog.
+1. free_pgtables() because function should free page tables even if a
+fatal signal is pending.
 
-If you can send over new versions of title&changelog I can paste that in.
+2. userfaultd code, where some paths calling vma_start_write() can
+handle EINTR and some can't without a deeper code refactoring.
+
+3. mpol_rebind_mm() which is used by cpusset controller for migrations
+and operates on a remote mm. Incomplete operations here would result
+in an inconsistent cgroup state.
+
+4. vm_flags_{set|mod|clear} require refactoring that involves moving
+vma_start_write() out of these functions and replacing it with
+vma_assert_write_locked(), then callers of these functions should
+lock the vma themselves using vma_start_write_killable() whenever
+possible.
+
+Changes since v5 [1]:
+- Added Reviewed-by for unchanged patches, per Lorenzo Stoakes
+
+Patch#2:
+- Fixed locked_vm counter if mlock_vma_pages_range() fails in
+mlock_fixup(), per Sashiko
+- Avoid VMA re-locking in madvise_update_vma(), mprotect_fixup() and
+mseal_apply() when vma_modify_XXX creates a new VMA as it will already be
+locked. This prevents the possibility of incomplete operation if signal
+happens after a successful vma_modify_XXX modified the vma tree,
+per Sashiko
+- Removed obsolete comment in madvise_update_vma() and mprotect_fixup()
+
+Patch#4:
+- Added clarifying comment for vma_start_write_killable() when locking a
+detached VMA
+- Override VMA_MERGE_NOMERGE in vma_expand() to prevent callers from
+falling back to a new VMA allocation, per Sashiko
+- Added a note in the changelog about temporary workaround of using
+ENOMEM to propagate the error in vma_merge_existing_range() and
+vma_expand()
+
+Patch#5:
+- Added fatal_signal_pending() check in do_mbind() to detect
+queue_pages_range() failures due to a pendig fatal signal, per Sashiko
+
+[1] https://lore.kernel.org/all/20260326080836.695207-1-surenb@google.com/
+
+Suren Baghdasaryan (6):
+  mm/vma: cleanup error handling path in vma_expand()
+  mm: use vma_start_write_killable() in mm syscalls
+  mm/khugepaged: use vma_start_write_killable() in collapse_huge_page()
+  mm/vma: use vma_start_write_killable() in vma operations
+  mm: use vma_start_write_killable() in process_vma_walk_lock()
+  KVM: PPC: use vma_start_write_killable() in
+    kvmppc_memslot_page_merge()
+
+ arch/powerpc/kvm/book3s_hv_uvmem.c |   5 +-
+ fs/proc/task_mmu.c                 |  12 +--
+ mm/khugepaged.c                    |   5 +-
+ mm/madvise.c                       |  13 ++-
+ mm/memory.c                        |   2 +
+ mm/mempolicy.c                     |  21 +++-
+ mm/mlock.c                         |  30 ++++--
+ mm/mprotect.c                      |  25 +++--
+ mm/mremap.c                        |   8 +-
+ mm/mseal.c                         |  24 ++++-
+ mm/pagewalk.c                      |  22 ++--
+ mm/vma.c                           | 162 ++++++++++++++++++++++-------
+ mm/vma_exec.c                      |   6 +-
+ 13 files changed, 251 insertions(+), 84 deletions(-)
+
+
+base-commit: e53c9040ab1b738dd2c83b57558f141902caaf4f
+-- 
+2.53.0.1018.g2bb0e51243-goog
+
