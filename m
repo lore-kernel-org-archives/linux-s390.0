@@ -1,60 +1,60 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A9583126C0;
-	Fri, 27 Mar 2026 15:25:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A00A51D5ABA;
+	Fri, 27 Mar 2026 15:31:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774625142; cv=none; b=WdjU0UQzbt48UgT94Fut0shWbprh4LUASXdDcgPt7uguO9LQcL2y43ibhLjPNyyJCWAAN3+wJTqw1ciitR/tuBzMNi8eCe0eJ2KI78K1v+VF09nnx0NRA9yNdIU9Y8krSH4RvkXKH9L2sHcyqjc3L8MpXrbfEUumphBjWiFVd5Y=
+	t=1774625502; cv=none; b=cyBjFPErrJZ006udHQpE4BBz0FFzt+qZfg/GFz37XSPdC4aHM5AqoOh4UwJAp/OVnB7LfWbWIPNtqLZH4DqfkXMKeYU9e7NZIfNUy5dmqVQzSGQI6DsJKAFI5UE9QGwaUm8l+n4XQXSOU8GDIxOWfxsomqSzh11Fn8ptcmH4xS8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774625142; c=relaxed/simple;
-	bh=4U/fd6fhNMgzcVA5cmddCzc7TUPWHQTNJpAhIX7QpgA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=B9IsS5DyFMLZ7TCPWfREj2CpO8Snocj4MpaD27CuYLa2LvZACcauF2RdOuNOu1VJxw8fgTuru61IYhs1V9CLzZ3NCxW2wibtFbDvuU2vwCLw167rXo+dUfa8dNBzBPhcE/0LWGmVPofLguzpQ9CCGBc2brPwmlCUp66dFX26iko=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eLglGArs; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1774625502; c=relaxed/simple;
+	bh=NUkcljIgAJZLy40PxD5mlYk4jWQBZ0mbH5Vy4f6r2kY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=nZdGpuG7PCE/zV3fgNg2ke38BbYHUb1JAH3dKU5XZ1yoJcywBA1pe8PsVolriSs3IJAGjtCy93CcZesk1B/MIguEVTCmJGjiQVvHyGkoGqUOolabeEcBnwodvsczsYTP+VeJlj7/LdkutvY/tURUjE5qmLIJMMmLltHsSarZlmE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CIYoJYtc; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eLglGArs"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62R5P9aw1455972;
-	Fri, 27 Mar 2026 15:25:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=XMEsHc
-	MXBwEoKrlIoViTNfyyOE1xLg3h7GeVsBXaZ/A=; b=eLglGArswzZgFjuEEY0SLu
-	9xmofs1wfVrQNJh+vAwKXe5D6zeEyETOCO3Rrn2dsL55RpcBnTJiJQcl60OipXto
-	w70ltf82elXAexjN7pP72OaL9/y8Uk3KBl1I4+y4XVSxM3hoGeLYSL6gYIDzZ/aC
-	nfqr15KZu9ke6Xb6GxuEZw4MeK+IzAssRCUnFr+nMdLqmDMowcDpkv/jY4lgmDyH
-	vchBWZaxv/TyqUoiu67XSxHEf3Pmiwjjfrs6mVJuXgI/qi5X9YB2arcz2w7tT/ng
-	wFs7R+LEQdGaMBLjR3M6NB6n033PSADEzaAsYOOrdh17Zj8IJwGvpqS735B54AGg
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CIYoJYtc"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62RA9EEc666646;
+	Fri, 27 Mar 2026 15:31:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=lvaG/b
+	C0nAJO37T1mwl1BA0RtMRFNEPHypMya1za+RQ=; b=CIYoJYtc8UydxgoMNwolrd
+	GhTBEEvc9xiu50COjSXZ5XPLX8jQoFsKJhraNvKQocPsDyiFG67P7l0cvZJwayoH
+	4zO3lnwKNN2fIFcncuc2Zx1xMySGX0izNZM4gN6v84RSDV1R+eX7uRmii3eQxZqb
+	/1fxGFOwTpauh7GGy+ebG4PYMYfYrtnkmGY68XqP5Z0InmMHkEBrg1xYAvEeJU1G
+	4LYJWqB3X6ncgkEx90InmejJzs0UkH9Ggo5aODm+hLmyY9uJ3yP/NWJDKHEu3xRQ
+	5GtBmg0E46kOSeJxwQGondw1b2bDdeV8XyvUqbP7Y9UhQoKXEhiX09zDGeJIRQcg
 	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kwaau77-1
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1ktyatxf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Mar 2026 15:25:38 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62RB0GCh026797;
-	Fri, 27 Mar 2026 15:25:37 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d275m7x0x-1
+	Fri, 27 Mar 2026 15:31:39 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62RB8ewl009115;
+	Fri, 27 Mar 2026 15:31:38 GMT
+Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d26np022r-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Mar 2026 15:25:37 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62RFPaum33555074
+	Fri, 27 Mar 2026 15:31:38 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62RFVa7V30147268
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 27 Mar 2026 15:25:36 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4FE2A5805D;
-	Fri, 27 Mar 2026 15:25:36 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7A6B658058;
-	Fri, 27 Mar 2026 15:25:35 +0000 (GMT)
-Received: from [9.61.87.139] (unknown [9.61.87.139])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 27 Mar 2026 15:25:35 +0000 (GMT)
-Message-ID: <38452644-a097-4e03-a4b9-902c8c8d23f2@linux.ibm.com>
-Date: Fri, 27 Mar 2026 11:25:35 -0400
+	Fri, 27 Mar 2026 15:31:36 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6541B5805A;
+	Fri, 27 Mar 2026 15:31:36 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 37A6A5805C;
+	Fri, 27 Mar 2026 15:31:35 +0000 (GMT)
+Received: from [9.61.244.240] (unknown [9.61.244.240])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 27 Mar 2026 15:31:35 +0000 (GMT)
+Message-ID: <5f03d78f-07d7-4e53-816b-4ff5306fc6c4@linux.ibm.com>
+Date: Fri, 27 Mar 2026 11:31:34 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,142 +62,124 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/3] KVM: s390: Enable adapter_indicators_set to use
- mapped pages
-To: Douglas Freimuth <freimuth@linux.ibm.com>, borntraeger@linux.ibm.com,
-        imbrenda@linux.ibm.com, frankja@linux.ibm.com, david@kernel.org,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+Subject: Re: [PATCH v2 1/3] KVM: s390: Add map/unmap ioctl and clean mappings
+ post-guest
+To: Janosch Frank <frankja@linux.ibm.com>, borntraeger@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@kernel.org, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org
+Cc: mjrosato@linux.ibm.com
 References: <20260326014247.2085-1-freimuth@linux.ibm.com>
- <20260326014247.2085-3-freimuth@linux.ibm.com>
+ <20260326014247.2085-2-freimuth@linux.ibm.com>
+ <259c135b-2c1b-4f43-a177-925d7df8b909@linux.ibm.com>
 Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20260326014247.2085-3-freimuth@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: Douglas Freimuth <freimuth@linux.ibm.com>
+In-Reply-To: <259c135b-2c1b-4f43-a177-925d7df8b909@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: VUcdl6ptUuLAdShsLrZW1ITAXMFYfpCe
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI3MDEwNSBTYWx0ZWRfX5z5Ft9dAr9ov
- o5oqZKHPA4BbNjzIDALM7Wt0+ocaOeNhliYUdiSlAcuW/zBnyNUxoa8HAdGkNBr+cfmVQGG40Iu
- 768Z6Es5Oq0hvg+zStqGf9v18rU2uWYzAsEE2U5/FK5s5xpRuuarHTu9c/1Sl5wrnaUhYWtITFY
- Hs7Oq4l/0gWGUVkRxt+FFOSePizeSYItA/53AhqlsV6MBhhNh3GWAlpEgeGKxLcU7FBS1mE0avx
- bswBhimD8x+ghngMPz0ctXGmMBk4pM0wngPEyx4eH/IUyaGfRklyLadEFKR5ewABNVDOixIVwc1
- LJM1GWvALmA7P42OhjK7YpM8S/50OPBU3D6+YsVxj4Tt3vk5iL2BOjGoXRzXSgjERARMjfjCYVN
- Wd6umhzfHETyV6cnsl+HzNUj9nofJ1dF5urhXrab01nnJa8bm36S4uliZ+igBPoujqeQd465zne
- UhpsZM6Kyf47YuznSZA==
-X-Proofpoint-GUID: VUcdl6ptUuLAdShsLrZW1ITAXMFYfpCe
-X-Authority-Analysis: v=2.4 cv=OsZCCi/t c=1 sm=1 tr=0 ts=69c6a172 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Authority-Analysis: v=2.4 cv=IqITsb/g c=1 sm=1 tr=0 ts=69c6a2db cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=JP7uVcWlml9W1eh-bEUA:9 a=QEXdDO2ut3YA:10
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=Kq6gSilbqWK3yFYetpUA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI3MDEwNSBTYWx0ZWRfX9pmJPvgNFFdC
+ o6b0s7CyUDCMrL8I2ZGpE10HudH0ApKIo/JHBzOd6xrjbM8NV/thLpz/5FsxqaTlBQPB9o3hEYe
+ nTwLZ2Z8JUlgN9O4YAlxkCIrMEMdamFgNcem2agn4PPqZBpsfMN0RFBfCiNE9PIRRFEpCikONdx
+ n7Tz1gXLvM8NOB0cdV4BDV4VHD+hioIcn7GaciG9QJYq6U2eCVCw817nqF/SR9VeFIgA2DuMJCx
+ yWkkSB8pH8beHX21PXf9yCgLhXWGMQBeCl9eoVzZoKvRoM8H6fWt8onmVZkJorrmbPLzKMSgiZv
+ HIp07Mi3vmJBovF2xzIgBsLnXXGgSiMzuAKoatzqrQz9Q43yNMB1LkH7KqFTc7WpmfS2PGNL9fR
+ /dm3HGFrln4u3rNWGUDAkOTiPRslSn03Cd30cF3r8oC8vpJ7X9a95fiYzJVua0LMGl0KhZQgHCw
+ 3xKEgbt6Nm+rtSeP28Q==
+X-Proofpoint-GUID: 6q7r6Rb1XjnjThRF0FdxxwgIYdSzl-nw
+X-Proofpoint-ORIG-GUID: 6q7r6Rb1XjnjThRF0FdxxwgIYdSzl-nw
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-03-26_04,2026-03-26_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 adultscore=0 clxscore=1015 phishscore=0 suspectscore=0
- lowpriorityscore=0 priorityscore=1501 bulkscore=0 spamscore=0 malwarescore=0
+ malwarescore=0 clxscore=1015 spamscore=0 impostorscore=0 suspectscore=0
+ phishscore=0 bulkscore=0 adultscore=0 priorityscore=1501 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603270105
 
-On 3/25/26 9:42 PM, Douglas Freimuth wrote:
-> The S390 adapter_indicators_set function needs to be able to use mapped 
-> pages so that worked can be processed,on a fast path when interrupts are
-> disabled. If adapter indicator pages are not mapped then local mapping is 
-> done on a slow path as it is prior to this patch. For example, Secure
-> Execution environments will take the local mapping path as it does prior to
-> this patch.
+
+
+On 3/26/26 11:56 AM, Janosch Frank wrote:
+> On 3/26/26 02:42, Douglas Freimuth wrote:
+>> S390 needs map/unmap ioctls, which map the adapter set
+>> indicator pages, so the pages can be accessed when interrupts are
+>> disabled. The mappings are cleaned up when the guest is removed.
+>>
+>> Map/Unmap ioctls are fenced in order to avoid the longterm pinning
+>> in Secure Execution environments. In Secure Execution
+>> environments the path of execution available before this patch is 
+>> followed.
+>>
+>> Statistical counters to count map/unmap functions for adapter indicator
+>> pages are added. The counters can be used to analyze
+>> map/unmap functions in non-Secure Execution environments and similarly
+>> can be used to analyze Secure Execution environments where the counters
+>> will not be incremented as the adapter indicator pages are not mapped.
+>>
+>> Signed-off-by: Douglas Freimuth <freimuth@linux.ibm.com>
+>> ---
 > 
-> Signed-off-by: Douglas Freimuth <freimuth@linux.ibm.com>
-> ---
+> Looks good, two nits below.
+> 
+> [...]
+>>           if (ret > 0)
+>>               ret = 0;
+>>           break;
+>> -    /*
+>> -     * The following operations are no longer needed and therefore 
+>> no-ops.
+>> -     * The gpa to hva translation is done when an IRQ route is set 
+>> up. The
+>> -     * set_irq code uses get_user_pages_remote() to do the actual write.
+>> -     */
+>>       case KVM_S390_IO_ADAPTER_MAP:
+>>       case KVM_S390_IO_ADAPTER_UNMAP:
+>> -        ret = 0;
+>> +        /* If in Secure Execution mode do not long term pin. */
+>> +        mutex_lock(&dev->kvm->lock);
+>> +        if (kvm_s390_pv_is_protected(dev->kvm)) {
+>> +            mutex_unlock(&dev->kvm->lock);
+>> +            return 0;
+>> +        }
+>> +        mutex_unlock(&dev->kvm->lock);
+>> +        idx = srcu_read_lock(&dev->kvm->srcu);
+>> +        host_addr = gpa_to_hva(dev->kvm, req.addr);
+>> +        if (kvm_is_error_hva(host_addr)) {
+>> +            srcu_read_unlock(&dev->kvm->srcu, idx);
+>> +            return -EFAULT;
+>> +            }
+> 
+> Alignment issue
+> 
+> [...]
+> 
 
-[...]
+I will correct that. (Surprised checkpatch strict didn't catch it.)
 
->  static int adapter_indicators_set(struct kvm *kvm,
->  				  struct s390_io_adapter *adapter,
->  				  struct kvm_s390_adapter_int *adapter_int)
->  {
->  	unsigned long bit;
->  	int summary_set, idx;
-> -	struct page *ind_page, *summary_page;
-> +	struct s390_map_info *ind_info, *summary_info;
->  	void *map;
-> +	struct page *ind_page, *summary_page;
->  
-> -	ind_page = get_map_page(kvm, adapter_int->ind_addr);
-> -	if (!ind_page)
-> -		return -1;
-> -	summary_page = get_map_page(kvm, adapter_int->summary_addr);
-> -	if (!summary_page) {
-> -		put_page(ind_page);
-> -		return -1;
-> +	ind_info = get_map_info(adapter, adapter_int->ind_addr);
-> +	if (!ind_info) {
-> +		ind_page = get_map_page(kvm, adapter_int->ind_addr);
-> +		if (!ind_page)
-> +			return -1;
-> +		idx = srcu_read_lock(&kvm->srcu);
-> +		map = page_address(ind_page);
-> +		bit = get_ind_bit(adapter_int->ind_addr,
-> +				  adapter_int->ind_offset, adapter->swap);
-> +		set_bit(bit, map);
-> +		mark_page_dirty(kvm, adapter_int->ind_gaddr >> PAGE_SHIFT);
-> +		set_page_dirty_lock(ind_page);
+>>   static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+>>   {
+>>       const bool need_lock = (cmd->cmd != KVM_PV_ASYNC_CLEANUP_PERFORM);
+>> @@ -2503,6 +2522,7 @@ static int kvm_s390_handle_pv(struct kvm *kvm, 
+>> struct kvm_pv_cmd *cmd)
+>>       switch (cmd->cmd) {
+>>       case KVM_PV_ENABLE: {
+>> +        kvm_s390_unmap_all_adapters_pv(kvm);
+> 
+> Shouldn't this be located after the check that's below?
+> 
 
-Sashiko's comments about this area of code should already be addressed
-by my comments in v1 wrt to marking the page dirty before unpinning.
+While all of my tests do not observe it, not sure if there is a state 
+change where anything is left mapped while in pv. There should not be so 
+I can move it after the check as you mention.
 
-> +		srcu_read_unlock(&kvm->srcu, idx);
-> +	} else {
-> +		map = page_address(ind_info->page);
-> +		bit = get_ind_bit(ind_info->addr, adapter_int->ind_offset, adapter->swap);
-> +		set_bit(bit, map);
-> +	}
-> +	summary_info = get_map_info(adapter, adapter_int->summary_addr);
-> +	if (!summary_info) {
-> +		summary_page = get_map_page(kvm, adapter_int->summary_addr);
-> +		if (!summary_page) {
-> +			put_page(ind_page);
-
-Sashiko has a point here.  It is possible that you may have taken the
-else path above where ind_info != NULL and never used ind_page.
-
-Initialize ind_page to a NULL value first and check for a NULL value
-here before attempting a put_page.
-Or I think you can also check (!ind_info) and only put the page in this
-case like you do later in this function.
-
-[...]
-
->  
-> @@ -2890,6 +2924,7 @@ static int set_adapter_int(struct kvm_kernel_irq_routing_entry *e,
->  {
->  	int ret;
->  	struct s390_io_adapter *adapter;
-> +	unsigned long flags;
->  
->  	/* We're only interested in the 0->1 transition. */
->  	if (!level)
-> @@ -2897,7 +2932,9 @@ static int set_adapter_int(struct kvm_kernel_irq_routing_entry *e,
->  	adapter = get_io_adapter(kvm, e->adapter.adapter_id);
->  	if (!adapter)
->  		return -1;
-> +	spin_lock_irqsave(&adapter->maps_lock, flags);
->  	ret = adapter_indicators_set(kvm, adapter, &e->adapter);
-> +	spin_unlock_irqrestore(&adapter->maps_lock, flags);
-
-Another point for Sashiko -- This is almost certainly a fallout from my
-recommendation to drop the semaphore from patch 1 and go straight to a
-spinlock vs adding semaphore in patch 1 and converting in patch 3.
-
-You can't put a spinlock here as you may lose control inside
-adapter_indicators_set.  You resolve the incompatibility in the next
-patch by moving the spinlock inside the call and dropping it before you
-could lose control -- but you have to already account for that in this
-patch.
-
->  	if ((ret > 0) && !adapter->masked) {
->  		ret = kvm_s390_inject_airq(kvm, adapter);
->  		if (ret == 0)
+>>           r = -EINVAL;
+>>           if (kvm_s390_pv_is_protected(kvm))
+>>               break;
+> 
 
