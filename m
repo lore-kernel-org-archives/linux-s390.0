@@ -1,32 +1,32 @@
-Received: from out-178.mta0.migadu.com (out-178.mta0.migadu.com [91.218.175.178])
+Received: from out-184.mta0.migadu.com (out-184.mta0.migadu.com [91.218.175.184])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 990E1332608
-	for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2026 02:15:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A8E63290D2
+	for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2026 02:15:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.184
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774577747; cv=none; b=bMzDhuOIUGPA71JcvwFMJ1Odf9WOh8oVmKEpkcrsxQzUlNOvyzQ1v2ZXpCDmgp1fC5MNSulgeD53e5/Vql3XEiquAGE9ArywzLZwLHGkHtLhNvLSsTjRJCFXoukUGL1Wq/mYLpIffWxS0RFA+Ws6w5AvbIb2Fgx5k6NQpOQ2QnA=
+	t=1774577751; cv=none; b=hSsknmg+Z8qLZ37XvSU79K1fZYEZYaIB64s2EWDq4ZGKQjDkh3WsF+9Hg5skGE1zK2/gTBxSWt4kLtZH/HdD+4Z73buj3k+uzGiRAIs73J8eAjQ8WMYhtuz3dJW8+9ap0r0idYBQlPhuoZ7+qBicF/zqjgQTXZBCQVvmOGuxfbQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774577747; c=relaxed/simple;
-	bh=MSBXQPCmQM3p81GXRNNhHe5yDRAt26b3JVPgOD91aaw=;
+	s=arc-20240116; t=1774577751; c=relaxed/simple;
+	bh=j9LGkm9AT1SVnMNzLezcvHWm8GVx3wLShAsc0rRNvYo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KfCge1ZR6E23IRDeWlAtnGXf5yCNTa7miBkmel/vFSMhFekD7cCWfCIIa3MObCOLxPjJ1XuCx/nJ+e31yoIlj+uLnhwNwEU/vgF1aruoMp1WyqorQZkDwU5NJXprAaJ6/5xbHVQMDm3ntFlByUVLTBw3dE9jZTUCAQKkyOuGyZQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Hnot0p5K; arc=none smtp.client-ip=91.218.175.178
+	 MIME-Version; b=dt8zz9OX/cO9lh1gTBrUYtN5AZ8DTjFXCG/2DZhCaZ3sIkC1KxRWIkiJefxlouSAmgoySk2TcwtSUo0qO6pV1Qum+ayKb2GHJ2NrQ/KDtYEKEJe3wFR0Oo5BLvhgAdDfc5AcIy6PWNXKgZPoYe5IhO2VGD8j+yI5msdKQGyMugg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=PBqsuNks; arc=none smtp.client-ip=91.218.175.184
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Hnot0p5K"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="PBqsuNks"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1774577743;
+	t=1774577748;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=8tx/Qjve1iVx/sjsNymGDpKKmMZv1TUyDs/EfcYY5GE=;
-	b=Hnot0p5K89CAv1AQSFPCVNypjXRfAocNMIZyWJnznY4gpq+GWy2CVy+0V7yyIEu0F+HuLG
-	VCDbIV/SqybnVZSHtV9JQkcdTWMzMp9IQ8Hs+qWemVt0yevh5Dk4OIgO/2Wqfo3fp+W2Sb
-	aJvabR1V9LfLrBzcx+XgaoHKYXMXuJs=
+	bh=Y5PgiQrcwbn9XAgL4cRYPHYRVIr8zaspEnc9S8fZNtw=;
+	b=PBqsuNksqiYxLcyifzHiiquL6Zzzi+Q6QhZKvMqsl6Ywk8e+CwDNj9TY+ZBrYzU5TX4YZX
+	tN7zZsn84kggt2lWPGZqKW8iUu8t1aNBnigvnGagmSkB+xzT/lcMTAqVdArQiFTX42gjln
+	p/GMbq4RVKzlqVsGNHcXNmutrl2WTFQ=
 From: Usama Arif <usama.arif@linux.dev>
 To: Andrew Morton <akpm@linux-foundation.org>,
 	david@kernel.org,
@@ -58,9 +58,9 @@ Cc: fvdl@google.com,
 	svens@linux.ibm.com,
 	linux-s390@vger.kernel.org,
 	Usama Arif <usama.arif@linux.dev>
-Subject: [v3 15/24] fs/dax: handle split_huge_pmd failure in dax_iomap_pmd_fault
-Date: Thu, 26 Mar 2026 19:08:57 -0700
-Message-ID: <20260327021403.214713-16-usama.arif@linux.dev>
+Subject: [v3 16/24] mm: huge_mm: Make sure all split_huge_pmd calls are checked
+Date: Thu, 26 Mar 2026 19:08:58 -0700
+Message-ID: <20260327021403.214713-17-usama.arif@linux.dev>
 In-Reply-To: <20260327021403.214713-1-usama.arif@linux.dev>
 References: <20260327021403.214713-1-usama.arif@linux.dev>
 Precedence: bulk
@@ -72,44 +72,49 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
-dax_iomap_pmd_fault() splits a huge PMD when the PMD fault falls back
-to PTE-level handling. The split is necessary so that the subsequent
-PTE fault does not misinterpret the huge PMD entry as a page table
-pointer.
-
-In practice this cannot fail today: DAX VMAs are always file-backed,
-and __split_huge_pmd() only allocates a PTE page table (the operation
-that can return -ENOMEM) for anonymous VMAs. For file-backed VMAs the
-split path simply zaps the PMD and returns 0.
-
-Use WARN_ON_ONCE to document this invariant and check the return value
-for __must_check compliance introduced in the next patch.
+Mark __split_huge_pmd(), split_huge_pmd() and split_huge_pmd_address()
+with __must_check so the compiler warns if any caller ignores the return
+value. Not checking return value and operating on the basis that the pmd
+is split could result in a kernel bug. The possibility of an order-0
+allocation failing for page table allocation is very low, but it should
+be handled correctly.
 
 Signed-off-by: Usama Arif <usama.arif@linux.dev>
 ---
- fs/dax.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ include/linux/huge_mm.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/dax.c b/fs/dax.c
-index a5237169b4679..ed1859e8a916f 100644
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -2039,7 +2039,14 @@ static vm_fault_t dax_iomap_pmd_fault(struct vm_fault *vmf, unsigned long *pfnp,
- 	dax_unlock_entry(&xas, entry);
- fallback:
- 	if (ret == VM_FAULT_FALLBACK) {
--		split_huge_pmd(vmf->vma, vmf->pmd, vmf->address);
-+		/*
-+		 * split_huge_pmd() cannot fail for file-backed (DAX) VMAs
-+		 * since splitting only zaps the PMD without allocating a
-+		 * PTE page table.
-+		 */
-+		if (WARN_ON_ONCE(split_huge_pmd(vmf->vma, vmf->pmd,
-+						vmf->address)))
-+			ret = VM_FAULT_OOM;
- 		count_vm_event(THP_FAULT_FALLBACK);
- 	}
- out:
+diff --git a/include/linux/huge_mm.h b/include/linux/huge_mm.h
+index 224965fce4e66..c4d0badc4ce27 100644
+--- a/include/linux/huge_mm.h
++++ b/include/linux/huge_mm.h
+@@ -418,7 +418,7 @@ static inline int split_huge_page(struct page *page)
+ extern struct list_lru deferred_split_lru;
+ void deferred_split_folio(struct folio *folio, bool partially_mapped);
+ 
+-int __split_huge_pmd(struct vm_area_struct *vma, pmd_t *pmd,
++int __must_check __split_huge_pmd(struct vm_area_struct *vma, pmd_t *pmd,
+ 		unsigned long address, bool freeze);
+ 
+ /**
+@@ -447,7 +447,7 @@ static inline bool pmd_is_huge(pmd_t pmd)
+ 	return false;
+ }
+ 
+-static inline int split_huge_pmd(struct vm_area_struct *vma,
++static inline int __must_check split_huge_pmd(struct vm_area_struct *vma,
+ 					     pmd_t *pmd, unsigned long address)
+ {
+ 	if (pmd_is_huge(*pmd))
+@@ -455,7 +455,7 @@ static inline int split_huge_pmd(struct vm_area_struct *vma,
+ 	return 0;
+ }
+ 
+-int split_huge_pmd_address(struct vm_area_struct *vma, unsigned long address,
++int __must_check split_huge_pmd_address(struct vm_area_struct *vma, unsigned long address,
+ 		bool freeze);
+ 
+ void __split_huge_pud(struct vm_area_struct *vma, pud_t *pud,
 -- 
 2.52.0
 
