@@ -1,32 +1,32 @@
-Received: from out-173.mta0.migadu.com (out-173.mta0.migadu.com [91.218.175.173])
+Received: from out-186.mta0.migadu.com (out-186.mta0.migadu.com [91.218.175.186])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BDF63101B9
-	for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2026 02:15:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABF573002B3
+	for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2026 02:15:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.186
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774577731; cv=none; b=nm8Us2Y9V/oMs8T1Xmca/0XP1Q8uKuGhfeAdyztgXxa2bFFj9LexqmqX9/RqBZlKvzpeB+MoBNdnLebVSTcNLfx07Cgug+NJViopH7U6qKPjVCMZFl5uWGb9FBARRNbg92s+JqLtlZySfIYKIGVCN/b3L9WJCDYu+wLG70jSsJw=
+	t=1774577735; cv=none; b=rnIJOskB9gcRNwbW6IAmlmtMudwfxo7wxyfFOBQYIucnufG3E1kV+88gIW6BkvMHQ8k/euft+afnGUIrkOP91vCe022eFvB5tWcvwcdu8t+2gPiz2SUQC0JTHziWB4sw2T2QXxOOtwhnEvRb9PT0UXmCPPr/HUD2a03tU6fBNtU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774577731; c=relaxed/simple;
-	bh=+F5vSD16AY/+SU23Bcz2sZiOlpNz1cHNMnvnF8SdP0k=;
+	s=arc-20240116; t=1774577735; c=relaxed/simple;
+	bh=4BdZVzg7p5U+3is7QnIcqItm+JxYIoZNwRJVRSBVrTQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KmzEBLNqjj6SK9YJwDGwIE9BWLaLVps5OU2EtzqfEnCChUsA70H75tJEfsgh2Wimn6rKd7uCIncAZ7kw5EylvuW/SyFlzW/FWtcWHzN+rX+j/x3q8WrkgEteMfo7BUjLMh/4mmF6u++hw0GeH3L/vjDfSUGZDRzxosKUgsWlWzQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=eUmbqBO7; arc=none smtp.client-ip=91.218.175.173
+	 MIME-Version:Content-Type; b=Wxl5FN644RIsyyDkjIHJ7kLYaVRhyfLjd6tmxmJqf/cPGWIM/3fqO5NEWIZVaCt2mF0pwe7DrUV9hPUg0DgMNr+SBVf7c+C0ZyOJCf+0A/lY4nXbScS8Xo1zoHSYIu9Y0y4mipce4GjblDE2S7AZhHhdg704Auqt+Lfdj1X5iR8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=ffpxHw+P; arc=none smtp.client-ip=91.218.175.186
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="eUmbqBO7"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="ffpxHw+P"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1774577728;
+	t=1774577733;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=WTevK4s9bqcsyF5dGhWo4MENNp9vZlr+uy9xAQG2jfo=;
-	b=eUmbqBO72zX2904RPuTC7NJzAIMHlr5gcD4RVYygo1GU1dDyzany1Q2T9JuiXvkcB8DQd9
-	aunpkimHYmudKZq6kRshELjRaFFsIkn5wCDv9o4AVpLZf/bmSb/rct1ebqgCoY+qovcSBc
-	l6ygYvG/M7DXmErg92nyDDfRdBDaJ3A=
+	bh=XO0R5fX+FiXnuLY0HoKuyc3BzHok+k+2YVFrwxlOH1U=;
+	b=ffpxHw+PDquRIY7PsBB+gYIVU0HGhnrg/lszSQI4Ss/ylyOhYh/GY54SqX/Gjmz298GChe
+	CK1RQEiqAUEGH9vhPBlSkxZYbNei6tVRaaPyX3jC8Yd6BbKN5MzHnqPEqfYrvEF6cG/SMn
+	RA3uLKxe+69mdcNlUOoR18d3XTq3a4c=
 From: Usama Arif <usama.arif@linux.dev>
 To: Andrew Morton <akpm@linux-foundation.org>,
 	david@kernel.org,
@@ -58,9 +58,9 @@ Cc: fvdl@google.com,
 	svens@linux.ibm.com,
 	linux-s390@vger.kernel.org,
 	Usama Arif <usama.arif@linux.dev>
-Subject: [v3 12/24] mm: thp: handle split failure in device migration
-Date: Thu, 26 Mar 2026 19:08:54 -0700
-Message-ID: <20260327021403.214713-13-usama.arif@linux.dev>
+Subject: [v3 13/24] mm: proc: handle split_huge_pmd failure in pagemap_scan
+Date: Thu, 26 Mar 2026 19:08:55 -0700
+Message-ID: <20260327021403.214713-14-usama.arif@linux.dev>
 In-Reply-To: <20260327021403.214713-1-usama.arif@linux.dev>
 References: <20260327021403.214713-1-usama.arif@linux.dev>
 Precedence: bulk
@@ -69,74 +69,52 @@ List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
-Device memory migration has two call sites that split huge PMDs:
+pagemap_scan_thp_entry() splits a huge PMD when the PAGEMAP_SCAN ioctl
+needs to write-protect only a portion of a THP. It then returns -ENOENT
+so pagemap_scan_pmd_entry() falls through to PTE-level handling.
 
-migrate_vma_split_unmapped_folio():
-  Called from migrate_vma_pages() when migrating a PMD-mapped THP to a
-  destination that doesn't support compound pages.  It splits the PMD
-  then splits the folio via folio_split_unmapped().
+Check the split_huge_pmd() return value and propagate the error on
+failure. Returning -ENOMEM instead of -ENOENT prevents the fallthrough
+to PTE handling, and the error propagates through walk_page_range() to
+do_pagemap_scan() where it becomes the ioctl return value.
+pagemap_scan_backout_range() already undoes the buffered output, and
+walk_end is written back to userspace so the caller knows where the
+scan stopped.
 
-  If the PMD split fails, folio_split_unmapped() would operate on an
-  unsplit folio with inconsistent page table state.  Propagate -ENOMEM
-  to skip this page's migration. This is safe as folio_split_unmapped
-  failure would be propagated in a similar way.
-
-migrate_vma_insert_page():
-  Called from migrate_vma_pages() when inserting a page into a VMA
-  during migration back from device memory.  If a huge zero PMD exists
-  at the target address, it must be split before PTE insertion.
-
-  If the split fails, the subsequent pte_alloc() and set_pte_at() would
-  operate on a PMD slot still occupied by the huge zero entry.  Use
-  goto abort, consistent with other allocation failures in this function.
+If the split fails, the PMD remains huge. An alternative to the approach
+in the patch is to return -ENOENT, causing the caller to proceed to
+pte_offset_map_lock(). ___pte_offset_map() detects the trans_huge PMD
+and returns NULL, which sets ACTION_AGAIN — restarting the walker on the
+same PMD by which time the system might have enough memory to satisfy
+the split from succeeding.
 
 Signed-off-by: Usama Arif <usama.arif@linux.dev>
 ---
- mm/migrate_device.c | 22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ fs/proc/task_mmu.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/mm/migrate_device.c b/mm/migrate_device.c
-index 2912eba575d5e..00003fbe803df 100644
---- a/mm/migrate_device.c
-+++ b/mm/migrate_device.c
-@@ -919,7 +919,19 @@ static int migrate_vma_split_unmapped_folio(struct migrate_vma *migrate,
- 	 * drops a reference at the end.
+diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
+index e091931d7ca19..f5f459140b5c0 100644
+--- a/fs/proc/task_mmu.c
++++ b/fs/proc/task_mmu.c
+@@ -2714,9 +2714,13 @@ static int pagemap_scan_thp_entry(pmd_t *pmd, unsigned long start,
+ 	 * needs to be performed on a portion of the huge page.
  	 */
- 	folio_get(folio);
--	split_huge_pmd_address(migrate->vma, addr, true);
-+	/*
-+	 * If PMD split fails, folio_split_unmapped would operate on an
-+	 * unsplit folio with inconsistent page table state.
-+	 */
-+	ret = split_huge_pmd_address(migrate->vma, addr, true);
-+	if (ret) {
-+		/*
-+		 * folio_get above was not consumed by split_huge_pmd_address.
-+		 * put back that reference.
-+		 */
-+		folio_put(folio);
-+		return ret;
-+	}
- 	ret = folio_split_unmapped(folio, 0);
- 	if (ret)
- 		return ret;
-@@ -1015,7 +1027,13 @@ static void migrate_vma_insert_page(struct migrate_vma *migrate,
- 		if (pmd_trans_huge(*pmdp)) {
- 			if (!is_huge_zero_pmd(*pmdp))
- 				goto abort;
--			split_huge_pmd(vma, pmdp, addr);
-+			/*
-+			 * If split fails, the huge zero PMD remains and
-+			 * pte_alloc/PTE insertion that follows would be
-+			 * incorrect.
-+			 */
-+			if (split_huge_pmd(vma, pmdp, addr))
-+				goto abort;
- 		} else if (pmd_leaf(*pmdp))
- 			goto abort;
+ 	if (end != start + HPAGE_SIZE) {
++		int err;
++
+ 		spin_unlock(ptl);
+-		split_huge_pmd(vma, pmd, start);
++		err = split_huge_pmd(vma, pmd, start);
+ 		pagemap_scan_backout_range(p, start, end);
++		if (err)
++			return err;
+ 		/* Report as if there was no THP */
+ 		return -ENOENT;
  	}
 -- 
 2.52.0
