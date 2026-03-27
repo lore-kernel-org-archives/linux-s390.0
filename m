@@ -1,32 +1,32 @@
-Received: from out-170.mta1.migadu.com (out-170.mta1.migadu.com [95.215.58.170])
+Received: from out-173.mta0.migadu.com (out-173.mta0.migadu.com [91.218.175.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E968329367
-	for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2026 02:15:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BDF63101B9
+	for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2026 02:15:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774577726; cv=none; b=LFCbzFTTEN2p1HyAKYs+K9SXKVOnrdcwZotL+rKJ3NMniiNoNFSis571qbyNMNQ4wvrh6xMI4RPXvqT9EksR5dlHBgEa93R1wDtiCm9LmTEKv09H0cdY2rypoMwnoMQS5pj2b7no8ht0qMP6Z9REq/wfam1wtY2exCd1i0d2mWY=
+	t=1774577731; cv=none; b=nm8Us2Y9V/oMs8T1Xmca/0XP1Q8uKuGhfeAdyztgXxa2bFFj9LexqmqX9/RqBZlKvzpeB+MoBNdnLebVSTcNLfx07Cgug+NJViopH7U6qKPjVCMZFl5uWGb9FBARRNbg92s+JqLtlZySfIYKIGVCN/b3L9WJCDYu+wLG70jSsJw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774577726; c=relaxed/simple;
-	bh=ECEG/Uw4ckEOnjxk0ggFgRuoQFR0FzH4I0uSFBXT4mA=;
+	s=arc-20240116; t=1774577731; c=relaxed/simple;
+	bh=+F5vSD16AY/+SU23Bcz2sZiOlpNz1cHNMnvnF8SdP0k=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=iAmA3pkjOsaIjo/Sem6cXHlxp/4GseHKAQkatJrQNVNDEHSQM/7rH2hNWRYsYJYCuGW9beCuppJa7jpBUSTDU4okdeLamam4dTvBIMDCBPjZMg/dHA9unTqgGT+pyfKwrqXBWVSTR9D3Sah2s+vPuES6hy/irptsf77r3BvK+K8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=ZIxjF05t; arc=none smtp.client-ip=95.215.58.170
+	 MIME-Version; b=KmzEBLNqjj6SK9YJwDGwIE9BWLaLVps5OU2EtzqfEnCChUsA70H75tJEfsgh2Wimn6rKd7uCIncAZ7kw5EylvuW/SyFlzW/FWtcWHzN+rX+j/x3q8WrkgEteMfo7BUjLMh/4mmF6u++hw0GeH3L/vjDfSUGZDRzxosKUgsWlWzQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=eUmbqBO7; arc=none smtp.client-ip=91.218.175.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="ZIxjF05t"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="eUmbqBO7"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1774577723;
+	t=1774577728;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=MnIHRq/fqfQAry7CsjH3C0Gk1Kzxzc2ZoqIQPSTrMd8=;
-	b=ZIxjF05tNow9dzUHFs4hqWlnAIWjdc/ZiKkgAVcRdwnfvfmpyyBGO5uiLBm/6z5QMsmkqr
-	ztEHZPBtu0iiXBGTFC271TxvM49AQMco70eXk+ARnt2wNg+T9bIFsUICK9N4z8qczvq+p2
-	or1an7NL4GSoQ5bKiLd41MfIKi+EWcU=
+	bh=WTevK4s9bqcsyF5dGhWo4MENNp9vZlr+uy9xAQG2jfo=;
+	b=eUmbqBO72zX2904RPuTC7NJzAIMHlr5gcD4RVYygo1GU1dDyzany1Q2T9JuiXvkcB8DQd9
+	aunpkimHYmudKZq6kRshELjRaFFsIkn5wCDv9o4AVpLZf/bmSb/rct1ebqgCoY+qovcSBc
+	l6ygYvG/M7DXmErg92nyDDfRdBDaJ3A=
 From: Usama Arif <usama.arif@linux.dev>
 To: Andrew Morton <akpm@linux-foundation.org>,
 	david@kernel.org,
@@ -58,9 +58,9 @@ Cc: fvdl@google.com,
 	svens@linux.ibm.com,
 	linux-s390@vger.kernel.org,
 	Usama Arif <usama.arif@linux.dev>
-Subject: [v3 11/24] mm: thp: handle split failure in userfaultfd move_pages()
-Date: Thu, 26 Mar 2026 19:08:53 -0700
-Message-ID: <20260327021403.214713-12-usama.arif@linux.dev>
+Subject: [v3 12/24] mm: thp: handle split failure in device migration
+Date: Thu, 26 Mar 2026 19:08:54 -0700
+Message-ID: <20260327021403.214713-13-usama.arif@linux.dev>
 In-Reply-To: <20260327021403.214713-1-usama.arif@linux.dev>
 References: <20260327021403.214713-1-usama.arif@linux.dev>
 Precedence: bulk
@@ -72,39 +72,72 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
-The UFFDIO_MOVE ioctl's move_pages() loop splits a huge PMD when the
-folio is pinned and can't be moved at PMD granularity.
+Device memory migration has two call sites that split huge PMDs:
 
-If the split fails, the PMD stays huge and move_pages_pte() can't
-process individual pages. Break out of the loop on split failure
-and return -ENOMEM to the caller. This is similar to how other
-allocation failures (__pte_alloc, mm_alloc_pmd) are handled in
-move_pages().
+migrate_vma_split_unmapped_folio():
+  Called from migrate_vma_pages() when migrating a PMD-mapped THP to a
+  destination that doesn't support compound pages.  It splits the PMD
+  then splits the folio via folio_split_unmapped().
+
+  If the PMD split fails, folio_split_unmapped() would operate on an
+  unsplit folio with inconsistent page table state.  Propagate -ENOMEM
+  to skip this page's migration. This is safe as folio_split_unmapped
+  failure would be propagated in a similar way.
+
+migrate_vma_insert_page():
+  Called from migrate_vma_pages() when inserting a page into a VMA
+  during migration back from device memory.  If a huge zero PMD exists
+  at the target address, it must be split before PTE insertion.
+
+  If the split fails, the subsequent pte_alloc() and set_pte_at() would
+  operate on a PMD slot still occupied by the huge zero entry.  Use
+  goto abort, consistent with other allocation failures in this function.
 
 Signed-off-by: Usama Arif <usama.arif@linux.dev>
 ---
- mm/userfaultfd.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ mm/migrate_device.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/mm/userfaultfd.c b/mm/userfaultfd.c
-index 481ec7eb44420..a04d62dd1e065 100644
---- a/mm/userfaultfd.c
-+++ b/mm/userfaultfd.c
-@@ -1946,7 +1946,13 @@ ssize_t move_pages(struct userfaultfd_ctx *ctx, unsigned long dst_start,
- 				}
- 
- 				spin_unlock(ptl);
--				split_huge_pmd(src_vma, src_pmd, src_addr);
-+				/*
-+				 * If split fails, the PMD stays huge and
-+				 * move_pages_pte can't process it.
-+				 */
-+				err = split_huge_pmd(src_vma, src_pmd, src_addr);
-+				if (err)
-+					break;
- 				/* The folio will be split by move_pages_pte() */
- 				continue;
- 			}
+diff --git a/mm/migrate_device.c b/mm/migrate_device.c
+index 2912eba575d5e..00003fbe803df 100644
+--- a/mm/migrate_device.c
++++ b/mm/migrate_device.c
+@@ -919,7 +919,19 @@ static int migrate_vma_split_unmapped_folio(struct migrate_vma *migrate,
+ 	 * drops a reference at the end.
+ 	 */
+ 	folio_get(folio);
+-	split_huge_pmd_address(migrate->vma, addr, true);
++	/*
++	 * If PMD split fails, folio_split_unmapped would operate on an
++	 * unsplit folio with inconsistent page table state.
++	 */
++	ret = split_huge_pmd_address(migrate->vma, addr, true);
++	if (ret) {
++		/*
++		 * folio_get above was not consumed by split_huge_pmd_address.
++		 * put back that reference.
++		 */
++		folio_put(folio);
++		return ret;
++	}
+ 	ret = folio_split_unmapped(folio, 0);
+ 	if (ret)
+ 		return ret;
+@@ -1015,7 +1027,13 @@ static void migrate_vma_insert_page(struct migrate_vma *migrate,
+ 		if (pmd_trans_huge(*pmdp)) {
+ 			if (!is_huge_zero_pmd(*pmdp))
+ 				goto abort;
+-			split_huge_pmd(vma, pmdp, addr);
++			/*
++			 * If split fails, the huge zero PMD remains and
++			 * pte_alloc/PTE insertion that follows would be
++			 * incorrect.
++			 */
++			if (split_huge_pmd(vma, pmdp, addr))
++				goto abort;
+ 		} else if (pmd_leaf(*pmdp))
+ 			goto abort;
+ 	}
 -- 
 2.52.0
 
