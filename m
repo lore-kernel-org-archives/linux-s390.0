@@ -1,32 +1,32 @@
-Received: from out-174.mta1.migadu.com (out-174.mta1.migadu.com [95.215.58.174])
+Received: from out-176.mta1.migadu.com (out-176.mta1.migadu.com [95.215.58.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 672D1336880;
-	Fri, 27 Mar 2026 02:16:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63ED13290D2
+	for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2026 02:16:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774577780; cv=none; b=gE6EXOhIwa1tZbSd58B6imzLSZK9flhWno+7xas8DAnDixom/7goN7PL8oDEv7eBZjQkoEjGm3TM2a60n0gEJm+lNcK6mZeks2rOgg3NZIYvrD8kvtV6E99ZUK+HANtuWHcBdmsxhZhgdrHfIc21T0JDZhq1hrfguNEZWrNDiLA=
+	t=1774577786; cv=none; b=jPDSyhIt/h6B9zfGUeKtP59wNqueXDBIeEP3Tq9OPIH4EysAQnKwbnx2o3doisqDVTAk5LNAJracVX6kSWqwxFVvItye6aNwU2DqVg00kXd44/J1QMQMqigfYkL5x/HTTy8H3WcU9EuvO7PFndSClzykeNLuYZCsQATCFNU1jsg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774577780; c=relaxed/simple;
-	bh=WjLYMPpOIgsMPc68ngTB1/ImztUUkzeVQScqbvTC6JU=;
+	s=arc-20240116; t=1774577786; c=relaxed/simple;
+	bh=GRBA492nikdnvv9JLnq+tQVYDGMzkv2WY+smoK7uTJo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Zxqs7A66lLGXYWFw9UJT6HZoGx2lIIhcgYlLqLm5bHAOYLUNBSVRnVrb3uVh+2LROsk6sYIavoSiaAr+/orPMgESvz2X8ypBqwOOJf0k9L9wAN7Z0T7GFQKE0NZnP5WWncspduRtLJwRLR84WnbMKtDpIAgMc3LivUUoIwJlnrs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=nFrkNXxv; arc=none smtp.client-ip=95.215.58.174
+	 MIME-Version; b=VezCgaIIVVrqZplEKO/ymnWmEV5I1a53BuoemSnUcCy1fK2WXmeuOy/jB49zv3qCas5/cjK4pqKgxS8s9XAhY9AC8v0jHP/ga9JAq2YeuJWrmx8EOIBTladps6BOOoNv1QDfqSIPJi8EJJ5Tf1c0LFSZtEE5NoScUeifKpVUfEw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=XE9dZB9f; arc=none smtp.client-ip=95.215.58.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="nFrkNXxv"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="XE9dZB9f"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1774577777;
+	t=1774577783;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=+u28b+kGwOwWeo4iPTn5u1dAfo4aLeElFP2cFybYpB4=;
-	b=nFrkNXxvndBSqppjWyV9ntkfxnDZ0DtuCQnUOY5sup4Cn3dvGfyt7wUKnT4xAdfcGQUu19
-	prxL9x0QtRJ7eGgfh7QoH8qmgtTOcQ/tFTBltl+w+k5V6XIa5MkQdNn/z6ZBfUXndUQ60X
-	oH4UtoxyWYliZvg4O6754ph/DAJrixE=
+	bh=lE7v5lDGM/JWEaWuAACCuFGk8rRw4V1pzGfx+4tEAgA=;
+	b=XE9dZB9fLZ/OArOngsedrObo//4dofSQ7egtq16n4UZmnM75/spWLYNbGNXdNBcCTBB+Fo
+	cnGQD1gdIQDl3tgpRirkYMGiJR0/XwR2Cvg+8mZxq+a73pFDK7w6i+bpfpGytLEzfpmE/g
+	n0aN0IQDsz7hR+A1FcsvHnMT47HCL70=
 From: Usama Arif <usama.arif@linux.dev>
 To: Andrew Morton <akpm@linux-foundation.org>,
 	david@kernel.org,
@@ -58,9 +58,9 @@ Cc: fvdl@google.com,
 	svens@linux.ibm.com,
 	linux-s390@vger.kernel.org,
 	Usama Arif <usama.arif@linux.dev>
-Subject: [v3 22/24] selftests/mm: add partial_mlock test
-Date: Thu, 26 Mar 2026 19:09:04 -0700
-Message-ID: <20260327021403.214713-23-usama.arif@linux.dev>
+Subject: [v3 23/24] selftests/mm: add partial_mremap test for move_page_tables
+Date: Thu, 26 Mar 2026 19:09:05 -0700
+Message-ID: <20260327021403.214713-24-usama.arif@linux.dev>
 In-Reply-To: <20260327021403.214713-1-usama.arif@linux.dev>
 References: <20260327021403.214713-1-usama.arif@linux.dev>
 Precedence: bulk
@@ -72,44 +72,69 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
-Add test for partial mlock on THP which exercises walk_page_range()
-with a subset of the THP. This should trigger a PMD split since
-mlock operates at page granularity.
+Add test for partial mremap on THP which exercises move_page_tables().
+This verifies that partial mremap correctly splits the PMD, moves
+only the requested page, and preserves data integrity in both the
+moved region and the original mapping.
 
 Signed-off-by: Usama Arif <usama.arif@linux.dev>
 ---
- .../testing/selftests/mm/thp_pmd_split_test.c | 26 +++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ .../testing/selftests/mm/thp_pmd_split_test.c | 50 +++++++++++++++++++
+ 1 file changed, 50 insertions(+)
 
 diff --git a/tools/testing/selftests/mm/thp_pmd_split_test.c b/tools/testing/selftests/mm/thp_pmd_split_test.c
-index 4944a5a516da9..3c9f05457efec 100644
+index 3c9f05457efec..1f29296759a5b 100644
 --- a/tools/testing/selftests/mm/thp_pmd_split_test.c
 +++ b/tools/testing/selftests/mm/thp_pmd_split_test.c
-@@ -177,4 +177,30 @@ TEST_F(thp_pmd_split, partial_mprotect)
+@@ -203,4 +203,54 @@ TEST_F(thp_pmd_split, partial_mlock)
  		self->split_pmd_failed_before);
  }
  
 +/*
-+ * Partial mlock triggering split (walk_page_range)
++ * Partial mremap (move_page_tables)
 + *
-+ * Tests mlock on a partial THP region which should trigger a PMD split.
++ * Tests that partial mremap of a THP correctly splits the PMD and
++ * moves only the requested portion. This exercises move_page_tables()
++ * which now handles split failures.
 + */
-+TEST_F(thp_pmd_split, partial_mlock)
++TEST_F(thp_pmd_split, partial_mremap)
 +{
++	void *new_addr;
++	unsigned long *ptr = (unsigned long *)self->aligned;
++	unsigned long *new_ptr;
++	unsigned long pattern = 0xABCDUL;
 +	int ret;
 +
 +	ret = allocate_thp(self->aligned, self->pmdsize);
 +	if (ret)
 +		SKIP(return, "Failed to allocate THP");
 +
-+	/* Partial mlock - should trigger PMD split */
-+	ret = mlock((char *)self->aligned + self->pagesize, self->pagesize);
-+	if (ret && errno == ENOMEM)
-+		SKIP(return, "mlock failed with ENOMEM (resource limit)");
-+	ASSERT_EQ(ret, 0);
++	/* Write pattern to the page we'll move */
++	ptr[self->pagesize / sizeof(unsigned long)] = pattern;
 +
-+	/* Cleanup */
-+	munlock((char *)self->aligned + self->pagesize, self->pagesize);
++	/* Also write to first and last page to verify they stay intact */
++	ptr[0] = 0x1234UL;
++	ptr[(self->pmdsize - self->pagesize) / sizeof(unsigned long)] = 0x4567UL;
++
++	/* Partial mremap - move one base page from the THP */
++	new_addr = mremap((char *)self->aligned + self->pagesize, self->pagesize,
++			  self->pagesize, MREMAP_MAYMOVE);
++	if (new_addr == MAP_FAILED) {
++		if (errno == ENOMEM)
++			SKIP(return, "mremap failed with ENOMEM");
++		ASSERT_NE(new_addr, MAP_FAILED);
++	}
++
++	/* Verify data was moved correctly */
++	new_ptr = (unsigned long *)new_addr;
++	ASSERT_EQ(new_ptr[0], pattern);
++
++	/* Verify surrounding data is intact */
++	ASSERT_EQ(ptr[0], 0x1234UL);
++	ASSERT_EQ(ptr[(self->pmdsize - self->pagesize) / sizeof(unsigned long)], 0x4567UL);
++
++	/* Cleanup the moved page */
++	munmap(new_addr, self->pagesize);
 +
 +	log_and_check_pmd_split(_metadata, self->split_pmd_before,
 +		self->split_pmd_failed_before);
