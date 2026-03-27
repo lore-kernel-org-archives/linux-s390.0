@@ -1,94 +1,112 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from psionic.psi5.com (psionic.psi5.com [185.187.169.70])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D77AC3D75C7;
-	Fri, 27 Mar 2026 09:25:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEC143A640A;
+	Fri, 27 Mar 2026 09:59:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.187.169.70
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774603531; cv=none; b=YPuw3/Tk9uWoX2l1bLgzDh1QDNLV6cHo13sC2apHSYSnbv3YzpbMbuBFjN9OeKc2cH344sMcpBjgEzj0evLiX59UMlEUI+H1Z1PtXgdkDCRILQGw2uM99ODiThRBaz9k+Pfq2mB/EzBdkkQmNkHTofUvbml3sZH/bnsRUM/5l1A=
+	t=1774605581; cv=none; b=MbFVof/JreQxw0fVeBWe7iAKuB0UMn7zKq1Pq2RoP2idPr+r34W2uwjQjs8QzG2fF0r7KWBN3oz1Rld37cZL0hUiVYpVoFi/ddphO4X2y3qSAEFXf6o5djRxKQBLD7SzIo+CL04DncB3oYA62taeGOMAssdZD6O6BDQB0bnPG7I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774603531; c=relaxed/simple;
-	bh=q1ism79nJfn/cEtGypwqofF2VKU2iXSfP9bNn9U8VUM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lO7hZtAkR4BaOOGOiasZUx9qjOCy/+Xx6us8ZYRR15WuMWuQiThoCgD19aKreBXLBytAzD0BreU/3WhB2W17cepTRyNSFF709yW7hHnkkoX0lH2mPuOiIaenp2sAA9l0al2gkb7Ad48z7ZdU9gvHJTTYM1PnTSKWArnjgi4Le5Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WmaF744H; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WmaF744H"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A7BEC19423;
-	Fri, 27 Mar 2026 09:25:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774603530;
-	bh=q1ism79nJfn/cEtGypwqofF2VKU2iXSfP9bNn9U8VUM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=WmaF744HVRFoUZuE9WelikX7CssORJvCcgjqvHAlHItCZonH1f5u3pjVqPu2pmNwp
-	 0sOJELio9ATZHzGY1mVGObw+Tj+ohu4ZlzfgUHHShjnGHOR4dUZH1xacEXI3dnxcCp
-	 EPLuQMpDGTQFJ6BT1KDFfyUJZB6B2Qsux4f40zQaPLLMtx14hJ4SV9M9QHDzNZ1Hmg
-	 qS/wTO148ZrNsrmGjIVpE0dqOE0Hznelj+tzTWUKV8e/iMqwYv814Ef3aQMBHHZ8F+
-	 WqEr18L/sAwg5B4z4KKGy9OErz7dmEjltoJtuBoYAp8fZcOBM+JhLzwbWduY4hEBwv
-	 PVr5K0M6Wu7Wg==
-Date: Fri, 27 Mar 2026 09:25:21 +0000
-From: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Usama Arif <usama.arif@linux.dev>, 
-	Andrew Morton <akpm@linux-foundation.org>, willy@infradead.org, linux-mm@kvack.org, fvdl@google.com, 
-	hannes@cmpxchg.org, riel@surriel.com, shakeel.butt@linux.dev, kas@kernel.org, 
-	baohua@kernel.org, dev.jain@arm.com, baolin.wang@linux.alibaba.com, 
-	npache@redhat.com, Liam.Howlett@oracle.com, ryan.roberts@arm.com, 
-	Vlastimil Babka <vbabka@kernel.org>, lance.yang@linux.dev, linux-kernel@vger.kernel.org, 
-	kernel-team@meta.com, maddy@linux.ibm.com, mpe@ellerman.id.au, 
-	linuxppc-dev@lists.ozlabs.org, hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com, 
-	borntraeger@linux.ibm.com, svens@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: Re: [v3 00/24] mm: thp: lazy PTE page table allocation at PMD split
- time
-Message-ID: <cf36f821-8285-4b9f-b1fd-e080292f4204@lucifer.local>
-References: <20260327021403.214713-1-usama.arif@linux.dev>
- <48d7c810-d219-4346-9e8b-d70243445a91@kernel.org>
+	s=arc-20240116; t=1774605581; c=relaxed/simple;
+	bh=/5Bw5lC9kJ+iFDnZK+UIW5K4PD0LHuzTSnNiSrEXoZA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=omSJJfHAXGsk/TE4VbMV2WrlgnFYkScLJ9FPBRQIbMnvHgzvMB9zJj+83AFVA+CjjT0wqBr1z1dSZYc17dGPnX57JkZAJe2OmP67bG+tmvvHSPFVkNJ/ZEeGgLX6wkUBsTqNoEpQ0j+zehi2ccHJhxFUwGf5pmOH7fDbZjgvXAg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hogyros.de; spf=pass smtp.mailfrom=hogyros.de; arc=none smtp.client-ip=185.187.169.70
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hogyros.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hogyros.de
+Received: from [IPV6:2400:2410:b120:f200:a1f3:73da:3a04:160d] (unknown [IPv6:2400:2410:b120:f200:a1f3:73da:3a04:160d])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	by psionic.psi5.com (Postfix) with ESMTPSA id E405D3F01D;
+	Fri, 27 Mar 2026 10:59:24 +0100 (CET)
+Message-ID: <35e00d0f-85f6-457a-99b4-703caf3e1e6e@hogyros.de>
+Date: Fri, 27 Mar 2026 18:59:21 +0900
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <48d7c810-d219-4346-9e8b-d70243445a91@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/3] crypto: Remove arch-optimized des and des3_ede code
+To: Eric Biggers <ebiggers@kernel.org>,
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: linux-crypto@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ sparclinux@vger.kernel.org, x86@kernel.org,
+ Harald Freudenberger <freude@linux.ibm.com>,
+ Holger Dengler <dengler@linux.ibm.com>
+References: <20260326201246.57544-1-ebiggers@kernel.org>
+ <0982d4341f58e2f1181bc472dc9c9d8542148e3c.camel@physik.fu-berlin.de>
+ <20260326202733.GA2657@quark>
+Content-Language: en-US
+From: Simon Richter <Simon.Richter@hogyros.de>
+In-Reply-To: <20260326202733.GA2657@quark>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, Mar 27, 2026 at 09:51:31AM +0100, David Hildenbrand (Arm) wrote:
-> >
-> > RFC v2 -> v3: https://lore.kernel.org/all/de0dc7ec-7a8d-4b1a-a419-1d97d2e4d510@linux.dev/
->
-> Note that we usually go from RFC to v1.
->
-> I'll put this series on my review backlog, but it will take some time
-> until I get to it (it won't make the next release either way :) ).
+Hi,
 
-Yeah, please update to v1 from RFC because I'm looking at this and wondering
-where v1, v2 was and why I didn't see them...
+On 3/27/26 5:27 AM, Eric Biggers wrote:
 
-Generally I'd also advise un-RFC'ing a biiiig series IDEALLY be done early in a
-merge window :)
+> In general that's good of course, but DES and 3DES?  Really?  Why is
+> effort going into these obsolete algorithms at all?
 
-We've pretty much shut the door to new series this cycle, but being so late in
-the window at -rc5 would mean no way for this one anyway.
+If there's dedicated instructions, we need to emulate them, even if the 
+kernel stops using them, because userspace might still use them. The 
+alternative is implementing them as a trap in the kernel that delegates 
+to the crypto subsystem, and nobody wants that. O_O
 
-But in general it's going to be a rebase pain this, and I'd rather not see it
-land in mm-unstable at this point, because that's supposed to be 'what's in the
-next release' and it's stuff like this that leads to 'I am not sure what
-mm-unstable represents any more' being a thing.
+I wonder if it would make sense to split between "crypto" and "offload" 
+subsystems, so the "crypto" side can focus on a small number of 
+contemporary algorithms and give them simple, easily auditable 
+interfaces, and move all the complexity of asynchronous request 
+processing in offload hardware over to the "offloading" side. The 
+userspace API would also move to the "offloading" subsystem.
 
-I think in an ideal world we'd ONLY see this in mm-new.
+This would give the offloading subsystem a bit more flexibility in API 
+design as well, so we could maybe represent offload capabilities in 
+network or storage hardware as well, or allow userspace to set policies 
+or find an optimized routing, without compromising security in the 
+crypto subsystem.
 
-I wonder if we need some process for un-RFC'ing really, where somebody kinda
-asks rather than it being a vibes thing as it is now (or a 'people don't reply
-to my RFC' which yes I'm guilty of :)
+However, even from the "crypto" perspective I believe that we can't get 
+around support for asynchronous offload devices, because of mobile 
+devices. I suspect no one would be building dedicated silicon for 
+asynchronous AES into mobile CPUs if that wasn't worth it somehow -- so 
+if such a device is present, we want to use it as much as possible, 
+because the expectation is that while the difference in performance 
+compared to the CPU is hardly noticeable, the difference in battery 
+lifetime is (that's why dropping async request support from fscrypt 
+makes it largely useless on mobile).
 
-Anyway this is more general points and not about you Usama, because - hey - all
-this stuff is pretty unclear generally.
+Most of the other offload scenarios are already handled bypassing the 
+crypto subsystem: the network stack has its own offloading mechanism, 
+while nx-gzip is a regular device driver and does not even register an 
+acomp algorithm (even though that would be really cool for zram/zswap, 
+and would benefit dozens (dozens!) of users).
 
->
-> --
-> Cheers,
->
-> David
+A lot of the resistance to changes in the crypto subsystem comes from 
+the long tail, either hardware that is somewhat seldom, or built for 
+some special purpose where the crypto APIs are already a limiting 
+factor, and further consolidation towards standard PCs is making the 
+situation worse.
 
-Cheers, Lorenzo
+I can certainly see that the complexity in the API that would be needed 
+to support all the interesting use cases is somewhat undesirable, hence 
+the idea to split off generic transforms and allow the interfaces there 
+to become more expressive (on-device dmabufs, in-place operation, 
+device-side contexts, device-side queues, device-to-device transfer 
+offload, ...).
+
+The current state where these use cases are technically inside the scope 
+of the crypto subsystem, but deemed out of scope by the crypto subsystem 
+leaves them in a kind of limbo, and that is very frustrating.
+
+I don't know if it will be worth it to dedicate a weekend to 
+implementing nx-gzip support as an acomp module, or nx-aes support as 
+acrypt, or if that work would be rejected or removed in half a year, and 
+I'm sure maintainers of ports to older hardware feel similar.
+
+    Simon
