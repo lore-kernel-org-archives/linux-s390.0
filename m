@@ -1,130 +1,139 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54B8B303CAE;
-	Fri, 27 Mar 2026 15:22:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D53C322B83;
+	Fri, 27 Mar 2026 15:24:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774624932; cv=none; b=A628SB5NkQXOI+zNSYIEOT4sLlthiB3THjO5m7FYhmDDL2QQd9RvTrVw2fI4U+YRenHsmXQ1r/uUtLSP+p4IIS652F25b35CBDL7luVM5okR54o8GkVeQYr+Lqp+8dYYjzDuzNc+sr2m0c/bVuN16ubfflmsNw2tzzH5aOoPBFU=
+	t=1774625047; cv=none; b=ogT2mR+Os6Gxk9m3PZYOiKRr1Ko3wXJEjBYv7qV5IloD8olMllYTlRmPAmhj0fwhDXsHB8Y06Dx1jDMSvnslLaKw5tcg4wbtT93KB/GU3OpmVTpDYL8a5t51FQvKbXYf+2NsYQCFSC9cZ4LNJC5eJAunwmp3c5dMpa0IZecToo4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774624932; c=relaxed/simple;
-	bh=zq/uFpgNPcQlFhlrC0AY41Tsgqx4q0cvxx5P1zuWSWM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ORNE/XKpZ2IYDhhvzEwCuI1ZbdJW6JWg30mi/gvYIr/xcqW3Iw01xNkG9BXYwRHlWNbaIngOFo3MxXOWOD15ont7Q5FqE+b70ZZ5KHonAowgez4imxBLf1bkOVsUwaSeNiM9PkGfqUD+Za7mssGvXAjONJY0XN+qNzZhWEa/s60=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UJ4rmuqI; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1774625047; c=relaxed/simple;
+	bh=YSEnGAad5Sjy/5HpFNcfWUzb6QHAY/Y9coWbyh3Jy0M=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=M0dz1Kb1qFohGTJEAq10nJgs9kmYZjl78WpsR81xeqtSWfPNA/AIe9syCSr8CZoWC+XGygqNl75oZU8zdf6Qpx4baEDfSIehclCJD621o7vds3n6zLnmPOUaWdQf+xQl/7QP1Di4EbNH0vhr16ET5dxWEfLREpxFwZzZUb+X+EI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qwnX+PvQ; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UJ4rmuqI"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62R4Lced028990;
-	Fri, 27 Mar 2026 15:22:08 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qwnX+PvQ"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62RDZw4r3820072;
+	Fri, 27 Mar 2026 15:24:04 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=nAcQ2y
-	K2e3da86z0cfYxeS+6kqQDQ+wVnhOdssA91A8=; b=UJ4rmuqILVxhpJ4VWsJbwt
-	WqmWVGwz7POousRiY1En1da6ILxEG4c0C0hz2guWZjyq3/gWr5RxDebDBzvMsbvJ
-	oDCNji7+GlDsS7ADCP0nLecOaLdiznDyF27rAdC78gH5WiI0dHUQsF/PVo+IxvPA
-	3mN2bvppV3mJswiGpN98Ha7mFE+4JfBhrL7dxctUQa93bAMi16EirDjRZ8j6QybL
-	6Yl4cQKymDqL+My0+4p7LpEIb2+j2lIRU/vX3foUizFw0qAKVzNAwWKUkO4amIt4
-	rVDCXSjYxW5CVR5wz1/DI1xuV458M9WvqPEQ/3VlRIwCQunHTsZAKfFHwn7txh6g
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kxqtvkv-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=Opgm+WUSzAItA//xZEjRyvGc4iUWY73VcEFpJq8Sv
+	SA=; b=qwnX+PvQJ0viJPu1u25F1e3WIP9nAKJ2l7qXhxfEkvo/dvYvYKqCqWO0E
+	NsMmf9OEpLGi8rcOxnRyK5/Zee9//Q4WWmgrWP2DBeD/clM3TcVqLgwGweHYXJBp
+	CMmm2Nt5zI/xOTJvFMDb1mam6giA5Ki5+oec4MjMdOAKJ9YpXVxlxEFyb6E5I2mQ
+	5dcSCQsa2QpUzHFU11HkgKFgahqSQUe1JTSap65zsC1dj5weLsxHUUf10XfD//Y6
+	SXTIBcIBeA8IwDT4bhUAxPYlTjgCKxOmBoNk+fCiWgVAB1j3CuEIngj1eb2OSnN0
+	7EOXaaiZ1vP+q7wsFdBQt1yA/0kNg==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1ktv9n8b-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Mar 2026 15:22:07 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62RAsSBC008745;
-	Fri, 27 Mar 2026 15:22:06 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d26np00y9-1
+	Fri, 27 Mar 2026 15:24:04 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62RB0tSD026685;
+	Fri, 27 Mar 2026 15:24:03 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d275m7wsk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Mar 2026 15:22:06 +0000
-Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62RFM5Qj37224868
+	Fri, 27 Mar 2026 15:24:03 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62RFNvJQ9109986
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 27 Mar 2026 15:22:05 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E77A55805C;
-	Fri, 27 Mar 2026 15:22:04 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B23775805A;
-	Fri, 27 Mar 2026 15:22:03 +0000 (GMT)
-Received: from [9.61.244.240] (unknown [9.61.244.240])
-	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 27 Mar 2026 15:22:03 +0000 (GMT)
-Message-ID: <fd8f5702-8118-4db5-b3be-d68a79fef0de@linux.ibm.com>
-Date: Fri, 27 Mar 2026 11:22:03 -0400
+	Fri, 27 Mar 2026 15:23:57 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BD3DD2004D;
+	Fri, 27 Mar 2026 15:23:57 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2DD5020043;
+	Fri, 27 Mar 2026 15:23:57 +0000 (GMT)
+Received: from p-imbrenda.ibmuc.com (unknown [9.111.84.176])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 27 Mar 2026 15:23:57 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: pbonzini@redhat.com
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        borntraeger@de.ibm.com
+Subject: [GIT PULL v1 00/10] KVM: s390: More memory management fixes for 7.0
+Date: Fri, 27 Mar 2026 16:23:46 +0100
+Message-ID: <20260327152356.250625-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/3] KVM: s390: Add map/unmap ioctl and clean mappings
- post-guest
-To: Christian Borntraeger <borntraeger@linux.ibm.com>, imbrenda@linux.ibm.com,
-        frankja@linux.ibm.com, david@kernel.org, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc: mjrosato@linux.ibm.com
-References: <20260326014247.2085-1-freimuth@linux.ibm.com>
- <20260326014247.2085-2-freimuth@linux.ibm.com>
- <1948daf3-9e5e-471b-94fc-c0aed00b4c09@linux.ibm.com>
-Content-Language: en-US
-From: Douglas Freimuth <freimuth@linux.ibm.com>
-In-Reply-To: <1948daf3-9e5e-471b-94fc-c0aed00b4c09@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: PFV2DQFsSr_8ypF90HRZcMtY9_okb9G6
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI3MDEwNSBTYWx0ZWRfX4vq0vtY/lAfK
- 3CU2rPsLRSouYVrgDokCWV5GmhNgrEihFQwWpxW31cyQ8r+lqZ2mBdkAo4X77KNpl+cSDwF/yG/
- Hv/E9hvEWNjgIpPSy/fsN4LaQJBWDKzM4SzT218Dg8zF2Gmd/g7jmvpdp0r6bysxFHbYifOvqZo
- pYMLSewgk9Gatd0vXxA0LtnQ9Xps79LSmjVAh6BIv4EUYtC9GmxPAdl/lhJfNce+LCN0ZOfLrQB
- kaSCnVaAVMXorxMtanB04yuSoJSUAJ6MgXmQFqUy1HULq5Rz6jh9xAWPkwpTHXNjMT1NN8Q10SJ
- cm0A8H4hdtLMjPQET5PKGuYGrfJQmvjfWuyA/w/Oc5HPKWAYfJf+DPdYUTO7bYXLhlG80ZDCdWo
- Wwwo9bGcZDh0zHnWWa/VPJSR2+id2NMw/SWqESVtLdR1Awqq1M0hh+tgyubv6pofFRCsXOXXoOy
- +ePAfzfoGzJnmpGF4eA==
-X-Authority-Analysis: v=2.4 cv=bLEb4f+Z c=1 sm=1 tr=0 ts=69c6a09f cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=yp29nr4wFdSsSxMTDoYA:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: PFV2DQFsSr_8ypF90HRZcMtY9_okb9G6
+X-Proofpoint-ORIG-GUID: f5C1Hkf-wcRbiUR4UUPsYd0Ze6Tj4Tqz
+X-Authority-Analysis: v=2.4 cv=aMr9aL9m c=1 sm=1 tr=0 ts=69c6a114 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8 a=ymAMLRC48C9fG9WTL0QA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI3MDEwNSBTYWx0ZWRfX5PwLGL9wyTIU
+ zsCfTQ+/BAlOBp92cz0ft8yFz6Vpbam3K5P6B46JfKdTU51T37Xe6DJ4KPcfxucxDGokamdonUb
+ vC29FmvFkr8/OE+XOIReYI1mZLJMTZb3n4wwdCLZE+XpTGfiOR+i2yGyql50bS+HYmvpiXXYTs9
+ nNNSG0MTXvQ6Agpb88YzI9sq7l9sO5nlGFkOb64WkL0DLl3HN8V8HGE4iH6qQa6u30pqvqXM500
+ yJzk2+nMG/Z4X5X+ZEOcqmLCTWLlolRIlcCEicFvq7FB4yrjFLBECrwksnsE/iW4Ent/SOp9e/X
+ Y28H/R3JEDuGvpesiruHPOd+nh/iRGTZZsMlHu2v7mYCzdt3PgcoKHch7XJ/JkDXelczscVX8BV
+ fEYD6JRScNCLydz4qEUlypFIwsynQlm6AIgjzUoa1I8fxlaMUvBUrPjKETrVJrkeNrouihd0Cmf
+ lBhz/C7CFNID/S4/HNA==
+X-Proofpoint-GUID: f5C1Hkf-wcRbiUR4UUPsYd0Ze6Tj4Tqz
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-03-26_04,2026-03-26_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 adultscore=0 clxscore=1015 phishscore=0 impostorscore=0
- malwarescore=0 lowpriorityscore=0 suspectscore=0 bulkscore=0
- priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
- definitions=main-2603270105
+ spamscore=0 lowpriorityscore=0 adultscore=0 impostorscore=0 malwarescore=0
+ suspectscore=0 phishscore=0 priorityscore=1501 bulkscore=0 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603270105
+
+Ciao Paolo,
+
+here are a few more important fixes for the new gmap code.
+These are (hopefully) the last fixes for this release cycle
+
+please pull :)
 
 
+The following changes since commit 0138af2472dfdef0d56fc4697416eaa0ff2589bd:
 
-On 3/26/26 7:46 AM, Christian Borntraeger wrote:
-> Am 26.03.26 um 02:42 schrieb Douglas Freimuth:
->> +static int kvm_s390_adapter_map(struct kvm *kvm, unsigned int id, 
->> __u64 addr)
->> +{
->> +    struct s390_io_adapter *adapter = get_io_adapter(kvm, id);
->> +    struct s390_map_info *map;
->> +    unsigned long flags;
->> +    int ret;
->> +
->> +    if (!adapter || !addr)
->> +        return -EINVAL;
->> +
->> +    map = kzalloc_obj(*map, GFP_KERNEL);
-> 
-> GFP_KERNEL_ACCOUNT certainly makes sense. Depending on other feedback 
-> can be
-> added when applying.
-> 
-> 
+  Merge tag 'erofs-for-7.0-rc6-fixes' of git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs (2026-03-25 18:41:35 -0700)
 
-I will make that change.
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-master-7.0-2
+
+for you to fetch changes up to 0a28e06575b3f3b30c1e99fc08fa0907956f35a4:
+
+  KVM: s390: Fix KVM_S390_VCPU_FAULT ioctl (2026-03-26 16:12:38 +0100)
+
+----------------------------------------------------------------
+KVM: s390: More memory management fixes
+
+Lots of small and not-so-small fixes for the newly rewritten gmap,
+mostly affecting the handling of nested guests.
+
+----------------------------------------------------------------
+Claudio Imbrenda (10):
+      KVM: s390: vsie: Fix dat_split_ste()
+      KVM: s390: Remove non-atomic dat_crstep_xchg()
+      KVM: s390: vsie: Fix check for pre-existing shadow mapping
+      KVM: s390: Fix gmap_link()
+      KVM: s390: Correctly handle guest mappings without struct page
+      KVM: s390: vsie: Fix nested guest memory shadowing
+      KVM: s390: vsie: Fix refcount overflow for shadow gmaps
+      KVM: s390: vsie: Fix unshadowing while shadowing
+      KVM: s390: vsie: Fix guest page tables protection
+      KVM: s390: Fix KVM_S390_VCPU_FAULT ioctl
+
+ arch/s390/kvm/dat.c      | 100 +++++------------------------
+ arch/s390/kvm/dat.h      |  23 +++----
+ arch/s390/kvm/gaccess.c  |  71 +++++++++++++++------
+ arch/s390/kvm/gmap.c     | 160 +++++++++++++++++++++++++++++++++--------------
+ arch/s390/kvm/gmap.h     |  33 ++++++----
+ arch/s390/kvm/kvm-s390.c |  18 +++++-
+ arch/s390/kvm/vsie.c     |   4 +-
+ 7 files changed, 231 insertions(+), 178 deletions(-)
