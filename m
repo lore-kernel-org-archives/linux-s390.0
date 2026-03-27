@@ -1,366 +1,136 @@
-Received: from m16.mail.126.com (m16.mail.126.com [220.197.31.7])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A95D63C13F5;
-	Fri, 27 Mar 2026 06:56:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F10F73CE481
+	for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2026 08:25:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774594605; cv=none; b=kr2hQqq9SSKtbVc2t7DMdBJxIJ2oFsuiJrGtCxcD0R0fVouONgYXAYeRVcbVfmqJidmB8BFGHXcUCE/NtvmR6Zc9y2YFnvfN9RcBXmhU9eFGljYkMkC7wttErq+iG18TrMN/vBfed26w/6BlkootFe70hAi/UJ93NWNPErKTgcg=
+	t=1774599945; cv=none; b=FW+/DIko+z8FjjI3CxzScirOWSop9xmrtlH1PltdUAYnR9WegCSbVP87vqfqpOjW4btan9P2/A+bqCnfyGL85g8abY1LPjr62svuUlK0040hx9zqQRht7cWp2uWmr69c7r51Hp0PPeaYFt3vbFX2x1yg0n+QH/LAYQZCHz7XD1I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774594605; c=relaxed/simple;
-	bh=utXOGcTGXF8E1xiklIt8r/Tf4JchYtMcvweEII98g54=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fBvkh8Rm3ZucZ98PuNbzHB+IJOAVLDFUQ4ykTfMTIWgeud6BvW5Po8GEkuczhflO7QHxkx1aLW2EJkZ3Gvm9m3pwvE9RbRc8QttSXYVUmJKuNGw3hOCtzTRMDPVD28p6UHKGe/mTUG8nvq6Dqvo1KTVkJMlhQbkuIvnDHCJQ0U8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=126.com; spf=pass smtp.mailfrom=126.com; dkim=pass (1024-bit key) header.d=126.com header.i=@126.com header.b=nHz+4FLR; arc=none smtp.client-ip=220.197.31.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=126.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=126.com
+	s=arc-20240116; t=1774599945; c=relaxed/simple;
+	bh=oGcTlThlcrf/a6X6Pba0yaQBbOhK2gU5HD6vMRqLYbw=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=IsqpKkyZvpr6+4JsNjEYRr2MtEzPXN58z4MImpmKH9HW98/oeXoQTySGqe37RQy98tsO5cJkFSoi+2I4UV9zcWdN7zHa1JJpVHwBIMp6ub4VYLNfweUTNM1SRotdtG516KSUB+jHabfbsI9vRc+uViODIEEBOOfiNRRWNzQF7qA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iBfAOMCd; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=126.com header.i=@126.com header.b="nHz+4FLR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=126.com;
-	s=s110527; h=Message-ID:Date:MIME-Version:Subject:To:From:
-	Content-Type; bh=OOuuj2GnygbQYTrEdc+J4v5GkJKcSMlrGFmhLijUWxY=;
-	b=nHz+4FLRDbedkFXiC5WzTO9BcMvkvDg5D3sqKpHD6geD9EMwUUfe6uJEZC3jWy
-	bapcLMpqvhxoLDHBgXK2SmxCP2WDSoVQEiOOl3B16GWo3+mpsg7pj78Vt7ZflkVf
-	ys+B26dYf5YxbiAIbYPX+2SqRQT7ubgjS3yEf8JAbVg0I=
-Received: from [172.24.149.38] (unknown [])
-	by gzsmtp4 (Coremail) with SMTP id PykvCgCHt9MGKsZpdsqpCQ--.49253S2;
-	Fri, 27 Mar 2026 14:56:07 +0800 (CST)
-Message-ID: <b173ec4c-8e9c-43a9-b3df-283a6b8015b5@126.com>
-Date: Fri, 27 Mar 2026 14:56:06 +0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iBfAOMCd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81B6CC4AF0B;
+	Fri, 27 Mar 2026 08:25:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774599944;
+	bh=oGcTlThlcrf/a6X6Pba0yaQBbOhK2gU5HD6vMRqLYbw=;
+	h=Date:From:To:Cc:In-Reply-To:References:Subject:From;
+	b=iBfAOMCdNXVUtbWDhBFGcWilDfE39obo76ocBxQznbM3ycVkcYhKsIhWHf4vRxpPL
+	 bIkBK9J2OZ0i1KQbkC6Im5qIQj9zl5VvaINRhPxvjhpPwTtcNwmB89dciCiEcjaXPj
+	 hcxN2d4AsZE14afNOgOlwlYJUZWJEZjvIDMy0leuTEJ2dX90MDcoc2jd+/FaLpUhg9
+	 8STIOBpp52KDxyMdqI3OdiX8fopCv8rwjKrncy6nVONdpwBnAwSZw+1zDNvQDozbvR
+	 EH7kR87WXyeqs8FRjqzdiiOl6zl/d4tv6D5jmnhDRy5G3fxGfGm3vaYDviebgudkkB
+	 jVzLQ0XrKaPWg==
+Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
+	by mailfauth.phl.internal (Postfix) with ESMTP id 68109F4006B;
+	Fri, 27 Mar 2026 04:25:43 -0400 (EDT)
+Received: from phl-imap-02 ([10.202.2.81])
+  by phl-compute-01.internal (MEProxy); Fri, 27 Mar 2026 04:25:43 -0400
+X-ME-Sender: <xms:Bz_GabDJ3xO3CJa4N5Ker9qFJ0KYSr3K01_QXZ6sVdO_Y-68VpfGeQ>
+    <xme:Bz_GacXTS-_p_4N9zXVyb3MN9cXl4NXYSHi7ErqMMLuKm65aTHqKRUewT6c7JrY8c
+    59bQ-xt8yYe_rq80PLIVDCyXxsaZwMHupbhfS2yXrBCt0C0OrH4mQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdefvdelkedtucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddtnecuhfhrohhmpedftehrugcu
+    uehivghshhgvuhhvvghlfdcuoegrrhgusgeskhgvrhhnvghlrdhorhhgqeenucggtffrrg
+    htthgvrhhnpedvueehiedtvedtleekuddutefgffdtleetfeetveejveejieehfefhjeei
+    jeefudenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    grrhguodhmvghsmhhtphgruhhthhhpvghrshhonhgrlhhithihqdduieejtdehtddtjeel
+    qdeffedvudeigeduhedqrghruggspeepkhgvrhhnvghlrdhorhhgseifohhrkhhofhgrrh
+    gurdgtohhmpdhnsggprhgtphhtthhopeejpdhmohguvgepshhmthhpohhuthdprhgtphht
+    thhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtph
+    htthhopehlihhnuhigqdhrrghiugesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphht
+    thhopehlihhnuhigqdhsfeeltdesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtth
+    hopehsphgrrhgtlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthho
+    pehkvghrnhgvlhesgigvnhdtnhdrnhgrmhgvpdhrtghpthhtohepjhgrshhonhesiiigvd
+    gtgedrtghomhdprhgtphhtthhopehhphgrseiihihtohhrrdgtohhm
+X-ME-Proxy: <xmx:Bz_GadVK7aJUgx3X88MZ97gxnLIoSvXncg2CemL1RdBzzLf6eIPAUg>
+    <xmx:Bz_GaXlYibfA6joL8DapJ3ywOwi2RYG4JDGzE_X6RSnq0YanMEgjlQ>
+    <xmx:Bz_GaQDwwTBZ_3SMooOq61abVP76XHTcaCJxMf_cFVGXzD9jlOk5mg>
+    <xmx:Bz_Gaegt6yA75dxmSLBkjtochtSjjLNzfFwG1vko0GdZUn2zPX2CTQ>
+    <xmx:Bz_GaVxMBFR2ELuBErM61svk0AkZTrHR1_cXGtxA0KH5R4UA3nupjFbT>
+Feedback-ID: ice86485a:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 3B247700065; Fri, 27 Mar 2026 04:25:43 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/2] perf symbol: Lazily compute idle and use the
- perf_env
-To: Ian Rogers <irogers@google.com>
-Cc: acme@kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com,
- hca@linux.ibm.com, japo@linux.ibm.com, linux-kernel@vger.kernel.org,
- linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org,
- namhyung@kernel.org, sumanthk@linux.ibm.com, tmricht@linux.ibm.com
-References: <CAP-5=fVJVc8uvPssSnUyTdO9PSbKy9qb0PrrE7VLUurwTa6MpQ@mail.gmail.com>
- <20260326174521.1829203-1-irogers@google.com>
- <20260326174521.1829203-3-irogers@google.com>
-Content-Language: en-US
-From: Honglei Wang <jameshongleiwang@126.com>
-In-Reply-To: <20260326174521.1829203-3-irogers@google.com>
-Content-Type: text/plain; charset=UTF-8
+X-ThreadId: ALG_cRBuf6HF
+Date: Fri, 27 Mar 2026 09:25:22 +0100
+From: "Ard Biesheuvel" <ardb@kernel.org>
+To: "Christoph Hellwig" <hch@lst.de>,
+ "Andrew Morton" <akpm@linux-foundation.org>
+Cc: "Richard Henderson" <richard.henderson@linaro.org>,
+ "Matt Turner" <mattst88@gmail.com>,
+ "Magnus Lindholm" <linmag7@gmail.com>,
+ "Russell King" <linux@armlinux.org.uk>,
+ "Catalin Marinas" <catalin.marinas@arm.com>,
+ "Will Deacon" <will@kernel.org>, "Huacai Chen" <chenhuacai@kernel.org>,
+ "WANG Xuerui" <kernel@xen0n.name>,
+ "Madhavan Srinivasan" <maddy@linux.ibm.com>,
+ "Michael Ellerman" <mpe@ellerman.id.au>,
+ "Nicholas Piggin" <npiggin@gmail.com>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+ "Paul Walmsley" <pjw@kernel.org>, "Palmer Dabbelt" <palmer@dabbelt.com>,
+ "Albert Ou" <aou@eecs.berkeley.edu>, "Alexandre Ghiti" <alex@ghiti.fr>,
+ "Heiko Carstens" <hca@linux.ibm.com>,
+ "Vasily Gorbik" <gor@linux.ibm.com>,
+ "Alexander Gordeev" <agordeev@linux.ibm.com>,
+ "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+ "Sven Schnelle" <svens@linux.ibm.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ "Andreas Larsson" <andreas@gaisler.com>,
+ "Richard Weinberger" <richard@nod.at>,
+ "Anton Ivanov" <anton.ivanov@cambridgegreys.com>,
+ "Johannes Berg" <johannes@sipsolutions.net>,
+ "Thomas Gleixner" <tglx@kernel.org>, "Ingo Molnar" <mingo@redhat.com>,
+ "Borislav Petkov" <bp@alien8.de>,
+ "Dave Hansen" <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H . Peter Anvin" <hpa@zytor.com>,
+ "Herbert Xu" <herbert@gondor.apana.org.au>,
+ "Dan Williams" <dan.j.williams@intel.com>, "Chris Mason" <clm@fb.com>,
+ "David Sterba" <dsterba@suse.com>, "Arnd Bergmann" <arnd@arndb.de>,
+ "Song Liu" <song@kernel.org>, "Yu Kuai" <yukuai@fnnas.com>,
+ "Li Nan" <linan122@huawei.com>, "Theodore Ts'o" <tytso@mit.edu>,
+ "Jason A . Donenfeld" <Jason@zx2c4.com>, linux-alpha@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+ linux-crypto@vger.kernel.org, linux-btrfs@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-raid@vger.kernel.org
+Message-Id: <e7979928-b33a-4132-b08b-d95b91b14295@app.fastmail.com>
+In-Reply-To: <20260327061704.3707577-4-hch@lst.de>
+References: <20260327061704.3707577-1-hch@lst.de>
+ <20260327061704.3707577-4-hch@lst.de>
+Subject: Re: [PATCH 03/28] arm64/xor: fix conflicting attributes for xor_block_template
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-CM-TRANSID:PykvCgCHt9MGKsZpdsqpCQ--.49253S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWfJr48uF1furyfWrW7ZryxXwb_yoWDWFyxpF
-	WDCr47ZF48Jr45W34rJF4UuFy5uwnavw4Fkr4UJ3yrAFsIkr1UKFZ7GF1Ykw4rXrn3G3Wr
-	Ar42kFySgF48JrJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07UtKsbUUUUU=
-X-CM-SenderInfo: 5mdpv2pkrqwzphlzt0bj6rjloofrz/xtbBrgeXRWnGKge2PwAA3w
 
-Hi Ian,
 
-FYI. It works on my icx machine with 'perf top'.
+On Fri, 27 Mar 2026, at 07:16, Christoph Hellwig wrote:
+> Commit 2c54b423cf85 ("arm64/xor: use EOR3 instructions when available")
+> changes the definition to __ro_after_init instead of const, but failed to
+> update the external declaration in xor.h.  This was not found because
+> xor-neon.c doesn't include <asm/xor.h>, and can't easily do that due to
+> current architecture of the XOR code.
+>
 
-Thanks,
-Honglei
+Even if it did, it wouldn't matter - __ro_after_init has no effect on declarations, only on definitions - it only controls the placement of the object in the .data..ro_after_init section (and declarations don't generate any code)
 
-On 3/27/26 1:45 AM, Ian Rogers wrote:
-> Move the idle boolean to a helper symbol__is_idle function. In the
-> function lazily compute whether a symbol is an idle function taking
-> into consideration the kernel version and architecture of the
-> machine. As symbols__insert no longer needs to know if a symbol is for
-> the kernel, remove the argument.
-> 
-> This change is inspired by mailing list discussion, particularly from
-> Thomas Richter <tmricht@linux.ibm.com> and Heiko Carstens
-> <hca@linux.ibm.com>:
-> https://lore.kernel.org/lkml/20260219113850.354271-1-tmricht@linux.ibm.com/
-> 
-> The change switches x86 matches to use strstarts which means
-> intel_idle_irq is matched as part of strstarts(name, "intel_idle"), a
-> change suggested by Honglei Wang <jameshongleiwang@126.com> in:
-> https://lore.kernel.org/lkml/20260323085255.98173-1-jameshongleiwang@126.com/
-> 
-> Signed-off-by: Ian Rogers <irogers@google.com>
+> Fixes: 2c54b423cf85 ("arm64/xor: use EOR3 instructions when available")
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 > ---
->  tools/perf/builtin-top.c     |   6 +-
->  tools/perf/util/symbol-elf.c |   2 +-
->  tools/perf/util/symbol.c     | 105 ++++++++++++++++++++++-------------
->  tools/perf/util/symbol.h     |  15 +++--
->  4 files changed, 84 insertions(+), 44 deletions(-)
-> 
-> diff --git a/tools/perf/builtin-top.c b/tools/perf/builtin-top.c
-> index 37950efb28ac..bdc1c761cd61 100644
-> --- a/tools/perf/builtin-top.c
-> +++ b/tools/perf/builtin-top.c
-> @@ -751,6 +751,7 @@ static void perf_event__process_sample(const struct perf_tool *tool,
->  {
->  	struct perf_top *top = container_of(tool, struct perf_top, tool);
->  	struct addr_location al;
-> +	struct dso *dso = NULL;
->  
->  	if (!machine && perf_guest) {
->  		static struct intlist *seen;
-> @@ -830,7 +831,10 @@ static void perf_event__process_sample(const struct perf_tool *tool,
->  		}
->  	}
->  
-> -	if (al.sym == NULL || !al.sym->idle) {
-> +	if (al.map)
-> +		dso = map__dso(al.map);
-> +
-> +	if (al.sym == NULL || !symbol__is_idle(al.sym, dso, machine->env)) {
->  		struct hists *hists = evsel__hists(evsel);
->  		struct hist_entry_iter iter = {
->  			.evsel		= evsel,
-> diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
-> index 3cd4e5a03cc5..9fabf5146d89 100644
-> --- a/tools/perf/util/symbol-elf.c
-> +++ b/tools/perf/util/symbol-elf.c
-> @@ -1723,7 +1723,7 @@ dso__load_sym_internal(struct dso *dso, struct map *map, struct symsrc *syms_ss,
->  
->  		arch__sym_update(f, &sym);
->  
-> -		__symbols__insert(dso__symbols(curr_dso), f, dso__kernel(dso));
-> +		__symbols__insert(dso__symbols(curr_dso), f);
->  		nr++;
->  	}
->  	dso__put(curr_dso);
-> diff --git a/tools/perf/util/symbol.c b/tools/perf/util/symbol.c
-> index ce9195717f44..92bc28934f36 100644
-> --- a/tools/perf/util/symbol.c
-> +++ b/tools/perf/util/symbol.c
-> @@ -25,6 +25,8 @@
->  #include "demangle-ocaml.h"
->  #include "demangle-rust-v0.h"
->  #include "dso.h"
-> +#include "dwarf-regs.h"
-> +#include "env.h"
->  #include "util.h" // lsdir()
->  #include "event.h"
->  #include "machine.h"
-> @@ -50,7 +52,6 @@
->  
->  static int dso__load_kernel_sym(struct dso *dso, struct map *map);
->  static int dso__load_guest_kernel_sym(struct dso *dso, struct map *map);
-> -static bool symbol__is_idle(const char *name);
->  
->  int vmlinux_path__nr_entries;
->  char **vmlinux_path;
-> @@ -357,8 +358,7 @@ void symbols__delete(struct rb_root_cached *symbols)
->  	}
->  }
->  
-> -void __symbols__insert(struct rb_root_cached *symbols,
-> -		       struct symbol *sym, bool kernel)
-> +void __symbols__insert(struct rb_root_cached *symbols, struct symbol *sym)
->  {
->  	struct rb_node **p = &symbols->rb_root.rb_node;
->  	struct rb_node *parent = NULL;
-> @@ -366,17 +366,6 @@ void __symbols__insert(struct rb_root_cached *symbols,
->  	struct symbol *s;
->  	bool leftmost = true;
->  
-> -	if (kernel) {
-> -		const char *name = sym->name;
-> -		/*
-> -		 * ppc64 uses function descriptors and appends a '.' to the
-> -		 * start of every instruction address. Remove it.
-> -		 */
-> -		if (name[0] == '.')
-> -			name++;
-> -		sym->idle = symbol__is_idle(name);
-> -	}
-> -
->  	while (*p != NULL) {
->  		parent = *p;
->  		s = rb_entry(parent, struct symbol, rb_node);
-> @@ -393,7 +382,7 @@ void __symbols__insert(struct rb_root_cached *symbols,
->  
->  void symbols__insert(struct rb_root_cached *symbols, struct symbol *sym)
->  {
-> -	__symbols__insert(symbols, sym, false);
-> +	__symbols__insert(symbols, sym);
->  }
->  
->  static struct symbol *symbols__find(struct rb_root_cached *symbols, u64 ip)
-> @@ -554,7 +543,7 @@ void dso__reset_find_symbol_cache(struct dso *dso)
->  
->  void dso__insert_symbol(struct dso *dso, struct symbol *sym)
->  {
-> -	__symbols__insert(dso__symbols(dso), sym, dso__kernel(dso));
-> +	__symbols__insert(dso__symbols(dso), sym);
->  
->  	/* update the symbol cache if necessary */
->  	if (dso__last_find_result_addr(dso) >= sym->start &&
-> @@ -716,47 +705,87 @@ int modules__parse(const char *filename, void *arg,
->  	return err;
->  }
->  
-> +static int sym_name_cmp(const void *a, const void *b)
-> +{
-> +	const char *name = a;
-> +	const char *const *sym = b;
-> +
-> +	return strcmp(name, *sym);
-> +}
-> +
->  /*
->   * These are symbols in the kernel image, so make sure that
->   * sym is from a kernel DSO.
->   */
-> -static bool symbol__is_idle(const char *name)
-> +bool symbol__is_idle(struct symbol *sym, const struct dso *dso, struct perf_env *env)
->  {
-> -	const char * const idle_symbols[] = {
-> +	static const char * const idle_symbols[] = {
->  		"acpi_idle_do_entry",
->  		"acpi_processor_ffh_cstate_enter",
->  		"arch_cpu_idle",
->  		"cpu_idle",
->  		"cpu_startup_entry",
-> -		"idle_cpu",
-> -		"intel_idle",
-> -		"intel_idle_ibrs",
->  		"default_idle",
-> -		"native_safe_halt",
->  		"enter_idle",
->  		"exit_idle",
-> -		"mwait_idle",
-> -		"mwait_idle_with_hints",
-> -		"mwait_idle_with_hints.constprop.0",
-> +		"idle_cpu",
-> +		"native_safe_halt",
->  		"poll_idle",
-> -		"ppc64_runlatch_off",
->  		"pseries_dedicated_idle_sleep",
-> -		"psw_idle",
-> -		"psw_idle_exit",
-> -		NULL
->  	};
-> -	int i;
-> -	static struct strlist *idle_symbols_list;
-> +	const char *name = sym->name;
-> +	uint16_t e_machine = perf_env__e_machine(env, /*e_flags=*/NULL);
->  
-> -	if (idle_symbols_list)
-> -		return strlist__has_entry(idle_symbols_list, name);
-> +	if (sym->idle)
-> +		return sym->idle == SYMBOL_IDLE__IDLE;
->  
-> -	idle_symbols_list = strlist__new(NULL, NULL);
-> +	if (!dso || dso__kernel(dso) == DSO_SPACE__USER) {
-> +		sym->idle = SYMBOL_IDLE__NOT_IDLE;
-> +		return false;
-> +	}
->  
-> -	for (i = 0; idle_symbols[i]; i++)
-> -		strlist__add(idle_symbols_list, idle_symbols[i]);
-> +	/*
-> +	 * ppc64 uses function descriptors and appends a '.' to the
-> +	 * start of every instruction address. Remove it.
-> +	 */
-> +	if (name[0] == '.')
-> +		name++;
->  
-> -	return strlist__has_entry(idle_symbols_list, name);
-> +	if (bsearch(name, idle_symbols, ARRAY_SIZE(idle_symbols),
-> +		    sizeof(idle_symbols[0]), sym_name_cmp)) {
-> +		sym->idle = SYMBOL_IDLE__IDLE;
-> +		return true;
-> +	}
-> +
-> +	if (e_machine == EM_386 || e_machine == EM_X86_64) {
-> +		if (strstarts(name, "mwait_idle") ||
-> +		    strstarts(name, "intel_idle")) {
-> +			sym->idle = SYMBOL_IDLE__IDLE;
-> +			return true;
-> +		}
-> +	}
-> +
-> +	if (e_machine == EM_PPC64 && !strcmp(name, "ppc64_runlatch_off")) {
-> +		sym->idle = SYMBOL_IDLE__IDLE;
-> +		return true;
-> +	}
-> +
-> +	if (e_machine == EM_S390) {
-> +		int major = 0, minor = 0;
-> +		const char *release = env && env->os_release
-> +			? env->os_release : perf_version_string;
-> +
-> +		sscanf(release, "%d.%d", &major, &minor);
-> +
-> +		/* Before v6.10, s390 used psw_idle. */
-> +		if ((major < 6 || (major == 6 && minor < 10)) && strstarts(name, "psw_idle")) {
-> +			sym->idle = SYMBOL_IDLE__IDLE;
-> +			return true;
-> +		}
-> +	}
-> +
-> +	sym->idle = SYMBOL_IDLE__NOT_IDLE;
-> +	return false;
->  }
->  
->  static int map__process_kallsym_symbol(void *arg, const char *name,
-> @@ -785,7 +814,7 @@ static int map__process_kallsym_symbol(void *arg, const char *name,
->  	 * We will pass the symbols to the filter later, in
->  	 * map__split_kallsyms, when we have split the maps per module
->  	 */
-> -	__symbols__insert(root, sym, !strchr(name, '['));
-> +	__symbols__insert(root, sym);
->  
->  	return 0;
->  }
-> diff --git a/tools/perf/util/symbol.h b/tools/perf/util/symbol.h
-> index c67814d6d6d6..65422c1c8fdb 100644
-> --- a/tools/perf/util/symbol.h
-> +++ b/tools/perf/util/symbol.h
-> @@ -25,6 +25,7 @@ struct dso;
->  struct map;
->  struct maps;
->  struct option;
-> +struct perf_env;
->  struct build_id;
->  
->  /*
-> @@ -42,6 +43,12 @@ Elf_Scn *elf_section_by_name(Elf *elf, GElf_Ehdr *ep,
->  			     GElf_Shdr *shp, const char *name, size_t *idx);
->  #endif
->  
-> +enum symbol_idle_kind {
-> +	SYMBOL_IDLE__UNKNOWN = 0,
-> +	SYMBOL_IDLE__NOT_IDLE = 1,
-> +	SYMBOL_IDLE__IDLE = 2,
-> +};
-> +
->  /**
->   * A symtab entry. When allocated this may be preceded by an annotation (see
->   * symbol__annotation) and/or a browser_index (see symbol__browser_index).
-> @@ -57,8 +64,8 @@ struct symbol {
->  	u8		type:4;
->  	/** ELF binding type as defined for st_info. E.g. STB_WEAK or STB_GLOBAL. */
->  	u8		binding:4;
-> -	/** Set true for kernel symbols of idle routines. */
-> -	u8		idle:1;
-> +	/** Cache for symbol__is_idle. */
-> +	enum symbol_idle_kind idle:2;
->  	/** Resolvable but tools ignore it (e.g. idle routines). */
->  	u8		ignore:1;
->  	/** Symbol for an inlined function. */
-> @@ -202,8 +209,7 @@ int dso__synthesize_plt_symbols(struct dso *dso, struct symsrc *ss);
->  
->  char *dso__demangle_sym(struct dso *dso, int kmodule, const char *elf_name);
->  
-> -void __symbols__insert(struct rb_root_cached *symbols, struct symbol *sym,
-> -		       bool kernel);
-> +void __symbols__insert(struct rb_root_cached *symbols, struct symbol *sym);
->  void symbols__insert(struct rb_root_cached *symbols, struct symbol *sym);
->  void symbols__fixup_duplicate(struct rb_root_cached *symbols);
->  void symbols__fixup_end(struct rb_root_cached *symbols, bool is_kallsyms);
-> @@ -286,5 +292,6 @@ enum {
->  };
->  
->  int symbol__validate_sym_arguments(void);
-> +bool symbol__is_idle(struct symbol *sym, const struct dso *dso, struct perf_env *env);
->  
->  #endif /* __PERF_SYMBOL */
-
+>  arch/arm64/include/asm/xor.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
