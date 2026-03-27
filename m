@@ -1,166 +1,243 @@
-Received: from mail-dy1-f202.google.com (mail-dy1-f202.google.com [74.125.82.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C37A019A288
-	for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2026 06:00:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCED326FA60;
+	Fri, 27 Mar 2026 06:17:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774591239; cv=none; b=gWEVxJWDsyH2qq5Y1QEQajpe9s5NP7fkoKlcYHzmpfIU3icz7XweFZYzzZiS33A0Q4nTs+NJUODWLWoylfTa1qpkmyWZl13iSbqxXLb2LZF+geDmGCWiChvvAJcKumNcwJzpqCEpedOmIDRlO7aRX+ByUEsjEVLuk6EZNiYK430=
+	t=1774592279; cv=none; b=MGJfwpeUb2YvEEh70mEN53urz3NV3XReXB+FfxHCb4bgiuXA5siz0usx+aeX86T19MtuonzbeXdqWJ3EAKjOR0c/otHO+DiP4Ldm0BaKrXeU3rvT4E5+xXhtxMZF88sf3CravanckC2oHm3JdLgOU32Hk5xnJHzBTubOx1HV330=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774591239; c=relaxed/simple;
-	bh=7by32mE098PrC98ifd1wv1RjxNxqtJBI7IB4w/ka4FM=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=nlmPoCpUSBYEOhXbkI3zLC0tQSeuWcvB0oGYCQaVUmhOjfpCvVeKs8QVekqFTfDnVDkeMuBlt3IF2yQdzI2uwRg+sU7OsNitzdeW4sq4oWA11TCTEuyt3+TtKsLHMr/AAL9r4fzf3XBvm114jY8OpFjnQfd7BuklksbS748hw7Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=a8F38c1K; arc=none smtp.client-ip=74.125.82.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
+	s=arc-20240116; t=1774592279; c=relaxed/simple;
+	bh=xSkAWtw6Z8oPBDIt/HvL25vD4lce3XEvpQlpr3sTrnM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NCCjJYOKSjSyLxOqKo61cVxRHoTwT5ST1/i0JpnpmuJsikUrPvaqf3g61IXGM9sQxdHuJuizdFj+6+sHxpNrb8mlW+BOt++pCXhf9tkOYhAqSi8rT/r5YYopAw42EoKHDmXBvdTkxSpqORbiMz0AMoP2U4vfd8+LIy/VZV3XYfM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=ReyAcynB; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="a8F38c1K"
-Received: by mail-dy1-f202.google.com with SMTP id 5a478bee46e88-2c174d40580so1634626eec.1
-        for <linux-s390@vger.kernel.org>; Thu, 26 Mar 2026 23:00:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1774591237; x=1775196037; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=bSaSPNMMLz85x3cusqDT6CCMGHSADwo/AJ+TzcNU1qY=;
-        b=a8F38c1Khx0yIDbr9YvVYE7anMkJ1dGK88QNZ+LDKNYCt3FUn/9CP2XhNEKweEIIOu
-         Sx3z6zFIAhujdfKzR3UPhxT6v18/S4XiZbKGPpw1AIw81Nxyf5ki2gCUEk9ynjhUft0A
-         MqYXOIgyY4bXVc3yUg3CeuinZzwxchff56V87wvNBxbuEURd9LBx6wRggmTT5n6y+dAB
-         y65wOy5Ek7s8161B6vOUradw3Ekv8AkN7bsC9rWzL++sLHQIqHvvV8Lq0Cx2VFKKr0g8
-         YKMF4eUzZL1sGYyyai0NPjvc3iLw0Tc36JBtK3KnWlSuXOxTbVn8qKWMxZ+rO+fvXi0S
-         9yZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774591237; x=1775196037;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=bSaSPNMMLz85x3cusqDT6CCMGHSADwo/AJ+TzcNU1qY=;
-        b=eHG8LAO/4kNXoOAVOzXKrHtpaK6VvmrYtO1qiG7ECv3yg5bBsj2KJzvmVd2fotJJ3q
-         v2wQhkTxyh+lUm++sqCbu8Vqm6dN/ygJRuUZNlDEbEvhAdfTvqwepa1ByGXnlS2aDGVC
-         aI1EkTUbresHubnKNEn2Hz8T3ZXE4kEfNem/800tproalGX62hYGrZIvutYn0/7AHRrp
-         NstQieMdhiTjeLTMBuha2Z5aIeFAblBKG14DWbMFOhwYxX1jmexUlV/srzkmnQMDNYvy
-         QF172MD0aPZlR/0Ms7q3KuZscwlTJUaomxZY870UQlwuCJQv6Dg1CmixCrwzyKMdYPg/
-         lAxA==
-X-Forwarded-Encrypted: i=1; AJvYcCUdJO04w7bChID+O2XKU9mRrFDa3J7cottn1fg+kYEMzTgSHhiB10lT2lYNs23yuKI/FQXMr4CVwZ9L@vger.kernel.org
-X-Gm-Message-State: AOJu0YzKbxvQ0aEvUdGp+3jPlqHa25m748+66/asnptF8IoNwxcgTbCb
-	OV5KGOoKXFgK94AQeNSMSf4P+wilypQUq/lgPlvZgkI/wm918mE8wTHbO1tpY/yHqhV278MLHkQ
-	PDWYVc/qwCg==
-X-Received: from dycc10.prod.google.com ([2002:a05:693c:60ca:b0:2c0:bee5:18c9])
- (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7022:f689:b0:128:ced9:9409
- with SMTP id a92af1059eb24-12ab291a28dmr523173c88.37.1774591236655; Thu, 26
- Mar 2026 23:00:36 -0700 (PDT)
-Date: Thu, 26 Mar 2026 23:00:33 -0700
-In-Reply-To: <20260326174521.1829203-1-irogers@google.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="ReyAcynB"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	MIME-Version:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+	Content-ID:Content-Description:In-Reply-To:References;
+	bh=I9U105Jg7WywsQM1muyaLAAIkpN6KCb+lW3Mwrd4CdE=; b=ReyAcynBk0WVaSF3hMVuefAVw6
+	HP+y7I5unpYc1JvmMeCR/kbFcq4sBUYYpKkLpAyea9N9ihBG2wmgzi/7QK6VK8psjUFM62Dc0MgpG
+	xlz36CWaU5eJbSs4ES78JtOzTWnJuaSIoQIfJ9Aq+vTvy1eX2bIp5PzwdatCUATbkHyLMBP7rkHVq
+	13HvpcB7yQIImN6hQRXJbGHypLU3CbLesnT9h7T1xtRV5IKrmDSmD/GCfuDYZZtBjPgsjVV4to7xJ
+	SH+eI7Pem/7XclKWkjZDpPs+pFnLJgJzHStxv805jpenCZ/6utrnGKdsN5myPiuzxmb6SvM/967KI
+	ZYCmRlFQ==;
+Received: from 2a02-8389-2341-5b80-d601-7564-c2e0-491c.cable.dynamic.v6.surfer.at ([2a02:8389:2341:5b80:d601:7564:c2e0:491c] helo=localhost)
+	by bombadil.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1w60VS-00000006kaa-09oB;
+	Fri, 27 Mar 2026 06:17:18 +0000
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Richard Henderson <richard.henderson@linaro.org>,
+	Matt Turner <mattst88@gmail.com>,
+	Magnus Lindholm <linmag7@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Paul Walmsley <pjw@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Alexandre Ghiti <alex@ghiti.fr>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Chris Mason <clm@fb.com>,
+	David Sterba <dsterba@suse.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Song Liu <song@kernel.org>,
+	Yu Kuai <yukuai@fnnas.com>,
+	Li Nan <linan122@huawei.com>,
+	"Theodore Ts'o" <tytso@mit.edu>,
+	"Jason A. Donenfeld" <Jason@zx2c4.com>,
+	linux-alpha@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	loongarch@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	sparclinux@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	linux-crypto@vger.kernel.org,
+	linux-btrfs@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-raid@vger.kernel.org
+Subject: cleanup the RAID5 XOR library v4
+Date: Fri, 27 Mar 2026 07:16:32 +0100
+Message-ID: <20260327061704.3707577-1-hch@lst.de>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260326174521.1829203-1-irogers@google.com>
-X-Mailer: git-send-email 2.53.0.1018.g2bb0e51243-goog
-Message-ID: <20260327060033.2294469-1-irogers@google.com>
-Subject: [PATCH v2] perf tests task-analyzer: Write test files to tmpdir
-From: Ian Rogers <irogers@google.com>
-To: acme@kernel.org, namhyung@kernel.org
-Cc: irogers@google.com, agordeev@linux.ibm.com, gor@linux.ibm.com, 
-	hca@linux.ibm.com, jameshongleiwang@126.com, japo@linux.ibm.com, 
-	linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
-	linux-s390@vger.kernel.org, sumanthk@linux.ibm.com, tmricht@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-Writing to the test output files in the current working directory can
-fail in various contexts such as continual test. Other tests write to
-a mktemp-ed file, make the "perf script task-analyszer tests" follow
-this convention too. Currently this isn't possible for the perf.data
-file due to a lack of perf script support, add a variable for when
-this support is available.
+Hi all,
 
-Signed-off-by: Ian Rogers <irogers@google.com>
----
- tools/perf/tests/shell/test_task_analyzer.sh | 38 +++++++++++---------
- 1 file changed, 21 insertions(+), 17 deletions(-)
+the XOR library used for the RAID5 parity is a bit of a mess right now.
+The main file sits in crypto/ despite not being cryptography and not
+using the crypto API, with the generic implementations sitting in
+include/asm-generic and the arch implementations sitting in an asm/
+header in theory.  The latter doesn't work for many cases, so
+architectures often build the code directly into the core kernel, or
+create another module for the architecture code.
 
-diff --git a/tools/perf/tests/shell/test_task_analyzer.sh b/tools/perf/tests/shell/test_task_analyzer.sh
-index e194fcf61df3..b1a6a7e017e4 100755
---- a/tools/perf/tests/shell/test_task_analyzer.sh
-+++ b/tools/perf/tests/shell/test_task_analyzer.sh
-@@ -3,6 +3,11 @@
- # SPDX-License-Identifier: GPL-2.0
- 
- tmpdir=$(mktemp -d /tmp/perf-script-task-analyzer-XXXXX)
-+# TODO: perf script report only supports input from the CWD perf.data file, make
-+# it support input from any file.
-+perfdata="perf.data"
-+csv="$tmpdir/csv"
-+csvsummary="$tmpdir/csvsummary"
- err=0
- 
- # set PERF_EXEC_PATH to find scripts in the source directory
-@@ -15,11 +20,10 @@ fi
- export ASAN_OPTIONS=detect_leaks=0
- 
- cleanup() {
--  rm -f perf.data
--  rm -f perf.data.old
--  rm -f csv
--  rm -f csvsummary
-+  rm -f "${perfdata}"
-+  rm -f "${perfdata}".old
-   rm -rf "$tmpdir"
-+
-   trap - exit term int
- }
- 
-@@ -61,7 +65,7 @@ skip_no_probe_record_support() {
- 
- prepare_perf_data() {
- 	# 1s should be sufficient to catch at least some switches
--	perf record -e sched:sched_switch -a -- sleep 1 > /dev/null 2>&1
-+	perf record -e sched:sched_switch -a -o "${perfdata}" -- sleep 1 > /dev/null 2>&1
- 	# check if perf data file got created in above step.
- 	if [ ! -e "perf.data" ]; then
- 		printf "FAIL: perf record failed to create \"perf.data\" \n"
-@@ -130,28 +134,28 @@ test_extended_times_summary_ns() {
- }
- 
- test_csv() {
--	perf script report task-analyzer --csv csv > /dev/null
--	check_exec_0 "perf script report task-analyzer --csv csv"
--	find_str_or_fail "Comm;" csv "${FUNCNAME[0]}"
-+	perf script report task-analyzer --csv "${csv}" > /dev/null
-+	check_exec_0 "perf script report task-analyzer --csv ${csv}"
-+	find_str_or_fail "Comm;" "${csv}" "${FUNCNAME[0]}"
- }
- 
- test_csv_extended_times() {
--	perf script report task-analyzer --csv csv --extended-times > /dev/null
--	check_exec_0 "perf script report task-analyzer --csv csv --extended-times"
--	find_str_or_fail "Out-Out;" csv "${FUNCNAME[0]}"
-+	perf script report task-analyzer --csv "${csv}" --extended-times > /dev/null
-+	check_exec_0 "perf script report task-analyzer --csv ${csv} --extended-times"
-+	find_str_or_fail "Out-Out;" "${csv}" "${FUNCNAME[0]}"
- }
- 
- test_csvsummary() {
--	perf script report task-analyzer --csv-summary csvsummary > /dev/null
--	check_exec_0 "perf script report task-analyzer --csv-summary csvsummary"
--	find_str_or_fail "Comm;" csvsummary "${FUNCNAME[0]}"
-+	perf script report task-analyzer --csv-summary "${csvsummary}" > /dev/null
-+	check_exec_0 "perf script report task-analyzer --csv-summary ${csvsummary}"
-+	find_str_or_fail "Comm;" "${csvsummary}" "${FUNCNAME[0]}"
- }
- 
- test_csvsummary_extended() {
--	perf script report task-analyzer --csv-summary csvsummary --summary-extended \
-+	perf script report task-analyzer --csv-summary "${csvsummary}" --summary-extended \
- 	>/dev/null
--	check_exec_0 "perf script report task-analyzer --csv-summary csvsummary --summary-extended"
--	find_str_or_fail "Out-Out;" csvsummary "${FUNCNAME[0]}"
-+	check_exec_0 "perf script report task-analyzer --csv-summary ${csvsummary} --summary-extended"
-+	find_str_or_fail "Out-Out;" "${csvsummary}" "${FUNCNAME[0]}"
- }
- 
- skip_no_probe_record_support
--- 
-2.53.0.1018.g2bb0e51243-goog
+Changes this to a single module in lib/ that also contains the
+architecture optimizations, similar to the library work Eric Biggers
+has done for the CRC and crypto libraries later.  After that it changes
+to better calling conventions that allow for smarter architecture
+implementations (although none is contained here yet), and uses
+static_call to avoid indirection function call overhead.
 
+A git tree is also available here:
+
+    git://git.infradead.org/users/hch/misc.git xor-improvements
+
+Gitweb:
+
+    https://git.infradead.org/?p=users/hch/misc.git;a=shortlog;h=refs/heads/xor-improvements
+
+Changes since v3:
+ - switch away from lockdep_assert_preemption_enabled() again
+ - fix a @ reference in a kerneldoc comment.
+ - build the arm4regs implementation also without kernel-mode neon
+   support
+ - fix a pre-existing issue about mismatched attributes on arm64's
+   xor_block_inner_neon
+ - reject 0-sized xor request and adjust the kunit test case to not
+   generate them
+
+Changes since v2:
+ - drop use of CONFIG_KERNEL_MODE_NEON for arm64
+ - drop the new __limit_random_u32_below for the unit test
+ - require 64-bit alignment because sparc64 requires it
+ - use DEFINE_STATIC_CALL_NULL to avoid exposing a specific xor_gen
+   routine
+ - keep CONFIG_XOR_BLOCKS_ARCH self-contained in lib/raid/
+ - don't select library option from kunit test and add a .kunitconfig
+   instead
+ - fix the module description for the kunit test
+ - add a case where buffers are at the end of the allocation in the kunit test
+ - use separate src/dst alignment in the kunit test
+ - fix and improve the kunit assert message
+
+Changes since v1:
+ - use lockdep_assert_preemption_enabled()
+ - improve the commit message for the initial um xor.h cleanup
+ - further clean up the um arch specific header
+ - add SPDX identifier to the new build system files
+ - use bool for xor_forced
+ - fix an incorrect printk level conversion from warn to info
+ - include xor_impl.h in xor-neon.c
+ - remove unused exports for riscv
+ - simply move the sparc code instead of splititng it
+ - simplify the makefile for the x86-specific implementations
+ - remove stray references to xor_blocks in crypto/async_tx
+ - rework __DO_XOR_BLOCKS to avoid (theoretical) out of bounds references
+ - improve the kerneldoc API documentration for xor_gen()
+ - spell the name of the srcs argument to xor_gen correctly in xor.h
+ - add a kunit test, and a new random helper for it.
+
+Diffstat:
+ arch/arm64/include/asm/xor.h              |   73 --
+ arch/loongarch/include/asm/xor.h          |   68 --
+ arch/loongarch/include/asm/xor_simd.h     |   34 -
+ arch/loongarch/lib/xor_simd_glue.c        |   72 --
+ arch/powerpc/include/asm/xor.h            |   47 -
+ arch/powerpc/include/asm/xor_altivec.h    |   22 
+ arch/powerpc/lib/xor_vmx.h                |   22 
+ arch/powerpc/lib/xor_vmx_glue.c           |   63 --
+ arch/riscv/include/asm/xor.h              |   68 --
+ arch/s390/include/asm/xor.h               |   21 
+ arch/sparc/include/asm/xor.h              |    9 
+ arch/um/include/asm/xor.h                 |   24 
+ arch/x86/include/asm/xor_64.h             |   28 -
+ b/arch/arm/lib/Makefile                   |    5 
+ b/arch/arm64/lib/Makefile                 |    6 
+ b/arch/loongarch/lib/Makefile             |    2 
+ b/arch/powerpc/lib/Makefile               |    5 
+ b/arch/riscv/lib/Makefile                 |    1 
+ b/arch/s390/lib/Makefile                  |    2 
+ b/arch/sparc/include/asm/asm-prototypes.h |    1 
+ b/arch/sparc/lib/Makefile                 |    2 
+ b/crypto/Kconfig                          |    2 
+ b/crypto/Makefile                         |    1 
+ b/crypto/async_tx/async_xor.c             |   34 -
+ b/fs/btrfs/raid56.c                       |   27 -
+ b/include/asm-generic/Kbuild              |    1 
+ b/include/linux/raid/xor.h                |   27 -
+ b/lib/Kconfig                             |    1 
+ b/lib/Makefile                            |    2 
+ b/lib/raid/.kunitconfig                   |    3 
+ b/lib/raid/Kconfig                        |   30 +
+ b/lib/raid/Makefile                       |    3 
+ b/lib/raid/xor/Makefile                   |   42 +
+ b/lib/raid/xor/alpha/xor.c                |   46 -
+ b/lib/raid/xor/alpha/xor_arch.h           |   22 
+ b/lib/raid/xor/arm/xor-neon-glue.c        |   19 
+ b/lib/raid/xor/arm/xor-neon.c             |   22 
+ b/lib/raid/xor/arm/xor.c                  |  105 ----
+ b/lib/raid/xor/arm/xor_arch.h             |   22 
+ b/lib/raid/xor/arm64/xor-neon-glue.c      |   26 +
+ b/lib/raid/xor/arm64/xor-neon.c           |   94 +--
+ b/lib/raid/xor/arm64/xor-neon.h           |    6 
+ b/lib/raid/xor/arm64/xor_arch.h           |   21 
+ b/lib/raid/xor/loongarch/xor_arch.h       |   33 +
+ b/lib/raid/xor/loongarch/xor_simd_glue.c  |   37 +
+ b/lib/raid/xor/powerpc/xor_arch.h         |   22 
+ b/lib/raid/xor/powerpc/xor_vmx.c          |   40 -
+ b/lib/raid/xor/powerpc/xor_vmx.h          |   10 
+ b/lib/raid/xor/powerpc/xor_vmx_glue.c     |   28 +
+ b/lib/raid/xor/riscv/xor-glue.c           |   25 +
+ b/lib/raid/xor/riscv/xor.S                |    4 
+ b/lib/raid/xor/riscv/xor_arch.h           |   17 
+ b/lib/raid/xor/s390/xor.c                 |   15 
+ b/lib/raid/xor/s390/xor_arch.h            |   13 
+ b/lib/raid/xor/sparc/xor-sparc32.c        |   32 -
+ b/lib/raid/xor/sparc/xor-sparc64-glue.c   |   48 -
+ b/lib/raid/xor/sparc/xor-sparc64.S        |   10 
+ b/lib/raid/xor/sparc/xor_arch.h           |   35 +
+ b/lib/raid/xor/tests/Makefile             |    3 
+ b/lib/raid/xor/tests/xor_kunit.c          |  187 +++++++
+ b/lib/raid/xor/um/xor_arch.h              |    2 
+ b/lib/raid/xor/x86/xor-avx.c              |   52 --
+ b/lib/raid/xor/x86/xor-mmx.c              |  120 +---
+ b/lib/raid/xor/x86/xor-sse.c              |  105 +---
+ b/lib/raid/xor/x86/xor_arch.h             |   36 +
+ b/lib/raid/xor/xor-32regs-prefetch.c      |  267 ++++++++++
+ b/lib/raid/xor/xor-32regs.c               |  217 ++++++++
+ b/lib/raid/xor/xor-8regs-prefetch.c       |  146 +++++
+ b/lib/raid/xor/xor-8regs.c                |  103 ++++
+ b/lib/raid/xor/xor-core.c                 |  193 +++++++
+ b/lib/raid/xor/xor_impl.h                 |   56 ++
+ crypto/xor.c                              |  174 -------
+ include/asm-generic/xor.h                 |  738 ------------------------------
+ 73 files changed, 1832 insertions(+), 2067 deletions(-)
