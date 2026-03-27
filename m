@@ -1,32 +1,32 @@
-Received: from out-174.mta1.migadu.com (out-174.mta1.migadu.com [95.215.58.174])
+Received: from out-178.mta0.migadu.com (out-178.mta0.migadu.com [91.218.175.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6B7630EF86
-	for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2026 02:15:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 990E1332608
+	for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2026 02:15:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774577742; cv=none; b=pWDK3/UG9cDCyJhELtk+uSbNL+WXx4MrG+i8tkwZkw8IFBkIsN8mBS+eBJJXRDAYMxN1oINjNF8ykMB5MwEo9JyzimLG8gas8+VAlsfzyQmo+0Sy9qD4bQ8xQUcQOlM8NKx8Hu58TEWK7Lmx8h5QR6bhZ6Fj77PKyAGcQCAPUgw=
+	t=1774577747; cv=none; b=bMzDhuOIUGPA71JcvwFMJ1Odf9WOh8oVmKEpkcrsxQzUlNOvyzQ1v2ZXpCDmgp1fC5MNSulgeD53e5/Vql3XEiquAGE9ArywzLZwLHGkHtLhNvLSsTjRJCFXoukUGL1Wq/mYLpIffWxS0RFA+Ws6w5AvbIb2Fgx5k6NQpOQ2QnA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774577742; c=relaxed/simple;
-	bh=jpuQVVXokoXedW4E3Rk2kXk+4m7MDI3R8N0U0vopra8=;
+	s=arc-20240116; t=1774577747; c=relaxed/simple;
+	bh=MSBXQPCmQM3p81GXRNNhHe5yDRAt26b3JVPgOD91aaw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gOdZhyV/SOXdn5jfYeTwVHvVPl9X6O3yXSy7JjGQ894g2QHuOIXGUhHXUMLmVM4oJAGc+EFY+gJxYzfg6KI5vf2EQ6AIYfB0HLSf2vUTWcgp6Ug5poVwt1HWtXqJB33BMtwAi9DoCDtrK1ZnNlmGlZ8RLYIVsO5Rp10PKCX18WE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=w7b0PFKI; arc=none smtp.client-ip=95.215.58.174
+	 MIME-Version; b=KfCge1ZR6E23IRDeWlAtnGXf5yCNTa7miBkmel/vFSMhFekD7cCWfCIIa3MObCOLxPjJ1XuCx/nJ+e31yoIlj+uLnhwNwEU/vgF1aruoMp1WyqorQZkDwU5NJXprAaJ6/5xbHVQMDm3ntFlByUVLTBw3dE9jZTUCAQKkyOuGyZQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Hnot0p5K; arc=none smtp.client-ip=91.218.175.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="w7b0PFKI"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Hnot0p5K"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1774577738;
+	t=1774577743;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=DA9DXWIy9I9hYoDDZ6d9idv8WvO7k2GsFa78UasupfU=;
-	b=w7b0PFKIYHL5VzgfVOmJaU8mndUe+9d3TAczYvwOPmlWZPC+YdbN4753/gZVXBv6rf/e2p
-	hhxdxl4rOelbJ74Wb6vwZdxneuTlP5Mo2CuIkJfQOwBMurDfXHMHtfo4IP9DtIrgPBP2Dl
-	uZc/JaknYWmWWlMxr4qMjjDLSrv/rhw=
+	bh=8tx/Qjve1iVx/sjsNymGDpKKmMZv1TUyDs/EfcYY5GE=;
+	b=Hnot0p5K89CAv1AQSFPCVNypjXRfAocNMIZyWJnznY4gpq+GWy2CVy+0V7yyIEu0F+HuLG
+	VCDbIV/SqybnVZSHtV9JQkcdTWMzMp9IQ8Hs+qWemVt0yevh5Dk4OIgO/2Wqfo3fp+W2Sb
+	aJvabR1V9LfLrBzcx+XgaoHKYXMXuJs=
 From: Usama Arif <usama.arif@linux.dev>
 To: Andrew Morton <akpm@linux-foundation.org>,
 	david@kernel.org,
@@ -58,9 +58,9 @@ Cc: fvdl@google.com,
 	svens@linux.ibm.com,
 	linux-s390@vger.kernel.org,
 	Usama Arif <usama.arif@linux.dev>
-Subject: [v3 14/24] powerpc/mm: handle split_huge_pmd failure in subpage_prot
-Date: Thu, 26 Mar 2026 19:08:56 -0700
-Message-ID: <20260327021403.214713-15-usama.arif@linux.dev>
+Subject: [v3 15/24] fs/dax: handle split_huge_pmd failure in dax_iomap_pmd_fault
+Date: Thu, 26 Mar 2026 19:08:57 -0700
+Message-ID: <20260327021403.214713-16-usama.arif@linux.dev>
 In-Reply-To: <20260327021403.214713-1-usama.arif@linux.dev>
 References: <20260327021403.214713-1-usama.arif@linux.dev>
 Precedence: bulk
@@ -72,88 +72,44 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
-subpage_walk_pmd_entry() splits huge PMDs when the subpage_prot
-syscall controls the access permissions on individual 4 kB.
+dax_iomap_pmd_fault() splits a huge PMD when the PMD fault falls back
+to PTE-level handling. The split is necessary so that the subsequent
+PTE fault does not misinterpret the huge PMD entry as a page table
+pointer.
 
-In practice this cannot fail today: sys_subpage_prot() returns -ENOENT
-early when radix is enabled, and on hash powerpc
-arch_needs_pgtable_deposit() is true so split uses the pre-deposited
-page table and always succeeds. The change is for __must_check
-compliance introduced in a later patch and correctness if the call
-chain ever becomes reachable on architectures with lazy PTE allocation.
+In practice this cannot fail today: DAX VMAs are always file-backed,
+and __split_huge_pmd() only allocates a PTE page table (the operation
+that can return -ENOMEM) for anonymous VMAs. For file-backed VMAs the
+split path simply zaps the PMD and returns 0.
 
-Propagate the error through the full call chain up to the syscall.
-The syscall already returns -ENOMEM in other places when it runs out
-of memory.
+Use WARN_ON_ONCE to document this invariant and check the return value
+for __must_check compliance introduced in the next patch.
 
 Signed-off-by: Usama Arif <usama.arif@linux.dev>
 ---
- arch/powerpc/mm/book3s64/subpage_prot.c | 24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ fs/dax.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/mm/book3s64/subpage_prot.c b/arch/powerpc/mm/book3s64/subpage_prot.c
-index 37d47282c3686..b3635a11ff433 100644
---- a/arch/powerpc/mm/book3s64/subpage_prot.c
-+++ b/arch/powerpc/mm/book3s64/subpage_prot.c
-@@ -139,8 +139,8 @@ static int subpage_walk_pmd_entry(pmd_t *pmd, unsigned long addr,
- 				  unsigned long end, struct mm_walk *walk)
- {
- 	struct vm_area_struct *vma = walk->vma;
--	split_huge_pmd(vma, pmd, addr);
--	return 0;
-+
-+	return split_huge_pmd(vma, pmd, addr);
- }
- 
- static const struct mm_walk_ops subpage_walk_ops = {
-@@ -148,11 +148,12 @@ static const struct mm_walk_ops subpage_walk_ops = {
- 	.walk_lock	= PGWALK_WRLOCK_VERIFY,
- };
- 
--static void subpage_mark_vma_nohuge(struct mm_struct *mm, unsigned long addr,
--				    unsigned long len)
-+static int subpage_mark_vma_nohuge(struct mm_struct *mm, unsigned long addr,
-+				   unsigned long len)
- {
- 	struct vm_area_struct *vma;
- 	VMA_ITERATOR(vmi, mm, addr);
-+	int err;
- 
- 	/*
- 	 * We don't try too hard, we just mark all the vma in that range
-@@ -160,14 +161,17 @@ static void subpage_mark_vma_nohuge(struct mm_struct *mm, unsigned long addr,
- 	 */
- 	for_each_vma_range(vmi, vma, addr + len) {
- 		vm_flags_set(vma, VM_NOHUGEPAGE);
--		walk_page_vma(vma, &subpage_walk_ops, NULL);
-+		err = walk_page_vma(vma, &subpage_walk_ops, NULL);
-+		if (err)
-+			return err;
+diff --git a/fs/dax.c b/fs/dax.c
+index a5237169b4679..ed1859e8a916f 100644
+--- a/fs/dax.c
++++ b/fs/dax.c
+@@ -2039,7 +2039,14 @@ static vm_fault_t dax_iomap_pmd_fault(struct vm_fault *vmf, unsigned long *pfnp,
+ 	dax_unlock_entry(&xas, entry);
+ fallback:
+ 	if (ret == VM_FAULT_FALLBACK) {
+-		split_huge_pmd(vmf->vma, vmf->pmd, vmf->address);
++		/*
++		 * split_huge_pmd() cannot fail for file-backed (DAX) VMAs
++		 * since splitting only zaps the PMD without allocating a
++		 * PTE page table.
++		 */
++		if (WARN_ON_ONCE(split_huge_pmd(vmf->vma, vmf->pmd,
++						vmf->address)))
++			ret = VM_FAULT_OOM;
+ 		count_vm_event(THP_FAULT_FALLBACK);
  	}
-+	return 0;
- }
- #else
--static void subpage_mark_vma_nohuge(struct mm_struct *mm, unsigned long addr,
--				    unsigned long len)
-+static int subpage_mark_vma_nohuge(struct mm_struct *mm, unsigned long addr,
-+				   unsigned long len)
- {
--	return;
-+	return 0;
- }
- #endif
- 
-@@ -229,7 +233,9 @@ SYSCALL_DEFINE3(subpage_prot, unsigned long, addr,
- 		mm->context.hash_context->spt = spt;
- 	}
- 
--	subpage_mark_vma_nohuge(mm, addr, len);
-+	err = subpage_mark_vma_nohuge(mm, addr, len);
-+	if (err)
-+		goto out;
- 	for (limit = addr + len; addr < limit; addr = next) {
- 		next = pmd_addr_end(addr, limit);
- 		err = -ENOMEM;
+ out:
 -- 
 2.52.0
 
