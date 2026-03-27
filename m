@@ -1,134 +1,94 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F2CD2FF155;
-	Fri, 27 Mar 2026 08:52:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D77AC3D75C7;
+	Fri, 27 Mar 2026 09:25:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774601561; cv=none; b=XTPuqTY/U1ckH0W6B0L/EHXkcUdVUR86sMHfZPtVy7UZ4IOt8EBMij2Seh+NukHkLSA0ewjxx/ihtZkb3Dc9+068aFP0lE8DPCDoH4EQugRfzxIRmKIRMTnL2/VIQySpRi0iDovtlKZnEXdnxmc1ttaRTckpiiUzhEzzbRYS5TE=
+	t=1774603531; cv=none; b=YPuw3/Tk9uWoX2l1bLgzDh1QDNLV6cHo13sC2apHSYSnbv3YzpbMbuBFjN9OeKc2cH344sMcpBjgEzj0evLiX59UMlEUI+H1Z1PtXgdkDCRILQGw2uM99ODiThRBaz9k+Pfq2mB/EzBdkkQmNkHTofUvbml3sZH/bnsRUM/5l1A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774601561; c=relaxed/simple;
-	bh=drwVajeJ1ekQa8MZA4Mm7eL+tdksEfy/DfsHkKXzF9Q=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JUt7dLOxbCnRNFJ3oAFx7zxNH8Qxf9IfuxAR1BRgjzz1Y64y3lrxuKi/yH2eSYfKapQN9hJzwEGgqI2VjUBE96SHguGMVFV/7APVzAUCqcWNrPdt8WOl8ohgWcEGlZK3RNC6ize3CBRCbYbO+9Hln4HOB3ejhDQEsvs4ic8hezo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pfa9eqj+; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1774603531; c=relaxed/simple;
+	bh=q1ism79nJfn/cEtGypwqofF2VKU2iXSfP9bNn9U8VUM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lO7hZtAkR4BaOOGOiasZUx9qjOCy/+Xx6us8ZYRR15WuMWuQiThoCgD19aKreBXLBytAzD0BreU/3WhB2W17cepTRyNSFF709yW7hHnkkoX0lH2mPuOiIaenp2sAA9l0al2gkb7Ad48z7ZdU9gvHJTTYM1PnTSKWArnjgi4Le5Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WmaF744H; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pfa9eqj+"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62R5IQPe124777;
-	Fri, 27 Mar 2026 08:52:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ZZz6II
-	wL7AH8wdL3XqcHtiPWSlnJH/poaFJBJ0jeCQ4=; b=pfa9eqj++VQoMfBBvpZIHs
-	Q1W+rDthB6r5JD2bqcPw1tQj650BIFoLVxRrXjYG/seJnmx/v7+rpfrCNub0gnCn
-	GF6jxB3cTKA9SqrwwN4JgWwZqMxbu7XDupowufIPZ4F3SQwot7XDssZTSRd1uFK2
-	vll/rLBalh1wVufHb5JxXDccziZZho5DZCOqwFH0cWuGWdHDDXSCz52C/hfnftvg
-	V3ovUuTXxrd18PL48bcUC3qWJwky4O4ySX9KIoak1IdSUMFGaxzhF9dBBGSGMImI
-	bPB2bTIQcCtjTcMO3OpeMG8QDLgbV/cZZBq4JED0QUY6JUbiG/y8ANLcjfD5WZhA
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1ktv862k-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Mar 2026 08:52:35 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62R5f7R2009143;
-	Fri, 27 Mar 2026 08:52:34 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d26nnxs8p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Mar 2026 08:52:34 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62R8qWeZ59376106
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 27 Mar 2026 08:52:32 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5989D20043;
-	Fri, 27 Mar 2026 08:52:32 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A974D20040;
-	Fri, 27 Mar 2026 08:52:31 +0000 (GMT)
-Received: from [9.111.129.186] (unknown [9.111.129.186])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 27 Mar 2026 08:52:31 +0000 (GMT)
-Message-ID: <65c3d229-57ee-4980-a13f-bc9661b4dda1@linux.ibm.com>
-Date: Fri, 27 Mar 2026 09:52:31 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WmaF744H"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A7BEC19423;
+	Fri, 27 Mar 2026 09:25:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774603530;
+	bh=q1ism79nJfn/cEtGypwqofF2VKU2iXSfP9bNn9U8VUM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=WmaF744HVRFoUZuE9WelikX7CssORJvCcgjqvHAlHItCZonH1f5u3pjVqPu2pmNwp
+	 0sOJELio9ATZHzGY1mVGObw+Tj+ohu4ZlzfgUHHShjnGHOR4dUZH1xacEXI3dnxcCp
+	 EPLuQMpDGTQFJ6BT1KDFfyUJZB6B2Qsux4f40zQaPLLMtx14hJ4SV9M9QHDzNZ1Hmg
+	 qS/wTO148ZrNsrmGjIVpE0dqOE0Hznelj+tzTWUKV8e/iMqwYv814Ef3aQMBHHZ8F+
+	 WqEr18L/sAwg5B4z4KKGy9OErz7dmEjltoJtuBoYAp8fZcOBM+JhLzwbWduY4hEBwv
+	 PVr5K0M6Wu7Wg==
+Date: Fri, 27 Mar 2026 09:25:21 +0000
+From: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Usama Arif <usama.arif@linux.dev>, 
+	Andrew Morton <akpm@linux-foundation.org>, willy@infradead.org, linux-mm@kvack.org, fvdl@google.com, 
+	hannes@cmpxchg.org, riel@surriel.com, shakeel.butt@linux.dev, kas@kernel.org, 
+	baohua@kernel.org, dev.jain@arm.com, baolin.wang@linux.alibaba.com, 
+	npache@redhat.com, Liam.Howlett@oracle.com, ryan.roberts@arm.com, 
+	Vlastimil Babka <vbabka@kernel.org>, lance.yang@linux.dev, linux-kernel@vger.kernel.org, 
+	kernel-team@meta.com, maddy@linux.ibm.com, mpe@ellerman.id.au, 
+	linuxppc-dev@lists.ozlabs.org, hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com, 
+	borntraeger@linux.ibm.com, svens@linux.ibm.com, linux-s390@vger.kernel.org
+Subject: Re: [v3 00/24] mm: thp: lazy PTE page table allocation at PMD split
+ time
+Message-ID: <cf36f821-8285-4b9f-b1fd-e080292f4204@lucifer.local>
+References: <20260327021403.214713-1-usama.arif@linux.dev>
+ <48d7c810-d219-4346-9e8b-d70243445a91@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/3] crypto: s390 - Remove des and des3_ede code
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: linux-crypto@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, x86@kernel.org,
-        Harald Freudenberger <freude@linux.ibm.com>
-References: <20260326201246.57544-1-ebiggers@kernel.org>
- <20260326201246.57544-2-ebiggers@kernel.org>
-From: Holger Dengler <dengler@linux.ibm.com>
-Content-Language: de-DE, en-US
-In-Reply-To: <20260326201246.57544-2-ebiggers@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: C9kv1xhgntrj6fN5Vjn6ldIrWVEKKlgA
-X-Authority-Analysis: v=2.4 cv=aMr9aL9m c=1 sm=1 tr=0 ts=69c64553 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=w46-cfdy0MOtRbFV-QQA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI3MDA2NCBTYWx0ZWRfX0CSKyORlz5x4
- Tm4DzJ+vaUcJYt+if12Wrb/uh1eTbLJjh705AtyR8SwXXBNa8Cl3jjlxU5wqnk1Y4zR8DGcJZNW
- IpgNd9uprG/MPxM+SzNmkCezi3jQZWvOGFdlnYTNfCW0sg/CQU11VzGN+Wfmbx/oO/5vqs3QVZk
- Rdm6PyHYWBRH4z9sD4FbO3RcuJXQU+E/s6ODZBcGyV3wsFq8Iq+8P5zFie8kuxaxiuuJRDY72qP
- kCfeRHBzONTEcYoGzNYMkfb9Lltr9RQrIZm64HJuRxgQ7p6tLZa0mQN4sbl7fFsBfvdmoPdGLin
- aZTGzPkLtSALBW7FMrzjEX5sPh5rURuOotqTSyAuTSihW6FfSroneMW2YP1AO5mL3yc+qq0zI+n
- aKjil6oFUCOzY3ZjwKT0ElYOB621HhWmw/HBbDmkawvII6xF+x/L53Vwl2kDuOn6euvPtsMgQ1Q
- EjplDl0CEkvMetEB12w==
-X-Proofpoint-GUID: C9kv1xhgntrj6fN5Vjn6ldIrWVEKKlgA
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-26_04,2026-03-26_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 lowpriorityscore=0 adultscore=0 impostorscore=0 malwarescore=0
- suspectscore=0 phishscore=0 priorityscore=1501 bulkscore=0 clxscore=1011
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603270064
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <48d7c810-d219-4346-9e8b-d70243445a91@kernel.org>
 
-Hi Eric,
+On Fri, Mar 27, 2026 at 09:51:31AM +0100, David Hildenbrand (Arm) wrote:
+> >
+> > RFC v2 -> v3: https://lore.kernel.org/all/de0dc7ec-7a8d-4b1a-a419-1d97d2e4d510@linux.dev/
+>
+> Note that we usually go from RFC to v1.
+>
+> I'll put this series on my review backlog, but it will take some time
+> until I get to it (it won't make the next release either way :) ).
 
-On 26/03/2026 21:12, Eric Biggers wrote:
-> Since DES and Triple DES are obsolete, there is very little point in
-> maintining architecture-optimized code for them.  Remove it.
-> 
-> Signed-off-by: Eric Biggers <ebiggers@kernel.org>
+Yeah, please update to v1 from RFC because I'm looking at this and wondering
+where v1, v2 was and why I didn't see them...
 
-Are there plans to completely remove des/3des in-kernel crypto support from
-the kernel or is it just the arch-specific code, that is removed?
+Generally I'd also advise un-RFC'ing a biiiig series IDEALLY be done early in a
+merge window :)
 
-In fact there are still customers using des/3des (unbelievable!), but the
-valid question is, do they also using the in-kernel crypto for their
-workloads. I'll try to figure that out. Unfortunately, Harald is a few days
-off and I need to discuss the removal with him as well.
+We've pretty much shut the door to new series this cycle, but being so late in
+the window at -rc5 would mean no way for this one anyway.
 
-Regarding the testing: in our CI we're running all in-kernel crypto modules
-every night, including des/3des. So there is some test coverage.
+But in general it's going to be a rebase pain this, and I'd rather not see it
+land in mm-unstable at this point, because that's supposed to be 'what's in the
+next release' and it's stuff like this that leads to 'I am not sure what
+mm-unstable represents any more' being a thing.
 
-Regarding qemu: we're currently investigating if we can provide qemu-support
-for the s390 crypto instructions, but, to be honest, des/3des was not on our
-top-priority list until now... ;)
+I think in an ideal world we'd ONLY see this in mm-new.
 
-We'll come back to you in a week or so. I hope, that's ok...
+I wonder if we need some process for un-RFC'ing really, where somebody kinda
+asks rather than it being a vibes thing as it is now (or a 'people don't reply
+to my RFC' which yes I'm guilty of :)
 
--- 
-Mit freundlichen Grüßen / Kind regards
-Holger Dengler
---
-IBM Systems, Linux on IBM Z Development
-dengler@linux.ibm.com
+Anyway this is more general points and not about you Usama, because - hey - all
+this stuff is pretty unclear generally.
 
+>
+> --
+> Cheers,
+>
+> David
+
+Cheers, Lorenzo
