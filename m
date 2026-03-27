@@ -1,32 +1,32 @@
-Received: from out-180.mta1.migadu.com (out-180.mta1.migadu.com [95.215.58.180])
+Received: from out-177.mta1.migadu.com (out-177.mta1.migadu.com [95.215.58.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D748285CA3
-	for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2026 02:14:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEA0D32939C
+	for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2026 02:14:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774577682; cv=none; b=EKT8MGdqCzvsQvGFQCDeEBtIU2FQHdjaDbTp4dm5+2KuYHHjYA3FZRuAmOy4nXB8kzaRRZzczDKQmdQ1zYACbFG3iehCzcjEjTmzHvFrwyNn5AfA9yZHGpVpO+xSbsa5xDqrCldSd6C6QAPrZUIrFLEzrLz9xhG486t5CMDT2Ig=
+	t=1774577686; cv=none; b=OlSeTXHoET2VAUOpHkjXLeWZNF3QtLnka1ka01QSR+ZJwIBaA7xg9Sok07mxG7gqXPQ6b7aqEm6mY2lqfYfLUjeN+uXWf4wT+mT+nf4/aSJwFm2TR+769ZhzUTH8vAkdNOukGSoLN1AX2IgMZBP0gBXb/Bc6fgQSR2VPp8U12G0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774577682; c=relaxed/simple;
-	bh=hoI8HXVgTW3QKeCmiQ8BY+fI6mXjuan+bCtnpnDK8I8=;
+	s=arc-20240116; t=1774577686; c=relaxed/simple;
+	bh=zKlP5pVKPnTMhZ3fH6jP6aRAXsG4BYpLMfDDzJG9YKc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=RIwkmz0NC+rI9SyzqWAy2a8qR/Qgq8M47dxIMPnNxRc0s1FgNkYBpNZN5w4XsVVfVGKd/h0lZ1o9sWBgVFzRVjCNMihOqh5caXPp4PKVB27tkAc8IsstodUOzYlg7LHQQzyn65v6LwYzTMiGJTdtXWNnQmLSayzcV+r0Xa9w7kI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=lWTo7Sxh; arc=none smtp.client-ip=95.215.58.180
+	 MIME-Version; b=LAjCEJdluw5/tiuoQWu+M9CWlg+xmb6W+kxtwIvIOkkMb8SILum1C0kpMgEoVJiVxciKhb4M0bmmJO/gWpnpX+0P/CZmxf8mOnb7YYnTONH0aA0OJJjYRn8eiEgmzyNv51o48jfcfLjE+TK2WBUZoymYMl+p+UNMSb1f0B5VMXE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=HOqb9c3q; arc=none smtp.client-ip=95.215.58.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="lWTo7Sxh"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="HOqb9c3q"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1774577669;
+	t=1774577683;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=HoJOR/NIUvMGOPs6vSvgMHM3cn3cr848MTO9YNsr9oY=;
-	b=lWTo7SxhC2/el6n5yFl/mHGjsk9IDwHTkAjGiFljw5zNKe4kG/HDpe+AsO9ZpB7Xn6yD+M
-	lcl/hkBeI86GVj/xnEw8geiYoIXVZyBgQnR/YjKR6jzAP1uj+D4R7LeXEfle4CWzYnGNLi
-	3qFtTl8j3HQslYlUdM8vuHjTd+DqRMA=
+	bh=sLE/jttxUNtNWJGXfdbfQ0fLOQxN3ImdDTn6kFnTkPI=;
+	b=HOqb9c3qtURSYEfsDks7zbx2QDtDTH9l8hI6RIZbNZVZjMBH564Y3pW5ZPIcsI8NKoiThq
+	EoKp0vqkwqrK6t8HL7D5u0ey61UVlkvaX3oR+haZEDWM9M+SC4Ti9llRE18ryT8ip3fCx4
+	H6PgMQ7rNNkpgtUJP6NJzF9wyR2yris=
 From: Usama Arif <usama.arif@linux.dev>
 To: Andrew Morton <akpm@linux-foundation.org>,
 	david@kernel.org,
@@ -58,9 +58,9 @@ Cc: fvdl@google.com,
 	svens@linux.ibm.com,
 	linux-s390@vger.kernel.org,
 	Usama Arif <usama.arif@linux.dev>
-Subject: [v3 03/24] mm: thp: handle split failure in copy_huge_pmd()
-Date: Thu, 26 Mar 2026 19:08:45 -0700
-Message-ID: <20260327021403.214713-4-usama.arif@linux.dev>
+Subject: [v3 05/24] mm: thp: handle split failure in zap_pmd_range()
+Date: Thu, 26 Mar 2026 19:08:47 -0700
+Message-ID: <20260327021403.214713-6-usama.arif@linux.dev>
 In-Reply-To: <20260327021403.214713-1-usama.arif@linux.dev>
 References: <20260327021403.214713-1-usama.arif@linux.dev>
 Precedence: bulk
@@ -72,42 +72,61 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
-copy_huge_pmd() splits the source PMD when a folio is pinned and can't
-be COW-shared at PMD granularity.  It then returns -EAGAIN so
-copy_pmd_range() falls through to copy_pte_range().
+zap_pmd_range() splits a huge PMD when the zap range doesn't cover the
+full PMD (partial unmap).  If the split fails, the PMD stays huge.
+Falling through to zap_pte_range() would dereference the huge PMD entry
+as a PTE page table pointer.
 
-If the split fails, the PMD is still huge.  Returning -EAGAIN would cause
-copy_pmd_range() to call copy_pte_range(), which would dereference the
-huge PMD entry as if it were a pointer to a PTE page table.
-Return -ENOMEM on split failure instead (which is already done in
-copy_huge_pmd() if pte_alloc_one() fails), which causes copy_page_range()
-to abort the fork with -ENOMEM, similar to how copy_pmd_range() would
-be aborted if pmd_alloc() and copy_pte_range() fail.
+Skip the range covered by the PMD on split failure instead.
+
+The skip is safe across all call paths into zap_pmd_range():
+
+- exit_mmap() and OOM reaper: the zap range covers entire VMAs, so
+  every PMD is fully covered (next - addr == HPAGE_PMD_SIZE).  The
+  zap_huge_pmd() branch handles these without splitting.  The split
+  failure path is unreachable.
+
+- munmap / mmap overlay: vma_adjust_trans_huge() (called from
+  __split_vma) splits any PMD straddling the VMA boundary before the
+  VMA is split.  If that PMD split fails, __split_vma() returns
+  -ENOMEM and the munmap is aborted before reaching zap_pmd_range().
+  The split failure path is unreachable.
+
+- MADV_DONTNEED: advisory hint, the kernel is allowed to ignore it.
+  The pages remain valid and accessible.  A subsequent access returns
+  existing data without faulting.
 
 Signed-off-by: Usama Arif <usama.arif@linux.dev>
 ---
- mm/huge_memory.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ mm/memory.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 99f3b8b24c682..8ad43897bdf80 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -1913,7 +1913,13 @@ int copy_huge_pmd(struct mm_struct *dst_mm, struct mm_struct *src_mm,
- 		pte_free(dst_mm, pgtable);
- 		spin_unlock(src_ptl);
- 		spin_unlock(dst_ptl);
--		__split_huge_pmd(src_vma, src_pmd, addr, false);
-+		/*
-+		 * If split fails, the PMD is still huge so copy_pte_range
-+		 * (via -EAGAIN) would misinterpret it as a page table
-+		 * pointer.  Return -ENOMEM directly to copy_pmd_range.
-+		 */
-+		if (__split_huge_pmd(src_vma, src_pmd, addr, false))
-+			return -ENOMEM;
- 		return -EAGAIN;
- 	}
- 	add_mm_counter(dst_mm, MM_ANONPAGES, HPAGE_PMD_NR);
+diff --git a/mm/memory.c b/mm/memory.c
+index e44469f9cf659..caf97c48cb166 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -1985,9 +1985,18 @@ static inline unsigned long zap_pmd_range(struct mmu_gather *tlb,
+ 	do {
+ 		next = pmd_addr_end(addr, end);
+ 		if (pmd_is_huge(*pmd)) {
+-			if (next - addr != HPAGE_PMD_SIZE)
+-				__split_huge_pmd(vma, pmd, addr, false);
+-			else if (zap_huge_pmd(tlb, vma, pmd, addr)) {
++			if (next - addr != HPAGE_PMD_SIZE) {
++				/*
++				 * If split fails, the PMD stays huge.
++				 * Skip the range to avoid falling through
++				 * to zap_pte_range, which would treat the
++				 * huge PMD entry as a page table pointer.
++				 */
++				if (__split_huge_pmd(vma, pmd, addr, false)) {
++					addr = next;
++					continue;
++				}
++			} else if (zap_huge_pmd(tlb, vma, pmd, addr)) {
+ 				addr = next;
+ 				continue;
+ 			}
 -- 
 2.52.0
 
