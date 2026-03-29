@@ -1,143 +1,127 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63D121EF36E;
-	Sun, 29 Mar 2026 20:35:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8459E1D5170;
+	Sun, 29 Mar 2026 21:31:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774816517; cv=none; b=ikdJbGgX+ArCOEkK7LZOGMPXDEOcZYAdhTESuCQowpIRY3WCWABSCoy4R7iLgXlJQC4hEhsiZww3UezUzBGlq91c+MNtx9jb5QBF6QmcFXNHXUrgaoajDuqSIz7a5r7Lz5OJGCsiAvdAlpPVg2baBUvcfRL98NZ1+k8fmSt4Qcs=
+	t=1774819885; cv=none; b=oenbhVjMfUjDs9Qyaj4/n5FMrt+clwZYq1hUP97YTDeT+WLlFQSTnlOQoXzW0tSzOyZ1Nd7CBkBCx0SZFyZ6h6upr2H2uni1u6eMdZid7ybJfDO1NWLA/ZjEf6F6Giyog3QEo8+iw+kgGegGPYFiZs/ndLB4b6BZMQ48HTsMvX0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774816517; c=relaxed/simple;
-	bh=VGwNR6sz5MSPMcw8TPumnldbdd9XU/HxE2Wx7OPTeGQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=UkDHjk94JJGP0k6PRocHmeBGEjV+TOhvcS18ZnqppCp1rhn0jEPhCjRAcQo74WGwnEpn6Gas4Ei5H0dCFnxPU84Ljq+ItM94BxoGO4X91UXk0oCTm2x3Ww1UYziVMnnRLTudG0tCjVWjEY+mfgIExMTeB15mWkYlrHuqs9xq+c8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uW21tUvs; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774819885; c=relaxed/simple;
+	bh=PZ1wpSjnIe92PCeQuI7dS0b860us4G2UnkohZEsZsEU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=CP5t2LKYrtn3ig9fIkY/Wm0lsvEmcBuWfiS0guX3WStantniwAhchIWzRGeYydHohqTB1/HlKEZt6kAIT5eWoqBoGVpxsEbPt5KZ7BOjZ8CWdEpKDnHaEbfzx/iermB1KxuLCOnrSLLNJxR0gRmqoYgmlWZvtSByotSEt0Pu30E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ULb4+Wxd; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uW21tUvs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69548C116C6;
-	Sun, 29 Mar 2026 20:35:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ULb4+Wxd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2530AC116C6;
+	Sun, 29 Mar 2026 21:31:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774816517;
-	bh=VGwNR6sz5MSPMcw8TPumnldbdd9XU/HxE2Wx7OPTeGQ=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=uW21tUvsVfUret2vm/UP9IFsLkZcX9iLr6rhvkIWtpMd9UfY2JTWcHb1cTxKtjpW9
-	 vNVauw8wA9wc1iYZRG94M3cdGo+ZSGNMLYT2i0w+QM3RVBeWE9xzJxI+8nJ9rfLRW+
-	 G7b7b0hDU6+tfGOvQuMBVLmFaHwdMmZyj5ev1QFYqQo+Wg2U94l+LB1mwyir6dlNI9
-	 3aYRO2UtPvr9uYh6Zqdkoxy2f6+fgISPanP16oDCqbqqsywwKxmBx6d3S/hdwOHp6x
-	 PBSnwkxQfiRadm7qAPDdGQBUiuLUSH+CaziM5rHPOeEAqmmXv/L+rnlMVWI0FRxxOC
-	 fPdfAz8oJgRCg==
-From: Jakub Kicinski <kuba@kernel.org>
-To: lixiasong1@huawei.com
-Cc: Jakub Kicinski <kuba@kernel.org>,
-	alibuda@linux.alibaba.com,
-	dust.li@linux.alibaba.com,
-	sidraya@linux.ibm.com,
-	wenjia@linux.ibm.com,
-	mjambigi@linux.ibm.com,
-	tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	pabeni@redhat.com,
-	horms@kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	yuehaibing@huawei.com,
-	zhangchangzhong@huawei.com,
-	weiyongjun1@huawei.com
-Subject: Re: [PATCH net 2/2] net/smc: fix potential UAF in smc_pnet_add_ib for smcd device
-Date: Sun, 29 Mar 2026 13:35:06 -0700
-Message-ID: <20260329203506.2816841-1-kuba@kernel.org>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260325110352.3833570-3-lixiasong1@huawei.com>
-References: <20260325110352.3833570-3-lixiasong1@huawei.com>
+	s=k20201202; t=1774819885;
+	bh=PZ1wpSjnIe92PCeQuI7dS0b860us4G2UnkohZEsZsEU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=ULb4+WxdcWS0LYY9+V+ZhbQ2W3+gIjbkOcw58cK44Qjr9h22rlhdWgqrzvN7R6PFm
+	 JREZi4dijq69Gaojf+s0flL7jtbEMPdMc1H9xiVEXRPZGXJ+mlST60uJB7ykogcxSg
+	 kmfGm8RBCtS/7B0rt59NZvGOlgpFTgi1GJtUu13b3N8GxcTN5UmObfYBhRebgAbOcw
+	 s6hlqjkrksTerC1XE20F/dvAdRtaJ9guJhs99OCpaYdx7JLVTyioUmYJlr1WpZMw7X
+	 u3sIge99HyZ1zxhIvJaxFTUekKZ6rH63KCJunK++uOHXMhMrLVzR5ifEDLGHmrI7Dj
+	 yDWAS2zzXgozA==
+Date: Sun, 29 Mar 2026 14:31:19 -0700
+From: Eric Biggers <ebiggers@kernel.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Matt Turner <mattst88@gmail.com>,
+	Magnus Lindholm <linmag7@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Dan Williams <dan.j.williams@intel.com>, Chris Mason <clm@fb.com>,
+	David Sterba <dsterba@suse.com>, Arnd Bergmann <arnd@arndb.de>,
+	Song Liu <song@kernel.org>, Yu Kuai <yukuai@fnnas.com>,
+	Li Nan <linan122@huawei.com>, Theodore Ts'o <tytso@mit.edu>,
+	"Jason A. Donenfeld" <Jason@zx2c4.com>, linux-alpha@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+	linux-crypto@vger.kernel.org, linux-btrfs@vger.kernel.org,
+	linux-arch@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: cleanup the RAID5 XOR library v4
+Message-ID: <20260329213119.GA2106@quark>
+References: <20260327061704.3707577-1-hch@lst.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260327061704.3707577-1-hch@lst.de>
 
-This is an AI-generated review of your patch. The human sending this
-email has considered the AI review valid, or at least plausible.
----
-net/smc: fix potential UAF in smc_pnet_add_ib for smcd device
+On Fri, Mar 27, 2026 at 07:16:32AM +0100, Christoph Hellwig wrote:
+> Hi all,
+> 
+> the XOR library used for the RAID5 parity is a bit of a mess right now.
+> The main file sits in crypto/ despite not being cryptography and not
+> using the crypto API, with the generic implementations sitting in
+> include/asm-generic and the arch implementations sitting in an asm/
+> header in theory.  The latter doesn't work for many cases, so
+> architectures often build the code directly into the core kernel, or
+> create another module for the architecture code.
+> 
+> Changes this to a single module in lib/ that also contains the
+> architecture optimizations, similar to the library work Eric Biggers
+> has done for the CRC and crypto libraries later.  After that it changes
+> to better calling conventions that allow for smarter architecture
+> implementations (although none is contained here yet), and uses
+> static_call to avoid indirection function call overhead.
+> 
+> A git tree is also available here:
+> 
+>     git://git.infradead.org/users/hch/misc.git xor-improvements
+> 
+> Gitweb:
+> 
+>     https://git.infradead.org/?p=users/hch/misc.git;a=shortlog;h=refs/heads/xor-improvements
+> 
+> Changes since v3:
+>  - switch away from lockdep_assert_preemption_enabled() again
+>  - fix a @ reference in a kerneldoc comment.
+>  - build the arm4regs implementation also without kernel-mode neon
+>    support
+>  - fix a pre-existing issue about mismatched attributes on arm64's
+>    xor_block_inner_neon
+>  - reject 0-sized xor request and adjust the kunit test case to not
+>    generate them
 
-This commit fixes a potential use-after-free when accessing an smcd device
-in smc_pnet_add_ib(). It resolves the issue by combining the lookup and
-apply operations into a single function that holds the smcd_dev_list.mutex
-for the duration of both operations.
+Reviewed-by: Eric Biggers <ebiggers@kernel.org>
 
-> diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-> index 91c0b1c473b2..a1603740167b 100644
-> --- a/net/smc/smc_pnet.c
-> +++ b/net/smc/smc_pnet.c
+But yes, as Andrew mentioned there are two "xor: add a better public
+API" patches.  They should be folded together.
 
-[ ... ]
-
-> @@ -351,23 +357,39 @@ static bool smc_pnet_find_ib_apply(char *ib_name, u8 ib_port, char *pnet_name)
->  }
->  
->  /* Find an smcd device by a given name. The device might not exist. */
-> -static struct smcd_dev *smc_pnet_find_smcd(char *smcd_name)
-> +static struct smcd_dev *__smc_pnet_find_smcd(char *smcd_name)
->  {
->  	struct smcd_dev *smcd_dev;
->  
-> -	mutex_lock(&smcd_dev_list.mutex);
->  	list_for_each_entry(smcd_dev, &smcd_dev_list.list, list) {
->  		if (!strncmp(dev_name(&smcd_dev->dibs->dev), smcd_name,
->  			     IB_DEVICE_NAME_MAX - 1) ||
->  		    (smcd_dev->dibs->dev.parent &&
->  		     !strncmp(dev_name(smcd_dev->dibs->dev.parent), smcd_name,
->  			      IB_DEVICE_NAME_MAX - 1)))
-> -			goto out;
-> +			return smcd_dev;
-> +	}
-> +	return NULL;
-> +}
-> +
-> +/* Find an smcd device by name and apply pnetid under lock. */
-> +static bool smc_pnet_find_smcd_apply(char *smcd_name, char *pnet_name)
-> +{
-> +	struct smcd_dev *smcd_dev;
-> +	bool rc = true;
-> +
-> +	mutex_lock(&smcd_dev_list.mutex);
-> +	smcd_dev = __smc_pnet_find_smcd(smcd_name);
-> +	if (smcd_dev) {
-> +		if (!__smc_pnet_apply_smcd(smcd_dev, pnet_name))
-
-While this prevents the use-after-free in smc_pnet_add_ib() by expanding the
-mutex coverage, does the same vulnerability pattern still exist in the
-connection handshake paths?
-
-Neither struct smcd_dev nor struct smc_ib_device appear to use reference
-counting. During a connection handshake, functions like
-smc_pnet_find_ism_resource() and _smc_pnet_find_roce_by_pnetid() find a
-device under the mutex, store the raw pointer (e.g., into ini->ism_dev[0]),
-and immediately release the mutex.
-
-If a concurrent hot-unplug event triggers smcd_unregister_dev() or
-smc_ib_remove_dev() while the handshake process is accessing the device
-without holding a lock or reference, could it lead to another use-after-free?
-
-Would a more complete fix require introducing reference counting for both
-device structures to ensure they remain valid while pointed to by the
-handshake structures?
-
-> +			rc = false;
-> +		else
-> +			pr_warn_ratelimited("smc: smcd device %s applied user defined pnetid %.16s\n",
-> +					    dev_name(&smcd_dev->dibs->dev),
-> +					    smcd_dev->pnetid);
->  	}
-> -	smcd_dev = NULL;
-> -out:
->  	mutex_unlock(&smcd_dev_list.mutex);
-> -	return smcd_dev;
-> +	return rc;
->  }
+- Eric
