@@ -1,139 +1,236 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from fout-a8-smtp.messagingengine.com (fout-a8-smtp.messagingengine.com [103.168.172.151])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F04A3368B9;
-	Mon, 30 Mar 2026 15:09:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E66C3624CE;
+	Mon, 30 Mar 2026 15:36:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774883382; cv=none; b=OAARp9VjsMfdphaA2WMcj0nA2MfJgteLR3eHuVm6hBoVbam8KIKTCbJ1Vpjea7zHeT0mdHCbHOl/hl7zIAI40kd8UZkKvM+Km60/obWg0MmYnTHQYEez5ywkuUmt/dwshLpYmsc08xMoZal3C4dkGN1ANjmc6G7AhW+G1KUhx8E=
+	t=1774885013; cv=none; b=NFA9zGgtxDpwONwM1k+NrGhNEpkj4AVF2WcaS4jlwZs34KKWazTlVFLM9L5qaeCW/qLSyGavVhKZ/yxK2gqaAaqVM1f6X7tGWrCkm7uKVWRhQJ9zNH918MAhd10FKlF0aeFIEJGfqv+xGrdjGl7v0mEYrUF8ymLyZtr94P4zw0Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774883382; c=relaxed/simple;
-	bh=WTEs+wWGfoGp7m+1pMCQulX7OTGdD9wt7oEgo7X/NC4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=BWf43NaIZ+CzaNeCk10Fkkasm1f80UWN3otviynEj2y2a+tvg4SCA2pLOiS++Y7kqwX34e+kD2hm0IFIzuI6INWnIs7jrbQUjSGotSs3EtMncNvqstw7x8K05LlzDHcwvRjdcNgBcRJnvxSk1YHZllB6/bgHMJ8HO9b0qfVlSfA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=czqt+VGB; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774885013; c=relaxed/simple;
+	bh=8XpL0hz6gQ4RRLu/LAP84ILPYxRrFhAWzSNsaZ08To4=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=VzPBweA65V3IVNXZBA84OiD0f6jTa+LXmNveOZ/mcby0B91WpjCe8tDT8HwISQUNW8IiwiCIKsphUI1KGEydRBktHuYhVsQD+PhrVgA0kHamQpeURJ2lm1yH6khYdVaaoH+/SnRdvTMExQrLQDODWGobuH1MHWyolPsXJyH1G6I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=XUi53fPo; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=tvvDmLqx; arc=none smtp.client-ip=103.168.172.151
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="czqt+VGB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2E7EC4CEF7;
-	Mon, 30 Mar 2026 15:09:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774883382;
-	bh=WTEs+wWGfoGp7m+1pMCQulX7OTGdD9wt7oEgo7X/NC4=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=czqt+VGBQH53ovNn2cfF9ycf8x3bSlQ8hpcOwAKfQ4OG7BYzHGkpsx2uai6eAvln2
-	 bCpK6pfDZWoXyOquiOplKpu0D2kJq3+0SGS9puSXKpbdhlSYtZ+f4hcljD4WRsKhQI
-	 WlmBD+2zR9UDMPHKrgAS87tDd7pdmO+CzfdiBVcx7oIGSu8h30J1XGVuUmiq9hkN6Z
-	 54dktGBKjl1oSvOF3EsqWS3zwqZ//hkCUliTuKxMEjMuJdzcbA3+erE+LDHtsSyi6s
-	 M7dSp0+dcBT4hJLbCBVLD/k2UZ+2GukCUGcms+6oBJhZlN1BryHvwhTdh2EabfGstX
-	 QzbM7F4K3m57A==
-Message-ID: <b17934c0-c6f9-4160-9cdb-2f5ccbf90b1e@kernel.org>
-Date: Mon, 30 Mar 2026 17:09:35 +0200
+	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="XUi53fPo";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="tvvDmLqx"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfout.phl.internal (Postfix) with ESMTP id AE68EEC01F3;
+	Mon, 30 Mar 2026 11:36:49 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-04.internal (MEProxy); Mon, 30 Mar 2026 11:36:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1774885009;
+	 x=1774971409; bh=cbEOkWUc2U4Fm/hMCSAf19Rx3s2OVVkD2oFlIw7xFjs=; b=
+	XUi53fPo+vcTcJzlnn43osylDk2eMSCXVjsq08kai8dYCJP2sFlg0N6SDlSA3Zh8
+	9zHsKgqqh1+T4IeimdBp2GIFOR+/mfgU4zQBZ89qM8Ex+tKfJ/U/4abnTLqzPVCd
+	NxQTHX+sr/l79gxoWvGKGdHYIKp1mmw6sKIwzt+4S00HoAElomDpWFQ8+EbkL6Cf
+	SrofoMC9sn6K5Lqf6tD/sSx4qHuk0bCXpk5mLxOeO/PV9vKEGFRfy+nOrI3XfQrl
+	1/uNt9UmmsuxwNUeX7Nw4KQkpZgqSvdeQ0zRdfYafJtC1AjZM7YmZY0nbjIaMZ6z
+	9ZMgE/1zFwlj7Jq0TIp/dA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1774885009; x=
+	1774971409; bh=cbEOkWUc2U4Fm/hMCSAf19Rx3s2OVVkD2oFlIw7xFjs=; b=t
+	vvDmLqx9mqW3T+j5R/vYnHRQ5sB9mdXoqUYZb0B1XaTouMnNSlIp/g6cV5pY725G
+	Y6OZSQgAnz5LQZm2eumILePTf07B5yMZStuO6Facj3SkdQaNYy4Lo+dc9DHSIc5d
+	PPXpseZirM4FqSdUS/Y/7gZm/BWrAsqQqhbiwnT/qw6dbOtOvcp0SJJWSbAZUYOl
+	1d8WeQwxAGx+iSs+479ZK5lsBbXKtqAiZy4XXE9hTJdlveVdjh70eqmRqI5hFv91
+	05neSkXFbTp77Zsv3atz8cuneNNHJQ4v7ydGFWw0rOlMPZZiPXKzpo2k1uARMeXk
+	TdcJD9Z2a3KDuh3nCeJZA==
+X-ME-Sender: <xms:kZjKaWQw1gbrNpXCGOTuGAWbFD0CvGoACgxjrBtaCQ9mnc0sigNeyw>
+    <xme:kZjKaX6hfgUdRlLAZDwfwXacW518GjcUgpv28_AK0mY-aCU-E_GNLyI0ve9bATlfC
+    E7erfbwRIiwic0NSwxmiRkRIDLKhIkbRfF_QUQqMs-O43jYYGu8kg>
+X-ME-Received: <xmr:kZjKafpCdGh6anGsh9mGieYwyVQYYo3eowjnZbdbW-5QjDuHLKWmBjy_T7Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdeffeelfeehucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepfffhvfevuffkjghfofggtgfgsehtjeertdertddvnecuhfhrohhmpeetlhgvgicu
+    hghilhhlihgrmhhsohhnuceorghlvgigsehshhgriigsohhtrdhorhhgqeenucggtffrrg
+    htthgvrhhnpedvkeefjeekvdduhfduhfetkedugfduieettedvueekvdehtedvkefgudeg
+    veeuueenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    grlhgvgiesshhhrgiisghothdrohhrghdpnhgspghrtghpthhtohepvddupdhmohguvgep
+    shhmthhpohhuthdprhgtphhtthhopehstghhnhgvlhhlvgeslhhinhhugidrihgsmhdrtg
+    homhdprhgtphhtthhopegrlhhifhhmsehlihhnuhigrdhisghmrdgtohhmpdhrtghpthht
+    ohepjhhulhhirghnrheslhhinhhugidrihgsmhdrtghomhdprhgtphhtthhopeifihhnth
+    gvrhgrsehlihhnuhigrdhisghmrdgtohhmpdhrtghpthhtohepthhssehlihhnuhigrdhi
+    sghmrdgtohhmpdhrtghpthhtohepohgsvghrphgrrheslhhinhhugidrihgsmhdrtghomh
+    dprhgtphhtthhopehgsggrhigvrheslhhinhhugidrihgsmhdrtghomhdprhgtphhtthho
+    pehjghhgseiiihgvphgvrdgtrgdprhgtphhtthhopeihihhshhgrihhhsehnvhhiughirg
+    drtghomh
+X-ME-Proxy: <xmx:kZjKabW7gQtxPI9sxUlKYTl6bNLDUu5yZHuXED9R0whv9Oe2mKunAA>
+    <xmx:kZjKafo6vHIZjfwHjsUH1gleZmxuJ57TrGHOIKSbRgtB7Plq0dZjyQ>
+    <xmx:kZjKaSuuCHvAINqJdASxD5pYsNdXthkzRl3beHtdR1B3ehM578MxDw>
+    <xmx:kZjKaVQnPQ0ZAEOfiH92t3NX1_5MWmNE-Te1lNQY1cSLR_hZFEhcvw>
+    <xmx:kZjKabHqCS0B2RuWF8CkKNIbY-TMdDWblSW3TblJ-R5ELqCjQ175hPaR>
+Feedback-ID: i03f14258:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 30 Mar 2026 11:36:47 -0400 (EDT)
+Date: Mon, 30 Mar 2026 09:36:46 -0600
+From: Alex Williamson <alex@shazbot.org>
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Farhan Ali <alifm@linux.ibm.com>, Julian Ruess <julianr@linux.ibm.com>,
+ wintera@linux.ibm.com, ts@linux.ibm.com, oberpar@linux.ibm.com,
+ gbayer@linux.ibm.com, Jason Gunthorpe	 <jgg@ziepe.ca>, Yishai Hadas
+ <yishaih@nvidia.com>, Shameer Kolothum	 <skolothumtho@nvidia.com>, Kevin
+ Tian <kevin.tian@intel.com>, mjrosato@linux.ibm.com, raspl@linux.ibm.com,
+ hca@linux.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
+ kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-pci@vger.kernel.org, alex@shazbot.org
+Subject: Re: [PATCH v8 2/3] vfio/ism: Implement vfio_pci driver for ISM
+ devices
+Message-ID: <20260330093646.03b0455f@shazbot.org>
+In-Reply-To: <64e3158a441c79c55febead9aac956c31f034fb9.camel@linux.ibm.com>
+References: <20260325-vfio_pci_ism-v8-0-ddc504cde914@linux.ibm.com>
+	<20260325-vfio_pci_ism-v8-2-ddc504cde914@linux.ibm.com>
+	<4096cb9d402b1aabc9667d450221cb0922e78d90.camel@linux.ibm.com>
+	<3d6457b9-715a-4cbb-9c69-d8a7e7473c89@linux.ibm.com>
+	<64e3158a441c79c55febead9aac956c31f034fb9.camel@linux.ibm.com>
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [v3 05/24] mm: thp: handle split failure in zap_pmd_range()
-To: Kiryl Shutsemau <kas@kernel.org>, Usama Arif <usama.arif@linux.dev>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
- Lorenzo Stoakes <ljs@kernel.org>, willy@infradead.org, linux-mm@kvack.org,
- fvdl@google.com, hannes@cmpxchg.org, riel@surriel.com,
- shakeel.butt@linux.dev, baohua@kernel.org, dev.jain@arm.com,
- baolin.wang@linux.alibaba.com, npache@redhat.com, Liam.Howlett@oracle.com,
- ryan.roberts@arm.com, Vlastimil Babka <vbabka@kernel.org>,
- lance.yang@linux.dev, linux-kernel@vger.kernel.org, kernel-team@meta.com,
- maddy@linux.ibm.com, mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- borntraeger@linux.ibm.com, svens@linux.ibm.com, linux-s390@vger.kernel.org
-References: <20260327021403.214713-1-usama.arif@linux.dev>
- <20260327021403.214713-6-usama.arif@linux.dev>
- <acqC010JLTfjHF0y@thinkstation>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <acqC010JLTfjHF0y@thinkstation>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On 3/30/26 16:13, Kiryl Shutsemau wrote:
-> On Thu, Mar 26, 2026 at 07:08:47PM -0700, Usama Arif wrote:
->> zap_pmd_range() splits a huge PMD when the zap range doesn't cover the
->> full PMD (partial unmap).  If the split fails, the PMD stays huge.
->> Falling through to zap_pte_range() would dereference the huge PMD entry
->> as a PTE page table pointer.
->>
->> Skip the range covered by the PMD on split failure instead.
-> 
-> Ughh... This is hacky as hell.
-> 
->> The skip is safe across all call paths into zap_pmd_range():
->>
->> - exit_mmap() and OOM reaper: the zap range covers entire VMAs, so
->>   every PMD is fully covered (next - addr == HPAGE_PMD_SIZE).  The
->>   zap_huge_pmd() branch handles these without splitting.  The split
->>   failure path is unreachable.
->>
->> - munmap / mmap overlay: vma_adjust_trans_huge() (called from
->>   __split_vma) splits any PMD straddling the VMA boundary before the
->>   VMA is split.  If that PMD split fails, __split_vma() returns
->>   -ENOMEM and the munmap is aborted before reaching zap_pmd_range().
->>   The split failure path is unreachable.
->>
->> - MADV_DONTNEED: advisory hint, the kernel is allowed to ignore it.
->>   The pages remain valid and accessible.  A subsequent access returns
->>   existing data without faulting.
-> 
-> Em, no. MADV_DONTNEED users expect memory to be zeroed after the
-> "advise" is complete. At very least you need to zero the skipped range.
+On Fri, 27 Mar 2026 15:53:30 +0100
+Niklas Schnelle <schnelle@linux.ibm.com> wrote:
 
-Fully agreed. This definitely needs more thought :)
+> On Thu, 2026-03-26 at 12:05 -0700, Farhan Ali wrote:
+> > On 3/26/2026 6:03 AM, Niklas Schnelle wrote:  
+> > > On Wed, 2026-03-25 at 14:31 +0100, Julian Ruess wrote:  
+> > > > Add a vfio_pci variant driver for the s390-specific Internal Shared
+> > > > Memory (ISM) devices used for inter-VM communication.
+> > > > 
+> > > > This enables the development of vfio-pci-based user space drivers for
+> > > > ISM devices.
+> > > > 
+> > > > On s390, kernel primitives such as ioread() and iowrite() are switched
+> > > > over from function-handle-based PCI load/stores instructions to PCI
+> > > > memory-I/O (MIO) loads/stores when these are available and not
+> > > > explicitly disabled. Since these instructions cannot be used with ISM
+> > > > devices, ensure that classic function-handle-based PCI instructions are
+> > > > used instead.
+> > > > 
+> > > > The driver is still required even when MIO instructions are disabled, as
+> > > > the ISM device relies on the PCI store block (PCISTB) instruction to
+> > > > perform write operations.
+> > > > 
+> > > > Stores are not fragmented, therefore one ioctl corresponds to exactly
+> > > > one PCISTB instruction. User space must ensure to not write more than
+> > > > 4096 bytes at once to an ISM BAR which is the maximum payload of the
+> > > > PCISTB instruction.
+> > > > 
+> > > > Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+> > > > Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > > > Signed-off-by: Julian Ruess <julianr@linux.ibm.com>
+> > > > ---
+> > > >   drivers/vfio/pci/Kconfig      |   2 +
+> > > >   drivers/vfio/pci/Makefile     |   2 +
+> > > >   drivers/vfio/pci/ism/Kconfig  |  10 ++
+> > > >   drivers/vfio/pci/ism/Makefile |   3 +
+> > > >   drivers/vfio/pci/ism/main.c   | 408 ++++++++++++++++++++++++++++++++++++++++++
+> > > >   5 files changed, 425 insertions(+)
+> > > >   
+> > > --- snip ---  
+> > > > +
+> > > > +static int ism_vfio_pci_ioctl_get_region_info(struct vfio_device *core_vdev,
+> > > > +					      struct vfio_region_info *info,
+> > > > +					      struct vfio_info_cap *caps)
+> > > > +{
+> > > > +	struct vfio_pci_core_device *vdev =
+> > > > +		container_of(core_vdev, struct vfio_pci_core_device, vdev);
+> > > > +	struct pci_dev *pdev = vdev->pdev;
+> > > > +
+> > > > +	switch (info->index) {
+> > > > +	case VFIO_PCI_CONFIG_REGION_INDEX:
+> > > > +		info->offset = ISM_VFIO_PCI_INDEX_TO_OFFSET(info->index);
+> > > > +		info->size = pdev->cfg_size;
+> > > > +		info->flags = VFIO_REGION_INFO_FLAG_READ |
+> > > > +			      VFIO_REGION_INFO_FLAG_WRITE;
+> > > > +		break;
+> > > > +	case VFIO_PCI_BAR0_REGION_INDEX ... VFIO_PCI_BAR5_REGION_INDEX:
+> > > > +		info->offset = ISM_VFIO_PCI_INDEX_TO_OFFSET(info->index);
+> > > > +		info->size = pci_resource_len(pdev, info->index);
+> > > > +		if (!info->size) {
+> > > > +			info->flags = 0;
+> > > > +			break;
+> > > > +		}
+> > > > +		info->flags = VFIO_REGION_INFO_FLAG_READ |
+> > > > +			      VFIO_REGION_INFO_FLAG_WRITE;
+> > > > +		break;
+> > > > +	default:
+> > > > +		info->offset = 0;
+> > > > +		info->size = 0;
+> > > > +		info->flags = 0;
+> > > > +		return -EINVAL;  
+> > > Thinking more about this, the above default handling actually breaks
+> > > additional regions such as the one added by Farhan for the error
+> > > events. I think this needs to instead call the generic
+> > > vfio_pci_ioctl_get_region_info() for other regions.  
+> > 
+> > Note for error events we are using a VFIO device feature and not a 
+> > region. At this point we actually don't have additional regions. I do 
+> > agree that if we were to add a zpci specific region we would need to 
+> > update here and ism_vfio_pci_rw() to allow region read/write ops. This 
+> > ISM driver would also need to support all the possible callbacks in 
+> > struct vfio_pci_regops.
+> > 
+> > Given that we don't have any additional regions yet, I am conflicted if 
+> > it makes sense to add all the code to support additional regions without 
+> > a good way to test it. Maybe its something we can defer when if we add 
+> > additional regions? Thanks
+> > 
+> > Farhan  
+> 
+> @Alex, we experimented a bit and it turns out with the custom
+> ISM_VFIO_PCI_OFFSET_SHIFT it becomes quite tricky to reliably call into
+> common vfio-pci code for handling other regions as that again relies on
+> the normal VFIO_PCI_OFFSET_SHIFT.
+> 
+> So we came up with two options:
+> 
+> 1) vfio-pci-ism will only support this basic set of regions. It seems
+> to us that new extensions like Farhan's error events should use device
+> features anyway, so this to us seems like an acceptable limitation and
+> would essentially mean we take this patch as is.
+> 
+> 2) We revisit the original idea of adjusting VFIO_PCI_OFFSET_SHIFT
+> globally but do so only for CONFIG_64BIT so as not to break 32 bit
+> platforms. This would simplify vfio-pci-ism and cause less code
+> duplication but also affects everyone else.
+> 
+> Either option works for us, so I'm hoping for your input.
 
--- 
-Cheers,
+There's risk involved with changing the default shift.  The fear is
+there's userspace drivers that hard code the shift.  DPDK was even such
+a user at one point, iirc.  Maybe it's ok to break such users, maybe
+there are actually no such users left and it's all FUD at this point.
+Either way, I have a hard time justifying that risk for a single,
+obscure S390 device.
 
-David
+Rather than using CONFIG_64BIT as a basis for using a different
+default, should we start out with a more narrow scope of CONFIG_S390?
+
+It's likely inevitable that we'll hit this wall in general, but maybe
+S390 can be the "crash test dummy" to prove to userspace that they
+really need to use the uAPI rather than hard coded values.
+
+Farhan's series is a bit of a straw-man since it doesn't actually
+convey the error codes via regions, but I can certainly agree that
+using a unique region shift becomes an ongoing burden relative to
+vfio-pci-core helpers.  I can accept an S390 specific (for now) change
+to the region spacing if that's the most sensible path.  Thanks,
+
+Alex
