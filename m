@@ -1,178 +1,148 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 703BC3CE4B6
-	for <linux-s390@vger.kernel.org>; Mon, 30 Mar 2026 12:03:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.133.124
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774872203; cv=pass; b=RkSbYhepfks8EPWbuuXE6HtVd1E1f9+7XLgvvuBwCva25H5q0AM0Bn365pCqc4Dza1//cOX0HyJAMQSY/tOgY8E62xojMc0IQs3Vaji/9p+vDS6DtjSDb2KFTaWsisj892mZl99IAYZ8h9fSxG8NewP5bHDnzUHYyJS9SwQLSUo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774872203; c=relaxed/simple;
-	bh=dlojckMTP0EqbPzAwVconofdQz/0gm7fgmh/1rE97gc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mwMklO8AysdTX8yQgNclPhLLXRDUc/iBOx6WaKBk8b5z1PYB6XV9D6U7qpLF2m5UyIpqzCFGuktAXa5xeYUG533xFrisaDxzGfpGpEqG3s0true0vjAWdRLgoxVr5bHfILV09jhxhSu5aNMdHT8ate25HBd+SqBskt9tdM6SMWk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dU8ix4v1; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=N16m2BY6; arc=pass smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 260B53D333F;
+	Mon, 30 Mar 2026 13:10:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774876213; cv=none; b=qHvOQX44tohTxTViaCE8CBsTSUihVi7ME/Lm7gJvfpLq4/x6fBmE1G/moOPSPtKoGS22QD7xRNWFlgdNy7GYMowKifanoUPALTdpq8g3PAYiP3bLEzYpzhaYz1Jyd/U7BPdPptqxVLRVuiz2/BtLeEW4TiurxY+YpERObmwazNM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774876213; c=relaxed/simple;
+	bh=+z0ds1dEkDsjD2TbiG1J1ECIKxoY5I0HhGpLfURiclQ=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=U6N64RkF3eC7iGirr7L40XZRjhR4B1W4Yrt1+7ZshddW2cNEnRwrPsa4uHAgRhdFSB8eajiOwTy0SrVFX8VnXeWS9BcFnN0JYi7RxW8SdEhTrdfz42zZhNGI1RPKRqfEXE4+stsC/NX+JcmfSroZPeMB2L2qsO0oN4gJkWY3l8I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=U9k3SEGC; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dU8ix4v1";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="N16m2BY6"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1774872201;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=3+c+wp6lYqHlPGMdt+a3t3fT0eXuCeYj5fFyxz3577M=;
-	b=dU8ix4v16RIHJXXnE3hIevQ5JdPkTkUyjaQVA9O5ovmYxBqS6jFt9nfHVg4Kl2FmC57U1M
-	e3Kjk33cUfx4oWdbrGKN8fjFcdlOG00+wp9m9byzpgTp6RUMngNKuSnF91qsU2XkBXVf/P
-	MeoyIT/0tzBf0g/jGhzY/uii/yekEGg=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-642-YE2qoNprMyW1pYSe3IzzcA-1; Mon, 30 Mar 2026 08:03:19 -0400
-X-MC-Unique: YE2qoNprMyW1pYSe3IzzcA-1
-X-Mimecast-MFC-AGG-ID: YE2qoNprMyW1pYSe3IzzcA_1774872198
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4853466655dso27314875e9.3
-        for <linux-s390@vger.kernel.org>; Mon, 30 Mar 2026 05:03:18 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1774872197; cv=none;
-        d=google.com; s=arc-20240605;
-        b=F517rlHSzhxuT3xCxNE3qgkLr9Nt4bVdZ42asnVrdMuStDvHjN0JVUv+9IWQxYJ0Dd
-         4cDrQ8eqf8J/Ad0j1ZALgZJTmL0v7HTKE/kFzHs385kGeyisqLBuBJ5U1pm4HQCbCZ5e
-         8xowTJiIE+uQpWpHtCO4NNusSKkgzRYQFhhcOD82nD/BPf4+oQEJNZL48JXk7q7qs5/J
-         90gxlKRdoAUqXNAPLW7GA38JzS1F07yGvhoXdH6i3vOn8MJ5Yt4Ksqz3eri7I5TA3wWx
-         mj4bnk2rScViL1RaAWaL1xkKTo9ZbQ025U7pxGRxF3/5AxaeEbsDx5eJ6F42ly6O7BfP
-         YtxQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=3+c+wp6lYqHlPGMdt+a3t3fT0eXuCeYj5fFyxz3577M=;
-        fh=E+SWMBoQfK2G+ji7fhlBbrvt1DeKvLSF8eWxv2z8Kgc=;
-        b=kYNVQ7KDzHAO1Z9l4nD85ofgqXkgPs6i2w6D6Am83StKm/9eIjIyrQRAqMqO9066XC
-         R54Dg+QthEEcdr2ZZndRTd6+Amx84+SaMxukeCnoku2I5h5rJJeVl4pQ2VxCw2Tp25bY
-         HEBJ0AWzijbx3uI31sC+JS3DOwNT8Dkcl0VC1w/MSh+NjrcK7A9hht1OoFa+R19AbITq
-         DRp++flXz2Y++i790p88wzcxOYOGoaoRz8vdguFc13XfAhx4QQq2cr4mlOlU9vpD2uVf
-         teY8g/yhpoU8TB6jp9zRD1SU2fDMa5WJaUJE0JK4enoPjMk+j1XcpMq9+lkHUN2vghVn
-         +H6Q==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1774872197; x=1775476997; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=3+c+wp6lYqHlPGMdt+a3t3fT0eXuCeYj5fFyxz3577M=;
-        b=N16m2BY6BEO8BFEvRjqC04HtguBZQFVgOQJyGOYJBy+3j0aXsP0pLthWEm58V+4Tns
-         b8I/yF+yZMjTlk+g12X/SZzElXlCn0zGyO3Df0v0LtKsCUyn6MWbpk2yZRmm5wMe9kGn
-         DA0ZsOxAFmM9oMIRCtvbLS7VGWEwO/x1u5ktAlDeP3V0p1n2May+5AbJKOpVKc2aSh8n
-         Vs2ZA7M6Ez5YLNzzruzOx5mMmVgE9wyLV3O1U6y66qUTXw4bgJN+4Txvz1NnjoJnR2Xs
-         qtIyT22SlgFKDFVsdkcmGf43Jd0dxBDiEQmos88ZB3y924NZkABvMDyoZXGwCwACEaJU
-         qBLw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774872197; x=1775476997;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=3+c+wp6lYqHlPGMdt+a3t3fT0eXuCeYj5fFyxz3577M=;
-        b=sQTEw/1VoPwkm+Yd7cbt5Yk12qG8Q1dOt9D3jBJz6Rjz4SgZSYrF2Qg1I1iQUel15i
-         oyjYuiVvNaT1g/9lOkegAAYOBS4e4aMxN+L64W+tx40pOC9Q3AVNkor0AbmSFDGguz96
-         RZZLuZ66Jjxje/j7mpcijWum/Q+pm0H2YDDahZtLhVNzs04dN1/A+bofBaNIqh4CcC1u
-         AT96mmTk6yE/m4bm1AeXlFYG2Zx037U23rdb8R9kFZpy4sqlxU3DVWd3uGNqiNnQNAwU
-         uNYwtdeF62B8AwZKcHMNXRnegbf7S5733C1FGoGzB5S+BPDLIq6MP6sko5K5XM1AaD3R
-         kqsw==
-X-Forwarded-Encrypted: i=1; AJvYcCXwOAv29Msx0tkM23ksEa8JfWXtRiM1YqCXf60cS0Kao/D6TIuZsEvYgdP1WZD9epHYPtBr1BQkiLsc@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx7m6rFLMYy3mbqWAFWcok8kHjn2b4mLAZmQCuUDGzNcbvO470n
-	WmC0Pcfx/YEUIggxUv0QyL1xZMpr+2Kou27TxQFcE/vMXoBFv+HzEdlxlJdSDC8tJezc3nu9AZG
-	y1E9mpd1LmxszVmehJ93giTj5OmZypPG9bf6aUlKdTgSxE5CM3hoxgRcqexgfZQi4p1kakjQ0Zw
-	lX4eb1TUFkFy9ZuYTlbpKVnEnVPiXEE19V4wA2moJwXHz7UQ==
-X-Gm-Gg: ATEYQzyiD52qkuj81UMG9i0GWw4VYe9y8rxfFZvuD5Igbhfdmdyr3l6Snow8DU79Ik6
-	TC/hC8eNrRVSLQ2S/xNvN2gqb9Ft+9l8JgcDBWaTPCJiun0BNZ0C5gcL7wpvPtZ2HTIH5MlVgkP
-	q3yhXrWcWW+YYOKVAszdFEKCcBZyfVAn+f6kHufQrNQlCmDta6VH0ZCqUYODDjmLgYq5uuKjRnY
-	dMhmyGmo7pT6Rl8a/IHAYll/GXN+uHj8E4fCTdcKfHgnfFJoW1NMKw2FZUXetQSkGmPIBGYM3Sy
-	5eOy
-X-Received: by 2002:a05:600c:8485:b0:487:2671:fb8f with SMTP id 5b1f17b1804b1-48727d73642mr226867795e9.8.1774872197378;
-        Mon, 30 Mar 2026 05:03:17 -0700 (PDT)
-X-Received: by 2002:a05:600c:8485:b0:487:2671:fb8f with SMTP id
- 5b1f17b1804b1-48727d73642mr226867195e9.8.1774872196886; Mon, 30 Mar 2026
- 05:03:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="U9k3SEGC"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62U0jCiT462561;
+	Mon, 30 Mar 2026 13:10:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=CHeSzO
+	4goq394woaZUo2vkt/fxPpeKAgtzg8EVdB714=; b=U9k3SEGCyHG5yQb7QvISk3
+	5GHtl1iCyzCoWlnunTc0+O9IB9zfY+PrUCUuvC+rtmaC+AEb/wx0QJAmb8NlJ6fw
+	IhrClLOTT2+XshHlnwQMxa5008uTuSaAEjCTXu5BYyzAtZDdr2p+hhGLfvQtEPyh
+	UWGxtgCOP9ybe//Zh/OKQ/oWhDXuSow3uh6lQ3sRaoHMsJi6Gnek5mGyokLTXR31
+	6iMhyF6qMD2/G66tQdHPPIVXRL3SjpAfzXvXLq8RrUctGGc+26YUl1d6jfCLgw36
+	2HarZWGsMUx/jfAFcaBvW6gaxixjiyecwK/4APOQmJSfmxyNE5TNoyAfnvfPszsA
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d66nnevwa-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 30 Mar 2026 13:10:07 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62UBFMQD008703;
+	Mon, 30 Mar 2026 13:10:06 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d6v11cqy9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 30 Mar 2026 13:10:06 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62UDA2SD42664208
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 30 Mar 2026 13:10:02 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A628F2004B;
+	Mon, 30 Mar 2026 13:10:02 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 68C032004D;
+	Mon, 30 Mar 2026 13:10:02 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 30 Mar 2026 13:10:02 +0000 (GMT)
+From: Gerd Bayer <gbayer@linux.ibm.com>
+Date: Mon, 30 Mar 2026 15:09:44 +0200
+Subject: [PATCH v7 1/3] PCI: AtomicOps: Do not enable requests by RCiEPs
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260327152356.250625-1-imbrenda@linux.ibm.com>
-In-Reply-To: <20260327152356.250625-1-imbrenda@linux.ibm.com>
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Mon, 30 Mar 2026 14:03:05 +0200
-X-Gm-Features: AQROBzB3DWnxPR3jSWpAVvne6HolnmzmB3FcTS64hP940Rx9hlh4ePIXuVThH7M
-Message-ID: <CABgObfbyp0HXTozDZs9L45xMfAHRyqTKYKX8tQ=VQyCFTpqdLA@mail.gmail.com>
-Subject: Re: [GIT PULL v1 00/10] KVM: s390: More memory management fixes for 7.0
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, 
-	borntraeger@de.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260330-fix_pciatops-v7-1-f601818417e8@linux.ibm.com>
+References: <20260330-fix_pciatops-v7-0-f601818417e8@linux.ibm.com>
+In-Reply-To: <20260330-fix_pciatops-v7-0-f601818417e8@linux.ibm.com>
+To: Bjorn Helgaas <bhelgaas@google.com>, Jay Cornwall <Jay.Cornwall@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Leon Romanovsky <leon@kernel.org>,
+        Alexander Schmidt <alexs@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
+        Gerd Bayer <gbayer@linux.ibm.com>
+X-Mailer: b4 0.14.2
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-GUID: nR_7MWUNmRcBNJwufyVy4G_yWkey58SG
+X-Authority-Analysis: v=2.4 cv=KslAGGWN c=1 sm=1 tr=0 ts=69ca762f cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=l8ywxVsZnL7a6Sv94yEA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzMwMDEwMCBTYWx0ZWRfX2sq8oqfMVQA+
+ YeBcz7oajtbLWPeE9dkM/BaFYthp6zT+ff9iEmmOX9AsLPLOf8TXoicBR8gPeDxDDsk5qyG5Frb
+ VYL2l3eO0/k9pnW7LICm0O+TqhI9UXcWctZuOshqgoqipqfECUH8e830QOZRSBiZvo2UMm25Jhs
+ YOc7AKGL0BPBIC8D2N7dkf7yqxl3iWX37t3KPrUu/u6G32QWM4bxrVimZ2AT17/IKoCR9LAvQoR
+ ezfqlbZgXCLCew2how5IZUefljiZaXfdiiuMmrzrCqoE6oqsNvPIv2meOCOv1OsUV74F0zI4yKx
+ cKOHkNypn0M+al4GxQEGlUVFA1t4D5Da7KUf4zjrIvG5VoAfUI1s11heAaFizpajFSSQB5cAB5i
+ G+rb4kv2yrDtwr6ZXOn00uV/UnggzT6TAvEI3b3x1PKGsjfyrTYeZkv+nWXcUpYz/Y0VBFvBHqd
+ Fm9OovqYqPLfnXxpTpw==
+X-Proofpoint-ORIG-GUID: P-slp7YBInZbi8orMA2p2Lc-oqwdirtq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-29_05,2026-03-28_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0
+ phishscore=0 adultscore=0 bulkscore=0 impostorscore=0 clxscore=1015
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
+ definitions=main-2603300100
 
-On Fri, Mar 27, 2026 at 4:24=E2=80=AFPM Claudio Imbrenda <imbrenda@linux.ib=
-m.com> wrote:
->
-> Ciao Paolo,
->
-> here are a few more important fixes for the new gmap code.
-> These are (hopefully) the last fixes for this release cycle
->
-> please pull :)
+Since root complex integrated end points (RCiEPs) attach to a bus that
+has no bridge device describing the root port, the capability to
+complete AtomicOps requests cannot be determined with PCIe methods.
 
-Done, in fact they're in -rc6 already.
+Change default of pci_enable_atomic_ops_to_root() to not enable
+AtomicOps requests on RCiEPs.
 
-Thanks,
+Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
+---
+ drivers/pci/pci.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Paolo
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index 8479c2e1f74f1044416281aba11bf071ea89488a..135e5b591df405e87e7f520a618d7e2ccba55ce1 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -3692,15 +3692,14 @@ int pci_enable_atomic_ops_to_root(struct pci_dev *dev, u32 cap_mask)
+ 
+ 	/*
+ 	 * Per PCIe r4.0, sec 6.15, endpoints and root ports may be
+-	 * AtomicOp requesters.  For now, we only support endpoints as
+-	 * requesters and root ports as completers.  No endpoints as
++	 * AtomicOp requesters.  For now, we only support (legacy) endpoints
++	 * as requesters and root ports as completers.  No endpoints as
+ 	 * completers, and no peer-to-peer.
+ 	 */
+ 
+ 	switch (pci_pcie_type(dev)) {
+ 	case PCI_EXP_TYPE_ENDPOINT:
+ 	case PCI_EXP_TYPE_LEG_END:
+-	case PCI_EXP_TYPE_RC_END:
+ 		break;
+ 	default:
+ 		return -EINVAL;
 
->
-> The following changes since commit 0138af2472dfdef0d56fc4697416eaa0ff2589=
-bd:
->
->   Merge tag 'erofs-for-7.0-rc6-fixes' of git://git.kernel.org/pub/scm/lin=
-ux/kernel/git/xiang/erofs (2026-03-25 18:41:35 -0700)
->
-> are available in the Git repository at:
->
->   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/=
-kvm-s390-master-7.0-2
->
-> for you to fetch changes up to 0a28e06575b3f3b30c1e99fc08fa0907956f35a4:
->
->   KVM: s390: Fix KVM_S390_VCPU_FAULT ioctl (2026-03-26 16:12:38 +0100)
->
-> ----------------------------------------------------------------
-> KVM: s390: More memory management fixes
->
-> Lots of small and not-so-small fixes for the newly rewritten gmap,
-> mostly affecting the handling of nested guests.
->
-> ----------------------------------------------------------------
-> Claudio Imbrenda (10):
->       KVM: s390: vsie: Fix dat_split_ste()
->       KVM: s390: Remove non-atomic dat_crstep_xchg()
->       KVM: s390: vsie: Fix check for pre-existing shadow mapping
->       KVM: s390: Fix gmap_link()
->       KVM: s390: Correctly handle guest mappings without struct page
->       KVM: s390: vsie: Fix nested guest memory shadowing
->       KVM: s390: vsie: Fix refcount overflow for shadow gmaps
->       KVM: s390: vsie: Fix unshadowing while shadowing
->       KVM: s390: vsie: Fix guest page tables protection
->       KVM: s390: Fix KVM_S390_VCPU_FAULT ioctl
->
->  arch/s390/kvm/dat.c      | 100 +++++------------------------
->  arch/s390/kvm/dat.h      |  23 +++----
->  arch/s390/kvm/gaccess.c  |  71 +++++++++++++++------
->  arch/s390/kvm/gmap.c     | 160 +++++++++++++++++++++++++++++++++--------=
-------
->  arch/s390/kvm/gmap.h     |  33 ++++++----
->  arch/s390/kvm/kvm-s390.c |  18 +++++-
->  arch/s390/kvm/vsie.c     |   4 +-
->  7 files changed, 231 insertions(+), 178 deletions(-)
->
+-- 
+2.51.0
 
