@@ -1,132 +1,346 @@
-Received: from fout-a5-smtp.messagingengine.com (fout-a5-smtp.messagingengine.com [103.168.172.148])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A96830DEB0;
-	Mon, 30 Mar 2026 18:09:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.148
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D4D427A462;
+	Mon, 30 Mar 2026 18:16:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774894192; cv=none; b=MVJPxLEOOUVchrXTFvjS/8avrOylIc1jmtdH1Bp+BBMyDXXkINnbwvv/nmQ6zw28+6cv/gIUzclGNr/9sMI9KyMt6yB1LZigEq5mdk+LvY0DAbKio6z5F9bpe/ZrqtBqaQd8b25cuOYaDaCQ5QrXZyPRNfjhFPHqzeAAXzcPlxc=
+	t=1774894577; cv=none; b=b/Z8BOBWPjQADQdrxTYw8q001fK9+8b4/IM/8slPOgxCY1h/d6r3SO9i6lJV4JggcuFkzKJSiyW8A4J1IHzwJ9batRCKU4ZITj79ZYozKZKjCHZ//yJMT5wDUva6xhXAeJRrI1hqfy4RlpcrzWrqOTwSQm6EZSPKgMbi/OOao4Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774894192; c=relaxed/simple;
-	bh=75+5fFJFyUQFkda8RvZG8+2ldWjpRSvYlyVFKOtZpdY=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=n63sQVqGzDnayHKVGicAF4JT4K+EO88qSZ1fPzjZzTt73uK/O1wkZxJ777ONGYUpuptuiiiBeHNQg+H0JrU8oZUn3jhhmUM4a0c5us2U40WdGNrwFsoX80i548viAnjdAOUVlKizjk+GGs4QFfsPuGcJPwZfMf0oQDkhwFZSbKw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=TzqQBR2Y; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=HwbJnNz3; arc=none smtp.client-ip=103.168.172.148
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
+	s=arc-20240116; t=1774894577; c=relaxed/simple;
+	bh=xJVre+VWeF7bSFVAdozzRPCtzv+mN4Zeyoe3KArZUV4=;
+	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
+	 Date:MIME-Version; b=pZPOu8gaOqVWogC36Pn+9+3N0ASM6zPdPluEwaBfMoQUvQWJfWdOE5UkLW33/MIAf48kP+9CNlsfL9VdKjoHLhdjNcodd3v0fmb1WFAjLKHo1P4Ij8kYNG7odiZeWb4JEu8/Nb7Lk5BWDsSgfUoJX5P34fRXmTfJoBA9zvMCjEw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lopomNnd; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="TzqQBR2Y";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="HwbJnNz3"
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailfout.phl.internal (Postfix) with ESMTP id B69E8EC0221;
-	Mon, 30 Mar 2026 14:09:49 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-01.internal (MEProxy); Mon, 30 Mar 2026 14:09:49 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1774894189;
-	 x=1774980589; bh=PxnB1idRPklbhSng1j8iSiRberE5zUGTRcSSDsXHQBg=; b=
-	TzqQBR2Y7OfhUppYl3vObej4dhN/25IlgN57F3vZK/i2QpYDHSoOXVZJIWeospmH
-	Xgb+K0jIrsPCJv5vkYZPL/THvSjVZrrO+KTymV20YnBY1oNurwq1uIZblaPVEWIm
-	HZrCcfKXOEcq5yXK8sHO6ZUe8LlPOq8Ez2xfnsYxSdWBGm75WHmukxzQZosm3XJl
-	5mIsr9ElACXbnpjaKpks6jcFyYhjKRo8DCPxPcr2l1zq0lUWjazy4o0RiK58Xo4o
-	o7Rm2ok2mNlL3T14OXLBVKLyeIDY9P3BYpb3ANRIeym1f0SYUB5+cV9xluC/AuoH
-	kAsbljk/k9YHWof5nCC9sA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1774894189; x=
-	1774980589; bh=PxnB1idRPklbhSng1j8iSiRberE5zUGTRcSSDsXHQBg=; b=H
-	wbJnNz3NDdLIRV+GJe8z/NRXJfkxd3a9h4JVOglSCXLC1r9GSWVPT9c9S7+kDdyt
-	ezhcGj7S1K3X6zg/JAgvmj2OiM3GLSwBsRcbcv5erU70ktDhvjDy0mTJ4mLqjAPC
-	Ctv2bcJm5gC1YWbBttF/rD0z6DNjUDTmwN6coLiRYtPP5DrN+Idd/3UIXU6rhDDC
-	FrVT4JrECqwRgYcfDhZurV4Xc0WeyxE7GKT5FKopk+/mnMFdXlfbkalA/bdKtfpm
-	/cFAtAfBT1P/DOXnKnWIFFZCQZFqFbWqi/rzHPRnxSlWCLJeTcZIuK0BaVTa03w0
-	XG5kzzrM06MFgdH6NAJbQ==
-X-ME-Sender: <xms:bLzKaZKcDa9xtDApAAlVbT93tYZI4fTVVz8M9zrQ0UbIgzWeYLgGPQ>
-    <xme:bLzKaRQFsQ6ppC0PVO0_5a9275IrctQBsq1A5GMJOgFQzawdHHmuW_5SKchBW-3Os
-    Tb_Faac1Vv28FXOKx13HE6RUwA1FByupSPCsJv4aUjZey6nFpfV5A>
-X-ME-Received: <xmr:bLzKadhtqXq_sXgsKO_629e-pa4m6-mhWfis9qHW61kn5ut_ilNeCCNZMjY>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdeffeelieeiucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepfffhvfevuffkjghfofggtgfgsehtjeertdertddvnecuhfhrohhmpeetlhgvgicu
-    hghilhhlihgrmhhsohhnuceorghlvgigsehshhgriigsohhtrdhorhhgqeenucggtffrrg
-    htthgvrhhnpedvkeefjeekvdduhfduhfetkedugfduieettedvueekvdehtedvkefgudeg
-    veeuueenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    grlhgvgiesshhhrgiisghothdrohhrghdpnhgspghrtghpthhtohepvddupdhmohguvgep
-    shhmthhpohhuthdprhgtphhtthhopehjghhgseiiihgvphgvrdgtrgdprhgtphhtthhope
-    hstghhnhgvlhhlvgeslhhinhhugidrihgsmhdrtghomhdprhgtphhtthhopegrlhhifhhm
-    sehlihhnuhigrdhisghmrdgtohhmpdhrtghpthhtohepjhhulhhirghnrheslhhinhhugi
-    drihgsmhdrtghomhdprhgtphhtthhopeifihhnthgvrhgrsehlihhnuhigrdhisghmrdgt
-    ohhmpdhrtghpthhtohepthhssehlihhnuhigrdhisghmrdgtohhmpdhrtghpthhtohepoh
-    gsvghrphgrrheslhhinhhugidrihgsmhdrtghomhdprhgtphhtthhopehgsggrhigvrhes
-    lhhinhhugidrihgsmhdrtghomhdprhgtphhtthhopeihihhshhgrihhhsehnvhhiughirg
-    drtghomh
-X-ME-Proxy: <xmx:bLzKaTtwUJm_ryd9yzH25N9axxyRJk_Y3GH57nU3R883BeeH3phWBg>
-    <xmx:bLzKaQh8dylLjzB3BbGjD3n7BM6NKPstFqy8rUiSJC1RvKxXPzU45w>
-    <xmx:bLzKaSH1HaI2PADrMbWGoXtlWcjpNEuEc6QFZZP59tBJjvj4iI_o0Q>
-    <xmx:bLzKaRJi1Y0-uezjBm3lHEazmhIJbIEu4s6WV_BPhN546Q03abVnFQ>
-    <xmx:bbzKaWX9kSRGVDF2-bptU3aMpYTb534xc0Wsh-b4jJIt25OrFyv6QcyV>
-Feedback-ID: i03f14258:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 30 Mar 2026 14:09:47 -0400 (EDT)
-Date: Mon, 30 Mar 2026 12:09:45 -0600
-From: Alex Williamson <alex@shazbot.org>
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Niklas Schnelle <schnelle@linux.ibm.com>, Farhan Ali
- <alifm@linux.ibm.com>, Julian Ruess <julianr@linux.ibm.com>,
- wintera@linux.ibm.com, ts@linux.ibm.com, oberpar@linux.ibm.com,
- gbayer@linux.ibm.com, Yishai Hadas <yishaih@nvidia.com>, Shameer Kolothum
- <skolothumtho@nvidia.com>, Kevin Tian <kevin.tian@intel.com>,
- mjrosato@linux.ibm.com, raspl@linux.ibm.com, hca@linux.ibm.com,
- agordeev@linux.ibm.com, gor@linux.ibm.com, kvm@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-pci@vger.kernel.org, alex@shazbot.org
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lopomNnd"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62UEonBJ141217;
+	Mon, 30 Mar 2026 18:16:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=NDV1Sl
+	1SweAsMFBLkcg4MMdF87gxkkxUX9SP8ps0YbM=; b=lopomNndsEHMFcwOxNSbS+
+	ZOoKUwLODyJscgXg/1EJii2rV1kDQZZW5Ch0s44grWLXt2wa4R0o5REp7usGoOsz
+	sHovccqCzHFAPmeT2zdAjvK22QPmw14lUYNdArKdyv6TwcRSJwpBc4vPN3dn4gRS
+	VjOO8WX+f64g0cD7OfZ6cZitpiVnv1lH2vNbIG7goSGOyrknthjVcDsJEBp9KYfS
+	bxrbNRaTIKn/sqfId9Hr20QSorer2UZO1k4zgyMl9qGKwncJrrmuZa7E2uj/OZHb
+	ykVOWZncDgSIwfZ8apV5Q9o7cj4E9nV89A13GRdm4hbA4dI3BycOTzk90PuaUR+A
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d66nng2xw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 30 Mar 2026 18:16:11 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62UEj7Yt022197;
+	Mon, 30 Mar 2026 18:16:10 GMT
+Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d6tamwxv4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 30 Mar 2026 18:16:10 +0000
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62UIG9OO24511088
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 30 Mar 2026 18:16:09 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E3AE75804B;
+	Mon, 30 Mar 2026 18:16:08 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 45FB558059;
+	Mon, 30 Mar 2026 18:16:05 +0000 (GMT)
+Received: from [9.111.21.174] (unknown [9.111.21.174])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 30 Mar 2026 18:16:05 +0000 (GMT)
+Message-ID: <404bd986fd27e2b6934f86f6057d8e3bb23ad812.camel@linux.ibm.com>
 Subject: Re: [PATCH v8 2/3] vfio/ism: Implement vfio_pci driver for ISM
  devices
-Message-ID: <20260330120945.023b2295@shazbot.org>
-In-Reply-To: <20260330155651.GD246076@ziepe.ca>
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Alex Williamson <alex@shazbot.org>
+Cc: Farhan Ali <alifm@linux.ibm.com>, Julian Ruess <julianr@linux.ibm.com>,
+        wintera@linux.ibm.com, ts@linux.ibm.com, oberpar@linux.ibm.com,
+        gbayer@linux.ibm.com, Jason Gunthorpe <jgg@ziepe.ca>,
+        Yishai Hadas	
+ <yishaih@nvidia.com>,
+        Shameer Kolothum <skolothumtho@nvidia.com>,
+        Kevin
+ Tian	 <kevin.tian@intel.com>, mjrosato@linux.ibm.com,
+        raspl@linux.ibm.com, hca@linux.ibm.com, agordeev@linux.ibm.com,
+        gor@linux.ibm.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
+In-Reply-To: <20260330093646.03b0455f@shazbot.org>
 References: <20260325-vfio_pci_ism-v8-0-ddc504cde914@linux.ibm.com>
-	<20260325-vfio_pci_ism-v8-2-ddc504cde914@linux.ibm.com>
-	<4096cb9d402b1aabc9667d450221cb0922e78d90.camel@linux.ibm.com>
-	<3d6457b9-715a-4cbb-9c69-d8a7e7473c89@linux.ibm.com>
-	<64e3158a441c79c55febead9aac956c31f034fb9.camel@linux.ibm.com>
-	<20260330093646.03b0455f@shazbot.org>
-	<20260330155651.GD246076@ziepe.ca>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
+		<20260325-vfio_pci_ism-v8-2-ddc504cde914@linux.ibm.com>
+		<4096cb9d402b1aabc9667d450221cb0922e78d90.camel@linux.ibm.com>
+		<3d6457b9-715a-4cbb-9c69-d8a7e7473c89@linux.ibm.com>
+		<64e3158a441c79c55febead9aac956c31f034fb9.camel@linux.ibm.com>
+	 <20260330093646.03b0455f@shazbot.org>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=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
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 30 Mar 2026 20:15:04 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: sQCddJuf9OzJnZKB9qABTo8n2DSRP4C6
+X-Authority-Analysis: v=2.4 cv=KslAGGWN c=1 sm=1 tr=0 ts=69cabdeb cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=T-k_-fjKFfvp7OGpXRwA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzMwMDE0NiBTYWx0ZWRfX8LVbeg/fdtTW
+ exuabRSIONFOsfogki9qRmRTMyUoZ6TJSXE4ULvyHUXAecbcWGhC4q0Cv1h5ciCDFTpMKkV4DhX
+ bj/Ybd5HTzNITZNZONjddcX6ktdN8C+oKFu/z48BF6OWqBHDD5cCvpGhkVSEPCikbzq6XmnP/Cy
+ ioIff2nsXNZ1g+cHCqN2xOOCwkizHZ4JzNRyt2DmYaZ7269Kau9sUwCZqRMKGhqJ1gWsH5wm1+F
+ f4u5IpdJawopAfk/MV6i7KV2Cac3fe4/89oo6RPTaTkeofXLDUvE8eIJOq5emmpJFxV5LNqABaB
+ /1pEipD7tifQECpQ2kH06hjJuihD2km3n6t1dEBNjYdKbQY+C+XpPG5qjbQ+FCHvbwIGfVSXFnm
+ 8olQ/XuZKf54X+bLGH83YX4FoLE+Jq2nq5hqgQwVzhfSIMxp++Mj8z1qR+f0lSbXXn9BGKenA3v
+ fcnTcMvwg3Fxd03i2AQ==
+X-Proofpoint-ORIG-GUID: sQCddJuf9OzJnZKB9qABTo8n2DSRP4C6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-30_01,2026-03-28_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0
+ phishscore=0 adultscore=0 bulkscore=0 impostorscore=0 clxscore=1015
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
+ definitions=main-2603300146
 
-On Mon, 30 Mar 2026 12:56:51 -0300
-Jason Gunthorpe <jgg@ziepe.ca> wrote:
+On Mon, 2026-03-30 at 09:36 -0600, Alex Williamson wrote:
+> On Fri, 27 Mar 2026 15:53:30 +0100
+> Niklas Schnelle <schnelle@linux.ibm.com> wrote:
+>=20
+> > On Thu, 2026-03-26 at 12:05 -0700, Farhan Ali wrote:
+> > > On 3/26/2026 6:03 AM, Niklas Schnelle wrote: =20
+> > > > On Wed, 2026-03-25 at 14:31 +0100, Julian Ruess wrote: =20
+> > > > > Add a vfio_pci variant driver for the s390-specific Internal Shar=
+ed
+> > > > > Memory (ISM) devices used for inter-VM communication.
+> > > > >=20
+> > > > > This enables the development of vfio-pci-based user space drivers=
+ for
+> > > > > ISM devices.
+> > > > >=20
+> > > > > On s390, kernel primitives such as ioread() and iowrite() are swi=
+tched
+> > > > > over from function-handle-based PCI load/stores instructions to P=
+CI
+> > > > > memory-I/O (MIO) loads/stores when these are available and not
+> > > > > explicitly disabled. Since these instructions cannot be used with=
+ ISM
+> > > > > devices, ensure that classic function-handle-based PCI instructio=
+ns are
+> > > > > used instead.
+> > > > >=20
+> > > > > The driver is still required even when MIO instructions are disab=
+led, as
+> > > > > the ISM device relies on the PCI store block (PCISTB) instruction=
+ to
+> > > > > perform write operations.
+> > > > >=20
+> > > > > Stores are not fragmented, therefore one ioctl corresponds to exa=
+ctly
+> > > > > one PCISTB instruction. User space must ensure to not write more =
+than
+> > > > > 4096 bytes at once to an ISM BAR which is the maximum payload of =
+the
+> > > > > PCISTB instruction.
+> > > > >=20
+> > > > > Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+> > > > > Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > > > > Signed-off-by: Julian Ruess <julianr@linux.ibm.com>
+> > > > > ---
+> > > > >   drivers/vfio/pci/Kconfig      |   2 +
+> > > > >   drivers/vfio/pci/Makefile     |   2 +
+> > > > >   drivers/vfio/pci/ism/Kconfig  |  10 ++
+> > > > >   drivers/vfio/pci/ism/Makefile |   3 +
+> > > > >   drivers/vfio/pci/ism/main.c   | 408 +++++++++++++++++++++++++++=
++++++++++++++++
+> > > > >   5 files changed, 425 insertions(+)
+> > > > >  =20
+> > > > --- snip --- =20
+> > > > > +
+> > > > > +static int ism_vfio_pci_ioctl_get_region_info(struct vfio_device=
+ *core_vdev,
+> > > > > +					      struct vfio_region_info *info,
+> > > > > +					      struct vfio_info_cap *caps)
+> > > > > +{
+> > > > > +	struct vfio_pci_core_device *vdev =3D
+> > > > > +		container_of(core_vdev, struct vfio_pci_core_device, vdev);
+> > > > > +	struct pci_dev *pdev =3D vdev->pdev;
+> > > > > +
+> > > > > +	switch (info->index) {
+> > > > > +	case VFIO_PCI_CONFIG_REGION_INDEX:
+> > > > > +		info->offset =3D ISM_VFIO_PCI_INDEX_TO_OFFSET(info->index);
+> > > > > +		info->size =3D pdev->cfg_size;
+> > > > > +		info->flags =3D VFIO_REGION_INFO_FLAG_READ |
+> > > > > +			      VFIO_REGION_INFO_FLAG_WRITE;
+> > > > > +		break;
+> > > > > +	case VFIO_PCI_BAR0_REGION_INDEX ... VFIO_PCI_BAR5_REGION_INDEX:
+> > > > > +		info->offset =3D ISM_VFIO_PCI_INDEX_TO_OFFSET(info->index);
+> > > > > +		info->size =3D pci_resource_len(pdev, info->index);
+> > > > > +		if (!info->size) {
+> > > > > +			info->flags =3D 0;
+> > > > > +			break;
+> > > > > +		}
+> > > > > +		info->flags =3D VFIO_REGION_INFO_FLAG_READ |
+> > > > > +			      VFIO_REGION_INFO_FLAG_WRITE;
+> > > > > +		break;
+> > > > > +	default:
+> > > > > +		info->offset =3D 0;
+> > > > > +		info->size =3D 0;
+> > > > > +		info->flags =3D 0;
+> > > > > +		return -EINVAL; =20
+> > > > Thinking more about this, the above default handling actually break=
+s
+> > > > additional regions such as the one added by Farhan for the error
+> > > > events. I think this needs to instead call the generic
+> > > > vfio_pci_ioctl_get_region_info() for other regions. =20
+> > >=20
+> > > Note for error events we are using a VFIO device feature and not a=
+=20
+> > > region. At this point we actually don't have additional regions. I do=
+=20
+> > > agree that if we were to add a zpci specific region we would need to=
+=20
+> > > update here and ism_vfio_pci_rw() to allow region read/write ops. Thi=
+s=20
+> > > ISM driver would also need to support all the possible callbacks in=
+=20
+> > > struct vfio_pci_regops.
+> > >=20
+> > > Given that we don't have any additional regions yet, I am conflicted =
+if=20
+> > > it makes sense to add all the code to support additional regions with=
+out=20
+> > > a good way to test it. Maybe its something we can defer when if we ad=
+d=20
+> > > additional regions? Thanks
+> > >=20
+> > > Farhan =20
+> >=20
+> > @Alex, we experimented a bit and it turns out with the custom
+> > ISM_VFIO_PCI_OFFSET_SHIFT it becomes quite tricky to reliably call into
+> > common vfio-pci code for handling other regions as that again relies on
+> > the normal VFIO_PCI_OFFSET_SHIFT.
+> >=20
+> > So we came up with two options:
+> >=20
+> > 1) vfio-pci-ism will only support this basic set of regions. It seems
+> > to us that new extensions like Farhan's error events should use device
+> > features anyway, so this to us seems like an acceptable limitation and
+> > would essentially mean we take this patch as is.
+> >=20
+> > 2) We revisit the original idea of adjusting VFIO_PCI_OFFSET_SHIFT
+> > globally but do so only for CONFIG_64BIT so as not to break 32 bit
+> > platforms. This would simplify vfio-pci-ism and cause less code
+> > duplication but also affects everyone else.
+> >=20
+> > Either option works for us, so I'm hoping for your input.
+>=20
+> There's risk involved with changing the default shift.  The fear is
+> there's userspace drivers that hard code the shift.  DPDK was even such
+> a user at one point, iirc.  Maybe it's ok to break such users, maybe
+> there are actually no such users left and it's all FUD at this point.
+> Either way, I have a hard time justifying that risk for a single,
+> obscure S390 device.
+>=20
+> Rather than using CONFIG_64BIT as a basis for using a different
+> default, should we start out with a more narrow scope of CONFIG_S390?
+>=20
+> It's likely inevitable that we'll hit this wall in general, but maybe
+> S390 can be the "crash test dummy" to prove to userspace that they
+> really need to use the uAPI rather than hard coded values.
 
-> On Mon, Mar 30, 2026 at 09:36:46AM -0600, Alex Williamson wrote:
-> > There's risk involved with changing the default shift.  The fear is
-> > there's userspace drivers that hard code the shift.  DPDK was even such
-> > a user at one point, iirc.  Maybe it's ok to break such users, maybe
-> > there are actually no such users left and it's all FUD at this point.
-> > Either way, I have a hard time justifying that risk for a single,
-> > obscure S390 device.  
-> 
-> If we go ahead with that DMABUF series could obscure cases like this
-> be told to just get a DMABUF FD and then mmap it? Avoid this whole
-> issue?
+I fear we'd not be a very good crash test dummy / canary in the coal
+mine. We don't have DPDK support, nor a good selection of devices.
+Also, apart from us developers almost our entire user base is on slow
+moving enterprise distributions running critical but also slowly
+updated enterprise workloads. If we want to do this long term maybe a
+better approach would be a specific experimental/sanitizing Kconfig
+option? As a user of a fast moving rolling distribution on my private
+systems I'm all for trying things out in the right environments and
+maybe such a distro would be willing to play canary ;)
 
-The ISM device here doesn't support mmap, so that much is still a
-problem.  However, if we imagine a future where we've fully converted
-to dma-buf for both DMA and CPU access to BARs, then maybe...  I don't
-know how we'd describe a region overflow in the "legacy" ioctls to
-maintain some consistency between what's exposed through the region
-versus the dma-buf.  Thanks,
+>=20
+> Farhan's series is a bit of a straw-man since it doesn't actually
+> convey the error codes via regions, but I can certainly agree that
+> using a unique region shift becomes an ongoing burden relative to
+> vfio-pci-core helpers.  I can accept an S390 specific (for now) change
+> to the region spacing if that's the most sensible path.  Thanks,
+>=20
+> Alex
 
-Alex
+Yes, as Farhan noted this was a false alarm. We did actually have a
+patch in internal review that did use an extra region but we already
+decided that this should instead take the same approach as Farhan's
+work.
+
+So overall I think I think we should go with the first option.
+We don't know of any extra regions we'll have to support and we can
+document that this is not supported for vfio-pci-ism. Then if we do
+need it we can still revisit option 2.
+
+Thanks,
+Niklas
