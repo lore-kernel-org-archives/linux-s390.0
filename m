@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D62A43EF0AA;
-	Tue, 31 Mar 2026 10:24:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EDBC2F39CE;
+	Tue, 31 Mar 2026 10:38:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774952662; cv=none; b=FHFo/EY8D7XuqUqsiKTop1v6DuusgVQ+I4V+Lxi9lVngKLWmCmXcfPprsI490jOHicblqVtM2xYRbwLYWR4pc5anjQZT9Qu5Huo1ZVgb5Z9v8CqhR6OiIKbF2i/FKH9NzQ95+jMmxA5QCUnqPqiPX261WhXcv7yzo8x6wqYE5S4=
+	t=1774953539; cv=none; b=RctvYYWgNcaI+6JrJClry2+aVrd0l894AcKuRQMC6r0z8B0V/ZQmSl9Jfpo/sFVKJLXYSkOWKuD/DfpkyeEwAwXl5Rri29eO1uyworwGU5jby1lMEVOljQ+CJFRNYY4fW6A7KP2hZpg/oI2SbC2wt8LZbxbL3awe1GDrigs89Tc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774952662; c=relaxed/simple;
-	bh=AL3HHHNax4t8yI0kpaJ3XvjHyHJTZAeWSoqv/QN9stM=;
+	s=arc-20240116; t=1774953539; c=relaxed/simple;
+	bh=ns25mF2UrLHOJDvx/LnwaHuyB+Hf+Nyj2xT98c2l78k=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NPRgfb7Epyt++ZLGKBeN8aUPpJAKpnci/t+Nun1e6MIgV54CFeIOXwfAQ3RAhKhv1v+mSUha4XpLMe9TKY2ypXPjOEMQ1Qd83ZHgOXFz96ZsDDhqSNp/oTooctV0bhaU6rsTwL5jxk8wiDFvVnEH77PMFEvBgfCe32QfCRBNBu4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WwVeagit; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=KrFnw6Q0Xt9lkucaNae8fhbMaifjbaEEnG8YxP1CsvMX4SNbMvbdwXTTQNYwbHG+GM1cGpT8Cbt9nOtD6TX+pIS+VsY7Hc1pDbCtcexZS4lbaA8jrQUmdAko/EwhoZo30PMnJMK6djbIM4HMVvxdPJAWj3Xs2Q8duaCeXH90cLg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Kj7mU3zJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WwVeagit"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F3A8C2BCB0;
-	Tue, 31 Mar 2026 10:24:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Kj7mU3zJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B0EFC19423;
+	Tue, 31 Mar 2026 10:38:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774952662;
-	bh=AL3HHHNax4t8yI0kpaJ3XvjHyHJTZAeWSoqv/QN9stM=;
+	s=k20201202; t=1774953539;
+	bh=ns25mF2UrLHOJDvx/LnwaHuyB+Hf+Nyj2xT98c2l78k=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=WwVeagitKrcgeAkw3F41Dh8kVRZ6Pdv5+hPGwb5IWeSdV1Rp5+RnEWSV4oZHEG1Sj
-	 EImspGEvG3U5j82mGNEHsNEFO/C9/8bhylIlmocdUjtxoAedEU7HVJ8inGE7URRB3Q
-	 PCXiQ7Wnw01R28mgzt/eSvtW/ZD8C7WbYpieSw9GT4Ti56I7YbUqIlwYXZGOUk7by7
-	 f3NuIWh/tkwF4r1BVpoMkkoLunbTunk73KdBqdl5tJH4xDtRzWpAxOkc+YW471iwlI
-	 To1Ux0s/tjTFr7wndXBK5THUVjB58zpsUWtX6vm0Aj5SXqo21orRAPHemtYqxrOanz
-	 x+audNO8j/sUQ==
-Date: Tue, 31 Mar 2026 11:24:21 +0100
+	b=Kj7mU3zJLCNNKhIQIiBnX3/r4iNBlU6v60RiEgsOF7hVhyKpPx7fHySOX/1HcZ6HT
+	 g46QUG/QO0DvQW1+pKythy1s52UNDgvTjrWLTdj5d7spmSO1LFbNQUyRArY7Mj37Z3
+	 7GHfGdvFSXRLtrA12eblkVnS0sp8uYMAOeilRIccIqfzkyfaGXDubOLNifxNz+z1EL
+	 JmAWQ1FY+eJeiMxXzo4jYsxtkMZYa6oPg7TWrLWfmhPzaBZ1DhSvnKuYoSeP9/E2Xm
+	 kG8zGjdKyVcdRF/Y9LgYk7Ghn6/jZmqo2vQFXc8thsNIf/gxryTLdUM9GwUrpEdsQe
+	 Zc/hNO6wMpYBA==
+Date: Tue, 31 Mar 2026 11:38:57 +0100
 From: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
 To: Suren Baghdasaryan <surenb@google.com>
 Cc: akpm@linux-foundation.org, willy@infradead.org, david@kernel.org, 
@@ -41,11 +41,11 @@ Cc: akpm@linux-foundation.org, willy@infradead.org, david@kernel.org,
 	gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com, 
 	gerald.schaefer@linux.ibm.com, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, 
 	kvm@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v6 4/6] mm/vma: use vma_start_write_killable() in vma
- operations
-Message-ID: <e490c85f-e1e6-4722-9399-e4743549a390@lucifer.local>
+Subject: Re: [PATCH v6 5/6] mm: use vma_start_write_killable() in
+ process_vma_walk_lock()
+Message-ID: <4e1c47a9-77a2-4f29-8de5-37f9958f5885@lucifer.local>
 References: <20260327205457.604224-1-surenb@google.com>
- <20260327205457.604224-5-surenb@google.com>
+ <20260327205457.604224-6-surenb@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -54,459 +54,181 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260327205457.604224-5-surenb@google.com>
+In-Reply-To: <20260327205457.604224-6-surenb@google.com>
 
-On Fri, Mar 27, 2026 at 01:54:55PM -0700, Suren Baghdasaryan wrote:
-> Replace vma_start_write() with vma_start_write_killable(), improving
-> reaction time to the kill signal.
-> Replace vma_start_write() calls when we operate on VMAs.
->
-> To propagate errors from vma_merge_existing_range() and vma_expand()
-> we fake an ENOMEM error when we fail due to a pending fatal signal.
-> This is a temporary workaround. Fixing this requires some refactoring
-> and will be done separately in the future.
->
-> In a number of places we now lock VMA earlier than before to avoid
-> doing work and undoing it later if a fatal signal is pending. This
-> is safe because the moves are happening within sections where we
-> already hold the mmap_write_lock, so the moves do not change the
-> locking order relative to other kernel locks.
+On Fri, Mar 27, 2026 at 01:54:56PM -0700, Suren Baghdasaryan wrote:
+> Replace vma_start_write() with vma_start_write_killable() when
+> process_vma_walk_lock() is used with PGWALK_WRLOCK option.
+> Adjust its direct and indirect users to check for a possible error
+> and handle it. Ensure users handle EINTR correctly and do not ignore
+> it. When queue_pages_range() fails, check whether it failed due to
+> a fatal signal or some other reason and return appropriate error.
 >
 > Suggested-by: Matthew Wilcox <willy@infradead.org>
 > Signed-off-by: Suren Baghdasaryan <surenb@google.com>
 > ---
->  mm/vma.c      | 146 ++++++++++++++++++++++++++++++++++++++------------
->  mm/vma_exec.c |   6 ++-
->  2 files changed, 117 insertions(+), 35 deletions(-)
+>  fs/proc/task_mmu.c | 12 ++++++------
+>  mm/mempolicy.c     | 10 +++++++++-
+>  mm/pagewalk.c      | 22 +++++++++++++++-------
+>  3 files changed, 30 insertions(+), 14 deletions(-)
 >
-> diff --git a/mm/vma.c b/mm/vma.c
-> index ba78ab1f397a..cc382217f730 100644
-> --- a/mm/vma.c
-> +++ b/mm/vma.c
-> @@ -524,6 +524,21 @@ __split_vma(struct vma_iterator *vmi, struct vm_area_struct *vma,
->  		new->vm_pgoff += ((addr - vma->vm_start) >> PAGE_SHIFT);
->  	}
->
-> +	/*
-> +	 * Lock VMAs before cloning to avoid extra work if fatal signal
-> +	 * is pending.
-> +	 */
-> +	err = vma_start_write_killable(vma);
-> +	if (err)
-> +		goto out_free_vma;
-> +	/*
-> +	 * Locking a new detached VMA will always succeed but it's just a
-> +	 * detail of the current implementation, so handle it all the same.
-> +	 */
-> +	err = vma_start_write_killable(new);
-> +	if (err)
-> +		goto out_free_vma;
-> +
->  	err = -ENOMEM;
->  	vma_iter_config(vmi, new->vm_start, new->vm_end);
->  	if (vma_iter_prealloc(vmi, new))
-> @@ -543,9 +558,6 @@ __split_vma(struct vma_iterator *vmi, struct vm_area_struct *vma,
->  	if (new->vm_ops && new->vm_ops->open)
->  		new->vm_ops->open(new);
->
-> -	vma_start_write(vma);
-> -	vma_start_write(new);
-> -
->  	init_vma_prep(&vp, vma);
->  	vp.insert = new;
->  	vma_prepare(&vp);
-> @@ -900,12 +912,22 @@ static __must_check struct vm_area_struct *vma_merge_existing_range(
->  	}
->
->  	/* No matter what happens, we will be adjusting middle. */
-> -	vma_start_write(middle);
-> +	err = vma_start_write_killable(middle);
-> +	if (err) {
-> +		/* Ensure error propagates. */
-> +		vmg->give_up_on_oom = false;
-> +		goto abort;
-> +	}
->
->  	if (merge_right) {
->  		vma_flags_t next_sticky;
->
-> -		vma_start_write(next);
-> +		err = vma_start_write_killable(next);
-> +		if (err) {
-> +			/* Ensure error propagates. */
-> +			vmg->give_up_on_oom = false;
-> +			goto abort;
-> +		}
->  		vmg->target = next;
->  		next_sticky = vma_flags_and_mask(&next->flags, VMA_STICKY_FLAGS);
->  		vma_flags_set_mask(&sticky_flags, next_sticky);
-> @@ -914,7 +936,12 @@ static __must_check struct vm_area_struct *vma_merge_existing_range(
->  	if (merge_left) {
->  		vma_flags_t prev_sticky;
->
-> -		vma_start_write(prev);
-> +		err = vma_start_write_killable(prev);
-> +		if (err) {
-> +			/* Ensure error propagates. */
-> +			vmg->give_up_on_oom = false;
-> +			goto abort;
-> +		}
->  		vmg->target = prev;
->
->  		prev_sticky = vma_flags_and_mask(&prev->flags, VMA_STICKY_FLAGS);
-> @@ -1170,10 +1197,18 @@ int vma_expand(struct vma_merge_struct *vmg)
->  	vma_flags_t sticky_flags =
->  		vma_flags_and_mask(&vmg->vma_flags, VMA_STICKY_FLAGS);
->  	vma_flags_t target_sticky;
-> -	int err = 0;
-> +	int err;
->
->  	mmap_assert_write_locked(vmg->mm);
-> -	vma_start_write(target);
-> +	err = vma_start_write_killable(target);
-> +	if (err) {
-> +		/*
-> +		 * Override VMA_MERGE_NOMERGE to prevent callers from
-> +		 * falling back to a new VMA allocation.
-> +		 */
-> +		vmg->state = VMA_MERGE_ERROR_NOMEM;
-> +		return err;
-> +	}
->
->  	target_sticky = vma_flags_and_mask(&target->flags, VMA_STICKY_FLAGS);
->
-> @@ -1201,6 +1236,19 @@ int vma_expand(struct vma_merge_struct *vmg)
->  	 * we don't need to account for vmg->give_up_on_mm here.
->  	 */
->  	if (remove_next) {
-> +		/*
-> +		 * Lock the VMA early to avoid extra work if fatal signal
-> +		 * is pending.
-> +		 */
-> +		err = vma_start_write_killable(next);
-> +		if (err) {
-> +			/*
-> +			 * Override VMA_MERGE_NOMERGE to prevent callers from
-> +			 * falling back to a new VMA allocation.
-> +			 */
-
-I don't think we need huge, duplicated comments everywhere.
-
-I don't like us effectively lying about an OOM.
-
-Here's what I said on v4:
-
-https://lore.kernel.org/all/9845b243-1984-4d74-9feb-d9d28757fba6@lucifer.local/
-
-	I think we need to update vma_modify():
-
-		/* First, try to merge. */
-		merged = vma_merge_existing_range(vmg);
-	        if (merged)
-	                return merged;
-	        if (vmg_nomem(vmg))
-	                return ERR_PTR(-ENOMEM);
-	+       if (fatal_signal_pending(current))
-	+               return -EINTR;
-
-OK I see you replied:
-
-	We need to be careful here. I think there are cases when vma is
-	modified from a context of a different process, for example in
-	process_madvise(). fatal_signal_pending(current) would yield incorrect
-	result because vma->vm_mm is not the same as current->mm.
-
-Sorry missed that.
-
-That's utterly horrible, yes.
-
-I'm sorry but I think this series then is going to have to wait for me to rework
-this code, unfortunately.
-
-I can't really stand you returning a fake error code it's too confusing.
-
-I guess I'll have to go do that as a priority then and maybe queue it up so it's
-kinda ready for 7.2.
-
-In any case I said in reply to the cover, I think this series is going to have
-to wait for next cycle (i.e. 7.2), sorry. Just too many functional changes in
-this revision.
-
-> +			vmg->state = VMA_MERGE_ERROR_NOMEM;
-> +			return err;
-> +		}
->  		err = dup_anon_vma(target, next, &anon_dup);
->  		if (err)
->  			return err;
-> @@ -1214,7 +1262,6 @@ int vma_expand(struct vma_merge_struct *vmg)
->  	if (remove_next) {
->  		vma_flags_t next_sticky;
->
-> -		vma_start_write(next);
->  		vmg->__remove_next = true;
->
->  		next_sticky = vma_flags_and_mask(&next->flags, VMA_STICKY_FLAGS);
-> @@ -1252,9 +1299,14 @@ int vma_shrink(struct vma_iterator *vmi, struct vm_area_struct *vma,
->  	       unsigned long start, unsigned long end, pgoff_t pgoff)
->  {
->  	struct vma_prepare vp;
-> +	int err;
->
->  	WARN_ON((vma->vm_start != start) && (vma->vm_end != end));
->
-> +	err = vma_start_write_killable(vma);
-> +	if (err)
-> +		return err;
-> +
->  	if (vma->vm_start < start)
->  		vma_iter_config(vmi, vma->vm_start, start);
->  	else
-> @@ -1263,8 +1315,6 @@ int vma_shrink(struct vma_iterator *vmi, struct vm_area_struct *vma,
->  	if (vma_iter_prealloc(vmi, NULL))
->  		return -ENOMEM;
->
-> -	vma_start_write(vma);
-> -
->  	init_vma_prep(&vp, vma);
->  	vma_prepare(&vp);
->  	vma_adjust_trans_huge(vma, start, end, NULL);
-> @@ -1453,7 +1503,9 @@ static int vms_gather_munmap_vmas(struct vma_munmap_struct *vms,
->  			if (error)
->  				goto end_split_failed;
->  		}
-> -		vma_start_write(next);
-> +		error = vma_start_write_killable(next);
-> +		if (error)
-> +			goto munmap_gather_failed;
->  		mas_set(mas_detach, vms->vma_count++);
->  		error = mas_store_gfp(mas_detach, next, GFP_KERNEL);
->  		if (error)
-> @@ -1848,12 +1900,16 @@ static void vma_link_file(struct vm_area_struct *vma, bool hold_rmap_lock)
->  static int vma_link(struct mm_struct *mm, struct vm_area_struct *vma)
->  {
->  	VMA_ITERATOR(vmi, mm, 0);
-> +	int err;
-> +
-> +	err = vma_start_write_killable(vma);
-> +	if (err)
-> +		return err;
->
->  	vma_iter_config(&vmi, vma->vm_start, vma->vm_end);
->  	if (vma_iter_prealloc(&vmi, vma))
->  		return -ENOMEM;
->
-> -	vma_start_write(vma);
->  	vma_iter_store_new(&vmi, vma);
->  	vma_link_file(vma, /* hold_rmap_lock= */false);
->  	mm->map_count++;
-> @@ -2239,9 +2295,8 @@ int mm_take_all_locks(struct mm_struct *mm)
->  	 * is reached.
->  	 */
->  	for_each_vma(vmi, vma) {
-> -		if (signal_pending(current))
-> +		if (signal_pending(current) || vma_start_write_killable(vma))
->  			goto out_unlock;
-> -		vma_start_write(vma);
->  	}
->
->  	vma_iter_init(&vmi, mm, 0);
-> @@ -2540,8 +2595,8 @@ static int __mmap_new_vma(struct mmap_state *map, struct vm_area_struct **vmap,
->  	struct mmap_action *action)
->  {
->  	struct vma_iterator *vmi = map->vmi;
-> -	int error = 0;
+> diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
+> index e091931d7ca1..33e5094a7842 100644
+> --- a/fs/proc/task_mmu.c
+> +++ b/fs/proc/task_mmu.c
+> @@ -1774,15 +1774,15 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
 >  	struct vm_area_struct *vma;
-> +	int error;
->
->  	/*
->  	 * Determine the object being mapped and call the appropriate
-> @@ -2552,6 +2607,14 @@ static int __mmap_new_vma(struct mmap_state *map, struct vm_area_struct **vmap,
->  	if (!vma)
->  		return -ENOMEM;
->
-> +	/*
-> +	 * Lock the VMA early to avoid extra work if fatal signal
-> +	 * is pending.
-> +	 */
-> +	error = vma_start_write_killable(vma);
-> +	if (error)
-> +		goto free_vma;
-> +
->  	vma_iter_config(vmi, map->addr, map->end);
->  	vma_set_range(vma, map->addr, map->end, map->pgoff);
->  	vma->flags = map->vma_flags;
-> @@ -2582,8 +2645,6 @@ static int __mmap_new_vma(struct mmap_state *map, struct vm_area_struct **vmap,
->  	WARN_ON_ONCE(!arch_validate_flags(map->vm_flags));
->  #endif
->
-> -	/* Lock the VMA since it is modified after insertion into VMA tree */
-> -	vma_start_write(vma);
->  	vma_iter_store_new(vmi, vma);
->  	map->mm->map_count++;
->  	vma_link_file(vma, action->hide_from_rmap_until_complete);
-> @@ -2878,6 +2939,7 @@ int do_brk_flags(struct vma_iterator *vmi, struct vm_area_struct *vma,
->  		 unsigned long addr, unsigned long len, vma_flags_t vma_flags)
->  {
->  	struct mm_struct *mm = current->mm;
+>  	enum clear_refs_types type;
+>  	int itype;
+> -	int rv;
 > +	int err;
 >
->  	/*
->  	 * Check against address space limits by the changed size
-> @@ -2910,24 +2972,33 @@ int do_brk_flags(struct vma_iterator *vmi, struct vm_area_struct *vma,
->
->  		if (vma_merge_new_range(&vmg))
->  			goto out;
-> -		else if (vmg_nomem(&vmg))
-> +		if (vmg_nomem(&vmg)) {
-> +			err = -ENOMEM;
->  			goto unacct_fail;
-> +		}
->  	}
->
->  	if (vma)
->  		vma_iter_next_range(vmi);
->  	/* create a vma struct for an anonymous mapping */
->  	vma = vm_area_alloc(mm);
-> -	if (!vma)
-> +	if (!vma) {
-> +		err = -ENOMEM;
->  		goto unacct_fail;
-> +	}
->
->  	vma_set_anonymous(vma);
->  	vma_set_range(vma, addr, addr + len, addr >> PAGE_SHIFT);
->  	vma->flags = vma_flags;
->  	vma->vm_page_prot = vm_get_page_prot(vma_flags_to_legacy(vma_flags));
-> -	vma_start_write(vma);
-> -	if (vma_iter_store_gfp(vmi, vma, GFP_KERNEL))
-> +	if (vma_start_write_killable(vma)) {
-> +		err = -EINTR;
-> +		goto vma_lock_fail;
-> +	}
-> +	if (vma_iter_store_gfp(vmi, vma, GFP_KERNEL)) {
-> +		err = -ENOMEM;
->  		goto mas_store_fail;
-> +	}
->
->  	mm->map_count++;
->  	validate_mm(mm);
-> @@ -2942,10 +3013,11 @@ int do_brk_flags(struct vma_iterator *vmi, struct vm_area_struct *vma,
->  	return 0;
->
->  mas_store_fail:
-> +vma_lock_fail:
->  	vm_area_free(vma);
->  unacct_fail:
->  	vm_unacct_memory(len >> PAGE_SHIFT);
-> -	return -ENOMEM;
-> +	return err;
->  }
->
->  /**
-> @@ -3112,8 +3184,8 @@ int expand_upwards(struct vm_area_struct *vma, unsigned long address)
->  	struct mm_struct *mm = vma->vm_mm;
->  	struct vm_area_struct *next;
->  	unsigned long gap_addr;
-> -	int error = 0;
->  	VMA_ITERATOR(vmi, mm, vma->vm_start);
-> +	int error;
->
->  	if (!vma_test(vma, VMA_GROWSUP_BIT))
+>  	if (count > sizeof(buffer) - 1)
+>  		count = sizeof(buffer) - 1;
+>  	if (copy_from_user(buffer, buf, count))
 >  		return -EFAULT;
-> @@ -3149,12 +3221,14 @@ int expand_upwards(struct vm_area_struct *vma, unsigned long address)
->
->  	/* We must make sure the anon_vma is allocated. */
->  	if (unlikely(anon_vma_prepare(vma))) {
-> -		vma_iter_free(&vmi);
-> -		return -ENOMEM;
-> +		error = -ENOMEM;
-> +		goto vma_prep_fail;
->  	}
->
->  	/* Lock the VMA before expanding to prevent concurrent page faults */
-> -	vma_start_write(vma);
-> +	error = vma_start_write_killable(vma);
-> +	if (error)
-> +		goto vma_lock_fail;
->  	/* We update the anon VMA tree. */
->  	anon_vma_lock_write(vma->anon_vma);
->
-> @@ -3183,8 +3257,10 @@ int expand_upwards(struct vm_area_struct *vma, unsigned long address)
->  		}
->  	}
->  	anon_vma_unlock_write(vma->anon_vma);
-> -	vma_iter_free(&vmi);
->  	validate_mm(mm);
-> +vma_lock_fail:
-> +vma_prep_fail:
-> +	vma_iter_free(&vmi);
->  	return error;
->  }
->  #endif /* CONFIG_STACK_GROWSUP */
-> @@ -3197,8 +3273,8 @@ int expand_downwards(struct vm_area_struct *vma, unsigned long address)
->  {
->  	struct mm_struct *mm = vma->vm_mm;
->  	struct vm_area_struct *prev;
-> -	int error = 0;
->  	VMA_ITERATOR(vmi, mm, vma->vm_start);
-> +	int error;
->
->  	if (!vma_test(vma, VMA_GROWSDOWN_BIT))
->  		return -EFAULT;
-> @@ -3228,12 +3304,14 @@ int expand_downwards(struct vm_area_struct *vma, unsigned long address)
->
->  	/* We must make sure the anon_vma is allocated. */
->  	if (unlikely(anon_vma_prepare(vma))) {
-> -		vma_iter_free(&vmi);
-> -		return -ENOMEM;
-> +		error = -ENOMEM;
-> +		goto vma_prep_fail;
->  	}
->
->  	/* Lock the VMA before expanding to prevent concurrent page faults */
-> -	vma_start_write(vma);
-> +	error = vma_start_write_killable(vma);
-> +	if (error)
-> +		goto vma_lock_fail;
->  	/* We update the anon VMA tree. */
->  	anon_vma_lock_write(vma->anon_vma);
->
-> @@ -3263,8 +3341,10 @@ int expand_downwards(struct vm_area_struct *vma, unsigned long address)
->  		}
->  	}
->  	anon_vma_unlock_write(vma->anon_vma);
-> -	vma_iter_free(&vmi);
->  	validate_mm(mm);
-> +vma_lock_fail:
-> +vma_prep_fail:
-> +	vma_iter_free(&vmi);
->  	return error;
->  }
->
-> diff --git a/mm/vma_exec.c b/mm/vma_exec.c
-> index 5cee8b7efa0f..8ddcc791d828 100644
-> --- a/mm/vma_exec.c
-> +++ b/mm/vma_exec.c
-> @@ -41,6 +41,7 @@ int relocate_vma_down(struct vm_area_struct *vma, unsigned long shift)
->  	struct vm_area_struct *next;
->  	struct mmu_gather tlb;
->  	PAGETABLE_MOVE(pmc, vma, vma, old_start, new_start, length);
-> +	int err;
->
->  	BUG_ON(new_start > new_end);
->
-> @@ -56,8 +57,9 @@ int relocate_vma_down(struct vm_area_struct *vma, unsigned long shift)
->  	 * cover the whole range: [new_start, old_end)
->  	 */
->  	vmg.target = vma;
-> -	if (vma_expand(&vmg))
-> -		return -ENOMEM;
-> +	err = vma_expand(&vmg);
+> -	rv = kstrtoint(strstrip(buffer), 10, &itype);
+> -	if (rv < 0)
+> -		return rv;
+> +	err = kstrtoint(strstrip(buffer), 10, &itype);
 > +	if (err)
 > +		return err;
+>  	type = (enum clear_refs_types)itype;
+>  	if (type < CLEAR_REFS_ALL || type >= CLEAR_REFS_LAST)
+>  		return -EINVAL;
+> @@ -1824,7 +1824,7 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
+>  						0, mm, 0, -1UL);
+>  			mmu_notifier_invalidate_range_start(&range);
+>  		}
+> -		walk_page_range(mm, 0, -1, &clear_refs_walk_ops, &cp);
+> +		err = walk_page_range(mm, 0, -1, &clear_refs_walk_ops, &cp);
+>  		if (type == CLEAR_REFS_SOFT_DIRTY) {
+>  			mmu_notifier_invalidate_range_end(&range);
+>  			flush_tlb_mm(mm);
+> @@ -1837,7 +1837,7 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
+>  	}
+>  	put_task_struct(task);
 >
->  	/*
->  	 * move the page tables downwards, on failure we rely on
+> -	return count;
+> +	return err ? : count;
+>  }
+>
+>  const struct file_operations proc_clear_refs_operations = {
+> diff --git a/mm/mempolicy.c b/mm/mempolicy.c
+> index c38a90487531..51f298cfc33b 100644
+> --- a/mm/mempolicy.c
+> +++ b/mm/mempolicy.c
+> @@ -969,6 +969,7 @@ static const struct mm_walk_ops queue_pages_lock_vma_walk_ops = {
+>   *      (a hugetlbfs page or a transparent huge page being counted as 1).
+>   * -EIO - a misplaced page found, when MPOL_MF_STRICT specified without MOVEs.
+>   * -EFAULT - a hole in the memory range, when MPOL_MF_DISCONTIG_OK unspecified.
+> + * -EINTR - walk got terminated due to pending fatal signal.
+>   */
+>  static long
+>  queue_pages_range(struct mm_struct *mm, unsigned long start, unsigned long end,
+> @@ -1545,7 +1546,14 @@ static long do_mbind(unsigned long start, unsigned long len,
+>  			flags | MPOL_MF_INVERT | MPOL_MF_WRLOCK, &pagelist);
+>
+>  	if (nr_failed < 0) {
+> -		err = nr_failed;
+> +		/*
+> +		 * queue_pages_range() might override the original error with -EFAULT.
+> +		 * Confirm that fatal signals are still treated correctly.
+> +		 */
+> +		if (fatal_signal_pending(current))
+> +			err = -EINTR;
+> +		else
+> +			err = nr_failed;
+
+Is that really a big deal? Does it really matter if the caller doesn't get
+-EINTR in this case? This feels like another sashiko nitpick and is adding a
+bunch of additional complexity here.
+
+I mean if you 'filter' error messages you might always end up with an error
+that's different than the original...
+
+>  		nr_failed = 0;
+>  	} else {
+>  		vma_iter_init(&vmi, mm, start);
+> diff --git a/mm/pagewalk.c b/mm/pagewalk.c
+> index 3ae2586ff45b..eca7bc711617 100644
+> --- a/mm/pagewalk.c
+> +++ b/mm/pagewalk.c
+> @@ -443,14 +443,13 @@ static inline void process_mm_walk_lock(struct mm_struct *mm,
+>  		mmap_assert_write_locked(mm);
+>  }
+>
+> -static inline void process_vma_walk_lock(struct vm_area_struct *vma,
+> -					 enum page_walk_lock walk_lock)
+> +static int process_vma_walk_lock(struct vm_area_struct *vma,
+> +				 enum page_walk_lock walk_lock)
+>  {
+>  #ifdef CONFIG_PER_VMA_LOCK
+>  	switch (walk_lock) {
+>  	case PGWALK_WRLOCK:
+> -		vma_start_write(vma);
+> -		break;
+> +		return vma_start_write_killable(vma);
+>  	case PGWALK_WRLOCK_VERIFY:
+>  		vma_assert_write_locked(vma);
+>  		break;
+> @@ -462,6 +461,7 @@ static inline void process_vma_walk_lock(struct vm_area_struct *vma,
+>  		break;
+>  	}
+>  #endif
+> +	return 0;
+>  }
+>
+>  /*
+> @@ -505,7 +505,9 @@ int walk_page_range_mm_unsafe(struct mm_struct *mm, unsigned long start,
+>  			if (ops->pte_hole)
+>  				err = ops->pte_hole(start, next, -1, &walk);
+>  		} else { /* inside vma */
+> -			process_vma_walk_lock(vma, ops->walk_lock);
+> +			err = process_vma_walk_lock(vma, ops->walk_lock);
+> +			if (err)
+> +				break;
+>  			walk.vma = vma;
+>  			next = min(end, vma->vm_end);
+>  			vma = find_vma(mm, vma->vm_end);
+> @@ -722,6 +724,7 @@ int walk_page_range_vma_unsafe(struct vm_area_struct *vma, unsigned long start,
+>  		.vma		= vma,
+>  		.private	= private,
+>  	};
+> +	int err;
+>
+>  	if (start >= end || !walk.mm)
+>  		return -EINVAL;
+> @@ -729,7 +732,9 @@ int walk_page_range_vma_unsafe(struct vm_area_struct *vma, unsigned long start,
+>  		return -EINVAL;
+>
+>  	process_mm_walk_lock(walk.mm, ops->walk_lock);
+> -	process_vma_walk_lock(vma, ops->walk_lock);
+> +	err = process_vma_walk_lock(vma, ops->walk_lock);
+> +	if (err)
+> +		return err;
+>  	return __walk_page_range(start, end, &walk);
+>  }
+>
+> @@ -752,6 +757,7 @@ int walk_page_vma(struct vm_area_struct *vma, const struct mm_walk_ops *ops,
+>  		.vma		= vma,
+>  		.private	= private,
+>  	};
+> +	int err;
+>
+>  	if (!walk.mm)
+>  		return -EINVAL;
+> @@ -759,7 +765,9 @@ int walk_page_vma(struct vm_area_struct *vma, const struct mm_walk_ops *ops,
+>  		return -EINVAL;
+>
+>  	process_mm_walk_lock(walk.mm, ops->walk_lock);
+> -	process_vma_walk_lock(vma, ops->walk_lock);
+> +	err = process_vma_walk_lock(vma, ops->walk_lock);
+> +	if (err)
+> +		return err;
+>  	return __walk_page_range(vma->vm_start, vma->vm_end, &walk);
+>  }
+>
 > --
 > 2.53.0.1018.g2bb0e51243-goog
 >
