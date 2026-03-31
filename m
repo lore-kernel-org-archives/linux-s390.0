@@ -1,118 +1,233 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07D7443DA5D;
-	Tue, 31 Mar 2026 17:44:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774979049; cv=none; b=qETJhKomhcnktZzP4ysHDa26muFcVjetTdVmxVzUP8cAolpAFYsFgnrQCkJ81mS+6tSmyjlb/LLVi/VPzJqzcYsb/Gv+/7jwP5dS8kGBggRo4pZVa6TC1kQUvD6lmam2fzUOf+IntTCSlVS44bQ8Kn3Xh48otRjvTvEoBmubRfM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774979049; c=relaxed/simple;
-	bh=2BnY2lciShhql8E6J7zoo6irH4k/8CncSpOVcnrGZI8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gAK3/ZNi+9BkL1Rf/7iTykOXQ741HigDohlBkgpF9iLAcjTjwQ7P3KQdEsxPIWSSosgPcCa8uyBW0JufoaJHvHBoyXaHevK8A2Z/Di2T8grhgBYzi7fX55hQmWGFubhn1YWfTj1E4kKX0fSrw06vQ/MmN0Oh7ioXuP+hmdsQ7qU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=j9+xhrID; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA1A7426D05
+	for <linux-s390@vger.kernel.org>; Tue, 31 Mar 2026 17:59:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.170
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774979950; cv=pass; b=MqFCf5hf4hQHFt0qTcdMk845qSynSmBC3JJdg1N0nDLYRDq1IT7ul3eWfIV7FLroM+pZuuSCh1KShGirLco9uNOOe+0VE5bn2zKWTIXrQurzmK06g2yTUuSwKYqscClFfgV2fgcqPRPj/j921YIubp6HJPrq/1aN//Dk6nnhneQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774979950; c=relaxed/simple;
+	bh=wJYqa8CNOmRXNHFacU1Cl+9w4sAaAKxCbAa8Jd0yOLU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=UVjWeRRoNj3POBnFv5M0ANH1CwnpdfI1kOpuhYT6h/gZKghtP13T0Xb6QTTWPAMXhA1IDwUQcRPUs0/ck+hBOkS5KGjBm3s/pChFqPAe4MJXLljz8HVqC47AqHQwGXGQ3q6oz7YU0FW/O9sYetJJm8FQuimYGrNzsdgEum+rw1Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=vsR2b9Xr; arc=pass smtp.client-ip=209.85.214.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="j9+xhrID"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62VAm1Zq726020;
-	Tue, 31 Mar 2026 17:44:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=/XfIou
-	oBIfJj614uLcM73w3mxF76QqsN7eDk0tK+ebM=; b=j9+xhrIDQM5ndTMWjrMI/n
-	XsgJF1Y3AFadrFwfVsbT96pqYcQJJEMGfWvwT3oCvlk5kBe8NISDCh3q7bXA8G4Z
-	cJiLaU/byoWGIpaC3rWkb5eIfTi3CMsLvYVP8zwO/mQ1AWOLtajcdMp8Auv/Liju
-	sfOvndMjWbYEZ+pnUCgJhQcKL15lZF23I/TfJyaMcGpt4fD9jL5nn+c7LvRmGvcO
-	TrBpJe45xRbfQwqVhPzOvs2X5mkgohAgj1qrFEwa4zWI+BPlnZvamhJaIT1RRcNs
-	cfV3jt2BtBydn1QXWIPARO6cK60Od0PwVHJD2upyaJdDyRjQ1FeT4+cIke8uvK2A
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d65dcc53s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 31 Mar 2026 17:44:00 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62VGYhI2008703;
-	Tue, 31 Mar 2026 17:43:59 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d6v11hysn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 31 Mar 2026 17:43:59 +0000
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62VHhwJt11076130
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 31 Mar 2026 17:43:58 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 082045803F;
-	Tue, 31 Mar 2026 17:43:58 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C0FC45804E;
-	Tue, 31 Mar 2026 17:43:56 +0000 (GMT)
-Received: from [9.61.9.136] (unknown [9.61.9.136])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 31 Mar 2026 17:43:56 +0000 (GMT)
-Message-ID: <5fbdc438-3b5d-4a3d-bb4d-cc71a215ce93@linux.ibm.com>
-Date: Tue, 31 Mar 2026 13:43:56 -0400
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="vsR2b9Xr"
+Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2b0c12be0ecso134725ad.0
+        for <linux-s390@vger.kernel.org>; Tue, 31 Mar 2026 10:59:07 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1774979947; cv=none;
+        d=google.com; s=arc-20240605;
+        b=dGOBs8gtMxprTP/2UO5yIB4gMVq40LIZkDAYEC4v1yq+RI0qOYihLwdHA7hgQVhrtp
+         +fbm2FsgLh53aSWM3BBO/FkT+CbQVC02EjB3725ojsqDvs1ynO67PfoTcF9e/Of9JatF
+         Zr4ELbvn5tTSMv2Wy/KQwyVYGmCREWLrUuuCIEIJaXnNVlqKqyORHXgw7NNIZGGF1PxO
+         e0+2hBhgNKUP8HWB3n0JHZLQnKTDYExs7gkpLD+3hdv/k094vCfBz6+nHZBz+ipWQjPU
+         C9Y0imNbPHw8d603h8KzPVp6/B1FHLFu6vp7EFn0+1FrMwDx6SYXtH6+i4bayolzU2lv
+         1ulg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=tIpgbLDZwM+3B1z1bVKHYcqhZBXlMkODpOifxw3XbSE=;
+        fh=sBDV8voT4O51ILo8V+S/PRLsZ1SwwfsFl0ILUhiP4GY=;
+        b=WEr3zwgSLpd/Zy2k+KnpefBqgkucKjRdwPpldRkIBRRL82GrjAcm4pJ1C9CWvmM2qO
+         B9SzpxU4nymnDHREgWBTMUYeonMsJ+6cPlWfI9k9vL6FSkX+3cAgfOU1p6Foq/9MZjeT
+         MvXcMkNbuf+XjO1udzHnLSylMHNoOSPN+s4wU4W4qC1Scy5oQLf0BgdS8P5THKkSpPyO
+         /wC+nKojhySguPE7kEoWDAZu479auS478fGDjCH5Pj/xyJI7wtEr4yoO+f0rgCTqj6Ti
+         dNGQSoJwXqqNzUb0yN5T48fajDJX2vih7WJJvRn30uMA2EBKAdiQU8V/gYvMsaLtJiDA
+         6NWw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1774979947; x=1775584747; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=tIpgbLDZwM+3B1z1bVKHYcqhZBXlMkODpOifxw3XbSE=;
+        b=vsR2b9XrrUGYpL8gWqxplhcYoK4KSyWbbMo7iSf6V/CIkjuHmhguYdVZ8GwQXmjj6G
+         VMTv3KxFfxvCRWPA9TLkkBcPyTV8LP0Of5qoZx46z+gD8vafGMdLziNFmy6JGU4//Q49
+         RZTCBlhCYJYoodrd96nnQi5Dyc9JIF3iySh/JeGsL1XHv8m00mJeuGbvGosbgfo6TSmB
+         1XHbm8bfqvujPkFEV4FYLqvwJ95L7KrcS/LwsdS81kewlv4c7BE3VLD52YLSEDPXf8uw
+         yx4MdpSohZmS5aN5bwhcgcIJGXqHgEC3DkeHENX4D41juGlHSVxf51Qplekd6Iuul31M
+         LvwA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774979947; x=1775584747;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=tIpgbLDZwM+3B1z1bVKHYcqhZBXlMkODpOifxw3XbSE=;
+        b=OPtIRZYYTAV6VL0VuP/2h8MNvHo8zq//lXZk0m/NJ8kVxt/xC7EzH92XNvNtNMJrDZ
+         DoMaft3DXdIKDG6x6sJSOXeM9CdWSSdDgb2w/In2istARMLRjCGtQF+k71/uMArJmGlj
+         JGyO9kwyVbmq7wTXuBgcamZFppSucMam1Dixm22UHgWX8dIPspxgGZBd62i3dNfNSngm
+         Pdc6oe8I1gPgrxIOngqpS67TtA/JT91OlRBWPB3wU4lSQjwCwxtfyPdC+Vsjuaaiul1C
+         lgRUSEJJakSMdApTeCjL7qITPq4AjV16decW2JyPg49OC3QXRp3ZgGAiAjaWuXtGbXCj
+         3Rxg==
+X-Forwarded-Encrypted: i=1; AJvYcCUY7raZBbFbBx/zJHykTdGKknzC45tl+oOhYEc4bqos5O5sWHIKxhP4woN0FxeoyTEmMw8DRVF4nCsR@vger.kernel.org
+X-Gm-Message-State: AOJu0YyQMCSA9njiMebE8i9e9QF4G4S+sbmx5nNRkxsq2d5H6egpiBcY
+	kORpU0m9IsN++KBItH8zpB+0tFDvpFMQqgQXb02RCfoknspEfSzTWjV1aiooHk8NMe/HknuH11m
+	pPtoGIKFKGtZtDRt8iEMSw3GL3VbPV8SJRhAiCwhc
+X-Gm-Gg: ATEYQzyChjIq0IDHw7Vm0Rfr0EGJCHL/xJOAL4/2/nZ9T1XS7VBBTYLHDMF6RzPt+2p
+	Hgv3yg91VEbc8adf8j1hfh63IC5VJ3DQkKm2nXDVuqEGYi2n0lPZq81ZBqPswZ3wogxxU5CTZYs
+	5FEe4sGKJuSMFyY8CPZKagEoAPZnWUKapX3XQ9r3hge4ZSOjxiJFFREc++7Qfp/8mcIJK2GbSob
+	Tr0aNEAxettVrOOq2WiYdodRQedzvmYFtJ5AZusNy4MZ7CJVCC/zNdM1Bjx1ZbK4JScRalF2jhE
+	/uWi3rNVOoPiY/8OCtpIexgF445sYvLzzP0o4g==
+X-Received: by 2002:a17:902:ebc6:b0:2a7:87c2:fcde with SMTP id
+ d9443c01a7336-2b268f14089mr604485ad.15.1774979946544; Tue, 31 Mar 2026
+ 10:59:06 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v12 6/7] vfio/pci: Add a reset_done callback for vfio-pci
- driver
-To: Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
-Cc: helgaas@kernel.org, lukas@wunner.de, alex@shazbot.org, clg@redhat.com,
-        kbusch@kernel.org, schnelle@linux.ibm.com,
-        Julian Ruess <julianr@linux.ibm.com>
-References: <20260330174011.1161-1-alifm@linux.ibm.com>
- <20260330174011.1161-7-alifm@linux.ibm.com>
-Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20260330174011.1161-7-alifm@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=RsjI7SmK c=1 sm=1 tr=0 ts=69cc07e0 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=r1p2_3pzAAAA:8 a=S9AbbzVI5GFJ9J-4nxIA:9 a=QEXdDO2ut3YA:10
- a=r_pkcD-q9-ctt7trBg_g:22
-X-Proofpoint-GUID: aT5JIYmdlMO_wjmwOHpMK8SjbBvtrWFJ
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzMxMDE2NiBTYWx0ZWRfX+6JW8YDTSP/q
- 12ywkbj6FIJtbWFaHp273FyZfWqZ+TV5/DXxn9+VToJix2ZeWSLQi0B6sZAAOsDW4c1DvS7lcqS
- UL9Di/T5Mjjhtfdo0NNv7xz/BQV2aiYTzZPOgr0tyeyGGwJTDcJ/jmbH0dOvJwtdGj39lMZ99tZ
- pVeCqgxKVFj7/eosNtuiOtc4rvMcRQG1Uwxqr7pNyHAM+o6xc+EqUNGlpmDYoiFj1DWGxgghIjQ
- D7LSddaff/HRwjTUBvSV0cu66Pnzpcn0AD8r+mO+m/eepVRNXMK4fevLwymtKEE9C4hg8Dxsw0j
- AWnypYAYsXy1gH6gMNwuvxdcTRCqDjXPJVa4mA9XwUeNXD6jxtM8wsIGO7qbN7D9/J9+OnI4WiR
- xb2XAjwSI/QhacJFeV33/E9dDVwZGxQw0nypZjj1lXBT0yO4qaYmy7iaDDh5k9P1IsxiAUIrn5D
- 68AhIsB+lxaL+dnL6bw==
-X-Proofpoint-ORIG-GUID: aT5JIYmdlMO_wjmwOHpMK8SjbBvtrWFJ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-31_03,2026-03-31_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 bulkscore=0 priorityscore=1501 lowpriorityscore=0
- suspectscore=0 malwarescore=0 spamscore=0 clxscore=1015 phishscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
- definitions=main-2603310166
+References: <20260326174521.1829203-1-irogers@google.com> <20260327060033.2294469-1-irogers@google.com>
+ <act2RNT6-3Kx_h5p@google.com>
+In-Reply-To: <act2RNT6-3Kx_h5p@google.com>
+From: Ian Rogers <irogers@google.com>
+Date: Tue, 31 Mar 2026 10:58:55 -0700
+X-Gm-Features: AQROBzBv7ZLGEShLdKZs6LMir1nXxpqxTU77_IYBxmII6si7mW_4LE7aZWATA0c
+Message-ID: <CAP-5=fX12Kmd26bq4xRjx50WzmuuMszEzuVY=g6y7-hkPd8Wzg@mail.gmail.com>
+Subject: Re: [PATCH v2] perf tests task-analyzer: Write test files to tmpdir
+To: Namhyung Kim <namhyung@kernel.org>
+Cc: acme@kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com, 
+	hca@linux.ibm.com, jameshongleiwang@126.com, japo@linux.ibm.com, 
+	linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
+	linux-s390@vger.kernel.org, sumanthk@linux.ibm.com, tmricht@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 3/30/26 1:40 PM, Farhan Ali wrote:
-> On error recovery for a PCI device bound to vfio-pci driver, we want to
-> recover the state of the device to its last known saved state. The callback
-> restores the state of the device to its initial saved state.
-> 
-> Reviewed-by: Julian Ruess <julianr@linux.ibm.com>
-> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-> Acked-by: Alex Williamson <alex@shazbot.org>
+On Tue, Mar 31, 2026 at 12:22=E2=80=AFAM Namhyung Kim <namhyung@kernel.org>=
+ wrote:
+>
+> I'm curious why this patch is in the idle symbol thread.
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+I'll separate it, I was gathering fixes. Same branch has the BPF
+counters test fix in it:
+https://lore.kernel.org/lkml/20260325171653.1091337-1-irogers@google.com/
 
+> On Thu, Mar 26, 2026 at 11:00:33PM -0700, Ian Rogers wrote:
+> > Writing to the test output files in the current working directory can
+> > fail in various contexts such as continual test. Other tests write to
+> > a mktemp-ed file, make the "perf script task-analyszer tests" follow
+> > this convention too. Currently this isn't possible for the perf.data
+> > file due to a lack of perf script support, add a variable for when
+> > this support is available.
+> >
+> > Signed-off-by: Ian Rogers <irogers@google.com>
+> > ---
+> >  tools/perf/tests/shell/test_task_analyzer.sh | 38 +++++++++++---------
+> >  1 file changed, 21 insertions(+), 17 deletions(-)
+> >
+> > diff --git a/tools/perf/tests/shell/test_task_analyzer.sh b/tools/perf/=
+tests/shell/test_task_analyzer.sh
+> > index e194fcf61df3..b1a6a7e017e4 100755
+> > --- a/tools/perf/tests/shell/test_task_analyzer.sh
+> > +++ b/tools/perf/tests/shell/test_task_analyzer.sh
+> > @@ -3,6 +3,11 @@
+> >  # SPDX-License-Identifier: GPL-2.0
+> >
+> >  tmpdir=3D$(mktemp -d /tmp/perf-script-task-analyzer-XXXXX)
+> > +# TODO: perf script report only supports input from the CWD perf.data =
+file, make
+> > +# it support input from any file.
+> > +perfdata=3D"perf.data"
+> > +csv=3D"$tmpdir/csv"
+> > +csvsummary=3D"$tmpdir/csvsummary"
+> >  err=3D0
+> >
+> >  # set PERF_EXEC_PATH to find scripts in the source directory
+> > @@ -15,11 +20,10 @@ fi
+> >  export ASAN_OPTIONS=3Ddetect_leaks=3D0
+> >
+> >  cleanup() {
+> > -  rm -f perf.data
+> > -  rm -f perf.data.old
+> > -  rm -f csv
+> > -  rm -f csvsummary
+> > +  rm -f "${perfdata}"
+> > +  rm -f "${perfdata}".old
+> >    rm -rf "$tmpdir"
+> > +
+> >    trap - exit term int
+> >  }
+> >
+> > @@ -61,7 +65,7 @@ skip_no_probe_record_support() {
+> >
+> >  prepare_perf_data() {
+> >       # 1s should be sufficient to catch at least some switches
+> > -     perf record -e sched:sched_switch -a -- sleep 1 > /dev/null 2>&1
+> > +     perf record -e sched:sched_switch -a -o "${perfdata}" -- sleep 1 =
+> /dev/null 2>&1
+> >       # check if perf data file got created in above step.
+> >       if [ ! -e "perf.data" ]; then
+> >               printf "FAIL: perf record failed to create \"perf.data\" =
+\n"
+>
+> Please update this part too.
 
+Done.
+
+Thanks,
+Ian
+
+> Thanks,
+> Namhyung
+>
+>
+> > @@ -130,28 +134,28 @@ test_extended_times_summary_ns() {
+> >  }
+> >
+> >  test_csv() {
+> > -     perf script report task-analyzer --csv csv > /dev/null
+> > -     check_exec_0 "perf script report task-analyzer --csv csv"
+> > -     find_str_or_fail "Comm;" csv "${FUNCNAME[0]}"
+> > +     perf script report task-analyzer --csv "${csv}" > /dev/null
+> > +     check_exec_0 "perf script report task-analyzer --csv ${csv}"
+> > +     find_str_or_fail "Comm;" "${csv}" "${FUNCNAME[0]}"
+> >  }
+> >
+> >  test_csv_extended_times() {
+> > -     perf script report task-analyzer --csv csv --extended-times > /de=
+v/null
+> > -     check_exec_0 "perf script report task-analyzer --csv csv --extend=
+ed-times"
+> > -     find_str_or_fail "Out-Out;" csv "${FUNCNAME[0]}"
+> > +     perf script report task-analyzer --csv "${csv}" --extended-times =
+> /dev/null
+> > +     check_exec_0 "perf script report task-analyzer --csv ${csv} --ext=
+ended-times"
+> > +     find_str_or_fail "Out-Out;" "${csv}" "${FUNCNAME[0]}"
+> >  }
+> >
+> >  test_csvsummary() {
+> > -     perf script report task-analyzer --csv-summary csvsummary > /dev/=
+null
+> > -     check_exec_0 "perf script report task-analyzer --csv-summary csvs=
+ummary"
+> > -     find_str_or_fail "Comm;" csvsummary "${FUNCNAME[0]}"
+> > +     perf script report task-analyzer --csv-summary "${csvsummary}" > =
+/dev/null
+> > +     check_exec_0 "perf script report task-analyzer --csv-summary ${cs=
+vsummary}"
+> > +     find_str_or_fail "Comm;" "${csvsummary}" "${FUNCNAME[0]}"
+> >  }
+> >
+> >  test_csvsummary_extended() {
+> > -     perf script report task-analyzer --csv-summary csvsummary --summa=
+ry-extended \
+> > +     perf script report task-analyzer --csv-summary "${csvsummary}" --=
+summary-extended \
+> >       >/dev/null
+> > -     check_exec_0 "perf script report task-analyzer --csv-summary csvs=
+ummary --summary-extended"
+> > -     find_str_or_fail "Out-Out;" csvsummary "${FUNCNAME[0]}"
+> > +     check_exec_0 "perf script report task-analyzer --csv-summary ${cs=
+vsummary} --summary-extended"
+> > +     find_str_or_fail "Out-Out;" "${csvsummary}" "${FUNCNAME[0]}"
+> >  }
+> >
+> >  skip_no_probe_record_support
+> > --
+> > 2.53.0.1018.g2bb0e51243-goog
+> >
