@@ -1,36 +1,36 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91E2C37AA9E;
-	Tue, 31 Mar 2026 09:35:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04FC43CF034;
+	Tue, 31 Mar 2026 09:51:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774949749; cv=none; b=Wf984kiO7pIRO9+ED6DqH4WsjXVA5GtLV6gopZhnC/SU+kaUlf5HcdeSbhdQeuqJpsxu6d8MoDlMJONya+oAnBpZUgK+gzQX81UWrROsrJIFJk9qagn2LkNbjkd12XhuOGSqRC7CaHHgikqIkM91ZZo6oLSdSJpcwX8flFgxr4M=
+	t=1774950667; cv=none; b=f4xkWE5SsTWxduG8asMWLClsY8BaCvOMVNotBvAiSNzbVTuQc3RWq0JI5iXIJws/xhzqVi0EQLXI+hYumtyliMwu+T8Wsgxit+5gmMYlQyUAz17tPVNXT9zPQ+O0Wx/4DKuZm7oeoHDMpnwdrIk9QLOJt0t1MVmvMvveqykpZ5o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774949749; c=relaxed/simple;
-	bh=QjbGnsBbsYu8AXy/HwbuH+528+5xrd5qo/0bIOJymqs=;
+	s=arc-20240116; t=1774950667; c=relaxed/simple;
+	bh=GUYv48aqnOB+9lrhq/OJxgTDhnzEElBOBOj0aReQt00=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kqiBqOk8rNuWEk2IGA0PvJLTjEzt0QeJCRN6P4y7o0vyqXlVjwyzMrv8wP8JRVMTAlt/D83uQIIj2afvmtfoi+KT0GzKZlLRpD3BfTpku29Vx0mmNm+N4BpYHIFWsSHAceZBHJeFd8xgJprW8p3sA+wi9P54AJnqvn5Vp8BAqZg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Mfqe69hd; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=BjZe1I+Qx9uIDf8S6pP4IN9w9jOmOi1PM12PvDSQR3V7tnpBTnMM2+PTdGrbd9vodGW2+ItiZAbdTu66hhB1Q9Mkj5dgae9O3c2B7qecf/thJnQexMQjrwgkynwKXDZ0nDkM6wB+++eve1uTfAO6jLCuxuiV3qAwSAoUehCgqro=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KNtyMoYn; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Mfqe69hd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7708EC19423;
-	Tue, 31 Mar 2026 09:35:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KNtyMoYn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFBD3C19423;
+	Tue, 31 Mar 2026 09:51:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774949749;
-	bh=QjbGnsBbsYu8AXy/HwbuH+528+5xrd5qo/0bIOJymqs=;
+	s=k20201202; t=1774950666;
+	bh=GUYv48aqnOB+9lrhq/OJxgTDhnzEElBOBOj0aReQt00=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Mfqe69hdpWppLKx9XJfxUeg28uOg70RVdflcA7ip7g8dxBdzR1M+a5VlfPHE78yyd
-	 mMsnQbvo2r3TfLNWrq0ztp9IPpB1HY6O/065w898RgLOfHlkk0lQO3C3P3rnPGRaSQ
-	 6cD0dEQZaVz+8Ak0SrRBkDC0IRBi6GSzTIoK8eq7m314BQZyX7TM0D2ZwEUdPiRQ3I
-	 nW/hDj9S/R3fWNCwZGexGRAtbCTAZ3UuvVKibfX01Qy9vmGi9Yqv8a47uQtJXnbzEl
-	 Xe4sRLN/vLHsydEOWhWnOp8YgtUeeMiiX0l/UbcWcvGMgYhnLYoRKD36jHfhVo83PH
-	 82BWtU8EfN5eg==
-Date: Tue, 31 Mar 2026 10:35:47 +0100
+	b=KNtyMoYnwvw8y7P34krJLMvPuk9Ug1u22pw5FUadp9aWf/T6utbvWI7nh/NXWnEKC
+	 tJ4F3CDEPr3Vha3SMIaiIUgFcrZiDrA98XybSdpl11bHRSaKj+zFJ0+mV+jzp+cwrj
+	 jH/QZyrPNiNDzvdpGi2yzAs+H4B/F2ck5wsIPLfe3keXguMAuUV66LjmJftvhp986C
+	 Jkt4gDcMMWmboVTTO8L51n5cNQ9BnwU32voSLRWWseQnTdDx3sRt/gggQPu4pccJz2
+	 P0dfGFMVwgLdKgJ8TQdJb/4TtC799ap1M3TRT+hlw4zD6oJYTcZrgyemeOPptHjrgP
+	 aVIemcS5phjtg==
+Date: Tue, 31 Mar 2026 10:51:04 +0100
 From: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
-To: Suren Baghdasaryan <surenb@google.com>
-Cc: akpm@linux-foundation.org, willy@infradead.org, david@kernel.org, 
-	ziy@nvidia.com, matthew.brost@intel.com, joshua.hahnjy@gmail.com, 
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Suren Baghdasaryan <surenb@google.com>, willy@infradead.org, 
+	david@kernel.org, ziy@nvidia.com, matthew.brost@intel.com, joshua.hahnjy@gmail.com, 
 	rakie.kim@sk.com, byungchul@sk.com, gourry@gourry.net, 
 	ying.huang@linux.alibaba.com, apopple@nvidia.com, baolin.wang@linux.alibaba.com, 
 	Liam.Howlett@oracle.com, npache@redhat.com, ryan.roberts@arm.com, dev.jain@arm.com, 
@@ -41,10 +41,10 @@ Cc: akpm@linux-foundation.org, willy@infradead.org, david@kernel.org,
 	gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com, 
 	gerald.schaefer@linux.ibm.com, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, 
 	kvm@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v6 2/6] mm: use vma_start_write_killable() in mm syscalls
-Message-ID: <5d90d998-9b8d-435c-b684-260600311797@lucifer.local>
+Subject: Re: [PATCH v6 0/6] Use killable vma write locking in most places
+Message-ID: <f128b795-5577-40f9-8dae-936be4253642@lucifer.local>
 References: <20260327205457.604224-1-surenb@google.com>
- <20260327205457.604224-3-surenb@google.com>
+ <20260327161226.17e680fec33117d67dc8b5f9@linux-foundation.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -53,221 +53,142 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260327205457.604224-3-surenb@google.com>
+In-Reply-To: <20260327161226.17e680fec33117d67dc8b5f9@linux-foundation.org>
 
-On Fri, Mar 27, 2026 at 01:54:53PM -0700, Suren Baghdasaryan wrote:
-> Replace vma_start_write() with vma_start_write_killable() in syscalls,
-> improving reaction time to the kill signal.
+On Fri, Mar 27, 2026 at 04:12:26PM -0700, Andrew Morton wrote:
+> On Fri, 27 Mar 2026 13:54:51 -0700 Suren Baghdasaryan <surenb@google.com> wrote:
 >
-> In a number of places we now lock VMA earlier than before to avoid
-> doing work and undoing it later if a fatal signal is pending. This
-> is safe because the moves are happening within sections where we
-> already hold the mmap_write_lock, so the moves do not change the
-> locking order relative to other kernel locks.
+> > Now that we have vma_start_write_killable() we can replace most of the
+> > vma_start_write() calls with it, improving reaction time to the kill
+> > signal.
+> >
+> > There are several places which are left untouched by this patchset:
+> >
+> > 1. free_pgtables() because function should free page tables even if a
+> > fatal signal is pending.
+> >
+> > 2. userfaultd code, where some paths calling vma_start_write() can
+> > handle EINTR and some can't without a deeper code refactoring.
+> >
+> > 3. mpol_rebind_mm() which is used by cpusset controller for migrations
+> > and operates on a remote mm. Incomplete operations here would result
+> > in an inconsistent cgroup state.
+> >
+> > 4. vm_flags_{set|mod|clear} require refactoring that involves moving
+> > vma_start_write() out of these functions and replacing it with
+> > vma_assert_write_locked(), then callers of these functions should
+> > lock the vma themselves using vma_start_write_killable() whenever
+> > possible.
 >
-> Suggested-by: Matthew Wilcox <willy@infradead.org>
-> Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+> Updated, thanks.
 
-I think Sashiko (presumably) has regressed this series :/
+Andrew - sorry I think we need to yank this and defer to next cycle,
+there's too many functional changes here.
 
-> ---
->  mm/madvise.c   | 13 ++++++++++---
->  mm/memory.c    |  2 ++
->  mm/mempolicy.c | 11 +++++++++--
->  mm/mlock.c     | 30 ++++++++++++++++++++++++------
->  mm/mprotect.c  | 25 +++++++++++++++++--------
->  mm/mremap.c    |  8 +++++---
->  mm/mseal.c     | 24 +++++++++++++++++++-----
->  7 files changed, 86 insertions(+), 27 deletions(-)
+(There was not really any way for me to predict this would happen ahead of
+time, unfortunately.)
+
 >
-> diff --git a/mm/madvise.c b/mm/madvise.c
-> index 69708e953cf5..f2c7b0512cdf 100644
-> --- a/mm/madvise.c
-> +++ b/mm/madvise.c
-> @@ -172,10 +172,17 @@ static int madvise_update_vma(vm_flags_t new_flags,
+> > Changes since v5 [1]:
+> > - Added Reviewed-by for unchanged patches, per Lorenzo Stoakes
+> >
+> > Patch#2:
+> > - Fixed locked_vm counter if mlock_vma_pages_range() fails in
+> > mlock_fixup(), per Sashiko
+> > - Avoid VMA re-locking in madvise_update_vma(), mprotect_fixup() and
+> > mseal_apply() when vma_modify_XXX creates a new VMA as it will already be
+> > locked. This prevents the possibility of incomplete operation if signal
+> > happens after a successful vma_modify_XXX modified the vma tree,
+> > per Sashiko
+
+Prevents the possibility of an incomplete operation? But
+vma_write_lock_killable() checks to see if you're _already_ write locked
+and would make the operation a no-op? So how is this even a delta?
+
+It's a brave new world, arguing with sashiko via a submitter... :)
+
+> > - Removed obsolete comment in madvise_update_vma() and mprotect_fixup()
+> >
+> > Patch#4:
+> > - Added clarifying comment for vma_start_write_killable() when locking a
+> > detached VMA
+> > - Override VMA_MERGE_NOMERGE in vma_expand() to prevent callers from
+> > falling back to a new VMA allocation, per Sashiko
+> > - Added a note in the changelog about temporary workaround of using
+> > ENOMEM to propagate the error in vma_merge_existing_range() and
+> > vma_expand()
+> >
+> > Patch#5:
+> > - Added fatal_signal_pending() check in do_mbind() to detect
+> > queue_pages_range() failures due to a pendig fatal signal, per Sashiko
+>
+> Changes since v5:
+>
+>
+>  mm/madvise.c   |   15 ++++++++++-----
+>  mm/mempolicy.c |    9 ++++++++-
+>  mm/mlock.c     |    2 ++
+>  mm/mprotect.c  |   26 ++++++++++++++++----------
+>  mm/mseal.c     |   27 +++++++++++++++++++--------
+>  mm/vma.c       |   20 ++++++++++++++++++--
+>  6 files changed, 73 insertions(+), 26 deletions(-)
+>
+> --- a/mm/madvise.c~b
+> +++ a/mm/madvise.c
+> @@ -172,11 +172,16 @@ static int madvise_update_vma(vm_flags_t
 >  	if (IS_ERR(vma))
 >  		return PTR_ERR(vma);
 >
 > -	madv_behavior->vma = vma;
+> -
+> -	/* vm_flags is protected by the mmap_lock held in write mode. */
+> -	if (vma_start_write_killable(vma))
+> -		return -EINTR;
 > +	/*
 > +	 * If a new vma was created during vma_modify_XXX, the resulting
 > +	 * vma is already locked. Skip re-locking new vma in this case.
 > +	 */
-
-well you're not re-locking, in vma_start_write_killable() we have:
-
-	if (__is_vma_write_locked(vma))
-		return 0;
-
-So I'm not sure this is really worth the effort? Was this a sashiko 'find'?
-
-And is 're-locking' the right thing to say here? Probably nitty but that to me
-implies you're locking again when in fact you're just calling the function only
-to check seq nums uselessly and have a nop.
-
-But it's not like we're on a hotpath here where we're sweating every little
-thing, we're already taking the mmap write lock and doing heavy operations
-etc. so not sure we care all that much.
-
-OTOH, it's hardly like this is a bad thing so don't want to hold up series.
-
 > +	if (vma == madv_behavior->vma) {
 > +		if (vma_start_write_killable(vma))
 > +			return -EINTR;
 > +	} else {
 > +		madv_behavior->vma = vma;
 > +	}
-
-This is kind of ugly.
-
-Can't we just do:
-
-	const struct vm_area_struct *old_vma = madv_behavior->vma;
-	struct vm_area_struct *vma = old_vma;
-
-...
-	madv_behavior->vma = vma;
-	/* If the VMA didn't change, it isn't locked yet. */
-	if (vma == old_vma && vma_start_write_killable(vma))
-		return -EINTR;
-
-Instead? That is, assuming we really need to care about this at all.
-
-But I think I don't like this change at all?
-
 >
-> -	/* vm_flags is protected by the mmap_lock held in write mode. */
-> -	vma_start_write(vma);
 >  	vma->flags = new_vma_flags;
 >  	if (set_new_anon_name)
->  		return replace_anon_vma_name(vma, anon_name);
-> diff --git a/mm/memory.c b/mm/memory.c
-> index e44469f9cf65..9f99ec634831 100644
-> --- a/mm/memory.c
-> +++ b/mm/memory.c
-> @@ -366,6 +366,8 @@ void free_pgd_range(struct mmu_gather *tlb,
->   * page tables that should be removed.  This can differ from the vma mappings on
->   * some archs that may have mappings that need to be removed outside the vmas.
->   * Note that the prev->vm_end and next->vm_start are often used.
-> + * We don't use vma_start_write_killable() because page tables should be freed
-> + * even if the task is being killed.
->   *
->   * The vma_end differs from the pg_end when a dup_mmap() failed and the tree has
->   * unrelated data to the mm_struct being torn down.
-> diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-> index fd08771e2057..c38a90487531 100644
-> --- a/mm/mempolicy.c
-> +++ b/mm/mempolicy.c
-> @@ -1784,7 +1784,8 @@ SYSCALL_DEFINE4(set_mempolicy_home_node, unsigned long, start, unsigned long, le
->  		return -EINVAL;
->  	if (end == start)
->  		return 0;
-> -	mmap_write_lock(mm);
-> +	if (mmap_write_lock_killable(mm))
-> +		return -EINTR;
->  	prev = vma_prev(&vmi);
->  	for_each_vma_range(vmi, vma, end) {
->  		/*
-> @@ -1801,13 +1802,19 @@ SYSCALL_DEFINE4(set_mempolicy_home_node, unsigned long, start, unsigned long, le
->  			err = -EOPNOTSUPP;
->  			break;
->  		}
+> --- a/mm/mempolicy.c~b
+> +++ a/mm/mempolicy.c
+> @@ -1546,7 +1546,14 @@ static long do_mbind(unsigned long start
+>  			flags | MPOL_MF_INVERT | MPOL_MF_WRLOCK, &pagelist);
+>
+>  	if (nr_failed < 0) {
+> -		err = nr_failed;
 > +		/*
-> +		 * Lock the VMA early to avoid extra work if fatal signal
-> +		 * is pending.
+> +		 * queue_pages_range() might override the original error with -EFAULT.
+> +		 * Confirm that fatal signals are still treated correctly.
 > +		 */
-> +		err = vma_start_write_killable(vma);
-> +		if (err)
-> +			break;
->  		new = mpol_dup(old);
->  		if (IS_ERR(new)) {
->  			err = PTR_ERR(new);
->  			break;
->  		}
->
-> -		vma_start_write(vma);
->  		new->home_node = home_node;
->  		err = mbind_range(&vmi, vma, &prev, start, end, new);
->  		mpol_put(new);
-> diff --git a/mm/mlock.c b/mm/mlock.c
-> index 8c227fefa2df..2ed454db7cf7 100644
-> --- a/mm/mlock.c
-> +++ b/mm/mlock.c
-> @@ -419,8 +419,10 @@ static int mlock_pte_range(pmd_t *pmd, unsigned long addr,
->   *
->   * Called for mlock(), mlock2() and mlockall(), to set @vma VM_LOCKED;
->   * called for munlock() and munlockall(), to clear VM_LOCKED from @vma.
-> + *
-> + * Return: 0 on success, -EINTR if fatal signal is pending.
->   */
-> -static void mlock_vma_pages_range(struct vm_area_struct *vma,
-> +static int mlock_vma_pages_range(struct vm_area_struct *vma,
->  	unsigned long start, unsigned long end,
->  	vma_flags_t *new_vma_flags)
->  {
-> @@ -442,7 +444,9 @@ static void mlock_vma_pages_range(struct vm_area_struct *vma,
->  	 */
->  	if (vma_flags_test(new_vma_flags, VMA_LOCKED_BIT))
->  		vma_flags_set(new_vma_flags, VMA_IO_BIT);
-> -	vma_start_write(vma);
-> +	if (vma_start_write_killable(vma))
-> +		return -EINTR;
-> +
->  	vma_flags_reset_once(vma, new_vma_flags);
->
->  	lru_add_drain();
-> @@ -453,6 +457,7 @@ static void mlock_vma_pages_range(struct vm_area_struct *vma,
->  		vma_flags_clear(new_vma_flags, VMA_IO_BIT);
->  		vma_flags_reset_once(vma, new_vma_flags);
->  	}
-> +	return 0;
->  }
->
->  /*
-> @@ -506,11 +511,15 @@ static int mlock_fixup(struct vma_iterator *vmi, struct vm_area_struct *vma,
->  	 */
->  	if (vma_flags_test(&new_vma_flags, VMA_LOCKED_BIT) &&
->  	    vma_flags_test(&old_vma_flags, VMA_LOCKED_BIT)) {
-> +		ret = vma_start_write_killable(vma);
-> +		if (ret)
-> +			goto out; /* mm->locked_vm is fine as nr_pages == 0 */
->  		/* No work to do, and mlocking twice would be wrong */
-> -		vma_start_write(vma);
+> +		if (fatal_signal_pending(current))
+> +			err = -EINTR;
+> +		else
+> +			err = nr_failed;
+>  		nr_failed = 0;
+>  	} else {
+>  		vma_iter_init(&vmi, mm, start);
+> --- a/mm/mlock.c~b
+> +++ a/mm/mlock.c
+> @@ -518,6 +518,8 @@ static int mlock_fixup(struct vma_iterat
 >  		vma->flags = new_vma_flags;
 >  	} else {
-> -		mlock_vma_pages_range(vma, start, end, &new_vma_flags);
-> +		ret = mlock_vma_pages_range(vma, start, end, &new_vma_flags);
+>  		ret = mlock_vma_pages_range(vma, start, end, &new_vma_flags);
 > +		if (ret)
 > +			mm->locked_vm -= nr_pages;
 >  	}
 >  out:
 >  	*prev = vma;
-> @@ -739,9 +748,18 @@ static int apply_mlockall_flags(int flags)
->
->  		error = mlock_fixup(&vmi, vma, &prev, vma->vm_start, vma->vm_end,
->  				    newflags);
-> -		/* Ignore errors, but prev needs fixing up. */
-> -		if (error)
-> +		if (error) {
-> +			/*
-> +			 * If we failed due to a pending fatal signal, return
-> +			 * now. If we locked the vma before signal arrived, it
-> +			 * will be unlocked when we drop mmap_write_lock.
-> +			 */
-> +			if (fatal_signal_pending(current))
-> +				return -EINTR;
-> +
-> +			/* Ignore errors, but prev needs fixing up. */
->  			prev = vma;
-> +		}
->  		cond_resched();
->  	}
->  out:
-> diff --git a/mm/mprotect.c b/mm/mprotect.c
-> index 110d47a36d4b..d6227877465f 100644
-> --- a/mm/mprotect.c
-> +++ b/mm/mprotect.c
-> @@ -700,6 +700,7 @@ mprotect_fixup(struct vma_iterator *vmi, struct mmu_gather *tlb,
+> --- a/mm/mprotect.c~b
+> +++ a/mm/mprotect.c
+> @@ -716,6 +716,7 @@ mprotect_fixup(struct vma_iterator *vmi,
 >  	const vma_flags_t old_vma_flags = READ_ONCE(vma->flags);
 >  	vma_flags_t new_vma_flags = legacy_to_vma_flags(newflags);
 >  	long nrpages = (end - start) >> PAGE_SHIFT;
@@ -275,7 +196,7 @@ But I think I don't like this change at all?
 >  	unsigned int mm_cp_flags = 0;
 >  	unsigned long charged = 0;
 >  	int error;
-> @@ -756,19 +757,27 @@ mprotect_fixup(struct vma_iterator *vmi, struct mmu_gather *tlb,
+> @@ -772,21 +773,26 @@ mprotect_fixup(struct vma_iterator *vmi,
 >  		vma_flags_clear(&new_vma_flags, VMA_ACCOUNT_BIT);
 >  	}
 >
@@ -297,7 +218,9 @@ But I think I don't like this change at all?
 > +	 * If a new vma was created during vma_modify_flags, the resulting
 > +	 * vma is already locked. Skip re-locking new vma in this case.
 >  	 */
-> -	vma_start_write(vma);
+> -	error = vma_start_write_killable(vma);
+> -	if (error)
+> -		goto fail;
 > +	if (new_vma == vma) {
 > +		error = vma_start_write_killable(vma);
 > +		if (error)
@@ -305,53 +228,18 @@ But I think I don't like this change at all?
 > +	} else {
 > +		vma = new_vma;
 > +	}
-
-I mean again this is hideous and I don't know why we're bothering? This just
-introduces even more open-coded VMA lock specific stuff everywhere.
-
-And the comment is just not correct, we're not re-locking anything if it's
-already locked...
-
 > +
 > +	*pprev = vma;
-> +
+>
 >  	vma_flags_reset_once(vma, &new_vma_flags);
 >  	if (vma_wants_manual_pte_write_upgrade(vma))
->  		mm_cp_flags |= MM_CP_TRY_CHANGE_WRITABLE;
-> diff --git a/mm/mremap.c b/mm/mremap.c
-> index e9c8b1d05832..0860102bddab 100644
-> --- a/mm/mremap.c
-> +++ b/mm/mremap.c
-> @@ -1348,6 +1348,11 @@ static unsigned long move_vma(struct vma_remap_struct *vrm)
->  	if (err)
->  		return err;
->
-> +	/* We don't want racing faults. */
-> +	err = vma_start_write_killable(vrm->vma);
-> +	if (err)
-> +		return err;
-> +
->  	/*
->  	 * If accounted, determine the number of bytes the operation will
->  	 * charge.
-> @@ -1355,9 +1360,6 @@ static unsigned long move_vma(struct vma_remap_struct *vrm)
->  	if (!vrm_calc_charge(vrm))
->  		return -ENOMEM;
->
-> -	/* We don't want racing faults. */
-> -	vma_start_write(vrm->vma);
-> -
->  	/* Perform copy step. */
->  	err = copy_vma_and_data(vrm, &new_vma);
->  	/*
-> diff --git a/mm/mseal.c b/mm/mseal.c
-> index 603df53ad267..1ea19fd3d384 100644
-> --- a/mm/mseal.c
-> +++ b/mm/mseal.c
-> @@ -70,14 +70,28 @@ static int mseal_apply(struct mm_struct *mm,
+> --- a/mm/mseal.c~b
+> +++ a/mm/mseal.c
+> @@ -70,17 +70,28 @@ static int mseal_apply(struct mm_struct
 >
 >  		if (!vma_test(vma, VMA_SEALED_BIT)) {
 >  			vma_flags_t vma_flags = vma->flags;
+> -			int err;
 > +			struct vm_area_struct *new_vma;
 >
 >  			vma_flags_set(&vma_flags, VMA_SEALED_BIT);
@@ -360,7 +248,9 @@ already locked...
 > -					       curr_end, &vma_flags);
 > -			if (IS_ERR(vma))
 > -				return PTR_ERR(vma);
-> -			vma_start_write(vma);
+> -			err = vma_start_write_killable(vma);
+> -			if (err)
+> -				return err;
 > +			new_vma = vma_modify_flags(&vmi, prev, vma, curr_start,
 > +						   curr_end, &vma_flags);
 > +			if (IS_ERR(new_vma))
@@ -379,17 +269,53 @@ already locked...
 > +				vma = new_vma;
 > +			}
 > +
-
-I mean this is the exact same open-coded block all over this patch, and again I
-don't see the point...
-
-The VMA locking is tricky enough that I don't think doing this is a good idea,
-especially on the basis of 'avoid looking at sequence numbers under mmap write
-lock' or something.
-
 >  			vma_set_flags(vma, VMA_SEALED_BIT);
 >  		}
 >
-> --
-> 2.53.0.1018.g2bb0e51243-goog
+> --- a/mm/vma.c~b
+> +++ a/mm/vma.c
+> @@ -531,6 +531,10 @@ __split_vma(struct vma_iterator *vmi, st
+>  	err = vma_start_write_killable(vma);
+>  	if (err)
+>  		goto out_free_vma;
+> +	/*
+> +	 * Locking a new detached VMA will always succeed but it's just a
+> +	 * detail of the current implementation, so handle it all the same.
+> +	 */
+>  	err = vma_start_write_killable(new);
+>  	if (err)
+>  		goto out_free_vma;
+> @@ -1197,8 +1201,14 @@ int vma_expand(struct vma_merge_struct *
+>
+>  	mmap_assert_write_locked(vmg->mm);
+>  	err = vma_start_write_killable(target);
+> -	if (err)
+> +	if (err) {
+> +		/*
+> +		 * Override VMA_MERGE_NOMERGE to prevent callers from
+> +		 * falling back to a new VMA allocation.
+> +		 */
+> +		vmg->state = VMA_MERGE_ERROR_NOMEM;
+>  		return err;
+> +	}
+>
+>  	target_sticky = vma_flags_and_mask(&target->flags, VMA_STICKY_FLAGS);
+>
+> @@ -1231,8 +1241,14 @@ int vma_expand(struct vma_merge_struct *
+>  		 * is pending.
+>  		 */
+>  		err = vma_start_write_killable(next);
+> -		if (err)
+> +		if (err) {
+> +			/*
+> +			 * Override VMA_MERGE_NOMERGE to prevent callers from
+> +			 * falling back to a new VMA allocation.
+> +			 */
+> +			vmg->state = VMA_MERGE_ERROR_NOMEM;
+>  			return err;
+> +		}
+>  		err = dup_anon_vma(target, next, &anon_dup);
+>  		if (err)
+>  			return err;
+> _
 >
