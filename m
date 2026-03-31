@@ -1,294 +1,192 @@
-Received: from fhigh-b7-smtp.messagingengine.com (fhigh-b7-smtp.messagingengine.com [202.12.124.158])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF04836402E;
-	Tue, 31 Mar 2026 17:40:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.158
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A777346FAA;
+	Tue, 31 Mar 2026 17:41:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774978817; cv=none; b=k3BQ1/uBAFix7yqFvlSS5MgiPc/k7HyJdQZJURedLvmg39YOQcczTFN3+4jyxBic9V+tkr1oBT/yIG8gYO8UF/V2YyHCHxdT1ePFGoQM235vrlJ5BEyGo9rAtwmc+7Oe6A1ili3P8VYGGQ0EoRzkHsxZzCS4FdDyFbTaMM3CJpw=
+	t=1774978916; cv=none; b=YbRLG4ewSf9ww5Qpr4aWKQP/YS/N9WcMKKzDUAoaVyz5cIZnv3G3Dqh5gXslREBWBJwvNtjkWrSnMUBbavdnHKzlDv/91gmOve4edpPG2kwQ4iJo7LoK+YG+T9Fuq10wNJqdngKsHuapMuTkzEhUuEFGGTc3vbCJqz21qn4RC2Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774978817; c=relaxed/simple;
-	bh=zWSkOWend9sjxDw5uiD/IiYOaY79xAnivVqepG/dnVE=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=KjtPO2xEp+K1ByBfW74XQc2DNpkNt71e5Ah+U5jQFXUBNuq0lAyYcgS5ZwZ7RRi26K8hLzztDWOqHjkcBC6ZDKHTzPiUs11tFvBbEU1QquGPJFAvtZe+G3fOfgOo6MP9uQzxFyw5Qy7ihYLlHkIH32roQt2tyuAwxuRBooKrc+c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=OdOSIHHL; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=oTUfinKB; arc=none smtp.client-ip=202.12.124.158
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
+	s=arc-20240116; t=1774978916; c=relaxed/simple;
+	bh=TGR+HLPBh0kT8UPVJ1fWokPpIZZT2ea97q58XkGX8lI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=oYEOojXw4FrINIr702q8NezlXF2NfSEEaG8lAOEBWfs8M6kuqR/t5okqrLcyBYNCPrO5jnP9vdBoyPN5XZSQbEP0L+QJgy8tQ7YiwBkJxUsuYGJUX3/oCHZ0PZ+0qX52EkCe3SfPlr9GdXkjp09gfY+X37E6q/Kdc7SM9ItQz2k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LdNAua3Q; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="OdOSIHHL";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="oTUfinKB"
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 68B327A024A;
-	Tue, 31 Mar 2026 13:40:13 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-01.internal (MEProxy); Tue, 31 Mar 2026 13:40:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1774978813;
-	 x=1775065213; bh=yY6hREVEvee0G/m6jzR3TNomLLpwSqY4kM/glI679jo=; b=
-	OdOSIHHLV/ysjAE7k5A4iIpXkJ1fTv3DIzpVsUek+23k8MmhU1fXZQ4uBKmoR60T
-	+PRIcDKL5B2ye+1pXLR4CeZXGSbZJvNAC7EC2xJWfi8SKxF1VKXvjvNySKx2kLL3
-	StWQr3wovKQURNIS0DvUlqhcITdoH17mtYO1FhlhVMEdoaGJ83wlqyC/NN/E4jSM
-	uP/+j16uQVUVUvCPIoHA5/22z4h0lyaq7uM1gLu/IUwTbcmJILmw1NnC6XhcTw7a
-	urQSnq93Zg5UXAxlDFS9VRC+MpvpI5cpfN0klktRIwptKc2x/ZpJCIobHFHYO0I8
-	5CxvUGNy5xoFp3UOWVY1XQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1774978813; x=
-	1775065213; bh=yY6hREVEvee0G/m6jzR3TNomLLpwSqY4kM/glI679jo=; b=o
-	TUfinKBg+9bUIY/H9Rft6Ijgg/RUD8vf4OMDJaQgpNz4ee8QqKV5phnRcKaW72M/
-	pZ3lECDIW6EJuwEADVVgTbo0wcxswBbgdPpUamgmlUEsAR7Tv2jaS5OoVN9HakgG
-	/U+soPvoS71/BPkNA1Q/UIFrPNXsQDTQHMV0qbuASY5zyhXn69h5ETAMygzi2oPy
-	Ke4V7RMQFnmcL7qaKLtZHw0Xy8jyzQ4k3ajZOR/5iIoJJmL+lQdDP1H6kZs6X7/X
-	6ewGMMA5sl8bOnhHKfQf5KxhnYAqeYr8COOxoun397uNPzbJrP0GMW0/YL5EDuAA
-	w7qhifcSdUjZqCzFyrmOw==
-X-ME-Sender: <xms:_AbMaXLoq6er1tbNlt9ssW40tpU5X2B0-9-QK1-Gd7cHknG8JVE8EQ>
-    <xme:_AbMaWWiH8zequ8LgEH4kvSCbhgpvim3EioESt-bZmGgkIQ5_wKoo0dCEiBuk9OCK
-    7AhxCJn2BKPY7rZm02wKdcBZXOAxIjUtnfoDgXBt0Izb54QEpXZC1M>
-X-ME-Received: <xmr:_AbMaThhs9zSue7PTmYP91IJjDWhJ0Cwbak7hBljnqQtEGTRNvm_sO2gZrg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdekfecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegrihhl
-    ohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpe
-    ffhffvvefukfgjfhfogggtgfesthejredtredtvdenucfhrhhomheptehlvgigucghihhl
-    lhhirghmshhonhcuoegrlhgvgiesshhhrgiisghothdrohhrgheqnecuggftrfgrthhtvg
-    hrnhepvdekfeejkedvudfhudfhteekudfgudeiteetvdeukedvheetvdekgfdugeevueeu
-    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprghlvg
-    igsehshhgriigsohhtrdhorhhgpdhnsggprhgtphhtthhopedugedpmhhouggvpehsmhht
-    phhouhhtpdhrtghpthhtoheprghkrhhofihirghksehlihhnuhigrdhisghmrdgtohhmpd
-    hrtghpthhtoheplhhinhhugidqshefledtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhr
-    tghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpd
-    hrtghpthhtohepkhhvmhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehj
-    jhhhvghrnhgvsehlihhnuhigrdhisghmrdgtohhmpdhrtghpthhtohepsghorhhnthhrrg
-    gvghgvrhesuggvrdhisghmrdgtohhmpdhrtghpthhtohepmhhjrhhoshgrthhosehlihhn
-    uhigrdhisghmrdgtohhmpdhrtghpthhtohepphgrshhitgeslhhinhhugidrihgsmhdrtg
-    homhdprhgtphhtthhopehkfigrnhhkhhgvuggvsehnvhhiughirgdrtghomh
-X-ME-Proxy: <xmx:_AbMaau6BTBWCodoSsLyUNIyNbGtpurlfKgitflnG7oNMenHmkUe1A>
-    <xmx:_AbMabzmS6UvxIkubWQrO91eAnm_vdQYBUJR8yOCb88V-xmxpsjCbA>
-    <xmx:_AbMaXbI4wktTne1yGQj2FkRqryk9YO0W7mRQGu3W3bAZORPXt_S8Q>
-    <xmx:_AbMaSUdI0YPfjGB6kA_lLAyynBJfSBQUcDkpWyjqO4tsPd4k7cvSg>
-    <xmx:_QbMaVsLcdONxgTUdy5viGHmQ7fauTEp0jF4BVDhuWJEkm0RHMlLYuOd>
-Feedback-ID: i03f14258:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 31 Mar 2026 13:40:11 -0400 (EDT)
-Date: Tue, 31 Mar 2026 11:40:09 -0600
-From: Alex Williamson <alex@shazbot.org>
-To: Anthony Krowiak <akrowiak@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
- kvm@vger.kernel.org, jjherne@linux.ibm.com, borntraeger@de.ibm.com,
- mjrosato@linux.ibm.com, pasic@linux.ibm.com, kwankhede@nvidia.com,
- fiuczy@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
- imbrenda@linux.ibm.com, alex@shazbot.org
-Subject: Re: [PATCH v1 00/23] s390/vfio-ap: Implement live guest migration
- of guests using AP devices
-Message-ID: <20260331114009.43e41a3a@shazbot.org>
-In-Reply-To: <2949d622-fa65-4df1-af04-0665ed115ad4@linux.ibm.com>
-References: <20260325210149.888028-1-akrowiak@linux.ibm.com>
-	<20260330102748.6423ff89@shazbot.org>
-	<2949d622-fa65-4df1-af04-0665ed115ad4@linux.ibm.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LdNAua3Q"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62VA6dcr346198;
+	Tue, 31 Mar 2026 17:41:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=T/vrPU
+	g0UXAok1MOifcTEF57XHm+sL7oT2IEn/MCpX0=; b=LdNAua3Qr9EaePygF71yW0
+	ixVTYgasOWIkgPyQggs7jpdc7M/wNvN41I2Kd+aTWW/7naiK+hw6Y1UVQnkfFjDd
+	wDiidOYiPTc1a4l8A2VJcl2GTn6XbbZdBHTbOgLtLSLxRyfMZ9SYVMNMQNrlNTn5
+	D2YKfi5ENPfbnJGKDaosr0FruMA2PKDEFtSrFHwBDQVOcwnzP+2TDL7BVSoED+CA
+	Jjm7hgbretPatL82NTdQ6Xbc3imS7piy9vrXZMXAwYPHbfUt6c7wMROH0mdG8sZS
+	MiOk8CTMsGQDQPENvQNPCkBBSpas/mqjf47VfTejN5ve4nxgEcbVGl5hLRS7K/Gw
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d66ms42b6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 31 Mar 2026 17:41:49 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62VFAoU5005952;
+	Tue, 31 Mar 2026 17:41:48 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d6spy29vj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 31 Mar 2026 17:41:48 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62VHflUt31851234
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 31 Mar 2026 17:41:47 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4B31E5804E;
+	Tue, 31 Mar 2026 17:41:47 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 347565803F;
+	Tue, 31 Mar 2026 17:41:46 +0000 (GMT)
+Received: from [9.61.9.136] (unknown [9.61.9.136])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 31 Mar 2026 17:41:46 +0000 (GMT)
+Message-ID: <8c080d9b-34f6-469c-8e53-c5d0a175556d@linux.ibm.com>
+Date: Tue, 31 Mar 2026 13:41:45 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v12 4/7] s390/pci: Store PCI error information for
+ passthrough devices
+To: Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
+Cc: helgaas@kernel.org, lukas@wunner.de, alex@shazbot.org, clg@redhat.com,
+        kbusch@kernel.org, schnelle@linux.ibm.com
+References: <20260330174011.1161-1-alifm@linux.ibm.com>
+ <20260330174011.1161-5-alifm@linux.ibm.com>
+Content-Language: en-US
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <20260330174011.1161-5-alifm@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=J6enLQnS c=1 sm=1 tr=0 ts=69cc075d cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=1P5juWRcwJ_tNLV9FsIA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzMxMDE2NiBTYWx0ZWRfXyn4KtCXD4K+r
+ HMcM0yTpMnbdi4OM8JVc+lGNZPijYH8gs1GT5qfX0pmnoVZPLJlduIv4B7uaZumF8SfJQACeSYs
+ KOrL7qvWeyHgYp2uoUpsjgY7/FlTS2mRDs/5UF+a1jJ5tS+clXGbNHLLigk+7nlW6X0Bm2U5Q6E
+ XNjB+iNKhDVEAud4UrD4OHyNDfmrKUqakQhWQTiC9PO9PGbty3ZE7z4hcmo7pUBmw6HRmWNdTU8
+ skaPAmNkurh1ZoRXTnCFsruFiBqsgKYqGnlyzbn4LrqMAPV9rSyHkW9nCd6GMs8LouhR6E22jHm
+ UHRHW63MvIDvE0K0z+wPpEWWGgenTCSaQT3FaOJPU43JjCf+tJdOehRpTmG4BrmfeTOz+CHlCmN
+ nEhClin4eF6f0fkvyELVcgaWGfV8z+quJN5p5jmq98A2hrg3FSTaq5cZgYF8GQaRV6N+ZRAvcgE
+ uTLMTfRTf5PiJnABSsA==
+X-Proofpoint-GUID: b_ES92DVImBfbcV8Yo6zs98SGrnkjHlC
+X-Proofpoint-ORIG-GUID: b_ES92DVImBfbcV8Yo6zs98SGrnkjHlC
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-31_03,2026-03-31_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 clxscore=1011 adultscore=0 priorityscore=1501 bulkscore=0
+ phishscore=0 malwarescore=0 lowpriorityscore=0 spamscore=0 impostorscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603310166
 
-On Tue, 31 Mar 2026 08:07:06 -0400
-Anthony Krowiak <akrowiak@linux.ibm.com> wrote:
-
-> On 3/30/26 12:27 PM, Alex Williamson wrote:
-> > On Wed, 25 Mar 2026 17:00:47 -0400
-> > Anthony Krowiak <akrowiak@linux.ibm.com> wrote:
-> >  
-> >> This patch series implements live guest migration of a guest to which AP
-> >> devices have been passed through. To better comprehend this design, one has
-> >> to understand that VFIO AP mediated device is not used to provide userspace
-> >> with direct access to a device as is the case with other devices that use
-> >> the VFIO framework to pass them through to a guest. The sole purpose of the
-> >> VFIO AP mediated device is to manage an AP configuration for a guest. An AP
-> >> configuration is comprised of the AP adapter IDs (APID), AP queue
-> >> indexes (APQI) and domain numbers of the control domains to which a guest
-> >> will be granted access. Once the VFIO AP mediated device is attached to a
-> >> guest, its AP configuration is set by the vfio_ap device driver. Once set,
-> >> all access to the AP devices is handled by the s390 Interpretive Execution
-> >> facility; in other words, the vfio_ap device driver plays no role in
-> >> providing direct access to the AP devices in the guest's AP configuration.
-> >>
-> >> The only role that the vfio_ap device driver plays in the migration
-> >> process is to verify that the AP configuration for the source guest is
-> >> compatible with the AP configuration of the destination guest.
-> >> Incompatibility will result in a live guest migration failure.
-> >> In order to be compatible, the following requirements must be met:
-> >>
-> >> 1. The destination guest will be started with the same QEMU command line
-> >>     as the source guest, so the mediated device supplying the AP
-> >>     configuration on both guests must have the same name (UUID).  
-> > AFAIK, same UUID is not a requirement for out-of-tree mdev drivers
-> > supporting migration.  You're really concerned more with the
-> > configuration/composition of the mdev device, so requiring the same
-> > UUID seems a bit arbitrary.
-
-Combining replies:
-
-On Tue, 31 Mar 2026 07:17:08 -0400
-Anthony Krowiak <akrowiak@linux.ibm.com> wrote:
+On 3/30/26 1:40 PM, Farhan Ali wrote:
+> For a passthrough device we need co-operation from user space to recover
+> the device. This would require to bubble up any error information to user
+> space.  Let's store this error information for passthrough devices, so it
+> can be retrieved later.
 > 
-> As stated above, the destination guest will be started with the same
-> QEMU command line as the source guest. Within that command line
-> will be a '-device' parameter like the following:
+> We can now have userspace drivers (vfio-pci based) on s390x. The userspace
+> drivers will not have any KVM fd and so no kzdev associated with them. So
+> we need to update the logic for detecting passthrough devices to not depend
+> on struct kvm_zdev.
 > 
-> -device 
-> '{"driver":"vfio-ap","id":"hostdev0","sysfsdev":"/sys/bus/mdev/devices/62177883-f1bb-47f0-914d-32a22e3a8804"}
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+
+But a suggestion below:
+
+> ---
+>  arch/s390/include/asm/pci.h      |  30 ++++++++
+>  arch/s390/pci/pci.c              |   1 +
+>  arch/s390/pci/pci_event.c        | 113 ++++++++++++++++++-------------
+>  drivers/vfio/pci/vfio_pci_zdev.c |   9 ++-
+>  4 files changed, 105 insertions(+), 48 deletions(-)
 > 
-> Note that sysfsdev is the path to the mdev named 
-> 62177883-f1bb-47f0-914d-32a22e3a8804;
-> therefore, the mdev with that name must exist on the destination guest or
-> the migration will fail with the following error:
-> 
-> error: device not found: mediated device 
-> '62177883-f1bb-47f0-914d-32a22e3a8804' not found
+> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+> index c0ff19dab580..7fb9a80b0175 100644
+> --- a/arch/s390/include/asm/pci.h
+> +++ b/arch/s390/include/asm/pci.h
+> @@ -118,6 +118,31 @@ struct zpci_bus {
+>  	enum pci_bus_speed	max_bus_speed;
+>  };
+>  
+> +/* Content Code Description for PCI Function Error */
+> +struct zpci_ccdf_err {
+> +	u32 reserved1;
+> +	u32 fh;                         /* function handle */
+> +	u32 fid;                        /* function id */
+> +	u32 ett         :  4;           /* expected table type */
+> +	u32 mvn         : 12;           /* MSI vector number */
+> +	u32 dmaas       :  8;           /* DMA address space */
+> +	u32 reserved2   :  6;
+> +	u32 q           :  1;           /* event qualifier */
+> +	u32 rw          :  1;           /* read/write */
+> +	u64 faddr;                      /* failing address */
+> +	u32 reserved3;
+> +	u16 reserved4;
+> +	u16 pec;                        /* PCI event code */
+> +} __packed;
+> +
+> +#define ZPCI_ERR_PENDING_MAX 4
+> +struct zpci_ccdf_pending {
+> +	u8 count;
+> +	u8 head;
+> +	u8 tail;
+> +	struct zpci_ccdf_err err[ZPCI_ERR_PENDING_MAX];
+> +};
+> +
+>  /* Private data per function */
+>  struct zpci_dev {
+>  	struct zpci_bus *zbus;
+> @@ -171,6 +196,7 @@ struct zpci_dev {
+>  
+>  	char res_name[16];
+>  	bool mio_capable;
+> +	bool mediated_recovery;
+>  	struct zpci_bar_struct bars[PCI_STD_NUM_BARS];
+>  
+>  	u64		start_dma;	/* Start of available DMA addresses */
+> @@ -192,6 +218,8 @@ struct zpci_dev {
+>  	struct iommu_domain *s390_domain; /* attached IOMMU domain */
+>  	struct kvm_zdev *kzdev;
+>  	struct mutex kzdev_lock;
+> +	struct zpci_ccdf_pending pending_errs;
+> +	struct mutex pending_errs_lock;
 
-Then this is a requirement of your tooling, not a kernel requirement, not
-something the kernel should care about.  QEMU matches devices by their
-virtual bus path, not the sysfsdev or host attributes.  In the case of
-VF migration with vfio-pci variant drivers we cannot require that the
-source and target devices exist at the same bus address.  Ideally the
-pre-copy data from the source device to the target will include relevant
-configuration information to validate that the source and target are
-compatible, regardless of the uuid.
+This mutex now protects the pending_errs struct (obvious) as well as the
+mediated_recovery bool (not obvious).  Add a comment here and/or as a
+block before the needs/start/stop functions?
 
-> >> 2. The AP configuration assigned via the VFIO AP mediated device on both
-> >>     guests must be compatible. As such, each AP configuration must meet
-> >>     the following requirements:
-> >>
-> >>     * Both guests must have the same number of APQNs
-> >>
-> >>     * Each APQN assigned to the source guest must also be assigned to the
-> >>       destination guest
-> >>
-> >>     * Each APQN assigned to both guests must reference an AP queue with the
-> >>       same hardware capabilities  
-> > Why isn't this sufficient vs also requiring the same UUID?  
-> 
-> I explained why in my previous response.
+Actually..  Could mediated_recovery just be part of the
+zpci_ccdf_pending stucture?  AFAICT the bit basically controls whether
+or not the zpci_ccdf_pending structure is used / has meaning.  You even
+turn the bit off at the same time you memset(&zdev->pending_errs, 0) in
+zpci_stop_mediated_recovery() -- though an explicit setting of
+mediated_devices = false would still be nice for code clarity.
 
-See above, userspace tooling requirements don't imply kernel
-requirement.
+Then the spinlock continues to protect only this structure.
 
-> >> Note: There is a forthcoming consumer of this series which will be a QEMU
-> >>        patch series is entitled:
-> >>        'hw/vfio/ap: Implement live guest migration of guests using AP
-> >>        devices'
-> >>
-> >> This design also adds a use case for enabling and disabling
-> >> migration of guests to which AP devices have been passed through. To
-> >> facilitate this, a new read/write sysfs 'migratable' attribute is added to
-> >> the mediated device. This attribute specifies whether the vfio device is
-> >> migratable (1) or not (0). When the value of this attribute is changed, the
-> >> vfio_ap device driver will signal an eventfd to userspace. It is up to
-> >> userspace to respond to the change by enabling or disabling migration of
-> >> the guest to which the mediated device is attached. The operation will be
-> >> rejected with a 'Device or resource busy' message if a migration is in
-> >> progress.  
-> > This seems inherently racy.  What happens if the device becomes
-> > unmigratable while it's being migrated?
-> >
-> > If userspace is deciding that the device is now unmigratable, why does
-> > it need to signal this through the kernel driver rather than with the
-> > userspace orchestration agent?  The entire path seems unnecessary.  
-> 
-> I am not familiar with what a userspace orchestration agent is, so
-> I can't address that. Can you please describe how that would work?
 
-Something in userspace, perhaps libvirt, is managing the VM.  It needs
-to coordinate with a counterpart on another host managing and
-configuring the target VM to accept the migration data stream.  There's
-likely also another entity that's responsible for deciding this
-migration should occur and where to place the target.  All of this is
-what I'm referring to as orchestration.
 
-The path of a userspace agent writing into a sysfs attribute to mark
-the device as becoming non-migratable so that the host driver can send
-an interrupt to the VM to poll an INFO ioctl to block migration is an
-over-engineered path at the wrong layer versus some sort of RPC to the
-managing process, or even to QEMU, to block migrations.
-
-Additionally, if the device actually itself becomes non-migratable, it
-can simply fail any migration state transition other than returning to
-RUNNING and can generate errors in the data stream if it needs to abort
-an in-progress migration.
-
-> Maybe it would help to provide the reason for this. For certain types
-> of crypto operations, a master key must be configured for the crypto
-> card domain being used. This master key must be synchronized
-> between the source and destination crypto device so that in-flight
-> crypto operations can be completed during migration. If these master
-> keys must be changed, migration must be blocked until the master
-> key changes can be synchronized between the source and destination
-> system(s).
-
-This sounds like a userspace orchestration problem, not a kernel
-problem.  It might be a valid choice to use the mechanisms I outline
-above to abort an in progress migration if a new master key is
-configured during migration, but it's not the kernel's problem to
-provide a synchronization point for this through the kernel.
-
-> >> Userspace must also have a means for retrieving the value of the sysfs
-> >> 'migratable' attribute when the guest is started to initialize whether it
-> >> can be migrated. For this, The VFIO_DEVICE_GET_INFO ioctl is used. The
-> >> struct vfio_device_info object passed to the ioctl will be extended with a
-> >> capability specifying the vfio device attributes. One of the attributes
-> >> will contain the value of the mediated device's 'migratable' attribute.  
-> > This is just broken, it's redundant to our current device feature
-> > mechanism for exposing migration support.  If you want the capability
-> > to create unmigratable devices statically, can't that be encompassed
-> > within the definition of the mdev type?  Dynamic migration support just
-> > seems like it's involving the kernel in orchestration it shouldn't be a
-> > part of.  
-> 
-> So, it appears you are suggesting the creation of a new mdev type
-> for unmigratable crypto devices. I don't see the value in that.
-> As I stated above, there is a valid reason for wanting to prevent
-> migration while master key synchronization is taking place.
-
-Then prevent it in userspace.
-
-> If this feature violates the implicit rules of vfio device migration,
-> then so be it. Maybe we have to figure out another way to ensure
-> migration is not initiated during master key synchronization.
-
-If there's a software entity that has the ability to write to sysfs to
-declare that a device is not currently available for migration, give it
-the ability to notify whatever entity is coordinating and scheduling,
-ie. orchestrating, the migration rather than creating a channel through
-the device.  Combine that with using the existing mechanisms to abort a
-migration if its already in progress.
-
-> If we can't find an acceptable means to do this programmatically,
-> then maybe it will come down to a matter of documenting the
-> need to ensure migration is not initiated while master key
-> synchronization is taking place. This would put the onus on the
-> various system administrators responsible for host, guest and
-> master key administration to communicate out of band to
-> ensure they are all on the same page with regard to migration.
-> 
-> It would be preferable to be able to do this with a userspace
-> interface, so any suggestions would be greatly appreciated.
-
-A userspace interface can still exist, I just don't find this path
-through the driver to the VM acceptable with this justification.
-Mechanisms already exist for the device to refuse a state transition or
-generate an error for a migration already in progress.  IMHO, it would
-be acceptable for the device to block a key change if the migration is
-already in progress.  If the key change cannot be represented in the
-migration data stream, then it's up to the orchestration of the
-migration to make sure they stay synchronized, but I don't see that
-the vfio uAPI needs to be involved.  Thanks,
-
-Alex
