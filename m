@@ -1,53 +1,58 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADF6038F92D;
-	Tue, 31 Mar 2026 18:47:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22E2E35DA60;
+	Tue, 31 Mar 2026 19:01:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774982857; cv=none; b=AS7r2PV5IfaZWhGVOZ71uKyjkWbUkJ09bjXdYiW8n6nzBPf6VDIWygfcotmddHmHr5xlRAFTZk1LqoDt0XCM/bQ99zSdeHM6JTy9YwXFuIOBHEeD695KOkldtETuIk0nYM7g+KSODrzjSyzknfoX9wzMJrgPdk0EitHA4RqFmY4=
+	t=1774983665; cv=none; b=nAAiD/X8dqx24uD1o+F3FGO6CEp3vBvV5i8FdMGGOTl1A4p28Fz1G+eLtlSQzXnkGZC4hbHEdYsS4NjEsFpIU8AHNcJaSFdokpaM2qdl8hw0BfFyAWFiwM40cwJSBbQbn6UplLyf3fM8nciZe9P+zu2g1bcST5EqSMaLZ/W+V7M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774982857; c=relaxed/simple;
-	bh=CUmvYJ+q9fr0CWu9PeM2hiD4yICAuMHbTJnAtOumyIk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jW40qwX7ruYJLoxuAQxfz8CP6WtytgNdSKHXEAUt7ZAIOLT/P30+NP7gGQ6yetPvHo8Jlvp1gjLw0JW5p5NmlKCFSba+tTplavKNfNEsD+7jQyRFujKe/UWOgTxoq0ajY8h0QFhWwImqsvHEie1VyTYkUlUbHCk8ybBjq6FdsXk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hCuxgfhk; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774983665; c=relaxed/simple;
+	bh=KSLOd98K1CK+1Z7brXY8QL31QPyNcPrQH0DGa7ob15s=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=dCLZpmh2u1JYn7jNXQGUtbXQIKJyuyQFQvSlO0O6ccpp9sIF89A5iaUYaWxG4KDgd62itBQY/POerAnJMpDVynZv9as21oWLT70FkY+SXrvrIaQ42eem0D5CEH5TEMs3ngy1ZKtyx2J8HwTDTptew8/H7uQLjWYOf9fOXPYJ3FE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Qns8qZSd; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hCuxgfhk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0779CC19423;
-	Tue, 31 Mar 2026 18:47:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Qns8qZSd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8235EC19423;
+	Tue, 31 Mar 2026 19:01:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774982857;
-	bh=CUmvYJ+q9fr0CWu9PeM2hiD4yICAuMHbTJnAtOumyIk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=hCuxgfhkhW2T2Q50p+f5sEFLu1o0vSZtLrAfwaZoDPLQotj+9CrNSTDt99ktgypf0
-	 MqMjS1oLLVheBrOv/aoB/sQc9tYjtIjC/ON9njXZ8nlquEQUpcy2R2Dzu3FqVm9JRJ
-	 737vuu2fWRDxzXosqSJOW5RbqspgpR3kk6iFFWJbqzbyiGMOEl6NrLLshNFasROsd4
-	 IM20vPN1u5cNPCMCE1aKuMkErL4MqR9RU85mu2IOedMimZ6HxcwaaMDeifSkR2Ht24
-	 990T0kFs1K2Gzus8kty9SgWt4RW2zATT8xfXIbGYhsrGnfOjyG2IoPG52Z5DLh85h0
-	 r0nRshjuR/m8w==
-Date: Tue, 31 Mar 2026 19:47:30 +0100
-From: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Suren Baghdasaryan <surenb@google.com>, willy@infradead.org, 
-	david@kernel.org, ziy@nvidia.com, matthew.brost@intel.com, joshua.hahnjy@gmail.com, 
-	rakie.kim@sk.com, byungchul@sk.com, gourry@gourry.net, 
-	ying.huang@linux.alibaba.com, apopple@nvidia.com, baolin.wang@linux.alibaba.com, 
-	Liam.Howlett@oracle.com, npache@redhat.com, ryan.roberts@arm.com, dev.jain@arm.com, 
-	baohua@kernel.org, lance.yang@linux.dev, vbabka@suse.cz, jannh@google.com, 
-	rppt@kernel.org, mhocko@suse.com, pfalcato@suse.de, kees@kernel.org, 
-	maddy@linux.ibm.com, npiggin@gmail.com, mpe@ellerman.id.au, chleroy@kernel.org, 
-	borntraeger@linux.ibm.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, 
-	gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com, 
-	gerald.schaefer@linux.ibm.com, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, 
-	kvm@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v6 2/6] mm: use vma_start_write_killable() in mm syscalls
-Message-ID: <cf6975a6-336a-401b-b122-b9597b5710b7@lucifer.local>
-References: <20260327205457.604224-1-surenb@google.com>
- <20260327205457.604224-3-surenb@google.com>
- <5d90d998-9b8d-435c-b684-260600311797@lucifer.local>
- <CAJuCfpE5w8r_6Ss=5ZPrEb1RQOTG6HyY8Pivac=iiyqFRZvD4g@mail.gmail.com>
- <20260331112921.854d4f6cc793dba0972ee9f1@linux-foundation.org>
+	s=k20201202; t=1774983664;
+	bh=KSLOd98K1CK+1Z7brXY8QL31QPyNcPrQH0DGa7ob15s=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:From;
+	b=Qns8qZSd7O23U5meg+0akBEqFL5LkPGd3h0FJ+I5UZ01RjHWerLmVaxDp4rd0DZBS
+	 yQgnl/RzPKtJ77WCcFNGMSXoObHClC1nDdsGB/oww5ccTocv7zUspVW0pjJQZ04i5e
+	 UDlafcv0mfTryjVcYjiMMp0qmBlWeTPA1wTg+qg4AsrSjVtZ069gHRYItQuNDSBxFz
+	 3ThXl7oD79dY4QGtjn9VSfN6i9e0DjjdYr07NPRm282rSxKGip/QTRyo89qgCKSsRq
+	 wD3v8FVw+dtdilOvl3DwzsONBOiDjN6NxqUdiRZ6HPiOnsVouqhlM+WNsU46l3US5n
+	 ZojjiHskKGllA==
+Date: Tue, 31 Mar 2026 14:01:03 -0500
+From: Bjorn Helgaas <helgaas@kernel.org>
+To: "Kuehling, Felix" <felix.kuehling@amd.com>
+Cc: Gerd Bayer <gbayer@linux.ibm.com>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>,
+	Selvin Xavier <selvin.xavier@broadcom.com>,
+	Kalesh AP <kalesh-anakkur.purayil@broadcom.com>,
+	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
+	Michal Kalderon <mkalderon@marvell.com>,
+	Saeed Mahameed <saeedm@nvidia.com>,
+	Tariq Toukan <tariqt@nvidia.com>, Mark Bloch <mbloch@nvidia.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Jay Cornwall <Jay.Cornwall@amd.com>,
+	Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Niklas Schnelle <schnelle@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Alexander Schmidt <alexs@linux.ibm.com>, linux-s390@vger.kernel.org,
+	linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: Re: [PATCH v7 1/3] PCI: AtomicOps: Do not enable requests by RCiEPs
+Message-ID: <20260331190103.GA150932@bhelgaas>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -56,24 +61,94 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260331112921.854d4f6cc793dba0972ee9f1@linux-foundation.org>
+In-Reply-To: <688a8e59-3188-4c9e-a8ed-d53b7d965e10@amd.com>
 
-On Tue, Mar 31, 2026 at 11:29:21AM -0700, Andrew Morton wrote:
-> On Tue, 31 Mar 2026 08:01:11 -0700 Suren Baghdasaryan <surenb@google.com> wrote:
->
-> > > Instead? That is, assuming we really need to care about this at all.
-> > >
-> > > But I think I don't like this change at all?
-> >
-> > Yeah, this was the part I wasn't sure if it's worth adding. With your
-> > vote confirming my scepticism I'll go ahead and remove the parts I
-> > added to avoid extra vma_start_write_killable() call (3 instances in
-> > all) and will post v7.
->
-> Thanks.  I'll remove v6 from mm.git and shall await Lorenzo's advice on
-> v7.
->
+On Tue, Mar 31, 2026 at 02:39:26PM -0400, Kuehling, Felix wrote:
+> On 2026-03-31 14:09, Bjorn Helgaas wrote:
+> > On Mon, Mar 30, 2026 at 08:01:57PM -0400, Kuehling, Felix wrote:
+> > > On 2026-03-30 17:42, Bjorn Helgaas wrote:
+> > > > [+to amdgpu, bnxe_re, mlx5 IB, qedr, mlx5 maintainers]
+> > > > 
+> > > > On Mon, Mar 30, 2026 at 03:09:44PM +0200, Gerd Bayer wrote:
+> > > > > Since root complex integrated end points (RCiEPs) attach to a bus that
+> > > > > has no bridge device describing the root port, the capability to
+> > > > > complete AtomicOps requests cannot be determined with PCIe methods.
+> > > > > 
+> > > > > Change default of pci_enable_atomic_ops_to_root() to not enable
+> > > > > AtomicOps requests on RCiEPs.
+> > > > I know I suggested this because there's nothing explicit that tells us
+> > > > whether the RC supports atomic ops from RCiEPs [1].  But I'm concerned
+> > > > that GPUs, infiniband HCAs, and NICs that use atomic ops may be
+> > > > implemented as RCiEPs and would be broken by this.
+> > > FWIW, on AMD APUs our driver doesn't call pci_enable_atomic_ops_to_root. It
+> > > just assumes that the GPU can do atomic accesses because it doesn't actually
+> > > go through PCIe: https://elixir.bootlin.com/linux/v6.19.10/source/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c#L4785
+> > What does this mean for the other branch that *does* use
+> > pci_enable_atomic_ops_to_root()?  Can any of those devices be RCiEPs?
+> 
+> Most AMD GPUs are not integrated endpoints. APUs are integrated. There are
+> A+A GPUs where the GPUs are separate from the CPU but part of the same
+> coherent data fabric as the CPU (adev->gmc.xbmi.connected_to_cpu == true).
+> Those may also be considered RCiEPs. (I'm not sure about that, is there an
+> easy way to check with lspci?) We may need to include that in the same
+> branch as APUs.
 
-Ack, if we just drop the problematic bits we might still be fine for 7.1 :)
+Yep, for RCiEPs, "lspci -v" should say something like this:
 
-Cheers, Lorenzo
+  Capabilities: [64] Express Root Complex Integrated Endpoint
+
+Dmesg logs from recent kernels would also include it like this:
+
+  pci 0000:00:02.0: [8086:5916] type 00 class 0x030000 PCIe Root Complex Integrated Endpoint
+
+An RCiEP would be on the root bus; it would not be below a Root Port.
+
+> You can see that we did that for a new generation of A+A GPU here: https://gitlab.freedesktop.org/agd5f/linux/-/blob/amd-staging-drm-next/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c?ref_type=heads#L3920.
+> We'd need to confirm that the same works for MI200 A+A GPUs as well.
+
+> > > > These drivers use pci_enable_atomic_ops_to_root():
+> > > > 
+> > > >     amdgpu
+> > > >     bnxt_re (infiniband)
+> > > >     mlx5 (infinband)
+> > > >     qedr (infiniband)
+> > > >     mlx5 (ethernet)
+> > > > 
+> > > > Maybe we should assume that because RCiEPs are directly integrated
+> > > > into the RC, the RCiEP would only allow AtomicOp Requester Enable to
+> > > > be set if the RC supports atomic ops?
+> > > > 
+> > > > I don't like making assumptions like that, but it'd be worse to break
+> > > > these devices.
+> > > > 
+> > > > [1] https://lore.kernel.org/all/20260326164002.GA1325368@bhelgaas
+> > > > 
+> > > > > Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
+> > > > > ---
+> > > > >    drivers/pci/pci.c | 5 ++---
+> > > > >    1 file changed, 2 insertions(+), 3 deletions(-)
+> > > > > 
+> > > > > diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+> > > > > index 8479c2e1f74f1044416281aba11bf071ea89488a..135e5b591df405e87e7f520a618d7e2ccba55ce1 100644
+> > > > > --- a/drivers/pci/pci.c
+> > > > > +++ b/drivers/pci/pci.c
+> > > > > @@ -3692,15 +3692,14 @@ int pci_enable_atomic_ops_to_root(struct pci_dev *dev, u32 cap_mask)
+> > > > >    	/*
+> > > > >    	 * Per PCIe r4.0, sec 6.15, endpoints and root ports may be
+> > > > > -	 * AtomicOp requesters.  For now, we only support endpoints as
+> > > > > -	 * requesters and root ports as completers.  No endpoints as
+> > > > > +	 * AtomicOp requesters.  For now, we only support (legacy) endpoints
+> > > > > +	 * as requesters and root ports as completers.  No endpoints as
+> > > > >    	 * completers, and no peer-to-peer.
+> > > > >    	 */
+> > > > >    	switch (pci_pcie_type(dev)) {
+> > > > >    	case PCI_EXP_TYPE_ENDPOINT:
+> > > > >    	case PCI_EXP_TYPE_LEG_END:
+> > > > > -	case PCI_EXP_TYPE_RC_END:
+> > > > >    		break;
+> > > > >    	default:
+> > > > >    		return -EINVAL;
+> > > > > 
+> > > > > -- 
+> > > > > 2.51.0
+> > > > > 
