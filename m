@@ -1,147 +1,119 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 379CD3D8114
-	for <linux-s390@vger.kernel.org>; Tue, 31 Mar 2026 14:00:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 03D3433F8A2;
+	Tue, 31 Mar 2026 14:15:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774965609; cv=none; b=KBWYW2KWagnLa9oC3TIaKy9h4wADOiyi/rK2V+nzARlHx9Vgqvi+h5CbVHHbmkS242P8WqIwFiiZvhGd3AwXaFKjenUes+rRjRx20+mKFPoAwk89syiElmafe71Up9X5CbpGaLtDnnkdCvkoqDUef9K+PasVvrQbYWWPv/cYhuA=
+	t=1774966533; cv=none; b=N2xKPNKfrBg7e3tR7RffNnkE5GB+xxY/IAxxhPwYlYuwZfLS3xSN0kUKrYUQb07pQVJpuFvxCMEWj2ZsUeBQgwRWscloj5M+apBe6t/Xubp7ZDrm8IXGd3ea/0RCarbi3rj2klP3ZWWm8pGwUK5uIDfh2NBnqjsbdTGHlomSw/0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774965609; c=relaxed/simple;
-	bh=v8oGte1nICQf3lPzs/IH7HujDZ08x8KnEuuH3pyLmXU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=NL/bzBz+1lDoPyIEkDAMb2xXF4ai8QGRrqg4ffC1LZYO7cnjOo8zfN3mP1XIPp/5BwO/2ZqzZNvz1hsG71roeLy2g5dxd5tYWwq7R8IGUbDl+BJzacz0vxRB6H2qrb6cVk+hcmBQFdJMsooCk8+7gpikq/H/20sU524fqtCQTHE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QQ0PH/CG; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774966533; c=relaxed/simple;
+	bh=9z2MXKM/ZiMSqPeqkaUKxlawR2frF3py0x92yErvlU0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PUqLqTFEHwlyXOPXYPVPjBa7+JJXbstBhPfSdCoIyef7If68c3e9s+HxZLmwPuT8xXkCA9KsHrKlMoEE+UHl07AAjanE0grr0dD8FQLLTrNaBZZEMXXqcHkJlUPy5+HfKypKqGabKG084XjeJNeIhdSthiz8IPzZRBoWeH/1l+E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=oJM7vb4P; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QQ0PH/CG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3D23C2BCC6
-	for <linux-s390@vger.kernel.org>; Tue, 31 Mar 2026 14:00:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774965608;
-	bh=v8oGte1nICQf3lPzs/IH7HujDZ08x8KnEuuH3pyLmXU=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=QQ0PH/CG0dWacUziG4TNgGC3pZnU4geMh3an4vCBQT4so9mzz6OnOMW6HjZW/5pIR
-	 VIK02bsYHgPtDxWO9hiZ9oCZSIuVJlHMYylbdgza8MaXjEsUWbiOFWmbL/CNJ6WWyz
-	 3hW/J+jSuPKcoyoH+oyoWOnh+u8WKdnuncyzsEN2BvRxr4xNAfrFyqobe1/JDevGVK
-	 bGFEB7jWDn4ZL5G6MaL2BQINbPAK6Bu5YyIG31K/V0uXmhgT+gNqvIKxR8r64uutlF
-	 HForGfWlPhfy1Gi0mRpoCxwcciky2Hccat3M2CRIPCkulov95gD8wvMSRfxSrttxlk
-	 3ML0Cls2uYXcQ==
-Received: by mail-oi1-f176.google.com with SMTP id 5614622812f47-463a0e14abfso3249147b6e.2
-        for <linux-s390@vger.kernel.org>; Tue, 31 Mar 2026 07:00:08 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCWi/Y/oS3Y4g0ABO1lfe19NGQHBolg9MfQUJHd1FP1hASe2X2tLlW7QLv7u1tRC0BmntN6/xUQPv1LB@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw8rBQh52YetS4Who3BIENN4syVFRaeTejgErJU0HdrWW4MybHe
-	jJ2H6zOVCViPWQygb0WvsaNgIV9bM3BiGKRqxxxvPScKiu5w/Fcz9nHEVveP44zR2mK92waM9W7
-	Jc2VGh5R791rK/PD0FpqzHfRpiimUKFE=
-X-Received: by 2002:a05:6808:1493:b0:467:f3d4:fc4e with SMTP id
- 5614622812f47-46a8a596197mr7405781b6e.33.1774965607378; Tue, 31 Mar 2026
- 07:00:07 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="oJM7vb4P"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 79392497F;
+	Tue, 31 Mar 2026 07:15:25 -0700 (PDT)
+Received: from [10.57.56.98] (unknown [10.57.56.98])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 83F593F641;
+	Tue, 31 Mar 2026 07:15:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1774966531; bh=9z2MXKM/ZiMSqPeqkaUKxlawR2frF3py0x92yErvlU0=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=oJM7vb4PMFH8u1/9y2halmmZt6v/lBq8nRr1CQtr07dScwz8NKTR7nvLEVsrXHI2M
+	 klGmCUswAwUvGwr1LljNzFRndxJf6Rv0el6JfhfIv57auBJK1/WHKBPEasmO4dMZd5
+	 Vvs9SSp1PkrOXybInOopmh2rYwurpfgXCLuo9QcQ=
+Message-ID: <c27cad07-bba4-472d-8853-fc6fc55e951f@arm.com>
+Date: Tue, 31 Mar 2026 16:15:23 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260331131622.30505-1-frederic@kernel.org> <20260331131622.30505-2-frederic@kernel.org>
-In-Reply-To: <20260331131622.30505-2-frederic@kernel.org>
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Date: Tue, 31 Mar 2026 15:59:56 +0200
-X-Gmail-Original-Message-ID: <CAJZ5v0gK3WdPhVuY-SJNJ4WK87kL3w9Q8KGBtt5RuE1AUoxdLQ@mail.gmail.com>
-X-Gm-Features: AQROBzC01cSpFeB8dQHSq2PjzTVT0MM4PbeCSZP1pxl-fD4ctuT__P9I9dxaSrc
-Message-ID: <CAJZ5v0gK3WdPhVuY-SJNJ4WK87kL3w9Q8KGBtt5RuE1AUoxdLQ@mail.gmail.com>
-Subject: Re: [PATCH 01/14] sched/idle: Handle offlining first in idle loop
-To: Frederic Weisbecker <frederic@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, 
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Anna-Maria Behnsen <anna-maria@linutronix.de>, 
-	Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Dietmar Eggemann <dietmar.eggemann@arm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, 
-	Jan Kiszka <jan.kiszka@siemens.com>, Joel Fernandes <joelagnelf@nvidia.com>, 
-	Juri Lelli <juri.lelli@redhat.com>, Kieran Bingham <kbingham@kernel.org>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Mel Gorman <mgorman@suse.de>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Neeraj Upadhyay <neeraj.upadhyay@kernel.org>, 
-	Nicholas Piggin <npiggin@gmail.com>, "Paul E . McKenney" <paulmck@kernel.org>, 
-	Peter Zijlstra <peterz@infradead.org>, Shrikanth Hegde <sshegde@linux.ibm.com>, 
-	Steven Rostedt <rostedt@goodmis.org>, Sven Schnelle <svens@linux.ibm.com>, 
-	Thomas Gleixner <tglx@linutronix.de>, Uladzislau Rezki <urezki@gmail.com>, 
-	Valentin Schneider <vschneid@redhat.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Vincent Guittot <vincent.guittot@linaro.org>, Viresh Kumar <viresh.kumar@linaro.org>, 
-	Xin Zhao <jackzxcui1989@163.com>, linux-pm@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 1/2] mm: make lazy MMU mode context-aware
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+ "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+ linux-mm@kvack.org, linux-kernel@vger.kernel.org
+References: <cover.1774420056.git.agordeev@linux.ibm.com>
+ <de89fd353a8dcd5e3bef4d91e9b6682d132ed9a0.1774420057.git.agordeev@linux.ibm.com>
+ <44dd86c0-1845-4dd9-b4b4-2cef6d1c6357@kernel.org>
+ <e096e88b-f1fe-44a1-bfa6-451eef028203-agordeev@linux.ibm.com>
+From: Kevin Brodsky <kevin.brodsky@arm.com>
+Content-Language: en-GB
+In-Reply-To: <e096e88b-f1fe-44a1-bfa6-451eef028203-agordeev@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Mar 31, 2026 at 3:16=E2=80=AFPM Frederic Weisbecker <frederic@kerne=
-l.org> wrote:
+On 25/03/2026 17:20, Alexander Gordeev wrote:
+> On Wed, Mar 25, 2026 at 10:55:23AM +0100, David Hildenbrand (Arm) wrote:
 >
-> Offline handling happens from within the inner idle loop,
-> after the beginning of dyntick cputime accounting, nohz idle
-> load balancing and TIF_NEED_RESCHED polling.
+> Hi David,
 >
-> This is not necessary and even buggy because:
+>>> +/**
+>>> + * lazy_mmu_mode_enable_pte() - Enable the lazy MMU mode with parameters
+>> You have to be a lot clearer about implications. For example, what
+>> happens if we would bail out and not process all ptes? What are the
+>> exact semantics.
+> The only implication is "only this address/PTE range could be updated
+> and that range may span one page table at most".
 >
-> * There is no dyntick handling to do. And calling tick_nohz_idle_enter()
->   messes up with the struct tick_sched reset that was performed on
->   tick_sched_timer_dying().
+> Whether all or portion of PTEs were actually updated is not defined,
+> just like in case of lazy_mmu_mode_enable_pte().
 >
-> * There is no nohz idle balancing to do.
->
-> * Polling on TIF_RESCHED is irrelevant at this stage, there are no more
->   tasks allowed to run.
->
-> * No need to check if need_resched() before offline handling since
->   stop_machine is done and all per-cpu kthread should be done with
->   their job.
->
-> Therefore move the offline handling at the beginning of the idle loop.
-> This will also ease the idle cputime unification later by not elapsing
-> idle time while offline through the call to:
->
->         tick_nohz_idle_enter() -> tick_nohz_start_idle()
->
-> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-> Reviewed-by: Shrikanth Hegde <sshegde@linux.ibm.com>
-> Tested-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+> Makes sense?
 
-No issues found, so
+I also feel that the comment needs to be much more specific. From a
+brief glance at patch 2, it seems that __ipte_batch_set_pte() assumes
+that all PTEs processed after this function is called are contiguous.
+This should be documented.
 
-Reviewed-by: Rafael J. Wysocki (Intel) <rafael@kernel.org>
+>>> + * Enters a new lazy MMU mode section; if the mode was not already enabled,
+>>> + * enables it and calls arch_enter_lazy_mmu_mode_pte().
+>>> + *
+>>> + * Must be paired with a call to lazy_mmu_mode_disable().
+>>> + *
+>>> + * Has no effect if called:
+>>> + * - While paused - see lazy_mmu_mode_pause()
+>>> + * - In interrupt context
+>>> + */
+>>> +static inline void lazy_mmu_mode_enable_pte(struct mm_struct *mm,
+>>> +					    unsigned long addr,
+>>> +					    unsigned long end,
+>>> +					    pte_t *ptep)
+>> It can be multiple ptes, so should this be some kind of "pte_range"/
+>>
+>> lazy_mmu_mode_enable_for_pte_range()
+>>
+>> A bit mouthful but clearer.
+>>
+>>> +{
+>>> +	struct lazy_mmu_state *state = &current->lazy_mmu_state;
+>>> +
+>>> +	if (in_interrupt() || state->pause_count > 0)
+>>> +		return;
+>>> +
+>>> +	VM_WARN_ON_ONCE(state->enable_count == U8_MAX);
+>>> +
+>>> +	if (state->enable_count++ == 0)
+>>> +		arch_enter_lazy_mmu_mode_pte(mm, addr, end, ptep);
+> I will also change arch_enter_lazy_mmu_mode_pte() to
+> arch_enter_lazy_mmu_mode_for_pte_range() then.
 
-> ---
->  kernel/sched/idle.c | 13 ++++++++-----
->  1 file changed, 8 insertions(+), 5 deletions(-)
->
-> diff --git a/kernel/sched/idle.c b/kernel/sched/idle.c
-> index 3681b6ad9276..521a076d8845 100644
-> --- a/kernel/sched/idle.c
-> +++ b/kernel/sched/idle.c
-> @@ -260,6 +260,14 @@ static void do_idle(void)
->  {
->         int cpu =3D smp_processor_id();
->
-> +       if (cpu_is_offline(cpu)) {
-> +               local_irq_disable();
-> +               /* All per-CPU kernel threads should be done by now. */
-> +               WARN_ON_ONCE(need_resched());
-> +               cpuhp_report_idle_dead();
-> +               arch_cpu_idle_dead();
-> +       }
-> +
->         /*
->          * Check if we need to update blocked load
->          */
-> @@ -311,11 +319,6 @@ static void do_idle(void)
->                  */
->                 local_irq_disable();
->
-> -               if (cpu_is_offline(cpu)) {
-> -                       cpuhp_report_idle_dead();
-> -                       arch_cpu_idle_dead();
-> -               }
-> -
->                 arch_cpu_idle_enter();
->                 rcu_nocb_flush_deferred_wakeup();
->
-> --
-> 2.53.0
->
+Makes sense. The interface looks reasonable to me with this new name.
+
+One more comment though: in previous discussions you mentioned the need
+for arch_{pause,resume} hooks, is that no longer necessary simply
+because {pause,resume} are not used on the paths where you make use of
+the new enable function?
+
+- Kevin
