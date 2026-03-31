@@ -1,242 +1,140 @@
-Received: from MW6PR02CU001.outbound.protection.outlook.com (mail-westus2azon11012031.outbound.protection.outlook.com [52.101.48.31])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E8AE3A382E;
-	Tue, 31 Mar 2026 20:12:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.48.31
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 030DC3F7ABB
+	for <linux-s390@vger.kernel.org>; Tue, 31 Mar 2026 20:15:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.175
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774987958; cv=fail; b=pgCAVIU93Hhoft5JHG/X1JFgt4uttsZuxnepynBbg+UZCEChu1BCAqDIozhiIyBV70Xr4A8+oIza1ogy5/4s4Cwg8glVAwd60IHgpZFjxdz8/UEmewQYDBiNq2/BCVOROtZeWUrLmId7B5Muv84ZzKYWl7rhnE4USJ+/SO1WxoQ=
+	t=1774988106; cv=pass; b=a3+qYdGNCF3jhyo4mW22GEM1bP/4nT6ypwQm3uS9ppG7znWr0zJjt6ZNospe2FdyjlQLWOwX6wotEtyuw3oV1tE0ezLHV/1d60siY0L+K12/HOs8JPYwti/ktGt+NVpR4XkoEwL1QYuRtEUyA2w73329SRfGa7uVpw8GSJBg6QA=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774987958; c=relaxed/simple;
-	bh=6bTHluk1txhP9zCXzq4HoAw1yQ11YaGqDFIasMPfI5I=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=DS6w8U2uiP7NKi33IpoFx+jo/nlx2h9d1iqWDMnzRdjWeIK62cJI/VCMMlIt1LK3Qirs0K1063jHf8UsRbch0zxVHRfJ2eXS8otMWRM+WLsjCHLMeuzlNHZQDqzeHS1hWVk933VF+w25jQZ93dTbmxEfIqMB0aHNB61i1v++gMM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=RRg0Ceuq; arc=fail smtp.client-ip=52.101.48.31
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	s=arc-20240116; t=1774988106; c=relaxed/simple;
+	bh=+UtQ9UG0ypfwQxx3wOqbv8WfIkTy4y8DvP/oXcbPF+Y=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=FRdXIEA3itiBRWBesoWiD2DOEp80KYz6g9JJxTq1GJWqVa9lSJhsid8UYuwv/zjGA5RIIdnBcHOi1rzdO1QJTe8qPDap+Q3ffj1KKilVXbzUTkHFAt1eEGhO3cR8p9C666Casp8YHM4D11MgGBhJrQFXk9TMqxdH9VNNa2+z7+Y=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=v0gLwiUo; arc=pass smtp.client-ip=209.85.160.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="RRg0Ceuq"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=jkKWwcX83FF/y2mBIqjOkjcBeLBIHIczryhfGvbpr60kGZHqQML+MAGWGfMXIVcN5opDr2s/ri4e9RKtjxsuv06109Up2vtNCta5Bvb1DYXrEj+zxjSBf715j1BnO2PgQt++7+YOz4gDDTAynS843WY2xp5edzEwA9yESSSFbqpYIbu+mdzwvCtsp5UjhEtRXu5HDabRNZHPHmtTg8/x03RovoFHaT7phugmXewCdgjpYekLKnUOZFk+DmOE65G6DNHIw4HCTa8k2YEve0OvvJsVTxzmLg7EP3g/fQ3JLYxKQH3soTFzKHnYtfTfouhEme1ApgJ/UR5W7LMv+240jg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=lX39jnJhMQbloTQDqgFjFiloszNdeFEKDA5xfPiZtwg=;
- b=Fxv3I02hlPCW9QepgI9TG6W6Gil7rAv720U5goWCWACyfefWOWI+/qNRKirmz3M1ERudq9zz8UP3XH6mOAfzsMkMB5JViaThxvOv2nrwFaTVshusVS+D2Lp4v3tXWnD+tTFkDN0ePoHVP+ZgnGCYa34hMgi4otZ6N4QWSO00ZecnJgojN4QG4GMjr263jN06VSMhkgI629RuBWeVjKNYljwNcjQfUhFKyS3LhXvXeg642ydooEZk+pvVfCs6S4MW0/Vc2J8a25HFAdrMN+5LN+3SgQFHjILS8IyXxA9OH0HFuA+0i2jaE4GiN/g6kUdtSPNNMBrfbn9pS7oPaLSxTg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=lX39jnJhMQbloTQDqgFjFiloszNdeFEKDA5xfPiZtwg=;
- b=RRg0CeuqlZlzhLwH/lCBz1bIWrqrYpJAUcF1hkgi2xgGwFL/YGH9hFJws3oslPAROEeVVY/UwseGNqNqSytRObLy4p+PelO7/H3+XAme99XHknXPI3inqQ8Tvf/tqG0aSCiHqXDNtGdBC2zskLYGyhp8M29JEPWBEBeUZxJh9o8=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from BN9PR12MB5115.namprd12.prod.outlook.com (2603:10b6:408:118::14)
- by SJ2PR12MB8717.namprd12.prod.outlook.com (2603:10b6:a03:53d::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9769.10; Tue, 31 Mar
- 2026 20:12:31 +0000
-Received: from BN9PR12MB5115.namprd12.prod.outlook.com
- ([fe80::230d:c588:d858:9977]) by BN9PR12MB5115.namprd12.prod.outlook.com
- ([fe80::230d:c588:d858:9977%6]) with mapi id 15.20.9769.014; Tue, 31 Mar 2026
- 20:12:31 +0000
-Message-ID: <8dd22066-c0a1-4f63-b5b6-4606446a49fb@amd.com>
-Date: Tue, 31 Mar 2026 16:12:23 -0400
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 1/3] PCI: AtomicOps: Do not enable requests by RCiEPs
-To: Bjorn Helgaas <helgaas@kernel.org>
-Cc: Gerd Bayer <gbayer@linux.ibm.com>,
- Alex Deucher <alexander.deucher@amd.com>,
- =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
- Selvin Xavier <selvin.xavier@broadcom.com>,
- Kalesh AP <kalesh-anakkur.purayil@broadcom.com>,
- Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
- Michal Kalderon <mkalderon@marvell.com>, Saeed Mahameed <saeedm@nvidia.com>,
- Tariq Toukan <tariqt@nvidia.com>, Mark Bloch <mbloch@nvidia.com>,
- Bjorn Helgaas <bhelgaas@google.com>, Jay Cornwall <Jay.Cornwall@amd.com>,
- =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Niklas Schnelle <schnelle@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Alexander Schmidt
- <alexs@linux.ibm.com>, linux-s390@vger.kernel.org,
- linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
- netdev@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <20260331190103.GA150932@bhelgaas>
-Content-Language: en-US
-From: "Kuehling, Felix" <felix.kuehling@amd.com>
-In-Reply-To: <20260331190103.GA150932@bhelgaas>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: SJ0PR05CA0204.namprd05.prod.outlook.com
- (2603:10b6:a03:330::29) To BN9PR12MB5115.namprd12.prod.outlook.com
- (2603:10b6:408:118::14)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="v0gLwiUo"
+Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-509062d829dso755721cf.1
+        for <linux-s390@vger.kernel.org>; Tue, 31 Mar 2026 13:15:04 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1774988104; cv=none;
+        d=google.com; s=arc-20240605;
+        b=BbEFEU9tNcd1XRMBBI/tQb/4zgclJI9gHLHGGQZhIg6WBxuujeh5jqFT0iPAvZyA+u
+         EIUon6GTdV88dvi3FGNQTrb3uBEI1YeAPo90Ty1hXJnVLeFXKyJP3fD3Jj1ufd73N8TG
+         InbFMh7mC77mnOxRhIz5de/UfUXljeUKhP5XzIhRqda670sSvpDitsA2A4DjcNucvN1Z
+         SsmiXEwdtn3pikMZ4jH5mC9W7Mi7dP7/vLPeg0+WZYI+Th9MLRAmjCEYatozGb0V89UI
+         Z/ZZBtuMJGqrfj0trQzQ7iwMHLwcOpdw+7HsCp0viqbsVYp3RXP1io2wml8E/6XRiq3M
+         4bhg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=RwVpGG9S8p/uX+u7seQVpxC4moFh4X8htIhQDky5uWk=;
+        fh=23bjPqtpBmzhw5JNSVaXDpEMNWg+E8cSRngRcca2FYU=;
+        b=N/0sPWUZppp6EMZZOzGkKb7F4mozzLkMzBKNYyWb0phNt68JYlnYgZIxodUrFz0VCF
+         7Q+lYxf2usnB91xCNmYGFZjAAldLLzTlA/lCc+cC3IH/belYgxh0TX841jaUs9hjE5jp
+         jNTdSzHflbO7RVaiV/rGpEBB1jSt5wwrdSewuxZSgOT+ZyYLSigshk1/2gKXH/jtMzuW
+         WrwkmguTIDAFs6zb1F8Rg1LsS/0T+z6v9RQVm1ivsalZhIWJAep4k8b5TNv9oe2SErKu
+         N3JutoV5pfxGt+ra7d1wQhw8yFpfPEKBukv9t58NQ7M/kqTQFGzYbBCBMoPGAIN69NKd
+         yTug==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1774988104; x=1775592904; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=RwVpGG9S8p/uX+u7seQVpxC4moFh4X8htIhQDky5uWk=;
+        b=v0gLwiUoYlYp0Vy4hhoJjZE8jJjdf/gRmcbwBz0S15B/l6ul3A3tNx77/rzE3gKuiq
+         hu3eUy36ejuGZ8UrGEy9BKTYHXHZ8keyfdDiiztwG/P4YTY6AO72qqVr8EbHEcXgK7XT
+         lZ982kXPPw7jj+k3+43oi7vqO3LCYKqAR92yDnrEByLzROavkbyDBcxvWMEI5ySnLtGD
+         Bvmk99a2T6k8Y/2d8BjnG5LDnmAjDn9Uxq7EWxiD59gY9YUsdiw/fVXAYX2ElXcTbIIq
+         Zs+xCvfZYHmk3JZnZel4bk4Gj1AAgkEarFasj9lL5QH2+TiEamLtTJPlxuSou59Sf0yn
+         eLew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774988104; x=1775592904;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=RwVpGG9S8p/uX+u7seQVpxC4moFh4X8htIhQDky5uWk=;
+        b=Pcmn0J7ru11TvxgKuT5/sIXDRDlyJQ0pDKOwsYjSNYl9/HHYkZWTMz71exjWqth9E0
+         6tTOPpRwk7/566yXpSc0ZhfHmVu3WNwNrraDpvFKDS3hnw/bJKvLc/FKKzycrXMc2CAO
+         +se5oT+OIGOBRGJ1bsEprVYYnOi/OrN4Xg/peS92Z1Nd3dBEjN7jVVfWx/byeCkCB+Fg
+         kvc4gAyhviiGE1xg9PrnkgiSFhS53k34/pFzu9+Tt4zQRmdoUkFaI0s5Mkdpv6ohz34z
+         k0j5L8S6ItamoNSgPs0CkhpQ2ecs4BsPyNKgmDr5ahL7xR5dORdYsYDVUkIAcGwZGIGW
+         L9fw==
+X-Forwarded-Encrypted: i=1; AJvYcCVvgy7PPU3RgjlrjxvHvE+Kgo/qxZzD2DbhEDdL7l6J/uWLkd/X7Q6fx6/d9SLCcKMAQhNuRDNE0XEl@vger.kernel.org
+X-Gm-Message-State: AOJu0YyPFL9kmBxovEUbUePGO5RpVf4EubhFUOWVGfkHpMdQLd0shKEg
+	yxt+q2nVM2cDKoSW6GwIaU0b+JqWFLDmVkv/yqfJyzd7PAdsq2ZYMdziHc3FLJ9m+HbHD+VX7Md
+	/FKKXCP7YkrOcyb7iHFGhtCcEiXeISr3u3YqMHMH6
+X-Gm-Gg: ATEYQzy2KOBW6+dIeH9rw2bBQ16ahrVetb9v3Gm/2GveVXiiDWucokvR9SO1wD2tTyO
+	n79iaaqwqqvlP87qp3UlNihct5zCurh3zNROJ7jccLrA3UTZHj7XveiGeD7702aeL3iLDTFqRG7
+	6UUE1Yg+lVlRFzgf2AZwyKK7rEj7xr/Al658wVbheQArjHPSSUjZartEg2BD2qPtRx++bwJ3I6W
+	wsKTBG4fYc9xrr5XZCm9gwH/+kiH92Skk6wxGriBgBXVe9cnRR1BqdnhtvoZ2T3MBW9aQ6Gz/EC
+	JlH2GKS2D/6cP2OljmiSN/WAWn3cfpRFcZQTTw==
+X-Received: by 2002:a05:622a:a987:10b0:507:35b2:6b9 with SMTP id
+ d75a77b69052e-50d3b7cb8ecmr5105641cf.7.1774988103375; Tue, 31 Mar 2026
+ 13:15:03 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN9PR12MB5115:EE_|SJ2PR12MB8717:EE_
-X-MS-Office365-Filtering-Correlation-Id: f87f67d7-412f-44e4-775f-08de8f61d6c6
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|7416014|1800799024|376014|56012099003|18002099003|22082099003;
-X-Microsoft-Antispam-Message-Info:
-	6m6d50EYGLFsRd54Cc5gFpSplRwNU8pOWndsbkloZA8pUIo+tS7FpUjyfztXsiKyB19Ip16bM0wojwXwOYTXLIZaLRw1Tv7rSxkB2FFeNv+QipYEb24/du5PJyyZd7zf6+SL5RRoEYQxOu/fCflSsZnFgy+DiLsNyPSL71LmS8xpZujKE8ce7cco8oVZqopEqDpPWfMyc1Ul2MR3+c1OaQIYQgJiJI/QueONlzjLwiEe51/s9seoleSHPGZWDGS6h5hlJKSO0RjJHgtmTjrT4CXvTCOy3/TPTAJOXKaPPT1jS1zAjYS1v0Cj+0rO452HgwsavYsZOeFpr3StvGhbI8/UUApeE/v9aPxonoVYOCUGm8VUokVlFuNlrAQPbv+8skEtyCtMsx4KNvMPXJYtlVSlOknVj1GLXM3prc+5lZn+QyEckSPHHyC9Fam0cpR7ROU222iyEWQ4hS1rdktsmE+mHMs074OfoLKM8uz1IxEFsk8ioc4aqV4c45c3GaENfG+PlFYOrO+LQEuz7naeXyaCNozMg0ra0PbEq7XGs/TPAYLvhQVugs1FLWdNQlcwwAH+b6oDTA3OZHqREjlH9wh4rrm7URQWedBPxr76WYBj9AysA1wrwcTMIp7vIT8FxdDSfrTFNZyiXMCXeyps8RoSfwn1o42BJOpaBLMggniV3nRUQkjOi503izsdVJEk
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR12MB5115.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(1800799024)(376014)(56012099003)(18002099003)(22082099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?dStrQXNSWDBwUmVtZDVkK0RiMTZHT1RGU2F0Q3pjRFVyREZaUXJaakd3TVhI?=
- =?utf-8?B?OFdROGFvdElacmJqaDhHK2dLOTBrTVhhZWQzSE1tOFdIVEw5Q3RuM0RhY0FE?=
- =?utf-8?B?NWpzRkc3VGVSZE11VFBwSHBsMkU3ZGdUSnVhbm1ZbklUOWhOM1IxYmpyQTJI?=
- =?utf-8?B?dHB0Q0pOVGNkS3JtQzhucXliSTZ1SjdSbm16VTB6dENCREtXMFNGNmtteVBB?=
- =?utf-8?B?YjBmcmJXMkwwRElKZkp4SDNzMk40c0lKMFRyQmovc04yR01sckRIdHNBSVVU?=
- =?utf-8?B?M25ITkhBWXM2WmFhdFpRdTRleVhUbHdSaGVuelNsVFpUWCtRaStNK2k0VkhN?=
- =?utf-8?B?dDdqRERienhMVThMNFZNRHY2U2E1V25DNStBNjU2MjJtOGVXK0tlSUxna2Iw?=
- =?utf-8?B?RXhSTWg4blcwL2xwS2ZTTVRXMTYxSGhneUVSbzdZckFPSkNVMWI1S0JaRkR6?=
- =?utf-8?B?Ym43OWZPMG1MVk1XaERMVVk2MzRZc3Q0NVQreU5wU0lYQmwweGVmREFmSGdn?=
- =?utf-8?B?UnZ2Z3EyNUYzSGpvdU8rc0hqUVJrUW1kU0ZrZVZuNHZISCtEbVh2YnNNSlYw?=
- =?utf-8?B?cHcyV3F1RFRLZWtVRC9JR3FQVlBvc2xWK1FmaU9IS2poMFA5NmtSWXhHRlp1?=
- =?utf-8?B?clJZNFF1YWE4RVdZNGk5OVRkWDNzL1hkTUw0WTlOM0pmalMxR2EzbDR0Qy83?=
- =?utf-8?B?Q051T3gzOCt0TVNGcmhOVWdEb2NNeXFhcFpPSEZvd0Z5SmJsQS9UT0hxUDdo?=
- =?utf-8?B?THNwbERITE9abGZOTm5rNkFrdnZQQmsxS1Q1UW9ZbnMvVTQ4TWJHdERvMXNl?=
- =?utf-8?B?U0ZGc1JrWHhTbytwbk9uVVBLUnJiVDhYckhvT3hjTFhXd2d2MHYzeU9aTEJv?=
- =?utf-8?B?S3VrREdKUDJsREpGbFIxdVhNNjZvbFFENEhDbkU4OVUzUm9TTFBrLzBSaXd1?=
- =?utf-8?B?RXZUS09Rb1FaWUZsUUREbnlNc2w0dXo2Q2EvdVoxRnRTZGpoVlVkWVJwRDFR?=
- =?utf-8?B?dVZLYVN4dmtxRk9oQ1UwMVB0OGdlMGhoTklFLzZSOFNwNlNkVWxGeFptTDBz?=
- =?utf-8?B?a0xOV3dNMzJvd00yZGcvQVlPVkM0UzhHOXhrUjlxc1J3UEQreFZCa2ZCUktQ?=
- =?utf-8?B?YWtDUUJhTTdGQkNueHViMGtoSUZBcHFxc3FCbENFUy80NUI3dUNodkRWR01v?=
- =?utf-8?B?OWthc0pqM1FITCs0clhkMTRWUC9qaXhqZktwYlQ1bFJNVmZnbDNZSWVveXlY?=
- =?utf-8?B?N3J0NHpKOGlDQTJzUXl2TFp0YTB6c2dFU2pXZWVWUFpJN2M3YUNSOERjSzk5?=
- =?utf-8?B?UjBXamFzdFdjZmVqM1NLQ2xmUU04Z1d1UEd2akx2YTdCK2N6TXBUSDV5UmxR?=
- =?utf-8?B?blZpUUgwL3llQzBrY0RmZnNFWG91UW9hTm5pdUZRbE5wSEsxZkVIcmg0Tms1?=
- =?utf-8?B?TE4xNFRqUlVGYzRkNGRoRGlkUWJKb0ZSR0xQRnhkaXVCay9VMVhBSmxZSjJO?=
- =?utf-8?B?UlJ5Y3pjS25yelBoM1dHN1B4TEdsWTd1NThFN0NqazVtMDZkQTJuSUR6WlNJ?=
- =?utf-8?B?bUFaN0l5VS96T0cyZ1JBMUthV1FDa2kvNnYrZWRLT0R2TWlCM21RazhjM3V0?=
- =?utf-8?B?Nm9tQzNFSGNvcFRRcU42UnpJbXc1R0hCRUJwTHlPd3NaYXpkbnBKcWpEVldv?=
- =?utf-8?B?dXpNc2NTWUZlZkNGQStPVUJvOTc4UmNVZ0R0NEo4NlFnWUtJWTdwTHR1Yzl3?=
- =?utf-8?B?SEZpR1VIT3NiYy9nSTE0UFo5c2h0TElNaXBXSTROYm9tZGhwSFJVTG81VkFx?=
- =?utf-8?B?MXVSRHhuVHNMTHdidFZzTlN1UndncjFzOUdzWDBLVDBuWmh1by90a1ZLYlJR?=
- =?utf-8?B?aVdUTldmSEtGMHhQM21FRlFQdzJPTG93UVhpYUFkQnB0VElNUWszTHdJeXNj?=
- =?utf-8?B?T3FwY201c3h6NFpjeUt3ZU1SU1FPRGU3YWQ5YWZEZGZzWktqc1JqOWZpb1Vy?=
- =?utf-8?B?a0I4ZG5sTDBTNytPM1oyeDBRcy90WWZGL3ZVZjFKS0JzL1RvdHdqV3pzOUM3?=
- =?utf-8?B?SU41enVmTDZrYytKOEwwMGlxUGlJQVNwKzBrSFo3Yjd6bzBnbXAyM201TkYr?=
- =?utf-8?B?ZE1ybDU5bHQ5Tit3Yk9teGs0K2xqWFg2SkttTDA1dENpOFNueFd6cjg4ZHN2?=
- =?utf-8?B?SkZIRFE0VzVQcG9FTEJsMFgrVGxNRE9aZ2NoKzB5NTJmS3VZbjNQN1M3Vmkx?=
- =?utf-8?B?OGQ1dkVmeldoYmNwWW1rVGZEUlV3d0tQQUhJK09tWjdsNHRGblZtOFJpanM5?=
- =?utf-8?B?ZE9KNy9WczhScEV3TVpQMGRIL01LcXJBbE1YM2cydUNFTE1xdE0xQT09?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f87f67d7-412f-44e4-775f-08de8f61d6c6
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR12MB5115.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Mar 2026 20:12:31.3082
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: TELHeOJZHIQEs9417roMorkTw9YNjg9g86iNHUUndmk9q9mwxu4B7wYVWK1JvoyYl8l9LElbrvxB5hU/bMxWTg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB8717
+References: <20260327205457.604224-1-surenb@google.com> <20260327205457.604224-3-surenb@google.com>
+ <5d90d998-9b8d-435c-b684-260600311797@lucifer.local> <CAJuCfpE5w8r_6Ss=5ZPrEb1RQOTG6HyY8Pivac=iiyqFRZvD4g@mail.gmail.com>
+ <20260331112921.854d4f6cc793dba0972ee9f1@linux-foundation.org> <cf6975a6-336a-401b-b122-b9597b5710b7@lucifer.local>
+In-Reply-To: <cf6975a6-336a-401b-b122-b9597b5710b7@lucifer.local>
+From: Suren Baghdasaryan <surenb@google.com>
+Date: Tue, 31 Mar 2026 13:14:51 -0700
+X-Gm-Features: AQROBzB2U3UmDFrQdi2wX1twdn7twB7j7RYY85tO9ykEBOm_M_3vRiUWXjbFQEo
+Message-ID: <CAJuCfpH2eomYbZ0DzKpkae5DKVF69aRsfXx3HzMfPc6cTT5fTg@mail.gmail.com>
+Subject: Re: [PATCH v6 2/6] mm: use vma_start_write_killable() in mm syscalls
+To: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, willy@infradead.org, david@kernel.org, 
+	ziy@nvidia.com, matthew.brost@intel.com, joshua.hahnjy@gmail.com, 
+	rakie.kim@sk.com, byungchul@sk.com, gourry@gourry.net, 
+	ying.huang@linux.alibaba.com, apopple@nvidia.com, 
+	baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, npache@redhat.com, 
+	ryan.roberts@arm.com, dev.jain@arm.com, baohua@kernel.org, 
+	lance.yang@linux.dev, vbabka@suse.cz, jannh@google.com, rppt@kernel.org, 
+	mhocko@suse.com, pfalcato@suse.de, kees@kernel.org, maddy@linux.ibm.com, 
+	npiggin@gmail.com, mpe@ellerman.id.au, chleroy@kernel.org, 
+	borntraeger@linux.ibm.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com, 
+	hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com, 
+	svens@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-mm@kvack.org, 
+	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-
-On 2026-03-31 15:01, Bjorn Helgaas wrote:
-> On Tue, Mar 31, 2026 at 02:39:26PM -0400, Kuehling, Felix wrote:
->> On 2026-03-31 14:09, Bjorn Helgaas wrote:
->>> On Mon, Mar 30, 2026 at 08:01:57PM -0400, Kuehling, Felix wrote:
->>>> On 2026-03-30 17:42, Bjorn Helgaas wrote:
->>>>> [+to amdgpu, bnxe_re, mlx5 IB, qedr, mlx5 maintainers]
->>>>>
->>>>> On Mon, Mar 30, 2026 at 03:09:44PM +0200, Gerd Bayer wrote:
->>>>>> Since root complex integrated end points (RCiEPs) attach to a bus that
->>>>>> has no bridge device describing the root port, the capability to
->>>>>> complete AtomicOps requests cannot be determined with PCIe methods.
->>>>>>
->>>>>> Change default of pci_enable_atomic_ops_to_root() to not enable
->>>>>> AtomicOps requests on RCiEPs.
->>>>> I know I suggested this because there's nothing explicit that tells us
->>>>> whether the RC supports atomic ops from RCiEPs [1].  But I'm concerned
->>>>> that GPUs, infiniband HCAs, and NICs that use atomic ops may be
->>>>> implemented as RCiEPs and would be broken by this.
->>>> FWIW, on AMD APUs our driver doesn't call pci_enable_atomic_ops_to_root. It
->>>> just assumes that the GPU can do atomic accesses because it doesn't actually
->>>> go through PCIe: https://elixir.bootlin.com/linux/v6.19.10/source/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c#L4785
->>> What does this mean for the other branch that *does* use
->>> pci_enable_atomic_ops_to_root()?  Can any of those devices be RCiEPs?
->> Most AMD GPUs are not integrated endpoints. APUs are integrated. There are
->> A+A GPUs where the GPUs are separate from the CPU but part of the same
->> coherent data fabric as the CPU (adev->gmc.xbmi.connected_to_cpu == true).
->> Those may also be considered RCiEPs. (I'm not sure about that, is there an
->> easy way to check with lspci?) We may need to include that in the same
->> branch as APUs.
-> Yep, for RCiEPs, "lspci -v" should say something like this:
+On Tue, Mar 31, 2026 at 11:47=E2=80=AFAM Lorenzo Stoakes (Oracle)
+<ljs@kernel.org> wrote:
 >
->    Capabilities: [64] Express Root Complex Integrated Endpoint
+> On Tue, Mar 31, 2026 at 11:29:21AM -0700, Andrew Morton wrote:
+> > On Tue, 31 Mar 2026 08:01:11 -0700 Suren Baghdasaryan <surenb@google.co=
+m> wrote:
+> >
+> > > > Instead? That is, assuming we really need to care about this at all=
+.
+> > > >
+> > > > But I think I don't like this change at all?
+> > >
+> > > Yeah, this was the part I wasn't sure if it's worth adding. With your
+> > > vote confirming my scepticism I'll go ahead and remove the parts I
+> > > added to avoid extra vma_start_write_killable() call (3 instances in
+> > > all) and will post v7.
+> >
+> > Thanks.  I'll remove v6 from mm.git and shall await Lorenzo's advice on
+> > v7.
+> >
 >
-> Dmesg logs from recent kernels would also include it like this:
->
->    pci 0000:00:02.0: [8086:5916] type 00 class 0x030000 PCIe Root Complex Integrated Endpoint
->
-> An RCiEP would be on the root bus; it would not be below a Root Port.
+> Ack, if we just drop the problematic bits we might still be fine for 7.1 =
+:)
 
-I'm getting this from lspci:
-     Capabilities: [64] Express Endpoint, MSI 00
-
-Regards,
-   Felix
-
+Let's get your cleanup first and then see where we are. I also hate
+the way I have to report a fake error code, so with that cleanup the
+patchset should be much nicer.
 
 >
->> You can see that we did that for a new generation of A+A GPU here: https://gitlab.freedesktop.org/agd5f/linux/-/blob/amd-staging-drm-next/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c?ref_type=heads#L3920.
->> We'd need to confirm that the same works for MI200 A+A GPUs as well.
->>>>> These drivers use pci_enable_atomic_ops_to_root():
->>>>>
->>>>>      amdgpu
->>>>>      bnxt_re (infiniband)
->>>>>      mlx5 (infinband)
->>>>>      qedr (infiniband)
->>>>>      mlx5 (ethernet)
->>>>>
->>>>> Maybe we should assume that because RCiEPs are directly integrated
->>>>> into the RC, the RCiEP would only allow AtomicOp Requester Enable to
->>>>> be set if the RC supports atomic ops?
->>>>>
->>>>> I don't like making assumptions like that, but it'd be worse to break
->>>>> these devices.
->>>>>
->>>>> [1] https://lore.kernel.org/all/20260326164002.GA1325368@bhelgaas
->>>>>
->>>>>> Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
->>>>>> ---
->>>>>>     drivers/pci/pci.c | 5 ++---
->>>>>>     1 file changed, 2 insertions(+), 3 deletions(-)
->>>>>>
->>>>>> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
->>>>>> index 8479c2e1f74f1044416281aba11bf071ea89488a..135e5b591df405e87e7f520a618d7e2ccba55ce1 100644
->>>>>> --- a/drivers/pci/pci.c
->>>>>> +++ b/drivers/pci/pci.c
->>>>>> @@ -3692,15 +3692,14 @@ int pci_enable_atomic_ops_to_root(struct pci_dev *dev, u32 cap_mask)
->>>>>>     	/*
->>>>>>     	 * Per PCIe r4.0, sec 6.15, endpoints and root ports may be
->>>>>> -	 * AtomicOp requesters.  For now, we only support endpoints as
->>>>>> -	 * requesters and root ports as completers.  No endpoints as
->>>>>> +	 * AtomicOp requesters.  For now, we only support (legacy) endpoints
->>>>>> +	 * as requesters and root ports as completers.  No endpoints as
->>>>>>     	 * completers, and no peer-to-peer.
->>>>>>     	 */
->>>>>>     	switch (pci_pcie_type(dev)) {
->>>>>>     	case PCI_EXP_TYPE_ENDPOINT:
->>>>>>     	case PCI_EXP_TYPE_LEG_END:
->>>>>> -	case PCI_EXP_TYPE_RC_END:
->>>>>>     		break;
->>>>>>     	default:
->>>>>>     		return -EINVAL;
->>>>>>
->>>>>> -- 
->>>>>> 2.51.0
->>>>>>
+> Cheers, Lorenzo
