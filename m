@@ -1,144 +1,219 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from MW6PR02CU001.outbound.protection.outlook.com (mail-westus2azon11012006.outbound.protection.outlook.com [52.101.48.6])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA43B3E558E;
-	Mon, 30 Mar 2026 22:46:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774910804; cv=none; b=NY1V5nXFBPEw0I2iE0slAtF7/rw1NoKoUPm2j/cRIr37fU/24FBnn6JrgsS7D1D/fiNcKuVg4kQ7+RJFn0q6u3qZ/k258XlflF/nGWuJeoaj5/w+Xio6hcnAqMoQEw1DqWoKRPJS7POvJbZ1m7cTDeyecb1JRCvSFaB/kTlj+vM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774910804; c=relaxed/simple;
-	bh=oGeRyjpDpZk4/Uyb3mgSDrDstArXeDuyuEvF3kMFWaU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kLVtvkFmhGfuijwoY8PbewAnTM0fCgZ85elYs6X/RbJ9WCe+6+70rVtzMXdYPbnak2QWodTY2gg3Wsx7W+W+yc0twlIZycpSuV476PwIPFovy1jq9XagK+kN8xEhTKG8HQqKIJYkVHVoJfsg2vMWd9IQYOTr3c7g7BRdwDOxZEQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OViIBhHT; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9724428FC;
+	Tue, 31 Mar 2026 00:02:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.48.6
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774915325; cv=fail; b=nTH5nVpawHfQiUMNgLm44uoQRSr/BJAJArdW+L4iAhdf20qifsW/l6Onr0e/2iixF3pI0nnrI/wvm9066t/yyvTmUstLlznSnUxtnGGFaRQrlRJaxURvtXn8isVFiNRBoBIR8PA6DAd//R29jv3FwnAuKvHRMXBNBYZHmXWkF7g=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774915325; c=relaxed/simple;
+	bh=ds8jGvX2OO1nWVWyBZt4sNeE2i0m1WcmkJ8fqiUOb6w=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=XNXFaXz9916UYNfh5xKG6ccZ2MP6coMXh5d+K+PdqXvNgsq4fyeydu1WGpPogC7Ma3dTqdzItkLhcuHeVVvZ83N/XohvjNuUA//fljeiphd7IVAvI/qnGUVHgn7XQJTHOsfbzJIttr3xv5PW+tDRCNjO137Zmm5tiPhWsA80V0Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=A3Fu1OtC; arc=fail smtp.client-ip=52.101.48.6
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OViIBhHT"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62UJp3KR2273702;
-	Mon, 30 Mar 2026 22:46:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=5ZGxwe27utPhf3+oIGgSJ7l7bt2gra
-	X57AUsA5Vn4j0=; b=OViIBhHTeTgMlOJQ7qKKJV9elSMnXSMyFfuWvwi99IfEWI
-	DUO26iQ6iaHiOACMUUMsAJ4rFE9sfszKdTlv5kbF5uvf/LYjx7cdhFF7vIbMJ4Al
-	mMjxO4S1zQUpj8gbTyt9qa1Ad1uE18LWgOH5WppSDwYgWASamOzpSYBMTr8/LVxZ
-	unWyqJWJUg2F+YVW196+FauHtzU0Y6gbjX078N7D431/PzmgdYuBBoAp8f/a78Ic
-	Equ2JbkR86+SjkNlRvjkd1ZEJ+egmu640oDvvpzSuRFRe4emkHfb2tlIXZugFam6
-	HlobbQ8ZYUt8RpV63F7TINCsBRfMeNMBSScz3Y2Q==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d66nnguav-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 30 Mar 2026 22:46:27 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62UI5pvU021631;
-	Mon, 30 Mar 2026 22:46:26 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d6saseura-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 30 Mar 2026 22:46:26 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62UMkMVX39518616
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 30 Mar 2026 22:46:22 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C0B582004B;
-	Mon, 30 Mar 2026 22:46:22 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F0AC420040;
-	Mon, 30 Mar 2026 22:46:21 +0000 (GMT)
-Received: from localhost (unknown [9.111.25.211])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 30 Mar 2026 22:46:21 +0000 (GMT)
-Date: Tue, 31 Mar 2026 00:46:20 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-To: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Mikhail Zaslonko <zaslonko@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@kernel.org>,
-        Shakeel Butt <shakeel.butt@linux.dev>,
-        Yosry Ahmed <yosry.ahmed@linux.dev>, Zi Yan <ziy@nvidia.com>,
-        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-        Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>,
-        Dave Chinner <david@fromorbit.com>,
-        Roman Gushchin <roman.gushchin@linux.dev>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Alexander Egorenkov <egorenar@linux.ibm.com>
-Subject: Re: [PATCH v3 7/7] mm: switch deferred split shrinker to list_lru -
- [s390] panic in __memcg_list_lru_alloc
-Message-ID: <ttcqhx8@ub.hpns>
-References: <20260318200352.1039011-1-hannes@cmpxchg.org>
- <20260318200352.1039011-8-hannes@cmpxchg.org>
- <4d3f8d79-3593-47df-9de8-f94f7f09a403@linux.ibm.com>
- <acrf5_rS7hO5Ec0Q@cmpxchg.org>
- <acrjmBx_hX-Aa_SH@cmpxchg.org>
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="A3Fu1OtC"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=QPZHF1tKEsHk1HBsUG+588P0SImL2POWav2U2OnM/3CSd7srlzckUeM61d7OvB24lxbBurX14rZWzChmXztAivXSIZoPcB5MY3LJH0MQ6OPTQuzUHvNga0eH0V2nCeqPhCZpfmTBDQLhSrMVqEaNESDYnLQPcbXZUQ4h085VJj+GpES4rUgJeH3nf2tSsBCdp9Ub28MQ1wqqK7i2qkg3NhX69+E3L3HD10HHSWA+nCXVsvRHt5JIgUorrrwncQ681GAbehOPU7Mj6DjeMsxZr7wy0jnPwXNt48nFZuMv8f/XZPjp8Oe8XvjK35EbjuymCykQ+k49q2BTO2LLboNrQg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=X7jefVcNO14YFQzapvvzUxWNSlvLLcgEYuCpOmcrv18=;
+ b=jRNy+pIRcME9RgrkW/YaUZXFgjYPSxMOooR4O+halKRynVctuLEKftd6vu17zkKnd4JXGWZNvWwBFW1il6vLH75fua4s70cInfwA0gef19kqxbQZ1PEvuxuv7cv3U43748w5r1X46CYEyl6EtsKJDnjI8fNttgvJ7Lb5SE/UJ9gNSYDS/Mj25vIiUz/Yj78nM/jfjE+Kjz5qGxyo/wcq8floaSjCBprWv2Iqq08A90Bf05LOpdsIWj9NF+SKbkt/YImcrYRavU0qp+M/R9Q082MuBwZOXBJIukvMcUbaZlM51ME4qitEASeZYsz/9cpcuVVKBW3Qwi5gBdR/gvIWlg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=X7jefVcNO14YFQzapvvzUxWNSlvLLcgEYuCpOmcrv18=;
+ b=A3Fu1OtCpGZiyH9rsCKdqon3AaHqwWV5rCQ0nRmjfVCakzSifAVNqzYrp/7E2D4guv8gDCmPwASr/4g/dEecTJFFx1YzRo90pzYz+u/AvJpQoTBKMLChD6oF5+uzebFeX1ErL1Ms/3rT7jA9vZY7Su9mMXXtn5cgo7mVHMj9fKI=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from BN9PR12MB5115.namprd12.prod.outlook.com (2603:10b6:408:118::14)
+ by PH0PR12MB8032.namprd12.prod.outlook.com (2603:10b6:510:26f::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9769.15; Tue, 31 Mar
+ 2026 00:01:59 +0000
+Received: from BN9PR12MB5115.namprd12.prod.outlook.com
+ ([fe80::230d:c588:d858:9977]) by BN9PR12MB5115.namprd12.prod.outlook.com
+ ([fe80::230d:c588:d858:9977%6]) with mapi id 15.20.9769.014; Tue, 31 Mar 2026
+ 00:01:59 +0000
+Message-ID: <2ab40ebb-6ce6-490f-a22b-6b2ee873c085@amd.com>
+Date: Mon, 30 Mar 2026 20:01:57 -0400
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v7 1/3] PCI: AtomicOps: Do not enable requests by RCiEPs
+To: Bjorn Helgaas <helgaas@kernel.org>, Gerd Bayer <gbayer@linux.ibm.com>,
+ Alex Deucher <alexander.deucher@amd.com>,
+ =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+ Selvin Xavier <selvin.xavier@broadcom.com>,
+ Kalesh AP <kalesh-anakkur.purayil@broadcom.com>,
+ Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
+ Michal Kalderon <mkalderon@marvell.com>, Saeed Mahameed <saeedm@nvidia.com>,
+ Tariq Toukan <tariqt@nvidia.com>, Mark Bloch <mbloch@nvidia.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>, Jay Cornwall <Jay.Cornwall@amd.com>,
+ =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Niklas Schnelle <schnelle@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Alexander Schmidt
+ <alexs@linux.ibm.com>, linux-s390@vger.kernel.org,
+ linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+ netdev@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <20260330214253.GA92498@bhelgaas>
+Content-Language: en-US
+From: "Kuehling, Felix" <felix.kuehling@amd.com>
+In-Reply-To: <20260330214253.GA92498@bhelgaas>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: YT1PR01CA0060.CANPRD01.PROD.OUTLOOK.COM
+ (2603:10b6:b01:2e::29) To BN9PR12MB5115.namprd12.prod.outlook.com
+ (2603:10b6:408:118::14)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <acrjmBx_hX-Aa_SH@cmpxchg.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 6ElUKQ1fMxYJidno01eGmkeyMmnHhvd8
-X-Authority-Analysis: v=2.4 cv=KslAGGWN c=1 sm=1 tr=0 ts=69cafd43 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=Pav0MyJ5xd6GPgW7jyoA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzMwMDE5MSBTYWx0ZWRfX9EwLaQFaUtCh
- SV6mlHktBISOTYCdAdngZxGZ9pQiD64Kc3wDXURtmLnOwyCZ679U9wcXtUbzV2vbIet8OQD5Uo9
- 6jUCFqO9EEc4bfAOFe8RToM0PetcKrKB3A2wtx+syc7nYrwTZGW/A97JQjc7xsZQnAo7Pjv09o1
- 3FZ1bWJa6XuTwACd7UOvxlMcKUumrlTzI/wpkaVhGyQPlj9illdgzVmxeGHsEH8w2Rs2D2D5hTZ
- JFQqGnVLowrCU1WIXRZDkUwxJK5oFgHA5cyBxWY+O9zQs3HyNt9YQrBvXdg+kqkENchlzXr0lym
- BJbl9J5DZf+96IOOS28Y03gSD6oEmHy1qeiDz3a5aCOiX6PryawCs6MzMSa18f8y8KvwdHk+l0s
- Dwn/reKrDRmRdy/dXOtLi4DClySDEmS1qZohawuqmo57Pg2hvZXOeRBEFtOL+k5eSJUxIDzWrLi
- b2sdc6QTWXdSOkm4ETw==
-X-Proofpoint-ORIG-GUID: 6ElUKQ1fMxYJidno01eGmkeyMmnHhvd8
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-30_01,2026-03-28_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0
- phishscore=0 adultscore=0 bulkscore=0 impostorscore=0 clxscore=1011
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
- definitions=main-2603300191
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN9PR12MB5115:EE_|PH0PR12MB8032:EE_
+X-MS-Office365-Filtering-Correlation-Id: 9d2bb523-c2d7-404e-02e3-08de8eb8baf0
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|1800799024|7416014|376014|921020|18002099003|22082099003|56012099003;
+X-Microsoft-Antispam-Message-Info:
+	1AxeTpa3t+7+gwF4n7YHqtfPSNJvjE5uZbn4ygx2W0aWxTcG0nZz6hSlXIbpc/iv3kZc0DwygaUZoksxyDhpzi/oGrpuok5GScYjmPgMG8ldImhVJYGnsR0SlMuZNhHFDh4ek/0nv5pRhghO2uBldI4OAg9fdXOKTpKzgpxlKaIlmIomcvAwFFxv72sf1BXKpe3b1+9jimyKe9Qyz7uy3oB/pqftzsB94L7i9CWplsV16WHdv+KwynpKQQWW/QF2Ufo2n6Xn1Ji/fezPZn62c/vxRRrvlWLlbR23feNp1VWDLB/c8L1JfM01TdOW5UxWS5IN+sG0fJgGkRPUIzlpj/7voavBQCWCN4+ORYNI/YknCNaqggzX6sz5mYcQ6zuOtwrbiaq6VvbFaSSZqJkzktb4r44CAKhAFNQU1ynkvoUDboi0GOY7SEeGIgnLUpUZI93yjKE2l4zTby8zjx4PA/jCyENtMfTN2PXk0x5dLBh8++2oLBDbpgzSnPpJPOFdK3Pb1NenLcwBIaH6C8S99QvRmfZOk0rMRLwp/HW68r1vOQPhAT5bS3OGmhaAHDQ4BayV7QzUfrjXTXAdLKPizTPeGlwCtatSFFEGlA7/mq+pJkQGmdjKu/eL9yB4sRbVP2PGvuXt0Nig8e5R3swD/L8L8/5FZxFCyJ+W6iHQfhv4dkZ3aukg+/44gTVZwudmnjo4/9S39/R8e9LSEdex714vzAadEtYgI4HKa3ATeHu9B02YIm48ooCxDAodozD1
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR12MB5115.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014)(921020)(18002099003)(22082099003)(56012099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?UFdtbloyeVhrRjRWekdqVjhBV05XODhpVy8yVExVbXIzRWhxdERHZU9VVTN4?=
+ =?utf-8?B?VGg0Ym1BRjhwT2doVGVnRWUzVTJ2VjI4LzdhaWhiSFhPaWhuVzltTXBITWFz?=
+ =?utf-8?B?dzhRQlFvQWJCSjQwT2xVM1hrTHNEQ0EwMnYwNWV4UWxxajNMSVNzZVV2T3dD?=
+ =?utf-8?B?UStlbC9LNWdFMk5QY3h6eUVBQk96TmhiTkhyRjhmdTZuN3UrTEtQZG0yQzJF?=
+ =?utf-8?B?R3E3REF0RElYejFIV01maWlDOXNDMCtLN3NrUkNEQkhiNG1KMHBoZXdDMm1I?=
+ =?utf-8?B?QTdmdUZOQ0dGRlJRVG5GM3RlUU5UYTJpZVREcTdJTm9Cay9heHJFWm4zVmtF?=
+ =?utf-8?B?SmdocmRJbmtFK2FFMkxKZ2pMN0wyQkFmbC9uaEJDb1JEeWF1Tkt0WFBZdW5E?=
+ =?utf-8?B?T0hHZWNjL3NiaE5zYXpYNzdqKzFDTEtLTkpEbkk2UVFoOWwzQzlGdm1ZU2lB?=
+ =?utf-8?B?SUJTeDNJQ1pTVnRqZkt4MkR5R1pUNVBuUkdKTUpFVlltYUpmcnl2cmRFSlhG?=
+ =?utf-8?B?WW9TSjhGdENUc3N3KzE0S1hGYm1Fd2dmTjRpSXg2UlN0RzEyaHdEQ1lLM2F2?=
+ =?utf-8?B?TUJuQTMxNFlyQ29weE1lN3N2eEFhdmRadzc0N0FaUzVoZ0ptNVlOdkQxNnFV?=
+ =?utf-8?B?bWE2UzBMMi90KzZSc3JZcklXb3ZGeTRPVVZ0ZE1TMEsreC9tOUJmRU1OMG51?=
+ =?utf-8?B?SitFeTdYd0lJTHZSemRrMEtGWDR5S1M5aE50VmFYemtJM1dhbkRseHVXMWlp?=
+ =?utf-8?B?bE5QT1NrQUtqb1QyeHFXWUtLTTBDaXFRUmdwNEpMZDJrYjNTN001OGVMQ2NM?=
+ =?utf-8?B?am04S1JFOTJxQ2pZWDExamFwSUlwT0I0U0JUOVljMjZRamwxT0IrNktOZFNY?=
+ =?utf-8?B?elUxOU5YUjVZMmhMd0FsWkhGWERLRVQrYUQrYUQ5Lytnc0xKcHpmV3Jpb2t1?=
+ =?utf-8?B?Rm4zZ09xdE1ESUZhR3ZReUg1ajNTbnk3MENnWjZUenEreGZkblVZVm9yVmdD?=
+ =?utf-8?B?azUyVGNHU00xVXBBZTA1M2hvc3JmMkV6Y3BSR2prTUpQRUFyQ2lzZElCSHpt?=
+ =?utf-8?B?T2doMWdKMk5QNHJ0d1ZLdmFwaFRBaUV3ZkQ0bUtiY0xDSit5STROWjhKS2JS?=
+ =?utf-8?B?TjdlNmsycm8zTHQ0MGdHb3pEbTdXTDA2V2tiQjNKVkZvVUxYUk4rMnpoeDJN?=
+ =?utf-8?B?WHU3ZXhUVlpwZjVadm81ZFhIcUl2M1dIcFFaZkN3UEZtRlcrVDFZcUxuOTNq?=
+ =?utf-8?B?dGxxa3lJbHJHMjRBYjVEV2FHekk0OWZFMmVlMGlpdGNrS0U5aFZvdUcwM0I1?=
+ =?utf-8?B?Q21OazNrcWk5MG5qNkt1ZmUxNHJnTzJ3VnIrbFM1L3R1S3lGbWpvM3MzTkFO?=
+ =?utf-8?B?VUoreXVXZGN2WG9PWkdmc2xrSzkwQkxFd0NTT1pqbVZNNXJaZ1hsNC9iMlZ3?=
+ =?utf-8?B?WlVoaDBUR2JidHNZWFlHTzAyc21YYVA0bjR4UTJHUUkzVUxIK25aRER3bWUr?=
+ =?utf-8?B?SEFnYUNibXNjU040Wno4RzNGL2hnWWdnc0FTOGRqcnorV2o1MjYyczVwZVBj?=
+ =?utf-8?B?Ly9VOUFGVVorMERjd0x1ZVdHZHpZZFNoUmxaRXVhRHhrWW9scjZ6M3NYdEw0?=
+ =?utf-8?B?cFVtbW5kZlRkZzc4LzdxeDN1R1dtb250ZTJOLzBKRDFnV1gzT1FRdHpRZ1hW?=
+ =?utf-8?B?WDQyUFNpT3lFK0JCNU9FNFd6OGRleDRTaWVwMWtMcWRNc2lsUFRqYU1wRHZE?=
+ =?utf-8?B?aGFFZkhpWWpST29md3BraEc1UFluck9Xdk1HVVBaZWNvRWdWaEFrL3lEaGFm?=
+ =?utf-8?B?L29zWUNyMk54NTdZVlJSR3g0L1VBcDNRS1RNZEZJMkVTVGt6cFdmOFdNbGxv?=
+ =?utf-8?B?L2RiTHZuNURBd0U4NVQxT0UyaVFGMmlLT01kSkQ0eUdIZlhtK2xWWGpidHdm?=
+ =?utf-8?B?OG9BMFROZDBsMHNLQ0FZcDJGL0F5OVh2dXdjVzFobFBhZ2VZc2FrRFVHVUx3?=
+ =?utf-8?B?YXQreHVMRmhsZ0JremwxWnNQdEMyWC9IaVQ2c3drbDFrUTc0cEtseTh5cUt3?=
+ =?utf-8?B?aFdZNzUraFA4NmxLRVIxa1ZLbDlhUUdoUkhocFpab3pqRnUwTjllWkg0dVV5?=
+ =?utf-8?B?OVVxZHZTbTRrbFhpaWk4TlEzcTJEalZMVitOY3RNeFdLcDlqdnpEaFM0NFh5?=
+ =?utf-8?B?ZUd3TUxpWi9HUGJZQTFJTExVUURLbjdyVjg1UCtiaWptVzR4Rm45cUxWdkhy?=
+ =?utf-8?B?djUrR1AzaTNndUhHRWFUdzFKR210TGJwSnVlUzNyckxoNnVVdkQxQTJCcUVk?=
+ =?utf-8?B?VC94UUl0OER0RkF3azBNemVzemM2bDdJVDljVTBxODN1RlZtSTJ3dz09?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9d2bb523-c2d7-404e-02e3-08de8eb8baf0
+X-MS-Exchange-CrossTenant-AuthSource: BN9PR12MB5115.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Mar 2026 00:01:59.7117
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: KJym0xETwCogM9zK0EWdZ9j80Rq4f41/SCwOim5VaL8zVN1sgShhbUSy1/fh+ZnRrUgE9JNZV1/YGZNDZyUtUA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB8032
 
-On Mon, Mar 30, 2026 at 04:56:56PM -0400, Johannes Weiner wrote:
-> On Mon, Mar 30, 2026 at 04:41:16PM -0400, Johannes Weiner wrote:
-> > Hello Mikhail,
-> > 
-> > On Mon, Mar 30, 2026 at 06:37:01PM +0200, Mikhail Zaslonko wrote:
-> > > with this series in linux-next (since next-20260324) I see a reproducible panic on s390 in the
-> > > dump kernel when running NVMe standalone dump (ngdump).
-> > > This only happens in the 'capture kernel', normal boot of the same kernel works fine.
-> 
-> Can you verify whether the kdump kernel boots with
-> cgroup_disable=memory?
 
-Yes, that is the only special thing about that dump kernel.
-Sorry for not including the command line. x86 crashes more or less the
-same way with cgroup_disable=memory. But while I was doing the repro on
-x86, you already found the root cause.
+On 2026-03-30 17:42, Bjorn Helgaas wrote:
+> [+to amdgpu, bnxe_re, mlx5 IB, qedr, mlx5 maintainers]
+>
+> On Mon, Mar 30, 2026 at 03:09:44PM +0200, Gerd Bayer wrote:
+>> Since root complex integrated end points (RCiEPs) attach to a bus that
+>> has no bridge device describing the root port, the capability to
+>> complete AtomicOps requests cannot be determined with PCIe methods.
+>>
+>> Change default of pci_enable_atomic_ops_to_root() to not enable
+>> AtomicOps requests on RCiEPs.
+> I know I suggested this because there's nothing explicit that tells us
+> whether the RC supports atomic ops from RCiEPs [1].  But I'm concerned
+> that GPUs, infiniband HCAs, and NICs that use atomic ops may be
+> implemented as RCiEPs and would be broken by this.
 
-> Can you try the below on top of that -next checkout?
-> 
-> diff --git a/mm/list_lru.c b/mm/list_lru.c
-> index 1ccdd45b1d14..7c7024e33653 100644
-> --- a/mm/list_lru.c
-> +++ b/mm/list_lru.c
-> @@ -637,7 +637,7 @@ int __list_lru_init(struct list_lru *lru, bool memcg_aware, struct shrinker *shr
->  	else
->  		lru->shrinker_id = -1;
->  
-> -	if (mem_cgroup_kmem_disabled())
-> +	if (mem_cgroup_disabled() || mem_cgroup_kmem_disabled())
->  		memcg_aware = false;
->  #endif
+FWIW, on AMD APUs our driver doesn't call pci_enable_atomic_ops_to_root. 
+It just assumes that the GPU can do atomic accesses because it doesn't 
+actually go through PCIe: 
+https://elixir.bootlin.com/linux/v6.19.10/source/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c#L4785
 
-Yes, that fixes it for me on s390 and x86. Thank you!
+Regards,
+   Felix
+
+
+>
+> These drivers use pci_enable_atomic_ops_to_root():
+>
+>    amdgpu
+>    bnxt_re (infiniband)
+>    mlx5 (infinband)
+>    qedr (infiniband)
+>    mlx5 (ethernet)
+>
+> Maybe we should assume that because RCiEPs are directly integrated
+> into the RC, the RCiEP would only allow AtomicOp Requester Enable to
+> be set if the RC supports atomic ops?
+>
+> I don't like making assumptions like that, but it'd be worse to break
+> these devices.
+>
+> [1] https://lore.kernel.org/all/20260326164002.GA1325368@bhelgaas
+>
+>> Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
+>> ---
+>>   drivers/pci/pci.c | 5 ++---
+>>   1 file changed, 2 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+>> index 8479c2e1f74f1044416281aba11bf071ea89488a..135e5b591df405e87e7f520a618d7e2ccba55ce1 100644
+>> --- a/drivers/pci/pci.c
+>> +++ b/drivers/pci/pci.c
+>> @@ -3692,15 +3692,14 @@ int pci_enable_atomic_ops_to_root(struct pci_dev *dev, u32 cap_mask)
+>>   
+>>   	/*
+>>   	 * Per PCIe r4.0, sec 6.15, endpoints and root ports may be
+>> -	 * AtomicOp requesters.  For now, we only support endpoints as
+>> -	 * requesters and root ports as completers.  No endpoints as
+>> +	 * AtomicOp requesters.  For now, we only support (legacy) endpoints
+>> +	 * as requesters and root ports as completers.  No endpoints as
+>>   	 * completers, and no peer-to-peer.
+>>   	 */
+>>   
+>>   	switch (pci_pcie_type(dev)) {
+>>   	case PCI_EXP_TYPE_ENDPOINT:
+>>   	case PCI_EXP_TYPE_LEG_END:
+>> -	case PCI_EXP_TYPE_RC_END:
+>>   		break;
+>>   	default:
+>>   		return -EINVAL;
+>>
+>> -- 
+>> 2.51.0
+>>
