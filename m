@@ -1,157 +1,178 @@
-Received: from fout-b6-smtp.messagingengine.com (fout-b6-smtp.messagingengine.com [202.12.124.149])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E261A274FE9;
-	Tue, 31 Mar 2026 20:44:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.149
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1830F3D7D70;
+	Tue, 31 Mar 2026 21:11:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774989863; cv=none; b=DJY35KNgYIghbm6AZWqaalSScKhgjyT3/KPnKi0CI9S51VjZz9Aib8e0hIDjiajP9hk4GVevoJjYEA0CqkR3WWO3Wl6xBf762LPaW/7Krqv9HsWqm7ME2lePzvCm4z1VZgMAFtBwIYC+iunBf4gzpoms2mS84jFqSR6tJXSGxNs=
+	t=1774991487; cv=none; b=O5oEulxG72aHu3u4IDv/yRioZl1ui9GjJlClRdTl5kgA4FMbNA3pcNo9ACEZ+nFIpoRVoLw8br6t4meGIvcBKO2/UU3loK1Khz1+o58mbHyOB7EOrMibx8P54qTgGwusZxdF+VuHZAi/ypEJQzsa8mN46SPVTrC5JkOSytcRoyM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774989863; c=relaxed/simple;
-	bh=9JiShWLzsMfEIFKmmLnX3lKHoUsByhcPPiUx3sx9ljc=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=rBq6d7iE6tLdpmKcPk/GLQwt8LUxhRbkUhWng9oy5r/ldZSndEZuCbMMG21hlBUr8baIEAWja9CLEoJwEJGo0AEBxteZ/44dycMPnRncggnp6WN82Y3OnK3I1AqCuGFcMWK64ErJtd+2xaC2RXfBOfNlj5s6wezeZDp+nHvPI3s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=VBMvaleZ; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=tqbvb7P5; arc=none smtp.client-ip=202.12.124.149
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
+	s=arc-20240116; t=1774991487; c=relaxed/simple;
+	bh=2zPP+LmYtyi//uMOzgdQ8fnlTThEckhI+esz3lXXfZ0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=rvE6fEikxYCSp359+X/Tuo4UuthigmKXJDxUr1bCkBwDueDPPUA8oGF31drNt+FyZdrU3OAJcqEDt+fgiszI/6toJafPqY+MlErZORiq5dFBJ2zajfu6ARmrJOgE8lhB9q2vncQe+QeZJwLYvUEvszFNmpY1EF+whO7DQbXGkfc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A+6BW5OP; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="VBMvaleZ";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="tqbvb7P5"
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailfout.stl.internal (Postfix) with ESMTP id 351F01D00157;
-	Tue, 31 Mar 2026 16:44:19 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-01.internal (MEProxy); Tue, 31 Mar 2026 16:44:20 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1774989858;
-	 x=1775076258; bh=2naYgeCqp4JHbxNG5hbN+LbC6Dsxev/Fv44jf/ivh80=; b=
-	VBMvaleZt+xdbRoJyYB18VABz+FxWi5/91aNae+7rgz1BX7PhajEbbuasS3ij4DC
-	huNWU9C8s2HgnV1dR5Q8WOziXdzFdclCqr66L+YwjQvOpCKzGhHbwQHJx3LJBWrv
-	P4chF+s7ESahKXNCRl7o1AjyaZY+s+m2CiDWyB66XPt5b1J1gkClWOPk42htFW+F
-	WkFRi3Hj1dWTCIOEONw7bKiPhc/+3d90vj1UWLKz9Mlc4N5gH9cS17ru5HoxFTAp
-	6X8W0IyFewnU5kxfy5S/Cye7goWBgY7qju0OeiKqr/Ud9YYppINfjjxIuNqiY8vT
-	H5sNi0jZRbbuxxe7eqdTng==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1774989858; x=
-	1775076258; bh=2naYgeCqp4JHbxNG5hbN+LbC6Dsxev/Fv44jf/ivh80=; b=t
-	qbvb7P5NAclNR0cZUBetzKGIU/7IELKS2xk1k1jYuzZfkFMw9cJXJ0BaRq6BTV9K
-	UnlvjVeugDQlaVgODJBCMnm6855GbY43OZrut7Wuv565ZuPeByyWklx2MRnpGJMg
-	LUi6JKaKlVGsD6sd0jeMnO7ltOK/uxUaNcIX3tGGX5PhiyisNQcazkOw/whg8vI3
-	b5+0bVyz1ejTL0FjPtr1t3NcShfolO93Uxfs1GhN8GUc7CHYkrSfoUTDhd0OyKkD
-	0xtGzdveLUa10B182NEX0F7TqYcwozl7GnUJJ10s1dWPDTCAIDCLul488BcNtyOr
-	HyGfIYxS8xzzKy5cJTFCA==
-X-ME-Sender: <xms:IjLMacrsgBD3gu0IR37Z5YNDHIlTiFshUvC-nZwKKrMhH9IYpGsjyQ>
-    <xme:IjLMaex8fKqYyhE-bGQ7QRv3D0-xPg9cVLaipR1MzJ-in1ntgG1dq1Mwhse_N_kLq
-    O3C8oSz4_S6tQY13Y9LrFAXQ7Rc3HEikbJXyvx96Un60GsSWF1qUg>
-X-ME-Received: <xmr:IjLMadCEF2kj4gnvPHD0jZcqmaLp7Kcmu7ZHzqm1Fb3K9rTJxpZC8IJi7Ak>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdduudelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceurghi
-    lhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurh
-    epfffhvfevuffkjghfofggtgfgsehtjeertdertddvnecuhfhrohhmpeetlhgvgicuhghi
-    lhhlihgrmhhsohhnuceorghlvgigsehshhgriigsohhtrdhorhhgqeenucggtffrrghtth
-    gvrhhnpeejteekhedvleehjefhgfdvteetudevieeiuefhhfevjeduleefiedvueegudeu
-    hfenucffohhmrghinhepghhithhhuhgsrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-    enucfrrghrrghmpehmrghilhhfrhhomheprghlvgigsehshhgriigsohhtrdhorhhgpdhn
-    sggprhgtphhtthhopedvuddpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepshgthh
-    hnvghllhgvsehlihhnuhigrdhisghmrdgtohhmpdhrtghpthhtohepjhhgghesiihivghp
-    vgdrtggrpdhrtghpthhtoheprghlihhfmheslhhinhhugidrihgsmhdrtghomhdprhgtph
-    htthhopehjuhhlihgrnhhrsehlihhnuhigrdhisghmrdgtohhmpdhrtghpthhtohepfihi
-    nhhtvghrrgeslhhinhhugidrihgsmhdrtghomhdprhgtphhtthhopehtsheslhhinhhugi
-    drihgsmhdrtghomhdprhgtphhtthhopehosggvrhhprghrsehlihhnuhigrdhisghmrdgt
-    ohhmpdhrtghpthhtohepghgsrgihvghrsehlihhnuhigrdhisghmrdgtohhmpdhrtghpth
-    htohephihishhhrghihhesnhhvihguihgrrdgtohhm
-X-ME-Proxy: <xmx:IjLMadMHc0M9iz76WizsN6efPPoIczIRKKmwZ9NFezIwWr3eGz8THQ>
-    <xmx:IjLMacCXhD6Y4QmbnmdrEbvb9Pj8kgau2UDjPp_maGCGGQgnegxCbw>
-    <xmx:IjLMaXkSOn2zDgo6cmx_kEKJ8COd9oytX3566cieldik_L-wEzovzQ>
-    <xmx:IjLMaYrwSnimeExXGjhTOtXaE-BqIgdMOJkhvCkw2ezyHO7qd81ocg>
-    <xmx:IjLMaYe4jDFN5PiN3KCRBYvEJ1Fp8oM_asnpUxrtq9sBpIsJyaTH2ijC>
-Feedback-ID: i03f14258:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 31 Mar 2026 16:44:17 -0400 (EDT)
-Date: Tue, 31 Mar 2026 14:44:15 -0600
-From: Alex Williamson <alex@shazbot.org>
-To: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>, Farhan Ali <alifm@linux.ibm.com>, Julian
- Ruess <julianr@linux.ibm.com>, wintera@linux.ibm.com, ts@linux.ibm.com,
- oberpar@linux.ibm.com, gbayer@linux.ibm.com, Yishai Hadas
- <yishaih@nvidia.com>, Shameer Kolothum	 <skolothumtho@nvidia.com>, Kevin
- Tian <kevin.tian@intel.com>, mjrosato@linux.ibm.com, raspl@linux.ibm.com,
- hca@linux.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
- kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-pci@vger.kernel.org, alex@shazbot.org
-Subject: Re: [PATCH v8 2/3] vfio/ism: Implement vfio_pci driver for ISM
- devices
-Message-ID: <20260331144415.33f3414b@shazbot.org>
-In-Reply-To: <4fb2b835ec81ca0ef24bc1c867d177a7d04b4873.camel@linux.ibm.com>
-References: <20260325-vfio_pci_ism-v8-0-ddc504cde914@linux.ibm.com>
-	<20260325-vfio_pci_ism-v8-2-ddc504cde914@linux.ibm.com>
-	<4096cb9d402b1aabc9667d450221cb0922e78d90.camel@linux.ibm.com>
-	<3d6457b9-715a-4cbb-9c69-d8a7e7473c89@linux.ibm.com>
-	<64e3158a441c79c55febead9aac956c31f034fb9.camel@linux.ibm.com>
-	<20260330093646.03b0455f@shazbot.org>
-	<20260330155651.GD246076@ziepe.ca>
-	<20260330120945.023b2295@shazbot.org>
-	<20260330181645.GE246076@ziepe.ca>
-	<20260330123925.713edac4@shazbot.org>
-	<20260331000334.GI246076@ziepe.ca>
-	<4fb2b835ec81ca0ef24bc1c867d177a7d04b4873.camel@linux.ibm.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A+6BW5OP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51FF9C19423;
+	Tue, 31 Mar 2026 21:11:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774991487;
+	bh=2zPP+LmYtyi//uMOzgdQ8fnlTThEckhI+esz3lXXfZ0=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=A+6BW5OPP6fq/QKr9cgbG4pDUJxtSVWOEP2jOYcgkXDRXC2M6VOrRTy0xdXOH5tc6
+	 DZXet3mOOqFZ3TTXsM4k3brhMAd33l0+ACPzw0ETx4EDl5Yd9M4Nk1XjkwyoMizldD
+	 muQqzHi3Mf5fbvq/Gy7m2Idm3tPgObuzN1km3ZSZkh7rW24eYdLSX41e+IAHkwRnG7
+	 g/I/DrpgHad3VVIO3LWlyIJ0hy4UefQ/88lxbEphdhMSKYCoWYhGixnXRO+XmaVC5H
+	 KpBTWfcA9NIUxVJmYnU84LnD4K+KUFY9p2AxuhRW2vGQZTcS7V4oqeP3caEZoLMHt8
+	 SxRZrFIdRVj2A==
+Message-ID: <665a19a0-47c2-404c-bd2b-482ab51b8f64@kernel.org>
+Date: Tue, 31 Mar 2026 23:11:22 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 1/2] mm: make lazy MMU mode context-aware
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Kevin Brodsky <kevin.brodsky@arm.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+ linux-mm@kvack.org, linux-kernel@vger.kernel.org
+References: <cover.1774420056.git.agordeev@linux.ibm.com>
+ <de89fd353a8dcd5e3bef4d91e9b6682d132ed9a0.1774420057.git.agordeev@linux.ibm.com>
+ <44dd86c0-1845-4dd9-b4b4-2cef6d1c6357@kernel.org>
+ <e096e88b-f1fe-44a1-bfa6-451eef028203-agordeev@linux.ibm.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <e096e88b-f1fe-44a1-bfa6-451eef028203-agordeev@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On Tue, 31 Mar 2026 10:29:31 +0200
-Niklas Schnelle <schnelle@linux.ibm.com> wrote:
-
-> On Mon, 2026-03-30 at 21:03 -0300, Jason Gunthorpe wrote:
-> > On Mon, Mar 30, 2026 at 12:39:25PM -0600, Alex Williamson wrote:  
-> > > Yes, that would be the ideal balance of enabling larger BARs while
-> > > retaining compatibility for existing devices.  Sounds like we'll
-> > > continue down the variant driver path for this one-off device for
-> > > now.  It remains fairly self contained so long as we don't add more
-> > > regions for vfio-pci-core to manage.
-> > > 
-> > > This could be a good project if someone is looking though, especially
-> > > if it had a build-time config option to set the minimum region size so
-> > > we can exercise it before we hit 1TB BARs.  Thanks,  
-> > 
-> > Well, it took claude an hour to vibe code a draft from a four sentence
-> > prompt.. I see many things that need changing/cleaning in here, but
-> > the patch strategy and general idea looks sound.
-> > 
-> > I guess another day of effort would probably get things into something
-> > presentable. We are not so far away - maybe the variant driver path is
-> > not necessary?
-> > 
-> > https://github.com/jgunthorpe/linux/commits/vfio_maple_tree/
-> > 
-> > Jason  
+On 3/25/26 17:20, Alexander Gordeev wrote:
+> On Wed, Mar 25, 2026 at 10:55:23AM +0100, David Hildenbrand (Arm) wrote:
 > 
-> I'm in no way against changing the offset handling in general but for
-> what it's worth, we need a variant driver for ISM regardless, though it
-> would be smaller with large offset support. This is because besides the
-> large BAR we also have to use our classic function handle based PCI
-> instructions to access that BAR instead of the newer memory-I/O (MIO)
-> PCI instructions. And sadly the way the ISM device uses the PCI Store
-> Block instruction there is no straight forward way to enable the newer
-> instructions even if we changed the device implementation. This also
-> means that we would want to keep the no-mmap() restriction.
+> Hi David,
+> 
+>>> +/**
+>>> + * lazy_mmu_mode_enable_pte() - Enable the lazy MMU mode with parameters
+>>
+>> You have to be a lot clearer about implications. For example, what
+>> happens if we would bail out and not process all ptes? What are the
+>> exact semantics.
+> 
+> The only implication is "only this address/PTE range could be updated
+> and that range may span one page table at most".
 
-It feels a bit late in the cycle for an untested maple tree conversion
-anyway, though I am interested in it for v7.2.  So I think we're agreed
-in the variant driver here to handle the excessively large BAR with no
-currently foreseeable need for additional regions, and maybe it gets
-simplified when that conversion occurs later.  Thanks,
+Probably phrase it stronger. "No ptes outside of this range must be
+updated" etc.
 
-Alex
+> 
+> Whether all or portion of PTEs were actually updated is not defined,
+> just like in case of lazy_mmu_mode_enable_pte().
+
+Okay, then let's document that.
+
+> 
+> Makes sense?
+> 
+
+Yes.
+
+>>> + * Enters a new lazy MMU mode section; if the mode was not already enabled,
+>>> + * enables it and calls arch_enter_lazy_mmu_mode_pte().
+>>> + *
+>>> + * Must be paired with a call to lazy_mmu_mode_disable().
+>>> + *
+>>> + * Has no effect if called:
+>>> + * - While paused - see lazy_mmu_mode_pause()
+>>> + * - In interrupt context
+>>> + */
+>>> +static inline void lazy_mmu_mode_enable_pte(struct mm_struct *mm,
+>>> +					    unsigned long addr,
+>>> +					    unsigned long end,
+>>> +					    pte_t *ptep)
+>>
+>> It can be multiple ptes, so should this be some kind of "pte_range"/
+>>
+>> lazy_mmu_mode_enable_for_pte_range()
+>>
+>> A bit mouthful but clearer.
+>>
+>>> +{
+>>> +	struct lazy_mmu_state *state = &current->lazy_mmu_state;
+>>> +
+>>> +	if (in_interrupt() || state->pause_count > 0)
+>>> +		return;
+>>> +
+>>> +	VM_WARN_ON_ONCE(state->enable_count == U8_MAX);
+>>> +
+>>> +	if (state->enable_count++ == 0)
+>>> +		arch_enter_lazy_mmu_mode_pte(mm, addr, end, ptep);
+> 
+> I will also change arch_enter_lazy_mmu_mode_pte() to
+> arch_enter_lazy_mmu_mode_for_pte_range() then.
+> 
+>>> +}
+>>
+>> I'm wondering whether that could instead be some optional interface that
+>> we trigger after the lazy_mmu_mode_enable. But looking at
+> 
+> To me just two separate and (as you put it) mouthful names appeal better
+> than an optional follow-up interface.
+
+Yes, probably better.
+
+-- 
+Cheers,
+
+David
