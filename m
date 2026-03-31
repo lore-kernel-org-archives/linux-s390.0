@@ -1,236 +1,211 @@
-Received: from flow-b4-smtp.messagingengine.com (flow-b4-smtp.messagingengine.com [202.12.124.139])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B02CB331209;
-	Tue, 31 Mar 2026 19:18:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.139
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 888673A3E7E;
+	Tue, 31 Mar 2026 19:24:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774984729; cv=none; b=fB2PHm0w/TrZqQt82UuzNECJTDId9la+fgheacyKNNzyBQ8K4jYBo5vl0S07XVOhm7WdsMGKGGcY9UGFmpdZCQigucmfa83rGjaqTvgFhDNAZeine/X4AiuN/BtyuiSlhmiDTZExFtK1Upkl2pV6PkXzPAdMe1kCCre4RSsDGO0=
+	t=1774985053; cv=none; b=RDnQoPxjNcXh8W0oLt63Dg7NgwhCfh9Hqx/BuSErylJxNOSX78+J2xkEyDKlZ/AozNaLOJdFB3Dg985Z1kkMD4GeUic/mdUQr2TBPwGGJg6NDC5CXXIj8RWgX+E4SysmWAW+BKwSISk9aZ85V+yLsk1ThGSR1mLEujHc1i+bYpc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774984729; c=relaxed/simple;
-	bh=eJC1dGMKA7WWnvIcrQkw8YE6B7Kq4iS3s/Ohm6s3FTI=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=q7cyVZixgrTANTH2w906VJGg7cBfHcSHigcgxxc0v8SASIzl9UXZex9tliDTPYItbEkd9bDeOK/Z5jOc+Z/fuhiSLbOt8Ye5KtwcboWl4QPcRRGZ0cMe/nKISVAowILWu0udKvqwCdEQrN9TZXVdR49sMPWltSBEGVl5ATH0a20=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=Jix2YZqP; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=qPkl0NIe; arc=none smtp.client-ip=202.12.124.139
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
+	s=arc-20240116; t=1774985053; c=relaxed/simple;
+	bh=rN+SOaMRgtJg/+8hSMiitrpkTENCrF7uvywDy+R9x7E=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=hEYfKsLV3fqPPLlin38vuzmZ15qEhsD7VsZwtE03VoQnV6s06K3g9RGT8pPdeOd+QTtYH3o+rstgFYI/CdD5ZbhZ9ZfAyAtYD7Yx0/cOMM6k8BjZvwuu+a8u6YZw8SwlQWM+FPtMwqBEht8qzzgRs5VoZ893smksqTtzQPQKzN4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TJ+dBeRu; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="Jix2YZqP";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="qPkl0NIe"
-Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
-	by mailflow.stl.internal (Postfix) with ESMTP id D592A130008E;
-	Tue, 31 Mar 2026 15:18:43 -0400 (EDT)
-Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-05.internal (MEProxy); Tue, 31 Mar 2026 15:18:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1774984723;
-	 x=1774991923; bh=e2GLgeMPntSzKQd7unYxJVNrGT++Ey/+j0e558YaVKo=; b=
-	Jix2YZqPgfjz22R+GBZTSkmM/A+yTGqbP2D7RrPJTBlHCtwUy2TreQYJzy0FYt4E
-	mn6iGMSZZUAvgOUzmgtxkvDhEQqNq9so/LsT2uXs0WUjbk/iVyGgezKLdcntmYCJ
-	j1mTHgBbF1XmhYE9OLcmwaqRwm079G64C6NXLlTJGqXGDGeTuyvQuKL+LrxHsVyt
-	h07JL26/s5vAaqvA+uFn5EtvqWaXeuVPLWaay4hdvRDT/GeDy5zchULu+Xf5bCKw
-	aMCGUFvWJ4r5sa9ylZo53CH1LtcUihVM+4twawyn4uPT0avFIdaMYMGGz87cRj5W
-	75pcl2tsTe5q72qXomhEng==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1774984723; x=
-	1774991923; bh=e2GLgeMPntSzKQd7unYxJVNrGT++Ey/+j0e558YaVKo=; b=q
-	Pkl0NIe505sDev2vE+9dEjJ2QQvY24shKDHRjyi5iJrJ3lhJmCH83R7Ej6uIsdKx
-	Ah2qPK0lawqj3n8MX9UbaZlR8zOv0eboHPEu2zTV9Ar46wm3SvS5yBG219IjmBDw
-	/8aE106Yb9iAY8X18cayks75OdeneZOPyq2pnCyvpFrGdunxzgrlbZPAQhHCnM3H
-	MhJM8//IeSYiIyV967PwBaCx9UybPaAajGdNOPqf34786RvJS1R2NeBhzECYdV9r
-	Hhp4kbOPpgzUg+fw9gf2jEWED5P2y3OiIotVEJPhPvUaSmHyFEthzrD5syHkfCDz
-	oj1hrBx1gCRLurULKhEqQ==
-X-ME-Sender: <xms:Eh7MaYVXhSLS49doWxNbldxcSkPJQ2lBgD6S-cXj9ML6P8DuIhi54A>
-    <xme:Eh7MaY3CTvPt8pC-6__rnVlJHk3AMpws04d9x1eLmygsx9xxcOKA3tvfX2RGrzeid
-    3eITD6bgIngUTpBItaVYS7mKstrqZdkyduHlmJydVKX9r92pk1CAA>
-X-ME-Received: <xmr:Eh7MaWAMOBeQDrW_EEEiAtExZoJg9HXrtPbMbrU13INIpg2pRTwgJd0Tapg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgddutddvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceurghi
-    lhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurh
-    epfffhvfevuffkjghfofggtgfgsehtjeertdertddvnecuhfhrohhmpeetlhgvgicuhghi
-    lhhlihgrmhhsohhnuceorghlvgigsehshhgriigsohhtrdhorhhgqeenucggtffrrghtth
-    gvrhhnpedvkeefjeekvdduhfduhfetkedugfduieettedvueekvdehtedvkefgudegveeu
-    ueenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrlh
-    gvgiesshhhrgiisghothdrohhrghdpnhgspghrtghpthhtohephedupdhmohguvgepshhm
-    thhpohhuthdprhgtphhtthhopegurghkrheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoh
-    epjhhgghesiihivghpvgdrtggrpdhrtghpthhtoheplhhinhhugiesrghrmhhlihhnuhig
-    rdhorhhgrdhukhdprhgtphhtthhopehgrhgvghhkhheslhhinhhugihfohhunhgurghtih
-    honhdrohhrghdprhgtphhtthhopehrrghfrggvlheskhgvrhhnvghlrdhorhhgpdhrtghp
-    thhtohepihhorghnrgdrtghiohhrnhgvihesnhigphdrtghomhdprhgtphhtthhopehnih
-    hpuhhnrdhguhhpthgrsegrmhgurdgtohhmpdhrtghpthhtohepnhhikhhhihhlrdgrghgr
-    rhifrghlsegrmhgurdgtohhmpdhrtghpthhtohepkhihshesmhhitghrohhsohhfthdrtg
-    homh
-X-ME-Proxy: <xmx:Eh7MaXq2mlnlOelEQan96Ie-hgy-LAK8CHBHQdkG7r27nkHcaWiIbg>
-    <xmx:Eh7Mab_KIxvqr4OxQc5evz-T_S8zOMbzrx08jzw5C5b7mvco3Iesuw>
-    <xmx:Eh7MaefX2P0crsZiJ44xT0eYo0t5zG2qKmdKMy8HHuopFTELtHeNKg>
-    <xmx:Eh7MaRJs8ye8aup8P2JAiOncajQ7Ro6xy3heBDnJcGy9BvoI7oIX_g>
-    <xmx:Ex7MaSUwhQGLpsFOIWtvVzTCvrLLbvifdUNGQI9PxQ_RqFwZ-CC-1T0v>
-Feedback-ID: i03f14258:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 31 Mar 2026 15:18:38 -0400 (EDT)
-Date: Tue, 31 Mar 2026 13:18:37 -0600
-From: Alex Williamson <alex@shazbot.org>
-To: "Danilo Krummrich" <dakr@kernel.org>, "Jason Gunthorpe" <jgg@ziepe.ca>
-Cc: "Russell King" <linux@armlinux.org.uk>,
- "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
- "Rafael J. Wysocki" <rafael@kernel.org>,
- "Ioana Ciornei" <ioana.ciornei@nxp.com>,
- "Nipun Gupta" <nipun.gupta@amd.com>,
- "Nikhil Agarwal" <nikhil.agarwal@amd.com>,
- "K. Y. Srinivasan" <kys@microsoft.com>,
- "Haiyang Zhang" <haiyangz@microsoft.com>, "Wei Liu" <wei.liu@kernel.org>,
- "Dexuan Cui" <decui@microsoft.com>, "Long Li" <longli@microsoft.com>,
- "Bjorn Helgaas" <bhelgaas@google.com>, "Armin Wolf" <W_Armin@gmx.de>,
- "Bjorn Andersson" <andersson@kernel.org>,
- "Mathieu Poirier" <mathieu.poirier@linaro.org>,
- "Vineeth Vijayan" <vneethv@linux.ibm.com>,
- "Peter Oberparleiter" <oberpar@linux.ibm.com>,
- "Heiko Carstens" <hca@linux.ibm.com>,
- "Vasily Gorbik" <gor@linux.ibm.com>,
- "Alexander Gordeev" <agordeev@linux.ibm.com>,
- "Christian Borntraeger" <borntraeger@linux.ibm.com>,
- "Sven Schnelle" <svens@linux.ibm.com>,
- "Harald Freudenberger" <freude@linux.ibm.com>,
- "Holger Dengler" <dengler@linux.ibm.com>,
- "Mark Brown" <broonie@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- "Jason Wang" <jasowang@redhat.com>,
- "Xuan Zhuo" <xuanzhuo@linux.alibaba.com>,
- Eugenio =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>,
- "Juergen Gross" <jgross@suse.com>,
- "Stefano Stabellini" <sstabellini@kernel.org>,
- "Oleksandr Tyshchenko" <oleksandr_tyshchenko@epam.com>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
- <linux-kernel@vger.kernel.org>, <driver-core@lists.linux.dev>,
- <linuxppc-dev@lists.ozlabs.org>, <linux-hyperv@vger.kernel.org>,
- <linux-pci@vger.kernel.org>, <platform-driver-x86@vger.kernel.org>,
- <linux-arm-msm@vger.kernel.org>, <linux-remoteproc@vger.kernel.org>,
- <linux-s390@vger.kernel.org>, <linux-spi@vger.kernel.org>,
- <virtualization@lists.linux.dev>, <kvm@vger.kernel.org>,
- <xen-devel@lists.xenproject.org>, <linux-arm-kernel@lists.infradead.org>,
- "Gui-Dong Han" <hanguidong02@gmail.com>, alex@shazbot.org
-Subject: Re: [PATCH 05/12] PCI: use generic driver_override infrastructure
-Message-ID: <20260331131837.6a9fe9ec@shazbot.org>
-In-Reply-To: <DHGTLY0FJWD2.2VLT6NQWF97YY@kernel.org>
-References: <20260324005919.2408620-1-dakr@kernel.org>
-	<20260324005919.2408620-6-dakr@kernel.org>
-	<DHGATG6LJOM1.2AI7BYQ2O4DFU@kernel.org>
-	<20260330141050.2cb47bd9@shazbot.org>
-	<DHGT9XCG8Y96.3IB1EI6FF1ZDZ@kernel.org>
-	<DHGTLY0FJWD2.2VLT6NQWF97YY@kernel.org>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TJ+dBeRu"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62VIGQVL064853;
+	Tue, 31 Mar 2026 19:24:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Sa6zPD
+	qajn222jwPLJ0xLEdYSoLTSwUmM9bzOLj2mU0=; b=TJ+dBeRu7cqWt0sFpVAPRr
+	Zbg1xbDBYNwhAxbq8voXqRmP5a5hKkVIUyqeaJbRB9G+wOXOLryzuO0wi5aBWSdq
+	YI+xDFX/RS9X5hwiV/zyixSFCeYxRSHPunHRwCyevmx+Ll1JBN/Inx8ZPN6UXMK/
+	SPFLrTtJoDUIPdUhAwzIqsmiSqxZrNlbhtapOTX9QYmPKp9A6gHUb4cOoRst5psj
+	SaaNbUHtiDAONAaT3Cyf59xz/EQMJr6wYDPeYVdbS6w8I+zb1nYGTpaXq8NeqECL
+	ymwqy9uQx+NcN9JrkxEXK+BrI3Us5t5/wXLrVsR/R+FEaMHkMHK56FcZ8ZpfY40g
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d66q350sn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 31 Mar 2026 19:24:04 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62VJI6GG021713;
+	Tue, 31 Mar 2026 19:24:03 GMT
+Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d6sasjrvf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 31 Mar 2026 19:24:03 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62VJO29r30867988
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 31 Mar 2026 19:24:03 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AA4C85805D;
+	Tue, 31 Mar 2026 19:24:02 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B1D3458059;
+	Tue, 31 Mar 2026 19:24:01 +0000 (GMT)
+Received: from [9.61.250.144] (unknown [9.61.250.144])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 31 Mar 2026 19:24:01 +0000 (GMT)
+Message-ID: <ec10fa8b-b499-4f06-9a7a-71cb6d76e03d@linux.ibm.com>
+Date: Tue, 31 Mar 2026 12:23:59 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v12 4/7] s390/pci: Store PCI error information for
+ passthrough devices
+To: Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
+Cc: helgaas@kernel.org, lukas@wunner.de, alex@shazbot.org, clg@redhat.com,
+        kbusch@kernel.org, schnelle@linux.ibm.com
+References: <20260330174011.1161-1-alifm@linux.ibm.com>
+ <20260330174011.1161-5-alifm@linux.ibm.com>
+ <8c080d9b-34f6-469c-8e53-c5d0a175556d@linux.ibm.com>
+Content-Language: en-US
+From: Farhan Ali <alifm@linux.ibm.com>
+In-Reply-To: <8c080d9b-34f6-469c-8e53-c5d0a175556d@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: zlMGu47PfNAQkk4BcK5zhT066O6mAB8Q
+X-Authority-Analysis: v=2.4 cv=frzRpV4f c=1 sm=1 tr=0 ts=69cc1f54 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=mpIQvMssudcUmQtL05oA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: zlMGu47PfNAQkk4BcK5zhT066O6mAB8Q
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzMxMDE4NiBTYWx0ZWRfX13c4+Wu0Uj4L
+ 9DnfoAl4mbIgA5WM0REa0YaAoFvGVBPn4LZViENQ909he+5QITfPq/MIaHa4tlm1zWx6Dl+FUW7
+ iZIpyIIANKhW6cdxyFV1lw4KAoGcLMhMGkT+x7hrXcyCih3On5+Z4/nP5s+90PTyhlA0UVEQLcq
+ XC+WEhmPjsP1zDSznrQDI5SW02QXLYeIJGSYyOOszrCa5Zhi4V3bYEVTn2LLfYGHZMiQu0MbfbR
+ 2uH2Epp/QGGseInDltgnaURwncIQmanP+foHFt7rLFJAGe2MYsmO+ja+NJY2DrcJ21SijnpEAsu
+ Z+ikA5Cqqi71rbObN3bTd9RwpIUb7xRXVLQRhGuBc/fHsILuwd/hjokgmXQClequWk6k+A1ug5/
+ poMRRJyz/nXB3UORNpSbM4YYxevzOAJ48xHVJK24GQ+RjmMhKYHc69blM5Pd5i95+P+9yegVLzj
+ TzahYzpPkBplJn0HMZg==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-31_04,2026-03-31_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 spamscore=0 priorityscore=1501 malwarescore=0 clxscore=1015
+ lowpriorityscore=0 bulkscore=0 adultscore=0 suspectscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603310186
 
-On Tue, 31 Mar 2026 10:22:14 +0200
-"Danilo Krummrich" <dakr@kernel.org> wrote:
+Hey Matt,
 
-> On Tue Mar 31, 2026 at 10:06 AM CEST, Danilo Krummrich wrote:
-> > On Mon Mar 30, 2026 at 10:10 PM CEST, Alex Williamson wrote:  
-> >> On Mon, 30 Mar 2026 19:38:41 +0200
-> >> "Danilo Krummrich" <dakr@kernel.org> wrote:
-> >>  
-> >>> (Cc: Jason)
-> >>> 
-> >>> On Tue Mar 24, 2026 at 1:59 AM CET, Danilo Krummrich wrote:  
-> >>> > diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-> >>> > index d43745fe4c84..460852f79f29 100644
-> >>> > --- a/drivers/vfio/pci/vfio_pci_core.c
-> >>> > +++ b/drivers/vfio/pci/vfio_pci_core.c
-> >>> > @@ -1987,9 +1987,8 @@ static int vfio_pci_bus_notifier(struct notifier_block *nb,
-> >>> >  	    pdev->is_virtfn && physfn == vdev->pdev) {
-> >>> >  		pci_info(vdev->pdev, "Captured SR-IOV VF %s driver_override\n",
-> >>> >  			 pci_name(pdev));
-> >>> > -		pdev->driver_override = kasprintf(GFP_KERNEL, "%s",
-> >>> > -						  vdev->vdev.ops->name);
-> >>> > -		WARN_ON(!pdev->driver_override);
-> >>> > +		WARN_ON(device_set_driver_override(&pdev->dev,
-> >>> > +						   vdev->vdev.ops->name));    
-> >>> 
-> >>> Technically, this is a change in behavior. If vdev->vdev.ops->name is NULL, it
-> >>> will trigger the WARN_ON(), whereas before it would have just written "(null)"
-> >>> into driver_override.  
-> >>
-> >> It's worse than that.  Looking at the implementation in [1], we have:
-> >>
-> >> +static inline int device_set_driver_override(struct device *dev, const char *s)
-> >> +{
-> >> +	return __device_set_driver_override(dev, s, strlen(s));
-> >> +}
-> >>
-> >> So if name is NULL, we oops in strlen() before we even hit the -EINVAL
-> >> and WARN_ON().  
-> >
-> > This was changed in v2 [2] and the actual code in-tree is
-> >
-> > 	static inline int device_set_driver_override(struct device *dev, const char *s)
-> > 	{
-> > 		return __device_set_driver_override(dev, s, s ? strlen(s) : 0);
-> > 	}
-> >
-> > so it does indeed return -EINVAL for a NULL pointer.
+On 3/31/2026 10:41 AM, Matthew Rosato wrote:
+> On 3/30/26 1:40 PM, Farhan Ali wrote:
+>> For a passthrough device we need co-operation from user space to recover
+>> the device. This would require to bubble up any error information to user
+>> space.  Let's store this error information for passthrough devices, so it
+>> can be retrieved later.
+>>
+>> We can now have userspace drivers (vfio-pci based) on s390x. The userspace
+>> drivers will not have any KVM fd and so no kzdev associated with them. So
+>> we need to update the logic for detecting passthrough devices to not depend
+>> on struct kvm_zdev.
+>>
+>> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
 
-Ok, good.
+Thanks for reviewing!
 
-> >> I don't believe we have any vfio-pci variant drivers where the name is
-> >> NULL, but kasprintf() handling NULL as "(null)" was a consideration in
-> >> this design, that even if there is no name the device is sequestered
-> >> with a driver_override that won't match an actual driver.
-> >>  
-> >>> I assume that vfio_pci_core drivers are expected to set the name in struct
-> >>> vfio_device_ops in the first place and this code (silently) relies on this
-> >>> invariant?  
-> >>
-> >> We do expect that, but it was previously safe either way to make sure
-> >> VFs are only bound to the same ops driver or barring that, at least
-> >> don't perform a standard driver match.  The last thing we want to
-> >> happen automatically is for a user owned PF to create SR-IOV VFs that
-> >> automatically bind to native kernel drivers.
-> >>    
-> >>> Alex, Jason: Should we keep this hunk above as is and check for a proper name in
-> >>> struct vfio_device_ops in vfio_pci_core_register_device() with a subsequent
-> >>> patch?  
-> >>
-> >> Given the oops, my preference would be to roll it in here.  This change
-> >> is what makes it a requirement that name cannot be NULL, where this was
-> >> safely handled with kasprintf().  
-> >
-> > Again, no oops here. :)
-> >
-> > I still think it makes more sense to fail early in
-> > vfio_pci_core_register_device(), rather than silently accept "(null)" in
-> > driver_override. It also doesn't seem unreasonable with only the WARN_ON(), but
-> > I can also just add vdev->vdev.ops->name ?: "(null)".  
-> 
-> (Or just skip the call if !vdev->vdev.ops->name, as a user will read "(null)"
-> from sysfs either way.)
 
-Hmm, I suppose they would, but there's a fundamental difference between
-driver_override being set to "(null)" vs being NULL and only
-interpreted as "(null)" via show.  The former would prevent ID table
-matching, the latter would not.  The former is what was intended here,
-without realizing both look the same through sysfs and present a
-difficult debugging challenge.
+> But a suggestion below:
+>
+>> ---
+>>   arch/s390/include/asm/pci.h      |  30 ++++++++
+>>   arch/s390/pci/pci.c              |   1 +
+>>   arch/s390/pci/pci_event.c        | 113 ++++++++++++++++++-------------
+>>   drivers/vfio/pci/vfio_pci_zdev.c |   9 ++-
+>>   4 files changed, 105 insertions(+), 48 deletions(-)
+>>
+>> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+>> index c0ff19dab580..7fb9a80b0175 100644
+>> --- a/arch/s390/include/asm/pci.h
+>> +++ b/arch/s390/include/asm/pci.h
+>> @@ -118,6 +118,31 @@ struct zpci_bus {
+>>   	enum pci_bus_speed	max_bus_speed;
+>>   };
+>>   
+>> +/* Content Code Description for PCI Function Error */
+>> +struct zpci_ccdf_err {
+>> +	u32 reserved1;
+>> +	u32 fh;                         /* function handle */
+>> +	u32 fid;                        /* function id */
+>> +	u32 ett         :  4;           /* expected table type */
+>> +	u32 mvn         : 12;           /* MSI vector number */
+>> +	u32 dmaas       :  8;           /* DMA address space */
+>> +	u32 reserved2   :  6;
+>> +	u32 q           :  1;           /* event qualifier */
+>> +	u32 rw          :  1;           /* read/write */
+>> +	u64 faddr;                      /* failing address */
+>> +	u32 reserved3;
+>> +	u16 reserved4;
+>> +	u16 pec;                        /* PCI event code */
+>> +} __packed;
+>> +
+>> +#define ZPCI_ERR_PENDING_MAX 4
+>> +struct zpci_ccdf_pending {
+>> +	u8 count;
+>> +	u8 head;
+>> +	u8 tail;
+>> +	struct zpci_ccdf_err err[ZPCI_ERR_PENDING_MAX];
+>> +};
+>> +
+>>   /* Private data per function */
+>>   struct zpci_dev {
+>>   	struct zpci_bus *zbus;
+>> @@ -171,6 +196,7 @@ struct zpci_dev {
+>>   
+>>   	char res_name[16];
+>>   	bool mio_capable;
+>> +	bool mediated_recovery;
+>>   	struct zpci_bar_struct bars[PCI_STD_NUM_BARS];
+>>   
+>>   	u64		start_dma;	/* Start of available DMA addresses */
+>> @@ -192,6 +218,8 @@ struct zpci_dev {
+>>   	struct iommu_domain *s390_domain; /* attached IOMMU domain */
+>>   	struct kvm_zdev *kzdev;
+>>   	struct mutex kzdev_lock;
+>> +	struct zpci_ccdf_pending pending_errs;
+>> +	struct mutex pending_errs_lock;
+> This mutex now protects the pending_errs struct (obvious) as well as the
+> mediated_recovery bool (not obvious).  Add a comment here and/or as a
+> block before the needs/start/stop functions?
 
-Given no oops for strlen() now and no known in-kernel drivers with a
-NULL name, I can post a patch that rejects a NULL name in the ops
-structure in vfio_pci_core_register_device(), avoiding the entire
-situation.
+I can add a comment here. I was in two minds about renaming the lock, 
+but at the end decided against to keep the diff minimum for the patches.
 
-For this,
 
-Acked-by: Alex Williamson <alex@shazbot.org>
+>
+> Actually..  Could mediated_recovery just be part of the
+> zpci_ccdf_pending stucture?  AFAICT the bit basically controls whether
+> or not the zpci_ccdf_pending structure is used / has meaning.  You even
+> turn the bit off at the same time you memset(&zdev->pending_errs, 0) in
+> zpci_stop_mediated_recovery() -- though an explicit setting of
+> mediated_devices = false would still be nice for code clarity.
+>
+> Then the spinlock continues to protect only this structure.
 
-Thanks,
-Alex
+You are right, the mediated_recovery flag drives the use of the 
+zpci_ccdf_pending struct. IMHO keeping the flag helped me with code 
+clarity and keeping the struct simple and not be tied with the flag. But 
+if you (or anyone) feels strongly about it then I can add the flag to 
+the zpci_ccdf_pending struct.
+
+Thanks
+
+Farhan
+
+>
