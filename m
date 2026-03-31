@@ -1,234 +1,251 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EDBC2F39CE;
-	Tue, 31 Mar 2026 10:38:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB7353B19B5;
+	Tue, 31 Mar 2026 11:17:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774953539; cv=none; b=RctvYYWgNcaI+6JrJClry2+aVrd0l894AcKuRQMC6r0z8B0V/ZQmSl9Jfpo/sFVKJLXYSkOWKuD/DfpkyeEwAwXl5Rri29eO1uyworwGU5jby1lMEVOljQ+CJFRNYY4fW6A7KP2hZpg/oI2SbC2wt8LZbxbL3awe1GDrigs89Tc=
+	t=1774955841; cv=none; b=QughEA9U2CLqhb8LZslkJCOnHBiL5yYCia4/eeUnbTvJWGBjnRBVSadPHpKl8qqHsaM4Na2tfh5EQISQc94ydBV/T30CE6mX7cgEAiNX8iB0Uv7SPmH/zZJih/7PoWBLdcr5y+rDx7weG9gltIvbjnqzD+kmd0zs92s6bbD1OoA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774953539; c=relaxed/simple;
-	bh=ns25mF2UrLHOJDvx/LnwaHuyB+Hf+Nyj2xT98c2l78k=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KrFnw6Q0Xt9lkucaNae8fhbMaifjbaEEnG8YxP1CsvMX4SNbMvbdwXTTQNYwbHG+GM1cGpT8Cbt9nOtD6TX+pIS+VsY7Hc1pDbCtcexZS4lbaA8jrQUmdAko/EwhoZo30PMnJMK6djbIM4HMVvxdPJAWj3Xs2Q8duaCeXH90cLg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Kj7mU3zJ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774955841; c=relaxed/simple;
+	bh=uosfJHyJ0PgndOBCkuomCpw+akmmEVKGl42x5B5LXfk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=eeO8R4hz3IL+XmQeuJcQesHaUUhe3TUOp7I70eT8oK7L/I1TYYMC1TUElcN5n907Jr5EvujT1UIUogjfP/3UOxlwuifJ4VNLRyj3NtSMOLsx/zloII2fpzBwF0b/wPFHqMhQmi/5WFxbuvcAKAhrhtjKk6cqoIVZrK8/7B/z+Fc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SR9OTIFx; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Kj7mU3zJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B0EFC19423;
-	Tue, 31 Mar 2026 10:38:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774953539;
-	bh=ns25mF2UrLHOJDvx/LnwaHuyB+Hf+Nyj2xT98c2l78k=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Kj7mU3zJLCNNKhIQIiBnX3/r4iNBlU6v60RiEgsOF7hVhyKpPx7fHySOX/1HcZ6HT
-	 g46QUG/QO0DvQW1+pKythy1s52UNDgvTjrWLTdj5d7spmSO1LFbNQUyRArY7Mj37Z3
-	 7GHfGdvFSXRLtrA12eblkVnS0sp8uYMAOeilRIccIqfzkyfaGXDubOLNifxNz+z1EL
-	 JmAWQ1FY+eJeiMxXzo4jYsxtkMZYa6oPg7TWrLWfmhPzaBZ1DhSvnKuYoSeP9/E2Xm
-	 kG8zGjdKyVcdRF/Y9LgYk7Ghn6/jZmqo2vQFXc8thsNIf/gxryTLdUM9GwUrpEdsQe
-	 Zc/hNO6wMpYBA==
-Date: Tue, 31 Mar 2026 11:38:57 +0100
-From: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
-To: Suren Baghdasaryan <surenb@google.com>
-Cc: akpm@linux-foundation.org, willy@infradead.org, david@kernel.org, 
-	ziy@nvidia.com, matthew.brost@intel.com, joshua.hahnjy@gmail.com, 
-	rakie.kim@sk.com, byungchul@sk.com, gourry@gourry.net, 
-	ying.huang@linux.alibaba.com, apopple@nvidia.com, baolin.wang@linux.alibaba.com, 
-	Liam.Howlett@oracle.com, npache@redhat.com, ryan.roberts@arm.com, dev.jain@arm.com, 
-	baohua@kernel.org, lance.yang@linux.dev, vbabka@suse.cz, jannh@google.com, 
-	rppt@kernel.org, mhocko@suse.com, pfalcato@suse.de, kees@kernel.org, 
-	maddy@linux.ibm.com, npiggin@gmail.com, mpe@ellerman.id.au, chleroy@kernel.org, 
-	borntraeger@linux.ibm.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, 
-	gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com, 
-	gerald.schaefer@linux.ibm.com, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, 
-	kvm@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v6 5/6] mm: use vma_start_write_killable() in
- process_vma_walk_lock()
-Message-ID: <4e1c47a9-77a2-4f29-8de5-37f9958f5885@lucifer.local>
-References: <20260327205457.604224-1-surenb@google.com>
- <20260327205457.604224-6-surenb@google.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SR9OTIFx"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62V8mmbG371620;
+	Tue, 31 Mar 2026 11:17:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=RIOWBn
+	2h0WwLoKl1CfFSXwKcshhW6ZkrVgHm7r3aJDY=; b=SR9OTIFxxcv+9hNteXFIs3
+	AA+nZs+G2L99dZ5ROfk3z6FoFAGFW8pO1W9oGtDv25XtevC3ee7q4x8oZzxGQ9sh
+	FKvilUdc12oRTdMFoLnUaC70WAsbuWdI5Z84KqSstJxf359Jt7dqq8t3Bzu38qCp
+	26ryGhZiswKjnuuuUZdECu3do38stdJQKAPGHPleMHSUMLBni67H5BOi67d6dE7G
+	rybfDDQKlqt5DZwN6FCWmqWw3lnlWfYFG/fsGfs1mdPyreOBRG7Ql99Tcw6JuTWm
+	aCJEdvlzDokFJh3YqNfqFV5/l/jvs/xhDnlw+tHEq/kOcs3Enh6xx1vQIQhRZRPQ
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d65dcag9s-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 31 Mar 2026 11:17:14 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62V82lGj030990;
+	Tue, 31 Mar 2026 11:17:13 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d6uhjrjq6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 31 Mar 2026 11:17:13 +0000
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62VBHB8439060112
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 31 Mar 2026 11:17:11 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6F6EF58055;
+	Tue, 31 Mar 2026 11:17:11 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 80A725804B;
+	Tue, 31 Mar 2026 11:17:09 +0000 (GMT)
+Received: from [9.61.13.195] (unknown [9.61.13.195])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 31 Mar 2026 11:17:09 +0000 (GMT)
+Message-ID: <70d7b2c7-77d7-4b53-bcb1-524b459fe426@linux.ibm.com>
+Date: Tue, 31 Mar 2026 07:17:08 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260327205457.604224-6-surenb@google.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 00/23] s390/vfio-ap: Implement live guest migration of
+ guests using AP devices
+To: Alex Williamson <alex@shazbot.org>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, jjherne@linux.ibm.com, borntraeger@de.ibm.com,
+        mjrosato@linux.ibm.com, pasic@linux.ibm.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com
+References: <20260325210149.888028-1-akrowiak@linux.ibm.com>
+ <20260330102748.6423ff89@shazbot.org>
+Content-Language: en-US
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <20260330102748.6423ff89@shazbot.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=RsjI7SmK c=1 sm=1 tr=0 ts=69cbad3a cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=AhJJE_Kw0ly2J05s9D4A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: RGsLswygIdp7vEfyqIwS9gGHq-Rpp_HR
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzMxMDEwNCBTYWx0ZWRfX+nrgZJDuBaMb
+ krF4kGdz9siXfHDYpMeBhCq6xKmJbny3Q2MH11VmMOKbAvcz0an2u9y1kWqEFJL2IujoYcAJMvG
+ TFtvGThGteCq4tE7mUrIIig2WJ8+Ox2HN4kZ+qKRSoaUtfVPCR54NjqUT2lVP89etJV9NvUPRdK
+ uxeuS+S+66pk+jJpiV0SaH15IUQzH40RMKNFM9KuwigQjxX34lmUDSYaltuKyrnPlnZK8Qwdivi
+ 2xi31p5w/WpA4E16e45V4/UDC5uectktyLDf10gbY0BJC56VlAY/rph2Gqo2oO2JATaCvdl0ccS
+ fGJfA+nZ91epe/Nndc36PMPuYrAiErhVbvnOOKrTstnCSNEhv/JzNVJYrDInNy28mAZIzbw4lAX
+ U3ZIDSX1eE6Bn8eY9TqglvW+LQ567TSKduee9hID7ac0O9IvKfrzShSYE5HC+jYXfKJE2sENsgV
+ jg5sTWlUkbq0o0ax7JQ==
+X-Proofpoint-ORIG-GUID: RGsLswygIdp7vEfyqIwS9gGHq-Rpp_HR
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-31_02,2026-03-28_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 bulkscore=0 priorityscore=1501 lowpriorityscore=0
+ suspectscore=0 malwarescore=0 spamscore=0 clxscore=1015 phishscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
+ definitions=main-2603310104
 
-On Fri, Mar 27, 2026 at 01:54:56PM -0700, Suren Baghdasaryan wrote:
-> Replace vma_start_write() with vma_start_write_killable() when
-> process_vma_walk_lock() is used with PGWALK_WRLOCK option.
-> Adjust its direct and indirect users to check for a possible error
-> and handle it. Ensure users handle EINTR correctly and do not ignore
-> it. When queue_pages_range() fails, check whether it failed due to
-> a fatal signal or some other reason and return appropriate error.
->
-> Suggested-by: Matthew Wilcox <willy@infradead.org>
-> Signed-off-by: Suren Baghdasaryan <surenb@google.com>
-> ---
->  fs/proc/task_mmu.c | 12 ++++++------
->  mm/mempolicy.c     | 10 +++++++++-
->  mm/pagewalk.c      | 22 +++++++++++++++-------
->  3 files changed, 30 insertions(+), 14 deletions(-)
->
-> diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-> index e091931d7ca1..33e5094a7842 100644
-> --- a/fs/proc/task_mmu.c
-> +++ b/fs/proc/task_mmu.c
-> @@ -1774,15 +1774,15 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
->  	struct vm_area_struct *vma;
->  	enum clear_refs_types type;
->  	int itype;
-> -	int rv;
-> +	int err;
->
->  	if (count > sizeof(buffer) - 1)
->  		count = sizeof(buffer) - 1;
->  	if (copy_from_user(buffer, buf, count))
->  		return -EFAULT;
-> -	rv = kstrtoint(strstrip(buffer), 10, &itype);
-> -	if (rv < 0)
-> -		return rv;
-> +	err = kstrtoint(strstrip(buffer), 10, &itype);
-> +	if (err)
-> +		return err;
->  	type = (enum clear_refs_types)itype;
->  	if (type < CLEAR_REFS_ALL || type >= CLEAR_REFS_LAST)
->  		return -EINVAL;
-> @@ -1824,7 +1824,7 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
->  						0, mm, 0, -1UL);
->  			mmu_notifier_invalidate_range_start(&range);
->  		}
-> -		walk_page_range(mm, 0, -1, &clear_refs_walk_ops, &cp);
-> +		err = walk_page_range(mm, 0, -1, &clear_refs_walk_ops, &cp);
->  		if (type == CLEAR_REFS_SOFT_DIRTY) {
->  			mmu_notifier_invalidate_range_end(&range);
->  			flush_tlb_mm(mm);
-> @@ -1837,7 +1837,7 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
->  	}
->  	put_task_struct(task);
->
-> -	return count;
-> +	return err ? : count;
->  }
->
->  const struct file_operations proc_clear_refs_operations = {
-> diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-> index c38a90487531..51f298cfc33b 100644
-> --- a/mm/mempolicy.c
-> +++ b/mm/mempolicy.c
-> @@ -969,6 +969,7 @@ static const struct mm_walk_ops queue_pages_lock_vma_walk_ops = {
->   *      (a hugetlbfs page or a transparent huge page being counted as 1).
->   * -EIO - a misplaced page found, when MPOL_MF_STRICT specified without MOVEs.
->   * -EFAULT - a hole in the memory range, when MPOL_MF_DISCONTIG_OK unspecified.
-> + * -EINTR - walk got terminated due to pending fatal signal.
->   */
->  static long
->  queue_pages_range(struct mm_struct *mm, unsigned long start, unsigned long end,
-> @@ -1545,7 +1546,14 @@ static long do_mbind(unsigned long start, unsigned long len,
->  			flags | MPOL_MF_INVERT | MPOL_MF_WRLOCK, &pagelist);
->
->  	if (nr_failed < 0) {
-> -		err = nr_failed;
-> +		/*
-> +		 * queue_pages_range() might override the original error with -EFAULT.
-> +		 * Confirm that fatal signals are still treated correctly.
-> +		 */
-> +		if (fatal_signal_pending(current))
-> +			err = -EINTR;
-> +		else
-> +			err = nr_failed;
 
-Is that really a big deal? Does it really matter if the caller doesn't get
--EINTR in this case? This feels like another sashiko nitpick and is adding a
-bunch of additional complexity here.
 
-I mean if you 'filter' error messages you might always end up with an error
-that's different than the original...
+On 3/30/26 12:27 PM, Alex Williamson wrote:
+> On Wed, 25 Mar 2026 17:00:47 -0400
+> Anthony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>> This patch series implements live guest migration of a guest to which AP
+>> devices have been passed through. To better comprehend this design, one has
+>> to understand that VFIO AP mediated device is not used to provide userspace
+>> with direct access to a device as is the case with other devices that use
+>> the VFIO framework to pass them through to a guest. The sole purpose of the
+>> VFIO AP mediated device is to manage an AP configuration for a guest. An AP
+>> configuration is comprised of the AP adapter IDs (APID), AP queue
+>> indexes (APQI) and domain numbers of the control domains to which a guest
+>> will be granted access. Once the VFIO AP mediated device is attached to a
+>> guest, its AP configuration is set by the vfio_ap device driver. Once set,
+>> all access to the AP devices is handled by the s390 Interpretive Execution
+>> facility; in other words, the vfio_ap device driver plays no role in
+>> providing direct access to the AP devices in the guest's AP configuration.
+>>
+>> The only role that the vfio_ap device driver plays in the migration
+>> process is to verify that the AP configuration for the source guest is
+>> compatible with the AP configuration of the destination guest.
+>> Incompatibility will result in a live guest migration failure.
+>> In order to be compatible, the following requirements must be met:
+>>
+>> 1. The destination guest will be started with the same QEMU command line
+>>     as the source guest, so the mediated device supplying the AP
+>>     configuration on both guests must have the same name (UUID).
+> AFAIK, same UUID is not a requirement for out-of-tree mdev drivers
+> supporting migration.  You're really concerned more with the
+> configuration/composition of the mdev device, so requiring the same
+> UUID seems a bit arbitrary.
 
->  		nr_failed = 0;
->  	} else {
->  		vma_iter_init(&vmi, mm, start);
-> diff --git a/mm/pagewalk.c b/mm/pagewalk.c
-> index 3ae2586ff45b..eca7bc711617 100644
-> --- a/mm/pagewalk.c
-> +++ b/mm/pagewalk.c
-> @@ -443,14 +443,13 @@ static inline void process_mm_walk_lock(struct mm_struct *mm,
->  		mmap_assert_write_locked(mm);
->  }
+As stated above, the destination guest will be started with the same
+QEMU command line as the source guest. Within that command line
+will be a '-device' parameter like the following:
+
+-device 
+'{"driver":"vfio-ap","id":"hostdev0","sysfsdev":"/sys/bus/mdev/devices/62177883-f1bb-47f0-914d-32a22e3a8804"}
+
+Note that sysfsdev is the path to the mdev named 
+62177883-f1bb-47f0-914d-32a22e3a8804;
+therefore, the mdev with that name must exist on the destination guest or
+the migration will fail with the following error:
+
+error: device not found: mediated device 
+'62177883-f1bb-47f0-914d-32a22e3a8804' not found
+
 >
-> -static inline void process_vma_walk_lock(struct vm_area_struct *vma,
-> -					 enum page_walk_lock walk_lock)
-> +static int process_vma_walk_lock(struct vm_area_struct *vma,
-> +				 enum page_walk_lock walk_lock)
->  {
->  #ifdef CONFIG_PER_VMA_LOCK
->  	switch (walk_lock) {
->  	case PGWALK_WRLOCK:
-> -		vma_start_write(vma);
-> -		break;
-> +		return vma_start_write_killable(vma);
->  	case PGWALK_WRLOCK_VERIFY:
->  		vma_assert_write_locked(vma);
->  		break;
-> @@ -462,6 +461,7 @@ static inline void process_vma_walk_lock(struct vm_area_struct *vma,
->  		break;
->  	}
->  #endif
-> +	return 0;
->  }
+>> 2. The AP configuration assigned via the VFIO AP mediated device on both
+>>     guests must be compatible. As such, each AP configuration must meet
+>>     the following requirements:
+>>
+>>     * Both guests must have the same number of APQNs
+>>
+>>     * Each APQN assigned to the source guest must also be assigned to the
+>>       destination guest
+>>
+>>     * Each APQN assigned to both guests must reference an AP queue with the
+>>       same hardware capabilities
+> Why isn't this sufficient vs also requiring the same UUID?
+>        
+>> Note: There is a forthcoming consumer of this series which will be a QEMU
+>>        patch series is entitled:
+>>        'hw/vfio/ap: Implement live guest migration of guests using AP
+>>        devices'
+>>
+>> This design also adds a use case for enabling and disabling
+>> migration of guests to which AP devices have been passed through. To
+>> facilitate this, a new read/write sysfs 'migratable' attribute is added to
+>> the mediated device. This attribute specifies whether the vfio device is
+>> migratable (1) or not (0). When the value of this attribute is changed, the
+>> vfio_ap device driver will signal an eventfd to userspace. It is up to
+>> userspace to respond to the change by enabling or disabling migration of
+>> the guest to which the mediated device is attached. The operation will be
+>> rejected with a 'Device or resource busy' message if a migration is in
+>> progress.
+> This seems inherently racy.  What happens if the device becomes
+> unmigratable while it's being migrated?
 >
->  /*
-> @@ -505,7 +505,9 @@ int walk_page_range_mm_unsafe(struct mm_struct *mm, unsigned long start,
->  			if (ops->pte_hole)
->  				err = ops->pte_hole(start, next, -1, &walk);
->  		} else { /* inside vma */
-> -			process_vma_walk_lock(vma, ops->walk_lock);
-> +			err = process_vma_walk_lock(vma, ops->walk_lock);
-> +			if (err)
-> +				break;
->  			walk.vma = vma;
->  			next = min(end, vma->vm_end);
->  			vma = find_vma(mm, vma->vm_end);
-> @@ -722,6 +724,7 @@ int walk_page_range_vma_unsafe(struct vm_area_struct *vma, unsigned long start,
->  		.vma		= vma,
->  		.private	= private,
->  	};
-> +	int err;
+> If userspace is deciding that the device is now unmigratable, why does
+> it need to signal this through the kernel driver rather than with the
+> userspace orchestration agent?  The entire path seems unnecessary.
 >
->  	if (start >= end || !walk.mm)
->  		return -EINVAL;
-> @@ -729,7 +732,9 @@ int walk_page_range_vma_unsafe(struct vm_area_struct *vma, unsigned long start,
->  		return -EINVAL;
+>> Userspace must also have a means for retrieving the value of the sysfs
+>> 'migratable' attribute when the guest is started to initialize whether it
+>> can be migrated. For this, The VFIO_DEVICE_GET_INFO ioctl is used. The
+>> struct vfio_device_info object passed to the ioctl will be extended with a
+>> capability specifying the vfio device attributes. One of the attributes
+>> will contain the value of the mediated device's 'migratable' attribute.
+> This is just broken, it's redundant to our current device feature
+> mechanism for exposing migration support.  If you want the capability
+> to create unmigratable devices statically, can't that be encompassed
+> within the definition of the mdev type?  Dynamic migration support just
+> seems like it's involving the kernel in orchestration it shouldn't be a
+> part of.  Thanks,
 >
->  	process_mm_walk_lock(walk.mm, ops->walk_lock);
-> -	process_vma_walk_lock(vma, ops->walk_lock);
-> +	err = process_vma_walk_lock(vma, ops->walk_lock);
-> +	if (err)
-> +		return err;
->  	return __walk_page_range(start, end, &walk);
->  }
->
-> @@ -752,6 +757,7 @@ int walk_page_vma(struct vm_area_struct *vma, const struct mm_walk_ops *ops,
->  		.vma		= vma,
->  		.private	= private,
->  	};
-> +	int err;
->
->  	if (!walk.mm)
->  		return -EINVAL;
-> @@ -759,7 +765,9 @@ int walk_page_vma(struct vm_area_struct *vma, const struct mm_walk_ops *ops,
->  		return -EINVAL;
->
->  	process_mm_walk_lock(walk.mm, ops->walk_lock);
-> -	process_vma_walk_lock(vma, ops->walk_lock);
-> +	err = process_vma_walk_lock(vma, ops->walk_lock);
-> +	if (err)
-> +		return err;
->  	return __walk_page_range(vma->vm_start, vma->vm_end, &walk);
->  }
->
-> --
-> 2.53.0.1018.g2bb0e51243-goog
->
+> Alex
+>   
+>> Anthony Krowiak (23):
+>>    s390/vfio-ap: Store queue hardware info when probed
+>>    s390/vfio-ap: Provide access to queue objects and related info
+>>    s390/vfio-ap: Add header file for xfer of vfio device caps to
+>>      userspace
+>>    MAINTAINERS: Add new header file for the S390 VFIO AP DRIVER
+>>      maintainers
+>>    s390/vfio-ap: A sysfs 'migratable' attribute to enable/disable
+>>      migration of guest
+>>    s390/vfio-ap: Add 'migratable' feature to sysfs 'features' attribute
+>>    s390/vfio-ap: Signal event to enable/disable live guest migration
+>>    s390/vfio-ap: Return value of sysfs migratable attribute from
+>>      VFIO_DEVICE_GET_INFO ioctl
+>>    s390/vfio-ap: Data structures for facilitating vfio device migration
+>>    s390/vfio-ap: Initialize/release vfio device migration data
+>>    s390-vfio-ap: Callback to set vfio device mig state during guest
+>>      migration
+>>    s390/vfio-ap: Transition guest migration state from STOP to STOP_COPY
+>>    s390/vfio-ap: File ops called to save the vfio device migration state
+>>    s390/vfio-ap: Transition device migration state from STOP to RESUMING
+>>    s390/vfio-ap: File ops called to resume the vfio device migration
+>>    s390/vfio-ap: Transition device migration state from RESUMING to STOP
+>>    s390/vfio-ap: Transition device migration state from STOP_COPY to STOP
+>>    s390/vfio-ap: Transition device migration state from STOP to RUNNING
+>>      and vice versa
+>>    s390-vfio-ap: Callback to get the current vfio device migration state
+>>    s390/vfio-ap: Callback to get the size of data to be migrated during
+>>      guest migration
+>>    s390/vfio-ap: Provide API to query whether migration is in progress
+>>    s390/vfio-ap: Disallow blocking migration in progress
+>>    s390/vfio-ap: Add live guest migration chapter to vfio-ap.rst
+>>
+>>   Documentation/arch/s390/vfio-ap.rst     |  339 +++++--
+>>   MAINTAINERS                             |    1 +
+>>   drivers/s390/crypto/Makefile            |    2 +-
+>>   drivers/s390/crypto/vfio_ap_drv.c       |    4 +-
+>>   drivers/s390/crypto/vfio_ap_migration.c | 1131 +++++++++++++++++++++++
+>>   drivers/s390/crypto/vfio_ap_ops.c       |  263 +++++-
+>>   drivers/s390/crypto/vfio_ap_private.h   |   20 +
+>>   include/uapi/linux/vfio.h               |    2 +
+>>   include/uapi/linux/vfio_ap.h            |   34 +
+>>   9 files changed, 1685 insertions(+), 111 deletions(-)
+>>   create mode 100644 drivers/s390/crypto/vfio_ap_migration.c
+>>   create mode 100644 include/uapi/linux/vfio_ap.h
+>>
+
