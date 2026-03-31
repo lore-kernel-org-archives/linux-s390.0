@@ -1,170 +1,147 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D79D1C3F0C;
-	Tue, 31 Mar 2026 13:18:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 379CD3D8114
+	for <linux-s390@vger.kernel.org>; Tue, 31 Mar 2026 14:00:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774963096; cv=none; b=srIgHwUa+2ZOFA1hG6PDoepfYSv7p20QNdXl0o5mksqv3mTKkhVFGArAbqjP0mJi8eTLphh+lyUXq/OD1GpCZr5NcywhB7mLa3D2MnLWBRf+4yvi7dRPWpgY5chfNziOyypQuZOj/Kbud+yqxeu4yhQqFP4z4Iy+M0Kq5DZZrH4=
+	t=1774965609; cv=none; b=KBWYW2KWagnLa9oC3TIaKy9h4wADOiyi/rK2V+nzARlHx9Vgqvi+h5CbVHHbmkS242P8WqIwFiiZvhGd3AwXaFKjenUes+rRjRx20+mKFPoAwk89syiElmafe71Up9X5CbpGaLtDnnkdCvkoqDUef9K+PasVvrQbYWWPv/cYhuA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774963096; c=relaxed/simple;
-	bh=PFIpn22Lqg8nUvYixerHksrQguG7VQqiCjtgoj0+dII=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jRRnYZ2PoPHATITCRmj86LV6Sy7YlAhAhxipPnlok5a/kaXRMm26v4bvKcDpcazrbxd1IAjydC9YUVdviYYlMPE0YNvaBrtHy/zfZFIcs4VS5JJhmnr4KeTvyOrTxkZl0MWhFliHeEnB8KuVxYnoSKuOwOzGdnfS10JHh4dL2eA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QcjY+/i5; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774965609; c=relaxed/simple;
+	bh=v8oGte1nICQf3lPzs/IH7HujDZ08x8KnEuuH3pyLmXU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=NL/bzBz+1lDoPyIEkDAMb2xXF4ai8QGRrqg4ffC1LZYO7cnjOo8zfN3mP1XIPp/5BwO/2ZqzZNvz1hsG71roeLy2g5dxd5tYWwq7R8IGUbDl+BJzacz0vxRB6H2qrb6cVk+hcmBQFdJMsooCk8+7gpikq/H/20sU524fqtCQTHE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QQ0PH/CG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QcjY+/i5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B76BC2BC9E;
-	Tue, 31 Mar 2026 13:18:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QQ0PH/CG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3D23C2BCC6
+	for <linux-s390@vger.kernel.org>; Tue, 31 Mar 2026 14:00:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774963096;
-	bh=PFIpn22Lqg8nUvYixerHksrQguG7VQqiCjtgoj0+dII=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=QcjY+/i5y/kMyQ5zzBs/8HbtBsPy4rODD3TLaBkViHed+LXJHBdR3Hl4Ou6uEQL1/
-	 dh5y2JRw47HtffMZP5vvW6JDLevDFG3rthVqd2dVCUquw82FQw9f/WnKemDfCb6ydo
-	 7zkk1apR5DmFqaq6YaEvuktsM7cxFtBOxTKP33IISuWEowhBJYUNt8qVHw/MRVQyif
-	 FtmCHCuJIBkqo/w31e+CcNNUhEY21vWe5DD+2vEPKRTmCD9TZ2Io/CfwC2NK7r5Mqe
-	 FYokXoKTBVBio+IyccRpfZkPOshlHMzMTAwv6aXrSbzrq6tzoumbKFgRXvqEa3e2Wn
-	 Z0LqDOdVIb2Og==
-From: Frederic Weisbecker <frederic@kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Frederic Weisbecker <frederic@kernel.org>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Anna-Maria Behnsen <anna-maria@linutronix.de>,
-	Ben Segall <bsegall@google.com>,
-	Boqun Feng <boqun.feng@gmail.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Ingo Molnar <mingo@redhat.com>,
-	Jan Kiszka <jan.kiszka@siemens.com>,
-	Joel Fernandes <joelagnelf@nvidia.com>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Kieran Bingham <kbingham@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Mel Gorman <mgorman@suse.de>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Paul E . McKenney" <paulmck@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Uladzislau Rezki <urezki@gmail.com>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Viresh Kumar <viresh.kumar@linaro.org>,
-	Xin Zhao <jackzxcui1989@163.com>,
-	linux-pm@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH 14/14] sched/cputime: Handle dyntick-idle steal time correctly
-Date: Tue, 31 Mar 2026 15:16:22 +0200
-Message-ID: <20260331131622.30505-15-frederic@kernel.org>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260331131622.30505-1-frederic@kernel.org>
-References: <20260331131622.30505-1-frederic@kernel.org>
+	s=k20201202; t=1774965608;
+	bh=v8oGte1nICQf3lPzs/IH7HujDZ08x8KnEuuH3pyLmXU=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=QQ0PH/CG0dWacUziG4TNgGC3pZnU4geMh3an4vCBQT4so9mzz6OnOMW6HjZW/5pIR
+	 VIK02bsYHgPtDxWO9hiZ9oCZSIuVJlHMYylbdgza8MaXjEsUWbiOFWmbL/CNJ6WWyz
+	 3hW/J+jSuPKcoyoH+oyoWOnh+u8WKdnuncyzsEN2BvRxr4xNAfrFyqobe1/JDevGVK
+	 bGFEB7jWDn4ZL5G6MaL2BQINbPAK6Bu5YyIG31K/V0uXmhgT+gNqvIKxR8r64uutlF
+	 HForGfWlPhfy1Gi0mRpoCxwcciky2Hccat3M2CRIPCkulov95gD8wvMSRfxSrttxlk
+	 3ML0Cls2uYXcQ==
+Received: by mail-oi1-f176.google.com with SMTP id 5614622812f47-463a0e14abfso3249147b6e.2
+        for <linux-s390@vger.kernel.org>; Tue, 31 Mar 2026 07:00:08 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCWi/Y/oS3Y4g0ABO1lfe19NGQHBolg9MfQUJHd1FP1hASe2X2tLlW7QLv7u1tRC0BmntN6/xUQPv1LB@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw8rBQh52YetS4Who3BIENN4syVFRaeTejgErJU0HdrWW4MybHe
+	jJ2H6zOVCViPWQygb0WvsaNgIV9bM3BiGKRqxxxvPScKiu5w/Fcz9nHEVveP44zR2mK92waM9W7
+	Jc2VGh5R791rK/PD0FpqzHfRpiimUKFE=
+X-Received: by 2002:a05:6808:1493:b0:467:f3d4:fc4e with SMTP id
+ 5614622812f47-46a8a596197mr7405781b6e.33.1774965607378; Tue, 31 Mar 2026
+ 07:00:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260331131622.30505-1-frederic@kernel.org> <20260331131622.30505-2-frederic@kernel.org>
+In-Reply-To: <20260331131622.30505-2-frederic@kernel.org>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Date: Tue, 31 Mar 2026 15:59:56 +0200
+X-Gmail-Original-Message-ID: <CAJZ5v0gK3WdPhVuY-SJNJ4WK87kL3w9Q8KGBtt5RuE1AUoxdLQ@mail.gmail.com>
+X-Gm-Features: AQROBzC01cSpFeB8dQHSq2PjzTVT0MM4PbeCSZP1pxl-fD4ctuT__P9I9dxaSrc
+Message-ID: <CAJZ5v0gK3WdPhVuY-SJNJ4WK87kL3w9Q8KGBtt5RuE1AUoxdLQ@mail.gmail.com>
+Subject: Re: [PATCH 01/14] sched/idle: Handle offlining first in idle loop
+To: Frederic Weisbecker <frederic@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, 
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Anna-Maria Behnsen <anna-maria@linutronix.de>, 
+	Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Dietmar Eggemann <dietmar.eggemann@arm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, 
+	Jan Kiszka <jan.kiszka@siemens.com>, Joel Fernandes <joelagnelf@nvidia.com>, 
+	Juri Lelli <juri.lelli@redhat.com>, Kieran Bingham <kbingham@kernel.org>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Mel Gorman <mgorman@suse.de>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Neeraj Upadhyay <neeraj.upadhyay@kernel.org>, 
+	Nicholas Piggin <npiggin@gmail.com>, "Paul E . McKenney" <paulmck@kernel.org>, 
+	Peter Zijlstra <peterz@infradead.org>, Shrikanth Hegde <sshegde@linux.ibm.com>, 
+	Steven Rostedt <rostedt@goodmis.org>, Sven Schnelle <svens@linux.ibm.com>, 
+	Thomas Gleixner <tglx@linutronix.de>, Uladzislau Rezki <urezki@gmail.com>, 
+	Valentin Schneider <vschneid@redhat.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Vincent Guittot <vincent.guittot@linaro.org>, Viresh Kumar <viresh.kumar@linaro.org>, 
+	Xin Zhao <jackzxcui1989@163.com>, linux-pm@vger.kernel.org, 
+	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The dyntick-idle steal time is currently accounted when the tick
-restarts but the stolen idle time is not subtracted from the idle time
-that was already accounted. This is to avoid observing the idle time
-going backward as the dyntick-idle cputime accessors can't reliably know
-in advance the stolen idle time.
+On Tue, Mar 31, 2026 at 3:16=E2=80=AFPM Frederic Weisbecker <frederic@kerne=
+l.org> wrote:
+>
+> Offline handling happens from within the inner idle loop,
+> after the beginning of dyntick cputime accounting, nohz idle
+> load balancing and TIF_NEED_RESCHED polling.
+>
+> This is not necessary and even buggy because:
+>
+> * There is no dyntick handling to do. And calling tick_nohz_idle_enter()
+>   messes up with the struct tick_sched reset that was performed on
+>   tick_sched_timer_dying().
+>
+> * There is no nohz idle balancing to do.
+>
+> * Polling on TIF_RESCHED is irrelevant at this stage, there are no more
+>   tasks allowed to run.
+>
+> * No need to check if need_resched() before offline handling since
+>   stop_machine is done and all per-cpu kthread should be done with
+>   their job.
+>
+> Therefore move the offline handling at the beginning of the idle loop.
+> This will also ease the idle cputime unification later by not elapsing
+> idle time while offline through the call to:
+>
+>         tick_nohz_idle_enter() -> tick_nohz_start_idle()
+>
+> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+> Reviewed-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+> Tested-by: Shrikanth Hegde <sshegde@linux.ibm.com>
 
-In order to maintain a forward progressing idle cputime while
-subtracting idle steal time from it, keep track of the previously
-accounted idle stolen time and substract it from _later_ idle cputime
-accounting.
+No issues found, so
 
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Tested-by: Shrikanth Hegde <sshegde@linux.ibm.com>
----
- include/linux/kernel_stat.h |  1 +
- kernel/sched/cputime.c      | 21 +++++++++++++++------
- 2 files changed, 16 insertions(+), 6 deletions(-)
+Reviewed-by: Rafael J. Wysocki (Intel) <rafael@kernel.org>
 
-diff --git a/include/linux/kernel_stat.h b/include/linux/kernel_stat.h
-index 512104b0ff49..24a54a6151ba 100644
---- a/include/linux/kernel_stat.h
-+++ b/include/linux/kernel_stat.h
-@@ -39,6 +39,7 @@ struct kernel_cpustat {
- 	bool		idle_elapse;
- 	seqcount_t	idle_sleeptime_seq;
- 	u64		idle_entrytime;
-+	u64		idle_stealtime;
- #endif
- 	u64		cpustat[NR_STATS];
- };
-diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c
-index a77b6f1dbdca..4ae779b161b5 100644
---- a/kernel/sched/cputime.c
-+++ b/kernel/sched/cputime.c
-@@ -425,19 +425,25 @@ static inline void irqtime_account_process_tick(struct task_struct *p, int user_
- static void kcpustat_idle_stop(struct kernel_cpustat *kc, u64 now)
- {
- 	u64 *cpustat = kc->cpustat;
--	u64 delta;
-+	u64 delta, steal, steal_delta;
- 
- 	if (!kc->idle_elapse)
- 		return;
- 
- 	delta = now - kc->idle_entrytime;
-+	steal = steal_account_process_time(delta);
- 
- 	write_seqcount_begin(&kc->idle_sleeptime_seq);
-+	steal_delta = min_t(u64, kc->idle_stealtime, delta);
-+	delta -= steal_delta;
-+	kc->idle_stealtime -= steal_delta;
-+
- 	if (nr_iowait_cpu(smp_processor_id()) > 0)
- 		cpustat[CPUTIME_IOWAIT] += delta;
- 	else
- 		cpustat[CPUTIME_IDLE] += delta;
- 
-+	kc->idle_stealtime += steal;
- 	kc->idle_entrytime = now;
- 	kc->idle_elapse = false;
- 	write_seqcount_end(&kc->idle_sleeptime_seq);
-@@ -460,7 +466,6 @@ void kcpustat_dyntick_stop(u64 now)
- 		kcpustat_idle_stop(kc, now);
- 		kc->idle_dyntick = false;
- 		vtime_dyntick_stop();
--		steal_account_process_time(ULONG_MAX);
- 	}
- }
- 
-@@ -504,10 +509,14 @@ static u64 kcpustat_field_dyntick(int cpu, enum cpu_usage_stat idx,
- 	do {
- 		seq = read_seqcount_begin(&kc->idle_sleeptime_seq);
- 
--		if (kc->idle_elapse && compute_delta)
--			idle = cpustat[idx] + (now - kc->idle_entrytime);
--		else
--			idle = cpustat[idx];
-+		idle = cpustat[idx];
-+
-+		if (kc->idle_elapse && compute_delta) {
-+			u64 delta = now - kc->idle_entrytime;
-+
-+			delta -= min_t(u64, kc->idle_stealtime, delta);
-+			idle += delta;
-+		}
- 	} while (read_seqcount_retry(&kc->idle_sleeptime_seq, seq));
- 
- 	return idle;
--- 
-2.53.0
-
+> ---
+>  kernel/sched/idle.c | 13 ++++++++-----
+>  1 file changed, 8 insertions(+), 5 deletions(-)
+>
+> diff --git a/kernel/sched/idle.c b/kernel/sched/idle.c
+> index 3681b6ad9276..521a076d8845 100644
+> --- a/kernel/sched/idle.c
+> +++ b/kernel/sched/idle.c
+> @@ -260,6 +260,14 @@ static void do_idle(void)
+>  {
+>         int cpu =3D smp_processor_id();
+>
+> +       if (cpu_is_offline(cpu)) {
+> +               local_irq_disable();
+> +               /* All per-CPU kernel threads should be done by now. */
+> +               WARN_ON_ONCE(need_resched());
+> +               cpuhp_report_idle_dead();
+> +               arch_cpu_idle_dead();
+> +       }
+> +
+>         /*
+>          * Check if we need to update blocked load
+>          */
+> @@ -311,11 +319,6 @@ static void do_idle(void)
+>                  */
+>                 local_irq_disable();
+>
+> -               if (cpu_is_offline(cpu)) {
+> -                       cpuhp_report_idle_dead();
+> -                       arch_cpu_idle_dead();
+> -               }
+> -
+>                 arch_cpu_idle_enter();
+>                 rcu_nocb_flush_deferred_wakeup();
+>
+> --
+> 2.53.0
+>
