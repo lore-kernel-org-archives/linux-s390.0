@@ -1,127 +1,242 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from MW6PR02CU001.outbound.protection.outlook.com (mail-westus2azon11012031.outbound.protection.outlook.com [52.101.48.31])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67FD230E0F1;
-	Tue, 31 Mar 2026 19:29:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774985375; cv=none; b=tZj3AaV99WOPEDqAFE9KZJWqA0/II4MrlFA3TL4LdpH0mittGZgbQmSwhTiDcniYYTVb7M25GyMtNAvCVgjEZMKeoD4/OpuJYz8eaK77l/Jk5cCYLOAqQpX4TTumAlaJeIAMmER3oBu0BxK4inD7KfcPH8t8rjOKHsVh+6qxVqU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774985375; c=relaxed/simple;
-	bh=bBjparJefBrhyEWN7TfOR6QfHGCO1i4wg0xfspVx1+U=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=VejlouTPMX4XF+CVmw0ld+d8UgG66AZDrF4Q2/8OTh1NOpQvsF7E+5W2GDEbFcszS8cE7rlI/V16EM3GYE02hNULtuhCnCFCMqTf1Rfvi8eDfA4Vi6kKTQamK9Vtzj8LBCpbKOQqhOd19Pvg2VkiqzAC9AMIq3OGMXEfYoLoYyA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nLeObDhY; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E8AE3A382E;
+	Tue, 31 Mar 2026 20:12:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.48.31
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774987958; cv=fail; b=pgCAVIU93Hhoft5JHG/X1JFgt4uttsZuxnepynBbg+UZCEChu1BCAqDIozhiIyBV70Xr4A8+oIza1ogy5/4s4Cwg8glVAwd60IHgpZFjxdz8/UEmewQYDBiNq2/BCVOROtZeWUrLmId7B5Muv84ZzKYWl7rhnE4USJ+/SO1WxoQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774987958; c=relaxed/simple;
+	bh=6bTHluk1txhP9zCXzq4HoAw1yQ11YaGqDFIasMPfI5I=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=DS6w8U2uiP7NKi33IpoFx+jo/nlx2h9d1iqWDMnzRdjWeIK62cJI/VCMMlIt1LK3Qirs0K1063jHf8UsRbch0zxVHRfJ2eXS8otMWRM+WLsjCHLMeuzlNHZQDqzeHS1hWVk933VF+w25jQZ93dTbmxEfIqMB0aHNB61i1v++gMM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=RRg0Ceuq; arc=fail smtp.client-ip=52.101.48.31
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nLeObDhY"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62VFGOID3113759;
-	Tue, 31 Mar 2026 19:29:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Xp6Y8S
-	lP6c4g3qeJVvXM51OiCH7ypgGQ+XA7elZ0B80=; b=nLeObDhYQ00v8o+BIOGfDn
-	bq/+UNx7UltFxsL3lwFNRcXh+Cl2mMQN1Exjx8xV6sZq+jzfwo8Py7ofi5SFNcdu
-	T5g5LEiKJlODJ+Bs3DZxP6iUl6DyvEhxjnvSWR7NFTpfSUAFPDsouVRjIbSy61b4
-	54LDQ/TPGVABiIp9G/QcIUgvEu45pG8dyJzratxIrEwt6qYl4VCsoTEc+IRIVN5t
-	ZFtyU0o17+kqO5ZWa81Yo1qx2HhQHt28c56h97dSKNHHyK1bIRno7pxl/KQRD3MW
-	d7kD50uMUTtvU5vXj1Tj5h4onAKxyUpF+9saTl4t75q0tHTZ75B8Wj2o/kz5n6tg
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d66nnn1j3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 31 Mar 2026 19:29:28 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62VFZqb2022210;
-	Tue, 31 Mar 2026 19:29:27 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d6tan2krj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 31 Mar 2026 19:29:27 +0000
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62VJTPwN25887256
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 31 Mar 2026 19:29:25 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A135658054;
-	Tue, 31 Mar 2026 19:29:25 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 944F85804E;
-	Tue, 31 Mar 2026 19:29:24 +0000 (GMT)
-Received: from [9.61.9.136] (unknown [9.61.9.136])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 31 Mar 2026 19:29:24 +0000 (GMT)
-Message-ID: <e4baff4e-2663-4087-9dde-6cebb62f6882@linux.ibm.com>
-Date: Tue, 31 Mar 2026 15:29:24 -0400
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="RRg0Ceuq"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=jkKWwcX83FF/y2mBIqjOkjcBeLBIHIczryhfGvbpr60kGZHqQML+MAGWGfMXIVcN5opDr2s/ri4e9RKtjxsuv06109Up2vtNCta5Bvb1DYXrEj+zxjSBf715j1BnO2PgQt++7+YOz4gDDTAynS843WY2xp5edzEwA9yESSSFbqpYIbu+mdzwvCtsp5UjhEtRXu5HDabRNZHPHmtTg8/x03RovoFHaT7phugmXewCdgjpYekLKnUOZFk+DmOE65G6DNHIw4HCTa8k2YEve0OvvJsVTxzmLg7EP3g/fQ3JLYxKQH3soTFzKHnYtfTfouhEme1ApgJ/UR5W7LMv+240jg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=lX39jnJhMQbloTQDqgFjFiloszNdeFEKDA5xfPiZtwg=;
+ b=Fxv3I02hlPCW9QepgI9TG6W6Gil7rAv720U5goWCWACyfefWOWI+/qNRKirmz3M1ERudq9zz8UP3XH6mOAfzsMkMB5JViaThxvOv2nrwFaTVshusVS+D2Lp4v3tXWnD+tTFkDN0ePoHVP+ZgnGCYa34hMgi4otZ6N4QWSO00ZecnJgojN4QG4GMjr263jN06VSMhkgI629RuBWeVjKNYljwNcjQfUhFKyS3LhXvXeg642ydooEZk+pvVfCs6S4MW0/Vc2J8a25HFAdrMN+5LN+3SgQFHjILS8IyXxA9OH0HFuA+0i2jaE4GiN/g6kUdtSPNNMBrfbn9pS7oPaLSxTg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=lX39jnJhMQbloTQDqgFjFiloszNdeFEKDA5xfPiZtwg=;
+ b=RRg0CeuqlZlzhLwH/lCBz1bIWrqrYpJAUcF1hkgi2xgGwFL/YGH9hFJws3oslPAROEeVVY/UwseGNqNqSytRObLy4p+PelO7/H3+XAme99XHknXPI3inqQ8Tvf/tqG0aSCiHqXDNtGdBC2zskLYGyhp8M29JEPWBEBeUZxJh9o8=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from BN9PR12MB5115.namprd12.prod.outlook.com (2603:10b6:408:118::14)
+ by SJ2PR12MB8717.namprd12.prod.outlook.com (2603:10b6:a03:53d::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9769.10; Tue, 31 Mar
+ 2026 20:12:31 +0000
+Received: from BN9PR12MB5115.namprd12.prod.outlook.com
+ ([fe80::230d:c588:d858:9977]) by BN9PR12MB5115.namprd12.prod.outlook.com
+ ([fe80::230d:c588:d858:9977%6]) with mapi id 15.20.9769.014; Tue, 31 Mar 2026
+ 20:12:31 +0000
+Message-ID: <8dd22066-c0a1-4f63-b5b6-4606446a49fb@amd.com>
+Date: Tue, 31 Mar 2026 16:12:23 -0400
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v7 1/3] PCI: AtomicOps: Do not enable requests by RCiEPs
+To: Bjorn Helgaas <helgaas@kernel.org>
+Cc: Gerd Bayer <gbayer@linux.ibm.com>,
+ Alex Deucher <alexander.deucher@amd.com>,
+ =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+ Selvin Xavier <selvin.xavier@broadcom.com>,
+ Kalesh AP <kalesh-anakkur.purayil@broadcom.com>,
+ Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
+ Michal Kalderon <mkalderon@marvell.com>, Saeed Mahameed <saeedm@nvidia.com>,
+ Tariq Toukan <tariqt@nvidia.com>, Mark Bloch <mbloch@nvidia.com>,
+ Bjorn Helgaas <bhelgaas@google.com>, Jay Cornwall <Jay.Cornwall@amd.com>,
+ =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Niklas Schnelle <schnelle@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Alexander Schmidt
+ <alexs@linux.ibm.com>, linux-s390@vger.kernel.org,
+ linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+ netdev@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <20260331190103.GA150932@bhelgaas>
+Content-Language: en-US
+From: "Kuehling, Felix" <felix.kuehling@amd.com>
+In-Reply-To: <20260331190103.GA150932@bhelgaas>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: SJ0PR05CA0204.namprd05.prod.outlook.com
+ (2603:10b6:a03:330::29) To BN9PR12MB5115.namprd12.prod.outlook.com
+ (2603:10b6:408:118::14)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v12 4/7] s390/pci: Store PCI error information for
- passthrough devices
-To: Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
-Cc: helgaas@kernel.org, lukas@wunner.de, alex@shazbot.org, clg@redhat.com,
-        kbusch@kernel.org, schnelle@linux.ibm.com
-References: <20260330174011.1161-1-alifm@linux.ibm.com>
- <20260330174011.1161-5-alifm@linux.ibm.com>
- <8c080d9b-34f6-469c-8e53-c5d0a175556d@linux.ibm.com>
- <ec10fa8b-b499-4f06-9a7a-71cb6d76e03d@linux.ibm.com>
-Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <ec10fa8b-b499-4f06-9a7a-71cb6d76e03d@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: YIWMn8BWKHsM7TL4NWBoIuIVXe9q2s82
-X-Authority-Analysis: v=2.4 cv=KslAGGWN c=1 sm=1 tr=0 ts=69cc2098 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=AU4VBfrfX5olrtCezKoA:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzMxMDE4NiBTYWx0ZWRfXxSZVoSUq0aA0
- 2nX3xcjnCtfrCBbZ88n9JiOW4F2GoGKu73uyhIJFMBfJTZcuXaDtlLnOZD2k5eYo9nQ0S+v+tM/
- 6SvHaV3si3yslwxMxmxabvAzp4BCqyT+7S7z9c5L5SYoAbTpH8UnoTzrcxcHfmrz7tWMqwT8rtQ
- n84A7Zlc/V1nNVs3PpoNQmKQXy6uTgS4GrK731br/zAiBfJL6KFocICxo7sTurMTwp2A5CTdDPp
- 5vPvXt8pfTvFCv9cPbFtp+vvwanraGSaQliWGMSL37rcWkkEmwdrZydKtHJMwcr01lQEpynMvwu
- EfyJDxNdg3OEJGYvwWi3sl53LArpSzXyuBIZ0Zrbkc3086hnqAEPA/HL9fjXD+mTN0DtO2ijV1Z
- 9af3l49KVuFZTbDmyJyXjXAEwa1N3NQzM8FUxYVahfIy16CWqYXvAVEpkYFoGi3ntWUtzr4SVHs
- aQB6cN2ld9QTs8QxaoQ==
-X-Proofpoint-ORIG-GUID: YIWMn8BWKHsM7TL4NWBoIuIVXe9q2s82
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-31_04,2026-03-31_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0
- phishscore=0 adultscore=0 bulkscore=0 impostorscore=0 clxscore=1015
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
- definitions=main-2603310186
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN9PR12MB5115:EE_|SJ2PR12MB8717:EE_
+X-MS-Office365-Filtering-Correlation-Id: f87f67d7-412f-44e4-775f-08de8f61d6c6
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|7416014|1800799024|376014|56012099003|18002099003|22082099003;
+X-Microsoft-Antispam-Message-Info:
+	6m6d50EYGLFsRd54Cc5gFpSplRwNU8pOWndsbkloZA8pUIo+tS7FpUjyfztXsiKyB19Ip16bM0wojwXwOYTXLIZaLRw1Tv7rSxkB2FFeNv+QipYEb24/du5PJyyZd7zf6+SL5RRoEYQxOu/fCflSsZnFgy+DiLsNyPSL71LmS8xpZujKE8ce7cco8oVZqopEqDpPWfMyc1Ul2MR3+c1OaQIYQgJiJI/QueONlzjLwiEe51/s9seoleSHPGZWDGS6h5hlJKSO0RjJHgtmTjrT4CXvTCOy3/TPTAJOXKaPPT1jS1zAjYS1v0Cj+0rO452HgwsavYsZOeFpr3StvGhbI8/UUApeE/v9aPxonoVYOCUGm8VUokVlFuNlrAQPbv+8skEtyCtMsx4KNvMPXJYtlVSlOknVj1GLXM3prc+5lZn+QyEckSPHHyC9Fam0cpR7ROU222iyEWQ4hS1rdktsmE+mHMs074OfoLKM8uz1IxEFsk8ioc4aqV4c45c3GaENfG+PlFYOrO+LQEuz7naeXyaCNozMg0ra0PbEq7XGs/TPAYLvhQVugs1FLWdNQlcwwAH+b6oDTA3OZHqREjlH9wh4rrm7URQWedBPxr76WYBj9AysA1wrwcTMIp7vIT8FxdDSfrTFNZyiXMCXeyps8RoSfwn1o42BJOpaBLMggniV3nRUQkjOi503izsdVJEk
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR12MB5115.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(1800799024)(376014)(56012099003)(18002099003)(22082099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?dStrQXNSWDBwUmVtZDVkK0RiMTZHT1RGU2F0Q3pjRFVyREZaUXJaakd3TVhI?=
+ =?utf-8?B?OFdROGFvdElacmJqaDhHK2dLOTBrTVhhZWQzSE1tOFdIVEw5Q3RuM0RhY0FE?=
+ =?utf-8?B?NWpzRkc3VGVSZE11VFBwSHBsMkU3ZGdUSnVhbm1ZbklUOWhOM1IxYmpyQTJI?=
+ =?utf-8?B?dHB0Q0pOVGNkS3JtQzhucXliSTZ1SjdSbm16VTB6dENCREtXMFNGNmtteVBB?=
+ =?utf-8?B?YjBmcmJXMkwwRElKZkp4SDNzMk40c0lKMFRyQmovc04yR01sckRIdHNBSVVU?=
+ =?utf-8?B?M25ITkhBWXM2WmFhdFpRdTRleVhUbHdSaGVuelNsVFpUWCtRaStNK2k0VkhN?=
+ =?utf-8?B?dDdqRERienhMVThMNFZNRHY2U2E1V25DNStBNjU2MjJtOGVXK0tlSUxna2Iw?=
+ =?utf-8?B?RXhSTWg4blcwL2xwS2ZTTVRXMTYxSGhneUVSbzdZckFPSkNVMWI1S0JaRkR6?=
+ =?utf-8?B?Ym43OWZPMG1MVk1XaERMVVk2MzRZc3Q0NVQreU5wU0lYQmwweGVmREFmSGdn?=
+ =?utf-8?B?UnZ2Z3EyNUYzSGpvdU8rc0hqUVJrUW1kU0ZrZVZuNHZISCtEbVh2YnNNSlYw?=
+ =?utf-8?B?cHcyV3F1RFRLZWtVRC9JR3FQVlBvc2xWK1FmaU9IS2poMFA5NmtSWXhHRlp1?=
+ =?utf-8?B?clJZNFF1YWE4RVdZNGk5OVRkWDNzL1hkTUw0WTlOM0pmalMxR2EzbDR0Qy83?=
+ =?utf-8?B?Q051T3gzOCt0TVNGcmhOVWdEb2NNeXFhcFpPSEZvd0Z5SmJsQS9UT0hxUDdo?=
+ =?utf-8?B?THNwbERITE9abGZOTm5rNkFrdnZQQmsxS1Q1UW9ZbnMvVTQ4TWJHdERvMXNl?=
+ =?utf-8?B?U0ZGc1JrWHhTbytwbk9uVVBLUnJiVDhYckhvT3hjTFhXd2d2MHYzeU9aTEJv?=
+ =?utf-8?B?S3VrREdKUDJsREpGbFIxdVhNNjZvbFFENEhDbkU4OVUzUm9TTFBrLzBSaXd1?=
+ =?utf-8?B?RXZUS09Rb1FaWUZsUUREbnlNc2w0dXo2Q2EvdVoxRnRTZGpoVlVkWVJwRDFR?=
+ =?utf-8?B?dVZLYVN4dmtxRk9oQ1UwMVB0OGdlMGhoTklFLzZSOFNwNlNkVWxGeFptTDBz?=
+ =?utf-8?B?a0xOV3dNMzJvd00yZGcvQVlPVkM0UzhHOXhrUjlxc1J3UEQreFZCa2ZCUktQ?=
+ =?utf-8?B?YWtDUUJhTTdGQkNueHViMGtoSUZBcHFxc3FCbENFUy80NUI3dUNodkRWR01v?=
+ =?utf-8?B?OWthc0pqM1FITCs0clhkMTRWUC9qaXhqZktwYlQ1bFJNVmZnbDNZSWVveXlY?=
+ =?utf-8?B?N3J0NHpKOGlDQTJzUXl2TFp0YTB6c2dFU2pXZWVWUFpJN2M3YUNSOERjSzk5?=
+ =?utf-8?B?UjBXamFzdFdjZmVqM1NLQ2xmUU04Z1d1UEd2akx2YTdCK2N6TXBUSDV5UmxR?=
+ =?utf-8?B?blZpUUgwL3llQzBrY0RmZnNFWG91UW9hTm5pdUZRbE5wSEsxZkVIcmg0Tms1?=
+ =?utf-8?B?TE4xNFRqUlVGYzRkNGRoRGlkUWJKb0ZSR0xQRnhkaXVCay9VMVhBSmxZSjJO?=
+ =?utf-8?B?UlJ5Y3pjS25yelBoM1dHN1B4TEdsWTd1NThFN0NqazVtMDZkQTJuSUR6WlNJ?=
+ =?utf-8?B?bUFaN0l5VS96T0cyZ1JBMUthV1FDa2kvNnYrZWRLT0R2TWlCM21RazhjM3V0?=
+ =?utf-8?B?Nm9tQzNFSGNvcFRRcU42UnpJbXc1R0hCRUJwTHlPd3NaYXpkbnBKcWpEVldv?=
+ =?utf-8?B?dXpNc2NTWUZlZkNGQStPVUJvOTc4UmNVZ0R0NEo4NlFnWUtJWTdwTHR1Yzl3?=
+ =?utf-8?B?SEZpR1VIT3NiYy9nSTE0UFo5c2h0TElNaXBXSTROYm9tZGhwSFJVTG81VkFx?=
+ =?utf-8?B?MXVSRHhuVHNMTHdidFZzTlN1UndncjFzOUdzWDBLVDBuWmh1by90a1ZLYlJR?=
+ =?utf-8?B?aVdUTldmSEtGMHhQM21FRlFQdzJPTG93UVhpYUFkQnB0VElNUWszTHdJeXNj?=
+ =?utf-8?B?T3FwY201c3h6NFpjeUt3ZU1SU1FPRGU3YWQ5YWZEZGZzWktqc1JqOWZpb1Vy?=
+ =?utf-8?B?a0I4ZG5sTDBTNytPM1oyeDBRcy90WWZGL3ZVZjFKS0JzL1RvdHdqV3pzOUM3?=
+ =?utf-8?B?SU41enVmTDZrYytKOEwwMGlxUGlJQVNwKzBrSFo3Yjd6bzBnbXAyM201TkYr?=
+ =?utf-8?B?ZE1ybDU5bHQ5Tit3Yk9teGs0K2xqWFg2SkttTDA1dENpOFNueFd6cjg4ZHN2?=
+ =?utf-8?B?SkZIRFE0VzVQcG9FTEJsMFgrVGxNRE9aZ2NoKzB5NTJmS3VZbjNQN1M3Vmkx?=
+ =?utf-8?B?OGQ1dkVmeldoYmNwWW1rVGZEUlV3d0tQQUhJK09tWjdsNHRGblZtOFJpanM5?=
+ =?utf-8?B?ZE9KNy9WczhScEV3TVpQMGRIL01LcXJBbE1YM2cydUNFTE1xdE0xQT09?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f87f67d7-412f-44e4-775f-08de8f61d6c6
+X-MS-Exchange-CrossTenant-AuthSource: BN9PR12MB5115.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Mar 2026 20:12:31.3082
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: TELHeOJZHIQEs9417roMorkTw9YNjg9g86iNHUUndmk9q9mwxu4B7wYVWK1JvoyYl8l9LElbrvxB5hU/bMxWTg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB8717
 
-On 3/31/26 3:23 PM, Farhan Ali wrote:
->> Actually..  Could mediated_recovery just be part of the
->> zpci_ccdf_pending stucture?  AFAICT the bit basically controls whether
->> or not the zpci_ccdf_pending structure is used / has meaning.  You even
->> turn the bit off at the same time you memset(&zdev->pending_errs, 0) in
->> zpci_stop_mediated_recovery() -- though an explicit setting of
->> mediated_devices = false would still be nice for code clarity.
->>
->> Then the spinlock continues to protect only this structure.
-> 
-> You are right, the mediated_recovery flag drives the use of the
-> zpci_ccdf_pending struct. IMHO keeping the flag helped me with code
-> clarity and keeping the struct simple and not be tied with the flag. But
-> if you (or anyone) feels strongly about it then I can add the flag to
-> the zpci_ccdf_pending struct.
-> 
 
-FWIW I am fine with leaving it as-is as long as there is a clear comment
-tying the bool to the mutex.
+On 2026-03-31 15:01, Bjorn Helgaas wrote:
+> On Tue, Mar 31, 2026 at 02:39:26PM -0400, Kuehling, Felix wrote:
+>> On 2026-03-31 14:09, Bjorn Helgaas wrote:
+>>> On Mon, Mar 30, 2026 at 08:01:57PM -0400, Kuehling, Felix wrote:
+>>>> On 2026-03-30 17:42, Bjorn Helgaas wrote:
+>>>>> [+to amdgpu, bnxe_re, mlx5 IB, qedr, mlx5 maintainers]
+>>>>>
+>>>>> On Mon, Mar 30, 2026 at 03:09:44PM +0200, Gerd Bayer wrote:
+>>>>>> Since root complex integrated end points (RCiEPs) attach to a bus that
+>>>>>> has no bridge device describing the root port, the capability to
+>>>>>> complete AtomicOps requests cannot be determined with PCIe methods.
+>>>>>>
+>>>>>> Change default of pci_enable_atomic_ops_to_root() to not enable
+>>>>>> AtomicOps requests on RCiEPs.
+>>>>> I know I suggested this because there's nothing explicit that tells us
+>>>>> whether the RC supports atomic ops from RCiEPs [1].  But I'm concerned
+>>>>> that GPUs, infiniband HCAs, and NICs that use atomic ops may be
+>>>>> implemented as RCiEPs and would be broken by this.
+>>>> FWIW, on AMD APUs our driver doesn't call pci_enable_atomic_ops_to_root. It
+>>>> just assumes that the GPU can do atomic accesses because it doesn't actually
+>>>> go through PCIe: https://elixir.bootlin.com/linux/v6.19.10/source/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c#L4785
+>>> What does this mean for the other branch that *does* use
+>>> pci_enable_atomic_ops_to_root()?  Can any of those devices be RCiEPs?
+>> Most AMD GPUs are not integrated endpoints. APUs are integrated. There are
+>> A+A GPUs where the GPUs are separate from the CPU but part of the same
+>> coherent data fabric as the CPU (adev->gmc.xbmi.connected_to_cpu == true).
+>> Those may also be considered RCiEPs. (I'm not sure about that, is there an
+>> easy way to check with lspci?) We may need to include that in the same
+>> branch as APUs.
+> Yep, for RCiEPs, "lspci -v" should say something like this:
+>
+>    Capabilities: [64] Express Root Complex Integrated Endpoint
+>
+> Dmesg logs from recent kernels would also include it like this:
+>
+>    pci 0000:00:02.0: [8086:5916] type 00 class 0x030000 PCIe Root Complex Integrated Endpoint
+>
+> An RCiEP would be on the root bus; it would not be below a Root Port.
 
-Thanks,
-Matt
+I'm getting this from lspci:
+     Capabilities: [64] Express Endpoint, MSI 00
+
+Regards,
+   Felix
+
+
+>
+>> You can see that we did that for a new generation of A+A GPU here: https://gitlab.freedesktop.org/agd5f/linux/-/blob/amd-staging-drm-next/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c?ref_type=heads#L3920.
+>> We'd need to confirm that the same works for MI200 A+A GPUs as well.
+>>>>> These drivers use pci_enable_atomic_ops_to_root():
+>>>>>
+>>>>>      amdgpu
+>>>>>      bnxt_re (infiniband)
+>>>>>      mlx5 (infinband)
+>>>>>      qedr (infiniband)
+>>>>>      mlx5 (ethernet)
+>>>>>
+>>>>> Maybe we should assume that because RCiEPs are directly integrated
+>>>>> into the RC, the RCiEP would only allow AtomicOp Requester Enable to
+>>>>> be set if the RC supports atomic ops?
+>>>>>
+>>>>> I don't like making assumptions like that, but it'd be worse to break
+>>>>> these devices.
+>>>>>
+>>>>> [1] https://lore.kernel.org/all/20260326164002.GA1325368@bhelgaas
+>>>>>
+>>>>>> Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
+>>>>>> ---
+>>>>>>     drivers/pci/pci.c | 5 ++---
+>>>>>>     1 file changed, 2 insertions(+), 3 deletions(-)
+>>>>>>
+>>>>>> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+>>>>>> index 8479c2e1f74f1044416281aba11bf071ea89488a..135e5b591df405e87e7f520a618d7e2ccba55ce1 100644
+>>>>>> --- a/drivers/pci/pci.c
+>>>>>> +++ b/drivers/pci/pci.c
+>>>>>> @@ -3692,15 +3692,14 @@ int pci_enable_atomic_ops_to_root(struct pci_dev *dev, u32 cap_mask)
+>>>>>>     	/*
+>>>>>>     	 * Per PCIe r4.0, sec 6.15, endpoints and root ports may be
+>>>>>> -	 * AtomicOp requesters.  For now, we only support endpoints as
+>>>>>> -	 * requesters and root ports as completers.  No endpoints as
+>>>>>> +	 * AtomicOp requesters.  For now, we only support (legacy) endpoints
+>>>>>> +	 * as requesters and root ports as completers.  No endpoints as
+>>>>>>     	 * completers, and no peer-to-peer.
+>>>>>>     	 */
+>>>>>>     	switch (pci_pcie_type(dev)) {
+>>>>>>     	case PCI_EXP_TYPE_ENDPOINT:
+>>>>>>     	case PCI_EXP_TYPE_LEG_END:
+>>>>>> -	case PCI_EXP_TYPE_RC_END:
+>>>>>>     		break;
+>>>>>>     	default:
+>>>>>>     		return -EINVAL;
+>>>>>>
+>>>>>> -- 
+>>>>>> 2.51.0
+>>>>>>
