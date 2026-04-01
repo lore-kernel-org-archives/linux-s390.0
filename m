@@ -1,102 +1,93 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31E393F1669;
-	Wed,  1 Apr 2026 16:29:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 025D042316D;
+	Wed,  1 Apr 2026 16:31:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775060951; cv=none; b=f7UpGjOAnMKGP3igFiaOrLMk+PS4vYAYEeldiKix0FSuAYp4lrRc2FFLM7+T7WcQmd4PO4Jl4fez8fNM+ipAtJvrHn1mDRYA7CBUoObyj0kt+9oiCefq7ak4U5PJK83MSD9XxM1kkG5UsC68OITEoVlWyS9kHZc8357nYGcoIQI=
+	t=1775061122; cv=none; b=kJKf2zhu12lYYng4i2TaLNl5WsTXjBI4KUI5g2H0/8xwMfd0RFD/dcS+zJwrOvHrtZgXK8aoxWj0kXy7jGW1FLmefY9SANu1H6UPKKhcUf0dpImQrpfHkzllzA2NfnaXvV1Ska1UVi8ZyPbjXad+YSZjEQzr/9cwQ11WKZ4H4gw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775060951; c=relaxed/simple;
-	bh=lpKRatsiKjme51mt1hfc1a4RLa4UswyEdIlbv0MRluU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=MASU5BiplAAC4r2ojV9Qe3Ns3K++vHV4NrXFHG1JrzA63avVfoBZJ8wGwRxlo5MmNvthP6p517ScUeaEMfmqsSZ1iLw/zqc6wARJ8ddFpehkLqdMuTyNhkhAdCg5G7QsZuqu8aOkAEFhSCFVgQzGRuFdNBrczauOeUC20SNp824=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VYq58tWi; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1775061122; c=relaxed/simple;
+	bh=vEX2YgnVtzG/kWcq17f0/dxZGqpGdFexUjQZXcgX1Ng=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=BJ2jo8IjokdfKWDO+xjKDRUdNimodsRiYlRrMgV0N+cX5xjm/SlSe0ebntvqittPFpS53APz4QmwmXfuKzA9Zag2dipX0IzIdg9DObRLge1evkz3YEv8bMq1aCz+wli4RpRFWkprasLAs1xEPD/hisFrscSfheFMZNQbaN7fWsI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Kqf+crcX; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VYq58tWi"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Kqf+crcX"
 Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6316tLV03728917;
-	Wed, 1 Apr 2026 16:29:02 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 631AHJbf142146;
+	Wed, 1 Apr 2026 16:31:58 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=8QC9Fk
-	+OLA7N5EuWutkyWpfjvL6o15fl0W8VJ8R99rw=; b=VYq58tWiWVgFmhF0JU2Amg
-	XunKj9wOkBfJN6cR2hHSh3kPylzwj88drIvV0y9jdm6KgpQTbFF7iUZ8vV1RuBgS
-	YFzk5gIxmicF3mVtpE3wuHTKVgl0uMnSnegOkOVm5fEGLYPiHheOjwSb6eRPTumN
-	ufRvel/rGzmarRPGLlBlV6mHhrALus9ZfZjmbcr2dO9J6Anf38c8SCSvkdkBvja1
-	lW650OYe+pmIamhEWRReaf4y18pyssf9KNHIjLKnyT92TRA+RoYs1sSjsWf2tFd+
-	WlmSxgXQB0rUsdrKID6vMgrN2mUjk5YsfrG1ruJKyPR2auBs/LEnOknZMT/Cqp8g
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d64dgrh93-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=CpOcsvGu0vq9yafPLMd8795CqxepEPd0x1m5IZSMp
+	Aw=; b=Kqf+crcXj71/DxiPlpChF2Xk+0DlWkxo4ZgVzIGZGa7TjHSV2sU8fcqln
+	3/hHvkwrdeym3eTsF1UtB/kqfgsio0scDifw0goZCXZF6TxUmpog6b9t7o0R156M
+	X0xZ95yQBPM99C1MhDqx82/kopCSOvD4fj4O46jqk/rp2ZL8NiJhXMU0z4gwaFsm
+	CF2Yoo/MIuBQJut/3h5acsw7dw6Y4DjlB7U6NLwXaZrmxccBP1KIxsW2xXDmxq/t
+	PRrD+Sh0U8d3s+WXB19Q0Q9bnLNs+PoHgFrIX4DCFR6pMMBqhO0hS0xO4GIQky0s
+	Dy1sT7C+6HAS/GNjQk0gcnqVLlWCg==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d64dgrhnm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 01 Apr 2026 16:29:02 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 631G4Eeb031034;
-	Wed, 1 Apr 2026 16:29:01 GMT
-Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d6uhjx91e-1
+	Wed, 01 Apr 2026 16:31:57 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 631F6Sxf022227;
+	Wed, 1 Apr 2026 16:31:57 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d6tan6dr5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 01 Apr 2026 16:29:01 +0000
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 631GT0NI33620568
+	Wed, 01 Apr 2026 16:31:57 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 631GVtga56623370
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 1 Apr 2026 16:29:00 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3E0C958055;
-	Wed,  1 Apr 2026 16:29:00 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3D9265804B;
-	Wed,  1 Apr 2026 16:28:58 +0000 (GMT)
-Received: from [9.61.244.25] (unknown [9.61.244.25])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  1 Apr 2026 16:28:58 +0000 (GMT)
-Message-ID: <d059a16f-4b17-4a10-9006-cf05045e6945@linux.ibm.com>
-Date: Wed, 1 Apr 2026 09:28:57 -0700
+	Wed, 1 Apr 2026 16:31:56 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C9BD458053;
+	Wed,  1 Apr 2026 16:31:55 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0591F58043;
+	Wed,  1 Apr 2026 16:31:55 +0000 (GMT)
+Received: from IBM-GVXK264.ibm.com (unknown [9.61.241.108])
+	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  1 Apr 2026 16:31:54 +0000 (GMT)
+From: Ramesh Errabolu <ramesh@linux.ibm.com>
+To: linux-pci@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Bjorn Helgaas <bhelgaas@google.com>, Lukas Wunner <lukas@wunner.de>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Ramesh Errabolu <ramesh@linux.ibm.com>
+Subject: [PATCH v1] PCI: hotplug: Add 'uevent' sysfs attribute to trigger slot events
+Date: Wed,  1 Apr 2026 11:31:52 -0500
+Message-ID: <20260401163152.632779-1-ramesh@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v8 2/3] vfio/ism: Implement vfio_pci driver for ISM
- devices
-To: Julian Ruess <julianr@linux.ibm.com>, schnelle@linux.ibm.com,
-        wintera@linux.ibm.com, ts@linux.ibm.com, oberpar@linux.ibm.com,
-        gbayer@linux.ibm.com, Alex Williamson <alex@shazbot.org>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Yishai Hadas <yishaih@nvidia.com>,
-        Shameer Kolothum <skolothumtho@nvidia.com>,
-        Kevin Tian <kevin.tian@intel.com>
-Cc: mjrosato@linux.ibm.com, raspl@linux.ibm.com, hca@linux.ibm.com,
-        agordeev@linux.ibm.com, gor@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-pci@vger.kernel.org
-References: <20260325-vfio_pci_ism-v8-0-ddc504cde914@linux.ibm.com>
- <20260325-vfio_pci_ism-v8-2-ddc504cde914@linux.ibm.com>
-Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <20260325-vfio_pci_ism-v8-2-ddc504cde914@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDAxMDE1MiBTYWx0ZWRfXwiDqhZdR7r2b
- 2NeRzSts7j1FXaM+q1fLgqbT48zd1+k7VdnOq6xA8kmwEkPOLLBFCW+pGCs0iHDJmzvDU39055k
- LXkfSexkVXZyhAq6cj2j0LLh49DYV7Q6pegGgoQ2nwrsrLtYcawtydTxd4brFfhv83WTQkPKsyW
- ifA8IrS+X8WnsShS9kBnKY4fpbpGI+7DdJDKoxpmRk9n0SHXUyMdmGrwN4WxisHttBPRo/WCSE/
- Q0EETLleHswEmgOZgIWrqZJ8QmSfxs1mMap4F94rKazS3pa65uC9WtOOKwFmO4CEqSTX7sVtFgS
- KIQ70MVUnPlHZgXIEOKO76EhZpwP5kr92aR1rPT2JP521uN6g2ardtuWMMe7wLNnLtdpYDngxMr
- 4N8/kVtRn4J6ludMUCM/dt74Haaktb57cwKBieYoZGt9uBfM+u8aUkTVg231s+keiphQCJzio98
- DAP/J2od+V1BV6RPawg==
-X-Authority-Analysis: v=2.4 cv=QKZlhwLL c=1 sm=1 tr=0 ts=69cd47ce cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=akap8JHnbm7pTVdsz3UA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: bfWW_YluBv6JnohcvqC4Kb3bOE2DEqql
-X-Proofpoint-ORIG-GUID: bfWW_YluBv6JnohcvqC4Kb3bOE2DEqql
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDAxMDE1MiBTYWx0ZWRfX6d++mW+iZInz
+ fCOLUSe2l5h4ntt3pFJECgGUQxaRLLNeZorhTPRexrB4m3LNDi058oiZdlRJ373s0sYSX37uEx2
+ n76Zvwz216h7IbzxY5Oh+AAYwgu/mgI1EFzmkGGMFVbdZcOEXM+BghLoI5rXoAdyxa1czOCt9CU
+ 8UxCGHXYUAj1O8/R6hl4RpseelbucL4kYnrvB6M1lejQliPFFqbYidOtS3+t9NTUyn59ZalIyJ6
+ tZT3h0WIo15FGDJtB0S2zAknOzamTwZPf8r69noHeIz4s5ZuZmhoABMGEvdyAsJS2eK8WZjIAwX
+ K88m76IDwHggU8RwanwH0k4QIM/iJogWQH7OuzvrKO1G2E+CrFNke+BqywvktOxRVr3MAJTUmAU
+ vNtF3YvxtfaHmcDxMhFiiIpLhoovdCPlNrzY244UTPCyVH2tyZFZEEMcWTj+Ceos8aTi9vcieAc
+ AhT2ZdGtzsbFQeSnlsw==
+X-Authority-Analysis: v=2.4 cv=QKZlhwLL c=1 sm=1 tr=0 ts=69cd487e cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=CMxJa-TJIm8yq2BzSosA:9
+X-Proofpoint-GUID: JvoOYIefFRhA2k8Hm_wsU0otZIYYpCEa
+X-Proofpoint-ORIG-GUID: kEXKnYvKHjwVxmJ7cU6desbN9j5cpPNl
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-01_04,2026-04-01_02,2025-10-01_01
@@ -106,38 +97,81 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2604010152
 
+Add a write-only 'uevent' sysfs attribute for synthesizing
+uevents for a PCI slot. This extends the existing uevent
+support which emits a KOBJ_ADD uevent in pci_hp_add() with
+the ability to replay such uevents for cold plugged devices.
+As such events are only emitted by hotplug capable PCI slots
+so is the support for synthesizing them.
 
-On 3/25/2026 6:31 AM, Julian Ruess wrote:
-> Add a vfio_pci variant driver for the s390-specific Internal Shared
-> Memory (ISM) devices used for inter-VM communication.
->
-> This enables the development of vfio-pci-based user space drivers for
-> ISM devices.
->
-> On s390, kernel primitives such as ioread() and iowrite() are switched
-> over from function-handle-based PCI load/stores instructions to PCI
-> memory-I/O (MIO) loads/stores when these are available and not
-> explicitly disabled. Since these instructions cannot be used with ISM
-> devices, ensure that classic function-handle-based PCI instructions are
-> used instead.
->
-> The driver is still required even when MIO instructions are disabled, as
-> the ISM device relies on the PCI store block (PCISTB) instruction to
-> perform write operations.
->
-> Stores are not fragmented, therefore one ioctl corresponds to exactly
-> one PCISTB instruction. User space must ensure to not write more than
-> 4096 bytes at once to an ISM BAR which is the maximum payload of the
-> PCISTB instruction.
->
-> Reviewed-by: Alexandra Winter<wintera@linux.ibm.com>
-> Reviewed-by: Niklas Schnelle<schnelle@linux.ibm.com>
-> Signed-off-by: Julian Ruess<julianr@linux.ibm.com>
-> ---
+The change was validated by manually triggering 'add' uevent
+for a specific hotplug PCI slot:
 
-I think we have decided to not support any additional regions with this 
-patch. Feel free to add
+    $ echo "add $(uuidgen)" | sudo tee   \
+                /sys/bus/pci/slots/<slot-id>/uevent
 
-Reviewed-by: Farhan Ali<alifm@linux.ibm.com>
+Signed-off-by: Ramesh Errabolu <ramesh@linux.ibm.com>
+---
+ drivers/pci/hotplug/pci_hotplug_core.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
+diff --git a/drivers/pci/hotplug/pci_hotplug_core.c b/drivers/pci/hotplug/pci_hotplug_core.c
+index fadcf98a8a66..c3634b1cc7a8 100644
+--- a/drivers/pci/hotplug/pci_hotplug_core.c
++++ b/drivers/pci/hotplug/pci_hotplug_core.c
+@@ -176,6 +176,21 @@ static struct pci_slot_attribute hotplug_slot_attr_presence = {
+ 	.show = presence_read_file,
+ };
+ 
++static ssize_t uevent_write_file(struct pci_slot *slot,
++				 const char *buf, size_t len)
++{
++	int rc;
++
++	rc = kobject_synth_uevent(&slot->kobj, buf, len);
++	return rc ? rc : len;
++}
++
++static struct pci_slot_attribute hotplug_slot_attr_uevent = {
++	.attr = {.name = "uevent", .mode = S_IFREG | 0200},
++	.show = NULL,
++	.store = uevent_write_file
++};
++
+ static ssize_t test_write_file(struct pci_slot *pci_slot, const char *buf,
+ 			       size_t count)
+ {
+@@ -254,6 +269,11 @@ static int fs_add_slot(struct hotplug_slot *slot, struct pci_slot *pci_slot)
+ 		kobject_put(kobj);
+ 	}
+ 
++	retval = sysfs_create_file(&pci_slot->kobj,
++				   &hotplug_slot_attr_uevent.attr);
++	if (retval)
++		goto exit_uevent;
++
+ 	if (has_power_file(slot)) {
+ 		retval = sysfs_create_file(&pci_slot->kobj,
+ 					   &hotplug_slot_attr_power.attr);
+@@ -306,6 +326,9 @@ static int fs_add_slot(struct hotplug_slot *slot, struct pci_slot *pci_slot)
+ 	if (has_power_file(slot))
+ 		sysfs_remove_file(&pci_slot->kobj, &hotplug_slot_attr_power.attr);
+ exit_power:
++	sysfs_remove_file(&pci_slot->kobj,
++			  &hotplug_slot_attr_uevent.attr);
++exit_uevent:
+ 	sysfs_remove_link(&pci_slot->kobj, "module");
+ exit:
+ 	return retval;
+@@ -313,6 +336,8 @@ static int fs_add_slot(struct hotplug_slot *slot, struct pci_slot *pci_slot)
+ 
+ static void fs_remove_slot(struct hotplug_slot *slot, struct pci_slot *pci_slot)
+ {
++	sysfs_remove_file(&pci_slot->kobj, &hotplug_slot_attr_uevent.attr);
++
+ 	if (has_power_file(slot))
+ 		sysfs_remove_file(&pci_slot->kobj, &hotplug_slot_attr_power.attr);
+ 
+-- 
+2.43.0
 
