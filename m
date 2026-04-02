@@ -1,171 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from canpmsgout05.his.huawei.com (canpmsgout05.his.huawei.com [113.46.200.220])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 064214414;
-	Thu,  2 Apr 2026 00:03:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8980D22FF22;
+	Thu,  2 Apr 2026 01:41:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.220
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775088232; cv=none; b=gXPA8+KSA2T+NGIrw0qoHky2KlvnALJo52q3lJcBLRphj6lhyAfG6JG+0mdAknJGLzYBwCbx/bCiLT3lU0Ysgs2uGB4l64yC/OYf5K43bhylCwBSwplIOb4FPHHoyrJ+JCp1n1UWJMHfc5tbYp33S946xK0QWdOFp4sUrF//Fyw=
+	t=1775094085; cv=none; b=MrdCa+R++l+xJc7RHRG9N7q2jQJ6hVLBK+OaERZ1/2nVu3QuxcwKDtUhCbSehsKjMoX64rgHQqiO3LwA4Q3F3iVCAZya799q6cKOSR9dt+y7eEmhQ3ga/0LB6S4IvTIEZIIzJgdC2w0Z+XRBG1d958HTIwoXoa9FgiD4CpzaU2Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775088232; c=relaxed/simple;
-	bh=DWZ5wWCFWkWGETdfR0kKyQefbSSF0P88fzS9CZ8C8Lw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DYnCjQ0v1IJpNZRIUmFco7Bx5FiaZfqnIkc9bD4u+JXdnT6rNsDrseW+3PFWYRTkUuT9yC0bStnngSZegxrlEHEj+7mY9LMHoYFm0GD0271+5gZ39Oc2n+76xkT7ryZTSeGgl3dOn0jupercO8Ba8YuRxb1GuThO7hgBPyGNo7s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=P+mX4KhN; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775094085; c=relaxed/simple;
+	bh=BzANNX+XCdxr/liDOmc+KLPcWYuqzJ1vlYE/EVAGvEg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=seNwNrc1bo1khzVpgUooi2FUJVapaySZ7IXNwgnVgXEXgMB8go/lM0pnrCGCo7sm3C0yR5jE440y4nrEdMNWlG4OY11c1TJCRmqitKrestaBMFcSTOZVQGDiF4wOCB3l43fFVaLmslArACgKtpidZvoeM84XmaGGdqqy5yFdi3Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=i0naMR9w; arc=none smtp.client-ip=113.46.200.220
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="P+mX4KhN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24E03C4CEF7;
-	Thu,  2 Apr 2026 00:03:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775088231;
-	bh=DWZ5wWCFWkWGETdfR0kKyQefbSSF0P88fzS9CZ8C8Lw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=P+mX4KhNSfm2z1hppMt4T4pLkJCqRe5WlMTQKV395AUaOvVM0zcXbI5kuo9haFJDa
-	 SkskK/UqhSdMgjevajxJHDY+CKDRuceiak76F+OobSxxvmR2Exh6wusuN8hixF3DYf
-	 aSDBu+8Yw+ATR00PbEBRr0angvAf+92UiB8PHAymFkKeP9Adw9h+P5SPlWiUjp/ZbO
-	 DtidlEUc6pYKg7P4Rv0TgP9qGGo6XmYMv8ZWij7cxcwQXJN+d6P4XYWR4OUj18Xdpf
-	 RdEBrCoYCWzPQnT0h06CdhI9cE2fZZ95NcP0Xk59TPAeZ/xms1LcOpPj+EANbuvUIa
-	 VZHRkoG+STXWQ==
-Date: Wed, 1 Apr 2026 17:03:49 -0700
-From: Namhyung Kim <namhyung@kernel.org>
-To: Ian Rogers <irogers@google.com>
-Cc: Thomas Richter <tmricht@linux.ibm.com>, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
-	acme@kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com,
-	sumanthk@linux.ibm.com, hca@linux.ibm.com, japo@linux.ibm.com
-Subject: Re: [PATCH 3/3] perf addr2line: Remove global variable
- addr2line_timeout_ms
-Message-ID: <ac2yZU-GHKxRLLrV@google.com>
-References: <20260325120627.1841175-1-tmricht@linux.ibm.com>
- <20260325120627.1841175-4-tmricht@linux.ibm.com>
- <CAP-5=fV+Xn_7Q1DZmO43MBrOAHZv6YUu8wwF8jyy7Stwo=BNRQ@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="i0naMR9w"
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=cLdczJYdweiDTR4k8RfWxcCkbFm9C4zs52yHWSQ3P04=;
+	b=i0naMR9w04jGCrCibz1QpTYUhPTuY7iux05gGMK9OFaMfxlmSa7ATYNv3hCbz5tRSIo6iRQcu
+	XVq9K1Etj+PvKfocDXdznvishGbYpJDXYsTaKic+8y9AKj0FIbaMo2KSJwzioj8ZvT/E3OzEr5d
+	1qXQG41oOqb5dstsqF+2Qws=
+Received: from mail.maildlp.com (unknown [172.19.162.197])
+	by canpmsgout05.his.huawei.com (SkyGuard) with ESMTPS id 4fmPY40Wncz12LJV;
+	Thu,  2 Apr 2026 09:34:48 +0800 (CST)
+Received: from dggpemf500011.china.huawei.com (unknown [7.185.36.131])
+	by mail.maildlp.com (Postfix) with ESMTPS id B11FC40569;
+	Thu,  2 Apr 2026 09:41:13 +0800 (CST)
+Received: from [10.67.109.254] (10.67.109.254) by
+ dggpemf500011.china.huawei.com (7.185.36.131) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Thu, 2 Apr 2026 09:41:10 +0800
+Message-ID: <adf2b4a8-27d6-59ad-74f3-ea43e07fe84f@huawei.com>
+Date: Thu, 2 Apr 2026 09:41:01 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAP-5=fV+Xn_7Q1DZmO43MBrOAHZv6YUu8wwF8jyy7Stwo=BNRQ@mail.gmail.com>
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.0
+Subject: Re: [PATCH v14 3/4] arm64: Use generic TIF bits for common thread
+ flags
+Content-Language: en-US
+To: Catalin Marinas <catalin.marinas@arm.com>
+CC: <will@kernel.org>, <chenhuacai@kernel.org>, <kernel@xen0n.name>,
+	<hca@linux.ibm.com>, <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
+	<borntraeger@linux.ibm.com>, <svens@linux.ibm.com>, <oleg@redhat.com>,
+	<tglx@kernel.org>, <mingo@redhat.com>, <bp@alien8.de>,
+	<dave.hansen@linux.intel.com>, <hpa@zytor.com>, <arnd@arndb.de>,
+	<shuah@kernel.org>, <kevin.brodsky@arm.com>, <yeoreum.yun@arm.com>,
+	<anshuman.khandual@arm.com>, <thuth@redhat.com>, <ryan.roberts@arm.com>,
+	<mark.rutland@arm.com>, <song@kernel.org>, <ziyao@disroot.org>,
+	<linusw@kernel.org>, <schuster.simon@siemens-energy.com>,
+	<jremus@linux.ibm.com>, <akpm@linux-foundation.org>,
+	<mathieu.desnoyers@efficios.com>, <kmal@cock.li>, <dvyukov@google.com>,
+	<reddybalavignesh9979@gmail.com>, <x86@kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+	<loongarch@lists.linux.dev>, <linux-s390@vger.kernel.org>,
+	<linux-arch@vger.kernel.org>, <linux-kselftest@vger.kernel.org>
+References: <20260320104222.1381274-1-ruanjinjie@huawei.com>
+ <20260320104222.1381274-4-ruanjinjie@huawei.com> <acz5mOrm6_E1UBwV@arm.com>
+From: Jinjie Ruan <ruanjinjie@huawei.com>
+In-Reply-To: <acz5mOrm6_E1UBwV@arm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: kwepems100001.china.huawei.com (7.221.188.238) To
+ dggpemf500011.china.huawei.com (7.185.36.131)
 
-On Wed, Mar 25, 2026 at 08:05:22AM -0700, Ian Rogers wrote:
-> On Wed, Mar 25, 2026 at 5:06 AM Thomas Richter <tmricht@linux.ibm.com> wrote:
-> >
-> > Remove global variable addr2line_timeout_ms and add is as member
-> > to symbol_conf structure. No functional change.
-> >
-> > Fixes: 257046a36750a ("perf srcline: Fallback between addr2line implementations")
-> > Cc: Ian Rogers <irogers@google.com>
-> > Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+
+
+On 2026/4/1 18:55, Catalin Marinas wrote:
+> On Fri, Mar 20, 2026 at 06:42:21PM +0800, Jinjie Ruan wrote:
+>> Use the generic TIF bits defined in <asm-generic/thread_info_tif.h> for
+>> standard thread flags (TIF_SIGPENDING, TIF_NEED_RESCHED, TIF_NOTIFY_RESUME,
+>> TIF_RESTORE_SIGMASK, TIF_SINGLESTEP, etc.) instead of defining
+>> them locally.
+>>
+>> Arm64-specific bits (TIF_FOREIGN_FPSTATE, TIF_MTE_ASYNC_FAULT, TIF_SVE,
+>> TIF_SSBD, etc.) are renumbered to start at bit 16 to avoid conflicts.
+>>
+>> This enables RSEQ optimizations which require CONFIG_HAVE_GENERIC_TIF_BITS
+>> combined with the generic entry infrastructure (already used by arm64).
+>>
+>> By the way, remove TIF_FREEZE because this flag became unused since
+>> commit d88e4cb67197 ("freezer: remove now unused TIF_FREEZE").
+>>
+>> Cc: Thomas Gleixner <tglx@kernel.org>
+>> Reviewed-by: Kevin Brodsky <kevin.brodsky@arm.com>
+>> Reviewed-by: Linus Walleij <linusw@kernel.org>
+>> Reviewed-by: Yeoreum Yun <yeoreum.yun@arm.com>
+>> Signed-off-by: Jinjie Ruan <ruanjinjie@huawei.com>
 > 
-> I'm a bit curious about the no functional change and the Fixes tag :-)
-
-Right, it should belong somewhere else.
-
-
-> I think the trend for addr2line is to use libdw. The forking of both
-> objdump and addr2line is quite brittle and slow.
+> Acked-by: Catalin Marinas <catalin.marinas@arm.com>
 > 
-> Reviewed-by: Ian Rogers <irogers@google.com>
+> Given that it's touching multiple trees, I guess it's a series for
+> Andrew?
+
+Yes, this series touches x86, arm64, s390 and loongarch. It's best for
+Andrew to help merge this in the -mm tree.
+
+Moreover, the latter two arm64-related patches depend on patch serise
+"arm64:
+entry: Convert to Generic Entry" v14 being merged first, while the first
+two patches can be merged in advance.
+
 > 
-> Thanks,
-> Ian
-> 
-> > ---
-> >  tools/perf/util/addr2line.c   | 8 ++++----
-> >  tools/perf/util/addr2line.h   | 2 --
-> >  tools/perf/util/config.c      | 3 +--
-> >  tools/perf/util/symbol_conf.h | 1 +
-> >  4 files changed, 6 insertions(+), 8 deletions(-)
-> >
-> > diff --git a/tools/perf/util/addr2line.c b/tools/perf/util/addr2line.c
-> > index e9f084db0802..1b7f66ece570 100644
-> > --- a/tools/perf/util/addr2line.c
-> > +++ b/tools/perf/util/addr2line.c
-> > @@ -18,9 +18,6 @@
-> >
-> >  #define MAX_INLINE_NEST 1024
-> >
-> > -/* If addr2line doesn't return data for 5 seconds then timeout. */
-> > -int addr2line_timeout_ms = 5 * 1000;
-> > -
-> >  static int filename_split(char *filename, unsigned int *line_nr)
-> >  {
-> >         char *sep;
-> > @@ -87,6 +84,9 @@ static struct child_process *addr2line_subprocess_init(const char *addr2line_pat
-> >                 return NULL;
-> >         }
-> >
-> > +       if (!symbol_conf.addr2line_timeout_ms)
-> > +               symbol_conf.addr2line_timeout_ms = 5 * 1000;
-
-Please put this in the util/symbol.c where the symbol_conf is defined.
-
-Thanks,
-Namhyung
-
-
-> > +
-> >         return a2l;
-> >  }
-> >
-> > @@ -335,7 +335,7 @@ int cmd__addr2line(const char *dso_name, u64 addr,
-> >                 goto out;
-> >         }
-> >         io__init(&io, a2l->out, buf, sizeof(buf));
-> > -       io.timeout_ms = addr2line_timeout_ms;
-> > +       io.timeout_ms = symbol_conf.addr2line_timeout_ms;
-> >         switch (read_addr2line_record(&io, cmd_a2l_style, dso_name, addr, /*first=*/true,
-> >                                       &record_function, &record_filename, &record_line_nr)) {
-> >         case -1:
-> > diff --git a/tools/perf/util/addr2line.h b/tools/perf/util/addr2line.h
-> > index d35a47ba8dab..75989a92f16b 100644
-> > --- a/tools/perf/util/addr2line.h
-> > +++ b/tools/perf/util/addr2line.h
-> > @@ -8,8 +8,6 @@ struct dso;
-> >  struct inline_node;
-> >  struct symbol;
-> >
-> > -extern int addr2line_timeout_ms;
-> > -
-> >  int cmd__addr2line(const char *dso_name, u64 addr,
-> >                    char **file, unsigned int *line_nr,
-> >                    struct dso *dso,
-> > diff --git a/tools/perf/util/config.c b/tools/perf/util/config.c
-> > index 31541e03aab7..573b3a3f5999 100644
-> > --- a/tools/perf/util/config.c
-> > +++ b/tools/perf/util/config.c
-> > @@ -19,7 +19,6 @@
-> >  #include "util/hist.h"  /* perf_hist_config */
-> >  #include "util/stat.h"  /* perf_stat__set_big_num */
-> >  #include "util/evsel.h"  /* evsel__hw_names, evsel__use_bpf_counters */
-> > -#include "util/addr2line.h"  /* addr2line_timeout_ms */
-> >  #include "srcline.h"
-> >  #include "build-id.h"
-> >  #include "debug.h"
-> > @@ -459,7 +458,7 @@ static int perf_default_core_config(const char *var, const char *value)
-> >                 proc_map_timeout = strtoul(value, NULL, 10);
-> >
-> >         if (!strcmp(var, "core.addr2line-timeout"))
-> > -               addr2line_timeout_ms = strtoul(value, NULL, 10);
-> > +               symbol_conf.addr2line_timeout_ms = strtoul(value, NULL, 10);
-> >
-> >         if (!strcmp(var, "core.addr2line-disable-warn"))
-> >                 symbol_conf.addr2line_disable_warn = strtoul(value, NULL, 10);
-> > diff --git a/tools/perf/util/symbol_conf.h b/tools/perf/util/symbol_conf.h
-> > index ff229942fbb1..c86f4c0ca46b 100644
-> > --- a/tools/perf/util/symbol_conf.h
-> > +++ b/tools/perf/util/symbol_conf.h
-> > @@ -80,6 +80,7 @@ struct symbol_conf {
-> >                         *bt_stop_list_str;
-> >         const char              *addr2line_path;
-> >         enum a2l_style  addr2line_style[MAX_A2L_STYLE];
-> > +       int             addr2line_timeout_ms;
-> >         unsigned long   time_quantum;
-> >         struct strlist  *dso_list,
-> >                         *comm_list,
-> > --
-> > 2.53.0
-> >
