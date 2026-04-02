@@ -1,57 +1,57 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 375DF3603D7;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5953A3603DF;
 	Thu,  2 Apr 2026 04:21:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775103721; cv=none; b=TfndRV1mzPkzYyh0W4BMpYcS1REni3j8eE6N5OBmT1WUyuYzxtIhbQKwDDzGxjpsZuQi+oq5TTndPSsMrvYBqWeGSJS0bMCpH1e3Kjfis+Rt/wiYGmjQhmFl5UA1D8NZXPXSgIedyvcpulcppeyUmScKYa3wkvfv0ShKOszBR4I=
+	t=1775103721; cv=none; b=e+TZTu10lQyODX0/3J7F4RMk4splk9EiYL5S8azidgpgi26NVEnIkDz6TLbqTL1TSyiWvFcIRaR8LELo2CjByB397L6dzMZWyozLNYWKAJZampQKeo3yc1yATwWSXo2vEv1vMT96iQSBrDrWSxOfmpOOEOZbAq3UoTEqIX/p0qA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1775103721; c=relaxed/simple;
-	bh=jfIPUtOYNhLOAOyEu0oyWgvZX+Bji6FHDPvDOhXBHJo=;
+	bh=N/VSvqn2JYFfBg/P+IN7v6sCIHdZ7lS9J0WyACXKEZY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=aCqfdRH7vE4vvlEDEnKH382vUwLjFrDBRjZIWR7Qnetnhx73A36MUd7nlJkzZEzA1XVlVch2AFdKTZ6ils7II83rIp1SC/ipZi+98Pe67aJJImj60sWZC0hUkmJm5VgbLtQ8hum88OZdmt5KRnANwwdtEo34Td2lMSU5btuTi58=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DME2ModC; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=Jdam8B0CSDR8wTNBdMYmZsif8q7uIIiDR36xyQraL2h69u/+Yzef3f7dpcmmuBGQpZxNLBwyDJlmoCcLX+YLj5Fixw2u6k8xCxqv8qMtUs+TvtlzpjyytlI2tODkZrMS0JTJtU7viQbBw3SSisSRA2LZOquVXvJwGoN76COFffI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qQ/OiA77; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DME2ModC"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63214m2T446369;
-	Thu, 2 Apr 2026 04:21:37 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qQ/OiA77"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 631KJDuN202727;
+	Thu, 2 Apr 2026 04:21:36 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=p4Z8YlQ6h3M4VjuQc
-	6XgTzA8aek+fO8tFMkjuzjLYjk=; b=DME2ModCfS406wlw1EP/Y3v3VJqZFNNR/
-	lsUZdSUWTeaBu0q8OSHYOR0UKd7UJbEbHMbeP1fSADwn9PrMSa/7iZLAse+XLDwu
-	c9LvPEpixeHj0NDM76ZuqK38pHeME1nFe7/1f5yhB6DIVrFzQHtbBsJsKfFEg7pJ
-	HhlONV0qfMAD5LPLIMBWFOlb422mbeI1o3BkgoPWGGJ7J82D10DKky2Q6JBml/0l
-	NJKkVrEUgdcfLhILEgh11BSf3Yk6Phqx6d00WE1pFkMcQcT6fgUFEfy3FfL+HWkB
-	SphitBBydLR9DhkSJOaf2cWUwIaNj9ufU7KtXdgGYBH64QvkzhXZw==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d66msabru-1
+	:mime-version:references:subject:to; s=pp1; bh=dKzSuHEOWIKZpSWOw
+	Okk+3mV6Q3g/wNdlvSBX4J10R0=; b=qQ/OiA77nJbpICVKaK2tFPhHC5wuq4ooz
+	UOhQYd8SoG18/N+xG36+sIdUtnd8A4V77XHk5sGsIyQGWdBbMn6Z3nTv8b23f787
+	g9PWA8R8AuNUtsBI/CUyxp1I2nSdXRvSPP8O/B6h6N1zlMdnmjMm6zGS9vQb23L1
+	zc6fPaoEXgSdzJfpJo116+oRAIwQZG+6dh2mm361+lMJqd4finKFnhL/FX9omDxN
+	iKjWH/Sut8deEZ4sBPMw8qFRDnj9Z7SBrY/NF9CZBfVPh1uaCnsxsTPrmh+JFv6W
+	smQStJhk4y8vw210AOtOLl12kcG6ISWB9DcCSYS+62MBIJlVYU3gQ==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d66nnu7sx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 02 Apr 2026 04:21:36 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 6320GNpG022271;
-	Thu, 2 Apr 2026 04:21:36 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d6tan8kb4-1
+	Thu, 02 Apr 2026 04:21:35 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63218UYQ030995;
+	Thu, 2 Apr 2026 04:21:35 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d6uhk0ee7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 02 Apr 2026 04:21:36 +0000
+	Thu, 02 Apr 2026 04:21:34 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6324LWok44695962
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6324LVkJ52166966
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 2 Apr 2026 04:21:32 GMT
+	Thu, 2 Apr 2026 04:21:31 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 31A8A20043;
-	Thu,  2 Apr 2026 04:21:32 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DB6412004F;
+	by IMSVA (Postfix) with ESMTP id 1124620040;
 	Thu,  2 Apr 2026 04:21:31 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BC2452004F;
+	Thu,  2 Apr 2026 04:21:30 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  2 Apr 2026 04:21:31 +0000 (GMT)
+	Thu,  2 Apr 2026 04:21:30 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
 To: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -71,9 +71,9 @@ Cc: Andreas Grapentin <Andreas.Grapentin@ibm.com>,
         Suzuki K Poulose <suzuki.poulose@arm.com>,
         Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
         Will Deacon <will@kernel.org>, Zenghui Yu <yuzenghui@huawei.com>
-Subject: [PATCH v1 16/27] KVM: Make device name configurable
-Date: Thu,  2 Apr 2026 06:21:12 +0200
-Message-ID: <20260402042125.3948963-17-seiden@linux.ibm.com>
+Subject: [PATCH v1 13/27] KVM: arm64: Extract & share ipa size shift calculation
+Date: Thu,  2 Apr 2026 06:21:09 +0200
+Message-ID: <20260402042125.3948963-14-seiden@linux.ibm.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260402042125.3948963-1-seiden@linux.ibm.com>
 References: <20260402042125.3948963-1-seiden@linux.ibm.com>
@@ -85,118 +85,126 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=J6enLQnS c=1 sm=1 tr=0 ts=69cdeed0 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-GUID: Aqpm_17dFFJhVhS3HSEJLOS10jh5pdEa
+X-Authority-Analysis: v=2.4 cv=KslAGGWN c=1 sm=1 tr=0 ts=69cdeed0 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=YqMzC722GnigpkU_z3QA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDAyMDAzNCBTYWx0ZWRfX8iMNmbESXhM0
- gRecpM58TvFFUeD4ZYj0JqZpj341HeJ3ZXOepmQsgEI2sT1lku2JNTUq/zimb3Vy/mzppYuW3t5
- QR+Wi/w9xdoSbIRbF0CJakkL6/6TEIqTAyzUowBzDf9xf5ThiwrhSh0hJu59DY30Po7EdUVE0sj
- tLh+vBKwfwe1KkizOqr8SbZE2u3FIkefG1DznzDCsXF0pRoFN9B57AGyiA7Yix0tqkjpYVdArn3
- k320BFFq2NlsrD4fr/2qSzjTGD2eZyH1dXDXQIdv/zuVDJzs591D6mrmKi+HplcDUNjyl0bXL7r
- 2/r9wpoRUljuSuMP8KlmzW12cHW0ktS+JCibXvRZ7DGzeWR1PKzZaWLS2Y5kjWQrzR21YDuIOHm
- va+0Z4DBvC647zGJ/s3nP8vK4E9bqswOUa3VqeIVexc2vKIRcZLb8rX1e7dNz5k8C+bQ/zGovIp
- 3Dp0rpuh/0jFE1R7Q0Q==
-X-Proofpoint-GUID: upYGnz-oXvGeGqqMRUrc_nd6zQXZRgxC
-X-Proofpoint-ORIG-GUID: upYGnz-oXvGeGqqMRUrc_nd6zQXZRgxC
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=MB2ALdkwiJlipvWvu_wA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDAyMDAzNCBTYWx0ZWRfX/HVbOUwUc316
+ pSXOoYbhiSCDWHZZwzkW30Ca7QeUTOTIo+GdtAVjCWDMVkHaF2egp2rjSvvxYS6t3YX7pF2I/KZ
+ wgpAUqvN5mgjpMW6v1fF6RmytDyyqeVRfrz13uonBqGOvmeDw0SLvIAViAIwN3Enff1HQgE/rw+
+ 8ZdP3WtRFJeZZ9lD/81N3UGF7jm71oTU255QwAeWJAMcL+37CHUcCyl2rUfT2yUX1YgMgg7RKiM
+ nzLbhane0NmSJgsOnTH6wpq6/dL6cbMlqhPvoB3fWfDAiWuUs3vrOxGu1TtZJxB4y8qkv7Sw0zi
+ SjHoh1cMncJeYPFVoLKi4ZceyXE0ofzlEv3sYD2A3CgbYlINHBLhVz4YQxCM5mIWjfYj0hUWYrE
+ fVFUW6yHxCi59mMemfgGSR0q1m6zsm9sRJwW0fYehbSST7SUbq+XJoaISEqGteWALBR1BF29yOm
+ 1EWGxHurnSrDEXJK6pQ==
+X-Proofpoint-ORIG-GUID: Aqpm_17dFFJhVhS3HSEJLOS10jh5pdEa
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-02_01,2026-04-01_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 clxscore=1015 adultscore=0 priorityscore=1501 bulkscore=0
- phishscore=0 malwarescore=0 lowpriorityscore=0 spamscore=0 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2604020034
+ malwarescore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0
+ phishscore=0 adultscore=0 bulkscore=0 impostorscore=0 clxscore=1011
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
+ definitions=main-2604020034
 
-Allow KVM implementations to choose alternative device names. This is
-especially useful for architectures providing multiple KVM
-implementations simultaneously.
+Extract the ipa shift calculation from kvm_init_ipa_range into its own
+function kvm_vm_type_ipa_size_shift to be shared across architectures.
+
+User space passes a type parameter to the VM creation ioctl, indicating
+the physical size of the VM. Therefore extract the ipa shift calculation
+from kvm_init_ipa_range into its own function kvm_vm_type_ipa_size_shift,
+so all implementers of arm64 KVM can make use of it for VM creation.
 
 Co-developed-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- include/linux/kvm_host.h |  4 +++-
- virt/kvm/kvm_main.c      | 21 ++++++++++++++-------
- 2 files changed, 17 insertions(+), 8 deletions(-)
+ arch/arm64/kvm/mmu.c         | 18 ++++++------------
+ include/kvm/arm64/kvm_host.h |  1 +
+ virt/kvm/arm64/arm.c         | 21 +++++++++++++++++++++
+ 3 files changed, 28 insertions(+), 12 deletions(-)
 
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index ff2aff71e207..d5d9757e40ca 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -1062,7 +1062,9 @@ static inline void kvm_irqfd_exit(void)
+diff --git a/arch/arm64/kvm/mmu.c b/arch/arm64/kvm/mmu.c
+index e19ff77b3cd5..9d71bb3627fc 100644
+--- a/arch/arm64/kvm/mmu.c
++++ b/arch/arm64/kvm/mmu.c
+@@ -874,27 +874,21 @@ static struct kvm_pgtable_mm_ops kvm_s2_mm_ops = {
+ 
+ static int kvm_init_ipa_range(struct kvm_s2_mmu *mmu, unsigned long type)
  {
+-	u32 kvm_ipa_limit = get_kvm_ipa_limit();
+ 	u64 mmfr0, mmfr1;
+ 	u32 phys_shift;
++	int r;
+ 
+ 	if (type & ~KVM_VM_TYPE_ARM_IPA_SIZE_MASK)
+ 		return -EINVAL;
+ 
+ 	phys_shift = KVM_VM_TYPE_ARM_IPA_SIZE(type);
+ 	if (is_protected_kvm_enabled()) {
+-		phys_shift = kvm_ipa_limit;
+-	} else if (phys_shift) {
+-		if (phys_shift > kvm_ipa_limit ||
+-		    phys_shift < ARM64_MIN_PARANGE_BITS)
+-			return -EINVAL;
++		phys_shift = get_kvm_ipa_limit();
+ 	} else {
+-		phys_shift = KVM_PHYS_SHIFT;
+-		if (phys_shift > kvm_ipa_limit) {
+-			pr_warn_once("%s using unsupported default IPA limit, upgrade your VMM\n",
+-				     current->comm);
+-			return -EINVAL;
+-		}
++		r = kvm_vm_type_ipa_size_shift(type);
++		if (r < 0)
++			return r;
++		phys_shift = r;
+ 	}
+ 
+ 	mmfr0 = read_sanitised_ftr_reg(SYS_ID_AA64MMFR0_EL1);
+diff --git a/include/kvm/arm64/kvm_host.h b/include/kvm/arm64/kvm_host.h
+index 20b824ecf16e..8c39ec485730 100644
+--- a/include/kvm/arm64/kvm_host.h
++++ b/include/kvm/arm64/kvm_host.h
+@@ -33,6 +33,7 @@ int kvm_vcpu_init_check_features(struct kvm_vcpu *vcpu,
+ 				 const struct kvm_vcpu_init *init);
+ bool kvm_vcpu_init_changed(struct kvm_vcpu *vcpu,
+ 			   const struct kvm_vcpu_init *init);
++int kvm_vm_type_ipa_size_shift(unsigned long type);
+ 
+ /* MMIO helpers */
+ void kvm_mmio_write_buf(void *buf, unsigned int len, unsigned long data);
+diff --git a/virt/kvm/arm64/arm.c b/virt/kvm/arm64/arm.c
+index b47adef65e5f..0bbfbe63e558 100644
+--- a/virt/kvm/arm64/arm.c
++++ b/virt/kvm/arm64/arm.c
+@@ -52,3 +52,24 @@ bool kvm_vcpu_init_changed(struct kvm_vcpu *vcpu,
+ 	return !bitmap_equal(vcpu->kvm->arch.vcpu_features, &features,
+ 			     KVM_VCPU_MAX_FEATURES);
  }
- #endif
--int kvm_init(unsigned vcpu_size, unsigned vcpu_align, struct module *module);
-+int kvm_init(unsigned int vcpu_size, unsigned int vcpu_align, struct module *module);
-+int kvm_init_with_dev(unsigned int vcpu_size, unsigned int vcpu_align,
-+		      struct module *module, const char *dev_name, int minor);
- void kvm_exit(void);
- 
- bool file_is_kvm(struct file *file);
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 642f9e9638cc..d05e2c1e6fb0 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -5547,9 +5547,7 @@ static struct file_operations kvm_chardev_ops = {
- };
- 
- static struct miscdevice kvm_dev = {
--	KVM_MINOR,
--	"kvm",
--	&kvm_chardev_ops,
-+	.fops = &kvm_chardev_ops,
- };
- 
- #ifdef CONFIG_KVM_GENERIC_HARDWARE_ENABLING
-@@ -6321,13 +6319,13 @@ static void kvm_uevent_notify_change(unsigned int type, struct kvm *kvm)
- 	kfree(env);
- }
- 
--static void kvm_init_debug(void)
-+static void kvm_init_debug(const char *dev_name)
- {
- 	const struct file_operations *fops;
- 	const struct kvm_stats_desc *pdesc;
- 	int i;
- 
--	kvm_debugfs_dir = debugfs_create_dir("kvm", NULL);
-+	kvm_debugfs_dir = debugfs_create_dir(dev_name, NULL);
- 
- 	for (i = 0; i < kvm_vm_stats_header.num_desc; ++i) {
- 		pdesc = &kvm_vm_stats_desc[i];
-@@ -6463,11 +6461,20 @@ void kvm_unregister_perf_callbacks(void)
- }
- #endif
- 
--int kvm_init(unsigned vcpu_size, unsigned vcpu_align, struct module *module)
-+int kvm_init(unsigned int vcpu_size, unsigned int vcpu_align, struct module *module)
++
++int kvm_vm_type_ipa_size_shift(unsigned long type)
 +{
-+	return kvm_init_with_dev(vcpu_size, vcpu_align, module, "kvm", KVM_MINOR);
++	int phys_shift;
++
++	phys_shift = KVM_VM_TYPE_ARM_IPA_SIZE(type);
++	if (phys_shift) {
++		if (phys_shift > get_kvm_ipa_limit() ||
++		    phys_shift < ARM64_MIN_PARANGE_BITS)
++			return -EINVAL;
++	} else {
++		phys_shift = KVM_PHYS_SHIFT;
++		if (phys_shift > get_kvm_ipa_limit()) {
++			pr_warn_once("%s using unsupported default IPA limit, upgrade your VMM\n",
++				     current->comm);
++			return -EINVAL;
++		}
++	}
++
++	return phys_shift;
 +}
-+
-+int kvm_init_with_dev(unsigned int vcpu_size, unsigned int vcpu_align,
-+		      struct module *module, const char *dev_name, int minor)
- {
- 	int r;
- 	int cpu;
- 
-+	kvm_dev.name = dev_name;
-+	kvm_dev.minor = minor;
-+
- 	/* A kmem cache lets us meet the alignment requirements of fx_save. */
- 	if (!vcpu_align)
- 		vcpu_align = __alignof__(struct kvm_vcpu);
-@@ -6505,7 +6512,7 @@ int kvm_init(unsigned vcpu_size, unsigned vcpu_align, struct module *module)
- 	kvm_preempt_ops.sched_in = kvm_sched_in;
- 	kvm_preempt_ops.sched_out = kvm_sched_out;
- 
--	kvm_init_debug();
-+	kvm_init_debug(kvm_dev.name);
- 
- 	r = kvm_vfio_ops_init();
- 	if (WARN_ON_ONCE(r))
 -- 
 2.51.0
 
