@@ -1,261 +1,132 @@
-Received: from CY3PR05CU001.outbound.protection.outlook.com (mail-westcentralusazon11013031.outbound.protection.outlook.com [40.93.201.31])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 968F63C13FC;
-	Thu,  2 Apr 2026 11:25:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.201.31
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775129166; cv=fail; b=aMJE48Hn/eDJlc1U7wUFJeFf/LXNSzkBRRMHg6yreChqRsQFQPmEnp640jkPirMP9BFbJ0DkPVGijDKXg/BHQbU18sprYn91xzXWHecCm0K7W3PuLfKgL4huNhWKUj6ugzOPOxCrlSl9km+RM1YgCRcNeiW6H2V8NIeKXwiEDYQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775129166; c=relaxed/simple;
-	bh=GrCOisxPcaMAvgbfr3+/whh2DeWnX4UZQQDgFRHBjLE=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=S8wDxlCyKLdX3EvMl8y3T2ZuaAxyEH8fpXnGxbekmutbhreRj/vjaf/M86aHLbnQRuENoEoFxDG3Nx5tEtqUVyZUXMF8AWv+QtYFfLojNkUWyo1As+lVGKNoBrFM0ds2J8kzXZl+okWQbXYW0tJVxd/Z07ApBVcsrh50h0/M6eo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=d/k1sR8g; arc=fail smtp.client-ip=40.93.201.31
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA828390205;
+	Thu,  2 Apr 2026 11:27:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775129260; cv=none; b=pSUW3eBe+kCnq2zwhEfZ1O34pURJWOSfvkvEEcn8l2xuaHVTswKjvxEyO9YVv8grOQou3v9bjb2qMhaOFkO5odjzI6XMVEGfk0cKhYPbs03fmVe1lpySjOe8AZMV7Qwx6z9NXWst5YqLSErvo3YPndkxyDkfQ4p5imkdxKvVaTU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775129260; c=relaxed/simple;
+	bh=EfDeelROU6o6K7Owo7XkjToyiIraH8SU/eYJ2471fYE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=G6Y/xHZ143LZ8Cp7IX+nhwxu+5LLhA1Ge+7aBDS1vgOhar9xnNhJX6awVOAlPC3wi3kPmATfsLInMNfzqvVrr5cqpDmg3QPl/TMiXclylswQOBWIMo2OmHutM2W8xixoGZ3cgmQ67VnjbN1kNt4qJwdrYD43jRhGpOCIiNYsO6U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YgF6jzFi; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="d/k1sR8g"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Cz+V8SaDiVXk2YcQGZ8f4cNrDC35oFI0kuY3Cvti2rNXfkR3sSgg93Teu+1yafdQwXw0Vcaw7s2erRwPFGAT1YTqT8Du/Ma8sfRgh4+Pmh+vzrl5LXATYK3fxkJJHoEfgLDj+lA3ZptExq4ZO68sbbG7ArvMuPEa5CwPJwdGcQ9X1pdRH2LijmuuB8icgv+8o97Vdmd+YlW7hIT1RRXMZbOuhbxPQAPbUzATLUzORGsj/8f9BgH4Cd+2QtZaqpjoTkg4hDo1M+xb4oJHyQTlaRDQtWxunZw0jb4ZcQuWG0dkTSghIEe6JGif8TE46IPOUHID6c6AZFCMzizN/vvx6w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2WMnMPmrxQrTbiw6MNrx6sOXgjqHWeuN90cGW0LyyWc=;
- b=r/ruXaxSA9ONUSRBtBucuqNw0Qx0/PgKvsttj06bfbslUDhqprzu8rW/RSvJ4sK2VvWCNAAEo9863gaRirHpKqEYIHlZUttrsUPRAfmH1a+XTQxnlRpref203i8IabHtpMEEYwyk3TjDk98RGTM8RmuMfuzIaLaTrmNO/OCOtA1IsjNwWtwu4DAp/8fM/6vDTpAWZdwHm9PpGmbp8wvb10YQvRcty5QGOeLAbpsLw1v3MNBxjGAVoAGDLj2U0DVrEVDCI7tscRsMg8xbPxOqiCvAB9d3fw3UfCqbs8DLA1Ct0kJIoLwHdSPHp5lEnEFOjhuGie3taE3Fstwt4e1I+w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=kernel.org smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2WMnMPmrxQrTbiw6MNrx6sOXgjqHWeuN90cGW0LyyWc=;
- b=d/k1sR8gZH99Fl5O6kLBnK1upSqj/EoxsOnnzoIbLZp1QvXnYh5q9S5fAVDZJoPh7LLy1z0K+zh22uZU7sM45zXAGncLoHl6GJt680p8ebEwSNpwVuj2rNEjv2TzTXj41tIwnWMxYTRjeSusxC3RwfOFCzTvH+Nj4S0Nh9Gakk4=
-Received: from SN7PR04CA0067.namprd04.prod.outlook.com (2603:10b6:806:121::12)
- by IA1PR12MB7687.namprd12.prod.outlook.com (2603:10b6:208:421::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9769.15; Thu, 2 Apr
- 2026 11:25:46 +0000
-Received: from SN1PEPF0002636E.namprd02.prod.outlook.com
- (2603:10b6:806:121:cafe::62) by SN7PR04CA0067.outlook.office365.com
- (2603:10b6:806:121::12) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9745.30 via Frontend Transport; Thu,
- 2 Apr 2026 11:25:46 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
-Received: from satlexmb07.amd.com (165.204.84.17) by
- SN1PEPF0002636E.mail.protection.outlook.com (10.167.241.139) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9769.17 via Frontend Transport; Thu, 2 Apr 2026 11:25:46 +0000
-Received: from BLRKPRNAYAK.amd.com (10.180.168.240) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Thu, 2 Apr
- 2026 06:25:38 -0500
-From: K Prateek Nayak <kprateek.nayak@amd.com>
-To: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, "Peter
- Zijlstra" <peterz@infradead.org>, Sebastian Andrzej Siewior
-	<bigeasy@linutronix.de>, Borislav Petkov <bp@alien8.de>, Dave Hansen
-	<dave.hansen@linux.intel.com>, <x86@kernel.org>, Catalin Marinas
-	<catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Paul Walmsley
-	<pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou
-	<aou@eecs.berkeley.edu>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
-	<gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
-	"David Laight" <david.laight.linux@gmail.com>, Samuel Holland
-	<samuel.holland@sifive.com>
-CC: Darren Hart <dvhart@infradead.org>, Davidlohr Bueso <dave@stgolabs.net>,
-	=?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@igalia.com>,
-	<linux-arch@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-s390@vger.kernel.org>, <linux-riscv@lists.infradead.org>,
-	<linux-arm-kernel@lists.infradead.org>, K Prateek Nayak
-	<kprateek.nayak@amd.com>
-Subject: [PATCH v3 7/7] futex: Use runtime constants for __futex_hash() hot path
-Date: Thu, 2 Apr 2026 11:22:50 +0000
-Message-ID: <20260402112250.2138-8-kprateek.nayak@amd.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260402112250.2138-1-kprateek.nayak@amd.com>
-References: <20260402112250.2138-1-kprateek.nayak@amd.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YgF6jzFi"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 631K0WS7351518;
+	Thu, 2 Apr 2026 11:26:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=134Al/
+	W95knRgbclnuh/o+ul0rtxFJ1H52x/sjCobRs=; b=YgF6jzFipfEyAM6zl5a9Gx
+	VzeJCcS4/lv3Djnz20DaNE7SeZZ/o4F0zBHs8qcfU8R+A4XbnHDonEorOHLKLd/Z
+	kju5XBFDccNDppwQbDtzpjg7kAgvQPul7NckWK8cupN/675jwZsnZr06hwuHhkyd
+	+c/gNiQsMoiK8GscB1oFx2cLrQ+1g6wSVmazTkPC9Kuh86vR9xLaSCF1X8d978n5
+	EPGQfQS5goZAl2KiYAnGGvnsLXcBBV765e/zfNi40tCmWSmqg0h1nFhmDKroog04
+	c1BxkHhaGfcOdL34LQ8Ngz82zCKTPKjvBfxhT8oES2RK5x6U4+NmkTzA/Vkh0ItQ
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d66g24jr0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 02 Apr 2026 11:26:59 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 632ArD3G021651;
+	Thu, 2 Apr 2026 11:26:58 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d6sassy7a-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 02 Apr 2026 11:26:57 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 632BQscG47448446
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 2 Apr 2026 11:26:54 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2CE7820043;
+	Thu,  2 Apr 2026 11:26:54 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CB71920040;
+	Thu,  2 Apr 2026 11:26:53 +0000 (GMT)
+Received: from [9.52.200.39] (unknown [9.52.200.39])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  2 Apr 2026 11:26:53 +0000 (GMT)
+Message-ID: <c251ca9c-6fae-4f64-8e10-792f42872582@linux.ibm.com>
+Date: Thu, 2 Apr 2026 13:26:53 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: satlexmb08.amd.com (10.181.42.217) To satlexmb07.amd.com
- (10.181.42.216)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SN1PEPF0002636E:EE_|IA1PR12MB7687:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4a247bbf-bdcd-44d4-660f-08de90aa95b7
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700016|1800799024|7416014|376014|82310400026|921020|18002099003|13003099007|56012099003|22082099003;
-X-Microsoft-Antispam-Message-Info:
-	gIy1AprgtkbovkxLKdDwgawWDjpvMw+poVNfUUtmZYoySg6ylbxZvzTMoySMAT71tZAoQg5Vjo1pHVOG0fMpKwLq1BFiXo/7FffliHkqDFTztPVM2HdpIBLdUhR7hhoZedZKSfMxUNc0r674pGuRk6CaMiZqUyLofzNUYSGr2x6xToSHc/P480fvj/CUv7JZuPaO8WGQNWJrm2LJfpxX2PQoNsS73oTR+tSL9dvSLa2A+kuKvm1q9MfQejKdVPWliEFDa0qvjYXw5OMtr6vzVIa0K5Oi0ofPQWPuTJsUeiag9dnRbrXRmCf0IWuJHFA94nIa4s3JytV0fJ7mVwuM1UP6Og6NbX6m284h/jwW4Z9gWk+mbA4SLT4Qg5c77oarEw4CnTqK6i5ysZxBEMxkL+C5j/ClWFpIrzyN3jgn/unt0UWwl7GnTzsS8AzOl+hFrww070+16IuA3BfLovRt1w4WtQkSFveNwe5606xClM/sC0Ckx/N5yCZPrhlwdNpWsgjh/xLHiVeQXYyvfFrGPT8CXYnAtFEWdP5YJUfFUaTb+VAQEXTt2XwEEiQXyx2RCnOH4lhWujawZW6yCF9pLoVxtmTWZyvSm7ERN+T1rdy+uCQm+mdRJ6SNx8zo34BqdTbFpTRRmUU3KNKoIEmDNuAN5y6/YLAM8bR2TSShiqaD9z1n2DV3drxUfdG/A2/vub6Bu75vc+n1ZbsjzPmlrYrlivgDGKd6WLh07nY0WWYM2r4iu7B8OhjK4Yt+51Zae3HXDgDlQDhzX6zKQvx47Q==
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(36860700016)(1800799024)(7416014)(376014)(82310400026)(921020)(18002099003)(13003099007)(56012099003)(22082099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	vrOwWK4Bod3z1tHDppGAJ71xRhJvwJuES1T3icT4wtxmfwRwXsfP/bHEcKwQKpwhgnWVcNvNsvgWSgEVA1vZLyID6DvnD3ADDNOfE9sPVJmaMA1m2GoYSnoaC9jGXQCwGZN8cPjX6YmfSTG1OGchV7ApozALRC1igLp/8qu8gRzv5146eBjS6m69C3E5orFPHoRTvOmpV+VoaHjN9WCTVdWJldmS7L4HoB/wfVJEnXae0ykSYo5RubchZTHnqP69nZ7o6W2Os45K8jIS0AaQhc+/BISMEdOkCJi+uQ48kxcelUSaHCzEdL5FgvjJtCR7dMSGimsqA2yC1Wu5cpLuT8z0e+HsWgYeQjMFnClKMkjWKYuN93OnwFfv6nNQ99ixal0YdabhBmO27NDfQfLGHg2mar4fcdvi6BP4yJNHwVvYd0VmMfteCFXjhdimDOUy
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Apr 2026 11:25:46.3232
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4a247bbf-bdcd-44d4-660f-08de90aa95b7
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	SN1PEPF0002636E.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB7687
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 07/27] KVM: arm64: Provide arm64 KVM API for non-native
+ architectures
+To: Marc Zyngier <maz@kernel.org>, Steffen Eiden <seiden@linux.ibm.com>
+Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org,
+        Andreas Grapentin <Andreas.Grapentin@ibm.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>,
+        Gautam Gala <ggala@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>, Joey Gouly <joey.gouly@arm.com>,
+        Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
+        Oliver Upton <oupton@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+        Will Deacon <will@kernel.org>, Zenghui Yu <yuzenghui@huawei.com>
+References: <20260402042125.3948963-1-seiden@linux.ibm.com>
+ <20260402042125.3948963-8-seiden@linux.ibm.com>
+ <86y0j53caf.wl-maz@kernel.org>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <86y0j53caf.wl-maz@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=Fdo6BZ+6 c=1 sm=1 tr=0 ts=69ce5283 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=z1V4dRcsYzbvUw6_Kx8A:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: HI2DK5H5wC6ad5B9YnVOxaWLprzdU9gx
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDAyMDEwMSBTYWx0ZWRfX3nF5lxvZ6dE7
+ FksS0fkJJanzuKM/mt/NzGShaEpUwNpTTBXziUvh2Pow3kPl5764MGt4zfosBudNpv24oVRUgYm
+ jsbDHWcjLBJbNZk3kJ7PVY8LXySqOGWIOAm+PZn2Aovr1NWSyzfYZhTcAenA3VqwSS6JUGKKGm+
+ NNEbXsLSHWEtDhn10yivwV2WYfTvDee6b/kMbb5xKbjJ2G2XTGbMVJ7bmespGf2xVMg9dfL3arj
+ WDU1Iwx3DufEC6KPvPDIro2YCFANpGSJUbFflqHm3N1xR4l2AOIbXrrSQw0RaqGRaPXpuaWTt20
+ JpmIB05IXepBc/StFDQ4V4HA3cDs6NT7lMbpjCaop0BAVPvKsyDeRZ33jTgElh8zGAWHLUevM0c
+ kNgyp6gBYPStJwHraQ5Lte2qhmrtY7AEVjkaAgnAlRB66GpJQjJNwn1Hy7w4j+PKSfKoJPeFNX5
+ 1VEz6vTWPXj07uBaw7Q==
+X-Proofpoint-GUID: HI2DK5H5wC6ad5B9YnVOxaWLprzdU9gx
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-04-02_01,2026-04-02_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 clxscore=1015 bulkscore=0 suspectscore=0 priorityscore=1501
+ adultscore=0 malwarescore=0 phishscore=0 spamscore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2604020101
 
-From: Peter Zijlstra <peterz@infradead.org>
+Am 02.04.26 um 12:08 schrieb Marc Zyngier:
+>> +static inline bool kvm_supports_32bit_el0(void)
+>> +{
+>> +	return false;
+>> +}
+>> +
+> 
+> This looks wrong. The original file still has:
+> 
+> #define kvm_supports_32bit_el0()                                \
+>          (system_supports_32bit_el0() &&                         \
+>           !static_branch_unlikely(&arm64_mismatched_32bit_el0))
+Thanks for spotting.
+Yes, we will fix. Seems to be a leftover when sorting patches.
 
-Runtime constify the read-only after init data  __futex_shift(shift_32),
-__futex_mask(mask_32), and __futex_queues(ptr) used in __futex_hash()
-hot path to avoid referencing global variable.
-
-This also allows __futex_queues to be allocated dynamically to
-"nr_node_ids" slots instead of reserving config dependent MAX_NUMNODES
-(1 << CONFIG_NODES_SHIFT) worth of slots upfront.
-
-No functional chages intended.
-
-  [ prateek: Dynamically allocate __futex_queues, mark the global data
-    __ro_after_init since they are constified after futex_init(). ]
-
-Link: https://patch.msgid.link/20260227161841.GH606826@noisy.programming.kicks-ass.net
-Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de> # MAX_NUMNODES bloat
-Not-yet-signed-off-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: K Prateek Nayak <kprateek.nayak@amd.com>
----
-Changelog v2..v3:
-
-o No changes.
----
- include/asm-generic/vmlinux.lds.h |  5 +++-
- kernel/futex/core.c               | 42 +++++++++++++++++--------------
- 2 files changed, 27 insertions(+), 20 deletions(-)
-
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index 1e1580febe4b..86f99fa6ae24 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -975,7 +975,10 @@
- 		RUNTIME_CONST(shift, d_hash_shift)			\
- 		RUNTIME_CONST(ptr, dentry_hashtable)			\
- 		RUNTIME_CONST(ptr, __dentry_cache)			\
--		RUNTIME_CONST(ptr, __names_cache)
-+		RUNTIME_CONST(ptr, __names_cache)			\
-+		RUNTIME_CONST(shift, __futex_shift)			\
-+		RUNTIME_CONST(mask,  __futex_mask)			\
-+		RUNTIME_CONST(ptr,   __futex_queues)
- 
- /* Alignment must be consistent with (kunit_suite *) in include/kunit/test.h */
- #define KUNIT_TABLE()							\
-diff --git a/kernel/futex/core.c b/kernel/futex/core.c
-index ff2a4fb2993f..73eade7184dc 100644
---- a/kernel/futex/core.c
-+++ b/kernel/futex/core.c
-@@ -45,23 +45,19 @@
- #include <linux/mempolicy.h>
- #include <linux/mmap_lock.h>
- 
-+#include <asm/runtime-const.h>
-+
- #include "futex.h"
- #include "../locking/rtmutex_common.h"
- 
--/*
-- * The base of the bucket array and its size are always used together
-- * (after initialization only in futex_hash()), so ensure that they
-- * reside in the same cacheline.
-- */
--static struct {
--	unsigned long            hashmask;
--	unsigned int		 hashshift;
--	struct futex_hash_bucket *queues[MAX_NUMNODES];
--} __futex_data __read_mostly __aligned(2*sizeof(long));
-+static u32 __futex_mask __ro_after_init;
-+static u32 __futex_shift __ro_after_init;
-+static struct futex_hash_bucket **__futex_queues __ro_after_init;
- 
--#define futex_hashmask	(__futex_data.hashmask)
--#define futex_hashshift	(__futex_data.hashshift)
--#define futex_queues	(__futex_data.queues)
-+static __always_inline struct futex_hash_bucket **futex_queues(void)
-+{
-+	return runtime_const_ptr(__futex_queues);
-+}
- 
- struct futex_private_hash {
- 	int		state;
-@@ -439,14 +435,14 @@ __futex_hash(union futex_key *key, struct futex_private_hash *fph)
- 		 * NOTE: this isn't perfectly uniform, but it is fast and
- 		 * handles sparse node masks.
- 		 */
--		node = (hash >> futex_hashshift) % nr_node_ids;
-+		node = runtime_const_shift_right_32(hash, __futex_shift) % nr_node_ids;
- 		if (!node_possible(node)) {
- 			node = find_next_bit_wrap(node_possible_map.bits,
- 						  nr_node_ids, node);
- 		}
- 	}
- 
--	return &futex_queues[node][hash & futex_hashmask];
-+	return &futex_queues()[node][runtime_const_mask_32(hash, __futex_mask)];
- }
- 
- /**
-@@ -1916,7 +1912,7 @@ int futex_hash_allocate_default(void)
- 	 *   16 <= threads * 4 <= global hash size
- 	 */
- 	buckets = roundup_pow_of_two(4 * threads);
--	buckets = clamp(buckets, 16, futex_hashmask + 1);
-+	buckets = clamp(buckets, 16, __futex_mask + 1);
- 
- 	if (current_buckets >= buckets)
- 		return 0;
-@@ -1986,10 +1982,19 @@ static int __init futex_init(void)
- 	hashsize = max(4, hashsize);
- 	hashsize = roundup_pow_of_two(hashsize);
- #endif
--	futex_hashshift = ilog2(hashsize);
-+	__futex_mask = hashsize - 1;
-+	__futex_shift = ilog2(hashsize);
- 	size = sizeof(struct futex_hash_bucket) * hashsize;
- 	order = get_order(size);
- 
-+	__futex_queues = kcalloc(nr_node_ids, sizeof(*__futex_queues), GFP_KERNEL);
-+
-+	runtime_const_init(shift, __futex_shift);
-+	runtime_const_init(mask,  __futex_mask);
-+	runtime_const_init(ptr,   __futex_queues);
-+
-+	BUG_ON(!futex_queues());
-+
- 	for_each_node(n) {
- 		struct futex_hash_bucket *table;
- 
-@@ -2003,10 +2008,9 @@ static int __init futex_init(void)
- 		for (i = 0; i < hashsize; i++)
- 			futex_hash_bucket_init(&table[i], NULL);
- 
--		futex_queues[n] = table;
-+		futex_queues()[n] = table;
- 	}
- 
--	futex_hashmask = hashsize - 1;
- 	pr_info("futex hash table entries: %lu (%lu bytes on %d NUMA nodes, total %lu KiB, %s).\n",
- 		hashsize, size, num_possible_nodes(), size * num_possible_nodes() / 1024,
- 		order > MAX_PAGE_ORDER ? "vmalloc" : "linear");
--- 
-2.34.1
-
+Christian
