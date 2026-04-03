@@ -1,108 +1,79 @@
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from sender-op-o19.zoho.eu (sender-op-o19.zoho.eu [136.143.169.19])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 483713AE193
-	for <linux-s390@vger.kernel.org>; Fri,  3 Apr 2026 13:27:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775222834; cv=none; b=NidNXXm/FS3DO+JMzfj3AAPhSzKgZ74Zcnhpv7P/kr9CzWhaMW1Kd+dqR48l0mAstjtQNaDz9jcrtdbY11veJheLSG2HXL4UCFdZ/uchISCIGN0xZ9Id3xZxZYa9Tcxe4CtRy6uaFGJy6OP3OeV4HWfcYc8Vn3Owpd9UHsduQm8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775222834; c=relaxed/simple;
-	bh=IorhzViov1cVm9r/+KKc/l0jW0fISzzeOULpiPErfo8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=G3AjJTt4T2Mfor5o/rbeqNWQklvwWMxhwqz/2AuZ9y1VQrNJGE38YG4ZEQAgFZ2u3peB6MN5aK/IqMak6PH/otCt0kz0wE1Z21Pb10nx5Q2/bYYmPwASA0isM89IjZmCYPYVb9vTb3t7Lme2rgp0YlOn2tGcHED1TmNpJhV5RGQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=tuxon.dev; spf=pass smtp.mailfrom=tuxon.dev; dkim=pass (2048-bit key) header.d=tuxon.dev header.i=@tuxon.dev header.b=nJeWPcKB; arc=none smtp.client-ip=209.85.221.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=tuxon.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tuxon.dev
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=tuxon.dev header.i=@tuxon.dev header.b="nJeWPcKB"
-Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-43cf3ee0fc1so2132292f8f.1
-        for <linux-s390@vger.kernel.org>; Fri, 03 Apr 2026 06:27:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=tuxon.dev; s=google; t=1775222832; x=1775827632; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=dGzKhyQITaXWpzFFDTEpEBEwEXBYoUMd6VEwbhJqhqQ=;
-        b=nJeWPcKB5TnaeNBBXVNCeWWrAllvH557qIs3SIpdSda5z6xivxBTAFN9+InUMHrZug
-         pU1v4HO2sUyzS5B3a3kkfL5XpXYceqA5Xy6ThCgpbOyQ61wkPdH2z1A8qvQxynL8Yb33
-         QICWdwsDewLIPAjYu/gTcXMPWxpRDi2giNodmvoyptv0O5QZl+9IO3/M3mp2ZqxXzHER
-         PL8aK2nn/AQFPblHIALGDaSoVoezHh1N2pURVxzvM9wdPyh4+mEA7C43DU8x87Y4r3Jh
-         ri6840ZZIvCTgEITKibCsvaA28O0EJijTpKnfAU86id4FwQJ8QSxcEMMt056pgIvPFnU
-         /LlA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775222832; x=1775827632;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=dGzKhyQITaXWpzFFDTEpEBEwEXBYoUMd6VEwbhJqhqQ=;
-        b=itdGNhcL92Tq82u+l8Ue3WvFDnzAZ9r/ApjqW1xKfvP2cbXoMXDO+zY+QEh+7viMHu
-         51lXtT1ezH1HlJkvk8YW+3yuWlfMj1oj/xQXyZetvbXn05ze5/F7Zv4H9AXJC1IvV7jE
-         QFl+SofIOgvsOy3kbTEJMN2O2VFC+bnaxfCl5GTyDkKkvNlA/G0Uh9gVc+0J4XRftEjQ
-         BvJwgD5VJf8tZA1T8KnZMYHPgykEFxm/URbflIFZsSR65+Qu6ZiOfYo2lXHJIy7Z+lU5
-         2c2HKlFgcuf2nAVs4OcPISsIjp5D5aL/D1XuoXNEiQTzbPWV1m1W8CTGggmf6Z7SB1wY
-         kaaw==
-X-Forwarded-Encrypted: i=1; AJvYcCXpOzsRjV2BWvHT3nkIFoOvFm5qMAfOD1oD50inU96OTR/eXfCFt0elW1cisxHv3D6H3N4CrtiCBS5W@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy1UKwBOYW2SVLsbqz2RO4CbUQxKe0OWptrY79uz8Rdgc4/b00Q
-	t/h1vU1VRVeXezS5UIfiqiFghd8ohaNs9yHD0f+0Tt5vKa+g2iwAq3zWYfRhynDrgoWUI2WW89G
-	aKg6S
-X-Gm-Gg: AeBDieu5yyChJzC8Y1/5kX3d/3Rf7PrzabQt14V4iNGB25KkE7q1ao4stSevJBVJKx7
-	jHE9IekGnfBpMCB14y4RUJeW5G0Z/gkrqxSbjCTNCHj3WrYUUMH7JsoUbb0ePYicG5WAX2kiu0f
-	kkCv3Fd3JpPRe1Bf6Fly+KYsH6Lyq9Wib6w8AlGZQyJUT7o75jeszpVxJnrJau31W0lxvVtRpoF
-	mweGiYFwb6VqeKwm8IJZiutoSFrQa8LK2Zh62PIU9JLm8LUyhQPJNcvxqFxb74OsiZDXMMVRauc
-	+7iICfonEv4DcoKyKqmev9zh7W8v6ON4rBkWivvoNptJuq09h5D9vIh6yzk59BB6Tr++0cohMc4
-	5qqOgHV99RVzvd1HfzVnh6GOXkoiy4I6Cl9Ld/lpKvsSk5K1nz3QgJvlOVdy3Y1if9uU21SZ9Ck
-	DlCbFnaz3tSN3TM2iyDH/FGvet26nyuDG+AEvpCiOU2aY98XkDPa6/
-X-Received: by 2002:a05:6000:401e:b0:43c:a352:c366 with SMTP id ffacd0b85a97d-43d290faa77mr4842051f8f.25.1775222831701;
-        Fri, 03 Apr 2026 06:27:11 -0700 (PDT)
-Received: from claudiu-X670E-Pro-RS.. ([82.78.167.248])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43d1e2a6f73sm17839132f8f.8.2026.04.03.06.27.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Apr 2026 06:27:11 -0700 (PDT)
-From: Claudiu <claudiu.beznea@tuxon.dev>
-X-Google-Original-From: Claudiu <claudiu.beznea.uj@bp.renesas.com>
-To: niharp@linux.ibm.com,
-	hca@linux.ibm.com,
-	gor@linux.ibm.com,
-	agordeev@linux.ibm.com,
-	borntraeger@linux.ibm.com,
-	svens@linux.ibm.com
-Cc: claudiu.beznea@tuxon.dev,
-	linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>
-Subject: [PATCH] scsi: zfcp: Fix typo
-Date: Fri,  3 Apr 2026 16:27:08 +0300
-Message-ID: <20260403132708.2743836-1-claudiu.beznea.uj@bp.renesas.com>
-X-Mailer: git-send-email 2.43.0
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B80861F8723;
+	Fri,  3 Apr 2026 13:37:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.169.19
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775223439; cv=pass; b=qXCbPDOAhnZ2UnL19l0BwbgBstLireISPzKBRP5qagOSt3su7b8HTHMf991C0HOyF8tvpVWuFZoalJswtaa1C4FatTKl6d8QH5ZftP3zKlAhVHwvIs5cVX3HDroLTXDQRN9Dc3fWGS6I7zN7VDW4utkN1XjbxlJN/Ncq0dpkTyY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775223439; c=relaxed/simple;
+	bh=5XfZLHW917GPeLmoi8RTcOFMV7PSrf1WdMyL1/K92YM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=jDN1LSUXS3vQtr3rzCnhisjxI0mpIgWHGaIRsIKHa4NE2m/wDvOqD+cgKuBKtN5c7cAnQBJ+btY1Q/rxAVkuXGu0a3DrFDI2CsbaSXq9gHGljhlcQjWV29o18nHXk3xxCQqRRCHXQe2+zTVNnQ8yx6pvNzCYbSk81chVPqRMJdg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=trained-monkey.org; spf=pass smtp.mailfrom=trained-monkey.org; arc=pass smtp.client-ip=136.143.169.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=trained-monkey.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=trained-monkey.org
+ARC-Seal: i=1; a=rsa-sha256; t=1775223288; cv=none; 
+	d=zohomail.eu; s=zohoarc; 
+	b=XsFx4p5VgwLYs8/vuiRIhFYYY7BZEtsdweYoyutsI5s268xHDZNE+1aosDKf5tOhWsVRislQ2rdBSUSa3fCzPaXhQ7Jdtd14qGY8D0s0mK+KI8/ZOgGLtIlFsNetysymzkEm9B+sJUcbGoymfigIjm3FIkkIgaoeHQH/4ENLOjY=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
+	t=1775223288; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=InLCCKin5kc31jhHqJ2/xj58R/AdCjuyS3cbeNCAucg=; 
+	b=lR3dFmcub3ObCAdL18l5iaak8Gdiovaq3Tlv5KCFP7EBHANgryMrZkVOEJB8fSUW5MlwFmvffcCYzAUr4kG8Ob5saqKe5ZMxR7XXQMzbCi79zRQMOFW+87zJDova5JdrpCtyj2UlIF+m1T9nJVioaY+neqHcxDVDkzKGLqW3R6o=
+ARC-Authentication-Results: i=1; mx.zohomail.eu;
+	spf=pass  smtp.mailfrom=jes@trained-monkey.org;
+	dmarc=pass header.from=<jes@trained-monkey.org>
+Received: by mx.zoho.eu with SMTPS id 1775223284898804.3284909269775;
+	Fri, 3 Apr 2026 15:34:44 +0200 (CEST)
+Message-ID: <ec7e71f6-7e95-4f22-8b80-d0925d5bd9c8@trained-monkey.org>
+Date: Fri, 3 Apr 2026 09:34:38 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next] eth: remove the driver for acenic / tigon1&2
+To: Greg KH <gregkh@linuxfoundation.org>, Jakub Kicinski <kuba@kernel.org>
+Cc: davem@davemloft.net, netdev@vger.kernel.org, edumazet@google.com,
+ pabeni@redhat.com, andrew+netdev@lunn.ch, horms@kernel.org,
+ chenhuacai@kernel.org, kernel@xen0n.name, tsbogend@alpha.franken.de,
+ James.Bottomley@hansenpartnership.com, deller@gmx.de, maddy@linux.ibm.com,
+ mpe@ellerman.id.au, npiggin@gmail.com, chleroy@kernel.org,
+ hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+ borntraeger@linux.ibm.com, svens@linux.ibm.com, bhelgaas@google.com,
+ dakr@kernel.org, kwilczynski@kernel.org, ojeda@kernel.org, boqun@kernel.org,
+ gary@garyguo.net, bjorn3_gh@protonmail.com, lossin@kernel.org,
+ a.hindborg@kernel.org, aliceryhl@google.com, tmgross@umich.edu,
+ ebiggers@google.com, ardb@kernel.org, tiwai@suse.de, tytso@mit.edu,
+ enelsonmoore@gmail.com, martin.petersen@oracle.com, jirislaby@kernel.org,
+ geert@linux-m68k.org, herbert@gondor.apana.org.au, vineethr@linux.ibm.com,
+ lirongqing@baidu.com, kshk@linux.ibm.com, vadim.fedorenko@linux.dev,
+ dong100@mucse.com, wangruikang@iscas.ac.cn, hkallweit1@gmail.com,
+ kees@kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, linux-pci@vger.kernel.org,
+ rust-for-linux@vger.kernel.org
+References: <20260402183029.1236713-1-kuba@kernel.org>
+ <2026040357-flick-coil-0c5d@gregkh>
+Content-Language: en-US
+From: Jes Sorensen <jes@trained-monkey.org>
+In-Reply-To: <2026040357-flick-coil-0c5d@gregkh>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
-From: Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>
+On 4/3/26 4:48 AM, Greg KH wrote:
+> On Thu, Apr 02, 2026 at 11:30:29AM -0700, Jakub Kicinski wrote:
+>> The entire git history for this driver looks like tree-wide
+>> and automated cleanups. There's even more coming now with
+>> AI, so let's try to delete it instead.
+>>
+>> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+> 
+> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fix typo in "synchronize".
-
-Signed-off-by: Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>
----
- drivers/s390/scsi/zfcp_diag.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/s390/scsi/zfcp_diag.c b/drivers/s390/scsi/zfcp_diag.c
-index 7be5a1d56263..f274e022effd 100644
---- a/drivers/s390/scsi/zfcp_diag.c
-+++ b/drivers/s390/scsi/zfcp_diag.c
-@@ -224,7 +224,7 @@ __zfcp_diag_test_buffer_age_isfresh(const struct zfcp_diag_adapter *const diag,
-  *
-  * This function will cause an update of the given @hdr by calling the also
-  * given @buffer_update function. If called by multiple sources at the same
-- * time, it will synchornize the update by only allowing one source to call
-+ * time, it will synchronize the update by only allowing one source to call
-  * @buffer_update and the others to wait for that source to complete instead
-  * (the wait is interruptible).
-  *
--- 
-2.43.0
+Acked-by: Jes Sorensen <jes@trained-monkey.org>
 
