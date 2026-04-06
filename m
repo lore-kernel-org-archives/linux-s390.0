@@ -1,170 +1,155 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9317134D4CB
-	for <linux-s390@vger.kernel.org>; Mon,  6 Apr 2026 16:11:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.178
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775491889; cv=pass; b=tYp+POd0DxOOxM0N6jTAzfKKCt1lbO6gxgsSIgY8fOlTFCcEPtPM4Yx1bSu7U481Sz9mFjN5RlNQNol3KYKMD+t2niRPTVRjSqXjFCW8gXugtOqxi0DeoXc4WKz1kR/iEMct9mOtA/G3nyPmtXnRwRAHdF3DZufT1+u1FuEjr+Q=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775491889; c=relaxed/simple;
-	bh=6rXUBCUZbg9vIzk9rudSe/qcgXU5Be5B8LMI2la5dYE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=E36HwDPnhzH5aQIBeJYh9djwZZ/33QaEyHV34gYkiV+L/Llu77hMll1HID9g2VvhkAXvqF4wWvfBeUFRjEDW57YD8oUseempJ/fdKWrMUVuO6y7g2FXIxtuN+Blyf9RcBGDARuBG86S0Ce7s0jdWIJRffuEInl1MudkjUHl6XHk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=qc0dgBI3; arc=pass smtp.client-ip=209.85.214.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A984386439;
+	Mon,  6 Apr 2026 16:15:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775492123; cv=none; b=FgCBm6VfcWGe98eciraPtlMenKEg4KmmQjdU1Gzj/7u3gCa0fMBXLp5IfawMrM1uC8UVEs6UkXRMzSFd/VD/3Oym1kqDoL7ivEA6tO1OpuC+IxIeudRkaFxvandG2JZdSR7xrMFvdzg+4D8+ZwT2WoIW77AB35FYQsndk+kmV8U=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775492123; c=relaxed/simple;
+	bh=qO1wsHI3zJF3G8Crb+tvY3nmdS1d+EiYiVCTx8QfSJE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=oin6ohg5ZswWuCchMZHuj4h2zYY0hzTp0548ITudzpLKahYYUQZVsQMc8+ke2SRCmsAQZea1V2s+pkyp6itUUGiDkFrTFbWzWlUo8k6ff6TiKHqZ9wKoPUI9RbIuyx+GDWxMLZGJBBChN4PPKXeV6WhJOgdw5Z78Y8xm5oqAexw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mf6Da5Fi; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="qc0dgBI3"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2b0b260d309so213415ad.1
-        for <linux-s390@vger.kernel.org>; Mon, 06 Apr 2026 09:11:28 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1775491888; cv=none;
-        d=google.com; s=arc-20240605;
-        b=UICSVAIcRKL9mUUqnyk63uDZrg7habHGPlolaLLdIjsXWFIBWKdT397dSfuvzpwJxc
-         bEV+O6sZUG9IYVSMCszlFkfstOPCfZeP/X9elS3wUzEK6glY5paxY6psFeq+tYyBLUz/
-         w5ud44ZQHqKXRIajgGCQpI1Ay/dhuQ2r7d2Y05sr43Kzkm48peg4e8DAtUaUjuotEXIS
-         WFgwYPzlqkHJVdfaYtJI5EZutzPEgke86khbijXdQrVgY3SfaqdVDXt0kbZAasTqniOF
-         rGvhju4fMp4vA2Dd6YNrxPFjUIREW2NE7ASDLVsu+gNmTMeeOqveuklx8IDZjkUcJsn4
-         AmfA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=1x81r3iRTa3fxKPMBJ/Qvf8xplCbNBHfOYy0Aqmmj78=;
-        fh=/oD4AUFVX7QB+P+UQll9/rJOJAmbYchd0kl650fnqus=;
-        b=S27DxUmc+mLcYO8liBEJ/AT6Y+Qh/i6u4KA4z99fvujNnsPhP2vbGDWx62FFqfhC7+
-         oglBS3R2hcLJoNdwF9UCQiRdD9mXTI4nd3ldPOHDHUsdrvxZqoxoB2rQcTeO4BzSyH6d
-         M8cGlJct/kGq9cSeFdkJIr4crEAWwkoI1sXxcqjPMFeArQrquK6rfrSApmaUTOA3Ye3p
-         0jNBTBt0QE2y0aidWOD9FpK45IvXHma1xrbvDVC8zkm2Unlzo8qDqIJ0iNLalgPP2ZRk
-         AMx0pTjDtbJvGVWP/a0ME+qCMeQIi2oLb1jWrZ0ybtOyu2zv2nvBe9nYPxEUIInpJ/1g
-         AeRg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1775491888; x=1776096688; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=1x81r3iRTa3fxKPMBJ/Qvf8xplCbNBHfOYy0Aqmmj78=;
-        b=qc0dgBI376ijqE+KGptbl77EYwV4p/eeqDfbUc/oKx6naAKunRo/h9XmKA0rxrCjl6
-         ScmRbrqiLkhMV9Mg2C8N0qelaL1bGbvtJLXnJns5ndCuUOiMJ+MIH6WQsqU4GMRhO48f
-         SGHZ5ZqgicvzGqqKE6m4tQAaneUK2/A+vRw3UBsLDGExQAapYhXNccU/kYarQHhh6VDp
-         BCfjmdcusq231aZsjRMdu1xBUHfv3tAZtkD44AqO+l0O29vHPCoukNBXnzt4SoKAsCP7
-         z25tqJkgDFr+KstwkNTqAjsHRZFBtcHYTzBNRc5+bANFKIx48CQmtaDvPD+zUAQgOp3v
-         N/zQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775491888; x=1776096688;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=1x81r3iRTa3fxKPMBJ/Qvf8xplCbNBHfOYy0Aqmmj78=;
-        b=YQ2V2WR4aPB6LXz4zhO5y1ZdrM7tjWlNH7ICG5/ov1ehwkfShY7doqajkLvFZg4J0t
-         N812ToSQRhexL5+vvE1EWoV1Ib2INv5U8JP3tOOwyI1UhXMdUOv1Dtu9PIrUDmOG3gRO
-         4DNNxWOFV2JWOn4rSc0l0wcS7FwHtvO2nhG1QTMU130mQm68LDiYPsJD21n3XKtMJQRs
-         xLSfGk0Hx3YgmQJkAsNPvKuHpQsV49SJY6eXfjH/54fuP3378KQaZ+LKp3PdupI7swBM
-         CNrIB+VaGafk34lu/Kh5PHXKYhz2xtpAQROvapVwTxxiJs7Qhsf1rwrwO0KnSivGEg0X
-         C2WQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUTrTd6nzczEryuehLMJfvadlfXAhjRgA8yImuiuwoyuJRx7fCuUj6PuuE7iL88Z6JATW96Y1gOYjbH@vger.kernel.org
-X-Gm-Message-State: AOJu0YxVLCgL9ENTu/fqzAaXJaA9i2/uzCMlLw2bdLYd1/ofGxHnAYKm
-	4MNto9BTiz/9JU/eo7vWkBTm3D7wa3X+wQs67VWOfKWtFjxySWb4xfMl1wEdhGTSKFAz+UwNs1O
-	1MYPbO/75OPNEaO2g51Q996hH6imDn7mwurblZ9H5
-X-Gm-Gg: AeBDiesWmaHGtMtwL8QDFmSS6/UuH8gtQAacOXUs2kKnp/cLUyaCar5oJ0qPkT8Her2
-	Pcc+IMkNXdRbMdzoWEUEpxDmz7YZkJyOx422cA4+wYU8Loh3+2G9C5Mw3ExlpC55ao8afCUMzhu
-	z0crFSaNHgSorb7W31rm60FnfGiCQxDMFo2ui5cfj+MXppO5Uikmx70+MhmqMTz5bghQrz76YLw
-	U3H8HmRhUUquVocFoYku6ANkfOSDEogvYtNMDwlVQKHJuwDfyI3FzxMWnv6YmUtO7qRBw5ClffR
-	S5HbJMAYYqokU8l1RpdIjckvqYSxrKEYgUhj0g==
-X-Received: by 2002:a17:903:22d1:b0:2ae:7fa2:6bda with SMTP id
- d9443c01a7336-2b283f049edmr7309275ad.1.1775491887460; Mon, 06 Apr 2026
- 09:11:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mf6Da5Fi"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 636FqVLH3623154;
+	Mon, 6 Apr 2026 16:15:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=9uWnM1
+	R7+lLVXwLn2w3j9CmT3eXTVmgiof2uaPTVWt0=; b=mf6Da5Fi9lRQnEVCRMU1nb
+	LHvWQQqd5V3eGUW7RsqGq6pgjdqNiDfYcYmC9J4sNVwWeFs8tb6iMLBzpOHlzcTY
+	mvrJbZUOAGi4pPP0LmcdVt4zJ4gdRRGkrvRIYWcjdW8wnsbHtEIjTLMxpNlo3oMW
+	7Vq55CNTw/5vVXFVsuOtYIf8ovNRJUysq/PprkE4iWnpsj+9pFChjChz1Onuqpdd
+	9+fr4Ro49AD52EZDTCt37TmLd6y2d/r3xKR6iUUPGHitd5sKL4XAmqwUUNRKb47O
+	DN7HdF4s9UKlQEVbRLwuxG777mXOQw9gx7cib9tMfATxmvKq1Bxt0qsa9SX4jXfg
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4das2bxxcs-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 06 Apr 2026 16:15:13 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 636F89uA018525;
+	Mon, 6 Apr 2026 16:15:12 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dbcyswfj2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 06 Apr 2026 16:15:12 +0000
+Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 636GFAxR13042228
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 6 Apr 2026 16:15:10 GMT
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7938158057;
+	Mon,  6 Apr 2026 16:15:10 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A3D4358058;
+	Mon,  6 Apr 2026 16:15:09 +0000 (GMT)
+Received: from [9.61.9.165] (unknown [9.61.9.165])
+	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  6 Apr 2026 16:15:09 +0000 (GMT)
+Message-ID: <0b9c451f-0167-4f1b-a38e-6413cf089c18@linux.ibm.com>
+Date: Mon, 6 Apr 2026 12:15:09 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260326174521.1829203-1-irogers@google.com> <20260327045025.2276517-1-irogers@google.com>
- <20260327045025.2276517-3-irogers@google.com> <adNAQzNcCufAf6Jk@google.com>
-In-Reply-To: <adNAQzNcCufAf6Jk@google.com>
-From: Ian Rogers <irogers@google.com>
-Date: Mon, 6 Apr 2026 09:11:14 -0700
-X-Gm-Features: AQROBzD6OZSk3B9NDHQDgnQVI83ou6Tcl6__NEgXrtGy9dCtraIUwzq2i7bBN4s
-Message-ID: <CAP-5=fXxa2rvxMqZoD5ayETiPjS8cf7A49TdVwwt+10uPu58Pw@mail.gmail.com>
-Subject: Re: [PATCH v4 2/2] perf symbol: Lazily compute idle and use the perf_env
-To: Namhyung Kim <namhyung@kernel.org>
-Cc: acme@kernel.org, tmricht@linux.ibm.com, agordeev@linux.ibm.com, 
-	gor@linux.ibm.com, hca@linux.ibm.com, jameshongleiwang@126.com, 
-	japo@linux.ibm.com, linux-kernel@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, 
-	sumanthk@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 3/3] KVM: s390: Introducing kvm_arch_set_irq_inatomic
+ fast inject
+To: Douglas Freimuth <freimuth@linux.ibm.com>, borntraeger@linux.ibm.com,
+        imbrenda@linux.ibm.com, frankja@linux.ibm.com, david@kernel.org,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20260406064419.14384-1-freimuth@linux.ibm.com>
+ <20260406064419.14384-4-freimuth@linux.ibm.com>
+Content-Language: en-US
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <20260406064419.14384-4-freimuth@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: t5nOTwMUGQrFfhoxVVVSLz9vQ9T0yR96
+X-Proofpoint-GUID: t5nOTwMUGQrFfhoxVVVSLz9vQ9T0yR96
+X-Authority-Analysis: v=2.4 cv=U9qfzOru c=1 sm=1 tr=0 ts=69d3dc11 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=kKUgNAbpS4blpuYazJQA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDA2MDE1NiBTYWx0ZWRfX1E3F+FX6SGnY
+ GNbdsRnKWG77YBz+NJRBwmfzeiLlbQIlBGHocA6CdQJ6cYV9gHj0IEYTy3je3+FoEGOh0LaKFJl
+ A/orqiy1tYQafoL6s+Y0JlHJw2jvfjDCPwikn7eaN6PQnG/deNaorlIFzuomcuszkUcHmAGL9i0
+ CgFQ2uEG3PCKJjg/iBUKA6P9WpGFbBUKmdtMb0rhkXqtGeFqdL1VqlAZmNAnOKYPwIL9lqT9Vh/
+ 6wgUjBtuTfpyxaPiOd+jwRl0IKs6B7oipeq7fk7sCMOctWbfSeq5repxY7e1lH8Prz7uxmu/jWE
+ pJ8lSiWxtaqJgkGqjwkm+YJYJbGDwCvgkFslhhc0XE9kG3AvZTsdvSVs26habUBoDyY/6nN4k8d
+ mgXlteB0M3LAko/iPJv3oTWxf3igQ2/5atY63fpzBFPVp9NQttC0S9vm/u55fVjV+cj96D5L4vv
+ aBaVIYd0jlIa6DR37DA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-04-06_03,2026-04-03_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 malwarescore=0 clxscore=1015 adultscore=0 suspectscore=0
+ spamscore=0 priorityscore=1501 impostorscore=0 lowpriorityscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
+ definitions=main-2604060156
 
-On Sun, Apr 5, 2026 at 10:10=E2=80=AFPM Namhyung Kim <namhyung@kernel.org> =
-wrote:
->
-> On Thu, Mar 26, 2026 at 09:50:25PM -0700, Ian Rogers wrote:
-> > Move the idle boolean to a helper symbol__is_idle function. In the
-> > function lazily compute whether a symbol is an idle function taking
-> > into consideration the kernel version and architecture of the
-> > machine. As symbols__insert no longer needs to know if a symbol is for
-> > the kernel, remove the argument.
-> >
-> > This change is inspired by mailing list discussion, particularly from
-> > Thomas Richter <tmricht@linux.ibm.com> and Heiko Carstens
-> > <hca@linux.ibm.com>:
-> > https://lore.kernel.org/lkml/20260219113850.354271-1-tmricht@linux.ibm.=
-com/
-> >
-> > The change switches x86 matches to use strstarts which means
-> > intel_idle_irq is matched as part of strstarts(name, "intel_idle"), a
-> > change suggested by Honglei Wang <jameshongleiwang@126.com> in:
-> > https://lore.kernel.org/lkml/20260323085255.98173-1-jameshongleiwang@12=
-6.com/
-> >
-> > Signed-off-by: Ian Rogers <irogers@google.com>
-> > ---
-> [SNIP]
-> > +     if (e_machine =3D=3D EM_S390 && strstarts(name, "psw_idle")) {
-> > +             int major =3D 0, minor =3D 0;
-> > +             const char *release =3D env && env->os_release
-> > +                     ? env->os_release : perf_version_string;
->
-> I think Sashiko's review is right.  You need to check the kernel version
-> instead of perf.
+On 4/6/26 2:44 AM, Douglas Freimuth wrote:
+> S390 needs a fast path for irq injection, and along those lines we 
+> introduce kvm_arch_set_irq_inatomic. Instead of placing all interrupts on
+> the global work queue as it does today, this patch provides a fast path for
+> irq injection.
+> 
+> The inatomic fast path cannot lose control since it is running with
+> interrupts disabled. This meant making the following changes that exist on 
+> the slow path today. First, the adapter_indicators page needs to be mapped
+> since it is accessed with interrupts disabled, so we added map/unmap
+> functions. Second, access to shared resources between the fast and slow 
+> paths needed to be changed from mutex and semaphores to spin_lock's.
+> Finally, the memory allocation on the slow path utilizes GFP_KERNEL_ACCOUNT
+> but we had to implement the fast path with GFP_ATOMIC allocation. Each of
+> these enhancements were required to prevent blocking on the fast inject
+> path.
+> 
+> Fencing of Fast Inject in Secure Execution environments is enabled in the
+> patch series by not mapping adapter indicator pages. In Secure Execution
+> environments the path of execution available before this patch is followed.
+> 
+> Statistical counters have been added to enable analysis of irq injection on
+> the fast path and slow path including io_390_inatomic, io_flic_inject_airq,
+> io_set_adapter_int and io_390_inatomic_adapter_masked.
+> 
+> Signed-off-by: Douglas Freimuth <freimuth@linux.ibm.com>
 
-Doing this can create more problems and complexity than it solves. If
-we state that `os_release` can be NULL at this point, we recompute it
-using `uname`:
-https://web.git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools-next.gi=
-t/tree/tools/perf/util/header.c?h=3Dperf-tools-next#n378
-then do we cache the value in env? What happens if a data/pipe file
-that assigns to the env later? Ad-hoc users of env->os_release
-recomputing it shouldn't happen; instead, in 'live' mode, we should
-assign os_release using uname either when the perf_env is created or
-lazily with a helper function. I dislike that with a helper we could
-potentially have multiple notions of os_release.
 
-I'll add a patch to refactor the use of os_release, but can we be
-mindful that this is clear feature creep with little benefit? We will
-still fall back on `perf_version_string` if uname fails and for all
-practical purposes, `perf_version_string` will differ little from
-uname in this case. I'm only going to add the patch because checking
-other uses of os_release suggests the change is benign.
+Sashiko complains about PREEMPT_RT kernels and spinlocks being sleepable
+in this case which would break the whole point of kvm_arch_set_irq_inatomic.
 
-Thanks,
-Ian
+I suspect actually the kvm_arch_set_irq_inatomic() call itself shouldn't
+be used in this case, or in other words it wouldn't be an issue with
+just this s390 implementation but rather all of arch implementations?
 
-> Thanks,
-> Namhyung
->
-> > +
-> > +             /* Before v6.10, s390 used psw_idle. */
-> > +             if (sscanf(release, "%d.%d", &major, &minor) !=3D 2 ||
-> > +                 major < 6 || (major =3D=3D 6 && minor < 10)) {
-> > +                     sym->idle =3D SYMBOL_IDLE__IDLE;
-> > +                     return true;
-> > +             }
-> > +     }
-> > +
-> > +     sym->idle =3D SYMBOL_IDLE__NOT_IDLE;
-> > +     return false;
-> >  }
+I did not try enabling it and running a test, but I did do some
+searching of the codebase and I can found at least 1 spinlock acquired
+somewhere along the inatomic path for the existing implementations...
+
+longarch (pch_pic_set_irq)
+arm64 (vgic_its_inject_cached_translation)
+powerpc (icp_deliver_irq)
+riscv (kvm_riscv_aia_aplic_inject)
+
+For x86 I didn't find a spinlock -- maybe I didn't look hard enough! --
+but I did find a path that uses RCU (kvm_irq_delivery_to_apic_fast)
+which AFAIU would also become preemptible under PREEMPT_RT.
+
+So for this series it seems reasonable to me to proceed as-is, with an
+open question whether there should be a KVM-wide avoidance of
+kvm_arch_set_irq_inatomic() under PREEMPT_RT?
