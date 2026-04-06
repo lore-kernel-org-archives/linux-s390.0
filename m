@@ -1,60 +1,60 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A984386439;
-	Mon,  6 Apr 2026 16:15:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD9DB37107E;
+	Mon,  6 Apr 2026 16:25:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775492123; cv=none; b=FgCBm6VfcWGe98eciraPtlMenKEg4KmmQjdU1Gzj/7u3gCa0fMBXLp5IfawMrM1uC8UVEs6UkXRMzSFd/VD/3Oym1kqDoL7ivEA6tO1OpuC+IxIeudRkaFxvandG2JZdSR7xrMFvdzg+4D8+ZwT2WoIW77AB35FYQsndk+kmV8U=
+	t=1775492723; cv=none; b=nX40iYCnQCSkB3kE11BXrUXRyzSGxAy9ILBtuSqrDTO1/x5d72/yfe9iNhT9HwCZSGDiX2UhlIwoYPHAwH3l4MnSAEll9FaOcSOAUMZTOFNN0IkYchMOizVPw6aX0+dVQYuIVWAZd9Euom1xWHgy1gH5ymbJbWbizIj4A81iZv8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775492123; c=relaxed/simple;
-	bh=qO1wsHI3zJF3G8Crb+tvY3nmdS1d+EiYiVCTx8QfSJE=;
+	s=arc-20240116; t=1775492723; c=relaxed/simple;
+	bh=ngjDooXf5Pcr7k2d4p+jIIxG08B4RRHnuE+yPky4piE=;
 	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=oin6ohg5ZswWuCchMZHuj4h2zYY0hzTp0548ITudzpLKahYYUQZVsQMc8+ke2SRCmsAQZea1V2s+pkyp6itUUGiDkFrTFbWzWlUo8k6ff6TiKHqZ9wKoPUI9RbIuyx+GDWxMLZGJBBChN4PPKXeV6WhJOgdw5Z78Y8xm5oqAexw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mf6Da5Fi; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:Content-Type; b=R4uxgc/QlZ3/lbKCVwykbRCzEcZ/cZZzOX9ywloKVroKwbn9Q9nYGQRQvpvobvKii4fJZDlMTpXoEk1R4HkRLuYIvNsvMpv4suPyZ9nqWmTOnbwJojqkdsRYLPhNrYQCwmb2hRh+Exh8Kgk5Uc4c40Ud9TXMLBaunz6AnFvLaTQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VeIRkCjM; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mf6Da5Fi"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 636FqVLH3623154;
-	Mon, 6 Apr 2026 16:15:13 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VeIRkCjM"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 635Mj58n3762569;
+	Mon, 6 Apr 2026 16:25:20 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
 	content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=9uWnM1
-	R7+lLVXwLn2w3j9CmT3eXTVmgiof2uaPTVWt0=; b=mf6Da5Fi9lRQnEVCRMU1nb
-	LHvWQQqd5V3eGUW7RsqGq6pgjdqNiDfYcYmC9J4sNVwWeFs8tb6iMLBzpOHlzcTY
-	mvrJbZUOAGi4pPP0LmcdVt4zJ4gdRRGkrvRIYWcjdW8wnsbHtEIjTLMxpNlo3oMW
-	7Vq55CNTw/5vVXFVsuOtYIf8ovNRJUysq/PprkE4iWnpsj+9pFChjChz1Onuqpdd
-	9+fr4Ro49AD52EZDTCt37TmLd6y2d/r3xKR6iUUPGHitd5sKL4XAmqwUUNRKb47O
-	DN7HdF4s9UKlQEVbRLwuxG777mXOQw9gx7cib9tMfATxmvKq1Bxt0qsa9SX4jXfg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=F4fi3c
+	ahaAzJo5UH4AbwpD5GJc+roP979BKJ0AyitnM=; b=VeIRkCjMhdshtUTlEpvswb
+	hco19Mfn7R0Fgyv5gclM4F8BxLBmk24DBU1P/njPsmZ1j6sx8JyYkBUL5WY9yk3J
+	12x3KEfkjvVbJ66xf2ydxDMEWwX4sDoMPmSZVB9CY7c0MLjWFRJaXCnakigiVwii
+	V/08bm5irbqdjPHJVWyiWkCUfYDI6v7o4Ovf2t3B1oyrLc1lV3IJALeURdsGiHED
+	n90cvP16HdYx9cPIJv0YsDsKc5O3MG+0BO6sWnYMCI8PdUO0lwouWkhCRGLPu0V1
+	tjOUOlbr0lOIUTt5A6V+Da4aqEsQi2Vnquud9Zwn3oPsvUuI+xJO7VZijZcpzclw
 	==
 Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4das2bxxcs-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4datc2qg59-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 06 Apr 2026 16:15:13 +0000 (GMT)
+	Mon, 06 Apr 2026 16:25:20 +0000 (GMT)
 Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 636F89uA018525;
-	Mon, 6 Apr 2026 16:15:12 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dbcyswfj2-1
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 636FtoET018730;
+	Mon, 6 Apr 2026 16:25:19 GMT
+Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dbcyswg82-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 06 Apr 2026 16:15:12 +0000
+	Mon, 06 Apr 2026 16:25:19 +0000
 Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 636GFAxR13042228
+	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 636GPHCr27263682
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 6 Apr 2026 16:15:10 GMT
+	Mon, 6 Apr 2026 16:25:18 GMT
 Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7938158057;
-	Mon,  6 Apr 2026 16:15:10 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id AF19958058;
+	Mon,  6 Apr 2026 16:25:17 +0000 (GMT)
 Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A3D4358058;
-	Mon,  6 Apr 2026 16:15:09 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id DAE6E58057;
+	Mon,  6 Apr 2026 16:25:16 +0000 (GMT)
 Received: from [9.61.9.165] (unknown [9.61.9.165])
 	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  6 Apr 2026 16:15:09 +0000 (GMT)
-Message-ID: <0b9c451f-0167-4f1b-a38e-6413cf089c18@linux.ibm.com>
-Date: Mon, 6 Apr 2026 12:15:09 -0400
+	Mon,  6 Apr 2026 16:25:16 +0000 (GMT)
+Message-ID: <199fafb3-98cb-4ad8-bbb4-22a4149e409d@linux.ibm.com>
+Date: Mon, 6 Apr 2026 12:25:16 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -77,79 +77,62 @@ In-Reply-To: <20260406064419.14384-4-freimuth@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: t5nOTwMUGQrFfhoxVVVSLz9vQ9T0yR96
-X-Proofpoint-GUID: t5nOTwMUGQrFfhoxVVVSLz9vQ9T0yR96
-X-Authority-Analysis: v=2.4 cv=U9qfzOru c=1 sm=1 tr=0 ts=69d3dc11 cx=c_pps
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDA2MDE2MCBTYWx0ZWRfXwwsIqtmQlcn5
+ w8YKX9RTmlRj2HaDoC8a2cb5pDP/m2u17h8LgSnO64hDQjUUu/ozWrysciNIn7W78lHZcydiEcu
+ Ksp77j3xiw4sCLeYF2GWufxSEXaOznd2RKn5k6WC+Y40Jen+TzLE2+bjFR4GWinFeoBdQfnKGkx
+ 14zM57iVZbw301RkaApMgML48MX7t1R5vuf7AG8+uNlHPqMA20aU6N9S6gf0jzZCqT3x6CraWh6
+ HkQzfY2kUF1DtGKBk0v1N9ZfQdsmaJO0E+CXZlf3niKUu+348F0u+2rJfpqDFBXHsmTHTDADyry
+ iO8FgQjDdYPScpe8EIWSIet/8BNxn2QTzlOJV4dbZA8dqmCG7C8WG3Am8Up1A+lyXooFCi9p/LW
+ GtWSX3AEfyqe7qZB+jN+K464bvBiWB6A5TKm1Ui+csK9Msp5tmgan+r/AKWEuBnF8Avm46hH+qP
+ wfm0KbdTdlsrXg5gQqw==
+X-Proofpoint-GUID: OuIRqrYXVrJX16u4SeBVO8eTGfBH-YR3
+X-Proofpoint-ORIG-GUID: OuIRqrYXVrJX16u4SeBVO8eTGfBH-YR3
+X-Authority-Analysis: v=2.4 cv=HJvO14tv c=1 sm=1 tr=0 ts=69d3de70 cx=c_pps
  a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=kKUgNAbpS4blpuYazJQA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDA2MDE1NiBTYWx0ZWRfX1E3F+FX6SGnY
- GNbdsRnKWG77YBz+NJRBwmfzeiLlbQIlBGHocA6CdQJ6cYV9gHj0IEYTy3je3+FoEGOh0LaKFJl
- A/orqiy1tYQafoL6s+Y0JlHJw2jvfjDCPwikn7eaN6PQnG/deNaorlIFzuomcuszkUcHmAGL9i0
- CgFQ2uEG3PCKJjg/iBUKA6P9WpGFbBUKmdtMb0rhkXqtGeFqdL1VqlAZmNAnOKYPwIL9lqT9Vh/
- 6wgUjBtuTfpyxaPiOd+jwRl0IKs6B7oipeq7fk7sCMOctWbfSeq5repxY7e1lH8Prz7uxmu/jWE
- pJ8lSiWxtaqJgkGqjwkm+YJYJbGDwCvgkFslhhc0XE9kG3AvZTsdvSVs26habUBoDyY/6nN4k8d
- mgXlteB0M3LAko/iPJv3oTWxf3igQ2/5atY63fpzBFPVp9NQttC0S9vm/u55fVjV+cj96D5L4vv
- aBaVIYd0jlIa6DR37DA==
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=0yhpOta31wJg_WYSZE8A:9
+ a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-06_03,2026-04-03_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 malwarescore=0 clxscore=1015 adultscore=0 suspectscore=0
- spamscore=0 priorityscore=1501 impostorscore=0 lowpriorityscore=0
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
- definitions=main-2604060156
-
-On 4/6/26 2:44 AM, Douglas Freimuth wrote:
-> S390 needs a fast path for irq injection, and along those lines we 
-> introduce kvm_arch_set_irq_inatomic. Instead of placing all interrupts on
-> the global work queue as it does today, this patch provides a fast path for
-> irq injection.
-> 
-> The inatomic fast path cannot lose control since it is running with
-> interrupts disabled. This meant making the following changes that exist on 
-> the slow path today. First, the adapter_indicators page needs to be mapped
-> since it is accessed with interrupts disabled, so we added map/unmap
-> functions. Second, access to shared resources between the fast and slow 
-> paths needed to be changed from mutex and semaphores to spin_lock's.
-> Finally, the memory allocation on the slow path utilizes GFP_KERNEL_ACCOUNT
-> but we had to implement the fast path with GFP_ATOMIC allocation. Each of
-> these enhancements were required to prevent blocking on the fast inject
-> path.
-> 
-> Fencing of Fast Inject in Secure Execution environments is enabled in the
-> patch series by not mapping adapter indicator pages. In Secure Execution
-> environments the path of execution available before this patch is followed.
-> 
-> Statistical counters have been added to enable analysis of irq injection on
-> the fast path and slow path including io_390_inatomic, io_flic_inject_airq,
-> io_set_adapter_int and io_390_inatomic_adapter_masked.
-> 
-> Signed-off-by: Douglas Freimuth <freimuth@linux.ibm.com>
+ impostorscore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0 adultscore=0
+ malwarescore=0 spamscore=0 phishscore=0 priorityscore=1501 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2604060160
 
 
-Sashiko complains about PREEMPT_RT kernels and spinlocks being sleepable
-in this case which would break the whole point of kvm_arch_set_irq_inatomic.
+>  
+> -static void __kvm_inject_pfault_token(struct kvm_vcpu *vcpu, bool start_token,
+> -				      unsigned long token)
+> +static int __kvm_inject_pfault_token(struct kvm_vcpu *vcpu, bool start_token,
+> +				     unsigned long token)
+>  {
+>  	struct kvm_s390_interrupt inti;
+>  	struct kvm_s390_irq irq;
+> +	struct kvm_s390_interrupt_info *inti_mem;
+> +
+> +	inti_mem = kzalloc_obj(*inti_mem, GFP_KERNEL_ACCOUNT);
+> +	if (!inti_mem)
+> +		return -ENOMEM;
 
-I suspect actually the kvm_arch_set_irq_inatomic() call itself shouldn't
-be used in this case, or in other words it wouldn't be an issue with
-just this s390 implementation but rather all of arch implementations?
+You change this function to possibly return this value but you do not
+change the callers of this routine to actually look at the new return value?
 
-I did not try enabling it and running a test, but I did do some
-searching of the codebase and I can found at least 1 spinlock acquired
-somewhere along the inatomic path for the existing implementations...
+AFAICT there are 2 callers of this today in arch/s390/kvm/kvm-s390.c - I
+assume one or both need updating, otherwise why do we need this change?
 
-longarch (pch_pic_set_irq)
-arm64 (vgic_its_inject_cached_translation)
-powerpc (icp_deliver_irq)
-riscv (kvm_riscv_aia_aplic_inject)
+>  
+>  	if (start_token) {
+>  		irq.u.ext.ext_params2 = token;
+> @@ -4409,8 +4422,9 @@ static void __kvm_inject_pfault_token(struct kvm_vcpu *vcpu, bool start_token,
+>  	} else {
+>  		inti.type = KVM_S390_INT_PFAULT_DONE;
+>  		inti.parm64 = token;
+> -		WARN_ON_ONCE(kvm_s390_inject_vm(vcpu->kvm, &inti));
+> +		WARN_ON_ONCE(kvm_s390_inject_vm(vcpu->kvm, &inti, inti_mem));
+>  	}
+> +	return true;
 
-For x86 I didn't find a spinlock -- maybe I didn't look hard enough! --
-but I did find a path that uses RCU (kvm_irq_delivery_to_apic_fast)
-which AFAIU would also become preemptible under PREEMPT_RT.
+Since return value is an integer, return 0?
 
-So for this series it seems reasonable to me to proceed as-is, with an
-open question whether there should be a KVM-wide avoidance of
-kvm_arch_set_irq_inatomic() under PREEMPT_RT?
