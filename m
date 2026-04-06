@@ -1,232 +1,431 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 863FE27B340;
-	Mon,  6 Apr 2026 15:34:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775489643; cv=none; b=X2BQUMfjV4Rc9HILOWuwcY/gexyWlWqwxHAeZe2FtSHXgmelNnji1fTbUwXJ9MGsVPjZfCbeut1/1w4iiF6vc1CMXZvZ4IXSZ8J8GW9n4u8lIu5ZhcgUBpTPzb+C5Leasy6bprJw3Tp9nDLh3xcjbpGY5Tr0XcTwuPRZjz8SfxM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775489643; c=relaxed/simple;
-	bh=1paIusfhVW8xR70rRuWrYhF9eF7MWDPmgJYnXhxCm8o=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=ml3q7U9OCyRpJOl5o9rG3yS4cBvrS/dSXsTglMym59zRKzJ/oK6lq5sQ7hhQaGwXh1c3TKX7RKBgFnx/g5xGy+61mbhgysHrhwD1htU50vCKFpaiIiAVyD0gW4arBl4w1k+n+sb7+oGj7k5s+TUgoRFnOqxi0mH4iovQJSJS41s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Xcg2eUWZ; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 139352BE03C
+	for <linux-s390@vger.kernel.org>; Mon,  6 Apr 2026 15:36:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.182
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775489783; cv=pass; b=G7cDBAszPYQ4QlfYgw/9otA52sTBqtMYuoh+WOTGg7ohxiFPw0FmnlwZ3aiApITxTnT+03mVMJC6NP0toCcVLC7K/N3spbtH/HHfFpTgusHpTxSKYHINW9wyaSK4kV3oi8lVk+ExOlcLOCylFZobv3BP48gmqasuNZKB7n5rMFo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775489783; c=relaxed/simple;
+	bh=nlWstzIKajjZsgq7ASMegQ3LfAZegoZeZgMhp3KDNdc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Mhedb2c1IHhSBrpoSHCxga8RNTG51mLZBYTM+lhanabE3OLnb/OTDgizJJ2O/GCQK0VDY5JOaoDH+JD0jhqQarbCjHAQJ/8AgieIkDyhWyL97KJTYHG8hWEnSiRc6y1t5yM5b4C24xjHsOy95HV9UdWdlQkKMb6p1VfakHKzffM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Oz6BpW1X; arc=pass smtp.client-ip=209.85.214.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Xcg2eUWZ"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6361JjcD144608;
-	Mon, 6 Apr 2026 15:34:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=0JXQ+5
-	E6TcrF+PxmIiH3WOnuweKTABIbYPB6kMSgnm8=; b=Xcg2eUWZd/bKGA3PWDBBLr
-	4F5oiu4Bs02387Vitx5KyDUGmN3BWK97F7PO2M3Mae/STSGbeW5dGSyKf2WiNFq4
-	/wpRD0HR/R92u8AVoNT+ebizjL55oUd0WTj+37T/Xvm+oOvykUdMGGlo0dGjd3si
-	h8fHVXEVCz1pbKa1CjT3k97vA+LpI2RQuor4P40LiF3UIi5Gd8tY08lKvAwBuHCJ
-	FGrpn2TJIJ1VfeOFnjNV1tiDgPZuSLL81EPqS0HdbwIGiuhlyzNM5GJ69w7eSH5J
-	5/w/DVDM2SAWt/FGFcy1ZCXezEO3vpUvDoLrPZBp+WW884MJgfu9q4l/RoAO+kmA
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dat51ybhs-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 06 Apr 2026 15:33:59 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 636F89lC018525;
-	Mon, 6 Apr 2026 15:33:58 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dbcyswbgd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 06 Apr 2026 15:33:58 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 636FXuY126018342
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 6 Apr 2026 15:33:57 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DAA8F5805D;
-	Mon,  6 Apr 2026 15:33:56 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 130BD58057;
-	Mon,  6 Apr 2026 15:33:56 +0000 (GMT)
-Received: from [9.61.9.165] (unknown [9.61.9.165])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  6 Apr 2026 15:33:55 +0000 (GMT)
-Message-ID: <acf2e032-ba50-4be9-8299-6258e1352c38@linux.ibm.com>
-Date: Mon, 6 Apr 2026 11:33:55 -0400
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Oz6BpW1X"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2b243198058so211805ad.1
+        for <linux-s390@vger.kernel.org>; Mon, 06 Apr 2026 08:36:21 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1775489781; cv=none;
+        d=google.com; s=arc-20240605;
+        b=Fv5UrolNeetS3iGFUG1MirMQuNUmuURWX2PG/o0Q9dYv6Q7GQ5no30sb0wehfhagpC
+         77BYZWdAH2QIVJSu116BbbOvWW5FGl9TuCGJ4NGPPOQgovemP8Tdjs1QtuAR4nRYgjUl
+         Wg6xX9JA41ofB98K4KMYPcEowGiAoDy3nbAuhqW/9pEQfFMTKk+k+d3KVmi7m2GJXEwJ
+         3qfgzGEya/Cdm+mU6RBtXYf1dGX2CTNxiX7bHenzOfUPi7Nm3gyIsRBa4GMvgownuY58
+         Z+cxeZVrGo74mouOiZo7afunytajLpLmRwHYP0p5gbIi71/KdgRKNRUN4X+9o45kzYRR
+         HumQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=uaoUY6HpZKfM17HYDhxh0f2g0mDO1KbjYq9Ox6pQpq8=;
+        fh=ZTJP75cOyuWs/mlffRziyYXa5oAGKWvb5wgxCEaQy58=;
+        b=fETKAetFNvEn8wYu4hORoj2Bl0CKPbr4a6x22lzjkQpCVpScMl6zoI9sRu/ri4LxQh
+         k1/9doanGcWFChieHRJ9usbQUpVGyQc+EEHBC0WCiOyXKPaqXEoJxT9R5RWTGsNUYXwH
+         XQ1Gh+TTnDpK5x4v62a/oGzip6v/CGzq9q/MnTaUK6hcXM4yf9Dan9z8lVJM2oAGqRqi
+         pFdaVe27zvtYW1z7+QXb8bM5zGWwQknaEx3qlQa83OzxDeYp5W3xplBk3K6jkotwvkcY
+         uQe0trc3tOmqPczlqwZuS1thY57xDLVFjm0sbWMHG87TCvp077hu+JHO8hCrb6uwZ2SZ
+         bsfw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1775489781; x=1776094581; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=uaoUY6HpZKfM17HYDhxh0f2g0mDO1KbjYq9Ox6pQpq8=;
+        b=Oz6BpW1XzVgZq4mv9c7hTYgA/tnk1SKuKnH497qyZUODd7oGmbJmZ54wFak16DAWCh
+         zrXcidBF1u1pxtg66z4Geyva4pto0zGPkdXUe13m4rwIS0hKjK1luhqpC3s+2K3bg9C4
+         tvIfcVJAUnZXc8msG5azh4TZxXjOzYnSza1Fjeg9K0eH7PvZtidXMH1T+L401QfZAHdJ
+         PkxNqmHTdCsRIvlY0ZZhI5iIeKl0Eqo24S5/xcXc7+GIzXAqYCAmf5OvZLdBmxe/oBrM
+         HFCfrunNl6OEU4vbxqG9SxpR48/UKfLmcb+l7ug+FoCaA4csfX8vMOK9DVB4wukpRleZ
+         7ElA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775489781; x=1776094581;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=uaoUY6HpZKfM17HYDhxh0f2g0mDO1KbjYq9Ox6pQpq8=;
+        b=Qo7Bd0BVPv+/6ds0i9ZD4x2ey01s+sRKLSLkNoDk1y2I8ka+uySxvyHW0TLtnbzjyN
+         dtvbpy4Mb/j18wQ4fAcMMoV/U7kBjf5gqI2aqcrmHd251ijXmGgC4D1yTvFngiKb4XXo
+         ifFJ1dW3oKaeZt5V/h61R8GFGfeh5+H9RPgBzjkD1fx+RJXfPaGuRp0ykvKQ+S89DfuA
+         TpMCU9pX+EqSzNIGehyBExLKKR0lpJOPtomVKnt9YIM8HRdh7Y/7WfrjDylR9iFzhTLf
+         11nb6PAz1L8RC8JyRNzNSbkYi/HtNcehycGYydZPgWEt1+g3m7v8C6hoSjHZzuwc6dp6
+         RTPA==
+X-Forwarded-Encrypted: i=1; AJvYcCWV9meyaW/MMurLX4xKL3YYRzoCtDzqyumWI07swTkXS+szVhhrvCToZMmXo4OAZFxfuKUKZLgviIig@vger.kernel.org
+X-Gm-Message-State: AOJu0YzujjgS++PBwkCyYk1YrgenO0TwCNBeSdWNhGHoU9V1MwZLcxZy
+	vXDziB8rl1WHS0PaK+NVy8Sn6J5i5R4BdlyjzubcUOtOfvHM6XpeIzJRTro3AkwY6309+l9qiul
+	23azT0EHliUxLouTVl6FEnAQH/G+rbw/pjiX0mEBB
+X-Gm-Gg: AeBDievO8zo8iQ1N+y9mOjCcrKP7GWCDZEahRWsE50NzhmMAm5Dt2AeAbRdVJqjnTmq
+	J4jGZCOHX0ddoPXd6sU/gDxh9OvfTHypgVRPQvyEz/80ZeTziWDno4WO0HIt2eQCv/vSJmBvFFt
+	RPt6rS+V8TRl1dHrCODk1FcSPCX54anMYyAt1OWYHAYDB4+sJRCVE0ekiR7ZElbV4nDZEZAh8gC
+	U1Mz48XBY3N+3tfFunD1AtW/781o24WwLfLIy+ewByaN4WfDWH7ZIJJUzLZ03jYY/twee41Ws5z
+	CqMc0vyTeW7oEo8sc+K+N9M0rjOlm7rbfDK1shJiSMrVBY64
+X-Received: by 2002:a17:903:2c0e:b0:2ae:d10c:6382 with SMTP id
+ d9443c01a7336-2b282f7f418mr7591915ad.20.1775489780632; Mon, 06 Apr 2026
+ 08:36:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/3] KVM: s390: Enable adapter_indicators_set to use
- mapped pages
-To: Douglas Freimuth <freimuth@linux.ibm.com>, borntraeger@linux.ibm.com,
-        imbrenda@linux.ibm.com, frankja@linux.ibm.com, david@kernel.org,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20260406064419.14384-1-freimuth@linux.ibm.com>
- <20260406064419.14384-3-freimuth@linux.ibm.com>
-Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20260406064419.14384-3-freimuth@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=J6anLQnS c=1 sm=1 tr=0 ts=69d3d267 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=aEYmPwq50TgnHAoWGOkA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: 4N1l_4nAfyVtw_evPXwtxwyoV8Hs2PO2
-X-Proofpoint-ORIG-GUID: 4N1l_4nAfyVtw_evPXwtxwyoV8Hs2PO2
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDA2MDE1MSBTYWx0ZWRfXzQ5YOD+hl8h6
- mSusd5ts3622SAcfSLjCEyN/a3M7Yv6Emkbb3qtFT979p4Ka5v07OA2Gc23DKsn5fYUbfDU+qKZ
- SEzmUYmIeIXkt3HnpzQYtgQRQdihi7VmDe+ofOEowwkQCuRH7KVetI/anc4e1FkBVIDzhZAFYv9
- 5tK9urNZucMbxNmcJlHnjnX5oNymLY2jvXBD0MuMcnv3Ki0jaMETSeiGa5L/kYc69aVq/pXi4SN
- GgpOjsgnAv8iZbg9aX3RKP3Yh8AcLH4ujKhaTwL8zNDLFKOtwzF4phNimEzFaXLeWbZ7WIF5gsp
- TMG1DTKfWYWUNrnY2s/CtRqAvPm+ubhdb4yY9EAqGhdeOyRhCsXkR1KonNndjjnuZ3hivrvvY5+
- xiUvIwwr8vPtlQ2QZIom836lT4ocdS1WkzWyBo2t870lz7JhSWBjRR+4gLCJk3eTrlc1vana3BJ
- crLVz0xfa2g5r51vgLA==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-06_03,2026-04-03_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 lowpriorityscore=0 bulkscore=0 priorityscore=1501 clxscore=1015
- impostorscore=0 phishscore=0 malwarescore=0 suspectscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2604060151
+References: <20260326174521.1829203-1-irogers@google.com> <20260327045025.2276517-1-irogers@google.com>
+ <20260327045025.2276517-2-irogers@google.com> <adM-_viYsw5KEoeV@google.com>
+In-Reply-To: <adM-_viYsw5KEoeV@google.com>
+From: Ian Rogers <irogers@google.com>
+Date: Mon, 6 Apr 2026 08:36:08 -0700
+X-Gm-Features: AQROBzAKTRtFLJ8MS4wmTBHobWacjfFthdSkbbee17nwzGFBy47KOe7WhybLKIw
+Message-ID: <CAP-5=fWMzWKpHKy9+qwNuaGEgVmmqpu2keMVa1+N0ssHE2PfNw@mail.gmail.com>
+Subject: Re: [PATCH v4 1/2] perf env: Add perf_env__e_machine helper and use
+ in perf_env__arch
+To: Namhyung Kim <namhyung@kernel.org>
+Cc: acme@kernel.org, tmricht@linux.ibm.com, agordeev@linux.ibm.com, 
+	gor@linux.ibm.com, hca@linux.ibm.com, jameshongleiwang@126.com, 
+	japo@linux.ibm.com, linux-kernel@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, 
+	sumanthk@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 4/6/26 2:44 AM, Douglas Freimuth wrote:
-> The S390 adapter_indicators_set function needs to be able to use mapped 
-> pages so that worked can be processed,on a fast path when interrupts are
-> disabled. If adapter indicator pages are not mapped then local mapping is 
-> done on a slow path as it is prior to this patch. For example, Secure
-> Execution environments will take the local mapping path as it does prior to
-> this patch.
-> 
-> Signed-off-by: Douglas Freimuth <freimuth@linux.ibm.com>
-> ---
->  arch/s390/kvm/interrupt.c | 91 ++++++++++++++++++++++++++++-----------
->  1 file changed, 66 insertions(+), 25 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 47bd6361c849..f3183c9ec7f1 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -2847,41 +2847,82 @@ static unsigned long get_ind_bit(__u64 addr, unsigned long bit_nr, bool swap)
->  	return swap ? (bit ^ (BITS_PER_LONG - 1)) : bit;
->  }
->  
-> +static struct s390_map_info *get_map_info(struct s390_io_adapter *adapter,
-> +					  u64 addr)
-> +{
-> +	struct s390_map_info *map;
-> +
-> +	if (!adapter)
-> +		return NULL;
-> +
-> +	list_for_each_entry(map, &adapter->maps, list) {
-> +		if (map->guest_addr == addr)
-> +			return map;
-> +	}
-> +	return NULL;
-> +}
-> +
->  static int adapter_indicators_set(struct kvm *kvm,
->  				  struct s390_io_adapter *adapter,
->  				  struct kvm_s390_adapter_int *adapter_int)
->  {
->  	unsigned long bit;
->  	int summary_set, idx;
-> -	struct page *ind_page, *summary_page;
-> +	struct s390_map_info *ind_info, *summary_info;
->  	void *map;
-> +	struct page *ind_page, *summary_page;
-> +	unsigned long flags;
->  
-> -	ind_page = get_map_page(kvm, adapter_int->ind_addr);
-> -	if (!ind_page)
-> -		return -1;
-> -	summary_page = get_map_page(kvm, adapter_int->summary_addr);
-> -	if (!summary_page) {
-> -		put_page(ind_page);
-> -		return -1;
-> +	spin_lock_irqsave(&adapter->maps_lock, flags);
-> +	ind_info = get_map_info(adapter, adapter_int->ind_addr);
-> +	if (!ind_info) {
-> +		spin_unlock_irqrestore(&adapter->maps_lock, flags);
-> +		ind_page = get_map_page(kvm, adapter_int->ind_addr);
-> +		if (!ind_page)
-> +			return -1;
-> +		idx = srcu_read_lock(&kvm->srcu);
-> +		map = page_address(ind_page);
-> +		bit = get_ind_bit(adapter_int->ind_addr,
-> +				  adapter_int->ind_offset, adapter->swap);
-> +		set_bit(bit, map);
-> +		mark_page_dirty(kvm, adapter_int->ind_gaddr >> PAGE_SHIFT);
-> +		set_page_dirty_lock(ind_page);
-> +		srcu_read_unlock(&kvm->srcu, idx);
-> +	} else {
-> +		map = page_address(ind_info->page);
-> +		bit = get_ind_bit(ind_info->addr, adapter_int->ind_offset, adapter->swap);
-> +		set_bit(bit, map);
-> +		spin_unlock_irqrestore(&adapter->maps_lock, flags);
-> +	}
-> +	spin_lock_irqsave(&adapter->maps_lock, flags);
-> +	summary_info = get_map_info(adapter, adapter_int->summary_addr);
-> +	if (!summary_info) {
-> +		spin_unlock_irqrestore(&adapter->maps_lock, flags);
-> +		summary_page = get_map_page(kvm, adapter_int->summary_addr);
-> +		if (!summary_page && !ind_info) {
-> +			put_page(ind_page);
-> +			return -1;
+On Sun, Apr 5, 2026 at 10:05=E2=80=AFPM Namhyung Kim <namhyung@kernel.org> =
+wrote:
+>
+> On Thu, Mar 26, 2026 at 09:50:24PM -0700, Ian Rogers wrote:
+> > Add a helper that lazily computes the e_machine and falls back of
+> > EM_HOST. Use the perf_env's arch to compute the e_machine if
+> > available. Use a binary search for some efficiency in this, but handle
+> > somewhat complex duplicate rules. Switch perf_env__arch to be derived
+> > the e_machine for consistency. This switches arch from being uname
+> > derived to matching that of the perf binary (via EM_HOST). Update
+> > session to use the helper, which may mean using EM_HOST when no
+> > threads are available. This also updates the perf data file header
+> > that gets the e_machine/e_flags from the session.
+> >
+> > Signed-off-by: Ian Rogers <irogers@google.com>
+> > ---
+> >  tools/perf/util/env.c     | 185 ++++++++++++++++++++++++++++++--------
+> >  tools/perf/util/env.h     |   1 +
+> >  tools/perf/util/session.c |  14 +--
+> >  3 files changed, 157 insertions(+), 43 deletions(-)
+> >
+> > diff --git a/tools/perf/util/env.c b/tools/perf/util/env.c
+> > index 93d475a80f14..ae08178870d7 100644
+> > --- a/tools/perf/util/env.c
+> > +++ b/tools/perf/util/env.c
+> > @@ -1,10 +1,12 @@
+> >  // SPDX-License-Identifier: GPL-2.0
+> >  #include "cpumap.h"
+> > +#include "dwarf-regs.h"
+> >  #include "debug.h"
+> >  #include "env.h"
+> >  #include "util/header.h"
+> >  #include "util/rwsem.h"
+> >  #include <linux/compiler.h>
+> > +#include <linux/kernel.h>
+> >  #include <linux/ctype.h>
+> >  #include <linux/rbtree.h>
+> >  #include <linux/string.h>
+> > @@ -588,51 +590,160 @@ void cpu_cache_level__free(struct cpu_cache_leve=
+l *cache)
+> >       zfree(&cache->size);
+> >  }
+> >
+> > +struct arch_to_e_machine {
+> > +     const char *prefix;
+> > +     uint16_t e_machine;
+> > +};
+> > +
+> >  /*
+> > - * Return architecture name in a normalized form.
+> > - * The conversion logic comes from the Makefile.
+> > + * A mapping from an arch prefix string to an ELF machine that can be =
+used in a
+> > + * bsearch. Some arch prefixes are shared an need additional processin=
+g as
+> > + * marked next to the architecture. The prefixes handle both perf's ar=
+chitecture
+> > + * naming and those from uname.
+> >   */
+> > -static const char *normalize_arch(char *arch)
+> > -{
+> > -     if (!strcmp(arch, "x86_64"))
+> > -             return "x86";
+> > -     if (arch[0] =3D=3D 'i' && arch[2] =3D=3D '8' && arch[3] =3D=3D '6=
+')
+> > -             return "x86";
+> > -     if (!strcmp(arch, "sun4u") || !strncmp(arch, "sparc", 5))
+> > -             return "sparc";
+> > -     if (!strncmp(arch, "aarch64", 7) || !strncmp(arch, "arm64", 5))
+> > -             return "arm64";
+> > -     if (!strncmp(arch, "arm", 3) || !strcmp(arch, "sa110"))
+> > -             return "arm";
+> > -     if (!strncmp(arch, "s390", 4))
+> > -             return "s390";
+> > -     if (!strncmp(arch, "parisc", 6))
+> > -             return "parisc";
+> > -     if (!strncmp(arch, "powerpc", 7) || !strncmp(arch, "ppc", 3))
+> > -             return "powerpc";
+> > -     if (!strncmp(arch, "mips", 4))
+> > -             return "mips";
+> > -     if (!strncmp(arch, "sh", 2) && isdigit(arch[2]))
+> > -             return "sh";
+> > -     if (!strncmp(arch, "loongarch", 9))
+> > -             return "loongarch";
+> > -
+> > -     return arch;
+> > +static const struct arch_to_e_machine prefix_to_e_machine[] =3D {
+> > +     {"aarch64", EM_AARCH64},
+> > +     {"alpha", EM_ALPHA},
+> > +     {"arc", EM_ARC},
+> > +     {"arm", EM_ARM}, /* Check also for EM_AARCH64. */
+> > +     {"avr", EM_AVR},  /* Check also for EM_AVR32. */
+> > +     {"bfin", EM_BLACKFIN},
+> > +     {"blackfin", EM_BLACKFIN},
+> > +     {"cris", EM_CRIS},
+> > +     {"csky", EM_CSKY},
+> > +     {"hppa", EM_PARISC},
+> > +     {"i386", EM_386},
+> > +     {"i486", EM_386},
+> > +     {"i586", EM_386},
+> > +     {"i686", EM_386},
+> > +     {"loongarch", EM_LOONGARCH},
+> > +     {"m32r", EM_M32R},
+> > +     {"m68k", EM_68K},
+> > +     {"microblaze", EM_MICROBLAZE},
+> > +     {"mips", EM_MIPS},
+> > +     {"msp430", EM_MSP430},
+> > +     {"parisc", EM_PARISC},
+> > +     {"powerpc", EM_PPC}, /* Check also for EM_PPC64. */
+> > +     {"ppc", EM_PPC}, /* Check also for EM_PPC64. */
+> > +     {"riscv", EM_RISCV},
+> > +     {"s390", EM_S390},
+> > +     {"sa110", EM_ARM},
+> > +     {"sh", EM_SH},
+> > +     {"sparc", EM_SPARC}, /* Check also for EM_SPARCV9. */
+> > +     {"sun4u", EM_SPARC},
+> > +     {"x86", EM_X86_64}, /* Check also for EM_386. */
+> > +     {"xtensa", EM_XTENSA},
+> > +};
+> > +
+> > +static int compare_prefix(const void *key, const void *element)
+> > +{
+> > +     const char *search_key =3D key;
+> > +     const struct arch_to_e_machine *map_element =3D element;
+> > +     size_t prefix_len =3D strlen(map_element->prefix);
+> > +
+> > +     return strncmp(search_key, map_element->prefix, prefix_len);
+> > +}
+> > +
+> > +static uint16_t perf_arch_to_e_machine(const char *perf_arch, bool is_=
+64_bit)
+> > +{
+> > +     /* Binary search for a matching prefix. */
+> > +     const struct arch_to_e_machine *result;
+> > +
+> > +     if (!perf_arch)
+> > +             return EM_HOST;
+> > +
+> > +     result =3D bsearch(perf_arch,
+> > +                      prefix_to_e_machine, ARRAY_SIZE(prefix_to_e_mach=
+ine),
+> > +                      sizeof(prefix_to_e_machine[0]),
+> > +                      compare_prefix);
+> > +
+> > +     if (!result) {
+> > +             pr_debug("Unknown perf arch for ELF machine mapping: %s\n=
+", perf_arch);
+> > +             return EM_NONE;
+> > +     }
+> > +
+> > +     /* Handle conflicting prefixes. */
+> > +     switch (result->e_machine) {
+> > +     case EM_ARM:
+> > +             return !strcmp(perf_arch, "arm64") ? EM_AARCH64 : EM_ARM;
+> > +     case EM_AVR:
+> > +             return !strcmp(perf_arch, "avr32") ? EM_AVR32 : EM_AVR;
+> > +     case EM_PPC:
+> > +             return is_64_bit || strstarts(perf_arch, "ppc64") ? EM_PP=
+C64 : EM_PPC;
+>
+> I'm curious what's the name `uname -m` returns for PPC64.  Is
+> "powerpc64" possible?
 
-1) Sashiko mentions that this now allows for a path where we already set
-the indicator bits above but bail out early because we couldn't find the
-summary page.  The old code validated that it could find the indicator
-page AND the summary page before setting any bits.
+It is.
 
-I think re-implementing to achieve that model is _preferable_ but I
-think we are also OK with the current approach; in this unlikely event
-the indicator bits are set but we fail to set the summary bit, then I
-can envision at least 2 scenarios...
+> > +     case EM_SPARC:
+> > +             return is_64_bit || !strcmp(perf_arch, "sparc64") ? EM_SP=
+ARCV9 : EM_SPARC;
+> > +     case EM_X86_64:
+> > +             return is_64_bit || !strcmp(perf_arch, "x86_64") ? EM_X86=
+_64 : EM_386;
+> > +     default:
+> > +             return result->e_machine;
+> > +     }
+> > +}
+> > +
+> > +static const char *e_machine_to_perf_arch(uint16_t e_machine)
+> > +{
+> > +     /*
+> > +      * Table for if either the perf arch string differs from uname or=
+ there
+> > +      * are >1 ELF machine with the prefix.
+> > +      */
+> > +     static const struct arch_to_e_machine extras[] =3D {
+> > +             {"arm64", EM_AARCH64},
+> > +             {"avr32", EM_AVR32},
+> > +             {"powerpc", EM_PPC},
+> > +             {"powerpc", EM_PPC64},
+>
+> Here it returns powerpc for both.
 
-1a) an already-running interrupt handler in the guest happens to see the
-indicator bits on because the summary bit was already set and proceeds
-to handle it and clear the indicator bits.  I suppose we might get an
-over-indication of those bits later if the host attempts a re-delivery.
+Yep. This is 100% intentional as the existing code does the same:
+https://web.git.kernel.org/pub/scm/linux/kernel/git/perf/perf-tools-next.gi=
+t/tree/tools/perf/util/env.c?h=3Dperf-tools-next#n611
+```
+static const char *normalize_arch(char *arch)
+...
+if (!strncmp(arch, "powerpc", 7) || !strncmp(arch, "ppc", 3))
+return "powerpc";
+```
+The strncmp is limited to just the prefix of the uname string,
+ignoring the 64. So the arch "powerpc" can be 32-bit or 64-bit, just
+as "x86" can be 32-bit or 64-bit. To determine which case applies, the
+code should really check `struct perf_env`'s `kernel_is_64_bit`. I
+think this is generally much more painful than just using the
+e_machine - especially since you need to strcmp the name. For the
+e_machine, the problem is that on x86 we have 32-bit, x32 and x86_64.
+There is then also an ABI question regarding the use of SIMD registers
+and the newer APX registers. If there are no samples and no DSOs in
+play, making a choice of e_machine to set up variables with is
+somewhat arbitrary. I think EM_HOST, the e_machine of the current perf
+binary, is a good choice.
 
-1b) Same as above but the summary bit was off (or the interrupt handler
-never was given initiative to run in the first place) so the indicator
-bits are not noticed and nothing is handled.  But if re-delivery is
-attempted then this code would re-indicate the same bits which were
-already on -- this would not prevent an attempt at indicating the
-summary bit again.  Assuming that succeeds, it will result in an adapter
-interrupt delivered.
+Thanks,
+Ian
 
-If we continually fail to map the summary page I guess it could be an
-awkward dance of indicating the bits but never being able to set the
-summary bit.  Realistically, if we are in this situation (cannot map the
-summary page that was previously valid) it seems to me we've got a
-bigger issue.  Would a WARN_ON_ONCE make sense?
-
-
-2) If you keep this approach then there is another issue here that is
-definitely a valid concern -- if summary_page is NULL but info_info is
-non-NULL, you continue on and use a summary_page of 0 below which is
-wrong - I think you wanted to return -1 (but without a put_page) in this
-case e.g.:
-
-if (!summary_page) {
-	if (!ind_page)
-		put_page(ind_page);
-	return -1;
-}
-
-
-
+> > +             {"sparc", EM_SPARCV9},
+> > +             {"x86", EM_386},
+> > +             {"x86", EM_X86_64},
+> > +             {"none", EM_NONE},
+> > +     };
+> > +
+> > +     for (size_t i =3D 0; i < ARRAY_SIZE(extras); i++) {
+> > +             if (extras[i].e_machine =3D=3D e_machine)
+> > +                     return extras[i].prefix;
+> > +     }
+> > +
+> > +     for (size_t i =3D 0; i < ARRAY_SIZE(prefix_to_e_machine); i++) {
+> > +             if (prefix_to_e_machine[i].e_machine =3D=3D e_machine)
+> > +                     return prefix_to_e_machine[i].prefix;
+> > +
+> > +     }
+> > +     return "unknown";
+> > +}
+> > +
+> > +uint16_t perf_env__e_machine(struct perf_env *env, uint32_t *e_flags)
+> > +{
+> > +     if (!env) {
+> > +             if (e_flags)
+> > +                     *e_flags =3D EF_HOST;
+> > +
+> > +             return EM_HOST;
+> > +     }
+> > +     if (env->e_machine =3D=3D EM_NONE) {
+> > +             env->e_machine =3D perf_arch_to_e_machine(env->arch, env-=
+>kernel_is_64_bit);
+> > +
+> > +             if (env->e_machine =3D=3D EM_HOST)
+> > +                     env->e_flags =3D EF_HOST;
+> > +     }
+> > +     if (e_flags)
+> > +             *e_flags =3D env->e_flags;
+> > +
+> > +     return env->e_machine;
+> >  }
+> >
+> >  const char *perf_env__arch(struct perf_env *env)
+> >  {
+> > -     char *arch_name;
+> > +     if (!env)
+> > +             return e_machine_to_perf_arch(EM_HOST);
+> >
+> > -     if (!env || !env->arch) { /* Assume local operation */
+> > -             static struct utsname uts =3D { .machine[0] =3D '\0', };
+> > -             if (uts.machine[0] =3D=3D '\0' && uname(&uts) < 0)
+> > -                     return NULL;
+> > -             arch_name =3D uts.machine;
+> > -     } else
+> > -             arch_name =3D env->arch;
+> > +     if (!env->arch) {
+> > +             /*
+> > +              * Lazily compute/allocate arch. The e_machine may have b=
+een
+> > +              * read from a data file and so may not be EM_HOST.
+> > +              */
+> > +             uint16_t e_machine =3D perf_env__e_machine(env, /*e_flags=
+=3D*/NULL);
+> >
+> > -     return normalize_arch(arch_name);
+> > +             env->arch =3D strdup(e_machine_to_perf_arch(e_machine));
+> > +     }
+> > +     return env->arch;
+> >  }
+> >
+> >  #if defined(HAVE_LIBTRACEEVENT)
+> > diff --git a/tools/perf/util/env.h b/tools/perf/util/env.h
+> > index a4501cbca375..91ff252712f4 100644
+> > --- a/tools/perf/util/env.h
+> > +++ b/tools/perf/util/env.h
+> > @@ -186,6 +186,7 @@ int perf_env__read_cpu_topology_map(struct perf_env=
+ *env);
+> >
+> >  void cpu_cache_level__free(struct cpu_cache_level *cache);
+> >
+> > +uint16_t perf_env__e_machine(struct perf_env *env, uint32_t *e_flags);
+> >  const char *perf_env__arch(struct perf_env *env);
+> >  const char *perf_env__arch_strerrno(struct perf_env *env, int err);
+> >  const char *perf_env__cpuid(struct perf_env *env);
+> > diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
+> > index 4b465abfa36c..dcc9bef303aa 100644
+> > --- a/tools/perf/util/session.c
+> > +++ b/tools/perf/util/session.c
+> > @@ -2996,14 +2996,16 @@ uint16_t perf_session__e_machine(struct perf_se=
+ssion *session, uint32_t *e_flags
+> >               return EM_HOST;
+> >       }
+> >
+> > +     /* Is the env caching an e_machine? */
+> >       env =3D perf_session__env(session);
+> > -     if (env && env->e_machine !=3D EM_NONE) {
+> > -             if (e_flags)
+> > -                     *e_flags =3D env->e_flags;
+> > -
+> > -             return env->e_machine;
+> > -     }
+> > +     if (env && env->e_machine !=3D EM_NONE)
+> > +             return perf_env__e_machine(env, e_flags);
+> >
+> > +     /*
+> > +      * Compute from threads, note this is more accurate than
+> > +      * perf_env__e_machine that falls back on EM_HOST and doesn't con=
+sider
+> > +      * mixed 32-bit and 64-bit threads.
+> > +      */
+> >       machines__for_each_thread(&session->machines,
+> >                                 perf_session__e_machine_cb,
+> >                                 &args);
+> > --
+> > 2.53.0.1018.g2bb0e51243-goog
+> >
