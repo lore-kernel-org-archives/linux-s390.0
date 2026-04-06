@@ -1,138 +1,165 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f202.google.com (mail-dy1-f202.google.com [74.125.82.202])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD9DB37107E;
-	Mon,  6 Apr 2026 16:25:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A202638C41D
+	for <linux-s390@vger.kernel.org>; Mon,  6 Apr 2026 17:09:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775492723; cv=none; b=nX40iYCnQCSkB3kE11BXrUXRyzSGxAy9ILBtuSqrDTO1/x5d72/yfe9iNhT9HwCZSGDiX2UhlIwoYPHAwH3l4MnSAEll9FaOcSOAUMZTOFNN0IkYchMOizVPw6aX0+dVQYuIVWAZd9Euom1xWHgy1gH5ymbJbWbizIj4A81iZv8=
+	t=1775495354; cv=none; b=Q7r9BgK/ACeBX4itIMCYAKxdxCBadI8HcpvYASuzYKOaZFJLuZZi4fVwkZ4wPhxBP6HRG3EbMetFUnlxbii7LRctTt7n5s1YsMd4TaNLcLsbXmIdbkoQKdNzep+TSZq0g+g8zAyRqL6CK+HhyWWHh+kUvBrAAPCZCob3UmlSUTY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775492723; c=relaxed/simple;
-	bh=ngjDooXf5Pcr7k2d4p+jIIxG08B4RRHnuE+yPky4piE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=R4uxgc/QlZ3/lbKCVwykbRCzEcZ/cZZzOX9ywloKVroKwbn9Q9nYGQRQvpvobvKii4fJZDlMTpXoEk1R4HkRLuYIvNsvMpv4suPyZ9nqWmTOnbwJojqkdsRYLPhNrYQCwmb2hRh+Exh8Kgk5Uc4c40Ud9TXMLBaunz6AnFvLaTQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VeIRkCjM; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1775495354; c=relaxed/simple;
+	bh=LZdCoMke5/0u4HN9HKrDslh21tKocju+fLLNMYjItQg=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=HzCiUqfBG28HxM8xdC3uYzz4hXyrELMUeL01VDI4zYTfHXtT5vejLF1qUXMVcOaaptZeHR5qZwGhwTcrG0wcY/4qEoVV3jrPd2zk9Jipg6Vc9omcwU3jHIQ0Nbp/Nzym8wTU/5qi2ghSpbGD4mng1VAv/Lm/HmYZtNQN4BH1gws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=deanAEhB; arc=none smtp.client-ip=74.125.82.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VeIRkCjM"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 635Mj58n3762569;
-	Mon, 6 Apr 2026 16:25:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=F4fi3c
-	ahaAzJo5UH4AbwpD5GJc+roP979BKJ0AyitnM=; b=VeIRkCjMhdshtUTlEpvswb
-	hco19Mfn7R0Fgyv5gclM4F8BxLBmk24DBU1P/njPsmZ1j6sx8JyYkBUL5WY9yk3J
-	12x3KEfkjvVbJ66xf2ydxDMEWwX4sDoMPmSZVB9CY7c0MLjWFRJaXCnakigiVwii
-	V/08bm5irbqdjPHJVWyiWkCUfYDI6v7o4Ovf2t3B1oyrLc1lV3IJALeURdsGiHED
-	n90cvP16HdYx9cPIJv0YsDsKc5O3MG+0BO6sWnYMCI8PdUO0lwouWkhCRGLPu0V1
-	tjOUOlbr0lOIUTt5A6V+Da4aqEsQi2Vnquud9Zwn3oPsvUuI+xJO7VZijZcpzclw
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4datc2qg59-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 06 Apr 2026 16:25:20 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 636FtoET018730;
-	Mon, 6 Apr 2026 16:25:19 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dbcyswg82-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 06 Apr 2026 16:25:19 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 636GPHCr27263682
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 6 Apr 2026 16:25:18 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AF19958058;
-	Mon,  6 Apr 2026 16:25:17 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DAE6E58057;
-	Mon,  6 Apr 2026 16:25:16 +0000 (GMT)
-Received: from [9.61.9.165] (unknown [9.61.9.165])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  6 Apr 2026 16:25:16 +0000 (GMT)
-Message-ID: <199fafb3-98cb-4ad8-bbb4-22a4149e409d@linux.ibm.com>
-Date: Mon, 6 Apr 2026 12:25:16 -0400
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="deanAEhB"
+Received: by mail-dy1-f202.google.com with SMTP id 5a478bee46e88-2c0ba59a830so5640160eec.0
+        for <linux-s390@vger.kernel.org>; Mon, 06 Apr 2026 10:09:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1775495353; x=1776100153; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZPRV5zYhae9dacVlewfNI7WCT0hXtp/bTPy6oXFI5wI=;
+        b=deanAEhB9aC8cjFys1zw0NG4JRDNAMfGz7aomxIr6UnSNx5BYFuu0Y4a1INZ9oTT2h
+         nKY1HJ7g7evpwHkpJxfMUqGI2bybWZkJOlZVTcdsWbrraX+n2g044ct9lRtweY0UYHYd
+         lOZrdwoY42+eZrRL7igk+dCUI9yQa0xQJiIh31VWQCNfAu5BnGJxo64VRSrRyq7wDJPa
+         jeof4MP+DA3XNCY9+YbD5HbOqNPuh+rPl0Zgk3OFHuLsNE4DijuAR59Bh00q1L9FiXU3
+         Qzx/p5j/U4Mio6Xe8zUAoL6XXEzeYdrWZdMuN149ztzQNPSLYdbyykM6uV7LF5rLOt0U
+         Uh0A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775495353; x=1776100153;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZPRV5zYhae9dacVlewfNI7WCT0hXtp/bTPy6oXFI5wI=;
+        b=ojBBCnmNHwVj8t0ODWouyMXnb+hS3bVs+SGXKNR91fDmuVcSehQ15wuNCRtAEmGFEN
+         RD+UqrYDrgXA4GlxlL7j5KP2oOHxPqgmmIPNrgQstkwE3qpAl9JTPl/CwDi67Lu9uVbk
+         vz8EUS3osI3/BSVgGcKHopoHlzrjpwp3PjXwYSj0n3Iv6vl9vYK77sPFCysanOgG1mqJ
+         rEQP4QRzCgQE9d+UlxLCA60eAorlwoe3HfdFFbQHRsKjXgp2n0NfIuVkxEQwpXjbY1dG
+         o6jAB4SfgTlcaKfJKhXHHNw9nGB0uhZIN8PjMWwwXQyloCKDcGDg463u+0IaujQ7fUV3
+         fd3g==
+X-Forwarded-Encrypted: i=1; AJvYcCWYw8hEtqqEFC0g4lgIfKA4ZusgnhADKe9Qk/T2jqC+8dSvE04UkVHSGluH9XRgYpBoOVf3J98pQu9Z@vger.kernel.org
+X-Gm-Message-State: AOJu0YwUESzO68gJCTjib7F6KBsvZ5KNDWEldOq/IAvm65325cug7kB7
+	3WyOhHlV49kth+qmAX1ef+uAeMAOPhCC6OBI45vSEAlnO+mrpeOKdguetvnHywt5i2M0zZsX/cA
+	JZE7ijF+sqw==
+X-Received: from dyhd22.prod.google.com ([2002:a05:7300:8296:b0:2c0:b626:c453])
+ (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7301:4090:b0:2c8:7172:3b97
+ with SMTP id 5a478bee46e88-2cbfa8ba560mr5981842eec.13.1775495352516; Mon, 06
+ Apr 2026 10:09:12 -0700 (PDT)
+Date: Mon,  6 Apr 2026 10:09:04 -0700
+In-Reply-To: <20260406170905.2614260-1-irogers@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 3/3] KVM: s390: Introducing kvm_arch_set_irq_inatomic
- fast inject
-To: Douglas Freimuth <freimuth@linux.ibm.com>, borntraeger@linux.ibm.com,
-        imbrenda@linux.ibm.com, frankja@linux.ibm.com, david@kernel.org,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20260406064419.14384-1-freimuth@linux.ibm.com>
- <20260406064419.14384-4-freimuth@linux.ibm.com>
-Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20260406064419.14384-4-freimuth@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDA2MDE2MCBTYWx0ZWRfXwwsIqtmQlcn5
- w8YKX9RTmlRj2HaDoC8a2cb5pDP/m2u17h8LgSnO64hDQjUUu/ozWrysciNIn7W78lHZcydiEcu
- Ksp77j3xiw4sCLeYF2GWufxSEXaOznd2RKn5k6WC+Y40Jen+TzLE2+bjFR4GWinFeoBdQfnKGkx
- 14zM57iVZbw301RkaApMgML48MX7t1R5vuf7AG8+uNlHPqMA20aU6N9S6gf0jzZCqT3x6CraWh6
- HkQzfY2kUF1DtGKBk0v1N9ZfQdsmaJO0E+CXZlf3niKUu+348F0u+2rJfpqDFBXHsmTHTDADyry
- iO8FgQjDdYPScpe8EIWSIet/8BNxn2QTzlOJV4dbZA8dqmCG7C8WG3Am8Up1A+lyXooFCi9p/LW
- GtWSX3AEfyqe7qZB+jN+K464bvBiWB6A5TKm1Ui+csK9Msp5tmgan+r/AKWEuBnF8Avm46hH+qP
- wfm0KbdTdlsrXg5gQqw==
-X-Proofpoint-GUID: OuIRqrYXVrJX16u4SeBVO8eTGfBH-YR3
-X-Proofpoint-ORIG-GUID: OuIRqrYXVrJX16u4SeBVO8eTGfBH-YR3
-X-Authority-Analysis: v=2.4 cv=HJvO14tv c=1 sm=1 tr=0 ts=69d3de70 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=0yhpOta31wJg_WYSZE8A:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-06_03,2026-04-03_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0 adultscore=0
- malwarescore=0 spamscore=0 phishscore=0 priorityscore=1501 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2604060160
+Mime-Version: 1.0
+References: <CAP-5=fXxa2rvxMqZoD5ayETiPjS8cf7A49TdVwwt+10uPu58Pw@mail.gmail.com>
+ <20260406170905.2614260-1-irogers@google.com>
+X-Mailer: git-send-email 2.53.0.1213.gd9a14994de-goog
+Message-ID: <20260406170905.2614260-3-irogers@google.com>
+Subject: [PATCH v5 2/3] perf env: Add helper to lazily compute the os_release
+From: Ian Rogers <irogers@google.com>
+To: acme@kernel.org, namhyung@kernel.org
+Cc: irogers@google.com, agordeev@linux.ibm.com, gor@linux.ibm.com, 
+	hca@linux.ibm.com, jameshongleiwang@126.com, japo@linux.ibm.com, 
+	linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
+	linux-s390@vger.kernel.org, sumanthk@linux.ibm.com, tmricht@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
 
+In live mode the os_release isn't being initialized, make a lazy
+initialization helper that assumes when the os_release isn't
+initialized this is live mode.
 
->  
-> -static void __kvm_inject_pfault_token(struct kvm_vcpu *vcpu, bool start_token,
-> -				      unsigned long token)
-> +static int __kvm_inject_pfault_token(struct kvm_vcpu *vcpu, bool start_token,
-> +				     unsigned long token)
->  {
->  	struct kvm_s390_interrupt inti;
->  	struct kvm_s390_irq irq;
-> +	struct kvm_s390_interrupt_info *inti_mem;
-> +
-> +	inti_mem = kzalloc_obj(*inti_mem, GFP_KERNEL_ACCOUNT);
-> +	if (!inti_mem)
-> +		return -ENOMEM;
+Signed-off-by: Ian Rogers <irogers@google.com>
+---
+ tools/perf/util/data-convert-bt.c |  2 +-
+ tools/perf/util/env.c             | 21 +++++++++++++++++++++
+ tools/perf/util/env.h             |  1 +
+ tools/perf/util/symbol.c          |  4 ++--
+ 4 files changed, 25 insertions(+), 3 deletions(-)
 
-You change this function to possibly return this value but you do not
-change the callers of this routine to actually look at the new return value?
-
-AFAICT there are 2 callers of this today in arch/s390/kvm/kvm-s390.c - I
-assume one or both need updating, otherwise why do we need this change?
-
->  
->  	if (start_token) {
->  		irq.u.ext.ext_params2 = token;
-> @@ -4409,8 +4422,9 @@ static void __kvm_inject_pfault_token(struct kvm_vcpu *vcpu, bool start_token,
->  	} else {
->  		inti.type = KVM_S390_INT_PFAULT_DONE;
->  		inti.parm64 = token;
-> -		WARN_ON_ONCE(kvm_s390_inject_vm(vcpu->kvm, &inti));
-> +		WARN_ON_ONCE(kvm_s390_inject_vm(vcpu->kvm, &inti, inti_mem));
->  	}
-> +	return true;
-
-Since return value is an integer, return 0?
+diff --git a/tools/perf/util/data-convert-bt.c b/tools/perf/util/data-convert-bt.c
+index bece77cbc493..bc5805183100 100644
+--- a/tools/perf/util/data-convert-bt.c
++++ b/tools/perf/util/data-convert-bt.c
+@@ -1414,7 +1414,7 @@ do {									\
+ 
+ 	ADD("host",    env->hostname);
+ 	ADD("sysname", "Linux");
+-	ADD("release", env->os_release);
++	ADD("release", perf_env__os_release(env));
+ 	ADD("version", env->version);
+ 	ADD("machine", env->arch);
+ 	ADD("domain", "kernel");
+diff --git a/tools/perf/util/env.c b/tools/perf/util/env.c
+index 339d62ca37bb..34b737950f73 100644
+--- a/tools/perf/util/env.c
++++ b/tools/perf/util/env.c
+@@ -330,6 +330,27 @@ int perf_env__kernel_is_64_bit(struct perf_env *env)
+ 	return env->kernel_is_64_bit;
+ }
+ 
++const char *perf_env__os_release(struct perf_env *env)
++{
++	struct utsname uts;
++	int ret;
++
++	if (!env)
++		return perf_version_string;
++
++	if (env->os_release)
++		return env->os_release;
++
++	/*
++	 * The os_release is being accessed but wasn't initialized from a data
++	 * file, assume this is 'live' mode and use the release from uname. If
++	 * uname fails then use the current perf tool version.
++	 */
++	ret = uname(&uts);
++	env->os_release = strdup(ret < 0 ? perf_version_string : uts.release);
++	return env->os_release;
++}
++
+ int perf_env__set_cmdline(struct perf_env *env, int argc, const char *argv[])
+ {
+ 	int i;
+diff --git a/tools/perf/util/env.h b/tools/perf/util/env.h
+index 91ff252712f4..bf30a02dccf7 100644
+--- a/tools/perf/util/env.h
++++ b/tools/perf/util/env.h
+@@ -174,6 +174,7 @@ void free_cpu_domain_info(struct cpu_domain_map **cd_map, u32 schedstat_version,
+ void perf_env__exit(struct perf_env *env);
+ 
+ int perf_env__kernel_is_64_bit(struct perf_env *env);
++const char *perf_env__os_release(struct perf_env *env);
+ 
+ int perf_env__set_cmdline(struct perf_env *env, int argc, const char *argv[]);
+ 
+diff --git a/tools/perf/util/symbol.c b/tools/perf/util/symbol.c
+index b4b30675688d..ea7d2f2dbcb7 100644
+--- a/tools/perf/util/symbol.c
++++ b/tools/perf/util/symbol.c
+@@ -2208,7 +2208,7 @@ static int vmlinux_path__init(struct perf_env *env)
+ {
+ 	struct utsname uts;
+ 	char bf[PATH_MAX];
+-	char *kernel_version;
++	const char *kernel_version;
+ 	unsigned int i;
+ 
+ 	vmlinux_path = malloc(sizeof(char *) * (ARRAY_SIZE(vmlinux_paths) +
+@@ -2225,7 +2225,7 @@ static int vmlinux_path__init(struct perf_env *env)
+ 		return 0;
+ 
+ 	if (env) {
+-		kernel_version = env->os_release;
++		kernel_version = perf_env__os_release(env);
+ 	} else {
+ 		if (uname(&uts) < 0)
+ 			goto out_fail;
+-- 
+2.53.0.1213.gd9a14994de-goog
 
