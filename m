@@ -1,164 +1,199 @@
-Received: from fout-b3-smtp.messagingengine.com (fout-b3-smtp.messagingengine.com [202.12.124.146])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E5F13DBA0;
-	Tue,  7 Apr 2026 15:58:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.146
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF61235F8D1;
+	Tue,  7 Apr 2026 16:17:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775577529; cv=none; b=rXVJM3b5ZrFGt522c9Ye1FPiEWzTgyMUXL1RZHF28uRL19Gzt0XmiUDreCx5kWvHMb9/UBL0PMYcsmPRaf56/Hukll3QCsJG9NGSsbQzyLkj/Jc2eWhZn9Zv+XBiuyACykBZFpZitGtnPBSVODiJCl9I7gAjx92JCmMVa8iClEU=
+	t=1775578660; cv=none; b=piuqRY2HFchci09IxkOH/VmOYTHuMjRVSgfoCPilZRLD01l4xhh4f0MtkD4Ie27YcmFaJaj5mPx3bp32juLItRcKad9COoDGTB9HwSVgG1Hg7E/QY+XiCBUy0jh0JGeZhgN4ju3XqmRP3dSnKLnAUcMI588lQq+p7MOPAg6RVEQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775577529; c=relaxed/simple;
-	bh=EBFnxExK4VX2YswSoy+PzJvSVt/+6kITNov1zrMkHX4=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=owJHLAOOd1MhH1qLQGx6dSNPe8sjmSuoKmNtHl0u1JY+X9Eze6T3tWxLoQW9q/vdmZUx9UBv143Qq6VXggFxiCYQjsCypVbNfRUHq0L5nPw+/kfyJTL7iVncNQLP6nn/BQg1/2TjCJBZTcNtI8Ge+S31/UBYrj2s/zn2m2bXYfA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=fuHKukx5; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=fk2G5NVw; arc=none smtp.client-ip=202.12.124.146
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
+	s=arc-20240116; t=1775578660; c=relaxed/simple;
+	bh=5k/h7oW7UpWno9nkbdE8z7QzFwr54wYIqPgdqnvqr5E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hrPD4swC5XHGgORuYEjrNp4izh3r5AIs1+BwiWur/Lqepf8EB7W85F4cEbICU4MjiESs0wW6033zsnnAYHju6nW6d2mW9f4EMFngAas/lYInwe0pBsiA5ALpq7hSjMN3uvjxSINyHVriGjrhHBThrKfCpxESpcwzV1AZVPjvjyE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZoekPp59; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="fuHKukx5";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="fk2G5NVw"
-Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
-	by mailfout.stl.internal (Postfix) with ESMTP id 3715D1D00251;
-	Tue,  7 Apr 2026 11:58:38 -0400 (EDT)
-Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-06.internal (MEProxy); Tue, 07 Apr 2026 11:58:38 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1775577518;
-	 x=1775663918; bh=tK7NLpFbjwDadQoTc0iaAErmYavZBKRhAuqroi1ZxdI=; b=
-	fuHKukx5ByeBZRP0NyAyOrRRoBwpZfzFMG9JUdZ8SGg7+t6rnfx9Ho6JDbAceliN
-	y/KaGNL3+Um9Sx7zB7lwkT8g6gkl+yBYCtQA+9jXWJAMgaY+Ud8CB4S9Sw5US/j8
-	EUE0hIMJGYlBW1qFl2KY0lSRTCR56YPKZEvJQymH1HFPKpf1D0qMMtQojtIkPHdW
-	YY7roLh7shptbYHzTx0aHFf77NUZoCXYElQqRSxUgeFyoF5bdAVuSAEJ4HbAq3J5
-	7W4Mz6f12oT5GQu3n2Wujt77lmrZkwxRykWwKpxu4wM/d5wVOIOvGaNXejeX7+L9
-	K4mynKm4sLrEMtXBgaRPDQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1775577518; x=
-	1775663918; bh=tK7NLpFbjwDadQoTc0iaAErmYavZBKRhAuqroi1ZxdI=; b=f
-	k2G5NVw2HZYwORQcCkYyUaqFHMO3t73Fytx1y2uQkxW0as9MlfO7qKbmciIzAax7
-	vqUytmCWtanwte4DzS9t1GCcCpT/KeXdl/HvevMzXxOmumE833AJh0eCsAtGmI8D
-	ZZvAbKgdo6DoZClbaykAkY3oQviQTagGPFA+2rtH1WXF+rPW58NHjeJ4jVuHaJuh
-	6d05LSohI9uS/1vPmMfMwI6osmgU4RUqv+myWwHvFr8Rn/O4CsZqeV2DZKnsa+u/
-	/M+2d161LBG5HHj4DqhPuGpYXu2UiyYMDD801s2LCDFYjsKttaiXgaz3uR4qC5RP
-	TmRQQXuVK9rt/7YkGzIKA==
-X-ME-Sender: <xms:rSnVaRWR9Zk6IMIRx8mfp6nN-NdJs92Kcn_vM2W_0NjzaR9yts1HTQ>
-    <xme:rSnVaVSXCcGPCNqPCnqedZZny9hb75jFyzShBds3eNq4KezIDcGWle6DkGlKnpb_e
-    BZFaBYKtytfAWm-Qj5-5O7NXO6EJdS-SyQ4N8ixdYlo9jSVyOFB>
-X-ME-Received: <xmr:rSnVaWA08u84AQqew-eRjGFeHFH0u5sONVB_tl5H6msys_EWZH_LccSgwdY>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgddvuddtjecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpeffhffvvefukfgjfhfogggtgfesthejredtredtvdenucfhrhhomheptehlvgigucgh
-    ihhllhhirghmshhonhcuoegrlhgvgiesshhhrgiisghothdrohhrgheqnecuggftrfgrth
-    htvghrnhepvdekfeejkedvudfhudfhteekudfgudeiteetvdeukedvheetvdekgfdugeev
-    ueeunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
-    hlvgigsehshhgriigsohhtrdhorhhgpdhnsggprhgtphhtthhopeduvddpmhhouggvpehs
-    mhhtphhouhhtpdhrtghpthhtoheprghlihhfmheslhhinhhugidrihgsmhdrtghomhdprh
-    gtphhtthhopehlihhnuhigqdhsfeeltdesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgt
-    phhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprh
-    gtphhtthhopehlihhnuhigqdhptghisehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghp
-    thhtohephhgvlhhgrggrsheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhukhgrsh
-    esfihunhhnvghrrdguvgdprhgtphhtthhopegtlhhgsehrvgguhhgrthdrtghomhdprhgt
-    phhtthhopehksghushgthheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepshgthhhnvg
-    hllhgvsehlihhnuhigrdhisghmrdgtohhm
-X-ME-Proxy: <xmx:rinVaVvULn6gTZC7Scga_IIbm3bsYfRZwuPbKjuavFqAk0JAccWf-g>
-    <xmx:rinVac-0CJrJcUyzr0AJpoNWxvtP9qPuv1_766RKzEw3REeYTfVmKg>
-    <xmx:rinVaUQ1GTejdLlKUwzqVlFZSCVifltG_y1M5oBP8NNMNw0VTHAEtg>
-    <xmx:rinVaWVZwhB6yTu9NW9ACeP8zN6lssBEPOOondwvul6AzfCUi7He0g>
-    <xmx:rinVaTQoG2cI98FiGf_h_CuKls_Q7uM5tiRV7MMdPMgZfdT8a-Pr1sX8>
-Feedback-ID: i03f14258:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 7 Apr 2026 11:58:37 -0400 (EDT)
-Date: Tue, 7 Apr 2026 09:58:35 -0600
-From: Alex Williamson <alex@shazbot.org>
-To: Farhan Ali <alifm@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-pci@vger.kernel.org, helgaas@kernel.org, lukas@wunner.de,
- clg@redhat.com, kbusch@kernel.org, schnelle@linux.ibm.com,
- mjrosato@linux.ibm.com, Julian Ruess <julianr@linux.ibm.com>,
- alex@shazbot.org
-Subject: Re: [PATCH v12 7/7] vfio/pci: Remove the pcie check for
- VFIO_PCI_ERR_IRQ_INDEX
-Message-ID: <20260407095835.7f42b66e@shazbot.org>
-In-Reply-To: <20260330174011.1161-8-alifm@linux.ibm.com>
-References: <20260330174011.1161-1-alifm@linux.ibm.com>
-	<20260330174011.1161-8-alifm@linux.ibm.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZoekPp59"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 637E9hVr2210127;
+	Tue, 7 Apr 2026 16:17:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=VLx6P9EZiJAILV7jTLobvDdD30pFMbIvOCiwaZFPD
+	To=; b=ZoekPp599EHWXAicGW3yl+9y/f2Mvt4+lDh8irMvpI+4x9zFIwe59C4kQ
+	IHtgdjrZE406Ktv0MZbR39r70OgxAF2pJttOcPnfE0Vc6vIuwc5tuPE4CauNuqXb
+	PU1VFGJYYMb1ihRfxbVg1416r23wkRkPUi3ViUumlXXJbcYnU1qX/h47qxJP+YOv
+	J2o5w7i+jdL6qBURz1nkbCiOYme8hhlBn2ViPGNgap75lIyETvEBm30tNCgRgPj3
+	VlgDQSrw2DmdW7EzQv/qH6Dvfhy+/d73YqKqur2Zv1q+hP5PTnrTRjw5+QeTys+f
+	+0kRzeQDfkD9EviDGo4CjR2Qwx0Nw==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dcn2hbnft-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 07 Apr 2026 16:17:29 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 637EWETU030062;
+	Tue, 7 Apr 2026 16:17:29 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dcme7bx83-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 07 Apr 2026 16:17:29 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 637GHMVh19202442
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 7 Apr 2026 16:17:22 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 98CC82004B;
+	Tue,  7 Apr 2026 16:17:22 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EC1D220043;
+	Tue,  7 Apr 2026 16:17:21 +0000 (GMT)
+Received: from p-imbrenda.ibmuc.com (unknown [9.111.4.78])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  7 Apr 2026 16:17:21 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, david@kernel.org, seiden@linux.ibm.com,
+        nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com
+Subject: [PATCH v2 1/1] KVM: s390: vsie: Fix races with partial gmap invalidations
+Date: Tue,  7 Apr 2026 18:17:21 +0200
+Message-ID: <20260407161721.247044-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDA3MDE0MyBTYWx0ZWRfX1GPv+0uqSmvK
+ ctMg8HT2elJHyedl1ffdxjp6axGDn5dtvSaVlPfgC4c07tK7egewJ1qTCRSNBuvNxQ0xZi4Ij5U
+ IFt5P24ksBFLJf33lL1rbbS+sj6wtlbGSH+RY0jcWb3VKn53gObRS/z9RSiMUnEX2wDanrSr9fj
+ HCD6SM09PhK0Z2sLXqVOKcUQZZu46tZ9jKXOq5oArO8RjI5rFIBX8Nm/jvkYADct3ifRrEPVAmp
+ qb3HIPQqPIMdKhD41I9FMY2EOgyhIS3O6NRiVTp7KGEIQKlfECJi1ykJ+hEJjg8hZqiI0msu7pY
+ aL+1PBPuLWAm5IKkW8CWeXQE+4BUvw3eYEysM17JcQirL7qAYUkx5UO5WjELwIQMkQUiAVoLd+K
+ wmP7WN58g7U6asxUlFmTbqvrweaDZiwmedf/aKvRQesbZMSZjrSXnA2mx7hhEE55GtrFmoPYLwk
+ dr4lfgR42jXHcqyCc2Q==
+X-Proofpoint-GUID: m0KE56X3TkRM_SKN-W6kMOed18U8rHyv
+X-Authority-Analysis: v=2.4 cv=a/wAM0SF c=1 sm=1 tr=0 ts=69d52e19 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=-C8uiT5To9FaDu-4sb4A:9
+X-Proofpoint-ORIG-GUID: m0KE56X3TkRM_SKN-W6kMOed18U8rHyv
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-04-07_03,2026-04-07_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 clxscore=1015 spamscore=0 impostorscore=0 priorityscore=1501
+ phishscore=0 lowpriorityscore=0 adultscore=0 malwarescore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2604010000 definitions=main-2604070143
 
-On Mon, 30 Mar 2026 10:40:11 -0700
-Farhan Ali <alifm@linux.ibm.com> wrote:
+Introduce a new boolean flag, used for shadow gmaps, to keep track of
+whether the gmap has been invalidated, either partially or totally.
 
-> The error signaling is configured for the vast majority of devices and it's
-> extremely rare that it fires anyway. Removing the pcie check will allow
-> userspace to be notified on errors for legacy PCI devices. The Internal
-> Shared Memory (ISM) device on s390 is one such device. For PCI devices on
-> IBM s390 error recovery involves platform firmware and notification to
-> operating system is done by architecture specific way. So the ISM device
-> can still be recovered when notified of an error.
-> 
-> Reviewed-by: Julian Ruess <julianr@linux.ibm.com>
-> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-> ---
->  drivers/vfio/pci/vfio_pci_core.c  | 8 ++------
->  drivers/vfio/pci/vfio_pci_intrs.c | 3 +--
->  2 files changed, 3 insertions(+), 8 deletions(-)
+Use the new flag to check whether shadow gmap invalidations happened
+during shadowing. In such cases, abort whatever was going on, return
+-EAGAIN and let the caller try again.
 
-Reviewed-by: Alex Williamson <alex@shazbot.org>
+Fixes: 19d6c5b80443 ("KVM: s390: vsie: Fix unshadowing while shadowing")
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+---
+ arch/s390/kvm/gaccess.c | 9 +++++----
+ arch/s390/kvm/gmap.c    | 3 +++
+ arch/s390/kvm/gmap.h    | 1 +
+ 3 files changed, 9 insertions(+), 4 deletions(-)
 
-> 
-> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-> index f1bd1266b88f..cfd9a51cd194 100644
-> --- a/drivers/vfio/pci/vfio_pci_core.c
-> +++ b/drivers/vfio/pci/vfio_pci_core.c
-> @@ -786,8 +786,7 @@ static int vfio_pci_get_irq_count(struct vfio_pci_core_device *vdev, int irq_typ
->  			return (flags & PCI_MSIX_FLAGS_QSIZE) + 1;
->  		}
->  	} else if (irq_type == VFIO_PCI_ERR_IRQ_INDEX) {
-> -		if (pci_is_pcie(vdev->pdev))
-> -			return 1;
-> +		return 1;
->  	} else if (irq_type == VFIO_PCI_REQ_IRQ_INDEX) {
->  		return 1;
->  	}
-> @@ -1163,11 +1162,8 @@ static int vfio_pci_ioctl_get_irq_info(struct vfio_pci_core_device *vdev,
->  	switch (info.index) {
->  	case VFIO_PCI_INTX_IRQ_INDEX ... VFIO_PCI_MSIX_IRQ_INDEX:
->  	case VFIO_PCI_REQ_IRQ_INDEX:
-> -		break;
->  	case VFIO_PCI_ERR_IRQ_INDEX:
-> -		if (pci_is_pcie(vdev->pdev))
-> -			break;
-> -		fallthrough;
-> +		break;
->  	default:
->  		return -EINVAL;
->  	}
-> diff --git a/drivers/vfio/pci/vfio_pci_intrs.c b/drivers/vfio/pci/vfio_pci_intrs.c
-> index 33944d4d9dc4..64f80f64ff57 100644
-> --- a/drivers/vfio/pci/vfio_pci_intrs.c
-> +++ b/drivers/vfio/pci/vfio_pci_intrs.c
-> @@ -859,8 +859,7 @@ int vfio_pci_set_irqs_ioctl(struct vfio_pci_core_device *vdev, uint32_t flags,
->  	case VFIO_PCI_ERR_IRQ_INDEX:
->  		switch (flags & VFIO_IRQ_SET_ACTION_TYPE_MASK) {
->  		case VFIO_IRQ_SET_ACTION_TRIGGER:
-> -			if (pci_is_pcie(vdev->pdev))
-> -				func = vfio_pci_set_err_trigger;
-> +			func = vfio_pci_set_err_trigger;
->  			break;
->  		}
->  		break;
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index 53a8550e7102..290e03a13a95 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -1449,7 +1449,7 @@ static int _do_shadow_pte(struct gmap *sg, gpa_t raddr, union pte *ptep_h, union
+ 	pgste_set_unlock(ptep_h, pgste);
+ 	if (rc)
+ 		return rc;
+-	if (!sg->parent)
++	if (sg->invalidated)
+ 		return -EAGAIN;
+ 
+ 	newpte = _pte(f->pfn, 0, !p, 0);
+@@ -1479,7 +1479,7 @@ static int _do_shadow_crste(struct gmap *sg, gpa_t raddr, union crste *host, uni
+ 
+ 	do {
+ 		/* _gmap_crstep_xchg_atomic() could have unshadowed this shadow gmap */
+-		if (!sg->parent)
++		if (sg->invalidated)
+ 			return -EAGAIN;
+ 		oldcrste = READ_ONCE(*host);
+ 		newcrste = _crste_fc1(f->pfn, oldcrste.h.tt, f->writable, !p);
+@@ -1492,7 +1492,7 @@ static int _do_shadow_crste(struct gmap *sg, gpa_t raddr, union crste *host, uni
+ 		if (!newcrste.h.p && !f->writable)
+ 			return -EOPNOTSUPP;
+ 	} while (!_gmap_crstep_xchg_atomic(sg->parent, host, oldcrste, newcrste, f->gfn, false));
+-	if (!sg->parent)
++	if (sg->invalidated)
+ 		return -EAGAIN;
+ 
+ 	newcrste = _crste_fc1(f->pfn, oldcrste.h.tt, 0, !p);
+@@ -1545,7 +1545,7 @@ static int _gaccess_do_shadow(struct kvm_s390_mmu_cache *mc, struct gmap *sg,
+ 				       entries[i].pfn, i + 1, entries[i].writable);
+ 		if (rc)
+ 			return rc;
+-		if (!sg->parent)
++		if (sg->invalidated)
+ 			return -EAGAIN;
+ 	}
+ 
+@@ -1601,6 +1601,7 @@ static inline int _gaccess_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+ 		scoped_guard(spinlock, &parent->children_lock) {
+ 			if (READ_ONCE(sg->parent) != parent)
+ 				return -EAGAIN;
++			sg->invalidated = false;
+ 			rc = _gaccess_do_shadow(vcpu->arch.mc, sg, saddr, walk);
+ 		}
+ 		if (rc == -ENOMEM)
+diff --git a/arch/s390/kvm/gmap.c b/arch/s390/kvm/gmap.c
+index 645c32c767d2..0111d31e0386 100644
+--- a/arch/s390/kvm/gmap.c
++++ b/arch/s390/kvm/gmap.c
+@@ -181,6 +181,7 @@ void gmap_remove_child(struct gmap *child)
+ 
+ 	list_del(&child->list);
+ 	child->parent = NULL;
++	child->invalidated = true;
+ }
+ 
+ /**
+@@ -1069,6 +1070,7 @@ static void gmap_unshadow_level(struct gmap *sg, gfn_t r_gfn, int level)
+ 	if (level > TABLE_TYPE_PAGE_TABLE)
+ 		align = 1UL << (11 * level + _SEGMENT_SHIFT);
+ 	kvm_s390_vsie_gmap_notifier(sg, ALIGN_DOWN(gaddr, align), ALIGN(gaddr + 1, align));
++	sg->invalidated = true;
+ 	if (dat_entry_walk(NULL, r_gfn, sg->asce, 0, level, &crstep, &ptep))
+ 		return;
+ 	if (ptep) {
+@@ -1174,6 +1176,7 @@ static inline int __gmap_protect_asce_top_level(struct kvm_s390_mmu_cache *mc, s
+ 	scoped_guard(spinlock, &parent->children_lock) {
+ 		if (READ_ONCE(sg->parent) != parent)
+ 			return -EAGAIN;
++		sg->invalidated = false;
+ 		for (i = 0; i < CRST_TABLE_PAGES; i++) {
+ 			if (!context->f[i].valid)
+ 				continue;
+diff --git a/arch/s390/kvm/gmap.h b/arch/s390/kvm/gmap.h
+index 579399ef5480..31ea13fda142 100644
+--- a/arch/s390/kvm/gmap.h
++++ b/arch/s390/kvm/gmap.h
+@@ -60,6 +60,7 @@ enum gmap_flags {
+ struct gmap {
+ 	unsigned long flags;
+ 	unsigned char edat_level;
++	bool invalidated;
+ 	struct kvm *kvm;
+ 	union asce asce;
+ 	struct list_head list;
+-- 
+2.53.0
 
