@@ -1,163 +1,204 @@
-Received: from fhigh-a3-smtp.messagingengine.com (fhigh-a3-smtp.messagingengine.com [103.168.172.154])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4518525A33F;
-	Tue,  7 Apr 2026 18:27:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.154
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4AE133C53F;
+	Tue,  7 Apr 2026 19:32:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775586470; cv=none; b=LR5EwIsHw8UlyCsyIbXICqRseqBUu40L3XUA75YFXLATFz8tm9IZdvEv1/DrRUFTp7JPdKEzUvBNXfSwDgRyuJN6DpmRFJFQEwOxeRkVMwMA/q5pRPBLdFf6oRBnsIUPivE0aqj1v9sv0cNhswL1syOnQR0CnglKCWVn/pElOFI=
+	t=1775590326; cv=none; b=VwsS015Vtxoe2FhJFXY+o957aRupuKGymTd85y1f6nt/Fb3SX8uYjKp+cwY6iILE6qg/L3fRwjIgfEA8N8OtXIBcYtTXugf6YuDDznk4wNUs5fIreAbg8tV6PMNPbiw/yalNxdONFjgNb3Cr7DHrU1nd/kUwKw9PRNTONwga1n4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775586470; c=relaxed/simple;
-	bh=HdKC7Kj92VB8EZYmV1orQmOpNoBclqMG1FBFjHZvaJw=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=h6g6x3xid32D2hFZqdmJz8EYyg1YoDeppTyWDUH3jzSwg31R7XN2uofrdfmp+5a38LxV5BDLtXtugPluURvMla1D7MR6nUix0ybuz3ZoNEwdknbM/qXqlKrT2KSNrXZNmCbK8j/pNtYz+2eOsOZH7SK/9BG/Fw4LNJwGCfivH/s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=qu0HuXFu; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=W90qQtoI; arc=none smtp.client-ip=103.168.172.154
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
+	s=arc-20240116; t=1775590326; c=relaxed/simple;
+	bh=4DkNqgvs6lYZFwvi+rtzHQmFBNVBqVeggAyVBIBR1b0=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=Dmm8SNu46VsNSNAI94RWYgb3djAjCv3uZjG79vYa1ji67MhxGeHZ4a74HD1FA8xohNOpRGzc9p+dxYFTjAHtIu0gWiAC9nP7NhaqlICYwdCL75THVWsEoaEz6NFQ9Jp/d25/WuYXGUK/yJ1AFWxhT5bQVvSGu/0WNTlo43hbSpM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nO0dajdv; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="qu0HuXFu";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="W90qQtoI"
-Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id 8E13714001B8;
-	Tue,  7 Apr 2026 14:27:48 -0400 (EDT)
-Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-05.internal (MEProxy); Tue, 07 Apr 2026 14:27:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1775586468;
-	 x=1775672868; bh=W2hfwhsPlkDcwbImPW5CS3I8DY4zHjf5Xh/DV4y8InE=; b=
-	qu0HuXFuXmitnsZyev/rPd+HC7PaFB7oVKiOea/vXfc5vvpVr/MutWM//LoENu7S
-	JJGsU0ToGD8ixGLyDdnlM6d615ufePRAEY+NwLUNE59KzRcl+13BZM2o5DTBl9Ip
-	iW+6q+uLiqnc4GgVNykMhASXzNiIJZMv7xhxPyRl/LTA8KyZQStmCa8ajEKNCqwh
-	UWnZioeUOTUQQvrfJhHIfshrorSF8od0TdKsudz8UGNLSZSnQjNxFZ4nEUHLH8yY
-	7WccaYVO+ZOH9BrW63p2Pjkay93qREwOFp4xm4W7BMQ8Nl/CyF+HS6rXu+EzUC0l
-	4LXozpTVn2CHA4ZOMn+fOw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1775586468; x=
-	1775672868; bh=W2hfwhsPlkDcwbImPW5CS3I8DY4zHjf5Xh/DV4y8InE=; b=W
-	90qQtoIl4OA4JPpzDzAxpJmfLpYU4cmFz1GSGOiiTQ4Q7jqUb36kb7gA5EuwFCM/
-	B8qhPzXrQgUlLusrHIRukJaXoLr/RfdEe4hqPEiylSsDeZPKydalqBbZn9ZsgKoJ
-	X7ZKgm6NqWiBnAZ/LOy5c5tov1pFuEyqsdmOFcrYqxie19Kbo+aEwqJ1w1UXZcZY
-	tsuekIcLodJnbRiskbs+q9n+KPyFMn/WKg9lYhtKmOHH8leKcRIGZ84xq+5voBND
-	k6dNuV89O5ePHzi16YQOPhyChqQPSxssvTFcM11/jujNYKGf1ZkV7eop9jSC20a1
-	KrgiZ0LtrQQnGdTsMQTCA==
-X-ME-Sender: <xms:pEzVaQOttFPeAT_ZTCyrFFvChkuK48d9wsxC-DQzoiYc1CW2z7ycFg>
-    <xme:pEzVaRZqu9myxS7id5Of9u5n_HcHgogjhSvMHvvfWcA-anGlyzI-vPGY781kvSP6R
-    hHxUS7CZ6v93_oPVt3tDejP8qCWGQmBBixhNeZh3R1XK_sTdDoO>
-X-ME-Received: <xmr:pEzVaextzkhQ7Te6iLF5WY8yCJlofkEmERc_1Rul3xKRttVcyO7xP5SSfoU>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgddvudefjecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecunecujfgurhepfffhvfevuffkjghfofggtgfgsehtjeertd
-    ertddvnecuhfhrohhmpeetlhgvgicuhghilhhlihgrmhhsohhnuceorghlvgigsehshhgr
-    iigsohhtrdhorhhgqeenucggtffrrghtthgvrhhnpedvkeefjeekvdduhfduhfetkedugf
-    duieettedvueekvdehtedvkefgudegveeuueenucevlhhushhtvghrufhiiigvpedtnecu
-    rfgrrhgrmhepmhgrihhlfhhrohhmpegrlhgvgiesshhhrgiisghothdrohhrghdpnhgspg
-    hrtghpthhtohepuddupdhmohguvgepshhmthhpohhuthdprhgtphhtthhopegrlhhifhhm
-    sehlihhnuhigrdhisghmrdgtohhmpdhrtghpthhtoheplhhinhhugidqshefledtsehvgh
-    gvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehv
-    ghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqphgtihesvhhgvg
-    hrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehhvghlghgrrghssehkvghrnhgvlhdr
-    ohhrghdprhgtphhtthhopehluhhkrghsseifuhhnnhgvrhdruggvpdhrtghpthhtoheptg
-    hlghesrhgvughhrghtrdgtohhmpdhrtghpthhtohepkhgsuhhstghhsehkvghrnhgvlhdr
-    ohhrghdprhgtphhtthhopehstghhnhgvlhhlvgeslhhinhhugidrihgsmhdrtghomh
-X-ME-Proxy: <xmx:pEzVaQP3JvHu2cPt3lQYKyIZz4SBLeknwr12pUiyQvFkQCUXlsoR1g>
-    <xmx:pEzVadd9tWXjeMExxErWnD6G_oZ1JcifyX7HTj_nhN2p8DeJJyn8lQ>
-    <xmx:pEzVaVTJc2r2lpI26tB-XlU3jd1CgGVsrIayJyA0jP6_ofE8LxY2lw>
-    <xmx:pEzVabd8SNlTFfzoqo2mUSS6poMMjV17F1-tArKluq0IBrtsdW89dA>
-    <xmx:pEzVaYiRx2ZlYIgiz8AwLqxxNFEAdRomboXOYyefv5sFLFcS7KlNMbJW>
-Feedback-ID: i03f14258:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 7 Apr 2026 14:27:47 -0400 (EDT)
-Date: Tue, 7 Apr 2026 12:27:46 -0600
-From: Alex Williamson <alex@shazbot.org>
-To: Farhan Ali <alifm@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-pci@vger.kernel.org, helgaas@kernel.org, lukas@wunner.de,
- clg@redhat.com, kbusch@kernel.org, schnelle@linux.ibm.com,
- mjrosato@linux.ibm.com, alex@shazbot.org
-Subject: Re: [PATCH v12 5/7] vfio-pci/zdev: Add a device feature for error
- information
-Message-ID: <20260407122746.4000a886@shazbot.org>
-In-Reply-To: <4866f6cb-8770-4a21-9b5c-4a9e46009c05@linux.ibm.com>
-References: <20260330174011.1161-1-alifm@linux.ibm.com>
-	<20260330174011.1161-6-alifm@linux.ibm.com>
-	<20260407095321.6086a080@shazbot.org>
-	<4866f6cb-8770-4a21-9b5c-4a9e46009c05@linux.ibm.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nO0dajdv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94A62C116C6;
+	Tue,  7 Apr 2026 19:32:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1775590326;
+	bh=4DkNqgvs6lYZFwvi+rtzHQmFBNVBqVeggAyVBIBR1b0=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:From;
+	b=nO0dajdviZbrqAM/E2kCSu5rxlS1XzEslHvuNvZgz/ZL99F9825C677xHS4KAH9UO
+	 EyPvmdRkPAmi7gZcdeK+1/KfgaVoSJ99IcHLe9RQEb9DglQJnCsJLCPSrNH/xgv7oA
+	 xN1BJa7YtekWrxVT2psAiQBgh3Tziey2jMu2oWOlu45ivvYU0VUs/M72VRs4BsT7W6
+	 WU0upb3hHSF7+WOf8V21l6a0gcjBOb+uZHCKEzMeOP+g49CQrXjU72JPZFZ0RrZSyA
+	 BkrtnGUwHmScuxvM5RwUKwMa4sEjgu80wXJSoLBqfJ1QkjermQP2Y3gXWcJeqyhRbE
+	 cMRBDWwPeHBdQ==
+Date: Tue, 7 Apr 2026 14:32:05 -0500
+From: Bjorn Helgaas <helgaas@kernel.org>
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>, Jonathan Corbet <corbet@lwn.net>,
+	Lukas Wunner <lukas@wunner.de>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Farhan Ali <alifm@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Gerd Bayer <gbayer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Julian Ruess <julianr@linux.ibm.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Ramesh Errabolu <ramesh@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+	linux-s390@vger.kernel.org
+Subject: Re: [PATCH v6 2/2] PCI: s390: Expose the UID as an arch specific PCI
+ slot attribute
+Message-ID: <20260407193205.GA247806@bhelgaas>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260402-uid_slot-v6-2-d5ea0a14ddb9@linux.ibm.com>
 
-On Tue, 7 Apr 2026 11:13:53 -0700
-Farhan Ali <alifm@linux.ibm.com> wrote:
-
-> On 4/7/2026 8:53 AM, Alex Williamson wrote:
-> > On Mon, 30 Mar 2026 10:40:09 -0700
-> > Farhan Ali <alifm@linux.ibm.com> wrote:
-> >> diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
-> >> index 0658095ac5b1..0a8663879eee 100644
-> >> --- a/drivers/vfio/pci/vfio_pci_zdev.c
-> >> +++ b/drivers/vfio/pci/vfio_pci_zdev.c
-> >> @@ -141,6 +141,42 @@ int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
-> >>   	return ret;
-> >>   }
-> >>   
-> >> +int vfio_pci_zdev_feature_err(struct vfio_device *device, u32 flags,
-> >> +			      void __user *arg, size_t argsz)
-> >> +{
-> >> +	struct vfio_device_feature_zpci_err err = {};
-> >> +	struct vfio_pci_core_device *vdev;
-> >> +	struct zpci_dev *zdev;
-> >> +	int head = 0;
-> >> +	int ret;
-> >> +
-> >> +	vdev = container_of(device, struct vfio_pci_core_device, vdev);
-> >> +	zdev = to_zpci(vdev->pdev);
-> >> +	if (!zdev)
-> >> +		return -ENODEV;
-> >> +
-> >> +	ret = vfio_check_feature(flags, argsz, VFIO_DEVICE_FEATURE_GET,
-> >> +				 sizeof(err));
-> >> +	if (ret != 1)
-> >> +		return ret;
-> >> +
-> >> +	mutex_lock(&zdev->pending_errs_lock);
-> >> +	if (zdev->pending_errs.count) {
-> >> +		head = zdev->pending_errs.head % ZPCI_ERR_PENDING_MAX;
-> >> +		err.pec = zdev->pending_errs.err[head].pec;
-> >> +		zdev->pending_errs.head++;
-> >> +		zdev->pending_errs.count--;
-> >> +		err.pending_errors = zdev->pending_errs.count;
-> >> +	}
-> >> +	mutex_unlock(&zdev->pending_errs_lock);  
-> > Inconsistent that this isn't a helper exported from the previous patch.  
+On Thu, Apr 02, 2026 at 10:34:59PM +0200, Niklas Schnelle wrote:
+> On s390, an individual PCI function can generally be identified by two
+> identifiers, the FID and the UID. Which identifier is used depends on
+> the scope and the platform configuration.
 > 
-> Do you prefer it to be in a helper function? I can move it to a helper 
-> function.
-
-Yes, a helper that dequeues and returns the error pec with an arg of the
-remaining count would make sense here.  Call it unconditionally and
-specify 0/0 = no error and none pending.  All the locking and buffer
-manipulation code is localized in s390 code.
-
-> >
-> > What's the meaning of err.pec = 0?  Could this be interpreted as an
-> > error itself?  
+> The first identifier, the FID, is always available and identifies a PCI
+> device uniquely within a machine. The FID may be virtualized by
+> hypervisors, but on the LPAR level, the machine scope makes it
+> impossible to create the same configuration based on FIDs on two
+> different LPARs of the same machine, and difficult to reuse across
+> machines.
 > 
-> An err.pec = 0 would indicate there are no pending errors. I don't think 
-> anything would prevent userspace from doing a VFIO_DEVICE_FEATURE_GET 
-> even if not nudged by an eventfd?
+> Such matching LPAR configurations are useful, though, allowing
+> standardized setups and booting a Linux installation on different LPARs.
+> To this end the UID, or user-defined identifier, was introduced. While
+> it is only guaranteed to be unique within an LPAR and only if indicated
+> by firmware, it allows users to replicate PCI device setups.
+> 
+> On s390, which uses a machine hypervisor, a per PCI function hotplug
+> model is used. The shortcoming with the UID then is, that it is not
+> visible to the user without first attaching the PCI function and
+> accessing the "uid" device attribute. The FID, on the other hand, is
+> used as the slot name and is thus known even with the PCI function in
+> standby.
+> 
+> Remedy this shortcoming by providing the UID as an attribute on the slot
+> allowing the user to identify a PCI function based on the UID without
+> having to first attach it. Do this via a macro mechanism analogous to
+> what was introduced by commit 265baca69a07 ("s390/pci: Stop usurping
+> pdev->dev.groups") for the PCI device attributes.
+> 
+> Reviewed-by: Gerd Bayer <gbayer@linux.ibm.com>
+> Reviewed-by: Julian Ruess <julianr@linux.ibm.com>
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 
-Maybe worth specifying in the feature description.  Thanks,
+Acked-by: Bjorn Helgaas <bhelgaas@google.com> # for drivers/pci/slot.c
 
-Alex
+> ---
+>  Documentation/arch/s390/pci.rst |  7 +++++++
+>  arch/s390/include/asm/pci.h     |  4 ++++
+>  arch/s390/pci/pci_sysfs.c       | 20 ++++++++++++++++++++
+>  drivers/pci/slot.c              | 13 ++++++++++++-
+>  4 files changed, 43 insertions(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/arch/s390/pci.rst b/Documentation/arch/s390/pci.rst
+> index 31c24ed5506f1fc07f89821f67a814118514f441..4c0f35c8a5588eee3cf0d596e0057f24b3ed079c 100644
+> --- a/Documentation/arch/s390/pci.rst
+> +++ b/Documentation/arch/s390/pci.rst
+> @@ -57,6 +57,13 @@ Entries specific to zPCI functions and entries that hold zPCI information.
+>  
+>    - /sys/bus/pci/slots/XXXXXXXX/power
+>  
+> +  In addition to using the FID as the name of the slot the slot directory
+> +  also contains the following s390 specific slot attributes.
+> +
+> +  - uid:
+> +    The User-defined identifier (UID) of the function which may be configured
+> +    by this slot. See also the corresponding attribute of the device.
+> +
+>    A physical function that currently supports a virtual function cannot be
+>    powered off until all virtual functions are removed with:
+>    echo 0 > /sys/bus/pci/devices/DDDD:BB:dd.f/sriov_numvf
+> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+> index c0ff19dab5807c7e1aabb48a0e9436aac45ec97d..5dcf35f0f325f5f44b28109a1c8d9aef18401035 100644
+> --- a/arch/s390/include/asm/pci.h
+> +++ b/arch/s390/include/asm/pci.h
+> @@ -208,6 +208,10 @@ extern const struct attribute_group zpci_ident_attr_group;
+>  			    &pfip_attr_group,		 \
+>  			    &zpci_ident_attr_group,
+>  
+> +extern const struct attribute_group zpci_slot_attr_group;
+> +
+> +#define ARCH_PCI_SLOT_GROUPS (&zpci_slot_attr_group)
+> +
+>  extern unsigned int s390_pci_force_floating __initdata;
+>  extern unsigned int s390_pci_no_rid;
+>  
+> diff --git a/arch/s390/pci/pci_sysfs.c b/arch/s390/pci/pci_sysfs.c
+> index c2444a23e26c4218832bb91930b5f0ffd498d28f..d98d97df792adb3c7e415a8d374cc2f3a65fbb52 100644
+> --- a/arch/s390/pci/pci_sysfs.c
+> +++ b/arch/s390/pci/pci_sysfs.c
+> @@ -187,6 +187,17 @@ static ssize_t index_show(struct device *dev,
+>  }
+>  static DEVICE_ATTR_RO(index);
+>  
+> +static ssize_t zpci_uid_slot_show(struct pci_slot *slot, char *buf)
+> +{
+> +	struct zpci_dev *zdev = container_of(slot->hotplug, struct zpci_dev,
+> +					     hotplug_slot);
+> +
+> +	return sysfs_emit(buf, "0x%x\n", zdev->uid);
+> +}
+> +
+> +static struct pci_slot_attribute zpci_slot_attr_uid =
+> +	__ATTR(uid, 0444, zpci_uid_slot_show, NULL);
+> +
+>  static umode_t zpci_index_is_visible(struct kobject *kobj,
+>  				     struct attribute *attr, int n)
+>  {
+> @@ -243,6 +254,15 @@ const struct attribute_group pfip_attr_group = {
+>  	.attrs = pfip_attrs,
+>  };
+>  
+> +static struct attribute *zpci_slot_attrs[] = {
+> +	&zpci_slot_attr_uid.attr,
+> +	NULL,
+> +};
+> +
+> +const struct attribute_group zpci_slot_attr_group = {
+> +	.attrs = zpci_slot_attrs,
+> +};
+> +
+>  static struct attribute *clp_fw_attrs[] = {
+>  	&uid_checking_attr.attr,
+>  	NULL,
+> diff --git a/drivers/pci/slot.c b/drivers/pci/slot.c
+> index 787311614e5b6ebb39e7284f9b9f205a0a684d6d..2f8fcfbbec24e73d0bb6e40fd04c05a94f518045 100644
+> --- a/drivers/pci/slot.c
+> +++ b/drivers/pci/slot.c
+> @@ -96,7 +96,18 @@ static struct attribute *pci_slot_default_attrs[] = {
+>  	&pci_slot_attr_cur_speed.attr,
+>  	NULL,
+>  };
+> -ATTRIBUTE_GROUPS(pci_slot_default);
+> +
+> +static const struct attribute_group pci_slot_default_group = {
+> +	.attrs = pci_slot_default_attrs,
+> +};
+> +
+> +static const struct attribute_group *pci_slot_default_groups[] = {
+> +	&pci_slot_default_group,
+> +#ifdef ARCH_PCI_SLOT_GROUPS
+> +	ARCH_PCI_SLOT_GROUPS,
+> +#endif
+> +	NULL,
+> +};
+>  
+>  static const struct kobj_type pci_slot_ktype = {
+>  	.sysfs_ops = &pci_slot_sysfs_ops,
+> 
+> -- 
+> 2.51.0
+> 
