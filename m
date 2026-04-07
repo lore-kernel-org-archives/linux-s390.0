@@ -1,369 +1,110 @@
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33E063AB283;
-	Tue,  7 Apr 2026 10:48:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53FA73A8FE9;
+	Tue,  7 Apr 2026 12:14:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775558899; cv=none; b=W/1j4zJzlkvT4/whvl3bwvMB7O/dslhCtWhzrzgchjPnRGjlV7+CbwF66yPJaGYWLmZ7uaoMdcNKm5ayNZtqUugakJHMM8M5HUTATPZlYyaHnO/wr2MuQ93d9u9zYAf52CpsY/zQ3GB1PnTkuafNMW/nB72n85/MG/v5Ycr7YQQ=
+	t=1775564044; cv=none; b=ciLDrvp3epOZVYSZ62899sMGh4mO3CNZKn7IC8SvfN61IMoPlW/SmQokh1XCA4QoqfHSlfn0WT/+67H7FZ+/VIrNJ0RhEeAhhKUuE9Wt9w0wJ5knX+gOYNhJE6Kz47uAVc+6s85/xHoSGWKbH6Wm0gN9ziI4ryZbTMIhIpjPHz4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775558899; c=relaxed/simple;
-	bh=OmYlzEE+8OIRxtdH4TpR6pENdo8TjWdkgGWJVg82Wh4=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=c8tNQCk74+NiC4f5jJ/qmHM3QpVltFWnHcZbG3kj5qhRtXuL/kyMC6xXuTOHyyKCNdB4DbWguJ9m69Dy3xzK+L+yR0o0/YOc0IBBMqmo13WERyZnbQwYqGvUimhsvjF3CIx+RndDRqcXIE46Gins1Rj/yfNm4Rr31MqQJAOfcY8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=KLPOkIBZ; arc=none smtp.client-ip=115.124.30.97
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1775564044; c=relaxed/simple;
+	bh=LWJkha2yVYbk8Pj+EPr+8pmSKBCGZmHbentgW97kfxI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Jyw8Amlbz5xxsgilVGMblnuu6fgve5EZBVmcujscLzU/dhw9VshCmuX+mDVuWLOIHpskivgtDyEMUK8160ARxkLwJA8BrtMHTvlIBNFPJ5a+8+Uh9Q94edBQiOvnl86ShUHGOaBGVKjO0qUtoLEXkSvxZe6kYfmj4YTkj98Dkqs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=f55/ZOOq; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="KLPOkIBZ"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1775558888; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=jfHY2L/BBeDphqighEF+vXkegaIZ6ojc1FaKwta2Yhg=;
-	b=KLPOkIBZ9X4iysMHq9Ee1c4LBI0EzUOtvu5d9Fb3wSXzNvzjCQE7K7unkfJUGUeG1v5yJQv1dx+Mr40nZHhrnDQ2UNL+M/y9uJccaKj8Kzui4bSGtJP2bb4GceBKB1OEiojLrMrs9kimDsrySwggFBDhU2bgC+zHZCIOKxiUHpI=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037009110;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0X0bYxbG_1775558884;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0X0bYxbG_1775558884 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 07 Apr 2026 18:48:06 +0800
-From: Wen Gu <guwen@linux.alibaba.com>
-To: tglx@kernel.org,
-	richardcochran@gmail.com,
-	andrew+netdev@lunn.ch,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org,
-	jstultz@google.com,
-	anna-maria@linutronix.de,
-	frederic@kernel.org,
-	daniel.lezcano@kernel.org,
-	sboyd@kernel.org,
-	dwmw2@infradead.org
-Cc: vladimir.oltean@nxp.com,
-	wei.fang@nxp.com,
-	xiaoning.wang@nxp.com,
-	jonathan.lemon@gmail.com,
-	vadim.fedorenko@linux.dev,
-	yangbo.lu@nxp.com,
-	svens@linux.ibm.com,
-	nick.shi@broadcom.com,
-	ajay.kaher@broadcom.com,
-	alexey.makhalov@broadcom.com,
-	bcm-kernel-feedback-list@broadcom.com,
-	linux-fpga@vger.kernel.org,
-	imx@lists.linux.dev,
-	linux-s390@vger.kernel.org,
-	dust.li@linux.alibaba.com,
-	xuanzhuo@linux.alibaba.com,
-	mani@kernel.org,
-	imran.shaik@oss.qualcomm.com,
-	taniya.das@oss.qualcomm.com
-Subject: [PATCH v2 1/2] ptp: move emulated/virtual clock drivers into a dedicated subdirectory
-Date: Tue,  7 Apr 2026 18:48:01 +0800
-Message-Id: <20260407104802.34429-2-guwen@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20260407104802.34429-1-guwen@linux.alibaba.com>
-References: <20260407104802.34429-1-guwen@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="f55/ZOOq"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 636LmOth2592771;
+	Tue, 7 Apr 2026 12:14:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=DoolXRdlFDgrxRPbK+zXaCv+OQ6f1R
+	i1AqY4eVWeaKA=; b=f55/ZOOqgIk0QuHaiGivdajdnjZFrdQDUolVJDp9meHdbV
+	EsAeWbBNc2bnDHZbPEF6IIciWKNMZmgLTgUNyLqoJkaXCNLmt+r0qU1Ao29bLgYI
+	GgCQLSf/x361NVWgdsPGX8Irwvmc5m5ssN8i5PzxRTf++KSRFpkAqo/PKTA3YTFq
+	Mo/y8M7QGs/utHMLru1AE8QzOJM42yVAV3+FxxgRt9CNsEGD/b/Fa9kytSAEmv3w
+	dSGAReoC83pmv+mSei/9Vrggl0ns0VazSQyvPwJq5paP33MxLj3dXM5/yvNxQ2hw
+	Vlzp+MC7BOR9Yj2g9NQLm3qEfOZHVhNoxtLk6aWw==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dcn2e2v48-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 07 Apr 2026 12:13:59 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 637BNA1G029863;
+	Tue, 7 Apr 2026 12:13:58 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dcme7b1ag-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 07 Apr 2026 12:13:58 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 637CDs7U49152408
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 7 Apr 2026 12:13:54 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A3E8B2004B;
+	Tue,  7 Apr 2026 12:13:54 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 73DDB20040;
+	Tue,  7 Apr 2026 12:13:54 +0000 (GMT)
+Received: from osiris (unknown [9.52.216.133])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue,  7 Apr 2026 12:13:54 +0000 (GMT)
+Date: Tue, 7 Apr 2026 14:13:53 +0200
+From: Steffen Eiden <seiden@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, nrb@linux.ibm.com, schlameuss@linux.ibm.com,
+        gra@linux.ibm.com, david@kernel.org
+Subject: Re: [PATCH v3 1/6] KVM: s390: Add some useful mask macros
+Message-ID: <20260407121353.296205-A-seiden@linux.ibm.com>
+References: <20260402150135.196943-1-imbrenda@linux.ibm.com>
+ <20260402150135.196943-2-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260402150135.196943-2-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: kxHGHMXZwkJq2f1YKkTi1HJBu8szkTZi
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDA3MDExMCBTYWx0ZWRfX4U/Dw17gUXpE
+ OplcykOuxuB0VKvasrzBD+qrQTHXZAT3+GlWYpPFPk3o+qOJj610M05x5/geI2QiBmJHKiQ0hVw
+ 7kxUFN0MwDzTj0gPN0bCQKgfJIWz1wz74U9bLd9sHd1l7VQdp28M5tB6mMlf4d6mu2rQ8QMVzxY
+ zPi3IMKsDjpiXiGnfjKgbglWhnS/o6qCEbu32/7ZnY5Yq2vM0Hdsg5ghFjG7mDMS/RyTCcTP16/
+ x+M262Ah8E5/78qXLRC1qbbfqwxYM5oa1g4Xh4yKw/BQU8wJKz4mpVeomCdaQodH+pbAizEJySn
+ Bwek119e/ynQ84tmm2JneTYrKEH01Pv1D/UTVSWiDGDAfJ/OI7H4vXAL73SZXPS5OIXl0zi503R
+ Y/6JI1vBMsNeMxEOKdK9HoEZU6Suzbv0idBjiJOpqL0gLOqdrkqM2vYVIN91mnjKfcexmNnzR1k
+ 8ks2vGpQQjUDTSAPLHA==
+X-Authority-Analysis: v=2.4 cv=Cfw4Irrl c=1 sm=1 tr=0 ts=69d4f508 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=vf6NJk7m3_Ogz1M4-hAA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: kxHGHMXZwkJq2f1YKkTi1HJBu8szkTZi
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-04-07_02,2026-04-07_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 phishscore=0 clxscore=1015 adultscore=0 suspectscore=0
+ priorityscore=1501 impostorscore=0 bulkscore=0 spamscore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2604010000 definitions=main-2604070110
 
-The PTP subsystem has grown beyond the original IEEE 1588/NIC use case
-and today contains both network-oriented PHC drivers and various
-emulated/virtual clock implementations.
+On Thu, Apr 02, 2026 at 05:01:30PM +0200, Claudio Imbrenda wrote:
+> Add _{SEGMENT,REGION3}_FR_MASK, similar to _{SEGMENT,REGION3}_MASK, but
+> working on gfn/pfn instead of addresses. Use them in gaccess.c instead
+> of using the normal masks plus gpa_to_gfn().
+> 
+> Also add _PAGES_PER_{SEGMENT,REGION3} to make future code more readable.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-Prepare for clearer ownership and future maintenance by moving the
-emulated/virtual/non-NIC PTP clock drivers into a dedicated subdirectory,
-with its own Kconfig and Makefile.
-
-The network/IEEE 1588 oriented drivers remain in drivers/ptp/ alongside
-the PTP core infrastructure:
-
-  - drivers/ptp/          : PTP core infrastructure and IEEE 1588 /
-                            network-oriented clock drivers.
-
-  - drivers/ptp/emulated/ : emulated/virtual/non-NIC implementations
-                            that expose high-precision time sources via
-                            the PTP interface but are not tied to the
-                            NIC/packet-timestamping pipeline.
-
-No functional changes are intended; this is a refactor only.
-
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
----
- drivers/ptp/Kconfig                         | 68 ++++-----------------
- drivers/ptp/Makefile                        | 11 ++--
- drivers/ptp/emulated/Kconfig                | 61 ++++++++++++++++++
- drivers/ptp/emulated/Makefile               | 11 ++++
- drivers/ptp/{ => emulated}/ptp_kvm_arm.c    |  0
- drivers/ptp/{ => emulated}/ptp_kvm_common.c |  0
- drivers/ptp/{ => emulated}/ptp_kvm_x86.c    |  0
- drivers/ptp/{ => emulated}/ptp_s390.c       |  0
- drivers/ptp/{ => emulated}/ptp_vmclock.c    |  0
- drivers/ptp/{ => emulated}/ptp_vmw.c        |  0
- 10 files changed, 87 insertions(+), 64 deletions(-)
- create mode 100644 drivers/ptp/emulated/Kconfig
- create mode 100644 drivers/ptp/emulated/Makefile
- rename drivers/ptp/{ => emulated}/ptp_kvm_arm.c (100%)
- rename drivers/ptp/{ => emulated}/ptp_kvm_common.c (100%)
- rename drivers/ptp/{ => emulated}/ptp_kvm_x86.c (100%)
- rename drivers/ptp/{ => emulated}/ptp_s390.c (100%)
- rename drivers/ptp/{ => emulated}/ptp_vmclock.c (100%)
- rename drivers/ptp/{ => emulated}/ptp_vmw.c (100%)
-
-diff --git a/drivers/ptp/Kconfig b/drivers/ptp/Kconfig
-index b93640ca08b7..4cb199332546 100644
---- a/drivers/ptp/Kconfig
-+++ b/drivers/ptp/Kconfig
-@@ -20,11 +20,16 @@ config PTP_1588_CLOCK
- 	  time stamping units, it can be possible to achieve
- 	  synchronization to within a few hundred nanoseconds.
- 
--	  This driver adds support for PTP clocks as character
--	  devices. If you want to use a PTP clock, then you should
--	  also enable at least one clock driver as well.
-+	  This infrastructure adds support for PTP clocks as character
-+	  devices. It has since evolved into a general-purpose PTP
-+	  clock framework also used by high-precision clocks exposed
-+	  by platforms, hypervisors or special hardware, beyond the
-+	  traditional NIC/IEEE 1588 use case.
- 
--	  To compile this driver as a module, choose M here: the module
-+	  If you want to use any PTP clock device, enable this option
-+	  and at least one clock driver.
-+
-+	  To compile the core as a module, choose M here: the module
- 	  will be called ptp.
- 
- config PTP_1588_CLOCK_OPTIONAL
-@@ -119,35 +124,6 @@ config PTP_1588_CLOCK_PCH
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called ptp_pch.
- 
--config PTP_1588_CLOCK_KVM
--	tristate "KVM virtual PTP clock"
--	depends on PTP_1588_CLOCK
--	depends on (KVM_GUEST && X86) || (HAVE_ARM_SMCCC_DISCOVERY && ARM_ARCH_TIMER)
--	default y
--	help
--	  This driver adds support for using kvm infrastructure as a PTP
--	  clock. This clock is only useful if you are using KVM guests.
--
--	  To compile this driver as a module, choose M here: the module
--	  will be called ptp_kvm.
--
--config PTP_1588_CLOCK_VMCLOCK
--	tristate "Virtual machine PTP clock"
--	depends on X86_TSC || ARM_ARCH_TIMER
--	depends on PTP_1588_CLOCK && ARCH_SUPPORTS_INT128
--	default PTP_1588_CLOCK_KVM
--	help
--	  This driver adds support for using a virtual precision clock
--	  advertised by the hypervisor. This clock is only useful in virtual
--	  machines where such a device is present.
--
--	  Unlike the KVM virtual PTP clock, the VMCLOCK device offers support
--	  for reliable timekeeping even across live migration. So this driver
--	  is enabled by default whenever the KVM PTP clock is.
--
--	  To compile this driver as a module, choose M here: the module
--	  will be called ptp_vmclock.
--
- config PTP_1588_CLOCK_IDT82P33
- 	tristate "IDT 82P33xxx PTP clock"
- 	depends on PTP_1588_CLOCK && I2C
-@@ -195,18 +171,6 @@ config PTP_1588_CLOCK_MOCK
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called ptp_mock.
- 
--config PTP_1588_CLOCK_VMW
--	tristate "VMware virtual PTP clock"
--	depends on ACPI && HYPERVISOR_GUEST && X86
--	depends on PTP_1588_CLOCK
--	help
--	  This driver adds support for using VMware virtual precision
--	  clock device as a PTP clock. This is only useful in virtual
--	  machines running on VMware virtual infrastructure.
--
--	  To compile this driver as a module, choose M here: the module
--	  will be called ptp_vmw.
--
- config PTP_1588_CLOCK_OCP
- 	tristate "OpenCompute TimeCard as PTP clock"
- 	depends on PTP_1588_CLOCK
-@@ -241,18 +205,6 @@ config PTP_DFL_TOD
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called ptp_dfl_tod.
- 
--config PTP_S390
--	tristate "S390 PTP driver"
--	depends on PTP_1588_CLOCK
--	depends on S390
--	help
--	  This driver adds support for S390 time steering via the PtP
--	  interface. This works by adding a in-kernel clock delta value,
--	  which is always added to time values used in the kernel. The PtP
--	  driver provides the raw clock value without the delta to
--	  userspace. That way userspace programs like chrony could steer
--	  the kernel clock.
--
- config PTP_NETC_V4_TIMER
- 	tristate "NXP NETC V4 Timer PTP Driver"
- 	depends on PTP_1588_CLOCK
-@@ -263,4 +215,6 @@ config PTP_NETC_V4_TIMER
- 	  synchronization. It also supports periodic output signal (e.g. PPS)
- 	  and external trigger timestamping.
- 
-+source "drivers/ptp/emulated/Kconfig"
-+
- endmenu
-diff --git a/drivers/ptp/Makefile b/drivers/ptp/Makefile
-index bdc47e284f14..bcea2d3d4efd 100644
---- a/drivers/ptp/Makefile
-+++ b/drivers/ptp/Makefile
-@@ -1,24 +1,21 @@
- # SPDX-License-Identifier: GPL-2.0
- #
--# Makefile for PTP 1588 clock support.
-+# Makefile for PTP clock support.
- #
- 
-+subdir-ccflags-y += -I$(srctree)/drivers/ptp
-+
- ptp-y					:= ptp_clock.o ptp_chardev.o ptp_sysfs.o ptp_vclock.o
--ptp_kvm-$(CONFIG_X86)			:= ptp_kvm_x86.o ptp_kvm_common.o
--ptp_kvm-$(CONFIG_HAVE_ARM_SMCCC)	:= ptp_kvm_arm.o ptp_kvm_common.o
- obj-$(CONFIG_PTP_1588_CLOCK)		+= ptp.o
- obj-$(CONFIG_PTP_1588_CLOCK_DTE)	+= ptp_dte.o
- obj-$(CONFIG_PTP_1588_CLOCK_INES)	+= ptp_ines.o
- obj-$(CONFIG_PTP_1588_CLOCK_PCH)	+= ptp_pch.o
--obj-$(CONFIG_PTP_1588_CLOCK_KVM)	+= ptp_kvm.o
--obj-$(CONFIG_PTP_1588_CLOCK_VMCLOCK)	+= ptp_vmclock.o
- obj-$(CONFIG_PTP_1588_CLOCK_QORIQ)	+= ptp_qoriq.o
- obj-$(CONFIG_PTP_1588_CLOCK_IDTCM)	+= ptp_clockmatrix.o
- obj-$(CONFIG_PTP_1588_CLOCK_FC3W)	+= ptp_fc3.o
- obj-$(CONFIG_PTP_1588_CLOCK_IDT82P33)	+= ptp_idt82p33.o
- obj-$(CONFIG_PTP_1588_CLOCK_MOCK)	+= ptp_mock.o
--obj-$(CONFIG_PTP_1588_CLOCK_VMW)	+= ptp_vmw.o
- obj-$(CONFIG_PTP_1588_CLOCK_OCP)	+= ptp_ocp.o
- obj-$(CONFIG_PTP_DFL_TOD)		+= ptp_dfl_tod.o
--obj-$(CONFIG_PTP_S390)			+= ptp_s390.o
- obj-$(CONFIG_PTP_NETC_V4_TIMER)		+= ptp_netc.o
-+obj-$(CONFIG_PTP_1588_CLOCK)		+= emulated/
-diff --git a/drivers/ptp/emulated/Kconfig b/drivers/ptp/emulated/Kconfig
-new file mode 100644
-index 000000000000..3e11f78dfbd8
---- /dev/null
-+++ b/drivers/ptp/emulated/Kconfig
-@@ -0,0 +1,61 @@
-+# SPDX-License-Identifier: GPL-2.0-only
-+#
-+# Emulated PTP clock drivers configuration
-+#
-+
-+menu "Emulated PTP clock drivers"
-+
-+config PTP_1588_CLOCK_KVM
-+	tristate "KVM virtual PTP clock"
-+	depends on PTP_1588_CLOCK
-+	depends on (KVM_GUEST && X86) || (HAVE_ARM_SMCCC_DISCOVERY && ARM_ARCH_TIMER)
-+	default y
-+	help
-+	  This driver adds support for using kvm infrastructure as a PTP
-+	  clock. This clock is only useful if you are using KVM guests.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called ptp_kvm.
-+
-+config PTP_1588_CLOCK_VMCLOCK
-+	tristate "Virtual machine PTP clock"
-+	depends on X86_TSC || ARM_ARCH_TIMER
-+	depends on PTP_1588_CLOCK && ARCH_SUPPORTS_INT128
-+	default PTP_1588_CLOCK_KVM
-+	help
-+	  This driver adds support for using a virtual precision clock
-+	  advertised by the hypervisor. This clock is only useful in virtual
-+	  machines where such a device is present.
-+
-+	  Unlike the KVM virtual PTP clock, the VMCLOCK device offers support
-+	  for reliable timekeeping even across live migration. So this driver
-+	  is enabled by default whenever the KVM PTP clock is.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called ptp_vmclock.
-+
-+config PTP_1588_CLOCK_VMW
-+	tristate "VMware virtual PTP clock"
-+	depends on ACPI && HYPERVISOR_GUEST && X86
-+	depends on PTP_1588_CLOCK
-+	help
-+	  This driver adds support for using VMware virtual precision
-+	  clock device as a PTP clock. This is only useful in virtual
-+	  machines running on VMware virtual infrastructure.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called ptp_vmw.
-+
-+config PTP_S390
-+	tristate "S390 PTP driver"
-+	depends on PTP_1588_CLOCK
-+	depends on S390
-+	help
-+	  This driver adds support for S390 time steering via the PtP
-+	  interface. This works by adding a in-kernel clock delta value,
-+	  which is always added to time values used in the kernel. The PtP
-+	  driver provides the raw clock value without the delta to
-+	  userspace. That way userspace programs like chrony could steer
-+	  the kernel clock.
-+
-+endmenu
-diff --git a/drivers/ptp/emulated/Makefile b/drivers/ptp/emulated/Makefile
-new file mode 100644
-index 000000000000..577917df3dc9
---- /dev/null
-+++ b/drivers/ptp/emulated/Makefile
-@@ -0,0 +1,11 @@
-+# SPDX-License-Identifier: GPL-2.0
-+#
-+# Makefile for emulated PTP clocks.
-+#
-+
-+ptp_kvm-$(CONFIG_X86)			:= ptp_kvm_x86.o ptp_kvm_common.o
-+ptp_kvm-$(CONFIG_HAVE_ARM_SMCCC)	:= ptp_kvm_arm.o ptp_kvm_common.o
-+obj-$(CONFIG_PTP_1588_CLOCK_KVM)	+= ptp_kvm.o
-+obj-$(CONFIG_PTP_1588_CLOCK_VMCLOCK)	+= ptp_vmclock.o
-+obj-$(CONFIG_PTP_1588_CLOCK_VMW)	+= ptp_vmw.o
-+obj-$(CONFIG_PTP_S390)			+= ptp_s390.o
-diff --git a/drivers/ptp/ptp_kvm_arm.c b/drivers/ptp/emulated/ptp_kvm_arm.c
-similarity index 100%
-rename from drivers/ptp/ptp_kvm_arm.c
-rename to drivers/ptp/emulated/ptp_kvm_arm.c
-diff --git a/drivers/ptp/ptp_kvm_common.c b/drivers/ptp/emulated/ptp_kvm_common.c
-similarity index 100%
-rename from drivers/ptp/ptp_kvm_common.c
-rename to drivers/ptp/emulated/ptp_kvm_common.c
-diff --git a/drivers/ptp/ptp_kvm_x86.c b/drivers/ptp/emulated/ptp_kvm_x86.c
-similarity index 100%
-rename from drivers/ptp/ptp_kvm_x86.c
-rename to drivers/ptp/emulated/ptp_kvm_x86.c
-diff --git a/drivers/ptp/ptp_s390.c b/drivers/ptp/emulated/ptp_s390.c
-similarity index 100%
-rename from drivers/ptp/ptp_s390.c
-rename to drivers/ptp/emulated/ptp_s390.c
-diff --git a/drivers/ptp/ptp_vmclock.c b/drivers/ptp/emulated/ptp_vmclock.c
-similarity index 100%
-rename from drivers/ptp/ptp_vmclock.c
-rename to drivers/ptp/emulated/ptp_vmclock.c
-diff --git a/drivers/ptp/ptp_vmw.c b/drivers/ptp/emulated/ptp_vmw.c
-similarity index 100%
-rename from drivers/ptp/ptp_vmw.c
-rename to drivers/ptp/emulated/ptp_vmw.c
--- 
-2.43.5
+Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
 
