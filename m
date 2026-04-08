@@ -1,146 +1,131 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2180D2F3C18;
-	Wed,  8 Apr 2026 11:31:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6208919995E;
+	Wed,  8 Apr 2026 12:18:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775647917; cv=none; b=TjRtZe6KQWEdPOmQkI2MukzmUyXoxozHkK5RadxYut6QmXWmIF9+ghzs35C7mFBILSkofeFC3hF3joMHSsLD8JxuZsrg0lz2bg+JUvvmdx1vDEihSkfm+m20d5xiwN6YD/sc5ALKs52pIFo6crTb2cSWyTE67BVyEpfF7dHstHA=
+	t=1775650718; cv=none; b=p6hSDTDsHZdWdH+MUnkPHdruijbpVUqAVAPOGA7+vUd5XvvAAVgiZtMFr+eXcEMgs+zD4spJRu50UYH5cyloshf6P5mcW4VH1ARpJhLK6KdDhaZtTKazBhrXj4oLykXjcSGG0LaHsEybEeVjiJ6Mr817sFF4bN135Xa7Jh5RCWY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775647917; c=relaxed/simple;
-	bh=rKzk6mgKCPtLM4wQ+RvDbzYcb9KpxmVDIVwySQias80=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fOL8BI0En3BOJIUx5IjZU9br8UqmN/3NMMUtMcg2ffkcNstI8tLcDZBiEw6v2x04vCFrf8SeZ+xPiL4hipcAdKm+q0F+yJ8er3Lh86qRZxVb0wJgioVrk/sudV+b00QyQ0at4ZtE9WS8WRn/3njt8CCwqgcrS7e6r9Fq7ErAexE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eAgJlIUr; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1775650718; c=relaxed/simple;
+	bh=NEamxRS6+kDuLVN0NlzLC4mte30BzxM9ZKGmkI/TeYA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=QWZ6bj+6hYYIoMfsj1dt/xOh5CRZ0BF/actbBgW7ZAjXxRJRLpL0b8xCVCbbbN3HgokGkMFunZWRK/BH/FRWVmB9P9wrU0eKVCElmOTJIxM1WIQ0Bhw980UfA78KCnwTfjZKleJaDdFQ5P8wM33mpf7vLRlPtuOWXO57Jyd1bc0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HHwqjRWs; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eAgJlIUr"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 638441eE2297727;
-	Wed, 8 Apr 2026 11:31:52 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HHwqjRWs"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6386WUO92326341;
+	Wed, 8 Apr 2026 12:18:27 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=R31XZymasesZeWcOOhzDqz7xh3zahljlpFSsIbGxR
-	gk=; b=eAgJlIUreF8mE1z1xnbyykM10s6fS9OwZgKpQIVcZuT2vfbv5Njc9kyL3
-	0+MhTxQyogpmoEccuydDAeymz+kyVe4n0fL5dqFR2LBJPbjgi/SQ/amRe0TLR6HV
-	7vcUv6mVDYe1V2xBnHjOiTc7JYlQyTYVa6dEvT1dodA+GlEDovIR1aUy6bno5UMr
-	/ZqxbSQiNKtddXcZce5mtw26bqxCQ3MvK9XlKkmF6HT7IYdOxElE5TE/C+LPeYWS
-	26UvfyQzhAvaGwWuxhazL0gnyybUMRiPWsNa6qOPS7nbuKIdXSgt3cmrbqo6/CCV
-	3bbYQ/fc5kQSobmcx7+Ec7kgzs1sQ==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dcn2fy4ug-1
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=GJbLlRtw6wjUVT8JSn1mcrdk/q0v20
+	wVGSdIuxw5BVs=; b=HHwqjRWswXO4W1P5/MKMKwItUC8X5CqVA8l3c6eLCqXYvH
+	L89IlhIJyLLqGGBmp146I5mG4DCrnw+bUiqu86F1kkIHitd2g4uJ+Gz/F9GQovoH
+	4bsObvZKLHkqle3+/TZqwA+hMDGs+yI9FcfHZf8Eo+VRhapai6Lz7OhRKDDKg+EE
+	unfULi2eKOHxO++A8rohfLpZxxacfqQihuf+/SbdKJmykYeK86Ne9b/jebttDj82
+	Rksqbjh2VUfNr/YvhdIGCyQKumr/4j5p5kv7xaNtxWR4+GeRz19Ezl4+I1WbU25O
+	S+fQ3MAK8iETtJ1M7xnF4PAPnyh+v3N5UXz3Hqvw==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dcn2kf9t0-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Apr 2026 11:31:52 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 638BASBK013878;
-	Wed, 8 Apr 2026 11:31:51 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dcmf476ev-1
+	Wed, 08 Apr 2026 12:18:26 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 638BBdUw007951;
+	Wed, 8 Apr 2026 12:18:25 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dcmg2fac2-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Apr 2026 11:31:51 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 638BVl7e55968252
+	Wed, 08 Apr 2026 12:18:25 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 638CILR214680470
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 8 Apr 2026 11:31:47 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 78CF12004D;
-	Wed,  8 Apr 2026 11:31:47 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3FFA42004B;
-	Wed,  8 Apr 2026 11:31:47 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  8 Apr 2026 11:31:47 +0000 (GMT)
-From: Thomas Richter <tmricht@linux.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org,
-        irogers@google.com, howardchu95@gmail.com
-Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
-        hca@linux.ibm.com, japo@linux.ibm.com,
-        Thomas Richter <tmricht@linux.ibm.com>
-Subject: [PATCH v2] perf test: Run test 126 exclusive
-Date: Wed,  8 Apr 2026 13:31:43 +0200
-Message-ID: <20260408113143.1645091-1-tmricht@linux.ibm.com>
-X-Mailer: git-send-email 2.51.0
+	Wed, 8 Apr 2026 12:18:21 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6F0CD20043;
+	Wed,  8 Apr 2026 12:18:21 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4083220040;
+	Wed,  8 Apr 2026 12:18:20 +0000 (GMT)
+Received: from localhost (unknown [9.111.74.150])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed,  8 Apr 2026 12:18:20 +0000 (GMT)
+Date: Wed, 8 Apr 2026 14:18:18 +0200
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Niklas Schnelle <schnelle@linux.ibm.com>, Jonathan Corbet <corbet@lwn.net>,
+        Lukas Wunner <lukas@wunner.de>, Shuah Khan <skhan@linuxfoundation.org>,
+        Farhan Ali <alifm@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        Julian Ruess <julianr@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Ramesh Errabolu <ramesh@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-s390@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: [PATCH v8 0/2] PCI: s390: Expose the UID as an arch specific PCI
+ slot attribute
+Message-ID: <ttd6cui@ub.hpns>
+References: <20260407-uid_slot-v8-0-15ae4409d2ce@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260407-uid_slot-v8-0-15ae4409d2ce@linux.ibm.com>
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=KeridwYD c=1 sm=1 tr=0 ts=69d63ca8 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=pGLkceISAAAA:8
- a=bNJXeJHnkcElx3EIz2QA:9
-X-Proofpoint-ORIG-GUID: TQCBUXivFhyzNaBdPcqMCAVRK4qFKhGC
-X-Proofpoint-GUID: tLGpT-52PWVfne8RAXaAzS5sLS0hrQbv
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDA4MDEwNCBTYWx0ZWRfXy0CKdNMEUPRC
- LRNOVEGNXF8Da+xHvdGOLjMZCkQ8uEdGjk9yzpi62K2eea1CXkH6fujntBPm61ahUBR+PEDHRO/
- UbCauAMzvULIVWOJhNPV9LZYqa0972urJ3kZEw4CF28DBX50pVHlumwb0HYg0zOUnynl6jhuhEf
- PM7Z/Yj6jzTFiEvaQrxmT6Fwoc3FtTa8aWIMgbLvK8VxUQMOF2622iCSX8BSIcjKcNTR1A2axC3
- 2B7bBDl3gTSBkBbbJGr04o4tzz7pl2KrBxXj2VOQavxXtBsLoUXT7z/Gn9v9nMYLTecLoM6AYBj
- MjzquXhdII7FY2zmesGAOq/nKT2ERXWISokcHHwOVWFaJkvKRgg6pq3+a2gkegJAXLIbZP4U/lZ
- DMq6xJsI9lCo3+t6hn2P3ntsczV87x9t0E4GSFYU0vU1ub/t/pezaotqYXhpD2YVqBBMaytV+iP
- DVnDoPUTeKepId9N7QQ==
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDA4MDEwOSBTYWx0ZWRfX1nx7gB4ylQPP
+ xaxXrnmWcSUlFb/gtNTzoG8BnrEQHPpnJC8WFvGKMUjB8U/89mi2PBMVTQHaR7GWCRKJ1lbuREf
+ NNRUYJQVmWXD35XJIzcEaFuFfVqundIPO39RFz/qbGVgVfS9Qpm2+864BkRzslZpLs9c05zOrAO
+ tRmK8jAXTmvWlLvn8dM2hVaPtc2xM8J+e/11Ot3jnkPqTwavv6WNLLTyqeBVo0Ru3/4qumWnNj9
+ DJFjrA1dGmdZgj4JBwWTKvobcUs2q7cY4a40qu7qGtOweUQXecBAwtMhWC8PwDYLYORZehew2ux
+ 8NB14FlUakhcrGICUj4hKxK7w3d/8DjFhQ1cEo9PTcWnc1gmgt4+U6hk/JZspivd8j30PnJ25n1
+ 7fsWNdNwJ62bRQ0OFHHbIfWJysBh+tXxShA5om2+iWNSLLEFPPfYs130Zq12jynUcpxrvpyUKyl
+ emtIwHuEJ3R+owh+yyg==
+X-Proofpoint-ORIG-GUID: Z79VdgAyCLMQQb9gx2eIg7V2_VTxlr8X
+X-Authority-Analysis: v=2.4 cv=e9k2j6p/ c=1 sm=1 tr=0 ts=69d64792 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=7fw9t-owY_ObQSO0K9YA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: _ezVQgjW-Tp2IxpVFlQ9ZIfKS3TqoZcl
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-08_03,2026-04-08_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 malwarescore=0 lowpriorityscore=0 adultscore=0 impostorscore=0
- clxscore=1015 phishscore=0 priorityscore=1501 spamscore=0 bulkscore=0
+ clxscore=1011 impostorscore=0 malwarescore=0 suspectscore=0 spamscore=0
+ bulkscore=0 adultscore=0 priorityscore=1501 phishscore=0 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604010000 definitions=main-2604080104
+ reason=mlx scancount=1 engine=8.22.0-2604010000 definitions=main-2604080109
 
-V1 --> V2 Fixed commit message
+On Tue, Apr 07, 2026 at 03:24:44PM +0200, Niklas Schnelle wrote:
+> Add a mechanism for architecture specific attributes on
+> PCI slots in order to add the user-defined ID (UID) as an s390 specific
+> PCI slot attribute. First though improve some issues with the s390 specific
+> documentation of PCI sysfs attributes noticed during development.
 
-Running both tests cases 126 128 together causes the first test case
-126 to fail:
- # for i in $(seq 3); do ./perf test 126 128; done
- 126: perf trace BTF general tests    : FAILED!
- 128: perf trace record and replay    : Ok
- 126: perf trace BTF general tests    : FAILED!
- 128: perf trace record and replay    : Ok
- 126: perf trace BTF general tests    : FAILED!
- 128: perf trace record and replay    : Ok
- #
+> Niklas Schnelle (2):
+>       docs: s390/pci: Improve and update PCI documentation
+>       PCI: s390: Expose the UID as an arch specific PCI slot attribute
+> 
+>  Documentation/arch/s390/pci.rst | 151 +++++++++++++++++++++++++++-------------
+>  arch/s390/include/asm/pci.h     |   4 ++
+>  arch/s390/pci/pci_sysfs.c       |  20 ++++++
+>  drivers/pci/slot.c              |  13 +++-
+>  4 files changed, 140 insertions(+), 48 deletions(-)
 
-Test case 126 fails because test case 128 runs concurrently as can
-be observed using a ps -ef | grep perf output list on a different
-window. Both do a perf trace command concurrently.
-Make test case 'perf trace BTF general tests' exclusive.
+Bjorn, would you like to take this through the PCI tree? I think Niklas
+phrased the subject with that in mind.
 
-Output after:
- # for i in $(seq 3); do ./perf test 'perf trace BTF general tests' \
-	'perf trace record and replay'; done
- 127: perf trace BTF general tests                   : Ok
- 155: perf trace record and replay                   : Ok
- 127: perf trace BTF general tests                   : Ok
- 155: perf trace record and replay                   : Ok
- 127: perf trace BTF general tests                   : Ok
- 155: perf trace record and replay                   : Ok
- #
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Cc: Howard Chu <howardchu95@gmail.com>
----
- tools/perf/tests/shell/trace_btf_general.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/tools/perf/tests/shell/trace_btf_general.sh b/tools/perf/tests/shell/trace_btf_general.sh
-index ef2da806be6b..7a94a5743924 100755
---- a/tools/perf/tests/shell/trace_btf_general.sh
-+++ b/tools/perf/tests/shell/trace_btf_general.sh
-@@ -1,5 +1,5 @@
- #!/bin/bash
--# perf trace BTF general tests
-+# perf trace BTF general tests (exclusive)
- # SPDX-License-Identifier: GPL-2.0
- 
- err=0
--- 
-2.53.0
-
+Otherwise, I can take it through the s390 tree. If so, could you give
+me your Acked-by?
