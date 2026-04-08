@@ -1,161 +1,144 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from out-182.mta0.migadu.com (out-182.mta0.migadu.com [91.218.175.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 216953D3D10
-	for <linux-s390@vger.kernel.org>; Wed,  8 Apr 2026 14:36:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.133.124
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775659018; cv=pass; b=kKs/LTLM1NfKOjUsLBjPltji+BIr+mGwklttDBKvvON0Z06XgNz+b+w9os7mqicVxSW8JOoQI9+ijnzMo/B9SSsTMlV98s5FWigLUpURsD67DqMnZ/w6+PQCzcqaVR9l4Sigt+pwU86sCc0m6uHfs2g+ySf8oSTRciTfKnKSV5c=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775659018; c=relaxed/simple;
-	bh=qT1zHZCSFMPJrwZKDQHbbpFFBhz3FsCccEZdVXIfmuY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YxJ7UKKj/E5zqbRi8VM/Er0CvxAifbUtVZvomXeyxqhpyC4/C9nuIceeKR5B7gvIRZgqLgTdOC2Yi94k0mH7AMD9RYDip2DErRNZIBOlgJCSVAF1A4EgqmjMM6WprPkYOh1bPyHTvhcBg2AMOaiY+27HPbEH6WwJHjg0oUyr7OE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GqgwwfuS; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=rYVXSAWS; arc=pass smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DB923D1CAC
+	for <linux-s390@vger.kernel.org>; Wed,  8 Apr 2026 15:06:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.182
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775660809; cv=none; b=tEjO12tF3bEWaWUROQGymkyAoC2PBhN1ztA7UXHzJUHhTU8P3qvJCiSs6A6OD2AA2wdBadiWjXCRkCjKmxq9OwEL2JHKqaU5uO648cyFzeM7ZM+cs0BcDZHe31w+ko77xfxWGZumaMVBXb8NWoZFZZNM1o1RuMokMPfIr8JazjA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775660809; c=relaxed/simple;
+	bh=nwCQJ1PQtlLZn8ps/8TYukl0slkv+apHmVCT0xgq8+Y=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=i5oWestuWUGL5DwcscLm40BAHXjn90KqX9r7i2eLMxCcukbGKqag4n8CHffh4gvuwuvIBu7Fz0c6zRUGVuJps3Z+XpIj+K06s/PjqNSrxJXLcKO8AkIO5eb/7C1g4atUjZ0P9Xad40IvcMktpC6J7nKI3q8SzI+KZ3RCP3i65pU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=nce/YT8h; arc=none smtp.client-ip=91.218.175.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GqgwwfuS";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="rYVXSAWS"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1775659016;
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="nce/YT8h"
+Message-ID: <3f9e8e12-2d51-4f2a-ada1-994ed24df284@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1775660796;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=a7nrQttg0XaH4EfgeMJpijdBLoyZ1TdLNy6iZIsWY9k=;
-	b=GqgwwfuS+zaBtvu0ePOvKT9twRSPq0OWkxmxr4nxhve/CEDmXSN4Mgd68SILkLqRqlc4QG
-	CPnBhlQq3rs9BkklPaWij7Ht4Yfpx2GJiFDG72eAGZUCdUsloOUKfjnuoxISurAAeVdOi5
-	2lrPq6OHktYoSwDshDvRJMPXn1Hj974=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-590-hYwrvtbxNfOTfPCOw3QryQ-1; Wed, 08 Apr 2026 10:36:55 -0400
-X-MC-Unique: hYwrvtbxNfOTfPCOw3QryQ-1
-X-Mimecast-MFC-AGG-ID: hYwrvtbxNfOTfPCOw3QryQ_1775659014
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-43cfedb10a8so4162813f8f.1
-        for <linux-s390@vger.kernel.org>; Wed, 08 Apr 2026 07:36:54 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1775659013; cv=none;
-        d=google.com; s=arc-20240605;
-        b=XoGaUd+B9JGjjoLDe4glMJIDk6BSFbpJlW7FVVFt8L+JEuSjAEn6wYY6D4Hi7jWsEC
-         DSROUXMxhSKOtBfZywQKKV2gkIQkIS1xfD/QmvJahj8W/FfrjdZbKyy+ZmkMBFjQNCBo
-         Gzsc17tFeZ2dydayX53y/qCQSvao5GsZUcYk0tpPfDj0S6UJKvXl7uIQVDI9w6HX0eWC
-         MfBQTOxqyk5hwHvRCZZBmlQGlPMOYM8Hp26UAVo+s8zGBUDHwya4uOc9nalTG/dSUKK2
-         4BpjHQGMIswLSmnU3kvPJsHr9P3RmfyhTTWTuNMo3s9/M4R2+coCE/Y5d+qhX1lg3TIR
-         3vbA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=a7nrQttg0XaH4EfgeMJpijdBLoyZ1TdLNy6iZIsWY9k=;
-        fh=6GqU+jS2IoOPRs1MSe/34Kw+aGpBbIQ6gFGHj5gvzSI=;
-        b=ekJks9vlqJQi9ceO4wmI6P+YOK/uvyyQVkuYoUbZWSpIaoMB4UBTMmrT0liEFiuaF2
-         wv99FmyEit/ljtdft2b8/TphYNWu33DHw3zNHN8p2Jg7zcvu+iWLaxRae4KwQpLCyQBn
-         YW3dgDF48NSOr5fMhNfT/9LRgcTySO6ThkKwdpqXeEKPMb8IZBEypMUaBqMoM/k6+nqd
-         s4Fu2Nu9iP3EHQQSwUTlkGN3tyKQG8Il8d+Z5P4RIR9B46Lb/pF39kUv47vJnwbymyLl
-         0TGLxv18qC/3fBNgYhOy2W6WKPl68kWoyFlK9gYHQ8PAQU5GGF+/HnsnwERtlKmWs6y/
-         MGmw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1775659013; x=1776263813; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=a7nrQttg0XaH4EfgeMJpijdBLoyZ1TdLNy6iZIsWY9k=;
-        b=rYVXSAWSh4L0928kkHyBwsKIfWxI3ErIlb1y1Xx9rwtlnbhFLOSC4HnEJuJTODNORZ
-         caCp4R+IEuteQpTK+E5oosQGLzsPq9qRna8r876j1dlT5bT/ZlCJJTGDOD2xAef03fVo
-         GzBJMK1qv9+lZ5N3A2gKBXzlenMUR5Um6hEwQCl7BSMJ+hfg4Nm2UG+uEkwWt06K6wdT
-         Zb5LU1F2QsYom2U1Vo+mdiX6YonI30tunXbuezTx9Ih55BJhelPMGoxE77ePbaSHPVxQ
-         ZgDd6JY2LoNuWDayFM+TF++klQr0uM4hPLsOYdM2b+gSXMWHjWB9OqUey3wowLCzlSCp
-         u1Rw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775659013; x=1776263813;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=a7nrQttg0XaH4EfgeMJpijdBLoyZ1TdLNy6iZIsWY9k=;
-        b=W58VeN1Fql9E4yDMr6wGDIEd1txKryZ++dmIudtXW4mRoN9wCzuzXdN50OhgZClcPp
-         wa5116C2yj6MuuNWc+guKBdMAe3AHuZWA/MToBr9YegE65u2cmBD3PFV1MEn4NmAjnHI
-         QrDndxgJaNT1GTAARDY/b5JtPmqzDqeZNHf7yWVFEvKlPtpR6ss4VELm8J+U2xRE101/
-         AwwDa1Mur4bZAG2paY8ropDdkHvmjMISu0cRmKXs9O5bewrJRQMaD7OcGUDOjAdw3wD9
-         s/DnJLlVDfwRD/T+uOgNWUj+gbjq0IYYhB6/r+E2ZXSVA0ALhgOlmg6VKje+j4VIUFbw
-         VYgg==
-X-Forwarded-Encrypted: i=1; AJvYcCXB9soHaKnZ9Xre3jFjcNESeZou33WH4NrRjMJQiB5fe+Z6jwZZSGI1wVWVU0MvrwrJ9YW9v6HjNOuv@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyk1VGvUvu9d5cb/WrzejXTlRHRP0xMFH7E4MVoxaIa93+U3qr4
-	i7S19A1lsF8CamqkpAAlY9E80vudZOvYa+WSr+bwvYPqUCTR3zMhgzDsEo7Wppj2GzvXwxrXOKU
-	X7Q6sbknDRx39kxPPTm7nH6ZWaj9KV/E4q9WtNT5SRkTBnPy3L8qg3k47COBFVW4tSG9zo9WyrL
-	tnhReLwxe5kaa7eIitCC8Qlm91ADioMePLhMRQVA==
-X-Gm-Gg: AeBDievRiPsxFoVhCbGCflXaKmyTLATb+IeCenJ2N948lhG+GYWXp1d6DVu8o7Ihff4
-	fgcTVhYjUR2SFFFdmmAE5Jl65ZYarKbQSOCJfz67bDlwWhszHRtCC5aYItpNy4KtpFyErsmeZu5
-	bcTPY4Bn/nTig9YbFNaU0zi8vhfiKJkdqEWl/OLdyqIHbcEREPtcdfHlNucirwwlIdcdXSe7taC
-	n+2u/TcsuEzQMSPaQyVRzQAQhkPCPNbH3BLSSsnh3v2WVJdwGjkU1eC40zp0lZ054viWVe5I0gE
-	izw7
-X-Received: by 2002:a05:6000:230c:b0:43b:48d3:2a46 with SMTP id ffacd0b85a97d-43d292fc2bbmr31500621f8f.33.1775659013521;
-        Wed, 08 Apr 2026 07:36:53 -0700 (PDT)
-X-Received: by 2002:a05:6000:230c:b0:43b:48d3:2a46 with SMTP id
- ffacd0b85a97d-43d292fc2bbmr31500576f8f.33.1775659013061; Wed, 08 Apr 2026
- 07:36:53 -0700 (PDT)
+	bh=1+VU8UBRdEVEeyiV4+aPbi7V4ANQswood2btwWC7W10=;
+	b=nce/YT8hy0RDyIldhTyZu273O+IC+4lreKGHKqWJoK3qIW7bVWBVi0LDO0W3lmX0H16Zbp
+	2j0OvnNTiosCwvyEbTE3/t2vJHMqme6LCCCV3xImTBLdUhG0DAWay2mblTf9uccqXFl8OC
+	AexvCrHBe5xG29n0GcZSuslUwx11Dow=
+Date: Wed, 8 Apr 2026 16:06:29 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260407175934.1602711-1-pbonzini@redhat.com> <6569b8b8-7654-4dbe-a4a6-f1e565451672@linux.ibm.com>
-In-Reply-To: <6569b8b8-7654-4dbe-a4a6-f1e565451672@linux.ibm.com>
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Wed, 8 Apr 2026 16:36:35 +0200
-X-Gm-Features: AQROBzB5omoJWYrrMqaSBonwZlBQM8vJiaSjlVlseeyW58fQ54aszgrPriv5Sfk
-Message-ID: <CABgObfbiNRfNGvhDFO=h-E27KONh80fkB1y1rOGpazTB2Eigzw@mail.gmail.com>
-Subject: Re: [PATCH] VFIO: remove dead notifier code
-To: Anthony Krowiak <akrowiak@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, alex@shazbot.org, 
-	linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: [v3 00/24] mm: thp: lazy PTE page table allocation at PMD split
+ time
+To: Hugh Dickins <hughd@google.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, david@kernel.org,
+ Lorenzo Stoakes <ljs@kernel.org>, willy@infradead.org, linux-mm@kvack.org,
+ fvdl@google.com, hannes@cmpxchg.org, riel@surriel.com,
+ shakeel.butt@linux.dev, kas@kernel.org, baohua@kernel.org, dev.jain@arm.com,
+ baolin.wang@linux.alibaba.com, npache@redhat.com, Liam.Howlett@oracle.com,
+ ryan.roberts@arm.com, Vlastimil Babka <vbabka@kernel.org>,
+ lance.yang@linux.dev, linux-kernel@vger.kernel.org, kernel-team@meta.com,
+ maddy@linux.ibm.com, mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org,
+ hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+ borntraeger@linux.ibm.com, svens@linux.ibm.com, linux-s390@vger.kernel.org
+References: <20260327021403.214713-1-usama.arif@linux.dev>
+ <6869b7f0-84e1-fb93-03f1-9442cdfe476b@google.com>
+Content-Language: en-GB
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Usama Arif <usama.arif@linux.dev>
+In-Reply-To: <6869b7f0-84e1-fb93-03f1-9442cdfe476b@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On Wed, Apr 8, 2026 at 4:35=E2=80=AFPM Anthony Krowiak <akrowiak@linux.ibm.=
-com> wrote:
->
->
-> >     open_device:
-> > -    The vfio_ap driver uses this callback to register a
-> > -    VFIO_GROUP_NOTIFY_SET_KVM notifier callback function for the matri=
-x mdev
-> > -    devices. The open_device callback is invoked by userspace to conne=
-ct the
-> > -    VFIO iommu group for the matrix mdev device to the MDEV bus. Acces=
-s to the
-> > -    KVM structure used to configure the KVM guest is provided via this=
- callback.
-> > -    The KVM structure, is used to configure the guest's access to the =
-AP matrix
-> > -    defined via the vfio_ap mediated device's sysfs attribute files.
-> > +    the open_device callback is invoked by userspace to connect the
->
-> Capitalization:
-> s/the open_device callback/The open device callback/
->
-> > +    VFIO iommu group for the matrix mdev device to the MDEV bus.  The
-> > +    callback retrieves the KVM structure used to configure the KVM gue=
-st
-> > +    and configures the guest's access to the AP matrix defined via the
-> > +    vfio_ap mediated device's sysfs attribute files.
-> >
-> >     close_device:
-> > -    unregisters the VFIO_GROUP_NOTIFY_SET_KVM notifier callback functi=
-on for the
-> > -    matrix mdev device and deconfigures the guest's AP matrix.
-> > +    this callback deconfigures the guest's AP matrix.
->
-> Capitalization:
-> s/this callback/This callback/
 
-Heh, I had to pick one or the other (close_device previously used
-lowercase) and chose the wrong one. :)
 
-Thanks for reviewing the s390 docs, I wasn't sure about the new text was en=
-ough.
+On 06/04/2026 00:34, Hugh Dickins wrote:
+> On Thu, 26 Mar 2026, Usama Arif wrote:
+> 
+>> When the kernel creates a PMD-level THP mapping for anonymous pages, it
+>> pre-allocates a PTE page table via pgtable_trans_huge_deposit(). This
+>> page table sits unused in a deposit list for the lifetime of the THP
+>> mapping, only to be withdrawn when the PMD is split or zapped. Every
+>> anonymous THP therefore wastes 4KB of memory unconditionally. On large
+>> servers where hundreds of gigabytes of memory are mapped as THPs, this
+>> adds up: roughly 200MB wasted per 100GB of THP memory. This memory
+>> could otherwise satisfy other allocations, including the very PTE page
+>> table allocations needed when splits eventually occur.
+>>
+>> This series removes the pre-deposit and allocates the PTE page table
+>> lazily — only when a PMD split actually happens. Since a large number
+>> of THPs are never split (they are zapped wholesale when processes exit or
+>> munmap the full range), the allocation is avoided entirely in the common
+>> case.
+>>
+>> The pre-deposit pattern exists because split_huge_pmd was designed as an
+>> operation that must never fail: if the kernel decides to split, it needs
+>> a PTE page table, so one is deposited in advance. But "must never fail"
+>> is an unnecessarily strong requirement. A PMD split is typically triggered
+>> by a partial operation on a sub-PMD range — partial munmap, partial
+>> mprotect, COW on a pinned folio, GUP with FOLL_SPLIT_PMD, and similar.
+>> All of these operations already have well-defined error handling for
+>> allocation failures (e.g., -ENOMEM, VM_FAULT_OOM). Allowing split to
+>> fail and propagating the error through these existing paths is the natural
+>> thing to do. Furthermore, if the system cannot satisfy a single order-0
+>> allocation for a page table, it is under extreme memory pressure and
+>> failing the operation is the correct response.
+>>
+>> Designing functions like split_huge_pmd as operations that cannot fail
+>> has a subtle but real cost to code quality. It forces a pre-allocation
+>> pattern - every THP creation path must deposit a page table, and every
+>> split or zap path must withdraw one, creating a hidden coupling between
+>> widely separated code paths.
+>>
+>> This also serves as a code cleanup. On every architecture except powerpc
+>> with hash MMU, the deposit/withdraw machinery becomes dead code. The
+>> series removes the generic implementations in pgtable-generic.c and the
+>> s390/sparc overrides, replacing them with no-op stubs guarded by
+>> arch_needs_pgtable_deposit(), which evaluates to false at compile time
+>> on all non-powerpc architectures.
+> 
+> I see no mention of the big problem,
+> which has stopped us all from trying this before.
+> 
+> Reclaim: the split_folio_to_list() in shrink_folio_list().
+> 
+> Imagine a process which has forked a thousand times, containing
+> anon THPs, which should now be swapped out and reclaimed.
+> 
+> To swap out one of those THPs, it will have to allocate a
+> thousand page tables, all with PF_MEMALLOC set (to give some
+> access to reserves, while preventing recursion into reclaim).
+> 
+> Elsewhere, we go to great lengths (e.g. mempools) to give
+> guaranteed access to the memory needed when freeing memory.
+> In the case of an anon THP, the guaranteed pool has been the
+> deposited page table. Now what?
+> 
+> And the worst is that when the 501st attempt to allocate a page
+> table fails, it has allocated and is using 500 pages from reserve,
+> without reaching the point of freeing any memory at all.
+> 
+> Maybe watermark boosting (I barely know whereof I speak) can help
+> a bit nowadays.  Has anything else changed to solve the problem?
+> 
+> What would help a lot would be the implementation of swap entries
+> at the PMD level.  Whether that would help enough, I'm sceptical:
+> I do think it's foolish to depend upon the availability of huge
+> contiguous swap extents, whatever the recent improvements there;
+> but it would at least be an arguable justification.
+> 
+Thanks for pointing this out. I should have thought of this as I
+have been thinking about fork a lot for 1G THP and for this series.
 
-Paolo
+I am working on trying to make PMD level swap entires work. I hope
+to have a RFC soon.
+
+
 
