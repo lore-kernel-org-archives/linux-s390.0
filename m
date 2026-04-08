@@ -1,222 +1,161 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 732CC3D333E;
-	Wed,  8 Apr 2026 14:35:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775658901; cv=none; b=bka1kGIF3Oxcr3+8CifrN4bK2rMzjMrF1ZwR9iGM1OfgXSTA8YswvpX4tsVg8tI6mvMA4WKHsfv+QcGlup82G6P9uvD5Wj2LE22dmMZOnbJch1mZ1PzJR9gMd3HZ0ycyz7El3NT6F3oYLVu/Huz73jFlWYGmWgWJl/Tyswvx8Gs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775658901; c=relaxed/simple;
-	bh=cGn3mWczE8KwdzRV6yr8IYFSQyCLRqP+Kc7TFM2zr+k=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gMBAnW/U46KjC0t6dQ1OnEB/YRe6ijqblOhdyLI5qg6Il/JEfcu2Rg643ZTcPToRX/j83dd0C1KWvUpB8UnqjEZhIyW7zd/OF7w4y2gtARRveDSclpopqRuRQSUliot1jwR9hO3Ap66sCGc7/VMORuxO6Q8eVk4VouOmdsZjW00=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bvnCDav6; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 216953D3D10
+	for <linux-s390@vger.kernel.org>; Wed,  8 Apr 2026 14:36:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.133.124
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775659018; cv=pass; b=kKs/LTLM1NfKOjUsLBjPltji+BIr+mGwklttDBKvvON0Z06XgNz+b+w9os7mqicVxSW8JOoQI9+ijnzMo/B9SSsTMlV98s5FWigLUpURsD67DqMnZ/w6+PQCzcqaVR9l4Sigt+pwU86sCc0m6uHfs2g+ySf8oSTRciTfKnKSV5c=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775659018; c=relaxed/simple;
+	bh=qT1zHZCSFMPJrwZKDQHbbpFFBhz3FsCccEZdVXIfmuY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=YxJ7UKKj/E5zqbRi8VM/Er0CvxAifbUtVZvomXeyxqhpyC4/C9nuIceeKR5B7gvIRZgqLgTdOC2Yi94k0mH7AMD9RYDip2DErRNZIBOlgJCSVAF1A4EgqmjMM6WprPkYOh1bPyHTvhcBg2AMOaiY+27HPbEH6WwJHjg0oUyr7OE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GqgwwfuS; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=rYVXSAWS; arc=pass smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bvnCDav6"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6385CQO52302379;
-	Wed, 8 Apr 2026 14:34:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=FE3y9T
-	frXiNDTc2jKKxIVUutVtsW/XQ9PDAxoq0O3jU=; b=bvnCDav60MHawM7ILCgQzN
-	dblq+43q8W6gpW4o6iC0LHzYTtd67cT4hN5er7F9gy+1eM8B1qGSG8yHErCt2Gwe
-	CN52vu7CHW+evidcgr/ku+ZkKPnLb8AzU0BkbdBUTY7UWTfpHa4d3EwDy9X0BJle
-	jLrwAM66eCvJGzVNSIEs1UJ1IUeESYrwVtt15o1mimbHePTtD3YmiRVSqGaRiVt1
-	mLXnoOGdUp+u9CUZJSQULr9UKyGALnPqDChgiS90pzFgqz3Uy4szykxZ4+9kYe9c
-	bf8LshGGtT+KcRTU/7UjYUMyHFNofBwnj6y8IGW3NIUNGf/N4QXFtsEdZGZf3byg
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dcn2fgfng-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Apr 2026 14:34:54 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 638AuiD4013821;
-	Wed, 8 Apr 2026 14:34:53 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dcmf47rm9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Apr 2026 14:34:53 +0000
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 638EYqSn62783986
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 8 Apr 2026 14:34:52 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A393158055;
-	Wed,  8 Apr 2026 14:34:52 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1F7B25804B;
-	Wed,  8 Apr 2026 14:34:52 +0000 (GMT)
-Received: from [9.61.9.193] (unknown [9.61.9.193])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  8 Apr 2026 14:34:52 +0000 (GMT)
-Message-ID: <6569b8b8-7654-4dbe-a4a6-f1e565451672@linux.ibm.com>
-Date: Wed, 8 Apr 2026 10:34:51 -0400
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GqgwwfuS";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="rYVXSAWS"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1775659016;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=a7nrQttg0XaH4EfgeMJpijdBLoyZ1TdLNy6iZIsWY9k=;
+	b=GqgwwfuS+zaBtvu0ePOvKT9twRSPq0OWkxmxr4nxhve/CEDmXSN4Mgd68SILkLqRqlc4QG
+	CPnBhlQq3rs9BkklPaWij7Ht4Yfpx2GJiFDG72eAGZUCdUsloOUKfjnuoxISurAAeVdOi5
+	2lrPq6OHktYoSwDshDvRJMPXn1Hj974=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-590-hYwrvtbxNfOTfPCOw3QryQ-1; Wed, 08 Apr 2026 10:36:55 -0400
+X-MC-Unique: hYwrvtbxNfOTfPCOw3QryQ-1
+X-Mimecast-MFC-AGG-ID: hYwrvtbxNfOTfPCOw3QryQ_1775659014
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-43cfedb10a8so4162813f8f.1
+        for <linux-s390@vger.kernel.org>; Wed, 08 Apr 2026 07:36:54 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1775659013; cv=none;
+        d=google.com; s=arc-20240605;
+        b=XoGaUd+B9JGjjoLDe4glMJIDk6BSFbpJlW7FVVFt8L+JEuSjAEn6wYY6D4Hi7jWsEC
+         DSROUXMxhSKOtBfZywQKKV2gkIQkIS1xfD/QmvJahj8W/FfrjdZbKyy+ZmkMBFjQNCBo
+         Gzsc17tFeZ2dydayX53y/qCQSvao5GsZUcYk0tpPfDj0S6UJKvXl7uIQVDI9w6HX0eWC
+         MfBQTOxqyk5hwHvRCZZBmlQGlPMOYM8Hp26UAVo+s8zGBUDHwya4uOc9nalTG/dSUKK2
+         4BpjHQGMIswLSmnU3kvPJsHr9P3RmfyhTTWTuNMo3s9/M4R2+coCE/Y5d+qhX1lg3TIR
+         3vbA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=a7nrQttg0XaH4EfgeMJpijdBLoyZ1TdLNy6iZIsWY9k=;
+        fh=6GqU+jS2IoOPRs1MSe/34Kw+aGpBbIQ6gFGHj5gvzSI=;
+        b=ekJks9vlqJQi9ceO4wmI6P+YOK/uvyyQVkuYoUbZWSpIaoMB4UBTMmrT0liEFiuaF2
+         wv99FmyEit/ljtdft2b8/TphYNWu33DHw3zNHN8p2Jg7zcvu+iWLaxRae4KwQpLCyQBn
+         YW3dgDF48NSOr5fMhNfT/9LRgcTySO6ThkKwdpqXeEKPMb8IZBEypMUaBqMoM/k6+nqd
+         s4Fu2Nu9iP3EHQQSwUTlkGN3tyKQG8Il8d+Z5P4RIR9B46Lb/pF39kUv47vJnwbymyLl
+         0TGLxv18qC/3fBNgYhOy2W6WKPl68kWoyFlK9gYHQ8PAQU5GGF+/HnsnwERtlKmWs6y/
+         MGmw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1775659013; x=1776263813; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=a7nrQttg0XaH4EfgeMJpijdBLoyZ1TdLNy6iZIsWY9k=;
+        b=rYVXSAWSh4L0928kkHyBwsKIfWxI3ErIlb1y1Xx9rwtlnbhFLOSC4HnEJuJTODNORZ
+         caCp4R+IEuteQpTK+E5oosQGLzsPq9qRna8r876j1dlT5bT/ZlCJJTGDOD2xAef03fVo
+         GzBJMK1qv9+lZ5N3A2gKBXzlenMUR5Um6hEwQCl7BSMJ+hfg4Nm2UG+uEkwWt06K6wdT
+         Zb5LU1F2QsYom2U1Vo+mdiX6YonI30tunXbuezTx9Ih55BJhelPMGoxE77ePbaSHPVxQ
+         ZgDd6JY2LoNuWDayFM+TF++klQr0uM4hPLsOYdM2b+gSXMWHjWB9OqUey3wowLCzlSCp
+         u1Rw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775659013; x=1776263813;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=a7nrQttg0XaH4EfgeMJpijdBLoyZ1TdLNy6iZIsWY9k=;
+        b=W58VeN1Fql9E4yDMr6wGDIEd1txKryZ++dmIudtXW4mRoN9wCzuzXdN50OhgZClcPp
+         wa5116C2yj6MuuNWc+guKBdMAe3AHuZWA/MToBr9YegE65u2cmBD3PFV1MEn4NmAjnHI
+         QrDndxgJaNT1GTAARDY/b5JtPmqzDqeZNHf7yWVFEvKlPtpR6ss4VELm8J+U2xRE101/
+         AwwDa1Mur4bZAG2paY8ropDdkHvmjMISu0cRmKXs9O5bewrJRQMaD7OcGUDOjAdw3wD9
+         s/DnJLlVDfwRD/T+uOgNWUj+gbjq0IYYhB6/r+E2ZXSVA0ALhgOlmg6VKje+j4VIUFbw
+         VYgg==
+X-Forwarded-Encrypted: i=1; AJvYcCXB9soHaKnZ9Xre3jFjcNESeZou33WH4NrRjMJQiB5fe+Z6jwZZSGI1wVWVU0MvrwrJ9YW9v6HjNOuv@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyk1VGvUvu9d5cb/WrzejXTlRHRP0xMFH7E4MVoxaIa93+U3qr4
+	i7S19A1lsF8CamqkpAAlY9E80vudZOvYa+WSr+bwvYPqUCTR3zMhgzDsEo7Wppj2GzvXwxrXOKU
+	X7Q6sbknDRx39kxPPTm7nH6ZWaj9KV/E4q9WtNT5SRkTBnPy3L8qg3k47COBFVW4tSG9zo9WyrL
+	tnhReLwxe5kaa7eIitCC8Qlm91ADioMePLhMRQVA==
+X-Gm-Gg: AeBDievRiPsxFoVhCbGCflXaKmyTLATb+IeCenJ2N948lhG+GYWXp1d6DVu8o7Ihff4
+	fgcTVhYjUR2SFFFdmmAE5Jl65ZYarKbQSOCJfz67bDlwWhszHRtCC5aYItpNy4KtpFyErsmeZu5
+	bcTPY4Bn/nTig9YbFNaU0zi8vhfiKJkdqEWl/OLdyqIHbcEREPtcdfHlNucirwwlIdcdXSe7taC
+	n+2u/TcsuEzQMSPaQyVRzQAQhkPCPNbH3BLSSsnh3v2WVJdwGjkU1eC40zp0lZ054viWVe5I0gE
+	izw7
+X-Received: by 2002:a05:6000:230c:b0:43b:48d3:2a46 with SMTP id ffacd0b85a97d-43d292fc2bbmr31500621f8f.33.1775659013521;
+        Wed, 08 Apr 2026 07:36:53 -0700 (PDT)
+X-Received: by 2002:a05:6000:230c:b0:43b:48d3:2a46 with SMTP id
+ ffacd0b85a97d-43d292fc2bbmr31500576f8f.33.1775659013061; Wed, 08 Apr 2026
+ 07:36:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
+References: <20260407175934.1602711-1-pbonzini@redhat.com> <6569b8b8-7654-4dbe-a4a6-f1e565451672@linux.ibm.com>
+In-Reply-To: <6569b8b8-7654-4dbe-a4a6-f1e565451672@linux.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Wed, 8 Apr 2026 16:36:35 +0200
+X-Gm-Features: AQROBzB5omoJWYrrMqaSBonwZlBQM8vJiaSjlVlseeyW58fQ54aszgrPriv5Sfk
+Message-ID: <CABgObfbiNRfNGvhDFO=h-E27KONh80fkB1y1rOGpazTB2Eigzw@mail.gmail.com>
 Subject: Re: [PATCH] VFIO: remove dead notifier code
-To: Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: alex@shazbot.org, linux-s390@vger.kernel.org
-References: <20260407175934.1602711-1-pbonzini@redhat.com>
-Content-Language: en-US
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20260407175934.1602711-1-pbonzini@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDA4MDEzMiBTYWx0ZWRfXz042Nhu4tz1H
- iquZh414eaxVlrA+hlXH/hqXBjA+7I8GXju4jhmmp7JsCKOmA31+9SB+afdIibtfBturx4BkxE7
- RGZXA4qoB2qCefnYnx6n8ZqSV7dt+i2mOIrbIsuk+0mGTN1gq3RDr5edvTFDIlgPXg2jKQOmO0L
- AL37rqMODiqqrunM7cOMH9d1sUaQXzjDKVpgoezSFbI9R172E8YwBth0FQxBRJtEUf/kPVTdH5/
- LB+eNB9VKzepBHrD7Sp8AahPxwSEbHhyPgGTtLRKexdIZkIZ/VYmhy9C4ELv2jUu8V0tgDNN1JX
- IRm918sNugNk3miaqmZ9Rm5K8r4rg3DsAduc/tYgy+Uo+AVYgQKEADvewYLyRVCSa56VDQpyt8a
- M5HiZFvb2lGObFQJNxBHP9wDOj2dFDvrTLcNhpWoPEi7xjWGE+FkA4ln9o2tpj5seEn5BuCclj7
- by0dlb52KYCNcEcLyng==
-X-Authority-Analysis: v=2.4 cv=FsY1OWrq c=1 sm=1 tr=0 ts=69d6678e cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=20KFwNOVAAAA:8
- a=VnNF1IyMAAAA:8 a=6L0n8PvidacnQo0FCSkA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: P5wH4-URjmXRQ-XYhtN5Z6xTTj1VIZMz
-X-Proofpoint-GUID: P5wH4-URjmXRQ-XYhtN5Z6xTTj1VIZMz
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-08_04,2026-04-08_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 priorityscore=1501 impostorscore=0 spamscore=0 phishscore=0
- lowpriorityscore=0 clxscore=1015 adultscore=0 malwarescore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604010000 definitions=main-2604080132
+To: Anthony Krowiak <akrowiak@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, alex@shazbot.org, 
+	linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-
-
-On 4/7/26 1:59 PM, Paolo Bonzini wrote:
-> group->notifier is dead code. VFIO initializes it and checks it for emptiness on
-> teardown, but nobody ever registers on it or triggers it.
+On Wed, Apr 8, 2026 at 4:35=E2=80=AFPM Anthony Krowiak <akrowiak@linux.ibm.=
+com> wrote:
 >
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-
-There are two minor review comments about capitalization at the 
-beginning of
-sentences in the vfio-ap.rst document in the Documentation/arch/s390
-directory. Other than that:
-
-Acked-by: Anthony Krowiak <akrowiak@linux.ibm.com>
-
-> ---
->   Documentation/arch/s390/vfio-ap.rst | 18 ++++++------------
->   drivers/vfio/group.c                |  3 ---
->   drivers/vfio/vfio.h                 |  1 -
->   drivers/vfio/vfio_iommu_type1.c     |  1 -
->   4 files changed, 6 insertions(+), 17 deletions(-)
 >
-> diff --git a/Documentation/arch/s390/vfio-ap.rst b/Documentation/arch/s390/vfio-ap.rst
-> index eba1991fbdba..2de0560bd70c 100644
-> --- a/Documentation/arch/s390/vfio-ap.rst
-> +++ b/Documentation/arch/s390/vfio-ap.rst
-> @@ -431,17 +431,14 @@ matrix device.
->   * callback interfaces
->   
->     open_device:
-> -    The vfio_ap driver uses this callback to register a
-> -    VFIO_GROUP_NOTIFY_SET_KVM notifier callback function for the matrix mdev
-> -    devices. The open_device callback is invoked by userspace to connect the
-> -    VFIO iommu group for the matrix mdev device to the MDEV bus. Access to the
-> -    KVM structure used to configure the KVM guest is provided via this callback.
-> -    The KVM structure, is used to configure the guest's access to the AP matrix
-> -    defined via the vfio_ap mediated device's sysfs attribute files.
-> +    the open_device callback is invoked by userspace to connect the
+> >     open_device:
+> > -    The vfio_ap driver uses this callback to register a
+> > -    VFIO_GROUP_NOTIFY_SET_KVM notifier callback function for the matri=
+x mdev
+> > -    devices. The open_device callback is invoked by userspace to conne=
+ct the
+> > -    VFIO iommu group for the matrix mdev device to the MDEV bus. Acces=
+s to the
+> > -    KVM structure used to configure the KVM guest is provided via this=
+ callback.
+> > -    The KVM structure, is used to configure the guest's access to the =
+AP matrix
+> > -    defined via the vfio_ap mediated device's sysfs attribute files.
+> > +    the open_device callback is invoked by userspace to connect the
+>
+> Capitalization:
+> s/the open_device callback/The open device callback/
+>
+> > +    VFIO iommu group for the matrix mdev device to the MDEV bus.  The
+> > +    callback retrieves the KVM structure used to configure the KVM gue=
+st
+> > +    and configures the guest's access to the AP matrix defined via the
+> > +    vfio_ap mediated device's sysfs attribute files.
+> >
+> >     close_device:
+> > -    unregisters the VFIO_GROUP_NOTIFY_SET_KVM notifier callback functi=
+on for the
+> > -    matrix mdev device and deconfigures the guest's AP matrix.
+> > +    this callback deconfigures the guest's AP matrix.
+>
+> Capitalization:
+> s/this callback/This callback/
 
-Capitalization:
-s/the open_device callback/The open device callback/
+Heh, I had to pick one or the other (close_device previously used
+lowercase) and chose the wrong one. :)
 
-> +    VFIO iommu group for the matrix mdev device to the MDEV bus.  The
-> +    callback retrieves the KVM structure used to configure the KVM guest
-> +    and configures the guest's access to the AP matrix defined via the
-> +    vfio_ap mediated device's sysfs attribute files.
->   
->     close_device:
-> -    unregisters the VFIO_GROUP_NOTIFY_SET_KVM notifier callback function for the
-> -    matrix mdev device and deconfigures the guest's AP matrix.
-> +    this callback deconfigures the guest's AP matrix.
+Thanks for reviewing the s390 docs, I wasn't sure about the new text was en=
+ough.
 
-Capitalization:
-s/this callback/This callback/
-
->   
->     ioctl:
->       this callback handles the VFIO_DEVICE_GET_INFO and VFIO_DEVICE_RESET ioctls
-> @@ -449,9 +444,8 @@ matrix device.
->   
->   Configure the guest's AP resources
->   ----------------------------------
-> -Configuring the AP resources for a KVM guest will be performed when the
-> -VFIO_GROUP_NOTIFY_SET_KVM notifier callback is invoked. The notifier
-> -function is called when userspace connects to KVM. The guest's AP resources are
-> +Configuring the AP resources for a KVM guest will be performed at the
-> +time of ``open_device`` and ``close_device``. The guest's AP resources are
->   configured via its APCB by:
->   
->   * Setting the bits in the APM corresponding to the APIDs assigned to the
-> diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
-> index 4f15016d2a5f..731dd0dead0d 100644
-> --- a/drivers/vfio/group.c
-> +++ b/drivers/vfio/group.c
-> @@ -456,7 +456,6 @@ static int vfio_group_fops_release(struct inode *inode, struct file *filep)
->   	 * Device FDs hold a group file reference, therefore the group release
->   	 * is only called when there are no open devices.
->   	 */
-> -	WARN_ON(group->notifier.head);
->   	if (group->container)
->   		vfio_group_detach_container(group);
->   	if (group->iommufd) {
-> @@ -541,7 +540,6 @@ static struct vfio_group *vfio_group_alloc(struct iommu_group *iommu_group,
->   	/* put in vfio_group_release() */
->   	iommu_group_ref_get(iommu_group);
->   	group->type = type;
-> -	BLOCKING_INIT_NOTIFIER_HEAD(&group->notifier);
->   
->   	return group;
->   }
-> @@ -720,7 +718,6 @@ void vfio_device_remove_group(struct vfio_device *device)
->   	 * properly hold the group reference.
->   	 */
->   	WARN_ON(!list_empty(&group->device_list));
-> -	WARN_ON(group->notifier.head);
->   
->   	/*
->   	 * Revoke all users of group->iommu_group. At this point we know there
-> diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-> index 50128da18bca..0854f3fa1a22 100644
-> --- a/drivers/vfio/vfio.h
-> +++ b/drivers/vfio/vfio.h
-> @@ -90,7 +90,6 @@ struct vfio_group {
->   	struct mutex			group_lock;
->   	struct kvm			*kvm;
->   	struct file			*opened_file;
-> -	struct blocking_notifier_head	notifier;
->   	struct iommufd_ctx		*iommufd;
->   	spinlock_t			kvm_ref_lock;
->   	unsigned int			cdev_device_open_cnt;
-> diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
-> index 03cefdf99a4a..c8151ba54de3 100644
-> --- a/drivers/vfio/vfio_iommu_type1.c
-> +++ b/drivers/vfio/vfio_iommu_type1.c
-> @@ -36,7 +36,6 @@
->   #include <linux/uaccess.h>
->   #include <linux/vfio.h>
->   #include <linux/workqueue.h>
-> -#include <linux/notifier.h>
->   #include <linux/mm_inline.h>
->   #include <linux/overflow.h>
->   #include "vfio.h"
+Paolo
 
