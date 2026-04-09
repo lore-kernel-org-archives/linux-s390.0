@@ -1,229 +1,171 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f51.google.com (mail-qv1-f51.google.com [209.85.219.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF39C3CCFA5;
-	Thu,  9 Apr 2026 14:23:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775744593; cv=none; b=VYTmT3k2Lnvi3cezDBIQNeXTOQMNIC4HgafvWHUlhfM6S+Mw04DR1wvnOugnM3hvSMpwUvGVWWL8rqOHGq3hr+8EUTkgq0+u15gDpauVNq3LufaZ/CLfLz0FSrxqxffp0+7jA6QXWZj4nRm+ePKFuzA8udr+epwzmj4kvchUpSU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775744593; c=relaxed/simple;
-	bh=oGD/9ZVmzzLu5MijekPKbi5ia9AHxZHxrB3rOMRMbdU=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=drbFxzv2afurrRTye6EX1LBYgldgnyQOXTQHUPWabWpxykRmJYdbb40bskBzNAxjVgR+w9j2B8J1oJnn1o5zxJjL9LzKIw+fklFlBpVi/ljxZ+BZP2W4A1HCkg96kj6BtWl/zDQq+HXJ/IXk5juRNsBjkif5FL3RnNNoHQvfSxI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=c/DtjUtV; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E133F3DA7D9
+	for <linux-s390@vger.kernel.org>; Thu,  9 Apr 2026 14:23:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.51
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775744595; cv=pass; b=OamkOR5k0W56XXYOh+Jni9ftdInEh7c6Hf8dx9YcbJgBmlJGz45y7JV5J8gh7d+JDjraPGLGJbR+qNZPUlQwMr0gAvEpxO1Uu6g0xOdejwohU4CYbHCC7ubtGM8ZluMKf47IBwRlFhOctzzTAUJ0xJtGkqsrMcpwnnRlnaxbmmU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775744595; c=relaxed/simple;
+	bh=sL+DbYXenYNmTUC/7Bv4zzz+q+E0oZ63r6JaIiUCHkY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=XrOuL+SkiM8jYtdEvad1aqSIp9bIIW8GQvxe3bbqmIhQkfeF3Ym0WgsNdb54yIz/wraxB4zzgJtTpgG1BU4MKc4gNeIdcyKmbicYIoX62y2jvov0PMDn3eFCA7KjlVLP+hcFrh8gwEF1zEhOIs8sX0g1ynO4HxS9A3X/IFvvpNg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qdnkxGJZ; arc=pass smtp.client-ip=209.85.219.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="c/DtjUtV"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 639BTVVk2318761;
-	Thu, 9 Apr 2026 14:23:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=+SADfR
-	JtZpHq00wR1lgbVohFDaEDS6/zHI4cEd1P+94=; b=c/DtjUtVHCebyGademx6WF
-	xAmBXUG7yNDEHSwI5hQpZJvpP5AkUoXqz4OcDCjLHu2V7fsSSfMdK10pT6T42pE1
-	ClhRAuzIAopfIwB/DqvAKv5yUxTC+mcdxDIzwXWJ2hfmU4KemiUYN70Zmb8RqgFc
-	Q4G52apXQxQxd8HkmWsJOYOmJEfnlZ1eAzZGqAoGH8EvlWrmKuJPLYM0VnK/zd9R
-	hC8HH/24EXZGiQLBQVJoiIlk5VWQpLXqINqS0GLylfclXCBJU3IXEt91fW0ttflt
-	g2u/Caxu6++SqTW+y1BaZqQ6GY8QblUDzJl9O4xMEwsHb7OMYxX4OgONQA9C1qNg
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dcn2g5d91-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 09 Apr 2026 14:23:05 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 639D1qr9007898;
-	Thu, 9 Apr 2026 14:23:04 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dcmg2kwqv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 09 Apr 2026 14:23:04 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 639EN2Bg52494766
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 9 Apr 2026 14:23:03 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D77625805D;
-	Thu,  9 Apr 2026 14:23:02 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3E0FC58053;
-	Thu,  9 Apr 2026 14:23:01 +0000 (GMT)
-Received: from [9.61.93.104] (unknown [9.61.93.104])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  9 Apr 2026 14:23:01 +0000 (GMT)
-Message-ID: <1a43bf88-a2d0-49b8-9f2d-ac01c7b0e7c2@linux.ibm.com>
-Date: Thu, 9 Apr 2026 10:23:00 -0400
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qdnkxGJZ"
+Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-8a049a767c3so10168476d6.1
+        for <linux-s390@vger.kernel.org>; Thu, 09 Apr 2026 07:23:11 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1775744590; cv=none;
+        d=google.com; s=arc-20240605;
+        b=XN+XGG2AIiqms/wSZjYbdr+qhxkY0n0m/MPDVX3MVJJmnP6z/ecOrjeeJU7vd3lGc6
+         kJQzoXuuQ/lqD3lWo76iqUqDw0piEN4MXx5LCX7J5M5SWyNh0wMU9ixrRoyLeTFb1p4z
+         hbr17+mDUF2wvMOWAOudrky3hdB6a/izrF+U20GKcgQAD2oW00Mze8A5QMEzDwHAejEI
+         eHcO0c+GB1R06oj+Esapyfbyeb+cX+clF7uOUWj0y1SpF45DlMr6fuk/kv/vtcJP4JLH
+         NJrMIlUhAEA1+J6zV0CGinq3ZI+HhFW4c89HvESTqlsQVlaS060XJJu+XcsZzKgNtvo0
+         ZT+Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=Ok9Bkvi/fMEfbhekzp5HJ85Ko8mmlKRoz8DsAPKgMiE=;
+        fh=Q1farkk5tUg428ADnN37GzTuNkXh+3cgx1BeHTBH1Bo=;
+        b=aoG3xkL70p10gACqtE19NzUVHty59LAvU58gdlwoj9SPid6KucFRKhHBpGVWwwaM7E
+         2KFW++4JXtIfqzC0yq8PyF310Tt3+L7/e3UE/+R3OVqCIhlbKWZFu2eCpuH7CzEDyw9d
+         el51GpjvKTVeLC4dBkBStIo89wzQpmpnBg0uprecoT8wAJJ3DDEh5NKtH1qqJ2eHNR7b
+         ks30nBgVd4ygwx3pdl1vQ/y4VWgETel563fsMIF3yhYZAF3CE9Z4Z72AjRO80kN1gT+i
+         9NvIXSwclbJfFkb7HI2QtbNJpJ8HtTETd/GR5AH92/NKkW7SgT5W6Vi8RMnQ1V6/sU3d
+         wgGQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775744590; x=1776349390; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Ok9Bkvi/fMEfbhekzp5HJ85Ko8mmlKRoz8DsAPKgMiE=;
+        b=qdnkxGJZZCiRNEBsHBSeD+AYXO/zsKdwjP93YoE7exuF2Lh0+7rJ0lRW35lEcC2UPb
+         r89CfTa0/037eoMWbAFc5PVhID72REAyYMZG2JR53ExcS4vgglnC1rw8+/MbHHPNbWEh
+         uGADsirmtrfx/HUXQFlq8mYPOlIHbIi4SAu1v6s3iuwnJBQqvHIRNjaKTbxa89tkdBEP
+         nUGMPHunpsn4ikMKfS7Ul+Et3jQfmt3ycA41PSe9K0jJF6vVnFV8n627p2xwwtCqRX/C
+         P54FeZr1Ce4T2IHwNkYS2gDiidKMZy8okGHf5zMy+Lg92bwQTdruPiKuexGnlumyjBMC
+         A/2A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775744590; x=1776349390;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=Ok9Bkvi/fMEfbhekzp5HJ85Ko8mmlKRoz8DsAPKgMiE=;
+        b=pAGHpmIG9INNfdhpxyPPHS7zLRFxtnVq6i+zo0rcdQ2TtIyIK0hsmLxNazAjHqLaUc
+         NOFbuSRPtG5i+wTwOdEdyxHzkaJO/ZAGJ5w2jd7AeWSyaLJkwatLL8A1JQzynp1W9eMy
+         ZocuUP4gv+5jovGyprUElQim2L//CIC4xt9fT/RWRvlUluto+yIvc1rszERD5xFtFMM2
+         KYTt/sRlYFPGgMvrnganQvRt/s1Ti6NZIlmQn1BME/EPJnyrCgPNFgfmrfD8l/aUMrkj
+         Kzg44W/iOXfh8XxFNEMpCms12h996n8tkZcamMKe+p13Pl3KZVHrPt5jBwRx8UsuW0QE
+         72yA==
+X-Forwarded-Encrypted: i=1; AJvYcCUY8bJg0MOYXO1xZ20IfnW9b+5iXrrEUNhTHfuE3lPJX2Hc+Rmpo5Sx5oruWNHgyFbnqW0y8jbo5nf6@vger.kernel.org
+X-Gm-Message-State: AOJu0YwHsOOLRuBS8bT1R0OM2H9VSN7zSS+L0FLxSl+Q0s7GVMI09RTL
+	vGLImwmIl6AOc5/+p6ZD4PEPJ+KhGw4vP4PIuWgj1A/+57X9m9EHV+lRg+/sMe0MbjhkBEaOenj
+	dv5jbBvzCN/Bvi+xVbEt2/cgDX4UepvM=
+X-Gm-Gg: AeBDieucIpqVs2JroxJNyfkdaJd4orYv+iPEzZONbHQzkSRX/FjroAQmv//BMyWhqyw
+	LqfRpp9eGTXvqqHZwtXaVUuVnQBMzlgJo4OYEtH8Jn15fB5TBG2iXivkvX19gbkTjyDaf1zTBUH
+	/bS3JzbP410+zlgsvCubAln6JntK1mmm4UFCofYRrXdBTAFzFD//K9Ci8Si3MM+hPKB1ZMkU4FM
+	RcgjwBvmezeE5jRiE8sDvQIt1HmVesc4D2Fp3HjsEaRGLUMXGKie7+KsLikSgzkAmo3V2xgvbDM
+	4t9VmQ==
+X-Received: by 2002:a05:6214:2484:b0:899:fa7f:7144 with SMTP id
+ 6a1803df08f44-8ac7469ee67mr54240186d6.26.1775744590254; Thu, 09 Apr 2026
+ 07:23:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 00/16] s390/vfio-ap: Add live guest migration support
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com,
-        pasic@linux.ibm.com, alex@shazbot.org, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, agordeev@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com
-References: <20260407205100.331150-1-akrowiak@linux.ibm.com>
-Content-Language: en-US
-In-Reply-To: <20260407205100.331150-1-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=FKArAeos c=1 sm=1 tr=0 ts=69d7b649 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=mDV3o1hIAAAA:8
- a=BeJFQei6KuwYuYFmKvkA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: njrn64jVn4_ZrnRhwRzfzLHwOMkkYUD0
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDA5MDEzMCBTYWx0ZWRfX8Y4XMPWZUUOx
- jLy0SXiqp3EvvFX2Cqh7mIbTBBxAwxRrbjpYNdZ+rUQ3buHkWor9pZlr73SqRlSug2yYzG6O5zK
- +0qUYAnwGvnqy4cvIXANWwd4/QZwvkwyMcNOHgSZpshvBlu3Yq3wc683caX3T28uJfDmmeB0LiP
- uKTjb9c7WF5d6ei1e8fyvkPV4tR6xnn2CjhYGAwwLfiWOPrwghcsaa+LJh0CZAdJG3sf6bZgfSw
- N6cKgFts5IbV0KDG+s8Er0RfXUrRWU+jzTktW1ZMEofgjWeLUNDRSBThYnbgzhyT95KNkE2s/ep
- ABcXJ1ky/TG92+sI1AQEVALQrkP3990tLUFXkKQV7tzc5woB8D8rF7C7Q3u3NE9ooBW0j/jYl8F
- 7XtunFFGLqK2Uya8X8v55D+GVDWdSC+oV6kIaK9RNFDD46a6JWtYeWiFOvRCDUegXJSybq01bb7
- xJ3ukwnN5wWrQ7VmwfQ==
-X-Proofpoint-GUID: njrn64jVn4_ZrnRhwRzfzLHwOMkkYUD0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-09_04,2026-04-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 clxscore=1015 lowpriorityscore=0 adultscore=0 bulkscore=0
- suspectscore=0 priorityscore=1501 impostorscore=0 spamscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604010000 definitions=main-2604090130
+References: <20260409081154.318898-1-tmricht@linux.ibm.com>
+In-Reply-To: <20260409081154.318898-1-tmricht@linux.ibm.com>
+From: Howard Chu <howardchu95@gmail.com>
+Date: Thu, 9 Apr 2026 07:22:59 -0700
+X-Gm-Features: AQROBzD80gPK1y_3vDmxCmOBv6wyWKqbtFJ0-pk5BqD2bPZ7-uCZArSH8SDgDDI
+Message-ID: <CAH0uvoimMqbULq6gKaVt7Uv4n6Om2Xjpf7yUi7dmVJwtcj_SQg@mail.gmail.com>
+Subject: Re: [PATCH] perf test: Make perf trace enum augmentation tests exclusive
+To: Thomas Richter <tmricht@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org, 
+	agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com, 
+	hca@linux.ibm.com, japo@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+Hi Thomas,
 
+On Thu, Apr 9, 2026 at 1:12=E2=80=AFAM Thomas Richter <tmricht@linux.ibm.co=
+m> wrote:
+>
+> Running both tests cases 'perf trace enum augmentation tests'
+> and 'perf trace BTF general tests' together causes the first test case
+> to fail:
+>  # for i in $(seq 5); do \
+>         ./perf test 'perf trace enum augmentation tests' \
+>         'perf trace BTF general tests'; \
+>    done
+>  125: perf trace enum augmentation tests  : Ok
+>  126: perf trace BTF general tests        : FAILED!
+>  125: perf trace enum augmentation tests  : Ok
+>  126: perf trace BTF general tests        : FAILED!
+>  125: perf trace enum augmentation tests  : Ok
+>  126: perf trace BTF general tests        : FAILED!
+>  125: perf trace enum augmentation tests  : Ok
+>  126: perf trace BTF general tests        : FAILED!
+>  125: perf trace enum augmentation tests  : Ok
+>  126: perf trace BTF general tests        : FAILED!
+>  #
+>
+> Test case perf trace enum augmentation tests' fails because  the second
+> test case 'perf trace BTF general tests' runs concurrently as can
+> be observed using a ps -ef | grep perf output list on a different
+> window. Both do a perf trace command concurrently.
+> Make test case 'perf trace enum augmentation tests' exclusive.
+>
+>  # for i in $(seq 5); do \
+>         ./perf test 'perf trace enum augmentation tests' \
+>         'perf trace BTF general tests'; \
+>    done
+>  125: perf trace BTF general tests        : Ok
+>  155: perf trace enum augmentation tests  : Ok
+>  125: perf trace BTF general tests        : Ok
+>  155: perf trace enum augmentation tests  : Ok
+>  125: perf trace BTF general tests        : Ok
+>  155: perf trace enum augmentation tests  : Ok
+>  125: perf trace BTF general tests        : Ok
+>  155: perf trace enum augmentation tests  : Ok
+>  125: perf trace BTF general tests        : Ok
+>  155: perf trace enum augmentation tests  : Ok
+>  #
+>
+> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+> Cc: Howard Chu <howardchu95@gmail.com>
 
-On 4/7/26 4:50 PM, Anthony Krowiak wrote:
+Acked-by: Howard Chu <howardchu95@gmail.com>
 
-The corresponding QEMU 2-patch series that orchestrates live migration
-of vfio-ap devices can be viewed here:
+Thanks,
+Howard
 
-https://mail.gnu.org/archive/html/qemu-devel/2026-04/msg01421.html
-
-> This patch series implements live guest migration support for KVM guests
-> with s390 AP (Adjunct Processor) devices passed through via the VFIO
-> mediated device framework.
+> ---
+>  tools/perf/tests/shell/trace_btf_enum.sh | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> Background
-> ----------
+> diff --git a/tools/perf/tests/shell/trace_btf_enum.sh b/tools/perf/tests/=
+shell/trace_btf_enum.sh
+> index 03e9f680a4a6..437510d46f58 100755
+> --- a/tools/perf/tests/shell/trace_btf_enum.sh
+> +++ b/tools/perf/tests/shell/trace_btf_enum.sh
+> @@ -1,5 +1,5 @@
+>  #!/bin/bash
+> -# perf trace enum augmentation tests
+> +# perf trace enum augmentation tests (exclusive)
+>  # SPDX-License-Identifier: GPL-2.0
 >
-> The vfio-ap device driver differs from typical VFIO device drivers in that
-> it does not virtualize a physical device. Instead, it manages AP
-> configuration metadata identifying the AP adapters, domains, and control
-> domains to which a guest will be granted access. These AP resources are
-> configured by assigning them to a vfio-ap mediated device via its sysfs
-> assignment interfaces. When the fd for the VFIO device is opened by
-> userspace, the vfio_ap device driver sets the guest's AP configuration
-> from the metadata stored with the mediated device. As such, the AP devices
-> are not accessed directly through the vfio_ap driver, so the driver has no
-> internal device state to migrate. It's sole purpose during migration is to
-> ensure that the AP configurations of the source and destination guests are
-> compatible.
+>  err=3D0
+> --
+> 2.53.0
 >
-> Implementation Approach
-> -----------------------
->
-> This series implements the VFIO migration protocol using the STOP_COPY
-> migration flow. The key aspects are:
->
-> 1. Hardware Information Capture (Patches 1-2)
->     - Store AP queue hardware characteristics at probe time
->     - Provide access to queue objects for validation
->
-> 2. Migration Infrastructure (Patches 3-5)
->     - Define migration data structures
->     - Initialize/release migration data on device open/close
->
-> 3. State Machine Implementation (Patches 6-13)
->     - Implement required VFIO migration callbacks
->     - Handle state transitions: STOP → STOP_COPY → STOP (source)
->                                 STOP → RESUMING → STOP (destination)
->     - Use file streams for AP configuration data transfer
->
-> 4. Validation and Callbacks (Patches 14-15)
->     - Implement migration state and data size callbacks
->     - Required for VFIO_DEVICE_FEATURE_MIGRATION support
->
-> 5. Documentation (Patch 16)
->     - Add live guest migration chapter to vfio-ap.rst
->
-> Compatibility Validation
-> ------------------------
->
-> The series includes comprehensive validation to ensure source and
-> destination AP configurations are compatible. For each queue, the following
-> characteristics must match:
->
-> - AP type (target must be same or newer than source)
-> - Installed facilities (APSC, APQKM, AP4KC, SLCF)
-> - Operating mode (CCA, Accelerator, XCP)
-> - APXA facility setting
-> - Classification (native vs stateless functions)
-> - Queue usability (binding/associated state)
->
-> When incompatibilities are detected, migration fails with detailed error
-> messages identifying the specific queue and characteristic that caused
-> the failure.
->
-> Configuration Management
-> ------------------------
->
-> This implementation does not prevent configuration changes during
-> migration. Configuration stability is an orchestration-layer
-> responsibility, consistent with other VFIO device types. The driver's
-> role is to validate configurations and provide clear diagnostics when
-> incompatibilities are detected, enabling orchestration tools to implement
-> appropriate policies.
->
-> Change log v1 to v2
-> -------------------
->
-> - Removed patches that attempted to block configuration changes during
->    migration due to inherent race conditions and incomplete protection
-> - Simplified approach focuses on validation and error reporting
-> - Reduced series from 18 to 16 patches
-> - Rewrote the description in the cover letter to better describe the
->    patch series, remove confusing comments as well as references to
->    function provided by the patches that were removed.
->
-> Anthony Krowiak (16):
->    s390/vfio-ap: Store queue hardware info when probed
->    s390/vfio-ap: Provide access to queue objects and related info
->    s390/vfio-ap: Data structures for facilitating vfio device migration
->    s390/vfio-ap: Initialize/release vfio device migration data
->    s390-vfio-ap: Callback to set vfio device mig state during guest
->      migration
->    s390/vfio-ap: Transition guest migration state from STOP to STOP_COPY
->    s390/vfio-ap: File ops called to save the vfio device migration state
->    s390/vfio-ap: Transition device migration state from STOP to RESUMING
->    s390/vfio-ap: File ops called to resume the vfio device migration
->    s390/vfio-ap: Transition device migration state from RESUMING to STOP
->    s390/vfio-ap: Transition device migration state from STOP_COPY to STOP
->    s390/vfio-ap: Transition device migration state from STOP to RUNNING
->      and vice versa
->    s390-vfio-ap: Callback to get the current vfio device migration state
->    s390/vfio-ap: Callback to get the size of data to be migrated during
->      guest migration
->    s390/vfio-ap: Add 'migratable' feature to sysfs 'features' attribute
->    s390/vfio-ap: Add live guest migration chapter to vfio-ap.rst
->
->   Documentation/arch/s390/vfio-ap.rst     |  325 +++++--
->   drivers/s390/crypto/Makefile            |    2 +-
->   drivers/s390/crypto/vfio_ap_drv.c       |    4 +-
->   drivers/s390/crypto/vfio_ap_migration.c | 1095 +++++++++++++++++++++++
->   drivers/s390/crypto/vfio_ap_ops.c       |   66 +-
->   drivers/s390/crypto/vfio_ap_private.h   |   10 +
->   6 files changed, 1395 insertions(+), 107 deletions(-)
->   create mode 100644 drivers/s390/crypto/vfio_ap_migration.c
->
-
