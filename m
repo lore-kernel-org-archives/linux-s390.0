@@ -1,109 +1,103 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out-187.mta1.migadu.com (out-187.mta1.migadu.com [95.215.58.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E30FC3CE494;
-	Thu,  9 Apr 2026 12:46:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A641F37C901
+	for <linux-s390@vger.kernel.org>; Thu,  9 Apr 2026 12:48:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.187
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775738797; cv=none; b=V3xzqMtxEbeFgjcIbBXvP9QbEuaVdx/AXI7SvgUq/BFsPvJMZVI7HcUtIYNmtKf/37628ReV7nsyhAr0qXA6z1XZx0Mh7HoKtzyQkyEwt15zVIukkQ3huOx39bqkjCIYaTwl2UEJeTm6CFGKnS2Ae06Rwxx/wMbfayUQI7dEnQA=
+	t=1775738912; cv=none; b=Zp/LG3YtKI1u0w2mLYSoirQU6avdMU0u3Z4Q495gJUrMztwDut1AQ4KWInNE171H2dUzpUsbLyXsD3W990B+pkEkPYvLmQn4Butfg3DUenBtH5LIJokqDaH7axONo4mcXphNQQ2e8gbCtJGgddjpAWh6ooc39EnPbt/j2cnCzak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775738797; c=relaxed/simple;
-	bh=GYbDUWp3SZzI4OwlK2TCKdEpUphnA+1nhWGm7+DWdFs=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=T4OFIPsF5WP4DJci3zeCWzqBK+LKX2wHSyQeqhfT/z8hKiJSuBHeozXrb3qrInp/I2wWhhpyfOTPggcn1KQ7mqQPSDg6f6SksvAXZYtJZ3yZ3pLP9NuiqjLsnvRTvFKiAXAkaZswNTnJHmaM6Oa9LpLz3F/f0aO1E4PSmVw0+Ws=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UK4xtk0l; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775738912; c=relaxed/simple;
+	bh=4dXc4y7Z2uiNCX/sqDej6ApZBVqJv5iIOdFmrpCpoIc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=pYHuT8Qhwu/TCi2W+sL4N9f6gi3R4yMybrt/d0uhbGkRhR9+0Z61YMtjJMT13z+teThDjZZNNu8xXhuwRSqJp9KeJaQrpfgYbMi5v6lN7yvgLUgPyKqaKZGxLlFY1AE7biRQhAgOfcHq6F4Bvdqde+0h1IbFPlLFy1LLaEOZYLU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=N58DRV0l; arc=none smtp.client-ip=95.215.58.187
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UK4xtk0l"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A1C7C4AF09;
-	Thu,  9 Apr 2026 12:46:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775738796;
-	bh=GYbDUWp3SZzI4OwlK2TCKdEpUphnA+1nhWGm7+DWdFs=;
-	h=Date:From:To:Cc:In-Reply-To:References:Subject:From;
-	b=UK4xtk0lPHiuLi8fKrx4pFc0cy7zO1j0/94yiXk0OK1g5ERctKyxE0b5kqZy1ysGm
-	 Ks+ct/i0h1ACngq9afgGszBwyTg+dZ3z7PR7g2z4zfNpDCA//x4E/z9/uUA3Etl1JL
-	 uerGWzyC3HLSLudWqV08ClJOmR2xyTuYWm7ZR6y4J+C0Bqcv+CJ3qjS07Qb4vr9CSi
-	 PiATHSqvg/7Lyzqshvsbs2xMn2wonlscJUTl6I1DpsQW+mw9er3HV6WveLNnlGS98W
-	 F/i6rv2TUbt8wLLwe35oqrhe6sYqgzqLUqZO36PAC6NoOyTzmnAR+jLfuR4x9rlheb
-	 vwR6PkzJdep0Q==
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailfauth.phl.internal (Postfix) with ESMTP id 69592F40074;
-	Thu,  9 Apr 2026 08:46:35 -0400 (EDT)
-Received: from phl-imap-02 ([10.202.2.81])
-  by phl-compute-01.internal (MEProxy); Thu, 09 Apr 2026 08:46:35 -0400
-X-ME-Sender: <xms:q5_Xaf39ALOV8lVX38Y32UrY-6i78Vr-6QkiRMqNjIQLQJeVMgFfFQ>
-    <xme:q5_XaY5GaIKRJnLXmkAzkfoFtZhWUXv1Ef-v2aysLo1F0S1Obud4csjpnN3rN7Ppw
-    K5eKbcnNPkeN1gxjZl2O6JDkIUdqogdMiXbtnMIcBF3tk2vD88ahp0>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgddvieehvdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpefoggffhffvvefkjghfufgtgfesthejredtredttdenucfhrhhomhepfdetrhguuceu
-    ihgvshhhvghuvhgvlhdfuceorghruggssehkvghrnhgvlhdrohhrgheqnecuggftrfgrth
-    htvghrnhepvdeuheeitdevtdelkeduudetgffftdelteefteevjeevjeeiheefhfejieej
-    fedunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
-    hrugdomhgvshhmthhprghuthhhphgvrhhsohhnrghlihhthidqudeijedthedttdejledq
-    feefvdduieegudehqdgrrhgusgeppehkvghrnhgvlhdrohhrghesfihorhhkohhfrghrug
-    drtghomhdpnhgspghrtghpthhtohepuddupdhmohguvgepshhmthhpohhuthdprhgtphht
-    thhopehhvghrsggvrhhtsehgohhnughorhdrrghprghnrgdrohhrghdrrghupdhrtghpth
-    htohepshhimhhonhdrrhhitghhthgvrheshhhoghihrhhoshdruggvpdhrtghpthhtohep
-    vggsihhgghgvrhhssehkvghrnhgvlhdrohhrghdprhgtphhtthhopeigkeeisehkvghrnh
-    gvlhdrohhrghdprhgtphhtthhopeguvghnghhlvghrsehlihhnuhigrdhisghmrdgtohhm
-    pdhrtghpthhtohepfhhrvghuuggvsehlihhnuhigrdhisghmrdgtohhmpdhrtghpthhtoh
-    epghhlrghusghithiisehphhihshhikhdrfhhuqdgsvghrlhhinhdruggvpdhrtghpthht
-    oheplhhinhhugidqtghrhihpthhosehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpth
-    htoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhg
-X-ME-Proxy: <xmx:q5_XaSE_j8wQIdJMhBWtzpO2VN-pz6nNfy-et5WZXJashbwd8oTuEQ>
-    <xmx:q5_XaXB65zkrYeRTiaaHDiIbbW1_2f3nd_h2_8TQ7BpSca1Yys5byQ>
-    <xmx:q5_XaUwPR2Y8KC6TQYnz-6Mp_tWo8S2rQp12tM_TbIJS_83IZyvyyQ>
-    <xmx:q5_XadcSkJYzlR6Jiw_gnqbi2F4gb6wwxNeBpy_gkbfU4wkypLVPbA>
-    <xmx:q5_XaZu343smsMA784xcQD5eej3RBtIjLWibVpoddMxQ6zTndogbQwoI>
-Feedback-ID: ice86485a:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 457F6700065; Thu,  9 Apr 2026 08:46:35 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="N58DRV0l"
+Message-ID: <9fb076b5-ed33-458d-b39b-a2de3433a0da@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1775738906;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wsDQYaBb80vPizdMN7gGIHoZqJFZXjCQHHQTYzLrH8c=;
+	b=N58DRV0lqQMRB98jfQIHyX0PR1r8vfmdZbvQlX7bIk4RgD5Wfb1wM8xheil7ZLjaVplT/E
+	s2RSV+kXmM2OV94QFp4bMptKc2N8nO7u3rlLIWbDicI7WEDlkv0GkdF4rWovVtYeXLB5UM
+	OH8hilcKSz/LsY3bIUt2nX38zb3DXFc=
+Date: Thu, 9 Apr 2026 13:48:14 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: ADDaTlyNV6JN
-Date: Thu, 09 Apr 2026 14:46:15 +0200
-From: "Ard Biesheuvel" <ardb@kernel.org>
-To: "Eric Biggers" <ebiggers@kernel.org>,
- "Simon Richter" <Simon.Richter@hogyros.de>
-Cc: "John Paul Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>,
- linux-crypto@vger.kernel.org, "Herbert Xu" <herbert@gondor.apana.org.au>,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- sparclinux@vger.kernel.org, x86@kernel.org,
- "Harald Freudenberger" <freude@linux.ibm.com>,
- "Holger Dengler" <dengler@linux.ibm.com>
-Message-Id: <d1341501-883d-48f1-8a42-92934459cce4@app.fastmail.com>
-In-Reply-To: <20260327172423.GA3407398@google.com>
-References: <20260326201246.57544-1-ebiggers@kernel.org>
- <0982d4341f58e2f1181bc472dc9c9d8542148e3c.camel@physik.fu-berlin.de>
- <20260326202733.GA2657@quark>
- <35e00d0f-85f6-457a-99b4-703caf3e1e6e@hogyros.de>
- <20260327172423.GA3407398@google.com>
-Subject: Re: [PATCH 0/3] crypto: Remove arch-optimized des and des3_ede code
-Content-Type: text/plain
+Subject: Re: [v3 00/24] mm: thp: lazy PTE page table allocation at PMD split
+ time
+Content-Language: en-GB
+To: Matthew Wilcox <willy@infradead.org>
+Cc: Hugh Dickins <hughd@google.com>, Andrew Morton
+ <akpm@linux-foundation.org>, david@kernel.org,
+ Lorenzo Stoakes <ljs@kernel.org>, linux-mm@kvack.org, fvdl@google.com,
+ hannes@cmpxchg.org, riel@surriel.com, shakeel.butt@linux.dev,
+ kas@kernel.org, baohua@kernel.org, dev.jain@arm.com,
+ baolin.wang@linux.alibaba.com, npache@redhat.com, Liam.Howlett@oracle.com,
+ ryan.roberts@arm.com, Vlastimil Babka <vbabka@kernel.org>,
+ lance.yang@linux.dev, linux-kernel@vger.kernel.org, kernel-team@meta.com,
+ maddy@linux.ibm.com, mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org,
+ hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+ borntraeger@linux.ibm.com, svens@linux.ibm.com, linux-s390@vger.kernel.org,
+ Nhat Pham <nphamcs@gmail.com>
+References: <20260327021403.214713-1-usama.arif@linux.dev>
+ <6869b7f0-84e1-fb93-03f1-9442cdfe476b@google.com>
+ <3f9e8e12-2d51-4f2a-ada1-994ed24df284@linux.dev>
+ <adaxWs8BjCJB1aan@casper.infradead.org>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Usama Arif <usama.arif@linux.dev>
+In-Reply-To: <adaxWs8BjCJB1aan@casper.infradead.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 
 
 
-On Fri, 27 Mar 2026, at 18:24, Eric Biggers wrote:
-> On Fri, Mar 27, 2026 at 06:59:21PM +0900, Simon Richter wrote:
-...
->> However, even from the "crypto" perspective I believe that we can't get
->> around support for asynchronous offload devices, because of mobile devices.
->> I suspect no one would be building dedicated silicon for asynchronous AES
->> into mobile CPUs if that wasn't worth it somehow
->
-> They do it anyway.  It's a checkbox feature.  I.e. the purpose is for it
-> to be advertised on a list of features.
->
+On 08/04/2026 20:49, Matthew Wilcox wrote:
+> On Wed, Apr 08, 2026 at 04:06:29PM +0100, Usama Arif wrote:
+>> On 06/04/2026 00:34, Hugh Dickins wrote:
+>>> What would help a lot would be the implementation of swap entries
+>>> at the PMD level.  Whether that would help enough, I'm sceptical:
+>>> I do think it's foolish to depend upon the availability of huge
+>>> contiguous swap extents, whatever the recent improvements there;
+>>> but it would at least be an arguable justification.
+>>>
+>> Thanks for pointing this out. I should have thought of this as I
+>> have been thinking about fork a lot for 1G THP and for this series.
+>>
+>> I am working on trying to make PMD level swap entires work. I hope
+>> to have a RFC soon.
+> 
+> I think you may have missed Hugh's point a little bit.  If we do
+> support PMD-level swap entries, that means we have to be able to find
+> contiguous space in the swap space for 512 entries.  I don't know how
+> hard that will be, but I can imagine it's not that easy.
 
-Often, h/w crypto IP blocks are part of the SoC-specific authenticated/confidential boot chain, which is anchored in the mask ROM. Nobody wants to put software implementations of RSA and AES in there, and so it offloads the crypto processing to a h/w block instead. Since the h/w block is there, it can be used by the OS too, but that doesn't mean doing so makes any sense.
+Ah so my understanding is that with CONFIG_THP_SWAP enabled, the swap
+allocator already tries to allocate 512 contiguous swap slots for a THP.
+With CONFIG_THP_SWAP, each swap cluster is exactly SWAPFILE_CLUSTER (512)
+entries in size, meaning 2M will fit perfectly. Clusters track their
+allocation order (ci->order), and the swap allocator maintains per-order
+free lists (nonfull_clusters[order]), so THP-order allocations are
+directed to clusters already dedicated to that order rather than
+competing with base-page allocations.
+The per-CPU caching (percpu_swap_cluster.si[order] / offset[order])
+should further ensure that consecutive THP swap-outs from the same CPU
+reuse the same cluster efficiently.
 
-Only h/w accelerators with multiple internal queues can generally keep up with the CPUs and network/block I/O in a meaningful manner, and those are quite rare IME.
+With PMD swap entry we will change how the page table records it
+(1 PMD entry vs 512 PTE entries). Hence we wont need to allocate
+page tables and would help to address Hugh's valid concern
+of have to allocate pagetables if there is no pagetable depost.
+
 
