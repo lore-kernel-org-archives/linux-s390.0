@@ -1,139 +1,117 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 749DD3CC9F3;
-	Thu,  9 Apr 2026 13:08:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69CB2337BA6;
+	Thu,  9 Apr 2026 13:42:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775740135; cv=none; b=Fbs3ZuFRNbaU8BKVZvkrSBmiwW5ObsH93hlquJQgN7ny2E3gUeYyTdIgaUu3YRuHUjwUXlAaW5Xn0ncOqC1pzUdh+8LaxoWvDa/PgbOrfg54V3oHFiGCLoB5dx7bGQZ6hQPFghMsBomaC3icI0LBagzIj1Z5rSTRmEVYH4c9oIE=
+	t=1775742122; cv=none; b=iotns5SEqQGvNVuwx7oCByDQZleJ992sRIedYmBRgSIeY52DzEGuU/Fke+RA4a5/JBaBz1DtfqPBkwYrCyz/TyFHr7FDBaQ3GvBTtQcCJ9+pLAhf5RruElHTHKfNZuQpJseSXAoatYI1IQ4a2Bu83sLL1DkdRvOp2JsITp1lzdk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775740135; c=relaxed/simple;
-	bh=yvW6Q/2C0hWlA+2rbPyW+4fR5Uyu/aonoIEZfH7TF0U=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=JnJGVkZwcAcEHNABaqMOUb7vUp8pampu6lsFJaEbYvXf6vsXQ7KPdpz2BizI4Dwt5ohEruEjUZgoV3c2GoAJo2JQTl2KWsquN12GM97q9qmNjAHjMDIN+BDpVZniLNCRq7gq4AsvL2nNBH03s2wABFQFadm6OLx4E42xPjcczV0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mssaQQc0; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1775742122; c=relaxed/simple;
+	bh=npuzu5k4rLfFUFlfrZ0kqWcRCSC4ifjCJBl9lJesS4I=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:To:Subject:From:
+	 References:In-Reply-To; b=OG1aDXEFr63kcAhD4CKwFOoqcqWY4UXe9WVzFgmAo3Ts9EoD+vOxnUfsOM7lx4qcrq5UDO6b+3pdPz/3OImEbPfi8AS+FbvONa2x+PX43ka27FtzhGBbZfAgjh2Ic9mqLiRJrahMPQbBDxCT16nX9oaob1hQxB32b8yBQPA2qrw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LrsNMClI; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mssaQQc0"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63971YtH1656683;
-	Thu, 9 Apr 2026 13:08:50 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LrsNMClI"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 639BweOQ2325942;
+	Thu, 9 Apr 2026 13:41:58 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:message-id:mime-version:subject:to; s=
-	pp1; bh=b1qzyYbkLGFm5HR/Kqtb2MMTPOczP3DAHnMmn03rSfk=; b=mssaQQc0
-	8/OCpjvADSWs1Ov/ygL8njRM2YzRB1yXBN54oxQowchRcOl6swvAshQxRsBOBchO
-	ynZ10BNd2YQaNvK5hYzGZB5cKF0wHMgx4tmpy+UtEFEG7Upx31p3DOnhJpSlBDci
-	0uBTofDdEcJRvOxy9iPlYn0FJswZf3g3YSXGmyFw4t7rIZateKVzuV2BZx43SzTG
-	62dPWEDvmiNn5ZZV4FI8KZYBXYARj6d+b22O+eTxbhzPpV+2lebI67oRZM5csG6w
-	nsMP5a/JYmFu/ONO99ZEdTaCQcAZv+xX+YsEwqeuKQGxPqDZBf/52i3aGX8zu60z
-	2/wemDpKwaqTJw==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dcn2fn2cf-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=GhCFHx
+	evcN1EulnNMWEpaBv/BTT0Mwbz5NYh83QfENY=; b=LrsNMClIv+lfxYPCMH2xpa
+	2baYtyFZbaUPoNm8ESwErqVpOPZeFeaZPi33yQTzHLW7Jfv/FfFgi+7AT+laSFmM
+	TaeGGH25ySIAZyoayRMVVNKuoH8QIb10cMdMEK7aRjS/lHZXYureohGeVxOw6Rmq
+	OJ6whFUqwUtaOvZs8BGKNJnlo4KdojRU9GG9whZe0XGwGwHVmllFPpsrs1xUuo8q
+	34Vuk8pAQ4uYtuKr/3tACwqNEy598KpAwb/4F2JK1rGLt2hTdX0urY+vLHxuPwzz
+	MTQDt2OIJdzoL8OreXl5okVPfBLX6lUa3zfMYJ37UsYJIX73hPjgTglg20Fbx19Q
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dcn2kmay0-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 09 Apr 2026 13:08:50 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 639CkUaG014361;
-	Thu, 9 Apr 2026 13:08:49 GMT
+	Thu, 09 Apr 2026 13:41:58 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 639CtiCu030025;
+	Thu, 9 Apr 2026 13:41:57 GMT
 Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dcmg4upb8-1
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dcme7ks0v-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 09 Apr 2026 13:08:49 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 639D8ld430474516
+	Thu, 09 Apr 2026 13:41:57 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 639Dfr5i30999000
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 9 Apr 2026 13:08:47 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 76B4820043;
-	Thu,  9 Apr 2026 13:08:47 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DF4AA20040;
-	Thu,  9 Apr 2026 13:08:46 +0000 (GMT)
-Received: from localhost (unknown [9.111.74.150])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  9 Apr 2026 13:08:46 +0000 (GMT)
-Date: Thu, 9 Apr 2026 15:08:45 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-To: "Paul E. McKenney" <paulmck@kernel.org>
-Cc: Boqun Feng <boqun@kernel.org>, Frederic Weisbecker <frederic@kernel.org>,
-        Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
-        Joel Fernandes <joelagnelf@nvidia.com>,
-        Uladzislau Rezki <urezki@gmail.com>, rcu@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: BUG: workqueue lockup - SRCU schedules work on not-online CPUs
- during size transition
-Message-ID: <ttd89ul@ub.hpns>
+	Thu, 9 Apr 2026 13:41:53 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5A3B42004B;
+	Thu,  9 Apr 2026 13:41:53 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 32C9B20040;
+	Thu,  9 Apr 2026 13:41:53 +0000 (GMT)
+Received: from darkmoore (unknown [9.52.198.32])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  9 Apr 2026 13:41:53 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 09 Apr 2026 15:41:48 +0200
+Message-Id: <DHOO1IO9TJ05.VP8TRR0IC58W@linux.ibm.com>
+Cc: <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        <borntraeger@de.ibm.com>, <frankja@linux.ibm.com>, <nrb@linux.ibm.com>,
+        <seiden@linux.ibm.com>, <schlameuss@linux.ibm.com>,
+        <gra@linux.ibm.com>, <david@kernel.org>
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v3 1/6] KVM: s390: Add some useful mask macros
+From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+X-Mailer: aerc 0.21.0
+References: <20260402150135.196943-1-imbrenda@linux.ibm.com>
+ <20260402150135.196943-2-imbrenda@linux.ibm.com>
+In-Reply-To: <20260402150135.196943-2-imbrenda@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDA5MDExNiBTYWx0ZWRfX3XGf2/pQz0R8
- mDKggQm9yvI+ys4jqQ+dXzdPOF7RbHVsFt5ttuimEVUbAtmwogUSy8xUa1v1rSOrykBaJk0901U
- 62sg0aHAvm0vfg3GOnucMZfyJT4d65izVqXTbB1/1TIgJxJgLTyQYHBEtRPJCPzkg4bGhGU1P9G
- zfmvjXMdjT9f1nU0QVFeWchLxB1iIteiWCPa5egBhO3kxi1YVWG79lrCwtrJ4t25NCWhw0hFL1h
- AviYfRGh6MxNC0W3Lt+RYFH3n4rx1n8QUIrf9rQQOd8zGZIy1KgI4e5NVQzVHyLiW2nRXxgZVt3
- zdafUcu8Kz1+atxOm/auoUp8u9iKgubw35PfxTGOvoPa/5Wd2bQ31S+Z1WAASm6mzPSYXRBfTi8
- sOxxub/IXYBhg6hxYu5IpHIYPo9jOjL0zsJU6P02wumg/VtfaaaMk1hhIhndXFm2KiU18jX/tRP
- nOC6WFrJgY14CGfx09A==
-X-Authority-Analysis: v=2.4 cv=FsY1OWrq c=1 sm=1 tr=0 ts=69d7a4e2 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDA5MDEyMCBTYWx0ZWRfXz4PBRDX4MxrH
+ GnWQHaoS0u3umQH0HC6jENQljWMdD8dJFM88ERy0NDEsx17ddm0dtk48ncENfAdjXGhatw1npio
+ 2oXoQU9XDcLy2iOYZ8CRvpTaAb+kU+XuBGTmzyaxZ/k0sysDtoGLzE7V364z3FlMLLVjv2TwQdB
+ 633XyEC71/IF9jmHKIYl9O+JTz0Y6RVM05uHFxrQbzX6uH4Wj0VOqyjWXGrRtMWsg/Pm+1AKcmu
+ Ou7kEA50SK6EOqHX/6yQkTiavC+ftjL9TmDQRBOhbq51jYEDZK4LfKjQCjJ4kWm5t0vRa7w5Oyk
+ jsLGkDbRYl/pkBepGXELNQcuHrkEp8uCfZmAJ5MzgpDuyX4je8qgajoIX6JvvXV1+mGDBWlcai4
+ gSm805GK2XNm1lExp0uNlNayzoiiL2wIiNWXU0a2MT/Wct5uBoBhsb1D018/TitrYBI8B0M2scl
+ 1k6Z6e1bmufcmc8QiUA==
+X-Proofpoint-ORIG-GUID: 9ItTmtwYld4Eb5CgUcYdA7YLVSnO-CG6
+X-Authority-Analysis: v=2.4 cv=e9k2j6p/ c=1 sm=1 tr=0 ts=69d7aca6 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
- a=gOZagzUxaop8oxifnJsA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: nd5bxcJf3zcRS2I22rIh841LYzpqXeIH
-X-Proofpoint-GUID: 99aKgxKkItW7gndQkK9-h0N4_KCR7PKA
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=vf6NJk7m3_Ogz1M4-hAA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: 9ItTmtwYld4Eb5CgUcYdA7YLVSnO-CG6
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-09_03,2026-04-09_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 priorityscore=1501 impostorscore=0 spamscore=0 phishscore=0
- lowpriorityscore=0 clxscore=1011 adultscore=0 malwarescore=0 suspectscore=0
+ clxscore=1015 impostorscore=0 malwarescore=0 suspectscore=0 spamscore=0
+ bulkscore=0 adultscore=0 priorityscore=1501 phishscore=0 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604010000 definitions=main-2604090116
+ reason=mlx scancount=1 engine=8.22.0-2604010000 definitions=main-2604090120
 
-Commit 61bbcfb50514 ("srcu: Push srcu_node allocation to GP when
-non-preemptible") defers srcu_node tree allocation when called under
-raw spinlock, putting SRCU through ~6 transitional grace periods
-(SRCU_SIZE_ALLOC to SRCU_SIZE_BIG). During this transition srcu_gp_end()
-uses mask = ~0, which makes srcu_schedule_cbs_snp() call queue_work_on()
-for every possible CPU. Since rcu_gp_wq is WQ_PERCPU, work targets
-per-CPU pools directly - pools for not-online CPUs have no workers,
-work accumulates, workqueue lockup detector fires.
+On Thu Apr 2, 2026 at 5:01 PM CEST, Claudio Imbrenda wrote:
+> Add _{SEGMENT,REGION3}_FR_MASK, similar to _{SEGMENT,REGION3}_MASK, but
+> working on gfn/pfn instead of addresses. Use them in gaccess.c instead
+> of using the normal masks plus gpa_to_gfn().
+>
+> Also add _PAGES_PER_{SEGMENT,REGION3} to make future code more readable.
+>
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-Before 61bbcfb50514, GFP_ATOMIC allocation went straight to
-SRCU_SIZE_BIG, the mask = ~0 path was never reached.
+Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
-Affects systems with convert_to_big active (auto when nr_cpu_ids >= 128)
-and possible CPUs > online CPUs. Hit on s390 LPAR (76 online, 400 possible),
-where possible CPUs > online CPUs is the usual case.
-Also reproducible on x86 KVM --smp 16,maxcpus=255 (CONFIG_NR_CPUS=256)
-or simply -smp 1,maxcpus=2 with srcutree.convert_to_big=1
-or --smp 16,maxcpus=64 with srcutree.big_cpu_lim=32 (CONFIG_NR_CPUS=64)
-
-s390 log (76 online CPUs, 400 possible, all pools 76-399 stuck):
-
-  BUG: workqueue lockup - pool cpus=76 node=0 flags=0x4 nice=0 stuck for 1842s!
-  BUG: workqueue lockup - pool cpus=77 node=0 flags=0x4 nice=0 stuck for 1842s!
-  ...
-  BUG: workqueue lockup - pool cpus=399 node=0 flags=0x4 nice=0 stuck for 1842s!
-  Showing busy workqueues and worker pools:
-  workqueue rcu_gp: flags=0x108
-    pwq 306: cpus=76 node=0 flags=0x4 nice=0 active=3 refcnt=4
-      pending: 3*srcu_invoke_callbacks
-    pwq 310: cpus=77 node=0 flags=0x4 nice=0 active=3 refcnt=4
-      pending: 3*srcu_invoke_callbacks
-    ...
-    pwq 1598: cpus=399 node=0 flags=0x4 nice=0 active=3 refcnt=4
-      pending: 3*srcu_invoke_callbacks
-
-Not sure if replacing mask = ~0 with something derived from
-cpu_online_mask would be racy in that context.
-
-[1] https://lore.kernel.org/rcu/acRho9L4zA2MRuxc@tardis.local
-[2] https://lore.kernel.org/rcu/fe28d664-3872-40f6-83c6-818627ad5b7d@paulmck-laptop
+> ---
+>  arch/s390/kvm/dat.h     | 5 +++++
+>  arch/s390/kvm/gaccess.c | 2 +-
+>  2 files changed, 6 insertions(+), 1 deletion(-)
