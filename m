@@ -1,46 +1,79 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7372727281D;
-	Thu,  9 Apr 2026 17:22:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 973A23B2FC0;
+	Thu,  9 Apr 2026 17:26:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775755321; cv=none; b=qyssNKE7okiJd4JP90iwXx7IlYmO9fXFcE5Hd12htIdWNaMJHPsXl+Qv338x40x4lAjO7Q1zdSLZuhm9MDs4wuJ56z+aNJGudkkPbiyxFFrjimEWLIlZ+uZ9RFrEUnN1xv9/+vFh7xx8IEDGgpMIsA+GHQ0oClHhoFRL7oV+kFQ=
+	t=1775755612; cv=none; b=WHbMKZFCdrAmh3fNQuf0IHN7dwTkeODRe/JQBbOR1DCpMbQpy0FkXZxiJy6kJZNH5/GLkC/Lio/3Y29CnjXdpCFWG40jMqwBTDQkQpHYEnOs6UksB9BKkAboZqYFcpLMZfAJUKUDupz1BTxsykv1recHKkXso4XGA+7z0tsYbKc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775755321; c=relaxed/simple;
-	bh=0O0ON2EuzAahw9wX3tGhIpHeapkB+3W8JPIynlB7p6M=;
+	s=arc-20240116; t=1775755612; c=relaxed/simple;
+	bh=1eQ9IomCBoXeMWGvHYlE/O6b2ox7gxUKIG+Mu/bKJPg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Qrzf2sZIyd7ZRRG39WSo4U/4QiNSY4PA00AAtblhI+HaKgpcjeEmpT1KF1vGbzqswDCUxb6LgHqxr0GremdYjW6Rq81h3eAebhZjWaM4fhOZkr6vnUv52qa3EaLx3N6v0GFKrP+72KxbEC2Isg9hpeiDISgG4Mk4npqLljOOBJU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X6Epb2/p; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=lA3XVl6QZ9RuA+of/zfAUHifC++Xn6Viud4xY2Wzq4BrzeJQVCiTfsbrxB0cq4kbYC3Pq0/9GoJjVphEEFR5F/5jMy8k7JvtCCbTqUdJpyamAo5v99WJyb/uahbhydU2d9XsFQRBDN3UNes5Spm4JJ0HZFWu2KR+SCqOsGXZtT0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iOWVKpWH; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X6Epb2/p"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15D1AC4CEF7;
-	Thu,  9 Apr 2026 17:22:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iOWVKpWH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0104BC4CEF7;
+	Thu,  9 Apr 2026 17:26:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775755321;
-	bh=0O0ON2EuzAahw9wX3tGhIpHeapkB+3W8JPIynlB7p6M=;
-	h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
-	b=X6Epb2/pf0Oybh+SVbeOv/wB7BEpfC/cteQuqBHWuXFERgdttSTGAy0OGRtPmnnb1
-	 gMX9rs0GcMRwc85+vper6mtxX3RvWQjXq0ctl3hKP7RGa2jyuVzcuO6iYkRIMSwB1w
-	 z5nAazzbP+ddOfo6RE8LIGIC3ncoB7YrUPTPp3FJKsr6mnsWgf/FqqZ2kC0U0XXEDW
-	 V7BIUhCwIJ0rwcq+jidSOFLcxMXNVI63zbSNaQcs9JJBpA1abSgBEdON2plq0gMU+i
-	 bwRKzljNklQ3csAgvUnNx7oHzoK/owdCWi+pSNKQ2He6Wn5hqcGqcbSheOb0OhT5zo
-	 C6K9716Oj21eg==
-Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
-	id A0B9DCE0975; Thu,  9 Apr 2026 10:22:00 -0700 (PDT)
-Date: Thu, 9 Apr 2026 10:22:00 -0700
-From: "Paul E. McKenney" <paulmck@kernel.org>
+	s=k20201202; t=1775755612;
+	bh=1eQ9IomCBoXeMWGvHYlE/O6b2ox7gxUKIG+Mu/bKJPg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=iOWVKpWH29UXjVMuISohgAK9YnNPPQPFHk0vLHCt77bqF1BEKZKDAvI+P0OBUAxZI
+	 p1VNeTivrig2anuX3jjvT2/SA42hn5WlDJcUu0T6CVjqtHORk6m+weCKbkME9aMEVf
+	 UeD09JKBhF04sG4tr83cqS6LDJ1cjJ73YDoxDVNwgzyddkzIwmbceJUYLLEzpPmQ0z
+	 QShXrlO32d1iaFWifZIVKX38JHCxjAlKlQUzOsE+AaOCNVgXeJKjnyrxEaPwy214aw
+	 0w9NqMoMf+b3AIOklBwP9z57ebFtZ+ce0hS/7HRr9GFFvQP+5L0Zif4katIPn5euqr
+	 Y3LUDgdlfwCWA==
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfauth.phl.internal (Postfix) with ESMTP id EEB51F40079;
+	Thu,  9 Apr 2026 13:26:50 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-04.internal (MEProxy); Thu, 09 Apr 2026 13:26:50 -0400
+X-ME-Sender: <xms:WuHXabtY4cKf1vet0l6mOstA5rVaFUo4yVA1inlnq5F5kfBWM5vQnw>
+    <xme:WuHXaS1IebjpNppdzufVzdKLurqC_aL4ifaw341fzE9XXrKoqgR2ntS5j20BKYi8s
+    wjmV9EoZtEE0q93NjMnSauJdGQ1PSXJmh_GGskrbtjYlqU2g8SztA>
+X-ME-Received: <xmr:WuHXabBK6I6ys36B9Qc5eIcWYgsPt370EVAd5qgpOUyRdtaTQeHfH47cYKQCLCJ8FZ5GX4i1Cbyi3K0gMxwILVXunnmTxBDP>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgddvjedtlecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
+    hrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpeeuohhquhhnucfh
+    vghnghcuoegsohhquhhnsehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnheple
+    euheethfdttdfgjedvjeeuhefhkeetveeuueeukeegteeigeeghedvffehhffhnecuffho
+    mhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrh
+    grmhepmhgrihhlfhhrohhmpegsohhquhhnodhmvghsmhhtphgruhhthhhpvghrshhonhgr
+    lhhithihqdduieejtdelkeegjeduqddujeejkeehheehvddqsghoqhhunheppehkvghrnh
+    gvlhdrohhrghesfhhigihmvgdrnhgrmhgvpdhnsggprhgtphhtthhopeduvddpmhhouggv
+    pehsmhhtphhouhhtpdhrtghpthhtohepghhorheslhhinhhugidrihgsmhdrtghomhdprh
+    gtphhtthhopehprghulhhmtghksehkvghrnhgvlhdrohhrghdprhgtphhtthhopehfrhgv
+    uggvrhhitgeskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepnhgvvghrrghjrdhuphgrug
+    hhhigrhieskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepjhhovghlrghgnhgvlhhfsehn
+    vhhiughirgdrtghomhdprhgtphhtthhopehurhgviihkihesghhmrghilhdrtghomhdprh
+    gtphhtthhopehrtghusehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhi
+    nhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplh
+    hinhhugidqshefledtsehvghgvrhdrkhgvrhhnvghlrdhorhhg
+X-ME-Proxy: <xmx:WuHXaYCMr2sel-bkWNr4ql3ERwQUaQWnFDgurNmD-Evdt-eB4-ztlA>
+    <xmx:WuHXaUnd47B6Ra59ezLagsa2e2wOO3DAG9e3yZInQsJR5VOBsRKFdg>
+    <xmx:WuHXaQgay2Sa-H9OH2TvoDvuNtadlW-bxQPqvTkbG9O5739a2U3q6A>
+    <xmx:WuHXaWgoK8269_OII3xa6LOdzayNTehFJadrVfRtLTpWYHTKrbCgRw>
+    <xmx:WuHXaauXUy83pBzaoBepOjKrlZs_shpgVimpRT5geKPgm52kMaKFAUiO>
+Feedback-ID: i8dbe485b:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 9 Apr 2026 13:26:50 -0400 (EDT)
+Date: Thu, 9 Apr 2026 10:26:49 -0700
+From: Boqun Feng <boqun@kernel.org>
 To: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Boqun Feng <boqun@kernel.org>,
+Cc: "Paul E. McKenney" <paulmck@kernel.org>,
 	Frederic Weisbecker <frederic@kernel.org>,
 	Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
 	Joel Fernandes <joelagnelf@nvidia.com>,
 	Uladzislau Rezki <urezki@gmail.com>, rcu@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+	Tejun Heo <tj@kernel.org>, Lai Jiangshan <jiangshanlai@gmail.com>
 Subject: Re: BUG: workqueue lockup - SRCU schedules work on not-online CPUs
  during size transition
-Message-ID: <073abb55-197a-4519-b177-f9f776624fed@paulmck-laptop>
-Reply-To: paulmck@kernel.org
+Message-ID: <adfhWQr1yFImSM2Q@tardis.local>
 References: <ttd89ul@ub.hpns>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -60,6 +93,15 @@ On Thu, Apr 09, 2026 at 03:08:45PM +0200, Vasily Gorbik wrote:
 > uses mask = ~0, which makes srcu_schedule_cbs_snp() call queue_work_on()
 > for every possible CPU. Since rcu_gp_wq is WQ_PERCPU, work targets
 > per-CPU pools directly - pools for not-online CPUs have no workers,
+
+[Cc workqueue]
+
+Hmm.. I thought for offline CPUs the corresponding worker pools become a
+unbound one hence there are still workers?
+
+Regards,
+Boqun
+
 > work accumulates, workqueue lockup detector fires.
 > 
 > Before 61bbcfb50514, GFP_ATOMIC allocation went straight to
@@ -93,34 +135,3 @@ On Thu, Apr 09, 2026 at 03:08:45PM +0200, Vasily Gorbik wrote:
 > 
 > [1] https://lore.kernel.org/rcu/acRho9L4zA2MRuxc@tardis.local
 > [2] https://lore.kernel.org/rcu/fe28d664-3872-40f6-83c6-818627ad5b7d@paulmck-laptop
-
-First, thank you for the bug report and apologies for the hassle!
-This was a pre-existing bug, but the change made it much more likely
-to happen.
-
-Does the alleged (and untested) fix below do the trick?  The theory is
-that if a given CPU has ever been fully online, it has workqueues set up.
-Directly checking whether a CPU is currently online is vulnerable to a CPU
-piling up lots of SRCU callbacks, then going offline.  So we do need to
-be prepared to invoke SRCU callbacks for CPUs that are currently offline.
-
-In the meantime, I will start up some tests.  Not that they saw the
-bug in the first place, so it is your tests that matter here.
-
-							Thanx, Paul
-
-------------------------------------------------------------------------
-
-diff --git a/kernel/rcu/srcutree.c b/kernel/rcu/srcutree.c
-index 0d01cd8c4b4a7..e68ee7f69e1fc 100644
---- a/kernel/rcu/srcutree.c
-+++ b/kernel/rcu/srcutree.c
-@@ -898,7 +898,7 @@ static void srcu_schedule_cbs_snp(struct srcu_struct *ssp, struct srcu_node *snp
- 	int cpu;
- 
- 	for (cpu = snp->grplo; cpu <= snp->grphi; cpu++) {
--		if (!(mask & (1UL << (cpu - snp->grplo))))
-+		if (!(mask & (1UL << (cpu - snp->grplo))) || !rcu_cpu_beenfullyonline(cpu))
- 			continue;
- 		srcu_schedule_cbs_sdp(per_cpu_ptr(ssp->sda, cpu), delay);
- 	}
