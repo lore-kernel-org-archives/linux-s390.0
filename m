@@ -1,182 +1,117 @@
-Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80E5E36A022
-	for <linux-s390@vger.kernel.org>; Thu,  9 Apr 2026 02:44:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.222.182
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775702664; cv=pass; b=Y7pAQzVbJAgDByC2BdxOCXRl/h2xzjejkPUXGRYcfgec0bKGE6WMaqWCHb/IiGkMUdt+tmR5qyCX27fvJKcTYf9XWxi7ecMvRYOClUM+Poh3y3TTOUX99R3Qfvr3Ad3ahYCFhA2hp7cM4RgcqQ9NxkvDlD8oPEYAB41DSqmOASI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775702664; c=relaxed/simple;
-	bh=1Du6tFZ9igGBv4DCcY8bAzPfTgYS+0w//bxO90ypQnY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=g8PNqVn3lwnxNcmlkGh/TmYuPfaq06x7PkVhURDpmJEm7fDOqnzJpmKuGeSb4KoF4kXUfpXyJyvLQqPP6wMrcwr3yCMsQHX7biS3rawEymoY2/qJNV8n45jyrvm3bTGxgaWdkv0WayMIjhuC3afZgOb6GiN00kN9ibUG2sseSLQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TyTBRAXD; arc=pass smtp.client-ip=209.85.222.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C753334D398;
+	Thu,  9 Apr 2026 07:08:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775718534; cv=none; b=MOVvgR1VZwB9PUcYpfdy5F+GBxJoIZaFhhOG0km2TfkGHvXsICvB+Ozipro89OYtfwUzVcHF5YfiOKbRYDVxMirNkuBmGCUtl+GoWJj2/PLItg/BCtLDcynkHdbFvSxK63NuyZ64wIkxYNq2NQsc0fndCpNTODjlSzEDRFI0S7A=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775718534; c=relaxed/simple;
+	bh=AmuY6DBnv9LZ4ZZy4W4moJekCn/VxjkdbOEWZh/bS6w=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=VPOIdqtfsNreaPWJHyckBjctbJlJnesjGeUeaSZeZRQ/CeQmYy/ssKDhcpft3a/Q4rCY599l3uSVjYlIYVvqv4j1NzD57okt25Tj9o1B2L6TVth9YKRwUm1xwKiE9ygviJQy9DzoiOIGly8mfNWGEwcu6q94AdC6TZ2DUCIABb8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YPL/DY4T; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TyTBRAXD"
-Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-8cb38e86cf2so31315585a.1
-        for <linux-s390@vger.kernel.org>; Wed, 08 Apr 2026 19:44:23 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1775702662; cv=none;
-        d=google.com; s=arc-20240605;
-        b=fyeGpXHO7EWE1bxZlXlrJ5FAYqR7IV1PdrUJMdbO4GNWcjXke25JZ+4vt4rO/E7LT1
-         XEjOPOZCvJEl8aJ72A/FFlnmkDA6VZNoYCIe553/4toaj+Xz6DhK8D/nPiRmpEQMwhZK
-         h+YYw+KvGG9xdHEJ9ry4Q2tR6rpo/ACE3CfM7hU2Y6GirNSnhVMjCrWTb2Kw6D1WnODA
-         3jM5YGaxn5afNXa7Lz04ZCsuCZQPQNiUdAHSXMYJQcQ5084u1DkRbq7XVb6eLwnhXyAT
-         10ftoAR54bPG6+ZZTZBbOdWgarxDw2xZxAftSzv0SjB0afDfgdyUJeJ3nwSZJbPad+05
-         fsug==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=871gji8iXjZ8LzZcaRSdSaYLChR5t/TdtuEyvK6RFCA=;
-        fh=FbKt08x6aX+Np1mSw8cnHmrVzyNQ+N1lyRErnB4c7YU=;
-        b=DeLj8gbsqTRuUt4EVE7UtMJskIAJ/HcxjdkBAj8fWEDMVAok0yro43Xxs1Z9WufhFJ
-         YaRYJWiZjxASnWOzJr07lNbXhiFCE4vVMDSLll+T8VHMG2qWXEc8J6m62LXYlsQfTHYG
-         /j+AXiGDBgbrHeyWXqLm+mYQb8rCPJeOFlcBNXVnz2ZiV7X6VTswI95UlIHujinhVkvh
-         NGP1Rz33hvHhgQENLiKbEyec3Yj0Gt6mesKVBLzXfZ9lbs/3B9afeICseecRiqVwVbJl
-         lpdBNB0WhGo3li0DzchQD7fK2o3s7TGFxhzt1gNBf2306dF1hBIIAjgrJtrL1Knh0xy9
-         iJfg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775702662; x=1776307462; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=871gji8iXjZ8LzZcaRSdSaYLChR5t/TdtuEyvK6RFCA=;
-        b=TyTBRAXDd4rH9yqvVuH+prVyKuAAqmAz4Ah1vhXuu1x20LUXD26dUjNYJdoWacoOUz
-         2gn1pRfH2SOOz6fGOULRrkPrA87bgDSCnUXCxp70wgNGo2jEz5yJR2vJXUnl+231WJdx
-         VGTiOq+0ZiqdWFrgjxxiQk1iKliVc26E2CCaBrwbSO/fsRG/VHrOs0PL5XafQabwKmn1
-         Z2AdsGD9UahXpc5emsh2xQ72hpLUxk4ZySnS1MCsx7ruzKyqRh70QIS+KCRK4m3zzJjE
-         dLpcj988S9t0YcUOyhRZ+itQJ2rg3U4KJEYuN9cuiKaZSh5wlvju5P9G5Ck/1sZvDarR
-         uEUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775702662; x=1776307462;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=871gji8iXjZ8LzZcaRSdSaYLChR5t/TdtuEyvK6RFCA=;
-        b=Kgdm+WRxXzcEx13m6GyI0otFmEvU68iniTjvOA/OFNGVgOrKDK8as4POMhdZAVM1WU
-         L1G+J2/1zTiNEzqA7fkRfvkQbmPl21BbIyXKRSkh+Zl02jjaIXS7IGlB1UC1sd+npqbC
-         nGgCkQWDrGywyNWp+4Di6KRzyLVeWPI0L/aPwIeABcWSrZhbgXjmLcuIP5Wt9VRkl1nK
-         Yi7+7nsCElO0ho6Qu15fb9ewDUszBsmiNlDsrXowVbly3vphwFfIsvEWcwpTtM1A6p74
-         55/aK5NwDXY4d2LCOFbdXpaqOkUnxpX5HVPtGOHIkjo+5PeTQzmAY0gU0wBHgD86+rhp
-         MAwg==
-X-Forwarded-Encrypted: i=1; AJvYcCXGeAoKI6/rcZp9whjN9nbZ3/oFC//6U+IXKC4s25jHd57S2iCb0n+MxxtgMYJbqxLFNWSf0PJtAZno@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz6uCkX614tobnzBp4XlUQMYGlL7y/deH+X0lQHZ/wUlwK47FDL
-	t00qiNx1bbx/Sc9DneGKM8RxQc49U2UkbMcgxY6WDgNY/CzIMMoXvPHrZ3+vTtAu0ngqwh93yWn
-	OJEncxGR6sjR70BS6EDhzKYU0XiWmBfI=
-X-Gm-Gg: AeBDiesNWz6ldSkpY7+1q90095Vliifl8k9kUjT8rLt5CX1v5rrBbv7y0CpfnuBJpWe
-	ge4mY7+O1Q+LEnaat8NgRiHqZ9GtTh+N8H+mXFsWSk/21LSZnZs+kn6c1ktnwlVnqJrXqA3K4Xq
-	R/Nx6Zl2dCPj48xSRjodiRYLOCHSrfT0h+3LxjGXPv+zBf3Lrg9dUvDgtnPV5kGImk5v+7mR6k0
-	vMj/31PUU6Ud2jlZq19m9KHF/K2RaLLtWbL4HzRLcoWP8Say9eXjcGIPGBTo9ILSP/fCr1u8LS2
-	9/3ZCQ==
-X-Received: by 2002:a05:620a:2988:b0:8d3:cdeb:6d3a with SMTP id
- af79cd13be357-8d41e62f4a9mr3265255385a.57.1775702662334; Wed, 08 Apr 2026
- 19:44:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YPL/DY4T"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 638II5ni2332011;
+	Thu, 9 Apr 2026 07:08:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=3eea49
+	f7/uNX7wJ5BEjkvwzTtPsBCQMN1xZFbJM6Z50=; b=YPL/DY4TPWI1hBYUO7wZMo
+	9kUWKD+ceMCvfGI9k3fiW29UJhORgbX9QkidAnm7wvlSOVBheIiA+L63z70z8w7F
+	vSDSBglfGECSzKQzgTMq+L426dHFZy1FSbzndVfSGKwg2r56wbWLLFdIKNCa6KJq
+	uQ6jbewvAAOweF8o1U8pAA2TZxWOoEA+G+iqIfCBaAZnAdgDbsB5DSGjI0+s8ZrX
+	Z3M3ms0kR/yxRcVpkzPE80TtIK3TT934KfzL7jpTW0jFd3hDY1p1TI+CZ4fJgpXr
+	K3rkQr6rG5YUKqhk3E5OcTv3cH55Pio5GCRQoyyG5ZPs5aS05z3PY1MC5GVaSpLQ
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dcn2kjwe9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 09 Apr 2026 07:08:34 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63926vPo014375;
+	Thu, 9 Apr 2026 07:08:33 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dcmg4tka4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 09 Apr 2026 07:08:33 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63978Vu043057538
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 9 Apr 2026 07:08:31 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A842620040;
+	Thu,  9 Apr 2026 07:08:31 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 805132004D;
+	Thu,  9 Apr 2026 07:08:31 +0000 (GMT)
+Received: from [9.52.215.116] (unknown [9.52.215.116])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  9 Apr 2026 07:08:31 +0000 (GMT)
+Message-ID: <09684f23-8937-4fed-b88a-361c9ccef04c@linux.ibm.com>
+Date: Thu, 9 Apr 2026 09:08:31 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260408113143.1645091-1-tmricht@linux.ibm.com> <adcPeB5qc0M0K8Fw@google.com>
-In-Reply-To: <adcPeB5qc0M0K8Fw@google.com>
-From: Howard Chu <howardchu95@gmail.com>
-Date: Wed, 8 Apr 2026 19:44:10 -0700
-X-Gm-Features: AQROBzDXtGknASP2wkzXWBfVH29fVRefhJPjjbxejEFqBfetRAxuoF_jRkjYAVo
-Message-ID: <CAH0uvoiyqcR6+kqw2=6N7n8wCH1PA3P687vzSrQGVOeD0MDb9g@mail.gmail.com>
-Subject: Re: [PATCH v2] perf test: Run test 126 exclusive
-To: Namhyung Kim <namhyung@kernel.org>
-Cc: Thomas Richter <tmricht@linux.ibm.com>, linux-kernel@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org, acme@kernel.org, 
-	irogers@google.com, agordeev@linux.ibm.com, gor@linux.ibm.com, 
-	sumanthk@linux.ibm.com, hca@linux.ibm.com, japo@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/3] crypto: s390 - Remove des and des3_ede code
+To: Eric Biggers <ebiggers@kernel.org>
+Cc: linux-crypto@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, x86@kernel.org,
+        Harald Freudenberger <freude@linux.ibm.com>
+References: <20260326201246.57544-1-ebiggers@kernel.org>
+ <20260326201246.57544-2-ebiggers@kernel.org>
+From: Holger Dengler <dengler@linux.ibm.com>
+Content-Language: de-DE
+In-Reply-To: <20260326201246.57544-2-ebiggers@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDA5MDA1OSBTYWx0ZWRfXyMBunoHGiVE/
+ mfNuqcRwWbZUI+Q3si+QifssSFIkivctWOYDl6xF5+//1dcNtvu+hgcPCvlN1QFX+0VWWDYz5+9
+ KdW+Y5fWkPEiz8Ad1X0gGqCMMusyWquFbT1hnVIw+sKmzzMnicwHwhg0U6Zn2lYBf404HQwXoZh
+ my3wEA/dZovWiiC61jh3h/LOL6ddQ+EmSOIuiezCJi3wdq5GVF18D3Px9ZbnU3n8m/ITF3MppOj
+ jSEEYJibwO1cfIN8AMJZrIUI9alt5ufgKconQqAhhme3x8/baKOFfLf8z/M3n4QWmuQSohSlmu1
+ hYwGjSvbvpIlCrEyY7s48icnC2Alw5THNIFQA/a5AwuFYXOByupzutxEaphC8LF90rb4faldmXi
+ sF+l3v4aWrXJahPeTzGdTjb3mc5ww+570QffDNma5SDvEVS3R7fvVplfHMEcVYJPpFrKyyAtRcj
+ e/q7C3X91zi12fN8H5A==
+X-Proofpoint-ORIG-GUID: -T92ounT2WIPDRxQ7iWYv3zxFYhzvz49
+X-Authority-Analysis: v=2.4 cv=e9k2j6p/ c=1 sm=1 tr=0 ts=69d75072 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=w4HzK-rsqA_2YikTyBoA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: -T92ounT2WIPDRxQ7iWYv3zxFYhzvz49
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-04-09_02,2026-04-08_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 impostorscore=0 malwarescore=0 suspectscore=0 spamscore=0
+ bulkscore=0 adultscore=0 priorityscore=1501 phishscore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2604010000 definitions=main-2604090059
 
-Hi Namhyung and Thomas,
+On 26/03/2026 21:12, Eric Biggers wrote:
+> Since DES and Triple DES are obsolete, there is very little point in
+> maintining architecture-optimized code for them.  Remove it.
+> 
+> Signed-off-by: Eric Biggers <ebiggers@kernel.org>
 
-On Wed, Apr 8, 2026 at 7:31=E2=80=AFPM Namhyung Kim <namhyung@kernel.org> w=
-rote:
->
-> On Wed, Apr 08, 2026 at 01:31:43PM +0200, Thomas Richter wrote:
-> > V1 --> V2 Fixed commit message
-> >
-> > Running both tests cases 126 128 together causes the first test case
-> > 126 to fail:
-> >  # for i in $(seq 3); do ./perf test 126 128; done
-> >  126: perf trace BTF general tests    : FAILED!
-> >  128: perf trace record and replay    : Ok
-> >  126: perf trace BTF general tests    : FAILED!
-> >  128: perf trace record and replay    : Ok
-> >  126: perf trace BTF general tests    : FAILED!
-> >  128: perf trace record and replay    : Ok
-> >  #
->
-> The test numbers can be different on other platforms, let's use the test
-> names like below.
->
-> >
-> > Test case 126 fails because test case 128 runs concurrently as can
-> > be observed using a ps -ef | grep perf output list on a different
-> > window. Both do a perf trace command concurrently.
-> > Make test case 'perf trace BTF general tests' exclusive.
-> >
-> > Output after:
-> >  # for i in $(seq 3); do ./perf test 'perf trace BTF general tests' \
-> >       'perf trace record and replay'; done
-> >  127: perf trace BTF general tests                   : Ok
-> >  155: perf trace record and replay                   : Ok
-> >  127: perf trace BTF general tests                   : Ok
-> >  155: perf trace record and replay                   : Ok
-> >  127: perf trace BTF general tests                   : Ok
-> >  155: perf trace record and replay                   : Ok
-> >  #
->
-> I believe I have a fix for this problem but it's blocked by a BPF
-> verifier issue.  I need to find time to work on it again..
->
-> https://lore.kernel.org/linux-perf-users/20250814071754.193265-1-namhyung=
-@kernel.org/
->
-> Until then, I think it's ok to have this.
+Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
 
-Agreed.
+-- 
+Mit freundlichen Grüßen / Kind regards
+Holger Dengler
+--
+IBM Systems, Linux on IBM Z Development
+dengler@linux.ibm.com
 
-Thanks,
-Howard
-
->
-> Thanks,
-> Namhyung
->
-> >
-> > Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> > Cc: Howard Chu <howardchu95@gmail.com>
-
-Acked-by: Howard Chu <howardchu95@gmail.com>
-
-Thanks,
-Howard
-
-> > ---
-> >  tools/perf/tests/shell/trace_btf_general.sh | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/tools/perf/tests/shell/trace_btf_general.sh b/tools/perf/t=
-ests/shell/trace_btf_general.sh
-> > index ef2da806be6b..7a94a5743924 100755
-> > --- a/tools/perf/tests/shell/trace_btf_general.sh
-> > +++ b/tools/perf/tests/shell/trace_btf_general.sh
-> > @@ -1,5 +1,5 @@
-> >  #!/bin/bash
-> > -# perf trace BTF general tests
-> > +# perf trace BTF general tests (exclusive)
-> >  # SPDX-License-Identifier: GPL-2.0
-> >
-> >  err=3D0
-> > --
-> > 2.53.0
-> >
