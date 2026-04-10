@@ -1,55 +1,55 @@
-Received: from iad-out-015.esa.us-east-1.outbound.mail-perimeter.amazon.com (iad-out-015.esa.us-east-1.outbound.mail-perimeter.amazon.com [44.210.169.44])
+Received: from iad-out-009.esa.us-east-1.outbound.mail-perimeter.amazon.com (iad-out-009.esa.us-east-1.outbound.mail-perimeter.amazon.com [34.198.94.229])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E230A3E121D;
-	Fri, 10 Apr 2026 15:19:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.210.169.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 492893DA5D0;
+	Fri, 10 Apr 2026 15:19:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=34.198.94.229
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775834357; cv=none; b=s1s99wg8SSXJGLKhIQZe3QtDR+mNteqASjEklx7cIy15rdNlgKqLO1eXRGUXTnq6OX2Y0csXlON2wWGuRSfxsYPkNR/zl/IR8pxRFclvnGiE8M+RblPK6vBziT8IszdS6dXXbahW7eebUmkereE/ul+vSUdJI7j802jpxTuiAl0=
+	t=1775834369; cv=none; b=bNjFLhueK0f2coIMRrJ3gKzbgVZpgfG3Qmw/WQt31L/TJfAI5lqP0BXI8+p3qWpk8Z0kplmVWR4r2B1xDkR3aLDDUfYjv1uMLbb0xolnvycjKIRCieqWi4LtfA6VVyVlb1DQE3nvnLljIObjBH95An4Ua1qizpgg/Nw7WLHgpBE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775834357; c=relaxed/simple;
-	bh=g42t1AuoQjNP+Na/yg6PoUGXChwwAdv2XYqnEELG11E=;
+	s=arc-20240116; t=1775834369; c=relaxed/simple;
+	bh=gl2xH3pnkZhUdLbvpzVAUkRpuWjT0Avl9j1PuyA65zw=;
 	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=K2x4CH+KVfC2xu9BV8je5ebwQmZpRt8vnUQ9/IWkFP+/WfFbqk1kouTCHO9xA+8QHzkl1SSlsAOcU0pjcZZ++rJPw+9ciTzletCDME7LDb5EUrp/HTAIrMl3Mx/G9tY6Ih3oKBGsMEzA0MALHFEJNwUl4WVzcHdRpjTu+KMRclw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b=ecu73tiR; arc=none smtp.client-ip=44.210.169.44
+	 Content-Type:MIME-Version; b=Q8f9uybM5C2ObJm6HR4qOhsIEeYH/jcE1xcAPiTgfbbV4MhqghULsaHYM38ny+YOOhvAmPeFRjCsaW/oeXBLca/3hewPMwBuXyrLF803EoQuBzoXNA8tt/0Pax+rqazVC5y2w4V9aH+gJchbZvU7j6FriyDUvOkruOyciD/LLhg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b=UIYadv7D; arc=none smtp.client-ip=34.198.94.229
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b="ecu73tiR"
+	dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b="UIYadv7D"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.co.uk; i=@amazon.co.uk; q=dns/txt;
-  s=amazoncorp2; t=1775834356; x=1807370356;
+  s=amazoncorp2; t=1775834367; x=1807370367;
   h=from:to:cc:subject:date:message-id:references:
    in-reply-to:content-transfer-encoding:mime-version;
-  bh=ALg3p/ltsqIoaqb5A/f57OhF7/SQhKPMf9Yd0huEWqI=;
-  b=ecu73tiRmauTv6PbmBm9tKKAbekJXwT+VzqLDYEHdYpYyfigooGVW7bU
-   rpkK5IbZphPLGe31YIDysAaStkIAWH/kEln0chR2o0iOQi0plQ9KLvS3y
-   nBITydLA6jKNr0G2S9Ba7pICqogEauG3t35nEROiYIrBY06qRY8M1LVOc
-   GBP6fHXT+GjjW7Y9huAST7hJg09Bt8ECG+0g7f9Trqsc7NzCyN9LmYS4p
-   j/vrIQj14WRmW3NZNwsQSuu5Q/1+lxLk/VK5uX7S8EO72BGPRe1svxRIU
-   lIpbL1IF49lEVpW5nZu29Bd+ooUR7R/7VyOEX4GT6+uHQQAVE9yG4EVcL
-   Q==;
-X-CSE-ConnectionGUID: Guv9fjVNT/aSrGQUraKCmg==
-X-CSE-MsgGUID: tuX3xo+YRyC+BGiBmsyZ+w==
+  bh=vLy8Uo7H/yy1MpTCKNu3B0dgocKjoo20PjX7Wqklm/o=;
+  b=UIYadv7Dr8CN0XX3jsaJ/xofvzrqwod3k9D4GNUiqLG4GuT7ZXZdNud5
+   cJDfpNfl60ykBweazbq0vSIdQnvqGFtLHAWjNLJHWBStLRJcwO2P3ZdiV
+   y4FLSPp8r9UiUlD//9oiwVizZufFcWG2fxqY4d1wAYTnBOBBTkoGZ2fx9
+   50WzostxWXP1TZqwi0rQlF7IiGlNjqJGPXVkAMcC0QHr+zhh9SNQ00hgM
+   OFMKBHeEOXxiW6dkKvS1+Xv9Z/1aUJU5L1JxqzeUNz+8wgWvoDeMbPjj8
+   IyL9TCAOBYEE7aFUYeSCmyHKLn3bVJxVZVB0x9PV5hSy389SJeaKeWMSK
+   g==;
+X-CSE-ConnectionGUID: /gJawKxvRtuwf19Z3qd7/g==
+X-CSE-MsgGUID: DRWm/oHcTk6GTV9npce06w==
 X-IronPort-AV: E=Sophos;i="6.23,171,1770595200"; 
-   d="scan'208";a="15419479"
-Received: from ip-10-4-3-150.ec2.internal (HELO smtpout.naws.us-east-1.prod.farcaster.email.amazon.dev) ([10.4.3.150])
-  by internal-iad-out-015.esa.us-east-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2026 15:19:14 +0000
-Received: from EX19MTAUEC001.ant.amazon.com [52.94.133.142:28111]
+   d="scan'208";a="15898148"
+Received: from ip-10-4-10-75.ec2.internal (HELO smtpout.naws.us-east-1.prod.farcaster.email.amazon.dev) ([10.4.10.75])
+  by internal-iad-out-009.esa.us-east-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2026 15:19:25 +0000
+Received: from EX19MTAUEC002.ant.amazon.com [72.21.196.66:19527]
  by smtpin.naws.us-east-1.prod.farcaster.email.amazon.dev [10.0.29.254:2525] with esmtp (Farcaster)
- id ff476389-81e7-44f5-b885-cbfab252140c; Fri, 10 Apr 2026 15:19:14 +0000 (UTC)
-X-Farcaster-Flow-ID: ff476389-81e7-44f5-b885-cbfab252140c
-Received: from EX19D027UEC002.ant.amazon.com (10.252.137.166) by
- EX19MTAUEC001.ant.amazon.com (10.252.135.222) with Microsoft SMTP Server
+ id b9c5cfe8-25a6-4ec1-9c9f-bb40ee7f6229; Fri, 10 Apr 2026 15:19:25 +0000 (UTC)
+X-Farcaster-Flow-ID: b9c5cfe8-25a6-4ec1-9c9f-bb40ee7f6229
+Received: from EX19D027UEC001.ant.amazon.com (10.252.137.156) by
+ EX19MTAUEC002.ant.amazon.com (10.252.135.253) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
- Fri, 10 Apr 2026 15:19:14 +0000
+ Fri, 10 Apr 2026 15:19:25 +0000
 Received: from EX19D027UEC003.ant.amazon.com (10.252.137.250) by
- EX19D027UEC002.ant.amazon.com (10.252.137.166) with Microsoft SMTP Server
+ EX19D027UEC001.ant.amazon.com (10.252.137.156) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
- Fri, 10 Apr 2026 15:19:13 +0000
+ Fri, 10 Apr 2026 15:19:24 +0000
 Received: from EX19D027UEC003.ant.amazon.com ([fe80::887f:519b:ba73:21d]) by
  EX19D027UEC003.ant.amazon.com ([fe80::887f:519b:ba73:21d%3]) with mapi id
- 15.02.2562.037; Fri, 10 Apr 2026 15:19:13 +0000
+ 15.02.2562.037; Fri, 10 Apr 2026 15:19:24 +0000
 From: "Kalyazin, Nikita" <kalyazin@amazon.co.uk>
 To: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-doc@vger.kernel.org"
 	<linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org"
@@ -123,14 +123,14 @@ CC: "pbonzini@redhat.com" <pbonzini@redhat.com>, "corbet@lwn.net"
 	<jackmanb@google.com>, "patrick.roy@linux.dev" <patrick.roy@linux.dev>,
 	"Thomson, Jack" <jackabt@amazon.co.uk>, "Itazuri, Takahiro"
 	<itazur@amazon.co.uk>, "Manwaring, Derek" <derekmn@amazon.com>, "Kalyazin,
- Nikita" <kalyazin@amazon.co.uk>, Nikita Kalyazin <nikita.kalyazin@linux.dev>
-Subject: [PATCH v12 08/16] KVM: x86: define
+ Nikita" <kalyazin@amazon.co.uk>
+Subject: [PATCH v12 09/16] KVM: arm64: define
  kvm_arch_gmem_supports_no_direct_map()
-Thread-Topic: [PATCH v12 08/16] KVM: x86: define
+Thread-Topic: [PATCH v12 09/16] KVM: arm64: define
  kvm_arch_gmem_supports_no_direct_map()
-Thread-Index: AQHcyP1jSNvh4qnnak2U1huEC4ubjw==
-Date: Fri, 10 Apr 2026 15:19:13 +0000
-Message-ID: <20260410151746.61150-9-kalyazin@amazon.com>
+Thread-Index: AQHcyP1pqKPFicKVfkONXJiuCe9SiA==
+Date: Fri, 10 Apr 2026 15:19:24 +0000
+Message-ID: <20260410151746.61150-10-kalyazin@amazon.com>
 References: <20260410151746.61150-1-kalyazin@amazon.com>
 In-Reply-To: <20260410151746.61150-1-kalyazin@amazon.com>
 Accept-Language: en-GB, en-US
@@ -148,86 +148,68 @@ MIME-Version: 1.0
 
 From: Patrick Roy <patrick.roy@linux.dev>=0A=
 =0A=
-x86 supports GUEST_MEMFD_FLAG_NO_DIRECT_MAP whenever direct map=0A=
-modifications are possible.  Exclude TDX and SEV-SNP as they access=0A=
-pages via direct map in certain operations, such as population.=0A=
+Support for GUEST_MEMFD_FLAG_NO_DIRECT_MAP on arm64 depends on 1) direct=0A=
+map manipulations at 4k granularity being possible, and 2) FEAT_S2FWB.=0A=
 =0A=
+1) is met whenever the direct map is set up at 4k granularity (e.g. not=0A=
+ with huge/gigantic pages) at boottime, as due to ARM's=0A=
+break-before-make semantics, breaking huge mappings into 4k mappings in=0A=
+the direct map is not possible (BBM would require temporary invalidation=0A=
+of the entire huge mapping, even if only a 4k subrange should be zapped,=0A=
+which will probably crash the kernel). However, the current default for=0A=
+rodata_full is true, which forces a 4k direct map.=0A=
+=0A=
+2) is required to allow KVM to elide cache coherency operations when=0A=
+installing stage 2 page tables, which require the direct map to be=0A=
+entry for the newly mapped memory to be present (which it will not be,=0A=
+as guest_memfd would have removed direct map entries in=0A=
+kvm_gmem_get_pfn()).=0A=
+=0A=
+Cc: Will Deacon <will@kernel.org>=0A=
 Signed-off-by: Patrick Roy <patrick.roy@linux.dev>=0A=
-Reviewed-by: Ackerley Tng <ackerleytng@google.com>=0A=
 Reviewed-by: David Hildenbrand (Arm) <david@kernel.org>=0A=
-Co-developed-by: Nikita Kalyazin <nikita.kalyazin@linux.dev>=0A=
 Signed-off-by: Nikita Kalyazin <nikita.kalyazin@linux.dev>=0A=
 ---=0A=
- arch/x86/include/asm/kvm_host.h | 6 ++++++=0A=
- arch/x86/kvm/x86.c              | 7 +++++++=0A=
- include/linux/kvm_host.h        | 9 +++++++++=0A=
- 3 files changed, 22 insertions(+)=0A=
+ arch/arm64/include/asm/kvm_host.h | 13 +++++++++++++=0A=
+ 1 file changed, 13 insertions(+)=0A=
 =0A=
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_hos=
-t.h=0A=
-index 6e4e3ef9b8c7..171ce8b84137 100644=0A=
---- a/arch/x86/include/asm/kvm_host.h=0A=
-+++ b/arch/x86/include/asm/kvm_host.h=0A=
-@@ -28,6 +28,7 @@=0A=
- #include <linux/sched/vhost_task.h>=0A=
- #include <linux/call_once.h>=0A=
- #include <linux/atomic.h>=0A=
+diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm=
+_host.h=0A=
+index 70cb9cfd760a..fbdd43e7e94e 100644=0A=
+--- a/arch/arm64/include/asm/kvm_host.h=0A=
++++ b/arch/arm64/include/asm/kvm_host.h=0A=
+@@ -19,6 +19,7 @@=0A=
+ #include <linux/maple_tree.h>=0A=
+ #include <linux/percpu.h>=0A=
+ #include <linux/psci.h>=0A=
 +#include <linux/set_memory.h>=0A=
- =0A=
- #include <asm/apic.h>=0A=
- #include <asm/pvclock-abi.h>=0A=
-@@ -2504,4 +2505,9 @@ static inline bool kvm_arch_has_irq_bypass(void)=0A=
- 	return enable_device_posted_irqs;=0A=
- }=0A=
- =0A=
+ #include <asm/arch_gicv3.h>=0A=
+ #include <asm/barrier.h>=0A=
+ #include <asm/cpufeature.h>=0A=
+@@ -1682,6 +1683,18 @@ static __always_inline enum fgt_group_id __fgt_reg_t=
+o_group_id(enum vcpu_sysreg=0A=
+ 									\=0A=
+ 		p;							\=0A=
+ 	})=0A=
 +#ifdef CONFIG_KVM_GUEST_MEMFD=0A=
-+bool kvm_arch_gmem_supports_no_direct_map(struct kvm *kvm);=0A=
++static inline bool kvm_arch_gmem_supports_no_direct_map(struct kvm *kvm)=
+=0A=
++{=0A=
++	/*=0A=
++	 * Without FWB, direct map access is needed in kvm_pgtable_stage2_map(),=
+=0A=
++	 * as it calls dcache_clean_inval_poc().=0A=
++	 */=0A=
++	return can_set_direct_map() && cpus_have_final_cap(ARM64_HAS_STAGE2_FWB);=
+=0A=
++}=0A=
 +#define kvm_arch_gmem_supports_no_direct_map kvm_arch_gmem_supports_no_dir=
 ect_map=0A=
 +#endif /* CONFIG_KVM_GUEST_MEMFD */=0A=
 +=0A=
- #endif /* _ASM_X86_KVM_HOST_H */=0A=
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c=0A=
-index fd1c4a36b593..32da7820823c 100644=0A=
---- a/arch/x86/kvm/x86.c=0A=
-+++ b/arch/x86/kvm/x86.c=0A=
-@@ -14079,6 +14079,13 @@ void kvm_arch_gmem_invalidate(kvm_pfn_t start, kvm=
-_pfn_t end)=0A=
- 	kvm_x86_call(gmem_invalidate)(start, end);=0A=
- }=0A=
- #endif=0A=
-+=0A=
-+bool kvm_arch_gmem_supports_no_direct_map(struct kvm *kvm)=0A=
-+{=0A=
-+	return can_set_direct_map() &&=0A=
-+	    kvm->arch.vm_type !=3D KVM_X86_TDX_VM &&=0A=
-+	    kvm->arch.vm_type !=3D KVM_X86_SNP_VM;=0A=
-+}=0A=
- #endif=0A=
  =0A=
- int kvm_spec_ctrl_test_value(u64 value)=0A=
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h=0A=
-index e8aa3d676c31..ce8c5fdf2752 100644=0A=
---- a/include/linux/kvm_host.h=0A=
-+++ b/include/linux/kvm_host.h=0A=
-@@ -742,6 +742,15 @@ static inline u64 kvm_gmem_get_supported_flags(struct =
-kvm *kvm)=0A=
- }=0A=
- #endif=0A=
+ long kvm_get_cap_for_kvm_ioctl(unsigned int ioctl, long *ext);=0A=
  =0A=
-+#ifdef CONFIG_KVM_GUEST_MEMFD=0A=
-+#ifndef kvm_arch_gmem_supports_no_direct_map=0A=
-+static inline bool kvm_arch_gmem_supports_no_direct_map(struct kvm *kvm)=
-=0A=
-+{=0A=
-+	return false;=0A=
-+}=0A=
-+#endif=0A=
-+#endif /* CONFIG_KVM_GUEST_MEMFD */=0A=
-+=0A=
- #ifndef kvm_arch_has_readonly_mem=0A=
- static inline bool kvm_arch_has_readonly_mem(struct kvm *kvm)=0A=
- {=0A=
 -- =0A=
 2.50.1=0A=
 =0A=
