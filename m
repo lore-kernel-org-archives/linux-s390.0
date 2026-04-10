@@ -1,267 +1,125 @@
-Received: from iad-out-010.esa.us-east-1.outbound.mail-perimeter.amazon.com (iad-out-010.esa.us-east-1.outbound.mail-perimeter.amazon.com [34.197.254.9])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f42.google.com (mail-dl1-f42.google.com [74.125.82.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08D213D9DDE;
-	Fri, 10 Apr 2026 15:30:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=34.197.254.9
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775835057; cv=none; b=AZN83YyaVFpjCbGfyKHZMcHd1GL1WGVZ17mIJ/6aLU/ZewiGiR1//7G34dKn8QsCdhmKJgvNYr3ZF8M8LP7pD69Sj8oDB+8v9DwQxTBExgf9H/0CnsmLBUo6MDdMAtUsuSHvBVULm5GEAkBE8XWX4WN5h4NnyH0HOh9Q6To8MUc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775835057; c=relaxed/simple;
-	bh=OIRQILUBc9oJdRt5XXErxyUnfe+lKJHSFNVPfJzNKbM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=KjMIWQd3b1v3N9w0yHMCFf04pwcx7hx4qi2r8/hFr2orWHCMi7kDmmthmfY2h8Gq3KSyWeDYJ0C0VwlodeuCWImKwg+PvxJS++/+MgALbkvVwMR64mhdZJ/0DvD3uUocY23oWaFnSmlFqNtNHc3JcO32JQ/45HELuwsGPY6v+W8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=n018FSLT; arc=none smtp.client-ip=34.197.254.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.uk
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A64F2346AC2
+	for <linux-s390@vger.kernel.org>; Fri, 10 Apr 2026 15:32:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.42
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775835135; cv=pass; b=mI7428fSTYD0cNRkZmpArns9soqPL6HeDUR87eZ7eylmbHiS4FL4XzKIPd1EI+nYJKustUEVAw7z+3fHtzJIxt3LSun/t0jC5ZknbUI+E1PlePZsdbOYMARDaGVHAGS42ySWfKKeBR/+9BkEHWFScnPr/fmNU++MbbOy/o+WqTQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775835135; c=relaxed/simple;
+	bh=OBQJPBhzAm5teFuL1it4zrQEsej5woZw67yMwyO4d8U=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=bebExFI3ORs/Ofw/HmQymKodmf8Ep7or3NjZq7L8zRvt0ZM0+WtB4fviVzFl+AP2j+6VO6yox0xQLgkwVVA/mM+2i2gYGQX/GqvJ7Rz/SkM0kNhRHQXUoWVaR9b8HxIvWqgN73X1ESz7Vjnq8uCMXECumDJfhv3kbFpdE8VCBV8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=0x0f.com; spf=pass smtp.mailfrom=0x0f.com; dkim=pass (1024-bit key) header.d=0x0f.com header.i=@0x0f.com header.b=cs+zJ0r8; arc=pass smtp.client-ip=74.125.82.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=0x0f.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=0x0f.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="n018FSLT"
+	dkim=pass (1024-bit key) header.d=0x0f.com header.i=@0x0f.com header.b="cs+zJ0r8"
+Received: by mail-dl1-f42.google.com with SMTP id a92af1059eb24-12c1a170a50so2014880c88.0
+        for <linux-s390@vger.kernel.org>; Fri, 10 Apr 2026 08:32:11 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1775835131; cv=none;
+        d=google.com; s=arc-20240605;
+        b=NcZxjfwAlPWU7tTscELlNzSfZQ4NgE7Y30Y1mWtpZBIKCKY7LLq1ODoE7rMFkTb06b
+         eGjea2WhcW91j1Zqs5DSTVfth2HqtR9n/YVr31g797zLi5jujBSgRr+Lm+cs1EdCMyKY
+         ljFD5cqU/BSpXeIwnPUadCLFHW8M9DFpr49UnMWuArpQEdveYFR/B2y2b/xMpVc/Th4d
+         ZRMBtYMiGpUMZ2zWfJTM2/9lUFGdBgrNzsFNHOuQa/gRg8U76P+gPF4Uv8faC/Bmqu+z
+         pLaAoHooFwlPJjC61hdH5aEeuEa4fUmszDBGJouu20Fn5hgMS7xXOzNQYZn3icJGAtF+
+         smLQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=OBQJPBhzAm5teFuL1it4zrQEsej5woZw67yMwyO4d8U=;
+        fh=/mv2uuNcbzrPNQ6OSemj1O9jOGqMusc90Gka1//n2hk=;
+        b=louUGpX3oB38gHKb3fnGwpjZvkhsYK5KNUx3aYdkNfgfl5+bQQKTbp4ycHwkvtABK0
+         rBvWd3o5nlhguEo+LYPdUniG+e0cZRhWfrM90/4ZGzpBBK2qtvOmaTUZZFf9/91XWz4y
+         c11Jh7FiS+1igw8RDEwWLyD1EOtGSdHbMikVxu5Wic/NX+2qfkNGtlKlzGlXn4AXpjj/
+         2fjTuOoos/cXGX4uCqYd+QaYlf5P8yIEUt7b+JtkzInn6kreIHTQJsY8z/dBRkp3AeZT
+         o07mPz9+rkfaeNBSQuqEfuLt3Bws/9M/vbvinIC/ZBzhOF9Mi+gxsBBACouvRoGFgf80
+         p43w==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1775835056; x=1807371056;
-  h=message-id:date:mime-version:reply-to:subject:to:cc:
-   references:from:in-reply-to:content-transfer-encoding;
-  bh=fk/G0VoAmsTULxx1duFy1qBcFztpaqd84bNcnJdqZbI=;
-  b=n018FSLTH4un0ewyA5Vfw2TQnix43wY+xUYls0yG4+8wWSidmEghUreY
-   ppTOeMxf0MGOhpympCj3AXhwtW8PXaNfb+lY5FZfT2mZk+m/a063QmbX1
-   zsLrVDjToSI7BbiXJt0lGNe8Sz33LR0jtFRdHz9qVypiVr5YFxYuiOJQa
-   4cSIUjL8cGYxrwhpH23XsR5GiERpeWkbmxTtxATVYBZ0a1UJReVxZynqX
-   HomCjalp84f6cgnHqf1eppOHwexKkBCAHqpgloZSObEMqIhu5pz4in6Xc
-   +lPwAoz9hj29q4bS+cW8ptDavgGJmvfAyJSDXOrokEsEIARgPb2MsARSo
-   g==;
-X-CSE-ConnectionGUID: EfpEH2kdQD+iuAgL71BkKg==
-X-CSE-MsgGUID: S2cYWuC+QKSF2lkzx+JDHw==
-X-IronPort-AV: E=Sophos;i="6.23,171,1770595200"; 
-   d="scan'208";a="15700706"
-Received: from ip-10-4-17-41.ec2.internal (HELO smtpout.naws.us-east-1.prod.farcaster.email.amazon.dev) ([10.4.17.41])
-  by internal-iad-out-010.esa.us-east-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2026 15:30:52 +0000
-Received: from EX19MTAUEA001.ant.amazon.com [72.21.196.67:32091]
- by smtpin.naws.us-east-1.prod.farcaster.email.amazon.dev [10.0.29.254:2525] with esmtp (Farcaster)
- id 88ad7e41-cdbc-4feb-8b06-7a4fac6cc058; Fri, 10 Apr 2026 15:30:51 +0000 (UTC)
-X-Farcaster-Flow-ID: 88ad7e41-cdbc-4feb-8b06-7a4fac6cc058
-Received: from EX19D027UEC003.ant.amazon.com (10.252.137.250) by
- EX19MTAUEA001.ant.amazon.com (10.252.134.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
- Fri, 10 Apr 2026 15:30:51 +0000
-Received: from [192.168.12.97] (10.106.82.30) by EX19D027UEC003.ant.amazon.com
- (10.252.137.250) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37; Fri, 10 Apr 2026
- 15:30:39 +0000
-Message-ID: <45807109-570d-4681-bbd0-7a1649f515d9@amazon.com>
-Date: Fri, 10 Apr 2026 16:30:36 +0100
+        d=0x0f.com; s=google; t=1775835131; x=1776439931; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=OBQJPBhzAm5teFuL1it4zrQEsej5woZw67yMwyO4d8U=;
+        b=cs+zJ0r8E1VxbeERL/6orYDfRzBNN0xV+FBDuuOmam2/EuHZ7scxaUctzZ3REo2LBr
+         KdQSu4tLtUeUQ/Am7PGmtjXBLQ/7knpdVClf5erC+tpkhYxe59BfVvuW88STHDIDr49T
+         TpKPrBeobAalm+DfnxseCj+mCeyPg4AFXq4Ow=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775835131; x=1776439931;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=OBQJPBhzAm5teFuL1it4zrQEsej5woZw67yMwyO4d8U=;
+        b=PUOaxUqj0SOqaA0Ha7muAFFJfTcqOoTF3CS0B4Y8Okh9GxldoR8o2ypNz5B3hYdtmc
+         FwpktW8wQJaZRVLKhh/o21aMbTw8hGz65yqgbfpB65ixi3BlxwuUcvWbfIVPnIiKMi2g
+         QdLZdI7JIZjZ+IDSR2Qcb7QHdDOBANXGY1oCH8bP27oU+F09BE5RS833BjENPOGVMlut
+         bWrHdgc1897GQdi009IdlV2W6G25E2dmWXSORKiZ4zvDfHbJN389O9884USsP7g6GB3y
+         zZwUf4Bq64DOy2ZESjDbrfwvyODpiK3xn2YqcOFOMCgP0s8LGz2OLZJeGkuzXIokUClW
+         vFUA==
+X-Forwarded-Encrypted: i=1; AJvYcCWdt3KtgLCfF7MzN45+tDDJ7rO0xKwMwnueQ7nDijJ0U5m5x8Xe6Yu0z8f3m1o9gzLsYkeoRNvXt0d7@vger.kernel.org
+X-Gm-Message-State: AOJu0YwoA9R8V6FmVsOPteW7l2EDmMU7ZQHUMhqpQIJS+em5PqY3HmsD
+	eFpOUab5UShCngmrog0bpzz1r35P52FJ92hCyZky93W0O2cjIrutD6u8Lfe2KSR7JI0M51Sy/8l
+	Y2o104FlB8S+B+db791d6cQp91wXEMbhZgHh8N7tP0Q==
+X-Gm-Gg: AeBDiev+/lh+hhdGojx8KoXeHiWbphn3NNJID7at51ZQOBZlTYyrPyYkeE3dTFtZbBR
+	SYPzAbGgcmFhEYr0p5745wIqvKRvMcwUid25gFIp3AAU+VUh5icMhgYe5y9O6zx8J1nHLDCkYNI
+	yedcugFBYWMn+NdA7A70VRGEvE7pPaguxw6iIq73zRBk6wnIQn109Cvwo00wZaAykK189XiAMNG
+	5eBacZbq6PKZyP3g7OKwT63nnfcwt2gKJJbej9TjaE1BEivYOA0sE0zbyiumkFn6n+Ms0iKGgJB
+	g+Oa
+X-Received: by 2002:a05:7022:6097:b0:128:ccb7:7fa3 with SMTP id
+ a92af1059eb24-12c34f069f8mr2159203c88.34.1775835130696; Fri, 10 Apr 2026
+ 08:32:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Reply-To: <kalyazin@amazon.com>
-Subject: Re: [PATCH v11 10/16] KVM: guest_memfd: Add flag to remove from
- direct map
-To: Ackerley Tng <ackerleytng@google.com>, "Kalyazin, Nikita"
-	<kalyazin@amazon.co.uk>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "kvmarm@lists.linux.dev"
-	<kvmarm@lists.linux.dev>, "linux-fsdevel@vger.kernel.org"
-	<linux-fsdevel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>,
-	"bpf@vger.kernel.org" <bpf@vger.kernel.org>,
-	"linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>,
-	"kernel@xen0n.name" <kernel@xen0n.name>, "linux-riscv@lists.infradead.org"
-	<linux-riscv@lists.infradead.org>, "linux-s390@vger.kernel.org"
-	<linux-s390@vger.kernel.org>, "loongarch@lists.linux.dev"
-	<loongarch@lists.linux.dev>, "linux-pm@vger.kernel.org"
-	<linux-pm@vger.kernel.org>
-CC: "pbonzini@redhat.com" <pbonzini@redhat.com>, "corbet@lwn.net"
-	<corbet@lwn.net>, "maz@kernel.org" <maz@kernel.org>, "oupton@kernel.org"
-	<oupton@kernel.org>, "joey.gouly@arm.com" <joey.gouly@arm.com>,
-	"suzuki.poulose@arm.com" <suzuki.poulose@arm.com>, "yuzenghui@huawei.com"
-	<yuzenghui@huawei.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-	"will@kernel.org" <will@kernel.org>, "seanjc@google.com" <seanjc@google.com>,
-	"tglx@kernel.org" <tglx@kernel.org>, "mingo@redhat.com" <mingo@redhat.com>,
-	"bp@alien8.de" <bp@alien8.de>, "dave.hansen@linux.intel.com"
-	<dave.hansen@linux.intel.com>, "x86@kernel.org" <x86@kernel.org>,
-	"hpa@zytor.com" <hpa@zytor.com>, "luto@kernel.org" <luto@kernel.org>,
-	"peterz@infradead.org" <peterz@infradead.org>, "willy@infradead.org"
-	<willy@infradead.org>, "akpm@linux-foundation.org"
-	<akpm@linux-foundation.org>, "david@kernel.org" <david@kernel.org>,
-	"lorenzo.stoakes@oracle.com" <lorenzo.stoakes@oracle.com>,
-	"vbabka@kernel.org" <vbabka@kernel.org>, "rppt@kernel.org" <rppt@kernel.org>,
-	"surenb@google.com" <surenb@google.com>, "mhocko@suse.com" <mhocko@suse.com>,
-	"ast@kernel.org" <ast@kernel.org>, "daniel@iogearbox.net"
-	<daniel@iogearbox.net>, "andrii@kernel.org" <andrii@kernel.org>,
-	"martin.lau@linux.dev" <martin.lau@linux.dev>, "eddyz87@gmail.com"
-	<eddyz87@gmail.com>, "song@kernel.org" <song@kernel.org>,
-	"yonghong.song@linux.dev" <yonghong.song@linux.dev>,
-	"john.fastabend@gmail.com" <john.fastabend@gmail.com>, "kpsingh@kernel.org"
-	<kpsingh@kernel.org>, "sdf@fomichev.me" <sdf@fomichev.me>,
-	"haoluo@google.com" <haoluo@google.com>, "jolsa@kernel.org"
-	<jolsa@kernel.org>, "jgg@ziepe.ca" <jgg@ziepe.ca>, "jhubbard@nvidia.com"
-	<jhubbard@nvidia.com>, "peterx@redhat.com" <peterx@redhat.com>,
-	"jannh@google.com" <jannh@google.com>, "pfalcato@suse.de" <pfalcato@suse.de>,
-	"skhan@linuxfoundation.org" <skhan@linuxfoundation.org>, "riel@surriel.com"
-	<riel@surriel.com>, "ryan.roberts@arm.com" <ryan.roberts@arm.com>,
-	"jgross@suse.com" <jgross@suse.com>, "yu-cheng.yu@intel.com"
-	<yu-cheng.yu@intel.com>, "kas@kernel.org" <kas@kernel.org>, "coxu@redhat.com"
-	<coxu@redhat.com>, "kevin.brodsky@arm.com" <kevin.brodsky@arm.com>,
-	"yosry@kernel.org" <yosry@kernel.org>, "ajones@ventanamicro.com"
-	<ajones@ventanamicro.com>, "maobibo@loongson.cn" <maobibo@loongson.cn>,
-	"tabba@google.com" <tabba@google.com>, "prsampat@amd.com" <prsampat@amd.com>,
-	"wu.fei9@sanechips.com.cn" <wu.fei9@sanechips.com.cn>, "mlevitsk@redhat.com"
-	<mlevitsk@redhat.com>, "jmattson@google.com" <jmattson@google.com>,
-	"jthoughton@google.com" <jthoughton@google.com>, "agordeev@linux.ibm.com"
-	<agordeev@linux.ibm.com>, "alex@ghiti.fr" <alex@ghiti.fr>,
-	"aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>, "borntraeger@linux.ibm.com"
-	<borntraeger@linux.ibm.com>, "chenhuacai@kernel.org" <chenhuacai@kernel.org>,
-	"dev.jain@arm.com" <dev.jain@arm.com>, "gor@linux.ibm.com"
-	<gor@linux.ibm.com>, "hca@linux.ibm.com" <hca@linux.ibm.com>,
-	"palmer@dabbelt.com" <palmer@dabbelt.com>, "pjw@kernel.org" <pjw@kernel.org>,
-	"shijie@os.amperecomputing.com" <shijie@os.amperecomputing.com>,
-	"svens@linux.ibm.com" <svens@linux.ibm.com>, "thuth@redhat.com"
-	<thuth@redhat.com>, "wyihan@google.com" <wyihan@google.com>,
-	"yang@os.amperecomputing.com" <yang@os.amperecomputing.com>,
-	"Jonathan.Cameron@huawei.com" <Jonathan.Cameron@huawei.com>,
-	"Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>, "urezki@gmail.com"
-	<urezki@gmail.com>, "zhengqi.arch@bytedance.com"
-	<zhengqi.arch@bytedance.com>, "gerald.schaefer@linux.ibm.com"
-	<gerald.schaefer@linux.ibm.com>, "jiayuan.chen@shopee.com"
-	<jiayuan.chen@shopee.com>, "lenb@kernel.org" <lenb@kernel.org>,
-	"osalvador@suse.de" <osalvador@suse.de>, "pavel@kernel.org"
-	<pavel@kernel.org>, "rafael@kernel.org" <rafael@kernel.org>,
-	"vannapurve@google.com" <vannapurve@google.com>, "jackmanb@google.com"
-	<jackmanb@google.com>, "aneesh.kumar@kernel.org" <aneesh.kumar@kernel.org>,
-	"patrick.roy@linux.dev" <patrick.roy@linux.dev>, "Thomson, Jack"
-	<jackabt@amazon.co.uk>, "Itazuri, Takahiro" <itazur@amazon.co.uk>,
-	"Manwaring, Derek" <derekmn@amazon.com>
-References: <20260317141031.514-1-kalyazin@amazon.com>
- <20260317141031.514-11-kalyazin@amazon.com>
- <CAEvNRgGb95C3uRxPy2_Uj7SmTW45hNNdJxi5RR209s5KYcHgBw@mail.gmail.com>
-Content-Language: en-US
-From: Nikita Kalyazin <kalyazin@amazon.com>
-Autocrypt: addr=kalyazin@amazon.com; keydata=
- xjMEY+ZIvRYJKwYBBAHaRw8BAQdA9FwYskD/5BFmiiTgktstviS9svHeszG2JfIkUqjxf+/N
- JU5pa2l0YSBLYWx5YXppbiA8a2FseWF6aW5AYW1hem9uLmNvbT7CjwQTFggANxYhBGhhGDEy
- BjLQwD9FsK+SyiCpmmTzBQJp2NfjBQkGQlIzAhsDBAsJCAcFFQgJCgsFFgIDAQAACgkQr5LK
- IKmaZPPNDAEAvsw8vEWj8ArWQ1QJNufjrvobU/cE8MLKdBxbSE8CyZQA/0BldKxNAtAwG4qw
- wCLxsZ5vBL3Zkh/PdvtFCj/VGscGzjgEY+ZIvRIKKwYBBAGXVQEFAQEHQCqd7/nb2tb36vZt
- ubg1iBLCSDctMlKHsQTp7wCnEc4RAwEIB8J+BBgWCAAmFiEEaGEYMTIGMtDAP0Wwr5LKIKma
- ZPMFAmnY1+MFCQZCUjMCGwwACgkQr5LKIKmaZPPQKgD/f3FtERbJ+LYHLSG/ZbLNAOLngUlQ
- qo5VfIyJOzeLzC0BAP2PIUFIHo7vmia/PXEmT+ve4c5rx+EkH/Dx1GRpjWoI
-In-Reply-To: <CAEvNRgGb95C3uRxPy2_Uj7SmTW45hNNdJxi5RR209s5KYcHgBw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: EX19D005EUA004.ant.amazon.com (10.252.50.241) To
- EX19D027UEC003.ant.amazon.com (10.252.137.250)
+References: <20260410120044.031381086@kernel.org> <20260410120319.397219631@kernel.org>
+In-Reply-To: <20260410120319.397219631@kernel.org>
+From: Daniel Palmer <daniel@0x0f.com>
+Date: Sat, 11 Apr 2026 00:31:59 +0900
+X-Gm-Features: AQROBzAnX-XEClLFV-qWYFUzCuq4P43sNZviESiWFI1yCPXm2VtVZ2QkaUGJoPY
+Message-ID: <CAFr9PXk7qK8-2JWrrfgXHoS9JWTRL+WobLjmAesyCE9VLL8ZyQ@mail.gmail.com>
+Subject: Re: [patch 27/38] m68k: Select ARCH_HAS_RANDOM_ENTROPY
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, 
+	linux-m68k@lists.linux-m68k.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, 
+	Lu Baolu <baolu.lu@linux.intel.com>, iommu@lists.linux.dev, 
+	Michael Grzeschik <m.grzeschik@pengutronix.de>, netdev@vger.kernel.org, 
+	linux-wireless@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>, 
+	linux-crypto@vger.kernel.org, Vlastimil Babka <vbabka@kernel.org>, linux-mm@kvack.org, 
+	David Woodhouse <dwmw2@infradead.org>, Bernie Thompson <bernie@plugable.com>, linux-fbdev@vger.kernel.org, 
+	Theodore Tso <tytso@mit.edu>, linux-ext4@vger.kernel.org, 
+	Andrew Morton <akpm@linux-foundation.org>, Uladzislau Rezki <urezki@gmail.com>, 
+	Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>, kasan-dev@googlegroups.com, 
+	Andrey Ryabinin <ryabinin.a.a@gmail.com>, Thomas Sailer <t.sailer@alumni.ethz.ch>, 
+	linux-hams@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>, 
+	Richard Henderson <richard.henderson@linaro.org>, linux-alpha@vger.kernel.org, 
+	Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, 
+	Catalin Marinas <catalin.marinas@arm.com>, Huacai Chen <chenhuacai@kernel.org>, 
+	loongarch@lists.linux.dev, Dinh Nguyen <dinguyen@kernel.org>, 
+	Jonas Bonn <jonas@southpole.se>, linux-openrisc@vger.kernel.org, 
+	Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org, 
+	Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, 
+	Paul Walmsley <pjw@kernel.org>, linux-riscv@lists.infradead.org, 
+	Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, 
+	"David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
+Hi
 
+On Fri, 10 Apr 2026 at 21:39, Thomas Gleixner <tglx@kernel.org> wrote:
+>
+> The only remaining usage of get_cycles() is to provide
+> random_get_entropy().
+>
+> Switch m68k over to the new scheme of selecting ARCH_HAS_RANDOM_ENTROPY and
+> providing random_get_entropy() in asm/random.h.
 
-On 23/03/2026 21:15, Ackerley Tng wrote:
-> "Kalyazin, Nikita" <kalyazin@amazon.co.uk> writes:
-> 
->>
->> [...snip...]
->>
->>   static vm_fault_t kvm_gmem_fault_user_mapping(struct vm_fault *vmf)
->>   {
->>        struct inode *inode = file_inode(vmf->vma->vm_file);
->>        struct folio *folio;
->>        vm_fault_t ret = VM_FAULT_LOCKED;
->> +     int err;
->>
->>        if (((loff_t)vmf->pgoff << PAGE_SHIFT) >= i_size_read(inode))
->>                return VM_FAULT_SIGBUS;
->> @@ -418,6 +454,14 @@ static vm_fault_t kvm_gmem_fault_user_mapping(struct vm_fault *vmf)
->>                folio_mark_uptodate(folio);
->>        }
->>
->> +     if (kvm_gmem_no_direct_map(folio_inode(folio))) {
->> +             err = kvm_gmem_folio_zap_direct_map(folio);
->> +             if (err) {
->> +                     ret = vmf_error(err);
->> +                     goto out_folio;
->> +             }
->> +     }
->> +
->>        vmf->page = folio_file_page(folio, vmf->pgoff);
->>
-> 
-> Sashiko pointed out that kvm_gmem_populate() might try and write to
-> direct-map-removed folios, but I think that's handled because populate
-> will first try and GUP folios, which is already blocked for
-> direct-map-removed folios.
+I have built and booted this on my Amiga 4000 and it apparently still
+works so FWIW:
 
-As far as I can see, it is a valid issue as populate only GUPs the 
-source pages, not gmem.  I think this is similar to what was discussed 
-about TDX at some point and decided to exclude TDX support [1].  I 
-followed the same path and excluded SEV-SNP in the patch 8 [2].  I kept 
-your and David's "Reviewed-by:" for that patch, but please let me know 
-if this makes you change your minds.
-
-[1] https://lore.kernel.org/kvm/aWpcDrGVLrZOqdcg@google.com
-[2] https://lore.kernel.org/kvm/20260410151746.61150-9-kalyazin@amazon.com
-
-> 
->>   out_folio:
->> @@ -528,6 +572,9 @@ static void kvm_gmem_free_folio(struct folio *folio)
->>        kvm_pfn_t pfn = page_to_pfn(page);
->>        int order = folio_order(folio);
->>
->> +     if (kvm_gmem_folio_no_direct_map(folio))
->> +             kvm_gmem_folio_restore_direct_map(folio);
->> +
->>        kvm_arch_gmem_invalidate(pfn, pfn + (1ul << order));
->>   }
->>
-> 
-> Sashiko says to invalidate then restore direct map, I think in this case
-> it doesn't matter since if the folio needed invalidation, it must be
-> private, and the host shouldn't be writing to the private pages anyway.
-> 
-> One benefit of retaining this order (restore, invalidate) is that it
-> opens the invalidate hook to possibly do something regarding memory
-> contents?
-> 
-> Or perhaps we should just take the suggestion (invalidate, restore) and
-> align that invalidate should not touch memory contents.
-> 
->> @@ -591,6 +638,9 @@ static int __kvm_gmem_create(struct kvm *kvm, loff_t size, u64 flags)
->>        /* Unmovable mappings are supposed to be marked unevictable as well. */
->>        WARN_ON_ONCE(!mapping_unevictable(inode->i_mapping));
->>
->> +     if (flags & GUEST_MEMFD_FLAG_NO_DIRECT_MAP)
->> +             mapping_set_no_direct_map(inode->i_mapping);
->> +
->>        GMEM_I(inode)->flags = flags;
->>
->>        file = alloc_file_pseudo(inode, kvm_gmem_mnt, name, O_RDWR, &kvm_gmem_fops);
->> @@ -803,13 +853,22 @@ int kvm_gmem_get_pfn(struct kvm *kvm, struct kvm_memory_slot *slot,
->>        }
->>
->>        r = kvm_gmem_prepare_folio(kvm, slot, gfn, folio);
->> +     if (r)
->> +             goto out_unlock;
->>
->> +     if (kvm_gmem_no_direct_map(folio_inode(folio))) {
->> +             r = kvm_gmem_folio_zap_direct_map(folio);
->> +             if (r)
->> +                     goto out_unlock;
->> +     }
->> +
->>
->> [...snip...]
->>
-> 
-> Preparing a folio used to involve zeroing, but that has since been
-> refactored out, so I believe zapping can come before preparing.
-> 
-> Similar to the above point on invalidation: perhaps we should take the
-> suggestion to zap then prepare
-> 
-> + And align that preparation should not touch memory contents
-> + Avoid needing to undo the preparation on zapping failure (.free_folio
->    is not called on folio_put(), it is only called folio on removal from
->    filemap).
-
-I reordered both, thanks.
+Tested-by: Daniel Palmer <daniel@thingy.jp>
