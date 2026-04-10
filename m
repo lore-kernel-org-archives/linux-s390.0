@@ -1,99 +1,121 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 506FE226D02;
-	Fri, 10 Apr 2026 04:03:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 436F686329;
+	Fri, 10 Apr 2026 09:15:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775793807; cv=none; b=u3ZhcUB1hApMfkL46mXStqCOR7LgD66yjQvq8btHtK2tXfWEpEb0r4gRRtB1IR9XQWQzLwIlDe/aDOwPubenep9eY1DCZLkth5CrPp7hYIYBBTiwDchRetG/3ZT4nezw0qhtp8CMuouEohRkA3bA2cF7X5YTIvFdNtuQNIweIqQ=
+	t=1775812524; cv=none; b=eQrn1AHt9QMgOERYDD8mCWbV9MYJo9LwG+/BvISHKdMQRUaCawPOaN2042lGvb/WAe+voZ3LhXk71l5euU49iNNL//glXCEc2enje8nExX5Lsokc2rRWA5WiZpjYb7jUnyjRbDFPiss6YHMI1oHfM24m8c90+9aSIV0R8btKukU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775793807; c=relaxed/simple;
-	bh=51gwcxxKbsjSJ6P62E9+lQxS4sAO3RkltN35sl+FeeU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QQwYexXMj82/eNeLM2pmeg8E3ZpE62u4NNroVUDLsUZc8H2Np81yfpHsQ1bg7oDJDZIT+TmyO+BQn0lV07cWWyfBBDKrV1hHenO5j+oHEkc4B534kMiTPHN+CkCZlD7csUi14eaZz/ekCxkX5sZOuE0SGKd2VaxAyqsJd119TBo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZTwwOmCn; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775812524; c=relaxed/simple;
+	bh=7t2J5UpGUsQhlqU9fPuo73wamMrDzEy92IiHZKwl698=;
+	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
+	 References:In-Reply-To; b=tHbDSCMhXqfooeO8F8xogNcsgjvETYWigoDi+09lyPatuscKSLmnpWwnIZrCD9sQzI8Of1McqMlQwro6UBla1ESqn5GkQJMcStxO7jjgmYKVsLFiqYtfnQJMWLpRlJB1HLWOaP+4040YDmghZ12I+TfI8W0ZY5BsSgfxPKHB6WM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TUAKZere; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZTwwOmCn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C811C19421;
-	Fri, 10 Apr 2026 04:03:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775793807;
-	bh=51gwcxxKbsjSJ6P62E9+lQxS4sAO3RkltN35sl+FeeU=;
-	h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
-	b=ZTwwOmCnHfyE7+bkzJjaVbyBp//sWA5e2AFZUXxy5G3DKNg9Tu0PzK3D3lmRHQWy5
-	 VLUBqwcrSoDj71l1yXCr/g3qrMMMD1DkW4RWr0KsQkvXgpZ7PjX8Xbdy3cVZ+pUa6v
-	 fBgr85oLlCLpzanZt7NB0FXY+lhkfXF/57a2HlS6FS4Ag07r7XjghK0extDGahYe3B
-	 6BCIC9iU/C+AHQOyDBNuWKiVu8sHhd07IqQ/W+rlsvzYpX9BRESwqyJzUEVjsIBp/j
-	 l0tQNSCgNX1JN7QtgqjzCwHl3+rzlNSLN/wTG/uNjRZWQ+ucLtD0uzwvritOStwh4G
-	 B00dAH3dKVLKw==
-Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
-	id 9E2DCCE0975; Thu,  9 Apr 2026 21:03:26 -0700 (PDT)
-Date: Thu, 9 Apr 2026 21:03:26 -0700
-From: "Paul E. McKenney" <paulmck@kernel.org>
-To: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Boqun Feng <boqun@kernel.org>,
-	Frederic Weisbecker <frederic@kernel.org>,
-	Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
-	Joel Fernandes <joelagnelf@nvidia.com>,
-	Uladzislau Rezki <urezki@gmail.com>, rcu@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: BUG: workqueue lockup - SRCU schedules work on not-online CPUs
- during size transition
-Message-ID: <2157a59f-a1d3-4007-b8ce-3a7b0e0b9057@paulmck-laptop>
-Reply-To: paulmck@kernel.org
-References: <ttd89ul@ub.hpns>
- <073abb55-197a-4519-b177-f9f776624fed@paulmck-laptop>
- <ttd8que@ub.hpns>
- <024e1e59-c901-4494-9935-f6871af88b2d@paulmck-laptop>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TUAKZere"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63A958NM773967;
+	Fri, 10 Apr 2026 09:15:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=yaou28
+	q7dHtKt66hCI/u4IYqtGkGgPeHTbzr2DtcfXo=; b=TUAKZerewkyy36EFgzMWlc
+	jOJhQoID31vy7l99TKFlUo2/Gmv+SNd7NJa29Y/cdJK+U7RJR3zHobCAqrobTVXV
+	pUN14j6FNd5QvJXV2wl/X58zKmT43JbpBT8b5BG+KC6dbdI9SJhYvT+BNZ9gAM+U
+	USVt8RqoujbWMCUGDxw/SR11k2vKd7JphhEj03Nm81E5g1fEXQCZiJbZXEPCPnMs
+	yXxOB6nWnbw7P+tD1QfSsPqjMdgctQif0gYsGQvG7QPx+tc6tN13XT96MFmvIZ7l
+	Es2YoEHp9wSv5IqQ/ZXpKJIfWHVzqwS7rJ/86IxxcAoKrnXb/ndR8F7Ix+kDFg5Q
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dcn2hr2p3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 10 Apr 2026 09:15:20 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63A8i6Gp026655;
+	Fri, 10 Apr 2026 09:15:19 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dcmg878u0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 10 Apr 2026 09:15:19 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63A9FFsH55968220
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 10 Apr 2026 09:15:15 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 974A820043;
+	Fri, 10 Apr 2026 09:15:15 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6F8F020040;
+	Fri, 10 Apr 2026 09:15:15 +0000 (GMT)
+Received: from darkmoore (unknown [9.111.44.245])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 10 Apr 2026 09:15:15 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <024e1e59-c901-4494-9935-f6871af88b2d@paulmck-laptop>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Fri, 10 Apr 2026 11:15:04 +0200
+Message-Id: <DHPCZUIKL3VY.2TSR0QVXXUYCN@linux.ibm.com>
+From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+Cc: <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        <borntraeger@de.ibm.com>, <frankja@linux.ibm.com>, <nrb@linux.ibm.com>,
+        <seiden@linux.ibm.com>, <schlameuss@linux.ibm.com>,
+        <gra@linux.ibm.com>, <david@kernel.org>
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v3 2/6] KVM: s390: Add alignment checks for hugepages
+X-Mailer: aerc 0.21.0
+References: <20260402150135.196943-1-imbrenda@linux.ibm.com>
+ <20260402150135.196943-3-imbrenda@linux.ibm.com>
+In-Reply-To: <20260402150135.196943-3-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDEwMDA4MSBTYWx0ZWRfX4mR7qbe5SKbc
+ s8r+19+IaHad76tSmadhRdeR4RYbKQ3DaSp496bmwDE87qqtZ5Tfoqoyk2hmLMH4OIjkg7YmNdP
+ sy83ADwFO1pZi4RydgxM0QPN7igiahlBCcvZn/IA1Xm1cNmjrmXPFTJuzif4OyCM6iN6tqD124E
+ QgbLuXxEzZ3FMQopyvBhFe3Xp9Af4ZATy0fB+jRJGLF4PuuvT+vBVWBI/1IVivgZBSe2fuWiVyu
+ CpT8di8ETpChMR8SllJhgeLDF4D4kaou8z/BzNze/bzmAaSpYoGjlTLKmDHNilcxGy3GYwrd/8z
+ l289PZ6k44RkjXtq9KyBxVT9yJnGUK0ARfnFqQYpS9C55AXrN+3fcaNDRNU8XoOMcI1C1naq3J8
+ iyXh3F/yURNkpWZTjw/2yw9h5LumVhkQoW7eFJp1M0+3fQt+zVucQGyw4KW/mBfX0FTh+EN5kqc
+ 4svxdvKEovW2a6jCy1g==
+X-Proofpoint-GUID: ksS_2FQ0LXp2HbOnICLj-kvSnbByvBqE
+X-Authority-Analysis: v=2.4 cv=a/wAM0SF c=1 sm=1 tr=0 ts=69d8bfa8 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=bwOT_0aHw2EZLAc2GVcA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: ksS_2FQ0LXp2HbOnICLj-kvSnbByvBqE
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-04-10_02,2026-04-09_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 clxscore=1015 spamscore=0 impostorscore=0 priorityscore=1501
+ phishscore=0 lowpriorityscore=0 adultscore=0 malwarescore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2604010000 definitions=main-2604100081
 
-On Thu, Apr 09, 2026 at 01:10:14PM -0700, Paul E. McKenney wrote:
-> On Thu, Apr 09, 2026 at 09:15:50PM +0200, Vasily Gorbik wrote:
+On Thu Apr 2, 2026 at 5:01 PM CEST, Claudio Imbrenda wrote:
+> When backing a guest page with a large page, check that the alignment
+> of the guest page matches the alignment of the host physical page
+> backing it within the large page.
+>
+> Also check that the memslot is large enough to fit the large page.
+>
+> Those checks are currently not needed, because memslots are guaranteed
+> to be 1m-aligned, but this will change.
+>
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-[ . . . ]
+Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
-> > Yes, tested on s390 LPAR (76 online, 400 possible) as well as
-> > on x86 KVM with --smp 16,maxcpus=255 and CONFIG_NR_CPUS=256
-> > no more workqueue lockup in both cases.
-> > 
-> > Thank you!
-> > 
-> > Tested-by: Vasily Gorbik <gor@linux.ibm.com>
-> 
-> Thank you for testing this!
-> 
-> Please see below for an updated patch.  Tejun's patch might obsolete
-> this one, but just in case he balks at SRCU queueing handlers for CPUs
-> that are not even in the cpu_possible_mask.  ;-)
-
-And because we don't invoke SRCU callbacks on CPUs that are not yet fully
-online, such CPUs had better not invoke call_srcu(), synchronize_srcu(),
-or synchronize_srcu_expedited() on a CPU that is not yet fully online.
-I am therefore adding the warning shown below.
-
-Better paranoid late than paranoid not at all.  ;-)
-
-							Thanx, Paul
-
-------------------------------------------------------------------------
-
-diff --git a/kernel/rcu/srcutree.c b/kernel/rcu/srcutree.c
-index a67af44fc0745..d62509efb52f5 100644
---- a/kernel/rcu/srcutree.c
-+++ b/kernel/rcu/srcutree.c
-@@ -1431,6 +1431,7 @@ static unsigned long srcu_gp_start_if_needed(struct srcu_struct *ssp,
- static void __call_srcu(struct srcu_struct *ssp, struct rcu_head *rhp,
- 			rcu_callback_t func, bool do_norm)
- {
-+	WARN_ON_ONCE(!rcu_cpu_beenfullyonline(raw_smp_processor_id()));
- 	if (debug_rcu_head_queue(rhp)) {
- 		/* Probable double call_srcu(), so leak the callback. */
- 		WRITE_ONCE(rhp->func, srcu_leak_callback);
+> ---
+>  arch/s390/kvm/faultin.c |  2 +-
+>  arch/s390/kvm/gmap.c    | 32 ++++++++++++++++++++++++++------
+>  arch/s390/kvm/gmap.h    |  3 ++-
+>  3 files changed, 29 insertions(+), 8 deletions(-)
