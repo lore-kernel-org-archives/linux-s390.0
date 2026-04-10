@@ -1,54 +1,54 @@
-Received: from iad-out-001.esa.us-east-1.outbound.mail-perimeter.amazon.com (iad-out-001.esa.us-east-1.outbound.mail-perimeter.amazon.com [107.22.191.150])
+Received: from iad-out-004.esa.us-east-1.outbound.mail-perimeter.amazon.com (iad-out-004.esa.us-east-1.outbound.mail-perimeter.amazon.com [18.207.52.234])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D97F3E3141;
-	Fri, 10 Apr 2026 15:25:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=107.22.191.150
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D96B23BA233;
+	Fri, 10 Apr 2026 15:26:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=18.207.52.234
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775834752; cv=none; b=Yoot4fEc+10s0BDChZHJmNkTGUXNZhL3OW3jZvaDx60YUh9Mqgb3F+pQBcEhMFPDpa1VyNKsKQqGPZaDXJ1QMyU2tvpuvaZZoJqwwxp+sx102CDDMctJ2SmZOfUHA5X0ZaD8L8XUtwrERRAAdhv0loWz4p9rVrKhqD6UmhJf2iM=
+	t=1775834777; cv=none; b=Ok9GOdAWCPdZI8koHdnwyh6nU6d2F7FhEqyzGxeyYtMEHW73YmNC0qmbSka/uP4MvcnH6+PBOKu3JReM0JhicVhqUp0vNVe8Y7kVbJBR91m7zamVWDyGxCi++K1+LFG+Eex9KNWBz5PudSRw9u6NU4uB2daG++J2Q0f6tUMYiQo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775834752; c=relaxed/simple;
-	bh=6NArw1uwvitOg/jIfrfJACQU4BNxnZYs12Ybl8tGKxA=;
+	s=arc-20240116; t=1775834777; c=relaxed/simple;
+	bh=haiPnGnQFfUZs8gRmHKv12v4+AlGlNObrfqrQYkB53I=;
 	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=IQxuBZyy8A1UZjoeQTPqvn4uU1TS9hAC2qzoZ7A0HP/WvEIYYmFAySRSm0tFKQBqzyqxoi87bm4X9vSNnVeAMpxDk520mTalbeQh52f5mKG6aJsAQHyggP+7hsttSSkSMt7GmENcXPdRngxoKQiseEBEZTDF0LWzs+JCo6z210w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=aeaaS43f; arc=none smtp.client-ip=107.22.191.150
+	 In-Reply-To:Content-Type; b=IzAXYqmAnK50esj768UUtHYnvTv9zummv1wlgzDIJOUg/UxW230jrRFnZM3q/GxzhOnUTZDazGBhGWuIvJ7lf2rAtuibBY1yBz+DEk6J7Xs0VIWzAD4Sdd3ALS4yqbPw+r2cdxYHOayQEUQSQOOSnhGOFHzd52fA7sOEzf7C5BI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=cekAk2kU; arc=none smtp.client-ip=18.207.52.234
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="aeaaS43f"
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="cekAk2kU"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1775834751; x=1807370751;
+  t=1775834776; x=1807370776;
   h=message-id:date:mime-version:reply-to:subject:to:cc:
    references:from:in-reply-to:content-transfer-encoding;
-  bh=ol7pcngOj6CrfOGKJ1Q8+hUmGyttlI2sRZ1Q0xls5wA=;
-  b=aeaaS43frhG1iXYIq5IZawWJ0YI67ZOpW8epibK0WdnnoaKAOewATend
-   tCgfhjnR549oiTJd/uGYIqgXlj6PQ8Nq05MsJaKrOuICeFIqXDmtlGomD
-   CupokE95B2WmTbNqB40FwXtXb33foGW1+uw9OuaIP+8O1tMFM4mtSra4P
-   60x5eqmGQtZLRmOYUNTnrNj+Wc75+WMax+TSLVd+ALvHJMFpuXQ/uxgPU
-   6TXywDa7Hl/IlhwIByi+Z1sJ/IV9wsPSZHLk/ZQX3XHWLaNOzlhBXgXdu
-   sCWuAV6JCzJU4iNlmecoTTnpBCzmqXUuGns6KtGlGlDAKfqd1rKsngINf
+  bh=myGuGGgnR9AJ65k7Tpv29MZkBqAgZAsukBFpDCDwAPU=;
+  b=cekAk2kUhxuGwrfw1Ue3umUPFRLypcEIg78DYnQmFrrPu94DhN4GfcaZ
+   uTpm2od40OFduqVMROrePRahmgSAn5wFSTms13dozPdueAZoFbDey6PjI
+   R/R+injr9jTYnyDwTtqSLvX8oxJVEju1xaN+8QnysyONn6NdsSFiM+B6i
+   JUmGJjXpu6kBfwc+Al2CN3YenLEDRNDPw3M9t+Upu3HDqOjvkLukroEn3
+   hOaSUUqOv/7lbvI/XyXQtP9/4e6XZC7Kf0bXJkgzlxe6DTOS0GYwUJC7l
+   dxbppBgz6APT0fe8ZbL6XdnDTUNw6kdrtoqNtfIC8esuNdm8CgYw8vxWT
    w==;
-X-CSE-ConnectionGUID: C6NGMfEdR0yLPJiR2UsJqg==
-X-CSE-MsgGUID: FNMxIsp6SHKbEpn1aSfTPQ==
+X-CSE-ConnectionGUID: HmWevmEkSyyaD2dsMEmNow==
+X-CSE-MsgGUID: VqWwaZmcTmuZzfngn8n1+Q==
 X-IronPort-AV: E=Sophos;i="6.23,171,1770595200"; 
-   d="scan'208";a="15526458"
-Received: from ip-10-4-3-150.ec2.internal (HELO smtpout.naws.us-east-1.prod.farcaster.email.amazon.dev) ([10.4.3.150])
-  by internal-iad-out-001.esa.us-east-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2026 15:25:49 +0000
-Received: from EX19MTAUEC001.ant.amazon.com [52.94.133.142:11264]
+   d="scan'208";a="15971227"
+Received: from ip-10-4-22-235.ec2.internal (HELO smtpout.naws.us-east-1.prod.farcaster.email.amazon.dev) ([10.4.22.235])
+  by internal-iad-out-004.esa.us-east-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2026 15:26:12 +0000
+Received: from EX19MTAUEB002.ant.amazon.com [72.21.198.67:11072]
  by smtpin.naws.us-east-1.prod.farcaster.email.amazon.dev [10.0.59.187:2525] with esmtp (Farcaster)
- id 0e62ab68-b87c-485a-aa3c-53498707ba15; Fri, 10 Apr 2026 15:25:49 +0000 (UTC)
-X-Farcaster-Flow-ID: 0e62ab68-b87c-485a-aa3c-53498707ba15
+ id 7fbceef4-e2e0-48cc-89a3-9e29bae5d585; Fri, 10 Apr 2026 15:26:12 +0000 (UTC)
+X-Farcaster-Flow-ID: 7fbceef4-e2e0-48cc-89a3-9e29bae5d585
 Received: from EX19D027UEC003.ant.amazon.com (10.252.137.250) by
- EX19MTAUEC001.ant.amazon.com (10.252.135.222) with Microsoft SMTP Server
+ EX19MTAUEB002.ant.amazon.com (10.252.135.47) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
- Fri, 10 Apr 2026 15:25:48 +0000
+ Fri, 10 Apr 2026 15:26:12 +0000
 Received: from [192.168.12.97] (10.106.82.30) by EX19D027UEC003.ant.amazon.com
  (10.252.137.250) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37; Fri, 10 Apr 2026
- 15:25:35 +0000
-Message-ID: <f0ee7211-99d3-4ef7-abd4-73cd202e6440@amazon.com>
-Date: Fri, 10 Apr 2026 16:25:33 +0100
+ 15:25:59 +0000
+Message-ID: <532481d6-f137-4666-b2e3-77aa1b5c8177@amazon.com>
+Date: Fri, 10 Apr 2026 16:25:57 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -59,7 +59,7 @@ User-Agent: Mozilla Thunderbird
 Reply-To: <kalyazin@amazon.com>
 Subject: Re: [PATCH v11 02/16] set_memory: add folio_{zap, restore}_direct_map
  helpers
-To: "David Hildenbrand (Arm)" <david@kernel.org>, "Kalyazin, Nikita"
+To: Ackerley Tng <ackerleytng@google.com>, "Kalyazin, Nikita"
 	<kalyazin@amazon.co.uk>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
 	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
@@ -86,13 +86,14 @@ CC: "pbonzini@redhat.com" <pbonzini@redhat.com>, "corbet@lwn.net"
 	"hpa@zytor.com" <hpa@zytor.com>, "luto@kernel.org" <luto@kernel.org>,
 	"peterz@infradead.org" <peterz@infradead.org>, "willy@infradead.org"
 	<willy@infradead.org>, "akpm@linux-foundation.org"
-	<akpm@linux-foundation.org>, "lorenzo.stoakes@oracle.com"
-	<lorenzo.stoakes@oracle.com>, "vbabka@kernel.org" <vbabka@kernel.org>,
-	"rppt@kernel.org" <rppt@kernel.org>, "surenb@google.com" <surenb@google.com>,
-	"mhocko@suse.com" <mhocko@suse.com>, "ast@kernel.org" <ast@kernel.org>,
-	"daniel@iogearbox.net" <daniel@iogearbox.net>, "andrii@kernel.org"
-	<andrii@kernel.org>, "martin.lau@linux.dev" <martin.lau@linux.dev>,
-	"eddyz87@gmail.com" <eddyz87@gmail.com>, "song@kernel.org" <song@kernel.org>,
+	<akpm@linux-foundation.org>, "david@kernel.org" <david@kernel.org>,
+	"lorenzo.stoakes@oracle.com" <lorenzo.stoakes@oracle.com>,
+	"vbabka@kernel.org" <vbabka@kernel.org>, "rppt@kernel.org" <rppt@kernel.org>,
+	"surenb@google.com" <surenb@google.com>, "mhocko@suse.com" <mhocko@suse.com>,
+	"ast@kernel.org" <ast@kernel.org>, "daniel@iogearbox.net"
+	<daniel@iogearbox.net>, "andrii@kernel.org" <andrii@kernel.org>,
+	"martin.lau@linux.dev" <martin.lau@linux.dev>, "eddyz87@gmail.com"
+	<eddyz87@gmail.com>, "song@kernel.org" <song@kernel.org>,
 	"yonghong.song@linux.dev" <yonghong.song@linux.dev>,
 	"john.fastabend@gmail.com" <john.fastabend@gmail.com>, "kpsingh@kernel.org"
 	<kpsingh@kernel.org>, "sdf@fomichev.me" <sdf@fomichev.me>,
@@ -105,10 +106,9 @@ CC: "pbonzini@redhat.com" <pbonzini@redhat.com>, "corbet@lwn.net"
 	"jgross@suse.com" <jgross@suse.com>, "yu-cheng.yu@intel.com"
 	<yu-cheng.yu@intel.com>, "kas@kernel.org" <kas@kernel.org>, "coxu@redhat.com"
 	<coxu@redhat.com>, "kevin.brodsky@arm.com" <kevin.brodsky@arm.com>,
-	"ackerleytng@google.com" <ackerleytng@google.com>, "yosry@kernel.org"
-	<yosry@kernel.org>, "ajones@ventanamicro.com" <ajones@ventanamicro.com>,
-	"maobibo@loongson.cn" <maobibo@loongson.cn>, "tabba@google.com"
-	<tabba@google.com>, "prsampat@amd.com" <prsampat@amd.com>,
+	"yosry@kernel.org" <yosry@kernel.org>, "ajones@ventanamicro.com"
+	<ajones@ventanamicro.com>, "maobibo@loongson.cn" <maobibo@loongson.cn>,
+	"tabba@google.com" <tabba@google.com>, "prsampat@amd.com" <prsampat@amd.com>,
 	"wu.fei9@sanechips.com.cn" <wu.fei9@sanechips.com.cn>, "mlevitsk@redhat.com"
 	<mlevitsk@redhat.com>, "jmattson@google.com" <jmattson@google.com>,
 	"jthoughton@google.com" <jthoughton@google.com>, "agordeev@linux.ibm.com"
@@ -137,7 +137,7 @@ CC: "pbonzini@redhat.com" <pbonzini@redhat.com>, "corbet@lwn.net"
 	"Manwaring, Derek" <derekmn@amazon.com>
 References: <20260317141031.514-1-kalyazin@amazon.com>
  <20260317141031.514-3-kalyazin@amazon.com>
- <54f9b5a7-b8a9-486a-9c12-a910f5287947@kernel.org>
+ <CAEvNRgEFBexkZCjOMFHJRQFHOpiUezD2jbfDVFrGhYXODdpMjg@mail.gmail.com>
 Content-Language: en-US
 From: Nikita Kalyazin <kalyazin@amazon.com>
 Autocrypt: addr=kalyazin@amazon.com; keydata=
@@ -149,16 +149,17 @@ Autocrypt: addr=kalyazin@amazon.com; keydata=
  ubg1iBLCSDctMlKHsQTp7wCnEc4RAwEIB8J+BBgWCAAmFiEEaGEYMTIGMtDAP0Wwr5LKIKma
  ZPMFAmnY1+MFCQZCUjMCGwwACgkQr5LKIKmaZPPQKgD/f3FtERbJ+LYHLSG/ZbLNAOLngUlQ
  qo5VfIyJOzeLzC0BAP2PIUFIHo7vmia/PXEmT+ve4c5rx+EkH/Dx1GRpjWoI
-In-Reply-To: <54f9b5a7-b8a9-486a-9c12-a910f5287947@kernel.org>
+In-Reply-To: <CAEvNRgEFBexkZCjOMFHJRQFHOpiUezD2jbfDVFrGhYXODdpMjg@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: EX19D007EUA004.ant.amazon.com (10.252.50.76) To
+X-ClientProxiedBy: EX19D003EUA001.ant.amazon.com (10.252.50.31) To
  EX19D027UEC003.ant.amazon.com (10.252.137.250)
 
 
 
-On 23/03/2026 17:51, David Hildenbrand (Arm) wrote:
-> On 3/17/26 15:10, Kalyazin, Nikita wrote:
+On 23/03/2026 18:43, Ackerley Tng wrote:
+> "Kalyazin, Nikita" <kalyazin@amazon.co.uk> writes:
+> 
 >> From: Nikita Kalyazin <kalyazin@amazon.com>
 >>
 >> Let's provide folio_{zap,restore}_direct_map helpers as preparation for
@@ -172,14 +173,6 @@ On 23/03/2026 17:51, David Hildenbrand (Arm) wrote:
 >> Direct map removal gives guest_memfd the same protection that
 >> memfd_secret does, such as hardening against Spectre-like attacks
 >> through in-kernel gadgets.
-> 
-> Maybe mention that there might be a double TLB flush on some
-> architectures, but that that is something to figure out later. Same
-> behavior in secretmem code where this will be used next.
-
-Added, thanks.
-
-> 
 >>
 >> Signed-off-by: Nikita Kalyazin <kalyazin@amazon.com>
 >> ---
@@ -198,13 +191,6 @@ Added, thanks.
 >> +static inline int folio_zap_direct_map(struct folio *folio)
 >> +{
 >> +     return 0;
-> 
-> Should we return -ENOSYS here or similar?
-
-I'm not very certain about it because set_direct_map_* return 0 in this 
-case.  Do we want them to behave differently?
-
-> 
 >> +}
 >> +
 >> +static inline void folio_restore_direct_map(struct folio *folio)
@@ -250,11 +236,6 @@ case.  Do we want them to behave differently?
 >> + * Removes the folio from the kernel direct map and flushes the TLB.  This may
 >> + * require splitting huge pages in the direct map, which can fail due to memory
 >> + * allocation.
-> 
-> Best to mention
-> 
-> "So far, only order-0 folios are supported." and then ...
-> 
 >> + *
 >> + * Return: 0 on success, or a negative error code on failure.
 >> + */
@@ -263,23 +244,41 @@ case.  Do we want them to behave differently?
 >> +     const void *addr = folio_address(folio);
 >> +     int ret;
 >> +
+>> +     ret = set_direct_map_valid_noflush(addr, folio_nr_pages(folio), false);
+>> +     flush_tlb_kernel_range((unsigned long)addr,
+>> +                            (unsigned long)addr + folio_size(folio));
+>> +
+>> +     return ret;
+>> +}
+>> +EXPORT_SYMBOL_FOR_MODULES(folio_zap_direct_map, "kvm");
+>> +
+>> +/**
+>> + * folio_restore_direct_map - restore the kernel direct map entry for a folio
+>> + * @folio: folio whose direct map entry is to be restored
+>> + *
+>> + * This may only be called after a prior successful folio_zap_direct_map() on
+>> + * the same folio.  Because the zap will have already split any huge pages in
+>> + * the direct map, restoration here only updates protection bits and cannot
+>> + * fail.
+>> + */
+>> +void folio_restore_direct_map(struct folio *folio)
+>> +{
+>> +     WARN_ON_ONCE(set_direct_map_valid_noflush(folio_address(folio),
+>> +                                               folio_nr_pages(folio), true));
+>> +}
+>> +EXPORT_SYMBOL_FOR_MODULES(folio_restore_direct_map, "kvm");
+>> +#endif /* CONFIG_ARCH_HAS_SET_DIRECT_MAP */
+>> --
+>> 2.50.1
 > 
-> if (folio_test_large(folio))
->          return -EINVAL;
-
-Added, thanks.
-
+> Reviewed-by: Ackerley Tng <ackerleytng@google.com>
 > 
-> 
-> With that,
-> 
-> Acked-by: David Hildenbrand (Arm) <david@kernel.org>
+> I also took a look at Sashiko's [1] comments and I think that the
+> highmem folio issues should be the responsibility of the caller to
+> check.
 
 Thank you.
 
 > 
-> --
-> Cheers,
-> 
-> David
+> [1] https://sashiko.dev/#/patchset/20260317141031.514-1-kalyazin%40amazon.com
 
