@@ -1,55 +1,55 @@
-Received: from iad-out-013.esa.us-east-1.outbound.mail-perimeter.amazon.com (iad-out-013.esa.us-east-1.outbound.mail-perimeter.amazon.com [34.198.218.121])
+Received: from iad-out-009.esa.us-east-1.outbound.mail-perimeter.amazon.com (iad-out-009.esa.us-east-1.outbound.mail-perimeter.amazon.com [34.198.94.229])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA1213DAC13;
-	Fri, 10 Apr 2026 15:18:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=34.198.218.121
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 688C93DA5BF;
+	Fri, 10 Apr 2026 15:18:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=34.198.94.229
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775834293; cv=none; b=chCXGTzly6xnEO3M8hMX6+Ob4bXLY98lC/RDP8OVXCkKu1eiBpSwxYveQDvdHC/oO+bOt7rufumUbiewJgBhvsAWvRp7rLZYiA9rIxe8HcyGG0zM7gFPBbOKh4wzxF4Zgexy3LZ4Wm5XgmrhtJENaO77PO6DJ6yNjLDdrzyqmLo=
+	t=1775834304; cv=none; b=uQAytkdw99OIjUXAFsvqVirrXo2MnHjBZE5vmGG3wHRENg43KyI0ILITxghS2SMAa4T9bMLZzFM86cqgtXa1o1L2TtK9ZUCZvO3f2Nw1o/T39FMUyjoCeDoLSzaKpE3taHbUJ27mixvNGV7lZlfE3eS++7oUP41HqeN/ujTJjwE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775834293; c=relaxed/simple;
-	bh=xm1ElNBUhNoV3Z4Q6VfxjoCKzjmlHdr9fbk29ZfRtoo=;
+	s=arc-20240116; t=1775834304; c=relaxed/simple;
+	bh=8DjXIMBWBLOAn+CXSrJbYeOgxkkXIgdkJo0CROITJ0E=;
 	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=uWdiAn7ti6cIEWVYLVIoNbNezwzGWKOZHfD87rU5JwHD1ChuJ5a0e1w0jx4ZNBQzzMkMRPdUz5w1U5RL+hKxAIuJ4+U+gB8yS0AwZle96kxrpvjR9yJzXnl32HpaD9flNL0NAp7aKdUqTMTs+BDsnK8GeD97ygS9kzZPNOa6Iro=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b=W1N1f1xY; arc=none smtp.client-ip=34.198.218.121
+	 Content-Type:MIME-Version; b=cQecDALK4JnuBvMH6LwkMIVSmlwcn+fse/3N8J7/k9Vxt1JK1B1nPSg7MCxejBae6HbtpvV2WFzc8Cduy7aeU1mTYZgPD62mcMwqHRF34vHrXCQMeEYRELopX6uqJXCR2IDbylLaU6I9FiYXyIFkp2mBl8jMztzBENRyqbfQY78=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b=lPCUFR09; arc=none smtp.client-ip=34.198.94.229
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b="W1N1f1xY"
+	dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b="lPCUFR09"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.co.uk; i=@amazon.co.uk; q=dns/txt;
-  s=amazoncorp2; t=1775834292; x=1807370292;
+  s=amazoncorp2; t=1775834303; x=1807370303;
   h=from:to:cc:subject:date:message-id:references:
    in-reply-to:content-transfer-encoding:mime-version;
-  bh=wtjHGpnQg1lu73D2AL344q66wwOjm1vkuSNtOJPDZj4=;
-  b=W1N1f1xY93hExaD2Nh40rHQ5rNxVBgSAtOvUbjK/3SG3fvA40y8xpeU4
-   7jlV+/7/gFZHYcJQGKqdRjpVowzq9D2B0PRY4eul4dJwbCt2BTfFoZ4cH
-   C5jLREuw6zsQ1wjas+5V3MbSFt/wJ4FhwsFLCTNLCmwgJAhBeBxUHhqJt
-   R8PDpdpHdfH6AwD3E9+FVwed7xdgExcwOE1trd5KBpDWTf17qa2LLXbvg
-   AClmktEfHnZK2zZsQZSRh8yjLGupqvEE6nJyfZYN3sjy/incoYnZK5I7A
-   po9JqldgJR8awRMshA9802UWmg//yt6jobHGdAxW/ZLe1Te1VxOm2elKJ
+  bh=SXUxXoRrWTOvyOc+uAqr+1ZCvKnUa6yiTRH8yoXeRFw=;
+  b=lPCUFR09v9NfYL2aWeP5Vl7peYGiK799Q2GZk3o6E3GqXRqHzdwkZTdd
+   pWjDBRj6F51lS2cxWnlbVvoj3MPayI0nQEtds+R5lxwX1yxODdh9xUK4/
+   5zCl/50piHU72M1EbT/lv+Htzyl3M8NHHxzbQCvSjXeyBVwOgaAQ2EKTe
+   tIObM+oKA91Ifrb8Y5z7CuBXGBtxFZblIWGYJ/E9J9xM3ExeU66650QJX
+   7x2AxyLsG9WdhEpoycc25ATLsxDmv6HYb9DqppEI/lRVb+zW7Pj2rN/Hv
+   ufju2h5E+MpMqzmZuWAJCxka7cC8NrEkERRB6xQNiJLB9nngcD0xTBoxp
    Q==;
-X-CSE-ConnectionGUID: BTx+enIwRwGAT80uKS6img==
-X-CSE-MsgGUID: 9iPVJ/7aQoyu6dbmF3RzpA==
+X-CSE-ConnectionGUID: ETAIPHXHQ6Cl6VUBPfxqbA==
+X-CSE-MsgGUID: K9skfv97QeinTXXHdn0ngg==
 X-IronPort-AV: E=Sophos;i="6.23,171,1770595200"; 
-   d="scan'208";a="15428526"
-Received: from ip-10-4-7-229.ec2.internal (HELO smtpout.naws.us-east-1.prod.farcaster.email.amazon.dev) ([10.4.7.229])
-  by internal-iad-out-013.esa.us-east-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2026 15:18:10 +0000
-Received: from EX19MTAUEA001.ant.amazon.com [72.21.196.67:8399]
- by smtpin.naws.us-east-1.prod.farcaster.email.amazon.dev [10.0.29.254:2525] with esmtp (Farcaster)
- id ab9b97a0-55cc-470f-a2db-ce7ac5d2c725; Fri, 10 Apr 2026 15:18:10 +0000 (UTC)
-X-Farcaster-Flow-ID: ab9b97a0-55cc-470f-a2db-ce7ac5d2c725
-Received: from EX19D027UEC002.ant.amazon.com (10.252.137.166) by
- EX19MTAUEA001.ant.amazon.com (10.252.134.203) with Microsoft SMTP Server
+   d="scan'208";a="15898090"
+Received: from ip-10-4-17-41.ec2.internal (HELO smtpout.naws.us-east-1.prod.farcaster.email.amazon.dev) ([10.4.17.41])
+  by internal-iad-out-009.esa.us-east-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2026 15:18:21 +0000
+Received: from EX19MTAUEA002.ant.amazon.com [52.94.133.129:4854]
+ by smtpin.naws.us-east-1.prod.farcaster.email.amazon.dev [10.0.3.180:2525] with esmtp (Farcaster)
+ id 5c57dd77-82b6-4d25-81d9-bfb9fbf59a7a; Fri, 10 Apr 2026 15:18:20 +0000 (UTC)
+X-Farcaster-Flow-ID: 5c57dd77-82b6-4d25-81d9-bfb9fbf59a7a
+Received: from EX19D027UEC001.ant.amazon.com (10.252.137.156) by
+ EX19MTAUEA002.ant.amazon.com (10.252.134.9) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
- Fri, 10 Apr 2026 15:18:09 +0000
+ Fri, 10 Apr 2026 15:18:20 +0000
 Received: from EX19D027UEC003.ant.amazon.com (10.252.137.250) by
- EX19D027UEC002.ant.amazon.com (10.252.137.166) with Microsoft SMTP Server
+ EX19D027UEC001.ant.amazon.com (10.252.137.156) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
- Fri, 10 Apr 2026 15:18:09 +0000
+ Fri, 10 Apr 2026 15:18:20 +0000
 Received: from EX19D027UEC003.ant.amazon.com ([fe80::887f:519b:ba73:21d]) by
  EX19D027UEC003.ant.amazon.com ([fe80::887f:519b:ba73:21d%3]) with mapi id
- 15.02.2562.037; Fri, 10 Apr 2026 15:18:09 +0000
+ 15.02.2562.037; Fri, 10 Apr 2026 15:18:20 +0000
 From: "Kalyazin, Nikita" <kalyazin@amazon.co.uk>
 To: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-doc@vger.kernel.org"
 	<linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org"
@@ -124,13 +124,13 @@ CC: "pbonzini@redhat.com" <pbonzini@redhat.com>, "corbet@lwn.net"
 	"Thomson, Jack" <jackabt@amazon.co.uk>, "Itazuri, Takahiro"
 	<itazur@amazon.co.uk>, "Manwaring, Derek" <derekmn@amazon.com>, "Kalyazin,
  Nikita" <kalyazin@amazon.co.uk>
-Subject: [PATCH v12 02/16] set_memory: add folio_{zap,restore}_direct_map
- helpers
-Thread-Topic: [PATCH v12 02/16] set_memory: add folio_{zap,restore}_direct_map
- helpers
-Thread-Index: AQHcyP09iU0saiM/JE2jxlJdvD20bQ==
-Date: Fri, 10 Apr 2026 15:18:09 +0000
-Message-ID: <20260410151746.61150-3-kalyazin@amazon.com>
+Subject: [PATCH v12 03/16] mm/secretmem: make use of
+ folio_{zap,restore}_direct_map
+Thread-Topic: [PATCH v12 03/16] mm/secretmem: make use of
+ folio_{zap,restore}_direct_map
+Thread-Index: AQHcyP1DBItR5zMXtEmj13bg9CfDRw==
+Date: Fri, 10 Apr 2026 15:18:19 +0000
+Message-ID: <20260410151746.61150-4-kalyazin@amazon.com>
 References: <20260410151746.61150-1-kalyazin@amazon.com>
 In-Reply-To: <20260410151746.61150-1-kalyazin@amazon.com>
 Accept-Language: en-GB, en-US
@@ -148,127 +148,62 @@ MIME-Version: 1.0
 
 From: Nikita Kalyazin <nikita.kalyazin@linux.dev>=0A=
 =0A=
-Let's provide folio_{zap,restore}_direct_map helpers as preparation for=0A=
-supporting removal of the direct map for guest_memfd folios.=0A=
-In folio_zap_direct_map(), flush TLB to make sure the data is not=0A=
-accessible.  On some architectures, there may be a double TLB flush=0A=
-issued because set_direct_map_valid_noflush already performs a flush=0A=
-internally.=0A=
-=0A=
-The new helpers need to be accessible to KVM on architectures that=0A=
-support guest_memfd (x86 and arm64).=0A=
-=0A=
-Direct map removal gives guest_memfd the same protection that=0A=
-memfd_secret does, such as hardening against Spectre-like attacks=0A=
-through in-kernel gadgets.=0A=
+Replace set_direct_map_*_noflush with newly available=0A=
+folio_zap_direct_map calls that take folio's address internally.  A side=0A=
+effect is even if filemap_add_folio fails, the TLB is still flushed,=0A=
+which is not expected to be on the hot path.=0A=
 =0A=
 Acked-by: David Hildenbrand (Arm) <david@kernel.org>=0A=
+Reviewed-by: Ackerley Tng <ackerleytng@google.com>=0A=
 Signed-off-by: Nikita Kalyazin <nikita.kalyazin@linux.dev>=0A=
 ---=0A=
- include/linux/set_memory.h | 13 +++++++++++=0A=
- mm/memory.c                | 45 ++++++++++++++++++++++++++++++++++++++=0A=
- 2 files changed, 58 insertions(+)=0A=
+ mm/secretmem.c | 8 ++------=0A=
+ 1 file changed, 2 insertions(+), 6 deletions(-)=0A=
 =0A=
-diff --git a/include/linux/set_memory.h b/include/linux/set_memory.h=0A=
-index 1a2563f525fc..24caea2931f9 100644=0A=
---- a/include/linux/set_memory.h=0A=
-+++ b/include/linux/set_memory.h=0A=
-@@ -41,6 +41,15 @@ static inline int set_direct_map_valid_noflush(const voi=
-d *addr,=0A=
- 	return 0;=0A=
- }=0A=
- =0A=
-+static inline int folio_zap_direct_map(struct folio *folio)=0A=
-+{=0A=
-+	return 0;=0A=
-+}=0A=
-+=0A=
-+static inline void folio_restore_direct_map(struct folio *folio)=0A=
-+{=0A=
-+}=0A=
-+=0A=
- static inline bool kernel_page_present(struct page *page)=0A=
- {=0A=
- 	return true;=0A=
-@@ -57,6 +66,10 @@ static inline bool can_set_direct_map(void)=0A=
- }=0A=
- #define can_set_direct_map can_set_direct_map=0A=
- #endif=0A=
-+=0A=
-+int folio_zap_direct_map(struct folio *folio);=0A=
-+void folio_restore_direct_map(struct folio *folio);=0A=
-+=0A=
- #endif /* CONFIG_ARCH_HAS_SET_DIRECT_MAP */=0A=
- =0A=
- #ifdef CONFIG_X86_64=0A=
-diff --git a/mm/memory.c b/mm/memory.c=0A=
-index 2f815a34d924..3b9ada2cc19c 100644=0A=
---- a/mm/memory.c=0A=
-+++ b/mm/memory.c=0A=
-@@ -78,6 +78,7 @@=0A=
- #include <linux/sched/sysctl.h>=0A=
- #include <linux/pgalloc.h>=0A=
- #include <linux/uaccess.h>=0A=
-+#include <linux/set_memory.h>=0A=
- =0A=
- #include <trace/events/kmem.h>=0A=
- =0A=
-@@ -7479,3 +7480,47 @@ void vma_pgtable_walk_end(struct vm_area_struct *vma=
-)=0A=
- 	if (is_vm_hugetlb_page(vma))=0A=
- 		hugetlb_vma_unlock_read(vma);=0A=
- }=0A=
-+=0A=
-+#ifdef CONFIG_ARCH_HAS_SET_DIRECT_MAP=0A=
-+/**=0A=
-+ * folio_zap_direct_map - remove a folio from the kernel direct map=0A=
-+ * @folio: folio to remove from the direct map=0A=
-+ *=0A=
-+ * Removes the folio from the kernel direct map and flushes the TLB.  This=
- may=0A=
-+ * require splitting huge pages in the direct map, which can fail due to m=
-emory=0A=
-+ * allocation.  So far, only order-0 folios are supported.=0A=
-+ *=0A=
-+ * Return: 0 on success, or a negative error code on failure.=0A=
-+ */=0A=
-+int folio_zap_direct_map(struct folio *folio)=0A=
-+{=0A=
-+	const void *addr =3D folio_address(folio);=0A=
-+	int ret;=0A=
-+=0A=
-+	if (folio_test_large(folio))=0A=
-+		return -EINVAL;=0A=
-+=0A=
-+	ret =3D set_direct_map_valid_noflush(addr, folio_nr_pages(folio), false);=
+diff --git a/mm/secretmem.c b/mm/secretmem.c=0A=
+index fd29b33c6764..27b176af8fc4 100644=0A=
+--- a/mm/secretmem.c=0A=
++++ b/mm/secretmem.c=0A=
+@@ -53,7 +53,6 @@ static vm_fault_t secretmem_fault(struct vm_fault *vmf)=
 =0A=
-+	flush_tlb_kernel_range((unsigned long)addr,=0A=
-+			       (unsigned long)addr + folio_size(folio));=0A=
-+=0A=
-+	return ret;=0A=
-+}=0A=
-+EXPORT_SYMBOL_FOR_MODULES(folio_zap_direct_map, "kvm");=0A=
-+=0A=
-+/**=0A=
-+ * folio_restore_direct_map - restore the kernel direct map entry for a fo=
-lio=0A=
-+ * @folio: folio whose direct map entry is to be restored=0A=
-+ *=0A=
-+ * This may only be called after a prior successful folio_zap_direct_map()=
- on=0A=
-+ * the same folio.  Because the zap will have already split any huge pages=
- in=0A=
-+ * the direct map, restoration here only updates protection bits and canno=
-t=0A=
-+ * fail.=0A=
-+ */=0A=
-+void folio_restore_direct_map(struct folio *folio)=0A=
-+{=0A=
-+	WARN_ON_ONCE(set_direct_map_valid_noflush(folio_address(folio),=0A=
-+						  folio_nr_pages(folio), true));=0A=
-+}=0A=
-+EXPORT_SYMBOL_FOR_MODULES(folio_restore_direct_map, "kvm");=0A=
-+#endif /* CONFIG_ARCH_HAS_SET_DIRECT_MAP */=0A=
+ 	struct inode *inode =3D file_inode(vmf->vma->vm_file);=0A=
+ 	pgoff_t offset =3D vmf->pgoff;=0A=
+ 	gfp_t gfp =3D vmf->gfp_mask;=0A=
+-	unsigned long addr;=0A=
+ 	struct folio *folio;=0A=
+ 	vm_fault_t ret;=0A=
+ 	int err;=0A=
+@@ -72,7 +71,7 @@ static vm_fault_t secretmem_fault(struct vm_fault *vmf)=
+=0A=
+ 			goto out;=0A=
+ 		}=0A=
+ =0A=
+-		err =3D set_direct_map_invalid_noflush(folio_address(folio));=0A=
++		err =3D folio_zap_direct_map(folio);=0A=
+ 		if (err) {=0A=
+ 			folio_put(folio);=0A=
+ 			ret =3D vmf_error(err);=0A=
+@@ -87,7 +86,7 @@ static vm_fault_t secretmem_fault(struct vm_fault *vmf)=
+=0A=
+ 			 * already happened when we marked the page invalid=0A=
+ 			 * which guarantees that this call won't fail=0A=
+ 			 */=0A=
+-			set_direct_map_default_noflush(folio_address(folio));=0A=
++			folio_restore_direct_map(folio);=0A=
+ 			folio_put(folio);=0A=
+ 			if (err =3D=3D -EEXIST)=0A=
+ 				goto retry;=0A=
+@@ -95,9 +94,6 @@ static vm_fault_t secretmem_fault(struct vm_fault *vmf)=
+=0A=
+ 			ret =3D vmf_error(err);=0A=
+ 			goto out;=0A=
+ 		}=0A=
+-=0A=
+-		addr =3D (unsigned long)folio_address(folio);=0A=
+-		flush_tlb_kernel_range(addr, addr + PAGE_SIZE);=0A=
+ 	}=0A=
+ =0A=
+ 	vmf->page =3D folio_file_page(folio, vmf->pgoff);=0A=
 -- =0A=
 2.50.1=0A=
 =0A=
