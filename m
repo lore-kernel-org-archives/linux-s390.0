@@ -1,54 +1,54 @@
-Received: from iad-out-015.esa.us-east-1.outbound.mail-perimeter.amazon.com (iad-out-015.esa.us-east-1.outbound.mail-perimeter.amazon.com [44.210.169.44])
+Received: from iad-out-003.esa.us-east-1.outbound.mail-perimeter.amazon.com (iad-out-003.esa.us-east-1.outbound.mail-perimeter.amazon.com [13.216.7.111])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4492E3DA5DE;
-	Fri, 10 Apr 2026 15:27:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.210.169.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6776C3E5EF7;
+	Fri, 10 Apr 2026 15:28:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.216.7.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775834867; cv=none; b=mnsmgxRdS7b0Rn0n+BC3L5glARrlVXx66unnSGFulebGhP2yqJiaMNyVDmXFen0bS95Gm7JTYb7CIZPGTDjXvecm8DOwlw/xmdTxSQ4Xqq1xEkZSMYxoxtxlSdS64//+xmQr4Mkpe/tQRYCEWH+SbphzbiNCfObWNnjWXwpxrdg=
+	t=1775834926; cv=none; b=cRlD6R9NLBYiPRFnBRGWt4zQ/+5QMFcq0rz7muqSqzZ0s3HsjSZwCxuSnW6e9BecV8qkdoYX3Zp9NWZH6L4509B4MvXU0R7sotmqVuY4HNxkReATlKYAXOjDDyepRJ4LGccYfr8T8Hb0gRIw+SL1fJH1GBnE2BZiExICSPJvc+M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775834867; c=relaxed/simple;
-	bh=fUkOSAjq8IQfeOix+czBv5Qzbw5uh6MbtIlrI/M+/qE=;
+	s=arc-20240116; t=1775834926; c=relaxed/simple;
+	bh=5vdV13kg263nvnLffO/jZKgzkVLCgdGccSagzxQjV8s=;
 	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=LvqE8gGTpqSbR4cqBeYIGIePIyb14WLRiQwRf8qNp8q16J2pHBUPAY0JBqPOzJ6x9ABKjek6AzYtoxK8QXvHrpnQU3z3trWGZ2AKZqA26lJKEa6pEwceBwI2vQjlOjzEmIG2S6O1X+CE++RGd34NTwHmmI6tk1eA+dSfR/SBiPw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=s9czcw9d; arc=none smtp.client-ip=44.210.169.44
+	 In-Reply-To:Content-Type; b=bUPVIU7LpdlfvzEAlq1hPEYYbYiyxrWL7jTBtrwDnpNd8qcTVzNzuMvRub5Y3MUmT468B3ImOoW5lyN2zWNUhRylxj3zch5DEwNycVow2NOef2pmdn5TTa04TH3YrQFnwW/6bmiQUx7DTQ0Dw6us2ou182Xwgwcj+Z2GSCarEGA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=BH96aVfa; arc=none smtp.client-ip=13.216.7.111
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="s9czcw9d"
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="BH96aVfa"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1775834865; x=1807370865;
+  t=1775834924; x=1807370924;
   h=message-id:date:mime-version:reply-to:subject:to:cc:
    references:from:in-reply-to:content-transfer-encoding;
-  bh=9o8hF03EAteJcxO+ztYPE0eNUqVudqJ5+FMe40ZmXyc=;
-  b=s9czcw9dUvlWIDj9BTcqPNHAP0VavDNBUVVKctyaaK+d/as99k3a1/mv
-   w4Ju4zi/tFNhY8Ya0aBwyRCBgvufDfBtvRZbfuw2GodgevxGsUZzv9m+I
-   31RcbwrqW61cv+VhJO+TNttt3r71R4e8GXklLT8rw5elRW6h0DeiZFfLa
-   8V1B106rzcOIwR6xpSHYwwyNjIRnldUvyp909ih7sE4mEQh9GNJTW7BT5
-   drVEKlJOBUtMDAJE57WDgkDwr72d/88sXD4L++layUw3jvXGafLxJW+Om
-   CedyLo4HyggVcEbs38PWirK2RdGpVFSVATfAdxKVl2j7pPHyjGFrexMEl
+  bh=SAFosHbtBbXBFEeuEoVMlIweSzaAowN27zlshlTqt9A=;
+  b=BH96aVfa0ZPcnn7W1iQWZe2Yv8tGtLHwy8B/Kmb0pJboGKpcinfJoaKL
+   tXC+UCqP4j2Fvzvz/asOACvMpselLM7arolDNMz4qyoFyAM+2UJTi4yEl
+   7yqSzwdMZ5Jv/iAuI4EAbh2nCzoTQk54nO/Z1ekwtKE773NRddoTKGzUY
+   Ybt3ZHJt16g3clZBAIfoN7Mai0UYmhk081LMJ8++95r7AlrbeOpHdQ5R+
+   7hnjWgr+f8QY2AQSSbOTaGEYlail/3oY1oix/FvGCNSrQ5XBbqYkXD/I/
+   YpJYw/8V0IZ8caqQxI+8LAkznuEI+fLIHEc1hMg5finck9gNa5+Dp1aOX
    Q==;
-X-CSE-ConnectionGUID: yBao2GgVSJWVWmju2N8usQ==
-X-CSE-MsgGUID: y2rUWQDASnCMvlD14S4uKA==
+X-CSE-ConnectionGUID: izDL0MYqSwOQy5f8rYYb8w==
+X-CSE-MsgGUID: T6sVodo7TcqvgyBOYnLnbA==
 X-IronPort-AV: E=Sophos;i="6.23,171,1770595200"; 
-   d="scan'208";a="15420134"
+   d="scan'208";a="15811989"
 Received: from ip-10-4-13-79.ec2.internal (HELO smtpout.naws.us-east-1.prod.farcaster.email.amazon.dev) ([10.4.13.79])
-  by internal-iad-out-015.esa.us-east-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2026 15:27:44 +0000
-Received: from EX19MTAUEC002.ant.amazon.com [52.94.133.130:17740]
- by smtpin.naws.us-east-1.prod.farcaster.email.amazon.dev [10.0.46.155:2525] with esmtp (Farcaster)
- id 675e78a9-fd73-4b67-b9dc-b2724822a679; Fri, 10 Apr 2026 15:27:44 +0000 (UTC)
-X-Farcaster-Flow-ID: 675e78a9-fd73-4b67-b9dc-b2724822a679
+  by internal-iad-out-003.esa.us-east-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2026 15:28:43 +0000
+Received: from EX19MTAUEC001.ant.amazon.com [52.94.133.134:8917]
+ by smtpin.naws.us-east-1.prod.farcaster.email.amazon.dev [10.0.29.254:2525] with esmtp (Farcaster)
+ id 363576ad-4054-4b70-ad88-80e87a8ec583; Fri, 10 Apr 2026 15:28:43 +0000 (UTC)
+X-Farcaster-Flow-ID: 363576ad-4054-4b70-ad88-80e87a8ec583
 Received: from EX19D027UEC003.ant.amazon.com (10.252.137.250) by
- EX19MTAUEC002.ant.amazon.com (10.252.135.253) with Microsoft SMTP Server
+ EX19MTAUEC001.ant.amazon.com (10.252.135.222) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
- Fri, 10 Apr 2026 15:27:43 +0000
+ Fri, 10 Apr 2026 15:28:42 +0000
 Received: from [192.168.12.97] (10.106.82.30) by EX19D027UEC003.ant.amazon.com
  (10.252.137.250) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37; Fri, 10 Apr 2026
- 15:27:31 +0000
-Message-ID: <28ecd1c9-184a-4514-b91f-e57944861641@amazon.com>
-Date: Fri, 10 Apr 2026 16:27:28 +0100
+ 15:28:30 +0000
+Message-ID: <978f1fea-19bd-4e92-961a-080136441e4f@amazon.com>
+Date: Fri, 10 Apr 2026 16:28:28 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -57,8 +57,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Reply-To: <kalyazin@amazon.com>
-Subject: Re: [PATCH v11 05/16] mm/gup: drop local variable in
- gup_fast_folio_allowed
+Subject: Re: [PATCH v11 10/16] KVM: guest_memfd: Add flag to remove from
+ direct map
 To: Ackerley Tng <ackerleytng@google.com>, "David Hildenbrand (Arm)"
 	<david@kernel.org>, "Kalyazin, Nikita" <kalyazin@amazon.co.uk>,
 	"kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-doc@vger.kernel.org"
@@ -135,9 +135,9 @@ CC: "pbonzini@redhat.com" <pbonzini@redhat.com>, "corbet@lwn.net"
 	<jackabt@amazon.co.uk>, "Itazuri, Takahiro" <itazur@amazon.co.uk>,
 	"Manwaring, Derek" <derekmn@amazon.com>
 References: <20260317141031.514-1-kalyazin@amazon.com>
- <20260317141031.514-6-kalyazin@amazon.com>
- <0a14c10d-0dab-4b9c-85ec-e0ee25cd0db8@kernel.org>
- <CAEvNRgHqJGwmAfS8TuGBbUoQehpqY9GdtjUS=+Hc1ViK79RL4w@mail.gmail.com>
+ <20260317141031.514-11-kalyazin@amazon.com>
+ <50bfaeb5-551e-403f-bd00-a7d8b6bbf6e2@kernel.org>
+ <CAEvNRgEXp6busURR20cazeG2DQWdU5=ZaJv21OcSq+mhVKwJ4g@mail.gmail.com>
 Content-Language: en-US
 From: Nikita Kalyazin <kalyazin@amazon.com>
 Autocrypt: addr=kalyazin@amazon.com; keydata=
@@ -149,87 +149,56 @@ Autocrypt: addr=kalyazin@amazon.com; keydata=
  ubg1iBLCSDctMlKHsQTp7wCnEc4RAwEIB8J+BBgWCAAmFiEEaGEYMTIGMtDAP0Wwr5LKIKma
  ZPMFAmnY1+MFCQZCUjMCGwwACgkQr5LKIKmaZPPQKgD/f3FtERbJ+LYHLSG/ZbLNAOLngUlQ
  qo5VfIyJOzeLzC0BAP2PIUFIHo7vmia/PXEmT+ve4c5rx+EkH/Dx1GRpjWoI
-In-Reply-To: <CAEvNRgHqJGwmAfS8TuGBbUoQehpqY9GdtjUS=+Hc1ViK79RL4w@mail.gmail.com>
+In-Reply-To: <CAEvNRgEXp6busURR20cazeG2DQWdU5=ZaJv21OcSq+mhVKwJ4g@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: EX19D004EUA003.ant.amazon.com (10.252.50.230) To
+X-ClientProxiedBy: EX19D003EUB004.ant.amazon.com (10.252.51.121) To
  EX19D027UEC003.ant.amazon.com (10.252.137.250)
 
 
 
-On 23/03/2026 20:22, Ackerley Tng wrote:
+On 23/03/2026 20:47, Ackerley Tng wrote:
 > "David Hildenbrand (Arm)" <david@kernel.org> writes:
 > 
->> On 3/17/26 15:11, Kalyazin, Nikita wrote:
->>> From: Nikita Kalyazin <kalyazin@amazon.com>
->>>
->>> Move the check for pinning closer to where the result is used.
->>> No functional changes.
->>>
->>> Signed-off-by: Nikita Kalyazin <kalyazin@amazon.com>
->>> ---
->>>   mm/gup.c | 23 ++++++++++++-----------
->>>   1 file changed, 12 insertions(+), 11 deletions(-)
->>>
->>> diff --git a/mm/gup.c b/mm/gup.c
->>> index 5856d35be385..869d79c8daa4 100644
->>> --- a/mm/gup.c
->>> +++ b/mm/gup.c
->>> @@ -2737,18 +2737,9 @@ EXPORT_SYMBOL(get_user_pages_unlocked);
->>>    */
->>>   static bool gup_fast_folio_allowed(struct folio *folio, unsigned int flags)
->>>   {
->>> -    bool reject_file_backed = false;
->>>       struct address_space *mapping;
->>>       unsigned long mapping_flags;
->>>
->>> -    /*
->>> -     * If we aren't pinning then no problematic write can occur. A long term
->>> -     * pin is the most egregious case so this is the one we disallow.
->>> -     */
->>> -    if ((flags & (FOLL_PIN | FOLL_LONGTERM | FOLL_WRITE)) ==
->>> -        (FOLL_PIN | FOLL_LONGTERM | FOLL_WRITE))
->>> -            reject_file_backed = true;
->>> -
->>>       /* We hold a folio reference, so we can safely access folio fields. */
->>>       if (WARN_ON_ONCE(folio_test_slab(folio)))
->>>               return false;
->>> @@ -2793,8 +2784,18 @@ static bool gup_fast_folio_allowed(struct folio *folio, unsigned int flags)
->>>        */
->>>       if (secretmem_mapping(mapping))
->>>               return false;
->>> -    /* The only remaining allowed file system is shmem. */
->>> -    return !reject_file_backed || shmem_mapping(mapping);
->>> +
->>> +    /*
->>> +     * If we aren't pinning then no problematic write can occur. A writable
->>> +     * long term pin is the most egregious case, so this is the one we
->>> +     * allow only for ...
->>> +     */
->>> +    if ((flags & (FOLL_PIN | FOLL_LONGTERM | FOLL_WRITE)) !=
->>> +        (FOLL_PIN | FOLL_LONGTERM | FOLL_WRITE))
->>> +            return true;
->>> +
->>> +    /* ... hugetlb (which we allowed above already) and shared memory. */
->>> +    return shmem_mapping(mapping);
 >>
->> Acked-by: David Hildenbrand (Arm) <david@kernel.org>
+>> [...snip...]
 >>
->> I'm wondering if it would be a good idea to check for a hugetlb mapping
->> here instead of having the folio_test_hugetlb() check above.
+>>> +static int kvm_gmem_folio_zap_direct_map(struct folio *folio)
+>>> +{
+>>> +    u64 gmem_flags = GMEM_I(folio_inode(folio))->flags;
+>>> +    int r = 0;
+>>> +
+>>> +    if (kvm_gmem_folio_no_direct_map(folio) || !(gmem_flags & GUEST_MEMFD_FLAG_NO_DIRECT_MAP))
+>>
+>> The function is only called when
+>>
+>>        kvm_gmem_no_direct_map(folio_inode(folio))
+>>
+>> Does it really make sense to check for GUEST_MEMFD_FLAG_NO_DIRECT_MAP again?
 >>
 > 
-> I think it's nice that hugetlb folios are determined immediately to be
-> eligible for GUP-fast regardless of whether the folio is file-backed or
-> not.
+> Good point that GUEST_MEMFD_FLAG_NO_DIRECT_MAP was already checked in
+> the caller. I think we can drop this second check.
 
-Ok, I'll leave it as is for now.
+Dropped, thanks.
 
 > 
->> Something to ponder about :)
+>> If, at all, it should be a warning if GUEST_MEMFD_FLAG_NO_DIRECT_MAP is
+>> not set?
 >>
->> --
->> Cheers,
+>> Further, kvm_gmem_folio_zap_direct_map() uses the folio lock to
+>> synchronize, right? Might be worth pointing that out somehow (e.g.,
+>> lockdep check if possible).
 >>
->> David
-
+>>> +            goto out;
+>>> +
+>>> +    r = folio_zap_direct_map(folio);
+>>> +    if (!r)
+>>> +            folio->private = (void *)((u64)folio->private | KVM_GMEM_FOLIO_NO_DIRECT_MAP);
+>>> +
+>>> +out:
+>>> +    return r;
+>>> +}
+>>> +
+>>> +static void kvm_gmem_folio_restore_direct_map(struct folio *folio)
+>>> +{
