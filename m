@@ -1,156 +1,140 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5665B33A6EB;
-	Sat, 11 Apr 2026 09:31:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B4EA3469F6
+	for <linux-s390@vger.kernel.org>; Sat, 11 Apr 2026 12:09:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775899878; cv=none; b=t7YimxHJUKj+EsBtz0kL9oGvkXyqJ1I2MtMWhW4aTBgaJFjOAhAyA5x25OQom9xPvJ4PsXBAAjJRq43IzssKKPbL/6cQVJVDDWDO63GzK+qI+JBcaeT6gnA5DSxAKdd1Yq3gtUg5GLIeJe9rxdNri/ulnf1wlRWwHLP2j/m7RWw=
+	t=1775909373; cv=none; b=kV/OrlJohdHhSybZBC6be0A2NIEfJPqwt/z1ya65D1HCSX4BwScUKfw5zgrk3Hh85l+AkqwujDz/sQql40f0Q5E9GQLHYDpWwtyx5HZKF4GGr48fhKGKcEBhUoH/OfYRYhQHaY7ow3VUaWhzeN/ghK9m8Suxir2eLV0HcY4sR68=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775899878; c=relaxed/simple;
-	bh=bXfudugdjf3KeIfRrrpUIBpszkHi1xLRW24gQhiN+go=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Sa4BEAIsldFUoA0d7y2WRpZbGSUig5tjNbM+JXpsnbHKrEtkEMvZHy8AeJjW69eNE4cwwomK9hHwoTC5bjNUnHW+NXJJ9xOjH/BHbwSrk6g0+eN+OqClSsnkJMJjdAGWyiZ96+djokaSKbzYMU/UU/S+4bsHsFA5+wLAdxMKUBk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kGS7zkSa; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1775909373; c=relaxed/simple;
+	bh=YFYdcc5yXVcQI1ui18ea6YrgG25tVhrsTPWazJ/BZeA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=uu/GzoBnbRA2Gkb4QgG+na0dR4TeMajictrllMnn8qWkT1uGFGAtpormTsvyRrpzwgEDCnn7x+SAFdnJQ2jwWzWbBWuVn/CdLyy0IJM0gR+5B9iJ+vTeh/NR+RA2c4IIjxWdkb6W4Q6KyW9XBuPXC7j8KQzIRDU69NmWS+fFkMw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZWyMs4hb; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kGS7zkSa"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63B0O5Hg2272213;
-	Sat, 11 Apr 2026 09:31:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=9G+pDRpTep5hohlw1RQ3G2oELAA0/t
-	Yq61fSBJHTJzs=; b=kGS7zkSacYLmsLvFUysSFGicCBlyAlKL6HMymldPK6w75G
-	VcCjRmM4uewiyfHKAMNmPCEazXh5fTUiYwrQdSDYg+TwNoCNr09NsMyD0AM2DUQ4
-	LOgiHaUFTxSRrZoqpggKzqxS/r9zKNgCKaSWQJNY32x6WH2MPc/G+qJdH3lIvkE2
-	JfcUe8KLLE85S0C9Ek0Ho7m7/klN2k0UTSVUegwqxvvCmqKbT27YeqbzugYsXQkx
-	WKAjcOetA6NmYn62/rSOnMAOynieiS6rBqD+GMn16N5nXQOgVyBsh7gzN5R4KoB5
-	L0NYtX9MpaMOUZg0RmS4y1eZmjSVsmbMRobYWvgw==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dfbqk90h2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sat, 11 Apr 2026 09:31:07 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63B6XKvY014352;
-	Sat, 11 Apr 2026 09:31:06 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dcmg54069-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sat, 11 Apr 2026 09:31:06 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63B9V25q7471396
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Sat, 11 Apr 2026 09:31:02 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 692F720043;
-	Sat, 11 Apr 2026 09:31:02 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BDF742004B;
-	Sat, 11 Apr 2026 09:31:01 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.87.145.235])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Sat, 11 Apr 2026 09:31:01 +0000 (GMT)
-Date: Sat, 11 Apr 2026 11:31:00 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Kevin Brodsky <kevin.brodsky@arm.com>
-Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH 1/2] mm: make lazy MMU mode context-aware
-Message-ID: <630ce949-2f9c-43ce-9641-b9a4dc729323-agordeev@linux.ibm.com>
-References: <cover.1774420056.git.agordeev@linux.ibm.com>
- <de89fd353a8dcd5e3bef4d91e9b6682d132ed9a0.1774420057.git.agordeev@linux.ibm.com>
- <44dd86c0-1845-4dd9-b4b4-2cef6d1c6357@kernel.org>
- <e096e88b-f1fe-44a1-bfa6-451eef028203-agordeev@linux.ibm.com>
- <c27cad07-bba4-472d-8853-fc6fc55e951f@arm.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZWyMs4hb"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1775909371;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=3QWIBWIzo6zL/tSoo7WUV1CHuvA3hN/ol8Rd7Rq6xRc=;
+	b=ZWyMs4hbztuzSq/058ESb0NOaJKN+7zNfhbiiqAWSwIqif/o/f/tn68Koz3IoVSTIw6KlA
+	Jcbo8ADougHShMEl69N/1iUyq9i73zaRwKvzTOi6ButIhcVGWjyU8YS72azJa7exOKpnWj
+	BeOWW1l1ZyISRnOvKL1JzdZFCk2JgqA=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-256-hM6UDCZEPgSUHb--9I7NdA-1; Sat,
+ 11 Apr 2026 08:09:28 -0400
+X-MC-Unique: hM6UDCZEPgSUHb--9I7NdA-1
+X-Mimecast-MFC-AGG-ID: hM6UDCZEPgSUHb--9I7NdA_1775909366
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 62DCE1956089;
+	Sat, 11 Apr 2026 12:09:26 +0000 (UTC)
+Received: from [10.44.48.52] (unknown [10.44.48.52])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id C3223195608E;
+	Sat, 11 Apr 2026 12:09:23 +0000 (UTC)
+Message-ID: <549ab51a-3f54-4b54-b78a-7ead3c043092@redhat.com>
+Date: Sat, 11 Apr 2026 14:09:21 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c27cad07-bba4-472d-8853-fc6fc55e951f@arm.com>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=I+9Vgtgg c=1 sm=1 tr=0 ts=69da14db cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=kj9zAlcOel0A:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=yduxpkpoCOskwDA0OgQA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: IpQDT1z9kXrFLsUX7rBCljXm228ZAGrk
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDExMDA3MyBTYWx0ZWRfXxR1CxwqzwPcr
- aZDOICop81ytS8lVHRni5D3pfDTevXM07MQHpoT0etrTHGeNCpVvGOAori/j9bWeExaGIjmvVjj
- +byeKj3m97zAAHwHPR7oAyp0kc8VotW+aNEn/aaMrsnZSNJIOxjNYoPuEs30TjDxW5jvfvSo4y/
- JRaTa6D3jeeUBrLlAefULj/lYoAu+kbprJe5YJBKhnUaPz+L3ZVTe7mX+7Am1bVw4WDBkh5kdXD
- UDmTyO2AgZ7A91iiwqDhY9JbkGzmSRIBMfBY2sH5UtFojid4awog5X5Gi5vcYe6o4FfSx0WgyBf
- q8dYcMl1YZyxYrrkPaN3oklKx1j3fqOOfNrFSWydF52GhHe2i5Y4wS+CVnfcWwy4Mzz3CwLPQb5
- p8GFfPvoc3xrV+BMKWRdKxY9jtdcb6fi0CvO3/XDVePQDvKSA9osZ9UtSDe4UuVN75yT4BeZO9R
- UMxMp2vwMmOGDexwMHg==
-X-Proofpoint-ORIG-GUID: IpQDT1z9kXrFLsUX7rBCljXm228ZAGrk
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-11_02,2026-04-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 bulkscore=0 suspectscore=0 adultscore=0
- lowpriorityscore=0 spamscore=0 malwarescore=0 clxscore=1015 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604010000 definitions=main-2604110073
+User-Agent: Mozilla Thunderbird
+Subject: Re: [GIT PULL v1 0/1] Subject: [GIT PULL v1 0/1] KVM: s390: One very
+ last second fix
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+ borntraeger@de.ibm.com
+References: <20260407162726.252141-1-imbrenda@linux.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=pbonzini@redhat.com; keydata=
+ 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
+In-Reply-To: <20260407162726.252141-1-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-On Tue, Mar 31, 2026 at 04:15:23PM +0200, Kevin Brodsky wrote:
-> On 25/03/2026 17:20, Alexander Gordeev wrote:
-> > On Wed, Mar 25, 2026 at 10:55:23AM +0100, David Hildenbrand (Arm) wrote:
-> >
-> > Hi David,
-> >
-> >>> +/**
-> >>> + * lazy_mmu_mode_enable_pte() - Enable the lazy MMU mode with parameters
-> >> You have to be a lot clearer about implications. For example, what
-> >> happens if we would bail out and not process all ptes? What are the
-> >> exact semantics.
-> > The only implication is "only this address/PTE range could be updated
-> > and that range may span one page table at most".
-> >
-> > Whether all or portion of PTEs were actually updated is not defined,
-> > just like in case of lazy_mmu_mode_enable_pte().
-> >
-> > Makes sense?
+On 4/7/26 18:27, Claudio Imbrenda wrote:
+> Ciao Paolo,
 > 
-> I also feel that the comment needs to be much more specific. From a
-> brief glance at patch 2, it seems that __ipte_batch_set_pte() assumes
-> that all PTEs processed after this function is called are contiguous.
+> here is one very last moment fix for the gmap rewrite. It fixes an
+> issue that can happen when a partial invalidation happens during a
+> shadowing operation.
 
-No, this is actually not the case. __ipte_batch_set_pte() just sets
-ceilings for later processing. The PTEs within the range could be
-updated in any order and not necessarily all of them.
+Pulled, thanks.
 
-> This should be documented.
+Paolo
 
-Will do.
-
-> > I will also change arch_enter_lazy_mmu_mode_pte() to
-> > arch_enter_lazy_mmu_mode_for_pte_range() then.
 > 
-> Makes sense. The interface looks reasonable to me with this new name.
+> The following changes since commit bfe62a454542cfad3379f6ef5680b125f41e20f4:
 > 
-> One more comment though: in previous discussions you mentioned the need
-> for arch_{pause,resume} hooks, is that no longer necessary simply
-> because {pause,resume} are not used on the paths where you make use of
-> the new enable function?
+>    Merge tag 'soc-fixes-7.0-2' of git://git.kernel.org/pub/scm/linux/kernel/git/soc/soc (2026-04-06 09:03:19 -0700)
+> 
+> are available in the Git repository at:
+> 
+>    https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-master-7.0-4
+> 
+> for you to fetch changes up to 3ffe5eb4a5f248c0d4b849f050af973396656f85:
+> 
+>    KVM: s390: vsie: Fix races with partial gmap invalidations (2026-04-07 18:20:58 +0200)
+> 
+> ----------------------------------------------------------------
+> KVM: s390: One very last second fix
+> 
+> Fix one more gmap-rewrite issue: races with partial gmap invalidations.
+> 
+> ----------------------------------------------------------------
+> Claudio Imbrenda (1):
+>        KVM: s390: vsie: Fix races with partial gmap invalidations
+> 
+>   arch/s390/kvm/gaccess.c | 9 +++++----
+>   arch/s390/kvm/gmap.c    | 3 +++
+>   arch/s390/kvm/gmap.h    | 1 +
+>   3 files changed, 9 insertions(+), 4 deletions(-)
+> 
 
-Yes. I did implement arch_pause|resume_lazy_mmu_mode() for a custom
-KASAN sanitizer to catch direct PTE dereferences - ones that bypass
-ptep_get()/set_pte() in lazy mode.
-
-But that code is not upstreamed and therefore there is no need to
-introduce the hooks just right now.
-
-> - Kevin
-
-Thanks for the review, Kevin!
