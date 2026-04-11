@@ -1,49 +1,65 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from SN4PR2101CU001.outbound.protection.outlook.com (mail-southcentralusazon11012043.outbound.protection.outlook.com [40.93.195.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B4EA3469F6
-	for <linux-s390@vger.kernel.org>; Sat, 11 Apr 2026 12:09:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775909373; cv=none; b=kV/OrlJohdHhSybZBC6be0A2NIEfJPqwt/z1ya65D1HCSX4BwScUKfw5zgrk3Hh85l+AkqwujDz/sQql40f0Q5E9GQLHYDpWwtyx5HZKF4GGr48fhKGKcEBhUoH/OfYRYhQHaY7ow3VUaWhzeN/ghK9m8Suxir2eLV0HcY4sR68=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775909373; c=relaxed/simple;
-	bh=YFYdcc5yXVcQI1ui18ea6YrgG25tVhrsTPWazJ/BZeA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=uu/GzoBnbRA2Gkb4QgG+na0dR4TeMajictrllMnn8qWkT1uGFGAtpormTsvyRrpzwgEDCnn7x+SAFdnJQ2jwWzWbBWuVn/CdLyy0IJM0gR+5B9iJ+vTeh/NR+RA2c4IIjxWdkb6W4Q6KyW9XBuPXC7j8KQzIRDU69NmWS+fFkMw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZWyMs4hb; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CFF975809;
+	Sat, 11 Apr 2026 19:54:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.195.43
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775937296; cv=fail; b=sasVwnPr1RUqFIenXuDpoGqbRdipw0rp3oMhsoIDZs9uSK1JVC8kuEZxfQh5GRecttZTFwRSak9bVo3QYzrqZyqubV5hbQjTqjHVytsYxERA+MZqvY7mknhlRKXkNz8/kgKwjN0Y0UCaWpppgSsQJDWO8ppGg9qyhNrx2boTRkM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775937296; c=relaxed/simple;
+	bh=AZr8Y7N13UyOIV2M2pUxaEQCUlrQuV2J9K4y8KXuIEA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=oPKHB2SXlvvIa6UbImdooQdq5WTd1Kg+30iqYfud41HGHvF9ENx8YbW92mZnCFR4EtjwXOz1u5BCHarYE3BrYI99aj8UH0DDMfw/i2p3CBNcdtoNj9JG4TNBs4c1LOZXQYpMJlUF+pMAUnOz3DU6Cy+KJPeS4EA4r1W7hOGlen4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=J/OhpU+j; arc=fail smtp.client-ip=40.93.195.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZWyMs4hb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1775909371;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=3QWIBWIzo6zL/tSoo7WUV1CHuvA3hN/ol8Rd7Rq6xRc=;
-	b=ZWyMs4hbztuzSq/058ESb0NOaJKN+7zNfhbiiqAWSwIqif/o/f/tn68Koz3IoVSTIw6KlA
-	Jcbo8ADougHShMEl69N/1iUyq9i73zaRwKvzTOi6ButIhcVGWjyU8YS72azJa7exOKpnWj
-	BeOWW1l1ZyISRnOvKL1JzdZFCk2JgqA=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-256-hM6UDCZEPgSUHb--9I7NdA-1; Sat,
- 11 Apr 2026 08:09:28 -0400
-X-MC-Unique: hM6UDCZEPgSUHb--9I7NdA-1
-X-Mimecast-MFC-AGG-ID: hM6UDCZEPgSUHb--9I7NdA_1775909366
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 62DCE1956089;
-	Sat, 11 Apr 2026 12:09:26 +0000 (UTC)
-Received: from [10.44.48.52] (unknown [10.44.48.52])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id C3223195608E;
-	Sat, 11 Apr 2026 12:09:23 +0000 (UTC)
-Message-ID: <549ab51a-3f54-4b54-b78a-7ead3c043092@redhat.com>
-Date: Sat, 11 Apr 2026 14:09:21 +0200
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="J/OhpU+j"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=iVWPveU44VVv7YbPBl3zdoDCfxdJvYWqfwib/uU3CbrB/lbGA3ka+MEUYd7VmqcFhEmwuLSRZ1kBWHT2zR2thIcGW5Nh3zAVu6+26I3PRBHs1RZXqEGNH+dzeyb6VnFfC6LX8nXKKrITR86yuSm3Pxt8+cxNcCMprqmaJCvHvwzbN/KFnnKVGTqeFlkXuEq8UZaZZmFOYYGcvpXwnhQg6kDlRhPPLsv7m1rc91wW2Uf3rmNPfmcr9wm1oqNuzWf/XA68h3os3feGJrF4oaejwjgSvVS7mjPP+QuwIYV1eC990pVnBQldP6r3xE7bolDSJbnncdL9CDUWccTATe93+A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=vNX2LeApEj4s5J5aXKcawswCbi4C1Db3gEN0t6QELng=;
+ b=sZJ43lx1rJxzzwZVDM2yNKHgLszxUHEANCbF5A4Lgf3kyuDjg3SIxoYww32hYnJ04+HKJVnkfYnwYFeWdu97U6Aaml/tyosE/YOofcST/KBytOn9O5IsaH1X/Jd/GVRlKp0mHuhbBcuuVe4dZLNUUkSDGeJtGRh6MIBIqHLZQEW28LvApVnmDJDctERfgsLTBNVrHGpu5M3ciw9L7ACqAYBdRgkjEljcn8NFjQqB5FA5D3MdgZ0+x/FEjh6O4rnEOXt63wjGwOnrNg1srOgCw7a7GLTwlGVAVBFXxKyBH+O9S8cm+9+3WnhRF0kyBZZ0b4mGYtv8Gpal092cVOLfGA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=arm.com smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=vNX2LeApEj4s5J5aXKcawswCbi4C1Db3gEN0t6QELng=;
+ b=J/OhpU+jDn/xlbni285P1keskgIctQQhaRVMoIaCIeqhzNvwfB9Kt3v6pIXTaOaPyZNeV7NDpPF63BPPLNN87238fX59bUwVAH9+lCSGgDYva98bIsskGCPHFEcWoXXYIHrwn6nCuCp7cgAmNx0lW9nnSMVw1rLtdZ36iMtMqyg=
+Received: from BN9PR03CA0572.namprd03.prod.outlook.com (2603:10b6:408:10d::7)
+ by IA0PR12MB7722.namprd12.prod.outlook.com (2603:10b6:208:432::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9769.44; Sat, 11 Apr
+ 2026 19:54:51 +0000
+Received: from BN1PEPF0000468B.namprd05.prod.outlook.com
+ (2603:10b6:408:10d:cafe::53) by BN9PR03CA0572.outlook.office365.com
+ (2603:10b6:408:10d::7) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9769.47 via Frontend Transport; Sat,
+ 11 Apr 2026 19:54:51 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
+Received: from satlexmb07.amd.com (165.204.84.17) by
+ BN1PEPF0000468B.mail.protection.outlook.com (10.167.243.136) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9769.17 via Frontend Transport; Sat, 11 Apr 2026 19:54:51 +0000
+Received: from satlexmb08.amd.com (10.181.42.217) by satlexmb07.amd.com
+ (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Sat, 11 Apr
+ 2026 14:54:50 -0500
+Received: from [172.31.178.191] (10.180.168.240) by satlexmb08.amd.com
+ (10.181.42.217) with Microsoft SMTP Server id 15.2.2562.17 via Frontend
+ Transport; Sat, 11 Apr 2026 14:54:46 -0500
+Message-ID: <c45ede13-f8d0-4b6a-b2ed-f06af4882ebc@amd.com>
+Date: Sun, 12 Apr 2026 01:24:45 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -51,90 +67,147 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [GIT PULL v1 0/1] Subject: [GIT PULL v1 0/1] KVM: s390: One very
- last second fix
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
- borntraeger@de.ibm.com
-References: <20260407162726.252141-1-imbrenda@linux.ibm.com>
-From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH v3 2/7] arm64/runtime-const: Use
+ aarch64_insn_patch_text_nosync() for patching
+To: Catalin Marinas <catalin.marinas@arm.com>
+CC: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Peter
+ Zijlstra <peterz@infradead.org>, Sebastian Andrzej Siewior
+	<bigeasy@linutronix.de>, Will Deacon <will@kernel.org>, David Laight
+	<david.laight.linux@gmail.com>, Darren Hart <dvhart@infradead.org>, Davidlohr
+ Bueso <dave@stgolabs.net>, =?UTF-8?Q?Andr=C3=A9_Almeida?=
+	<andrealmeid@igalia.com>, <linux-arch@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+	<linux-riscv@lists.infradead.org>, <linux-arm-kernel@lists.infradead.org>,
+	Jisheng Zhang <jszhang@kernel.org>
+References: <20260402112250.2138-1-kprateek.nayak@amd.com>
+ <20260402112250.2138-3-kprateek.nayak@amd.com> <adjE6WzFM7NogzlU@arm.com>
 Content-Language: en-US
-Autocrypt: addr=pbonzini@redhat.com; keydata=
- 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
-In-Reply-To: <20260407162726.252141-1-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+From: K Prateek Nayak <kprateek.nayak@amd.com>
+In-Reply-To: <adjE6WzFM7NogzlU@arm.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN1PEPF0000468B:EE_|IA0PR12MB7722:EE_
+X-MS-Office365-Filtering-Correlation-Id: ff1b5bf3-a56e-4a81-61a8-08de98043183
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|7416014|82310400026|376014|36860700016|13003099007|56012099003|22082099003|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	U7ldQmJMXOfFzNsS5tZsCnecmPycVVOMmMQFvuXm0vbunvvCAaBO/qVJ9av4kEeeddL3A6Df6Tn3pRa+YacQgB8McBCHmDFLXe99IJ4qOQgYIjbzs398Sx07m3jWvjfiLN4Id8MWBVTM8jlkQynnJDnHIo+j3mO4jlF404INnmAsi2AJi3cs2wP9iB+94DEJifWAbCaYwfKH4EHyJtjf8SP1yyG6x7E02QQD4t4HyN6FtO8mHgmZdbEBz1WfoVBLCZ3qd2SmVyjoX+vsoh1BquncvLARwjX+t7q6DkJhvMswjThwaVyHfgImvcCrh5rdnFGkHXBVeAIquSAzVLhCvNUXQ8ZKyz6cntfTtVP467qkfmk1vmDgUJJXM5fC7Yh+UVqhq+lHW6oQ4qRlsXdl6ML2T/RNlCVVlM4G0rm5oE62nOSckiRpvYwk9jPW3E8lWzgYVBYIJlZXhUvPeI+y0gNv3CKPj/wolX+B2V3/RTakFOECxRXMEaYn6/IWSEPlErfE8YsKeu4hIurAskoiPZT0AF1e4IfBBb2NToiBxJw9eNilYBWjaMvFmAO3tL3rQV8/Rhi321glzsTsl1yyxMjqFhAiairptSp5VyDp7POM4eUCUk95jGFStyODAPHrJcwJQRAbtTJaRDBIBjLgvj+eij7REBn8pnlkBcDs+4VKAidL+f5O7Nc+0al2c6dr9mQY555Sfo59MJ+9s6xhug==
+X-Forefront-Antispam-Report:
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(82310400026)(376014)(36860700016)(13003099007)(56012099003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	mGhjP1GQx8cFqG/km9cRq/PSCz3nzNKgvloTNlQwm/uq0pQ3+yZXOy5Ii9818eXsvRnlVNM2MiZKL8VBf5jtiwHnGafbRYkPUxgPm00g/qoT3ADFnVGbmJWpCqyQa1euNXNfrac5gZJn+MTcixyb+gZSxPDUHkz8wqL1YNmKQJIA6zLBAEhmFeGmB2+LQNU8kArMSgfRFwfglrcwc3hPqRPuz2cmL0OLueLeqUkoS1Sv7vdNDochSgSF2tyBdrfs55aJ/sKq7PcdCpRfVojJw+UH0pVs9ptRDvaNgyZIDRYbGGumT0TrSsCboZJShJLqvo0KG98mlGEiql4b+UE72Lk2yZfF9IGHQT8VP8Xe/A5EyVC5zkL+UDlEVU5dO6lqDWnzVGMQrjCM/mrveau/PpYR8aoExIjNkFswqBGEAMxPTNbFiYAOFwHlhmbHhHfb
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Apr 2026 19:54:51.0768
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: ff1b5bf3-a56e-4a81-61a8-08de98043183
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BN1PEPF0000468B.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR12MB7722
 
-On 4/7/26 18:27, Claudio Imbrenda wrote:
-> Ciao Paolo,
-> 
-> here is one very last moment fix for the gmap rewrite. It fixes an
-> issue that can happen when a partial invalidation happens during a
-> shadowing operation.
+Hello Catalin,
 
-Pulled, thanks.
+Thank you for taking a look at the series and pointing to the Shashiko
+review.
 
-Paolo
+On 4/10/2026 3:07 PM, Catalin Marinas wrote:
+>> -static inline void __runtime_fixup_caches(void *where, unsigned int insns)
+>> -{
+>> -     unsigned long va = (unsigned long)where;
+>> -     caches_clean_inval_pou(va, va + 4*insns);
+>> +     aarch64_insn_patch_text_nosync(p, insn);
+>>  }
+> 
+> Sashiko has some good points here:
+
+Ack! I did check the Sashiko review a few days after posting. I think
+I'll probably start replying to Shahsiko's inline review on future
+threads on LKML to keep the record like some folks are doing.
 
 > 
-> The following changes since commit bfe62a454542cfad3379f6ef5680b125f41e20f4:
+> https://sashiko.dev/#/patchset/20260402112250.2138-1-kprateek.nayak@amd.com
 > 
->    Merge tag 'soc-fixes-7.0-2' of git://git.kernel.org/pub/scm/linux/kernel/git/soc/soc (2026-04-06 09:03:19 -0700)
+> In short, aarch64_insn_patch_text_nosync() does not expect a linear map
+> address but rather a kernel text one (or vmalloc/modules). The other
+> valid point is on aliasing I-caches.
 > 
-> are available in the Git repository at:
-> 
->    https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-master-7.0-4
-> 
-> for you to fetch changes up to 3ffe5eb4a5f248c0d4b849f050af973396656f85:
-> 
->    KVM: s390: vsie: Fix races with partial gmap invalidations (2026-04-07 18:20:58 +0200)
-> 
-> ----------------------------------------------------------------
-> KVM: s390: One very last second fix
-> 
-> Fix one more gmap-rewrite issue: races with partial gmap invalidations.
-> 
-> ----------------------------------------------------------------
-> Claudio Imbrenda (1):
->        KVM: s390: vsie: Fix races with partial gmap invalidations
-> 
->   arch/s390/kvm/gaccess.c | 9 +++++----
->   arch/s390/kvm/gmap.c    | 3 +++
->   arch/s390/kvm/gmap.h    | 1 +
->   3 files changed, 9 insertions(+), 4 deletions(-)
-> 
+> I think dropping the lm_alias() and just use 'where' directly would do
+> but I haven't tried.
+
+Ack! I completely missed that subtlety of passing "where" to
+caches_clean_inval_pou(). I'm still surprised that it didn't
+blow up in my testing.
+
+Anyhow, following diff, on top of the full series builds and
+tests fine and has been blessed by review-prompts:
+
+diff --git a/arch/arm64/include/asm/runtime-const.h b/arch/arm64/include/asm/runtime-const.h
+index 21f817eb5951..d3f0dfa7ced0 100644
+--- a/arch/arm64/include/asm/runtime-const.h
++++ b/arch/arm64/include/asm/runtime-const.h
+@@ -57,21 +57,21 @@
+ } while (0)
+ 
+ /* 16-bit immediate for wide move (movz and movk) in bits 5..20 */
+-static inline void __runtime_fixup_16(__le32 *p, unsigned int val)
++static inline void __runtime_fixup_16(void *where, unsigned int val)
+ {
++	__le32 *p = lm_alias(where);
+ 	u32 insn = le32_to_cpu(*p);
+ 	insn &= 0xffe0001f;
+ 	insn |= (val & 0xffff) << 5;
+-	aarch64_insn_patch_text_nosync(p, insn);
++	aarch64_insn_patch_text_nosync(where, insn);
+ }
+ 
+ static inline void __runtime_fixup_ptr(void *where, unsigned long val)
+ {
+-	__le32 *p = lm_alias(where);
+-	__runtime_fixup_16(p, val);
+-	__runtime_fixup_16(p+1, val >> 16);
+-	__runtime_fixup_16(p+2, val >> 32);
+-	__runtime_fixup_16(p+3, val >> 48);
++	__runtime_fixup_16(where, val);
++	__runtime_fixup_16(where + 4, val >> 16);
++	__runtime_fixup_16(where + 8, val >> 32);
++	__runtime_fixup_16(where + 12, val >> 48);
+ }
+ 
+ /* Immediate value is 6 bits starting at bit #16 */
+@@ -81,15 +81,14 @@ static inline void __runtime_fixup_shift(void *where, unsigned long val)
+ 	u32 insn = le32_to_cpu(*p);
+ 	insn &= 0xffc0ffff;
+ 	insn |= (val & 63) << 16;
+-	aarch64_insn_patch_text_nosync(p, insn);
++	aarch64_insn_patch_text_nosync(where, insn);
+ }
+ 
+ /* Immediate value is 6 bits starting at bit #16 */
+ static inline void __runtime_fixup_mask(void *where, unsigned long val)
+ {
+-	__le32 *p = lm_alias(where);
+-	__runtime_fixup_16(p, val);
+-	__runtime_fixup_16(p+1, val >> 16);
++	__runtime_fixup_16(where, val);
++	__runtime_fixup_16(where + 4, val >> 16);
+ }
+ 
+ static inline void runtime_const_fixup(void (*fn)(void *, unsigned long),
+---
+
+I'll do some more sanity checks and address the rest of the comments
+before posting out v4 soon after the merge window. Thank you again
+for your feedback. Much appreciated.
+
+-- 
+Thanks and Regards,
+Prateek
 
