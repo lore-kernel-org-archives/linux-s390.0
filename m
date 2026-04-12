@@ -1,145 +1,337 @@
-Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com [209.85.218.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B3B037C91E
-	for <linux-s390@vger.kernel.org>; Sun, 12 Apr 2026 13:23:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.48
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776000188; cv=pass; b=EXNtmkqaDY0XHZ7qm9V8IcjhrXMi3DqIVjXGavTPtK2pbp07VPjOIiE5+7GhWLgcDi6kzma0vBYNaQMXjtbmiF0X0IDCvfJf8tXtkjVXw5UWQXV85+KQnEz226/ioFXEessUlg3h+Xq6J3RehdLcVEvWz8Y6MHBRm+5AKq6zBbg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776000188; c=relaxed/simple;
-	bh=1p6x7PvyQL+5PGqdAnx23TY8v0cVXdqCOnUZdmPD2Po=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=K3G1bkxJCBx6Jzb5/KUJVDWxGskEy49ReyW5OARjycUHa9TI+PRt+rVvwFGsDxrvbZgS59LspWYDk/aKxaBwsZqxUvCTT8TCDoY7Pq36P2OmcP+RrWmDqyDxYz72spiDMJYXbhu777txFnUsdbkqdDRC6QRHrJh1TvRqg1W35pw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dccArJm9; arc=pass smtp.client-ip=209.85.218.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03CFE23D7DC;
+	Sun, 12 Apr 2026 15:46:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776008817; cv=none; b=a4ArfOWN1ilczAk4gDwlFNNO86r13fW62AhfmAsGEIWCK9UX3KtvrsaYi6XYxSwg4Qk4CzDVk89ZNWZr7ez/KfzQ8LRcYEE9tHwsJXbvzsQEYe/vk41UOVEFPK3e3fxXIxyShE9nYrW1hFzNGDSK7SGtJioI8WkUG0SVO4uHEB0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776008817; c=relaxed/simple;
+	bh=23dLLAcM76ajvHwVd9STiwBmiFsqBllnva76VnjCY0A=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=tcX/+1iVzUuR0A/+rwQzWScpt35YjvK7InmjieaApt6mo5dq5xnLe+Td8hcYs4SnooJST76WS5CRwrk+Or2ZNif6XIHPKy84gjUeYtL9L6PPw0WtcStm8HqiHhJHHju7aBY9nZuREeNRbiawU/ma8qaAtTM6WBc9duRuSqiaI9k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XXZn39WK; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dccArJm9"
-Received: by mail-ej1-f48.google.com with SMTP id a640c23a62f3a-b9c3e2cf3c0so546931666b.1
-        for <linux-s390@vger.kernel.org>; Sun, 12 Apr 2026 06:23:04 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1776000183; cv=none;
-        d=google.com; s=arc-20240605;
-        b=QPbng1+SKEnoIz6hif4rvlflVdthHJy1v5lSBCNgCNSav4ikL45mUv2HffkYVDQ7xJ
-         AJkXOK4piIzTsm4xPra9DY9dsu5q5qWgLz0DLbSqXVCGvPQlXSrVZEyt42tXZ109vNzR
-         vAvDJJbhfSQghmoFU6geLrTtOxNNGLpU1lZL0j2TJhXOqFhZqL5FsDE53QQXIu+22Rb6
-         DZhrwrX3MNMpsK/LGX6ZUpM5LGBMEIsydTOTT52Jz5ZVDtRLAEf3A6462bWC6cj1oip1
-         Bk2LzTFu5eB4pGGYrGYdzswY0UvHsagfwYxCXljsuCfeHLZoySEPg6pNHXeE+eIwr7ao
-         YDAg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=gDdA9vu4Fz00bgurrj0mXlyC2hJ8rRfiuCUxuR8xwe8=;
-        fh=NQJUZkN+z5PMMNsoqK83NbMpXWhaCo34jP38no4N3+s=;
-        b=k00+obuhauTV9UF4HzVpepUKbBg91d43C2SlL0+BbP1lEwVkwQLt/KufGxhk+1cvEm
-         ROnYIKwgJPcL7Z5R8z0R3G2iMCAZwuJ8nhFV3ocDGYZYR0JP8PdnFl2wOVWapqvTiKtJ
-         GuyDup6mwDsM5ZZepFUSFFbn47XSZfyi6QUyVfKERfvakeL7XlBKACUdCMTIMmHEMM9x
-         Qa+J7nyPfjgdHZbk2yel3CjOCTuGhR5yEfEdolcWhKBHFamOdF7sWaJwM+6sT+Fn8njp
-         nT23XWXUcbGE4v+xub2rr9VY7XhIKbcKl62N3TQJYBYAd/HuoShmg7iAI2lP+NYiL41s
-         b25w==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776000183; x=1776604983; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=gDdA9vu4Fz00bgurrj0mXlyC2hJ8rRfiuCUxuR8xwe8=;
-        b=dccArJm9v6h9Fdk8lDGNWZnQG14AQ9ZokHDnv7DAL1GW0R6BDoMR0waR0wHnO++sNY
-         YJPJSDf/Eo4Jqw4GQ8Gz/T/rsLkNap5uTZ+EpwANfeQ1dFGXyG88+fN/49+h4JvC9C7c
-         2+asFn0yzVsL4n2hJqrH+GINWtCINsNrMCDz6yHqeLWKks0EsNy7ssNes4vhdFLCd+tg
-         k2Ys2/EuxonOOeyCkSNs/L20e6zSdmHhXIY25hzHxXat+VjZowRiCo0VNk9bdjlPvxYt
-         DV9owUMCQ8VWv/4Ldm8HtUCj9QQlhYJyZr8JnJBv87EbzYIfO7KpnQu2sRPezsHrfV9J
-         1U2Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776000183; x=1776604983;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=gDdA9vu4Fz00bgurrj0mXlyC2hJ8rRfiuCUxuR8xwe8=;
-        b=LmTqmHXO3cmNOnyDBVCQ90spU3UrWbiWSFtNhPIHte7EWf8S1Ouy3JnHuLwfagfb41
-         YKHLOqoenc5EV01/kOfCVmNd1kDl6zYS9lMYEH2DvJN75uciQIv6wZljqSZeQ9xtn0s6
-         L+/kn8VgWEcFZIaRahws68eUE7KqhSRTJAl4kLjmxUZz9eN7p0kfpukj1Qx1yKD8HbzY
-         Q68E3Tg24ZdqRDS0XY/FaieA77nBnCJCUd7L+xMrbsWhdgvqLpWUYq8clQoGaHvySp7u
-         ObuDvgG0uasS9yBEc0IvOBQAgJ9NzIExujo7eKqernADPLppkuarRhjM+0zrItB5pKLl
-         vAvg==
-X-Forwarded-Encrypted: i=1; AJvYcCVkugWxjqOxZUAgjYVbIOLIv4Fdt21bSs96o3OVpt36QRdL5WtcYnYZ3YawIkvUaee9qD1GNBIEpEwH@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw/baOido5YQaV6+i2cPdG2JGda9F1FBlC8fyb2bJshLKsNxIs1
-	adqnX/y8AUYraEV5JJw8qErCpIJWs9Vmm5HutpB6vh1e315nb295Tteb0OSXOia5cqk6yVBd9Qh
-	AlL8HE09PNk3s42bVDJrtDU4hKmh7+TU=
-X-Gm-Gg: AeBDietf21Ypdm4JmqSFMZ8bYP4YCJqt0dvV92WymEZXLHBP86oIETVd6ZaZFYXTAuj
-	GVnGoeB4JwfhMRxPdvEeV4sFZG33P2UpE3zVG+rJ3ai7E2mpkwkN4LaxFQ15ITxf6uCstd/fVB4
-	DEDrW66r+UEmf1uHJcdsN7JBtw+yQfrw3UnKtjdQZApj/wYJbPmve+AwCO4X+10BQlKt/SnTzAs
-	OO010SGvQuhUxryb6Z6VtOX9XVVr5Lpr6c/xg2Q9hUK4B/fY7FoLE+pQwtwhB/HaeUrU4de9SiF
-	V5LrGA+UQjtI35HiYVCz3LK3yWo7QUJ8S51TV9j2
-X-Received: by 2002:a17:907:e113:b0:b9c:6ef1:ed18 with SMTP id
- a640c23a62f3a-b9d727aa4fdmr352963766b.25.1776000183133; Sun, 12 Apr 2026
- 06:23:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XXZn39WK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1ADBFC19424;
+	Sun, 12 Apr 2026 15:46:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1776008816;
+	bh=23dLLAcM76ajvHwVd9STiwBmiFsqBllnva76VnjCY0A=;
+	h=Date:From:To:Cc:Subject:From;
+	b=XXZn39WKLIgN3EAJkU5ENkWYZAuWvtD3iPiOn2ozgnaDOWxI5dBZ5BQmoFtFm2rE5
+	 8SvYKVh+BiE2QtmOhZabXGgkkUUugDwoDYf8yxsZrEtcOf4wjIPBRyWiXDvNOmXVzB
+	 tikHKggIoVLzkavDBwUeYVxmpCG98H5XVARlwPdNnSzNK1w5LM+Lxeg8tY3hNZAXBD
+	 1UNYY56I3A9zV/+XMHzeoH8MDZhUK2JGiBLj7MVEywl6gQv2Fj6VG9OEJUWTyjAQji
+	 OOXucRVnk+iJt7Nhg9VqjWOE/zvhkal2k4/PrKupY+JrxnbNbTlXSyxpO3xfjV1V4C
+	 hOH6k+cYbW0tg==
+Date: Sun, 12 Apr 2026 17:46:47 +0200
+From: Nicolas Schier <nsc@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Alexander Coffin <alex@cyberialabs.net>,
+	Ard Biesheuvel <ardb@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Bill Wendling <morbo@google.com>,
+	David Howells <dhowells@redhat.com>,
+	Dodji Seketeli <dodji@seketeli.org>,
+	"H. Peter Anvin" <hpa@zytor.com>, Helge Deller <deller@gmx.de>,
+	John Moon <john@jmoon.dev>, Jonathan Corbet <corbet@lwn.net>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Justin Stitt <justinstitt@google.com>, Kees Cook <kees@kernel.org>,
+	Masahiro Yamada <masahiroy@kernel.org>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
+	Shuah Khan <skhan@linuxfoundation.org>, Song Liu <song@kernel.org>,
+	Thomas =?iso-8859-1?Q?Wei=DFschuh?= <linux@weissschuh.net>,
+	Yonghong Song <yonghong.song@linux.dev>, kernel-team@fb.com,
+	linux-arm-kernel@lists.infradead.org, linux-efi@vger.kernel.org,
+	linux-hexagon@vger.kernel.org, linux-kbuild@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	llvm@lists.linux.dev, loongarch@lists.linux.dev
+Subject: [GIT PULL] Kbuild and Kconfig changes for v7.1
+Message-ID: <adu-ZyIv47FnsVLI@levanger>
+Mail-Followup-To: Linus Torvalds <torvalds@linux-foundation.org>,
+	Alexander Coffin <alex@cyberialabs.net>,
+	Ard Biesheuvel <ardb@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Bill Wendling <morbo@google.com>,
+	David Howells <dhowells@redhat.com>,
+	Dodji Seketeli <dodji@seketeli.org>,
+	"H. Peter Anvin" <hpa@zytor.com>, Helge Deller <deller@gmx.de>,
+	John Moon <john@jmoon.dev>, Jonathan Corbet <corbet@lwn.net>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Justin Stitt <justinstitt@google.com>, Kees Cook <kees@kernel.org>,
+	Masahiro Yamada <masahiroy@kernel.org>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
+	Shuah Khan <skhan@linuxfoundation.org>, Song Liu <song@kernel.org>,
+	Thomas =?iso-8859-1?Q?Wei=DFschuh?= <linux@weissschuh.net>,
+	Yonghong Song <yonghong.song@linux.dev>, kernel-team@fb.com,
+	linux-arm-kernel@lists.infradead.org, linux-efi@vger.kernel.org,
+	linux-hexagon@vger.kernel.org, linux-kbuild@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	llvm@lists.linux.dev, loongarch@lists.linux.dev
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260410120044.031381086@kernel.org> <20260410120319.131582521@kernel.org>
-In-Reply-To: <20260410120319.131582521@kernel.org>
-From: Magnus Lindholm <linmag7@gmail.com>
-Date: Sun, 12 Apr 2026 15:22:51 +0200
-X-Gm-Features: AQROBzAeMsaeSVePCJ__tEd4f2rWAY6MixXzp_fii2b8vyUpLt4xjSbtYzENFaw
-Message-ID: <CA+=Fv5S68wZQapeaYTspOfsuGk=nBj60sx-ojHBSqrxV59Q+ZA@mail.gmail.com>
-Subject: Re: [patch 23/38] alpha: Select ARCH_HAS_RANDOM_ENTROPY
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, 
-	Richard Henderson <richard.henderson@linaro.org>, linux-alpha@vger.kernel.org, 
-	Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, Lu Baolu <baolu.lu@linux.intel.com>, 
-	iommu@lists.linux.dev, Michael Grzeschik <m.grzeschik@pengutronix.de>, netdev@vger.kernel.org, 
-	linux-wireless@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>, 
-	linux-crypto@vger.kernel.org, Vlastimil Babka <vbabka@kernel.org>, linux-mm@kvack.org, 
-	David Woodhouse <dwmw2@infradead.org>, Bernie Thompson <bernie@plugable.com>, linux-fbdev@vger.kernel.org, 
-	Theodore Tso <tytso@mit.edu>, linux-ext4@vger.kernel.org, 
-	Andrew Morton <akpm@linux-foundation.org>, Uladzislau Rezki <urezki@gmail.com>, 
-	Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>, kasan-dev@googlegroups.com, 
-	Andrey Ryabinin <ryabinin.a.a@gmail.com>, Thomas Sailer <t.sailer@alumni.ethz.ch>, 
-	linux-hams@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>, 
-	Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, 
-	Catalin Marinas <catalin.marinas@arm.com>, Huacai Chen <chenhuacai@kernel.org>, 
-	loongarch@lists.linux.dev, Geert Uytterhoeven <geert@linux-m68k.org>, 
-	linux-m68k@lists.linux-m68k.org, Dinh Nguyen <dinguyen@kernel.org>, 
-	Jonas Bonn <jonas@southpole.se>, linux-openrisc@vger.kernel.org, 
-	Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org, 
-	Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, 
-	Paul Walmsley <pjw@kernel.org>, linux-riscv@lists.infradead.org, 
-	Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, 
-	"David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="WEAPSl/ZOh7quu+7"
+Content-Disposition: inline
+
+
+--WEAPSl/ZOh7quu+7
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Apr 10, 2026 at 2:36=E2=80=AFPM Thomas Gleixner <tglx@kernel.org> w=
-rote:
->
-> The only remaining usage of get_cycles() is to provide
-> random_get_entropy().
->
-> Switch alpha over to the new scheme of selecting ARCH_HAS_RANDOM_ENTROPY
-> and providing random_get_entropy() in asm/random.h.
->
-> Remove asm/timex.h as it has no functionality anymore.
->
-> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
-> Cc: Richard Henderson <richard.henderson@linaro.org>
-> Cc: linux-alpha@vger.kernel.org
-> ---
->  arch/alpha/Kconfig              |    1 +
->  arch/alpha/include/asm/random.h |   14 ++++++++++++++
->  arch/alpha/include/asm/timex.h  |   26 --------------------------
->  3 files changed, 15 insertions(+), 26 deletions(-)
+Hi Linus,
 
-Hi,
+please pull these changes to Kbuild and Kconfig for v7.1.  Please let me
+know if anything is incorrect and not matching your standards.
 
-The Alpha side looks fine to me.
+All changes have been in -next, most for several cycles without reported
+problems.
 
-I've applied this patch on top of v7.0-rc7, built a kernel successfully,
-boot-tested it on an Alpha UP2000+ (SMP) without issues.
+Thanks and kind regards,
+Nicolas
 
-Acked-by: Magnus Lindholm <linmag7@gmail.com>
-Tested-by: Magnus Lindholm <linmag7@gmail.com>
+---
+
+The following changes since commit 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f:
+
+  Linux 7.0-rc1 (2026-02-22 13:18:59 -0800)
+
+are available in the Git repository at:
+
+  ssh://git@gitolite.kernel.org/pub/scm/linux/kernel/git/kbuild/linux.git t=
+ags/kbuild-7.1-1
+
+for you to fetch changes up to 404927758daac5ec4594071e033c1fa6ee9ca9b6:
+
+  kbuild: expand inlining hints with -fdiagnostics-show-inlining-chain (202=
+6-04-07 21:48:44 +0200)
+
+----------------------------------------------------------------
+Kbuild/Kconfig updates for 7.1
+
+Kbuild changes
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+  * tools/build: Reject unexpected values for LLVM=3D
+
+  * kbuild: uapi: remove usage of toolchain headers
+
+  * kbuild: Switch from '-fms-extensions' to '-fms-anonymous-structs'
+    when available (currently: clang >=3D 23.0.0)
+
+  * kbuild: Reduce the number of compiler-generated suffixes for clang
+    thin-lto build
+
+  * kbuild: reduce output spam ("GEN Makefile") when building out of tree
+
+  * check-uapi: improve portability for testing headers
+
+  * uapi: also test UAPI headers against C++ compilers
+
+  * kbuild: vdso_install: drop build ID architecture allow-list
+
+  * checksyscalls: only run when necessary
+
+  * Documentation: kbuild: Update the debug information notes in
+    reproducible-builds.rst
+
+  * kconfig: forbid multiple entries with the same symbol in a choice
+
+  * kbuild: expand inlining hints with -fdiagnostics-show-inlining-chain
+
+
+Kconfig changes
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+  * kconfig: Error out on duplicated kconfig inclusion
+
+
+Cc: Alexander Coffin <alex@cyberialabs.net>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Bill Wendling <morbo@google.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Dodji Seketeli <dodji@seketeli.org>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: John Moon <john@jmoon.dev>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Josh Poimboeuf <jpoimboe@kernel.org>
+Cc: Justin Stitt <justinstitt@google.com>
+Cc: Kees Cook <kees@kernel.org>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <nick.desaulniers+lkml@gmail.com>
+Cc: Shuah Khan <skhan@linuxfoundation.org>
+Cc: Song Liu <song@kernel.org>
+Cc: Thomas Wei=DFschuh <linux@weissschuh.net>
+Cc: Yonghong Song <yonghong.song@linux.dev>
+Cc: kernel-team@fb.com
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-efi@vger.kernel.org
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-kbuild@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linux-s390@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: llvm@lists.linux.dev
+Cc: loongarch@lists.linux.dev
+
+----------------------------------------------------------------
+Arnd Bergmann (3):
+      check-uapi: link into shared objects
+      check-uapi: honor ${CROSS_COMPILE} setting
+      check-uapi: use dummy libc includes
+
+Justin Stitt (1):
+      kbuild: expand inlining hints with -fdiagnostics-show-inlining-chain
+
+Masahiro Yamada (1):
+      kconfig: forbid multiple entries with the same symbol in a choice
+
+Nathan Chancellor (3):
+      kbuild: Consolidate C dialect options
+      kbuild: Use '-fms-anonymous-structs' if it is available
+      Documentation: kbuild: Update the debug information notes in reproduc=
+ible-builds.rst
+
+Nicolas Schier (1):
+      kconfig: Error out on duplicated kconfig inclusion
+
+Thomas Wei=DFschuh (25):
+      Documentation/llvm: drop note about LLVM=3D0
+      tools/build: Reject unexpected values for LLVM=3D
+      hexagon: uapi: Fix structure alignment attribute
+      kbuild: uapi: test linux/bpf_perf_event.h on powerpc
+      kbuild: uapi: deduplicate linux/bpf_perf_event.h exclusions
+      kbuild: uapi: completely exclude linux/bpf_perf_event.h on nios2
+      kbuild: uapi: only use dummy-include for headers which use libc
+      kbuild: uapi: provide stub includes for some libc headers
+      kbuild: uapi: use custom stub headers instead of libc ones
+      kbuild: uapi: simplify libc dependency logic
+      kbuild: uapi: remove now unneeded guard headers
+      kbuild: reduce output spam when building out of tree
+      kbuild: uapi: move some compiler arguments out of the command definit=
+ion
+      kbuild: uapi: move all include path flags together
+      kbuild: uapi: handle UML in architecture-specific exclusion lists
+      kbuild: uapi: provide a C++ compatible dummy definition of NULL
+      kbuild: uapi: also test UAPI headers against C++ compilers
+      kbuild: vdso_install: split out the readelf invocation
+      kbuild: vdso_install: hide readelf warnings
+      kbuild: vdso_install: gracefully handle images without build ID
+      kbuild: vdso_install: drop build ID architecture allow-list
+      checksyscalls: move path to reference table to a variable
+      checksyscalls: fail on all intermediate errors
+      checksyscalls: only run when necessary
+      checksyscalls: move instance functionality into generic code
+
+Yonghong Song (1):
+      kbuild: Reduce the number of compiler-generated suffixes for clang th=
+in-lto build
+
+ Documentation/kbuild/llvm.rst                      |  4 --
+ Documentation/kbuild/reproducible-builds.rst       |  7 ++-
+ Kbuild                                             | 14 +++--
+ Makefile                                           | 35 +++++++++---
+ arch/arm64/kernel/vdso32/Makefile                  |  3 +-
+ arch/hexagon/include/uapi/asm/sigcontext.h         |  2 +-
+ arch/loongarch/vdso/Makefile                       |  2 +-
+ arch/mips/Makefile                                 |  6 +-
+ arch/parisc/boot/compressed/Makefile               |  2 +-
+ arch/powerpc/boot/Makefile                         |  3 +-
+ arch/s390/Makefile                                 |  3 +-
+ arch/s390/purgatory/Makefile                       |  3 +-
+ arch/x86/Makefile                                  |  6 +-
+ arch/x86/boot/compressed/Makefile                  |  6 +-
+ drivers/firmware/efi/libstub/Makefile              |  3 +-
+ init/Kconfig                                       |  5 ++
+ scripts/Makefile.vdsoinst                          |  7 ++-
+ scripts/Makefile.warn                              |  5 --
+ scripts/check-uapi.sh                              | 19 ++++---
+ scripts/checksyscalls.sh                           | 11 +++-
+ scripts/kconfig/lexer.l                            |  4 +-
+ scripts/kconfig/lkc.h                              |  3 +-
+ scripts/kconfig/parser.y                           | 15 ++---
+ scripts/kconfig/tests/err_repeated_inc/Kconfig     |  3 +
+ .../kconfig/tests/err_repeated_inc/Kconfig.inc1    |  4 ++
+ .../kconfig/tests/err_repeated_inc/Kconfig.inc2    |  3 +
+ .../kconfig/tests/err_repeated_inc/Kconfig.inc3    |  1 +
+ scripts/kconfig/tests/err_repeated_inc/__init__.py | 10 ++++
+ .../kconfig/tests/err_repeated_inc/expected_stderr |  2 +
+ scripts/kconfig/util.c                             | 31 ++++++++++-
+ tools/scripts/Makefile.include                     |  2 +
+ usr/dummy-include/endian.h                         |  0
+ usr/dummy-include/limits.h                         |  8 +++
+ usr/dummy-include/netinet/if_ether.h               |  0
+ usr/dummy-include/netinet/in.h                     |  0
+ usr/dummy-include/stdbool.h                        |  7 ---
+ usr/dummy-include/stddef.h                         | 13 +++++
+ usr/dummy-include/stdint.h                         | 17 ++++++
+ usr/dummy-include/stdlib.h                         |  7 ---
+ usr/dummy-include/string.h                         | 12 ++++
+ usr/dummy-include/sys/ioctl.h                      |  0
+ usr/dummy-include/sys/socket.h                     | 12 ++++
+ usr/dummy-include/sys/time.h                       |  3 +
+ usr/dummy-include/sys/types.h                      |  0
+ usr/dummy-include/time.h                           |  0
+ usr/dummy-include/unistd.h                         |  0
+ usr/include/Makefile                               | 65 ++++++++++++++----=
+----
+ 47 files changed, 251 insertions(+), 117 deletions(-)
+ create mode 100644 scripts/kconfig/tests/err_repeated_inc/Kconfig
+ create mode 100644 scripts/kconfig/tests/err_repeated_inc/Kconfig.inc1
+ create mode 100644 scripts/kconfig/tests/err_repeated_inc/Kconfig.inc2
+ create mode 100644 scripts/kconfig/tests/err_repeated_inc/Kconfig.inc3
+ create mode 100644 scripts/kconfig/tests/err_repeated_inc/__init__.py
+ create mode 100644 scripts/kconfig/tests/err_repeated_inc/expected_stderr
+ create mode 100644 usr/dummy-include/endian.h
+ create mode 100644 usr/dummy-include/limits.h
+ create mode 100644 usr/dummy-include/netinet/if_ether.h
+ create mode 100644 usr/dummy-include/netinet/in.h
+ delete mode 100644 usr/dummy-include/stdbool.h
+ create mode 100644 usr/dummy-include/stddef.h
+ create mode 100644 usr/dummy-include/stdint.h
+ delete mode 100644 usr/dummy-include/stdlib.h
+ create mode 100644 usr/dummy-include/string.h
+ create mode 100644 usr/dummy-include/sys/ioctl.h
+ create mode 100644 usr/dummy-include/sys/socket.h
+ create mode 100644 usr/dummy-include/sys/time.h
+ create mode 100644 usr/dummy-include/sys/types.h
+ create mode 100644 usr/dummy-include/time.h
+ create mode 100644 usr/dummy-include/unistd.h
+
+--=20
+Nicolas
+
+--WEAPSl/ZOh7quu+7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEh0E3p4c3JKeBvsLGB1IKcBYmEmkFAmnbvloACgkQB1IKcBYm
+EmnVJBAAlJvaCwNlI1ymaWQKEC+s4udzUKo5DuA14pw/3NgGhLasok1WZaWB0LUb
+2D4NtXMeQLTFybnTE07rbHZwQ/fBpvyWNL0D9aL+bjHfYhkbJHIJIgnrTOJLn3IW
+wJuPJgJDMvgmWKyXGRLjPEevSmKF10Aej8f0QIsXuv8IG8M0ZfpIohRV35Dot9w6
+kRQC6lX0lYTfaBzp7IBMtY634rtzC9rHK+U1gkkvswuE2H26rm5TxeE1lL6Xecmf
+pd16FUspWGCMMB6YFRz3hi4ZRIMhY3MgY6LvvcHNF0RDrdoEoqWFyKLd/l5X5CNq
+HKbIrMJ4l5E4KCSw3rtaW/RzmcZjDtU1RLdXLomAhZU7sszIhyYOuptBVAncdKVC
+Vo+lxm1kLlBRG4eQjCnA51HQZN7VbO54XSvWVmRioEUevu6wSA8UvSq7Kcufzg57
+I9nn9kpwFqJZvQsNGIdDqEgIT5l3muX1Y89E723OqKZ9CoPl2meGrLQU69e4gGFc
+R/nTDktzEFINZHVk72AwAWyjvE/IGx6mmogf1+4Zz7MK2Q5aeXejy6T5aZ0QMwtH
+/290TxOxWlOqi3b57Quo0xJVltkA9WxCi++4hh0Te/x2Yjaqbaovui7fBjqeKvCh
+Oh9AhNVYbTOjIMS2CyL6xQBlr+Vp2MQ163tqds1uSP3IqrS2T+8=
+=WfCJ
+-----END PGP SIGNATURE-----
+
+--WEAPSl/ZOh7quu+7--
