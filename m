@@ -1,141 +1,126 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C319318EDA;
-	Mon, 13 Apr 2026 11:00:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id E957522156C;
+	Mon, 13 Apr 2026 11:01:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776078016; cv=none; b=V9ydF26z0omJP27uNxrwMWeSGH6DmpfcZme1i/bechlmBhOY/gUUzUlgJ59gbekrB2q0sfoS+oXvgfT9RynHVj68VPXmEI1FawQmjXHX8yTTXu3cVhCf6pXiI8KRGyPNtT8c61wffwkckDJa+K1N1FfaiBsq/Qc1BufFnqgd8rE=
+	t=1776078073; cv=none; b=EYcpClWenur3saZrqZ3poIprpuc2Nwm80d6I9+lEBlHr54JH8mKQ6OcOFTS+LXDXFXXgw4YThjsyaQMV3nNQqjlYzEa2VscpsEUPZiYMAfiSXGwf9fjnMCW3BiOYNjspJyhNMa3HCR7gmpxE3gITSXOoYLhVktnzZx6MF76QJ+4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776078016; c=relaxed/simple;
-	bh=sWeDGz5nVxh7zul1oYxNegopCUQGMob68LVgLTxZPrU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=UttjHkgTKNBwVuT+pYqw4fDdwwSpCYauW+LXOQ2tq+QHWhzw7zMupweDfCFEIuvwrGAM9MEVCX7C8/z2jtuDB14r8YIMGxbbFeKjACf/yNWFJNGz7kQ/f6hIuOV0iRlNKXMPJChwUjfNUFeSarWiWYc1ugdTpM+Xf6XGXAsbMrs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=po80zusm; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1776078073; c=relaxed/simple;
+	bh=P5560RAnvZN21+y42j1UNU3zw/F77/WG44SpxSSnyqQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=YOCYSUWQaIStzXWImb3Ty2Ojair6inAJYce7lzeJDHFAIqQ3xYeLAUQdOWknfu5axvHhs7XDCi6Ecv1GZaJL9ml812rPPS4e3S6gZJ2QHxXKKLMRRRJP/kBgnUM72dWHaA/9pTIwGy3Oqsqd/628zaVSvYUb57C+Of6nuYbSPf4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=NgLb3FOb; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="po80zusm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B03A4C116C6;
-	Mon, 13 Apr 2026 11:00:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776078015;
-	bh=sWeDGz5nVxh7zul1oYxNegopCUQGMob68LVgLTxZPrU=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=po80zusm+gtU+EGSkMuJ2hqujkYkUJ1p8Kz4680dGC5/FlNAC/buMbtHK5Fg1QD7G
-	 6GNXB5/XjtQ0/nECSh3SgHU4WsBsoyOzwk3XH1g1oxCSZtiWXdfdTOhY0HWWG0npeS
-	 XGx+e0qTFsLrNXW0Mc1fnAQM3clczqq8PETdNtXHXNyCBugC2cmqIKJn4OWLmws47V
-	 Ucnb/6DzHn350VtTVjWlgnoq5/FchzT7yYgrSh9WBjXZcPq5PT5mYz6SovfRrFXX9U
-	 RH05hFoVPfKt13rRlGJ4HlRdah/1oRHBaNuUZpBILRkUlyhnjgIaOuK/y4B1s8MDNl
-	 I/ahVTcgcNKiA==
-Message-ID: <2dab11d1-18ca-4da4-a33e-3f2c3c4b6320@kernel.org>
-Date: Mon, 13 Apr 2026 13:00:07 +0200
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="NgLb3FOb"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8493C3581;
+	Mon, 13 Apr 2026 04:01:05 -0700 (PDT)
+Received: from arm.com (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id BACD83F641;
+	Mon, 13 Apr 2026 04:01:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1776078071; bh=P5560RAnvZN21+y42j1UNU3zw/F77/WG44SpxSSnyqQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=NgLb3FObr2jCRDXSLm8COFWaQdrrXHeryVHOrr+La3FNXGfYu/NTKqn8Qwma5HnOj
+	 jPUSYrOfKWA6U4R1W121xjN1n7pfjokpsNwPc6rXIbPZf7zgREg5R3M/N35h90VOP/
+	 zt8JyZ/FWVvEXZhvjQy9D8u/7u8vulPNvFJcA5CA=
+Date: Mon, 13 Apr 2026 12:01:05 +0100
+From: Catalin Marinas <catalin.marinas@arm.com>
+To: K Prateek Nayak <kprateek.nayak@amd.com>
+Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	Will Deacon <will@kernel.org>,
+	David Laight <david.laight.linux@gmail.com>,
+	Darren Hart <dvhart@infradead.org>,
+	Davidlohr Bueso <dave@stgolabs.net>,
+	=?iso-8859-1?Q?Andr=E9?= Almeida <andrealmeid@igalia.com>,
+	linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	Jisheng Zhang <jszhang@kernel.org>
+Subject: Re: [PATCH v3 2/7] arm64/runtime-const: Use
+ aarch64_insn_patch_text_nosync() for patching
+Message-ID: <adzM8RtjbOy0kLOC@arm.com>
+References: <20260402112250.2138-1-kprateek.nayak@amd.com>
+ <20260402112250.2138-3-kprateek.nayak@amd.com>
+ <adjE6WzFM7NogzlU@arm.com>
+ <c45ede13-f8d0-4b6a-b2ed-f06af4882ebc@amd.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 04/14] powerpc/time: Prepare to stop elapsing in
- dynticks-idle
-To: Frederic Weisbecker <frederic@kernel.org>,
- LKML <linux-kernel@vger.kernel.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Anna-Maria Behnsen <anna-maria@linutronix.de>,
- Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Dietmar Eggemann <dietmar.eggemann@arm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
- Jan Kiszka <jan.kiszka@siemens.com>, Joel Fernandes <joelagnelf@nvidia.com>,
- Juri Lelli <juri.lelli@redhat.com>, Kieran Bingham <kbingham@kernel.org>,
- Madhavan Srinivasan <maddy@linux.ibm.com>, Mel Gorman <mgorman@suse.de>,
- Michael Ellerman <mpe@ellerman.id.au>,
- Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
- Nicholas Piggin <npiggin@gmail.com>, "Paul E . McKenney"
- <paulmck@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
- Shrikanth Hegde <sshegde@linux.ibm.com>, Steven Rostedt
- <rostedt@goodmis.org>, Sven Schnelle <svens@linux.ibm.com>,
- Thomas Gleixner <tglx@linutronix.de>, Uladzislau Rezki <urezki@gmail.com>,
- Valentin Schneider <vschneid@redhat.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Viresh Kumar <viresh.kumar@linaro.org>, Xin Zhao <jackzxcui1989@163.com>,
- linux-pm@vger.kernel.org, linux-s390@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org
-References: <20260331131622.30505-1-frederic@kernel.org>
- <20260331131622.30505-5-frederic@kernel.org>
-Content-Language: fr-FR
-From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-In-Reply-To: <20260331131622.30505-5-frederic@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c45ede13-f8d0-4b6a-b2ed-f06af4882ebc@amd.com>
 
-
-
-Le 31/03/2026 à 15:16, Frederic Weisbecker a écrit :
-> Currently the tick subsystem stores the idle cputime accounting in
-> private fields, allowing cohabitation with architecture idle vtime
-> accounting. The former is fetched on online CPUs, the latter on offline
-> CPUs.
+On Sun, Apr 12, 2026 at 01:24:45AM +0530, K Prateek Nayak wrote:
+> On 4/10/2026 3:07 PM, Catalin Marinas wrote:
+> > https://sashiko.dev/#/patchset/20260402112250.2138-1-kprateek.nayak@amd.com
+> > 
+> > In short, aarch64_insn_patch_text_nosync() does not expect a linear map
+> > address but rather a kernel text one (or vmalloc/modules). The other
+> > valid point is on aliasing I-caches.
+> > 
+> > I think dropping the lm_alias() and just use 'where' directly would do
+> > but I haven't tried.
 > 
-> For consolidation purpose, architecture vtime accounting will continue
-> to account the cputime but will make a break when the idle tick is
-> stopped. The dyntick cputime accounting will then be relayed by the tick
-> subsystem so that the idle cputime is still seen advancing coherently
-> even when the tick isn't there to flush the idle vtime.
-> 
-> Prepare for that and introduce three new APIs which will be used in
-> subsequent patches:
-> 
-> _ vtime_dynticks_start() is deemed to be called when idle enters in
->    dyntick mode. The idle cputime that elapsed so far is accumulated.
-> 
-> - vtime_dynticks_stop() is deemed to be called when idle exits from
->    dyntick mode. The vtime entry clocks are fast-forward to current time
->    so that idle accounting restarts elapsing from now.
-> 
-> - vtime_reset() is deemed to be called from dynticks idle IRQ entry to
->    fast-forward the clock to current time so that the IRQ time is still
->    accounted by vtime while nohz cputime is paused.
-> 
-> Also accumulated vtime won't be flushed from dyntick-idle ticks to avoid
-> accounting twice the idle cputime, along with nohz accounting.
-> 
-> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-> Reviewed-by: Shrikanth Hegde <sshegde@linux.ibm.com>
-> Tested-by: Shrikanth Hegde <sshegde@linux.ibm.com>
-> ---
->   arch/powerpc/kernel/time.c | 41 ++++++++++++++++++++++++++++++++++++++
->   include/linux/vtime.h      |  6 ++++++
->   2 files changed, 47 insertions(+)
-> 
+> Ack! I completely missed that subtlety of passing "where" to
+> caches_clean_inval_pou(). I'm still surprised that it didn't
+> blow up in my testing.
 
-...
+For the first part (passing a linear map address), I suspect we get away
+with this in vmalloc_to_page() as it just walks the page tables and
+VIRTUAL_BUG_ON() is a no-op with defconfig.
 
-> diff --git a/include/linux/vtime.h b/include/linux/vtime.h
-> index 336875bea767..61b94c12d7dd 100644
-> --- a/include/linux/vtime.h
-> +++ b/include/linux/vtime.h
-> @@ -37,11 +37,17 @@ extern void vtime_account_irq(struct task_struct *tsk, unsigned int offset);
->   extern void vtime_account_softirq(struct task_struct *tsk);
->   extern void vtime_account_hardirq(struct task_struct *tsk);
->   extern void vtime_flush(struct task_struct *tsk);
-> +extern void vtime_reset(void);
-> +extern void vtime_dyntick_start(void);
-> +extern void vtime_dyntick_stop(void);
->   #else /* !CONFIG_VIRT_CPU_ACCOUNTING_NATIVE */
->   static inline void vtime_account_irq(struct task_struct *tsk, unsigned int offset) { }
->   static inline void vtime_account_softirq(struct task_struct *tsk) { }
->   static inline void vtime_account_hardirq(struct task_struct *tsk) { }
->   static inline void vtime_flush(struct task_struct *tsk) { }
-> +static inline void vtime_reset(void) { }
-> +static inline void vtime_dyntick_start(void) { }
-> +extern inline void vtime_dyntick_stop(void) { }
+For the I-cache aliasing, you may not have the right hardware but even
+if you did, it's harder to hit.
 
-You mean 'static' inline, not 'extern' ?
+> Anyhow, following diff, on top of the full series builds and
+> tests fine and has been blessed by review-prompts:
+> 
+> diff --git a/arch/arm64/include/asm/runtime-const.h b/arch/arm64/include/asm/runtime-const.h
+> index 21f817eb5951..d3f0dfa7ced0 100644
+> --- a/arch/arm64/include/asm/runtime-const.h
+> +++ b/arch/arm64/include/asm/runtime-const.h
+> @@ -57,21 +57,21 @@
+>  } while (0)
+>  
+>  /* 16-bit immediate for wide move (movz and movk) in bits 5..20 */
+> -static inline void __runtime_fixup_16(__le32 *p, unsigned int val)
+> +static inline void __runtime_fixup_16(void *where, unsigned int val)
+>  {
+> +	__le32 *p = lm_alias(where);
+>  	u32 insn = le32_to_cpu(*p);
+>  	insn &= 0xffe0001f;
+>  	insn |= (val & 0xffff) << 5;
+> -	aarch64_insn_patch_text_nosync(p, insn);
+> +	aarch64_insn_patch_text_nosync(where, insn);
+>  }
 
-Christophe
+You might as well keep the __le32 *p argument and just dereference it
+directly, no need for lm_alias(). The kernel text is readable and you
+avoid having to change all the other functions.
 
->   #endif
->   
->   /*
+>  static inline void __runtime_fixup_ptr(void *where, unsigned long val)
+>  {
+> -	__le32 *p = lm_alias(where);
+> -	__runtime_fixup_16(p, val);
+> -	__runtime_fixup_16(p+1, val >> 16);
+> -	__runtime_fixup_16(p+2, val >> 32);
+> -	__runtime_fixup_16(p+3, val >> 48);
+> +	__runtime_fixup_16(where, val);
+> +	__runtime_fixup_16(where + 4, val >> 16);
+> +	__runtime_fixup_16(where + 8, val >> 32);
+> +	__runtime_fixup_16(where + 12, val >> 48);
+>  }
 
+And here change the argument to '__le32 *p' (and in other places where
+you changed p to where + 4 etc.).
+
+-- 
+Catalin
