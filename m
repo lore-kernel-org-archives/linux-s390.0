@@ -1,183 +1,115 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5664E19C546;
-	Mon, 13 Apr 2026 09:16:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 7095034F48D;
+	Mon, 13 Apr 2026 10:01:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776071783; cv=none; b=DXyEAPU6HKBrYkw1IFuAYKk2/ZFxAm+FGqV+QUlnBoH71VOwgiXICiessO0I1ayP2P+61khY6MJGsQSPIb2wizLfMzfDULZ5ItD5/P4Y5d5h7/u03spEK6ZKIpUa/t+XU0AM6JAwGQ8BlaMC3BtBT9GP374TgT1P1/muHOxLnVo=
+	t=1776074479; cv=none; b=E9pYfqMvvUJnu2lih3Jt0VVYoFnmp72iagZhaZjKXUHHpD8n0j/kLbQqkAO/4G2iieM28WrIcUDh4wP03FyJsR9nR70o52xGxWEr1JNtOIlKM56GLa0cxvPWf0saVJ4ySfu5ejumypMoFcmaFbwgEEsf8ZisnYRbrz0GFnCcKSo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776071783; c=relaxed/simple;
-	bh=j/tYEurlHNq5kx1yV6D47wbOZhhwgvOxlSSa1P5IOeM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=K5FItm4pkWqIoz/HLDoSRvqOYcfcTW90Ijz3BL3hja+DhSPq7EPSBtz5R2UMMJhPvvZ8fAM0XCljCUcztKBQw9SxMrw/5RRrlgL4OzYKNVsYWnVn5Ic6ttpen+bHYyoXj4F2CuzeaLsxiRAT887zW1VHTVG7qH99bimsdTdwtsY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oY+vEH1n; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1776074479; c=relaxed/simple;
+	bh=VfA8RhsAOysYjLUfYem1mhkUwG7Eg8LbTrkQ0B9ZA5I=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=s7wgJ/Jmn7P6h9aa8IunzRz9N8aNpG+er/HszQETZoeE+KhKvg3HAwRLMuOPnCEb4vkYiPMOlCGlrxs7VenOfRprzDJzQMnM40WMmidVQcThsUk63HEY2qFkATtvdyXYZsYIa+hIxxhfvLs5djZXLgOw/pK1j9K0W1d0Tfg4LwE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=Jf/daWju; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oY+vEH1n"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63CNQ6Rp3649347;
-	Mon, 13 Apr 2026 09:15:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=3hYK9Ei+d9kVH0VV/CR68CUDnV5UVC
-	rS18XI/2Q3GjY=; b=oY+vEH1nHYm21zR7dKdG+rMVbiAs+2M4pSYJYH25H3Q/WQ
-	S5pbibNxKHXRtCU5RA4BZpoAC/CsLV14kYSk9HD7BI83gpVLqIVXm+N3/UD3mtFb
-	VGL3bfwkoS+MFSXp/7ksAXz/d/43BdzYyNe+WU94qMB7+oTAY5jMdy/aC1rg5QU1
-	UhBzNrX2r1ZHEsamBr6j/bYRaaLxasa1WWuLDHkVDfa2K6RkMY6wizvw26f4v3Pw
-	kdUQa11kKa0O4lHqHX35TBGaxo9cfSk8h/UtwhMbDVaUgMt8SMltIpECwIrRGVKB
-	KeirN6PqfMTEor0kXcjWPcrhlHvR883P23ApPmxw==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dfdt3px1j-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 13 Apr 2026 09:15:17 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63D80WMC015153;
-	Mon, 13 Apr 2026 09:15:16 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dg0mscku7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 13 Apr 2026 09:15:16 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63D9FEC727328866
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 13 Apr 2026 09:15:14 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 70F6620043;
-	Mon, 13 Apr 2026 09:15:14 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B712A2004F;
-	Mon, 13 Apr 2026 09:15:04 +0000 (GMT)
-Received: from li-dc0c254c-257c-11b2-a85c-98b6c1322444.ibm.com (unknown [9.123.13.2])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 13 Apr 2026 09:15:04 +0000 (GMT)
-Date: Mon, 13 Apr 2026 14:45:02 +0530
-From: Ojaswin Mujoo <ojaswin@linux.ibm.com>
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        x86@kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
-        iommu@lists.linux.dev, Michael Grzeschik <m.grzeschik@pengutronix.de>,
-        netdev@vger.kernel.org, linux-wireless@vger.kernel.org,
-        Herbert Xu <herbert@gondor.apana.org.au>, linux-crypto@vger.kernel.org,
-        Vlastimil Babka <vbabka@kernel.org>, linux-mm@kvack.org,
-        David Woodhouse <dwmw2@infradead.org>,
-        Bernie Thompson <bernie@plugable.com>, linux-fbdev@vger.kernel.org,
-        Theodore Tso <tytso@mit.edu>, linux-ext4@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Uladzislau Rezki <urezki@gmail.com>, Marco Elver <elver@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>, kasan-dev@googlegroups.com,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Thomas Sailer <t.sailer@alumni.ethz.ch>, linux-hams@vger.kernel.org,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Richard Henderson <richard.henderson@linaro.org>,
-        linux-alpha@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        linux-arm-kernel@lists.infradead.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        linux-m68k@lists.linux-m68k.org, Dinh Nguyen <dinguyen@kernel.org>,
-        Jonas Bonn <jonas@southpole.se>, linux-openrisc@vger.kernel.org,
-        Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org,
-        Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
-        Paul Walmsley <pjw@kernel.org>, linux-riscv@lists.infradead.org,
-        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
-        "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org
-Subject: Re: [patch 07/38] treewide: Consolidate cycles_t
-Message-ID: <ady0Ft_tDrbGlu2o@li-dc0c254c-257c-11b2-a85c-98b6c1322444.ibm.com>
-References: <20260410120044.031381086@kernel.org>
- <20260410120318.045532623@kernel.org>
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="Jf/daWju"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D15DD2BC3;
+	Mon, 13 Apr 2026 03:01:10 -0700 (PDT)
+Received: from [10.57.62.88] (unknown [10.57.62.88])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 437D63F93E;
+	Mon, 13 Apr 2026 03:01:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1776074476; bh=VfA8RhsAOysYjLUfYem1mhkUwG7Eg8LbTrkQ0B9ZA5I=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=Jf/daWjupLaPbtHP/9QPzRRQx2LsU2h0EnB1m1NdswrK+Tj1s1zcYjBVTmPki3tdM
+	 7gY2Gvut4emf1ojyvOanZa1i2jfuUo7ky4CBaE6ouf8gmcuLIGCZjQ2pU3LyrFgzxD
+	 XG+KcXKif5eeNFnVo6KqtPcCuD7ql63VM3m8z5HY=
+Message-ID: <4ac1d020-9aec-4584-a75c-225c6166c253@arm.com>
+Date: Mon, 13 Apr 2026 12:01:11 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260410120318.045532623@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: r6KN03kK1HZaoam71kVl5aHZm9BfgAQ4
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDEzMDA4NSBTYWx0ZWRfX+Gwbo0yddZP/
- ED3CWrVQNFFw/TECS1M9+tSS57FYBZnMmG79KmJVnAwBWc3o5BgyeadFZ9maSHI4Tv+/+VHQiXF
- uu6/EAbMsVnRYIXugjj6TyQBBqRyeSoPbLxIVX8tqr0goumkz0lPJ9Y4Y3a3ECfM9WbzUtOSm5u
- eNbyrRMw+nuwi0Afz/QuxwA0FuazktkFPrSziYKfNEV92tR6ksCbhLbdKwZfOQ6IaUNAK3mHh04
- Z9ZuJvFG4+5R/DIJQ8v5H1fE5bYExgqIL1hC1HoekBef4/UHL3Jav5jU5Ty8ib2gAESLlopFcCb
- VttV6mxWXomhvrcFDBgGSdweqIiLio3UyKWRaxfdCdf1K3UdP0nDdx3LiWp/XKSUCxaso/02xav
- PADy/jEsrag0vsgcCLG1/jcBcJ3bFL3cNcYlDCC6JXFySGCPKTcpDMOtfvLh9vv4Vg7VR02ItSs
- a0USozVz3do3GTBrHkA==
-X-Proofpoint-GUID: iwEVNX-0n_YmGG6iAARt9TRRoEhRuwqE
-X-Authority-Analysis: v=2.4 cv=WpEb99fv c=1 sm=1 tr=0 ts=69dcb426 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=kj9zAlcOel0A:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
- a=9Pz4rRoAHiK5H5RfW9YA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-13_02,2026-04-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 phishscore=0 bulkscore=0 adultscore=0 spamscore=0
- malwarescore=0 clxscore=1011 lowpriorityscore=0 suspectscore=0
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604010000
- definitions=main-2604130085
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 1/2] mm: make lazy MMU mode context-aware
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+ linux-mm@kvack.org, linux-kernel@vger.kernel.org
+References: <cover.1774420056.git.agordeev@linux.ibm.com>
+ <de89fd353a8dcd5e3bef4d91e9b6682d132ed9a0.1774420057.git.agordeev@linux.ibm.com>
+ <44dd86c0-1845-4dd9-b4b4-2cef6d1c6357@kernel.org>
+ <e096e88b-f1fe-44a1-bfa6-451eef028203-agordeev@linux.ibm.com>
+ <c27cad07-bba4-472d-8853-fc6fc55e951f@arm.com>
+ <630ce949-2f9c-43ce-9641-b9a4dc729323-agordeev@linux.ibm.com>
+From: Kevin Brodsky <kevin.brodsky@arm.com>
+Content-Language: en-GB
+In-Reply-To: <630ce949-2f9c-43ce-9641-b9a4dc729323-agordeev@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Fri, Apr 10, 2026 at 02:19:03PM +0200, Thomas Gleixner wrote:
-> Most architectures define cycles_t as unsigned long execpt:
-> 
->  - x86 requires it to be 64-bit independent of the 32-bit/64-bit build.
-> 
->  - parisc and mips define it as unsigned int
-> 
->    parisc has no real reason to do so as there are only a few usage sites
->    which either expand it to a 64-bit value or utilize only the lower
->    32bits.
-> 
->    mips has no real requirement either.
-> 
-> Move the typedef to types.h and provide a config switch to enforce the
-> 64-bit type for x86.
-> 
-> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
-> ---
->  arch/Kconfig                       |    4 ++++
->  arch/alpha/include/asm/timex.h     |    3 ---
->  arch/arm/include/asm/timex.h       |    1 -
->  arch/loongarch/include/asm/timex.h |    2 --
->  arch/m68k/include/asm/timex.h      |    2 --
->  arch/mips/include/asm/timex.h      |    2 --
->  arch/nios2/include/asm/timex.h     |    2 --
->  arch/parisc/include/asm/timex.h    |    2 --
->  arch/powerpc/include/asm/timex.h   |    4 +---
->  arch/riscv/include/asm/timex.h     |    2 --
->  arch/s390/include/asm/timex.h      |    2 --
->  arch/sparc/include/asm/timex_64.h  |    1 -
->  arch/x86/Kconfig                   |    1 +
->  arch/x86/include/asm/tsc.h         |    2 --
->  include/asm-generic/timex.h        |    1 -
->  include/linux/types.h              |    6 ++++++
->  16 files changed, 12 insertions(+), 25 deletions(-)
-> 
-<...>
+On 11/04/2026 11:31, Alexander Gordeev wrote:
+> On Tue, Mar 31, 2026 at 04:15:23PM +0200, Kevin Brodsky wrote:
+>> On 25/03/2026 17:20, Alexander Gordeev wrote:
+>>> On Wed, Mar 25, 2026 at 10:55:23AM +0100, David Hildenbrand (Arm) wrote:
+>>>
+>>> Hi David,
+>>>
+>>>>> +/**
+>>>>> + * lazy_mmu_mode_enable_pte() - Enable the lazy MMU mode with parameters
+>>>> You have to be a lot clearer about implications. For example, what
+>>>> happens if we would bail out and not process all ptes? What are the
+>>>> exact semantics.
+>>> The only implication is "only this address/PTE range could be updated
+>>> and that range may span one page table at most".
+>>>
+>>> Whether all or portion of PTEs were actually updated is not defined,
+>>> just like in case of lazy_mmu_mode_enable_pte().
+>>>
+>>> Makes sense?
+>> I also feel that the comment needs to be much more specific. From a
+>> brief glance at patch 2, it seems that __ipte_batch_set_pte() assumes
+>> that all PTEs processed after this function is called are contiguous.
+> No, this is actually not the case. __ipte_batch_set_pte() just sets
+> ceilings for later processing. The PTEs within the range could be
+> updated in any order and not necessarily all of them.
 
-> --- a/arch/powerpc/include/asm/timex.h
-> +++ b/arch/powerpc/include/asm/timex.h
-> @@ -11,9 +11,7 @@
->  #include <asm/cputable.h>
->  #include <asm/vdso/timebase.h>
->  
-> -typedef unsigned long cycles_t;
-> -
-> -static inline cycles_t get_cycles(void)
-> +ostatic inline cycles_t get_cycles(void)
+Fair enough, I suppose what I tried to say is that all PTEs must be in a
+certain range :)
 
-Hi Thomas, I'm in middle of testing this series on powerpc. In the meantime I
-noticed that there's probably a small typo here (althrough this is fixed
-later)
+>> This should be documented.
+> Will do.
+>
+>>> I will also change arch_enter_lazy_mmu_mode_pte() to
+>>> arch_enter_lazy_mmu_mode_for_pte_range() then.
+>> Makes sense. The interface looks reasonable to me with this new name.
+>>
+>> One more comment though: in previous discussions you mentioned the need
+>> for arch_{pause,resume} hooks, is that no longer necessary simply
+>> because {pause,resume} are not used on the paths where you make use of
+>> the new enable function?
+> Yes. I did implement arch_pause|resume_lazy_mmu_mode() for a custom
+> KASAN sanitizer to catch direct PTE dereferences - ones that bypass
+> ptep_get()/set_pte() in lazy mode.
 
-Regards,
-ojaswin
->  {
->  	return mftb();
->  }
+That sounds pretty useful!
+
+> But that code is not upstreamed and therefore there is no need to
+> introduce the hooks just right now.
+
+Ack that makes sense.
+
+>> - Kevin
+> Thanks for the review, Kevin!
+
+No problem :)
+
+- Kevin
