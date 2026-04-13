@@ -1,97 +1,193 @@
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AA9C3B19C1;
-	Mon, 13 Apr 2026 09:01:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59E4B29E0F8;
+	Mon, 13 Apr 2026 09:07:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776070883; cv=none; b=r4n1gDKNCiJFHJFwPMAQEekbZmYXnm+GBTEKdCEqy5VzqpAX+gbupFgun2YK0cUD9rT25etRzsV9YVAaUbOOIPEgvN9uKGP4NJIk4LmVSBzHg/nxlfKcDV7ypU2z+pj8YZTdLaODQB/JJtKetjrtb0wp82qxN523VvK1on/K7Rk=
+	t=1776071224; cv=none; b=eSmqpm31dnyVJjiLyUxmNzLPaTfw0FeGgf8VKBwoIxDE0qb5wb1Flvq1UxpABT41DWSfEptJYwn6SC6GPCweqfPtcY0ottQRTCzvZXQR3wlffCxc/RWjc7taubsNnaEtfQvK6cpagw9KXpFZzoF6D3nHljosN2d3QRljUHVQwoE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776070883; c=relaxed/simple;
-	bh=eCNCtevYEOlPtIptnPSP7ZQ9h2nwal4iPtHtMoAwGU8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kXspRf07wkmG4P7MKffKr0uoeXHlBXe8LJIsk4zSw9yyw3QJ65SGcCJhhO+3LbMniBRKS4V+eMrehdU3fUroYHobNh/T+eUcVT1NU8I7C8+YcU3bTmR/D0KxzlJmptuWwP4jBtX1Gpo3I9IbXXvAEqsqiaJC5ozHdXdg6xiInOU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ngA2INhY; arc=none smtp.client-ip=115.124.30.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1776071224; c=relaxed/simple;
+	bh=cS2/Y+fD/C6Fj1LtxcJRcP0gMiu198023wVz+PX5eN8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qEyRQR3Rx43Ojaspqt1IkuSfZDLoc4WUHAYn+A4lWVlN6YnFafE1hqD8zei+kzhW6OXvNa6rE6H09awYXAXF7/S7lmbTddUt/yR6RK7ggzUzCvbvbFeXx8qksgRhWSZmCI0kUOxoLFYFJWna3+D1wXGqJ2yEDXT/bLEWAFx4DPk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G3inY+8J; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ngA2INhY"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1776070862; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=Vak/yNZkX1L19eiRMLdMkGIWdQKJS64W1r1PP0NrJzo=;
-	b=ngA2INhYVkGP3c2GcU5ibOYpJvvqANAvqKQoFVa+TdvngIjfN2wbxeaWKRzU1NY9jF+LFwDN/81TThQDRlAIemx+8H4FEtTsFUy/CCI24V1xE4F0YfW9ttWla8gGE76oijd7OXnpdNJowi3wc774YVr7y2ZskJZiAP3GyQ/UK7g=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R551e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0X0ubecx_1776070848;
-Received: from 30.221.146.26(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0X0ubecx_1776070848 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 13 Apr 2026 17:00:59 +0800
-Message-ID: <ebf19246-91af-4887-b2aa-d9007921f7b2@linux.alibaba.com>
-Date: Mon, 13 Apr 2026 17:00:48 +0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G3inY+8J"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95C51C116C6;
+	Mon, 13 Apr 2026 09:07:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1776071224;
+	bh=cS2/Y+fD/C6Fj1LtxcJRcP0gMiu198023wVz+PX5eN8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=G3inY+8JxkEibVwYUFszuCWlat+2WMkdb9cxQNukGQ5jOO4YosRVw/teIPjzkykJe
+	 VBaoK4GWe1nSvdZccXGItvVBbCBawDxBQYXoSn8ku3lctCl78nWa1bXrv8Cz5ii5WC
+	 gS594pXSn/PDkAlQW1x8pf1/M/IPGL/2AZ9s3tUP2y+EEht32F5HbttQfHidlVLFR9
+	 SB3RrQSSOyCGHY83n0fRRZdud5Xcyx9d8MmEOZogxSk4gxdYZjmVHZxvo/hzD3ige5
+	 KqFGmCdWJVKzfE5LlEz9DNkdZh7AXZJZD7MdmFDUG+6QJAH+W76oJ0Vl3ycqghmmEe
+	 IWEm9rwhj2q9g==
+Date: Mon, 13 Apr 2026 18:07:01 +0900
+From: "Harry Yoo (Oracle)" <harry@kernel.org>
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Vlastimil Babka <vbabka@kernel.org>, linux-mm@kvack.org,
+	Arnd Bergmann <arnd@arndb.de>, x86@kernel.org,
+	Lu Baolu <baolu.lu@linux.intel.com>, iommu@lists.linux.dev,
+	Michael Grzeschik <m.grzeschik@pengutronix.de>,
+	netdev@vger.kernel.org, linux-wireless@vger.kernel.org,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	linux-crypto@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
+	Bernie Thompson <bernie@plugable.com>, linux-fbdev@vger.kernel.org,
+	Theodore Tso <tytso@mit.edu>, linux-ext4@vger.kernel.org,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Uladzislau Rezki <urezki@gmail.com>, Marco Elver <elver@google.com>,
+	Dmitry Vyukov <dvyukov@google.com>, kasan-dev@googlegroups.com,
+	Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+	Thomas Sailer <t.sailer@alumni.ethz.ch>, linux-hams@vger.kernel.org,
+	"Jason A. Donenfeld" <Jason@zx2c4.com>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	linux-alpha@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+	linux-arm-kernel@lists.infradead.org,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	linux-m68k@lists.linux-m68k.org, Dinh Nguyen <dinguyen@kernel.org>,
+	Jonas Bonn <jonas@southpole.se>, linux-openrisc@vger.kernel.org,
+	Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	linuxppc-dev@lists.ozlabs.org, Paul Walmsley <pjw@kernel.org>,
+	linux-riscv@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
+	linux-s390@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+	sparclinux@vger.kernel.org, Hao Li <hao.li@linux.dev>,
+	Christoph Lameter <cl@gentwo.org>,
+	David Rientjes <rientjes@google.com>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Shengming Hu <hu.shengming@zte.com.cn>
+Subject: Re: [patch 14/38] slub: Use prandom instead of get_cycles()
+Message-ID: <adyyNeVTkXQlnh_2@hyeyoo>
+References: <20260410120044.031381086@kernel.org>
+ <20260410120318.525653921@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/2] MAINTAINERS: update PTP maintainer entries after
- directory split
-To: Jakub Kicinski <kuba@kernel.org>, David Woodhouse <dwmw2@infradead.org>
-Cc: tglx@kernel.org, richardcochran@gmail.com, andrew+netdev@lunn.ch,
- davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
- linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jstultz@google.com,
- anna-maria@linutronix.de, frederic@kernel.org, daniel.lezcano@kernel.org,
- sboyd@kernel.org, vladimir.oltean@nxp.com, wei.fang@nxp.com,
- xiaoning.wang@nxp.com, jonathan.lemon@gmail.com, vadim.fedorenko@linux.dev,
- yangbo.lu@nxp.com, svens@linux.ibm.com, nick.shi@broadcom.com,
- ajay.kaher@broadcom.com, alexey.makhalov@broadcom.com,
- bcm-kernel-feedback-list@broadcom.com, linux-fpga@vger.kernel.org,
- imx@lists.linux.dev, linux-s390@vger.kernel.org, dust.li@linux.alibaba.com,
- xuanzhuo@linux.alibaba.com, mani@kernel.org, imran.shaik@oss.qualcomm.com,
- taniya.das@oss.qualcomm.com
-References: <20260407104802.34429-1-guwen@linux.alibaba.com>
- <20260407104802.34429-3-guwen@linux.alibaba.com>
- <20260412084704.743482ad@kernel.org>
- <4B889ED5-D1F6-401D-B753-89AE2037F316@infradead.org>
- <20260412095301.4fe1fe65@kernel.org>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <20260412095301.4fe1fe65@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260410120318.525653921@kernel.org>
 
+[Resending after fixing broken email headers]
 
-
-On 2026/4/13 00:53, Jakub Kicinski wrote:
-> On Sun, 12 Apr 2026 17:32:22 +0100 David Woodhouse wrote:
->> On 12 April 2026 16:47:04 BST, Jakub Kicinski <kuba@kernel.org> wrote:
->>> On Tue,  7 Apr 2026 18:48:02 +0800 Wen Gu wrote:
->>>> +PTP EMULATED CLOCK SUPPORT
->>>> +M:	David Woodhouse <dwmw2@infradead.org>
->>>> +M:	Wen Gu <guwen@linux.alibaba.com>
->>>> +M:	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->>>> +L:	linux-kernel@vger.kernel.org
->>>> +S:	Maintained
->>>> +T:	git git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git timers/core
->>>
->>> Hi David,
->>>
->>> Do you have a tree to route the patches thru? Or do you really have
->>> access to the tip tree?
->>
->> I do not have access to the tip tree. I can make a shared tree on
->> git.infradead.org if the other two maintainers would like to send me
->> a SSH pubkey and preferred username...
+On Fri, Apr 10, 2026 at 02:19:37PM +0200, Thomas Gleixner wrote:
+> The decision whether to scan remote nodes is based on a 'random' number
+> retrieved via get_cycles(). get_cycles() is about to be removed.
 > 
-> Honestly I'd love for you to be the only M here, and the other two
-> to be reviewers. Xuan Zhuo is currently at v40 trying to upstream
-> an Ethernet driver. Some growth needed there to become a subsystem
-> maintainer IMO.
+> There is already prandom state in the code, so use that instead.
+> 
+> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
+> Cc: Vlastimil Babka <vbabka@kernel.org>
+> Cc: linux-mm@kvack.org
+> ---
 
-Hi Jakub, David,
+Acked-by: Harry Yoo (Oracle) <harry@kernel.org>
 
-That works for us. We can act as reviewers.
+Is this for this merge window?
 
-If David sets up a new tree, I will update the MAINTAINERS entry
-accordingly in v3.
+This may conflict with upcoming changes on freelist shuffling [1]
+(not queued for slab/for-next yet though), but it should be easy to
+resolve.
 
-Thanks.
+[Cc'ing Shengming and SLAB ALLOCATOR folks]
+[1] https://lore.kernel.org/linux-mm/20260409204352095kKWVYKtZImN59ybO6iRNj@zte.com.cn
+
+-- 
+Cheers,
+Harry / Hyeonggon
+
+>  mm/slub.c |   37 +++++++++++++++++++++++--------------
+>  1 file changed, 23 insertions(+), 14 deletions(-)
+> 
+> --- a/mm/slub.c
+> +++ b/mm/slub.c
+> @@ -3302,6 +3302,25 @@ static inline struct slab *alloc_slab_pa
+>  	return slab;
+>  }
+>  
+> +#if defined(CONFIG_SLAB_FREELIST_RANDOM) || defined(CONFIG_NUMA)
+> +static DEFINE_PER_CPU(struct rnd_state, slab_rnd_state);
+> +
+> +static unsigned int slab_get_prandom_state(unsigned int limit)
+> +{
+> +	struct rnd_state *state;
+> +	unsigned int res;
+> +
+> +	/*
+> +	 * An interrupt or NMI handler might interrupt and change
+> +	 * the state in the middle, but that's safe.
+> +	 */
+> +	state = &get_cpu_var(slab_rnd_state);
+> +	res = prandom_u32_state(state) % limit;
+> +	put_cpu_var(slab_rnd_state);
+> +	return res;
+> +}
+> +#endif
+> +
+>  #ifdef CONFIG_SLAB_FREELIST_RANDOM
+>  /* Pre-initialize the random sequence cache */
+>  static int init_cache_random_seq(struct kmem_cache *s)
+> @@ -3365,8 +3384,6 @@ static void *next_freelist_entry(struct
+>  	return (char *)start + idx;
+>  }
+>  
+> -static DEFINE_PER_CPU(struct rnd_state, slab_rnd_state);
+> -
+>  /* Shuffle the single linked freelist based on a random pre-computed sequence */
+>  static bool shuffle_freelist(struct kmem_cache *s, struct slab *slab,
+>  			     bool allow_spin)
+> @@ -3383,15 +3400,7 @@ static bool shuffle_freelist(struct kmem
+>  	if (allow_spin) {
+>  		pos = get_random_u32_below(freelist_count);
+>  	} else {
+> -		struct rnd_state *state;
+> -
+> -		/*
+> -		 * An interrupt or NMI handler might interrupt and change
+> -		 * the state in the middle, but that's safe.
+> -		 */
+> -		state = &get_cpu_var(slab_rnd_state);
+> -		pos = prandom_u32_state(state) % freelist_count;
+> -		put_cpu_var(slab_rnd_state);
+> +		pos = slab_get_prandom_state(freelist_count);
+>  	}
+>  
+>  	page_limit = slab->objects * s->size;
+> @@ -3882,7 +3891,7 @@ static void *get_from_any_partial(struct
+>  	 * with available objects.
+>  	 */
+>  	if (!s->remote_node_defrag_ratio ||
+> -			get_cycles() % 1024 > s->remote_node_defrag_ratio)
+> +	    slab_get_prandom_state(1024) > s->remote_node_defrag_ratio)
+>  		return NULL;
+>  
+>  	do {
+> @@ -7102,7 +7111,7 @@ static unsigned int
+>  
+>  	/* see get_from_any_partial() for the defrag ratio description */
+>  	if (!s->remote_node_defrag_ratio ||
+> -			get_cycles() % 1024 > s->remote_node_defrag_ratio)
+> +	    slab_get_prandom_state(1024) > s->remote_node_defrag_ratio)
+>  		return 0;
+>  
+>  	do {
+> @@ -8421,7 +8430,7 @@ void __init kmem_cache_init_late(void)
+>  	flushwq = alloc_workqueue("slub_flushwq", WQ_MEM_RECLAIM | WQ_PERCPU,
+>  				  0);
+>  	WARN_ON(!flushwq);
+> -#ifdef CONFIG_SLAB_FREELIST_RANDOM
+> +#if defined(CONFIG_SLAB_FREELIST_RANDOM) || defined(CONFIG_NUMA)
+>  	prandom_init_once(&slab_rnd_state);
+>  #endif
+>  }
+> 
+> 
