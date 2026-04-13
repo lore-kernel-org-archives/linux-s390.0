@@ -1,144 +1,110 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from fout-a6-smtp.messagingengine.com (fout-a6-smtp.messagingengine.com [103.168.172.149])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9503F395D8B;
-	Mon, 13 Apr 2026 21:06:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB5F8399348;
+	Mon, 13 Apr 2026 21:58:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.149
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776114417; cv=none; b=EnSBLXy/TtWLlIvef589A7Du3kDGTbB+yVG7lJBa1ZelQixGXuVL9k4A/xWYO2XE4fdwT1UApQHd7KtUC/RdIW0LnMs2+/HKODijN8XwAL5MvyRUbAjDUEG3uAMo0hpztW1Cht0RfDQXBhXxeJYjk3gsfq0w3+7fFd2RSXcAFtA=
+	t=1776117521; cv=none; b=asNoaATrCxk9nqYTEoGrfa181sILmb55d+AhHG2yG+sNVfo25BBZizh6FI/5ZpXW8jpCpSalOsiJWCRwim0LnUE0dr/qbLHoPZStKOrR+cty2rB4VEJZ7HcNgl+DnR9GloObNhrdtqe3sXGiCDMYZqqiugo11TE1vFifnfecv6Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776114417; c=relaxed/simple;
-	bh=RQ7upiRfX+foiPulhHXu+Aw1uutRmHWJ0l3TcJW8bxM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=p6ShmQBfzEWiZZSp3Fe9jFloCOTYVxJ3WzjQafcWa4N8ZECWPt0zh2V9+kUZ/kL4ZLG5S3pZNrEhQaBMlzNzs+wOQa8cSNVtmiqCd7qoQLa+98hwul3L0KoWNLDJxjxo3XFYsTVbDS3dKlL8KrcAX86Hlax+jsJ+I8S6fqcTqYY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=e1h1y/d9; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1776117521; c=relaxed/simple;
+	bh=2XYfBvfT+UEFna0kWORcHWLGNbscFLCwfHt1ltc/pCE=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=rhebfNKvMtw85RG4HXpUJJrerTk6WBCNITQzwg3dvE19hYXejqQSaAhZSMA3Wvdn/4TEZVYtf7kP+ZQEPcrFj9UoyCk0EZN/dqu+2czFTCqqmhHOtquamhqxDkF9hrgO4SAJCFPiefpQXHE1J9tM4Ewq+z5WEqHB/+sFjAvum1I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=ezkrbNAW; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=LuH2Xwn0; arc=none smtp.client-ip=103.168.172.149
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="e1h1y/d9"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63DEZ1xg3239865;
-	Mon, 13 Apr 2026 21:06:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=l4yp/nvZGr9Da+6Zm
-	RXwpQEFsXLYyw/698zFD8SAETM=; b=e1h1y/d9FYN8S8FHPwT+jc56rCE6cdc3N
-	5MIlulKICXtWP4hzFqvDYve6uBHCSYhlDVoRKpTE1ZHPh/0WSdkYuDD4kHbQsa31
-	EBzovO2q2iBYcvvjcTI/Cbubp6zKvGHCJ3nzlMzaAtZErMSEyDBIk3purQ3oWUmi
-	Oehaoq2A1XgEl6F/E4YNeA9POeF4q5DDYpAQBj4qohPMegrDiZdrZh7mFgoxqjPL
-	gfRpZGKzHYOydmpUCyU8beIoT23IW8aQbJcLwxB9LDEhOCb0cwoleERVSvgLpJNw
-	RbtfEdtS9CYgRDzBOxgeKWlUdV6uE9TqZyfLzJAYjD+GnYAhUSVTQ==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dfe17sr4p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 13 Apr 2026 21:06:21 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63DI0ZLu004569;
-	Mon, 13 Apr 2026 21:06:20 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dg24k6sqs-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 13 Apr 2026 21:06:20 +0000
-Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63DL6J1K26542604
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 13 Apr 2026 21:06:19 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 116705805D;
-	Mon, 13 Apr 2026 21:06:19 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BC8D95805A;
-	Mon, 13 Apr 2026 21:06:17 +0000 (GMT)
-Received: from IBM-D32RQW3.ibm.com (unknown [9.61.254.131])
-	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 13 Apr 2026 21:06:17 +0000 (GMT)
-From: Farhan Ali <alifm@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org
-Cc: helgaas@kernel.org, lukas@wunner.de, alex@shazbot.org, clg@redhat.com,
-        kbusch@kernel.org, alifm@linux.ibm.com, schnelle@linux.ibm.com,
-        mjrosato@linux.ibm.com, Julian Ruess <julianr@linux.ibm.com>
-Subject: [PATCH v13 6/7] vfio/pci: Add a reset_done callback for vfio-pci driver
-Date: Mon, 13 Apr 2026 14:06:07 -0700
-Message-ID: <20260413210608.2912-7-alifm@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260413210608.2912-1-alifm@linux.ibm.com>
-References: <20260413210608.2912-1-alifm@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="ezkrbNAW";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="LuH2Xwn0"
+Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
+	by mailfout.phl.internal (Postfix) with ESMTP id 36676EC0516;
+	Mon, 13 Apr 2026 17:58:38 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-02.internal (MEProxy); Mon, 13 Apr 2026 17:58:38 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1776117518;
+	 x=1776203918; bh=oKY21MPppCmjWn+4vtpziBqU7RYeyA9kdQSFsUQQEYY=; b=
+	ezkrbNAW928HESHLxUzyaYl2iUjwXhJUitgfcXn4G4WBuFOjWO/W3PqqF6squecv
+	L0oxVtcm/zYSicWQape5PDLq2Rur7nM2Mih7oSgvD9TMskTmtnC2LrKNUcWcweeF
+	hkWDmX2plXlVUj6jMkAIPS7ZP/s4BhNx9Ksocu1tD9udXmO7JujJDfWmEPt8rXem
+	U8CYanmWqE45Lb5OSDX0188G0WSI8ZZ5hh0OzwPSLSe+Il/F48GEBfS6GClowWlj
+	laezdnHikfFt9DoKZ1egVVvnCUlqi7E/2W55SvsF/yUAPb6o5WAfOe2dZ9TGm5FV
+	d4kL4tdCmZz23NK2/ltxlw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1776117518; x=
+	1776203918; bh=oKY21MPppCmjWn+4vtpziBqU7RYeyA9kdQSFsUQQEYY=; b=L
+	uH2Xwn0fsyqNGec03jDXScLrOvjkiKd6WJ1QjPiQFXeDZ2AiwVPbbilj8PFkvxaD
+	tMSuVpXkd7Z4hSn4JRiWuObsSd17WYHfWq7Z0miKBdxGEzorVJQCLemhPPL1aDkw
+	E35fdyCgjUc7TKOBUwa/GdWgfuQ5tkzmtJzq41xityHMvQc2gbN96VqqTa6efOHX
+	0405yqT4hR4vvaqxtMETH23mwi+W2ty+34QEVmLjI2aZKkJ5oQwwN0L/rZfnmsj1
+	hXoMJ1RJk9hsSZUZAtm2CcsHbtKg2B193e1pS3F1eJkI7F1YM5ch2erFe+xjiQ7p
+	BZ/ZiWHBSDyImHXgFQUlg==
+X-ME-Sender: <xms:DWfdaabNy25oZ3VtQdULWoeUdpzLgLQfsgE9cHGQRlCY4h-ex9ZHtQ>
+    <xme:DWfdafq3X8-ryGA6AiqQYkRHJ9PRTmQnvrSGIrncrEeOxWaCaDehjCMObzLgR3zIh
+    NC8PJZhX_EI3qUsCxRoiCt3XPoCrrILG59Wxsuo4m71zsGm-3nTMms>
+X-ME-Received: <xmr:DWfdaXPNx5xQ_Fn1ROOcGe6bCVCVNuL6fwr0-4dwO68ZQWSKZPiqAhUTGPs>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdefleefkecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
+    hrpeffhffvvefukfgjfhfogggtgfesthejredtredtvdenucfhrhhomheptehlvgigucgh
+    ihhllhhirghmshhonhcuoegrlhgvgiesshhhrgiisghothdrohhrgheqnecuggftrfgrth
+    htvghrnhepvdekfeejkedvudfhudfhteekudfgudeiteetvdeukedvheetvdekgfdugeev
+    ueeunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
+    hlvgigsehshhgriigsohhtrdhorhhgpdhnsggprhgtphhtthhopeeipdhmohguvgepshhm
+    thhpohhuthdprhgtphhtthhopehpsghonhiiihhnihesrhgvughhrghtrdgtohhmpdhrtg
+    hpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhr
+    tghpthhtohepkhhvmhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopegrkh
+    hrohifihgrkheslhhinhhugidrihgsmhdrtghomhdprhgtphhtthhopehlihhnuhigqdhs
+    feeltdesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopegrlhgvgiesshhhrg
+    iisghothdrohhrgh
+X-ME-Proxy: <xmx:DWfdaSo6W_L_frs5t4vHiqfTl3sx1MVIIadYw47I0O4C4eSeW4lXTQ>
+    <xmx:DWfdaUdUhnk_5ads610rO-L16UjJaXQG9BkBRWUifmH-BeOYZo7oTA>
+    <xmx:DWfdaQQMqwN8caRRsIwtxDisOJbN0j6u6EVdwEEPE8QKom2VnE7VUQ>
+    <xmx:DWfdaVYRKjzo8Cs5YuqzsJ3Tk9WJ8kuT14rwNi8RG-QYvOiizI65lw>
+    <xmx:DmfdaRjZPTr-Ji--DxwuRwso2wEKucvkRvR1RwSGsAjRcDoFWoK0euE6>
+Feedback-ID: i03f14258:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 13 Apr 2026 17:58:37 -0400 (EDT)
+Date: Mon, 13 Apr 2026 15:58:36 -0600
+From: Alex Williamson <alex@shazbot.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+ akrowiak@linux.ibm.com, linux-s390@vger.kernel.org, alex@shazbot.org
+Subject: Re: [PATCH] VFIO: remove dead notifier code
+Message-ID: <20260413155836.124aae47@shazbot.org>
+In-Reply-To: <20260407175934.1602711-1-pbonzini@redhat.com>
+References: <20260407175934.1602711-1-pbonzini@redhat.com>
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDEzMDIwNSBTYWx0ZWRfX/uWGCs6paNcH
- UGS4aOioLSMmG94g8LQx+X98dtaC8M2pgQIosJe7Yr4dxnoUrq2L2YhUxwOzcABuwefDJCLnn9z
- lR7iDtlT00ePBKFy/XSE2eA/StH+vj5r9bXieWNIJtN7HYV1Fwzv0s/qM6sKEVtbw2cBxaSK5OG
- xreDaTkYGfl37oT6WVxHVE3uz4kt+ebHckFFtAxpX9XmSh6iGBj67+PUYUIfpes0ZfwZjl8yomF
- JVHSGA5O5DDmPex5iZDCRoQjRoOrzLsc64ADkVN4ZpyQJDOPP3R6FNhYRu+Ej+C4ZyS1CPgVllx
- wWitNLLlKs9gHm7b/VrHXo0dY7HRapz60zNHEdciWdWH06+xS6BEvd4RxHhQoi3dUTTSQXn72L1
- abjiK7WFgpReBbhIlNmgxxthenVCybKQpeUCBHgVuwSCW1AdYsBxVkplS01TcKyemJNhTeQKLka
- s0jtNsJZ8quLFnZzuDQ==
-X-Proofpoint-ORIG-GUID: 2mCHqnnhgccoAOpnpjXWDmTjpLROSXDB
-X-Proofpoint-GUID: 2mCHqnnhgccoAOpnpjXWDmTjpLROSXDB
-X-Authority-Analysis: v=2.4 cv=SrOgLvO0 c=1 sm=1 tr=0 ts=69dd5acd cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=r1p2_3pzAAAA:8
- a=hcTHx3Z5Akp3fEzgVBYA:9 a=r_pkcD-q9-ctt7trBg_g:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-13_03,2026-04-13_04,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 priorityscore=1501 lowpriorityscore=0 clxscore=1015 bulkscore=0
- phishscore=0 suspectscore=0 malwarescore=0 spamscore=0 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604010000 definitions=main-2604130205
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On error recovery for a PCI device bound to vfio-pci driver, we want to
-recover the state of the device to its last known saved state. The callback
-restores the state of the device to its initial saved state.
+On Tue,  7 Apr 2026 19:59:34 +0200
+Paolo Bonzini <pbonzini@redhat.com> wrote:
 
-Reviewed-by: Julian Ruess <julianr@linux.ibm.com>
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Acked-by: Alex Williamson <alex@shazbot.org>
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
----
- drivers/vfio/pci/vfio_pci_core.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+> group->notifier is dead code. VFIO initializes it and checks it for emptiness on
+> teardown, but nobody ever registers on it or triggers it.
+> 
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> ---
+>  Documentation/arch/s390/vfio-ap.rst | 18 ++++++------------
+>  drivers/vfio/group.c                |  3 ---
+>  drivers/vfio/vfio.h                 |  1 -
+>  drivers/vfio/vfio_iommu_type1.c     |  1 -
+>  4 files changed, 6 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-index 5403730786a1..4485d85e4419 100644
---- a/drivers/vfio/pci/vfio_pci_core.c
-+++ b/drivers/vfio/pci/vfio_pci_core.c
-@@ -2255,6 +2255,17 @@ pci_ers_result_t vfio_pci_core_aer_err_detected(struct pci_dev *pdev,
- }
- EXPORT_SYMBOL_GPL(vfio_pci_core_aer_err_detected);
- 
-+static void vfio_pci_core_aer_reset_done(struct pci_dev *pdev)
-+{
-+	struct vfio_pci_core_device *vdev = dev_get_drvdata(&pdev->dev);
-+
-+	if (!vdev->pci_saved_state)
-+		return;
-+
-+	pci_load_saved_state(pdev, vdev->pci_saved_state);
-+	pci_restore_state(pdev);
-+}
-+
- int vfio_pci_core_sriov_configure(struct vfio_pci_core_device *vdev,
- 				  int nr_virtfn)
- {
-@@ -2319,6 +2330,7 @@ EXPORT_SYMBOL_GPL(vfio_pci_core_sriov_configure);
- 
- const struct pci_error_handlers vfio_pci_core_err_handlers = {
- 	.error_detected = vfio_pci_core_aer_err_detected,
-+	.reset_done = vfio_pci_core_aer_reset_done,
- };
- EXPORT_SYMBOL_GPL(vfio_pci_core_err_handlers);
- 
--- 
-2.43.0
+Applied to vfio next branch for v7.1.  Thanks,
 
+Alex
