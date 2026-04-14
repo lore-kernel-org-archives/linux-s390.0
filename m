@@ -1,223 +1,353 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from fhigh-b5-smtp.messagingengine.com (fhigh-b5-smtp.messagingengine.com [202.12.124.156])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F23C3DBD59;
-	Tue, 14 Apr 2026 14:09:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65D653E7174;
+	Tue, 14 Apr 2026 14:12:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.156
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776175765; cv=none; b=lX0SZBdzY73UD+RwAyMUYhZY8ZVKjv82GyMvddHuAHWmk8Rsc5wFgn+AjknWsZo5VAewtdnbOinssqzhNQGIbfu8crXeky1lNLEJzSZRz0C0ZocU3Dv6fTD+M++eO3bnTDpFNoWtdxNeu2bVk2hMC4lwImV9lrWFqBnB2mYLxf4=
+	t=1776175966; cv=none; b=IjcHI4S3lZ0iXNlo/kpOb9uc2+fKh9ArtYrFg/5J6d3t1kOx/QRWGm6B3j4smCMW0ERxyXkSwjvU8BewVpiNWV0+OYVRutl+2phbnrhPPIBqgryviD9s961aIkA+cg3IDuY5G02OblsVhi0R3huLXj7z8o0AsjfdoI9SYl3fprg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776175765; c=relaxed/simple;
-	bh=FC6Wkxbbst57Y5XcZOl8gezbYkCIWVatKXhNcU0I1xk=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=faiIGTLzHQNJWywj7bl77xq/mGw06PwCKxAXxhB54udIQLtmEOwcjc5UrV3hdtsxCIiTjY4GkzNPmm99LkJ2SrcA3yJR01lova+ZOlZnC/3iwjOr5R727n+M1QlTLOani2bet1cDXvoQgpmNIVkCJy26B8m964VtHbmJxTeQ7Qo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KJBg/26O; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1776175966; c=relaxed/simple;
+	bh=uAVJpJnZIO7KMMB/lw9nwEAyap4Nw8wh6yxkAuFuE+o=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=ktssHip6aPr+kjjrTfcWsj4az1T9BlNdKW3FG8tiethKQ/e2Ygow/VNM8FGPpIrtljo1czqeqFF+WVqcD+Afp8sIErY8nZ8xJpl+JRm91BAgG9a71S5GIuHyBeTRw2KWP22LSrJfgeSY7wDb+cOCmo9/PsHLgqndD5496gsWvyM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=Mvh+ZeAR; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=sqLeKJEv; arc=none smtp.client-ip=202.12.124.156
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KJBg/26O"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63EDUuQc1805230;
-	Tue, 14 Apr 2026 14:09:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Dzjv3g
-	OdxZg/qy/ibAPB0hyId1JXFg7fjfcqXZpWbUY=; b=KJBg/26OxUp93sDT/mVnHv
-	abp2h/D5mL3nj3XsikKFoH9IY1xr369fd3CiXfE2yHPWpTqzCd4OOr2/HuMOYK0l
-	USeaKQLMjBoXI28HCD10gaW56ZAlwdFXB2W26yn/lTY5QTlBrcike0mCT9xadA1Q
-	VYGcGapJQK83nYevRZWHguqsYIz7iuJJYS+6dmtEWlnODGNPQoGz0mB7rLMg4bTT
-	B3GIXCfHGB9CN4z6ww0f0LHmSFhYMp7F9yoer8VK2Ur9uCqj3oY1Ourn4MpLYpbe
-	rUwGwUAtvDU0DaX9HvZSy/pUAq1pQ0tBq273I+0/VaBVlDQxf++drvN5uZFTUa6g
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dh89k2y5d-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 14 Apr 2026 14:09:18 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63E9rVgB004179;
-	Tue, 14 Apr 2026 14:09:17 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dg24k9p7b-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 14 Apr 2026 14:09:17 +0000
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63EE9G4v26542632
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 14 Apr 2026 14:09:16 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1CB5E58059;
-	Tue, 14 Apr 2026 14:09:16 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7CAF55805B;
-	Tue, 14 Apr 2026 14:09:14 +0000 (GMT)
-Received: from [9.61.29.199] (unknown [9.61.29.199])
-	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 14 Apr 2026 14:09:14 +0000 (GMT)
-Message-ID: <256d54de-759e-4855-b4c5-c955d0b63cc3@linux.ibm.com>
-Date: Tue, 14 Apr 2026 10:09:13 -0400
+	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="Mvh+ZeAR";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="sqLeKJEv"
+Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 477997A016A;
+	Tue, 14 Apr 2026 10:12:42 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-06.internal (MEProxy); Tue, 14 Apr 2026 10:12:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1776175962;
+	 x=1776262362; bh=qCvEqJRBfyR4i0siTqFXO2296KUNeGvlyJV4drI5uw0=; b=
+	Mvh+ZeARXPjR10qPXOrSxEFATokBy45AKtJHb6u2cuKr9mOWq3ws1SutzxomogKO
+	N46TVFpM1JxO3h6jcR8D5qIh0INdJHOA3+l6TcXrGrGoxB/tR/7Y9p5sCISBJT1Y
+	eQeZ3oZH35+mpTrUAu+kTyHz3EoH1Maky8885NzaurOu+eDzYVOKmrvIEEP/8+73
+	ZPvNEtl4GdjHzpFZks7GIr5hEHaq+fPKnVR9q7EVVXGz91CMwpdKtodnHXRUE1dP
+	6FM5MA2a/nU4SaVTlwTjDCA4cFVXLB32Q18rccMHHnKlTUC6Xj3qxerdoPKAn8SR
+	VGMXkeY0Syvv1LQ6l/F7mg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1776175962; x=
+	1776262362; bh=qCvEqJRBfyR4i0siTqFXO2296KUNeGvlyJV4drI5uw0=; b=s
+	qLeKJEvR2ft5njB02SO2wg3+OW+bydW9zI6xRNlm3awpKHAacB6QvghQVhcHwGpf
+	fdZg+wlo3Y+oizxEGKdW0srQGC/dAlmH6A5EJCkK12cLvnohnAkX8C8wVUICFnbX
+	tGNZG6Jw0dbgyV/7x4eVk168ZkY7rFwWQNozeLuwXgzhWWGRJ0RYYcMroq0RD1bZ
+	k4vRby1M9X7D3TckVhGMcY1gwEmsZDHFHbnaiFQwVG9/AcZn7Cx++UpX1zDscGV6
+	8gb5xVbqdkS21gw8r0acRARRsj3ZhBw7165vjjrCvDk6ppa9lpMsYpXxVsjhJ+O2
+	D041b1DgWmYubqCjt3+Tw==
+X-ME-Sender: <xms:WUveaWKO0mRvlcZX2YtMQrPdS6VZmw9x_TvyZ48s0naOBmXjbCgpCQ>
+    <xme:WUveaWR96YJS2D9BjoxWGzXJ1M9-zj83I3rGtaCxULo7sAAQItHRhIAL9UoCiMmYN
+    xJE6K2P49-gq1rlx0fuSLXGax7-jNhP6KaYzPUz6MoWzBMwKONbiiw>
+X-ME-Received: <xmr:WUveaWNJ250eRNhy4-DQvGiDdQv4DxYleEBH8xHWVec6JzJXrsmgNrTgiUc>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdegudefiecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecunecujfgurhepfffhvfevuffkjghfofggtgfgsehtjeertd
+    ertddvnecuhfhrohhmpeetlhgvgicuhghilhhlihgrmhhsohhnuceorghlvgigsehshhgr
+    iigsohhtrdhorhhgqeenucggtffrrghtthgvrhhnpedvkeefjeekvdduhfduhfetkedugf
+    duieettedvueekvdehtedvkefgudegveeuueenucevlhhushhtvghrufhiiigvpedtnecu
+    rfgrrhgrmhepmhgrihhlfhhrohhmpegrlhgvgiesshhhrgiisghothdrohhrghdpnhgspg
+    hrtghpthhtohepuddupdhmohguvgepshhmthhpohhuthdprhgtphhtthhopegrlhhifhhm
+    sehlihhnuhigrdhisghmrdgtohhmpdhrtghpthhtoheplhhinhhugidqshefledtsehvgh
+    gvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehv
+    ghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqphgtihesvhhgvg
+    hrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehhvghlghgrrghssehkvghrnhgvlhdr
+    ohhrghdprhgtphhtthhopehluhhkrghsseifuhhnnhgvrhdruggvpdhrtghpthhtoheptg
+    hlghesrhgvughhrghtrdgtohhmpdhrtghpthhtohepkhgsuhhstghhsehkvghrnhgvlhdr
+    ohhrghdprhgtphhtthhopehstghhnhgvlhhlvgeslhhinhhugidrihgsmhdrtghomh
+X-ME-Proxy: <xmx:WUveabWv-w3dCzd0PX7m08Iigw9MluZr_gv3NREMvQ_G0C7eneTPIw>
+    <xmx:WUveaZiP0oEdwQ7B0eu_ZOicXnHb7L9UU4Tw_f90fHWKBvIWC7_mng>
+    <xmx:WUveaUhTNwnz90BhnEVpAMO6qcSZwjNL-_u1r16Qh2_cVRtplOHdjg>
+    <xmx:WUveaXEwq3AZAnoyXeSgZKDxEv1Va89rQx7xnXZw-bRb_wWyb7PcQA>
+    <xmx:Wkveaf7pNKOsHbMbJ2D1HS3AgpJy4sXrIsPpYZu6mEJiJZ-O-PjSfW6V>
+Feedback-ID: i03f14258:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 14 Apr 2026 10:12:40 -0400 (EDT)
+Date: Tue, 14 Apr 2026 08:12:38 -0600
+From: Alex Williamson <alex@shazbot.org>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-pci@vger.kernel.org, helgaas@kernel.org, lukas@wunner.de,
+ clg@redhat.com, kbusch@kernel.org, schnelle@linux.ibm.com,
+ mjrosato@linux.ibm.com, alex@shazbot.org
+Subject: Re: [PATCH v13 5/7] vfio-pci/zdev: Add a device feature for error
+ information
+Message-ID: <20260414081238.23e2cecc@shazbot.org>
+In-Reply-To: <cd9d7977-8b36-428c-81f2-c14b66173763@linux.ibm.com>
+References: <20260413210608.2912-1-alifm@linux.ibm.com>
+	<20260413210608.2912-6-alifm@linux.ibm.com>
+	<20260413165758.0f87312b@shazbot.org>
+	<cd9d7977-8b36-428c-81f2-c14b66173763@linux.ibm.com>
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 00/16] s390/vfio-ap: Add live guest migration support
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com,
-        pasic@linux.ibm.com, alex@shazbot.org, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, agordeev@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com
-References: <20260407205100.331150-1-akrowiak@linux.ibm.com>
-Content-Language: en-US
-In-Reply-To: <20260407205100.331150-1-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: aBk2v-xuzVCRYusMM2TSVY9e34UcDHEl
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE0MDEzMCBTYWx0ZWRfXy/jxozXlQo+/
- +yCaUgv8G9ftDwJoOh8jPYcR6GmbEiiiyludfSepgCxlP1x3cL2rNZjyOBMdH4ILcA8XU5Nr0Fc
- OE0xHM9QYLPGoyhbt3oKjZsh56tV5VXLkdXhBRYMIEl/4k3z0HyE3IqzxBMqUQdC+ngsG8zACqw
- GVCjz4fusTgvNgH5pJlwJcXtrdglD1frLDUlIAbWYgygqztWd0kEkO1GezBS6BSWOxXJwGTzeN5
- QEdLTeTpsmvFxXdo7Hj+AfS9uBgwHQ+6GBKKJqwtdU7Pi1D1FSuFl6+LmG+iiK94E17qYruFjlt
- TLivVRwzYd++1VlFHxhezjUOfzAY7kziXAgT7BgrxVgSTO1846Rd1pKAZxxRKVEWEAJ1wqXp/wM
- McbMIzllSkDPDvorSyGR/ive3BiHUOJRXcp2yELj6lxrR+yn2UWOyaTQqrpsw84yeabA3gWNw3x
- qgSNd752257wGbqH8RQ==
-X-Proofpoint-ORIG-GUID: aBk2v-xuzVCRYusMM2TSVY9e34UcDHEl
-X-Authority-Analysis: v=2.4 cv=W60IkxWk c=1 sm=1 tr=0 ts=69de4a8e cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=BeJFQei6KuwYuYFmKvkA:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-14_03,2026-04-13_04,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 clxscore=1015 priorityscore=1501 spamscore=0 bulkscore=0
- adultscore=0 phishscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604070000 definitions=main-2604140130
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-PING ....
+On Mon, 13 Apr 2026 16:40:49 -0700
+Farhan Ali <alifm@linux.ibm.com> wrote:
 
-On 4/7/26 4:50 PM, Anthony Krowiak wrote:
-> This patch series implements live guest migration support for KVM guests
-> with s390 AP (Adjunct Processor) devices passed through via the VFIO
-> mediated device framework.
->
-> Background
-> ----------
->
-> The vfio-ap device driver differs from typical VFIO device drivers in that
-> it does not virtualize a physical device. Instead, it manages AP
-> configuration metadata identifying the AP adapters, domains, and control
-> domains to which a guest will be granted access. These AP resources are
-> configured by assigning them to a vfio-ap mediated device via its sysfs
-> assignment interfaces. When the fd for the VFIO device is opened by
-> userspace, the vfio_ap device driver sets the guest's AP configuration
-> from the metadata stored with the mediated device. As such, the AP devices
-> are not accessed directly through the vfio_ap driver, so the driver has no
-> internal device state to migrate. It's sole purpose during migration is to
-> ensure that the AP configurations of the source and destination guests are
-> compatible.
->
-> Implementation Approach
-> -----------------------
->
-> This series implements the VFIO migration protocol using the STOP_COPY
-> migration flow. The key aspects are:
->
-> 1. Hardware Information Capture (Patches 1-2)
->     - Store AP queue hardware characteristics at probe time
->     - Provide access to queue objects for validation
->
-> 2. Migration Infrastructure (Patches 3-5)
->     - Define migration data structures
->     - Initialize/release migration data on device open/close
->
-> 3. State Machine Implementation (Patches 6-13)
->     - Implement required VFIO migration callbacks
->     - Handle state transitions: STOP → STOP_COPY → STOP (source)
->                                 STOP → RESUMING → STOP (destination)
->     - Use file streams for AP configuration data transfer
->
-> 4. Validation and Callbacks (Patches 14-15)
->     - Implement migration state and data size callbacks
->     - Required for VFIO_DEVICE_FEATURE_MIGRATION support
->
-> 5. Documentation (Patch 16)
->     - Add live guest migration chapter to vfio-ap.rst
->
-> Compatibility Validation
-> ------------------------
->
-> The series includes comprehensive validation to ensure source and
-> destination AP configurations are compatible. For each queue, the following
-> characteristics must match:
->
-> - AP type (target must be same or newer than source)
-> - Installed facilities (APSC, APQKM, AP4KC, SLCF)
-> - Operating mode (CCA, Accelerator, XCP)
-> - APXA facility setting
-> - Classification (native vs stateless functions)
-> - Queue usability (binding/associated state)
->
-> When incompatibilities are detected, migration fails with detailed error
-> messages identifying the specific queue and characteristic that caused
-> the failure.
->
-> Configuration Management
-> ------------------------
->
-> This implementation does not prevent configuration changes during
-> migration. Configuration stability is an orchestration-layer
-> responsibility, consistent with other VFIO device types. The driver's
-> role is to validate configurations and provide clear diagnostics when
-> incompatibilities are detected, enabling orchestration tools to implement
-> appropriate policies.
->
-> Change log v1 to v2
-> -------------------
->
-> - Removed patches that attempted to block configuration changes during
->    migration due to inherent race conditions and incomplete protection
-> - Simplified approach focuses on validation and error reporting
-> - Reduced series from 18 to 16 patches
-> - Rewrote the description in the cover letter to better describe the
->    patch series, remove confusing comments as well as references to
->    function provided by the patches that were removed.
->
-> Anthony Krowiak (16):
->    s390/vfio-ap: Store queue hardware info when probed
->    s390/vfio-ap: Provide access to queue objects and related info
->    s390/vfio-ap: Data structures for facilitating vfio device migration
->    s390/vfio-ap: Initialize/release vfio device migration data
->    s390-vfio-ap: Callback to set vfio device mig state during guest
->      migration
->    s390/vfio-ap: Transition guest migration state from STOP to STOP_COPY
->    s390/vfio-ap: File ops called to save the vfio device migration state
->    s390/vfio-ap: Transition device migration state from STOP to RESUMING
->    s390/vfio-ap: File ops called to resume the vfio device migration
->    s390/vfio-ap: Transition device migration state from RESUMING to STOP
->    s390/vfio-ap: Transition device migration state from STOP_COPY to STOP
->    s390/vfio-ap: Transition device migration state from STOP to RUNNING
->      and vice versa
->    s390-vfio-ap: Callback to get the current vfio device migration state
->    s390/vfio-ap: Callback to get the size of data to be migrated during
->      guest migration
->    s390/vfio-ap: Add 'migratable' feature to sysfs 'features' attribute
->    s390/vfio-ap: Add live guest migration chapter to vfio-ap.rst
->
->   Documentation/arch/s390/vfio-ap.rst     |  325 +++++--
->   drivers/s390/crypto/Makefile            |    2 +-
->   drivers/s390/crypto/vfio_ap_drv.c       |    4 +-
->   drivers/s390/crypto/vfio_ap_migration.c | 1095 +++++++++++++++++++++++
->   drivers/s390/crypto/vfio_ap_ops.c       |   66 +-
->   drivers/s390/crypto/vfio_ap_private.h   |   10 +
->   6 files changed, 1395 insertions(+), 107 deletions(-)
->   create mode 100644 drivers/s390/crypto/vfio_ap_migration.c
->
+> On 4/13/2026 3:57 PM, Alex Williamson wrote:
+> > On Mon, 13 Apr 2026 14:06:06 -0700
+> > Farhan Ali <alifm@linux.ibm.com> wrote:
+> >  
+> >> For zPCI devices, we have platform specific error information. The platform
+> >> firmware provides this error information to the operating system in an
+> >> architecture specific mechanism. To enable recovery from userspace for
+> >> these devices, we want to expose this error information to userspace. Add a
+> >> new device feature to expose this information.
+> >>
+> >> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> >> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> >> ---
+> >>   arch/s390/include/asm/pci.h      |  3 +++
+> >>   arch/s390/pci/pci_event.c        | 19 +++++++++++++++++++
+> >>   drivers/vfio/pci/vfio_pci_core.c |  2 ++
+> >>   drivers/vfio/pci/vfio_pci_priv.h |  9 +++++++++
+> >>   drivers/vfio/pci/vfio_pci_zdev.c | 31 +++++++++++++++++++++++++++++++
+> >>   include/uapi/linux/vfio.h        | 20 ++++++++++++++++++++
+> >>   6 files changed, 84 insertions(+)
+> >>
+> >> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+> >> index 9a6a4eb9d7c1..9c8ee97d7e8a 100644
+> >> --- a/arch/s390/include/asm/pci.h
+> >> +++ b/arch/s390/include/asm/pci.h
+> >> @@ -360,6 +360,9 @@ int zpci_clear_error_state(struct zpci_dev *zdev);
+> >>   int zpci_reset_load_store_blocked(struct zpci_dev *zdev);
+> >>   void zpci_start_mediated_recovery(struct zpci_dev *zdev);
+> >>   void zpci_stop_mediated_recovery(struct zpci_dev *zdev);
+> >> +void zpci_get_pending_error_and_count(struct zpci_dev *zdev,
+> >> +				      struct zpci_ccdf_err *ccdf,
+> >> +				      int *count);
+> >>   
+> >>   #ifdef CONFIG_NUMA
+> >>   
+> >> diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
+> >> index c279a9f50a64..c8714d4a32fa 100644
+> >> --- a/arch/s390/pci/pci_event.c
+> >> +++ b/arch/s390/pci/pci_event.c
+> >> @@ -74,6 +74,25 @@ static void zpci_store_pci_error(struct pci_dev *pdev,
+> >>   	zdev->pending_errs.count++;
+> >>   }
+> >>   
+> >> +void zpci_get_pending_error_and_count(struct zpci_dev *zdev,
+> >> +				      struct zpci_ccdf_err *ccdf,
+> >> +				      int *count)
+> >> +{
+> >> +	int head = 0;  
+> > Unnecessary.  Should also be a blank line between variable declaration
+> > and code.
+> >  
+> >> +	*count = 0;  
+> > But why do we zero this and not ccdf?  
+> 
+> I had thought of memsetting ccdf to 0, but the only caller right already 
+> initializes to 0. So didn't think it was needed.
 
+The caller initializes count as well.
+
+> >> +
+> >> +	guard(mutex)(&zdev->pending_errs_lock);
+> >> +	if (zdev->pending_errs.count) {
+> >> +		head = zdev->pending_errs.head % ZPCI_ERR_PENDING_MAX;
+> >> +		memcpy(ccdf, &zdev->pending_errs.err[head],
+> >> +		       sizeof(struct zpci_ccdf_err));
+> >> +		zdev->pending_errs.head++;
+> >> +		zdev->pending_errs.count--;
+> >> +		*count = zdev->pending_errs.count;
+> >> +	}
+> >> +}  
+> > You've describe in the uAPI now how pec = 0 means no error, but why not
+> > remove that ambiguity altogether and return -ENOMSG in that case.  We
+> > could start here and pass it through:
+> >
+> > {
+> > 	int head;
+> >
+> > 	guard(mutex)(&zdev->pending_errs_lock);
+> >
+> > 	if (!zdev->pending_errs.count)
+> > 		return -ENOMSG;
+> >
+> > 	head = zdev->pending_errs.head % ZPCI_ERR_PENDING_MAX;
+> > 	memcpy(ccdf, &zdev->pending_errs.err[head],
+> > 	       sizeof(struct zpci_ccdf_err));
+> > 	zdev->pending_errs.head++;
+> > 	zdev->pending_errs.count--;
+> > 	*count = zdev->pending_errs.count;
+> >
+> > 	return 0;
+> > }  
+> 
+> I had thought of returning an error (ENOENT was what I was going with), 
+> but perhaps I misunderstood your comment from v12 about specifying pec = 
+> 0 and pending error = 0 as not being an error. My assumption was as this 
+> is not an error we shouldn't return an error to userspace.
+
+I think I was trying to get clarity on how 0/0 is interpreted because
+it seems like a weak point of the uAPI.  We could make a more intuitive
+uAPI if we make the "I have no message of desired type" response an
+explicit, unique errno, rather than a reserved pec value.
+
+> >> +EXPORT_SYMBOL_GPL(zpci_get_pending_error_and_count);
+> >> +
+> >>   void zpci_start_mediated_recovery(struct zpci_dev *zdev)
+> >>   {
+> >>   	guard(mutex)(&zdev->pending_errs_lock);
+> >> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+> >> index ad52abc46c04..5403730786a1 100644
+> >> --- a/drivers/vfio/pci/vfio_pci_core.c
+> >> +++ b/drivers/vfio/pci/vfio_pci_core.c
+> >> @@ -1534,6 +1534,8 @@ int vfio_pci_core_ioctl_feature(struct vfio_device *device, u32 flags,
+> >>   		return vfio_pci_core_feature_token(vdev, flags, arg, argsz);
+> >>   	case VFIO_DEVICE_FEATURE_DMA_BUF:
+> >>   		return vfio_pci_core_feature_dma_buf(vdev, flags, arg, argsz);
+> >> +	case VFIO_DEVICE_FEATURE_ZPCI_ERROR:
+> >> +		return vfio_pci_zdev_feature_err(device, flags, arg, argsz);
+> >>   	default:
+> >>   		return -ENOTTY;
+> >>   	}
+> >> diff --git a/drivers/vfio/pci/vfio_pci_priv.h b/drivers/vfio/pci/vfio_pci_priv.h
+> >> index fca9d0dfac90..4e7162234a2e 100644
+> >> --- a/drivers/vfio/pci/vfio_pci_priv.h
+> >> +++ b/drivers/vfio/pci/vfio_pci_priv.h
+> >> @@ -93,6 +93,8 @@ int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
+> >>   				struct vfio_info_cap *caps);
+> >>   int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev);
+> >>   void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev);
+> >> +int vfio_pci_zdev_feature_err(struct vfio_device *device, u32 flags,
+> >> +			      void __user *arg, size_t argsz);
+> >>   #else
+> >>   static inline int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
+> >>   					      struct vfio_info_cap *caps)
+> >> @@ -107,6 +109,13 @@ static inline int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
+> >>   
+> >>   static inline void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev)
+> >>   {}
+> >> +
+> >> +static inline int vfio_pci_zdev_feature_err(struct vfio_device *device,
+> >> +					    u32 flags, void __user *arg,
+> >> +					    size_t argsz)
+> >> +{
+> >> +	return -ENOTTY;
+> >> +}
+> >>   #endif
+> >>   
+> >>   static inline bool vfio_pci_is_vga(struct pci_dev *pdev)
+> >> diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
+> >> index 0658095ac5b1..ee1647f0ffe6 100644
+> >> --- a/drivers/vfio/pci/vfio_pci_zdev.c
+> >> +++ b/drivers/vfio/pci/vfio_pci_zdev.c
+> >> @@ -141,6 +141,37 @@ int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
+> >>   	return ret;
+> >>   }
+> >>   
+> >> +int vfio_pci_zdev_feature_err(struct vfio_device *device, u32 flags,
+> >> +			      void __user *arg, size_t argsz)
+> >> +{
+> >> +	struct vfio_device_feature_zpci_err err = {};
+> >> +	struct vfio_pci_core_device *vdev;
+> >> +	struct zpci_ccdf_err ccdf = {};
+> >> +	struct zpci_dev *zdev;
+> >> +	int pending_errors = 0;
+> >> +	int ret;
+> >> +
+> >> +	vdev = container_of(device, struct vfio_pci_core_device, vdev);
+> >> +	zdev = to_zpci(vdev->pdev);
+> >> +	if (!zdev)
+> >> +		return -ENODEV;
+> >> +
+> >> +	ret = vfio_check_feature(flags, argsz, VFIO_DEVICE_FEATURE_GET,
+> >> +				 sizeof(err));
+> >> +	if (ret != 1)
+> >> +		return ret;
+> >> +
+> >> +	zpci_get_pending_error_and_count(zdev, &ccdf, &pending_errors);
+> >> +
+> >> +	err.version = 1;
+> >> +	err.pec = ccdf.pec;
+> >> +	err.pending_errors = pending_errors;
+> >> +	if (copy_to_user(arg, &err, sizeof(err)))
+> >> +		return -EFAULT;
+> >> +
+> >> +	return 0;
+> >> +}
+> >> +
+> >>   int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
+> >>   {
+> >>   	struct zpci_dev *zdev = to_zpci(vdev->pdev);
+> >> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+> >> index 5de618a3a5ee..2980ca39dd38 100644
+> >> --- a/include/uapi/linux/vfio.h
+> >> +++ b/include/uapi/linux/vfio.h
+> >> @@ -1534,6 +1534,26 @@ struct vfio_device_feature_dma_buf {
+> >>    */
+> >>   #define VFIO_DEVICE_FEATURE_MIG_PRECOPY_INFOv2  12
+> >>   
+> >> +/**
+> >> + * VFIO_DEVICE_FEATURE_ZPCI_ERROR feature provides PCI error information to
+> >> + * userspace for vfio-pci devices on s390x. On s390x, PCI error recovery
+> >> + * involves platform firmware and notification to operating system is done
+> >> + * by architecture specific mechanism. Exposing this information to
+> >> + * userspace allows it to take appropriate actions to handle an
+> >> + * error on the device. The pending_errors provide any additional errors
+> >> + * pending for the device, and userspace should read until zero. A value of
+> >> + * 0 for pending_errors and pec would indicate no pending errors that need
+> >> + * to be handled.
+> >> + */
+> >> +
+> >> +struct vfio_device_feature_zpci_err {
+> >> +	__u8 version;
+> >> +	__u8 pending_errors;
+> >> +	__u16 pec;
+> >> +};  
+> > I assume .version is for compatibility, but we don't define a strategy
+> > for using it or specify what the version should be for this table.  It
+> > doesn't seem like there's actually an value-add to having it.  
+> 
+> Its possible we may need to extend this structure in the future if we 
+> want to report more information to userspace. I at least want the 
+> flexibility to do so. We had some discussion around this [1] in an 
+> earlier version. I was trying to follow similar versioning pattern we 
+> had around vfio-pci/zdev structures.
+
+IMHO, the version field is a dead end towards achieving this,
+especially if we don't specify from the onset the expected version
+value or the compatibility semantics.  All that's going to happen is
+that some userspace will hard code that it understands version 1
+because that's what's currently reported and matches the struct defined
+here, and you can never ever report anything other than version 1
+without breaking that user.  At that point you need to come up with
+some other means for the user to opt-in to a new version, whether it's
+triggered by another feature (as we did with the PRECOPY_INFOv2 above
+this), or we reimplement the whole v2 feature.
+
+> > I'm also not clear why we need to report .pending_errors.  It mostly
+> > seems like another ambiguous feature of this API.  The value seems
+> > volatile and the suggestion is to read until zero, so why provide the
+> > value at all, the user can just read until -ENOMSG.  
+> 
+> Since we don't explicitly return an error indicating there are no 
+> available pci errors to handle, was why I added it. Is the preference to 
+> just return linux error code here?
+
+I think that can be interpreted as the .pending_errors field exists to
+work around a deficiency in the uAPI rather than modifying the uAPI to
+something that can explicitly return -ENOMSG.  Feels like we should
+just start with a better uAPI.  Thanks,
+
+Alex
