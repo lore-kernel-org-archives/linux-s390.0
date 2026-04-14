@@ -1,81 +1,186 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3AEF53EDAD1;
-	Tue, 14 Apr 2026 17:38:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from fout-b3-smtp.messagingengine.com (fout-b3-smtp.messagingengine.com [202.12.124.146])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BADF83EDAD1;
+	Tue, 14 Apr 2026 17:41:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.146
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776188301; cv=none; b=b2G/aTxh5ZkHLYD9KG07XOKZuPD6TBL1YuTipoVGqEdkV7HOLjaQGdnTB84Zr/qjSLKfZOydeVaS1BzV6E7zaWomujQZ/bJmxjtqeyBCLKz1BC6xQL3uMqHZa1VanM5XlZsrQljoeMQV0MeF9qQuAJt8iTV4ogcCiZ56ReIOFm4=
+	t=1776188499; cv=none; b=jbLzStKrmLCJ626HsDrXtry72Jh9AmXiPWKOOtGXLvZVpi649XmIu231pzWPrcEs5O0GGlawdCqMDLYTr/HwSiRqo+fhwGCTuW3BL6WKXTsBv0mZ9U6sbnORUrvhuF2l2Bv0W/WbRagcNqb+HZCqV+WV+0sr0Ihy01pg5nFAx/c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776188301; c=relaxed/simple;
-	bh=LuhkQ/zv/OtvVCg3FzLN+SqhZeScV2Hzlr/g41O5F2I=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jEyS5b9CWMZGR36dVByiyKL8o2Ww4j2NnnknZcU5XX3feFRA4Jj9iRhWaYUsps9qpYk/hXbw+WDw6JM/bwXyChYyRamGYRAL/RyMn1z4USlQYK8eBdX5gqtLuBF0dgjXspsMPFpr4kc8kM4hNAnpn+nLlV6bsmOr4hJPrZBKRyM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=A9nIZdW1; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+	s=arc-20240116; t=1776188499; c=relaxed/simple;
+	bh=w3Xttz0mTZ9+NRZZK9H73XaJh7kFuAwsAauzXXPCLQc=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=g1UUxoF9otuXvkj2Wu3pYi86x+dRlV4+scd1n7Q/6SrqBCyz6GupS21UVQ/UtzoqEyFteljwWTTyrPvG5urerNx9pWRK01vBui0HteEj3rJuSjur6CyDDAKgQU58oTrGTLnU6Kd0P3LH4OaBarfb4LYNWg9QIhOH+MrfJaZ1uhs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=gx+g2Dbo; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=HAzsvaoW; arc=none smtp.client-ip=202.12.124.146
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="A9nIZdW1"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 7D76125E0;
-	Tue, 14 Apr 2026 10:38:13 -0700 (PDT)
-Received: from [10.57.33.35] (unknown [10.57.33.35])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 017FC3F641;
-	Tue, 14 Apr 2026 10:38:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1776188299; bh=LuhkQ/zv/OtvVCg3FzLN+SqhZeScV2Hzlr/g41O5F2I=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=A9nIZdW1PiOaBm9npx6eosy3cJwTTO9WMk80QCCJdMFI37tgu7+eEUusEWBJ8DuiX
-	 0OA9eo6hscO+Lb5nKIkXqEtAokwo8VgY3OsiH4y0IxTeOb31din/AMaCbjFOKYEcD8
-	 Go6mFNzgpnA519rMBd9CmQkN9yd0gtPFW1bRhXok=
-Message-ID: <d5a39861-0f5f-4aee-84e3-f4d956f83461@arm.com>
-Date: Tue, 14 Apr 2026 19:38:13 +0200
+	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="gx+g2Dbo";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="HAzsvaoW"
+Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
+	by mailfout.stl.internal (Postfix) with ESMTP id 905671D00085;
+	Tue, 14 Apr 2026 13:41:35 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-05.internal (MEProxy); Tue, 14 Apr 2026 13:41:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1776188495;
+	 x=1776274895; bh=cIMYB3Vw1R1mczbcWN3ySXUNmPECAiAiyrHdvAbF5OY=; b=
+	gx+g2DboglzkwLnfVfmWAdBR9zPG3JGhBiku8eSh1ltH/l+A70SLd9ndmA3EKEl2
+	pPg4T8agrPZAJDET0bCtzPyEcylMgXvvqcp1f/Dwrw7M0gNsPSCIzXuC4zLk/rHn
+	asgC8IQBMNml1x9Zl61Lp+PE9gQhy3mkHjIARw/MZCqpc0X6wjC6ZxlGbLbmM7mb
+	jUV37MMjL3rCfNA+iDqt1zOYTkhYGdhXhI8oCgst7Dr9SYe0+vmUt28O+Dvf7i5q
+	f6Wj6bahZk6HXa6EJyrSrvpeQX8Qv3WgB7/MptIBXar5cqP15zTZijzdU1bb+WfA
+	bh0/ajdlXaW2daRS6ct3og==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1776188495; x=
+	1776274895; bh=cIMYB3Vw1R1mczbcWN3ySXUNmPECAiAiyrHdvAbF5OY=; b=H
+	AzsvaoWGjjs/C1p+pVsELlgTkIQW+ecKYgF5qJZHpXnadrgJHEPdFvcCgr3fC8SB
+	+V1etI1oeFn4qZ3ODyYD4UiAaLpoz17ll2Ik0fXc86UDjry9zuVat9yVXdxWmTIn
+	rZ45N48fTLkhwi3ZQsia7KXFm2DYN4Wslfon1XHtaXvE8qLAJ7MdqOLuEIcd1xNy
+	EHuHZqtBHx/rllGY2XjmYkxTIYF3XHEl4gGVSUOWTiBfE8uBT9cCrp5T20uMdoXe
+	9z2H5F+wjwwRg34LaJ2LIZ+G1X5K8LePpelgyCIiOEwQCqRVutecc8ULDsxV6QAk
+	E6GuFFQ7r3Rxm3HNey3hQ==
+X-ME-Sender: <xms:TnzeaSqpvupzjmXOlTftUuVr4Of_oeZvRQsDmI0zMQHqUlJOp8dI8A>
+    <xme:TnzeaYyU4Mha1-CtOlbhQDus2bENMl-7PtscvFmbpnCIP_koKWoKfi_kpHUNOuMZ4
+    PS2d1YmvjzyQwu6W5AHruYP8jsy-q3BL_4A6rjX6tqo52Tf2kvq>
+X-ME-Received: <xmr:TnzeaWsVvm8iF73Qp6Eq0fdz4ggnl55LqVPnmoW2eRsZcb7I9Vth1Q5_xms>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdegudejlecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecunecujfgurhepfffhvfevuffkjghfofggtgfgsehtjeertd
+    ertddvnecuhfhrohhmpeetlhgvgicuhghilhhlihgrmhhsohhnuceorghlvgigsehshhgr
+    iigsohhtrdhorhhgqeenucggtffrrghtthgvrhhnpedvkeefjeekvdduhfduhfetkedugf
+    duieettedvueekvdehtedvkefgudegveeuueenucevlhhushhtvghrufhiiigvpedtnecu
+    rfgrrhgrmhepmhgrihhlfhhrohhmpegrlhgvgiesshhhrgiisghothdrohhrghdpnhgspg
+    hrtghpthhtohepuddupdhmohguvgepshhmthhpohhuthdprhgtphhtthhopegrlhhifhhm
+    sehlihhnuhigrdhisghmrdgtohhmpdhrtghpthhtoheplhhinhhugidqshefledtsehvgh
+    gvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehv
+    ghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqphgtihesvhhgvg
+    hrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehhvghlghgrrghssehkvghrnhgvlhdr
+    ohhrghdprhgtphhtthhopehluhhkrghsseifuhhnnhgvrhdruggvpdhrtghpthhtoheptg
+    hlghesrhgvughhrghtrdgtohhmpdhrtghpthhtohepkhgsuhhstghhsehkvghrnhgvlhdr
+    ohhrghdprhgtphhtthhopehstghhnhgvlhhlvgeslhhinhhugidrihgsmhdrtghomh
+X-ME-Proxy: <xmx:TnzeaR2_OzZqsCMy8fQzjoCGcCwMWp_2dInZrFKDqjh7s68EydKj6A>
+    <xmx:TnzeaeCO0JaN8e2xKvq9FPCMI6fmrQ9goo_OuZhWg9X-0dVQ_SjM0w>
+    <xmx:TnzeafC0F_OrWO9m4tOAeLgR5SzDEftkvuZg74eHNL62r5p0GmrNTQ>
+    <xmx:Tnzeafm00VNsb8d-2dokuy_iU7Q8rfMXUoHby3XrQ9anf0oxQA86bA>
+    <xmx:T3zeaYYasD7QeZnhWGQ5DdyrL0sMgwgtOz0ZoK8s-XiQ1nSUUh28MSI4>
+Feedback-ID: i03f14258:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 14 Apr 2026 13:41:34 -0400 (EDT)
+Date: Tue, 14 Apr 2026 11:41:32 -0600
+From: Alex Williamson <alex@shazbot.org>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-pci@vger.kernel.org, helgaas@kernel.org, lukas@wunner.de,
+ clg@redhat.com, kbusch@kernel.org, schnelle@linux.ibm.com,
+ mjrosato@linux.ibm.com, alex@shazbot.org
+Subject: Re: [PATCH v13 5/7] vfio-pci/zdev: Add a device feature for error
+ information
+Message-ID: <20260414114132.31481b48@shazbot.org>
+In-Reply-To: <5f26af4c-9584-4c70-9702-0a3bcd0c4ad1@linux.ibm.com>
+References: <20260413210608.2912-1-alifm@linux.ibm.com>
+	<20260413210608.2912-6-alifm@linux.ibm.com>
+	<20260413165758.0f87312b@shazbot.org>
+	<cd9d7977-8b36-428c-81f2-c14b66173763@linux.ibm.com>
+	<20260414081238.23e2cecc@shazbot.org>
+	<5f26af4c-9584-4c70-9702-0a3bcd0c4ad1@linux.ibm.com>
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 1/2] mm: make lazy MMU mode context-aware
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
- linux-mm@kvack.org, linux-kernel@vger.kernel.org,
- Ryan Roberts <ryan.roberts@arm.com>
-References: <cover.1774420056.git.agordeev@linux.ibm.com>
- <de89fd353a8dcd5e3bef4d91e9b6682d132ed9a0.1774420057.git.agordeev@linux.ibm.com>
- <44dd86c0-1845-4dd9-b4b4-2cef6d1c6357@kernel.org>
- <e096e88b-f1fe-44a1-bfa6-451eef028203-agordeev@linux.ibm.com>
- <665a19a0-47c2-404c-bd2b-482ab51b8f64@kernel.org>
- <896b3d93-8e60-42e2-b8bb-d3d4e8c99927-agordeev@linux.ibm.com>
- <534ed892-a6ab-454e-831b-e207930c35cc@kernel.org>
- <584f0f88-aef9-4a70-b0bb-abc797f741ed-agordeev@linux.ibm.com>
- <17505ac4-c5e5-4046-b362-830369b8d401@arm.com>
- <384c5b93-7939-4a9e-9298-66397cc6fa28-agordeev@linux.ibm.com>
-From: Kevin Brodsky <kevin.brodsky@arm.com>
-Content-Language: en-GB
-In-Reply-To: <384c5b93-7939-4a9e-9298-66397cc6fa28-agordeev@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On 14/04/2026 18:08, Alexander Gordeev wrote:
-> On Tue, Apr 14, 2026 at 04:30:10PM +0200, Kevin Brodsky wrote:
->>>  * @mm: Address space the ptes represent.
->> Not sure that makes sense, maybe something like "Address space the PTEs
->> belong to"?
->>
->>>  * @addr: Address of the first pte.
->> Isn't it the address of the underlying memory rather?
-> Will update both and also the clear_not_present_full_ptes()
-> comment, where I copied it from.
+On Tue, 14 Apr 2026 10:13:22 -0700
+Farhan Ali <alifm@linux.ibm.com> wrote:
+> On 4/14/2026 7:12 AM, Alex Williamson wrote:
+> > On Mon, 13 Apr 2026 16:40:49 -0700
+> > Farhan Ali <alifm@linux.ibm.com> wrote:
+> >> On 4/13/2026 3:57 PM, Alex Williamson wrote:  
+> >>> On Mon, 13 Apr 2026 14:06:06 -0700
+> >>> Farhan Ali <alifm@linux.ibm.com> wrote:
+> >>>> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+> >>>> index 5de618a3a5ee..2980ca39dd38 100644
+> >>>> --- a/include/uapi/linux/vfio.h
+> >>>> +++ b/include/uapi/linux/vfio.h
+> >>>> @@ -1534,6 +1534,26 @@ struct vfio_device_feature_dma_buf {
+> >>>>     */
+> >>>>    #define VFIO_DEVICE_FEATURE_MIG_PRECOPY_INFOv2  12
+> >>>>    
+> >>>> +/**
+> >>>> + * VFIO_DEVICE_FEATURE_ZPCI_ERROR feature provides PCI error information to
+> >>>> + * userspace for vfio-pci devices on s390x. On s390x, PCI error recovery
+> >>>> + * involves platform firmware and notification to operating system is done
+> >>>> + * by architecture specific mechanism. Exposing this information to
+> >>>> + * userspace allows it to take appropriate actions to handle an
+> >>>> + * error on the device. The pending_errors provide any additional errors
+> >>>> + * pending for the device, and userspace should read until zero. A value of
+> >>>> + * 0 for pending_errors and pec would indicate no pending errors that need
+> >>>> + * to be handled.
+> >>>> + */
+> >>>> +
+> >>>> +struct vfio_device_feature_zpci_err {
+> >>>> +	__u8 version;
+> >>>> +	__u8 pending_errors;
+> >>>> +	__u16 pec;
+> >>>> +};  
+> >>> I assume .version is for compatibility, but we don't define a strategy
+> >>> for using it or specify what the version should be for this table.  It
+> >>> doesn't seem like there's actually an value-add to having it.  
+> >> Its possible we may need to extend this structure in the future if we
+> >> want to report more information to userspace. I at least want the
+> >> flexibility to do so. We had some discussion around this [1] in an
+> >> earlier version. I was trying to follow similar versioning pattern we
+> >> had around vfio-pci/zdev structures.  
+> > IMHO, the version field is a dead end towards achieving this,
+> > especially if we don't specify from the onset the expected version
+> > value or the compatibility semantics.  All that's going to happen is
+> > that some userspace will hard code that it understands version 1
+> > because that's what's currently reported and matches the struct defined
+> > here, and you can never ever report anything other than version 1
+> > without breaking that user.  At that point you need to come up with
+> > some other means for the user to opt-in to a new version, whether it's
+> > triggered by another feature (as we did with the PRECOPY_INFOv2 above
+> > this), or we reimplement the whole v2 feature.  
+> 
+> My understanding was based on how we version some of the capability 
+> structures for zdev (in include/uapi/linux/vfio_zdev.h). If we wanted to 
+> provide more information to userspace in the future, what would be 
+> preferred approach? Do we need to explicitly define a v2 feature? I am 
+> open to suggestions on this.
+> 
+> If we need to define v2 explicitly in the future, then yes I agree we 
+> can simplify it to return only the PEC code (or an error code otherwise).
 
-Oh I hadn't realised those comments came from there, that would be nice,
-thanks. A better reference might be a function like clear_ptes(), which
-was probably the inspiration for clear_not_present_full_ptes() (but
-wording adjustments were needed for the latter since the PTEs don't
-point to any memory).
+Maybe I'm reading too much into it, but it sounds like you already have
+plans to expand this.
 
-- Kevin
+The existing zdev structures seem to rely on the version field in the
+capability header and maybe you've gotten away with bumping the version
+without breaking userspace, but it's fragile.  AFAICT, the ioctls do not
+define a versioning strategy where vN+1 only adds fields to vN, so all
+it takes is one outspoken userspace tool that hard codes its
+compatibility to a specific version to become a problem for further
+updates.
+
+Likewise this feature doesn't define a versioning policy for userspace
+to follow.  I'm sure there are other examples within vfio that are
+problematic, but let's try not to create more.
+
+If you want to use a version, then also define what the version is and
+what the compatibility policy is for future versions.  A flags field is
+another option that we've used extensively in vfio.  The version field
+might be better for incremental expansion of the structure, while flags
+can address specific fields more directly, ex. a reserved field being
+redefined.  Thanks,
+
+Alex
