@@ -1,130 +1,188 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E19024A0C;
-	Tue, 14 Apr 2026 02:11:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED98433FE15;
+	Tue, 14 Apr 2026 07:54:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776132667; cv=none; b=AlEZQ5EmnFP5zyWGOtgOmPvc/h5bn2Uf90CPZmdmkR0wWvAYul0YXucnOSvr1qlmz67vKchwSlbcskUpzxR/UYuOS/CUx/ai3XbUJT0CRYJJxl04SaVAgb1y/NBpz8O0Df0KeY8/mfvXrWZRSb6IWZ4rcRccSzDW08Oa4iiWuRs=
+	t=1776153245; cv=none; b=bpHpsl67YrdS0IREIAuFCTmDeihLvBWmAJqtjqUthWy14BKicg6PsTeAo2ClXB4vINUdoxNt/czj8+mIYw/SmOcUOG6TF8YP3xsoPurTlXNoijWaKWcaBbAwOA0K7vp8VPEp40P6cU22XfYngEwBoVOypTSv1Hf/Vb650keAU0U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776132667; c=relaxed/simple;
-	bh=qONVCwTdjOsPJicXgg54drut12/jVHItxnBei3Ez/24=;
+	s=arc-20240116; t=1776153245; c=relaxed/simple;
+	bh=CXgBMwK55opjJzMUBpU2rkS6yfwbAnuwkkhTLG/qOHU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gW4ygj3nZKUTpEIaYyfD5ZL0ExMaazxBh7ssls6OlM5Bs9NVN1UflzeiA3WSvp2rzRgON9KBgkiao09N5JHEsWHCvTfLmHyL6KLEQRqhxixyOyh8gMs98qE97RCOWwrH7W8tZyiPSBHqLiWP4DGS4uKkbPvmArTgHUGAVT3ko8w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=jwgNvNCm; arc=none smtp.client-ip=115.124.30.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=QGdQUVYS32GnEqzQOX6OvwZa1UiksClMo3FbqcOl3oS74R7zz4ka1vZYg1HHeVyhYlApQT4Q873ugZM0vHYTiyUyg0Jjltypr2u1k7KdK1Gw/EOSm7yRvP1T+3/ZsizmKs+zmv+DPkbnVmv/DEZaBCj7Rq4ULPzHc/qiVpkgiKU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IA6HGNZm; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="jwgNvNCm"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1776132655; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=2GEV5QxYqXEC3gg+qrv5++VkT+kGhafbXkPa1JP+x14=;
-	b=jwgNvNCmZjLE6NyUS2+Ts9NXVRZfpboa65Z4tqH5IkenwiDSSuzogCSl4K43vAdopPYODX+CC4DO5U2BbMgP8KgwTxJsuOn2RF/nwRA2WGksm5GgHB7f5kCAaLYzTMuO+QJKLCLjEUgm+uMaT5tjhGzhvtG1TUw026oV611RBME=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045098064;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0X1.hUBx_1776132654;
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0X1.hUBx_1776132654 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 14 Apr 2026 10:10:54 +0800
-Date: Tue, 14 Apr 2026 10:10:54 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com    >
-To: Simon Horman <horms@kernel.org>
-Cc: "D. Wythe" <alibuda@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org,
-	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org, oliver.yang@linux.alibaba.com,
-	pasic@linux.ibm.com
-Subject: Re: [PATCH net-next v2] net/smc: cap allocation order for SMC-R
- physically contiguous buffers
-Message-ID: <20260414021054.GA111420@j66a10360.sqa.eu95>
-References: <20260407124337.88128-1-alibuda@linux.alibaba.com>
- <20260410151631.GY469338@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IA6HGNZm"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63DLI5U61804412;
+	Tue, 14 Apr 2026 07:53:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=gMS0mxag/gfHWiL+ozSGISUzVxNKea
+	MQ4J8s26nr7m0=; b=IA6HGNZmmSJTouv/6XbTyyzkaQAZ5U8InO4fZQU/TDPkUY
+	w8xa4+RvriuSQAXCRIw991AoOmzpUHAbL9OCFuybBFRL4iCZfxcjGp4k7J2oI6BL
+	Unh/DiZUAtm+LMa8b3mkydaEqMEdJlpn9tKBM0E4FUwH2yFKj+QrO5oJrjyJYS/p
+	N8bX8WLpmQLyfhmK9QYKIpzqzBhlbmnAmI6isSDOF1YwZpncO26qw5ZS9UiAbXdM
+	E95EcZR+jfHB6sB3r7YXgtSb3Ra/RGSZY8q9qpD8QmbLnm2J39D/HhjHPvbefpGN
+	J34139gGBl/Za/lCYLu71ouDto3ZuyM8eoU+tsHQ==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dh89k1k8j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 14 Apr 2026 07:53:54 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63E4lXck003594;
+	Tue, 14 Apr 2026 07:53:54 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dg1mn8h7n-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 14 Apr 2026 07:53:54 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63E7rojm31719952
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 14 Apr 2026 07:53:50 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4DECF20043;
+	Tue, 14 Apr 2026 07:53:50 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9C89B20040;
+	Tue, 14 Apr 2026 07:53:49 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.111.13.136])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 14 Apr 2026 07:53:49 +0000 (GMT)
+Date: Tue, 14 Apr 2026 09:53:48 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Kevin Brodsky <kevin.brodsky@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH 1/2] mm: make lazy MMU mode context-aware
+Message-ID: <584f0f88-aef9-4a70-b0bb-abc797f741ed-agordeev@linux.ibm.com>
+References: <cover.1774420056.git.agordeev@linux.ibm.com>
+ <de89fd353a8dcd5e3bef4d91e9b6682d132ed9a0.1774420057.git.agordeev@linux.ibm.com>
+ <44dd86c0-1845-4dd9-b4b4-2cef6d1c6357@kernel.org>
+ <e096e88b-f1fe-44a1-bfa6-451eef028203-agordeev@linux.ibm.com>
+ <665a19a0-47c2-404c-bd2b-482ab51b8f64@kernel.org>
+ <896b3d93-8e60-42e2-b8bb-d3d4e8c99927-agordeev@linux.ibm.com>
+ <534ed892-a6ab-454e-831b-e207930c35cc@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260410151631.GY469338@kernel.org>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+In-Reply-To: <534ed892-a6ab-454e-831b-e207930c35cc@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 3TgwcBaknJed_vxPvQ6kc4ZYIWQFnk4K
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE0MDA3MiBTYWx0ZWRfX6kRG9BT4W6Uh
+ bAoV12tGCeihyF52HnopkEgn7cXX0v/arGQp2vFCQvKS9TfcQuoSI/ouA8LgqtHnn8uTrRUykpZ
+ Bk8k1SeG2L4BXK6YtqY9s6757iAsPGt8Ym2xsstyTzUkCk4jAzTQtBqSNDUm53n/SWhWQOpUPIx
+ IGL7jQJjj5w79bS39EDC22qfq4XILm4sFrJ1jBPVeChE8B2UOjjvMtS6lmQFbUcB0Fk5CXNv3RF
+ G3Uyb3tNufffqvpMj88QDEczRGHtt5any/7+mkXA8Xs1usr6S4rYBV5aKGsw7MxhvxVnEUpB5ax
+ Ddaf4xMlSnRAaxyF04KQzsKY6DyJGLOCpuTIr67rYLfGsJXFzigbtnZo3LEdhr6TssFafnyb6Bc
+ OU+QyvouyjjwvjCdQxDzhctGlrkFbUMDjhUrewqA+uWMOQzzuasbDAgdmHHjrZh8hximWiebois
+ PTL3dHNKNNYtN+ZtEog==
+X-Proofpoint-ORIG-GUID: 3TgwcBaknJed_vxPvQ6kc4ZYIWQFnk4K
+X-Authority-Analysis: v=2.4 cv=W60IkxWk c=1 sm=1 tr=0 ts=69ddf292 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=uo89_AGBClsq0BM26OMA:9
+ a=CjuIK1q_8ugA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-04-14_02,2026-04-13_04,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 clxscore=1015 priorityscore=1501 spamscore=0 bulkscore=0
+ adultscore=0 phishscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2604070000 definitions=main-2604140072
 
-On Fri, Apr 10, 2026 at 04:16:31PM +0100, Simon Horman wrote:
-> On Tue, Apr 07, 2026 at 08:43:37PM +0800, D. Wythe wrote:
-> > The alloc_pages() cannot satisfy requests exceeding MAX_PAGE_ORDER,
-> > and attempting such allocations will lead to guaranteed failures
-> > and potential kernel warnings.
-> > 
-> > For SMCR_PHYS_CONT_BUFS, cap the allocation order to MAX_PAGE_ORDER.
-> > This ensures the attempts to allocate the largest possible physically
-> > contiguous chunk succeed, instead of failing with an invalid order.
-> > This also avoids redundant "try-fail-degrade" cycles in
-> > __smc_buf_create().
-> > 
-> > For SMCR_MIXED_BUFS, no cap is needed: if the order exceeds
-> > MAX_PAGE_ORDER, alloc_pages() will silently fail (__GFP_NOWARN)
-> > and automatically fall back to virtual memory.
-> > 
-> > Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> > Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
-> > ---
-> > Changes v1 -> v2:
-> > https://lore.kernel.org/netdev/20260312082154.36971-1-alibuda@linux.alibaba.com/
-> > 
-> > - Move the bufsize cap from smcr_new_buf_create() up to
-> >   __smc_buf_create(), which is simpler and avoids touching
-> >   the allocation logic itself.
+On Mon, Apr 13, 2026 at 08:32:11PM +0200, David Hildenbrand (Arm) wrote:
+> > 1. copy_pte_range() operates on two ranges: source and destination.
+> > Though lazy_mmu_mode_enable_for_pte_range() applies to the source one,
+> > updates to the destination are still happen while in tha lazy mode.
+> > (Although the lazy mode is not actually needed for the destination
+> > unattached MM).
 > 
-> The nit below notwithstanding, this looks good to me.
+> So, here a
 > 
-> Reviewed-by: Simon Horman <horms@kernel.org>
+>   "No ptes outside of this range in the provided @mm must be updated."
 > 
-> > ---
-> >  net/smc/smc_core.c | 4 ++++
-> >  1 file changed, 4 insertions(+)
+> could be used.
+> 
 > > 
-> > diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> > index e2d083daeb7e..cdd881746e21 100644
-> > --- a/net/smc/smc_core.c
-> > +++ b/net/smc/smc_core.c
-> > @@ -2440,6 +2440,10 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
-> >  		/* use socket send buffer size (w/o overhead) as start value */
-> >  		bufsize = smc->sk.sk_sndbuf / 2;
-> >  
-> > +	/* limit bufsize for physically contiguous buffers */
-> > +	if (!is_smcd && lgr->buf_type == SMCR_PHYS_CONT_BUFS)
-> > +		bufsize = min_t(int, bufsize, (PAGE_SIZE << MAX_PAGE_ORDER));
+> > 2. move_ptes() also operates on a source and destination ranges, but
+> > unlike copy_pte_range() the destination range is also attached to the
+> > currently active task.
 > 
-> nit: I think min() is sufficient here, and the inner parentheses are
->      unnecessary
+> But not here.
 
-Hi Simon,
+I did not quite understand these two comments ;), but I think
+I address them further below.
 
-I think min_t is required here because min() triggers a signedness
-error:
-
-././include/linux/compiler_types.h:706:38: error: call to
-‘__compiletime_assert_950’ declared with attribute error: min(bufsize,
-((1UL) << 12) << 10) signedness error
-
-The inner parentheses can be removed, though.
-
-D. Wythe
-
+> > 3. Though theoretical, nesting sections with interleaving calls to
+> > lazy_mmu_mode_enable() and lazy_mmu_mode_enable_for_pte_range() make
+> > it difficult to define (let alone to implement) which range is currently
+> > active, if any.
 > 
-> > +
-> >  	for (bufsize_comp = smc_compress_bufsize(bufsize, is_smcd, is_rmb);
-> >  	     bufsize_comp >= 0; bufsize_comp--) {
-> >  		if (is_rmb) {
-> > -- 
-> > 2.45.0
-> > 
+> Right. I assume you would specify the source here as well, or which one
+> would it be in your case to speed it up?
+
+It is in all cases the source/old/existing one.
+
+> > All of these goes away if we switch from for_pte_range() to fast_pte_range()
+> > semantics:
+> 
+> I don't quite like the "fast" in there. I think you can keep the old
+> name, but clarifying that it is merely a hint, and only ptes that fall
+> into the hint might observe a speedup.
+
+Okay, that simplify things.
+
+> Could performance benefit from multiple ranges? (like in mremap, for
+> example)?
+
+No.
+
+> In that case, an explicit hint interface could be reconsidered.
+
+So all things considered, how does it look?
+
+/**                                                                             
+ * lazy_mmu_mode_enable_for_pte_range() - Enable the lazy MMU mode with a speedup hint.
+ * @mm: Address space the ptes represent.                                       
+ * @addr: Address of the first pte.                                             
+ * @end: End address of the range.                                              
+ * @ptep: Page table pointer for the first entry.                               
+ *                                                                              
+ * Enters a new lazy MMU mode section; if the mode was not already enabled,         
+ * enables it and calls arch_enter_lazy_mmu_mode_for_pte_range().               
+ *                                                                              
+ * PTEs that fall within the specified range might observe update speedups.         
+ * The PTE range must belong to the specified memory space and do not cross         
+ * a page table boundary.                                                       
+ *                                                                              
+ * There are no requirements on the order or range completeness of PTE          
+ * updates for the specified range.                                             
+ *                                                                              
+ * Must be paired with a call to lazy_mmu_mode_disable().                       
+ *                                                                                  
+ * Has no effect if called:                                                     
+ * - While paused - see lazy_mmu_mode_pause()                                   
+ * - In interrupt context                                                       
+ */                                                                             
+
+> -- 
+> Cheers,
+> 
+> David
+
+Thanks!
