@@ -1,158 +1,117 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63820332906;
-	Wed, 15 Apr 2026 10:59:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EEB32E7165;
+	Wed, 15 Apr 2026 11:01:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776250774; cv=none; b=AoNwn2cBlRdcxsqXcCuC0mmYCm/P/EHBDr5gXZcuYT37S481pSmfp6SQzeAbnJGulUMHEcQ92Oe88XuroOqfhK3DGklHBtjxILAfIxopfS81+X48IkRTDvqUgALv0ApTfnP4S7giq7Tj0fSVKzNf7+9BpT8Z8NF5TcAurG8llqk=
+	t=1776250874; cv=none; b=PjuKkzlJJORrPnf9GVN3OVdByBe1vv0MkCKx7Au/MHSz5QDB7wP6B9a1Xd8KQTC7ve4gUEiEb2xfrh12pSGxV+gSH/UPX5QX6NwSRi7gOb8IYxeJL++aoSXkxhvYpLRZyIYvYqgwbYztflt0RtXEk6Fk9GYUozq7xqnwNU+wtm0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776250774; c=relaxed/simple;
-	bh=UeGFSTDoJqBsLuNrVjPGI7nozN44eflH0Qgot+HRvBQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=b1HrI5LJEDci2LQP61Nk6Z7F95+yasCtUjk+suH4uk6G+n9OJ5dk5cGLwrbQR8pCck4TYUtzv2Hj4LRamfAt75VwDZLktkMdXUOYn0gWQ8JaVq/QQSe6TtFGSiocBtmT5Dy3Jgycmpc6DEg7SqheqjzeQdaLvHY2f4IaHak/EL4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PAnO4rsX; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1776250874; c=relaxed/simple;
+	bh=gY7usLiZwYcEu4uG7lvPT7zlwVf/AAV+bMA+/3plgMk=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=GkwmwyM3ky21VDkZTzc+GTimHIQ3A+6DpAiBMWEBDkjHzIA3dvRqkQIrIgYOfo6Q79+qXAWzM5yttdUFXYOKSCk/D5vasSQvvy6CRePIhshl94P3jM7LpiX/2sqyZpa9UCqoyfzHNABDhnMKGqzopOqEYotexFBwvE3CW0PVOd4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=R75rzn6t; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PAnO4rsX"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="R75rzn6t"
 Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63EMeJaG1733761;
-	Wed, 15 Apr 2026 10:59:32 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63F2Yj571733184;
+	Wed, 15 Apr 2026 11:01:09 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=CKHhqQ8oWr4TMUt9zL7LxR9PZ1FgqF
-	xtMQUsupGvFjw=; b=PAnO4rsXc7WrDha/qCYFO2rEtbGFWsbSMqbEM8Fuzd70ys
-	aY8yqroIRdRmH8wM12ae83ddwX3KVxMykd4dGMYgoU96796dYQcSQKtiJDsVR8A0
-	ZuxQlU2PPaiaW/a/4Ruk8+Lv2Re8PE7aUiLK2RESjp87V/yvqpOvyCmYaRpK6Lfk
-	LU7wLqJFXiSNdTwTT/u763BdUJs01rmD8lYeiIVc+ys7XAbtHBuPBUxCb41bCm2r
-	W6mmPAXLrtSbXVGNBXKVnqfewd3wPckvBwT1qktwovkvBZ4vk7m1xEkMKowJX+16
-	oP6GXuSmd5h/QkLEtO6e6zTPXYmj7RWSKNtFSoig==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dh89m775m-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=gY7usL
+	iZwYcEu4uG7lvPT7zlwVf/AAV+bMA+/3plgMk=; b=R75rzn6tr6Myefve2uGIW7
+	hWeiKfLlKfD4MZ3weUI+/hoOJv1OL6ol1c6GXtCfUNxAa/2v7U8sCypGFQMFLMTY
+	BaOh8gD2gtINIUP0ikaWPIipwWduj5WUYEbga8XB10Ll4WQmQGXrz8r18pG+0r+X
+	X32NoSYlnTqJFCEai25wfb2iiEbsbwckeve5gGVi1frMjimEhq78/FAxTnfCAXrc
+	QWK9crjDKto4fHYKW0pDGB8Q8/c58e93To6NTFBRNk+PA3qnYVbucmUVr7ILGGab
+	UD7Q/PkIkP/AxaZjM27CzG6LH1UR9wLNqSoHTy18Jc3PWLdmdqz+F/PMh7wjdO2Q
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dh89m77cw-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 15 Apr 2026 10:59:32 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63F91E3p025835;
-	Wed, 15 Apr 2026 10:59:31 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dg3b1nmrh-1
+	Wed, 15 Apr 2026 11:01:08 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63F77a1l015666;
+	Wed, 15 Apr 2026 11:01:07 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dg0msp28r-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 15 Apr 2026 10:59:31 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63FAxR9L46662094
+	Wed, 15 Apr 2026 11:01:07 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63FB14ZD31850888
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 15 Apr 2026 10:59:27 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B43902004D;
-	Wed, 15 Apr 2026 10:59:27 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 94D6620040;
-	Wed, 15 Apr 2026 10:59:27 +0000 (GMT)
-Received: from osiris (unknown [9.52.214.206])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 15 Apr 2026 10:59:27 +0000 (GMT)
-Date: Wed, 15 Apr 2026 12:59:25 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        borntraeger@linux.ibm.com
-Subject: Re: [PATCH 1/2] KVM: s390: Fix lpsw/e breaking event handling
-Message-ID: <20260415105925.10321B18-hca@linux.ibm.com>
-References: <20260323153637.3683-1-frankja@linux.ibm.com>
- <20260323153637.3683-2-frankja@linux.ibm.com>
+	Wed, 15 Apr 2026 11:01:04 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6941620063;
+	Wed, 15 Apr 2026 11:01:04 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 44B4C20040;
+	Wed, 15 Apr 2026 11:01:04 +0000 (GMT)
+Received: from t14-nrb (unknown [9.111.91.157])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 15 Apr 2026 11:01:04 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260323153637.3683-2-frankja@linux.ibm.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 15 Apr 2026 13:00:34 +0200
+Message-Id: <DHTODC9X9PPG.26C1S6BQARFAD@linux.ibm.com>
+Cc: "Janosch Frank" <frankja@linux.ibm.com>,
+        "Claudio Imbrenda"
+ <imbrenda@linux.ibm.com>,
+        =?utf-8?q?Nico_B=C3=B6hr?= <nrb@linux.ibm.com>,
+        "David Hildenbrand" <david@kernel.org>,
+        "Thomas Huth" <thuth@redhat.com>, <kvm@vger.kernel.org>,
+        "Nina Schoetterl-Glausch" <nsg@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v2 1/5] s390x: snippets: Add
+ reset_guest() to lib
+From: "Nico Boehr" <nrb@linux.ibm.com>
+To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>,
+        <linux-s390@vger.kernel.org>
+X-Mailer: aerc 0.21.0
+References: <20260324-vsie-stfle-fac-v2-0-5e52be2e4081@linux.ibm.com>
+ <20260324-vsie-stfle-fac-v2-1-5e52be2e4081@linux.ibm.com>
+In-Reply-To: <20260324-vsie-stfle-fac-v2-1-5e52be2e4081@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=I/dVgtgg c=1 sm=1 tr=0 ts=69df6f94 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=kj9zAlcOel0A:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
+X-Authority-Analysis: v=2.4 cv=I/dVgtgg c=1 sm=1 tr=0 ts=69df6ff4 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
  a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=TW3WLsQbQTa6aNEchmkA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: MLhZliGtGrXv_YfPNaULJGQnqqow5u9V
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE1MDA5OSBTYWx0ZWRfX25hTlmmJ2r/3
- cfPK4ll6mgFjWiYqLkViqs0ZNQYfalGCg4woXz0ZJ4SGlGjwjXdFbbwMSbtiCKzlWn+OGIYmJfL
- 2LSrdgT5HXLNIJ/EGtWQEPfqRBVfyK1DwRQE087q2KkMcwG9gJNb3D8IjMlOkzxVd7jGQCsGHNz
- O/8d6n3CQuZ1bISzFJwIUK2Ovv8AIJPyDaotoXdyJPlbVGxvm7vK+TaxIpQuULZx1x1RbWhTndO
- +86DEjcx5xV15LG65wj3YY238II+zcNaVD1+w3fM6esolLDzKwegfNMZdnWcCGLn5E6MagwxTgj
- CncJ8tVTpva+0dhmXOBdiI7PG81iLUxWcFhzakpy9NIX4GiOnocmC2gaeU9Xemq6v6Ewg4VKvt+
- DNvECLhvaKJP9llJwWA8/SXzCl0kcCormPQZf9DoQjXive8BXsfCY+zIYoYcjw/X11YTpyVzBU8
- kAH3UPka/MYbvlcIdzw==
-X-Proofpoint-ORIG-GUID: MLhZliGtGrXv_YfPNaULJGQnqqow5u9V
+ a=iVhpHZk9LX-LbS02p1EA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: MlJNlsclYkPznWTXWQp9KFLgqBZfIWhU
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE1MDA5OSBTYWx0ZWRfX0u4GzF6s82jv
+ IZgyAOI6lpSH0CnR0WOJDfj7JSaTWbW6ykY4IB2/IjIdrmQVngomtuOndhafD/6wXp0etszPujX
+ yhBQWW7k/pbcuHoVRih4v6curXKJ2/Is2H3Akeka9XIbfhmhGCdC4R0DTRq5eGrSdnYSEIqBGnI
+ ZtKb4eOGuabNnqEhDJooi1apoqTNASoNW7vQFVT26lBIkWt2UKAVlTvVNXFFtD4iJwTbeZ3GQso
+ Kktgvglq4tpH1nZqzoADTIEVILic/BwfeDE4vjuU45fXmIoAa5IGeMlJDN9Wg2gEH/13B4xEBJA
+ eT4x3Pk9U83EJUh3AiYN2NHrmBgWc5rCb/DZxJskYoPnO+1Ivf+9M8cf8bW+VGKcJB4DVgE+y4L
+ mKlRdV7BUn7g0nLg6jbh3ey3OZlDmZqcCZLiholvcZGaJ76MTagqJZZUZeKHa8/jvAYmHFD6W55
+ TducQp7TX947uuoXC6A==
+X-Proofpoint-ORIG-GUID: MlJNlsclYkPznWTXWQp9KFLgqBZfIWhU
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-14_04,2026-04-13_04,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 bulkscore=0 clxscore=1015 adultscore=0 lowpriorityscore=0
+ malwarescore=0 bulkscore=0 clxscore=1011 adultscore=0 lowpriorityscore=0
  suspectscore=0 impostorscore=0 phishscore=0 spamscore=0 priorityscore=1501
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2604070000 definitions=main-2604150099
 
-On Mon, Mar 23, 2026 at 03:35:22PM +0000, Janosch Frank wrote:
-> LPSW and LPSWE need to set the gbea on completion but currently don't.
-> Time to fix this up.
-> 
-> LPSWEY was designed to not set the bear.
-> 
-> Fixes: 48a3e950f4cee ("KVM: s390: Add support for machine checks.")
-> Reported-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->  arch/s390/kvm/priv.c | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-> index a3250ad83a8e..cc0553da14cb 100644
-> --- a/arch/s390/kvm/priv.c
-> +++ b/arch/s390/kvm/priv.c
-> @@ -714,12 +714,13 @@ int kvm_s390_handle_lpsw(struct kvm_vcpu *vcpu)
->  {
->  	psw_t *gpsw = &vcpu->arch.sie_block->gpsw;
->  	psw32_t new_psw;
-> -	u64 addr;
-> +	u64 addr, iaddr;
->  	int rc;
->  	u8 ar;
->  
->  	vcpu->stat.instruction_lpsw++;
->  
-> +	iaddr = gpsw->addr - kvm_s390_get_ilen(vcpu);
->  	if (gpsw->mask & PSW_MASK_PSTATE)
->  		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
->  
-> @@ -737,18 +738,20 @@ int kvm_s390_handle_lpsw(struct kvm_vcpu *vcpu)
->  	gpsw->addr = new_psw.addr & ~PSW32_ADDR_AMODE;
->  	if (!is_valid_psw(gpsw))
->  		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-> +	vcpu->arch.sie_block->gbea = iaddr;
->  	return 0;
+On Tue Mar 24, 2026 at 4:28 PM CET, Christoph Schlameuss wrote:
+> From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+>
+> Extract reset_guest from spec_ex-sie into the lib.
+> After reset_guest() the snippet can be executed again.
+>
+> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
-This doesn't look correct to me: even if there is an early specification
-exception the PSW is still replaced, and hence the breaking event address
-needs to be updated. Read: the gbea assignment should be moved before
-the is_valid_psw() check.
-
->  static int handle_lpswe(struct kvm_vcpu *vcpu)
->  {
->  	psw_t new_psw;
-> -	u64 addr;
-> +	u64 addr, iaddr;
->  	int rc;
-
-This breaks reverse x-mas style. :)
-
-> @@ -761,6 +764,7 @@ static int handle_lpswe(struct kvm_vcpu *vcpu)
->  	vcpu->arch.sie_block->gpsw = new_psw;
->  	if (!is_valid_psw(&vcpu->arch.sie_block->gpsw))
->  		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-> +	vcpu->arch.sie_block->gbea = iaddr;
->  	return 0;
-
-Like above, I believe this is not correct.
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
