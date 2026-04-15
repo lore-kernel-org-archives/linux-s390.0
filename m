@@ -1,64 +1,64 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B8173D524D;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 656513D6CDD;
 	Wed, 15 Apr 2026 08:52:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776243158; cv=none; b=PhOKnvibOLbYNRLBN4Z0ophS2t/E41dru63eJHBmfTGWoo9wdlpP9wgzakoVA/SLGbNiAy9vKyysMyixkXCUtiikaZX2UC2ni5++Jm9akulUQEN0zjijeiyOM58HJI1m9+GtZjpQVIz8/PQigOuINIWV5+Us0rxdXVfIBN3tNoA=
+	t=1776243158; cv=none; b=HRbheBWJ2mtG8d6ifV+w0Z45d+rG9V2RbaWkyDLcINBOJJrBXu8Z7UV4wQXIgkfesN8F5v85AIfrVjeJBd8zWhUVzyaVWVOdQ0LdtqCDIzu4Ja9zNOeijWPCgVJbPQP3wdg13oM9XWtSbb2iI3ldwDLfuTP04Z+5w69lgjO/DV0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1776243158; c=relaxed/simple;
-	bh=fSLaOmt5HNv+se7/vqJxYbsLibxXxZtgt0hzFZd1MbQ=;
+	bh=rGo+Qxonq8xVgEHIrIpMR3xis2teaA1f/LBy36R0vng=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=a3iJ+4q4jJZKzoTwyeem2zWPGQt0kiau+rZlQti8MF9jyGQqIGkcYVe8MOxmIkSUEhz3KeSBahoDUEsjNIcRd60XdrNGyZlvCuQ8pl8vODXb+8Ws2nzJWqvuuKiziFRsn28AHyBUqx2hfep9Ej3iWD7wEZnaQD0Ycf8I4TFNg/0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sKt6jeYr; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=IiKJHWw7ZmlZ15xjMhpVIHTArURh2qSplQnBcVPXdnpcie0OjmXdWhIE+J3Y9GbId63pUzBq+aEkhQBQYSFhe1bUtQ6ODnm5cZT88DVEL3DS6YkviCDNBGXSJz247jYm+HN3faG8pbUQbjqfw9Fy41i0rD5wt0Lw7vPgxUJQ4N4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Sqq0Lcce; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sKt6jeYr"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63F4QiOh2130784;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Sqq0Lcce"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63F4q1Tt1842840;
 	Wed, 15 Apr 2026 08:52:36 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=GoNI+qDJk1X4FWJxz
-	gTlopra1gsXK4UFpP9t7a619YE=; b=sKt6jeYrVlfeUird3imVQpcpR2MBJbEba
-	tjEWevYqJccZ4eOp7v5e97I4SERL4948nqX/HP9MFskDsw0HrkcYzjNo+gSqUUXI
-	WWA/cbbr9PZ1fV0fjxFIijP5FmHjj2Fl0NZ5vBrgFWazDw/czav/bVlOb78112z8
-	xmKXdBBOPPyYrvNuGwYLhd3THUoAKSksaAeaCuOrAZ+eCx7xRIlTXAOuyKzB+FEs
-	0yWMsJEte/t16Pilnn8i7eXUWZ0qEaBOseP/qxwnMYwXzv2pFl84RVauI5NLIPQO
-	XVryq6N5HkXIkuDv0qC0AAIDZXnNMmwCkiEMzdFdrKA1RZrjKiU9Q==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dh89nf633-1
+	:mime-version:references:subject:to; s=pp1; bh=oCnw9t42nA4HhNmdQ
+	hooKXfKel2qxJFtS1lj1RsN8SQ=; b=Sqq0LcceBW65qhmUJnlEdhyDG13+lMylE
+	cOMVhm/DS7x2NhbPSjc1tqojDsOCTzZn7hW58ZrPZ7wmaxAnHhXtc+85feXeVTBF
+	Mh6VJutAKB5CxoIejHZ4t96WZxEm4qUDBxOu8M0/1eme+/UAIgeeIaRWFBfc1uJZ
+	uRiUy9QjP06VPXJEDZDZ183xIyroMIRIhmu2Np8ZqVPnDHpnbQjCrH0j30f6o+MI
+	hRh13W3sDaJ400cmBxkg+GCNJf0rNGzT8ZhjE5BIVBClnAl0TEnFJAOt5AJyo6Kj
+	9mJUzM5mrCd7HSWPThEtBW5y8GhSnRZc/OIgJnp6yBXG3vILi8i0w==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dh89mq4kp-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 15 Apr 2026 08:52:36 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63F7stF9003610;
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63F444qc025831;
 	Wed, 15 Apr 2026 08:52:35 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dg1mndds2-1
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dg3b1n593-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 15 Apr 2026 08:52:35 +0000
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63F8qVcX50332032
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63F8qW1U24117742
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 15 Apr 2026 08:52:31 GMT
+	Wed, 15 Apr 2026 08:52:32 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8ACAD20040;
-	Wed, 15 Apr 2026 08:52:31 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 34D0720040;
+	Wed, 15 Apr 2026 08:52:32 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6DD052004E;
-	Wed, 15 Apr 2026 08:52:31 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 181D82004F;
+	Wed, 15 Apr 2026 08:52:32 +0000 (GMT)
 Received: from b46lp25.lnxne.boe (unknown [9.87.84.240])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 15 Apr 2026 08:52:31 +0000 (GMT)
+	Wed, 15 Apr 2026 08:52:32 +0000 (GMT)
 From: Janosch Frank <frankja@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         borntraeger@linux.ibm.com, nrb@linux.ibm.com
-Subject: [kvm-unit-tests 1/5] lib: s390x: Add function to get page root
-Date: Wed, 15 Apr 2026 08:45:41 +0000
-Message-ID: <20260415085145.91197-2-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests 5/5] lib: s390x: Remove kvm s390 prefix from sie control block
+Date: Wed, 15 Apr 2026 08:45:45 +0000
+Message-ID: <20260415085145.91197-6-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260415085145.91197-1-frankja@linux.ibm.com>
 References: <20260415085145.91197-1-frankja@linux.ibm.com>
@@ -70,218 +70,124 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: EBsRqebd9YqQ1wJUz1PWubZ8rwoilOQP
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE1MDA4MCBTYWx0ZWRfX/TDLnFvhQFY7
- At9OwybrifFw/3q9WOTnWnF2dG35OU5Lfch6a+EjxtkjjcYBKuH/4UBTH27TGKj62SJFtU8uRG9
- dmO9O8VQjWPktjTl8IqcHVTslEKtmiNEh+dAXjWz0swZKS04Wi9errFm063S680ud1kcIwJ467F
- Bxq1RgPqxY71zGaWTCpDZV6SVb2y0gyY1VHOGroWrmA4jxeHH/VUhJJQbKwGM3IbVIXLtRSwSzW
- THtn0A0KNJzCZbwdfZx8cf6sI1o5I1iTI2eHp5C/EUYwJp27jQz2k39feHr4HXoNzhKVN/4/pR2
- jZo+abJPzUydFsyR9yhl+gFsBFSNYLGD0MrRZfqfvMR5OSjh6cw7cPnfF07R2LC9d4uyefK9pJb
- g+e14s+IEZmcBk5QNKXx7rqDdQGa1AHF3cYdfk119NW7BGd158HQkapybaV0/Tf3WUMo2HdQR0d
- p3idqs1PpC1lkjd4miw==
-X-Proofpoint-ORIG-GUID: EBsRqebd9YqQ1wJUz1PWubZ8rwoilOQP
-X-Authority-Analysis: v=2.4 cv=FY4HAp+6 c=1 sm=1 tr=0 ts=69df51d4 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE1MDA4MCBTYWx0ZWRfX9/i6IHTIU8Vq
+ wxyPBH1SDJcYZiV26RiQnZT520Zyac3cWW71LYK3QMtseRCz4Zz2O4wpdqwjGTQ1qeWTrLpmp/F
+ g+op4/Tbk7DmJTLUSny7QiiES/PenP3CGI8hhzY6rX/ycFIVc1ZW5P9DaLhKJjj7Ud+mX+IUPbm
+ nIJdqm4HggQ/w3xMTJE7mIAV3YRfbrqO/DEwSScRQbb0axsC5M2LYgOAC8yYrvInJKrNHEUV1WU
+ tBjvZ9QU0N0tqSnka+goH+kgOqtQ7PMARc2YrJyZ6gn8Ypn07Car2ZtDdZVrKiNOZNasIhaqAJz
+ 9D5L0khrgc8RuqntgXxV6EMI7zCV/j2h5gPaiaoT0mkm0Xxqbufynmz6QfJL/2wfnXHjth3r4Xc
+ Y+imv8wXdDETLSWRNi+j0ohiVH6kSAnjf2ZmnBZpnMX8ylsn+fyc0tRSvsuv83QuiCWBcEs7N7Y
+ UBm2bQMZ5U3vlA8IR3g==
+X-Authority-Analysis: v=2.4 cv=eJ4jSnp1 c=1 sm=1 tr=0 ts=69df51d4 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=nJ3R9p0tC0mFShMZQ2QA:9
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=nnliqRWUN49IhPuP2m4A:9
+X-Proofpoint-GUID: 84bTD4kXYBW8sAXCeVe6z-nRW0kWFXvy
+X-Proofpoint-ORIG-GUID: 84bTD4kXYBW8sAXCeVe6z-nRW0kWFXvy
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-14_04,2026-04-13_04,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 priorityscore=1501 bulkscore=0 impostorscore=0 spamscore=0
- lowpriorityscore=0 suspectscore=0 clxscore=1015 malwarescore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604070000 definitions=main-2604150080
+ malwarescore=0 lowpriorityscore=0 adultscore=0 priorityscore=1501
+ clxscore=1015 bulkscore=0 suspectscore=0 spamscore=0 impostorscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604070000
+ definitions=main-2604150080
 
-It's time to hide the access to cr1 behind a function and add typing
-to the tests that used void* instead of pgdt_t*.
+We're not kvm.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- lib/s390x/mmu.h  | 7 +++++++
- lib/s390x/sie.c  | 3 ++-
- s390x/diag258.c  | 4 ++--
- s390x/edat.c     | 5 +++--
- s390x/mvpg-sie.c | 2 +-
- s390x/pv-edat1.c | 4 ++--
- s390x/sie-dat.c  | 2 +-
- s390x/skey.c     | 7 +++----
- 8 files changed, 21 insertions(+), 13 deletions(-)
+ lib/s390x/asm/sie-arch.h | 2 +-
+ lib/s390x/interrupt.c    | 4 ++--
+ lib/s390x/sie-icpt.c     | 2 +-
+ lib/s390x/sie-icpt.h     | 2 +-
+ lib/s390x/sie.h          | 4 ++--
+ 5 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/lib/s390x/mmu.h b/lib/s390x/mmu.h
-index dadc2e60..6ba19d28 100644
---- a/lib/s390x/mmu.h
-+++ b/lib/s390x/mmu.h
-@@ -10,6 +10,8 @@
- #ifndef _S390X_MMU_H_
- #define _S390X_MMU_H_
+diff --git a/lib/s390x/asm/sie-arch.h b/lib/s390x/asm/sie-arch.h
+index 4911c988..d9d5af81 100644
+--- a/lib/s390x/asm/sie-arch.h
++++ b/lib/s390x/asm/sie-arch.h
+@@ -29,7 +29,7 @@
+ #define CPUSTAT_J          0x00000002
+ #define CPUSTAT_P          0x00000001
  
-+#include <asm/arch_def.h>
-+
- enum pgt_level {
- 	pgtable_level_pgd = 1,
- 	pgtable_level_p4d,
-@@ -95,4 +97,9 @@ static inline void unprotect_page(void *vaddr, unsigned long prot)
+-struct kvm_s390_sie_block {
++struct sie_control_block {
+ 	uint32_t 	cpuflags;		/* 0x0000 */
+ 	uint32_t : 1;			/* 0x0004 */
+ 	uint32_t 	prefix : 18;
+diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+index a75128b9..7e7371c1 100644
+--- a/lib/s390x/interrupt.c
++++ b/lib/s390x/interrupt.c
+@@ -227,7 +227,7 @@ static void print_storage_exception_information(void)
  
- void *get_dat_entry(pgd_t *pgtable, void *vaddr, enum pgt_level level);
- 
-+static inline pgd_t *get_page_root(void)
-+{
-+	return (pgd_t *)(stctg(1) & PAGE_MASK);
-+}
-+
- #endif /* _ASMS390X_MMU_H_ */
-diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
-index 0fa915cf..a397400b 100644
---- a/lib/s390x/sie.c
-+++ b/lib/s390x/sie.c
-@@ -17,6 +17,7 @@
- #include <alloc_page.h>
- #include <vmalloc.h>
- #include <sclp.h>
-+#include <mmu.h>
- 
- void sie_expect_validity(struct vm *vm)
+ static void print_int_regs(struct stack_frame_int *stack, bool sie)
  {
-@@ -156,7 +157,7 @@ uint8_t *sie_guest_alloc(uint64_t guest_size)
- 	pgd_t *root;
+-	struct kvm_s390_sie_block *sblk;
++	struct sie_control_block *sblk;
  
- 	setup_vm();
--	root = (pgd_t *)(stctg(1) & PAGE_MASK);
-+	root = get_page_root();
+ 	printf("\n");
+ 	printf("%s\n", sie ? "Guest registers:" : "Host registers:");
+@@ -240,7 +240,7 @@ static void print_int_regs(struct stack_frame_int *stack, bool sie)
+ 	       stack->grs0[6], stack->grs0[7], stack->grs0[8], stack->grs0[9]);
  
- 	/*
- 	 * Start of guest memory in host virtual space needs to be aligned to
-diff --git a/s390x/diag258.c b/s390x/diag258.c
-index 8ba75a72..bbcb92db 100644
---- a/s390x/diag258.c
-+++ b/s390x/diag258.c
-@@ -82,7 +82,7 @@ static void test_priv(void)
+ 	if (sie) {
+-		sblk = (struct kvm_s390_sie_block *)stack->grs0[12];
++		sblk = (struct sie_control_block *)stack->grs0[12];
+ 		printf("%016lx %016lx %016lx %016lx\n",
+ 		       stack->grs0[10], stack->grs0[11], sblk->gg14, sblk->gg15);
+ 	} else {
+diff --git a/lib/s390x/sie-icpt.c b/lib/s390x/sie-icpt.c
+index 17064424..861dce02 100644
+--- a/lib/s390x/sie-icpt.c
++++ b/lib/s390x/sie-icpt.c
+@@ -7,7 +7,7 @@
  
- static void *page_map_outside_real_space(phys_addr_t page_real)
+ #include <sie-icpt.h>
+ 
+-struct diag_itext sblk_ip_as_diag(struct kvm_s390_sie_block *sblk)
++struct diag_itext sblk_ip_as_diag(struct sie_control_block *sblk)
  {
--	pgd_t *root = (pgd_t *)(stctg(1) & PAGE_MASK);
-+	pgd_t *root = get_page_root();
- 	void *vaddr = alloc_vpage();
+ 	union {
+ 		struct {
+diff --git a/lib/s390x/sie-icpt.h b/lib/s390x/sie-icpt.h
+index 604a7221..b1edf334 100644
+--- a/lib/s390x/sie-icpt.h
++++ b/lib/s390x/sie-icpt.h
+@@ -21,7 +21,7 @@ struct diag_itext {
+ 	uint64_t          : 16;
+ };
  
- 	install_page(root, page_real, vaddr);
-@@ -109,7 +109,7 @@ static void test_refbk_real(void)
- 	refbk_page = alloc_page();
+-struct diag_itext sblk_ip_as_diag(struct kvm_s390_sie_block *sblk);
++struct diag_itext sblk_ip_as_diag(struct sie_control_block *sblk);
  
- 	/* Map refblk page outside of physical memory identity mapping */
--	root = (pgd_t *)(stctg(1) & PAGE_MASK);
-+	root = get_page_root();
- 	refbk = page_map_outside_real_space(virt_to_pte_phys(root, refbk_page));
+ /**
+  * sie_is_diag_icpt() - Check if intercept is due to diagnose instruction
+diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
+index 3ec49ed0..b146e386 100644
+--- a/lib/s390x/sie.h
++++ b/lib/s390x/sie.h
+@@ -32,7 +32,7 @@ struct vm_save_area {
+ };
  
- 	/* Assert the mapping really is outside identity mapping */
-diff --git a/s390x/edat.c b/s390x/edat.c
-index 89b9c2d3..c6a8021a 100644
---- a/s390x/edat.c
-+++ b/s390x/edat.c
-@@ -21,7 +21,8 @@
- 
- static uint8_t prefix_buf[LC_SIZE] __attribute__((aligned(LC_SIZE)));
- static unsigned int tmp[1024] __attribute__((aligned(PAGE_SIZE)));
--static void *root, *mem, *m;
-+static void *mem, *m;
-+static pgd_t *root;
- volatile unsigned int *p;
- 
- /*
-@@ -237,7 +238,7 @@ static unsigned int setup(void)
- 
- 	/* Setup DAT 1:1 mapping and memory management */
- 	setup_vm();
--	root = (void *)(stctg(1) & PAGE_MASK);
-+	root = get_page_root();
- 
- 	/*
- 	 * Get a pgd worth of virtual memory, so we can test things later
-diff --git a/s390x/mvpg-sie.c b/s390x/mvpg-sie.c
-index 893de2cf..8666d554 100644
---- a/s390x/mvpg-sie.c
-+++ b/s390x/mvpg-sie.c
-@@ -89,7 +89,7 @@ static void setup_guest(void)
- 	pgd_t *root;
- 
- 	setup_vm();
--	root = (pgd_t *)(stctg(1) & PAGE_MASK);
-+	root = get_page_root();
- 
- 	snippet_setup_guest(&vm, false);
- 	snippet_init(&vm, SNIPPET_NAME_START(c, mvpg_snippet),
-diff --git a/s390x/pv-edat1.c b/s390x/pv-edat1.c
-index 6acfe6c4..43b3bd4c 100644
---- a/s390x/pv-edat1.c
-+++ b/s390x/pv-edat1.c
-@@ -34,7 +34,7 @@
- #define PARAM(n, step)	(((unsigned long)(n) << 32) | (step))
- 
- static struct vm vm;
--static void *root;
-+static pgd_t *root;
- 
- extern const char SNIPPET_NAME_START(c, pv_memhog)[];
- extern const char SNIPPET_NAME_END(c, pv_memhog)[];
-@@ -441,7 +441,7 @@ static void init(void)
- 
- 	setup_vm();
- 
--	root = (void *)(stctg(1) & PAGE_MASK);
-+	root = get_page_root();
- 	ctl_set_bit(0, CTL0_EDAT);
- 
- 	guest_memory = alloc_pages(GUEST_ORDER - PAGE_SHIFT);
-diff --git a/s390x/sie-dat.c b/s390x/sie-dat.c
-index 44bf29fe..18b536d1 100644
---- a/s390x/sie-dat.c
-+++ b/s390x/sie-dat.c
-@@ -69,7 +69,7 @@ static void setup_guest(void)
- 	pgd_t *root;
- 
- 	setup_vm();
--	root = (pgd_t *)(stctg(1) & PAGE_MASK);
-+	root = get_page_root();
- 
- 	snippet_setup_guest(&vm, false);
- 
-diff --git a/s390x/skey.c b/s390x/skey.c
-index 7c7a8090..0aa4b6c6 100644
---- a/s390x/skey.c
-+++ b/s390x/skey.c
-@@ -13,6 +13,7 @@
- #include <asm/interrupt.h>
- #include <vmalloc.h>
- #include <css.h>
-+#include <mmu.h>
- #include <asm/page.h>
- #include <asm/facility.h>
- #include <asm/mem.h>
-@@ -465,10 +466,9 @@ static void test_set_prefix(void)
- 	uint32_t *prefix_ptr = (uint32_t *)pagebuf;
- 	uint32_t *no_override_prefix_ptr;
- 	uint32_t old_prefix;
--	pgd_t *root;
-+	pgd_t *root = get_page_root();
- 
- 	report_prefix_push("SET PREFIX");
--	root = (pgd_t *)(stctg(1) & PAGE_MASK);
- 	old_prefix = get_prefix();
- 	memcpy(lowcore_tmp, 0, sizeof(lowcore_tmp));
- 	assert(((uint64_t)&lowcore_tmp >> 31) == 0);
-@@ -583,11 +583,10 @@ static void test_msch(void)
- 	struct schib *schib = (struct schib *)pagebuf;
- 	struct schib *no_override_schib;
- 	int test_device_sid;
--	pgd_t *root;
-+	pgd_t *root = get_page_root();
- 	int cc;
- 
- 	report_prefix_push("MSCH");
--	root = (pgd_t *)(stctg(1) & PAGE_MASK);
- 	test_device_sid = css_enumerate();
- 
- 	if (!(test_device_sid & SCHID_ONE)) {
+ struct vm {
+-	struct kvm_s390_sie_block *sblk;
++	struct sie_control_block *sblk;
+ 	struct vm_save_area save_area;
+ 	struct esca_block *sca;			/* System Control Area */
+ 	uint8_t *crycb;				/* Crypto Control Block */
+@@ -46,7 +46,7 @@ extern void sie_entry(void);
+ extern void sie_exit(void);
+ extern void sie_entry_gregs(void);
+ extern void sie_exit_gregs(void);
+-extern void sie64a(struct kvm_s390_sie_block *sblk, struct vm_save_area *save_area);
++extern void sie64a(struct sie_control_block *sblk, struct vm_save_area *save_area);
+ void sie(struct vm *vm);
+ void sie_expect_validity(struct vm *vm);
+ uint16_t sie_get_validity(struct vm *vm);
 -- 
 2.51.0
 
