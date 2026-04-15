@@ -1,149 +1,122 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBA1B7261C;
-	Wed, 15 Apr 2026 06:48:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF32F3D5255;
+	Wed, 15 Apr 2026 08:52:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776235688; cv=none; b=VC0HeiIeyPbFiMPlht12nkmj1sOzpLciXiWZzrfVe3CdzIDzMfGMaDd4M9L7dXoPu3Xn17ZUfQcJCs35e/vkLuPElTADpam7hW9ZdfalSZYuAhmiQqdJ7c/HhXIdK+9QX8sAGO4oLasX4Xd8bYeefuH1BEsNhE7tRPAWAVjp08w=
+	t=1776243158; cv=none; b=bc24MWR9CCDCjdxxPF2yfkObbTvHAtzuI9jvnf72/5yAu4oEvqWqdKO56ia1Wr0HavrJ4u9Fm1D38yulAJPE80ircZ2zgra1M3KLBLa1XHpTy1LAhFE4Pzcx01enHT/z1loB6638KbDyMcfBwQfs+DeiYyD0GreJRngnbZK66Ok=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776235688; c=relaxed/simple;
-	bh=uO1fFgRaYkEaX03uIGSllbIp0KmN4e8uhrxbiL7j6JA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=b0DifANz9TAza/g0YGWlyJzT5cmj1b9jAXrEuvQudqCfl5mh8pMN2VV1x2+/jiRPgx0WazlQLhgh7ibkcQI/dZwKq6QLErIeBGUQOPa+o9gTiX1e30B7xxARW4oG5XxFubH77edrD36djPekrUkEd9FvBvlIzw0rcZJWWysSLkk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Wn6Hr/rv; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1776243158; c=relaxed/simple;
+	bh=EP6RMEMUmeVOV0ELjMYb6YkkvrsZU73iDPQT8+6WJDk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Y2PAqeWuPpQ3nptDPmaMObj2p94PHXv9VUgcobuhij3IAjztrM9h4TGWcUDV5tHLJxlBGVLH84r1KgNmrPYorOcGJt1s6VlvAu+/c+qtAsivoLV6h9El62ujWdiuxwTRkI6H521GuQjAi4g7WcnAqpyq6nD/7ZhIjqfxJPbwTVQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IA1MgCQW; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Wn6Hr/rv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E1D1C19424;
-	Wed, 15 Apr 2026 06:47:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776235687;
-	bh=uO1fFgRaYkEaX03uIGSllbIp0KmN4e8uhrxbiL7j6JA=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=Wn6Hr/rv7RQ0mjmBpBGnHzSLGoawtRWrJKf8Yulby+TTpp7z1W2m+/e3q+cBeZYn8
-	 9EULstKmB1P1aIGBA/hM7NfdL90zPADnWSMrSZUOJgfBI2Y0gYKo15ZH/8SN+3BCpi
-	 LFdpD3kIOkfmc5kLWHOPn/7qJv2G9rdoWFZcqmWwEJGa7DK0r7DBeorJlYNCKX5hcM
-	 Q22Qw/tg/rR1esDPVyaYxqkxnFQnTVF5/bVWUROMriQiIMAWyo9xVZRAIqfM9NCvMV
-	 JvPvhMbjPkTiWVz5ZUzK2DMWWd8bbim3aFcilo4uxvNCEcTYhNnaiu0tF2t4jRv/Q5
-	 DezCa9n7clYBA==
-Message-ID: <9c33afea-7a64-456e-aa2f-bdcf7459b567@kernel.org>
-Date: Wed, 15 Apr 2026 08:47:55 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IA1MgCQW"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63F2x99j1804500;
+	Wed, 15 Apr 2026 08:52:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=ywUBwE7pWttTkKrHMSVm3b2a1AQX/dT9c3TncdcSd
+	KE=; b=IA1MgCQWz8lorDnQNSg2zRgAUEQe92ZIEteVEONNlXiMz8O04q+6cioPb
+	fncjtG91yTQGLRNFTSGfjmYYuuHrfptLntE78t+uhxnnEaE9qkqv4YeCiFuCORXn
+	VQVnjBCorDaZRypfFYqtj7NF3r+cXQUl2HFnNU4JCJSqITUh0e9wLpuH0SYKqn6F
+	q1XFCZQN2zHrPZfQzyDgDARwXSHI587gWbrSPIzEqAzD/zKY6jE5q9i7sBjdMPTn
+	bCxSTAMrPak1WFG1kFipCIwTY6pqs2diAnFqPVDEsv+FDkGKK5iNspSTffwrziu3
+	/AzfojGoyQlNCNUGt+ZnU9Uutek+w==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dh89k6q5c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 15 Apr 2026 08:52:35 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63F3ZEel004569;
+	Wed, 15 Apr 2026 08:52:35 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dg24kdb51-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 15 Apr 2026 08:52:35 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63F8qVst50332030
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 15 Apr 2026 08:52:31 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 682622004B;
+	Wed, 15 Apr 2026 08:52:31 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 40E8220040;
+	Wed, 15 Apr 2026 08:52:31 +0000 (GMT)
+Received: from b46lp25.lnxne.boe (unknown [9.87.84.240])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 15 Apr 2026 08:52:31 +0000 (GMT)
+From: Janosch Frank <frankja@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        borntraeger@linux.ibm.com, nrb@linux.ibm.com
+Subject: [kvm-unit-tests 0/5] s390x: Cleanup virtualization library
+Date: Wed, 15 Apr 2026 08:45:40 +0000
+Message-ID: <20260415085145.91197-1-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [patch 33/38] powerpc: Select ARCH_HAS_RANDOM_ENTROPY
-To: Thomas Gleixner <tglx@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
- Arnd Bergmann <arnd@arndb.de>, x86@kernel.org,
- Lu Baolu <baolu.lu@linux.intel.com>, iommu@lists.linux.dev,
- Michael Grzeschik <m.grzeschik@pengutronix.de>, netdev@vger.kernel.org,
- linux-wireless@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
- linux-crypto@vger.kernel.org, Vlastimil Babka <vbabka@kernel.org>,
- linux-mm@kvack.org, David Woodhouse <dwmw2@infradead.org>,
- Bernie Thompson <bernie@plugable.com>, linux-fbdev@vger.kernel.org,
- Theodore Tso <tytso@mit.edu>, linux-ext4@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>,
- Uladzislau Rezki <urezki@gmail.com>, Marco Elver <elver@google.com>,
- Dmitry Vyukov <dvyukov@google.com>, kasan-dev@googlegroups.com,
- Andrey Ryabinin <ryabinin.a.a@gmail.com>,
- Thomas Sailer <t.sailer@alumni.ethz.ch>, linux-hams@vger.kernel.org,
- "Jason A. Donenfeld" <Jason@zx2c4.com>,
- Richard Henderson <richard.henderson@linaro.org>,
- linux-alpha@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
- linux-arm-kernel@lists.infradead.org,
- Catalin Marinas <catalin.marinas@arm.com>,
- Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
- Geert Uytterhoeven <geert@linux-m68k.org>, linux-m68k@lists.linux-m68k.org,
- Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
- linux-openrisc@vger.kernel.org, Helge Deller <deller@gmx.de>,
- linux-parisc@vger.kernel.org, Paul Walmsley <pjw@kernel.org>,
- linux-riscv@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
- linux-s390@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
- sparclinux@vger.kernel.org
-References: <20260410120044.031381086@kernel.org>
- <20260410120319.789114053@kernel.org>
-Content-Language: fr-FR
-From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-In-Reply-To: <20260410120319.789114053@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: zrL1m-cD_kpcQTbhBDKnBIjUlJS3rPuz
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE1MDA4MCBTYWx0ZWRfX7ueHxLxge3kr
+ CisOiJ/ujAFl2uaeFhJvqvHlM1Lwv9naGGBGGy14Z8TIv41CwjuN7gLlUbEaKxSBWJpbnuUtVL5
+ zEKNKLSB/Xl5n22D3OoXyse5XMr6P70tDmPdI4NArYRpNeN10/7+XdX2Ng0Qfy9H/coxGzVEHxL
+ cvRqfyDGGl2kcRo9+G70YIdpnST5IvsdxsqU2R+TCTOstX7qdjXJ0ZIE3ONcYAa4zWuCXeBpCei
+ YACZ0bOcRWLldDNbOKEzgeiFdJ3HpFcPPXXsHIIN/pXqjo018olFCgF9f0+fwcVa1PddA2rhe/g
+ TyEPb1Ol8cE7dR2AK8QrUXH04UTDbZX7qz2zcS0nH6eFXo+bdmBjLQA9+85/YOMxPVTjaYWD8VR
+ r++rIBfFGQq/MZAXqSHN0eDRFDRVmF5w0y6kKgHBXDWtb2IKqew3qhN5PLdXsoycxTD6NED2AaE
+ u3ETebbVsfBehrFr20Q==
+X-Proofpoint-ORIG-GUID: zrL1m-cD_kpcQTbhBDKnBIjUlJS3rPuz
+X-Authority-Analysis: v=2.4 cv=W60IkxWk c=1 sm=1 tr=0 ts=69df51d3 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=RzCfie-kr_QcCd8fBx8p:22 a=z0a_xg6OEB49L0uGEeoA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-04-14_04,2026-04-13_04,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 clxscore=1015 priorityscore=1501 spamscore=0 bulkscore=0
+ adultscore=0 phishscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2604070000 definitions=main-2604150080
 
+In order to support sae virtualization we need to cleanup the library
+a bit and make it more flexible when it comes to guest creation and
+allocation.
 
+Janosch Frank (5):
+  lib: s390x: Add function to get page root
+  lib: s390x: sie: Allocate physical guest memory via memalign
+  lib: s390x: sie: Free guest memory on destroy
+  lib: s390x: snippet: Add function to create a guest of specific length
+  lib: s390x: Remove kvm s390 prefix from sie control block
 
-Le 10/04/2026 à 14:21, Thomas Gleixner a écrit :
-> The only remaining usage of get_cycles() is to provide random_get_entropy().
-> 
-> Switch powerpc over to the new scheme of selecting ARCH_HAS_RANDOM_ENTROPY
-> and providing random_get_entropy() in asm/random.h.
-> 
-> Remove asm/timex.h as it has no functionality anymore.
-> 
-> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: linuxppc-dev@lists.ozlabs.org
+ lib/s390x/asm/sie-arch.h |  2 +-
+ lib/s390x/interrupt.c    |  4 ++--
+ lib/s390x/mmu.h          |  7 +++++++
+ lib/s390x/sie-icpt.c     |  2 +-
+ lib/s390x/sie-icpt.h     |  2 +-
+ lib/s390x/sie.c          |  7 +++++--
+ lib/s390x/sie.h          |  4 ++--
+ lib/s390x/snippet.h      | 18 ++++++++++++++----
+ s390x/diag258.c          |  4 ++--
+ s390x/edat.c             |  5 +++--
+ s390x/mvpg-sie.c         |  2 +-
+ s390x/pv-edat1.c         |  4 ++--
+ s390x/sie-dat.c          |  2 +-
+ s390x/skey.c             |  7 +++----
+ 14 files changed, 45 insertions(+), 25 deletions(-)
 
-Reviewed-by: Christophe Leroy (CS GROUP) <chleroy@kernel.org>
-
-> ---
->   arch/powerpc/Kconfig              |    1 +
->   arch/powerpc/include/asm/random.h |   13 +++++++++++++
->   arch/powerpc/include/asm/timex.h  |   21 ---------------------
->   3 files changed, 14 insertions(+), 21 deletions(-)
-> 
-> --- a/arch/powerpc/Kconfig
-> +++ b/arch/powerpc/Kconfig
-> @@ -150,6 +150,7 @@ config PPC
->   	select ARCH_HAS_PREEMPT_LAZY
->   	select ARCH_HAS_PTDUMP
->   	select ARCH_HAS_PTE_SPECIAL
-> +	select ARCH_HAS_RANDOM_ENTROPY
->   	select ARCH_HAS_SCALED_CPUTIME		if VIRT_CPU_ACCOUNTING_NATIVE && PPC_BOOK3S_64
->   	select ARCH_HAS_SET_MEMORY
->   	select ARCH_HAS_STRICT_KERNEL_RWX	if (PPC_BOOK3S || PPC_8xx) && !HIBERNATION
-> --- /dev/null
-> +++ b/arch/powerpc/include/asm/random.h
-> @@ -0,0 +1,13 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +#ifndef _ASM_POWERPC_RANDOM_H
-> +#define _ASM_POWERPC_RANDOM_H
-> +
-> +#include <asm/cputable.h>
-> +#include <asm/vdso/timebase.h>
-> +
-> +static inline unsigned long random_get_entropy(void)
-> +{
-> +	return mftb();
-> +}
-> +
-> +#endif	/* _ASM_POWERPC_RANDOM_H */
-> --- a/arch/powerpc/include/asm/timex.h
-> +++ b/arch/powerpc/include/asm/timex.h
-> @@ -1,21 +0,0 @@
-> -/* SPDX-License-Identifier: GPL-2.0 */
-> -#ifndef _ASM_POWERPC_TIMEX_H
-> -#define _ASM_POWERPC_TIMEX_H
-> -
-> -#ifdef __KERNEL__
-> -
-> -/*
-> - * PowerPC architecture timex specifications
-> - */
-> -
-> -#include <asm/cputable.h>
-> -#include <asm/vdso/timebase.h>
-> -
-> -ostatic inline cycles_t get_cycles(void)
-> -{
-> -	return mftb();
-> -}
-> -#define get_cycles get_cycles
-> -
-> -#endif	/* __KERNEL__ */
-> -#endif	/* _ASM_POWERPC_TIMEX_H */
-> 
-> 
+-- 
+2.51.0
 
