@@ -1,112 +1,170 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F1A337AA78;
-	Thu, 16 Apr 2026 08:53:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9799839E178;
+	Thu, 16 Apr 2026 10:24:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776329603; cv=none; b=Fb+P7+VIFO0GCTJqqRz+V6p61XWq5QxvYrgvGc61iYuHMtqbsNHl+HBzt9aScB//grgD3cnrEVc9PeLYVfjBd0/bDgx1TvtMY+Y7Jz9X0B8ULskODeLCLWqCCOg3mJ+jD88Xq5L4LDRoj4Zyx0MZdPEgQ3pS/MIwXmIEyLp4tYA=
+	t=1776335079; cv=none; b=LRBNQS4y/7qMO/k6qWX3c1r374eZptjlabqcEQvpH/eNu8M7GsKtYaYPm9yvr5bcffaHBbcFD944AbU2GeNgMII8zQLH9N4nG5cDPaAvZvaNtErpvwM30BSXbNblFpuvwNFNiJFrvXnC6M3o7LfSffGhSqL/che4KetxhxL2DGs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776329603; c=relaxed/simple;
-	bh=S+Rbl+X0eKNTG8cqOejGKkOulH0HGsQZs6yPGed3wJ4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CC0OkQU5Nd5HjN303QkaxOejdwS0Z2SVw6/mHXp0S8EAoeONf8gbE8hyym4ueGVLL5r9NicCjy/AC2BKkm/IR6llfkA/xbkztAM+umDC4vMkecDU5rq6fBX4L8cEjI9FekAcetd8DyHZ0KVe7tL11KvEdib/61MnX/hvAwJeP0E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LmFNq4kC; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1776335079; c=relaxed/simple;
+	bh=K0s6VDdJp73R3JU53NEaANR/704aQmQ63FW+199HHJg=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=HUFZQNgxG21t9gYXgzKRaGO0Lbnh84FHCNh68NhdJbLxE2KIu1NxkmCY7hqFiz3NDbJnOoxfR4S3iAcm867Wl18qRMkuBDKH2P5shRNiSB3WjYVO7vZKXGoUKFVflIuf5Zt60EFnARgC+eD17EqBs41lQL2q28V3bNy5+aX1JVM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KmN+L4jv; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LmFNq4kC"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63G3DUVY435815;
-	Thu, 16 Apr 2026 08:53:13 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KmN+L4jv"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63G5gjfS1602772;
+	Thu, 16 Apr 2026 10:24:37 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=S+Rbl+X0eKNTG8cqOejGKkOulH0HGs
-	QZs6yPGed3wJ4=; b=LmFNq4kCvIjsmA6zjpw01HNzk1mCNOZLxcdT6NngxrLmhh
-	tQAWc8dQSrupZbjR4xKteSoZIgzb9qt63IxfAKzW8JuiroTtcbjOXkvI33RAeLDI
-	5UAyIZtkXRZf8q5IobZ8SSLxMGkQEyomEfYFxWSkmS0FezxRLF2VyY+b/zzcBfz2
-	mMwngpo65vpUuiXNFRO2YQxJu3pvNNEHReYB3pNhWzVLDXlInDRU0wYNRVRhU3Uh
-	2TPBXFXVlE4G29FTXy2CforiIbf3ylIyDutsoiDuw/w/KIi37BOdEQMpQZ9xDL4Z
-	3C9YnJBEs/0Fdprl8VqmP/jBn4xlJG5yizCW6IZQ==
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=UgqI22
+	nP91mbgyVNKWo1zsENpcPnH6yqo0FFc/vRcWw=; b=KmN+L4jvCeK2gaV2f4fY1K
+	zb6iDWDcI9aozqNd9YqPjQP1sUU6Jd75lu6MRK6Sd3b8krS2JCiEs039Xgk7MRBZ
+	YDF3obWQyAaCZIppfETRoRfpvbjzv2m9cOW4nYG3LSqCwxVsFvKwrA3P6tX7l2ZK
+	XrQ020aYIIPMIu5LgwwuqeWwQ7TuFxX7cqcGkAR+HGvItKyweCk+O9bJs4TLw++n
+	ZviRR9yhcyUEKTyQ6KcQye/+XuzZxbmWiT6Rv5DHrhVvjvfNngsk3im9MwBkRmUs
+	E1XuDNxb+kKT9WbEw7PWJ5/QpNBHrrttH5iia3gMvfntGC738nthIiSJk1JeZMXA
+	==
 Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dh89kbq56-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dh89nmvuf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Apr 2026 08:53:13 +0000 (GMT)
+	Thu, 16 Apr 2026 10:24:36 +0000 (GMT)
 Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63G83RSO003253;
-	Thu, 16 Apr 2026 08:53:12 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4djbh93qyd-1
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63G7nlEN003305;
+	Thu, 16 Apr 2026 10:24:35 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4djbh940ut-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Apr 2026 08:53:12 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63G8r9wZ36831524
+	Thu, 16 Apr 2026 10:24:35 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63GAOVED31130210
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 16 Apr 2026 08:53:09 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4819B20043;
-	Thu, 16 Apr 2026 08:53:09 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9C9E62004B;
-	Thu, 16 Apr 2026 08:53:08 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.111.42.253])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 16 Apr 2026 08:53:08 +0000 (GMT)
-Date: Thu, 16 Apr 2026 10:53:07 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Kevin Brodsky <kevin.brodsky@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Ryan Roberts <Ryan.Roberts@arm.com>, linux-s390@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/6] mm/pgtable: Fix bogus comment to
- clear_not_present_full_ptes()
-Message-ID: <65f893a0-bb47-41e3-9251-9e94c9b5c99a-agordeev@linux.ibm.com>
-References: <cover.1776264097.git.agordeev@linux.ibm.com>
- <fecfcf70436e267968c1c3b6908e51fe49fd9009.1776264097.git.agordeev@linux.ibm.com>
- <844d4076-a250-486e-aa16-fe5149c9d508@kernel.org>
+	Thu, 16 Apr 2026 10:24:31 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2CB6120043;
+	Thu, 16 Apr 2026 10:24:31 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5AE702004B;
+	Thu, 16 Apr 2026 10:24:30 +0000 (GMT)
+Received: from t14-nrb (unknown [9.111.37.231])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 16 Apr 2026 10:24:30 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <844d4076-a250-486e-aa16-fe5149c9d508@kernel.org>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 16 Apr 2026 12:24:29 +0200
+Message-Id: <DHUI89JRQHI5.1VWXLD3VX2JUI@linux.ibm.com>
+Cc: <linux-s390@vger.kernel.org>, <imbrenda@linux.ibm.com>,
+        <borntraeger@linux.ibm.com>
+Subject: Re: [kvm-unit-tests 3/5] lib: s390x: sie: Free guest memory on
+ destroy
+From: "Nico Boehr" <nrb@linux.ibm.com>
+To: "Janosch Frank" <frankja@linux.ibm.com>, "Nico Boehr"
+ <nrb@linux.ibm.com>,
+        <kvm@vger.kernel.org>
+X-Mailer: aerc 0.21.0
+References: <20260415085145.91197-1-frankja@linux.ibm.com>
+ <20260415085145.91197-4-frankja@linux.ibm.com>
+ <DHTSMVSISIZM.3MS0YLDBLMB09@linux.ibm.com>
+ <624c8a3f-2a09-4257-9b0c-2b64e60e52a1@linux.ibm.com>
+In-Reply-To: <624c8a3f-2a09-4257-9b0c-2b64e60e52a1@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: knDDruZNWEP89G6YdCKHxfnw_NQeOL_Y
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE2MDA4MiBTYWx0ZWRfX7UdMxaHWCy+5
- rd5H87AheMJJIirSanN6C0vVyQMSA9aBWK+oZSXQm3UH5PCbrkJrIISBO+aX1U/ksZFibDW9bu3
- 6foM24tTIFai2D5BF14DMdB7ZiTYZ96gzU2ub+upi9Yxxb93Ns1u0TFrpN2jW1EIS43sMhwvyri
- AriVOUOdAEEccCvYXNTw/9bf/d5sPvD9pe31Ao/sop23EgKTL4dxfs7spFApAj7y69dnw7UrNhL
- iK1kLdGihLI9ZApenG1AbfuPlWK9prgO4azwyyuJpcfC+C0GEy3PGi4mF2lW23mm94oeWIL02p+
- eAFBki1V7pMJ8YByUtOxGDJ81LRmQ7myuJBAjJqiKAa41tESK37DbvA2fMmWbm69lzZtLSKE1oZ
- 9zXwsk2aHOSxz886OcpJQu0OX4A2hCnSp7kuyNPmUbKfdCdO57QStYjxBnXZwcqv9E5gyYcLAFI
- fQ27qbEk1P5Hvqyi6sw==
-X-Proofpoint-ORIG-GUID: knDDruZNWEP89G6YdCKHxfnw_NQeOL_Y
-X-Authority-Analysis: v=2.4 cv=W60IkxWk c=1 sm=1 tr=0 ts=69e0a379 cx=c_pps
+X-Proofpoint-GUID: n95IhM4DC-sSfdpEpiHstu9ztukyc_0A
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE2MDA5NyBTYWx0ZWRfXzVHZQH+ccvoX
+ aQq0gz8icUKeZhtENHmeJqBEyxUdgs41cFhaN+ISzjNjvqQNg3LzPWTHjwI1LrEVoVfwpwsHgJA
+ 90bCTnUHLodY1BZsDWuSsrusP6MafI32DcZBWxCU3cEKOO7BfIAoDLWVra6uS01Ozx5i23FKxqQ
+ VE2CUwMN4uGMLwi06edNvKobhaLdaItCgBEG0sA5zDWuxm9dMFut+kA/Os7iV4WBGz8+cVH8jFu
+ ORB1M2ZMnEa+Gu7pL1hZamEjRnH79bbs3w+iYEQ7I4S0p5lrPXidybMh7Tve0j4Lr3VYshFVUEZ
+ 38u4NhIOy6y80QpHIcfDxLFj+Tq4B1CiKKMjVtmbnBesGsyEJMlqLO1u1s317smv79iJGkCJSeD
+ /+n9HaXs+J2sA5bZB7avGrRmd31jS9X3mFJxGrdWXyCAvpqZUTuMJKHk7lM3hGBhvT+IdgETHg1
+ H1WyAHAuCMMLq6Iyb/A==
+X-Proofpoint-ORIG-GUID: n95IhM4DC-sSfdpEpiHstu9ztukyc_0A
+X-Authority-Analysis: v=2.4 cv=FY4HAp+6 c=1 sm=1 tr=0 ts=69e0b8e4 cx=c_pps
  a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=kj9zAlcOel0A:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=m-HIIqDQ52j1SHMWbkUA:9
- a=CjuIK1q_8ugA:10
+ a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=VlMMnRzqynEzNeI3tdkA:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-16_02,2026-04-13_04,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 clxscore=1015 priorityscore=1501 spamscore=0 bulkscore=0
- adultscore=0 phishscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0
+ adultscore=0 priorityscore=1501 bulkscore=0 impostorscore=0 spamscore=0
+ lowpriorityscore=0 suspectscore=0 clxscore=1015 malwarescore=0 phishscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604070000 definitions=main-2604160082
+ reason=mlx scancount=1 engine=8.22.0-2604070000 definitions=main-2604160097
 
-On Thu, Apr 16, 2026 at 09:58:47AM +0200, David Hildenbrand (Arm) wrote:
-> Talking about pages with non-present entries does not make sense. So both changes
-> are wrong. Can you find something better and send that out separately?
-> I don't think this is required for your series, right?
+On Thu Apr 16, 2026 at 10:03 AM CEST, Janosch Frank wrote:
+> On 4/15/26 16:21, Nico Boehr wrote:
+>> On Wed Apr 15, 2026 at 10:45 AM CEST, Janosch Frank wrote:
+>>> We never freed the memory that the sie library allocates as the guest
+>>> ram on destruction of the VM. Most tests reuse the VM or just leak the
+>>> memory since the standard allocation is one megabyte and tests only
+>>> use single digit numbers of VMs.
+>>>
+>>> It's time to add automatic freeing to the sie library when a VM is
+>>> destroyed.
+>>>
+>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>>> ---
+>>>   lib/s390x/sie.c | 1 +
+>>>   1 file changed, 1 insertion(+)
+>>>
+>>> diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
+>>> index a49c45c7..758ead77 100644
+>>> --- a/lib/s390x/sie.c
+>>> +++ b/lib/s390x/sie.c
+>>> @@ -192,4 +192,5 @@ void sie_guest_destroy(struct vm *vm)
+>>>   	free_page(vm->sblk);
+>>>   	if (vm->sblk->ecb2 & ECB2_ESCA)
+>>>   		free_page(vm->sca);
+>>> +	free_pages((void *)virt_to_pte_phys(get_page_root(), vm->guest_mem));
+>>>   }
+>>=20
+>> Is there a particular reason why we have a two-step process of calling
+>> sie_guest_alloc() for memory allocation
+>> and then
+>> sie_guest_create() for initializing the sie_block etc
+>>=20
+>> but
+>> sie_guest_destroy()
+>> cleans up both?
+>>=20
+>
+> Historical reasons I guess.
+> There've been a lot of changes to the SIE lib over the years, snippet=20
+> support itself isn't that consistent but it's currently good enough.
+> s390x/sie.c is the only direct user of the allocation and even that=20
+> usage looks like it could be converted.
 
-Right.
+Yeah, I am a bit concerned about the intermixed dependencies and concerns
+between the two. Especially having free_pages() here even when the guest ma=
+y
+(theoretically) have been allocated with something other than sie_guest_all=
+oc().
+It would be an error that's kind of hard to spot in a review since it's not
+obvious that sie_guest_destroy() pairs with sie_guest_alloc() AND
+sie_guest_create().
+
+Would this be an option:
+- add small function sie_guest_free() which frees only guest memory to sie =
+lib
+  this would be the counterpart to sie_guest_alloc()
+- add function snippet_destroy_guest()
+  which calls sie_guest_destroy() and sie_guest_free()
+  this would be the counterpart to snippet_setup_guest()
+
+Then this pairs nicely as follows for the SIE lib:
+sie_guest_alloc() - sie_guest_free()
+sie_guest_create() - sie_guest_destroy()
+
+And the higher level snippet operations:
+snippet_setup_guest() - snippet_destroy_guest()
