@@ -1,33 +1,60 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEDBE37C0FE;
-	Thu, 16 Apr 2026 07:58:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C87638F230;
+	Thu, 16 Apr 2026 08:00:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776326336; cv=none; b=fa6NgyMIfjtotBe3kfG3owUwHxZfbXfUrLYcT/MNDltVRqfq0AJ+rMcq3dEy6Kv7mPZ3tQD4WmzVDkRetzQPFpZtweRWZgh/A7ewdtVq8yEZxclPBps9sl0rdAoxrU8OXEdx820INUdgiYLlqDTShp7oihLzE68bR1RKIasm25o=
+	t=1776326416; cv=none; b=dgDsY9Gr192y5/diEYC3ds3cs4ndck6fm0Z30WZdAkvK+ueNKxLLl0Lk1W2JhX36JzEusATLN7iFyjs7PL7sjbxMx7NactF8aKwDJRc1SVZtVUvJo16F+N/DraaynBsUSs6B+oP5DbecfvEHj6PI3t+4R957hae6JHMrLKO8mxs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776326336; c=relaxed/simple;
-	bh=0xcsvlEekecRgfRp93ckj3It0PB+yjoDAhI+3QvwcRM=;
+	s=arc-20240116; t=1776326416; c=relaxed/simple;
+	bh=Ho6xh4HmNTyjxY0X1CCeGc4uDCPU7AKiYhqwe1YxOQ0=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LO7HUKOUEyHbSvObpxQegJwPoR6+eN3AzTYG4+69cs108cN2zPNKgHpy1fHJMjpOs6KEFguI2VL23Sd12fD5Kii+ddvDLKdY86gD7NJ5rtg0t3gDK0Z/jR7+3i8Hr/gAYY8hfP8RsJJ8ykhGQcRXiu0qlHWoiGeI3are3A4b+Oo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T6VM3cym; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=nhsBVy1xaWP+HvFSUHcczL2n28Hkofa+b0FCxjRaJDDCchB5EsYoXmtoTO4ocZFOJa/cHs559UndFEtyH1JwSd73DYwqmmOnxH3JiC2QydE1/Xe+0x6D6rvwdghWQ5uTLmcnhFbHd8xeJOxVJcoT5VRBqZqGTRN2De+3ieGOS94=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=S4W6aJnx; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T6VM3cym"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95A98C2BCAF;
-	Thu, 16 Apr 2026 07:58:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776326336;
-	bh=0xcsvlEekecRgfRp93ckj3It0PB+yjoDAhI+3QvwcRM=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=T6VM3cym2aazdlCBuDCI9WJAbEA9HNf4tnyLhAPCyEFaRhfVqE9LmjrcYaiVYb0O1
-	 HSllhasD1ZO0ku/RcE5iq0SyGbyiB40iYmwi7I2gl/SdaMFRhKbPf0bbjMcRKDbo8M
-	 M3dlZINgadJnh5YTONIVrSq0ScEtMs3QszSF5JWzoB+S9+LkqXYBhhEzp7vik0KxSZ
-	 uka7n5quKkUAQdPCl8djRQwXEUrnYbJuHd7/PWo9r5JmEu72sY+t4Fg0guJA+YiX3e
-	 S2ziNA0XqOaSPwO2z08UlGvzfKXeibJnCHIHR/kkcm6Jc9cCysOexpNRogiXcQq5PW
-	 JxhSq6XIwTYkA==
-Message-ID: <844d4076-a250-486e-aa16-fe5149c9d508@kernel.org>
-Date: Thu, 16 Apr 2026 09:58:47 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="S4W6aJnx"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63G1dGkq1733958;
+	Thu, 16 Apr 2026 08:00:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=TiLrfB
+	EvZf25Er5GEwnfKUAFLWg/k7VfIe8fClNh99E=; b=S4W6aJnxT65JodCtPCOgfx
+	Ko5tUNbv6iFjqtz3SK1qhm2ee+GENFdBs7x3BD2wo9RtGRrtsbiKgTmauza7+GoQ
+	8h2RzMlOKL0f2r7bgAq32NINpxMTz0jCEAEhArzkB3hMY89sQi3QdBboza2U+J32
+	aCetVPGh6ex7fZQrMzotm3C7wi2OgOs6Iajyk37/ACqIy2W9F4uMvwSmJICh5d0Z
+	+TkTCAOVRMdOUwpC4akoQv/qskzNZymwixn+Rz3sQYCYIArx8bPSRn6a2tAn9+5g
+	s1zL25KQxuaR87tCi8BSdLZLig9oT53+qys6f6J5U0gZLpfwdv99jde4tnh0sh7Q
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dh89mbgmk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 16 Apr 2026 08:00:12 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63G6PmnI015149;
+	Thu, 16 Apr 2026 08:00:12 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dg0mst57v-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 16 Apr 2026 08:00:12 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63G8080F55706084
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 16 Apr 2026 08:00:08 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 87FFC2004F;
+	Thu, 16 Apr 2026 08:00:08 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4EBA920043;
+	Thu, 16 Apr 2026 08:00:08 +0000 (GMT)
+Received: from [9.111.91.184] (unknown [9.111.91.184])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 16 Apr 2026 08:00:08 +0000 (GMT)
+Message-ID: <c8cbd326-a393-4906-90d6-40ce9bf7f309@linux.ibm.com>
+Date: Thu, 16 Apr 2026 10:00:08 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,267 +62,105 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/6] mm/pgtable: Fix bogus comment to
- clear_not_present_full_ptes()
-To: Alexander Gordeev <agordeev@linux.ibm.com>,
- Kevin Brodsky <kevin.brodsky@arm.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Claudio Imbrenda
- <imbrenda@linux.ibm.com>, Ryan Roberts <Ryan.Roberts@arm.com>
-Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org,
- linux-kernel@vger.kernel.org
-References: <cover.1776264097.git.agordeev@linux.ibm.com>
- <fecfcf70436e267968c1c3b6908e51fe49fd9009.1776264097.git.agordeev@linux.ibm.com>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
+Subject: Re: [kvm-unit-tests 5/5] lib: s390x: Remove kvm s390 prefix from sie
+ control block
+To: Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        borntraeger@linux.ibm.com
+References: <20260415085145.91197-1-frankja@linux.ibm.com>
+ <20260415085145.91197-6-frankja@linux.ibm.com>
+ <DHUEWSSY4DCK.13BQA6YYBXJK5@linux.ibm.com>
 Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <fecfcf70436e267968c1c3b6908e51fe49fd9009.1776264097.git.agordeev@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <DHUEWSSY4DCK.13BQA6YYBXJK5@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=I/dVgtgg c=1 sm=1 tr=0 ts=69e0970c cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=hJuIRY9HTYWKoeS5xb4A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: EnXKyrKIKd6OnNKxp9leIZIsr2hDjZkj
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE2MDA3MiBTYWx0ZWRfX+mD0e9WKKoxQ
+ J9m7FO9jPHG4GFsQTw48RQuMxringvaKVLL8a3WSMl3qQqq5D4SLpvPIijVO81+f1i3Tr6E5Ex3
+ q0jldgU6kY1mmw6B1ZUD70sQdpjcvCwuNckzQ1BmN8COyrbqI3SyijhGuakJwik2TLitIMZCJNw
+ 5OG9I+vYTKYpFkyGbke8D3WEqWbHuBHVNhgTuRjoy2G5U6QwU/StK+sjyu9AdutweRS44/mN07X
+ WE5cZ+FVWyx8jjxDh1v1Ta2Q9/3NBjHFrOHeyFxx904SrB0/MV6pr+0RF1jHbjPhLpTLqO/ROAz
+ jQFZafXDVPVy0ZbtgbFzTpsMbpdLvpL35bEjC4tES/lAAXZ8oV4rfouR/rzCkr05kQChIWbZ2mT
+ d+ljkctykQYLbh2ME8SRqOQ4x+YtivX+5lt6xjxhUQLfGW3eF/+dxZqF0ZBcPpkeOXFC21t6vIL
+ 1RnvqgoTy2fOyIIOUgg==
+X-Proofpoint-ORIG-GUID: EnXKyrKIKd6OnNKxp9leIZIsr2hDjZkj
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-04-16_02,2026-04-13_04,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 bulkscore=0 clxscore=1015 adultscore=0 lowpriorityscore=0
+ suspectscore=0 impostorscore=0 phishscore=0 spamscore=0 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2604070000 definitions=main-2604160072
 
-On 4/15/26 17:01, Alexander Gordeev wrote:
-> The address provided to clear_not_present_full_ptes() is the
-> address of the underlying memory, not address of the first PTE.
-> The exact wording is taken from clear_ptes() comment.
+On 4/16/26 09:48, Nico Boehr wrote:
+> On Wed Apr 15, 2026 at 10:45 AM CEST, Janosch Frank wrote:
+>> We're not kvm.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 > 
-> Suggested-by: Kevin Brodsky <kevin.brodsky@arm.com>
-> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-> ---
->  include/linux/pgtable.h | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+> Hm, is this just a cosmetic change?
+
+Yes
+
 > 
-> diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-> index 9ff7b78d65b1..2b82a71f13d7 100644
-> --- a/include/linux/pgtable.h
-> +++ b/include/linux/pgtable.h
-> @@ -1021,8 +1021,8 @@ static inline void pte_clear_not_present_full(struct mm_struct *mm,
->  /**
->   * clear_not_present_full_ptes - Clear multiple not present PTEs which are
->   *				 consecutive in the pgtable.
-> - * @mm: Address space the ptes represent.
-> - * @addr: Address of the first pte.
-> + * @mm: Address space the pages are mapped into.
-> + * @addr: Address the first page is mapped at.
+> On one hand this will make it harder to copy things from Linux to kut.
+> 
+> On the other hand, there's already a ton of divergence between Linux and kut.
+> So it already isn't just copy&paste, this will make it just a bit harder.
+> 
 
+For sae we already dropped the s390 part in the control block name in 
+KVM. I aimed to have sie_control_block and sae_control_block once sae 
+support is added.
 
-Talking about pages with non-present entries does not make sense. So both changes
-are wrong. Can you find something better and send that out separately?
-I don't think this is required for your series, right?
-
-
-Also, looking at it, it does not make sense to specify "full" when there is nothing
-to flush. We are dealing with non-present PTEs after all.
-
-Looking into the sparc variant of pte_clear_not_present_full(), it does
-
-	__set_pte_at((mm), (addr), (ptep), __pte(0UL), (fullmm))
-
-and that does
-
-	pte_t orig = *ptep;
-
-	*ptep = pte;
-	maybe_tlb_batch_add(mm, addr, ptep, orig, fullmm, PAGE_SHIFT);
-
-but in maybe_tlb_batch_add we have
-
-	if (likely(mm != &init_mm) && pte_accessible(mm, orig))
-		tlb_batch_add(mm, vaddr, ptep, orig, fullmm, hugepage_shift);
-
-And as the pte is non-present, the pte is certainly not accessible. fullmm
-is unused on that path.
-
-
-All the talk about flushing TLBs about something that is non-present for
-pte_clear_not_present_full looks weird.
-
-
-@Ryan, you added clear_not_present_full_ptes() back then, but you were simply
-reusing pte_clear_not_present_full(). Does below seem reasonable to you?
-
-
-
-
-From 0899495ba8ecc73273450e58737bc458976dfa12 Mon Sep 17 00:00:00 2001
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Date: Thu, 16 Apr 2026 09:51:07 +0200
-Subject: [PATCH] tmp
-
-Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
----
- arch/sparc/include/asm/pgtable_64.h |  4 ----
- include/linux/pgtable.h             | 28 +++++-----------------------
- mm/madvise.c                        |  6 +++---
- mm/memory.c                         |  2 +-
- 4 files changed, 9 insertions(+), 31 deletions(-)
-
-diff --git a/arch/sparc/include/asm/pgtable_64.h b/arch/sparc/include/asm/pgtable_64.h
-index 74ede706fb32..0837ebbc5dce 100644
---- a/arch/sparc/include/asm/pgtable_64.h
-+++ b/arch/sparc/include/asm/pgtable_64.h
-@@ -945,10 +945,6 @@ static inline void set_ptes(struct mm_struct *mm, unsigned long addr,
- #define pte_clear(mm,addr,ptep)		\
- 	set_pte_at((mm), (addr), (ptep), __pte(0UL))
- 
--#define __HAVE_ARCH_PTE_CLEAR_NOT_PRESENT_FULL
--#define pte_clear_not_present_full(mm,addr,ptep,fullmm)	\
--	__set_pte_at((mm), (addr), (ptep), __pte(0UL), (fullmm))
--
- #ifdef DCACHE_ALIASING_POSSIBLE
- #define __HAVE_ARCH_MOVE_PTE
- #define move_pte(pte, old_addr, new_addr)				\
-diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-index 17d961c612fc..b3d6c8ddd687 100644
---- a/include/linux/pgtable.h
-+++ b/include/linux/pgtable.h
-@@ -955,24 +955,8 @@ static inline void update_mmu_tlb(struct vm_area_struct *vma,
- 	update_mmu_tlb_range(vma, address, ptep, 1);
- }
- 
--/*
-- * Some architectures may be able to avoid expensive synchronization
-- * primitives when modifications are made to PTE's which are already
-- * not present, or in the process of an address space destruction.
-- */
--#ifndef __HAVE_ARCH_PTE_CLEAR_NOT_PRESENT_FULL
--static inline void pte_clear_not_present_full(struct mm_struct *mm,
--					      unsigned long address,
--					      pte_t *ptep,
--					      int full)
--{
--	pte_clear(mm, address, ptep);
--}
--#endif
--
--#ifndef clear_not_present_full_ptes
- /**
-- * clear_not_present_full_ptes - Clear multiple not present PTEs which are
-+ * clear_not_present_full_ptes - Clear multiple non-present PTEs which are
-  *				 consecutive in the pgtable.
-  * @mm: Address space the ptes represent.
-  * @addr: Address of the first pte.
-@@ -980,24 +964,22 @@ static inline void pte_clear_not_present_full(struct mm_struct *mm,
-  * @nr: Number of entries to clear.
-  * @full: Whether we are clearing a full mm.
-  *
-- * May be overridden by the architecture; otherwise, implemented as a simple
-- * loop over pte_clear_not_present_full().
-+ * Implemented as a simple loop over pte_clear().
-  *
-  * Context: The caller holds the page table lock.  The PTEs are all not present.
-  * The PTEs are all in the same PMD.
-  */
--static inline void clear_not_present_full_ptes(struct mm_struct *mm,
--		unsigned long addr, pte_t *ptep, unsigned int nr, int full)
-+static inline void clear_non_present_ptes(struct mm_struct *mm,
-+		unsigned long addr, pte_t *ptep, unsigned int nr)
- {
- 	for (;;) {
--		pte_clear_not_present_full(mm, addr, ptep, full);
-+		pte_clear(mm, addr, ptep);
- 		if (--nr == 0)
- 			break;
- 		ptep++;
- 		addr += PAGE_SIZE;
- 	}
- }
--#endif
- 
- #ifndef __HAVE_ARCH_PTEP_CLEAR_FLUSH
- extern pte_t ptep_clear_flush(struct vm_area_struct *vma,
-diff --git a/mm/madvise.c b/mm/madvise.c
-index 69708e953cf5..0e430e03e69c 100644
---- a/mm/madvise.c
-+++ b/mm/madvise.c
-@@ -695,10 +695,10 @@ static int madvise_free_pte_range(pmd_t *pmd, unsigned long addr,
- 				nr = swap_pte_batch(pte, max_nr, ptent);
- 				nr_swap -= nr;
- 				swap_put_entries_direct(entry, nr);
--				clear_not_present_full_ptes(mm, addr, pte, nr, tlb->fullmm);
-+				clear_non_present_(mm, addr, pte, nr);
- 			} else if (softleaf_is_hwpoison(entry) ||
- 				   softleaf_is_poison_marker(entry)) {
--				pte_clear_not_present_full(mm, addr, pte, tlb->fullmm);
-+				pte_clear(mm, addr, pte);
- 			}
- 			continue;
- 		}
-@@ -1234,7 +1234,7 @@ static int guard_remove_pte_entry(pte_t *pte, unsigned long addr,
- 
- 	if (is_guard_pte_marker(ptent)) {
- 		/* Simply clear the PTE marker. */
--		pte_clear_not_present_full(walk->mm, addr, pte, false);
-+		pte_clear(walk->mm, addr, pte);
- 		update_mmu_cache(walk->vma, addr, pte);
- 	}
- 
-diff --git a/mm/memory.c b/mm/memory.c
-index 631205a384e1..d61d4ba906cd 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1781,7 +1781,7 @@ static inline int zap_nonpresent_ptes(struct mmu_gather *tlb,
- 		pr_alert("unrecognized swap entry 0x%lx\n", entry.val);
- 		WARN_ON_ONCE(1);
- 	}
--	clear_not_present_full_ptes(vma->vm_mm, addr, pte, nr, tlb->fullmm);
-+	clear_non_present_ptes(vma->vm_mm, addr, pte, nr);
- 	*any_skipped = zap_install_uffd_wp_if_needed(vma, addr, pte, nr, details, ptent);
- 
- 	return nr;
--- 
-2.43.0
-
-
-
-
-
--- 
-Cheers,
-
-David
+But I'm not too hung up on this patch.
