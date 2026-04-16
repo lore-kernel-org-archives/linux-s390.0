@@ -1,170 +1,169 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oi1-f169.google.com (mail-oi1-f169.google.com [209.85.167.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9799839E178;
-	Thu, 16 Apr 2026 10:24:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0D3F38E11E
+	for <linux-s390@vger.kernel.org>; Thu, 16 Apr 2026 10:29:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776335079; cv=none; b=LRBNQS4y/7qMO/k6qWX3c1r374eZptjlabqcEQvpH/eNu8M7GsKtYaYPm9yvr5bcffaHBbcFD944AbU2GeNgMII8zQLH9N4nG5cDPaAvZvaNtErpvwM30BSXbNblFpuvwNFNiJFrvXnC6M3o7LfSffGhSqL/che4KetxhxL2DGs=
+	t=1776335387; cv=none; b=BwiGRmtSHK3RUzxuZk8He0uOeVK6TfAi14Me8tVFoUm7vCVgIY9aJFj5TecuqVGdbs9RwAKXFbrKO0jzWOtfQsmYudc2N2Onl4t3sCOhj6kNTIGEkxHys+fFRTQtZpTIlrlPyjZ58wsiRlL3pEEGOT/UWbsFuD1vocOHQoxEjDc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776335079; c=relaxed/simple;
-	bh=K0s6VDdJp73R3JU53NEaANR/704aQmQ63FW+199HHJg=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=HUFZQNgxG21t9gYXgzKRaGO0Lbnh84FHCNh68NhdJbLxE2KIu1NxkmCY7hqFiz3NDbJnOoxfR4S3iAcm867Wl18qRMkuBDKH2P5shRNiSB3WjYVO7vZKXGoUKFVflIuf5Zt60EFnARgC+eD17EqBs41lQL2q28V3bNy5+aX1JVM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KmN+L4jv; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KmN+L4jv"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63G5gjfS1602772;
-	Thu, 16 Apr 2026 10:24:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=UgqI22
-	nP91mbgyVNKWo1zsENpcPnH6yqo0FFc/vRcWw=; b=KmN+L4jvCeK2gaV2f4fY1K
-	zb6iDWDcI9aozqNd9YqPjQP1sUU6Jd75lu6MRK6Sd3b8krS2JCiEs039Xgk7MRBZ
-	YDF3obWQyAaCZIppfETRoRfpvbjzv2m9cOW4nYG3LSqCwxVsFvKwrA3P6tX7l2ZK
-	XrQ020aYIIPMIu5LgwwuqeWwQ7TuFxX7cqcGkAR+HGvItKyweCk+O9bJs4TLw++n
-	ZviRR9yhcyUEKTyQ6KcQye/+XuzZxbmWiT6Rv5DHrhVvjvfNngsk3im9MwBkRmUs
-	E1XuDNxb+kKT9WbEw7PWJ5/QpNBHrrttH5iia3gMvfntGC738nthIiSJk1JeZMXA
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dh89nmvuf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Apr 2026 10:24:36 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63G7nlEN003305;
-	Thu, 16 Apr 2026 10:24:35 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4djbh940ut-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Apr 2026 10:24:35 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63GAOVED31130210
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 16 Apr 2026 10:24:31 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2CB6120043;
-	Thu, 16 Apr 2026 10:24:31 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5AE702004B;
-	Thu, 16 Apr 2026 10:24:30 +0000 (GMT)
-Received: from t14-nrb (unknown [9.111.37.231])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 16 Apr 2026 10:24:30 +0000 (GMT)
+	s=arc-20240116; t=1776335387; c=relaxed/simple;
+	bh=Il5EilNKbQmVM1qv4XgxLAe02Z9+zxydkwUqJc2BPRU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=eXED1yRPyvhTcUQrnZVle1N2B7uRYIqyvx30FcuRnR5Qp94ii1kdWl3c5cTmUiFF4VmJRdPHsC8rKcZ6d0YMj9KlatOsXtZxJZKuIjuqJcEQP8iZM86bKpyZQ7PoWi0K/+gx94+ba5zthtDt0Ha6K9gkYH+AvOW8yaEXA3o+45o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.167.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-oi1-f169.google.com with SMTP id 5614622812f47-471618e20a5so4028009b6e.1
+        for <linux-s390@vger.kernel.org>; Thu, 16 Apr 2026 03:29:42 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776335381; x=1776940181;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=z9HEDsaws+1AaPEcUyrGjtCss1Kv3jZQFAB8Oib7mmY=;
+        b=V59BQ3ynIwHWIZflJODDcz8XJoBOonuOugkMYrqZ3tYwdk9EuSzunT8KGMc3/QsMzq
+         lqeHPikFNLTkJ7lMu2Xsdn1VZKXcPXHj3QMiHI98GqCMou88flQcAfX8ExxbRNlLpL9N
+         rHAWswKazRxxadChn9igktfqMq0TTY7aI+dnpfbSycDL46Xn6cmCi1x651q+maLWbS5D
+         x8EJzdphloOMUI/SgCp9HWMqeYLCG5k4i7KRKqZINBzRXX3QW+gCpISdh36kXLSyaLX9
+         cBBoXJQEOFdmld/uQlg4Fbl14XgN0s/3yVVx3T/QYhjupJh5juwpOqmDlqJnFXlc1Cr5
+         Z2kw==
+X-Forwarded-Encrypted: i=1; AFNElJ/m5UWIzPeML2mcpFV0qFOsZyiJCTTVAJcS+4e1JdO4d4oHU/RaQBdA0V+h+gtfnK+Eoj1ITe1W8C4K@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz57Qxns3Aasxno+7xhR5O3ZQCZ5tPTbQkaUUHlAaUrCy87OoDy
+	Xaa4WCOGU4SMieIq6LgPQacESJS8m3kLoveyIJfDlPyINrTiIlQKK/H/NkNT0hmf
+X-Gm-Gg: AeBDietEUlzi00Ay4cjqJK6GDUwYv3/SLmpi85hRuZ+ihPKO99akga2h6f5tUM5iUql
+	/A8amSVrMQ7ST0ZRLHC5QKZJdv8BLvLPj8li+RKhkkkLX1i1rMBNJtgYzeSyEgEyC5Jf7479/06
+	n/lvsnz5lUxducZVgRhY+X5cPUXgGAENM0RDwE9akFDIMdg5RsJ9KCmbkNIZl2EtOWfVMQ5XRku
+	4nRTxMLmOFg8fu6ZqhsTfNDJP442fmuIirOsEDiVnsLPKKUYLAQFm2EJzEmqkFJcq+3fu8I1w5V
+	LQkp2Ni/3knDLMJj2vFZvxPY0Br2SCnMlSIU6rWtrqS5OYzBVHU27/5RtNNBkHLmwLjssqiAnAT
+	u3QEBoypUHgc7WTPnlYfrhbcjhZZjgxMMKXbdyXzZNDb6f2IRQ5zRJAn9l8EkUxlhIBgTYOMp/Y
+	IaWXuaDQQ+T+0mbyyuhCjYermVdIfWwcWiN0YDvGWOi3whR3x+J9qX1fwtdtNYj0sl5OT+KBw=
+X-Received: by 2002:a54:4388:0:b0:467:1880:fff5 with SMTP id 5614622812f47-4789e91dc09mr10134564b6e.31.1776335380983;
+        Thu, 16 Apr 2026 03:29:40 -0700 (PDT)
+Received: from mail-ot1-f43.google.com (mail-ot1-f43.google.com. [209.85.210.43])
+        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-42666b86f17sm3422901fac.4.2026.04.16.03.29.40
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 16 Apr 2026 03:29:40 -0700 (PDT)
+Received: by mail-ot1-f43.google.com with SMTP id 46e09a7af769-7dbdcb85067so6553796a34.1
+        for <linux-s390@vger.kernel.org>; Thu, 16 Apr 2026 03:29:40 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ94it/SCp2Te7ACXU1SF56R/uzDbF3HLtQw3Yh5+6RorePChUz6oVVv2z/flAN34SuyDEPaXrcL5U7J@vger.kernel.org
+X-Received: by 2002:a05:6102:c48:b0:608:cd24:354c with SMTP id
+ ada2fe7eead31-609fe9b0d22mr11966750137.3.1776335071251; Thu, 16 Apr 2026
+ 03:24:31 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 16 Apr 2026 12:24:29 +0200
-Message-Id: <DHUI89JRQHI5.1VWXLD3VX2JUI@linux.ibm.com>
-Cc: <linux-s390@vger.kernel.org>, <imbrenda@linux.ibm.com>,
-        <borntraeger@linux.ibm.com>
-Subject: Re: [kvm-unit-tests 3/5] lib: s390x: sie: Free guest memory on
- destroy
-From: "Nico Boehr" <nrb@linux.ibm.com>
-To: "Janosch Frank" <frankja@linux.ibm.com>, "Nico Boehr"
- <nrb@linux.ibm.com>,
-        <kvm@vger.kernel.org>
-X-Mailer: aerc 0.21.0
-References: <20260415085145.91197-1-frankja@linux.ibm.com>
- <20260415085145.91197-4-frankja@linux.ibm.com>
- <DHTSMVSISIZM.3MS0YLDBLMB09@linux.ibm.com>
- <624c8a3f-2a09-4257-9b0c-2b64e60e52a1@linux.ibm.com>
-In-Reply-To: <624c8a3f-2a09-4257-9b0c-2b64e60e52a1@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: n95IhM4DC-sSfdpEpiHstu9ztukyc_0A
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE2MDA5NyBTYWx0ZWRfXzVHZQH+ccvoX
- aQq0gz8icUKeZhtENHmeJqBEyxUdgs41cFhaN+ISzjNjvqQNg3LzPWTHjwI1LrEVoVfwpwsHgJA
- 90bCTnUHLodY1BZsDWuSsrusP6MafI32DcZBWxCU3cEKOO7BfIAoDLWVra6uS01Ozx5i23FKxqQ
- VE2CUwMN4uGMLwi06edNvKobhaLdaItCgBEG0sA5zDWuxm9dMFut+kA/Os7iV4WBGz8+cVH8jFu
- ORB1M2ZMnEa+Gu7pL1hZamEjRnH79bbs3w+iYEQ7I4S0p5lrPXidybMh7Tve0j4Lr3VYshFVUEZ
- 38u4NhIOy6y80QpHIcfDxLFj+Tq4B1CiKKMjVtmbnBesGsyEJMlqLO1u1s317smv79iJGkCJSeD
- /+n9HaXs+J2sA5bZB7avGrRmd31jS9X3mFJxGrdWXyCAvpqZUTuMJKHk7lM3hGBhvT+IdgETHg1
- H1WyAHAuCMMLq6Iyb/A==
-X-Proofpoint-ORIG-GUID: n95IhM4DC-sSfdpEpiHstu9ztukyc_0A
-X-Authority-Analysis: v=2.4 cv=FY4HAp+6 c=1 sm=1 tr=0 ts=69e0b8e4 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=VlMMnRzqynEzNeI3tdkA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-16_02,2026-04-13_04,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 priorityscore=1501 bulkscore=0 impostorscore=0 spamscore=0
- lowpriorityscore=0 suspectscore=0 clxscore=1015 malwarescore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604070000 definitions=main-2604160097
+MIME-Version: 1.0
+References: <20260410120044.031381086@kernel.org> <20260410120318.794680738@kernel.org>
+In-Reply-To: <20260410120318.794680738@kernel.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Thu, 16 Apr 2026 12:24:18 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdVerN6Pz07CQH+hcvT=-ZD-r9VNrSrGzTQZBEsuecK_ig@mail.gmail.com>
+X-Gm-Features: AQROBzDRGGELVSySTko37h6zEj8YoV3p6pwZDCVQUlUW6sZbw_W5mbJzFIh35nQ
+Message-ID: <CAMuHMdVerN6Pz07CQH+hcvT=-ZD-r9VNrSrGzTQZBEsuecK_ig@mail.gmail.com>
+Subject: Re: [patch 18/38] lib/tests: Replace get_cycles() with ktime_get()
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, 
+	Uladzislau Rezki <urezki@gmail.com>, linux-mm@kvack.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, 
+	Lu Baolu <baolu.lu@linux.intel.com>, iommu@lists.linux.dev, 
+	Michael Grzeschik <m.grzeschik@pengutronix.de>, netdev@vger.kernel.org, 
+	linux-wireless@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>, 
+	linux-crypto@vger.kernel.org, Vlastimil Babka <vbabka@kernel.org>, 
+	David Woodhouse <dwmw2@infradead.org>, Bernie Thompson <bernie@plugable.com>, linux-fbdev@vger.kernel.org, 
+	Theodore Tso <tytso@mit.edu>, linux-ext4@vger.kernel.org, Marco Elver <elver@google.com>, 
+	Dmitry Vyukov <dvyukov@google.com>, kasan-dev@googlegroups.com, 
+	Andrey Ryabinin <ryabinin.a.a@gmail.com>, Thomas Sailer <t.sailer@alumni.ethz.ch>, 
+	linux-hams@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>, 
+	Richard Henderson <richard.henderson@linaro.org>, linux-alpha@vger.kernel.org, 
+	Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, 
+	Catalin Marinas <catalin.marinas@arm.com>, Huacai Chen <chenhuacai@kernel.org>, 
+	loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, 
+	Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, linux-openrisc@vger.kernel.org, 
+	Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org, 
+	Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, 
+	Paul Walmsley <pjw@kernel.org>, linux-riscv@lists.infradead.org, 
+	Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, 
+	"David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu Apr 16, 2026 at 10:03 AM CEST, Janosch Frank wrote:
-> On 4/15/26 16:21, Nico Boehr wrote:
->> On Wed Apr 15, 2026 at 10:45 AM CEST, Janosch Frank wrote:
->>> We never freed the memory that the sie library allocates as the guest
->>> ram on destruction of the VM. Most tests reuse the VM or just leak the
->>> memory since the standard allocation is one megabyte and tests only
->>> use single digit numbers of VMs.
->>>
->>> It's time to add automatic freeing to the sie library when a VM is
->>> destroyed.
->>>
->>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->>> ---
->>>   lib/s390x/sie.c | 1 +
->>>   1 file changed, 1 insertion(+)
->>>
->>> diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
->>> index a49c45c7..758ead77 100644
->>> --- a/lib/s390x/sie.c
->>> +++ b/lib/s390x/sie.c
->>> @@ -192,4 +192,5 @@ void sie_guest_destroy(struct vm *vm)
->>>   	free_page(vm->sblk);
->>>   	if (vm->sblk->ecb2 & ECB2_ESCA)
->>>   		free_page(vm->sca);
->>> +	free_pages((void *)virt_to_pte_phys(get_page_root(), vm->guest_mem));
->>>   }
->>=20
->> Is there a particular reason why we have a two-step process of calling
->> sie_guest_alloc() for memory allocation
->> and then
->> sie_guest_create() for initializing the sie_block etc
->>=20
->> but
->> sie_guest_destroy()
->> cleans up both?
->>=20
+Hi Thomas,
+
+On Fri, 10 Apr 2026 at 14:20, Thomas Gleixner <tglx@kernel.org> wrote:
+> get_cycles() is the historical access to a fine grained time source, but it
+> is a suboptimal choice for two reasons:
 >
-> Historical reasons I guess.
-> There've been a lot of changes to the SIE lib over the years, snippet=20
-> support itself isn't that consistent but it's currently good enough.
-> s390x/sie.c is the only direct user of the allocation and even that=20
-> usage looks like it could be converted.
+>    - get_cycles() is not guaranteed to be supported and functional on all
+>      systems/platforms. If not supported or not functional it returns 0,
+>      which makes benchmarking moot.
+>
+>    - get_cycles() returns the raw counter value of whatever the
+>      architecture platform provides. The original x86 Time Stamp Counter
+>      (TSC) was despite its name tied to the actual CPU core frequency.
+>      That's not longer the case. So the counter value is only meaningful
+>      when the CPU operates at the same frequency as the TSC or the value is
+>      adjusted to the actual CPU frequency. Other architectures and
+>      platforms provide similar disjunct counters via get_cycles(), so the
+>      result is operations per BOGO-cycles, which is not really meaningful.
+>
+> Use ktime_get() instead which provides nanosecond timestamps with the
+> granularity of the underlying hardware counter, which is not different to
+> the variety of get_cycles() implementations.
+>
+> This provides at least understandable metrics, i.e. operations/nanoseconds,
+> and is available on all platforms. As with get_cycles() the result might
+> have to be put into relation with the CPU operating frequency, but that's
+> not any different.
+>
+> This is part of a larger effort to remove get_cycles() usage from
+> non-architecture code.
+>
+> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
 
-Yeah, I am a bit concerned about the intermixed dependencies and concerns
-between the two. Especially having free_pages() here even when the guest ma=
-y
-(theoretically) have been allocated with something other than sie_guest_all=
-oc().
-It would be an error that's kind of hard to spot in a review since it's not
-obvious that sie_guest_destroy() pairs with sie_guest_alloc() AND
-sie_guest_create().
+Thanks for your patch!
 
-Would this be an option:
-- add small function sie_guest_free() which frees only guest memory to sie =
-lib
-  this would be the counterpart to sie_guest_alloc()
-- add function snippet_destroy_guest()
-  which calls sie_guest_destroy() and sie_guest_free()
-  this would be the counterpart to snippet_setup_guest()
+> --- a/lib/interval_tree_test.c
+> +++ b/lib/interval_tree_test.c
+> @@ -65,13 +65,13 @@ static void init(void)
+>  static int basic_check(void)
+>  {
+>         int i, j;
+> -       cycles_t time1, time2, time;
+> +       ktime_t time1, time2, time;
+>
+>         printk(KERN_ALERT "interval tree insert/remove");
+>
+>         init();
+>
+> -       time1 = get_cycles();
+> +       time1 = ktime_get();
+>
+>         for (i = 0; i < perf_loops; i++) {
+>                 for (j = 0; j < nnodes; j++)
+> @@ -80,11 +80,11 @@ static int basic_check(void)
+>                         interval_tree_remove(nodes + j, &root);
+>         }
+>
+> -       time2 = get_cycles();
+> +       time2 = ktime_get();
+>         time = time2 - time1;
+>
+>         time = div_u64(time, perf_loops);
+> -       printk(" -> %llu cycles\n", (unsigned long long)time);
+> +       printk(" -> %llu nsecs\n", (unsigned long long)time);
 
-Then this pairs nicely as follows for the SIE lib:
-sie_guest_alloc() - sie_guest_free()
-sie_guest_create() - sie_guest_destroy()
+While cycles_t was unsigned long or long long, ktime_t is always s64,
+so "%lld", and the cast can be dropped (everywhere).
 
-And the higher level snippet operations:
-snippet_setup_guest() - snippet_destroy_guest()
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
