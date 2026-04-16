@@ -1,132 +1,112 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6016E332604;
-	Thu, 16 Apr 2026 08:22:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F1A337AA78;
+	Thu, 16 Apr 2026 08:53:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776327745; cv=none; b=pZfumisZhLNdUlKUsfGoDoaOvF/rsVI/bIAQK2HX8QpEt3ypc2ySxhaOWeMD+qmaNQaB76uX3kMNCNbW4UZa0uRWtsGvxjssI8z+x9QbYZQeP3bIr9JbMC67H96oYDe9ET/achHOjxAwr2YtLUvgM/s4nmms59zwaHLXcbEv31g=
+	t=1776329603; cv=none; b=Fb+P7+VIFO0GCTJqqRz+V6p61XWq5QxvYrgvGc61iYuHMtqbsNHl+HBzt9aScB//grgD3cnrEVc9PeLYVfjBd0/bDgx1TvtMY+Y7Jz9X0B8ULskODeLCLWqCCOg3mJ+jD88Xq5L4LDRoj4Zyx0MZdPEgQ3pS/MIwXmIEyLp4tYA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776327745; c=relaxed/simple;
-	bh=+annyCviDXRU6aLD48jWyvslETh/Cvy2LZ5NRoqrRpA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=XIIjS9hzU4TeItu7QBGpeSHCms2txNLyOGIywmBEIrqrcRJWSR7ZUWmhmdHtEp21outPhS/tUm9tXwfuL69DOcKOWBTJr9LOKYjbWqEAdbXeSSUXIUxozogXjuDtSdfgAr3pLGH3ZUJaj8/f+jQ9OQ9dg1SrwAS2HE4JCCV0zFc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=e2Fj1hLf; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1776329603; c=relaxed/simple;
+	bh=S+Rbl+X0eKNTG8cqOejGKkOulH0HGsQZs6yPGed3wJ4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=CC0OkQU5Nd5HjN303QkaxOejdwS0Z2SVw6/mHXp0S8EAoeONf8gbE8hyym4ueGVLL5r9NicCjy/AC2BKkm/IR6llfkA/xbkztAM+umDC4vMkecDU5rq6fBX4L8cEjI9FekAcetd8DyHZ0KVe7tL11KvEdib/61MnX/hvAwJeP0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LmFNq4kC; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="e2Fj1hLf"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63G6Edg91733184;
-	Thu, 16 Apr 2026 08:22:16 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LmFNq4kC"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63G3DUVY435815;
+	Thu, 16 Apr 2026 08:53:13 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=EghXYY
-	nkmIraQBRylz8V08Xw1Fw8PiFljL3GV4sjMm0=; b=e2Fj1hLfI0Z8Po/oWJGVW0
-	kG/Su8H3VxOIUcJipozN8A1Nh5d8pn6dKbMb4XGpU8+r3sqys4Un10OW+VGpyloE
-	T2L4eq1Kj+ZxvDazOTJXRV1PAjI6D1DvWAMlJTWzE/YnUEzYghxhOZeuGBSmFC8w
-	wdS5PjkoG4zUb3IjvVyBBNJWh5J3lni9lg9QlQdNKSMDNpZxJg5tz4Nt40UT8CHr
-	R/cG8ESBb9p6eVhIk9AfoVlZApcVSUhmDd8dfkvJwMHqgGophpEU3sy6RxfCSw2C
-	fumrNuHk+2nH2AmQ/www7b6lqruiOK1ZBfqZwJN3O/+JhJ4p0dVYx+sJ4n5f3xxw
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dh89mbk9e-1
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=S+Rbl+X0eKNTG8cqOejGKkOulH0HGs
+	QZs6yPGed3wJ4=; b=LmFNq4kCvIjsmA6zjpw01HNzk1mCNOZLxcdT6NngxrLmhh
+	tQAWc8dQSrupZbjR4xKteSoZIgzb9qt63IxfAKzW8JuiroTtcbjOXkvI33RAeLDI
+	5UAyIZtkXRZf8q5IobZ8SSLxMGkQEyomEfYFxWSkmS0FezxRLF2VyY+b/zzcBfz2
+	mMwngpo65vpUuiXNFRO2YQxJu3pvNNEHReYB3pNhWzVLDXlInDRU0wYNRVRhU3Uh
+	2TPBXFXVlE4G29FTXy2CforiIbf3ylIyDutsoiDuw/w/KIi37BOdEQMpQZ9xDL4Z
+	3C9YnJBEs/0Fdprl8VqmP/jBn4xlJG5yizCW6IZQ==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dh89kbq56-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Apr 2026 08:22:16 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63G6FXdP015164;
-	Thu, 16 Apr 2026 08:22:15 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dg0mst7rd-1
+	Thu, 16 Apr 2026 08:53:13 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63G83RSO003253;
+	Thu, 16 Apr 2026 08:53:12 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4djbh93qyd-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Apr 2026 08:22:15 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63G8MCti27984192
+	Thu, 16 Apr 2026 08:53:12 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63G8r9wZ36831524
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 16 Apr 2026 08:22:12 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 243C02004D;
-	Thu, 16 Apr 2026 08:22:12 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B4A1C20049;
-	Thu, 16 Apr 2026 08:22:11 +0000 (GMT)
-Received: from [9.52.200.39] (unknown [9.52.200.39])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 16 Apr 2026 08:22:11 +0000 (GMT)
-Message-ID: <161ab40c-dad7-42b4-b6ad-917f8249254a@linux.ibm.com>
-Date: Thu, 16 Apr 2026 10:22:11 +0200
+	Thu, 16 Apr 2026 08:53:09 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4819B20043;
+	Thu, 16 Apr 2026 08:53:09 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9C9E62004B;
+	Thu, 16 Apr 2026 08:53:08 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.111.42.253])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 16 Apr 2026 08:53:08 +0000 (GMT)
+Date: Thu, 16 Apr 2026 10:53:07 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Kevin Brodsky <kevin.brodsky@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Ryan Roberts <Ryan.Roberts@arm.com>, linux-s390@vger.kernel.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 2/6] mm/pgtable: Fix bogus comment to
+ clear_not_present_full_ptes()
+Message-ID: <65f893a0-bb47-41e3-9251-9e94c9b5c99a-agordeev@linux.ibm.com>
+References: <cover.1776264097.git.agordeev@linux.ibm.com>
+ <fecfcf70436e267968c1c3b6908e51fe49fd9009.1776264097.git.agordeev@linux.ibm.com>
+ <844d4076-a250-486e-aa16-fe5149c9d508@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 6/6] s390/mm: Allow lazy MMU mode disabling
-To: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Cc: Kevin Brodsky <kevin.brodsky@arm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Claudio Imbrenda
- <imbrenda@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-References: <cover.1776264097.git.agordeev@linux.ibm.com>
- <24d843c5568a8b591cbbe16eca092e7f45d18cf5.1776264097.git.agordeev@linux.ibm.com>
- <20260416054405.10407B6c-hca@linux.ibm.com>
- <2a497bff-1773-4245-a63c-784ed8853b11-agordeev@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <2a497bff-1773-4245-a63c-784ed8853b11-agordeev@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <844d4076-a250-486e-aa16-fe5149c9d508@kernel.org>
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=I/dVgtgg c=1 sm=1 tr=0 ts=69e09c38 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=bZTvA-38IwGshgt2pOQA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: cybN27AT70Xlug33CcVsFDGHqa-ZO9sJ
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE2MDA3NyBTYWx0ZWRfX2Uocvty7Sfzg
- 3EKlGo+vHAXe/bxw3gU+c95Q5guzP+mOtWdsoQvd1m49GlwN8B4zgT/2IRWbjrCf8Z8Ez6/mhfC
- cl+WXtWMpsbbF+rCwcVMWO1nRPPLVuOPAYWHPJ/gyZHbY53pRHZGfysgBskJH6/sHsPvq614gNR
- NK9IvglftKx10tyLUhewEHJ2IyvDcizzTPZ2eKIZzvF2eB+ivmeMoJoJHYdxaAYslB4Py3SUvV6
- +synpXrscZek6LfanKvVHcCuwdMzjruRvxdXfhqpz95+kEqqzS4HLihEXPYoyOT7+kJEmsk6byM
- dgym7Y0ddR1mmu7cLNdAcUFbaNbtzOnlIJdWWashK4VP/5eNnkMcKTkmA20aOEw0iTsqe3sNm6j
- JOruNSZ63uJCCxs1b+UGCrP+cMo+7+FkZbFZIhLT4CfyuHBXV6aAKfY0Y0m6fQPZapYTIhQh+FP
- qmEiz7gMaXcyn+nZqhQ==
-X-Proofpoint-ORIG-GUID: cybN27AT70Xlug33CcVsFDGHqa-ZO9sJ
+X-Proofpoint-GUID: knDDruZNWEP89G6YdCKHxfnw_NQeOL_Y
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE2MDA4MiBTYWx0ZWRfX7UdMxaHWCy+5
+ rd5H87AheMJJIirSanN6C0vVyQMSA9aBWK+oZSXQm3UH5PCbrkJrIISBO+aX1U/ksZFibDW9bu3
+ 6foM24tTIFai2D5BF14DMdB7ZiTYZ96gzU2ub+upi9Yxxb93Ns1u0TFrpN2jW1EIS43sMhwvyri
+ AriVOUOdAEEccCvYXNTw/9bf/d5sPvD9pe31Ao/sop23EgKTL4dxfs7spFApAj7y69dnw7UrNhL
+ iK1kLdGihLI9ZApenG1AbfuPlWK9prgO4azwyyuJpcfC+C0GEy3PGi4mF2lW23mm94oeWIL02p+
+ eAFBki1V7pMJ8YByUtOxGDJ81LRmQ7myuJBAjJqiKAa41tESK37DbvA2fMmWbm69lzZtLSKE1oZ
+ 9zXwsk2aHOSxz886OcpJQu0OX4A2hCnSp7kuyNPmUbKfdCdO57QStYjxBnXZwcqv9E5gyYcLAFI
+ fQ27qbEk1P5Hvqyi6sw==
+X-Proofpoint-ORIG-GUID: knDDruZNWEP89G6YdCKHxfnw_NQeOL_Y
+X-Authority-Analysis: v=2.4 cv=W60IkxWk c=1 sm=1 tr=0 ts=69e0a379 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=kj9zAlcOel0A:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=m-HIIqDQ52j1SHMWbkUA:9
+ a=CjuIK1q_8ugA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-16_02,2026-04-13_04,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 bulkscore=0 clxscore=1011 adultscore=0 lowpriorityscore=0
- suspectscore=0 impostorscore=0 phishscore=0 spamscore=0 priorityscore=1501
+ impostorscore=0 clxscore=1015 priorityscore=1501 spamscore=0 bulkscore=0
+ adultscore=0 phishscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604070000 definitions=main-2604160077
+ reason=mlx scancount=1 engine=8.22.0-2604070000 definitions=main-2604160082
 
+On Thu, Apr 16, 2026 at 09:58:47AM +0200, David Hildenbrand (Arm) wrote:
+> Talking about pages with non-present entries does not make sense. So both changes
+> are wrong. Can you find something better and send that out separately?
+> I don't think this is required for your series, right?
 
-
-Am 16.04.26 um 09:00 schrieb Alexander Gordeev:
-> On Thu, Apr 16, 2026 at 07:44:05AM +0200, Heiko Carstens wrote:
->>> @@ -169,6 +185,8 @@ void arch_enter_lazy_mmu_mode_for_pte_range(struct mm_struct *mm,
->>>   {
->>>   	if (!test_facility(13))
->>>   		return;
->>> +	if (!static_branch_likely(&lazy_mmu))
->>> +		return;
->>
->> Looks like there is an alternative chicken switch available: remove
->> facility bit 13 from the facility list via kernel command line option.
->>
->> Unless I am mistaken: that should be sufficient and avoids adding more
->> code.
-> 
-> But that would also withdraw multi-IPTE from other unrelated parts of
-> the code, e.g. from __kernel_map_pages().
-
-Which is fine. Do not over-optimize for a case that should not be
-needed unless we really mess up. This parameter is way too complicated to ever
-be set/unset by a customer.
+Right.
