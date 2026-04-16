@@ -1,60 +1,60 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C87638F230;
-	Thu, 16 Apr 2026 08:00:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30A8DB640;
+	Thu, 16 Apr 2026 08:03:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776326416; cv=none; b=dgDsY9Gr192y5/diEYC3ds3cs4ndck6fm0Z30WZdAkvK+ueNKxLLl0Lk1W2JhX36JzEusATLN7iFyjs7PL7sjbxMx7NactF8aKwDJRc1SVZtVUvJo16F+N/DraaynBsUSs6B+oP5DbecfvEHj6PI3t+4R957hae6JHMrLKO8mxs=
+	t=1776326622; cv=none; b=CugP+SSAeuwaQ7qw+/udKRz6yCfou18Wd9Wbn5r3di9/4BkNvpH8IYuePZST0bCDNKtXE5uwVbbbuP3FeiMmsK8CWuJKVCyDJgIADskaf3TCXHsqSzlwS72Vr97y7qY7wxqfYfSyThj6nmn/aemVyhefcfdHjQVJvvlKfMpKIOI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776326416; c=relaxed/simple;
-	bh=Ho6xh4HmNTyjxY0X1CCeGc4uDCPU7AKiYhqwe1YxOQ0=;
+	s=arc-20240116; t=1776326622; c=relaxed/simple;
+	bh=EBU/4jXEnIxXLaNLjg5FPh6fkdejLRCt3fZBImWfQYw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nhsBVy1xaWP+HvFSUHcczL2n28Hkofa+b0FCxjRaJDDCchB5EsYoXmtoTO4ocZFOJa/cHs559UndFEtyH1JwSd73DYwqmmOnxH3JiC2QydE1/Xe+0x6D6rvwdghWQ5uTLmcnhFbHd8xeJOxVJcoT5VRBqZqGTRN2De+3ieGOS94=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=S4W6aJnx; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:Content-Type; b=Mg5K8Kv4bRPqkzRNTBPvn1JN9VEcn2dVz7az0xK8jBBQQU1ApA2kBMylVEN/Kgr0+TPV7NU2WnLVnjxO2nP5uFFXSoNTmTY64LOH9+t/FC2fMJkCV7Dyd4BLQO9LsaiTvv8BxJI7EiJDwZLUdR+MYzkY83ogh5QanEH//GOdpCY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lPRS1XAE; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="S4W6aJnx"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63G1dGkq1733958;
-	Thu, 16 Apr 2026 08:00:13 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lPRS1XAE"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63G7l6Ut2130606;
+	Thu, 16 Apr 2026 08:03:40 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=TiLrfB
-	EvZf25Er5GEwnfKUAFLWg/k7VfIe8fClNh99E=; b=S4W6aJnxT65JodCtPCOgfx
-	Ko5tUNbv6iFjqtz3SK1qhm2ee+GENFdBs7x3BD2wo9RtGRrtsbiKgTmauza7+GoQ
-	8h2RzMlOKL0f2r7bgAq32NINpxMTz0jCEAEhArzkB3hMY89sQi3QdBboza2U+J32
-	aCetVPGh6ex7fZQrMzotm3C7wi2OgOs6Iajyk37/ACqIy2W9F4uMvwSmJICh5d0Z
-	+TkTCAOVRMdOUwpC4akoQv/qskzNZymwixn+Rz3sQYCYIArx8bPSRn6a2tAn9+5g
-	s1zL25KQxuaR87tCi8BSdLZLig9oT53+qys6f6J5U0gZLpfwdv99jde4tnh0sh7Q
+	:message-id:mime-version:references:subject:to; s=pp1; bh=JuQKzT
+	MomhVg7sw7anpFgkOTtQ4X3ZHeOHKPH0kt7sE=; b=lPRS1XAEfAPruuL3/ShM8Z
+	vnE93BjYzwUYDuWBSXojV7yUuh2FV3PeEZYVBi4xTWhkZ+FX1nZLlo6MN1DKvNBo
+	hESYK/1hbsvW6tWZXD5m+HhG3jYg4TuXOoNRQfmdKuTPeVSOGw3xtrZaWbcLqx2u
+	AlM2b6ukMcP71FCSTYh8HWbDWg/nLo8Hg+57HtyiAoI7xdbB17GUwM00F9PAfvcj
+	dxcDO4BZh8xTmfBiknoQv0x9rjKNXnan+o7TxCUY9Rpfy1AuZSZ/5F7ZRJwTiIg6
+	3mJS9tUJylEDB9HaNdhjMIB4iiA4jnP5QxePOl/0Tr5AHTduCKJbTY9GFRcK5ViQ
 	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dh89mbgmk-1
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dh89nmcqq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Apr 2026 08:00:12 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63G6PmnI015149;
-	Thu, 16 Apr 2026 08:00:12 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dg0mst57v-1
+	Thu, 16 Apr 2026 08:03:40 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63G7WNGW004198;
+	Thu, 16 Apr 2026 08:03:39 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dg24khwbu-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Apr 2026 08:00:12 +0000
+	Thu, 16 Apr 2026 08:03:39 +0000
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63G8080F55706084
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63G83Z9F31457908
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 16 Apr 2026 08:00:08 GMT
+	Thu, 16 Apr 2026 08:03:35 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 87FFC2004F;
-	Thu, 16 Apr 2026 08:00:08 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 71A042004E;
+	Thu, 16 Apr 2026 08:03:35 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4EBA920043;
-	Thu, 16 Apr 2026 08:00:08 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 38E3120043;
+	Thu, 16 Apr 2026 08:03:35 +0000 (GMT)
 Received: from [9.111.91.184] (unknown [9.111.91.184])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 16 Apr 2026 08:00:08 +0000 (GMT)
-Message-ID: <c8cbd326-a393-4906-90d6-40ce9bf7f309@linux.ibm.com>
-Date: Thu, 16 Apr 2026 10:00:08 +0200
+	Thu, 16 Apr 2026 08:03:35 +0000 (GMT)
+Message-ID: <624c8a3f-2a09-4257-9b0c-2b64e60e52a1@linux.ibm.com>
+Date: Thu, 16 Apr 2026 10:03:35 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,14 +62,14 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests 5/5] lib: s390x: Remove kvm s390 prefix from sie
- control block
+Subject: Re: [kvm-unit-tests 3/5] lib: s390x: sie: Free guest memory on
+ destroy
 To: Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         borntraeger@linux.ibm.com
 References: <20260415085145.91197-1-frankja@linux.ibm.com>
- <20260415085145.91197-6-frankja@linux.ibm.com>
- <DHUEWSSY4DCK.13BQA6YYBXJK5@linux.ibm.com>
+ <20260415085145.91197-4-frankja@linux.ibm.com>
+ <DHTSMVSISIZM.3MS0YLDBLMB09@linux.ibm.com>
 Content-Language: en-US
 From: Janosch Frank <frankja@linux.ibm.com>
 Autocrypt: addr=frankja@linux.ibm.com; keydata=
@@ -114,53 +114,73 @@ Autocrypt: addr=frankja@linux.ibm.com; keydata=
  DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
  Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
  phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
-In-Reply-To: <DHUEWSSY4DCK.13BQA6YYBXJK5@linux.ibm.com>
+In-Reply-To: <DHTSMVSISIZM.3MS0YLDBLMB09@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=I/dVgtgg c=1 sm=1 tr=0 ts=69e0970c cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-GUID: 5XHZntYeg5JJlzX2bfo-UmeZZXjMzKvw
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE2MDA3MiBTYWx0ZWRfX2vMNv4/Z4L0z
+ ha6kA8WPFSTgXLiuxoXyGMm0LbiB/6/TSJRSv3EsWs6HeWPjlM1cBetI2A6/OeNY3MeY0r/tXWy
+ 7mSKUnn1nmX+AEAvueAkmlesp5WXgRHp1wGKRzudshtbW6Yfe/O1aPi8Z3pxOal8yqAy1p6kViB
+ yrQ84/OHfaSbfbDpmSxrgHNKo6g9gCFF9QW0qEz2GdWMCkpTG0RevOXOpbD5JeqweGCzti/zhhv
+ GeZrlWiFa//jXN3u9X0FI6oWlnXjoGNOSYznnuwJf1NtpmxLpoaDNDEoTzaG/TX/+lHYJ/cBbS5
+ EePiHhU+icmfd01y4DMGX+0TQCNqxjpvY9KKn6GjZk73Lb2+cvFXDGfsUv2okfaArMynuJ4loTa
+ 0O7a3HWILuXKh8F3EApqhs/lCAm5sRe8AqdTI/761DI23ephaO84LZ/hx4h+zVojdxsXjT5Ofw8
+ UJn4yYZ35sQhMhowE1A==
+X-Proofpoint-ORIG-GUID: 5XHZntYeg5JJlzX2bfo-UmeZZXjMzKvw
+X-Authority-Analysis: v=2.4 cv=FY4HAp+6 c=1 sm=1 tr=0 ts=69e097dc cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=hJuIRY9HTYWKoeS5xb4A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: EnXKyrKIKd6OnNKxp9leIZIsr2hDjZkj
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE2MDA3MiBTYWx0ZWRfX+mD0e9WKKoxQ
- J9m7FO9jPHG4GFsQTw48RQuMxringvaKVLL8a3WSMl3qQqq5D4SLpvPIijVO81+f1i3Tr6E5Ex3
- q0jldgU6kY1mmw6B1ZUD70sQdpjcvCwuNckzQ1BmN8COyrbqI3SyijhGuakJwik2TLitIMZCJNw
- 5OG9I+vYTKYpFkyGbke8D3WEqWbHuBHVNhgTuRjoy2G5U6QwU/StK+sjyu9AdutweRS44/mN07X
- WE5cZ+FVWyx8jjxDh1v1Ta2Q9/3NBjHFrOHeyFxx904SrB0/MV6pr+0RF1jHbjPhLpTLqO/ROAz
- jQFZafXDVPVy0ZbtgbFzTpsMbpdLvpL35bEjC4tES/lAAXZ8oV4rfouR/rzCkr05kQChIWbZ2mT
- d+ljkctykQYLbh2ME8SRqOQ4x+YtivX+5lt6xjxhUQLfGW3eF/+dxZqF0ZBcPpkeOXFC21t6vIL
- 1RnvqgoTy2fOyIIOUgg==
-X-Proofpoint-ORIG-GUID: EnXKyrKIKd6OnNKxp9leIZIsr2hDjZkj
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=dbLSXGKGoUd-6RR-K84A:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-16_02,2026-04-13_04,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 bulkscore=0 clxscore=1015 adultscore=0 lowpriorityscore=0
- suspectscore=0 impostorscore=0 phishscore=0 spamscore=0 priorityscore=1501
+ adultscore=0 priorityscore=1501 bulkscore=0 impostorscore=0 spamscore=0
+ lowpriorityscore=0 suspectscore=0 clxscore=1015 malwarescore=0 phishscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2604070000 definitions=main-2604160072
 
-On 4/16/26 09:48, Nico Boehr wrote:
+On 4/15/26 16:21, Nico Boehr wrote:
 > On Wed Apr 15, 2026 at 10:45 AM CEST, Janosch Frank wrote:
->> We're not kvm.
+>> We never freed the memory that the sie library allocates as the guest
+>> ram on destruction of the VM. Most tests reuse the VM or just leak the
+>> memory since the standard allocation is one megabyte and tests only
+>> use single digit numbers of VMs.
+>>
+>> It's time to add automatic freeing to the sie library when a VM is
+>> destroyed.
 >>
 >> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>   lib/s390x/sie.c | 1 +
+>>   1 file changed, 1 insertion(+)
+>>
+>> diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
+>> index a49c45c7..758ead77 100644
+>> --- a/lib/s390x/sie.c
+>> +++ b/lib/s390x/sie.c
+>> @@ -192,4 +192,5 @@ void sie_guest_destroy(struct vm *vm)
+>>   	free_page(vm->sblk);
+>>   	if (vm->sblk->ecb2 & ECB2_ESCA)
+>>   		free_page(vm->sca);
+>> +	free_pages((void *)virt_to_pte_phys(get_page_root(), vm->guest_mem));
+>>   }
 > 
-> Hm, is this just a cosmetic change?
-
-Yes
-
+> Is there a particular reason why we have a two-step process of calling
+> sie_guest_alloc() for memory allocation
+> and then
+> sie_guest_create() for initializing the sie_block etc
 > 
-> On one hand this will make it harder to copy things from Linux to kut.
-> 
-> On the other hand, there's already a ton of divergence between Linux and kut.
-> So it already isn't just copy&paste, this will make it just a bit harder.
+> but
+> sie_guest_destroy()
+> cleans up both?
 > 
 
-For sae we already dropped the s390 part in the control block name in 
-KVM. I aimed to have sie_control_block and sae_control_block once sae 
-support is added.
+Historical reasons I guess.
+There've been a lot of changes to the SIE lib over the years, snippet 
+support itself isn't that consistent but it's currently good enough.
+s390x/sie.c is the only direct user of the allocation and even that 
+usage looks like it could be converted.
 
-But I'm not too hung up on this patch.
