@@ -1,135 +1,83 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBA332253EB;
-	Fri, 17 Apr 2026 13:07:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDC1238D6B1
+	for <linux-s390@vger.kernel.org>; Fri, 17 Apr 2026 13:08:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776431280; cv=none; b=hhLPyGZzsiSJrX6pkcn8R43OsPUFJXbGKhoauSq091HBmeSYD72AWeY5LqWbU/KBgWIFbA5p71BeEDuohfiT1V1e3wDAPUZpRfjaRtQLZq3qINMwUJ4nJuGzRPOGbVPv8m+MLGZqXD+dfFFTPERWcbugx5B3eOHkR8pR2MmA00U=
+	t=1776431334; cv=none; b=uwFvKrxlJnbAhTRQs4JF0TZK1U9zaFhBDk7QEY8CgdTXOq7efh3TfVsR7ddgphVa1SOctTdcqu+bvpKLhfd6cxfKdLo8LJN+9y2XAZS1ihi8OVnM6ET3zAvZszaRS1zvYlZmoMxFceRCMveWBibExLe8xAyHI5s1uPmzA0Qh/C8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776431280; c=relaxed/simple;
-	bh=fVOZO/14X/t9U4xSlG/dsjYvr34l8aTIpaXcqD+qFz0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=sHU2dRQSubfGrTGbBVSOKlDdBb6tx51TzuPfyrJy+gApuvugvXejVNTO4Mb6sU7/3g6B4manDLDnUrw48cwJedMWzt5AGXiEXT3nhJgZ3I6zeiE4FuRxhV0G9YmUm17LFvGy5ZeacySxokDv8Z3eMojP8rjCoW+qShr3Vns3HEI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sHc2WeAf; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1776431334; c=relaxed/simple;
+	bh=6PSYpeiHptreFUSS8SAlG+Y/DSKJODD2AQRo7Rpwdds=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=K0QUd8vsYK7Mc94fK9oOOoT0ZHo6kGq/AccFJVuxclkVYTUr0bprDvuC+4RW6M66Tua3AdUTm4HwWxdismzuhd4jm+LC6BFhT8vt6PDwC1kocpGl2CMYlZepIeWYhJnVJ8kysRxgnrVm2nm/K0Q9LY9ubfNCLb892HEz701hS6Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=iRmucmM9; arc=none smtp.client-ip=198.175.65.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sHc2WeAf"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63GN1tO21844923;
-	Fri, 17 Apr 2026 13:07:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=41rwOJTRQtGJKyUgQI6HyEkkQcNFJ6
-	jqFaCPOLxYD4E=; b=sHc2WeAfKWi4B4Gkh4o/oXI7c1vOcBPZqBYxukxYCzyLZ7
-	mKiHp/ns9tiQsz6nMNQs+H4ZSwlxhtyCj1wOLzPBuZlPJhTSnd0hGatbfJIY9Cae
-	aaGasdthFA5REFIVDTLMgUj7TaQvuuXgSt83tyyiqUVv3itXL7wUXRp8nghnkyr/
-	e4HbNQd7xrepsCtk1325wTkunSFi6neZ8gzoY9vPelR0qn7CMcmkFhgc6glFW2SN
-	IRbZ/+YUcOOr+u8ibTGxF1sPzMHguHBmIgiY2D2fyNsZD+CDgJXyfZsshTJtd7rR
-	Tft9+56vYq+otiJ71NIap4ORKbd6LybiMqxiibAQ==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dh89n2n7m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 17 Apr 2026 13:07:44 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63HBUVn5015149;
-	Fri, 17 Apr 2026 13:07:43 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dg0msyfyn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 17 Apr 2026 13:07:43 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63HD7eAR49152364
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 17 Apr 2026 13:07:40 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EE7CC20043;
-	Fri, 17 Apr 2026 13:07:39 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5A1F220040;
-	Fri, 17 Apr 2026 13:07:39 +0000 (GMT)
-Received: from localhost (unknown [9.111.87.179])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 17 Apr 2026 13:07:39 +0000 (GMT)
-Date: Fri, 17 Apr 2026 15:07:37 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-To: Pengpeng Hou <pengpeng@iscas.ac.cn>
-Cc: Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Thorsten Blum <thorsten.blum@linux.dev>,
-        Tigran Mkrtchyan <tigran.mkrtchyan@desy.de>,
-        Kees Cook <kees@kernel.org>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390/debug: reject zero-length input before trimming a
- newline
-Message-ID: <ttdn34p@ub.hpns>
-References: <20260417073530.96002-1-pengpeng@iscas.ac.cn>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="iRmucmM9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1776431333; x=1807967333;
+  h=date:from:to:cc:subject:message-id;
+  bh=6PSYpeiHptreFUSS8SAlG+Y/DSKJODD2AQRo7Rpwdds=;
+  b=iRmucmM9zTO7W9lPX3snGaoGRB4TyhqZoi0hXr4T+KJgJmEPn5lrlE5j
+   /lZ+JH2l57eMIziOKu2u9SBQpz5SMEKHTyhb+LXVKcNvqYJ07GDouRwOn
+   mJDda2qVHX6IfqHjYl1+VkWiWg344zUTz6X5EViKdzFhPgAVJtWt4SWJf
+   HAtNf5St6Tr3GD/wjTIDEFnf50w+Jl1QHfQj7eBl2DjRZID7QhvCmQO1Y
+   0BX5z/x7c/Ze5Dq9906NvJ9apfY7GphZD8G9kJzDtBni4jQxeSs9Kf89k
+   uvw+y9Q2vKPOM3m6ARYf45K/cxS34TG0pKjgBibU13swRqo2bwkrn49j7
+   g==;
+X-CSE-ConnectionGUID: Lg4hQWcVQ5ySd+evtIabvg==
+X-CSE-MsgGUID: yqjJJOgWSvyin+9jBS8pnA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11761"; a="87746810"
+X-IronPort-AV: E=Sophos;i="6.23,184,1770624000"; 
+   d="scan'208";a="87746810"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Apr 2026 06:08:53 -0700
+X-CSE-ConnectionGUID: 7X2MwBsYSJCptEf5BWmOiQ==
+X-CSE-MsgGUID: ZkbHolvCQ7enxYtCT8zulQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,184,1770624000"; 
+   d="scan'208";a="230954002"
+Received: from lkp-server01.sh.intel.com (HELO 7e48d0ff8e22) ([10.239.97.150])
+  by orviesa008.jf.intel.com with ESMTP; 17 Apr 2026 06:08:51 -0700
+Received: from kbuild by 7e48d0ff8e22 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wDiwC-000000000NW-2FQp;
+	Fri, 17 Apr 2026 13:08:48 +0000
+Date: Fri, 17 Apr 2026 21:07:48 +0800
+From: kernel test robot <lkp@intel.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: oe-kbuild-all@lists.linux.dev, linux-s390@vger.kernel.org,
+ Steffen Eiden <seiden@linux.ibm.com>
+Subject: [kvms390:sae-part1 1/27] Warning:
+ drivers/vfio/vfio_main.c:1516 function parameter 'kvm_module' not described
+ in 'vfio_file_set_kvm'
+Message-ID: <202604172036.augJ2Yj2-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260417073530.96002-1-pengpeng@iscas.ac.cn>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE3MDEyOSBTYWx0ZWRfX5mtgCy4QIwIo
- 1924MV5s5+bc8BMm3OdwSucDgdearaFLQwehL7xfdir0/gzrinvBNljhjDJoR/MEQ0VXRb9o22r
- V9WVWg9bwsD8fdHan+5O35sCFQCaRoGyR5sXGVh8QE8AHCI+93tjzIrt9ocX0GiR/Mj+ysE/wmT
- CcHZvtrMwLb5PKDlCDiGGlWUIF9Xh+JoLnXYYAz6/w46Ww+946W+GgqB1DCq8DS7isJKAcF30nf
- 9ZbYMg7KsVPQqsBrOyrsmNlGOHJxEaKxeQJ3fewT3mCJq+LAsjN4wipu7A1gMUmCywQZ0YK/+gQ
- axqavqbxQY7L5i4nx7i9jrna5x5eSq0IhV7VuKAaBa86GLkV+payYdVHdf4oMWHRmn1ezvO1U65
- YCYl6+KjMmzMf2IUTGQP9iDNLtSSFXLfEvMy1ntXhHx9u7qbN+2CT+yu0CC8r7ZhoTZkkAhwAi6
- R5stHDQXBPhLZJJVSWA==
-X-Authority-Analysis: v=2.4 cv=eJ4jSnp1 c=1 sm=1 tr=0 ts=69e230a0 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=c92rfblmAAAA:8
- a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=uf26iSff4PeA7en13qcA:9 a=QEXdDO2ut3YA:10
- a=GvGzcOZaWPEFPQC_NcjD:22
-X-Proofpoint-GUID: UZPyOKGuOiZV9zc3NjyDFBOGm0nd1eiS
-X-Proofpoint-ORIG-GUID: UZPyOKGuOiZV9zc3NjyDFBOGm0nd1eiS
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-17_01,2026-04-17_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 lowpriorityscore=0 adultscore=0 priorityscore=1501
- clxscore=1011 bulkscore=0 suspectscore=0 spamscore=0 impostorscore=0
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604070000
- definitions=main-2604170129
 
-On Fri, Apr 17, 2026 at 03:35:30PM +0800, Pengpeng Hou wrote:
-> debug_get_user_string() duplicates the userspace buffer with
-> memdup_user_nul() and then unconditionally looks at buffer[user_len - 1]
-> to strip a trailing newline.
-> 
-> A zero-length write reaches this helper unchanged, so the newline trim
-> reads before the start of the allocated buffer.
-> 
-> Reject empty writes before accessing the last input byte.
-> 
-> Fixes: 66a464dbc8e0 ("[PATCH] s390: debug feature changes")
-> 
-> Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
-> ---
->  arch/s390/kernel/debug.c | 3 +++
->  1 file changed, 3 insertions(+)
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git sae-part1
+head:   c8ef958593be02ec09131a1f5e2744a98b6c01a1
+commit: 1846164a1854e4d1b047de7d300e3213eab53e5d [1/27] VFIO: take reference to the KVM module
+config: arc-allyesconfig (https://download.01.org/0day-ci/archive/20260417/202604172036.augJ2Yj2-lkp@intel.com/config)
+compiler: arc-linux-gcc (GCC) 15.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260417/202604172036.augJ2Yj2-lkp@intel.com/reproduce)
 
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Tested-by: Vasily Gorbik <gor@linux.ibm.com>
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202604172036.augJ2Yj2-lkp@intel.com/
 
-Added
-Cc: stable@vger.kernel.org
+All warnings (new ones prefixed by >>):
 
-And applied, thank you!
+>> Warning: drivers/vfio/vfio_main.c:1516 function parameter 'kvm_module' not described in 'vfio_file_set_kvm'
+>> Warning: drivers/vfio/vfio_main.c:1516 function parameter 'kvm_module' not described in 'vfio_file_set_kvm'
 
-I've also addressed Sashiko's complaint [1] about debug_input_flush_fn()
-as a separate patch.
-
-[1] https://sashiko.dev/#/patchset/20260417073530.96002-1-pengpeng%40iscas.ac.cn
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
