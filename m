@@ -1,181 +1,155 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from SY8PR01CU002.outbound.protection.outlook.com (mail-australiaeastazolkn19010016.outbound.protection.outlook.com [52.103.72.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6C96390C83;
-	Thu, 16 Apr 2026 21:39:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776375568; cv=none; b=QpMuH32hTn5DKo4r8vJG08PGpQ44H+vzZeWjkANsGiEJft9J8cjLeRlo7vEJLZpCFe+ZFQo8ShRZ0EwD8JmfYMf1KdVkZ4rf1bbjPDWStNxuE/3DXLf6bT4UIPD+g/rlAd5LhF3KCm2CoKIJh2IzzeEuJ7G1uyCUL7mh21ORx50=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776375568; c=relaxed/simple;
-	bh=vEX2YgnVtzG/kWcq17f0/dxZGqpGdFexUjQZXcgX1Ng=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FHkcXh4faAFTurr3HSqCHQuii607ZdO9SY8mmSa9BCSWeZ1IxSm1AoVJealreTy1Jj4OLUVmbWq3GsYasL0jQUUJNW133ICxkAJo2Ezj4bL0P71jbPZjuM/jNAo7mUu99qLp1Tfb6jqEvqbAg+uUJFTSg0UL8ubRZdz8quPoIok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TN/gJUMr; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 667A222F01;
+	Fri, 17 Apr 2026 05:45:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.72.16
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776404702; cv=fail; b=LSNKK8Xyy30wdmI7rElGtKdefQ4qd3to2Qev3bhO9ZnN/6L5otZXQGNr+NxaEuUy3Q49FyBnbvA7eB4i0zoVzJYMBTuixXWynJZ1OYJanU04g6IPdHTlrr9C9GWNxENF0n9tu4PYm096Y+RgW2ahNHUPOmEmMrtgk2Mkgs4hG9s=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776404702; c=relaxed/simple;
+	bh=wJaOlaJj53ZgGQVOaSQrsfwwTgmMJiZ9yjDxghuVj4k=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=c2vFhf4qKhuKckiVIInN482bE7HDjGNCuNT9cnNs7K5RzKcZ6OlODmFm6tkV6IIhH3V4N+bXjRwJcq7VW8fRU9wT8NMCEUugjWdWL/SAu77Zzrxxa82+gh9QGMxl5Ykt4A6viTnTkvc0A/CYix2GBTofWQTNn6Z+amvSIAChA60=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=fpjndqOH; arc=fail smtp.client-ip=52.103.72.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TN/gJUMr"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63GJBMMN1860717;
-	Thu, 16 Apr 2026 21:39:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=CpOcsvGu0vq9yafPL
-	Md8795CqxepEPd0x1m5IZSMpAw=; b=TN/gJUMrR0fe3CPMQ6gfew5ECjscyYUOr
-	9aZEe4LG6hNbmgaJ8TVEnUYQoLO47G5T5tJu5Hkj0SMJPNSiq8Icf8Pkk0xdOcg+
-	FKmrN/nFwBPq8+CU27CJlQl6x/zIz+Szik2E1c0TzLhhC8XiwKAhCBb5iaAHH/4Z
-	B308D+j+CQiJJ+CbmM0sFAGzusxXU29RqFbgYQrNRzEGbgCIDFGze7rcczCoSRx5
-	E2/glO2a4wHTF2T+cYuzofaXVNojw1s2UdHo1ojPUWyVhXtn5/hL4t8UFnNvC34H
-	d30CMqW7yzTcH1X9xN8cahz+ZZGhAq5+xIlRRTIYpByERfHMx5Xbw==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dh89pppcm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Apr 2026 21:39:24 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 63GK1aNF003610;
-	Thu, 16 Apr 2026 21:39:23 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dg1mnmpda-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Apr 2026 21:39:23 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63GLcudd24773120
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 16 Apr 2026 21:38:56 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 299C258059;
-	Thu, 16 Apr 2026 21:39:22 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B1F8358057;
-	Thu, 16 Apr 2026 21:39:21 +0000 (GMT)
-Received: from IBM-GVXK264.ibm.com (unknown [9.61.246.192])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 16 Apr 2026 21:39:21 +0000 (GMT)
-From: Ramesh Errabolu <ramesh@linux.ibm.com>
-To: linux-pci@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Bjorn Helgaas <bhelgaas@google.com>, Lukas Wunner <lukas@wunner.de>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Ramesh Errabolu <ramesh@linux.ibm.com>
-Subject: [PATCH v2 1/1] PCI/hotplug: Add 'uevent' sysfs attribute to trigger slot events
-Date: Thu, 16 Apr 2026 16:39:09 -0500
-Message-ID: <20260416213909.705753-2-ramesh@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260416213909.705753-1-ramesh@linux.ibm.com>
-References: <20260416213909.705753-1-ramesh@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="fpjndqOH"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=TUzj595+8i48x8QnSFNSc6qZj69/8WvriXWSdU7VCvLIBiaQuSoTIc3DZbWeVcwq40NcwZJ/BcnYE0DN8OlfRsib+g1tEPlfRv+vMIWzOUxhRgC0N4eH5ySjzQACEmkFVME7svmZuKQbAR7HL6y529nXqpal99vyFk+5zjP7KGF0eAdjVUHU7Oxs45eSfpHtvvC9gu8O9suzknX/ICoRXstzwEMo6s5Kv+H+7OSH6rr9zzzVuiPqhHRwSWsdXkvdfM9dIMDBHO28TWOaRCEAXGMDFZBxvMYu6SVAVUJbxmjVG7pRajXG924cIOBhq/1KBIWl53o2mJh/f75CzCKF+w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=wJaOlaJj53ZgGQVOaSQrsfwwTgmMJiZ9yjDxghuVj4k=;
+ b=lTPar8cJ9XcsxoK8hQByOQpfUxGiiINJOIWWrFxvUsszhyd1h8QQ1IXgY3GHQbZLetmJxXQS/3d8nYLYoaMQrWw9lutbZz+0YztZpNTuJNwBbaVmBd+j4VGKmp+1uAfvYM72j2BMkEQBAdYQ2YdkU60sP4sVI7Wn7muX4ES6TsnEblOteYEqITEjiaSJCkEhKdos0CZ3oxmZOloxldwwBYn0wVCxRhTnM+p6z6poRrXFu1jXu7wAcBsGNivM/JyoumiXqkoXVy7pmVkxUbG25E4FQfQ0NbVc/44jQvnDj5mrZepaTFrWuC2g1nlbH3A3yyd637AKUKiHdtRV5qv45A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=wJaOlaJj53ZgGQVOaSQrsfwwTgmMJiZ9yjDxghuVj4k=;
+ b=fpjndqOHLnUNP97iXhw748TKqcxrRvvJJVK34/TtF4nQ9NMvs81MqnJhk4m6PMXPs5npOUVfC1bBcttPsOLk+lVxWqNOyif1e5lJ+yNo33wPOzPXlKTKlCr7PKxEu6Z2mWMEW0TCTr0uEU+eoHFfjjqIJcmHGFHRWi3njjnS1IB1nMKR4HurIFR4FICOevjnV2iU12pmu0uRBD4N/+VsVHBm4FdSIh/inkulHXreCMLnDy1tYH+Rccz509fNfLCEoPY6/83WR+y8uZCjVwb1LtqzOL+uZs7DDK7VVw8VgQaRw0BWNpB7fPGwfBIIKDH2fhV0I/lPwW1LW+raG8CveA==
+Received: from SYBPR01MB7881.ausprd01.prod.outlook.com (2603:10c6:10:1b0::5)
+ by SYZPR01MB7826.ausprd01.prod.outlook.com (2603:10c6:10:176::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9818.25; Fri, 17 Apr
+ 2026 05:44:55 +0000
+Received: from SYBPR01MB7881.ausprd01.prod.outlook.com
+ ([fe80::7cd2:d6e8:3fa0:5f0c]) by SYBPR01MB7881.ausprd01.prod.outlook.com
+ ([fe80::7cd2:d6e8:3fa0:5f0c%5]) with mapi id 15.20.9818.023; Fri, 17 Apr 2026
+ 05:44:55 +0000
+From: Junrui Luo <moonafterrain@outlook.com>
+To: Matthew Rosato <mjrosato@linux.ibm.com>, Christian Borntraeger
+	<borntraeger@linux.ibm.com>
+CC: Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda
+	<imbrenda@linux.ibm.com>, David Hildenbrand <david@kernel.org>, Heiko
+ Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander
+ Gordeev <agordeev@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Farhan
+ Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Niklas
+ Schnelle <schnelle@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>,
+	"kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org"
+	<linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, Yuhao Jiang <danisjiang@gmail.com>,
+	"stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] KVM: s390: pci: fix GAIT table indexing due to
+ double-scaling pointer arithmetic
+Thread-Topic: [PATCH] KVM: s390: pci: fix GAIT table indexing due to
+ double-scaling pointer arithmetic
+Thread-Index: AQHczLo0DLf/mBenZ0y9H6NwINzCurXhqlkAgABvhACAAKaAAA==
+Date: Fri, 17 Apr 2026 05:44:55 +0000
+Message-ID: <DFE3F654-DC1D-4D0D-9665-16A06038275F@outlook.com>
+References:
+ <SYBPR01MB7881AB7449FEB6B58E4BA6F2AF222@SYBPR01MB7881.ausprd01.prod.outlook.com>
+ <b1f22f3a-398e-4ce6-8092-aff9c9aaaf9f@linux.ibm.com>
+ <f029675e-7b96-4d51-bd79-595e322eb135@linux.ibm.com>
+In-Reply-To: <f029675e-7b96-4d51-bd79-595e322eb135@linux.ibm.com>
+Accept-Language: en-US, zh-CN
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-ms-exchange-messagesentrepresentingtype: 1
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SYBPR01MB7881:EE_|SYZPR01MB7826:EE_
+x-ms-office365-filtering-correlation-id: 230517ba-7d3c-4f7c-c662-08de9c447424
+x-microsoft-antispam:
+ BCL:0;ARA:14566002|461199028|31061999003|8062599012|51005399006|19110799012|12121999013|8060799015|15080799012|22091999003|24121999003|40105399003|440099028|3412199025|102099032;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?eb0tJYwe/QGeI7YT+7oX5gKm29qzFC/2AIuLcSaGy/U1Q7KFo7c2amXzzhDE?=
+ =?us-ascii?Q?ANIhJUkz7qSQwdDcu4OKTlSEiuXpuvtq7/apZiAnE0gsNrSf0UtDxwETd5eL?=
+ =?us-ascii?Q?seem6cQrCl4zphNdk7ODzSaBfl02am3QA6kIjAEAI0VInBxrXZmVdEGnWwHa?=
+ =?us-ascii?Q?5jGQJUi+2qoq5ME5p/0GEgtjErOMfqKpoueZmNMHsMcQ9VcSLJMYqJxD9BTS?=
+ =?us-ascii?Q?BFsGymCkkZjtlH4dpwleK1jaX/n8PdJkjs91IqPT52T0R7JVcvIMNsDVuVz5?=
+ =?us-ascii?Q?6/jVmqMUzPhKBSpz95wz6Wg30gCph32gJUpGz21WfyqaKd9LM26TFMo+up7S?=
+ =?us-ascii?Q?3UdN/XMrOGWsTOOj6bdqJNAzJ5QmEMV05caM5VQfGQj67cub2E/Y4psDKBvH?=
+ =?us-ascii?Q?pYqPPhXznmcLKR5FVYIpbFxZolsNJb79RS7iSJi1TNGbcR3sLESA7p9BS05K?=
+ =?us-ascii?Q?ra0NmR42v80Lzn7pzHM8sri0gen2+93FpTSbQrCHo2zCsvgJzBEM+YAIcFfJ?=
+ =?us-ascii?Q?TdQ3qgdhMbEG8bWQI1keBkWnNl6/1TPawnRpVktxTRKoiHoWrQibHOPxODdf?=
+ =?us-ascii?Q?PEb2VCn2Yo4aS68cZwP/yoOE11+13mNrX8vvqNssqtB9byajNIAi1yV/2t8r?=
+ =?us-ascii?Q?Yhx/wRNCZfPCFxzt+A3HmekPgBY5uxA1dnsy5Ec9EpnZnY9wvNGc7/XlOpNA?=
+ =?us-ascii?Q?iixrIsjPovZI/NT5wJEnNQrtLstbEquBXETrbVTCdncpdc4Mzi6bGHUW87Gm?=
+ =?us-ascii?Q?p2EL6KAmzUQWF9UupVkKCRhWIR2LiKBCG7rycBn6ONcKH7kpagxD7oMnRlbC?=
+ =?us-ascii?Q?Y6tHgt2ka8btIwMZd88bYbroJSng3f/ueJQJnFq45/URFibeeoVaW4PPN/91?=
+ =?us-ascii?Q?1HD98XcaLpagoaPDryNyrQoaUpiMl2O71zyWIPafx+35doqTTivJNimnWg2p?=
+ =?us-ascii?Q?zyDOnUycY+dUzBmolAPJv2HyFIz2BppYBeWx5Jp5/TNuQDLf4wQTuLfkaLhA?=
+ =?us-ascii?Q?TRcK?=
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?Vtpae4nuDG9k4UvwJMyjfw0jov1/+6r59KNU7Y+taBEU3ShT0zhqesbfaXIe?=
+ =?us-ascii?Q?2rn6lMCffvkC6ab90YuZWmIW9ZNIBO3pgFCgMyxx9+elohzPd+1bNyom7xqZ?=
+ =?us-ascii?Q?EmqKtQRQOhBYWMI7oNlmim+w6aA4WLZinmsh86jWOgPeGYvUf8OYUVLovlYn?=
+ =?us-ascii?Q?GmN3xcbQCr20QzOnUpqIOkpwS0+dlEteprzqRbc2SQaa/F160XRcdYHCyWOm?=
+ =?us-ascii?Q?YPpWRLady6P/3yYgDxbD1lY/61Ktbqs2RQmh/aMkGlW5xR5qsWkuKvkppwXI?=
+ =?us-ascii?Q?Ko/Zn2fZqyep4O2RckcnBY7xvixHwUuL7SgGExM8GG4uvh36ix20uDzSKcug?=
+ =?us-ascii?Q?fXKvrcSntHOEqPvaIcj6vnmiwLjqRL6FfUFMa9hBfZt0n4p2R5d9DNhSBURj?=
+ =?us-ascii?Q?w2bOZ+PpjRBIeLnXK3R2ES8B0Snw3JJ+tx3Pc7JaQkxHYpyKYtNjbIFgxk0F?=
+ =?us-ascii?Q?bBc+f8Bo2VidUC3OMwKKOSpWIOepRw3krEE4yyo6E4kL29jqYHq3GQKwB39o?=
+ =?us-ascii?Q?t+jDm2T0HvkCjNDgZYCEJqVjBZNqAPn/2e//4P+B77EYldVU+Bkw0nyL6BEy?=
+ =?us-ascii?Q?LToEk11iYE1u4N+ERMZKYQVs7rsRGvuX68g76UKHDJGdDN3LGMdrP1xwsJVX?=
+ =?us-ascii?Q?5/+pda4ivZioPxcPZ8FeQFqfXbVMv5r8x9ApvWxvMiTV6SVO4Yo+Rx3TsJ0l?=
+ =?us-ascii?Q?GckiAZ8Wep6obxegj2T/WSDVk4T05ZzeMnE2cNAFGT9aIVDzsJZtuzmUXRld?=
+ =?us-ascii?Q?oydTcleMwU3Ni9Tlg0bfShSKog118J0crbZZANrxrjlU9yqVPworyZcnK8Yv?=
+ =?us-ascii?Q?CoH8roLttGrmACgQqqA8henmz8j76Sif5mmgiMaLVELHz9mUIwezDlcvUF6E?=
+ =?us-ascii?Q?pLbvVyF4n5TMreisv3PvDy3IPj64XM60GZc5LpAQWnzzKjhdy81NrnZjxPiN?=
+ =?us-ascii?Q?/WGVVGx1/2P/IuiIjjMX5m8umOuG/SXCWPKLb3HhaBKH+2v2Vg42A3YfnzR/?=
+ =?us-ascii?Q?5GMMrikYpXfzoyLOokSKPl0Bs5T48t42MIk/sb5i1mp1IC1mXimoCajZMYJx?=
+ =?us-ascii?Q?+cTUZ9wl8FVY26ISqZi0PwZMoz4Fkc2UwYqgjXTUXf+nSsIJH56R9inJFOcO?=
+ =?us-ascii?Q?hnIL3JOK9JmWEJdJW91NNd9ATkC0wgoxEYd1xnm4Z/YSnPh33BDmAIgdTXmz?=
+ =?us-ascii?Q?488mXvY+NRKMmsEsblPbbEvggW4SzIDlhQfgKvEuvc1SMb6onYjzfgO5GX7A?=
+ =?us-ascii?Q?dmpMuQRg7GQXTYP6jqXdkXIRgiynLKgPsG+QZQzKPsmY2Rc0oAufw6gJAB5m?=
+ =?us-ascii?Q?cFsHwJ4JAYXGzPXfae1RZz4rIKTpWs184MZIG0dFTM7txZahUjH55y1cZ5P+?=
+ =?us-ascii?Q?FkDwZcNf3Hyj7ZVQ54S8uKXEgtJv+BdGqqdjibnEx7yiWTXqrw=3D=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <2E385B3B6418334B8B8FBD22ADB560E3@ausprd01.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-GUID: NF6MTuV5Mf8VJ2-Eel-WDikZuXEc9FZz
-X-Proofpoint-ORIG-GUID: BMop2iUy01dMTHm49ru5Y80RheRUHDyv
-X-Authority-Analysis: v=2.4 cv=WbE8rUhX c=1 sm=1 tr=0 ts=69e1570c cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=CMxJa-TJIm8yq2BzSosA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE2MDIwMSBTYWx0ZWRfX1VENHlwvzd8b
- YNs4DXZheBpO/l5ecA4G1rsWZ9xZn/7FvkoJUJPPPDFmScB9UKu4oCgrFKEH8qx5SLJ2EQLJXav
- lSCSAiYV3X8lB4utyjR3F+/CXWU7hVwI1pcmB0rxbIhQLvhqCqYgwqWsNVXWI1Vmr2SOxAmCTQa
- kDYUk9Bo57RdOEkFCJA8nqNT4Op1KkUoFXnVWngZs1NDbA50SHSwFelG3VlLTT00bSiUeOaScyd
- QBGkOCnFzvftYwx4010iAaCJnFvN+IcPjH2pINXgBo17Dnkv2rY7mpO+GDAczqIBohBoqGSnpXU
- +s4Rnk+9B83fEC4v+9r18Y67NU0dzjaydkvlEpT5vJi9Gfx0BZdooLYSVXAhts5xJEX5K+JXxsN
- OyHU3L8eqzs6TjZsGA202k5NGK0zMEvDX7XgaucHp62HhP0j+LlCMQMx3MZfFl7fY1mq/jrQEaT
- HMeBtR02LKE2RE1Gpxg==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-16_03,2026-04-16_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 bulkscore=0 priorityscore=1501 spamscore=0 clxscore=1015
- phishscore=0 impostorscore=0 adultscore=0 malwarescore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604070000 definitions=main-2604160201
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SYBPR01MB7881.ausprd01.prod.outlook.com
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: 230517ba-7d3c-4f7c-c662-08de9c447424
+X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Apr 2026 05:44:55.3163
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SYZPR01MB7826
 
-Add a write-only 'uevent' sysfs attribute for synthesizing
-uevents for a PCI slot. This extends the existing uevent
-support which emits a KOBJ_ADD uevent in pci_hp_add() with
-the ability to replay such uevents for cold plugged devices.
-As such events are only emitted by hotplug capable PCI slots
-so is the support for synthesizing them.
+Hi Christian, Matthew,
 
-The change was validated by manually triggering 'add' uevent
-for a specific hotplug PCI slot:
+Thanks for the review and testing.
 
-    $ echo "add $(uuidgen)" | sudo tee   \
-                /sys/bus/pci/slots/<slot-id>/uevent
+On Thu, Apr 16, 2026 at 03:06:56PM +0200, Christian Borntraeger wrote:
+> Out of interest, was this found by static code checking or AI by any chan=
+ce?
 
-Signed-off-by: Ramesh Errabolu <ramesh@linux.ibm.com>
----
- drivers/pci/hotplug/pci_hotplug_core.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+Yes, it was found with the help of an LLM, and we verified the issue
+manually.
 
-diff --git a/drivers/pci/hotplug/pci_hotplug_core.c b/drivers/pci/hotplug/pci_hotplug_core.c
-index fadcf98a8a66..c3634b1cc7a8 100644
---- a/drivers/pci/hotplug/pci_hotplug_core.c
-+++ b/drivers/pci/hotplug/pci_hotplug_core.c
-@@ -176,6 +176,21 @@ static struct pci_slot_attribute hotplug_slot_attr_presence = {
- 	.show = presence_read_file,
- };
- 
-+static ssize_t uevent_write_file(struct pci_slot *slot,
-+				 const char *buf, size_t len)
-+{
-+	int rc;
-+
-+	rc = kobject_synth_uevent(&slot->kobj, buf, len);
-+	return rc ? rc : len;
-+}
-+
-+static struct pci_slot_attribute hotplug_slot_attr_uevent = {
-+	.attr = {.name = "uevent", .mode = S_IFREG | 0200},
-+	.show = NULL,
-+	.store = uevent_write_file
-+};
-+
- static ssize_t test_write_file(struct pci_slot *pci_slot, const char *buf,
- 			       size_t count)
- {
-@@ -254,6 +269,11 @@ static int fs_add_slot(struct hotplug_slot *slot, struct pci_slot *pci_slot)
- 		kobject_put(kobj);
- 	}
- 
-+	retval = sysfs_create_file(&pci_slot->kobj,
-+				   &hotplug_slot_attr_uevent.attr);
-+	if (retval)
-+		goto exit_uevent;
-+
- 	if (has_power_file(slot)) {
- 		retval = sysfs_create_file(&pci_slot->kobj,
- 					   &hotplug_slot_attr_power.attr);
-@@ -306,6 +326,9 @@ static int fs_add_slot(struct hotplug_slot *slot, struct pci_slot *pci_slot)
- 	if (has_power_file(slot))
- 		sysfs_remove_file(&pci_slot->kobj, &hotplug_slot_attr_power.attr);
- exit_power:
-+	sysfs_remove_file(&pci_slot->kobj,
-+			  &hotplug_slot_attr_uevent.attr);
-+exit_uevent:
- 	sysfs_remove_link(&pci_slot->kobj, "module");
- exit:
- 	return retval;
-@@ -313,6 +336,8 @@ static int fs_add_slot(struct hotplug_slot *slot, struct pci_slot *pci_slot)
- 
- static void fs_remove_slot(struct hotplug_slot *slot, struct pci_slot *pci_slot)
- {
-+	sysfs_remove_file(&pci_slot->kobj, &hotplug_slot_attr_uevent.attr);
-+
- 	if (has_power_file(slot))
- 		sysfs_remove_file(&pci_slot->kobj, &hotplug_slot_attr_power.attr);
- 
--- 
-2.43.0
-
+Thanks,
+Junrui Luo=
