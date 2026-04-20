@@ -1,400 +1,237 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5174738A73A;
-	Mon, 20 Apr 2026 08:49:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A08F438A733;
+	Mon, 20 Apr 2026 10:57:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776674989; cv=none; b=euHrpRg/GaD1HClHeoq/jkgn1yQAcrX+kJV7bSQ0jsN4XDAUAY2tueXH86FMgeMBW2y6RES5JMTJaINAaq7f3SN8E+SlWqwDI7oSsbaTW+WfiuHLHiPVVnIZFaAnh/wNf8KXrToL/DJg4UCTrJWsg6YeKDJSTRiARI6bEyovKos=
+	t=1776682661; cv=none; b=mxUZoL4IOtuS5otIXfJHoEWRfAqTHfWxGxWtPEgt7oZVqT0RfphABcCYRMkcGM5e4sIIdIA8XT3Vz/0gaL9hygfQtnFsGHc54HRMDqfyHJqxQRpZdoPpntpO8K8JFc7FvkhSsEzcXTrv6eZ78KsqQlCMveEEDMGJH1+D4yGCEj0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776674989; c=relaxed/simple;
-	bh=bUNXXmMHrjLEmFR+6s7GLbmp27y7b4TXIdBOmW0YSPM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=akxFwWNBUCYMjOhzAKgQ2xruJN8bogu9SoJid/cI7/HInDuv8Qbs16fdbhQ/C+bc4Cnkj+ZBYXnX4Eu5XqxxnRR1td9S9MHzxjThlbxGB4dTy+kowf6A1DUcLGEW9LDn1fj8ehzUiXnmzwzSx8nVIhxENlPghPch9Gpc9f9Wl1k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=b6FO6P/8; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1776682661; c=relaxed/simple;
+	bh=RV6KLhKQJV9O10vjxbnO2mSqItoj7sx7NBlZB3v6Dsk=;
+	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=mj8JAt6S8X/tN59jGI3sqgpYYsmMAo0904nA+L3dmEEaHQrCkm9VSbplKztdUcRdlXmKcaX/2JnES4yKdsxg1zUTT9Zfu7xAlftQfBEvqsA1JlU0NOPnf7i5X0QiWzl7QZ5Ld5qyI39LXGJb+HmaUMIOWVSPt879x1ZIB+VSD34=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JNdNMpJO; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="b6FO6P/8"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63JMP7pk3529642;
-	Mon, 20 Apr 2026 08:49:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=ZEowiy9tanRsnQR45
-	yuwuL7/9pzCQzls2jxl+XAeR1o=; b=b6FO6P/8i9hVrRnTpHPJYEFirnVNLKgiy
-	wx/XKzbT+z0h9CdZ8lAJz6hMVpmaXaYqCgUZ9cQ4POtKPB+SHxd61DhSkys3pXHm
-	dKbhDZjZ48UFxBLDdAhA+uIZuzA6iO78iSbpG1OODVFgbJFpOP+PQQmXLwEBVqLV
-	TbA8Ozj7o1Hkoyfc0bulNq4RWkWOBCBZTHvVn99xlw1Ujg6dJ5S2HTCEV572rMLb
-	SSHVFeCL3A81Hn4E96a/keJMvtXSmxb4i+KAp9lRySCsMpd2o9CyyQakl9/iG9z1
-	7/VGLWleAdAKBGGZuzxRiTkzTztXGnYEv5jRDFIBOg83svNE+eg8Q==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dm2ney0du-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 20 Apr 2026 08:49:46 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63K8ZU7p012628;
-	Mon, 20 Apr 2026 08:49:45 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dmmnvm4rf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 20 Apr 2026 08:49:44 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63K8nfmp30998862
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 20 Apr 2026 08:49:41 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 37DD22004D;
-	Mon, 20 Apr 2026 08:49:41 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1796220043;
-	Mon, 20 Apr 2026 08:49:41 +0000 (GMT)
-Received: from b46lp25.lnxne.boe (unknown [9.87.84.240])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 20 Apr 2026 08:49:41 +0000 (GMT)
-From: Janosch Frank <frankja@linux.ibm.com>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        borntraeger@linux.ibm.com, nrb@linux.ibm.com
-Subject: [kvm-unit-tests PATCH v2 3/4] lib: s390x: sie: Memory rework
-Date: Mon, 20 Apr 2026 08:44:24 +0000
-Message-ID: <20260420084933.251244-4-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260420084933.251244-1-frankja@linux.ibm.com>
-References: <20260420084933.251244-1-frankja@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JNdNMpJO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E5A1C2BCB0;
+	Mon, 20 Apr 2026 10:57:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1776682661;
+	bh=RV6KLhKQJV9O10vjxbnO2mSqItoj7sx7NBlZB3v6Dsk=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=JNdNMpJOs/QU1EDyD5dKvXOmZv1rjh+NBsM6GcdHMLSL/OjW6/S1cLi+eTzoWkvlS
+	 kh+3j0VWnwZwUBAJaEt+MHqgkpOpd2jH8nsaJ8Ozm65otWB/3t5Rrz/rnL4tXlvvOM
+	 GAmEPAb3OJLBECf8AzyvUVxg0+4epkJ/KTW5ed0K9ZsnO1NgkG8mBKBDnH1RhcP+4P
+	 EvFV2PMNLd2iOSJ8tuYJk+x/xfonr7akIF4UPECxO/fFaRB49tzjFwxdzId4cezhZ/
+	 p1+tcPVtySt7bl5NQFMl5wO8jV5KGM/c1hjdXcdwh2Upoi8xPzeD187MKTu1nhKqIw
+	 fz09jetb3gqDw==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.2)
+	(envelope-from <maz@kernel.org>)
+	id 1wEmJu-0000000D2AQ-3mS1;
+	Mon, 20 Apr 2026 10:57:38 +0000
+Date: Mon, 20 Apr 2026 11:57:38 +0100
+Message-ID: <86o6jd2925.wl-maz@kernel.org>
+From: Marc Zyngier <maz@kernel.org>
+To: Steffen Eiden <seiden@linux.ibm.com>
+Cc: kvm@vger.kernel.org,
+	kvmarm@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	Andreas Grapentin <Andreas.Grapentin@ibm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	David Hildenbrand <david@kernel.org>,
+	Gautam Gala <ggala@linux.ibm.com>,
+	Hendrik Brueckner <brueckner@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Joey Gouly <joey.gouly@arm.com>,
+	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
+	Oliver Upton <oupton@kernel.org>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Suzuki K Poulose <suzuki.poulose@arm.com>,
+	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+	Will Deacon <will@kernel.org>,
+	Zenghui Yu <yuzenghui@huawei.com>
+Subject: Re: [PATCH v1 00/27] KVM: s390: Introduce arm64 KVM
+In-Reply-To: <20260402042125.3948963-1-seiden@linux.ibm.com>
+References: <20260402042125.3948963-1-seiden@linux.ibm.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 5yjX4bL7OLZjn6whjgKfnC2nsyHAgsTJ
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIwMDA4NCBTYWx0ZWRfX7jWb8AiKQVoO
- 7QohqXXcgaygFfd67ivnXLP1fETOvfMBi4yWSzmw10uVY0NQtfid3GZ2O26Mb8kOgSiTmTU4oOc
- pORqtTcBQLJ/FVKK/cuKvzNuks77M1lRQDHvUi9QjZ3X188XA2bD0WVFvYCZfphzS8qrm8oW3C/
- 4YjVYeyBD2NDfCn0HDwn6J7vdFi10C/JIHAhzs0e9g3s73Stn117iFN6dfP49bCltRayB7l4uYG
- fqhIButMj2C/gB0sB47YB/fuZ8QYn2TYn6EZSqTnv953EFX7ohZA34xSLP8k0e3s81LFWMLBvmK
- FdA6gsoKpBkuyIUeIDuiywji7ktG7iXzMZQ63ixTY3u01fGA223ZAdLK3LxyKNaEkA5RSDxcfIF
- XQeghi+PL/oDJGvHfDcqa9AswAK4t2lr2BHgS8ckwjqDbfb0bxakNFkR/AOK+NuQh0U/DW11coY
- kqh0qTMLt7jTaHRJwHg==
-X-Proofpoint-GUID: 5yjX4bL7OLZjn6whjgKfnC2nsyHAgsTJ
-X-Authority-Analysis: v=2.4 cv=B7iJFutM c=1 sm=1 tr=0 ts=69e5e8aa cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=K9MXuSR0SzlJvogcFBwA:9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-20_01,2026-04-17_04,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 priorityscore=1501 spamscore=0 impostorscore=0 adultscore=0
- bulkscore=0 phishscore=0 suspectscore=0 lowpriorityscore=0 clxscore=1015
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604070000 definitions=main-2604200084
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Andreas.Grapentin@ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, ggala@linux.ibm.com, brueckner@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, suzuki.poulose@arm.com, Ulrich.Weigand@de.ibm.com, will@kernel.org, yuzenghui@huawei.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-Make sie_guest_create() directly alloc the guest's memory.
+Hi Steffen, s390 folks,
 
-Also we never freed the memory that the sie library allocates as the guest
-ram on destruction of the VM. Most tests reuse the VM or just leak the
-memory since the standard allocation is one megabyte and tests only
-use single digit numbers of VMs.
+On Thu, 02 Apr 2026 05:20:56 +0100,
+Steffen Eiden <seiden@linux.ibm.com> wrote:
+>=20
+> By introducing a novel virtualization acceleration for the ARM architectu=
+re on
+> s390 architecture, we aim to expand the platform's software ecosystem. Th=
+is
+> initial patch series lays the groundwork by enabling KVM-accelerated ARM =
+CPU
+> virtualization on s390. To achieve this, a common KVM layer between s390 =
+and
+> arm64 is introduced (see below for more details). Design considerations of
+> arm64 on the s390 Architecture The s390 virtualization architecture is ex=
+tended
+> with a set of new instructions dedicated to supporting=C2=A0ARM-based vir=
+tual
+> machines. The s390 KVM host acts as EL2 (hypervisor) for a EL1/EL0
+> (OS/application) arm64 guest. To achieve this, the new Start-Arm-Execution
+> (SAE) instruction enables accelerated execution of arm64 VMs.=C2=A0 Addit=
+ional new
+> s390 instructions are introduced to query available arm64 features, used =
+to
+> populate the arm64 ID register contents, as well as, new s390 instruction=
+s to
+> save/restore various arm64 registers in the VM context.
 
-It's time to add automatic freeing to the sie library when a VM is
-destroyed.
+Apologises for the delay in responding to this, things got delayed a
+bit with the Easter break. Since then, Will and I have been discussing
+this series and what it means for the future of the arm64 port.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- lib/s390x/sie.c     | 49 ++++++++++++++++++++++++---------------------
- lib/s390x/sie.h     |  2 +-
- lib/s390x/snippet.h |  9 +++++----
- s390x/mvpg-sie.c    |  2 +-
- s390x/pv-diags.c    |  2 +-
- s390x/pv-edat1.c    |  5 +----
- s390x/pv-icptcode.c |  4 ++--
- s390x/pv-ipl.c      |  2 +-
- s390x/sie-dat.c     |  2 +-
- s390x/sie.c         | 13 ++++--------
- s390x/spec_ex-sie.c |  2 ++
- s390x/stfle-sie.c   |  2 ++
- 12 files changed, 47 insertions(+), 47 deletions(-)
+By way of opening the discussion, we want to be clear that we are
+supportive of the effort. Our comments here should be seen as areas of
+potential improvement and not as rejection of what you are trying to
+achieve.
 
-diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
-index b1b0a8a0..f0e1c41b 100644
---- a/lib/s390x/sie.c
-+++ b/lib/s390x/sie.c
-@@ -121,29 +121,6 @@ void sie_guest_sca_create(struct vm *vm)
- 	vm->sca->cpu[0].sda = (uint64_t)vm->sblk;
- }
- 
--/* Initializes the struct vm members like the SIE control block. */
--void sie_guest_create(struct vm *vm, uint64_t guest_mem, uint64_t guest_mem_len)
--{
--	vm->sblk = alloc_page();
--	memset(vm->sblk, 0, PAGE_SIZE);
--	vm->sblk->cpuflags = CPUSTAT_ZARCH | CPUSTAT_RUNNING;
--	vm->sblk->ihcpu = 0xffff;
--	vm->sblk->prefix = 0;
--
--	/* Guest memory chunks are always 1MB */
--	assert(!(guest_mem_len & ~HPAGE_MASK));
--	vm->guest_mem = (uint8_t *)guest_mem;
--	/* For non-PV guests we re-use the host's ASCE for ease of use */
--	vm->save_area.guest.asce = stctg(1);
--	/* Currently MSO/MSL is the easiest option */
--	vm->sblk->mso = (uint64_t)guest_mem;
--	vm->sblk->msl = (uint64_t)guest_mem + ((guest_mem_len - 1) & HPAGE_MASK);
--
--	/* CRYCB needs to be in the first 2GB */
--	vm->crycb = alloc_pages_flags(0, AREA_DMA31);
--	vm->sblk->crycbd = (uint32_t)(uintptr_t)vm->crycb;
--}
--
- /**
-  * sie_guest_alloc() - Allocate memory for a guest and map it in virtual address
-  * space such that it is properly aligned.
-@@ -185,6 +162,31 @@ uint8_t *sie_guest_alloc(uint64_t guest_size)
- 	return guest_virt;
- }
- 
-+/* Initializes the struct vm members like the SIE control block. */
-+void sie_guest_create(struct vm *vm, uint64_t guest_mem_len)
-+{
-+	void *guest_mem = sie_guest_alloc(guest_mem_len);
-+
-+	vm->sblk = alloc_page();
-+	memset(vm->sblk, 0, PAGE_SIZE);
-+	vm->sblk->cpuflags = CPUSTAT_ZARCH | CPUSTAT_RUNNING;
-+	vm->sblk->ihcpu = 0xffff;
-+	vm->sblk->prefix = 0;
-+
-+	/* Guest memory chunks are always 1MB */
-+	assert(!(guest_mem_len & ~HPAGE_MASK));
-+	vm->guest_mem = (uint8_t *)guest_mem;
-+	/* For non-PV guests we re-use the host's ASCE for ease of use */
-+	vm->save_area.guest.asce = stctg(1);
-+	/* Currently MSO/MSL is the easiest option */
-+	vm->sblk->mso = (uint64_t)guest_mem;
-+	vm->sblk->msl = (uint64_t)guest_mem + ((guest_mem_len - 1) & HPAGE_MASK);
-+
-+	/* CRYCB needs to be in the first 2GB */
-+	vm->crycb = alloc_pages_flags(0, AREA_DMA31);
-+	vm->sblk->crycbd = (uint32_t)(uintptr_t)vm->crycb;
-+}
-+
- /* Frees the memory that was gathered on initialization */
- void sie_guest_destroy(struct vm *vm)
- {
-@@ -192,4 +194,5 @@ void sie_guest_destroy(struct vm *vm)
- 	free_page(vm->sblk);
- 	if (vm->sblk->ecb2 & ECB2_ESCA)
- 		free_page(vm->sca);
-+	free_pages((void *)virt_to_pte_phys(get_primary_page_root(), vm->guest_mem));
- }
-diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
-index 3ec49ed0..85d691d5 100644
---- a/lib/s390x/sie.h
-+++ b/lib/s390x/sie.h
-@@ -59,7 +59,7 @@ static inline bool sie_is_pv(struct vm *vm)
- }
- 
- void sie_guest_sca_create(struct vm *vm);
--void sie_guest_create(struct vm *vm, uint64_t guest_mem, uint64_t guest_mem_len);
-+void sie_guest_create(struct vm *vm, uint64_t guest_mem_len);
- void sie_guest_destroy(struct vm *vm);
- 
- uint8_t *sie_guest_alloc(uint64_t guest_size);
-diff --git a/lib/s390x/snippet.h b/lib/s390x/snippet.h
-index 910849aa..94688f49 100644
---- a/lib/s390x/snippet.h
-+++ b/lib/s390x/snippet.h
-@@ -125,11 +125,8 @@ static inline void snippet_pv_init(struct vm *vm, const char *gbin,
- /* Allocates and sets up a snippet based guest */
- static inline void snippet_setup_guest(struct vm *vm, bool is_pv)
- {
--	const unsigned long guest_size = SZ_1M;
--	uint8_t *guest_start = sie_guest_alloc(guest_size);
--
- 	/* Initialize the vm struct and allocate control blocks */
--	sie_guest_create(vm, (uint64_t)guest_start, guest_size);
-+	sie_guest_create(vm, SZ_1M);
- 
- 	if (is_pv) {
- 		/* FMT4 needs a ESCA */
-@@ -144,4 +141,8 @@ static inline void snippet_setup_guest(struct vm *vm, bool is_pv)
- 	}
- }
- 
-+static inline void snippet_destroy_guest(struct vm *vm)
-+{
-+	sie_guest_destroy(vm);
-+}
- #endif
-diff --git a/s390x/mvpg-sie.c b/s390x/mvpg-sie.c
-index 3050a8bb..21082c53 100644
---- a/s390x/mvpg-sie.c
-+++ b/s390x/mvpg-sie.c
-@@ -118,7 +118,7 @@ int main(void)
- 	setup_guest();
- 	test_mvpg();
- 	test_mvpg_pei();
--	sie_guest_destroy(&vm);
-+	snippet_destroy_guest(&vm);
- 
- done:
- 	report_prefix_pop();
-diff --git a/s390x/pv-diags.c b/s390x/pv-diags.c
-index 09b83d59..b6f08dd2 100644
---- a/s390x/pv-diags.c
-+++ b/s390x/pv-diags.c
-@@ -156,7 +156,7 @@ int main(void)
- 	test_diag_yield();
- 	test_diag_288();
- 	test_diag_500();
--	sie_guest_destroy(&vm);
-+	snippet_destroy_guest(&vm);
- 
- done:
- 	report_prefix_pop();
-diff --git a/s390x/pv-edat1.c b/s390x/pv-edat1.c
-index e423f2fc..ff762c75 100644
---- a/s390x/pv-edat1.c
-+++ b/s390x/pv-edat1.c
-@@ -437,15 +437,12 @@ static bool check_facilities(void)
- 
- static void init(void)
- {
--	uint8_t *guest_memory;
--
- 	setup_vm();
- 
- 	root = get_primary_page_root();
- 	ctl_set_bit(0, CTL0_EDAT);
- 
--	guest_memory = alloc_pages(GUEST_ORDER - PAGE_SHIFT);
--	sie_guest_create(&vm, (uint64_t)guest_memory, GUEST_SIZE);
-+	sie_guest_create(&vm, GUEST_SIZE);
- 	sie_guest_sca_create(&vm);
- 	uv_init();
- 	uv_setup_asces();
-diff --git a/s390x/pv-icptcode.c b/s390x/pv-icptcode.c
-index 5293306b..bdef3a05 100644
---- a/s390x/pv-icptcode.c
-+++ b/s390x/pv-icptcode.c
-@@ -164,7 +164,7 @@ static void test_validity_handle_not_in_config(void)
- 
- 	/* Destroy the second vm, since we don't need it for further tests */
- 	uv_destroy_guest(&vm2);
--	sie_guest_destroy(&vm2);
-+	snippet_destroy_guest(&vm2);
- 
- 	uv_destroy_guest(&vm);
- 	report_prefix_pop();
-@@ -368,7 +368,7 @@ int main(void)
- 	test_validity_handle_not_in_config();
- 	test_validity_already_running();
- 	test_validity_timing();
--	sie_guest_destroy(&vm);
-+	snippet_destroy_guest(&vm);
- 
- done:
- 	report_prefix_pop();
-diff --git a/s390x/pv-ipl.c b/s390x/pv-ipl.c
-index 61a1e0c0..1219573f 100644
---- a/s390x/pv-ipl.c
-+++ b/s390x/pv-ipl.c
-@@ -135,7 +135,7 @@ int main(void)
- 	snippet_setup_guest(&vm, true);
- 	test_diag_308(0);
- 	test_diag_308(1);
--	sie_guest_destroy(&vm);
-+	snippet_destroy_guest(&vm);
- 
- done:
- 	report_prefix_pop();
-diff --git a/s390x/sie-dat.c b/s390x/sie-dat.c
-index e40e348f..a5ff0872 100644
---- a/s390x/sie-dat.c
-+++ b/s390x/sie-dat.c
-@@ -101,7 +101,7 @@ int main(void)
- 
- 	setup_guest();
- 	test_sie_dat();
--	sie_guest_destroy(&vm);
-+	snippet_destroy_guest(&vm);
- 
- done:
- 	report_prefix_pop();
-diff --git a/s390x/sie.c b/s390x/sie.c
-index ce5b6069..f08564b1 100644
---- a/s390x/sie.c
-+++ b/s390x/sie.c
-@@ -20,7 +20,6 @@
- #include <sclp.h>
- #include <sie.h>
- 
--static u8 *guest;
- static u8 *guest_instr;
- static struct vm vm;
- 
-@@ -70,7 +69,7 @@ static void test_epoch_ext(void)
- 		return;
- 	}
- 
--	guest[0] = 0x00;
-+	vm.guest_mem[0] = 0x00;
- 	memcpy(guest_instr, instr, sizeof(instr));
- 
- 	vm.sblk->gpsw.addr = PAGE_SIZE * 2;
-@@ -82,19 +81,15 @@ static void test_epoch_ext(void)
- 	sie(&vm);
- 
- 	/* ... should result in the same epoch extension here: */
--	report(guest[0] == 0x47, "epdx: different epoch is visible in the guest");
-+	report(vm.guest_mem[0] == 0x47, "epdx: different epoch is visible in the guest");
- }
- 
- static void setup_guest(void)
- {
--	setup_vm();
--
--	guest = sie_guest_alloc(SZ_1M);
-+	sie_guest_create(&vm, HPAGE_SIZE);
- 
- 	/* The first two pages are the lowcore */
--	guest_instr = guest + PAGE_SIZE * 2;
--
--	sie_guest_create(&vm, (uint64_t)guest, HPAGE_SIZE);
-+	guest_instr = vm.guest_mem + PAGE_SIZE * 2;
- }
- 
- int main(void)
-diff --git a/s390x/spec_ex-sie.c b/s390x/spec_ex-sie.c
-index fe2f23ee..6ab4144c 100644
---- a/s390x/spec_ex-sie.c
-+++ b/s390x/spec_ex-sie.c
-@@ -71,6 +71,8 @@ static void test_spec_ex_sie(void)
- 		report_info("%s", msg);
- 	else
- 		report_info("Did not interpret initial exception");
-+
-+	snippet_destroy_guest(&vm);
- 	report_prefix_pop();
- 	report_prefix_pop();
- }
-diff --git a/s390x/stfle-sie.c b/s390x/stfle-sie.c
-index 21cf8ff8..8df1185c 100644
---- a/s390x/stfle-sie.c
-+++ b/s390x/stfle-sie.c
-@@ -133,6 +133,8 @@ int main(int argc, char **argv)
- 	setup_guest();
- 	if (run_format_0)
- 		test_stfle_format_0();
-+
-+	snippet_destroy_guest(&vm);
- out:
- 	return report_summary();
- }
--- 
-2.51.0
+* Code movement:
 
+  The patches you have posted demonstrate that it is possible to
+  expose a large amount of arm64-specific code and definition to s390,
+  and yet still manage to build both architectures without regression.
+  However, the result looks rather messy and may adversely affect
+  maintainability on the arm64 side.
+
+  The moving of files into shared locations is particularly painful,
+  and gets in the way of overall maintainability. Not only does it
+  break our comfortable habits, it makes the backporting of fixes
+  harder.  Importantly, these changes come with no benefit on the
+  arm64 side.
+
+  Would it be possible to try some other means of reaching the
+  arm64-specific files *in situ*, either by making use of relative
+  paths, or by using symbolic links? Even better, files that are
+  generated on arm64 (such as the sysreg definitions) should equally
+  be generated for s390, locally to the s390 part of the tree.
+
+  But that doesn't mean that we consider that the arm64 tree is
+  immutable and that we are not open to change, quite the opposite.
+  Most of the KVM/arm64 include files are an unholy mix of arch
+  definitions, data structures that have some arch relevance, but also
+  code and data that is strictly implementation specific. Splitting
+  these (as you already have for some include files) could both help
+  with sharing what is actually needed, keep the arm64-specific stuff
+  at bay, *and* benefit arm64's overall maintainability. We would need
+  some tooling to enforce the split and avoid regressing it, something
+  that could happen quickly given the level of activity on arm64. Yet
+  another way to achieve this could be to mechanically process the
+  arm64 files as part of the s390 build to extract the relevant
+  information, and we could help with this.
+
+  Looking a bit more into the distance, it is likely that KVM/arm64
+  will grow feature support quicker than s390 can absorb them, and
+  that some feature won't ever make any sense of s390 (pKVM, for
+  example).  We need to establish how these features can be built
+  without arm64 being hindered by s390. This is also true when adding
+  architectural support for features that don't exist in the s390 view
+  of arm64.
+
+* UAPI and guest API:
+
+  Obviously, one of our biggest concerns is the userspace API. We
+  appreciate that you want to reuse it as it is, warts and all, and
+  directly incorporate additional feature support as it becomes
+  available. This means that, should any divergence in UAPI appear,
+  the source of truth must be on the arm64 side. This has the
+  following consequences:
+
+    - s390 cannot add extensions to the UAPI
+
+    - s390 must be compatible with all future arm64 extensions
+
+  Similar concerns exist on the guest/hypervisor API, including:
+
+  - errata mitigation: this is unsurprisingly a hot topic, which keeps
+    causing us some massive headaches. We are particularly concerned
+    about errata that need to be disclosed to the guest and acted upon
+    via a hypercall. Should there be a need for those, how will we
+    coordinate the deployment of such hypercall?
+
+    The way it has been deployed so far is that PSCI has grown an
+    errata discovery mechanism. ARM assigns function numbers and
+    specifies what these hypercalls mitigate. KVM, in turn, takes part
+    in implementing the mitigation. We expect that s390 would follow
+    the same behaviour, including coordination with ARM for the
+    function numbering.
+
+  - device assignment: this is unknown territory for us, as we
+    commonly use vfio-pci (and more occasionally vfio-platform). How
+    would that look for an arm64 guest on s390?
+
+  - s390-specific ISA extension: although we obviously cannot control
+    how you will decide to expose features to your arm64 guests,
+    KVM/arm64 makes a point of forbidding any use of implementation
+    specific instruction or system registers. We expect the s390
+    implementation to uphold this.
+
+  - s390-specific hypercalls: aside from the errata handling
+    mentioned above, we would very much like to avoid anything that is
+    implementation specific, and keep the hypercall space as small as
+    possible. In other words, an unenlightened arm64 guest must work
+    and continue to work.
+
+* Overall maintenance
+
+  Unsurprisingly, we are not totally familiar with s390. To say that
+  there is a learning gap would only be an understatement. So how do
+  we make sure we don't break things out of pure ignorance? Is there
+  any documentation we can refer to when hacking on code that will
+  eventually run on your side of the computing universe?
+
+  We need to be able to build and test what we produce. How do we go
+  about that? We appreciate that you may not be in a position to help
+  with this right now, but at least having a plan would be reassuring.
+  This should include things like automatic testing of our CI branches.
+  We are happy to test build s390 as part of our maintenance flow, if
+  pointed to existing binary toolchains compiled for arm64 and x86,
+  together with a typical configuration.
+
+  What about debugging? We expect that you'd have to help, should an
+  arm64 change cause a regression on s390, as it is fairly unlikely
+  that we would be able to reproduce it.
+
+  Finally, we feel it would be beneficial for both projects to swap
+  prisoners and have cross-reviewers in MAINTAINERS, so that there is
+  an s390 reviewer added to KVM/arm64, and an arm64 reviewer added to
+  KVM/s390.
+
+It probably would be beneficial to work through some of these things
+face-to-face. Maybe around LPC or KVM Forum if you manage to get
+there? Or some other place/time?
+
+Thanks,
+
+	Marc and Will
+
+--=20
+Without deviation from the norm, progress is not possible.
