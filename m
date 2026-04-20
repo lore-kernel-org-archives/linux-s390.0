@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDCBF3C3BFB;
-	Mon, 20 Apr 2026 19:29:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 840B2282F04;
+	Mon, 20 Apr 2026 19:29:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776713344; cv=none; b=nHIbK+Y/lk2/+09HjESinahUk7QQOhsqBvrl+M6foJf3w0MsK1/lBg8TN1zb59TtRjdBIrCkXf68qHdGXM2OK4TFW73luUxu56fuRdO3dNc2g9TnqrIdcF2BjqQx8N3UK9lBmZ0d5jGxEvuZkXHOhZovY30IL8wnOeqdd1EXCcs=
+	t=1776713389; cv=none; b=X3Quhkuf5yzcA5zMc/ZHV3tQcHqFe+fk1b1Earrw4rhXNfXd8bipVTEeZs13QjHG1vHkGOqG9Wj9zo+enxJzc5fuSlWhpY3KeBhPgQqbB3/83N/sNOgW8v1UMH7SbE11Tjv6v55nzA+CyMy3sYZ22YIFG8QqJOv6iUeGKk1szgU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776713344; c=relaxed/simple;
-	bh=QdgAajlf6kAwRHtkgflL6wCDhjveKOc9T3w7CaJc3Ac=;
+	s=arc-20240116; t=1776713389; c=relaxed/simple;
+	bh=KEGY4s5L8vddgO3MvEHaS3XpKhUKLKraGKWm1E7ZRm0=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CUD5lXvy/qBF2b6sxsdlKsuZkIDEPpwSCQ/LQVib5YnEJ7lFTzOSxN/dIL+2/Rt+SPa9sZ232vMnucidwpWlADAnlP8ry1qPcfSCMGCTWQFELreK3e43Bm2ZnQaZnhjOPGdq8itFAaVvthoBJ1i9OBmzJwzGgzQZnxegoEX4DIw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hJH6Mnra; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=Qxcm1lrXwZD9cD+m1zHl9qIIZHPjiDfEkFELWkMo0dDEYC2Lh4U2gTs21JVcLjGL02DFd5x6UknuHi51RkB3UDNce1gutfxdigvZXO4/dfiKPnszEjR2phh/IMWECx+0wb1VYb7lJ3s3kQcFstor2Dc6nwwIzG87Zcl9e8CHjcw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IxxpSCtm; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hJH6Mnra"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6018AC19425;
-	Mon, 20 Apr 2026 19:29:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IxxpSCtm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5453C2BCB0;
+	Mon, 20 Apr 2026 19:29:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776713344;
-	bh=QdgAajlf6kAwRHtkgflL6wCDhjveKOc9T3w7CaJc3Ac=;
+	s=k20201202; t=1776713389;
+	bh=KEGY4s5L8vddgO3MvEHaS3XpKhUKLKraGKWm1E7ZRm0=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=hJH6MnrayH7tH7XZNu4+MSSVAtDe6/j7JkTnUkZ0vRtSmV6VgsTR719xNXjz+vuae
-	 bG7WsXAbqdu9ujKzv4fC/pGW1a6KxsqJdlftGLAUSHU6jkkY0/zTvjjwPZ6m/nRUc/
-	 qkn0wyAkW1gNLhWsnHGbK2KOkFz+cXC1sQvZRxR14c9ssIVBO18l1ZH+U1B9/KUkdh
-	 8WUbGg4Uh3JvLzI3RHfBzNg0CCXVUzTVXGZKHpYsky2nuIdsnZbRyWwrk65SzNw1hP
-	 o5Pqr/LfmAROKXeF+HX5+mxZ+gUe2vI/KXisxiSnBMs3UfHIKBMIoEi8wUwlqLph/0
-	 oL1GZBpyWKvgg==
-Message-ID: <2809fac6-44ef-426a-923d-01661e2f428c@kernel.org>
-Date: Mon, 20 Apr 2026 21:28:59 +0200
+	b=IxxpSCtmgQ8r5uOHX3CS8mUlg7Q4a37vM06e/YT73FKCBbUmrQu+4Vj/89P5SYFKT
+	 R5MpM/cwzv9st9kD7vQxzKltEVryMB8H/9LpXQfafBSP2XiUskoWF/R4CFti4AA8cZ
+	 1aNVhMQ2MhbL+Wp1OX5WO1wOAZ/oaxCX4ybz7G/QMEiIlYp4GJvFMSl2wh24uQyfm9
+	 DqIrGGbdLU7k7AbJOcqxjDz01xd7cPHIWo2aPHmLyobKp/mYulTNaKeARvgFb0Q8Gl
+	 6AN9PeobwjlTiEPvZA6wguXZgEUQHoPjKGBA1ba4cjyRlBufdLwuPVrZSkOnnosdyj
+	 XDH+iEPWyU04g==
+Message-ID: <f13fba7c-e279-41d6-abf6-a12e79bad770@kernel.org>
+Date: Mon, 20 Apr 2026 21:29:43 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,7 +35,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 1/2] mm/gup: add missing pXdp_get() conversions
+Subject: Re: [RFC PATCH 2/2] mm/gup: add lockless access semantics on entries
+ validation
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
  Kevin Brodsky <kevin.brodsky@arm.com>, Ryan Roberts <ryan.roberts@arm.com>,
  Andrew Morton <akpm@linux-foundation.org>
@@ -44,7 +45,7 @@ Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org,
  <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
  Vasily Gorbik <gor@linux.ibm.com>
 References: <cover.1776684344.git.agordeev@linux.ibm.com>
- <3d0213714273d83c07cb7681119b799ca77984b9.1776684344.git.agordeev@linux.ibm.com>
+ <55c295e17221dc882e09b4caddc7b3bf4f1309ba.1776684344.git.agordeev@linux.ibm.com>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -91,14 +92,22 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <3d0213714273d83c07cb7681119b799ca77984b9.1776684344.git.agordeev@linux.ibm.com>
+In-Reply-To: <55c295e17221dc882e09b4caddc7b3bf4f1309ba.1776684344.git.agordeev@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 4/20/26 14:13, Alexander Gordeev wrote:
-> PMD and PUD entries revalidation has the same semantics as
-> PTE entry revalidation. Convert the remaining direct entry
-> dereferences to the corresponding pXdp_get() accessors.
+> The PTE validation in gup_fast_pte_range() is inconsistent with the
+> prior value acquisition in the sense that it drops the lockless
+> access semantics.
+> 
+> Although this is highly unlikely, prevent a future scenario in which
+> a semantically mismatching ptep_get() incorrectly yields the same
+> result as the preceding ptep_get_lockless(), while ptep_get_lockless()
+> would otherwise return a different value.
+> 
+> Likewise the PMD validation is inconsistent with the prior value
+> acquisition in gup_fast_pmd_range().
 > 
 > Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 > ---
@@ -106,41 +115,31 @@ On 4/20/26 14:13, Alexander Gordeev wrote:
 >  1 file changed, 3 insertions(+), 3 deletions(-)
 > 
 > diff --git a/mm/gup.c b/mm/gup.c
-> index 8e7dc2c6ee73..d149a4b0df71 100644
+> index d149a4b0df71..236450feea9a 100644
 > --- a/mm/gup.c
 > +++ b/mm/gup.c
-> @@ -2865,7 +2865,7 @@ static int gup_fast_pte_range(pmd_t pmd, pmd_t *pmdp, unsigned long addr,
+> @@ -2865,8 +2865,8 @@ static int gup_fast_pte_range(pmd_t pmd, pmd_t *pmdp, unsigned long addr,
 >  		if (!folio)
 >  			goto pte_unmap;
 >  
-> -		if (unlikely(pmd_val(pmd) != pmd_val(*pmdp)) ||
-> +		if (unlikely(pmd_val(pmd) != pmd_val(pmdp_get(pmdp))) ||
->  		    unlikely(pte_val(pte) != pte_val(ptep_get(ptep)))) {
+> -		if (unlikely(pmd_val(pmd) != pmd_val(pmdp_get(pmdp))) ||
+> -		    unlikely(pte_val(pte) != pte_val(ptep_get(ptep)))) {
+> +		if (unlikely(pmd_val(pmd) != pmd_val(pmdp_get_lockless(pmdp))) ||
+> +		    unlikely(pte_val(pte) != pte_val(ptep_get_lockless(ptep)))) {
 >  			gup_put_folio(folio, 1, flags);
 >  			goto pte_unmap;
+>  		}
 > @@ -2942,7 +2942,7 @@ static int gup_fast_pmd_leaf(pmd_t orig, pmd_t *pmdp, unsigned long addr,
 >  	if (!folio)
 >  		return 0;
 >  
-> -	if (unlikely(pmd_val(orig) != pmd_val(*pmdp))) {
-> +	if (unlikely(pmd_val(orig) != pmd_val(pmdp_get(pmdp)))) {
->  		gup_put_folio(folio, refs, flags);
->  		return 0;
->  	}
-> @@ -2985,7 +2985,7 @@ static int gup_fast_pud_leaf(pud_t orig, pud_t *pudp, unsigned long addr,
->  	if (!folio)
->  		return 0;
->  
-> -	if (unlikely(pud_val(orig) != pud_val(*pudp))) {
-> +	if (unlikely(pud_val(orig) != pud_val(pudp_get(pudp)))) {
+> -	if (unlikely(pmd_val(orig) != pmd_val(pmdp_get(pmdp)))) {
+> +	if (unlikely(pmd_val(orig) != pmd_val(pmdp_get_lockless(pmdp)))) {
 >  		gup_put_folio(folio, refs, flags);
 >  		return 0;
 >  	}
 
-These are all on lockless code paths. Shouldn't we be using the lockless
-pte/pmd variants?
-
-(not a matter of correctness, rather a matter of semantics)
+Oh, that should be squashed into #1 :)
 
 -- 
 Cheers,
