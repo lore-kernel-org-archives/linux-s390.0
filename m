@@ -1,33 +1,60 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 840B2282F04;
-	Mon, 20 Apr 2026 19:29:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D047D3C872E;
+	Mon, 20 Apr 2026 19:37:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776713389; cv=none; b=X3Quhkuf5yzcA5zMc/ZHV3tQcHqFe+fk1b1Earrw4rhXNfXd8bipVTEeZs13QjHG1vHkGOqG9Wj9zo+enxJzc5fuSlWhpY3KeBhPgQqbB3/83N/sNOgW8v1UMH7SbE11Tjv6v55nzA+CyMy3sYZ22YIFG8QqJOv6iUeGKk1szgU=
+	t=1776713872; cv=none; b=UhfGNKSKM7j5SKQLhNqsYXUn4jGgQof8KbgOfezyvr5J23pL01bL+OELaDEmfthxmEWScpF4tq9qGs/371UHm60el/W2DRvohJp06WmjkerK6Nv8Z+uip5Btcu1CDOZb5Epf7Oj2q7SR86EWP2u6IBNmQ6bvoVDo/4VrKh8/cFg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776713389; c=relaxed/simple;
-	bh=KEGY4s5L8vddgO3MvEHaS3XpKhUKLKraGKWm1E7ZRm0=;
+	s=arc-20240116; t=1776713872; c=relaxed/simple;
+	bh=jMHTE4tbMd0Ik2MeWBlvgzwC4gxSOJlFTyiQrOS4lgc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Qxcm1lrXwZD9cD+m1zHl9qIIZHPjiDfEkFELWkMo0dDEYC2Lh4U2gTs21JVcLjGL02DFd5x6UknuHi51RkB3UDNce1gutfxdigvZXO4/dfiKPnszEjR2phh/IMWECx+0wb1VYb7lJ3s3kQcFstor2Dc6nwwIzG87Zcl9e8CHjcw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IxxpSCtm; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=D2UwBUKVE52Iw5ePiaNPc3ahDLqDvdG0r+6M01SNSQG2MUjYWMVkm3in/BV2NpzzNSOPos2sGdOP5lCBiqkDJBot0wu4+5tjnJf500RzJkgApR6Cfg8eRD6lTRr/HA+FTDfSqiQBou3nDaTTSaPsQd7A12Q4vOo57KGOhXZezbE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fvtp4b3I; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IxxpSCtm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5453C2BCB0;
-	Mon, 20 Apr 2026 19:29:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776713389;
-	bh=KEGY4s5L8vddgO3MvEHaS3XpKhUKLKraGKWm1E7ZRm0=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=IxxpSCtmgQ8r5uOHX3CS8mUlg7Q4a37vM06e/YT73FKCBbUmrQu+4Vj/89P5SYFKT
-	 R5MpM/cwzv9st9kD7vQxzKltEVryMB8H/9LpXQfafBSP2XiUskoWF/R4CFti4AA8cZ
-	 1aNVhMQ2MhbL+Wp1OX5WO1wOAZ/oaxCX4ybz7G/QMEiIlYp4GJvFMSl2wh24uQyfm9
-	 DqIrGGbdLU7k7AbJOcqxjDz01xd7cPHIWo2aPHmLyobKp/mYulTNaKeARvgFb0Q8Gl
-	 6AN9PeobwjlTiEPvZA6wguXZgEUQHoPjKGBA1ba4cjyRlBufdLwuPVrZSkOnnosdyj
-	 XDH+iEPWyU04g==
-Message-ID: <f13fba7c-e279-41d6-abf6-a12e79bad770@kernel.org>
-Date: Mon, 20 Apr 2026 21:29:43 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fvtp4b3I"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63K9SNPO2492449;
+	Mon, 20 Apr 2026 19:37:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
+	 bh=kXfS9t43hMBtiRLlGqvBQDUHz89EVpV6pEmffSvYM7Q=; b=fvtp4b3Im9tz
+	X2v7n3DcQALDcnkuZd4MJ6mIYTKTp4T6ATSy8kzovLe+aqRrhkfE0vcvw4THq32G
+	AYGIIEhku1H+h5ZR83y/EW7MF8ql5Gg+CBb5PNna7T9jJ9rJRznQA+77W4tvKGYd
+	UACKiCJiqpkrgINZ2RreH6C9E8JLh6gRdQuQdfHmF6FOycHSI+rSuTO7JBqumnZE
+	J/Pwi4VB/co5KlcR6BhHA64OF9cUXAcfVRz9+LKdV8I5WMsDA3A3HWe83Z1G85Wh
+	COQVLScdN6cOfp92m9u8HVL8lrLkSswgng4yRKPpZc0e4l4Z9S3avJea7Qm+sDKW
+	47DBwNAfUw==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dm2k0rmkx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 20 Apr 2026 19:37:48 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63KJZI2A021402;
+	Mon, 20 Apr 2026 19:37:48 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dmnsgwyg8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 20 Apr 2026 19:37:48 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63KJbl7o1508110
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 20 Apr 2026 19:37:47 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id ED59658053;
+	Mon, 20 Apr 2026 19:37:46 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5EDED58043;
+	Mon, 20 Apr 2026 19:37:46 +0000 (GMT)
+Received: from [9.16.40.3] (unknown [9.16.40.3])
+	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 20 Apr 2026 19:37:46 +0000 (GMT)
+Message-ID: <5c1498cb-5de6-41be-8db7-f76a385237c0@linux.ibm.com>
+Date: Mon, 20 Apr 2026 14:37:46 -0500
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,113 +62,91 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 2/2] mm/gup: add lockless access semantics on entries
- validation
-To: Alexander Gordeev <agordeev@linux.ibm.com>,
- Kevin Brodsky <kevin.brodsky@arm.com>, Ryan Roberts <ryan.roberts@arm.com>,
- Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org,
- linux-kernel@vger.kernel.org, Gerald Schaefer
- <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>
-References: <cover.1776684344.git.agordeev@linux.ibm.com>
- <55c295e17221dc882e09b4caddc7b3bf4f1309ba.1776684344.git.agordeev@linux.ibm.com>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
+Reply-To: ramesh@linux.ibm.com
+Subject: Re: [PATCH v2 1/1] PCI/hotplug: Add 'uevent' sysfs attribute to
+ trigger slot events
+To: Niklas Schnelle <schnelle@linux.ibm.com>, linux-pci@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Bjorn Helgaas <bhelgaas@google.com>, Lukas Wunner <lukas@wunner.de>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+References: <20260416213909.705753-1-ramesh@linux.ibm.com>
+ <20260416213909.705753-2-ramesh@linux.ibm.com>
+ <91f26c77330be0783aad379dd1b04bb4c1411713.camel@linux.ibm.com>
 Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
- dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
- QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
- XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
- Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
- PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
- WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
- UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
- jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
- B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzS5EYXZpZCBIaWxk
- ZW5icmFuZCAoQ3VycmVudCkgPGRhdmlkQGtlcm5lbC5vcmc+wsGQBBMBCAA6AhsDBQkmWAik
- AgsJBBUKCQgCFgICHgUCF4AWIQQb2cqtc1xMOkYN/MpN3hD3AP+DWgUCaYJt/AIZAQAKCRBN
- 3hD3AP+DWriiD/9BLGEKG+N8L2AXhikJg6YmXom9ytRwPqDgpHpVg2xdhopoWdMRXjzOrIKD
- g4LSnFaKneQD0hZhoArEeamG5tyo32xoRsPwkbpIzL0OKSZ8G6mVbFGpjmyDLQCAxteXCLXz
- ZI0VbsuJKelYnKcXWOIndOrNRvE5eoOfTt2XfBnAapxMYY2IsV+qaUXlO63GgfIOg8RBaj7x
- 3NxkI3rV0SHhI4GU9K6jCvGghxeS1QX6L/XI9mfAYaIwGy5B68kF26piAVYv/QZDEVIpo3t7
- /fjSpxKT8plJH6rhhR0epy8dWRHk3qT5tk2P85twasdloWtkMZ7FsCJRKWscm1BLpsDn6EQ4
- jeMHECiY9kGKKi8dQpv3FRyo2QApZ49NNDbwcR0ZndK0XFo15iH708H5Qja/8TuXCwnPWAcJ
- DQoNIDFyaxe26Rx3ZwUkRALa3iPcVjE0//TrQ4KnFf+lMBSrS33xDDBfevW9+Dk6IISmDH1R
- HFq2jpkN+FX/PE8eVhV68B2DsAPZ5rUwyCKUXPTJ/irrCCmAAb5Jpv11S7hUSpqtM/6oVESC
- 3z/7CzrVtRODzLtNgV4r5EI+wAv/3PgJLlMwgJM90Fb3CB2IgbxhjvmB1WNdvXACVydx55V7
- LPPKodSTF29rlnQAf9HLgCphuuSrrPn5VQDaYZl4N/7zc2wcWM7BTQRVy5+RARAA59fefSDR
- 9nMGCb9LbMX+TFAoIQo/wgP5XPyzLYakO+94GrgfZjfhdaxPXMsl2+o8jhp/hlIzG56taNdt
- VZtPp3ih1AgbR8rHgXw1xwOpuAd5lE1qNd54ndHuADO9a9A0vPimIes78Hi1/yy+ZEEvRkHk
- /kDa6F3AtTc1m4rbbOk2fiKzzsE9YXweFjQvl9p+AMw6qd/iC4lUk9g0+FQXNdRs+o4o6Qvy
- iOQJfGQ4UcBuOy1IrkJrd8qq5jet1fcM2j4QvsW8CLDWZS1L7kZ5gT5EycMKxUWb8LuRjxzZ
- 3QY1aQH2kkzn6acigU3HLtgFyV1gBNV44ehjgvJpRY2cC8VhanTx0dZ9mj1YKIky5N+C0f21
- zvntBqcxV0+3p8MrxRRcgEtDZNav+xAoT3G0W4SahAaUTWXpsZoOecwtxi74CyneQNPTDjNg
- azHmvpdBVEfj7k3p4dmJp5i0U66Onmf6mMFpArvBRSMOKU9DlAzMi4IvhiNWjKVaIE2Se9BY
- FdKVAJaZq85P2y20ZBd08ILnKcj7XKZkLU5FkoA0udEBvQ0f9QLNyyy3DZMCQWcwRuj1m73D
- sq8DEFBdZ5eEkj1dCyx+t/ga6x2rHyc8Sl86oK1tvAkwBNsfKou3v+jP/l14a7DGBvrmlYjO
- 59o3t6inu6H7pt7OL6u6BQj7DoMAEQEAAcLBfAQYAQgAJgIbDBYhBBvZyq1zXEw6Rg38yk3e
- EPcA/4NaBQJonNqrBQkmWAihAAoJEE3eEPcA/4NaKtMQALAJ8PzprBEXbXcEXwDKQu+P/vts
- IfUb1UNMfMV76BicGa5NCZnJNQASDP/+bFg6O3gx5NbhHHPeaWz/VxlOmYHokHodOvtL0WCC
- 8A5PEP8tOk6029Z+J+xUcMrJClNVFpzVvOpb1lCbhjwAV465Hy+NUSbbUiRxdzNQtLtgZzOV
- Zw7jxUCs4UUZLQTCuBpFgb15bBxYZ/BL9MbzxPxvfUQIPbnzQMcqtpUs21CMK2PdfCh5c4gS
- sDci6D5/ZIBw94UQWmGpM/O1ilGXde2ZzzGYl64glmccD8e87OnEgKnH3FbnJnT4iJchtSvx
- yJNi1+t0+qDti4m88+/9IuPqCKb6Stl+s2dnLtJNrjXBGJtsQG/sRpqsJz5x1/2nPJSRMsx9
- 5YfqbdrJSOFXDzZ8/r82HgQEtUvlSXNaXCa95ez0UkOG7+bDm2b3s0XahBQeLVCH0mw3RAQg
- r7xDAYKIrAwfHHmMTnBQDPJwVqxJjVNr7yBic4yfzVWGCGNE4DnOW0vcIeoyhy9vnIa3w1uZ
- 3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
- CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
- qIws/H2t
-In-Reply-To: <55c295e17221dc882e09b4caddc7b3bf4f1309ba.1776684344.git.agordeev@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
+From: Ramesh Errabolu <ramesh@linux.ibm.com>
+In-Reply-To: <91f26c77330be0783aad379dd1b04bb4c1411713.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: bB9VXPujCJ7NzEiCp2uGlIrhpKj-cUQr
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIwMDE4OCBTYWx0ZWRfX/7VZ1lLWOtMY
+ s2BEqBqG4ocGU5sISkT16shJNZkYz88EfuY4CzMuHZ4xiQl3SazE18BFjqwZFcaTPp1p8OSCB8k
+ 440ndo0l1PHX5U6zoEeoE2YgvbfNg4SIS27R8er9xLLqi3zEZCkC/Ge0RNdFhEE+DXI8g1wBw+W
+ sxzGjRp4w+XyRkSERPvVLMdqLtjfPymgZBqwF/ppto2zeN8xbMBZ1M3jJVB1GTRZeSOWn9066ER
+ xmAa+BiHKrQoJGXJFnhrwqL+zCUFdpqyTWqzjUqwoFpYxWZPzzz9rKDj5ONWg5AcNrIx+a/UdQY
+ s2JBZhl4cQUC5Fulv/zku7s/2T+6dtRFIPVJsYfJWmM0Z+ThuY96mZb2GHMTUaIDvvN0JlNy76F
+ K0urwZuqv+cc4v0j37/3PXSZyhpCBK+b1FvKNKqgiMDe4N8soOIQc0LjLUZzwN4DH4QQa+Qp6nd
+ bhlU9NuJUorBeA+C7zQ==
+X-Authority-Analysis: v=2.4 cv=PtujqQM3 c=1 sm=1 tr=0 ts=69e6808d cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=RE2A0m1FG7ZolbHhaAUA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: lZX-d6iqeEQccDjoDCSDTMPkogwtlmqt
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-04-20_03,2026-04-20_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 suspectscore=0 clxscore=1015 spamscore=0 impostorscore=0
+ priorityscore=1501 bulkscore=0 adultscore=0 lowpriorityscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2604070000 definitions=main-2604200188
 
-On 4/20/26 14:13, Alexander Gordeev wrote:
-> The PTE validation in gup_fast_pte_range() is inconsistent with the
-> prior value acquisition in the sense that it drops the lockless
-> access semantics.
-> 
-> Although this is highly unlikely, prevent a future scenario in which
-> a semantically mismatching ptep_get() incorrectly yields the same
-> result as the preceding ptep_get_lockless(), while ptep_get_lockless()
-> would otherwise return a different value.
-> 
-> Likewise the PMD validation is inconsistent with the prior value
-> acquisition in gup_fast_pmd_range().
-> 
-> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-> ---
->  mm/gup.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/mm/gup.c b/mm/gup.c
-> index d149a4b0df71..236450feea9a 100644
-> --- a/mm/gup.c
-> +++ b/mm/gup.c
-> @@ -2865,8 +2865,8 @@ static int gup_fast_pte_range(pmd_t pmd, pmd_t *pmdp, unsigned long addr,
->  		if (!folio)
->  			goto pte_unmap;
->  
-> -		if (unlikely(pmd_val(pmd) != pmd_val(pmdp_get(pmdp))) ||
-> -		    unlikely(pte_val(pte) != pte_val(ptep_get(ptep)))) {
-> +		if (unlikely(pmd_val(pmd) != pmd_val(pmdp_get_lockless(pmdp))) ||
-> +		    unlikely(pte_val(pte) != pte_val(ptep_get_lockless(ptep)))) {
->  			gup_put_folio(folio, 1, flags);
->  			goto pte_unmap;
->  		}
-> @@ -2942,7 +2942,7 @@ static int gup_fast_pmd_leaf(pmd_t orig, pmd_t *pmdp, unsigned long addr,
->  	if (!folio)
->  		return 0;
->  
-> -	if (unlikely(pmd_val(orig) != pmd_val(pmdp_get(pmdp)))) {
-> +	if (unlikely(pmd_val(orig) != pmd_val(pmdp_get_lockless(pmdp)))) {
->  		gup_put_folio(folio, refs, flags);
->  		return 0;
->  	}
+Thanks for testing and also giving me the review-by
 
-Oh, that should be squashed into #1 :)
+Regards,
+Ramesh
 
--- 
-Cheers,
 
-David
+On 4/17/2026 4:53 AM, Niklas Schnelle wrote:
+> On Thu, 2026-04-16 at 16:39 -0500, Ramesh Errabolu wrote:
+>> Add a write-only 'uevent' sysfs attribute for synthesizing
+>> uevents for a PCI slot. This extends the existing uevent
+>> support which emits a KOBJ_ADD uevent in pci_hp_add() with
+>> the ability to replay such uevents for cold plugged devices.
+>> As such events are only emitted by hotplug capable PCI slots
+>> so is the support for synthesizing them.
+>>
+>> The change was validated by manually triggering 'add' uevent
+>> for a specific hotplug PCI slot:
+>>
+>>      $ echo "add $(uuidgen)" | sudo tee   \
+>>                  /sys/bus/pci/slots/<slot-id>/uevent
+>>
+>> Signed-off-by: Ramesh Errabolu <ramesh@linux.ibm.com>
+>> ---
+>>   drivers/pci/hotplug/pci_hotplug_core.c | 25 +++++++++++++++++++++++++
+>>   1 file changed, 25 insertions(+)
+>>
+> Sorry for the review delay. This looks good to me and will really help
+> with udev rule execution for devices which are discovered in standby
+> state during boot and thus currently don't create any uevents. Of
+> course to work by default this still requires a systemd/udev addition
+> that I know you're also working on.
+>
+> Consequently, I tested the uevent synthesization with both slots with a
+> configured (slot powered on) and standby (slot powered off) PCI
+> function.
+>
+> Feel free to add:
+>
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
+>
+> Thanks,
+> Niklas
