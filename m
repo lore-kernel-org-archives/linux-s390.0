@@ -1,237 +1,124 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A08F438A733;
-	Mon, 20 Apr 2026 10:57:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAFCB31280C;
+	Mon, 20 Apr 2026 12:14:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776682661; cv=none; b=mxUZoL4IOtuS5otIXfJHoEWRfAqTHfWxGxWtPEgt7oZVqT0RfphABcCYRMkcGM5e4sIIdIA8XT3Vz/0gaL9hygfQtnFsGHc54HRMDqfyHJqxQRpZdoPpntpO8K8JFc7FvkhSsEzcXTrv6eZ78KsqQlCMveEEDMGJH1+D4yGCEj0=
+	t=1776687245; cv=none; b=TQRr9Oz3SQ8+D40KxoZxJYaqNQ1AzgnOEzrNkAr1n6w27nw3TrAqZdAVohpPTF/a8LtOWeRTr70DHt2tcULnIxzzKhqyhodzrNVNnmM4TzdprS9sNEmuJmGQr2mJ2CnIOAFBFM9RoGEjKVUT6i3lahftVzPJc3QXJcEG0BqdGTI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776682661; c=relaxed/simple;
-	bh=RV6KLhKQJV9O10vjxbnO2mSqItoj7sx7NBlZB3v6Dsk=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=mj8JAt6S8X/tN59jGI3sqgpYYsmMAo0904nA+L3dmEEaHQrCkm9VSbplKztdUcRdlXmKcaX/2JnES4yKdsxg1zUTT9Zfu7xAlftQfBEvqsA1JlU0NOPnf7i5X0QiWzl7QZ5Ld5qyI39LXGJb+HmaUMIOWVSPt879x1ZIB+VSD34=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JNdNMpJO; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1776687245; c=relaxed/simple;
+	bh=s+lCGpiZKuBU4l1IDT/DawFQHmq0aOtvV1SBpsqqCCs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=E2RPuEqHeke9dHRlHxzHCiMiOSmGTDAp2SLMymDqQj6ppG5tf8Q4ME8CVQNDiV2CCvF1wBxt0egCNeEc2w666VYCZakmIAE/QmiozMCy9iVU4uKZbKlDEzibXl4vSX++cDJrIb0iE13PsbiULp8aR+7wzgXACdbAA92fUO9CPcY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gZlCJ5pD; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JNdNMpJO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E5A1C2BCB0;
-	Mon, 20 Apr 2026 10:57:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776682661;
-	bh=RV6KLhKQJV9O10vjxbnO2mSqItoj7sx7NBlZB3v6Dsk=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=JNdNMpJOs/QU1EDyD5dKvXOmZv1rjh+NBsM6GcdHMLSL/OjW6/S1cLi+eTzoWkvlS
-	 kh+3j0VWnwZwUBAJaEt+MHqgkpOpd2jH8nsaJ8Ozm65otWB/3t5Rrz/rnL4tXlvvOM
-	 GAmEPAb3OJLBECf8AzyvUVxg0+4epkJ/KTW5ed0K9ZsnO1NgkG8mBKBDnH1RhcP+4P
-	 EvFV2PMNLd2iOSJ8tuYJk+x/xfonr7akIF4UPECxO/fFaRB49tzjFwxdzId4cezhZ/
-	 p1+tcPVtySt7bl5NQFMl5wO8jV5KGM/c1hjdXcdwh2Upoi8xPzeD187MKTu1nhKqIw
-	 fz09jetb3gqDw==
-Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
-	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.98.2)
-	(envelope-from <maz@kernel.org>)
-	id 1wEmJu-0000000D2AQ-3mS1;
-	Mon, 20 Apr 2026 10:57:38 +0000
-Date: Mon, 20 Apr 2026 11:57:38 +0100
-Message-ID: <86o6jd2925.wl-maz@kernel.org>
-From: Marc Zyngier <maz@kernel.org>
-To: Steffen Eiden <seiden@linux.ibm.com>
-Cc: kvm@vger.kernel.org,
-	kvmarm@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	Andreas Grapentin <Andreas.Grapentin@ibm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	David Hildenbrand <david@kernel.org>,
-	Gautam Gala <ggala@linux.ibm.com>,
-	Hendrik Brueckner <brueckner@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Joey Gouly <joey.gouly@arm.com>,
-	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-	Oliver Upton <oupton@kernel.org>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Suzuki K Poulose <suzuki.poulose@arm.com>,
-	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-	Will Deacon <will@kernel.org>,
-	Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v1 00/27] KVM: s390: Introduce arm64 KVM
-In-Reply-To: <20260402042125.3948963-1-seiden@linux.ibm.com>
-References: <20260402042125.3948963-1-seiden@linux.ibm.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
- FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
- (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gZlCJ5pD"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63KBwhMR3108458;
+	Mon, 20 Apr 2026 12:13:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=nJgkI7RbD14lsI+Zd/4+PHkt3gvbu2pFlqS4g1GDZ
+	T8=; b=gZlCJ5pD5kc83eh5zvwSCEi9K3XB+Jhxx/wY6EVtWFO/Vn/0kfi36XFU7
+	2oFHN/Eer94Ep4So2zkdKNr/V7mDWL578U97h91FTPxd44dasc5b8kgRTU/WIKXq
+	JlMqZTiaja/LczxPc8ij8ps29D9Kg1Mo5rI3jt3sD86kU3YkdaWSDbxXvFymbSpw
+	vYrAxJPzCpRsNKd/J6SErc8Tyeladv0t9reudoPsAeaSMF52PQf6ko34L2GVFRHf
+	1tVsvNqyUhHCM9MePI4Qijn7wKmeN6UjZT9aVpMnuu3Iv+PxnZNcte66NQsQ5My/
+	+JOKQJfXBUNKeeWAiE8ZUbrD3eeyA==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dm2h9f0f9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 20 Apr 2026 12:13:57 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63KC5KJP021295;
+	Mon, 20 Apr 2026 12:13:56 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dmm9pvt7m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 20 Apr 2026 12:13:56 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63KCDrKh31130260
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 20 Apr 2026 12:13:53 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 26C0C2004B;
+	Mon, 20 Apr 2026 12:13:53 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EDC5420040;
+	Mon, 20 Apr 2026 12:13:52 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Mon, 20 Apr 2026 12:13:52 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
+	id CF88CE0749; Mon, 20 Apr 2026 14:13:52 +0200 (CEST)
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Kevin Brodsky <kevin.brodsky@arm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Ryan Roberts <ryan.roberts@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+Subject: [RFC PATCH 0/2] mm/gup: pgtable entry acccessors cleanup
+Date: Mon, 20 Apr 2026 14:13:50 +0200
+Message-ID: <cover.1776684344.git.agordeev@linux.ibm.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Andreas.Grapentin@ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, ggala@linux.ibm.com, brueckner@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, suzuki.poulose@arm.com, Ulrich.Weigand@de.ibm.com, will@kernel.org, yuzenghui@huawei.com
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 3GfFdJNwNXlttYprI9xIIKLTBOuuPMXI
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIwMDExNSBTYWx0ZWRfX3+75nW9ikULN
+ mk6WTmIRZda1SiewI32TVpWu8iMVv1xi9G+PVp3buQufIIvXGRvHANLKVyw1kIcUqFpsMcevp5t
+ 5keATs1YycwiEytJOmN8QE86QXE0/HavXDcewGxgcf/1J1Ixxd81jmcbj2vNQpqfOjfgpHHVL/r
+ jNkkgMY7x+G80KXE2g8CCNw3zGvans2JJfYllW/g9oSxoQ2JgBr/WYnw7ph/nD36dbMwBwjlzZM
+ ba2jhjD5MqZbuhlMzjiRHledWj/E/UzWpRTxVp8UvNLn7ltyOAsNFvMPDY/vzt6lsUYXtbfFv3H
+ sEz96nCSGikjzvYDYm3Wq3lMGH1TrvXAC5mJ4sFxGtG9jkdJowIqeha4W9V/RVh6S7fKQ/6MP4k
+ vNi0IGoc8oc7pSqJHDgwYd44+CqNDWyaO1+SJXhGFThfJsUDlLua0cpBEBoOx2AmQj7x4XVk1Ih
+ +/Q2f/3IEg71+sgLu7Q==
+X-Authority-Analysis: v=2.4 cv=XLYAjwhE c=1 sm=1 tr=0 ts=69e61885 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=aTGr7PAGRYz1C1UlONgA:9 a=zZCYzV9kfG8A:10
+X-Proofpoint-GUID: 3GfFdJNwNXlttYprI9xIIKLTBOuuPMXI
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-04-20_02,2026-04-17_04,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 bulkscore=0 impostorscore=0 spamscore=0 adultscore=0
+ priorityscore=1501 phishscore=0 lowpriorityscore=0 malwarescore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604070000
+ definitions=main-2604200115
 
-Hi Steffen, s390 folks,
+Hi All,
 
-On Thu, 02 Apr 2026 05:20:56 +0100,
-Steffen Eiden <seiden@linux.ibm.com> wrote:
->=20
-> By introducing a novel virtualization acceleration for the ARM architectu=
-re on
-> s390 architecture, we aim to expand the platform's software ecosystem. Th=
-is
-> initial patch series lays the groundwork by enabling KVM-accelerated ARM =
-CPU
-> virtualization on s390. To achieve this, a common KVM layer between s390 =
-and
-> arm64 is introduced (see below for more details). Design considerations of
-> arm64 on the s390 Architecture The s390 virtualization architecture is ex=
-tended
-> with a set of new instructions dedicated to supporting=C2=A0ARM-based vir=
-tual
-> machines. The s390 KVM host acts as EL2 (hypervisor) for a EL1/EL0
-> (OS/application) arm64 guest. To achieve this, the new Start-Arm-Execution
-> (SAE) instruction enables accelerated execution of arm64 VMs.=C2=A0 Addit=
-ional new
-> s390 instructions are introduced to query available arm64 features, used =
-to
-> populate the arm64 ID register contents, as well as, new s390 instruction=
-s to
-> save/restore various arm64 registers in the VM context.
+This rework is necessary to allow a KASAN PTE access sanitizer
+(so far s390-only) that hits on direct PTE entries dereferences,
+like pte =3D *ptep as opposed to pte =3D ptep_get(ptep).
 
-Apologises for the delay in responding to this, things got delayed a
-bit with the Easter break. Since then, Will and I have been discussing
-this series and what it means for the future of the arm64 port.
+I am not posting the sanitizer itself (yet), since it does not
+fly without the suggested patches, but I am not sure whether
+these changes make sense for the generic case.
 
-By way of opening the discussion, we want to be clear that we are
-supportive of the effort. Our comments here should be seen as areas of
-potential improvement and not as rejection of what you are trying to
-achieve.
+Thus, sending it as a RFC.
 
-* Code movement:
+Thanks!
 
-  The patches you have posted demonstrate that it is possible to
-  expose a large amount of arm64-specific code and definition to s390,
-  and yet still manage to build both architectures without regression.
-  However, the result looks rather messy and may adversely affect
-  maintainability on the arm64 side.
+Alexander Gordeev (2):
+  mm/gup: add missing pXdp_get() conversions
+  mm/gup: add lockless access semantics on entries validation
 
-  The moving of files into shared locations is particularly painful,
-  and gets in the way of overall maintainability. Not only does it
-  break our comfortable habits, it makes the backporting of fixes
-  harder.  Importantly, these changes come with no benefit on the
-  arm64 side.
-
-  Would it be possible to try some other means of reaching the
-  arm64-specific files *in situ*, either by making use of relative
-  paths, or by using symbolic links? Even better, files that are
-  generated on arm64 (such as the sysreg definitions) should equally
-  be generated for s390, locally to the s390 part of the tree.
-
-  But that doesn't mean that we consider that the arm64 tree is
-  immutable and that we are not open to change, quite the opposite.
-  Most of the KVM/arm64 include files are an unholy mix of arch
-  definitions, data structures that have some arch relevance, but also
-  code and data that is strictly implementation specific. Splitting
-  these (as you already have for some include files) could both help
-  with sharing what is actually needed, keep the arm64-specific stuff
-  at bay, *and* benefit arm64's overall maintainability. We would need
-  some tooling to enforce the split and avoid regressing it, something
-  that could happen quickly given the level of activity on arm64. Yet
-  another way to achieve this could be to mechanically process the
-  arm64 files as part of the s390 build to extract the relevant
-  information, and we could help with this.
-
-  Looking a bit more into the distance, it is likely that KVM/arm64
-  will grow feature support quicker than s390 can absorb them, and
-  that some feature won't ever make any sense of s390 (pKVM, for
-  example).  We need to establish how these features can be built
-  without arm64 being hindered by s390. This is also true when adding
-  architectural support for features that don't exist in the s390 view
-  of arm64.
-
-* UAPI and guest API:
-
-  Obviously, one of our biggest concerns is the userspace API. We
-  appreciate that you want to reuse it as it is, warts and all, and
-  directly incorporate additional feature support as it becomes
-  available. This means that, should any divergence in UAPI appear,
-  the source of truth must be on the arm64 side. This has the
-  following consequences:
-
-    - s390 cannot add extensions to the UAPI
-
-    - s390 must be compatible with all future arm64 extensions
-
-  Similar concerns exist on the guest/hypervisor API, including:
-
-  - errata mitigation: this is unsurprisingly a hot topic, which keeps
-    causing us some massive headaches. We are particularly concerned
-    about errata that need to be disclosed to the guest and acted upon
-    via a hypercall. Should there be a need for those, how will we
-    coordinate the deployment of such hypercall?
-
-    The way it has been deployed so far is that PSCI has grown an
-    errata discovery mechanism. ARM assigns function numbers and
-    specifies what these hypercalls mitigate. KVM, in turn, takes part
-    in implementing the mitigation. We expect that s390 would follow
-    the same behaviour, including coordination with ARM for the
-    function numbering.
-
-  - device assignment: this is unknown territory for us, as we
-    commonly use vfio-pci (and more occasionally vfio-platform). How
-    would that look for an arm64 guest on s390?
-
-  - s390-specific ISA extension: although we obviously cannot control
-    how you will decide to expose features to your arm64 guests,
-    KVM/arm64 makes a point of forbidding any use of implementation
-    specific instruction or system registers. We expect the s390
-    implementation to uphold this.
-
-  - s390-specific hypercalls: aside from the errata handling
-    mentioned above, we would very much like to avoid anything that is
-    implementation specific, and keep the hypercall space as small as
-    possible. In other words, an unenlightened arm64 guest must work
-    and continue to work.
-
-* Overall maintenance
-
-  Unsurprisingly, we are not totally familiar with s390. To say that
-  there is a learning gap would only be an understatement. So how do
-  we make sure we don't break things out of pure ignorance? Is there
-  any documentation we can refer to when hacking on code that will
-  eventually run on your side of the computing universe?
-
-  We need to be able to build and test what we produce. How do we go
-  about that? We appreciate that you may not be in a position to help
-  with this right now, but at least having a plan would be reassuring.
-  This should include things like automatic testing of our CI branches.
-  We are happy to test build s390 as part of our maintenance flow, if
-  pointed to existing binary toolchains compiled for arm64 and x86,
-  together with a typical configuration.
-
-  What about debugging? We expect that you'd have to help, should an
-  arm64 change cause a regression on s390, as it is fairly unlikely
-  that we would be able to reproduce it.
-
-  Finally, we feel it would be beneficial for both projects to swap
-  prisoners and have cross-reviewers in MAINTAINERS, so that there is
-  an s390 reviewer added to KVM/arm64, and an arm64 reviewer added to
-  KVM/s390.
-
-It probably would be beneficial to work through some of these things
-face-to-face. Maybe around LPC or KVM Forum if you manage to get
-there? Or some other place/time?
-
-Thanks,
-
-	Marc and Will
+ mm/gup.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 --=20
-Without deviation from the norm, progress is not possible.
+2.51.0
+
