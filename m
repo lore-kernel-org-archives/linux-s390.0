@@ -1,242 +1,175 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 862B339D6EC;
-	Tue, 21 Apr 2026 11:10:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EDD33BD648
+	for <linux-s390@vger.kernel.org>; Tue, 21 Apr 2026 11:22:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776769811; cv=none; b=aonnwL/TRhl4kfo0IZI3oEQIxbhweYOsYi9an60DlcMpx9XmKk22jTLY6VPNfmgU0ibobnyebmEyZ5MwqR+8YDBM8N+UTfGxt+oJRjOQYoJ/TxO1O1gam3UahA7wcdUn5/Le+x4Tal3PmCYvjSrYVKuThAFnEz1vo5JKC8agdoo=
+	t=1776770577; cv=none; b=RkX14enw+gbjVSx7fMQIBXh34AiOiiAuTnnX66Fa0Xkx1gpwEDQVk1VUP+3SjjG37xgWOgOMnjTcQX9zSPv+Ajt+CxNHLHSsPmYrr+JeNilWGqc6bMR49p7LI1D6hlo7FCTT3Nq/SkzRXqbwMzLGh+UKJGtIpp2HP+qL3Y6mVRA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776769811; c=relaxed/simple;
-	bh=cPk3mES7mCJ/WDcKqXzzjVByzo8p0Ai0Pd6KZm0mkoU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qoR9n7Y8ITPTHbBEZ2XoTpy6Fvrs7a7vmEW1W0srqbxAt/tVJDfE18PPAjQCWet3385tIG9zf9q9MLbEj8YZLmPBNwNDT/7Ic/T9vXTZNUJSoRq3EuYgoRLq1VMgb59EstK+1uelwPEQtC/VulwodFSynN1XW1oGzo4Pi4j017A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KjYKwrus; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1776770577; c=relaxed/simple;
+	bh=7J5sLUyTcEtZ5b/o54KJz2TjlXrWGH0W+oigsdVGJYY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=AUgGYf8bFOxHA9Eb/ampr15QFqEmWhSb8pURCrmCmkH/AU7I2IByR3Of9HvBTB+/3/VMFcBHphsCvfk8HUtt4l1xzFT7eGwZiohA4OqmRcrJdLZaJhc9gj0fYyUrUddDSFYyYb3/8w8e4+hVpIZsXjWP67QLsJU4vt5xc4wWzBg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lU9jm6kG; arc=none smtp.client-ip=209.85.210.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KjYKwrus"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63KJgouT1926392;
-	Tue, 21 Apr 2026 11:10:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=uCFhvG
-	MWp+E2OWU0REWyRzcUCWJ8WpxUycLDtmZuVvU=; b=KjYKwrusBhJunFsgWZREHp
-	tIPAvbv9q5ckhz0agqDyid1k1erwdz4nZo5vLeyKbIUg+3+BFkJF4sCZPoFL65bH
-	VbXfnsq9JEqKM1pbBwucKLZRGZkz2GnIsILlKlKYmz/ar7Ib2HQO8ClYGbVeGecl
-	hqT/hwTte+Q4Y+5m72qNHKYQLxug7+kh4keA7gpRkdTkbuO493CrIXfc7wH8ql9A
-	HSocE9CJInyN46gHOP5R9Kjt1ymxhQ/rNRBN1PHcUKq2u+PFihKcKWwXpvw9Q/Sp
-	uW4gCPI+2GvVzVEnkXxyb5TskOLsu/5eRc4gJdop6+cLqJS04QaBu1gm7Lcsu+BA
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dm2nf3ykg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Apr 2026 11:10:07 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63LB5WMe030287;
-	Tue, 21 Apr 2026 11:10:06 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dmpyy06g9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Apr 2026 11:10:06 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63LBA3ru46268698
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 21 Apr 2026 11:10:03 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2C8052004B;
-	Tue, 21 Apr 2026 11:10:03 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id ED79A2004D;
-	Tue, 21 Apr 2026 11:10:02 +0000 (GMT)
-Received: from [9.52.199.37] (unknown [9.52.199.37])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 21 Apr 2026 11:10:02 +0000 (GMT)
-Message-ID: <f00388eb-a3d9-4df2-8786-70b938e57a78@linux.ibm.com>
-Date: Tue, 21 Apr 2026 13:10:02 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lU9jm6kG"
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-82f943870baso1460244b3a.1
+        for <linux-s390@vger.kernel.org>; Tue, 21 Apr 2026 04:22:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1776770574; x=1777375374; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=pbepvZoiaQHnY8ojgGndHUN0tqRJnJo2KRx8HLgDgUI=;
+        b=lU9jm6kGqDjqxIjkWxGDeqDvr17UMQYeVNP9rS5P3UWd7+VE4cpTrRwlYKSpCHI1KD
+         zZA4+dsX0fyXlhWGoGhioT7GlAk6Cad2+kFgyXXf+ZkLjXgYuVSOk6W9JhbsksRhS+cn
+         JjoUEw79Nz86BTgOmxYEMCIS5sQKYiwZ5dfniI9hbARcbUXmygsWFT4/6ZYrU7er4B5b
+         AF39CTz+lEumwPTp8qh8DUlpS3e4Z+amiPfglYGt2PS3FjwfgzzvqXLqKOW/KsOHooqZ
+         aJdiZQCu+ux924UJHp8L48osT1cgJGdd6A/cCTA6wbL1kWXsoMldHo20OThek5XInH4F
+         NHfw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776770574; x=1777375374;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=pbepvZoiaQHnY8ojgGndHUN0tqRJnJo2KRx8HLgDgUI=;
+        b=eHVTC1N8BN2qpXqPwZ42VJsq/g+Oqo319U0v/WQFH4fCUsGw0eeDLI4MdTfsiNo3Cd
+         /hqNRfEofhQBvKcaLiv7VQIwV0Zxr/o+ine+QIPd206bcYSlWVGKk0WkDQJtuYGieSpC
+         tjKcMgs/Y3r0kkNG/wDmybGMUL26rfNkpy4WFMYIbGweVobwJqQyM//Ur7WCRPd6rnUN
+         peIyckRVDJeOJfXmHSvAVY00pzDUTzoOkayZCxkLCYLJxkKfMg3FoHSmbONBAfdYxNH2
+         k8nscyWZKaZ/BbkO2Vcn5xuDiL2M5FYZDtvN7XglV+hH+uAKQWG5puo3DT4QeIfA2pJY
+         Mg8w==
+X-Forwarded-Encrypted: i=1; AFNElJ9j4JjFOkv1uIaWAfhIWRhFidLfjRXkQerhHdT1mnBWEuGwlb0gTvOeQ74gOk851qg0BNIFY2ynL9P4@vger.kernel.org
+X-Gm-Message-State: AOJu0YwDHL9nbs642wKIUJbdt7hwofWRDXwEjbaNj3cv8EMNYQqfHcOx
+	gZTc0ThgJU676tA8Oi4V2v3Ne6Picn9fCTTXXlJYk5zVl8wg2/JXbHYA
+X-Gm-Gg: AeBDieuaTj8JaFNsiajgWXxT0repa0zx2Qr0SW1SZXCzc2xPkB4ptiKwgIdLXDIPK1C
+	isbAbWEy+sziAuToQqkFio4lm6URuy6QG6Ijy9zgjgNuzcPQVEnMLazjURxGS9ypnS1rVotx/an
+	DH376wbIgZMYFsrr95MxYrniua2Y5C9da5XB8YMp55Jki3ZJZPWq31vL7nUr12MYSAUYobQs3ci
+	7KFI/cGUl5W0n38iU/g8IaoxO/wFKeouMbcmuV9xy5r1ikIyV57PshkjiE0j2pKU+oa5m19Gw5f
+	RO1JXEOqkmRLbQ9gRWsQtLqfCNgpsSP6USlFRGsPGyAtL4HIMEDzCkaGnbZeBQLgA3eDru9HXp3
+	63kTdSBXDQuP8Bfh/Z14Xb6U8je4ZntLoziZFL2F30XbiI6VjBDpvdSeE5nwbujV8F1VzY8tPDB
+	jdGa8BAC+n416X29J6xW1CRwREhuV17OhFNRE/4+Ut/PqozLqEi3KxGIptl/RWt+upPkMDIekmb
+	hOR/Q==
+X-Received: by 2002:a05:6a00:6988:b0:82f:aae5:c7a9 with SMTP id d2e1a72fcca58-82faae5d438mr7228492b3a.27.1776770573719;
+        Tue, 21 Apr 2026 04:22:53 -0700 (PDT)
+Received: from li-1a3e774c-28e4-11b2-a85c-acc9f2883e29.ibm.com ([129.41.58.4])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82f8e981a0asm14155014b3a.3.2026.04.21.04.22.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Apr 2026 04:22:53 -0700 (PDT)
+Date: Tue, 21 Apr 2026 16:52:37 +0530
+From: Mukesh Kumar Chaurasiya <mkchauras@gmail.com>
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, 
+	Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Arnd Bergmann <arnd@arndb.de>, 
+	x86@kernel.org, Lu Baolu <baolu.lu@linux.intel.com>, iommu@lists.linux.dev, 
+	Michael Grzeschik <m.grzeschik@pengutronix.de>, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, 
+	Herbert Xu <herbert@gondor.apana.org.au>, linux-crypto@vger.kernel.org, 
+	Vlastimil Babka <vbabka@kernel.org>, linux-mm@kvack.org, David Woodhouse <dwmw2@infradead.org>, 
+	Bernie Thompson <bernie@plugable.com>, linux-fbdev@vger.kernel.org, Theodore Tso <tytso@mit.edu>, 
+	linux-ext4@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, 
+	Uladzislau Rezki <urezki@gmail.com>, Marco Elver <elver@google.com>, 
+	Dmitry Vyukov <dvyukov@google.com>, kasan-dev@googlegroups.com, 
+	Andrey Ryabinin <ryabinin.a.a@gmail.com>, Thomas Sailer <t.sailer@alumni.ethz.ch>, 
+	linux-hams@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>, 
+	Richard Henderson <richard.henderson@linaro.org>, linux-alpha@vger.kernel.org, 
+	Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, 
+	Catalin Marinas <catalin.marinas@arm.com>, Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev, 
+	Geert Uytterhoeven <geert@linux-m68k.org>, linux-m68k@lists.linux-m68k.org, 
+	Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, linux-openrisc@vger.kernel.org, 
+	Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org, Paul Walmsley <pjw@kernel.org>, 
+	linux-riscv@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, 
+	"David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org
+Subject: Re: [patch 33/38] powerpc: Select ARCH_HAS_RANDOM_ENTROPY
+Message-ID: <aedc9UddBSYXzrAj@li-1a3e774c-28e4-11b2-a85c-acc9f2883e29.ibm.com>
+References: <20260410120044.031381086@kernel.org>
+ <20260410120319.789114053@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: [PATCH Ping ] perf callchain: Handle multiple address spaces
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org
-Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
-        hca@linux.ibm.com, japo@linux.ibm.com
-References: <20260414124241.490185-1-tmricht@linux.ibm.com>
-Content-Language: en-US
-From: Thomas Richter <tmricht@linux.ibm.com>
-Organization: IBM
-In-Reply-To: <20260414124241.490185-1-tmricht@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: SqFu4eD-lqQ1BL7_iby81zPXIM1sxIlc
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIxMDEwNyBTYWx0ZWRfX9eLBIpaXb+Yy
- HuYuDgGrv87FN44cUXNHy3i63Bv9Tq6TJjOjhOmr0D6xvA+FA0pb/0980NpWZpMPlaP3ObENTUh
- 0P5OGKCv0rqrsHav22oGX9WLizoX8Cr2fCoRnxAn4o1XOKGZ7l109E1Z4xetzXYL+GxhAMV2Snm
- SYkBBNbE4HJja8k8xR+kZX4wtRdVWNMBdbbWEeuoiqdkiA5A+GsYsCkm9UEZJwdd4jU2JT/SyWX
- VcIrFs29tbQ9f7UaX51swx5pfu0GXdFHwTvLbKuwwAfrzJGiT5ENPtecgZck0ZZ/pA5xwsfbSEL
- jq/oPrEA2KTnrjXRMEjULwrHmRqDLY22aR8zEUZ3oi352xgWyBabyx8BIHvosgwZgEPQto2WLFS
- EbHF7rrPCH4IinNY7ET2tCh6II94+n6K37/ewBdFxIn/AGikNc23I8ujrZ6H+nqvuL7T+R1mjAA
- 5OkhQBSjKciLvzy6Hjw==
-X-Proofpoint-GUID: SqFu4eD-lqQ1BL7_iby81zPXIM1sxIlc
-X-Authority-Analysis: v=2.4 cv=B7iJFutM c=1 sm=1 tr=0 ts=69e75b0f cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=xDvo_LaBMGlJbYMeWJQA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-21_02,2026-04-20_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 priorityscore=1501 spamscore=0 impostorscore=0 adultscore=0
- bulkscore=0 phishscore=0 suspectscore=0 lowpriorityscore=0 clxscore=1015
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604070000 definitions=main-2604210107
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260410120319.789114053@kernel.org>
 
-Friendly ping...
-
-On 4/14/26 14:42, Thomas Richter wrote:
-> perf test 'perf inject to convert DWARF callchains to regular ones'
-> fails on s390. It was introduced with
-> commit 92ea788d2af4 ("perf inject: Add --convert-callchain option")
+On Fri, Apr 10, 2026 at 02:21:09PM +0200, Thomas Gleixner wrote:
+> The only remaining usage of get_cycles() is to provide random_get_entropy().
 > 
-> The failure comes the difference in output. Without the inject script to
-> convert DWARF the callchains is:
->  # ./perf record -F 999 --call-graph dwarf -- perf test -w noploop
->  # ./perf report -i perf.data --stdio --no-children -q \
-> 					 --percent-limit=1 > /tmp/111
->  # cat /tmp/111
->     99.30%  perf-noploop  perf               [.] noploop
->             |
->             ---noploop
->                run_workload (inlined)
->                cmd_test
->                run_builtin (inlined)
->                handle_internal_command
->                run_argv (inlined)
->                main
->                __libc_start_call_main
->                __libc_start_main_impl (inlined)
->                _start
->  #
+> Switch powerpc over to the new scheme of selecting ARCH_HAS_RANDOM_ENTROPY
+> and providing random_get_entropy() in asm/random.h.
 > 
-> With the inject script step the output is:
->  # ./perf inject -i perf.data --convert-callchain -o /tmp/perf-inject-1.out
->  # ./perf report -i /tmp/perf-inject-1.out --stdio --no-children -q \
-> 		--percent-limit=1 > /tmp/222
->  # cat /tmp/222
->     99.40%  perf-noploop  perf               [.] noploop
->             |
->             ---noploop
->                run_workload (inlined)
->                cmd_test
->                run_builtin (inlined)
->                handle_internal_command
->                run_argv (inlined)
->                main
->                _start
->  # diff /tmp/111 /tmp/222
->  1c1
->  <     99.30%  perf-noploop  perf               [.] noploop
->  ---
->  >     99.40%  perf-noploop  perf               [.] noploop
->  10,11d9
->  <                __libc_start_call_main
->  <                __libc_start_main_impl (inlined)
->  #
+> Remove asm/timex.h as it has no functionality anymore.
 > 
-> The difference are the symbols __libc_start_call_main and
-> __libc_start_main_impl.
-> 
-> On x86_64, kernel and user space share a single virtual address space,
-> with the kernel mapped to the upper end of memory. The instruction
-> pointer value alone is sufficient to distinguish between user space
-> and kernel space addresses. This is not true for s390, which uses
-> separate address spaces for user and kernel. The same virtual address
-> can be valid in both address spaces, so the instruction pointer value
-> alone cannot determine whether an address belongs to the kernel or
-> user space. Instead, perf must rely on the cpumode metadata derived
-> from the processor status word (PSW) at sample time.
-> 
-> In function perf_event__convert_sample_callchain() the first part
-> copies a kernel callchain and context entries, if any.
-> It then appends additional entries ignoring the address space
-> architecture. Taking that into account, the symbols at addresses
-> 
->    0x3ff970348cb __libc_start_call_main
->    0x3ff970349c5 __libc_start_main_impl
-> 
-> (located after the kernel address space on s390) are now included.
-> 
-> Output before:
->  # ./perf test 83
->  83: perf inject to convert DWARF callchains to regular ones : FAILED!
-> 
-> Output after:
->  # ./perf test 83
->  83: perf inject to convert DWARF callchains to regular ones : Ok
-> 
-> Question to Namhyung:
-> In function perf_event__convert_sample_callchain() just before the
-> for() loop this patch modifies, the kernel callchain is copied,
-> see this comment and the next 5 lines:
->    /* copy kernel callchain and context entries */ 
-> Then why is machine__kernel_ip() needed in the for() loop, when
-> the kernel entries have been copied just before the loop?
-> 
-> Note: This patch was tested on x86_64 virtual machine and succeeded.
-> 
-> Fixes: 92ea788d2af4 ("perf inject: Add --convert-callchain option")
-> Cc: Namhyung Kim <namhyung@kernel.org>
-> 
-> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: linuxppc-dev@lists.ozlabs.org
 > ---
->  tools/perf/arch/common.c    | 4 +++-
->  tools/perf/builtin-inject.c | 3 ++-
->  2 files changed, 5 insertions(+), 2 deletions(-)
+>  arch/powerpc/Kconfig              |    1 +
+>  arch/powerpc/include/asm/random.h |   13 +++++++++++++
+>  arch/powerpc/include/asm/timex.h  |   21 ---------------------
+>  3 files changed, 14 insertions(+), 21 deletions(-)
 > 
-> diff --git a/tools/perf/arch/common.c b/tools/perf/arch/common.c
-> index 21836f70f231..ad0cab830a4d 100644
-> --- a/tools/perf/arch/common.c
-> +++ b/tools/perf/arch/common.c
-> @@ -237,5 +237,7 @@ int perf_env__lookup_objdump(struct perf_env *env, char **path)
->   */
->  bool perf_env__single_address_space(struct perf_env *env)
->  {
-> -	return strcmp(perf_env__arch(env), "sparc");
-> +	const char *arch = perf_env__arch(env);
+> --- a/arch/powerpc/Kconfig
+> +++ b/arch/powerpc/Kconfig
+> @@ -150,6 +150,7 @@ config PPC
+>  	select ARCH_HAS_PREEMPT_LAZY
+>  	select ARCH_HAS_PTDUMP
+>  	select ARCH_HAS_PTE_SPECIAL
+> +	select ARCH_HAS_RANDOM_ENTROPY
+>  	select ARCH_HAS_SCALED_CPUTIME		if VIRT_CPU_ACCOUNTING_NATIVE && PPC_BOOK3S_64
+>  	select ARCH_HAS_SET_MEMORY
+>  	select ARCH_HAS_STRICT_KERNEL_RWX	if (PPC_BOOK3S || PPC_8xx) && !HIBERNATION
+> --- /dev/null
+> +++ b/arch/powerpc/include/asm/random.h
+> @@ -0,0 +1,13 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef _ASM_POWERPC_RANDOM_H
+> +#define _ASM_POWERPC_RANDOM_H
 > +
-> +	return strcmp(arch, "s390") && strcmp(arch, "sparc");
->  }
-> diff --git a/tools/perf/builtin-inject.c b/tools/perf/builtin-inject.c
-> index f174bc69cec4..6ab20df358c4 100644
-> --- a/tools/perf/builtin-inject.c
-> +++ b/tools/perf/builtin-inject.c
-> @@ -438,7 +438,8 @@ static int perf_event__convert_sample_callchain(const struct perf_tool *tool,
->  
->  	node = cursor->first;
->  	for (k = 0; k < cursor->nr && i < PERF_MAX_STACK_DEPTH; k++) {
-> -		if (machine__kernel_ip(machine, node->ip))
-> +		if (machine->single_address_space &&
-> +		    machine__kernel_ip(machine, node->ip))
->  			/* kernel IPs were added already */;
->  		else if (node->ms.sym && node->ms.sym->inlined)
->  			/* we can't handle inlined callchains */;
+> +#include <asm/cputable.h>
+> +#include <asm/vdso/timebase.h>
+> +
+> +static inline unsigned long random_get_entropy(void)
+> +{
+> +	return mftb();
+> +}
+> +
+> +#endif	/* _ASM_POWERPC_RANDOM_H */
+> --- a/arch/powerpc/include/asm/timex.h
+> +++ b/arch/powerpc/include/asm/timex.h
+> @@ -1,21 +0,0 @@
+> -/* SPDX-License-Identifier: GPL-2.0 */
+> -#ifndef _ASM_POWERPC_TIMEX_H
+> -#define _ASM_POWERPC_TIMEX_H
+> -
+> -#ifdef __KERNEL__
+> -
+> -/*
+> - * PowerPC architecture timex specifications
+> - */
+> -
+> -#include <asm/cputable.h>
+> -#include <asm/vdso/timebase.h>
+> -
+> -ostatic inline cycles_t get_cycles(void)
+> -{
+R> -	return mftb();
+> -}
+> -#define get_cycles get_cycles
+> -
+> -#endif	/* __KERNEL__ */
+> -#endif	/* _ASM_POWERPC_TIMEX_H */
+> 
+Build tested for this series with allmodconfig and allyesconfig on ppc64le
+machine for ppc64le.
+tree: git://git.kernel.org/pub/scm/linux/kernel/git/tglx/devel.git getcycles-v1
 
+Boot tested for this series on powernv9 qemu, powernv10 qemu and pSeries
+power11 hardware.
 
--- 
-Thomas Richter, Dept 3303, IBM s390 Linux Development, Boeblingen, Germany
---
-IBM Deutschland Research & Development GmbH
+Tested-by: Mukesh Kumar Chaurasiya (IBM) <mkchauras@gmail.com>
+Reviewed-by: Mukesh Kumar Chaurasiya (IBM) <mkchauras@gmail.com>
 
-Vorsitzender des Aufsichtsrats: Wolfgang Wendt
-
-Geschäftsführung: David Faller
-
-Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
