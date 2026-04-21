@@ -1,127 +1,196 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 010352773F0;
-	Tue, 21 Apr 2026 21:38:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3887F34F479
+	for <linux-s390@vger.kernel.org>; Tue, 21 Apr 2026 22:01:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776807531; cv=none; b=VhuA+F9JOu6SCuEMthj1r9ITEh3qrxh9Gd4iE79AMeSPQfgRW1C1L5WAbwe6N1sN+uOtQhB0A3URrqdMEUa7DeRm87nTEKSwbzmCkiR6VLzyxecaDPMzGMqfmD26uIGB15A7QmcvQbDk5Ot7hrrNN4O4kyyCGs+lvCvv9DmkMLE=
+	t=1776808913; cv=none; b=EE44z+W0YQmwV5VKL0yg3c7Wu1m11uj9KufvCkfJOzRfmLVnQMVJB0+vsR9dhmB1tc5xSL58iP2WTIXdjBq8qoRatqEgW4Lkoc3hurPuh54QAkhFnY9rbzivfGbkB6VS5Kq/744+xf9Izk3ziNIUrspZhCYeo9+7N7UiOaKNXGc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776807531; c=relaxed/simple;
-	bh=CcnIhNX1Ct+b8gr30wn4e1tvYOD7yALVZlMLTbe45WI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NbjhwsnyixVBAkbeJS/rhq1zAg9VRjIs+1ooDJTC0Y8OJdT168ghbwrN/pJZC6AY3ZGDqbCN5YOMb2eQXX+qUKgMMGYQqUhsKd0Cxxm0AdMrpFhro+BWMa6prrpWbYhDarBaNClUup584SMzWy4IGkdA74HjgHaVCH9nXhHffjk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=V2RfIuf2; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1776808913; c=relaxed/simple;
+	bh=xyYx6EKfSNYgy8umDBVjFDGC9ANxj/5Tbt7GkFR38jI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RosXm5aOsNZ5CXkdUN4CUhi9teotXABJxRdIkDtwgk2qwuDJ3vE4zjAEWMqoE6uZPqn1qkCQZEE5UnyHyW0vWSRMXynil08dZoE2DQKhbBasXTJQzbJIGqPItn05E2A0N1DhoLAO9zVZJA8d96J6FGfR58LVpRNgo82PaKgWVeU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=T3Ku1jm7; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=VM8sk+fz; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="V2RfIuf2"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63LImJ6S590754;
-	Tue, 21 Apr 2026 21:38:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=JUf5xe32ftQAeXDeJ8yyX8svTFp1E8fbIyIRFi3qqwg=; b=V2RfIuf2OTVd
-	uZ04Bz99InlFj3o3lfgGDsv7Vu40uVn84qgNhhK2gqAXfYzcZB4EeMPaxjRVil/k
-	wubxGCIk7DZptleat9lPnzogDmWUlnMFLStJ3EfL9UxwdYZ7qTSMgrVD6n36IiIi
-	IMr8pzczORoW66R8+6ZoaYDc6wTQV8s8Mj+td71kUJNE9HOVVLCWy4mTq4awf2HW
-	Ipo94ogE0EqhquaC9ZR1hYpcSouB3r+t/jl+IsMeNdiympChIERTJ3pV2dMTw2mK
-	8O9dsxB9KlanudR+rCzum4iPipMdgLXmL3fiiW72sqW1PSJy/NPUd5g2IzsqdvKS
-	OqoicaJgCA==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dpeu20jg2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Apr 2026 21:38:46 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63LLKRgl028602;
-	Tue, 21 Apr 2026 21:38:46 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dmpyy27gw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Apr 2026 21:38:46 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63LLcikw18875062
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 21 Apr 2026 21:38:44 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8C3F958053;
-	Tue, 21 Apr 2026 21:38:44 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B34F358043;
-	Tue, 21 Apr 2026 21:38:43 +0000 (GMT)
-Received: from [9.61.249.207] (unknown [9.61.249.207])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 21 Apr 2026 21:38:43 +0000 (GMT)
-Message-ID: <305d85a8-660a-4063-9b47-5707d8b25fa2@linux.ibm.com>
-Date: Tue, 21 Apr 2026 16:38:43 -0500
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="T3Ku1jm7";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="VM8sk+fz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1776808909;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=JVwG8S2po1iduREwk8io7PMDE8wG9YqvUAWHOi+D4qs=;
+	b=T3Ku1jm733ofpBp4NFCYlA7i+sj69T7vm948aMKzIgVWKE19VZbZLcPzkpCOq7ZEZTqkCk
+	FmGRTwtbid+xyNunPg9WXAhw1JyaPBDcHFzsvFnXCyJd5Jn4WwbieAg3ykVahIYkKz+9gu
+	nplNJoI+1mGjOv1V71IS639F8qvMlg4=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-175-3yGJkB-OO6SEKREzgRuH6A-1; Tue, 21 Apr 2026 18:01:48 -0400
+X-MC-Unique: 3yGJkB-OO6SEKREzgRuH6A-1
+X-Mimecast-MFC-AGG-ID: 3yGJkB-OO6SEKREzgRuH6A_1776808907
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4891f2eecb7so16045675e9.0
+        for <linux-s390@vger.kernel.org>; Tue, 21 Apr 2026 15:01:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1776808907; x=1777413707; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=JVwG8S2po1iduREwk8io7PMDE8wG9YqvUAWHOi+D4qs=;
+        b=VM8sk+fzYFB9wZrk6YKEd38F5lC5fNsgZhgtGGi85s8KRi/uWx0lareBfmfdcVrWGe
+         j8MjQrL+jyJkLq3CIaj5r/VNoHysPPxSnw+5eo1nUWCjGFl/fkfQA8xBQVbiNYuOaDA5
+         WzaVZoyY9ZNo5af5Z2SIrwOQvawrD/37UqhTY2z/UpI9pQGyE+269yGyrgYunGPO4MuW
+         crRnYP9u/B3uSTAMyJeLi668q5D6UgEAJSAS4pIFi7An2eyI1ETJ5EKB0KS+PAY4105F
+         wR1qdk5SBBRvgMFUqjHoRid+JdalxzXd+peb5SwkwzmNJ3Y0qQydN8V57HhRMonG/xuV
+         7Cpg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776808907; x=1777413707;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=JVwG8S2po1iduREwk8io7PMDE8wG9YqvUAWHOi+D4qs=;
+        b=ZtFwNFkAS9CO7jkmwdEYLcbP/wBoF8DavimpoYpa+aY5dZ3r88YZqXdjwenvYUGHDX
+         AdJa+k6IC9VJD4HevELOneGzjN+UahOyX5uZtjLmN9mTEk9880oh0lMiCjJuCkXfM+1x
+         DGSCev5sy5HmOY3afeJ76RLGC1xNvA7DKR3I2BLGwiRsagchCsowpReHU7nJqsNTgWRq
+         hDI47M3m0Mpo7PVi2T00pq+EUCpEskKA6g1X10dBibWE9TeJngclkbh74FC988Q4er9/
+         0N5BAU7XWY2aAUvdf0RoJmyZu6EIJUUTsuypEeEMoyIKk9Qzbf6CYVT7MDq7yPij3gqm
+         u9uA==
+X-Forwarded-Encrypted: i=1; AFNElJ/DnNqlkk1Xrp7eDIup+ttePCui343V/T97fkDI5GYTFE7okmvUZnhkB6vmJ96e8cBrJxamFvCDKAxJ@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzaik6MzYW8e9GcDF7dSBRlJafuw9+RlfV5G4xDhFLXnUVPaRUg
+	3od/1vkYnm3scDW2YXM2Lm13hHVcGvG6v1PJMR5UsIMcD4mDa9nv1zMQ6KgHDRy8Xm5Cvre2SCW
+	toPR7HbmXMyYPlbTmyltvAM9yC5+ndVYfNvsJ55f0xOxa52Y6UVfPPI3n0Qdss68=
+X-Gm-Gg: AeBDiet3FjFfM0H9UN9GCAWjLZzva0VYUC4xuS0jBLQkHGYN0d7TKIlh5U5rfHn0pAx
+	dxkUp4fEBL5ZaItmdKlC/D79TlAYBMChxffrlJFHy56aQ2TF2RZEyTiz2gFNSKiQt8Wqs2sXZLI
+	eJUHEK+Uta/EqoIQc1vuGTUy31rgsI1AVKu9PC1rNm1FjH9yyMSDkQSIor7yOP2spkanSVX4c4s
+	I3ic/m0fcgcYHHIF0yvzz0VPU8COfnm3nDTy1FQvCakM8v2DmYT35DKMqN4kzGltvbtv7lg2c+B
+	cBL1dQS2ceCv7O6u+B59bc6ALInBGWKKAOup3+rdTh5t4I2mJNWhE6wVvpQhVaWjrypBsrehI3M
+	fToSou5PIjTUkAKrMUOxyQ8/JN7/m4HfkbV/C51pOvQD/TyN9VJX1/g==
+X-Received: by 2002:a05:600c:5294:b0:48a:563c:c8d6 with SMTP id 5b1f17b1804b1-48a563cd0eemr57315945e9.7.1776808906897;
+        Tue, 21 Apr 2026 15:01:46 -0700 (PDT)
+X-Received: by 2002:a05:600c:5294:b0:48a:563c:c8d6 with SMTP id 5b1f17b1804b1-48a563cd0eemr57315565e9.7.1776808906442;
+        Tue, 21 Apr 2026 15:01:46 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-25-21.inter.net.il. [80.230.25.21])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488fc0f8193sm361473545e9.1.2026.04.21.15.01.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Apr 2026 15:01:45 -0700 (PDT)
+Date: Tue, 21 Apr 2026 18:01:42 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	David Hildenbrand <david@kernel.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Brendan Jackman <jackmanb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Andrea Arcangeli <aarcange@redhat.com>,
+	Gregory Price <gourry@gourry.net>, linux-mm@kvack.org,
+	virtualization@lists.linux.dev,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Matt Turner <mattst88@gmail.com>,
+	Magnus Lindholm <linmag7@gmail.com>,
+	Greg Ungerer <gerg@linux-m68k.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-alpha@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org
+Subject: [PATCH RFC v3 10/19] mm: remove arch vma_alloc_zeroed_movable_folio
+ overrides
+Message-ID: <006f9142e591ba8c340c3b354aee76aec5c285b9.1776808210.git.mst@redhat.com>
+References: <cover.1776808209.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Reply-To: ramesh@linux.ibm.com
-Subject: Re: [PATCH v2 1/1] PCI/hotplug: Add 'uevent' sysfs attribute to
- trigger slot events
-To: =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?= <kw@linux.com>
-Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-References: <20260416213909.705753-1-ramesh@linux.ibm.com>
- <20260416213909.705753-2-ramesh@linux.ibm.com>
- <20260421171334.GA1684602@rocinante>
-Content-Language: en-US
-From: Ramesh Errabolu <ramesh@linux.ibm.com>
-In-Reply-To: <20260421171334.GA1684602@rocinante>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-GUID: kjO1FGRRJEH0Owfen7rjb3pT3iW8W1BI
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIxMDIxMiBTYWx0ZWRfX1voHI0bWLjYr
- a3Gosp13w6l+/COI4ELRiopckOqN9o5AD2M1o5venYBKOi2xpRL4f7N2yDKB8OBCqUsgt2pvMn0
- QYi26ID5OTnF6DPbW8Ya/bEn0OfwDGa/0XaloAP5v684ofjAnCcHUdAcgb4mTNsUk4NW13vMy/J
- SXzZSTocsZH7WWtuGtecTjZUpwziyKMT/DFKunlovJw9H/MJnhvqe5KQbW30O729HigE/BzbqpE
- AINPhFk6fU8Ji2Jp1ehx6eH2su4jqvPKPKFEv09A8FD1cstceN5L7vvYher/wZwijyBNKmaBcoK
- mIbS4enTf2QEiVu1bwH/xLtB4rEXlVjW8zFIVA/koEOT7p324B6udodtwhuNV8W++9OvrD3zU5o
- bpuE+DyuayetUd6DX14m/v4j/WIJHlUaclV86ACH/Q2EMrdUuuSJctHH3Ds9aXJLG1iMlfGXH6M
- Rm7WisXx6QtMXWPxnJA==
-X-Authority-Analysis: v=2.4 cv=C8LZDwP+ c=1 sm=1 tr=0 ts=69e7ee67 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=Xe8eY8ZVJCK048dyR0cA:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: -KZ-uPc59IxeIQQ4dM2P-GSfloP3vUUj
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-21_03,2026-04-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 suspectscore=0 priorityscore=1501 malwarescore=0
- lowpriorityscore=0 clxscore=1011 bulkscore=0 impostorscore=0 spamscore=0
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
- definitions=main-2604210212
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cover.1776808209.git.mst@redhat.com>
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
 
-On 4/21/2026 12:13 PM, Krzysztof Wilczyński wrote:
+Now that the generic vma_alloc_zeroed_movable_folio() uses
+__GFP_ZERO, the arch-specific macros on alpha, m68k, s390, and
+x86 that did the same thing are redundant.  Remove them.
 
-> Hello,
->
->> +static struct pci_slot_attribute hotplug_slot_attr_uevent = {
->> +	.attr = {.name = "uevent", .mode = S_IFREG | 0200},
->> +	.show = NULL,
->> +	.store = uevent_write_file
->> +};
-> I think, you could use the __ATTR_WO() macro here.
-Use of the suggested macro is not appropriate
->
-> Thank you!
->
-> 	Krzysztof
+arm64 is not affected: it has a real function override that
+handles MTE tag zeroing, not just __GFP_ZERO.
+
+Suggested-by: David Hildenbrand <david@kernel.org>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ arch/alpha/include/asm/page.h   | 3 ---
+ arch/m68k/include/asm/page_no.h | 3 ---
+ arch/s390/include/asm/page.h    | 3 ---
+ arch/x86/include/asm/page.h     | 3 ---
+ 4 files changed, 12 deletions(-)
+
+diff --git a/arch/alpha/include/asm/page.h b/arch/alpha/include/asm/page.h
+index 59d01f9b77f6..4327029cd660 100644
+--- a/arch/alpha/include/asm/page.h
++++ b/arch/alpha/include/asm/page.h
+@@ -12,9 +12,6 @@
+ 
+ extern void clear_page(void *page);
+ 
+-#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
+-	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
+-
+ extern void copy_page(void * _to, void * _from);
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+ 
+diff --git a/arch/m68k/include/asm/page_no.h b/arch/m68k/include/asm/page_no.h
+index d2532bc407ef..f511b763a235 100644
+--- a/arch/m68k/include/asm/page_no.h
++++ b/arch/m68k/include/asm/page_no.h
+@@ -12,9 +12,6 @@ extern unsigned long memory_end;
+ 
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+ 
+-#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
+-	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
+-
+ #define __pa(vaddr)		((unsigned long)(vaddr))
+ #define __va(paddr)		((void *)((unsigned long)(paddr)))
+ 
+diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
+index f339258135f7..04020a19a5cf 100644
+--- a/arch/s390/include/asm/page.h
++++ b/arch/s390/include/asm/page.h
+@@ -67,9 +67,6 @@ static inline void copy_page(void *to, void *from)
+ 
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+ 
+-#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
+-	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
+-
+ #ifdef CONFIG_STRICT_MM_TYPECHECKS
+ #define STRICT_MM_TYPECHECKS
+ #endif
+diff --git a/arch/x86/include/asm/page.h b/arch/x86/include/asm/page.h
+index 416dc88e35c1..92fa975b46f3 100644
+--- a/arch/x86/include/asm/page.h
++++ b/arch/x86/include/asm/page.h
+@@ -28,9 +28,6 @@ static inline void copy_user_page(void *to, void *from, unsigned long vaddr,
+ 	copy_page(to, from);
+ }
+ 
+-#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
+-	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
+-
+ #ifndef __pa
+ #define __pa(x)		__phys_addr((unsigned long)(x))
+ #endif
+-- 
+MST
+
