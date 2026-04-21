@@ -1,66 +1,66 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67B15307492;
-	Tue, 21 Apr 2026 16:30:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DCC6282F00;
+	Tue, 21 Apr 2026 16:30:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776789044; cv=none; b=NAj7M75zuu1Q8K9QKIF0ihQHbfnc+sGPmTV9bGItB4cE7o7UypaRwS5+1proalDDSVpAbVxoPtJv5W43jATtQb0Q7abn6Cpy6/yzgCuTn9HZ5nCeGGBKs/zt0bOT7eeZ0UhRDR5WKOoUTvkmmxysDEdwvYTQQKaWFLhJtNJhOCA=
+	t=1776789045; cv=none; b=nOA7XU2mbKp269lwpNyyJLJpQ6IdM6HxE7fls/6vLWgtpVUrHKK4qSjtSb8Wx+Lf72z2gi3LHEBdH0oz2SE7mxhppyjCDlYF0IR5g2+WOqLmCLoA8j3pSIFTDI3X0fkNl+yhgoRXNMs7mxkwvNLCDHhy/woOOo6+gf2u1cA0l6o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776789044; c=relaxed/simple;
-	bh=ZANUHF92z/5D08FuUpzVJ7l0nfqJHG++dU09m9Zu/yg=;
+	s=arc-20240116; t=1776789045; c=relaxed/simple;
+	bh=POORsXRkk4nOKnrZRpviXSsULTny9Rnzj8bxogy/6pk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=SQ+nU5WqIaBeYWdFy8CYwbevMW4gNCsq9B0CWcKuLbGnaIf1kNkk4ho06Cc5hczmYamDxWoqE3eQlezYZy3BaVVWCpLzfY2LB1EwM6Kr8iNbZBEmAnHB0z+kH5zmvQ8ZqZNtDhlFzTANNXOiGBWj2lScLE2KYZFnL224oahX/eg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hg9Dn/xf; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=QDm4odBoxoa565uxEXu/yIBEfyLongvRYRXx99vTORimP8ClHOw5xP0Lj7jSgek3kcFRkY5ai0iXfsafGIH7WlKZQRfM6tVbKlnWekkyV2LIIh5eiyUtIKwCAJpDX8dq98aPGRJllSMfp4zQRQRgVwHd5ZhdqNx/u2C2gpaKdOY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=W/WcIhA6; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hg9Dn/xf"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="W/WcIhA6"
 Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63LC9nBK1684509;
-	Tue, 21 Apr 2026 16:30:37 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63LCB5kG1686243;
+	Tue, 21 Apr 2026 16:30:39 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=jQfPUqqA91bdGrgU+
-	yThItyVt6xMwgVJ/HtFOXJWzEo=; b=hg9Dn/xffPdRwaC3NxK0h91CL5VSUoRwX
-	n8Z+HeA5u8hm/zUmWb5ST1H8IB9vCefuOl98gZ/tMvJGs6HIzrcnm41lfRRZQ/pJ
-	e99wNJ8RlHXcVf+O/2eU+A5tDDzUV7DqQZhOCchIklxeJMMA7e01qEHazGkyRjMj
-	dVEQvZ+EqMGsXD9s0jMH9nF7QmQg2u7gD2Yk9ZhXl+b2V8ygZbxuPP+cY7EpJSys
-	EBCT3xT1ghXvHup+gatuLaW/sweTz1C3HhhUp2PV6f0RGX0rwHv00SmrlvkWCG4C
-	EUpHivPuzH+VsQ0oJ+mU4Js/+plFQd3c084LzDUNTkDaSP9dED35Q==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dm2j6n8y9-1
+	:mime-version:references:subject:to; s=pp1; bh=B03ES7Gw4vOtbWqO6
+	B3bh3UMTVIWbkYsdM5+gP6DaHk=; b=W/WcIhA6K+0j+F0hwt7WEIIBQ1Fx0P/Cy
+	G382WeLs0WxCMFTnU6qBcHifrHDkLIhiGxBNKzst6OLE+MHyqYfM7BxA10wzlyuY
+	w5erp4GM2PEx4YQySaP5lwT0pAeLAlWRJolmYC5oTjinABmKUXavoBkWBROhY81/
+	ZaglDfHFvBuPtRExmCvu6astfK1JBKaEcgOiPocDpdR2BiTjpNrKsffwsSvUmmqj
+	1ARy0ilm7eCtgaMiJhjFsGEEtXfGs2zZCQju+rzYcF1MSgl/VdLqMbRToogyOn9a
+	GJVJTFec1oCaEeaDjP3FFFDfB1DPB8J65OBQNak4s0G52Ebfo8K2A==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dm2j6n8yd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 21 Apr 2026 16:30:38 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63LGKMxO013680;
+	Tue, 21 Apr 2026 16:30:37 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dmnsh1da2-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 21 Apr 2026 16:30:37 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63LGKXBY004691;
-	Tue, 21 Apr 2026 16:30:36 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dmpyy17ax-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Apr 2026 16:30:36 +0000 (GMT)
 Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63LGUYRT26280558
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63LGUaGa26411432
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 21 Apr 2026 16:30:34 GMT
+	Tue, 21 Apr 2026 16:30:36 GMT
 Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 95CD758054;
+	by IMSVA (Postfix) with ESMTP id 0A0425805C;
+	Tue, 21 Apr 2026 16:30:36 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C45955805A;
 	Tue, 21 Apr 2026 16:30:34 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5E31F5805A;
-	Tue, 21 Apr 2026 16:30:33 +0000 (GMT)
 Received: from IBM-D32RQW3.ibm.com (unknown [9.61.248.17])
 	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 21 Apr 2026 16:30:33 +0000 (GMT)
+	Tue, 21 Apr 2026 16:30:34 +0000 (GMT)
 From: Farhan Ali <alifm@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-pci@vger.kernel.org
 Cc: helgaas@kernel.org, lukas@wunner.de, alex@shazbot.org, clg@redhat.com,
         alifm@linux.ibm.com, schnelle@linux.ibm.com, mjrosato@linux.ibm.com,
-        stable@vger.kernel.org
-Subject: [PATCH v14 1/7] PCI: Allow per function PCI slots to fix slot reset on s390
-Date: Tue, 21 Apr 2026 09:30:25 -0700
-Message-ID: <20260421163031.704-2-alifm@linux.ibm.com>
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH v14 2/7] PCI: Avoid saving config space state if inaccessible
+Date: Tue, 21 Apr 2026 09:30:26 -0700
+Message-ID: <20260421163031.704-3-alifm@linux.ibm.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260421163031.704-1-alifm@linux.ibm.com>
 References: <20260421163031.704-1-alifm@linux.ibm.com>
@@ -72,21 +72,22 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIxMDE2MiBTYWx0ZWRfXzFsXS5enm7X8
- 8n86iNGjmdxfj5h7XG1lvqxHqfFX6DkBf967ckwjsOjfkaZFJtZ92RyIQAhxQz4gF2gahrP3eXH
- OQ7oDhUCxTtdprvoUN3Wo6pWj4FvWGeenUzZVrp8pbod94zRV63SJ1HtHb/UBZix4IKX1/d6zsX
- 2NQmsQUNxwrrJF67TC6XzI4lLCVLwl3Tv2shEmpkNfnjzQK4nMZ+U6BNBxLfNNlvy76txw9CQHo
- YcSWlVrljYKmOFOUyWeMYGY2uYh4eXIaSv6rwPoxhqGi2F2L1Bkpouu0tV/9y/5nckLcy9BA+RM
- eLBvkoaCsbRIWxSP7ukoERop8ve6UCbwk4qhp3TGTzDo3z5Sh2V5yZjnFkg79d5sP7OaDxWrRev
- bMkEgGv5NeoT9ZwnI9Bp3cdU9sxsvJGNAJQItZEI/P95IutBOkH18Vw7luVdKaZivl9Wrehq4Rb
- iXJpjr297x+SDW2w94w==
-X-Proofpoint-GUID: fEwBRMz-KIfdN8XOosbBa50rN8oFtnS0
-X-Authority-Analysis: v=2.4 cv=SOJykuvH c=1 sm=1 tr=0 ts=69e7a62d cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIxMDE2MiBTYWx0ZWRfX5ID0gQZzfrcT
+ KoleE+upjz1HCMAaJy/ctL1LystcKiUkS7tFG++ICOZSiMJP+0H9OmSLpWE9BPtyMFK5MIWpt2d
+ 8JzJ9bcl5Ub8fk02w+WlUDRKVuqcQC9Hxymg4nKgrzZAyMT5KWMR4z82c4mJWXAQBBovfa8Fe2c
+ N3+9rPjvlj1h/L0N58JiyhonmQYpowco2jq0Lh2GZEGHNc7tXe7pl7PoOUVZ5ADJlBoIIrkv6Sz
+ QDe9LrA2XUPkWUBHDoQ2/pS+jpxPLFQZJuEdjy1mwIpA2+n9w40WQr4I2zZtcma9wZz77Glv8yS
+ 489W1mXprZZ7Z7NjCtjGFosCzU0yP9H+ysPKVOdzrqpEPMrLFHX+8bJHJh+Kvtswg8aC5GrnHi7
+ JdYxLObPsRjMH2niQne3m5djjfNcjo9bYQcN4cvtBcHi3BdEZvBhrIlmVr+6qFHGAMrir977tJq
+ gytunz6JZZ+VfCyCDRw==
+X-Proofpoint-GUID: 13SU2rU1PoCGkA2aoMub_GrO7QGX2YVQ
+X-Authority-Analysis: v=2.4 cv=SOJykuvH c=1 sm=1 tr=0 ts=69e7a62e cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=9_SSeoq7eJPDN4OswFYA:9 a=O8hF6Hzn-FEA:10
-X-Proofpoint-ORIG-GUID: fEwBRMz-KIfdN8XOosbBa50rN8oFtnS0
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=1XWaLZrsAAAA:8
+ a=qS04rNcGil1I7-YeviAA:9
+X-Proofpoint-ORIG-GUID: k514EHwisKri4fDL4JeyLjgR8As7lbR1
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-21_03,2026-04-21_02,2025-10-01_01
@@ -97,184 +98,65 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  adjust=0 reason=mlx scancount=1 engine=8.22.0-2604070000
  definitions=main-2604210162
 
-On s390 systems, which use a machine level hypervisor, PCI devices are
-always accessed through a form of PCI pass-through which fundamentally
-operates on a per PCI function granularity. This is also reflected in the
-s390 PCI hotplug driver which creates hotplug slots for individual PCI
-functions. Its reset_slot() function, which is a wrapper for
-zpci_hot_reset_device(), thus also resets individual functions.
+The current reset process saves the device's config space state before
+reset and restores it afterward. However errors may occur unexpectedly and
+it may then be impossible to save config space because the device may be
+inaccessible (e.g. DPC). This results in saving invalid values that get
+written back to the device during state restoration.
 
-Currently, the kernel's PCI_SLOT() macro assigns the same pci_slot object
-to multifunction devices. This approach worked fine on s390 systems that
-only exposed virtual functions as individual PCI domains to the operating
-system.  Since commit 44510d6fa0c0 ("s390/pci: Handling multifunctions")
-s390 supports exposing the topology of multifunction PCI devices by
-grouping them in a shared PCI domain. This creates a problem when resetting
-a function through the hotplug driver's slot_reset() interface.
+With a reset we want to recover/restore the device into a functional state.
+So avoid saving the state of the config space when the device config space
+is inaccessible.
 
-When attempting to reset a function through the hotplug driver, the shared
-slot assignment causes the wrong function to be reset instead of the
-intended one. It also leaks memory as we do create a pci_slot object for
-the function, but don't correctly free it in pci_slot_release().
-
-Add a flag for struct pci_slot to allow per function PCI slots for
-functions managed through a hypervisor, which exposes individual PCI
-functions while retaining the topology. Since we can use all 8 bits
-for slot 'number' (for ARI devices), change slot 'number' u16 to
-account for special values -1 and PCI_SLOT_ALL_DEVICES.
-
-Fixes: 44510d6fa0c0 ("s390/pci: Handling multifunctions")
-Cc: stable@vger.kernel.org
-Suggested-by: Niklas Schnelle <schnelle@linux.ibm.com>
 Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
 ---
- drivers/pci/hotplug/rpaphp_slot.c |  2 +-
- drivers/pci/pci.c                 |  5 +++--
- drivers/pci/slot.c                | 33 +++++++++++++++++++++++--------
- include/linux/pci.h               |  8 ++++++--
- 4 files changed, 35 insertions(+), 13 deletions(-)
+ drivers/pci/pci.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/pci/hotplug/rpaphp_slot.c b/drivers/pci/hotplug/rpaphp_slot.c
-index 67362e5b9971..92eabf5f61b9 100644
---- a/drivers/pci/hotplug/rpaphp_slot.c
-+++ b/drivers/pci/hotplug/rpaphp_slot.c
-@@ -84,7 +84,7 @@ int rpaphp_register_slot(struct slot *slot)
- 	struct hotplug_slot *php_slot = &slot->hotplug_slot;
- 	u32 my_index;
- 	int retval;
--	int slotno = -1;
-+	int slotno = PCI_SLOT_PLACEHOLDER;
- 
- 	dbg("%s registering slot:path[%pOF] index[%x], name[%s] pdomain[%x] type[%d]\n",
- 		__func__, slot->dn, slot->index, slot->name,
 diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 8f7cfcc00090..d0c9f0166af5 100644
+index d0c9f0166af5..e71b81415392 100644
 --- a/drivers/pci/pci.c
 +++ b/drivers/pci/pci.c
-@@ -4865,8 +4865,9 @@ static int pci_reset_hotplug_slot(struct hotplug_slot *hotplug, bool probe)
- 
- static int pci_dev_reset_slot_function(struct pci_dev *dev, bool probe)
- {
--	if (dev->multifunction || dev->subordinate || !dev->slot ||
--	    dev->dev_flags & PCI_DEV_FLAGS_NO_BUS_RESET)
-+	if (dev->subordinate || !dev->slot ||
-+	    dev->dev_flags & PCI_DEV_FLAGS_NO_BUS_RESET ||
-+	    (dev->multifunction && !dev->slot->per_func_slot))
- 		return -ENOTTY;
- 
- 	return pci_reset_hotplug_slot(dev->slot->hotplug, probe);
-diff --git a/drivers/pci/slot.c b/drivers/pci/slot.c
-index e0b7fb43423c..3f6e5dce27a0 100644
---- a/drivers/pci/slot.c
-+++ b/drivers/pci/slot.c
-@@ -37,7 +37,7 @@ static const struct sysfs_ops pci_slot_sysfs_ops = {
- 
- static ssize_t address_read_file(struct pci_slot *slot, char *buf)
- {
--	if (slot->number == 0xff)
-+	if (slot->number == (u16)PCI_SLOT_PLACEHOLDER)
- 		return sysfs_emit(buf, "%04x:%02x\n",
- 				  pci_domain_nr(slot->bus),
- 				  slot->bus->number);
-@@ -72,6 +72,23 @@ static ssize_t cur_speed_read_file(struct pci_slot *slot, char *buf)
- 	return bus_speed_read(slot->bus->cur_bus_speed, buf);
+@@ -722,6 +722,27 @@ u16 pci_find_dvsec_capability(struct pci_dev *dev, u16 vendor, u16 dvsec)
  }
+ EXPORT_SYMBOL_GPL(pci_find_dvsec_capability);
  
-+static bool pci_dev_matches_slot(struct pci_dev *dev, struct pci_slot *slot)
++static bool pci_dev_config_accessible(struct pci_dev *dev, char *msg)
 +{
-+	if (slot->per_func_slot)
-+		return dev->devfn == slot->number;
++	u32 val;
 +
-+	return slot->number == PCI_SLOT_ALL_DEVICES ||
-+		PCI_SLOT(dev->devfn) == slot->number;
++	/*
++	 * If device's config space is inaccessible it can return ~0 for
++	 * any reads. Since VFs can also return ~0 for Device and Vendor ID
++	 * check Command and Status registers. Note that this is racy
++	 * because the device may become inaccessible partway through
++	 * next access.
++	 */
++	pci_read_config_dword(dev, PCI_COMMAND, &val);
++	if (PCI_POSSIBLE_ERROR(val)) {
++		pci_warn(dev, "Device config space inaccessible; unable to %s\n",
++				msg);
++		return false;
++	}
++
++	return true;
 +}
 +
-+static bool pci_slot_enabled_per_func(void)
-+{
-+	if (IS_ENABLED(CONFIG_S390))
-+		return true;
+ /**
+  * pci_find_parent_resource - return resource region of parent bus of given
+  *			      region
+@@ -5027,6 +5048,9 @@ static void pci_dev_save_and_disable(struct pci_dev *dev)
+ 	 */
+ 	pci_set_power_state(dev, PCI_D0);
+ 
++	if (!pci_dev_config_accessible(dev, "save state"))
++		return;
 +
-+	return false;
-+}
-+
- static void pci_slot_release(struct kobject *kobj)
- {
- 	struct pci_dev *dev;
-@@ -82,8 +99,7 @@ static void pci_slot_release(struct kobject *kobj)
- 
- 	down_read(&pci_bus_sem);
- 	list_for_each_entry(dev, &slot->bus->devices, bus_list)
--		if (slot->number == PCI_SLOT_ALL_DEVICES ||
--		    PCI_SLOT(dev->devfn) == slot->number)
-+		if (pci_dev_matches_slot(dev, slot))
- 			dev->slot = NULL;
- 	up_read(&pci_bus_sem);
- 
-@@ -176,8 +192,7 @@ void pci_dev_assign_slot(struct pci_dev *dev)
- 
- 	mutex_lock(&pci_slot_mutex);
- 	list_for_each_entry(slot, &dev->bus->slots, list)
--		if (slot->number == PCI_SLOT_ALL_DEVICES ||
--		    PCI_SLOT(dev->devfn) == slot->number)
-+		if (pci_dev_matches_slot(dev, slot))
- 			dev->slot = slot;
- 	mutex_unlock(&pci_slot_mutex);
- }
-@@ -256,7 +271,7 @@ struct pci_slot *pci_create_slot(struct pci_bus *parent, int slot_nr,
- 
- 	mutex_lock(&pci_slot_mutex);
- 
--	if (slot_nr == -1)
-+	if (slot_nr == PCI_SLOT_PLACEHOLDER)
- 		goto placeholder;
- 
+ 	pci_save_state(dev);
  	/*
-@@ -287,6 +302,9 @@ struct pci_slot *pci_create_slot(struct pci_bus *parent, int slot_nr,
- 	slot->bus = pci_bus_get(parent);
- 	slot->number = slot_nr;
- 
-+	if (pci_slot_enabled_per_func())
-+		slot->per_func_slot = 1;
-+
- 	slot->kobj.kset = pci_slots_kset;
- 
- 	slot_name = make_slot_name(name);
-@@ -307,8 +325,7 @@ struct pci_slot *pci_create_slot(struct pci_bus *parent, int slot_nr,
- 
- 	down_read(&pci_bus_sem);
- 	list_for_each_entry(dev, &parent->devices, bus_list)
--		if (slot_nr == PCI_SLOT_ALL_DEVICES ||
--		    PCI_SLOT(dev->devfn) == slot_nr)
-+		if (pci_dev_matches_slot(dev, slot))
- 			dev->slot = slot;
- 	up_read(&pci_bus_sem);
- 
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 2c4454583c11..d58982aa8730 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -78,14 +78,18 @@
-  * and, if ARI Forwarding is enabled, functions may appear to be on multiple
-  * devices.
-  */
--#define PCI_SLOT_ALL_DEVICES	0xfe
-+#define PCI_SLOT_ALL_DEVICES	0xfeff
-+
-+/* Used to identify a slot as a placeholder */
-+#define PCI_SLOT_PLACEHOLDER	-1
- 
- /* pci_slot represents a physical slot */
- struct pci_slot {
- 	struct pci_bus		*bus;		/* Bus this slot is on */
- 	struct list_head	list;		/* Node in list of slots */
- 	struct hotplug_slot	*hotplug;	/* Hotplug info (move here) */
--	unsigned char		number;		/* Device nr, or PCI_SLOT_ALL_DEVICES */
-+	u16			number;		/* Device nr, or PCI_SLOT_ALL_DEVICES */
-+	unsigned int		per_func_slot:1; /* Allow per function slot */
- 	struct kobject		kobj;
- };
- 
+ 	 * Disable the device by clearing the Command register, except for
 -- 
 2.43.0
 
