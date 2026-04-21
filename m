@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D26CE3D75D7;
-	Tue, 21 Apr 2026 14:12:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 066AA3AEF5D;
+	Tue, 21 Apr 2026 14:15:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776780778; cv=none; b=eyoJNQVHMCpHspRa41bmaTda16ujjbBlmMvnARs1/iqBwK8+zHxLc/Cla7XnGJ6pj+XgeL7Cxmy0E+AJKX/HT7Eqj6jUQy3it5yzxiNhfIluft+5w81vd0kFMm/OHIQnywjbryVbNkSlPqCyrWaivTvudS/iYhrwbKBZ/lc8tJM=
+	t=1776780950; cv=none; b=QhBewimeVOWgkaoRqxTeixCzeERDQ5aM50iLN4rVgF95YbTxsLuQYcJx4/uKlcMRc4ReyjXlUeSrg7XIAu2OdonhhQdRFivakiZsQJrYrQrUrcX5Zxv3GmOZJJxCKEq/aAXdlbEEdMtW12Vfq4NUDWENc4hEfhi3nBvj7VAsY3Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776780778; c=relaxed/simple;
-	bh=rWrqzKfOOhkPoPF+R0PXlKX/czAIxK0MQ+VDF45+okg=;
+	s=arc-20240116; t=1776780950; c=relaxed/simple;
+	bh=078Y92oKtVm6JEaZesj5rhwZKMHbAna64KrdSsEQIfs=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=eJkfr3FhMkzcM2s8dW2+3ZILKIHrTuJNUeaPWKOMlT1xgwO5N73LeLTisjMtvq/yeuoAN+eCTSdYWkZVzD11F+213vtaiTie0+AvtvhvnE5UZlLP2Cg8awPkjr2eCs7zBTddrGkLSHqDxTOaaXJusVMj5/f1aIgDO2DPVazthMU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PGyhIjar; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=fmbfdhDxW5r9gr10WuDlwYSRBge3wQyzEre+okDblgfGExB9MePjaDdUyyrqOnixQfyZevDz1Em4PXeCPeVfBYAiMDz3h5ZdhRZ94nUbffq91gEufKvJLczS22IndcUCuKPGNnAzIZHh15vF6370jsjj0NRvOUPiXt0AC+u10X4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i9oQMpZI; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PGyhIjar"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E2CEC2BCB0;
-	Tue, 21 Apr 2026 14:12:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i9oQMpZI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 854CEC2BCB0;
+	Tue, 21 Apr 2026 14:15:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776780778;
-	bh=rWrqzKfOOhkPoPF+R0PXlKX/czAIxK0MQ+VDF45+okg=;
+	s=k20201202; t=1776780949;
+	bh=078Y92oKtVm6JEaZesj5rhwZKMHbAna64KrdSsEQIfs=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=PGyhIjarbZhWJGmZzoyZfOEFX1K1HB8r7leQuD14tOJfy5lSd677Lf2zesDORS9LO
-	 ek2K+6eBdolEAZF+QDuPHZsKz+sf6/1z2ajKAGoJDm2VuJAuOQ4Jkjvs2J+43dELMT
-	 13dWAZXIceCdTr+0oYU7KiOHju4eO/jpZR1Bz9R4EQr5++52IP9KxO70IBhndYUd4o
-	 bbA0O+NRN/g78+FnLpO9D99nCncjFp+x0tp6ClKJyL2cPM4Qz55e0KZn+a7Ta8mj5d
-	 +51sCPR+TAKiXvHiWKdujpg+P41774+4RAn53/vFVxoZssSNCX3PmKqpRomOrSgHP0
-	 uZn9f1fVfjCZw==
-Message-ID: <8044dc3e-5409-4767-b6ba-a75ccc7f1104@kernel.org>
-Date: Tue, 21 Apr 2026 16:12:53 +0200
+	b=i9oQMpZIY1uhH0+44ae33445UDB7IEPaoe2usB9oftVTiBX8AcKxOtWv8uH66qByp
+	 XySy4CfY73X8OEb4xzEKEvLyvipLaEFw7NCEIlLzX/Y7EE8N5c5YePSRIGkvJFPR49
+	 evHp/0KXRFY5FuLpU3yi0OwUYfKSh/fiPrAcn7LV4FpGV0u+i8BWXUUK/Mq+M7y+2s
+	 qozO7v8Lm/LBKkeNIqaS3JLEYCg0p3PpyERV+sXgIaLDIuZCNjNsTiSUeViGLhrBGO
+	 DSgnJWiHAdi3rHLNfo6jq3bI4a1Lt/AaAy1QHnF1TMBQcJYpT2s8I+eaS68VakM/Fq
+	 8M3L04tqtNvcA==
+Message-ID: <3daccad8-cf08-4543-b9ec-b34711a4ed14@kernel.org>
+Date: Tue, 21 Apr 2026 16:15:44 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -36,20 +36,17 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v2 1/6] mm: Make lazy MMU mode context-aware
-To: Kevin Brodsky <kevin.brodsky@arm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+ Kevin Brodsky <kevin.brodsky@arm.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
  Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
  Heiko Carstens <hca@linux.ibm.com>,
  Christian Borntraeger <borntraeger@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Claudio Imbrenda
- <imbrenda@linux.ibm.com>, linux-s390@vger.kernel.org, linux-mm@kvack.org,
+ Vasily Gorbik <gor@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org,
  linux-kernel@vger.kernel.org
 References: <cover.1776264097.git.agordeev@linux.ibm.com>
  <8809412aaed8a515fe2e149c822543d640060936.1776264097.git.agordeev@linux.ibm.com>
- <4dc47078-0f8b-4388-9715-744c18590a00@arm.com>
- <0dd3a5bf-a98b-4181-a88a-ec9c0203f90a-agordeev@linux.ibm.com>
- <566e7e6b-17be-426f-a3f1-a615d0d61077@arm.com>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -96,27 +93,67 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <566e7e6b-17be-426f-a3f1-a615d0d61077@arm.com>
+In-Reply-To: <8809412aaed8a515fe2e149c822543d640060936.1776264097.git.agordeev@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 4/21/26 10:40, Kevin Brodsky wrote:
-> On 21/04/2026 06:57, Alexander Gordeev wrote:
->>> Does that mean that all PTEs mapping [addr, end) must belong to the same
->>> PTE page? I think the wording should be more specific.
->> I tried to state that end of the range must not exceed pmd_addr_end(addr, end).
->> Any of these sounds better?
->>
->> The PTE range must belong to the specified memory space and ...
->> a) the address range must not cross the parent PMD address range boundary
->> b) the PTEs must belong to the same parent PMD
-> 
-> I think b) is good, maybe "PMD entry" to be even clearer.  My previous
-> suggestion of talking about "PTE page" isn't ideal since some
-> architectures have page tables smaller (or larger) than a page.
+> +/**
+> + * lazy_mmu_mode_enable_for_pte_range() - Enable the lazy MMU mode with a speedup hint.
+> + * @mm: Address space the pages are mapped into.
+> + * @addr: Start address of the range.
+> + * @end: End address of the range.
+> + * @ptep: Page table pointer for the first entry.
+> + *
+> + * Enters a new lazy MMU mode section; if the mode was not already enabled,
+> + * enables it and calls arch_enter_lazy_mmu_mode_for_pte_range().
+> + *
+> + * PTEs that fall within the specified range might observe update speedups.
+> + * The PTE range must belong to the specified memory space and not cross
+> + * a page table boundary.
+> + *
+> + * There are no requirements on the order or range completeness of PTE
+> + * updates for the specified range.
+> + *
+> + * Must be paired with a call to lazy_mmu_mode_disable().
+> + *
+> + * Has no effect if called:
+> + * - While paused - see lazy_mmu_mode_pause()
+> + * - In interrupt context
+> + */
+> +static inline void lazy_mmu_mode_enable_for_pte_range(struct mm_struct *mm,
 
-In other code (e.g., get_and_clear_ptes()) we state "The PTEs are all in
-the same PMD."
+I'm still wondering about a better name for this. "enable_for" indeed
+sounds like it's only for that range.
+
+Maybe really something including a hint like you previously proposed
+
+	lazy_mmu_mode_enable_with_ptes()
+
+	lazy_mmu_mode_enable_with_pte_hints()
+
+I think lazy_mmu_mode_enable_with_ptes() is neat.
+
+Thoughts?
+
+In any case, on the general approach + semantics:
+
+Acked-by: David Hildenbrand (Arm) <david@kernel.org>
+
+
+> +		unsigned long addr, unsigned long end, pte_t *ptep)
+> +{
+> +	struct lazy_mmu_state *state = &current->lazy_mmu_state;
+> +
+> +	if (in_interrupt() || state->pause_count > 0)
+> +		return;
+> +
+> +	VM_WARN_ON_ONCE(state->enable_count == U8_MAX);
+> +
+> +	if (state->enable_count++ == 0)
+> +		arch_enter_lazy_mmu_mode_for_pte_range(mm, addr, end, ptep);
+
+
+Okay, so the "hint" is ignored for nesting levels, that works.
 
 -- 
 Cheers,
