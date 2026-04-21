@@ -1,62 +1,62 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 969C430FC34;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD9573783DE;
 	Tue, 21 Apr 2026 11:45:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776771947; cv=none; b=ouEo2qGEfyO/7BUngUUqS3IzozJYuPav3Vlh+zv7PLRNa03/RMlXbgXFqkUJA3aUc0jbApvt3lKldv8BB7kJTh5+PP9KqDkTyC0227OowFZO4tVDG3c/At5iSNwAh7pwOIc8/YqXKi+kXju8NOiI+PDj3fpaiDqaDaCk8fIvyzw=
+	t=1776771948; cv=none; b=Ah4ysZoAPczL0Nm+HS+A8F5L2N+WTMnZ/Qo1qavW8oItMIQ+CEjK81Nm3e+RBZy28ollfir6SCqqfHuSLaBupkvC4j9Rdj98nxRBF3+WSI3E/fgtZBZknJK+PPyplrCLOXlfVQGijCCVeY/he8ACySXEQ0kv7lToMxO6DSIKxiM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776771947; c=relaxed/simple;
-	bh=vrOLQfTro+9kePooS2m9eUKAO7WmYAoTyHYysUGi5Fw=;
+	s=arc-20240116; t=1776771948; c=relaxed/simple;
+	bh=wamwS79G6m+uNkDP3zeAdFQro0g9XrC4bv3ODNZ6Ek0=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=B+FJb+Qk910VFWK0/IL+OFEtIusuwefHDJRzr1hjDw/GTA+zsUm1TK45l4mGUbpUMOIVMuP3aE3KqARDVntSmeJ0iI1553iBcUKZiaEoAzUlDfY0VVd6mtChmycD727eT9F3iqNXLhH+Mk3WNwnNZE70vuGtq63n13HPV0/Gicg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lIzA86Kj; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:To:Cc; b=Rnu1sWTP1bxFkNTNyeGu76ehWJ1ktEeKxSYG7IVzJ8cnOjQTT3HwUIonKYxgSeswaZ84fSM7Gz9j4IvpHHMdqN23bBZYGiuVwRUQ1vVTKk0/NX4sd7KQ+wSHsnvGBKguPAf80AdBkB1MtkMinTgTwmOBQ0gBh8doggtiRr47zLw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=jpvUy7aZ; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lIzA86Kj"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63KJgXir2037127;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jpvUy7aZ"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63KJgVb21684490;
 	Tue, 21 Apr 2026 11:45:42 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=3KlAoP
-	7dkrBx4ns8YTjhPL3GKTw0GG/bMsy5ZLCZqBM=; b=lIzA86KjlL/XI/fsSbI/AC
-	nTbS9eCKanFx4QFmVlJXKzZ7F3ea2NKbcpphOF6y1lelPjd5kwHDKwQNzn8Li0GE
-	T9s3slydN92iypVQrbH6AsJEZKU7ypQ11g14IEnk3hjJbCVsWsh1OO2S/qiAuK5l
-	piGCElFEEWmuqIiKYVg9z63lxEkD1stl8Xbu58FHGNYfwq1lsgiQuZQaAbMYGqZd
-	xCD0sAe11ZXmSv/Tm0fMKXkgr/RFCtjCLCDcsTP5BkP3Ll0XBIrrv2rW0Wxve961
-	9UGd8cTbVFjUe7Kmqxsr3ls566TmZb7wEMqAEMa9o0E2qWCq31PgPr4w+kYUajmA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ZvnHdG
+	5+r2cAu/h7YERd8ZHS6UHIEinOrphrFLbRCMU=; b=jpvUy7aZtCrnK4XhKEcaph
+	wIj2Rq0Ke5mdhZ+EV0FtcEc56B234jWgt9d4h+3f7YNjkkdo8N4EwDx2jfUDWSbH
+	Vx6FtDlonIad8fmeNstOCXLqv+poyJ1X79s/+Ou/zrBj0qaRtQdQpR7CGL5pYr7L
+	nggt3n6FTbnTQlHUQYWkv0skMIUF0hRtdKY9xtDd8cVs6nMnYZslOfP0pMdjOAyG
+	lBR4xCmuAzJHkvKomy8qnQvdeQHlGipa1y6LkXzHrpYT9JReZ8wve0heL0Ax3Gy6
+	0lrJthfdKD90gMQ/LrlRAucAQd66fTbN8EKJKncmakBi683Sc9C+S2Ri0dAjDTeA
 	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dm2h9kayf-1
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dm2j6m25u-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 21 Apr 2026 11:45:42 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63LBZVrw013739;
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63LBZPX8009524;
 	Tue, 21 Apr 2026 11:45:41 GMT
 Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dmn9k0gd1-1
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dmm9q0nup-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 21 Apr 2026 11:45:41 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63LBjbEg51249640
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63LBjbSN51249642
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Tue, 21 Apr 2026 11:45:37 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9774D20040;
+	by IMSVA (Postfix) with ESMTP id BCCC32004D;
 	Tue, 21 Apr 2026 11:45:37 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 77C9F2004E;
+	by IMSVA (Postfix) with ESMTP id 9B68F2004B;
 	Tue, 21 Apr 2026 11:45:37 +0000 (GMT)
 Received: from [9.52.198.32] (unknown [9.52.198.32])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
 	Tue, 21 Apr 2026 11:45:37 +0000 (GMT)
 From: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Date: Tue, 21 Apr 2026 13:31:11 +0200
-Subject: [kvm-unit-tests PATCH v3 5/6] s390x: sclp: Add detection of
- alternate STFLE facilities
+Date: Tue, 21 Apr 2026 13:31:12 +0200
+Subject: [kvm-unit-tests PATCH v3 6/6] s390x: Add test for STFLE
+ interpretive execution (format-2)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -65,7 +65,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260421-vsie-stfle-fac-v3-5-3cee84efefa3@linux.ibm.com>
+Message-Id: <20260421-vsie-stfle-fac-v3-6-3cee84efefa3@linux.ibm.com>
 References: <20260421-vsie-stfle-fac-v3-0-3cee84efefa3@linux.ibm.com>
 In-Reply-To: <20260421-vsie-stfle-fac-v3-0-3cee84efefa3@linux.ibm.com>
 To: linux-s390@vger.kernel.org
@@ -76,104 +76,211 @@ Cc: Janosch Frank <frankja@linux.ibm.com>,
         kvm@vger.kernel.org, Christoph Schlameuss <schlameuss@linux.ibm.com>,
         Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2257;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5364;
  i=schlameuss@linux.ibm.com; h=from:subject:message-id;
- bh=ihDlUpmcnDh+sWmcPLVu+EitIuUVYJZcNdjPobA/TMQ=;
- b=owGbwMvMwCUmoqVx+bqN+mXG02pJDJnPkxNM2NPY91TV7XXd4LZn2kK5D7UFaQESuXFf+h7zX
- ny53lO+o5SFQYyLQVZMkaVa3Dqvqq916ZyDltdg5rAygQxh4OIUgImsZ2T4XzPNxNXeZMFij8Yf
- XSE+ukfPGelf0a0NeK5cVrPX5FM+H8P/1OWWTn1MnVwL9aOzrzuWiJ7K9LdW/BY+YZaWpelC70J
- uAA==
+ bh=wamwS79G6m+uNkDP3zeAdFQro0g9XrC4bv3ODNZ6Ek0=;
+ b=owGbwMvMwCUmoqVx+bqN+mXG02pJDJnPkxM2/TzRm+G3z6BtXdTtHudQI967stkrrX49jeNfw
+ y/9em5bRykLgxgXg6yYIku1uHVeVV/r0jkHLa/BzGFlAhnCwMUpABMR9WD47/v8ZeVVY58LK82t
+ P0km+TG69d36pu7FsLS0tenW7P/3GxkZmvZ/Z7hps+tEQJKEThkL98ul0hPLFvMY3VGoOHqhXyq
+ BBwA=
 X-Developer-Key: i=schlameuss@linux.ibm.com; a=openpgp;
  fpr=0E34A68642574B2253AF4D31EEED6AB388551EC3
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: -wp7Oa_a55QuzroR6yTvGTWsyC9rwYOP
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIxMDExMiBTYWx0ZWRfX3Ot4ogSviSbN
- AU/6UONfaJK62irN7FGKiMFtGERheXpX97yCNuYrfNRXNObh8nFRNdXDgbBKCpYzSlBSb2bApcI
- pDOjLFf6fruzwhRr22SaowZ4VA3J+frUNwpKRin+hFpwVvhAvVEfG5ZuaU85XfDEBaDCP//f2rQ
- 55cRHCV89rRsmxTuWyh1EyDmkmP1C0qXi8ULzWjTvKh83Y4vC/6UjKGJ6cKfueszWmIMYWIGT9A
- J5VU0tMPMk4cDn9gXzpDStJXT8/wOfqS610zifKF5pS0g53UsBLhyLdTOFKQwqWA4uUI98uGTe8
- ZR29pegzLExTnUevkazIais40xiR6mMZ1KPsnhGo+ouIhAbCUfjPD7bd9xirxOPgHK6IEEgnJXL
- u03Xo/6IkyVLL3ID/eGR0zZ8+ywdrxmrdu3EMYp4B2W7qZQs2qYFGgp4XlFmAaJPfxGRS6+U0n5
- ZvSpEjnFpKXlEaMk7aA==
-X-Authority-Analysis: v=2.4 cv=XLYAjwhE c=1 sm=1 tr=0 ts=69e76366 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIxMDExMiBTYWx0ZWRfXytOkeFh9En/r
+ FT+BxJGOWlBPoh/rxXSMzgZqReBtfo+6P1pRBtRZwxZhe8fW1wH+wzXJ4E08qDtDe/gDeH6h8Yw
+ 0VRSObGnbjA/jeZ6reYlVqHdTWRnkr5Tp/8JoOh3FsMMUe9yPK1kyDi4a39IDMjnEiJd+Yk3NiG
+ Fil3cVwPgBuLg42sgdP0aiSBz5aqqM7z+a1TnxfP6qqI65YIIzPbDgCgN8TYae7jCrh93BB0Jf+
+ Mp7Emm2S6ydUUgTIh9ApYCavZ9QnFVgad70m9+fDK3c6jcJkwgxrmecIYrxEUEOpca+YcjFkBEk
+ OXsxDO1zE+H6lZphoSvONwrJkM9d3KHpC/FGnLERjCT9otv+yeuHRB4t8Q2CJsf0791Tny2KRYF
+ fJuNzBD5GkBfLIUe3GJbENC1jzBV6cO0KE10m9DD+cmbc2V4jY+T4r8IHNeGMLfLduhLTBWCL6u
+ 0Ds/CUuOg1zeQZ8AQow==
+X-Proofpoint-GUID: B3TFI_gVuUDix5hdyz_Ha9vcBfZq1uan
+X-Authority-Analysis: v=2.4 cv=SOJykuvH c=1 sm=1 tr=0 ts=69e76366 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=Dxa6YZADxO0mQfdHC30A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: -wp7Oa_a55QuzroR6yTvGTWsyC9rwYOP
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=XzANROlTOifqWwnuM_MA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: B3TFI_gVuUDix5hdyz_Ha9vcBfZq1uan
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-21_02,2026-04-20_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 bulkscore=0 impostorscore=0 spamscore=0 adultscore=0
- priorityscore=1501 phishscore=0 lowpriorityscore=0 malwarescore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604070000
+ malwarescore=0 spamscore=0 priorityscore=1501 lowpriorityscore=0
+ clxscore=1015 phishscore=0 suspectscore=0 adultscore=0 impostorscore=0
+ bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2604070000
  definitions=main-2604210112
 
-From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+The STFLE instruction indicates installed facilities.
+SIE has facilities for the interpretive execution of STFLE.
+There are multiple possible formats for the control block.
+Use a snippet guest executing STFLE to get the result of
+interpretive execution and check the result.
+With the addition of the format-2 control block invalid format
+specifiers are now possible.
+Test for the occurrence of optional validity intercepts.
 
-Detect availability of alternate STFLE interpretive execution facilities
-1 and 2.
+Move prefixes into main method to improve the readability of the
+log by having prefixes for reports by tests called from multiple
+places.
 
+Co-developed-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-Co-developed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 ---
- lib/s390x/sclp.c | 5 +++++
- lib/s390x/sclp.h | 4 ++++
- 2 files changed, 9 insertions(+)
+ lib/s390x/sie.c   | 11 +++++++++
+ lib/s390x/sie.h   |  1 +
+ s390x/stfle-sie.c | 72 +++++++++++++++++++++++++++++++++++++++++++++++++++----
+ 3 files changed, 79 insertions(+), 5 deletions(-)
 
-diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-index ad2ba99ee1e1..d4e7eff66c31 100644
---- a/lib/s390x/sclp.c
-+++ b/lib/s390x/sclp.c
-@@ -181,12 +181,17 @@ void sclp_facilities_setup(void)
- 	sclp_facilities.has_cmma = sclp_feat_check(116, SCLP_FEAT_116_BIT_CMMA);
- 	sclp_facilities.has_64bscao = sclp_feat_check(116, SCLP_FEAT_116_BIT_64BSCAO);
- 	sclp_facilities.has_esca = sclp_feat_check(116, SCLP_FEAT_116_BIT_ESCA);
-+	sclp_facilities.has_astfleie1 = sclp_feat_check(116, SCLP_FEAT_116_BIT_ASTFLEIE1);
- 	sclp_facilities.has_ibs = sclp_feat_check(117, SCLP_FEAT_117_BIT_IBS);
- 	sclp_facilities.has_pfmfi = sclp_feat_check(117, SCLP_FEAT_117_BIT_PFMFI);
- 
- 	if (read_info->offset_cpu <= 134)
- 		return;
- 	sclp_facilities.has_diag318 = sclp_feat_check(134, SCLP_FEAT_134_BIT_DIAG318);
-+
-+	if (read_info->offset_cpu <= 139)
-+		return;
-+	sclp_facilities.has_astfleie2 = sclp_feat_check(139, SCLP_FEAT_139_BIT_ASTFLEIE2);
+diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
+index 0fa915cf028a..17f0ef7eff42 100644
+--- a/lib/s390x/sie.c
++++ b/lib/s390x/sie.c
+@@ -42,6 +42,17 @@ void sie_check_validity(struct vm *vm, uint16_t vir_exp)
+ 	report(vir_exp == vir, "VALIDITY: %x", vir);
  }
  
- /* Perform service call. Return 0 on success, non-zero otherwise. */
-diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
-index 87af429b5798..eb574350d678 100644
---- a/lib/s390x/sclp.h
-+++ b/lib/s390x/sclp.h
-@@ -129,9 +129,11 @@ struct sclp_facilities {
- 	uint64_t has_cmma : 1;
- 	uint64_t has_64bscao : 1;
- 	uint64_t has_esca : 1;
-+	uint64_t has_astfleie1 : 1;
- 	uint64_t has_kss : 1;
- 	uint64_t has_pfmfi : 1;
- 	uint64_t has_ibs : 1;
-+	uint64_t has_astfleie2 : 1;
- };
++void sie_check_optional_validity(struct vm *vm, uint16_t vir_exp)
++{
++	uint16_t vir = sie_get_validity(vm);
++
++	if (vir == 0xffff)
++		report_pass("optional VALIDITY: no");
++	else
++		report(vir_exp == vir, "optional VALIDITY: %x", vir);
++	vm->validity_expected = false;
++}
++
+ void sie_handle_validity(struct vm *vm)
+ {
+ 	if (vm->sblk->icptcode != ICPT_VALIDITY)
+diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
+index 3ec49ed0da64..8bea0b10b0a6 100644
+--- a/lib/s390x/sie.h
++++ b/lib/s390x/sie.h
+@@ -51,6 +51,7 @@ void sie(struct vm *vm);
+ void sie_expect_validity(struct vm *vm);
+ uint16_t sie_get_validity(struct vm *vm);
+ void sie_check_validity(struct vm *vm, uint16_t vir_exp);
++void sie_check_optional_validity(struct vm *vm, uint16_t vir_exp);
+ void sie_handle_validity(struct vm *vm);
  
- /* bit number within a certain byte */
-@@ -142,9 +144,11 @@ struct sclp_facilities {
- #define SCLP_FEAT_116_BIT_64BSCAO	0
- #define SCLP_FEAT_116_BIT_CMMA		1
- #define SCLP_FEAT_116_BIT_ESCA		4
-+#define SCLP_FEAT_116_BIT_ASTFLEIE1	7
- #define SCLP_FEAT_117_BIT_PFMFI		1
- #define SCLP_FEAT_117_BIT_IBS		2
- #define SCLP_FEAT_134_BIT_DIAG318	0
-+#define SCLP_FEAT_139_BIT_ASTFLEIE2	1
+ static inline bool sie_is_pv(struct vm *vm)
+diff --git a/s390x/stfle-sie.c b/s390x/stfle-sie.c
+index 21cf8ff8b6f6..e3ed22ee536e 100644
+--- a/s390x/stfle-sie.c
++++ b/s390x/stfle-sie.c
+@@ -42,6 +42,7 @@ static struct guest_stfle_res run_guest(void)
+ 	uint64_t guest_stfle_addr;
+ 	uint64_t reg;
  
- typedef struct ReadInfo {
- 	SCCBHeader h;
++	reset_guest(&vm);
+ 	sie(&vm);
+ 	assert(snippet_is_force_exit_value(&vm));
+ 	guest_stfle_addr = snippet_get_force_exit_value(&vm);
+@@ -56,7 +57,6 @@ static void test_stfle_format_0(void)
+ {
+ 	struct guest_stfle_res res;
+ 
+-	report_prefix_push("format-0");
+ 	for (int j = 0; j < stfle_size(); j++)
+ 		WRITE_ONCE((*fac)[j], prng64(&prng_s));
+ 	vm.sblk->fac = (uint32_t)(uint64_t)fac;
+@@ -64,6 +64,47 @@ static void test_stfle_format_0(void)
+ 	report(res.len == stfle_size(), "stfle len correct");
+ 	report(!memcmp(*fac, res.mem, res.len * sizeof(uint64_t)),
+ 	       "Guest facility list as specified");
++}
++
++static void test_stfle_format_2(void)
++{
++	const int max_stfle_len = 8;
++	int guest_max_stfle_len = 0;
++	struct guest_stfle_res res;
++	bool saturated = false;
++
++	for (int i = 1; i <= max_stfle_len; i++) {
++		report_prefix_pushf("max STFLE len %d", i);
++
++		WRITE_ONCE((*fac)[0], i - 1);
++		for (int j = 0; j < i; j++)
++			WRITE_ONCE((*fac)[j + 1], prng64(&prng_s));
++		vm.sblk->fac = (uint32_t)(uint64_t)fac | 2;
++		res = run_guest();
++		/* len increases up to maximum (machine specific) */
++		if (res.len < i)
++			saturated = true;
++		if (saturated) {
++			report(res.len == guest_max_stfle_len, "stfle len correct");
++		} else {
++			report(res.len == i, "stfle len correct");
++			guest_max_stfle_len = i;
++		}
++		report(!memcmp(&(*fac)[1], res.mem, guest_max_stfle_len * sizeof(uint64_t)),
++		       "Guest facility list as specified");
++
++		report_prefix_pop();
++	}
++}
++
++static void test_no_stfle_format(int format)
++{
++	report_prefix_pushf("no-stfle");
++	reset_guest(&vm);
++	vm.sblk->fac = (uint32_t)(uint64_t)fac | format;
++	sie_expect_validity(&vm);
++	sie(&vm);
++	sie_check_optional_validity(&vm, 0x1330);
+ 	report_prefix_pop();
+ }
+ 
+@@ -119,20 +160,41 @@ static struct args parse_args(int argc, char **argv)
+ int main(int argc, char **argv)
+ {
+ 	struct args args = parse_args(argc, argv);
+-	bool run_format_0 = test_facility(7);
+ 
+ 	if (!sclp_facilities.has_sief2) {
+ 		report_skip("SIEF2 facility unavailable");
+ 		goto out;
+ 	}
+-	if (!run_format_0)
++	if (!test_facility(7)) {
+ 		report_skip("STFLE facility not available");
++		goto out;
++	}
+ 
+ 	report_info("PRNG seed: 0x%lx", args.seed);
+ 	prng_s = prng_init(args.seed);
+ 	setup_guest();
+-	if (run_format_0)
+-		test_stfle_format_0();
++	report_prefix_pushf("format-0");
++	test_stfle_format_0();
++	report_prefix_pop();
++
++	report_prefix_pushf("format-1");
++	if (!sclp_facilities.has_astfleie1)
++		test_no_stfle_format(1);
++	report_prefix_pop();
++
++	report_prefix_pushf("format-2");
++	if (!sclp_facilities.has_astfleie2) {
++		test_no_stfle_format(2);
++		report_skip("alternate STFLE interpretive-execution facility 2 not available");
++	} else {
++		test_stfle_format_2();
++	}
++	report_prefix_pop();
++
++	report_prefix_pushf("format-3");
++	test_no_stfle_format(3);
++	report_prefix_pop();
++
+ out:
+ 	return report_summary();
+ }
 
 -- 
 2.53.0
