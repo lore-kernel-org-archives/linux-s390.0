@@ -1,69 +1,65 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAB6237C900;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA5EC37C0FD;
 	Tue, 21 Apr 2026 16:30:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776789050; cv=none; b=k7NSmmP7ylt9FNKgXhNgrnpLOkesvGD0aKSJaPsZsq4c2mKmbM7dU0VOfO3iUoAUDrSIN6vmyBOQLY4Uwl3G3e7WBdOuBIOZ/2tzS5wn0baoO1LeMC70EbwW4hYtcCwLQIk9MYO4xpmpFfWkYKcOOaFjvGMISxm4PioCXT5TBP0=
+	t=1776789050; cv=none; b=ighMMip1IIgpbgYetwCv40pT2K1KuM46fd0jbrLxPYjI4Pg7mXK3Xa55j1CRAEdlGs9F5I52DybNrqzqVTwZps1R61EQUdZeAJL/9Me2bzwDqj+zrjVc7bOqqcoJNI88nPPa8kyH/8nknfujOBl7Dw4FmDutD+IXt0GTNWdLL5U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1776789050; c=relaxed/simple;
-	bh=RQ7upiRfX+foiPulhHXu+Aw1uutRmHWJ0l3TcJW8bxM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=OuDJ31ovQP4Hw7+WeoqJx4sIYKJEyhPky5S9KH7qklDk96VD1ZoHgxGFtKJyehR3ZAHddAEpT/0dzi+TMLuLTGKsIXV8P+intpd7ZFl1whA1wCFpl37vy2wHutfKyCMLtI8UH1rxqdqQIE+ggpoF3oicel1EBvOYInQQZ49++uk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DPUBhD66; arc=none smtp.client-ip=148.163.158.5
+	bh=/YK79bTCLhUDB5Syw49Ft5GJs1ygmemEMzl+rL+G30A=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=q5lisgmtJ/duqt921TRtxxsIRzP288J986diqJSbVvop/f4RP8vu4b16wKR2cYLgQwTwq+lAcRqyn2EukNaqkmkEDs/xtoS6kW+kVzw6mwn/5kcpRYvC5WuoPAmBWZj6o7dBPiHUey7aOw/vSQJcsYy5He5CamMJRCfadMrQXQI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SQTCZhWa; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DPUBhD66"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SQTCZhWa"
 Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63LDOaQe1535627;
-	Tue, 21 Apr 2026 16:30:44 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63LCKQQv1536941;
+	Tue, 21 Apr 2026 16:30:36 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=l4yp/nvZGr9Da+6Zm
-	RXwpQEFsXLYyw/698zFD8SAETM=; b=DPUBhD66kiqq/kwL+P1j3F0iILdYzGEZ4
-	sbYaPeGni1lRLyqaZiP5f45FjDn8ADlUOyEYPTUHC+TZ5mPM7Zqdb8+RK389JFmU
-	V8g3rQPl7jGSfVbi5LW6GLf6yGGKeS+t9fWV583tfuG4TXJ/MWrjUEoyLQoUWoVa
-	uEFUX8f60BfT8Hp1tURNakFyX2u023nRGHRkhjks9XT5zivvkbaa4TWBMhaJtGHt
-	gNYU2GU28iN/u7O4HNpcCdvjfuuhj/yVZQbJIyQidtNni9ybSh6CHOHBRogA8eIC
-	Sxr+SmZb3wD4Pg6HROUhlUhWTQjca02dAbxR+BWaNUKd9Qj9bglvg==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dm2k6mgut-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=NGtcYaPIic+T4teiJgztVpKQfhlOBBAX0WUCG6k8v
+	ak=; b=SQTCZhWagK1PhK/1yQL+aUlKKwRmre2P2VLocpSAWBBwGLaEEGUjnZzhN
+	O5LTB/tsD9DeMNGjJ1FmjQ4riC26qwJ8lteKdB1djlwzf2c/yjLgosjU+PLyObfW
+	aXxKz+SNNL3MkoF5rJBz9l4gtxAJ/uShdwfk4N5nbdolKKjpHQGNkL0ol9QiVEdY
+	tDxCHyz8SJ8p8HGnQ4c+NMRca5JLO0jwv6RdPoIG35rROgrCzSHSRoNxSU4Zk2bQ
+	Rm3P7/vudwNwHOLpnTnqVrmdEfIifGLBy4FgzypdBmeoEImyweej882mqooL1ZqQ
+	MVB3SCaoiOD8Xe9LOJn+ht0yAjbvw==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dm2k6mgu8-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Apr 2026 16:30:43 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63LGKLwJ019172;
-	Tue, 21 Apr 2026 16:30:43 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dmm9q1kss-1
+	Tue, 21 Apr 2026 16:30:35 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63LGKLmp015794;
+	Tue, 21 Apr 2026 16:30:34 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dmpgg9a2h-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Apr 2026 16:30:43 +0000 (GMT)
+	Tue, 21 Apr 2026 16:30:34 +0000 (GMT)
 Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63LGUfeR17564194
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63LGUXbn1573700
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 21 Apr 2026 16:30:42 GMT
+	Tue, 21 Apr 2026 16:30:33 GMT
 Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BA26258054;
-	Tue, 21 Apr 2026 16:30:41 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 2DFD65805C;
+	Tue, 21 Apr 2026 16:30:33 +0000 (GMT)
 Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 535A55805A;
-	Tue, 21 Apr 2026 16:30:40 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id DFA0C58054;
+	Tue, 21 Apr 2026 16:30:31 +0000 (GMT)
 Received: from IBM-D32RQW3.ibm.com (unknown [9.61.248.17])
 	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 21 Apr 2026 16:30:40 +0000 (GMT)
+	Tue, 21 Apr 2026 16:30:31 +0000 (GMT)
 From: Farhan Ali <alifm@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-pci@vger.kernel.org
 Cc: helgaas@kernel.org, lukas@wunner.de, alex@shazbot.org, clg@redhat.com,
-        alifm@linux.ibm.com, schnelle@linux.ibm.com, mjrosato@linux.ibm.com,
-        Julian Ruess <julianr@linux.ibm.com>
-Subject: [PATCH v14 6/7] vfio/pci: Add a reset_done callback for vfio-pci driver
-Date: Tue, 21 Apr 2026 09:30:30 -0700
-Message-ID: <20260421163031.704-7-alifm@linux.ibm.com>
+        alifm@linux.ibm.com, schnelle@linux.ibm.com, mjrosato@linux.ibm.com
+Subject: [PATCH v14 0/7] Error recovery for vfio-pci devices on s390x
+Date: Tue, 21 Apr 2026 09:30:24 -0700
+Message-ID: <20260421163031.704-1-alifm@linux.ibm.com>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260421163031.704-1-alifm@linux.ibm.com>
-References: <20260421163031.704-1-alifm@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -72,21 +68,21 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=L78theT8 c=1 sm=1 tr=0 ts=69e7a633 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Authority-Analysis: v=2.4 cv=L78theT8 c=1 sm=1 tr=0 ts=69e7a62b cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=r1p2_3pzAAAA:8
- a=hcTHx3Z5Akp3fEzgVBYA:9 a=r_pkcD-q9-ctt7trBg_g:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIxMDE2MiBTYWx0ZWRfX5ee+VRIVOOLt
- kuKTJ367wG23M2vEOJTnRHfIzs1SgRhSdUjBei7kf6nrlWiK3zUl/QrAEBEzKOIqqbdxkx8aiD8
- uLNZQoHvrRclxKJrJoh1AGdMBQfm+yNlVWhYQ2iYRfPo3u6yXDtVg21Vbmb9vchF7pQyqwwh705
- lQ7R0p72eovMKokIiCLv34j7UIAHQYYEd98zpyDCOhWcNzjlTpstRuUHv4zEgJjzG7fFYfjUuqE
- sFUtRNYXE6AtuTmgWwkJFOSaQ8nbc2Uj15+bWFyaTw0bPVx/nnUA4ILTtfOX61GgJ6v3d/K2A90
- 8qQ9suOqVaK+YqjtUyD6DOv2iVAME7w4Jszzup8RH2B56oAMa4RFSXR1ngkaFqs80VUWxhEy/+c
- 9lYFZ43PBcLtSosat+79/FIq81HFsuIkZGoYGSG8jzb+i94dZhODcTX9uH862grOCAWN/DMumyc
- BTiHdxqY9jKZ3CYXtpA==
-X-Proofpoint-GUID: Q0EArPZk0kl_4LXLPh35A7puV7dgxk0g
-X-Proofpoint-ORIG-GUID: Q0EArPZk0kl_4LXLPh35A7puV7dgxk0g
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=H5O81k4uhyXwW133l-cA:9 a=O8hF6Hzn-FEA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIxMDE2MiBTYWx0ZWRfX+90cKZQpCiJH
+ e1Wla+khxx3oVJas2fuwk0ld0Y/k6BNkJG/bP+mxs46cvlTQMuUP2mQERwiOV0+9DpXpjoy9ApI
+ nH5XUlQCqFEAdlh7Vz0RbGxzrhZA2MFntNrk8UM1Up5v+/QQqnTbU7EWKXeQDZTD1AEws4MMv/V
+ opNZt9sXRF7uDmYm0bqF+9pcaKCfXLWOoekopF98BWzi+2J5p7tkRlf0xtQdRR/vo1lEfxZ6EOd
+ gR1UbotDIh3FLY0Fx+9FIRD0S4fA/cm90NFzoDBzo16sTWXGim1ugeEEIA1LgatID1/i9IdEvSA
+ OwwaCp1YDWfYkA6fmCI3I4cCiIs/HYWseRWcHP693rfQ9z6r2LVyLizhsLcsxJe4sKHkyxQUwQK
+ dZPHDcg1m/S6BoyvwZPgURS02TKU2ayW+Vvh7ihN5drXKh14XTugf9X8bQlQ1E3rHk5sNejFd8F
+ M0ssygj6pAfbvDqSrvg==
+X-Proofpoint-GUID: c59CUcqHzPe5xY7mBxrvCPViFhVCG9fW
+X-Proofpoint-ORIG-GUID: c59CUcqHzPe5xY7mBxrvCPViFhVCG9fW
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-21_03,2026-04-21_02,2025-10-01_01
@@ -96,49 +92,234 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2604070000 definitions=main-2604210162
 
-On error recovery for a PCI device bound to vfio-pci driver, we want to
-recover the state of the device to its last known saved state. The callback
-restores the state of the device to its initial saved state.
+Hi,
 
-Reviewed-by: Julian Ruess <julianr@linux.ibm.com>
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Acked-by: Alex Williamson <alex@shazbot.org>
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
----
- drivers/vfio/pci/vfio_pci_core.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+This Linux kernel patch series introduces support for error recovery for
+passthrough PCI devices on System Z (s390x).
 
-diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-index 5403730786a1..4485d85e4419 100644
---- a/drivers/vfio/pci/vfio_pci_core.c
-+++ b/drivers/vfio/pci/vfio_pci_core.c
-@@ -2255,6 +2255,17 @@ pci_ers_result_t vfio_pci_core_aer_err_detected(struct pci_dev *pdev,
- }
- EXPORT_SYMBOL_GPL(vfio_pci_core_aer_err_detected);
- 
-+static void vfio_pci_core_aer_reset_done(struct pci_dev *pdev)
-+{
-+	struct vfio_pci_core_device *vdev = dev_get_drvdata(&pdev->dev);
-+
-+	if (!vdev->pci_saved_state)
-+		return;
-+
-+	pci_load_saved_state(pdev, vdev->pci_saved_state);
-+	pci_restore_state(pdev);
-+}
-+
- int vfio_pci_core_sriov_configure(struct vfio_pci_core_device *vdev,
- 				  int nr_virtfn)
- {
-@@ -2319,6 +2330,7 @@ EXPORT_SYMBOL_GPL(vfio_pci_core_sriov_configure);
- 
- const struct pci_error_handlers vfio_pci_core_err_handlers = {
- 	.error_detected = vfio_pci_core_aer_err_detected,
-+	.reset_done = vfio_pci_core_aer_reset_done,
- };
- EXPORT_SYMBOL_GPL(vfio_pci_core_err_handlers);
- 
+Background
+----------
+For PCI devices on s390x an operating system receives platform specific
+error events from firmware rather than through AER.Today for
+passthrough/userspace devices, we don't attempt any error recovery and
+ignore any error events for the devices. The passthrough/userspace devices
+are managed by the vfio-pci driver. The driver does register error handling
+callbacks (error_detected), and on an error trigger an eventfd to
+userspace.  But we need a mechanism to notify userspace
+(QEMU/guest/userspace drivers) about the error event.
+
+Proposal
+--------
+We can expose this error information (currently only the PCI Error Code)
+via a device feature. Userspace can then obtain the error information
+via VFIO_DEVICE_FEATURE ioctl and take appropriate actions such as driving
+a device reset.
+
+This is how a typical flow for passthrough devices to a VM would work:
+For passthrough devices to a VM, the driver bound to the device on the host
+is vfio-pci. vfio-pci driver does support the error_detected() callback
+(vfio_pci_core_aer_err_detected()), and on an PCI error s390x recovery
+code on the host will call the vfio-pci error_detected() callback. The
+vfio-pci error_detected() callback will notify userspace/QEMU via an
+eventfd, and return PCI_ERS_RESULT_CAN_RECOVER. At this point the s390x
+error recovery on the host will skip any further action(see patch 4) and
+let userspace drive the error recovery.
+
+Once userspace/QEMU is notified, it then injects this error into the VM
+so device drivers in the VM can take recovery actions. For example for a
+passthrough NVMe device, the VM's OS NVMe driver will access the device.
+At this point the VM's NVMe driver's error_detected() will drive the
+recovery by returning PCI_ERS_RESULT_NEED_RESET, and the s390x error
+recovery in the VM's OS will try to do a reset. Resets are privileged
+operations and so the VM will need intervention from QEMU to perform the
+reset. QEMU will invoke the VFIO_DEVICE_RESET ioctl to now notify the
+host that the VM is requesting a reset of the device. The vfio-pci driver
+on the host will then perform the reset on the device to recover it.
+
+
+Thanks
+Farhan
+
+ChangeLog
+---------
+v13 series https://lore.kernel.org/all/20260413210608.2912-1-alifm@linux.ibm.com/
+v13 -> v14
+   - Remove version from vfio uAPI struct. Instead reserve additional space
+   and add a flags field. The flags will be used to indicate any usage of
+   the reserved space (patch 5).
+
+   - Remove pending_errors from vfio uAPI struct and instead return an
+   error to indicate no more pending error for userspace to handle (patch 5).
+
+   - Rebase on recent linux master
+
+v12 series https://lore.kernel.org/all/20260330174011.1161-1-alifm@linux.ibm.com/
+v12 -> v13
+   - Add the mediated_recovery flag as part of struct zpci_ccdf_pending
+   and protect the struct with pending_errs_lock (patch 4).
+
+   - Move dequeing pending error logic to a helper function (patch 5).
+
+   - Update device feature number for VFIO_DEVICE_FEATURE_ZPCI_ERROR (patch 5).
+
+   - Rebase on linux-next with tag next-20260410
+
+
+v11 series https://lore.kernel.org/all/20260316191544.2279-1-alifm@linux.ibm.com/
+   - Address Bjorn's comments from v11 (patches 1-3).
+
+   - Create a common function to check config space accessibility
+   (patch 2).
+
+   - Address Alex's comments from v11 (patches 4, 5, 7).
+
+   - Protect the mediated_recovery flag with the pending_errs_lock.
+   Doing that it made sense to squash patches 5 and 6 from v11
+   (current patch 4). Even though the code didn't change significantly
+   I have dropped R-b tags for it. Would appreciate another look at the
+   patch (current patch 4).
+
+   - Dropped arch specific pcibios_resource_to_bus and
+   pcibios_bus_to_resource as its not needed for this series. Will address
+   the issue as a standalone patch separate from this series.
+
+   - Rebased on pci/next, with head at f8a1c947ccc6 ("Merge branch 'pci/misc'")
+
+
+v10 series https://lore.kernel.org/all/20260302203325.3826-1-alifm@linux.ibm.com/
+v10 -> v11
+   - Rebase on pci/next to handle merge conflicts with patch 1.
+
+   - Typo fixup in commit message (patch 4) and use guard() for mutex
+    (patch 6).
+
+v9 series https://lore.kernel.org/all/20260217182257.1582-1-alifm@linux.ibm.com/
+v9 -> v10
+   - Change pci_slot number to u16 (patch 1).
+
+   - Avoid saving invalid config space state if config space is
+   inaccessible in the device reset path. It uses the same patch as in v8
+   with R-b from Niklas.
+
+   - Rebase on 7.0.0-rc2
+
+
+v8 series https://lore.kernel.org/all/20260122194437.1903-1-alifm@linux.ibm.com/
+v8 -> v9
+   - Avoid saving PCI config space state in reset path (patch 3) (suggested by Bjorn)
+
+   - Add explicit version to struct vfio_device_feature_zpci_err (patch 7).
+
+   - Rebase on 6.19
+
+
+v7 series https://lore.kernel.org/all/20260107183217.1365-1-alifm@linux.ibm.com/
+v7 -> v8
+   - Rebase on 6.19-rc4
+
+   - Address feedback from Niklas and Julien.
+
+
+v6 series https://lore.kernel.org/all/2c609e61-1861-4bf3-b019-a11c137d26a5@linux.ibm.com/
+v6 -> v7
+    - Rebase on 6.19-rc4
+
+    - Update commit message based on Niklas's suggestion (patch 3).
+
+v5 series https://lore.kernel.org/all/20251113183502.2388-1-alifm@linux.ibm.com/
+v5 -> v6
+   - Rebase on 6.18 + Lukas's PCI: Universal error recoverability of
+   devices series (https://lore.kernel.org/all/cover.1763483367.git.lukas@wunner.de/)
+
+   - Re-work config space accessibility check to pci_dev_save_and_disable() (patch 3).
+   This avoids saving the config space, in the reset path, if the device's config space is
+   corrupted or inaccessible.
+
+v4 series https://lore.kernel.org/all/20250924171628.826-1-alifm@linux.ibm.com/
+v4 -> v5
+    - Rebase on 6.18-rc5
+
+    - Move bug fixes to the beginning of the series (patch 1 and 2). These patches
+    were posted as a separate fixes series
+https://lore.kernel.org/all/a14936ac-47d6-461b-816f-0fd66f869b0f@linux.ibm.com/
+
+    - Add matching pci_put_dev() for pci_get_slot() (patch 6).
+
+v3 series https://lore.kernel.org/all/20250911183307.1910-1-alifm@linux.ibm.com/
+v3 -> v4
+    - Remove warn messages for each PCI capability not restored (patch 1)
+
+    - Check PCI_COMMAND and PCI_STATUS register for error value instead of device id
+    (patch 1)
+
+    - Fix kernel crash in patch 3
+
+    - Added reviewed by tags
+
+    - Address comments from Niklas's (patches 4, 5, 7)
+
+    - Fix compilation error non s390x system (patch 8)
+
+    - Explicitly align struct vfio_device_feature_zpci_err (patch 8)
+
+
+v2 series https://lore.kernel.org/all/20250825171226.1602-1-alifm@linux.ibm.com/
+v2 -> v3
+   - Patch 1 avoids saving any config space state if the device is in error
+   (suggested by Alex)
+
+   - Patch 2 adds additional check only for FLR reset to try other function
+     reset method (suggested by Alex).
+
+   - Patch 3 fixes a bug in s390 for resetting PCI devices with multiple
+     functions. Creates a new flag pci_slot to allow per function slot.
+
+   - Patch 4 fixes a bug in s390 for resource to bus address translation.
+
+   - Rebase on 6.17-rc5
+
+
+v1 series https://lore.kernel.org/all/20250813170821.1115-1-alifm@linux.ibm.com/
+v1 - > v2
+   - Patches 1 and 2 adds some additional checks for FLR/PM reset to
+     try other function reset method (suggested by Alex).
+
+   - Patch 3 fixes a bug in s390 for resetting PCI devices with multiple
+     functions.
+
+   - Patch 7 adds a new device feature for zPCI devices for the VFIO_DEVICE_FEATURE
+     ioctl. The ioctl is used by userspace to retriece any PCI error
+     information for the device (suggested by Alex).
+
+   - Patch 8 adds a reset_done() callback for the vfio-pci driver, to
+     restore the state of the device after a reset.
+
+   - Patch 9 removes the pcie check for triggering VFIO_PCI_ERR_IRQ_INDEX.
+
+
+Farhan Ali (7):
+  PCI: Allow per function PCI slots to fix slot reset on s390
+  PCI: Avoid saving config space state if inaccessible
+  PCI: Fail FLR when config space is inaccessible
+  s390/pci: Store PCI error information for passthrough devices
+  vfio-pci/zdev: Add a device feature for error information
+  vfio/pci: Add a reset_done callback for vfio-pci driver
+  vfio/pci: Remove the pcie check for VFIO_PCI_ERR_IRQ_INDEX
+
+ arch/s390/include/asm/pci.h       |  32 +++++++
+ arch/s390/pci/pci.c               |   1 +
+ arch/s390/pci/pci_event.c         | 136 +++++++++++++++++++-----------
+ drivers/pci/hotplug/rpaphp_slot.c |   2 +-
+ drivers/pci/pci.c                 |  32 ++++++-
+ drivers/pci/slot.c                |  33 ++++++--
+ drivers/vfio/pci/vfio_pci_core.c  |  22 +++--
+ drivers/vfio/pci/vfio_pci_intrs.c |   3 +-
+ drivers/vfio/pci/vfio_pci_priv.h  |   9 ++
+ drivers/vfio/pci/vfio_pci_zdev.c  |  48 ++++++++++-
+ include/linux/pci.h               |   8 +-
+ include/uapi/linux/vfio.h         |  29 +++++++
+ 12 files changed, 282 insertions(+), 73 deletions(-)
+
 -- 
 2.43.0
 
