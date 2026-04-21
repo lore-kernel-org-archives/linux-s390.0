@@ -1,155 +1,140 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70F7D40DFA1;
-	Tue, 21 Apr 2026 05:18:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BE3128851F
+	for <linux-s390@vger.kernel.org>; Tue, 21 Apr 2026 06:49:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776748688; cv=none; b=kJ1+H2jTQurLbUf3ke9RmM6omv4O4L9kqfVFoy9AcHh9J3fupY0YwAL1ejoq9WmjHNpBvVaeRGohthonBc58HueCiMmB3dLBbGm5eykOXFQGQNPCkb6sMlPgM9v42fCPsz10xrPHuwyBnRJCagr/Hz9YwcGK3zMWyGuhtvnob2U=
+	t=1776754155; cv=none; b=o/gDij8P/iaDMxpaothC9dJIwxxlt4Ad+cY7G4Q+MfqfXwyD+/WwVcrpgW6FpMawwQv5IMfde2iSqZX/E1s4VRDwBYhDf9b/iwXMp2yRZra3L615s0HadM2E4jqpAbPFm4URnceGgxhyA7Yiubnxz5ROpKe2w9GEL7fsJnkNVGk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776748688; c=relaxed/simple;
-	bh=5SGwubLqgJpBuBw/TpgUVHRd2siV3IzHj7HdQsmYyJ4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Lma9Dls0Dm5WF14FOt6uAL+SFT38OyPxXRT5/b09TY8yGzRArUVBsj5FoV8r7EXMl8s+NDlOE6tEgTJ2QEbo4ArK8RgLunUEmza+TI4JVI7taDZYwz0ygu5o3vZ4nikEvqwQJ01AEQw+2NiRgZEXiuU68mHFUoOkMuv7inFDpuA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QX0AC4Cv; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1776754155; c=relaxed/simple;
+	bh=am3smhs96M1Iz0Y0JDciE1ZjrAK1dDbEC7UccjVq/eg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=sAYYHJcGKw/5Y5AbxKEfKWEqROoyz6rpXIlR7DPTAaRGGudrc8VLYMEMPGvcJ75kNCNqcYq0zUXG2cDwTSjE9CqbA2MF5YF5aitOhXt+n7XR5x9Ae1+/N7zmcF77qTRsMCXMO6tmm+0o0A+gvO7tNp7lbXAEIlh2hw7IQTlftJI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J4HdCsEQ; arc=none smtp.client-ip=209.85.216.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QX0AC4Cv"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63KJgWSJ1535632;
-	Tue, 21 Apr 2026 05:17:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=AZU3YeFW7ONrg7r/b5hmN/0MqRUY53fEOjgc4t7xI
-	RY=; b=QX0AC4CvueEVw3h4GuOoEDAFaevxK33+M2Zk0hm3Zh3/sORx6jCw4cBmK
-	iaV1PK/JwyR1F/K9kGv9RsH2/oK5RiHzseb28/XkufM/CsPvDlV/9pwRqNnmGcVX
-	iTvrtQy2akHuaoNfgtg9FtSaQ7LnaX460xi1PBOYRIm7WWI8ta+vWRiiQBW6mi7h
-	SUk8PM3Ljb7NS5tvWkTPcOMl6d0NkoqSU/iY7L2hKFx9XVz2Yrc+x7/pyVHCFLVi
-	mKC9x1DTjltWJ0hJT75+WhAd5/zL9YJyCN6LY7kekL2XhO49NzS3CC21DM6SV/3D
-	Q0ekfWzJ9Zc43C432GZjO20Fl5tOg==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dm2k6j30w-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Apr 2026 05:17:59 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63L55Ihp013445;
-	Tue, 21 Apr 2026 05:17:58 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dmmnvqjc8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Apr 2026 05:17:58 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63L5HsBj13435292
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 21 Apr 2026 05:17:54 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6E2BA2004D;
-	Tue, 21 Apr 2026 05:17:54 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4C69C2004B;
-	Tue, 21 Apr 2026 05:17:54 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Tue, 21 Apr 2026 05:17:54 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
-	id 355F1E08BB; Tue, 21 Apr 2026 07:17:54 +0200 (CEST)
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Kevin Brodsky <kevin.brodsky@arm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Ryan Roberts <ryan.roberts@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH v2] mm/gup: cleanup pgtable entry accessors
-Date: Tue, 21 Apr 2026 07:17:54 +0200
-Message-ID: <20260421051754.1691221-1-agordeev@linux.ibm.com>
-X-Mailer: git-send-email 2.51.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J4HdCsEQ"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-3591cc98871so1748856a91.3
+        for <linux-s390@vger.kernel.org>; Mon, 20 Apr 2026 23:49:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1776754153; x=1777358953; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=VdNywBu7apdyTFV9cnt3GZxXLndr1pBULjY0WptzCm8=;
+        b=J4HdCsEQzBF52HS7kv/2N9GJ8av6ANJwagpeEgdEx1yRdELMEGjQ4U1u/N87NO4FNi
+         O6KdpnQd2wlsQteyBgo3JKT5dhLZvpI1wyEsq4drfOlNwbEJ6WcOJKua2hfbgUn7f/qO
+         TzEOq5j4q1kIqn9Y+uIFyo3FhWMNPvAyfGSeTx2OrK0/Srjf3V26Ep8QZ8qfFqhXNK/n
+         ZxjbuMVDQk5kg1icO+a9j//B79M0Kg9jntS58arF/1IdYz8rvP1GqYJvmDueJh+a2H6V
+         AcrX5EqwWq4kixz6oUFeG2btwWnpqWtN0xGCez+9Lm3iTdeVYKxGHu2/uM273h/aIkCV
+         n8bQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776754153; x=1777358953;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=VdNywBu7apdyTFV9cnt3GZxXLndr1pBULjY0WptzCm8=;
+        b=hq2UX190fENcE5zYpdRVAMCxWfhdXygdOdNg/8F9K649znhXriAZ6xdmDfOlYp3GgM
+         aSKytsCk4y8RMh/It/EwClrseTfcGDsXyHcKNQHjGjiX1pbumti0fD9loplI6eAWJ0mZ
+         GbqbkMzjFD9EPGeOTOzRnZ166e24D6dX6jVpwv8P983Jd7Prb194PAF9/Xs+dqNvFMAO
+         RrjOTeqWfDJtYPZ1l3mBl4IkztYoxH0p9x9EQ4OFFebhuHKAxCTu9AN8xgYB0bHDAjsq
+         Lxl27mX3Eu+mddEJcAPgyzfISTYcth6l7ZCWpa8QdrfCLMXVgEuRMVMdfO5NQqIUD6YX
+         bgMw==
+X-Forwarded-Encrypted: i=1; AFNElJ/bj371fQ7mQhC8KGOKlmNHqdKgm6vUDB04E7MbYDe/5SfGGHxBSmBitoyXH0IKK8cLJDJ6JunszNgK@vger.kernel.org
+X-Gm-Message-State: AOJu0YxD6wcTOvYYkcUG+oWTIKqR92bL9D1dPq/QYzVMdi8wvZ4mfU0U
+	GvWCUzeMIhpnbJpN5YuvgtCbbBOu3yysXRzFu5Udjb4hwCqtWSE64JXm
+X-Gm-Gg: AeBDiev24oG78R/DsDC8dbS+bWnRuI2yNNC6vHLFEgYbYXdGKBTXscxtO5oDLojYx/u
+	jtsmDleq03u6x0ceXhCKW6yf13lwheWyMfJ4cOtxbQt0wPZLFgvkfpSR2u0uoBFKtcu1SqvFcWH
+	Vy1asB47jjM4R9PAYj4u1NPGXh0WRyt/yOjlH/IQhi+0RFwB0WGfZKz7qKezzPbNzkevpnoBaTm
+	i3DPEGnVpkjFEc3dh5nJnmxiGqqwx0dTq1sCe7s1yE8d0MLwvG/XZImMFOxZ74eDTfzSm6BXeRJ
+	5RBo3lFs7sZ+3RX6phiBmwdje6tvGRRKi50T+bbN3y5JJiYqtIhscpJBytAAzRO8Qg7jb8zVLk4
+	YUpKG1if0LcgqBYlUMIUQS/B0H9PgxSsHrS+jN5IYpTCxxnou1wZOfDd8C6m3M3aT6K6kvHWwHq
+	h5EuUzZbkZQiPiRXmkqhcgybtlqivwJDeg8haY4g3T5X2WGJ4nk1356hUElFLkTYOiCWUaO1S81
+	zKR00m6XW6qYLAu
+X-Received: by 2002:a17:90a:dfd0:b0:35e:30bc:96ed with SMTP id 98e67ed59e1d1-36140402361mr16891174a91.10.1776754153374;
+        Mon, 20 Apr 2026 23:49:13 -0700 (PDT)
+Received: from li-1a3e774c-28e4-11b2-a85c-acc9f2883e29.ibm.com ([129.41.58.4])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3614195a8f0sm12278674a91.12.2026.04.20.23.48.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Apr 2026 23:49:13 -0700 (PDT)
+Date: Tue, 21 Apr 2026 12:18:55 +0530
+From: Mukesh Kumar Chaurasiya <mkchauras@gmail.com>
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, 
+	Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Arnd Bergmann <arnd@arndb.de>, 
+	x86@kernel.org, Lu Baolu <baolu.lu@linux.intel.com>, iommu@lists.linux.dev, 
+	Michael Grzeschik <m.grzeschik@pengutronix.de>, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, 
+	Herbert Xu <herbert@gondor.apana.org.au>, linux-crypto@vger.kernel.org, 
+	Vlastimil Babka <vbabka@kernel.org>, linux-mm@kvack.org, David Woodhouse <dwmw2@infradead.org>, 
+	Bernie Thompson <bernie@plugable.com>, linux-fbdev@vger.kernel.org, Theodore Tso <tytso@mit.edu>, 
+	linux-ext4@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, 
+	Uladzislau Rezki <urezki@gmail.com>, Marco Elver <elver@google.com>, 
+	Dmitry Vyukov <dvyukov@google.com>, kasan-dev@googlegroups.com, 
+	Andrey Ryabinin <ryabinin.a.a@gmail.com>, Thomas Sailer <t.sailer@alumni.ethz.ch>, 
+	linux-hams@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>, 
+	Richard Henderson <richard.henderson@linaro.org>, linux-alpha@vger.kernel.org, 
+	Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, 
+	Catalin Marinas <catalin.marinas@arm.com>, Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev, 
+	Geert Uytterhoeven <geert@linux-m68k.org>, linux-m68k@lists.linux-m68k.org, 
+	Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, linux-openrisc@vger.kernel.org, 
+	Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org, Paul Walmsley <pjw@kernel.org>, 
+	linux-riscv@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, 
+	"David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org
+Subject: Re: [patch 32/38] powerpc/spufs: Use mftb() directly
+Message-ID: <aecdpyvTLJOjCdFp@li-1a3e774c-28e4-11b2-a85c-acc9f2883e29.ibm.com>
+References: <20260410120044.031381086@kernel.org>
+ <20260410120319.723429844@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=L78theT8 c=1 sm=1 tr=0 ts=69e70887 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=YUJdHbaOY7yOrIJlIOYA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIxMDA0OSBTYWx0ZWRfX/KjXBcDDvY4D
- eAo0sEZrBN6uqtffa5NRqRXf2z7P0NHjfKH91Ne8M4856VHIUMAYtd7zZwdfcjCIVkJ95WuIcdS
- eotWcuAhWafsNMW11oohQ5tjFOAqsCfrv6sUsZ2HLfF+dyqNqDMZf3tgxSPIWmvviLisosJnbsk
- 50UnK/C044yfQZN8t/96rLydx7eDioOUa7rT04zsO4o/QOGiAOsHl2fmvnap6wG2sx5DAeHZzCA
- lIQOm8MKFdg00H5C5JMkZhnHY3yCCVWyWxUDDeBEMyDX9RIm0TAZisNp0S+30PITCuQy6qSEK1E
- xoQp8wn0DJUqPCiQhpLNVYhXjzby6WsYXUo6K3b2Xs0wY/z1dloOx16fXs/zvMnlbTYez03IQf3
- agUDzuGPIB/vrZf8JlKSPPA4G9Ud75wfpTXlQj7yQ55MSebQROQHOsBB8N3yr7JYF5isB9craXS
- sMOuZ3tRr8Sk4BJzmPw==
-X-Proofpoint-GUID: Gx4gpKFdt96QBH9dX1k7Xk1_avGBpze1
-X-Proofpoint-ORIG-GUID: Gx4gpKFdt96QBH9dX1k7Xk1_avGBpze1
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-21_01,2026-04-20_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 spamscore=0 bulkscore=0 suspectscore=0
- lowpriorityscore=0 adultscore=0 clxscore=1015 malwarescore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604070000 definitions=main-2604210049
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260410120319.723429844@kernel.org>
 
-PMD and PUD entries revalidation has the same semantics as PTE entry
-revalidation. Convert the remaining direct entry dereferences to the
-corresponding accessors.
-
-The PTE validation in gup_fast_pte_range() is inconsistent with the
-prior value acquisition in the sense that it drops the lockless
-access semantics.
-
-Use the lockless accessor not only for the PTE, but also for the PMD
-validation, which is likewise inconsistent with the prior value
-acquisition in gup_fast_pmd_range().
-
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
----
- mm/gup.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/mm/gup.c b/mm/gup.c
-index 8e7dc2c6ee73..236450feea9a 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -2865,8 +2865,8 @@ static int gup_fast_pte_range(pmd_t pmd, pmd_t *pmd=
-p, unsigned long addr,
- 		if (!folio)
- 			goto pte_unmap;
-=20
--		if (unlikely(pmd_val(pmd) !=3D pmd_val(*pmdp)) ||
--		    unlikely(pte_val(pte) !=3D pte_val(ptep_get(ptep)))) {
-+		if (unlikely(pmd_val(pmd) !=3D pmd_val(pmdp_get_lockless(pmdp))) ||
-+		    unlikely(pte_val(pte) !=3D pte_val(ptep_get_lockless(ptep)))) {
- 			gup_put_folio(folio, 1, flags);
- 			goto pte_unmap;
- 		}
-@@ -2942,7 +2942,7 @@ static int gup_fast_pmd_leaf(pmd_t orig, pmd_t *pmd=
-p, unsigned long addr,
- 	if (!folio)
- 		return 0;
-=20
--	if (unlikely(pmd_val(orig) !=3D pmd_val(*pmdp))) {
-+	if (unlikely(pmd_val(orig) !=3D pmd_val(pmdp_get_lockless(pmdp)))) {
- 		gup_put_folio(folio, refs, flags);
- 		return 0;
- 	}
-@@ -2985,7 +2985,7 @@ static int gup_fast_pud_leaf(pud_t orig, pud_t *pud=
-p, unsigned long addr,
- 	if (!folio)
- 		return 0;
-=20
--	if (unlikely(pud_val(orig) !=3D pud_val(*pudp))) {
-+	if (unlikely(pud_val(orig) !=3D pud_val(pudp_get(pudp)))) {
- 		gup_put_folio(folio, refs, flags);
- 		return 0;
- 	}
---=20
-2.51.0
-
+On Fri, Apr 10, 2026 at 02:21:04PM +0200, Thomas Gleixner wrote:
+> There is no reason to indirect via get_cycles(), which is about to be
+> removed.
+> 
+> Use mftb() directly.
+> 
+> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: linuxppc-dev@lists.ozlabs.org
+> ---
+>  arch/powerpc/platforms/cell/spufs/switch.c |    5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> --- a/arch/powerpc/platforms/cell/spufs/switch.c
+> +++ b/arch/powerpc/platforms/cell/spufs/switch.c
+> @@ -34,6 +34,7 @@
+>  #include <asm/spu_priv1.h>
+>  #include <asm/spu_csa.h>
+>  #include <asm/mmu_context.h>
+> +#include <asm/time.h>
+>  
+>  #include "spufs.h"
+>  
+> @@ -279,7 +280,7 @@ static inline void save_timebase(struct
+>  	 *    Read PPE Timebase High and Timebase low registers
+>  	 *    and save in CSA.  TBD.
+>  	 */
+> -	csa->suspend_time = get_cycles();
+> +	csa->suspend_time = mftb();
+>  }
+>  
+>  static inline void remove_other_spu_access(struct spu_state *csa,
+> @@ -1261,7 +1262,7 @@ static inline void setup_decr(struct spu
+>  	 *     in LSCSA.
+>  	 */
+>  	if (csa->priv2.mfc_control_RW & MFC_CNTL_DECREMENTER_RUNNING) {
+> -		cycles_t resume_time = get_cycles();
+> +		cycles_t resume_time = mftb();
+>  		cycles_t delta_time = resume_time - csa->suspend_time;
+>  
+>  		csa->lscsa->decr_status.slot[0] = SPU_DECR_STATUS_RUNNING;
+> 
+Reviewed-by: Mukesh Kumar Chaurasiya (IBM) <mkchauras@gmail.com>
