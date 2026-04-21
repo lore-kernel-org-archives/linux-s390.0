@@ -1,140 +1,75 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BE3128851F
-	for <linux-s390@vger.kernel.org>; Tue, 21 Apr 2026 06:49:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 726822AF1D;
+	Tue, 21 Apr 2026 08:40:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776754155; cv=none; b=o/gDij8P/iaDMxpaothC9dJIwxxlt4Ad+cY7G4Q+MfqfXwyD+/WwVcrpgW6FpMawwQv5IMfde2iSqZX/E1s4VRDwBYhDf9b/iwXMp2yRZra3L615s0HadM2E4jqpAbPFm4URnceGgxhyA7Yiubnxz5ROpKe2w9GEL7fsJnkNVGk=
+	t=1776760844; cv=none; b=c72n9YaZ1rC0ca7zHQue0zcJmG/kh2116kUjupCGSGKazCVXPobhJRkDcAVxsUsACNedES5c0/XELA2Df7NCiRHjJiju+wJl6FIXGLQUofBSVg8QFOo+Kt5PUXsc14A3GdmeUDJp/jp6yGbYfrr0AR0sAi1aRQqgsxaL33KHzi8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776754155; c=relaxed/simple;
-	bh=am3smhs96M1Iz0Y0JDciE1ZjrAK1dDbEC7UccjVq/eg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=sAYYHJcGKw/5Y5AbxKEfKWEqROoyz6rpXIlR7DPTAaRGGudrc8VLYMEMPGvcJ75kNCNqcYq0zUXG2cDwTSjE9CqbA2MF5YF5aitOhXt+n7XR5x9Ae1+/N7zmcF77qTRsMCXMO6tmm+0o0A+gvO7tNp7lbXAEIlh2hw7IQTlftJI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J4HdCsEQ; arc=none smtp.client-ip=209.85.216.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1776760844; c=relaxed/simple;
+	bh=EgumEJfrYaLcloTARpupOXQw32PxC3gb23jmLt56KT4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=QOsxgmLM6E8VsD2Kil71qQsWQY4XC5QwulcxFSjxGfupCeI7tybgknTUfpomo6x1GuVJkJJaX9alQcdyGZ2UQKuAJSrp85Db7YmMBu3kfZyF6eCy02lwFfCAWvctBB9L5e1zMyst4E06ONmHdQjoVlD/DtLntbP5G/6KPCdQSTY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=m84g/SYw; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J4HdCsEQ"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-3591cc98871so1748856a91.3
-        for <linux-s390@vger.kernel.org>; Mon, 20 Apr 2026 23:49:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776754153; x=1777358953; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=VdNywBu7apdyTFV9cnt3GZxXLndr1pBULjY0WptzCm8=;
-        b=J4HdCsEQzBF52HS7kv/2N9GJ8av6ANJwagpeEgdEx1yRdELMEGjQ4U1u/N87NO4FNi
-         O6KdpnQd2wlsQteyBgo3JKT5dhLZvpI1wyEsq4drfOlNwbEJ6WcOJKua2hfbgUn7f/qO
-         TzEOq5j4q1kIqn9Y+uIFyo3FhWMNPvAyfGSeTx2OrK0/Srjf3V26Ep8QZ8qfFqhXNK/n
-         ZxjbuMVDQk5kg1icO+a9j//B79M0Kg9jntS58arF/1IdYz8rvP1GqYJvmDueJh+a2H6V
-         AcrX5EqwWq4kixz6oUFeG2btwWnpqWtN0xGCez+9Lm3iTdeVYKxGHu2/uM273h/aIkCV
-         n8bQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776754153; x=1777358953;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=VdNywBu7apdyTFV9cnt3GZxXLndr1pBULjY0WptzCm8=;
-        b=hq2UX190fENcE5zYpdRVAMCxWfhdXygdOdNg/8F9K649znhXriAZ6xdmDfOlYp3GgM
-         aSKytsCk4y8RMh/It/EwClrseTfcGDsXyHcKNQHjGjiX1pbumti0fD9loplI6eAWJ0mZ
-         GbqbkMzjFD9EPGeOTOzRnZ166e24D6dX6jVpwv8P983Jd7Prb194PAF9/Xs+dqNvFMAO
-         RrjOTeqWfDJtYPZ1l3mBl4IkztYoxH0p9x9EQ4OFFebhuHKAxCTu9AN8xgYB0bHDAjsq
-         Lxl27mX3Eu+mddEJcAPgyzfISTYcth6l7ZCWpa8QdrfCLMXVgEuRMVMdfO5NQqIUD6YX
-         bgMw==
-X-Forwarded-Encrypted: i=1; AFNElJ/bj371fQ7mQhC8KGOKlmNHqdKgm6vUDB04E7MbYDe/5SfGGHxBSmBitoyXH0IKK8cLJDJ6JunszNgK@vger.kernel.org
-X-Gm-Message-State: AOJu0YxD6wcTOvYYkcUG+oWTIKqR92bL9D1dPq/QYzVMdi8wvZ4mfU0U
-	GvWCUzeMIhpnbJpN5YuvgtCbbBOu3yysXRzFu5Udjb4hwCqtWSE64JXm
-X-Gm-Gg: AeBDiev24oG78R/DsDC8dbS+bWnRuI2yNNC6vHLFEgYbYXdGKBTXscxtO5oDLojYx/u
-	jtsmDleq03u6x0ceXhCKW6yf13lwheWyMfJ4cOtxbQt0wPZLFgvkfpSR2u0uoBFKtcu1SqvFcWH
-	Vy1asB47jjM4R9PAYj4u1NPGXh0WRyt/yOjlH/IQhi+0RFwB0WGfZKz7qKezzPbNzkevpnoBaTm
-	i3DPEGnVpkjFEc3dh5nJnmxiGqqwx0dTq1sCe7s1yE8d0MLwvG/XZImMFOxZ74eDTfzSm6BXeRJ
-	5RBo3lFs7sZ+3RX6phiBmwdje6tvGRRKi50T+bbN3y5JJiYqtIhscpJBytAAzRO8Qg7jb8zVLk4
-	YUpKG1if0LcgqBYlUMIUQS/B0H9PgxSsHrS+jN5IYpTCxxnou1wZOfDd8C6m3M3aT6K6kvHWwHq
-	h5EuUzZbkZQiPiRXmkqhcgybtlqivwJDeg8haY4g3T5X2WGJ4nk1356hUElFLkTYOiCWUaO1S81
-	zKR00m6XW6qYLAu
-X-Received: by 2002:a17:90a:dfd0:b0:35e:30bc:96ed with SMTP id 98e67ed59e1d1-36140402361mr16891174a91.10.1776754153374;
-        Mon, 20 Apr 2026 23:49:13 -0700 (PDT)
-Received: from li-1a3e774c-28e4-11b2-a85c-acc9f2883e29.ibm.com ([129.41.58.4])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3614195a8f0sm12278674a91.12.2026.04.20.23.48.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Apr 2026 23:49:13 -0700 (PDT)
-Date: Tue, 21 Apr 2026 12:18:55 +0530
-From: Mukesh Kumar Chaurasiya <mkchauras@gmail.com>
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, 
-	Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Arnd Bergmann <arnd@arndb.de>, 
-	x86@kernel.org, Lu Baolu <baolu.lu@linux.intel.com>, iommu@lists.linux.dev, 
-	Michael Grzeschik <m.grzeschik@pengutronix.de>, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, 
-	Herbert Xu <herbert@gondor.apana.org.au>, linux-crypto@vger.kernel.org, 
-	Vlastimil Babka <vbabka@kernel.org>, linux-mm@kvack.org, David Woodhouse <dwmw2@infradead.org>, 
-	Bernie Thompson <bernie@plugable.com>, linux-fbdev@vger.kernel.org, Theodore Tso <tytso@mit.edu>, 
-	linux-ext4@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, 
-	Uladzislau Rezki <urezki@gmail.com>, Marco Elver <elver@google.com>, 
-	Dmitry Vyukov <dvyukov@google.com>, kasan-dev@googlegroups.com, 
-	Andrey Ryabinin <ryabinin.a.a@gmail.com>, Thomas Sailer <t.sailer@alumni.ethz.ch>, 
-	linux-hams@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>, 
-	Richard Henderson <richard.henderson@linaro.org>, linux-alpha@vger.kernel.org, 
-	Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, 
-	Catalin Marinas <catalin.marinas@arm.com>, Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev, 
-	Geert Uytterhoeven <geert@linux-m68k.org>, linux-m68k@lists.linux-m68k.org, 
-	Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, linux-openrisc@vger.kernel.org, 
-	Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org, Paul Walmsley <pjw@kernel.org>, 
-	linux-riscv@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, 
-	"David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org
-Subject: Re: [patch 32/38] powerpc/spufs: Use mftb() directly
-Message-ID: <aecdpyvTLJOjCdFp@li-1a3e774c-28e4-11b2-a85c-acc9f2883e29.ibm.com>
-References: <20260410120044.031381086@kernel.org>
- <20260410120319.723429844@kernel.org>
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="m84g/SYw"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B260925E0;
+	Tue, 21 Apr 2026 01:40:34 -0700 (PDT)
+Received: from [10.57.63.119] (unknown [10.57.63.119])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 5CD263F915;
+	Tue, 21 Apr 2026 01:40:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1776760840; bh=EgumEJfrYaLcloTARpupOXQw32PxC3gb23jmLt56KT4=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=m84g/SYwoTZLaSaOqMPRRzbUY3MObVT2M729SpYBGr2MyrPKhYR9E74+K6sjJ0Vbw
+	 LF/PIYYBuV86V7ZYmhOnDeRF75EDyFh53WYU+XEu+I/4m5IQOMasOzExjCvFK578q9
+	 3wBS81X9Rm/vbkwxQAHT4CFnEaGGnv0jl9C3AWnA=
+Message-ID: <566e7e6b-17be-426f-a3f1-a615d0d61077@arm.com>
+Date: Tue, 21 Apr 2026 10:40:34 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260410120319.723429844@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/6] mm: Make lazy MMU mode context-aware
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: David Hildenbrand <david@redhat.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Claudio Imbrenda
+ <imbrenda@linux.ibm.com>, linux-s390@vger.kernel.org, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org
+References: <cover.1776264097.git.agordeev@linux.ibm.com>
+ <8809412aaed8a515fe2e149c822543d640060936.1776264097.git.agordeev@linux.ibm.com>
+ <4dc47078-0f8b-4388-9715-744c18590a00@arm.com>
+ <0dd3a5bf-a98b-4181-a88a-ec9c0203f90a-agordeev@linux.ibm.com>
+From: Kevin Brodsky <kevin.brodsky@arm.com>
+Content-Language: en-GB
+In-Reply-To: <0dd3a5bf-a98b-4181-a88a-ec9c0203f90a-agordeev@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Fri, Apr 10, 2026 at 02:21:04PM +0200, Thomas Gleixner wrote:
-> There is no reason to indirect via get_cycles(), which is about to be
-> removed.
-> 
-> Use mftb() directly.
-> 
-> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: linuxppc-dev@lists.ozlabs.org
-> ---
->  arch/powerpc/platforms/cell/spufs/switch.c |    5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> --- a/arch/powerpc/platforms/cell/spufs/switch.c
-> +++ b/arch/powerpc/platforms/cell/spufs/switch.c
-> @@ -34,6 +34,7 @@
->  #include <asm/spu_priv1.h>
->  #include <asm/spu_csa.h>
->  #include <asm/mmu_context.h>
-> +#include <asm/time.h>
->  
->  #include "spufs.h"
->  
-> @@ -279,7 +280,7 @@ static inline void save_timebase(struct
->  	 *    Read PPE Timebase High and Timebase low registers
->  	 *    and save in CSA.  TBD.
->  	 */
-> -	csa->suspend_time = get_cycles();
-> +	csa->suspend_time = mftb();
->  }
->  
->  static inline void remove_other_spu_access(struct spu_state *csa,
-> @@ -1261,7 +1262,7 @@ static inline void setup_decr(struct spu
->  	 *     in LSCSA.
->  	 */
->  	if (csa->priv2.mfc_control_RW & MFC_CNTL_DECREMENTER_RUNNING) {
-> -		cycles_t resume_time = get_cycles();
-> +		cycles_t resume_time = mftb();
->  		cycles_t delta_time = resume_time - csa->suspend_time;
->  
->  		csa->lscsa->decr_status.slot[0] = SPU_DECR_STATUS_RUNNING;
-> 
-Reviewed-by: Mukesh Kumar Chaurasiya (IBM) <mkchauras@gmail.com>
+On 21/04/2026 06:57, Alexander Gordeev wrote:
+>>> + * PTEs that fall within the specified range might observe update speedups.
+>>> + * The PTE range must belong to the specified memory space and not cross
+>>> + * a page table boundary.
+>> Does that mean that all PTEs mapping [addr, end) must belong to the same
+>> PTE page? I think the wording should be more specific.
+> I tried to state that end of the range must not exceed pmd_addr_end(addr, end).
+> Any of these sounds better?
+>
+> The PTE range must belong to the specified memory space and ...
+> a) the address range must not cross the parent PMD address range boundary
+> b) the PTEs must belong to the same parent PMD
+
+I think b) is good, maybe "PMD entry" to be even clearer.  My previous
+suggestion of talking about "PTE page" isn't ideal since some
+architectures have page tables smaller (or larger) than a page.
+
+- Kevin
