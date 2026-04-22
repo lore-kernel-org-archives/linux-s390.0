@@ -1,136 +1,111 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ua1-f52.google.com (mail-ua1-f52.google.com [209.85.222.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D0AD2773FF;
-	Wed, 22 Apr 2026 06:04:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11EFE29430
+	for <linux-s390@vger.kernel.org>; Wed, 22 Apr 2026 06:54:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776837878; cv=none; b=Gv6EsmxAcqzp4hM+3t1ldcDqPFEJ7XB1zOqAlYFU54A47QUgXKA+H026JcesHE5bGlTQjuIFssyubuV446inJoSFwEzCSzUf1kx3uYN1ZDHp2ZoFRRLoWET2BdEXcIBCuRUz5eubevYtBXR7MXd1vwKcIVGagUDn7btvG967UN4=
+	t=1776840889; cv=none; b=LOEVtxVvkX8zwzo59jk8cpxTElKvDzh8OdQ42BQ7nhjdq+68O2ChNwfhGQ87BEDUnPrU6va5z3WetyUC9eCMA8dVx/N/EfvSSc8vrU9Btbn3ZsnRreJLIq9G619NjU2WdNqBHFPBDCL/4mlSzgBwl32Xwuxfft4tWnVRNNczsd8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776837878; c=relaxed/simple;
-	bh=l/Xv0ByC+wpOpBjaVlGMf2Va9omIbMuTRr98oFoAT3Y=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=rNxhAG/4kohS0IfgSa/kBxaSH+O0QGw7wOCwPw/zQrmYMmGmzSlu4vlxHjFqz1wUiVW06qjddczaOJtOA07PQ+qt9AV0Mp+dPFW4DlMERqVFXOCG1rDsdv7Drf7baPx+JTJXcvxUk8oo3lSO3I5ZiFgPOK34/npWWI85slfUQKQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bKjb55FJ; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bKjb55FJ"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63LIlh45970191;
-	Wed, 22 Apr 2026 06:04:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=yqoli/
-	BKS1Da1rSShv6mTI8JJDCdV0SCpYsnIOdKZFo=; b=bKjb55FJwQ8nYjWOgUC5QD
-	20gvTXAcw3VrhGCCg+ithk5pWq/Id61i3EoGa7bS1qD2ReKTI6WKqjpFsrqHa1iT
-	fmNpRp7l/1L20e947zURAONQcrCB4ZBkIg9Wwgu8ECHRi9EbOVp4gedZR2hHBKaf
-	1/G51iu9qnGyINZ4xFQjT7p0xCEprd0MoSfsxq/w6BBSC4LNNj23FAssNFKZPnJI
-	0PqMf1PHP48ZnFietN4sR7qB7QCu6SPdR15hUUneqNYzWtTP3iAkXdWoDn3TLL1R
-	ckS0HRckM9JxLqiytUvp29FM2c3M3X7RUt7SMcrHFktbMSTQAK1s3PPBHyjCy6kA
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dpeu3hs5y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Apr 2026 06:04:36 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63M5oTfp025645;
-	Wed, 22 Apr 2026 06:04:35 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dpjkxs0gq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Apr 2026 06:04:35 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63M64W1s57934258
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 22 Apr 2026 06:04:32 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 06FD320043;
-	Wed, 22 Apr 2026 06:04:32 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id ADF1C20040;
-	Wed, 22 Apr 2026 06:04:31 +0000 (GMT)
-Received: from t14-nrb (unknown [9.111.40.84])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 22 Apr 2026 06:04:31 +0000 (GMT)
+	s=arc-20240116; t=1776840889; c=relaxed/simple;
+	bh=M5g0U17jf72qYxMz8kLVwYzsVn+6qWRz8++xq+cwags=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ErdkIoxjHH3uR8vayUHnwlIu8kB81dUS40Yb/W8JCwZOXdsIrlQXSlH5aAl7J6ozx7q7ug6hlPRGYE4Ftrp+nrn9BA6TwszbyQrOWLF0Z/5ScPD4F87U8jzWPUmgzzAQuGlkcFKYsFDjzN+11wngp0bD78DrI3X920Plycb62EM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.222.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-ua1-f52.google.com with SMTP id a1e0cc1a2514c-953a44f8404so996759241.0
+        for <linux-s390@vger.kernel.org>; Tue, 21 Apr 2026 23:54:46 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776840886; x=1777445686;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=zyxMyDKhrlWE+5iCHg59pMAULgdQUBAeBRtLLkE5UPM=;
+        b=LUbcg62IlOeT4OYv2I4Gk56Orkb/gc9YKXsJwLMrUlHlHjXLr+WTCYi90NZ61pFwiX
+         /Dx8W2ZVo/rtHHEt/V+6YY4dl9IMOsXfJC1wDHvDosmcXPsJxe8rreedmGPOGN41t+nA
+         c1t58qteKYVi7VKm+rREoDnG0Q5AXwbFfRbDyowHo0NvBESbhn5gSTTNXbwsmPRGOK/e
+         4boEwFCsJgrC4NxSnKy4omxdkekSLKCjYfVsbBOv/d2fSiuxyHMug1JuCmz2MgCBnbri
+         BPH4bkBLMxKeuK0SP/TuZxjuFUmnvrdBUzBLsb6P/5uz9xMJsPehOHK7IntnuhEu8g1U
+         mZCw==
+X-Forwarded-Encrypted: i=1; AFNElJ+DojhGCFFwARLE8+F7ddRsgbYt4SUiR8DVRMBgZ9G1enJkWqoiBnrYwtt/CrRQR20+TuL9DUjEpa3b@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz7Ol8BQZf9rFaxA7Zy+rjEiWyr3bVc4n3M3Sof+Q7vJguNEcDe
+	xy1XcEBZNHczEjSuzJb98ISDJT0iHBu2g0GlzCYwOr2J0Mfr03IYQ/WNLj/uqBikk/A=
+X-Gm-Gg: AeBDietMFVjjx0zWK3LZhrjQc2pmrZ7PxNLovHfOEN6B2sZk7tMDINxMooqTjd9a2tG
+	m3lqk6Ky4HG1gL8vz3Jmlsq+edSCB5yb+5rKffDxZtGLmC1JG5Mnlr/6jyLYlLujEM0Q2nkxEkB
+	hBrZY9Jw0SR6EisJqZ9HR0NlSvWXFz7+4kZF+iLyBY3c9g9DcZ6BSHsy3Ev2U734h2u3JmLXAfl
+	qFaEjtd8jvGcB3FN+QiaH7pso/Quxtxo2injozRRNKJmTMkN6x/U1jmOrnR24oUGLaFmyf7+oRf
+	Dk1d+OnOI/lReFEcs5aRlso5/bcWRnrS3Y2x2k2DAUlUGMKTklaVolq/ywZdS1VwlzS/nEdzLEl
+	RpgCiunoc0+iQR1qyCVgKt8r05ATR6AZ3upSKF17qtyrhRvtFF0u4yC+5hWOq2DFl1xcjlezGE1
+	/wrp1W+KNL8xJ2ZWkdLLpU6cc54xLxApkzQlMJPJ2Xjl2PYqHgi6BmZJyAOi55KMM8rtrQ3NGS7
+	/Q=
+X-Received: by 2002:a05:6102:80a8:b0:611:61d3:819e with SMTP id ada2fe7eead31-616f51846ccmr9138176137.12.1776840885862;
+        Tue, 21 Apr 2026 23:54:45 -0700 (PDT)
+Received: from mail-vk1-f177.google.com (mail-vk1-f177.google.com. [209.85.221.177])
+        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-61747cb501asm7683143137.7.2026.04.21.23.54.45
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 21 Apr 2026 23:54:45 -0700 (PDT)
+Received: by mail-vk1-f177.google.com with SMTP id 71dfb90a1353d-56d8d479149so1743141e0c.2
+        for <linux-s390@vger.kernel.org>; Tue, 21 Apr 2026 23:54:45 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ9tpAkOnGrRox1FMIHr3Rx6PGupuRdtKOAp7JwOzGuyhdSlpRvt+CfFbnkIZ2DHmaDzXHIh6Upn1D4K@vger.kernel.org
+X-Received: by 2002:a05:6122:f84:b0:56c:db8b:504e with SMTP id
+ 71dfb90a1353d-56fa59fbc9fmr11532873e0c.13.1776840884876; Tue, 21 Apr 2026
+ 23:54:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 22 Apr 2026 08:04:31 +0200
-Message-Id: <DHZGGHFIB3HM.23YH58OREC8WD@linux.ibm.com>
-Cc: <linux-s390@vger.kernel.org>, <imbrenda@linux.ibm.com>,
-        <borntraeger@linux.ibm.com>, <nrb@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v2 2/4] lib: s390x: sie: Allocate
- physical guest memory via memalign
-From: "Nico Boehr" <nrb@linux.ibm.com>
-To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>,
-        "Janosch Frank"
- <frankja@linux.ibm.com>, <kvm@vger.kernel.org>
-X-Mailer: aerc 0.21.0
-References: <20260420084933.251244-1-frankja@linux.ibm.com>
- <20260420084933.251244-3-frankja@linux.ibm.com>
- <DHYXKO2IPF13.1SJ3D8S49W7BZ@linux.ibm.com>
-In-Reply-To: <DHYXKO2IPF13.1SJ3D8S49W7BZ@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: d625QQD7ttNf8_fzwrqZrcPwaGOHoi3S
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIyMDA1NSBTYWx0ZWRfX+GMl8ukwESIJ
- bFggQ+gAFdXA+4M/RfYmKww7npHYBhOpM00HAB9+kYQeq3FwhskbYoP0G27h/qSeCXy7qdHVzQb
- np9KmU9WYgC+C5tEgUhcjWv4UV+9HVts0J6UK9gVZqyTjLWT8TSSOVHEmMyaF9NA8l2iccXfK0/
- QPo+wlkV3qfAy1S7ujIcHzSLjatO0/Z0vmcM4lyI4bRqtfS4YUpN7eiIuCFXOBrqrJMNNgLVTkN
- y3I9ZDNj8RPSpI3oGKDwdBhsO1tnGp4i/M1+hHNiKCklJNNVGzaTMcI0VjWhFQp26b0OlxX/FbN
- Jmyya70DAsLSMwd7FoH4LLqkQPyVUXz8hbtvK3mOdef39sk4b2ehey9YJcBtupFXb3i4yyEz91N
- 6omhj6aMIJWNxbK30dpPLRTU8s9/t9L9OVCx0NJsahdnOMRin61qXjfnK40hrhRgUIMYkTE6meY
- 0ufnnNQo3Kd2sSDN9fw==
-X-Authority-Analysis: v=2.4 cv=a6kAM0SF c=1 sm=1 tr=0 ts=69e864f4 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=6CX5Zf9KZRiv3f7GAsYA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: d625QQD7ttNf8_fzwrqZrcPwaGOHoi3S
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-21_03,2026-04-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 suspectscore=0 spamscore=0 adultscore=0 bulkscore=0
- lowpriorityscore=0 impostorscore=0 clxscore=1015 phishscore=0
- priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
- definitions=main-2604220055
+MIME-Version: 1.0
+References: <cover.1776808209.git.mst@redhat.com> <006f9142e591ba8c340c3b354aee76aec5c285b9.1776808210.git.mst@redhat.com>
+In-Reply-To: <006f9142e591ba8c340c3b354aee76aec5c285b9.1776808210.git.mst@redhat.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 22 Apr 2026 08:54:33 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdUtNPY1=92H8GZSDkQ5_rNnxL6WkjTF=1ApjwTA4z1TqA@mail.gmail.com>
+X-Gm-Features: AQROBzCgl_wyqpfJ8JAvw4YHU8svwkzmMCs8RMYgDiGFQgsN4z72BoUKVxkZaoc
+Message-ID: <CAMuHMdUtNPY1=92H8GZSDkQ5_rNnxL6WkjTF=1ApjwTA4z1TqA@mail.gmail.com>
+Subject: Re: [PATCH RFC v3 10/19] mm: remove arch vma_alloc_zeroed_movable_folio
+ overrides
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, 
+	David Hildenbrand <david@kernel.org>, Vlastimil Babka <vbabka@kernel.org>, 
+	Brendan Jackman <jackmanb@google.com>, Michal Hocko <mhocko@suse.com>, 
+	Suren Baghdasaryan <surenb@google.com>, Jason Wang <jasowang@redhat.com>, 
+	Andrea Arcangeli <aarcange@redhat.com>, Gregory Price <gourry@gourry.net>, linux-mm@kvack.org, 
+	virtualization@lists.linux.dev, 
+	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
+	Magnus Lindholm <linmag7@gmail.com>, Greg Ungerer <gerg@linux-m68k.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	"H. Peter Anvin" <hpa@zytor.com>, linux-alpha@vger.kernel.org, 
+	linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Tue Apr 21, 2026 at 5:16 PM CEST, Christoph Schlameuss wrote:
-> On Mon Apr 20, 2026 at 10:44 AM CEST, Janosch Frank wrote:
->> alloc_pages_flags() alignes the allocation on the same order as its
->> requested size. Since we use virtual memory for SIE we can instead
->> align to 1MB by using memalign() which is less wasteful.
->>
->> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->> ---
->>  lib/s390x/sie.c | 3 ++-
->>  1 file changed, 2 insertions(+), 1 deletion(-)
->>
->> diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
->> index 47d4cdde..b1b0a8a0 100644
->> --- a/lib/s390x/sie.c
->> +++ b/lib/s390x/sie.c
->> @@ -171,7 +171,8 @@ uint8_t *sie_guest_alloc(uint64_t guest_size)
->>  	guest_virt =3D (uint8_t *)ALIGN(get_ram_size() + guest_counter * 4UL *=
- SZ_1G, SZ_2G);
->>  	guest_counter++;
->> =20
->> -	guest_phys =3D alloc_pages(get_order(guest_size) - 12);
->> +	guest_phys =3D memalign_pages_flags(SZ_1M, guest_size, 0);
+On Wed, 22 Apr 2026 at 00:01, Michael S. Tsirkin <mst@redhat.com> wrote:
+> Now that the generic vma_alloc_zeroed_movable_folio() uses
+> __GFP_ZERO, the arch-specific macros on alpha, m68k, s390, and
+> x86 that did the same thing are redundant.  Remove them.
 >
-> There is a const for that:
+> arm64 is not affected: it has a real function override that
+> handles MTE tag zeroing, not just __GFP_ZERO.
 >
-> guest_phys =3D memalign_pages_flags(SZ_1M, guest_size, AREA_ANY);
+> Suggested-by: David Hildenbrand <david@kernel.org>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Or just
+>  arch/m68k/include/asm/page_no.h | 3 ---
 
-guest_phys =3D memalign_pages(SZ_1M, guest_size);
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # m68k
 
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
