@@ -1,60 +1,60 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E3DC3CB2E6;
-	Wed, 22 Apr 2026 11:05:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A3C73D170F;
+	Wed, 22 Apr 2026 12:08:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776855951; cv=none; b=s3L6WAooNvMuUjNhNJGPEKvHZ2b6xVskDC0Z+WHvLbisU6LWBY1v3FaZHZcM9UGk4YilojFQG5OeMj4knj1+g8ecYcauJbtYyJx5Q/BGFO3m5D2hCpp6W+LV+e5MCch1wJf1bdbYuaRgTuFLl7C3OkRjqQ0cpQivPBy2AdIJVxk=
+	t=1776859740; cv=none; b=OpdBRLyEdfPJsyfo6fGE9KHC6XnIczhoHgHHD95suidml+PT0nB/1MGqdXnOwHLP16NakjNLGgUm7LikwgK3fhA9e3zXQyl6oNLivHvvDuF/XNSWlAEuRLF6nIZojcnBCJTCpbOA5XWmQ9GT0swPYDkr5gcYwe2nORsmqsyClgw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776855951; c=relaxed/simple;
-	bh=ocfosXRW2NgCx2AslzvhWVHocDxGSwZ06nOFYNsnjoI=;
+	s=arc-20240116; t=1776859740; c=relaxed/simple;
+	bh=JGOMgrkuRwwo8NIQ8At2Ro5c6+HtZZ+z132WBXlVTnI=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OGDJiKBaWZDepwp2tnfII6mYWr3zBZp8+uIC6DdYeRB51D3sBmeJOGo/rq3DjzG/J+n6Ad2gEyaDbSSsmo97qgfrAUjNLb5CbVvBO4ZFL5tyNHIioiTD34HVzpNUScE1MHuatog85I+GSyqb3BcTb65vtzwbLQ28K4Kllm1krLw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XZMc5umP; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=N9/I6e1o4Oh9D/p4dE4vA3UCwSuvvCGWLKzxVB0OyFryEilWsDJPcbApdiQnlBi75CbTbwhRGJ6f4Tns7BOcdDeAS1i79/W1SdOpLxLZbWCoYN4INW4P0xsjMu2CHtNV16WFOkdzMhn/k7ojqidmr9n1dJnenfcbW26uCrAuaY0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ETsDu0I2; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XZMc5umP"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63LImPPj590891;
-	Wed, 22 Apr 2026 11:05:45 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ETsDu0I2"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63M3EYaG1678313;
+	Wed, 22 Apr 2026 12:08:45 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=EIAxb3
-	8pJlyh5GLhKyv5Umz78hBjVFLnlPhGSOPDWt4=; b=XZMc5umPHfDRoKWNLZdUJu
-	JtBjV7/VHaXE+mahTmGPgof6e6/oxlN9X2quwivM5JyTpFsPsgRqQsRIR3KQidZU
-	NCdxCqxk/HdQGzRwdN6GMn5uMzNKcu8mNKh3DHqLTulujxDs6grNwm8s57gvVlHZ
-	1Z/isERtpM/M0KkxMj3CH2sQcoPukUI+zx5mxRhK1P3x2932BLwH7SfZflpogs3E
-	UnC+nQUBL6lV+mDWTXNK8A6UWU3dJytdmmbzqlq3nNVgso9W2eSIrceLixFIsbjp
-	f3Fs2K2r4r/I1XL6TCKBNpepbWT6dVwlUL6kxzsegTuxUWUs/j6FGg8kja0Nlopw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=to2/bm
+	YwzTvuIACTM73HU3ZIy4Uwf636CjH5A46xNgs=; b=ETsDu0I2yx47eDBDo2rAIV
+	w/C3TLgtUhNCRyQCU2B/mfh11RDK6pjYEmRaUzoF/iWtIzf0oQlpLuPIyHw+xSM0
+	NUGihYVMfMoXmi0F4uEWYclMRFTukoMOgTR94fzPEc8LejR2XFn+qhd201Rb3n0f
+	EwUsYFo/eZTOSQsBVoKnUADJWDoCqg07rrjNY92yI0BnXkxuCoHmdBn2WiTLnO9v
+	g1EKOWMF+s42Y22CuvsagImy2PE0sMzcWRYwyCbRgHkNWdwDUxPBqS0mDck2CU9L
+	gqdANOVFjqMM2mFO20AQBh5eSWA/l8EDDTI+9B9htz4bYz36mSd/5tlsFKG52nRQ
 	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dpeu2339a-1
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dpeu7k3g3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Apr 2026 11:05:45 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63MB5Ibu012766;
-	Wed, 22 Apr 2026 11:05:44 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dpjky1x7b-1
+	Wed, 22 Apr 2026 12:08:44 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63MC5PY1025470;
+	Wed, 22 Apr 2026 12:08:43 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dpjkxt4us-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Apr 2026 11:05:44 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63MB5eQ652298036
+	Wed, 22 Apr 2026 12:08:43 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63MC8eSe30933540
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 22 Apr 2026 11:05:40 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 562632004B;
-	Wed, 22 Apr 2026 11:05:40 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 017D120043;
-	Wed, 22 Apr 2026 11:05:40 +0000 (GMT)
-Received: from [9.111.42.51] (unknown [9.111.42.51])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 22 Apr 2026 11:05:39 +0000 (GMT)
-Message-ID: <f82ad19a-5576-4a10-82f4-1c1577af2fef@linux.ibm.com>
-Date: Wed, 22 Apr 2026 13:05:39 +0200
+	Wed, 22 Apr 2026 12:08:40 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EB8962004E;
+	Wed, 22 Apr 2026 12:08:39 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A39912004D;
+	Wed, 22 Apr 2026 12:08:39 +0000 (GMT)
+Received: from [9.52.217.250] (unknown [9.52.217.250])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 22 Apr 2026 12:08:39 +0000 (GMT)
+Message-ID: <b095898f-96b9-4211-aa99-58cfd5d4e538@linux.ibm.com>
+Date: Wed, 22 Apr 2026 14:08:39 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,117 +62,88 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH v3 3/6] s390x: sclp: Rework
- sclp_facilities_setup() for simpler control flow
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>,
+Subject: Re: [PATCH net-next] Documentation: net/smc: correct old value of
+ smcr_max_recv_wr
+To: Mahanta Jambigi <mjambigi@linux.ibm.com>, andrew+netdev@lunn.ch,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, alibuda@linux.alibaba.com,
+        dust.li@linux.alibaba.com, sidraya@linux.ibm.com, wenjia@linux.ibm.com
+Cc: pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
+        guwen@linux.alibaba.com, netdev@vger.kernel.org,
         linux-s390@vger.kernel.org
-Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        =?UTF-8?Q?Nico_B=C3=B6hr?=
- <nrb@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>, Thomas Huth <thuth@redhat.com>,
-        kvm@vger.kernel.org
-References: <20260421-vsie-stfle-fac-v3-0-3cee84efefa3@linux.ibm.com>
- <20260421-vsie-stfle-fac-v3-3-3cee84efefa3@linux.ibm.com>
+References: <20260422085159.459678-1-mjambigi@linux.ibm.com>
 Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20260421-vsie-stfle-fac-v3-3-3cee84efefa3@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20260422085159.459678-1-mjambigi@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: FM5DfFNL2eOS8OX0xsxsRNx3ohKLV1Wc
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIyMDEwMyBTYWx0ZWRfX8ECGnPlBGSaB
- 8FV5pZ4HJaJsMQ52DoQPxW9djlVelT5n8gQRsbodpc2xw40fQ4YWlwwhBKNgfCg/EXEMgVwrCfU
- SthCPfyV/w2HHe3aXYf4K2J5ICSMDa+bT7kpYEa56N/Ox0nChURU8Cvevy2oDXkNupoDpdRK3Z5
- AtI+72BDj42vv6SQnK+iwP4eQqNFciib6+EBs99R/WupxtxFsyHn/gV5/6dwoRoC1MzmDY6Hkne
- paTIF+ESESn9Tj0Ma77Y700VvrVHwjoDMOPP5nwAQzljG9V6VQkhH/aC7FASlrw1m31iEkK153u
- LHzkJqYk3bXihY2PXCPCHBEIVGzes2+9KQfgWUUstDaCJCs7SjKuAmZskeXRaATGvHdxwH7ux4g
- uvm+Epr9jIRPyao1EnUVseWHikPSjt+Sqyd6TdIIW2iC5h2tSinPFGnOzevNVtTSvdtoLWRu6o5
- Fo0yYPah1S0D3WI+OnA==
-X-Authority-Analysis: v=2.4 cv=C8LZDwP+ c=1 sm=1 tr=0 ts=69e8ab89 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: zoyAkjUNjWupx29W9BUChyFMW9DNL4u5
+X-Authority-Analysis: v=2.4 cv=Ksp9H2WN c=1 sm=1 tr=0 ts=69e8ba4c cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=-ig7opx35W--aWWhI4gA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: FM5DfFNL2eOS8OX0xsxsRNx3ohKLV1Wc
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=NeOwnSWX0FaQQG-veq8A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: NdITvjziovH74ib9c34e16oAwkVOndWK
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIyMDExMyBTYWx0ZWRfXzYYnbu/2OFXc
+ mUMX2FOda1eZt6/TrcBuhF5ugeBDOlfaIBH13pSoD/CKhAoPDVo3jf8XzOV2BMa5sMQzPsx/qqs
+ m0XN5mlThkzyLHNZyFleWd6xjOtmQ5DcBGWun9bk5CFD+OZVO7KkSfh+IB4PRJuq2n5Zel8t2Xe
+ 45jTjDFBwc78s/WYVdCc5GLMrpL+MHnvr4ylAQID8KSe2Q6k3k6Hv+GltWdInMS1ZuQ7lWeuOQh
+ LJTegz//rEqxQl5acRlnz2Zb2gT0YgEyXYOezn5cMFaLw+eCVAkFGn8XosS4Koo1HDadl9E70NC
+ 2bEAK7GIwZmX94vZ8akULgnCGgnK77LTpmEV5EkWDOc6cPZv3NhZwC7CcRJN0Tz4SkiZMBvxLsx
+ PZ0yL8rVfygh1HsyUKvV8YoPD4xUGFhxk7ODRafElGNRz9VfeaBcGyOkzGB8iHjZVQ4lWjNytg5
+ si0Q77UgPI3rB3w5bEw==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-22_01,2026-04-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 suspectscore=0 priorityscore=1501 malwarescore=0
- lowpriorityscore=0 clxscore=1015 bulkscore=0 impostorscore=0 spamscore=0
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
- definitions=main-2604220103
+ bulkscore=0 impostorscore=0 malwarescore=0 phishscore=0 priorityscore=1501
+ lowpriorityscore=0 clxscore=1015 adultscore=0 suspectscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2604220113
 
-On 4/21/26 13:31, Christoph Schlameuss wrote:
-> Reverse the order of operations to allow for early exits with increasing
-> cpu offsets when reading facility bits in the extended range.
+net-next is closed!
+
+On 22.04.26 10:51, Mahanta Jambigi wrote:
+> The smc-sysctl.rst documentation incorrectly stated that the previous
+> hardcoded maximum number of WR buffers on the receive path (smcr_max_recv_wr)
+> was 16. The correct historical value used before the introduction of the sysctl
+> control was 48. Update the documentation to reflect the accurate default value.
+
+s/default/historical/
+or remove the last sentence
+
 > 
-> This is done to ease future additions like the one in the next patch in
-> this series.
-> 
-> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+> Fixes: aef3cdb47bbb net/smc: make wr buffer count configurable
+> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+> Reviewed-by: Sidraya Jayagond <sidraya@linux.ibm.com>
+> Signed-off-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
 > ---
+>  Documentation/networking/smc-sysctl.rst | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/Documentation/networking/smc-sysctl.rst b/Documentation/networking/smc-sysctl.rst
+> index 904a910f198e..279d15e61899 100644
+> --- a/Documentation/networking/smc-sysctl.rst
+> +++ b/Documentation/networking/smc-sysctl.rst
+> @@ -100,14 +100,14 @@ smcr_max_recv_wr - INTEGER
+>  	depending on the workload it can be a bottleneck in a sense that threads
+>  	have to wait for work request buffers to become available. Before the
+>  	introduction of this control the maximal number of work request buffers
+> -	available on the receive path used to be hard coded to 16. With this control
+> +	available on the receive path used to be hard coded to 48. With this control
+>  	it becomes configurable. The acceptable range is between 2 and 2048.
+>  
+>  	Please be aware that all the buffers need to be allocated as a physically
+>  	continuous array in which each element is a single buffer and has the size
+>  	of SMC_WR_BUF_SIZE (48) bytes. If the allocation fails, we keep retrying
+>  	with half of the buffer count until it is ether successful or (unlikely)
+		typo in old documentation: s/ether/either/g
 
-I have a feeling that we start coding ourselves into a corner here.
-Wouldn't something like this be enough to fix the offset checks? With 
-that we don't need checks in sclp_facilities_setup() anymore.
-
-diff --git i/lib/s390x/sclp.c w/lib/s390x/sclp.c
-index 2f902e39..1ffcf448 100644
---- i/lib/s390x/sclp.c
-+++ w/lib/s390x/sclp.c
-@@ -142,6 +142,9 @@ static bool sclp_feat_check(int byte, int bit)
-  {
-         uint8_t *rib = (uint8_t *)read_info;
-
-+       if (read_info->offset_cpu <= byte)
-+               return false;
-+
-         return !!(rib[byte] & (0x80 >> bit));
-  }
-
+> -	we dip below the old hard coded value which is 16 where we give up much
+> +	we dip below the old hard coded value which is 48 where we give up much
+>  	like before having this control.
+>  
+>  	Default: 48
 
