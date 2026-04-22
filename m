@@ -1,60 +1,60 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88E173DE439;
-	Wed, 22 Apr 2026 12:40:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7001B3D1CD4;
+	Wed, 22 Apr 2026 12:51:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776861612; cv=none; b=iaU+U0axMLrcDOCrQPwqIubgcWervDlFCcHvxkj3QO/9ZFcg2Xc1jxFLC48eAnNM0cqG5baHXS+97SV4WQik996Y4sFutRCXdrfCJjqA6mOUEfjWQUjI2DoL96q+4OMOIbEix7zDK+ZHTaT5pkH5/I44YFgzanOV9a/u5WgoFj4=
+	t=1776862270; cv=none; b=pP/r1smluu6CjpvihWNderk3gzuCHEocjDBgagL/3gj3mmRCfXUyzBkXpkSi8dR+d5UOeIhT6KBYqFLn1xA+iNmsWmfoUKCEQ2KJa7gIibuhN5o/JrmZBY5hodzDYMEUdtzxyEm3mXkgFnkk/oYbG424hq8HS7wsR7DLcBIj3rA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776861612; c=relaxed/simple;
-	bh=jX9VT64lMPya7OZF4nzPFFTz7ZRDEXDlEA+UVTZYUNs=;
+	s=arc-20240116; t=1776862270; c=relaxed/simple;
+	bh=qKSk0bujugzo01qNCAajRUp//6Nfu8txmQoFRLIq9C0=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JZz5476zBi9df3hSwYGh/0BmKxFxTnpPMVe+e+CeYl/Hh6D3xjH18MsC8qYmza2Boln/3O8Mzp51tZ68mABDgdv26h3yplJWdarG2Bu7HWMSGL6NDdEhi3SdfAmfxb7PE8pb0PUStBzId5NbgTLWNY1N3LHzq7+5u2xRu00s26o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Q1EJikQU; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=GG+FidM3mRg44/vqAeEOi+/6+Uw32yDYvjbS/cTg8eHbvcLggPgqPlLZuLZMEOeb/JCFbFQ/kjnBC6lgNuxxG04DqMM1+drgyz5Nq6uLO8M8u/Cjr1oZBmwugznNfudXOXlKSCxJ2C9yqRWaWG69SsV51d3YGLoLHV9TNdNdCo0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dMT6OhRz; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Q1EJikQU"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63MAPr4D589831;
-	Wed, 22 Apr 2026 12:40:03 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dMT6OhRz"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63MCL4nd679439;
+	Wed, 22 Apr 2026 12:51:05 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Pa4bLl
-	7XuGTU0OW789cnw/y+W2c1RM4zej8Io9bY/mA=; b=Q1EJikQU6tA5OpULjZMGEj
-	qP6lB24kaEhrTg5jQJBh/TzXSjAqICvjobdLgGD0oxLz68cd0619/5qY+RwCfPkS
-	T0flTdsGcG0+UkOi3olxuUMN3EFX6hcGQ00vA+Cio4epwB9VTRe8n7BEKnFmcRJb
-	RyJVaMvx9nYWUUmKiHXMJnWfgh8hrcK6NBLvUWoZ26ywsvQczfqy0F/AZSlxKs3J
-	2SH5T0F4JzOdJ687W0xoE2X9V34riU0cpfL16Etm0U54Cbjy5R+35SAc4coIJjqy
-	spOyFGgz2RTDZy3W+AfEYt0f2R9wYWxgO6cVBD7nyqUVpfj+5LdPwN4XqC9wBuuw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=7xylnA
+	Zx5b4klSPd+E2R3d4qAXQuNUKBSaxX7mEc9yQ=; b=dMT6OhRzMa9yJL3q2fInO8
+	H5+67VEo4Vf8So0qwbLEkApwIJU9lI9Yc74jBGR5WGW0GptLSZ4pANC6MEZKD5q9
+	j+yjTS3F+hr+DUvK4OFfpxuI5ie4EbU3fIGUMq2tLmFu8Idm9XxNTwtDq9DowiK9
+	dR5ej02g8LtHr51ShJkaaGDQHhgqjWdR/v37k+u7jtx99nuQOURxK3xzkDo5GDa3
+	C5bsyWzdywg/sk3/P+nozy6ugm46QTk5/25+QVNtSCF8JId5NlOYtoaqNtpP2Mgy
+	dv4wpYfTIs1lOQM1QEDQKNQHtp4Cyizuz6qX1FG2ohKRLL9EkswELyewGUQOWDFw
 	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dpeu23fce-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dpeu7k8gw-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Apr 2026 12:40:02 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63MCZMjU031681;
-	Wed, 22 Apr 2026 12:40:01 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dpjkya7m7-1
+	Wed, 22 Apr 2026 12:51:05 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63MCoKEw023897;
+	Wed, 22 Apr 2026 12:51:04 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dpjky28pr-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Apr 2026 12:40:01 +0000 (GMT)
+	Wed, 22 Apr 2026 12:51:04 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63MCdvKj49152332
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63MCp0m435586464
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 22 Apr 2026 12:39:58 GMT
+	Wed, 22 Apr 2026 12:51:01 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E17E320043;
-	Wed, 22 Apr 2026 12:39:57 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id D48D32004B;
+	Wed, 22 Apr 2026 12:51:00 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8740E20040;
-	Wed, 22 Apr 2026 12:39:57 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 4E22C20043;
+	Wed, 22 Apr 2026 12:51:00 +0000 (GMT)
 Received: from [9.111.42.51] (unknown [9.111.42.51])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 22 Apr 2026 12:39:57 +0000 (GMT)
-Message-ID: <8945f49d-b619-40b5-96f8-4ea09504b22d@linux.ibm.com>
-Date: Wed, 22 Apr 2026 14:39:57 +0200
+	Wed, 22 Apr 2026 12:51:00 +0000 (GMT)
+Message-ID: <b19d9db4-81f6-4aa7-981d-aebc69ab5683@linux.ibm.com>
+Date: Wed, 22 Apr 2026 14:51:00 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,17 +62,21 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH v3 6/6] s390x: Add test for STFLE
- interpretive execution (format-2)
+Subject: Re: [PATCH v2 3/4] KVM: s390: vsie: Refactor handle_stfle
 To: Christoph Schlameuss <schlameuss@linux.ibm.com>,
         linux-s390@vger.kernel.org
-Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        =?UTF-8?Q?Nico_B=C3=B6hr?=
- <nrb@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>, Thomas Huth <thuth@redhat.com>,
-        kvm@vger.kernel.org, Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-References: <20260421-vsie-stfle-fac-v3-0-3cee84efefa3@linux.ibm.com>
- <20260421-vsie-stfle-fac-v3-6-3cee84efefa3@linux.ibm.com>
+Cc: David Hildenbrand <david@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20260226-vsie-alter-stfle-fac-v2-0-914974cb922c@linux.ibm.com>
+ <20260226-vsie-alter-stfle-fac-v2-3-914974cb922c@linux.ibm.com>
 Content-Language: en-US
 From: Janosch Frank <frankja@linux.ibm.com>
 Autocrypt: addr=frankja@linux.ibm.com; keydata=
@@ -117,47 +121,45 @@ Autocrypt: addr=frankja@linux.ibm.com; keydata=
  DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
  Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
  phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
-In-Reply-To: <20260421-vsie-stfle-fac-v3-6-3cee84efefa3@linux.ibm.com>
+In-Reply-To: <20260226-vsie-alter-stfle-fac-v2-3-914974cb922c@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: IiJBqFLv0T43rePvLfA9_-L-PUdPGZRP
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIyMDExOCBTYWx0ZWRfX0Mwb/73IW6EG
- wY6Ehm/wJMMy4xnv9dSVFDpw8ou+qwfgfeQGtekeD+6UAS8qt4HVbQlAwqTdIb2ddw7rO02N+o7
- CIHmzO8wYgO5eR2mnxVdMwAU65/PfivOY3EMmLfn1inuo0cojIYXwyZPzRUs5SVoDtLdeeU+z+G
- Sd0kHQC75cL+2NsZ8jEsj3wud+/LFLiHOluYcasdFiFvFk1aelxLtwc9IDzHDK0EnKDzchidFqt
- IE/2UzwWiDzdZmy/FpyE4C4FtKVvsB+yhWKRAIBnRbmuG5cgyreD02VcXsf5DyDs/JD824uPILN
- eOomBbSI4YxsDvjS3uDmn5rQ2kI0a/ivNvhUbLUeXEN+uRNjnSdo9vVsaWw1qBCXUEX69cYoPZg
- uxOdJE+W21R99b4w0K+iDSKvRS8k92BuqvnAL1Vn2+YnUU3NzNRibql3pHizBLkWNNsjZghxb0u
- 3RLkcEsA4JU29e5i5OQ==
-X-Authority-Analysis: v=2.4 cv=C8LZDwP+ c=1 sm=1 tr=0 ts=69e8c1a2 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-ORIG-GUID: JiZJez4MzRcPmpXDTIakFbc6rryvRKh4
+X-Authority-Analysis: v=2.4 cv=Ksp9H2WN c=1 sm=1 tr=0 ts=69e8c439 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=EFOlFAL2pfjPERGPu5gA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: IiJBqFLv0T43rePvLfA9_-L-PUdPGZRP
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=jI7lt5Zo0p4w2OnscCsA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: JiZJez4MzRcPmpXDTIakFbc6rryvRKh4
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIyMDEyMyBTYWx0ZWRfX1zlR8Zun9luc
+ PTWabtS5tlF7eA2bYAVOJLL97PuW7C3uX21qJwVTdPExzSCSluGy/p0SmqcrL5ZaCmhmY3fCU43
+ apzEvCYbkjGKHNBzrLgfB0EcFAcWOKWvBWxhR6xh27GNOa/IB8EJYI/hIUGWhykNMuHjEKzh+hz
+ qzyiG7PdaIPmum7DzM3R6l5+Bghroq94Xvr9p7956pkXDErCVKSXqNZaxWNtawFqS9rgKLLVKo1
+ iwdIYAIAstLPpTTLpjZQl0iQN1oJIxDkXAv4TBDzUMa364dqgYVPCn2Gsx5FZnUDI1PTbXuGvI1
+ jdyDiHrNWbfF2q9IOeol/QLiJo1Kq3Q8kA03TAEDDsu+eUoPllQVZqf1Z3ZG2Xp64MG83hA/Dy0
+ zEuL4dw8Qy+YJu+EznbXSjJKy5nxhzhU3MxVDjjOXqdbuV89kM91q9K6ndeIvVWssU6ZzdPa5Ov
+ +Mwn58qUNAhuDOMBqKA==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-22_01,2026-04-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 suspectscore=0 priorityscore=1501 malwarescore=0
- lowpriorityscore=0 clxscore=1015 bulkscore=0 impostorscore=0 spamscore=0
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
- definitions=main-2604220118
+ bulkscore=0 impostorscore=0 malwarescore=0 phishscore=0 priorityscore=1501
+ lowpriorityscore=0 clxscore=1015 adultscore=0 suspectscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2604220123
 
-On 4/21/26 13:31, Christoph Schlameuss wrote:
-> The STFLE instruction indicates installed facilities.
-> SIE has facilities for the interpretive execution of STFLE.
-> There are multiple possible formats for the control block.
-> Use a snippet guest executing STFLE to get the result of
-> interpretive execution and check the result.
-> With the addition of the format-2 control block invalid format
-> specifiers are now possible.
-> Test for the occurrence of optional validity intercepts.
+On 2/26/26 13:49, Christoph Schlameuss wrote:
+> From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 > 
-> Move prefixes into main method to improve the readability of the
-> log by having prefixes for reports by tests called from multiple
-> places.
+> Use switch case in anticipation of handling format-1 and format-2
+> facility list designations in the future.
+> As the alternate STFLE facilities are not enabled, only case 0 is
+> possible.
+> No functional change intended.
+> 
+> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+> Co-developed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
 Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
