@@ -1,58 +1,59 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25FDF37C11D;
-	Thu, 23 Apr 2026 10:51:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E56839A7F6;
+	Thu, 23 Apr 2026 10:54:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776941496; cv=none; b=EzfRfmDY9yEWSJD4dNYPTysYVHxyWFEPH/0wNOSVsP24uujh4mkWpRhrJTBDb9rQeMk4YfHhAAW6tcTjQsG9yWx2iHc0qIbsiZd79hAuuPcJuTkgS+PMqNZ9B3PdaJuC5s4LOyp7O16E8u0q+WRWwCj39Rqi+wXkBOSlkzoGXHc=
+	t=1776941667; cv=none; b=LNTpN/OsGGkA6/HmKnTCDESE1bidAftIAGE525Iy8qUtCE9DrilQUUXQdqFXcXCOqmxXl0/SM+pGKkYsMIgC+w+wv0xeCjxd48FnYMR53Z2vecpkfd2kd0NbyXgkgnV+gFQCR1A+1LEWLsU31/mMKy7kmxVmvKeLjRAFz7NhZb8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776941496; c=relaxed/simple;
-	bh=lwnQZYpGBnoDDLbMLd73wnOfLBl/th4TW8Kkn1gYvu0=;
+	s=arc-20240116; t=1776941667; c=relaxed/simple;
+	bh=lEagp+3k8Spa+aYhWcPn8aZoIyzsCsn+QNmQPu6rELI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ASlDxqwVLx4yGis5EZdUNndCBM5moR1a8Yi2xZudDZJNDj4UpHcNEgF6jQY0Y5SnPUafFilIQREdpL7OzA6FQNCpTwV4QKV9xg2zB2190fJ20sAsaWR7NL0+TOTYHGg/nlIKKDMDdWe0lJUYJ60pu3s3V7fLWfo+zDuYrKUR99U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ac7JLZub; arc=none smtp.client-ip=148.163.156.1
+	 Content-Type:Content-Disposition:In-Reply-To; b=StHEdCZ/emFxvucEWyTn9p6yBzLRDdhIUTxy3oV5PpLUDmyRr2lSUlvt2HK3dAEuiZU9WewaReWMeWN5+bC1BsfeJP5olY18iewF41dX04R7RNgG5VYSR0aJBs+SW2sqnG6pLSIW8oh5BDDRl59cOYSWOgzlmj6LbYQvDM1aFso=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KIZHBZAX; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ac7JLZub"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63N6kvgM3514986;
-	Thu, 23 Apr 2026 10:51:26 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KIZHBZAX"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63N6wv603229030;
+	Thu, 23 Apr 2026 10:54:17 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=XsmtxtZFdx4nlYYBj8GUQHCxAi452X
-	GQFD1uTC6aPXM=; b=ac7JLZubFc7HudFhppE3umKLDUeEVRq+u5j8N3/SfUhs/X
-	arfSYwTX4K15MDoQqdo+6rZnaeiBUxUAOW1Zqe6WMEMJLvMT3VIywZ2Fc8Omkdi4
-	pTj+wiIYAnkKLFDFCtUngPmn+LxwsVBSfeD5bqc/N/5MoNd/lVhCLQCs/V/0/Q0v
-	eGQRT1WyEgUmnSNItuniK9XnOS1EKQjXgGnYLMAlnIlA8d3HARBInC+NbFaTPtij
-	Nk39olGaVTI1F1J6gHPCAD96YvKe6YdwIPxxzejinmvl/+pqHTvDnZrishygMkuZ
-	FUGT/PVitQYvsoBzUb5SI+Y7JHT6dL9tyzJ6r7LQ==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dpeu28810-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=hPfzzL
+	EnCkfwTfx2ZbFAbPEPqrheLL97qiHOGhGTitI=; b=KIZHBZAX5F6DP77sMLvNux
+	FZl39+tfKMVUGd4MOPNxcFlmh3lMzCcEiXY7GQJA24uKavOpJtR86lXSr2V2ajF+
+	uW3OyBeFmFw9Ukm3sO4JG2Bfk02ksmABl23Xpc4dPyPnTpYh0ka3Lbh3JHb4d/Ny
+	X9R3a3V7EY0V3OFaHmuoBTE6RobIuvuaGXgvDN4WZCOcPr9isTH6wOGF9rh/xh8X
+	oyb3oB8VSXP7J4leHBJOv+AMa1o2pJgvt/kvLhaQ1aclk8/rnY+paiL+KRKLrwKS
+	PsSLswecLgeQpd5KCcLE96doqla6hbqm2GvZGxZZm0fPIT3IccLCuHPQsmg3hChg
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dpeu287sx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Apr 2026 10:51:25 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63NAZVTp023346;
-	Thu, 23 Apr 2026 10:51:25 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dpjkxx8sw-1
+	Thu, 23 Apr 2026 10:54:17 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63NAZOVw011202;
+	Thu, 23 Apr 2026 10:54:16 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dpjky699k-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Apr 2026 10:51:24 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63NApLkp51184026
+	Thu, 23 Apr 2026 10:54:15 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63NAsCMp31588740
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 23 Apr 2026 10:51:21 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 872DE20040;
-	Thu, 23 Apr 2026 10:51:21 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 567892004B;
-	Thu, 23 Apr 2026 10:51:21 +0000 (GMT)
+	Thu, 23 Apr 2026 10:54:12 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1B82F20040;
+	Thu, 23 Apr 2026 10:54:12 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E5FA22004E;
+	Thu, 23 Apr 2026 10:54:11 +0000 (GMT)
 Received: from osiris (unknown [9.52.214.206])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 23 Apr 2026 10:51:21 +0000 (GMT)
-Date: Thu, 23 Apr 2026 12:51:18 +0200
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 23 Apr 2026 10:54:11 +0000 (GMT)
+Date: Thu, 23 Apr 2026 12:54:09 +0200
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>
 Cc: Kevin Brodsky <kevin.brodsky@arm.com>,
@@ -63,68 +64,60 @@ Cc: Kevin Brodsky <kevin.brodsky@arm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390@vger.kernel.org,
         linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 3/6] s390/mm: Complete ptep_get() conversion
-Message-ID: <20260423105118.10371C15-hca@linux.ibm.com>
+Subject: Re: [PATCH v2 4/6] s390/mm: Make PTC and UV call order consistent
+Message-ID: <20260423105409.10371Da2-hca@linux.ibm.com>
 References: <cover.1776264097.git.agordeev@linux.ibm.com>
- <7ad766612a3095c8c8d9a253ef0f484ef98196a5.1776264097.git.agordeev@linux.ibm.com>
+ <7b0e73e3c6f4000f9bf7cb161d8ca9a9f2312d70.1776264097.git.agordeev@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <7ad766612a3095c8c8d9a253ef0f484ef98196a5.1776264097.git.agordeev@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <7b0e73e3c6f4000f9bf7cb161d8ca9a9f2312d70.1776264097.git.agordeev@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIzMDEwNyBTYWx0ZWRfX5S+wMN54K7jB
- VFAHWoUzCfcvHKec+E6tZ3plfnkS7C7o8+GjkD8wGtefXHTuT67ooXkYnLjnybkBhRRbLXH1Hns
- rgV9GmTRfEBCPrkRrV7PgmRdQ+ncYDJpCRh+d9RZZLiGeftZmTa40cU3PxnBr8EX39rORZnbUUN
- 8kM9Tec+5IdkwBynjhgA+YLcbrNmTA73o3oL2Z1OH12WzCrJAZU3VFEL/mLdmSwUqI95D+IX9a+
- VkRgZThFQzz0HdBkL+eSvdUZ74qjq+iDc6dKSbFNKYtJpqmuUCRTg1vAJIHwoW3GkWo8kjVVAyQ
- RlPKp1D9mNc0q11ddqXSccSjFvT4LcL8dEZOfzOiu5Y/LCgkgUWFjICwcJO8hoCssVfD/AXA8AO
- 1WEortow8GF6DtXbT5H7BkRV+QvBqyVl2iKRDuUoB4UfyX9WYgTA265r8qguNCo4zqk8LjoeDm0
- gUkc/kx7U7Ag8a66R5g==
-X-Proofpoint-ORIG-GUID: Tm9jtMLTXeV_oUVbtFqu986bLquLPsUy
-X-Proofpoint-GUID: Tm9jtMLTXeV_oUVbtFqu986bLquLPsUy
-X-Authority-Analysis: v=2.4 cv=XMUAjwhE c=1 sm=1 tr=0 ts=69e9f9ae cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=kj9zAlcOel0A:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=6BLRMVARryNAVYdsrhYA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: GLLWoXTr8z_IeoG4--Vv7oyWzsfXxGBf
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIzMDEwNyBTYWx0ZWRfXwT8Lczbqy7xY
+ OGvraXKfJPG7z9DAO+DoJqu8R0ugjPMYivAs1rA3UYYx55v7PmVxQ4f/WNsz57v2P/YNXhjN58L
+ fRx2y/+gsCFjyC3pRWtjiCn6z6gnvMH4Ko0/YUZut+N61esL8qRYtZTer1zyVqjO05jcupUwijF
+ YNNJYYqs2WuI4RMWJrCxrycaQCoYPKFqNhnlHD3x5rCVCNWKw/PnrYcc4QtnLsPZBaBGX1Xj7QQ
+ Kbgn6iH0ky8G/nobsYG2jgib55Bu7uSazMiUZQb6niXRRltdhBsDPifZCNc2IGjbQVLvLBU4Sv2
+ D94XV6tzXEmdgz3Wf2O2+wFpf3LOCmWTS6mJpSPj/ywxPxbw6cnsalqMckvLhzoigVSRZ3TTikM
+ hy8/VAdlowWqZbU023IkR+NiwJtpY4h5/SyTmkB6teCY8RmHH6gSKjOzdNpF8cGm8gECSzGEhuC
+ p1QS+tnHnKw2fTOCuiQ==
+X-Authority-Analysis: v=2.4 cv=C8LZDwP+ c=1 sm=1 tr=0 ts=69e9fa59 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=E1xz_aSQ8MwAHGTOyykA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: GLLWoXTr8z_IeoG4--Vv7oyWzsfXxGBf
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-23_03,2026-04-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 clxscore=1015 priorityscore=1501 impostorscore=0 bulkscore=0
- spamscore=0 lowpriorityscore=0 phishscore=0 adultscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2604230107
+ adultscore=0 suspectscore=0 priorityscore=1501 malwarescore=0
+ lowpriorityscore=0 clxscore=1015 bulkscore=0 impostorscore=0 spamscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
+ definitions=main-2604230107
 
-On Wed, Apr 15, 2026 at 05:01:21PM +0200, Alexander Gordeev wrote:
-> Finalize commit c33c794828f2 ("mm: ptep_get() conversion") and
-> replace direct page table entry dereferencing with the proper
-> accessors (ptep_get(), pmdp_get(), etc.).
+On Wed, Apr 15, 2026 at 05:01:22PM +0200, Alexander Gordeev wrote:
+> In various code paths, page_table_check_pte_clear() is called
+> before converting a secure page, while in others it is called
+> after. Make this consistent and always perform the conversion
+> after the PTC hook has been called. Also make all conversion‑
+> eligibility condition checks look the same, and rework the one
+> in ptep_get_and_clear_full() slightly.
 > 
-> Override the default getter implementations even though they are
-> currently identical: pud_clear(), p4d_clear(), and pgd_clear()
-> require corresponding architecture-specific getters, but these
-> are not yet defined. This avoids a dependency loop.
-> 
+> Acked-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 > Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 > ---
->  arch/s390/boot/vmem.c           | 32 +++++++------
->  arch/s390/include/asm/hugetlb.h |  2 +-
->  arch/s390/include/asm/pgtable.h | 60 ++++++++++++++++++------
->  arch/s390/mm/hugetlbpage.c      | 12 ++---
->  arch/s390/mm/pageattr.c         | 42 +++++++++--------
->  arch/s390/mm/vmem.c             | 82 ++++++++++++++++++---------------
->  6 files changed, 138 insertions(+), 92 deletions(-)
+>  arch/s390/include/asm/pgtable.h | 39 +++++++++++++++------------------
+>  1 file changed, 18 insertions(+), 21 deletions(-)
 
-Was this a manual conversion, or did you use some tooling?
-
-I'm wondering since I can spot not converted locations, e.g. one in
-__kernel_map_pages().
-
-Besides that:
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Why is this required for this series? It is anything but obvious to
+me. If it is required please add some reasoning e.g. in the cover
+letter or to the above changelog.
