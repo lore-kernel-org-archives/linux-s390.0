@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 661E634A788;
-	Fri, 24 Apr 2026 07:56:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 479A837474A;
+	Fri, 24 Apr 2026 07:57:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777017367; cv=none; b=un4wKtHsFpQOvTFS7RCwX6l4Bv6RHDzLxD2291/ENoy7/qUOAuYIw7tJTy9aXFsimslEAbvaUq/KORZgROQN6czvsNceYHt39+1+i7sb6FQu6sirVmpSg4DO8sE5/FcImAQgX7LNkdjyYUkHaZ7rZT+1osueAKUzmsW4dl+W4Hs=
+	t=1777017442; cv=none; b=GW/y5YWOQ7ZWuqsve8LtHqtUGC205DwI2+XfaK77xyD+gWIGYl1ww5f5ALG+XLEvpZXFOXYB4vDRoPHL3sa3HJVba09eKJ8pi/7flpXpX6zxMV7SLo8XXTRv6AlW9tPR7s7POsTrTz1/Q+FUUMqLrSE2xlIKgpZYxzP0m/T3LV4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777017367; c=relaxed/simple;
-	bh=cOX51pLs474pi005MOfvb17akqyNW7MI+y9gkwPe5rA=;
+	s=arc-20240116; t=1777017442; c=relaxed/simple;
+	bh=czQhppD5qcT7kp2D58dBtgwKrojert5MR4HN8A7JoCs=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=VmOYMmTmghn8+tL2eyd8StOXxapW7Kl5I4NGiWHiZmt47UOPeauvYhAMqAp5kdSKq2KI0ucXtDMDnGt+t+4dPRIo0wls9jkON8LrSZwSPwo1BMa9JCBNTXUIz2P/imDfcZJQijW6G4uMp9BM66iNPfSK4xeXT5h4X3HPjADGIHo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pjktQOmh; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=JxDpDfEt645TJODCHvlkRFNU9ERKC8BTFWudSnSPVdjH2vPMOaxOzXjtVvD7sMrZzAKVM+EXNTcfdfl+jwKIISxc0EjPWJXKr3iBpQhE1D3M6Nu31qLFgkoAL42EjjPCBGRbjtaYJhYmkOzhrH9/HyZF7EjRMKR6qsXJPyZkAuU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BbDHZahC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pjktQOmh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F72EC19425;
-	Fri, 24 Apr 2026 07:56:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BbDHZahC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47849C2BCB5;
+	Fri, 24 Apr 2026 07:57:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777017367;
-	bh=cOX51pLs474pi005MOfvb17akqyNW7MI+y9gkwPe5rA=;
+	s=k20201202; t=1777017441;
+	bh=czQhppD5qcT7kp2D58dBtgwKrojert5MR4HN8A7JoCs=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=pjktQOmhx/sH0iMOwAA99wAlDyOT8OQNlWORxK6FjzzP/ORvSr1hXOhn/+yMLq389
-	 w4khR5Rkb8j6ka5PZIyTIPS1N+f1fvek3m1RjZUdWCQiGm5Ir402sn5Fqqil6w18pN
-	 w0olg0p0PmWPcetDUap1kdx1dQ2ioLKKLQwp93a5J1z9rKEPcqtgs5PeTLm6VcPbi9
-	 hNAh61GkRKILlus9vFvTlsXytTjwZoRhnSuwSM8r8FGl0K86MUah83xIoO93DvTiA+
-	 QD2Oldk8qpEvdGjQvphvV6jBNtYy5P7GuwvVvyrkhTPDbcmxY5J3ruM2C6xAYyLsNN
-	 2zD7l6+rbC6Eg==
-Message-ID: <7b4bf980-4ff3-4f53-8c64-1ba2d85cf1b8@kernel.org>
-Date: Fri, 24 Apr 2026 09:56:01 +0200
+	b=BbDHZahCmaSXeVwPFi6iJr80JFzdWgWyUZOSASDK2YA3RlxF0DSnSc8nVRdxqI/l6
+	 NKtUK2tddUOh3pa2niiMoDP0sHKiaet8QZGOqm0jqM20YXIZ/4fRhSEnTE+9Um0/KW
+	 9VxobQWkypXjTnduj2YF1yPXAc/cthuUaVisPKKOTGMj74iTmte5DCKFAO3EN1U8Nu
+	 4xJJ8+hKZCIDMiM7JhRGVrp+souJTsZtbmtDBV90zyIDl77kLP1gFTmgl2G8oi/Rmr
+	 Lmj/U4gHxFHj+NVPYNEwSoIOdqQ0ZpkgQ4iG7yzLfIBHuc92u9xhHcydN8ezyxXPe4
+	 YMdrN23oz0ITA==
+Message-ID: <7c7da8ae-cd39-4edf-b94f-c79ab85df456@kernel.org>
+Date: Fri, 24 Apr 2026 09:57:16 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,14 +35,14 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 1/3] mm: process_mrelease: expedite clean file folio
- reclaim via mmu_gather
-To: Minchan Kim <minchan@kernel.org>, akpm@linux-foundation.org
-Cc: hca@linux.ibm.com, linux-s390@vger.kernel.org, mhocko@suse.com,
+Subject: Re: [PATCH v1 2/3] mm: process_mrelease: skip LRU movement for
+ exclusive file folios
+To: Michal Hocko <mhocko@suse.com>, Minchan Kim <minchan@kernel.org>
+Cc: akpm@linux-foundation.org, hca@linux.ibm.com, linux-s390@vger.kernel.org,
  brauner@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  surenb@google.com, timmurray@google.com, Minchan Kim <minchan@google.com>
 References: <20260421230239.172582-1-minchan@kernel.org>
- <20260421230239.172582-2-minchan@kernel.org>
+ <20260421230239.172582-3-minchan@kernel.org> <aesg-sj6_VmXyqxb@tiehlicka>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -89,145 +89,45 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260421230239.172582-2-minchan@kernel.org>
+In-Reply-To: <aesg-sj6_VmXyqxb@tiehlicka>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 4/22/26 01:02, Minchan Kim wrote:
-
-Can we make the subject easier to understand?
-
-"mm: process_mrelease: evict clean file folios when reaping a process"
-
-> Currently, process_mrelease() unmaps pages but file-backed pages are
-> not evicted and stay in the pagecache, relying on standard memory reclaim
-> (kswapd or direct reclaim) to eventually free them. This delays the
-> immediate recovery of system memory under Android's LMKD scenarios,
-> leading to redundant background apps kills.
+On 4/24/26 09:51, Michal Hocko wrote:
+> On Tue 21-04-26 16:02:38, Minchan Kim wrote:
+>> For the process_mrelease reclaim, skip LRU handling for exclusive
+>> file-backed folios since they will be freed soon so pointless
+>> to move around in the LRU.
+>>
+>> This avoids costly LRU movement which accounts for a significant portion
+>> of the time during unmap_page_range.
+>>
+>> -   91.31%     0.00%  mmap_exit_test   [kernel.kallsyms]  [.] exit_mm
+>>      exit_mm
+>>      __mmput
+>>      exit_mmap
+>>      unmap_vmas
+>>    - unmap_page_range
+>>       - 55.75% folio_mark_accessed
+>>          + 48.79% __folio_batch_add_and_move
+>>            4.23% workingset_activation
+>>       + 12.94% folio_remove_rmap_ptes
+>>       + 9.86% page_table_check_clear
+>>       + 3.34% tlb_flush_mmu
+>>         1.06% __page_table_check_pte_clear
+>>
+>> Signed-off-by: Minchan Kim <minchan@kernel.org>
 > 
-> This patch implements an expedited eviction mechanism for clean pagecache
-> folios in the mmu_gather code, similar to how swapcache folios are handled.
-> It drops them from the pagecache (i.e., evicting them) if they are completely
-> unmapped during reaping.
-> 
-> Within this single unified loop, anonymous pages are released via
-> free_swap_cache(), and file-backed folios are symmetrically released via
-> free_file_cache().
-> 
-> Signed-off-by: Minchan Kim <minchan@kernel.org>
-> ---
->  arch/s390/include/asm/tlb.h |  2 +-
->  include/linux/swap.h        |  5 ++---
->  mm/mmu_gather.c             |  7 ++++---
->  mm/swap.c                   | 42 +++++++++++++++++++++++++++++++++++++
->  mm/swap_state.c             | 26 -----------------------
->  5 files changed, 49 insertions(+), 33 deletions(-)
-> 
-> diff --git a/arch/s390/include/asm/tlb.h b/arch/s390/include/asm/tlb.h
-> index 619fd41e710e..2736dbb571a8 100644
-> --- a/arch/s390/include/asm/tlb.h
-> +++ b/arch/s390/include/asm/tlb.h
-> @@ -62,7 +62,7 @@ static inline bool __tlb_remove_folio_pages(struct mmu_gather *tlb,
->  	VM_WARN_ON_ONCE(delay_rmap);
->  	VM_WARN_ON_ONCE(page_folio(page) != page_folio(page + nr_pages - 1));
->  
-> -	free_pages_and_swap_cache(encoded_pages, ARRAY_SIZE(encoded_pages));
-> +	free_pages_and_caches(tlb->mm, encoded_pages, ARRAY_SIZE(encoded_pages));
->  	return false;
->  }
->  
-> diff --git a/include/linux/swap.h b/include/linux/swap.h
-> index 62fc7499b408..bdb784966343 100644
-> --- a/include/linux/swap.h
-> +++ b/include/linux/swap.h
-> @@ -414,7 +414,9 @@ extern int sysctl_min_unmapped_ratio;
->  extern int sysctl_min_slab_ratio;
->  #endif
->  
-> +struct mm_struct;
->  void check_move_unevictable_folios(struct folio_batch *fbatch);
-> +void free_pages_and_caches(struct mm_struct *mm, struct encoded_page **pages, int nr);
->  
->  extern void __meminit kswapd_run(int nid);
->  extern void __meminit kswapd_stop(int nid);
-> @@ -433,7 +435,6 @@ static inline unsigned long total_swapcache_pages(void)
->  
->  void free_swap_cache(struct folio *folio);
->  void free_folio_and_swap_cache(struct folio *folio);
-> -void free_pages_and_swap_cache(struct encoded_page **, int);
->  /* linux/mm/swapfile.c */
->  extern atomic_long_t nr_swap_pages;
->  extern long total_swap_pages;
-> @@ -510,8 +511,6 @@ static inline void put_swap_device(struct swap_info_struct *si)
->  	do { (val)->freeswap = (val)->totalswap = 0; } while (0)
->  #define free_folio_and_swap_cache(folio) \
->  	folio_put(folio)
-> -#define free_pages_and_swap_cache(pages, nr) \
-> -	release_pages((pages), (nr));
->  
->  static inline void free_swap_cache(struct folio *folio)
->  {
-> diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
-> index fe5b6a031717..3c6c315d3c48 100644
-> --- a/mm/mmu_gather.c
-> +++ b/mm/mmu_gather.c
-> @@ -100,7 +100,8 @@ void tlb_flush_rmaps(struct mmu_gather *tlb, struct vm_area_struct *vma)
->   */
->  #define MAX_NR_FOLIOS_PER_FREE		512
->  
-> -static void __tlb_batch_free_encoded_pages(struct mmu_gather_batch *batch)
-> +static void __tlb_batch_free_encoded_pages(struct mm_struct *mm,
-> +		struct mmu_gather_batch *batch)
->  {
->  	struct encoded_page **pages = batch->encoded_pages;
->  	unsigned int nr, nr_pages;
-> @@ -135,7 +136,7 @@ static void __tlb_batch_free_encoded_pages(struct mmu_gather_batch *batch)
->  			}
->  		}
->  
-> -		free_pages_and_swap_cache(pages, nr);
-> +		free_pages_and_caches(mm, pages, nr);
->  		pages += nr;
->  		batch->nr -= nr;
->  
-> @@ -148,7 +149,7 @@ static void tlb_batch_pages_flush(struct mmu_gather *tlb)
->  	struct mmu_gather_batch *batch;
->  
->  	for (batch = &tlb->local; batch && batch->nr; batch = batch->next)
-> -		__tlb_batch_free_encoded_pages(batch);
-> +		__tlb_batch_free_encoded_pages(tlb->mm, batch);
->  	tlb->active = &tlb->local;
->  }
->  
-> diff --git a/mm/swap.c b/mm/swap.c
-> index bb19ccbece46..e44bc8cefceb 100644
-> --- a/mm/swap.c
-> +++ b/mm/swap.c
-> @@ -1043,6 +1043,48 @@ void release_pages(release_pages_arg arg, int nr)
->  }
->  EXPORT_SYMBOL(release_pages);
->  
-> +static inline void free_file_cache(struct folio *folio)
-> +{
-> +	if (folio_trylock(folio)) {
-> +		mapping_evict_folio(folio_mapping(folio), folio);
-> +		folio_unlock(folio);
-> +	}
-> +}
-> +
-> +/*
-> + * Passed an array of pages, drop them all from swapcache and then release
-> + * them.  They are removed from the LRU and freed if this is their last use.
-> + *
-> + * If @try_evict_file_folios is true, this function will proactively evict clean
-> + * file-backed folios if they are no longer mapped.
+> As pointed out in the previous version of the patch. I really dislike
+> this to be mrelease or OOM specific. Behavior. You do not explain why
+> this needs to be this way, except for the performance reasons. My main
+> question is still unanswered (and NAK before this is sorted out). Why
+> this cannot be applied in general for _any_ exiting task. As you argue
+> the memory will just likely go away so why to bother?
 
-There is no such parameter.
+I think there was a lengthy discussion involving Johannes from a previous series.
 
-But I do wonder if such a parameter would be better than passing in the MM here.
-
-Also, is there a way to avoid moving the function?
-
+That should be linked here indeed.
 
 -- 
 Cheers,
