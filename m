@@ -1,45 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C8DD34C9AD;
-	Fri, 24 Apr 2026 21:56:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 650523469E7;
+	Fri, 24 Apr 2026 22:49:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777067809; cv=none; b=shL774AJuKc+YtzDroTuRCFVIFCskxgGtbVi8TxC/7nMFmAwuhdmI8Bo5LLKH1Gqc6Tujul8pJpYez/ycMh6902r+hn0k4XHrr7R95nbb6V07ot8Tl6glaKOvewo/WiDe/DaFvxQ0YXieIL/nLmc+MHAYFn8nPqJ/G2KBgwmuU0=
+	t=1777070961; cv=none; b=Xhk55poI4sU2rUNgIMFvqFQTrLTYUBp18+eVNCKLWsqVuGrZMwk/qcmmLia+dZUGlFfk4cbrqWis8wpJ6K9o95v0Z5rWJhQEgrIefidTk5XhdNSY0oSGdOcd7uKFwnaIt32sXDHhg+4OzUVD4b2ZfK2WACzSwqkemr3WvRYU8Is=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777067809; c=relaxed/simple;
-	bh=bDOd/gakIbkBKObfCe2HtqThY9/sGAFIg0LgcuIt8Wc=;
+	s=arc-20240116; t=1777070961; c=relaxed/simple;
+	bh=1l62ftx9rkfVGFVp1ptfxZUhOlbilrk3qypY8gQ/oic=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=V+ZmxZCX+/DFEnuWwsNnb9G7hFRIUsV2Y83Jttu9aziKjeTURCJWC4IVWv6cPLlP90H745nHEwK2n0Y2XP+PM6+xhPFmKy20iq2iWd1vgUWZA60C7hXJWnNIHvgqeTCFvpuP+uagaaX23dX5dA0eQeSyGCc+b4XJWWlxZJBdeyo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EP5Ta0oM; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=ecq0g5egNrO+4J+CsHm77UzW1N3sdXA0q0lU6aJw7V527WCrDUQU0075dEjIgfa9sfVcvl3T1JyBln+wJxoB7CHRhPJrLhxQFavy6woaPdXilEacyGSre+S6Q8C53aDU+5k1HJLbQ74rVuwJfXrWSjxLLm8uXuwUFtnCuT+m68A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HZKfSCGh; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EP5Ta0oM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78664C19425;
-	Fri, 24 Apr 2026 21:56:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HZKfSCGh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB4F0C19425;
+	Fri, 24 Apr 2026 22:49:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777067808;
-	bh=bDOd/gakIbkBKObfCe2HtqThY9/sGAFIg0LgcuIt8Wc=;
+	s=k20201202; t=1777070961;
+	bh=1l62ftx9rkfVGFVp1ptfxZUhOlbilrk3qypY8gQ/oic=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=EP5Ta0oMk2Y+untGzKqrixCmcUbFndrmsNr6pjlfH0xBaEOhKEZjBLObEo1ab3r5a
-	 VcnLsFYRL4Yq9sG999Igj9FIXZQN7oRALgrvT8iOisTIKWQk7/IDBL3nxSu1LnEPL5
-	 h7wT/AhjwNzVUFrMPDFiNXLwf101hJoCwmesVRw1WC7Cvx4zSIks9qByQMX0r8/Lrp
-	 Yzf4M1fBzi3S4+ClbXww0DBvvndtWUsRWpq2CqhSdBSg/y7D/Wj5BE+Rz/3bfdIn+a
-	 sensTX9uA/2CMzrcTLVikpmvhOd25qH00TaSUQkHItwFR+oJEoERHQaEr2My+tyic3
-	 l5yTdF8zC0k0A==
-Date: Fri, 24 Apr 2026 14:56:47 -0700
+	b=HZKfSCGhqeT/Hgx9B3tULabhTtRaySMTyinTdk2FdWIyDC7t40ZprQtYh7JCySR8K
+	 2wPYbEpNGkMwi7xDLMFjRV7dLQE7LLJwIlddQVn2FECNPdx1ldPqq5AgkzujbivYJ8
+	 Mmz7sYngCWxENghv4T3MuDiar1qocWgKK31hWtO8PRYdepJ5+PP6Vc6AvP+Ahpwe+A
+	 810t9AQCNij/dDbk0PuUYbz+cz8ob4pqtii8uFpeeHB1S0PuoufEX743NNQ0PxGGZs
+	 FzoOxw1GEO+PMV0eWGhlJ3prsncgxpRP4l3wgVbN8c7DOAFK7o5HiCWEyGgn+z0QSk
+	 tJuZiIi557lmA==
+Date: Fri, 24 Apr 2026 15:49:19 -0700
 From: Minchan Kim <minchan@kernel.org>
-To: Matthew Wilcox <willy@infradead.org>
+To: Michal Hocko <mhocko@suse.com>
 Cc: akpm@linux-foundation.org, hca@linux.ibm.com,
-	linux-s390@vger.kernel.org, david@kernel.org, mhocko@suse.com,
-	brauner@kernel.org, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org, surenb@google.com,
+	linux-s390@vger.kernel.org, david@kernel.org, brauner@kernel.org,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org, surenb@google.com,
 	timmurray@google.com
-Subject: Re: [PATCH v1 1/3] mm: process_mrelease: expedite clean file folio
- reclaim via mmu_gather
-Message-ID: <aevnH-0yVstaPjiJ@google.com>
+Subject: Re: [PATCH v1 3/3] mm: process_mrelease: introduce
+ PROCESS_MRELEASE_REAP_KILL flag
+Message-ID: <aevzbx_Pk5Cu5exa@google.com>
 References: <20260421230239.172582-1-minchan@kernel.org>
- <20260421230239.172582-2-minchan@kernel.org>
- <aevFb-ZemUo4nB3I@casper.infradead.org>
+ <20260421230239.172582-4-minchan@kernel.org>
+ <aesiYAumkLCyedf0@tiehlicka>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,64 +47,85 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aevFb-ZemUo4nB3I@casper.infradead.org>
+In-Reply-To: <aesiYAumkLCyedf0@tiehlicka>
 
-On Fri, Apr 24, 2026 at 08:33:03PM +0100, Matthew Wilcox wrote:
-> On Tue, Apr 21, 2026 at 04:02:37PM -0700, Minchan Kim wrote:
-> > +++ b/mm/swap.c
-> > @@ -1043,6 +1043,48 @@ void release_pages(release_pages_arg arg, int nr)
-> >  }
-> >  EXPORT_SYMBOL(release_pages);
-> >  
-> > +static inline void free_file_cache(struct folio *folio)
-> > +{
-> > +	if (folio_trylock(folio)) {
-> > +		mapping_evict_folio(folio_mapping(folio), folio);
+On Fri, Apr 24, 2026 at 09:57:20AM +0200, Michal Hocko wrote:
+> On Tue 21-04-26 16:02:39, Minchan Kim wrote:
+> > Currently, process_mrelease() requires userspace to send a SIGKILL signal
+> > prior to the call. This separation introduces a scheduling race window
+> > where the victim task may receive the signal and enter the exit path
+> > before the reaper can invoke process_mrelease().
+> > 
+> > When the victim enters the exit path (do_exit -> exit_mm), it clears its
+> > task->mm immediately. This causes process_mrelease() to fail with -ESRCH,
+> > leaving the actual address space teardown (exit_mmap) to be deferred until
+> > the mm's reference count drops to zero. In Android, arbitrary reference counts
+> > (e.g., async I/O, reading /proc/<pid>/cmdline, or various other remote
+> > VM accesses) frequently delay this teardown indefinitely, defeating the
+> > purpose of expedited reclamation.
+> > 
+> > This delay keeps memory pressure high, forcing the system to unnecessarily
+> > kill additional innocent background apps before the memory from the first
+> > victim is recovered.
 > 
-> If we already know that the folio is for a file (and I think we do?)
-> then we can just use folio->mapping here.  On the other hand, if it
-> could be KSM or something else weird, carry on.
+> Thanks, this makes the motivation much more clear and usecase very
+> sound.
+> 
+> > This patch introduces the PROCESS_MRELEASE_REAP_KILL UAPI flag to support
+> > an integrated auto-kill mode. When specified, process_mrelease() directly
+> > injects a SIGKILL into the target task.
+> > 
+> > To solve the race condition deterministically, we grab the mm reference
+> > via mmget() and set the MMF_UNSTABLE flag *before* sending the SIGKILL.
+> > Using mmget() instead of mmgrab() keeps mm_users > 0, preventing the
+> > victim from calling exit_mmap() in its own exit path.
+> 
+> Why is this needed? Address space tear down is an operation that can run
+> from several execution contexts.
 
-Thanks for the review. It made me think about the shmem corner cases.
+Agreed.
 
-Since we already check folio_test_anon(folio) before calling this path,
-we know we are dealing with non-anonymous folios.
+> 
+> > This ensures that
+> > the memory is reclaimed synchronously and deterministically by the reaper
+> > in the context of process_mrelease(), avoiding delays caused by
+> > non-deterministic scheduling of the victim task.
+> 
+> The memory is still reclaimed synchronously from the mrelease context.
+> This is really confusing.
+> 
+> Please also explain why do you need to do all that ugly
+> task_will_free_mem hoops. Why cannot you simply kill the task if
+> task_will_free_mem fails (if PROCESS_MRELEASE_REAP_KILL is used).
 
-My specific concern was shmem folios, which are not anonymous but can
-be in the swap cache. While mapping_evict_folio() might technically work
-for them at this point (since remove_mapping handles it but I might miss),
-it feels unintentional and fragile because mapping_evict_folio() is
-primarily designed for page cache eviction, not swap cache.
+I wanted to handle shared address spaces.
+Even though we are okay with the target task not being in a SIGKILL
+state yet (since we are about to kill it), we must ensure that all
+*other* processes sharing the same mm are also dying.
 
-To make this robust and safely adopt your suggestion of using folio->mapping
-directly, I think we should handle swap cache folios explicitly
-in the main loop like this:
+If we simply bypass the check and force a kill when there are living sharers,
+the memory will NOT be freed even after the target task dies because
+the other processes still pin the mm.
 
-void free_pages_and_caches(struct encoded_page **pages, int nr,
-		       bool try_evict_file_folios)
+So, to address this, I think we need to modify task_will_free_mem() slightly
+to ignore the exit state of the *target* task only, while still checking that
+all *other* sharing processes are dying:
+
+static bool task_will_free_mem(struct task_struct *task, bool ignore_exit)
 {
-    for (int i = 0; i < nr; i++) {
-	    struct folio *folio = page_folio(encoded_page_ptr(pages[i]));
+...
+/* ignore tarket task's signal state */
+if (!__task_will_free_mem(task, ignore_exit))
+    return false;
 
-	    if (folio_test_anon(folio) || folio_test_swapcache(folio))
-		    free_swap_cache(folio);
-	    else if (unlikely(try_evict_file_folios))
-		    free_file_cache(folio);
-	    ...
-    }
+/*
+ * but other processes sharing the mm with target must be exit
+ * state
+ */
+for_each_process(p) {
+    ...
+    if (!__task_will_free_mem(p, false))
+	return false;
 }
-
-And then we can use folio->mapping directly in the helper:
-
-static inline void free_file_cache(struct folio *folio)
-{
-    if (folio_trylock(folio)) {
-	    mapping_evict_folio(folio->mapping, folio);
-	    folio_unlock(folio);
-    }
+...
 }
-
-This way, we are guaranteed that anything reaching free_file_cache() is a
-non-swapcache file folio, making the direct use of folio->mapping safe.
-
-Please let me know if I am missing something here.
