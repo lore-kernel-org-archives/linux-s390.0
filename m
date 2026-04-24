@@ -1,147 +1,155 @@
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15408203710
-	for <linux-s390@vger.kernel.org>; Fri, 24 Apr 2026 07:16:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777015019; cv=pass; b=qrbauYiwGIerxOrKKwU52mf75JKCfNNH/jYQxXz2ou4IkqJYCJYm6AqW3542wNm5/inzxzzsm4y9eSrr/phwYUnCuYDWvGX1OBOSsgM4jwMXQk3jxZZV1ZP/ElzuQEax6h/lNcGz0sl6YwXXi/bTOiRzrvyx/A+YVIP6n4Rwt/w=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777015019; c=relaxed/simple;
-	bh=W+ssi1VXndSbA3jTir7s/4LRoYtNUVNtJuZsueaDSGE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MOpCsgeVxlc5YzY2DHlaI3h/fRhwRKkQ6khl9QsisH4zcgtq6b/XhQQBuPyt3UNruyxdDNpLV2RTHazuTg0E10ArYU1Hd+1REctRe59vzt5GEDMb9qZrL9MYl2CP6eFhEJw3VGL1wAeIhay2ImV8wt1oeybTXO0QbuwLW0MDcPA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ii/v758E; arc=pass smtp.client-ip=209.85.208.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C6B41A6824
+	for <linux-s390@vger.kernel.org>; Fri, 24 Apr 2026 07:51:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777017087; cv=none; b=HtWODuNeMf7b44znmumCSKl6lKJryOY5wkbgnDi3MPYWEmdxPJux4xkLOXAAgoJrD5H4k2xabB0hAfbSP82p1AfzdvZgfqUhzetRTWuGhjNQPH8fETc0gz3O+ljzxmmdxpKplpwjSIlU6RXyF012vaJHD5D5cWzJXXKoJRBBPWg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777017087; c=relaxed/simple;
+	bh=gdNG1cqfsPosQRSrNZsmITbBbjQla+Qex8R0xXd1P50=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=NCd0KYJHddYdcZm5j32pwoo7MGN8NqEdIlryGJGw33QSLjuW73UpERBdM496kyruJWlNZvNfFkeEZaS0go7TRnKmPvzM5pu9n42CQcJBFRZthdrjbK6lzQ7Y1CdxO99YoXv3jRtff5XbWbzQyDzI6zsv7yELTCLgeJd9l6H0LkQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=E1wx5+HK; arc=none smtp.client-ip=209.85.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ii/v758E"
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-67893fba9c3so2357671a12.2
-        for <linux-s390@vger.kernel.org>; Fri, 24 Apr 2026 00:16:57 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1777015016; cv=none;
-        d=google.com; s=arc-20240605;
-        b=Dc/mylDkZzDQB1jDH2I8w3xpK9J8BRPHiPKT7IqX8YGpTni5925NudipKXAbhwdzso
-         XmlRQ84ZeINQtpVyPGlDu8MNzWG3ti6r7yM1DsiCX+0QdOgrnvHugeu21FtThZFACJQm
-         GggzzMaZeXykm4zIgJ1PiatWvPbkq5IPB31jsjubR0jlYrnUvJtrnFoJAGo8oLa1uShu
-         HtTnNKwGkZ367oy82J2DhaTdcofmWaEKgPUQK5EQll9LOSvq3GMY0h6+09NfOjD0GuvN
-         pm6H1SNd4m9w6HhpvlZqwu5ZmwOfVhG9BRbozr/QWQkUJa64fdZznHGUCB0aXWGHeYrd
-         gslw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=8uv1ap7wfpWSK/rjkumTWgHiVOSnLQXCSFDMADgPR1Y=;
-        fh=2YY3isReSougrUMRSF+ojyONKGIMMqpo+7QghDGGiEY=;
-        b=VnCX8sT+putRMIYKjOu5R2Z0oROHu3sx9Dq6mh+5TnJYhgI42BEZwk6cw5DsfXQ/t7
-         2gKBjOzrUFYPLAezGerl9RCh8gvwYka1Y2zFGUlSuT8grC4D1iMEtUcrOB66UCvzhT8S
-         yhCYo2cuy0+9wM3pHJWAX+KzdjFgCqr2dm3TCuIruiB1S+iDovTK+MWjFEfHVeRRkAGy
-         FAs6rH9jh/5A+KBJALm7OGWQARdA/DVJ+Cj2pq36dJT8XucmV1q2H2AkG/UDIKz7ETGK
-         nGze1+OqlzVmsxCZNwYumxWijWK5wFHc3vLviYgkgXjGrabk6q+ULRwFJj+gslUiF0Qm
-         48Gg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="E1wx5+HK"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-488af9fdaa7so45267285e9.1
+        for <linux-s390@vger.kernel.org>; Fri, 24 Apr 2026 00:51:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777015016; x=1777619816; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=8uv1ap7wfpWSK/rjkumTWgHiVOSnLQXCSFDMADgPR1Y=;
-        b=Ii/v758ESAPCph1vuePCXkFXQqx0DIewWiAP07QoulSKxGGgKcF7EQtj2F//bLSVrp
-         Talx2NtuhA/ZUOBYlmrO8renTgK6nt+VJyOjno4TJHW4h9ly6b4bRXvr7ARjBID1riEr
-         68MUQnetBgUwPdBwa6ZKbyOFeLUUzzSkFXmO6ARbMYRVTQJgup1FFTsxJVEEb9S5Puy/
-         6JX3j5/S/ZxI2cunsZYGL0OZuP9uRdXtuQlOfc/hwg9lXTYhrK+iSiZfzqGUEyy946f0
-         s0chDp59e0d913IZJYSiAXs9zNEGqVw9BiUldEhCCK9UHAW54FloxLHH9dGsTq8Df+7v
-         d4ug==
+        d=suse.com; s=google; t=1777017084; x=1777621884; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=2/JtEzMAf3HHrd01fVfPU0c1qsQLQRrKfL4Fb7KVaB4=;
+        b=E1wx5+HKZAe80RUbt/fCx+diMNkuMRBiIpsXZZM23fCTcZdn6aIFqNYJpE7fNMLySd
+         OSD3TO9HbUIaJjAorThSCpZbQyeeamgHyMOsGYgg9WnIvEoXfg3MQQEoFmaXFWe/l2p7
+         040pyLvnGi8Hc4Q1VZ0uDkIFGsiqLDaID9sEkdXU0N4tRNIhJIg2d4aKvkHz4BY+hrz7
+         caHjkoNO9jPX3kVaviVSk+/6z2/zOfIx0euDeqKAIks4BQodCPjvXh5j6NNVppzBEgu6
+         lt+jEMlFJegW7EGz0jPSfpph82LoVG+6hebbrigUYbIeZbN+HCVoDgAyIaGPvEhVVtmz
+         oi2g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777015016; x=1777619816;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=8uv1ap7wfpWSK/rjkumTWgHiVOSnLQXCSFDMADgPR1Y=;
-        b=dBsHc6ijLUo+HLAIi0o3cP91Fmms9JTYuw3xIAVwQaHbOSqntYDt2VMrb+QxyPQ8CB
-         Aw0VHorhzwUnB0d+KTP+BnpYP0wIg9zW1Hrn9K+9uhqPuDXMRomFl58nc4yBZ/9hx340
-         3I37H/Rbyl1GB7qPQWj6J3GrAir6DkSdvh1upzotzV1qxzr1HLGV5H7Fq0wA8iUEZ3cG
-         4UtsBUFabztEp3DFRXP3iY/yxmoiPY4Uk6hlJqalcaii/5RPXPuLoC/1VLHK3m2xefix
-         oJCMDpHG5A39Kb927wchwC9htRyJw0TMaMbeEOksEOf9wc93K9sJngUiv+ZLDcstTyof
-         +AmA==
-X-Forwarded-Encrypted: i=1; AFNElJ8w3x1wECJWbLCKfUU8vo5lxGX6pOrje9q4c8Z98ZQBsmI+FWaT8riDvMYu/jFcmhHE5bIpZmuiqVf6@vger.kernel.org
-X-Gm-Message-State: AOJu0YwfGhL6Wm2kYYXC6g51TS/XugpIjSx1/NEHsWU8GhAJ8TO5w4So
-	ZNXVtTOJSMeO0ZTzX0QDbpwn/ToofFS+i6OWrpXobS76WY3ffzbY4lRkIlEWsbF5U+lXW63FI6g
-	kI9eL5alMZ2pSyPnJd5iVhHpF23iFpT4=
-X-Gm-Gg: AeBDiet7BsXNNkTVnaCeu7j5UAeOJT2KYZCx1wENeuMqOIIM1g+nrV+waQk6M669XcW
-	K6PLj5MutZ/cb7NEA5sJS0blPFnIh06aY9ownbbZx4Q5VoX4KAD1wEpzZ1NCceV9xsEXqm9STMf
-	e84ZRpA2zL6k+Hz0aueevMBru39HszjqPqwv3ppbDg9SIyNzH1JZyjBue9+iRggvm/Yrcziui7J
-	oIfgxJd/ZwB1lBNh0IGFJhaO8cX5gQtlgNBPxtEQWAFmaDGFYJYf2HC6mC9lKY3RjqT+s+EDJ1v
-	DXFM+CrKuTEeLLanQrPMQ9lvDQQ42nGdMUn2Mv/lSAQIZGtgS6Q=
-X-Received: by 2002:a17:907:1ca1:b0:bad:dfe1:6a56 with SMTP id
- a640c23a62f3a-baddfe16c2dmr60367766b.30.1777015016077; Fri, 24 Apr 2026
- 00:16:56 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1777017084; x=1777621884;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=2/JtEzMAf3HHrd01fVfPU0c1qsQLQRrKfL4Fb7KVaB4=;
+        b=QNrd6/ukfzRxF28xld/MhOcWjTO8g3DNSfcVenOU/LmSLYSPD3YgJ28ds3ZHONLwga
+         AvglyfG5hJyhjQAXvN+q8wDiLSFhet8jJ74PVE0OIXkC6A45oBOmuiFgo21JxSezwoNe
+         B7RI/svaw+TDxUn22zdmiVCZHlByQ1L22GU07q0w4XhvYXTnHOLg4vA4p0dSZ3vFg1c8
+         x5LM2jBGA4TD0kn8OQhU7csqQ52gP/Ir+xjqyvLc+1dYPWYd55edLM88xHPMAHtheek3
+         V434vZiFVs/LGKeV60HtSC5AJfu9D61L6yBkhBwzVhqOx+4m/ff+2Qj35HqwKKTR9gxa
+         nHLw==
+X-Forwarded-Encrypted: i=1; AFNElJ+5I6TvyeiDfN1yYhx2uGvpWslpX3FhcGm4vWLmLtYCfhK7IETcjlCzVHWp/cQxET1+41N9jpULBeVK@vger.kernel.org
+X-Gm-Message-State: AOJu0YwQ/h+wAuXqyLxEgqZyon0MUymDZeXR77b1RCBKDfYuFCjnZTCf
+	R/Rkm4WKrn88o6yZ0ty5pglwT8BpogeJl8JCBLA+K95EYBIs3npp28xkCeX1h5iVHI59ZCryqnu
+	tQJ5eh9M=
+X-Gm-Gg: AeBDiesE1dNy4HTooqPUo8VqZBdtZQxxSDgyWgmpJ0FKrJRbsDHu2VtXU2UirRbzoRm
+	YFny/4+FZ+lhi3RU/NxqAy0Vc/wSS44293H0z86+rVH7wwDqmU0GYwfi6MwUouSHfg4ZdtnXiOJ
+	mhwg0GaTuC0n3/Q2/6oP2DNuwtP56k5ERJ6q9d45cjFtBOGBSa5puoTXFxZNor1yzS+RiJzgnLf
+	hL8+R/8Wiz876IKHrYEgkKHoPoE3QznQV5Ll4h6djX8NdGZPDxmMJlAY9S1y6tnUgVekqCAvX5X
+	pw/Rrq7C5uvewJTBnakSjcEzMf725xghaTw1OOShc2e/KH3FFb/mH8IWCwlrZmS4QgtSSgnmuZI
+	3tVAyqMTGNsVaZF4KDy0LEpPlpPELNUsljpc8wNx6Eq1uTkBINXYSr5XkSUtx/GStu99QX5jQi5
+	j0MuJXScTQXTQoicVdvJLEJe2ybgujjftzdylPDX9DJ7wcdc4=
+X-Received: by 2002:a05:600d:8496:10b0:489:a4:e555 with SMTP id 5b1f17b1804b1-48900a4e79fmr243967435e9.21.1777017083931;
+        Fri, 24 Apr 2026 00:51:23 -0700 (PDT)
+Received: from localhost (109-81-17-171.rct.o2.cz. [109.81.17.171])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48a5aa3ae83sm334399355e9.12.2026.04.24.00.51.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 Apr 2026 00:51:23 -0700 (PDT)
+Date: Fri, 24 Apr 2026 09:51:22 +0200
+From: Michal Hocko <mhocko@suse.com>
+To: Minchan Kim <minchan@kernel.org>
+Cc: akpm@linux-foundation.org, hca@linux.ibm.com,
+	linux-s390@vger.kernel.org, david@kernel.org, brauner@kernel.org,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org, surenb@google.com,
+	timmurray@google.com, Minchan Kim <minchan@google.com>
+Subject: Re: [PATCH v1 2/3] mm: process_mrelease: skip LRU movement for
+ exclusive file folios
+Message-ID: <aesg-sj6_VmXyqxb@tiehlicka>
+References: <20260421230239.172582-1-minchan@kernel.org>
+ <20260421230239.172582-3-minchan@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <cover.1776808209.git.mst@redhat.com> <006f9142e591ba8c340c3b354aee76aec5c285b9.1776808210.git.mst@redhat.com>
-In-Reply-To: <006f9142e591ba8c340c3b354aee76aec5c285b9.1776808210.git.mst@redhat.com>
-From: Magnus Lindholm <linmag7@gmail.com>
-Date: Fri, 24 Apr 2026 09:16:43 +0200
-X-Gm-Features: AQROBzARFJV36R4zYM7xbfHPyy5Ua1V3EjGjDIipUn9qIBzgKGxem5ahIafz8os
-Message-ID: <CA+=Fv5T83qH-c0U4eXO84HQmG=225SepaxVYzrpQh_CWMhG5hg@mail.gmail.com>
-Subject: Re: [PATCH RFC v3 10/19] mm: remove arch vma_alloc_zeroed_movable_folio
- overrides
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, 
-	David Hildenbrand <david@kernel.org>, Vlastimil Babka <vbabka@kernel.org>, 
-	Brendan Jackman <jackmanb@google.com>, Michal Hocko <mhocko@suse.com>, 
-	Suren Baghdasaryan <surenb@google.com>, Jason Wang <jasowang@redhat.com>, 
-	Andrea Arcangeli <aarcange@redhat.com>, Gregory Price <gourry@gourry.net>, linux-mm@kvack.org, 
-	virtualization@lists.linux.dev, 
-	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
-	Greg Ungerer <gerg@linux-m68k.org>, Geert Uytterhoeven <geert@linux-m68k.org>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
-	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	"H. Peter Anvin" <hpa@zytor.com>, linux-alpha@vger.kernel.org, 
-	linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260421230239.172582-3-minchan@kernel.org>
 
-On Wed, Apr 22, 2026 at 12:01=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com=
-> wrote:
->
-> Now that the generic vma_alloc_zeroed_movable_folio() uses
-> __GFP_ZERO, the arch-specific macros on alpha, m68k, s390, and
-> x86 that did the same thing are redundant.  Remove them.
->
-> arm64 is not affected: it has a real function override that
-> handles MTE tag zeroing, not just __GFP_ZERO.
->
-> Suggested-by: David Hildenbrand <david@kernel.org>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+On Tue 21-04-26 16:02:38, Minchan Kim wrote:
+> For the process_mrelease reclaim, skip LRU handling for exclusive
+> file-backed folios since they will be freed soon so pointless
+> to move around in the LRU.
+> 
+> This avoids costly LRU movement which accounts for a significant portion
+> of the time during unmap_page_range.
+> 
+> -   91.31%     0.00%  mmap_exit_test   [kernel.kallsyms]  [.] exit_mm
+>      exit_mm
+>      __mmput
+>      exit_mmap
+>      unmap_vmas
+>    - unmap_page_range
+>       - 55.75% folio_mark_accessed
+>          + 48.79% __folio_batch_add_and_move
+>            4.23% workingset_activation
+>       + 12.94% folio_remove_rmap_ptes
+>       + 9.86% page_table_check_clear
+>       + 3.34% tlb_flush_mmu
+>         1.06% __page_table_check_pte_clear
+> 
+> Signed-off-by: Minchan Kim <minchan@kernel.org>
+
+As pointed out in the previous version of the patch. I really dislike
+this to be mrelease or OOM specific. Behavior. You do not explain why
+this needs to be this way, except for the performance reasons. My main
+question is still unanswered (and NAK before this is sorted out). Why
+this cannot be applied in general for _any_ exiting task. As you argue
+the memory will just likely go away so why to bother?
+
 > ---
->  arch/alpha/include/asm/page.h   | 3 ---
->  arch/m68k/include/asm/page_no.h | 3 ---
->  arch/s390/include/asm/page.h    | 3 ---
->  arch/x86/include/asm/page.h     | 3 ---
->  4 files changed, 12 deletions(-)
->
-> diff --git a/arch/alpha/include/asm/page.h b/arch/alpha/include/asm/page.=
-h
-> index 59d01f9b77f6..4327029cd660 100644
-> --- a/arch/alpha/include/asm/page.h
-> +++ b/arch/alpha/include/asm/page.h
-> @@ -12,9 +12,6 @@
->
->  extern void clear_page(void *page);
->
-> -#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
-> -       vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
-> -
->  extern void copy_page(void * _to, void * _from);
->  #define copy_user_page(to, from, vaddr, pg)    copy_page(to, from)
->
+>  mm/memory.c | 13 ++++++++++++-
+>  1 file changed, 12 insertions(+), 1 deletion(-)
+> 
+> diff --git a/mm/memory.c b/mm/memory.c
+> index 2f815a34d924..fcb57630bb8d 100644
+> --- a/mm/memory.c
+> +++ b/mm/memory.c
+> @@ -1640,6 +1640,8 @@ static __always_inline void zap_present_folio_ptes(struct mmu_gather *tlb,
+>  	bool delay_rmap = false;
+>  
+>  	if (!folio_test_anon(folio)) {
+> +		bool skip_mark_accessed;
+> +
+>  		ptent = get_and_clear_full_ptes(mm, addr, pte, nr, tlb->fullmm);
+>  		if (pte_dirty(ptent)) {
+>  			folio_mark_dirty(folio);
+> @@ -1648,7 +1650,16 @@ static __always_inline void zap_present_folio_ptes(struct mmu_gather *tlb,
+>  				*force_flush = true;
+>  			}
+>  		}
+> -		if (pte_young(ptent) && likely(vma_has_recency(vma)))
+> +
+> +		/*
+> +		 * For the process_mrelease reclaim, skip LRU handling for exclusive
+> +		 * file-backed folios since they will be freed soon so pointless
+> +		 * to move around in the LRU.
+> +		 */
+> +		skip_mark_accessed = mm_flags_test(MMF_UNSTABLE, mm) &&
+> +				     !folio_maybe_mapped_shared(folio);
+> +		if (likely(!skip_mark_accessed) && pte_young(ptent) &&
+> +		    likely(vma_has_recency(vma)))
+>  			folio_mark_accessed(folio);
+>  		rss[mm_counter(folio)] -= nr;
+>  	} else {
+> -- 
+> 2.54.0.rc1.555.g9c883467ad-goog
+> 
 
-From an alpha perspective, this looks good to me.
-
-Acked-by: Magnus Lindholm <linmag7@gmail.com>
+-- 
+Michal Hocko
+SUSE Labs
