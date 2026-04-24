@@ -1,135 +1,128 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 479A837474A;
-	Fri, 24 Apr 2026 07:57:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBD682F25F0
+	for <linux-s390@vger.kernel.org>; Fri, 24 Apr 2026 07:57:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777017442; cv=none; b=GW/y5YWOQ7ZWuqsve8LtHqtUGC205DwI2+XfaK77xyD+gWIGYl1ww5f5ALG+XLEvpZXFOXYB4vDRoPHL3sa3HJVba09eKJ8pi/7flpXpX6zxMV7SLo8XXTRv6AlW9tPR7s7POsTrTz1/Q+FUUMqLrSE2xlIKgpZYxzP0m/T3LV4=
+	t=1777017448; cv=none; b=NvXZtNss7nlMptlUHqg2/ncNQGHzc6ClQyFBa+vmK4a9GrEXCo349bh5AT7bmZZtd6mCBmmyvTeBC87HmNsnNjKwlH4MFKoyb8+mLeNS0vy3b1/tZOM6sfRsr7iFzIXhlQ46+xF27ltETTfGjYJkkmxxDtWM7SFyMYGRMPVBT3I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777017442; c=relaxed/simple;
-	bh=czQhppD5qcT7kp2D58dBtgwKrojert5MR4HN8A7JoCs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JxDpDfEt645TJODCHvlkRFNU9ERKC8BTFWudSnSPVdjH2vPMOaxOzXjtVvD7sMrZzAKVM+EXNTcfdfl+jwKIISxc0EjPWJXKr3iBpQhE1D3M6Nu31qLFgkoAL42EjjPCBGRbjtaYJhYmkOzhrH9/HyZF7EjRMKR6qsXJPyZkAuU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BbDHZahC; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1777017448; c=relaxed/simple;
+	bh=PIeHOAwGv7BR2+lUgKRtaZEi63/Z6vyq4F9Xa9F8Rio=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IPEF1yuJRFUwK6W2l7JS9DUIKj6tK2sUnzVYRVv48IHw2J5X0LLCfze3PLuk/tUM3zTyrus4bHxEQvB9fL7wWA7NxW9LPS7sIbebDuJxnxosZZiC3YczNWnZRUoknMks1RVVgvKyziTrzHpOC7V0eLzdKigRkq4lksAHFqv5S7g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=c21f8Acl; arc=none smtp.client-ip=209.85.221.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BbDHZahC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47849C2BCB5;
-	Fri, 24 Apr 2026 07:57:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777017441;
-	bh=czQhppD5qcT7kp2D58dBtgwKrojert5MR4HN8A7JoCs=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=BbDHZahCmaSXeVwPFi6iJr80JFzdWgWyUZOSASDK2YA3RlxF0DSnSc8nVRdxqI/l6
-	 NKtUK2tddUOh3pa2niiMoDP0sHKiaet8QZGOqm0jqM20YXIZ/4fRhSEnTE+9Um0/KW
-	 9VxobQWkypXjTnduj2YF1yPXAc/cthuUaVisPKKOTGMj74iTmte5DCKFAO3EN1U8Nu
-	 4xJJ8+hKZCIDMiM7JhRGVrp+souJTsZtbmtDBV90zyIDl77kLP1gFTmgl2G8oi/Rmr
-	 Lmj/U4gHxFHj+NVPYNEwSoIOdqQ0ZpkgQ4iG7yzLfIBHuc92u9xhHcydN8ezyxXPe4
-	 YMdrN23oz0ITA==
-Message-ID: <7c7da8ae-cd39-4edf-b94f-c79ab85df456@kernel.org>
-Date: Fri, 24 Apr 2026 09:57:16 +0200
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="c21f8Acl"
+Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-4411e1eba51so4066136f8f.3
+        for <linux-s390@vger.kernel.org>; Fri, 24 Apr 2026 00:57:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1777017442; x=1777622242; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=PQWnF9NzCxgEjMbfmZKZ7IVW4SmCDS5kYe81JwXOOKY=;
+        b=c21f8Aclt6aiqnDVWqWomBX9AbFYWVgPJs9lJOWJLIjBJhP/5Pove9nLakDpOJ2d/9
+         IMcUzmePKPz7EYoNbcVjYas9dWVNPdrhqqW0YZ45+XVkX12pE2eunK8Xy1GFxQd0yi+g
+         7L3IPno53KfUY8MacNHAIe70ER4s1evFGUawKdIeoqJRkcJcj6azUPUL6svNfHelnzjz
+         x/kBJt9VNSeK8HyYtDl2P8A1Il2rBO6Sj5PhKwpEzuW5/efFSAjBg5gDVcnj9cTciPjm
+         jDF4PVhO8+QvDLSbxcL69GYIoEBsJUF8iaOjPocM8bL23mtCRhWlGis5I7wr0xoTD5Fs
+         PVbw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777017442; x=1777622242;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=PQWnF9NzCxgEjMbfmZKZ7IVW4SmCDS5kYe81JwXOOKY=;
+        b=OFSYb05QykBz0nx8hcA+LVF6FpkyZ/vlBWdos8PDxMGEYehVXIdS4RMugwUBKj/OD4
+         6kqSSeaKeDvD43ncHbQhFdpRCCMKjyMX05YbrTxi4Lh2Bjt7xNKFrzOYtD2MoTeOyY1z
+         WZNrl1TKlJzkTVQrvwZEbDMMuODkNU3X4gXOhKgbmlFYYople0O6NBUmfRbw+rPCBUt9
+         nK2RUPQLG/MHDFZc5tX1WrmrdDSoZeRPnkpH4yYsyQEojvEnJ3OO/SLTHPwZuFXOkk7C
+         OHrhSFf1932IRb61mEDI1dDUNpE3liL+16w3Mxi4QkvsZDdwu0kioVw2xaVeVIPhYmYE
+         PEdA==
+X-Forwarded-Encrypted: i=1; AFNElJ8L1G/DUOzFzUY/0ibpBhgtaZC5ecnqrIPa9N/wWH8wfj9pGHB213BGzg9zJMGV1ODaV+JyUoyF6gGs@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz9aPMauJ9GlmbT3k2rlIo+C2+rgSubPd0i1kNDRqreKQ5g6rtP
+	aNOcjRa5iMt4aY+wWgzccBgkelgCwKwb/2gvvWQiM5qisE76wQdF/IHwkrd8PxJwRf8=
+X-Gm-Gg: AeBDies7MGzi8MtEWLRRNSuQwqLLXNE2pXBLsEk0Rg6zrbB7br8eD7tBdG+jf+MoQ+l
+	qE16IZo3yrnkwLlNc/94ypPHiGeD4bGZaCkhiPV/YAS0f2gw7HQ0aGbSuz4jrqZ2tes72JwGenR
+	1ehgMn0nPr2pGmpEw6s11D88wkEleNxWTr8N+SXr+h4EQQAGmCRtpCI/uaNPzn5ewsy6MFjP+zS
+	OwX0sS96xZbXy9pYvq0lZ3ax0O0+NngONpZoQ67ZfJ+RRcTJnG0jgnQcNudopDZRu/5uS849Grw
+	GVWXYw9aDPeQYXDZ/MdCZabqgZq0WgQhgUAksxnisBG1DHI2sl5KPae3Sa76BpWLlqQAx4XVoN+
+	wzbz3VqcAHAlVLMoO3DAAe0bwhSOSLQ4XcnOiiSpcieMgIXPCnCPGulmZm58XEyN5x6RIZm8KJ7
+	UUuiZ5hA2JoQukQeC9o2gu9aE0G6xMkrnvnIQQopXfKwC2xPY=
+X-Received: by 2002:a05:6000:4283:b0:43d:73ff:fd59 with SMTP id ffacd0b85a97d-43fe3db9bc9mr46929495f8f.10.1777017441623;
+        Fri, 24 Apr 2026 00:57:21 -0700 (PDT)
+Received: from localhost (109-81-17-171.rct.o2.cz. [109.81.17.171])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43fe4cc0d51sm59342251f8f.10.2026.04.24.00.57.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 Apr 2026 00:57:20 -0700 (PDT)
+Date: Fri, 24 Apr 2026 09:57:20 +0200
+From: Michal Hocko <mhocko@suse.com>
+To: Minchan Kim <minchan@kernel.org>
+Cc: akpm@linux-foundation.org, hca@linux.ibm.com,
+	linux-s390@vger.kernel.org, david@kernel.org, brauner@kernel.org,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org, surenb@google.com,
+	timmurray@google.com, Minchan Kim <minchan@google.com>
+Subject: Re: [PATCH v1 3/3] mm: process_mrelease: introduce
+ PROCESS_MRELEASE_REAP_KILL flag
+Message-ID: <aesiYAumkLCyedf0@tiehlicka>
+References: <20260421230239.172582-1-minchan@kernel.org>
+ <20260421230239.172582-4-minchan@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 2/3] mm: process_mrelease: skip LRU movement for
- exclusive file folios
-To: Michal Hocko <mhocko@suse.com>, Minchan Kim <minchan@kernel.org>
-Cc: akpm@linux-foundation.org, hca@linux.ibm.com, linux-s390@vger.kernel.org,
- brauner@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
- surenb@google.com, timmurray@google.com, Minchan Kim <minchan@google.com>
-References: <20260421230239.172582-1-minchan@kernel.org>
- <20260421230239.172582-3-minchan@kernel.org> <aesg-sj6_VmXyqxb@tiehlicka>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <aesg-sj6_VmXyqxb@tiehlicka>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260421230239.172582-4-minchan@kernel.org>
 
-On 4/24/26 09:51, Michal Hocko wrote:
-> On Tue 21-04-26 16:02:38, Minchan Kim wrote:
->> For the process_mrelease reclaim, skip LRU handling for exclusive
->> file-backed folios since they will be freed soon so pointless
->> to move around in the LRU.
->>
->> This avoids costly LRU movement which accounts for a significant portion
->> of the time during unmap_page_range.
->>
->> -   91.31%     0.00%  mmap_exit_test   [kernel.kallsyms]  [.] exit_mm
->>      exit_mm
->>      __mmput
->>      exit_mmap
->>      unmap_vmas
->>    - unmap_page_range
->>       - 55.75% folio_mark_accessed
->>          + 48.79% __folio_batch_add_and_move
->>            4.23% workingset_activation
->>       + 12.94% folio_remove_rmap_ptes
->>       + 9.86% page_table_check_clear
->>       + 3.34% tlb_flush_mmu
->>         1.06% __page_table_check_pte_clear
->>
->> Signed-off-by: Minchan Kim <minchan@kernel.org>
+On Tue 21-04-26 16:02:39, Minchan Kim wrote:
+> Currently, process_mrelease() requires userspace to send a SIGKILL signal
+> prior to the call. This separation introduces a scheduling race window
+> where the victim task may receive the signal and enter the exit path
+> before the reaper can invoke process_mrelease().
 > 
-> As pointed out in the previous version of the patch. I really dislike
-> this to be mrelease or OOM specific. Behavior. You do not explain why
-> this needs to be this way, except for the performance reasons. My main
-> question is still unanswered (and NAK before this is sorted out). Why
-> this cannot be applied in general for _any_ exiting task. As you argue
-> the memory will just likely go away so why to bother?
+> When the victim enters the exit path (do_exit -> exit_mm), it clears its
+> task->mm immediately. This causes process_mrelease() to fail with -ESRCH,
+> leaving the actual address space teardown (exit_mmap) to be deferred until
+> the mm's reference count drops to zero. In Android, arbitrary reference counts
+> (e.g., async I/O, reading /proc/<pid>/cmdline, or various other remote
+> VM accesses) frequently delay this teardown indefinitely, defeating the
+> purpose of expedited reclamation.
+> 
+> This delay keeps memory pressure high, forcing the system to unnecessarily
+> kill additional innocent background apps before the memory from the first
+> victim is recovered.
 
-I think there was a lengthy discussion involving Johannes from a previous series.
+Thanks, this makes the motivation much more clear and usecase very
+sound.
 
-That should be linked here indeed.
+> This patch introduces the PROCESS_MRELEASE_REAP_KILL UAPI flag to support
+> an integrated auto-kill mode. When specified, process_mrelease() directly
+> injects a SIGKILL into the target task.
+> 
+> To solve the race condition deterministically, we grab the mm reference
+> via mmget() and set the MMF_UNSTABLE flag *before* sending the SIGKILL.
+> Using mmget() instead of mmgrab() keeps mm_users > 0, preventing the
+> victim from calling exit_mmap() in its own exit path.
 
+Why is this needed? Address space tear down is an operation that can run
+from several execution contexts.
+
+> This ensures that
+> the memory is reclaimed synchronously and deterministically by the reaper
+> in the context of process_mrelease(), avoiding delays caused by
+> non-deterministic scheduling of the victim task.
+
+The memory is still reclaimed synchronously from the mrelease context.
+This is really confusing.
+
+Please also explain why do you need to do all that ugly
+task_will_free_mem hoops. Why cannot you simply kill the task if
+task_will_free_mem fails (if PROCESS_MRELEASE_REAP_KILL is used).
 -- 
-Cheers,
-
-David
+Michal Hocko
+SUSE Labs
