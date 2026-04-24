@@ -1,217 +1,175 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B959933508E;
-	Fri, 24 Apr 2026 19:56:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA3D73D6467;
+	Fri, 24 Apr 2026 20:10:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777060590; cv=none; b=nAlXJA7qhR6LmHqHFz0fqRY+ao7RIRBi2jue/mLku6gyud2qo1lluqN4EsrCCO7mh+v0AjrUXdRYNDBubLFAbPIspCsNGocciX6jdPK2CGFt1WMgKLSm+lqRbKwGiJzX6ZoYWIgqI76cBKljl66+ZgY6+fQ3ZKT7mr89HFW1XzQ=
+	t=1777061405; cv=none; b=vBzNtcB6E/koTfGi/dd13H77o9SDInPT+ENsYz/tr6VOKMS4Oh85VbvoQhspL+wAHthm5Ku1/024eJQpNpzVPkmI4B1ElwRSMxLb58NYm1QMSOHXkHWfC225WNHKF5qfmgfN4z6xrXdHSq5WFogf6uB+qG75woDG4ZHH/Lz1NFw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777060590; c=relaxed/simple;
-	bh=N+eES5iDAp3HUdDKvG1AaEVUIYUWx41kbj8QHKRhfcw=;
-	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
-	 Date:MIME-Version; b=M32mNM8Ed6e4i35I40WNOYCJv3XWOVJwQkm+KDBPG/j0BouIeRml/wX5J69a7MH1mDFvdHhZNajvheqTSulrxKSuunk2seA8Js5/jouiqVmNDUf7aTeFCXK0/gKuttlFb5kAee/+L6CpMnqhUeZhjfov18M9KGySrZ5oSCE0wYY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rgsQoacD; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1777061405; c=relaxed/simple;
+	bh=F3cwnQW7D8LiYH503XHMJ8Kj9/V/I6VXEal3wlm+ghQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=e3vIA8Z47nOZvSSr/C+JdhRhtJ+TSDcx7aC25abzQRdPte79GokcHvP/LkAUBiyQgSy+UvKBjLMgkaiAt+5kPt+u5sEKRRo4J+R1Rojcy9djOWkERemQttbXcE6SbseeIdmBPPDTq+Zdd7QI7lkFtrKxC9Rf+liobikoqsQ4sJg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rd19fhga; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rgsQoacD"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63OF9PEY3226677;
-	Fri, 24 Apr 2026 19:56:27 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rd19fhga"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63OCUNhW3944372;
+	Fri, 24 Apr 2026 20:09:56 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=7gUQwu
-	xd1OgWahg+m+xrzfmHchqpyvUXwfcqLF9orlM=; b=rgsQoacDTtH7Em+T5VPr4n
-	6xdcTUZ/fFVsgk0d7NeWNWkkjvEwVaqxyT0Y1Hr+mUj9Av+rxYVU1afTeQxWM6KW
-	EZo8lyE9k7wVehLp0o2jQ/lmGm4nyEYw7wlBFuCOV5K2s9y/t9rI0nYxrUnJxDTl
-	vBegVdk3DKY/x2JdjJeaySNaP9acYKWxpVh50lKkDdxtxx10KNwOU9lbQMNJI0v0
-	1f+ocYYFYooR2cAQ6s7fiNn31qDapyjaE2HXnOGcEiGBiYqzzGFnGn4fPew+VrXA
-	tn9WLIBTwK4kCBDoug865prmPP8RmcD9HyOHos5h4HeNh8iZe2Kcs7KblNdsbbGg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=I33drf
+	efZQmVD9JtJ615KdZVWbQq/SGPrNVO/WQDP5s=; b=rd19fhgadBZe3GbjblFu1o
+	+OqoMOohqgUkMqL4lBAZCqaXKfVvkE9TziLTJRXOIdxdp0u4Z2odL4VtC8/9xwvk
+	SifR+Xzn5/6C6/NRQ4K2Hl5Klr7m9bYDgdLIOnrwx69OjugGZ7NVv/8bgSqsN8Jm
+	6WyGyAk3V7e08o0IoXx1BqbrFwo2T9HUNfeEz0IPPteGxcXZsFtyxHN2/yoI7Va9
+	3cAplEtw60HoRfSbU5/mQUkJrXydLD3ViK6HddUZ7E7INAzI0SvfkgfX7zBHn2uM
+	ZxgW6Uk7EQgmFaZnNV2EbQkUS8YUa8z9fjUGuE2EveLmUoO7bZ91nz3mGR75l4jg
 	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dpeu2fpjh-1
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dpeu3xpp6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Apr 2026 19:56:27 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63OJoKJ6002455;
-	Fri, 24 Apr 2026 19:56:26 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dpjkyc9vv-1
+	Fri, 24 Apr 2026 20:09:56 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63OK5RRe012637;
+	Fri, 24 Apr 2026 20:09:55 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dpjkymbu9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Apr 2026 19:56:26 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63OJuPN06554190
+	Fri, 24 Apr 2026 20:09:55 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63OK9s8O24707786
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 24 Apr 2026 19:56:25 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E405F5805D;
-	Fri, 24 Apr 2026 19:56:24 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3FE7C58054;
-	Fri, 24 Apr 2026 19:56:22 +0000 (GMT)
-Received: from [9.87.143.165] (unknown [9.87.143.165])
-	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 24 Apr 2026 19:56:22 +0000 (GMT)
-Message-ID: <d0765cdf0f3832c3fd92af53d2a4060d2d018439.camel@linux.ibm.com>
-Subject: Re: [PATCH] KVM: s390: pci: Fix aisb calculation
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc: alifm@linux.ibm.com, farman@linux.ibm.com, borntraeger@linux.ibm.com,
-        frankja@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20260424193900.940816-1-mjrosato@linux.ibm.com>
-References: <20260424193900.940816-1-mjrosato@linux.ibm.com>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 24 Apr 2026 21:55:20 +0200
+	Fri, 24 Apr 2026 20:09:54 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4961958055;
+	Fri, 24 Apr 2026 20:09:54 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DD1AB5804B;
+	Fri, 24 Apr 2026 20:09:52 +0000 (GMT)
+Received: from [9.61.79.186] (unknown [9.61.79.186])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 24 Apr 2026 20:09:52 +0000 (GMT)
+Message-ID: <1acdd73d-2b30-4d92-af83-1d5d1ec34c7d@linux.ibm.com>
+Date: Fri, 24 Apr 2026 16:09:52 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] KVM: s390: pci: Fix aisb calculation
+To: Niklas Schnelle <schnelle@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc: alifm@linux.ibm.com, farman@linux.ibm.com, borntraeger@linux.ibm.com,
+        frankja@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260424193900.940816-1-mjrosato@linux.ibm.com>
+ <d0765cdf0f3832c3fd92af53d2a4060d2d018439.camel@linux.ibm.com>
+Content-Language: en-US
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <d0765cdf0f3832c3fd92af53d2a4060d2d018439.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDI0MDE5MyBTYWx0ZWRfX4VAOQ1F1zmAn
- b1vZ6gwno/0kAjRAD0facOFsTsXtaedoh+5rcHBmKCJJxKDK+HIT57Z0+a2LCaVmIT1lE5GZNXp
- KUVIpCXW9OyyFfHk2TrF8IMMPOq0cq7B5DHtOdE8b14FCRczzdiwbjB8kl/9/gip0yy8BbMzDI0
- m380MsRIorBxgcHUvoRAJDbtwCOyvOf652JJIK7hpYEqdAqJQzDUXmu3RIvWzj1sSUbPwEs7JSw
- ijHK4tiBgkwVvG9E2aYf3scdNmKD0oxC9LLdutO0gAEDjEpF+oGshfjqd0LqbEv+EX8wfdKZgOf
- wCKY7QRjafVLbfZSF1UQ6F1/zbpApSOpmye4/2W9rWWfbpqJdSuj3mHRuFf72fevyhRm5tKMX4L
- T9dkfFS9RIo91QizH4D94QsZ9OyeXMVFot16v5lv06rJJvxVSwQKi0VRmwttGXsSM3Hf/grTsmX
- zyMfBVBy5qnbW9oG88w==
-X-Proofpoint-ORIG-GUID: THGD9oFknJJnabAEDcVszK5o8OUkhQlb
-X-Proofpoint-GUID: THGD9oFknJJnabAEDcVszK5o8OUkhQlb
-X-Authority-Analysis: v=2.4 cv=XMUAjwhE c=1 sm=1 tr=0 ts=69ebcaeb cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Proofpoint-GUID: JKP1uo35xPvVuPs2fK03h189BQbAZj6E
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDI0MDE5MyBTYWx0ZWRfXy3klnv0oJ8Hy
+ mhgw9HtJA/UOD8HVZy9+LsswztAkxPgRNaIKlgNZuMzHjrSAvPMIjdGTsP4AFwrIWWCXtf5SYC2
+ Eo3IX1r7YOe/QwxlGX9cxdNe0VsFqExu26KPQIoGP1wqyp9LHAEKiC0MCMSq48YJB56z2vD7x5N
+ g2SL6K9ZQyMkD+FBPR/pa13pM87ZoOEUQrKzu5lCkyM22DDTUgFJ70A6eFObILraanEvZdN8Pp1
+ 980he99Q5fJo0PTwrSkJsvEcYeNdaKHgBl0W+g9pYwScfKRFfKGKXeDEqqsqNZYlWiT9eSFQ4Ut
+ Ug8DA7iGaaUf3FPsilE7qMYVQDfgWIQQuszPzbvE7Z+8lqUrgiVj213LqtJVw+l1JbrhVsh2tmX
+ q4ivb/GLQBEiUI9eJnzTJHC7yWPmWrjt4qBVU4ufft23bOQE6DLkS18y9EsRJzsPvFsBZzyA1QF
+ 5Kh5kUK5BfTQ21k0ilw==
+X-Authority-Analysis: v=2.4 cv=a6kAM0SF c=1 sm=1 tr=0 ts=69ebce14 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=Ig3K_AtWKVE-Xje-oqQA:9 a=QEXdDO2ut3YA:10
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=AC7riLsFB4pJyvA54YkA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: JKP1uo35xPvVuPs2fK03h189BQbAZj6E
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-24_03,2026-04-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 clxscore=1011 priorityscore=1501 impostorscore=0 bulkscore=0
- spamscore=0 lowpriorityscore=0 phishscore=0 adultscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2604240193
+ malwarescore=0 suspectscore=0 spamscore=0 adultscore=0 bulkscore=0
+ lowpriorityscore=0 impostorscore=0 clxscore=1015 phishscore=0
+ priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
+ definitions=main-2604240193
 
-On Fri, 2026-04-24 at 15:39 -0400, Matthew Rosato wrote:
-> The current implementation of aisb calculation will erroneously index
-> via an unsigned long * as well as multiply by 8B for every 64-bits in
-> the offset; only one or the other is required.  This throws off aisb
-> calculations once the number of devices exceeds 64, and can result
-> in out-of-bounds access as well as failure to indicate summary bits
-> associated with those devices in guests.
->=20
-> Fix this by converting to a physical address before applying the
-> offset, as is already done in arch/s390/pci/pci_irq.c.
->=20
-> Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/disab=
-ling interrupt forwarding")
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->  arch/s390/kvm/pci.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->=20
-> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-> index 86d93e8dddae..338171f9371b 100644
-> --- a/arch/s390/kvm/pci.c
-> +++ b/arch/s390/kvm/pci.c
-> @@ -166,7 +166,7 @@ static int kvm_zpci_set_airq(struct zpci_dev *zdev)
->  	fib.fmt0.noi =3D airq_iv_end(zdev->aibv);
->  	fib.fmt0.aibv =3D virt_to_phys(zdev->aibv->vector);
->  	fib.fmt0.aibvo =3D 0;
-> -	fib.fmt0.aisb =3D virt_to_phys(aift->sbv->vector + (zdev->aisb / 64) * =
-8);
-> +	fib.fmt0.aisb =3D virt_to_phys(aift->sbv->vector) + (zdev->aisb / 64) *=
- 8;
+On 4/24/26 3:55 PM, Niklas Schnelle wrote:
+> On Fri, 2026-04-24 at 15:39 -0400, Matthew Rosato wrote:
+>> The current implementation of aisb calculation will erroneously index
+>> via an unsigned long * as well as multiply by 8B for every 64-bits in
+>> the offset; only one or the other is required.  This throws off aisb
+>> calculations once the number of devices exceeds 64, and can result
+>> in out-of-bounds access as well as failure to indicate summary bits
+>> associated with those devices in guests.
+>>
+>> Fix this by converting to a physical address before applying the
+>> offset, as is already done in arch/s390/pci/pci_irq.c.
+>>
+>> Fixes: 3c5a1b6f0a18 ("KVM: s390: pci: provide routines for enabling/disabling interrupt forwarding")
+>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>> ---
+>>  arch/s390/kvm/pci.c | 4 ++--
+>>  1 file changed, 2 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
+>> index 86d93e8dddae..338171f9371b 100644
+>> --- a/arch/s390/kvm/pci.c
+>> +++ b/arch/s390/kvm/pci.c
+>> @@ -166,7 +166,7 @@ static int kvm_zpci_set_airq(struct zpci_dev *zdev)
+>>  	fib.fmt0.noi = airq_iv_end(zdev->aibv);
+>>  	fib.fmt0.aibv = virt_to_phys(zdev->aibv->vector);
+>>  	fib.fmt0.aibvo = 0;
+>> -	fib.fmt0.aisb = virt_to_phys(aift->sbv->vector + (zdev->aisb / 64) * 8);
+>> +	fib.fmt0.aisb = virt_to_phys(aift->sbv->vector) + (zdev->aisb / 64) * 8;
+> 
+> As you state, one or the other would work, wouldn't it be easy to read
+> like below:
+> 
+>          fib.fmt0.aisb = virt_to_phys(aift->sbv->vector + (zdev->aisb / 64));
 
-As you state, one or the other would work, wouldn't it be easy to read
-like below:
+My rationale was to match exactly what zpci_set_airq() in
+arch/s390/pci/pci_irq.c is doing (I tested that code at the same time to
+ensure it produced the expected result as a comparison to the code
+changed by this patch).
 
-         fib.fmt0.aisb =3D virt_to_phys(aift->sbv->vector + (zdev->aisb / 6=
-4));
+I'd rather all 3 places stay the same unless you have a strong opinion
+on it.  I think the reason they ended up different in the first place is
+because this code and the pci_irq.c code were updated independently for
+V!=R.
 
->  	fib.fmt0.aisbo =3D zdev->aisb & 63;
->  	fib.gd =3D zdev->gisa;
-> =20
-> @@ -309,7 +309,7 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *z=
-dev, struct zpci_fib *fib,
-> =20
->  	/* Update guest FIB for re-issue */
->  	fib->fmt0.aisbo =3D zdev->aisb & 63;
-> -	fib->fmt0.aisb =3D virt_to_phys(aift->sbv->vector + (zdev->aisb / 64) *=
- 8);
-> +	fib->fmt0.aisb =3D virt_to_phys(aift->sbv->vector) + (zdev->aisb / 64) =
-* 8;
+> 
+>>  	fib.fmt0.aisbo = zdev->aisb & 63;
+>>  	fib.gd = zdev->gisa;
+>>  
+>> @@ -309,7 +309,7 @@ static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
+>>  
+>>  	/* Update guest FIB for re-issue */
+>>  	fib->fmt0.aisbo = zdev->aisb & 63;
+>> -	fib->fmt0.aisb = virt_to_phys(aift->sbv->vector + (zdev->aisb / 64) * 8);
+>> +	fib->fmt0.aisb = virt_to_phys(aift->sbv->vector) + (zdev->aisb / 64) * 8;
+> 
+> Same argument as above.
+> 
+>>  	fib->fmt0.isc = gisc;
+>>  
+>>  	/* Save some guest fib values in the host for later use */
+> 
+> Ouch, good catch! Was this kind of a follow up to the issue someone
+> found upstream with a wrong calculation in the gait? Or did you just
+> notice things break with more than 64 devices?
 
-Same argument as above.
-
->  	fib->fmt0.isc =3D gisc;
-> =20
->  	/* Save some guest fib values in the host for later use */
-
-Ouch, good catch! Was this kind of a follow up to the issue someone
-found upstream with a wrong calculation in the gait? Or did you just
-notice things break with more than 64 devices?
+A follow-up of sorts.  Sashiko gave various outputs to that gait patch
+that were unrelated to it; I'm looking into those things and it led me
+to at least this issue which I did verify is a real bug.
 
 Thanks,
-Niklas
+Matt
+
