@@ -1,175 +1,234 @@
-Received: from CH4PR04CU002.outbound.protection.outlook.com (mail-northcentralusazon11013036.outbound.protection.outlook.com [40.107.201.36])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F25A264A97;
-	Mon, 27 Apr 2026 22:30:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.201.36
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777329030; cv=fail; b=uxjiPRgsemOguxFsr/u526sua9Ji81Pb35xtaH2pR6oTiZQPDe+winqAOCzoPI0BhOUkrWj+qJttYHC+f9hh1032kQe//BSN8FpP1BAy2dzYtVb3KBLfP0muF8yw7elhPOLjzfULjh96oAHNIb1gvtfIAKgmeiHhZ7/Pnj6ey1s=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777329030; c=relaxed/simple;
-	bh=msNz8K+R7tcezW+jasT95EJ5zMdq6fMm1GADMREockM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=UzOeaFQ06qyjKdPahMdOFf/DENR+JGpgtdfdpzfacIoAJjlCQM00LBJXgr5pu6Jc/5uBc/NgNTEy8P6FyruwZ/71jtiAIVefZQpjYJtI0XGTluDo+0bCdQ9APmAqUcokGs8hmrGsN68f5O7OZImPtCmjuVmiEWuHWVhCdrccdPU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=nMn9Mg2e; arc=fail smtp.client-ip=40.107.201.36
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B259834B1B4;
+	Mon, 27 Apr 2026 22:52:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777330364; cv=none; b=JvHjSWWID6iKQN1ho4vbCRw+ls2LIDqplX+jWKZ3imcfzh5z/wd3MoYwj0kfgruVS7Hz+5nKgSB5V5nZ4Ub2vYmpRbh0Knse79egnNDe0OWLgxRp7tsS8KZSyKmeSJdtLcTRXLmfh2MusbnLrc568UUMkhmdCVSENc+4WtEaYbA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777330364; c=relaxed/simple;
+	bh=naILOOeceSH7gxGqzl9s9OfI8mPKDP5hLrbE9sgbdqQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VBWLmLnC9Jc49FHwAMIv3Qy43PmVo3bvkJxN5cFNQgg38YDoe7TiKwKVox+YrKp0ljZTl7Di3NivkZ7vAlN6/cln6nTYaSYVhFXoRWxqKXu+86Owp4871lyyNLhB/j4ebEXkqhzyySiBGx2Vlq/Cwm/N+co2/+x76XRziHVmr5E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=vQHuAQyk; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="nMn9Mg2e"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=cw2dkYic0VXH1kOjwz3jIZQqr8NTQVH9DBTRDd+uRIJW8uYvfM3m58iBDy5zpHYFWzEy5HurjZ12uATc9tuoWjt6/VUzJQgYZAXBZYTEWP2XEmKALhwnH1ENaA8Ac3CwlRTLvFMEwZgba4b3Efi2fsBGQWsShlfVbk+iphjAE+Pk8XuV/eyWjUpmRM4Y9HTRa5iR9RbjMNZZynCz9AHHff0s05EhkIWAfnApXK/qNRqGYLDiFlw7SNnaj3GyeIXPMO8znU+1Kcc/CMVRnCsFx/w1kA7TU7UcIRQb+Rb580j65fMEeEArkSpCjuQa2ek7DCgnd0gLF6jXF9N06qZxtg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=INTDocwjeOkxaSI4e6JrPlp7Kh7b3u8/5GXqjyNfeUk=;
- b=SqLxt4MZPnahGOYqHMCjywU0/HSF4waA/vwnt9ydy1Lm3yrvjNZmkOwuRl93fy6RdmE6bPOC0ZQH4p62+pUUajNd8KxX3yJjBZ746IuQ8gH2tmJrktf9NUD/vrVHw11Y2NBVtrlIsVl9bi7Gqi3ZmgASKvtgOkWY/PmrmgA8udiJVCjbw3br3CieEjsiA/YIbcoZFACykvsdKe3H0iQEMKywElW7FGY/qQYU/hi4PYicWTB3SL3zcJzUqBCWxEiVibRndteACQ6BsdcLI27Rvh553IDZD+jPGF6v9qtpISs3YncftmVw4ldPrz0yQOOExCWF0vjzgVzKvTwuTXEdYA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=INTDocwjeOkxaSI4e6JrPlp7Kh7b3u8/5GXqjyNfeUk=;
- b=nMn9Mg2etjSkCULYpJ5Rnl9/tmBSYad+HpQiMXeFiB6hdvpkrBodtOjFqLvvae82lTwKkV5GAhUHMYupb9utCbBt74zqUto3WQW72bithMtImxRQVa6G6ZaLkW4OIEKHFvEKJ+4xMIBslyesZGqZr4aXMhT6ctHxrHNz0lcJuSDOtu83n51qwHc7wWb/LGrn5RUMmskk9za8NlV0oTff8Bpmfg6PDqFInZvOWRUYF9K6Lc76NhEMq83jHNyESr4la6NDuNth/60Y4SeDe0uNCU02GfnTMD1so+hMFearXgJnH1poNP4yUWzDn8gizO53kHtparXBSnIxAyJtXuIfFA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CY8PR12MB8300.namprd12.prod.outlook.com (2603:10b6:930:7d::16)
- by SA1PR12MB6871.namprd12.prod.outlook.com (2603:10b6:806:25f::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9870.16; Mon, 27 Apr
- 2026 22:30:21 +0000
-Received: from CY8PR12MB8300.namprd12.prod.outlook.com
- ([fe80::ce75:8187:3ac3:c5de]) by CY8PR12MB8300.namprd12.prod.outlook.com
- ([fe80::ce75:8187:3ac3:c5de%3]) with mapi id 15.20.9870.013; Mon, 27 Apr 2026
- 22:30:18 +0000
-Date: Mon, 27 Apr 2026 18:30:16 -0400
-From: Yury Norov <ynorov@nvidia.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	David Laight <david.laight.linux@gmail.com>,
-	Thomas Gleixner <tglx@linutronix.de>, linux-alpha@vger.kernel.org,
-	Yury Norov <yury.norov@gmail.com>, linux-kernel@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-	dmaengine@vger.kernel.org, linux-efi@vger.kernel.org,
-	linux-fsi@lists.ozlabs.org, amd-gfx@lists.freedesktop.org,
-	dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-	linux-wpan@vger.kernel.org, netdev@vger.kernel.org,
-	linux-wireless@vger.kernel.org, linux-spi@vger.kernel.org,
-	linux-media@vger.kernel.org, linux-staging@lists.linux.dev,
-	linux-serial@vger.kernel.org, linux-usb@vger.kernel.org,
-	xen-devel@lists.xenproject.org, linux-fsdevel@vger.kernel.org,
-	ocfs2-devel@lists.linux.dev, bpf@vger.kernel.org,
-	kasan-dev@googlegroups.com, linux-mm@kvack.org,
-	linux-x25@vger.kernel.org, rust-for-linux@vger.kernel.org,
-	linux-sound@vger.kernel.org, sound-open-firmware@alsa-project.org,
-	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-	loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linux-sh@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [RFC PATCH v1 7/9] x86: Add unsafe_copy_from_user()
-Message-ID: <ae_jeJLlVWjJ4sOY@yury>
-References: <cover.1777306795.git.chleroy@kernel.org>
- <0ee46bb228d97163fbdc14f2a7c52b93d8bc34ce.1777306795.git.chleroy@kernel.org>
- <ae-j2_QirCySZD02@yury>
- <63a4d0f6-0eb3-48cd-9f98-bf7b223b2606@kernel.org>
- <ae-2yLWSGnfeTvh1@yury>
- <CAHk-=wgPrLy0FR3sEWBYQuNAac1axDASYMnTuPuxEU0WytzL7w@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wgPrLy0FR3sEWBYQuNAac1axDASYMnTuPuxEU0WytzL7w@mail.gmail.com>
-X-ClientProxiedBy: BN0PR04CA0197.namprd04.prod.outlook.com
- (2603:10b6:408:e9::22) To CY8PR12MB8300.namprd12.prod.outlook.com
- (2603:10b6:930:7d::16)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="vQHuAQyk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CBF1C19425;
+	Mon, 27 Apr 2026 22:52:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1777330364;
+	bh=naILOOeceSH7gxGqzl9s9OfI8mPKDP5hLrbE9sgbdqQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=vQHuAQykeFe6C0ai+ixhiAb4LvOC1ZVCpjNX8WMjxR9PF6w0/xLPSqb/YemocAlAn
+	 XrH5ES4JiKpw9BuyKiK8DYf5CBFuoeAnmvkAlPAffMXSDPGIWpmq4Bs00lRBCoiU/J
+	 QYgAANxb6f2ht+6XTxtDOOeJ20H2CZE2Li6DCu3lHjqSPg/q/xtSofS9iPtL8JFsuI
+	 +qWk0Pa4m7ln4qMUu9q0X8lQC/5AWr+TG99oxfURjJG6gKrFHsAIr3K5C2shi0BPsl
+	 FgcobMMzEdPvXPKVGA/K46+64l/8k8LjtLTyYmRWQRg4+qEJaQy1xupfiCVjBR1xWY
+	 97N0AtmnGhj5Q==
+Date: Mon, 27 Apr 2026 15:52:42 -0700
+From: Minchan Kim <minchan@kernel.org>
+To: Suren Baghdasaryan <surenb@google.com>
+Cc: akpm@linux-foundation.org, hca@linux.ibm.com,
+	linux-s390@vger.kernel.org, david@kernel.org, mhocko@suse.com,
+	brauner@kernel.org, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org, timmurray@google.com
+Subject: Re: [PATCH v1 3/3] mm: process_mrelease: introduce
+ PROCESS_MRELEASE_REAP_KILL flag
+Message-ID: <ae_oul_xgD5Kgnqi@google.com>
+References: <20260421230239.172582-1-minchan@kernel.org>
+ <20260421230239.172582-4-minchan@kernel.org>
+ <CAJuCfpFK+qatN_vHArEKOYe+LRHQG0e3inJrzVdz-mABi-BSTg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY8PR12MB8300:EE_|SA1PR12MB6871:EE_
-X-MS-Office365-Filtering-Correlation-Id: 1f3655ce-20ef-4e2c-2fe2-08dea4ac8fa5
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|10070799003|376014|7416014|366016|1800799024|56012099003|22082099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	/PUX5wTJGMs/KBsNviNpWA288jfovgZeFH/D5rlo4Ft68PLkNzRu+VJLbwZPVL7WMTmGE/7sGAUjidmOrf6PO7cVfcrQe6QT08Oqm4vVTbq+1kk8SU+vprwEBmYwG+gAfH2qmWzaQJsEm7YpHDRuW/7Cs1/Xk+BrlRiawZrKiyZzPhbDmpZp82G1md2nBR6MipihlTfUyQ+saizppq6JVvqKLc5dE++LYGjddOZxiO3yutMfU07Cp5tvF3yobREfTw/fDdOZgk2+rMoVASDdUVkAaqH0FXJ28Bm6NVJs+NSRjDYnMLXVfJoJcrsNuF4W22tsLIY5w3wDLjkrtfUAaGwMnqXvKgmEE1qpibH4HaSjxrWfCswHPCx7Vc7oELIEGKApXlepMVtafKQ1eBm0bnWKqspLr19ifmkOBqioMXptCdlJ75n5gVcLiBzfflllkv55OjNYGzmu/P23vn89/MqFVHCPYaOOw1vjLjy3Olm5/wQLP++hGKYxXIrZ64iQpyo+GIlD3HGQMFC+oPQ+4alqqHQ0+kc6l4epUtSsHVmWOEFWpRzFBafriU8ilGCl8/f8jCwsnB3t+/+q8pFFXiilqgDF9lWOw60zcIbP7xO24Ozxdu5GXF2ThaRP8NVaPA/4be0MJgysKa4xa0hnonHdTiIDcF4SkkqpHjiJ5qwmY2Gce2PdYuEwEpTf8TjR66psUlL2DcOZVs8sQNjcffnyedzo5Nat0VSDOW7wgzk=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB8300.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(10070799003)(376014)(7416014)(366016)(1800799024)(56012099003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?y1CvQpZYZ2eMHe2MhRl9jMjiWbPAKKWXFKb0rNr6P2FKNpuYqlm0vHnj/c+p?=
- =?us-ascii?Q?etrijvKck7MltKVOhuLlrUk/4maEie31AAuCO4vEDEQz7eLSMhE+LXqZ7580?=
- =?us-ascii?Q?/dTzhhd6ZXj5MAUt3SGOfXeBZ9mnjjf2uZ2zVl0944wpMj1aPR6bhJJsKwkp?=
- =?us-ascii?Q?VUL5kcdJLltj/bbXdIYt5R4Q5sFcreBO2t2YjdncWBk9awGhHkshgH2+xQK3?=
- =?us-ascii?Q?KZ9jZvFRcaTs7WARWb/cK4emdp6bDzM7GZoacpZC4jFUpUOAzU++q1cUqbIp?=
- =?us-ascii?Q?IcojDKNgAE9HncwAue719JnQVeUjYbuQfI9vFrEzSJwqQkAaJNY/N9KIqHH5?=
- =?us-ascii?Q?gb6ElO029nGL4z2hh5SKSqKFAJYfJvd6N318L3xLFXMXoREhQbz05reO9kR7?=
- =?us-ascii?Q?GWI0NeihuZjKnE/Ak2IoeTePP++KCVgyuhiSD0PXj7MCcQGFIfSjdMtsrSD0?=
- =?us-ascii?Q?qpof8HORPaHefDg6xtvU0Ls17iRCuj1Xtuu5fBcRshNrriAJmj0nlZqzlPp0?=
- =?us-ascii?Q?oq96Gm2fPd5N0qcJLOIB4vfutS46eOW3OBK4BlzxlMwOHl6WCEd/wmb2kDAK?=
- =?us-ascii?Q?VPTN1pR756Yxc8PWdgyvhKBLft+N8lDJQGyoSrLOClJEovN6quxxF5UrmLgl?=
- =?us-ascii?Q?BSzU4GMBOjLU5qQqVVM1fzFPiQJrPzyeuGPUF6s5eWsZMUNFhY8uESY52c+S?=
- =?us-ascii?Q?SE6TQJUy1lWTLGmxVFeFQgD9qZCVc47lVZv/tMLN8sA71HzeCfL2tx6zUAP1?=
- =?us-ascii?Q?hu81S/ywLrBvCHKaffr0P8d1j0edNWOzngwXYnwimWLWnJ+OOYH82yO8AfMj?=
- =?us-ascii?Q?9OG00BjXZXIsalWG80IQlBy27WpQ84/1c9oAnvbNeJfjdgOz4uIbM6FHkYyA?=
- =?us-ascii?Q?MupGlptk1Xu50YbzeOZ03kGiMKX0VxGdprIqVjtikQtw3BlYFt0IIGwsWiy8?=
- =?us-ascii?Q?wb6reRFBF6KZAnTmSERVS8uD68yLvuu4uDhGLoBqPxQofaxbHl5bqyIHeiVZ?=
- =?us-ascii?Q?JmIJF4RPeAJ5/v6RFBLjGohX5ZjyNkXJb9RZjSdHP1ziqpItJ3rcJG2ZFZJT?=
- =?us-ascii?Q?TOtNJUdl8MYzQUzieK78aUKDOyKuWpAWh2Jep6/sVe9CBZ2NlHHJGqtGJ0+6?=
- =?us-ascii?Q?owwVe4C6J1ikL7yn0gdEWIiiyjuOxoCdI3+hulZemm7LK5thRU+ZyJaPjQR+?=
- =?us-ascii?Q?YK+iuiqW4QYnqG8Bp71RoCe6giJoTJeiqfcGpFeX0h22VmfkFjYMyp/W8nb3?=
- =?us-ascii?Q?mBn+6WSNLOLGrrznB6jKXoRf6cnQ1xEMeJxPdXY/BnX2sOfoIY42tLqAScbN?=
- =?us-ascii?Q?LtZ7qBEv6zip7I8sQ5//f4FDcyaAHJDISd0ze+LMD1SGCz1vUejeBGt5jNwE?=
- =?us-ascii?Q?iyPDDoJ3VJHJ8aGIrV8p6MgUo+UO94WHdRtz/JHe7JLmdPqflsqW5Z53kqYw?=
- =?us-ascii?Q?MP/nGig0/bW+qSUHZi0ybA7U9qUULzBtAdJ3gf4NkhxIRHImljJP3sZS+AbG?=
- =?us-ascii?Q?VX+xV6ny9hftAe82VJ9ewoJIvZ1jOdavxAo38YgxrnhYM4VA4PLlPxMJgrFB?=
- =?us-ascii?Q?bl95emjkBX7MxnGkfKrgN0u2MtTSs3sO1Wdm6BH6ZQ9kazGSKdvWqMQAmcgZ?=
- =?us-ascii?Q?2TAXsG9f2jiTJy/XjYe+XqDYMz+09yazlugWhbXrIX8heUtqQqlD4RBq2C5J?=
- =?us-ascii?Q?CuCIR2G+UzaeT6rHBATVfYnF1JfQa1er7U7HJW5PSDW8XBt5cyY/COXOF+YI?=
- =?us-ascii?Q?h6yFwkKGk0zfxpHpRxxXg2KPpUtDCbrrUbX4jMC5IsdF387MIWjR?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1f3655ce-20ef-4e2c-2fe2-08dea4ac8fa5
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB8300.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Apr 2026 22:30:18.5780
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 8yVCjxcKtFstGt67IdVeO9hT/qCk0UDq0EBYtz0042ex6ttmtrXzmmIlGerSzGsUENgCE8ayV5UchO391MZbfA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB6871
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAJuCfpFK+qatN_vHArEKOYe+LRHQG0e3inJrzVdz-mABi-BSTg@mail.gmail.com>
 
-On Mon, Apr 27, 2026 at 02:52:05PM -0700, Linus Torvalds wrote:
-> On Mon, 27 Apr 2026 at 12:19, Yury Norov <ynorov@nvidia.com> wrote:
+On Mon, Apr 27, 2026 at 01:34:37PM -0700, Suren Baghdasaryan wrote:
+> On Tue, Apr 21, 2026 at 4:03 PM Minchan Kim <minchan@kernel.org> wrote:
 > >
-> > This is what Linus said when added x86 implementation for copy_from_user()
-> > in c512c69187197:
+> > Currently, process_mrelease() requires userspace to send a SIGKILL signal
+> > prior to the call. This separation introduces a scheduling race window
+> > where the victim task may receive the signal and enter the exit path
+> > before the reaper can invoke process_mrelease().
+> >
+> > When the victim enters the exit path (do_exit -> exit_mm), it clears its
+> > task->mm immediately. This causes process_mrelease() to fail with -ESRCH,
+> > leaving the actual address space teardown (exit_mmap) to be deferred until
+> > the mm's reference count drops to zero. In Android, arbitrary reference counts
+> > (e.g., async I/O, reading /proc/<pid>/cmdline, or various other remote
+> > VM accesses) frequently delay this teardown indefinitely, defeating the
+> > purpose of expedited reclamation.
+> >
+> > This delay keeps memory pressure high, forcing the system to unnecessarily
+> > kill additional innocent background apps before the memory from the first
+> > victim is recovered.
+> >
+> > This patch introduces the PROCESS_MRELEASE_REAP_KILL UAPI flag to support
+> > an integrated auto-kill mode. When specified, process_mrelease() directly
+> > injects a SIGKILL into the target task.
+> >
+> > To solve the race condition deterministically, we grab the mm reference
+> > via mmget() and set the MMF_UNSTABLE flag *before* sending the SIGKILL.
+> > Using mmget() instead of mmgrab() keeps mm_users > 0, preventing the
+> > victim from calling exit_mmap() in its own exit path. This ensures that
+> > the memory is reclaimed synchronously and deterministically by the reaper
+> > in the context of process_mrelease(), avoiding delays caused by
+> > non-deterministic scheduling of the victim task.
+> >
+> > Signed-off-by: Minchan Kim <minchan@kernel.org>
+> > ---
+> >  include/uapi/linux/mman.h |  4 +++
+> >  mm/oom_kill.c             | 56 +++++++++++++++++++++++++++------------
+> >  2 files changed, 43 insertions(+), 17 deletions(-)
+> >
+> > diff --git a/include/uapi/linux/mman.h b/include/uapi/linux/mman.h
+> > index e89d00528f2f..4266976b45ad 100644
+> > --- a/include/uapi/linux/mman.h
+> > +++ b/include/uapi/linux/mman.h
+> > @@ -56,4 +56,8 @@ struct cachestat {
+> >         __u64 nr_recently_evicted;
+> >  };
+> >
+> > +/* Flags for process_mrelease */
+> > +#define PROCESS_MRELEASE_REAP_KILL     (1 << 0)
+> > +#define PROCESS_MRELEASE_VALID_FLAGS   (PROCESS_MRELEASE_REAP_KILL)
+> > +
+> >  #endif /* _UAPI_LINUX_MMAN_H */
+> > diff --git a/mm/oom_kill.c b/mm/oom_kill.c
+> > index 5c6c95c169ee..730ba0d19b53 100644
+> > --- a/mm/oom_kill.c
+> > +++ b/mm/oom_kill.c
+> > @@ -20,6 +20,7 @@
+> >
+> >  #include <linux/oom.h>
+> >  #include <linux/mm.h>
+> > +#include <uapi/linux/mman.h>
+> >  #include <linux/err.h>
+> >  #include <linux/gfp.h>
+> >  #include <linux/sched.h>
+> > @@ -850,7 +851,7 @@ bool oom_killer_disable(signed long timeout)
+> >         return true;
+> >  }
+> >
+> > -static inline bool __task_will_free_mem(struct task_struct *task)
+> > +static inline bool __task_will_free_mem(struct task_struct *task, bool ignore_exit)
+> >  {
+> >         struct signal_struct *sig = task->signal;
+> >
+> > @@ -862,6 +863,9 @@ static inline bool __task_will_free_mem(struct task_struct *task)
+> >         if (sig->core_state)
+> >                 return false;
+> >
+> > +       if (ignore_exit)
+> > +               return true;
+> > +
+> >         if (sig->flags & SIGNAL_GROUP_EXIT)
+> >                 return true;
+> >
+> > @@ -878,7 +882,7 @@ static inline bool __task_will_free_mem(struct task_struct *task)
+> >   * Caller has to make sure that task->mm is stable (hold task_lock or
+> >   * it operates on the current).
+> >   */
+> > -static bool task_will_free_mem(struct task_struct *task)
+> > +static bool task_will_free_mem(struct task_struct *task, bool ignore_exit)
+> >  {
+> >         struct mm_struct *mm = task->mm;
+> >         struct task_struct *p;
+> > @@ -892,7 +896,7 @@ static bool task_will_free_mem(struct task_struct *task)
+> >         if (!mm)
+> >                 return false;
+> >
+> > -       if (!__task_will_free_mem(task))
+> > +       if (!__task_will_free_mem(task, ignore_exit))
+> >                 return false;
+> >
+> >         /*
+> > @@ -916,7 +920,7 @@ static bool task_will_free_mem(struct task_struct *task)
+> >                         continue;
+> >                 if (same_thread_group(task, p))
+> >                         continue;
+> > -               ret = __task_will_free_mem(p);
+> > +               ret = __task_will_free_mem(p, false);
+> >                 if (!ret)
+> >                         break;
+> >         }
+> > @@ -1034,7 +1038,7 @@ static void oom_kill_process(struct oom_control *oc, const char *message)
+> >          * so it can die quickly
+> >          */
+> >         task_lock(victim);
+> > -       if (task_will_free_mem(victim)) {
+> > +       if (task_will_free_mem(victim, false)) {
+> >                 mark_oom_victim(victim);
+> >                 queue_oom_reaper(victim);
+> >                 task_unlock(victim);
+> > @@ -1135,7 +1139,7 @@ bool out_of_memory(struct oom_control *oc)
+> >          * select it.  The goal is to allow it to allocate so that it may
+> >          * quickly exit and free its memory.
+> >          */
+> > -       if (task_will_free_mem(current)) {
+> > +       if (task_will_free_mem(current, false)) {
+> >                 mark_oom_victim(current);
+> >                 queue_oom_reaper(current);
+> >                 return true;
+> > @@ -1217,8 +1221,9 @@ SYSCALL_DEFINE2(process_mrelease, int, pidfd, unsigned int, flags)
+> >         unsigned int f_flags;
+> >         bool reap = false;
+> >         long ret = 0;
+> > +       bool reap_kill;
+> >
+> > -       if (flags)
+> > +       if (flags & ~PROCESS_MRELEASE_VALID_FLAGS)
+> >                 return -EINVAL;
+> >
+> >         task = pidfd_get_task(pidfd, &f_flags);
+> > @@ -1236,19 +1241,33 @@ SYSCALL_DEFINE2(process_mrelease, int, pidfd, unsigned int, flags)
+> >         }
+> >
+> >         mm = p->mm;
+> > -       mmgrab(mm);
+> >
+> > -       if (task_will_free_mem(p))
+> > -               reap = true;
+> > -       else {
+> > -               /* Error only if the work has not been done already */
+> > -               if (!mm_flags_test(MMF_OOM_SKIP, mm))
+> > +       reap_kill = !!(flags & PROCESS_MRELEASE_REAP_KILL);
+> > +       reap = task_will_free_mem(p, reap_kill);
+> > +       if (!reap) {
+> > +               if (reap_kill || !mm_flags_test(MMF_OOM_SKIP, mm))
+> >                         ret = -EINVAL;
+> > +
+> > +               task_unlock(p);
+> > +               goto put_task;
+> >         }
+> > -       task_unlock(p);
+> >
+> > -       if (!reap)
+> > -               goto drop_mm;
+> > +       if (reap_kill) {
+> > +               /*
+> > +                * We use mmget() instead of mmgrab() to keep mm_users > 0,
+> > +                * preventing the victim from calling exit_mmap() in its
+> > +                * own exit path. This ensures that the memory is reclaimed
+> > +                * synchronously and deterministically by the reaper.
+> > +                */
+> > +               mmget(mm);
 > 
-> Note that some things have happily changed in the six+ years since...
-> 
-> >   That's partly because we have no current users of it, but also partly
-> >   because the copy_from_user() case is slightly different and cannot
-> >   efficiently be implemented in terms of a unsafe_get_user() loop (because
-> >   gcc can't do asm goto with outputs).
-> 
-> now everybody can do asm goto with outputs.
-> 
-> Yes, it's disabled on older versions, so it's not *always* available,
-> but all modern versions do it. And if you care about performance, you
-> won't be using an old compiler.
+> I don't quite understand why you need to mmget() and prevent the
+> victim from calling exit_mmap() here. As long as we successfully
+> mmgrab'ed the mm, we can safely proceed with mmap locking and doing
+> __oom_reap_task_mm(). Victim can execute exit_mmap() in parallel with
+> __oom_reap_task_mm(). In fact that's even desirable! I remember a
+> recent patch that used mas_for_each_rev() in __oom_reap_task_mm() to
+> reclaim memory in reverse order so that exit_mmap() and
+> __oom_reap_task_mm() can start from opposite ends of the address space
+> and converge in the middle, working concurrently.
 
-The minimal GCC version is 8.1, and asm goto with outputs is supported
-since GCC-11. That would brake the build, if we just switch to using it
-without "CC_IS_GCC && (GCC_VERSION >= 110100)" guard.
-
-Is it worth to maintain 2 version of the function? I don't know...
-
-Thanks,
-Yury
+Good information. Will change it in next respin.
