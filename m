@@ -1,44 +1,50 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B259834B1B4;
-	Mon, 27 Apr 2026 22:52:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 583CE3AF65C;
+	Mon, 27 Apr 2026 23:05:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777330364; cv=none; b=JvHjSWWID6iKQN1ho4vbCRw+ls2LIDqplX+jWKZ3imcfzh5z/wd3MoYwj0kfgruVS7Hz+5nKgSB5V5nZ4Ub2vYmpRbh0Knse79egnNDe0OWLgxRp7tsS8KZSyKmeSJdtLcTRXLmfh2MusbnLrc568UUMkhmdCVSENc+4WtEaYbA=
+	t=1777331107; cv=none; b=pCin3HmqD0GEhO5mlrl77Vym0rYjj36gm9MMNRoUwKqsnmuuv+cmFAvscLzMmnPFGmMfrDL2xFpM/gbTcAF2Ihw9tuNc7vM50sQWGpUj9RWVj2Un8MgBrtwUzL97unDYOs+YCUD/HsT8vL6FVcH4gRMrFHCmEMlwVQ3tkdpl27w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777330364; c=relaxed/simple;
-	bh=naILOOeceSH7gxGqzl9s9OfI8mPKDP5hLrbE9sgbdqQ=;
+	s=arc-20240116; t=1777331107; c=relaxed/simple;
+	bh=9/lxmCbTq0AuSKOlbY/9CDJD0d3Oki7PkmDtgla38FY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VBWLmLnC9Jc49FHwAMIv3Qy43PmVo3bvkJxN5cFNQgg38YDoe7TiKwKVox+YrKp0ljZTl7Di3NivkZ7vAlN6/cln6nTYaSYVhFXoRWxqKXu+86Owp4871lyyNLhB/j4ebEXkqhzyySiBGx2Vlq/Cwm/N+co2/+x76XRziHVmr5E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=vQHuAQyk; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=CHkGe5gyCIBeAdXpIZ3D/CW7f9G2LHz/j2OxrdkTWBwih4ZBmaXv4U2SH7166wCRgF3vsDoIhJkA+gp4fbr9Ov5kqbEDFc1lyYmz/lZwJdyQuOUfZ4H5p1SgKV8ezehNO+jK+yP8QIGX9543a8KTBH60DI2D5uIL/lgJw7nzFf0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EW8qPZfm; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="vQHuAQyk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CBF1C19425;
-	Mon, 27 Apr 2026 22:52:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EW8qPZfm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5546DC19425;
+	Mon, 27 Apr 2026 23:05:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777330364;
-	bh=naILOOeceSH7gxGqzl9s9OfI8mPKDP5hLrbE9sgbdqQ=;
+	s=k20201202; t=1777331106;
+	bh=9/lxmCbTq0AuSKOlbY/9CDJD0d3Oki7PkmDtgla38FY=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=vQHuAQykeFe6C0ai+ixhiAb4LvOC1ZVCpjNX8WMjxR9PF6w0/xLPSqb/YemocAlAn
-	 XrH5ES4JiKpw9BuyKiK8DYf5CBFuoeAnmvkAlPAffMXSDPGIWpmq4Bs00lRBCoiU/J
-	 QYgAANxb6f2ht+6XTxtDOOeJ20H2CZE2Li6DCu3lHjqSPg/q/xtSofS9iPtL8JFsuI
-	 +qWk0Pa4m7ln4qMUu9q0X8lQC/5AWr+TG99oxfURjJG6gKrFHsAIr3K5C2shi0BPsl
-	 FgcobMMzEdPvXPKVGA/K46+64l/8k8LjtLTyYmRWQRg4+qEJaQy1xupfiCVjBR1xWY
-	 97N0AtmnGhj5Q==
-Date: Mon, 27 Apr 2026 15:52:42 -0700
+	b=EW8qPZfmVV+XQo6RVCDq/833thfnwKy5CmXCtLZ4URnkYbYAVYxO62BCvwe4rcqiP
+	 +kob29aRQ7egmjFSs5Png0XIByrIof4VJeOO/J3fPW4XWSz2yxcNNDd7m8ZwTPfHbX
+	 cDPMDOHbZ661NTbJKGngmX0zL9mYJ5pmESfjoBzs2cWzXc5+aUtXnVy0hpDVekrWCC
+	 wmEOq/4ER3XPep7q3M/mB/GmsC4na3rJSEkgtWK7p5q/MqysI+kWqS4tekpLfeNE8K
+	 E5oIPGlnF890MC1RkFIuMMEAuaLYhE45FeOJROCxhbVNq2poZUarJg2k8PYTfDJIsG
+	 5+c5B2wn1Hscw==
+Date: Mon, 27 Apr 2026 16:05:04 -0700
 From: Minchan Kim <minchan@kernel.org>
-To: Suren Baghdasaryan <surenb@google.com>
-Cc: akpm@linux-foundation.org, hca@linux.ibm.com,
-	linux-s390@vger.kernel.org, david@kernel.org, mhocko@suse.com,
-	brauner@kernel.org, linux-mm@kvack.org,
+To: Michal Hocko <mhocko@suse.com>
+Cc: Suren Baghdasaryan <surenb@google.com>,
+	"David Hildenbrand (Arm)" <david@kernel.org>,
+	akpm@linux-foundation.org, hca@linux.ibm.com,
+	linux-s390@vger.kernel.org, brauner@kernel.org, linux-mm@kvack.org,
 	linux-kernel@vger.kernel.org, timmurray@google.com
-Subject: Re: [PATCH v1 3/3] mm: process_mrelease: introduce
- PROCESS_MRELEASE_REAP_KILL flag
-Message-ID: <ae_oul_xgD5Kgnqi@google.com>
+Subject: Re: [PATCH v1 2/3] mm: process_mrelease: skip LRU movement for
+ exclusive file folios
+Message-ID: <ae_roPR64e6sY_fN@google.com>
 References: <20260421230239.172582-1-minchan@kernel.org>
- <20260421230239.172582-4-minchan@kernel.org>
- <CAJuCfpFK+qatN_vHArEKOYe+LRHQG0e3inJrzVdz-mABi-BSTg@mail.gmail.com>
+ <20260421230239.172582-3-minchan@kernel.org>
+ <aesg-sj6_VmXyqxb@tiehlicka>
+ <7c7da8ae-cd39-4edf-b94f-c79ab85df456@kernel.org>
+ <aevBRh08X4UTMUj9@google.com>
+ <ae8NT0tLt7eBmH6j@tiehlicka>
+ <CAJuCfpHQdA7C50V2WjNrdYcp7feV5ukgxJf+vMNEcp0P1SGEow@mail.gmail.com>
+ <ae-Zu-VAzAA7SdLa@tiehlicka>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,187 +54,131 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAJuCfpFK+qatN_vHArEKOYe+LRHQG0e3inJrzVdz-mABi-BSTg@mail.gmail.com>
+In-Reply-To: <ae-Zu-VAzAA7SdLa@tiehlicka>
 
-On Mon, Apr 27, 2026 at 01:34:37PM -0700, Suren Baghdasaryan wrote:
-> On Tue, Apr 21, 2026 at 4:03 PM Minchan Kim <minchan@kernel.org> wrote:
-> >
-> > Currently, process_mrelease() requires userspace to send a SIGKILL signal
-> > prior to the call. This separation introduces a scheduling race window
-> > where the victim task may receive the signal and enter the exit path
-> > before the reaper can invoke process_mrelease().
-> >
-> > When the victim enters the exit path (do_exit -> exit_mm), it clears its
-> > task->mm immediately. This causes process_mrelease() to fail with -ESRCH,
-> > leaving the actual address space teardown (exit_mmap) to be deferred until
-> > the mm's reference count drops to zero. In Android, arbitrary reference counts
-> > (e.g., async I/O, reading /proc/<pid>/cmdline, or various other remote
-> > VM accesses) frequently delay this teardown indefinitely, defeating the
-> > purpose of expedited reclamation.
-> >
-> > This delay keeps memory pressure high, forcing the system to unnecessarily
-> > kill additional innocent background apps before the memory from the first
-> > victim is recovered.
-> >
-> > This patch introduces the PROCESS_MRELEASE_REAP_KILL UAPI flag to support
-> > an integrated auto-kill mode. When specified, process_mrelease() directly
-> > injects a SIGKILL into the target task.
-> >
-> > To solve the race condition deterministically, we grab the mm reference
-> > via mmget() and set the MMF_UNSTABLE flag *before* sending the SIGKILL.
-> > Using mmget() instead of mmgrab() keeps mm_users > 0, preventing the
-> > victim from calling exit_mmap() in its own exit path. This ensures that
-> > the memory is reclaimed synchronously and deterministically by the reaper
-> > in the context of process_mrelease(), avoiding delays caused by
-> > non-deterministic scheduling of the victim task.
-> >
-> > Signed-off-by: Minchan Kim <minchan@kernel.org>
-> > ---
-> >  include/uapi/linux/mman.h |  4 +++
-> >  mm/oom_kill.c             | 56 +++++++++++++++++++++++++++------------
-> >  2 files changed, 43 insertions(+), 17 deletions(-)
-> >
-> > diff --git a/include/uapi/linux/mman.h b/include/uapi/linux/mman.h
-> > index e89d00528f2f..4266976b45ad 100644
-> > --- a/include/uapi/linux/mman.h
-> > +++ b/include/uapi/linux/mman.h
-> > @@ -56,4 +56,8 @@ struct cachestat {
-> >         __u64 nr_recently_evicted;
-> >  };
-> >
-> > +/* Flags for process_mrelease */
-> > +#define PROCESS_MRELEASE_REAP_KILL     (1 << 0)
-> > +#define PROCESS_MRELEASE_VALID_FLAGS   (PROCESS_MRELEASE_REAP_KILL)
-> > +
-> >  #endif /* _UAPI_LINUX_MMAN_H */
-> > diff --git a/mm/oom_kill.c b/mm/oom_kill.c
-> > index 5c6c95c169ee..730ba0d19b53 100644
-> > --- a/mm/oom_kill.c
-> > +++ b/mm/oom_kill.c
-> > @@ -20,6 +20,7 @@
-> >
-> >  #include <linux/oom.h>
-> >  #include <linux/mm.h>
-> > +#include <uapi/linux/mman.h>
-> >  #include <linux/err.h>
-> >  #include <linux/gfp.h>
-> >  #include <linux/sched.h>
-> > @@ -850,7 +851,7 @@ bool oom_killer_disable(signed long timeout)
-> >         return true;
-> >  }
-> >
-> > -static inline bool __task_will_free_mem(struct task_struct *task)
-> > +static inline bool __task_will_free_mem(struct task_struct *task, bool ignore_exit)
-> >  {
-> >         struct signal_struct *sig = task->signal;
-> >
-> > @@ -862,6 +863,9 @@ static inline bool __task_will_free_mem(struct task_struct *task)
-> >         if (sig->core_state)
-> >                 return false;
-> >
-> > +       if (ignore_exit)
-> > +               return true;
-> > +
-> >         if (sig->flags & SIGNAL_GROUP_EXIT)
-> >                 return true;
-> >
-> > @@ -878,7 +882,7 @@ static inline bool __task_will_free_mem(struct task_struct *task)
-> >   * Caller has to make sure that task->mm is stable (hold task_lock or
-> >   * it operates on the current).
-> >   */
-> > -static bool task_will_free_mem(struct task_struct *task)
-> > +static bool task_will_free_mem(struct task_struct *task, bool ignore_exit)
-> >  {
-> >         struct mm_struct *mm = task->mm;
-> >         struct task_struct *p;
-> > @@ -892,7 +896,7 @@ static bool task_will_free_mem(struct task_struct *task)
-> >         if (!mm)
-> >                 return false;
-> >
-> > -       if (!__task_will_free_mem(task))
-> > +       if (!__task_will_free_mem(task, ignore_exit))
-> >                 return false;
-> >
-> >         /*
-> > @@ -916,7 +920,7 @@ static bool task_will_free_mem(struct task_struct *task)
-> >                         continue;
-> >                 if (same_thread_group(task, p))
-> >                         continue;
-> > -               ret = __task_will_free_mem(p);
-> > +               ret = __task_will_free_mem(p, false);
-> >                 if (!ret)
-> >                         break;
-> >         }
-> > @@ -1034,7 +1038,7 @@ static void oom_kill_process(struct oom_control *oc, const char *message)
-> >          * so it can die quickly
-> >          */
-> >         task_lock(victim);
-> > -       if (task_will_free_mem(victim)) {
-> > +       if (task_will_free_mem(victim, false)) {
-> >                 mark_oom_victim(victim);
-> >                 queue_oom_reaper(victim);
-> >                 task_unlock(victim);
-> > @@ -1135,7 +1139,7 @@ bool out_of_memory(struct oom_control *oc)
-> >          * select it.  The goal is to allow it to allocate so that it may
-> >          * quickly exit and free its memory.
-> >          */
-> > -       if (task_will_free_mem(current)) {
-> > +       if (task_will_free_mem(current, false)) {
-> >                 mark_oom_victim(current);
-> >                 queue_oom_reaper(current);
-> >                 return true;
-> > @@ -1217,8 +1221,9 @@ SYSCALL_DEFINE2(process_mrelease, int, pidfd, unsigned int, flags)
-> >         unsigned int f_flags;
-> >         bool reap = false;
-> >         long ret = 0;
-> > +       bool reap_kill;
-> >
-> > -       if (flags)
-> > +       if (flags & ~PROCESS_MRELEASE_VALID_FLAGS)
-> >                 return -EINVAL;
-> >
-> >         task = pidfd_get_task(pidfd, &f_flags);
-> > @@ -1236,19 +1241,33 @@ SYSCALL_DEFINE2(process_mrelease, int, pidfd, unsigned int, flags)
-> >         }
-> >
-> >         mm = p->mm;
-> > -       mmgrab(mm);
-> >
-> > -       if (task_will_free_mem(p))
-> > -               reap = true;
-> > -       else {
-> > -               /* Error only if the work has not been done already */
-> > -               if (!mm_flags_test(MMF_OOM_SKIP, mm))
-> > +       reap_kill = !!(flags & PROCESS_MRELEASE_REAP_KILL);
-> > +       reap = task_will_free_mem(p, reap_kill);
-> > +       if (!reap) {
-> > +               if (reap_kill || !mm_flags_test(MMF_OOM_SKIP, mm))
-> >                         ret = -EINVAL;
-> > +
-> > +               task_unlock(p);
-> > +               goto put_task;
-> >         }
-> > -       task_unlock(p);
-> >
-> > -       if (!reap)
-> > -               goto drop_mm;
-> > +       if (reap_kill) {
-> > +               /*
-> > +                * We use mmget() instead of mmgrab() to keep mm_users > 0,
-> > +                * preventing the victim from calling exit_mmap() in its
-> > +                * own exit path. This ensures that the memory is reclaimed
-> > +                * synchronously and deterministically by the reaper.
-> > +                */
-> > +               mmget(mm);
+On Mon, Apr 27, 2026 at 07:15:39PM +0200, Michal Hocko wrote:
+> On Mon 27-04-26 09:48:28, Suren Baghdasaryan wrote:
+> > On Mon, Apr 27, 2026 at 12:16 AM Michal Hocko <mhocko@suse.com> wrote:
+> > >
+> > > On Fri 24-04-26 12:15:18, Minchan Kim wrote:
+> > > > On Fri, Apr 24, 2026 at 09:57:16AM +0200, David Hildenbrand (Arm) wrote:
+> > > > > On 4/24/26 09:51, Michal Hocko wrote:
+> > > > > > On Tue 21-04-26 16:02:38, Minchan Kim wrote:
+> > > > > >> For the process_mrelease reclaim, skip LRU handling for exclusive
+> > > > > >> file-backed folios since they will be freed soon so pointless
+> > > > > >> to move around in the LRU.
+> > > > > >>
+> > > > > >> This avoids costly LRU movement which accounts for a significant portion
+> > > > > >> of the time during unmap_page_range.
+> > > > > >>
+> > > > > >> -   91.31%     0.00%  mmap_exit_test   [kernel.kallsyms]  [.] exit_mm
+> > > > > >>      exit_mm
+> > > > > >>      __mmput
+> > > > > >>      exit_mmap
+> > > > > >>      unmap_vmas
+> > > > > >>    - unmap_page_range
+> > > > > >>       - 55.75% folio_mark_accessed
+> > > > > >>          + 48.79% __folio_batch_add_and_move
+> > > > > >>            4.23% workingset_activation
+> > > > > >>       + 12.94% folio_remove_rmap_ptes
+> > > > > >>       + 9.86% page_table_check_clear
+> > > > > >>       + 3.34% tlb_flush_mmu
+> > > > > >>         1.06% __page_table_check_pte_clear
+> > > > > >>
+> > > > > >> Signed-off-by: Minchan Kim <minchan@kernel.org>
+> > > > > >
+> > > > > > As pointed out in the previous version of the patch. I really dislike
+> > > > > > this to be mrelease or OOM specific. Behavior. You do not explain why
+> > > > > > this needs to be this way, except for the performance reasons. My main
+> > > > > > question is still unanswered (and NAK before this is sorted out). Why
+> > > > > > this cannot be applied in general for _any_ exiting task. As you argue
+> > > > > > the memory will just likely go away so why to bother?
+> > > > >
+> > > > > I think there was a lengthy discussion involving Johannes from a previous series.
+> > > > >
+> > > > > That should be linked here indeed.
+> > > >
+> > > > How about this?
+> > > >
+> > > >     mm: process_mrelease: skip LRU movement for exclusive file folios
+> > > >
+> > > >     During process_mrelease() or OOM reaping, unmapping file-backed folios
+> > > >     spends a significant portion of CPU time in folio_mark_accessed() to
+> > > >     maintain accurate LRU state (~55% of unmap time as shown in the profile
+> > > >     below).
+> > > >
+> > > >     This patch skips LRU handling for exclusive file-backed folios during
+> > > >     such emergency memory reclaim.
+> > > >
+> > > >     One might ask why this optimization shouldn't be applied to any exiting
+> > > >     task in general. The reason is that for a normal, orderly exit or just
+> > > >     pure kill, it is worth paying the CPU cost to preserve the active state
+> > > >     of clean file folios in case they are reused soon. Preserving cache hits
+> > > >     is beneficial for overall system performance.
+> > >
+> > > This is a statement rather than an explanation. Why is it worth paying
+> > > the cost? What is different here?
+> > >
+> > > >     However, process_mrelease() and OOM reaping are emergency operations
+> > > >     triggered under extreme memory pressure. In these scenarios, the highest
+> > > >     priority is to recover memory as quickly as possible to avoid further
+> > > >     kills or system jank. Spending half of the unmap time on LRU maintenance
+> > > >     for pages belonging to a victim process is a bad trade-off. If speeding up
+> > > >     the victim's reclaim by avoiding LRU movement and evicting cache negatively
+> > > >     affects the workflow (due to immediate restart), it implies a sub-optimal
+> > > >     kill target selection by the userspace policy (e.g., LMKD), rather than
+> > > >     a problem in this expedited APIs.
+> > >
+> > > Your change effectively boils down to break aging for exclusively mapped
+> > > file pages when those pages should have been activated. All that because
+> > > the activation has some (batched) overhead. You argue that the overhead
+> > > is not a good trade-off for OOM path because those pages are exclusive
+> > > to the process and therefore they will go away after the task exits.
+> > 
+> > I think Minchan's argument is that mm reaping occurs only in special
+> > conditions (under high memory pressure) and for a very specific reason
+> > (to free up memory and prevent system memory starvation). Therefore
+> > priority in such conditions should shift towards more aggressive
+> > memory reclaim instead of normal aging. I can see both his point and a
+> > counter-argument that this might cause more refaults in some cases.
 > 
-> I don't quite understand why you need to mmget() and prevent the
-> victim from calling exit_mmap() here. As long as we successfully
-> mmgrab'ed the mm, we can safely proceed with mmap locking and doing
-> __oom_reap_task_mm(). Victim can execute exit_mmap() in parallel with
-> __oom_reap_task_mm(). In fact that's even desirable! I remember a
-> recent patch that used mas_for_each_rev() in __oom_reap_task_mm() to
-> reclaim memory in reverse order so that exit_mmap() and
-> __oom_reap_task_mm() can start from opposite ends of the address space
-> and converge in the middle, working concurrently.
+> The way I see this is that the standard memory reclaim under a heavy
+> memory pressure would likely encounter those pages and aged them
+> accordingly already. So this is effectivelly racing with that process
+> and makes a potentially opposite decision.
+> I suspect that a lack of memory reclaim, as implied by the other patch
+> (to deal with clean page cache), is the reason why this one makes a
+> difference in these Android deployments.
 
-Good information. Will change it in next respin.
+The claim that kswapd would have already aged these pages is just an
+assumption; it is ultimately a matter of timing. We cannot reliably
+predict whether kswapd has processed them, nor can we know the future
+access patterns of a dying process.
+
+Global system policies are not always optimal for every specific use case.
+That is precisely why we have hinting APIs like madvise and fadvise.
+
+While hinting APIs can indeed conflict with global policies, a negative
+performance impact would imply that userspace is misusing the API, not
+that the optimization itself shouldn't exist.
+
+We should view process_mrelease() (and this flag) as a similar hinting
+mechanism where userspace explicitly requests expedited, aggressive reclaim
+for a specific target under memory pressure.
+
+> 
+> Unless I am completely wrong and misreading the whole situation this
+> might be very Android specific change. The question is whether these
+> side effects are generally useful for other worklods. So we really need
+> much more explanation of the actual behavior after this change for wider
+> variety of workloads.
+
+While the primary motivation comes from Android's LMKD, this optimization
+is not active for normal workloads. It only applies to tasks that are
+already being reaped by the OOM reaper or by process_mrelease() with the
+special flag (via MMF_UNSTABLE).
+
+Therefore, it is an opt-in or emergency-only behavior that will not hurt
+a wider variety of general workloads unless they explicitly use this
+targeted reclaim API. Any system with a userspace killer needing fast,
+targeted reclaim can benefit from this.
