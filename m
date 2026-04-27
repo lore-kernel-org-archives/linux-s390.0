@@ -1,125 +1,224 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AC68301717;
-	Mon, 27 Apr 2026 12:50:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777294236; cv=none; b=LES0VOrhMBfK16vGjjJjNgnt7YyAOvn9FyZnCbQEOwVeFOZjp3SJAADw+003ZrVD1IEC28PwKGtP/m8JlX5c7VUGYXQ9H7Qm8mTo0NdJCD6aEzLPZyBuIOwPV5rNaVUUzLTm0CQHfIlgtVzwkNvF5cZ9whDzxlGdX8yUhQzwE0U=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777294236; c=relaxed/simple;
-	bh=BbOKLHT4XowbWrKB/OCd7ydCzFiGZK491CAr//69O1Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OlxUPG9K+Idy6zm81usWlky1m7wNBXH8mymPUfIgJXsSDTDXjPyMwyGmK9wA5leFV8a1bMW0MKeW62znw+XMz0aBBORcXySiqFjxgwBwunuttp9yKziLNSGswetMlGATzBfn4+KqMV9xqzwtgTMYd7zg9kfBX/cdx+QtXtZ+rwo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qyWmjglI; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FBB93D9031
+	for <linux-s390@vger.kernel.org>; Mon, 27 Apr 2026 16:48:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.43
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777308525; cv=pass; b=pPBNV1LJnHyuVyOpwTxrfEO+V5hNzasMNqRt4oKH2a7ZUGKqD9o1IdANIT5RWoNWek2zuL/qHZwpgQoQlOqYJ6MjRslIX45FT3IhUz9JDGeSpsbhAJt0GrS4SasVhLETlgTXJMY6M8O17dJrmzqLhpY9hL/5ebdW0ehTmhdfBxU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777308525; c=relaxed/simple;
+	bh=46oyyYMoYfJ5+FucXzM62XzzoaJKwgz895XZKdYJq3s=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=SMPj0tNO8Q2Aws4E3TpGvAkmFUnV68DUtP707kMAPwxH3I4/SpRiyhF2ZYFYXr/f5arhPfq0eBXhoVLX0h16Ln0ows41Zmc3npnmYpJ2CsRwzmXOvclSXPlnVUuVEogjaTl1Q3WsMlytdKwRENLXekNspZIWJnLuiJwR8RCGTM8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=dNB1rved; arc=pass smtp.client-ip=209.85.208.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qyWmjglI"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63QNVGNv3017137;
-	Mon, 27 Apr 2026 12:50:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:sender:subject:to; s=pp1; bh=59SWzXZ+Hgl7z01y0cWjI0l
-	IytClP7KTtmTjxB2ZfWc=; b=qyWmjglI/BZIqzvrlqPgHOhAPGj8+YY8fgPnI2M
-	q/QGvwqp9Ii9NkPO3TagZcuxfZPJV7tQ3NCp8UYC+NAdIM8hD/viBe8YRQOc/gTl
-	Ja8zQyiopDPLIcO49+UVYVsRyF9xdyokB9yiIcNknrP6b3khdlSvZFOhPXAoHhtf
-	MYrvWAK23cmCcQjyRxwgLpDcwM4eTa0bqycFO90rKOQXv5VDit2WPEbtzc33fey4
-	yVc4DO0Tr7pJTd//aWvcPHngHUxnhx6aPxnGE0n9bWt2y51Bqj9HzaCE52ZZJg4+
-	TJANHoAqWmQmqB6Q2n0bJMjMoVGm8chKQ2r3jFh+9ROwMTg==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4drn9r0d7f-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 27 Apr 2026 12:50:32 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63RCckbV022954;
-	Mon, 27 Apr 2026 12:50:31 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ds7xq5a2q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 27 Apr 2026 12:50:31 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63RCoRkM45220210
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 27 Apr 2026 12:50:27 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8E6C820043;
-	Mon, 27 Apr 2026 12:50:27 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 75AAD20040;
-	Mon, 27 Apr 2026 12:50:27 +0000 (GMT)
-Received: from vela (unknown [9.111.3.200])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 27 Apr 2026 12:50:27 +0000 (GMT)
-Received: from brueckner by vela with local (Exim 4.99.1)
-	(envelope-from <brueckner@linux.ibm.com>)
-	id 1wHLPu-000000006j6-3nt2;
-	Mon, 27 Apr 2026 14:50:26 +0200
-Date: Mon, 27 Apr 2026 14:50:26 +0200
-From: Hendrik Brueckner <brueckner@linux.ibm.com>
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, David Hildenbrand <david@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 3/4] KVM: s390: vsie: Refactor handle_stfle
-Message-ID: <ae9bkscHB51fUA5w@linux.ibm.com>
-References: <20260226-vsie-alter-stfle-fac-v2-0-914974cb922c@linux.ibm.com>
- <20260226-vsie-alter-stfle-fac-v2-3-914974cb922c@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="dNB1rved"
+Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-66ba6d3dab3so212a12.0
+        for <linux-s390@vger.kernel.org>; Mon, 27 Apr 2026 09:48:42 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1777308521; cv=none;
+        d=google.com; s=arc-20240605;
+        b=fJGO38OV5kcv412V+bDVmY455Nevv58j+KjD6anT5+jfpwushwVNsMSVvuRtqZpT0X
+         y21ADjw2mHSpwDWPr4B7/8YgIcU1rhnhr6PV8C3vnWUoUusXjZ7yiCVp/Bvzi/OrcZ9B
+         JIrLFtCf7ZE8Pck3YrxxrAlBAIV56ODzk5SJzfYRvP7HGfC/Aye7E13qCxZ67UZEck9i
+         Or/vhS3VAaL7TUFXCuH11nsiD42yGXiO4aGAVUBdGRCajSjtJxeqCjGZEDC1Pkd3p4Hp
+         HqE8k9eVgRNdXCh/Uej1svmqOYC2uE78LDnqohUoEO6th7KMZvo998bssoCElro51La4
+         NCGA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=bZP6CUDEt7N3kI4YkVp2qKdsX54A5o1g08c6mQbolGA=;
+        fh=HWikmguFno+y5dAM7sur32Pb+Vb//c5lJTVGU5GTaBc=;
+        b=dFMiFt2HdHIwDXQACvUcxAGIL7HkS6n6Rqu7sliGHoH1Y/UYhvELV131IX/J8pUC+q
+         Sup96cokhZ2PVOAGcLpxRuWeGWhK/UGGdXG3kJXgLPra/70gk1Fx/5oGRjeZupGfoItI
+         fQWGCASnGqOeuwBUhPxWSQfU4X7U5zv8C83mBGRcrG3HEpGOQS0MLi0jxr0SVGHO6C1N
+         O39dxVkke+yM8pIw8Yab0YFVHGnfJStp/5PYCTdCk0oYpVHhzcSVDYGagmP+EFnNfqgY
+         TH6hpWfMZhuUtnlYy++2tK5uOazirRyjg5NDfl1o1SB0EJ9YaF8jTc+OYxUEDmNS3y+N
+         8wEg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1777308521; x=1777913321; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bZP6CUDEt7N3kI4YkVp2qKdsX54A5o1g08c6mQbolGA=;
+        b=dNB1rved1vHFt/9+rzThvaIbXHI8D2soATChPf3AtjT43xzonk/xkqnaU21JSmY7DW
+         OiTPUey7MrIZEwHJYby3s6sunlnHkq5tl45SJAA5gz73EFJNFT8kp8Z+3rS8QFsyXOqw
+         eHy+e/BWEVWpW21JB4HlxR3mYgL0rjFEh3s7rO/h730usxVmG+eexQ7jrztIsyws3uee
+         Xzyv76ECTczhiOZITskzxdCmOPpm0bbmh4wB80M+D2HvTXEyccM9fL7L0UNlRMsmeNWq
+         fIawI2Erbd3Go6AmvbZawOn2rYRiPaCN81xelxVoS/egxo2JlqO03mdHGePrpOsJtfS/
+         hPIw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777308521; x=1777913321;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=bZP6CUDEt7N3kI4YkVp2qKdsX54A5o1g08c6mQbolGA=;
+        b=pRVm4UKWjzFBYXMUcUNBiBgQRKYeDNI7/HoygjY4sSAnChjRiGS0Ksn4caF1J3hCC9
+         ePj5iwOaxYsFSkNDsH+AfIJMu5K6nesYiepvZzWP/b/6Skl/rrDOVEevFU6Z7u/xrba9
+         UdmcnAu5Lz/1wlItMqZcITgIXbCvYfmvCa2M/GQuWur7n5JErw0cB/iimMFcp1I6nypI
+         tHKMrPzMkIbQwvjwW++gBYFXJZNX3PxoCae0HifLsAsVzQMe5bLF37x2C9k++D74S9dJ
+         6r94f8TO9neAnGLh9RXipba8ee48F8kgaYlfBF+KbdTIfFKm7MQ8MDRxjmZyB2TVV0ht
+         LcEg==
+X-Forwarded-Encrypted: i=1; AFNElJ/Hc43SMcSbKwSEwm7IZtdHWPTAvSI7xn3r20VP/6i2ZlJx+ZQrOmukBDK+cvoI90j5RlYYILe4JMoj@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx/jNiCC2eVQ3+NKPI8HlS6mcz/PpPlPtD120Xco06o5y1HOcvQ
+	TivXueTeKeF2SV68RXIobeCM1KP0WNfF6n072QzBToM/rNuyxQjpKS950mGSRy4yDH+e1cBKUQd
+	2ZPgDMtR8awRfH6/IQKwow2T97qkZVfBK/IH+9dAz
+X-Gm-Gg: AeBDieu0DHDTBfAGs78jZDsSDltgfBcWf/Hm7w62/H9tXLxX97rsUFdfxuIkB7qGnAq
+	/k/3cG8NmEQmRsipdu0R7MqEWoLn4PB4K/KGtq4JJYH6L5y/7THvRxzEFNyfbr97y+7QmTTHzPm
+	P9ARKxl6S767afsTYQpdkXaLO1YyQnU+rcnCrYF+TFcTtWM+4LIiy5huaMNSZ9Y/201HCfovmkl
+	T8Um3baw0RA8blMmRN0Sk72maOaSZjYoU9Y39bxVJEwPi4eqclgD0nSxVB7OJhLXbdkKaBYJrh8
+	G1sAmgKvp+TGzNHVxOy0bky1p04=
+X-Received: by 2002:a05:6402:5342:10b0:669:d537:de85 with SMTP id
+ 4fb4d7f45d1cf-679b62e5cccmr3086a12.11.1777308521116; Mon, 27 Apr 2026
+ 09:48:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260226-vsie-alter-stfle-fac-v2-3-914974cb922c@linux.ibm.com>
-Sender: Hendrik Brueckner <brueckner@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 26baCeDkPpPZW9x3RqVZoyHWSfrQsr4F
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDI3MDEzMSBTYWx0ZWRfX+QI5a/O4+IRF
- IOJrdwqG8GxTKCtTQp7POcv9IFmAwG0/Brxbuix9aBzs05luHYrGiWm/CkV1ml5T3n4cMI35Epq
- mtNr6+/RmTM08Ez9VETL61LICfPpnXer4mQGsW8hEZa+mvx6f4huH3u/7ZjQm2wv6xziLNrVz/n
- fIHYciecwWPUR8dpqZjZv2oL+hUo5g9EGCILSpVutQl98BjN1MZWtZ2fenP3g+kDwb3U9CLG3Xr
- IFiDv6FRWkTIEqBFM7fRU3+yK3EjBXmzML38p9eedSCJxR4LxjnFPdZp3q8vTjCyb7wtawZtxIf
- ulaFw3l25KR5RJ6tOyLs0XzzGwnv6D1pUf0uvePsiNiiX7kgm38txH0E8X66qa+slne7X0Oy6eG
- Tsw/soJb3ZWs2WB1tJMD8zXMSSH9fDHVN3ezRCfnzD8ZxFmFkgyUrmc8xxDVdZ7s1bms0A107LX
- JRR/nnCizC8f/xMqIZw==
-X-Authority-Analysis: v=2.4 cv=Kc7idwYD c=1 sm=1 tr=0 ts=69ef5b98 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=kj9zAlcOel0A:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=jI7lt5Zo0p4w2OnscCsA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: 26baCeDkPpPZW9x3RqVZoyHWSfrQsr4F
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-27_03,2026-04-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 phishscore=0 bulkscore=0 adultscore=0 spamscore=0
- malwarescore=0 impostorscore=0 priorityscore=1501 lowpriorityscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
- definitions=main-2604270131
+References: <20260421230239.172582-1-minchan@kernel.org> <20260421230239.172582-3-minchan@kernel.org>
+ <aesg-sj6_VmXyqxb@tiehlicka> <7c7da8ae-cd39-4edf-b94f-c79ab85df456@kernel.org>
+ <aevBRh08X4UTMUj9@google.com> <ae8NT0tLt7eBmH6j@tiehlicka>
+In-Reply-To: <ae8NT0tLt7eBmH6j@tiehlicka>
+From: Suren Baghdasaryan <surenb@google.com>
+Date: Mon, 27 Apr 2026 09:48:28 -0700
+X-Gm-Features: AVHnY4L0O_dGJE6WV761t9MXwzX-HoKvv8kfO2fCRciCnWWjyse2vOAdVdr-N4A
+Message-ID: <CAJuCfpHQdA7C50V2WjNrdYcp7feV5ukgxJf+vMNEcp0P1SGEow@mail.gmail.com>
+Subject: Re: [PATCH v1 2/3] mm: process_mrelease: skip LRU movement for
+ exclusive file folios
+To: Michal Hocko <mhocko@suse.com>
+Cc: Minchan Kim <minchan@kernel.org>, "David Hildenbrand (Arm)" <david@kernel.org>, akpm@linux-foundation.org, 
+	hca@linux.ibm.com, linux-s390@vger.kernel.org, brauner@kernel.org, 
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org, timmurray@google.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 26, 2026 at 01:49:06PM +0100, Christoph Schlameuss wrote:
-> From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> 
-> Use switch case in anticipation of handling format-1 and format-2
-> facility list designations in the future.
-> As the alternate STFLE facilities are not enabled, only case 0 is
-> possible.
-> No functional change intended.
-> 
-> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> Co-developed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+On Mon, Apr 27, 2026 at 12:16=E2=80=AFAM Michal Hocko <mhocko@suse.com> wro=
+te:
+>
+> On Fri 24-04-26 12:15:18, Minchan Kim wrote:
+> > On Fri, Apr 24, 2026 at 09:57:16AM +0200, David Hildenbrand (Arm) wrote=
+:
+> > > On 4/24/26 09:51, Michal Hocko wrote:
+> > > > On Tue 21-04-26 16:02:38, Minchan Kim wrote:
+> > > >> For the process_mrelease reclaim, skip LRU handling for exclusive
+> > > >> file-backed folios since they will be freed soon so pointless
+> > > >> to move around in the LRU.
+> > > >>
+> > > >> This avoids costly LRU movement which accounts for a significant p=
+ortion
+> > > >> of the time during unmap_page_range.
+> > > >>
+> > > >> -   91.31%     0.00%  mmap_exit_test   [kernel.kallsyms]  [.] exit=
+_mm
+> > > >>      exit_mm
+> > > >>      __mmput
+> > > >>      exit_mmap
+> > > >>      unmap_vmas
+> > > >>    - unmap_page_range
+> > > >>       - 55.75% folio_mark_accessed
+> > > >>          + 48.79% __folio_batch_add_and_move
+> > > >>            4.23% workingset_activation
+> > > >>       + 12.94% folio_remove_rmap_ptes
+> > > >>       + 9.86% page_table_check_clear
+> > > >>       + 3.34% tlb_flush_mmu
+> > > >>         1.06% __page_table_check_pte_clear
+> > > >>
+> > > >> Signed-off-by: Minchan Kim <minchan@kernel.org>
+> > > >
+> > > > As pointed out in the previous version of the patch. I really disli=
+ke
+> > > > this to be mrelease or OOM specific. Behavior. You do not explain w=
+hy
+> > > > this needs to be this way, except for the performance reasons. My m=
+ain
+> > > > question is still unanswered (and NAK before this is sorted out). W=
+hy
+> > > > this cannot be applied in general for _any_ exiting task. As you ar=
+gue
+> > > > the memory will just likely go away so why to bother?
+> > >
+> > > I think there was a lengthy discussion involving Johannes from a prev=
+ious series.
+> > >
+> > > That should be linked here indeed.
+> >
+> > How about this?
+> >
+> >     mm: process_mrelease: skip LRU movement for exclusive file folios
+> >
+> >     During process_mrelease() or OOM reaping, unmapping file-backed fol=
+ios
+> >     spends a significant portion of CPU time in folio_mark_accessed() t=
+o
+> >     maintain accurate LRU state (~55% of unmap time as shown in the pro=
+file
+> >     below).
+> >
+> >     This patch skips LRU handling for exclusive file-backed folios duri=
+ng
+> >     such emergency memory reclaim.
+> >
+> >     One might ask why this optimization shouldn't be applied to any exi=
+ting
+> >     task in general. The reason is that for a normal, orderly exit or j=
+ust
+> >     pure kill, it is worth paying the CPU cost to preserve the active s=
+tate
+> >     of clean file folios in case they are reused soon. Preserving cache=
+ hits
+> >     is beneficial for overall system performance.
+>
+> This is a statement rather than an explanation. Why is it worth paying
+> the cost? What is different here?
+>
+> >     However, process_mrelease() and OOM reaping are emergency operation=
+s
+> >     triggered under extreme memory pressure. In these scenarios, the hi=
+ghest
+> >     priority is to recover memory as quickly as possible to avoid furth=
+er
+> >     kills or system jank. Spending half of the unmap time on LRU mainte=
+nance
+> >     for pages belonging to a victim process is a bad trade-off. If spee=
+ding up
+> >     the victim's reclaim by avoiding LRU movement and evicting cache ne=
+gatively
+> >     affects the workflow (due to immediate restart), it implies a sub-o=
+ptimal
+> >     kill target selection by the userspace policy (e.g., LMKD), rather =
+than
+> >     a problem in this expedited APIs.
+>
+> Your change effectively boils down to break aging for exclusively mapped
+> file pages when those pages should have been activated. All that because
+> the activation has some (batched) overhead. You argue that the overhead
+> is not a good trade-off for OOM path because those pages are exclusive
+> to the process and therefore they will go away after the task exits.
 
-Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
+I think Minchan's argument is that mm reaping occurs only in special
+conditions (under high memory pressure) and for a very specific reason
+(to free up memory and prevent system memory starvation). Therefore
+priority in such conditions should shift towards more aggressive
+memory reclaim instead of normal aging. I can see both his point and a
+counter-argument that this might cause more refaults in some cases.
+FWIW, in my personal experience working with Android, extra refaults
+when we have free memory is better than inefficient reclaim during
+memory pressure, but I'm not sure that's universally true.
+
+> The same line of argument applies to task exiting normally too. Task
+> exit it not the most hot path but certainly something noticeable,
+> especially so for huge tasks.
+>
+> All that being said, you really need to focus why breaking the aging is
+> a worth optimization. Keep in mind that while the page might be
+> exlusively mapped it could still be actively consumed from the page
+> cache and breaking the aging could lead to refaults.
+> --
+> Michal Hocko
+> SUSE Labs
