@@ -1,77 +1,88 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6748371049
-	for <linux-s390@vger.kernel.org>; Mon, 27 Apr 2026 07:16:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4DAD399004
+	for <linux-s390@vger.kernel.org>; Mon, 27 Apr 2026 08:40:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777274196; cv=none; b=pPjJ2QT6gXmLbelBen0pLWWgoTo7cJbchDvGuS0235+ULxXQTLbMJkTUHPxdtODVBK2FAxTGfBjO3qykThRw3zR6wxVUdQ5yeIPG9wghilp0IgUM34fJeMqaMwP/HraBVnRdqYiyFdY0BGxrjguEb9UYm9C8XNbcjSMtgyDdKyo=
+	t=1777279216; cv=none; b=is7bynVKuIBQkqEZ3Egm1p11dB+629suECHk2LqyHPu7MQuOhFcQDAvYSu0KzMx4TWGyHDWI5qasi3ei4bL+Mq/I6ol3MZuoEL7z6k/c+KW7zECX9wQ17UQ2nKiDNBodgPguFXNPd/w3hFzfF6mt8IVob8YvUm/5JysLv2007/w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777274196; c=relaxed/simple;
-	bh=CgYNoeo4Ma2x/AydAJ9rtFeZOoiEC4OwaUsFMIwsgtQ=;
+	s=arc-20240116; t=1777279216; c=relaxed/simple;
+	bh=J4K4WRMeIupX4g2+9UUJs4Q75/PNoTkQ942MQBipmNg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XYx45ws5Yp61C52z6cjzxml0hMYOIrBfKGv7yhii6IQ1iwalcmjJopoug2RdVzrEVkMd1RoGYQwDzDR1IrQUN7KVBU+eZqqk1C21dtnThkcICkIsUETP+sbemQ/SRfzKQNbBeQUYhondYbYG5qERL4WUk9q0bJAI/958HdPQ0Xk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=hDb7m1ZX; arc=none smtp.client-ip=209.85.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=cwNNExYXkgMUESd4IxLvBF6lOcv8k/FpvK8ctjr62Ok0kSnRV7x+gxx0d5r/cJcFOHZYNm1Krv0DdYM7wWOy53po82I9nMfuUDYkOOd0oUxal6Pa/wOhXZOfHQeLzrtz9cOB+WlibzucHquU+TdQtMBZIZ69rjlsUIiIs/qomds=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=nj+KaZoT; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=dZpnDmyN; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=qQIp1vvF; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=MnJWARvn; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="hDb7m1ZX"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4891e5b9c1fso82009525e9.2
-        for <linux-s390@vger.kernel.org>; Mon, 27 Apr 2026 00:16:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1777274193; x=1777878993; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=7AvPAXsuvtgC8xHgqZ0h0f5zzV7f6VHw1kg2bqEt4fs=;
-        b=hDb7m1ZXCEU7U40wHfcJ1qdVA21mrF5/dJKreyA7cQ0iAGN7hD3NgY84Syn38W8BY+
-         cZgr58ALRgoQFHy3GgfGzOsFRqPyORZdgetCj8qLsXqJPxg3r5wuOL5OU2Ra/fCq/rYD
-         eaN2Dj6C0VVzr3bBcApe14m+bhsdSRftHx0wNSTWnTckELEbRrTiSFbD87NSSTT4Qe2c
-         SS/qRC+JqetZvMIRTHIcdHVqn+GWd4X7SxxqlVWbG3AeoXJsxZ4Z31qZJwZ2VpyfFyzO
-         Njv8XVRbJSq7DQzZ1l3gsYlf9yokIQZ3FlFSwuj6xgGmKZqPMwOPNSlfFZ5QdhN8F26Q
-         PGtw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777274193; x=1777878993;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=7AvPAXsuvtgC8xHgqZ0h0f5zzV7f6VHw1kg2bqEt4fs=;
-        b=ia0QQJzYEjP3hoBob9m2onY9SqHg5d5pUOx6ibYcPtesUu8ZIIcjOP7VPi/0+3qty/
-         Ro255IUdYlh/2OLlL328f3qBMG63JLsa2zEjuChghdjUzGwmVzKTnB/MH2Z86J41jo8r
-         Q3xDSBM2dzkA2Fae/NM6lJN5cRNwUaBM3T2Az8Ibo1V6iopGeagtCg0MakSQnymafu8c
-         DXN0+4pjb4CMZ8WNg8cDuNBmEk8FWUMUS3dOVVqA6RqSJA7VReITpqZ59NSLjP4W1e93
-         4pc+dCVJf+Oo/rrCvm3FF8gYtfN1f0C7l7mNG8Fq4hHBIAtrCyNKYk/sqSPDOR/kd4mf
-         78tg==
-X-Forwarded-Encrypted: i=1; AFNElJ9p7NHdQY0m9MOO+1LQelqO/asfLMby0hxmT5nZ4VkG6RaS0ZAV4lOt+oqjHkA6PzKG7N1HwUt/ww2P@vger.kernel.org
-X-Gm-Message-State: AOJu0Yza3215JdAbarlKYw7CBD27g+E+YlbQ8Xi+fQES7hou8EuUG6Lo
-	A2ZXMfCklYMvI1S052NLM1eCUfCFcKKLtg7fZIn+X574M2OfvkK09PB9kexMQk5n1xM=
-X-Gm-Gg: AeBDiet4PR8TGV1ojkwEIojjvPEKkCEY/DDAaarhAs748OL9XHslmeCstZxGRsA/7eD
-	8KUGM3Txic6tLA0yo9WqZ0ABP8bHY7XoOY8KHCWoWUiE6zMUeuZ7PrkgtJSS4KT1iU+g8PWY0sU
-	WinsEbmOlnwSfZdJIV+TU7qc+aRyUANqfeG4eSM0zsW5B0ZzfcuFKAl1HJ13nJKjeIIUEFOlQff
-	yDwY3PMTlsCOGKD+WqxYQdyzjwNyXjboKOlBK/TLOLlDWo7tzBVc4C+Y0hzOiD5fi+pRZc0GR8Y
-	ltLQb7fceMESJo5H9QVCLEW48D47d5imm9GFTv4WKuVuKDgA7i6JhLWDMcStHDoshWWq5rZYRuQ
-	niNazG/x5ECLhn/R9T1pGCbGJY7rIV4jsmHJhKSI8ydSFMvrrWyotobfM0qNDR8kXT8EEP+w6gM
-	MPeTuIWY8k90aRWG8+2JKO3LsAY4HQQF0YSbzpYrEF6Ybb3sc=
-X-Received: by 2002:a05:600c:858c:b0:48a:55d8:7882 with SMTP id 5b1f17b1804b1-48a55d87a58mr307347815e9.9.1777274192917;
-        Mon, 27 Apr 2026 00:16:32 -0700 (PDT)
-Received: from localhost (109-81-17-171.rct.o2.cz. [109.81.17.171])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488fc177dafsm936339475e9.4.2026.04.27.00.16.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Apr 2026 00:16:32 -0700 (PDT)
-Date: Mon, 27 Apr 2026 09:16:31 +0200
-From: Michal Hocko <mhocko@suse.com>
-To: Minchan Kim <minchan@kernel.org>
-Cc: "David Hildenbrand (Arm)" <david@kernel.org>, akpm@linux-foundation.org,
-	hca@linux.ibm.com, linux-s390@vger.kernel.org, brauner@kernel.org,
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org, surenb@google.com,
-	timmurray@google.com
-Subject: Re: [PATCH v1 2/3] mm: process_mrelease: skip LRU movement for
- exclusive file folios
-Message-ID: <ae8NT0tLt7eBmH6j@tiehlicka>
-References: <20260421230239.172582-1-minchan@kernel.org>
- <20260421230239.172582-3-minchan@kernel.org>
- <aesg-sj6_VmXyqxb@tiehlicka>
- <7c7da8ae-cd39-4edf-b94f-c79ab85df456@kernel.org>
- <aevBRh08X4UTMUj9@google.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="nj+KaZoT";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="dZpnDmyN";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="qQIp1vvF";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="MnJWARvn"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id D7F695BE62;
+	Mon, 27 Apr 2026 08:40:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1777279213; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=UReiR8tBfbqAEvNOviGNvtVyvBhm/HcNLTCRksGYy3I=;
+	b=nj+KaZoTa9/GluQ+DtQMok6+GUWJi1tSIzfND7q2L8gk5IOcF7ADSICLODzq2/HDwKHuR1
+	mwc1neZ6DMk57ngllZ7J3GsnGDuJaFGnXJZ0HQFjQArUVjpiAXBGWtiiQJzf0Aprw9pw5N
+	2LD+fRuQSktgzxdecdWzeEGxtd9RFV4=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1777279213;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=UReiR8tBfbqAEvNOviGNvtVyvBhm/HcNLTCRksGYy3I=;
+	b=dZpnDmyNL8/pfI3pY1ODk1TSRuRBxiFsZiMCHy0UXtV95kCKLZQh6EeZ6uQZBb5ZUpQmYW
+	qR31hY14RmsYwTAg==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1777279212; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=UReiR8tBfbqAEvNOviGNvtVyvBhm/HcNLTCRksGYy3I=;
+	b=qQIp1vvF6IRXxs1zMpZogcXfT47UPQX2tZrk9tFoSjC8cRwLBVKntuH5EvgsK37aSYBEGv
+	fFFW0tgJuYgGLmcuiyI9LdRRmpJ1LvQxtG9m0j4Jp0VEOgP4Wok1DScnpFZiS36ADkjn1P
+	4ruWkvqy6PhyJcGkIo6TtKDeuL6m21w=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1777279212;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=UReiR8tBfbqAEvNOviGNvtVyvBhm/HcNLTCRksGYy3I=;
+	b=MnJWARvn4BQ8RqANKFlWJgXcRF03Fl+yplpj549cRVqodgRw5qXhJQGw5EPljgVL0wb/aR
+	BlINi6ltNAnZqMAA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 6BB04593B0;
+	Mon, 27 Apr 2026 08:40:12 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id BQwYGOwg72n7JQAAD6G6ig
+	(envelope-from <osalvador@suse.de>); Mon, 27 Apr 2026 08:40:12 +0000
+Date: Mon, 27 Apr 2026 10:40:02 +0200
+From: Oscar Salvador <osalvador@suse.de>
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	David Hildenbrand <david@redhat.com>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm/page_vma_mapped_walk: add missing pgtable entry
+ accessors
+Message-ID: <ae8g4jipQxQZRe6E@localhost.localdomain>
+References: <20260427052000.196402-1-agordeev@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -80,90 +91,56 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aevBRh08X4UTMUj9@google.com>
+In-Reply-To: <20260427052000.196402-1-agordeev@linux.ibm.com>
+X-Spamd-Result: default: False [-4.30 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	ARC_NA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MISSING_XM_UA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCPT_COUNT_SEVEN(0.00)[10];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,localhost.localdomain:mid]
+X-Spam-Flag: NO
+X-Spam-Score: -4.30
+X-Spam-Level: 
 
-On Fri 24-04-26 12:15:18, Minchan Kim wrote:
-> On Fri, Apr 24, 2026 at 09:57:16AM +0200, David Hildenbrand (Arm) wrote:
-> > On 4/24/26 09:51, Michal Hocko wrote:
-> > > On Tue 21-04-26 16:02:38, Minchan Kim wrote:
-> > >> For the process_mrelease reclaim, skip LRU handling for exclusive
-> > >> file-backed folios since they will be freed soon so pointless
-> > >> to move around in the LRU.
-> > >>
-> > >> This avoids costly LRU movement which accounts for a significant portion
-> > >> of the time during unmap_page_range.
-> > >>
-> > >> -   91.31%     0.00%  mmap_exit_test   [kernel.kallsyms]  [.] exit_mm
-> > >>      exit_mm
-> > >>      __mmput
-> > >>      exit_mmap
-> > >>      unmap_vmas
-> > >>    - unmap_page_range
-> > >>       - 55.75% folio_mark_accessed
-> > >>          + 48.79% __folio_batch_add_and_move
-> > >>            4.23% workingset_activation
-> > >>       + 12.94% folio_remove_rmap_ptes
-> > >>       + 9.86% page_table_check_clear
-> > >>       + 3.34% tlb_flush_mmu
-> > >>         1.06% __page_table_check_pte_clear
-> > >>
-> > >> Signed-off-by: Minchan Kim <minchan@kernel.org>
-> > > 
-> > > As pointed out in the previous version of the patch. I really dislike
-> > > this to be mrelease or OOM specific. Behavior. You do not explain why
-> > > this needs to be this way, except for the performance reasons. My main
-> > > question is still unanswered (and NAK before this is sorted out). Why
-> > > this cannot be applied in general for _any_ exiting task. As you argue
-> > > the memory will just likely go away so why to bother?
-> > 
-> > I think there was a lengthy discussion involving Johannes from a previous series.
-> > 
-> > That should be linked here indeed.
+On Mon, Apr 27, 2026 at 07:20:00AM +0200, Alexander Gordeev wrote:
+> Convert pgtable direct entry dereferences to the corresponding
+> pXdp_get() accessors. Use ptep_get_lockless() variant for PTE
+> reads when no lock is taken.
 > 
-> How about this?
+> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> ---
+>  mm/page_vma_mapped.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
 > 
->     mm: process_mrelease: skip LRU movement for exclusive file folios
-> 
->     During process_mrelease() or OOM reaping, unmapping file-backed folios
->     spends a significant portion of CPU time in folio_mark_accessed() to
->     maintain accurate LRU state (~55% of unmap time as shown in the profile
->     below).
-> 
->     This patch skips LRU handling for exclusive file-backed folios during
->     such emergency memory reclaim.
-> 
->     One might ask why this optimization shouldn't be applied to any exiting
->     task in general. The reason is that for a normal, orderly exit or just
->     pure kill, it is worth paying the CPU cost to preserve the active state
->     of clean file folios in case they are reused soon. Preserving cache hits
->     is beneficial for overall system performance.
+> diff --git a/mm/page_vma_mapped.c b/mm/page_vma_mapped.c
+> index b38a1d00c971..a4520bb10d2a 100644
+> --- a/mm/page_vma_mapped.c
+> +++ b/mm/page_vma_mapped.c
+...
+> @@ -317,7 +317,7 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
+>  				goto restart;
+>  			}
+>  			pvmw->pte++;
+> -		} while (pte_none(ptep_get(pvmw->pte)));
+> +		} while (pte_none(ptep_get_lockless(pvmw->pte)));
 
-This is a statement rather than an explanation. Why is it worth paying
-the cost? What is different here?
+map_pte() might take the lock if PVWN_SYNC mode, or am I missing something?
 
->     However, process_mrelease() and OOM reaping are emergency operations
->     triggered under extreme memory pressure. In these scenarios, the highest
->     priority is to recover memory as quickly as possible to avoid further
->     kills or system jank. Spending half of the unmap time on LRU maintenance
->     for pages belonging to a victim process is a bad trade-off. If speeding up
->     the victim's reclaim by avoiding LRU movement and evicting cache negatively
->     affects the workflow (due to immediate restart), it implies a sub-optimal
->     kill target selection by the userspace policy (e.g., LMKD), rather than
->     a problem in this expedited APIs.
+ 
 
-Your change effectively boils down to break aging for exclusively mapped
-file pages when those pages should have been activated. All that because
-the activation has some (batched) overhead. You argue that the overhead
-is not a good trade-off for OOM path because those pages are exclusive
-to the process and therefore they will go away after the task exits.
-The same line of argument applies to task exiting normally too. Task
-exit it not the most hot path but certainly something noticeable,
-especially so for huge tasks.
-
-All that being said, you really need to focus why breaking the aging is
-a worth optimization. Keep in mind that while the page might be
-exlusively mapped it could still be actively consumed from the page
-cache and breaking the aging could lead to refaults.
 -- 
-Michal Hocko
+Oscar Salvador
 SUSE Labs
