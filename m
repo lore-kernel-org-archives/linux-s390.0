@@ -1,57 +1,57 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE79E44D014;
-	Tue, 28 Apr 2026 16:02:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 625A943E4B1;
+	Tue, 28 Apr 2026 16:05:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777392146; cv=none; b=AMZtRyXucBDYiiGer3kjpaTUOTu/Ve+2dl4fue+FQoNtV72Ys9+/zrJ0XJciRpTWCIRyDtRsmewp/gkw0CDvwFroYFHWCwD2XoBkUTbH7Pa6RF6xwlyU0rSKH4SZkfvkgq7CSSThLOQaH6aShpiY50YKcl87Wo71Nq2TqZfK7Cc=
+	t=1777392360; cv=none; b=RJnSSPD4MBhBuxVzkSbnQ7IHU5WL5HpGKwpWFaZp2K92Fhc9e1plLb63KZlWAzA4YRecScSKZta0wmwk07sJkQ11HtxwvdAcS06AZJ1yx8XXzgop0yXWD/xrPXq/QrPwAuczGXbxtP9sP55njcQy2Z3hTMYwQqN83b51J2r7VwE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777392146; c=relaxed/simple;
-	bh=xpBoS0vYziibIdR/Dkfw3B3CLYx670ekSHESM1p0b04=;
+	s=arc-20240116; t=1777392360; c=relaxed/simple;
+	bh=uHxvoTgwXjL2QW3i35q4rUmRCDNLvFBHj4SO4Xc9KPc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Ee0A98pnA9KliSB99lfrIh8b+LGnAFwe+qWrOPNpkunn9NfF9/Nziy2o5pNMO7kQr+t633Pu3cwLx3LizQaINEYves3TwBS01s6TnYQVDwpPLVQpwI8SAawjm2VP+MSoQ/Q6WY0mcQUNx2mAYEpWLjDPrP2kn27uWaPew1f9SGc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=h3anNAfw; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=unNoGTDX3YFwKCU/MNUKSEPWMx8Ug81t+eNcaXF6OvyDEAIIvR0QpAkvJIaRh3dcscWODyxT2Juv5LN4eZEPHeWlqay5GfpMRBUDnitIDr/cr05m/19xtvlRn2vTcB758Rw8nkqXmI5CgoXM+XgtLYDagUwdgNe4+HbVowTSWFQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=T/cG7bFG; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="h3anNAfw"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63S6XPo22497857;
-	Tue, 28 Apr 2026 15:56:29 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="T/cG7bFG"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63S6lGsO2931477;
+	Tue, 28 Apr 2026 16:05:35 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=B2j94V/uzP3SFd9G3
-	ERlrsoyUwM0lq9xReO4GEkxtkc=; b=h3anNAfwqlfBWLXBcaGzLnijMxj4+DOlL
-	yY0YnQcHp3wr1Bdl5v/7nsUiMXd934uOJk/DDxDejvOIGqKMaFhFe2PMdQj9kVkJ
-	bnUICpo901IcZZPk5/FgssHlFTBBE7TNFf9gnnWnv60+/ETGRW7SVS/AQA0nPkEs
-	5Y39AL2FS3NJWOnbAfIKsDs54CBk1psvghpawVe7zyf0yDcErfu7mwIaXYZup9KB
-	7x7Sp/GLhSkcw6abTRyVvLk6tUumtjj468bb5N0PvgD+N+2k7HqYCqgm5Ar4KlCV
-	qJpCHpgCDdHMxKYcgoRNyqIi50MWOYXcQKs3rvy0zfSflVTDfqG/A==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4drnb56c80-1
+	:mime-version:references:subject:to; s=pp1; bh=Kg67JfY+fk4IjcDPP
+	0va87xdQ4xDehqqcIBdAGfz9iA=; b=T/cG7bFGCXtucMDdH78KFC5SNoq80K6+C
+	RuuIdXjdO+py7x5291NdJpNRy9mLLCHSd4oC3EaJD3/M5Mbppvurtffxh7p75fRH
+	ISAdQXj7/qhle47sJY6ITAfC1/bwxfWLCvSSI1xU6ocxO1SF7zs3d9w8fcmOxClS
+	wTLMoHM4ZNBW9DzTkePfcRY0j0BDrzpOzsAVc4Rq5V6jDMEJdpWQh6J3OBBZyhby
+	ZXVTq/daJbKDKmj/nlksP1ZUop61PvajmJAg/ZpMwRm4tE56zp8Fufs/PWHNBphw
+	k3WAtza9McnYiplAc6En5E0BlL8URwXvM+YIZiKz7VsjHBBntauEQ==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4drn44pgpx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Apr 2026 15:56:29 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63SFrplo027791;
-	Tue, 28 Apr 2026 15:56:28 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dsamya54x-1
+	Tue, 28 Apr 2026 16:05:34 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63SFrqfj001950;
+	Tue, 28 Apr 2026 16:05:33 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dsa5ga9eb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Apr 2026 15:56:28 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63SFuNbM62914850
+	Tue, 28 Apr 2026 16:05:33 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63SG5UUP49742086
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 28 Apr 2026 15:56:23 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 89E502004B;
-	Tue, 28 Apr 2026 15:56:23 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 34C8D2005A;
-	Tue, 28 Apr 2026 15:56:23 +0000 (GMT)
+	Tue, 28 Apr 2026 16:05:30 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E71E320040;
+	Tue, 28 Apr 2026 16:05:29 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 96A242004E;
+	Tue, 28 Apr 2026 16:05:29 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 28 Apr 2026 15:56:23 +0000 (GMT)
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 28 Apr 2026 16:05:29 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
 To: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -70,12 +70,12 @@ Cc: Andreas Grapentin <gra@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
         Suzuki K Poulose <suzuki.poulose@arm.com>,
         Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
         Will Deacon <will@kernel.org>, Zenghui Yu <yuzenghui@huawei.com>
-Subject: [PATCH v2 01/28] VFIO: take reference to the KVM module
-Date: Tue, 28 Apr 2026 17:55:53 +0200
-Message-ID: <20260428155622.1361364-2-seiden@linux.ibm.com>
+Subject: [RFC PATCH v2 06/28] arm64: Provide arm64 API for non-native architectures
+Date: Tue, 28 Apr 2026 18:05:03 +0200
+Message-ID: <20260428160527.1378085-7-seiden@linux.ibm.com>
 X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260428155622.1361364-1-seiden@linux.ibm.com>
-References: <20260428155622.1361364-1-seiden@linux.ibm.com>
+In-Reply-To: <20260428160527.1378085-1-seiden@linux.ibm.com>
+References: <20260428160527.1378085-1-seiden@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -84,290 +84,296 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=AqDeGu9P c=1 sm=1 tr=0 ts=69f0d8ad cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-ORIG-GUID: hgRmQUGaJKDnOIRpnqaoFlOT4NiIQWVM
+X-Authority-Analysis: v=2.4 cv=Ft81OWrq c=1 sm=1 tr=0 ts=69f0dace cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=20KFwNOVAAAA:8 a=VnNF1IyMAAAA:8 a=r1p2_3pzAAAA:8
- a=U3YOjIjXimIOwXAI40wA:9 a=r_pkcD-q9-ctt7trBg_g:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDI4MDE1MSBTYWx0ZWRfX9ADGUyZkpOhM
- WSw/5yH5r95hTz2kwgCVJ7SCeYasRH+LOrW4N9awR9RpPFdAaUWH1vx54nqDUiYMZ++XPi4Zo/z
- XPiFzyw7JeNMR5rGB8vNzxW9pqfD+jRVf9+ma8Sm0oLZvs0AhTinJoYtOfnEm8lxAES9V6MPY75
- DXcW/9WQEnSPBHx/DgZdGamf3tMU0rVEHSXYR2Iv88JWSnc4KhDhxjBKG8bF9m0A4lv8NdXGTvM
- /rV2omoMV54dUPCxoBwg8qfrsSR9AKpLFQfR4rMNBeUFoSyug/HmhR9Zk9Il68p4VUR1RUNL0fW
- JxGfEFfeqQm1pzur9lLpPikUPChfjPAtQ+4X1KVmpx+CcXcL9dqv7T3DJmhSf2hPuosck57Km/k
- NSi4pK/PgyYw6jD/gwv+vhuRXw14LVUS0kNrFH8k+a6o3kSDCal6/sBn0HJi+MselKWniUs7ZeV
- wbEowdZzOj1uwKXVeOg==
-X-Proofpoint-GUID: qXDkqdgae-nHDTKICu1p3-WpTKhNp8Zi
-X-Proofpoint-ORIG-GUID: qXDkqdgae-nHDTKICu1p3-WpTKhNp8Zi
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=7CQSdrXTAAAA:8
+ a=shFDtqSNEAS05WitX5wA:9 a=a-qgeE7W1pNrGK8U0ZQC:22
+X-Proofpoint-GUID: hgRmQUGaJKDnOIRpnqaoFlOT4NiIQWVM
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDI4MDE1MSBTYWx0ZWRfXwed5FC+l8sSl
+ iT5EjNl9ipmb/sF6YogBSAP00g7Utc86v2Xw+22tpvi4UwRhP4+GchyriAdY1hVulkKkt8Cik6y
+ LO6iBrOf+9V+Zqes/9vaRdAsXnjlm3SV0mJe7uiI7Ot8frauXR+PTSiOy3mZF9XMhbQpBmuzEaD
+ 9WEM01M5848Ku0ruEFkHPdRCnD69yqBPJpSeRyXP8RNcjc2wW4QlOFommF2CuPPkOsC1gikh1Gp
+ W1IYNyheVO1+/DWub/SHeUhfdLnrtiHx/IMDfy6is/B2ky+zGYHwGXeRn2OZsCDb/7XQ/9iXFRP
+ pw08oDualN2VvSiY4hNGzNYPhRVNmixTEVN530TwP6x4NCC20/qmGVCG7RR9il1SZ4Do78R4Jbe
+ 02EqbUMTsd/8RcRE8roRvDq/LphFookiBYi7CL1tlFUV5SUNvwdT42UJrUynay+OMYI78yYNMY/
+ 0IIbZJ6hD6kgk4COXkw==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-28_05,2026-04-28_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 priorityscore=1501 phishscore=0 suspectscore=0 clxscore=1015
- lowpriorityscore=0 spamscore=0 bulkscore=0 impostorscore=0 malwarescore=0
+ priorityscore=1501 lowpriorityscore=0 bulkscore=0 spamscore=0 impostorscore=0
+ clxscore=1015 malwarescore=0 phishscore=0 suspectscore=0 adultscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2604280151
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+Enable the usage of arm64 asm headers independent of the CPU
+architecture. Introduce a new directory, include/arch/arm64 to store
+(host) architecture- agnostic headers for arm64 implementors.
 
-VFIO is implicitly taking a reference to the KVM module between
-vfio_device_get_kvm_safe and vfio_device_put_kvm, thanks to
-symbol_get and symbol_put.
+The new path is added to the include patch of native arm64. Therefore,
+arm64 will continue to reference to those headers via include
+<asm/header.h> without any code change. This means that the header names
+should be unique for arm64 asm headers. For native arm64, headers at the
+new path take precedence over any other include path.
 
-In preparation for removing symbol_get and symbol_put themselves
-from VFIO, actually store a pointer to the KVM module and use
-module_get()/module_put() to keep KVM alive.
+For other architectures to use the esr string names, move *esr_class_str
+from traps.c to esr.h.
 
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
-Acked-by: Alex Williamson <alex@shazbot.org>
+For a seamless integration non-native architectures must also include the
+new path to the include path.
+
+Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- drivers/vfio/device_cdev.c |  2 +-
- drivers/vfio/group.c       |  5 +++--
- drivers/vfio/vfio.h        | 15 ++++++++++-----
- drivers/vfio/vfio_main.c   | 37 +++++++++++++++++++++++--------------
- include/linux/vfio.h       |  3 ++-
- virt/kvm/vfio.c            |  4 ++--
- 6 files changed, 41 insertions(+), 25 deletions(-)
+ MAINTAINERS                          |  1 +
+ arch/arm64/Makefile                  |  2 +
+ arch/arm64/include/asm/brk-imm.h     |  6 +--
+ arch/arm64/include/asm/esr.h         | 62 +++++++++++++++++++++++++---
+ arch/arm64/include/asm/sysreg-defs.h |  6 +--
+ arch/arm64/kernel/traps.c            | 53 ------------------------
+ include/arch/arm64/asm/brk-imm.h     |  1 +
+ include/arch/arm64/asm/esr.h         |  1 +
+ include/arch/arm64/asm/sysreg-defs.h |  1 +
+ 9 files changed, 68 insertions(+), 65 deletions(-)
+ create mode 120000 include/arch/arm64/asm/brk-imm.h
+ create mode 120000 include/arch/arm64/asm/esr.h
+ create mode 120000 include/arch/arm64/asm/sysreg-defs.h
 
-diff --git a/drivers/vfio/device_cdev.c b/drivers/vfio/device_cdev.c
-index 8ceca24ac136..a67d7215c239 100644
---- a/drivers/vfio/device_cdev.c
-+++ b/drivers/vfio/device_cdev.c
-@@ -56,7 +56,7 @@ int vfio_device_fops_cdev_open(struct inode *inode, struct file *filep)
- static void vfio_df_get_kvm_safe(struct vfio_device_file *df)
- {
- 	spin_lock(&df->kvm_ref_lock);
--	vfio_device_get_kvm_safe(df->device, df->kvm);
-+	vfio_device_get_kvm_safe(df->device, df->kvm, df->kvm_module);
- 	spin_unlock(&df->kvm_ref_lock);
- }
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 1b67fb5da13e..3ffd5102dcfd 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -3817,6 +3817,7 @@ S:	Maintained
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux.git
+ F:	Documentation/arch/arm64/
+ F:	arch/arm64/
++F:	include/arch/arm64/
+ F:	drivers/virt/coco/arm-cca-guest/
+ F:	drivers/virt/coco/pkvm-guest/
+ F:	tools/testing/selftests/arm64/
+diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
+index 73a10f65ce8b..b244e837cedd 100644
+--- a/arch/arm64/Makefile
++++ b/arch/arm64/Makefile
+@@ -221,6 +221,8 @@ PHONY += virtconfig
+ virtconfig:
+ 	$(call merge_into_defconfig_override,defconfig,virt)
  
-diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
-index 4f15016d2a5f..7d28f45fefaa 100644
---- a/drivers/vfio/group.c
-+++ b/drivers/vfio/group.c
-@@ -158,7 +158,7 @@ static int vfio_group_ioctl_set_container(struct vfio_group *group,
- static void vfio_device_group_get_kvm_safe(struct vfio_device *device)
- {
- 	spin_lock(&device->group->kvm_ref_lock);
--	vfio_device_get_kvm_safe(device, device->group->kvm);
-+	vfio_device_get_kvm_safe(device, device->group->kvm, device->group->kvm_module);
- 	spin_unlock(&device->group->kvm_ref_lock);
- }
- 
-@@ -858,10 +858,11 @@ bool vfio_group_enforced_coherent(struct vfio_group *group)
- 	return ret;
- }
- 
--void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm)
-+void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm, struct module *kvm_module)
- {
- 	spin_lock(&group->kvm_ref_lock);
- 	group->kvm = kvm;
-+	group->kvm_module = kvm_module;
- 	spin_unlock(&group->kvm_ref_lock);
- }
- 
-diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-index 50128da18bca..a0c38f89b30a 100644
---- a/drivers/vfio/vfio.h
-+++ b/drivers/vfio/vfio.h
-@@ -22,8 +22,9 @@ struct vfio_device_file {
- 
- 	u8 access_granted;
- 	u32 devid; /* only valid when iommufd is valid */
--	spinlock_t kvm_ref_lock; /* protect kvm field */
-+	spinlock_t kvm_ref_lock; /* protect kvm and kvm_module fields */
- 	struct kvm *kvm;
-+	struct module *kvm_module;
- 	struct iommufd_ctx *iommufd; /* protected by struct vfio_device_set::lock */
- };
- 
-@@ -89,6 +90,7 @@ struct vfio_group {
- 	enum vfio_group_type		type;
- 	struct mutex			group_lock;
- 	struct kvm			*kvm;
-+	struct module			*kvm_module;
- 	struct file			*opened_file;
- 	struct blocking_notifier_head	notifier;
- 	struct iommufd_ctx		*iommufd;
-@@ -108,7 +110,7 @@ void vfio_device_group_unuse_iommu(struct vfio_device *device);
- void vfio_df_group_close(struct vfio_device_file *df);
- struct vfio_group *vfio_group_from_file(struct file *file);
- bool vfio_group_enforced_coherent(struct vfio_group *group);
--void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm);
-+void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm, struct module *kvm_module);
- bool vfio_device_has_container(struct vfio_device *device);
- int __init vfio_group_init(void);
- void vfio_group_cleanup(void);
-@@ -171,7 +173,8 @@ static inline bool vfio_group_enforced_coherent(struct vfio_group *group)
- 	return true;
- }
- 
--static inline void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm)
-+static inline void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm,
-+				      struct module *kvm_module)
- {
- }
- 
-@@ -435,11 +438,13 @@ static inline void vfio_virqfd_exit(void)
- #endif
- 
- #if IS_ENABLED(CONFIG_KVM)
--void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm);
-+void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm,
-+			      struct module *kvm_module);
- void vfio_device_put_kvm(struct vfio_device *device);
- #else
- static inline void vfio_device_get_kvm_safe(struct vfio_device *device,
--					    struct kvm *kvm)
-+					    struct kvm *kvm,
-+					    struct module *kvm_module)
- {
- }
- 
-diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-index 742477546b15..d1bbc42d484a 100644
---- a/drivers/vfio/vfio_main.c
-+++ b/drivers/vfio/vfio_main.c
-@@ -433,7 +433,7 @@ void vfio_unregister_group_dev(struct vfio_device *device)
- EXPORT_SYMBOL_GPL(vfio_unregister_group_dev);
- 
- #if IS_ENABLED(CONFIG_KVM)
--void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm)
-+void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm, struct module *kvm_module)
- {
- 	void (*pfn)(struct kvm *kvm);
- 	bool (*fn)(struct kvm *kvm);
-@@ -444,25 +444,31 @@ void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm)
- 	if (!kvm)
- 		return;
- 
-+	if (!try_module_get(kvm_module))
-+		return;
++LINUXINCLUDE := -I$(srctree)/include/arch/arm64/ $(LINUXINCLUDE)
 +
- 	pfn = symbol_get(kvm_put_kvm);
- 	if (WARN_ON(!pfn))
--		return;
-+		goto out_put_mod;
- 
- 	fn = symbol_get(kvm_get_kvm_safe);
--	if (WARN_ON(!fn)) {
--		symbol_put(kvm_put_kvm);
--		return;
--	}
-+	if (WARN_ON(!fn))
-+		goto out_put_sym;
- 
- 	ret = fn(kvm);
- 	symbol_put(kvm_get_kvm_safe);
--	if (!ret) {
--		symbol_put(kvm_put_kvm);
--		return;
--	}
-+	if (!ret)
-+		goto out_put_sym;
- 
- 	device->put_kvm = pfn;
- 	device->kvm = kvm;
-+	device->kvm_module = kvm_module;
-+	return;
-+
-+out_put_sym:
-+	symbol_put(kvm_put_kvm);
-+out_put_mod:
-+	module_put(kvm_module);
- }
- 
- void vfio_device_put_kvm(struct vfio_device *device)
-@@ -481,6 +487,8 @@ void vfio_device_put_kvm(struct vfio_device *device)
- 
- clear:
- 	device->kvm = NULL;
-+	module_put(device->kvm_module);
-+	device->kvm_module = NULL;
- }
- #endif
- 
-@@ -1483,7 +1491,7 @@ bool vfio_file_enforced_coherent(struct file *file)
- }
- EXPORT_SYMBOL_GPL(vfio_file_enforced_coherent);
- 
--static void vfio_device_file_set_kvm(struct file *file, struct kvm *kvm)
-+static void vfio_device_file_set_kvm(struct file *file, struct kvm *kvm, struct module *kvm_module)
- {
- 	struct vfio_device_file *df = file->private_data;
- 
-@@ -1494,6 +1502,7 @@ static void vfio_device_file_set_kvm(struct file *file, struct kvm *kvm)
- 	 */
- 	spin_lock(&df->kvm_ref_lock);
- 	df->kvm = kvm;
-+	df->kvm_module = kvm_module;
- 	spin_unlock(&df->kvm_ref_lock);
- }
- 
-@@ -1505,16 +1514,16 @@ static void vfio_device_file_set_kvm(struct file *file, struct kvm *kvm)
-  * When a VFIO device is first opened the KVM will be available in
-  * device->kvm if one was associated with the file.
+ define archhelp
+   echo  '* Image.gz      - Compressed kernel image (arch/$(ARCH)/boot/Image.gz)'
+   echo  '  Image         - Uncompressed kernel image (arch/$(ARCH)/boot/Image)'
+diff --git a/arch/arm64/include/asm/brk-imm.h b/arch/arm64/include/asm/brk-imm.h
+index beb42c62b6ac..265965339e95 100644
+--- a/arch/arm64/include/asm/brk-imm.h
++++ b/arch/arm64/include/asm/brk-imm.h
+@@ -3,8 +3,8 @@
+  * Copyright (C) 2012 ARM Ltd.
   */
--void vfio_file_set_kvm(struct file *file, struct kvm *kvm)
-+void vfio_file_set_kvm(struct file *file, struct kvm *kvm, struct module *kvm_module)
- {
- 	struct vfio_group *group;
  
- 	group = vfio_group_from_file(file);
- 	if (group)
--		vfio_group_set_kvm(group, kvm);
-+		vfio_group_set_kvm(group, kvm, kvm_module);
+-#ifndef __ASM_BRK_IMM_H
+-#define __ASM_BRK_IMM_H
++#ifndef __ARM64_SHARED_ASM_BRK_IMM_H
++#define __ARM64_SHARED_ASM_BRK_IMM_H
  
- 	if (vfio_device_from_file(file))
--		vfio_device_file_set_kvm(file, kvm);
-+		vfio_device_file_set_kvm(file, kvm, kvm_module);
+ /*
+  * #imm16 values used for BRK instruction generation
+@@ -39,4 +39,4 @@
+ #define CFI_BRK_IMM_BASE		0x8000
+ #define CFI_BRK_IMM_MASK		(CFI_BRK_IMM_TARGET | CFI_BRK_IMM_TYPE)
+ 
+-#endif
++#endif /* __ARM64_SHARED_ASM_BRK_IMM_H */
+diff --git a/arch/arm64/include/asm/esr.h b/arch/arm64/include/asm/esr.h
+index 7e86d400864e..780dc44faf99 100644
+--- a/arch/arm64/include/asm/esr.h
++++ b/arch/arm64/include/asm/esr.h
+@@ -4,11 +4,12 @@
+  * Author: Marc Zyngier <marc.zyngier@arm.com>
+  */
+ 
+-#ifndef __ASM_ESR_H
+-#define __ASM_ESR_H
++#ifndef __ARM64_SHARED_ASM_ESR_H
++#define __ARM64_SHARED_ASM_ESR_H
+ 
+-#include <asm/memory.h>
+-#include <asm/sysreg.h>
++#include <linux/const.h>
++#include <asm/sysreg-defs.h>
++#include <asm/brk-imm.h>
+ 
+ #define ESR_ELx_EC_UNKNOWN	UL(0x00)
+ #define ESR_ELx_EC_WFx		UL(0x01)
+@@ -541,7 +542,56 @@ static inline bool esr_iss_is_eretab(unsigned long esr)
+ 	return esr & ESR_ELx_ERET_ISS_ERETA;
  }
- EXPORT_SYMBOL_GPL(vfio_file_set_kvm);
  
-diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-index e90859956514..69a8d527b0e8 100644
---- a/include/linux/vfio.h
-+++ b/include/linux/vfio.h
-@@ -53,6 +53,7 @@ struct vfio_device {
- 	struct list_head dev_set_list;
- 	unsigned int migration_flags;
- 	struct kvm *kvm;
-+	struct module *kvm_module;
+-const char *esr_get_class_string(unsigned long esr);
++static inline const char *esr_get_class_string(unsigned long esr)
++{
++	switch (ESR_ELx_EC(esr)) {
++	case ESR_ELx_EC_UNKNOWN:	return "Unknown/Uncategorized";
++	case ESR_ELx_EC_WFx:		return "WFI/WFE";
++	case ESR_ELx_EC_CP15_32:	return "CP15 MCR/MRC";
++	case ESR_ELx_EC_CP15_64:	return "CP15 MCRR/MRRC";
++	case ESR_ELx_EC_CP14_MR:	return "CP14 MCR/MRC";
++	case ESR_ELx_EC_CP14_LS:	return "CP14 LDC/STC";
++	case ESR_ELx_EC_FP_ASIMD:	return "ASIMD";
++	case ESR_ELx_EC_CP10_ID:	return "CP10 MRC/VMRS";
++	case ESR_ELx_EC_PAC:		return "PAC";
++	case ESR_ELx_EC_CP14_64:	return "CP14 MCRR/MRRC";
++	case ESR_ELx_EC_BTI:		return "BTI";
++	case ESR_ELx_EC_ILL:		return "PSTATE.IL";
++	case ESR_ELx_EC_SVC32:		return "SVC (AArch32)";
++	case ESR_ELx_EC_HVC32:		return "HVC (AArch32)";
++	case ESR_ELx_EC_SMC32:		return "SMC (AArch32)";
++	case ESR_ELx_EC_SVC64:		return "SVC (AArch64)";
++	case ESR_ELx_EC_HVC64:		return "HVC (AArch64)";
++	case ESR_ELx_EC_SMC64:		return "SMC (AArch64)";
++	case ESR_ELx_EC_SYS64:		return "MSR/MRS (AArch64)";
++	case ESR_ELx_EC_SVE:		return "SVE";
++	case ESR_ELx_EC_ERET:		return "ERET/ERETAA/ERETAB";
++	case ESR_ELx_EC_FPAC:		return "FPAC";
++	case ESR_ELx_EC_SME:		return "SME";
++	case ESR_ELx_EC_IMP_DEF:	return "EL3 IMP DEF";
++	case ESR_ELx_EC_IABT_LOW:	return "IABT (lower EL)";
++	case ESR_ELx_EC_IABT_CUR:	return "IABT (current EL)";
++	case ESR_ELx_EC_PC_ALIGN:	return "PC Alignment";
++	case ESR_ELx_EC_DABT_LOW:	return "DABT (lower EL)";
++	case ESR_ELx_EC_DABT_CUR:	return "DABT (current EL)";
++	case ESR_ELx_EC_SP_ALIGN:	return "SP Alignment";
++	case ESR_ELx_EC_MOPS:		return "MOPS";
++	case ESR_ELx_EC_FP_EXC32:	return "FP (AArch32)";
++	case ESR_ELx_EC_FP_EXC64:	return "FP (AArch64)";
++	case ESR_ELx_EC_GCS:		return "Guarded Control Stack";
++	case ESR_ELx_EC_SERROR:		return "SError";
++	case ESR_ELx_EC_BREAKPT_LOW:	return "Breakpoint (lower EL)";
++	case ESR_ELx_EC_BREAKPT_CUR:	return "Breakpoint (current EL)";
++	case ESR_ELx_EC_SOFTSTP_LOW:	return "Software Step (lower EL)";
++	case ESR_ELx_EC_SOFTSTP_CUR:	return "Software Step (current EL)";
++	case ESR_ELx_EC_WATCHPT_LOW:	return "Watchpoint (lower EL)";
++	case ESR_ELx_EC_WATCHPT_CUR:	return "Watchpoint (current EL)";
++	case ESR_ELx_EC_BKPT32:		return "BKPT (AArch32)";
++	case ESR_ELx_EC_VECTOR32:	return "Vector catch (AArch32)";
++	case ESR_ELx_EC_BRK64:		return "BRK (AArch64)";
++	default:			return "UNRECOGNIZED EC";
++	}
++}
+ #endif /* __ASSEMBLER__ */
  
- 	/* Members below here are private, not for driver use */
- 	unsigned int index;
-@@ -339,7 +340,7 @@ static inline bool vfio_file_has_dev(struct file *file, struct vfio_device *devi
- #endif
- bool vfio_file_is_valid(struct file *file);
- bool vfio_file_enforced_coherent(struct file *file);
--void vfio_file_set_kvm(struct file *file, struct kvm *kvm);
-+void vfio_file_set_kvm(struct file *file, struct kvm *kvm, struct module *kvm_module);
+-#endif /* __ASM_ESR_H */
++#endif /* __ARM64_SHARED_ASM_ESR_H */
+diff --git a/arch/arm64/include/asm/sysreg-defs.h b/arch/arm64/include/asm/sysreg-defs.h
+index 311f882a992b..42cbf4e66507 100644
+--- a/arch/arm64/include/asm/sysreg-defs.h
++++ b/arch/arm64/include/asm/sysreg-defs.h
+@@ -1,7 +1,7 @@
+ /* SPDX-License-Identifier: GPL-2.0-only */
  
- #define VFIO_PIN_PAGES_MAX_ENTRIES	(PAGE_SIZE/sizeof(unsigned long))
+-#ifndef __ASM_SYSREG_DEFS_H
+-#define __ASM_SYSREG_DEFS_H
++#ifndef __ARM64_SHARED_ASM_SYSREG_DEFS_H
++#define __ARM64_SHARED_ASM_SYSREG_DEFS_H
  
-diff --git a/virt/kvm/vfio.c b/virt/kvm/vfio.c
-index 9f9acb66cc1e..515ed445d8e1 100644
---- a/virt/kvm/vfio.c
-+++ b/virt/kvm/vfio.c
-@@ -37,13 +37,13 @@ struct kvm_vfio {
+ #include <linux/bits.h>
  
- static void kvm_vfio_file_set_kvm(struct file *file, struct kvm *kvm)
- {
--	void (*fn)(struct file *file, struct kvm *kvm);
-+	void (*fn)(struct file *file, struct kvm *kvm, struct module *kvm_module);
- 
- 	fn = symbol_get(vfio_file_set_kvm);
- 	if (!fn)
- 		return;
- 
--	fn(file, kvm);
-+	fn(file, kvm, kvm ? THIS_MODULE : NULL);
- 
- 	symbol_put(vfio_file_set_kvm);
+@@ -968,4 +968,4 @@
+ 		 FIELD_PREP(reg##_##field##_MASK,	\
+ 			    SYS_FIELD_VALUE(reg, field, val))
+ #endif /* __ASSEMBLER__ */
+-#endif	/* __ASM_SYSREG_DEFS_H */
++#endif /* __ARM64_SHARED_ASM_SYSREG_DEFS_H */
+diff --git a/arch/arm64/kernel/traps.c b/arch/arm64/kernel/traps.c
+index 914282016069..ca679dcdf1c8 100644
+--- a/arch/arm64/kernel/traps.c
++++ b/arch/arm64/kernel/traps.c
+@@ -829,59 +829,6 @@ void do_el0_sys(unsigned long esr, struct pt_regs *regs)
+ 	do_el0_undef(regs, esr);
  }
+ 
+-static const char *esr_class_str[] = {
+-	[0 ... ESR_ELx_EC_MAX]		= "UNRECOGNIZED EC",
+-	[ESR_ELx_EC_UNKNOWN]		= "Unknown/Uncategorized",
+-	[ESR_ELx_EC_WFx]		= "WFI/WFE",
+-	[ESR_ELx_EC_CP15_32]		= "CP15 MCR/MRC",
+-	[ESR_ELx_EC_CP15_64]		= "CP15 MCRR/MRRC",
+-	[ESR_ELx_EC_CP14_MR]		= "CP14 MCR/MRC",
+-	[ESR_ELx_EC_CP14_LS]		= "CP14 LDC/STC",
+-	[ESR_ELx_EC_FP_ASIMD]		= "ASIMD",
+-	[ESR_ELx_EC_CP10_ID]		= "CP10 MRC/VMRS",
+-	[ESR_ELx_EC_PAC]		= "PAC",
+-	[ESR_ELx_EC_CP14_64]		= "CP14 MCRR/MRRC",
+-	[ESR_ELx_EC_BTI]		= "BTI",
+-	[ESR_ELx_EC_ILL]		= "PSTATE.IL",
+-	[ESR_ELx_EC_SVC32]		= "SVC (AArch32)",
+-	[ESR_ELx_EC_HVC32]		= "HVC (AArch32)",
+-	[ESR_ELx_EC_SMC32]		= "SMC (AArch32)",
+-	[ESR_ELx_EC_SVC64]		= "SVC (AArch64)",
+-	[ESR_ELx_EC_HVC64]		= "HVC (AArch64)",
+-	[ESR_ELx_EC_SMC64]		= "SMC (AArch64)",
+-	[ESR_ELx_EC_SYS64]		= "MSR/MRS (AArch64)",
+-	[ESR_ELx_EC_SVE]		= "SVE",
+-	[ESR_ELx_EC_ERET]		= "ERET/ERETAA/ERETAB",
+-	[ESR_ELx_EC_FPAC]		= "FPAC",
+-	[ESR_ELx_EC_SME]		= "SME",
+-	[ESR_ELx_EC_IMP_DEF]		= "EL3 IMP DEF",
+-	[ESR_ELx_EC_IABT_LOW]		= "IABT (lower EL)",
+-	[ESR_ELx_EC_IABT_CUR]		= "IABT (current EL)",
+-	[ESR_ELx_EC_PC_ALIGN]		= "PC Alignment",
+-	[ESR_ELx_EC_DABT_LOW]		= "DABT (lower EL)",
+-	[ESR_ELx_EC_DABT_CUR]		= "DABT (current EL)",
+-	[ESR_ELx_EC_SP_ALIGN]		= "SP Alignment",
+-	[ESR_ELx_EC_MOPS]		= "MOPS",
+-	[ESR_ELx_EC_FP_EXC32]		= "FP (AArch32)",
+-	[ESR_ELx_EC_FP_EXC64]		= "FP (AArch64)",
+-	[ESR_ELx_EC_GCS]		= "Guarded Control Stack",
+-	[ESR_ELx_EC_SERROR]		= "SError",
+-	[ESR_ELx_EC_BREAKPT_LOW]	= "Breakpoint (lower EL)",
+-	[ESR_ELx_EC_BREAKPT_CUR]	= "Breakpoint (current EL)",
+-	[ESR_ELx_EC_SOFTSTP_LOW]	= "Software Step (lower EL)",
+-	[ESR_ELx_EC_SOFTSTP_CUR]	= "Software Step (current EL)",
+-	[ESR_ELx_EC_WATCHPT_LOW]	= "Watchpoint (lower EL)",
+-	[ESR_ELx_EC_WATCHPT_CUR]	= "Watchpoint (current EL)",
+-	[ESR_ELx_EC_BKPT32]		= "BKPT (AArch32)",
+-	[ESR_ELx_EC_VECTOR32]		= "Vector catch (AArch32)",
+-	[ESR_ELx_EC_BRK64]		= "BRK (AArch64)",
+-};
+-
+-const char *esr_get_class_string(unsigned long esr)
+-{
+-	return esr_class_str[ESR_ELx_EC(esr)];
+-}
+-
+ /*
+  * bad_el0_sync handles unexpected, but potentially recoverable synchronous
+  * exceptions taken from EL0.
+diff --git a/include/arch/arm64/asm/brk-imm.h b/include/arch/arm64/asm/brk-imm.h
+new file mode 120000
+index 000000000000..5f9d5e9b5f34
+--- /dev/null
++++ b/include/arch/arm64/asm/brk-imm.h
+@@ -0,0 +1 @@
++../../../../arch/arm64/include/asm/brk-imm.h
+\ No newline at end of file
+diff --git a/include/arch/arm64/asm/esr.h b/include/arch/arm64/asm/esr.h
+new file mode 120000
+index 000000000000..471e9aae8714
+--- /dev/null
++++ b/include/arch/arm64/asm/esr.h
+@@ -0,0 +1 @@
++../../../../arch/arm64/include/asm/esr.h
+\ No newline at end of file
+diff --git a/include/arch/arm64/asm/sysreg-defs.h b/include/arch/arm64/asm/sysreg-defs.h
+new file mode 120000
+index 000000000000..19de1996db12
+--- /dev/null
++++ b/include/arch/arm64/asm/sysreg-defs.h
+@@ -0,0 +1 @@
++../../../../arch/arm64/include/asm/sysreg-defs.h
+\ No newline at end of file
 -- 
 2.51.0
 
