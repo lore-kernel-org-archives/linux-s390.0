@@ -1,60 +1,33 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A91747AF6D;
-	Tue, 28 Apr 2026 18:31:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A557282F1F;
+	Tue, 28 Apr 2026 19:46:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777401092; cv=none; b=MrqGPdHZmn9tsJdjpYywy+R0291HXcHQduPkuO6iKgBE69ts8MkI/rgnzDpELX4sU7gZk1IDybFpJWxaIPBUwab9hPRXE0p12eXltIOMcVHvrZ7iuV5JyR5cvpmVIYi+IBhE9U80tUCj1WQOGsaD1bsEydiHkF6xMCKjtDt/7g0=
+	t=1777405565; cv=none; b=p40oVNY9DQOE+O9eoyL7Ao7r+FQqcE7UDUuhu6KeBJXnufAfU7Ru4pFysAHhz0H7+Ip62507ycjkOt8WypG68d5gZl3Rs49bo4h2u/qLYVbY1/+WVNd+9orhFiPXRLd8Zms5x58BkiSf6rj5H78DK2NALoQa2otXj5CbAIyukr0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777401092; c=relaxed/simple;
-	bh=YqIbouP1QQZZj4irMFN2NaPn8dKRK6jDi3R3gDUUMco=;
+	s=arc-20240116; t=1777405565; c=relaxed/simple;
+	bh=yvm5AAW8pWe+hcrCUl/s0FLrh+xzKGKcVtjKj0e9BOU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=m7IIKZc8+nOQ/uTYnpO8yJhje+3r4ZUaE4L8WZS74M6WxhDCMM0yVOUYuJHU9w1Yqb6hH2DB3IDHkFY/TpdmJiWz0fuecd44MoxiCCsGrgnHuI6jnJERsAWRytQDTr9q+pooEJ+Lh89JRoiAWkxVVr+i0N3ouN5SnlOMeZ3g/FE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QnBaudCl; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=TokSJCLc5nXDJ/pP2uDpQfGqzM1OG+drD6q4do7bibIEZZIuD5qqs1DJIVU3Cb3CJhRpOTt9CNpdlLly+n0KTNBBrzDn0Bw1/btsQIxzoPIcNlvft1gYLhxm+bH5YtvipGhGNSd1Y00X3y4vsCFJceZPhvSsya1I8Y9fNw/xtX4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ik8AqnBV; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QnBaudCl"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63SBHIHB935847;
-	Tue, 28 Apr 2026 18:31:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=862JwB
-	dU3AS3MnJ2WsujPUgTGILIxct/hGQrfO1H5+A=; b=QnBaudClr0oHW8WwK3wmRe
-	9liU9/dpSOThv2rAIwE7zmyc7QJlUuLOCJZi7Odz3jxSxlIPHMWfNUJYk/PrvCFV
-	lL7k5YAa8aaCIU8n2M4HqZrSLXqQuUPZLX9YkGWPTvp+mq53wtofr+2NIKITedm+
-	fGD+wL3ib1/xCeEYubgHdZ/DkILqIV9fl8l7jutt1DK1OhSpq80Dcv6WsdO2YTjD
-	3lZ1XHV8EyivkgBWhM3dmMcgDqGQK4/MaCwO2U//ojWx6+NsYap1GBKOkqbsFb6t
-	o/yJUmUukY6b9qyQHV12mJRHRomGv2mHwy6JdnN+HgBKkpQOlAQQ1C52nOWhY07w
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4drn9r72e7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Apr 2026 18:31:25 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63SINiKG003460;
-	Tue, 28 Apr 2026 18:31:24 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ds9ehaxn4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Apr 2026 18:31:24 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63SIVNwO15729210
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 28 Apr 2026 18:31:23 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 23E5A5805D;
-	Tue, 28 Apr 2026 18:31:23 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3E86058053;
-	Tue, 28 Apr 2026 18:31:21 +0000 (GMT)
-Received: from [9.61.116.216] (unknown [9.61.116.216])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 28 Apr 2026 18:31:21 +0000 (GMT)
-Message-ID: <1a44c655-eb27-4f4d-8e1c-ff3ee518ce73@linux.ibm.com>
-Date: Tue, 28 Apr 2026 14:31:20 -0400
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ik8AqnBV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A6B5C2BCAF;
+	Tue, 28 Apr 2026 19:46:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1777405565;
+	bh=yvm5AAW8pWe+hcrCUl/s0FLrh+xzKGKcVtjKj0e9BOU=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=ik8AqnBVEniWxz4gB+Db0JUp63he0UIJizJ+2MIrottcKhFRnNIhICcF7fZYkOTLT
+	 CkghgSUxL+v5S8q7MdGMtKP0YjSBbTlje+3MaZgwaqY3sxmf8BcLxNtIyUngHjf5wU
+	 p6rZEuKr0hDBjEwMBgrw6ZsZWJFxgvVv5i9eh+tY07iXVNWMNUdWfXx3dZvxGp/JLv
+	 XplyZYFhpqE3ivl15eC9v4gizmathKxxt7/qBOUJ2juHfIxO8X7BJEUQ62YoqM1N6o
+	 OxAy1fbz4I1nFX0IaT3Q9vG5/iRxE8/kKgem3VJbjxNSBSfVvzP84rS411M9fDIKwC
+	 U80q4+bXXrHzw==
+Message-ID: <5f45cc59-d71f-409c-8cfb-6eba23b0a447@kernel.org>
+Date: Tue, 28 Apr 2026 21:45:59 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,66 +35,122 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 00/16] s390/vfio-ap: Add live guest migration support
-To: Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: jjherne@linux.ibm.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com,
-        alex@shazbot.org, kwankhede@nvidia.com, fiuczy@linux.ibm.com,
-        pbonzini@redhat.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
-        agordeev@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
-References: <20260407205100.331150-1-akrowiak@linux.ibm.com>
- <e8e07556-4618-4203-aaf7-e2e95c6fea71@linux.ibm.com>
- <861c2116-7d3c-4f5e-ad83-0ca314cc6e48@de.ibm.com>
+Subject: Re: [PATCH v2] mm/gup: cleanup pgtable entry accessors
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+ Kevin Brodsky <kevin.brodsky@arm.com>, Ryan Roberts <ryan.roberts@arm.com>,
+ Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, Gerald Schaefer
+ <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>
+References: <20260421051754.1691221-1-agordeev@linux.ibm.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <861c2116-7d3c-4f5e-ad83-0ca314cc6e48@de.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <20260421051754.1691221-1-agordeev@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: kMMKht6DLD3GdZNfHdooceSw1hQjjtbj
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDI4MDE3NyBTYWx0ZWRfX0BmLEi/batEq
- MSaRBrG1cJ0YUeqxs/q28Ui4JF24lzv9Fqb3jzURRJxpKf9kb/X2Prnul3cHSp/QxFgYnU14RUE
- Zoe85KDNTifAYhV17UT/MFooJIFmrgJZLn2jQzd+TkEv2wCbFq2lQwozPVCXZ9yWxtr+fEGLe86
- U7cEOsxk0g8J0qeZZ5MFFb3DhjtLHJZUYEdKFPkNsFB2L6PdXx2vYzmc//LcplcmZUBeL3GXsBl
- oxU+MmztfGJhy9/LmKIe+fqzf+gX5Qtjv/kHAXb65MyuaDQDMCR/ZrD1lTd0GjlZfepkEWFLyM8
- 9ikuhdCok9+W9aB6+70YVfNNTkw4TMSb3qJiwAs5IEhA612TtWrUohMqsvZeSvy/iyV7tG9mQKf
- OCEBBFdz4HN9L9pvBWBQGtMFgNnpyKnv2nnfRjxuyWDQC8lBkUhcUHKjAOSkAIxeGwsiXphdhml
- UkQntIf2SA+38ngjC3Q==
-X-Authority-Analysis: v=2.4 cv=Kc7idwYD c=1 sm=1 tr=0 ts=69f0fcfd cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=c92rfblmAAAA:8
- a=VnNF1IyMAAAA:8 a=l7cB-S0xE_IsS9hsg3oA:9 a=QEXdDO2ut3YA:10 a=QYH75iMubAgA:10
- a=GvGzcOZaWPEFPQC_NcjD:22
-X-Proofpoint-ORIG-GUID: kMMKht6DLD3GdZNfHdooceSw1hQjjtbj
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-28_05,2026-04-28_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 phishscore=0 bulkscore=0 adultscore=0 spamscore=0
- malwarescore=0 impostorscore=0 priorityscore=1501 lowpriorityscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
- definitions=main-2604280177
 
+On 4/21/26 07:17, Alexander Gordeev wrote:
+> PMD and PUD entries revalidation has the same semantics as PTE entry
+> revalidation. Convert the remaining direct entry dereferences to the
+> corresponding accessors.
+> 
+> The PTE validation in gup_fast_pte_range() is inconsistent with the
+> prior value acquisition in the sense that it drops the lockless
+> access semantics.
+> 
+> Use the lockless accessor not only for the PTE, but also for the PMD
+> validation, which is likewise inconsistent with the prior value
+> acquisition in gup_fast_pmd_range().
+> 
+> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> ---
+>  mm/gup.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/mm/gup.c b/mm/gup.c
+> index 8e7dc2c6ee73..236450feea9a 100644
+> --- a/mm/gup.c
+> +++ b/mm/gup.c
+> @@ -2865,8 +2865,8 @@ static int gup_fast_pte_range(pmd_t pmd, pmd_t *pmdp, unsigned long addr,
+>  		if (!folio)
+>  			goto pte_unmap;
+>  
+> -		if (unlikely(pmd_val(pmd) != pmd_val(*pmdp)) ||
+> -		    unlikely(pte_val(pte) != pte_val(ptep_get(ptep)))) {
+> +		if (unlikely(pmd_val(pmd) != pmd_val(pmdp_get_lockless(pmdp))) ||
+> +		    unlikely(pte_val(pte) != pte_val(ptep_get_lockless(ptep)))) {
+>  			gup_put_folio(folio, 1, flags);
+>  			goto pte_unmap;
+>  		}
+> @@ -2942,7 +2942,7 @@ static int gup_fast_pmd_leaf(pmd_t orig, pmd_t *pmdp, unsigned long addr,
+>  	if (!folio)
+>  		return 0;
+>  
+> -	if (unlikely(pmd_val(orig) != pmd_val(*pmdp))) {
+> +	if (unlikely(pmd_val(orig) != pmd_val(pmdp_get_lockless(pmdp)))) {
+>  		gup_put_folio(folio, refs, flags);
+>  		return 0;
+>  	}
+> @@ -2985,7 +2985,7 @@ static int gup_fast_pud_leaf(pud_t orig, pud_t *pudp, unsigned long addr,
+>  	if (!folio)
+>  		return 0;
+>  
+> -	if (unlikely(pud_val(orig) != pud_val(*pudp))) {
+> +	if (unlikely(pud_val(orig) != pud_val(pudp_get(pudp)))) {
+>  		gup_put_folio(folio, refs, flags);
+>  		return 0;
+>  	}
 
+In general, LGTM.
 
-On 4/28/26 9:56 AM, Christian Borntraeger wrote:
-> Am 28.04.26 um 15:10 schrieb Anthony Krowiak:
->>
->>
->> On 4/7/26 4:50 PM, Anthony Krowiak wrote:
->>
->> A patch review would be greatly appreciated.
->
-> Sorry, everybody seems busy. Can you maybe start with having a look at 
-> sashiko
->
-> https://sashiko.dev/#/patchset/20260407205100.331150-1-akrowiak%40linux.ibm.com 
->
->
-> if any of the review findings are correct?
+I do wonder, though, if we want to switch to pte_same/pmd_same/pud_same while at it?
 
+-- 
+Cheers,
 
-I'll take a look.
-
+David
