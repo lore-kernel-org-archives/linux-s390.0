@@ -1,92 +1,108 @@
-Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A527F3FE650
-	for <linux-s390@vger.kernel.org>; Tue, 28 Apr 2026 10:56:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.24
+Received: from gate.crashing.org (gate.crashing.org [63.228.1.57])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id D44FE3E639B;
+	Tue, 28 Apr 2026 11:21:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=63.228.1.57
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777373798; cv=none; b=AG42qVB6pitXj5HfSUeshzx3WmOo2sax/JCpwL1YnnkxOi421WmtDKk2udn+N0fTyaOCiwkSu1u6u6OfxSu58/76uzeddYWFZ4Hhsm+CFBJi+cVwtcsJXwhvawjB8m0QJ93UVx+lpJfQWkfJd1Q+LjGFiVf1isuxPqc24ngNeQk=
+	t=1777375287; cv=none; b=rsLv5ksg+pZccawDdmqPDJtrde+qLU4mI+UjlpegBcAMMWRV+pcpyRQdnHPCcQR4zxv9unPXU9QkuPaQjm7B8GoMYylO7ATav9HNfdZZLS3ZV2quCKKN36PvemkmRjlawVOQjlR6tHRs3rWhre5HFI2q9XrRRcFu0VMUyBaPZMw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777373798; c=relaxed/simple;
-	bh=NMv+VxeuwDNn6g3TW4koZ+em4kr4EvwstGVdl+4Dfw0=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type:
-	 References; b=FsuId0PKwEttqN3ZMSXrzc1/nYe2w0ZjvhoZ8ySfkf5St3vh5iBg7D3wXTl1wiXp4o5Zc6E2z45XY7PmHNGCOgKrGipxQTZj7agBf7G86Pho0vXRQemsnj9so0vRN8DBNp1dtgrpyBGIvy9KPN49RyF3kO+oMAKFUIxEjn0gpNw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=fMCLfgkL; arc=none smtp.client-ip=203.254.224.24
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="fMCLfgkL"
-Received: from epcas5p1.samsung.com (unknown [182.195.41.39])
-	by mailout1.samsung.com (KnoxPortal) with ESMTP id 20260428105634epoutp0186538bde07ba7c6f14ad9b72acd6112b~qgAyEBETl2478824788epoutp01e
-	for <linux-s390@vger.kernel.org>; Tue, 28 Apr 2026 10:56:34 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20260428105634epoutp0186538bde07ba7c6f14ad9b72acd6112b~qgAyEBETl2478824788epoutp01e
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1777373794;
-	bh=Mj2IP8DLHGXXP4c161i0NJGqeOoEZnUlzGwEj1TVGak=;
-	h=From:To:Cc:Subject:Date:References:From;
-	b=fMCLfgkLKrZA+YBHoAPcUQ4lo6mV9I7Rt2Ew8LAbQ4F8MpPaKBd+ifYx4cp5HNOjn
-	 UbfCBdENKPo/jfNKA+MQT91hjXCuF0cR/9xv91u5MuJOli7yiA/9mynH9zvyjjn3OF
-	 bWqgFkeGwPiPoUB741YhmHnKsQ0AClnfRYTmZYyU=
-Received: from epsnrtp01.localdomain (unknown [182.195.42.153]) by
-	epcas5p4.samsung.com (KnoxPortal) with ESMTPS id
-	20260428105633epcas5p4cd4949bb3499e767536ec2d1d1c8b514~qgAxiPoq20050600506epcas5p43;
-	Tue, 28 Apr 2026 10:56:33 +0000 (GMT)
-Received: from epcas5p3.samsung.com (unknown [182.195.41.41]) by
-	epsnrtp01.localdomain (Postfix) with ESMTP id 4g4cnF4FWVz6B9m7; Tue, 28 Apr
-	2026 10:56:33 +0000 (GMT)
-Received: from epsmtip1.samsung.com (unknown [182.195.34.30]) by
-	epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
-	20260428105633epcas5p37a93b7abb3d2ce0d1c2fbf6a72634ea7~qgAxE1A200405904059epcas5p39;
-	Tue, 28 Apr 2026 10:56:33 +0000 (GMT)
-Received: from localhost.localdomain (unknown [107.97.243.203]) by
-	epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
-	20260428105631epsmtip1aa0b712b712c85eb35aa762ed2c9aa0f~qgAvt3f1Q2329723297epsmtip1E;
-	Tue, 28 Apr 2026 10:56:31 +0000 (GMT)
-From: Maninder Singh <maninder1.s@samsung.com>
-To: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-	borntraeger@linux.ibm.com, svens@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Maninder Singh
-	<maninder1.s@samsung.com>
-Subject: [PATCH 1/1] s390: remove extra check of task_stack_page()
-Date: Tue, 28 Apr 2026 16:26:07 +0530
-Message-Id: <20260428105607.1283661-1-maninder1.s@samsung.com>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1777375287; c=relaxed/simple;
+	bh=5DkX/L9B3d/cRrLHprvgAdk9AfWqqBG9xKTQLL8w4bk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ifTVo8zGagZ/MdjS/wuYsnorXKSpevC5JrwBnXijCGbLDkP4n0uhlrMnDm5YbFML5zbc/ed6U1ZpueaIm5J+BoI9Q68K4BirJZ1cHKBEdd09J0VmkeuTJuvVmAyjq1vl2EUPTwOpOaF/9cyCGZ3sr9duv3ZqHA/bN7RVjE4yzSQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.crashing.org; spf=pass smtp.mailfrom=kernel.crashing.org; arc=none smtp.client-ip=63.228.1.57
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.crashing.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.crashing.org
+Received: from gate.crashing.org (localhost [127.0.0.1])
+	by gate.crashing.org (8.18.1/8.18.1/Debian-2) with ESMTP id 63SBKIxF1057213;
+	Tue, 28 Apr 2026 06:20:18 -0500
+Received: (from segher@localhost)
+	by gate.crashing.org (8.18.1/8.18.1/Submit) id 63SBKHXo1057211;
+	Tue, 28 Apr 2026 06:20:17 -0500
+X-Authentication-Warning: gate.crashing.org: segher set sender to segher@kernel.crashing.org using -f
+Date: Tue, 28 Apr 2026 06:20:17 -0500
+From: Segher Boessenkool <segher@kernel.crashing.org>
+To: Yury Norov <ynorov@nvidia.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>,
+        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        David Laight <david.laight.linux@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>, linux-alpha@vger.kernel.org,
+        Yury Norov <yury.norov@gmail.com>, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        dmaengine@vger.kernel.org, linux-efi@vger.kernel.org,
+        linux-fsi@lists.ozlabs.org, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        linux-wpan@vger.kernel.org, netdev@vger.kernel.org,
+        linux-wireless@vger.kernel.org, linux-spi@vger.kernel.org,
+        linux-media@vger.kernel.org, linux-staging@lists.linux.dev,
+        linux-serial@vger.kernel.org, linux-usb@vger.kernel.org,
+        xen-devel@lists.xenproject.org, linux-fsdevel@vger.kernel.org,
+        ocfs2-devel@lists.linux.dev, bpf@vger.kernel.org,
+        kasan-dev@googlegroups.com, linux-mm@kvack.org,
+        linux-x25@vger.kernel.org, rust-for-linux@vger.kernel.org,
+        linux-sound@vger.kernel.org, sound-open-firmware@alsa-project.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@vger.kernel.org,
+        linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-sh@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [RFC PATCH v1 7/9] x86: Add unsafe_copy_from_user()
+Message-ID: <afCX8WlnEFUei1y6@gate>
+References: <cover.1777306795.git.chleroy@kernel.org>
+ <0ee46bb228d97163fbdc14f2a7c52b93d8bc34ce.1777306795.git.chleroy@kernel.org>
+ <ae-j2_QirCySZD02@yury>
+ <63a4d0f6-0eb3-48cd-9f98-bf7b223b2606@kernel.org>
+ <ae-2yLWSGnfeTvh1@yury>
+ <CAHk-=wgPrLy0FR3sEWBYQuNAac1axDASYMnTuPuxEU0WytzL7w@mail.gmail.com>
+ <ae_jeJLlVWjJ4sOY@yury>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CMS-MailID: 20260428105633epcas5p37a93b7abb3d2ce0d1c2fbf6a72634ea7
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-CMS-TYPE: 105P
-X-CMS-RootMailID: 20260428105633epcas5p37a93b7abb3d2ce0d1c2fbf6a72634ea7
-References: <CGME20260428105633epcas5p37a93b7abb3d2ce0d1c2fbf6a72634ea7@epcas5p3.samsung.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ae_jeJLlVWjJ4sOY@yury>
 
-There is no need to call task_stack_page(),
-because try_get_task_stack() already takes care of that.
+Hi!
 
-Signed-off-by: Maninder Singh <maninder1.s@samsung.com>
----
- arch/s390/kernel/process.c | 3 ---
- 1 file changed, 3 deletions(-)
+On Mon, Apr 27, 2026 at 06:30:16PM -0400, Yury Norov wrote:
+> On Mon, Apr 27, 2026 at 02:52:05PM -0700, Linus Torvalds wrote:
+> > On Mon, 27 Apr 2026 at 12:19, Yury Norov <ynorov@nvidia.com> wrote:
+> > >
+> > > This is what Linus said when added x86 implementation for copy_from_user()
+> > > in c512c69187197:
+> > 
+> > Note that some things have happily changed in the six+ years since...
+> > 
+> > >   That's partly because we have no current users of it, but also partly
+> > >   because the copy_from_user() case is slightly different and cannot
+> > >   efficiently be implemented in terms of a unsafe_get_user() loop (because
+> > >   gcc can't do asm goto with outputs).
+> > 
+> > now everybody can do asm goto with outputs.
+> > 
+> > Yes, it's disabled on older versions, so it's not *always* available,
+> > but all modern versions do it. And if you care about performance, you
+> > won't be using an old compiler.
+> 
+> The minimal GCC version is 8.1, and asm goto with outputs is supported
+> since GCC-11. That would brake the build, if we just switch to using it
+> without "CC_IS_GCC && (GCC_VERSION >= 110100)" guard.
+> 
+> Is it worth to maintain 2 version of the function? I don't know...
 
-diff --git a/arch/s390/kernel/process.c b/arch/s390/kernel/process.c
-index 0df95dcb2101..dabd569dbba8 100644
---- a/arch/s390/kernel/process.c
-+++ b/arch/s390/kernel/process.c
-@@ -203,9 +203,6 @@ unsigned long __get_wchan(struct task_struct *p)
- 	struct unwind_state state;
- 	unsigned long ip = 0;
- 
--	if (!task_stack_page(p))
--		return 0;
--
- 	if (!try_get_task_stack(p))
- 		return 0;
- 
--- 
-2.34.1
+GCC 11 was released five years and a day ago.  The last GCC 11 release
+(that of 11.5) is not even two years ago though (but there will be no
+more!)
 
+So it would be not conservative at all to require GCC 11 as minimum now,
+some people might even call it a bit aggressive.  But in a year (or
+maybe two) the lay of the land will be rather different.
+
+
+Segher
