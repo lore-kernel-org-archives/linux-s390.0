@@ -1,161 +1,103 @@
-Received: from out-177.mta1.migadu.com (out-177.mta1.migadu.com [95.215.58.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 717673CF02C
-	for <linux-s390@vger.kernel.org>; Wed, 29 Apr 2026 10:25:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7709A3ACA4A
+	for <linux-s390@vger.kernel.org>; Wed, 29 Apr 2026 10:33:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777458347; cv=none; b=GJunDEPIafAgW2+kuoduI0131H5Y80UcUtjAnyVN9alIC0hf0RZ0Od9qay4BrXjr5cRDNr1KN9ZMac5kbCN9tEV6tCLZWEHYgXpVXrgdGG+CRMUhCPEOFjfx3KbrQs2zL8bYHIqlL7e/hoz/YAdH2UmXb5yTO5+jyALtgEI4UXs=
+	t=1777458785; cv=none; b=gIPQGLFfx9bhNcmrDS5s6BJbjtvHXXUIkJt/+JQfvH9hwfasrwcuC90+C1b7RIY56rSTCcFcEdFDI6gpheTEkYbuTMvxiX9hlEGWSubVwVwkopqmXpwfuEQESghMy9eLfkAxqS7MXihE2sppZvoKna+nAYHmVo5FzCE9E730Xj0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777458347; c=relaxed/simple;
-	bh=uKx2BLK4SWtORQ3Y1X9QU+u3JmhryAfpmr007sf8OrM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Okk7xSo1DqiJWQ4y5ORbmodxvUqt3z7zCtusOnpvcI6F+PKzYOfkQFTyBq3bN+8mArFQu4WO1DwLu+GdJknoq6ExMfWw+ey3SzI8ikmr2WKk5gRRAHG4shfZhm7eYpkB/Od0XNzPxS+ybyprXAmLoGJxmb/B8NXg7JdOVW6Hp/0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=syDuJ2eb; arc=none smtp.client-ip=95.215.58.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1777458785; c=relaxed/simple;
+	bh=yFhayD52z3L7U6BHgw+cudW5sbh19gSx0aS5+81Qih0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=pXNaF4N4oo6TUVGz8PSm5GQ5jOfMwqxrVrEr7EAjA4p38wiRz06qF9TF6VfdXyhAcd83m6pFEThNEok0k2kEFkjCVyPHfHxMXI84vOzT8fePiPfyAfIZjPpGT4uEwGoxM3bfa+ikkxkmEGnQ5C6PH7T30O1nAzUSNNC9Q5cvey4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=g8BBBJkn; arc=none smtp.client-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="syDuJ2eb"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1777458333;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0ubnPqyEuUH+bb9tWP9+TOUp+n6C5onOR58LCuBDEiw=;
-	b=syDuJ2ebh9z2sjffREH58o0aT6Ajjew8W5I8ReEUtvp2EQkdghmYv8iT9JcU1iX87oMIbX
-	D+xmbMoFNHgWVKDoL6XEe6kPFjJgAeA5FQrv1tK/6uUbSyjmFqItMdxDS/n3eJA5ihtrWC
-	pDy1LXDxeyfrSgRVjezaD0bM6Fa+Scc=
-From: Usama Arif <usama.arif@linux.dev>
-To: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-Cc: Usama Arif <usama.arif@linux.dev>,
-	Yury Norov <ynorov@nvidia.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	David Laight <david.laight.linux@gmail.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	linux-alpha@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mips@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	kvm@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org,
-	linux-um@lists.infradead.org,
-	dmaengine@vger.kernel.org,
-	linux-efi@vger.kernel.org,
-	linux-fsi@lists.ozlabs.org,
-	amd-gfx@lists.freedesktop.org,
-	dri-devel@lists.freedesktop.org,
-	intel-gfx@lists.freedesktop.org,
-	linux-wpan@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-wireless@vger.kernel.org,
-	linux-spi@vger.kernel.org,
-	linux-media@vger.kernel.org,
-	linux-staging@lists.linux.dev,
-	linux-serial@vger.kernel.org,
-	linux-usb@vger.kernel.org,
-	xen-devel@lists.xenproject.org,
-	linux-fsdevel@vger.kernel.org,
-	ocfs2-devel@lists.linux.dev,
-	bpf@vger.kernel.org,
-	kasan-dev@googlegroups.com,
-	linux-mm@kvack.org,
-	linux-x25@vger.kernel.org,
-	rust-for-linux@vger.kernel.org,
-	linux-sound@vger.kernel.org,
-	sound-open-firmware@alsa-project.org,
-	linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	linux-m68k@lists.linux-m68k.org,
-	linux-openrisc@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linux-sh@vger.kernel.org,
-	linux-arch@vger.kernel.org
-Subject: Re: [RFC PATCH v1 7/9] x86: Add unsafe_copy_from_user()
-Date: Wed, 29 Apr 2026 03:25:19 -0700
-Message-ID: <20260429102520.1617327-1-usama.arif@linux.dev>
-In-Reply-To: <0ee46bb228d97163fbdc14f2a7c52b93d8bc34ce.1777306795.git.chleroy@kernel.org>
-References: 
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="g8BBBJkn"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-4852a9c6309so112499045e9.0
+        for <linux-s390@vger.kernel.org>; Wed, 29 Apr 2026 03:33:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1777458783; x=1778063583; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=lsOPwXrH/NRDkB8GeQFymGAe4gDJjLZ8FQiVmg2qTZI=;
+        b=g8BBBJknfuaqkkXqIzZ7TcTKBkDWskMBX8rFgdmqzSxOCL9QdZNstfaRE/5t/mZYB0
+         pgYwv693IPdMYxjrwC5hQ9gRNrJEqzUS9HISVi02waqMKVCVT4xPgYs61V4HBoDN8V5T
+         Bly+Y5z5PIgTQJufoRcGdxekKyAdoJUIQuV5K8MuHsah2W5vFt50qv2AhDdHyL+zt8qN
+         LbcRq6YDhlQo4a7xdK8J8xMy4cCZoEhISvaanbYTNcoqgBErMVV1EZg63/FRmUZSNqjh
+         J6JId6HXk34hac9Vz4QRdoAJ4Gkv4s0gcQfpf9HFBKPlheZTbIH0z25D+BXndpZfhKza
+         H7GA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777458783; x=1778063583;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=lsOPwXrH/NRDkB8GeQFymGAe4gDJjLZ8FQiVmg2qTZI=;
+        b=g4nnkP6rP9AWqV/jDpeTHfsF23pa15rgV6fiyyxUafOjGvlZgx6ipex9pXy75uV9jL
+         lTW5KjaN8hwTE56GiK0o2IRppz0iuVFoI/33LgIv5LudspEuWHrQ5I3sHJpQsbXJ/vcf
+         wIe3R989jic7W9aGbKdwR8pycaxJRg7gGHTsFh76zN71t41yj2evKkERQD3TJ/5BqWoX
+         tBnbscihheq+T8pqmpX2W6aaod18AQSz8oQAkULuPDUwKC6qiM6wFRAA1HhWVAF+7M0D
+         p4QeyK11bb8qOfe3JIsbIF5Qm5RRS57jhtzINznQlYwhCqqlwLTNuw8YaHprVn9l957w
+         Fzfw==
+X-Forwarded-Encrypted: i=1; AFNElJ9sywZz8aiQ223ZtlSmZojVcbf46pmbOJF0YbxZzkVc/+kZ1E3XXsbAPMvpr9BrNTg5dY/GtDQBpMBt@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw6owZRUgkTtpgFt8eIg86F1+4hlWk25dXL1SqZfxa/NPrjq29z
+	74PrDU97GXEkUhXM4WY0N+t11F2ohNaHapv2BkEJV4FOky+aj/eZkX0SesFQMQTlg8A=
+X-Gm-Gg: AeBDieu4JH49dOoUYcZhE2pq6FCVrvFp12+2m7L1vbTxfLj3gahCynzEH+6q1JKga9f
+	eoOs2AqqJIbUAUh9qkRN7JkgEWqQ1itKF1f+5MHIDDs4LHB71Z2TeqCFhLXCeS1v4KeaB6q4hm2
+	6W8HIUGBYy6D178cFd1fdQzIWMUBlIbqxxBJNWbq+kokgeH8mKMCb24qkB8rL4+oUZtmvdYMs8b
+	2tXm2p7uPEq5P6Iye3tqw0bs9z/aMLZfw1TpggUV6VgVF+UUDziHehAtkf2u1otDuo4B1X51tZ3
+	e0ehQZxxHOT4dJm7vsr5zRPNSPN3rLboKjbHCfMb9s7/8cdlraFy5HcxrPpM3iA6yJMrWTQzYOP
+	fWQSg6PVPwJE/YndVYjZkXjbeuAGS2N+VHbFLlLliVFRWv+BA/bdrF+2YfGce1YiI7fGaQRoWB5
+	2QBG/FgkRTtyzpt9slCCfzH4YVIQi3dCM1UqADrmIksh6VOGI=
+X-Received: by 2002:a05:600c:19d3:b0:488:904b:f31 with SMTP id 5b1f17b1804b1-48a77b240aamr106838355e9.22.1777458782854;
+        Wed, 29 Apr 2026 03:33:02 -0700 (PDT)
+Received: from localhost (109-81-86-177.rct.o2.cz. [109.81.86.177])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48a7c5d2919sm43817595e9.15.2026.04.29.03.33.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Apr 2026 03:33:02 -0700 (PDT)
+Date: Wed, 29 Apr 2026 12:33:01 +0200
+From: Michal Hocko <mhocko@suse.com>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Minchan Kim <minchan@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>, akpm@linux-foundation.org,
+	hca@linux.ibm.com, linux-s390@vger.kernel.org, brauner@kernel.org,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+	timmurray@google.com, "Liam R. Howlett" <Liam.Howlett@oracle.com>
+Subject: Re: [PATCH v1 2/3] mm: process_mrelease: skip LRU movement for
+ exclusive file folios
+Message-ID: <afHeXY-yeTwmURWh@tiehlicka>
+References: <7c7da8ae-cd39-4edf-b94f-c79ab85df456@kernel.org>
+ <aevBRh08X4UTMUj9@google.com>
+ <ae8NT0tLt7eBmH6j@tiehlicka>
+ <CAJuCfpHQdA7C50V2WjNrdYcp7feV5ukgxJf+vMNEcp0P1SGEow@mail.gmail.com>
+ <ae-Zu-VAzAA7SdLa@tiehlicka>
+ <ae_roPR64e6sY_fN@google.com>
+ <afBaJLLFigkdszov@tiehlicka>
+ <afFco71vwmpQy3pk@google.com>
+ <afG-4hq7Hr62Uu6J@tiehlicka>
+ <7f98f461-62a7-455d-a7a8-cb8928465946@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7f98f461-62a7-455d-a7a8-cb8928465946@kernel.org>
 
-On Mon, 27 Apr 2026 19:13:48 +0200 "Christophe Leroy (CS GROUP)" <chleroy@kernel.org> wrote:
+On Wed 29-04-26 11:09:55, David Hildenbrand wrote:
+> Unrelated stupid question: would things be clearer if we could rename
+> MMF_UNSTABLE to MMF_OOM_REAPING once figure out whether aborting fork() still
+> really needs it?
 
-> At the time being, x86 and arm64 are missing unsafe_copy_from_user().
-> 
-> Add it.
-> 
-> Signed-off-by: Christophe Leroy (CS GROUP) <chleroy@kernel.org>
-> ---
->  arch/x86/include/asm/uaccess.h | 29 ++++++++++++++++++++++++-----
->  1 file changed, 24 insertions(+), 5 deletions(-)
-> 
-> diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
-> index 3a0dd3c2b233..10c458ffa399 100644
-> --- a/arch/x86/include/asm/uaccess.h
-> +++ b/arch/x86/include/asm/uaccess.h
-> @@ -598,7 +598,7 @@ _label:									\
->   * We want the unsafe accessors to always be inlined and use
->   * the error labels - thus the macro games.
->   */
-> -#define unsafe_copy_loop(dst, src, len, type, label)				\
-> +#define unsafe_put_loop(dst, src, len, type, label)				\
->  	while (len >= sizeof(type)) {						\
->  		unsafe_put_user(*(type *)(src),(type __user *)(dst),label);	\
->  		dst += sizeof(type);						\
-> @@ -611,10 +611,29 @@ do {									\
->  	char __user *__ucu_dst = (_dst);				\
->  	const char *__ucu_src = (_src);					\
->  	size_t __ucu_len = (_len);					\
-> -	unsafe_copy_loop(__ucu_dst, __ucu_src, __ucu_len, u64, label);	\
-> -	unsafe_copy_loop(__ucu_dst, __ucu_src, __ucu_len, u32, label);	\
-> -	unsafe_copy_loop(__ucu_dst, __ucu_src, __ucu_len, u16, label);	\
-> -	unsafe_copy_loop(__ucu_dst, __ucu_src, __ucu_len, u8, label);	\
-> +	unsafe_put_loop(__ucu_dst, __ucu_src, __ucu_len, u64, label);	\
-> +	unsafe_put_loop(__ucu_dst, __ucu_src, __ucu_len, u32, label);	\
-> +	unsafe_put_loop(__ucu_dst, __ucu_src, __ucu_len, u16, label);	\
-> +	unsafe_put_loop(__ucu_dst, __ucu_src, __ucu_len, u8, label);	\
-> +} while (0)
-> +
-> +#define unsafe_get_loop(dst, src, len, type, label)				\
-> +	while (len >= sizeof(type)) {						\
-> +		unsafe_get_user(*(type __user *)(src),(type *)(dst),label);	\
-
-Hi,
-
-Just wanted to check if src and dst need to be swapped? Same for arm64 patch.
-
-> +		dst += sizeof(type);						\
-> +		src += sizeof(type);						\
-> +		len -= sizeof(type);						\
-> +	}
-> +
-> +#define unsafe_copy_from_user(_dst,_src,_len,label)			\
-> +do {									\
-> +	char *__ucu_dst = (_dst);					\
-> +	const char __user *__ucu_src = (_src);				\
-> +	size_t __ucu_len = (_len);					\
-> +	unsafe_get_loop(__ucu_dst, __ucu_src, __ucu_len, u64, label);	\
-> +	unsafe_get_loop(__ucu_dst, __ucu_src, __ucu_len, u32, label);	\
-> +	unsafe_get_loop(__ucu_dst, __ucu_src, __ucu_len, u16, label);	\
-> +	unsafe_get_loop(__ucu_dst, __ucu_src, __ucu_len, u8, label);	\
->  } while (0)
->  
->  #ifdef CONFIG_CC_HAS_ASM_GOTO_OUTPUT
-> -- 
-> 2.49.0
-> 
-> 
+While the oom is the only current kernel user of MMF_UNSTABLE (in a
+sense it sets the flag) the flag should denote that any page faults are
+reliable because it might fault in a fresh memory and user would lose
+the previous content without knowing that. Not sure MMF_OOM_REAPING
+would reflect that reality better.
+-- 
+Michal Hocko
+SUSE Labs
