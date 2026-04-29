@@ -1,280 +1,205 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D5A713D539;
-	Wed, 29 Apr 2026 14:44:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEDDC364E85;
+	Wed, 29 Apr 2026 15:00:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777473899; cv=none; b=L/iSfpgkSYpyK7zHUTh2pDycELd5W61vTTReBGH/VqU7z0adNqvfjbYLWu+lGVpDW9Hde59R3LsqYc00vpSEy1AHP3WYPNpG5R7cuRf1q5jcNA/SFrmB9XLPUVXUXSxEAt4syTR13O99JLLn3a5qvGAo+2UHB2tbwln07DNTVuk=
+	t=1777474856; cv=none; b=HESkNuTx3k5tCJU/RsmLD7jigrloS2H2hHA+2pStJ3fJnkYnWxgS9lOm/mvbQpdcrqp6FzEWCO1iELELxcq9jA+yQapdKVqwrH6G+qrwWE19jd5oAoc9Mt5PjaZ+/CAWTSRruf7yY9pCn1GsR/hYSkoUDwbcA5cKNWZ7pVYe/Q8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777473899; c=relaxed/simple;
-	bh=FqSvAgtJuvb9f5xvuUWZP8tCr5URrgofaeuoJwA93UA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=VrzNa9uNnQCEJX/iDPf9yjB/d56w6U1Tw3lGmq50Cf5W7UFx44zP/F/orps0ViIkLQoK33+cIsmyJgpW5WWBUPoaHaNpNpZSaLVLzG4mJW7v+1E4B7e7rk2ccWh63PJlHF+fVDDJiGJdEr3DF3oaA3yEH1XBe7nJ5ZN2bn8zTdE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RTuHI0E8; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1777474856; c=relaxed/simple;
+	bh=PsnQmdFOF06eb5uwm+B3cvoTGp4usELwQCFcdHOG4Z0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JxSTsu3Ih3YGKnBr7KBQ9ydDOLKze1NKCrRNhQGs2zYq1ixlVYPker9PZqxUpb1SoK2uvmjcW1Z8T5WsbFGtsKhwm9BXa2OdkT47nmCUvP6yZRjeh4oiSSR3V2wskSmAao6mV2SIal7daEUDhTD9VXlfQ7fCicMFWMYAdwOsFW0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=R6chvxTr; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RTuHI0E8"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63T82Hbl2525992;
-	Wed, 29 Apr 2026 14:44:56 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=evjQ+M
-	t6wejhn1F4pKmvjMHmyl/O4rElYaBzMzcekQQ=; b=RTuHI0E8fhlxI8tA0JkDke
-	1mkkpf+09w+vEHCIn5+1zVszkcqLLVDIoAyFcHnRmpA7gEi+VPOE4lJCm+naBc9z
-	C2WlbTxkK/JsKZ317GRtC057mMBQiDTaJsPR8gP9jceOCblm331z+5dI6HXtvmLv
-	B1LRiP3CnQWjX1a+WbchK/KkRDAxTJNpCQYigtt8xU/3rCC2qAjwX71zPntNcEKt
-	MZ8EKE2bzMDjjrFUo1LLZ6Cu9rIBdoyA0ywhepKOKSgxzcc/iUzQsubYTUnYAGlz
-	ygUNQ0ByLyTzeoL77HMVDmzcLBvDI5r/AnX/C8nh8MiFSqbdaYBvflf8pYYkGjSQ
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4drnb5b0xm-1
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="R6chvxTr"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63TES64p741194;
+	Wed, 29 Apr 2026 15:00:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:to; s=pp1; bh=b+efzKWVkcg/0oXO+Y5k8
+	ZuTV/b4eDvCevcXVKOm77E=; b=R6chvxTraWiP5T+ZyDemqe+/Ewucih2FjUdfT
+	BmsvcHNxjgDuVG0vc58IuUO4hjG8eEgV+pDSdLF7C/8e4h7zrdHI7uoW9l71380t
+	mBsgV/y+OaPrx1cDH45kcD0Q4yC8zgSMe+FpM2cOMBJSZze+cTqHNKjf9zjiR4pt
+	F16YxNsVmfCe+5zipAV0jknb8QZJ4U00BGMKKVoWwh1kcjeo+m+Zo3dbCNWkn7nq
+	nW/izvqxKDdo3EgKbu+9E8WZ+Byz3Rb8YPd9hcbn8Xu3h/pKrk9mJvzX7zCzqZmF
+	K14zLkUc8b4hnD+hMHpI2stLa6RHNNuGjvmUNoc663lD0arLA==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4drn9rb3qu-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Apr 2026 14:44:55 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63TENqg4005391;
-	Wed, 29 Apr 2026 14:44:54 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dsa5gejwg-1
+	Wed, 29 Apr 2026 15:00:46 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63TEcqe0030618;
+	Wed, 29 Apr 2026 15:00:45 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ds8avxve9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Apr 2026 14:44:54 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63TEiQUh25362954
+	Wed, 29 Apr 2026 15:00:45 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63TF0fjq51970480
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Apr 2026 14:44:26 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F12B558062;
-	Wed, 29 Apr 2026 14:44:52 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3B4A658063;
-	Wed, 29 Apr 2026 14:44:52 +0000 (GMT)
-Received: from [9.61.22.161] (unknown [9.61.22.161])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 29 Apr 2026 14:44:52 +0000 (GMT)
-Message-ID: <92f35384-7b03-4071-b7f9-32375b2badda@linux.ibm.com>
-Date: Wed, 29 Apr 2026 10:44:51 -0400
+	Wed, 29 Apr 2026 15:00:41 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C1FFE2004B;
+	Wed, 29 Apr 2026 15:00:41 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4BE8920040;
+	Wed, 29 Apr 2026 15:00:39 +0000 (GMT)
+Received: from linux.ibm.com (unknown [9.126.150.29])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Wed, 29 Apr 2026 15:00:39 +0000 (GMT)
+Date: Wed, 29 Apr 2026 20:30:38 +0530
+From: Srikar Dronamraju <srikar@linux.ibm.com>
+To: Tejun Heo <tj@kernel.org>
+Cc: Boqun Feng <boqun@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+        Joel Fernandes <joelagnelf@nvidia.com>,
+        Uladzislau Rezki <urezki@gmail.com>, rcu@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Lai Jiangshan <jiangshanlai@gmail.com>, samir@linux.ibm.com
+Subject: Re: BUG: workqueue lockup - SRCU schedules work on not-online CPUs
+ during size transition
+Message-ID: <afIdFgDD9w2U6hZy@linux.ibm.com>
+Reply-To: Srikar Dronamraju <srikar@linux.ibm.com>
+References: <ttd89ul@ub.hpns>
+ <adfhWQr1yFImSM2Q@tardis.local>
+ <adfkdRCxmhpRverB@tardis.local>
+ <adfmHZfABu64Kv4D@slm.duckdns.org>
+ <adfrfJGrglg0bGw_@tardis.local>
+ <adlHKowvhn8AGXCc@slm.duckdns.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 1/3] KVM: s390: Add map/unmap ioctl and clean mappings
- post-guest
-To: Douglas Freimuth <freimuth@linux.ibm.com>, borntraeger@linux.ibm.com,
-        imbrenda@linux.ibm.com, frankja@linux.ibm.com, david@kernel.org,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20260423235316.3665-1-freimuth@linux.ibm.com>
- <20260423235316.3665-2-freimuth@linux.ibm.com>
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-Content-Language: en-US
-In-Reply-To: <20260423235316.3665-2-freimuth@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <adlHKowvhn8AGXCc@slm.duckdns.org>
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=AqDeGu9P c=1 sm=1 tr=0 ts=69f21967 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=nWr_SGdks0rttQIoimkA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDI5MDE0NSBTYWx0ZWRfX8IqEDdNy1XSs
- 8UZmsDgSRyrRqJATw0JrlTe9Bo2U8CuKtUsYVvsVn2No+DcL+S9JontJg1Nzp3PQAAH+huBI0Tb
- 2qM9LejWAIYgni3cvIC0ULXkauT73Z4iQQ+A/0T2Sn7PXNzdsWxh2hoCEmkh+oPweHq7TEhM2CI
- 1ZiJ9PH+9DaJ6GBDBb3WbfTtSRvgvtd0RscXmYPrnkeuLzuGq+RzhmUL9loJIrBb4PRXHoca+GZ
- 000YwRGArsaaYMVafqtmFyNccTwxRHWrlLqwM2jtgz/wPJHJSZ9xaMKKQuulBLieToGdpLLjcKd
- myyKg0qb5ATVqIHhb20SQvvibufBnVaGtz6V6qU7I3HqEP4Ut+maWOvC8sFVc89AHrsrFjgTawT
- p7lgfuYcjXwlNzt/aAvwtSiWoc4NGn4moyo4WQlEF2j4eHLFDiJeGZv8AeLhsOAaRjzmts1wDaD
- JDRt1L4RAZbCfWFlFVw==
-X-Proofpoint-GUID: VmdMOMN1XVfSAfoEC5DcytcrQVvvYq13
-X-Proofpoint-ORIG-GUID: VmdMOMN1XVfSAfoEC5DcytcrQVvvYq13
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-GUID: rzA6Xk_e6USVLQboiTyyaOq9OtNgCXN-
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDI5MDE1MCBTYWx0ZWRfXwc3zGgKQUFdB
+ daEdHY/zhpypmFOO2SnAIQGCpu2Efn5AXAC9lNMuNn/Tj/HSDrPH/25Yk/gJUgWdl1EHyqKhPw8
+ xKXFH7D06yrrWDZWkJ1kJgJh21WIm9LwlmuDnKQ+8sKkKIzBz7zK8T7U92gBjKFqIU39NLYjIFD
+ joNae4JfJrRPJR47qLIK1bTC6c1Jtbjzv13rA/G/Xfn2Xv7ASZp2+ZuBMxqJeuD1eYp42bXbeON
+ LOR0/BWy6m848sNOj0mGoEQy4nzn2dLCL9EJ4SxGzf6oZsag+54cCARkcGj41RwTQL+qN3sQhTV
+ Lj7PtpD10t7U0XJmcoMDNngRwYTx0KO474T4J/yRcmtF+3RgIBm8Jk2mupgz/02if71yINaoPsY
+ L6LkvHr5rC3sJOdl2wsk5aFMyKyA9AZQ/xUoQCPbKBVZMIPLEWxDk2u6E7yejxcOPb7oiAIY/iO
+ dsIYm2yEPI1yJzv8pdg==
+X-Authority-Analysis: v=2.4 cv=Kc7idwYD c=1 sm=1 tr=0 ts=69f21d1f cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=8nJEP1OIZ-IA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=6F5vfELAUXNlVjrrbYMA:9 a=wPNLvfGTeEIA:10
+X-Proofpoint-ORIG-GUID: DIeQi4eV4DF70V8l2l_cfgzeJj43tawp
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-28_05,2026-04-28_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 priorityscore=1501 phishscore=0 suspectscore=0 clxscore=1015
- lowpriorityscore=0 spamscore=0 bulkscore=0 impostorscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2604290145
+ clxscore=1011 phishscore=0 bulkscore=0 adultscore=0 spamscore=0
+ malwarescore=0 impostorscore=0 priorityscore=1501 lowpriorityscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
+ definitions=main-2604290150
 
+* Tejun Heo <tj@kernel.org> [2026-04-10 08:53:30]:
 
-> +static struct page *get_map_page(struct kvm *kvm, u64 uaddr)
-> +{
-> +	struct mm_struct *mm = kvm->mm;
-> +	struct page *page = NULL;
-> +	int locked = 1;
-> +
-> +	if (mmget_not_zero(mm)) {
-> +		mmap_read_lock(mm);
-> +		get_user_pages_remote(mm, uaddr, 1, FOLL_WRITE,
-> +				      &page, &locked);
+Hi Tejun,
 
-I have wondered this before, and Sashiko mentions it now:  Would it make
-sense to also FOLL_LONGTERM here?
+[ copying Samir Mulani to this thread ]
 
-I recognize that the old ioctl code that you are resurrecting here did
-not use FOLL_LONGTERM, but I can't think of a reason why.
+> Hello,
+> 
+> > Seems that we (mostly Paul) have our own trick to track whether a CPU
+> > has ever been onlined in RCU, see rcu_cpu_beenfullyonline(). Paul also
+> > used it in his fix [1]. And I think it won't be that hard to copy it
+> > into workqueue and let queue_work_on() use it so that if the user queues
+> > a work on a never-onlined CPU, it can detect it (with a warning?) and do
+> > something?
+> 
+> The easiest way to do this is just creating the initial workers for all
+> possible pools. Please see below. However, the downside is that it's going
+> to create all workers for all possible cpus. This isn't a problem for
+> anybody else but these IBM mainframes often come up with a lot of possible
+> but not-yet-or-ever-online CPUs for capacity management, so the cost may not
+> be negligible on some configurations.
+> 
+> IBM folks, is that okay?
 
-The mapping may indeed be held long-term (life of the guest or at least
-the associated adapter in the guest), and it's effectively under
-userspace control, waiting for a corresponding unmap ioctl or for the
-guest to go away or enter pv mode.
+Even on PowerPC LPARS, its not uncommon to have possible cpus != online cpus
+at boot.  However your approach will work.
 
-Can you please test?
+And Samir has already tested the same too and reported here
+https://lkml.kernel.org/r/1b89c25b-7c1d-4ed8-adf3-ac504b6f086a@linux.ibm.com
 
-> +		if (locked)
-> +			mmap_read_unlock(mm);
-> +		mmput(mm);
-> +	}
-> +
-> +	return page;
-> +}
-> +
-> +static int kvm_s390_adapter_map(struct kvm *kvm, unsigned int id, __u64 addr)
-> +{
-> +	struct s390_io_adapter *adapter = get_io_adapter(kvm, id);
-> +	struct s390_map_info *map;
-> +	unsigned long flags;
-> +	__u64 host_addr;
-> +	int ret, idx;
-> +
-> +	if (!adapter || !addr)
-> +		return -EINVAL;
-> +
-> +	map = kzalloc_obj(*map, GFP_KERNEL_ACCOUNT);
-> +	if (!map)
-> +		return -ENOMEM;
-> +
-> +	INIT_LIST_HEAD(&map->list);
-> +	idx = srcu_read_lock(&kvm->srcu);
-> +	host_addr = gpa_to_hva(kvm, addr);
-> +	if (kvm_is_error_hva(host_addr)) {
-> +		srcu_read_unlock(&kvm->srcu, idx);
-> +		kfree(map);
+> 
+> Also, why do you need to queue work items on an offline CPU? Do they
+> actually have to be per-cpu? Can you get away with using an unbound
+> workqueue?
+> 
+> Thanks.
+> 
+> From: Tejun Heo <tj@kernel.org>
+> Subject: workqueue: Create workers for all possible CPUs on init
+> 
+> Per-CPU worker pools are initialized for every possible CPU during early boot,
+> but workqueue_init() only creates initial workers for online CPUs. On systems
+> where possible CPUs outnumber online CPUs (e.g. s390 LPARs with 76 online and
+> 400 possible CPUs), the pools for never-onlined CPUs have POOL_DISASSOCIATED
+> set but no workers. Any work item queued on such a CPU hangs indefinitely.
+> 
+> This was exposed by 61bbcfb50514 ("srcu: Push srcu_node allocation to GP when
+> non-preemptible") which made SRCU schedule callbacks on all possible CPUs
+> during size transitions, triggering workqueue lockup warnings for all
+> never-onlined CPUs.
+> 
+> Create workers for all possible CPUs during init, not just online ones. For
+> online CPUs, the behavior is unchanged - POOL_DISASSOCIATED is cleared and the
+> worker is bound to the CPU. For not-yet-online CPUs, POOL_DISASSOCIATED
+> remains set, so worker_attach_to_pool() marks the worker UNBOUND and it can
+> execute on any CPU. When the CPU later comes online, rebind_workers() handles
+> the transition to associated operation as usual.
+> 
 
-Drop this kfree(), you already do this when you goto out
+With these patch, if a CPU has been onlined once, it's should be ok to queue
+the work on that CPU even if its offline now.
 
-> +		ret = -EFAULT;
-> +		goto out;
-> +	}
-> +	srcu_read_unlock(&kvm->srcu, idx);
-> +	map->guest_addr = addr;
-> +	map->addr = host_addr;
-> +	map->page = get_map_page(kvm, host_addr);
-> +	if (!map->page) {
-> +		ret = -EINVAL;
-> +		goto out;
-> +	}
-> +	raw_spin_lock_irqsave(&adapter->maps_lock, flags);
-> +	if (adapter->nr_maps < MAX_S390_ADAPTER_MAPS) {
-> +		list_add_tail(&map->list, &adapter->maps);
-> +		adapter->nr_maps++;
-> +		ret = 0;
-> +	} else {
-> +		put_page(map->page);
-> +		ret = -EINVAL;
-> +	}
-> +	raw_spin_unlock_irqrestore(&adapter->maps_lock, flags);
+> Reported-by: Vasily Gorbik <gor@linux.ibm.com>
+> Signed-off-by: Tejun Heo <tj@kernel.org>
+> Cc: Boqun Feng <boqun@kernel.org>
+> Cc: Paul E. McKenney <paulmck@kernel.org>
 
-Sashiko is concerned about put_page() potentially sleeping under
-PREEMPT_RT; drilling down to functions like free_one_page() indeed I see
-regular spinlocks employed.
+Reviewed-by: Srikar Dronamraju <srikar@linux.ibm.com>
 
-RT aside, it might be worth doing this anyway to reduce the critical
-section you are holding this lock over, like so:
+> ---
+>  kernel/workqueue.c |    5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> --- a/kernel/workqueue.c
+> +++ b/kernel/workqueue.c
+> @@ -8068,9 +8068,10 @@ void __init workqueue_init(void)
+>  		for_each_bh_worker_pool(pool, cpu)
+>  			BUG_ON(!create_worker(pool));
+> 
+> -	for_each_online_cpu(cpu) {
+> +	for_each_possible_cpu(cpu) {
+>  		for_each_cpu_worker_pool(pool, cpu) {
+> -			pool->flags &= ~POOL_DISASSOCIATED;
+> +			if (cpu_online(cpu))
+> +				pool->flags &= ~POOL_DISASSOCIATED;
+>  			BUG_ON(!create_worker(pool));
+>  		}
+>  	}
+> -- 
+> tejun
 
-	raw_spin_lock_irqsave(&adapter->maps_lock, flags);
-	if (adapter->nr_maps < MAX_S390_ADAPTER_MAPS) {
-		list_add_tail(&map->list, &adapter->maps);
-		adapter->nr_maps++;
-		ret = 0;
-	} else {
-		ret = -EINVAL;
-	}
-	raw_spin_unlock_irqrestore(&adapter->maps_lock, flags);
-	if (ret)
-		put_page(map->page);
-
-
-> +out:
-> +	if (ret)
-> +		kfree(map);
-> +	return ret;
-> +}
-> +
-> +static int kvm_s390_adapter_unmap(struct kvm *kvm, unsigned int id, __u64 addr)
-> +{
-> +	struct s390_io_adapter *adapter = get_io_adapter(kvm, id);
-> +	struct s390_map_info *map, *tmp;
-> +	struct page *map_page_to_put = NULL;
-> +	u64 map_addr_to_mark = 0;
-> +	unsigned long flags;
-> +	int found = 0, idx;
-> +
-> +	if (!adapter || !addr)
-> +		return -EINVAL;
-> +
-> +	raw_spin_lock_irqsave(&adapter->maps_lock, flags);
-> +	list_for_each_entry_safe(map, tmp, &adapter->maps, list) {
-> +		if (map->guest_addr == addr) {
-> +			found = 1;
-> +			adapter->nr_maps--;
-> +			list_del(&map->list);
-> +			map_page_to_put = map->page;
-> +			map_addr_to_mark = map->guest_addr;
-> +			kfree(map);
-
-Move the kfree() outside of the raw spinlock and instead call it...
-
-> +			break;
-> +		}
-> +	}
-> +	raw_spin_unlock_irqrestore(&adapter->maps_lock, flags);
-> +
-> +	if (found) {
-
-... right here.
-
-> +		idx = srcu_read_lock(&kvm->srcu);
-> +		mark_page_dirty(kvm, map_addr_to_mark >> PAGE_SHIFT);
-> +		set_page_dirty_lock(map_page_to_put);
-> +		srcu_read_unlock(&kvm->srcu, idx);
-> +		put_page(map_page_to_put);
-> +	}
-> +
-> +	return found ? 0 : -ENOENT;
-> +}
-> +
->  void kvm_s390_destroy_adapters(struct kvm *kvm)
->  {
->  	int i;
-> +	struct s390_map_info *map, *tmp;
-> +	unsigned long flags;
->  
-> -	for (i = 0; i < MAX_S390_IO_ADAPTERS; i++)
-> +	for (i = 0; i < MAX_S390_IO_ADAPTERS; i++) {
-> +		if (!kvm->arch.adapters[i])
-> +			continue;
-> +		raw_spin_lock_irqsave(&kvm->arch.adapters[i]->maps_lock, flags);
-> +		list_for_each_entry_safe(map, tmp,
-> +					 &kvm->arch.adapters[i]->maps, list) {
-> +			list_del(&map->list);
-> +			put_page(map->page);
-> +			kfree(map);
-> +		}
-> +		raw_spin_unlock_irqrestore(&kvm->arch.adapters[i]->maps_lock, flags);
-
-Moving put_page/kfree out of the spinlock is a bit more work here.
-Handle this the same way you did in kvm_s390_unmap_all_adapters_pv()?
-
-Actually wait -- besides the dirty page logic (which should be fine to
-do here too) this is the same code as kvm_s390_unmap_all_adapters_pv().
-Can you make the code in kvm_s390_unmap_all_adapters_pv() a single
-routine with a different name (e.g. kvm_s390_unmap_all_adapters()?) that
-is called both from here as well as from kvm_s390_handle_pv()?
-
-
+-- 
+Thanks and Regards
+Srikar Dronamraju
