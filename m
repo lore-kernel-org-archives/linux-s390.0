@@ -1,68 +1,83 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D4B534D4E2;
-	Wed, 29 Apr 2026 14:42:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F226366575
+	for <linux-s390@vger.kernel.org>; Wed, 29 Apr 2026 14:44:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777473731; cv=none; b=P2SeTdYNhvcV25iTQA26cu5NkTJR+eiCpcPhPv3G1hPAWxiTI2sfzuhGnGr+MCJo+4rYeyw+wfj5TTP6UYPDLdxnRi7JFWTEiShYlP5HntXSUm3apHipNtM0kTkmeSZ8YaaGYOIBAOmWk6GO0b6WM/HgNkGFsSVRYFmdkKQxVno=
+	t=1777473860; cv=none; b=LXj/h15Q6VpgtYbe+IUD0vVpZlB7u5KasKgPnvNO/xi3QhD9nFgPpCCYJPztzV0b3XEha3F8VV1CqTjtmogoYxwmd/guR47m0zHDDqCq7vNGugTu7KE3e6xwldZCbzduo3KB92a3/olMj7sznLn6MLjFHvp+tLZdN2p93p8cTHk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777473731; c=relaxed/simple;
-	bh=4DC5FnxLOx5oS/7N1CXQDRF0AxOA8SOrVog97hjGYX8=;
+	s=arc-20240116; t=1777473860; c=relaxed/simple;
+	bh=Pqndjc5T4mQdkcn0ZD8y5sYqQF/8SkBE0oTJ6xkyK7s=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Uo64RtSQb6upYhDZnBHTtulVfK3PEBTh79muhssqaqn2yMgLMpBYnsZlVlVRhbEEM+mTxMug6ztB5WZ4LsFhLhBbP1byyP4TUH5Ynsy/RbaAYWT5wrYx14z6fMh0DrjliLwc5aANinK+dP9doaLTZctMR7ByMDiug6TQwRQQjMQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VA1JIZSk; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=HjWqTMSMFGQV7AG+ucGVMCDggeh+lm2/YITCXQOpNNM+pzcvtFY3OUMDe5GS/nKRGcflvyZponnld6WKgcdCMqx2gVA/roRcEsjQLf0rDOBUeNw1LW+ju2lJzwmq8iVpvC41IhYFVYJ0azTqRNCNeoehLeHvZ3sWTPjKw3nom+Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=AdCympbS; arc=none smtp.client-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VA1JIZSk"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63TBEWhu3583678;
-	Wed, 29 Apr 2026 14:42:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=Mujp2GZPdcDGR/E9gcQ1mcqPr72iGH
-	hDCXAgy6P3/gU=; b=VA1JIZSkfHR1tMipMNAqrXKtnSb1vMRPnp58FnzJAFGJqH
-	G2TFtAMY5+CQ6DaRRNi4e2akSAYnNotPnbg6eevSHTyrVF8vHxCLcFCMDrzkBZLC
-	ZVJydLKugwFy3JPxuvcszdq67SDdbIZQi4Z56t87Aljg1SCMWvn3KLYvALVg6Ia0
-	75U0bnO6ZKRXw4o9uiBM7p0ShWOxvoUtbqBXSaoDaVO7ckk8Y6qYf8rp+MpuHMQd
-	AsYx9TipzoDY/J4aIeIEH5mvyk4JrfU0H2NmoWfZrtiubt1rSqrXIx1PjSZgBNsT
-	SHqCbj+lVVQERC+hJSmM7eQ3D9TWineR2hEWErag==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4drn44u4dv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Apr 2026 14:42:08 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63TENorg005383;
-	Wed, 29 Apr 2026 14:42:07 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dsa5gejet-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Apr 2026 14:42:07 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63TEg4pQ15925612
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Apr 2026 14:42:04 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7172220043;
-	Wed, 29 Apr 2026 14:42:04 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4B49720040;
-	Wed, 29 Apr 2026 14:42:04 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.52.215.75])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 29 Apr 2026 14:42:04 +0000 (GMT)
-Date: Wed, 29 Apr 2026 16:42:03 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Julian Braha <julianbraha@gmail.com>
-Cc: gor@linux.ibm.com, hca@linux.ibm.com, iii@linux.ibm.com,
-        meted@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        akpm@linux-foundation.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RESEND PATCH] s390: fix dead defaults for
- S390_MODULES_SANITY_TEST and S390_UNWIND_SELFTEST
-Message-ID: <a3adc8e8-ce4c-458c-a0c8-c0e66078589d-agordeev@linux.ibm.com>
-References: <20260414215651.151228-1-julianbraha@gmail.com>
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="AdCympbS"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-488ba840146so113359375e9.1
+        for <linux-s390@vger.kernel.org>; Wed, 29 Apr 2026 07:44:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1777473858; x=1778078658; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=kVcBlrxrwvuMTzkd8qfu+aZVhxmu04I8GEJ4kfvWPFc=;
+        b=AdCympbSUKFwh9GfpV974pfsENcfDQx40H4iuxSZx2OEMJAYd591pITLctBD+pKj/5
+         LNk4Le5fQ92eU5oarFqyZYSTuufaEgs7avb0Cj6og5ErpWUC3fFbtW9b9IF23TWoavec
+         FnLYbzHVm7bashiuix/3ZXZR2anI0BdXEmDz8TrsWD5kW8VL0zdGcYNioPoDotChcazt
+         HU6xfyO7EXCOd+nen0z15keCQt8OP0ghfBk6eqT8CbTkiku8AddRKn9y3ItqaUhyitap
+         S9A/9k7SMxHoeWQAHXQ429kP9ohaNOhHFsOkouxvweTX/5NZR46b5D6/y1jmHGKOGp/z
+         yUaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777473858; x=1778078658;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=kVcBlrxrwvuMTzkd8qfu+aZVhxmu04I8GEJ4kfvWPFc=;
+        b=e0tya5VVTB7dDPCnBE1pulENYQYPyriwzxtpTeAolncNt9kJG8iUPRL8IT6OpAiU3I
+         D8fltsJKD+pb43BkhKNMYxZEvJOZaSqwSKQdW8CD8MNAWhsE8Hs5sKnIi61X4V3iADLO
+         acnITcSRiLOiHsKwiMYTU5gAB0YWW5xkFOv9dJ0UVahNSBnwfpqdA2OnW4yIL4v/mXHs
+         9hvLx6rxDT2Rq5N3O6slYXt7l0zgX9INnkTvOg3CEGCpELbbosUdm8jjmKE4LyjkJvIm
+         oXs1h3OTUPXnubSTGtRTs/Ovg5cYzCx27FR+22/cZysCy1D1jryV14aMLiB3w0llVyps
+         c9NA==
+X-Forwarded-Encrypted: i=1; AFNElJ+ajMLPhKBdwDXmeO11ZibL5KnT0h8V0HndEDEkl7RjYrbDf1IWnnXtTz8xxCuEXCvZYcgkpaMtJPQj@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywv0TbdcPLkykjJ7V1iLIZsablCaPzVL0ofjkcmflJJe8ckQXHo
+	J/ym34fYV6msdYP6Uep/LZkde7+msoJXhYiAqmjLi0QacloFCCZ6PUQoRldfExyM23A=
+X-Gm-Gg: AeBDiesz1oELtZkUw4P88nQoN+qQs0xxmCKhHs5FVWmroERaLF0gwTVHxCFJ0Wj8hnh
+	tHglKUl2tOYc68hU5cI9fpOIPJLermfn0hpdOERzRl9QKIapw02d4T//s+gZd0rLIRC96kEvMh3
+	RQy9NEoofzuUAdYtwzSj1oCpi1J2A5ZLu8zaD1ElBWnHF3SgJLqcQ4Hhm3b58B9HhJacOniW3oF
+	tUdwS+4k9sdj7lycioMmFzRHOOYhmj3w0OMcbaypQm18N8cBPspH18Y//Zu8DBivBJxBYtG0dSP
+	/G5214w57sB+P0xwDrBL12d/wLM9wJqGlGpYohkYFaIBNgvTX+jc6cLCHbvscXM5AGdufYbPmlK
+	asijkzRwSi7Bd15dv/UEB39ToPcGUv/WZBZDAyJ3/4sogR7+CoTH8J7bJfglbRx4TyBS2wxfLBI
+	g3t0u4mQ1Lw3zvuUqMNnHmNriGnYt+gcZ0M6+rclGzNY4w2Rk=
+X-Received: by 2002:a05:600d:b:b0:489:149a:f9e6 with SMTP id 5b1f17b1804b1-48a77b2a5bcmr96586255e9.28.1777473857818;
+        Wed, 29 Apr 2026 07:44:17 -0700 (PDT)
+Received: from localhost (109-81-86-177.rct.o2.cz. [109.81.86.177])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48a7c1d0228sm83315235e9.2.2026.04.29.07.44.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Apr 2026 07:44:17 -0700 (PDT)
+Date: Wed, 29 Apr 2026 16:44:16 +0200
+From: Michal Hocko <mhocko@suse.com>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Minchan Kim <minchan@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>, akpm@linux-foundation.org,
+	hca@linux.ibm.com, linux-s390@vger.kernel.org, brauner@kernel.org,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+	timmurray@google.com, "Liam R. Howlett" <Liam.Howlett@oracle.com>
+Subject: Re: [PATCH v1 2/3] mm: process_mrelease: skip LRU movement for
+ exclusive file folios
+Message-ID: <afIZQOtaBabeHtCc@tiehlicka>
+References: <ae8NT0tLt7eBmH6j@tiehlicka>
+ <CAJuCfpHQdA7C50V2WjNrdYcp7feV5ukgxJf+vMNEcp0P1SGEow@mail.gmail.com>
+ <ae-Zu-VAzAA7SdLa@tiehlicka>
+ <ae_roPR64e6sY_fN@google.com>
+ <afBaJLLFigkdszov@tiehlicka>
+ <afFco71vwmpQy3pk@google.com>
+ <afG-4hq7Hr62Uu6J@tiehlicka>
+ <7f98f461-62a7-455d-a7a8-cb8928465946@kernel.org>
+ <afHeXY-yeTwmURWh@tiehlicka>
+ <4a612d63-2838-40f5-ab67-79bf35dd3a56@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -71,58 +86,31 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260414215651.151228-1-julianbraha@gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: vAlq02fFdxi_YWtHYl1Xsx4XagJwy3kf
-X-Authority-Analysis: v=2.4 cv=Ft81OWrq c=1 sm=1 tr=0 ts=69f218c1 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=kj9zAlcOel0A:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=pGLkceISAAAA:8
- a=VWRJ8OvsUrwFCD2NXXAA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: sk84tkLtboEhg_pmICZKMMGyG7ZtNDOW
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDI5MDE0NSBTYWx0ZWRfX9lZWT0+bw8ko
- 0ZzrRFDYhImlCI1xa5rhXJNaArupV2Ln0ouK81Faf4eKKLNkmTDrb/n5tyeZF1KDsGQULRzPABh
- o1ZTf70dyWMnR0Fk4RcAxORZr115VEFm6HR4E724INbkcpSbiI6mCwzm/NHhfGAKtRJiGE79lqx
- vhfq6plioAwlVI7guTEkZZDW6fmrLyU31PsFuzscAn18iGKtc607Z2j6xVGWh3vwsrMl0dvWLRB
- p22XBiVO3z4KpbHxVmwHzH/l0QcHRiUpKgUHSkTUwFZFT8/C46XmS4ilIKzx4T7t21l3aK+dqBS
- ux/0FJ7oTMSkE6euhCFwW1wY1cJqQJWnRrigt+yF25SJbAGIjXgvj0jTgEVP05Vp1a8G2FPRyLp
- V3XH4xt7Ju5QtUF8TUIvMVjDdoNUuo3aIc4t18VLWSetT5J33uMnigO2re0xvjEPSkXYJYgJRGw
- NflYn7omRcXye/jKcNw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-28_05,2026-04-28_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 lowpriorityscore=0 bulkscore=0 spamscore=0 impostorscore=0
- clxscore=1015 malwarescore=0 phishscore=0 suspectscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2604290145
+In-Reply-To: <4a612d63-2838-40f5-ab67-79bf35dd3a56@kernel.org>
 
-On Tue, Apr 14, 2026 at 10:56:51PM +0100, Julian Braha wrote:
-> These config options currently have unconditional defaults of 'n' from the
-> def_tristate statement, which shadow the later default of
-> 'KUNIT_ALL_TESTS', causing it to be dead code.
+On Wed 29-04-26 15:07:04, David Hildenbrand wrote:
+> On 4/29/26 12:33, Michal Hocko wrote:
+> > On Wed 29-04-26 11:09:55, David Hildenbrand wrote:
+> >> Unrelated stupid question: would things be clearer if we could rename
+> >> MMF_UNSTABLE to MMF_OOM_REAPING once figure out whether aborting fork() still
+> >> really needs it?
+> > 
+> > While the oom is the only current kernel user of MMF_UNSTABLE (in a
+> > sense it sets the flag) the flag should denote that any page faults are
+> > reliable because it might fault in a fresh memory and user would lose
+> > the previous content without knowing that. Not sure MMF_OOM_REAPING
+> > would reflect that reality better.
 > 
-> It looks to me like the commit 25d36a85c61b ("s390/test_unwind: convert to KUnit")
-> added the KUNIT_ALL_TESTS default to S390_UNWIND_SELFTEST, but mistakenly
-> didn't remove the previous 'n' default.
-> 
-> Then, the later commit 90c5318795ee ("s390/module: test loading modules with a lot of relocations")
-> copied the Kconfig layout from S390_UNWIND_SELFTEST when adding the
-> S390_MODULES_SANITY_TEST config option, without noticing the existing mistake.
-> 
-> This dead code was found by kconfirm, a static analysis tool for Kconfig.
+> We use it for failed fork() as well, but that's slightly different semantics (no
+> real page faults ever made sense).
 
-This tool is still in development, right?
+The bottom line is the same. Make sure PF fails rather than silently
+provide potentially corrupted data.
 
-Anyway, I do not quite get what do you mean with the dead code.
-Could you please elaborate?
+> Looking at the original patch here, using MMF_OOM_REAPING to modify zapping
+> behavior would be clearer than MMF_UNSTABLE, I guess.
 
-> Fixes: 25d36a85c61b ("s390/test_unwind: convert to KUnit")
-> Fixes: 90c5318795ee ("s390/module: test loading modules with a lot of relocations")
-> Signed-off-by: Julian Braha <julianbraha@gmail.com>
-> ---
->  arch/s390/Kconfig | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
-
-Thanks!
+Ohh, you mean to add a new flag, right?
+-- 
+Michal Hocko
+SUSE Labs
