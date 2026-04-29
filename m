@@ -1,156 +1,185 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f171.google.com (mail-qt1-f171.google.com [209.85.160.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41C2134E744;
-	Wed, 29 Apr 2026 18:23:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777487025; cv=none; b=vGlBpHu4DlivGLjLEuBVMQIi6a1GGxa67BtP11GpfBp5DvpaRGbGUFDcJgx6N5w7bOvQzOxghcsJ2eD6AbE5BpSA8W9NbvUZsG6HRgqxYQqANMBey+lVa/aj4ddL8zt+pb5VWktEVY1J7n31WEC/5VicDde1iWI0tdquRoGqqcw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777487025; c=relaxed/simple;
-	bh=KiruBSVhANb6D8J7R6X3uWaM6Yzub4B43ZJp5d4Y2MM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MIfn9KMSkTQj9tICgAfiS5A+3+lEDuogUgm7mxq9nFytM09MfmwuoMCooyLou4yK6SwJCgK8SCI+zPNhNFInU/l1QNXnpg8oSe1acRWW4PE7q1E3CtQNkdFS6kyyCjSkG5oZcDCxkaMFHNET46/04a1Xo6nAqsJyKfnptm1tqz4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MGew7bTj; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 566FD3290C4
+	for <linux-s390@vger.kernel.org>; Wed, 29 Apr 2026 20:01:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.171
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777492898; cv=pass; b=M64TYQMrsu37yMRfGwS2ZFeUnwjU2NvDUStaKIsc1ZnPqAfn/vhcKBABsdyOiIJ44WwjZ5w4Z9HMhFgWE6edQirz38KIuoRceQnsMlDjSrV2Aiq8nMbgVs6/oSvc35lKKeYsuYKZoCfkIiPnZwkUQoS+W6H1VYQ9XE31pwzcjaY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777492898; c=relaxed/simple;
+	bh=V2Ac/uiBGQ9ycw7pF0zjaEaqOT6k7YYrX3oTcJlTaSI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ceM7GMM7HJJeJtDKETB4mTRHI3LwJdV5X16bmRanAVjhtYDvwWFiuZoFLW+l4eZaQrzP33OZaQNdMBAlvA7hHPrphJQJ+DCoFBWueelk060RKkEgQcsynWHkNQFHJI0hCAG0lxec4roHl/mECSCkOFthS7xAzCPVgm0jblC3GTs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=bSO6lczy; arc=pass smtp.client-ip=209.85.160.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MGew7bTj"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63TEvhwY899091;
-	Wed, 29 Apr 2026 18:23:41 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=hggstm15V1Locaw5qgAUyb5BTnjpbw
-	6T+dhroKVFXLo=; b=MGew7bTjtK41h0yzNRTP/c0h4Qa/yNXJ+4eQah5LMi3Lxp
-	FSMiSAZalSG6GQ7gcIxthvLK0drtsWKweWNPJsqfYQwJJcpwiUG14rg61m8FiUtJ
-	NCGrmiyX0yUBLwZNK6rkiKw7ycdsgGLZJ/XYlyykp++H9o/IUI+6vqsXra0A24UJ
-	byQP4f0EGLPQonP27J69Hn0LrKdLYyZR+ln/+oUoVBAfiJuVd8Mb15JhGLyt3SjB
-	wAanuo0QHppGTKQS7R76NKOo1hERBvLe23NnofyJzw0RGrh8n0yG1boksUetcSCY
-	qnDNPPEHdbMG6HJYgxrqSWE7e3FoAUs0NYyeZ4DQ==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4drnb5c0qk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Apr 2026 18:23:40 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63TI8lgK023121;
-	Wed, 29 Apr 2026 18:23:39 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dsa5gfdf6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Apr 2026 18:23:39 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63TINa4X52035986
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Apr 2026 18:23:36 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3825120043;
-	Wed, 29 Apr 2026 18:23:36 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 78E5B20040;
-	Wed, 29 Apr 2026 18:23:35 +0000 (GMT)
-Received: from localhost (unknown [9.111.69.68])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 29 Apr 2026 18:23:35 +0000 (GMT)
-Date: Wed, 29 Apr 2026 20:23:34 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-To: "Paul E. McKenney" <paulmck@kernel.org>
-Cc: Boqun Feng <boqun@kernel.org>, Frederic Weisbecker <frederic@kernel.org>,
-        Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
-        Joel Fernandes <joelagnelf@nvidia.com>,
-        Uladzislau Rezki <urezki@gmail.com>, rcu@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Samir M <samir@linux.ibm.com>,
-        Srikar Dronamraju <srikar@linux.ibm.com>
-Subject: Re: BUG: workqueue lockup - SRCU schedules work on not-online CPUs
- during size transition
-Message-ID: <tte9pra@ub.hpns>
-References: <ttd89ul@ub.hpns>
- <073abb55-197a-4519-b177-f9f776624fed@paulmck-laptop>
- <ttd8que@ub.hpns>
- <024e1e59-c901-4494-9935-f6871af88b2d@paulmck-laptop>
- <2157a59f-a1d3-4007-b8ce-3a7b0e0b9057@paulmck-laptop>
- <ed1fa6cd-7343-4ca3-8b9d-d699ca496f83@paulmck-laptop>
- <tte9o87@ub.hpns>
- <022fe334-1c53-41f1-94cd-96140b2f9cdf@paulmck-laptop>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="bSO6lczy"
+Received: by mail-qt1-f171.google.com with SMTP id d75a77b69052e-50d864c23bdso36351cf.1
+        for <linux-s390@vger.kernel.org>; Wed, 29 Apr 2026 13:01:37 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1777492896; cv=none;
+        d=google.com; s=arc-20240605;
+        b=UaGZ45LVN36yj5PnDpW+HDAHnKET4umCZ3/MKYmJ6Dh9Fkm21/dLBstINkwqWXXpOi
+         49YQ0xbcukvp2yiLrU2fX1MaAxNhxGlvrgfs7bDiEzd3ZrhdT7mSuLAGq9MWKMbvV8CX
+         AzwtiSMLKSSJHWXdXSqyvB7nzknd2HX8ICaqSRgWSx4fXOYrK8mi6EBjQVOQg6Eg4ENi
+         qzhJBkA5lddCyDOConIoSBKJu/ThoXt5X5nLkWgNot5eM4wrEPfFY4ilGCwElDACwOg+
+         VX2McxoAqlBdnfJPhqd2zfgwGO0awB6E7Akxf0fSKfu6Kmby2ra8hrpkH/Ol+xewBKfT
+         0WAw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=VrOQ5IvMm/7ol/RYFa/eoVS5wWzM8D3GvmLp87Y+8Zs=;
+        fh=iACBLti10fq9gtz19PsnymFi0RAYy0taJmeAdYFzbGA=;
+        b=V+ri8pXsdlA0mb21tkZRkd8w1vgMFMchvseHQtaBW1DbOn9KWPemlfvUY6K1SgLXre
+         3oS8zBnsTlGs9VexOsNfGY72UC+o2+hFhSfgmaAlzxvNh861F1GXv5i4aDjLQWxOPqgy
+         w1PdSn1b5Y4lkNHb83d5zEQnzITVKiCM1oVgD6edRnoa7JNrYDm6GjfEkzMIWCUTMkOb
+         I+thyU+5AD5oEv0vc31V4EbHSHgq+XvJDb+RwoIT4JiusIL3EE6b4Mwpc3fLRQh9l84i
+         aBzdnYtZTEXU23gBQJ7uhVu4XvM07M+PhdgIGbvnvgCVKSjVqDPXWMYd33CA4Pk1xiiw
+         DGeQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1777492896; x=1778097696; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=VrOQ5IvMm/7ol/RYFa/eoVS5wWzM8D3GvmLp87Y+8Zs=;
+        b=bSO6lczyf392BjTX6jz2nODvGIM0WU1KcxjEi6jZIa7czYGfrjQLUz1nHtEVCkuHjM
+         kBSoLsbFEME5MJv1flaM+YhYsFbw27bqXXfGHjRmMWrbtXP3hRnOWCU6Aat7Pbco5G+O
+         E2wkQiXxY/oBNxiWoTv3k0GqCyzzRsAk2n0dqCnBuR/jFi20TQ/NMAWyqD3yIhv/sdHk
+         nQrz2iNJ+WChV/6eE7YY3Tix16p2CtH3P/AtQ4boL270aRbc1v+6zNYXsB0QlhF4QBfn
+         8tb62wI4EIudLRrKLe62eVkDBarl/Y9gVsUyXwh+OsXjRAWpjOMHkMwwqX5G/FzzSBT0
+         hE3Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777492896; x=1778097696;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=VrOQ5IvMm/7ol/RYFa/eoVS5wWzM8D3GvmLp87Y+8Zs=;
+        b=H+p/B8vB1iqS+BMUPxTkVQlJ/BisCdgPkJ0I2dzhGAUVFd/JQqnQ1so0g8MybEjgIq
+         tAo2U3GQzhFWif0pgBxq6ZC+2wYy+Xg2Y4q0n2oBxJgMuqY7aexkClFquWJEAiCjVh9X
+         ttDGRSQDeIOHnWAfm0z1exsAUICxliJDIZpPg+VluxqpFiA5AsKNUcEqZ91juAMCpFyF
+         kzhTyYdvomfePSK1kD1jMw32TUVCdFYMbGcva5htF8nl3tw/m0beXmALaeEXurfTtY4Z
+         4CocfCC0mtbFOdlqhbKIMpp7aM9waWThrRg7/wjdWMuP8e/mBAIhP0zPIIilZBCwVMg2
+         lmhQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+C5HMHGespU94j86Lkgdux0Bu48duYJP4xoRU0AtgJ00C+QkGUeQzGo/m7YKxXSumIBUDq5CN0OiVb@vger.kernel.org
+X-Gm-Message-State: AOJu0YwiVYtxNUrnjmcU0eQtM5NKeqS43kGUvRrxKEwFbxuUzratHo7G
+	/oEmicwUPjtXx4m9dJ3U5/zFDNBbkhxnd4rfs5O9o3pc3KHOssfx8thZL1q8pjWyGZuzNI55W8D
+	eQUEBbYMJkVMi8KD4I9Xuz+YDqo6gZpoqkpZgsfPc
+X-Gm-Gg: AeBDiespuissCwyWhgc3qOJv6oXlfGuqr2eSm3FQgpQpFJr0AhfMAQflLL24iFi2mlb
+	JqN84Q+PaEFgby6ZBu8QzyCdnaFOROG1jhn8iYGB+rP546xjk10zmY29q5KPFCNJa1k1yZaOdSP
+	DTOu3ZfoNYlGKkUP5MqGehcqWBoFm76uS2tFvS/YSv88F++4ewXCiE/d5jao7dPGbNFrj8bXUjm
+	iCYC4VOGSb2pCjEzEzgV2LxAr29rncw8ze2Y/YWX5mVCpCOq+fzap6Zu88JXEDc14l0L5w75/6D
+	OzYj0de7tqotF9q/W5FSD+gXFdYkvPQER4K/lTEzIGkFLThsi6rVIJYPSyE=
+X-Received: by 2002:a05:622a:8c14:b0:50e:5eba:cadd with SMTP id
+ d75a77b69052e-51027e357d9mr3118471cf.2.1777492895598; Wed, 29 Apr 2026
+ 13:01:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <022fe334-1c53-41f1-94cd-96140b2f9cdf@paulmck-laptop>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=AqDeGu9P c=1 sm=1 tr=0 ts=69f24cad cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=NR5ev6yDxV4NLjt8mV4A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDI5MDE4NCBTYWx0ZWRfX+C1w57xVNpc3
- TjBsE/YOaoqUZcHEGnDZOq+iIvGE9yM60SffvQBBkKN7na5/hwN8pjlhqFgSEJHYnPM5AvWF+h4
- lkRGsGreAwaTXlGHfvfBVG/8KO917Zqzchuz3dko7RHFTHNkrYZ9tn+gUoQf9V1RZLtBQO348PV
- a6slvDWFw32pWY2e4HhANhG756BmLfkEm6RltlwWtufydlWisx5Mq4O4N2MjU8Ox0Ljas8x4N1y
- DpmtPPrls3E1uW0vJYvdKIBSphYOI8qSaWvrseAOcf+TZrKUv88zlBWDg8b1azOnTw33SHlZMpW
- pPANi/UyVLuQxnIm+wxgGKwejumrANGkkkbV0wHzf44r3DDrUhIfhYTSCrk8epKMJYpvdcZVXyV
- oEoIVI7Y/hHrbLaRmgpfRRpW/TCnkMo75eRuKphL9Z8vh7d7DQL5oetIbPZuaj7PzE2t+whXpai
- Fw1AgzEKpzIKDT7h8Ug==
-X-Proofpoint-GUID: R9WBkUSRa7-JAuxWi1uVPoI4oKH-GfyS
-X-Proofpoint-ORIG-GUID: gQMOXejSNUXphDVRbOWUpW5z5BfQTHoF
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-29_01,2026-04-28_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 priorityscore=1501 phishscore=0 suspectscore=0 clxscore=1015
- lowpriorityscore=0 spamscore=0 bulkscore=0 impostorscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2604290184
+References: <20260421230239.172582-1-minchan@kernel.org> <20260421230239.172582-4-minchan@kernel.org>
+ <aesiYAumkLCyedf0@tiehlicka> <aevzbx_Pk5Cu5exa@google.com>
+ <ae8KD_Tq0t7RvUy1@tiehlicka> <ae_dRZ95dCDTTxaQ@google.com>
+ <afBbRUaGnE8WZIkY@tiehlicka> <afE2xchFRh2xARBn@google.com> <afHAi0E11D5sg_9y@tiehlicka>
+In-Reply-To: <afHAi0E11D5sg_9y@tiehlicka>
+From: Suren Baghdasaryan <surenb@google.com>
+Date: Wed, 29 Apr 2026 13:01:21 -0700
+X-Gm-Features: AVHnY4LMZ-82kW3kGAJM8IvAKr1aRLzXrcRnIEAnRwPkwO2cxXsJngduRgWjvXs
+Message-ID: <CAJuCfpFxtbSXKabKd0G1i4WXWs2M4c4aDs4xTA0BNJB2e0P7Lw@mail.gmail.com>
+Subject: Re: [PATCH v1 3/3] mm: process_mrelease: introduce
+ PROCESS_MRELEASE_REAP_KILL flag
+To: Michal Hocko <mhocko@suse.com>
+Cc: Minchan Kim <minchan@kernel.org>, akpm@linux-foundation.org, hca@linux.ibm.com, 
+	linux-s390@vger.kernel.org, david@kernel.org, brauner@kernel.org, 
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org, timmurray@google.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 29, 2026 at 11:05:02AM -0700, Paul E. McKenney wrote:
-> On Wed, Apr 29, 2026 at 07:50:31PM +0200, Vasily Gorbik wrote:
-> > On Tue, Apr 14, 2026 at 12:24:12PM -0700, Paul E. McKenney wrote:
-> > > On Thu, Apr 09, 2026 at 09:03:26PM -0700, Paul E. McKenney wrote:
-> > > Please see below for the full patch, including refraining from queueing
-> > > workqueue handlers on not-yet-online CPUs and diverting SRCU callbacks
-> > > from not-yet-fully-online CPUs to the boot CPU's callback queue.
-> > ...
-> > > commit ce533a60b2ef29a9b516cc717e77c6b679bc09c0
-> > > Author: Paul E. McKenney <paulmck@kernel.org>
-> > > Date:   Thu Apr 9 11:16:02 2026 -0700
-> > > 
-> > >     srcu: Don't queue workqueue handlers to never-online CPUs
-> > >     
-...
-> > >     
-> > >     Reported-by: Vasily Gorbik <gor@linux.ibm.com>
-> > >     Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-> > >     Tested-by: Vasily Gorbik <gor@linux.ibm.com>
-> > >     Cc: Tejun Heo <tj@kernel.org>
-> > 
-> > I retested it on s390 and on x86 KVM with --smp 16,maxcpus=255, all
-> > looks good to me.
-> > 
-> > FWIW, again:
-> > 
-> > Tested-by: Vasily Gorbik <gor@linux.ibm.com>
-> > 
-> > Would you mind adding Cc: stable so it gets picked up for v7.0?
-> > 61bbcfb50514 ("srcu: Push srcu_node allocation to GP when
-> > non-preemptible") is what made it reproducible for us.
-> > 
-> > Thank you!
-> 
-> And thank you for testing it, plus apologies for the hassle!
-> 
-> At my next rebase, I will add the following:
-> 
-> Fixes: 61bbcfb50514 ("srcu: Push srcu_node allocation to GP when non-preemptible")
-> Tested-by: Vasily Gorbik <gor@linux.ibm.com>
-> 
-> That should pull it into the needed -stable releases.
-> 
-> Seem reasonable?
+On Wed, Apr 29, 2026 at 1:25=E2=80=AFAM Michal Hocko <mhocko@suse.com> wrot=
+e:
+>
+> On Tue 28-04-26 15:37:57, Minchan Kim wrote:
+> [...]
+> > >From be4bd22a100ed6be2d1d2599ddb9da04043143eb Mon Sep 17 00:00:00 2001
+> > From: Minchan Kim <minchan@kernel.org>
+> > Date: Fri, 24 Apr 2026 14:27:08 -0700
+> > Subject: [PATCH] mm: process_mrelease: introduce PROCESS_MRELEASE_REAP_=
+KILL
+> >  flag
+> >
+> > Currently, process_mrelease() requires userspace to send a SIGKILL sign=
+al
+> > prior to invocation. This separation introduces a scheduling race windo=
+w
+> > where the victim task may receive the signal and enter the exit path
+> > before the reaper can invoke process_mrelease().
+> >
+> > When the victim enters the exit path (do_exit -> exit_mm), it clears it=
+s
+> > task->mm immediately. This causes process_mrelease() to fail with -ESRC=
+H,
+> > leaving the actual address space teardown (exit_mmap) to be deferred un=
+til
+> > the mm's reference count drops to zero. In the field (e.g., Android),
+> > arbitrary reference counts (reading /proc/<pid>/cmdline, or various oth=
+er
+> > remote VM accesses) frequently delay this teardown indefinitely,
+> > defeating the purpose of expedited reclamation.
+> >
+> > In Android's LMKD scenarios, this delay keeps memory pressure high, for=
+cing
+> > the system to unnecessarily kill additional innocent background apps be=
+fore
+> > the memory from the first victim is recovered.
+> >
+> > This patch introduces the PROCESS_MRELEASE_REAP_KILL UAPI flag to suppo=
+rt
+> > an integrated auto-kill mode. When specified, process_mrelease() direct=
+ly
+> > injects a SIGKILL into the target task after finding its mm.
+> >
+> > To solve the race condition, we grab the mm reference via mmgrab() befo=
+re
+> > sending the SIGKILL. If the user passed PROCESS_MRELEASE_REAP_KILL, we =
+assume
+> > it will free its memory and proceed with reaping, making the logic as s=
+imple
+> > as reap =3D reap_kill || task_will_free_mem(p).
+> >
+> > To handle shared address spaces safely in the auto-kill mode, we bail o=
+ut
+> > immediately if the mm is marked with MMF_MULTIPROCESS when
+> > PROCESS_MRELEASE_REAP_KILL is specified. This protects existing users o=
+f
+> > process_mrelease() from behavior changes while preventing unsafe reapin=
+g of
+> > shared memory.
+>
+> Please explain why this is a different behavior from the global oom
+> killer and how do you intend to deal with those mm shared process
+> groups. I am not saying this is a wrong behavior but it will be hard to
+> change once in place.
+>
+> > Fundamentally, this allows process_mrelease() to trigger targeted memor=
+y
+> > reclaim (via oom_reaper infrastructure) quickly, even if the victim is
+> > not yet in the exit path, while reusing existing race handling between
+> > reaper and exit_mmap.
+> >
+> > Signed-off-by: Minchan Kim <minchan@kernel.org>
+>
+> Other than the above looks ok to me.
 
-Perfect, thanks Paul!
+Implementation looks good to me. After addressing Michal's comment
+please split this patch from the series and feel free to add:
+
+Reviewed-by: Suren Baghdasaryan <surenb@google.com>
+
+>
+> --
+> Michal Hocko
+> SUSE Labs
