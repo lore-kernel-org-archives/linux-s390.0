@@ -1,60 +1,60 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A0C8349B0D;
-	Wed, 29 Apr 2026 16:11:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 177361BF33;
+	Wed, 29 Apr 2026 16:48:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777479100; cv=none; b=WasfeXRg7X1VGCF0soZcWPqEX6FAaHFoCrUlk8IHZSZxttXeOLrs2B0ki+es/xx5s5DoYMXjfO4Qe8eueA/XIS04iDClUb4vFyi56W1FtIWG4wca5K38kPJ8lU5DF7uWtXeyPGXi0npLiYbsvWzJidYP3ZBC7dvCjfVhb9Y1M1o=
+	t=1777481329; cv=none; b=TEhjh0IUBNGbSg5TvvrR/nXhR7VI41Z/7tpTMi4pT4isRxSasWCSvlpCDi5XwS54hR6Z5t1vXTZ/qoFD8X2AuJ8ldYgI0DMNplgfzjjjx3MZGDFBfhLpCP83utC/9aEt1MDrjSgc2HarhT2a+s+cYK9AUCRxgfjJcuy1RSLXv88=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777479100; c=relaxed/simple;
-	bh=k++l3WtLFBko4f56l2wRpN2TjenMI0cWBCrk3PWqaYg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=hKunpsg4bsZU2EHoFyKfGOHtKL5X88TM0ge28M8idvuTUOoDo5xI77LkQjBvZ1g9dClce+FGoX6Cnmlelig+PlVyg0Pcd2+1cp4b/AWNnG2E5Xr/YYqV2gsbr7Q5vtnk6BAjUFXtjMBYi/zingVkcvJCY8cHQjXaLKDBnOX4zEw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tb/V+b45; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1777481329; c=relaxed/simple;
+	bh=4smGaLjoU0hrT/urGxaKNLqx+urAyoW/OI6iJfTTaoI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=AFjw0bESqqXiMLHfcuRsNu20vIw54tFbfHwqI8i8ReyX0Sq0M9rAo+A9JASDWa+CaCisfMkwWyZxf8CltoO1Bjbl0NXDWjfn3k2xZFhADkDarFNCZ2rMbTXjRNHmKG5yNstlUMaOvEsEVAQLNYRVKTK2zJhFGcDM4tExiJstOE8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=N5vu02I9; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tb/V+b45"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63TAk1dI2888876;
-	Wed, 29 Apr 2026 16:11:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=fTqOyx
-	iaJok5OwQ/9OwcV0+As566moPHGf+m7xxSUxg=; b=tb/V+b455H7GL3THSdmrYU
-	ui42yBMWW91QJjejeGBkMSh34DDPGfMgRCAXCDo8zYlkOsTCGo5mUZeOZKV/Rcl1
-	MkFHsKm9yVQZY+v1ZtLzuL/OkvBFMpAm54KZNpVnMyoEI3vjtOvzy7p2P3AT3YYy
-	Cojqr+K7sRqIPWWZO5NN/t38MSOy0V92m1EvcMyp8d7MCa5YswfaZrIF4jqf3A1O
-	GI3vF9dBt1mj6COlH7t9vJkFw5lTUV+aP78uqvdr61Glly4+sxI3rIsZ8eBr0bQt
-	YM24crKsGOLL+1IZh0zIOfm2w6vR8cDDqcMsK47552zBVnLmMm66MhW7VeODJGNw
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="N5vu02I9"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63TAxLHV2581734;
+	Wed, 29 Apr 2026 16:48:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=D5Q9lE
+	nAGTn1pTXPBMevVztOM+h15O7DUTqSvBWYnyA=; b=N5vu02I95vz31GZ4NS+1zB
+	1MWy9mGm/3GPSeFSoHXYL5AyBVSz8qJ4UTYeRARXs0+FLRUC5koeZcZ0LNHN2OD8
+	PwZScM1h44Bb2ySN4oIlNGiz7EihdVm9/7Z7o/o0KoWoTpHvIOQaAGBNZxmKyihj
+	e+7hwajnSDidrTcbzn7rgtrkv86gLmnGrsppbeqCGGK/rdmXFQJDavdAk40bgAkC
+	ugaTGLYyiauZIZ6Zoza3C8reBeCr+RTI5MQLZ6cBPvoZIoLXhj3+sXkIjjjsUQnU
+	hO/oN2+Azt5orUgFnXG7HQ8FQwGBgaouYHBIyVXlrNxdHtXlGtzldN3UjyPZ0xEw
 	==
 Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4drnb5bdjk-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4drn8vj2hk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Apr 2026 16:11:30 +0000 (GMT)
+	Wed, 29 Apr 2026 16:48:35 +0000 (GMT)
 Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63TG8mkd030925;
-	Wed, 29 Apr 2026 16:11:29 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ds8avy3xe-1
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63TGcqFp030202;
+	Wed, 29 Apr 2026 16:48:34 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ds8avy88e-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Apr 2026 16:11:29 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63TGBRdd27918920
+	Wed, 29 Apr 2026 16:48:34 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63TGmXpt27525826
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Apr 2026 16:11:27 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B734258058;
-	Wed, 29 Apr 2026 16:11:27 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B7F3A58057;
-	Wed, 29 Apr 2026 16:11:26 +0000 (GMT)
-Received: from [9.61.22.161] (unknown [9.61.22.161])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 29 Apr 2026 16:11:26 +0000 (GMT)
-Message-ID: <cff05849-c937-4611-8776-d654e225e5cc@linux.ibm.com>
-Date: Wed, 29 Apr 2026 12:11:26 -0400
+	Wed, 29 Apr 2026 16:48:33 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 96EC758054;
+	Wed, 29 Apr 2026 16:48:33 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A7D355803F;
+	Wed, 29 Apr 2026 16:48:32 +0000 (GMT)
+Received: from [9.61.245.137] (unknown [9.61.245.137])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 29 Apr 2026 16:48:32 +0000 (GMT)
+Message-ID: <3f0d25e2-fe8f-470e-a857-f5474cba8cdf@linux.ibm.com>
+Date: Wed, 29 Apr 2026 09:48:32 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,173 +62,259 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 3/3] KVM: s390: Introducing kvm_arch_set_irq_inatomic
- fast inject
-To: Douglas Freimuth <freimuth@linux.ibm.com>, borntraeger@linux.ibm.com,
-        imbrenda@linux.ibm.com, frankja@linux.ibm.com, david@kernel.org,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20260423235316.3665-1-freimuth@linux.ibm.com>
- <20260423235316.3665-4-freimuth@linux.ibm.com>
+Subject: Re: [PATCH v14 4/7] s390/pci: Store PCI error information for
+ passthrough devices
+To: Niklas Schnelle <schnelle@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
+Cc: helgaas@kernel.org, lukas@wunner.de, alex@shazbot.org, clg@redhat.com,
+        mjrosato@linux.ibm.com
+References: <20260421163031.704-1-alifm@linux.ibm.com>
+ <20260421163031.704-5-alifm@linux.ibm.com>
+ <08008a2a61556482c71f7f0ed65106e32e77f418.camel@linux.ibm.com>
 Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20260423235316.3665-4-freimuth@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
+From: Farhan Ali <alifm@linux.ibm.com>
+In-Reply-To: <08008a2a61556482c71f7f0ed65106e32e77f418.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=AqDeGu9P c=1 sm=1 tr=0 ts=69f22db2 cx=c_pps
+X-Authority-Analysis: v=2.4 cv=CIIamxrD c=1 sm=1 tr=0 ts=69f23663 cx=c_pps
  a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=rgTvcgvkiA0iA1z48PgA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDI5MDE1OSBTYWx0ZWRfXysm9mzuzQRMh
- J0lv2s1i6Js2i20F5v+3/vJSplERpofOxFHXXl3Ksq+zOA3Hk4v8OVMfLKlOLb8zDg8bYvfBe1h
- m4AuLLcEfjRl27jqH8kpT9H4X9GkVmBDS2H1mKinn5Uv1rPfcCYslw1WFb13ZOv9XTchrPfCLxT
- 9fLAZY44qKIcJE20W39pY5gVgxuvhhe9oiqxFm+auNxkRY1nOjnO06CwafVTSxCCyJhmeR4NqGk
- QRmK2JloWelkuaZD2yQGW6IrUz8AnirtaCtFyc1SEbU1AsNZIRu7I7jY3QzwS4FrKnb6BhYupPm
- pvQSJ3HTxKNtzpLE+MNu/NHLJkJVAUTKu9nB4LfWiV4kikgAUjkK1QK0L1gMuWNuuUrqje2oJfj
- z0R/5eDhyV7Q8k9cgbkw6AIOeFWSvylgkb92I5PxDbYmoQpRKKSrSg897bn0Tbm4PYGhgtQuue1
- QVOAIcOoFrCt+DVdlDw==
-X-Proofpoint-GUID: 3YZrjGJhd0CNv_5puPZxiw2zESPCLgb-
-X-Proofpoint-ORIG-GUID: 3YZrjGJhd0CNv_5puPZxiw2zESPCLgb-
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=Ari48j0v6zWzjkmJ-KoA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: VHbjh4NNUMT9RRbPYTBkTEe7l_iadA-V
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDI5MDE2OSBTYWx0ZWRfX1tOLDRtHADMf
+ dNP9g3WCikLXPb+0BHdubiWaQK/Mf8O5KBJf0d+6L7aO4k9h/EI3DjZsM2qHIARf7PQjSL2sJCa
+ kCQDMDzwhxJmmwopZaKTsrhB4NwtvgaEAi2+m6RRiTS0zuTNqevXtv+UEBDQbst/HIfldFgw7vo
+ +zVMJg06y0H2RljuyERAUgELjkA3oj10bM6u5iCoO9R5MegS/Dj/tFS1IHkuAD8wuXG2uS38KGW
+ M/NlqxY3cZ97jPmMZPMA70QNufNubAojneNTrNu2C9xthSLXasuIWgBVkyvhimoilnDK7SVSY5m
+ PlEWaCmV0Phtvcc0lZZFVEMLeEUT982VKGuDDRSM3+TyeHVVMyk9qqGORKGHBWdCs6Xs3ozH6g5
+ cB1Oq9VBU2HxobHIEuvd24RJyAZ6u6Cfg7xa/TFa8P+c8dMqcsqOJKzBRqYz6PX0oQ+Mnv6ICft
+ TYGQNztkuZIjwyEcoaw==
+X-Proofpoint-GUID: VHbjh4NNUMT9RRbPYTBkTEe7l_iadA-V
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-29_01,2026-04-28_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 priorityscore=1501 phishscore=0 suspectscore=0 clxscore=1015
- lowpriorityscore=0 spamscore=0 bulkscore=0 impostorscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2604290159
+ spamscore=0 phishscore=0 malwarescore=0 suspectscore=0 adultscore=0
+ impostorscore=0 lowpriorityscore=0 clxscore=1015 bulkscore=0
+ priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
+ definitions=main-2604290169
 
 
-> +static int adapter_indicators_set_fast(struct kvm *kvm,
-> +				       struct s390_io_adapter *adapter,
-> +				       struct kvm_s390_adapter_int *adapter_int,
-> +				       int setbit)
-> +{
-> +	unsigned long bit;
-> +	int summary_set;
-> +	struct s390_map_info *ind_info, *summary_info;
-> +	void *map;
-> +
-> +	raw_spin_lock(&adapter->maps_lock);
-> +	ind_info = get_map_info(adapter, adapter_int->ind_addr);
-> +	if (!ind_info) {
-> +		raw_spin_unlock(&adapter->maps_lock);
-> +		return -EWOULDBLOCK;
-> +	}
-> +	map = page_address(ind_info->page);
-> +	bit = get_ind_bit(ind_info->addr, adapter_int->ind_offset, adapter->swap);
-> +	if (setbit)
-> +		set_bit(bit, map);
-> +	else
-> +		clear_bit(bit, map);
+On 4/29/2026 4:41 AM, Niklas Schnelle wrote:
+> On Tue, 2026-04-21 at 09:30 -0700, Farhan Ali wrote:
+>> For a passthrough device we need co-operation from user space to recover
+>> the device. This would require to bubble up any error information to user
+>> space.  Let's store this error information for passthrough devices, so it
+>> can be retrieved later.
+>>
+>> We can now have userspace drivers (vfio-pci based) on s390x. The userspace
+>> drivers will not have any KVM fd and so no kzdev associated with them. So
+>> we need to update the logic for detecting passthrough devices to not depend
+>> on struct kvm_zdev.
+>>
+>> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+>> ---
+>>   arch/s390/include/asm/pci.h      |  30 ++++++++
+>>   arch/s390/pci/pci.c              |   1 +
+>>   arch/s390/pci/pci_event.c        | 117 +++++++++++++++++--------------
+>>   drivers/vfio/pci/vfio_pci_zdev.c |   9 ++-
+>>   4 files changed, 105 insertions(+), 52 deletions(-)
+>>
+> --- snip ---
+>> +
+>> +void zpci_start_mediated_recovery(struct zpci_dev *zdev)
+>> +{
+>> +	guard(mutex)(&zdev->pending_errs_lock);
+>> +	zdev->pending_errs.mediated_recovery = true;
+>> +}
+>> +EXPORT_SYMBOL_GPL(zpci_start_mediated_recovery);
+>> +
+>> +void zpci_stop_mediated_recovery(struct zpci_dev *zdev)
+>> +{
+>> +	struct pci_dev *pdev = NULL;
+>> +
+>> +	guard(mutex)(&zdev->pending_errs_lock);
+>> +	zdev->pending_errs.mediated_recovery = false;
+>> +	pdev = pci_get_slot(zdev->zbus->bus, zdev->devfn);
+>> +	if (zdev->pending_errs.count)
+>> +		pr_info("%s: Unhandled PCI error events count=%d",
+>> +			pci_name(pdev), zdev->pending_errs.count);
+> Sashiko notes a possible ABBA locking issue here between
+> pending_errs_lock and the pci_bus_sem inside pci_get_slot(). I wonder
+> if that would also be visible with lockdep? Also Sashiko notes that
+> zdev->zbus->bus could be NULL I don't think this is possible at the
+> current callsites via vfio-pci though. Similarly I don't think
+> pci_get_slot() can really be NULL at the current call sites. This makes
+> me wonder however, would it maybe be cleaner to pass a struct pci_dev
+> here so you don't need the pci_get_slot() at all? Both
+> vfio_pci_zdev_open_device() and vfio_pci_zdev_close_device() have that
+> readily available via vdev->pdev.
 
-Hmm, I don't know about this.  In my comment on v2 I was only concerned
-about undoing the setting of the summary indicator as that will be used
-on the slow path to decide whether or not we need to inject an interrupt
-in addition to setting the indicator bits.
+The pdev here was meant for helpful error message. On second thought 
+maybe removing the pdev usage, and using the fid would be better?
 
-I think we should drop the else clear_bit() here.  If _fast already set
-it and we are now backing out to the slow path, then it will stay on all
-the way through the slow path and that should be OK.
+>
+>
+>> +	memset(&zdev->pending_errs, 0, sizeof(struct zpci_ccdf_pending));
+>> +	pci_dev_put(pdev);
+>> +}
+>> +EXPORT_SYMBOL_GPL(zpci_stop_mediated_recovery);
+>> +
+>>   static pci_ers_result_t zpci_event_notify_error_detected(struct pci_dev *pdev,
+>>   							 struct pci_driver *driver)
+>>   {
+>> @@ -175,7 +190,8 @@ static pci_ers_result_t zpci_event_do_reset(struct pci_dev *pdev,
+>>    * and the platform determines which functions are affected for
+>>    * multi-function devices.
+>>    */
+>> -static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci_dev *pdev)
+>> +static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci_dev *pdev,
+>> +							  struct zpci_ccdf_err *ccdf)
+>>   {
+>>   	pci_ers_result_t ers_res = PCI_ERS_RESULT_DISCONNECT;
+>>   	struct zpci_dev *zdev = to_zpci(pdev);
+>> @@ -194,13 +210,6 @@ static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci_dev *pdev)
+>>   	}
+>>   	pdev->error_state = pci_channel_io_frozen;
+>>   
+>> -	if (is_passed_through(pdev)) {
+>> -		pr_info("%s: Cannot be recovered in the host because it is a pass-through device\n",
+>> -			pci_name(pdev));
+>> -		status_str = "failed (pass-through)";
+>> -		goto out_unlock;
+>> -	}
+>> -
+>>   	driver = to_pci_driver(pdev->dev.driver);
+>>   	if (!is_driver_supported(driver)) {
+>>   		if (!driver) {
+>> @@ -216,12 +225,24 @@ static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci_dev *pdev)
+>>   		goto out_unlock;
+>>   	}
+>>   
+>> +	zpci_store_pci_error(pdev, ccdf);
+>> +
+>>   	ers_res = zpci_event_notify_error_detected(pdev, driver);
+>>   	if (ers_result_indicates_abort(ers_res)) {
+>>   		status_str = "failed (abort on detection)";
+>>   		goto out_unlock;
+>>   	}
+>>   
+>> +	scoped_guard(mutex, &zdev->pending_errs_lock) {
+>> +		if (zdev->pending_errs.mediated_recovery) {
+>> +			pr_info("%s: Leaving recovery of pass-through device to user-space\n",
+>> +				pci_name(pdev));
+>> +			ers_res = PCI_ERS_RESULT_RECOVERED;
+>> +			status_str = "in progress";
+>> +			goto out_unlock;
+>> +		}
+>> +	}
+>> +
+> Sashiko notes that mixing goto unlock and lock guards within one
+> function is discouraged. Here it's not that hard to read since it is
+> just a scoped guard but I think we should still not mix it.
+>
+> However if we also convert the device_lock() to a guard lock here the
+> goto would still make sense to go to the zpci_report_status() and that
+> is still a bit odd with guarded locks. So I think an alternative simple
+> fix, that makes this overall cleaner too, is to put the whole
+> scoped_guard() block above into a helper function then you can do the
+> goto out_unlock on that helper returning PCI_ERS_RESULT_RECVOERED in
+> line with e.g. zpci_event_notify_error_detected(). That way you don't
+> need to touch existing locks and you get to keep the guard locking.
 
-> +	summary_info = get_map_info(adapter, adapter_int->summary_addr);
-> +	if (!summary_info) {
-> +		raw_spin_unlock(&adapter->maps_lock);
-> +		return -EWOULDBLOCK;
-> +	}
-> +	map = page_address(summary_info->page);
-> +	bit = get_ind_bit(summary_info->addr, adapter_int->summary_offset,
-> +			  adapter->swap);
-> +	if (setbit)
-> +		summary_set = test_and_set_bit(bit, map);
-> +	else
-> +		summary_set = test_and_clear_bit(bit, map);
-
-I had to go back and refresh myself about WHY we needed to 'undo' our
-prior setting of the summary bit specifically.
-
-The reason is that, if we need to fall back to the slow path, that code
-will see the summary bit already on and therefore not inject an
-interrupt believing that the thread that initially set the summary bit
-did that.  But, if we fell back from the _fast path via -EWOULDBLOCK
-after setting the summary indicator, no interrupt was ever injected at
-that time.
-
-So my point: this _really_ deserves some comment blocks describing the
-purpose of setbit + a specific statement that it's OK to clear this
-summary bit now when setbit=0 but then the caller must re-drive this
-summary indication again via adapter_indicators_set().
-
-[...]
-
-> +int kvm_arch_set_irq_inatomic(struct kvm_kernel_irq_routing_entry *e,
-> +			      struct kvm *kvm, int irq_source_id, int level,
-> +			      bool line_status)
-> +{
-> +	int ret, setbit;
-> +	struct s390_io_adapter *adapter;
-> +	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
-> +	struct kvm_s390_interrupt_info *inti;
-> +	struct kvm_s390_interrupt s390int = {
-> +			.type = KVM_S390_INT_IO(1, 0, 0, 0),
-> +			.parm = 0,
-> +	};
-> +
-> +	kvm->stat.io_390_inatomic++;
-> +
-> +	/* We're only interested in the 0->1 transition. */
-> +	if (!level)
-> +		return -EWOULDBLOCK;
-> +	if (e->type != KVM_IRQ_ROUTING_S390_ADAPTER)
-> +		return -EWOULDBLOCK;
-> +
-> +	adapter = get_io_adapter(kvm, e->adapter.adapter_id);
-> +	if (!adapter)
-> +		return -EWOULDBLOCK;
-> +
-> +	s390int.parm64 = isc_to_int_word(adapter->isc);
-> +	setbit = 1;
-> +	ret = adapter_indicators_set_fast(kvm, adapter, &e->adapter, setbit);
-> +	if (ret < 0)
-> +		return -EWOULDBLOCK;
-> +	if (!ret || adapter->masked) {
-> +		kvm->stat.io_390_inatomic_adapter_masked++;
-> +		return 0;
-> +	}
-> +
-> +	inti = kzalloc_obj(*inti, GFP_ATOMIC);
-> +	if (!inti)
-
-You need to undo the summary bit indication on this path as well.
-
-[...]
-
-> -static void __kvm_inject_pfault_token(struct kvm_vcpu *vcpu, bool start_token,
-> -				      unsigned long token)
-> +static int __kvm_inject_pfault_token(struct kvm_vcpu *vcpu, bool start_token,
-> +				     unsigned long token)
->  {
->  	struct kvm_s390_interrupt inti;
->  	struct kvm_s390_irq irq;
-> +	struct kvm_s390_interrupt_info *inti_mem = NULL;
->  
->  	if (start_token) {
->  		irq.u.ext.ext_params2 = token;
->  		irq.type = KVM_S390_INT_PFAULT_INIT;
->  		WARN_ON_ONCE(kvm_s390_inject_vcpu(vcpu, &irq));
->  	} else {
-> +		inti_mem = kzalloc_obj(*inti_mem, GFP_KERNEL_ACCOUNT);
-> +		if (!inti_mem)
-> +			return -ENOMEM;
-
-To match the other nonzero cases here, rather than making
-__kvm_inject_pfault_token() return a value can you leave it a void
-return and then just do something like:
-
-if (WARN_ON_ONCE(!inti_mem))
-	return;
+How about changing it to mutex_lock/mutex_unlock? I think the block is 
+small enough that it shouldn't be too confusing. Moving to a function 
+opens up the possibility of using a stale value for mediated_recovery.
 
 
+>>   	if (ers_res != PCI_ERS_RESULT_NEED_RESET) {
+>>   		ers_res = zpci_event_do_error_state_clear(pdev, driver);
+>>   		if (ers_result_indicates_abort(ers_res)) {
+>> @@ -266,25 +287,19 @@ static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci_dev *pdev)
+>>    * @pdev: PCI function for which to report
+>>    * @es: PCI channel failure state to report
+>>    */
+>> -static void zpci_event_io_failure(struct pci_dev *pdev, pci_channel_state_t es)
+>> +static void zpci_event_io_failure(struct pci_dev *pdev, pci_channel_state_t es,
+>> +				  struct zpci_ccdf_err *ccdf)
+>>   {
+>>   	struct pci_driver *driver;
+>>   
+>>   	pci_dev_lock(pdev);
+>>   	pdev->error_state = es;
+>> -	/**
+>> -	 * While vfio-pci's error_detected callback notifies user-space QEMU
+>> -	 * reacts to this by freezing the guest. In an s390 environment PCI
+>> -	 * errors are rarely fatal so this is overkill. Instead in the future
+>> -	 * we will inject the error event and let the guest recover the device
+>> -	 * itself.
+>> -	 */
+>> -	if (is_passed_through(pdev))
+>> -		goto out;
+>> +
+>> +	zpci_store_pci_error(pdev, ccdf);
+>>   	driver = to_pci_driver(pdev->dev.driver);
+>>   	if (driver && driver->err_handler && driver->err_handler->error_detected)
+>>   		driver->err_handler->error_detected(pdev, pdev->error_state);
+>> -out:
+>> +
+>>   	pci_dev_unlock(pdev);
+>>   }
+>>   
+>> @@ -330,12 +345,12 @@ static void __zpci_event_error(struct zpci_ccdf_err *ccdf)
+>>   		break;
+>>   	case 0x0040: /* Service Action or Error Recovery Failed */
+>>   	case 0x003b:
+>> -		zpci_event_io_failure(pdev, pci_channel_io_perm_failure);
+>> +		zpci_event_io_failure(pdev, pci_channel_io_perm_failure, ccdf);
+>>   		break;
+>>   	default: /* PCI function left in the error state attempt to recover */
+>> -		ers_res = zpci_event_attempt_error_recovery(pdev);
+>> +		ers_res = zpci_event_attempt_error_recovery(pdev, ccdf);
+>>   		if (ers_res != PCI_ERS_RESULT_RECOVERED)
+>> -			zpci_event_io_failure(pdev, pci_channel_io_perm_failure);
+>> +			zpci_event_io_failure(pdev, pci_channel_io_perm_failure, ccdf);
+>>   		break;
+>>   	}
+>>   	pci_dev_put(pdev);
+>> diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
+>> index 0990fdb146b7..0658095ac5b1 100644
+>> --- a/drivers/vfio/pci/vfio_pci_zdev.c
+>> +++ b/drivers/vfio/pci/vfio_pci_zdev.c
+>> @@ -148,6 +148,8 @@ int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
+>>   	if (!zdev)
+>>   		return -ENODEV;
+>>   
+>> +	zpci_start_mediated_recovery(zdev);
+>> +
+>>   	if (!vdev->vdev.kvm)
+>>   		return 0;
+> Sashiko notes that mediated recovery stays true iif kvm_register()
+> fails later in this function. I think Sashiko is right there.
+
+Yes, indeed. This needs to be fixed.
+
+Thanks
+
+Farhan
+
+>
+>>   
+>> @@ -161,7 +163,12 @@ void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev)
+>>   {
+>>   	struct zpci_dev *zdev = to_zpci(vdev->pdev);
+>>   
+>> -	if (!zdev || !vdev->vdev.kvm)
+>> +	if (!zdev)
+>> +		return;
+>> +
+>> +	zpci_stop_mediated_recovery(zdev);
+>> +
+>> +	if (!vdev->vdev.kvm)
+>>   		return;
+>>   
+>>   	if (zpci_kvm_hook.kvm_unregister)
