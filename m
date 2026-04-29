@@ -1,125 +1,175 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA659410D30;
-	Wed, 29 Apr 2026 17:02:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A762A37C11E;
+	Wed, 29 Apr 2026 17:08:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777482174; cv=none; b=nRAdqVQZRPPrc/e4mh8jKpPDvCgsz2n+0Tbax53a75jx19hkauu0/Ok5MNk4r+2capOLDoLu2G2s0iu72WevtpLIkKHd6S9cxgOmQBsWJKVYhlegiGDWNv8693erwIptWt9Pn20z92Kp0iYL9IZNcKcqC4t424cRBaZudQOBzg8=
+	t=1777482517; cv=none; b=cIKihdbvQHgR5UKKkE/+S8fYRKSQNFcvBFuKCrTc9Scf8wobk2+EPqarXWJtGu7oiFemvkXoDxB77iu3PJD1fa93JEGN6K313BM4LAERFKwdtyhcztW6LNw5eqwqolCDFxBcpfQD2HSOtbJ+fldNDlWQp+NQTfoW53R5+ACCms0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777482174; c=relaxed/simple;
-	bh=AvSi77U2xdiuDSmJ/4Mmu/UUV3LdEsb/UgY3ImgkueM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YmzNMqFGbYstFw4C6cMIf40LELS5/oL30y+vT25lO2Z8XWbB3Saym7OwoGfYT20OV4WOMQJSrESpPjbv1c+aVHP3+9O5x5SQz630iln0W3ItvrN2AyOM9Bvu8TFEa96UQFCazm56Lw0qMfIL9adOMdFQzFDNkQgWDiLJHZ8QhLM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qDk62q3e; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1777482517; c=relaxed/simple;
+	bh=3oEE8mNP1fEQHvH85BwJcjvdGL5CwHReWnc5xRPq/G4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ATZqSQC9Ri/tu+zMjMZxxW4+Mhelgur7UqwtMQ7wfmPz4c+73xSppN2ctnx3g3NO6ZKf1+mW40G56tVteqY7fn5xJzqJkKs33toxqwb0b9GbKXoMXHLOMXSrYhCzHPy4DIr0wQDi0gtOlC5sw4voQ9sBIsLZpbQZp5QcVSMYmxU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=p74E8Agj; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qDk62q3e"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63TAOf1L2902222;
-	Wed, 29 Apr 2026 17:02:47 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="p74E8Agj"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63T6OPmR2209084;
+	Wed, 29 Apr 2026 17:08:30 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ZrZvCc
-	Ul/7rztmkAGjbnAqrOnzV1q/9Dp6/4+89pYqs=; b=qDk62q3enJfoOr+IZUdAE4
-	7TvSpweMA5tt95RhdSUEIQbZLhjcs2VbJp66MDjI9uYwp5SJ7xDdeH26IW/DPFA+
-	R2sjiy3Am4R7Gwu7DN86FDkP4psIwXnscpQk8em1u/EHbtWMh6b+VrmFtT4/8+OY
-	SKceErdoc5k6To00YVUNI7Nf1rcMsbTTYVxL9u/qnXgN4JY0Ohcq6no7fBFQZSGs
-	JV+DPXIoC+2z42NyyA8Jy1IQLWk3QMnymV0TJaGouwLVO4b4cKaW0yjJS140eOre
-	+K5GoI0HsCyUsgXGCO24FpeoVTf8b02AfGxRUcpQt52e3gVEG1Vb47gQYyN29/dQ
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4drn9rbn0p-1
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=HXOeVXJjFo1Ks1bxkaR7nsubNBjf5U
+	Yt7dkN+4JM+kU=; b=p74E8Agjp+zGMrIXChJzwADXYLmezFDsZH/7YXWxaBt16d
+	rL+HMDk4vgOpuV6lv4KmqaRYuhYRzQwJKVoWS+YptHHAOLI8M0SB9ZKji0sfKb9g
+	2Wx+XXtPU9HOWJZSBrUzrNfo5nIPAl0KvDgPmwFfmgR47y4RJJTsohq+VruY6icI
+	ktQDTyzN2ZqgKwKQQslg36UigndGQ8k23tfI1NZXA6L4BobQJ6LpMBeSKfZtmF/W
+	AIa5+yf/YflYi8v2PA9i0llmHAJRFIH1c5qbelQ+WYbwziIGFHImSQy0eyGr3Jpk
+	NdeIIDxjaUASq6o69DjrI6ldz/Ohoz4uLGZbRXvQ==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4drn8vj5gb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Apr 2026 17:02:47 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63TGrvFn007088;
-	Wed, 29 Apr 2026 17:02:46 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ds8xk77mk-1
+	Wed, 29 Apr 2026 17:08:29 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63TGrpF3004158;
+	Wed, 29 Apr 2026 17:08:28 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dsa5gf473-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Apr 2026 17:02:46 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63TH2iSq32113272
+	Wed, 29 Apr 2026 17:08:28 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63TH8PJR44892628
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Apr 2026 17:02:44 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 84C0E58071;
-	Wed, 29 Apr 2026 17:02:44 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 96FF75806B;
-	Wed, 29 Apr 2026 17:02:43 +0000 (GMT)
-Received: from [9.61.245.137] (unknown [9.61.245.137])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 29 Apr 2026 17:02:43 +0000 (GMT)
-Message-ID: <bd33cf8e-a964-4192-bcb5-90831fa0dba2@linux.ibm.com>
-Date: Wed, 29 Apr 2026 10:02:43 -0700
+	Wed, 29 Apr 2026 17:08:25 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4A9D720043;
+	Wed, 29 Apr 2026 17:08:25 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7C0C120040;
+	Wed, 29 Apr 2026 17:08:24 +0000 (GMT)
+Received: from localhost (unknown [9.111.69.68])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 29 Apr 2026 17:08:24 +0000 (GMT)
+Date: Wed, 29 Apr 2026 19:08:23 +0200
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: Srikar Dronamraju <srikar@linux.ibm.com>
+Cc: Tejun Heo <tj@kernel.org>, Boqun Feng <boqun@kernel.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+        Joel Fernandes <joelagnelf@nvidia.com>,
+        Uladzislau Rezki <urezki@gmail.com>, rcu@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Lai Jiangshan <jiangshanlai@gmail.com>, samir@linux.ibm.com
+Subject: Re: BUG: workqueue lockup - SRCU schedules work on not-online CPUs
+ during size transition
+Message-ID: <tte9m9z@ub.hpns>
+References: <ttd89ul@ub.hpns>
+ <adfhWQr1yFImSM2Q@tardis.local>
+ <adfkdRCxmhpRverB@tardis.local>
+ <adfmHZfABu64Kv4D@slm.duckdns.org>
+ <adfrfJGrglg0bGw_@tardis.local>
+ <adlHKowvhn8AGXCc@slm.duckdns.org>
+ <afIdFgDD9w2U6hZy@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v14 0/7] Error recovery for vfio-pci devices on s390x
-To: Bjorn Helgaas <helgaas@kernel.org>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org, lukas@wunner.de, alex@shazbot.org,
-        clg@redhat.com, schnelle@linux.ibm.com, mjrosato@linux.ibm.com
-References: <20260428220104.GA258993@bhelgaas>
-Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <20260428220104.GA258993@bhelgaas>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <afIdFgDD9w2U6hZy@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: KR9ZTGS9C0aErvqqfapBwYpyCMyhf8zl
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDI5MDE2OSBTYWx0ZWRfX3xGw8x2vYHVM
- kja3bCTDR5lDIlBsMqy3PxL7rG4lHPMBifEAWA4/fWjFlMEAi3f3evPk1XOpnBaTB3Jbx2VmCbT
- cs0L57pd1M6DV2Rhoum2IbKPvg1V4nGL7JQDz4ksTLiXAEynXO2ri3UtPbRh/yB3N7mohtdRd7o
- AI/afU7JNr3Ez0cqXpfesy84RpyvkuJJpKwql44LI9n8y0T0MvE6BCo5R0tll+7BacqSp+ewxw6
- iB5hfNtLv7dwEjszIH/5//kkhNSUVbEzY/j1Bm/T0NqVwEZ7lbx5hvKu+8ZoeY9drdMGc7lQ1xv
- 7RvwGz5O43TGJSDCIl58nY7SbYevl5XUOMXRDw4By6qBbbo6+C+zDGFCWlJgKjy+tn0Ay5pmJja
- PYD3MdGPqdcQDmiVRVW/fuSdDWVIfmUJdiSkwpX1UFl0QzNGoKjOHP3grqUwmtDxAmWvdXue4C8
- RStRnZGPXu7sSYO0Zsg==
-X-Authority-Analysis: v=2.4 cv=Kc7idwYD c=1 sm=1 tr=0 ts=69f239b7 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=CIIamxrD c=1 sm=1 tr=0 ts=69f23b0e cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=c92rfblmAAAA:8
- a=VnNF1IyMAAAA:8 a=30HAmgh_zRYVhuhcYW4A:9 a=QEXdDO2ut3YA:10
- a=GvGzcOZaWPEFPQC_NcjD:22
-X-Proofpoint-ORIG-GUID: KR9ZTGS9C0aErvqqfapBwYpyCMyhf8zl
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=fi_Fe_35YsKaL31AHi4A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: 9B7Hg_50AR7HtWBnkTGGl1c_S8YlFJGC
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDI5MDE2OSBTYWx0ZWRfX7dSVmtUjjiLu
+ xsnh/t5LnHrI3U41HANN4JuUE1fFzGqoSRqwypEXNtUVg1D8eqJRGR7x4NsFXaHQHQBaFjYTu4e
+ mAxwH9yoldsHV3G06uBXfviR/RwjbKgyEyZ4vjhzdZKZWa831RXVrCqaLNGfqzUTdqzGQQQDjmZ
+ mfKT1lRpqeKG7VcvxyviP6OIKkHVoq5dUrGd1Ss/7Sk+ZPZzZwcu/4zRYl7W35Wz0HT3ih1cCya
+ bY3VviHvCdNpQJU3zFcDDjRix7f7ZrNDTk0Vsi56oz9BkZeBGAWR06VfodO/SunIrUycjEfLeXw
+ o/ui8cFCa9Kh19PpZbljTOTsaqw69PbPtvAg6D56l4naP9WPZ3hwOmiCbxAtyfR3mYzYfhkGcOZ
+ gIEock81cRs9bNQWUhs0Oud0PElC8U9VPitlSdYln3gHzWj1Yg/8mw3ZcHuULIWPvxX8NHb14B6
+ 7M5Nr3kG+j1JdkErDlw==
+X-Proofpoint-GUID: rV8tch9Fprmqi3k_r7twl_k0HsWpkj1P
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-29_01,2026-04-28_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 phishscore=0 bulkscore=0 adultscore=0 spamscore=0
- malwarescore=0 impostorscore=0 priorityscore=1501 lowpriorityscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ spamscore=0 phishscore=0 malwarescore=0 suspectscore=0 adultscore=0
+ impostorscore=0 lowpriorityscore=0 clxscore=1011 bulkscore=0
+ priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
  definitions=main-2604290169
 
+On Wed, Apr 29, 2026 at 08:30:38PM +0530, Srikar Dronamraju wrote:
+> * Tejun Heo <tj@kernel.org> [2026-04-10 08:53:30]:
+> > Hello,
+> > 
+> > > Seems that we (mostly Paul) have our own trick to track whether a CPU
+> > > has ever been onlined in RCU, see rcu_cpu_beenfullyonline(). Paul also
+> > > used it in his fix [1]. And I think it won't be that hard to copy it
+> > > into workqueue and let queue_work_on() use it so that if the user queues
+> > > a work on a never-onlined CPU, it can detect it (with a warning?) and do
+> > > something?
+> > 
+> > The easiest way to do this is just creating the initial workers for all
+> > possible pools. Please see below. However, the downside is that it's going
+> > to create all workers for all possible cpus. This isn't a problem for
+> > anybody else but these IBM mainframes often come up with a lot of possible
+> > but not-yet-or-ever-online CPUs for capacity management, so the cost may not
+> > be negligible on some configurations.
+> > 
+> > IBM folks, is that okay?
+> 
+> Even on PowerPC LPARS, its not uncommon to have possible cpus != online cpus
+> at boot.  However your approach will work.
+> 
+> And Samir has already tested the same too and reported here
+> https://lkml.kernel.org/r/1b89c25b-7c1d-4ed8-adf3-ac504b6f086a@linux.ibm.com
+> 
+> > From: Tejun Heo <tj@kernel.org>
+> > Subject: workqueue: Create workers for all possible CPUs on init
+> > 
+> > Per-CPU worker pools are initialized for every possible CPU during early boot,
+> > but workqueue_init() only creates initial workers for online CPUs. On systems
+> > where possible CPUs outnumber online CPUs (e.g. s390 LPARs with 76 online and
+> > 400 possible CPUs), the pools for never-onlined CPUs have POOL_DISASSOCIATED
+> > set but no workers. Any work item queued on such a CPU hangs indefinitely.
+> > 
+> > This was exposed by 61bbcfb50514 ("srcu: Push srcu_node allocation to GP when
+> > non-preemptible") which made SRCU schedule callbacks on all possible CPUs
+> > during size transitions, triggering workqueue lockup warnings for all
+> > never-onlined CPUs.
+> > 
+> > Create workers for all possible CPUs during init, not just online ones. For
+> > online CPUs, the behavior is unchanged - POOL_DISASSOCIATED is cleared and the
+> > worker is bound to the CPU. For not-yet-online CPUs, POOL_DISASSOCIATED
+> > remains set, so worker_attach_to_pool() marks the worker UNBOUND and it can
+> > execute on any CPU. When the CPU later comes online, rebind_workers() handles
+> > the transition to associated operation as usual.
+> > 
+> 
+> With these patch, if a CPU has been onlined once, it's should be ok to queue
+> the work on that CPU even if its offline now.
 
-On 4/28/2026 3:01 PM, Bjorn Helgaas wrote:
-> On Tue, Apr 21, 2026 at 09:30:24AM -0700, Farhan Ali wrote:
->> Hi,
->>
->> This Linux kernel patch series introduces support for error recovery for
->> passthrough PCI devices on System Z (s390x).
-> Can you take a look through
-> https://sashiko.dev/#/patchset/20260421163031.704-1-alifm%40linux.ibm.com
-> and see if there's anything worth changing?
+That already seems to hold without this patch, what this patch newly
+covers is queueing on CPUs that have never been online.
 
-Hi Bjorn,
+Do we actually need to create workers for every possible CPU at boot?
+On the s390 LPAR in question (76 online / 400 possible) that's a few
+hundred extra kthreads kept around for the life of the system.
+That's probably the same on PowerPC.
 
-AFAICT Sashiko correctly identified one error that needs to be fixed. I 
-think there were some other suggestions that would require some changes 
-based on discussion with Niklas. I will wait a bit more to see if there 
-is any other feedback before sending a new revision.
+Wouldn't Paul's SRCU-side fix [1] alone be enough here for PowerPC
+as well? I retested it on s390 (76/400) and on x86 KVM with
+--smp 16,maxcpus=255 and the lockup didn't reproduce in either case.
 
-Thanks
-
-Farhan
-
-
+[1] https://lore.kernel.org/rcu/ed1fa6cd-7343-4ca3-8b9d-d699ca496f83@paulmck-laptop/
