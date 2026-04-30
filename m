@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EEC134B404;
-	Thu, 30 Apr 2026 03:25:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AC9B369992;
+	Thu, 30 Apr 2026 03:26:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777519547; cv=none; b=VuuMeyqCgYPPcRpQ6nNWnod1SYwYfBKvIQXakkLOb7R1EXP1wJWFryuSvu/sOkvkSB7gCw4K35l09SC8WFjO/MYQG331kKgmCB9ON6VJiPIJxeK/32qpwlsd65alYR5EgGWh2ANDMX520SSnLW12C/D6Qwqej8FF5oKAux3NwcI=
+	t=1777519563; cv=none; b=XaLxvcBiAPP6DhgrCOMAaZ9bognTDpkYV3kGRnEBIqmxr6ZaSCdp4hw+IVwYc2KaS9xcc7wrOCaEgg686T2oKpnivI6BQ5+9wHVvhtNf6574w4rC3Wc/pXqTKzuGr96bu8pkFRcXo7MnXGYYAohGemCL165tIdWdWhWHMZHYhGg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777519547; c=relaxed/simple;
-	bh=dFN6b0A1gSAjmpxBdfCzLd7sjLkkLRUt90cBNTEzJS4=;
+	s=arc-20240116; t=1777519563; c=relaxed/simple;
+	bh=uKdK5DO8u2N0tp/g6YrMeqTyIWEtsNmEtR2OQZOamME=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=s3zNbQUqbFTWu6vaPiiGlleeRQiQ+Hje4Z6wPUPYFFW/PeZrvrRL3xWjcPkBcvZIdbhBLntPLnupBxn5KrCCEaZe5yQYqX894dht+JqqtCkGfafGzuoGFWYvRMN8qZqBzdsMLCCfxWEMtC0WqnCZoPd0hYSgalpvxsLG8Cgpkdg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oK4W1kKQ; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=BRhZzyVIkxenn87ak5cME6OnUs1keuvNg26ziLgDjtzgZlvf4N7/Zs7SY9BkGPN7fk0P5qzXR2oQvsLJRfZh+p1lHZeO4QhAQrHqlEQVMSsuKL1XbLLD+aWGXhSz4COf3ujC/kz5LM+nlPaqJ4lBUrPDcs0h9T8zuWHJDrjMYjo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V2/IHGrf; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oK4W1kKQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDE62C2BCB9;
-	Thu, 30 Apr 2026 03:25:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V2/IHGrf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2178CC2BCC6;
+	Thu, 30 Apr 2026 03:26:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777519547;
-	bh=dFN6b0A1gSAjmpxBdfCzLd7sjLkkLRUt90cBNTEzJS4=;
+	s=k20201202; t=1777519563;
+	bh=uKdK5DO8u2N0tp/g6YrMeqTyIWEtsNmEtR2OQZOamME=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=oK4W1kKQ5frD7xBp2Peo4k+zymjuUiJnLNz1vcnh5EFW4Atm0o1eacKZFX3kxsdMB
-	 Z/9Bybkbt3e4DSKls2D0XjOElY/uAFwJmkXI/D33yiz2mgpn1fh1pHq8wwtdcupk2H
-	 lxsRxcmcLT6uUAPcxQs3YzTqZheDJf8qP4uhFGhGgLv/DTlHLkFL3nUxAt6MFMm3Wn
-	 udAWzPlFVeqX0qf5lNmUGifS42MtZaKyGgO3cIqnJJYyJsJWf51lM0MqpG8QFB2ry2
-	 1jlaoCGMchkNV4IFNSmAKO5kJWwGEnpPKMc5ZEWOTjjRj0oKTos1CMGgTRvfcPXQMF
-	 j0NI9CkIJOSPQ==
+	b=V2/IHGrfyciCnZ68jtYyLcCX+9M7ThJMZaRbPHBvBmKoRk+K76qcgOuTXYyo/kQf/
+	 h5OTplRTliCc4X63Y6FlfrVyvAdg5KYdnsvxSXwm9hkZAf8pdGxkdX/t+wSKmPKykm
+	 3o2z+7QFO6wUIvvg+B0mdIk+nx1z6uoJGIDFvup9VAMO4drdvfxfJ8iFN05E11UcZy
+	 rOwhunXd1D1ig0KRo5uu1vq5DA20gcZZ1Y5ckR+SNFRn+SNJ3mB2LionwukPg6k1ck
+	 b3Kp9ZgtCTOh6fyut2FuoH+jqJa7iiIMSyJ3HPmYm6RuG1wUntuJYtMYTQhd5hUjoS
+	 OIP4lynLo8F1w==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 3FDA63809A07;
-	Thu, 30 Apr 2026 03:25:03 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 7CFE43809A07;
+	Thu, 30 Apr 2026 03:25:19 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -37,54 +37,50 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH 0/2] mm: remove CONFIG_ARCH_ENABLE_MEMORY_HOTREMOVE and
- cleanup CONFIG_MIGRATION
+Subject: Re: [PATCH v2 0/6] change young flag check functions to return bool
 From: patchwork-bot+linux-riscv@kernel.org
 Message-Id: 
- <177751950193.2274119.6306882784421764696.git-patchwork-notify@kernel.org>
-Date: Thu, 30 Apr 2026 03:25:01 +0000
-References: <20260319-config_migration-v1-0-42270124966f@kernel.org>
-In-Reply-To: <20260319-config_migration-v1-0-42270124966f@kernel.org>
-To: David Hildenbrand (Arm) <david@kernel.org>
-Cc: linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
- catalin.marinas@arm.com, will@kernel.org, chenhuacai@kernel.org,
- kernel@xen0n.name, maddy@linux.ibm.com, mpe@ellerman.id.au,
- npiggin@gmail.com, chleroy@kernel.org, pjw@kernel.org, palmer@dabbelt.com,
- aou@eecs.berkeley.edu, alex@ghiti.fr, hca@linux.ibm.com, gor@linux.ibm.com,
- agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
- tglx@kernel.org, mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
- x86@kernel.org, hpa@zytor.com, akpm@linux-foundation.org, ljs@kernel.org,
- Liam.Howlett@oracle.com, vbabka@kernel.org, rppt@kernel.org,
- surenb@google.com, mhocko@suse.com, ziy@nvidia.com, matthew.brost@intel.com,
- joshua.hahnjy@gmail.com, rakie.kim@sk.com, byungchul@sk.com,
- gourry@gourry.net, ying.huang@linux.alibaba.com, apopple@nvidia.com,
- bigeasy@linutronix.de, clrkwllms@kernel.org, rostedt@goodmis.org,
- linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
- linux-mm@kvack.org, linux-rt-devel@lists.linux.dev
+ <177751951805.2274119.14382362682727203864.git-patchwork-notify@kernel.org>
+Date: Thu, 30 Apr 2026 03:25:18 +0000
+References: <cover.1774075004.git.baolin.wang@linux.alibaba.com>
+In-Reply-To: <cover.1774075004.git.baolin.wang@linux.alibaba.com>
+To: Baolin Wang <baolin.wang@linux.alibaba.com>
+Cc: linux-riscv@lists.infradead.org, akpm@linux-foundation.org,
+ david@kernel.org, ljs@kernel.org, Liam.Howlett@oracle.com, vbabka@kernel.org,
+ rppt@kernel.org, surenb@google.com, mhocko@suse.com,
+ linux-arm-kernel@lists.infradead.org, x86@kernel.org,
+ linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org
 
 Hello:
 
 This series was applied to riscv/linux.git (fixes)
 by Andrew Morton <akpm@linux-foundation.org>:
 
-On Thu, 19 Mar 2026 09:19:39 +0100 you wrote:
-> While working on memory hotplug code cleanups, I realized that
-> CONFIG_ARCH_ENABLE_MEMORY_HOTREMOVE is not really required anymore.
+On Sat, 21 Mar 2026 14:42:48 +0800 you wrote:
+> This is a cleanup patchset to change all young flag check functions to
+> return bool, as discussed with David in the previous thread[1]. Since
+> callers only care about whether the young flag was set, returning bool
+> makes the intention clearer. No functional changes intended.
 > 
-> Changing that revealed some rather nasty looking CONFIG_MIGRATION
-> handling.
-> 
-> Let's clean that up by introducing a dedicated CONFIG_NUMA_MIGRATION
-> option and reducing the dependencies that CONFIG_MIGRATION has.
+> Ran mm selftests on Arm64 and x86 machines, and no issues were found.
 > 
 > [...]
 
 Here is the summary with links:
-  - [1/2] mm: remove CONFIG_ARCH_ENABLE_MEMORY_HOTREMOVE
-    https://git.kernel.org/riscv/c/078f80f909ba
-  - [2/2] mm: introduce CONFIG_NUMA_MIGRATION and simplify CONFIG_MIGRATION
-    https://git.kernel.org/riscv/c/6ebf98d71f9b
+  - [v2,1/6] mm: change to return bool for ptep_test_and_clear_young()
+    https://git.kernel.org/riscv/c/a62ca3f40fea
+  - [v2,2/6] mm: change to return bool for ptep_clear_flush_young()/clear_flush_young_ptes()
+    https://git.kernel.org/riscv/c/06c4dfa3ced6
+  - [v2,3/6] mm: change to return bool for pmdp_test_and_clear_young()
+    https://git.kernel.org/riscv/c/42e26354c4ef
+  - [v2,4/6] mm: change to return bool for pmdp_clear_flush_young()
+    https://git.kernel.org/riscv/c/2d46a3974721
+  - [v2,5/6] mm: change to return bool for pudp_test_and_clear_young()
+    https://git.kernel.org/riscv/c/fb87c8827297
+  - [v2,6/6] mm: change to return bool for the MMU notifier's young flag check
+    https://git.kernel.org/riscv/c/1fc7dc675e26
 
 You are awesome, thank you!
 -- 
