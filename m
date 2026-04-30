@@ -1,71 +1,71 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACF1A363C55;
-	Thu, 30 Apr 2026 07:49:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D95A83A1682;
+	Thu, 30 Apr 2026 08:36:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777535362; cv=none; b=A/eFGkJdXDo7ANCK7nt6JEGz01nN29iREKIpmzbiYewsASc8Ke2qr7+Ia5BRrIQSmGmIog2kATDdo0wVrsDjLj0MgAnKf3J8QFg//40brnxC9jkuvxnsaO8odxCRAac+at3KbrM+fjo5x8Opa4dcVzA4rSZAaxBqT3H5N3zRFtg=
+	t=1777538203; cv=none; b=QVLkj3pVtNEMA28lOjD5+OoKxlMP9wkNKzz1WP3C5ISylidbJ7EfNu/3RyhwrGgGVoVHmi/ujaQP+gt0WITJhB8wMx4Tso6XbStGeUiUr5Ofmt09nQTrMI5iHA6clk1p7Egr0dqau0jbzieVY0ZDWuWDY0wYWqkBWQfQGfV16KA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777535362; c=relaxed/simple;
-	bh=M2ekG0MZW1JJ+OuFj7+lV2wUm5rRxUcsETk1jVwsjn0=;
+	s=arc-20240116; t=1777538203; c=relaxed/simple;
+	bh=d36pHuHeMIWjUNO8+uSUcFhPC+9Pbl3inLUd/sSv064=;
 	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
-	 Date:MIME-Version; b=DUDe5yAfJ6IDHdAfEjOkfPLfLZZ4y6RAFg3GdsSJwvAQuP6NjeU6NufKP8Fty7wTzE/vE0jRo6mPeil9ibzi5wIG6OLmLdEali89FOyiq/pIMAyEIF/3nG5PEDALjMibmw4VHyG+dDV9sFxGtMSfwaF2p93NWmNHScTuak47mA8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=m2LAFq3q; arc=none smtp.client-ip=148.163.158.5
+	 Date:MIME-Version; b=Be+dSr5kC3YQ8k2+2k/mrcvcn/2dxGBKwi7PSo3m5VMIYYuNg05XM/vpXIADYHzZBJLtGvLAHWS5QYAmZOSRMUhbtft/cpE+Fw9PVo4KUsthH16qr4+N/wdeZ80FIzbLKO1eQD9x30ngIxhdbEZiHPIAa304cJmrZUxLGh+3bqg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eqLZ0qIH; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="m2LAFq3q"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63TIf3Dn1559961;
-	Thu, 30 Apr 2026 07:49:08 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eqLZ0qIH"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63U75maR1648936;
+	Thu, 30 Apr 2026 08:36:30 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=SE90+s
-	J25ndoABNOg/x7CiDjnluFAwa/l3zUeM81+OQ=; b=m2LAFq3q9t/o2+qij15H4O
-	EA5wxwqU7wetqMWHDvbtv0IANcwNOCshjDZkoNx6gsV+K+0mM8QrfPZ0oh0Oexcs
-	fUUvaEKmanim/0E93syeQAogPoUxW9AHr5HonMw8V6DIZ5T+C3zpzRQ4SiGxu2T6
-	HrMtTVJmGRl0G9XjtwSMRLFAxFrjRZQlypocoF6F607byipw4dN8ZQ6zRvB2V80s
-	4wn25BbSUxUrwWW0U2Rl7XuJDE1fJpL0uvEoWl3VvYYn23EzPtxBOcdFAqy8l1aW
-	YXAqKtsQnXVgc8nlNT2vpFcMqffjypLfOu/an3Pkg1OP2FHrPHyFNPLhXrqfPing
+	:message-id:mime-version:references:subject:to; s=pp1; bh=k3MUcv
+	aSF3X0fvXS/D8mOQ70EeDjzFuGOVYvlAjLoNg=; b=eqLZ0qIHUjTcTQsRMN7Sd4
+	B9+McEW7Yel94gTKmwvBSom/mUWHSneMQsUvew+Ta1crraV1dBSjxkg1Icx6WUQT
+	Wltcs3TgGm/IF5+r4p1jfdEDb2uxScTqT82ogytRu5HYv+/EBHzC/M/b121/d082
+	eB4XV3XhQ5PJZAQw0pNKt18Oa7/9z7ZAaf179OBKaUpN11i250l82BM8cKeDGvBq
+	jGhF+IzuTwj9lw5oHZsTWPgs4VRn7yNw1rjMjmykUWmxn1lJ2Yn5loeOYTNGE0Sq
+	e5D8xhVsVViINxjctUGHubAjvmWrCrJp0Jf1u4x/i6UODOenBEGfpM1mXpHJB0Mw
 	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4drn8vmtpa-1
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4drn9reqsp-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 30 Apr 2026 07:49:08 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63U7crmu007535;
-	Thu, 30 Apr 2026 07:49:07 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dsa5ghtj9-1
+	Thu, 30 Apr 2026 08:36:30 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63U8NtdA020957;
+	Thu, 30 Apr 2026 08:36:29 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ds9ehj1gp-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 30 Apr 2026 07:49:07 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63U7n68U34013738
+	Thu, 30 Apr 2026 08:36:29 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63U8aSnR33686246
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 30 Apr 2026 07:49:06 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1586F58063;
-	Thu, 30 Apr 2026 07:49:06 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 386FD58055;
-	Thu, 30 Apr 2026 07:49:04 +0000 (GMT)
+	Thu, 30 Apr 2026 08:36:28 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 11ECD5804E;
+	Thu, 30 Apr 2026 08:36:28 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3B1545803F;
+	Thu, 30 Apr 2026 08:36:26 +0000 (GMT)
 Received: from [9.111.84.159] (unknown [9.111.84.159])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 30 Apr 2026 07:49:04 +0000 (GMT)
-Message-ID: <c6363f08f898c7f4bb3e291ab2d3f7d8e3280459.camel@linux.ibm.com>
-Subject: Re: [PATCH v14 4/7] s390/pci: Store PCI error information for
- passthrough devices
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 30 Apr 2026 08:36:26 +0000 (GMT)
+Message-ID: <ce286accfb0c076bdc4a44668df0e349f4202b2e.camel@linux.ibm.com>
+Subject: Re: [PATCH v14 5/7] vfio-pci/zdev: Add a device feature for error
+ information
 From: Niklas Schnelle <schnelle@linux.ibm.com>
 To: Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
 Cc: helgaas@kernel.org, lukas@wunner.de, alex@shazbot.org, clg@redhat.com,
         mjrosato@linux.ibm.com
-In-Reply-To: <3f0d25e2-fe8f-470e-a857-f5474cba8cdf@linux.ibm.com>
+In-Reply-To: <19f8ffeb-9200-4f94-88bf-34b5cfa8b7d0@linux.ibm.com>
 References: <20260421163031.704-1-alifm@linux.ibm.com>
-	 <20260421163031.704-5-alifm@linux.ibm.com>
-	 <08008a2a61556482c71f7f0ed65106e32e77f418.camel@linux.ibm.com>
-	 <3f0d25e2-fe8f-470e-a857-f5474cba8cdf@linux.ibm.com>
+	 <20260421163031.704-6-alifm@linux.ibm.com>
+	 <56bcc0f67c15ad01f6fff161164698f1689af0f1.camel@linux.ibm.com>
+	 <19f8ffeb-9200-4f94-88bf-34b5cfa8b7d0@linux.ibm.com>
 Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
  /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
@@ -123,7 +123,7 @@ Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  3FZJPTo/OpqchMm8XIeDxC4NFFiPMpyLeYzIxO7eZpiGrAjVTE=
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 30 Apr 2026 09:48:03 +0200
+Date: Thu, 30 Apr 2026 10:35:25 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -132,156 +132,44 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=CIIamxrD c=1 sm=1 tr=0 ts=69f30974 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Proofpoint-GUID: qIqdcuX2i_0DhZBzWf0CVwh953qhc1M_
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDMwMDA4MSBTYWx0ZWRfX8apUf6+aQvNV
+ LrEv8yHBzw5Ly9NVnfUS+eGUBCdhfp+MORT7GEzM0MXpRuD5nNzt9QMo66TdrGDfn4E1VEPv+VM
+ Ttk3zi5MF0zuDkc3OQUa1R7Ki0SPr0mTfxb3hrju3jPnbcDJxl34kaOK0uX62btU6yXviUwvQe7
+ HlvL98XEa8h+hPqQ5cj2kBdGtodnDLiz8eRDGmZv9qPgghQx2joi/w97/aZl9bHSFxC39+cd2Hj
+ wsslsO/Xrd+f166qACHHRRKpPHEyx3KFcCwtwZKCUZl/KJ56NUeiiEtOrp8IiJUGgU3T0s3MbO8
+ WC1MRsnBPwLPHim2weRh7rk8ucFYo6tkCz6EBY+Hi1xctNXQJyFKagQ5Gj5IwNZyVaqgwhI0rbj
+ 8NJdSoJCbZG7mrOa08jLRr3zBZmNF9T9BtN9xVNQlrU1GlNL7glb9ySLjiiUlbc6FRD2NY47NtA
+ B0Sy930fDLepL3/Ob0A==
+X-Authority-Analysis: v=2.4 cv=Kc7idwYD c=1 sm=1 tr=0 ts=69f3148e cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=bcXxuKqiJE03SgATaGEA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: RJqTFXNaPDMH4AyxSK2XSDM_VLTpVirM
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDMwMDA3NSBTYWx0ZWRfXxzENuURwPtI+
- UyH2aS2AtTPQk2vKpdKLcQzXOUSlXvPg0EkgmkM5VPXFkVIcgAb++wvfUhcUEASyEc2rtQx53XH
- wA1jkqkf6bzpRvqeI55iq3N1d/uEW3ZH/q5olkJc1X+0JTTbxc6IHIP2NzoCf/iMLnkhxQcAklg
- f+WmleKd0ZEelnaqDvzbTO6jHMter8QkchN3hZOCu2t3F/G4ixF++poQKv0MP28DsbVOYSpr3oe
- EBhm7XyXMDX5dCFHAqZYbvMU4tIGc041fnWAhZVEbIEtCcGRpzXWVrzh4hZ8xhTHKdNoXhtC80Q
- +P9vrVo/KgORc5d95rshzk1RlmOm1UcocyxEAmUFLMogbevD/c6VfvB0hRXDyOAmH7CK1bD9tUq
- RTLKEGD3W1vxq0HE5A17xcYsqZ9NFxeOt7e7/ZnB98LJHN/iWsy0MCXSqSyidQP87UIAM2ThER6
- pI9KUmDn0MvycuSzKqA==
-X-Proofpoint-GUID: RJqTFXNaPDMH4AyxSK2XSDM_VLTpVirM
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=6Z3yqAkPqNmGgoFuNJgA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: qIqdcuX2i_0DhZBzWf0CVwh953qhc1M_
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-30_02,2026-04-28_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 phishscore=0 malwarescore=0 suspectscore=0 adultscore=0
- impostorscore=0 lowpriorityscore=0 clxscore=1011 bulkscore=0
- priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
+ clxscore=1015 phishscore=0 bulkscore=0 adultscore=0 spamscore=0
+ malwarescore=0 impostorscore=0 priorityscore=1501 lowpriorityscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
- definitions=main-2604300075
+ definitions=main-2604300081
 
-On Wed, 2026-04-29 at 09:48 -0700, Farhan Ali wrote:
-> On 4/29/2026 4:41 AM, Niklas Schnelle wrote:
-> > On Tue, 2026-04-21 at 09:30 -0700, Farhan Ali wrote:
-> > > For a passthrough device we need co-operation from user space to reco=
-ver
-> > > the device. This would require to bubble up any error information to =
-user
-> > > space.  Let's store this error information for passthrough devices, s=
-o it
-> > > can be retrieved later.
-> > >=20
-> > > We can now have userspace drivers (vfio-pci based) on s390x. The user=
-space
-> > > drivers will not have any KVM fd and so no kzdev associated with them=
-. So
-> > > we need to update the logic for detecting passthrough devices to not =
-depend
-> > > on struct kvm_zdev.
-> > >=20
-> > > Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> > > Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-> > > ---
-> > >   arch/s390/include/asm/pci.h      |  30 ++++++++
-> > >   arch/s390/pci/pci.c              |   1 +
-> > >   arch/s390/pci/pci_event.c        | 117 +++++++++++++++++-----------=
----
-> > >   drivers/vfio/pci/vfio_pci_zdev.c |   9 ++-
-> > >   4 files changed, 105 insertions(+), 52 deletions(-)
-> > >=20
-> > --- snip ---
-> > > +
-> > > +void zpci_start_mediated_recovery(struct zpci_dev *zdev)
-> > > +{
-> > > +	guard(mutex)(&zdev->pending_errs_lock);
-> > > +	zdev->pending_errs.mediated_recovery =3D true;
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(zpci_start_mediated_recovery);
-> > > +
-> > > +void zpci_stop_mediated_recovery(struct zpci_dev *zdev)
-> > > +{
-> > > +	struct pci_dev *pdev =3D NULL;
-> > > +
-> > > +	guard(mutex)(&zdev->pending_errs_lock);
-> > > +	zdev->pending_errs.mediated_recovery =3D false;
-> > > +	pdev =3D pci_get_slot(zdev->zbus->bus, zdev->devfn);
-> > > +	if (zdev->pending_errs.count)
-> > > +		pr_info("%s: Unhandled PCI error events count=3D%d",
-> > > +			pci_name(pdev), zdev->pending_errs.count);
-> > Sashiko notes a possible ABBA locking issue here between
-> > pending_errs_lock and the pci_bus_sem inside pci_get_slot(). I wonder
-> > if that would also be visible with lockdep? Also Sashiko notes that
-> > zdev->zbus->bus could be NULL I don't think this is possible at the
-> > current callsites via vfio-pci though. Similarly I don't think
-> > pci_get_slot() can really be NULL at the current call sites. This makes
-> > me wonder however, would it maybe be cleaner to pass a struct pci_dev
-> > here so you don't need the pci_get_slot() at all? Both
-> > vfio_pci_zdev_open_device() and vfio_pci_zdev_close_device() have that
-> > readily available via vdev->pdev.
+On Wed, 2026-04-29 at 09:59 -0700, Farhan Ali wrote:
+> On 4/29/2026 2:40 AM, Niklas Schnelle wrote:
+> > > +struct vfio_device_feature_zpci_err {
+> > > +	__u32 flags;			/* Indicate feature in non CCDF reserved space */
+> > The "non CCDF" feels a bit subtle for marking this as a vfio-pci
+> > feature specific field. Maybe call it "vfio_feat_flags"?
 >=20
-> The pdev here was meant for helpful error message. On second thought=20
-> maybe removing the pdev usage, and using the fid would be better?
+> I was a little hesitant about naming it with vfio as it's not exactly=20
+> tied to anything in vfio framework. But if you feel strongly will change =
+it.
 
-Either that or maybe just return the number of left over errors and do
-the print in the caller?
+Maybe just feature_flags?
 
->=20
-> >=20
-> >=20
-> > > +	memset(&zdev->pending_errs, 0, sizeof(struct zpci_ccdf_pending));
-> > > +	pci_dev_put(pdev);
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(zpci_stop_mediated_recovery);
-> > > +
-> > >   static pci_ers_result_t zpci_event_notify_error_detected(struct pci=
-_dev *pdev,
-> > >   							 struct pci_driver *driver)
-> > >   {
-> > > @@ -175,7 +190,8 @@ static pci_ers_result_t zpci_event_do_reset(struc=
-t pci_dev *pdev,
-> > >    * and the platform determines which functions are affected for
-> > >    * multi-function devices.
-> > >    */
-> > > -static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci=
-_dev *pdev)
-> > > +static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci=
-_dev *pdev,
-> > > +							  struct zpci_ccdf_err *ccdf)
-> > >   {
-> > >=20
---- snip ---
-> > >  =20
-> > > +	scoped_guard(mutex, &zdev->pending_errs_lock) {
-> > > +		if (zdev->pending_errs.mediated_recovery) {
-> > > +			pr_info("%s: Leaving recovery of pass-through device to user-spac=
-e\n",
-> > > +				pci_name(pdev));
-> > > +			ers_res =3D PCI_ERS_RESULT_RECOVERED;
-> > > +			status_str =3D "in progress";
-> > > +			goto out_unlock;
-> > > +		}
-> > > +	}
-> > > +
-> > Sashiko notes that mixing goto unlock and lock guards within one
-> > function is discouraged. Here it's not that hard to read since it is
-> > just a scoped guard but I think we should still not mix it.
-> >=20
-> > However if we also convert the device_lock() to a guard lock here the
-> > goto would still make sense to go to the zpci_report_status() and that
-> > is still a bit odd with guarded locks. So I think an alternative simple
-> > fix, that makes this overall cleaner too, is to put the whole
-> > scoped_guard() block above into a helper function then you can do the
-> > goto out_unlock on that helper returning PCI_ERS_RESULT_RECVOERED in
-> > line with e.g. zpci_event_notify_error_detected(). That way you don't
-> > need to touch existing locks and you get to keep the guard locking.
->=20
-> How about changing it to mutex_lock/mutex_unlock? I think the block is=
-=20
-> small enough that it shouldn't be too confusing. Moving to a function=20
-> opens up the possibility of using a stale value for mediated_recovery.
-
-I'm probably missing something but I don't see how moving it to a
-helper function changes whether the mediated_recovery can be stale?
-You'd still use the same pending_errs_lock and passed in struct
-zpci_dev * then you just return PCI_ERS_RESULT_RECOVERED if mediated
-recovery is in effect? And you can do the pr_info() at the caller so
-you don't need to pass in the pdev too.
-
+Thanks,
+Niklas
 > >=20
