@@ -1,33 +1,60 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 177E63090D9;
-	Thu, 30 Apr 2026 06:08:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F63539A07B;
+	Thu, 30 Apr 2026 07:08:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777529289; cv=none; b=ag/Zd7kAWv4vOMxdor+/l1rEerKTv34+7rZ4zdZvD78ZnMsXPEuK29FnCixZv8yviyMKAcFiB7JUrvlKaDhnNivpU+PNjsbtVRNYXbQ+f3vmuQE5IXZF3gqTemYqPwB7H/KFod7OKji92tX1E0cuARvfw0puknQ8nkMRn8uj+j0=
+	t=1777532916; cv=none; b=isnQSA3UQXW7jYk0ft/BZFeyqPtA6DTNyhqfz7GaOVYSjEtUrBBe30vAPNkNTlb6tyrkE2Hv+ikOjplDfMb6zC/Cm/DqR9WGdQWTXpEkf5/3aAYeQk3AhwNL670ctWsZCxIrKsD84VE005uuD29Bqzjfc0x15t+aRVA2EZ4rAzQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777529289; c=relaxed/simple;
-	bh=Xh84CmaGKv1WkUK/96uT1oH8nuoakdctaMHT9kdQ7iU=;
+	s=arc-20240116; t=1777532916; c=relaxed/simple;
+	bh=FAnv6LG3uppanLitZxS2+wtksEbIp/SAvUcVwuCRFbY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=VxdISm3LpHolwanGw6uqTMkkWXPdndpKV7x3OWTTDqDCM+UToaSjrDE7jCGsDErZZdMLy5/W9Ouueqzsdk9BUsyZCfGulERIZ7kcA3rxaZNOktM/nAl1Mst7+3rq0NgRiSmRJ30A23dDB3pHIYcXEJKAw3IxZFEAhSrq+kh7qJU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PWa+//UH; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=tKaqqxIII4/XGKt2pAbTch1H9mEG3SQn3ImPIu8hZEgkovqD6ZoA/ABmLklE//5ZciQV7FVZm1KIPMzhX8GkuJr4OhZppwKtHSAwAuOrFNZCxSO2toNu31IxLT0PBARtAdnWBLzdubxpMTn+r8oGCUB9twFQmRueWF/S04NJErY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DloasYxR; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PWa+//UH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FF23C2BCB8;
-	Thu, 30 Apr 2026 06:08:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777529288;
-	bh=Xh84CmaGKv1WkUK/96uT1oH8nuoakdctaMHT9kdQ7iU=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=PWa+//UHYq+dPjSoLXAcx9cuWj7EnVpcP7O364Q1BBRGP09c3qmp8aqjy5mJ/BFqZ
-	 +GdtxZ05eD6hIBr00AYSYHzvGyFwvoFrS0L1GTtxc3M2jYuOJmrWbGbVTHXC796ZRt
-	 SKXIP1Nn9SZJcVN83gl7xoZ2nYWSALE9Yu68iMUjMBBEbPcCUbA7DTaasY7V09Roxq
-	 aHTBnhtAN3EsXFCzKuyz2/pePi5v/BtjuxgQBpkfnQK9QzrdVfrxyJwozal/FYp3fd
-	 XCa7erTquf33ozwdjMJNzqHuf4co3fH5wt0EQhQd/XlhkS2iBdSZfbuJ6YR4OxOpDo
-	 iF/3P97a/s24w==
-Message-ID: <b2d9fe2b-abb0-49d1-8056-ac93aa232bbb@kernel.org>
-Date: Thu, 30 Apr 2026 08:08:02 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DloasYxR"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63TInL9O2688397;
+	Thu, 30 Apr 2026 07:08:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=R3XxjD
+	kkhfa328K+AWP8Zweav112m51dlURxGRxS54E=; b=DloasYxRJ4VPrHQbxftUcb
+	41gGGLhRessRlcENnubvw6CWp9G1TqtWmyFHiJmeXz1KS1kQ4SbpdrYnUSpTdQ5v
+	QKrNf7Al7AfyaKFQqG7CGKXD5ZIGdvwM+3/1hT4fR+H3Sb9vmUAhrknht9QvVdEu
+	WvaAlabOE/w5S3SuSyj3E1FcrpRSK+zG4sHsrAeVZgA+N+O856+0iooiZRyvccpK
+	kpQH4FxAXEp7yiUleQYFjFfJihme0P28UetbLz3hH+xEQewaEaswHDW/c/YQKrg0
+	zxUQenB2QMDjRb3G1q7xe6hAHS0afQ9TftVt8RdSvTZYMMNEj17I+m2N/1xUfbSg
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4drn9recdt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 30 Apr 2026 07:08:27 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63U6rpiO024424;
+	Thu, 30 Apr 2026 07:08:26 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dsamyhkue-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 30 Apr 2026 07:08:26 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63U78MXM53019094
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 30 Apr 2026 07:08:23 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EDF0E2004E;
+	Thu, 30 Apr 2026 07:08:19 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 470D820043;
+	Thu, 30 Apr 2026 07:08:17 +0000 (GMT)
+Received: from [9.123.5.233] (unknown [9.123.5.233])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 30 Apr 2026 07:08:17 +0000 (GMT)
+Message-ID: <868cbc25-45a9-4476-b77e-7f878f1cd42c@linux.ibm.com>
+Date: Thu, 30 Apr 2026 12:38:16 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,155 +62,171 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 2/3] mm: process_mrelease: skip LRU movement for
- exclusive file folios
-To: Michal Hocko <mhocko@suse.com>
-Cc: Minchan Kim <minchan@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- akpm@linux-foundation.org, hca@linux.ibm.com, linux-s390@vger.kernel.org,
- brauner@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
- timmurray@google.com, "Liam R. Howlett" <Liam.Howlett@oracle.com>
-References: <ae8NT0tLt7eBmH6j@tiehlicka>
- <CAJuCfpHQdA7C50V2WjNrdYcp7feV5ukgxJf+vMNEcp0P1SGEow@mail.gmail.com>
- <ae-Zu-VAzAA7SdLa@tiehlicka> <ae_roPR64e6sY_fN@google.com>
- <afBaJLLFigkdszov@tiehlicka> <afFco71vwmpQy3pk@google.com>
- <afG-4hq7Hr62Uu6J@tiehlicka>
- <7f98f461-62a7-455d-a7a8-cb8928465946@kernel.org>
- <afHeXY-yeTwmURWh@tiehlicka>
- <4a612d63-2838-40f5-ab67-79bf35dd3a56@kernel.org>
- <afIZQOtaBabeHtCc@tiehlicka>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
+Subject: Re: BUG: workqueue lockup - SRCU schedules work on not-online CPUs
+ during size transition
+To: paulmck@kernel.org
+Cc: Tejun Heo <tj@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>,
+        Srikar Dronamraju <srikar@linux.ibm.com>,
+        Boqun Feng <boqun@kernel.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+        Joel Fernandes <joelagnelf@nvidia.com>,
+        Uladzislau Rezki <urezki@gmail.com>, rcu@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Lai Jiangshan <jiangshanlai@gmail.com>, samir@linux.ibm.com
+References: <ttd89ul@ub.hpns> <adfhWQr1yFImSM2Q@tardis.local>
+ <adfkdRCxmhpRverB@tardis.local> <adfmHZfABu64Kv4D@slm.duckdns.org>
+ <adfrfJGrglg0bGw_@tardis.local> <adlHKowvhn8AGXCc@slm.duckdns.org>
+ <afIdFgDD9w2U6hZy@linux.ibm.com> <tte9m9z@ub.hpns>
+ <3b1563df-b1aa-40b9-b83e-650d967df09c@paulmck-laptop>
+ <3f6d1123-6e1a-4566-8be7-ce95efe0609c@linux.ibm.com>
+ <7b5665b4-ddd0-404a-8314-fd0a170db458@paulmck-laptop>
 Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <afIZQOtaBabeHtCc@tiehlicka>
-Content-Type: text/plain; charset=UTF-8
+From: Shrikanth Hegde <sshegde@linux.ibm.com>
+In-Reply-To: <7b5665b4-ddd0-404a-8314-fd0a170db458@paulmck-laptop>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-GUID: 6kFkMQZ6xgPUVW804RZfEpM_iLepMS3H
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDMwMDA2NSBTYWx0ZWRfX1eGA+z8+yzsp
+ S7Ar2MOitozrZoXN0xNwSPGArCLxXhZEy5y8OqOdmoxTixZHDo6Hbaa/6/tcgC9YGnXMeWB2rxx
+ /NEsP7TKtas1ATL05B1gdgo4owxA67AJNtZEyLGIQV7p+UmpU8Yqls1GrBZ1qC4EP402JpAmzHa
+ FKg3Lmn2GB9CDQ+N+xFSM6cH9Y5sMyIqSaRqmWZPDIyys6to88Ihy6KwyvSbHjOZNaTvKyoCwRx
+ 0R2TRX8aQqsO87P03jfe2f/c2GpQUNsWoeHAmBT1paWoC3sqJEtfG80FrUmZBDWAHv7xkljOtLO
+ p6S5p8eoTKI+DQ0fmBLxT1xptRe9L0eh4lPt/yv2W51oSDjxHllNCFoGBCNs7tJW2YgN9/BBCkb
+ nV93xtCTEoqYTr3nH8mVPgtvHUO5qCJaq43WNSneVoZ1YiGyWP2ITsvGTFP0O5A/xL/zIDGqLDf
+ ba9JzszTREBkXulCEmA==
+X-Authority-Analysis: v=2.4 cv=Kc7idwYD c=1 sm=1 tr=0 ts=69f2ffec cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=e3K_sr4fstJ4hurmY1cA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: 3WGH3OpalX2waNy5LWOflQxoC5lUDXuF
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-04-30_02,2026-04-28_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 phishscore=0 bulkscore=0 adultscore=0 spamscore=0
+ malwarescore=0 impostorscore=0 priorityscore=1501 lowpriorityscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
+ definitions=main-2604300065
 
-On 4/29/26 16:44, Michal Hocko wrote:
-> On Wed 29-04-26 15:07:04, David Hildenbrand wrote:
->> On 4/29/26 12:33, Michal Hocko wrote:
->>>
->>> While the oom is the only current kernel user of MMF_UNSTABLE (in a
->>> sense it sets the flag) the flag should denote that any page faults are
->>> reliable because it might fault in a fresh memory and user would lose
->>> the previous content without knowing that. Not sure MMF_OOM_REAPING
->>> would reflect that reality better.
+Hi Paul.
+
+On 4/29/26 11:31 PM, Paul E. McKenney wrote:
+
+>> That mask = ~0 is really looks uncomfortable to me. What does it mean?
+>> It might end up even sending to non possible CPUs without proper checks.
 >>
->> We use it for failed fork() as well, but that's slightly different semantics (no
->> real page faults ever made sense).
-
-Well, there is a difference: a failed-fork process was never scheduled and will
-never get scheduled.
-
-In fact, we added the MMF_UNSTABLE to the fork path in
-
-commit 64c37e134b120fb462fb4a80694bfb8e7be77b14
-Author: Liam R. Howlett <liam@infradead.org>
-Date:   Mon Jan 27 12:02:21 2025 -0500
-
-    kernel: be more careful about dup_mmap() failures and uprobe registering
-
-    If a memory allocation fails during dup_mmap(), the maple tree can be left
-    in an unsafe state for other iterators besides the exit path.  All the
-    locks are dropped before the exit_mmap() call (in mm/mmap.c), but the
-    incomplete mm_struct can be reached through (at least) the rmap finding
-    the vmas which have a pointer back to the mm_struct.
-
-    Up to this point, there have been no issues with being able to find an
-    mm_struct that was only partially initialised.  Syzbot was able to make
-    the incomplete mm_struct fail with recent forking changes, so it has been
-    proven unsafe to use the mm_struct that hasn't been initialised, as
-    referenced in the link below.
-
-    Although 8ac662f5da19f ("fork: avoid inappropriate uprobe access to
-    invalid mm") fixed the uprobe access, it does not completely remove the
-    race.
-
-    This patch sets the MMF_OOM_SKIP to avoid the iteration of the vmas on the
-    oom side (even though this is extremely unlikely to be selected as an oom
-    victim in the race window), and sets MMF_UNSTABLE to avoid other potential
-    users from using a partially initialised mm_struct.
-
-Which was later changed in
-
-commit 43873af772f8138c5cb4b76dde9c26339e89be3b
-Author: Liam R. Howlett <liam@infradead.org>
-Date:   Wed Jan 21 11:49:42 2026 -0500
-
-    mm: change dup_mmap() recovery
-
-    When the dup_mmap() fails during the vma duplication or setup, don't write
-    the XA_ZERO entry in the vma tree.  Instead, destroy the tree and free the
-    new resources, leaving an empty vma tree.
-
-    Using XA_ZERO introduced races where the vma could be found between
-    dup_mmap() dropping all locks and exit_mmap() taking the locks.  The race
-    can occur because the mm can be reached through the other trees via
-    successfully copied vmas and other methods such as the swapoff code.
-...
-
-and I am not sure if MMF_UNSTABLE is still required, as we don't leave these
-stale VMA copies in the maple tree.
-
-The process might just look like just another process that is getting torn down now.
-
-But we'd have to learn from Liam :)
-
-
+>> It should use either cpumask_setall? or use cpu_online_mask?
+>>
+>> Your current patch rcu_cpu_beenfullyonline indicates that code around
+>> srcu_schedule_cbs_sdp handles hotplug already right?
+>> in that case, just setting mask = cpu_online_mask would work?
 > 
-> The bottom line is the same. Make sure PF fails rather than silently
-> provide potentially corrupted data.
+> Agreed.  Which is why I have this commit queued:
 > 
->> Looking at the original patch here, using MMF_OOM_REAPING to modify zapping
->> behavior would be clearer than MMF_UNSTABLE, I guess.
+> f8d5aaaf90f8 ("srcu: Don't queue workqueue handlers to never-online CPUs")
 > 
-> Ohh, you mean to add a new flag, right?
+> This is currently slated for the upcoming merge window, but if you
+> need it sooner, please let us know.  Please see the end of this email
+> for the full commit.
+> 
+> 
+> 							Thanx, Paul
+> 
+>>> /**
+>>>    * queue_work_on - queue work on specific cpu
+>>>    * @cpu: CPU number to execute work on
+>>>    * @wq: workqueue to use
+>>>    * @work: work to queue
+>>>    *
+>>>    * We queue the work to a specific CPU, the caller must ensure it
+>>>    * can't go away.  Callers that fail to ensure that the specified
+>>>    * CPU cannot go away will execute on a randomly chosen CPU.
+>>>    * But note well that callers specifying a CPU that never has been
+>>>    * online will get a splat.
+>>>    *
+>>>    * Return: %false if @work was already on a queue, %true otherwise.
+>>>    */
+>>
+>>
+>> In that case, making offline CPUs have a unbound workqueue is wrong. no?
+>>
+>> It might encourage more users to abuse queue_work_on interface to
+>> send to offline CPUs without any checks and onus now falls onto
+>> workqueue to disaptch to unbound wqs.
+>>
+>> So I think it is better to put the guardrails in SRCU instead of any change in
+>> workqueue.
+> 
+> ------------------------------------------------------------------------
+> 
+> commit f8d5aaaf90f8294890802ce8dccbafd9850ac5f9
+> Author: Paul E. McKenney <paulmck@kernel.org>
+> Date:   Thu Apr 9 11:16:02 2026 -0700
+> 
+>      srcu: Don't queue workqueue handlers to never-online CPUs
+>      
+>      While an srcu_struct structure is in the midst of switching from CPU-0
+>      to all-CPUs state, it can attempt to invoke callbacks for CPUs that
+>      have never been online.  Worse yet, it can attempt in invoke callbacks
+>      for CPUs that never will be online due to not being present in the
 
-We could do that as well, if it's of any help.
+for CPUs that never will be online due to being present in the cpu_possible_mask?
 
--- 
-Cheers,
+>      cpu_possible_mask.  This can cause hangs on s390, which is not set up to
+>      deal with workqueue handlers being scheduled on such CPUs.  This commit
+>      therefore causes Tree SRCU to refrain from queueing workqueue handlers
+>      on CPUs that have not yet (and might never) come online.
+>      
+>      Because callbacks are not invoked on CPUs that have not been
+>      online, it is an error to invoke call_srcu(), synchronize_srcu(), or
+>      synchronize_srcu_expedited() on a CPU that is not yet fully online.
+>      However, it turns out to be less code to redirect the callbacks
+>      from too-early invocations of call_srcu() than to warn about such
+>      invocations.  This commit therefore also redirects callbacks queued on
+>      not-yet-fully-online CPUs to the boot CPU.
+>      
+>      Reported-by: Vasily Gorbik <gor@linux.ibm.com>
+>      Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+>      Tested-by: Vasily Gorbik <gor@linux.ibm.com>
+>      Cc: Tejun Heo <tj@kernel.org>
+> 
+> diff --git a/kernel/rcu/srcutree.c b/kernel/rcu/srcutree.c
+> index 0d01cd8c4b4a7b..7c2f7cc131f7ae 100644
+> --- a/kernel/rcu/srcutree.c
+> +++ b/kernel/rcu/srcutree.c
+> @@ -897,11 +897,9 @@ static void srcu_schedule_cbs_snp(struct srcu_struct *ssp, struct srcu_node *snp
+>   {
+>   	int cpu;
+>   
+> -	for (cpu = snp->grplo; cpu <= snp->grphi; cpu++) {
+> -		if (!(mask & (1UL << (cpu - snp->grplo))))
+> -			continue;
+> -		srcu_schedule_cbs_sdp(per_cpu_ptr(ssp->sda, cpu), delay);
+> -	}
+> +	for (cpu = snp->grplo; cpu <= snp->grphi; cpu++)
+> +		if ((mask & (1UL << (cpu - snp->grplo))) && rcu_cpu_beenfullyonline(cpu))
+> +			srcu_schedule_cbs_sdp(per_cpu_ptr(ssp->sda, cpu), delay);
+>   }
+>   
+>   /*
+> @@ -1322,7 +1320,9 @@ static unsigned long srcu_gp_start_if_needed(struct srcu_struct *ssp,
+>   	 */
+>   	idx = __srcu_read_lock_nmisafe(ssp);
+>   	ss_state = smp_load_acquire(&ssp->srcu_sup->srcu_size_state);
+> -	if (ss_state < SRCU_SIZE_WAIT_CALL)
+> +	// If !rcu_cpu_beenfullyonline(), interrupts are still disabled,
+> +	// so no migration is possible in either direction from this CPU.
+> +	if (ss_state < SRCU_SIZE_WAIT_CALL || !rcu_cpu_beenfullyonline(raw_smp_processor_id()))
 
-David
+How can this happen? To get a CPU offline in raw_smp_processor_id() you need to run on the offline
+CPU.
+
+>   		sdp = per_cpu_ptr(ssp->sda, get_boot_cpu_id());
+>   	else
+>   		sdp = raw_cpu_ptr(ssp->sda);
+
