@@ -1,189 +1,150 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECAB3335064;
-	Thu, 30 Apr 2026 02:57:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FCE333A014;
+	Thu, 30 Apr 2026 03:25:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777517852; cv=none; b=speiBgss83+Myg0xGqON3WdWkhEfbldpSgu10R4XSQIIToSByJU4hXrhlZsCUu6Ti56paHh3pfovCxGTQ1UAIA8+YCvNXZIBSyj0eH6Lo6oW6+Ie64OMSFQeCA0XYm9xIFLNX+3PzaEqF5SP4bAtVhKlXJaT0ETQNQ3j+9iLdX8=
+	t=1777519544; cv=none; b=OzeGNLfqR2Wyw0s0vlX8nqiEgg8NHeRkdAqbBGRXhZrvZ0IQOJcE/uPbQX5lwwmlIRva10hGuTF6OP1CzGDELcN4ALXUbsU9xKqxu/7BIr3gL09lO5Sc8Z4/iCd8AcHvkd8u4cs+ESsrQkKymRag3gv89yhOWnEU/kBcsfrMl3c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777517852; c=relaxed/simple;
-	bh=WWDHuN6KlX23gWiFtx2Nh0bUKaZPUis/C4/D7ggZTz0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=D2q33KPM8nW3ghjOvOWIu+AFzRbI5jDvB0mhsuWiKomzlS+9M4lla5TLG9xa+iK4Vsk2C31ZcUXyz2vMcfeDJ5XtDVTAcgG4EpIWllorNGgXDGWjrUmypAPOVZaQj9XQC6oeii20yab7FUFLTNXZ3ZPCV+hEHneP6kJs1/JFlEc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k1ZbOrwX; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1777519544; c=relaxed/simple;
+	bh=wBz7OM7TlHLm2WIVihmJBmiohjoSXyxgTPPi2XUGXGY=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=pv5PBTPYzaa9+eYPjyqxzPwEdlz4tO71YYGwHouilj5OJVsF1b4Ou7XoAYor1LlMcUFFgzSpBX13kLPL71kFV6zeRKyz0HD0KYgeAetSufzLVmgDFV54KAOT+n/GPA70DpQES/jQDlKZ7vSeB8fNsQlXNqXNbcDxckpwpL0NYl0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uTpJPZRC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k1ZbOrwX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 386F6C2BCB8;
-	Thu, 30 Apr 2026 02:57:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uTpJPZRC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F9AFC2BCC6;
+	Thu, 30 Apr 2026 03:25:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777517851;
-	bh=WWDHuN6KlX23gWiFtx2Nh0bUKaZPUis/C4/D7ggZTz0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=k1ZbOrwXjutciMx5tEkdM1wGxG3q36SBK/oeKeAfkTr7yKSuL37sp4kOhWaoVRcVA
-	 hpfg5oCfqWdVBy/bkTiJBvPcNle/a0MAGN9zoNYaMgAZnsWxQnyTvkx+sYlIS+bCZO
-	 bhrBFaY6UTO7kdeIOizCh7lxo2RVFfIBjGnq9I+Ne0wJT8GdEcKQKYHHrK6pZ+uRSx
-	 K2Nu9ZBslhxYMisQhkC99HxSt5ktF4JhwdK4EGVX6Xfeq8plCqtjk/82o+G8CgIK6G
-	 TaWoEVaq83EexbsLEeyZwSNZza4MTbEnvVSk+rRGvu2WxaYKn2CE8mGpjyQpZ1D3AV
-	 WtXoYRwj1Wjhw==
-Date: Wed, 29 Apr 2026 19:57:29 -0700
-From: Namhyung Kim <namhyung@kernel.org>
-To: Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-perf-users@vger.kernel.org, acme@kernel.org,
-	agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
-	hca@linux.ibm.com, japo@linux.ibm.com
-Subject: Re: [PATCH] perf callchain: Handle multiple address spaces
-Message-ID: <afLFGZcaEY2sW0ci@google.com>
-References: <20260414124241.490185-1-tmricht@linux.ibm.com>
- <aeemNo-8_RByiwvP@google.com>
- <5b3c3edd-4661-4e1e-8971-16eacc230f5c@linux.ibm.com>
+	s=k20201202; t=1777519544;
+	bh=wBz7OM7TlHLm2WIVihmJBmiohjoSXyxgTPPi2XUGXGY=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=uTpJPZRCgWp5AfDjLmVTacGdTqRQtgMVXovLDOgY5LJHM1kRJTcTAjAjlzCgBpZvp
+	 PVuwPlNReHlcJ1FQ9PgNdCrqANSuP5dIHOg1WFVE1UPqOFQrLsNyEaAv1TIimY3yJ6
+	 dNLJ1aTEBqXG6wIIAe+hTTilZEZmiRBioNt3vpRgGA7/f1YWR+zd1uAs2cIdkGAHSF
+	 MZVBM6p+H1jvCofKth5JZ3lRO/w2r49uSYovI3hCogvHxcTwqsMRM3nY6Ct3vVu9oR
+	 CmYp2PZ4xwBzwNein821COzMLGD6YCZFeFgtsAQGoLKs2+1jduSB39tglFke+SexZz
+	 n/9KGgA7orfhA==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 7D0473809A07;
+	Thu, 30 Apr 2026 03:25:00 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <5b3c3edd-4661-4e1e-8971-16eacc230f5c@linux.ibm.com>
+Subject: Re: [PATCH 01/28] xor: assert that xor_blocks is not call from
+ interrupt
+ context
+From: patchwork-bot+linux-riscv@kernel.org
+Message-Id: 
+ <177751949930.2274119.9590297379331785751.git-patchwork-notify@kernel.org>
+Date: Thu, 30 Apr 2026 03:24:59 +0000
+References: <20260327061704.3707577-2-hch@lst.de>
+In-Reply-To: <20260327061704.3707577-2-hch@lst.de>
+To: Christoph Hellwig <hch@lst.de>
+Cc: linux-riscv@lists.infradead.org, akpm@linux-foundation.org,
+ richard.henderson@linaro.org, mattst88@gmail.com, linmag7@gmail.com,
+ linux@armlinux.org.uk, catalin.marinas@arm.com, will@kernel.org,
+ ardb@kernel.org, chenhuacai@kernel.org, kernel@xen0n.name,
+ maddy@linux.ibm.com, mpe@ellerman.id.au, npiggin@gmail.com,
+ chleroy@kernel.org, pjw@kernel.org, palmer@dabbelt.com,
+ aou@eecs.berkeley.edu, alex@ghiti.fr, hca@linux.ibm.com, gor@linux.ibm.com,
+ agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ davem@davemloft.net, andreas@gaisler.com, richard@nod.at,
+ anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net, tglx@kernel.org,
+ mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+ hpa@zytor.com, herbert@gondor.apana.org.au, dan.j.williams@intel.com,
+ clm@fb.com, dsterba@suse.com, arnd@arndb.de, song@kernel.org,
+ yukuai@fnnas.com, linan122@huawei.com, tytso@mit.edu, Jason@zx2c4.com,
+ linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+ linux-crypto@vger.kernel.org, linux-btrfs@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-raid@vger.kernel.org
 
-On Wed, Apr 29, 2026 at 09:14:38AM +0200, Thomas Richter wrote:
-> On 4/21/26 18:30, Namhyung Kim wrote:
-> > Hello,
-> > 
-> > On Tue, Apr 14, 2026 at 02:42:41PM +0200, Thomas Richter wrote:
-> >> perf test 'perf inject to convert DWARF callchains to regular ones'
-> >> fails on s390. It was introduced with
-> >> commit 92ea788d2af4 ("perf inject: Add --convert-callchain option")
-> >>
-> >> The failure comes the difference in output. Without the inject script to
-> >> convert DWARF the callchains is:
-> >>  # ./perf record -F 999 --call-graph dwarf -- perf test -w noploop
-> >>  # ./perf report -i perf.data --stdio --no-children -q \
-> >> 					 --percent-limit=1 > /tmp/111
-> >>  # cat /tmp/111
-> >>     99.30%  perf-noploop  perf               [.] noploop
-> >>             |
-> >>             ---noploop
-> >>                run_workload (inlined)
-> >>                cmd_test
-> >>                run_builtin (inlined)
-> >>                handle_internal_command
-> >>                run_argv (inlined)
-> >>                main
-> >>                __libc_start_call_main
-> >>                __libc_start_main_impl (inlined)
-> >>                _start
-> >>  #
-> >>
-> >> With the inject script step the output is:
-> >>  # ./perf inject -i perf.data --convert-callchain -o /tmp/perf-inject-1.out
-> >>  # ./perf report -i /tmp/perf-inject-1.out --stdio --no-children -q \
-> >> 		--percent-limit=1 > /tmp/222
-> >>  # cat /tmp/222
-> >>     99.40%  perf-noploop  perf               [.] noploop
-> >>             |
-> >>             ---noploop
-> >>                run_workload (inlined)
-> >>                cmd_test
-> >>                run_builtin (inlined)
-> >>                handle_internal_command
-> >>                run_argv (inlined)
-> >>                main
-> >>                _start
-> >>  # diff /tmp/111 /tmp/222
-> >>  1c1
-> >>  <     99.30%  perf-noploop  perf               [.] noploop
-> >>  ---
-> >>  >     99.40%  perf-noploop  perf               [.] noploop
-> >>  10,11d9
-> >>  <                __libc_start_call_main
-> >>  <                __libc_start_main_impl (inlined)
-> >>  #
-> >>
-> >> The difference are the symbols __libc_start_call_main and
-> >> __libc_start_main_impl.
-> >>
-> >> On x86_64, kernel and user space share a single virtual address space,
-> >> with the kernel mapped to the upper end of memory. The instruction
-> >> pointer value alone is sufficient to distinguish between user space
-> >> and kernel space addresses. This is not true for s390, which uses
-> >> separate address spaces for user and kernel. The same virtual address
-> >> can be valid in both address spaces, so the instruction pointer value
-> >> alone cannot determine whether an address belongs to the kernel or
-> >> user space. Instead, perf must rely on the cpumode metadata derived
-> >> from the processor status word (PSW) at sample time.
-> >>
-> >> In function perf_event__convert_sample_callchain() the first part
-> >> copies a kernel callchain and context entries, if any.
-> >> It then appends additional entries ignoring the address space
-> >> architecture. Taking that into account, the symbols at addresses
-> >>
-> >>    0x3ff970348cb __libc_start_call_main
-> >>    0x3ff970349c5 __libc_start_main_impl
-> >>
-> >> (located after the kernel address space on s390) are now included.
-> >>
-> >> Output before:
-> >>  # ./perf test 83
-> >>  83: perf inject to convert DWARF callchains to regular ones : FAILED!
-> >>
-> >> Output after:
-> >>  # ./perf test 83
-> >>  83: perf inject to convert DWARF callchains to regular ones : Ok
-> >>
-> >> Question to Namhyung:
-> >> In function perf_event__convert_sample_callchain() just before the
-> >> for() loop this patch modifies, the kernel callchain is copied,
-> >> see this comment and the next 5 lines:
-> >>    /* copy kernel callchain and context entries */ 
-> >> Then why is machine__kernel_ip() needed in the for() loop, when
-> >> the kernel entries have been copied just before the loop?
-> > 
-> > IIRC I wanted to make sure to have PERF_CONTEXT_* part in the raw
-> > callchains.
-> > 
-> >>
-> >> Note: This patch was tested on x86_64 virtual machine and succeeded.
-> >>
-> >> Fixes: 92ea788d2af4 ("perf inject: Add --convert-callchain option")
-> >> Cc: Namhyung Kim <namhyung@kernel.org>
-> >>
-> >> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> > 
-> > Acked-by: Namhyung Kim <namhyung@kernel.org>
-> > 
-> > Thanks,
-> > Namhyung
-> > 
-> 
-> Hi Namhyung,
-> 
-> is there something which needs to be done on my side to get this patch picked?
-> It still fails on s390.
-> 
-> Please adviseon how to proceed.
+Hello:
 
-Arnaldo will take care of 7.2 development cycle.
+This series was applied to riscv/linux.git (fixes)
+by Andrew Morton <akpm@linux-foundation.org>:
 
-Thanks,
-Namhyung
+On Fri, 27 Mar 2026 07:16:33 +0100 you wrote:
+> Most of the optimized xor_blocks versions require FPU/vector registers,
+> which generally are not supported in interrupt context.
+> 
+> Both callers already are in user context, so enforce this at the highest
+> level.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> 
+> [...]
 
-> 
-> While at looking at my backlog, what about this patch
-> [PATCH] perf test: probe_vfs_getname add do_getname() probing fallback 
-> 
-> Thanks a lot for your help
-> 
-> -- 
-> Thomas Richter, Dept 3303, IBM s390 Linux Development, Boeblingen, Germany
-> --
-> IBM Deutschland Research & Development GmbH
-> 
-> Vorsitzender des Aufsichtsrats: Wolfgang Wendt
-> 
-> Geschäftsführung: David Faller
-> 
-> Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
+Here is the summary with links:
+  - [01/28] xor: assert that xor_blocks is not call from interrupt context
+    https://git.kernel.org/riscv/c/d8593b8f9354
+  - [02/28] arm/xor: remove in_interrupt() handling
+    https://git.kernel.org/riscv/c/b7ca705758b9
+  - [03/28] arm64/xor: fix conflicting attributes for xor_block_template
+    https://git.kernel.org/riscv/c/675a0dd596e7
+  - [04/28] um/xor: cleanup xor.h
+    https://git.kernel.org/riscv/c/3ea16a98518a
+  - [05/28] xor: move to lib/raid/
+    https://git.kernel.org/riscv/c/9e229025e247
+  - [06/28] xor: small cleanups
+    https://git.kernel.org/riscv/c/7c6e6b2b48e8
+  - [07/28] xor: cleanup registration and probing
+    https://git.kernel.org/riscv/c/0471415f3fd6
+  - [08/28] xor: split xor.h
+    https://git.kernel.org/riscv/c/54e20be48fd4
+  - [09/28] xor: remove macro abuse for XOR implementation registrations
+    https://git.kernel.org/riscv/c/35ebc4de1059
+  - [10/28] xor: move generic implementations out of asm-generic/xor.h
+    https://git.kernel.org/riscv/c/c46928fdcfa0
+  - [11/28] alpha: move the XOR code to lib/raid/
+    https://git.kernel.org/riscv/c/503793b1340e
+  - [12/28] arm: move the XOR code to lib/raid/
+    https://git.kernel.org/riscv/c/0d64a24ec0c0
+  - [13/28] arm64: move the XOR code to lib/raid/
+    https://git.kernel.org/riscv/c/3786f2ad0095
+  - [14/28] loongarch: move the XOR code to lib/raid/
+    https://git.kernel.org/riscv/c/033bee3e4963
+  - [15/28] powerpc: move the XOR code to lib/raid/
+    https://git.kernel.org/riscv/c/3f276cece4dd
+  - [16/28] riscv: move the XOR code to lib/raid/
+    https://git.kernel.org/riscv/c/5265d55b2146
+  - [17/28] sparc: move the XOR code to lib/raid/
+    https://git.kernel.org/riscv/c/7f96362396ee
+  - [18/28] s390: move the XOR code to lib/raid/
+    https://git.kernel.org/riscv/c/95c104cc5571
+  - [19/28] x86: move the XOR code to lib/raid/
+    https://git.kernel.org/riscv/c/77fd47e57a09
+  - [20/28] xor: avoid indirect calls for arm64-optimized ops
+    https://git.kernel.org/riscv/c/352ebd066b62
+  - [21/28] xor: make xor.ko self-contained in lib/raid/
+    https://git.kernel.org/riscv/c/e20043b4765c
+  - [22/28] xor: add a better public API
+    (no matching commit)
+  - [23/28] xor: add a better public API
+    (no matching commit)
+  - [24/28] async_xor: use xor_gen
+    https://git.kernel.org/riscv/c/7c12c32b9f73
+  - [25/28] btrfs: use xor_gen
+    https://git.kernel.org/riscv/c/0f629e7283ad
+  - [26/28] xor: pass the entire operation to the low-level ops
+    https://git.kernel.org/riscv/c/80dcf0a7832a
+  - [27/28] xor: use static_call for xor_gen
+    https://git.kernel.org/riscv/c/a21921dd02d3
+  - [28/28] xor: add a kunit test case
+    https://git.kernel.org/riscv/c/af53e85ef797
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
