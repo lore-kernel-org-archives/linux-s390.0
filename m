@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FCE333A014;
-	Thu, 30 Apr 2026 03:25:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EEC134B404;
+	Thu, 30 Apr 2026 03:25:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777519544; cv=none; b=OzeGNLfqR2Wyw0s0vlX8nqiEgg8NHeRkdAqbBGRXhZrvZ0IQOJcE/uPbQX5lwwmlIRva10hGuTF6OP1CzGDELcN4ALXUbsU9xKqxu/7BIr3gL09lO5Sc8Z4/iCd8AcHvkd8u4cs+ESsrQkKymRag3gv89yhOWnEU/kBcsfrMl3c=
+	t=1777519547; cv=none; b=VuuMeyqCgYPPcRpQ6nNWnod1SYwYfBKvIQXakkLOb7R1EXP1wJWFryuSvu/sOkvkSB7gCw4K35l09SC8WFjO/MYQG331kKgmCB9ON6VJiPIJxeK/32qpwlsd65alYR5EgGWh2ANDMX520SSnLW12C/D6Qwqej8FF5oKAux3NwcI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777519544; c=relaxed/simple;
-	bh=wBz7OM7TlHLm2WIVihmJBmiohjoSXyxgTPPi2XUGXGY=;
+	s=arc-20240116; t=1777519547; c=relaxed/simple;
+	bh=dFN6b0A1gSAjmpxBdfCzLd7sjLkkLRUt90cBNTEzJS4=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=pv5PBTPYzaa9+eYPjyqxzPwEdlz4tO71YYGwHouilj5OJVsF1b4Ou7XoAYor1LlMcUFFgzSpBX13kLPL71kFV6zeRKyz0HD0KYgeAetSufzLVmgDFV54KAOT+n/GPA70DpQES/jQDlKZ7vSeB8fNsQlXNqXNbcDxckpwpL0NYl0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uTpJPZRC; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=s3zNbQUqbFTWu6vaPiiGlleeRQiQ+Hje4Z6wPUPYFFW/PeZrvrRL3xWjcPkBcvZIdbhBLntPLnupBxn5KrCCEaZe5yQYqX894dht+JqqtCkGfafGzuoGFWYvRMN8qZqBzdsMLCCfxWEMtC0WqnCZoPd0hYSgalpvxsLG8Cgpkdg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oK4W1kKQ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uTpJPZRC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F9AFC2BCC6;
-	Thu, 30 Apr 2026 03:25:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oK4W1kKQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDE62C2BCB9;
+	Thu, 30 Apr 2026 03:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777519544;
-	bh=wBz7OM7TlHLm2WIVihmJBmiohjoSXyxgTPPi2XUGXGY=;
+	s=k20201202; t=1777519547;
+	bh=dFN6b0A1gSAjmpxBdfCzLd7sjLkkLRUt90cBNTEzJS4=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=uTpJPZRCgWp5AfDjLmVTacGdTqRQtgMVXovLDOgY5LJHM1kRJTcTAjAjlzCgBpZvp
-	 PVuwPlNReHlcJ1FQ9PgNdCrqANSuP5dIHOg1WFVE1UPqOFQrLsNyEaAv1TIimY3yJ6
-	 dNLJ1aTEBqXG6wIIAe+hTTilZEZmiRBioNt3vpRgGA7/f1YWR+zd1uAs2cIdkGAHSF
-	 MZVBM6p+H1jvCofKth5JZ3lRO/w2r49uSYovI3hCogvHxcTwqsMRM3nY6Ct3vVu9oR
-	 CmYp2PZ4xwBzwNein821COzMLGD6YCZFeFgtsAQGoLKs2+1jduSB39tglFke+SexZz
-	 n/9KGgA7orfhA==
+	b=oK4W1kKQ5frD7xBp2Peo4k+zymjuUiJnLNz1vcnh5EFW4Atm0o1eacKZFX3kxsdMB
+	 Z/9Bybkbt3e4DSKls2D0XjOElY/uAFwJmkXI/D33yiz2mgpn1fh1pHq8wwtdcupk2H
+	 lxsRxcmcLT6uUAPcxQs3YzTqZheDJf8qP4uhFGhGgLv/DTlHLkFL3nUxAt6MFMm3Wn
+	 udAWzPlFVeqX0qf5lNmUGifS42MtZaKyGgO3cIqnJJYyJsJWf51lM0MqpG8QFB2ry2
+	 1jlaoCGMchkNV4IFNSmAKO5kJWwGEnpPKMc5ZEWOTjjRj0oKTos1CMGgTRvfcPXQMF
+	 j0NI9CkIJOSPQ==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 7D0473809A07;
-	Thu, 30 Apr 2026 03:25:00 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 3FDA63809A07;
+	Thu, 30 Apr 2026 03:25:03 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -37,110 +37,54 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH 01/28] xor: assert that xor_blocks is not call from
- interrupt
- context
+Subject: Re: [PATCH 0/2] mm: remove CONFIG_ARCH_ENABLE_MEMORY_HOTREMOVE and
+ cleanup CONFIG_MIGRATION
 From: patchwork-bot+linux-riscv@kernel.org
 Message-Id: 
- <177751949930.2274119.9590297379331785751.git-patchwork-notify@kernel.org>
-Date: Thu, 30 Apr 2026 03:24:59 +0000
-References: <20260327061704.3707577-2-hch@lst.de>
-In-Reply-To: <20260327061704.3707577-2-hch@lst.de>
-To: Christoph Hellwig <hch@lst.de>
-Cc: linux-riscv@lists.infradead.org, akpm@linux-foundation.org,
- richard.henderson@linaro.org, mattst88@gmail.com, linmag7@gmail.com,
- linux@armlinux.org.uk, catalin.marinas@arm.com, will@kernel.org,
- ardb@kernel.org, chenhuacai@kernel.org, kernel@xen0n.name,
- maddy@linux.ibm.com, mpe@ellerman.id.au, npiggin@gmail.com,
- chleroy@kernel.org, pjw@kernel.org, palmer@dabbelt.com,
+ <177751950193.2274119.6306882784421764696.git-patchwork-notify@kernel.org>
+Date: Thu, 30 Apr 2026 03:25:01 +0000
+References: <20260319-config_migration-v1-0-42270124966f@kernel.org>
+In-Reply-To: <20260319-config_migration-v1-0-42270124966f@kernel.org>
+To: David Hildenbrand (Arm) <david@kernel.org>
+Cc: linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
+ catalin.marinas@arm.com, will@kernel.org, chenhuacai@kernel.org,
+ kernel@xen0n.name, maddy@linux.ibm.com, mpe@ellerman.id.au,
+ npiggin@gmail.com, chleroy@kernel.org, pjw@kernel.org, palmer@dabbelt.com,
  aou@eecs.berkeley.edu, alex@ghiti.fr, hca@linux.ibm.com, gor@linux.ibm.com,
  agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
- davem@davemloft.net, andreas@gaisler.com, richard@nod.at,
- anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net, tglx@kernel.org,
- mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
- hpa@zytor.com, herbert@gondor.apana.org.au, dan.j.williams@intel.com,
- clm@fb.com, dsterba@suse.com, arnd@arndb.de, song@kernel.org,
- yukuai@fnnas.com, linan122@huawei.com, tytso@mit.edu, Jason@zx2c4.com,
- linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+ tglx@kernel.org, mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+ x86@kernel.org, hpa@zytor.com, akpm@linux-foundation.org, ljs@kernel.org,
+ Liam.Howlett@oracle.com, vbabka@kernel.org, rppt@kernel.org,
+ surenb@google.com, mhocko@suse.com, ziy@nvidia.com, matthew.brost@intel.com,
+ joshua.hahnjy@gmail.com, rakie.kim@sk.com, byungchul@sk.com,
+ gourry@gourry.net, ying.huang@linux.alibaba.com, apopple@nvidia.com,
+ bigeasy@linutronix.de, clrkwllms@kernel.org, rostedt@goodmis.org,
  linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
  linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
- sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
- linux-crypto@vger.kernel.org, linux-btrfs@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-raid@vger.kernel.org
+ linux-mm@kvack.org, linux-rt-devel@lists.linux.dev
 
 Hello:
 
 This series was applied to riscv/linux.git (fixes)
 by Andrew Morton <akpm@linux-foundation.org>:
 
-On Fri, 27 Mar 2026 07:16:33 +0100 you wrote:
-> Most of the optimized xor_blocks versions require FPU/vector registers,
-> which generally are not supported in interrupt context.
+On Thu, 19 Mar 2026 09:19:39 +0100 you wrote:
+> While working on memory hotplug code cleanups, I realized that
+> CONFIG_ARCH_ENABLE_MEMORY_HOTREMOVE is not really required anymore.
 > 
-> Both callers already are in user context, so enforce this at the highest
-> level.
+> Changing that revealed some rather nasty looking CONFIG_MIGRATION
+> handling.
 > 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Let's clean that up by introducing a dedicated CONFIG_NUMA_MIGRATION
+> option and reducing the dependencies that CONFIG_MIGRATION has.
 > 
 > [...]
 
 Here is the summary with links:
-  - [01/28] xor: assert that xor_blocks is not call from interrupt context
-    https://git.kernel.org/riscv/c/d8593b8f9354
-  - [02/28] arm/xor: remove in_interrupt() handling
-    https://git.kernel.org/riscv/c/b7ca705758b9
-  - [03/28] arm64/xor: fix conflicting attributes for xor_block_template
-    https://git.kernel.org/riscv/c/675a0dd596e7
-  - [04/28] um/xor: cleanup xor.h
-    https://git.kernel.org/riscv/c/3ea16a98518a
-  - [05/28] xor: move to lib/raid/
-    https://git.kernel.org/riscv/c/9e229025e247
-  - [06/28] xor: small cleanups
-    https://git.kernel.org/riscv/c/7c6e6b2b48e8
-  - [07/28] xor: cleanup registration and probing
-    https://git.kernel.org/riscv/c/0471415f3fd6
-  - [08/28] xor: split xor.h
-    https://git.kernel.org/riscv/c/54e20be48fd4
-  - [09/28] xor: remove macro abuse for XOR implementation registrations
-    https://git.kernel.org/riscv/c/35ebc4de1059
-  - [10/28] xor: move generic implementations out of asm-generic/xor.h
-    https://git.kernel.org/riscv/c/c46928fdcfa0
-  - [11/28] alpha: move the XOR code to lib/raid/
-    https://git.kernel.org/riscv/c/503793b1340e
-  - [12/28] arm: move the XOR code to lib/raid/
-    https://git.kernel.org/riscv/c/0d64a24ec0c0
-  - [13/28] arm64: move the XOR code to lib/raid/
-    https://git.kernel.org/riscv/c/3786f2ad0095
-  - [14/28] loongarch: move the XOR code to lib/raid/
-    https://git.kernel.org/riscv/c/033bee3e4963
-  - [15/28] powerpc: move the XOR code to lib/raid/
-    https://git.kernel.org/riscv/c/3f276cece4dd
-  - [16/28] riscv: move the XOR code to lib/raid/
-    https://git.kernel.org/riscv/c/5265d55b2146
-  - [17/28] sparc: move the XOR code to lib/raid/
-    https://git.kernel.org/riscv/c/7f96362396ee
-  - [18/28] s390: move the XOR code to lib/raid/
-    https://git.kernel.org/riscv/c/95c104cc5571
-  - [19/28] x86: move the XOR code to lib/raid/
-    https://git.kernel.org/riscv/c/77fd47e57a09
-  - [20/28] xor: avoid indirect calls for arm64-optimized ops
-    https://git.kernel.org/riscv/c/352ebd066b62
-  - [21/28] xor: make xor.ko self-contained in lib/raid/
-    https://git.kernel.org/riscv/c/e20043b4765c
-  - [22/28] xor: add a better public API
-    (no matching commit)
-  - [23/28] xor: add a better public API
-    (no matching commit)
-  - [24/28] async_xor: use xor_gen
-    https://git.kernel.org/riscv/c/7c12c32b9f73
-  - [25/28] btrfs: use xor_gen
-    https://git.kernel.org/riscv/c/0f629e7283ad
-  - [26/28] xor: pass the entire operation to the low-level ops
-    https://git.kernel.org/riscv/c/80dcf0a7832a
-  - [27/28] xor: use static_call for xor_gen
-    https://git.kernel.org/riscv/c/a21921dd02d3
-  - [28/28] xor: add a kunit test case
-    https://git.kernel.org/riscv/c/af53e85ef797
+  - [1/2] mm: remove CONFIG_ARCH_ENABLE_MEMORY_HOTREMOVE
+    https://git.kernel.org/riscv/c/078f80f909ba
+  - [2/2] mm: introduce CONFIG_NUMA_MIGRATION and simplify CONFIG_MIGRATION
+    https://git.kernel.org/riscv/c/6ebf98d71f9b
 
 You are awesome, thank you!
 -- 
