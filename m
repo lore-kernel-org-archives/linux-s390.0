@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F02F1632DD;
-	Thu, 30 Apr 2026 16:05:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33CAF428466;
+	Thu, 30 Apr 2026 16:10:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777565111; cv=none; b=kOxdh4UUgpOOkWMW7H/p9q2NHi4IIgsVA9cBJM9toYTUKalVULxHLCE9tKaj9D3cMiUdjyu1GmrRRZGXWLUIN2RowiuHNpxv3pVqWbWdUYVmMKNyGpJy/8iTQmwEN2wo/3FnOA+rZq2PmhsFjKzpzVdRItuxW1Fbzx9Bh0lzbqc=
+	t=1777565425; cv=none; b=XwWWIRbNBPythtqPMzuDGoClqZjFrIWiuAd91lGsOAXJv5uM/cEfIOtBh5okjmyNC/2Xgs6+wsQdXRjr6trj4ZiTP1opc2V9P+Ugaxf5u4sPlG8lxJ0VD6nhsXARPzCpWQOnPms2LjJJK98b4BsrJzw3fhosY+iykE6FVusWfzc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777565111; c=relaxed/simple;
-	bh=8K7tuciLFA2olFZ21d9KKbfQk/y+E65/Gkp3fBg7ThE=;
+	s=arc-20240116; t=1777565425; c=relaxed/simple;
+	bh=QdgE57g6+6+hFttnEXOHpTlvJqhdbsn/S9w+uyH+S1c=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cWvJZPQFm85JmA/53N7hs2dAEL4qsugvhO8UY3ei8Rkcv4SwX0jzrMZvlK3+Vr6OcZKTGqIAW/YUbkIHvAHU8MOLVzkH8DGmWeJop1cXvyKgq8GO0yv9zcesPZ5H7IdjfOVozcCEY6DKKvL+y0e3NVUGwDvsUN8bQzJvAxste9k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Bplpg/Pe; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=lZu8ZfNgrwaXAEvY1WSg7cOKuhdUUFvbLWozXsZX+tRm71a1FbTJyvuygZzkMhwbteck/secoahk2Yhh7sRPVNOfbpn6HX7LAA/etKJeduRZFSThN2GpSk6gZM/bARuPxSiiZ7nqlaxPZCkxj12cSw44jE3DUHtcqtVJSFCBtaE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EvhFPh3F; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Bplpg/Pe"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C5BAC2BCB3;
-	Thu, 30 Apr 2026 16:05:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EvhFPh3F"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C404EC2BCB3;
+	Thu, 30 Apr 2026 16:10:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777565111;
-	bh=8K7tuciLFA2olFZ21d9KKbfQk/y+E65/Gkp3fBg7ThE=;
+	s=k20201202; t=1777565424;
+	bh=QdgE57g6+6+hFttnEXOHpTlvJqhdbsn/S9w+uyH+S1c=;
 	h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
-	b=Bplpg/PeBCDm/DkvNj9FWBlGBOA8EfcKxBL/4iWLf/qhNtJkoCcD7vO27Vop9FRV9
-	 u7006gzoJ+1D7Nqka/K83oTMmdlXjMukv0mJkHoggYtsYjVy8Ti0Anhx374lz+JuOS
-	 YBzelB3oq3PtXybsroqDZ3XkK9ftvn5ml/5EUEMoaRG8k+yj+BffrIcxkPRWvFP8H4
-	 rj4Fqv6aklpcoAiV3Ge1SqvnxwphUNIrW8W1lshBiLp7lIOXENEbocJv/Jq3aW9jBh
-	 jvlxxOF2ZaF7+ZEZ3e1SBHRIR7UyC2HLERlI1IBP28+OLKgAiMyLI1ra0WS0mXmn48
-	 x7JjD5cTnRE3Q==
+	b=EvhFPh3FrK8EeatVv76smg/5O4TuFjDOXzhiFjwRatqOcrVlcbjtUl8YvOiCKSRSW
+	 AoC8e6w3gy/q50xcCcA9IR3isgLkGyxP0M1MguF8v4sdIizwy6IrODCF6S1m8N8whm
+	 zK9fA0I+yzNDnByOVU0hBzjXATXsrhO2A4eUc19G8WbYKjkdEyG0sP8CjT5fdl3iRc
+	 wP1WlApWxw1h3uRyt/VQMWLrUrkI/3HouLHmvsbHOV+WOeseUPIiboSa0dR6eOgID7
+	 pIFKcaWHcZnCY7swjcUxbgWhoDtzbWxT1Hci//3wc5LhnaVFPB/+E9zy3ur+WH/jeB
+	 wtVrkvtOBs3Vw==
 Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
-	id 611D6CE0712; Thu, 30 Apr 2026 09:05:10 -0700 (PDT)
-Date: Thu, 30 Apr 2026 09:05:10 -0700
+	id 3E3D9CE0712; Thu, 30 Apr 2026 09:10:24 -0700 (PDT)
+Date: Thu, 30 Apr 2026 09:10:24 -0700
 From: "Paul E. McKenney" <paulmck@kernel.org>
 To: Shrikanth Hegde <sshegde@linux.ibm.com>
 Cc: Tejun Heo <tj@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>,
@@ -42,7 +42,7 @@ Cc: Tejun Heo <tj@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>,
 	Lai Jiangshan <jiangshanlai@gmail.com>, samir@linux.ibm.com
 Subject: Re: BUG: workqueue lockup - SRCU schedules work on not-online CPUs
  during size transition
-Message-ID: <4fa26f2e-e01b-4525-a23e-df393fdb72a5@paulmck-laptop>
+Message-ID: <c62502b6-642d-487d-a8a2-4ed7f9c7d858@paulmck-laptop>
 Reply-To: paulmck@kernel.org
 References: <adfkdRCxmhpRverB@tardis.local>
  <adfmHZfABu64Kv4D@slm.duckdns.org>
@@ -68,52 +68,11 @@ On Thu, Apr 30, 2026 at 12:38:16PM +0530, Shrikanth Hegde wrote:
 > Hi Paul.
 > 
 > On 4/29/26 11:31 PM, Paul E. McKenney wrote:
-> 
-> > > That mask = ~0 is really looks uncomfortable to me. What does it mean?
-> > > It might end up even sending to non possible CPUs without proper checks.
-> > > 
-> > > It should use either cpumask_setall? or use cpu_online_mask?
-> > > 
-> > > Your current patch rcu_cpu_beenfullyonline indicates that code around
-> > > srcu_schedule_cbs_sdp handles hotplug already right?
-> > > in that case, just setting mask = cpu_online_mask would work?
-> > 
-> > Agreed.  Which is why I have this commit queued:
-> > 
-> > f8d5aaaf90f8 ("srcu: Don't queue workqueue handlers to never-online CPUs")
-> > 
-> > This is currently slated for the upcoming merge window, but if you
-> > need it sooner, please let us know.  Please see the end of this email
-> > for the full commit.
-> > 
-> > 
-> > 							Thanx, Paul
-> > 
-> > > > /**
-> > > >    * queue_work_on - queue work on specific cpu
-> > > >    * @cpu: CPU number to execute work on
-> > > >    * @wq: workqueue to use
-> > > >    * @work: work to queue
-> > > >    *
-> > > >    * We queue the work to a specific CPU, the caller must ensure it
-> > > >    * can't go away.  Callers that fail to ensure that the specified
-> > > >    * CPU cannot go away will execute on a randomly chosen CPU.
-> > > >    * But note well that callers specifying a CPU that never has been
-> > > >    * online will get a splat.
-> > > >    *
-> > > >    * Return: %false if @work was already on a queue, %true otherwise.
-> > > >    */
-> > > 
-> > > 
-> > > In that case, making offline CPUs have a unbound workqueue is wrong. no?
-> > > 
-> > > It might encourage more users to abuse queue_work_on interface to
-> > > send to offline CPUs without any checks and onus now falls onto
-> > > workqueue to disaptch to unbound wqs.
-> > > 
-> > > So I think it is better to put the guardrails in SRCU instead of any change in
-> > > workqueue.
-> > 
+
+[ . . . ]
+
+Sorry, missed one...
+
 > > ------------------------------------------------------------------------
 > > 
 > > commit f8d5aaaf90f8294890802ce8dccbafd9850ac5f9
@@ -127,7 +86,17 @@ On Thu, Apr 30, 2026 at 12:38:16PM +0530, Shrikanth Hegde wrote:
 > >      for CPUs that never will be online due to not being present in the
 > 
 > for CPUs that never will be online due to being present in the cpu_possible_mask?
-> 
+
+Exactly.
+
+Just because a CPU is in cpu_possible_mask doesn't mean that it will
+ever actually come online.  For example, for single-threaded performance
+reasons, a given system might choose to bring online only one CPU from
+each hypertheaded core.  In that case, the other CPU in each hyperthreaded
+core could be in the cpu_possible_mask, but would never come online.
+
+							Thanx, Paul
+
 > >      cpu_possible_mask.  This can cause hangs on s390, which is not set up to
 > >      deal with workqueue handlers being scheduled on such CPUs.  This commit
 > >      therefore causes Tree SRCU to refrain from queueing workqueue handlers
@@ -143,47 +112,3 @@ On Thu, Apr 30, 2026 at 12:38:16PM +0530, Shrikanth Hegde wrote:
 > >      Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 > >      Tested-by: Vasily Gorbik <gor@linux.ibm.com>
 > >      Cc: Tejun Heo <tj@kernel.org>
-> > 
-> > diff --git a/kernel/rcu/srcutree.c b/kernel/rcu/srcutree.c
-> > index 0d01cd8c4b4a7b..7c2f7cc131f7ae 100644
-> > --- a/kernel/rcu/srcutree.c
-> > +++ b/kernel/rcu/srcutree.c
-> > @@ -897,11 +897,9 @@ static void srcu_schedule_cbs_snp(struct srcu_struct *ssp, struct srcu_node *snp
-> >   {
-> >   	int cpu;
-> > -	for (cpu = snp->grplo; cpu <= snp->grphi; cpu++) {
-> > -		if (!(mask & (1UL << (cpu - snp->grplo))))
-> > -			continue;
-> > -		srcu_schedule_cbs_sdp(per_cpu_ptr(ssp->sda, cpu), delay);
-> > -	}
-> > +	for (cpu = snp->grplo; cpu <= snp->grphi; cpu++)
-> > +		if ((mask & (1UL << (cpu - snp->grplo))) && rcu_cpu_beenfullyonline(cpu))
-> > +			srcu_schedule_cbs_sdp(per_cpu_ptr(ssp->sda, cpu), delay);
-> >   }
-> >   /*
-> > @@ -1322,7 +1320,9 @@ static unsigned long srcu_gp_start_if_needed(struct srcu_struct *ssp,
-> >   	 */
-> >   	idx = __srcu_read_lock_nmisafe(ssp);
-> >   	ss_state = smp_load_acquire(&ssp->srcu_sup->srcu_size_state);
-> > -	if (ss_state < SRCU_SIZE_WAIT_CALL)
-> > +	// If !rcu_cpu_beenfullyonline(), interrupts are still disabled,
-> > +	// so no migration is possible in either direction from this CPU.
-> > +	if (ss_state < SRCU_SIZE_WAIT_CALL || !rcu_cpu_beenfullyonline(raw_smp_processor_id()))
-> 
-> How can this happen? To get a CPU offline in raw_smp_processor_id() you need to run on the offline
-> CPU.
-
-CPUs run for a surprisingly long time before they get around to marking
-themselves online.  If a CPU invokes call_srcu() during this time,
-this code really will be running on a CPU that is marked as offline.
-
-Now, my initial thought was to instead splat if this happened, but it
-turned out to require more code to reliably splat than to just handle
-the situation correctly.  So here we are!  ;-)
-
-							Thanx, Paul
-
-> >   		sdp = per_cpu_ptr(ssp->sda, get_boot_cpu_id());
-> >   	else
-> >   		sdp = raw_cpu_ptr(ssp->sda);
-> 
