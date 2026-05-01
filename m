@@ -1,54 +1,54 @@
 Received: from mail-dl1-f73.google.com (mail-dl1-f73.google.com [74.125.82.73])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA37240F8E3
-	for <linux-s390@vger.kernel.org>; Fri,  1 May 2026 18:20:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C880241B35F
+	for <linux-s390@vger.kernel.org>; Fri,  1 May 2026 18:20:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777659635; cv=none; b=XtnVmpczc3d26SnoF1/dB4SoFJ5utThfTVqlt/8LnDT9YrV9aiTKBxM4dZ3z2Gp3jaBRwko1yx2yqv77emqOj50V8vqytnFpR2Cjy8Up7kf4oZw7WuliooNjy6ogsZ/wEvIlvb8+AOGUfjIqBlL+91/uZwLy/HUSXSQqlSFVKMM=
+	t=1777659638; cv=none; b=U1XeKaOVLYgl1MtpNpuUEYefd7Fzwf1NtVBfhH/G8q6E0tihEopkdAMV9VChoycBTodaJzfm9jSsV8CrpC+rFnZ738tEwiUi8FZnif8gKNMWOO4SJqbsBpDGlBchU2/6HeVAZorlY0bOPLdnmRoI0Z8U/w+LfhRaGlCmPFOBl7c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777659635; c=relaxed/simple;
-	bh=jSVLm/hnBbimnPznGWy7hEl7PRSNrGRNHmI3giDWJ48=;
+	s=arc-20240116; t=1777659638; c=relaxed/simple;
+	bh=vrfKaNU5Om2wRMB9M7Cg5YDJsuWUaYbkwPyDT98em2Q=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=i616f4m19WNswtGsFTJEATcgWlnh8pRkdOdH3lBzI0aB860xTuPYYHETNhbzjgp3Yv7K3OMROlRW1KAkGBBLd8U8vvczUiJx72/R88R6sikCRYgoGXsTSulhPuffUxLd+sYQoq+H6D5bLuCRdHu2HPIIx99aZUVNORGyk8qWM5s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=pYjhck1Q; arc=none smtp.client-ip=74.125.82.73
+	 To:Cc:Content-Type; b=qAFKxkcYA8ZG9geTqWnBXcuenZxGa4qRMqhrSuidqxFDNfofNhp/+ZDdXKS6th2hpJPujl4HSIrZImEMtOa0kRUKx1vGXY1ZMDuNvGPTMlUlP3GxiWC2enooxFECkNb7n5rM3/mh4JTnCxnOFNRjO0AOysqODN8HfcrnUfgPYR0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=pTj651C5; arc=none smtp.client-ip=74.125.82.73
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="pYjhck1Q"
-Received: by mail-dl1-f73.google.com with SMTP id a92af1059eb24-12c726f4055so3646982c88.1
-        for <linux-s390@vger.kernel.org>; Fri, 01 May 2026 11:20:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="pTj651C5"
+Received: by mail-dl1-f73.google.com with SMTP id a92af1059eb24-12db37213daso6358184c88.1
+        for <linux-s390@vger.kernel.org>; Fri, 01 May 2026 11:20:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1777659633; x=1778264433; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1777659635; x=1778264435; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=tsujg9g6KcaFNFnJNN1/Y10jrPhP9zpCu+VlfQAKK4Y=;
-        b=pYjhck1QovBlAPHXlzfzMGrtum7XOj3HBOQsjF5+/3e/yXbnRoUf8M0Xxfv6i6xJr2
-         tWX6Msux1/Kka40v0hO3KRou2V2LcGqPfvZAAxN7TjHytQoXcZ05mDowM1vPlBbXeSmm
-         j8zXmAkKgubsL8l4XSd/B4OqIlxKWlNhM4eQjyawhgkZRD7TxfNjOmqNgtrTU3aKeeJ3
-         d7INZQ49lWw7nigp7M33mAiP8vRVCL5hDHu0wG4DjOmq3311EM3yQZUs2TQkYTF9T3y8
-         08eRVJHNyPDNuYE4AcQ68/HStdYDO/neA8ZQ3tzEU3tPf1F7ps1tA6qAR2IxY1db3EdL
-         aasg==
+        bh=K/zT8c2FyqRA8sOkSAMze+wDB7+iMrhpp2q1e8UyItE=;
+        b=pTj651C5cG6nPtpbs3/sWHB3wB3rVY8ItT5QSYDGgMNd+L7GNYu+XMej82AwA72bgw
+         7sE7+/xeTXawvU8texND6O7s04V6clDgzeJyBvWpCVNaQRa//MPUSXmzqV7puDYyIz1f
+         uolv22vMSleYGsAyknjY5pUHbqG+preBFTOe5Iyy/FmaSgCj5nuRltkXcXwMNyTswQWd
+         /ShNMJ7RRn++L6SDWF3BwatT3I42/9HRP+ZOcQvcnXHb9XzUZ4u+2lMosu5Nj1QidcgJ
+         TX0uIy5WJT+lxJrKdg1oHjuLnfexNlqn2fcbATBdYEIGhwYP29kFrIC4+8a4utYxFNtF
+         Latw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777659633; x=1778264433;
+        d=1e100.net; s=20251104; t=1777659635; x=1778264435;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=tsujg9g6KcaFNFnJNN1/Y10jrPhP9zpCu+VlfQAKK4Y=;
-        b=FzPCSZLD9RH0Y0SN5hsx/EsA7u2imHpy2W3oeNAkgDj2a9RtxyS+ZlsSsCRFN+0Hho
-         9vq+GjujdP6j/NtiIcr/Ovf4GCspacrfKBIGamr5tscDWo0k2NPvTwLnOZwqy4rvmCt2
-         2+rbvZ5ZZFejvE8AXv5a+rDp7GfxCiqUHkJFVeo4MW6HD2dc1NDF92dlhr942zYCMoMN
-         yxKfZDW+Qoo2LOP1WEPIeBCKH9MryXZuovsh6HI7HWFPhUTTCXZWscEeH9VA8bfbVyM4
-         9VG9eoVcDyivMhjo1cvpioJKDpssU7He37sTHXI+oIXQfOdFswypAkSgacWKjYRmBfTx
-         ocxg==
-X-Forwarded-Encrypted: i=1; AFNElJ9zFWxtn3RX/CvFKGFkQOevmVJw42DcIpZh67qA0sJ0wwSTRAktmHPxRQgyW0pKGzu3g2aHvcdefC+I@vger.kernel.org
-X-Gm-Message-State: AOJu0YyQr6uUo4KhyYO2GYxsHm2LJ5CM3J9oPHvSmRi5jLUiX7Qj5ufQ
-	CwYSRH/cfBNs9Y1Sf/3Br8IYa+88cLsrXk9PquXxWP4VRDuB/BfZXIU0HHMJ0XLiEKX0RM8d2aa
-	lc25Vbjm24w==
+        bh=K/zT8c2FyqRA8sOkSAMze+wDB7+iMrhpp2q1e8UyItE=;
+        b=fsdxyRlbEvx9cl9S5kpEIHE51KciUijCyERYUFHBfon8c9FnpjB3iIZsINHF2ag9w7
+         8IdGfAoKt7EtVN53ZTU5VuXeRDAW/gC6TpaaCOi/QtTjb1bzG5dC5S7oEupHYRvc9sSo
+         bblQAO3MiKg7urEX72/C2NHDEEAYxNjHcuOwzM5w287gjQZeKMF1ScHfFf+ZIN0xHFNz
+         0l/J+NIJE/bi4CtyMAyghl8CpctHKtymTFrgN2KhkRdUwSqWI9YFX2OlCTIun0M8KIBy
+         YzO+wGNAdPa+y+7DB79luU1bBjvTvSxKVjlbFZ8QexpC4HcJZHqXu6vBkokVo+T4R4Mn
+         Lzig==
+X-Forwarded-Encrypted: i=1; AFNElJ/aodpIQuUTen2G7kTlCY/icO7RbQvAy83wpyTAC3eC08NACXwhjqOn9sEmxvsPBCwPZnWgt7XlAZD/@vger.kernel.org
+X-Gm-Message-State: AOJu0YyRRByf1nNB/aaszv/29QzX004YwHKp331XS0EpFk2NtIAbQiER
+	tU41WVJNQCOXFOYjSnQuW4kn3yXwbHalfJpSQDkBxfG0LKJCbozD5BKufkDWwUuSxfO3zQGvMdJ
+	pHgu/QCcVyg==
 X-Received: from dleb6-n1.prod.google.com ([2002:a05:701b:4246:10b0:12a:9ef0:93ed])
- (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7022:427:b0:12b:ec15:69d2
- with SMTP id a92af1059eb24-12dfd8622dcmr180034c88.33.1777659632579; Fri, 01
- May 2026 11:20:32 -0700 (PDT)
-Date: Fri,  1 May 2026 11:20:20 -0700
+ (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7022:20d:b0:12d:c039:6599
+ with SMTP id a92af1059eb24-12dfd82f217mr180533c88.22.1777659634578; Fri, 01
+ May 2026 11:20:34 -0700 (PDT)
+Date: Fri,  1 May 2026 11:20:21 -0700
 In-Reply-To: <20260501182021.3651851-1-irogers@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -58,9 +58,9 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20260409230620.4176210-2-irogers@google.com> <20260501182021.3651851-1-irogers@google.com>
 X-Mailer: git-send-email 2.54.0.545.g6539524ca2-goog
-Message-ID: <20260501182021.3651851-4-irogers@google.com>
-Subject: [PATCH v7 3/4] perf symbol: Add setters for bitfields sharing a byte
- to avoid concurrent update issues
+Message-ID: <20260501182021.3651851-5-irogers@google.com>
+Subject: [PATCH v7 4/4] perf symbol: Lazily compute idle and use a global lock
+ for updates
 From: Ian Rogers <irogers@google.com>
 To: irogers@google.com, acme@kernel.org, namhyung@kernel.org, 
 	tmricht@linux.ibm.com
@@ -70,141 +70,278 @@ Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com,
 	sumanthk@linux.ibm.com
 Content-Type: text/plain; charset="UTF-8"
 
-A problem with putting bitfields into struct symbol is that other bits in
-the symbol could be updated concurrently and only one update to the
-underlying storage unit happen, leading to lost updates.
+Move the idle boolean to a helper symbol__is_idle function. In the
+function lazily compute whether a symbol is an idle function taking
+into consideration the kernel version and architecture of the
+machine. As symbols__insert no longer needs to know if a symbol is for
+the kernel, remove the argument.
 
-To avoid this, introduce a global lock `symbol_bits_lock` in `symbol.c`
-and helper functions to update the bits sharing a byte:
-`symbol__set_ignore` and `symbol__set_annotate2`.
+This change is inspired by mailing list discussion, particularly from
+Thomas Richter <tmricht@linux.ibm.com> and Heiko Carstens
+<hca@linux.ibm.com>:
+https://lore.kernel.org/lkml/20260219113850.354271-1-tmricht@linux.ibm.com/
 
-`inlined` is not given a setter as it is only initialized in
-`new_inline_sym` when the symbol is under construction and not shared.
+The change switches x86 matches to use strstarts which means
+intel_idle_irq is matched as part of strstarts(name, "intel_idle"), a
+change suggested by Honglei Wang <jameshongleiwang@126.com> in:
+https://lore.kernel.org/lkml/20260323085255.98173-1-jameshongleiwang@126.com/
+
+To avoid concurrent update issues with other bitfields in `struct symbol`,
+this change uses the global lock `symbol_bits_lock` (introduced in a
+previous commit) for updates to the `idle` field. A static helper
+`symbol__set_idle` taking a boolean is used to encapsulate the lock and
+mapping to `enum symbol_idle_kind`.
 
 Assisted-by: Gemini:gemini-3.1-pro-preview
 Signed-off-by: Ian Rogers <irogers@google.com>
 ---
- tools/perf/builtin-kwork.c |  2 +-
- tools/perf/builtin-sched.c |  2 +-
- tools/perf/util/annotate.c |  2 +-
- tools/perf/util/symbol.c   | 22 ++++++++++++++++++++++
- tools/perf/util/symbol.h   |  3 +++
- 5 files changed, 28 insertions(+), 3 deletions(-)
+ tools/perf/util/symbol-elf.c |   2 +-
+ tools/perf/util/symbol.c     | 108 +++++++++++++++++++++++------------
+ tools/perf/util/symbol.h     |  14 +++--
+ 3 files changed, 81 insertions(+), 43 deletions(-)
 
-diff --git a/tools/perf/builtin-kwork.c b/tools/perf/builtin-kwork.c
-index 9d3a4c779a41..7337ee956dc9 100644
---- a/tools/perf/builtin-kwork.c
-+++ b/tools/perf/builtin-kwork.c
-@@ -725,7 +725,7 @@ static void timehist_save_callchain(struct perf_kwork *kwork,
- 		if (sym) {
- 			if (!strcmp(sym->name, "__softirqentry_text_start") ||
- 			    !strcmp(sym->name, "__do_softirq"))
--				sym->ignore = 1;
-+				symbol__set_ignore(sym, true);
- 		}
+diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
+index 7afa8a117139..e8f7fe3f19fc 100644
+--- a/tools/perf/util/symbol-elf.c
++++ b/tools/perf/util/symbol-elf.c
+@@ -1727,7 +1727,7 @@ dso__load_sym_internal(struct dso *dso, struct map *map, struct symsrc *syms_ss,
  
- 		callchain_cursor_advance(cursor);
-diff --git a/tools/perf/builtin-sched.c b/tools/perf/builtin-sched.c
-index 555247568e7a..655e95f660c2 100644
---- a/tools/perf/builtin-sched.c
-+++ b/tools/perf/builtin-sched.c
-@@ -2371,7 +2371,7 @@ static void save_task_callchain(struct perf_sched *sched,
- 			if (!strcmp(sym->name, "schedule") ||
- 			    !strcmp(sym->name, "__schedule") ||
- 			    !strcmp(sym->name, "preempt_schedule"))
--				sym->ignore = 1;
-+				symbol__set_ignore(sym, true);
- 		}
+ 		arch__sym_update(f, &sym);
  
- 		callchain_cursor_advance(cursor);
-diff --git a/tools/perf/util/annotate.c b/tools/perf/util/annotate.c
-index e745f3034a0e..d550a0061159 100644
---- a/tools/perf/util/annotate.c
-+++ b/tools/perf/util/annotate.c
-@@ -2224,7 +2224,7 @@ int symbol__annotate2(struct map_symbol *ms, struct evsel *evsel,
- 
- 	annotation__init_column_widths(notes, sym);
- 	annotation__update_column_widths(notes);
--	sym->annotate2 = 1;
-+	symbol__set_annotate2(sym, true);
- 
- 	return 0;
- }
+-		__symbols__insert(dso__symbols(curr_dso), f, dso__kernel(dso));
++		__symbols__insert(dso__symbols(curr_dso), f);
+ 		nr++;
+ 	}
+ 	dso__put(curr_dso);
 diff --git a/tools/perf/util/symbol.c b/tools/perf/util/symbol.c
-index fd332db56157..e6a1f23634ec 100644
+index e6a1f23634ec..8ec4b2836b44 100644
 --- a/tools/perf/util/symbol.c
 +++ b/tools/perf/util/symbol.c
-@@ -31,6 +31,7 @@
- #include "map.h"
- #include "symbol.h"
- #include "map_symbol.h"
-+#include "mutex.h"
- #include "mem-events.h"
- #include "mem-info.h"
- #include "symsrc.h"
-@@ -52,6 +53,8 @@ static int dso__load_kernel_sym(struct dso *dso, struct map *map);
+@@ -51,7 +51,6 @@
+ 
+ static int dso__load_kernel_sym(struct dso *dso, struct map *map);
  static int dso__load_guest_kernel_sym(struct dso *dso, struct map *map);
- static bool symbol__is_idle(const char *name);
+-static bool symbol__is_idle(const char *name);
  
-+static struct mutex symbol_bits_lock;
-+
- int vmlinux_path__nr_entries;
- char **vmlinux_path;
+ static struct mutex symbol_bits_lock;
  
-@@ -345,6 +348,20 @@ void symbol__delete(struct symbol *sym)
- 	free(((void *)sym) - symbol_conf.priv_size);
+@@ -362,6 +361,13 @@ void symbol__set_annotate2(struct symbol *sym, bool annotate2)
+ 	mutex_unlock(&symbol_bits_lock);
  }
  
-+void symbol__set_ignore(struct symbol *sym, bool ignore)
++static void symbol__set_idle(struct symbol *sym, bool idle)
 +{
 +	mutex_lock(&symbol_bits_lock);
-+	sym->ignore = ignore;
-+	mutex_unlock(&symbol_bits_lock);
-+}
-+
-+void symbol__set_annotate2(struct symbol *sym, bool annotate2)
-+{
-+	mutex_lock(&symbol_bits_lock);
-+	sym->annotate2 = annotate2;
++	sym->idle = idle ? SYMBOL_IDLE__IDLE : SYMBOL_IDLE__NOT_IDLE;
 +	mutex_unlock(&symbol_bits_lock);
 +}
 +
  void symbols__delete(struct rb_root_cached *symbols)
  {
  	struct symbol *pos;
-@@ -2398,6 +2415,8 @@ int symbol__init(struct perf_env *env)
- 	if (symbol_conf.initialized)
- 		return 0;
+@@ -375,8 +381,7 @@ void symbols__delete(struct rb_root_cached *symbols)
+ 	}
+ }
  
-+	mutex_init(&symbol_bits_lock);
-+
- 	symbol_conf.priv_size = PERF_ALIGN(symbol_conf.priv_size, sizeof(u64));
- 
- 	symbol__elf_init();
-@@ -2476,6 +2495,9 @@ void symbol__exit(void)
+-void __symbols__insert(struct rb_root_cached *symbols,
+-		       struct symbol *sym, bool kernel)
++void __symbols__insert(struct rb_root_cached *symbols, struct symbol *sym)
  {
- 	if (!symbol_conf.initialized)
- 		return;
+ 	struct rb_node **p = &symbols->rb_root.rb_node;
+ 	struct rb_node *parent = NULL;
+@@ -384,17 +389,6 @@ void __symbols__insert(struct rb_root_cached *symbols,
+ 	struct symbol *s;
+ 	bool leftmost = true;
+ 
+-	if (kernel) {
+-		const char *name = sym->name;
+-		/*
+-		 * ppc64 uses function descriptors and appends a '.' to the
+-		 * start of every instruction address. Remove it.
+-		 */
+-		if (name[0] == '.')
+-			name++;
+-		sym->idle = symbol__is_idle(name);
+-	}
+-
+ 	while (*p != NULL) {
+ 		parent = *p;
+ 		s = rb_entry(parent, struct symbol, rb_node);
+@@ -411,7 +405,7 @@ void __symbols__insert(struct rb_root_cached *symbols,
+ 
+ void symbols__insert(struct rb_root_cached *symbols, struct symbol *sym)
+ {
+-	__symbols__insert(symbols, sym, false);
++	__symbols__insert(symbols, sym);
+ }
+ 
+ static struct symbol *symbols__find(struct rb_root_cached *symbols, u64 ip)
+@@ -572,7 +566,7 @@ void dso__reset_find_symbol_cache(struct dso *dso)
+ 
+ void dso__insert_symbol(struct dso *dso, struct symbol *sym)
+ {
+-	__symbols__insert(dso__symbols(dso), sym, dso__kernel(dso));
++	__symbols__insert(dso__symbols(dso), sym);
+ 
+ 	/* update the symbol cache if necessary */
+ 	if (dso__last_find_result_addr(dso) >= sym->start &&
+@@ -738,43 +732,81 @@ int modules__parse(const char *filename, void *arg,
+  * These are symbols in the kernel image, so make sure that
+  * sym is from a kernel DSO.
+  */
+-static bool symbol__is_idle(const char *name)
++static int sym_name_cmp(const void *a, const void *b)
+ {
+-	const char * const idle_symbols[] = {
++	const char *name = a;
++	const char *const *sym = b;
 +
-+	mutex_destroy(&symbol_bits_lock);
++	return strcmp(name, *sym);
++}
 +
- 	strlist__delete(symbol_conf.bt_stop_list);
- 	strlist__delete(symbol_conf.sym_list);
- 	strlist__delete(symbol_conf.dso_list);
++bool symbol__is_idle(struct symbol *sym, const struct dso *dso, struct perf_env *env)
++{
++	static const char * const idle_symbols[] = {
+ 		"acpi_idle_do_entry",
+ 		"acpi_processor_ffh_cstate_enter",
+ 		"arch_cpu_idle",
+ 		"cpu_idle",
+ 		"cpu_startup_entry",
+-		"idle_cpu",
+-		"intel_idle",
+-		"intel_idle_ibrs",
+ 		"default_idle",
+-		"native_safe_halt",
+ 		"enter_idle",
+ 		"exit_idle",
+-		"mwait_idle",
+-		"mwait_idle_with_hints",
+-		"mwait_idle_with_hints.constprop.0",
++		"idle_cpu",
++		"native_safe_halt",
+ 		"poll_idle",
+-		"ppc64_runlatch_off",
+ 		"pseries_dedicated_idle_sleep",
+-		"psw_idle",
+-		"psw_idle_exit",
+-		NULL
+ 	};
+-	int i;
+-	static struct strlist *idle_symbols_list;
++	const char *name = sym->name;
++	uint16_t e_machine = perf_env__e_machine(env, /*e_flags=*/NULL);
+ 
+-	if (idle_symbols_list)
+-		return strlist__has_entry(idle_symbols_list, name);
++	if (sym->idle)
++		return sym->idle == SYMBOL_IDLE__IDLE;
+ 
+-	idle_symbols_list = strlist__new(NULL, NULL);
++	if (!dso || dso__kernel(dso) == DSO_SPACE__USER) {
++		symbol__set_idle(sym, /*idle=*/false);
++		return false;
++	}
+ 
+-	for (i = 0; idle_symbols[i]; i++)
+-		strlist__add(idle_symbols_list, idle_symbols[i]);
++	/*
++	 * ppc64 uses function descriptors and appends a '.' to the
++	 * start of every instruction address. Remove it.
++	 */
++	if (name[0] == '.')
++		name++;
++
++	if (bsearch(name, idle_symbols, ARRAY_SIZE(idle_symbols),
++		    sizeof(idle_symbols[0]), sym_name_cmp)) {
++		symbol__set_idle(sym, /*idle=*/true);
++		return true;
++	}
++
++	if (e_machine == EM_386 || e_machine == EM_X86_64) {
++		if (strstarts(name, "mwait_idle") ||
++		    strstarts(name, "intel_idle")) {
++			symbol__set_idle(sym, /*idle=*/true);
++			return true;
++		}
++	}
+ 
+-	return strlist__has_entry(idle_symbols_list, name);
++	if (e_machine == EM_PPC64 && !strcmp(name, "ppc64_runlatch_off")) {
++		symbol__set_idle(sym, /*idle=*/true);
++		return true;
++	}
++
++	if (e_machine == EM_S390 && strstarts(name, "psw_idle")) {
++		int major = 0, minor = 0;
++		const char *release = perf_env__os_release(env);
++
++		/* Before v6.10, s390 used psw_idle. */
++		if (release && sscanf(release, "%d.%d", &major, &minor) == 2 &&
++		    (major < 6 || (major == 6 && minor < 10))) {
++			symbol__set_idle(sym, /*idle=*/true);
++			return true;
++		}
++	}
++
++	symbol__set_idle(sym, /*idle=*/false);
++	return false;
+ }
+ 
+ static int map__process_kallsym_symbol(void *arg, const char *name,
+@@ -803,7 +835,7 @@ static int map__process_kallsym_symbol(void *arg, const char *name,
+ 	 * We will pass the symbols to the filter later, in
+ 	 * map__split_kallsyms, when we have split the maps per module
+ 	 */
+-	__symbols__insert(root, sym, !strchr(name, '['));
++	__symbols__insert(root, sym);
+ 
+ 	return 0;
+ }
 diff --git a/tools/perf/util/symbol.h b/tools/perf/util/symbol.h
-index bd6eb90c8668..5d98d7e84d57 100644
+index 5d98d7e84d57..717d2f876d58 100644
 --- a/tools/perf/util/symbol.h
 +++ b/tools/perf/util/symbol.h
-@@ -77,6 +77,9 @@ struct symbol {
- void symbol__delete(struct symbol *sym);
- void symbols__delete(struct rb_root_cached *symbols);
+@@ -43,6 +43,12 @@ Elf_Scn *elf_section_by_name(Elf *elf, GElf_Ehdr *ep,
+ 			     GElf_Shdr *shp, const char *name, size_t *idx);
+ #endif
  
-+void symbol__set_ignore(struct symbol *sym, bool ignore);
-+void symbol__set_annotate2(struct symbol *sym, bool annotate2);
++enum symbol_idle_kind {
++	SYMBOL_IDLE__UNKNOWN = 0,
++	SYMBOL_IDLE__NOT_IDLE = 1,
++	SYMBOL_IDLE__IDLE = 2,
++};
 +
- /* symbols__for_each_entry - iterate over symbols (rb_root)
-  *
-  * @symbols: the rb_root of symbols
+ /**
+  * A symtab entry. When allocated this may be preceded by an annotation (see
+  * symbol__annotation) and/or a browser_index (see symbol__browser_index).
+@@ -58,8 +64,8 @@ struct symbol {
+ 	u8		type:4;
+ 	/** ELF binding type as defined for st_info. E.g. STB_WEAK or STB_GLOBAL. */
+ 	u8		binding:4;
+-	/** Set true for kernel symbols of idle routines. */
+-	u8		idle:1;
++	/** Cache for symbol__is_idle holding enum symbol_idle_kind values. */
++	u8		idle:2;
+ 	/** Resolvable but tools ignore it (e.g. idle routines). */
+ 	u8		ignore:1;
+ 	/** Symbol for an inlined function. */
+@@ -197,8 +203,7 @@ int dso__synthesize_plt_symbols(struct dso *dso, struct symsrc *ss);
+ 
+ char *dso__demangle_sym(struct dso *dso, int kmodule, const char *elf_name);
+ 
+-void __symbols__insert(struct rb_root_cached *symbols, struct symbol *sym,
+-		       bool kernel);
++void __symbols__insert(struct rb_root_cached *symbols, struct symbol *sym);
+ void symbols__insert(struct rb_root_cached *symbols, struct symbol *sym);
+ void symbols__fixup_duplicate(struct rb_root_cached *symbols);
+ void symbols__fixup_end(struct rb_root_cached *symbols, bool is_kallsyms);
+@@ -281,5 +286,6 @@ enum {
+ };
+ 
+ int symbol__validate_sym_arguments(void);
++bool symbol__is_idle(struct symbol *sym, const struct dso *dso, struct perf_env *env);
+ 
+ #endif /* __PERF_SYMBOL */
 -- 
 2.54.0.545.g6539524ca2-goog
 
