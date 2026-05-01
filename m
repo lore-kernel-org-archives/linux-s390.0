@@ -1,164 +1,140 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F71135A3AD;
-	Fri,  1 May 2026 19:01:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 796DC421880;
+	Fri,  1 May 2026 19:26:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777662074; cv=none; b=nnXGwfmziNrorTVJpKabSfHFgtDziA6EaA3n0TRNquAtfhWk4jU1dIlfutjvTPpep1MVg0QRYYM63tc12+9PC0ZmvJvw1YNfA8uDMOaNpgKkr2QyxGAha3ycWx7BIdRgRImk5SVaSVoOSMYDC6LHBFBlSTfhTIX/7ybzJFyQrlw=
+	t=1777663584; cv=none; b=sDkRKohTzQOzuXrG+mQ4tgL42JpJjDbGSR2u+6FHha0eDee0U3Az6BGRRfRH80FLM2Wz8uzkvvsrYx5kD2VY7RZ5UsGNKHxS5sWPsWHBxYjRdra0C4d2mBTkdTt0YqbyPylKE7cOTqO03jxFCrRl6iufebDyd0MjN+i4hrsJaoI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777662074; c=relaxed/simple;
-	bh=bGN+GuXKLt8BkjsU+fTyN3JEqVQmZxPi1LhFItNPdDc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=a5/TII8v0a5vGoKXRniLRmzbwaIJJsV5nrin9cFsWzZeMLEVaa0J3ViAauL9Mzy8bzgo5s40WvFU0GMH82L6/wcdkumw1X7lPXN/2n4ippW02YG1lxG3xuNWuPtkpRvVrrwcVYd/tvUvuoa6YLzUyUyqTR+hBxT0mXTwYA+4qM8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EYMuspBM; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1777663584; c=relaxed/simple;
+	bh=dBq0sJnhfoP8Tez8/KUMDcxe/UyGYmQ3Xi0ES68YqTc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=aEJEF8DLlLnTuE4HxY7Elty3cCFCuFvITV2/2T+7XSqO3M9UFrvT8BHMD9Iu85VCHaQ8MX1C+nf09quFzUI117LaRBLi3yhNkhnmxESm0O05BnXM9N4C73yNYmunAwI+BpqEqxQTWmOETjnq2GHSQFOnP8lZIHpnXUpHD5Yutfc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gC8zKcXX; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EYMuspBM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39200C2BCB4;
-	Fri,  1 May 2026 19:01:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777662074;
-	bh=bGN+GuXKLt8BkjsU+fTyN3JEqVQmZxPi1LhFItNPdDc=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=EYMuspBM5/RFx2O2cUQIAmnFfT8rY+UfcrOAaqxbDyIsmHDOfYzOpSURXYENSWldi
-	 fSXRA8CGtzePoDQJnzHOEhIHRY8llLl17U8+32V5YZz+xyNq3Z4oRn3aifz0Q6VDFq
-	 BziQhEiooZPEGX7WDaZNmduLow6vAD+vYFPwIpgYT+Wdw8qKSi56scx9NIwzS+molL
-	 zrwnRnK+RXlTKOWWGBMU9AmUZI8sXYlq+TvKDjgHXtMuLwEJ1JgzC08ViIlADDBxCC
-	 ZJ6lRJy9fGOsAerc8zYDvbY1FucwCBzv9mI5v9IJKdWPTPkFqPjKkhm4QYZeNUtdBf
-	 ensB43tRLW6Ag==
-Message-ID: <109bc59e-1308-4505-b8c6-3376aed74585@kernel.org>
-Date: Fri, 1 May 2026 21:01:09 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gC8zKcXX"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 641B1cS51815471;
+	Fri, 1 May 2026 19:26:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=L8wV5YXVaWrpE3pQEZq968ph9XJtzJsYTg918arJU
+	a4=; b=gC8zKcXXOMDtAuUIEu4/G1IXApTgSW2OSo0ikEeIYSextL45TAx472veL
+	CGqpVl5dyco7HbAuG3ghyBNHJOVZQeFAR0rXaPvks+ALgmhtclkj+zXByHzZFsv2
+	UYsXCRnpRDhPLPD541kcJ9yceqm+3NgIQBBrRM5SGqL5wNtdytu45nVVSd/FTq+G
+	Nm0q4vkNmijS/LzH4h5BNp+UinnCZpVG2V0m7hqApmoYLxIzE2eugFirTNZ3LoO5
+	15UqEaAbeK9EHOLSGQGqmkia/A6GUSOZNefL9a7E/L0hhOn+eWuBQlwSMqq3hUXh
+	nxTyvFYczOXCTpAwUcetjUsDB2Lrw==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4drn45689r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 01 May 2026 19:26:20 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 641JNlUd003993;
+	Fri, 1 May 2026 19:26:19 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4dsa5grq84-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 01 May 2026 19:26:19 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 641JQGDu17564186
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 1 May 2026 19:26:16 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1D74458043;
+	Fri,  1 May 2026 19:26:16 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 74B505805D;
+	Fri,  1 May 2026 19:26:14 +0000 (GMT)
+Received: from Mac.ibm.com (unknown [9.61.247.25])
+	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  1 May 2026 19:26:14 +0000 (GMT)
+From: Omar Elghoul <oelghoul@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc: oelghoul@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        schnelle@linux.ibm.com, mjrosato@linux.ibm.com, alifm@linux.ibm.com,
+        farman@linux.ibm.com, gbayer@linux.ibm.com, alex@shazbot.org
+Subject: [PATCH v1 0/3] vfio-pci/zdev: Improved zPCI Function Measurement Support
+Date: Fri,  1 May 2026 15:25:27 -0400
+Message-ID: <20260501192530.9429-1-oelghoul@linux.ibm.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] mm/page_vma_mapped_walk: add missing pgtable entry
- accessors
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
- Lorenzo Stoakes <ljs@kernel.org>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- linux-s390@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-References: <20260427052000.196402-1-agordeev@linux.ibm.com>
- <69c4c12c-7cdc-4a17-9eb7-6fb1a61f9834@kernel.org>
- <f3140daa-9a7d-440e-a448-35aa8797357a-agordeev@linux.ibm.com>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <f3140daa-9a7d-440e-a448-35aa8797357a-agordeev@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: chXpimYzk4VtaUPgZMRnKwS7ARQO7kat
+X-Authority-Analysis: v=2.4 cv=Ft81OWrq c=1 sm=1 tr=0 ts=69f4fe5c cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=7DWl4jR7z7vEdJ3r2sIA:9
+X-Proofpoint-GUID: chXpimYzk4VtaUPgZMRnKwS7ARQO7kat
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTAxMDE5MCBTYWx0ZWRfX8S5z0BiZ2cyR
+ dGwx+l+Oc1o+cT2FnKTd9142j2Lbe1Ptrxxx4+7IdzrwAayrCAGUA8s4gAnjfoOwutfkvKZv0e+
+ 3de13uT2iIEuGde0ZM3MY4/6xPEy8+VseZgJhmY4yLpZ8wJVUmh2dtm/XgDX3NYMAfmmktC1zfy
+ EqP4w+JUn6tnkckV/eQoSlZFRaWZrXml99HxjnUwJUdm5dUdK1kgqXtP/5sHX/r5sPZThKaTFxh
+ xHKqunI4sjsfQ1imaDUgU5WE7AwRSwNJJqi6pV9dbT1YV/ean1o1qc7xlr/Jzk/d2jWDA7CItcs
+ ASWrGDpoQRDxdSGDhhqG1Oslo/DxWe6RarB+Lg2By9B+lg7neuIwjBQTr6eQUJsaUmoAg6muxw4
+ TMROb0NFBw96XO3ZyDxSAH1EMfpT4ONWq3B/3ziAWysIqv6N04wh0C447I0lJ+/narhak42dNKI
+ M1MILB76mU6a6d8Rchg==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-05-01_05,2026-04-30_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 lowpriorityscore=0 bulkscore=0 spamscore=0 impostorscore=0
+ clxscore=1011 malwarescore=0 phishscore=0 suspectscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2605010190
 
-On 4/29/26 15:47, Alexander Gordeev wrote:
-> On Mon, Apr 27, 2026 at 11:02:50AM +0200, David Hildenbrand (Arm) wrote:
->> On 4/27/26 07:20, Alexander Gordeev wrote:
->>> Convert pgtable direct entry dereferences to the corresponding
->>> pXdp_get() accessors. Use ptep_get_lockless() variant for PTE
->>> reads when no lock is taken.
->>>
->>> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
->>> ---
->>>  mm/page_vma_mapped.c | 12 ++++++------
->>>  1 file changed, 6 insertions(+), 6 deletions(-)
->>>
->>> diff --git a/mm/page_vma_mapped.c b/mm/page_vma_mapped.c
->>> index b38a1d00c971..a4520bb10d2a 100644
->>> --- a/mm/page_vma_mapped.c
->>> +++ b/mm/page_vma_mapped.c
->>> @@ -41,7 +41,7 @@ static bool map_pte(struct page_vma_mapped_walk *pvmw, pmd_t *pmdvalp,
->>>  	if (!pvmw->pte)
->>>  		return false;
->>>  
->>> -	ptent = ptep_get(pvmw->pte);
->>> +	ptent = ptep_get_lockless(pvmw->pte);
-> 
-> (*)
-> 
->>>  	if (pte_none(ptent)) {
->>>  		return false;
->>> @@ -219,17 +219,17 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
->>>  restart:
->>>  	do {
->>>  		pgd = pgd_offset(mm, pvmw->address);
->>> -		if (!pgd_present(*pgd)) {
->>> +		if (!pgd_present(pgdp_get(pgd))) {
->>>  			step_forward(pvmw, PGDIR_SIZE);
->>>  			continue;
->>>  		}
->>>  		p4d = p4d_offset(pgd, pvmw->address);
->>> -		if (!p4d_present(*p4d)) {
->>> +		if (!p4d_present(p4dp_get(p4d))) {
->>>  			step_forward(pvmw, P4D_SIZE);
->>>  			continue;
->>>  		}
->>>  		pud = pud_offset(p4d, pvmw->address);
->>> -		if (!pud_present(*pud)) {
->>> +		if (!pud_present(pudp_get(pud))) {
->>>  			step_forward(pvmw, PUD_SIZE);
->>>  			continue;
->>
->> Wasn't there a problem with folded page tables, where we would no longer be able
->> to optimize out the folded page table accesses?
-> 
-> Ok, that is a different topic. I actually tried to resolve the lockless
-> issue(s) in (*) while the direct dereferences just seemed to be relevant
-> to go along (similarly to the GUP patch).
-> 
-> But I would rather resend ptep_get() => ptep_get_lockless() fixes for
-> this patch.
-> 
-> Would it work?
+Hi,
 
-You mean only sending {*) ?
+This patch series improves support for function measurement for zPCI
+passthrough devices on s390x.
+
+Motivation
+==========
+The firmware on s390x machines allows for tracking a variety of statistics
+relating to zPCI devices in a function measurement block (FMB). However,
+the kernel currently lacks a structured mechanism of sharing this
+information with userspace, beyond /sys/kernel/debug/pci/ID/statistics.
+This can lead to shortcomings when running a guest on KVM with PCI
+passthrough devices, as QEMU is unable to provide an accurate FMB snapshot
+to the guest.
+
+Proposal
+========
+We propose adding a new VFIO device feature to zPCI passthrough devices,
+allowing userspace programs to read the latest FMB snapshot as it is
+written by the firmware. We ensure that function measurement enablement is
+preserved across device resets on the host. Furthermore, we guard against
+host tampering with the FMB via sysfs when the zPCI device is in
+passthrough to protect the VM's state.
+
+I'd appreciate some feedback on these patches.
+
+Thanks in advance.
+
+Omar Elghoul (3):
+  s390/pci: Preserve FMB state in device re-enablement
+  vfio-pci/zdev: Add VFIO FMB device feature
+  s390/pci: Fence FMB enable/disable via sysfs for passthrough devices
+
+ arch/s390/include/asm/pci.h      |  1 +
+ arch/s390/pci/pci.c              | 71 +++++++++++++++++++++++------
+ arch/s390/pci/pci_debug.c        |  3 ++
+ drivers/vfio/pci/vfio_pci_core.c |  2 +
+ drivers/vfio/pci/vfio_pci_priv.h |  9 ++++
+ drivers/vfio/pci/vfio_pci_zdev.c | 77 ++++++++++++++++++++++++++++++++
+ include/uapi/linux/vfio.h        | 43 ++++++++++++++++++
+ 7 files changed, 193 insertions(+), 13 deletions(-)
 
 -- 
-Cheers,
+2.52.0
 
-David
