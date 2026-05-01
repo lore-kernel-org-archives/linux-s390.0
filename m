@@ -1,54 +1,53 @@
 Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5628B3DC4AB;
-	Fri,  1 May 2026 16:06:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DBBC3DE452;
+	Fri,  1 May 2026 16:11:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777651598; cv=none; b=dW5SDvkyxngEwNZFqOaIkMLfp5HlPccXsFkVvkVyw7MEkj6BkbgXTC/06SJOYrTZbUMVrtTfuJpcfOTw5Vh4MJtZZtVc+xz0UPvCBJivMoIap6lxhpCvh+VA4Uy+hvYULRzLDeNjKx0mjLlpNURFPmrPopJTNhTtb04E0mbj3cM=
+	t=1777651896; cv=none; b=pOktJj1F8bvc0Y+0Hk/OZwbWrRzKMRVxjt7SJzkcDtm2eFl7fKtC63txIv3fxGXROMWFiXhxUC3s4pRgKv7WMzvqYzxDzQLud9m6TVBcKTzm87KQ4GTyubjIyApUkj0ih6bszHy/NK4OxgQSNYiv6SZXig3+8h1htgENx1XOyK8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777651598; c=relaxed/simple;
-	bh=uzJ2PI/5irzqcFSPjVCx7mCAKDQ9nari3HG292g6H0I=;
+	s=arc-20240116; t=1777651896; c=relaxed/simple;
+	bh=EDgfBtzDuvaLC34/xxrAYgibgHUUw6ST2MQ2XgEQwis=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FkzwCoiOJ1LTTGJAo2IRt6pEWvB7Zxip22hI1+6jmS9KNbkgdIy08pI+6vm+VghWdiYLBm+6PA1kPqhpj53awPGqK9kDoD2rBIocmNw6AFEichZmX7ey8iCqSGmTsISNLWMZQh8RecSOHk1OxrUzcwmhlLJ1ucCiCmeDtt9Biwc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=WFSklIdw; arc=none smtp.client-ip=90.155.50.34
+	 Content-Type:Content-Disposition:In-Reply-To; b=lPPgPVWnu3jv68J3ko/IFegiva01lQxmj1u8eIjSZoUcyxWkMUz1JrTbVdU90JzTDbW1J5GztleBWyn6Y9SLon3DtrFjDKhc6d6qnY2IQnJzk615c7OdTXV5teQyvuRrkdpjilBNXfn4DZJBZe/RtqknfTWbnKWhi2mDQKieNro=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=S+PrOaTu; arc=none smtp.client-ip=90.155.50.34
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="WFSklIdw"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="S+PrOaTu"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
 	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
 	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=HCOnYxAIgiWvR0Bg9Z3oQP7NtLB+AbBygf9mhxuV9oQ=; b=WFSklIdwMHQLNKo0hSt8FUEdor
-	8PWAceSimwETsGI72z85Zv4wA/tsNlycLa8f6sQG/Aw6w8RnhXi0Af5mjum18LwybDyAvb1+Uxh9f
-	Eq5T7ug+O10pWFjftTfOmniisY01PyMq7+2peSvdamJ+AAvHZRIQTazUoIUXsplGALDIdW/42jR8p
-	U9uUO/7PltvaGp/EEhx55GmxP2PijjP4N8jL7/SdhnE0m0apJTc1yrnAE6WrXuehMZUnK54FJ0YvF
-	M5qMff6H54NLzO+TN+U51R/JiQDmY0k5rW4FXREurwavyb9AebilT1ieN2HbK2yQvGHgLvA2FHU0e
-	rgYRe6xw==;
+	bh=+CybRlbN4CxbIfeNSZrydRrLn1TjflMMzYAXjMcpWY4=; b=S+PrOaTuYpMS9yVFL/SRQq4G+T
+	EDyv1/76Ou/0SIA3LL0ouPq9EWPMO5l4Z+1N0ptLnqAYO0BqCC4Xm3PO+wTeHKuBAB3IahTX8uA6n
+	a7trLSaMY2QWSwvrG+FRQkKWQ18oVU4G7Xnue+id4br5moG5PbXCSji7QEubPHOv5XAVHxDx6zgXt
+	wJ7FY6JrVfHfYKvW2+QN3fwPrQPGIgx3RMlpFCjGDCQcXCHPoN+y5K0Lw5lnU6sBd7VbJb/qhMWfh
+	UTsBtEsZO5IdNigyrAUUvt2/YmNpV3JbBPOkDvUuz1JBSyohrXzO8wluq9Nh5ga/qGIKeRzyOIxxx
+	5YZRXdig==;
 Received: from willy by casper.infradead.org with local (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1wIqNP-000000091GR-0gTr;
-	Fri, 01 May 2026 16:06:03 +0000
-Date: Fri, 1 May 2026 17:06:02 +0100
+	id 1wIqSF-000000091b3-3rae;
+	Fri, 01 May 2026 16:11:03 +0000
+Date: Fri, 1 May 2026 17:11:03 +0100
 From: Matthew Wilcox <willy@infradead.org>
-To: Lorenzo Stoakes <ljs@kernel.org>
-Cc: "Barry Song (Xiaomi)" <baohua@kernel.org>, akpm@linux-foundation.org,
-	linux-mm@kvack.org, david@kernel.org, liam@infradead.org,
-	vbabka@kernel.org, rppt@kernel.org, surenb@google.com,
-	mhocko@suse.com, jack@suse.cz, pfalcato@suse.de,
-	wanglian@kylinos.cn, chentao@kylinos.cn, lianux.mm@gmail.com,
-	kunwu.chan@gmail.com, liyangouwen1@oppo.com, chrisl@kernel.org,
-	kasong@tencent.com, shikemeng@huaweicloud.com, nphamcs@gmail.com,
-	bhe@redhat.com, youngjun.park@lge.com,
+To: "Barry Song (Xiaomi)" <baohua@kernel.org>
+Cc: akpm@linux-foundation.org, linux-mm@kvack.org, david@kernel.org,
+	ljs@kernel.org, liam@infradead.org, vbabka@kernel.org,
+	rppt@kernel.org, surenb@google.com, mhocko@suse.com, jack@suse.cz,
+	pfalcato@suse.de, wanglian@kylinos.cn, chentao@kylinos.cn,
+	lianux.mm@gmail.com, kunwu.chan@gmail.com, liyangouwen1@oppo.com,
+	chrisl@kernel.org, kasong@tencent.com, shikemeng@huaweicloud.com,
+	nphamcs@gmail.com, bhe@redhat.com, youngjun.park@lge.com,
 	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
 	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
 	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v2 0/5] mm: reduce mmap_lock contention and improve page
- fault performance
-Message-ID: <afTPamwDbtY_tgk_@casper.infradead.org>
+Subject: Re: [PATCH v2 4/5] mm: Don't retry page fault if folio is uptodate
+ during swap-in
+Message-ID: <afTQl12XcXVnku9J@casper.infradead.org>
 References: <20260430040427.4672-1-baohua@kernel.org>
- <afNM-gIqxpyJ6ro7@casper.infradead.org>
- <afTKsSj0i-ZkRZN5@lucifer>
+ <20260430040427.4672-5-baohua@kernel.org>
+ <afNMkqwxC00OT134@casper.infradead.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -57,19 +56,25 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <afTKsSj0i-ZkRZN5@lucifer>
+In-Reply-To: <afNMkqwxC00OT134@casper.infradead.org>
 
-On Fri, May 01, 2026 at 04:52:12PM +0100, Lorenzo Stoakes wrote:
-> After a brief eyeball I share Matthew's assessment, I really don't like this
-> series, it's piling on complexity for what seem like niche cases.
-
-I don't think they're niche cases ... I think it's a real problem.
-While our current code performs better for this workload than the
-pre-vma-lock code did, it doesn't perform as well as it could.
-
-> We already have enough weirdness in fault code honestly.
+On Thu, Apr 30, 2026 at 01:35:30PM +0100, Matthew Wilcox wrote:
+> On Thu, Apr 30, 2026 at 12:04:26PM +0800, Barry Song (Xiaomi) wrote:
+> > If we are waiting for long I/O to complete, it makes sense to
+> > avoid holding locks for too long. However, if the folio is
+> > uptodate, we are likely only waiting for a concurrent PTE
+> > update to finish. Retrying the entire page fault seems
+> > excessive.
 > 
-> Let's maybe discuss at LSF if you're attending?
+> I think the idea is good, but the implementation is misplaced.
+> The check for folio_uptodate() should be inside folio_lock_or_retry()
+> rather than tampering with FAULT_FLAG_ALLOW_RETRY in its caller.
 
-Not only is he attending, there's a topic scheduled (currently 10:30 on
-Wednesday).
+Actually it needs to be a little more complex than this.  We
+sometimes wait for writeback while holding the folio lock, and
+that's a similar latency to reads (or with cheap NAND, maybe longer!)
+
+So I think the test needs to be:
+
+	if (folio_test_uptodate(folio) && !folio_test_writeback(folio))
+
