@@ -1,135 +1,90 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCA8622F74A;
-	Fri,  1 May 2026 19:27:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BDA6214A9B;
+	Fri,  1 May 2026 19:39:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777663679; cv=none; b=kjQ9lTA50CuPANrbu8pCzG+2+BWmGsHGae4ahXTjbFI7THi4wyLDQgV7k4jL+0w3o9arG443RUXm18CObd3VaNrYjI/1+D7my4lM6DNGGskSiv5rgqwwzGlQioIZoJGwZZC+4GZpUrklzu0C0k8UkF2pmT6ELNiDjuOPaTB2sdQ=
+	t=1777664373; cv=none; b=eTIthslF2fRBDNaxu4D4FWihbt7eDM3yD4OMbEd8BQ51RTm8siTawlMC+gfXVQT/e134PToa5IYikRI9M4wtVyctT6M7/LzSssCUQMBncstF2MkmSDWCZT51YTXdJvwhVtJC7hLNz0gPXcOxL2PtTWB8/WEFWS6nJwZo+Iu6Ino=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777663679; c=relaxed/simple;
-	bh=Pqe3GwHtSZcK2T21A0SqmnIEyCF0+g9fH8a3c/J1xaY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=niVyHdStvjt4JQqU6OX0wg183w42jWbHquyhggawCzqtTMs6p5BQH+ITAXdHy5NV5U5MiJOo3ttj5PSZmdCYIBopngS6ny/4mmtnckFT5ShiCuY3BhMe7g7aHz8FmV5RcvilIHUggGfuWxgwtjfc1p7QapP8SJsYuizMfYVJoj4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=at7idcfj; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1777664373; c=relaxed/simple;
+	bh=w1+UajOyjTTGaFHm76vcGt07GcQBpJdXIpMH/yU8BUw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gYAjKUHZd/kVRZ1Q9ItKGLTu3ID1ujTghw9hI+v/pdlXI7tisZdZlDNZk+A+rtQ2pA8OJb187U5wi0am6ux5C++Ylj3reGbXy/KFNcDcDc3IClyLf3h879Ognr9yo/vVbBYu5ovlXcOFQ915hsHQuyWxS6TEUtU9WtHVt7ohtpY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=uHjHrPPD; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="at7idcfj"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 641AS1oe1381532;
-	Fri, 1 May 2026 19:27:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=jN438DebSZsUDDnLH
-	E5asg0DK+u7w1VCo7Yf7QJkQG0=; b=at7idcfj/jY+wRBb5IsHVY2Uabm9zCrgG
-	CWtmokQI0Ib/j10y4rnyTb4VcSoRhCfzEQAXFT8TRcxQcC2/CAYxub0+G1uY5ytc
-	ML5Nap9s6ujAoBuurZQDmJln8PbAipnEDNRZKJhFSQ1OtUyybRvGxX8dThyyNsYc
-	y00lgVDHhHIRk+A0+oFc2ELER1oy3FvDOLROdzQd+W51C2sCbL4dV4+lax3l23vH
-	S2grJfAulFMBYBND/Z1iemmKQm1j/Gn4vokarrwpT4Rm0tUUfvBrK9VNsuw4dsQo
-	3dPLubk0vuXhoF297iXe/MzFA5if91ncrJqxujE99O122xrLzyt6Q==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4drk1k49yt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 01 May 2026 19:27:54 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 641JNnGI004255;
-	Fri, 1 May 2026 19:27:54 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ds9ehrrb2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 01 May 2026 19:27:54 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 641JRovL25100942
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 1 May 2026 19:27:51 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AF89358059;
-	Fri,  1 May 2026 19:27:50 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 27CDC58053;
-	Fri,  1 May 2026 19:27:49 +0000 (GMT)
-Received: from Mac.ibm.com (unknown [9.61.247.25])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  1 May 2026 19:27:49 +0000 (GMT)
-From: Omar Elghoul <oelghoul@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: oelghoul@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        schnelle@linux.ibm.com, mjrosato@linux.ibm.com, alifm@linux.ibm.com,
-        farman@linux.ibm.com, gbayer@linux.ibm.com, alex@shazbot.org
-Subject: [PATCH v1 3/3] s390/pci: Fence FMB enable/disable via sysfs for passthrough devices
-Date: Fri,  1 May 2026 15:25:30 -0400
-Message-ID: <20260501192530.9429-4-oelghoul@linux.ibm.com>
-X-Mailer: git-send-email 2.52.0
-In-Reply-To: <20260501192530.9429-1-oelghoul@linux.ibm.com>
-References: <20260501192530.9429-1-oelghoul@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="uHjHrPPD"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Transfer-Encoding:
+	Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
+	Sender:Reply-To:Content-ID:Content-Description;
+	bh=rp8f/WeQia8QAD+YJmPABxXPXrvHyOM5hZfBchCKMDA=; b=uHjHrPPD2LeDk5mLziBh3YyqEj
+	pfhR1tJpiKuUsooCkGqL2JZsb+D6vXBCRLBIbK0Q44xOCZOqwgtOj5wLR1q5KX9Q3NvcP0rciSd+G
+	ckgC0Zlz14TMgm+JsN7ZyOCt1Uvx4cReuGP0X3rwHMIqy2VNYPteQIn4/oeQedWAMeFvYDZOK+5J9
+	gMu8Q18KidiWTxvlLNVjdpduJUbW8ext7a3iuodZcXYJM4buozO5xWvugDSnEUtY1AeZRzE+j32qI
+	9Rxm90eK24xcN0FvxD+xBCl3zDGmbqcxwWSaplpXlbRREhdZ7Fj4povFbiHlxELsrOySKt4514WFP
+	5emRWH6A==;
+Received: from willy by casper.infradead.org with local (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1wIthf-00000009F6Q-0jSu;
+	Fri, 01 May 2026 19:39:11 +0000
+Date: Fri, 1 May 2026 20:39:10 +0100
+From: Matthew Wilcox <willy@infradead.org>
+To: Barry Song <baohua@kernel.org>
+Cc: akpm@linux-foundation.org, linux-mm@kvack.org, david@kernel.org,
+	ljs@kernel.org, liam@infradead.org, vbabka@kernel.org,
+	rppt@kernel.org, surenb@google.com, mhocko@suse.com, jack@suse.cz,
+	pfalcato@suse.de, wanglian@kylinos.cn, chentao@kylinos.cn,
+	lianux.mm@gmail.com, kunwu.chan@gmail.com, liyangouwen1@oppo.com,
+	chrisl@kernel.org, kasong@tencent.com, shikemeng@huaweicloud.com,
+	nphamcs@gmail.com, bhe@redhat.com, youngjun.park@lge.com,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2 0/5] mm: reduce mmap_lock contention and improve page
+ fault performance
+Message-ID: <afUBXnPVnt7Jt5hh@casper.infradead.org>
+References: <20260430040427.4672-1-baohua@kernel.org>
+ <afNM-gIqxpyJ6ro7@casper.infradead.org>
+ <CAGsJ_4w0qcYmukHqsyRd0jomoyYkJjOt8b-Cgp53BgP-8QQghw@mail.gmail.com>
+ <afS_L-5XeWIldTXA@casper.infradead.org>
+ <CAGsJ_4wk=SDtgin+84Ev2TamU-JFfmrg_SUay=-tcYmnFvK6Nw@mail.gmail.com>
+ <afTpoL3FklpQZNMM@casper.infradead.org>
+ <CAGsJ_4x8sNtgv7Y198Gh9NSY+SE2o_JPFAxG9aWE+xXsB9vwGg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTAxMDE5MCBTYWx0ZWRfX4r2AKb//1Byy
- /q8Z0yH83gWHAj70TtsqKBp3c2xDHad2b3W/Va2xGmWCIiriTqSfx7nicc82aDQv5SYQaS8RJlX
- bPYLVTr53pag+iQLlkyqsnuEmz4ufuVVpfjmNA3+Q79b4kXSQfaIQKsSycyHDad/X7CkwLi2Wls
- BPpZ1y+/PtJRXKAaIWWDmTD1hRtUvX/e1DCbu4llh4ISv/Ja0yqCpr4By/LgVK6ivXRbvS3nDIL
- Pjdl5C/Z6Nyk0m1ZRWowR8HHX0XaV3nh2E0wtAbu1OuwC9hiOFdLNbhTSkMu8Vgy/kZQVoW8J1l
- ilx4dghH6uc3yrGSIUoXF8J6fx7T2QuGYt+oKCsus0YQiTSaH2g3JISEbp86xjJ8b8jJDQAJpkU
- qG7K3lcuuoNZdGptqHaaPsS7KZQvOM0yeZkC0d1/eGIgmmvV7OwwCETs+on3IpfJPINTVOJqVR8
- xpI1y/GQJtS1sVYSGoQ==
-X-Proofpoint-GUID: 9z_iCkJRxIl3kSXIM-RI_xs5uyML9Yge
-X-Proofpoint-ORIG-GUID: 9z_iCkJRxIl3kSXIM-RI_xs5uyML9Yge
-X-Authority-Analysis: v=2.4 cv=MohiLWae c=1 sm=1 tr=0 ts=69f4feba cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=LQOIlC5QHTpW1RRPx_YA:9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-01_05,2026-04-30_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 adultscore=0 suspectscore=0 bulkscore=0 spamscore=0
- priorityscore=1501 malwarescore=0 clxscore=1015 lowpriorityscore=0
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
- definitions=main-2605010190
+In-Reply-To: <CAGsJ_4x8sNtgv7Y198Gh9NSY+SE2o_JPFAxG9aWE+xXsB9vwGg@mail.gmail.com>
 
-Introduce a fence over enabling or disabling FMB via sysfs when the zPCI
-device is associated with a KVM. This will allow a KVM guest to use FMB
-passthrough and avoid the edge-case where the host disables FMB while the
-guest is still using it, which may cause partial counter resets and
-inconsistent reads which have no parallel in the architecture.
+On Sat, May 02, 2026 at 02:25:37AM +0800, Barry Song wrote:
+> On Sat, May 2, 2026 at 1:58 AM Matthew Wilcox <willy@infradead.org> wrote:
+> > Yes, but that still fails to answer "does this actually happen".  How much
+> > performance is all this complexity in the page fault handler buying us?
+> > If you don't answer this question, I'm just going to go in and rip it
+> > all out.
+> 
+> I’m getting quite confused. In patch 4/5, you suggest a more
+> restrictive condition using
+> if (folio_test_uptodate(folio) && !folio_test_writeback(folio))
+> rather than if (folio_test_uptodate(folio)), before we decide to skip
+> retrying the page fault [1].
+> That seems to suggest we should be more cautious about when we can skip
+> retrying the page fault.
+> 
+> However, in the cover letter, you suggest removing all retry code entirely.
+> Does this suggestion apply only to file-backed page faults?
 
-With this patch, the userspace driver, likely QEMU, is still able to enable
-or disable the FMB using the VFIO device feature introduced in the previous
-patch, effectively securing what is associated with the VM state and
-isolating it from other processes on the host.
+I'm making sure that if Andrew decides to override me he at least sees
+that there are other problems with this patchset beyond "I don't like
+the additional complexity".
 
-For VFIO devices that are not associated with a KVM (i.e., for userspace
-drivers other than QEMU), this fence does not take effect.
-
-Signed-off-by: Omar Elghoul <oelghoul@linux.ibm.com>
----
- arch/s390/pci/pci_debug.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/arch/s390/pci/pci_debug.c b/arch/s390/pci/pci_debug.c
-index c7ed7bf254b5..b28923395d03 100644
---- a/arch/s390/pci/pci_debug.c
-+++ b/arch/s390/pci/pci_debug.c
-@@ -149,6 +149,9 @@ static ssize_t pci_perf_seq_write(struct file *file, const char __user *ubuf,
- 	if (!zdev)
- 		return 0;
- 
-+	if (zdev->kzdev)
-+		return -EPERM;
-+
- 	rc = kstrtoul_from_user(ubuf, count, 10, &val);
- 	if (rc)
- 		return rc;
--- 
-2.52.0
-
+And maybe we decide to do the fallback for anon-mm but not file memory.
+Or maybe it's just something somebody happens upon when reading the
+mailing list (or more likely it's just grist for an AI).
