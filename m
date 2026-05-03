@@ -1,54 +1,54 @@
 Received: from mail-dl1-f73.google.com (mail-dl1-f73.google.com [74.125.82.73])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D61491F1932
-	for <linux-s390@vger.kernel.org>; Sun,  3 May 2026 00:22:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D300E1F1932
+	for <linux-s390@vger.kernel.org>; Sun,  3 May 2026 00:23:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777767781; cv=none; b=p/socuaBSoNIamJzRCYUNUA/1DilanYeTh6NsuWj7VUNQbMAwic7yIIK7abFFLJ4euRUfEd5tiNWrLxhpzdDAiO/q6yJzClxO/P8MD9kJPclb1vlPzNS8Jry/eQV9Cv8vtf/ma7EYO8Q5nzX05Ah9R4iRqpQNAucp2smf5ECfEA=
+	t=1777767783; cv=none; b=GpTiyqPmCdgJLL05NXM+G8MymwkQ1llQUa0DHBCOZmn6fVnQBhYDeUPLXWo3gSV17CgRCrx5gI/9p4a2Ewi867rgvoqI8UkjGDIOlX3ofdl6OJIm70WHe9mtIMf1XQb99xxm+2M6mwGtrGJ2v1f8xjWAnp7tKdI2jLeLyrx4soc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777767781; c=relaxed/simple;
-	bh=8PL93q6LEy/RmlxfgsqWPGb3e4SH9u+3BZxs6IJPiDY=;
+	s=arc-20240116; t=1777767783; c=relaxed/simple;
+	bh=PO3Yy8xeA9w2QKJ+hooEkIab7oMYSoY1HxvISsaH+tk=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=H4Rus4/aF1au/P7OuJa6BF3ALJtNdkUxwRdrw5Qb8aJ3YPtfmnbV/ldC3U7EZ+vbtLQJnYuUm1ThE8ipbv8pVnqJuHnR8E99wN2fUdjkGQYirPImWrWuQwNcugWAQADhRfAYRyz8beycSuRoFK0ULf6UxZau8NvXy34j1JKmELk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=BCWsFuDd; arc=none smtp.client-ip=74.125.82.73
+	 To:Cc:Content-Type; b=Zu+HsQPW2csklxUIUcTl3ILD4D/ELCRQsM84TdmfZ/3+XDfDT63sEjyMZjz9tv43Io4YFAJSFX1W4B3Pb67f80iqKdfLr1nsS+WncBe9hggKrCxLOfVPgb9NKUs8r2V5YC232xKe0es3YY9JDBCa0l3xzp7glHHa8ytbcLQaLHM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=NDGjgBn/; arc=none smtp.client-ip=74.125.82.73
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="BCWsFuDd"
-Received: by mail-dl1-f73.google.com with SMTP id a92af1059eb24-12dfe06b670so4797302c88.0
-        for <linux-s390@vger.kernel.org>; Sat, 02 May 2026 17:22:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="NDGjgBn/"
+Received: by mail-dl1-f73.google.com with SMTP id a92af1059eb24-12c726f4019so4280704c88.1
+        for <linux-s390@vger.kernel.org>; Sat, 02 May 2026 17:23:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1777767779; x=1778372579; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1777767781; x=1778372581; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=yEm+9CK0i9MQLsvr/lRfYtx0/DM0+D55tOmGa7sB074=;
-        b=BCWsFuDdKVZ3V7mTxBVAfb/uz+mHwskt56L7B9lAfc3+RUCUrOBADivfzyRX02v9hu
-         H4bERbZvBK1fDIbzonTRnxuwhRcPzZIZ8aLKz4GxoA6BpdKp9qyAkziKvee7Z/jg+lfp
-         kXxYc9rzW1arGGNlNLPIDfqRwbwfkZoT9hik/eYISEqhumib+JEDEYgrRvRfLtpWqGeR
-         JMyTCe+5hIq7uXtAi7sVkg+Lq4S4grPR26t107iNsnTcNl8jVeTuLHCZ/MZSOIPc0gFq
-         WO87L+tcDMn32GynvxVDts4SqrFee9Bj0bkHTP5a52SX9j0I/ius7AI74xDeD2UGMqw9
-         2Nww==
+        bh=MOjpSSG5hiDUctQJqaNUda8jZZzKwcMd5j3IEHpXIyM=;
+        b=NDGjgBn/t9xKGRYvrkiuv+JZcAz093WPCsnqzst2OUBnSrkVqTKCjIqxVD8vo1ZTVF
+         9CO0JqAagT8Vw2MO/UgspTxFAR3wAh1pZA1meRcpqya6EklTpqMnRZ6/9/kfmGMXKkb8
+         8RQgC94qaM4wmIkM89OhmbLe+s8tUBJTb1M4BmvH5cDS+raFD21NjTr54X8uQovozwWU
+         7L77j4AprDlUyfLhFAJagSKT9fjLad5szwa+OqgcgOCHrxJDKQWa/Xs3MlcXEyXCJnEr
+         FNV8/dBydROrqyyS3Bj2uWfYhPcCHYii0/jWmeKpbmoRhv9YU5CeBCfmSc4c8g6dnBJ1
+         jyqg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777767779; x=1778372579;
+        d=1e100.net; s=20251104; t=1777767781; x=1778372581;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=yEm+9CK0i9MQLsvr/lRfYtx0/DM0+D55tOmGa7sB074=;
-        b=VujQb8LbMzEp5kN/p4vF3w7gGQ8n6Y3HNRZdWH7Ze66vny4hS1oQXNCCAu/khLQidF
-         h+igf/IQD6jcT402W8EHcmqzX+fFwwEddnFydTM/jPIPa1zS3gwWGf8O63DaZBrztqtI
-         vt1E5QpQVHBZjElBCT3uy7BkwCcIzdPM05iNqd1HHEmuCm8pA9lArtLwSdawNBCFMGLb
-         5Xw9Wdz6Wd4TaJhecPVKBhPo8Bv7NqBNr4vja9Du46zkM2ndn8G8XLLCiW82QRX2Hg97
-         t69jhntqF+7ps8Ytegl9z+r9cZfE/ixt8UbLf246JKmaSrAoB80CZuGVs7RLOFYoWv1/
-         5iWw==
-X-Forwarded-Encrypted: i=1; AFNElJ8DrVuyEEwOdcQ8vxhGvOF7kdlsoaNwKRw7Uzpubowdag5BqnXVxIE9QyZ3ytjZKfSxD3TqTP7l2MUT@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxv5ouxLYldZBwQ1J8WF8bbT5sT1xhEvpwsrYwiEsy23agAJipJ
-	zoR5R4zAwRfnAXPDCom0W1Pn2MTFb1kTuoOmGOMF++hf8VG4X4QanD61WEdwvtuYU9Cum2gA70I
-	jjpULuVBjWA==
-X-Received: from dlai27.prod.google.com ([2002:a05:701b:271b:b0:12c:8c98:df0e])
- (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7022:4391:b0:128:ce44:be8f
- with SMTP id a92af1059eb24-12dfd7da1c2mr1992714c88.2.1777767778906; Sat, 02
- May 2026 17:22:58 -0700 (PDT)
-Date: Sat,  2 May 2026 17:22:33 -0700
+        bh=MOjpSSG5hiDUctQJqaNUda8jZZzKwcMd5j3IEHpXIyM=;
+        b=i6DtYczLLXN1nXC4EkT7PEuQrIPDECx9iwcpaxd1e4Ex/uDf8ijVf1NZXZr4Ru2QR+
+         PdLAk2Tu3Dgzb26iJdYqnlMEeywzFuuZCp4ng1NMj/xvun0ekDDdu2HKwFl2G+GahnmB
+         Pfi6WqdDDrMwZXVQ6MRjycbsP17+q8PUvAcyZN+DTZ2tQ3A/76HCcKZ8WFxnWYNo/Dk4
+         LhXDMOTFC3T4XYodtYXI/ag5J6KSTx2fwyXc/A6dNy1afo6ZJdL++dMeVye/0NRN/ik8
+         R8yXSQysJpBmoj3MtcyRORKjDDXCFtyhCqDdO+i4Mlfygg5HakWuX2RVh5IFQ+5Nny2V
+         LFzQ==
+X-Forwarded-Encrypted: i=1; AFNElJ9Uz8CBa/vO5iNWdTC/l+IKjVrtKQz6XO8iNpCR/EaucnrEK492qByjTammOSSl6gFNGS3/kyKV4PPL@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyof+oT+aLELcSFroQUEjTwvzM91PHjAzIu5KtDNtBps49mRvgQ
+	AaLXJRC6WcBJhWS/JXDKiKei7KXCIOl4H1s8BvVAqyOJnwzwQCIc4pR/GxRXHfHxILlW8atGz6c
+	kRzmLt3CJLg==
+X-Received: from dlbcj12.prod.google.com ([2002:a05:7022:698c:b0:12d:b1c5:1596])
+ (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7022:6725:b0:124:9fd8:4ba9
+ with SMTP id a92af1059eb24-12dfd7ca4b5mr2124757c88.12.1777767780844; Sat, 02
+ May 2026 17:23:00 -0700 (PDT)
+Date: Sat,  2 May 2026 17:22:34 -0700
 In-Reply-To: <20260503002248.1040791-1-irogers@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -58,9 +58,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20260502065935.291960-1-irogers@google.com> <20260503002248.1040791-1-irogers@google.com>
 X-Mailer: git-send-email 2.54.0.545.g6539524ca2-goog
-Message-ID: <20260503002248.1040791-4-irogers@google.com>
-Subject: [PATCH v9 03/18] perf env, dso, thread: Add _endian variants for
- e_machine helpers
+Message-ID: <20260503002248.1040791-5-irogers@google.com>
+Subject: [PATCH v9 04/18] perf capstone: Determine architecture from e_machine
 From: Ian Rogers <irogers@google.com>
 To: irogers@google.com, acme@kernel.org, namhyung@kernel.org, 
 	tmricht@linux.ibm.com
@@ -70,255 +69,236 @@ Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com,
 	sumanthk@linux.ibm.com
 Content-Type: text/plain; charset="UTF-8"
 
-Add perf_arch_is_big_endian(), dso__read_e_machine_endian(),
-dso__e_machine_endian(), and thread__e_machine_endian() to support
-bi-endianness and cross-architecture analysis without breaking the
-existing API.
+Avoid the use of arch string that is imprecise and use the
+e_machine. Do more e_machine to capstone machine translations adding
+MIPS and RISCV. Remove unnecessary maybe_unused annotations.
 
-These helpers allow querying the absolute endianness of a DSO or
-thread, which is required for tools like Capstone that need to set the
-correct disassembly mode.
-
-Assisted-by: Gemini:gemini-3.1-pro-preview
 Signed-off-by: Ian Rogers <irogers@google.com>
 ---
- tools/perf/util/dso.c    | 19 +++++++++++++------
- tools/perf/util/dso.h    | 14 ++++++++++++--
- tools/perf/util/env.c    | 12 ++++++++++++
- tools/perf/util/env.h    |  1 +
- tools/perf/util/thread.c | 22 ++++++++++++++++------
- tools/perf/util/thread.h |  8 +++++++-
- 6 files changed, 61 insertions(+), 15 deletions(-)
+ tools/perf/util/capstone.c | 129 ++++++++++++++++++++++++-------------
+ 1 file changed, 85 insertions(+), 44 deletions(-)
 
-diff --git a/tools/perf/util/dso.c b/tools/perf/util/dso.c
-index b791e1b6b2cf..6439b2a3c898 100644
---- a/tools/perf/util/dso.c
-+++ b/tools/perf/util/dso.c
-@@ -1220,7 +1220,8 @@ static enum dso_swap_type dso_swap_type__from_elf_data(unsigned char eidata)
- }
- 
- /* Reads e_machine from fd, optionally caching data in dso. */
--uint16_t dso__read_e_machine(struct dso *optional_dso, int fd, uint32_t *e_flags)
-+uint16_t dso__read_e_machine_endian(struct dso *optional_dso, int fd, uint32_t *e_flags,
-+				    bool *is_big_endian)
- {
- 	uint16_t e_machine = EM_NONE;
- 	unsigned char e_ident[EI_NIDENT];
-@@ -1250,6 +1251,9 @@ uint16_t dso__read_e_machine(struct dso *optional_dso, int fd, uint32_t *e_flags
- 	if (swap_type == DSO_SWAP__UNSET)
- 		return EM_NONE; // Bad ELF data encoding.
- 
-+	if (is_big_endian)
-+		*is_big_endian = (e_ident[EI_DATA] == ELFDATA2MSB);
+diff --git a/tools/perf/util/capstone.c b/tools/perf/util/capstone.c
+index 25cf6e15ec27..870394b46911 100644
+--- a/tools/perf/util/capstone.c
++++ b/tools/perf/util/capstone.c
+@@ -1,7 +1,19 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #include "capstone.h"
+-#include "annotate.h"
 +
- 	/* Cache the need for swapping. */
- 	if (optional_dso) {
- 		assert(dso__needs_swap(optional_dso) == DSO_SWAP__UNSET ||
-@@ -1288,7 +1292,8 @@ uint16_t dso__read_e_machine(struct dso *optional_dso, int fd, uint32_t *e_flags
- 	return e_machine;
- }
- 
--uint16_t dso__e_machine(struct dso *dso, struct machine *machine, uint32_t *e_flags)
-+uint16_t dso__e_machine_endian(struct dso *dso, struct machine *machine, uint32_t *e_flags,
-+			       bool *is_big_endian)
- {
- 	uint16_t e_machine = EM_NONE;
- 	int fd;
-@@ -1308,9 +1313,11 @@ uint16_t dso__e_machine(struct dso *dso, struct machine *machine, uint32_t *e_fl
- 	case DSO_BINARY_TYPE__BPF_IMAGE:
- 	case DSO_BINARY_TYPE__OOL:
- 	case DSO_BINARY_TYPE__JAVA_JIT:
--		if (e_flags)
--			*e_flags = EF_HOST;
--		return EM_HOST;
-+		if (is_big_endian) {
-+			*is_big_endian = perf_arch_is_big_endian(
-+				machine && machine->env ? machine->env->arch : NULL);
-+		}
-+		return perf_env__e_machine(machine ? machine->env : NULL, e_flags);
- 	case DSO_BINARY_TYPE__DEBUGLINK:
- 	case DSO_BINARY_TYPE__BUILD_ID_CACHE:
- 	case DSO_BINARY_TYPE__BUILD_ID_CACHE_DEBUGINFO:
-@@ -1338,7 +1345,7 @@ uint16_t dso__e_machine(struct dso *dso, struct machine *machine, uint32_t *e_fl
- 	try_to_open_dso(dso, machine);
- 	fd = dso__data(dso)->fd;
- 	if (fd >= 0)
--		e_machine = dso__read_e_machine(dso, fd, e_flags);
-+		e_machine = dso__read_e_machine_endian(dso, fd, e_flags, is_big_endian);
- 	else if (e_flags)
- 		*e_flags = 0;
- 
-diff --git a/tools/perf/util/dso.h b/tools/perf/util/dso.h
-index ede691e9a249..2916b954a804 100644
---- a/tools/perf/util/dso.h
-+++ b/tools/perf/util/dso.h
-@@ -866,8 +866,18 @@ int dso__data_file_size(struct dso *dso, struct machine *machine);
- off_t dso__data_size(struct dso *dso, struct machine *machine);
- ssize_t dso__data_read_offset(struct dso *dso, struct machine *machine,
- 			      u64 offset, u8 *data, ssize_t size);
--uint16_t dso__read_e_machine(struct dso *optional_dso, int fd, uint32_t *e_flags);
--uint16_t dso__e_machine(struct dso *dso, struct machine *machine, uint32_t *e_flags);
-+uint16_t dso__read_e_machine_endian(struct dso *optional_dso, int fd, uint32_t *e_flags,
-+				    bool *is_big_endian);
-+static inline uint16_t dso__read_e_machine(struct dso *optional_dso, int fd, uint32_t *e_flags)
-+{
-+	return dso__read_e_machine_endian(optional_dso, fd, e_flags, NULL);
-+}
-+uint16_t dso__e_machine_endian(struct dso *dso, struct machine *machine, uint32_t *e_flags,
-+			       bool *is_big_endian);
-+static inline uint16_t dso__e_machine(struct dso *dso, struct machine *machine, uint32_t *e_flags)
-+{
-+	return dso__e_machine_endian(dso, machine, e_flags, NULL);
-+}
- ssize_t dso__data_read_addr(struct dso *dso, struct map *map,
- 			    struct machine *machine, u64 addr,
- 			    u8 *data, ssize_t size);
-diff --git a/tools/perf/util/env.c b/tools/perf/util/env.c
-index 0edc67a468ab..1a4db133262b 100644
---- a/tools/perf/util/env.c
-+++ b/tools/perf/util/env.c
-@@ -339,6 +339,18 @@ int perf_env__kernel_is_64_bit(struct perf_env *env)
- 	return env->kernel_is_64_bit;
- }
- 
-+bool perf_arch_is_big_endian(const char *arch)
-+{
-+	if (!arch)
-+		return __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__;
++#include <errno.h>
++#include <inttypes.h>
++#include <string.h>
 +
-+	if (str_ends_with(arch, "_be") || !strcmp(arch, "sparc") || !strcmp(arch, "sparc64") ||
-+	    !strcmp(arch, "s390") || !strcmp(arch, "s390x") || !strcmp(arch, "powerpc"))
++#include <dlfcn.h>
++#include <elf.h>
++#include <fcntl.h>
++#include <linux/ctype.h>
++
++#include <capstone/capstone.h>
++
+ #include "addr_location.h"
++#include "annotate.h"
+ #include "debug.h"
+ #include "disasm.h"
+ #include "dso.h"
+@@ -11,13 +23,6 @@
+ #include "print_insn.h"
+ #include "symbol.h"
+ #include "thread.h"
+-#include <dlfcn.h>
+-#include <errno.h>
+-#include <fcntl.h>
+-#include <inttypes.h>
+-#include <string.h>
+-
+-#include <capstone/capstone.h>
+ 
+ #ifdef LIBCAPSTONE_DLOPEN
+ static void *perf_cs_dll_handle(void)
+@@ -137,37 +142,67 @@ static enum cs_err perf_cs_close(csh *handle)
+ #endif
+ }
+ 
+-static int capstone_init(struct machine *machine, csh *cs_handle, bool is64,
++static bool e_machine_to_capstone(uint16_t e_machine, bool is64, bool is_big_endian,
++				  enum cs_arch *arch, enum cs_mode *mode)
++{
++	*mode = is_big_endian ? CS_MODE_BIG_ENDIAN : CS_MODE_LITTLE_ENDIAN;
++	*mode |= is64 ? CS_MODE_64 : CS_MODE_32;
++
++	switch (e_machine) {
++	case EM_X86_64:
++	case EM_386:
++		*arch = CS_ARCH_X86;
 +		return true;
-+
-+	return false;
++	case EM_AARCH64:
++		*arch = CS_ARCH_ARM64;
++		*mode |= CS_MODE_ARM;
++		return true;
++	case EM_ARM:
++		*arch = CS_ARCH_ARM;
++		*mode |= CS_MODE_ARM | CS_MODE_V8;
++		return true;
++	case EM_S390:
++		*arch = CS_ARCH_SYSZ;
++		return true;
++	case EM_MIPS:
++		*arch = CS_ARCH_MIPS;
++		*mode |= is64 ? CS_MODE_MIPS64 : CS_MODE_MIPS32;
++		return true;
++	case EM_PPC:
++	case EM_PPC64:
++		*arch = CS_ARCH_PPC;
++		return true;
++	case EM_SPARC:
++		*arch = CS_ARCH_SPARC;
++		return true;
++	case EM_SPARCV9:
++		*arch = CS_ARCH_SPARC;
++		*mode |= CS_MODE_V9;
++		return true;
++	case EM_RISCV:
++		*arch = CS_ARCH_RISCV;
++		*mode |= is64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32;
++		return true;
++	default:
++		return false;
++	}
 +}
 +
- int perf_env__set_cmdline(struct perf_env *env, int argc, const char *argv[])
++static int capstone_init(uint16_t e_machine, csh *cs_handle, bool is64, bool is_big_endian,
+ 			 bool disassembler_style)
  {
- 	int i;
-diff --git a/tools/perf/util/env.h b/tools/perf/util/env.h
-index 7151a9138e3f..c355df2dba7b 100644
---- a/tools/perf/util/env.h
-+++ b/tools/perf/util/env.h
-@@ -175,6 +175,7 @@ void free_cpu_domain_info(struct cpu_domain_map **cd_map, u32 schedstat_version,
- void perf_env__exit(struct perf_env *env);
+ 	enum cs_arch arch;
+ 	enum cs_mode mode;
  
- int perf_env__kernel_is_64_bit(struct perf_env *env);
-+bool perf_arch_is_big_endian(const char *arch);
+-	if (machine__is(machine, "x86_64") && is64) {
+-		arch = CS_ARCH_X86;
+-		mode = CS_MODE_64;
+-	} else if (machine__normalized_is(machine, "x86")) {
+-		arch = CS_ARCH_X86;
+-		mode = CS_MODE_32;
+-	} else if (machine__normalized_is(machine, "arm64")) {
+-		arch = CS_ARCH_ARM64;
+-		mode = CS_MODE_ARM;
+-	} else if (machine__normalized_is(machine, "arm")) {
+-		arch = CS_ARCH_ARM;
+-		mode = CS_MODE_ARM + CS_MODE_V8;
+-	} else if (machine__normalized_is(machine, "s390")) {
+-		arch = CS_ARCH_SYSZ;
+-		mode = CS_MODE_BIG_ENDIAN;
+-	} else {
++	if (!e_machine_to_capstone(e_machine, is64, is_big_endian, &arch, &mode))
+ 		return -1;
+-	}
  
- int perf_env__set_cmdline(struct perf_env *env, int argc, const char *argv[]);
- 
-diff --git a/tools/perf/util/thread.c b/tools/perf/util/thread.c
-index 22be77225bb0..8611293deca9 100644
---- a/tools/perf/util/thread.c
-+++ b/tools/perf/util/thread.c
-@@ -449,7 +449,7 @@ void thread__find_cpumode_addr_location(struct thread *thread, u64 addr,
+ 	if (perf_cs_open(arch, mode, cs_handle) != CS_ERR_OK) {
+ 		pr_warning_once("cs_open failed\n");
+ 		return -1;
  	}
+ 
+-	if (machine__normalized_is(machine, "x86")) {
++	if (arch == CS_ARCH_X86) {
+ 		/*
+ 		 * In case of using capstone_init while symbol__disassemble
+ 		 * setting CS_OPT_SYNTAX_ATT depends if disassembler_style opts
+@@ -211,29 +246,28 @@ static size_t print_insn_x86(struct thread *thread, u8 cpumode, struct cs_insn *
+ 	return printed;
  }
  
--static uint16_t read_proc_e_machine_for_pid(pid_t pid, uint32_t *e_flags)
-+static uint16_t read_proc_e_machine_for_pid(pid_t pid, uint32_t *e_flags, bool *is_big_endian)
+-
+-ssize_t capstone__fprintf_insn_asm(struct machine *machine __maybe_unused,
+-				   struct thread *thread __maybe_unused,
+-				   u8 cpumode __maybe_unused, bool is64bit __maybe_unused,
+-				   const uint8_t *code __maybe_unused,
+-				   size_t code_size __maybe_unused,
+-				   uint64_t ip __maybe_unused, int *lenp __maybe_unused,
+-				   int print_opts __maybe_unused, FILE *fp __maybe_unused)
++ssize_t capstone__fprintf_insn_asm(struct machine *machine, struct thread *thread, u8 cpumode,
++				   bool is64bit, const uint8_t *code, size_t code_size, uint64_t ip,
++				   int *lenp, int print_opts, FILE *fp)
  {
- 	char path[6 /* "/proc/" */ + 11 /* max length of pid */ + 5 /* "/exe\0" */];
- 	int fd;
-@@ -458,7 +458,8 @@ static uint16_t read_proc_e_machine_for_pid(pid_t pid, uint32_t *e_flags)
- 	snprintf(path, sizeof(path), "/proc/%d/exe", pid);
- 	fd = open(path, O_RDONLY);
- 	if (fd >= 0) {
--		e_machine = dso__read_e_machine(/*optional_dso=*/NULL, fd, e_flags);
-+		e_machine = dso__read_e_machine_endian(/*optional_dso=*/NULL, fd, e_flags,
-+						       is_big_endian);
- 		close(fd);
- 	}
- 	return e_machine;
-@@ -468,6 +469,7 @@ struct thread__e_machine_callback_args {
- 	struct machine *machine;
- 	uint32_t e_flags;
- 	uint16_t e_machine;
-+	bool is_big_endian;
- };
+ 	size_t printed;
+ 	struct cs_insn *insn;
+ 	csh cs_handle;
+ 	size_t count;
++	bool is_big_endian = false;
++	uint16_t e_machine = thread__e_machine_endian(thread, machine,
++						      /*e_flags=*/NULL, &is_big_endian);
+ 	int ret;
  
- static int thread__e_machine_callback(struct map *map, void *_args)
-@@ -478,11 +480,13 @@ static int thread__e_machine_callback(struct map *map, void *_args)
- 	if (!dso)
- 		return 0; // No dso, continue search.
+ 	/* TODO: Try to initiate capstone only once but need a proper place. */
+-	ret = capstone_init(machine, &cs_handle, is64bit, true);
++	ret = capstone_init(e_machine, &cs_handle, is64bit, is_big_endian,
++			    /*disassembler_style=*/true);
+ 	if (ret < 0)
+ 		return ret;
  
--	args->e_machine = dso__e_machine(dso, args->machine, &args->e_flags);
-+	args->e_machine =
-+		dso__e_machine_endian(dso, args->machine, &args->e_flags, &args->is_big_endian);
- 	return args->e_machine != EM_NONE ? 1 /* stop search */ : 0 /* continue search */;
+ 	count = perf_cs_disasm(cs_handle, code, code_size, ip, 1, &insn);
+ 	if (count > 0) {
+-		if (machine__normalized_is(machine, "x86"))
++		if (e_machine == EM_X86_64 || e_machine == EM_386)
+ 			printed = print_insn_x86(thread, cpumode, &insn[0], print_opts, fp);
+ 		else
+ 			printed = fprintf(fp, "%s %s", insn[0].mnemonic, insn[0].op_str);
+@@ -322,9 +356,8 @@ static int find_file_offset(u64 start, u64 len, u64 pgoff, void *arg)
+ 	return 0;
  }
  
--uint16_t thread__e_machine(struct thread *thread, struct machine *machine, uint32_t *e_flags)
-+uint16_t thread__e_machine_endian(struct thread *thread, struct machine *machine, uint32_t *e_flags,
-+				  bool *is_big_endian)
+-int symbol__disassemble_capstone(const char *filename __maybe_unused,
+-				 struct symbol *sym __maybe_unused,
+-				 struct annotate_args *args __maybe_unused)
++int symbol__disassemble_capstone(const char *filename, struct symbol *sym,
++				 struct annotate_args *args)
  {
- 	pid_t tid, pid;
- 	uint16_t e_machine = RC_CHK_ACCESS(thread)->e_machine;
-@@ -491,6 +495,7 @@ uint16_t thread__e_machine(struct thread *thread, struct machine *machine, uint3
- 		.machine = machine,
- 		.e_flags = 0,
- 		.e_machine = EM_NONE,
-+		.is_big_endian = false,
- 	};
+ 	struct annotation *notes = symbol__annotation(sym);
+ 	struct map *map = args->ms->map;
+@@ -344,6 +377,8 @@ int symbol__disassemble_capstone(const char *filename __maybe_unused,
+ 	char disasm_buf[512];
+ 	struct disasm_line *dl;
+ 	bool disassembler_style = false;
++	uint16_t e_machine;
++	bool is_big_endian = false;
  
- 	if (e_machine != EM_NONE) {
-@@ -510,7 +515,8 @@ uint16_t thread__e_machine(struct thread *thread, struct machine *machine, uint3
- 		struct thread *parent = machine__findnew_thread(machine, pid, pid);
+ 	if (args->options->objdump_path)
+ 		return -1;
+@@ -373,8 +408,10 @@ int symbol__disassemble_capstone(const char *filename __maybe_unused,
+ 	    !strcmp(args->options->disassembler_style, "att"))
+ 		disassembler_style = true;
  
- 		if (parent) {
--			e_machine = thread__e_machine(parent, machine, &local_e_flags);
-+			e_machine = thread__e_machine_endian(parent, machine, &local_e_flags,
-+							     is_big_endian);
- 			thread__put(parent);
- 			goto out;
- 		}
-@@ -522,6 +528,8 @@ uint16_t thread__e_machine(struct thread *thread, struct machine *machine, uint3
- 	if (args.e_machine != EM_NONE) {
- 		e_machine = args.e_machine;
- 		local_e_flags = args.e_flags;
-+		if (is_big_endian)
-+			*is_big_endian = args.is_big_endian;
- 	} else {
- 		/* Maps failed, perhaps we're live with map events disabled. */
- 		bool is_live = machine->machines == NULL;
-@@ -536,7 +544,7 @@ uint16_t thread__e_machine(struct thread *thread, struct machine *machine, uint3
- 		}
- 		/* Read from /proc/pid/exe if live. */
- 		if (is_live)
--			e_machine = read_proc_e_machine_for_pid(pid, &local_e_flags);
-+			e_machine = read_proc_e_machine_for_pid(pid, &local_e_flags, is_big_endian);
- 	}
- out:
- 	if (e_machine != EM_NONE) {
-@@ -545,6 +553,8 @@ uint16_t thread__e_machine(struct thread *thread, struct machine *machine, uint3
- 	} else {
- 		e_machine = EM_HOST;
- 		local_e_flags = EF_HOST;
-+		if (is_big_endian)
-+			*is_big_endian = (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__);
- 	}
- 	if (e_flags)
- 		*e_flags = local_e_flags;
-diff --git a/tools/perf/util/thread.h b/tools/perf/util/thread.h
-index f5792d3e8a16..8b58590c89de 100644
---- a/tools/perf/util/thread.h
-+++ b/tools/perf/util/thread.h
-@@ -311,7 +311,13 @@ static inline void thread__set_filter_entry_depth(struct thread *thread, int dep
- 	RC_CHK_ACCESS(thread)->filter_entry_depth = depth;
- }
+-	if (capstone_init(maps__machine(thread__maps(args->ms->thread)), &handle, is_64bit,
+-			  disassembler_style) < 0)
++	e_machine = thread__e_machine_endian(args->ms->thread,
++					     /*machine=*/NULL,
++					     /*e_flags=*/NULL, &is_big_endian);
++	if (capstone_init(e_machine, &handle, is_64bit, is_big_endian, disassembler_style) < 0)
+ 		goto err;
  
--uint16_t thread__e_machine(struct thread *thread, struct machine *machine, uint32_t *e_flags);
-+uint16_t thread__e_machine_endian(struct thread *thread, struct machine *machine, uint32_t *e_flags,
-+				  bool *is_big_endian);
-+static inline uint16_t thread__e_machine(struct thread *thread, struct machine *machine,
-+					 uint32_t *e_flags)
-+{
-+	return thread__e_machine_endian(thread, machine, e_flags, NULL);
-+}
+ 	needs_cs_close = true;
+@@ -466,6 +503,8 @@ int symbol__disassemble_capstone_powerpc(const char *filename __maybe_unused,
+ 	struct disasm_line *dl;
+ 	u32 *line;
+ 	bool disassembler_style = false;
++	uint16_t e_machine;
++	bool is_big_endian = false;
  
- static inline void thread__set_e_machine(struct thread *thread, uint16_t e_machine)
- {
+ 	if (args->options->objdump_path)
+ 		return -1;
+@@ -484,8 +523,10 @@ int symbol__disassemble_capstone_powerpc(const char *filename __maybe_unused,
+ 	    !strcmp(args->options->disassembler_style, "att"))
+ 		disassembler_style = true;
+ 
+-	if (capstone_init(maps__machine(thread__maps(args->ms->thread)), &handle, is_64bit,
+-			  disassembler_style) < 0)
++	e_machine = thread__e_machine_endian(args->ms->thread,
++					     /*machine=*/NULL,
++					     /*e_flags=*/NULL, &is_big_endian);
++	if (capstone_init(e_machine, &handle, is_64bit, is_big_endian, disassembler_style) < 0)
+ 		goto err;
+ 
+ 	needs_cs_close = true;
 -- 
 2.54.0.545.g6539524ca2-goog
 
