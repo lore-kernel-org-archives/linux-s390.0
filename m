@@ -1,54 +1,54 @@
-Received: from mail-dy1-f202.google.com (mail-dy1-f202.google.com [74.125.82.202])
+Received: from mail-dy1-f201.google.com (mail-dy1-f201.google.com [74.125.82.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E390418D658
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAF971E8342
 	for <linux-s390@vger.kernel.org>; Sun,  3 May 2026 00:23:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.202
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777767791; cv=none; b=jjg4G7e69Fx8HkSopgdM06tvccq/e0WMjPYfjszgrFbK1bqdyDPhoLajtTb8U/1VrVFAvq4hPPQ2N2HBP9Qz1eYkVcD39VvDYDPWwY/0p1+eAWpMlNw1fTiDNeZdeMLINV1idEFhDLuKiT2B9O7uS50EL50xJCPWTk4HIYgJmsk=
+	t=1777767791; cv=none; b=OwYeLesbTUJSg6vQM8DaeD4Uy0F99+Kh1RuG+8oviqViZU838RPvFVGvX57XjqDHeFhQVGyy30dIW9YlXEXhLsY16Bxre+2cg0nc7TD6gAvJu9NHxFLn7alS0dMZ4uHyIpdT9tF8QBMkpV5YdJ5jcodlBZjT+Q/AtLmI8VaRj+A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1777767791; c=relaxed/simple;
-	bh=6xq1XvZTYkhssOORuD8+pN+gvzmbIFzNJbcBBfSr9dY=;
+	bh=/g19K4HeaUNMX95kGXSMwY9kZbGyi17nk8eWwkTFbEo=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=UoqWcbNRFHGpdjaETVMMOe1c5LsqUV7pbKzbE82PpdbQVsP+0WBQKQY75nOEDzE67oUuyutS9JkG3K3WAVQDtnWxSQ33gKbwKCA1JaHkbpXTdcPdbY4LU3LQkzAjl6FhqetvKxEjZI6cIST0yvoSvlqySm2P3Ni0+CtS7Q/+9rc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=JlR5Sme9; arc=none smtp.client-ip=74.125.82.202
+	 To:Cc:Content-Type; b=d0RVza98Z8byV/jS/+dndEXfMkUBJNk5anjgyD6vJwx9dALu3J7rUeazGzBrzr7u3gDVJpQN+lXgEI0rDDRyWD4gCMR7MFvoxkBlvaxIhUyfBBEvDTBCGU0VoNSLAORlpSAmxYS2PZ/7X9HJ+lvJqGe4IYrDQgpz/55jiUKNTLE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=qcNJ+e6A; arc=none smtp.client-ip=74.125.82.201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="JlR5Sme9"
-Received: by mail-dy1-f202.google.com with SMTP id 5a478bee46e88-2edfb206494so2629877eec.0
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="qcNJ+e6A"
+Received: by mail-dy1-f201.google.com with SMTP id 5a478bee46e88-2ef37c3f773so1269679eec.1
         for <linux-s390@vger.kernel.org>; Sat, 02 May 2026 17:23:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1777767789; x=1778372589; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1777767787; x=1778372587; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=dkO8i+3RSnAMWHfyM3s9GsrhLkxGMQAxj7N6Sn6bOa4=;
-        b=JlR5Sme98+/ZqwN1B0KJel9NcQFfNMXtUoqX01qnzhSnp/XEi81uHK1+0hH3ORFJ9I
-         2i8yOIKmnjpM4RkjeK7VrjlEBetJsROJ6y99isQ5u4iWo2EHA2GvurcPOt6eNGtOJ7Yg
-         tX8to1IjMyO4+XnnAbGv44uubV+aK1ivwo0QqgKZxhNIUmaPxssHKRz8mbtyiui9Qtf3
-         HkHwJ2q5Bfob4V39+eezHlwIYk3phMbWBROvZExzaXCXRkChYSifWtwly9m6QegyGMM+
-         dJ2iLMEH9Ke/zj0VJHN0jHLunZpQRS+YI02U8eYYdZMmZ7L9xftHhNB8NSPnXw0+3Kla
-         nxbw==
+        bh=uTtIRHRKCWvPzr+ogiuYCalROJTpC+azMEHxFbhdWy4=;
+        b=qcNJ+e6AZ4yfr18FX3vTVoQbU/TJHqfjGfea1tTBhLFMdClOPYoe0wzKoKRRMhRPEq
+         Ug+4XASpWfpG1DZi6EoEgjNVTQFYYZLatVpOlXgMuaLAP5tjyo9113bp+Uzuf4vNeECv
+         ISSp0NVQMr0PzdIP9Pz5UX3s/7TvgmsBhreuMAUzk7ka51EM9czUIrMbVXHeu2KQVjBJ
+         lEeqySOlmOCBJzwelc6tonTotQ+NJeXQidKVSwy1D/+6JLxi+lEeTU4USwOtw1KiGHG9
+         PapSZ8SdTsJn8NUUeupmFhXcKAFgD8Vp6XkteCdU8aPGmF12fjbQzf1ctZIN2lJTUrI9
+         PcCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777767789; x=1778372589;
+        d=1e100.net; s=20251104; t=1777767787; x=1778372587;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=dkO8i+3RSnAMWHfyM3s9GsrhLkxGMQAxj7N6Sn6bOa4=;
-        b=pe+Wxi+CQKVd08IAKBqI9vxyo/LzVRjc6qjMzFXmxy+3ZzvUNynl+yTZK3rVVvd3+U
-         JGL+WyD7TRoez4/zppBx+7S/zlE2K6Oe1OuBKeA5bRmefznbfOlEhbL0TgOZ2JQbOVE0
-         eOlAd2sBfUO+zrHn25lk3nBBvHdVcneXEauMEc9dEn6Xuq4CknZGYnvk8f1dUQqw2YA8
-         gC0i+8ui2NEGatY5F+eUpIgZ7tms94+xxfzqqZqNaiqTRG1lWiatTa94z8wf8T3aTHOv
-         Fc4KyzmVFEZhm7xBI+eAIjicmgv5seRfksb/zUTsTdErVkd+j/A7Ji9fzRZUUBPWytSL
-         DDJg==
-X-Forwarded-Encrypted: i=1; AFNElJ/kL901jwDTOgp31VWgJDPLBz+cKxjKGf/6wOzwIEI+4LmGsce2a3RimUL7mca+J7cDW+sRFEwAll7L@vger.kernel.org
-X-Gm-Message-State: AOJu0YzYXX0KloFOFA4rr6DUaP5iyUaBz87NUD26Hh12LwyZHsyFJP7K
-	f+Opl6ihCVNlrXaoWAQVo2ulkr8+yUz5psvgC6Pl07IMzpLx5+G2P5dptpZtwzv4OOSewuN3eWq
-	jq+zeglPaCA==
-X-Received: from dlww3.prod.google.com ([2002:a05:7022:ea23:b0:12b:eb91:8863])
- (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7022:e1e:b0:11d:f89d:85a0
- with SMTP id a92af1059eb24-12dfd81a598mr2313415c88.27.1777767788829; Sat, 02
- May 2026 17:23:08 -0700 (PDT)
-Date: Sat,  2 May 2026 17:22:38 -0700
+        bh=uTtIRHRKCWvPzr+ogiuYCalROJTpC+azMEHxFbhdWy4=;
+        b=a8fSp7Rhau+1GanpAevIQhiiz/xmeL1BoivaJv2OIOXD4ewyMFf/Gz9Iuz0dixQfEe
+         mnShKT75lJYtQk33Pbo75dbPY0D6NiXjFBBInK0Bmj2kJc9TqrjFxGCIfLs1r18Z1Yvu
+         0P4Z/D3Z/2ctLWVyuNcCSwcUb7LBamv2xanSMHUJX1uOyGmwTHReFSGZTdnH5KEhvB8S
+         aI7vuyCoP7cE7j5YCi3545gHDTD0V2mlVh7Y3Mfyn0dpLmHRbUqQacF5j0ZTswdSRu0G
+         4DkbStbKDoMum2omNWioAuvyhbmg5xPy1t8SRr5UFVad/LDtQx9ZjJD91v9U1UuE7Jb1
+         FgOw==
+X-Forwarded-Encrypted: i=1; AFNElJ/3hC1XSX/LBcgnym9964in3yPbSwYw8R5GNP+Wfaba/RScV1tcscxCUkWA3QTNnYiNqlFLYACSlQyW@vger.kernel.org
+X-Gm-Message-State: AOJu0YzimEhHrcUqDMgEB0T6ET7R3HWfNind2nNzjnTyRcgl/yV8gMaf
+	6I0b1fZu66c6QHk6gYvq7IGuiQSyOeU3XLYiB3YRS+Ybx1WFd8lW3onxnOhHr8vAkjsjXTVzJqI
+	tKz7C53T0AA==
+X-Received: from dybgi1.prod.google.com ([2002:a05:7301:81:b0:2df:c53c:24a5])
+ (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7300:fe0b:b0:2ed:b131:240e
+ with SMTP id 5a478bee46e88-2efba1750bfmr2023743eec.23.1777767786711; Sat, 02
+ May 2026 17:23:06 -0700 (PDT)
+Date: Sat,  2 May 2026 17:22:37 -0700
 In-Reply-To: <20260503002248.1040791-1-irogers@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -58,8 +58,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20260502065935.291960-1-irogers@google.com> <20260503002248.1040791-1-irogers@google.com>
 X-Mailer: git-send-email 2.54.0.545.g6539524ca2-goog
-Message-ID: <20260503002248.1040791-9-irogers@google.com>
-Subject: [PATCH v9 08/18] perf sample-raw: Use perf_env e_machine rather than arch
+Message-ID: <20260503002248.1040791-8-irogers@google.com>
+Subject: [PATCH v9 07/18] perf machine: Use perf_env e_machine rather than arch
 From: Ian Rogers <irogers@google.com>
 To: irogers@google.com, acme@kernel.org, namhyung@kernel.org, 
 	tmricht@linux.ibm.com
@@ -69,78 +69,91 @@ Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com,
 	sumanthk@linux.ibm.com
 Content-Type: text/plain; charset="UTF-8"
 
-Use the e_machine rather than the arch to determine S390 and x86 types.
+The arch string is derived from uname and may be normalized causing
+potential differences meaning the ELF machine can be more
+precise. Reduce the scope of machine__is as often it is better to use
+a thread for the e_machine rather than the machine. Switch from string
+to ELF machine constant comparisons.
 
 Signed-off-by: Ian Rogers <irogers@google.com>
 ---
- tools/perf/util/sample-raw.c | 21 +++++++++++----------
- tools/perf/util/sample-raw.h |  6 +++++-
- 2 files changed, 16 insertions(+), 11 deletions(-)
+ tools/perf/util/machine.c | 25 ++++++++-----------------
+ tools/perf/util/machine.h |  2 --
+ 2 files changed, 8 insertions(+), 19 deletions(-)
 
-diff --git a/tools/perf/util/sample-raw.c b/tools/perf/util/sample-raw.c
-index bcf442574d6e..be998c713a0d 100644
---- a/tools/perf/util/sample-raw.c
-+++ b/tools/perf/util/sample-raw.c
-@@ -1,11 +1,12 @@
- /* SPDX-License-Identifier: GPL-2.0 */
-+#include "sample-raw.h"
- 
--#include <string.h>
-+#include <elf.h>
- #include <linux/string.h>
--#include "evlist.h"
-+
- #include "env.h"
-+#include "evlist.h"
- #include "header.h"
--#include "sample-raw.h"
- #include "session.h"
- 
- /*
-@@ -14,14 +15,14 @@
-  */
- void evlist__init_trace_event_sample_raw(struct evlist *evlist, struct perf_env *env)
- {
--	const char *arch_pf = perf_env__arch(env);
--	const char *cpuid = perf_env__cpuid(env);
-+	uint16_t e_machine = perf_env__e_machine(env, /*e_eflags=*/NULL);
- 
--	if (arch_pf && !strcmp("s390", arch_pf))
-+	if (e_machine == EM_S390) {
- 		evlist->trace_event_sample_raw = evlist__s390_sample_raw;
--	else if (arch_pf && !strcmp("x86", arch_pf) &&
--		 cpuid && strstarts(cpuid, "AuthenticAMD") &&
--		 evlist__has_amd_ibs(evlist)) {
--		evlist->trace_event_sample_raw = evlist__amd_sample_raw;
-+	} else if (e_machine == EM_X86_64 || e_machine == EM_386) {
-+		const char *cpuid = perf_env__cpuid(env);
-+
-+		if (cpuid && strstarts(cpuid, "AuthenticAMD") && evlist__has_amd_ibs(evlist))
-+			evlist->trace_event_sample_raw = evlist__amd_sample_raw;
- 	}
+diff --git a/tools/perf/util/machine.c b/tools/perf/util/machine.c
+index e76f8c86e62a..6d32d3cb5cb7 100644
+--- a/tools/perf/util/machine.c
++++ b/tools/perf/util/machine.c
+@@ -1611,10 +1611,15 @@ static bool machine__uses_kcore(struct machine *machine)
+ 	return dsos__for_each_dso(&machine->dsos, machine__uses_kcore_cb, NULL) != 0 ? true : false;
  }
-diff --git a/tools/perf/util/sample-raw.h b/tools/perf/util/sample-raw.h
-index 896e9a87e373..c8d38c841c8c 100644
---- a/tools/perf/util/sample-raw.h
-+++ b/tools/perf/util/sample-raw.h
-@@ -2,7 +2,10 @@
- #ifndef __SAMPLE_RAW_H
- #define __SAMPLE_RAW_H 1
  
-+#include <stdbool.h>
++static bool machine__is(struct machine *machine, uint16_t e_machine)
++{
++	return machine && perf_env__e_machine(machine->env, NULL) == e_machine;
++}
 +
- struct evlist;
-+struct perf_env;
- union perf_event;
- struct perf_sample;
+ static bool perf_event__is_extra_kernel_mmap(struct machine *machine,
+ 					     struct extra_kernel_map *xm)
+ {
+-	return machine__is(machine, "x86_64") &&
++	return machine__is(machine, EM_X86_64) &&
+ 	       is_entry_trampoline(xm->name);
+ }
  
-@@ -12,4 +15,5 @@ bool evlist__has_amd_ibs(struct evlist *evlist);
- void evlist__amd_sample_raw(struct evlist *evlist, union perf_event *event,
- 			    struct perf_sample *sample);
- void evlist__init_trace_event_sample_raw(struct evlist *evlist, struct perf_env *env);
--#endif /* __PERF_EVLIST_H */
-+
-+#endif /* __SAMPLE_RAW_H */
+@@ -2770,7 +2775,7 @@ static int find_prev_cpumode(struct ip_callchain *chain, struct thread *thread,
+ static u64 get_leaf_frame_caller(struct perf_sample *sample,
+ 		struct thread *thread, int usr_idx)
+ {
+-	if (machine__normalized_is(maps__machine(thread__maps(thread)), "arm64"))
++	if (thread__e_machine(thread, /*machine=*/NULL, /*e_flags=*/NULL) == EM_AARCH64)
+ 		return get_leaf_frame_caller_aarch64(sample, thread, usr_idx);
+ 	else
+ 		return 0;
+@@ -3141,20 +3146,6 @@ int machine__set_current_tid(struct machine *machine, int cpu, pid_t pid,
+ 	return 0;
+ }
+ 
+-/*
+- * Compares the raw arch string. N.B. see instead perf_env__arch() or
+- * machine__normalized_is() if a normalized arch is needed.
+- */
+-bool machine__is(struct machine *machine, const char *arch)
+-{
+-	return machine && !strcmp(perf_env__raw_arch(machine->env), arch);
+-}
+-
+-bool machine__normalized_is(struct machine *machine, const char *arch)
+-{
+-	return machine && !strcmp(perf_env__arch(machine->env), arch);
+-}
+-
+ int machine__nr_cpus_avail(struct machine *machine)
+ {
+ 	return machine ? perf_env__nr_cpus_avail(machine->env) : 0;
+@@ -3181,7 +3172,7 @@ int machine__get_kernel_start(struct machine *machine)
+ 		 * start of kernel text, but still above 2^63. So leave
+ 		 * kernel_start = 1ULL << 63 for x86_64.
+ 		 */
+-		if (!err && !machine__is(machine, "x86_64"))
++		if (!err && !machine__is(machine, EM_X86_64))
+ 			machine->kernel_start = map__start(map);
+ 	}
+ 	return err;
+diff --git a/tools/perf/util/machine.h b/tools/perf/util/machine.h
+index 22a42c5825fa..003c970b3e4b 100644
+--- a/tools/perf/util/machine.h
++++ b/tools/perf/util/machine.h
+@@ -227,8 +227,6 @@ static inline bool machine__is_host(struct machine *machine)
+ }
+ 
+ bool machine__is_lock_function(struct machine *machine, u64 addr);
+-bool machine__is(struct machine *machine, const char *arch);
+-bool machine__normalized_is(struct machine *machine, const char *arch);
+ int machine__nr_cpus_avail(struct machine *machine);
+ 
+ struct thread *machine__findnew_thread(struct machine *machine, pid_t pid, pid_t tid);
 -- 
 2.54.0.545.g6539524ca2-goog
 
