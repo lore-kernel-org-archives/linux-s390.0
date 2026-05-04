@@ -1,182 +1,133 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC15A3DE456
-	for <linux-s390@vger.kernel.org>; Mon,  4 May 2026 14:16:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F6C73DF000;
+	Mon,  4 May 2026 15:20:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777904196; cv=none; b=p0KF4hRMn8xRrqfxrNed7JysBsL1XqPglzBLP6aYOs6RG9T+M/Z8cZKcSjlz9atp+g5s9ApsxL5aclousTZUMVgufrNfa9mCXDY2WpE8CK4aeXgfXGirAPk1OXtJjkYXaI+YqcQpsANFhy3w7Kt5Lv+kszRtplGPkSjn8wRVdC4=
+	t=1777908041; cv=none; b=uZg2MWSaf+ZcJ9u3VJEArpl3xzL1miglF2YmqwPgVYZRUzAHbjlJAzjLQtCF3rVmAKoN5vsmrFij9Cl69xQoEvk2Wa3xh+Y/n6sKB9oRYyZH3MFO0jF7PSMLjwybn3k/5kiTke95qQkAJHYTunIbLACNZk7MIZgo/c2l9VF8CXM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777904196; c=relaxed/simple;
-	bh=dnulhm1JTuoUEhQzuO1u5rEt0FwJiLQjQxWn1rCEVQ4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rD0RJOtxI1MzrNKDBykhYQfo2O5OHDg3DCm6Ygta5GlmmHfTchi/oLpHYzbnpyWqQ7jA0exQAYVqunNFi7bx+fKUyk9dYKnwQr4ySH+vDEbdty+D3kMdEn65KXfG8f6p78vShXE2eEihzwu8hoS/zBxCVv2bgi1OfGypjk+ODk4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EEZJoSA2; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1777908041; c=relaxed/simple;
+	bh=VW9MbggZaTnhPi6UE2dTfTjui1YE48HTiFjW1+HjGnU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ccBUUwL2UJP8FLLfUIKepL9TecXerSzfzsDWZPvNkBtsKbKnmNYt3k9i88gAfdDqUlcOTfQ/1P+3b8X/cWThVdeqTU6K4DxHt43VFzgptyFagAeeUdYE2H0X6DPcjEB82aH3D/+3UAxASUJoZxujfHbnbDL+IjvQWMFjuUlIefo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=D/cWJzVB; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EEZJoSA2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7F45C2BD01
-	for <linux-s390@vger.kernel.org>; Mon,  4 May 2026 14:16:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777904195;
-	bh=dnulhm1JTuoUEhQzuO1u5rEt0FwJiLQjQxWn1rCEVQ4=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=EEZJoSA2+V1bS9N6/kBUrA73Kbqtv4rr5pK0ImtIEOP8hp3g/Pxpx3OB5nfBWsQkk
-	 JTEXv4tAWXlTHtQj1YfWReoHeA2fuK78sq+jKA9LGBnAV9zfafUmGPkGTDF2a+XBKT
-	 +Uj7+VoYbC8HwONiur8ukdewMwXCdtwSsCNlaLtM2b4MGnkCWPqRP3SJjZikftuCaL
-	 Zml9OhkupD9qECWzXBsF54LDbks60MTExeOShwnCEz7JpZgbYDjwAIhw4paXPT+PST
-	 uFaAxYZBh+fDrl8m4NnNjoZ/ehcrAwyzSNeHoJPSGdvmnM+nA216iRM7s/dgE18WlP
-	 U21yQQlu9E1CA==
-Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-8acb3dab8dfso33512086d6.1
-        for <linux-s390@vger.kernel.org>; Mon, 04 May 2026 07:16:35 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ/swNzXIoSsljVhghq7sZBpgy23UyrCmhyBcYhyqSSPOJ2oJO37n7h5EFwYKv+qexTcFNKLZFgvQbUL@vger.kernel.org
-X-Gm-Message-State: AOJu0YxOeKXnMl8bSM1yXtaDq13CrAmkdX5/AaiSohnBm517Ffn++/ln
-	i5MpbZf53qlYEmIXHZllLwnG2hhvWaobKzuygllnDQVOieNlh8Jc/tvgZhKZz/jwoLSk/XiCOg/
-	x8mQqRuKpsqZkFO5XU7YO7ofWpSQF0Pg=
-X-Received: by 2002:a05:6214:27c3:b0:8a4:db54:b3a4 with SMTP id
- 6a1803df08f44-8b665d1127bmr158681076d6.7.1777904164104; Mon, 04 May 2026
- 07:16:04 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="D/cWJzVB"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 644887oN1494000;
+	Mon, 4 May 2026 15:20:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=H5qt8yY/bScOiqGmG9UXWl3Wj8l0rGlgXkWYLweyz
+	ps=; b=D/cWJzVB9q7krhy0WOihnH9UEJb+7BZ7gI8BQkf927I6tb6cWgdHOZbI7
+	1r8KQLUuYYljJWYL2soQzsTlxs50FOJEXl2AmavVv8XcTRUC0/SoCKC6WyJAhL4a
+	BIv7CXinl4rpgBok1whA3J4mHcTtDtj5eCBStR4rJT44DQBD93e3PsdlhrAzK4yw
+	DBiZGuwXuTmwzrR/WKAmh8b0VUNtDkuAnGCzr4VgMb40izQDKhn1fCPhx+T9XTzn
+	7fUd06W3SViryYfMXwdQ2Lcd7CEihbdINvG4/ZSsadjoxqhE1ifpWRIxHeot9K6w
+	muyVCOijw+3aOtlqop2zjbeNJAcdg==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dw9w67g2j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 04 May 2026 15:20:37 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 644EsTCo008945;
+	Mon, 4 May 2026 15:20:36 GMT
+Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dwuyvwt4e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 04 May 2026 15:20:36 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 644FKZad30802600
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 4 May 2026 15:20:35 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0C0A25805A;
+	Mon,  4 May 2026 15:20:35 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4063358054;
+	Mon,  4 May 2026 15:20:32 +0000 (GMT)
+Received: from b35lp69.lnxne.boe (unknown [9.87.84.240])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  4 May 2026 15:20:32 +0000 (GMT)
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>, Sven Schnelle <svens@linux.ibm.com>,
+        Junrui Luo <moonafterrain@outlook.com>,
+        Yuhao Jiang <danisjiang@gmail.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>
+Subject: [GIT PULL 0/2] KVM: s390: pci: fix array indexing for master
+Date: Mon,  4 May 2026 17:20:24 +0200
+Message-ID: <20260504152026.587578-1-borntraeger@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260430040427.4672-1-baohua@kernel.org> <afNM-gIqxpyJ6ro7@casper.infradead.org>
- <CAGsJ_4w0qcYmukHqsyRd0jomoyYkJjOt8b-Cgp53BgP-8QQghw@mail.gmail.com>
- <afS_L-5XeWIldTXA@casper.infradead.org> <CAGsJ_4wk=SDtgin+84Ev2TamU-JFfmrg_SUay=-tcYmnFvK6Nw@mail.gmail.com>
- <afTpoL3FklpQZNMM@casper.infradead.org> <yezmezj26xntushmylductlmytfgvwsnbnzlhffkfwugfxkt6m@gleq22spziyk>
- <CAGsJ_4y8JtCxEy9hVxVd8eaf8D9WC8BcRQp9afUVu=FJA1-awA@mail.gmail.com> <n5vsmp6ingbhfztl6wzcwmrz56gkkfbpzardk43scr7rcgqsw5@evtnov34c5bt>
-In-Reply-To: <n5vsmp6ingbhfztl6wzcwmrz56gkkfbpzardk43scr7rcgqsw5@evtnov34c5bt>
-From: Barry Song <baohua@kernel.org>
-Date: Mon, 4 May 2026 22:15:52 +0800
-X-Gmail-Original-Message-ID: <CAGsJ_4xM8W5NHB4J2c1dVyXhu9SHAK_iiVZPAtH0fMvJoz77ww@mail.gmail.com>
-X-Gm-Features: AVHnY4LS13GrbYqayhsefNP68ODiwhwvddGMrFC2vbCyG8eLOAO_PeI0iks995A
-Message-ID: <CAGsJ_4xM8W5NHB4J2c1dVyXhu9SHAK_iiVZPAtH0fMvJoz77ww@mail.gmail.com>
-Subject: Re: [PATCH v2 0/5] mm: reduce mmap_lock contention and improve page
- fault performance
-To: Jan Kara <jack@suse.cz>
-Cc: Matthew Wilcox <willy@infradead.org>, akpm@linux-foundation.org, linux-mm@kvack.org, 
-	david@kernel.org, ljs@kernel.org, liam@infradead.org, vbabka@kernel.org, 
-	rppt@kernel.org, surenb@google.com, mhocko@suse.com, pfalcato@suse.de, 
-	wanglian@kylinos.cn, chentao@kylinos.cn, lianux.mm@gmail.com, 
-	kunwu.chan@gmail.com, liyangouwen1@oppo.com, chrisl@kernel.org, 
-	kasong@tencent.com, shikemeng@huaweicloud.com, nphamcs@gmail.com, 
-	bhe@redhat.com, youngjun.park@lge.com, linux-arm-kernel@lists.infradead.org, 
-	linux-kernel@vger.kernel.org, loongarch@lists.linux.dev, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=XPQAjwhE c=1 sm=1 tr=0 ts=69f8b945 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8 a=USlA6pr8Nzz675HqiGAA:9
+X-Proofpoint-ORIG-GUID: oC7enURaRBHrrrUj_GRzFuiBRmeLoY3o
+X-Proofpoint-GUID: JqFRZWTfHrNXqCHxv8k4Eohn_dqDfuHp
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTA0MDE1MiBTYWx0ZWRfXyC5xAHsP1tdu
+ T4MUrmNrARyhkaKAvD3nQFT662DE4hZs5au/hJuixJUPuSMNlgt9wb7V7PtUHIgwyas+mW42q7Q
+ FDzGdojqf3ICMunirrsA843K0JyK1ZhU+e3rhuF+s+bY1lX76hIcUU3n463CgTPNCjquboLsHKd
+ oGtLbwqTDmAdxVgaTUD2Elefe1em0fFYgoyz5/1PAgfA5lpZz4st5hF8M9eWPsDLWLoD4MRkOPF
+ ta6OEdNb0v2lLMylIEIznJwG8H4D7mc5kmC5v+7snESGpSKMl2Ejdtj17AKjJfp6STyNOi87vV9
+ nQDeFirpRRaAlMlhlv6fKb6/kJI5Krj805xVqub3xkw9R6WvI07um0WsDWFI4DzpILLEGlY7MAJ
+ uXKtGIXB3uSMazFMimypTDb9EWwslmy4CYAPMoqQz8pP3rPlMnvznhX5uy6jZ38cAT1MsnKefN6
+ QnC5J4ZOPPREMqtqRvQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-05-04_05,2026-04-30_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 lowpriorityscore=0 suspectscore=0 adultscore=0 spamscore=0
+ priorityscore=1501 impostorscore=0 phishscore=0 malwarescore=0 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2605040152
 
-On Mon, May 4, 2026 at 9:04=E2=80=AFPM Jan Kara <jack@suse.cz> wrote:
->
-> On Mon 04-05-26 03:55:43, Barry Song wrote:
-> > On Mon, May 4, 2026 at 2:17=E2=80=AFAM Jan Kara <jack@suse.cz> wrote:
-> > > On Fri 01-05-26 18:57:52, Matthew Wilcox wrote:
-> > > > On Sat, May 02, 2026 at 01:44:34AM +0800, Barry Song wrote:
-> > > > > On Fri, May 1, 2026 at 10:57=E2=80=AFPM Matthew Wilcox <willy@inf=
-radead.org> wrote:
-> > > > > > On Fri, May 01, 2026 at 06:49:58AM +0800, Barry Song wrote:
-> > > > > > > 1. There is no deterministic latency for I/O completion. It d=
-epends on
-> > > > > > > both the hardware and the software stack (bio/request queues =
-and the
-> > > > > > > block scheduler). Sometimes the latency is short; at other ti=
-mes it can
-> > > > > > > be quite long. In such cases, a high-priority thread performi=
-ng operations
-> > > > > > > such as mprotect, unmap, prctl_set_vma, or madvise may be for=
-ced to wait
-> > > > > > > for an unpredictable amount of time.
-> > > > > >
-> > > > > > But does that actually happen?  I find it hard to believe that =
-thread A
-> > > > > > unmaps a VMA while thread B is in the middle of taking a page f=
-ault in
-> > > > > > that same VMA.  mprotect() and madvise() are more likely to hap=
-pen, but
-> > > > > > it still seems really unlikely to me.
-> > > > >
-> > > > > It doesn=E2=80=99t have to involve unmapping or applying mprotect=
- to
-> > > > > the entire VMA=E2=80=94just a portion of it is sufficient.
-> > > >
-> > > > Yes, but that still fails to answer "does this actually happen".  H=
-ow much
-> > > > performance is all this complexity in the page fault handler buying=
- us?
-> > > > If you don't answer this question, I'm just going to go in and rip =
-it
-> > > > all out.
-> > >
-> > > I fully agree with you we should verify whether the retry code still =
-brings
-> > > in real-world advantage today with VMA locks. After all the retry log=
-ic has
-> > > been introduced in 2010. That being said if there are realistic loads=
- where
-> > > one thread needs VMA write lock while another thread is faulting the =
-VMA,
-> > > then the latencies can be indeed extreme. For example things like cgr=
-oup IO
-> > > throttling happen on the IO path and thus can throttle IO of a low-pr=
-iority
-> > > thread for a long time.
-> >
-> > I=E2=80=99m quite sure that swap-in and VMA writes can occur
-> > concurrently, and this is fairly common. For example,
-> > Java GC may use mprotect or userfaultfd on a small
-> > portion of a large Java heap while other portions are
-> > still under do_swap_page().
->
-> OK, makes sense.
->
-> > If we start exploring different approaches for anon and
-> > file, I agree I can revisit this on an Android phone if
-> > there is a real, serious case where a file VMA can be
-> > written and a page fault occurs at the same time.
-> >
-> > Please note that, as an Android developer, I am particularly
-> > cautious about priority inversion. A recent issue causing
-> > severe priority inversion is zram attempting to support
-> > preemption[1]. When a task performing compression or
-> > decompression is migrated to another CPU and then preempted
-> > by other tasks, high-priority tasks waiting on the mutex may
-> > be significantly delayed, impacting user experience.
->
-> Well, container people are concerned about priority inversion as well. Bu=
-t
-> usually this is with coarse lock (such as global filesystem locks) but VM=
-A
-> lock is specific to a task (and a VMA) so there the opportunity for
-> priority inversion looks more limited.  But the example with Java where G=
-C
-> thread can presumably have higher priority than ordinary Java threads is =
-an
-> interesting one.
+Paolo,
 
-A major difference in Android apps is that each thread can
-affect user experience differently. And it is not simply a matter
-of whether a VMA writer has higher or lower priority than a
-page-fault (PF) thread performing I/O.
+The following changes since commit 028ef9c96e96197026887c0f092424679298aae8:
 
-For example, thread A handles a PF; thread B attempts to
-modify the VMA where the PF occurs; thread C tries to modify
-another VMA (requiring mmap_lock in write mode) or iterate
-VMAs (requiring mmap_lock in read mode). Regardless of
-thread B=E2=80=99s priority, it holds mmap_lock in write mode while
-waiting for the VMA lock. The usual pattern for a VMA writer
-is:
+  Linux 7.0 (2026-04-12 13:48:06 -0700)
 
-mmap_write_lock()
-vma_start_write()
+are available in the Git repository at:
 
-As a result, thread C can be blocked even if it has higher
-priority but operates on a different VMA.
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-7.1-1
 
-In essence, when a PF and a VMA write occur concurrently,
-high-priority threads may be blocked even if they operate on
-different VMAs, not necessarily the same one.
+for you to fetch changes up to 0cfe660559e857d7c00ab86c73e4510ce069086f:
 
-Thanks
-Barry
+  KVM: s390: pci: Fix aisb calculation (2026-04-27 11:14:45 +0200)
+
+----------------------------------------------------------------
+KVM: s390: pci: fix array indexing
+
+For large amounts of PCI devices its possible to overrun the arrays as
+the index was miscalculated in 2 places.
+
+----------------------------------------------------------------
+Junrui Luo (1):
+      KVM: s390: pci: fix GAIT table indexing due to double-scaling pointer arithmetic
+
+Matthew Rosato (1):
+      KVM: s390: pci: Fix aisb calculation
+
+ arch/s390/kvm/interrupt.c |  3 +--
+ arch/s390/kvm/pci.c       | 10 ++++------
+ 2 files changed, 5 insertions(+), 8 deletions(-)
