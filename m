@@ -1,40 +1,40 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5689B3D5642
-	for <linux-s390@vger.kernel.org>; Mon,  4 May 2026 13:35:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC15A3DE456
+	for <linux-s390@vger.kernel.org>; Mon,  4 May 2026 14:16:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777901752; cv=none; b=CtrXm5CorxfACSF2DK8KD7hdCzqIam/9EHVrU1F7QOxaIEpfJCxEmiWI9VjPhkLwXauzoyBSZNbByQafHiG8zPIAv4lW7AYzVTfBb0ZcqDHKAhCgt6SZ2erNjPUatZDe/yiHzFz6K9sTBMVRdRjydwGrhC5B6Qcey1yZoWdL2Dg=
+	t=1777904196; cv=none; b=p0KF4hRMn8xRrqfxrNed7JysBsL1XqPglzBLP6aYOs6RG9T+M/Z8cZKcSjlz9atp+g5s9ApsxL5aclousTZUMVgufrNfa9mCXDY2WpE8CK4aeXgfXGirAPk1OXtJjkYXaI+YqcQpsANFhy3w7Kt5Lv+kszRtplGPkSjn8wRVdC4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777901752; c=relaxed/simple;
-	bh=anAXTn2WVNJfQBijdvlVjx89L+KjLxZQUrMBMBAvn58=;
+	s=arc-20240116; t=1777904196; c=relaxed/simple;
+	bh=dnulhm1JTuoUEhQzuO1u5rEt0FwJiLQjQxWn1rCEVQ4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jDfSVjw0CsTMSABwgjcM2ZhNydMgKALJ3lrBwExe5IdikiSjiiPiHOe0TBAVvEaNsqd5VkSUhouDiMO/hipEQoFjeevjlwXP0viQ+7AcoCgwVesOm8dF/Sz7hgIviH7Y76Mqq9mcKgaKEz2tfrm1AaMv8iO+AX3+6fSigvjvCM0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lnl6aPnS; arc=none smtp.client-ip=10.30.226.201
+	 To:Cc:Content-Type; b=rD0RJOtxI1MzrNKDBykhYQfo2O5OHDg3DCm6Ygta5GlmmHfTchi/oLpHYzbnpyWqQ7jA0exQAYVqunNFi7bx+fKUyk9dYKnwQr4ySH+vDEbdty+D3kMdEn65KXfG8f6p78vShXE2eEihzwu8hoS/zBxCVv2bgi1OfGypjk+ODk4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EEZJoSA2; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lnl6aPnS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 089B9C2BCC9
-	for <linux-s390@vger.kernel.org>; Mon,  4 May 2026 13:35:52 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EEZJoSA2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7F45C2BD01
+	for <linux-s390@vger.kernel.org>; Mon,  4 May 2026 14:16:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777901752;
-	bh=anAXTn2WVNJfQBijdvlVjx89L+KjLxZQUrMBMBAvn58=;
+	s=k20201202; t=1777904195;
+	bh=dnulhm1JTuoUEhQzuO1u5rEt0FwJiLQjQxWn1rCEVQ4=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=lnl6aPnSMZ/pjCpEJwjG0toeC92lXw/P55HYyqxNMB6YvhxosGlsSkfcFGWIQdvph
-	 v6DCKPOFaJdaIInkojOx3zd98rUeBZPsMfVjr1dpFdUHUwgtoGaBfhepHMXGqRIjo7
-	 GS+m8HMV0rCgwsEGjGldTkNyxZ95+kWijuky3Pb8VRCdxbggS8Ars53lE+4Ke9qEPx
-	 q53wkwHlT8njjjxNEJdSU4gvreF2UGiEDYXoEa8Zd37Z3D8Xbe52VT0+hznFzjq7zX
-	 oo6aWDZLan5ELHWA6vU95lN5k+JdsM60zYAMO0KCtM8JoLRlq5CeZM0G7w0ENgzkrW
-	 zQ/WSWIDKFSnA==
-Received: by mail-qv1-f42.google.com with SMTP id 6a1803df08f44-8b9f2295a9dso4064096d6.3
-        for <linux-s390@vger.kernel.org>; Mon, 04 May 2026 06:35:52 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ91lI3XSawOYvBVlmtZIlnPcnH0vjTJSrzPRgydjJNOLahhXd1HuLArc6AaoYcL67WBk44RZ+NMcv2E@vger.kernel.org
-X-Gm-Message-State: AOJu0YwTKPTJ+VY8PSdzQdVqhGMQ+Cb0kkRBmunVk/eGHP9VjkHaGiOq
-	wpcu6OteupVAma+mUOocFC7jigLgLpTVLp+CGMwHUkujJ8u8806xpP5qaPXTL5idMxAfkw9jmGx
-	reLCb8/NKSmN8/Vi90hnfGJz6eRDA/U8=
-X-Received: by 2002:a05:6214:260a:b0:8ac:4fd1:2d4a with SMTP id
- 6a1803df08f44-8b668a259e6mr167277966d6.33.1777901750649; Mon, 04 May 2026
- 06:35:50 -0700 (PDT)
+	b=EEZJoSA2+V1bS9N6/kBUrA73Kbqtv4rr5pK0ImtIEOP8hp3g/Pxpx3OB5nfBWsQkk
+	 JTEXv4tAWXlTHtQj1YfWReoHeA2fuK78sq+jKA9LGBnAV9zfafUmGPkGTDF2a+XBKT
+	 +Uj7+VoYbC8HwONiur8ukdewMwXCdtwSsCNlaLtM2b4MGnkCWPqRP3SJjZikftuCaL
+	 Zml9OhkupD9qECWzXBsF54LDbks60MTExeOShwnCEz7JpZgbYDjwAIhw4paXPT+PST
+	 uFaAxYZBh+fDrl8m4NnNjoZ/ehcrAwyzSNeHoJPSGdvmnM+nA216iRM7s/dgE18WlP
+	 U21yQQlu9E1CA==
+Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-8acb3dab8dfso33512086d6.1
+        for <linux-s390@vger.kernel.org>; Mon, 04 May 2026 07:16:35 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ/swNzXIoSsljVhghq7sZBpgy23UyrCmhyBcYhyqSSPOJ2oJO37n7h5EFwYKv+qexTcFNKLZFgvQbUL@vger.kernel.org
+X-Gm-Message-State: AOJu0YxOeKXnMl8bSM1yXtaDq13CrAmkdX5/AaiSohnBm517Ffn++/ln
+	i5MpbZf53qlYEmIXHZllLwnG2hhvWaobKzuygllnDQVOieNlh8Jc/tvgZhKZz/jwoLSk/XiCOg/
+	x8mQqRuKpsqZkFO5XU7YO7ofWpSQF0Pg=
+X-Received: by 2002:a05:6214:27c3:b0:8a4:db54:b3a4 with SMTP id
+ 6a1803df08f44-8b665d1127bmr158681076d6.7.1777904164104; Mon, 04 May 2026
+ 07:16:04 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,10 +48,10 @@ References: <20260430040427.4672-1-baohua@kernel.org> <afNM-gIqxpyJ6ro7@casper.i
  <CAGsJ_4y8JtCxEy9hVxVd8eaf8D9WC8BcRQp9afUVu=FJA1-awA@mail.gmail.com> <n5vsmp6ingbhfztl6wzcwmrz56gkkfbpzardk43scr7rcgqsw5@evtnov34c5bt>
 In-Reply-To: <n5vsmp6ingbhfztl6wzcwmrz56gkkfbpzardk43scr7rcgqsw5@evtnov34c5bt>
 From: Barry Song <baohua@kernel.org>
-Date: Mon, 4 May 2026 21:35:38 +0800
-X-Gmail-Original-Message-ID: <CAGsJ_4zBiRTttf1nR0Ni9BRT3Cv5XFZhyYP8oipFodpS7saGwQ@mail.gmail.com>
-X-Gm-Features: AVHnY4I0u-Qbkg0vrggpRHSUVs_cQpUa3gydJwrEbvTBOzz3MxeuFlaWucVZXHg
-Message-ID: <CAGsJ_4zBiRTttf1nR0Ni9BRT3Cv5XFZhyYP8oipFodpS7saGwQ@mail.gmail.com>
+Date: Mon, 4 May 2026 22:15:52 +0800
+X-Gmail-Original-Message-ID: <CAGsJ_4xM8W5NHB4J2c1dVyXhu9SHAK_iiVZPAtH0fMvJoz77ww@mail.gmail.com>
+X-Gm-Features: AVHnY4LS13GrbYqayhsefNP68ODiwhwvddGMrFC2vbCyG8eLOAO_PeI0iks995A
+Message-ID: <CAGsJ_4xM8W5NHB4J2c1dVyXhu9SHAK_iiVZPAtH0fMvJoz77ww@mail.gmail.com>
 Subject: Re: [PATCH v2 0/5] mm: reduce mmap_lock contention and improve page
  fault performance
 To: Jan Kara <jack@suse.cz>
@@ -69,43 +69,114 @@ Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
 On Mon, May 4, 2026 at 9:04=E2=80=AFPM Jan Kara <jack@suse.cz> wrote:
-[...]
 >
-> > > BTW I'm not sure I quite understand Barry's priority inversion proble=
-m
-> > > since I'd expect all threads of a task to generally be treated with t=
-he
-> > > same priority...
+> On Mon 04-05-26 03:55:43, Barry Song wrote:
+> > On Mon, May 4, 2026 at 2:17=E2=80=AFAM Jan Kara <jack@suse.cz> wrote:
+> > > On Fri 01-05-26 18:57:52, Matthew Wilcox wrote:
+> > > > On Sat, May 02, 2026 at 01:44:34AM +0800, Barry Song wrote:
+> > > > > On Fri, May 1, 2026 at 10:57=E2=80=AFPM Matthew Wilcox <willy@inf=
+radead.org> wrote:
+> > > > > > On Fri, May 01, 2026 at 06:49:58AM +0800, Barry Song wrote:
+> > > > > > > 1. There is no deterministic latency for I/O completion. It d=
+epends on
+> > > > > > > both the hardware and the software stack (bio/request queues =
+and the
+> > > > > > > block scheduler). Sometimes the latency is short; at other ti=
+mes it can
+> > > > > > > be quite long. In such cases, a high-priority thread performi=
+ng operations
+> > > > > > > such as mprotect, unmap, prctl_set_vma, or madvise may be for=
+ced to wait
+> > > > > > > for an unpredictable amount of time.
+> > > > > >
+> > > > > > But does that actually happen?  I find it hard to believe that =
+thread A
+> > > > > > unmaps a VMA while thread B is in the middle of taking a page f=
+ault in
+> > > > > > that same VMA.  mprotect() and madvise() are more likely to hap=
+pen, but
+> > > > > > it still seems really unlikely to me.
+> > > > >
+> > > > > It doesn=E2=80=99t have to involve unmapping or applying mprotect=
+ to
+> > > > > the entire VMA=E2=80=94just a portion of it is sufficient.
+> > > >
+> > > > Yes, but that still fails to answer "does this actually happen".  H=
+ow much
+> > > > performance is all this complexity in the page fault handler buying=
+ us?
+> > > > If you don't answer this question, I'm just going to go in and rip =
+it
+> > > > all out.
+> > >
+> > > I fully agree with you we should verify whether the retry code still =
+brings
+> > > in real-world advantage today with VMA locks. After all the retry log=
+ic has
+> > > been introduced in 2010. That being said if there are realistic loads=
+ where
+> > > one thread needs VMA write lock while another thread is faulting the =
+VMA,
+> > > then the latencies can be indeed extreme. For example things like cgr=
+oup IO
+> > > throttling happen on the IO path and thus can throttle IO of a low-pr=
+iority
+> > > thread for a long time.
 > >
-> > Exactly not. Maybe these slides[2] and this project[3] can give
-> > you a hint=E2=80=94they aim to standardize things on Linux by
-> > learning from Apple OS. Basically, tasks are classified
-> > into five types:
-> >
-> > USER_INTERACTIVE: Requires immediate response.
-> > USER_INITIATED: Tolerates a short delay, but must respond quickly still=
-.
-> > UTILITY: Tolerates long delays, but not prolonged ones.
-> > BACKGROUND: Doesn=E2=80=99t mind prolonged delays.
-> > DEFAULT: System default behavior.
+> > I=E2=80=99m quite sure that swap-in and VMA writes can occur
+> > concurrently, and this is fairly common. For example,
+> > Java GC may use mprotect or userfaultfd on a small
+> > portion of a large Java heap while other portions are
+> > still under do_swap_page().
 >
-> Again, this is a clasification of tasks but not really of threads in a ta=
-sk
-> so at least for VMA lock there's no inversion so have?
+> OK, makes sense.
+>
+> > If we start exploring different approaches for anon and
+> > file, I agree I can revisit this on an Android phone if
+> > there is a real, serious case where a file VMA can be
+> > written and a page fault occurs at the same time.
+> >
+> > Please note that, as an Android developer, I am particularly
+> > cautious about priority inversion. A recent issue causing
+> > severe priority inversion is zram attempting to support
+> > preemption[1]. When a task performing compression or
+> > decompression is migrated to another CPU and then preempted
+> > by other tasks, high-priority tasks waiting on the mutex may
+> > be significantly delayed, impacting user experience.
+>
+> Well, container people are concerned about priority inversion as well. Bu=
+t
+> usually this is with coarse lock (such as global filesystem locks) but VM=
+A
+> lock is specific to a task (and a VMA) so there the opportunity for
+> priority inversion looks more limited.  But the example with Java where G=
+C
+> thread can presumably have higher priority than ordinary Java threads is =
+an
+> interesting one.
 
-I=E2=80=99m specifically referring to a task (i.e., a thread) when
-discussing scheduler context. It may be clearer to use the
-terms process and thread explicitly.
+A major difference in Android apps is that each thread can
+affect user experience differently. And it is not simply a matter
+of whether a VMA writer has higher or lower priority than a
+page-fault (PF) thread performing I/O.
 
-In a typical process sharing an mm_struct, each thread can
-have a different priority.
+For example, thread A handles a PF; thread B attempts to
+modify the VMA where the PF occurs; thread C tries to modify
+another VMA (requiring mmap_lock in write mode) or iterate
+VMAs (requiring mmap_lock in read mode). Regardless of
+thread B=E2=80=99s priority, it holds mmap_lock in write mode while
+waiting for the VMA lock. The usual pattern for a VMA writer
+is:
 
-In an Android app, some threads handle the UI and require
-higher priority, such as the main thread and RenderThread;
-otherwise, frame drops may occur.
+mmap_write_lock()
+vma_start_write()
 
-The Linux scheduler can control scheduling policy and
-priority for each thread.
+As a result, thread C can be blocked even if it has higher
+priority but operates on a different VMA.
+
+In essence, when a PF and a VMA write occur concurrently,
+high-priority threads may be blocked even if they operate on
+different VMAs, not necessarily the same one.
 
 Thanks
 Barry
