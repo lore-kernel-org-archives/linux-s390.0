@@ -1,137 +1,189 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9341B379980
-	for <linux-s390@vger.kernel.org>; Sun,  3 May 2026 20:39:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72B169463;
+	Mon,  4 May 2026 01:35:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777840760; cv=none; b=rEwv0JMhseY5B/EUewAX+CRnS567frwDAjPhdF9EF50M0ZQb1zR/4Q6w+QVUzHxIw7FW+EDG2I3BSEgW3YXlknO5IdObh+JMQO8QhAKnWGSNBKneUepbOEesB5rv7ZdHCex0BZq3C0j4QzOLcj1WMEad4HPOrS34C6rppKGiUjQ=
+	t=1777858557; cv=none; b=NnS6xES9G5Ky5SZbWEimyLLG/l424ktb6fLadqMDkoMSnrWKAQJVFLl0lheCYatpYUpxHBYaBjvr15zkYo+B5ZgZiDTRNau4TdHmW8iWyaLU5+brRyYapdUybrYHnoN01ScATBBmFEDNlIWVzZdRebfXKUGpD7A9T/1velXrCjE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777840760; c=relaxed/simple;
-	bh=OYTEHp7kfu60uKZpC7uNHUoEqcMaDbfVrENwGSgXkAg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=upsOn9v5vt2rIM3iTDo59v1/7SqwBeUwxgLYf478QV0hB/HeDp6wKGLGbKC796G0GMs5EavTAKESP3fS/U2CcgjhaNZO0uoughB+igQ4vT5evj3qltN6jsaFi8yAxRpp/9lMH9rqlM1tkLT3X7nGoBvug8G9wxEQIinR7zZiP1Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AaGWexQ1; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1777858557; c=relaxed/simple;
+	bh=J57fHkcb2sTUOlg5JZBSV2Xsnk+sg+ZgcJ4agOn9+NM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=XM9rSXzZ9sptF7F/I56tXusFqGKOJtMWST9E8W62ADVIguEirz43G/CzEunv5BTmbT9U+GRy2/0Lss9TlLyslGtZeK6T07bqxqAUfvTIDatXWmBQZcCUpNB7xvoYdRABUjqmuxnSN/+5fKxjunoDxvputY3woQyTjlCrTrWdYxc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F0t+UqOJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AaGWexQ1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62304C4AF0C
-	for <linux-s390@vger.kernel.org>; Sun,  3 May 2026 20:39:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F0t+UqOJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92CF3C2BCB4;
+	Mon,  4 May 2026 01:35:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777840760;
-	bh=OYTEHp7kfu60uKZpC7uNHUoEqcMaDbfVrENwGSgXkAg=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=AaGWexQ13gf82hQWB+FAl3ibjW4mbkDbS1GJh505f+BGfDPc03XYC3Zss3edMV4ZJ
-	 DUwtWEtXIsczETxuHWOYHx5CxKBx+mb7JBjjW/Q7AXcxa6UIfwRqV/Zn51WKOcBsMp
-	 bFu9MwTUA+HqnMgiioGs52oZhuIjNtt0r82EsdfhdvfpiMubOWOj7+ws6jhlmjB4zW
-	 pSMu6gEYh3bgUQrlhgmDaf5Q4E0kn0ZvLr8PAKjVL0HN224g71jgMtdo9zM7PW1Ozr
-	 GBYpylIGAZ9+VE5Nv0nw7p4q7jui//Obr0a8J+RuTby7Ph7G6YVOsLlPN/bxxYQa3Z
-	 SQoa4rrnaEMrw==
-Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-8a093c784b0so36439396d6.3
-        for <linux-s390@vger.kernel.org>; Sun, 03 May 2026 13:39:20 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ9ZxI7n4cr8SyEI5LbkwkBsEJeBJtfyrMtdzzWNwvyz6P922+TlKcCumXvkfqiPCB2jleGDo4/ga4Tf@vger.kernel.org
-X-Gm-Message-State: AOJu0YwFOV+UYQ6WhxPTi1TD0Uy1OQxyPh8Hnvq7IZCFYU1Fo6FlU6Km
-	bOIGcZv0ASGbPZ6vyBRQziIlWOeLZoVzCDgN8j3k7sp8XNd8keRQopqSQ93jaNGknnsU9YhXU+E
-	WgwBc1ZsyqHBdgS9mQOAiQ8f0wNUBiNs=
-X-Received: by 2002:ad4:5be8:0:b0:8a7:16f8:442a with SMTP id
- 6a1803df08f44-8b6691f4b71mr126409566d6.39.1777840759244; Sun, 03 May 2026
- 13:39:19 -0700 (PDT)
+	s=k20201202; t=1777858557;
+	bh=J57fHkcb2sTUOlg5JZBSV2Xsnk+sg+ZgcJ4agOn9+NM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=F0t+UqOJk9sHUhivwwdzGhTJ4hN/dRVo8eudMiLIGTZwEFwzdm6RiIwUkoNu4Ypbv
+	 b6AapNh/60taYLm1VumX95nIlTV3zXQeXOCwW7Zb15n63C0mVgbUNNeaOQUv70f6fT
+	 1gC8wS15dxQAQWeOPvWZf+XpRWPkzuuvpjUDJcNL3QBakFvbtbiunYfzaa0p+GI/Cl
+	 5juOSbhzhEc4elKga+GhrvUisG8n0tvg7ROmkgp48cdeQLMopIU3GJr/NnT6ZoMBeP
+	 prPNWBiNtijzht4XYQIxTd1hCB1iHZjQ74sZ8dttm6+69C3/xVbLjwKcVBE0QHNDzM
+	 gauEFWm3K1wTQ==
+Date: Sun, 3 May 2026 18:35:55 -0700
+From: Namhyung Kim <namhyung@kernel.org>
+To: Ian Rogers <irogers@google.com>
+Cc: acme@kernel.org, tmricht@linux.ibm.com, agordeev@linux.ibm.com,
+	gor@linux.ibm.com, hca@linux.ibm.com, jameshongleiwang@126.com,
+	japo@linux.ibm.com, linux-kernel@vger.kernel.org,
+	linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org,
+	sumanthk@linux.ibm.com
+Subject: Re: [PATCH v9 01/18] perf env: Add perf_env__e_machine helper and
+ use in perf_env__arch
+Message-ID: <aff3-2H-zvRKULwl@z2>
+References: <20260502065935.291960-1-irogers@google.com>
+ <20260503002248.1040791-1-irogers@google.com>
+ <20260503002248.1040791-2-irogers@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260430040427.4672-1-baohua@kernel.org> <afNM-gIqxpyJ6ro7@casper.infradead.org>
- <CAGsJ_4w0qcYmukHqsyRd0jomoyYkJjOt8b-Cgp53BgP-8QQghw@mail.gmail.com>
- <afS_L-5XeWIldTXA@casper.infradead.org> <CAGsJ_4wk=SDtgin+84Ev2TamU-JFfmrg_SUay=-tcYmnFvK6Nw@mail.gmail.com>
- <afTpoL3FklpQZNMM@casper.infradead.org> <CAGsJ_4x8sNtgv7Y198Gh9NSY+SE2o_JPFAxG9aWE+xXsB9vwGg@mail.gmail.com>
- <afUBXnPVnt7Jt5hh@casper.infradead.org>
-In-Reply-To: <afUBXnPVnt7Jt5hh@casper.infradead.org>
-From: Barry Song <baohua@kernel.org>
-Date: Mon, 4 May 2026 04:39:08 +0800
-X-Gmail-Original-Message-ID: <CAGsJ_4z3MfP_sx1+qSr00dP5wshOuCAOcbT3RJ_He6Ddz_LnKA@mail.gmail.com>
-X-Gm-Features: AVHnY4J-8SFfwvh8WWDAqxVa-cYngpmLlGJISHly6gCLbGvwUy-qMx6Jb2WhZWc
-Message-ID: <CAGsJ_4z3MfP_sx1+qSr00dP5wshOuCAOcbT3RJ_He6Ddz_LnKA@mail.gmail.com>
-Subject: Re: [PATCH v2 0/5] mm: reduce mmap_lock contention and improve page
- fault performance
-To: Matthew Wilcox <willy@infradead.org>
-Cc: akpm@linux-foundation.org, linux-mm@kvack.org, david@kernel.org, 
-	ljs@kernel.org, liam@infradead.org, vbabka@kernel.org, rppt@kernel.org, 
-	surenb@google.com, mhocko@suse.com, jack@suse.cz, pfalcato@suse.de, 
-	wanglian@kylinos.cn, chentao@kylinos.cn, lianux.mm@gmail.com, 
-	kunwu.chan@gmail.com, liyangouwen1@oppo.com, chrisl@kernel.org, 
-	kasong@tencent.com, shikemeng@huaweicloud.com, nphamcs@gmail.com, 
-	bhe@redhat.com, youngjun.park@lge.com, linux-arm-kernel@lists.infradead.org, 
-	linux-kernel@vger.kernel.org, loongarch@lists.linux.dev, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260503002248.1040791-2-irogers@google.com>
 
-On Sat, May 2, 2026 at 3:39=E2=80=AFAM Matthew Wilcox <willy@infradead.org>=
- wrote:
->
-> On Sat, May 02, 2026 at 02:25:37AM +0800, Barry Song wrote:
-> > On Sat, May 2, 2026 at 1:58=E2=80=AFAM Matthew Wilcox <willy@infradead.=
-org> wrote:
-> > > Yes, but that still fails to answer "does this actually happen".  How=
- much
-> > > performance is all this complexity in the page fault handler buying u=
-s?
-> > > If you don't answer this question, I'm just going to go in and rip it
-> > > all out.
+On Sat, May 02, 2026 at 05:22:31PM -0700, Ian Rogers wrote:
+> Add a helper that lazily computes the e_machine and falls back to
+> EM_HOST. Use the perf_env's arch to compute the e_machine if
+> available. Use a binary search for some efficiency in this, but handle
+> somewhat complex duplicate rules. Switch perf_env__arch to be derived
+> the e_machine for consistency. This switches arch from being uname
+> derived to matching that of the perf binary (via EM_HOST). Update
+> session to use the helper, which may mean using EM_HOST when no
+> threads are available. This also updates the perf data file header
+> that gets the e_machine/e_flags from the session.
+> 
+> Signed-off-by: Ian Rogers <irogers@google.com>
+> ---
+[SNIP]
+> diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
+> index f30e48eb3fc3..f1ae61392cce 100644
+> --- a/tools/perf/util/header.c
+> +++ b/tools/perf/util/header.c
+> @@ -379,21 +379,28 @@ static int write_osrelease(struct feat_fd *ff,
+>  	return do_write_string(ff, uts.release);
+>  }
+>  
+> -static int write_arch(struct feat_fd *ff,
+> -		      struct evlist *evlist __maybe_unused)
+> +static int write_arch(struct feat_fd *ff, struct evlist *evlist)
+>  {
+>  	struct utsname uts;
+> -	int ret;
+> +	const char *arch = NULL;
+>  
+> -	ret = uname(&uts);
+> -	if (ret < 0)
+> -		return -1;
+> +	if (evlist->session) {
+> +		/* Force the computation in the perf_env of the e_machine of the threads. */
+> +		perf_session__e_machine(evlist->session, /*e_flags=*/NULL);
+> +		arch = perf_env__arch(perf_session__env(evlist->session));
+> +	}
+>  
+> -	return do_write_string(ff, uts.machine);
+> +	if (!arch) {
+> +		int ret = uname(&uts);
+> +
+> +		if (ret < 0)
+> +			return -1;
+> +		arch = uts.machine;
+> +	}
+> +	return do_write_string(ff, arch);
+>  }
+>  
+> -static int write_e_machine(struct feat_fd *ff,
+> -			   struct evlist *evlist __maybe_unused)
+> +static int write_e_machine(struct feat_fd *ff, struct evlist *evlist)
+>  {
+>  	/* e_machine expanded from 16 to 32-bits for alignment. */
+>  	uint32_t e_flags;
+> @@ -2684,10 +2691,18 @@ static int process_##__feat(struct feat_fd *ff, void *data __maybe_unused) \
+>  FEAT_PROCESS_STR_FUN(hostname, hostname);
+>  FEAT_PROCESS_STR_FUN(osrelease, os_release);
+>  FEAT_PROCESS_STR_FUN(version, version);
+> -FEAT_PROCESS_STR_FUN(arch, arch);
+>  FEAT_PROCESS_STR_FUN(cpudesc, cpu_desc);
+>  FEAT_PROCESS_STR_FUN(cpuid, cpuid);
+>  
+> +static int process_arch(struct feat_fd *ff, void *data __maybe_unused)
+> +{
+> +	free(ff->ph->env.arch);
+> +	ff->ph->env.arch = do_read_string(ff);
+> +	if (!ff->ph->env.arch)
+> +		return -ENOMEM;
+> +	return 0;
+> +}
 
-I guess the only way to answer this question is to
-remove all retry code for file VMA and run a real test.
-For defensive programming, I am generally very cautious
-about this approach, but if this is the only way to clarify
-whether we still need PF retry for file, I can give it a try
-and run a complete test on Android phones after lsf/mm/bpf.
+Isn't it same as FEAT_PROCESS_STR_FUN()?
 
-> >
-> > I=E2=80=99m getting quite confused. In patch 4/5, you suggest a more
-> > restrictive condition using
-> > if (folio_test_uptodate(folio) && !folio_test_writeback(folio))
-> > rather than if (folio_test_uptodate(folio)), before we decide to skip
-> > retrying the page fault [1].
-> > That seems to suggest we should be more cautious about when we can skip
-> > retrying the page fault.
-> >
-> > However, in the cover letter, you suggest removing all retry code entir=
-ely.
-> > Does this suggestion apply only to file-backed page faults?
->
-> I'm making sure that if Andrew decides to override me he at least sees
 
-No, I don=E2=80=99t want Andrew to override you unless there is a real PI
-issue for file, and only if you still still insist on =E2=80=9Cripping it o=
-ut=E2=80=9D
-after a thorough test with it removed.
+> +
+>  static int process_e_machine(struct feat_fd *ff, void *data __maybe_unused)
+>  {
+>  	int ret;
+> diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
+> index fe0de2a0277f..3e64db2d27c2 100644
+> --- a/tools/perf/util/session.c
+> +++ b/tools/perf/util/session.c
+> @@ -3023,14 +3023,19 @@ uint16_t perf_session__e_machine(struct perf_session *session, uint32_t *e_flags
+>  		return EM_HOST;
+>  	}
+>  
+> +	/*
+> +	 * Is the env caching an e_machine? If not we want to compute from the
+> +	 * more accurate threads.
+> +	 */
+>  	env = perf_session__env(session);
+> -	if (env && env->e_machine != EM_NONE) {
+> -		if (e_flags)
+> -			*e_flags = env->e_flags;
+> -
+> -		return env->e_machine;
+> -	}
+> +	if (env && env->e_machine != EM_NONE)
+> +		return perf_env__e_machine(env, e_flags);
+>  
+> +	/*
+> +	 * Compute from threads, note this is more accurate than
+> +	 * perf_env__e_machine that falls back on EM_HOST and doesn't consider
+> +	 * mixed 32-bit and 64-bit threads.
+> +	 */
 
-> that there are other problems with this patchset beyond "I don't like
-> the additional complexity".
+I'm curious if it's always better.  If EM_HOST is 64-bit and the first
+thread in a session happens to be 32-bit.  Then resulting e_machine
+would be 32- bit, right?  Is that what we want?
 
-The other issue you are pointing out is that, for anon, we
-should be more cautious before deciding to skip PF retry,
-which seems to be the opposite direction of what you expect
-for file.
+Thanks,
+Namhyung
 
->
-> And maybe we decide to do the fallback for anon-mm but not file memory.
 
-I was targeting a unified approach for both file-backed
-and anonymous memory. For example, if anon requires retry
-under the per-VMA lock, we may already have the necessary
-branch in place that file-backed cases can also leverage.
-For anon cases, high-level language GCs can operate on a
-small portion of a large heap requiring VMA writes, which
-is fairly common, as I explained to Jan.
-
-> Or maybe it's just something somebody happens upon when reading the
-> mailing list (or more likely it's just grist for an AI).
-
-Maybe one or two years from now. For now, at least, there are still
-humans working on the kernel :-)
-
-Best Regards
-Barry
+>  	machines__for_each_thread(&session->machines,
+>  				  perf_session__e_machine_cb,
+>  				  &args);
+> @@ -3048,10 +3053,9 @@ uint16_t perf_session__e_machine(struct perf_session *session, uint32_t *e_flags
+>  
+>  	/*
+>  	 * Couldn't determine from the perf_env or current set of
+> -	 * threads. Default to the host.
+> +	 * threads. Potentially use logic that uses the arch string otherwise
+> +	 * default to the host. Don't cache in the perf_env in case later
+> +	 * threads indicate a better ELF machine type.
+>  	 */
+> -	if (e_flags)
+> -		*e_flags = EF_HOST;
+> -
+> -	return EM_HOST;
+> +	return perf_env__e_machine_nocache(env, e_flags);
+>  }
+> -- 
+> 2.54.0.545.g6539524ca2-goog
+> 
