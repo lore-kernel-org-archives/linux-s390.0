@@ -1,539 +1,334 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A4054A33F9;
-	Tue,  5 May 2026 17:37:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22C783C140F;
+	Tue,  5 May 2026 17:59:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778002663; cv=none; b=G6RN+JVWNy/yPTNJckIOPB05fNKVwvptMzDzPQjSddGRoz1sFoiGPmSW4i4awLd3EeaqVHJUx2uVfgQKfzah8QvorrxJeJPYKvAogHC6DS35C1Pl3VVJok37lsU1MaoHl89kHsFL8jVXGs3L+lr3caKYaxolJyHPlu8yhlHXRNA=
+	t=1778003985; cv=none; b=IPjsBEc2JgmjV9g5JbSfbp+xGmuuckmv0Bxs4gusRyFIpkIztqd1+0f3AQ1cqhx9v9/JloyOho6i+Vbhv44LuPif2QZZ8ju67YH4FI2z1zNHKodPhMGBEjPKg8ImGwnqzPLwb8aWro7l6sPdC/3lwIiYJT3DIQkF38MJkLQwRIk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778002663; c=relaxed/simple;
-	bh=ucjhoXX5UUMmVXoYsHw0MDDjsLH4EPU8Qlt+nnbdWB8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=AXk2H9Km6J4NxBh1A9GOC/BmG1PC/aeTFlXReqdRTiGHFBEmemKGR7AEWUIxVzDMAUZQTp4s1qGYniFPI3k+HBOnNeneudgRLEDVhFnQQGJA2kox3Kh/bVOr2gjh8FFl3s9cNb7YEmW5YY0uU0k+fWbVebc9Kbzk31JUASwSkso=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RzkiqbfD; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1778003985; c=relaxed/simple;
+	bh=gD66kznneqSBjDfNvHtEYbGQhZNTMG6YArmooZ1UIok=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mH/T6crCF3fbTm3qn+Jl8ycTGFwFwoJF7QTt6QSAO/f4JyyBYBoBtDu11MPyKC+6TAy0L5bwsXKtmU4nxB+OoWGAP+77mDQuSEiaPuterCQ08Mn0DwSb1IxDJ12J+LMoM0vTCtO+fs4wZqePImpshEZy+/86l2E127PtJRRH7Os=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Xw0GIQOe; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RzkiqbfD"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6459G8Um3634645;
-	Tue, 5 May 2026 17:37:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=3rsF/ltGqEV0kYZ3U
-	egGJxpsbju7zr1blMuDq4QE0aY=; b=RzkiqbfD3ei0bFRGQOSq8gMBKcnZvf5Ko
-	6CLTetQE01zYxhum11JcmIwhh66eMWiXP91TGG6IEYYNC0/lZ5g7Aztxccd/jBjW
-	kEGa7nFfQHjYIS0TD5Gn/KdTVymNHGYeUEWxGrejW3whcvK+BGOIOAW/WMonFSlh
-	+wULhQrFwo04/nT1x+XSe1zOUprnz+c/Ql6giZUf6yVOs9bbOpQFzAJ7wMeZNECw
-	cXHuSi/sgRsHLmNoRDLh9dUMxPjIvsJFu56WFm2o53P9AGboGQsgDI7OW9hlwPLF
-	ynljbJqnHmRPzfw1HEPipXZByJMYbAcdWldHp3MKxaXN2rgkJlHXw==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dw9w6cky1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 05 May 2026 17:37:37 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 645HOdUN020515;
-	Tue, 5 May 2026 17:37:36 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dwvkjtqg0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 05 May 2026 17:37:36 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 645HbZuD27919012
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 5 May 2026 17:37:35 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 506045804B;
-	Tue,  5 May 2026 17:37:35 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 22DED58055;
-	Tue,  5 May 2026 17:37:34 +0000 (GMT)
-Received: from 9.60.13.83 (unknown [9.60.13.83])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  5 May 2026 17:37:34 +0000 (GMT)
-From: Douglas Freimuth <freimuth@linux.ibm.com>
-To: borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, frankja@linux.ibm.com,
-        david@kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, svens@linux.ibm.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: mjrosato@linux.ibm.com, freimuth@linux.ibm.com
-Subject: [PATCH v5 4/4] KVM: s390: Introducing kvm_arch_set_irq_inatomic fast inject
-Date: Tue,  5 May 2026 19:37:28 +0200
-Message-ID: <20260505173728.160562-5-freimuth@linux.ibm.com>
-X-Mailer: git-send-email 2.52.0
-In-Reply-To: <20260505173728.160562-1-freimuth@linux.ibm.com>
-References: <20260505173728.160562-1-freimuth@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Xw0GIQOe"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A9ADC2BCB4;
+	Tue,  5 May 2026 17:59:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778003984;
+	bh=gD66kznneqSBjDfNvHtEYbGQhZNTMG6YArmooZ1UIok=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Xw0GIQOeVJKuVxm/2obhNmP0Vzf5X+/XEAP8lLR4hlRrx3FpBBW9jCg5g1Nz1ljQg
+	 ZSSGhSTdPgxrL2FHsrG/90MDiyFJqmtPow98ZEkYG+ro8XHrCv9IBe55HfvhscA7jg
+	 J1izjdeeyzPa6wbLYR+zkVuV6grokvRZWzW7GXZrL+xyVyrYWhjnixGz76owSb4B1k
+	 iLOSg2oI9w5xOKFrlnSypJOm1mnq0/xbq/ZTKv7gTMMx/h+ksmMnAFOFD7k171Uwf7
+	 ARwaiPcufZNhHDU52c2nxtyVa7ULIMrAJMxY8n4UkldNV9I4j1WCpc0AHT4DiUpAD0
+	 cXZ58NVo+3aVw==
+Date: Tue, 5 May 2026 10:59:43 -0700
+From: Minchan Kim <minchan@kernel.org>
+To: Michal Hocko <mhocko@suse.com>
+Cc: Christian Brauner <brauner@kernel.org>, akpm@linux-foundation.org,
+	hca@linux.ibm.com, linux-s390@vger.kernel.org, david@kernel.org,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org, surenb@google.com,
+	timmurray@google.com
+Subject: Re: [PATCH v2] mm: process_mrelease: introduce
+ PROCESS_MRELEASE_REAP_KILL flag
+Message-ID: <afowD31YsGVdVUBP@google.com>
+References: <20260429211359.3829683-1-minchan@kernel.org>
+ <afMnKrYT0xG_a-b3@tiehlicka>
+ <afUYfpwWsUQoB9hz@google.com>
+ <afhQB0CWEcflXpOi@tiehlicka>
+ <20260505-wegbleiben-deshalb-f929089dbdab@brauner>
+ <afoUt3te1k2TNao-@tiehlicka>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=XPQAjwhE c=1 sm=1 tr=0 ts=69fa2ae1 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=IXbFIl4MR9N5CccVwUwA:9
-X-Proofpoint-ORIG-GUID: eP4AChF05GGAftCJvXYKo6SRv9YncPSE
-X-Proofpoint-GUID: eP4AChF05GGAftCJvXYKo6SRv9YncPSE
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTA1MDE3MSBTYWx0ZWRfX7fWxV1GAMW73
- B/4FF4WVBi/TJ7ep90ZxNnHkEfOnUoKKpEJjOgTAUk0GTyJHotQMXyypW17NcQA2mWitRWGOcjo
- daciR6ZEnluk32RaJpKEUOVdfGCXI5BnilSlMULrFRFFzDOORygBSB2GrYqAt9raFEDQulfQDkt
- 0DO4ub9DNXUHIoP388z+slRid16i2rTIj7qBG0uUESboCXguBQoX6XD8CYONdG/RPDQltHNhWj3
- ta1lDQclSWSXq1HvxYtJ9w8xqEg/rKJosKq4a078u0ItLsoVCdlBja0ruM64K6vC4nugiK+n/rT
- ll0s1t8h1+bzg+ow+wgYGsvvworXIMtkuVsD0RpxiE+Qc4gm0a0y5aeFNh/mpqiAFEf8YTNfPcm
- mXOHesvWeh5Cnc2n2qeTWLdzX1IjKgobESEy7LXF46og/PVdytD6WGv/0lTK9OKrRIZ3sIFxiK8
- GLmGXmg0S03tIJbaM1w==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-05_02,2026-04-30_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 lowpriorityscore=0 suspectscore=0 adultscore=0 spamscore=0
- priorityscore=1501 impostorscore=0 phishscore=0 malwarescore=0 clxscore=1015
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2605050171
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <afoUt3te1k2TNao-@tiehlicka>
 
-S390 needs a fast path for irq injection, and along those lines we
-introduce kvm_arch_set_irq_inatomic. Instead of placing all interrupts on
-the global work queue as it does today, this patch provides a fast path for
-irq injection.
+On Tue, May 05, 2026 at 06:03:03PM +0200, Michal Hocko wrote:
+> On Tue 05-05-26 11:30:22, Christian Brauner wrote:
+> > IIUC, then the OOM kill if invoked from the kernel just takes down
+> > without permission checking what it wants to take down. That makes a lot
+> > of sense and is mostly safe - after all it is the kernel that initiates
+> > the kill.
+> > 
+> > However, when userspace initiates the kill we need at least the
+> > semantics you proposed, Michal. You can only kill processes that you
+> > have the necessary privileges over otherwise you end up allowing to
+> > SIGKILL setuid binaries over which you hold no privileged possibly
+> > generating information leaks or worse.
+> 
+> Agreed!
+> 
+> > The other thing to keep in mind is that currently pidfds explicitly do
+> > not to allow to signal taks that are outside of their pid namespace
+> > hierarchy - see pidfd_send_signal()'s permission checking. I don't want
+> > to break these semantics - it's just very bad api design if signaling
+> > suddenly behaves differently and pidfd suddenly convey the ability to
+> > do a very wide signal scope.
+> 
+> Agreed!
+> 
+> > The other thing is that pidfds are handles that can be sent around using
+> > SCM_RIGHTS which means they could be forwarded to a container or another
+> > privileged user that then initiates kill semantics.
+> > 
+> > The other thing is that the type of pidfd selects the scope of the
+> > signaling operation:
+> > 
+> > * If the pidfd was created via PIDFD_THREAD then the scope of the signal
+> >   is by default the individual thread - unless the signal itself is
+> >   thread-group oriented ofc.
+> > 
+> > * If the pidfd was created wihout PIDFD_THREAD then the scope of the
+> >   signal is by default the thread-group.
+> > 
+> > * pidfd_send_signal() provides explicitly scope overrides:
+> > 
+> >   (1) PIDFD_SIGNAL_THREAD
+> >   (2) PIDFD_SIGNAL_THREAD_GROUP
+> >   (3) PIDFD_SIGNAL_PROCESS_GROUP
+> > 
+> >   The flags should be mostly self-explanatory.
+> > 
+> >   So I really dislike the idea of now letting the pidfd passed to
+> >   process_mrelease() to have an implicit scope suddenly. The problem is
+> >   that this is very opaque to userspace and introduces another way to
+> >   signal a group of processes.
+> 
+> I do see your point. Unfortunately the whole concept of mm shared
+> across thread (signal) groups is not fitting well into the overall
+> model. For the most usecases this is not a big problem. But oom handlers
+> do care. If you do not kill all owners of the mm you are not releasing
+> any memory.
+> 
+> > IOW, I still dislike the fact that process_mrelease() is suddenly turned
+> > into a signal sending syscall and I really dislike the fact that it
+> > implies a "kill everything with that mm and cross other thread-groups".
+> > 
+> > I wonder if you couldn't just add PIDFD_SIGNAL_MM_GROUP or something to
+> > pidfd_send_signal() instead.
+> 
+> That would be a clean interface for sure. The thing we are struggling
+> here is not just the killing side of things but also grabbing the mm
+> before it disappears which is the primary reason why process_mrelease is
+> turning into signal sending syscall (which you seem to be not in favor
+> of).
+> 
+> So I can see these options on the table
+> 1) keep process_mrelease as is and live with the race. This sucks
+> because it makes userspace low memory (oom) killers harder to predict.
+> 2) we add the proposed option to kill&release into process_mrelease that
+> is not aware of shared mm case. This sucks because it creates an easy
+> way to evade from the said oom killer
+> 3) same as 2 but add PIDFD_SIGNAL_MM_GROUP that would do the right thing
+> on the signal handling side. You seem to like the idea from the
+> pidfd_send_signal POV but I am not sure you are OK with that being
+> implanted into process_mrelease.
 
-The inatomic fast path cannot lose control since it is running with
-interrupts disabled. This meant making the following changes that exist on
-the slow path today. First, the adapter_indicators page needs to be mapped
-since it is accessed with interrupts disabled, so we added map/unmap
-functions. Second, access to shared resources between the fast and slow
-paths needed to be changed from mutex and semaphores to raw_spin_lock's.
-Finally, the memory allocation on the slow path utilizes GFP_KERNEL_ACCOUNT
-but we had to implement the fast path with GFP_ATOMIC allocation. Each of
-these enhancements were required to prevent blocking on the fast inject
-path.
+For 3, maybe something likle this?
+(Just to show the concept for further discussion)
 
-Fencing of Fast Inject in Secure Execution environments is enabled in the
-patch series by not mapping adapter indicator pages. In Secure Execution
-environments the path of execution available before this patch is followed.
-
-Statistical counters have been added to enable analysis of irq injection on
-the fast path and slow path including io_390_inatomic, io_flic_inject_airq,
-io_set_adapter_int and io_390_inatomic_adapter_masked.
-
-Signed-off-by: Douglas Freimuth <freimuth@linux.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |   6 +-
- arch/s390/kvm/interrupt.c        | 163 +++++++++++++++++++++++++++----
- arch/s390/kvm/kvm-s390.c         |  21 +++-
- arch/s390/kvm/kvm-s390.h         |   3 +-
- 4 files changed, 170 insertions(+), 23 deletions(-)
+ include/linux/signal.h    |  4 +++
+ include/uapi/linux/mman.h |  4 +++
+ kernel/signal.c           | 29 ++++++++++++++++++---
+ mm/oom_kill.c             | 55 ++++++++++++++++++++++++++++++++++-----
+ 4 files changed, 81 insertions(+), 11 deletions(-)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 9dd8a4986592..b485dee4c766 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -359,7 +359,7 @@ struct kvm_s390_float_interrupt {
- 	struct kvm_s390_mchk_info mchk;
- 	struct kvm_s390_ext_info srv_signal;
- 	int last_sleep_cpu;
--	struct mutex ais_lock;
-+	raw_spinlock_t ais_lock;
- 	u8 simm;
- 	u8 nimm;
+diff --git a/include/linux/signal.h b/include/linux/signal.h
+index f19816832f05..bdbe6b3addec 100644
+--- a/include/linux/signal.h
++++ b/include/linux/signal.h
+@@ -276,6 +276,8 @@ static inline int valid_signal(unsigned long sig)
+ 
+ struct timespec;
+ struct pt_regs;
++struct mm_struct;
++struct pid;
+ enum pid_type;
+ 
+ extern int next_signal(struct sigpending *pending, sigset_t *mask);
+@@ -283,6 +285,8 @@ extern int do_send_sig_info(int sig, struct kernel_siginfo *info,
+ 				struct task_struct *p, enum pid_type type);
+ extern int group_send_sig_info(int sig, struct kernel_siginfo *info,
+ 			       struct task_struct *p, enum pid_type type);
++extern int do_pidfd_send_signal_pidns(struct pid *pid, int sig, enum pid_type type,
++				      siginfo_t __user *info, unsigned int flags);
+ extern int send_signal_locked(int sig, struct kernel_siginfo *info,
+ 			      struct task_struct *p, enum pid_type type);
+ extern int sigprocmask(int, sigset_t *, sigset_t *);
+diff --git a/include/uapi/linux/mman.h b/include/uapi/linux/mman.h
+index e89d00528f2f..4266976b45ad 100644
+--- a/include/uapi/linux/mman.h
++++ b/include/uapi/linux/mman.h
+@@ -56,4 +56,8 @@ struct cachestat {
+ 	__u64 nr_recently_evicted;
  };
-@@ -450,6 +450,10 @@ struct kvm_vm_stat {
- 	u64 inject_io;
- 	u64 io_390_adapter_map;
- 	u64 io_390_adapter_unmap;
-+	u64 io_390_inatomic;
-+	u64 io_flic_inject_airq;
-+	u64 io_set_adapter_int;
-+	u64 io_390_inatomic_adapter_masked;
- 	u64 inject_float_mchk;
- 	u64 inject_pfault_done;
- 	u64 inject_service_signal;
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 49ccdeccc70c..1c79ad072fce 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -1966,15 +1966,10 @@ static int __inject_vm(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
+ 
++/* Flags for process_mrelease */
++#define PROCESS_MRELEASE_REAP_KILL	(1 << 0)
++#define PROCESS_MRELEASE_VALID_FLAGS	(PROCESS_MRELEASE_REAP_KILL)
++
+ #endif /* _UAPI_LINUX_MMAN_H */
+diff --git a/kernel/signal.c b/kernel/signal.c
+index d65d0fe24bfb..b2dc08a9bdd3 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -4046,6 +4046,30 @@ static int do_pidfd_send_signal(struct pid *pid, int sig, enum pid_type type,
+ 	return kill_pid_info_type(sig, &kinfo, pid, type);
  }
  
- int kvm_s390_inject_vm(struct kvm *kvm,
--		       struct kvm_s390_interrupt *s390int)
-+		       struct kvm_s390_interrupt *s390int, struct kvm_s390_interrupt_info *inti)
- {
--	struct kvm_s390_interrupt_info *inti;
- 	int rc;
- 
--	inti = kzalloc_obj(*inti, GFP_KERNEL_ACCOUNT);
--	if (!inti)
--		return -ENOMEM;
--
- 	inti->type = s390int->type;
- 	switch (inti->type) {
- 	case KVM_S390_INT_VIRTIO:
-@@ -2010,6 +2005,7 @@ int kvm_s390_inject_vm(struct kvm *kvm,
- 				 2);
- 
- 	rc = __inject_vm(kvm, inti);
-+	/* memory allocation is done by the caller and inti is passed in, we free it here */
- 	if (rc)
- 		kfree(inti);
- 	return rc;
-@@ -2287,6 +2283,7 @@ static int flic_ais_mode_get_all(struct kvm *kvm, struct kvm_device_attr *attr)
- {
- 	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
- 	struct kvm_s390_ais_all ais;
-+	unsigned long flags;
- 
- 	if (attr->attr < sizeof(ais))
- 		return -EINVAL;
-@@ -2294,10 +2291,10 @@ static int flic_ais_mode_get_all(struct kvm *kvm, struct kvm_device_attr *attr)
- 	if (!test_kvm_facility(kvm, 72))
- 		return -EOPNOTSUPP;
- 
--	mutex_lock(&fi->ais_lock);
-+	raw_spin_lock_irqsave(&fi->ais_lock, flags);
- 	ais.simm = fi->simm;
- 	ais.nimm = fi->nimm;
--	mutex_unlock(&fi->ais_lock);
-+	raw_spin_unlock_irqrestore(&fi->ais_lock, flags);
- 
- 	if (copy_to_user((void __user *)attr->addr, &ais, sizeof(ais)))
- 		return -EFAULT;
-@@ -2674,6 +2671,7 @@ static int modify_ais_mode(struct kvm *kvm, struct kvm_device_attr *attr)
- 	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
- 	struct kvm_s390_ais_req req;
- 	int ret = 0;
-+	unsigned long flags;
- 
- 	if (!test_kvm_facility(kvm, 72))
- 		return -EOPNOTSUPP;
-@@ -2690,7 +2688,7 @@ static int modify_ais_mode(struct kvm *kvm, struct kvm_device_attr *attr)
- 				       2 : KVM_S390_AIS_MODE_SINGLE :
- 				       KVM_S390_AIS_MODE_ALL, req.mode);
- 
--	mutex_lock(&fi->ais_lock);
-+	raw_spin_lock_irqsave(&fi->ais_lock, flags);
- 	switch (req.mode) {
- 	case KVM_S390_AIS_MODE_ALL:
- 		fi->simm &= ~AIS_MODE_MASK(req.isc);
-@@ -2703,7 +2701,7 @@ static int modify_ais_mode(struct kvm *kvm, struct kvm_device_attr *attr)
- 	default:
- 		ret = -EINVAL;
- 	}
--	mutex_unlock(&fi->ais_lock);
-+	raw_spin_unlock_irqrestore(&fi->ais_lock, flags);
- 
- 	return ret;
- }
-@@ -2717,25 +2715,33 @@ static int kvm_s390_inject_airq(struct kvm *kvm,
- 		.parm = 0,
- 		.parm64 = isc_to_int_word(adapter->isc),
- 	};
-+	struct kvm_s390_interrupt_info *inti;
-+	unsigned long flags;
-+
- 	int ret = 0;
- 
-+	inti = kzalloc_obj(*inti, GFP_KERNEL_ACCOUNT);
-+	if (!inti)
-+		return -ENOMEM;
-+
- 	if (!test_kvm_facility(kvm, 72) || !adapter->suppressible)
--		return kvm_s390_inject_vm(kvm, &s390int);
-+		return kvm_s390_inject_vm(kvm, &s390int, inti);
- 
--	mutex_lock(&fi->ais_lock);
-+	raw_spin_lock_irqsave(&fi->ais_lock, flags);
- 	if (fi->nimm & AIS_MODE_MASK(adapter->isc)) {
- 		trace_kvm_s390_airq_suppressed(adapter->id, adapter->isc);
-+		kfree(inti);
- 		goto out;
- 	}
- 
--	ret = kvm_s390_inject_vm(kvm, &s390int);
-+	ret = kvm_s390_inject_vm(kvm, &s390int, inti);
- 	if (!ret && (fi->simm & AIS_MODE_MASK(adapter->isc))) {
- 		fi->nimm |= AIS_MODE_MASK(adapter->isc);
- 		trace_kvm_s390_modify_ais_mode(adapter->isc,
- 					       KVM_S390_AIS_MODE_SINGLE, 2);
- 	}
- out:
--	mutex_unlock(&fi->ais_lock);
-+	raw_spin_unlock_irqrestore(&fi->ais_lock, flags);
- 	return ret;
- }
- 
-@@ -2744,6 +2750,8 @@ static int flic_inject_airq(struct kvm *kvm, struct kvm_device_attr *attr)
- 	unsigned int id = attr->attr;
- 	struct s390_io_adapter *adapter = get_io_adapter(kvm, id);
- 
-+	kvm->stat.io_flic_inject_airq++;
-+
- 	if (!adapter)
- 		return -EINVAL;
- 
-@@ -2754,6 +2762,7 @@ static int flic_ais_mode_set_all(struct kvm *kvm, struct kvm_device_attr *attr)
- {
- 	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
- 	struct kvm_s390_ais_all ais;
-+	unsigned long flags;
- 
- 	if (!test_kvm_facility(kvm, 72))
- 		return -EOPNOTSUPP;
-@@ -2761,10 +2770,10 @@ static int flic_ais_mode_set_all(struct kvm *kvm, struct kvm_device_attr *attr)
- 	if (copy_from_user(&ais, (void __user *)attr->addr, sizeof(ais)))
- 		return -EFAULT;
- 
--	mutex_lock(&fi->ais_lock);
-+	raw_spin_lock_irqsave(&fi->ais_lock, flags);
- 	fi->simm = ais.simm;
- 	fi->nimm = ais.nimm;
--	mutex_unlock(&fi->ais_lock);
-+	raw_spin_unlock_irqrestore(&fi->ais_lock, flags);
- 
- 	return 0;
- }
-@@ -2930,6 +2939,7 @@ static int adapter_indicators_set(struct kvm *kvm,
- 		set_bit(bit, map);
- 		raw_spin_unlock_irqrestore(&adapter->maps_lock, flags);
- 	}
-+
- 	raw_spin_lock_irqsave(&adapter->maps_lock, flags);
- 	summary_info = get_map_info(adapter, adapter_int->summary_addr);
- 	if (!summary_info) {
-@@ -2965,6 +2975,44 @@ static int adapter_indicators_set(struct kvm *kvm,
- 	return summary_set ? 0 : 1;
- }
- 
-+static int adapter_indicators_set_fast(struct kvm *kvm,
-+				       struct s390_io_adapter *adapter,
-+				       struct kvm_s390_adapter_int *adapter_int,
-+				       int setbit)
-+{
-+	unsigned long bit;
-+	int summary_set;
-+	struct s390_map_info *ind_info, *summary_info;
-+	void *map;
-+
-+	raw_spin_lock(&adapter->maps_lock);
-+	ind_info = get_map_info(adapter, adapter_int->ind_addr);
-+	if (!ind_info) {
-+		raw_spin_unlock(&adapter->maps_lock);
-+		return -EWOULDBLOCK;
-+	}
-+	map = page_address(ind_info->page);
-+	bit = get_ind_bit(ind_info->addr, adapter_int->ind_offset, adapter->swap);
-+	if (setbit)
-+		set_bit(bit, map);
-+	summary_info = get_map_info(adapter, adapter_int->summary_addr);
-+	if (!summary_info) {
-+		raw_spin_unlock(&adapter->maps_lock);
-+		return -EWOULDBLOCK;
-+	}
-+	map = page_address(summary_info->page);
-+	bit = get_ind_bit(summary_info->addr, adapter_int->summary_offset,
-+			  adapter->swap);
-+	/* If setbit then set summary bit. Else if falling back to the slow path */
-+	/* with setbit==0 then clear the summary bit so the slow path re-injects */
-+	if (setbit)
-+		summary_set = test_and_set_bit(bit, map);
-+	else
-+		summary_set = test_and_clear_bit(bit, map);
-+	raw_spin_unlock(&adapter->maps_lock);
-+	return summary_set ? 0 : 1;
-+}
-+
- /*
-  * < 0 - not injected due to error
-  * = 0 - coalesced, summary indicator already active
-@@ -2977,6 +3025,8 @@ static int set_adapter_int(struct kvm_kernel_irq_routing_entry *e,
- 	int ret;
- 	struct s390_io_adapter *adapter;
- 
-+	kvm->stat.io_set_adapter_int++;
-+
- 	/* We're only interested in the 0->1 transition. */
- 	if (!level)
- 		return 0;
-@@ -3045,7 +3095,6 @@ int kvm_set_routing_entry(struct kvm *kvm,
- 	int idx;
- 
- 	switch (ue->type) {
--	/* we store the userspace addresses instead of the guest addresses */
- 	case KVM_IRQ_ROUTING_S390_ADAPTER:
- 		if (kvm_is_ucontrol(kvm))
- 			return -EINVAL;
-@@ -3636,3 +3685,83 @@ int __init kvm_s390_gib_init(u8 nisc)
- out:
- 	return rc;
- }
-+
-+/*
-+ * kvm_arch_set_irq_inatomic: fast-path for irqfd injection
++/**
++ * do_pidfd_send_signal_pidns - Send a signal to a process via its struct pid
++ *                              while validating PID namespace hierarchy.
++ * @pid:   the struct pid of the target process
++ * @sig:   signal to send
++ * @type:  scope of the signal (e.g. PIDTYPE_TGID)
++ * @info:  signal info payload
++ * @flags: signaling flags
++ *
++ * Verify that the target pid resides inside the caller's PID namespace
++ * hierarchy prior to signal delivery.
++ *
++ * Return: 0 on success, negative errno on failure.
 + */
-+int kvm_arch_set_irq_inatomic(struct kvm_kernel_irq_routing_entry *e,
-+			      struct kvm *kvm, int irq_source_id, int level,
-+			      bool line_status)
++int do_pidfd_send_signal_pidns(struct pid *pid, int sig, enum pid_type type,
++			       siginfo_t __user *info, unsigned int flags)
 +{
-+	int ret, setbit;
-+	struct s390_io_adapter *adapter;
-+	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
-+	struct kvm_s390_interrupt_info *inti;
-+	struct kvm_s390_interrupt s390int = {
-+			.type = KVM_S390_INT_IO(1, 0, 0, 0),
-+			.parm = 0,
-+	};
++	/* Enforce PID namespace hierarchy boundary */
++	if (!access_pidfd_pidns(pid))
++		return -EINVAL;
 +
-+	kvm->stat.io_390_inatomic++;
-+
-+	/* We're only interested in the 0->1 transition. */
-+	if (!level)
-+		return -EWOULDBLOCK;
-+	if (e->type != KVM_IRQ_ROUTING_S390_ADAPTER)
-+		return -EWOULDBLOCK;
-+
-+	adapter = get_io_adapter(kvm, e->adapter.adapter_id);
-+	if (!adapter)
-+		return -EWOULDBLOCK;
-+
-+	s390int.parm64 = isc_to_int_word(adapter->isc);
-+	setbit = 1;
-+	ret = adapter_indicators_set_fast(kvm, adapter, &e->adapter, setbit);
-+	if (ret < 0)
-+		return -EWOULDBLOCK;
-+	if (!ret || adapter->masked) {
-+		kvm->stat.io_390_inatomic_adapter_masked++;
-+		return 0;
-+	}
-+
-+	inti = kzalloc_obj(*inti, GFP_ATOMIC);
-+	if (!inti) {
-+		setbit = 0;
-+		adapter_indicators_set_fast(kvm, adapter, &e->adapter, setbit);
-+		return -EWOULDBLOCK;
-+	}
-+
-+	if (!test_kvm_facility(kvm, 72) || !adapter->suppressible) {
-+		ret = kvm_s390_inject_vm(kvm, &s390int, inti);
-+		if (ret == 0) {
-+			return ret;
-+		} else {
-+			setbit = 0;
-+			adapter_indicators_set_fast(kvm, adapter, &e->adapter, setbit);
-+			return -EWOULDBLOCK;
-+		}
-+	}
-+
-+	raw_spin_lock(&fi->ais_lock);
-+	if (fi->nimm & AIS_MODE_MASK(adapter->isc)) {
-+		trace_kvm_s390_airq_suppressed(adapter->id, adapter->isc);
-+		kfree(inti);
-+		goto out;
-+	}
-+
-+	ret = kvm_s390_inject_vm(kvm, &s390int, inti);
-+	if (!ret && (fi->simm & AIS_MODE_MASK(adapter->isc))) {
-+		fi->nimm |= AIS_MODE_MASK(adapter->isc);
-+		trace_kvm_s390_modify_ais_mode(adapter->isc,
-+					       KVM_S390_AIS_MODE_SINGLE, 2);
-+	} else if (ret) {
-+		raw_spin_unlock(&fi->ais_lock);
-+		setbit = 0;
-+		adapter_indicators_set_fast(kvm, adapter, &e->adapter, setbit);
-+		return -EWOULDBLOCK;
-+	}
-+
-+out:
-+	raw_spin_unlock(&fi->ais_lock);
-+	return 0;
++	return do_pidfd_send_signal(pid, sig, type, info, flags);
 +}
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d8011b6d6801..11b62fa8634f 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -70,6 +70,10 @@ const struct kvm_stats_desc kvm_vm_stats_desc[] = {
- 	STATS_DESC_COUNTER(VM, inject_io),
- 	STATS_DESC_COUNTER(VM, io_390_adapter_map),
- 	STATS_DESC_COUNTER(VM, io_390_adapter_unmap),
-+	STATS_DESC_COUNTER(VM, io_390_inatomic),
-+	STATS_DESC_COUNTER(VM, io_flic_inject_airq),
-+	STATS_DESC_COUNTER(VM, io_set_adapter_int),
-+	STATS_DESC_COUNTER(VM, io_390_inatomic_adapter_masked),
- 	STATS_DESC_COUNTER(VM, inject_float_mchk),
- 	STATS_DESC_COUNTER(VM, inject_pfault_done),
- 	STATS_DESC_COUNTER(VM, inject_service_signal),
-@@ -2856,6 +2860,7 @@ int kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
- 	void __user *argp = (void __user *)arg;
- 	struct kvm_device_attr attr;
- 	int r;
-+	struct kvm_s390_interrupt_info *inti;
- 
- 	switch (ioctl) {
- 	case KVM_S390_INTERRUPT: {
-@@ -2864,7 +2869,10 @@ int kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
- 		r = -EFAULT;
- 		if (copy_from_user(&s390int, argp, sizeof(s390int)))
- 			break;
--		r = kvm_s390_inject_vm(kvm, &s390int);
-+		inti = kzalloc_obj(*inti, GFP_KERNEL_ACCOUNT);
-+		if (!inti)
-+			return -ENOMEM;
-+		r = kvm_s390_inject_vm(kvm, &s390int, inti);
- 		break;
- 	}
- 	case KVM_CREATE_IRQCHIP: {
-@@ -3262,7 +3270,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 		mutex_unlock(&kvm->lock);
- 	}
- 
--	mutex_init(&kvm->arch.float_int.ais_lock);
-+	raw_spin_lock_init(&kvm->arch.float_int.ais_lock);
- 	raw_spin_lock_init(&kvm->arch.float_int.lock);
- 	for (i = 0; i < FIRQ_LIST_COUNT; i++)
- 		INIT_LIST_HEAD(&kvm->arch.float_int.lists[i]);
-@@ -4384,19 +4392,24 @@ int kvm_s390_try_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clo
- }
- 
- static void __kvm_inject_pfault_token(struct kvm_vcpu *vcpu, bool start_token,
--				      unsigned long token)
-+				     unsigned long token)
- {
- 	struct kvm_s390_interrupt inti;
- 	struct kvm_s390_irq irq;
-+	struct kvm_s390_interrupt_info *inti_mem = NULL;
- 
- 	if (start_token) {
- 		irq.u.ext.ext_params2 = token;
- 		irq.type = KVM_S390_INT_PFAULT_INIT;
- 		WARN_ON_ONCE(kvm_s390_inject_vcpu(vcpu, &irq));
- 	} else {
-+		inti_mem = kzalloc_obj(*inti_mem, GFP_KERNEL_ACCOUNT);
-+		if (WARN_ON_ONCE(!inti_mem))
-+			return;
 +
- 		inti.type = KVM_S390_INT_PFAULT_DONE;
- 		inti.parm64 = token;
--		WARN_ON_ONCE(kvm_s390_inject_vm(vcpu->kvm, &inti));
-+		WARN_ON_ONCE(kvm_s390_inject_vm(vcpu->kvm, &inti, inti_mem));
+ /**
+  * sys_pidfd_send_signal - Signal a process through a pidfd
+  * @pidfd:  file descriptor of the process
+@@ -4094,16 +4118,13 @@ SYSCALL_DEFINE4(pidfd_send_signal, int, pidfd, int, sig,
+ 		if (IS_ERR(pid))
+ 			return PTR_ERR(pid);
+ 
+-		if (!access_pidfd_pidns(pid))
+-			return -EINVAL;
+-
+ 		/* Infer scope from the type of pidfd. */
+ 		if (fd_file(f)->f_flags & PIDFD_THREAD)
+ 			type = PIDTYPE_PID;
+ 		else
+ 			type = PIDTYPE_TGID;
+ 
+-		return do_pidfd_send_signal(pid, sig, type, info, flags);
++		return do_pidfd_send_signal_pidns(pid, sig, type, info, flags);
  	}
+ 	}
+ 
+diff --git a/mm/oom_kill.c b/mm/oom_kill.c
+index 5c6c95c169ee..253aa80770f2 100644
+--- a/mm/oom_kill.c
++++ b/mm/oom_kill.c
+@@ -20,6 +20,7 @@
+ 
+ #include <linux/oom.h>
+ #include <linux/mm.h>
++#include <uapi/linux/mman.h>
+ #include <linux/err.h>
+ #include <linux/gfp.h>
+ #include <linux/sched.h>
+@@ -925,6 +926,39 @@ static bool task_will_free_mem(struct task_struct *task)
+ 	return ret;
  }
  
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 7ba885cb6bd1..6d2842fb71a3 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -376,7 +376,8 @@ int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu);
- void kvm_s390_clear_local_irqs(struct kvm_vcpu *vcpu);
- void kvm_s390_clear_float_irqs(struct kvm *kvm);
- int __must_check kvm_s390_inject_vm(struct kvm *kvm,
--				    struct kvm_s390_interrupt *s390int);
-+				    struct kvm_s390_interrupt *s390int,
-+				    struct kvm_s390_interrupt_info *inti);
- int __must_check kvm_s390_inject_vcpu(struct kvm_vcpu *vcpu,
- 				      struct kvm_s390_irq *irq);
- static inline int kvm_s390_inject_prog_irq(struct kvm_vcpu *vcpu,
++/*
++ * kill_all_shared_mm - Deliver SIGKILL to all processes sharing the given address space.
++ * @victim: the targeted OOM process group leader
++ * @mm:     the virtual memory space being reaped
++ *
++ * Traverse all threads globally and signal any user processes sharing the identical
++ * mm footprints, ensuring no concurrent users pin the memory. Skips the system
++ * global init and kernel worker threads.
++ */
++static int kill_all_shared_mm(struct task_struct *victim, struct mm_struct *mm)
++{
++	struct task_struct *p;
++	bool failed = false;
++
++	rcu_read_lock();
++	for_each_process(p) {
++		if (!process_shares_mm(p, mm))
++			continue;
++		if (is_global_init(p)) {
++			failed = true;
++			continue;
++		}
++		if (unlikely(p->flags & PF_KTHREAD))
++			continue;
++
++		if (do_pidfd_send_signal_pidns(task_pid(p), SIGKILL, PIDTYPE_TGID, NULL, 0))
++			failed = true;
++	}
++	rcu_read_unlock();
++
++	return failed ? -EBUSY : 0;
++}
++
+ static void __oom_kill_process(struct task_struct *victim, const char *message)
+ {
+ 	struct task_struct *p;
+@@ -1217,9 +1251,11 @@ SYSCALL_DEFINE2(process_mrelease, int, pidfd, unsigned int, flags)
+ 	unsigned int f_flags;
+ 	bool reap = false;
+ 	long ret = 0;
++	bool reap_kill;
+ 
+-	if (flags)
++	if (flags & ~PROCESS_MRELEASE_VALID_FLAGS)
+ 		return -EINVAL;
++	reap_kill = !!(flags & PROCESS_MRELEASE_REAP_KILL);
+ 
+ 	task = pidfd_get_task(pidfd, &f_flags);
+ 	if (IS_ERR(task))
+@@ -1236,19 +1272,24 @@ SYSCALL_DEFINE2(process_mrelease, int, pidfd, unsigned int, flags)
+ 	}
+ 
+ 	mm = p->mm;
+-	mmgrab(mm);
+ 
+-	if (task_will_free_mem(p))
+-		reap = true;
+-	else {
++	reap = reap_kill || task_will_free_mem(p);
++	if (!reap) {
+ 		/* Error only if the work has not been done already */
+ 		if (!mm_flags_test(MMF_OOM_SKIP, mm))
+ 			ret = -EINVAL;
++		task_unlock(p);
++		goto put_task;
+ 	}
++
++	mmgrab(mm);
+ 	task_unlock(p);
+ 
+-	if (!reap)
+-		goto drop_mm;
++	if (reap_kill) {
++		ret = kill_all_shared_mm(task, mm);
++		if (ret)
++			goto drop_mm;
++	}
+ 
+ 	if (mmap_read_lock_killable(mm)) {
+ 		ret = -EINTR;
 -- 
-2.52.0
+2.54.0.545.g6539524ca2-goog
+
+
 
